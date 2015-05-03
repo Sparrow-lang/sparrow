@@ -1,0 +1,203 @@
+//! ! -O2 --dump-assembly --dump-opt-assembly -g
+package PerfTest;
+
+import SL.Map;
+import SL.SortedMap;
+import Time;
+import OS;
+
+using payloadSize = 16;
+
+class Obj
+{
+    var value: UInt;
+    var payload: StaticArray(Byte, payloadSize);
+
+    fun >> (os: @OutStream) { os << "Obj(" << value << ")"; }
+}
+
+// TODO (now): Move this to SL
+class Equal(type: Type) {
+    fun () (x,y: type): Bool = x == y;
+}
+
+using ObjPtr = Ptr(Obj);
+using TestHashMap = Map(UInt, ObjPtr);
+using TestSortedMap = SortedMap(UInt, ObjPtr, Less(Int), Equal(Int));
+
+var objects: Array(Obj);
+var insertKeys: Array(UInt);
+var searchKeys: Array(UInt);
+
+fun testInsert(bag: @AnyType, n: Int)
+{
+    for ( i = 0..n )
+    {
+        // The element to insert
+        var key = insertKeys(i);
+        var obj: ObjPtr = objects(i);
+        obj.get().value = key;
+
+        // Insert it
+        bag(key) = obj;
+    }
+}
+
+fun testChange(bag: @AnyType, n: Int)
+{
+    for ( i = 0..n )
+    {
+        // Search the element
+        var key = searchKeys(i);
+        var r = bag.equalRange(key);
+        if ( r.isEmpty() )
+        {
+            cout << "FAIL: Cannot find element " << key << " in map!" << endl;
+            OS.exit(-1);
+            return;
+        }
+
+        // Remove it from the map
+        var obj = r.front().second;
+        bag.remove(r);
+
+        // Reinsert with a new key
+        key = insertKeys(i) + 1;
+        obj.get().value = key;
+        bag(key) = obj;
+    }
+}
+
+fun[noInline] testHit(bag: @AnyType, n: Int)
+{
+    for ( i = 0..n )
+    {
+        // Search the element
+        var key = searchKeys(i) + 1;
+        var r = bag.equalRange(key);
+        if ( r.isEmpty() )
+        {
+            cout << "FAIL: Cannot find element " << key << " in map!" << endl;
+            return;
+        }
+
+        // Ensure that we have the correct element
+        var obj = r.front().second;
+        if ( obj.get().value != key )
+        {
+            cout << "FAIL: Element with key " << key << " has an invalid value: " << obj.get().value << endl;
+            return;
+        }
+    }
+}
+
+fun testMiss(bag: @AnyType, n: Int)
+{
+    for ( i = 0..n )
+    {
+        // Search the element
+        // As all elements are shifted by one, we will find nothing
+        var key = searchKeys(i);
+        var r = bag.equalRange(key);
+        if ( !r.isEmpty() )
+        {
+            cout << "FAIL: Element " << key << " shouldn't be in the map!" << endl;
+            return;
+        }
+    }
+}
+
+fun testRemove(bag: @AnyType, n: Int)
+{
+    for ( i = 0..n )
+    {
+        // Search the element
+        var key = searchKeys(i) + 1;
+        var r = bag.equalRange(key);
+        if ( r.isEmpty() )
+        {
+            cout << "FAIL: Cannot find element " << key << " in map!" << endl;
+            return;
+        }
+
+        var obj = r.front().second;
+
+        // Remove it
+        bag.remove(r);
+
+        // Ensure that we have the correct element
+        if ( obj.get().value != key )
+        {
+            cout << "FAIL: Element with key " << key << " has an invalid value: " << obj.get().value << endl;
+            return;
+        }
+    }
+}
+
+class TestTimer
+{
+    fun ctor(desc: StringRef, n: UInt)
+    {
+        this.desc ctor desc;
+        this.n ctor n;
+        timerImpl ctor;
+    }
+
+    fun dtor
+    {
+        var t = timerImpl.elapsed();
+        var t_ns = t * 1000000.0 / Double(n);
+        cout << desc << ":\t" << t << ", " << t_ns << " ns" << endl;
+    }
+
+    var desc: StringRef;
+    var n: UInt;
+    var timerImpl: Time.Timer;
+}
+
+fun sprMain
+{
+    if ( programArgs.size() < 2 )
+        return;
+    //var n = programArgs(1) asInt;
+    using n = 10000000;
+
+    // Preallocate the objects
+    objects = Array(Obj)(n);
+
+    // Initialize the keys
+    insertKeys = Array(UInt)(n);
+    searchKeys = Array(UInt)(n);
+    for ( i = 0..n )
+    {
+        insertKeys(i) = 0x80000000 + i*2;
+        searchKeys(i) = 0x80000000 + i*2;
+    }
+    // TODO: random shuffling
+
+    var hashBag: TestHashMap;
+    {
+        var t = TestTimer("Hash Insert", n);
+        testInsert(hashBag, n);
+    }
+    {
+        var t = TestTimer("Hash Change", n);
+        testChange(hashBag, n);
+    }
+    {
+        var t = TestTimer("Hash Hit", n);
+        testHit(hashBag, n);
+    }
+    {
+        var t = TestTimer("Hash Miss", n);
+        testMiss(hashBag, n);
+    }
+    {
+        var t = TestTimer("Hash Remove", n);
+        testRemove(hashBag, n);
+    }
+}
+
+
+/*-<<<Basic hash test(10000)
+>>>*/

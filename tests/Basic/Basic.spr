@@ -1,0 +1,21 @@
+//!! -t "SparrowImplicitLib.spr"
+package Test;
+
+fun factorial(n: Int): Int
+{
+    if ( equal(n, 0) )
+        return 1;
+    else
+        return mul(n, factorial(sub(n,1)));
+}
+
+fun[native("test")] test(n: Int)
+{
+    writeLnInt(15);
+    writeLnInt(factorial(5));
+}
+
+/*<<<Running()
+15
+120
+>>>*/

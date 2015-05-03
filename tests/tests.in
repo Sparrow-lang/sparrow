@@ -1,0 +1,154 @@
+StdLib/AlgorithmsTest1.spr:             Std.Algorithms - 1. Utility
+StdLib/AlgorithmsTest2.spr:             Std.Algorithms - 2. Non-modifying
+StdLib/AlgorithmsTest3.spr:             Std.Algorithms - 3. Modifying
+StdLib/AlgorithmsTest4.spr:             Std.Algorithms - 4. Sorted range
+StdLib/RangesTest.spr:                  Range functions
+StdLib/HashMapTest.spr:                 Std.HashMap
+StdLib/HashSetTest.spr:                 Std.HashSet
+StdLib/SortedMapTest.spr:               Std.SortedMap
+StdLib/SortedSetTest.spr:               Std.SortedSet
+StdLib/ListTest.spr:                    Std.List
+StdLib/VectorTest.spr:                  Std.Vector
+StdLib/VectorCtTest.spr:                Std.Vector at CT
+StdLib/ArrayTest.spr:                   Std.Array
+StdLib/StaticArrayTest.spr:             Std.StaticArray
+StdLib/PtrTest.spr:                     Smart Pointers
+StdLib/ContiguousMemoryRangeTest.spr:   Std.ContiguousMemoryRange
+StdLib/PairTest.spr:                    Std.Pair
+StdLib/StringOperators.spr:             Std.String
+
+BenchmarkGame/nbody.spr:                Benchmark game - nbody
+BenchmarkGame/fannkuchredux.spr:        Benchmark game - fannkuchredux
+BenchmarkGame/meteor.spr:               Benchmark game - meteor
+BenchmarkGame/fasta.spr:                Benchmark game - fasta
+BenchmarkGame/fastaredux.spr:           Benchmark game - fastaredux
+
+PerfTests/Hash/TestHashPerf.spr:        Performance tests - hash
+PerfTests/ForPerf/spr_for.spr:          Performance tests - for
+PerfTests/FibRanges/fib_op.spr:         Performance tests - Fib ranges
+PerfTests/FibRanges/fib_op_base.spr:    Performance tests - Fib ranges - base
+PerfTests/LazyRanges/lazy_ranges.spr:   Performance tests - Lazy ranges (Collatz)
+PerfTests/GoogleBench/LoopTesterApp.spr:Performance tests - Google Bench
+
+CompilerApi/Diagnostic.spr:             Compiler API - Compiler diagnostic
+CompilerApi/ApiSmokeTest.spr:           Compiler API - Smoke test
+CompilerApi/AstFactorial.spr:           Compiler API - Factorial implemented from AST nodes
+
+Bugs/ParenInGeneric.spr:                Bugs - parenthesis in generics
+Bugs/TwiceFor.spr:                      Bugs - for shouldn't change the range
+Bugs/NullConstant.spr:                  Bugs - null constant compatible with references
+Bugs/SpecializationOnCt.spr:            Bugs - specialization on CT vs RT
+//Bugs/Overload.spr:                      Bugs - overload resolution fails
+Bugs/StaticGlobal.spr:                  Bugs - static vars, global vars, static ctor
+Bugs/VectorOfCtClass.spr:               Bugs - vectors of CT-only classes
+
+//AlgoProblems/P1_Collatz.spr:            Algo problems - P1. Collatz sequences
+Examples/Power.spr:                     Examples: Powers
+Examples/Regex.spr:                     Examples: Regex
+Examples/MinPerfHash.spr:               Examples: Minimal Perfect Hashing
+Examples/NQueens.spr:                   Examples: N Queens
+
+Logic/LogicTest.spr:                    Logic: basic test
+Logic/Parents.spr:                      Logic: parents example, with recursive calls
+Logic/Solar.spr:                        Logic: solar system example
+Logic/PrologParserTest.spr:             Logic: parsing Prolog code
+Logic/PrologErr1.spr:                   Logic: Prolog error - invalid char
+Logic/PrologErr2.spr:                   Logic: Prolog error - invalid token
+Logic/PrologErr3.spr:                   Logic: Prolog error - cannot find predicate
+Logic/Antiquotation.spr:                Logic: Antiquotation in Prolog
+Logic/ImportProlog.spr:                 Logic: Directly importing Prolog code
+Logic/FibTest.spr:                      Logic: Fibonacci computation
+Logic/FibOptTest.spr:                   Logic: Fibonacci computation - using optimized version
+Logic/FibProlog.spr:                    Logic: Fibonacci computation - Prolog code
+Logic/FibPrologErr.spr:                 Logic: Fibonacci computation - Prolog code with errors
+
+Basic2/Conditional.spr:                 Basic features 2 - Conditionals
+Basic2/LogicalAndOr.spr:                Basic features 2 - Logical AND & OR operators with shortcut
+Basic2/CustomOperators.spr:             Basic features 2 - Custom operators precedence
+Basic2/Precedence.spr:                  Basic features 2 - Precedence of operators
+Basic2/BasicVector.spr:                 Basic features 2 - Basic vector implementation
+Basic2/For.spr:                         Basic features 2 - For statement
+Basic2/Lambda.spr:                      Basic features 2 - Lambda expressions
+Basic2/GenericFunRef.spr:               Basic features 2 - Fun ptr for generics
+Basic2/CtRtParam.spr:                   Basic features 2 - CT and RT params
+Basic2/CtWhile.spr:                     Basic features 2 - CT while
+Basic2/CtFor.spr:                       Basic features 2 - CT for
+Basic2/CtRtCalls.spr:                   Basic features 2 - CT & RT calls of same functions
+Basic2/TypeTraits.spr:                  Basic features 2 - Type traits
+Basic2/ConceptSpecialization.spr:       Basic features 2 - Concept specialization
+Basic2/Swappable.spr:                   Basic features 2 - Swappable
+Basic2/Regular.spr:                     Basic features 2 - Regular concept
+Basic2/Axioms.spr:                      Basic features 2 - Axioms
+Basic2/CustomOperators.spr:             Basic features 2 - Custom operators
+
+Basic/LLVMCode.llvm:                    Basic features - Code from llvm file
+Basic/Basic.spr:                        Basic features - A small Sparrow code
+Basic/DataStruct.spr:                   Basic features - Data structure
+Basic/FunErr.spr:                       Basic features - Function errors
+Basic/FunErr2.spr:                      Basic features - Function errors (more)
+Basic/StaticFun.spr:                    Basic features - Static functions
+Basic/NonStaticFun.spr:                 Basic features - Non static functions
+Basic/Compound.spr:                     Basic features - Compound expressions
+Basic/SameName.spr:                     Basic features - Class, function, var with same name
+//Basic/Inheritance.spr:                  Basic features - Inheritance
+Basic/CtFun.spr:                        Basic features - CT functions
+Basic/CtFactorial.spr:                  Basic features - CT factorial
+Basic/CtIf.spr:                         Basic features - CT if
+Basic/Operators.spr:                    Basic features - Operators
+Basic/Convert.spr:                      Basic features - Conversions
+Basic/GeneratedCtorDtor.spr:            Basic features - Generated ctor dtor
+Basic/CtorDtor.spr:                     Basic features - Object constructors & destructors
+Basic/StaticCtorDtor.spr:               Basic features - Static constructors & destructors
+Basic/ObjectCopy.spr:                   Basic features - Object copying
+Basic/ObjectCopyRVO.spr:                Basic features - Object copying + Return Value Optimization
+//Basic/CastErr.spr:                      Basic features - Casts with errors
+//Basic/Cast.spr:                         Basic features - Casts
+Basic/SizeOf.spr:                       Basic features - SizeOf
+Basic/Functor.spr:                      Basic features - Functors
+Basic/TypeVar.spr:                      Basic features - Type variables
+Basic/Generics.spr:                     Basic features - Generics
+Basic/IfClause.spr:                     Basic features - If clause
+Basic/Auto.spr:                         Basic features - Auto
+Basic/String.spr:                       Basic features - String
+Basic/ValueToRef.spr:                   Basic features - Value to reference
+Basic/CallCtorDtor.spr:                 Basic features - Call ctor & dtor
+Basic/StaticArray.spr:                  Basic features - Static array
+Basic/BasicVector.spr:                  Basic features - Basic vector implementation
+Basic/TypeTraits.spr:                   Basic features - Type traits
+Basic/Overload.spr:                     Basic features - Overload
+Basic/FunExp.spr:                       Basic features - Expression functions
+Basic/FunSyntax.spr:                    Basic features - Function syntax
+Basic/DefaultParam.spr:                 Basic features - Default parameters
+Basic/Concepts.spr:                     Basic features - Concepts
+//Basic/IsA.spr:                          Basic features - isa and convertsTo relationships
+Basic/CtToRt.spr:                       Basic features - CT to RT for basic types
+Basic/CtToRtErr.spr:                    Basic features - CT to RT for basic types - errors
+Basic/CtToRtComplex.spr:                Basic features - CT to RT for complex types
+Basic/ImplicitFunCall.spr:              Basic features - Implicit function call, without parenthesis
+Imports/ImportTwice.spr:                Import twice the same file
+Imports/ImportComplex.spr:              Import a complex hierarchy of files, some of them twice
+Imports/ImportComplex2.spr:             Import a complex hierarchy of files, another case
+Imports/ImportDirect.spr:               Import directly a file, by name
+Imports/ImportRelativeFile.spr:         Import directly a file, with relative path
+Simple/GCD.spr:                         Simple problems - Greatest common divisor
+Simple/Fibonacci.spr:                   Simple problems - Fibonacci numbers
+Simple/Primality.spr:                   Simple problems - Primality test
+Simple/Factorization.spr:               Simple problems - Integer factorization
+Simple/SecantMethod.spr:                Simple problems - Secant method solver
+Simple/Ackermann.spr:                   Simple problems - Ackermann function
+LLVM/Simple.fsimple:                    LLVM backend - simple nodes
+LLVM/Nodes.fsimple:                     LLVM backend - all kinds of nodes
+LLVM/Function.fsimple:                  LLVM backend - function test
+LLVM/ClassAndVar.fsimple:               LLVM backend - class & variables
+LLVM/ClassSize.fsimple:                 LLVM backend - class size (and initialization)
+LLVM/Statements.fsimple:                LLVM backend - statements
+LLVM/DestructActions.fsimple:           LLVM backend - destruct actions
+LLVM/Termination.fsimple:               LLVM backend - termination instruction for branches
+Frontend/Smoke.spr:                     Frontend - grammar smoke test
+Frontend/Declarations.spr:              Frontend - some declarations
+Frontend/Expressions.spr:               Frontend - some expressions
+Frontend/Identifiers.spr:               Frontend - identifiers
+Frontend/Operators.spr:                 Frontend - operators
+Frontend/PrefixPostfix.spr:             Frontend - prefix & postfix operators
+Frontend/StringAndDsl.spr:              Frontend - string and DSL
+/**/

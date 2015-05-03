@@ -1,0 +1,110 @@
+using LLocation = Location;
+
+class[rtct] Location
+{
+    var sourceCodePlaceholder: @Int;
+    var startLineNo: UInt;
+    var startColNo: UInt;
+    var endLineNo: UInt;
+    var endColNo: UInt;
+
+    fun ctor
+    {
+        sourceCodePlaceholder := null;
+        startLineNo ctor 0;
+        endLineNo ctor 0;
+        startColNo ctor 0;
+        endColNo ctor 0;
+    }
+
+    fun ctor(startLineNo, endLineNo, startColNo, endColNo: UInt)
+    {
+        this.sourceCodePlaceholder := null;
+        this.startLineNo ctor startLineNo;
+        this.endLineNo ctor endLineNo;
+        this.startColNo ctor startColNo;
+        this.endColNo ctor endColNo;
+    }
+
+    fun[ct, convert] ctor(loc: Meta.Location)
+    {
+        this.sourceCodePlaceholder := loc.sourceCode.impl;
+        this.startLineNo ctor loc.startLineNo;
+        this.endLineNo ctor loc.endLineNo;
+        this.startColNo ctor loc.startColNo;
+        this.endColNo ctor loc.endColNo;
+    }
+
+    fun[ct] asMetaLocation: Meta.Location
+    {
+        var res: Meta.Location;
+        res.sourceCode.impl := sourceCodePlaceholder;
+        res.startLineNo = startLineNo;
+        res.endLineNo = endLineNo;
+        res.startColNo = startColNo;
+        res.endColNo = endColNo;
+        return res;
+    }
+
+    /// Set the location to (1,1,1,1), the first character in a stream
+    fun setOne
+    {
+        startLineNo = 1;
+        startColNo = 1;
+        endLineNo = 1;
+        endColNo = 1;
+    }
+
+    /// Make the start position to be the same as the end position
+    fun stepOver
+    {
+        startLineNo = endLineNo;
+        startColNo = endColNo;
+    }
+
+    /// Add the given number of columns to the end position; start position remains unchanged
+    fun addColumns(count: UInt)
+    {
+        endColNo += count;
+    }
+
+    /// Add the given number of lines to the end position; start position remains unchanged
+    fun addLines(count: UInt)
+    {
+        endLineNo += count;
+        endColNo = 1;
+    }
+
+    /// Set the start position of this location to the start position of the given location; the end position remains unchanged
+    fun copyStart(other: @Location)
+    {
+        startLineNo = other.startLineNo;
+        startColNo = other.startColNo;
+    }
+
+    /// Set the end position of this location to the end position of the given location; the start position remains unchanged
+    fun copyEnd(other: @Location)
+    {
+        endLineNo = other.endLineNo;
+        endColNo = other.endColNo;
+    }
+
+    /// Set this location with both start and end to equal the start of the given location
+    fun setAsStartOf(other: @Location)
+    {
+        startLineNo = other.startLineNo;
+        startColNo = other.startColNo;
+        endLineNo = other.startLineNo;
+        endColNo = other.startColNo;
+    }
+
+    /// Set this location with both start and end to equal the end of the given location
+    fun setAsEndOf(other: @Location)
+    {
+        startLineNo = other.endLineNo;
+        startColNo = other.endColNo;
+        endLineNo = other.endLineNo;
+        endColNo = other.endColNo;
+    }
+}
+

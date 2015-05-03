@@ -1,0 +1,45 @@
+//!!
+package Test;
+
+import SL.Vector;
+import SL.ContiguousMemoryRange;
+import SL.RawPtr;
+
+fun sprMain
+{
+	// test for string '=' operator
+    var string1: StringRef = "first string";
+    cout << string1 << endl; // first string
+
+    var string2: StringRef = "second string";
+    
+    string1 = string2;
+    cout << string1 << endl; // second string
+
+    // test for string '+ (StringRef, StringRef)' operator
+    var ana: StringRef = "ana";
+    var are: StringRef = " are";
+    ana = ana + are;
+    cout << ana << endl; // "ana are"
+
+    // test for string '+ (StringRef, Char)' operator
+    var c1, c2, c3, c4, c5: Char;
+    c1 = ' ';
+    c2 = 'm';
+    c3 = 'e';
+    c4 = 'r';
+    c5 = 'e';
+    ana = ana + c1;
+    ana = ana + c2;
+    ana = ana + c3;
+    ana = ana + c4;
+    ana = ana + c5;
+    cout << ana << endl; // "ana are mere"
+}
+
+/*<<<Running ()
+first string
+second string
+ana are
+ana are mere
+>>>*/

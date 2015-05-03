@@ -1,0 +1,49 @@
+//!! -t "SparrowImplicitLib.spr"
+package Test;
+
+
+class Test
+{
+    fun ()()
+    {
+        writeLn("call operator");
+    }
+    fun ()(x: Int)
+    {
+        write("call operator(");
+        write(x);
+        writeLn(")");
+    }
+    fun ()(x,y: Int)
+    {
+        write("call operator(");
+        write(x);
+        write(", ");
+        write(y);
+        writeLn(")");
+    }
+
+    fun selfCall()
+    {
+        this(100);
+    }
+}
+
+fun[native("test")] test(n: Int)
+{
+    var t: Test;
+    t();
+    t(10);
+    t(10, 20);
+    writeLn("---");
+    t.selfCall();
+}
+
+
+/*<<<Running()
+call operator
+call operator(10)
+call operator(10, 20)
+---
+call operator(100)
+>>>*/

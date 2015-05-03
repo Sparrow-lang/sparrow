@@ -1,0 +1,20 @@
+package Test;
+
+
+fun sprMain
+{
+    cout << "Hello, world!" << endl;
+    cout << <{Hello, world!}> << endl;
+    cout << <{Hello,
+
+        world!}> << endl;
+    cout << <{Hello,{} >"world"!}> << endl;
+}
+/*<<<Running()
+Hello, world!
+Hello, world!
+Hello,
+
+        world!
+Hello,{} >"world"!
+>>>*/

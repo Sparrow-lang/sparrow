@@ -1,0 +1,96 @@
+import Externals;
+
+/// String class that DOES NOT have ownership of the characters; it simply refers to another string
+class[rtct, native("StringRef")] StringRef
+{
+    var begin: @Byte;
+    var end: @Byte;
+
+    fun ctor(size: SizeType)
+    {
+        begin := malloc(size + 1);
+        end := ptrAdd(begin, size);
+        end = Byte(0);
+    }
+    fun ctor(other: StringRef)
+    {
+        begin := other.begin;
+        end := other.end;
+    }
+    fun ctor(begin, end: @Byte)
+    {
+        this.begin := begin;
+        this.end := end;
+    }
+    fun dtor {}
+
+    fun size: SizeType = ptrDiff(end, begin);
+    fun isEmpty: Bool = begin == end;
+
+    fun at(index: SizeType): Char   = reinterpretCast(@Char, ptrAdd(begin, index));
+    fun ()(index: SizeType): Char   = reinterpretCast(@Char, ptrAdd(begin, index));
+    fun front: Char                 = reinterpretCast(@Char, begin);
+    fun back: Char                  = reinterpretCast(@Char, ptrAdd(end, -1));
+
+    fun cStr(): @Char = reinterpretCast(@Char, begin);
+
+    fun[autoCt, static, native("_String_fromCString")] fromCString(s: @Char): StringRef
+    {
+        var len = cStringLen(s);
+        var res: StringRef;
+        res.begin := reinterpretCast(@Byte, s);
+        res.end := ptrAdd(res.begin, len);
+        return res;
+    }
+
+    private fun[static] cStringLen(s: @Char): SizeType
+    {
+        var p: @Byte;
+        p := reinterpretCast(@Byte, s);
+        var len: SizeType = 0;
+        while ( p != Byte(0) ; p:=ptrAdd(p, 1) )
+            len = len+1;
+        return len;
+    }
+    
+    fun = (src: StringRef): @StringRef
+    {
+        begin := src.begin;
+        end := src.end;
+
+        return this;
+    }
+
+    fun == (other: StringRef): Bool
+    {
+        var s = size();
+        if ( s != other.size() ) return false;
+        var i: SizeType = 0;
+        while ( i<s ; i+=1 )
+            if ( at(i) != other.at(i) ) return false;
+        return true;
+
+        //return 0 == strcmp(begin, other.begin);
+    }
+}
+
+fun[autoCt] + (x,y: StringRef): StringRef
+{
+    var sz1 = x.size();
+    var sz2 = y.size();
+    var res: StringRef = sz1 + sz2;
+    memcpy(res.begin, x.begin, sz1);
+    memcpy(ptrAdd(res.begin, sz1), y.begin, sz2);
+    return res;
+}
+
+fun[autoCt] + (x: StringRef, y: Char): StringRef
+{
+    var sz1 = x.size();
+    var sz2 = 1;
+    var res: StringRef = sz1 + sz2;
+    memcpy(res.begin, x.begin, sz1);
+    memcpy(ptrAdd(res.begin, sz1), reinterpretCast(@Byte, y), sz2);
+
+    return res;
+}

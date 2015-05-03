@@ -1,0 +1,96 @@
+//!! -t "SparrowImplicitLib.spr"
+package Test;
+
+
+
+class A
+{
+    fun f1 = 1;
+    fun f2 = 2;
+    fun f3 = 3;
+}
+
+class B: A
+{
+    fun f4 = 4;
+}
+
+class C: B
+{
+    fun f5 = 5;
+}
+
+class D: B, C
+{
+    fun f6 = 6;
+}
+
+concept HasF1(x) if isValid(x.f1());
+concept HasF2(x) if isValid(x.f2());
+concept HasF3(x) if isValid(x.f3());
+
+
+fun testIsA(t1, t2: Type)
+{
+    if ( isDerived(t1, t2) )
+        writeLn("isa");
+    else
+        writeLn("is not a");
+}
+
+fun testConvertsTo(t1, t2: Type)
+{
+    if ( convertsTo(t1, t2) )
+        writeLn("converts to");
+    else
+        writeLn("does not convert to");
+}
+
+fun[native("test")] test(n: Int)
+{
+    testIsA(B, A);
+    testIsA(C, A);
+    testIsA(D, A);
+    testIsA(C, B);
+    testIsA(D, B);
+    testIsA(D, C);
+
+    testIsA(A, B);
+    testIsA(C, D);
+
+    writeLn("---");
+    testIsA(A, HasF1);
+    testIsA(HasF1, A);
+    testIsA(B, HasF1);
+    testIsA(C, HasF1);
+    testIsA(D, HasF1);
+
+
+    writeLn("---");
+    testConvertsTo(A, B);
+    testConvertsTo(B, A);
+    testConvertsTo(Int, Double);    // Convert ctor exists
+    testConvertsTo(Double, Int);
+}
+
+/*<<<Running()
+isa
+isa
+isa
+isa
+isa
+isa
+is not a
+is not a
+---
+isa
+is not a
+isa
+isa
+isa
+---
+does not convert to
+converts to
+converts to
+does not convert to
+>>>*/

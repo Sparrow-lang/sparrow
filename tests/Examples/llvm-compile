@@ -1,0 +1,12 @@
+#!/bin/sh
+
+echo "Compiling..."
+../../.out/Release/llvm/llvm-as $1 -o $1.bc
+../../.out/Release/llvm/opt $1.bc -o $1.opt.bc -O3
+#cp $1.bc $1.opt.bc
+../../.out/Release/llvm/llc $1.opt.bc -filetype=obj
+gcc $1.opt.o -o $1.out -lm
+rm $1.bc
+rm $1.opt.bc
+rm $1.opt.o
+echo "Done"

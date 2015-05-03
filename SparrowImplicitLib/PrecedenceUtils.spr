@@ -1,0 +1,41 @@
+import Meta.ASTNodes;
+
+fun[ct, macro] setOperPrecedence(oper, value: Meta.AstNode): Meta.AstNode
+{
+    using Meta.*;
+    using Meta.SprFrontend.*;
+
+    var loc = oper.location();
+    var loc2 = value.location();
+    var operName = astEval(oper);
+    var precValue: Int = astEval(value);
+
+    return mkSprUsing(loc, "oper_precedence_" + operName, mkIntLiteral(loc2, precValue));
+}
+
+fun[ct, macro] getOperPrecedence(oper: Meta.AstNode): Meta.AstNode
+{
+    using Meta.*;
+    using Meta.Feather.*;
+    using Meta.SprFrontend.*;
+
+    var loc = oper.location();
+    var operName = astEval(oper);
+    var args = mkNodeList(loc);
+    addToNodeList(args, mkIdentifier(loc, "oper_precedence_" + operName));
+    addToNodeList(args, mkIdentifier(loc, "oper_precedence_default"));
+    return mkFunApplication(loc, mkIdentifier(loc, "valueIfValid"), args);
+}
+
+
+fun[ct, macro] setOperRightAssociativity(oper: Meta.AstNode): Meta.AstNode
+{
+    using Meta.*;
+    using Meta.SprFrontend.*;
+
+    var loc = oper.location();
+    var operName = astEval(oper);
+
+    return mkSprUsing(loc, "oper_assoc_" + operName, mkIntLiteral(loc, -1));
+}
+

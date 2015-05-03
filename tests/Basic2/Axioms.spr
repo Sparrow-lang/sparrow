@@ -1,0 +1,64 @@
+//!!
+package Test;
+
+concept Ordered(x)
+    if typeOf(x < x) == Bool   // Main ordering operator
+    && typeOf(x > x) == Bool   // Other operators can be inferred
+    && typeOf(x <= x) == Bool
+    && typeOf(x >= x) == Bool
+    && axiom("lessIsOrdered")
+    && axiom("greater")
+    && axiom("lessEqual")
+    && axiom("greaterEqual")
+    ;
+fun[ct] axiom(name: StringRef) = true;     // No checks performed
+fun[rtct] => (premise, conclusion: Bool) = !(premise) || conclusion;
+fun lessIsOrdered(x, y, z: Ordered)
+         = !(x < x)
+        && ( (x<y) => !(y<x) )
+        && ( (x<y) => !(y<x) )
+        && ( (x<y && y<z) => (x<z) )
+        && ( x<y || y<x || x==y )
+        ;
+fun greater(x,y: Ordered)      = (x>y) == (y<x);
+fun lessEqual(x,y: Ordered)    = (x<=y) == !(y<x);
+fun greaterEqual(x,y: Ordered) = (x>=y) == !(x<y);
+
+
+
+fun testOrdered(x: Ordered)
+{
+    cout << TypeOp.description(typeOf(x)) << " is Ordered\n";
+}
+
+fun testOrdered(x: AnyType) if !Ordered(x)
+{
+    cout << TypeOp.description(typeOf(x)) << " is not Ordered\n";
+}
+
+class MyType
+{
+    fun < (other: MyType) = false;
+    // Other operators are implicitly defined
+}
+
+class[noDefault] EmptyType
+{
+}
+
+fun sprMain
+{
+    testOrdered(1);
+    testOrdered(1.0);
+    var o1: MyType;
+    var o2: EmptyType;
+    testOrdered(o1);
+    testOrdered(o2);
+}
+/*<<<Running()
+Int is Ordered
+Double is Ordered
+MyType is Ordered
+EmptyType is not Ordered
+>>>*/
+

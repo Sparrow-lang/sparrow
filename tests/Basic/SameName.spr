@@ -1,0 +1,27 @@
+//!! -t "SparrowImplicitLib.spr"
+package Test;
+
+class myName
+{
+    var x: Int;
+
+    fun ctor(x: Int)
+    {
+        this.x = x;
+    }
+}
+
+fun myName = 10;
+fun myName(x: Int) = x;
+fun myName(x,y: Int) = x+y;
+
+fun[native("test")] test(n: Int)
+{
+    var y: myName = 5;      // ERROR
+    writeLn(y.x);
+    var myName = 7;
+    writeLn(myName);
+    writeLn(myName());      // ERROR
+    writeLn(myName(15));    // ERROR
+    writeLn(myName(15, 5)); // ERROR
+}

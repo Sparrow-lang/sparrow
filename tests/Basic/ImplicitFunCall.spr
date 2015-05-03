@@ -1,0 +1,52 @@
+//!! -t "SparrowImplicitLib.spr"
+package Test;
+
+class Foo
+{
+    var a: Int;
+    var b: Int;
+
+    fun f: @Foo         { writeLn("inside Foo.f()"); return this; }
+
+    fun g: @Foo         { writeLn("inside Foo.g()"); return this; }
+    fun g(i: Int): @Foo { writeLn("inside Foo.g(i)"); return this; }
+
+    fun h(i: Int): @Foo { writeLn("inside Foo.h(i)"); return this; }
+
+    fun aa = a;
+}
+
+fun f1          { writeLn("inside f1()"); }
+fun f2(i: Int)  { writeLn("inside f2()"); }
+
+fun[native("test")] test(n: Int)
+{
+    f1;         // inside f1()
+    f2;
+
+    writeLn("---");
+
+    var foo: Foo;
+
+    foo.a;
+    foo.b;
+    foo.f;      // inside Foo.f()
+    foo.g;
+    foo.h;
+    writeLn("---");
+    foo.f g;    // inside Foo.f() + inside Foo.g()
+    writeLn(foo.aa + 13);       // 13
+    writeLn((foo.f aa) + 13);   // inside Foo.f() + 13
+}
+
+/*<<<Running()
+inside f1()
+---
+inside Foo.f()
+---
+inside Foo.f()
+inside Foo.g()
+13
+inside Foo.f()
+13
+>>>*/

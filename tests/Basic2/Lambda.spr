@@ -1,0 +1,138 @@
+//!!
+package Test;
+
+fun fact(n: Int): Int
+{
+    if ( n < 2 ) return 1;
+    else return n*fact(n-1);
+}
+
+class FactFun
+{
+    fun ()(n: Int) = fact(n);
+}
+
+fun doCall(f: AnyType, val: Int): Int
+{
+    return f(val);
+}
+
+fun sprMain
+{
+    if ( programArgs.size() < 2 )
+        return;
+    var n = programArgs(1) asInt;
+
+    if      ( n == 1 ) test1();
+    else if ( n == 2 ) test2();
+    else if ( n == 3 ) test3();
+    else if ( n == 4 ) test4();
+    else if ( n == 5 ) test5();
+}
+
+fun test1
+{
+    cout << doCall(FactFun(), 4) << endl;
+    cout << "---" << endl;
+    cout << doCall((fun (n: Int) = fact(n)), 5) << endl;
+    cout << doCall((fun (n: Int): Int { return fact(n);}), 5) << endl;
+    cout << doCall((fun (n: AnyType) = fact(n)), 5) << endl;
+    cout << doCall((fun n = fact(n)), 5) << endl;
+    cout << "---" << endl;
+    cout << doCall((fun n = n*n), 5) << endl;
+}
+
+/*<<<Simple anonymous function(1)
+24
+---
+120
+120
+120
+120
+---
+25
+>>>*/
+
+
+fun test2
+{
+    var x = 10;
+    var y = 11;
+    var z = 12;
+    cout << doCall((fun.{x} n = n*n + x), 5) << endl;
+    cout << doCall((fun.{x, y, z} n = n*n + x+y+z), 5) << endl;
+    cout << doCall((fun.{x,y,z} n = n*n), 5) << endl;
+}
+
+/*<<<Closures(2)
+35
+58
+25
+>>>*/
+
+class Test
+{
+    fun doTest1
+    {
+        cout << doCall((fun n = n*n), 5) << endl;
+    }
+    fun doTest2
+    {
+        cout << doCall((fun.{x} n = n*n + x), 5) << endl;
+    }
+
+    fun ctor { x = 10; }
+
+    var x: Int;
+}
+
+fun test3
+{
+    var t: Test;
+    t doTest1;
+    t doTest2;
+}
+
+/*<<<Lambda inside methods(3)
+25
+35
+>>>*/
+
+fun test4
+{
+    cout << doCall(\fact, 5) << endl;
+}
+
+/*<<<Functions as first-order values(4)
+120
+>>>*/
+
+class Foo
+{
+    fun ctor(x: Int)
+    {
+        this.x ctor x;
+    }
+
+    var x: Int;
+}
+
+fun getVector(): Foo
+{
+    var v = Foo(10);
+}
+
+fun testVector(f: AnyType)
+{
+    var v = f();
+    cout << v.x << endl;
+}
+
+fun test5
+{
+    //testVector(getVector);
+}
+
+/*<<<Functions as first-order values, with returning complex types KNOWN-PROBLEM(5)
+10
+>>>*/

@@ -1,0 +1,102 @@
+//!! -t "SparrowImplicitLib.spr"
+package Test;
+
+concept AnyType(x) if true;
+
+fun printAndReturn(str: StringRef, val: Int): Int
+{
+    writeLn(str);
+    return val;
+}
+
+fun f0_1()          { writeLn("f0_1"); }
+fun f0_2            { writeLn("f0_2"); }
+fun f0_3            = writeLn("f0_3");              // Returns Void
+fun f0_4            = printAndReturn("f0_4", 0);    // Returns Int
+//fun f0_5(): Void    { writeLn("f0_5"); }
+//fun f0_6: Void      = writeLn("f0_6");
+//fun f0_7: Void      = writeLn("f0_7");
+fun f0_8: Int       = printAndReturn("f0_8", 1);
+
+fun f1_1(n: Int)        { writeLn("f1_1"); }
+fun f1_2(n: Int)        = writeLn("f1_2");             // Returns Void
+fun f1_3(n: Int)        = printAndReturn("f1_3", n);   // Returns Int
+fun f1_4 n              { writeLn("f1_4"); }
+fun f1_5 n              = writeLn("f1_5");
+fun f1_6 n              = printAndReturn("f1_6", n);   // Returns Int
+//fun f1_7(n: Int): Void  { writeLn("f1_7"); }
+//fun f1_8(n: Int): Void  = writeLn("f1_8");
+fun f1_9(n: Int): Int   = printAndReturn("f1_9", n);
+//fun f1_10 n: Void       { writeLn("f1_10"); }
+//fun f1_11 n: Void       = writeLn("f1_11");
+fun f1_12 n: Int        = printAndReturn("f1_12", n);
+
+fun f3_1(a, b, c: Int)      = printAndReturn("f3_1", a+b+c);
+fun f3_2 a, b, c            = printAndReturn("f3_2", a+b+c);
+fun f3_3(a, b, c: Int): Int = printAndReturn("f3_4", a+b+c);
+fun f3_4 a, b, c: Int       = printAndReturn("f3_5", a+b+c);
+
+fun[native("test")] test(n: Int)
+{
+    f0_1();
+    f0_2();
+    f0_3();
+    writeLn(f0_4);
+    //f0_6();
+    //f0_7();
+    writeLn(f0_8);
+
+    writeLn("---");
+
+    f1_1(11);
+    f1_2(12);
+    writeLn(f1_3(13));
+    f1_4(14);
+    f1_5(15);
+    writeLn(f1_6(16));
+    //f1_7(17);
+    //f1_8(18);
+    writeLn(f1_9(19));
+    //f1_10(110);
+    //f1_11(111);
+    writeLn(f1_12(112));
+
+    writeLn("---");
+
+    f3_1(100, 30, 1) writeLn;
+    f3_2(100, 30, 2) writeLn;
+    f3_3(100, 30, 3) writeLn;
+    f3_4(100, 30, 4) writeLn;
+}
+
+/*<<<Running()
+f0_1
+f0_2
+f0_3
+f0_4
+0
+f0_8
+1
+---
+f1_1
+f1_2
+f1_3
+13
+f1_4
+f1_5
+f1_6
+16
+f1_9
+19
+f1_12
+112
+---
+f3_1
+131
+f3_2
+132
+f3_4
+133
+f3_5
+134
+>>>*/

@@ -1,0 +1,26 @@
+//!! -t "SparrowImplicitLib.spr"
+
+fun[autoCt] fact(n: Int): Int
+{
+    if ( n == 0 )
+        return 1;
+    else
+        return n* fact(n-1);
+}
+
+fun testFact()
+{
+    var n = 5;
+    writeLn(fact(n));
+    writeLn(fact(5));
+}
+
+fun[native("test")] test(n: Int)
+{
+    testFact();
+}
+
+/*<<<Running()
+120
+120
+>>>*/

@@ -1,0 +1,3 @@
+package Test;
+
+var a = Int(1);

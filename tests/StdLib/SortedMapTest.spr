@@ -1,0 +1,492 @@
+package Test;
+
+import SL.SortedMap;
+import SL.Ranges;
+import SL.Pair;
+import SL.List;
+import SL.Algorithms;
+
+fun sprMain
+{
+    if ( programArgs.size() < 2 )
+        return;
+    var n = programArgs(1) asInt;
+
+    if      ( n == 1 ) test1();
+    else if ( n == 2 ) test2();
+    else if ( n == 3 ) test3();
+    else if ( n == 4 ) test4();
+    else if ( n == 5 ) test5();
+    else if ( n == 6 ) test6();
+    else if ( n == 7 ) test7();
+    else if ( n == 8 ) test8();
+    else if ( n == 9 ) test9();
+    else if ( n == 10 ) test10();
+    else if ( n == 11 ) test11();
+    else if ( n == 12 ) test12();
+    else if ( n == 13 ) test13();
+    else if ( n == 14 ) test14();
+    else if ( n == 15 ) test15();
+    else if ( n == 16 ) test16();
+    else if ( n == 17 ) test17();
+    else if ( n == 18 ) test18();
+    else if ( n == 19 ) test19();
+    else if ( n == 20 ) test20();
+}
+
+fun makeList(): List(Pair(Int, Int))
+{
+    var li = List(Pair(Int, Int))();
+
+    li.pushBack(Pair(Int, Int)(3, 10));
+    li.pushBack(Pair(Int, Int)(145, 42));
+    li.pushBack(Pair(Int, Int)(834, 32));
+    li.pushBack(Pair(Int, Int)(8, 43));
+    li.pushBack(Pair(Int, Int)(73, 4));
+    li.pushBack(Pair(Int, Int)(73, 3));
+    li.pushBack(Pair(Int, Int)(101, 5));
+    li.pushBack(Pair(Int, Int)(4, 312));
+    li.pushBack(Pair(Int, Int)(43, 128));
+    li.pushBack(Pair(Int, Int)(4, 1));
+    li.pushBack(Pair(Int, Int)(106, 32));
+    li.pushBack(Pair(Int, Int)(3, 3));
+    li.pushBack(Pair(Int, Int)(5, 34));
+    li.pushBack(Pair(Int, Int)(53, 54));
+    li.pushBack(Pair(Int, Int)(62, 3));
+
+    return li;
+}
+
+fun printPair(p: Pair(Int, Int))
+{
+    cout << p.first;
+    cout << "-";
+    cout << p.second;
+}
+
+fun printRange(nr: AnyType)
+{
+    var v: Vector(Pair(Int, Int)) = nr;
+
+    var r = v.all();
+    sort(r, (fun (l,r: AnyType) = l.first < r.first));
+    while ( !r.isEmpty() )
+    {
+        printPair(r.front());
+        r.popFront();
+        if ( r.isEmpty() )
+            cout << endl;
+        else
+            cout << ' ';
+    }
+}
+
+class Equal(type: Type)
+{
+    fun ctor() { }
+    fun ()(x: type, y: type): Bool { return x == y; }
+}
+
+fun test1()
+{
+    var sm: SortedMap(Int, Int, Less(Int), Equal(Int));
+
+    cout << sm.isEmpty() << endl;
+    cout << sm.size() << endl;
+    cout << sm.capacity() << endl;
+    cout << sm.contains(10) << endl;
+}
+/*<<<Default constructor(1)
+true
+0
+0
+false
+>>>*/
+
+fun test2()
+{
+    var sm = SortedMap(Int, Int, Less(Int), Equal(Int))(60);
+
+    cout << sm.isEmpty() << endl;
+    cout << sm.size() << endl;
+    cout << sm.capacity() << endl;
+    cout << sm.contains(10) << endl;
+}
+/*<<<Bucket count constructor(2)
+true
+0
+60
+false
+>>>*/
+
+fun test3()
+{
+    var sm = SortedMap(Int, Int, Less(Int), Equal(Int))(makeList().all());
+
+    cout << sm.isEmpty() << endl;
+    cout << sm.size() << endl;
+    cout << sm.capacity() << endl;
+    cout << sm.contains(53) << endl;
+    cout << sm.contains(106) << endl;
+    cout << sm.contains(4) << endl;
+    cout << sm.contains(9999) << endl;
+}
+/*<<<Range constructor(3)
+false
+12
+15
+true
+true
+true
+false
+>>>*/
+
+fun test4()
+{
+    var sm = SortedMap(Int, Int, Less(Int), Equal(Int))(makeList().all());
+    var sm2 = SortedMap(Int, Int, Less(Int), Equal(Int))(sm);
+
+    cout << sm2.isEmpty() << endl;
+    cout << sm2.size() << endl;
+    cout << sm2.capacity() << endl;
+    cout << sm2.contains(53) << endl;
+    cout << sm2.contains(106) << endl;
+    cout << sm2.contains(4) << endl;
+    cout << sm2.contains(9999) << endl;
+}
+/*<<<Copy constructor(4)
+false
+12
+12
+true
+true
+true
+false
+>>>*/
+
+fun test5()
+{
+    var sm = SortedMap(Int, Int, Less(Int), Equal(Int))(makeList().all());
+    var sm2 = SortedMap(Int, Int, Less(Int), Equal(Int))(60);
+
+    sm.swap(sm2);
+    cout << sm2.isEmpty() << endl;
+    cout << sm2.size() << endl;
+    cout << sm2.capacity() << endl;
+    cout << sm2.contains(53) << endl;
+    cout << sm2.contains(106) << endl;
+    cout << sm2.contains(4) << endl;
+    cout << sm2.contains(9999) << endl;
+    cout << sm.isEmpty() << endl;
+    cout << sm.size() << endl;
+    cout << sm.capacity() << endl;
+    cout << sm.contains(10) << endl;
+}
+/*<<<Swapping(5)
+false
+12
+15
+true
+true
+true
+false
+true
+0
+60
+false
+>>>*/
+
+fun test6()
+{
+    var sm = SortedMap(Int, Int, Less(Int), Equal(Int))(makeList().all());
+
+    sm.reserve(1000);
+    cout << sm.isEmpty() << endl;
+    cout << sm.size() << endl;
+    cout << sm.capacity() << endl;
+    cout << sm.contains(53) << endl;
+    cout << sm.contains(106) << endl;
+    cout << sm.contains(4) << endl;
+    cout << sm.contains(9999) << endl;
+}
+/*<<<Reserving(6)
+false
+12
+1000
+true
+true
+true
+false
+>>>*/
+
+fun test7()
+{
+    var sm = SortedMap(Int, Int, Less(Int), Equal(Int))(makeList().all());
+
+    printRange(sm.all());
+}
+/*<<<Range access(7)
+3-10 4-312 5-34 8-43 43-128 53-54 62-3 73-4 101-5 106-32 145-42 834-32
+>>>*/
+
+fun test8()
+{
+    // var sm: SortedMap(Int, Int, Less(Int), Equal(Int));
+    // var i = 0;
+
+    // while ( i < 5 )
+    // {
+        // sm.insert(makePair(i, i * i));
+        // i = i + 1;
+    // }
+    // printRange(sm.all());
+    // sm.insert(3, 9);
+    // sm.insert(3, 10);
+    // printRange(sm.all());
+    // sm.insert(53, 10);
+    // printRange(sm.all());
+}
+/*<<<Element insertion KNOWN-PROBLEM(8)
+0-0 1-1 2-4 3-9 4-16
+0-0 1-1 2-4 3-9 4-16
+0-0 1-1 2-4 53-10 3-9 4-16
+>>>*/
+
+fun test9()
+{
+    var sm = SortedMap(Int, Int, Less(Int), Equal(Int))();
+    var i = 0;
+
+    while ( i < 5 )
+    {
+        sm.insert(i, i * i);
+        i = i + 1;
+    }
+    sm.insert(makeList().all());
+    printRange(sm.all());
+}
+/*<<<Range insertion(9)
+0-0 1-1 2-4 3-9 4-16 5-34 8-43 43-128 53-54 62-3 73-4 101-5 106-32 145-42 834-32
+>>>*/
+
+fun test10()
+{
+    var sm = SortedMap(Int, Int, Less(Int), Equal(Int))(makeList().all());
+
+    sm.remove(5);
+    cout << sm.contains(5) << endl;
+    cout << sm.size() << endl;
+    sm.remove(20);
+    cout << sm.contains(5) << endl;
+    cout << sm.size() << endl;
+}
+/*<<<Element removal(10)
+false
+11
+false
+11
+>>>*/
+
+fun test11()
+{
+    var sm = SortedMap(Int, Int, Less(Int), Equal(Int))(makeList().all());
+
+    sm.remove(sm.equalRange(8));
+    printRange(sm.all());
+    cout << sm.size() << endl;
+    sm.remove(sm.equalRange(106));
+    printRange(sm.all());
+    cout << sm.size() << endl;
+    sm.remove(sm.equalRange(101));
+    printRange(sm.all());
+    cout << sm.size() << endl;
+    sm.remove(sm.equalRange(1000));
+    printRange(sm.all());
+    cout << sm.size() << endl;
+    sm.remove(sm.all());
+    printRange(sm.all());
+    cout << sm.size() << endl;
+    sm = SortedMap(Int, Int, Less(Int), Equal(Int))(makeList().all());
+
+    var r = sm.all();
+
+    r.popFront();
+    sm.remove(r);
+    printRange(sm.all());
+    cout << sm.size() << endl;
+}
+/*<<<Range removal(11)
+3-10 4-312 5-34 43-128 53-54 62-3 73-4 101-5 106-32 145-42 834-32
+11
+3-10 4-312 5-34 43-128 53-54 62-3 73-4 101-5 145-42 834-32
+10
+3-10 4-312 5-34 43-128 53-54 62-3 73-4 145-42 834-32
+9
+3-10 4-312 5-34 43-128 53-54 62-3 73-4 145-42 834-32
+9
+0
+3-10
+1
+>>>*/
+
+fun test12()
+{
+    var sm = SortedMap(Int, Int, Less(Int), Equal(Int))(makeList().all());
+
+    cout << sm.contains(106) << endl;
+    cout << sm.contains(53) << endl;
+    cout << sm.contains(52) << endl;
+    cout << sm.contains(12) << endl;
+}
+/*<<<Containment checking(12)
+true
+true
+false
+false
+>>>*/
+
+fun test13()
+{
+    var sm = SortedMap(Int, Int, Less(Int), Equal(Int))(makeList().all());
+
+    sm.insert(5, 10);
+    cout << sm.count(5) << endl;
+    cout << sm.count(1) << endl;
+    cout << sm.count(53) << endl;
+}
+/*<<<Counting(13)
+1
+0
+1
+>>>*/
+
+fun test14()
+{
+    var sm = SortedMap(Int, Int, Less(Int), Equal(Int))(makeList().all());
+
+    printRange(sm.equalRange(5));
+    sm.insert(5, 432);
+    printRange(sm.equalRange(5));
+    sm.insert(58, 32);
+    printRange(sm.equalRange(5));
+    printRange(sm.equalRange(106));
+    printRange(sm.equalRange(111));
+    printRange(sm.equalRange(100));
+}
+/*<<<Equal range(14)
+5-34
+5-34
+5-34
+106-32
+>>>*/
+
+fun test15()
+{
+    var sm = SortedMap(Int, Int, Less(Int), Equal(Int))(makeList().all());
+
+    printRange(sm.find(5));
+    printRange(sm.find(10));
+    printRange(sm.find(53));
+}
+/*<<<Finding(15)
+5-34 8-43 43-128 53-54 62-3 73-4 101-5 106-32 145-42 834-32
+53-54 62-3 73-4 101-5 106-32 145-42 834-32
+>>>*/
+
+fun test16()
+{
+    var sm = SortedMap(Int, Int, Less(Int), Equal(Int))(makeList().all());
+
+    sm.clear();
+    cout << sm.isEmpty() << endl;
+    printRange(sm.all());
+    cout << sm.contains(8) << endl;
+}
+/*<<<Clearing(16)
+true
+false
+>>>*/
+
+fun test17()
+{
+    var sm1 = SortedMap(Int, Int, Less(Int), Equal(Int))(makeList().all());
+    var sm2: SortedMap(Int, Int, Less(Int), Equal(Int));
+
+    sm2 = sm1;
+    printRange(sm2.all());
+    sm1 = sm1;
+    printRange(sm1.all());
+}
+/*<<<Assignment operator(17)
+3-10 4-312 5-34 8-43 43-128 53-54 62-3 73-4 101-5 106-32 145-42 834-32
+3-10 4-312 5-34 8-43 43-128 53-54 62-3 73-4 101-5 106-32 145-42 834-32
+>>>*/
+
+fun test18()
+{
+    var sm = SortedMap(Int, Int, Less(Int), Equal(Int))(makeList().all());
+
+    cout << sm.at(145) << endl;
+    cout << sm.at(101) << endl;
+    cout << sm.at(4) << endl;
+    sm.at(1000);
+    cout << sm.contains(1000) << endl;
+    sm.at(4) = 999;
+    cout << sm.at(4) << endl;
+    sm.at(1200) = 555;
+    cout << sm.at(1200) << endl;
+}
+/*<<<Element access(18)
+42
+5
+312
+true
+999
+555
+>>>*/
+
+fun test19()
+{
+    var sm = SortedMap(Int, Int, Less(Int), Equal(Int))(makeList().all());
+    var keys = sm.keys();
+    var values = sm.values();
+
+    while ( !keys.isEmpty() )
+    {
+        cout << keys.front();
+        cout << ' ';
+        keys.popFront();
+    }
+    cout << "." << endl;
+    while ( !values.isEmpty() )
+    {
+        cout << values.front();
+        cout << ' ';
+        values.popFront();
+    }
+    cout << "." << endl;
+}
+/*<<<Keys and values(19)
+3 4 5 8 43 53 62 73 101 106 145 834 .
+10 312 34 43 128 54 3 4 5 32 42 32 .
+>>>*/
+
+fun test20()
+{
+    var sm: SortedMap(Int, Int, Less(Int), Equal(Int));
+    var i = 0;
+
+    while ( i < 1000 )
+    {
+        sm.insert(i, i * i);
+        i = i + 1;
+    }
+    while ( i < 1000 )
+    {
+        if ( !sm.contains(i) )
+            cout << "Test failed" << endl;
+        i = i + 1;
+    }
+}
+/*<<<Large hashmap(20)
+>>>*/

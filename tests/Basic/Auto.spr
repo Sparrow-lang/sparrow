@@ -1,0 +1,46 @@
+//!! -t "SparrowImplicitLib.spr"
+package Test;
+
+concept AnyType(x); // Always true
+
+// Takes a non-referene as a parameter
+fun f1(x: AnyType)
+    if typeOf(x) == Int
+{
+    write('n');
+    write('o');
+    write('n');
+    write('-');
+    write('r');
+    write('e');
+    writeLn('f');
+    x = 10;
+}
+
+// Takes a referene as a parameter
+fun f2(x: @AnyType)
+    if typeOf(x) == (Int@)
+{
+    write('r');
+    write('e');
+    writeLn('f');
+    x = 20;
+}
+
+fun[native("test")] test(n: Int)
+{
+    var a: Int = 5;
+    
+    f1(a);
+    writeLn(a);
+    f2(a);
+    writeLn(a);
+}
+
+
+/*<<<Running()
+non-ref
+5
+ref
+20
+>>>*/

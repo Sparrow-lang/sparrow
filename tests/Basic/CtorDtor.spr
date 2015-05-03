@@ -1,0 +1,76 @@
+//!! -t "SparrowImplicitLib.spr" --fno-rvo
+package Test;
+
+class MyType
+{
+    fun ctor()
+    {
+        x = 0;
+        write('c'); write('t'); write('o'); write('r'); write('('); writeLn(')');
+    }
+    fun ctor(i: Int)
+    {
+        x = i;
+        write('c'); write('t'); write('o'); write('r'); write('('); write(i); writeLn(')');
+    }
+    fun ctor(other: MyType@)
+    {
+        x = other.x;
+        write('c'); write('t'); write('o'); write('r'); write('('); write('C'); write(' '); write(x); writeLn(')');
+    }
+    fun dtor
+    {
+        write('d'); write('t'); write('o'); write('r'); write('-'); writeLn(x);
+    }
+    
+    var x: Int;
+}
+
+var g: MyType = 999;
+
+class TestType
+{
+    var[static] g2: MyType = 777;
+}
+
+fun doTest()
+{
+    var o1: MyType;
+    var o2: MyType = 1;
+    MyType(10);
+    MyType(o2);
+    var o3 = o1;
+    var o4 = MyType(100);
+    write('o'); writeLn('k');
+}
+
+fun[native("test")] test(n: Int)
+{
+    write('<'); writeLn('-');
+    doTest();
+    write('-'); writeLn('>');
+}
+
+/*<<<Running()
+ctor(999)
+ctor(777)
+<-
+ctor()
+ctor(1)
+ctor(10)
+dtor-10
+ctor(C 1)
+dtor-1
+ctor(C 0)
+ctor(100)
+ctor(C 100)
+dtor-100
+ok
+dtor-100
+dtor-0
+dtor-1
+dtor-0
+->
+dtor-777
+dtor-999
+>>>*/

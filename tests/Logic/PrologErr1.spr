@@ -1,0 +1,24 @@
+//!!
+package Test;
+
+import Logic.Prolog;
+
+Logic.compileProlog("
+    orbits(mercury, sun).
+    orbits(venus, sun).
+    orbits(earth, sun).
+    orbits(mars, sun).
+    orbits(moon, earth).
+    orbits(phobos, mars).
+    orbits(deimos, mars).
+
+    planet(P) :- orbits(P, sun).#           // ERROR
+ 
+    satellite(S) :- orbits(S, P), planet(P).
+");
+
+fun test1
+{
+    var x: LStr;
+    var pred = satellite(x);
+}

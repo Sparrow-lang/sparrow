@@ -1,0 +1,90 @@
+//!! --dump-ct-assembly
+package Test;
+
+import Meta.Diagnostic;
+import Meta.ASTNodes;
+import SL.Ranges;
+
+using Meta.*;
+using Meta.Feather.*;
+using Meta.SprFrontend.*;
+
+fun[ct] mkNodeVector(p1: AstNode): Vector(AstNode)
+{
+    var res: Vector(AstNode);
+    res.pushBack(p1);
+    return res;
+}
+
+fun[ct] mkNodeVector(p1, p2: AstNode): Vector(AstNode)
+{
+    var res: Vector(AstNode);
+    res.pushBack(p1);
+    res.pushBack(p2);
+    return res;
+}
+
+fun[ct] mkNodeVector(p1, p2, p3: AstNode): Vector(AstNode)
+{
+    var res: Vector(AstNode);
+    res.pushBack(p1);
+    res.pushBack(p2);
+    res.pushBack(p3);
+    return res;
+}
+
+var[ct] nullNode: AstNode;
+
+
+fun[ct] addFactorialFun(context: CompilationContext, funName: StringRef): Bool
+{
+    var loc = Meta.Location(Meta.SourceCode.current(), 39, 39, 1, 79);
+
+    var factParams = mkNodeList(loc, true);
+    addToNodeList(factParams, mkSprParameter(loc, "n", mkIdentifier(loc, "Int"), nullNode));
+    var factReturnType = mkIdentifier(loc, "Int");
+    var ifCond = mkInfixOp(loc, "==", mkIdentifier(loc, "n"), mkIntLiteral(loc, 0));
+    var ifThen = mkReturnStmt(loc, mkIntLiteral(loc, 1));
+    var recFunArgs = mkNodeList(loc);
+    addToNodeList(recFunArgs, mkInfixOp(loc, "-", mkIdentifier(loc, "n"), mkIntLiteral(loc, 1)));
+    var recCall = mkFunApplication(loc, mkIdentifier(loc, funName), recFunArgs);
+    var ifElse = mkReturnStmt(loc, mkInfixOp(loc, "*", mkIdentifier(loc, "n"), recCall));
+    var bodyVec = mkNodeVector(mkIf(loc, ifCond, ifThen, ifElse));
+    var body = mkLocalSpace(loc, bodyVec.begin.value(), bodyVec.end.value());
+    var factFun = mkSprFunction(loc, funName, factParams, factReturnType, body, nullNode);
+    factFun.setContext(context);
+    factFun.semanticCheck();
+    return !factFun.hasError();
+}
+
+fun[ct] addFactorialFun2(context: CompilationContext, funName: StringRef): Bool
+{
+    var loc = Meta.Location(Meta.SourceCode.current(), 39, 39, 1, 79);
+
+    var factParams = mkNodeList(loc, true);
+    addToNodeList(factParams, mkSprParameter(loc, "n", mkIdentifier(loc, "Int"), nullNode));
+    var factReturnType = mkIdentifier(loc, "Int");
+    var body = mkReturnStmt(loc, lift( ife(n==0, 1, n*fact2(n-1))) );
+    var factFun = mkSprFunction(loc, funName, factParams, factReturnType, body, nullNode);
+    factFun.setContext(context);
+    factFun.semanticCheck();
+    return !factFun.hasError();
+}
+
+var[ct] factAdded = addFactorialFun(CompilationContext.current(), "fact");
+var[ct] fact2Added = addFactorialFun2(CompilationContext.current(), "fact2");
+
+fun sprMain
+{
+    cout << fact(5) << endl;
+    cout << fact(6) << endl;
+    cout << fact2(5) << endl;
+    cout << fact2(6) << endl;
+}
+
+/*<<< Running()
+120
+720
+120
+720
+>>>*/

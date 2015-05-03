@@ -1,0 +1,139 @@
+//!! -t "SparrowImplicitLib.spr" --fno-rvo
+package Test;
+
+class MyObj
+{
+    fun ctor()
+    {
+        writeLn("MyObj.ctor()");
+    }
+    fun ctor(i: Int)
+    {
+        write("MyObj.ctor("); write(i); writeLn(")");
+    }
+    fun ctor(i,j: Int)
+    {
+        write("MyObj.ctor("); write(i); write(", "); write(j); writeLn(")");
+    }
+    fun ctor(src: @MyObj)
+    {
+        writeLn("MyObj.ctor(copy)");
+    }
+    fun dtor
+    {
+        writeLn("MyObj.dtor");
+    }
+
+    fun reconstruct()
+    {
+        this.dtor();
+        this.ctor(100);
+    }
+
+    private var v: Int;
+}
+
+class Pair
+{
+    fun ctor()
+    {
+        first.ctor();
+        second.ctor();
+        writeLn("Pair.ctor()");
+    }
+    fun ctor(i,j: Int)
+    {
+        first.ctor(i);
+        second.ctor(j);
+        write("Pair.ctor("); write(i); write(", "); write(j); writeLn(")");
+    }
+    fun ctor(src: Pair@)
+    {
+        first.ctor(src.first);
+        second.ctor(src.second);
+        writeLn("Pair.ctor(copy)");
+    }
+    fun dtor
+    {
+        writeLn("Pair.dtor");
+    }
+
+    var first, second: MyObj;
+}
+
+fun[native("test")] test(n: Int)
+{
+    {
+        var x: MyObj;
+        var x1 = MyObj(1);
+        var x2 = MyObj(1,2);
+    }
+    writeLn("---");
+    {
+        var x: MyObj;
+        x.dtor();
+        x.ctor(10);
+    }
+    writeLn("---");
+    {
+        var x: MyObj;
+        x.reconstruct();
+    }
+    writeLn("---");
+    {
+        var x: Pair;
+        var x1 = Pair(15,16);
+    }
+    writeLn("---");
+    {
+        var p: @MyObj = reinterpretCast(@MyObj, mallocRt(sizeOf(MyObj)));
+        p.ctor(10);
+        p.dtor();
+        free(reinterpretCast(@Byte, p));
+    }
+}
+
+/*<<<Running()
+MyObj.ctor()
+MyObj.ctor(1)
+MyObj.ctor(copy)
+MyObj.dtor
+MyObj.ctor(1, 2)
+MyObj.ctor(copy)
+MyObj.dtor
+MyObj.dtor
+MyObj.dtor
+MyObj.dtor
+---
+MyObj.ctor()
+MyObj.dtor
+MyObj.ctor(10)
+MyObj.dtor
+---
+MyObj.ctor()
+MyObj.dtor
+MyObj.ctor(100)
+MyObj.dtor
+---
+MyObj.ctor()
+MyObj.ctor()
+Pair.ctor()
+MyObj.ctor(15)
+MyObj.ctor(16)
+Pair.ctor(15, 16)
+MyObj.ctor(copy)
+MyObj.ctor(copy)
+Pair.ctor(copy)
+Pair.dtor
+MyObj.dtor
+MyObj.dtor
+Pair.dtor
+MyObj.dtor
+MyObj.dtor
+Pair.dtor
+MyObj.dtor
+MyObj.dtor
+---
+MyObj.ctor(10)
+MyObj.dtor
+>>>*/

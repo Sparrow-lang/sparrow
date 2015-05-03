@@ -1,0 +1,95 @@
+//!!
+package Test;
+
+import SL.Ranges;
+import SL.Vector;
+
+class[ct] MyRange
+{
+    using RetType = Int;
+    
+    fun ctor(min, max: Int)
+    {
+        this.min ctor min;
+        this.max ctor max;
+    }
+
+    fun front = min;
+    fun popFront { min += 1; }
+    fun isEmpty = min > max;
+
+    private var min, max: Int;
+}
+
+fun test1()
+{
+    for[ct] ( i = MyRange(0, 4))
+    {
+        cout << ctEval(i) << endl;
+    }
+}
+
+fun[ct] fact(n: Int): Int
+{
+    if ( n < 2 )
+        return 1;
+    else
+        return n*fact(n-1);
+}
+
+fun test2()
+{
+    for[ct] ( i = 0..5 )
+    {
+        cout << ctEval(fact(i)) << endl;
+    }
+}
+
+fun[ct] createVector(min, max: Int): Vector(Int)
+{
+    var v = Vector(Int)(min..max);
+    return v;
+}
+
+fun test3()
+{
+    var[ct] v = createVector(10, 15);
+
+    for[ct] ( el = v.all() )
+    {
+        cout << ctEval(el) << endl;
+    }
+}
+
+fun sprMain
+{
+    var x = 10;
+    var y = 2;
+    var[ct] yy = 2;
+
+    test1();
+    cout << "---" << endl;
+    test2();
+    cout << "---" << endl;
+    test3();
+}
+
+/*<<<Running()
+0
+1
+2
+3
+4
+---
+1
+1
+2
+6
+24
+---
+10
+11
+12
+13
+14
+>>>*/

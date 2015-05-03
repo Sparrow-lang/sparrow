@@ -1,0 +1,150 @@
+//!! -t "SparrowImplicitLib.spr"
+package Test;
+
+concept AnyType(x); // Always true
+
+fun typeTest(x: AnyType) if typeOf(x) == Char
+{
+    writeLn("Char passed");
+}
+
+fun typeTest(x: AnyType) if typeOf(x) == Int
+{
+    writeLn("Int passed");
+}
+
+fun typeTest(x: AnyType) if typeOf(x) == Double
+{
+    writeLn("Double passed");
+}
+
+fun typeTest(x: @AnyType) if typeOf(x) == (@Char)
+{
+    writeLn("@Char passed");
+}
+
+fun typeTest(x: @AnyType) if typeOf(x) == (Int@)
+{
+    writeLn("Int@ passed");
+}
+
+fun typeTest(x: @AnyType) if typeOf(x) == (Double@)
+{
+    writeLn("Double@ passed");
+}
+
+fun testRef(x: AnyType) //if 0==typeNumRef(typeOf(x))
+{
+    writeLn("non-ref");
+}
+
+fun testRef(x: @AnyType) //if 0!=typeNumRef(typeOf(x))
+{
+    writeLn("ref");
+}
+
+fun[native("test")] test(n: Int)
+{
+    var a = 'a';
+    var b = 10;
+    var c = 3.14;
+    var ra: @Char = a;
+    var rb: Int@ = b;
+    var rc: Double@ = c;
+
+    writeLn(sizeOf('a'));
+    writeLn(sizeOf(10));
+    writeLn(sizeOf(3.14));
+    
+    writeLn(sizeOf(a));
+    writeLn(sizeOf(b));
+    writeLn(sizeOf(c));
+    
+    writeLn(sizeOf(ra));
+    writeLn(sizeOf(rb));
+    writeLn(sizeOf(rc));
+ 
+    writeLn("---");
+
+    if ( 0!=typeNumRef(typeOf('a'))   ) writeLn("ref"); else writeLn("non-ref");
+    if ( 0!=typeNumRef(typeOf(10))    ) writeLn("ref"); else writeLn("non-ref");
+    if ( 0!=typeNumRef(typeOf(3.14))  ) writeLn("ref"); else writeLn("non-ref");
+ 
+    if ( 0!=typeNumRef(typeOf(a)) ) writeLn("ref"); else writeLn("non-ref");
+    if ( 0!=typeNumRef(typeOf(b)) ) writeLn("ref"); else writeLn("non-ref");
+    if ( 0!=typeNumRef(typeOf(c)) ) writeLn("ref"); else writeLn("non-ref");
+
+    if ( 0!=typeNumRef(typeOf(ra)) ) writeLn("ref"); else writeLn("non-ref");
+    if ( 0!=typeNumRef(typeOf(rb)) ) writeLn("ref"); else writeLn("non-ref");
+    if ( 0!=typeNumRef(typeOf(rc)) ) writeLn("ref"); else writeLn("non-ref");
+
+    writeLn("---");
+    
+    testRef('a');
+    testRef(10);
+    testRef(3.14);
+
+    testRef(a);
+    testRef(b);
+    testRef(c);
+
+    testRef(ra);
+    testRef(rb);
+    testRef(rc);
+
+    writeLn("---");
+    
+    typeTest('a');
+    typeTest(10);
+    typeTest(3.14);
+
+    typeTest(a);
+    typeTest(b);
+    typeTest(c);
+
+    typeTest(ra);
+    typeTest(rb);
+    typeTest(rc);
+}
+
+/*<<<Running()
+1
+4
+8
+1
+4
+8
+8
+8
+8
+---
+non-ref
+non-ref
+non-ref
+non-ref
+non-ref
+non-ref
+ref
+ref
+ref
+---
+non-ref
+non-ref
+non-ref
+non-ref
+non-ref
+non-ref
+ref
+ref
+ref
+---
+Char passed
+Int passed
+Double passed
+Char passed
+Int passed
+Double passed
+@Char passed
+Int@ passed
+Double@ passed
+>>>*/

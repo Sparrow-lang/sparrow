@@ -1,0 +1,6 @@
+package Test;
+
+import HeaderA;
+import HeaderC;
+
+var d = Int(4);

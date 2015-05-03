@@ -1,0 +1,25 @@
+//!! -O2
+
+import SL.Algorithms;
+import SL.Ranges;
+import SL.RMath;
+
+fun nextCollatz n = ife(n%2==0, n/2, n*3+1);
+fun collatzSeq(n: ULong) = generate1(n, \nextCollatz) takeUntil (fun n = n==1);
+
+fun sprMain
+{
+    if ( programArgs.size() < 2 )
+        return;
+    var n = programArgs(1) asInt;
+
+    var res = (1..) map \collatzSeq map \rangeSize takeWhile (fun.{n} s = s < n) rootMeanSquare;
+    cout << res << endl;
+}
+
+/*<<<Basic test (100)
+13.2375
+>>>*/
+/*<<<Basic test (500)
+139.161
+>>>*/

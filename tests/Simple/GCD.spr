@@ -1,0 +1,52 @@
+//!! -t "../Basic/SparrowImplicitLib.spr"
+package Test;
+
+fun gcdDivision(a: Int, b: Int): Int
+{
+    var t: Int;
+
+    while ( b != 0 )
+    {
+        t = b;
+        b = a % b;
+        a = t;
+    }
+
+    return a;
+}
+
+fun gcdSubtraction(a: Int, b: Int): Int
+{
+    if ( a == 0 )
+        return b;
+
+    while ( b != 0 )
+    {
+        if ( a > b )
+            a = a - b;
+        else
+            b = b - a;
+    }
+
+    return a;
+}
+
+fun[native("test")] test(n: Int)
+{
+    writeLnInt(gcdDivision(60, 42));
+    writeLnInt(gcdDivision(2346, 13556));
+    writeLnInt(gcdDivision(8769534, 481263));
+
+    writeLnInt(gcdSubtraction(60, 42));
+    writeLnInt(gcdSubtraction(2346, 13556));
+    writeLnInt(gcdSubtraction(8769534, 481263));
+}
+
+/*<<<Running()
+6
+2
+3
+6
+2
+3
+>>>*/

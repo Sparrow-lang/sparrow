@@ -1,0 +1,85 @@
+//!! -t "SparrowImplicitLib.spr"
+package Test;
+
+/*
+a
+b
+c
+d
+*/
+injectBackendCodeRt("
+1
+2
+3
+4
+");
+
+class Test
+{
+    var x: Int;
+    var y: Int;
+    
+    fun[static] f()
+    {
+        writeLnInt(1);
+    }
+    fun[static] g(n: Int)
+    {
+        writeLnInt(n);
+    }
+    
+    fun m1()
+    {
+        writeLnInt(2);
+    }
+    
+    fun m2(n: Int)
+    {
+        writeLnInt(n);
+    }
+
+    
+    fun[static] staticThisTest()
+    {
+        x;          // E RROR
+        y;          // E RROR
+        this.x;     // E RROR
+        this.y;     // E RROR
+    }
+}
+
+fun f();
+fun[static] g();    // ERROR
+
+var a: Test;
+
+fun h();
+fun h(a: Int);
+fun h(a: Int@);
+fun h(a: (Int@)@);
+fun h(a: Double@);
+fun h(a: Double);
+
+fun[native("test")] test(n: Int)
+{
+    assignInt(a.x, 10);
+    assignInt(a.y, 11);
+
+    Test.f();
+    Test.g(5);
+    a.f();          // E RROR
+    a.g(5);         // E RROR
+    
+    Test.f(10);     // E RROR
+    Test.g(10,10);  // E RROR
+    
+    Test.m1();      // E RROR
+    Test.m2(10);    // E RROR
+    a.m1();
+    a.m2(10);
+
+    h();
+    h(1);           // ok
+    h(1.0);         // ok
+    h('a');         // E RROR
+}

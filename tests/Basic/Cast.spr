@@ -1,0 +1,105 @@
+//!! -t "SparrowImplicitLib.spr"
+package Test;
+
+class Base
+{
+    var a: Int;
+    
+    fun ctor(i: Int) { a = i; }
+    fun ctor(other: Base) { a = other.a; }
+}
+
+class Derived: Base
+{
+    var b: Int;
+
+    fun ctor(i,j: Int) { a = i; b = j; }
+}
+
+fun printBase(b: Base)
+{
+    write('B'); write('-'); writeLn(b.a);
+}
+
+fun printDerived(d: Derived)
+{
+    write('D'); write('-'); write(d.a); write(' '); writeLn(d.b);
+}
+
+fun[native("test")] test(n: Int)
+{
+    var b = Base(1);
+    //var d = Derived(10, 11);
+    var d: Derived;
+    d.a = 10;
+    d.b = 11;
+    
+    var br: Base@ = b;
+    var br2: Base@ = d;
+    var dr: Derived@ = d;
+    
+    br := b;
+    br2 := d;
+    dr := d;
+    
+    printBase(b);
+    printBase(d);
+    printDerived(d);
+    printBase(br);
+    printBase(dr);
+    printDerived(dr);
+    
+    writeLn('-');
+    
+    // Static casts
+    printBase(cast(Base, b));
+    printBase(cast(Base, d));
+    printBase(cast(Base@, b));
+    printBase(cast(Base@, d));
+    //printDerived(cast(Derived, b));
+    printDerived(cast(Derived, d));
+    //printDerived(cast(Derived@, b));
+    printDerived(cast(Derived@, d));
+    printDerived(cast(Derived, br2));
+    
+    // Reinterpret casts
+    printBase(reinterpretCast(Base@, b));
+    printBase(reinterpretCast(Base@, d));
+    //printDerived(reinterpretCast(Derived@, b));
+    //printDerived(reinterpretCast(Derived@, d));
+    printDerived(reinterpretCast(Derived@, d));
+    
+    // Cast between standard types
+    var bTrue = true;
+    var bFalse = false;
+    writeLn(reinterpretCast(@Byte, bTrue));
+    writeLn(reinterpretCast(@Byte, bFalse));
+    //writeLn(reinterpretCast(@Byte, 123));
+    writeLn(reinterpretCast(Int@, b));
+    writeLn(reinterpretCast(Int@, d));
+}
+
+
+/*<<<Running()
+B-1
+B-10
+D-10 11
+B-1
+B-10
+D-10 11
+-
+B-1
+B-10
+B-1
+B-10
+D-10 11
+D-10 11
+D-10 11
+B-1
+B-10
+D-10 11
+1
+0
+1
+10
+>>>*/

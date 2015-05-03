@@ -1,0 +1,15 @@
+//!!
+package Test;
+
+import SL.Vector;
+
+
+class[ct] TestCt
+{
+}
+
+fun test(x: @Vector(TestCt));
+
+fun sprMain
+{
+}

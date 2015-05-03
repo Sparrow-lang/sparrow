@@ -1,0 +1,121 @@
+//!! -t "SparrowImplicitLib.spr"
+package Test;
+
+concept AnyType(x); // Always true
+
+fun f1(x: Int)         { writeLn("f1(Int)"); }
+fun f1(x: Double)      { writeLn("f1(Double)"); }
+fun f1(x: Int@)        { writeLn("f1(Int@)"); }
+fun f1(x: Double@)     { writeLn("f1(Double@)"); }
+fun f1(x: AnyType)        { writeLn("f1(AnyType)"); }
+fun f1(x: @AnyType)       { writeLn("f1(@AnyType)"); }
+
+
+fun f2(x: Int, y: Int)            { writeLn("f2(Int, Int)"); }
+fun f2(x: Double, y: Double)      { writeLn("f2(Double, Double)"); }
+fun f2(x: AnyType, y: AnyType)          { writeLn("f2(AnyType, AnyType)"); }
+fun f2(x: Int@, y: Int@)          { writeLn("f2(Int@, Int@)"); }
+fun f2(x: Double@, y: Double@)    { writeLn("f2(Double@, Double@)"); }
+fun f2(x: @AnyType, y: @AnyType)        { writeLn("f2(@AnyType, @AnyType)"); }
+
+fun f3(x: Int, y: Int)                            { writeLn("f3(Int, Int)"); }
+fun f3(x: Double, y: Double)                      { writeLn("f3(Double, Double)"); }
+fun f3(x: AnyType, y: AnyType) if typeOf(x)==typeOf(y)  { writeLn("f3(AnyType, AnyType)"); }
+fun f3(x: Int@, y: Int@)                          { writeLn("f3(Int@, Int@)"); }
+fun f3(x: Double@, y: Double@)                    { writeLn("f3(Double@, Double@)"); }
+fun f3(x: @AnyType, y: @AnyType) if typeOf(x)==typeOf(y){ writeLn("f3(@AnyType, @AnyType)"); }
+
+
+var a = Short(1);
+var b = 10;
+var c = 3.14;
+var ra: Short@ = a;
+var rb: Int@ = b;
+var rc: Double@ = c;
+
+fun getShort(): Short { return Short(1); }
+fun getInt(): Int { return 10; }
+fun getDouble(): Double { return 3.14; }
+fun getShortRef(): Short@ { return ra; }
+fun getIntRef(): Int@ { return rb; }
+fun getDoubleRef(): Double@ { return rc; }
+
+fun[native("test")] test(n: Int)
+{
+    f1(a);
+    f1(b);
+    f1(c);
+    f1(ra);
+    f1(rb);
+    f1(rc);
+    f1('a');
+    f1(10);
+    f1(3.14);
+    writeLn("---");
+
+    f1(getShort());
+    f1(getInt());
+    f1(getDouble());
+    f1(getShortRef());
+    f1(getIntRef());
+    f1(getDoubleRef());
+    writeLn("---");
+
+    f2(a,a);
+    f2(b,b);
+    f2(c,c);
+    f2(ra,ra);
+    f2(rb,rb);
+    f2(rc,rc);
+    writeLn("---");
+
+    f2(a,10);
+    f2(b,10);
+    f2(c,10);
+    writeLn("---");
+
+    //f3(a,10);
+    f3(b,10);
+    f3(c,10);       // TODO: should be ambiguous here
+    writeLn("---");
+
+    f3(a,Short(1));
+    //f3(b,Short(1));
+    f3(c,Short(1));
+}
+
+/*<<<Running()
+f1(AnyType)
+f1(Int)
+f1(Double)
+f1(@AnyType)
+f1(Int@)
+f1(Double@)
+f1(AnyType)
+f1(Int)
+f1(Double)
+---
+f1(AnyType)
+f1(Int)
+f1(Double)
+f1(@AnyType)
+f1(Int@)
+f1(Double@)
+---
+f2(AnyType, AnyType)
+f2(Int, Int)
+f2(Double, Double)
+f2(@AnyType, @AnyType)
+f2(Int@, Int@)
+f2(Double@, Double@)
+---
+f2(AnyType, AnyType)
+f2(Int, Int)
+f2(AnyType, AnyType)
+---
+f3(Int, Int)
+f3(Double@, Double@)
+---
+f3(AnyType, AnyType)
+f3(Double@, Double@)
+>>>*/

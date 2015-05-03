@@ -1,0 +1,92 @@
+//!!
+package Test;
+
+import SL.Vector;
+import SL.ContiguousMemoryRange;
+import SL.RawPtr;
+
+fun sprMain
+{
+    if ( programArgs.size() < 2 )
+        return;
+    var n = programArgs(1) asInt;
+
+    if      ( n == 1 ) test1();
+    else if ( n == 2 ) test2();
+}
+
+class[rtct] MyObj
+{
+    var x: Int;
+
+    fun ctor(xx: Int) { x = xx; }
+}
+
+fun[ct] createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
+{
+    var ptr = RawPtr(MyObj).alloc(size);
+    var ptrEnd = ptr.advance(DiffType(size));
+    var i = 0;
+
+    while ( i < size ; i = i + 1; )
+    {
+        var o: @AnyType = ptr.advance(i).value();
+
+        o.x = i;
+    }
+
+    return ContiguousMemoryRange(MyObj)(ptr, ptrEnd);
+}
+
+fun[ct] createVector(size: SizeType): Vector(MyObj)
+{
+    var v = Vector(MyObj)(createRangeAscending(size));
+    return v;
+}
+
+fun test1()
+{
+    var[ct] v = createVector(10);
+    cout << v.size() << endl;
+    for[ct] ( el = v.all() )
+    {
+        cout << ctEval(el.x) << endl;
+    }
+}
+/*<<<Creation of a CT vector(1)
+10
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+>>>*/
+
+fun test2()
+{
+    var[ct] v = createVector(10);
+    var v2: Vector(MyObj) = v;
+    cout << v2.size() << endl;
+    for ( el = v2.all() )
+    {
+        cout << el.x << endl;
+    }
+}
+/*<<<Creation of a RT vector from a CT vector(2)
+10
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+>>>*/

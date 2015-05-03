@@ -1,0 +1,163 @@
+//!! -O2
+
+import SL.Ranges;
+import SL.StaticArray;
+import Math;
+
+// TODO: Move this to Math
+using PI = 3.141592653589793;
+
+// TODO: Field initialization as in Scala
+
+class Vec
+{
+    var x, y, z: Double;
+
+    fun ctor(x, y, z: Double) { this.x = x; this.y = y; this.z = z; }
+
+    fun len: Double = Math.sqrt(this*this);
+
+    fun + (other: Vec) = Vec(x+other.x, y+other.y, z+other.z);
+    fun - (other: Vec) = Vec(x-other.x, y-other.y, z-other.z);
+    fun * (other: Vec) = x*other.x + y*other.y + z*other.z;
+    fun * (k: Double)  = Vec(x*k, y*k, z*k);
+    fun / (k: Double)  = Vec(x/k, y/k, z/k);
+    fun -              = Vec(-x, -y, -z);
+}
+
+class Body
+{
+    var p, v: Vec;
+    var mass: Double;
+
+    fun speedSq                         = v*v;
+    fun move(dt: Double)                { p += v*dt; }
+    fun advance(d: Vec, delta: Double)  { v += d*delta; }
+}
+
+fun sqr x = x*x;
+
+class NBodySystem
+{
+    private using numBodies = 5;
+    private var bodies: StaticArray(Body, numBodies);
+
+    fun energy: Double
+    {
+        var e = 0.0;
+        for ( i = 0..numBodies )
+        {
+            e += 0.5 * bodies(i).mass * bodies(i).speedSq;
+            
+            for ( j = (i+1)..numBodies )
+            {
+                var distance = (bodies(i).p - bodies(j).p) len;
+                e -= (bodies(i).mass * bodies(j).mass) / distance;
+            }
+        }
+        return e;
+    }
+
+    fun advance(dt: Double)
+    {
+        for ( i = 0..numBodies )
+        {
+            for ( j = (i+1)..numBodies )
+            {
+                var pDelta = bodies(i).p - bodies(j).p;
+                var distance = pDelta len;
+                var mag = dt / (distance * distance * distance);
+
+                bodies(i).advance(pDelta, -bodies(j).mass*mag);
+                bodies(j).advance(pDelta, bodies(i).mass*mag);
+            }
+        }
+
+        for ( body = bodies.all )
+            body.move(dt);
+    }
+
+    fun ctor
+    {
+        using solarMass = 4 * PI * PI;
+        using daysPerYear = 365.24;
+
+        using sun = bodies(0);
+        using jupiter = bodies(1);
+        using saturn = bodies(2);
+        using uranus = bodies(3);
+        using neptune = bodies(4);
+
+        sun.mass = solarMass;
+
+        jupiter.p.x = 4.84143144246472090e+00;
+        jupiter.p.y = -1.16032004402742839e+00;
+        jupiter.p.z = -1.03622044471123109e-01;
+        jupiter.v.x = 1.66007664274403694e-03 * daysPerYear;
+        jupiter.v.y = 7.69901118419740425e-03 * daysPerYear;
+        jupiter.v.z = -6.90460016972063023e-05 * daysPerYear;
+        jupiter.mass = 9.54791938424326609e-04 * solarMass;
+
+        saturn.p.x = 8.34336671824457987e+00;
+        saturn.p.y = 4.12479856412430479e+00;
+        saturn.p.z = -4.03523417114321381e-01;
+        saturn.v.x = -2.76742510726862411e-03 * daysPerYear;
+        saturn.v.y = 4.99852801234917238e-03 * daysPerYear;
+        saturn.v.z = 2.30417297573763929e-05 * daysPerYear;
+        saturn.mass = 2.85885980666130812e-04 * solarMass;
+
+        uranus.p.x = 1.28943695621391310e+01;
+        uranus.p.y = -1.51111514016986312e+01;
+        uranus.p.z = -2.23307578892655734e-01;
+        uranus.v.x = 2.96460137564761618e-03 * daysPerYear;
+        uranus.v.y = 2.37847173959480950e-03 * daysPerYear;
+        uranus.v.z = -2.96589568540237556e-05 * daysPerYear;
+        uranus.mass = 4.36624404335156298e-05 * solarMass;
+
+        neptune.p.x = 1.53796971148509165e+01;
+        neptune.p.y = -2.59193146099879641e+01;
+        neptune.p.z = 1.79258772950371181e-01;
+        neptune.v.x = 2.68067772490389322e-03 * daysPerYear;
+        neptune.v.y = 1.62824170038242295e-03 * daysPerYear;
+        neptune.v.z = -9.51592254519715870e-05 * daysPerYear;
+        neptune.mass = 5.15138902046611451e-05 * solarMass;
+
+        var p: Vec;
+        for ( b = bodies.all )
+            p += b.v * b.mass;
+        sun.v = -p / solarMass;
+    }
+}
+
+fun[native("printf")] printf(fmt: @Char, x: Double);
+fun[native("printf")] printf(fmt: @Char, x,y: Double);
+fun[native("printf")] printf(fmt: @Char, x,y,z,xx,yy,zz,a: Double);
+
+fun cstr(s: StringRef): @Char = s.cStr();
+
+fun sprMain
+{
+    var n = programArgs(1) asInt;
+
+    var jovianSystem: NBodySystem;
+
+    printf(cstr("%.9f\n"), jovianSystem.energy);
+    for ( i = 0..n )
+        jovianSystem.advance(0.01);
+    printf(cstr("%.9f\n"), jovianSystem.energy);
+}
+
+/*<<<n bodies run (50000)
+-0.169075164
+-0.169078071
+>>>*/
+
+/*<<<n bodies run (500000)
+-0.169075164
+-0.169096567
+>>>*/
+
+/*<<<n bodies run (5000000)
+-0.169075164
+-0.169083134
+>>>*/

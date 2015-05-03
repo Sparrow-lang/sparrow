@@ -1,0 +1,58 @@
+//!! -t "../Basic/SparrowImplicitLib.spr"
+package Test;
+
+fun fibonacciRecursive(n: Int): Int
+{
+    if ( n == 0 || n == 1 )
+        return 1;
+
+    return fibonacciRecursive(n - 1) + fibonacciRecursive(n - 2);
+}
+
+fun fibonacciIterative(n: Int): Int
+{
+    if ( n == 0 || n == 1 )
+        return 1;
+
+    var a, b, i, t: Int;    
+    a = 1;
+    b = 1;
+    i = 2;
+    
+    while ( i <= n ; i = i + 1; )
+    {
+        t = a + b;
+        a = b;
+        b = t;
+    }
+
+    return b;
+}
+
+fun[native("test")] test(n: Int)
+{
+    writeLnInt(fibonacciRecursive(0));
+    writeLnInt(fibonacciRecursive(1));
+    writeLnInt(fibonacciRecursive(5));
+    writeLnInt(fibonacciRecursive(15));
+    writeLnInt(fibonacciRecursive(30));
+
+    writeLnInt(fibonacciIterative(0));
+    writeLnInt(fibonacciIterative(1));
+    writeLnInt(fibonacciIterative(5));
+    writeLnInt(fibonacciIterative(15));
+    writeLnInt(fibonacciIterative(30));
+}
+
+/*<<<Running()
+1
+1
+8
+987
+1346269
+1
+1
+8
+987
+1346269
+>>>*/

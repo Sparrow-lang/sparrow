@@ -1,0 +1,75 @@
+//!!
+package Test;
+
+concept Swappable(x) if isValid(x.swap(x));
+
+fun[autoCt] swap(a, b: @AnyType) if typeOf(a) == typeOf(b)
+{
+    cout << "Simple swap called" << endl;
+    var tmp = a;
+    a = b;
+    b = tmp;
+}
+fun[autoCt] swap(a, b: @Swappable) if typeOf(a) == typeOf(b)
+{
+    cout << "Fast swap called" << endl;
+    a.swap(b);
+}
+
+class[initCtor] MyType1
+{
+    var val: Int;
+}
+
+class[initCtor] MyType2
+{
+    var val: Int;
+
+    fun swap(other: @MyType2)
+    {
+        var tmp = val;
+        val = other.val;
+        other.val = tmp;
+    }
+}
+
+fun sprMain
+{
+    {
+        var x = 3;
+        var y = 5;
+        cout << x << ", " << y << endl;
+        swap(x, y);
+        cout << x << ", " << y << endl;
+    }
+    cout << "---" << endl;
+    {
+        var x = MyType1(13);
+        var y = MyType1(15);
+        cout << x.val << ", " << y.val << endl;
+        swap(x, y);
+        cout << x.val << ", " << y.val << endl;
+    }
+    cout << "---" << endl;
+    {
+        var x = MyType2(23);
+        var y = MyType2(25);
+        cout << x.val << ", " << y.val << endl;
+        swap(x, y);
+        cout << x.val << ", " << y.val << endl;
+    }
+}
+
+/*<<<Running()
+3, 5
+Simple swap called
+5, 3
+---
+13, 15
+Simple swap called
+15, 13
+---
+23, 25
+Fast swap called
+25, 23
+>>>*/

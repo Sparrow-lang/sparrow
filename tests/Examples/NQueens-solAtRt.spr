@@ -1,0 +1,85 @@
+//!!
+
+import SL.Array;
+import SL.Vector;
+import Math;
+
+var[ct] PlacementType = Array(Int);
+var[ct] SolutionsType = Vector(PlacementType);
+
+fun[rtct] testQueens(placements: @PlacementType, k, y: Int): Bool
+{
+    for ( i = 0..k )
+    {
+        if ( y == placements(i) || Math.abs(k-i) == Math.abs(y-placements(i)) )
+            return false;
+    }
+    return true;
+}
+
+fun[rtct] backtracking(x: @PlacementType, k, n: Int, res: @SolutionsType)
+{
+    for ( y = 0..n )
+    {
+        if ( testQueens(x, k, y) )
+        {
+            x(k) = y;
+            if ( k == n-1 )
+                res.pushBack(x);
+            else
+                backtracking(x, k+1, n, res);
+        }
+    }
+}
+
+fun[rtct] writeSolution(x: @PlacementType)
+{
+    for ( v = x.all() )
+    {
+        for ( i = 0..v )
+            cout << "| ";
+        cout << "|Q";
+        for ( i = (v+1)..(x.size()) )
+            cout << "| ";
+        cout << "|\n";
+    }
+    cout << "\n";
+}
+
+fun[rtct] writeSolutionBasic(x: @PlacementType)
+{
+    for ( v = x.all() )
+        cout << v;
+    cout << "\n";
+}
+
+fun[autoCt] nQueens(n: Int): SolutionsType
+{
+    var x: PlacementType = n;
+    var res: SolutionsType;
+    backtracking(x, 0, n, res);
+    for ( sol = res.all() )
+        writeSolution(sol);
+    return res;
+}
+
+fun sprMain
+{
+    var[ct] solutionsCt = nQueens(4);
+    var solutions = solutionsCt;
+    for ( sol = solutions.all() )
+        writeSolution(sol);
+}
+
+/*<<<Running()
+| |Q| | |
+| | | |Q|
+|Q| | | |
+| | |Q| |
+
+| | |Q| |
+|Q| | | |
+| | | |Q|
+| |Q| | |
+
+>>>*/

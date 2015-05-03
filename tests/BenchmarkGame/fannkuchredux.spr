@@ -1,0 +1,81 @@
+//!! -O2
+
+import SL.Array;
+import SL.Algorithms;
+
+fun fannkuch(n: Int): Int
+{
+    var perm1: Int Array = 0..n;
+    var perm, count: Int Array = n;
+    var flips, nperm, checksum = 0;
+
+    var r = n;
+    while ( r>0 )
+    {
+        (1...r) copy count.subrange(0, r);
+        for ( i = 0..n )
+            perm(i) = perm1(i);
+        
+        // Count flips and update max and checksum
+        var f = 0;
+        var k = perm(0);
+        while ( k != 0 )
+        {
+            for ( i = 0..(k+1)/2 )
+                swap(perm(i), perm(k-i));
+            k = perm(0);
+            ++f;
+        }
+        if ( f>flips )      flips = f;
+        if ( nperm%2==0 )   checksum += f;
+        else                checksum -= f;
+
+        // Use incremental change to generate another permutation
+        r = 1;
+        while ( true )
+        {
+            if ( r == n )
+            {
+                cout << checksum << endl;
+                return flips;
+            }
+            var p0 = perm1(0);
+            for ( i = 0..r )
+                perm1(i) = perm1(i+1);
+            perm1(r) = p0;
+
+            --count(r);
+            if ( count(r) > 0 ) break;
+            else ++r;
+        }
+        ++nperm;
+    }
+    return flips;
+}
+
+fun sprMain
+{
+    var n = programArgs(1) asInt;
+    var r = fannkuch(n);
+    cout << "Pfannkuchen(" << n << ") = " << r << endl;
+}
+
+/*<<<run (4)
+4
+Pfannkuchen(4) = 4
+>>>*/
+
+/*<<<run (10)
+73196
+Pfannkuchen(10) = 38
+>>>*/
+
+/*<<<run (11)
+556355
+Pfannkuchen(11) = 51
+>>>*/
+
+/* <<<run (12)
+3968050
+Pfannkuchen(12) = 65
+>>>*/

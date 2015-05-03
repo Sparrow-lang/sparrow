@@ -1,0 +1,210 @@
+import ContiguousMemoryRange;
+import RawPtr;
+import Algorithms;
+
+// !!!
+concept RangeTmp(x)
+    if typeOf(x.isEmpty()) == Bool
+    && isValid(x.front())
+    && isValid(x.popFront())
+    ;
+
+class[rtct] Array(valueType: Type)
+{
+    var[static] ValueType = valueType;
+    var[static] RangeType = ContiguousMemoryRange(valueType);
+
+    fun ctor(other: @Array)
+    {
+        var size = other.size();
+
+        begin = RawPtr(ValueType).alloc(size);
+        end = begin.advance(DiffType(size));
+
+        var dst = begin;
+        var src = other.begin;
+
+        while ( dst != end )
+        {
+            dst.value().ctor(src.value());
+            dst = dst.advance();
+            src = src.advance();
+        }
+    }
+
+    fun ctor(size: SizeType)
+    {
+        begin = RawPtr(ValueType).alloc(size);
+        end = begin.advance(DiffType(size));
+
+        var p = begin;
+
+        while ( p != end ; p = p.advance() )
+            p.value().ctor();
+    }
+
+    fun ctor(size: SizeType, value: @ValueType)
+    {
+        begin = RawPtr(ValueType).alloc(size);
+        end = begin.advance(DiffType(size));
+
+        var p = begin;
+
+        while ( p != end ; p = p.advance() )
+            p.value().ctor(value);
+    }
+
+    fun ctor(range: RangeTmp) if typeOf(range) != Array
+    {
+        if ( !range.isEmpty() )
+        {
+            var size = rangeSize(range);
+
+            begin = RawPtr(ValueType).alloc(size);
+            end = begin.advance(DiffType(size));
+
+            var p = begin;
+
+            for ( v = range )
+            {
+                p.value().ctor(v);
+                p = p.advance();
+            }
+        }
+    }
+
+    fun[rt] ctorFromCt(src: Array ct)
+    {
+        var[ct] size = src size;
+        this ctor size;
+        for[ct] ( i = 0..size )
+            at(i) = src(i);
+    }
+
+    fun dtor
+    {
+        if ( isEmpty() )
+            return;
+
+        var p = begin;
+
+        while ( p != end ; p = p.advance() )
+            p.value().dtor();
+        begin.freePtr();
+    }
+
+    fun size(): SizeType
+    {
+        return end.diff(begin);
+    }
+
+    fun isEmpty(): Bool
+    {
+        return begin == end;
+    }
+
+    fun assign(range: RangeType)
+    {
+        var r = all();
+
+        while ( !r.isEmpty() && !range.isEmpty() )
+        {
+            r.front().dtor();
+            r.front().ctor(range.front());
+            r.popFront();
+            range.popFront();
+        }
+
+        while ( !r.isEmpty() ; r.popFront() )
+        {
+            r.front().dtor();
+            r.front().ctor();
+        }
+    }
+
+    fun swap(other: @Array)
+    {
+        var tmp = begin;
+
+        begin = other.begin;
+        other.begin = tmp;
+        tmp = end;
+        end = other.end;
+        other.end = tmp;
+    }
+
+    fun at(index: SizeType): @ValueType
+    {
+        return begin.advance(DiffType(index)).value();
+    }
+    fun ()(index: SizeType): @ValueType
+    {
+        return begin.advance(DiffType(index)).value();
+    }
+
+    fun all(): RangeType
+    {
+        return RangeType(begin, end);
+    }
+
+    fun subrange(index: SizeType, num: SizeType): RangeType
+    {
+        return RangeType(begin.advance(DiffType(index)), begin.advance(DiffType(index + num)));
+    }
+
+    fun =(other: @Array): @Array
+    {
+        var tmp = other;
+
+        tmp.swap(this);
+
+        return this;
+    }
+
+    fun ==(other: @Array): Bool
+    {
+        if ( size() != other.size() )
+            return false;
+
+        var r1 = all();
+        var r2 = other.all();
+
+        while ( !r1.isEmpty() )
+        {
+            if ( !(r1.front() == r2.front()) )
+                return false;
+
+            r1.popFront();
+            r2.popFront();
+        }
+
+        return true;
+    }
+
+    fun !=(other: @Array): Bool
+    {
+        return !(this == other);
+    }
+
+    fun >>(os: @OutStream) if isValid(os << #$ValueType)
+    {
+        var first = true;
+        for ( el = all )
+        {
+            if ( first )
+                first = false;
+            else
+                os << ", ";
+            os << el;
+        }
+    }
+    private fun dumpThis(prefix: StringRef)
+    {
+        cout << prefix << "dumping " << TypeOp.description(Array) << ": " << mkStreamRefWrapper(this) << endl;
+        cout << "    begin: " << mkStreamRefWrapper(begin.bytePtr()) << endl;
+        cout << "    end: " << mkStreamRefWrapper(end.bytePtr()) << endl;
+    }
+
+    private var begin: RawPtr(ValueType);
+    private var end: RawPtr(ValueType);
+}

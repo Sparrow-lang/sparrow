@@ -1,0 +1,308 @@
+//!!
+package Test;
+
+import SL.StaticArray;
+import SL.ContiguousMemoryRange;
+import SL.RawPtr; // !!!
+
+fun sprMain
+{
+    if ( programArgs.size() < 2 )
+        return;
+    var n = programArgs(1) asInt;
+
+    if      ( n == 1 ) test1();
+    else if ( n == 2 ) test2();
+    else if ( n == 3 ) test3();
+    else if ( n == 4 ) test4();
+    else if ( n == 5 ) test5();
+    else if ( n == 6 ) test6();
+    else if ( n == 7 ) test7();
+    else if ( n == 8 ) test8();
+    else if ( n == 9 ) test9();
+    else if ( n == 10 ) test10();
+    else if ( n == 11 ) test11();
+    else if ( n == 12 ) test12();
+}
+
+class MyObj
+{
+    var x: Int;
+
+    fun ctor(xx: Int) { x = xx; }
+}
+
+fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
+{
+    var ptr = RawPtr(MyObj).alloc(size);
+    var ptrEnd = ptr.advance(DiffType(size));
+    var i = 0;
+
+    while ( i < size ; i = i + 1; )
+    {
+        var o: @AnyType = ptr.advance(i).value();
+
+        o.x = i;
+    }
+
+    return ContiguousMemoryRange(MyObj)(ptr, ptrEnd);
+}
+
+fun printStaticArray(a: @AnyType)
+{
+    var i = 0;
+
+    while ( i < a.size() ; i = i + 1; )
+    {
+        cout << a.at(i).x;
+        if ( i < a.size() - 1 )
+            cout << ' ';
+        else
+            cout << endl;
+    }
+}
+
+fun printSizeInfo(a: @AnyType)
+{
+    cout << a.isEmpty() << endl;
+    cout << a.size() << endl;
+}
+
+fun test1()
+{
+    var a: StaticArray(MyObj, 10);
+
+    printSizeInfo(a);
+    printStaticArray(a);
+}
+/*<<<Default constructor(1)
+false
+10
+0 0 0 0 0 0 0 0 0 0
+>>>*/
+
+fun test2()
+{
+    var a: StaticArray(MyObj, 10) = MyObj(15);
+
+    printSizeInfo(a);
+    printStaticArray(a);
+}
+/*<<<Fill constructor(2)
+false
+10
+15 15 15 15 15 15 15 15 15 15
+>>>*/
+
+fun test3()
+{
+    var a: StaticArray(MyObj, 10) = createRangeAscending(10);
+
+    printSizeInfo(a);
+    printStaticArray(a);
+}
+/*<<<Range constructor(3)
+false
+10
+0 1 2 3 4 5 6 7 8 9
+>>>*/
+
+fun test4()
+{
+	var a1: StaticArray(MyObj, 4);
+	var a2 = StaticArray(MyObj, 4)(createRangeAscending(4));
+	var a3: StaticArray(MyObj, 4) = a1;
+	var a4 = a2;
+
+	printSizeInfo(a3);
+	printSizeInfo(a4);
+	printStaticArray(a4);
+}
+/*<<<Copy constructor(4)
+false
+4
+false
+4
+0 1 2 3
+>>>*/
+
+fun test5()
+{
+	// TODO
+}
+/*---<<<Destructor(5)
+>>>*/
+
+fun test6()
+{
+	var a = StaticArray(MyObj, 8)(createRangeAscending(8));
+
+	a.at(1).x = 111;
+	a.at(5).x = 555;
+	printStaticArray(a);
+}
+/*<<<Element access(6)
+0 111 2 3 4 555 6 7
+>>>*/
+
+fun test7()
+{
+	var a = StaticArray(MyObj, 4)(createRangeAscending(4));
+	var r = a.all();
+
+	while ( !r.isEmpty() ; r.popFront(); )
+		cout << r.front().x << endl;
+	r = ContiguousMemoryRange(MyObj)(a.all());
+	while ( !r.isEmpty() ; r.popFront(); )
+		r.front().x = r.front().x + 1;
+	printSizeInfo(a);
+	printStaticArray(a);
+}
+/*<<<Range access(7)
+0
+1
+2
+3
+false
+4
+1 2 3 4
+>>>*/
+
+fun test8()
+{
+	var a1: StaticArray(MyObj, 5);
+	var a2 = StaticArray(MyObj, 8)(createRangeAscending(8));
+	var a3 = StaticArray(MyObj, 4)(createRangeAscending(4));
+
+	a1.assign(createRangeAscending(5));
+	printSizeInfo(a1);
+	a2.assign(createRangeAscending(4));
+	printSizeInfo(a2);
+	printStaticArray(a2);
+	a3.at(0) = MyObj(3);
+	a3.at(1) = MyObj(2);
+	a3.at(2) = MyObj(1);
+	a3.at(3) = MyObj(0);
+	a3.assign(createRangeAscending(4));
+	printSizeInfo(a3);
+	printStaticArray(a3);
+}
+/*<<<Range assignment(8)
+false
+5
+false
+8
+0 1 2 3 4 5 6 7
+false
+4
+0 1 2 3
+>>>*/
+
+fun test9()
+{
+	var a1: StaticArray(MyObj, 6);
+	var a2 = StaticArray(MyObj, 6)(createRangeAscending(6));
+
+	a2 = a1;
+	printSizeInfo(a2);
+	printStaticArray(a2);
+	printSizeInfo(a1 = a2);
+	printStaticArray(a1);
+}
+/*<<<Assignment operator(9)
+false
+6
+0 0 0 0 0 0
+false
+6
+0 0 0 0 0 0
+>>>*/
+
+fun test10()
+{
+	var a1 = StaticArray(MyObj, 4)(createRangeAscending(4));
+	var a2 = StaticArray(MyObj, 4)(createRangeAscending(4));
+	var a3 = StaticArray(MyObj, 4)(createRangeAscending(4));
+
+    a3.at(2) = MyObj(10);
+	cout << a1 == a2 << endl;
+	cout << a1 == a3 << endl;
+}
+/*<<<Equality operator(10)
+true
+false
+>>>*/
+
+fun test11()
+{
+	var a = StaticArray(MyObj, 1000)(createRangeAscending(1000));
+	var i = 0;
+
+	printSizeInfo(a);
+	while ( i < a.size() ; i = i + 1; )
+	{
+		if ( a.at(i).x != i )
+			cout << "test failed" << endl;
+	}
+
+	var aa = a;
+
+	i = 0;
+	printSizeInfo(aa);
+	while ( i < aa.size() ; i = i + 1; )
+	{
+		if ( aa.at(i).x != i )
+			cout << "test failed" << endl;
+	}
+
+	var aaa = StaticArray(MyObj, 1000)();
+
+	aaa.assign(createRangeAscending(1000));
+	i = 0;
+	printSizeInfo(aaa);
+	while ( i < aaa.size() ; i = i + 1; )
+	{
+		if ( aaa.at(i).x != i )
+			cout << "test failed" << endl;
+	}
+}
+/*<<<Large arrays(11)
+false
+1000
+false
+1000
+false
+1000
+>>>*/
+
+fun test12()
+{
+	var v = StaticArray(MyObj, 8)(createRangeAscending(8));
+	var r = v.subrange(0, 0);
+
+	while ( !r.isEmpty() ; r.popFront(); )
+		cout << r.front().x << endl;
+    r = v.subrange(0, 1);
+	while ( !r.isEmpty() ; r.popFront(); )
+		cout << r.front().x << endl;
+    r = v.subrange(2, 3);
+	while ( !r.isEmpty() ; r.popFront(); )
+		cout << r.front().x << endl;
+    r = v.subrange(0, v.size());
+	while ( !r.isEmpty() ; r.popFront(); )
+		cout << r.front().x << endl;
+}
+/*<<<Subrange(12)
+0
+2
+3
+4
+0
+1
+2
+3
+4
+5
+6
+7
+>>>*/

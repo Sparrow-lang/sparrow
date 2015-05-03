@@ -1,0 +1,22 @@
+import OS;
+
+var[ct] hello  = "Hello, world!";
+var[ct] name   = "I am the Sparrow compiler!";
+var[ct] smart  = "Unlike other compilers, I am smart.";
+var[ct] canDo  = "I can run any kind of algorithm and I can execute any kind of program during compilation.";
+var[ct] exampl = "For example, in this program I composed a text at compile time and called an external program to synthesize it.";
+var[ct] more   = "As you will shortly see, I can do much more.";
+var[ct] exit   = "Now, I will let my dear friend Lucian to continue the presentation. Thank you, and good bye!";
+
+fun[ct] getMessage = hello+" "+name+" "+smart+" "+canDo+" "+exampl+" "+more+" "+exit;
+
+fun[ct] say(message: StringRef)
+{
+    cout << endl << message << endl;
+    OS.systemCall("say \"" + message + "\"");
+}
+
+fun[ct] ctor
+{
+    say( getMessage() );
+}

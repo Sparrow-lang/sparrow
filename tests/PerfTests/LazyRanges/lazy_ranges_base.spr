@@ -1,0 +1,46 @@
+//!! -O2
+
+import SL.Algorithms;
+import SL.Ranges;
+
+fun nextCollatz n = ife(n%2==0, n/2, n*3+1);
+
+fun collatzLen(n: ULong): UInt
+{
+    var len = UInt(1);
+    while ( n > 1 )
+    {
+        n = nextCollatz(n);
+        ++len;
+    }
+    return len;
+}
+
+
+fun sprMain
+{
+    if ( programArgs.size() < 2 )
+        return;
+    var n = programArgs(1) asInt;
+
+    var sum: ULong = 0;
+    var count = 0;
+    for ( i = 1.. )
+    {
+        var len = collatzLen(i);
+        if ( len >= n )
+            break;
+        // Main part of computing the root mean square
+        sum += len*len;
+        ++count;
+    }
+    var res = Math.sqrt(Double(sum) / Double(count));
+    cout << res << endl;
+}
+
+/*<<<Basic test (100)
+13.2375
+>>>*/
+/*<<<Basic test (500)
+142.207
+>>>*/

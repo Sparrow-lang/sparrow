@@ -1,0 +1,30 @@
+package Test;
+
+import SL.Algorithms;
+
+fun f(a: Int, b: Int)
+{
+    cout << "f a b " << a << " " << b << endl;
+}
+
+fun f(x: Double)
+{
+    cout << "f x " << x << endl;
+}
+
+fun f(p: Pair(Int, Int))
+{
+    cout << "f p " << p.first << " " << p.second << endl;
+}
+
+fun sprMain
+{
+    f(2, 3);
+    f(2.0);
+    f(makePair(3, 4));
+}
+/*<<<Running()
+f a b 2 3
+f x 2
+f p 3 4
+>>>*/

@@ -1,0 +1,74 @@
+//!! -t "SparrowImplicitLib.spr"
+package Test;
+
+class Base
+{
+    var a: Int;
+    
+    fun m1()
+    {
+        writeLnInt(11);
+    }
+    fun m2()
+    {
+        writeLnInt(12);
+    }
+    
+    fun[static, rt] sm()
+    {
+        writeLnInt(13);
+    }
+}
+
+class Test: Base
+{
+    var x: Int;
+    var y: Int;
+    
+    fun print()
+    {
+        writeLnInt(x);
+        writeLnInt(y);
+        writeLnInt(a);
+    }
+}
+
+var a: Test;
+
+fun printTestObj(obj: Test@)
+{
+    writeLnInt(obj.x);
+    writeLnInt(obj.y);
+    writeLnInt(obj.a);
+}
+
+fun printBaseObj(obj: Base@)
+{
+    writeLnInt(obj.a);
+}
+
+fun[native("test")] test(n: Int)
+{
+    assignInt(a.x, 100);
+    assignInt(a.y, 101);
+    assignInt(a.a, 109);
+    a.print();
+    printTestObj(a);
+    a.m1();
+    a.m2();
+    Test.sm();
+    printBaseObj(a);
+}
+
+/*<<<Running()
+100
+101
+109
+100
+101
+109
+11
+12
+13
+109
+>>>*/

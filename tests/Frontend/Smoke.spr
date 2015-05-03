@@ -1,0 +1,24 @@
+package Test;
+
+import Nothing.*;
+
+using Nothing.*;
+
+package A
+{
+    package B
+    {
+        class C: A
+        {
+            var a: Int;
+            var[static] b: Bool;
+            
+            fun ctor(aa: Int, bb: Bool) { a=aa; b=bb; }
+            
+            fun f(x: Int): Int { return a; }
+        }
+    }
+}
+
+
+( . )     // ERROR

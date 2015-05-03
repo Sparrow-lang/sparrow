@@ -1,0 +1,63 @@
+//!! -t "../Basic/SparrowImplicitLib.spr"
+package Test;
+
+fun factor(n: Int)
+{
+    if ( n < 1 )
+    {
+        write('T'); write('R'); write('O'); write('L'); writeLn('L');
+        return;
+    }
+    
+    var i: Int;
+    i = 2;
+
+    while ( n != 1 )
+    {
+        while ( n % i != 0 )
+            i = i + 1;
+    
+        var j: Int;
+        j = 0;
+        
+        while ( n % i == 0 )
+        {
+            j = j + 1;
+            n = n / i;
+        }
+        
+        write(i);
+        write(' ');
+        write('^');
+        write(' ');
+        write(j);
+        if ( n != 1 )
+        {
+            write(' ');        
+            write('*');
+            write(' ');            
+        }
+    }
+    write('\n');
+}
+
+fun[native("test")] test(n: Int)
+{
+    factor(2);
+    factor(60);
+    factor(541);
+    factor(1024);
+    factor(10080);
+    factor(10201);
+    factor(287699987);
+}
+
+/*<<<Running()
+2 ^ 1
+2 ^ 2 * 3 ^ 1 * 5 ^ 1
+541 ^ 1
+2 ^ 10
+2 ^ 5 * 3 ^ 2 * 5 ^ 1 * 7 ^ 1
+101 ^ 2
+11987 ^ 1 * 24001 ^ 1
+>>>*/

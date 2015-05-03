@@ -1,0 +1,19 @@
+import DefaultHashFunction;
+
+class[rtct] DefaultTypeTraits
+{
+    fun equal(l, r: @AnyType) = l == r;
+    fun less(l, r: @AnyType) = l < r;
+    fun hash(val: @AnyType): SizeType
+    {
+        if[ct] ( isValid(SizeType(val hash)) )
+            return val hash;
+        else if[ct] ( isValid(SizeType(val.get() hash)) )
+        {
+            return val.get() hash;
+        }
+        else
+            return defaultHash(val);
+    }
+}
+

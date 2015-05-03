@@ -1,0 +1,124 @@
+//!! -t "SparrowImplicitLib.spr"
+package Test;
+
+fun printByte(x: Byte)
+{
+    write(" B: ");
+    writeLn(x);
+}
+
+fun printUByte(x: UByte)
+{
+    write("UB: ");
+    writeLn(x);
+}
+
+fun printInt(x: Int)
+{
+    write(" I: ");
+    writeLn(x);
+}
+
+fun printUInt(x: UInt)
+{
+    write("UI: ");
+    writeLn(x);
+}
+
+
+fun[native("test")] test(n: Int)
+{
+    var sb: Byte = 1;
+    var ub: UByte = 2;
+    var ss: Short = 3;
+    var us: UShort = 4;
+    var si: Int = 5;
+    var ui: UInt = 6;
+    var sl: Long = 7;
+    var ul: ULong = 8;
+    var f: Float = 9;
+    var d: Double = 10;
+
+    writeLn(sb);
+    writeLn(ub);
+    writeLn(ss);
+    writeLn(us);
+    writeLn(si);
+    writeLn(ui);
+    writeLn(sl);
+    writeLn(ul);
+    writeLn(Int(f));        // For some weird reason, floats are not printed ok
+    writeLn(d);
+
+    writeLn("---");
+
+    writeLn(Byte(-1));
+    writeLn(UByte(-2));
+    writeLn(Short(-3));
+    writeLn(UShort(-4));
+    writeLn(Int(-5));
+    writeLn(UInt(-6));
+    writeLn(Long(-7));
+    writeLn(ULong(-8));
+    writeLn(Double(Float(-9)));
+    writeLn(Double(-10));
+
+    writeLn("---");
+
+    printByte(Byte(1));
+    printByte(UByte(2));
+    //printByte(Int(3));
+    //printByte(UInt(4));
+
+    printUByte(Byte(11));
+    printUByte(UByte(12));
+    // printUByte(Int(13));
+    // printUByte(UInt(14));
+
+    printInt(Byte(21));
+    printInt(UByte(22));
+    printInt(Int(23));
+    printInt(UInt(24));
+
+    printUInt(Byte(31));
+    printUInt(UByte(32));
+    printUInt(Int(33));
+    printUInt(UInt(34));
+}
+
+/*<<<Running()
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+---
+255
+254
+65533
+65532
+-5
+-6
+-7
+-8
+-9
+-10
+---
+ B: 1
+ B: 2
+UB: 11
+UB: 12
+ I: 21
+ I: 22
+ I: 23
+ I: 24
+UI: 31
+UI: 32
+UI: 33
+UI: 34
+>>>*/

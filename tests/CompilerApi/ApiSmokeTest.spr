@@ -1,0 +1,9 @@
+//!!
+package Test;
+
+//import Meta.Diagnostic;
+import Meta.ASTNodes;
+
+fun sprMain
+{
+}

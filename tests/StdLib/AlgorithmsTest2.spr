@@ -1,0 +1,520 @@
+//!!
+package Test;
+
+import SL.Ranges;
+import SL.Algorithms;
+import SL.ContiguousMemoryRange;
+import SL.RawPtr; // !!!
+import SL.List;
+import SL.Pair;
+
+fun sprMain
+{
+    if ( programArgs.size() < 2 )
+        return;
+    var n = programArgs(1) asInt;
+
+    if      ( n == 1 ) test1();
+    else if ( n == 2 ) test2();
+    else if ( n == 3 ) test3();
+    else if ( n == 4 ) test4();
+    else if ( n == 5 ) test5();
+    else if ( n == 6 ) test6();
+    else if ( n == 7 ) test7();
+    else if ( n == 8 ) test8();
+    else if ( n == 9 ) test9();
+    else if ( n == 10 ) test10();
+    else if ( n == 11 ) test11();
+    else if ( n == 12 ) test12();
+    else if ( n == 13 ) test13();
+    else if ( n == 14 ) test14();
+    else if ( n == 15 ) test15();
+    else if ( n == 16 ) test16();
+    else if ( n == 17 ) test17();
+    else if ( n == 18 ) test18();
+    else if ( n == 19 ) test19();
+    else if ( n == 20 ) test20();
+    else if ( n == 21 ) test21();
+    else if ( n == 22 ) test22();
+    else if ( n == 23 ) test23();
+}
+
+class MyObj
+{
+    var x: Int;
+
+    fun ctor(xx: Int) { x = xx; }
+    fun <(other: @MyObj): Bool { return x < other.x; }
+}
+
+class Greater
+{
+    fun ()(x: Int, y: Int): Bool { return x > y; }
+}
+
+class Even
+{
+    fun ()(x: Int): Bool { return x % 2 == 0; }
+}
+
+class Minus
+{
+    fun ctor() { }
+
+    fun ()(x: Int, y: Int) = x - y;
+}
+
+fun printRange(nr: AnyType)
+{
+    while ( !nr.isEmpty() )
+    {
+        cout << nr.front();
+        nr.popFront();
+        if (nr.isEmpty() )
+            cout << endl;
+        else
+            cout << ' ';
+    }
+}
+
+fun printEmpty(nr: AnyType)
+{
+    cout << ife(nr.isEmpty(), "empty", "not empty") << endl;
+}
+
+fun makeList(): List(Int)
+{
+    var li: List(Int);
+
+    li.pushBack(3);
+    li.pushBack(1);
+    li.pushBack(-4);
+    li.pushBack(-8);
+    li.pushBack(-8);
+    li.pushBack(7);
+    li.pushBack(-4);
+    li.pushBack(-8);
+    li.pushBack(3);
+    li.pushBack(-5);
+    li.pushBack(-10);
+    li.pushBack(-6);
+    li.pushBack(-10);
+    li.pushBack(7);
+    li.pushBack(-8);
+
+    return li;
+}
+
+fun createRangeAscending(size: SizeType): ContiguousMemoryRange(Int)
+{
+    var ptr = RawPtr(Int).alloc(size);
+    var ptrEnd = ptr.advance(DiffType(size));
+    var i = 0;
+
+    while ( i < size ; i = i + 1; )
+        ptr.advance(i).value() = i;
+
+    return ContiguousMemoryRange(Int)(ptr, ptrEnd);
+}
+
+
+fun test1()
+{
+    var nr = NumericRangeInc(Int)(0, 10);
+
+    printRange(find(nr, 0));
+    printRange(find(nr, 5));
+    printEmpty(find(nr, 10));
+}
+/*<<<Finding(1)
+0 1 2 3 4 5 6 7 8 9
+5 6 7 8 9
+empty
+>>>*/
+
+fun test2()
+{
+    var nr1 = NumericRangeWithStep(Int)(11, 99, 2);
+    var nr2 = NumericRangeWithStep(Int)(5, 10, 1);
+
+    printRange(findIf(nr2, Even()));
+    printEmpty(findIf(nr1, Even()));
+}
+/*<<<Predicate finding(2)
+6 7 8 9
+empty
+>>>*/
+
+fun test3()
+{
+    var nr1 = NumericRangeWithStep(Int)(0, 10, 1);
+    var nr2 = NumericRangeWithStep(Int)(-10, 40, 3);
+    var nr3 = NumericRangeWithStep(Int)(20, 20, 100);
+
+    printRange(findFirstOf(nr1, nr2));
+    printEmpty(findFirstOf(nr3, nr2));
+    printEmpty(findFirstOf(nr2, nr3));
+}
+/*<<<Finding first of(3)
+2 3 4 5 6 7 8 9
+empty
+empty
+>>>*/
+
+fun test4()
+{
+    var nr1 = NumericRangeWithStep(Int)(0, 10, 2);
+    var nr2 = NumericRangeWithStep(Int)(5, 40, 3);
+    var nr3 = NumericRangeWithStep(Int)(20, 20, 100);
+    var nr4 = NumericRangeWithStep(Int)(10, 20, 1);
+
+    printRange(findFirstOfIf(nr1, nr2, Greater()));
+    printEmpty(findFirstOfIf(nr3, nr2, Greater()));
+    printEmpty(findFirstOfIf(nr2, nr3, Greater()));
+    printEmpty(findFirstOfIf(nr1, nr4, Greater()));
+}
+/*<<<Predicate finding first of(4)
+6 8
+empty
+empty
+empty
+>>>*/
+
+fun test5()
+{
+    var li = makeList();
+
+    cout << count(li.all(), -8) << endl;
+    cout << count(li.all(), 100) << endl;
+}
+/*<<<Counting(5)
+4
+0
+>>>*/
+
+fun test6()
+{
+    var nr = NumericRangeWithStep(Int)(1, 9, 2);
+    var li = makeList();
+
+    cout << countIf(li.all(), Even()) << endl;
+    cout << countIf(nr, Even()) << endl;
+}
+/*<<<Predicate counting(6)
+9
+0
+>>>*/
+
+fun test7()
+{
+    var nr1 = NumericRangeWithStep(Int)(0, 10, 1);
+    var nr2 = NumericRangeWithStep(Int)(0, 10, 1);
+    var nr3 = NumericRangeWithStep(Int)(10, 10, 2);
+    var nr4 = NumericRangeWithStep(Int)(-10, -10, 5);
+    var nr5 = NumericRangeWithStep(Int)(40, 100, 16);
+    var nr6 = NumericRangeWithStep(Int)(0, 11, 1);
+    var nr7 = NumericRangeWithStep(Int)(0, 9, 1);
+
+    cout << equal(nr1, nr2) << endl;
+    cout << equal(nr1, nr3) << endl;
+    cout << equal(nr3, nr4) << endl;
+    cout << equal(nr1, nr5) << endl;
+    cout << equal(nr1, nr6) << endl;
+    cout << equal(nr1, nr7) << endl;
+    cout << equal(nr4, nr7) << endl;
+}
+/*<<<Equality(7)
+true
+false
+true
+false
+true
+false
+true
+>>>*/
+
+fun test8()
+{
+    var nr1 = NumericRangeWithStep(Int)(0, 10, 1);
+    var nr2 = NumericRangeWithStep(Int)(0, 10, 1);
+    var nr3 = NumericRangeWithStep(Int)(10, 10, 2);
+    var nr4 = NumericRangeWithStep(Int)(-10, -10, 5);
+    var nr5 = NumericRangeWithStep(Int)(40, 100, 16);
+    var nr6 = NumericRangeWithStep(Int)(0, 11, 1);
+    var nr7 = NumericRangeWithStep(Int)(0, 9, 1);
+    var nr8 = NumericRangeWithStep(Int)(-1, 9, 1);
+    var nr9 = NumericRangeWithStep(Int)(-3, 50, 1);
+
+    cout << equalIf(nr1, nr2, Greater()) << endl;
+    cout << equalIf(nr1, nr3, Greater()) << endl;
+    cout << equalIf(nr3, nr4, Greater()) << endl;
+    cout << equalIf(nr1, nr5, Greater()) << endl;
+    cout << equalIf(nr1, nr6, Greater()) << endl;
+    cout << equalIf(nr1, nr7, Greater()) << endl;
+    cout << equalIf(nr4, nr7, Greater()) << endl;
+    cout << equalIf(nr1, nr8, Greater()) << endl;
+    cout << equalIf(nr1, nr9, Greater()) << endl;
+}
+/*<<<Predicate equality(8)
+false
+false
+true
+false
+false
+false
+true
+true
+true
+>>>*/
+
+fun test9()
+{
+    var nr1 = NumericRangeWithStep(Int)(0, 10, 1);
+    var nr2 = NumericRangeWithStep(Int)(0, 10, 1);
+    var nr3 = NumericRangeWithStep(Int)(3, 7, 1);
+    var nr4 = NumericRangeWithStep(Int)(20, 20, 20);
+    var nr5 = NumericRangeWithStep(Int)(0, 20, 1);
+
+    printRange(findRange(nr1, nr2));
+    printRange(findRange(nr1, nr3));
+    printRange(findRange(nr1, nr1));
+    printEmpty(findRange(nr1, nr5));
+    printRange(findRange(nr1, nr4));
+    printEmpty(findRange(nr4, nr1));
+}
+/*<<<Range finding(9)
+0 1 2 3 4 5 6 7 8 9
+3 4 5 6 7 8 9
+0 1 2 3 4 5 6 7 8 9
+empty
+0 1 2 3 4 5 6 7 8 9
+empty
+>>>*/
+
+fun test10()
+{
+    var nr1 = NumericRangeWithStep(Int)(0, 10, 1);
+    var nr2 = NumericRangeWithStep(Int)(3, 5, 1);
+    var nr3 = NumericRangeWithStep(Int)(10, 10, 1);
+    var nr4 = NumericRangeWithStep(Int)(4, 11, 1);
+
+    printRange(findRangeIf(nr1, nr2, Greater()));
+    printRange(findRangeIf(nr1, nr3, Greater()));
+    printEmpty(findRangeIf(nr1, nr4, Greater()));
+    printEmpty(findRangeIf(nr1, nr1, Greater()));
+}
+/*<<<Predicate range finding(10)
+4 5 6 7 8 9
+0 1 2 3 4 5 6 7 8 9
+empty
+empty
+>>>*/
+
+fun test11()
+{
+    var li = makeList();
+
+    printRange(minElement(li.all()));
+
+    var nr = NumericRangeWithStep(Int)(10, 10, 1);
+
+    printEmpty(minElement(nr));
+}
+/*<<<Minimum element(11)
+-10 -6 -10 7 -8
+empty
+>>>*/
+
+fun test12()
+{
+    var li = makeList();
+
+    printRange(minElementIf(li.all(), Greater()));
+
+    var nr = NumericRangeWithStep(Int)(10, 10, 1);
+
+    printEmpty(minElementIf(nr, Greater()));
+}
+/*<<<Predicate minimum element(12)
+7 -4 -8 3 -5 -10 -6 -10 7 -8
+empty
+>>>*/
+
+fun test13()
+{
+    var li = makeList();
+
+    printRange(maxElement(li.all()));
+
+    var nr = NumericRangeWithStep(Int)(10, 10, 1);
+
+    printEmpty(maxElement(nr));
+}
+/*<<<Maximum element(13)
+7 -4 -8 3 -5 -10 -6 -10 7 -8
+empty
+>>>*/
+
+fun test14()
+{
+    var li = makeList();
+
+    printRange(maxElementIf(li.all(), Greater()));
+
+    var nr = NumericRangeWithStep(Int)(10, 10, 1);
+
+    printEmpty(maxElementIf(nr, Greater()));
+}
+/*<<<Predicate maximum element(14)
+-10 -6 -10 7 -8
+empty
+>>>*/
+
+fun test15()
+{
+    var li = makeList();
+    var pair = minMaxElement(li.all());
+
+    printRange(pair.first);
+    printRange(pair.second);
+
+    var nr = NumericRangeWithStep(Int)(10, 10, 1);
+    var pair2 = minMaxElement(nr);
+
+    printEmpty(pair2.first);
+    printEmpty(pair2.second);
+}
+/*<<<Minimum and maximum elements(15)
+7 -4 -8 3 -5 -10 -6 -10 7 -8
+-10 -6 -10 7 -8
+empty
+empty
+>>>*/
+
+fun test16()
+{
+    var li = makeList();
+    var pair = minMaxElementIf(li.all(), Greater());
+
+    printRange(pair.first);
+    printRange(pair.second);
+
+    var nr = NumericRangeWithStep(Int)(10, 10, 1);
+
+    var pair2 = minMaxElementIf(nr, Greater());
+    printEmpty(pair2.first);
+    printEmpty(pair2.second);
+}
+/*<<<Predicate minimum and maximum elements(16)
+-10 -6 -10 7 -8
+7 -4 -8 3 -5 -10 -6 -10 7 -8
+empty
+empty
+>>>*/
+
+fun test17()
+{
+    var nr1 = NumericRangeWithStep(Int)(0, 10, 1);
+    var nr2 = NumericRangeWithStep(Int)(2, 5, 1);
+    var nr3 = NumericRangeWithStep(Int)(-1, 20, 1);
+    var nr4 = NumericRangeWithStep(Int)(1, 15, 1);
+
+    cout << compare(nr1, nr2) << endl;
+    cout << compare(nr1, nr3) << endl;
+    cout << compare(nr1, nr1) << endl;
+    cout << compare(nr1, nr4) << endl;
+}
+/*<<<Comparison(17)
+false
+false
+false
+true
+>>>*/
+
+fun test18()
+{
+    var nr1 = NumericRangeWithStep(Int)(0, 10, 1);
+    var nr2 = NumericRangeWithStep(Int)(2, 5, 1);
+    var nr3 = NumericRangeWithStep(Int)(-1, 20, 1);
+    var nr4 = NumericRangeWithStep(Int)(1, 15, 1);
+
+    cout << compare(nr1, nr2, Greater()) << endl;
+    cout << compare(nr1, nr3, Greater()) << endl;
+    cout << compare(nr1, nr1, Greater()) << endl;
+    cout << compare(nr1, nr4, Greater()) << endl;
+}
+/*<<<Predicate comparison(18)
+false
+true
+false
+false
+>>>*/
+
+fun test19()
+{
+    var nr1 = NumericRangeWithStep(Int)(0, 10, 1);
+    var nr2 = NumericRangeWithStep(Int)(20, 10, -1);
+
+    cout << isSorted(nr1) << endl;
+    cout << isSorted(nr2) << endl;
+}
+/*<<<Checking for sorted(19)
+true
+false
+>>>*/
+
+fun test20()
+{
+    var nr1 = NumericRangeWithStep(Int)(0, 10, 1);
+    var nr2 = NumericRangeWithStep(Int)(10, 5, -1);
+
+    cout << isSorted(nr1, Greater()) << endl;
+    cout << isSorted(nr2, Greater()) << endl;
+}
+/*<<<Predicate checking for sorted(20)
+false
+true
+>>>*/
+
+fun test21()
+{
+    var li = makeList();
+
+    cout << indexOf(li.all(), -10) << endl;
+    cout << indexOf(li.all(), -50) << endl;
+}
+/*<<<Index of(21)
+10
+18446744073709551615
+>>>*/
+
+fun test22()
+{
+    var li = makeList();
+    var nr = NumericRangeWithStep(Int)(5, 19, 2);
+
+    cout << indexOfIf(li.all(), Even()) << endl;
+    cout << indexOfIf(nr, Even()) << endl;
+}
+/*<<<Predicate index of(22)
+2
+18446744073709551615
+>>>*/
+
+fun test23()
+{
+    var li = makeList();
+    var lr = li.all();   
+
+    cout << foldLeft(lr, Minus(), 0) << endl;
+    cout << foldRight(lr, Minus(), 0) << endl;
+
+    var nr = NumericRangeWithStep(Int)();
+
+    cout << foldLeft(nr, Minus(), 100) << endl;
+}
+/*<<<Folding(23)
+50
+50
+100
+>>>*/

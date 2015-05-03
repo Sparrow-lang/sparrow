@@ -1,0 +1,60 @@
+package Logic;
+
+import LRef;
+import Predicates;
+import Recurse;
+
+import PrologImpl.Nodes;
+import PrologImpl.Lexer;
+import PrologImpl.Parser;
+import PrologImpl.IR;
+import PrologImpl.SprCodeDump;
+import PrologImpl.CodeGen;
+
+import Meta.Diagnostic;
+import Meta.ASTNodes;
+
+import Assert;
+import Time;
+
+fun[macro] compileProlog(sourceString: Meta.AstNode): Meta.AstNode
+{
+    if[ct] ( sourceString.nodeKind() != Meta.Kinds.nkSparrowExpLiteral )
+        Meta.report("compileProlog should take a string literal as argument", sourceString.location());
+    else
+    {
+        sourceString.semanticCheck();
+        var loc = sourceString.location();
+        var ctx = sourceString.context();
+        var str: String = Meta.astEval(sourceString.clone());
+        return handlePrologCode(str, loc, ctx);
+    }
+}
+
+fun[ct] handlePrologCode(code: @String, location: Meta.Location, context: Meta.CompilationContext): Meta.AstNode
+{
+    //cout << "(" << location.startLineNo << ":" << location.startColNo << " - " << location.endLineNo << ":" << location.endColNo << ')' << endl << flush;
+    var t: Time.Timer;
+    var errorReporter: CompilerErrorReporter;
+    var lexer = mkLexer(code.all(), errorReporter, location);
+    var parser = mkParser(lexer, errorReporter);
+    var sps: SparrowPrologSystem = parser.parse();
+    sps.semanticCheck();
+    //dumpProlog(cout, sps);
+    var res = genProlog(sps);
+    res.setContext(context);
+    cout << "Elapsed: " << t.elapsed() << endl << flush;
+    return res;
+}
+
+fun[ct] prologToString(source: @String): String
+{
+    var errorReporter = mkConsoleErrorReporter(source.all());
+    var lexer = mkLexer(source.all(), errorReporter);
+    var parser = mkParser(lexer, errorReporter);
+    var sps: SparrowPrologSystem = parser.parse();
+    sps.semanticCheck();
+    var ss: StringOutputStream;
+    dumpProlog(ss, sps);
+    return ss.result;
+}

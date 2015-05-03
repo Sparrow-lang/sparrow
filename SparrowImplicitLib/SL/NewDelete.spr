@@ -1,0 +1,56 @@
+import Ranges;
+
+fun[rtct] new(t: Type): @t
+{
+    var res: @t = reinterpretCast(@t, malloc(sizeOf(t)));
+    res ctor;
+    return res;
+}
+
+fun[rtct] new(t: Type, arg1: @AnyType): @t if isValid(#$t ctor arg1)
+{
+    var res: @t = reinterpretCast(@t, malloc(sizeOf(t)));
+    res ctor arg1;
+    return res;
+}
+
+fun[rtct] new(t: Type, arg1, arg2: @AnyType): @t if isValid((#$t).ctor(arg1, arg2))
+{
+    var res: @t = reinterpretCast(@t, malloc(sizeOf(t)));
+    res.ctor(arg1, arg2);
+    return res;
+}
+
+fun[rtct] new(t: Type, arg1, arg2, arg3: @AnyType): @t if isValid((#$t).ctor(arg1, arg2, arg3))
+{
+    var res: @t = reinterpretCast(@t, malloc(sizeOf(t)));
+    res.ctor(arg1, arg2, arg3);
+    return res;
+}
+
+fun[rtct] new(t: Type, arg1, arg2, arg3, arg4: @AnyType): @t if isValid((#$t).ctor(arg1, arg2, arg3, arg4))
+{
+    var res: @t = reinterpretCast(@t, malloc(sizeOf(t)));
+    res.ctor(arg1, arg2, arg3, arg4);
+    return res;
+}
+
+fun[rtct] delete(obj: @AnyType)
+{
+    if ( obj !== null )
+    {
+        obj.dtor();
+        free(reinterpretCast(@Byte, obj));
+    }
+}
+
+fun[rtct] delete(ptr: @AnyType) if isValid(ptr.release())
+{
+    ptr.release();
+}
+
+fun[rtct] delete(r: Range)
+{
+    for ( x = r )
+        delete(x);
+}

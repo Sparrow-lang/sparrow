@@ -1,0 +1,14 @@
+//!! -t "../Basic/SparrowImplicitLib.spr"
+package Test;
+
+import HeaderA;
+import HeaderA;
+
+fun[native("test")] test(n: Int)
+{
+    writeLn("Ok");
+}
+
+/*<<<Running
+Ok
+>>>*/

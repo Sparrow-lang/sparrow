@@ -1,0 +1,66 @@
+//!!
+package Test;
+
+fun[rt] mallocRt()
+{
+    var pi: @Int = reinterpretCast(@Int, malloc(sizeOf(Int)));
+    pi = 10;
+    cout << pi << endl;
+    free(reinterpretCast(@Byte, pi));
+}
+
+fun[ct] mallocCt()
+{
+    var pi: @Int = reinterpretCast(@Int, malloc(sizeOf(Int)));
+    pi = 11;
+    cout << pi << endl;
+    free(reinterpretCast(@Byte, pi));
+}
+
+fun[rtct] mallocRtCt()
+{
+    var pi: @Int = reinterpretCast(@Int, malloc(sizeOf(Int)));
+    pi = 12;
+    cout << pi << endl;
+    free(reinterpretCast(@Byte, pi));
+}
+
+fun[rt] rtCaller()
+{
+    mallocRtCt();
+}
+
+fun[ct] ctCaller()
+{
+    mallocRtCt();
+}
+
+fun test1()
+{
+    mallocRt();
+    mallocCt(); // Displays 11 at compile-time
+}
+
+fun test2()
+{
+    // Call the same rtct function from two different contexts: one at rt, one at ct
+    rtCaller();
+    ctCaller(); // Display 12 at compile-time
+}
+
+fun sprMain
+{
+    var x = 10;
+    var y = 2;
+    var[ct] yy = 2;
+
+    test1();
+    cout << "---" << endl;
+    test2();
+}
+
+/*<<<Running()
+10
+---
+12
+>>>*/

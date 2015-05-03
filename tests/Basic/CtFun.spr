@@ -1,0 +1,93 @@
+//!! -t "SparrowImplicitLib.spr"
+package Test;
+
+fun[rt] pow1(x: Double, n: Int): Double
+{
+    if ( equal(n, 0) )
+        return 1.0;
+    else if ( equal(n, 1) )
+        return x;
+    else
+        //return mul(x, pow1(x, sub(n,1)));
+        return mul(pow1(mul(x,x), div(n,2)), pow1(x, mod(n,2)));
+}
+
+fun[ct] pow2(x: Double, n: Int): Double
+{
+    if ( equal(n, 0) )
+        return 1.0;
+    else if ( equal(n, 1) )
+        return x;
+    else
+        return mul(pow2(mul(x,x), div(n,2)), pow2(x, mod(n,2)));
+}
+
+fun[autoCt] pow3(x: Double, n: Int): Double
+{
+    if ( equal(n, 0) )
+        return 1.0;
+    else
+        return mul(x, pow3(x, sub(n,1)));
+    return x;
+}
+
+fun[native("writeLnDouble"), autoCt] writeLnDoubleCt(x: Double);
+
+
+// Function that can be called only with compile-time arguments
+fun[ct] ctTest(x: Double)
+{
+    writeLnDoubleCt(x);
+}
+
+class TestClass
+{
+    fun[ct,static] ctMethod(n: Int): Int
+    {
+        return add(n,1000);
+    }
+}
+
+var t1: TestClass;
+
+fun[native("test")] test(n: Int)
+{
+    writeLnDouble(pow1(2.0, 0));
+    writeLnDouble(pow1(2.0, 1));
+    writeLnDouble(pow1(2.0, 2));
+    writeLnDouble(pow1(2.0, 3));
+    writeLnDouble(pow1(2.0, 4));
+    writeLnDouble(pow1(2.0, 5));
+    writeLnDouble(pow1(2.0, 6));
+    writeLnDouble(pow1(2.0, 7));
+    writeLnDouble(pow1(2.0, 8));
+
+    writeLnDouble(mathPow(3.0, 4.0));
+    writeLnDouble(pow1(3.0, 4));
+    writeLnDouble(pow2(3.0, 4));
+    pow3(3.0, 4);
+    writeLnDouble(pow3(3.0, 4));
+
+    //ctTest(pow1(4.0, 4));
+    ctTest(pow2(4.0, 4));
+    ctTest(pow3(4.0, 4));
+    
+    writeLnInt(TestClass.ctMethod(10));
+}
+
+/*<<<Running()
+1
+2
+4
+8
+16
+32
+64
+128
+256
+81
+81
+81
+81
+1010
+>>>*/

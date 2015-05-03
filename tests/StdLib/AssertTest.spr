@@ -1,0 +1,43 @@
+//!!
+package Test;
+
+import Assert;
+import Meta.ASTNodes;
+
+using Meta.*;
+
+fun sprMain
+{
+    if ( programArgs.size() < 2 )
+        return;
+    var n = programArgs(1) asInt;
+
+    if      ( n == 1 ) test1();
+    //else if ( n == 2 ) test2();
+    //else if ( n == 3 ) test3();
+}
+
+fun printerTrue: Bool
+{
+    cout << "Inside printerTrue" << endl << flush;
+    return true;
+}
+
+fun printerFalse: Bool
+{
+    cout << "Inside printerFalse" << endl << flush;
+    return false;
+}
+
+fun test1
+{
+    assert(true);
+    //assert(false);
+    assert(printerTrue());
+    //assert(printerFalse());
+    assert(2 == 1+1);
+    //assert(2 != 1+1);
+}
+/*<<<All asserts are ok (1)
+Inside printerTrue
+>>>*/

@@ -1,0 +1,58 @@
+//!! -t "SparrowImplicitLib.spr"
+package Test;
+
+concept AnyType(x); // Always true
+
+fun add(x,y: Int) = x+y;
+fun next(x: AnyType) = x+1;
+
+fun one: Int { return 1; }
+fun two: Int { return 2; }
+fun three = 3;
+
+fun sum(x,y: AnyType) = x+y if typeOf(x) == typeOf(y);
+
+fun nextAsDouble(x: AnyType): Double = x+1.0;
+
+class Test1
+{
+    var aa: Int;
+    var bb: Int;
+
+    fun ctor(a,b: Int) { aa = a; bb = b; }
+    fun ctor(other: Test1) { aa = other.aa; bb = other.bb; }
+
+    fun a = this.aa;
+    fun b = this.bb;
+}
+
+fun[native("test")] test(n: Int)
+{
+    writeLn(add(1,2));
+    writeLn(next(5));
+    writeLn(one());
+    writeLn(two());
+    writeLn(three());
+    writeLn(sum(5, 6));
+    writeLn(sum(3.14, 3.14));
+    writeLn(nextAsDouble(3.14));
+    writeLn("---");
+
+    var t = Test1(3,5);
+    writeLn(t.a());
+    writeLn(t.b());
+}
+
+/*<<<Running()
+3
+6
+1
+2
+3
+11
+6.28
+4.14
+---
+3
+5
+>>>*/

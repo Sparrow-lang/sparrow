@@ -1,0 +1,242 @@
+#include <StdInc.h>
+#include "SprClass.h"
+#include "GenericClass.h"
+#include <NodeCommonsCpp.h>
+#include <Helpers/ForEachNodeInNodeList.h>
+#include <Helpers/DeclsHelpers.h>
+#include <Helpers/SprTypeTraits.h>
+#include <Helpers/StdDef.h>
+#include <IntMods/IntModClassMembers.h>
+
+#include <Feather/Nodes/Decls/Class.h>
+#include <Feather/Type/DataType.h>
+#include <Feather/Util/Decl.h>
+
+#include <Nest/Frontend/SourceCode.h>
+
+using namespace SprFrontend;
+using namespace Feather;
+
+namespace
+{
+    /// Get the fields from the symtab of the current class
+    /// In the process it might compute the type of the SprVariables
+    NodeVector getFields(SymTab* curSymTab)
+    {
+        // Check all the nodes registered in the children context so far to discover the fields
+        NodeVector fields;
+        for ( Node* n: curSymTab->allEntries() )
+        {
+            switch ( n->nodeKind() )
+            {
+                case nkFeatherDeclVar:
+                    fields.push_back(n);
+                    break;
+                case nkSparrowDeclSprVariable:
+                    fields.push_back(n);
+                    break;
+            }
+        }
+
+        // Sort the fields by location - we need to add them in order
+        sort(fields.begin(), fields.end(), [](Node* f1, Node* f2) { return f1->location() < f2->location(); });
+
+        // Make sure we have only fields
+        for ( Node*& field: fields )
+        {
+            field->computeType();
+            field = field->explanation();
+            if ( field->nodeKind() != nkFeatherDeclVar || !isField(field) )
+                field = nullptr;
+        }
+
+        // Remove all the nulls
+        fields.erase(remove_if(fields.begin(), fields.end(), [](Node* n) { return n == nullptr; }), fields.end());
+
+        return fields;
+    }
+}
+
+SprClass::SprClass(const Location& loc, string name, NodeList* parameters, NodeList* baseClasses, NodeList* children, Node* ifClause, AccessType accessType)
+    : Node(loc, {parameters, baseClasses, children, ifClause})
+{
+    setName(this, move(name));
+    setAccessType(this, accessType);
+}
+
+NodeList* SprClass::baseClasses() const
+{
+    ASSERT(children_.size() == 4);
+    return (NodeList*) children_[1];
+}
+NodeList* SprClass::classChildren() const
+{
+    ASSERT(children_.size() == 4);
+    return (NodeList*) children_[2];
+}
+
+void SprClass::addChild(Node* child)
+{
+    if ( !child )
+        return;
+    if ( childrenContext() )
+        child->setContext(childrenContext());
+    if ( type_ )
+        child->computeType();
+    if ( !children_[2] )
+    {
+        children_[2] = mkNodeList(location_, {});
+        if ( childrenContext() )
+            children_[2]->setContext(childrenContext());
+    }
+    static_cast<NodeList*>(children_[2])->addChild(child);
+}
+
+void SprClass::dump(ostream& os) const
+{
+    os << "class " << getName(this);
+    if ( children_[0] )
+        os << "(" << children_[0] << ")";
+    if ( children_[1] )
+        os << ": " << children_[1];
+    os << "\nbody: " << children_[2] << "\n";
+}
+
+void SprClass::doSetContextForChildren()
+{
+    addToSymTab(this);
+    
+    // If we don't have a children context, create one
+    if ( !childrenContext_ )
+        childrenContext_ = context_->createChildContext(this, effectiveEvalMode(this));
+
+    Node::doSetContextForChildren();
+}
+
+void SprClass::doComputeType()
+{
+    ASSERT(children_.size() == 4);
+    NodeList* parameters = (NodeList*) children_[0];
+    NodeList* baseClasses = (NodeList*) children_[1];
+    NodeList* children = (NodeList*) children_[2];
+    Node* ifClause = children_[3];
+
+    // Is this a generic?
+    if ( parameters && !parameters->children().empty() )
+    {
+        Node* generic = new GenericClass(this, parameters, ifClause);
+        setProperty(propResultingDecl, generic);
+        setExplanation(generic);
+        return;
+    }
+    if ( ifClause )
+        REP_ERROR(location_, "If clauses must be applied only to generics; this is not a generic class");
+
+    // Default class members
+    if ( !hasProperty(propNoDefault) )
+        modifiers_.push_back(new IntModClassMembers);
+    
+    Node* resultingClass = nullptr;
+
+    // Special case for Type class; re-use the existing StdDef class
+    const string* nativeName = getPropertyString(propNativeName);
+    if ( nativeName && *nativeName == "Type" )
+    {
+        resultingClass = StdDef::clsType;
+    }
+
+    // Create the resulting Feather.Class object
+    if ( !resultingClass )
+        resultingClass = Feather::mkClass(location_, getName(this), {});
+    setShouldAddToSymTab(resultingClass, false);
+
+    // Copy the "native" and "description" properties to the resulting class
+    if ( nativeName )
+    {
+        resultingClass->setProperty(Feather::propNativeName, *nativeName);
+    }
+    const string* description = getPropertyString(propDescription);
+    if ( description )
+    {
+        resultingClass->setProperty(propDescription, *description);
+    }
+
+    setEvalMode(resultingClass, nodeEvalMode(this));
+    resultingClass->setChildrenContext(childrenContext_);
+    resultingClass->setContext(context_);
+    setProperty(propResultingDecl, resultingClass);
+
+    explanation_ = resultingClass;
+
+    // Check for Std classes
+    checkStdClass(resultingClass);
+    
+    // First check all the base classes
+    if ( baseClasses )
+    {
+        for ( auto& bcName: baseClasses->children() )
+        {
+            // Make sure the type refers to a class
+            Type* bcType = getType(bcName);
+            if ( !bcType || !bcType->hasStorage() )
+                REP_ERROR(location_, "Invalid base class");
+            Class* baseClass = static_cast<StorageType*>(bcType)->classDecl();
+            
+            // Compute the type of the base class
+            baseClass->computeType();
+
+            // Add the fields of the base class to the resulting basic class
+            static_cast<Class*>(resultingClass)->addFields(baseClass->fields());
+
+            // Copy the symbol table entries of the base to this class
+            SymTab* ourSymTab = childrenContext()->currentSymTab();
+            SymTab* baseSymTab = baseClass->childrenContext()->currentSymTab();
+            ourSymTab->copyEntries(baseSymTab);
+        }
+    }
+
+    // We now have a type - from now on we can safely compute the types of the children
+    type_ = DataType::get(static_cast<Class*>(resultingClass));
+
+    // Get the fields from the current class
+    NodeVector fields = getFields(childrenContext_->currentSymTab());
+    static_cast<Class*>(resultingClass)->addFields(fields);
+
+    // Check all the children
+    if ( children )
+    {
+        children->computeType();
+        checkForAllowedNamespaceChildren(children, true);
+    }
+
+    // Take the fields and the methods
+    forEachNodeInNodeList(children, [&] (Node* child) -> void
+    {
+        Node* p = child->explanation();
+        if ( !isField(p) )
+        {
+            // Methods, generics
+            ASSERT(context_->sourceCode());
+            context_->sourceCode()->addAdditionalNode(child);
+        }
+    });
+
+    // Compute the type for the basic class
+    resultingClass->computeType();
+}
+
+void SprClass::doSemanticCheck()
+{
+    computeType();
+
+    explanation_->semanticCheck();
+
+    if ( explanation_->nodeKind() != nkFeatherDeclClass )
+        return; // This should be a generic; there is nothing else to do here
+
+    // Semantic check all the children
+    ASSERT(children_.size() == 4);
+    NodeList* children = (NodeList*) children_[2];
+    if ( children )
+        children->semanticCheck();
+}

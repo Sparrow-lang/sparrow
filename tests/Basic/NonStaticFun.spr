@@ -1,0 +1,56 @@
+//!! -t "SparrowImplicitLib.spr"
+package Test;
+
+class Test
+{
+    var x: Int;
+    var y: Int;
+    
+    fun f()
+    {
+        writeLnInt(1);
+    }
+    fun g(n: Int)
+    {
+        writeLnInt(n);
+    }
+    
+    fun m1()
+    {
+        writeLnInt(this.x);
+        writeLnInt(this.y);
+    }
+    
+    fun m2()
+    {
+        writeLnInt(x);
+        writeLnInt(y);
+    }
+}
+
+var a: Test;
+
+fun[native("test")] test(n: Int)
+{
+    assignInt(a.x, 100);
+    assignInt(a.y, 101);
+
+    Test.f(a);
+    Test.g(a, 10);
+    
+    a.f();
+    a.g(5);
+    a.m1();
+    a.m2();
+}
+
+/*<<<Running()
+1
+10
+1
+5
+100
+101
+100
+101
+>>>*/

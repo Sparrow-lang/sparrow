@@ -1,0 +1,702 @@
+//!! 
+package Test;
+
+import SL.Vector;
+import SL.ContiguousMemoryRange;
+import SL.RawPtr;
+
+fun sprMain
+{
+    if ( programArgs.size() < 2 )
+        return;
+    var n = programArgs(1) asInt;
+
+    if      ( n == 1 ) test1();
+    else if ( n == 2 ) test2();
+    else if ( n == 3 ) test3();
+    else if ( n == 4 ) test4();
+    else if ( n == 5 ) test5();
+    else if ( n == 6 ) test6();
+    else if ( n == 7 ) test7();
+    else if ( n == 8 ) test8();
+    else if ( n == 9 ) test9();
+    else if ( n == 10 ) test10();
+    else if ( n == 11 ) test11();
+    else if ( n == 12 ) test12();
+    else if ( n == 13 ) test13();
+    else if ( n == 14 ) test14();
+    else if ( n == 15 ) test15();
+    else if ( n == 16 ) test16();
+    else if ( n == 17 ) test17();
+    else if ( n == 18 ) test18();
+    else if ( n == 19 ) test19();
+    else if ( n == 20 ) test20();
+}
+
+class MyObj
+{
+    var x: Int;
+
+    fun ctor(xx: Int) { x = xx; }
+}
+
+fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
+{
+    var ptr = RawPtr(MyObj).alloc(size);
+    var ptrEnd = ptr.advance(DiffType(size));
+    var i = 0;
+
+    while ( i < size ; i = i + 1; )
+    {
+        var o: @AnyType = ptr.advance(i).value();
+
+        o.x = i;
+    }
+
+    return ContiguousMemoryRange(MyObj)(ptr, ptrEnd);
+}
+
+fun printVector(a: @Vector(MyObj))
+{
+    var i = 0;
+
+    while ( i < a.size() ; i = i + 1; )
+    {
+        cout << a.at(i).x;
+        if ( i < a.size() - 1 )
+            cout << ' ';
+        else
+            cout << endl;
+    }
+}
+
+fun printSizeInfo(a: @Vector(MyObj))
+{
+    cout << a.isEmpty() << endl;
+    cout << a.size() << endl;
+}
+
+fun test1()
+{
+    var v: Vector(MyObj);
+
+    printSizeInfo(v);
+    v.pushBack(MyObj(42));
+    printSizeInfo(v);
+    printVector(v);
+    v.popBack();
+    printSizeInfo(v);
+    printVector(v);
+}
+/*<<<Default constructor(1)
+true
+0
+false
+1
+42
+true
+0
+>>>*/
+
+fun test2()
+{
+    var v = Vector(MyObj)(createRangeAscending(4));
+
+    printSizeInfo(v);
+    printVector(v);
+    v.popBack();
+    printSizeInfo(v);
+    printVector(v);
+    v.pushBack(MyObj(42));
+    printSizeInfo(v);
+    printVector(v);
+}
+/*<<<Range constructor(2)
+false
+4
+0 1 2 3
+false
+3
+0 1 2
+false
+4
+0 1 2 42
+>>>*/
+
+fun test3()
+{
+    var v1: Vector(MyObj);
+    var v2 = Vector(MyObj)(createRangeAscending(4));
+    var v3: Vector(MyObj) = v1;
+    var v4 = v2;
+
+    printSizeInfo(v3);
+    printSizeInfo(v4);
+    printVector(v4);
+}
+/*<<<Copy constructor(3)
+true
+0
+false
+4
+0 1 2 3
+>>>*/
+
+fun test4()
+{
+    // TODO
+}
+/*<<<Destructor(4)
+>>>*/
+
+fun test5()
+{
+    var v1: Vector(MyObj);
+    var v2 = Vector(MyObj)(createRangeAscending(4));
+
+    v1.reserve(42);
+    printSizeInfo(v1);
+    cout << v1.capacity() << endl;
+    v2.reserve(100);
+    printSizeInfo(v2);
+    cout << v2.capacity() << endl;
+    printVector(v2);
+    v2.reserve(10);
+    printSizeInfo(v2);
+    cout << v2.capacity() << endl;
+    printVector(v2);
+
+    var v3 = Vector(MyObj)(createRangeAscending(1024));
+
+    if ( v3.capacity() < 1024 ) cout << "Test failed" << endl;
+    v3.pushBack(MyObj(0));
+    if ( v3.capacity() < 1024 ) cout << "Test failed" << endl;
+}
+/*<<<Reserve(5)
+true
+0
+42
+false
+4
+100
+0 1 2 3
+false
+4
+100
+0 1 2 3
+>>>*/
+
+fun test6()
+{
+    var v1: Vector(MyObj);
+    var v2 = Vector(MyObj)(createRangeAscending(8));
+
+    v1.assign(createRangeAscending(5));
+    printSizeInfo(v1);
+    printVector(v1);
+    v2.assign(createRangeAscending(4));
+    printSizeInfo(v2);
+    printVector(v2);
+}
+/*<<<Range assignment(6)
+false
+5
+0 1 2 3 4
+false
+4
+0 1 2 3
+>>>*/
+
+fun test7()
+{
+    var v = Vector(MyObj)(createRangeAscending(8));
+
+    v.at(1).x = 111;
+    v.at(5).x = 555;
+    printVector(v);
+    v.front().x = 42;
+    v.back().x = 84;
+    printVector(v);
+}
+/*<<<Element access(7)
+0 111 2 3 4 555 6 7
+42 111 2 3 4 555 6 84
+>>>*/
+
+fun test8()
+{
+    var v: Vector(MyObj);
+
+    v.pushBack(MyObj(3));
+    v.pushBack(MyObj(2));
+    v += MyObj(1);
+    v += MyObj(0);
+
+    var r = v.all();
+
+    while ( !r.isEmpty() ; r.popFront(); )
+        cout << r.front().x << endl;
+    r = ContiguousMemoryRange(MyObj)(v.all());
+    while ( !r.isEmpty() ; r.popFront(); )
+        r.front().x = r.front().x + 1;
+    printSizeInfo(v);
+    printVector(v);
+}
+/*<<<Range access(8)
+3
+2
+1
+0
+false
+4
+4 3 2 1
+>>>*/
+
+fun test9()
+{
+    var v: Vector(MyObj);
+    var i = 0;
+
+    while ( i < 4 ; i = i + 1; )
+        v.pushBack(MyObj(i));
+    printSizeInfo(v);
+    printVector(v);
+    v.popBack();
+    v.popBack();
+    printSizeInfo(v);
+    printVector(v);
+    v.popBack();
+    v.popBack();
+    printSizeInfo(v);
+    v.pushBack(MyObj(42));
+    v.pushBack(MyObj(43));
+    printSizeInfo(v);
+    printVector(v);
+    v.popBack();
+    v.popBack();
+    i = 0;
+    while ( i < 20 ; i = i + 1; )
+        v.pushBack(MyObj(i));
+    printSizeInfo(v);
+    printVector(v);
+}
+/*<<<Pushing & popping(9)
+false
+4
+0 1 2 3
+false
+2
+0 1
+true
+0
+false
+2
+42 43
+false
+20
+0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+>>>*/
+
+fun test10()
+{
+    var v = Vector(MyObj)(createRangeAscending(4));
+
+    v.resize(4);
+    printSizeInfo(v);
+    printVector(v);
+    v.resize(2);
+    printSizeInfo(v);
+    printVector(v);
+    v.resize(6);
+    printSizeInfo(v);
+    printVector(v);
+
+    var vv: Vector(MyObj);
+
+    vv.resize(6);
+    printSizeInfo(vv);
+    printVector(vv);
+}
+/*<<<Resizing(10)
+false
+4
+0 1 2 3
+false
+2
+0 1
+false
+6
+0 1 0 0 0 0
+false
+6
+0 0 0 0 0 0
+>>>*/
+
+fun test11()
+{
+    var v = Vector(MyObj)(createRangeAscending(4));
+
+    v.clear();
+    printSizeInfo(v);
+    v.pushBack(MyObj(42));
+    v.pushBack(MyObj(43));
+    printSizeInfo(v);
+    printVector(v);
+    v.clear();
+    printSizeInfo(v);
+
+    var vv: Vector(MyObj);
+
+    vv.clear();
+    printSizeInfo(v);
+}
+/*<<<Clear(11)
+true
+0
+false
+2
+42 43
+true
+0
+true
+0
+>>>*/
+
+fun test12()
+{
+    var v1 = Vector(MyObj)(createRangeAscending(4));
+    var v2 = Vector(MyObj)(createRangeAscending(6));
+    var v3: Vector(MyObj);
+
+    v2 = v1;
+    printSizeInfo(v2);
+    printVector(v2);
+    printSizeInfo(v1 = v2 = v3);
+}
+/*<<<Assignment operator(12)
+false
+4
+0 1 2 3
+true
+0
+>>>*/
+
+fun test13()
+{
+    var v = Vector(MyObj)(createRangeAscending(4));
+    var r = v.all();
+
+    v.insertBefore(MyObj(42), v.all());
+    printSizeInfo(v);
+    printVector(v);
+    v.insertAfter(MyObj(43), v.all());
+    printSizeInfo(v);
+    printVector(v);
+    r = v.all();
+    r.popFront();
+    r.popFront();
+    v.insertBefore(MyObj(11), r);
+    printSizeInfo(v);
+    printVector(v);
+    r = v.all();
+    r.popBack();
+    r.popBack();
+    v.insertAfter(MyObj(22), r);
+    printSizeInfo(v);
+    printVector(v);
+}
+/*<<<Element insertions(13)
+false
+5
+42 0 1 2 3
+false
+6
+42 0 1 2 3 43
+false
+7
+42 0 11 1 2 3 43
+false
+8
+42 0 11 1 2 22 3 43
+>>>*/
+
+fun test14()
+{
+    var v = Vector(MyObj)(createRangeAscending(4));
+    var r = v.all();
+
+    v.insertBefore(createRangeAscending(2), v.all());
+    printSizeInfo(v);
+    printVector(v);
+    v.insertAfter(createRangeAscending(2), v.all());
+    printSizeInfo(v);
+    printVector(v);
+    v.insertBefore(createRangeAscending(1), v.all());
+    printSizeInfo(v);
+    printVector(v);
+    v.insertAfter(createRangeAscending(1), v.all());
+    printSizeInfo(v);
+    printVector(v);
+    v.insertBefore(createRangeAscending(0), v.all());
+    printSizeInfo(v);
+    printVector(v);
+    v.insertAfter(createRangeAscending(0), v.all());
+    printSizeInfo(v);
+    printVector(v);
+    r = v.all();
+    r.popFront();
+    r.popFront();
+    v.insertBefore(createRangeAscending(2), r);
+    printSizeInfo(v);
+    printVector(v);
+    r = v.all();
+    r.popBack();
+    r.popBack();
+    v.insertAfter(createRangeAscending(2), r);
+    printSizeInfo(v);
+    printVector(v);
+    r = v.all();
+    r.popFront();
+    r.popFront();
+    v.insertBefore(createRangeAscending(1), r);
+    printSizeInfo(v);
+    printVector(v);
+    r = v.all();
+    r.popBack();
+    r.popBack();
+    v.insertAfter(createRangeAscending(1), r);
+    printSizeInfo(v);
+    printVector(v);
+    r = v.all();
+    r.popFront();
+    r.popFront();
+    v.insertBefore(createRangeAscending(0), r);
+    printSizeInfo(v);
+    printVector(v);
+    r = v.all();
+    r.popBack();
+    r.popBack();
+    v.insertAfter(createRangeAscending(0), r);
+    printSizeInfo(v);
+    printVector(v);
+}
+/*<<<Range insertions(14)
+false
+6
+0 1 0 1 2 3
+false
+8
+0 1 0 1 2 3 0 1
+false
+9
+0 0 1 0 1 2 3 0 1
+false
+10
+0 0 1 0 1 2 3 0 1 0
+false
+10
+0 0 1 0 1 2 3 0 1 0
+false
+10
+0 0 1 0 1 2 3 0 1 0
+false
+12
+0 0 0 1 1 0 1 2 3 0 1 0
+false
+14
+0 0 0 1 1 0 1 2 3 0 0 1 1 0
+false
+15
+0 0 0 0 1 1 0 1 2 3 0 0 1 1 0
+false
+16
+0 0 0 0 1 1 0 1 2 3 0 0 1 0 1 0
+false
+16
+0 0 0 0 1 1 0 1 2 3 0 0 1 0 1 0
+false
+16
+0 0 0 0 1 1 0 1 2 3 0 0 1 0 1 0
+>>>*/
+
+fun test15()
+{
+    var v = Vector(MyObj)(createRangeAscending(6));
+    var r = v.all();
+
+    v.remove(v.all());
+    printSizeInfo(v);
+    v = Vector(MyObj)(createRangeAscending(6));
+    r = v.all();
+    r.popBack();
+    v.remove(r);
+    printSizeInfo(v);
+    printVector(v);
+    v = Vector(MyObj)(createRangeAscending(6));
+    r = v.all();
+    r.popFront();
+    v.remove(r);
+    printSizeInfo(v);
+    printVector(v);
+    v = Vector(MyObj)(createRangeAscending(6));
+    r = v.all();
+    r.popFront();
+    r.popFront();
+    r.popBack();
+    v.remove(r);
+    printSizeInfo(v);
+    printVector(v);
+    v = Vector(MyObj)(createRangeAscending(6));
+    r = v.all();
+    r.popFront(2);
+    r.popBack(3);
+    v.remove(r);
+    printSizeInfo(v);
+    printVector(v);
+    v = Vector(MyObj)(createRangeAscending(6));
+    r = v.all();
+    r.popFront(3);
+    r.popBack(3);
+    v.remove(r);
+    printSizeInfo(v);
+    printVector(v);
+}
+/*<<<Range removal(15)
+true
+0
+false
+1
+5
+false
+1
+0
+false
+3
+0 1 5
+false
+5
+0 1 3 4 5
+false
+6
+0 1 2 3 4 5
+>>>*/
+
+fun test16()
+{
+    var v1 = Vector(MyObj)(createRangeAscending(4));
+    var v2 = Vector(MyObj)(createRangeAscending(4));
+    var v3 = Vector(MyObj)(createRangeAscending(6));
+
+    cout << v1 == v2 << endl;
+    cout << v1 == v3 << endl;
+}
+/*<<<Equality operator(16)
+true
+false
+>>>*/
+
+fun test17()
+{
+    var v = Vector(MyObj)(createRangeAscending(1000));
+    var i = 0;
+
+    printSizeInfo(v);
+    while ( i < v.size() ; i = i + 1; )
+    {
+        if ( v.at(i).x != i )
+            cout << "test failed" << endl;
+    }
+
+    var vv = v;
+
+    i = 0;
+    printSizeInfo(vv);
+    while ( i < vv.size() ; i = i + 1; )
+    {
+        if ( vv.at(i).x != i )
+            cout << "test failed" << endl;
+    }
+
+    var vvv: Vector(MyObj);
+
+    vvv.assign(createRangeAscending(1000));
+    i = 0;
+    printSizeInfo(vvv);
+    while ( i < vvv.size() ; i = i + 1; )
+    {
+        if ( vvv.at(i).x != i )
+            cout << "test failed" << endl;
+    }
+}
+/*<<<Large vectors(17)
+false
+1000
+false
+1000
+false
+1000
+>>>*/
+
+fun test18()
+{
+    var v = Vector(MyObj)(createRangeAscending(8));
+
+    v.remove(1);
+    printVector(v);
+    v.remove(0);
+    printVector(v);
+    v.remove(5);
+    printVector(v);
+    v.remove(3);
+    printVector(v);
+}
+/*<<<Element removal(18)
+0 2 3 4 5 6 7
+2 3 4 5 6 7
+2 3 4 5 6
+2 3 4 6
+>>>*/
+
+fun test19()
+{
+    var v = Vector(MyObj)(createRangeAscending(8));
+    var r = v.subrange(0, 0);
+
+    while ( !r.isEmpty() ; r.popFront(); )
+        cout << r.front().x << endl;
+    r = v.subrange(0, 1);
+    while ( !r.isEmpty() ; r.popFront(); )
+        cout << r.front().x << endl;
+    r = v.subrange(2, 3);
+    while ( !r.isEmpty() ; r.popFront(); )
+        cout << r.front().x << endl;
+    r = v.subrange(0, v.size());
+    while ( !r.isEmpty() ; r.popFront(); )
+        cout << r.front().x << endl;
+    v.remove(v.subrange(2, 3));
+    printVector(v);
+}
+/*<<<Subrange(19)
+0
+2
+3
+4
+0
+1
+2
+3
+4
+5
+6
+7
+0 1 5 6 7
+>>>*/
+
+fun test20()
+{
+    var v = mkVector(createRangeAscending(8));
+    printVector(v);
+}
+/*<<<mkVector(20)
+0 1 2 3 4 5 6 7
+>>>*/

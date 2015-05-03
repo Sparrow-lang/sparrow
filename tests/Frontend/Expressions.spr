@@ -1,0 +1,166 @@
+package GoogleBench;
+
+import Std.Ptr;
+import BasicBlock;
+import Std.Set;
+import Std.Functors.Equal;
+
+using Std.*;
+
+// Basic representation of loops, a loop has an entry point,
+// one or more exit edges, a set of basic blocks, and potentially
+// an outer loop - a "parent" loop.
+//
+// Furthermore, it can have any set of properties, e.g.,
+// it can be an irreducible loop, have control flow, be
+// a candidate for transformations, and what not.
+class SimpleLoop
+{
+    var[static] BasicBlockSet = Set(Ptr(BasicBlock), BBPtrHashFunction, Functors.Equal(Ptr(BasicBlock)));
+    var[static] LoopSet = Set(Ptr(SimpleLoop), SLPtrHashFunction, Functors.Equal(Ptr(SimpleLoop)));
+    
+    fun ctor(counter: UInt)
+    {
+        parent.ctor(null);
+        isRoot.ctor(false);
+        nestingLevel.ctor(0);
+        depthLevel.ctor(0);
+        basicBlocks.ctor();
+        children.ctor();
+        this.counter.ctor(counter);
+    }
+    
+    fun addNode(bb: Ptr(BasicBlock))
+    {
+        basicBlocks.insert(bb);
+    }
+    
+    fun addChildLoop(loop: Ptr(SimpleLoop))
+    {
+        children.insert(loop);
+    }
+    
+    fun dump()
+    {
+        Std.stdOut.writeLn("loop-" + counter.toString() + ", nest: " + nestingLevel.toString() + ", depth: " + depthLevel.toString());
+    }
+    
+    fun setParent(parent: Ptr(SimpleLoop))
+    {
+        this.parent = parent;
+        this.parent.get().addChildLoop(this);
+    }
+    
+    fun setNestingLevel(level: UInt)
+    {
+        nestingLevel = level;
+        if ( level == 0 )
+            isRoot = true;
+    }
+
+    var children: LoopSet;
+
+    var isRoot: Bool;
+    var nestingLevel: UInt;
+    var depthLevel: UInt;
+
+    private var counter: UInt;
+    private var parent: Ptr(SimpleLoop);
+    private var basicBlocks: BasicBlockSet;
+}
+
+public class SLPtrHashFunction
+{
+
+	public fun ()(arg: Ptr(SimpleLoop)): UInt
+	{
+		return reinterpretCast(UInt, arg.get());
+	}
+}
+
+
+ 
+ var a = 0;
+  
+ 
+
+public class[autoct] Pair
+{
+
+	public var[static] FirstType = firstType;
+
+
+	public var[static] SecondType = secondType;
+	
+ 
+	public var first: FirstType;
+	
+
+	public var second: SecondType;
+	
+
+ 
+    public fun ctor()
+    {
+        this.first.ctor();
+        this.second.ctor();
+    }
+	
+
+	public fun ctor(first: FirstType@, second: SecondType@)
+	{
+        this.first.ctor(first);
+        this.second.ctor(second);
+	}
+	
+
+	public fun ctor(other: Std.Pair)
+	{
+        this.first.ctor(other.first);
+        this.second.ctor(other.second);
+        "abc\t\77\xab\n";
+	}
+		
+
+	public fun swap(other: Std.Pair)
+	{
+		var tmp1 = FirstType(first);
+		var tmp2 = SecondType(second);
+		
+		first = other.first;
+		other.first = tmp1;
+		second = other.second;
+		other.second = tmp2;
+        
+        'a';
+        '\n';
+        '\123';
+        '\x4A';
+	}
+
+
+	public fun =(other: Std.Pair): Std.Pair
+	{
+		first = other.first;
+		second = other.second;
+		
+		return this;
+        
+        1;
+        2u;
+        3l;
+        4Ul;
+        0x5;
+        0x6l;
+        07;
+        010L;
+        0b1001;
+        0b1010L;
+        .5f;
+        2E-2d;
+	}
+	
+
+}
+
+( . )     // ERROR

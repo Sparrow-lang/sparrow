@@ -1,0 +1,434 @@
+package Test;
+
+import SL.Set;
+import SL.DefaultHashFunction;
+import SL.Ranges;
+import SL.List;
+
+fun sprMain
+{
+    if ( programArgs.size() < 2 )
+        return;
+    var n = programArgs(1) asInt;
+
+    if      ( n == 1 ) test1();
+    else if ( n == 2 ) test2();
+    else if ( n == 3 ) test3();
+    else if ( n == 4 ) test4();
+    else if ( n == 5 ) test5();
+    else if ( n == 6 ) test6();
+    else if ( n == 7 ) test7();
+    else if ( n == 8 ) test8();
+    else if ( n == 9 ) test9();
+    else if ( n == 10 ) test10();
+    else if ( n == 11 ) test11();
+    else if ( n == 12 ) test12();
+    else if ( n == 13 ) test13();
+    else if ( n == 14 ) test14();
+    else if ( n == 15 ) test15();
+    else if ( n == 16 ) test16();
+    else if ( n == 17 ) test17();
+    else if ( n == 18 ) test18();
+    else if ( n == 19 ) test19();
+}
+
+fun makeList(): List(Int)
+{
+    var li: List(Int);
+
+    li.pushBack(3);
+    li.pushBack(145);
+    li.pushBack(834);
+    li.pushBack(8);
+    li.pushBack(73);
+    li.pushBack(73);
+    li.pushBack(101);
+    li.pushBack(4);
+    li.pushBack(8);
+    li.pushBack(4);
+    li.pushBack(106);
+    li.pushBack(3);
+    li.pushBack(5);
+    li.pushBack(53);
+    li.pushBack(62);
+
+    return li;
+}
+
+fun printRange(nr: AnyType)
+{
+    var v: Vector(Int) = nr;
+
+    var r = v.all();
+    sort(r);
+    while ( !r.isEmpty() )
+    {
+        cout << r.front();
+        r.popFront();
+        if (r.isEmpty() )
+            cout << endl;
+        else
+            cout << ' ';
+    }
+}
+
+fun test1()
+{
+    var hs: Int Set;
+
+    cout << hs.isEmpty() << endl;
+    cout << hs.size() << endl;
+    cout << hs.bucketCount() << endl;
+    cout << hs.contains(10) << endl;
+}
+/*<<<Default constructor(1)
+true
+0
+0
+false
+>>>*/
+
+fun test2()
+{
+    var hs: Int Set = 60;
+
+    cout << hs.isEmpty() << endl;
+    cout << hs.size() << endl;
+    cout << hs.bucketCount() << endl;
+    cout << hs.contains(10) << endl;
+}
+/*<<<Bucket count constructor(2)
+true
+0
+97
+false
+>>>*/
+
+fun test3()
+{
+    var hs: Int Set = makeList().all();
+
+    cout << hs.isEmpty() << endl;
+    cout << hs.size() << endl;
+    cout << hs.bucketCount() << endl;
+    cout << hs.contains(53) << endl;
+    cout << hs.contains(106) << endl;
+    cout << hs.contains(4) << endl;
+    cout << hs.contains(9999) << endl;
+}
+/*<<<Range constructor(3)
+false
+11
+23
+true
+true
+true
+false
+>>>*/
+
+fun test4()
+{
+    var hs = Set(Int)(makeList().all());
+    var hs2 = Set(Int)(hs);
+
+    cout << hs2.isEmpty() << endl;
+    cout << hs2.size() << endl;
+    cout << hs2.bucketCount() << endl;
+    cout << hs2.contains(53) << endl;
+    cout << hs2.contains(106) << endl;
+    cout << hs2.contains(4) << endl;
+    cout << hs2.contains(9999) << endl;
+}
+/*<<<Copy constructor(4)
+false
+11
+23
+true
+true
+true
+false
+>>>*/
+
+fun test5()
+{
+    var hs = Set(Int)(makeList().all());
+    var hs2 = Set(Int)(60);
+
+    hs.swap(hs2);
+    cout << hs2.isEmpty() << endl;
+    cout << hs2.size() << endl;
+    cout << hs2.bucketCount() << endl;
+    cout << hs2.contains(53) << endl;
+    cout << hs2.contains(106) << endl;
+    cout << hs2.contains(4) << endl;
+    cout << hs2.contains(9999) << endl;
+    cout << hs.isEmpty() << endl;
+    cout << hs.size() << endl;
+    cout << hs.bucketCount() << endl;
+    cout << hs.contains(10) << endl;
+}
+/*<<<Swapping(5)
+false
+11
+23
+true
+true
+true
+false
+true
+0
+97
+false
+>>>*/
+
+fun test6()
+{
+    var hs = Set(Int)(makeList().all());
+
+    hs.reserve(1000);
+    cout << hs.isEmpty() << endl;
+    cout << hs.size() << endl;
+    cout << hs.bucketCount() << endl;
+    cout << hs.contains(53) << endl;
+    cout << hs.contains(106) << endl;
+    cout << hs.contains(4) << endl;
+    cout << hs.contains(9999) << endl;
+}
+/*<<<Reserving(6)
+false
+11
+1543
+true
+true
+true
+false
+>>>*/
+
+fun test7()
+{
+    var hs = Set(Int)(makeList().all());
+
+    printRange(hs.all());
+}
+/*<<<Range access(7)
+3 4 5 8 53 62 73 101 106 145 834
+>>>*/
+
+fun test8()
+{
+    var hs = Set(Int)(0 .. 10);
+
+    hs.insert(5);
+    cout << hs.contains(5) << endl;
+}
+/*<<<Element insertion(8)
+true
+>>>*/
+
+fun test9()
+{
+    var hs = Set(Int)(0 .. 10);
+
+    hs.insert(5 .. 15);
+    printRange(hs.all());
+}
+/*<<<Range insertion(9)
+0 1 2 3 4 5 6 7 8 9 10 11 12 13 14
+>>>*/
+
+fun test10()
+{
+    var hs = Set(Int)(0 .. 10);
+
+    hs.remove(5);
+    printRange(hs.all());
+    hs.remove(20);
+    printRange(hs.all());
+}
+/*<<<Element removal(10)
+0 1 2 3 4 6 7 8 9
+0 1 2 3 4 6 7 8 9
+>>>*/
+
+fun test11()
+{
+    var hs = Set(Int)(makeList().all());
+
+    hs.remove(hs.equalRange(8));
+    printRange(hs.all());
+    cout << hs.size() << endl;
+    hs.remove(hs.equalRange(106));
+    printRange(hs.all());
+    cout << hs.size() << endl;
+    hs.remove(hs.equalRange(101));
+    printRange(hs.all());
+    cout << hs.size() << endl;
+    hs.remove(hs.equalRange(1000));
+    printRange(hs.all());
+    cout << hs.size() << endl;
+    hs.remove(hs.all());
+    printRange(hs.all());
+    cout << hs.size() << endl;
+    hs = Set(Int)(makeList().all());
+
+    var r = hs.all();
+
+    r.popFront();
+    hs.remove(r);
+    printRange(hs.all());
+    cout << hs.size() << endl;
+}
+/*<<<Range removal(11)
+3 4 5 53 62 73 101 106 145 834
+10
+3 4 5 53 62 73 101 145 834
+9
+3 4 5 53 62 73 145 834
+8
+3 4 5 53 62 73 145 834
+8
+0
+3
+1
+>>>*/
+
+fun test12()
+{
+    var hs = Set(Int)(0 .. 10);
+
+    cout << hs.contains(7) << endl;
+    cout << hs.contains(53) << endl;
+    cout << hs.contains(12) << endl;
+}
+/*<<<Containment checking(12)
+true
+false
+false
+>>>*/
+
+fun test13()
+{
+    var hs = Set(Int)(0 .. 10);
+
+    hs.insert(5);
+    cout << hs.count(5) << endl;
+    cout << hs.count(1) << endl;
+    cout << hs.count(53) << endl;
+}
+/*<<<Counting(13)
+1
+1
+0
+>>>*/
+
+fun test14()
+{
+    var hs: Set(Int);
+
+    hs.insert(0 .. 10);
+    printRange(hs.equalRange(5));
+    hs.insert(5);
+    printRange(hs.equalRange(5));
+    hs.insert(58);
+    printRange(hs.equalRange(5));
+    printRange(hs.equalRange(58));
+    printRange(hs.equalRange(111));
+    printRange(hs.equalRange(100));
+}
+/*<<<Equal range(14)
+5
+5
+5
+58
+>>>*/
+
+fun test15()
+{
+    var hs = Set(Int)(0 .. 10);
+
+    printRange(hs.find(5));
+    printRange(hs.find(10));
+    printRange(hs.find(53));
+}
+/*<<<Finding - dependent on the hash impl(15)
+0 1 2 3 4 5
+>>>*/
+
+fun test16()
+{
+    var hs = Set(Int)(0 .. 10);
+
+    hs.clear();
+    cout << hs.isEmpty() << endl;
+    printRange(hs.all());
+    cout << hs.contains(4) << endl;
+}
+/*<<<Clearing(16)
+true
+false
+>>>*/
+
+fun test17()
+{
+    var hs1 = Set(Int)(0 .. 10);
+    var hs2: Set(Int);
+
+    hs2 = hs1;
+    printRange(hs2.all());
+    hs1 = hs1;
+    printRange(hs1.all());
+}
+/*<<<Assignment operator(17)
+0 1 2 3 4 5 6 7 8 9
+0 1 2 3 4 5 6 7 8 9
+>>>*/
+
+fun test18()
+{
+    var hs1 = Set(Int)(makeList().all());
+    var hs2 = hs1;
+    var hs3: Set(Int);
+    var hs4 = Set(Int)(0 .. 10);
+
+    cout << hs1 == hs2 << endl;
+    cout << hs1 != hs2 << endl;
+    cout << hs1 == hs3 << endl;
+    cout << hs1 != hs3 << endl;
+    cout << hs1 == hs4 << endl;
+    cout << hs1 != hs4 << endl;
+    cout << hs3 == hs3 << endl;
+    cout << hs3 != hs3 << endl;
+    hs4.clear();
+    cout << hs3 == hs4 << endl;
+    cout << hs3 != hs4 << endl;
+    hs2.remove(53);
+    cout << hs1 == hs2 << endl;
+    cout << hs1 != hs2 << endl;
+}
+/*<<<Equality and inequality operators(18)
+true
+false
+false
+true
+false
+true
+true
+false
+true
+false
+false
+true
+>>>*/
+
+fun test19()
+{
+    var hs = Set(Int)(0 .. 1000);
+
+    for ( i = numericRange(0, 1000) )
+    {
+        if ( !hs.contains(i) )
+            cout << "Test failed" << endl;
+    }
+}
+/*<<<Large hashset(19)
+>>>*/

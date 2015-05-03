@@ -1,0 +1,34 @@
+//!!
+package Test;
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Timing functionality
+//
+
+fun[native("clock")] clock(): Int;
+
+class Timer
+{
+    fun ctor() { startTime = clock(); }
+    fun ctor(other: Timer) { startTime = other.startTime; }
+
+    fun elapsed = Double(clock() - startTime) / 1000.0;
+
+    fun restart { startTime = clock(); }
+
+    private var startTime: Int;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Useful operators
+//
+
+fun[ct] ^(base, exp: Int): ULong
+{
+    var res: ULong = 1;
+    var i = 0;
+    while ( i<exp; ++i )
+        res *= ULong(base);
+    return res;
+}

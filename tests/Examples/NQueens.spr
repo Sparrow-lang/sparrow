@@ -1,0 +1,290 @@
+//!!
+
+import SL.Array;
+import SL.Vector;
+import SL.String;
+import Math;
+import OS;
+
+/*settings-here*/
+//using runAtCt = false;
+//using printRt = 0;
+
+using numQueens = 4;
+using autoTestMode = true;
+
+
+using PlacementType = Array(Int);
+using SolutionsType = Vector(PlacementType);
+
+fun[rtct] testQueens(placements: @PlacementType, k, y: Int): Bool
+{
+    for ( i = 0..k )
+    {
+        if ( y == placements(i) || k-i == Math.abs(y-placements(i)) )
+            return false;
+    }
+    return true;
+}
+
+fun[rtct] backtracking(curSol: @PlacementType, k, n: Int, res: @SolutionsType)
+{
+    for ( y = 0..n )
+    {
+        if ( testQueens(curSol, k, y) )
+        {
+            curSol(k) = y;
+            if ( k == n-1 )
+                res.pushBack(curSol);
+            else
+                backtracking(curSol, k+1, n, res);
+        }
+    }
+}
+
+fun[rtct] nQueens(n: Int): SolutionsType
+{
+    var res: SolutionsType;
+    var curSol: PlacementType = n;
+    backtracking(curSol, 0, n, res);
+    return res;
+}
+
+fun[autoCt] writeSolutions(solutions: @SolutionsType)
+{
+    cout << "We have " << solutions.size() << " solutions\n";
+    for ( sol = solutions.all() )
+        writeSolution(sol);
+}
+
+fun[rtct] writeSolution(x: @PlacementType)
+{
+    for ( v = x.all() )
+    {
+        for ( i = 0..v )
+            cout << "| ";
+        cout << "|Q";
+        for ( i = (v+1)..(x.size()) )
+            cout << "| ";
+        cout << "|\n";
+    }
+    cout << "\n";
+}
+
+fun[rtct] writeSolutionBasic(x: @PlacementType)
+{
+    for ( v = x.all() )
+        cout << v;
+    cout << "\n";
+}
+
+fun[autoCt] writeAsciiArt(solutions: @SolutionsType)
+{
+    // line 0           N = number of lines per board square
+    // lines 1..N       the characters to be displayed for a "white" board square
+    // lines N+1..2N    the characters to be displayed for a "black" board square
+    // lines 2N+1..3N   the characters to be displayed for a queen on white square
+    // lines 3N+1..4N   the characters to be displayed for a queen on black square
+    var lines = readFileLines("queen-art.txt");
+    if ( lines.isEmpty() ) OS.exit(-1);
+    var n = asInt(lines(0).asStringRef());
+    if ( lines.size() < 1+4*n ) OS.exit(-1);
+
+    cout << "We have " << solutions.size() << " solutions\n";
+
+    for ( sol = solutions.all() )
+    {
+        for ( line = 0..sol.size() )
+        {
+            var v = sol(line);
+            for ( l = 0..n )
+            {
+                for ( col = 0..sol.size() )
+                {
+                    var isQueen = col==v;
+                    var isWhite = (line+col)%2==0;
+                    var idx = ife(isWhite, 1+l, 1+l+n) + ife(isQueen, 2*n, 0);
+                    cout << lines(idx);
+                }
+                cout << endl;
+            }
+        }
+        cout << "\n\n";
+    }
+}
+
+fun[rtct] readFileLines(filename: StringRef): Vector(String)
+{
+    var lines: Vector(String);
+
+    var f = OS.File.open(filename, "r");
+    if ( !f.isOpen() )
+    {
+        cout << "Cannot open file: " << filename << "\n";
+        return lines;
+    }
+    while ( !f.isEof() )
+    {
+        var s = f.readLine();
+        if ( !s.isEmpty() )
+        {
+            s.resize(s.size()-1);   // Cut the end of line
+            lines.pushBack(s);
+        }
+    }
+    return lines;
+}
+
+
+fun[rt] toRt(sols: SolutionsType ct): SolutionsType
+{
+    var solsRt = sols;
+    return solsRt; 
+}
+
+fun[rt] toRt1(sols: SolutionsType ct): SolutionsType
+{
+    var res: SolutionsType;
+    res.reserve(ctEval(sols.size()));
+    for[ct] ( sol = sols.all() )
+    {
+        var[ct] size = sol size;
+        var arr = PlacementType(ctEval(size));
+        for[ct] ( i = 0..size )
+            arr(i) = sol(i);
+
+        res.pushBack(arr);
+    }
+    return res;
+}
+
+fun[rt] toRt2(sols: SolutionsType ct): SolutionsType
+{
+    var res: SolutionsType;
+    res.reserve(ctEval(sols.size()));
+    for[ct] ( sol = sols.all() )
+    {
+        var[ct] size = sol size;
+        var arr = PlacementType(ctEval(size));
+        for[ct] ( i = 0..size )
+            arr(i) = ctEval(sol(ctEval(i)));
+
+        res.pushBack(arr);
+    }
+    return res;
+}
+
+fun[rt] toRt3(sols: SolutionsType ct): SolutionsType
+{
+    var res: SolutionsType;
+    res.reserve(ctEval(sols.size()));
+    for[ct] ( sol = sols.all() )
+    {
+        var[ct] size = sol size;
+        var arr = PlacementType(ctEval(size));
+        for[ct] ( i = 0..size )
+        {
+            arr(i) = sol(i);
+            cout << res.size() << endl;
+            cout << arr.size() << endl;
+        }
+
+        res.pushBack(arr);
+    }
+    return res;
+}
+
+fun[ct] toStringBuffer(sols: SolutionsType): String
+{
+    var numSols = sols.size();
+    var n = ife(numSols == 0, 1, sols(0).size());
+
+    var res: String = 1 + numSols*n;
+    res(0) = Char(n);
+    for ( i = 0..numSols*n )
+    {
+        var solNum = i / n;
+        var qNum = i % n;
+        res(1+i) = Char(sols(solNum)(qNum));
+    }
+
+    return res;
+}
+
+fun[rt] fromStringBuffer(sols: String): SolutionsType
+{
+    var n: Int = sols(0);
+    var numSols = (sols.size()-1) / n;
+
+    var res: SolutionsType = repeat(PlacementType(n), numSols);
+
+    for ( i = 0..numSols*n )
+    {
+        var solNum = i / n;
+        var qNum = i % n;
+        res(solNum)(qNum) = Int( sols(1+i) );
+    }
+
+    return res;
+}
+
+fun[rt] toRt4(sols: SolutionsType ct): SolutionsType
+{
+    return fromStringBuffer(toStringBuffer(sols));
+}
+
+
+fun sprMain
+{
+    if[ct] ( autoTestMode )
+    {
+        var[ct] solutionsCt = nQueens(numQueens);
+        var solutions = solutionsCt;
+        writeSolutions(solutionsCt);
+        writeSolutions(solutions);
+    }
+    else if[ct] ( isValid(runAtCt) )
+    {
+        var[ct] solutionsCt = nQueens(numQueens);
+        if[ct] ( isValid(printRt) )
+        {
+            if[ct] ( printRt == 0 )
+                writeAsciiArt(toRt(solutionsCt));
+
+            if[ct] ( printRt == 1 )
+                writeAsciiArt(toRt1(solutionsCt));
+
+            if[ct] ( printRt == 2 )
+                writeAsciiArt(toRt2(solutionsCt));
+
+            if[ct] ( printRt == 3 )
+                writeAsciiArt(toRt3(solutionsCt));
+
+            if[ct] ( printRt == 4 )
+                writeAsciiArt(toRt4(solutionsCt));
+        }
+        else
+        {
+            writeAsciiArt(solutionsCt);
+        }
+    }
+    else
+    {
+        var n = numQueens;
+        writeAsciiArt(nQueens(n));
+    }
+}
+
+/*<<<Running()
+We have 2 solutions
+| |Q| | |
+| | | |Q|
+|Q| | | |
+| | |Q| |
+
+| | |Q| |
+|Q| | | |
+| | | |Q|
+| |Q| | |
+
+>>>*/

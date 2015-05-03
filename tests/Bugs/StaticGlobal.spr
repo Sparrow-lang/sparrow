@@ -1,0 +1,29 @@
+//!!
+package Test;
+
+var a = 2048;
+
+fun ctor()
+{
+    cout << 42 << endl;
+}
+
+class MyObj(n: Int)
+{
+    var[static] b = 1024;
+    var[static] c = n;
+
+}
+
+fun sprMain
+{
+    cout << MyObj(0).b << endl;
+    cout << a << endl;
+    cout << MyObj(4096).c << endl;
+}
+/*<<<Running()
+42
+1024
+2048
+4096
+>>>*/

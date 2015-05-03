@@ -1,0 +1,41 @@
+import OS;
+
+import Meta.ASTNodes;
+
+using debugMode = true;
+
+
+if[ct] ( debugMode )
+fun[rtct, macro] assert(cond: Meta.AstNode): Meta.AstNode
+{
+    using Meta.*;
+    using Meta.SprFrontend.*;
+    using Meta.Feather.*;
+
+    var loc = cond.location();
+    var filename = loc.sourceCode.filename();
+    var lineNum = loc.startLineNo;
+    var args = mkNodeList(loc);
+    addToNodeList(args, mkStringLiteral(loc, loc.getCorrespondingCode()));
+    addToNodeList(args, mkStringLiteral(loc, filename));
+    addToNodeList(args, mkIntLiteral(loc, lineNum));
+    var failureCall = mkFunApplication(loc, mkIdentifier(loc, "assertionFailure"), args);
+    return mkIf(loc, mkPrefixOp(loc, "!", mkParenthesisExp(loc, cond)), failureCall, AstNode());
+}
+else
+fun[rtct, macro] assert(cond: Meta.AstNode): Meta.AstNode
+{
+    return Meta.Feather.mkNop(cond.location());
+}
+
+fun[rtct] assertionFailure(message: StringRef, filename: StringRef, lineNum: UInt)
+{
+    cout << "Assertion failure: " << message << endl;
+    if ( !filename.isEmpty() )
+    {
+        cout << "at " << filename << " line " << lineNum;
+    }
+    cout << flush << endl;
+    OS.exit(-1);
+}
+

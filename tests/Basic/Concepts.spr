@@ -1,0 +1,108 @@
+//!! -t "SparrowImplicitLib.spr"
+package Test;
+
+concept AnyType(x); // Always true
+
+class A
+{
+    fun f1 = 1;
+    fun f2 = 2;
+    fun f3 = 3;
+}
+
+class B
+{
+    fun f1 = 1;
+}
+
+class C
+{
+    fun f3 = 3;
+}
+
+concept HasF1(x) if isValid(x.f1());
+concept HasF2(x) if isValid(x.f2());
+concept HasF3(x) if isValid(x.f3());
+
+fun test1(x: HasF1)            { writeLn(x.f1()); }
+fun test2(x: HasF2)            { writeLn(x.f2()); }
+fun test3(x: HasF3)            { writeLn(x.f3()); }
+
+fun test1(x: AnyType) if !HasF1(x)  { writeLn('-'); }
+fun test2(x: AnyType) if !HasF2(x)  { writeLn('-'); }
+fun test3(x: AnyType) if !HasF3(x)  { writeLn('-'); }
+
+
+fun valueOfType(t: Type): t;
+
+class Tester(t: Type) if HasF1(valueOfType(t))
+{
+    fun call
+    {
+        var x: t;
+        writeLn(x.f1());
+    }
+}
+
+
+fun[native("test")] test(n: Int)
+{
+    var a: A;
+    var b: B;
+    var c: C;
+
+    test1(a);
+    test1(b);
+    test1(c);
+    test2(a);
+    test2(b);
+    test2(c);
+    test3(a);
+    test3(b);
+    test3(c);
+
+
+    writeLn("---");
+    if ( HasF1(a) ) writeLn("concept ok"); else writeLn("concept failed");
+    if ( HasF1(b) ) writeLn("concept ok"); else writeLn("concept failed");
+    if ( HasF1(c) ) writeLn("concept ok"); else writeLn("concept failed");
+
+    writeLn("---");
+    var t1: Tester(A);
+    var t2: Tester(B);
+    //var t3: Tester(C);
+    t1.call();
+    t2.call();
+
+    writeLn("---");
+    var aa: HasF1 = a;
+    var bb: HasF1 = b;
+    var cc: HasF3 = c;
+    //var cc: HasF1 = c;
+    test1(aa);
+    test1(bb);
+    test3(cc);
+}
+
+/*<<<Running()
+1
+1
+-
+2
+-
+-
+3
+-
+3
+---
+concept ok
+concept ok
+concept failed
+---
+1
+1
+---
+1
+1
+3
+>>>*/

@@ -1,0 +1,25 @@
+//!!
+package Test;
+
+import Logic.PrologFrontend;
+import "Fibonacci.pl";
+
+using Logic.*;
+
+
+fun sprMain
+{
+    if ( programArgs.size() < 2 )
+        return;
+    var n = programArgs(1) asInt;
+
+    var res: LInt;
+    fib(n, res)();
+    cout << res.get();
+}
+
+/*<<<Logic Fibonacci (10)
+55>>>*/
+
+/*<<<Logic Fibonacci (20)
+6765>>>*/

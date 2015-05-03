@@ -1,0 +1,106 @@
+//!! -t "SparrowImplicitLib.spr"
+package Test;
+
+concept AnyType(x) if true;
+
+fun add(x: Int, y: Int = 1) = x+y;
+
+
+class Foo
+{
+    var x: Int;
+
+    fun ctor(x: Int = 10) { this.x = x; }
+    fun ctor(dummy1, dummy2: Int, x: Int = 10) { this.x = x; }
+
+    fun ctor(dummy1, dummy2, dummy3: AnyType, x: AnyType = 10) { this.x ctor x; }
+
+    fun incWith(n: Int = 1) = x+n;
+
+    fun genMember(x: AnyType = 10) = x;
+}
+
+fun writeGen(x: AnyType = 1) { writeLn(x); }
+
+
+fun printType(t: Type)
+{
+    if ( t == Int )
+        write("Int");
+    else if ( t == Double )
+        write("Double");
+    else if ( t == Char )
+        write("Char");
+}   
+
+class TypePrinter(t1: Type, t2: Type = Int)
+{
+    fun print
+    {
+        write("t1=");
+        printType(t1);
+        write(", t2=");
+        printType(t2);
+        writeLn("");
+    }
+    
+}
+
+class Bar(t: Type = Int)
+{
+    fun print  { printType(t); writeLn(""); }
+}
+
+
+fun[native("test")] test(n: Int)
+{
+    var foo = Foo(7);
+
+    // Functions with default args
+    writeLn(add(2,3));
+    writeLn(add(2));
+    writeLn(foo.incWith(2));
+    writeLn(foo.incWith());
+    //writeLn(foo.plus); // TODO
+
+    // Generics with default args
+    writeLn("---");
+    writeGen(3.14);
+    writeGen();
+    writeLn(foo.genMember(3.14));
+    writeLn(foo.genMember());
+
+    // Ctor with default args
+    writeLn("---");
+    var foo2 = Foo(6, 7, 5);
+    var foo3 = Foo(6, 7);
+    writeLn(foo2.x);
+    writeLn(foo3.x);
+
+    // Generic classes
+    writeLn("---");
+    TypePrinter(Char, Double)().print();
+    TypePrinter(Char)().print();
+    Bar(Char)().print;
+    Bar()().print;
+}
+
+/*<<<Running()
+5
+3
+9
+8
+---
+3.14
+1
+3.14
+10
+---
+5
+10
+---
+t1=Char, t2=Double
+t1=Char, t2=Int
+Char
+Int
+>>>*/

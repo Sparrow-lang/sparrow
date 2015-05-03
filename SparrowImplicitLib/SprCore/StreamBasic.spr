@@ -1,0 +1,57 @@
+// An output stream must accept the basic types
+concept OutStream(x)
+    if isValid(x.<<<(1))
+    //&& isValid(x.<<<(1L))
+    && isValid(x.<<<(1.0))
+    && isValid(x.<<<('c'))
+    && isValid(x.<<<("string"))
+    ;
+
+// If we define an ">>" operator in the type itself, make sure we can support the standard "<<" notation
+fun[rtct] << (s: @OutStream, x: @AnyType): typeOf(s) if isValid(x.>>(s))
+{
+    x.>>(s);
+    return s;
+}
+
+// If no ">>" operator is defined in the class, then try to place the input element in the stream
+// The stream class must define an "<<<" operator for this element
+fun[rtct] << (s: @OutStream, x: @AnyType): typeOf(s) if !isValid(x.>>(s)) && isValid(s.<<<(x))
+{
+    s.<<<(x);
+    return s;
+}
+
+
+var[rtct] endl: EndLineHelperClass;
+var[rtct] flush: FlushHelperClass;
+
+class[rtct] EndLineHelperClass
+{
+    fun >>(os: @OutStream)
+    {
+        os << '\n';
+    }    
+}
+class[rtct] FlushHelperClass
+{
+    fun >>(os: @OutStream)
+    {
+        if[ct] ( isValid(os.flush()) )
+            os.flush();
+    }
+}
+
+class[rtct] StreamRefWrapperHelperClass
+{
+    var ptr: @Byte;
+    // TODO: define the >> operator here, instead of inside the stream
+}
+
+fun[rtct] mkStreamRefWrapper(x: @AnyType): StreamRefWrapperHelperClass
+{
+    var res: StreamRefWrapperHelperClass;
+    res.ptr := reinterpretCast(@Byte, x);
+    return res;
+}
+

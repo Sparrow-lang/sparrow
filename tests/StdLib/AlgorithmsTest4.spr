@@ -1,0 +1,182 @@
+//!!
+//--keep-intermediate-files --dump-assembly --dump-ct-assembly
+package Test;
+ 
+import SL.Algorithms;
+import SL.Vector;
+import SL.List;
+import SL.Array;
+import SL.Ranges;
+
+fun sprMain
+{
+    if ( programArgs.size() < 2 )
+        return;
+    var n = programArgs(1) asInt;
+
+    if      ( n == 1 ) test1();
+    else if ( n == 2 ) test2();
+    else if ( n == 3 ) test3();
+    else if ( n == 4 ) test4();
+}
+
+class MyObj
+{
+    var x: Int;
+
+    fun ctor() { x = 0; }
+    fun ctor(xx: Int) { x = xx; }
+    fun ctor(other: @MyObj) { x = other.x; }
+    fun dtor {}
+    fun =(other: @MyObj): @MyObj { x = other.x; return this; }
+    fun ==(other: @MyObj): Bool { return x == other.x; }
+    fun <(other: @MyObj): Bool { return x < other.x; }
+}
+
+class Greater
+{
+    fun ctor() { }
+    fun ()(x: Int, y: Int): Bool { return x > y; }
+}
+
+class Even
+{
+    fun ctor() { }
+
+    fun ()(x: Int): Bool { return x % 2 == 0; }
+}
+
+class Minus
+{
+    fun ctor() { }
+
+    fun ()(x: Int, y: Int) = x - y;
+}
+
+fun printRange(nr: AnyType)
+{
+    while ( !nr.isEmpty() )
+    {
+        cout << nr.front();
+        nr.popFront();
+        if (nr.isEmpty() )
+            cout << endl;
+        else
+            cout << ' ';
+    }
+}
+
+fun makeList(): List(Int)
+{
+    var li: List(Int);
+
+    li.pushBack(3);
+    li.pushBack(1);
+    li.pushBack(-4);
+    li.pushBack(-8);
+    li.pushBack(-8);
+    li.pushBack(7);
+    li.pushBack(-4);
+    li.pushBack(-8);
+    li.pushBack(3);
+    li.pushBack(-5);
+    li.pushBack(-10);
+    li.pushBack(-6);
+    li.pushBack(-10);
+    li.pushBack(7);
+    li.pushBack(-8);
+
+    return li;
+}
+
+fun createRangeAscending(size: SizeType): ContiguousMemoryRange(Int)
+{
+    var ptr = RawPtr(Int).alloc(size);
+    var ptrEnd = ptr.advance(DiffType(size));
+    var i = 0;
+
+    while ( i < size ; i = i + 1; )
+        ptr.advance(i).value() = i;
+
+    return ContiguousMemoryRange(Int)(ptr, ptrEnd);
+}
+
+fun test1()
+{
+	var arr = Array(Int)(20, 0);
+	var nr1 = NumericRangeWithStep(Int)(0, 10, 1);
+	var nr2 = NumericRangeWithStep(Int)(0, 11, 2);
+	
+	printRange(merge(nr1, nr2, arr.all()));
+	printRange(arr.all());
+}
+/*<<<Merging(1)
+0 0 0 0
+0 0 1 2 2 3 4 4 5 6 6 7 8 8 9 10 0 0 0 0
+>>>*/
+
+fun test2()
+{
+	var arr = Array(Int)(20, 0);
+	var nr1 = NumericRangeWithStep(Int)(10, 0, -1);
+	var nr2 = NumericRangeWithStep(Int)(11, 0, -2);
+	
+	printRange(merge(nr1, nr2, arr.all(), Greater()));
+	printRange(arr.all());
+}
+/*<<<Predicate merging(2)
+0 0 0 0
+11 10 9 9 8 7 7 6 5 5 4 3 3 2 1 1 0 0 0 0
+>>>*/
+
+fun test3()
+{
+	var v = Vector(Int)(makeList().all());
+
+	sort(v.all());
+	cout << binarySearch(v.all(), 7) << endl;
+	cout << binarySearch(v.all(), -5) << endl;
+	cout << binarySearch(v.all(), 9) << endl;
+	cout << binarySearch(v.all(), -100) << endl;
+	cout << binarySearch(v.all(), 200) << endl;
+	cout << binarySearch(v.all(), -10) << endl;	
+	v.assign(NumericRangeWithStep(Int)(0, 100000, 2));
+	cout << binarySearch(v.all(), 56872) << endl;
+	cout << binarySearch(v.all(), 56871) << endl;
+}
+/*<<<Binary search(3)
+true
+true
+false
+false
+false
+true
+true
+false
+>>>*/
+
+fun test4()
+{
+	var v = Vector(Int)(makeList().all());
+
+	sort(v.all(), Greater());
+	cout << binarySearch(v.all(), 7, Greater()) << endl;
+	cout << binarySearch(v.all(), -5, Greater()) << endl;
+	cout << binarySearch(v.all(), 9, Greater()) << endl;
+	cout << binarySearch(v.all(), -100, Greater()) << endl;
+	cout << binarySearch(v.all(), 200, Greater()) << endl;
+	cout << binarySearch(v.all(), -10, Greater()) << endl;	
+	v.assign(NumericRangeWithStep(Int)(100000, 0, -2));
+	cout << binarySearch(v.all(), 56872, Greater()) << endl;
+	cout << binarySearch(v.all(), 56871, Greater()) << endl;
+}
+/*<<<Predicate binary search(4)
+true
+true
+false
+false
+false
+true
+true
+false
+>>>*/

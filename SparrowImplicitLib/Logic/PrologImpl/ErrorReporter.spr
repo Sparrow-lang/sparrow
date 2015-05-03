@@ -1,0 +1,65 @@
+import CharRange;
+import Token;
+
+class[rtct] ConsoleErrorReporter(sourceType: Type) if CharRange(#$sourceType)
+{
+    fun ctor(source: @sourceType)
+    {
+        this.source ctor source;
+    }
+
+    fun raiseError(loc: Location, message: StringRef)
+    {
+        cout << message << flush;
+        printLocation(cout, loc);
+        cout << flush;
+        OS.exit(-1);
+    }
+
+    private fun printLocation(os: @OutStream, loc: Location)
+    {
+        var line = getLineAtLocation(loc);
+        //os << "(" << loc.startLineNo << ":" << loc.startColNo << " - " << loc.endLineNo << ":" << loc.endColNo << ")\n";
+        os << '>' << line << '\n';
+
+        os << '>';
+        var endCol = loc.endColNo;
+        if ( loc.startLineNo != loc.endLineNo )
+            endCol = UInt(line.size()+1);
+        if ( loc.startColNo == endCol )
+            ++endCol;
+        for ( i = 1..loc.startColNo )
+            os << ' ';
+        for ( i = loc.startColNo..endCol )
+            os << '~';
+        os << '\n';
+    }
+
+    private fun getLineAtLocation(loc: Location): String
+    {
+        var sourceCopy = source;
+
+        // Skip until our line
+        var curLine = 1;
+        while ( curLine < loc.startLineNo )
+        {
+            sourceCopy = find(sourceCopy, '\n');
+            sourceCopy.popFront();
+            ++curLine;
+        }
+
+        var len = indexOf(sourceCopy, '\n');
+        return String(take(sourceCopy, len));
+    }
+
+    private var source: sourceType;
+}
+fun[rtct] mkConsoleErrorReporter(source: @CharRange) = ConsoleErrorReporter(-@typeOf(source))(source);
+
+class[ct] CompilerErrorReporter
+{
+    fun raiseError(loc: Location, message: StringRef)
+    {
+        Meta.report(message, loc.asMetaLocation());
+    }
+}

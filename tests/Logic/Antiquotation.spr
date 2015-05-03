@@ -1,0 +1,42 @@
+//!!
+package Test;
+
+import Logic.Prolog;
+
+using sunVar = "sun";
+fun getSun: String { cout << "<getSun() called>"; return "sun"; }
+
+Logic.compileProlog("
+    orbits(mercury, sun).
+    orbits(venus, sun).
+    orbits(earth, sun).
+    orbits(mars, sun).
+    orbits(moon, earth).
+    orbits(phobos, mars).
+    orbits(deimos, mars).
+
+    planet(P) :- orbits(P, sun).
+    planet2(P) :- orbits(P, $sunVar).
+    planet3(P) :- orbits(P, ${\"sun\"}).
+    planet4(P) :- orbits(P, ${getSun()}).
+    planet5(P) :- orbits(P, ${\"s\"+\"u\"+\"n\"}).
+");
+
+fun sprMain
+{
+    cout << "Is Mercury orbiting Sun? " << orbits("mercury", "sun")() << endl;
+    cout << "Is Mercury a planet? " << planet("mercury")() << endl;
+    cout << "Is Mercury a planet (2)? " << planet2("mercury")() << endl;
+    cout << "Is Mercury a planet (3)? " << planet3("mercury")() << endl;
+    cout << "Is Mercury a planet (4)? " << planet4("mercury")() << endl;
+    cout << "Is Mercury a planet (5)? " << planet5("mercury")() << endl;
+}
+
+/*<<<Injecting Prolog - solar system (1)
+Is Mercury orbiting Sun? true
+Is Mercury a planet? true
+Is Mercury a planet (2)? true
+Is Mercury a planet (3)? true
+Is Mercury a planet (4)? <getSun() called>true
+Is Mercury a planet (5)? true
+>>>*/

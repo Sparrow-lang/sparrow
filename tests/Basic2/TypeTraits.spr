@@ -1,0 +1,197 @@
+//!!
+package Test;
+
+import SL.Vector;
+import SL.String;
+import SL.Algorithms;
+
+using TypeOp.*;
+
+class MyRtOnlyType {}
+class[ct] MyCtOnlyType {}
+
+fun sprMain
+{
+    if ( programArgs.size() < 2 )
+        return;
+    var n = programArgs(1) asInt;
+
+    if      ( n == 1 ) test1();
+    else if ( n == 2 ) test2();
+    else if ( n == 3 ) test3();
+    else if ( n == 4 ) test4();
+}
+
+fun getMode(mode: Int): String
+{
+    if ( mode == 1 )
+        return "rt    ";
+    if ( mode == 2 )
+        return "ct    ";
+    if ( mode == 3 )
+        return "rtct  ";
+    return "???   ";
+}
+
+fun printHeader
+{
+    cout << "hasStorage  Mode  ct rt ref  Description\n";
+    cout << "----------------------------------------\n";
+}
+
+fun printType(t: Type)
+{
+    cout << ife(hasStorage(t), "storage     ", "no storage  ")
+         << getMode(mode(t)).asStringRef()
+         << ife(canBeUsedAtCt(t), "y  ", "n  ") 
+         << ife(canBeUsedAtRt(t), "y  ", "n  ") 
+         << numRef(t) << "    " 
+         << description(t) << endl;
+
+}
+
+fun test1
+{
+    var x: Double;
+    var xr: @Double = x;
+    var xrr: @ @Double = xr;
+
+    printHeader();
+    printType(Int);
+    printType(Int ct);
+    printType(Int rt);
+    printType(Double);
+    printType(typeOf(x));
+    printType(typeOf(xr));
+    printType(typeOf(xrr));
+    printType(Pair(Int, Double));
+    printType(Vector(Int));
+    printType(typeOf(1 ... 10));
+    printType(Number);
+    printType(typeOf(test1()));
+    printType(typeOf(test1()) ct);
+    printType(typeOf(\test1));
+    printType(MyRtOnlyType);
+    //printType(MyCtOnlyType);
+}
+
+/*<<<Type properties and description(1)
+hasStorage  Mode  ct rt ref  Description
+----------------------------------------
+storage     rtct  y  y  0    Int/rtct
+storage     ct    y  y  0    Int/ct
+storage     rt    y  y  0    Int
+storage     rtct  y  y  0    Double/rtct
+storage     rt    y  y  0    Double
+storage     rt    y  y  1    @Double
+storage     rt    y  y  2    @@Double
+storage     rtct  y  y  0    Pair[Int/rtct, Double/rtct]/rtct
+storage     rtct  y  y  0    Vector[Int/rtct]/rtct
+storage     rt    y  y  0    NumericRangeInc[Int/rtct]
+no storage  rtct  y  y  0    #Number/rtct
+no storage  rt    y  y  0    Void
+no storage  ct    y  y  0    Void/ct
+storage     rt    n  y  0    FunctionPtr[Void]
+storage     rt    n  y  0    MyRtOnlyType
+>>>*/
+
+fun test2
+{
+    printHeader();
+    printType(Int);
+    printType(Int ct);
+    printType(Int rt);
+    printType(changeMode(Int, 0));
+    printType(changeMode(Int, 1));
+    printType(changeMode(Int, 2));
+    printType(changeMode(Int, 3));
+}
+
+/*<<<Change type mode(2)
+hasStorage  Mode  ct rt ref  Description
+----------------------------------------
+storage     rtct  y  y  0    Int/rtct
+storage     ct    y  y  0    Int/ct
+storage     rt    y  y  0    Int
+storage     ???   y  y  0    Int
+storage     rt    y  y  0    Int
+storage     ct    y  y  0    Int/ct
+storage     rtct  y  y  0    Int/rtct
+>>>*/
+
+fun test3
+{
+    var x: Double;
+    var xr: @Double = x;
+    var xrr: @ @Double = xr;
+
+    printHeader();
+    printType(typeOf(x));
+    printType(typeOf(xr));
+    printType(typeOf(xrr));
+    printType(changeRefCount(Int, 0));
+    printType(changeRefCount(Int, 1));
+    printType(changeRefCount(Int, 9));
+    printType(changeRefCount(typeOf(xrr), 0));
+}
+
+/*<<<Change num references(3)
+hasStorage  Mode  ct rt ref  Description
+----------------------------------------
+storage     rt    y  y  0    Double
+storage     rt    y  y  1    @Double
+storage     rt    y  y  2    @@Double
+storage     rtct  y  y  0    Int/rtct
+storage     rtct  y  y  1    @Int/rtct
+storage     rtct  y  y  9    @@@@@@@@@Int/rtct
+storage     rt    y  y  0    Double
+>>>*/
+
+fun test4
+{
+    var x: Double;
+    var xr: @Double = x;
+    var xrr: @ @Double = xr;
+
+    cout << ife(isRef(Int), "ref", "no ref") << endl;
+    cout << ife(isRef(@Int), "ref", "no ref") << endl;
+    cout << "---\n";
+
+    cout << description(addRef(Int)) << endl;
+    cout << description(addRef(@Int)) << endl;
+    cout << "---\n";
+
+    cout << description(removeRef(Int)) << endl;
+    cout << description(removeRef(@Int)) << endl;
+    cout << description(removeRef(@ @Int)) << endl;
+    cout << "---\n";
+
+    cout << description(removeAllRef(Int)) << endl;
+    cout << description(removeAllRef(@Int)) << endl;
+    cout << description(removeAllRef(@ @Int)) << endl;
+    cout << "---\n";
+
+    cout << description(atLeastOneRef(Int)) << endl;
+    cout << description(atLeastOneRef(@Int)) << endl;
+    cout << description(atLeastOneRef(@ @Int)) << endl;
+}
+
+/*<<<Type traits class(4)
+no ref
+ref
+---
+@Int/rtct
+@@Int/rtct
+---
+Int/rtct
+Int/rtct
+@Int/rtct
+---
+Int/rtct
+Int/rtct
+Int/rtct
+---
+@Int/rtct
+@Int/rtct
+@@Int/rtct
+>>>*/

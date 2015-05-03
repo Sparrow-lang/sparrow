@@ -1,0 +1,58 @@
+//!!
+package Test;
+
+concept Regular(x)
+    if isValid(x.ctor())        // Default construction
+    && isValid(x.ctor(x))       // Copy construction
+    && isValid(x.dtor())        // Destruction
+    && typeOf(x == x) == Bool   // Equality is defined
+    ;
+
+
+class[noDefault] NullType {
+    fun ctor {}
+    fun[convert] ctor(other: AnyType) {}
+    fun dtor {}
+    fun ==(other: NullType) = true;
+    fun ==(other: AnyType) = false;
+}
+
+
+fun testRegular(x: Regular)
+{
+    cout << TypeOp.description(typeOf(x)) << " is Regular\n";
+}
+
+fun testRegular(x: AnyType) if !Regular(x)
+{
+    cout << TypeOp.description(typeOf(x)) << " is not Regular\n";
+}
+
+class MyType
+{
+    // Operators are implicitly defined
+}
+
+class[noDefault] EmptyType
+{
+}
+
+fun sprMain
+{
+    testRegular(1);
+    testRegular(1.0);
+    var o: NullType;
+    var o1: MyType;
+    var o2: EmptyType;
+    testRegular(o);
+    testRegular(o1);
+    testRegular(o2);
+}
+/*<<<Running()
+Int is Regular
+Double is Regular
+NullType is Regular
+MyType is Regular
+EmptyType is not Regular
+>>>*/
+

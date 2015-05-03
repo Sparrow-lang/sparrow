@@ -1,0 +1,83 @@
+//!! -t "SparrowImplicitLib.spr"
+package Test;
+
+concept AnyType(x); // Always true
+
+class MyObj
+{
+    ctor(x: Int)
+    {
+        val = x;
+    }
+
+    var val: Int;
+}
+
+class Simple
+{
+    var i: Int;
+
+    fun fromOther(x: AnyType)
+    {
+        i = x;
+    }
+
+    fun[static] fromOther(x: AnyType): Simple
+    {
+        var s: Simple;
+        s.i = x;
+        return s;
+    }
+}
+
+class GClass(type: Type)
+{
+    var i: type;
+
+    fun fromOther(x: AnyType)
+    {
+        i = x;
+    }
+
+    fun[static] fromOther(x: AnyType): GClass
+    {
+        var s: Simple;
+        s.i = x;
+        return s;
+    }
+}
+
+fun = (dest: Int@; src: MyObj)            { dest = src.val; }
+fun = (dest: Int@; src: Simple)           { dest = src.i; }
+fun = (dest: Int@; src: GClass(Int))      { dest = src.i; }
+fun = (dest: Int@; src: GClass(MyObj))    { dest = src.i.val; }
+
+
+fun[native("test")] test(n: Int)
+{
+    var obj: MyObj = 10;
+    var s: Simple;
+    var gc: GClass(Int);
+
+    s.fromOther(1);
+    writeLn(s.i);
+
+    s.fromOther(obj);
+    writeLn(s.i);
+
+
+    gc.fromOther(1);
+    writeLn(gc.i);
+
+
+    gc.fromOther(obj);
+    writeLn(gc.i);
+}
+
+
+/*<<<Running()
+1
+10
+1
+10
+>>>*/

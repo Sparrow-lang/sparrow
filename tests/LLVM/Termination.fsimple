@@ -1,0 +1,195 @@
+//!! -t ""
+nodelist{
+
+    backendcode{
+"@.str = private unnamed_addr constant [4 x i8] c\"15\\0A\\00\", align 1"
+"@.fmtInt = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\", align 1"
+""
+"define void @writeLnInt(i32 %val) {"
+"  %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.fmtInt, i32 0, i32 0), i32 %val)"
+"  ret void"
+"}"
+""
+"define i32 @mul(i32 %x, i32 %y) {"
+"  %1 = mul i32 %x,%y"
+"  ret i32 %1"
+"}"
+""
+"define i32 @sub(i32 %x, i32 %y) {"
+"  %1 = sub i32 %x,%y"
+"  ret i32 %1"
+"}"
+""
+"define i1 @equal(i32 %x, i32 %y) {"
+"  %1 = icmp eq i32 %x,%y"
+"  ret i1 %1"
+"}"
+""
+"define i1 @greater(i32 %x, i32 %y) {"
+"  %1 = icmp sgt i32 %x,%y"
+"  ret i1 %1"
+"}"
+""
+"define i32 @main(i32 %argc, i8** %argv) nounwind uwtable {"
+"  %1 = alloca i32, align 4"
+"  %2 = alloca i32, align 4"
+"  %3 = alloca i8**, align 8"
+"  store i32 0, i32* %1"
+"  store i32 %argc, i32* %2, align 4"
+"  store i8** %argv, i8*** %3, align 8"
+"  %4 = load i8*** %3, align 8"
+"  %5 = getelementptr inbounds i8** %4, i64 1"
+"  %6 = load i8** %5"
+"  %7 = call i32 @atoi(i8* %6) nounwind readonly"
+"  call void @test(i32 %7)"
+"  ret i32 0"
+"}"
+""
+"declare i32 @atoi(i8*) nounwind readonly"
+"declare i32 @printf(i8*, ...)"
+"declare void @test(i32)"
+    }
+    
+    class { Int
+        autoct
+        propStr("nativeName", "i32")
+    }
+    
+    class { Bool
+        autoct
+        propStr("nativeName", "u1")
+    }
+    
+    function(writeLnInt, params(var(val,Int)), void)
+    function(mul, params(var(x,Int),var(y,Int)), Int)
+    function(sub, params(var(x,Int),var(y,Int)), Int)
+    function(equal, params(var(x,Int),var(y,Int)), Bool)
+    function(greater, params(var(x,Int),var(y,Int)), Bool)
+    
+    function(factorial, params(var(n,Int)), Int, localspace{
+        if(funCall(equal, memLoad(varRef(n)), ctValueBin(Int, "00 00 00 00")),
+            return(ctValueBin(Int, "01 00 00 00")),
+            return(funCall(mul, 
+                memLoad(varRef(n)),
+                funCall(factorial, funCall(sub, memLoad(varRef(n)), ctValueBin(Int, "01 00 00 00")))
+            ))
+        )
+        return(ctValueBin(Int, "00 00 00 00"))
+    })
+    
+
+    function (testReturn, params(var(n,Int)), void, localSpace{
+        funCall(writeLnInt, ctValueBin(Int, "fe 00 00 00"))
+        localSpace{
+            scopeDestructAction(funCall(writeLnInt, ctValueBin(Int, "01 00 00 00")))
+            localSpace {
+                scopeDestructAction(funCall(writeLnInt, ctValueBin(Int, "02 00 00 00")))
+                return
+                scopeDestructAction(funCall(writeLnInt, ctValueBin(Int, "03 00 00 00")))
+            }
+        }
+        funCall(writeLnInt, ctValueBin(Int, "ff 00 00 00"))
+        return
+    })
+    
+    function(emptyFun, params(var(n,Int)), void, localSpace{
+    })
+
+    function(emptyFunRetInt, params(var(n,Int)), Int, localSpace{
+        return(ctValueBin(Int, "ff 00 00 00"))
+    })
+    function(testIf, params(var(n,Int)), void, localSpace{
+        if(
+            nodeList {
+                tempDestructAction(funCall(writeLnInt, ctValueBin(Int, "01 00 00 00")))
+                scopeDestructAction(funCall(writeLnInt, ctValueBin(Int, "02 00 00 00")))
+                funCall(greater, memLoad(varRef(n)), ctValueBin(Int, "00 00 00 00"))
+            },
+            nodeList {
+                tempDestructAction(funCall(writeLnInt, ctValueBin(Int, "03 00 00 00")))
+                scopeDestructAction(funCall(writeLnInt, ctValueBin(Int, "04 00 00 00")))
+                funCall(writeLnInt, ctValueBin(Int, "0b 00 00 00"))
+            },
+            nodeList {
+                tempDestructAction(funCall(writeLnInt, ctValueBin(Int, "03 00 00 00")))
+                scopeDestructAction(funCall(writeLnInt, ctValueBin(Int, "04 00 00 00")))
+                funCall(writeLnInt, ctValueBin(Int, "0b 00 00 00"))
+            }
+        )
+    })
+
+    function(testWhile, params(var(n,Int)), void, localSpace{
+        while(
+            nodeList {
+                tempDestructAction(funCall(writeLnInt, ctValueBin(Int, "01 00 00 00")))
+                scopeDestructAction(funCall(writeLnInt, ctValueBin(Int, "02 00 00 00")))
+                funCall(greater, memLoad(varRef(n)), ctValueBin(Int, "00 00 00 00"))
+            },
+            nodeList {
+                tempDestructAction(funCall(writeLnInt, ctValueBin(Int, "03 00 00 00")))
+                scopeDestructAction(funCall(writeLnInt, ctValueBin(Int, "04 00 00 00")))
+                funCall(writeLnInt, ctValueBin(Int, "0b 00 00 00"))
+            },
+            nodeList {
+                tempDestructAction(funCall(writeLnInt, ctValueBin(Int, "03 00 00 00")))
+                scopeDestructAction(funCall(writeLnInt, ctValueBin(Int, "04 00 00 00")))
+                funCall(writeLnInt, ctValueBin(Int, "0b 00 00 00"))
+            }
+        )
+    })
+
+    function(testWhileBreak, params(var(n,Int)), void, localSpace{
+        while(
+            nodeList {
+                tempDestructAction(funCall(writeLnInt, ctValueBin(Int, "01 00 00 00")))
+                scopeDestructAction(funCall(writeLnInt, ctValueBin(Int, "02 00 00 00")))
+                break
+                funCall(greater, memLoad(varRef(n)), ctValueBin(Int, "00 00 00 00"))
+            },
+            nodeList {
+                tempDestructAction(funCall(writeLnInt, ctValueBin(Int, "03 00 00 00")))
+                scopeDestructAction(funCall(writeLnInt, ctValueBin(Int, "04 00 00 00")))
+                break
+                funCall(writeLnInt, ctValueBin(Int, "0b 00 00 00"))
+            },
+            nodeList {
+                tempDestructAction(funCall(writeLnInt, ctValueBin(Int, "03 00 00 00")))
+                scopeDestructAction(funCall(writeLnInt, ctValueBin(Int, "04 00 00 00")))
+                break
+                funCall(writeLnInt, ctValueBin(Int, "0b 00 00 00"))
+            }
+        )
+    })
+
+    function(testWhileContinue, params(var(n,Int)), void, localSpace{
+        while(
+            nodeList {
+                tempDestructAction(funCall(writeLnInt, ctValueBin(Int, "01 00 00 00")))
+                scopeDestructAction(funCall(writeLnInt, ctValueBin(Int, "02 00 00 00")))
+                continue
+                funCall(greater, memLoad(varRef(n)), ctValueBin(Int, "00 00 00 00"))
+            },
+            nodeList {
+                tempDestructAction(funCall(writeLnInt, ctValueBin(Int, "03 00 00 00")))
+                scopeDestructAction(funCall(writeLnInt, ctValueBin(Int, "04 00 00 00")))
+                continue
+                funCall(writeLnInt, ctValueBin(Int, "0b 00 00 00"))
+            },
+            nodeList {
+                tempDestructAction(funCall(writeLnInt, ctValueBin(Int, "03 00 00 00")))
+                scopeDestructAction(funCall(writeLnInt, ctValueBin(Int, "04 00 00 00")))
+                continue
+                funCall(writeLnInt, ctValueBin(Int, "0b 00 00 00"))
+            }
+        )
+    })
+
+    function(test, params(var(x,Int)), void, localspace{
+        funCall(writeLnInt, funCall(factorial, memLoad(varRef(x))))
+        return
+    })
+}
+
+/*<<<Running(5)
+120
+>>>*/

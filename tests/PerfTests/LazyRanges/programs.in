@@ -1,0 +1,4 @@
+C:          ./lazy_ranges.c.out
+C++:        ./lazy_ranges.cpp.out
+Spr classic:./lazy_ranges_base.out
+Spr ranges: ./lazy_ranges.out

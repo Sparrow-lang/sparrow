@@ -1,0 +1,68 @@
+
+# The source files
+SET(sourceFiles
+    "StdInc.h"
+    "StdInc.cpp"
+    "DefaultStdInc.h"
+    "Compiler.h"
+    "CompilerImpl.h"
+    "CompilerImpl.cpp"
+    "CompilerInstance.h"
+    "CompilerInstance.cpp"
+    "CompilerSettings.h"
+    "Common/Fwd.h"
+    "Common/Assert.h"
+    "Common/Tuple.h"
+    "Common/SaveValue.h"
+    "Common/ScopeGuard.h"
+    "Common/ScopeGuard.cpp"
+    "Common/Diagnostic.h"
+    "Common/DiagnosticSeverity.h"
+    "Common/DiagnosticReporter.h"
+    "Common/DiagnosticReporter.cpp"
+    "Common/ConsoleColors.h"
+    "Common/CompilationError.h"
+    "Common/CompilationError.cpp"
+    "Common/DiagnosticFormatter.h"
+    "Common/DiagnosticFormatter.cpp"
+    "Common/NodeAllocator.h"
+    "Common/NodeAllocatorImpl.h"
+    "Common/NodeAllocatorImpl.cpp"
+    "Common/TimingSystem.h"
+    "Common/TimingSystem.cpp"
+    "Common/PrintTimer.h"
+    "Intermediate/NodeVector.h"
+    "Intermediate/Node.h"
+    "Intermediate/Node.cpp"
+    "Intermediate/Modifier.h"
+    "Intermediate/EvalMode.h"
+    "Intermediate/SymTab.h"
+    "Intermediate/SymTabImpl.h"
+    "Intermediate/SymTabImpl.cpp"
+    "Intermediate/CompilationContext.h"
+    "Intermediate/CompilationContext.cpp"
+    "Intermediate/Type.h"
+    "Intermediate/TypeStock.h"
+    "Intermediate/TypeStock.cpp"
+    "Frontend/FrontendFactory.h"
+    "Frontend/FrontendFactoryImpl.h"
+    "Frontend/FrontendFactoryImpl.cpp"
+    "Frontend/SourceCode.h"
+    "Frontend/SourceCode.cpp"
+    "Frontend/Location.h"
+    "Frontend/Location.cpp"
+    "Backend/Backend.h"
+    "Backend/Backend.cpp"
+    "Backend/BackendFactory.h"
+    "Backend/BackendFactoryImpl.h"
+    "Backend/BackendFactoryImpl.cpp"
+)
+
+# Project settings
+INCLUDE_DIRECTORIES( "." )
+INCLUDE_DIRECTORIES( ".." )
+ADD_DEFINITIONS( "-DINSIDE_NEST" )
+ADD_MSVC_PRECOMPILED_HEADER("StdInc.h" "StdInc.cpp" sourceFiles)
+ADD_SOURCES_TO_GROUPS(sourceFiles)
+
+ADD_LIBRARY( Nest ${sourceFiles} )

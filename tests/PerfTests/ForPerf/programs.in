@@ -1,0 +1,6 @@
+C for:      ./for.c.out
+C++ for:    ./for_post.cpp.out
+C++ while:  ./while.cpp.out
+C++ ranges: ./for_ranges.cpp.out
+Spr while:  ./spr_while.out
+Spr for:    ./spr_for.out

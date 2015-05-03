@@ -1,0 +1,33 @@
+//!!
+package Test;
+
+import SL.Ranges;
+
+fun <<(os: @OutStream, r: Range): typeOf(os)
+{
+    var first = true;
+    cout << "(";
+    for ( x = r )
+    {
+        if ( !first )
+            cout << ", ";
+        first = false;
+        cout << x;
+    }
+    cout << ")";
+    return os;
+}
+
+fun sprMain
+{
+    var r1 = (1...5) map (fun n = repeat(n*n, n));
+    var r2 = r1 map \rangeSize;
+
+    cout << r1 << endl;
+    cout << r2 << endl;
+}
+
+/*<<<Ranges of ranges, with generic fun-ptr passed to map()
+((1), (4, 4), (9, 9, 9), (16, 16, 16, 16), (25, 25, 25, 25, 25))
+(1, 2, 3, 4, 5)
+>>>*/

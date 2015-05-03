@@ -1,0 +1,233 @@
+//!! -t "SparrowImplicitLib.spr"
+package Test;
+
+class A
+{
+    fun ctor
+    {
+        writeLn("A.ctor");
+    }
+    fun ctor(n: Int)
+    {
+        write("A.ctor("); write(n); writeLn(")");
+    }
+    fun ctor(a: A)
+    {
+        writeLn("A.ctor(copy)");
+    }
+    fun =(other: A)
+    {
+        writeLn("A.=");
+    }
+
+    fun dtor
+    {
+        writeLn("A.dtor");
+    }
+}
+
+class B
+{
+    fun ctor
+    {
+        writeLn("B.ctor");
+    }
+    fun ctor(n: Int)
+    {
+        write("B.ctor("); write(n); writeLn(")");
+    }
+    fun ctor(b: B)
+    {
+        writeLn("B.ctor(copy)");
+    }
+    fun =(other: B)
+    {
+        writeLn("B.=");
+    }
+
+    fun dtor
+    {
+        writeLn("B.dtor");
+    }
+}
+
+class MyType
+{
+    fun ctor
+    {
+        writeLn("MyType.ctor");
+    }
+    fun ctor(i: Int)
+    {
+        a.ctor(i);
+        writeLn("MyType.ctor(Int)");
+    }
+    fun ctor(i,j: Int)
+    {
+        a.ctor(i);
+        b.ctor(j);
+        writeLn("MyType.ctor(Int, Int)");
+    }
+    fun ctor(x,y: Double)
+    {
+        ctor(Int(x), Int(y));
+        writeLn("MyType.ctor(Double, Double)");
+    }
+    fun dtor
+    {
+        writeLn("MyType.dtor");
+    }
+
+    var a: A;
+    var b: B;
+}
+
+class Empty
+{
+}
+
+class AlmostEmpty
+{
+    var a: A;
+    var b: B;
+}
+
+
+fun[native("test")] test(n: Int)
+{
+    if ( n == 1 )
+        test1();
+    else if ( n == 4 )
+        test4();
+    else if ( n == 5 )
+        test5();
+}
+
+fun t1_1()
+{
+    var o: MyType;
+}
+
+fun t1_2()
+{
+    var o = MyType(10);
+}
+
+fun t1_3()
+{
+    var o = MyType(10, 11);
+}
+
+fun t1_4()
+{
+    var o = MyType(20.0, 21.0);
+}
+
+
+fun test1
+{
+    t1_1();
+    writeLn("---");
+    t1_2();
+    writeLn("---");
+    t1_3();
+    writeLn("---");
+    t1_4();
+}
+
+/*<<<Member intiailization(1)
+A.ctor
+B.ctor
+MyType.ctor
+MyType.dtor
+B.dtor
+A.dtor
+---
+B.ctor
+A.ctor(10)
+MyType.ctor(Int)
+MyType.dtor
+B.dtor
+A.dtor
+---
+A.ctor(10)
+B.ctor(11)
+MyType.ctor(Int, Int)
+MyType.dtor
+B.dtor
+A.dtor
+---
+A.ctor(20)
+B.ctor(21)
+MyType.ctor(Int, Int)
+MyType.ctor(Double, Double)
+MyType.dtor
+B.dtor
+A.dtor
+>>>*/
+
+fun test4
+{
+    var x = Empty();
+    x.ctor(Empty());
+
+    var y = AlmostEmpty();
+    writeLn(">");
+    var z: AlmostEmpty;
+    writeLn(">");
+    z.dtor();
+    writeLn("copy:");
+    z.ctor(y);
+    writeLn(">");
+}
+
+/*<<<Generated methods for empty class(4)
+A.ctor
+B.ctor
+>
+A.ctor
+B.ctor
+>
+B.dtor
+A.dtor
+copy:
+A.ctor(copy)
+B.ctor(copy)
+>
+B.dtor
+A.dtor
+B.dtor
+A.dtor
+>>>*/
+
+
+fun test5
+{
+    var x = Empty();
+    x.ctor(Empty());
+
+    var y = AlmostEmpty();
+    writeLn(">");
+    var z: AlmostEmpty;
+    writeLn("assign:");
+    z = y;
+    writeLn(">");
+}
+
+/*<<<Generated assignment operator(5)
+A.ctor
+B.ctor
+>
+A.ctor
+B.ctor
+assign:
+A.=
+B.=
+>
+B.dtor
+A.dtor
+B.dtor
+A.dtor
+>>>*/
+
+

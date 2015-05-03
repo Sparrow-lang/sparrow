@@ -1,0 +1,81 @@
+//!!
+package Test;
+
+import SL.Ranges;
+import SL.Vector;
+
+fun test1()
+{
+    var[ct] i=0;
+    while[ct] ( i<5; i+=1 )
+    {
+        cout << ctEval(i) << endl;
+    }
+}
+
+fun[ct] fact(n: Int): Int
+{
+    if ( n < 2 )
+        return 1;
+    else
+        return n*fact(n-1);
+}
+
+fun test2()
+{
+    var[ct] i=0;
+    while[ct] ( i<5; i+=1 )
+    {
+        cout << ctEval(fact(i)) << endl;
+    }
+}
+
+fun[ct] createVector(min, max: Int): Vector(Int)
+{
+    var v = Vector(Int)(min..max);
+    return v;
+}
+
+fun test3()
+{
+    var[ct] v = createVector(10, 15);
+
+    var[ct] i=0;
+    while[ct] ( i<v.size(); i+=1 )
+    {
+        cout << ctEval(v(i)) << endl;
+    }
+}
+
+fun sprMain
+{
+    var x = 10;
+    var y = 2;
+    var[ct] yy = 2;
+
+    test1();
+    cout << "---" << endl;
+    test2();
+    cout << "---" << endl;
+    test3();
+}
+
+/*<<<Running()
+0
+1
+2
+3
+4
+---
+1
+1
+2
+6
+24
+---
+10
+11
+12
+13
+14
+>>>*/

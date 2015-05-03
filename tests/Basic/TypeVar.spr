@@ -1,0 +1,18 @@
+//!! -t "SparrowImplicitLib.spr"
+package Test;
+
+var[ct] t: Type = Int;
+var[ct] u: Type;
+
+var x: t = 3;
+//var y: u = 3;
+
+fun[native("test")] test(n: Int)
+{
+    writeLn(x);
+}
+
+
+/*<<<Running()
+3
+>>>*/

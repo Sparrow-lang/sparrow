@@ -1,0 +1,5 @@
+LoopTesterApp_Spr:   ./LoopTesterApp.out
+LoopTesterApp_Cpp:   orig/cpp/a.out
+LoopTesterApp_Go:    orig/go/6.out
+LoopTesterApp_Java:  java -server -Xss15500k -classpath orig/java LoopTesterApp
+LoopTesterApp_Scala: java -XX:+UseCompressedOops -server -Xss15500k -classpath /usr/local/Cellar/scala/2.11.2/libexec/lib/scala-library.jar:orig/scala LoopTesterApp

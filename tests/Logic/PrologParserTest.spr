@@ -1,0 +1,221 @@
+//!!
+package Test;
+
+import Logic.Prolog;
+
+using Logic.*;
+
+compileProlog("
+    orbits(mercury, sun).
+    orbits(venus, sun).
+    orbits(earth, sun).
+    orbits(mars, sun).
+    orbits(moon, earth).
+    orbits(phobos, mars).
+    orbits(deimos, mars).
+
+    planet(P) :- orbits(P, sun).
+ 
+    satellite(S) :- orbits(S, P), planet(P).
+");
+
+compileProlog("
+    children(sam, mary).
+    children(denise, mary).
+    children(sam, frank).
+    children(denise, frank).
+    children(frank, garry).
+
+    gender(frank, male).
+    gender(sam, male).
+    gender(mary, female).
+    gender(denise, female).
+    gender(garry, male).
+
+    male(P) :- gender(P, male).
+    female(P) :- gender(P, female).
+
+    parent(P, C) :- children(C, P).
+
+    father(F, C) :- children(C, F), gender(F, male).
+    mother(M, C) :- children(C, M), gender(M, female).
+
+    ancestor(A, C) :- children(C, A).
+    ancestor(A, C) :- children(C, P), ancestor(A, P).
+");
+
+var[ct] solarProlog = <{
+    orbits(mercury, sun).
+    orbits(venus, sun).
+    orbits(earth, sun).
+    orbits(mars, sun).
+    orbits(moon, earth).
+    orbits(phobos, mars).
+    orbits(deimos, mars).
+
+    planet(P) :- orbits(P, sun).
+ 
+    satellite(S) :- orbits(S, P), planet(P).
+}>;
+
+var[ct] parentsProlog = <{
+    children(sam, mary).
+    children(denise, mary).
+    children(sam, frank).
+    children(denise, frank).
+    children(frank, garry).
+
+    gender(frank, male).
+    gender(sam, male).
+    gender(mary, female).
+    gender(denise, female).
+    gender(garry, male).
+
+    male(P) :- gender(P, male).
+    female(P) :- gender(P, female).
+
+    parent(P, C) :- children(C, P).
+
+    father(F, C) :- children(C, F), gender(F, male).
+    mother(M, C) :- children(C, M), gender(M, female).
+
+    ancestor(A, C) :- children(C, A).
+    ancestor(A, C) :- children(C, P), ancestor(A, P).
+}>;
+
+
+
+fun sprMain
+{
+    if ( programArgs.size() < 2 )
+        return;
+    var n = programArgs(1) asInt;
+
+    if      ( n == 1 ) test1();
+    else if ( n == 2 ) test2();
+    else if ( n == 3 ) test3();
+    else if ( n == 4 ) test4();
+}
+
+fun test1
+{
+    cout << "Is Mercury orbiting Sun? " << orbits("mercury", "sun")() << endl;
+    cout << "Is Mercury a planet? " << planet("mercury")() << endl;
+
+    var x: LStr;
+    var pred = satellite(x);
+    while ( pred() )
+    {
+        assert(x.isSet());
+        cout << "Satellite: " << x.get() << endl;
+    }
+}
+/*<<<Injecting Prolog - solar system (1)
+Is Mercury orbiting Sun? true
+Is Mercury a planet? true
+Satellite: moon
+Satellite: phobos
+Satellite: deimos
+>>>*/
+
+fun test2
+{
+    cout << "?- children(sam, mary) => " << children("sam", "mary")() << endl;
+    cout << "?- gender(sam, male) => " << gender("sam", "male")() << endl;
+    cout << "?- parent(mary, sam) => " << parent("mary", "sam")() << endl;
+    cout << "?- father(frank, sam) => " << father("frank", "sam")() << endl;
+    cout << "?- mother(mary, sam) => " << mother("mary", "sam")() << endl;
+    cout << "?- ancestor(garry, sam) => " << ancestor("garry", "sam")() << endl;
+
+    var x, y: LStr;
+    var pred = ancestor(x, y);
+    while ( pred() )
+    {
+        assert(x.isSet());
+        assert(y.isSet());
+        cout << x.get() << " is an ancestor of " << y.get() << endl;
+    }
+}
+/*<<<Injecting Prolog - parents (2)
+?- children(sam, mary) => true
+?- gender(sam, male) => true
+?- parent(mary, sam) => true
+?- father(frank, sam) => true
+?- mother(mary, sam) => true
+?- ancestor(garry, sam) => true
+mary is an ancestor of sam
+mary is an ancestor of denise
+frank is an ancestor of sam
+frank is an ancestor of denise
+garry is an ancestor of frank
+garry is an ancestor of sam
+garry is an ancestor of denise
+>>>*/
+
+fun test3
+{
+    //cout << prologToString(solarProlog);
+}
+/*<-<<Sparrow code for solar system (3)
+fun orbits(p_1, p_2: LStr): Predicate
+    =  p_1 /=/ "mercury" && p_2 /=/ "sun"
+    || p_1 /=/ "venus" && p_2 /=/ "sun"
+    || p_1 /=/ "earth" && p_2 /=/ "sun"
+    || p_1 /=/ "mars" && p_2 /=/ "sun"
+    || p_1 /=/ "moon" && p_2 /=/ "earth"
+    || p_1 /=/ "phobos" && p_2 /=/ "mars"
+    || p_1 /=/ "deimos" && p_2 /=/ "mars"
+    ;
+fun planet(p_1: LStr): Predicate
+    =  orbits(p_1, "sun")
+    ;
+fun satellite(p_1: LStr): Predicate
+{
+    var l1_P: LStr;
+    return orbits(p_1, l1_P) && planet(l1_P)
+        ;
+}
+>>>*/
+
+fun test4
+{
+    //cout << prologToString(parentsProlog);
+}
+/*<-<<Sparrow code for parents system (4)
+fun children(p_1, p_2: LStr): Predicate
+    =  p_1 /=/ "sam" && p_2 /=/ "mary"
+    || p_1 /=/ "denise" && p_2 /=/ "mary"
+    || p_1 /=/ "sam" && p_2 /=/ "frank"
+    || p_1 /=/ "denise" && p_2 /=/ "frank"
+    || p_1 /=/ "frank" && p_2 /=/ "gary"
+    ;
+fun gender(p_1, p_2: LStr): Predicate
+    =  p_1 /=/ "frank" && p_2 /=/ "male"
+    || p_1 /=/ "sam" && p_2 /=/ "male"
+    || p_1 /=/ "mary" && p_2 /=/ "female"
+    || p_1 /=/ "denise" && p_2 /=/ "female"
+    || p_1 /=/ "gary" && p_2 /=/ "male"
+    ;
+fun male(p_1: LStr): Predicate
+    =  gender(p_1, "male")
+    ;
+fun female(p_1: LStr): Predicate
+    =  gender(p_1, "female")
+    ;
+fun parent(p_1, p_2: LStr): Predicate
+    =  children(p_2, p_1)
+    ;
+fun father(p_1, p_2: LStr): Predicate
+    =  children(p_2, p_1) && gender(p_1, "male")
+    ;
+fun mother(p_1, p_2: LStr): Predicate
+    =  children(p_2, p_1) && gender(p_1, "female")
+    ;
+fun ancestor(p_1, p_2: LStr): Predicate
+{
+    var l2_P: LStr;
+    return children(p_2, p_1)
+        || children(p_2, l2_P) && rec(ancestor, p_1, l2_P)
+        ;
+}
+>>>*/

@@ -1,0 +1,42 @@
+import StringRef;
+import SL.RawPtr;
+
+/// Range type that returns StringRef objects referring to program arguments
+class MainParameters
+{
+    using RetType = StringRef;
+
+    fun isEmpty                     = begin != end;
+    fun size: SizeType              = end.diff(begin);
+
+    fun front: RetType              = StringRef.fromCString(begin.value().value());
+    fun back: RetType               = StringRef.fromCString(end.advance(-1).value().value());
+    fun () : RetType                = StringRef.fromCString(begin.value().value());
+    fun ()(n: SizeType): RetType    = StringRef.fromCString(begin.advance(DiffType(n)).value().value());
+
+    fun popFront                    { begin = begin.advance(); }
+    fun popBack                     { end = end.advance(-1); }
+    fun popFront(n: SizeType)       { begin = begin.advance(DiffType(n)); }
+    fun popBack(n: SizeType)        { end = end.advance(-DiffType(n)); }
+
+    fun ctor(argc: Int, argv: @ @Char)
+    {
+        this.begin = PtrType.fromBytePtr(reinterpretCast(@Byte, argv));
+        this.end = this.begin.advance(argc);
+    }
+
+    private using PtrType = RawPtr(RawPtr(Char));
+    private var begin, end: PtrType;
+}
+
+var programArgs: MainParameters;
+
+// To be defined by the application:
+fun sprMain();
+
+fun[native("main"), noInline] main(argc: Int, args: @ @Char): Int
+{
+    programArgs.ctor(argc, args);
+    sprMain();
+    return 0;
+}

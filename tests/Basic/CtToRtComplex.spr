@@ -1,0 +1,84 @@
+//!! -t "SparrowImplicitLib.spr"
+package Test;
+
+concept AnyType(x); // Always true
+
+class[rtct] Pair
+{
+    var x, y: Int;
+
+    fun ctor(x,y: Int)
+    {
+        this.x = x;
+        this.y = y;
+    }
+}
+
+class[rtct] Pair2
+{
+    var x, y: Int;
+
+    fun ctor(x,y: Int)
+    {
+        this.x = x;
+        this.y = y;
+    }
+
+    fun[rt] ctorFromCt(src: Pair2 ct)
+    {
+        writeLn("Pair2 Ct ctor");
+        x ctor src.x;
+        y ctor src.y;
+    }
+}
+
+fun identity(obj: AnyType) = obj;
+
+fun print(p: Pair)
+{
+    write("Pair{"); write(p.x); write(", "); write(p.y); writeLn("}");
+}
+fun print(p: Pair2)
+{
+    write("Pair2{"); write(p.x); write(", "); write(p.y); writeLn("}");
+}
+
+fun[native("test")] test(n: Int)
+{
+    var a = 101;
+    var b = 103;
+    var[ct] ca = 121;
+    var[ct] cb = 123;
+
+    var p1 = Pair(11,13);
+    var[ct] p2 = Pair(21, 23);
+    print(p1);
+    print(p2);
+    writeLn("---");
+
+    var pp1 = Pair2(a,b);
+    var[ct] pp2 = Pair2(ca, cb);
+    print(pp1);
+    print(pp2);
+    writeLn("---");
+
+    var pp3 = pp2;
+    print(pp3);
+    var pp4 = identity(pp2);
+    print(pp4);
+}
+
+
+/*<<<Running()
+Pair{11, 13}
+Pair{21, 23}
+---
+Pair2{101, 103}
+Pair2 Ct ctor
+Pair2{121, 123}
+---
+Pair2 Ct ctor
+Pair2{121, 123}
+Pair2 Ct ctor
+Pair2{121, 123}
+>>>*/

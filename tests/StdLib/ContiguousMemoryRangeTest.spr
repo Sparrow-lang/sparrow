@@ -1,0 +1,243 @@
+//!!
+package Test;
+
+import SL.ContiguousMemoryRange;
+import SL.RawPtr;
+
+fun sprMain
+{
+    if ( programArgs.size() < 2 )
+        return;
+    var n = programArgs(1) asInt;
+
+    if      ( n == 1 ) test1();
+    else if ( n == 2 ) test2();
+    else if ( n == 3 ) test3();
+    else if ( n == 4 ) test4();
+    else if ( n == 5 ) test5();
+    else if ( n == 6 ) test6();
+    else if ( n == 7 ) test7();
+    else if ( n == 8 ) test8();
+    else if ( n == 9 ) test9();
+}
+
+class MyObj
+{
+    var x: Int;
+
+    fun ctor(xx: Int) { x = xx; }
+}
+
+fun createRange(size: SizeType): ContiguousMemoryRange(MyObj)
+{
+    var ptr = RawPtr(MyObj).alloc(size);
+    var ptrEnd = ptr.advance(DiffType(size));
+    var p = ptr;
+    
+    while ( (p != ptrEnd) ; p = p.advance(); )
+        p.value().ctor();   
+
+    return ContiguousMemoryRange(MyObj)(ptr, ptrEnd);
+}
+
+fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
+{
+    var ptr = RawPtr(MyObj).alloc(size);
+    var ptrEnd = ptr.advance(DiffType(size));
+    var i = 0;
+
+    while ( i < size ; i = i + 1; )
+    {
+        var o: @AnyType = ptr.advance(i).value();
+        
+        o.x = i;
+    }
+
+    return ContiguousMemoryRange(MyObj)(ptr, ptrEnd);
+}
+
+fun test1()
+{
+    var r = ContiguousMemoryRange(MyObj)(createRange(5));
+
+    cout << r.isEmpty() << endl;
+    cout << r.size() << endl;
+    cout << r.front().x << endl;
+    cout << r.back().x << endl;
+}
+/*<<<Zero-initialized range(1)
+false
+5
+0
+0
+>>>*/
+
+fun test2()
+{
+    var r = ContiguousMemoryRange(MyObj)(createRangeAscending(5));
+    
+    cout << r.isEmpty() << endl;
+    cout << r.size() << endl;
+    cout << r.front().x << endl;
+    cout << r.back().x << endl;
+}
+/*<<<Ascending range(2)
+false
+5
+0
+4
+>>>*/
+
+fun test3()
+{
+    var r = ContiguousMemoryRange(MyObj)(createRangeAscending(5));
+    
+    while ( !r.isEmpty() ; r.popFront(); )
+        cout << r.front().x << endl;
+}
+/*<<<Iteration(3)
+0
+1
+2
+3
+4
+>>>*/
+
+fun test4()
+{
+    var r = ContiguousMemoryRange(MyObj)(createRangeAscending(5));
+    
+    cout << r.front().x << endl;
+    cout << r.back().x << endl;
+    cout << r(0).x << endl;
+    cout << r(1).x << endl;
+    cout << r(2).x << endl;
+    cout << r(3).x << endl;
+    cout << r(4).x << endl;
+}
+/*<<<Element access(4)
+0
+4
+0
+1
+2
+3
+4
+>>>*/
+
+fun test5()
+{
+    var size = 1000;
+    var r = ContiguousMemoryRange(MyObj)(createRangeAscending(size));
+    var i = 0;
+    
+    while ( i < size ; i = i + 1; )
+    {
+        if ( r(i).x != i )
+            cout << "Test failed" << endl;
+    }
+}
+/*<<<Large range(5)
+>>>*/
+
+fun test6()
+{
+    var i = 0;
+    var r = ContiguousMemoryRange(MyObj)(createRangeAscending(20));
+
+    r.popFront();
+    r.popBack();
+    if ( r.size() != 18 )
+        cout << "Test failed" << endl;
+    i = 0;
+    while ( i < r.size() ; i = i + 1; )
+    {
+        if ( r(i).x != i + 1 )
+            cout << "Test failed" << endl;
+    }
+    r.popFront();
+    r.popBack();
+    if ( r.size() != 16 )
+        cout << "Test failed" << endl;
+    i = 0;
+    while ( i < r.size() ; i = i + 1; )
+    {
+        if ( r(i).x != i + 2 )
+            cout << "Test failed" << endl;
+    }
+    r.popFront(2);
+    if ( r.size() != 14 )
+        cout << "Test failed" << endl;
+    i = 0;
+    while ( i < r.size() ; i = i + 1; )
+    {
+        if ( r(i).x != i + 4 )
+            cout << "Test failed" << endl;
+    }
+    r.popBack(2);
+    if ( r.size() != 12 )
+        cout << "Test failed" << endl;
+    i = 0;
+    while ( i < r.size() ; i = i + 1; )
+    {
+        if ( r(i).x != i + 4 )
+            cout << "Test failed" << endl;
+    }
+}
+/*<<<Pop elements(6)
+>>>*/
+
+fun test7()
+{
+    var i = 0;
+    var r = ContiguousMemoryRange(MyObj)(createRangeAscending(20));
+    
+    while ( !r.isEmpty() ; r.popFront(3); )
+        cout << r.front().x << endl;
+}
+/*<<<Iterate with step(7)
+0
+3
+6
+9
+12
+15
+18
+>>>*/
+
+fun test8()
+{
+    var i = 0;
+    var r = ContiguousMemoryRange(MyObj)(createRangeAscending(10));
+
+    i = 0;
+    while ( i < r.size() ; i = i + 1; )
+        r(r.size() - i - 1).x = i;
+    i = 0;
+    while ( i < r.size() ; i = i + 1; )
+    {
+        if ( r(i).x != r.size() - i - 1 )
+            cout << "Test failed" << endl;
+    }
+}
+/*<<<Write in range(8)
+>>>*/
+
+fun test9()
+{
+    var r1 = ContiguousMemoryRange(MyObj)(createRangeAscending(10));
+    var r2 = ContiguousMemoryRange(MyObj)(createRangeAscending(20));
+    var r3 = r2;
+
+    cout << r1 == r2 << endl;
+    cout << r1 == r1 << endl;
+    cout << r2 == r3 << endl;
+    r3.popBack();
+    cout << r2 == r3 << endl;
+}
+/*<<<Equality operator(9)
+false
+true
+true
+false
+>>>*/

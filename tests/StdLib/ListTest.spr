@@ -1,0 +1,1125 @@
+//!!
+package Test;
+
+import SL.List;
+import SL.ContiguousMemoryRange;
+import SL.RawPtr;
+// import Array; // !!!
+
+fun sprMain
+{
+    if ( programArgs.size() < 2 )
+        return;
+    var n = programArgs(1) asInt;
+
+    if      ( n == 1 ) test1();
+    else if ( n == 2 ) test2();
+    else if ( n == 3 ) test3();
+    else if ( n == 4 ) test4();
+    else if ( n == 5 ) test5();
+    else if ( n == 6 ) test6();
+    else if ( n == 7 ) test7();
+    else if ( n == 8 ) test8();
+    else if ( n == 9 ) test9();
+    else if ( n == 10 ) test10();
+    else if ( n == 11 ) test11();
+    else if ( n == 12 ) test12();
+    else if ( n == 13 ) test13();
+    else if ( n == 14 ) test14();
+    else if ( n == 15 ) test15();
+    else if ( n == 16 ) test16();
+    else if ( n == 17 ) test17();
+    else if ( n == 18 ) test18();
+    else if ( n == 19 ) test19();
+    else if ( n == 20 ) test20();
+    else if ( n == 21 ) test21();
+    else if ( n == 22 ) test22();
+    else if ( n == 23 ) test23();
+    else if ( n == 24 ) test24();
+    else if ( n == 25 ) test25();
+    else if ( n == 26 ) test26();
+}
+
+class MyObj
+{
+    var x: Int;
+
+    fun ctor(xx: Int) { x = xx; }
+    fun <(other: @MyObj): Bool { return x < other.x; }
+
+    fun >>(os: @OutStream)      { os << x; }
+}
+
+class Greater
+{
+    fun ()(x: MyObj, y: MyObj): Bool { return x.x > y.x; }
+}
+
+class Even
+{
+    fun ()(obj: @MyObj): Bool
+    {
+        return obj.x % 2 == 0;
+    }
+}
+
+fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
+{
+    var ptr = RawPtr(MyObj).alloc(size);
+    var ptrEnd = ptr.advance(DiffType(size));
+    var i = 0;
+
+    while ( i < size ; i = i + 1; )
+    {
+        var o: @AnyType = ptr.advance(i).value();
+
+        o.x = i;
+    }
+
+    return ContiguousMemoryRange(MyObj)(ptr, ptrEnd);
+}
+
+fun printList(li: @List(MyObj))
+{
+    var i = 0;
+    var r = li.all();
+
+    while ( !r.isEmpty() )
+    {
+        cout << r.front().x;
+        if ( i < li.size() - 1 )
+            cout << ' ';
+        else
+            cout << endl;
+        i = i + 1;
+        r.popFront();
+    }
+}
+
+fun printSizeInfo(li: @List(MyObj))
+{
+    cout << li.isEmpty() << endl;
+    cout << li.size() << endl;
+}
+
+fun test1()
+{
+    var li: List(MyObj);
+
+    printSizeInfo(li);
+    li.pushBack(MyObj(42));
+    printSizeInfo(li);
+    printList(li);
+    li.popBack();
+    printSizeInfo(li);
+}
+/*<<<Default constructor(1)
+true
+0
+false
+1
+42
+true
+0
+>>>*/
+
+fun test2()
+{
+    var li = List(MyObj)(createRangeAscending(4));
+
+    printSizeInfo(li);
+    printList(li);
+    li.popBack();
+    printSizeInfo(li);
+    printList(li);
+    li.pushBack(MyObj(42));
+    printSizeInfo(li);
+    printList(li);
+}
+/*<<<Range constructor(2)
+false
+4
+0 1 2 3
+false
+3
+0 1 2
+false
+4
+0 1 2 42
+>>>*/
+
+fun test3()
+{
+    var li1: List(MyObj);
+    var li2 = List(MyObj)(createRangeAscending(4));
+    var li3 = List(MyObj)(li1);
+    var li4 = List(MyObj)(li2);
+
+    printSizeInfo(li3);
+    printSizeInfo(li4);
+    printList(li4);
+}
+/*<<<Copy constructor(3)
+true
+0
+false
+4
+0 1 2 3
+>>>*/
+
+fun test4()
+{
+    // TODO
+}
+/*<<<Destructor(4)
+>>>*/
+
+fun test5()
+{
+    var li1: List(MyObj);
+    var li2 = List(MyObj)(createRangeAscending(8));
+
+    li1.assign(createRangeAscending(5));
+    printSizeInfo(li1);
+    printList(li1);
+    li2.assign(createRangeAscending(4));
+    printSizeInfo(li2);
+    printList(li2);
+}
+/*<<<Range assignment(5)
+false
+5
+0 1 2 3 4
+false
+4
+0 1 2 3
+>>>*/
+
+fun test6()
+{
+    var li1 = List(MyObj)(createRangeAscending(8));
+    var li2 = List(MyObj)(createRangeAscending(1));
+
+    cout << li1.front().x << endl;
+    li1.front().x = 42;
+    cout << li1.front().x << endl;
+    cout << li1.back().x << endl;
+    li1.back().x = 84;
+    cout << li1.back().x << endl;
+    cout << li2.front().x << endl;
+    li2.front().x = 41;
+    cout << li2.front().x << endl;
+    cout << li2.back().x << endl;
+    li2.back().x = 83;
+    cout << li2.back().x << endl;
+}
+/*<<<Element access(6)
+0
+42
+7
+84
+0
+41
+41
+83
+>>>*/
+
+fun test7()
+{
+    var li: List(MyObj);
+
+    li.pushBack(MyObj(3));
+    li.pushBack(MyObj(2));
+    li.pushBack(MyObj(1));
+    li.pushBack(MyObj(0));
+
+    var r = li.all();
+
+    while ( !r.isEmpty() ; r.popFront(); )
+        cout << r.front().x << endl;
+
+    r = li.all();
+    while ( !r.isEmpty() ; r.popFront(); )
+        r.front().x = r.front().x + 1;
+    printSizeInfo(li);
+    printList(li);
+}
+/*<<<Range access(7)
+3
+2
+1
+0
+false
+4
+4 3 2 1
+>>>*/
+
+fun test8()
+{
+    var li: List(MyObj);
+    var i = 0;
+
+    while ( i < 4 ; i = i + 1; )
+        li.pushBack(MyObj(i));
+    printSizeInfo(li);
+    printList(li);
+    li.popBack();
+    li.popBack();
+    printSizeInfo(li);
+    printList(li);
+    li.popBack();
+    li.popBack();
+    printSizeInfo(li);
+    li.pushBack(MyObj(42));
+    li.pushBack(MyObj(43));
+    printSizeInfo(li);
+    printList(li);
+    li.popBack();
+    li.popBack();
+    i = 0;
+    while ( i < 20 ; i = i + 1; )
+        li.pushBack(MyObj(i));
+    printSizeInfo(li);
+    printList(li);
+}
+/*<<<Pushing & popping(8)
+false
+4
+0 1 2 3
+false
+2
+0 1
+true
+0
+false
+2
+42 43
+false
+20
+0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+>>>*/
+
+fun test9()
+{
+    var li = List(MyObj)(createRangeAscending(4));
+
+    li.resize(4);
+    printSizeInfo(li);
+    printList(li);
+    li.resize(2);
+    printSizeInfo(li);
+    printList(li);
+    li.resize(6);
+    printSizeInfo(li);
+    printList(li);
+
+    var lili: List(MyObj);
+
+    lili.resize(6);
+    printSizeInfo(lili);
+    printList(lili);
+}
+/*<<<Resizing(9)
+false
+4
+0 1 2 3
+false
+2
+0 1
+false
+6
+0 1 0 0 0 0
+false
+6
+0 0 0 0 0 0
+>>>*/
+
+
+fun test10()
+{
+    var li: List(MyObj) = createRangeAscending(4);
+
+    li.clear();
+    printSizeInfo(li);
+    li.pushBack(MyObj(42));
+    li.pushBack(MyObj(43));
+    printSizeInfo(li);
+    printList(li);
+
+    var lili: List(MyObj);
+
+    lili.clear();
+    printSizeInfo(lili);
+}
+/*<<<Clear(10)
+true
+0
+false
+2
+42 43
+true
+0
+>>>*/
+
+fun test11()
+{
+    var li1: List(MyObj) = createRangeAscending(4);
+    var li2: List(MyObj) = createRangeAscending(6);
+    var li3: List(MyObj);
+
+    li2 = li1;
+    printSizeInfo(li2);
+    printList(li2);
+    li2 = li3;
+    li1 = li2;
+    printSizeInfo(li1);
+}
+/*<<<Assignment operator(11)
+false
+4
+0 1 2 3
+true
+0
+>>>*/
+
+fun test12()
+{
+    var li: List(MyObj) = createRangeAscending(4);
+    var r = li.all();
+
+    li.insertBefore(MyObj(42), li.all());
+    printSizeInfo(li);
+    printList(li);
+    li.insertAfter(MyObj(43), li.all());
+    printSizeInfo(li);
+    printList(li);
+    r = li.all();
+    r.popFront();
+    r.popFront();
+    li.insertBefore(MyObj(11), r);
+    printSizeInfo(li);
+    printList(li);
+    r = li.all();
+    r.popBack();
+    r.popBack();
+    li.insertAfter(MyObj(22), r);
+    printSizeInfo(li);
+    printList(li);
+}
+/*<<<Element insertions(12)
+false
+5
+42 0 1 2 3
+false
+6
+42 0 1 2 3 43
+false
+7
+42 0 11 1 2 3 43
+false
+8
+42 0 11 1 2 22 3 43
+>>>*/
+
+
+fun test13()
+{
+    var li: List(MyObj) = createRangeAscending(4);
+    var r = li.all();
+
+    li.insertBefore(createRangeAscending(2), li.all());
+    printSizeInfo(li);
+    printList(li);
+    li.insertAfter(createRangeAscending(2), li.all());
+    printSizeInfo(li);
+    printList(li);
+    li.insertBefore(createRangeAscending(1), li.all());
+    printSizeInfo(li);
+    printList(li);
+    li.insertAfter(createRangeAscending(1), li.all());
+    printSizeInfo(li);
+    printList(li);
+    li.insertBefore(createRangeAscending(0), li.all());
+    printSizeInfo(li);
+    printList(li);
+    li.insertAfter(createRangeAscending(0), li.all());
+    printSizeInfo(li);
+    printList(li);
+    r = li.all();
+    r.popFront();
+    r.popFront();
+    li.insertBefore(createRangeAscending(2), r);
+    printSizeInfo(li);
+    printList(li);
+    r = li.all();
+    r.popBack();
+    r.popBack();
+    li.insertAfter(createRangeAscending(2), r);
+    printSizeInfo(li);
+    printList(li);
+    r = li.all();
+    r.popFront();
+    r.popFront();
+    li.insertBefore(createRangeAscending(1), r);
+    printSizeInfo(li);
+    printList(li);
+    r = li.all();
+    r.popBack();
+    r.popBack();
+    li.insertAfter(createRangeAscending(1), r);
+    printSizeInfo(li);
+    printList(li);
+    r = li.all();
+    r.popFront();
+    r.popFront();
+    li.insertBefore(createRangeAscending(0), r);
+    printSizeInfo(li);
+    printList(li);
+    r = li.all();
+    r.popBack();
+    r.popBack();
+    li.insertAfter(createRangeAscending(0), r);
+    printSizeInfo(li);
+    printList(li);
+}
+/*<<<Range insertions(13)
+false
+6
+0 1 0 1 2 3
+false
+8
+0 1 0 1 2 3 0 1
+false
+9
+0 0 1 0 1 2 3 0 1
+false
+10
+0 0 1 0 1 2 3 0 1 0
+false
+10
+0 0 1 0 1 2 3 0 1 0
+false
+10
+0 0 1 0 1 2 3 0 1 0
+false
+12
+0 0 0 1 1 0 1 2 3 0 1 0
+false
+14
+0 0 0 1 1 0 1 2 3 0 0 1 1 0
+false
+15
+0 0 0 0 1 1 0 1 2 3 0 0 1 1 0
+false
+16
+0 0 0 0 1 1 0 1 2 3 0 0 1 0 1 0
+false
+16
+0 0 0 0 1 1 0 1 2 3 0 0 1 0 1 0
+false
+16
+0 0 0 0 1 1 0 1 2 3 0 0 1 0 1 0
+>>>*/
+
+fun test14()
+{
+    var li: List(MyObj) = createRangeAscending(6);
+    var r = li.all();
+
+    li.remove(li.all());
+    printSizeInfo(li);
+    li.assign(createRangeAscending(6));
+    r = li.all();
+    r.popBack();
+    li.remove(r);
+    printSizeInfo(li);
+    printList(li);
+    li.assign(createRangeAscending(6));
+    r = li.all();
+    r.popFront();
+    li.remove(r);
+    printSizeInfo(li);
+    printList(li);
+    li.assign(createRangeAscending(6));
+    r = li.all();
+    r.popFront();
+    r.popFront();
+    r.popBack();
+    li.remove(r);
+    printSizeInfo(li);
+    printList(li);
+    li.assign(createRangeAscending(6));
+    r = li.all();
+    r.popFront();
+    r.popFront();
+    r.popBack();
+    r.popBack();
+    r.popBack();
+    li.remove(r);
+    printSizeInfo(li);
+    printList(li);
+    li.assign(createRangeAscending(6));
+    r = li.all();
+    r.popFront();
+    r.popFront();
+    r.popFront();
+    r.popBack();
+    r.popBack();
+    r.popBack();
+    li.remove(r);
+    printSizeInfo(li);
+    printList(li);
+}
+/*<<<Range removal(14)
+true
+0
+false
+1
+5
+false
+1
+0
+false
+3
+0 1 5
+false
+5
+0 1 3 4 5
+false
+6
+0 1 2 3 4 5
+>>>*/
+
+
+fun test15()
+{
+    var li: List(MyObj);
+
+    li.remove(MyObj(42));
+    printSizeInfo(li);
+    li.pushBack(MyObj(42));
+    li.remove(MyObj(42));
+    printSizeInfo(li);
+    li.pushBack(MyObj(42));
+    li.pushBack(MyObj(42));
+    li.pushBack(MyObj(42));
+    li.remove(MyObj(42));
+    printSizeInfo(li);
+    li.assign(createRangeAscending(6));
+    li.remove(MyObj(42));
+    printSizeInfo(li);
+    printList(li);
+    li.clear();
+    li.pushBack(MyObj(0));
+    li.pushBack(MyObj(1));
+    li.pushBack(MyObj(42));
+    li.pushBack(MyObj(3));
+    li.pushBack(MyObj(42));
+    li.pushBack(MyObj(5));
+    li.remove(MyObj(42));
+    printSizeInfo(li);
+    printList(li);
+    li.clear();
+    li.pushBack(MyObj(0));
+    li.pushBack(MyObj(42));
+    li.pushBack(MyObj(42));
+    li.pushBack(MyObj(3));
+    li.pushBack(MyObj(42));
+    li.pushBack(MyObj(42));
+    li.pushBack(MyObj(6));
+    li.pushBack(MyObj(42));
+    li.remove(MyObj(42));
+    printSizeInfo(li);
+    printList(li);
+}
+/*<<<Value removal(15)
+true
+0
+true
+0
+true
+0
+false
+6
+0 1 2 3 4 5
+false
+4
+0 1 3 5
+false
+3
+0 3 6
+>>>*/
+
+fun test16()
+{
+    var li: List(MyObj);
+
+    li.unique();
+    printSizeInfo(li);
+    li.pushBack(MyObj(42));
+    li.unique();
+    printSizeInfo(li);
+    printList(li);
+    li.pushBack(MyObj(42));
+    li.unique();
+    printSizeInfo(li);
+    printList(li);
+    li.clear();
+    li.pushBack(MyObj(0));
+    li.pushBack(MyObj(1));
+    li.pushBack(MyObj(1));
+    li.pushBack(MyObj(1));
+    li.pushBack(MyObj(2));
+    li.pushBack(MyObj(3));
+    li.pushBack(MyObj(3));
+    li.pushBack(MyObj(4));
+    li.pushBack(MyObj(4));
+    li.pushBack(MyObj(4));
+    li.pushBack(MyObj(4));
+    li.pushBack(MyObj(5));
+    li.unique();
+    printSizeInfo(li);
+    printList(li);
+}
+/*<<<Unique(16)
+true
+0
+false
+1
+42
+false
+1
+42
+false
+6
+0 1 2 3 4 5
+>>>*/
+
+fun test17()
+{
+    var li1: List(MyObj);
+    var li2: List(MyObj);
+    var li3: List(MyObj) = createRangeAscending(6);
+    var li4: List(MyObj) = createRangeAscending(4);
+    var r = li1.all();
+    var rr = li2.all();
+
+    li1.spliceBefore(li1.all(), li2);
+    printSizeInfo(li1);
+    printSizeInfo(li2);
+    li1.assign(li3.all());
+    li2.assign(li4.all());
+    li1.spliceBefore(li1.all(), li2);
+    printSizeInfo(li1);
+    printList(li1);
+    printSizeInfo(li2);
+    li1.assign(li3.all());
+    li2.assign(li4.all());
+    r = li1.all();
+    r.popFront();
+    r.popBack();
+    r.popBack();
+    li1.spliceBefore(r, li2);
+    printSizeInfo(li1);
+    printList(li1);
+    printSizeInfo(li2);
+    li1.clear();
+    li2.clear();
+    li1.spliceAfter(li1.all(), li2);
+    printSizeInfo(li1);
+    printSizeInfo(li2);
+    li1.assign(li3.all());
+    li2.assign(li4.all());
+    li1.spliceAfter(li1.all(), li2);
+    printSizeInfo(li1);
+    printList(li1);
+    printSizeInfo(li2);
+    li1.assign(li3.all());
+    li2.assign(li4.all());
+    r = li1.all();
+    r.popFront();
+    r.popBack();
+    r.popBack();
+    li1.spliceAfter(r, li2);
+    printSizeInfo(li1);
+    printList(li1);
+    printSizeInfo(li2);
+    li1.assign(li3.all());
+    li2.assign(li4.all());
+    r = li1.all();
+    r.popFront();
+    r.popBack();
+    r.popBack();
+    rr = li2.all();
+    rr.popFront();
+    rr.popBack();
+    li1.spliceBefore(r, li2, rr);
+    printSizeInfo(li1);
+    printList(li1);
+    printSizeInfo(li2);
+    printList(li2);
+    li1.assign(li3.all());
+    li2.assign(li4.all());
+    r = li1.all();
+    r.popFront();
+    r.popBack();
+    r.popBack();
+    rr = li2.all();
+    rr.popFront();
+    rr.popBack();
+    li1.spliceAfter(r, li2, rr);
+    printSizeInfo(li1);
+    printList(li1);
+    printSizeInfo(li2);
+    printList(li2);
+}
+/*<<<Splicing(17)
+true
+0
+true
+0
+false
+10
+0 1 2 3 0 1 2 3 4 5
+true
+0
+false
+10
+0 0 1 2 3 1 2 3 4 5
+true
+0
+true
+0
+true
+0
+false
+10
+0 1 2 3 4 5 0 1 2 3
+true
+0
+false
+10
+0 1 2 3 0 1 2 3 4 5
+true
+0
+false
+8
+0 1 2 1 2 3 4 5
+false
+2
+0 3
+false
+8
+0 1 2 3 1 2 4 5
+false
+2
+0 3
+>>>*/
+
+fun test18()
+{
+    // var li: List(MyObj);
+
+    // li.sort();
+    // printSizeInfo(li);
+    // li.pushBack(MyObj(42));
+    // li.sort();
+    // printSizeInfo(li);
+    // printList(li);
+    // li.clear();
+    // li.pushBack(MyObj(10));
+    // li.pushBack(MyObj(5));
+    // li.pushBack(MyObj(5));
+    // li.pushBack(MyObj(1));
+    // li.pushBack(MyObj(4));
+    // li.pushBack(MyObj(7));
+    // li.pushBack(MyObj(7));
+    // li.pushBack(MyObj(7));
+    // li.pushBack(MyObj(10));
+    // li.pushBack(MyObj(100));
+    // li.pushBack(MyObj(0));
+    // li.sort();
+    // printSizeInfo(li);
+    // printList(li);
+}
+/*<<<Default sorting KNOWN-PROBLEM(18)
+true
+0
+false
+1
+42
+false
+11
+0 1 4 5 5 7 7 7 10 10 100
+>>>*/
+
+fun test19()
+{
+    var li: List(MyObj);
+
+    li.sort(Greater());
+    printSizeInfo(li);
+    li.pushBack(MyObj(42));
+    li.sort(Greater());
+    printSizeInfo(li);
+    printList(li);
+    li.clear();
+    li.pushBack(MyObj(10));
+    li.pushBack(MyObj(5));
+    li.pushBack(MyObj(5));
+    li.pushBack(MyObj(1));
+    li.pushBack(MyObj(4));
+    li.pushBack(MyObj(7));
+    li.pushBack(MyObj(7));
+    li.pushBack(MyObj(7));
+    li.pushBack(MyObj(10));
+    li.pushBack(MyObj(100));
+    li.pushBack(MyObj(0));
+    li.sort(Greater());
+    printSizeInfo(li);
+    printList(li);
+}
+/*<<<Predicate sorting(19)
+true
+0
+false
+1
+42
+false
+11
+100 10 10 7 7 7 5 5 4 1 0
+>>>*/
+
+
+fun test20()
+{
+    // var li1: List(MyObj);
+    // var li2: List(MyObj);
+    // var li3: List(MyObj);
+
+    // li1.merge(li2);
+    // printSizeInfo(li1);
+    // printSizeInfo(li2);
+    // li1.pushBack(MyObj(42));
+    // li1.merge(li2);
+    // printSizeInfo(li1);
+    // printList(li1);
+    // printSizeInfo(li2);
+    // li2.pushBack(MyObj(43));
+    // li1.merge(li2);
+    // printSizeInfo(li1);
+    // printList(li1);
+    // printSizeInfo(li2);
+    // li3.pushBack(MyObj(1));
+    // li3.pushBack(MyObj(2));
+    // li3.pushBack(MyObj(2));
+    // li3.pushBack(MyObj(3));
+    // li3.pushBack(MyObj(4));
+    // li3.pushBack(MyObj(6));
+    // li1.assign(li3.all());
+    // li2.assign(createRangeAscending(4));
+    // li1.merge(li2);
+    // printSizeInfo(li1);
+    // printList(li1);
+    // printSizeInfo(li2);
+    // li1.assign(li3.all());
+    // li2.assign(createRangeAscending(6));
+    // li1.merge(li2);
+    // printSizeInfo(li1);
+    // printList(li1);
+    // printSizeInfo(li2);
+    // li1.assign(li3.all());
+    // li2.assign(createRangeAscending(8));
+    // li1.merge(li2);
+    // printSizeInfo(li1);
+    // printList(li1);
+    // printSizeInfo(li2);
+}
+/*<<<Default merging KNOWN-PROBLEM(20)
+true
+0
+true
+0
+false
+1
+42
+true
+0
+false
+2
+42 43
+true
+0
+false
+10
+0 1 1 2 2 2 3 3 4 6
+true
+0
+false
+12
+0 1 1 2 2 2 3 3 4 4 5 6
+true
+0
+false
+14
+0 1 1 2 2 2 3 3 4 4 5 6 6 7
+true
+0
+>>>*/
+
+fun test21()
+{
+    var li1: List(MyObj);
+    var li2: List(MyObj);
+
+    li1.pushBack(MyObj(7));
+    li1.pushBack(MyObj(5));
+    li1.pushBack(MyObj(4));
+    li1.pushBack(MyObj(4));
+    li1.pushBack(MyObj(2));
+    li1.pushBack(MyObj(1));
+    li2.pushBack(MyObj(10));
+    li2.pushBack(MyObj(6));
+    li2.pushBack(MyObj(6));
+    li2.pushBack(MyObj(5));
+    li2.pushBack(MyObj(3));
+    li2.pushBack(MyObj(1));
+    li2.pushBack(MyObj(1));
+    li2.pushBack(MyObj(0));
+    li1.merge(li2, Greater());
+    printSizeInfo(li2);
+    printSizeInfo(li1);
+    printList(li1);
+}
+/*<<<Predicate merging(21)
+true
+0
+false
+14
+10 7 6 6 5 5 4 4 3 2 1 1 1 0
+>>>*/
+
+fun test22()
+{
+    var li: List(MyObj);
+
+    li.reverse();
+    printSizeInfo(li);
+    li.pushBack(MyObj(42));
+    printSizeInfo(li);
+    printList(li);
+    li.clear();
+    li.assign(createRangeAscending(8));
+    li.reverse();
+    printSizeInfo(li);
+    printList(li);
+}
+/*<<<Reversal(22)
+true
+0
+false
+1
+42
+false
+8
+7 6 5 4 3 2 1 0
+>>>*/
+
+fun test23()
+{
+    var li: List(MyObj) = createRangeAscending(10);
+    var pred: Even;
+
+    li.removeIf(pred);
+    printSizeInfo(li);
+    printList(li);
+}
+/*<<<Predicate removal(23)
+false
+5
+1 3 5 7 9
+>>>*/
+
+fun test24()
+{
+    var li: List(MyObj);
+    var pred: Greater;
+
+    li.pushBack(MyObj(5));
+    li.pushBack(MyObj(7));
+    li.pushBack(MyObj(4));
+    li.pushBack(MyObj(1));
+    li.pushBack(MyObj(0));
+    li.pushBack(MyObj(9));
+    li.pushBack(MyObj(2));
+    li.unique(pred);
+    printSizeInfo(li);
+    printList(li);
+}
+/*<<<Predicate unique(24)
+false
+3
+5 7 9
+>>>*/
+
+fun test25()
+{
+    var l1: List(MyObj) = createRangeAscending(4);
+    var l2: List(MyObj) = createRangeAscending(4);
+    var l3: List(MyObj) = createRangeAscending(6);
+
+    cout << l1 == l2 << endl;
+    cout << l1 == l3 << endl;
+}
+/*<<<Equality operator(25)
+true
+false
+>>>*/
+
+fun test26()
+{
+    var li: List(MyObj) = createRangeAscending(1000);
+    var r = li.all();
+    var i = 0;
+
+    printSizeInfo(li);
+    while ( !r.isEmpty() ; r.popFront(); )
+    {
+        if ( r.front().x != i )
+            cout << "test failed" << endl;
+        i = i + 1;
+    }
+
+    var lili: List(MyObj) = li;
+
+    i = 0;
+    r = lili.all();
+    printSizeInfo(lili);
+    while ( !r.isEmpty() ; r.popFront(); )
+    {
+        if ( r.front().x != i )
+            cout << "test failed" << endl;
+        i = i + 1;
+    }
+
+    var lilili: List(MyObj);
+
+    lilili.assign(createRangeAscending(1000));
+    i = 0;
+    r = lilili.all();
+    printSizeInfo(lilili);
+    while ( !r.isEmpty() ; r.popFront(); )
+    {
+        if ( r.front().x != i )
+            cout << "test failed" << endl;
+        i = i + 1;
+    }
+}
+/*<<<Large lists(26)
+false
+1000
+false
+1000
+false
+1000
+>>>*/

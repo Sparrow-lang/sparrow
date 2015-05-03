@@ -1,0 +1,34 @@
+import RawPtr;
+
+class[rtct] ContiguousMemoryRange(valueType: Type)
+{
+    using PtrType = RawPtr(valueType);
+    using RetType = @valueType;
+
+    fun ctor(begin, end: PtrType)
+    {
+        this.begin ctor begin;
+        this.end ctor end;
+    }
+
+    fun isEmpty                 = end.diff(begin) <= 0;
+    fun size: SizeType          = end.diff(begin);
+
+    fun front: RetType          = begin.value();
+    fun back: RetType           = end.advance(-1).value();
+    fun () : RetType            = begin.value();
+    fun ()(n: SizeType): RetType = begin.advance(DiffType(n)).value();
+
+    fun popFront                { begin = begin.advance(); }
+    fun popBack                 { end = end.advance(-1); }
+    fun popFront(n: SizeType)   { begin = begin.advance(DiffType(n)); }
+    fun popBack(n: SizeType)    { end = end.advance(-DiffType(n)); }
+
+    fun pre_++ : RetType         { popFront(); return front(); }
+    fun post_++ : RetType        { var res: RetType = front(); popFront(); return res; }
+
+    fun frontPtr                = begin;
+    fun backPtr                 = end;
+
+    private var begin, end: PtrType;
+}

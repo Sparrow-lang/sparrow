@@ -13,6 +13,8 @@ So far, we have a language that:
 
 We are continuing to improve the language to be even more faster, natural and flexible.
 
+More information about the Sparrow programming langauge can be found on the [wiki](https://github.com/Sparrow-lang/sparrow/wiki) page.
+
 ## Sparrow needs you!
 
 Any contribution is welcome. You can implement new language features, new library features, fix bugs or even report issues. Just follow the [GitHub contributing guidelines](https://guides.github.com/activities/contributing-to-open-source/).
@@ -20,15 +22,8 @@ Any contribution is welcome. You can implement new language features, new librar
 ## Version
 Sparrow is still in development. You can take the latest version of the code, compile it and have fun.
 
-## Setting up
-External dependencies:
-* LLVM 3.5
-* Boost 1.55.0
-* CMake (3.0.2)
-* Flex & Bison
-
-For UNIX-like systems (Linux, MacOS) these packages can be installed via the preferred package manager on the OS.
-For Windows there is a more detailed guide to set up the compiler - see wiki page for more instructions.
+## Getting started
+See [Getting started](https://github.com/Sparrow-lang/sparrow/wiki/Getting-started:-compiling-the-compiler) wiki page.
 
 ## License
 

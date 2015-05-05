@@ -13,6 +13,7 @@
 #include <Nest/Intermediate/Type.h>
 #include <Nest/Common/Diagnostic.h>
 
+#include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Nodes/NodeList.h>
 #include <Feather/Nodes/LocalSpace.h>
 #include <Feather/Nodes/Nop.h>
@@ -85,24 +86,36 @@ namespace
     {
         DEFINE_NODE(DestructActionForConditional, -1, "LLVMBackend.DestructActionForConditional");
     public:
-        DestructActionForConditional(Type* resType, llvm::Value* cond, const NodeVector& alt1DestructActions, const NodeVector& alt2DestructActions)
-            : Node(Location())
-            , resType_(resType)
-            , cond_(cond)
-            , alt1DestructActions_(alt1DestructActions)
-            , alt2DestructActions_(alt2DestructActions)
+        DestructActionForConditional(Type* resType, Node* cond, NodeVector alt1DestructActions, NodeVector alt2DestructActions)
+            : Node(NOLOC, {cond, mkNodeList(NOLOC, move(alt1DestructActions)), mkNodeList(NOLOC, move(alt2DestructActions)) })
         {
+            setProperty("resType", resType);
         }
 
         void doSemanticCheck()
         {
-            type_ = resType_;
+            type_ = resType();
         }
 
-        Type* resType_;
-        llvm::Value* cond_;
-        NodeVector alt1DestructActions_;
-        NodeVector alt2DestructActions_;
+        Type* resType() const
+        {
+            return getCheckPropertyType("resType");
+        }
+
+        Node* condition() const
+        {
+            return children_[0];
+        }
+
+        const NodeVector& alt1DestructActions() const
+        {
+            return children_[1]->children();
+        }
+
+        const NodeVector& alt2DestructActions() const
+        {
+            return children_[1]->children();
+        }
     };
 
     /// Expression class that can hold a llvm value or a non-translated node.
@@ -127,7 +140,7 @@ namespace
 
 
     llvm::Value* generateConditionalCode(Type* destType, CompilationContext* compContext,
-        const Exp& cond, const Exp& alt1, const Exp& alt2, TrContext& context)
+        Node* cond, const Exp& alt1, const Exp& alt2, TrContext& context)
     {
         // Create the different blocks
         llvm::BasicBlock* alt1Block = llvm::BasicBlock::Create(context.llvmContext(), "cond.true", context.parentFun());
@@ -135,7 +148,7 @@ namespace
         llvm::BasicBlock* afterBlock = llvm::BasicBlock::Create(context.llvmContext(), "cond.end", context.parentFun());
 
         // Translate the condition expression
-        llvm::Value* condValue = cond.translate(context);
+        llvm::Value* condValue = translateNode(cond, context);
         context.ensureInsertionPoint();
         context.builder().CreateCondBr(condValue, alt1Block, alt2Block);
 
@@ -179,7 +192,7 @@ namespace
         if ( !destructActions1.empty() || !destructActions2.empty() )
         {
             // The destruct action is also a kind of conditional operation - reuse the condition value
-            Node* destructAction = new DestructActionForConditional(destType, condValue, destructActions1, destructActions2);
+            Node* destructAction = new DestructActionForConditional(destType, cond, move(destructActions1), move(destructActions2));
             destructAction->setContext(compContext);
             destructAction->semanticCheck();
             context.curInstruction().addTempDestructAction(destructAction);
@@ -200,7 +213,7 @@ namespace
         Node* arg1 = funCall.arguments()[0];
         Node* arg2 = funCall.arguments()[1];
         llvm::Value* trueConst = llvm::ConstantInt::getTrue(context.llvmContext());
-        llvm::Value* res = generateConditionalCode(arg1->type(), arg1->context(), Exp(arg1), Exp(trueConst), Exp(arg2), context);
+        llvm::Value* res = generateConditionalCode(arg1->type(), arg1->context(), arg1, Exp(trueConst), Exp(arg2), context);
         return setValue(context.module(), funCall, res);
     }
 
@@ -212,7 +225,7 @@ namespace
         Node* arg1 = funCall.arguments()[0];
         Node* arg2 = funCall.arguments()[1];
         llvm::Value* falseConst = llvm::ConstantInt::getFalse(context.llvmContext());
-        llvm::Value* res = generateConditionalCode(arg1->type(), arg1->context(), Exp(arg1), Exp(arg2), Exp(falseConst), context);
+        llvm::Value* res = generateConditionalCode(arg1->type(), arg1->context(), arg1, Exp(arg2), Exp(falseConst), context);
         return setValue(context.module(), funCall, res);
     }
 
@@ -887,7 +900,7 @@ namespace
         if ( !destructActions1.empty() || !destructActions2.empty() )
         {
             // The destruct action is also a kind of conditional operation - reuse the condition value
-            Node* destructAction = new DestructActionForConditional(node.type(), condValue, destructActions1, destructActions2);
+            Node* destructAction = new DestructActionForConditional(node.type(), node.condition(), move(destructActions1), move(destructActions2));
             destructAction->setContext(node.context());
             destructAction->semanticCheck();
             ASSERT(!context.scopesStack().empty());
@@ -907,11 +920,11 @@ namespace
 
         // Translate the condition expression
         context.ensureInsertionPoint();
-        context.builder().CreateCondBr(node.cond_, alt1Block, alt2Block);
+        context.builder().CreateCondBr(translateNode(node.condition(), context), alt1Block, alt2Block);
 
         // Alternative 1 destruct actions
         context.setInsertionPoint(alt1Block);
-        for ( Node* n: boost::adaptors::reverse(node.alt1DestructActions_) )
+        for ( Node* n: boost::adaptors::reverse(node.alt1DestructActions()) )
         {
             translateNode(n, context);
         }
@@ -920,7 +933,7 @@ namespace
 
         // Alternative 2 destruct actions
         context.setInsertionPoint(alt2Block);
-        for ( Node* n: boost::adaptors::reverse(node.alt2DestructActions_) )
+        for ( Node* n: boost::adaptors::reverse(node.alt2DestructActions()) )
         {
             translateNode(n, context);
         }

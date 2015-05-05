@@ -10,6 +10,8 @@
 #include <Nodes/Decls/SprParameter.h>
 #include <Nodes/Decls/SprVariable.h>
 #include <Nodes/Decls/Using.h>
+#include <Nodes/Decls/Instantiation.h>
+#include <Nodes/Decls/InstantiationsSet.h>
 #include <Nodes/Exp/Literal.h>
 #include <Nodes/Exp/Identifier.h>
 #include <Nodes/Exp/CompoundExp.h>
@@ -309,4 +311,14 @@ Node* SprFrontend::mkReturnStmt(const Location& loc, Node* exp)
 Node* SprFrontend::mkDeclExp(const Location& loc, NodeVector decls, Node* baseExp)
 {
     return new DeclExp(loc, move(decls), baseExp);
+}
+
+Node* SprFrontend::mkInstantiation(const Location& loc, NodeVector boundValues, NodeVector boundVars)
+{
+    return new Instantiation(loc, boundValues, boundVars);
+}
+
+Node* SprFrontend::mkInstantiationsSet(Node* parentNode, NodeVector params, Node* ifClause)
+{
+    return new InstantiationsSet(parentNode, params, ifClause);
 }

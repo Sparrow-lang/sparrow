@@ -25,9 +25,5 @@ namespace SprFrontend
     protected:
         virtual void doSetContextForChildren();
         virtual void doSemanticCheck();
-
-    private:
-        /// A set of instantiations corresponding to the types that are tried to match this concept
-        InstantiationsSet* instantiationsSet_;
     };
 }

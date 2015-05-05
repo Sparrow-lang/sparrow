@@ -18,12 +18,5 @@ namespace SprFrontend
         virtual Node* param(size_t idx) const;
         virtual Instantiation* canInstantiate(const NodeVector& args);
         virtual Node* instantiateGeneric(const Location& loc, CompilationContext* context, const NodeVector& args, Instantiation* instantiation);
-
-    private:
-        /// The original class declaration - the one that created this generic object
-        SprClass* originalClass_;
-
-        /// The set of instantiations of this generic
-        InstantiationsSet instantiationsSet_;
     };
 }

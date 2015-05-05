@@ -57,6 +57,7 @@ SET(sourceFiles
     "Nodes/Decls/GenericFunction.h"
     "Nodes/Decls/GenericFunction.cpp"
     "Nodes/Decls/Instantiation.h"
+    "Nodes/Decls/Instantiation.cpp"
     "Nodes/Decls/InstantiationsSet.h"
     "Nodes/Decls/InstantiationsSet.cpp"
     "Nodes/Exp/Literal.h"

@@ -69,7 +69,8 @@ namespace
     /// Does not return the original parameters; creates a clone if needed
     NodeVector getNonBoundParameters(Instantiation& inst, SprFunction* originalFun, const NodeVector& params, const NodeVector& genericParams)
     {
-        ASSERT(!inst.boundValues_.empty());
+        const auto& boundValues = inst.boundValues();
+        ASSERT(!boundValues.empty());
         NodeVector nonBoundParams;
         nonBoundParams.reserve(params.size());
         for ( size_t i=0; i<params.size(); ++i )
@@ -78,7 +79,7 @@ namespace
                 continue;
 
             Node* p = params[i];
-            Node* boundValue = inst.boundValues_[i];
+            Node* boundValue = boundValues[i];
 
             if ( !genericParams[i] )            // If this is not a generic parameter => non-bound parameter
             {
@@ -186,19 +187,23 @@ namespace
 }
 
 
-GenericFunction::GenericFunction(SprFunction* originalFun, NodeVector&& params, NodeVector&& genericParams, Node* ifClause)
-    : Generic(originalFun->location(), getName(originalFun), publicAccess)
-    , originalFun_(originalFun)
-    , params_(params)
-    , genericParams_(genericParams)
-    , instantiationsSet_(originalFun, genericParams, ifClause)
+GenericFunction::GenericFunction(SprFunction* originalFun, NodeVector params, NodeVector genericParams, Node* ifClause)
+    : Generic(originalFun, move(genericParams), ifClause, publicAccess)
 {
     setEvalMode(this, effectiveEvalMode(originalFun));
+    referredNodes_.push_back(mkNodeList(location_, move(params)));
 }
 
 GenericFunction::~GenericFunction()
 {
 }
+
+const NodeVector& GenericFunction::params() const
+{
+    ASSERT(referredNodes_.size() == 2);
+    return referredNodes_[1]->children();
+}
+
 
 GenericFunction* GenericFunction::createGeneric(SprFunction* originalFun, NodeList* parameters, Node* ifClause, Class* thisClass)
 {
@@ -255,23 +260,25 @@ GenericFunction* GenericFunction::createGeneric(SprFunction* originalFun, NodeLi
 
 size_t GenericFunction::paramsCount() const
 {
-    return params_.size();
+    return params().size();
 }
 
 Node* GenericFunction::param(size_t idx) const
 {
-    return params_[idx];
+    return params()[idx];
 }
 
 Instantiation* GenericFunction::canInstantiate(const NodeVector& args)
 {
-    NodeVector boundValues = getBoundValues(originalFun_->context(), args, genericParams_);
+    Node* originalFun = referredNodes_[0];
+    NodeVector boundValues = getBoundValues(originalFun->context(), args, genericParams());
 
-    EvalMode resultingEvalMode = originalFun_->hasProperty(propCtGeneric)
+    EvalMode resultingEvalMode = originalFun->hasProperty(propCtGeneric)
         ? modeCt        // If we have a CT generic, the resulting eval mode is always CT
-        : getResultingEvalMode(originalFun_->location(), effectiveEvalMode(originalFun_), args, genericParams_);
+        : getResultingEvalMode(originalFun->location(), effectiveEvalMode(originalFun), args, genericParams());
 
-    return instantiationsSet_.canInstantiate(boundValues, resultingEvalMode);
+    InstantiationsSet* instantiationsSet = children_[0]->as<InstantiationsSet>();
+    return instantiationsSet->canInstantiate(boundValues, resultingEvalMode);
 }
 
 Node* GenericFunction::instantiateGeneric(const Location& loc, CompilationContext* context, const NodeVector& args, Instantiation* inst)
@@ -279,23 +286,27 @@ Node* GenericFunction::instantiateGeneric(const Location& loc, CompilationContex
     ASSERT(inst);
 
     // If not already created, create the actual instantiation declaration
-    if ( !inst->instantiatedDecl_ )
+    Node* instantiatedDecl = inst->instantiatedDecl();
+    NodeList* expandedInstantiation = inst->expandedInstantiation();
+    if ( !instantiatedDecl )
     {
-        NodeVector nonBoundParams = getNonBoundParameters(*inst, originalFun_, params_, genericParams_);
+        SprFunction* originalFun = referredNodes_[0]->as<SprFunction>();
+        NodeVector nonBoundParams = getNonBoundParameters(*inst, originalFun, params(), genericParams());
 
         // Create the actual instantiation declaration
-        CompilationContext* ctx = inst->expandedInstantiation_->childrenContext();
-        inst->instantiatedDecl_ = createInstFn(ctx,originalFun_, nonBoundParams);
-        if ( !inst->instantiatedDecl_ )
+        CompilationContext* ctx = expandedInstantiation->childrenContext();
+        instantiatedDecl = createInstFn(ctx, originalFun, nonBoundParams);
+        if ( !instantiatedDecl )
             REP_INTERNAL(loc, "Cannot instantiate generic");
-        inst->instantiatedDecl_->computeType();
-        theCompiler().queueSemanticCheck(inst->instantiatedDecl_);
-        inst->expandedInstantiation_->addChild(inst->instantiatedDecl_);
+        instantiatedDecl->computeType();
+        theCompiler().queueSemanticCheck(instantiatedDecl);
+        inst->setInstantiatedDecl(instantiatedDecl);
+
     }
 
     // Now actually create the call object
-    NodeVector nonBoundArgs = getNonBoundArgs(args, genericParams_);
-    Node* res = createCallFn(loc, context, inst->instantiatedDecl_, nonBoundArgs);
+    NodeVector nonBoundArgs = getNonBoundArgs(args, genericParams());
+    Node* res = createCallFn(loc, context, instantiatedDecl, nonBoundArgs);
     if ( !res )
         REP_INTERNAL(loc, "Cannot create code that calls generic");
     return res;

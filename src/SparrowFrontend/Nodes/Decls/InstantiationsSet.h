@@ -9,11 +9,12 @@ namespace SprFrontend
     /// Implements a cache of instantiations. This is responsible for storing a set of generic instances, for checking
     /// the bound values to correspond with the existing instantiations, and to apply the if clause for the given
     /// instantiations
-    class InstantiationsSet
+    class InstantiationsSet : public Node
     {
+        DEFINE_NODE(InstantiationsSet, nkSparrowInnerInstantiationsSet, "Sparrow.Inner.InstantiationsSet");
+
     public:
         InstantiationsSet(Node* parentNode, NodeVector params, Node* ifClause);
-        ~InstantiationsSet();
 
         /// Checks if we can create an instantiation for the given values.
         /// It first consults the cache to determine if we already tried this combination of values. If this combination
@@ -22,7 +23,7 @@ namespace SprFrontend
         Instantiation* canInstantiate(const NodeVector& values, Nest::EvalMode evalMode);
 
         /// Getter for the CT parameters required for this instantiations set
-        const NodeVector& parameters() const { return params_; }
+        const NodeVector& parameters() const;
 
     private:
         /// Searches for an existing instantiation; returns null if not found
@@ -31,17 +32,13 @@ namespace SprFrontend
         /// Create a new instantiation - add the bounded variables
         Instantiation* createNewInstantiation(const NodeVector& boundValues, Nest::EvalMode evalMode);
 
-    private:
         /// The node that uses this instantiations set
-        Node* parentNode_;
-
-        /// The parameters corresponding to the checked CT values
-        NodeVector params_;
+        Node* parentNode() const;
 
         /// The if clause corresponding to the generic
-        Node* ifClause_;
+        Node* ifClause() const;
 
         /// The cache of instantiations
-        vector<Instantiation*> instantiations_;
+        vector<Instantiation*>& instantiations();
     };
 }

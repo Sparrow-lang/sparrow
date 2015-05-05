@@ -22,17 +22,15 @@ namespace
     /// created for each instantiated and put in the node-list of the instantiation (the expanded instantiation node).
     /// Note that for auto-parameters we will create RT variables; the only thing we can do with them is to use their type
     /// In the expanded instantiation we need to add the actual instantiated declaration - in other place, not here
-    void addBoundVariables(const Location& loc, Instantiation& inst, const NodeVector& params, bool insideClass)
+    NodeVector getBoundVariables(const Location& loc, const NodeVector& boundValues, const NodeVector& params, bool insideClass)
     {
-        ASSERT(!inst.expandedInstantiation_);
-
         // Create a variable for each bound parameter - put everything in a node list
         NodeVector nodes;
         NodeVector nonBoundParams;
         size_t idx = 0;
         for ( Node* p: params )
         {
-            Node* boundValue = inst.boundValues_[idx++];
+            Node* boundValue = boundValues[idx++];
             if ( !p )
                 continue;
             ASSERT(boundValue);
@@ -56,25 +54,15 @@ namespace
             }
         }
         nodes.push_back(mkNop(loc));    // Make sure the resulting type is Void
-        inst.expandedInstantiation_ = (NodeList*) mkNodeList(loc, move(nodes));
+        return nodes;
     }
 }
 
 
 InstantiationsSet::InstantiationsSet(Node* parentNode, NodeVector params, Node* ifClause)
-    : parentNode_(parentNode)
-    , params_(move(params))
-    , ifClause_(ifClause)
+    : Node(parentNode->location(), { ifClause, Feather::mkNodeList(parentNode->location(), {}) }, { parentNode })
 {
-
-}
-
-InstantiationsSet::~InstantiationsSet()
-{
-    for ( Instantiation* inst: instantiations_ )
-    {
-        delete inst;
-    }
+    referredNodes_.push_back(mkNodeList(location_, move(params)));
 }
 
 Instantiation* InstantiationsSet::canInstantiate(const NodeVector& values, EvalMode evalMode)
@@ -84,18 +72,18 @@ Instantiation* InstantiationsSet::canInstantiate(const NodeVector& values, EvalM
     if ( inst )
     {
         // We already checked whether we can instantiate this
-        return inst->isValid_ ? inst : nullptr;
+        return inst->isValid() ? inst : nullptr;
     }
 
     // If no instantiation is found, create a new instantiation
     inst = createNewInstantiation(values, evalMode);
 
     // If we have an if clause, check if this CT evaluates to true
-    if ( ifClause_ )
+    if ( ifClause() )
     {
         // Always use a clone of the original node
-        Node* cond = ifClause_->clone();
-        cond->setContext(inst->expandedInstantiation_->childrenContext());
+        Node* cond = ifClause()->clone();
+        cond->setContext(inst->expandedInstantiation()->childrenContext());
 
         // If the condition does not compile, we cannot instantiate
         bool isValid = false;
@@ -120,23 +108,29 @@ Instantiation* InstantiationsSet::canInstantiate(const NodeVector& values, EvalM
             return nullptr;
     }
 
-    inst->isValid_ = true;
+    inst->setValid();
     return inst;
+}
+
+const NodeVector& InstantiationsSet::parameters() const
+{
+    return referredNodes_[1]->children();
 }
 
 Instantiation* InstantiationsSet::searchInstantiation(const NodeVector& values)
 {
-    for ( Instantiation* inst: instantiations_ )
+    for ( Instantiation* inst: instantiations() )
     {
-        if ( inst->boundValues_.size() != values.size() )
+        const auto& boundValues = inst->boundValues();
+        if ( boundValues.size() != values.size() )
             continue;
 
         bool argsMatch = true;
         for ( size_t i=0; i<values.size(); ++i )
         {
-            if ( !inst->boundValues_[i] )
+            if ( !boundValues[i] )
                 continue;
-            if ( !values[i] || !ctValsEqual(values[i], inst->boundValues_[i]) )
+            if ( !values[i] || !ctValsEqual(values[i], boundValues[i]) )
             {
                 argsMatch = false;
                 break;
@@ -151,20 +145,33 @@ Instantiation* InstantiationsSet::searchInstantiation(const NodeVector& values)
 Instantiation* InstantiationsSet::createNewInstantiation(const NodeVector& values, EvalMode evalMode)
 {
     // Create a new context, but at the same level as the context of the parent node
-    CompilationContext* context = parentNode_->context()->createChildContext(nullptr);
+    CompilationContext* context = parentNode()->context()->createChildContext(nullptr);
     context->setEvalMode(evalMode);
     bool insideClass = nullptr != getParentClass(context);
 
     // Create the instantiation
-    Instantiation* inst = new Instantiation;
-    inst->boundValues_ = values;
-    addBoundVariables(parentNode_->location(), *inst, params_, insideClass);
-
-    instantiations_.push_back(inst);
+    auto boundVars = getBoundVariables(location_, values, parameters(), insideClass);
+    Instantiation* inst = new Instantiation(location_, values, move(boundVars));
+    instantiations().push_back(inst);
 
     // Compile the newly created instantiation
-    inst->expandedInstantiation_->setContext(context);
-    inst->expandedInstantiation_->semanticCheck();
+    inst->expandedInstantiation()->setContext(context);
+    inst->expandedInstantiation()->semanticCheck();
 
     return inst;
+}
+
+Node* InstantiationsSet::parentNode() const
+{
+    return referredNodes_[0];
+}
+
+Node*  InstantiationsSet::ifClause() const
+{
+    return children_[0];
+}
+
+vector<Instantiation*>& InstantiationsSet::instantiations()
+{
+    return reinterpret_cast<vector<Instantiation*>&>(children_[1]->children());
 }

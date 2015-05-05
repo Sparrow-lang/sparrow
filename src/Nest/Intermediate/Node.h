@@ -251,5 +251,8 @@ namespace Nest
         virtual int nodeKind() const { return kindId; } \
         static const char* classNodeKindName() { return kindName; } \
         virtual const char* nodeKindName() const { return kindName; } \
-        virtual className* clone() const { return new className(*this); } \
+        virtual className* clone() const { \
+            static_assert(kindId < 0 || sizeof(*this) == sizeof(Nest::Node), "Bad node size"); \
+            return new className(*this); \
+        } \
     private:

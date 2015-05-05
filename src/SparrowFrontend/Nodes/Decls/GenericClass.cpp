@@ -101,15 +101,16 @@ namespace
     {
         ostringstream oss;
         oss << getName(cls) << "[";
-        for ( size_t i=0; i<inst->boundValues_.size(); ++i )
+        const auto& boundValues = inst->boundValues();
+        for ( size_t i=0; i<boundValues.size(); ++i )
         {
             if ( i>0 )
                 oss << ", ";
-            Type* t = evalTypeIfPossible(inst->boundValues_[i]);
+            Type* t = evalTypeIfPossible(boundValues[i]);
             if ( t )
                 oss << t;
             else
-                oss << inst->boundValues_[i];
+                oss << boundValues[i];
         }
         oss << "]";
         return oss.str();
@@ -118,9 +119,7 @@ namespace
 
 
 GenericClass::GenericClass(SprClass* originalClass, NodeList* parameters, Node* ifClause)
-    : Generic(originalClass->location(), getName(originalClass), publicAccess)
-    , originalClass_(originalClass)
-    , instantiationsSet_(originalClass, parameters->children(), ifClause)
+    : Generic(originalClass, parameters->children(), ifClause, publicAccess)
 {
     setEvalMode(this, effectiveEvalMode(originalClass));
 
@@ -135,19 +134,23 @@ GenericClass::GenericClass(SprClass* originalClass, NodeList* parameters, Node* 
 
 size_t GenericClass::paramsCount() const
 {
-    return instantiationsSet_.parameters().size();
+    InstantiationsSet* instantiationsSet = children_[0]->as<InstantiationsSet>();
+    return instantiationsSet->parameters().size();
 }
 
 Node* GenericClass::param(size_t idx) const
 {
-    return instantiationsSet_.parameters()[idx];
+    InstantiationsSet* instantiationsSet = children_[0]->as<InstantiationsSet>();
+    return instantiationsSet->parameters()[idx];
 }
 
 Instantiation* GenericClass::canInstantiate(const NodeVector& args)
 {
     NodeVector boundValues = getBoundValues(args);
-    EvalMode resultingEvalMode = getResultingEvalMode(originalClass_->location(), effectiveEvalMode(originalClass_), boundValues);
-    return instantiationsSet_.canInstantiate(boundValues, resultingEvalMode);
+    Node* originalClass = referredNodes_[0];
+    EvalMode resultingEvalMode = getResultingEvalMode(originalClass->location(), effectiveEvalMode(originalClass), boundValues);
+    InstantiationsSet* instantiationsSet = children_[0]->as<InstantiationsSet>();
+    return instantiationsSet->canInstantiate(boundValues, resultingEvalMode);
 }
 
 Node* GenericClass::instantiateGeneric(const Location& loc, CompilationContext* context, const NodeVector& /*args*/, Instantiation* inst)
@@ -155,27 +158,30 @@ Node* GenericClass::instantiateGeneric(const Location& loc, CompilationContext* 
     ASSERT(inst);
 
     // If not already created, create the actual instantiation declaration
-    if ( !inst->instantiatedDecl_ )
+    Node* instantiatedDecl = inst->instantiatedDecl();
+    NodeList* expandedInstantiation = inst->expandedInstantiation();
+    if ( !instantiatedDecl )
     {
-        string description = getDescription(originalClass_, inst);
+        SprClass* originalClass = referredNodes_[0]->as<SprClass>();
+        string description = getDescription(originalClass, inst);
 
         // Create the actual instantiation declaration
-        CompilationContext* ctx = inst->expandedInstantiation_->childrenContext();
-        inst->instantiatedDecl_ = createInstantiatedClass(ctx, originalClass_, description);
-        if ( !inst->instantiatedDecl_ )
+        CompilationContext* ctx = expandedInstantiation->childrenContext();
+        instantiatedDecl = createInstantiatedClass(ctx, originalClass, description);
+        if ( !instantiatedDecl )
             REP_INTERNAL(loc, "Cannot instantiate generic");
-        inst->instantiatedDecl_->setProperty(propDescription, move(description));
-        inst->instantiatedDecl_->computeType();
-        theCompiler().queueSemanticCheck(inst->instantiatedDecl_);
-        inst->expandedInstantiation_->addChild(inst->instantiatedDecl_);
+        instantiatedDecl->setProperty(propDescription, move(description));
+        instantiatedDecl->computeType();
+        theCompiler().queueSemanticCheck(instantiatedDecl);
+        inst->setInstantiatedDecl(instantiatedDecl);
 
         // Add the instantiated class as an additional node to the callee source code
         ASSERT(context->sourceCode());
-        context->sourceCode()->addAdditionalNode(inst->expandedInstantiation_);
+        context->sourceCode()->addAdditionalNode(expandedInstantiation);
     }
 
     // Now actually create the call object: a Type CT value
-    Class* cls = inst->instantiatedDecl_->explanation()->as<Class>();
+    Class* cls = instantiatedDecl->explanation()->as<Class>();
     ASSERT(cls);
     return createTypeNode(context_, loc, Feather::DataType::get(cls));
 }

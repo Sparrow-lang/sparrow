@@ -19,7 +19,7 @@ namespace SprFrontend
         nkSparrowDeclGenericFunction,
         nkSparrowDeclFriend,
         nkSparrowDeclUsing,
-        
+
         nkSparrowExpLiteral,
         nkSparrowExpThis,
         nkSparrowExpIdentifier,
@@ -37,6 +37,9 @@ namespace SprFrontend
         nkSparrowStmtFor,
         nkSparrowStmtSprReturn,
         
+        nkSparrowInnerInstantiation,
+        nkSparrowInnerInstantiationsSet,
+
         nextNodeKindValue,
     };
 }

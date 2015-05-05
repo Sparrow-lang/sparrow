@@ -64,4 +64,7 @@ namespace SprFrontend
 //    Node* mkFinallyBlock(const Location& loc, Node* action);
 
     Node* mkDeclExp(const Location& loc, NodeVector decls, Node* baseExp = nullptr);
+
+    Node* mkInstantiation(const Location& loc, NodeVector boundValues, NodeVector boundVars);
+    Node* mkInstantiationsSet(Node* parentNode, NodeVector params, Node* ifClause);
 }

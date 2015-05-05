@@ -24,19 +24,10 @@ namespace SprFrontend
         virtual Node* instantiateGeneric(const Location& loc, CompilationContext* context, const NodeVector& args, Instantiation* instantiation);
 
     private:
-        GenericFunction(SprFunction* originalFun, NodeVector&& params, NodeVector&& genericParams, Node* ifClause);
+        GenericFunction(SprFunction* originalFun, NodeVector params, NodeVector genericParams, Node* ifClause);
 
     private:
-        /// The original declaration - the one that is a generic
-        SprFunction* originalFun_;
-
         /// All the parameters of the declaration (bound + unbound) - here we have the original parameters of the declaration
-        NodeVector params_;
-        
-        /// The generic parameters; whenever a non-bound parameter should be, a null parameter is placed
-        NodeVector genericParams_;
-
-        /// The set of instantiations of this generic
-        InstantiationsSet instantiationsSet_;
+        const NodeVector& params() const;
     };
 }

@@ -14,8 +14,7 @@ using namespace SprFrontend;
 using namespace Feather;
 
 SprConcept::SprConcept(const Location& loc, string name, string paramName, Node* baseConcept, Node* ifClause, AccessType accessType)
-    : Node(loc, {baseConcept, ifClause})
-    , instantiationsSet_(nullptr)
+    : Node(loc, {baseConcept, ifClause, nullptr})
 {
     setName(this, move(name));
     setAccessType(this, accessType);
@@ -24,13 +23,15 @@ SprConcept::SprConcept(const Location& loc, string name, string paramName, Node*
 
 bool SprConcept::isFulfilled(Type* type)
 {
-    if ( !isSemanticallyChecked() || !instantiationsSet_ )
+    InstantiationsSet* instantiationsSet = children_[2]->as<InstantiationsSet>();
+
+    if ( !isSemanticallyChecked() || !instantiationsSet )
         REP_INTERNAL(location_, "Invalid concept");
 
     Node* typeValue = createTypeNode(context_, location_, type);
     typeValue->semanticCheck();
 
-    return nullptr != instantiationsSet_->canInstantiate({typeValue}, context_->evalMode());
+    return nullptr != instantiationsSet->canInstantiate({typeValue}, context_->evalMode());
 }
 
 Type* SprConcept::baseConceptType() const
@@ -54,9 +55,10 @@ void SprConcept::doSetContextForChildren()
 
 void SprConcept::doSemanticCheck()
 {
-    ASSERT(children_.size() == 2);
+    ASSERT(children_.size() == 3);
     Node* baseConcept = children_[0];
     Node* ifClause = children_[1];
+    Node*& instantiationsSet = children_[2];
     const string& paramName = getCheckPropertyString("spr.paramName");
 
     // Compile the base concept node; make sure it's ct
@@ -73,7 +75,7 @@ void SprConcept::doSemanticCheck()
     param->setContext(childrenContext_);
     param->computeType();       // But not semanticCheck, as it will complain of instantiating a var of type auto
 
-    delete instantiationsSet_;
-    instantiationsSet_ = new InstantiationsSet(this, { param }, ifClause);
+    delete instantiationsSet;
+    instantiationsSet = new InstantiationsSet(this, { param }, ifClause);
     setExplanation(Feather::mkNop(location_));
 }

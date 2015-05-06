@@ -86,10 +86,12 @@ namespace
     {
         DEFINE_NODE(DestructActionForConditional, -1, "LLVMBackend.DestructActionForConditional");
     public:
-        DestructActionForConditional(Type* resType, Node* cond, NodeVector alt1DestructActions, NodeVector alt2DestructActions)
-            : Node(NOLOC, {cond, mkNodeList(NOLOC, move(alt1DestructActions)), mkNodeList(NOLOC, move(alt2DestructActions)) })
+        DestructActionForConditional(Type* resType, llvm::Value* cond, NodeVector alt1DestructActions, NodeVector alt2DestructActions)
+            : Node(NOLOC, {mkNodeList(NOLOC, move(alt1DestructActions)), mkNodeList(NOLOC, move(alt2DestructActions)) })
         {
             setProperty("resType", resType);
+            setProperty("cond_LLVM_value", reinterpret_cast<Node*>(cond));
+            // store the condition llvm value as a pointer to a node
         }
 
         void doSemanticCheck()
@@ -102,14 +104,14 @@ namespace
             return getCheckPropertyType("resType");
         }
 
-        Node* condition() const
+        llvm::Value* condition() const
         {
-            return children_[0];
+            return reinterpret_cast<llvm::Value*>(getCheckPropertyNode("cond_LLVM_value"));
         }
 
         const NodeVector& alt1DestructActions() const
         {
-            return children_[1]->children();
+            return children_[0]->children();
         }
 
         const NodeVector& alt2DestructActions() const
@@ -192,7 +194,7 @@ namespace
         if ( !destructActions1.empty() || !destructActions2.empty() )
         {
             // The destruct action is also a kind of conditional operation - reuse the condition value
-            Node* destructAction = new DestructActionForConditional(destType, cond, move(destructActions1), move(destructActions2));
+            Node* destructAction = new DestructActionForConditional(destType, condValue, move(destructActions1), move(destructActions2));
             destructAction->setContext(compContext);
             destructAction->semanticCheck();
             context.curInstruction().addTempDestructAction(destructAction);
@@ -900,7 +902,7 @@ namespace
         if ( !destructActions1.empty() || !destructActions2.empty() )
         {
             // The destruct action is also a kind of conditional operation - reuse the condition value
-            Node* destructAction = new DestructActionForConditional(node.type(), node.condition(), move(destructActions1), move(destructActions2));
+            Node* destructAction = new DestructActionForConditional(node.type(), condValue, move(destructActions1), move(destructActions2));
             destructAction->setContext(node.context());
             destructAction->semanticCheck();
             ASSERT(!context.scopesStack().empty());
@@ -920,7 +922,7 @@ namespace
 
         // Translate the condition expression
         context.ensureInsertionPoint();
-        context.builder().CreateCondBr(translateNode(node.condition(), context), alt1Block, alt2Block);
+        context.builder().CreateCondBr(node.condition(), alt1Block, alt2Block);
 
         // Alternative 1 destruct actions
         context.setInsertionPoint(alt1Block);

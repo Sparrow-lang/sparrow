@@ -23,8 +23,8 @@ namespace Nest
         Node(const Node& other);
         virtual ~Node() {}
 
-        void* operator new(size_t size);
-        void operator delete(void* ptr);
+        static void* operator new(size_t size);
+        static void operator delete(void* ptr);
 
         /// Clones the current node
         virtual Node* clone() const = 0;
@@ -255,4 +255,6 @@ namespace Nest
             static_assert(sizeof(*this) == sizeof(Nest::Node), "Bad node size"); \
             return new className(*this); \
         } \
+        static void* operator new(size_t size) { return Node::operator new(size); } \
+        static void operator delete(void* ptr) { return Node::operator delete(ptr); } \
     private:

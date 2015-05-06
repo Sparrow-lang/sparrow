@@ -46,13 +46,11 @@ Node::Node(const Node& other)
 
 void* Node::operator new(size_t size)
 {
-    return ::operator new (size);
-    //return theCompiler().nodeAllocator().alloc(size);
+    return theCompiler().nodeAllocator().alloc(size);
 }
 void Node::operator delete(void* ptr)
 {
-    ::operator delete (ptr);
-    //theCompiler().nodeAllocator().free(ptr);
+    theCompiler().nodeAllocator().free(ptr);
 }
 
 string Node::toString() const

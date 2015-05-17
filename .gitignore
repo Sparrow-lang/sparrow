@@ -13,3 +13,6 @@ out
 tests/Examples/others/nqueens
 tests/GoogleBench/orig
 tests/BenchmarkGame/others
+tests/*/*.json
+tests/*/*.json.dot
+tests/*/*.json.pdf

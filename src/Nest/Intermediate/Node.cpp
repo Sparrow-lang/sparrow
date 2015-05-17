@@ -6,8 +6,11 @@
 #include <Compiler.h>
 #include <Common/Diagnostic.h>
 #include <Common/NodeAllocator.h>
+#include <Common/Ser/OutArchive.h>
+#include <Common/Ser/InArchive.h>
 
 using namespace Nest;
+using namespace Nest::Common::Ser;
 
 Node::Node(const Location& location, NodeVector children, NodeVector referredNodes)
     : location_(location)
@@ -104,19 +107,19 @@ void Node::setLocation(const Location& loc)
 
 void Node::setProperty(const char* name, int val)
 {
-    properties_[name] = PropertyValue(val);
+    properties_[name] = Property(propInt, PropertyValue(val));
 }
 void Node::setProperty(const char* name, string val)
 {
-    properties_[name] = PropertyValue(move(val));
+    properties_[name] = Property(propString, PropertyValue(move(val)));
 }
 void Node::setProperty(const char* name, Node* val)
 {
-    properties_[name] = PropertyValue(val);
+    properties_[name] = Property(propNode, PropertyValue(val));
 }
 void Node::setProperty(const char* name, Type* val)
 {
-    properties_[name] = PropertyValue(val);
+    properties_[name] = Property(propType, PropertyValue(val));
 }
 
 bool Node::hasProperty(const char* name) const
@@ -126,22 +129,30 @@ bool Node::hasProperty(const char* name) const
 const int* Node::getPropertyInt(const char* name) const
 {
     auto it = properties_.find(name);
-    return it == properties_.end() ? nullptr : &it->second.intValue_;
+    if ( it == properties_.end() || it->second.kind_ != propInt )
+        return nullptr;
+    return &it->second.value_.intValue_;
 }
 const string* Node::getPropertyString(const char* name) const
 {
     auto it = properties_.find(name);
-    return it == properties_.end() ? nullptr : it->second.stringValue_;
+    if ( it == properties_.end() || it->second.kind_ != propString )
+        return nullptr;
+    return it->second.value_.stringValue_;
 }
 Node*const* Node::getPropertyNode(const char* name) const
 {
     auto it = properties_.find(name);
-    return it == properties_.end() ? nullptr : &it->second.nodeValue_;
+    if ( it == properties_.end() || it->second.kind_ != propNode )
+        return nullptr;
+    return &it->second.value_.nodeValue_;
 }
 Type*const* Node::getPropertyType(const char* name) const
 {
     auto it = properties_.find(name);
-    return it == properties_.end() ? nullptr : &it->second.typeValue_;
+    if ( it == properties_.end() || it->second.kind_ != propType )
+        return nullptr;
+    return &it->second.value_.typeValue_;
 }
 
 int Node::getCheckPropertyInt(const char* name) const
@@ -371,4 +382,48 @@ void Node::setExplanation(Node* explanation)
         explanation_->semanticCheck();
     }
     type_ = explanation_->type();
+}
+
+
+void Node::save(OutArchive& ar) const
+{
+    unsigned char flags = (unsigned char) *reinterpret_cast<const unsigned int*>(&flags_);
+    ar.write("kind", nodeKind());
+    ar.write("kindName", nodeKindName());
+    ar.write("flags", flags);
+    ar.write("location", location_);
+    ar.writeArray("children", children_, [] (OutArchive& ar, Node* child) {
+        ar.write("", child);
+    });
+    ar.writeArray("referredNodes", referredNodes_, [] (OutArchive& ar, Node* node) {
+        ar.write("", node);
+    });
+    ar.writeArray("properties", properties_, [] (OutArchive& ar, const PropertyVal& prop) {
+        ar.write("", prop, [] (OutArchive& ar, const PropertyVal& prop) {
+            ar.write("name", prop.first);
+            ar.write("kind", (int) prop.second.kind_);
+            switch ( prop.second.kind_ )
+            {
+            case propInt:
+                ar.write("val", prop.second.value_.intValue_);
+                break;
+            case propString:
+                ar.write("val", *prop.second.value_.stringValue_);
+                break;
+            case propNode:
+                ar.write("val", prop.second.value_.nodeValue_);
+                break;
+            case propType:
+                ar.write("val", prop.second.value_.typeValue_);
+                break;
+            }
+        });
+    });
+    ar.write("type", type_);
+    ar.write("explanation", explanation_);
+}
+
+void Node::load(InArchive& ar)
+{
+    // TODO
 }

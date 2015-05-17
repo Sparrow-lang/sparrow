@@ -1,6 +1,8 @@
 #pragma once
 
 FWD_CLASS1(Nest, SourceCode)
+FWD_CLASS3(Nest,Common,Ser, OutArchive)
+FWD_CLASS3(Nest,Common,Ser, InArchive)
 
 namespace Nest
 {
@@ -59,6 +61,11 @@ namespace Nest
 
         /// Set this location with both start and end to equal the end of the given location
         void setAsEndOf(const Location& rhs);
+
+    // Serialization
+    public:
+        void save(Common::Ser::OutArchive& ar) const;
+        void load(Common::Ser::InArchive& ar);
 
     private:
         // The corresponding source code

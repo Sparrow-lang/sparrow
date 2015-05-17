@@ -27,6 +27,7 @@ namespace Nest
             , dumpAssembly_(false)
             , dumpCtAssembly_(false)
             , dumpOptAssembly_(false)
+            , dumpAST_(false)
             , keepIntermediateFiles_(false)
         {}
 
@@ -132,6 +133,9 @@ namespace Nest
 
         /// If true we will dump LLVM assembly for the optimized module
         bool dumpOptAssembly_;
+
+        /// If true we will dump the AST corresponding to the given source code, and to the compiled code
+        bool dumpAST_;
 
         /// Set this to true if you don't want to delete the intermediate files used during generation
         bool keepIntermediateFiles_;

@@ -14,6 +14,8 @@
     #define SET_TYPE_DESCRIPTION(t)     /*nothing*/
 #endif
 
+FWD_CLASS3(Nest,Common,Ser, OutArchive)
+FWD_CLASS3(Nest,Common,Ser, InArchive)
 
 namespace Nest
 {
@@ -61,6 +63,11 @@ namespace Nest
         /// Creates a new tyoe with the given eval mode, if possible; if not, returns null
         virtual Type* changeMode(EvalMode newMode) { return nullptr; }
 
+        // Serialization
+    public:
+        void save(Common::Ser::OutArchive& ar) const;
+        void load(Common::Ser::InArchive& ar);
+        
     protected:
         Type(unsigned typeId, EvalMode mode)
             : typeId_(typeId)

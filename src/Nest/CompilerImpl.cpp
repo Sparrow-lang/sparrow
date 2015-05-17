@@ -5,6 +5,7 @@
 #include <Common/DiagnosticReporter.h>
 #include <Common/NodeAllocatorImpl.h>
 #include <Common/TimingSystem.h>
+#include <Common/Serialization.h>
 #include <Intermediate/Node.h>
 #include <Intermediate/CompilationContext.h>
 #include <Frontend/SourceCode.h>
@@ -15,6 +16,19 @@
 using namespace Nest;
 using namespace std;
 using namespace boost::filesystem;
+
+namespace
+{
+    void dumpAst(SourceCode& sc, bool isCompiled)
+    {
+        // Note: at this stage we keep overwriting the dumps we have written so far
+        // At this point, because we process a lot of files and we are actually
+        // interested in the last file, this is a feature, not a bug.
+        string filenameBase = isCompiled ? "nodesComp" : "nodesOrig";
+        Common::saveToBinFile(sc.iCode(), (filenameBase + ".out").c_str());
+        Common::saveToJsonFile(sc.iCode(), (filenameBase + ".json").c_str());
+    }
+}
 
 CompilerImpl::CompilerImpl()
     : diagnosticReporter_(new Common::DiagnosticReporter)
@@ -165,6 +179,10 @@ void CompilerImpl::compileFile(const string& filename)
                 if ( errorCount != theCompiler().diagnosticReporter().errorsCount() )
                     continue;
 
+                // Dump the content of the file, after it was compiled
+                if ( settings_.dumpAST_ )
+                    dumpAst(*sourceCode, true);
+                
                 toCodeGenerate.push_back(sourceCode);
             }
         }
@@ -394,6 +412,10 @@ bool CompilerImpl::handleImportFile(const ImportInfo& import)
     // Do the parsing
 //    REP_INFO(NOLOC, "Parsing: %1%") % import.filename_.string();
     parser->parse(newContext);
+
+    // Dump the content of the file, before compiling it
+    if ( settings_.dumpAST_ )
+        dumpAst(*parser, false);
 
     // Stop if we have some (parsing) errors
     if ( errorCount != theCompiler().diagnosticReporter().errorsCount() )

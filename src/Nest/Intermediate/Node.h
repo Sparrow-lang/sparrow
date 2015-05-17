@@ -12,6 +12,8 @@ FWD_CLASS1(Nest, Location);
 FWD_CLASS1(Nest, CompilationContext);
 FWD_CLASS1(Nest, Type);
 FWD_CLASS1(Nest, Modifier);
+FWD_CLASS3(Nest,Common,Ser, OutArchive)
+FWD_CLASS3(Nest,Common,Ser, InArchive)
 
 namespace Nest
 {
@@ -158,8 +160,20 @@ namespace Nest
         /// explanation
         void setExplanation(Node* explanation);
 
+    // Serialization
+    public:
+        void save(Common::Ser::OutArchive& ar) const;
+        void load(Common::Ser::InArchive& ar);
+
     // General node attributes
     protected:
+        enum PropertyKind
+        {
+            propInt,
+            propString,
+            propNode,
+            propType,
+        };
         union PropertyValue
         {
             int intValue_;
@@ -188,7 +202,16 @@ namespace Nest
                 typeValue_ = val;
             }
         };
-        typedef unordered_map<string, PropertyValue> PropertyMap;
+        struct Property
+        {
+            PropertyKind kind_;
+            PropertyValue value_;
+
+            Property() : kind_(propInt), value_(0) {}
+            Property(PropertyKind kind, PropertyValue value) : kind_(kind), value_(value) {}
+        };
+        typedef unordered_map<string, Property> PropertyMap;
+        typedef PropertyMap::value_type PropertyVal;
 
         /// Node flags
         struct NodeFlags

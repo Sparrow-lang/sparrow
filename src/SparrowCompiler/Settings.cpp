@@ -58,6 +58,7 @@ void initSettingsWithArgs(int argc, char** argv)
         ("dump-assembly", "dump LLVM assembly for the compilation units")
         ("dump-ct-assembly", "dump LLVM assembly for the CT module")
         ("dump-opt-assembly", "dump LLVM assembly for the optimized module")
+        ("dump-ast", "dump AST for the compiled files")
         ("keep-intermediate-files", "keep intermediate files generating during compilation")
         ;
 
@@ -97,6 +98,7 @@ void initSettingsWithArgs(int argc, char** argv)
     s.dumpAssembly_ = vm.count("dump-assembly") > 0;
     s.dumpCtAssembly_ = vm.count("dump-ct-assembly") > 0;
     s.dumpOptAssembly_ = vm.count("dump-opt-assembly") > 0;
+    s.dumpAST_ = vm.count("dump-ast") > 0;
     s.keepIntermediateFiles_ = vm.count("keep-intermediate-files") > 0;
 
 #ifdef _WIN32

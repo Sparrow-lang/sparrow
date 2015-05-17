@@ -1,6 +1,8 @@
 #include <StdInc.h>
 #include "Location.h"
 #include "SourceCode.h"
+#include <Common/Ser/OutArchive.h>
+#include <Common/Ser/InArchive.h>
 
 #include <boost/lexical_cast.hpp>
 
@@ -137,6 +139,53 @@ void Location::setAsEndOf(const Location& rhs)
 }
 
 
+void Location::save(Common::Ser::OutArchive& ar) const
+{
+    using namespace Common::Ser;
+
+    // TODO: source-code
+    if ( true )
+    {
+        // Use compact location info
+        unsigned short startLineNo = startLineNo_;
+        unsigned short endLineNo = endLineNo_;
+        unsigned short startColNo = startColNo_;
+        unsigned short endColNo = endColNo_;
+        typedef unsigned long long u64;
+        u64 locInfo = u64(endColNo) + (u64(startColNo)<<16) + (u64(endLineNo)<<32) + (u64(startLineNo)<<48);
+        ar.write("locInfo", locInfo);
+    }
+    else
+    {
+        ar.write("startLineNo", startLineNo_);
+        ar.write("endLineNo", endLineNo_);
+        ar.write("startColNo", startColNo_);
+        ar.write("endColNo", endColNo_);
+    }
+}
+
+void Location::load(Common::Ser::InArchive& ar)
+{
+    // TODO: source-code
+    if ( true )
+    {
+        typedef unsigned long long u64;
+        u64 locInfo;
+        ar.read("locInfo", locInfo);
+        endColNo_ = locInfo & 0xFFFF;
+        startColNo_ = (locInfo >> 16) & 0xFFFF;
+        startLineNo_ = (locInfo >> 32) & 0xFFFF;
+        endLineNo_ = (locInfo >> 48) & 0xFFFF;
+    }
+    else
+    {
+        ar.read("startLineNo", startLineNo_);
+        ar.read("endLineNo", endLineNo_);
+        ar.read("startColNo", startColNo_);
+        ar.read("endColNo", endColNo_);
+    }
+}
+
 ostream& Nest::operator << (ostream& os, const Location& loc)
 {
     os << (loc.sourceCode() ? loc.sourceCode()->filename() : string("<no-source>"));
@@ -183,3 +232,4 @@ bool Nest::operator !=(const Location& l1, const Location& l2)
 {
     return !(l1 == l2);
 }
+

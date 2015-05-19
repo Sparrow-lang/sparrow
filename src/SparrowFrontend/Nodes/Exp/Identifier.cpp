@@ -148,6 +148,8 @@ Node* SprFrontend::getIdentifierResult(CompilationContext* ctx, const Location& 
 
     // Add the referenced declarations as a property to our result
     Node* declExp = mkDeclExp(loc, decls, baseExp);
+    Node* res = declExp;
+    declExp->setProperty(propRefDecls, declExp);    // TODO: avoid this reference to self
 
     // If this refers to a function without an arguments, try to create a function call
     if ( decls.size() == 1 )

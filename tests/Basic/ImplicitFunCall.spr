@@ -22,7 +22,7 @@ fun f2(i: Int)  { writeLn("inside f2()"); }
 fun[native("test")] test(n: Int)
 {
     f1;         // inside f1()
-    f2;
+    //f2;
 
     writeLn("---");
 
@@ -31,8 +31,8 @@ fun[native("test")] test(n: Int)
     foo.a;
     foo.b;
     foo.f;      // inside Foo.f()
-    foo.g;
-    foo.h;
+    //foo.g;
+    //foo.h;
     writeLn("---");
     foo.f g;    // inside Foo.f() + inside Foo.g()
     writeLn(foo.aa + 13);       // 13

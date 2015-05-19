@@ -146,12 +146,8 @@ Node* SprFrontend::getIdentifierResult(CompilationContext* ctx, const Location& 
 
     }
 
-    // This always needs to return something valid, even if we cannot form a proper expression
-    Node* res = mkNop(loc);
-
     // Add the referenced declarations as a property to our result
     Node* declExp = mkDeclExp(loc, decls, baseExp);
-    res->setProperty(propRefDecls, declExp);
 
     // If this refers to a function without an arguments, try to create a function call
     if ( decls.size() == 1 )

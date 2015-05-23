@@ -105,21 +105,21 @@ void Node::setLocation(const Location& loc)
     location_ = loc;
 }
 
-void Node::setProperty(const char* name, int val)
+void Node::setProperty(const char* name, int val, bool passToExpl)
 {
-    properties_[name] = Property(propInt, PropertyValue(val));
+    properties_[name] = Property(propInt, PropertyValue(val), passToExpl);
 }
-void Node::setProperty(const char* name, string val)
+void Node::setProperty(const char* name, string val, bool passToExpl)
 {
-    properties_[name] = Property(propString, PropertyValue(move(val)));
+    properties_[name] = Property(propString, PropertyValue(move(val)), passToExpl);
 }
-void Node::setProperty(const char* name, Node* val)
+void Node::setProperty(const char* name, Node* val, bool passToExpl)
 {
-    properties_[name] = Property(propNode, PropertyValue(val));
+    properties_[name] = Property(propNode, PropertyValue(val), passToExpl);
 }
-void Node::setProperty(const char* name, Type* val)
+void Node::setProperty(const char* name, Type* val, bool passToExpl)
 {
-    properties_[name] = Property(propType, PropertyValue(val));
+    properties_[name] = Property(propType, PropertyValue(val), passToExpl);
 }
 
 bool Node::hasProperty(const char* name) const
@@ -376,6 +376,13 @@ void Node::doSemanticCheck()
 void Node::setExplanation(Node* explanation)
 {
     explanation_ = explanation;
+
+    // Copy all the properties marked accordingly
+    for ( const auto& prop : properties_ )
+        if ( prop.second.passToExpl_ )
+            explanation_->properties_[prop.first] = prop.second;
+
+    // Try to semantically check the explanation
     if ( !explanation->isSemanticallyChecked() )
     {
         explanation_->setContext(context_);
@@ -402,6 +409,7 @@ void Node::save(OutArchive& ar) const
         ar.write("", prop, [] (OutArchive& ar, const PropertyVal& prop) {
             ar.write("name", prop.first);
             ar.write("kind", (int) prop.second.kind_);
+            ar.write("passToExpl", (unsigned char) prop.second.passToExpl_);
             switch ( prop.second.kind_ )
             {
             case propInt:

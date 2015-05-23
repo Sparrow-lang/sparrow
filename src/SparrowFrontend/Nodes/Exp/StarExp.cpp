@@ -14,6 +14,9 @@ void StarExp::doSemanticCheck()
 {
     Node* base = children_[0];
 
+    // For the base expression allow it to return DeclExp
+    base->setProperty(propAllowDeclExp, 1, true);
+
     // Get the declarations from the base expression
     base->semanticCheck();
     Node* baseExp;
@@ -42,9 +45,6 @@ void StarExp::doSemanticCheck()
     if ( decls.empty() )
         REP_ERROR(location_, "No declarations found with the star expression");
     
-    // This expands to a NOP
-    // Add the referenced declarations as a property to our result
-    Node* res = Feather::mkNop(location_);
-    res->setProperty(propRefDecls, mkDeclExp(location_, move(decls)));
-    setExplanation(res);
+    // This expands to a declaration expression
+    setExplanation(mkDeclExp(location_, move(decls)));
 }

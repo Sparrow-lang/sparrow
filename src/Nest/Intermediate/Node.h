@@ -63,10 +63,10 @@ namespace Nest
         const vector<Modifier*>& modifiers() const { return modifiers_; }
         vector<Modifier*>& modifiers() { return modifiers_; }
         
-        void setProperty(const char* name, int val);
-        void setProperty(const char* name, string val);
-        void setProperty(const char* name, Node* val);
-        void setProperty(const char* name, Type* val);
+        void setProperty(const char* name, int val, bool passToExpl = false);
+        void setProperty(const char* name, string val, bool passToExpl = false);
+        void setProperty(const char* name, Node* val, bool passToExpl = false);
+        void setProperty(const char* name, Type* val, bool passToExpl = false);
 
         bool hasProperty(const char* name) const;
         const int* getPropertyInt(const char* name) const;
@@ -204,11 +204,12 @@ namespace Nest
         };
         struct Property
         {
-            PropertyKind kind_;
+            PropertyKind kind_: 16;
+            bool passToExpl_: 1;
             PropertyValue value_;
 
-            Property() : kind_(propInt), value_(0) {}
-            Property(PropertyKind kind, PropertyValue value) : kind_(kind), value_(value) {}
+            Property() : kind_(propInt), passToExpl_(false), value_(0) {}
+            Property(PropertyKind kind, PropertyValue value, bool passToExpl = false) : kind_(kind), passToExpl_(passToExpl), value_(value) {}
         };
         typedef unordered_map<string, Property> PropertyMap;
         typedef PropertyMap::value_type PropertyVal;

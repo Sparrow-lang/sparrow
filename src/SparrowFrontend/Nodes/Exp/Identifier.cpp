@@ -12,37 +12,17 @@
 #include <Feather/Nodes/Decls/Function.h>
 #include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Type/DataType.h>
+#include <Feather/Util/Decl.h>
 
 using namespace SprFrontend;
 using namespace Nest;
 using namespace Feather;
 
-namespace
-{
-    Node* valueIfValidImpl(const Location& loc, Node* argMain, Node* argDefault)
-    {
-        // Try to compile the main argument, see if compiles
-        bool isValid = false;
-        Nest::Common::DiagnosticSeverity level = Nest::theCompiler().diagnosticReporter().severityLevel();
-        try
-        {
-            Nest::theCompiler().diagnosticReporter().setSeverityLevel(Nest::Common::diagInternalError);
-            argMain->semanticCheck();
-            isValid = !argMain->hasError();
-        }
-        catch (...)
-        {
-        }
-        Nest::theCompiler().diagnosticReporter().setSeverityLevel(level);
-
-        return isValid ? argMain : argDefault;
-    }
-}
-
 Identifier::Identifier(const Location& loc, string id)
     : Node(loc)
 {
     setProperty("name", move(id));
+    setProperty(propAllowDeclExp, 0);
 }
 
 const string& Identifier::id() const
@@ -89,13 +69,14 @@ void Identifier::doSemanticCheck()
         setExplanation(res);
         return;
     }
-    
-    Node* res = getIdentifierResult(context_, location_, move(decls), nullptr);
+
+    bool allowDeclExp = 0 != getCheckPropertyInt(propAllowDeclExp);
+    Node* res = getIdentifierResult(context_, location_, move(decls), nullptr, allowDeclExp);
     ASSERT(res);
     setExplanation(res);
 }
 
-Node* SprFrontend::getIdentifierResult(CompilationContext* ctx, const Location& loc, const NodeVector& decls, Node* baseExp)
+Node* SprFrontend::getIdentifierResult(CompilationContext* ctx, const Location& loc, const NodeVector& decls, Node* baseExp, bool allowDeclExp)
 {
     // If this points to one declaration only, try to use that declaration
     if ( decls.size() == 1 )
@@ -147,36 +128,12 @@ Node* SprFrontend::getIdentifierResult(CompilationContext* ctx, const Location& 
     }
 
     // Add the referenced declarations as a property to our result
-    Node* declExp = mkDeclExp(loc, decls, baseExp);
-    Node* res = declExp;
-    declExp->setProperty(propRefDecls, declExp);    // TODO: avoid this reference to self
+    if ( allowDeclExp )
+        return mkDeclExp(loc, decls, baseExp);
 
-    // If this refers to a function without an arguments, try to create a function call
-    if ( decls.size() == 1 )
-    {
-        Node* resDecl = resultingDecl(decls[0]);
-        Function* f = resDecl->explanation()->as<Function>();
-        if ( f )
-        {
-            // Check if the function has no parameters (or we can call it with a base expression)
-            int numParams = f->numParameters();
-            if ( f->hasProperty(propResultParam) )
-                --numParams;
-            if ( numParams == 0 || (numParams == 1 && baseExp != nullptr) )
-            {
-                // Now try to call it, see if we get any errors. If so, fall back
-                Node* fapp = mkFunApplication(loc, res, nullptr);
-                fapp->setContext(ctx);
-                fapp = valueIfValidImpl(loc, fapp, res);
-                if ( fapp )
-                {
-                    fapp->semanticCheck();
-                    res = fapp;
-                    res->explanation()->setProperty(propRefDecls, declExp);
-                }
-            }
-        }
-    }
-
-    return res;
+    // If we are here, this identifier could only represent a function application
+    Node* fapp = mkFunApplication(loc, mkDeclExp(loc, decls, baseExp), nullptr);
+    fapp->setContext(ctx);
+    fapp->semanticCheck();
+    return fapp;
 }

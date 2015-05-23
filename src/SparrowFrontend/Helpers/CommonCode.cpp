@@ -217,12 +217,15 @@ Node* SprFrontend::createFunPtr(Node* funNode)
     CompilationContext* ctx = funNode->context();
     const Location& loc = funNode->location();
 
+    // Allow the funNode to return DeclExp
+    funNode->setProperty(propAllowDeclExp, 1, true);
+
     Node* baseExp = nullptr;
     NodeVector decls = getDeclsFromNode(funNode, baseExp);
 
     // Make sure we refer only to one decl
     if ( decls.size() == 0 )
-        REP_ERROR(loc, "No function found: %1") % funNode;
+        REP_ERROR(loc, "No function found: %1%") % funNode;
 
 
     // Basic case: is this a plain function?

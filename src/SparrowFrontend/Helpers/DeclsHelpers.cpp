@@ -65,10 +65,8 @@ NodeVector SprFrontend::getDeclsFromNode(Node* n, Node*& baseExp)
     n = n->explanation();
     ASSERT(n);
 
-    // The node may contain a DeclExp, pointing to the actual references
-    Node*const* declExpPtr = n->getPropertyNode(propRefDecls);
-    DeclExp* declExp = declExpPtr ? static_cast<DeclExp*>(*declExpPtr) : nullptr;
-
+    // Check if the node is a DeclExp, pointing to the actual references
+    DeclExp* declExp = n->as<DeclExp>();
     if ( declExp )
     {
         baseExp = declExp->baseExp();

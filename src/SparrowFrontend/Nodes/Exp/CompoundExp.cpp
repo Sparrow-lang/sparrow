@@ -14,6 +14,7 @@ CompoundExp::CompoundExp(const Location& loc, Node* base, string id)
     : Node(loc, {base})
 {
     setProperty("name", move(id));
+    setProperty(propAllowDeclExp, 0);
 }
 
 const string& CompoundExp::id() const
@@ -41,6 +42,9 @@ void CompoundExp::doSemanticCheck()
 {
     Node* base = children_[0];
     const string& id = getCheckPropertyString("name");
+
+    // For the base expression allow it to return DeclExp
+    base->setProperty(propAllowDeclExp, 1, true);
 
     // Compile the base expression
     // We can expect at the base node both traditional expressions and nodes yielding decl-type types
@@ -82,7 +86,8 @@ void CompoundExp::doSemanticCheck()
         REP_ERROR(location_, "No declarations found with the name '%1%' inside %2%: %3%") % id % base % base->type();
 
     
-    Node* res = getIdentifierResult(context_, location_, move(decls), baseDataExp);
+    bool allowDeclExp = 0 != getCheckPropertyInt(propAllowDeclExp);
+    Node* res = getIdentifierResult(context_, location_, move(decls), baseDataExp, allowDeclExp);
     ASSERT(res);
     setExplanation(res);
 }

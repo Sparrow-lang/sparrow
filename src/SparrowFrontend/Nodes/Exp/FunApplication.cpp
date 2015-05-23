@@ -74,6 +74,9 @@ void FunApplication::doSemanticCheck()
     if ( !base )
         REP_INTERNAL(location_, "Don't know what function to call");
     
+    // For the base expression allow it to return DeclExp
+    base->setProperty(propAllowDeclExp, 1, true);
+
     // Compile the base expression
     // We can expect here both traditional expressions and nodes yielding decl-type types
     base->semanticCheck();

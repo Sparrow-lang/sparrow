@@ -85,7 +85,7 @@ DataLayoutHelper::~DataLayoutHelper()
 size_t DataLayoutHelper::getSizeOf(Nest::Type* type)
 {
     // Special case for "Type" type
-    if ( 0 == strcmp(type->data_.description, "Type/ct") )
+    if ( 0 == strcmp(type->data_->description, "Type/ct") )
         return sizeof(const char*);
 
     // Check if we already computed this
@@ -111,7 +111,7 @@ size_t DataLayoutHelper::getAlignOf(Nest::Type* type)
 #endif
 
     // Special case for "Type" type
-    if ( 0 == strcmp(type->data_.description, "Type/ct") )
+    if ( 0 == strcmp(type->data_->description, "Type/ct") )
         return ALIGNOF(const char*);
 
     // Check if we already computed this

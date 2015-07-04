@@ -14,22 +14,19 @@ namespace Nest
         TypeStock();
         ~TypeStock();
 
-        /// Get/create a type given a type id and the key corresponding to the type
-        /// The given 'createFun' functor must have the following signature 'TypePtr (void*, MapKey)' and must create the
-        /// type in the given location for the given key
-        template<typename TypePtr, typename MapKey, typename CreateFun>
-        TypePtr getCreateType(Type::TypeId typeId, const MapKey& key, CreateFun createFun)
+        /// Get/create a type given its underlying basic type data
+        template<typename TypeClass>
+        TypeClass* getCreateType(TypeData* basicType)
         {
-            unordered_map<MapKey, TypePtr>*& tMap = reinterpret_cast<unordered_map<MapKey, TypePtr>*&>(getTypeMapImpl(typeId));
-            if ( !tMap )
-                tMap = new unordered_map<MapKey, TypePtr>();
-            auto it = tMap->find(key);
-            if ( it != tMap->end() )
-                return it->second;
+            auto& tMap = getTypeMapImpl();
+            auto it = tMap.find(basicType);
+            if ( it != tMap.end() )
+                return reinterpret_cast<TypeClass*>(it->second);
 
             void* p = typeStock.allocType();
-            TypePtr res = createFun(p, key);
-            (*tMap)[key] = res;
+            TypeClass* res = new (p) TypeClass();
+            res->data_ = basicType;
+            tMap[basicType] = res;
             return res;
         }
 
@@ -38,7 +35,7 @@ namespace Nest
         void* allocType();
 
         /// Gets the map corresponding to a type id
-        unordered_map<Type*,Type*>*& getTypeMapImpl(Type::TypeId typeId);
+        unordered_map<const TypeData*,Type*>& getTypeMapImpl();
 
     private:
         struct Impl;

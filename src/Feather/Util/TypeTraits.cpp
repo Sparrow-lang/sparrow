@@ -2,8 +2,14 @@
 #include "TypeTraits.h"
 
 #include <Feather/Nodes/Decls/Class.h>
-#include <Feather/Type/DataType.h>
 #include <Feather/Util/Decl.h>
+
+#include <Feather/Type/Void.h>
+#include <Feather/Type/DataType.h>
+#include <Feather/Type/LValueType.h>
+#include <Feather/Type/ArrayType.h>
+#include <Feather/Type/FunctionType.h>
+
 
 #include <Nest/Intermediate/Node.h>
 #include <Nest/Intermediate/CompilationContext.h>
@@ -90,7 +96,46 @@ Type* Feather::changeTypeMode(Type* type, EvalMode mode, const Location& loc)
     ASSERT(type);
     if ( mode == type->mode() )
         return type;
-    Type* resType = type->changeMode(mode);
+
+    Type* resType = nullptr;
+    switch ( type->typeId() )
+    {
+        case typeVoid:
+            resType = Void::get(mode);
+            break;
+        case typeData:
+            resType = DataType::get(static_cast<DataType*>(type)->classDecl(), type->data_->numReferences, mode);
+            break;
+        case typeLValue:
+        {
+            Type* newElementType = changeTypeMode(static_cast<LValueType*>(type)->baseType(), mode, loc);
+            resType = newElementType ? LValueType::get(newElementType) : nullptr;
+            break;
+        }
+        case typeArray:
+        {
+            ArrayType* t = static_cast<ArrayType*>(type);
+            Type* newUnitType = changeTypeMode(t->unitType(), mode, loc);
+            resType = newUnitType ? ArrayType::get((StorageType*) newUnitType, t->count()) : nullptr;
+            break;
+        }
+        case typeFunction:
+        {
+            FunctionType* t = static_cast<FunctionType*>(type);
+            resType = FunctionType::get(t->resultType(), t->paramTypes(), mode);
+            break;
+        }
+//        case typeConcept:
+        default:
+        {
+            // Just switch the flags in the type
+            TypeData t = *type->data_;
+            t.mode = mode;
+            resType = Type::fromBasicType(getStockType(t));
+            // TODO (type): This is ugly; need to do it dynamically
+            // We also need to to update description
+        }
+    }
     if ( !resType )
         REP_INTERNAL(loc, "Don't know how to change eval mode of type %1%") % type->toString();
 

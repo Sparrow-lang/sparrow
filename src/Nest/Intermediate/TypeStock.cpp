@@ -19,7 +19,7 @@ namespace
 
 struct TypeStock::Impl
 {
-    unordered_map<Type*, Type*>* stocks[Type::typeIdLast];
+    unordered_map<const TypeData*, Type*> typeStock;
     int usedTypesInCurPage;
     TypePage* curPage;
 };
@@ -58,9 +58,9 @@ void* TypeStock::allocType()
     return &types[impl_->usedTypesInCurPage++];
 }
 
-unordered_map<Type*,Type*>*& TypeStock::getTypeMapImpl(Type::TypeId typeId)
+unordered_map<const TypeData*,Type*>& TypeStock::getTypeMapImpl()
 {
-    return impl_->stocks[typeId];
+    return impl_->typeStock;
 }
 
 

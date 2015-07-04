@@ -10,12 +10,5 @@ namespace Feather
     {
     public:
         static DataType* get(Class* classDecl, uint8_t noReferences = 0, Nest::EvalMode mode = Nest::modeRtCt);
-
-    public:
-        virtual string toString() const;
-        virtual DataType* changeMode(Nest::EvalMode newMode);
-
-    private:
-        DataType(Class* classDecl, uint8_t noReferences, Nest::EvalMode mode);
     };
 }

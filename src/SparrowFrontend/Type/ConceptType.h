@@ -17,11 +17,5 @@ namespace SprFrontend
 
         /// The concept used for this type. Can be nullptr if no concept is used
         SprConcept* concept() const;
-        
-        virtual string toString() const;
-        virtual ConceptType* changeMode(EvalMode newMode);
-
-    private:
-        explicit ConceptType(SprConcept* concept, uint8_t noReferences, Nest::EvalMode mode);
     };
 }

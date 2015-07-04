@@ -18,6 +18,8 @@ SET(sourceFiles
     "UserDefinedSourceCode.cpp"
     "NodeCommonsH.h"
     "NodeCommonsCpp.h"
+    "SparrowFrontendTypes.h"
+    "SparrowFrontendTypes.cpp"
     "CtApiFunctions.h"
     "CtApiFunctions.cpp"
     "Grammar/parser.yy"

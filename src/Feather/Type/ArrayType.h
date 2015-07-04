@@ -15,12 +15,5 @@ namespace Feather
 
         /// Getter for the number of units in the buffer type
         uint32_t count() const;
-
-    public:
-        virtual string toString() const;
-        virtual ArrayType* changeMode(Nest::EvalMode newMode);
-
-    private:
-        ArrayType(StorageType* unitType, uint32_t count);
     };
 }

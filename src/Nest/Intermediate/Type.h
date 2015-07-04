@@ -41,7 +41,7 @@ namespace Nest
         unsigned flags : 32;            ///< Additional flags
 
         /// The subtypes of this type
-        Type** subTypes;
+        TypeData** subTypes;
 
         /// Optional, the node that introduces this type
         Node* referredNode;
@@ -97,42 +97,38 @@ namespace Nest
         };
         
     public:
-        virtual ~Type() {}
+        Type(TypeData* data = nullptr);
+
+        static Type* fromBasicType(TypeData* basicType);
 
         /// Gets the type ID of this type
-        int typeId() const { return data_.typeId; }
+        int typeId() const { return data_->typeId; }
 
         /// Returns a textual description of this type.
-        virtual string toString() const { return data_.description; }
+        string toString() const { return data_->description; }
         
         /// Returns true if the construct having this type needs to have some associated storage
-        virtual bool hasStorage() const { return data_.hasStorage; }
+        bool hasStorage() const { return data_->hasStorage; }
         
         /// For storage types, this will return the number of references
-        virtual uint8_t noReferences() const { return data_.numReferences; }
+        uint8_t noReferences() const { return data_->numReferences; }
         
         /// The CT mode of this type
-        virtual EvalMode mode() const { return data_.mode; }
+        EvalMode mode() const { return data_->mode; }
         
         /// Returns true if this type can (somehow, by a conversion) be used ar runtime
-        virtual bool canBeUsedAtRt() const { return data_.canBeUsedAtRt; }
+        bool canBeUsedAtRt() const { return data_->canBeUsedAtRt; }
 
         /// Returns true if this type can (somehow, by a conversion) be used ar compile-time
-        virtual bool canBeUsedAtCt() const { return data_.canBeUsedAtCt; }
-
-        /// Creates a new tyoe with the given eval mode, if possible; if not, returns null
-        virtual Type* changeMode(EvalMode newMode) { return nullptr; }
+        bool canBeUsedAtCt() const { return data_->canBeUsedAtCt; }
 
         // Serialization
     public:
         void save(Common::Ser::OutArchive& ar) const;
         void load(Common::Ser::InArchive& ar);
         
-    protected:
-        Type(unsigned typeId, EvalMode mode);
-
     public:
-        TypeData data_;
+        TypeData* data_;
     };
 
     template <typename T>

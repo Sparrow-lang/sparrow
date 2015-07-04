@@ -123,7 +123,7 @@ llvm::Type* Tr::translateClass(Feather::Class* node, Module& module)
     if ( !module.canUse(node) )
         return nullptr;
 
-    if ( !node->type() || 0 == strcmp(node->type()->data_.description, "BasicBlock") )
+    if ( !node->type() || 0 == strcmp(node->type()->data_->description, "BasicBlock") )
     {
         ASSERT(true);
     }

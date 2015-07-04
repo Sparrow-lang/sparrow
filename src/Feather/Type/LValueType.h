@@ -13,12 +13,5 @@ namespace Feather
 
         /// Returns the base type of this type
         StorageType* baseType() const;
-        
-    public:
-        virtual string toString() const;
-        virtual LValueType* changeMode(Nest::EvalMode newMode);
-
-    private:
-        LValueType(Type* baseType);
     };
 }

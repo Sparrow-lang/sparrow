@@ -13,12 +13,5 @@ namespace Feather
     public:
         /// Getter for the instance of the Void type
         static Void* get(EvalMode mode);
-        
-        virtual string toString() const;
-
-        virtual Void* changeMode(EvalMode newMode);
-
-    private:
-        explicit Void(EvalMode mode);
     };
 }

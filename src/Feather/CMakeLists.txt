@@ -5,6 +5,8 @@ SET(sourceFiles
     "StdInc.cpp"
     "FeatherNodeCommonsH.h"
     "FeatherNodeCommonsCpp.h"
+    "FeatherTypes.h"
+    "FeatherTypes.cpp"
     "CtApiFunctions.h"
     "CtApiFunctions.cpp"
     "Nodes/Properties.h"

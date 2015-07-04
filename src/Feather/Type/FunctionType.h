@@ -13,18 +13,11 @@ namespace Feather
     class FunctionType : public Nest::Type
     {
     public:
-        static FunctionType* get(Type* resultType, vector<Type*> paramTypes, EvalMode mode);
+        static FunctionType* get(Type* resultType, const vector<Type*>& paramTypes, EvalMode mode);
 
         size_t noParameters() const;
         Type* getParameter(size_t idx) const;
         Type* resultType() const;
         vector<Type*> paramTypes() const;
-
-    public:
-        virtual string toString() const;
-        virtual FunctionType* changeMode(EvalMode newMode);
-
-    private:
-        FunctionType(const vector<Type*>& subTypes);
     };
 }

@@ -14,8 +14,11 @@ using namespace Nest;
 DataType::DataType(Class* classDecl, uint8_t noReferences, EvalMode mode)
     : StorageType(typeData, mode)
 {
-    additionalData_ = classDecl;
-    flags_ = noReferences;
+    data_.numReferences = noReferences;
+    data_.hasStorage    = 1;
+    data_.canBeUsedAtRt = effectiveEvalMode(classDecl) != modeCt;
+    data_.canBeUsedAtCt = effectiveEvalMode(classDecl) != modeRt;
+    data_.referredNode  = classDecl;
     SET_TYPE_DESCRIPTION(*this);
 }
 
@@ -33,16 +36,6 @@ DataType* DataType::get(Class* classDecl, uint8_t noReferences, EvalMode mode)
 
     return typeStock.getCreateType<DataType*>(typeData, key,
         [](void* p, const DataTypeKey& key) { return new (p) DataType(key._1, key._2, (EvalMode) key._3); } );
-}
-
-Class* DataType::classDecl() const
-{
-    return static_cast<Class*>(additionalData_);
-}
-
-uint8_t DataType::noReferences() const
-{
-    return (uint8_t) flags_;
 }
 
 string DataType::toString() const
@@ -64,16 +57,6 @@ string DataType::toString() const
     if ( mode() == modeRtCt )
         res += "/rtct";
     return res;
-}
-
-bool DataType::canBeUsedAtRt() const
-{
-    return effectiveEvalMode(classDecl()) != modeCt;
-}
-
-bool DataType::canBeUsedAtCt() const
-{
-    return effectiveEvalMode(classDecl()) != modeRt;
 }
 
 DataType* DataType::changeMode(EvalMode newMode)

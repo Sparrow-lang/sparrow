@@ -61,6 +61,7 @@ SET(sourceFiles
     "Intermediate/SymTabImpl.cpp"
     "Intermediate/CompilationContext.h"
     "Intermediate/CompilationContext.cpp"
+    "Intermediate/TypeRef.h"
     "Intermediate/Type.h"
     "Intermediate/Type.cpp"
     "Intermediate/TypeStock.h"

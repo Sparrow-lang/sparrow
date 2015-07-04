@@ -142,7 +142,7 @@ namespace Nest
             return this && nodeKind() == T::classNodeKind() ? static_cast<T*>(this) : nullptr;
         }
 
-        /// Convert this node to the given node type; perfrom safety checks
+        /// Convert this node to the given node type; perform safety checks
         template <typename T>
         T* reinterpret()
         {

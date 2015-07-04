@@ -11,14 +11,15 @@ namespace Feather
     class StorageType : public Nest::Type
     {
     protected:
-        StorageType(unsigned typeId, Nest::EvalMode mode) : Type(typeId, mode) {}
+        StorageType(unsigned typeId, Nest::EvalMode mode);
+        virtual ~StorageType() {}
 
     public:
         /// Getter for the class that introduces this data type - can be null
-        virtual Class* classDecl() const = 0;
+        virtual Class* classDecl() const;
         
         /// The number of references applied
-        virtual uint8_t noReferences() const = 0;
+        virtual uint8_t noReferences() const { return data_.numReferences; }
 
         /// If the class has an associated name this will return it; otherwise it returns nullptr
         const string* nativeName() const;

@@ -117,6 +117,7 @@ ELSEIF(APPLE)
     ADD_DEFINITIONS( -Wall )                    # All warnings...
     ADD_DEFINITIONS( -Wno-c++11-extensions )    # ... except C++11 extensions warnings
     ADD_DEFINITIONS( -Wno-deprecated )          # ... and except deprecated functions
+    ADD_DEFINITIONS( -Wno-undefined-bool-conversion ) # ... and except undefined bool conversions
 ELSE()
     ADD_DEFINITIONS( -Wno-deprecated )
     ADD_DEFINITIONS( -std=gnu++0x )

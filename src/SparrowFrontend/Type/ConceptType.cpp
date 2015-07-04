@@ -13,8 +13,8 @@ using namespace Nest;
 ConceptType::ConceptType(SprConcept* concept, uint8_t noReferences, Nest::EvalMode mode)
     : Type(typeConcept, mode)
 {
-    additionalData_ = concept;
-    flags_ = noReferences;
+    data_.referredNode = concept;
+    data_.numReferences = noReferences;
     SET_TYPE_DESCRIPTION(*this);
 }
 
@@ -32,12 +32,7 @@ ConceptType* ConceptType::get(SprConcept* concept, uint8_t noReferences, Nest::E
 
 SprConcept* ConceptType::concept() const
 {
-    return reinterpret_cast<SprConcept*>(additionalData_);
-}
-
-uint8_t ConceptType::noReferences() const
-{
-    return (uint8_t) flags_;
+    return reinterpret_cast<SprConcept*>(data_.referredNode);
 }
 
 string ConceptType::toString() const
@@ -52,7 +47,7 @@ string ConceptType::toString() const
     {
         os << "auto";
     }
-    for ( uint8_t i=0; i<flags_; ++i )
+    for ( uint8_t i=0; i<data_.numReferences; ++i )
         os << '@';
     if ( mode() == modeCt )
         os << "/ct";

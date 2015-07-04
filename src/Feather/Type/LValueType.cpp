@@ -11,7 +11,13 @@ using namespace Nest;
 LValueType::LValueType(Type* base)
     : StorageType(typeLValue, base->mode())
 {
-    subTypes_.push_back(base);
+    data_.subTypes = new Type*[1];
+    data_.subTypes[0] = base;
+    data_.hasStorage = 1;
+    data_.numReferences = 1 + base->data_.numReferences;
+    data_.canBeUsedAtCt = base->canBeUsedAtCt();
+    data_.canBeUsedAtRt = base->canBeUsedAtRt();
+    data_.referredNode = base->data_.referredNode;
     SET_TYPE_DESCRIPTION(*this);
 }
 
@@ -29,35 +35,15 @@ LValueType* LValueType::get(Type* base)
 
 StorageType* LValueType::baseType() const
 {
-    return static_cast<StorageType*>(subTypes_[0]);
-}
-
-Class* LValueType::classDecl() const
-{
-    return static_cast<StorageType*>(subTypes_[0])->classDecl();
-}
-
-uint8_t LValueType::noReferences() const
-{
-    return 1+subTypes_[0]->noReferences();
+    return static_cast<StorageType*>(data_.subTypes[0]);
 }
 
 string LValueType::toString() const
 {
-    return "lv " + subTypes_[0]->toString();
-}
-
-bool LValueType::canBeUsedAtRt() const
-{
-    return subTypes_[0]->canBeUsedAtRt();
-}
-
-bool LValueType::canBeUsedAtCt() const
-{
-    return subTypes_[0]->canBeUsedAtCt();
+    return "lv " + data_.subTypes[0]->toString();
 }
 
 LValueType* LValueType::changeMode(EvalMode newMode)
 {
-    return LValueType::get(subTypes_[0]->changeMode(newMode));
+    return LValueType::get(data_.subTypes[0]->changeMode(newMode));
 }

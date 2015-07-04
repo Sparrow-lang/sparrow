@@ -1,6 +1,8 @@
 #include <StdInc.h>
 #include "ArrayType.h"
 
+#include <Feather/Nodes/Decls/Class.h>
+
 #include <Nest/Common/Tuple.h>
 #include <Nest/Intermediate/TypeStock.h>
 
@@ -10,8 +12,14 @@ using namespace Nest;
 ArrayType::ArrayType(StorageType* unitType, uint32_t count)
     : StorageType(typeArray, unitType->mode())
 {
-    subTypes_.push_back(unitType);
-    flags_ = count;
+    data_.numSubtypes = 1;
+    data_.hasStorage = 1;
+    data_.subTypes = new Type*[1];
+    data_.subTypes[0] = unitType;
+    data_.flags = count;
+    data_.canBeUsedAtRt = unitType->canBeUsedAtRt();
+    data_.canBeUsedAtCt = unitType->canBeUsedAtCt();
+    data_.referredNode = unitType->classDecl();
     SET_TYPE_DESCRIPTION(*this);
 }
 
@@ -30,22 +38,12 @@ ArrayType* ArrayType::get(StorageType* unitType, uint32_t count)
 
 StorageType* ArrayType::unitType() const
 {
-    return static_cast<StorageType*>(subTypes_.front());
+    return static_cast<StorageType*>(data_.subTypes[0]);
 }
 
 uint32_t ArrayType::count() const
 {
-    return (uint32_t) flags_;
-}
-
-Class* ArrayType::classDecl() const
-{
-    return unitType()->classDecl();
-}
-
-uint8_t ArrayType::noReferences() const
-{
-    return 0;
+    return (uint32_t) data_.flags;
 }
 
 string ArrayType::toString() const
@@ -53,16 +51,6 @@ string ArrayType::toString() const
     ostringstream oss;
     oss << unitType()->toString() << "[" << count() << "]";
     return oss.str();
-}
-
-bool ArrayType::canBeUsedAtRt() const
-{
-    return unitType()->canBeUsedAtRt();
-}
-
-bool ArrayType::canBeUsedAtCt() const
-{
-    return unitType()->canBeUsedAtCt();
 }
 
 ArrayType* ArrayType::changeMode(EvalMode newMode)

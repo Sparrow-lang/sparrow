@@ -18,9 +18,6 @@ namespace SprFrontend
         /// The concept used for this type. Can be nullptr if no concept is used
         SprConcept* concept() const;
         
-        /// The number of references applied
-        virtual uint8_t noReferences() const;
-        
         virtual string toString() const;
         virtual ConceptType* changeMode(EvalMode newMode);
 

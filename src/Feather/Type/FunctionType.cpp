@@ -41,28 +41,30 @@ FunctionType* FunctionType::get(Type* resultType, vector<Type*> paramTypes, Eval
 FunctionType::FunctionType(const vector<Type*>& subTypes)
     : Type(typeFunction, subTypes.front()->mode())
 {
-    subTypes_.insert(subTypes_.begin(), subTypes.begin(), subTypes.end());
+    data_.numSubtypes = subTypes.size();
+    data_.subTypes = new Type*[data_.numSubtypes];
+    copy(subTypes.begin(), subTypes.end(), data_.subTypes);
     SET_TYPE_DESCRIPTION(*this);
 }
 
 size_t FunctionType::noParameters() const
 {
-    return subTypes_.size()-1;
+    return data_.numSubtypes-1;
 }
 
 Type* FunctionType::getParameter(size_t idx) const
 {
-    return subTypes_[idx+1];
+    return data_.subTypes[idx+1];
 }
 
 Type* FunctionType::resultType() const
 {
-    return subTypes_[0];
+    return data_.subTypes[0];
 }
 
 vector<Type*> FunctionType::paramTypes() const
 {
-    return vector<Type*>(subTypes_.begin()+1, subTypes_.end());
+    return vector<Type*>(data_.subTypes+1, data_.subTypes + data_.numSubtypes);
 }
 
 
@@ -70,20 +72,20 @@ string FunctionType::toString() const
 {
     string res = "(";
 
-    for ( size_t i=1; i<subTypes_.size(); ++i )
+    for ( size_t i=1; i<data_.numSubtypes; ++i )
     {
         if ( i>1 )
             res += ", ";
-        ASSERT(subTypes_[i]);
-        res += subTypes_[i]->toString();
+        ASSERT(data_.subTypes[i]);
+        res += data_.subTypes[i]->toString();
     }
     res += "): ";
-    ASSERT(subTypes_[0]);
-    res += subTypes_[0]->toString();
+    ASSERT(data_.subTypes[0]);
+    res += data_.subTypes[0]->toString();
     return res;
 }
 
 FunctionType* FunctionType::changeMode(EvalMode newMode)
 {
-    return FunctionType::get(subTypes_[0], paramTypes(), newMode);
+    return FunctionType::get(data_.subTypes[0], paramTypes(), newMode);
 }

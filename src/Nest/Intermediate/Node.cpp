@@ -392,46 +392,46 @@ void Node::setExplanation(Node* explanation)
 }
 
 
-void Node::save(OutArchive& ar) const
+void Nest::save(const Node& obj, OutArchive& ar)
 {
-    unsigned char flags = (unsigned char) *reinterpret_cast<const unsigned int*>(&flags_);
-    ar.write("kind", nodeKind());
-    ar.write("kindName", nodeKindName());
+    unsigned char flags = (unsigned char) *reinterpret_cast<const unsigned int*>(&obj.flags_);
+    ar.write("kind", obj.nodeKind());
+    ar.write("kindName", obj.nodeKindName());
     ar.write("flags", flags);
-    ar.write("location", location_);
-    ar.writeArray("children", children_, [] (OutArchive& ar, Node* child) {
+    ar.write("location", obj.location_);
+    ar.writeArray("children", obj.children_, [] (OutArchive& ar, Node* child) {
         ar.write("", child);
     });
-    ar.writeArray("referredNodes", referredNodes_, [] (OutArchive& ar, Node* node) {
+    ar.writeArray("referredNodes", obj.referredNodes_, [] (OutArchive& ar, Node* node) {
         ar.write("", node);
     });
-    ar.writeArray("properties", properties_, [] (OutArchive& ar, const PropertyVal& prop) {
-        ar.write("", prop, [] (OutArchive& ar, const PropertyVal& prop) {
+    ar.writeArray("properties", obj.properties_, [] (OutArchive& ar, const Node::PropertyVal& prop) {
+        ar.write("", prop, [] (OutArchive& ar, const Node::PropertyVal& prop) {
             ar.write("name", prop.first);
             ar.write("kind", (int) prop.second.kind_);
             ar.write("passToExpl", (unsigned char) prop.second.passToExpl_);
             switch ( prop.second.kind_ )
             {
-            case propInt:
+            case Node::propInt:
                 ar.write("val", prop.second.value_.intValue_);
                 break;
-            case propString:
+            case Node::propString:
                 ar.write("val", *prop.second.value_.stringValue_);
                 break;
-            case propNode:
+            case Node::propNode:
                 ar.write("val", prop.second.value_.nodeValue_);
                 break;
-            case propType:
+            case Node::propType:
                 ar.write("val", prop.second.value_.typeValue_);
                 break;
             }
         });
     });
-    ar.write("type", type_);
-    ar.write("explanation", explanation_);
+    ar.write("type", obj.type_);
+    ar.write("explanation", obj.explanation_);
 }
 
-void Node::load(InArchive& ar)
+void Nest::load(Node& obj, InArchive& ar)
 {
     // TODO
 }

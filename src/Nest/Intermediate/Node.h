@@ -160,11 +160,6 @@ namespace Nest
         /// explanation
         void setExplanation(Node* explanation);
 
-    // Serialization
-    public:
-        void save(Common::Ser::OutArchive& ar) const;
-        void load(Common::Ser::InArchive& ar);
-
     // General node attributes
     protected:
         enum PropertyKind
@@ -251,6 +246,9 @@ namespace Nest
 
         /// The modifiers used to adjust the compilation process of this node
         vector<Modifier*> modifiers_;
+
+        friend void save(const Node& obj, Common::Ser::OutArchive& ar);
+        friend void load(Node& obj, Common::Ser::InArchive& ar);
     };
 
     template <typename T>
@@ -267,6 +265,9 @@ namespace Nest
             n->dump(os);
         return os;
     }
+
+    void save(const Node& obj, Common::Ser::OutArchive& ar);
+    void load(Node& obj, Common::Ser::InArchive& ar);
 }
 
 #define DEFINE_NODE(className, kindId, kindName) \

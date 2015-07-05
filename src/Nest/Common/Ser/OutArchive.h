@@ -30,7 +30,7 @@ namespace Nest { namespace Common { namespace Ser
         void write(const char* name, const T& obj)
         {
             writer_.startObject(name);
-            obj.save(*this);
+            save(obj, *this);
             writer_.endObject();
         }
         template<typename T>
@@ -64,7 +64,20 @@ namespace Nest { namespace Common { namespace Ser
             }
             writer_.endArray();
         }
+        
+        template<typename It, typename WriteFun>
+        void writeArray(const char* name, It begin, It end, WriteFun writeFun)
+        {
+            writer_.startArray(name, distance(begin, end));
+            for ( ; begin != end; ++begin )
+            {
+                writer_.startArrayEl();
+                writeFun(*this, *begin);
 
+            }
+            writer_.endArray();
+        }
+        
         void flush();
 
     private:
@@ -88,7 +101,7 @@ namespace Nest { namespace Common { namespace Ser
                     writer_.write("p", 1);
                     writer_.write("ref", ref);
                     writer_.startObject("obj");
-                    obj->save(*this);
+                    save(*obj, *this);
                     writer_.endObject();
                 }
                 else

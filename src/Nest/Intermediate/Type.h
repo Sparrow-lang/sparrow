@@ -45,12 +45,6 @@ namespace Nest
 
         /// The description of the type -- mainly used for debugging purposes
         const char* description;
-
-        // Serialization
-    public:
-        void save(Common::Ser::OutArchive& ar) const;
-        void load(Common::Ser::InArchive& ar);
-
     };
 
     /// Equality comparison, by content
@@ -70,4 +64,7 @@ namespace Nest
             os << "<null-type>";
         return os;
     }
+
+    void save(const Type& obj, Common::Ser::OutArchive& ar);
+    void load(Type& obj, Common::Ser::InArchive& ar);
 }

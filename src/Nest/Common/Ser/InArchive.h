@@ -28,7 +28,7 @@ namespace Nest { namespace Common { namespace Ser
         void read(const char* name, T& obj)
         {
             reader_.startObject();
-            obj.load(*this);
+            load(obj, *this);
             reader_.endObject();
         }
     };

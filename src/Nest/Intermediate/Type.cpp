@@ -68,26 +68,24 @@ Type* Nest::getStockType(const Type& reference)
     return const_cast<Type*>(&*p.first); // TODO: remove the const cast
 }
 
-void Type::save(OutArchive& ar) const
+void Nest::save(const Type& obj, OutArchive& ar)
 {
-    // TODO: serialize this
-    ar.write("typeId", typeId);
-    ar.write("mode", (char) mode);
-    ar.write("numSubtypes", numSubtypes);
-    ar.write("numReferences", numReferences);
-    ar.write("hasStorage", hasStorage);
-    ar.write("canBeUsedAtCt", canBeUsedAtCt);
-    ar.write("canBeUsedAtRt", canBeUsedAtRt);
-    ar.write("flags", flags);
-    ar.write("referredNode", referredNode);
-    ar.write("description", description);
-    // ar.writeArray("subTypes", subTypes, [] (OutArchive& ar, Type* t) {
-    //     ar.write("", t);
-    // });
-    // TODO: subtypes
+    ar.write("typeId", obj.typeId);
+    ar.write("mode", (char) obj.mode);
+    ar.write("numSubtypes", obj.numSubtypes);
+    ar.write("numReferences", obj.numReferences);
+    ar.write("hasStorage", obj.hasStorage);
+    ar.write("canBeUsedAtCt", obj.canBeUsedAtCt);
+    ar.write("canBeUsedAtRt", obj.canBeUsedAtRt);
+    ar.write("flags", obj.flags);
+    ar.write("referredNode", obj.referredNode);
+    ar.write("description", obj.description);
+     ar.writeArray("subTypes", obj.subTypes, obj.subTypes+obj.numSubtypes, [] (OutArchive& ar, TypeRef t) {
+         ar.write("", t);
+     });
 }
 
-void Type::load(InArchive& ar)
+void Nest::load(Type& obj, InArchive& ar)
 {
     // TODO
 }

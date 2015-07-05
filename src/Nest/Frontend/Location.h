@@ -62,11 +62,6 @@ namespace Nest
         /// Set this location with both start and end to equal the end of the given location
         void setAsEndOf(const Location& rhs);
 
-    // Serialization
-    public:
-        void save(Common::Ser::OutArchive& ar) const;
-        void load(Common::Ser::InArchive& ar);
-
     private:
         // The corresponding source code
         const SourceCode* sourceCode_;
@@ -75,6 +70,9 @@ namespace Nest
         unsigned int startColNo_;         /// The start column number
         unsigned int endLineNo_;          /// The ending line number
         unsigned int endColNo_;           /// The ending column number
+
+        friend void save(const Location& obj, Common::Ser::OutArchive& ar);
+        friend void load(Location& obj, Common::Ser::InArchive& ar);
     };
 
     ostream& operator << (ostream& os, const Location& loc);
@@ -83,4 +81,9 @@ namespace Nest
 
     bool operator ==(const Location& l1, const Location& l2);
     bool operator !=(const Location& l1, const Location& l2);
+
+    // Serialization
+    void save(const Location& obj, Common::Ser::OutArchive& ar);
+    void load(Location& obj, Common::Ser::InArchive& ar);
+
 }

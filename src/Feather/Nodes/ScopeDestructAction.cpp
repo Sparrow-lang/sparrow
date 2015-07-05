@@ -22,5 +22,5 @@ void ScopeDestructAction::dump(ostream& os) const
 void ScopeDestructAction::doSemanticCheck()
 {
     children_[0]->semanticCheck();
-    type_ = Type::fromBasicType(getVoidType(context_->evalMode()));
+    type_ = getVoidType(context_->evalMode());
 }

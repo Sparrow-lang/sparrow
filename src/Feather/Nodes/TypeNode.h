@@ -11,7 +11,7 @@ namespace Feather
         DEFINE_NODE(TypeNode, nkFeatherTypeNode, "Feather.TypeNode");
 
     public:
-        TypeNode(const Location& loc, Type* type);
+        TypeNode(const Location& loc, TypeRef type);
 
     public:
         virtual void dump(ostream& os) const;

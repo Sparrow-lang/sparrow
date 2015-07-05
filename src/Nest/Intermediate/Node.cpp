@@ -117,7 +117,7 @@ void Node::setProperty(const char* name, Node* val, bool passToExpl)
 {
     properties_[name] = Property(propNode, PropertyValue(val), passToExpl);
 }
-void Node::setProperty(const char* name, Type* val, bool passToExpl)
+void Node::setProperty(const char* name, TypeRef val, bool passToExpl)
 {
     properties_[name] = Property(propType, PropertyValue(val), passToExpl);
 }
@@ -147,7 +147,7 @@ Node*const* Node::getPropertyNode(const char* name) const
         return nullptr;
     return &it->second.value_.nodeValue_;
 }
-Type*const* Node::getPropertyType(const char* name) const
+const TypeRef* Node::getPropertyType(const char* name) const
 {
     auto it = properties_.find(name);
     if ( it == properties_.end() || it->second.kind_ != propType )
@@ -176,16 +176,16 @@ Node* Node::getCheckPropertyNode(const char* name) const
         REP_INTERNAL(location_, "Node of kind %1% does not have Node property %2%") % nodeKindName() % name;
     return *res;
 }
-Type* Node::getCheckPropertyType(const char* name) const
+TypeRef Node::getCheckPropertyType(const char* name) const
 {
-    Type*const* res = getPropertyType(name);
+    const TypeRef* res = getPropertyType(name);
     if ( !res )
         REP_INTERNAL(location_, "Node of kind %1% does not have Type property %2%") % nodeKindName() % name;
     return *res;
 }
 
 
-Type* Node::type() const
+TypeRef Node::type() const
 {
     return type_;
 }

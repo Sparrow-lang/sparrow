@@ -55,7 +55,7 @@ void CompoundExp::doSemanticCheck()
     NodeVector baseDecls = getDeclsFromNode(base, baseDataExp);
     
     // If the base has storage, retain it as the base data expression
-    if ( baseDecls.empty() && base->type()->hasStorage() )
+    if ( baseDecls.empty() && base->type()->hasStorage )
         baseDataExp = base;
     if ( baseDataExp )
         baseDataExp->computeType();
@@ -72,7 +72,7 @@ void CompoundExp::doSemanticCheck()
             decls.insert(decls.end(), declsCur.begin(), declsCur.end());
         }
     }
-    else if ( base->type()->hasStorage() )
+    else if ( base->type()->hasStorage )
     {
         // If the base is an expression with a data type, treat this as a data access
         Node* classDecl = classForTypeRaw(base->type());

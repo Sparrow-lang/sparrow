@@ -24,11 +24,11 @@ namespace
         varGlobal,
     };
 
-    Type* computeVarType(Node* parent, CompilationContext* ctx, Node* typeNode, Node* init)
+    TypeRef computeVarType(Node* parent, CompilationContext* ctx, Node* typeNode, Node* init)
     {
         const Location& loc = parent->location();
 
-        Type* t = nullptr;
+        TypeRef t = nullptr;
 
         // If a type node was given, take the type from it
         if ( typeNode )
@@ -40,7 +40,7 @@ namespace
         else
         {
             // If no type node was given, maybe a type was given directly; if so, take it
-            Type*const* givenType = parent->getPropertyType("spr.givenType");
+            const TypeRef* givenType = parent->getPropertyType("spr.givenType");
             t = givenType ? *givenType : nullptr;
         }
 
@@ -77,7 +77,7 @@ SprVariable::SprVariable(const Location& loc, string name, Node* typeNode, Node*
     setAccessType(this, accessType);
 }
 
-SprVariable::SprVariable(const Location& loc, string name, Type* type, Node* init, AccessType accessType)
+SprVariable::SprVariable(const Location& loc, string name, TypeRef type, Node* init, AccessType accessType)
     : Node(loc, {nullptr, init})
 {
     setName(this, move(name));
@@ -137,10 +137,10 @@ void SprVariable::doComputeType()
     }
 
     // Get the type of the variable
-    Type* t = computeVarType(this, childrenContext_, typeNode, init);
+    TypeRef t = computeVarType(this, childrenContext_, typeNode, init);
 
     // If the type of the variable indicates a variable that can only be CT, change the evalMode
-    if ( t->mode() == modeCt )
+    if ( t->mode == modeCt )
         setEvalMode(this, modeCt);
 
     // Create the resulting var
@@ -163,7 +163,7 @@ void SprVariable::doComputeType()
 
     // If this is a CT variable in a non-ct function, make this a global variable
 
-    bool isRef = t->noReferences() > 0;
+    bool isRef = t->numReferences > 0;
 
     // Generate the initialization and destruction calls
     Node* ctorCall = nullptr;

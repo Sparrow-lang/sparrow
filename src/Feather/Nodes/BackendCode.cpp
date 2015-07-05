@@ -43,7 +43,7 @@ void BackendCode::doSemanticCheck()
 {
     EvalMode mode = evalMode();
     if ( !type_ )
-        type_ = Type::fromBasicType(getVoidType(mode));
+        type_ = getVoidType(mode);
 
     if ( mode != modeRt )
     {

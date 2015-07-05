@@ -32,7 +32,7 @@ namespace
 
 TypeRef getConceptType(SprConcept* concept, uint8_t numReferences, EvalMode mode)
 {
-    TypeData referenceType;
+    Type referenceType;
     referenceType.typeId        = Nest::typeConcept;
     referenceType.mode          = mode;
     referenceType.numSubtypes   = 0;

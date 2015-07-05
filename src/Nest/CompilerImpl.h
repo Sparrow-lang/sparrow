@@ -42,8 +42,8 @@ namespace Nest
         virtual void queueSemanticCheck(Node* node);
         virtual void ctProcess(Node* node);
         virtual Node* ctEval(Node* node);
-        virtual size_t sizeOf(Type* type);
-        virtual size_t alignmentOf(Type* type);
+        virtual size_t sizeOf(TypeRef type);
+        virtual size_t alignmentOf(TypeRef type);
 
     private:
         struct ImportInfo

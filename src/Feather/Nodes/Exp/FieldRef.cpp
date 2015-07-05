@@ -39,8 +39,8 @@ void FieldRef::doSemanticCheck()
     // Semantic check the object node - make sure it's a reference to a data type
     obj->semanticCheck();
     ASSERT(obj->type());
-    if ( !obj->type() || !obj->type()->hasStorage() || obj->type()->noReferences() != 1 )
-    	REP_ERROR(location_, "Field access should be done on a reference to a data type (type: %1%)") % obj->type()->toString();
+    if ( !obj->type() || !obj->type()->hasStorage || obj->type()->numReferences != 1 )
+    	REP_ERROR(location_, "Field access should be done on a reference to a data type (type: %1%)") % obj->type();
     Class* cls = classForType(obj->type());
     ASSERT(cls);
     cls->computeType();
@@ -63,7 +63,7 @@ void FieldRef::doSemanticCheck()
 
     // Set the correct type for this node
     ASSERT(field->type());
-    ASSERT(field->type()->hasStorage());
-    type_ = Type::fromBasicType(getLValueType(field->type()->data_));
-    type_ = adjustMode(type_, obj->type()->mode(), context_, location_);
+    ASSERT(field->type()->hasStorage);
+    type_ = getLValueType(field->type());
+    type_ = adjustMode(type_, obj->type()->mode, context_, location_);
 }

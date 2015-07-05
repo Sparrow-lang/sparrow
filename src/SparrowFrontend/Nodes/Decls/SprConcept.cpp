@@ -21,7 +21,7 @@ SprConcept::SprConcept(const Location& loc, string name, string paramName, Node*
     setProperty("spr.paramName", move(paramName));
 }
 
-bool SprConcept::isFulfilled(Type* type)
+bool SprConcept::isFulfilled(TypeRef type)
 {
     InstantiationsSet* instantiationsSet = children_[2]->as<InstantiationsSet>();
 
@@ -34,11 +34,11 @@ bool SprConcept::isFulfilled(Type* type)
     return nullptr != instantiationsSet->canInstantiate({typeValue}, context_->evalMode());
 }
 
-Type* SprConcept::baseConceptType() const
+TypeRef SprConcept::baseConceptType() const
 {
     Node* baseConcept = children_[0];
 
-    Type* res = baseConcept ? getType(baseConcept) : Type::fromBasicType(getConceptType());
+    TypeRef res = baseConcept ? getType(baseConcept) : getConceptType();
     res = adjustMode(res, context_, location_);
     return res;
 }
@@ -71,7 +71,7 @@ void SprConcept::doSemanticCheck()
 
     Node* param = baseConcept
         ? mkSprParameter(location_, paramName, baseConcept)
-        : mkSprParameter(location_, paramName, Type::fromBasicType(getConceptType()));
+        : mkSprParameter(location_, paramName, getConceptType());
     param->setContext(childrenContext_);
     param->computeType();       // But not semanticCheck, as it will complain of instantiating a var of type auto
 

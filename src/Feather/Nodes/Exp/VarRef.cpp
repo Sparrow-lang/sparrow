@@ -52,8 +52,8 @@ void VarRef::doSemanticCheck()
     var->computeType();
     if ( isField(var) )
         REP_INTERNAL(location_, "VarRef used on a field (%1%). Use FieldRef instead") % getName(var);
-    if ( !var->type()->hasStorage() )
-        REP_ERROR(location_, "Variable type is doesn't have a storage type (type: %1%)") % var->type()->toString();
-    type_ = adjustMode(Type::fromBasicType(getLValueType(var->type()->data_)), context_, location_);
-    checkEvalMode(this, var->type()->mode());
+    if ( !var->type()->hasStorage )
+        REP_ERROR(location_, "Variable type is doesn't have a storage type (type: %1%)") % var->type();
+    type_ = adjustMode(getLValueType(var->type()), context_, location_);
+    checkEvalMode(this, var->type()->mode);
 }

@@ -50,15 +50,15 @@ namespace
         for ( Node* boundVal: boundValues )
         {
             // Test the type given to the 'Type' parameters (i.e., we need to know if Vector(t) can be rtct based on the mode of t)
-            Type* t = tryGetTypeValue(boundVal);
+            TypeRef t = tryGetTypeValue(boundVal);
             if ( t )
             {
-                if ( t->mode() == modeRt )
+                if ( t->mode == modeRt )
                     hasRtOnlyArgs = true;
-                else if ( t->mode() == modeCt )
+                else if ( t->mode == modeCt )
                     hasCtOnlyArgs = true;
             }
-            else if ( !boundVal->type()->canBeUsedAtRt() )
+            else if ( !boundVal->type()->canBeUsedAtRt )
             {
                 hasCtOnlyArgs = true;
             }
@@ -105,7 +105,7 @@ namespace
         {
             if ( i>0 )
                 oss << ", ";
-            Type* t = evalTypeIfPossible(boundValues[i]);
+            TypeRef t = evalTypeIfPossible(boundValues[i]);
             if ( t )
                 oss << t;
             else
@@ -182,5 +182,5 @@ Node* GenericClass::instantiateGeneric(const Location& loc, CompilationContext* 
     // Now actually create the call object: a Type CT value
     Class* cls = instantiatedDecl->explanation()->as<Class>();
     ASSERT(cls);
-    return createTypeNode(context_, loc, Feather::Type::fromBasicType(getDataType(cls)));
+    return createTypeNode(context_, loc, Feather::getDataType(cls));
 }

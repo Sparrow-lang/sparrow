@@ -79,19 +79,19 @@ llvm::Type* Tr::getLLVMType(TypeRef type, Module& module)
 
     switch ( type->typeId )
     {
-    case Type::typeVoid:
+    case Nest::typeVoid:
         llvmType = transformVoid(type, module);
         break;
-    case Type::typeData:
+    case Nest::typeData:
         llvmType = transformDataType(type, module);
         break;
-    case Type::typeLValue:
+    case Nest::typeLValue:
         llvmType = transformLValueType(type, module);
         break;
-    case Type::typeArray:
+    case Nest::typeArray:
         llvmType = transformArrayType(type, module);
         break;
-    case Type::typeFunction:
+    case Nest::typeFunction:
         llvmType = transformFunctionType(type, -1, module);
         break;
     default:
@@ -136,7 +136,7 @@ llvm::Type* Tr::getNativeLLVMType(const Nest::Location& loc, const string& nativ
 llvm::Type* Tr::getLLVMFunctionType(Feather::Function* funDecl, int ignoreArg, Module& module)
 {
     ASSERT(funDecl);
-    Type* t = funDecl->type();
-    ASSERT(t && t->typeId() == Type::typeFunction);
-    return transformFunctionType(t->data_, ignoreArg, module);
+    TypeRef t = funDecl->type();
+    ASSERT(t && t->typeId == Nest::typeFunction);
+    return transformFunctionType(t, ignoreArg, module);
 }

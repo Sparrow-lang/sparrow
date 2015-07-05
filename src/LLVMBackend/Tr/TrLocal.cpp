@@ -86,7 +86,7 @@ namespace
     {
         DEFINE_NODE(DestructActionForConditional, -1, "LLVMBackend.DestructActionForConditional");
     public:
-        DestructActionForConditional(Type* resType, llvm::Value* cond, NodeVector alt1DestructActions, NodeVector alt2DestructActions)
+        DestructActionForConditional(TypeRef resType, llvm::Value* cond, NodeVector alt1DestructActions, NodeVector alt2DestructActions)
             : Node(NOLOC, {mkNodeList(NOLOC, move(alt1DestructActions)), mkNodeList(NOLOC, move(alt2DestructActions)) })
         {
             setProperty("resType", resType);
@@ -99,7 +99,7 @@ namespace
             type_ = resType();
         }
 
-        Type* resType() const
+        TypeRef resType() const
         {
             return getCheckPropertyType("resType");
         }
@@ -141,7 +141,7 @@ namespace
     };
 
 
-    llvm::Value* generateConditionalCode(Type* destType, CompilationContext* compContext,
+    llvm::Value* generateConditionalCode(TypeRef destType, CompilationContext* compContext,
         Node* cond, const Exp& alt1, const Exp& alt2, TrContext& context)
     {
         // Create the different blocks
@@ -186,7 +186,7 @@ namespace
 
         // Translate the PHI node
         context.setInsertionPoint(afterBlock);
-        llvm::PHINode* phiVal = llvm::PHINode::Create(getLLVMType(destType->data_, context.module()), 2, "cond.res", context.insertionPoint());
+        llvm::PHINode* phiVal = llvm::PHINode::Create(getLLVMType(destType, context.module()), 2, "cond.res", context.insertionPoint());
         phiVal->addIncoming(val1, alt1Block);
         phiVal->addIncoming(val2, alt2Block);
 
@@ -568,15 +568,15 @@ namespace
     llvm::Value* translate(CtValue& node, TrContext& context)
     {
         // Get the type of the ct value
-        llvm::Type* t = Tr::getLLVMType(node.type()->data_, context.module());
+        llvm::Type* t = Tr::getLLVMType(node.type(), context.module());
         
         // Check for String CtValues
         if ( !context.module().isCt() )
         {
-            Type* tt = node.type();
-            if ( tt->typeId() == Type::typeData )
+            TypeRef tt = node.type();
+            if ( tt->typeId == Nest::typeData )
             {
-                const string* nativeName = Feather::nativeName(tt->data_);
+                const string* nativeName = Feather::nativeName(tt);
                 if ( nativeName && *nativeName == "StringRef" )
                 {
                     StringData data = *node.value<StringData>();
@@ -650,7 +650,7 @@ namespace
         else
         {
             REP_ERROR(node.location(), "Don't know how to translate ct value of type %1%")
-                % node.type()->toString();
+                % node.type();
             return nullptr;
         }
     }
@@ -658,7 +658,7 @@ namespace
     llvm::Value* translate(StackAlloc& node, TrContext& context)
     {
         // Get the type for the stack alloc
-        llvm::Type* t = Tr::getLLVMType(node.elemType()->data_, context.module());
+        llvm::Type* t = Tr::getLLVMType(node.elemType(), context.module());
         if ( node.numElements() > 1 )
             t = llvm::ArrayType::get(t, node.numElements());
 
@@ -770,7 +770,7 @@ namespace
         CHECK(node.location(), func);
 
         // Get the functor data type, plain and with 1 or 2 pointers
-        llvm::Type* t = getLLVMType(node.type()->data_, context.module());
+        llvm::Type* t = getLLVMType(node.type(), context.module());
         llvm::Type* pt = llvm::PointerType::get(t, 0);
         CHECK(node.location(), t);
 
@@ -836,14 +836,14 @@ namespace
     {
         llvm::Value* exp = translateNode(node.exp(), context);
         CHECK(node.location(), exp);
-        llvm::Type* destType = Tr::getLLVMType(node.destType()->data_, context.module());
+        llvm::Type* destType = Tr::getLLVMType(node.destType(), context.module());
         if ( exp->getType() == destType )
             return setValue(context.module(), node, exp);
 
         // Create a 'bitcast' instruction
         llvm::Value* val;
-        ASSERT(node.destType()->noReferences() > 0 );
-        ASSERT(node.exp()->type()->noReferences() > 0 );
+        ASSERT(node.destType()->numReferences > 0 );
+        ASSERT(node.exp()->type()->numReferences > 0 );
         context.ensureInsertionPoint();
         val = context.builder().CreateBitCast(exp, destType);
         return setValue(context.module(), node, val);
@@ -892,7 +892,7 @@ namespace
 
         // Translate the PHI node
         context.setInsertionPoint(afterBlock);
-        llvm::Type* destType = Tr::getLLVMType(node.type()->data_, context.module());
+        llvm::Type* destType = Tr::getLLVMType(node.type(), context.module());
         llvm::PHINode* phiVal = llvm::PHINode::Create(destType, 2, "cond", context.insertionPoint());
         phiVal->addIncoming(val1, alt1Block);
         phiVal->addIncoming(val2, alt2Block);
@@ -948,9 +948,9 @@ namespace
 
     llvm::Value* translate(Null& node, TrContext& context)
     {
-        llvm::Type* resType = Tr::getLLVMType(node.type()->data_, context.module());
+        llvm::Type* resType = Tr::getLLVMType(node.type(), context.module());
         if ( !resType->isPointerTy() )
-            REP_INTERNAL(node.location(), "Null type should be a pointer (we have: %1%)") % node.type()->toString();
+            REP_INTERNAL(node.location(), "Null type should be a pointer (we have: %1%)") % node.type();
         
         return llvm::ConstantPointerNull::get(static_cast<llvm::PointerType*>(resType));
     }
@@ -1153,7 +1153,7 @@ namespace
 		ASSERT(context.parentFun());
 
         // Create an 'alloca' instruction for the local variable
-        llvm::Type* t = Tr::getLLVMType(node.type()->data_, context.module());
+        llvm::Type* t = Tr::getLLVMType(node.type(), context.module());
 		llvm::AllocaInst* val = context.addVariable(t, getName(&node).c_str());
 		if ( node.alignment() > 0 )
 			val->setAlignment(node.alignment());

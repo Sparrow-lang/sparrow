@@ -8,7 +8,7 @@
 #include <boost/algorithm/string/replace.hpp>
 
 
-CtValue::CtValue(const Location& loc, Type* type, string data)
+CtValue::CtValue(const Location& loc, TypeRef type, string data)
     : Node(loc)
 {
     setProperty("valueType", type);
@@ -16,7 +16,7 @@ CtValue::CtValue(const Location& loc, Type* type, string data)
 }
 
 
-Type* CtValue::valueType() const
+TypeRef CtValue::valueType() const
 {
     return getCheckPropertyType("valueType");
 }
@@ -49,13 +49,13 @@ void CtValue::dump(ostream& os) const
     }
     os << "ctValue(" << type_ << ": ";
     
-    const string* nativeName = type_->hasStorage() ? Feather::nativeName(type_->data_) : nullptr;
-    if ( type_->toString() == "Type/ct")
+    const string* nativeName = type_->hasStorage ? Feather::nativeName(type_) : nullptr;
+    if ( 0 == strcmp(type_->description, "Type/ct") )
     {
-        Type* t = *this->value<Type*>();
+        TypeRef t = *this->value<TypeRef>();
         os << t;
     }
-    else if ( nativeName && type_->noReferences() == 0 )
+    else if ( nativeName && type_->numReferences == 0 )
     {
         if ( *nativeName == "i1" || *nativeName == "u1" )
         {
@@ -92,7 +92,7 @@ void CtValue::doSemanticCheck()
     // Check the type
     if ( !type_ )
         type_ = valueType();
-    if ( !type_ || !type_->hasStorage() || type_->mode() == modeRt )
+    if ( !type_ || !type_->hasStorage || type_->mode == modeRt )
         REP_ERROR(location_, "Type specified for Ct Value cannot be used at compile-time");
     
     // Make sure data size matches the size reported by the type

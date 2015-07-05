@@ -20,7 +20,7 @@ namespace Feather
         size_t numParameters() const;
         Node* getParameter(size_t idx) const;
         
-        Type* resultType() const;
+        TypeRef resultType() const;
 
         Node* body() const;
 

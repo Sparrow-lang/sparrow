@@ -1,7 +1,8 @@
 #pragma once
 
+#include <Nest/Intermediate/TypeRef.h>
+
 FWD_CLASS1(Nest, Node);
-FWD_CLASS1(Nest, Type);
 FWD_CLASS1(Nest, CompilationContext);
 FWD_CLASS1(Nest, CompilerSettings);
 FWD_CLASS1(Nest, SourceCode);
@@ -75,10 +76,10 @@ namespace Nest
         virtual Node* ctEval(Node* node) = 0;
 
         /// Get the size of the given type
-        virtual size_t sizeOf(Type* type) = 0;
+        virtual size_t sizeOf(TypeRef type) = 0;
 
         /// Get the alignment of the given type
-        virtual size_t alignmentOf(Type* type) = 0;
+        virtual size_t alignmentOf(TypeRef type) = 0;
     };
 
 	/// Getter for the instance of the compiler

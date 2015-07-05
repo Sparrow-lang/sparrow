@@ -21,11 +21,11 @@ void Null::doSemanticCheck()
     typeNode->computeType();
 
     // Make sure that the type is a reference
-    Type* t = typeNode->type();
-    if ( !t->hasStorage() )
-        REP_ERROR(location_, "Null node should have a type with storage (cur type: %1%") % t->toString();
-    if ( t->noReferences() == 0 )
-        REP_ERROR(location_, "Null node should have a reference type (cur type: %1%)") % t->toString();
+    TypeRef t = typeNode->type();
+    if ( !t->hasStorage )
+        REP_ERROR(location_, "Null node should have a type with storage (cur type: %1%") % t;
+    if ( t->numReferences == 0 )
+        REP_ERROR(location_, "Null node should have a reference type (cur type: %1%)") % t;
 
     type_ = adjustMode(t, context_, location_);
 }

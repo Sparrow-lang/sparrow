@@ -58,11 +58,11 @@ void FunCall::doSemanticCheck()
             allParamsAreCtAvailable = false;
 
         // Compare types
-        Type* argType = children_[i]->type();
-        Type* paramType = fun->getParameter(i)->type();
+        TypeRef argType = children_[i]->type();
+        TypeRef paramType = fun->getParameter(i)->type();
         if ( !isSameTypeIgnoreMode(argType, paramType) )
             REP_ERROR(children_[i]->location(), "Invalid function call: argument %1% is expected to have type %2% (actual type: %3%)")
-                % (i+1) % paramType->toString() % argType->toString();
+                % (i+1) % paramType % argType;
     }
 
     // CT availability checks
@@ -93,7 +93,7 @@ void FunCall::doSemanticCheck()
     type_ = fun->resultType();
 
     // Handle autoCt case
-    if ( allParamsAreCtAvailable && type_->mode() == modeRtCt && fun->hasProperty(propAutoCt) )
+    if ( allParamsAreCtAvailable && type_->mode == modeRtCt && fun->hasProperty(propAutoCt) )
     {
         type_ = changeTypeMode(type_, modeCt, location_);
     }

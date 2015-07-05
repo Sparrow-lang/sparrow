@@ -50,7 +50,7 @@ Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* conte
 
                 // This argument - make sure it's of the required type
                 Node* thisParam = fnCall->funDecl()->getParameter(0);
-                Type* thisParamType = thisParam->type();
+                TypeRef thisParamType = thisParam->type();
                 ConversionResult cvt = canConvert(thisArg, thisParamType);
                 if ( !cvt )
                     REP_INTERNAL(loc, "Cannot convert this arg in RVO (%1% -> %2%)") % thisArg->type() % thisParamType;
@@ -77,7 +77,7 @@ Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* conte
         return nullptr;
 
     // Do the overloading procedure to select the right ctor
-    return selectOverload(context, loc, thisArg->type()->mode(), move(decls), args, true, "ctor");
+    return selectOverload(context, loc, thisArg->type()->mode, move(decls), args, true, "ctor");
 }
 
 Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* context, Node* thisArg, Node* initArg)
@@ -113,7 +113,7 @@ Node* SprFrontend::createDtorCall(const Location& loc, CompilationContext* conte
         REP_INTERNAL(decls.front()->location(), "Invalid destructor found for class %1%; it has %2% parameters") % getName(cls) % dtor->numParameters();
 
     // Check this parameter
-    Type* thisParamType = dtor->getParameter(0)->type();
+    TypeRef thisParamType = dtor->getParameter(0)->type();
     if ( Feather::isCt(thisArg) )
         thisParamType = Feather::changeTypeMode(thisParamType, modeCt, thisArg->location());
     ConversionResult c = canConvert(thisArg, thisParamType);
@@ -140,7 +140,7 @@ Node* SprFrontend::createFunctionCall(const Location& loc, CompilationContext* c
     if ( resultParam )
     {
         // Get the resulting type; check for CT-ness
-        Type* resTypeRef = resultParam->type();
+        TypeRef resTypeRef = resultParam->type();
         EvalMode funEvalMode = effectiveEvalMode(fun);
         if ( funEvalMode == modeCt && !isCt(resTypeRef) )
             resTypeRef = changeTypeMode(resTypeRef, modeCt, resultParam->location());
@@ -207,7 +207,7 @@ Node* SprFrontend::createTempVarConstruct(const Location& loc, CompilationContex
     res->setProperty(propTempVarContstruction, constructAction);
 
     // CT sanity checks
-    checkEvalMode(res, var->type()->mode());
+    checkEvalMode(res, var->type()->mode);
 
     return res;
 }
@@ -239,7 +239,7 @@ Node* SprFrontend::createFunPtr(Node* funNode)
         // Try to instantiate the corresponding FunctionPtr class
         NodeVector parameters;
         parameters.reserve(1+fun->numParameters());
-        Type* resType = resParam ? removeRef(resParam->type()) : fun->resultType();
+        TypeRef resType = resParam ? removeRef(resParam->type()) : fun->resultType();
         parameters.push_back(createTypeNode(ctx, loc, resType));
         for ( size_t i = resParam ? 1 : 0; i<fun->numParameters(); ++i )
         {
@@ -251,7 +251,7 @@ Node* SprFrontend::createFunPtr(Node* funNode)
         classCall->computeType();
 
         // Get the actual class object from the instantiation
-        Type* t = getType(classCall);
+        TypeRef t = getType(classCall);
 
         // If the class is valid, we have a conversion
         if ( t )

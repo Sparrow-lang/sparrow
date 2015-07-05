@@ -15,20 +15,20 @@ using namespace Nest;
 
 // TODO (refactoring): Remove the Void type
 
-Nest::Type* StdDef::typeType = nullptr;
-Nest::Type* StdDef::typeUninitialized = nullptr;
-Nest::Type* StdDef::typeVoid = nullptr;
-Nest::Type* StdDef::typeNull = nullptr;
-Nest::Type* StdDef::typeBool = nullptr;
-Nest::Type* StdDef::typeByte = nullptr;
-Nest::Type* StdDef::typeInt = nullptr;
-Nest::Type* StdDef::typeSizeType = nullptr;
-Nest::Type* StdDef::typeStringRef = nullptr;
+Nest::TypeRef StdDef::typeType = nullptr;
+Nest::TypeRef StdDef::typeUninitialized = nullptr;
+Nest::TypeRef StdDef::typeVoid = nullptr;
+Nest::TypeRef StdDef::typeNull = nullptr;
+Nest::TypeRef StdDef::typeBool = nullptr;
+Nest::TypeRef StdDef::typeByte = nullptr;
+Nest::TypeRef StdDef::typeInt = nullptr;
+Nest::TypeRef StdDef::typeSizeType = nullptr;
+Nest::TypeRef StdDef::typeStringRef = nullptr;
 
-Nest::Type* StdDef::typeRefType = nullptr;
-Nest::Type* StdDef::typeRefByte = nullptr;
-Nest::Type* StdDef::typeRefInt = nullptr;
-Nest::Type* StdDef::typeSizeTypeCt = nullptr;
+Nest::TypeRef StdDef::typeRefType = nullptr;
+Nest::TypeRef StdDef::typeRefByte = nullptr;
+Nest::TypeRef StdDef::typeRefInt = nullptr;
+Nest::TypeRef StdDef::typeSizeTypeCt = nullptr;
 
 Feather::Class* StdDef::clsType = nullptr;
 Feather::Class* StdDef::clsUninitialized = nullptr;
@@ -54,7 +54,7 @@ void SprFrontend::initTypeType(CompilationContext* ctx)
     setEvalMode(clsType, modeCt);
     clsType->setContext(ctx);
     clsType->computeType();
-    typeType = Type::fromBasicType(getDataType(clsType, 0, modeCt));
+    typeType = getDataType(clsType, 0, modeCt);
 }
 
 void SprFrontend::checkStdClass(Node* cls)
@@ -66,41 +66,41 @@ void SprFrontend::checkStdClass(Node* cls)
     Class* c = (Class*) cls;
 
     if ( getName(cls) == "Void" )
-        StdDef::typeVoid = Type::fromBasicType(getDataType(c));
+        StdDef::typeVoid = getDataType(c);
     else if ( getName(cls) == "Null" )
-        StdDef::typeNull = Type::fromBasicType(getDataType(c));
+        StdDef::typeNull = getDataType(c);
     else if ( getName(cls) == "Bool" )
     {
         StdDef::clsBool = c;
-        StdDef::typeBool = Type::fromBasicType(getDataType(c));
+        StdDef::typeBool = getDataType(c);
     }
     else if ( getName(cls) == "Byte" )
     {
-        StdDef::typeByte = Type::fromBasicType(getDataType(c));
-        StdDef::typeRefByte = Type::fromBasicType(getDataType(c, 1));
+        StdDef::typeByte = getDataType(c);
+        StdDef::typeRefByte = getDataType(c, 1);
     }
     else if ( getName(cls) == "Int" )
     {
-        StdDef::typeInt = Type::fromBasicType(getDataType(c));
-        StdDef::typeRefInt = Type::fromBasicType(getDataType(c, 1));
+        StdDef::typeInt = getDataType(c);
+        StdDef::typeRefInt = getDataType(c, 1);
     }
     else if ( getName(cls) == "SizeType" )
     {
-        StdDef::typeSizeType = Type::fromBasicType(getDataType(c));
-        StdDef::typeSizeTypeCt = Type::fromBasicType(getDataType(c, 0, modeCt));
+        StdDef::typeSizeType = getDataType(c);
+        StdDef::typeSizeTypeCt = getDataType(c, 0, modeCt);
     }
     else if ( getName(cls) == "Uninitialized" )
     {
         StdDef::clsUninitialized = c;
-        StdDef::typeUninitialized = Type::fromBasicType(getDataType(c));
+        StdDef::typeUninitialized = getDataType(c);
     }
     else if ( getName(cls) == "Type" )
     {
-        StdDef::typeType = Type::fromBasicType(getDataType(c));
-        StdDef::typeRefType = Type::fromBasicType(getDataType(c, 1));
+        StdDef::typeType = getDataType(c);
+        StdDef::typeRefType = getDataType(c, 1);
     }
     else if ( getName(cls) == "StringRef" )
-        StdDef::typeStringRef = Type::fromBasicType(getDataType(c));
+        StdDef::typeStringRef = getDataType(c);
 
     classesFound = StdDef::typeVoid != nullptr
                 && StdDef::typeNull != nullptr

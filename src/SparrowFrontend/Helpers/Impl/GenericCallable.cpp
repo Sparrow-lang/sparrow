@@ -25,7 +25,7 @@ string GenericCallable::toString() const
     {
         if ( i> 0)
             oss << ", ";
-        oss << generic_->param(i)->type()->toString();
+        oss << generic_->param(i)->type();
     }
     oss << ")";
     return oss.str();

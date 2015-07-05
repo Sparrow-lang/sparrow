@@ -76,7 +76,7 @@ Node* Feather::mkNop(const Location& loc)
 {
     return new Nop(loc);
 }
-Node* Feather::mkTypeNode(const Location& loc, Type* type)
+Node* Feather::mkTypeNode(const Location& loc, TypeRef type)
 {
     return new TypeNode(loc, type);
 }
@@ -131,7 +131,7 @@ Node* Feather::mkVar(const Location& loc, string name, Node* typeNode, size_t al
 }
 
 
-Node* Feather::mkCtValue(const Location& loc, Type* type, string data)
+Node* Feather::mkCtValue(const Location& loc, TypeRef type, string data)
 {
     REQUIRE_TYPE(loc, type);
     return new CtValue(loc, type, move(data));

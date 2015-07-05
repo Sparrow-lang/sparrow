@@ -11,7 +11,7 @@ namespace SprFrontend
 
     public:
         SprParameter(const Location& loc, string name, Node* typeNode, Node* init = nullptr);
-        SprParameter(const Location& loc, string name, Type* type, Node* init = nullptr);
+        SprParameter(const Location& loc, string name, TypeRef type, Node* init = nullptr);
 
         Node* initValue() const;
 

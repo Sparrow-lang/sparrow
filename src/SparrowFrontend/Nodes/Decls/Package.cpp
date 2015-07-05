@@ -35,7 +35,7 @@ void Package::doComputeType()
     explanation_ = children_[0];
     checkForAllowedNamespaceChildren((NodeList*) children_[0]);
 
-    type_ = Type::fromBasicType(Feather::getVoidType(modeCt));
+    type_ = Feather::getVoidType(modeCt);
 }
 
 void Package::doSemanticCheck()

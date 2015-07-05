@@ -92,7 +92,7 @@ Node* SprFrontend::getIdentifierResult(CompilationContext* ctx, const Location& 
                     REP_INTERNAL(loc, "No base expression to refer to a field");
 
                 // Make sure the base is a reference
-                if ( baseExp->type()->noReferences() == 0 )
+                if ( baseExp->type()->numReferences == 0 )
                 {
                     ConversionResult res = canConvert(baseExp, addRef(baseExp->type()));
                     if ( !res )
@@ -114,13 +114,13 @@ Node* SprFrontend::getIdentifierResult(CompilationContext* ctx, const Location& 
             return resDecl->children()[0];
 
         // Try to convert this to a type
-        Type* t = nullptr;
+        TypeRef t = nullptr;
         Class* cls = resDecl->as<Feather::Class>();
         if ( cls )
-            t = Type::fromBasicType(getDataType(cls));
+            t = getDataType(cls);
         SprConcept* concept = resDecl->as<SprConcept>();
         if ( concept )
-            t = Type::fromBasicType(getConceptType(concept));
+            t = getConceptType(concept);
         if ( t )
             return (Node*) createTypeNode(ctx, loc, t);
 

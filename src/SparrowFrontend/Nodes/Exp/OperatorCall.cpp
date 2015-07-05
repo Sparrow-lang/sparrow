@@ -16,7 +16,7 @@ namespace
 {
     string argTypeStr(Node* node)
     {
-        return node && node->type() ? node->type()->toString() : "?";
+        return node && node->type() ? node->type()->description : "?";
     }
 }
 
@@ -209,7 +209,7 @@ Node* OperatorCall::selectOperator(const string& operation, Node* arg1, Node* ar
     EvalMode mode;
     if ( argClass )
     {
-        mode = base->type()->mode();
+        mode = base->type()->mode;
 
         // Step 1: Try to find an operator that match in the class of the base expression
         if ( !opPrefix.empty() )
@@ -282,10 +282,10 @@ void OperatorCall::handleRefEq()
     arg2 = checkConvertNullToRefByte(arg2);
 
     // Make sure that both the arguments are references
-    if ( arg1->type()->noReferences() == 0 )
-        REP_ERROR(location_, "Left operand of a reference equality operator is not a reference (%1%)") % arg1->type()->toString();
-    if ( arg2->type()->noReferences() == 0 )
-        REP_ERROR(location_, "Right operand of a reference equality operator is not a reference (%1%)") % arg2->type()->toString();
+    if ( arg1->type()->numReferences == 0 )
+        REP_ERROR(location_, "Left operand of a reference equality operator is not a reference (%1%)") % arg1->type();
+    if ( arg2->type()->numReferences == 0 )
+        REP_ERROR(location_, "Right operand of a reference equality operator is not a reference (%1%)") % arg2->type();
 
     Node* arg1Cvt = nullptr;
     Node* arg2Cvt = nullptr;
@@ -310,10 +310,10 @@ void OperatorCall::handleRefNe()
     arg2 = checkConvertNullToRefByte(arg2);
 
     // Make sure that both the arguments are references
-    if ( arg1->type()->noReferences() == 0 )
-        REP_ERROR(location_, "Left operand of a reference equality operator is not a reference (%1%)") % arg1->type()->toString();
-    if ( arg2->type()->noReferences() == 0 )
-        REP_ERROR(location_, "Right operand of a reference equality operator is not a reference (%1%)") % arg2->type()->toString();
+    if ( arg1->type()->numReferences == 0 )
+        REP_ERROR(location_, "Left operand of a reference equality operator is not a reference (%1%)") % arg1->type();
+    if ( arg2->type()->numReferences == 0 )
+        REP_ERROR(location_, "Right operand of a reference equality operator is not a reference (%1%)") % arg2->type();
 
     Node* arg1Cvt = nullptr;
     Node* arg2Cvt = nullptr;
@@ -334,22 +334,22 @@ void OperatorCall::handleRefAssign()
     arg2->semanticCheck();
 
     // Make sure the first argument is a reference reference
-    if ( arg1->type()->noReferences() < 2 )
-        REP_ERROR(location_, "Left operand of a reference assign operator is not a reference reference (%1%)") % arg1->type()->toString();
-    Type* arg1BaseType = Feather::removeRef(arg1->type());
+    if ( arg1->type()->numReferences < 2 )
+        REP_ERROR(location_, "Left operand of a reference assign operator is not a reference reference (%1%)") % arg1->type();
+    TypeRef arg1BaseType = Feather::removeRef(arg1->type());
 
     // Check the second type to be null or a reference
-    Type* arg2Type = arg2->type();
+    TypeRef arg2Type = arg2->type();
     if ( !Feather::isSameTypeIgnoreMode(arg2Type, StdDef::typeNull) )
     {
-        if ( arg2Type->noReferences() == 0 )
-            REP_ERROR(location_, "Right operand of a reference assign operator is not a reference (%1%)") % arg2->type()->toString();
+        if ( arg2Type->numReferences == 0 )
+            REP_ERROR(location_, "Right operand of a reference assign operator is not a reference (%1%)") % arg2->type();
     }
 
     // Check for a conversion from the second argument to the first argument
     ConversionResult c = canConvert(arg2, arg1BaseType);
     if ( !c )
-        REP_ERROR(location_, "Cannot convert from %1% to %2%") % arg2->type()->toString() % arg1BaseType->toString();
+        REP_ERROR(location_, "Cannot convert from %1% to %2%") % arg2->type() % arg1BaseType;
     Node* cvt = c.apply(arg2);
 
     // Return a memstore operator

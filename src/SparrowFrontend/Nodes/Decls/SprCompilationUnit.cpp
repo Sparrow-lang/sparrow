@@ -94,7 +94,7 @@ void SprCompilationUnit::doComputeType()
         checkForAllowedNamespaceChildren(declarations);
     }
 
-    type_ = Type::fromBasicType(Feather::getVoidType(Feather::modeCt));
+    type_ = Feather::getVoidType(Feather::modeCt);
 }
 
 void SprCompilationUnit::doSemanticCheck()

@@ -166,7 +166,7 @@ void SprFunction::doComputeType()
     // If this is a non-static member function, add this as a parameter
     if ( isMember && !isStatic )
     {
-        Type* thisType = Type::fromBasicType(getDataType(parentClass, 1, thisEvalMode));
+        TypeRef thisType = getDataType(parentClass, 1, thisEvalMode);
         Node* thisParam = Feather::mkVar(location_, "$this", mkTypeNode(location_, thisType));
         thisParam->setContext(childrenContext_);
         resultingFun->addParameter(thisParam);
@@ -186,17 +186,17 @@ void SprFunction::doComputeType()
 
     // Compute the type of the return type node
     // We do this after the parameters, as the computation of the result might require access to the parameters
-    Type* resType = returnType ? getType(returnType) : Type::fromBasicType(getVoidType(thisEvalMode));
+    TypeRef resType = returnType ? getType(returnType) : getVoidType(thisEvalMode);
     resType = adjustMode(resType, thisEvalMode, childrenContext_, location_);
 
     // If the parameter is a non-reference class, not basic numeric, add result parameter; otherwise, normal result
-    if ( resType->hasStorage() && resType->noReferences() == 0 && !isBasicNumericType(resType) )
+    if ( resType->hasStorage && resType->numReferences == 0 && !isBasicNumericType(resType) )
     {
         Node* resParam = Feather::mkVar(returnType->location(), "_result", mkTypeNode(returnType->location(), addRef(resType)));
         resParam->setContext(childrenContext_);
         resultingFun->addParameter(resParam, true);
         resultingFun->setProperty(propResultParam, resParam);
-        resultingFun->setResultType(mkTypeNode(returnType->location(), Type::fromBasicType(getVoidType(thisEvalMode))));
+        resultingFun->setResultType(mkTypeNode(returnType->location(), getVoidType(thisEvalMode)));
     }
     else
         resultingFun->setResultType(mkTypeNode(location_, resType));

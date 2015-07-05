@@ -55,8 +55,8 @@ void Var::doSemanticCheck()
     computeType();
 
     // Make sure that the type has storage
-    if ( !type_->hasStorage() )
-        REP_ERROR(location_, "Variable type has no storage (%1%") % type_->toString();
+    if ( !type_->hasStorage )
+        REP_ERROR(location_, "Variable type has no storage (%1%") % type_;
 
     classForTypeRaw(type_)->computeType();           // Make sure the type of the class is computed
 }

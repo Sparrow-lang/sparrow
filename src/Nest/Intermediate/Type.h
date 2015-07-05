@@ -1,10 +1,9 @@
 #pragma once
 
+#include "TypeRef.h"
 #include "EvalMode.h"
 
 #include <vector>
-
-#define SET_TYPE_DESCRIPTION(t)     (t).data_.description = strdup((t).toString().c_str());
 
 FWD_CLASS1(Nest, Node)
 FWD_CLASS3(Nest,Common,Ser, OutArchive)
@@ -12,9 +11,7 @@ FWD_CLASS3(Nest,Common,Ser, InArchive)
 
 namespace Nest
 {
-    class Type;
-    
-    // TODO: Remove this
+    // TODO (types): Remove this; we need to be able to register types from different modules
     enum TypeIdNew
     {
         typeVoid = 0,
@@ -29,7 +26,7 @@ namespace Nest
     };
 
     /// Represents a type
-    struct TypeData
+    struct Type
     {
         unsigned typeId : 8;            ///< The type ID
         EvalMode mode : 8;              ///< The evaluation mode of this type
@@ -41,108 +38,36 @@ namespace Nest
         unsigned flags : 32;            ///< Additional flags
 
         /// The subtypes of this type
-        TypeData** subTypes;
+        TypeRef* subTypes;
 
         /// Optional, the node that introduces this type
         Node* referredNode;
 
         /// The description of the type -- mainly used for debugging purposes
         const char* description;
-    };
-
-    /// Equality comparison, by content
-    bool operator ==(const TypeData& lhs, const TypeData& rhs);
-
-    /// Get a stock type that matches the settings from the reference
-    /// We guarantee that the same types will have the same pointers
-    TypeData* getStockType(const TypeData& reference);
-
-
-    template <typename T>
-    basic_ostream<T>& operator << (basic_ostream<T>& os, const TypeData* t)
-    {
-        if ( t )
-            os << t->description;
-        else
-            os << "<null-type>";
-        return os;
-    }
-    template <typename T>
-    basic_ostream<T>& operator << (basic_ostream<T>& os, TypeData* t)
-    {
-        if ( t )
-            os << t->description;
-        else
-            os << "<null-type>";
-        return os;
-    }
-
-
-
-    /// Base class for types
-    class Type
-    {
-    public:
-        enum TypeId
-        {
-            typeVoid = 0,
-            typeData,
-            typeLValue,
-            typeArray,
-            typeFunction,
-
-            typeConcept,
-            
-            typeIdLast,
-        };
-        
-    public:
-        Type(TypeData* data = nullptr);
-
-        static Type* fromBasicType(TypeData* basicType);
-
-        /// Gets the type ID of this type
-        int typeId() const { return data_->typeId; }
-
-        /// Returns a textual description of this type.
-        string toString() const { return data_->description; }
-        
-        /// Returns true if the construct having this type needs to have some associated storage
-        bool hasStorage() const { return data_->hasStorage; }
-        
-        /// For storage types, this will return the number of references
-        uint8_t noReferences() const { return data_->numReferences; }
-        
-        /// The CT mode of this type
-        EvalMode mode() const { return data_->mode; }
-        
-        /// Returns true if this type can (somehow, by a conversion) be used ar runtime
-        bool canBeUsedAtRt() const { return data_->canBeUsedAtRt; }
-
-        /// Returns true if this type can (somehow, by a conversion) be used ar compile-time
-        bool canBeUsedAtCt() const { return data_->canBeUsedAtCt; }
 
         // Serialization
     public:
         void save(Common::Ser::OutArchive& ar) const;
         void load(Common::Ser::InArchive& ar);
-        
-    public:
-        TypeData* data_;
+
     };
 
-    template <typename T>
-    basic_ostream<T>& operator << (basic_ostream<T>& os, const Type& t)
-    {
-        os << t.toString();
-        return os;
-    }
+    /// Equality comparison, by content
+    bool operator ==(const Type& lhs, const Type& rhs);
+
+    /// Get a stock type that matches the settings from the reference
+    /// We guarantee that the same types will have the same pointers
+    Type* getStockType(const Type& reference);
+
 
     template <typename T>
-    basic_ostream<T>& operator << (basic_ostream<T>& os, const Type* t)
+    basic_ostream<T>& operator << (basic_ostream<T>& os, TypeRef t)
     {
         if ( t )
-            os << t->toString();
+            os << t->description;
+        else
+            os << "<null-type>";
         return os;
     }
 }

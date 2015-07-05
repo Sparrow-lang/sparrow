@@ -18,22 +18,22 @@ using namespace Feather;
 
 namespace
 {
-    llvm::Type* getLLVMTypeForSize(Type* type, llvm::LLVMContext& llvmContext)
+    llvm::Type* getLLVMTypeForSize(TypeRef type, llvm::LLVMContext& llvmContext)
     {
         // If the number of references is greater than zero, just return an aribitrary pointer type
-        if ( type->noReferences() > 0 )
+        if ( type->numReferences > 0 )
             return llvm::PointerType::get(llvm::IntegerType::get(llvmContext, 32), 0);
 
         // Check array types
-        if ( type->typeId() == Type::typeArray )
+        if ( type->typeId == Nest::typeArray )
         {
-            return llvm::ArrayType::get(getLLVMTypeForSize(Type::fromBasicType(baseType(type->data_)), llvmContext), getArraySize(type->data_));
+            return llvm::ArrayType::get(getLLVMTypeForSize(baseType(type), llvmContext), getArraySize(type));
         }
 
-        if ( !type->hasStorage() )
+        if ( !type->hasStorage )
             REP_ERROR(NOLOC, "Cannot compute size of a type which has no storage: %1%") % type;
 
-        Feather::Class* clsDecl = type->data_->referredNode->as<Class>();
+        Feather::Class* clsDecl = type->referredNode->as<Class>();
         ASSERT(clsDecl);
         if ( !clsDecl->type() )
             REP_INTERNAL(clsDecl->location(), "Class %1% doesn't have type computed, while computing its size") % getName(clsDecl);
@@ -81,10 +81,10 @@ DataLayoutHelper::~DataLayoutHelper()
     delete llvmContext_;
 }
 
-size_t DataLayoutHelper::getSizeOf(Nest::Type* type)
+size_t DataLayoutHelper::getSizeOf(Nest::TypeRef type)
 {
     // Special case for "Type" type
-    if ( 0 == strcmp(type->data_->description, "Type/ct") )
+    if ( 0 == strcmp(type->description, "Type/ct") )
         return sizeof(const char*);
 
     // Check if we already computed this
@@ -101,7 +101,7 @@ size_t DataLayoutHelper::getSizeOf(Nest::Type* type)
     return size;
 }
 
-size_t DataLayoutHelper::getAlignOf(Nest::Type* type)
+size_t DataLayoutHelper::getAlignOf(Nest::TypeRef type)
 {
 #ifdef _MSC_VER
     #define ALIGNOF(x) __alignof(x)
@@ -110,7 +110,7 @@ size_t DataLayoutHelper::getAlignOf(Nest::Type* type)
 #endif
 
     // Special case for "Type" type
-    if ( 0 == strcmp(type->data_->description, "Type/ct") )
+    if ( 0 == strcmp(type->description, "Type/ct") )
         return ALIGNOF(const char*);
 
     // Check if we already computed this

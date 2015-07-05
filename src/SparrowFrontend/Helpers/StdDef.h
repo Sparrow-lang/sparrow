@@ -1,27 +1,28 @@
 #pragma once
 
+#include <Nest/Intermediate/TypeRef.h>
+
 FWD_CLASS1(Feather, Class);
 FWD_CLASS1(Feather, Function);
-FWD_CLASS1(Nest, Type);
 
 namespace SprFrontend
 {
     namespace StdDef
     {
-        extern Nest::Type* typeType;
-        extern Nest::Type* typeUninitialized;
-        extern Nest::Type* typeVoid;
-        extern Nest::Type* typeNull;
-        extern Nest::Type* typeBool;
-        extern Nest::Type* typeByte;
-        extern Nest::Type* typeInt;
-        extern Nest::Type* typeSizeType;
-        extern Nest::Type* typeStringRef;
+        extern Nest::TypeRef typeType;
+        extern Nest::TypeRef typeUninitialized;
+        extern Nest::TypeRef typeVoid;
+        extern Nest::TypeRef typeNull;
+        extern Nest::TypeRef typeBool;
+        extern Nest::TypeRef typeByte;
+        extern Nest::TypeRef typeInt;
+        extern Nest::TypeRef typeSizeType;
+        extern Nest::TypeRef typeStringRef;
 
-        extern Nest::Type* typeRefType;
-        extern Nest::Type* typeRefByte;
-        extern Nest::Type* typeRefInt;
-        extern Nest::Type* typeSizeTypeCt;
+        extern Nest::TypeRef typeRefType;
+        extern Nest::TypeRef typeRefByte;
+        extern Nest::TypeRef typeRefInt;
+        extern Nest::TypeRef typeSizeTypeCt;
 
         extern Feather::Class* clsType;
         extern Feather::Class* clsUninitialized;

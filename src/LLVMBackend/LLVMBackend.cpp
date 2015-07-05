@@ -95,11 +95,11 @@ Node* LLVMBackend::ctEvaluate(Node* node)
     return ctModule_->ctEvaluate(node);
 }
 
-size_t LLVMBackend::sizeOf(Type* type)
+size_t LLVMBackend::sizeOf(TypeRef type)
 {
     return dataLayoutHelper_.getSizeOf(type);
 }
-size_t LLVMBackend::alignmentOf(Type* type)
+size_t LLVMBackend::alignmentOf(TypeRef type)
 {
     return dataLayoutHelper_.getAlignOf(type);
 }

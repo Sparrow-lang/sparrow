@@ -11,7 +11,7 @@ Bitcast::Bitcast(const Location& loc, Node* destType, Node* exp)
     ASSERT(exp);
 }
 
-Type* Bitcast::destType() const
+TypeRef Bitcast::destType() const
 {
     return children_[1]->type();
 }
@@ -32,20 +32,20 @@ void Bitcast::doSemanticCheck()
 {
     children_[0]->semanticCheck();
     children_[1]->computeType();
-    Type* tDest = children_[1]->type();
+    TypeRef tDest = children_[1]->type();
 
     // Make sure both types have storage
-    Type* srcType = children_[0]->type();
-    if ( !srcType->hasStorage() )
-        REP_ERROR(location_, "The source of a bitcast is not a type with storage (%1%)") % srcType->toString();
-    if ( !tDest->hasStorage() )
-        REP_ERROR(location_, "The destination type of a bitcast is not a type with storage (%1%)") % tDest->toString();
+    TypeRef srcType = children_[0]->type();
+    if ( !srcType->hasStorage )
+        REP_ERROR(location_, "The source of a bitcast is not a type with storage (%1%)") % srcType;
+    if ( !tDest->hasStorage )
+        REP_ERROR(location_, "The destination type of a bitcast is not a type with storage (%1%)") % tDest;
     
     // Make sure both types are references
-    if ( srcType->noReferences() == 0 )
-        REP_ERROR(location_, "The source of a bitcast is not a reference (%1%)") % srcType->toString();
-    if ( tDest->noReferences() == 0 )
-        REP_ERROR(location_, "The destination type of a bitcast is not a reference (%1%)") % tDest->toString();
+    if ( srcType->numReferences == 0 )
+        REP_ERROR(location_, "The source of a bitcast is not a reference (%1%)") % srcType;
+    if ( tDest->numReferences == 0 )
+        REP_ERROR(location_, "The destination type of a bitcast is not a reference (%1%)") % tDest;
 
     type_ = adjustMode(tDest, context_, location_);
 }

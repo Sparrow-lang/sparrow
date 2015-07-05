@@ -14,7 +14,7 @@ SprParameter::SprParameter(const Location& loc, string name, Node* typeNode, Nod
     Feather::setName(this, move(name));
 }
 
-SprParameter::SprParameter(const Location& loc, string name, Type* type, Node* init)
+SprParameter::SprParameter(const Location& loc, string name, TypeRef type, Node* init)
     : Node(loc, {nullptr, init})
 {
     Feather::setName(this, move(name));
@@ -34,7 +34,7 @@ void SprParameter::dump(ostream& os) const
         os << type_;
     else
     {
-        Type*const* givenType = getPropertyType("spr.givenType");
+        const TypeRef* givenType = getPropertyType("spr.givenType");
         if ( givenType )
             os << *givenType;
         else
@@ -56,8 +56,8 @@ void SprParameter::doComputeType()
     ASSERT(children_.size() == 2);
     Node* typeNode = children_[0];
 
-    Type*const* givenType = getPropertyType("spr.givenType");
-    Type* t = givenType ? *givenType : getType(typeNode);
+    const TypeRef* givenType = getPropertyType("spr.givenType");
+    TypeRef t = givenType ? *givenType : getType(typeNode);
 
     Node* resultingParam = Feather::mkVar(location_, Feather::getName(this), Feather::mkTypeNode(location_, t), 0, Feather::effectiveEvalMode(this));
     Feather::setShouldAddToSymTab(resultingParam, false);

@@ -16,7 +16,7 @@ namespace Feather
     NodeList* appendNodeList(NodeList* list, NodeList* newNodes);
 
     Node* mkNop(const Location& loc);
-    Node* mkTypeNode(const Location& loc, Type* type);
+    Node* mkTypeNode(const Location& loc, TypeRef type);
     Node* mkBackendCode(const Location& loc, string code, EvalMode evalMode = modeRt);
     Node* mkLocalSpace(const Location& loc, NodeVector children);
     Node* mkGlobalConstructAction(const Location& loc, Node* action);
@@ -28,7 +28,7 @@ namespace Feather
     Node* mkClass(const Location& loc, string name, NodeVector fields, EvalMode evalMode = modeUnspecified);
     Node* mkVar(const Location& loc, string name, Node* type, size_t alignment = 0, EvalMode evalMode = modeUnspecified);
     
-    Node* mkCtValue(const Location& loc, Type* typeNode, string data);
+    Node* mkCtValue(const Location& loc, TypeRef typeNode, string data);
     Node* mkNull(const Location& loc, Node* typeNode);
     Node* mkStackAlloc(const Location& loc, Node* typeNode, int numElements = 1, int alignment = 0);
     Node* mkVarRef(const Location& loc, Node* varDecl);
@@ -47,7 +47,7 @@ namespace Feather
     Node* mkReturn(const Location& loc, Node* exp = nullptr);
     
     template <typename T>
-    Node* mkCtValue(const Location& loc, Type* type, T* dataVal)
+    Node* mkCtValue(const Location& loc, TypeRef type, T* dataVal)
     {
         const char* p = reinterpret_cast<const char*>(dataVal);
         string dataStr(p, p+sizeof(*dataVal));

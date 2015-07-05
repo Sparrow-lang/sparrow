@@ -38,7 +38,7 @@ void For::doSetContextForChildren()
 
 void For::doComputeType()
 {
-    type_ = Type::fromBasicType(getVoidType(context_->evalMode()));
+    type_ = getVoidType(context_->evalMode());
 }
 
 void For::doSemanticCheck()

@@ -2,7 +2,6 @@
 
 #include <Nest/Intermediate/TypeRef.h>
 
-FWD_CLASS1(Nest, Type)
 FWD_CLASS1(Nest, Location)
 FWD_CLASS1(Feather, Function)
 FWD_CLASS1(LLVMB, Module)

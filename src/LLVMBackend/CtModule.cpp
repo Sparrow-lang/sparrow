@@ -76,7 +76,7 @@ void CtModule::ctProcess(Node* node)
 		REP_INTERNAL(node->location(), "Node should be semantically checked when passed to the backend");
 
 	// Make sure the type of the node can be used at compile time
-	if ( node->type()->mode() == modeRt )
+	if ( node->type()->mode == modeRt )
 		REP_INTERNAL(node->location(), "Cannot CT process this node: it has no meaning at compile-time");
 
     switch ( node->nodeKind() )
@@ -106,8 +106,8 @@ Node* CtModule::ctEvaluate(Node* node)
 	if ( !Feather::isCt(node) )
 		REP_INTERNAL(node->location(), "Cannot CT evaluate this node: it has no meaning at compile-time");
 
-    if ( !node->type()->hasStorage() && node->type()->typeId() != Type::typeVoid )
-		REP_INTERNAL(node->location(), "Cannot CT evaluate node with non-storage type (type: %1%)") % node->type()->toString();
+    if ( !node->type()->hasStorage && node->type()->typeId != Nest::typeVoid )
+		REP_INTERNAL(node->location(), "Cannot CT evaluate node with non-storage type (type: %1%)") % node->type();
 
 
     node = node->explanation();
@@ -174,7 +174,7 @@ void CtModule::ctProcessBackendCode(Feather::BackendCode* node)
 Node* CtModule::ctEvaluateExpression(Node* node)
 {
 	// Create a function of type 'void f(void*)', which will execute our expression node and put the result at the address 
-	llvm::Function* f = Tr::makeFunThatCalls(node, *this, "ctEval", node->type()->hasStorage());
+	llvm::Function* f = Tr::makeFunThatCalls(node, *this, "ctEval", node->type()->hasStorage);
 
 
 	// Uncomment this for CT debugging
@@ -191,10 +191,10 @@ Node* CtModule::ctEvaluateExpression(Node* node)
         return nullptr;
     }
 
-    if ( node->type()->hasStorage() )
+    if ( node->type()->hasStorage )
     {
 	    // Create a memory space where to put the result
-        llvm::Type* llvmType = Tr::getLLVMType(node->type()->data_, *this);
+        llvm::Type* llvmType = Tr::getLLVMType(node->type(), *this);
         size_t size = llvmModule_->getDataLayout()->getTypeAllocSize(llvmType);
 	    string dataBuffer(size, (char) 0);
 
@@ -204,7 +204,7 @@ Node* CtModule::ctEvaluateExpression(Node* node)
         llvmExecutionEngine_->freeMachineCodeForFunction(f);
 
 	    // Create a CtValue containing the data resulted from expression evaluation
-        Type* t = node->type();
+        TypeRef t = node->type();
         if ( !Feather::isCt(t) )
 	        t = Feather::changeTypeMode(t, modeCt, node->location());
 	    return mkCtValue(node->location(), t, dataBuffer);

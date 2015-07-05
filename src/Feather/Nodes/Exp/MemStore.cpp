@@ -62,21 +62,21 @@ void MemStore::doSemanticCheck()
     address->semanticCheck();
 
     // Check if the type of the address is a ref
-    if ( !address->type()->hasStorage() || address->type()->noReferences() == 0 )
-        REP_ERROR(location_, "The address of a memory store is not a reference, nor VarRef nor FieldRef (type: %1%)") % address->type()->toString();
-    Type* baseAddressType = removeRef(address->type());
+    if ( !address->type()->hasStorage || address->type()->numReferences == 0 )
+        REP_ERROR(location_, "The address of a memory store is not a reference, nor VarRef nor FieldRef (type: %1%)") % address->type();
+    TypeRef baseAddressType = removeRef(address->type());
 
     // Check the equivalence of types
     if ( !isSameTypeIgnoreMode(value->type(), baseAddressType) )
     {
         // Try again, getting rid of l-values
-        Type* t1 = lvalueToRefIfPresent(value->type());
+        TypeRef t1 = lvalueToRefIfPresent(value->type());
         if ( !isSameTypeIgnoreMode(t1, baseAddressType) )
             REP_ERROR(location_, "The type of the value doesn't match the type of the address in a memory store (%1% != %2%)")
-                % value->type()->toString() % baseAddressType->toString();
+                % value->type() % baseAddressType;
     }
 
     // The resulting type is Void
-    type_ = Type::fromBasicType(getVoidType(address->type()->mode()));
+    type_ = getVoidType(address->type()->mode);
 }
 

@@ -179,7 +179,7 @@ namespace
         return res;
     }
 
-    Type* readType(CompilationContext* context, SimpleAstNode* typeNode, const char* errDetails)
+    TypeRef readType(CompilationContext* context, SimpleAstNode* typeNode, const char* errDetails)
     {
         if ( !typeNode->isIdentifier() )
         {
@@ -191,20 +191,20 @@ namespace
         if ( typeNode->stringValue() == "void" )
         {
             checkNoChildren(typeNode);
-            return Type::fromBasicType(getVoidType(modeRtCt));
+            return getVoidType(modeRtCt);
         }
         // Check for 'ref'
         else if ( typeNode->stringValue() == "ref" )
         {
             checkChildrenCount(typeNode, 1, "<type>");
-            Type* baseType = readType(context, typeNode->children()[0], "<type>");
+            TypeRef baseType = readType(context, typeNode->children()[0], "<type>");
             return Feather::addRef(baseType);
         }
         // Check for 'ct'
         else if ( typeNode->stringValue() == "ct" )
         {
             checkChildrenCount(typeNode, 1, "<type>");
-            Type* baseType = readType(context, typeNode->children()[0], "<type>");
+            TypeRef baseType = readType(context, typeNode->children()[0], "<type>");
             return Feather::changeTypeMode(baseType, modeCt, typeNode->location());
         }
         else
@@ -212,7 +212,7 @@ namespace
             // Search for the identifier in the current symbol tab to find a class with the same name
             Class* cls = findDefinition<Class>(context, typeNode->stringValue(), typeNode->location(), "class name");
             cls->computeType();
-            return Type::fromBasicType(getDataType(cls));
+            return getDataType(cls);
         }
     }
 
@@ -373,7 +373,7 @@ namespace
     Node* interpretCtValue(CompilationContext* context, SimpleAstNode* srcNode)
     {
         checkChildrenCount(srcNode, 2, "<type>, <value>");
-        Type* type = readType(context, srcNode->children()[0], "<type>");
+        TypeRef type = readType(context, srcNode->children()[0], "<type>");
         string val = readString(srcNode->children()[1], "<value>");
         Node* res = mkCtValue(srcNode->children()[1]->location(), type, val);
         res->setContext(context);
@@ -383,7 +383,7 @@ namespace
     Node* interpretCtValueBin(CompilationContext* context, SimpleAstNode* srcNode)
     {
         checkChildrenCount(srcNode, 2, "<type>, <bin-value>");
-        Type* type = readType(context, srcNode->children()[0], "<type>");
+        TypeRef type = readType(context, srcNode->children()[0], "<type>");
         string val = readString(srcNode->children()[1], "<bin-value>");
         const Location& loc = srcNode->children()[1]->location();
         Node* res = mkCtValue(loc, type, decodeBinaryValue(loc, val));
@@ -394,7 +394,7 @@ namespace
     Node* interpretStackAlloc(CompilationContext* context, SimpleAstNode* srcNode)
     {
         checkChildrenCountRange(srcNode, 1, 3, "<type>, [num-elements], [alignment]");
-        Type* type = readType(context, srcNode->children()[0], "<type>");
+        TypeRef type = readType(context, srcNode->children()[0], "<type>");
         int numElements = 1;
         int alignment = 0;
         if ( srcNode->children().size() >= 2 )
@@ -605,7 +605,7 @@ namespace
     {
         checkChildrenCountRange(srcNode, 2, 3, "<name>, <type>, [<alignment>]");
         string name = readIdentifier(srcNode->children()[0], "<name>");
-        Type* type = readType(context, srcNode->children()[1], "<type>");
+        TypeRef type = readType(context, srcNode->children()[1], "<type>");
         int alignment = 0;
         if ( srcNode->children().size() >= 3 )
         {
@@ -655,7 +655,7 @@ namespace
     {
         checkChildrenCountRange(srcNode, 3, 4, "<function-name>, params(...), <result-type>, [<body>]");
         string name = readIdentifier(srcNode->children()[0], "<function-name>");
-        Type* resultType = readType(context, srcNode->children()[2], "<result-type>");
+        TypeRef resultType = readType(context, srcNode->children()[2], "<result-type>");
 
         // Create the function
         Function* fun = (Function*) Feather::mkFunction(srcNode->location(), name, mkTypeNode(srcNode->children()[2]->location(), resultType), {}, nullptr);

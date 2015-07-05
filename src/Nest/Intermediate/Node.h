@@ -1,6 +1,7 @@
 #pragma once
 
 #include "NodeVector.h"
+#include <Nest/Intermediate/TypeRef.h>
 #include <Nest/Frontend/Location.h>
 #include <Nest/Common/Diagnostic.h>
 
@@ -10,7 +11,6 @@
 
 FWD_CLASS1(Nest, Location);
 FWD_CLASS1(Nest, CompilationContext);
-FWD_CLASS1(Nest, Type);
 FWD_CLASS1(Nest, Modifier);
 FWD_CLASS3(Nest,Common,Ser, OutArchive)
 FWD_CLASS3(Nest,Common,Ser, InArchive)
@@ -66,22 +66,22 @@ namespace Nest
         void setProperty(const char* name, int val, bool passToExpl = false);
         void setProperty(const char* name, string val, bool passToExpl = false);
         void setProperty(const char* name, Node* val, bool passToExpl = false);
-        void setProperty(const char* name, Type* val, bool passToExpl = false);
+        void setProperty(const char* name, TypeRef val, bool passToExpl = false);
 
         bool hasProperty(const char* name) const;
         const int* getPropertyInt(const char* name) const;
         const string* getPropertyString(const char* name) const;
         Node*const* getPropertyNode(const char* name) const;
-        Type*const* getPropertyType(const char* name) const;
+        const TypeRef* getPropertyType(const char* name) const;
         
         int getCheckPropertyInt(const char* name) const;
         const string& getCheckPropertyString(const char* name) const;
         Node* getCheckPropertyNode(const char* name) const;
-        Type* getCheckPropertyType(const char* name) const;
+        TypeRef getCheckPropertyType(const char* name) const;
         
 
         /// Getter for the type of this node
-        Type* type() const;
+        TypeRef type() const;
         
     // Node transformation
     public:
@@ -179,7 +179,7 @@ namespace Nest
             int intValue_;
             string* stringValue_;
             Node* nodeValue_;
-            Type* typeValue_;
+            TypeRef typeValue_;
 
             PropertyValue()
             {
@@ -197,7 +197,7 @@ namespace Nest
             {
                 nodeValue_ = val;
             }
-            explicit PropertyValue(Type* val)
+            explicit PropertyValue(TypeRef val)
             {
                 typeValue_ = val;
             }
@@ -243,7 +243,7 @@ namespace Nest
         CompilationContext* childrenContext_;
         
         /// The type of this node
-        Type* type_;
+        TypeRef type_;
         
         /// The explanation of this node
         /// A node has explanation if its meaning can be explained with the help of another node (the explanation node)

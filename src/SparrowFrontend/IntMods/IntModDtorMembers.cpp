@@ -42,7 +42,7 @@ void IntModDtorMembers::beforeSemanticCheck(Node* node)
         if ( cls2 != cls )
             continue;
 
-        if ( field->type()->noReferences() == 0 )
+        if ( field->type()->numReferences == 0 )
         {
             Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
             fieldRef->setContext(context);

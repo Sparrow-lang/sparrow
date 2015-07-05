@@ -130,7 +130,7 @@ void IntModCtorMembers::beforeSemanticCheck(Node* node)
         {
             Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
             Node* call = nullptr;
-            if ( field->type()->noReferences() == 0 )
+            if ( field->type()->numReferences == 0 )
             {
                 call = mkOperatorCall(loc, fieldRef, "ctor", nullptr);
             }

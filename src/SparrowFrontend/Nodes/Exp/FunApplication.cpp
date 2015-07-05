@@ -26,16 +26,16 @@ namespace
             REP_INTERNAL(loc, "Invalid arguments");
 
         // Make sure the first argument is a type
-        Type* t = getType(arguments[0]);
+        TypeRef t = getType(arguments[0]);
         if ( !t )
             REP_ERROR(arguments[0]->location(), "The first argument of a %1% must be a type") % castName;
 
         // Make sure that the second argument has storage
-        if ( !arguments[1]->type()->hasStorage() )
-            REP_ERROR(arguments[1]->location(), "The second argument of a %1% must have a storage type (we have %2%)") % castName % arguments[1]->type()->toString();
+        if ( !arguments[1]->type()->hasStorage )
+            REP_ERROR(arguments[1]->location(), "The second argument of a %1% must have a storage type (we have %2%)") % castName % arguments[1]->type();
         
-        if ( secondShouldBeRef && arguments[1]->type()->noReferences() == 0 )
-            REP_ERROR(arguments[1]->location(), "The second argument of a %1% must be a reference (we have %2%)") % castName % arguments[1]->type()->toString();
+        if ( secondShouldBeRef && arguments[1]->type()->numReferences == 0 )
+            REP_ERROR(arguments[1]->location(), "The second argument of a %1% must be a reference (we have %2%)") % castName % arguments[1]->type();
     }
 }
 
@@ -151,7 +151,7 @@ void FunApplication::doSemanticCheck()
     NodeVector decls = getDeclsFromNode(base, thisArg);
 
     // If we didn't find any declarations, try the operator call
-    if ( base->type()->hasStorage() && decls.empty() )
+    if ( base->type()->hasStorage && decls.empty() )
     {
         Node* cls = classForTypeRaw(base->type());
         decls = cls->childrenContext()->currentSymTab()->lookupCurrent("()");
@@ -175,7 +175,7 @@ void FunApplication::doSemanticCheck()
     // Check the right overload based on the type of the arguments
     EvalMode mode = context_->evalMode();
     if ( thisArg )
-        mode = combineMode(thisArg->type()->mode(), mode, location_, false);
+        mode = combineMode(thisArg->type()->mode, mode, location_, false);
     Node* res = selectOverload(context_, location_, mode, move(decls), args, true, functionName);
 
     setExplanation(res);
@@ -191,13 +191,13 @@ void FunApplication::checkStaticCast()
     // Check arguments
     checkCastArguments(location_, "cast", arguments->children());
 
-    Type* destType = getType(arguments->children()[0]);
-    Type* srcType = arguments->children()[1]->type();
+    TypeRef destType = getType(arguments->children()[0]);
+    TypeRef srcType = arguments->children()[1]->type();
 
     // Check if we can cast
     ConversionResult c = canConvert(arguments->children()[1], destType);
     if ( !c )
-        REP_ERROR(location_, "Cannot cast from %1% to %2%; types are unrelated") % srcType->toString() % destType->toString();
+        REP_ERROR(location_, "Cannot cast from %1% to %2%; types are unrelated") % srcType % destType;
     Node* result = c.apply(arguments->children()[1]);
     result->setLocation(location_);
 
@@ -214,16 +214,16 @@ void FunApplication::checkReinterpretCast()
     // Check arguments
     checkCastArguments(location_, "reinterpretCast", arguments->children(), true);
 
-    Type* srcType = arguments->children()[1]->type();
-    Type* destType = getType(arguments->children()[0]);
+    TypeRef srcType = arguments->children()[1]->type();
+    TypeRef destType = getType(arguments->children()[0]);
     ASSERT(destType);
-    ASSERT(destType->hasStorage());
-    if ( destType->noReferences() == 0 )
-        REP_ERROR(arguments->children()[0]->location(), "Destination type must be a reference (currently: %1%)") % destType->toString();
+    ASSERT(destType->hasStorage);
+    if ( destType->numReferences == 0 )
+        REP_ERROR(arguments->children()[0]->location(), "Destination type must be a reference (currently: %1%)") % destType;
 
     // If source is an l-value and the number of source reference is greater than the destination references, remove lvalue
     Node* arg = arguments->children()[1];
-    if ( srcType->noReferences() > destType->noReferences() && srcType->typeId() == Type::typeLValue )
+    if ( srcType->numReferences > destType->numReferences && srcType->typeId == Nest::typeLValue )
         arg = mkMemLoad(arg->location(), arg);
 
     // Generate a bitcast operation out of this node
@@ -241,19 +241,19 @@ void FunApplication::checkSizeOf()
     if ( arguments->children().size() != 1 )
         REP_ERROR(location_, "sizeOf expects one argument; %1% given") % arguments->children().size();
     Node* arg = arguments->children()[0];
-    Type* t = arg->type();
+    TypeRef t = arg->type();
     if ( !t )
         REP_INTERNAL(location_, "Invalid argument");
 
     // Make sure that the argument has storage, or it represents a type
     t = evalTypeIfPossible(arg);
-    if ( !t->hasStorage() )
+    if ( !t->hasStorage )
     {
-        REP_ERROR(arg->location(), "The argument of sizeOf must be a type or an expression with storage type (we have %1%)") % arg->type()->toString();
+        REP_ERROR(arg->location(), "The argument of sizeOf must be a type or an expression with storage type (we have %1%)") % arg->type();
     }
 
     // Make sure the class that this refers to has the type properly computed
-    Class* cls = classDecl(t->data_);
+    Class* cls = classDecl(t);
     Node* mainNode = cls->childrenContext()->currentSymTab()->node();
     mainNode->computeType();
 
@@ -281,7 +281,7 @@ void FunApplication::checkTypeOf()
     arguments->semanticCheck();
 
     // Make sure we have only one argument
-    Type* t = arg->type();
+    TypeRef t = arg->type();
     if ( !t )
         REP_INTERNAL(location_, "Invalid argument");
     t = Feather::removeLValueIfPresent(t);
@@ -344,7 +344,7 @@ void FunApplication::checkIsValidAndTrue()
 
         // Make sure we remove all the references
         const Location& loc = arg->location();
-        size_t noRefs = arg->type()->noReferences();
+        size_t noRefs = arg->type()->numReferences;
         for ( size_t i=0; i<noRefs; ++i)
             arg = mkMemLoad(loc, arg);
         arg->setContext(context_);
@@ -388,7 +388,7 @@ void FunApplication::checkCtEval()
 
     // Make sure we remove all the references
     const Location& loc = arg->location();
-    size_t noRefs = arg->type()->noReferences();
+    size_t noRefs = arg->type()->numReferences;
     for ( size_t i=0; i<noRefs; ++i)
         arg = mkMemLoad(loc, arg);
     arg->setContext(context_);

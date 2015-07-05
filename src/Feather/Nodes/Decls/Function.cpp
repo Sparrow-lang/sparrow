@@ -64,7 +64,7 @@ Node* Function::getParameter(size_t idx) const
     return children_[idx+2];
 }
 
-Type* Function::resultType() const
+TypeRef Function::resultType() const
 {
     ASSERT(children_.size() >= 2);
     return children_[0]->type();
@@ -137,7 +137,7 @@ void Function::doComputeType()
     // We must have a result type
     Node* resultType = children_[0];
     resultType->computeType();
-    Type* resType = resultType->type();
+    TypeRef resType = resultType->type();
     if ( !resType )
         REP_ERROR(location_, "No result type given to function %1%") % getName(this);
 
@@ -159,9 +159,9 @@ void Function::doComputeType()
     for ( ; it!=ite; ++it )
     {
         Node* param = *it;
-        paramTypes.push_back(param->type()->data_);
+        paramTypes.push_back(param->type());
     }
-    type_ = Type::fromBasicType(getFunctionType(resType->data_, move(paramTypes), effectiveEvalMode(this)));
+    type_ = getFunctionType(resType, move(paramTypes), effectiveEvalMode(this));
 }
 
 void Function::doSemanticCheck()

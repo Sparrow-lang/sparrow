@@ -3,7 +3,7 @@
 #include <Feather/FeatherNodeCommonsCpp.h>
 
 
-TypeNode::TypeNode(const Location& loc, Type* type)
+TypeNode::TypeNode(const Location& loc, TypeRef type)
     : Node(loc)
 {
     setProperty("givenType", type);

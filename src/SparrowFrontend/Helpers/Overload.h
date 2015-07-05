@@ -17,8 +17,8 @@ namespace SprFrontend
 
     /// Try to search for a conversion constructor of the given class that can take the given argument
     bool selectConversionCtor(CompilationContext* context, Feather::Class* destClass, Nest::EvalMode destMode,
-        Type* argType, Node* arg, Node** conv);
+        TypeRef argType, Node* arg, Node** conv);
 
     /// Search for a ct-to-rt constructor for the given class; returns the Callable that can be used to perform the call
-    Callable* selectCtToRtCtor(CompilationContext* context, Type* ctType);
+    Callable* selectCtToRtCtor(CompilationContext* context, TypeRef ctType);
 }

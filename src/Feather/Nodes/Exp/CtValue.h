@@ -10,10 +10,10 @@ namespace Feather
         DEFINE_NODE(CtValue, nkFeatherExpCtValue, "Feather.Exp.CtValue");
 
     public:
-        CtValue(const Location& loc, Type* type, string data = string());
+        CtValue(const Location& loc, TypeRef type, string data = string());
 
         /// Getter for the value type
-        Type* valueType() const;
+        TypeRef valueType() const;
 
         /// Getter for the value data -- the data is encoded in a string
         const string& valueData() const;

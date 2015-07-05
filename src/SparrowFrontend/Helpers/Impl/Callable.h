@@ -27,7 +27,7 @@ namespace SprFrontend
         /// Returns the parameter at the given index
         virtual Node* param(size_t idx) const = 0;
         /// The type of the parameter at the given index
-        virtual Type* paramType(size_t idx) const;
+        virtual TypeRef paramType(size_t idx) const;
         /// The evaluation mode of the callable (declaration)
         virtual EvalMode evalMode() const = 0;
         /// An autoCt callable is a 'rtct' callable for which passing all CT arguments will make a CT call
@@ -39,7 +39,7 @@ namespace SprFrontend
         virtual ConversionType canCall(CompilationContext* context, const Location& loc, const NodeVector& args, EvalMode evalMode, bool noCustomCvt = false);
 
         /// Same as above, but makes the check only on type, and not on the actual argument; doesn't cache any args_
-        virtual ConversionType canCall(CompilationContext* context, const Location& loc, const vector<Type*>& argTypes, EvalMode evalMode, bool noCustomCvt = false);
+        virtual ConversionType canCall(CompilationContext* context, const Location& loc, const vector<TypeRef>& argTypes, EvalMode evalMode, bool noCustomCvt = false);
 
         /// Generates the node that actually calls this callable
         /// This must be called only if 'canCall' method returned a success conversion type

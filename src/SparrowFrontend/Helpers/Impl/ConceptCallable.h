@@ -16,7 +16,7 @@ namespace SprFrontend
         virtual string toString() const;
         virtual size_t paramsCount() const;
         virtual Node* param(size_t idx) const;
-        virtual Type* paramType(size_t idx) const;
+        virtual TypeRef paramType(size_t idx) const;
         virtual EvalMode evalMode() const;
         virtual bool isAutoCt() const;
 

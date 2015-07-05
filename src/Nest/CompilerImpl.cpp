@@ -264,11 +264,11 @@ Node* CompilerImpl::ctEval(Node* node)
     return res;
 }
 
-size_t CompilerImpl::sizeOf(Type* type)
+size_t CompilerImpl::sizeOf(TypeRef type)
 {
     return backend_->sizeOf(type);
 }
-size_t CompilerImpl::alignmentOf(Type* type)
+size_t CompilerImpl::alignmentOf(TypeRef type)
 {
     return backend_->alignmentOf(type);
 }

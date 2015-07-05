@@ -42,7 +42,7 @@ void Conditional::doSemanticCheck()
         REP_ERROR(children_[0]->location(), "The condition of the conditional expression is not Testable");
 
     // Dereference the condition as much as possible
-    while ( children_[0]->type() && children_[0]->type()->noReferences() > 0 )
+    while ( children_[0]->type() && children_[0]->type()->numReferences > 0 )
     {
         children_[0] = mkMemLoad(children_[0]->location(), children_[0]);
         children_[0]->setContext(childrenContext());
@@ -58,5 +58,5 @@ void Conditional::doSemanticCheck()
     if ( !isSameTypeIgnoreMode(children_[1]->type(), children_[2]->type()) )
         REP_ERROR(location_, "The types of the alternatives of a conditional must be equal (%1% != %2%)") % children_[1]->type() % children_[2]->type();
 
-    type_ = adjustMode(children_[1]->type(), children_[0]->type()->mode(), context_, location_);
+    type_ = adjustMode(children_[1]->type(), children_[0]->type()->mode, context_, location_);
 }

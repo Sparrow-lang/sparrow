@@ -12,7 +12,7 @@ namespace SprFrontend
 
     public:
         SprVariable(const Location& loc, string name, Node* typeNode, Node* init, AccessType accessType = publicAccess);
-        SprVariable(const Location& loc, string name, Nest::Type* type, Node* init, AccessType accessType = publicAccess);
+        SprVariable(const Location& loc, string name, Nest::TypeRef type, Node* init, AccessType accessType = publicAccess);
 
         virtual void dump(ostream& os) const;
 

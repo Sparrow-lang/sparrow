@@ -53,7 +53,7 @@ void MemLoad::doSemanticCheck()
     children_[0]->semanticCheck();
 
     // Check if the type of the argument is a ref
-    if ( !children_[0]->type()->hasStorage() || children_[0]->type()->noReferences() == 0 )
+    if ( !children_[0]->type()->hasStorage || children_[0]->type()->numReferences == 0 )
         REP_ERROR(location_, "Cannot load from a non-reference (%1%, type: %2%)") % children_[0] % children_[0]->type();
 
     // Check flags

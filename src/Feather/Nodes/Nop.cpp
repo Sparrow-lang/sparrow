@@ -16,5 +16,5 @@ void Nop::dump(ostream& os) const
 void Nop::doSemanticCheck()
 {
     if ( !type_ )
-        type_ = Type::fromBasicType(getVoidType(context_->evalMode()));
+        type_ = getVoidType(context_->evalMode());
 }

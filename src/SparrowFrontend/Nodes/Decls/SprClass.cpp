@@ -176,8 +176,8 @@ void SprClass::doComputeType()
         for ( auto& bcName: baseClasses->children() )
         {
             // Make sure the type refers to a class
-            Type* bcType = getType(bcName);
-            if ( !bcType || !bcType->hasStorage() )
+            TypeRef bcType = getType(bcName);
+            if ( !bcType || !bcType->hasStorage )
                 REP_ERROR(location_, "Invalid base class");
             Class* baseClass = classForType(bcType);
             
@@ -195,7 +195,7 @@ void SprClass::doComputeType()
     }
 
     // We now have a type - from now on we can safely compute the types of the children
-    type_ = Type::fromBasicType(getDataType(static_cast<Class*>(resultingClass)));
+    type_ = getDataType(static_cast<Class*>(resultingClass));
 
     // Get the fields from the current class
     NodeVector fields = getFields(childrenContext_->currentSymTab());

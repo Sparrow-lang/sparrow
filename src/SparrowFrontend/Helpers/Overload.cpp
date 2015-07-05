@@ -65,7 +65,7 @@ namespace
     /// Filter candidates by checking the arguments against each candidate
     /// Retain only the candidates with the highest conversion
     /// Accepts either the argument nodes, or their type
-    Callables filterCandidates(CompilationContext* context, const Location& loc, const Callables& candidates, const NodeVector* args, const vector<Type*>* argTypes, EvalMode evalMode, bool noCustomCvt = false)
+    Callables filterCandidates(CompilationContext* context, const Location& loc, const Callables& candidates, const NodeVector* args, const vector<TypeRef>* argTypes, EvalMode evalMode, bool noCustomCvt = false)
     {
         Callables res;
         ConversionType bestConv = convNone;
@@ -99,8 +99,8 @@ namespace
         bool secondIsMoreSpecialized = false;
         for ( size_t i=0; i<paramsCount; ++i )
         {
-            Type* t1 = f1->paramType(i);
-            Type* t2 = f2->paramType(i);
+            TypeRef t1 = f1->paramType(i);
+            TypeRef t2 = f2->paramType(i);
 
             // Ignore parameters of same type
             if ( t1 == t2 )
@@ -157,7 +157,7 @@ namespace
         return nullptr;
     }
 
-    string nameWithAguments(const string funName, const vector<Type*>& argsTypes)
+    string nameWithAguments(const string funName, const vector<TypeRef>& argsTypes)
     {
         ostringstream oss;
         oss << funName;
@@ -166,14 +166,14 @@ namespace
         {
             if ( i>0 )
                 oss << ", ";
-            oss << argsTypes[i]->toString();
+            oss << argsTypes[i];
         }
         oss << ")";
         return oss.str();
     }
 
     void doReportErrors(const Location& loc, const NodeVector& decls, const Callables& candidates,
-        const vector<Type*>& argsTypes, const string& funName)
+        const vector<TypeRef>& argsTypes, const string& funName)
     {
         REP_ERROR_NOTHROW(loc, "No matching overload found for calling %1%") % nameWithAguments(funName, argsTypes);
         for ( Callable* cand: candidates )
@@ -210,7 +210,7 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
         }
     }
 
-    vector<Type*> argsTypes(args.size(), nullptr);
+    vector<TypeRef> argsTypes(args.size(), nullptr);
     for ( size_t i=0; i<args.size(); ++i)
     {
         args[i]->semanticCheck();
@@ -291,7 +291,7 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
 }
 
 bool SprFrontend::selectConversionCtor(CompilationContext* context, Class* destClass, EvalMode destMode,
-        Type* argType, Node* arg, Node** conv)
+        TypeRef argType, Node* arg, Node** conv)
 {
     ENTER_TIMER_DESC(Nest::theCompiler().timingSystem(), "others.selCvtCtor", "Selecting conversion ctor");
 
@@ -323,7 +323,7 @@ bool SprFrontend::selectConversionCtor(CompilationContext* context, Class* destC
         return false;
 
     // Check the candidates to be able to be called with the given arguments
-    vector<Type*> argTypes(1, argType);
+    vector<TypeRef> argTypes(1, argType);
     candidates = filterCandidates(context, arg ? arg->location() : Location(), candidates, nullptr, &argTypes, destMode, true);
     if ( candidates.empty() )
         return false;
@@ -347,13 +347,13 @@ bool SprFrontend::selectConversionCtor(CompilationContext* context, Class* destC
     return true;
 }
 
-Callable* SprFrontend::selectCtToRtCtor(CompilationContext* context, Type* ctType)
+Callable* SprFrontend::selectCtToRtCtor(CompilationContext* context, TypeRef ctType)
 {
     ENTER_TIMER_DESC(Nest::theCompiler().timingSystem(), "others.selCtRtCtor", "Selecting ct-to-rt ctor");
 
-    if ( ctType->mode() != modeCt || !ctType->hasStorage() )
+    if ( ctType->mode != modeCt || !ctType->hasStorage )
         return nullptr;
-    Class* cls = Feather::classDecl(ctType->data_);
+    Class* cls = Feather::classDecl(ctType);
     if ( effectiveEvalMode(cls) != modeRtCt )
         return nullptr;
 
@@ -378,8 +378,8 @@ Callable* SprFrontend::selectCtToRtCtor(CompilationContext* context, Type* ctTyp
             // We expect two parameters (this + arg); the second one should be ct
             if ( c->paramsCount() != 2 )
                 continue;
-            Type* t = c->paramType(1);
-            if ( t->mode() != modeCt )
+            TypeRef t = c->paramType(1);
+            if ( t->mode != modeCt )
                 continue;
 
             ASSERT(c->evalMode() == modeRt);
@@ -392,7 +392,7 @@ Callable* SprFrontend::selectCtToRtCtor(CompilationContext* context, Type* ctTyp
         return nullptr;
 
     // Check the candidates to be able to be called with the given arguments
-    vector<Type*> argTypes(1, ctType);
+    vector<TypeRef> argTypes(1, ctType);
     candidates = filterCandidates(context, Location(), candidates, nullptr, &argTypes, modeRt, true);
     if ( candidates.empty() )
         return nullptr;

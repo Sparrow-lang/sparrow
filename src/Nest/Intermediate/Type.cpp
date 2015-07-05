@@ -4,8 +4,6 @@
 #include <Common/Ser/OutArchive.h>
 #include <Common/Ser/InArchive.h>
 
-#include <Nest/Intermediate/TypeStock.h>
-
 using namespace Nest;
 using namespace Nest::Common::Ser;
 
@@ -13,7 +11,7 @@ using namespace Nest::Common::Ser;
 namespace
 {
     /// Get the hash code for the content of the type
-    size_t getContentHash(const TypeData* type) noexcept
+    size_t getContentHash(const Type* type) noexcept
     {
         size_t res = (size_t) type->typeId
             + (size_t) type->mode
@@ -32,17 +30,17 @@ namespace
 
     struct TypeHasher
     {
-        size_t operator()(const TypeData& type)
+        size_t operator()(const Type& type)
         {
             return getContentHash(&type);
         }
     };
 
     /// The set of all the types that we have registered
-    unordered_set<TypeData, TypeHasher> allTypes;
+    unordered_set<Type, TypeHasher> allTypes;
 }
 
-bool Nest::operator ==(const TypeData& lhs, const TypeData& rhs)
+bool Nest::operator ==(const Type& lhs, const Type& rhs)
 {
     bool res = lhs.typeId == rhs.typeId
         && lhs.mode == rhs.mode
@@ -62,41 +60,28 @@ bool Nest::operator ==(const TypeData& lhs, const TypeData& rhs)
     return res;
 }
 
-TypeData* Nest::getStockType(const TypeData& reference)
+Type* Nest::getStockType(const Type& reference)
 {
     // Search the type in our stock; if not found, insert it
     // Return the type from the stock
     auto p = allTypes.insert(reference);
-    return const_cast<TypeData*>(&*p.first); // TODO: remove the const cast
+    return const_cast<Type*>(&*p.first); // TODO: remove the const cast
 }
-
-Type::Type(TypeData* data)
-{
-    data_ = data;
-}
-
-Type* Type::fromBasicType(TypeData* basicType)
-{
-    ASSERT(basicType);
-    return typeStock.getCreateType<Type>(basicType);
-}
-
-
 
 void Type::save(OutArchive& ar) const
 {
     // TODO: serialize this
-    ar.write("typeId", data_->typeId);
-    ar.write("mode", (char) data_->mode);
-    ar.write("numSubtypes", data_->numSubtypes);
-    ar.write("numReferences", data_->numReferences);
-    ar.write("hasStorage", data_->hasStorage);
-    ar.write("canBeUsedAtCt", data_->canBeUsedAtCt);
-    ar.write("canBeUsedAtRt", data_->canBeUsedAtRt);
-    ar.write("flags", data_->flags);
-    ar.write("referredNode", data_->referredNode);
-    ar.write("description", data_->description);
-    // ar.writeArray("subTypes", data_->subTypes, [] (OutArchive& ar, TypeData* t) {
+    ar.write("typeId", typeId);
+    ar.write("mode", (char) mode);
+    ar.write("numSubtypes", numSubtypes);
+    ar.write("numReferences", numReferences);
+    ar.write("hasStorage", hasStorage);
+    ar.write("canBeUsedAtCt", canBeUsedAtCt);
+    ar.write("canBeUsedAtRt", canBeUsedAtRt);
+    ar.write("flags", flags);
+    ar.write("referredNode", referredNode);
+    ar.write("description", description);
+    // ar.writeArray("subTypes", subTypes, [] (OutArchive& ar, Type* t) {
     //     ar.write("", t);
     // });
     // TODO: subtypes

@@ -16,10 +16,10 @@ using namespace Nest;
 
 namespace
 {
-    Type* varType(Class* cls, EvalMode mode)
+    TypeRef varType(Class* cls, EvalMode mode)
     {
         // Get the type of the temporary variable
-        Type* t = cls->type();
+        TypeRef t = cls->type();
         if ( mode != modeRtCt )
             t = changeTypeMode(t, mode, cls->location());
         return t;
@@ -85,11 +85,11 @@ bool ClassCtorCallable::isAutoCt() const
     return baseCallable_->isAutoCt();
 }
 
-ConversionType ClassCtorCallable::canCall(CompilationContext* context, const Location& loc, const vector<Type*>& argTypes, EvalMode evalMode, bool noCustomCvt)
+ConversionType ClassCtorCallable::canCall(CompilationContext* context, const Location& loc, const vector<TypeRef>& argTypes, EvalMode evalMode, bool noCustomCvt)
 {
-    Type* t = Type::fromBasicType(getLValueType(varType(cls_, evalMode_)->data_));
+    TypeRef t = getLValueType(varType(cls_, evalMode_));
 
-    vector<Type*> argTypes2 = argTypes;
+    vector<TypeRef> argTypes2 = argTypes;
     argTypes2.insert(argTypes2.begin(), t);
     return baseCallable_->canCall(context, loc, argTypes2, evalMode, noCustomCvt);
 }

@@ -39,7 +39,7 @@ namespace
             {
                 // Create a CtValue with the type of the argument corresponding to the auto parameter
                 arg->computeType();
-                Type* t = getAutoType(arg, isRefAuto);
+                TypeRef t = getAutoType(arg, isRefAuto);
                 Node* typeNode = createTypeNode(context, param->location(), t);
                 typeNode->computeType();
                 boundValues[i] = typeNode;
@@ -103,8 +103,8 @@ namespace
         {
             // Test auto and non-bound arguments
             // Also test the type given to the 'Type' parameters (i.e., we need to know if Vector(t) can be rtct based on the mode of t)
-            Type* pType = genericParams[i] ? genericParams[i]->type() : nullptr;
-            Type* typeToCheck = nullptr;
+            TypeRef pType = genericParams[i] ? genericParams[i]->type() : nullptr;
+            TypeRef typeToCheck = nullptr;
             if ( !pType || isConceptType(pType) )
             {
                 args[i]->computeType();
@@ -117,9 +117,9 @@ namespace
             }
             if ( typeToCheck )
             {
-                if ( !typeToCheck->canBeUsedAtCt() )
+                if ( !typeToCheck->canBeUsedAtCt )
                     hasRtOnlyArgs = true;
-                else if ( !typeToCheck->canBeUsedAtRt() )
+                else if ( !typeToCheck->canBeUsedAtRt )
                     hasCtOnlyArgs = true;
             }
         }
@@ -242,7 +242,7 @@ GenericFunction* GenericFunction::createGeneric(SprFunction* originalFun, NodeLi
     // If a 'this' class is passed, add an extra parameter for this
     if ( thisClass )
     {
-        Type* thisType = Type::fromBasicType(getDataType(thisClass, 1, effectiveEvalMode(originalFun)));
+        TypeRef thisType = getDataType(thisClass, 1, effectiveEvalMode(originalFun));
         Node* thisParam = mkSprParameter(originalFun->location(), "$this", thisType);
         thisParam->setContext(originalFun->childrenContext());
         thisParam->computeType();

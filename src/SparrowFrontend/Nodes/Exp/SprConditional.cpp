@@ -22,11 +22,11 @@ void SprConditional::doSemanticCheck()
     alt1->semanticCheck();
     alt2->semanticCheck();
 
-    Type* t1 = alt1->type();
-    Type* t2 = alt2->type();
+    TypeRef t1 = alt1->type();
+    TypeRef t2 = alt2->type();
 
     // Get the common type
-    Type* resType = commonType(context_, t1, t2);
+    TypeRef resType = commonType(context_, t1, t2);
     if ( resType == StdDef::typeVoid )
         REP_ERROR(location_, "Cannot deduce the result type for a conditional expression (%1%, %2%)") % t1 % t2;
     

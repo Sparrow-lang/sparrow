@@ -74,7 +74,7 @@ Node* SprFrontend::mkSprVariable(const Location& loc, string name, Node* typeNod
     return new SprVariable(loc, move(name), typeNode, init, accessType);
 }
 
-Node* SprFrontend::mkSprVariable(const Location& loc, string name, Type* type, Node* init, AccessType accessType)
+Node* SprFrontend::mkSprVariable(const Location& loc, string name, TypeRef type, Node* init, AccessType accessType)
 {
     return new SprVariable(loc, move(name), type, init, accessType);
 }
@@ -109,7 +109,7 @@ Node* SprFrontend::mkSprParameter(const Location& loc, string name, Node* typeNo
     return new SprParameter(loc, move(name), typeNode, init);
 }
 
-Node* SprFrontend::mkSprParameter(const Location& loc, string name, Type* type, Node* init)
+Node* SprFrontend::mkSprParameter(const Location& loc, string name, TypeRef type, Node* init)
 {
     return new SprParameter(loc, move(name), type, init);
 }

@@ -38,7 +38,7 @@ void LocalSpace::doSetContextForChildren()
 
 void LocalSpace::doComputeType()
 {
-    type_ = Type::fromBasicType(getVoidType(context_->evalMode()));
+    type_ = getVoidType(context_->evalMode());
 }
 
 void LocalSpace::doSemanticCheck()

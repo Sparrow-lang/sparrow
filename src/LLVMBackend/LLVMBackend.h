@@ -20,8 +20,8 @@ namespace LLVMB
         virtual void link(const string& outFilename);
         virtual void ctProcess(Nest::Node* node);
         virtual Nest::Node* ctEvaluate(Nest::Node* node);
-        virtual size_t sizeOf(Nest::Type* type);
-        virtual size_t alignmentOf(Nest::Type* type);
+        virtual size_t sizeOf(Nest::TypeRef type);
+        virtual size_t alignmentOf(Nest::TypeRef type);
         virtual void ctApiRegisterFun(const char* name, void* funPtr);
 
         static void registerSelf();

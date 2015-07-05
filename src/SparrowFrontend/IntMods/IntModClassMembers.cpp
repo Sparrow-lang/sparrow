@@ -57,8 +57,8 @@ namespace
             {
                 if ( numParams != 1+otherParamIdx )
                     continue;
-                Type* paramType = f->getParameter(otherParamIdx)->type();
-                if ( paramType->hasStorage() )
+                TypeRef paramType = f->getParameter(otherParamIdx)->type();
+                if ( paramType->hasStorage )
                 {
                     if ( classForType(paramType) == paramClass )
                         return true;
@@ -95,7 +95,7 @@ namespace
             if ( cls2 != cls )
                 continue;
 
-            if ( field->type()->noReferences() > 0 )
+            if ( field->type()->numReferences > 0 )
                 return true;
         }
         return false;
@@ -112,7 +112,7 @@ namespace
     }
 
     // Add a method with the given body and given atguments to the parent class
-    Node* addMethod(SprClass* parent, const string& name, LocalSpace* body, vector<pair<Type*, string>> params, Class* resClass = nullptr, EvalMode mode = modeUnspecified)
+    Node* addMethod(SprClass* parent, const string& name, LocalSpace* body, vector<pair<TypeRef, string>> params, Class* resClass = nullptr, EvalMode mode = modeUnspecified)
     {
         Location loc = parent->location();
         loc.setAsStartOf(loc);
@@ -125,7 +125,7 @@ namespace
             sprParams.push_back(mkSprParameter(loc, param.second, param.first));
         }
         NodeList* parameters = sprParams.empty() ? nullptr : (NodeList*) mkNodeList(loc, move(sprParams));
-        Node* ret = resClass ? (Node*) createTypeNode(parent->childrenContext(), loc, Type::fromBasicType(getDataType(resClass))) : nullptr;
+        Node* ret = resClass ? (Node*) createTypeNode(parent->childrenContext(), loc, getDataType(resClass)) : nullptr;
         
         // Add the function
         Node* m = mkSprFunction(loc, name, parameters, ret, body);
@@ -137,13 +137,13 @@ namespace
     }
     
     // Add a method with the given body to the parent class
-    Node* addMethod(SprClass* parent, const string& name, LocalSpace* body, Type* otherParam, Class* resClass = nullptr, EvalMode mode = modeUnspecified)
+    Node* addMethod(SprClass* parent, const string& name, LocalSpace* body, TypeRef otherParam, Class* resClass = nullptr, EvalMode mode = modeUnspecified)
     {
-        return addMethod(parent, name, body, otherParam ? vector<pair<Type*, string>>({ {otherParam, string("other")} }) : vector<pair<Type*, string>>({}), resClass, mode);
+        return addMethod(parent, name, body, otherParam ? vector<pair<TypeRef, string>>({ {otherParam, string("other")} }) : vector<pair<TypeRef, string>>({}), resClass, mode);
     }
     
     /// Generate a typical method with the given name, by calling 'op' for the base classes and fields
-    void generateMethod(SprClass* parent, const string& name, const string& op, Type* otherParam, bool reverse = false, EvalMode mode = modeUnspecified)
+    void generateMethod(SprClass* parent, const string& name, const string& op, TypeRef otherParam, bool reverse = false, EvalMode mode = modeUnspecified)
     {
         Location loc = parent->location();
         loc.setAsStartOf(loc);
@@ -154,7 +154,7 @@ namespace
         if ( otherParam )
         {
             otherRef = mkIdentifier(loc, "other");
-            if ( otherParam->noReferences() > 0 )
+            if ( otherParam->numReferences > 0 )
                 otherRef = mkMemLoad(loc, otherRef);
         }
 
@@ -171,7 +171,7 @@ namespace
             Node* otherFieldRef = otherParam ? mkFieldRef(loc, otherRef, field) : nullptr;
 
             string oper = op;
-            if ( field->type()->noReferences() > 0 )
+            if ( field->type()->numReferences > 0 )
             {
                 if ( op == "=" || op == "ctor" )
                 {
@@ -202,7 +202,7 @@ namespace
     /// Generate an init ctor, that initializes all the members with data received as arguments
     void generateInitCtor(SprClass* parent)
     {
-        vector<pair<Type*, string>> params;
+        vector<pair<TypeRef, string>> params;
         
         Location loc = parent->location();
         loc.setAsStartOf(loc);
@@ -218,18 +218,18 @@ namespace
             if ( cls2 != cls )
                 continue;
             
-            Type* t = field->type();
+            TypeRef t = field->type();
             
             // Add a parameter for the base
             string paramName = "f"+getName(field);
             params.push_back({t, paramName});
             Node* paramId = mkIdentifier(loc, move(paramName));
-            if ( t->noReferences() > 0 )
+            if ( t->numReferences > 0 )
                 paramId = mkMemLoad(loc, paramId);
             
             Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
             
-            string oper = t->noReferences() > 0 ? ":=" : "ctor";
+            string oper = t->numReferences > 0 ? ":=" : "ctor";
             addOperatorCall(body, false, fieldRef, oper, paramId);
         }
         
@@ -256,7 +256,7 @@ namespace
             Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
             Node* otherFieldRef = mkFieldRef(loc, mkMemLoad(loc, mkIdentifier(loc, "other")), field);
 
-            const char* op = (field->type()->noReferences() == 0) ? "==" : "===";
+            const char* op = (field->type()->numReferences == 0) ? "==" : "===";
             Node* curExp = mkOperatorCall(loc, fieldRef, op, otherFieldRef);
             if ( !exp )
                 exp = curExp;
@@ -268,7 +268,7 @@ namespace
 
         LocalSpace* body = new LocalSpace(loc);
         body->addChild(mkReturnStmt(loc, exp));
-        addMethod(parent, "==", body, Type::fromBasicType(getDataType(cls, 1)), StdDef::clsBool);
+        addMethod(parent, "==", body, getDataType(cls, 1), StdDef::clsBool);
     }
 }
 
@@ -283,7 +283,7 @@ void IntModClassMembers::afterComputeType(Node* node)
 
     Class* basicClass = cls->explanation()->as<Class>();
     ASSERT(basicClass);
-    Type* paramType = Type::fromBasicType(getDataType(basicClass, 1));
+    TypeRef paramType = getDataType(basicClass, 1);
 
     // Default ctor
     if ( !checkForMember(cls, "ctor", nullptr) )
@@ -303,7 +303,7 @@ void IntModClassMembers::afterComputeType(Node* node)
     
     // CT to RT ctor
     if ( !checkForCtorFromCt(cls) && !hasReferences(basicClass) )
-        generateMethod(cls, "ctorFromCt", "ctor", changeTypeMode(Type::fromBasicType(getDataType(basicClass, 0)), modeCt, node->location()), false, modeRt);
+        generateMethod(cls, "ctorFromCt", "ctor", changeTypeMode(getDataType(basicClass, 0), modeCt, node->location()), false, modeRt);
 
     // Dtor
     if ( !checkForMember(cls, "dtor", nullptr) )

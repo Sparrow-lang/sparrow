@@ -68,7 +68,7 @@ namespace
 
 TypeRef getVoidType(EvalMode mode)
 {
-    TypeData referenceType;
+    Type referenceType;
     referenceType.typeId        = Nest::typeVoid;
     referenceType.mode          = mode;
     referenceType.numSubtypes   = 0;
@@ -88,7 +88,7 @@ TypeRef getDataType(Class* classDecl, uint8_t numReferences, EvalMode mode)
     if ( mode == modeRtCt && classDecl )
         mode = classMode;
 
-    TypeData referenceType;
+    Type referenceType;
     referenceType.typeId        = Nest::typeData;
     referenceType.mode          = mode;
     referenceType.numSubtypes   = 0;
@@ -104,7 +104,7 @@ TypeRef getDataType(Class* classDecl, uint8_t numReferences, EvalMode mode)
 
 TypeRef getLValueType(TypeRef base)
 {
-    TypeData referenceType;
+    Type referenceType;
     referenceType.typeId        = Nest::typeLValue;
     referenceType.mode          = base->mode;
     referenceType.numSubtypes   = 1;
@@ -124,7 +124,7 @@ TypeRef getLValueType(TypeRef base)
 
 TypeRef getArrayType(TypeRef unitType, uint32_t count)
 {
-    TypeData referenceType;
+    Type referenceType;
     referenceType.typeId        = Nest::typeArray;
     referenceType.mode          = unitType->mode;
     referenceType.numSubtypes   = 1;
@@ -144,7 +144,7 @@ TypeRef getArrayType(TypeRef unitType, uint32_t count)
 
 TypeRef getFunctionType(TypeRef resultType, const vector<TypeRef>& paramTypes, EvalMode mode)
 {
-    TypeData referenceType;
+    Type referenceType;
     referenceType.typeId        = Nest::typeFunction;
     referenceType.mode          = mode;
     referenceType.numSubtypes   = 1 + paramTypes.size();

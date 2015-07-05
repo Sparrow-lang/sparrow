@@ -53,7 +53,7 @@ void If::doSemanticCheck()
     Node* elseClause = children_[2];
     
     // The resulting type is Void
-    type_ = Type::fromBasicType(getVoidType(context_->evalMode()));
+    type_ = getVoidType(context_->evalMode());
 
     // Semantic check the condition
     condition->semanticCheck();
@@ -63,7 +63,7 @@ void If::doSemanticCheck()
         REP_ERROR(condition->location(), "The condition of the if is not Testable");
 
     // Dereference the condition as much as possible
-    while ( condition->type() && condition->type()->noReferences() > 0 )
+    while ( condition->type() && condition->type()->numReferences > 0 )
     {
         condition = mkMemLoad(condition->location(), condition);
         condition->setContext(childrenContext());

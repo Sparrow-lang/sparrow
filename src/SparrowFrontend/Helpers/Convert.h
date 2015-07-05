@@ -60,8 +60,8 @@ namespace SprFrontend
     };
 
     /// Check if we can convert the source type to the destination type; also check what kind of conversion is needed
-    ConversionResult canConvertType(CompilationContext* context, Nest::Type* srcType, Nest::Type* destType, ConversionFlags flags = flagsDefault);
+    ConversionResult canConvertType(CompilationContext* context, Nest::TypeRef srcType, Nest::TypeRef destType, ConversionFlags flags = flagsDefault);
 
     /// Checks if an "argument" node can be converted to a given type
-    ConversionResult canConvert(Nest::Node* arg, Nest::Type* destType, ConversionFlags flags = flagsDefault);
+    ConversionResult canConvert(Nest::Node* arg, Nest::TypeRef destType, ConversionFlags flags = flagsDefault);
 }

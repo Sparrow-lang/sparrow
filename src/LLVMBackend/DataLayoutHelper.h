@@ -1,8 +1,8 @@
 #pragma once
 
-#include <unordered_map>
+#include <Nest/Intermediate/TypeRef.h>
 
-FWD_CLASS1(Nest, Type);
+#include <unordered_map>
 
 FWD_CLASS1(llvm, LLVMContext);
 FWD_CLASS1(llvm, Module);
@@ -17,17 +17,17 @@ namespace LLVMB
         ~DataLayoutHelper();
 
         /// Get the size of the given type in bytes, according to the current data layout
-        size_t getSizeOf(Nest::Type* type);
+        size_t getSizeOf(Nest::TypeRef type);
 
         /// Get the alignment of the given type in bytes, according to the current data layout
-        size_t getAlignOf(Nest::Type* type);
+        size_t getAlignOf(Nest::TypeRef type);
 
     private:
         llvm::LLVMContext* llvmContext_;
         llvm::Module* llvmModule_;
 
-        unordered_map<Nest::Type*, size_t> sizesOfTypes_;
-        unordered_map<Nest::Type*, size_t> alignmentsOfTypes_;
+        unordered_map<Nest::TypeRef, size_t> sizesOfTypes_;
+        unordered_map<Nest::TypeRef, size_t> alignmentsOfTypes_;
     };
 
 }

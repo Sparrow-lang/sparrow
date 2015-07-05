@@ -11,7 +11,7 @@ Callable::Callable()
 {
 }
 
-Type* Callable::paramType(size_t idx) const
+TypeRef Callable::paramType(size_t idx) const
 {
     Node* p = param(idx);
     ASSERT(p);
@@ -35,7 +35,7 @@ ConversionType Callable::canCall(CompilationContext* context, const Location& lo
     }
 
     // Do the checks on types
-    vector<Type*> argTypes(args_.size(), nullptr);
+    vector<TypeRef> argTypes(args_.size(), nullptr);
     for ( size_t i=0; i<args_.size(); ++i)
         argTypes[i] = args_[i]->type();
     ConversionType res = canCall(context, loc, argTypes, evalMode, noCustomCvt);
@@ -45,7 +45,7 @@ ConversionType Callable::canCall(CompilationContext* context, const Location& lo
     return res;
 }
 
-ConversionType Callable::canCall(CompilationContext* context, const Location& /*loc*/, const vector<Type*>& argTypes, EvalMode evalMode, bool noCustomCvt)
+ConversionType Callable::canCall(CompilationContext* context, const Location& /*loc*/, const vector<TypeRef>& argTypes, EvalMode evalMode, bool noCustomCvt)
 {
     // Check argument count
     size_t paramsCount = this->paramsCount();
@@ -61,9 +61,9 @@ ConversionType Callable::canCall(CompilationContext* context, const Location& /*
     {
         // In autoCt mode, if all the arguments are CT, make a CT call
         useCt = true;
-        for ( Type* t: argTypes )
+        for ( TypeRef t: argTypes )
         {
-            if ( t->mode() != modeCt )
+            if ( t->mode != modeCt )
             {
                 useCt = false;
                 break;
@@ -76,13 +76,13 @@ ConversionType Callable::canCall(CompilationContext* context, const Location& /*
     ConversionType res = convDirect;
     for ( size_t i=0; i<paramsCount; ++i )
     {
-        Type* argType = argTypes[i];
+        TypeRef argType = argTypes[i];
         ASSERT(argType);
-        Type* paramType = this->paramType(i);
+        TypeRef paramType = this->paramType(i);
         ASSERT(paramType);
 
         // If we are looking at a CT callable, make sure the parameters are in CT
-        if ( paramType->hasStorage() && useCt )
+        if ( paramType->hasStorage && useCt )
             paramType = Feather::changeTypeMode(paramType, modeCt);
 
         ConversionFlags flags = noCustomCvt ? flagDontCallConversionCtor : flagsDefault;

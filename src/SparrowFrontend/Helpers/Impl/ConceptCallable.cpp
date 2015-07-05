@@ -34,9 +34,9 @@ Node* ConceptCallable::param(size_t /*idx*/) const
     return nullptr;
 }
 
-Type* ConceptCallable::paramType(size_t /*idx*/) const
+TypeRef ConceptCallable::paramType(size_t /*idx*/) const
 {
-    return Type::fromBasicType(getConceptType());
+    return getConceptType();
 }
 
 EvalMode ConceptCallable::evalMode() const

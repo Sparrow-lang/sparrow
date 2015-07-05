@@ -111,5 +111,5 @@ void While::doSemanticCheck()
         step->semanticCheck();
 
     // The resulting type is Void
-    type_ = Type::fromBasicType(getVoidType(context_->evalMode()));
+    type_ = getVoidType(context_->evalMode());
 }

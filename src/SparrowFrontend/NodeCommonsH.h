@@ -16,7 +16,7 @@ namespace SprFrontend
     using Nest::CompilationContext;
     using Nest::Node;
     using Nest::NodeVector;
-    using Nest::Type;
+    using Nest::TypeRef;
     using Nest::SymTab;
 
     using Feather::NodeList;

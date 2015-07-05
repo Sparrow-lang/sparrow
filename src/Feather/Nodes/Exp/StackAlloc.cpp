@@ -12,7 +12,7 @@ StackAlloc::StackAlloc(const Location& loc, Node* elemType, int numElements, siz
     setProperty("alignment", alignment);
 }
 
-Type* StackAlloc::elemType() const
+TypeRef StackAlloc::elemType() const
 {
     ASSERT(children_.size() == 1);
     return children_[0]->type();
@@ -42,5 +42,5 @@ void StackAlloc::doSemanticCheck()
     ASSERT(children_.size() == 1);
     Node* elemTypeNode = children_[0];
     elemTypeNode->computeType();
-    type_ = adjustMode(Type::fromBasicType(getLValueType(elemTypeNode->type()->data_)), context_, location_);
+    type_ = adjustMode(getLValueType(elemTypeNode->type()), context_, location_);
 }

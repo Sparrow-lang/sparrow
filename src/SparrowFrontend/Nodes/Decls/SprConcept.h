@@ -17,10 +17,10 @@ namespace SprFrontend
         SprConcept(const Location& loc, string name, string paramName, Node* baseConcept, Node* ifClause, AccessType accessType = publicAccess);
 
         /// Checks if the concept is fulfilled for the given type
-        bool isFulfilled(Type* type);
+        bool isFulfilled(TypeRef type);
 
         /// Returns the base concept type; the type of the variable for this concept
-        Type* baseConceptType() const;
+        TypeRef baseConceptType() const;
 
     protected:
         virtual void doSetContextForChildren();

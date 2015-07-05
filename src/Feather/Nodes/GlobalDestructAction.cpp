@@ -26,7 +26,7 @@ void GlobalDestructAction::dump(ostream& os) const
 void GlobalDestructAction::doSemanticCheck()
 {
     children_[0]->semanticCheck();
-    type_ = Type::fromBasicType(getVoidType(context_->evalMode()));
+    type_ = getVoidType(context_->evalMode());
 
     // We never CT evaluate global destruct actions
     if ( isCt(children_[0]) )

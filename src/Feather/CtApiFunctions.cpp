@@ -58,33 +58,33 @@ namespace
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // AstType
     //
-    int ctApi_AstType_typeId(Type** thisArg)
+    int ctApi_AstType_typeId(TypeRef* thisArg)
     {
-        return (*thisArg)->typeId();
+        return (*thisArg)->typeId;
     }
-    void ctApi_AstType_toString(StringData* sret, Type** thisArg)
+    void ctApi_AstType_toString(StringData* sret, TypeRef* thisArg)
     {
-        *sret = StringData(*new string((*thisArg)->toString()));
+        *sret = StringData(*new string((*thisArg)->description));
     }
-    bool ctApi_AstType_hasStorage(Type** thisArg)
+    bool ctApi_AstType_hasStorage(TypeRef* thisArg)
     {
-        return (*thisArg)->hasStorage();
+        return (*thisArg)->hasStorage;
     }
-    int ctApi_AstType_numReferences(Type** thisArg)
+    int ctApi_AstType_numReferences(TypeRef* thisArg)
     {
-        return (*thisArg)->noReferences();
+        return (*thisArg)->numReferences;
     }
-    int ctApi_AstType_mode(Type** thisArg)
+    int ctApi_AstType_mode(TypeRef* thisArg)
     {
-        return (*thisArg)->mode();
+        return (*thisArg)->mode;
     }
-    bool ctApi_AstType_canBeUsedAtCt(Type** thisArg)
+    bool ctApi_AstType_canBeUsedAtCt(TypeRef* thisArg)
     {
-        return (*thisArg)->canBeUsedAtCt();
+        return (*thisArg)->canBeUsedAtCt;
     }
-    bool ctApi_AstType_canBeUsedAtRt(Type** thisArg)
+    bool ctApi_AstType_canBeUsedAtRt(TypeRef* thisArg)
     {
-        return (*thisArg)->canBeUsedAtRt();
+        return (*thisArg)->canBeUsedAtRt;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -155,9 +155,9 @@ namespace
             *value = *res;
         return res != nullptr;
     }
-    bool ctApi_AstNode_getPropertyType(Node** thisArg, StringData name, Type** value)
+    bool ctApi_AstNode_getPropertyType(Node** thisArg, StringData name, TypeRef* value)
     {
-        Type*const* res = (*thisArg)->getPropertyType(name.begin);
+        const TypeRef* res = (*thisArg)->getPropertyType(name.begin);
         if ( res )
             *value = *res;
         return res != nullptr;
@@ -174,7 +174,7 @@ namespace
     {
         (*thisArg)->setProperty(name.begin, value);
     }
-    void ctApi_AstNode_setPropertyType(Node** thisArg, StringData name, Type* value)
+    void ctApi_AstNode_setPropertyType(Node** thisArg, StringData name, TypeRef value)
     {
         (*thisArg)->setProperty(name.begin, value);
     }
@@ -206,7 +206,7 @@ namespace
     {
         return (*thisArg)->isSemanticallyChecked();
     }
-    void ctApi_AstNode_type(Type** sret, Node** thisArg)
+    void ctApi_AstNode_type(TypeRef* sret, Node** thisArg)
     {
         *sret = (*thisArg)->type();
     }
@@ -243,7 +243,7 @@ namespace
     {
         *sret = mkNop(*loc);
     }
-    void ctApi_Feather_mkTypeNode(Node** sret, Location* loc, Type* type)
+    void ctApi_Feather_mkTypeNode(Node** sret, Location* loc, TypeRef type)
     {
         *sret = mkTypeNode(*loc, type);
     }
@@ -285,7 +285,7 @@ namespace
         *sret = mkVar(*loc, name.toStdString(), type, 0, (EvalMode) evalMode);
     }
 
-    void ctApi_Feather_mkCtValue(Node** sret, Location* loc, Type* type, StringData data)
+    void ctApi_Feather_mkCtValue(Node** sret, Location* loc, TypeRef type, StringData data)
     {
         *sret = mkCtValue(*loc, type, data.toStdString());
     }

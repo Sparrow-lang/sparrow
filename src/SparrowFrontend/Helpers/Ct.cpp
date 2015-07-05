@@ -15,10 +15,10 @@ using namespace Nest;
 namespace
 {
     template <typename ValueType>
-    ValueType evalValue(Node* node, Type* expectedExpType)
+    ValueType evalValue(Node* node, TypeRef expectedExpType)
     {
         node = theCompiler().ctEval(node);
-        Type* t = removeLValueIfPresent(node->type());
+        TypeRef t = removeLValueIfPresent(node->type());
         if ( !isSameTypeIgnoreMode(t, expectedExpType) )
             REP_INTERNAL(node->location(), "Invalid value; found expression of type %1%, expected %2%") % node->type() % expectedExpType;
         CtValue* valNode = node->as<CtValue>();
@@ -46,10 +46,10 @@ bool SprFrontend::ctValsEqual(Node* v1, Node* v2)
         return false;
 
     // Check if we are comparing type values
-    Type* t1 = tryGetTypeValue(v1);
+    TypeRef t1 = tryGetTypeValue(v1);
     if ( t1 )
     {
-        Type* t2 = tryGetTypeValue(v2);
+        TypeRef t2 = tryGetTypeValue(v2);
         if ( t2 )
             return t1 == t2;
     }

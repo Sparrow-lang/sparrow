@@ -78,7 +78,7 @@ void LambdaFunction::doSemanticCheck()
             ctorArgsNodes.push_back(arg);
 
             // Create a closure parameter
-            Type* varType = removeLValueIfPresent(arg->type());
+            TypeRef varType = removeLValueIfPresent(arg->type());
             ctorParamsNodes.push_back(mkSprParameter(loc, varName, varType));
 
             // Create a similar variable in the enclosing class - must have the same name
@@ -87,7 +87,7 @@ void LambdaFunction::doSemanticCheck()
             // Create an initialization for the variable
             Node* fieldRef = mkCompoundExp(loc, mkThisExp(loc), varName);
             Node* paramRef = mkIdentifier(loc, varName);
-            const char* op = (varType->noReferences() == 0) ? "ctor" : ":=";
+            const char* op = (varType->numReferences == 0) ? "ctor" : ":=";
             Node* initCall = mkOperatorCall(loc, fieldRef, op, paramRef);
             ctorStmts.push_back(initCall);
         }
@@ -118,6 +118,6 @@ void LambdaFunction::doSemanticCheck()
     closure->semanticCheck();
 
     // Create a resulting object: a constructor call to our class
-    Node* classId = (Node*) createTypeNode(context_, location_, Type::fromBasicType(getDataType(cls)));
+    Node* classId = (Node*) createTypeNode(context_, location_, getDataType(cls));
     setExplanation(mkFunApplication(location_, classId, ctorArgs));
 }

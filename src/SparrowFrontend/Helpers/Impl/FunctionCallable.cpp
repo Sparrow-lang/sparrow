@@ -25,52 +25,52 @@ namespace
     Node* impl_typeDescription(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 1);
-        Type* t = getType(args[0]);
-        return mkStringLiteral(loc, t->toString());
+        TypeRef t = getType(args[0]);
+        return mkStringLiteral(loc, t->description);
     }
     
     Node* impl_typeHasStorage(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 1);
-        Type* t = getType(args[0]);
-        return mkBoolLiteral(loc, t->hasStorage());
+        TypeRef t = getType(args[0]);
+        return mkBoolLiteral(loc, t->hasStorage);
     }
     
     Node* impl_typeMode(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 1);
-        Type* t = getType(args[0]);
-        return mkIntLiteral(loc, t->mode());
+        TypeRef t = getType(args[0]);
+        return mkIntLiteral(loc, t->mode);
     }
     
     Node* impl_typeCanBeUsedAtCt(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 1);
-        Type* t = getType(args[0]);
-        return mkBoolLiteral(loc, t->canBeUsedAtCt());
+        TypeRef t = getType(args[0]);
+        return mkBoolLiteral(loc, t->canBeUsedAtCt);
     }
     
     Node* impl_typeCanBeUsedAtRt(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 1);
-        Type* t = getType(args[0]);
-        return mkBoolLiteral(loc, t->canBeUsedAtRt());
+        TypeRef t = getType(args[0]);
+        return mkBoolLiteral(loc, t->canBeUsedAtRt);
     }
     
     Node* impl_typeNumRef(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 1);
-        Type* t = getType(args[0]);
-        return mkIntLiteral(loc, t->noReferences());
+        TypeRef t = getType(args[0]);
+        return mkIntLiteral(loc, t->numReferences);
     }
     
     Node* impl_typeChangeMode(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 2);
-        Type* t = getType(args[0]);
+        TypeRef t = getType(args[0]);
         int mode = getIntCtValue(args[1]);
         
-        Type* res = changeTypeMode(t, (EvalMode) mode, loc);
+        TypeRef res = changeTypeMode(t, (EvalMode) mode, loc);
         
         return createTypeNode(context, loc, res);
     }
@@ -78,10 +78,10 @@ namespace
     Node* impl_typeChangeRefCount(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 2);
-        Type* t = getType(args[0]);
+        TypeRef t = getType(args[0]);
         int numRef = getIntCtValue(args[1]);
         
-        Type* res = changeRefCount(t, numRef, loc);
+        TypeRef res = changeRefCount(t, numRef, loc);
         
         return createTypeNode(context, loc, res);
     }
@@ -89,8 +89,8 @@ namespace
     Node* impl_typeEQ(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 2);
-        Type* t1 = getType(args[0]);
-        Type* t2 = getType(args[1]);
+        TypeRef t1 = getType(args[0]);
+        TypeRef t2 = getType(args[1]);
         
         t1 = removeLValueIfPresent(t1);
         t2 = removeLValueIfPresent(t2);
@@ -104,20 +104,20 @@ namespace
     Node* impl_typeAddRef(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 1);
-        Type* t = getType(args[0]);
+        TypeRef t = getType(args[0]);
         
         t = removeLValueIfPresent(t);
-        t = changeRefCount(t, t->noReferences()+1, loc);
+        t = changeRefCount(t, t->numReferences+1, loc);
         return createTypeNode(context, loc, t);
     }
     
     Node* impl_ct(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
-        Type* t = getType(args[0]);
+        TypeRef t = getType(args[0]);
         
         t = removeLValueIfPresent(t);
         t = changeTypeMode(t, modeCt, loc);
-        if ( t->mode() != modeCt )
+        if ( t->mode != modeCt )
             REP_ERROR(loc, "Type %1% cannot be used at compile-time") % t;
         
         return createTypeNode(context, loc, t);
@@ -125,11 +125,11 @@ namespace
     
     Node* impl_rt(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
-        Type* t = getType(args[0]);
+        TypeRef t = getType(args[0]);
         
         t = removeLValueIfPresent(t);
         t = changeTypeMode(t, modeRt, loc);
-        if ( t->mode() != modeRt )
+        if ( t->mode != modeRt )
             REP_ERROR(loc, "Type %1% cannot be used at run-time") % t;
         
         return createTypeNode(context, loc, t);
@@ -138,8 +138,8 @@ namespace
     Node* impl_convertsTo(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 2);
-        Type* t1 = getType(args[0]);
-        Type* t2 = getType(args[1]);
+        TypeRef t1 = getType(args[0]);
+        TypeRef t2 = getType(args[1]);
         
         bool result = !!(canConvertType(context, t1, t2));
 
@@ -155,17 +155,17 @@ namespace
         if ( size > numeric_limits<size_t>::max() )
             REP_ERROR(loc, "Size of static buffer is too large");
         
-        Type* arrType = Type::fromBasicType(getArrayType(StdDef::typeByte->data_, (size_t) size));
+        TypeRef arrType = getArrayType(StdDef::typeByte, (size_t) size);
         return createTypeNode(context, loc, arrType);
     }
     
     Node* impl_commonType(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 2);
-        Type* t1 = getType(args[0]);
-        Type* t2 = getType(args[1]);
+        TypeRef t1 = getType(args[0]);
+        TypeRef t2 = getType(args[1]);
         
-        Type* resType = commonType(context, t1, t2);
+        TypeRef resType = commonType(context, t1, t2);
         return createTypeNode(context, loc, resType);
     }
 

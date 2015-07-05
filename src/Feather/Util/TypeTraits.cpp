@@ -12,18 +12,18 @@
 using namespace Feather;
 using namespace Nest;
 
-bool Feather::isCt(Type* type)
+bool Feather::isCt(TypeRef type)
 {
-    return type && type->mode() == modeCt;
+    return type && type->mode == modeCt;
 }
 
 bool Feather::isCt(Node* node)
 {
     return isCt(node->type());
 }
-bool Feather::isCt(const vector<Nest::Type*>& types)
+bool Feather::isCt(const vector<Nest::TypeRef>& types)
 {
-    for ( Type* t: types )
+    for ( TypeRef t: types )
         if ( !isCt(t) )
             return false;
     return true;
@@ -40,12 +40,12 @@ bool Feather::isCt(const NodeVector& nodes)
     return true;
 }
 
-bool Feather::isTestable(Type* type)
+bool Feather::isTestable(TypeRef type)
 {
     // If not Testable, check at least that is some kind of boolean
-    if ( !type || !type->hasStorage() )
+    if ( !type || !type->hasStorage )
         return false;
-    const string* nativeName = Feather::nativeName(type->data_);
+    const string* nativeName = Feather::nativeName(type);
     return nativeName && (*nativeName == "i1" || *nativeName == "u1");
 }
 
@@ -54,11 +54,11 @@ bool Feather::isTestable(Node* node)
     return isTestable(node->type());
 }
 
-bool Feather::isInteger(Type* type)
+bool Feather::isInteger(TypeRef type)
 {
-    if ( !type || type->typeId() != Type::typeData )
+    if ( !type || type->typeId != Nest::typeData )
         return false;
-    const string* nativeName = Feather::nativeName(type->data_);
+    const string* nativeName = Feather::nativeName(type);
     return nativeName && (*nativeName == "i32" || *nativeName == "u32");
 }
 
@@ -67,11 +67,11 @@ bool Feather::isInteger(Node* node)
     return isInteger(node->type());
 }
 
-bool Feather::isBasicNumericType(Type* type)
+bool Feather::isBasicNumericType(TypeRef type)
 {
-    if ( !type || !type->hasStorage() )
+    if ( !type || !type->hasStorage )
         return false;
-    const string* nativeName = Feather::nativeName(type->data_);
+    const string* nativeName = Feather::nativeName(type);
     return nativeName && (
         *nativeName == "i1" || *nativeName == "u1" || 
         *nativeName == "i8" || *nativeName == "u8" || 
@@ -82,135 +82,135 @@ bool Feather::isBasicNumericType(Type* type)
         );
 }
 
-Type* Feather::changeTypeMode(Type* type, EvalMode mode, const Location& loc)
+TypeRef Feather::changeTypeMode(TypeRef type, EvalMode mode, const Location& loc)
 {
     ASSERT(type);
-    if ( mode == type->mode() )
+    if ( mode == type->mode )
         return type;
 
-    Type* resType = nullptr;
-    switch ( type->typeId() )
+    TypeRef resType = nullptr;
+    switch ( type->typeId )
     {
         case typeVoid:
-            resType = Type::fromBasicType(getVoidType(mode));
+            resType = getVoidType(mode);
             break;
         case typeData:
-            resType = Type::fromBasicType(getDataType(type->data_->referredNode->as<Class>(), type->data_->numReferences, mode));
+            resType = getDataType(type->referredNode->as<Class>(), type->numReferences, mode);
             break;
         case typeLValue:
         {
-            Type* newElementType = changeTypeMode(Type::fromBasicType(baseType(type->data_)), mode, loc);
-            resType = newElementType ? Type::fromBasicType(getLValueType(newElementType->data_)) : nullptr;
+            TypeRef newElementType = changeTypeMode(baseType(type), mode, loc);
+            resType = newElementType ? getLValueType(newElementType) : nullptr;
             break;
         }
         case typeArray:
         {
-            Type* newUnitType = changeTypeMode(Type::fromBasicType(baseType(type->data_)), mode, loc);
-            resType = newUnitType ? Type::fromBasicType(getArrayType(newUnitType->data_, getArraySize(type->data_))) : nullptr;
+            TypeRef newUnitType = changeTypeMode(baseType(type), mode, loc);
+            resType = newUnitType ? getArrayType(newUnitType, getArraySize(type)) : nullptr;
             break;
         }
         case typeFunction:
         {
-            resType = Type::fromBasicType(getFunctionType(getFunResultType(type->data_), getFunParameters(type->data_), mode));
+            resType = getFunctionType(getFunResultType(type), getFunParameters(type), mode);
             break;
         }
 //        case typeConcept:
         default:
         {
             // Just switch the flags in the type
-            TypeData t = *type->data_;
+            Type t = *type;
             t.mode = mode;
-            resType = Type::fromBasicType(getStockType(t));
+            resType = getStockType(t);
             // TODO (type): This is ugly; need to do it dynamically
             // We also need to to update description
         }
     }
     if ( !resType )
-        REP_INTERNAL(loc, "Don't know how to change eval mode of type %1%") % type->toString();
+        REP_INTERNAL(loc, "Don't know how to change eval mode of type %1%") % type;
 
-    if ( mode == modeCt && resType->mode() != modeCt )
+    if ( mode == modeCt && resType->mode != modeCt )
         REP_ERROR(loc, "Type '%1%' cannot be used at compile-time") % type;
-    if ( mode == modeRt && resType->mode() != modeRt )
+    if ( mode == modeRt && resType->mode != modeRt )
         REP_ERROR(loc, "Type '%1%' cannot be used at run-time") % type;
 
     return resType;
 }
 
-Type* Feather::addRef(Type* type)
+TypeRef Feather::addRef(TypeRef type)
 {
     ASSERT(type);
-    if ( !type->hasStorage() )
-        REP_INTERNAL(Location(), "Invalid type given when adding reference (%1%)") % type->toString();
-    return Type::fromBasicType(getDataType(type->data_->referredNode->as<Class>(), type->data_->numReferences+1, type->data_->mode));
+    if ( !type->hasStorage )
+        REP_INTERNAL(Location(), "Invalid type given when adding reference (%1%)") % type;
+    return getDataType(type->referredNode->as<Class>(), type->numReferences+1, type->mode);
 }
 
-Type* Feather::removeRef(Type* type)
+TypeRef Feather::removeRef(TypeRef type)
 {
     ASSERT(type);
-    if ( !type->hasStorage() || type->noReferences() < 1 )
-        REP_INTERNAL(Location(), "Invalid type given when removing reference (%1%)") % type->toString();
-    return Type::fromBasicType(getDataType(type->data_->referredNode->as<Class>(), type->data_->numReferences-1, type->data_->mode));
+    if ( !type->hasStorage || type->numReferences < 1 )
+        REP_INTERNAL(Location(), "Invalid type given when removing reference (%1%)") % type;
+    return getDataType(type->referredNode->as<Class>(), type->numReferences-1, type->mode);
 }
 
-Type* Feather::removeAllRef(Type* type)
+TypeRef Feather::removeAllRef(TypeRef type)
 {
     ASSERT(type);
-    if ( !type->hasStorage() )
-        REP_INTERNAL(Location(), "Invalid type given when removing reference (%1%)") % type->toString();
-    return Type::fromBasicType(getDataType(type->data_->referredNode->as<Class>(), 0, type->data_->mode));
+    if ( !type->hasStorage )
+        REP_INTERNAL(Location(), "Invalid type given when removing reference (%1%)") % type;
+    return getDataType(type->referredNode->as<Class>(), 0, type->mode);
 }
 
-Type* Feather::removeLValue(Type* type)
+TypeRef Feather::removeLValue(TypeRef type)
 {
     ASSERT(type);
-    if ( type->typeId() != Type::typeLValue )
-        REP_INTERNAL(Location(), "Expected l-value type; got %1%") % type->toString();
-    return Type::fromBasicType(getDataType(type->data_->referredNode->as<Class>(), type->data_->numReferences-1, type->data_->mode));
+    if ( type->typeId != Nest::typeLValue )
+        REP_INTERNAL(Location(), "Expected l-value type; got %1%") % type;
+    return getDataType(type->referredNode->as<Class>(), type->numReferences-1, type->mode);
 }
 
-Type* Feather::removeLValueIfPresent(Type* type)
+TypeRef Feather::removeLValueIfPresent(TypeRef type)
 {
     ASSERT(type);
-    if ( type->typeId() != Type::typeLValue )
+    if ( type->typeId != Nest::typeLValue )
         return type;
-    return Type::fromBasicType(getDataType(type->data_->referredNode->as<Class>(), type->data_->numReferences-1, type->data_->mode));
+    return getDataType(type->referredNode->as<Class>(), type->numReferences-1, type->mode);
 }
 
-Type* Feather::lvalueToRef(Type* type)
+TypeRef Feather::lvalueToRef(TypeRef type)
 {
     ASSERT(type);
-    if ( type->typeId() != Type::typeLValue )
-        REP_INTERNAL(Location(), "Expected l-value type; got %1%") % type->toString();
-    return Type::fromBasicType(getDataType(type->data_->referredNode->as<Class>(), type->data_->numReferences, type->data_->mode));
+    if ( type->typeId != Nest::typeLValue )
+        REP_INTERNAL(Location(), "Expected l-value type; got %1%") % type;
+    return getDataType(type->referredNode->as<Class>(), type->numReferences, type->mode);
 }
 
-Type* Feather::lvalueToRefIfPresent(Type* type)
+TypeRef Feather::lvalueToRefIfPresent(TypeRef type)
 {
     ASSERT(type);
-    if ( type->typeId() != Type::typeLValue )
+    if ( type->typeId != Nest::typeLValue )
         return type;
-    return Type::fromBasicType(getDataType(type->data_->referredNode->as<Class>(), type->data_->numReferences, type->data_->mode));
+    return getDataType(type->referredNode->as<Class>(), type->numReferences, type->mode);
 }
 
-Class* Feather::classForType(Nest::Type* t)
+Class* Feather::classForType(Nest::TypeRef t)
 {
-    return t->hasStorage() ? t->data_->referredNode->as<Class>() : nullptr;
+    return t->hasStorage ? t->referredNode->as<Class>() : nullptr;
 }
 
-Node* Feather::classForTypeRaw(Nest::Type* t)
+Node* Feather::classForTypeRaw(Nest::TypeRef t)
 {
-    return t->hasStorage() ? t->data_->referredNode : nullptr;
+    return t->hasStorage ? t->referredNode : nullptr;
 }
 
-bool Feather::isSameTypeIgnoreMode(Nest::Type* t1, Nest::Type* t2)
+bool Feather::isSameTypeIgnoreMode(Nest::TypeRef t1, Nest::TypeRef t2)
 {
     ASSERT(t1);
     ASSERT(t2);
     if ( t1 == t2 )
         return true;
-    if ( t1->typeId() != t2->typeId() || t1->mode() == t2->mode() )
+    if ( t1->typeId != t2->typeId || t1->mode == t2->mode )
         return false;
-    Type* t = Feather::changeTypeMode(t1, t2->mode());
+    TypeRef t = Feather::changeTypeMode(t1, t2->mode);
     return t == t2;
 }
 
@@ -233,27 +233,27 @@ EvalMode Feather::combineMode(EvalMode mode, EvalMode baseMode, const Location& 
     }
 }
 
-Nest::Type* Feather::adjustMode(Nest::Type* srcType, CompilationContext* context, const Location& loc)
+Nest::TypeRef Feather::adjustMode(Nest::TypeRef srcType, CompilationContext* context, const Location& loc)
 {
     ASSERT(srcType);
     ASSERT(context);
-    EvalMode resMode = combineMode(srcType->mode(), context->evalMode(), loc);
+    EvalMode resMode = combineMode(srcType->mode, context->evalMode(), loc);
     return changeTypeMode(srcType, resMode, loc);
 }
 
-Nest::Type* Feather::adjustMode(Nest::Type* srcType, Nest::EvalMode baseMode, CompilationContext* context, const Location& loc)
+Nest::TypeRef Feather::adjustMode(Nest::TypeRef srcType, Nest::EvalMode baseMode, CompilationContext* context, const Location& loc)
 {
     ASSERT(srcType);
     ASSERT(context);
     baseMode = combineMode(baseMode, context->evalMode(), loc);
-    EvalMode resMode = combineMode(srcType->mode(), baseMode, loc, true);
+    EvalMode resMode = combineMode(srcType->mode, baseMode, loc, true);
     return changeTypeMode(srcType, resMode, loc);
 }
 
 void Feather::checkEvalMode(Node* src, Nest::EvalMode referencedEvalMode)
 {
     ASSERT(src && src->type());
-    EvalMode nodeEvalMode = src->type()->mode();
+    EvalMode nodeEvalMode = src->type()->mode;
     EvalMode contextEvalMode = src->context()->evalMode();
 
     // Check if the context eval mode requirements are fulfilled
@@ -284,8 +284,8 @@ void Feather::checkEvalMode(Node* src, Nest::EvalMode referencedEvalMode)
                 if ( isDecl(child) )
                     continue;
 
-                if ( child->type()->mode() != modeCt )
-                    REP_INTERNAL(child->location(), "Children of a CT node must be CT; current mode: %1% (%2%)") % child->type()->mode() % child;
+                if ( child->type()->mode != modeCt )
+                    REP_INTERNAL(child->location(), "Children of a CT node must be CT; current mode: %1% (%2%)") % child->type()->mode % child;
             }
         }
         // If we have a RT-CT eval mode, then no children must be RT
@@ -300,8 +300,8 @@ void Feather::checkEvalMode(Node* src, Nest::EvalMode referencedEvalMode)
                 if ( isDecl(child) )
                     continue;
 
-                if ( child->type() && child->type()->mode() == modeRt )
-                    REP_INTERNAL(child->location(), "Children of a RT-CT node must not be RT; current mode: %1%") % child->type()->mode();
+                if ( child->type() && child->type()->mode == modeRt )
+                    REP_INTERNAL(child->location(), "Children of a RT-CT node must not be RT; current mode: %1%") % child->type()->mode;
             }
         }
     }

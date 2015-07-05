@@ -12,7 +12,7 @@ namespace Feather
     public:
         Bitcast(const Location& loc, Node* destType, Node* exp);
 
-        Type* destType() const;
+        TypeRef destType() const;
         Node* exp() const;
 
     public:

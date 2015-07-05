@@ -14,7 +14,7 @@ namespace Feather
         StackAlloc(const Location& loc, Node* elemType, int numElements = 1, size_t alignment = 0);
 
         /// Getter for the type of elements to be allocated
-        Type* elemType() const;
+        TypeRef elemType() const;
 
         /// Getter/setter for the number of elements of the given type to be allocated
         size_t numElements() const;

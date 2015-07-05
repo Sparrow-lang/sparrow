@@ -74,17 +74,17 @@ NodeVector SprFrontend::getDeclsFromNode(Node* n, Node*& baseExp)
     }
     
     // If the node represents a type, try to get the declaration associated with the type
-    Type* t = tryGetTypeValue(n);
+    TypeRef t = tryGetTypeValue(n);
     if ( t )
     {
         // If we have a Type as base, try a constructor/concept call
-        if ( t->hasStorage() )
+        if ( t->hasStorage )
         {
-            res.push_back(classDecl(t->data_));
+            res.push_back(classDecl(t));
         }
-        else if ( t->typeId() == Type::typeConcept )
+        else if ( t->typeId == Nest::typeConcept )
         {
-            res.push_back((Node*) conceptOfType(t->data_));
+            res.push_back((Node*) conceptOfType(t));
         }
         else
             t = nullptr;

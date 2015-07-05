@@ -31,12 +31,12 @@ void SprReturn::doSemanticCheck()
         REP_ERROR(location_, "Return found outside any function");
 
     // Compute the result type of the function
-    Type* resType = nullptr;
+    TypeRef resType = nullptr;
     Node* resultParam = getResultParam(parentFun);
     if ( resultParam ) // Does this function have a result param?
     {
         resType = removeRef(resultParam->type());
-        ASSERT(!parentFun->resultType()->hasStorage()); // The function should have void result
+        ASSERT(!parentFun->resultType()->hasStorage); // The function should have void result
     }
     else
     {
@@ -49,7 +49,7 @@ void SprReturn::doSemanticCheck()
     if ( exp )
     {
         exp->semanticCheck();
-        if ( !resType->hasStorage() && exp->type() == resType )
+        if ( !resType->hasStorage && exp->type() == resType )
         {
             setExplanation(mkNodeList(location_, { exp, mkReturn(location_) }));
             return;
@@ -63,7 +63,7 @@ void SprReturn::doSemanticCheck()
     }
     else
     {
-        if ( parentFun->resultType()->typeId() != Type::typeVoid )
+        if ( parentFun->resultType()->typeId != Nest::typeVoid )
             REP_ERROR(location_, "You must return something in a function that has non-Void result type");
     }
 

@@ -8,7 +8,6 @@
 #include <unordered_map>
 
 FWD_CLASS1(Nest, Node);
-FWD_CLASS1(Nest, Type);
 FWD_CLASS1(Feather, Decl);
 FWD_CLASS2(LLVMB,Tr, DebugInfo);
 

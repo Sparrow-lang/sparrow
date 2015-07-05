@@ -44,5 +44,5 @@ void DeclExp::doSemanticCheck()
         if ( n )
             n->computeType();
     }
-    type_ = Type::fromBasicType(Feather::getVoidType(context_->evalMode()));
+    type_ = Feather::getVoidType(context_->evalMode());
 }

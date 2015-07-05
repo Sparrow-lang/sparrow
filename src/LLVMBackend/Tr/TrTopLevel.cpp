@@ -123,7 +123,7 @@ llvm::Type* Tr::translateClass(Feather::Class* node, Module& module)
     if ( !module.canUse(node) )
         return nullptr;
 
-    if ( !node->type() || 0 == strcmp(node->type()->data_->description, "BasicBlock") )
+    if ( !node->type() || 0 == strcmp(node->type()->description, "BasicBlock") )
     {
         ASSERT(true);
     }
@@ -164,7 +164,7 @@ llvm::Type* Tr::translateClass(Feather::Class* node, Module& module)
     for ( auto f: node->fields() )
     {
         Var* field = (Var*) f;
-        fieldTypes.push_back(getLLVMType(field->type()->data_, module));
+        fieldTypes.push_back(getLLVMType(field->type(), module));
     }
     if ( t->isOpaque() )
     {
@@ -187,7 +187,7 @@ llvm::Value* Tr::translateGlobalVar(Feather::Var* node, Module& module)
     if ( val )
         return val;
 
-    llvm::Type* t = getLLVMType(node->type()->data_, module);
+    llvm::Type* t = getLLVMType(node->type(), module);
 
     // Check if the variable has been declared before; if not, create it
     llvm::GlobalVariable* var = nullptr;
@@ -226,7 +226,7 @@ llvm::Value* Tr::translateGlobalVar(Feather::Var* node, Module& module)
     else
     {
         REP_ERROR(node->location(), "Don't know how to create zero initializer for the variable of type %1%")
-            % node->type()->toString();
+            % node->type();
     }
 
     // Set the value for the variable

@@ -25,7 +25,8 @@ namespace Feather
 
     /// Returns a type that represents a classic function, with parameters and result type
     /// This type can be constructed from a set of parameter types and a result type
-    TypeRef getFunctionType(TypeRef resultType, const vector<TypeRef>& paramTypes, EvalMode mode);
+    /// The first parameter is a pointer to an array with the result type then the types of the parameters
+    TypeRef getFunctionType(TypeRef* resultTypeAndParams, size_t numTypes, EvalMode mode);
 
 
     /// Getter for the class that introduces this data type - can be null

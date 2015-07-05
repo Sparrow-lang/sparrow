@@ -60,12 +60,16 @@ bool Nest::operator ==(const Type& lhs, const Type& rhs)
     return res;
 }
 
-Type* Nest::getStockType(const Type& reference)
+TypeRef Nest::findStockType(const Type& reference)
 {
-    // Search the type in our stock; if not found, insert it
-    // Return the type from the stock
-    auto p = allTypes.insert(reference);
-    return const_cast<Type*>(&*p.first); // TODO: remove the const cast
+    auto it = allTypes.find(reference);
+    return it == allTypes.end() ? nullptr : &*it;
+}
+
+TypeRef Nest::insertStockType(const Type& newType)
+{
+    auto p = allTypes.insert(newType);
+    return &*p.first;
 }
 
 void Nest::save(const Type& obj, OutArchive& ar)

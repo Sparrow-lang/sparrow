@@ -153,15 +153,16 @@ void Function::doComputeType()
     }
 
     // Set the type for this node
-    vector<TypeRef> paramTypes;
-    paramTypes.reserve(children_.size()-2);
+    vector<TypeRef> subTypes;
+    subTypes.reserve(children_.size()-1);
+    subTypes.push_back(resType);
     it = children_.begin()+2;
     for ( ; it!=ite; ++it )
     {
         Node* param = *it;
-        paramTypes.push_back(param->type());
+        subTypes.push_back(param->type());
     }
-    type_ = getFunctionType(resType, move(paramTypes), effectiveEvalMode(this));
+    type_ = getFunctionType(&subTypes[0], subTypes.size(), effectiveEvalMode(this));
 }
 
 void Function::doSemanticCheck()

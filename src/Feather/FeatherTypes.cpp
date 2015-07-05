@@ -51,17 +51,17 @@ namespace
         oss << unitType->description << " A(" << count << ")";
         return oss.str();
     }
-    string getFunctionTypeDescription(TypeRef resultType, const vector<TypeRef>& paramTypes, EvalMode mode)
+    string getFunctionTypeDescription(TypeRef* resultTypeAndParams, size_t numTypes, EvalMode mode)
     {
         ostringstream oss;
         oss << "F(";
-        for ( size_t i=0; i<paramTypes.size(); ++i )
+        for ( size_t i=1; i<numTypes; ++i )
         {
-            if ( i > 0 )
+            if ( i > 1 )
                 oss << ",";
-            oss << paramTypes[i]->description;
+            oss << resultTypeAndParams[i];
         }
-        oss << "): " << resultType->description;
+        oss << "): " << resultTypeAndParams[0];
         return oss.str();
     }
 }
@@ -79,7 +79,11 @@ TypeRef getVoidType(EvalMode mode)
     referenceType.flags         = 0;
     referenceType.referredNode  = nullptr;
     referenceType.description   = getVoidDescription(mode);
-    return getStockType(referenceType);
+
+    TypeRef t = findStockType(referenceType);
+    if ( !t )
+        t = insertStockType(referenceType);
+    return t;
 }
 
 TypeRef getDataType(Class* classDecl, uint8_t numReferences, EvalMode mode)
@@ -99,7 +103,11 @@ TypeRef getDataType(Class* classDecl, uint8_t numReferences, EvalMode mode)
     referenceType.flags         = 0;
     referenceType.referredNode  = classDecl;
     referenceType.description   = str(getDataTypeDescription(classDecl, numReferences, mode));
-    return getStockType(referenceType);
+
+    TypeRef t = findStockType(referenceType);
+    if ( !t )
+        t = insertStockType(referenceType);
+    return t;
 }
 
 TypeRef getLValueType(TypeRef base)
@@ -116,10 +124,19 @@ TypeRef getLValueType(TypeRef base)
     referenceType.referredNode  = base->referredNode;
     referenceType.description   = str(getLValueTypeDescription(base));
 
-    referenceType.subTypes = new TypeRef[1];
-    referenceType.subTypes[0] = base;
+    // Temporarily use the pointer to the given parameter
+    referenceType.subTypes = &base;
 
-    return getStockType(referenceType);
+    TypeRef t = findStockType(referenceType);
+    if ( !t )
+    {
+        // Allocate now new buffer to hold the subtypes
+        referenceType.subTypes = new TypeRef[1];
+        referenceType.subTypes[0] = base;
+
+        t = insertStockType(referenceType);
+    }
+    return t;
 }
 
 TypeRef getArrayType(TypeRef unitType, uint32_t count)
@@ -136,34 +153,50 @@ TypeRef getArrayType(TypeRef unitType, uint32_t count)
     referenceType.referredNode  = unitType->referredNode;
     referenceType.description   = str(getArrayTypeDescription(unitType, count));
 
-    referenceType.subTypes = new TypeRef[1];
-    referenceType.subTypes[0] = unitType;
+    // Temporarily use the pointer to the given parameter
+    referenceType.subTypes = &unitType;
 
-    return getStockType(referenceType);
+    TypeRef t = findStockType(referenceType);
+    if ( !t )
+    {
+        // Allocate now new buffer to hold the subtypes
+        referenceType.subTypes = new TypeRef[1];
+        referenceType.subTypes[0] = unitType;
+
+        t = insertStockType(referenceType);
+    }
+    return t;
 }
 
-TypeRef getFunctionType(TypeRef resultType, const vector<TypeRef>& paramTypes, EvalMode mode)
+TypeRef getFunctionType(TypeRef* resultTypeAndParams, size_t numTypes, EvalMode mode)
 {
+    ASSERT(numTypes >= 1);  // At least result type
+
     Type referenceType;
     referenceType.typeId        = Nest::typeFunction;
     referenceType.mode          = mode;
-    referenceType.numSubtypes   = 1 + paramTypes.size();
+    referenceType.numSubtypes   = numTypes;
     referenceType.numReferences = 0;
     referenceType.hasStorage    = 1;
     referenceType.canBeUsedAtCt = 1;
     referenceType.canBeUsedAtRt = 1;
     referenceType.flags         = 0;
     referenceType.referredNode  = nullptr;
-    referenceType.description   = str(getFunctionTypeDescription(resultType, paramTypes, mode));
+    referenceType.description   = str(getFunctionTypeDescription(resultTypeAndParams, numTypes, mode));
 
-    referenceType.subTypes = new TypeRef[1+paramTypes.size()];
-    referenceType.subTypes[0] = resultType;
-    for ( size_t i=0; i<paramTypes.size(); ++i )
-        referenceType.subTypes[1+i] = paramTypes[i];
+    // Temporarily use the given array pointer
+    referenceType.subTypes = resultTypeAndParams;
 
-    // TODO (types): Avoid allocating memory for types that are already in stock
+    TypeRef t = findStockType(referenceType);
+    if ( !t )
+    {
+        // Allocate now new buffer to hold the subtypes
+        referenceType.subTypes = new TypeRef[numTypes];
+        copy(resultTypeAndParams, resultTypeAndParams+numTypes, referenceType.subTypes);
 
-    return getStockType(referenceType);
+        t = insertStockType(referenceType);
+    }
+    return t;
 }
 
 

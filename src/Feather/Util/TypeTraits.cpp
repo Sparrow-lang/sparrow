@@ -111,16 +111,18 @@ TypeRef Feather::changeTypeMode(TypeRef type, EvalMode mode, const Location& loc
         }
         case typeFunction:
         {
-            resType = getFunctionType(getFunResultType(type), getFunParameters(type), mode);
+            resType = getFunctionType(type->subTypes, type->numSubtypes, mode);
             break;
         }
 //        case typeConcept:
         default:
         {
             // Just switch the flags in the type
-            Type t = *type;
-            t.mode = mode;
-            resType = getStockType(t);
+            Type newType = *type;
+            newType.mode = mode;
+            resType = findStockType(newType);
+            if ( !resType )
+                resType = insertStockType(newType);
             // TODO (type): This is ugly; need to do it dynamically
             // We also need to to update description
         }

@@ -52,7 +52,12 @@ namespace Nest
 
     /// Get a stock type that matches the settings from the reference
     /// We guarantee that the same types will have the same pointers
-    Type* getStockType(const Type& reference);
+    /// If we cannot find a type that matches the reference, this will return null
+    TypeRef findStockType(const Type& reference);
+
+    /// Insert a new type into our stock
+    /// Returns the pointer to be used to represent this new type
+    TypeRef insertStockType(const Type& newType);
 
 
     template <typename T>

@@ -43,7 +43,11 @@ TypeRef getConceptType(SprConcept* concept, uint8_t numReferences, EvalMode mode
     referenceType.flags         = 0;
     referenceType.referredNode  = concept;
     referenceType.description   = getConceptTypeDescription(concept, numReferences, mode);
-    return getStockType(referenceType);
+
+    TypeRef t = findStockType(referenceType);
+    if ( !t )
+        t = insertStockType(referenceType);
+    return t;
 }
 
 

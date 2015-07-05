@@ -56,7 +56,7 @@ bool Feather::isTestable(Node* node)
 
 bool Feather::isInteger(TypeRef type)
 {
-    if ( !type || type->typeId != Nest::typeData )
+    if ( !type || type->typeKind != Nest::typeData )
         return false;
     const string* nativeName = Feather::nativeName(type);
     return nativeName && (*nativeName == "i32" || *nativeName == "u32");
@@ -89,7 +89,7 @@ TypeRef Feather::changeTypeMode(TypeRef type, EvalMode mode, const Location& loc
         return type;
 
     TypeRef resType = nullptr;
-    switch ( type->typeId )
+    switch ( type->typeKind )
     {
         case typeVoid:
             resType = getVoidType(mode);
@@ -165,7 +165,7 @@ TypeRef Feather::removeAllRef(TypeRef type)
 TypeRef Feather::removeLValue(TypeRef type)
 {
     ASSERT(type);
-    if ( type->typeId != Nest::typeLValue )
+    if ( type->typeKind != Nest::typeLValue )
         REP_INTERNAL(Location(), "Expected l-value type; got %1%") % type;
     return getDataType(type->referredNode->as<Class>(), type->numReferences-1, type->mode);
 }
@@ -173,7 +173,7 @@ TypeRef Feather::removeLValue(TypeRef type)
 TypeRef Feather::removeLValueIfPresent(TypeRef type)
 {
     ASSERT(type);
-    if ( type->typeId != Nest::typeLValue )
+    if ( type->typeKind != Nest::typeLValue )
         return type;
     return getDataType(type->referredNode->as<Class>(), type->numReferences-1, type->mode);
 }
@@ -181,7 +181,7 @@ TypeRef Feather::removeLValueIfPresent(TypeRef type)
 TypeRef Feather::lvalueToRef(TypeRef type)
 {
     ASSERT(type);
-    if ( type->typeId != Nest::typeLValue )
+    if ( type->typeKind != Nest::typeLValue )
         REP_INTERNAL(Location(), "Expected l-value type; got %1%") % type;
     return getDataType(type->referredNode->as<Class>(), type->numReferences, type->mode);
 }
@@ -189,7 +189,7 @@ TypeRef Feather::lvalueToRef(TypeRef type)
 TypeRef Feather::lvalueToRefIfPresent(TypeRef type)
 {
     ASSERT(type);
-    if ( type->typeId != Nest::typeLValue )
+    if ( type->typeKind != Nest::typeLValue )
         return type;
     return getDataType(type->referredNode->as<Class>(), type->numReferences, type->mode);
 }
@@ -210,7 +210,7 @@ bool Feather::isSameTypeIgnoreMode(Nest::TypeRef t1, Nest::TypeRef t2)
     ASSERT(t2);
     if ( t1 == t2 )
         return true;
-    if ( t1->typeId != t2->typeId || t1->mode == t2->mode )
+    if ( t1->typeKind != t2->typeKind || t1->mode == t2->mode )
         return false;
     TypeRef t = Feather::changeTypeMode(t1, t2->mode);
     return t == t2;

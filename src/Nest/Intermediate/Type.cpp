@@ -13,7 +13,7 @@ namespace
     /// Get the hash code for the content of the type
     size_t getContentHash(const Type* type) noexcept
     {
-        size_t res = (size_t) type->typeId
+        size_t res = (size_t) type->typeKind
             + (size_t) type->mode
             + type->numSubtypes
             + type->numReferences
@@ -42,7 +42,7 @@ namespace
 
 bool Nest::operator ==(const Type& lhs, const Type& rhs)
 {
-    bool res = lhs.typeId == rhs.typeId
+    bool res = lhs.typeKind == rhs.typeKind
         && lhs.mode == rhs.mode
         && lhs.numSubtypes == rhs.numSubtypes
         && lhs.numReferences == rhs.numReferences
@@ -74,7 +74,7 @@ TypeRef Nest::insertStockType(const Type& newType)
 
 void Nest::save(const Type& obj, OutArchive& ar)
 {
-    ar.write("typeId", obj.typeId);
+    ar.write("typeKind", obj.typeKind);
     ar.write("mode", (char) obj.mode);
     ar.write("numSubtypes", obj.numSubtypes);
     ar.write("numReferences", obj.numReferences);

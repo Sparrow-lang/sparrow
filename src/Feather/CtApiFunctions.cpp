@@ -58,9 +58,9 @@ namespace
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // AstType
     //
-    int ctApi_AstType_typeId(TypeRef* thisArg)
+    int ctApi_AstType_typeKind(TypeRef* thisArg)
     {
-        return (*thisArg)->typeId;
+        return (*thisArg)->typeKind;
     }
     void ctApi_AstType_toString(StringData* sret, TypeRef* thisArg)
     {
@@ -389,7 +389,7 @@ void Feather::registerCtApiFunctions(Backend& backend)
     backend.ctApiRegisterFun("$Meta.CompilationContext.evalMode",   (void*) &ctApi_CompilationContext_evalMode);
     backend.ctApiRegisterFun("$Meta.CompilationContext.sourceCode", (void*) &ctApi_CompilationContext_sourceCode);
 
-    backend.ctApiRegisterFun("$Meta.AstType.typeId",                (void*) &ctApi_AstType_typeId);
+    backend.ctApiRegisterFun("$Meta.AstType.typeKind",              (void*) &ctApi_AstType_typeKind);
     backend.ctApiRegisterFun("$Meta.AstType.toString",              (void*) &ctApi_AstType_toString);
     backend.ctApiRegisterFun("$Meta.AstType.hasStorage",            (void*) &ctApi_AstType_hasStorage);
     backend.ctApiRegisterFun("$Meta.AstType.numReferences",         (void*) &ctApi_AstType_numReferences);

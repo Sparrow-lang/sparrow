@@ -69,7 +69,7 @@ namespace
 TypeRef getVoidType(EvalMode mode)
 {
     Type referenceType;
-    referenceType.typeId        = Nest::typeVoid;
+    referenceType.typeKind        = Nest::typeVoid;
     referenceType.mode          = mode;
     referenceType.numSubtypes   = 0;
     referenceType.numReferences = 0;
@@ -93,7 +93,7 @@ TypeRef getDataType(Class* classDecl, uint8_t numReferences, EvalMode mode)
         mode = classMode;
 
     Type referenceType;
-    referenceType.typeId        = Nest::typeData;
+    referenceType.typeKind        = Nest::typeData;
     referenceType.mode          = mode;
     referenceType.numSubtypes   = 0;
     referenceType.numReferences = numReferences;
@@ -113,7 +113,7 @@ TypeRef getDataType(Class* classDecl, uint8_t numReferences, EvalMode mode)
 TypeRef getLValueType(TypeRef base)
 {
     Type referenceType;
-    referenceType.typeId        = Nest::typeLValue;
+    referenceType.typeKind        = Nest::typeLValue;
     referenceType.mode          = base->mode;
     referenceType.numSubtypes   = 1;
     referenceType.numReferences = 1+base->numReferences;
@@ -142,7 +142,7 @@ TypeRef getLValueType(TypeRef base)
 TypeRef getArrayType(TypeRef unitType, uint32_t count)
 {
     Type referenceType;
-    referenceType.typeId        = Nest::typeArray;
+    referenceType.typeKind        = Nest::typeArray;
     referenceType.mode          = unitType->mode;
     referenceType.numSubtypes   = 1;
     referenceType.numReferences = 0;
@@ -173,7 +173,7 @@ TypeRef getFunctionType(TypeRef* resultTypeAndParams, size_t numTypes, EvalMode 
     ASSERT(numTypes >= 1);  // At least result type
 
     Type referenceType;
-    referenceType.typeId        = Nest::typeFunction;
+    referenceType.typeKind        = Nest::typeFunction;
     referenceType.mode          = mode;
     referenceType.numSubtypes   = numTypes;
     referenceType.numReferences = 0;
@@ -220,37 +220,37 @@ int numReferences(TypeRef type)
 
 TypeRef baseType(TypeRef type)
 {
-    ASSERT(type && (type->typeId == typeLValue || type->typeId == typeArray) && type->numSubtypes == 1);
+    ASSERT(type && (type->typeKind == typeLValue || type->typeKind == typeArray) && type->numSubtypes == 1);
     return type->subTypes[0];
 }
 
 int getArraySize(TypeRef type)
 {
-    ASSERT(type && type->typeId == typeArray);
+    ASSERT(type && type->typeKind == typeArray);
     return type->flags;
 }
 
 size_t numFunParameters(TypeRef type)
 {
-    ASSERT(type && type->typeId == typeFunction);
+    ASSERT(type && type->typeKind == typeFunction);
     return type->numSubtypes-1;
 }
 
 TypeRef getFunParameter(TypeRef type, size_t idx)
 {
-    ASSERT(type && type->typeId == typeFunction);
+    ASSERT(type && type->typeKind == typeFunction);
     return type->subTypes[idx+1];
 }
 
 vector<TypeRef> getFunParameters(TypeRef type)
 {
-    ASSERT(type && type->typeId == typeFunction);
+    ASSERT(type && type->typeKind == typeFunction);
     return vector<TypeRef>(type->subTypes+1, type->subTypes+type->numSubtypes);
 }
 
 TypeRef getFunResultType(TypeRef type)
 {
-    ASSERT(type && type->typeId == typeFunction);
+    ASSERT(type && type->typeKind == typeFunction);
     return type->subTypes[0];
 }
 

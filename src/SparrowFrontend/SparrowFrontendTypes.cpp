@@ -33,7 +33,7 @@ namespace
 TypeRef getConceptType(SprConcept* concept, uint8_t numReferences, EvalMode mode)
 {
     Type referenceType;
-    referenceType.typeId        = Nest::typeConcept;
+    referenceType.typeKind        = Nest::typeConcept;
     referenceType.mode          = mode;
     referenceType.numSubtypes   = 0;
     referenceType.numReferences = numReferences;
@@ -53,7 +53,7 @@ TypeRef getConceptType(SprConcept* concept, uint8_t numReferences, EvalMode mode
 
 SprConcept* conceptOfType(TypeRef type)
 {
-    ASSERT(type && type->typeId == typeConcept);
+    ASSERT(type && type->typeKind == typeConcept);
     return type->referredNode->as<SprConcept>();
 }
 

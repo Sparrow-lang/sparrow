@@ -169,7 +169,7 @@ Node* SprFrontend::convertCtToRt(Node* node)
 
     TypeRef t = node->type();
 
-    if ( t->typeId == Nest::typeVoid )
+    if ( t->typeKind == Nest::typeVoid )
     {
         theCompiler().ctEval(node);
         return Feather::mkNop(loc);
@@ -178,7 +178,7 @@ Node* SprFrontend::convertCtToRt(Node* node)
     if ( !t->hasStorage )
         REP_ERROR(loc, "Cannot convert a non-storage type from CT to RT (%1%)") % t;
 
-    if ( t->typeId != Nest::typeData )
+    if ( t->typeKind != Nest::typeData )
         REP_ERROR(loc, "Cannot convert from CT to RT a node of non-data type (%1%)") % t;
 
     if ( t->numReferences > 0 )
@@ -257,11 +257,11 @@ Nest::TypeRef SprFrontend::getAutoType(Nest::Node* typeNode, bool addRef)
     TypeRef t = typeNode->type();
     
     // Nothing to do for function types
-    if ( t->typeId == Nest::typeFunction )
+    if ( t->typeKind == Nest::typeFunction )
         return t;
     
     // Remove l-value if we have one
-    if ( t->typeId == Nest::typeLValue )
+    if ( t->typeKind == Nest::typeLValue )
         t = baseType(t);
     
     // Dereference
@@ -275,12 +275,12 @@ Nest::TypeRef SprFrontend::getAutoType(Nest::Node* typeNode, bool addRef)
 
 bool SprFrontend::isConceptType(TypeRef t)
 {
-    return t->typeId == Nest::typeConcept;
+    return t->typeKind == Nest::typeConcept;
 }
 
 bool SprFrontend::isConceptType(TypeRef t, bool& isRefAuto)
 {
-    if ( t->typeId == Nest::typeConcept )
+    if ( t->typeKind == Nest::typeConcept )
     {
         isRefAuto = t->numReferences > 0;
         return true;
@@ -293,10 +293,10 @@ TypeRef SprFrontend::changeRefCount(TypeRef type, int numRef, const Location& lo
     ASSERT(type);
     
     // If we have a LValue type, remove it
-    while ( type->typeId == Nest::typeLValue )
+    while ( type->typeKind == Nest::typeLValue )
         type = baseType(type);
 
-    switch ( type->typeId )
+    switch ( type->typeKind )
     {
         case Nest::typeData:
         {

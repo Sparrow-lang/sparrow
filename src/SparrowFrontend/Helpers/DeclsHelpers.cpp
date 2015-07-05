@@ -82,7 +82,7 @@ NodeVector SprFrontend::getDeclsFromNode(Node* n, Node*& baseExp)
         {
             res.push_back(classDecl(t));
         }
-        else if ( t->typeId == Nest::typeConcept )
+        else if ( t->typeKind == Nest::typeConcept )
         {
             res.push_back((Node*) conceptOfType(t));
         }

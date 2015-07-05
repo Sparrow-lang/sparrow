@@ -77,7 +77,7 @@ llvm::Type* Tr::getLLVMType(TypeRef type, Module& module)
     if ( llvmType )
         return llvmType;
 
-    switch ( type->typeId )
+    switch ( type->typeKind )
     {
     case Nest::typeVoid:
         llvmType = transformVoid(type, module);
@@ -137,6 +137,6 @@ llvm::Type* Tr::getLLVMFunctionType(Feather::Function* funDecl, int ignoreArg, M
 {
     ASSERT(funDecl);
     TypeRef t = funDecl->type();
-    ASSERT(t && t->typeId == Nest::typeFunction);
+    ASSERT(t && t->typeKind == Nest::typeFunction);
     return transformFunctionType(t, ignoreArg, module);
 }

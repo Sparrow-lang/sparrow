@@ -35,7 +35,7 @@ class[ct] CompilationContext
 
 class[ct] AstType
 {
-    fun[native("$Meta.AstType.typeId")] typeId: Int;
+    fun[native("$Meta.AstType.typeKind")] typeKind: Int;
     fun[native("$Meta.AstType.toString")] toString: StringRef;
 
     fun[native("$Meta.AstType.hasStorage")] hasStorage: Bool;

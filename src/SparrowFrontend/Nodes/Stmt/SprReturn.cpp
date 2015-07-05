@@ -63,7 +63,7 @@ void SprReturn::doSemanticCheck()
     }
     else
     {
-        if ( parentFun->resultType()->typeId != Nest::typeVoid )
+        if ( parentFun->resultType()->typeKind != Nest::typeVoid )
             REP_ERROR(location_, "You must return something in a function that has non-Void result type");
     }
 

@@ -12,7 +12,7 @@ FWD_CLASS3(Nest,Common,Ser, InArchive)
 namespace Nest
 {
     // TODO (types): Remove this; we need to be able to register types from different modules
-    enum TypeIdNew
+    enum TypeKind
     {
         typeVoid = 0,
         typeData,
@@ -22,13 +22,13 @@ namespace Nest
 
         typeConcept,
 
-        typeIdLast,
+        typeKindLast,
     };
 
     /// Represents a type
     struct Type
     {
-        unsigned typeId : 8;            ///< The type ID
+        unsigned typeKind : 8;            ///< The type ID
         EvalMode mode : 8;              ///< The evaluation mode of this type
         unsigned numSubtypes : 16;      ///< The number of subtypes of this type
         unsigned numReferences : 16;    ///< The number of references of this type

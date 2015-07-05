@@ -3,7 +3,6 @@
 #include <Helpers/SprTypeTraits.h>
 
 #include <Feather/Nodes/Decls/Function.h>
-#include <Feather/Type/DataType.h>
 #include <Feather/Util/Context.h>
 #include <Feather/Util/Decl.h>
 
@@ -119,6 +118,6 @@ void LambdaFunction::doSemanticCheck()
     closure->semanticCheck();
 
     // Create a resulting object: a constructor call to our class
-    Node* classId = (Node*) createTypeNode(context_, location_, DataType::get(cls));
+    Node* classId = (Node*) createTypeNode(context_, location_, Type::fromBasicType(getDataType(cls)));
     setExplanation(mkFunApplication(location_, classId, ctorArgs));
 }

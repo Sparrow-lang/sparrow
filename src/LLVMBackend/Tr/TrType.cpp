@@ -4,12 +4,9 @@
 #include "Module.h"
 
 #include <Nest/Common/Diagnostic.h>
+#include <Nest/Intermediate/TypeRef.h>
 
-#include <Feather/Type/Void.h>
-#include <Feather/Type/DataType.h>
-#include <Feather/Type/LValueType.h>
-#include <Feather/Type/ArrayType.h>
-#include <Feather/Type/FunctionType.h>
+#include <Feather/FeatherTypes.h>
 #include <Feather/Nodes/Decls/Function.h>
 
 #include <boost/bind.hpp>
@@ -22,80 +19,80 @@ using namespace Feather;
 
 namespace
 {
-    llvm::Type* transform(Void& /*type*/, Module& module)
+    llvm::Type* transformVoid(TypeRef /*type*/, Module& module)
     {
         return llvm::Type::getVoidTy(module.llvmContext());
     }
 
-    llvm::Type* transform(DataType& type, Module& module)
+    llvm::Type* transformDataType(TypeRef type, Module& module)
     {
         // Call the translation method for the class declaration
-        auto cls = type.classDecl();
+        auto cls = classDecl(type);
         ASSERT(cls);
         llvm::Type* t = Tr::translateClass(cls, module);
-        for ( size_t i=0; i<type.noReferences(); ++i )
+        for ( size_t i=0; i<type->numReferences; ++i )
             t = llvm::PointerType::get(t, 0);
         return t;
     }
 
-    llvm::Type* transform(LValueType& type, Module& module)
+    llvm::Type* transformLValueType(TypeRef type, Module& module)
     {
-        llvm::Type* t = llvm::PointerType::get(getLLVMType(type.baseType(), module), 0);
+        llvm::Type* t = llvm::PointerType::get(getLLVMType(baseType(type), module), 0);
         return t;
     }
 
-    llvm::Type* transform(ArrayType& type, Module& module)
+    llvm::Type* transformArrayType(TypeRef type, Module& module)
     {
-        llvm::Type* t = llvm::ArrayType::get(getLLVMType(type.unitType(), module), type.count());
+        llvm::Type* t = llvm::ArrayType::get(getLLVMType(baseType(type), module), getArraySize(type));
         return t;
     }
 
-    llvm::Type* transform(FunctionType& type, int ignoreArg, Module& module)
+    llvm::Type* transformFunctionType(TypeRef type, int ignoreArg, Module& module)
     {
         vector<llvm::Type*> llvmParamTypes;
-        llvmParamTypes.reserve(type.noParameters()+1);
-        llvm::Type* resultType = Tr::getLLVMType(type.resultType(), module);
-        for ( size_t i=0; i<type.noParameters(); ++i )
+        llvmParamTypes.reserve(numFunParameters(type)+1);
+        llvm::Type* resultType = Tr::getLLVMType(getFunResultType(type), module);
+        for ( size_t i=0; i<numFunParameters(type); ++i )
         {
             if ( int(i) == ignoreArg )
                 continue;
-            Type* t = type.getParameter(i);
+            TypeRef t = getFunParameter(type, i);
             llvmParamTypes.push_back(Tr::getLLVMType(t, module));
         }
         return llvm::FunctionType::get(resultType, llvmParamTypes, false);
     }
 }
 
-llvm::Type* Tr::getLLVMType(Type* type, Module& module)
+llvm::Type* Tr::getLLVMType(TypeRef type, Module& module)
 {
     if ( !type )
         REP_INTERNAL(NOLOC, "Invalid type to translate to LLVM");
-    if ( module.isCt() && type->mode() == modeRt )
-        REP_INTERNAL(NOLOC, "Cannot use non-CT type at CT (%1%)") % type->toString();
-    if ( !module.isCt() && !type->canBeUsedAtRt() )
-        REP_INTERNAL(NOLOC, "Cannot use CT-only type at run-time (%1%)") % type->toString();
+    if ( module.isCt() && type->mode == modeRt )
+        REP_INTERNAL(NOLOC, "Cannot use non-CT type at CT (%1%)") % type->description;
+    if ( !module.isCt() && !type->canBeUsedAtRt )
+        REP_INTERNAL(NOLOC, "Cannot use CT-only type at run-time (%1%)") % type->description;
 
     // First check or cache of translated types; if we don't have a value there, make sure to set it
     llvm::Type*& llvmType = module.translatedTypes_[type];
     if ( llvmType )
         return llvmType;
 
-    switch ( type->typeId() )
+    switch ( type->typeId )
     {
     case Type::typeVoid:
-        llvmType = transform(static_cast<Void&>(*type), module);
+        llvmType = transformVoid(type, module);
         break;
     case Type::typeData:
-        llvmType = transform(static_cast<DataType&>(*type), module);
+        llvmType = transformDataType(type, module);
         break;
     case Type::typeLValue:
-        llvmType = transform(static_cast<LValueType&>(*type), module);
+        llvmType = transformLValueType(type, module);
         break;
     case Type::typeArray:
-        llvmType = transform(static_cast<ArrayType&>(*type), module);
+        llvmType = transformArrayType(type, module);
         break;
     case Type::typeFunction:
-        llvmType = transform(static_cast<FunctionType&>(*type), -1, module);
+        llvmType = transformFunctionType(type, -1, module);
         break;
     default:
         {
@@ -141,5 +138,5 @@ llvm::Type* Tr::getLLVMFunctionType(Feather::Function* funDecl, int ignoreArg, M
     ASSERT(funDecl);
     Type* t = funDecl->type();
     ASSERT(t && t->typeId() == Type::typeFunction);
-    return transform(static_cast<FunctionType&>(*t), ignoreArg, module);
+    return transformFunctionType(t->data_, ignoreArg, module);
 }

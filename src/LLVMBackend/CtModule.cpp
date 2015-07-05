@@ -10,7 +10,6 @@
 #include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Nodes/Decls/Var.h>
 #include <Feather/Nodes/Decls/Function.h>
-#include <Feather/Type/StorageType.h>
 #include <Feather/Util/TypeTraits.h>
 
 #include <Nest/Common/TimingSystem.h>
@@ -195,7 +194,7 @@ Node* CtModule::ctEvaluateExpression(Node* node)
     if ( node->type()->hasStorage() )
     {
 	    // Create a memory space where to put the result
-        llvm::Type* llvmType = Tr::getLLVMType(node->type(), *this);
+        llvm::Type* llvmType = Tr::getLLVMType(node->type()->data_, *this);
         size_t size = llvmModule_->getDataLayout()->getTypeAllocSize(llvmType);
 	    string dataBuffer(size, (char) 0);
 

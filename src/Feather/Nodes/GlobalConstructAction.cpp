@@ -3,7 +3,6 @@
 #include "FeatherNodeCommonsCpp.h"
 #include "FeatherNodes.h"
 
-#include <Type/Void.h>
 #include <Util/TypeTraits.h>
 
 
@@ -25,7 +24,7 @@ void GlobalConstructAction::dump(ostream& os) const
 void GlobalConstructAction::doSemanticCheck()
 {
     children_[0]->semanticCheck();
-    type_ = Void::get(context_->evalMode());
+    type_ = Type::fromBasicType(getVoidType(context_->evalMode()));
 
     // For CT construct actions, evaluate them asap
     if ( isCt(children_[0]) )

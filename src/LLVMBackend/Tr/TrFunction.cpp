@@ -84,7 +84,7 @@ llvm::Function* Tr::translateFunction(Feather::Function* node, Module& module)
         return *funDecl;
 
     // First, translate the prototype
-    llvm::FunctionType* funType = static_cast<llvm::FunctionType*>(getLLVMType(node->type(), module));
+    llvm::FunctionType* funType = static_cast<llvm::FunctionType*>(getLLVMType(node->type()->data_, module));
 
     llvm::Function* f = nullptr;
 
@@ -227,7 +227,7 @@ llvm::Function* Tr::makeFunThatCalls(Nest::Node* node, Module& module, const cha
         ASSERT(node->type()->hasStorage());
 
 	    // Get the type of the expression, to be used with llvm code
-	    llvm::Type* t = getLLVMType(node->type(), module);
+	    llvm::Type* t = getLLVMType(node->type()->data_, module);
 	    llvm::Type* pt = llvm::PointerType::get(t, 0);
 
         llvmParamTypes.reserve(1);

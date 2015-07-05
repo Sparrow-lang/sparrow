@@ -39,11 +39,11 @@
 #include <Feather/Nodes/Decls/Var.h>
 #include <Feather/Nodes/Decls/Function.h>
 #include <Feather/Nodes/Properties.h>
-#include <Feather/Type/DataType.h>
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/Util/Context.h>
 #include <Feather/Util/Decl.h>
 #include <Feather/Util/StringData.h>
+#include <Feather/FeatherTypes.h>
 
 using namespace LLVMB;
 using namespace LLVMB::Tr;
@@ -186,7 +186,7 @@ namespace
 
         // Translate the PHI node
         context.setInsertionPoint(afterBlock);
-        llvm::PHINode* phiVal = llvm::PHINode::Create(getLLVMType(destType, context.module()), 2, "cond.res", context.insertionPoint());
+        llvm::PHINode* phiVal = llvm::PHINode::Create(getLLVMType(destType->data_, context.module()), 2, "cond.res", context.insertionPoint());
         phiVal->addIncoming(val1, alt1Block);
         phiVal->addIncoming(val2, alt2Block);
 
@@ -568,7 +568,7 @@ namespace
     llvm::Value* translate(CtValue& node, TrContext& context)
     {
         // Get the type of the ct value
-        llvm::Type* t = Tr::getLLVMType(node.type(), context.module());
+        llvm::Type* t = Tr::getLLVMType(node.type()->data_, context.module());
         
         // Check for String CtValues
         if ( !context.module().isCt() )
@@ -576,8 +576,7 @@ namespace
             Type* tt = node.type();
             if ( tt->typeId() == Type::typeData )
             {
-                Feather::DataType* dataType = static_cast<Feather::DataType*>(tt);
-                const string* nativeName = dataType->nativeName();
+                const string* nativeName = Feather::nativeName(tt->data_);
                 if ( nativeName && *nativeName == "StringRef" )
                 {
                     StringData data = *node.value<StringData>();
@@ -659,7 +658,7 @@ namespace
     llvm::Value* translate(StackAlloc& node, TrContext& context)
     {
         // Get the type for the stack alloc
-        llvm::Type* t = Tr::getLLVMType(node.elemType(), context.module());
+        llvm::Type* t = Tr::getLLVMType(node.elemType()->data_, context.module());
         if ( node.numElements() > 1 )
             t = llvm::ArrayType::get(t, node.numElements());
 
@@ -771,7 +770,7 @@ namespace
         CHECK(node.location(), func);
 
         // Get the functor data type, plain and with 1 or 2 pointers
-        llvm::Type* t = getLLVMType(node.type(), context.module());
+        llvm::Type* t = getLLVMType(node.type()->data_, context.module());
         llvm::Type* pt = llvm::PointerType::get(t, 0);
         CHECK(node.location(), t);
 
@@ -837,7 +836,7 @@ namespace
     {
         llvm::Value* exp = translateNode(node.exp(), context);
         CHECK(node.location(), exp);
-        llvm::Type* destType = Tr::getLLVMType(node.destType(), context.module());
+        llvm::Type* destType = Tr::getLLVMType(node.destType()->data_, context.module());
         if ( exp->getType() == destType )
             return setValue(context.module(), node, exp);
 
@@ -893,7 +892,7 @@ namespace
 
         // Translate the PHI node
         context.setInsertionPoint(afterBlock);
-        llvm::Type* destType = Tr::getLLVMType(node.type(), context.module());
+        llvm::Type* destType = Tr::getLLVMType(node.type()->data_, context.module());
         llvm::PHINode* phiVal = llvm::PHINode::Create(destType, 2, "cond", context.insertionPoint());
         phiVal->addIncoming(val1, alt1Block);
         phiVal->addIncoming(val2, alt2Block);
@@ -949,7 +948,7 @@ namespace
 
     llvm::Value* translate(Null& node, TrContext& context)
     {
-        llvm::Type* resType = Tr::getLLVMType(node.type(), context.module());
+        llvm::Type* resType = Tr::getLLVMType(node.type()->data_, context.module());
         if ( !resType->isPointerTy() )
             REP_INTERNAL(node.location(), "Null type should be a pointer (we have: %1%)") % node.type()->toString();
         
@@ -1154,7 +1153,7 @@ namespace
 		ASSERT(context.parentFun());
 
         // Create an 'alloca' instruction for the local variable
-        llvm::Type* t = Tr::getLLVMType(node.type(), context.module());
+        llvm::Type* t = Tr::getLLVMType(node.type()->data_, context.module());
 		llvm::AllocaInst* val = context.addVariable(t, getName(&node).c_str());
 		if ( node.alignment() > 0 )
 			val->setAlignment(node.alignment());

@@ -3,7 +3,6 @@
 #include <Feather/FeatherNodeCommonsCpp.h>
 
 #include <Nodes/FeatherNodes.h>
-#include <Type/Void.h>
 #include <Util/TypeTraits.h>
 #include <Util/Ct.h>
 #include <Util/Decl.h>
@@ -54,7 +53,7 @@ void If::doSemanticCheck()
     Node* elseClause = children_[2];
     
     // The resulting type is Void
-    type_ = Void::get(context_->evalMode());
+    type_ = Type::fromBasicType(getVoidType(context_->evalMode()));
 
     // Semantic check the condition
     condition->semanticCheck();

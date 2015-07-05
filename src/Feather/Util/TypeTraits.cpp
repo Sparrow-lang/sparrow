@@ -3,13 +3,7 @@
 
 #include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Util/Decl.h>
-
-#include <Feather/Type/Void.h>
-#include <Feather/Type/DataType.h>
-#include <Feather/Type/LValueType.h>
-#include <Feather/Type/ArrayType.h>
-#include <Feather/Type/FunctionType.h>
-
+#include <Feather/FeatherTypes.h>
 
 #include <Nest/Intermediate/Node.h>
 #include <Nest/Intermediate/CompilationContext.h>
@@ -51,8 +45,7 @@ bool Feather::isTestable(Type* type)
     // If not Testable, check at least that is some kind of boolean
     if ( !type || !type->hasStorage() )
         return false;
-    StorageType* storageType = static_cast<StorageType*>(type);
-    const string* nativeName = storageType->nativeName();
+    const string* nativeName = Feather::nativeName(type->data_);
     return nativeName && (*nativeName == "i1" || *nativeName == "u1");
 }
 
@@ -65,8 +58,7 @@ bool Feather::isInteger(Type* type)
 {
     if ( !type || type->typeId() != Type::typeData )
         return false;
-    DataType* dataType = static_cast<DataType*>(type);
-    const string* nativeName = dataType->nativeName();
+    const string* nativeName = Feather::nativeName(type->data_);
     return nativeName && (*nativeName == "i32" || *nativeName == "u32");
 }
 
@@ -79,8 +71,7 @@ bool Feather::isBasicNumericType(Type* type)
 {
     if ( !type || !type->hasStorage() )
         return false;
-    DataType* dataType = static_cast<DataType*>(type);
-    const string* nativeName = dataType->nativeName();
+    const string* nativeName = Feather::nativeName(type->data_);
     return nativeName && (
         *nativeName == "i1" || *nativeName == "u1" || 
         *nativeName == "i8" || *nativeName == "u8" || 
@@ -101,28 +92,26 @@ Type* Feather::changeTypeMode(Type* type, EvalMode mode, const Location& loc)
     switch ( type->typeId() )
     {
         case typeVoid:
-            resType = Void::get(mode);
+            resType = Type::fromBasicType(getVoidType(mode));
             break;
         case typeData:
-            resType = DataType::get(static_cast<DataType*>(type)->classDecl(), type->data_->numReferences, mode);
+            resType = Type::fromBasicType(getDataType(type->data_->referredNode->as<Class>(), type->data_->numReferences, mode));
             break;
         case typeLValue:
         {
-            Type* newElementType = changeTypeMode(static_cast<LValueType*>(type)->baseType(), mode, loc);
-            resType = newElementType ? LValueType::get(newElementType) : nullptr;
+            Type* newElementType = changeTypeMode(Type::fromBasicType(baseType(type->data_)), mode, loc);
+            resType = newElementType ? Type::fromBasicType(getLValueType(newElementType->data_)) : nullptr;
             break;
         }
         case typeArray:
         {
-            ArrayType* t = static_cast<ArrayType*>(type);
-            Type* newUnitType = changeTypeMode(t->unitType(), mode, loc);
-            resType = newUnitType ? ArrayType::get((StorageType*) newUnitType, t->count()) : nullptr;
+            Type* newUnitType = changeTypeMode(Type::fromBasicType(baseType(type->data_)), mode, loc);
+            resType = newUnitType ? Type::fromBasicType(getArrayType(newUnitType->data_, getArraySize(type->data_))) : nullptr;
             break;
         }
         case typeFunction:
         {
-            FunctionType* t = static_cast<FunctionType*>(type);
-            resType = FunctionType::get(t->resultType(), t->paramTypes(), mode);
+            resType = Type::fromBasicType(getFunctionType(getFunResultType(type->data_), getFunParameters(type->data_), mode));
             break;
         }
 //        case typeConcept:
@@ -152,8 +141,7 @@ Type* Feather::addRef(Type* type)
     ASSERT(type);
     if ( !type->hasStorage() )
         REP_INTERNAL(Location(), "Invalid type given when adding reference (%1%)") % type->toString();
-    StorageType* t = static_cast<StorageType*>(type);
-    return DataType::get(t->classDecl(), t->noReferences()+1, t->mode());
+    return Type::fromBasicType(getDataType(type->data_->referredNode->as<Class>(), type->data_->numReferences+1, type->data_->mode));
 }
 
 Type* Feather::removeRef(Type* type)
@@ -161,8 +149,7 @@ Type* Feather::removeRef(Type* type)
     ASSERT(type);
     if ( !type->hasStorage() || type->noReferences() < 1 )
         REP_INTERNAL(Location(), "Invalid type given when removing reference (%1%)") % type->toString();
-    StorageType* t = static_cast<StorageType*>(type);
-    return DataType::get(t->classDecl(), t->noReferences()-1, t->mode());
+    return Type::fromBasicType(getDataType(type->data_->referredNode->as<Class>(), type->data_->numReferences-1, type->data_->mode));
 }
 
 Type* Feather::removeAllRef(Type* type)
@@ -170,8 +157,7 @@ Type* Feather::removeAllRef(Type* type)
     ASSERT(type);
     if ( !type->hasStorage() )
         REP_INTERNAL(Location(), "Invalid type given when removing reference (%1%)") % type->toString();
-    StorageType* t = static_cast<StorageType*>(type);
-    return DataType::get(t->classDecl(), 0, t->mode());
+    return Type::fromBasicType(getDataType(type->data_->referredNode->as<Class>(), 0, type->data_->mode));
 }
 
 Type* Feather::removeLValue(Type* type)
@@ -179,8 +165,7 @@ Type* Feather::removeLValue(Type* type)
     ASSERT(type);
     if ( type->typeId() != Type::typeLValue )
         REP_INTERNAL(Location(), "Expected l-value type; got %1%") % type->toString();
-    StorageType* t = static_cast<StorageType*>(type);
-    return DataType::get(t->classDecl(), t->noReferences()-1, t->mode());
+    return Type::fromBasicType(getDataType(type->data_->referredNode->as<Class>(), type->data_->numReferences-1, type->data_->mode));
 }
 
 Type* Feather::removeLValueIfPresent(Type* type)
@@ -188,8 +173,7 @@ Type* Feather::removeLValueIfPresent(Type* type)
     ASSERT(type);
     if ( type->typeId() != Type::typeLValue )
         return type;
-    StorageType* t = static_cast<StorageType*>(type);
-    return DataType::get(t->classDecl(), t->noReferences()-1, t->mode());
+    return Type::fromBasicType(getDataType(type->data_->referredNode->as<Class>(), type->data_->numReferences-1, type->data_->mode));
 }
 
 Type* Feather::lvalueToRef(Type* type)
@@ -197,8 +181,7 @@ Type* Feather::lvalueToRef(Type* type)
     ASSERT(type);
     if ( type->typeId() != Type::typeLValue )
         REP_INTERNAL(Location(), "Expected l-value type; got %1%") % type->toString();
-    StorageType* t = static_cast<StorageType*>(type);
-    return DataType::get(t->classDecl(), t->noReferences(), t->mode());
+    return Type::fromBasicType(getDataType(type->data_->referredNode->as<Class>(), type->data_->numReferences, type->data_->mode));
 }
 
 Type* Feather::lvalueToRefIfPresent(Type* type)
@@ -206,18 +189,17 @@ Type* Feather::lvalueToRefIfPresent(Type* type)
     ASSERT(type);
     if ( type->typeId() != Type::typeLValue )
         return type;
-    StorageType* t = static_cast<StorageType*>(type);
-    return DataType::get(t->classDecl(), t->noReferences(), t->mode());
+    return Type::fromBasicType(getDataType(type->data_->referredNode->as<Class>(), type->data_->numReferences, type->data_->mode));
 }
 
 Class* Feather::classForType(Nest::Type* t)
 {
-    return t->hasStorage() ? static_cast<StorageType*>(t)->classDecl() : nullptr;
+    return t->hasStorage() ? t->data_->referredNode->as<Class>() : nullptr;
 }
 
 Node* Feather::classForTypeRaw(Nest::Type* t)
 {
-    return t->hasStorage() ? static_cast<StorageType*>(t)->classDecl() : nullptr;
+    return t->hasStorage() ? t->data_->referredNode : nullptr;
 }
 
 bool Feather::isSameTypeIgnoreMode(Nest::Type* t1, Nest::Type* t2)

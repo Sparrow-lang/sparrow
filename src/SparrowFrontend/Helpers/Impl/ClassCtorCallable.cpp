@@ -7,7 +7,6 @@
 #include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Nodes/Decls/Function.h>
-#include <Feather/Type/LValueType.h>
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/Util/Decl.h>
 
@@ -88,7 +87,7 @@ bool ClassCtorCallable::isAutoCt() const
 
 ConversionType ClassCtorCallable::canCall(CompilationContext* context, const Location& loc, const vector<Type*>& argTypes, EvalMode evalMode, bool noCustomCvt)
 {
-    Type* t = LValueType::get(varType(cls_, evalMode_));
+    Type* t = Type::fromBasicType(getLValueType(varType(cls_, evalMode_)->data_));
 
     vector<Type*> argTypes2 = argTypes;
     argTypes2.insert(argTypes2.begin(), t);

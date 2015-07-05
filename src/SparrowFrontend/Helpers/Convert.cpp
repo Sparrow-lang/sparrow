@@ -6,13 +6,11 @@
 #include "Impl/Callable.h"
 #include <NodeCommonsCpp.h>
 #include <Nodes/Decls/SprConcept.h>
-#include <Type/ConceptType.h>
+#include <SparrowFrontendTypes.h>
 
 #include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Nodes/ChangeMode.h>
 #include <Feather/Nodes/Decls/Class.h>
-#include <Feather/Type/DataType.h>
-#include <Feather/Type/LValueType.h>
 #include <Feather/Util/TypeTraits.h>
 
 #include <Nest/Common/Tuple.h>
@@ -115,7 +113,7 @@ namespace
 
         if ( srcType->typeId() != Type::typeLValue && srcType->noReferences() == destType->noReferences() )
         {
-            SprConcept* concept = static_cast<ConceptType*>(destType)->concept();
+            SprConcept* concept = conceptOfType(destType->data_);
 
             // If we have a concept, check if the type fulfills the concept
             if ( concept )
@@ -134,7 +132,7 @@ namespace
             || srcType->noReferences() != destType->noReferences() )
             return convNone;
 
-        SprConcept* srcConcept = static_cast<ConceptType*>(srcType)->concept();
+        SprConcept* srcConcept = conceptOfType(srcType->data_);
         if ( !srcConcept )
             return convNone;
 
@@ -202,7 +200,7 @@ namespace
         if ( srcType->typeId() != Type::typeData || srcType->noReferences() > 0 )
             return convNone;
 
-        StorageType* baseDataType = static_cast<StorageType*>(addRef(srcType));
+        Type* baseDataType = addRef(srcType);
 
         ConversionResult res(convImplicit, [=](Node* src) -> Node* {
             Node* var = Feather::mkVar(src->location(), "$tmpForRef", mkTypeNode(src->location(), srcType));
@@ -232,12 +230,12 @@ namespace
         if ( destMode == modeRtCt )
             destMode = srcType->mode();
         t = changeTypeMode(t, destMode);
-        Type* resType = LValueType::get(t);
+        Type* resType = Type::fromBasicType(getLValueType(t->data_));
 
         bool contextDependent = false;  // TODO (convert): This should be context dependent for private ctors
 
         ConversionResult res = ConversionResult(convCustom, [=](Node* src) -> Node* {
-            Node* refToClass = createTypeNode(src->context(), src->location(), DataType::get(destClass));
+            Node* refToClass = createTypeNode(src->context(), src->location(), Type::fromBasicType(getDataType(destClass)));
             return new ChangeMode(src->location(), destMode, mkFunApplication(src->location(), refToClass, {src}));
         }, contextDependent);
         return combine(res, cachedCanConvertImpl(context, flags | flagDontCallConversionCtor, resType, destType));

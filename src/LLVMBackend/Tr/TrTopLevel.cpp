@@ -164,7 +164,7 @@ llvm::Type* Tr::translateClass(Feather::Class* node, Module& module)
     for ( auto f: node->fields() )
     {
         Var* field = (Var*) f;
-        fieldTypes.push_back(getLLVMType(field->type(), module));
+        fieldTypes.push_back(getLLVMType(field->type()->data_, module));
     }
     if ( t->isOpaque() )
     {
@@ -187,7 +187,7 @@ llvm::Value* Tr::translateGlobalVar(Feather::Var* node, Module& module)
     if ( val )
         return val;
 
-    llvm::Type* t = getLLVMType(node->type(), module);
+    llvm::Type* t = getLLVMType(node->type()->data_, module);
 
     // Check if the variable has been declared before; if not, create it
     llvm::GlobalVariable* var = nullptr;

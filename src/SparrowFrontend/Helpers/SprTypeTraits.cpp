@@ -3,14 +3,12 @@
 #include "Overload.h"
 #include "StdDef.h"
 #include "Impl/Callable.h"
-#include <Type/ConceptType.h>
+#include <SparrowFrontendTypes.h>
 #include <NodeCommonsCpp.h>
 
 #include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Nodes/Exp/CtValue.h>
 #include <Feather/Nodes/Decls/Class.h>
-#include <Feather/Type/DataType.h>
-#include <Feather/Type/LValueType.h>
 #include <Feather/Util/Decl.h>
 
 
@@ -23,7 +21,7 @@ namespace
     {
         if ( !t->hasStorage() )
             return false;
-        Class* cls = static_cast<StorageType*>(t)->classDecl();
+        Class* cls = classForType(t);
         ASSERT(cls);
         
         const string* nativeName = cls->getPropertyString(propNativeName);
@@ -129,7 +127,7 @@ Nest::Type* SprFrontend::doDereference1(Nest::Node* arg, Nest::Node*& cvt)
     {
         cvt = mkMemLoad(arg->location(), cvt);
     }
-    return DataType::get(classForType(t), 0, t->mode());  // Zero references
+    return Type::fromBasicType(getDataType(classForType(t), 0, t->data_->mode));  // Zero references
 }
 
 namespace
@@ -264,7 +262,7 @@ Nest::Type* SprFrontend::getAutoType(Nest::Node* typeNode, bool addRef)
     
     // Remove l-value if we have one
     if ( t->typeId() == Type::typeLValue )
-        t = static_cast<LValueType*>(t)->baseType();
+        t = Type::fromBasicType(baseType(t->data_));
     
     // Dereference
     t = Feather::removeAllRef(t);
@@ -296,20 +294,18 @@ Type* SprFrontend::changeRefCount(Type* type, int numRef, const Location& loc)
     
     // If we have a LValue type, remove it
     while ( type->typeId() == Type::typeLValue )
-        type = static_cast<LValueType*>(type)->baseType();
+        type = Type::fromBasicType(baseType(type->data_));
 
     switch ( type->typeId() )
     {
         case Type::typeData:
         {
-            DataType* dt = static_cast<DataType*>(type);
-            type = DataType::get(dt->classDecl(), numRef, dt->mode());
+            type = Type::fromBasicType(getDataType(type->data_->referredNode->as<Class>(), numRef, type->data_->mode));
             break;
         }
         case Type::typeConcept:
         {
-            ConceptType* ct = static_cast<ConceptType*>(type);
-            type = ConceptType::get(ct->concept(), numRef, ct->mode());
+            type = Type::fromBasicType(getConceptType(conceptOfType(type->data_), numRef, type->data_->mode));
             break;
         }
         default:

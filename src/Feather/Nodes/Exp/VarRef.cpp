@@ -2,7 +2,6 @@
 #include "VarRef.h"
 #include <Feather/FeatherNodeCommonsCpp.h>
 #include <Nodes/Decls/Class.h>
-#include <Type/LValueType.h>
 #include <Util/TypeTraits.h>
 #include <Util/Decl.h>
 
@@ -55,6 +54,6 @@ void VarRef::doSemanticCheck()
         REP_INTERNAL(location_, "VarRef used on a field (%1%). Use FieldRef instead") % getName(var);
     if ( !var->type()->hasStorage() )
         REP_ERROR(location_, "Variable type is doesn't have a storage type (type: %1%)") % var->type()->toString();
-    type_ = adjustMode(LValueType::get(var->type()), context_, location_);
+    type_ = adjustMode(Type::fromBasicType(getLValueType(var->type()->data_)), context_, location_);
     checkEvalMode(this, var->type()->mode());
 }

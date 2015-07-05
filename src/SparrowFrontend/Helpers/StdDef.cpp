@@ -6,7 +6,6 @@
 #include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Nodes/Decls/Function.h>
-#include <Feather/Type/DataType.h>
 #include <Feather/Util/Decl.h>
 
 using namespace SprFrontend;
@@ -55,7 +54,7 @@ void SprFrontend::initTypeType(CompilationContext* ctx)
     setEvalMode(clsType, modeCt);
     clsType->setContext(ctx);
     clsType->computeType();
-    typeType = DataType::get(clsType, 0, modeCt);
+    typeType = Type::fromBasicType(getDataType(clsType, 0, modeCt));
 }
 
 void SprFrontend::checkStdClass(Node* cls)
@@ -67,41 +66,41 @@ void SprFrontend::checkStdClass(Node* cls)
     Class* c = (Class*) cls;
 
     if ( getName(cls) == "Void" )
-        StdDef::typeVoid = DataType::get(c);
+        StdDef::typeVoid = Type::fromBasicType(getDataType(c));
     else if ( getName(cls) == "Null" )
-        StdDef::typeNull = DataType::get(c);
+        StdDef::typeNull = Type::fromBasicType(getDataType(c));
     else if ( getName(cls) == "Bool" )
     {
         StdDef::clsBool = c;
-        StdDef::typeBool = DataType::get(c);
+        StdDef::typeBool = Type::fromBasicType(getDataType(c));
     }
     else if ( getName(cls) == "Byte" )
     {
-        StdDef::typeByte = DataType::get(c);
-        StdDef::typeRefByte = DataType::get(c, 1);
+        StdDef::typeByte = Type::fromBasicType(getDataType(c));
+        StdDef::typeRefByte = Type::fromBasicType(getDataType(c, 1));
     }
     else if ( getName(cls) == "Int" )
     {
-        StdDef::typeInt = DataType::get(c);
-        StdDef::typeRefInt = DataType::get(c, 1);
+        StdDef::typeInt = Type::fromBasicType(getDataType(c));
+        StdDef::typeRefInt = Type::fromBasicType(getDataType(c, 1));
     }
     else if ( getName(cls) == "SizeType" )
     {
-        StdDef::typeSizeType = DataType::get(c);
-        StdDef::typeSizeTypeCt = DataType::get(c, 0, modeCt);
+        StdDef::typeSizeType = Type::fromBasicType(getDataType(c));
+        StdDef::typeSizeTypeCt = Type::fromBasicType(getDataType(c, 0, modeCt));
     }
     else if ( getName(cls) == "Uninitialized" )
     {
         StdDef::clsUninitialized = c;
-        StdDef::typeUninitialized = DataType::get(c);
+        StdDef::typeUninitialized = Type::fromBasicType(getDataType(c));
     }
     else if ( getName(cls) == "Type" )
     {
-        StdDef::typeType = DataType::get(c);
-        StdDef::typeRefType = DataType::get(c, 1);
+        StdDef::typeType = Type::fromBasicType(getDataType(c));
+        StdDef::typeRefType = Type::fromBasicType(getDataType(c, 1));
     }
     else if ( getName(cls) == "StringRef" )
-        StdDef::typeStringRef = DataType::get(c);
+        StdDef::typeStringRef = Type::fromBasicType(getDataType(c));
 
     classesFound = StdDef::typeVoid != nullptr
                 && StdDef::typeNull != nullptr

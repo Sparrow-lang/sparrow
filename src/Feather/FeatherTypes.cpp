@@ -161,7 +161,64 @@ TypeRef getFunctionType(TypeRef resultType, const vector<TypeRef>& paramTypes, E
     for ( size_t i=0; i<paramTypes.size(); ++i )
         referenceType.subTypes[1+i] = paramTypes[i];
 
+    // TODO (types): Avoid allocating memory for types that are already in stock
+
     return getStockType(referenceType);
+}
+
+
+Class* classDecl(TypeRef type)
+{
+    ASSERT(type && type->hasStorage);
+    return type->referredNode->as<Class>();
+}
+
+const string* nativeName(TypeRef type)
+{
+    Class* cls = classDecl(type);
+    return cls ? cls->getPropertyString(propNativeName) : nullptr;
+}
+
+int numReferences(TypeRef type)
+{
+    ASSERT(type && type->hasStorage);
+    return type->numReferences;
+}
+
+TypeRef baseType(TypeRef type)
+{
+    ASSERT(type && (type->typeId == typeLValue || type->typeId == typeArray) && type->numSubtypes == 1);
+    return type->subTypes[0];
+}
+
+int getArraySize(TypeRef type)
+{
+    ASSERT(type && type->typeId == typeArray);
+    return type->flags;
+}
+
+size_t numFunParameters(TypeRef type)
+{
+    ASSERT(type && type->typeId == typeFunction);
+    return type->numSubtypes-1;
+}
+
+TypeRef getFunParameter(TypeRef type, size_t idx)
+{
+    ASSERT(type && type->typeId == typeFunction);
+    return type->subTypes[idx+1];
+}
+
+vector<TypeRef> getFunParameters(TypeRef type)
+{
+    ASSERT(type && type->typeId == typeFunction);
+    return vector<TypeRef>(type->subTypes+1, type->subTypes+type->numSubtypes);
+}
+
+TypeRef getFunResultType(TypeRef type)
+{
+    ASSERT(type && type->typeId == typeFunction);
+    return type->subTypes[0];
 }
 
 }

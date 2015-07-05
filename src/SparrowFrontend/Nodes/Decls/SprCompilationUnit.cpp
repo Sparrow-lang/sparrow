@@ -4,7 +4,6 @@
 #include <Helpers/DeclsHelpers.h>
 #include <Helpers/QualifiedId.h>
 #include <Nodes/Exp/Literal.h>
-#include <Feather/Type/Void.h>
 
 using namespace SprFrontend;
 
@@ -95,7 +94,7 @@ void SprCompilationUnit::doComputeType()
         checkForAllowedNamespaceChildren(declarations);
     }
 
-    type_ = Feather::Void::get(Feather::modeCt);
+    type_ = Type::fromBasicType(Feather::getVoidType(Feather::modeCt));
 }
 
 void SprCompilationUnit::doSemanticCheck()

@@ -6,11 +6,8 @@
 #include <Helpers/Ct.h>
 #include <Helpers/StdDef.h>
 #include <Nodes/Builder.h>
-#include <Type/ConceptType.h>
 #include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Nodes/Decls/Function.h>
-#include <Feather/Type/StorageType.h>
-#include <Feather/Type/ArrayType.h>
 #include <Feather/Util/Decl.h>
 
 using namespace SprFrontend;
@@ -158,7 +155,7 @@ namespace
         if ( size > numeric_limits<size_t>::max() )
             REP_ERROR(loc, "Size of static buffer is too large");
         
-        Type* arrType = Feather::ArrayType::get((Feather::StorageType*) StdDef::typeByte, (size_t) size);
+        Type* arrType = Type::fromBasicType(getArrayType(StdDef::typeByte->data_, (size_t) size));
         return createTypeNode(context, loc, arrType);
     }
     

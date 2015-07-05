@@ -12,7 +12,6 @@
 #include <Feather/Nodes/ChangeMode.h>
 #include <Feather/Nodes/Decls/Function.h>
 #include <Feather/Nodes/Decls/Class.h>
-#include <Feather/Type/DataType.h>
 #include <Feather/Util/Decl.h>
 
 #include <Nest/Common/ScopeGuard.h>
@@ -354,7 +353,7 @@ Callable* SprFrontend::selectCtToRtCtor(CompilationContext* context, Type* ctTyp
 
     if ( ctType->mode() != modeCt || !ctType->hasStorage() )
         return nullptr;
-    Class* cls = static_cast<StorageType*>(ctType)->classDecl();
+    Class* cls = Feather::classDecl(ctType->data_);
     if ( effectiveEvalMode(cls) != modeRtCt )
         return nullptr;
 

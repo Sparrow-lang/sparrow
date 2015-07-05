@@ -4,7 +4,7 @@
 #include <NodeCommonsCpp.h>
 #include <Helpers/SprTypeTraits.h>
 #include <Helpers/DeclsHelpers.h>
-#include <Type/ConceptType.h>
+#include <SparrowFrontendTypes.h>
 
 #include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Util/Decl.h>
@@ -38,7 +38,7 @@ Type* SprConcept::baseConceptType() const
 {
     Node* baseConcept = children_[0];
 
-    Type* res = baseConcept ? getType(baseConcept) : ConceptType::get();
+    Type* res = baseConcept ? getType(baseConcept) : Type::fromBasicType(getConceptType());
     res = adjustMode(res, context_, location_);
     return res;
 }
@@ -71,7 +71,7 @@ void SprConcept::doSemanticCheck()
 
     Node* param = baseConcept
         ? mkSprParameter(location_, paramName, baseConcept)
-        : mkSprParameter(location_, paramName, ConceptType::get());
+        : mkSprParameter(location_, paramName, Type::fromBasicType(getConceptType()));
     param->setContext(childrenContext_);
     param->computeType();       // But not semanticCheck, as it will complain of instantiating a var of type auto
 

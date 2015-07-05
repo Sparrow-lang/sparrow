@@ -4,7 +4,6 @@
 #include <Nodes/FeatherNodes.h>
 #include <Nodes/NodeList.h>
 
-#include <Type/Void.h>
 #include <Util/TypeTraits.h>
 #include <Util/Ct.h>
 #include <Util/Decl.h>
@@ -112,5 +111,5 @@ void While::doSemanticCheck()
         step->semanticCheck();
 
     // The resulting type is Void
-    type_ = Void::get(context_->evalMode());
+    type_ = Type::fromBasicType(getVoidType(context_->evalMode()));
 }

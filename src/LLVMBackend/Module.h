@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Nest/Intermediate/TypeRef.h>
+
 #include <boost/function.hpp>
 #include <boost/any.hpp>
 #include <string>
@@ -100,7 +102,7 @@ namespace LLVMB
         Tr::DebugInfo* debugInfo_;
 
     public:
-        unordered_map<Nest::Type*, llvm::Type*> translatedTypes_;
+        unordered_map<Nest::TypeRef, llvm::Type*> translatedTypes_;
     };
 
 }

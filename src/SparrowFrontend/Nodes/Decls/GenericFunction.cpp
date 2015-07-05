@@ -7,7 +7,6 @@
 #include <Helpers/CommonCode.h>
 #include <Helpers/DeclsHelpers.h>
 
-#include <Feather/Type/DataType.h>
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/Util/Decl.h>
 
@@ -243,7 +242,7 @@ GenericFunction* GenericFunction::createGeneric(SprFunction* originalFun, NodeLi
     // If a 'this' class is passed, add an extra parameter for this
     if ( thisClass )
     {
-        Type* thisType = Feather::DataType::get(thisClass, 1, effectiveEvalMode(originalFun));
+        Type* thisType = Type::fromBasicType(getDataType(thisClass, 1, effectiveEvalMode(originalFun)));
         Node* thisParam = mkSprParameter(originalFun->location(), "$this", thisType);
         thisParam->setContext(originalFun->childrenContext());
         thisParam->computeType();

@@ -6,7 +6,6 @@
 #include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Nodes/LocalSpace.h>
-#include <Feather/Type/DataType.h>
 #include <Feather/Util/Context.h>
 #include <Feather/Util/Decl.h>
 

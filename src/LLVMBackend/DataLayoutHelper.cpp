@@ -5,11 +5,10 @@
 #include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Nodes/Decls/Var.h>
 #include <Feather/Nodes/Properties.h>
-#include <Feather/Type/StorageType.h>
-#include <Feather/Type/ArrayType.h>
+#include <Feather/Util/Decl.h>
+#include <Feather/FeatherTypes.h>
 
 #include <Nest/Intermediate/Type.h>
-#include <Feather/Util/Decl.h>
 #include <Nest/CompilerSettings.h>
 #include <Nest/Compiler.h>
 
@@ -28,14 +27,14 @@ namespace
         // Check array types
         if ( type->typeId() == Type::typeArray )
         {
-            ArrayType* at = static_cast<ArrayType*>(type);
-            return llvm::ArrayType::get(getLLVMTypeForSize(at->unitType(), llvmContext), at->count());
+            return llvm::ArrayType::get(getLLVMTypeForSize(Type::fromBasicType(baseType(type->data_)), llvmContext), getArraySize(type->data_));
         }
 
         if ( !type->hasStorage() )
             REP_ERROR(NOLOC, "Cannot compute size of a type which has no storage: %1%") % type;
 
-        Feather::Class* clsDecl = static_cast<Feather::StorageType*>(type)->classDecl();
+        Feather::Class* clsDecl = type->data_->referredNode->as<Class>();
+        ASSERT(clsDecl);
         if ( !clsDecl->type() )
             REP_INTERNAL(clsDecl->location(), "Class %1% doesn't have type computed, while computing its size") % getName(clsDecl);
 

@@ -88,8 +88,6 @@ SET(sourceFiles
     "Nodes/Stmt/For.cpp"
     "Nodes/Stmt/SprReturn.h"
     "Nodes/Stmt/SprReturn.cpp"
-    "Type/ConceptType.h"
-    "Type/ConceptType.cpp"
     "Mods/ModStatic.h"
     "Mods/ModStatic.cpp"
     "Mods/ModCt.h"

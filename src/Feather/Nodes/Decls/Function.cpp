@@ -2,7 +2,7 @@
 #include "Function.h"
 #include "Nodes/Properties.h"
 
-#include <Type/FunctionType.h>
+#include <Feather/FeatherTypes.h>
 #include <Util/TypeTraits.h>
 #include <Util/Decl.h>
 
@@ -153,15 +153,15 @@ void Function::doComputeType()
     }
 
     // Set the type for this node
-    vector<Type*> paramTypes;
+    vector<TypeRef> paramTypes;
     paramTypes.reserve(children_.size()-2);
     it = children_.begin()+2;
     for ( ; it!=ite; ++it )
     {
         Node* param = *it;
-        paramTypes.push_back(param->type());
+        paramTypes.push_back(param->type()->data_);
     }
-    type_ = FunctionType::get(resType, move(paramTypes), effectiveEvalMode(this));
+    type_ = Type::fromBasicType(getFunctionType(resType->data_, move(paramTypes), effectiveEvalMode(this)));
 }
 
 void Function::doSemanticCheck()

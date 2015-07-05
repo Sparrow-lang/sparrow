@@ -1,8 +1,8 @@
 #include <StdInc.h>
 #include "Class.h"
 
-#include <Type/DataType.h>
 #include <Util/Decl.h>
+#include <Feather/FeatherTypes.h>
 
 #include <Nest/Intermediate/CompilationContext.h>
 
@@ -83,7 +83,7 @@ void Class::doComputeType()
     }
 
     // Set the type for this node
-    type_ = DataType::get(this, 0, effectiveEvalMode(this));
+    type_ = Type::fromBasicType(getDataType(this, 0, effectiveEvalMode(this)));
 }
 
 void Class::doSemanticCheck()

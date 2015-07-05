@@ -2,7 +2,6 @@
 #include "Continue.h"
 #include <Feather/FeatherNodeCommonsCpp.h>
 
-#include <Type/Void.h>
 #include <Util/Context.h>
 
 
@@ -31,5 +30,5 @@ void Continue::doSemanticCheck()
     setProperty("loop", loop);
 
     // The resulting type is Void
-    type_ = Void::get(context_->evalMode());
+    type_ = Type::fromBasicType(getVoidType(context_->evalMode()));
 }

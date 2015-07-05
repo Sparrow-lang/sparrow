@@ -2,8 +2,6 @@
 #include "BackendCode.h"
 #include "FeatherNodeCommonsCpp.h"
 
-#include "Type/Void.h"
-
 using namespace Feather;
 
 namespace
@@ -45,7 +43,7 @@ void BackendCode::doSemanticCheck()
 {
     EvalMode mode = evalMode();
     if ( !type_ )
-        type_ = Feather::Void::get(mode);
+        type_ = Type::fromBasicType(getVoidType(mode));
 
     if ( mode != modeRt )
     {

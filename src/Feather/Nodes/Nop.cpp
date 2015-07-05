@@ -2,8 +2,6 @@
 #include "Nop.h"
 #include <Feather/FeatherNodeCommonsCpp.h>
 
-#include <Type/Void.h>
-
 
 Nop::Nop(const Location& loc)
     : Node(loc)
@@ -18,5 +16,5 @@ void Nop::dump(ostream& os) const
 void Nop::doSemanticCheck()
 {
     if ( !type_ )
-        type_ = Void::get(context_->evalMode());
+        type_ = Type::fromBasicType(getVoidType(context_->evalMode()));
 }

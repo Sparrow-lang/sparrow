@@ -2,8 +2,8 @@
 #include "Package.h"
 #include <NodeCommonsCpp.h>
 #include <Helpers/DeclsHelpers.h>
-#include <Feather/Type/Void.h>
 #include <Feather/Util/Decl.h>
+#include <Feather/FeatherTypes.h>
 
 using namespace SprFrontend;
 using namespace Nest;
@@ -35,7 +35,7 @@ void Package::doComputeType()
     explanation_ = children_[0];
     checkForAllowedNamespaceChildren((NodeList*) children_[0]);
 
-    type_ = Feather::Void::get(modeCt);
+    type_ = Type::fromBasicType(Feather::getVoidType(modeCt));
 }
 
 void Package::doSemanticCheck()

@@ -1,7 +1,6 @@
 #include <StdInc.h>
 #include "CtValue.h"
 #include <Feather/FeatherNodeCommonsCpp.h>
-#include "Type/DataType.h"
 
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/Util/StringData.h>
@@ -50,7 +49,7 @@ void CtValue::dump(ostream& os) const
     }
     os << "ctValue(" << type_ << ": ";
     
-    const string* nativeName = type_->hasStorage() ? static_cast<DataType*>(type_)->nativeName() : nullptr;
+    const string* nativeName = type_->hasStorage() ? Feather::nativeName(type_->data_) : nullptr;
     if ( type_->toString() == "Type/ct")
     {
         Type* t = *this->value<Type*>();

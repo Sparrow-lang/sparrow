@@ -2,6 +2,7 @@
 
 #include "FeatherNodeCommonsH.h"
 #include "Nodes/Properties.h"
+#include "FeatherTypes.h"
 
 #include <Nest/Common/Diagnostic.h>
 #include <Nest/Intermediate/CompilationContext.h>

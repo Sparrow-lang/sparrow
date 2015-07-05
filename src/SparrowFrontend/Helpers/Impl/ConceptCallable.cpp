@@ -2,7 +2,7 @@
 #include "ConceptCallable.h"
 #include <Helpers/StdDef.h>
 #include <Nodes/Decls/SprConcept.h>
-#include <Type/ConceptType.h>
+#include <SparrowFrontendTypes.h>
 #include <Feather/Nodes/FeatherNodes.h>
 
 using namespace SprFrontend;
@@ -36,7 +36,7 @@ Node* ConceptCallable::param(size_t /*idx*/) const
 
 Type* ConceptCallable::paramType(size_t /*idx*/) const
 {
-    return ConceptType::get();
+    return Type::fromBasicType(getConceptType());
 }
 
 EvalMode ConceptCallable::evalMode() const

@@ -1,11 +1,9 @@
 #include <StdInc.h>
 #include "For.h"
 #include <NodeCommonsCpp.h>
-#include <Type/ConceptType.h>
 #include <Helpers/SprTypeTraits.h>
 
 #include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Type/Void.h>
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/Util/Decl.h>
 
@@ -40,7 +38,7 @@ void For::doSetContextForChildren()
 
 void For::doComputeType()
 {
-    type_ = Void::get(context_->evalMode());
+    type_ = Type::fromBasicType(getVoidType(context_->evalMode()));
 }
 
 void For::doSemanticCheck()

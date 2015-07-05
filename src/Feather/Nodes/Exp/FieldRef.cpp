@@ -3,7 +3,6 @@
 #include <Feather/FeatherNodeCommonsCpp.h>
 
 #include <Nodes/Decls/Class.h>
-#include <Type/LValueType.h>
 #include <Util/TypeTraits.h>
 #include <Util/Decl.h>
 
@@ -65,6 +64,6 @@ void FieldRef::doSemanticCheck()
     // Set the correct type for this node
     ASSERT(field->type());
     ASSERT(field->type()->hasStorage());
-    type_ = LValueType::get(field->type());
+    type_ = Type::fromBasicType(getLValueType(field->type()->data_));
     type_ = adjustMode(type_, obj->type()->mode(), context_, location_);
 }

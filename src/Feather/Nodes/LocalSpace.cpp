@@ -2,7 +2,6 @@
 #include "LocalSpace.h"
 #include "FeatherNodeCommonsCpp.h"
 
-#include <Type/Void.h>
 #include <Util/TypeTraits.h>
 
 
@@ -39,7 +38,7 @@ void LocalSpace::doSetContextForChildren()
 
 void LocalSpace::doComputeType()
 {
-    type_ = Void::get(context_->evalMode());
+    type_ = Type::fromBasicType(getVoidType(context_->evalMode()));
 }
 
 void LocalSpace::doSemanticCheck()

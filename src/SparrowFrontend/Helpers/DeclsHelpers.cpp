@@ -5,13 +5,12 @@
 #include <NodeCommonsCpp.h>
 #include <Nodes/ModifiersNode.h>
 #include <Nodes/Exp/DeclExp.h>
-#include <Type/ConceptType.h>
+#include <SparrowFrontendTypes.h>
 #include <Mods/ModRt.h>
 #include <Mods/ModCt.h>
 #include <Mods/ModRtCt.h>
 
 #include <Feather/Nodes/Decls/Class.h>
-#include <Feather/Type/StorageType.h>
 
 using namespace SprFrontend;
 using namespace Feather;
@@ -81,11 +80,11 @@ NodeVector SprFrontend::getDeclsFromNode(Node* n, Node*& baseExp)
         // If we have a Type as base, try a constructor/concept call
         if ( t->hasStorage() )
         {
-            res.push_back(static_cast<StorageType*>(t)->classDecl());
+            res.push_back(classDecl(t->data_));
         }
         else if ( t->typeId() == Type::typeConcept )
         {
-            res.push_back((Node*) static_cast<ConceptType*>(t)->concept());
+            res.push_back((Node*) conceptOfType(t->data_));
         }
         else
             t = nullptr;

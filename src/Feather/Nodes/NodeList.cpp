@@ -1,7 +1,7 @@
 #include <StdInc.h>
 #include "NodeList.h"
-#include <Type/Void.h>
 #include <Util/TypeTraits.h>
+#include <Feather/FeatherTypes.h>
 
 using namespace Feather;
 
@@ -44,7 +44,7 @@ void NodeList::doComputeType()
     }
 
     // Get the type of the last node
-    type_ = ( hasProperty(propResultVoid) || children_.empty() || !children_.back()->type() ) ? Void::get(context_->evalMode()) : children_.back()->type();
+    type_ = ( hasProperty(propResultVoid) || children_.empty() || !children_.back()->type() ) ? Type::fromBasicType(getVoidType(context_->evalMode())) : children_.back()->type();
     type_ = adjustMode(type_, context_, location_);
     checkEvalMode(this);
 }
@@ -66,7 +66,7 @@ void NodeList::doSemanticCheck()
     if ( !type_ )
     {
         // Get the type of the last node
-        type_ = ( hasProperty(propResultVoid) || children_.empty() || !children_.back()->type() ) ? Void::get(context_->evalMode()) : children_.back()->type();
+        type_ = ( hasProperty(propResultVoid) || children_.empty() || !children_.back()->type() ) ? Type::fromBasicType(getVoidType(context_->evalMode())) : children_.back()->type();
         type_ = adjustMode(type_, context_, location_);
         checkEvalMode(this);
     }

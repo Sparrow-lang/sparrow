@@ -2,8 +2,6 @@
 #include "TempDestructAction.h"
 #include "FeatherNodeCommonsCpp.h"
 
-#include <Type/Void.h>
-
 using namespace Feather;
 
 TempDestructAction::TempDestructAction(const Location& loc, Node* action)
@@ -24,5 +22,5 @@ void TempDestructAction::dump(ostream& os) const
 void TempDestructAction::doSemanticCheck()
 {
     children_[0]->semanticCheck();
-    type_ = Void::get(context_->evalMode());
+    type_ = Type::fromBasicType(getVoidType(context_->evalMode()));
 }

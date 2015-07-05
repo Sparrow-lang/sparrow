@@ -3,7 +3,7 @@
 #include <NodeCommonsCpp.h>
 #include <Nodes/Decls/SprFunction.h>
 #include <Nodes/Decls/SprConcept.h>
-#include <Type/ConceptType.h>
+#include <SparrowFrontendTypes.h>
 #include <Helpers/DeclsHelpers.h>
 #include <Helpers/SprTypeTraits.h>
 #include <Helpers/Convert.h>
@@ -11,7 +11,6 @@
 #include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Nodes/Decls/Function.h>
 #include <Feather/Nodes/Decls/Class.h>
-#include <Feather/Type/DataType.h>
 #include <Feather/Util/Decl.h>
 
 using namespace SprFrontend;
@@ -118,10 +117,10 @@ Node* SprFrontend::getIdentifierResult(CompilationContext* ctx, const Location& 
         Type* t = nullptr;
         Class* cls = resDecl->as<Feather::Class>();
         if ( cls )
-            t = DataType::get(cls);
+            t = Type::fromBasicType(getDataType(cls));
         SprConcept* concept = resDecl->as<SprConcept>();
         if ( concept )
-            t = ConceptType::get(concept);
+            t = Type::fromBasicType(getConceptType(concept));
         if ( t )
             return (Node*) createTypeNode(ctx, loc, t);
 

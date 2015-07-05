@@ -7,7 +7,6 @@
 #include <Helpers/DeclsHelpers.h>
 
 #include <Feather/Nodes/Decls/Class.h>
-#include <Feather/Type/DataType.h>
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/Util/Decl.h>
 
@@ -183,5 +182,5 @@ Node* GenericClass::instantiateGeneric(const Location& loc, CompilationContext* 
     // Now actually create the call object: a Type CT value
     Class* cls = instantiatedDecl->explanation()->as<Class>();
     ASSERT(cls);
-    return createTypeNode(context_, loc, Feather::DataType::get(cls));
+    return createTypeNode(context_, loc, Feather::Type::fromBasicType(getDataType(cls)));
 }

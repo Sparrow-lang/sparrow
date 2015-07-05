@@ -1,7 +1,6 @@
 #include <StdInc.h>
 #include "DeclExp.h"
 #include <NodeCommonsCpp.h>
-#include <Feather/Type/Void.h>
 #include <Feather/Util/Decl.h>
 
 using namespace SprFrontend;
@@ -45,5 +44,5 @@ void DeclExp::doSemanticCheck()
         if ( n )
             n->computeType();
     }
-    type_ = Feather::Void::get(context_->evalMode());
+    type_ = Type::fromBasicType(Feather::getVoidType(context_->evalMode()));
 }

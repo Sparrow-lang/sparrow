@@ -9,7 +9,6 @@
 #include <IntMods/IntModClassMembers.h>
 
 #include <Feather/Nodes/Decls/Class.h>
-#include <Feather/Type/DataType.h>
 #include <Feather/Util/Decl.h>
 
 #include <Nest/Frontend/SourceCode.h>
@@ -180,7 +179,7 @@ void SprClass::doComputeType()
             Type* bcType = getType(bcName);
             if ( !bcType || !bcType->hasStorage() )
                 REP_ERROR(location_, "Invalid base class");
-            Class* baseClass = static_cast<StorageType*>(bcType)->classDecl();
+            Class* baseClass = classForType(bcType);
             
             // Compute the type of the base class
             baseClass->computeType();
@@ -196,7 +195,7 @@ void SprClass::doComputeType()
     }
 
     // We now have a type - from now on we can safely compute the types of the children
-    type_ = DataType::get(static_cast<Class*>(resultingClass));
+    type_ = Type::fromBasicType(getDataType(static_cast<Class*>(resultingClass)));
 
     // Get the fields from the current class
     NodeVector fields = getFields(childrenContext_->currentSymTab());

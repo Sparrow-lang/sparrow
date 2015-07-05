@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Nest/Intermediate/TypeRef.h>
+
 FWD_CLASS1(Nest, Type)
 FWD_CLASS1(Nest, Location)
 FWD_CLASS1(Feather, Function)
@@ -11,7 +13,7 @@ FWD_CLASS1(llvm, LLVMContext);
 namespace LLVMB { namespace Tr
 {
     /// Translates the given type into a LLVM type
-    llvm::Type* getLLVMType(Nest::Type* type, Module& module);
+    llvm::Type* getLLVMType(Nest::TypeRef type, Module& module);
 
     /// Get the LLVM type for a native type
     /// If this is not a LLVM native type, it will return null

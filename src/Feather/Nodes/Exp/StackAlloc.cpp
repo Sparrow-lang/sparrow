@@ -2,7 +2,6 @@
 #include "StackAlloc.h"
 #include <Feather/FeatherNodeCommonsCpp.h>
 
-#include <Type/LValueType.h>
 #include <Util/TypeTraits.h>
 
 
@@ -43,5 +42,5 @@ void StackAlloc::doSemanticCheck()
     ASSERT(children_.size() == 1);
     Node* elemTypeNode = children_[0];
     elemTypeNode->computeType();
-    type_ = adjustMode(LValueType::get(elemTypeNode->type()), context_, location_);
+    type_ = adjustMode(Type::fromBasicType(getLValueType(elemTypeNode->type()->data_)), context_, location_);
 }

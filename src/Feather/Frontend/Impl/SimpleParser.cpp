@@ -10,10 +10,9 @@
 #include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Nodes/Decls/Var.h>
 #include <Feather/Nodes/Decls/Function.h>
-#include <Feather/Type/Void.h>
-#include <Feather/Type/DataType.h>
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/Util/Decl.h>
+#include <Feather/FeatherTypes.h>
 
 #include <Nest/Common/Diagnostic.h>
 #include <Nest/Intermediate/SymTab.h>
@@ -192,7 +191,7 @@ namespace
         if ( typeNode->stringValue() == "void" )
         {
             checkNoChildren(typeNode);
-            return Feather::Void::get(modeRtCt);
+            return Type::fromBasicType(getVoidType(modeRtCt));
         }
         // Check for 'ref'
         else if ( typeNode->stringValue() == "ref" )
@@ -213,7 +212,7 @@ namespace
             // Search for the identifier in the current symbol tab to find a class with the same name
             Class* cls = findDefinition<Class>(context, typeNode->stringValue(), typeNode->location(), "class name");
             cls->computeType();
-            return Feather::DataType::get(cls);
+            return Type::fromBasicType(getDataType(cls));
         }
     }
 

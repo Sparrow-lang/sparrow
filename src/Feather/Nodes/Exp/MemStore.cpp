@@ -2,7 +2,6 @@
 #include "MemStore.h"
 #include <Feather/FeatherNodeCommonsCpp.h>
 
-#include <Type/Void.h>
 #include <Util/TypeTraits.h>
 
 
@@ -78,6 +77,6 @@ void MemStore::doSemanticCheck()
     }
 
     // The resulting type is Void
-    type_ = Void::get(address->type()->mode());
+    type_ = Type::fromBasicType(getVoidType(address->type()->mode()));
 }
 

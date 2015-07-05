@@ -46,4 +46,11 @@ TypeRef getConceptType(SprConcept* concept, uint8_t numReferences, EvalMode mode
     return getStockType(referenceType);
 }
 
+
+SprConcept* conceptOfType(TypeRef type)
+{
+    ASSERT(type && type->typeId == typeConcept);
+    return type->referredNode->as<SprConcept>();
+}
+
 }

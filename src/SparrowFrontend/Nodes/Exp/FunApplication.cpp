@@ -9,7 +9,6 @@
 #include <Helpers/StdDef.h>
 
 #include <Feather/Nodes/Decls/Class.h>
-#include <Feather/Type/StorageType.h>
 #include <Feather/Util/Decl.h>
 
 using namespace SprFrontend;
@@ -254,7 +253,7 @@ void FunApplication::checkSizeOf()
     }
 
     // Make sure the class that this refers to has the type properly computed
-    Class* cls = static_cast<StorageType*>(t)->classDecl();
+    Class* cls = classDecl(t->data_);
     Node* mainNode = cls->childrenContext()->currentSymTab()->node();
     mainNode->computeType();
 

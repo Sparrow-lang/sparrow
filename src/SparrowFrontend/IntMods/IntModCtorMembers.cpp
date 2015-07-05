@@ -12,7 +12,6 @@
 #include <Feather/Nodes/Exp/Bitcast.h>
 #include <Feather/Nodes/Exp/MemLoad.h>
 #include <Feather/Nodes/LocalSpace.h>
-#include <Feather/Type/DataType.h>
 #include <Feather/Util/Context.h>
 #include <Feather/Util/Decl.h>
 

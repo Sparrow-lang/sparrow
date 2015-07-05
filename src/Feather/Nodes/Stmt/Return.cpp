@@ -6,8 +6,6 @@
 #include <Util/Context.h>
 #include <Util/TypeTraits.h>
 
-#include <Type/Void.h>
-
 
 Return::Return(const Location& location, Node* exp)
     : Node(location, {exp})
@@ -57,5 +55,5 @@ void Return::doSemanticCheck()
     }
 
     // The resulting type is Void
-    type_ = Void::get(context_->evalMode());
+    type_ = Type::fromBasicType(getVoidType(context_->evalMode()));
 }

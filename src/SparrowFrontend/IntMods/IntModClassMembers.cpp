@@ -9,7 +9,6 @@
 #include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Nodes/Decls/Function.h>
 #include <Feather/Nodes/LocalSpace.h>
-#include <Feather/Type/DataType.h>
 #include <Feather/Util/Context.h>
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/Util/Decl.h>
@@ -61,8 +60,7 @@ namespace
                 Type* paramType = f->getParameter(otherParamIdx)->type();
                 if ( paramType->hasStorage() )
                 {
-                    StorageType* t = static_cast<StorageType*>(paramType);
-                    if ( t->classDecl() == paramClass )
+                    if ( classForType(paramType) == paramClass )
                         return true;
                 }
             }
@@ -127,7 +125,7 @@ namespace
             sprParams.push_back(mkSprParameter(loc, param.second, param.first));
         }
         NodeList* parameters = sprParams.empty() ? nullptr : (NodeList*) mkNodeList(loc, move(sprParams));
-        Node* ret = resClass ? (Node*) createTypeNode(parent->childrenContext(), loc, DataType::get(resClass)) : nullptr;
+        Node* ret = resClass ? (Node*) createTypeNode(parent->childrenContext(), loc, Type::fromBasicType(getDataType(resClass))) : nullptr;
         
         // Add the function
         Node* m = mkSprFunction(loc, name, parameters, ret, body);
@@ -270,7 +268,7 @@ namespace
 
         LocalSpace* body = new LocalSpace(loc);
         body->addChild(mkReturnStmt(loc, exp));
-        addMethod(parent, "==", body, DataType::get(cls, 1), StdDef::clsBool);
+        addMethod(parent, "==", body, Type::fromBasicType(getDataType(cls, 1)), StdDef::clsBool);
     }
 }
 
@@ -285,7 +283,7 @@ void IntModClassMembers::afterComputeType(Node* node)
 
     Class* basicClass = cls->explanation()->as<Class>();
     ASSERT(basicClass);
-    Type* paramType = DataType::get(basicClass, 1);
+    Type* paramType = Type::fromBasicType(getDataType(basicClass, 1));
 
     // Default ctor
     if ( !checkForMember(cls, "ctor", nullptr) )
@@ -305,7 +303,7 @@ void IntModClassMembers::afterComputeType(Node* node)
     
     // CT to RT ctor
     if ( !checkForCtorFromCt(cls) && !hasReferences(basicClass) )
-        generateMethod(cls, "ctorFromCt", "ctor", changeTypeMode(DataType::get(basicClass, 0), modeCt, node->location()), false, modeRt);
+        generateMethod(cls, "ctorFromCt", "ctor", changeTypeMode(Type::fromBasicType(getDataType(basicClass, 0)), modeCt, node->location()), false, modeRt);
 
     // Dtor
     if ( !checkForMember(cls, "dtor", nullptr) )

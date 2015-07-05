@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Nest/Intermediate/TypeRef.h>
+#include <Nest/Intermediate/EvalMode.h>
 
 FWD_CLASS1(Feather, Class);
 
@@ -25,4 +26,30 @@ namespace Feather
     /// Returns a type that represents a classic function, with parameters and result type
     /// This type can be constructed from a set of parameter types and a result type
     TypeRef getFunctionType(TypeRef resultType, const vector<TypeRef>& paramTypes, EvalMode mode);
+
+
+    /// Getter for the class that introduces this data type - can be null
+    /// Works for only for storage types (data, l-value, array)
+    Class* classDecl(TypeRef type);
+
+    /// If the class associated with the given type has an associated name this will return it; otherwise it returns nullptr
+    /// Works for only for storage types (data, l-value, array)
+    const string* nativeName(TypeRef type);
+
+    /// The number of references applied
+    /// Works for only for storage types (data, l-value, array)
+    int numReferences(TypeRef type);
+
+    /// Returns the base type of this type
+    /// Works for l-value and array types
+    TypeRef baseType(TypeRef type);
+
+    /// Getter for the number of units in the buffer type
+    /// Works only for array types
+    int getArraySize(TypeRef type);
+
+    size_t numFunParameters(TypeRef type);
+    TypeRef getFunParameter(TypeRef type, size_t idx);
+    vector<TypeRef> getFunParameters(TypeRef type);
+    TypeRef getFunResultType(TypeRef type);
 }

@@ -3,7 +3,6 @@
 #include "FeatherNodeCommonsCpp.h"
 #include "FeatherNodes.h"
 
-#include <Type/Void.h>
 #include <Util/TypeTraits.h>
 
 
@@ -27,7 +26,7 @@ void GlobalDestructAction::dump(ostream& os) const
 void GlobalDestructAction::doSemanticCheck()
 {
     children_[0]->semanticCheck();
-    type_ = Void::get(context_->evalMode());
+    type_ = Type::fromBasicType(getVoidType(context_->evalMode()));
 
     // We never CT evaluate global destruct actions
     if ( isCt(children_[0]) )

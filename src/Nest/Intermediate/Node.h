@@ -17,6 +17,99 @@ FWD_CLASS3(Nest,Common,Ser, InArchive)
 
 namespace Nest
 {
+    enum PropertyKind
+    {
+        propInt,
+        propString,
+        propNode,
+        propType,
+    };
+    union PropertyValue
+    {
+        int intValue_;
+        string* stringValue_;
+        Node* nodeValue_;
+        TypeRef typeValue_;
+
+        PropertyValue()
+        {
+            intValue_ = 0;
+        }
+        explicit PropertyValue(int val)
+        {
+            intValue_ = val;
+        }
+        explicit PropertyValue(string val)
+        {
+            stringValue_ = new string(move(val));
+        }
+        explicit PropertyValue(Node* val)
+        {
+            nodeValue_ = val;
+        }
+        explicit PropertyValue(TypeRef val)
+        {
+            typeValue_ = val;
+        }
+    };
+    struct Property
+    {
+        PropertyKind kind_: 16;
+        bool passToExpl_: 1;
+        PropertyValue value_;
+
+        Property() : kind_(propInt), passToExpl_(false), value_(0) {}
+        Property(PropertyKind kind, PropertyValue value, bool passToExpl = false) : kind_(kind), passToExpl_(passToExpl), value_(value) {}
+    };
+    typedef unordered_map<string, Property> PropertyMap;
+    typedef PropertyMap::value_type PropertyVal;
+
+    /// Structure representing an AST node
+    struct BasicNode
+    {
+        /// Node flags
+        unsigned int nodeKind : 16;
+        unsigned int nodeError : 1;
+        unsigned int nodeSemanticallyChecked : 1;
+        unsigned int computeTypeStarted : 1;
+        unsigned int semanticCheckStarted : 1;
+
+        /// The location corresponding to this node
+        Location location;
+
+        /// The children of this node
+        NodeVector children;
+
+        /// The nodes referred by this node
+        NodeVector referredNodes;
+        
+        /// The properties of the node
+        PropertyMap properties;
+
+        /// The context of this node
+        CompilationContext* context;
+        
+        /// The context of the children
+        CompilationContext* childrenContext;
+        
+        /// The type of this node
+        TypeRef type;
+        
+        /// The explanation of this node
+        /// A node has explanation if its meaning can be explained with the help of another node (the explanation node)
+        Node* explanation;
+
+        /// The modifiers used to adjust the compilation process of this node
+        vector<Modifier*> modifiers;
+    };
+
+    /// Creates a node of the given kind
+    BasicNode* createNode(int nodeKind);
+
+    /// Clone the given node - create one with the same characteristics
+    /// We clear the compilation state of the new node when cloning
+    BasicNode* cloneNode(BasicNode* node);
+
     /// Interface class for an intermediate code node
     class Node
     {
@@ -24,6 +117,8 @@ namespace Nest
         explicit Node(const Location& location, NodeVector children = {}, NodeVector referredNodes = {});
         Node(const Node& other);
         virtual ~Node() {}
+
+        static Node* fromBasicNode(BasicNode* basicNode);
 
         static void* operator new(size_t size);
         static void operator delete(void* ptr);
@@ -53,15 +148,15 @@ namespace Nest
         void setLocation(const Location& loc);
 
         /// Getter for the children nodes of this node - think compositon
-        const NodeVector& children() const { return children_; }
-        NodeVector& children() { return children_; }
+        const NodeVector& children() const { return basicNode_->children; }
+        NodeVector& children() { return basicNode_->children; }
         
         /// Getter for the list of nodes referred by this node
-        const NodeVector& referredNodes() const { return referredNodes_; }
-        NodeVector& referredNodes() { return referredNodes_; }
+        const NodeVector& referredNodes() const { return basicNode_->referredNodes; }
+        NodeVector& referredNodes() { return basicNode_->referredNodes; }
 
-        const vector<Modifier*>& modifiers() const { return modifiers_; }
-        vector<Modifier*>& modifiers() { return modifiers_; }
+        const vector<Modifier*>& modifiers() const { return basicNode_->modifiers; }
+        vector<Modifier*>& modifiers() { return basicNode_->modifiers; }
         
         void setProperty(const char* name, int val, bool passToExpl = false);
         void setProperty(const char* name, string val, bool passToExpl = false);
@@ -149,7 +244,7 @@ namespace Nest
             if ( !this )
                 REP_INTERNAL(NOLOC, "Expected AST node to reinterpret");
             if ( nodeKind() != T::classNodeKind() )
-                REP_INTERNAL(location_, "AST node is not of kind %1% (it's of kind %2%)") % T::classNodeKindName() % nodeKindName();
+                REP_INTERNAL(basicNode_->location, "AST node is not of kind %1% (it's of kind %2%)") % T::classNodeKindName() % nodeKindName();
             return static_cast<T*>(this);
         }
         
@@ -162,90 +257,19 @@ namespace Nest
 
     // General node attributes
     protected:
-        enum PropertyKind
-        {
-            propInt,
-            propString,
-            propNode,
-            propType,
-        };
-        union PropertyValue
-        {
-            int intValue_;
-            string* stringValue_;
-            Node* nodeValue_;
-            TypeRef typeValue_;
+        /// The basic node underlying this Node
+        BasicNode* basicNode_;
 
-            PropertyValue()
-            {
-                intValue_ = 0;
-            }
-            explicit PropertyValue(int val)
-            {
-                intValue_ = val;
-            }
-            explicit PropertyValue(string val)
-            {
-                stringValue_ = new string(move(val));
-            }
-            explicit PropertyValue(Node* val)
-            {
-                nodeValue_ = val;
-            }
-            explicit PropertyValue(TypeRef val)
-            {
-                typeValue_ = val;
-            }
-        };
-        struct Property
-        {
-            PropertyKind kind_: 16;
-            bool passToExpl_: 1;
-            PropertyValue value_;
-
-            Property() : kind_(propInt), passToExpl_(false), value_(0) {}
-            Property(PropertyKind kind, PropertyValue value, bool passToExpl = false) : kind_(kind), passToExpl_(passToExpl), value_(value) {}
-        };
-        typedef unordered_map<string, Property> PropertyMap;
-        typedef PropertyMap::value_type PropertyVal;
-
-        /// Node flags
-        struct NodeFlags
-        {
-            unsigned int nodeError : 1;
-            unsigned int nodeSemanticallyChecked : 1;
-
-            unsigned int computeTypeStarted : 1;
-            unsigned int semanticCheckStarted : 1;
-        } flags_;
-
-        /// The location corresponding to this node
-        Location location_;
-
-        /// The children of this node
-        NodeVector children_;
-
-        /// The nodes referred by this node
-        NodeVector referredNodes_;
-        
-        /// The properties of the node
-        PropertyMap properties_;
-
-        /// The context of this node
-        CompilationContext* context_;
-        
-        /// The context of the children
-        CompilationContext* childrenContext_;
-        
-        /// The type of this node
-        TypeRef type_;
-        
-        /// The explanation of this node
-        /// A node has explanation if its meaning can be explained with the help of another node (the explanation node)
-        Node* explanation_;
-
-        /// The modifiers used to adjust the compilation process of this node
-        vector<Modifier*> modifiers_;
+        // We use the following references, so that we don't change a lot of code at once
+        Location& location_;
+        NodeVector& children_;
+        NodeVector& referredNodes_;
+        PropertyMap& properties_;
+        CompilationContext*& context_;
+        CompilationContext*& childrenContext_;
+        TypeRef& type_;
+        Node*& explanation_;
+        vector<Modifier*>& modifiers_;
 
         friend void save(const Node& obj, Common::Ser::OutArchive& ar);
         friend void load(Node& obj, Common::Ser::InArchive& ar);

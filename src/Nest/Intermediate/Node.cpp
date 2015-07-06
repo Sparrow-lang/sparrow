@@ -12,39 +12,75 @@
 using namespace Nest;
 using namespace Nest::Common::Ser;
 
-Node::Node(const Location& location, NodeVector children, NodeVector referredNodes)
-    : location_(location)
-    , children_(move(children))
-    , referredNodes_(move(referredNodes))
-    , context_(nullptr)
-    , childrenContext_(nullptr)
-    , type_(nullptr)
-    , explanation_(nullptr)
+BasicNode* Nest::createNode(int nodeKind)
 {
-    memset(&flags_, 0, sizeof(flags_));
+    // TODO (nodes): Make sure this will return an already zeroed memory
+    void* p = theCompiler().nodeAllocator().alloc(sizeof(BasicNode));
+    BasicNode* res = new (p) BasicNode();
+    res->nodeKind = nodeKind;
+    res->nodeError = 0;
+    res->nodeSemanticallyChecked = 0;
+    res->computeTypeStarted = 0;
+    res->semanticCheckStarted = 0;
+    res->context = nullptr;
+    res->childrenContext = nullptr;
+    res->type = nullptr;
+    res->explanation = nullptr;
+    return res;
+}
+
+BasicNode* Nest::cloneNode(BasicNode* node)
+{
+    ASSERT(node);
+    BasicNode* res = createNode(node->nodeKind);
+
+    res->location = node->location;
+    res->referredNodes = node->referredNodes;
+    res->properties = node->properties;
+
+    // Clone each node in the children vector
+    size_t size = node->children.size();
+    res->children.resize(size, nullptr);
+    for ( size_t i=0; i<size; ++i )
+    {
+        Node* n = node->children[i];
+        if ( n )
+            res->children[i] = n->clone();
+    }
+    return res;
+}
+
+
+Node::Node(const Location& location, NodeVector children, NodeVector referredNodes)
+    : basicNode_(createNode(0))     // TODO (nodes): Use a valid node kind
+    , location_(basicNode_->location)
+    , children_(basicNode_->children)
+    , referredNodes_(basicNode_->referredNodes)
+    , properties_(basicNode_->properties)
+    , context_(basicNode_->context)
+    , childrenContext_(basicNode_->childrenContext)
+    , type_(basicNode_->type)
+    , explanation_(basicNode_->explanation)
+    , modifiers_(basicNode_->modifiers)
+{
+    basicNode_->location = location;
+    basicNode_->children = move(children);
+    basicNode_->referredNodes = move(referredNodes);
+    // TODO (nodes): associate the Dynamic node with the basic node
 }
 
 Node::Node(const Node& other)
-    : location_(other.location_)
-    , children_()
-    , referredNodes_(other.referredNodes_)
-    , properties_(other.properties_)
-    , context_(nullptr)
-    , childrenContext_(nullptr)
-    , type_(nullptr)
-    , explanation_(nullptr)
+    : basicNode_(cloneNode(other.basicNode_))
+    , location_(basicNode_->location)
+    , children_(basicNode_->children)
+    , referredNodes_(basicNode_->referredNodes)
+    , properties_(basicNode_->properties)
+    , context_(basicNode_->context)
+    , childrenContext_(basicNode_->childrenContext)
+    , type_(basicNode_->type)
+    , explanation_(basicNode_->explanation)
+    , modifiers_(basicNode_->modifiers)
 {
-    memset(&flags_, 0, sizeof(flags_));
-
-    // Clone the children vector
-    size_t size = other.children_.size();
-    children_.resize(size, nullptr);
-    for ( size_t i=0; i<size; ++i )
-    {
-        Node* n = other.children_[i];
-        if ( n )
-            children_[i] = n->clone();
-    }
 }
 
 void* Node::operator new(size_t size)
@@ -66,8 +102,8 @@ string Node::toString() const
 
 void Node::dump(ostream& os) const
 {
-    if ( explanation_ && 0 != strcmp(explanation_->nodeKindName(), "Feather.Nop") )
-        os << explanation_;
+    if ( basicNode_->explanation && 0 != strcmp(basicNode_->explanation->nodeKindName(), "Feather.Nop") )
+        os << basicNode_->explanation;
     else
     {
         const string* name = getPropertyString("name");
@@ -76,11 +112,11 @@ void Node::dump(ostream& os) const
         else
         {
             os << nodeKindName() << "(";
-            for ( size_t i=0; i<children_.size(); ++i )
+            for ( size_t i=0; i<basicNode_->children.size(); ++i )
             {
                 if ( i > 0 )
                     os << ", ";
-                os << children_[i];
+                os << basicNode_->children[i];
             }
 
             os << ")";
@@ -91,66 +127,66 @@ void Node::dump(ostream& os) const
 void Node::dumpWithType(ostream& os) const
 {
     dump(os);
-    os << " : " << type_;
+    os << " : " << basicNode_->type;
 }
 
 
 const Location& Node::location() const
 {
-    return location_;
+    return basicNode_->location;
 }
 
 void Node::setLocation(const Location& loc)
 {
-    location_ = loc;
+    basicNode_->location = loc;
 }
 
 void Node::setProperty(const char* name, int val, bool passToExpl)
 {
-    properties_[name] = Property(propInt, PropertyValue(val), passToExpl);
+    basicNode_->properties[name] = Property(propInt, PropertyValue(val), passToExpl);
 }
 void Node::setProperty(const char* name, string val, bool passToExpl)
 {
-    properties_[name] = Property(propString, PropertyValue(move(val)), passToExpl);
+    basicNode_->properties[name] = Property(propString, PropertyValue(move(val)), passToExpl);
 }
 void Node::setProperty(const char* name, Node* val, bool passToExpl)
 {
-    properties_[name] = Property(propNode, PropertyValue(val), passToExpl);
+    basicNode_->properties[name] = Property(propNode, PropertyValue(val), passToExpl);
 }
 void Node::setProperty(const char* name, TypeRef val, bool passToExpl)
 {
-    properties_[name] = Property(propType, PropertyValue(val), passToExpl);
+    basicNode_->properties[name] = Property(propType, PropertyValue(val), passToExpl);
 }
 
 bool Node::hasProperty(const char* name) const
 {
-    return properties_.find(name) != properties_.end();
+    return basicNode_->properties.find(name) != basicNode_->properties.end();
 }
 const int* Node::getPropertyInt(const char* name) const
 {
-    auto it = properties_.find(name);
-    if ( it == properties_.end() || it->second.kind_ != propInt )
+    auto it = basicNode_->properties.find(name);
+    if ( it == basicNode_->properties.end() || it->second.kind_ != propInt )
         return nullptr;
     return &it->second.value_.intValue_;
 }
 const string* Node::getPropertyString(const char* name) const
 {
-    auto it = properties_.find(name);
-    if ( it == properties_.end() || it->second.kind_ != propString )
+    auto it = basicNode_->properties.find(name);
+    if ( it == basicNode_->properties.end() || it->second.kind_ != propString )
         return nullptr;
     return it->second.value_.stringValue_;
 }
 Node*const* Node::getPropertyNode(const char* name) const
 {
-    auto it = properties_.find(name);
-    if ( it == properties_.end() || it->second.kind_ != propNode )
+    auto it = basicNode_->properties.find(name);
+    if ( it == basicNode_->properties.end() || it->second.kind_ != propNode )
         return nullptr;
     return &it->second.value_.nodeValue_;
 }
 const TypeRef* Node::getPropertyType(const char* name) const
 {
-    auto it = properties_.find(name);
-    if ( it == properties_.end() || it->second.kind_ != propType )
+    auto it = basicNode_->properties.find(name);
+    if ( it == basicNode_->properties.end() || it->second.kind_ != propType )
         return nullptr;
     return &it->second.value_.typeValue_;
 }
@@ -159,67 +195,67 @@ int Node::getCheckPropertyInt(const char* name) const
 {
     const int* res = getPropertyInt(name);
     if ( !res )
-        REP_INTERNAL(location_, "Node of kind %1% does not have integer property %2%") % nodeKindName() % name;
+        REP_INTERNAL(basicNode_->location, "Node of kind %1% does not have integer property %2%") % nodeKindName() % name;
     return *res;
 }
 const string& Node::getCheckPropertyString(const char* name) const
 {
     const string* res = getPropertyString(name);
     if ( !res )
-        REP_INTERNAL(location_, "Node of kind %1% does not have string property %2%") % nodeKindName() % name;
+        REP_INTERNAL(basicNode_->location, "Node of kind %1% does not have string property %2%") % nodeKindName() % name;
     return *res;
 }
 Node* Node::getCheckPropertyNode(const char* name) const
 {
     Node*const* res = getPropertyNode(name);
     if ( !res )
-        REP_INTERNAL(location_, "Node of kind %1% does not have Node property %2%") % nodeKindName() % name;
+        REP_INTERNAL(basicNode_->location, "Node of kind %1% does not have Node property %2%") % nodeKindName() % name;
     return *res;
 }
 TypeRef Node::getCheckPropertyType(const char* name) const
 {
     const TypeRef* res = getPropertyType(name);
     if ( !res )
-        REP_INTERNAL(location_, "Node of kind %1% does not have Type property %2%") % nodeKindName() % name;
+        REP_INTERNAL(basicNode_->location, "Node of kind %1% does not have Type property %2%") % nodeKindName() % name;
     return *res;
 }
 
 
 TypeRef Node::type() const
 {
-    return type_;
+    return basicNode_->type;
 }
 
 bool Node::isExplained() const
 {
-    return explanation_ != nullptr;
+    return basicNode_->explanation != nullptr;
 }
 
 Node* Node::curExplanation()
 {
-    return explanation_;
+    return basicNode_->explanation;
 }
 
 Node* Node::explanation()
 {
-    return explanation_ ? explanation_->explanation() : this;
+    return basicNode_->explanation ? basicNode_->explanation->explanation() : this;
 }
 
 void Node::setChildrenContext(CompilationContext* childrenContext)
 {
-    childrenContext_ = childrenContext;
+    basicNode_->childrenContext = childrenContext;
 }
 
 
 
 void Node::setContext(CompilationContext* context)
 {
-    if ( context == context_ )
+    if ( context == basicNode_->context )
         return;
     ASSERT(context);
-    context_ = context;
+    basicNode_->context = context;
 
-    if ( type_ )
+    if ( basicNode_->type )
         clearCompilationState();
 
     for ( Modifier* mod: modifiers_ )
@@ -233,69 +269,69 @@ void Node::setContext(CompilationContext* context)
 
 void Node::computeType()
 {
-    if ( type_ )
+    if ( basicNode_->type )
         return;
-    if ( flags_.nodeError )
+    if ( basicNode_->nodeError )
         REP_ERROR_THROW("Already marked as having an error");
 
     try
     {
-        if ( !context_ )
-            REP_INTERNAL(location_, "No context associated with node (%1%)") % toString();
+        if ( !basicNode_->context )
+            REP_INTERNAL(basicNode_->location, "No context associated with node (%1%)") % toString();
 
         // Check for recursive dependency
-        if ( flags_.computeTypeStarted )
-            REP_ERROR(location_, "Recursive dependency detected while computing the type of the current node");
-        flags_.computeTypeStarted = 1;
+        if ( basicNode_->computeTypeStarted )
+            REP_ERROR(basicNode_->location, "Recursive dependency detected while computing the type of the current node");
+        basicNode_->computeTypeStarted = 1;
 
         for ( Modifier* mod: modifiers_ )
             mod->beforeComputeType(this);
 
         // Actually compute the type
         doComputeType();
-        if ( !type_ )
-            REP_INTERNAL(location_, "Type computed sucessfully, but no actual type was generated");
+        if ( !basicNode_->type )
+            REP_INTERNAL(basicNode_->location, "Type computed sucessfully, but no actual type was generated");
 
         for ( Modifier* mod: boost::adaptors::reverse(modifiers_) )
             mod->afterComputeType(this);
     }
     catch (const Nest::Common::CompilationError&)
     {
-        flags_.nodeError = 1;
+        basicNode_->nodeError = 1;
         throw;
     }
     catch (const exception& e)
     {
-        flags_.nodeError = 1;
-        REP_INTERNAL(location_, "Exception thrown during computeType(): %1%") % e.what();
+        basicNode_->nodeError = 1;
+        REP_INTERNAL(basicNode_->location, "Exception thrown during computeType(): %1%") % e.what();
     }
 }
 
 void Node::semanticCheck()
 {
-    if ( flags_.nodeSemanticallyChecked )
+    if ( basicNode_->nodeSemanticallyChecked )
         return;
-    if ( flags_.nodeError )
+    if ( basicNode_->nodeError )
         REP_ERROR_THROW("Already marked as having an error");
 
     try
     {
-        if ( !context_ )
-            REP_INTERNAL(location_, "No context associated with node (%1%)") % toString();
+        if ( !basicNode_->context )
+            REP_INTERNAL(basicNode_->location, "No context associated with node (%1%)") % toString();
 
         // Check for recursive dependency
-        if ( flags_.semanticCheckStarted )
-            REP_ERROR(location_, "Recursive dependency detected while semantically checking the current node");
-        flags_.semanticCheckStarted = 1;
+        if ( basicNode_->semanticCheckStarted )
+            REP_ERROR(basicNode_->location, "Recursive dependency detected while semantically checking the current node");
+        basicNode_->semanticCheckStarted = 1;
 
         for ( Modifier* mod: modifiers_ )
             mod->beforeSemanticCheck(this);
 
         // Actually do the semantic check
         doSemanticCheck();
-        if ( !type_ )
-            REP_INTERNAL(location_, "Node semantically checked, but no actual type was generated");
-        flags_.nodeSemanticallyChecked = 1;
+        if ( !basicNode_->type )
+            REP_INTERNAL(basicNode_->location, "Node semantically checked, but no actual type was generated");
+        basicNode_->nodeSemanticallyChecked = 1;
 
         for ( Modifier* mod: boost::adaptors::reverse(modifiers_) )
             mod->afterSemanticCheck(this);
@@ -303,24 +339,27 @@ void Node::semanticCheck()
     catch (const Nest::Common::CompilationError& e)
     {
         if ( e.what() ) {}      // Avoid warning about not using e
-        flags_.nodeError = 1;
+        basicNode_->nodeError = 1;
         throw;
     }
     catch (const exception& e)
     {
-        flags_.nodeError = 1;
-        REP_INTERNAL(location_, "Exception thrown during semanticCheck(): %1%") % e.what();
+        basicNode_->nodeError = 1;
+        REP_INTERNAL(basicNode_->location, "Exception thrown during semanticCheck(): %1%") % e.what();
     }
 }
 
 void Node::clearCompilationState()
 {
-    memset(&flags_, 0, sizeof(flags_));
-    explanation_ = nullptr;
-    type_ = nullptr;
+    basicNode_->nodeError = 0;
+    basicNode_->nodeSemanticallyChecked = 0;
+    basicNode_->computeTypeStarted = 0;
+    basicNode_->semanticCheckStarted = 0;
+    basicNode_->explanation = nullptr;
+    basicNode_->type = nullptr;
     modifiers_.clear();
 
-    for ( Node* p: children_ )
+    for ( Node* p: basicNode_->children )
     {
         if ( p )
             p->clearCompilationState();
@@ -334,29 +373,29 @@ void Node::addModifier(Modifier* mod)
 
 bool Node::hasError() const
 {
-    return 0 != flags_.nodeError;
+    return 0 != basicNode_->nodeError;
 }
 
 bool Node::isSemanticallyChecked() const
 {
-    return flags_.nodeSemanticallyChecked != 0;
+    return basicNode_->nodeSemanticallyChecked != 0;
 }
 
 CompilationContext* Node::context() const
 {
-    return context_;
+    return basicNode_->context;
 }
 
 CompilationContext* Node::childrenContext() const
 {
-    return childrenContext_ ? childrenContext_ : context_;
+    return basicNode_->childrenContext ? basicNode_->childrenContext : basicNode_->context;
 }
 
 
 void Node::doSetContextForChildren()
 {
     CompilationContext* childrenCtx = childrenContext();
-    for ( Node* child: children_ )
+    for ( Node* child: basicNode_->children )
     {
         if ( child )
             child->setContext(childrenCtx);
@@ -370,65 +409,66 @@ void Node::doComputeType()
 
 void Node::doSemanticCheck()
 {
-    REP_INTERNAL(location_, "Don't know how to semantic check a node of kind '%1%'") % nodeKindName();
+    REP_INTERNAL(basicNode_->location, "Don't know how to semantic check a node of kind '%1%'") % nodeKindName();
 }
 
 void Node::setExplanation(Node* explanation)
 {
-    explanation_ = explanation;
+    basicNode_->explanation = explanation;
 
     // Copy all the properties marked accordingly
-    for ( const auto& prop : properties_ )
+    for ( const auto& prop : basicNode_->properties )
         if ( prop.second.passToExpl_ )
-            explanation_->properties_[prop.first] = prop.second;
+            basicNode_->explanation->basicNode_->properties[prop.first] = prop.second;
 
     // Try to semantically check the explanation
     if ( !explanation->isSemanticallyChecked() )
     {
-        explanation_->setContext(context_);
-        explanation_->semanticCheck();
+        basicNode_->explanation->setContext(basicNode_->context);
+        basicNode_->explanation->semanticCheck();
     }
-    type_ = explanation_->type();
+    basicNode_->type = basicNode_->explanation->type();
 }
 
 
 void Nest::save(const Node& obj, OutArchive& ar)
 {
-    unsigned char flags = (unsigned char) *reinterpret_cast<const unsigned int*>(&obj.flags_);
+    // TODO (nodes): Make serialization work
+//    unsigned char flags = (unsigned char) *reinterpret_cast<const unsigned int*>(&obj.basicNode_->flags);
     ar.write("kind", obj.nodeKind());
     ar.write("kindName", obj.nodeKindName());
-    ar.write("flags", flags);
-    ar.write("location", obj.location_);
-    ar.writeArray("children", obj.children_, [] (OutArchive& ar, Node* child) {
+//    ar.write("flags", flags);
+    ar.write("location", obj.basicNode_->location);
+    ar.writeArray("children", obj.basicNode_->children, [] (OutArchive& ar, Node* child) {
         ar.write("", child);
     });
-    ar.writeArray("referredNodes", obj.referredNodes_, [] (OutArchive& ar, Node* node) {
+    ar.writeArray("referredNodes", obj.basicNode_->referredNodes, [] (OutArchive& ar, Node* node) {
         ar.write("", node);
     });
-    ar.writeArray("properties", obj.properties_, [] (OutArchive& ar, const Node::PropertyVal& prop) {
-        ar.write("", prop, [] (OutArchive& ar, const Node::PropertyVal& prop) {
+    ar.writeArray("properties", obj.basicNode_->properties, [] (OutArchive& ar, const PropertyVal& prop) {
+        ar.write("", prop, [] (OutArchive& ar, const PropertyVal& prop) {
             ar.write("name", prop.first);
             ar.write("kind", (int) prop.second.kind_);
             ar.write("passToExpl", (unsigned char) prop.second.passToExpl_);
             switch ( prop.second.kind_ )
             {
-            case Node::propInt:
+            case propInt:
                 ar.write("val", prop.second.value_.intValue_);
                 break;
-            case Node::propString:
+            case propString:
                 ar.write("val", *prop.second.value_.stringValue_);
                 break;
-            case Node::propNode:
+            case propNode:
                 ar.write("val", prop.second.value_.nodeValue_);
                 break;
-            case Node::propType:
+            case propType:
                 ar.write("val", prop.second.value_.typeValue_);
                 break;
             }
         });
     });
-    ar.write("type", obj.type_);
-    ar.write("explanation", obj.explanation_);
+    ar.write("type", obj.basicNode_->type);
+    ar.write("explanation", obj.basicNode_->explanation);
 }
 
 void Nest::load(Node& obj, InArchive& ar)

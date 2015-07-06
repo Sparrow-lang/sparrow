@@ -156,7 +156,7 @@ namespace
         // Sanity check
         res->setContext(node->context());
         res->computeType();
-        if ( res->type() != changeTypeMode(node->type(), modeRt) )
+        if ( res->type() != Feather::changeTypeMode(node->type(), modeRt) )
             REP_INTERNAL(loc, "Cannot convert %1% from CT to RT (invalid returned type)") % t;
 
         return res;
@@ -184,7 +184,7 @@ Node* SprFrontend::convertCtToRt(Node* node)
     if ( t->numReferences > 0 )
         REP_ERROR(loc, "Cannot convert references from CT to RT (%1%)") % t;
 
-    if ( isBasicNumericType(t) || changeTypeMode(t, modeRtCt) == StdDef::typeStringRef )
+    if ( isBasicNumericType(t) || Feather::changeTypeMode(t, modeRtCt) == StdDef::typeStringRef )
         return theCompiler().ctEval(node);
     else
         return checkDataTypeConversion(node);

@@ -1,5 +1,6 @@
 #include <StdInc.h>
 #include "Type.h"
+#include "TypeKindRegistrar.h"
 #include "Node.h"
 #include <Common/Ser/OutArchive.h>
 #include <Common/Ser/InArchive.h>
@@ -92,4 +93,10 @@ void Nest::save(const Type& obj, OutArchive& ar)
 void Nest::load(Type& obj, InArchive& ar)
 {
     // TODO
+}
+
+
+TypeRef Nest::changeTypeMode(TypeRef type, EvalMode newMode)
+{
+    return getChangeTypeModeFun(type->typeKind)(type, newMode);
 }

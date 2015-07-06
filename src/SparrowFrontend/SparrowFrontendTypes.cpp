@@ -30,13 +30,18 @@ namespace
             os << "/rtct";
         return strdup(os.str().c_str());
     }
+
+    TypeRef changeTypeModeConcept(TypeRef type, EvalMode newMode)
+    {
+        return getConceptType(type->referredNode->as<SprConcept>(), type->numReferences, newMode);
+    }
 }
 
 int typeKindConcept = -1;
 
 void initSparrowFrontendTypeKinds()
 {
-    typeKindConcept = registerTypeKind();
+    typeKindConcept = registerTypeKind(&changeTypeModeConcept);
 }
 
 TypeRef getConceptType(SprConcept* concept, uint8_t numReferences, EvalMode mode)

@@ -66,6 +66,27 @@ namespace
         oss << "): " << resultTypeAndParams[0];
         return oss.str();
     }
+
+    TypeRef changeTypeModeVoid(TypeRef type, EvalMode newMode)
+    {
+        return getVoidType(newMode);
+    }
+    TypeRef changeTypeModeData(TypeRef type, EvalMode newMode)
+    {
+        return getDataType(type->referredNode->as<Class>(), type->numReferences, newMode);
+    }
+    TypeRef changeTypeModeLValue(TypeRef type, EvalMode newMode)
+    {
+        return getLValueType(changeTypeMode(baseType(type), newMode));
+    }
+    TypeRef changeTypeModeArray(TypeRef type, EvalMode newMode)
+    {
+        return getArrayType(changeTypeMode(baseType(type), newMode), getArraySize(type));
+    }
+    TypeRef changeTypeModeFunction(TypeRef type, EvalMode newMode)
+    {
+        return getFunctionType(type->subTypes, type->numSubtypes, newMode);
+    }
 }
 
 int typeKindVoid = -1;
@@ -76,11 +97,11 @@ int typeKindFunction = -1;
 
 void initFeatherTypeKinds()
 {
-    typeKindVoid = registerTypeKind();
-    typeKindData = registerTypeKind();
-    typeKindLValue = registerTypeKind();
-    typeKindArray = registerTypeKind();
-    typeKindFunction = registerTypeKind();
+    typeKindVoid = registerTypeKind(&changeTypeModeVoid);
+    typeKindData = registerTypeKind(&changeTypeModeData);
+    typeKindLValue = registerTypeKind(&changeTypeModeLValue);
+    typeKindArray = registerTypeKind(&changeTypeModeArray);
+    typeKindFunction = registerTypeKind(&changeTypeModeFunction);
 }
 
 TypeRef getVoidType(EvalMode mode)

@@ -88,36 +88,7 @@ TypeRef Feather::changeTypeMode(TypeRef type, EvalMode mode, const Location& loc
     if ( mode == type->mode )
         return type;
 
-    TypeRef resType = nullptr;
-    if ( type->typeKind == typeKindVoid )
-        resType = getVoidType(mode);
-    else if ( type->typeKind == typeKindData )
-        resType = getDataType(type->referredNode->as<Class>(), type->numReferences, mode);
-    else if ( type->typeKind == typeKindLValue )
-    {
-        TypeRef newElementType = changeTypeMode(baseType(type), mode, loc);
-        resType = newElementType ? getLValueType(newElementType) : nullptr;
-    }
-    else if ( type->typeKind == typeKindArray )
-    {
-        TypeRef newUnitType = changeTypeMode(baseType(type), mode, loc);
-        resType = newUnitType ? getArrayType(newUnitType, getArraySize(type)) : nullptr;
-    }
-    else if ( type->typeKind == typeKindFunction )
-    {
-        resType = getFunctionType(type->subTypes, type->numSubtypes, mode);
-    }
-    else
-    {
-        // Just switch the flags in the type
-        Type newType = *type;
-        newType.mode = mode;
-        resType = findStockType(newType);
-        if ( !resType )
-            resType = insertStockType(newType);
-        // TODO (type): This is ugly; need to do it dynamically
-        // We also need to to update description
-    }
+    TypeRef resType = Nest::changeTypeMode(type, mode);
     if ( !resType )
         REP_INTERNAL(loc, "Don't know how to change eval mode of type %1%") % type;
 

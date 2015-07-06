@@ -229,7 +229,7 @@ namespace
         EvalMode destMode = t->mode;
         if ( destMode == modeRtCt )
             destMode = srcType->mode;
-        t = changeTypeMode(t, destMode);
+        t = Feather::changeTypeMode(t, destMode);
         TypeRef resType = getLValueType(t);
 
         bool contextDependent = false;  // TODO (convert): This should be context dependent for private ctors

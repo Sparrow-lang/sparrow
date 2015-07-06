@@ -58,4 +58,9 @@ namespace Nest
 
     void save(const Type& obj, Common::Ser::OutArchive& ar);
     void load(Type& obj, Common::Ser::InArchive& ar);
+
+    /// Some common operations on types
+
+    /// Function that changes the mode for the given type
+    TypeRef changeTypeMode(TypeRef type, EvalMode newMode);
 }

@@ -1,15 +1,30 @@
 #include <StdInc.h>
 #include "TypeKindRegistrar.h"
+#include "Type.h"
 
 using namespace Nest;
 
 namespace
 {
-    /// The number of registered type kinds
-    static int numRegisteredTypeKinds = 0;
+    struct TypeFunctions
+    {
+        FChangeTypeMode changeTypeMode;
+    };
+
+    /// The registered type kinds
+    static vector<TypeFunctions> registeredTypeKinds;
 }
 
-int Nest::registerTypeKind()
+int Nest::registerTypeKind(FChangeTypeMode funChangeTypeMode)
 {
-    return ++numRegisteredTypeKinds;
+    int typeKindId = registeredTypeKinds.size();
+    TypeFunctions f = { funChangeTypeMode };
+    registeredTypeKinds.push_back(f);
+    return typeKindId;
+}
+
+FChangeTypeMode Nest::getChangeTypeModeFun(int typeKind)
+{
+    ASSERT(0 <= typeKind  && typeKind < registeredTypeKinds.size());
+    return registeredTypeKinds[typeKind].changeTypeMode;
 }

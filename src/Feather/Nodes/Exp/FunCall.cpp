@@ -8,7 +8,7 @@
 
 
 FunCall::FunCall(const Location& loc, Function* funDecl, NodeVector args)
-    : Node(loc, move(args), { funDecl })
+    : Node(classNodeKind(), loc, move(args), { funDecl })
 {
 }
 

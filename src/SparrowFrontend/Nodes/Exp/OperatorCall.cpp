@@ -21,7 +21,7 @@ namespace
 }
 
 OperatorCall::OperatorCall(const Location& loc, Node* arg1, string op, Node* arg2)
-    : Node(loc, {arg1, arg2})
+    : Node(classNodeKind(), loc, {arg1, arg2})
 {
     setProperty("spr.operation", move(op));
 }

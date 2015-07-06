@@ -29,7 +29,7 @@ namespace
 
 
 VarRef::VarRef(const Location& loc, Node* var)
-    : Node(loc, {}, {var})
+    : Node(classNodeKind(), loc, {}, {var})
 {
 }
 

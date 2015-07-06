@@ -4,7 +4,7 @@
 
 
 Nop::Nop(const Location& loc)
-    : Node(loc)
+    : Node(classNodeKind(), loc)
 {
 }
 

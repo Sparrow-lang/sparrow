@@ -118,7 +118,7 @@ namespace
 
 
 GenericClass::GenericClass(SprClass* originalClass, NodeList* parameters, Node* ifClause)
-    : Generic(originalClass, parameters->children(), ifClause, publicAccess)
+    : Generic(classNodeKind(), originalClass, parameters->children(), ifClause, publicAccess)
 {
     setEvalMode(this, effectiveEvalMode(originalClass));
 

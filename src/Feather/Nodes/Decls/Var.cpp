@@ -13,7 +13,7 @@ using namespace Feather;
 
 
 Var::Var(const Location& loc, string name, Node* typeNode, size_t alignment)
-    : Node(loc, {typeNode})
+    : Node(classNodeKind(), loc, {typeNode})
 {
     setName(this, move(name));
     setProperty("alignment", alignment);

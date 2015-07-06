@@ -6,7 +6,7 @@
 
 
 StackAlloc::StackAlloc(const Location& loc, Node* elemType, int numElements, size_t alignment)
-    : Node(loc, {elemType})
+    : Node(classNodeKind(), loc, {elemType})
 {
     setProperty("numElements", numElements);
     setProperty("alignment", alignment);

@@ -4,7 +4,7 @@
 
 
 ChangeMode::ChangeMode(const Location& loc, EvalMode mode, Node* child)
-    : Node(loc)
+    : Node(classNodeKind(), loc)
 {
     if ( child )
         children_.push_back(child);

@@ -9,13 +9,13 @@ using namespace SprFrontend;
 using namespace Nest;
 
 SprParameter::SprParameter(const Location& loc, string name, Node* typeNode, Node* init)
-    : Node(loc, {typeNode, init})
+    : Node(classNodeKind(), loc, {typeNode, init})
 {
     Feather::setName(this, move(name));
 }
 
 SprParameter::SprParameter(const Location& loc, string name, TypeRef type, Node* init)
-    : Node(loc, {nullptr, init})
+    : Node(classNodeKind(), loc, {nullptr, init})
 {
     Feather::setName(this, move(name));
     setProperty("spr.givenType", type);

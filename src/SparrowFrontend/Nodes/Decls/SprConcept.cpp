@@ -14,7 +14,7 @@ using namespace SprFrontend;
 using namespace Feather;
 
 SprConcept::SprConcept(const Location& loc, string name, string paramName, Node* baseConcept, Node* ifClause, AccessType accessType)
-    : Node(loc, {baseConcept, ifClause, nullptr})
+    : Node(classNodeKind(), loc, {baseConcept, ifClause, nullptr})
 {
     setName(this, move(name));
     setAccessType(this, accessType);

@@ -18,7 +18,7 @@ using namespace Nest;
 using namespace Feather;
 
 Identifier::Identifier(const Location& loc, string id)
-    : Node(loc)
+    : Node(classNodeKind(), loc)
 {
     setProperty("name", move(id));
     setProperty(propAllowDeclExp, 0);

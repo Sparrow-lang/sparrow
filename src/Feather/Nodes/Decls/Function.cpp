@@ -13,7 +13,7 @@ using namespace Feather;
 
 
 Function::Function(const Location& loc, string name, Node* resultType, Node* body, NodeVector parameters, CallConvention callConv)
-    : Node(loc, move(parameters))
+    : Node(classNodeKind(), loc, move(parameters))
 {
     // Make sure all the nodes given as parameters have the right kind
     for ( Node* param: parameters )

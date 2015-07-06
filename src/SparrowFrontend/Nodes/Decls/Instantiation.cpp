@@ -6,7 +6,7 @@ using namespace Feather;
 using namespace Nest;
 
 Instantiation::Instantiation(const Location& loc, NodeVector boundValues, NodeVector boundVars)
-    : Node(loc, { Feather::mkNodeList(loc, move(boundVars)) }, move(boundValues))
+    : Node(classNodeKind(), loc, { Feather::mkNodeList(loc, move(boundVars)) }, move(boundValues))
 {
     setProperty("instIsValid", 0);
     setProperty("instantiatedDecl", (Node*) nullptr);

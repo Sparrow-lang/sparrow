@@ -6,7 +6,7 @@
 
 
 MemLoad::MemLoad(const Location& loc, Node* arg, size_t alignment, bool isVolatile, AtomicOrdering ordering, bool singleThreaded)
-    : Node(loc, {arg})
+    : Node(classNodeKind(), loc, {arg})
 {
     setProperty("alignment", alignment);
     setProperty("volatile", isVolatile ? 1 : 0);

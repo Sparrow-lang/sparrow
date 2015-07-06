@@ -8,8 +8,8 @@
 using namespace SprFrontend;
 using namespace Feather;
 
-Generic::Generic(Node* origNode, NodeVector genericParams, Node* ifClause, AccessType accessType)
-    : Node(origNode->location(), { mkInstantiationsSet(origNode, move(genericParams), ifClause) }, { origNode })
+Generic::Generic(int nodeKind, Node* origNode, NodeVector genericParams, Node* ifClause, AccessType accessType)
+    : Node(nodeKind, origNode->location(), { mkInstantiationsSet(origNode, move(genericParams), ifClause) }, { origNode })
 {
     setName(this, getName(origNode));
     setAccessType(this, accessType);

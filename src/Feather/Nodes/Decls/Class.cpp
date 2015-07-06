@@ -13,7 +13,7 @@ using namespace Nest;
 
 
 Class::Class(const Location& loc, string name, NodeVector fields)
-    : Node(loc, move(fields))
+    : Node(classNodeKind(), loc, move(fields))
 {
     // Make sure all the nodes given as parameters have the right kind
     for ( Node* field: fields )

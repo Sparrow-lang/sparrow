@@ -40,14 +40,14 @@ namespace
 }
 
 FunApplication::FunApplication(const Location& loc, Node* base, NodeList* arguments)
-    : Node(loc, {base, arguments})
+    : Node(classNodeKind(), loc, {base, arguments})
 {
     if ( !arguments )
         children_[1] = mkNodeList(loc, {});
 }
 
 FunApplication::FunApplication(const Location& loc, Node* base, NodeVector args)
-    : Node(loc, {base, mkNodeList(loc, move(args))})
+    : Node(classNodeKind(), loc, {base, mkNodeList(loc, move(args))})
 {
 }
 

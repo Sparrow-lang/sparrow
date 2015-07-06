@@ -87,7 +87,7 @@ namespace
         DEFINE_NODE(DestructActionForConditional, -1, "LLVMBackend.DestructActionForConditional");
     public:
         DestructActionForConditional(TypeRef resType, llvm::Value* cond, NodeVector alt1DestructActions, NodeVector alt2DestructActions)
-            : Node(NOLOC, {mkNodeList(NOLOC, move(alt1DestructActions)), mkNodeList(NOLOC, move(alt2DestructActions)) })
+            : Node(classNodeKind(), NOLOC, {mkNodeList(NOLOC, move(alt1DestructActions)), mkNodeList(NOLOC, move(alt2DestructActions)) })
         {
             setProperty("resType", resType);
             setProperty("cond_LLVM_value", reinterpret_cast<Node*>(cond));

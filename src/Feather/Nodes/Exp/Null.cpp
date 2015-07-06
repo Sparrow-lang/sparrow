@@ -5,7 +5,7 @@
 
 
 Null::Null(const Location& loc, Node* typeNode)
-    : Node(loc, {typeNode})
+    : Node(classNodeKind(), loc, {typeNode})
 {
 }
 

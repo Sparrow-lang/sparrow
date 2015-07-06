@@ -9,7 +9,7 @@
 
 
 If::If(const Location& location, Node* condition, Node* thenClause, Node* elseClause, bool isCt)
-    : Node(location, {condition, thenClause, elseClause})
+    : Node(classNodeKind(), location, {condition, thenClause, elseClause})
 {
     if ( isCt )
         setEvalMode(this, modeCt);

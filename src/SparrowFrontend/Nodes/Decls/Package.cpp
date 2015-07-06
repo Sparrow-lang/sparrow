@@ -9,7 +9,7 @@ using namespace SprFrontend;
 using namespace Nest;
 
 Package::Package(const Location& loc, string name, NodeList* children, AccessType accessType)
-    : Node(loc, {children})
+    : Node(classNodeKind(), loc, {children})
 {
     Feather::setName(this, move(name));
     setAccessType(this, accessType);

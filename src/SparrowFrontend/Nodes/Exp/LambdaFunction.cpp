@@ -12,7 +12,7 @@ using namespace SprFrontend;
 using namespace Feather;
 
 LambdaFunction::LambdaFunction(const Location& loc, NodeList* parameters, Node* returnType, Node* body, NodeList* closureParams)
-    : Node(loc, {}, {parameters, returnType, body, closureParams})
+    : Node(classNodeKind(), loc, {}, {parameters, returnType, body, closureParams})
 {
 }
 

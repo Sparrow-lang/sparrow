@@ -187,7 +187,7 @@ namespace
 
 
 GenericFunction::GenericFunction(SprFunction* originalFun, NodeVector params, NodeVector genericParams, Node* ifClause)
-    : Generic(originalFun, move(genericParams), ifClause, publicAccess)
+    : Generic(classNodeKind(), originalFun, move(genericParams), ifClause, publicAccess)
 {
     setEvalMode(this, effectiveEvalMode(originalFun));
     referredNodes_.push_back(mkNodeList(location_, move(params)));

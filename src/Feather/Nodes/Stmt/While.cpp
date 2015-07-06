@@ -10,7 +10,7 @@
 
 
 While::While(const Location& location, Node* condition, Node* body, Node* step, bool isCt)
-    : Node(location, {condition, step, body})
+    : Node(classNodeKind(), location, {condition, step, body})
 {
     if ( isCt )
         setEvalMode(this, modeCt);

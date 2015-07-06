@@ -7,7 +7,7 @@
 
 
 Conditional::Conditional(const Location& location, Node* condition, Node* alt1, Node* alt2)
-    : Node(location, {condition, alt1, alt2})
+    : Node(classNodeKind(), location, {condition, alt1, alt2})
 {
 }
 

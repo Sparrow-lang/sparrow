@@ -8,7 +8,7 @@
 
 
 FieldRef::FieldRef(const Location& loc, Node* obj, Node* field)
-    : Node(loc, {obj}, {field})
+    : Node(classNodeKind(), loc, {obj}, {field})
 {
 }
 

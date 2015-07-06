@@ -6,7 +6,7 @@
 
 
 MemStore::MemStore(const Location& loc, Node* value, Node* address, size_t alignment, bool isVolatile, AtomicOrdering ordering, bool singleThreaded)
-    : Node(loc, {value, address})
+    : Node(classNodeKind(), loc, {value, address})
 {
     setProperty("alignment", alignment);
     setProperty("volatile", isVolatile ? 1 : 0);

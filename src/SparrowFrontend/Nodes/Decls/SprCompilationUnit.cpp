@@ -8,7 +8,7 @@
 using namespace SprFrontend;
 
 SprCompilationUnit::SprCompilationUnit(const Location& loc, Node* package, NodeList* imports, NodeList* declarations)
-    : Node(loc, {package, imports, declarations})
+    : Node(classNodeKind(), loc, {package, imports, declarations})
 {
 }
 

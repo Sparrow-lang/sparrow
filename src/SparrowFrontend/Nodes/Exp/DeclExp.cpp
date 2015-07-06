@@ -7,7 +7,7 @@ using namespace SprFrontend;
 using namespace Nest;
 
 DeclExp::DeclExp(const Location& loc, NodeVector decls, Node* baseExp)
-    : Node(loc, {}, move(decls))
+    : Node(classNodeKind(), loc, {}, move(decls))
 {
     referredNodes_.insert(referredNodes_.begin(), baseExp);
 }

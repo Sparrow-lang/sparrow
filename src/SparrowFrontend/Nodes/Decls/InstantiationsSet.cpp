@@ -60,7 +60,7 @@ namespace
 
 
 InstantiationsSet::InstantiationsSet(Node* parentNode, NodeVector params, Node* ifClause)
-    : Node(parentNode->location(), { ifClause, Feather::mkNodeList(parentNode->location(), {}) }, { parentNode })
+    : Node(classNodeKind(), parentNode->location(), { ifClause, Feather::mkNodeList(parentNode->location(), {}) }, { parentNode })
 {
     referredNodes_.push_back(mkNodeList(location_, move(params)));
 }

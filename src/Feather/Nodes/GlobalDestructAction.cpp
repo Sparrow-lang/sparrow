@@ -9,7 +9,7 @@
 using namespace Feather;
 
 GlobalDestructAction::GlobalDestructAction(const Location& loc, Node* action)
-    : Node(loc, {action})
+    : Node(classNodeKind(), loc, {action})
 {
 }
 

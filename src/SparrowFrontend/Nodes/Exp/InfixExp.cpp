@@ -52,7 +52,7 @@ namespace
 }
 
 InfixExp::InfixExp(const Location& loc, string op, Node* arg1, Node* arg2)
-    : Node(loc, {arg1, arg2})
+    : Node(classNodeKind(), loc, {arg1, arg2})
 {
     if ( op.empty() )
         REP_ERROR(location_, "Operation name must have at least one character");

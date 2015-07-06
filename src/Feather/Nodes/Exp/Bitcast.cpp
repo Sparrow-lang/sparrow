@@ -5,7 +5,7 @@
 
 
 Bitcast::Bitcast(const Location& loc, Node* destType, Node* exp)
-    : Node(loc, {exp, destType})
+    : Node(classNodeKind(), loc, {exp, destType})
 {
     ASSERT(destType);
     ASSERT(exp);

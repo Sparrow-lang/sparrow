@@ -16,7 +16,7 @@ using namespace Feather;
 
 
 SprReturn::SprReturn(const Location& loc, Node* exp)
-    : Node(loc, {exp})
+    : Node(classNodeKind(), loc, {exp})
 {
 }
 

@@ -13,7 +13,7 @@ using namespace Feather;
 
 
 For::For(const Location& loc, string name, Node* range, Node* action, Node* typeExpr, bool ct)
-    : Node(loc, {range, action, typeExpr})
+    : Node(classNodeKind(), loc, {range, action, typeExpr})
 {
     setName(this, move(name));
     if ( ct )

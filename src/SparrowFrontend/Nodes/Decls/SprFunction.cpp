@@ -24,7 +24,7 @@ namespace
 }
 
 SprFunction::SprFunction(const Location& loc, string name, NodeList* parameters, Node* returnType, Node* body, Node* ifClause, AccessType accessType)
-    : Node(loc, {parameters, returnType, body, ifClause})
+    : Node(classNodeKind(), loc, {parameters, returnType, body, ifClause})
 {
     setName(this, move(name));
     setAccessType(this, accessType);

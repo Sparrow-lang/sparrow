@@ -14,6 +14,8 @@ using namespace Nest::Common::Ser;
 
 BasicNode* Nest::createNode(int nodeKind)
 {
+    ASSERT(nodeKind > 0);
+
     // TODO (nodes): Make sure this will return an already zeroed memory
     void* p = theCompiler().nodeAllocator().alloc(sizeof(BasicNode));
     BasicNode* res = new (p) BasicNode();
@@ -51,8 +53,8 @@ BasicNode* Nest::cloneNode(BasicNode* node)
 }
 
 
-Node::Node(const Location& location, NodeVector children, NodeVector referredNodes)
-    : basicNode_(createNode(0))     // TODO (nodes): Use a valid node kind
+Node::Node(int nodeKind, const Location& location, NodeVector children, NodeVector referredNodes)
+    : basicNode_(createNode(nodeKind))
     , location_(basicNode_->location)
     , children_(basicNode_->children)
     , referredNodes_(basicNode_->referredNodes)

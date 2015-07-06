@@ -7,7 +7,7 @@
 
 
 FunRef::FunRef(const Location& loc, Function* funDecl, Node* resType)
-    : Node(loc, {resType}, {funDecl})
+    : Node(classNodeKind(), loc, {resType}, {funDecl})
 {
 }
 

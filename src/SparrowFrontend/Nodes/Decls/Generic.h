@@ -10,7 +10,7 @@ namespace SprFrontend
     class Generic : public Node
     {
     public:
-        Generic(Node* origNode, NodeVector genericParams, Node* ifClause, AccessType accessType = publicAccess);
+        Generic(int nodeKind, Node* origNode, NodeVector genericParams, Node* ifClause, AccessType accessType = publicAccess);
         virtual ~Generic() = 0;
 
         /// Getter for the number of parameters of the generic (bound + free)

@@ -17,7 +17,7 @@ namespace
 }
 
 BackendCode::BackendCode(const Location& location, string code, EvalMode evalMode)
-    : Node(location)
+    : Node(classNodeKind(), location)
 {
     setProperty(propCode, move(code));
     setProperty(propEvalMode, (int) evalMode);

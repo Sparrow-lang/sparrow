@@ -6,7 +6,7 @@
 
 
 Continue::Continue(const Location& location)
-    : Node(location)
+    : Node(classNodeKind(), location)
 {
     setProperty("loop", (Node*) nullptr);
 }

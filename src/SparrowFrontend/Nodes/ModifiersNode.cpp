@@ -23,7 +23,7 @@
 
 
 ModifiersNode::ModifiersNode(const Location& loc, Node* base, Node* modifierNodes)
-    : Node(loc, {base, modifierNodes})
+    : Node(classNodeKind(), loc, {base, modifierNodes})
 {
 }
 

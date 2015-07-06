@@ -9,7 +9,7 @@ using namespace SprFrontend;
 using namespace Nest;
 
 Using::Using(const Location& loc, string alias, Node* usingNode, AccessType accessType)
-    : Node(loc, {usingNode})
+    : Node(classNodeKind(), loc, {usingNode})
 {
     if ( !alias.empty() )
         Feather::setName(this, move(alias));

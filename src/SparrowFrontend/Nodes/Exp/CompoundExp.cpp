@@ -11,7 +11,7 @@ using namespace Feather;
 
 
 CompoundExp::CompoundExp(const Location& loc, Node* base, string id)
-    : Node(loc, {base})
+    : Node(classNodeKind(), loc, {base})
 {
     setProperty("name", move(id));
     setProperty(propAllowDeclExp, 0);

@@ -4,7 +4,7 @@
 
 
 TypeNode::TypeNode(const Location& loc, TypeRef type)
-    : Node(loc)
+    : Node(classNodeKind(), loc)
 {
     setProperty("givenType", type);
 }

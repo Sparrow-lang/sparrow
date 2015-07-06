@@ -71,14 +71,14 @@ namespace
 }
 
 SprVariable::SprVariable(const Location& loc, string name, Node* typeNode, Node* init, AccessType accessType)
-    : Node(loc, {typeNode, init})
+    : Node(classNodeKind(), loc, {typeNode, init})
 {
     setName(this, move(name));
     setAccessType(this, accessType);
 }
 
 SprVariable::SprVariable(const Location& loc, string name, TypeRef type, Node* init, AccessType accessType)
-    : Node(loc, {nullptr, init})
+    : Node(classNodeKind(), loc, {nullptr, init})
 {
     setName(this, move(name));
     setAccessType(this, accessType);

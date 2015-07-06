@@ -8,7 +8,7 @@
 
 
 Return::Return(const Location& location, Node* exp)
-    : Node(location, {exp})
+    : Node(classNodeKind(), location, {exp})
 {
     setProperty("parentFun", (Node*) nullptr);
 }

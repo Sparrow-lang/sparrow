@@ -57,7 +57,7 @@ namespace
 }
 
 SprClass::SprClass(const Location& loc, string name, NodeList* parameters, NodeList* baseClasses, NodeList* children, Node* ifClause, AccessType accessType)
-    : Node(loc, {parameters, baseClasses, children, ifClause})
+    : Node(classNodeKind(), loc, {parameters, baseClasses, children, ifClause})
 {
     setName(this, move(name));
     setAccessType(this, accessType);

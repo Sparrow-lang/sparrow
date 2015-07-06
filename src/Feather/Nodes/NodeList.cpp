@@ -11,7 +11,7 @@ namespace
 }
 
 NodeList::NodeList(const Location& loc, NodeVector children, bool resultVoid)
-    : Node(loc, move(children))
+    : Node(classNodeKind(), loc, move(children))
 {
     if ( resultVoid )
         setProperty(propResultVoid, 1);

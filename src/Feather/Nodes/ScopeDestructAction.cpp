@@ -5,7 +5,7 @@
 using namespace Feather;
 
 ScopeDestructAction::ScopeDestructAction(const Location& loc, Node* action)
-    : Node(loc, {action})
+    : Node(classNodeKind(), loc, {action})
 {
 }
 

@@ -6,7 +6,7 @@
 
 
 LocalSpace::LocalSpace(const Location& location, NodeVector children)
-    : Node(location, move(children))
+    : Node(classNodeKind(), location, move(children))
 {
 }
 

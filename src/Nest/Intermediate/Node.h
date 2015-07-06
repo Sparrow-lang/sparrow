@@ -114,7 +114,7 @@ namespace Nest
     class Node
     {
     public:
-        explicit Node(const Location& location, NodeVector children = {}, NodeVector referredNodes = {});
+        explicit Node(int nodeKind, const Location& location, NodeVector children = {}, NodeVector referredNodes = {});
         Node(const Node& other);
         virtual ~Node() {}
 

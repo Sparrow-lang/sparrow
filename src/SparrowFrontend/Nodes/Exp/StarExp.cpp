@@ -6,7 +6,7 @@ using namespace SprFrontend;
 using namespace Nest;
 
 StarExp::StarExp(const Location& loc, Node* base)
-    : Node(loc, {base})
+    : Node(classNodeKind(), loc, {base})
 {
 }
 

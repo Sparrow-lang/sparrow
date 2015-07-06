@@ -11,20 +11,6 @@ FWD_CLASS3(Nest,Common,Ser, InArchive)
 
 namespace Nest
 {
-    // TODO (types): Remove this; we need to be able to register types from different modules
-    enum TypeKind
-    {
-        typeVoid = 0,
-        typeData,
-        typeLValue,
-        typeArray,
-        typeFunction,
-
-        typeConcept,
-
-        typeKindLast,
-    };
-
     /// Represents a type
     struct Type
     {

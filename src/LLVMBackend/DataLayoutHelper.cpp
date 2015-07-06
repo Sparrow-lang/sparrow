@@ -25,7 +25,7 @@ namespace
             return llvm::PointerType::get(llvm::IntegerType::get(llvmContext, 32), 0);
 
         // Check array types
-        if ( type->typeKind == Nest::typeArray )
+        if ( type->typeKind == typeKindArray )
         {
             return llvm::ArrayType::get(getLLVMTypeForSize(baseType(type), llvmContext), getArraySize(type));
         }

@@ -11,6 +11,7 @@
 #include <Feather/Nodes/Decls/Var.h>
 #include <Feather/Nodes/Decls/Function.h>
 #include <Feather/Util/TypeTraits.h>
+#include <Feather/FeatherTypes.h>
 
 #include <Nest/Common/TimingSystem.h>
 
@@ -106,7 +107,7 @@ Node* CtModule::ctEvaluate(Node* node)
 	if ( !Feather::isCt(node) )
 		REP_INTERNAL(node->location(), "Cannot CT evaluate this node: it has no meaning at compile-time");
 
-    if ( !node->type()->hasStorage && node->type()->typeKind != Nest::typeVoid )
+    if ( !node->type()->hasStorage && node->type()->typeKind != typeKindVoid )
 		REP_INTERNAL(node->location(), "Cannot CT evaluate node with non-storage type (type: %1%)") % node->type();
 
 

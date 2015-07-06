@@ -4,6 +4,8 @@
 
 #include <SparrowFrontend/Nodes/Decls/SprConcept.h>
 
+#include <Nest/Intermediate/TypeKindRegistrar.h>
+
 namespace SprFrontend
 {
 
@@ -30,10 +32,17 @@ namespace
     }
 }
 
+int typeKindConcept = -1;
+
+void initSparrowFrontendTypeKinds()
+{
+    typeKindConcept = registerTypeKind();
+}
+
 TypeRef getConceptType(SprConcept* concept, uint8_t numReferences, EvalMode mode)
 {
     Type referenceType;
-    referenceType.typeKind        = Nest::typeConcept;
+    referenceType.typeKind      = typeKindConcept;
     referenceType.mode          = mode;
     referenceType.numSubtypes   = 0;
     referenceType.numReferences = numReferences;
@@ -53,7 +62,7 @@ TypeRef getConceptType(SprConcept* concept, uint8_t numReferences, EvalMode mode
 
 SprConcept* conceptOfType(TypeRef type)
 {
-    ASSERT(type && type->typeKind == typeConcept);
+    ASSERT(type && type->typeKind == typeKindConcept);
     return type->referredNode->as<SprConcept>();
 }
 

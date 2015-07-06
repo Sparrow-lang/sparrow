@@ -64,6 +64,8 @@ SET(sourceFiles
     "Intermediate/TypeRef.h"
     "Intermediate/Type.h"
     "Intermediate/Type.cpp"
+    "Intermediate/TypeKindRegistrar.h"
+    "Intermediate/TypeKindRegistrar.cpp"
     "Frontend/FrontendFactory.h"
     "Frontend/FrontendFactoryImpl.h"
     "Frontend/FrontendFactoryImpl.cpp"

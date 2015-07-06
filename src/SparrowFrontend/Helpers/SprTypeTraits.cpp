@@ -169,7 +169,7 @@ Node* SprFrontend::convertCtToRt(Node* node)
 
     TypeRef t = node->type();
 
-    if ( t->typeKind == Nest::typeVoid )
+    if ( t->typeKind == typeKindVoid )
     {
         theCompiler().ctEval(node);
         return Feather::mkNop(loc);
@@ -178,7 +178,7 @@ Node* SprFrontend::convertCtToRt(Node* node)
     if ( !t->hasStorage )
         REP_ERROR(loc, "Cannot convert a non-storage type from CT to RT (%1%)") % t;
 
-    if ( t->typeKind != Nest::typeData )
+    if ( t->typeKind != typeKindData )
         REP_ERROR(loc, "Cannot convert from CT to RT a node of non-data type (%1%)") % t;
 
     if ( t->numReferences > 0 )
@@ -257,11 +257,11 @@ Nest::TypeRef SprFrontend::getAutoType(Nest::Node* typeNode, bool addRef)
     TypeRef t = typeNode->type();
     
     // Nothing to do for function types
-    if ( t->typeKind == Nest::typeFunction )
+    if ( t->typeKind == typeKindFunction )
         return t;
     
     // Remove l-value if we have one
-    if ( t->typeKind == Nest::typeLValue )
+    if ( t->typeKind == typeKindLValue )
         t = baseType(t);
     
     // Dereference
@@ -275,12 +275,12 @@ Nest::TypeRef SprFrontend::getAutoType(Nest::Node* typeNode, bool addRef)
 
 bool SprFrontend::isConceptType(TypeRef t)
 {
-    return t->typeKind == Nest::typeConcept;
+    return t->typeKind == typeKindConcept;
 }
 
 bool SprFrontend::isConceptType(TypeRef t, bool& isRefAuto)
 {
-    if ( t->typeKind == Nest::typeConcept )
+    if ( t->typeKind == typeKindConcept )
     {
         isRefAuto = t->numReferences > 0;
         return true;
@@ -293,24 +293,15 @@ TypeRef SprFrontend::changeRefCount(TypeRef type, int numRef, const Location& lo
     ASSERT(type);
     
     // If we have a LValue type, remove it
-    while ( type->typeKind == Nest::typeLValue )
+    while ( type->typeKind == typeKindLValue )
         type = baseType(type);
 
-    switch ( type->typeKind )
-    {
-        case Nest::typeData:
-        {
-            type = getDataType(type->referredNode->as<Class>(), numRef, type->mode);
-            break;
-        }
-        case Nest::typeConcept:
-        {
-            type = getConceptType(conceptOfType(type), numRef, type->mode);
-            break;
-        }
-        default:
-            REP_INTERNAL(loc, "Cannot change reference count for type %1%") % type;
-    }
+    if ( type->typeKind == typeKindData )
+        type = getDataType(type->referredNode->as<Class>(), numRef, type->mode);
+    else if ( type->typeKind == typeKindConcept )
+        type = getConceptType(conceptOfType(type), numRef, type->mode);
+    else
+        REP_INTERNAL(loc, "Cannot change reference count for type %1%") % type;
     return type;
 }
 

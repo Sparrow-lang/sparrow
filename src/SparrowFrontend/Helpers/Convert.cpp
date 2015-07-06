@@ -86,7 +86,7 @@ namespace
                 return convNone;
 
             // Cannot convert references from CT to RT; still we allow l-value conversions
-            if ( srcTypeNew->typeKind == Nest::typeLValue )
+            if ( srcTypeNew->typeKind == typeKindLValue )
             {
                 if ( srcTypeNew->numReferences > 1 )
                     return convNone;
@@ -106,12 +106,12 @@ namespace
     /// concept: #C@N -> Concept@N
     ConversionResult checkConvertToAuto(CompilationContext* /*context*/, int /*flags*/, TypeRef srcType, TypeRef destType)
     {
-        if ( destType->typeKind != Nest::typeConcept )
+        if ( destType->typeKind != typeKindConcept )
             return convNone;
-        if ( srcType->typeKind == Nest::typeConcept || !srcType->hasStorage )
+        if ( srcType->typeKind == typeKindConcept || !srcType->hasStorage )
             return convNone;
 
-        if ( srcType->typeKind != Nest::typeLValue && srcType->numReferences == destType->numReferences )
+        if ( srcType->typeKind != typeKindLValue && srcType->numReferences == destType->numReferences )
         {
             SprConcept* concept = conceptOfType(destType);
 
@@ -128,7 +128,7 @@ namespace
     /// concept: Concept1@N -> Concept2@N
     ConversionResult checkConceptToConcept(CompilationContext* context, int flags, TypeRef srcType, TypeRef destType)
     {
-        if ( srcType->typeKind != Nest::typeConcept || destType->typeKind != Nest::typeConcept
+        if ( srcType->typeKind != typeKindConcept || destType->typeKind != typeKindConcept
             || srcType->numReferences != destType->numReferences )
             return convNone;
 
@@ -145,7 +145,7 @@ namespace
     // direct: lv(T) -> U, if T-> U or addRef(T) -> U (take best alternative)
     ConversionResult checkLValueToNormal(CompilationContext* context, int flags, TypeRef srcType, TypeRef destType)
     {
-        if ( srcType->typeKind == Nest::typeLValue && destType->typeKind != Nest::typeLValue )
+        if ( srcType->typeKind == typeKindLValue && destType->typeKind != typeKindLValue )
         {
             TypeRef t2 = Feather::lvalueToRef(srcType);
             TypeRef t1 = Feather::removeRef(t2);
@@ -183,7 +183,7 @@ namespace
     // implicit: #C@N -> U, if #C@(N-1) -> U
     ConversionResult checkDereference(CompilationContext* context, int flags, TypeRef srcType, TypeRef destType)
     {
-        if ( srcType->typeKind != Nest::typeData || srcType->numReferences == 0 )
+        if ( srcType->typeKind != typeKindData || srcType->numReferences == 0 )
             return convNone;
 
         TypeRef t = removeRef(srcType);
@@ -197,7 +197,7 @@ namespace
     // implicit:  #C@0 -> U, if #C@1 -> U
     ConversionResult checkAddReference(CompilationContext* context, int flags, TypeRef srcType, TypeRef destType)
     {
-        if ( srcType->typeKind != Nest::typeData || srcType->numReferences > 0 )
+        if ( srcType->typeKind != typeKindData || srcType->numReferences > 0 )
             return convNone;
 
         TypeRef baseDataType = addRef(srcType);

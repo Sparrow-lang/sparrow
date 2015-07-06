@@ -223,7 +223,7 @@ void FunApplication::checkReinterpretCast()
 
     // If source is an l-value and the number of source reference is greater than the destination references, remove lvalue
     Node* arg = arguments->children()[1];
-    if ( srcType->numReferences > destType->numReferences && srcType->typeKind == Nest::typeLValue )
+    if ( srcType->numReferences > destType->numReferences && srcType->typeKind == typeKindLValue )
         arg = mkMemLoad(arg->location(), arg);
 
     // Generate a bitcast operation out of this node

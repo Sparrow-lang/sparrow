@@ -574,7 +574,7 @@ namespace
         if ( !context.module().isCt() )
         {
             TypeRef tt = node.type();
-            if ( tt->typeKind == Nest::typeData )
+            if ( tt->typeKind == typeKindData )
             {
                 const string* nativeName = Feather::nativeName(tt);
                 if ( nativeName && *nativeName == "StringRef" )

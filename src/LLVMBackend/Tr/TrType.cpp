@@ -77,28 +77,20 @@ llvm::Type* Tr::getLLVMType(TypeRef type, Module& module)
     if ( llvmType )
         return llvmType;
 
-    switch ( type->typeKind )
-    {
-    case Nest::typeVoid:
+    if ( type->typeKind == typeKindVoid )
         llvmType = transformVoid(type, module);
-        break;
-    case Nest::typeData:
+    else if ( type->typeKind == typeKindData )
         llvmType = transformDataType(type, module);
-        break;
-    case Nest::typeLValue:
+    else if ( type->typeKind == typeKindLValue )
         llvmType = transformLValueType(type, module);
-        break;
-    case Nest::typeArray:
+    else if ( type->typeKind == typeKindArray )
         llvmType = transformArrayType(type, module);
-        break;
-    case Nest::typeFunction:
+    else if ( type->typeKind == typeKindFunction )
         llvmType = transformFunctionType(type, -1, module);
-        break;
-    default:
-        {
-            REP_ERROR(NOLOC, "Don't know how to translate type '%1%'") % type;
-            return nullptr;
-        }
+    else
+    {
+        REP_ERROR(NOLOC, "Don't know how to translate type '%1%'") % type;
+        return nullptr;
     }
 
     return llvmType;
@@ -137,6 +129,6 @@ llvm::Type* Tr::getLLVMFunctionType(Feather::Function* funDecl, int ignoreArg, M
 {
     ASSERT(funDecl);
     TypeRef t = funDecl->type();
-    ASSERT(t && t->typeKind == Nest::typeFunction);
+    ASSERT(t && t->typeKind == typeKindFunction);
     return transformFunctionType(t, ignoreArg, module);
 }

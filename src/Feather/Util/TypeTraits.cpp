@@ -56,7 +56,7 @@ bool Feather::isTestable(Node* node)
 
 bool Feather::isInteger(TypeRef type)
 {
-    if ( !type || type->typeKind != Nest::typeData )
+    if ( !type || type->typeKind != typeKindData )
         return false;
     const string* nativeName = Feather::nativeName(type);
     return nativeName && (*nativeName == "i32" || *nativeName == "u32");
@@ -89,43 +89,34 @@ TypeRef Feather::changeTypeMode(TypeRef type, EvalMode mode, const Location& loc
         return type;
 
     TypeRef resType = nullptr;
-    switch ( type->typeKind )
+    if ( type->typeKind == typeKindVoid )
+        resType = getVoidType(mode);
+    else if ( type->typeKind == typeKindData )
+        resType = getDataType(type->referredNode->as<Class>(), type->numReferences, mode);
+    else if ( type->typeKind == typeKindLValue )
     {
-        case typeVoid:
-            resType = getVoidType(mode);
-            break;
-        case typeData:
-            resType = getDataType(type->referredNode->as<Class>(), type->numReferences, mode);
-            break;
-        case typeLValue:
-        {
-            TypeRef newElementType = changeTypeMode(baseType(type), mode, loc);
-            resType = newElementType ? getLValueType(newElementType) : nullptr;
-            break;
-        }
-        case typeArray:
-        {
-            TypeRef newUnitType = changeTypeMode(baseType(type), mode, loc);
-            resType = newUnitType ? getArrayType(newUnitType, getArraySize(type)) : nullptr;
-            break;
-        }
-        case typeFunction:
-        {
-            resType = getFunctionType(type->subTypes, type->numSubtypes, mode);
-            break;
-        }
-//        case typeConcept:
-        default:
-        {
-            // Just switch the flags in the type
-            Type newType = *type;
-            newType.mode = mode;
-            resType = findStockType(newType);
-            if ( !resType )
-                resType = insertStockType(newType);
-            // TODO (type): This is ugly; need to do it dynamically
-            // We also need to to update description
-        }
+        TypeRef newElementType = changeTypeMode(baseType(type), mode, loc);
+        resType = newElementType ? getLValueType(newElementType) : nullptr;
+    }
+    else if ( type->typeKind == typeKindArray )
+    {
+        TypeRef newUnitType = changeTypeMode(baseType(type), mode, loc);
+        resType = newUnitType ? getArrayType(newUnitType, getArraySize(type)) : nullptr;
+    }
+    else if ( type->typeKind == typeKindFunction )
+    {
+        resType = getFunctionType(type->subTypes, type->numSubtypes, mode);
+    }
+    else
+    {
+        // Just switch the flags in the type
+        Type newType = *type;
+        newType.mode = mode;
+        resType = findStockType(newType);
+        if ( !resType )
+            resType = insertStockType(newType);
+        // TODO (type): This is ugly; need to do it dynamically
+        // We also need to to update description
     }
     if ( !resType )
         REP_INTERNAL(loc, "Don't know how to change eval mode of type %1%") % type;
@@ -165,7 +156,7 @@ TypeRef Feather::removeAllRef(TypeRef type)
 TypeRef Feather::removeLValue(TypeRef type)
 {
     ASSERT(type);
-    if ( type->typeKind != Nest::typeLValue )
+    if ( type->typeKind != typeKindLValue )
         REP_INTERNAL(Location(), "Expected l-value type; got %1%") % type;
     return getDataType(type->referredNode->as<Class>(), type->numReferences-1, type->mode);
 }
@@ -173,7 +164,7 @@ TypeRef Feather::removeLValue(TypeRef type)
 TypeRef Feather::removeLValueIfPresent(TypeRef type)
 {
     ASSERT(type);
-    if ( type->typeKind != Nest::typeLValue )
+    if ( type->typeKind != typeKindLValue )
         return type;
     return getDataType(type->referredNode->as<Class>(), type->numReferences-1, type->mode);
 }
@@ -181,7 +172,7 @@ TypeRef Feather::removeLValueIfPresent(TypeRef type)
 TypeRef Feather::lvalueToRef(TypeRef type)
 {
     ASSERT(type);
-    if ( type->typeKind != Nest::typeLValue )
+    if ( type->typeKind != typeKindLValue )
         REP_INTERNAL(Location(), "Expected l-value type; got %1%") % type;
     return getDataType(type->referredNode->as<Class>(), type->numReferences, type->mode);
 }
@@ -189,7 +180,7 @@ TypeRef Feather::lvalueToRef(TypeRef type)
 TypeRef Feather::lvalueToRefIfPresent(TypeRef type)
 {
     ASSERT(type);
-    if ( type->typeKind != Nest::typeLValue )
+    if ( type->typeKind != typeKindLValue )
         return type;
     return getDataType(type->referredNode->as<Class>(), type->numReferences, type->mode);
 }

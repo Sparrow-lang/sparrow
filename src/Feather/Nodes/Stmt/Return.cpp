@@ -50,7 +50,7 @@ void Return::doSemanticCheck()
     else
     {
         // Make sure that the function has a void return type
-        if ( parentFun->resultType()->typeKind != Nest::typeVoid )
+        if ( parentFun->resultType()->typeKind != typeKindVoid )
             REP_ERROR(location_, "You must return something in a function that has non-Void result type");
     }
 

@@ -11,10 +11,12 @@
 #include <Nest/Backend/BackendFactory.h>
 #include <Nest/Intermediate/CompilationContext.h>
 
+#include <Feather/FeatherTypes.h>
 #include <Feather/Frontend/FSimpleSourceCode.h>
 #include <Feather/CtApiFunctions.h>
 #include <LLVMBackend/LLVMSourceCode.h>
 #include <LLVMBackend/LLVMBackend.h>
+#include <SparrowFrontend/SparrowFrontendTypes.h>
 #include <SparrowFrontend/SparrowSourceCode.h>
 #include <SparrowFrontend/Helpers/StdDef.h>
 #include <SparrowFrontend/CtApiFunctions.h>
@@ -156,6 +158,9 @@ int main(int argc,char* argv[])
             cout << "Sparrow implicit lib not found" << endl;
             return 1;
         }
+
+        Feather::initFeatherTypeKinds();
+        SprFrontend::initSparrowFrontendTypeKinds();
 
         Feather::FSimpleSourceCode::registerSelf();
         LLVMB::LLVMSourceCode::registerSelf();

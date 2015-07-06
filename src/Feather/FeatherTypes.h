@@ -9,6 +9,16 @@ namespace Feather
 {
     using namespace Nest;
 
+    // The type kinds for the Feather types
+    extern int typeKindVoid;
+    extern int typeKindData;
+    extern int typeKindLValue;
+    extern int typeKindArray;
+    extern int typeKindFunction;
+
+    /// Called to initialize the Feather type kinds
+    void initFeatherTypeKinds();
+
     /// Returns the Void type corresponding to the given evaluation mode
     TypeRef getVoidType(EvalMode mode);
 

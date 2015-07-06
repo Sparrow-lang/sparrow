@@ -5,7 +5,7 @@
 #include "TrLocal.h"
 #include "Module.h"
 
-#include <Nest/Intermediate/Node.h>
+#include <Nest/Intermediate/DynNode.h>
 #include <Nest/Intermediate/Type.h>
 #include <Nest/Common/Diagnostic.h>
 #include <Nest/Compiler.h>
@@ -41,7 +41,7 @@ namespace
 {
     void translateNodeList(Feather::NodeList* node, Module& module)
     {
-        for ( Node* child: node->children() )
+        for ( DynNode* child: node->children() )
         {
             if ( child)
                 translateTopLevelNode(child, module);
@@ -65,7 +65,7 @@ namespace
 
 
 
-void Tr::translateTopLevelNode(Nest::Node* node, Module& module)
+void Tr::translateTopLevelNode(Nest::DynNode* node, Module& module)
 {
     // If this node is explained, then translate its explanation
     if ( node->isExplained() )

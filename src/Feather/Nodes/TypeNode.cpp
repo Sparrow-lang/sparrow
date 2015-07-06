@@ -4,7 +4,7 @@
 
 
 TypeNode::TypeNode(const Location& loc, TypeRef type)
-    : Node(classNodeKind(), loc)
+    : DynNode(classNodeKind(), loc)
 {
     setProperty("givenType", type);
 }

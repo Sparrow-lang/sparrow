@@ -6,22 +6,22 @@
 #include <Util/TypeTraits.h>
 
 
-Conditional::Conditional(const Location& location, Node* condition, Node* alt1, Node* alt2)
-    : Node(classNodeKind(), location, {condition, alt1, alt2})
+Conditional::Conditional(const Location& location, DynNode* condition, DynNode* alt1, DynNode* alt2)
+    : DynNode(classNodeKind(), location, {condition, alt1, alt2})
 {
 }
 
-Node* Conditional::condition() const
+DynNode* Conditional::condition() const
 {
     return children_[0];
 }
 
-Node* Conditional::alternative1() const
+DynNode* Conditional::alternative1() const
 {
     return children_[1];
 }
 
-Node* Conditional::alternative2() const
+DynNode* Conditional::alternative2() const
 {
     return children_[2];
 }

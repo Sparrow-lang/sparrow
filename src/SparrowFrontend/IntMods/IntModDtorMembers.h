@@ -8,6 +8,6 @@ namespace SprFrontend
     class IntModDtorMembers : public Nest::Modifier
     {
     public:
-        virtual void beforeSemanticCheck(Node* node);
+        virtual void beforeSemanticCheck(DynNode* node);
     };
 }

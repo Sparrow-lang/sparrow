@@ -6,7 +6,7 @@
 using namespace SprFrontend;
 
 
-void ModStatic::beforeComputeType(Node* node)
+void ModStatic::beforeComputeType(DynNode* node)
 {
     if ( node->nodeKind() != nkSparrowDeclSprVariable && node->nodeKind() != nkSparrowDeclSprFunction )
         REP_INTERNAL(node->location(), "Static modifier can be applied only to variables and functions inside classes");

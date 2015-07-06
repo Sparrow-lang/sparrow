@@ -7,17 +7,17 @@
 
 using namespace SprFrontend;
 
-SprConditional::SprConditional(const Location& location, Node* condition, Node* alt1, Node* alt2)
-    : Node(classNodeKind(), location, {condition, alt1, alt2})
+SprConditional::SprConditional(const Location& location, DynNode* condition, DynNode* alt1, DynNode* alt2)
+    : DynNode(classNodeKind(), location, {condition, alt1, alt2})
 {
 }
 
 void SprConditional::doSemanticCheck()
 {
     ASSERT(children_.size() == 3);
-    Node* cond = children_[0];
-    Node* alt1 = children_[1];
-    Node* alt2 = children_[2];
+    DynNode* cond = children_[0];
+    DynNode* alt1 = children_[1];
+    DynNode* alt2 = children_[2];
 
     alt1->semanticCheck();
     alt2->semanticCheck();

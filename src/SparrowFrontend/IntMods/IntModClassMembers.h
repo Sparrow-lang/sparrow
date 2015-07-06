@@ -8,6 +8,6 @@ namespace SprFrontend
     class IntModClassMembers : public Nest::Modifier
     {
     public:
-        virtual void afterComputeType(Node* node);
+        virtual void afterComputeType(DynNode* node);
     };
 }

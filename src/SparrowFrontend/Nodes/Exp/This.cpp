@@ -5,7 +5,7 @@
 using namespace SprFrontend;
 
 This::This(const Location& loc)
-    : Node(classNodeKind(), loc)
+    : DynNode(classNodeKind(), loc)
 {
 }
 

@@ -12,7 +12,7 @@
 using namespace SprFrontend;
 using namespace Feather;
 
-void IntModDtorMembers::beforeSemanticCheck(Node* node)
+void IntModDtorMembers::beforeSemanticCheck(DynNode* node)
 {
     /// Check to apply only to non-static destructors
     SprFunction* fun = node->as<SprFunction>();
@@ -35,7 +35,7 @@ void IntModDtorMembers::beforeSemanticCheck(Node* node)
     // Generate the dtor calls in reverse order of the fields; add them to the body of the destructor
     CompilationContext* context = body->childrenContext();
     const Location& loc = body->location();
-    for ( Node* field: boost::adaptors::reverse(cls->fields()) )
+    for ( DynNode* field: boost::adaptors::reverse(cls->fields()) )
     {
         // Make sure we destruct only fields of the current class
         Class* cls2 = getParentClass(field->context());
@@ -44,9 +44,9 @@ void IntModDtorMembers::beforeSemanticCheck(Node* node)
 
         if ( field->type()->numReferences == 0 )
         {
-            Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
+            DynNode* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
             fieldRef->setContext(context);
-            Node* call = mkOperatorCall(loc, fieldRef, "dtor", nullptr);
+            DynNode* call = mkOperatorCall(loc, fieldRef, "dtor", nullptr);
             call->setContext(context);
             body->addChild(call);
         }

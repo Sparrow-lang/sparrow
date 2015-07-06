@@ -2,7 +2,7 @@
 
 #include <Nest/Intermediate/TypeRef.h>
 
-FWD_CLASS1(Nest, Node);
+FWD_CLASS1(Nest, DynNode);
 FWD_CLASS1(Nest, CompilationContext);
 FWD_CLASS1(Nest, CompilerSettings);
 FWD_CLASS1(Nest, SourceCode);
@@ -67,13 +67,13 @@ namespace Nest
         virtual const SourceCode* getSourceCodeForFilename(const string& filename) = 0;
 
         /// Add the given node to be queued for semantic check
-        virtual void queueSemanticCheck(Node* node) = 0;
+        virtual void queueSemanticCheck(DynNode* node) = 0;
 
         /// Call this to CT process the given node
-        virtual void ctProcess(Node* node) = 0;
+        virtual void ctProcess(DynNode* node) = 0;
 
         /// Call this to CT evaluate the given node
-        virtual Node* ctEval(Node* node) = 0;
+        virtual DynNode* ctEval(DynNode* node) = 0;
 
         /// Get the size of the given type
         virtual size_t sizeOf(TypeRef type) = 0;

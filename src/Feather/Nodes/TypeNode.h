@@ -6,7 +6,7 @@ namespace Feather
 {
     /// Intermediate code node that doesn't do anything.
     /// Used for placeholder
-    class TypeNode : public Node
+    class TypeNode : public DynNode
     {
         DEFINE_NODE(TypeNode, nkFeatherTypeNode, "Feather.TypeNode");
 

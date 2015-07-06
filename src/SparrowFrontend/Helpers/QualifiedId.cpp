@@ -5,7 +5,7 @@
 
 using namespace Feather;
 
-void SprFrontend::interpretQualifiedId(Node* n, vector<string>& res)
+void SprFrontend::interpretQualifiedId(DynNode* n, vector<string>& res)
 {
     ASSERT(n);
     if ( n->nodeKind() == nkSparrowExpIdentifier )
@@ -14,13 +14,13 @@ void SprFrontend::interpretQualifiedId(Node* n, vector<string>& res)
     }
     else if ( n->nodeKind() == nkSparrowExpCompoundExp )
     {
-        Node* base = n->children()[0];
+        DynNode* base = n->children()[0];
         interpretQualifiedId(base, res);
         res.emplace_back(getName(n));
     }
     else if ( n->nodeKind() == nkSparrowExpStarExp )
     {
-        Node* base = n->children()[0];
+        DynNode* base = n->children()[0];
         interpretQualifiedId(base, res);
         res.emplace_back(string());
     }

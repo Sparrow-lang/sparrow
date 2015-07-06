@@ -8,7 +8,7 @@
 
 using namespace SprFrontend;
 
-void ModConvert::beforeComputeType(Node* node)
+void ModConvert::beforeComputeType(DynNode* node)
 {
     /// Check to apply only to constructors
     if ( node->nodeKind() != nkSparrowDeclSprFunction || Feather::getName(node) != "ctor" )

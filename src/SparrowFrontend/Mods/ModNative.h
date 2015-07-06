@@ -9,7 +9,7 @@ namespace SprFrontend
     {
     public:
         explicit ModNative(const string& name);
-        virtual void beforeComputeType(Node* node);
+        virtual void beforeComputeType(DynNode* node);
 
     private:
         string name_;

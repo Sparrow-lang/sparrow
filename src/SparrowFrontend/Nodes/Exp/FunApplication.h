@@ -5,15 +5,15 @@
 namespace SprFrontend
 {
     /// A function application (function call, or generic instantiation)
-    class FunApplication : public Node
+    class FunApplication : public DynNode
     {
         DEFINE_NODE(FunApplication, nkSparrowExpFunApplication, "Sparrow.Exp.FunApplication");
 
     public:
-        FunApplication(const Location& loc, Node* base, NodeList* arguments);
-        FunApplication(const Location& loc, Node* base, NodeVector args);
+        FunApplication(const Location& loc, DynNode* base, NodeList* arguments);
+        FunApplication(const Location& loc, DynNode* base, DynNodeVector args);
 
-        Node* base() const;
+        DynNode* base() const;
         NodeList* arguments() const;
 
     protected:

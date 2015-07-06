@@ -12,11 +12,11 @@ namespace SprFrontend
         DEFINE_NODE(GenericClass, nkSparrowDeclGenericClass, "Sparrow.Decl.GenericClass");
 
     public:
-        explicit GenericClass(SprClass* originalClass, NodeList* parameters, Node* ifClause);
+        explicit GenericClass(SprClass* originalClass, NodeList* parameters, DynNode* ifClause);
 
         virtual size_t paramsCount() const;
-        virtual Node* param(size_t idx) const;
-        virtual Instantiation* canInstantiate(const NodeVector& args);
-        virtual Node* instantiateGeneric(const Location& loc, CompilationContext* context, const NodeVector& args, Instantiation* instantiation);
+        virtual DynNode* param(size_t idx) const;
+        virtual Instantiation* canInstantiate(const DynNodeVector& args);
+        virtual DynNode* instantiateGeneric(const Location& loc, CompilationContext* context, const DynNodeVector& args, Instantiation* instantiation);
     };
 }

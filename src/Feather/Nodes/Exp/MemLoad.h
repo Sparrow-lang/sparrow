@@ -7,15 +7,15 @@ namespace Feather
 {
     /// Intermediate code node that represents a memory load operation
     /// Given a ref-typed argument, this will return a type without the ref
-    class MemLoad : public Node
+    class MemLoad : public DynNode
     {
         DEFINE_NODE(MemLoad, nkFeatherExpMemLoad, "Feather.Exp.MemLoad");
 
     public:
-        MemLoad(const Location& loc, Node* arg, size_t alignment = 0, bool isVolatile = false, AtomicOrdering ordering = atomicNone, bool singleThreaded = false);
+        MemLoad(const Location& loc, DynNode* arg, size_t alignment = 0, bool isVolatile = false, AtomicOrdering ordering = atomicNone, bool singleThreaded = false);
 
         /// Getter for the argument of this operation
-        Node* argument() const;
+        DynNode* argument() const;
 
         /// Getter for the alignment of the memory. Zero is default (backend-dependent)
         size_t alignment() const;

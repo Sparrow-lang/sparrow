@@ -18,7 +18,7 @@ using namespace Nest;
 using namespace Feather;
 
 Identifier::Identifier(const Location& loc, string id)
-    : Node(classNodeKind(), loc)
+    : DynNode(classNodeKind(), loc)
 {
     setProperty("name", move(id));
     setProperty(propAllowDeclExp, 0);
@@ -39,16 +39,16 @@ void Identifier::doSemanticCheck()
     const string& id = getCheckPropertyString("name");
 
     // Search in the current symbol table for the identifier
-    NodeVector decls = context_->currentSymTab()->lookup(id);
+    DynNodeVector decls = context_->currentSymTab()->lookup(id);
     if ( decls.empty() )
         REP_ERROR(location_, "No declarations found with the given name (%1%)") % id;
 
     // If at least one decl is a field or method, then transform this into a compound expression starting from 'this'
     bool needsThis = false;
-    for ( Node* decl: decls )
+    for ( DynNode* decl: decls )
     {
         decl->computeType();
-        Node* expl = decl->explanation();
+        DynNode* expl = decl->explanation();
         if ( isField(expl) )
         {
             needsThis = true;
@@ -64,23 +64,23 @@ void Identifier::doSemanticCheck()
     if ( needsThis )
     {
         // Add 'this' parameter to handle this case
-        Node* res = mkCompoundExp(location_, mkThisExp(location_), id);
+        DynNode* res = mkCompoundExp(location_, mkThisExp(location_), id);
         setExplanation(res);
         return;
     }
 
     bool allowDeclExp = 0 != getCheckPropertyInt(propAllowDeclExp);
-    Node* res = getIdentifierResult(context_, location_, move(decls), nullptr, allowDeclExp);
+    DynNode* res = getIdentifierResult(context_, location_, move(decls), nullptr, allowDeclExp);
     ASSERT(res);
     setExplanation(res);
 }
 
-Node* SprFrontend::getIdentifierResult(CompilationContext* ctx, const Location& loc, const NodeVector& decls, Node* baseExp, bool allowDeclExp)
+DynNode* SprFrontend::getIdentifierResult(CompilationContext* ctx, const Location& loc, const DynNodeVector& decls, DynNode* baseExp, bool allowDeclExp)
 {
     // If this points to one declaration only, try to use that declaration
     if ( decls.size() == 1 )
     {
-        Node* resDecl = resultingDecl(decls[0]);
+        DynNode* resDecl = resultingDecl(decls[0]);
         ASSERT(resDecl);
         
         // Check if we can refer to a variable
@@ -100,7 +100,7 @@ Node* SprFrontend::getIdentifierResult(CompilationContext* ctx, const Location& 
                     baseExp = res.apply(baseExp);
                     baseExp->computeType();
                 }
-                Node* baseCvt = nullptr;
+                DynNode* baseCvt = nullptr;
                 doDereference1(baseExp, baseCvt);  // ... but no more than one reference
                 baseExp = baseCvt;
                 
@@ -122,7 +122,7 @@ Node* SprFrontend::getIdentifierResult(CompilationContext* ctx, const Location& 
         if ( concept )
             t = getConceptType(concept);
         if ( t )
-            return (Node*) createTypeNode(ctx, loc, t);
+            return (DynNode*) createTypeNode(ctx, loc, t);
 
     }
 
@@ -131,7 +131,7 @@ Node* SprFrontend::getIdentifierResult(CompilationContext* ctx, const Location& 
         return mkDeclExp(loc, decls, baseExp);
 
     // If we are here, this identifier could only represent a function application
-    Node* fapp = mkFunApplication(loc, mkDeclExp(loc, decls, baseExp), nullptr);
+    DynNode* fapp = mkFunApplication(loc, mkDeclExp(loc, decls, baseExp), nullptr);
     fapp->setContext(ctx);
     fapp->semanticCheck();
     return fapp;

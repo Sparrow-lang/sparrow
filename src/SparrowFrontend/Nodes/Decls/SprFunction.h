@@ -8,17 +8,17 @@ FWD_CLASS1(Feather, Function);
 namespace SprFrontend
 {
     /// Class that represents a Sparrow namespace declaration (or compilation unit)
-    class SprFunction : public Node
+    class SprFunction : public DynNode
     {
         DEFINE_NODE(SprFunction, nkSparrowDeclSprFunction, "Sparrow.Decl.Function");
 
     public:
-        SprFunction(const Location& loc, string name, NodeList* parameters, Node* returnType, Node* body, Node* ifClause, AccessType accessType = publicAccess);
+        SprFunction(const Location& loc, string name, NodeList* parameters, DynNode* returnType, DynNode* body, DynNode* ifClause, AccessType accessType = publicAccess);
 
         bool hasThisParameters() const;
 
-        Node* returnType() const;
-        Node* body() const;
+        DynNode* returnType() const;
+        DynNode* body() const;
 
         Feather::Function* resultingFun() const;
 

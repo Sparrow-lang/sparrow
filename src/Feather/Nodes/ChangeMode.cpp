@@ -3,20 +3,20 @@
 #include "FeatherNodeCommonsCpp.h"
 
 
-ChangeMode::ChangeMode(const Location& loc, EvalMode mode, Node* child)
-    : Node(classNodeKind(), loc)
+ChangeMode::ChangeMode(const Location& loc, EvalMode mode, DynNode* child)
+    : DynNode(classNodeKind(), loc)
 {
     if ( child )
         children_.push_back(child);
     setProperty(propEvalMode, (int) mode);
 }
 
-Node* ChangeMode::child() const
+DynNode* ChangeMode::child() const
 {
     return children_[0];
 }
 
-void ChangeMode::setChild(Node* child)
+void ChangeMode::setChild(DynNode* child)
 {
     ASSERT(child);
     children_.resize(1);
@@ -40,7 +40,7 @@ void ChangeMode::dump(ostream& os) const
 void ChangeMode::doSetContextForChildren()
 {
     childrenContext_ = new CompilationContext(context_, evalMode());
-    Node::doSetContextForChildren();
+    DynNode::doSetContextForChildren();
 }
 
 void ChangeMode::doSemanticCheck()

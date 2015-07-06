@@ -2,7 +2,7 @@
 
 #include <Nest/Intermediate/NodeVector.h>
 
-FWD_CLASS1(Nest, Node);
+FWD_CLASS1(Nest, DynNode);
 FWD_CLASS2(LLVMB,Tr, Scope);
 FWD_CLASS2(LLVMB,Tr, TrContext);
 
@@ -24,16 +24,16 @@ namespace LLVMB { namespace Tr
         ~Instruction();
 
         /// Adds an temporary destruct action
-        void addTempDestructAction(Nest::Node* destructAction);
+        void addTempDestructAction(Nest::DynNode* destructAction);
 
         /// Translate the destruct actions corresponding to this node
         void outputDestructActions();
 
         /// Returns the list of destruct actions and removes them from the current instruction
-        Nest::NodeVector stealDestructActions();
+        Nest::DynNodeVector stealDestructActions();
 
     protected:
         Scope& scope_;
-        Nest::NodeVector destructActions_;
+        Nest::DynNodeVector destructActions_;
     };
 }}

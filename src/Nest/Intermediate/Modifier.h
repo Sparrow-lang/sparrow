@@ -1,6 +1,6 @@
 #pragma once
 
-FWD_CLASS1(Nest, Node);
+FWD_CLASS1(Nest, DynNode);
 
 namespace Nest
 {
@@ -10,11 +10,11 @@ namespace Nest
     public:
         virtual ~Modifier() {}
 
-        virtual void beforeSetContext(Node* /*node*/) {};
-        virtual void afterSetContext(Node* /*node*/) {};
-        virtual void beforeComputeType(Node* /*node*/) {};
-        virtual void afterComputeType(Node* /*node*/) {};
-        virtual void beforeSemanticCheck(Node* /*node*/) {};
-        virtual void afterSemanticCheck(Node* /*node*/) {};
+        virtual void beforeSetContext(DynNode* /*node*/) {};
+        virtual void afterSetContext(DynNode* /*node*/) {};
+        virtual void beforeComputeType(DynNode* /*node*/) {};
+        virtual void afterComputeType(DynNode* /*node*/) {};
+        virtual void beforeSemanticCheck(DynNode* /*node*/) {};
+        virtual void afterSemanticCheck(DynNode* /*node*/) {};
     };
 }

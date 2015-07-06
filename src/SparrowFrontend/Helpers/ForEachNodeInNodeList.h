@@ -13,12 +13,12 @@ namespace SprFrontend
     {
         if ( nodeList )
         {
-            for ( Node* n: nodeList->children() )
+            for ( DynNode* n: nodeList->children() )
             {
                 if ( !n )
                     continue;
 
-                Node* nn = n->explanation();
+                DynNode* nn = n->explanation();
                 NodeList* nl = nn->as<NodeList>();
 
                 if ( nl )

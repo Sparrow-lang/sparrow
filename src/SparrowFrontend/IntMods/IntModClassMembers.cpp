@@ -22,10 +22,10 @@ using namespace std;
 namespace
 {
     /// Search in the given class for a function with a specified name, taking the given type of parameter
-    bool checkForMember(Node* cls, const string& funName, Class* paramClass)
+    bool checkForMember(DynNode* cls, const string& funName, Class* paramClass)
     {
-        NodeVector decls = cls->childrenContext()->currentSymTab()->lookupCurrent(funName);
-        for ( Node* decl: decls )
+        DynNodeVector decls = cls->childrenContext()->currentSymTab()->lookupCurrent(funName);
+        for ( DynNode* decl: decls )
         {
             decl = decl->explanation();
             if ( !decl )
@@ -74,10 +74,10 @@ namespace
     }
 
     /// Checks if the class has a 'ctorFromCt' method
-    bool checkForCtorFromCt(Node* cls)
+    bool checkForCtorFromCt(DynNode* cls)
     {
-        NodeVector decls = cls->childrenContext()->currentSymTab()->lookupCurrent("ctorFromCt");
-        for ( Node* n: decls )
+        DynNodeVector decls = cls->childrenContext()->currentSymTab()->lookupCurrent("ctorFromCt");
+        for ( DynNode* n: decls )
         {
             if ( effectiveEvalMode(n) == modeRt )
                 return true;
@@ -88,7 +88,7 @@ namespace
     /// Checks if the given class has reference fields
     bool hasReferences(Class* cls)
     {
-        for ( Node* field: cls->fields() )
+        for ( DynNode* field: cls->fields() )
         {
             // Take in account only fields of the current class
             Class* cls2 = getParentClass(field->context());
@@ -102,9 +102,9 @@ namespace
     }
 
     // Add to a local space an operator call
-    void addOperatorCall(LocalSpace* dest, bool reverse, Node* operand1, const string& op, Node* operand2)
+    void addOperatorCall(LocalSpace* dest, bool reverse, DynNode* operand1, const string& op, DynNode* operand2)
     {
-        Node* call = mkOperatorCall(dest->location(), operand1, op, operand2);
+        DynNode* call = mkOperatorCall(dest->location(), operand1, op, operand2);
         if ( !reverse )
             dest->addChild(call);
         else
@@ -112,23 +112,23 @@ namespace
     }
 
     // Add a method with the given body and given atguments to the parent class
-    Node* addMethod(SprClass* parent, const string& name, LocalSpace* body, vector<pair<TypeRef, string>> params, Class* resClass = nullptr, EvalMode mode = modeUnspecified)
+    DynNode* addMethod(SprClass* parent, const string& name, LocalSpace* body, vector<pair<TypeRef, string>> params, Class* resClass = nullptr, EvalMode mode = modeUnspecified)
     {
         Location loc = parent->location();
         loc.setAsStartOf(loc);
 
         // Construct the parameters list, return type node
-        NodeVector sprParams;
+        DynNodeVector sprParams;
         sprParams.reserve(params.size());
         for ( auto param: params )
         {
             sprParams.push_back(mkSprParameter(loc, param.second, param.first));
         }
         NodeList* parameters = sprParams.empty() ? nullptr : (NodeList*) mkNodeList(loc, move(sprParams));
-        Node* ret = resClass ? (Node*) createTypeNode(parent->childrenContext(), loc, getDataType(resClass)) : nullptr;
+        DynNode* ret = resClass ? (DynNode*) createTypeNode(parent->childrenContext(), loc, getDataType(resClass)) : nullptr;
         
         // Add the function
-        Node* m = mkSprFunction(loc, name, parameters, ret, body);
+        DynNode* m = mkSprFunction(loc, name, parameters, ret, body);
         m->setProperty(propNoDefault, 1);
         setEvalMode(m, mode == modeUnspecified ? effectiveEvalMode(parent) : mode);
         parent->addChild(m);
@@ -137,7 +137,7 @@ namespace
     }
     
     // Add a method with the given body to the parent class
-    Node* addMethod(SprClass* parent, const string& name, LocalSpace* body, TypeRef otherParam, Class* resClass = nullptr, EvalMode mode = modeUnspecified)
+    DynNode* addMethod(SprClass* parent, const string& name, LocalSpace* body, TypeRef otherParam, Class* resClass = nullptr, EvalMode mode = modeUnspecified)
     {
         return addMethod(parent, name, body, otherParam ? vector<pair<TypeRef, string>>({ {otherParam, string("other")} }) : vector<pair<TypeRef, string>>({}), resClass, mode);
     }
@@ -150,7 +150,7 @@ namespace
         Class* cls = parent->explanation()->as<Class>();
         ASSERT(cls);
 
-        Node* otherRef = nullptr;
+        DynNode* otherRef = nullptr;
         if ( otherParam )
         {
             otherRef = mkIdentifier(loc, "other");
@@ -160,15 +160,15 @@ namespace
 
         // Construct the body
         LocalSpace* body = new LocalSpace(loc);
-        for ( Node* field: cls->fields() )
+        for ( DynNode* field: cls->fields() )
         {
             // Take in account only fields of the current class
             Class* cls2 = getParentClass(field->context());
             if ( cls2 != cls )
                 continue;
 
-            Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
-            Node* otherFieldRef = otherParam ? mkFieldRef(loc, otherRef, field) : nullptr;
+            DynNode* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
+            DynNode* otherFieldRef = otherParam ? mkFieldRef(loc, otherRef, field) : nullptr;
 
             string oper = op;
             if ( field->type()->numReferences > 0 )
@@ -211,7 +211,7 @@ namespace
 
         // Construct the body
         LocalSpace* body = new LocalSpace(loc);
-        for ( Node* field: cls->fields() )
+        for ( DynNode* field: cls->fields() )
         {
             // Take in account only fields of the current class
             Class* cls2 = getParentClass(field->context());
@@ -223,11 +223,11 @@ namespace
             // Add a parameter for the base
             string paramName = "f"+getName(field);
             params.push_back({t, paramName});
-            Node* paramId = mkIdentifier(loc, move(paramName));
+            DynNode* paramId = mkIdentifier(loc, move(paramName));
             if ( t->numReferences > 0 )
                 paramId = mkMemLoad(loc, paramId);
             
-            Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
+            DynNode* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
             
             string oper = t->numReferences > 0 ? ":=" : "ctor";
             addOperatorCall(body, false, fieldRef, oper, paramId);
@@ -245,19 +245,19 @@ namespace
         ASSERT(cls);
 
         // Construct the equality check expression
-        Node* exp = nullptr;
-        for ( Node* field: cls->fields() )
+        DynNode* exp = nullptr;
+        for ( DynNode* field: cls->fields() )
         {
             // Take in account only fields of the current class
             Class* cls2 = getParentClass(field->context());
             if ( cls2 != cls )
                 continue;
 
-            Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
-            Node* otherFieldRef = mkFieldRef(loc, mkMemLoad(loc, mkIdentifier(loc, "other")), field);
+            DynNode* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
+            DynNode* otherFieldRef = mkFieldRef(loc, mkMemLoad(loc, mkIdentifier(loc, "other")), field);
 
             const char* op = (field->type()->numReferences == 0) ? "==" : "===";
-            Node* curExp = mkOperatorCall(loc, fieldRef, op, otherFieldRef);
+            DynNode* curExp = mkOperatorCall(loc, fieldRef, op, otherFieldRef);
             if ( !exp )
                 exp = curExp;
             else
@@ -272,7 +272,7 @@ namespace
     }
 }
 
-void IntModClassMembers::afterComputeType(Node* node)
+void IntModClassMembers::afterComputeType(DynNode* node)
 {
     /// Check to apply only to classes
     SprClass* cls = node->as<SprClass>();

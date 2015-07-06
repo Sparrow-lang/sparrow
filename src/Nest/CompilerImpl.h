@@ -39,9 +39,9 @@ namespace Nest
         virtual void addSourceCodeByFilename(const SourceCode* orig, string filename);
         virtual void addSourceCodeByQid(const SourceCode* orig, vector<string> qid);
         virtual const SourceCode* getSourceCodeForFilename(const string& filename);
-        virtual void queueSemanticCheck(Node* node);
-        virtual void ctProcess(Node* node);
-        virtual Node* ctEval(Node* node);
+        virtual void queueSemanticCheck(DynNode* node);
+        virtual void ctProcess(DynNode* node);
+        virtual DynNode* ctEval(DynNode* node);
         virtual size_t sizeOf(TypeRef type);
         virtual size_t alignmentOf(TypeRef type);
 
@@ -94,6 +94,6 @@ namespace Nest
         unordered_map<const SourceCode*, vector<ImportInfo> > unhandledImports_;
 
         /// List of nodes to be semantically checked
-        NodeVector toSemanticCheck_;
+        DynNodeVector toSemanticCheck_;
     };
 }

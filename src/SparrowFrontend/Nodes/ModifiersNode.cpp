@@ -22,15 +22,15 @@
 #include "Mods/ModNoInline.h"
 
 
-ModifiersNode::ModifiersNode(const Location& loc, Node* base, Node* modifierNodes)
-    : Node(classNodeKind(), loc, {base, modifierNodes})
+ModifiersNode::ModifiersNode(const Location& loc, DynNode* base, DynNode* modifierNodes)
+    : DynNode(classNodeKind(), loc, {base, modifierNodes})
 {
 }
 
 void ModifiersNode::doSetContextForChildren()
 {
-    Node* base = children_[0];
-    Node* modifierNodes = children_[1];
+    DynNode* base = children_[0];
+    DynNode* modifierNodes = children_[1];
 
     // Set the context of the modifiers
     if ( modifierNodes )
@@ -46,7 +46,7 @@ void ModifiersNode::doSetContextForChildren()
 
 void ModifiersNode::doComputeType()
 {
-    Node* base = children_[0];
+    DynNode* base = children_[0];
 
     // Compute the type of the base node
     base->computeType();
@@ -59,13 +59,13 @@ void ModifiersNode::doSemanticCheck()
     computeType();
 
     // Semantic check the base
-    Node* base = children_[0];
+    DynNode* base = children_[0];
     base->semanticCheck();
 }
 
 void ModifiersNode::interpretModifiers()
 {
-    Node* modifierNodes = children_[1];
+    DynNode* modifierNodes = children_[1];
 
     if ( modifierNodes )
     {
@@ -73,7 +73,7 @@ void ModifiersNode::interpretModifiers()
         if ( modifierNodes )
         {
             // Add the modifiers to the base node
-            forEachNodeInNodeList(modNodes, [&] (Node* modNode)
+            forEachNodeInNodeList(modNodes, [&] (DynNode* modNode)
             {
                 applyModifier(modNode);
             });
@@ -85,7 +85,7 @@ void ModifiersNode::interpretModifiers()
     }
 }
 
-void ModifiersNode::applyModifier(Node* modNode)
+void ModifiersNode::applyModifier(DynNode* modNode)
 {
     Nest::Modifier* mod = nullptr;
     
@@ -133,7 +133,7 @@ void ModifiersNode::applyModifier(Node* modNode)
     }
     
     // If we recognized a modifier, add it to the base node; otherwise raise an error
-    Node* base = children_[0];
+    DynNode* base = children_[0];
     if ( mod )
         base->addModifier(mod);
     else

@@ -7,8 +7,8 @@
 #include <Feather/Util/Decl.h>
 
 
-FunCall::FunCall(const Location& loc, Function* funDecl, NodeVector args)
-    : Node(classNodeKind(), loc, move(args), { funDecl })
+FunCall::FunCall(const Location& loc, Function* funDecl, DynNodeVector args)
+    : DynNode(classNodeKind(), loc, move(args), { funDecl })
 {
 }
 
@@ -17,7 +17,7 @@ Function* FunCall::funDecl() const
     return (Function*) referredNodes_[0];
 }
 
-const NodeVector& FunCall::arguments() const
+const DynNodeVector& FunCall::arguments() const
 {
     return children_;
 }

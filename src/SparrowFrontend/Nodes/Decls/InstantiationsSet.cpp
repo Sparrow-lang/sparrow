@@ -22,15 +22,15 @@ namespace
     /// created for each instantiated and put in the node-list of the instantiation (the expanded instantiation node).
     /// Note that for auto-parameters we will create RT variables; the only thing we can do with them is to use their type
     /// In the expanded instantiation we need to add the actual instantiated declaration - in other place, not here
-    NodeVector getBoundVariables(const Location& loc, const NodeVector& boundValues, const NodeVector& params, bool insideClass)
+    DynNodeVector getBoundVariables(const Location& loc, const DynNodeVector& boundValues, const DynNodeVector& params, bool insideClass)
     {
         // Create a variable for each bound parameter - put everything in a node list
-        NodeVector nodes;
-        NodeVector nonBoundParams;
+        DynNodeVector nodes;
+        DynNodeVector nonBoundParams;
         size_t idx = 0;
-        for ( Node* p: params )
+        for ( DynNode* p: params )
         {
-            Node* boundValue = boundValues[idx++];
+            DynNode* boundValue = boundValues[idx++];
             if ( !p )
                 continue;
             ASSERT(boundValue);
@@ -39,14 +39,14 @@ namespace
             {
                 TypeRef t = getType(boundValue);
 
-                Node* var = mkSprVariable(p->location(), getName(p), t, nullptr);
+                DynNode* var = mkSprVariable(p->location(), getName(p), t, nullptr);
                 if ( insideClass )
                     var->setProperty(propIsStatic, 1);
                 nodes.push_back(var);
             }
             else
             {
-                Node* var = (Node*) mkSprVariable(p->location(), getName(p), boundValue->type(), boundValue);
+                DynNode* var = (DynNode*) mkSprVariable(p->location(), getName(p), boundValue->type(), boundValue);
                 if ( insideClass )
                     var->setProperty(propIsStatic, 1);
                 setEvalMode(var, modeCt);
@@ -59,13 +59,13 @@ namespace
 }
 
 
-InstantiationsSet::InstantiationsSet(Node* parentNode, NodeVector params, Node* ifClause)
-    : Node(classNodeKind(), parentNode->location(), { ifClause, Feather::mkNodeList(parentNode->location(), {}) }, { parentNode })
+InstantiationsSet::InstantiationsSet(DynNode* parentNode, DynNodeVector params, DynNode* ifClause)
+    : DynNode(classNodeKind(), parentNode->location(), { ifClause, Feather::mkNodeList(parentNode->location(), {}) }, { parentNode })
 {
     referredNodes_.push_back(mkNodeList(location_, move(params)));
 }
 
-Instantiation* InstantiationsSet::canInstantiate(const NodeVector& values, EvalMode evalMode)
+Instantiation* InstantiationsSet::canInstantiate(const DynNodeVector& values, EvalMode evalMode)
 {
     // Try to find an existing instantiation
     Instantiation* inst = searchInstantiation(values);
@@ -82,7 +82,7 @@ Instantiation* InstantiationsSet::canInstantiate(const NodeVector& values, EvalM
     if ( ifClause() )
     {
         // Always use a clone of the original node
-        Node* cond = ifClause()->clone();
+        DynNode* cond = ifClause()->clone();
         cond->setContext(inst->expandedInstantiation()->childrenContext());
 
         // If the condition does not compile, we cannot instantiate
@@ -112,12 +112,12 @@ Instantiation* InstantiationsSet::canInstantiate(const NodeVector& values, EvalM
     return inst;
 }
 
-const NodeVector& InstantiationsSet::parameters() const
+const DynNodeVector& InstantiationsSet::parameters() const
 {
     return referredNodes_[1]->children();
 }
 
-Instantiation* InstantiationsSet::searchInstantiation(const NodeVector& values)
+Instantiation* InstantiationsSet::searchInstantiation(const DynNodeVector& values)
 {
     for ( Instantiation* inst: instantiations() )
     {
@@ -142,7 +142,7 @@ Instantiation* InstantiationsSet::searchInstantiation(const NodeVector& values)
     return nullptr;
 }
 
-Instantiation* InstantiationsSet::createNewInstantiation(const NodeVector& values, EvalMode evalMode)
+Instantiation* InstantiationsSet::createNewInstantiation(const DynNodeVector& values, EvalMode evalMode)
 {
     // Create a new context, but at the same level as the context of the parent node
     CompilationContext* context = parentNode()->context()->createChildContext(nullptr);
@@ -161,12 +161,12 @@ Instantiation* InstantiationsSet::createNewInstantiation(const NodeVector& value
     return inst;
 }
 
-Node* InstantiationsSet::parentNode() const
+DynNode* InstantiationsSet::parentNode() const
 {
     return referredNodes_[0];
 }
 
-Node*  InstantiationsSet::ifClause() const
+DynNode*  InstantiationsSet::ifClause() const
 {
     return children_[0];
 }

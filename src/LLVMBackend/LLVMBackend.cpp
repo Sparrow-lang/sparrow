@@ -5,7 +5,7 @@
 #include "CtModule.h"
 #include "Tr/DebugInfo.h"
 
-#include <Nest/Intermediate/Node.h>
+#include <Nest/Intermediate/DynNode.h>
 #include <Nest/Frontend/SourceCode.h>
 #include <Nest/Backend/BackendFactory.h>
 #include <Nest/Compiler.h>
@@ -41,20 +41,20 @@ void LLVMBackend::generateMachineCode(Nest::SourceCode& code)
     rtModule_->setCtToRtTranslator(code.ctToRtTranslator());
 
     // Translate the root node
-    Node* rootNode = code.iCode();
+    DynNode* rootNode = code.iCode();
     ASSERT(rootNode);
     ASSERT(rootNode->type());
     ASSERT(rootNode->isSemanticallyChecked());
     rtModule_->generate(rootNode);
 
     // Translate the additional nodes
-    for ( Node* n: code.additionalNodes() )
+    for ( DynNode* n: code.additionalNodes() )
     {
         rtModule_->generate(n);
     }
 
 
-    rtModule_->setCtToRtTranslator(boost::function<Node*(Node*)>());
+    rtModule_->setCtToRtTranslator(boost::function<DynNode*(DynNode*)>());
 }
 
 void LLVMBackend::link(const string& outFilename)
@@ -85,12 +85,12 @@ void LLVMBackend::link(const string& outFilename)
     LLVMB::link(modules, outFilename);
 }
 
-void LLVMBackend::ctProcess(Node* node)
+void LLVMBackend::ctProcess(DynNode* node)
 {
     ctModule_->ctProcess(node);
 }
 
-Node* LLVMBackend::ctEvaluate(Node* node)
+DynNode* LLVMBackend::ctEvaluate(DynNode* node)
 {
     return ctModule_->ctEvaluate(node);
 }

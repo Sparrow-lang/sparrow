@@ -6,17 +6,17 @@
 namespace SprFrontend
 {
     /// A Sparrow class declaration
-    class SprClass : public Node
+    class SprClass : public DynNode
     {
         DEFINE_NODE(SprClass, nkSparrowDeclSprClass, "Sparrow.Decl.Class");
 
     public:
-        SprClass(const Location& loc, string name, NodeList* parameters,  NodeList* baseClasses, NodeList* children, Node* ifClause, AccessType accessType = publicAccess);
+        SprClass(const Location& loc, string name, NodeList* parameters,  NodeList* baseClasses, NodeList* children, DynNode* ifClause, AccessType accessType = publicAccess);
 
         NodeList* baseClasses() const;
         NodeList* classChildren() const;
 
-        void addChild(Node* child);
+        void addChild(DynNode* child);
 
         virtual void dump(ostream& os) const;
 

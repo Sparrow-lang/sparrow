@@ -6,19 +6,19 @@
 using namespace SprFrontend;
 using namespace Nest;
 
-DeclExp::DeclExp(const Location& loc, NodeVector decls, Node* baseExp)
-    : Node(classNodeKind(), loc, {}, move(decls))
+DeclExp::DeclExp(const Location& loc, DynNodeVector decls, DynNode* baseExp)
+    : DynNode(classNodeKind(), loc, {}, move(decls))
 {
     referredNodes_.insert(referredNodes_.begin(), baseExp);
 }
 
-NodeVector DeclExp::decls() const
+DynNodeVector DeclExp::decls() const
 {
     ASSERT(!referredNodes_.empty());
-    return NodeVector(referredNodes_.begin()+1, referredNodes_.end());
+    return DynNodeVector(referredNodes_.begin()+1, referredNodes_.end());
 }
 
-Node* DeclExp::baseExp() const
+DynNode* DeclExp::baseExp() const
 {
     ASSERT(!referredNodes_.empty());
     return referredNodes_[0];
@@ -39,7 +39,7 @@ void DeclExp::dump(ostream& os) const
 void DeclExp::doSemanticCheck()
 {
     // Make sure we computed the type for all the referred nodes
-    for ( Node* n: referredNodes_ )
+    for ( DynNode* n: referredNodes_ )
     {
         if ( n )
             n->computeType();

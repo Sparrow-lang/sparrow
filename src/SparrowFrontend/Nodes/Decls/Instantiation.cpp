@@ -5,15 +5,15 @@ using namespace SprFrontend;
 using namespace Feather;
 using namespace Nest;
 
-Instantiation::Instantiation(const Location& loc, NodeVector boundValues, NodeVector boundVars)
-    : Node(classNodeKind(), loc, { Feather::mkNodeList(loc, move(boundVars)) }, move(boundValues))
+Instantiation::Instantiation(const Location& loc, DynNodeVector boundValues, DynNodeVector boundVars)
+    : DynNode(classNodeKind(), loc, { Feather::mkNodeList(loc, move(boundVars)) }, move(boundValues))
 {
     setProperty("instIsValid", 0);
-    setProperty("instantiatedDecl", (Node*) nullptr);
+    setProperty("instantiatedDecl", (DynNode*) nullptr);
 
 }
 
-const NodeVector& Instantiation::boundValues() const
+const DynNodeVector& Instantiation::boundValues() const
 {
     return referredNodes_;
 }
@@ -23,12 +23,12 @@ NodeList*& Instantiation::expandedInstantiation()
     return (NodeList*&) children_[0];
 }
 
-Node* Instantiation::instantiatedDecl()
+DynNode* Instantiation::instantiatedDecl()
 {
     return getCheckPropertyNode("instantiatedDecl");
 }
 
-void Instantiation::setInstantiatedDecl(Node* decl)
+void Instantiation::setInstantiatedDecl(DynNode* decl)
 {
     setProperty("instantiatedDecl", decl);
     expandedInstantiation()->addChild(decl);

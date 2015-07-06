@@ -16,7 +16,7 @@ using namespace Feather;
 
 namespace
 {
-    void checkCastArguments(const Location& loc, const char* castName, const NodeVector& arguments, bool secondShouldBeRef = false)
+    void checkCastArguments(const Location& loc, const char* castName, const DynNodeVector& arguments, bool secondShouldBeRef = false)
     {
         // Make sure we have only 2 arguments
         if ( arguments.size() != 2 )
@@ -39,19 +39,19 @@ namespace
     }
 }
 
-FunApplication::FunApplication(const Location& loc, Node* base, NodeList* arguments)
-    : Node(classNodeKind(), loc, {base, arguments})
+FunApplication::FunApplication(const Location& loc, DynNode* base, NodeList* arguments)
+    : DynNode(classNodeKind(), loc, {base, arguments})
 {
     if ( !arguments )
         children_[1] = mkNodeList(loc, {});
 }
 
-FunApplication::FunApplication(const Location& loc, Node* base, NodeVector args)
-    : Node(classNodeKind(), loc, {base, mkNodeList(loc, move(args))})
+FunApplication::FunApplication(const Location& loc, DynNode* base, DynNodeVector args)
+    : DynNode(classNodeKind(), loc, {base, mkNodeList(loc, move(args))})
 {
 }
 
-Node* FunApplication::base() const
+DynNode* FunApplication::base() const
 {
     ASSERT(children_.size() == 2);
     return children_[0];
@@ -67,7 +67,7 @@ void FunApplication::doSemanticCheck()
 {
     ASSERT(children_.size() == 2);
     ASSERT(!children_[1] || children_[1]->nodeKind() == nkFeatherNodeList);
-    Node* base = children_[0];
+    DynNode* base = children_[0];
     NodeList* arguments = (NodeList*) children_[1];
 
     if ( !base )
@@ -147,13 +147,13 @@ void FunApplication::doSemanticCheck()
     string functionName = base->toString();
     
     // Try to get the declarations pointed by the base node
-    Node* thisArg = nullptr;
-    NodeVector decls = getDeclsFromNode(base, thisArg);
+    DynNode* thisArg = nullptr;
+    DynNodeVector decls = getDeclsFromNode(base, thisArg);
 
     // If we didn't find any declarations, try the operator call
     if ( base->type()->hasStorage && decls.empty() )
     {
-        Node* cls = classForTypeRaw(base->type());
+        DynNode* cls = classForTypeRaw(base->type());
         decls = cls->childrenContext()->currentSymTab()->lookupCurrent("()");
         if ( decls.empty() )
             REP_ERROR(location_, "Class %1% has no user defined call operators") % getName(cls);
@@ -166,7 +166,7 @@ void FunApplication::doSemanticCheck()
         functionName = "function";
 
     // The arguments to be used, including thisArg
-    NodeVector args;
+    DynNodeVector args;
     if ( thisArg )
         args.push_back(thisArg);
     if ( arguments )
@@ -176,7 +176,7 @@ void FunApplication::doSemanticCheck()
     EvalMode mode = context_->evalMode();
     if ( thisArg )
         mode = combineMode(thisArg->type()->mode, mode, location_, false);
-    Node* res = selectOverload(context_, location_, mode, move(decls), args, true, functionName);
+    DynNode* res = selectOverload(context_, location_, mode, move(decls), args, true, functionName);
 
     setExplanation(res);
 }
@@ -198,7 +198,7 @@ void FunApplication::checkStaticCast()
     ConversionResult c = canConvert(arguments->children()[1], destType);
     if ( !c )
         REP_ERROR(location_, "Cannot cast from %1% to %2%; types are unrelated") % srcType % destType;
-    Node* result = c.apply(arguments->children()[1]);
+    DynNode* result = c.apply(arguments->children()[1]);
     result->setLocation(location_);
 
     setExplanation(result);
@@ -222,7 +222,7 @@ void FunApplication::checkReinterpretCast()
         REP_ERROR(arguments->children()[0]->location(), "Destination type must be a reference (currently: %1%)") % destType;
 
     // If source is an l-value and the number of source reference is greater than the destination references, remove lvalue
-    Node* arg = arguments->children()[1];
+    DynNode* arg = arguments->children()[1];
     if ( srcType->numReferences > destType->numReferences && srcType->typeKind == typeKindLValue )
         arg = mkMemLoad(arg->location(), arg);
 
@@ -240,7 +240,7 @@ void FunApplication::checkSizeOf()
     // Make sure we have only one argument
     if ( arguments->children().size() != 1 )
         REP_ERROR(location_, "sizeOf expects one argument; %1% given") % arguments->children().size();
-    Node* arg = arguments->children()[0];
+    DynNode* arg = arguments->children()[0];
     TypeRef t = arg->type();
     if ( !t )
         REP_INTERNAL(location_, "Invalid argument");
@@ -254,7 +254,7 @@ void FunApplication::checkSizeOf()
 
     // Make sure the class that this refers to has the type properly computed
     Class* cls = classDecl(t);
-    Node* mainNode = cls->childrenContext()->currentSymTab()->node();
+    DynNode* mainNode = cls->childrenContext()->currentSymTab()->node();
     mainNode->computeType();
 
     // Remove l-value if we have some
@@ -275,7 +275,7 @@ void FunApplication::checkTypeOf()
         REP_ERROR(location_, "No arguments given to typeOf");
     if ( arguments->children().size() != 1 )
         REP_ERROR(location_, "typeOf expects one argument; %1% given") % arguments->children().size();
-    Node* arg = arguments->children()[0];
+    DynNode* arg = arguments->children()[0];
 
     // Compile the argument
     arguments->semanticCheck();
@@ -335,7 +335,7 @@ void FunApplication::checkIsValidAndTrue()
     bool res = checkIsValidImpl(location_, arguments, "isValidAndTrue");
     if ( res )
     {
-        Node* arg = arguments->children().front();
+        DynNode* arg = arguments->children().front();
         arg->semanticCheck();
 
         // The expression must be CT
@@ -350,7 +350,7 @@ void FunApplication::checkIsValidAndTrue()
         arg->setContext(context_);
         arg->semanticCheck();
 
-        Node* val = theCompiler().ctEval(arg);
+        DynNode* val = theCompiler().ctEval(arg);
         if ( val->nodeKind() != nkFeatherExpCtValue )
             REP_ERROR(arg->location(), "Unknown value");
 
@@ -379,7 +379,7 @@ void FunApplication::checkCtEval()
     if ( arguments->children().size() != 1 )
         REP_ERROR(location_, "ctEval expects 1 argument; %1% given") % arguments->children().size();
 
-    Node* arg = arguments->children().front();
+    DynNode* arg = arguments->children().front();
     arg->semanticCheck();
 
     // The expression must be CT
@@ -394,7 +394,7 @@ void FunApplication::checkCtEval()
     arg->setContext(context_);
     arg->semanticCheck();
 
-    Node* res = theCompiler().ctEval(arg);
+    DynNode* res = theCompiler().ctEval(arg);
     if ( res->nodeKind() != nkFeatherExpCtValue )
         REP_ERROR(arg->location(), "Unknown value");
 
@@ -409,12 +409,12 @@ void FunApplication::checkLift()
     if ( arguments->children().size() != 1 )
         REP_ERROR(location_, "lift expects 1 argument; %1% given") % arguments->children().size();
 
-    Node* arg = arguments->children().front();
+    DynNode* arg = arguments->children().front();
     // Don't sematically check the argument; let the user of the lift to decide when it's better to do so
 
     // Create a construct of an AST node
     int* nodeHandle = (int*) arg;
-    Node* base = mkCompoundExp(location_, mkIdentifier(location_, "Meta"), "AstNode");
-    Node* arg1 = mkCtValue(location_, StdDef::typeRefInt, &nodeHandle);
+    DynNode* base = mkCompoundExp(location_, mkIdentifier(location_, "Meta"), "AstNode");
+    DynNode* arg1 = mkCtValue(location_, StdDef::typeRefInt, &nodeHandle);
     setExplanation( mkFunApplication(location_, base, {arg1}) );
 }

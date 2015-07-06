@@ -6,12 +6,12 @@
 
 
 Break::Break(const Location& location)
-    : Node(classNodeKind(), location)
+    : DynNode(classNodeKind(), location)
 {
-    setProperty("loop", (Node*) nullptr);
+    setProperty("loop", (DynNode*) nullptr);
 }
 
-Node* Break::loop() const
+DynNode* Break::loop() const
 {
     return getCheckPropertyNode("loop");
 }
@@ -24,7 +24,7 @@ void Break::dump(ostream& os) const
 void Break::doSemanticCheck()
 {
     // Get the outer-most loop from the context
-    Node* loop = getParentLoop(context_);
+    DynNode* loop = getParentLoop(context_);
     if ( !loop )
         REP_ERROR(location_, "Break found outside any loop");
     setProperty("loop", loop);

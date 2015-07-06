@@ -13,12 +13,12 @@ Callable::Callable()
 
 TypeRef Callable::paramType(size_t idx) const
 {
-    Node* p = param(idx);
+    DynNode* p = param(idx);
     ASSERT(p);
     return p->type();
 }
 
-ConversionType Callable::canCall(CompilationContext* context, const Location& loc, const NodeVector& args, EvalMode evalMode, bool noCustomCvt)
+ConversionType Callable::canCall(CompilationContext* context, const Location& loc, const DynNodeVector& args, EvalMode evalMode, bool noCustomCvt)
 {
     // Copy the list of arguments; add default values if arguments are missing
     size_t paramsCount = this->paramsCount();
@@ -26,7 +26,7 @@ ConversionType Callable::canCall(CompilationContext* context, const Location& lo
     args_.reserve(paramsCount);
     for ( size_t i=args.size(); i<paramsCount; ++i )
     {
-        Node* defaultArg = this->paramDefaultVal(i);
+        DynNode* defaultArg = this->paramDefaultVal(i);
         if ( !defaultArg )
             return convNone;    // We have a non-default parameter but we don't have an argument for that
         defaultArg->semanticCheck();    // Make sure this is semantically checked
@@ -97,17 +97,17 @@ ConversionType Callable::canCall(CompilationContext* context, const Location& /*
     return res;
 }
 
-Node* Callable::paramDefaultVal(size_t idx) const
+DynNode* Callable::paramDefaultVal(size_t idx) const
 {
-    Node* p = param(idx);
+    DynNode* p = param(idx);
     ASSERT(p);
     SprParameter* sprParam = p->as<SprParameter>();
     return sprParam ? sprParam->initValue() : nullptr;
 }
 
-NodeVector Callable::argsWithConversion()
+DynNodeVector Callable::argsWithConversion()
 {
-    NodeVector res(args_.size(), nullptr);
+    DynNodeVector res(args_.size(), nullptr);
     for ( size_t i=0; i<args_.size(); ++i )
         res[i] = conversions_[i].apply(args_[i]->context(), args_[i]);
     return res;

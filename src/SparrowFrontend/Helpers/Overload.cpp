@@ -23,11 +23,11 @@ using namespace Nest;
 namespace
 {
     /// Given a declaration, try to gets a list of Callable objects from it; returns an empty list if the declaration is not callable
-    Callables getCallables(Node* decl, EvalMode evalMode)
+    Callables getCallables(DynNode* decl, EvalMode evalMode)
     {
         Callables res;
 
-        Node* resDecl = resultingDecl(decl);
+        DynNode* resDecl = resultingDecl(decl);
 
         // Is this a normal function call?
         Function* fun = resDecl->as<Function>();
@@ -65,7 +65,7 @@ namespace
     /// Filter candidates by checking the arguments against each candidate
     /// Retain only the candidates with the highest conversion
     /// Accepts either the argument nodes, or their type
-    Callables filterCandidates(CompilationContext* context, const Location& loc, const Callables& candidates, const NodeVector* args, const vector<TypeRef>* argTypes, EvalMode evalMode, bool noCustomCvt = false)
+    Callables filterCandidates(CompilationContext* context, const Location& loc, const Callables& candidates, const DynNodeVector* args, const vector<TypeRef>* argTypes, EvalMode evalMode, bool noCustomCvt = false)
     {
         Callables res;
         ConversionType bestConv = convNone;
@@ -172,7 +172,7 @@ namespace
         return oss.str();
     }
 
-    void doReportErrors(const Location& loc, const NodeVector& decls, const Callables& candidates,
+    void doReportErrors(const Location& loc, const DynNodeVector& decls, const Callables& candidates,
         const vector<TypeRef>& argsTypes, const string& funName)
     {
         REP_ERROR_NOTHROW(loc, "No matching overload found for calling %1%") % nameWithAguments(funName, argsTypes);
@@ -182,7 +182,7 @@ namespace
         }
         if ( candidates.empty() )
         {
-            for ( Node* decl: decls )
+            for ( DynNode* decl: decls )
             {
                 REP_INFO(decl->location(), "See possible candidate: %1%") % decl->toString();
             }
@@ -191,8 +191,8 @@ namespace
     }
 }
 
-Node* SprFrontend::selectOverload(CompilationContext* context, const Location& loc, Nest::EvalMode evalMode,
-        NodeVector decls, NodeVector args,
+DynNode* SprFrontend::selectOverload(CompilationContext* context, const Location& loc, Nest::EvalMode evalMode,
+        DynNodeVector decls, DynNodeVector args,
         bool reportErrors, const string& funName)
 {
     ENTER_TIMER_DESC(Nest::theCompiler().timingSystem(), "others.overload", "Overloading selection");
@@ -238,7 +238,7 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
     Callables candidates1;
     auto guard1 = Nest::Common::makeGuard([&]()-> void { destroyCallables(candidates1); });
     candidates1.reserve(decls.size());
-    for ( Node* decl: decls )
+    for ( DynNode* decl: decls )
     {
         decl->computeType();
         auto newCandidates = getCallables(decl, evalMode);
@@ -270,7 +270,7 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
         return nullptr;
     }
 
-    Node* res = selectedFun->generateCall(loc);
+    DynNode* res = selectedFun->generateCall(loc);
     ASSERT(res->context());
     if ( changeModeNode )
     {
@@ -282,7 +282,7 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
     if ( isMacro )
     {
         // Wrap the function call in a Meta.astEval(...) call
-        Node* funName = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "astEval");
+        DynNode* funName = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "astEval");
         res = mkFunApplication(loc, funName, { res });
         res->setContext(context);
     }
@@ -291,27 +291,27 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
 }
 
 bool SprFrontend::selectConversionCtor(CompilationContext* context, Class* destClass, EvalMode destMode,
-        TypeRef argType, Node* arg, Node** conv)
+        TypeRef argType, DynNode* arg, DynNode** conv)
 {
     ENTER_TIMER_DESC(Nest::theCompiler().timingSystem(), "others.selCvtCtor", "Selecting conversion ctor");
 
     ASSERT(argType);
 
     // Search for the ctors in the class 
-    NodeVector decls = destClass->childrenContext()->currentSymTab()->lookupCurrent("ctor");
+    DynNodeVector decls = destClass->childrenContext()->currentSymTab()->lookupCurrent("ctor");
 
 //     cerr << "Convert: " << argType->toString() << " -> " << destClass->toString() << " ?" << endl;
 
     // Get all the candidates
     Callables candidates;
     candidates.reserve(decls.size());
-    for ( Node* decl: decls )
+    for ( DynNode* decl: decls )
     {
         if ( !decl->hasProperty(propConvert) )
             continue;
 
         decl->computeType();
-        Node* resDecl = resultingDecl(decl);
+        DynNode* resDecl = resultingDecl(decl);
 
         Callables callables = getCallables(resDecl, destMode);
         for ( Callable* c: callables )
@@ -358,18 +358,18 @@ Callable* SprFrontend::selectCtToRtCtor(CompilationContext* context, TypeRef ctT
         return nullptr;
 
     // Search for the ctors in the class 
-    NodeVector decls = cls->childrenContext()->currentSymTab()->lookupCurrent("ctorFromCt");
+    DynNodeVector decls = cls->childrenContext()->currentSymTab()->lookupCurrent("ctorFromCt");
 
     // Select the possible ct-to-rt constructors
     Callables candidates;
     candidates.reserve(decls.size());
-    for ( Node* decl: decls )
+    for ( DynNode* decl: decls )
     {
         if ( effectiveEvalMode(decl) != modeRt )
             continue;
 
         decl->computeType();
-        Node* resDecl = resultingDecl(decl);
+        DynNode* resDecl = resultingDecl(decl);
         ASSERT(effectiveEvalMode(resDecl) == modeRt);
 
         Callables callables = getCallables(resDecl, modeRt);

@@ -13,7 +13,7 @@ SourceCode::~SourceCode()
 {
 }
 
-boost::function<Node*(Node*)> SourceCode::ctToRtTranslator() const
+boost::function<DynNode*(DynNode*)> SourceCode::ctToRtTranslator() const
 {
-    return boost::function<Node*(Node*)>();
+    return boost::function<DynNode*(DynNode*)>();
 }

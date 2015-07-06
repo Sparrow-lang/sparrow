@@ -22,11 +22,11 @@ namespace LLVMB { namespace Tr
         ~CtModule();
 
         /// Compile time process the given item
-        void ctProcess(Node* node);
+        void ctProcess(DynNode* node);
 
         /// If there is something to compile-time evaluate, this returns the resulting ct value in the given node
         /// If compile-time evaluation cannot be possible this returns an null node
-        Node* ctEvaluate(Node* node);
+        DynNode* ctEvaluate(DynNode* node);
 
         /// Register a CT API function
         /// This function will be added to the CT module, and the Sparrow programs can call it
@@ -43,7 +43,7 @@ namespace LLVMB { namespace Tr
 		void ctProcessFunction(Feather::Function* node);
 		void ctProcessClass(Feather::Class* node);
 		void ctProcessBackendCode(Feather::BackendCode* node);
-		Node* ctEvaluateExpression(Node* node);
+		DynNode* ctEvaluateExpression(DynNode* node);
 
     private:
 	    llvm::ExecutionEngine* llvmExecutionEngine_;

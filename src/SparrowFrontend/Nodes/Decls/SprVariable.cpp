@@ -24,7 +24,7 @@ namespace
         varGlobal,
     };
 
-    TypeRef computeVarType(Node* parent, CompilationContext* ctx, Node* typeNode, Node* init)
+    TypeRef computeVarType(DynNode* parent, CompilationContext* ctx, DynNode* typeNode, DynNode* init)
     {
         const Location& loc = parent->location();
 
@@ -70,15 +70,15 @@ namespace
     }
 }
 
-SprVariable::SprVariable(const Location& loc, string name, Node* typeNode, Node* init, AccessType accessType)
-    : Node(classNodeKind(), loc, {typeNode, init})
+SprVariable::SprVariable(const Location& loc, string name, DynNode* typeNode, DynNode* init, AccessType accessType)
+    : DynNode(classNodeKind(), loc, {typeNode, init})
 {
     setName(this, move(name));
     setAccessType(this, accessType);
 }
 
-SprVariable::SprVariable(const Location& loc, string name, TypeRef type, Node* init, AccessType accessType)
-    : Node(classNodeKind(), loc, {nullptr, init})
+SprVariable::SprVariable(const Location& loc, string name, TypeRef type, DynNode* init, AccessType accessType)
+    : DynNode(classNodeKind(), loc, {nullptr, init})
 {
     setName(this, move(name));
     setAccessType(this, accessType);
@@ -103,14 +103,14 @@ void SprVariable::doSetContextForChildren()
     else
         childrenContext_ = context_;
 
-    Node::doSetContextForChildren();
+    DynNode::doSetContextForChildren();
 }
 
 void SprVariable::doComputeType()
 {
     ASSERT(children_.size() == 2);
-    Node* typeNode = children_[0];
-    Node* init = children_[1];
+    DynNode* typeNode = children_[0];
+    DynNode* init = children_[1];
 
     bool isStatic = hasProperty(propIsStatic);
 
@@ -144,7 +144,7 @@ void SprVariable::doComputeType()
         setEvalMode(this, modeCt);
 
     // Create the resulting var
-    Node* resultingVar = mkVar(location_, getName(this), mkTypeNode(location_, t));
+    DynNode* resultingVar = mkVar(location_, getName(this), mkTypeNode(location_, t));
     setEvalMode(resultingVar, effectiveEvalMode(this));
     setShouldAddToSymTab(resultingVar, false);
     this->setProperty(propResultingDecl, resultingVar);
@@ -166,9 +166,9 @@ void SprVariable::doComputeType()
     bool isRef = t->numReferences > 0;
 
     // Generate the initialization and destruction calls
-    Node* ctorCall = nullptr;
-    Node* dtorCall = nullptr;
-    Node* varRef = nullptr;
+    DynNode* ctorCall = nullptr;
+    DynNode* dtorCall = nullptr;
+    DynNode* varRef = nullptr;
     if ( varKind != varField && (init || !isRef) )
     {
         ASSERT(resultingVar->type());
@@ -191,7 +191,7 @@ void SprVariable::doComputeType()
     }
 
     // Set the explanation of this node
-    Node* expl = nullptr;
+    DynNode* expl = nullptr;
     if ( varKind == varField )
     {
         // For fields, just explain this as the resulting var
@@ -200,7 +200,7 @@ void SprVariable::doComputeType()
     else
     {
         // For local and global variables take into consideration the ctor and dtor calls
-        Node* resVar = resultingVar;
+        DynNode* resVar = resultingVar;
         if ( varKind == varLocal )
         {
             // For local variables, add the ctor & dtor actions in the node list, and make this as explanation
@@ -240,7 +240,7 @@ void SprVariable::doSemanticCheck()
     computeType();
 
     // Semantically check the resulting variable and explanation
-    Node* resultingVar = getCheckPropertyNode("spr.resultingVar");
+    DynNode* resultingVar = getCheckPropertyNode("spr.resultingVar");
     resultingVar->semanticCheck();
     explanation_->semanticCheck();
 }

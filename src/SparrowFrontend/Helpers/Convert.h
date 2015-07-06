@@ -21,7 +21,7 @@ namespace SprFrontend
     ConversionType bestConv(ConversionType lhs, ConversionType rhs);
 
     /// Type of function that can be applied to convert a node into another node
-    typedef function<Node* (Node*)> ConversionFun;
+    typedef function<DynNode* (DynNode*)> ConversionFun;
 
     /// Class that holds the result of a conversion: both the type of the conversion and the transformation that needs
     /// to be applied in order to make the conversion
@@ -34,8 +34,8 @@ namespace SprFrontend
         ConversionFun conversionFun() const { return convFun_; }
         bool contextDependent() const { return contextDependent_; }
 
-        Node* apply(Node* src) const;
-        Node* apply(CompilationContext* context, Node* src) const;
+        DynNode* apply(DynNode* src) const;
+        DynNode* apply(CompilationContext* context, DynNode* src) const;
 
         typedef void (*unspecified_bool_type)();
         static void unspecified_bool() {}
@@ -63,5 +63,5 @@ namespace SprFrontend
     ConversionResult canConvertType(CompilationContext* context, Nest::TypeRef srcType, Nest::TypeRef destType, ConversionFlags flags = flagsDefault);
 
     /// Checks if an "argument" node can be converted to a given type
-    ConversionResult canConvert(Nest::Node* arg, Nest::TypeRef destType, ConversionFlags flags = flagsDefault);
+    ConversionResult canConvert(Nest::DynNode* arg, Nest::TypeRef destType, ConversionFlags flags = flagsDefault);
 }

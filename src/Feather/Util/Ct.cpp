@@ -5,7 +5,7 @@
 
 using namespace Feather;
 
-bool Feather::getBoolCtValue(Node* ctVal)
+bool Feather::getBoolCtValue(DynNode* ctVal)
 {
     CtValue* ctValue = ctVal->as<CtValue>();
     if ( !ctValue )

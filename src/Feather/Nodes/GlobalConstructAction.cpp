@@ -6,12 +6,12 @@
 #include <Util/TypeTraits.h>
 
 
-GlobalConstructAction::GlobalConstructAction(const Location& loc, Node* action)
-    : Node(classNodeKind(), loc, {action})
+GlobalConstructAction::GlobalConstructAction(const Location& loc, DynNode* action)
+    : DynNode(classNodeKind(), loc, {action})
 {
 }
 
-Node* GlobalConstructAction::constructAction() const
+DynNode* GlobalConstructAction::constructAction() const
 {
     return children_[0];
 }

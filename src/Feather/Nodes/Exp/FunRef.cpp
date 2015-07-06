@@ -6,8 +6,8 @@
 #include <Util/TypeTraits.h>
 
 
-FunRef::FunRef(const Location& loc, Function* funDecl, Node* resType)
-    : Node(classNodeKind(), loc, {resType}, {funDecl})
+FunRef::FunRef(const Location& loc, Function* funDecl, DynNode* resType)
+    : DynNode(classNodeKind(), loc, {resType}, {funDecl})
 {
 }
 
@@ -25,7 +25,7 @@ void FunRef::dump(ostream& os) const
 void FunRef::doSemanticCheck()
 {
     ASSERT(children_.size() == 1);
-    Node* resType = children_[0];
+    DynNode* resType = children_[0];
     resType->computeType();
 
     funDecl()->computeType();

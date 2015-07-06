@@ -5,28 +5,28 @@
 using namespace SprFrontend;
 using namespace Nest;
 
-StarExp::StarExp(const Location& loc, Node* base)
-    : Node(classNodeKind(), loc, {base})
+StarExp::StarExp(const Location& loc, DynNode* base)
+    : DynNode(classNodeKind(), loc, {base})
 {
 }
 
 void StarExp::doSemanticCheck()
 {
-    Node* base = children_[0];
+    DynNode* base = children_[0];
 
     // For the base expression allow it to return DeclExp
     base->setProperty(propAllowDeclExp, 1, true);
 
     // Get the declarations from the base expression
     base->semanticCheck();
-    Node* baseExp;
-    NodeVector baseDecls = getDeclsFromNode(base, baseExp);
+    DynNode* baseExp;
+    DynNodeVector baseDecls = getDeclsFromNode(base, baseExp);
     if ( baseDecls.empty() )
         REP_ERROR(base->location(), "Invalid expression inside star expression (no referred declarations)");
 
     // Get the referred declarations
-    NodeVector decls;
-    for ( Node* baseDecl: baseDecls )
+    DynNodeVector decls;
+    for ( DynNode* baseDecl: baseDecls )
     {
         if ( !baseDecl )
             continue;

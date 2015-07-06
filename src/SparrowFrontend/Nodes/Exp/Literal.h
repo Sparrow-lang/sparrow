@@ -7,7 +7,7 @@
 namespace SprFrontend
 {
     /// An expression representing a Sparrow literal
-    class Literal : public Node
+    class Literal : public DynNode
     {
         DEFINE_NODE(Literal, nkSparrowExpLiteral, "Sparrow.Exp.Literal");
 

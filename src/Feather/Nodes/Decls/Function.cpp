@@ -12,14 +12,14 @@
 using namespace Feather;
 
 
-Function::Function(const Location& loc, string name, Node* resultType, Node* body, NodeVector parameters, CallConvention callConv)
-    : Node(classNodeKind(), loc, move(parameters))
+Function::Function(const Location& loc, string name, DynNode* resultType, DynNode* body, DynNodeVector parameters, CallConvention callConv)
+    : DynNode(classNodeKind(), loc, move(parameters))
 {
     // Make sure all the nodes given as parameters have the right kind
-    for ( Node* param: parameters )
+    for ( DynNode* param: parameters )
     {
         if ( param->explanation()->nodeKind() != nkFeatherDeclVar )
-            REP_INTERNAL(param->location(), "Node %1% must be a parameter") % param;
+            REP_INTERNAL(param->location(), "DynNode %1% must be a parameter") % param;
     }
 
     // The result type and body is at the beginning of the parameters
@@ -30,10 +30,10 @@ Function::Function(const Location& loc, string name, Node* resultType, Node* bod
     setProperty("callConvention", (int) callConv);
 }
 
-void Function::addParameter(Node* parameter, bool first)
+void Function::addParameter(DynNode* parameter, bool first)
 {
     if ( parameter->explanation()->nodeKind() != nkFeatherDeclVar )
-        REP_INTERNAL(parameter->location(), "Node %1% must be a parameter") % parameter;
+        REP_INTERNAL(parameter->location(), "DynNode %1% must be a parameter") % parameter;
 
     ASSERT(children_.size() >= 2);
     if ( first )
@@ -42,14 +42,14 @@ void Function::addParameter(Node* parameter, bool first)
         children_.push_back(parameter);
 }
 
-void Function::setResultType(Node* resultType)
+void Function::setResultType(DynNode* resultType)
 {
     ASSERT(children_.size() >= 2);
     children_[0] = resultType;
     resultType->setContext(childrenContext_);
 }
 
-void Function::setBody(Node* body)
+void Function::setBody(DynNode* body)
 {
     ASSERT(children_.size() >= 2);
     children_[1] = body;
@@ -59,7 +59,7 @@ size_t Function::numParameters() const
 {
     return children_.size()-2;
 }
-Node* Function::getParameter(size_t idx) const
+DynNode* Function::getParameter(size_t idx) const
 {
     return children_[idx+2];
 }
@@ -70,7 +70,7 @@ TypeRef Function::resultType() const
     return children_[0]->type();
 }
 
-Node* Function::body() const
+DynNode* Function::body() const
 {
     ASSERT(children_.size() >= 2);
     return children_[1];
@@ -124,7 +124,7 @@ void Function::doSetContextForChildren()
     if ( !childrenContext_ )
         childrenContext_ = context_->createChildContext(this, effectiveEvalMode(this));
 
-    Node::doSetContextForChildren();
+    DynNode::doSetContextForChildren();
     
     addToSymTab(this);
 }
@@ -135,7 +135,7 @@ void Function::doComputeType()
         REP_ERROR(location_, "No name given to function declaration");
 
     // We must have a result type
-    Node* resultType = children_[0];
+    DynNode* resultType = children_[0];
     resultType->computeType();
     TypeRef resType = resultType->type();
     if ( !resType )
@@ -146,7 +146,7 @@ void Function::doComputeType()
     auto ite = children_.end();
     for ( ; it!=ite; ++it )
     {
-        Node* param = *it;
+        DynNode* param = *it;
         if ( !param )
             REP_ERROR(location_, "Invalid param");
 	    param->computeType();
@@ -159,7 +159,7 @@ void Function::doComputeType()
     it = children_.begin()+2;
     for ( ; it!=ite; ++it )
     {
-        Node* param = *it;
+        DynNode* param = *it;
         subTypes.push_back(param->type());
     }
     type_ = getFunctionType(&subTypes[0], subTypes.size(), effectiveEvalMode(this));
@@ -175,7 +175,7 @@ void Function::doSemanticCheck()
     auto ite = children_.end();
     for ( ; it!=ite; ++it )
     {
-        Node* param = *it;
+        DynNode* param = *it;
         param->semanticCheck();
     }
 

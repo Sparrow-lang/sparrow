@@ -9,24 +9,24 @@
 #include <Util/Decl.h>
 
 
-While::While(const Location& location, Node* condition, Node* body, Node* step, bool isCt)
-    : Node(classNodeKind(), location, {condition, step, body})
+While::While(const Location& location, DynNode* condition, DynNode* body, DynNode* step, bool isCt)
+    : DynNode(classNodeKind(), location, {condition, step, body})
 {
     if ( isCt )
         setEvalMode(this, modeCt);
 }
 
-Node* While::condition() const
+DynNode* While::condition() const
 {
     return children_[0];
 }
 
-Node* While::body() const
+DynNode* While::body() const
 {
     return children_[2];
 }
 
-Node* While::step() const
+DynNode* While::step() const
 {
     return children_[1];
 }
@@ -51,9 +51,9 @@ void While::doSetContextForChildren()
 
 void While::doSemanticCheck()
 {
-    Node* condition = children_[0];
-    Node* step = children_[1];
-    Node* body = children_[2];
+    DynNode* condition = children_[0];
+    DynNode* step = children_[1];
+    DynNode* body = children_[2];
     
     // Semantic check the condition
     condition->semanticCheck();
@@ -72,7 +72,7 @@ void While::doSemanticCheck()
             REP_ERROR(step->location(), "The step of the ct while should be available at compile-time (%1%)") % step->type();
 
         // Create a node-list that will be our explanation
-        NodeVector result;
+        DynNodeVector result;
 
         // Do the while
         while ( true )
@@ -84,7 +84,7 @@ void While::doSemanticCheck()
             // Put (a copy of) the body in the resulting node-list
             if ( body )
             {
-                Node* curBody = body->clone();
+                DynNode* curBody = body->clone();
                 curBody->setContext(context_);
                 curBody->semanticCheck();
                 result.push_back(curBody);

@@ -5,8 +5,8 @@
 #include <Util/TypeTraits.h>
 
 
-MemLoad::MemLoad(const Location& loc, Node* arg, size_t alignment, bool isVolatile, AtomicOrdering ordering, bool singleThreaded)
-    : Node(classNodeKind(), loc, {arg})
+MemLoad::MemLoad(const Location& loc, DynNode* arg, size_t alignment, bool isVolatile, AtomicOrdering ordering, bool singleThreaded)
+    : DynNode(classNodeKind(), loc, {arg})
 {
     setProperty("alignment", alignment);
     setProperty("volatile", isVolatile ? 1 : 0);
@@ -14,7 +14,7 @@ MemLoad::MemLoad(const Location& loc, Node* arg, size_t alignment, bool isVolati
     setProperty("singleThreaded", singleThreaded ? 1 : 0);
 }
 
-Node* MemLoad::argument() const
+DynNode* MemLoad::argument() const
 {
     return children_[0];
 }

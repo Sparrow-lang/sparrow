@@ -25,7 +25,7 @@ namespace
         default:        return "Void";
         }
     }
-    string getDataTypeDescription(Node* classDecl, uint8_t numReferences, EvalMode mode)
+    string getDataTypeDescription(DynNode* classDecl, uint8_t numReferences, EvalMode mode)
     {
         string res;
         for ( uint8_t i=0; i<numReferences; ++i )

@@ -6,7 +6,7 @@ namespace Feather
 {
     /// Intermediate code node that represents break statement
     /// The return type will be Void
-    class Break : public Node
+    class Break : public DynNode
     {
         DEFINE_NODE(Break, nkFeatherStmtBreak, "Feather.Stmt.Break");
 
@@ -14,7 +14,7 @@ namespace Feather
         explicit Break(const Location& location);
 
         /// Getter for loop node that contains this break; set during compilation
-        Node* loop() const;
+        DynNode* loop() const;
 
     public:
         virtual void dump(ostream& os) const;

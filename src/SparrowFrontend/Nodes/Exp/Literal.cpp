@@ -10,7 +10,7 @@ using namespace SprFrontend;
 using namespace Nest;
 
 Literal::Literal(const Location& loc, string litType, string data)
-    : Node(classNodeKind(), loc)
+    : DynNode(classNodeKind(), loc)
 {
     setProperty("spr.literalType", litType);
     setProperty("spr.literalData", data);

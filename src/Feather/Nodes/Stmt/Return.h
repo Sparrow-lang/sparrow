@@ -8,15 +8,15 @@ namespace Feather
 {
     /// Intermediate code node that represents return statement
     /// The return type will be Void
-    class Return : public Node
+    class Return : public DynNode
     {
         DEFINE_NODE(Return, nkFeatherStmtReturn, "Feather.Stmt.Return");
 
     public:
-        explicit Return(const Location& location, Node* exp = nullptr);
+        explicit Return(const Location& location, DynNode* exp = nullptr);
 
         /// The expression given to the return node, if this returns an expression
-        Node* expression() const;
+        DynNode* expression() const;
 
         /// Getter for the function declaration that contains this node; set during compilation
         Function* parentFun() const;

@@ -9,7 +9,7 @@
 
 
 CtValue::CtValue(const Location& loc, TypeRef type, string data)
-    : Node(classNodeKind(), loc)
+    : DynNode(classNodeKind(), loc)
 {
     setProperty("valueType", type);
     setProperty("valueData", move(data));

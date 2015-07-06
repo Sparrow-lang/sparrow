@@ -61,7 +61,7 @@ CtModule::~CtModule()
     }
 }
 
-void CtModule::ctProcess(Node* node)
+void CtModule::ctProcess(DynNode* node)
 {
     ENTER_TIMER_DESC(Nest::theCompiler().timingSystem(), "ctEval", "CT processing");
 
@@ -74,7 +74,7 @@ void CtModule::ctProcess(Node* node)
 
     // Make sure the node is semantically checked
 	if ( !node->isSemanticallyChecked() )
-		REP_INTERNAL(node->location(), "Node should be semantically checked when passed to the backend");
+		REP_INTERNAL(node->location(), "DynNode should be semantically checked when passed to the backend");
 
 	// Make sure the type of the node can be used at compile time
 	if ( node->type()->mode == modeRt )
@@ -92,14 +92,14 @@ void CtModule::ctProcess(Node* node)
     }
 }
 
-Node* CtModule::ctEvaluate(Node* node)
+DynNode* CtModule::ctEvaluate(DynNode* node)
 {
     ENTER_TIMER_DESC(Nest::theCompiler().timingSystem(), "ctEval", "CT processing");
 
     // Make sure the node is semantically checked
 	if ( !node->isSemanticallyChecked() )
 	{
-		REP_INTERNAL(node->location(), "Node should be semantically checked when passed to the backend");
+		REP_INTERNAL(node->location(), "DynNode should be semantically checked when passed to the backend");
 		return nullptr;
 	}
 
@@ -172,7 +172,7 @@ void CtModule::ctProcessBackendCode(Feather::BackendCode* node)
     Tr::translateBackendCode(node, *this);
 }
 
-Node* CtModule::ctEvaluateExpression(Node* node)
+DynNode* CtModule::ctEvaluateExpression(DynNode* node)
 {
 	// Create a function of type 'void f(void*)', which will execute our expression node and put the result at the address 
 	llvm::Function* f = Tr::makeFunThatCalls(node, *this, "ctEval", node->type()->hasStorage);

@@ -9,7 +9,7 @@
 #include "DebugInfo.h"
 #include "Module.h"
 
-#include <Nest/Intermediate/Node.h>
+#include <Nest/Intermediate/DynNode.h>
 #include <Nest/Intermediate/Type.h>
 #include <Nest/Common/Diagnostic.h>
 
@@ -57,7 +57,7 @@ namespace
     //
 
     /// Translate the given node, and makes sure that the node returns a valid llvm-value
-    llvm::Value* translateNodeCheck(Node* node, TrContext& context)
+    llvm::Value* translateNodeCheck(DynNode* node, TrContext& context)
     {
         llvm::Value* res = translateNode(node, context);
         if ( !res )
@@ -82,15 +82,15 @@ namespace
     }
 
     // Helper node used to implement destruct actions for conditional expression
-    class DestructActionForConditional : public Node
+    class DestructActionForConditional : public DynNode
     {
         DEFINE_NODE(DestructActionForConditional, -1, "LLVMBackend.DestructActionForConditional");
     public:
-        DestructActionForConditional(TypeRef resType, llvm::Value* cond, NodeVector alt1DestructActions, NodeVector alt2DestructActions)
-            : Node(classNodeKind(), NOLOC, {mkNodeList(NOLOC, move(alt1DestructActions)), mkNodeList(NOLOC, move(alt2DestructActions)) })
+        DestructActionForConditional(TypeRef resType, llvm::Value* cond, DynNodeVector alt1DestructActions, DynNodeVector alt2DestructActions)
+            : DynNode(classNodeKind(), NOLOC, {mkNodeList(NOLOC, move(alt1DestructActions)), mkNodeList(NOLOC, move(alt2DestructActions)) })
         {
             setProperty("resType", resType);
-            setProperty("cond_LLVM_value", reinterpret_cast<Node*>(cond));
+            setProperty("cond_LLVM_value", reinterpret_cast<DynNode*>(cond));
             // store the condition llvm value as a pointer to a node
         }
 
@@ -109,12 +109,12 @@ namespace
             return reinterpret_cast<llvm::Value*>(getCheckPropertyNode("cond_LLVM_value"));
         }
 
-        const NodeVector& alt1DestructActions() const
+        const DynNodeVector& alt1DestructActions() const
         {
             return children_[0]->children();
         }
 
-        const NodeVector& alt2DestructActions() const
+        const DynNodeVector& alt2DestructActions() const
         {
             return children_[1]->children();
         }
@@ -126,7 +126,7 @@ namespace
     {
     public:
         Exp(llvm::Value* val) : value_(val), node_(nullptr) {}
-        Exp(Node* node) : value_(nullptr), node_(node) {}
+        Exp(DynNode* node) : value_(nullptr), node_(node) {}
 
         llvm::Value* translate(TrContext& context) const
         {
@@ -137,12 +137,12 @@ namespace
 
     private:
         mutable llvm::Value* value_;
-        Node* node_;
+        DynNode* node_;
     };
 
 
     llvm::Value* generateConditionalCode(TypeRef destType, CompilationContext* compContext,
-        Node* cond, const Exp& alt1, const Exp& alt2, TrContext& context)
+        DynNode* cond, const Exp& alt1, const Exp& alt2, TrContext& context)
     {
         // Create the different blocks
         llvm::BasicBlock* alt1Block = llvm::BasicBlock::Create(context.llvmContext(), "cond.true", context.parentFun());
@@ -154,8 +154,8 @@ namespace
         context.ensureInsertionPoint();
         context.builder().CreateCondBr(condValue, alt1Block, alt2Block);
 
-        NodeVector destructActions1;
-        NodeVector destructActions2;
+        DynNodeVector destructActions1;
+        DynNodeVector destructActions2;
         llvm::Value* val1;
         llvm::Value* val2;
 
@@ -194,7 +194,7 @@ namespace
         if ( !destructActions1.empty() || !destructActions2.empty() )
         {
             // The destruct action is also a kind of conditional operation - reuse the condition value
-            Node* destructAction = new DestructActionForConditional(destType, condValue, move(destructActions1), move(destructActions2));
+            DynNode* destructAction = new DestructActionForConditional(destType, condValue, move(destructActions1), move(destructActions2));
             destructAction->setContext(compContext);
             destructAction->semanticCheck();
             context.curInstruction().addTempDestructAction(destructAction);
@@ -212,8 +212,8 @@ namespace
         if ( funCall.arguments().size() != 2 )
             REP_INTERNAL(funCall.location(), "Logical or must have exact 2 arguments");
 
-        Node* arg1 = funCall.arguments()[0];
-        Node* arg2 = funCall.arguments()[1];
+        DynNode* arg1 = funCall.arguments()[0];
+        DynNode* arg2 = funCall.arguments()[1];
         llvm::Value* trueConst = llvm::ConstantInt::getTrue(context.llvmContext());
         llvm::Value* res = generateConditionalCode(arg1->type(), arg1->context(), arg1, Exp(trueConst), Exp(arg2), context);
         return setValue(context.module(), funCall, res);
@@ -224,8 +224,8 @@ namespace
         if ( funCall.arguments().size() != 2 )
             REP_INTERNAL(funCall.location(), "Logical and must have exact 2 arguments");
 
-        Node* arg1 = funCall.arguments()[0];
-        Node* arg2 = funCall.arguments()[1];
+        DynNode* arg1 = funCall.arguments()[0];
+        DynNode* arg2 = funCall.arguments()[1];
         llvm::Value* falseConst = llvm::ConstantInt::getFalse(context.llvmContext());
         llvm::Value* res = generateConditionalCode(arg1->type(), arg1->context(), arg1, Exp(arg2), Exp(falseConst), context);
         return setValue(context.module(), funCall, res);
@@ -284,7 +284,7 @@ namespace
 #define CONSTd(val)             llvm::ConstantFP::get(llvm::Type::getDoubleTy(context.llvmContext()), val)
 
 
-        const NodeVector& args = funCall.arguments();
+        const DynNodeVector& args = funCall.arguments();
         if ( args.size() == 1 )
         {
             if ( native == "_zero_init_1" )
@@ -459,7 +459,7 @@ namespace
     llvm::Value* translate(NodeList& node, TrContext& context)
     {
         llvm::Value* res = nullptr;
-        for ( Node* child: node.children() )
+        for ( DynNode* child: node.children() )
         {
             if ( child )
                 res = translateNode(child, context);
@@ -472,7 +472,7 @@ namespace
         Scope scopeGuard(context, node.location());
 
         // Translate all the instructions in the local space
-        for ( Node* child: node.children() )
+        for ( DynNode* child: node.children() )
         {
             Instruction instrGuard(context);
             translateNode(child, context);
@@ -862,8 +862,8 @@ namespace
         context.ensureInsertionPoint();
         context.builder().CreateCondBr(condValue, alt1Block, alt2Block);
 
-        NodeVector destructActions1;
-        NodeVector destructActions2;
+        DynNodeVector destructActions1;
+        DynNodeVector destructActions2;
         llvm::Value* val1;
         llvm::Value* val2;
 
@@ -901,7 +901,7 @@ namespace
         if ( !destructActions1.empty() || !destructActions2.empty() )
         {
             // The destruct action is also a kind of conditional operation - reuse the condition value
-            Node* destructAction = new DestructActionForConditional(node.type(), condValue, move(destructActions1), move(destructActions2));
+            DynNode* destructAction = new DestructActionForConditional(node.type(), condValue, move(destructActions1), move(destructActions2));
             destructAction->setContext(node.context());
             destructAction->semanticCheck();
             ASSERT(!context.scopesStack().empty());
@@ -925,7 +925,7 @@ namespace
 
         // Alternative 1 destruct actions
         context.setInsertionPoint(alt1Block);
-        for ( Node* n: boost::adaptors::reverse(node.alt1DestructActions()) )
+        for ( DynNode* n: boost::adaptors::reverse(node.alt1DestructActions()) )
         {
             translateNode(n, context);
         }
@@ -934,7 +934,7 @@ namespace
 
         // Alternative 2 destruct actions
         context.setInsertionPoint(alt2Block);
-        for ( Node* n: boost::adaptors::reverse(node.alt2DestructActions()) )
+        for ( DynNode* n: boost::adaptors::reverse(node.alt2DestructActions()) )
         {
             translateNode(n, context);
         }
@@ -1097,7 +1097,7 @@ namespace
 
     llvm::Value* translate(Break& node, TrContext& context)
     {
-        Node* whileNode = node.loop();
+        DynNode* whileNode = node.loop();
         CHECK(node.location(), whileNode);
 
         // Get the instruction guard for the while instruction
@@ -1121,7 +1121,7 @@ namespace
 
     llvm::Value* translate(Continue& node, TrContext& context)
     {
-        Node* whileNode = node.loop();
+        DynNode* whileNode = node.loop();
         CHECK(node.location(), whileNode);
 
         // Get the instruction guard for the while instruction
@@ -1165,9 +1165,9 @@ namespace
     // General
     //
     
-    Node* convertCtToRt(Node* node, TrContext& context)
+    DynNode* convertCtToRt(DynNode* node, TrContext& context)
     {
-        Node* res = node;
+        DynNode* res = node;
         if ( context.module().ctToRtTranslator() )
             res = context.module().ctToRtTranslator()(node);
         return res;
@@ -1175,7 +1175,7 @@ namespace
 }
 
 
-llvm::Value* Tr::translateNode(Nest::Node* node, TrContext& context)
+llvm::Value* Tr::translateNode(Nest::DynNode* node, TrContext& context)
 {
     // Make sure the node is compiled
     node->semanticCheck();
@@ -1235,13 +1235,13 @@ llvm::Value* Tr::translateNode(Nest::Node* node, TrContext& context)
     }
 }
 
-llvm::Value* Tr::setValue(Module& module, Node& node, llvm::Value* val)
+llvm::Value* Tr::setValue(Module& module, DynNode& node, llvm::Value* val)
 {
     module.setNodeProperty(&node, Module::propValue, boost::any(val));
     return val;
 }
 
-llvm::Value* Tr::getValue(Module& module, Node& node, bool doCheck)
+llvm::Value* Tr::getValue(Module& module, DynNode& node, bool doCheck)
 {
     llvm::Value** val = module.getNodePropertyValue<llvm::Value*>(&node, Module::propValue);
     if ( !val && doCheck )

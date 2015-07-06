@@ -5,12 +5,12 @@
 namespace SprFrontend
 {
     /// A for declaration
-    class For : public Node
+    class For : public DynNode
     {
         DEFINE_NODE(For, nkSparrowStmtFor, "Sparrow.Stmt.For");
 
     public:
-        For(const Location& loc, string name, Node* range, Node* action, Node* typeExpr = nullptr, bool ct = false);
+        For(const Location& loc, string name, DynNode* range, DynNode* action, DynNode* typeExpr = nullptr, bool ct = false);
 
     protected:
         virtual void doSetContextForChildren();

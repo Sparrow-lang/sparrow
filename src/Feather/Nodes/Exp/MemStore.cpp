@@ -5,8 +5,8 @@
 #include <Util/TypeTraits.h>
 
 
-MemStore::MemStore(const Location& loc, Node* value, Node* address, size_t alignment, bool isVolatile, AtomicOrdering ordering, bool singleThreaded)
-    : Node(classNodeKind(), loc, {value, address})
+MemStore::MemStore(const Location& loc, DynNode* value, DynNode* address, size_t alignment, bool isVolatile, AtomicOrdering ordering, bool singleThreaded)
+    : DynNode(classNodeKind(), loc, {value, address})
 {
     setProperty("alignment", alignment);
     setProperty("volatile", isVolatile ? 1 : 0);
@@ -14,12 +14,12 @@ MemStore::MemStore(const Location& loc, Node* value, Node* address, size_t align
     setProperty("singleThreaded", singleThreaded ? 1 : 0);
 }
 
-Node* MemStore::value() const
+DynNode* MemStore::value() const
 {
     return children_[0];
 }
 
-Node* MemStore::address() const
+DynNode* MemStore::address() const
 {
     return children_[1];
 }
@@ -52,8 +52,8 @@ void MemStore::dump(ostream& os) const
 
 void MemStore::doSemanticCheck()
 {
-    Node* value = children_[0];
-    Node* address = children_[1];
+    DynNode* value = children_[0];
+    DynNode* address = children_[1];
     ASSERT(value);
     ASSERT(address);
 

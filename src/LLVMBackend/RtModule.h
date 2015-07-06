@@ -12,7 +12,7 @@ namespace LLVMB { namespace Tr
         virtual ~RtModule();
 
         /// Compile the given node into the current module
-        void generate(Node* rootNode);
+        void generate(DynNode* rootNode);
 
         /// Generate code for all the added ctors and dtor
         void generateGlobalCtorDtor();

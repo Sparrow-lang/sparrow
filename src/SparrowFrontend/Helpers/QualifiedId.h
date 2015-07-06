@@ -8,5 +8,5 @@
 namespace SprFrontend
 {
     /// Interprets a qualified id node; if the given node is a star expression, the last element on the result will be the empty string
-    void interpretQualifiedId(Node* n, vector<string>& res);
+    void interpretQualifiedId(DynNode* n, vector<string>& res);
 }

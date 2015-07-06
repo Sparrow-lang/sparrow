@@ -7,7 +7,7 @@
 using namespace SprFrontend;
 
 
-void ModAutoCt::beforeSetContext(Node* node)
+void ModAutoCt::beforeSetContext(DynNode* node)
 {
     using namespace Feather;
 

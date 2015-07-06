@@ -4,8 +4,8 @@
 #include <Util/TypeTraits.h>
 
 
-Bitcast::Bitcast(const Location& loc, Node* destType, Node* exp)
-    : Node(classNodeKind(), loc, {exp, destType})
+Bitcast::Bitcast(const Location& loc, DynNode* destType, DynNode* exp)
+    : DynNode(classNodeKind(), loc, {exp, destType})
 {
     ASSERT(destType);
     ASSERT(exp);
@@ -15,7 +15,7 @@ TypeRef Bitcast::destType() const
 {
     return children_[1]->type();
 }
-Node* Bitcast::exp() const
+DynNode* Bitcast::exp() const
 {
     return children_[0];
 }

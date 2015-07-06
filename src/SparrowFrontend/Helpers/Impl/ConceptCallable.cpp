@@ -28,7 +28,7 @@ size_t ConceptCallable::paramsCount() const
     return 1;
 }
 
-Node* ConceptCallable::param(size_t /*idx*/) const
+DynNode* ConceptCallable::param(size_t /*idx*/) const
 {
     // For a callable concept, we don't have a parameter
     return nullptr;
@@ -49,20 +49,20 @@ bool ConceptCallable::isAutoCt() const
 }
 
 
-Node* ConceptCallable::generateCall(const Location& loc)
+DynNode* ConceptCallable::generateCall(const Location& loc)
 {
     ASSERT(concept_);
 
     // Get the argument, and compile it
     auto argsCvt = argsWithConversion();
     ASSERT(argsCvt.size() == 1);
-    Node* arg = argsCvt.front();
+    DynNode* arg = argsCvt.front();
     ASSERT(arg);
     arg->semanticCheck();
 
     // Check if the type of the argument fulfills the concept
     bool conceptFulfilled = concept_->isFulfilled(arg->type());
-    Node* result = mkCtValue(loc, StdDef::typeBool, &conceptFulfilled);
+    DynNode* result = mkCtValue(loc, StdDef::typeBool, &conceptFulfilled);
     result->setContext(context_);
     result->semanticCheck();
     return result;

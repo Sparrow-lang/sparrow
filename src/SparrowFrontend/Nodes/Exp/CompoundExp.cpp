@@ -10,8 +10,8 @@ using namespace Nest;
 using namespace Feather;
 
 
-CompoundExp::CompoundExp(const Location& loc, Node* base, string id)
-    : Node(classNodeKind(), loc, {base})
+CompoundExp::CompoundExp(const Location& loc, DynNode* base, string id)
+    : DynNode(classNodeKind(), loc, {base})
 {
     setProperty("name", move(id));
     setProperty(propAllowDeclExp, 0);
@@ -22,9 +22,9 @@ const string& CompoundExp::id() const
     return getCheckPropertyString("name");
 }
 
-Node* CompoundExp::baseDataExp() const
+DynNode* CompoundExp::baseDataExp() const
 {
-    Node*const* res = getPropertyNode("baseDataExp");
+    DynNode*const* res = getPropertyNode("baseDataExp");
     return res ? *res : nullptr;
 }
 
@@ -40,7 +40,7 @@ void CompoundExp::dump(ostream& os) const
 
 void CompoundExp::doSemanticCheck()
 {
-    Node* base = children_[0];
+    DynNode* base = children_[0];
     const string& id = getCheckPropertyString("name");
 
     // For the base expression allow it to return DeclExp
@@ -51,8 +51,8 @@ void CompoundExp::doSemanticCheck()
     base->semanticCheck();
 
     // Try to get the declarations pointed by the base node
-    Node* baseDataExp = nullptr;
-    NodeVector baseDecls = getDeclsFromNode(base, baseDataExp);
+    DynNode* baseDataExp = nullptr;
+    DynNodeVector baseDecls = getDeclsFromNode(base, baseDataExp);
     
     // If the base has storage, retain it as the base data expression
     if ( baseDecls.empty() && base->type()->hasStorage )
@@ -62,20 +62,20 @@ void CompoundExp::doSemanticCheck()
     setProperty("baseDataExp", baseDataExp);
 
     // Get the declarations that this node refers to
-    NodeVector decls;
+    DynNodeVector decls;
     if ( !baseDecls.empty() )
     {
         // Get the referred declarations; search for our id inside the symbol table of the declarations of the base
-        for ( Node* baseDecl: baseDecls )
+        for ( DynNode* baseDecl: baseDecls )
         {
-            NodeVector declsCur = baseDecl->childrenContext()->currentSymTab()->lookupCurrent(id);
+            DynNodeVector declsCur = baseDecl->childrenContext()->currentSymTab()->lookupCurrent(id);
             decls.insert(decls.end(), declsCur.begin(), declsCur.end());
         }
     }
     else if ( base->type()->hasStorage )
     {
         // If the base is an expression with a data type, treat this as a data access
-        Node* classDecl = classForTypeRaw(base->type());
+        DynNode* classDecl = classForTypeRaw(base->type());
         classDecl->computeType();
 
         // Search for a declaration in the class 
@@ -87,7 +87,7 @@ void CompoundExp::doSemanticCheck()
 
     
     bool allowDeclExp = 0 != getCheckPropertyInt(propAllowDeclExp);
-    Node* res = getIdentifierResult(context_, location_, move(decls), baseDataExp, allowDeclExp);
+    DynNode* res = getIdentifierResult(context_, location_, move(decls), baseDataExp, allowDeclExp);
     ASSERT(res);
     setExplanation(res);
 }

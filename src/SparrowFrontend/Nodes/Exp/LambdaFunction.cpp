@@ -11,8 +11,8 @@
 using namespace SprFrontend;
 using namespace Feather;
 
-LambdaFunction::LambdaFunction(const Location& loc, NodeList* parameters, Node* returnType, Node* body, NodeList* closureParams)
-    : Node(classNodeKind(), loc, {}, {parameters, returnType, body, closureParams})
+LambdaFunction::LambdaFunction(const Location& loc, NodeList* parameters, DynNode* returnType, DynNode* body, NodeList* closureParams)
+    : DynNode(classNodeKind(), loc, {}, {parameters, returnType, body, closureParams})
 {
 }
 
@@ -20,8 +20,8 @@ void LambdaFunction::dump(ostream& os) const
 {
     ASSERT(referredNodes_.size() == 4);
     NodeList* parameters = (NodeList*) referredNodes_[0];
-    Node* returnType = referredNodes_[1];
-    Node* body = referredNodes_[2];
+    DynNode* returnType = referredNodes_[1];
+    DynNode* body = referredNodes_[2];
     NodeList* closureParams = (NodeList*) referredNodes_[3];
     os << "(fun";
     os << " " << parameters;
@@ -37,8 +37,8 @@ void LambdaFunction::doSemanticCheck()
 {
     ASSERT(referredNodes_.size() == 4);
     NodeList* parameters = (NodeList*) referredNodes_[0];
-    Node* returnType = referredNodes_[1];
-    Node* body = referredNodes_[2];
+    DynNode* returnType = referredNodes_[1];
+    DynNode* body = referredNodes_[2];
     NodeList* closureParams = (NodeList*) referredNodes_[3];
 
     Function* parentFun = getParentFun(context_);
@@ -54,18 +54,18 @@ void LambdaFunction::doSemanticCheck()
     classBody->addChild(mkSprFunction(location_, "()", parameters, returnType, body));
 
     // Add a private default ctor
-    classBody->addChild(mkSprFunction(location_, "ctor", nullptr, nullptr, mkLocalSpace(location_, NodeVector()), nullptr, privateAccess));
+    classBody->addChild(mkSprFunction(location_, "ctor", nullptr, nullptr, mkLocalSpace(location_, DynNodeVector()), nullptr, privateAccess));
 
     // For each closure variable, create:
     // - a member variable in the class
     // - an initialization line in the ctor
     // - a parameter to ctor
     // - an argument to pass to the ctor
-    NodeVector ctorStmts;
+    DynNodeVector ctorStmts;
     if ( closureParams )
     {
-        NodeVector ctorArgsNodes, ctorParamsNodes;
-        for ( Node* arg: closureParams->children() )
+        DynNodeVector ctorArgsNodes, ctorParamsNodes;
+        for ( DynNode* arg: closureParams->children() )
         {
             if ( !arg || arg->nodeKind() != nkSparrowExpIdentifier )
                 REP_INTERNAL(arg->location(), "The closure parameter must be identifier");
@@ -85,10 +85,10 @@ void LambdaFunction::doSemanticCheck()
             classBody->addChild(mkSprVariable(loc, varName, varType, nullptr, privateAccess));
 
             // Create an initialization for the variable
-            Node* fieldRef = mkCompoundExp(loc, mkThisExp(loc), varName);
-            Node* paramRef = mkIdentifier(loc, varName);
+            DynNode* fieldRef = mkCompoundExp(loc, mkThisExp(loc), varName);
+            DynNode* paramRef = mkIdentifier(loc, varName);
             const char* op = (varType->numReferences == 0) ? "ctor" : ":=";
-            Node* initCall = mkOperatorCall(loc, fieldRef, op, paramRef);
+            DynNode* initCall = mkOperatorCall(loc, fieldRef, op, paramRef);
             ctorStmts.push_back(initCall);
         }
         ctorArgs = mkNodeList(location_, move(ctorArgsNodes));
@@ -96,13 +96,13 @@ void LambdaFunction::doSemanticCheck()
     }
 
     // Create the ctor used to initialize the closure class
-    Node* ctorBody = mkLocalSpace(location_, ctorStmts);
-    Node* enclosingCtor = mkSprFunction(location_, "ctor", ctorParams, nullptr, ctorBody);
+    DynNode* ctorBody = mkLocalSpace(location_, ctorStmts);
+    DynNode* enclosingCtor = mkSprFunction(location_, "ctor", ctorParams, nullptr, ctorBody);
     enclosingCtor->setProperty(propNoDefault, 1);
     classBody->addChild(enclosingCtor);
 
     // Create the lambda closure
-    Node* closure = mkSprClass(location_, "$lambdaEnclosure", nullptr, nullptr, nullptr, classBody);
+    DynNode* closure = mkSprClass(location_, "$lambdaEnclosure", nullptr, nullptr, nullptr, classBody);
 
     // Add the closure as a top level node of this node
     closure->setContext(parentContext);  // Put the enclosing class in the context of the parent function
@@ -118,6 +118,6 @@ void LambdaFunction::doSemanticCheck()
     closure->semanticCheck();
 
     // Create a resulting object: a constructor call to our class
-    Node* classId = (Node*) createTypeNode(context_, location_, getDataType(cls));
+    DynNode* classId = (DynNode*) createTypeNode(context_, location_, getDataType(cls));
     setExplanation(mkFunApplication(location_, classId, ctorArgs));
 }

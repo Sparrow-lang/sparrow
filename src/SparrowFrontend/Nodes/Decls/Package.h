@@ -6,7 +6,7 @@
 namespace SprFrontend
 {
     /// Class that represents a Sparrow package declaration (or compilation unit) - similar to C++'s namespaces
-    class Package : public Node
+    class Package : public DynNode
     {
         DEFINE_NODE(Package, nkSparrowDeclPackage, "Sparrow.Decl.Package");
 

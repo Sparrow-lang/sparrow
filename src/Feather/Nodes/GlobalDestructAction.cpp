@@ -8,12 +8,12 @@
 
 using namespace Feather;
 
-GlobalDestructAction::GlobalDestructAction(const Location& loc, Node* action)
-    : Node(classNodeKind(), loc, {action})
+GlobalDestructAction::GlobalDestructAction(const Location& loc, DynNode* action)
+    : DynNode(classNodeKind(), loc, {action})
 {
 }
 
-Node* GlobalDestructAction::destructAction() const
+DynNode* GlobalDestructAction::destructAction() const
 {
     return children_[0];
 }

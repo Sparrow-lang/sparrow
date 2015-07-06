@@ -1,7 +1,7 @@
 #include <StdInc.h>
 #include "Type.h"
 #include "TypeKindRegistrar.h"
-#include "Node.h"
+#include "DynNode.h"
 #include <Common/Ser/OutArchive.h>
 #include <Common/Ser/InArchive.h>
 

@@ -36,7 +36,7 @@ size_t GenericCallable::paramsCount() const
     return generic_->paramsCount();
 }
 
-Node* GenericCallable::param(size_t idx) const
+DynNode* GenericCallable::param(size_t idx) const
 {
     return generic_->param(idx);
 }
@@ -50,7 +50,7 @@ bool GenericCallable::isAutoCt() const
     return false;
 }
 
-ConversionType GenericCallable::canCall(CompilationContext* context, const Location& loc, const NodeVector& args, EvalMode evalMode, bool noCustomCvt)
+ConversionType GenericCallable::canCall(CompilationContext* context, const Location& loc, const DynNodeVector& args, EvalMode evalMode, bool noCustomCvt)
 {
     // Call the base first
     ConversionType res = Callable::canCall(context, loc, args, evalMode, noCustomCvt);
@@ -64,11 +64,11 @@ ConversionType GenericCallable::canCall(CompilationContext* context, const Locat
     return inst_ ? res : convNone;
 }
 
-Node* GenericCallable::generateCall(const Location& loc)
+DynNode* GenericCallable::generateCall(const Location& loc)
 {
     ASSERT(inst_);
     ASSERT(context_);
-    Node* res = generic_->instantiateGeneric(loc, context_, argsWithCvt_, inst_);
+    DynNode* res = generic_->instantiateGeneric(loc, context_, argsWithCvt_, inst_);
     res->setContext(context_);
     return res;
 }

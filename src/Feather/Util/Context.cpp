@@ -9,12 +9,12 @@
 
 using namespace Feather;
 
-Node* Feather::getParentDecl(CompilationContext* context)
+DynNode* Feather::getParentDecl(CompilationContext* context)
 {
     Nest::SymTab* parentSymTab = context->currentSymTab();
     for ( ; parentSymTab; parentSymTab=parentSymTab->parent() )
     {
-        Node* n = parentSymTab->node();
+        DynNode* n = parentSymTab->node();
         if ( n && isDecl(n) )
             return n;
     }
@@ -23,22 +23,22 @@ Node* Feather::getParentDecl(CompilationContext* context)
 
 Function* Feather::getParentFun(CompilationContext* context)
 {
-    Node* decl = getParentDecl(context);
+    DynNode* decl = getParentDecl(context);
     return decl ? decl->explanation()->as<Function>() : nullptr;
 }
 
 Class* Feather::getParentClass(CompilationContext* context)
 {
-    Node* decl = getParentDecl(context);
+    DynNode* decl = getParentDecl(context);
     return decl ? decl->explanation()->as<Class>() : nullptr;
 }
 
-Node* Feather::getParentLoop(CompilationContext* context)
+DynNode* Feather::getParentLoop(CompilationContext* context)
 {
     Nest::SymTab* parentSymTab = context->currentSymTab();
     for ( ; parentSymTab; parentSymTab=parentSymTab->parent() )
     {
-        Node* n = parentSymTab->node();
+        DynNode* n = parentSymTab->node();
         
         // Do we have a while node?
         if ( n->explanation()->nodeKind() == nkFeatherStmtWhile )
@@ -54,7 +54,7 @@ Node* Feather::getParentLoop(CompilationContext* context)
 CompilationContext* Feather::getSymTabContext(CompilationContext* context)
 {
     Nest::SymTab* parentSymTab = context->currentSymTab();
-    Node* n = parentSymTab->node();
+    DynNode* n = parentSymTab->node();
     return n ? n->childrenContext() : nullptr;
 }
 

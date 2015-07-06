@@ -2,40 +2,40 @@
 
 #include <Nest/Intermediate/EvalMode.h>
 
-FWD_CLASS1(Nest, Node);
+FWD_CLASS1(Nest, DynNode);
 
 namespace Feather
 {
-    using Nest::Node;
+    using Nest::DynNode;
     using Nest::EvalMode;
 
     /// Tests if the given node is a declaration (a node that will expand to a Feather declaration)
-    bool isDecl(Node* node);
+    bool isDecl(DynNode* node);
     /// Tests if the given node is a Feather declaration or has a resuling declaration
-    bool isDeclEx(Node* node);
+    bool isDeclEx(DynNode* node);
     
     /// Get the name of the given declaration
     /// Throws if the name was not set for the node
-    const string& getName(const Node* decl);
+    const string& getName(const DynNode* decl);
 
     /// Indicates if the node has associated a name with it
-    bool hasName(const Node* decl);
+    bool hasName(const DynNode* decl);
 
     /// Setter for the name of a declaration
-    void setName(Node* decl, string name);
+    void setName(DynNode* decl, string name);
     
     /// Getter for the evaluation mode set in the given declaration (non-ct, ct, auto-ct)
-    EvalMode nodeEvalMode(const Node* decl);
+    EvalMode nodeEvalMode(const DynNode* decl);
     /// Getter for the evaluation mode set in the given declaration (non-ct, ct, auto-ct)
     /// If the given declaration doesn't have an evaluation mode, the evaluation mode of the context is used
-    EvalMode effectiveEvalMode(const Node* decl);
+    EvalMode effectiveEvalMode(const DynNode* decl);
     
     /// Setter for the evaluation mode of the given declaration
-    void setEvalMode(Node* decl, EvalMode val);
+    void setEvalMode(DynNode* decl, EvalMode val);
 
     /// Add the given declaration to the sym tab
-    void addToSymTab(Node* decl);
+    void addToSymTab(DynNode* decl);
 
     /// Should we add the given declaration to the symbols table?
-    void setShouldAddToSymTab(Node* decl, bool val);
+    void setShouldAddToSymTab(DynNode* decl, bool val);
 }

@@ -2,7 +2,7 @@
 
 #include "EvalMode.h"
 
-FWD_CLASS1(Nest, Node);
+FWD_CLASS1(Nest, DynNode);
 FWD_CLASS1(Nest, SymTab);
 FWD_CLASS1(Nest, Backend)
 FWD_CLASS1(Nest, SourceCode)
@@ -19,7 +19,7 @@ namespace Nest
         ~CompilationContext();
 
         /// Create a child context with a new symtab
-        CompilationContext* createChildContext(Node* symTabNode, EvalMode mode = modeUnspecified);
+        CompilationContext* createChildContext(DynNode* symTabNode, EvalMode mode = modeUnspecified);
 
     // State getters
     public:

@@ -11,7 +11,7 @@ namespace
 {
     static const char* operPropName = "spr.operation";
 
-//    void dumpInfixExp(Node* exp)
+//    void dumpInfixExp(DynNode* exp)
 //    {
 //        if ( !exp )
 //        {
@@ -51,8 +51,8 @@ namespace
 //    }
 }
 
-InfixExp::InfixExp(const Location& loc, string op, Node* arg1, Node* arg2)
-    : Node(classNodeKind(), loc, {arg1, arg2})
+InfixExp::InfixExp(const Location& loc, string op, DynNode* arg1, DynNode* arg2)
+    : DynNode(classNodeKind(), loc, {arg1, arg2})
 {
     if ( op.empty() )
         REP_ERROR(location_, "Operation name must have at least one character");
@@ -64,13 +64,13 @@ const string& InfixExp::operation() const
     return getCheckPropertyString(operPropName);
 }
 
-Node* InfixExp::arg1() const
+DynNode* InfixExp::arg1() const
 {
     ASSERT(children_.size() == 2);
     return children_[0];
 }
 
-Node* InfixExp::arg2() const
+DynNode* InfixExp::arg2() const
 {
     ASSERT(children_.size() == 2);
     return children_[1];
@@ -79,8 +79,8 @@ Node* InfixExp::arg2() const
 void InfixExp::dump(ostream& os) const
 {
     ASSERT(children_.size() == 2);
-    Node* arg1 = children_[0];
-    Node* arg2 = children_[1];
+    DynNode* arg1 = children_[0];
+    DynNode* arg2 = children_[1];
 
     os << arg1 << ' ' << operation() << ' ' << arg2;
 }
@@ -88,8 +88,8 @@ void InfixExp::dump(ostream& os) const
 void InfixExp::doSemanticCheck()
 {
     ASSERT(children_.size() == 2);
-    Node* arg1 = children_[0];
-    Node* arg2 = children_[1];
+    DynNode* arg1 = children_[0];
+    DynNode* arg2 = children_[1];
 
     // This is constructed in such way that left most operations are applied first.
     // This way, we have a tree that has a lot of children on the left side and one children on the right side
@@ -166,7 +166,7 @@ void InfixExp::handleAssociativity()
     {
         for ( ;/*ever*/; )
         {
-            Node* arg2 = children_[1];
+            DynNode* arg2 = children_[1];
             InfixExp* rightOp = arg2->as<InfixExp>();
             if ( !rightOp )
                 break;
@@ -183,7 +183,7 @@ void InfixExp::handleAssociativity()
     {
         for ( ;/*ever*/; )
         {
-            Node* arg1 = children_[0];
+            DynNode* arg1 = children_[0];
             InfixExp* leftOp = arg1->as<InfixExp>();
             if ( !leftOp )
                 break;
@@ -199,7 +199,7 @@ void InfixExp::handleAssociativity()
 
 int InfixExp::getPrecedence()
 {
-    Node* arg1 = children_[0];
+    DynNode* arg1 = children_[0];
 
     // For prefix operator, search with a special name
     string oper = arg1 ? operation() : "__pre__";
@@ -229,7 +229,7 @@ bool InfixExp::isRightAssociativity()
     return res < 0;
 }
 
-int InfixExp::getIntValue(const NodeVector& decls, int defaultVal)
+int InfixExp::getIntValue(const DynNodeVector& decls, int defaultVal)
 {
     // If no declarations found, return the default value
     if ( decls.empty() )
@@ -239,13 +239,13 @@ int InfixExp::getIntValue(const NodeVector& decls, int defaultVal)
     if ( decls.size() > 1 )
     {
         REP_WARNING(location_, "Multple precedence declarations found for '%1%'") % operation();
-        for ( Node* decl: decls )
+        for ( DynNode* decl: decls )
             if ( decl )
                 REP_INFO(decl->location(), "See alternative");
     }
 
     // Just one found. Evaluate its value
-    Node* node = decls.front();
+    DynNode* node = decls.front();
     node->semanticCheck();
     if ( node->nodeKind() == nkSparrowDeclUsing )
         node = static_cast<Using*>(node)->source();

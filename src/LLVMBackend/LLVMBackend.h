@@ -18,8 +18,8 @@ namespace LLVMB
         virtual void init(const string& mainFilename);
         virtual void generateMachineCode(Nest::SourceCode& code);
         virtual void link(const string& outFilename);
-        virtual void ctProcess(Nest::Node* node);
-        virtual Nest::Node* ctEvaluate(Nest::Node* node);
+        virtual void ctProcess(Nest::DynNode* node);
+        virtual Nest::DynNode* ctEvaluate(Nest::DynNode* node);
         virtual size_t sizeOf(Nest::TypeRef type);
         virtual size_t alignmentOf(Nest::TypeRef type);
         virtual void ctApiRegisterFun(const char* name, void* funPtr);

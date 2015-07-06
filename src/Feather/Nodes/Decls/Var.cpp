@@ -12,8 +12,8 @@
 using namespace Feather;
 
 
-Var::Var(const Location& loc, string name, Node* typeNode, size_t alignment)
-    : Node(classNodeKind(), loc, {typeNode})
+Var::Var(const Location& loc, string name, DynNode* typeNode, size_t alignment)
+    : DynNode(classNodeKind(), loc, {typeNode})
 {
     setName(this, move(name));
     setProperty("alignment", alignment);
@@ -32,7 +32,7 @@ void Var::dump(ostream& os) const
 
 void Var::doSetContextForChildren()
 {
-    Node::doSetContextForChildren();
+    DynNode::doSetContextForChildren();
     addToSymTab(this);
 }
 
@@ -40,7 +40,7 @@ void Var::doComputeType()
 {
     // Make sure the variable has a type
     ASSERT(children_.size() == 1);
-    Node* typeNode = children_[0];
+    DynNode* typeNode = children_[0];
     typeNode->computeType();
     type_ = typeNode->type();
     if ( !type_ )

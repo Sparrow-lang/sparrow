@@ -44,8 +44,8 @@ namespace
 
     ConversionResult combine(const ConversionResult& first, const ConversionResult& second)
     {
-        return ConversionResult(combine(first.conversionType(), second.conversionType()), [=](Node* src) -> Node* {
-            Node* src1 = first.apply(src);
+        return ConversionResult(combine(first.conversionType(), second.conversionType()), [=](DynNode* src) -> DynNode* {
+            DynNode* src1 = first.apply(src);
             src1->setContext(src->context());
             return second.apply(src1);
         }, first.contextDependent() || second.contextDependent());
@@ -92,7 +92,7 @@ namespace
                     return convNone;
                 srcTypeNew = Feather::removeLValueIfPresent(srcTypeNew);
 
-                res = ConversionResult(convDirect, [=](Node* src) -> Node* {
+                res = ConversionResult(convDirect, [=](DynNode* src) -> DynNode* {
                     return mkMemLoad(src->location(), src);
                 });
             }
@@ -151,7 +151,7 @@ namespace
             TypeRef t1 = Feather::removeRef(t2);
 
             // First check conversion without reference
-            ConversionResult res1 = ConversionResult(convDirect, [=](Node* src) -> Node* {
+            ConversionResult res1 = ConversionResult(convDirect, [=](DynNode* src) -> DynNode* {
                 return mkMemLoad(src->location(), src);
             });
             ConversionResult c1 = combine(res1, cachedCanConvertImpl(context, flags | flagDontAddReference, t1, destType));
@@ -159,7 +159,7 @@ namespace
                 return c1;
 
             // Now try to convert to reference
-            ConversionResult res2 = ConversionResult(convImplicit, [=](Node* src) -> Node* {
+            ConversionResult res2 = ConversionResult(convImplicit, [=](DynNode* src) -> DynNode* {
                 return mkBitcast(src->location(), mkTypeNode(src->location(), t2), src);
             });
             return combine(res2, cachedCanConvertImpl(context, flags, t2, destType));
@@ -175,7 +175,7 @@ namespace
             || !destType->hasStorage || destType->numReferences == 0 )
             return convNone;
 
-        return ConversionResult(convImplicit, [=](Node* src) -> Node* {
+        return ConversionResult(convImplicit, [=](DynNode* src) -> DynNode* {
             return mkNull(src->location(), mkTypeNode(src->location(), destType));
         });
     }
@@ -188,7 +188,7 @@ namespace
 
         TypeRef t = removeRef(srcType);
 
-        ConversionResult res = ConversionResult(convImplicit, [=](Node* src) -> Node* {
+        ConversionResult res = ConversionResult(convImplicit, [=](DynNode* src) -> DynNode* {
             return mkMemLoad(src->location(), src);
         });
         return combine(res, cachedCanConvertImpl(context, flags | flagDontAddReference, t, destType));
@@ -202,11 +202,11 @@ namespace
 
         TypeRef baseDataType = addRef(srcType);
 
-        ConversionResult res(convImplicit, [=](Node* src) -> Node* {
-            Node* var = Feather::mkVar(src->location(), "$tmpForRef", mkTypeNode(src->location(), srcType));
-            Node* varRef = mkVarRef(src->location(), var);
-            Node* store = mkMemStore(src->location(), src, varRef);
-            Node* cast = mkBitcast(src->location(), mkTypeNode(src->location(), baseDataType), varRef);
+        ConversionResult res(convImplicit, [=](DynNode* src) -> DynNode* {
+            DynNode* var = Feather::mkVar(src->location(), "$tmpForRef", mkTypeNode(src->location(), srcType));
+            DynNode* varRef = mkVarRef(src->location(), var);
+            DynNode* store = mkMemStore(src->location(), src, varRef);
+            DynNode* cast = mkBitcast(src->location(), mkTypeNode(src->location(), baseDataType), varRef);
             return mkNodeList(src->location(), {var, store, cast});
         });
         return combine(res, cachedCanConvertImpl(context, flags | flagDontAddReference, baseDataType, destType));
@@ -234,8 +234,8 @@ namespace
 
         bool contextDependent = false;  // TODO (convert): This should be context dependent for private ctors
 
-        ConversionResult res = ConversionResult(convCustom, [=](Node* src) -> Node* {
-            Node* refToClass = createTypeNode(src->context(), src->location(), getDataType(destClass));
+        ConversionResult res = ConversionResult(convCustom, [=](DynNode* src) -> DynNode* {
+            DynNode* refToClass = createTypeNode(src->context(), src->location(), getDataType(destClass));
             return new ChangeMode(src->location(), destMode, mkFunApplication(src->location(), refToClass, {src}));
         }, contextDependent);
         return combine(res, cachedCanConvertImpl(context, flags | flagDontCallConversionCtor, resType, destType));
@@ -357,16 +357,16 @@ ConversionResult::ConversionResult(ConversionType convType, const ConversionFun&
 {
 }
 
-Node* ConversionResult::apply(Node* src) const
+DynNode* ConversionResult::apply(DynNode* src) const
 {
     return convType_ != convNone && convFun_
         ? convFun_(src)
         : src;
 }
 
-Node* ConversionResult::apply(CompilationContext* context, Node* src) const
+DynNode* ConversionResult::apply(CompilationContext* context, DynNode* src) const
 {
-    Node* res = convType_ != convNone && convFun_
+    DynNode* res = convType_ != convNone && convFun_
         ? convFun_(src)
         : src;
     res->setContext(context);
@@ -379,7 +379,7 @@ ConversionResult SprFrontend::canConvertType(CompilationContext* context, Nest::
     return cachedCanConvertImpl(context, flags, srcType, destType);
 }
 
-ConversionResult SprFrontend::canConvert(Node* arg, TypeRef destType, ConversionFlags flags)
+ConversionResult SprFrontend::canConvert(DynNode* arg, TypeRef destType, ConversionFlags flags)
 {
     ENTER_TIMER_DESC(Nest::theCompiler().timingSystem(), "type.convert", "Type conversion checking");
 

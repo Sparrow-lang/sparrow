@@ -5,7 +5,7 @@
 namespace SprFrontend
 {
     /// The 'this' expression of the Sparrow language
-    class This : public Node
+    class This : public DynNode
     {
         DEFINE_NODE(This, nkSparrowExpThis, "Sparrow.Exp.This");
 

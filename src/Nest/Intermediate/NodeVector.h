@@ -2,6 +2,9 @@
 
 namespace Nest
 {
-    class Node;
+    class DynNode;
+    typedef vector<DynNode*> DynNodeVector;
+
+    struct Node;
     typedef vector<Node*> NodeVector;
 }

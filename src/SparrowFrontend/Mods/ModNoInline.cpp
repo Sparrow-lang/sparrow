@@ -6,7 +6,7 @@
 using namespace SprFrontend;
 
 
-void ModNoInline::beforeComputeType(Node* node)
+void ModNoInline::beforeComputeType(DynNode* node)
 {
     if ( node->nodeKind() != nkSparrowDeclSprFunction )
         REP_INTERNAL(node->location(), "noInline modifier can be applied only to functions");

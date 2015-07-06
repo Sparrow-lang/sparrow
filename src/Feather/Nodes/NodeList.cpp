@@ -10,14 +10,14 @@ namespace
     const char* propResultVoid = "nodeList.resultVoid";
 }
 
-NodeList::NodeList(const Location& loc, NodeVector children, bool resultVoid)
-    : Node(classNodeKind(), loc, move(children))
+NodeList::NodeList(const Location& loc, DynNodeVector children, bool resultVoid)
+    : DynNode(classNodeKind(), loc, move(children))
 {
     if ( resultVoid )
         setProperty(propResultVoid, 1);
 }
 
-void NodeList::addChild(Node* p)
+void NodeList::addChild(DynNode* p)
 {
     children_.push_back(p);
 }
@@ -25,7 +25,7 @@ void NodeList::addChild(Node* p)
 void NodeList::dump(ostream& os) const
 {
     os << "nodeList(";
-    for ( Node* p: children_ )
+    for ( DynNode* p: children_ )
     {
         os << endl << p;
     }
@@ -35,7 +35,7 @@ void NodeList::dump(ostream& os) const
 void NodeList::doComputeType()
 {
     // Compute the type for all the children
-    for ( Node* p: children_ )
+    for ( DynNode* p: children_ )
     {
         if ( !p )
             continue;
@@ -53,7 +53,7 @@ void NodeList::doSemanticCheck()
 {
     // Semantic check each of the children
     bool hasNonCtChildren = false;
-    for ( Node* p: children_ )
+    for ( DynNode* p: children_ )
     {
         if ( !p )
             continue;

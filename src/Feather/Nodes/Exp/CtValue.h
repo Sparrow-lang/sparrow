@@ -5,7 +5,7 @@
 namespace Feather
 {
     /// Intermediate code node that represents a compile-time value
-    class CtValue : public Node
+    class CtValue : public DynNode
     {
         DEFINE_NODE(CtValue, nkFeatherExpCtValue, "Feather.Exp.CtValue");
 

@@ -37,19 +37,19 @@ ClassCtorCallable::ClassCtorCallable(Class* cls, Callable* baseCallable, EvalMod
 
 Callables ClassCtorCallable::getCtorCallables(Class* cls, EvalMode evalMode)
 {
-    NodeVector decls = cls->childrenContext()->currentSymTab()->lookupCurrent("ctor");
+    DynNodeVector decls = cls->childrenContext()->currentSymTab()->lookupCurrent("ctor");
 
     evalMode = combineMode(effectiveEvalMode(cls), evalMode, cls->location(), false);
 
     Callables res;
     res.reserve(decls.size());
-    for ( Node* decl: decls )
+    for ( DynNode* decl: decls )
     {
         Function* fun = decl->explanation()->as<Function>();
         if ( fun )
             res.push_back(new ClassCtorCallable(cls, new FunctionCallable(fun), evalMode));
 
-        Node* resDecl = resultingDecl(decl);
+        DynNode* resDecl = resultingDecl(decl);
         Generic* generic = dynamic_cast<Generic*>(resDecl);
         if ( generic)
             res.push_back(new ClassCtorCallable(cls, new GenericCallable(generic), evalMode));
@@ -72,7 +72,7 @@ size_t ClassCtorCallable::paramsCount() const
     return baseCallable_->paramsCount()-1;      // The 'this' param is hidden
 }
 
-Node* ClassCtorCallable::param(size_t idx) const
+DynNode* ClassCtorCallable::param(size_t idx) const
 {
     return baseCallable_->param(idx+1);        // The 'this' param is hidden
 }
@@ -94,7 +94,7 @@ ConversionType ClassCtorCallable::canCall(CompilationContext* context, const Loc
     return baseCallable_->canCall(context, loc, argTypes2, evalMode, noCustomCvt);
 }
 
-ConversionType ClassCtorCallable::canCall(CompilationContext* context, const Location& loc, const NodeVector& args, EvalMode evalMode, bool noCustomCvt)
+ConversionType ClassCtorCallable::canCall(CompilationContext* context, const Location& loc, const DynNodeVector& args, EvalMode evalMode, bool noCustomCvt)
 {
     context_ = context;
 
@@ -106,18 +106,18 @@ ConversionType ClassCtorCallable::canCall(CompilationContext* context, const Loc
     thisArg_->setContext(context);
     thisArg_->computeType();
 
-    NodeVector args2 = args;
+    DynNodeVector args2 = args;
     args2.insert(args2.begin(), thisArg_);
     return baseCallable_->canCall(context, loc, args2, evalMode, noCustomCvt);
 }
 
 
-Node* ClassCtorCallable::generateCall(const Location& loc)
+DynNode* ClassCtorCallable::generateCall(const Location& loc)
 {
     ASSERT(context_);
     ASSERT(tmpVar_);
     ASSERT(thisArg_);
 
-    Node* ctorCall = baseCallable_->generateCall(loc);
+    DynNode* ctorCall = baseCallable_->generateCall(loc);
     return createTempVarConstruct(loc, context_, ctorCall, tmpVar_);
 }

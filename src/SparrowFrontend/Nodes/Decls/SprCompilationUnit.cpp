@@ -7,16 +7,16 @@
 
 using namespace SprFrontend;
 
-SprCompilationUnit::SprCompilationUnit(const Location& loc, Node* package, NodeList* imports, NodeList* declarations)
-    : Node(classNodeKind(), loc, {package, imports, declarations})
+SprCompilationUnit::SprCompilationUnit(const Location& loc, DynNode* package, NodeList* imports, NodeList* declarations)
+    : DynNode(classNodeKind(), loc, {package, imports, declarations})
 {
 }
 
 void SprCompilationUnit::doSetContextForChildren()
 {
     ASSERT(children_.size() == 3);
-    Node* packageName = children_[0];
-    Node* imports = children_[1];
+    DynNode* packageName = children_[0];
+    DynNode* imports = children_[1];
     NodeList* declarations = (NodeList*)children_[2];
     if ( packageName )
         packageName->setContext(context_);
@@ -32,7 +32,7 @@ void SprCompilationUnit::doSetContextForChildren()
         for ( int i=0; i<(int)names.size(); ++i )
         {
             // Try to find an existing package in the current symbol table
-            NodeVector decls = context_->currentSymTab()->lookupCurrent(names[i]);
+            DynNodeVector decls = context_->currentSymTab()->lookupCurrent(names[i]);
             if ( decls.size() == 1 )
             {
                 context_ = decls.front()->childrenContext();
@@ -42,7 +42,7 @@ void SprCompilationUnit::doSetContextForChildren()
             // We didn't find the package part. From now on create new namespaces
             for ( int j=(int)names.size()-1; j>=i; --j )
             {
-                Node* pk = mkSprPackage(packageName->location(), move(names[j]), declarations);
+                DynNode* pk = mkSprPackage(packageName->location(), move(names[j]), declarations);
                 declarations = Feather::mkNodeList(packageName->location(), {pk}, true);
                 children_[2] = declarations;
             }
@@ -65,7 +65,7 @@ void SprCompilationUnit::doSetContextForChildren()
     if ( imports )
     {
         const Nest::SourceCode* sourceCode = location_.sourceCode();
-        for ( Node* i: imports->children() )
+        for ( DynNode* i: imports->children() )
         {
             Literal* lit = i->as<Literal>();
             if ( lit && lit->isString() )

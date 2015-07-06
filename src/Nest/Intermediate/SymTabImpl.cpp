@@ -5,7 +5,7 @@
 
 using namespace Nest;
 
-SymTabImpl::SymTabImpl(SymTab* parent, Node* node)
+SymTabImpl::SymTabImpl(SymTab* parent, DynNode* node)
     : parent_(parent)
     , node_(node)
 {
@@ -15,7 +15,7 @@ SymTabImpl::~SymTabImpl()
 {
 }
 
-void SymTabImpl::enter(const string& name, Node* node)
+void SymTabImpl::enter(const string& name, DynNode* node)
 {
     // Insert our entry in the normal map
     entries_.insert(make_pair(name, node));
@@ -48,35 +48,35 @@ void SymTabImpl::copyEntries(SymTab* otherSymTab)
     }
 }
 
-NodeVector SymTabImpl::allEntries() const
+DynNodeVector SymTabImpl::allEntries() const
 {
-    NodeVector result;
+    DynNodeVector result;
     result.reserve(entries_.size() + copiedEntries_.size());
     transform(entries_.begin(), entries_.end(), back_inserter(result),
-        boost::bind(&unordered_multimap<string, Node*>::value_type::second, _1) );
+        boost::bind(&unordered_multimap<string, DynNode*>::value_type::second, _1) );
     transform(copiedEntries_.begin(), copiedEntries_.end(), back_inserter(result),
-        boost::bind(&unordered_multimap<string, Node*>::value_type::second, _1) );
+        boost::bind(&unordered_multimap<string, DynNode*>::value_type::second, _1) );
     return result;
 }
 
-NodeVector SymTabImpl::lookupCurrent(const string& name) const
+DynNodeVector SymTabImpl::lookupCurrent(const string& name) const
 {
     auto range = entries_.equal_range(name);
-    NodeVector result;
+    DynNodeVector result;
     transform(range.first, range.second, back_inserter(result),
-        boost::bind(&unordered_multimap<string, Node*>::value_type::second, _1) );
+        boost::bind(&unordered_multimap<string, DynNode*>::value_type::second, _1) );
     if ( result.empty() )
     {
         auto range = copiedEntries_.equal_range(name);
         transform(range.first, range.second, back_inserter(result),
-            boost::bind(&unordered_multimap<string, Node*>::value_type::second, _1) );
+            boost::bind(&unordered_multimap<string, DynNode*>::value_type::second, _1) );
     }
     return result;
 }
 
-NodeVector SymTabImpl::lookup(const string& name) const
+DynNodeVector SymTabImpl::lookup(const string& name) const
 {
-    NodeVector res = lookupCurrent(name);
+    DynNodeVector res = lookupCurrent(name);
     return !res.empty() || !parent_ ? res : parent_->lookup(name);
 }
 
@@ -85,7 +85,7 @@ SymTab* SymTabImpl::parent() const
     return parent_;
 }
 
-Node* SymTabImpl::node() const
+DynNode* SymTabImpl::node() const
 {
     return node_;
 }
@@ -98,7 +98,7 @@ void SymTabImpl::dump(ostream& os) const
 void SymTabImpl::dumpImpl(ostream& os, int nestLevel) const
 {
     string spaces(nestLevel*4, ' ');
-    os << spaces << "- Node: " << node_ << "\n";
+    os << spaces << "- DynNode: " << node_ << "\n";
     if ( !entries_.empty() )
     {
         os << spaces << "- Entries: " << "\n";

@@ -4,12 +4,12 @@
 
 using namespace Feather;
 
-ScopeDestructAction::ScopeDestructAction(const Location& loc, Node* action)
-    : Node(classNodeKind(), loc, {action})
+ScopeDestructAction::ScopeDestructAction(const Location& loc, DynNode* action)
+    : DynNode(classNodeKind(), loc, {action})
 {
 }
 
-Node* ScopeDestructAction::destructAction() const
+DynNode* ScopeDestructAction::destructAction() const
 {
     return children_[0];
 }

@@ -6,21 +6,21 @@ namespace Feather
 {
     /// Intermediate code node that represents a standard while statement
     /// The return type will be Void
-    class While : public Node
+    class While : public DynNode
     {
         DEFINE_NODE(While, nkFeatherStmtWhile, "Feather.Stmt.While");
 
     public:
-        While(const Location& location, Node* condition, Node* body, Node* step = nullptr, bool isCt = false);
+        While(const Location& location, DynNode* condition, DynNode* body, DynNode* step = nullptr, bool isCt = false);
 
         /// Getter for the condition node of the while statement
-        Node* condition() const;
+        DynNode* condition() const;
 
         /// Getter for the body of the while statement
-        Node* body() const;
+        DynNode* body() const;
 
         /// Getter for the step clause of the while statement
-        Node* step() const;
+        DynNode* step() const;
 
     public:
         virtual void dump(ostream& os) const;

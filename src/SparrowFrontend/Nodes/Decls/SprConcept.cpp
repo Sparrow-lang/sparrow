@@ -13,8 +13,8 @@
 using namespace SprFrontend;
 using namespace Feather;
 
-SprConcept::SprConcept(const Location& loc, string name, string paramName, Node* baseConcept, Node* ifClause, AccessType accessType)
-    : Node(classNodeKind(), loc, {baseConcept, ifClause, nullptr})
+SprConcept::SprConcept(const Location& loc, string name, string paramName, DynNode* baseConcept, DynNode* ifClause, AccessType accessType)
+    : DynNode(classNodeKind(), loc, {baseConcept, ifClause, nullptr})
 {
     setName(this, move(name));
     setAccessType(this, accessType);
@@ -28,7 +28,7 @@ bool SprConcept::isFulfilled(TypeRef type)
     if ( !isSemanticallyChecked() || !instantiationsSet )
         REP_INTERNAL(location_, "Invalid concept");
 
-    Node* typeValue = createTypeNode(context_, location_, type);
+    DynNode* typeValue = createTypeNode(context_, location_, type);
     typeValue->semanticCheck();
 
     return nullptr != instantiationsSet->canInstantiate({typeValue}, context_->evalMode());
@@ -36,7 +36,7 @@ bool SprConcept::isFulfilled(TypeRef type)
 
 TypeRef SprConcept::baseConceptType() const
 {
-    Node* baseConcept = children_[0];
+    DynNode* baseConcept = children_[0];
 
     TypeRef res = baseConcept ? getType(baseConcept) : getConceptType();
     res = adjustMode(res, context_, location_);
@@ -50,15 +50,15 @@ void SprConcept::doSetContextForChildren()
     if ( !childrenContext_ )
         childrenContext_ = context_->createChildContext(this, effectiveEvalMode(this));
 
-    Node::doSetContextForChildren();
+    DynNode::doSetContextForChildren();
 }
 
 void SprConcept::doSemanticCheck()
 {
     ASSERT(children_.size() == 3);
-    Node* baseConcept = children_[0];
-    Node* ifClause = children_[1];
-    Node*& instantiationsSet = children_[2];
+    DynNode* baseConcept = children_[0];
+    DynNode* ifClause = children_[1];
+    DynNode*& instantiationsSet = children_[2];
     const string& paramName = getCheckPropertyString("spr.paramName");
 
     // Compile the base concept node; make sure it's ct
@@ -69,7 +69,7 @@ void SprConcept::doSemanticCheck()
             REP_ERROR(baseConcept->location(), "Base concept type needs to be compile-time (type=%1%)") % baseConcept->type();
     }
 
-    Node* param = baseConcept
+    DynNode* param = baseConcept
         ? mkSprParameter(location_, paramName, baseConcept)
         : mkSprParameter(location_, paramName, getConceptType());
     param->setContext(childrenContext_);

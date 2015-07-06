@@ -5,7 +5,7 @@
 namespace SprFrontend
 {
     /// An operator call
-    class OperatorCall : public Node
+    class OperatorCall : public DynNode
     {
         DEFINE_NODE(OperatorCall, nkSparrowExpOperatorCall, "Sparrow.Exp.OperatorCall");
 
@@ -14,7 +14,7 @@ namespace SprFrontend
         // - infix:     A op B  => call OperatorCall(loc, A, op, B);
         // - postfix:   A op    => call OperatorCall(loc, A, op, nullptr);
         // - prefix:    op A    => call OperatorCall(loc, nullptr, op, A);
-        OperatorCall(const Location& loc, Node* arg1, string op, Node* arg2);
+        OperatorCall(const Location& loc, DynNode* arg1, string op, DynNode* arg2);
 
         virtual void dump(ostream& os) const;
 
@@ -22,7 +22,7 @@ namespace SprFrontend
         virtual void doSemanticCheck();
 
     private:
-        Node* selectOperator(const string& operation, Node* arg1, Node* arg2);
+        DynNode* selectOperator(const string& operation, DynNode* arg1, DynNode* arg2);
         void handleFApp();
         void handleDotExpr();
         void handleRefEq();

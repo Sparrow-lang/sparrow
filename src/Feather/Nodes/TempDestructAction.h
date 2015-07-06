@@ -6,15 +6,15 @@ namespace Feather
 {
     /// Intermediate code node that holds a destruct action for a temporary.
     /// Nodes of this type should be handled by statements to destruct any temporaries created in the statement.
-    class TempDestructAction : public Node
+    class TempDestructAction : public DynNode
     {
         DEFINE_NODE(TempDestructAction, nkFeatherTempDestructAction, "Feather.TempDestructAction");
 
     public:
-        TempDestructAction(const Location& loc, Node* action);
+        TempDestructAction(const Location& loc, DynNode* action);
 
         /// Getter for the destruct action held by this node
-        Node* destructAction() const;
+        DynNode* destructAction() const;
 
     public:
         virtual void dump(ostream& os) const;

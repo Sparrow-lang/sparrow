@@ -20,11 +20,11 @@ namespace
 {
     /// Get the fields from the symtab of the current class
     /// In the process it might compute the type of the SprVariables
-    NodeVector getFields(SymTab* curSymTab)
+    DynNodeVector getFields(SymTab* curSymTab)
     {
         // Check all the nodes registered in the children context so far to discover the fields
-        NodeVector fields;
-        for ( Node* n: curSymTab->allEntries() )
+        DynNodeVector fields;
+        for ( DynNode* n: curSymTab->allEntries() )
         {
             switch ( n->nodeKind() )
             {
@@ -38,10 +38,10 @@ namespace
         }
 
         // Sort the fields by location - we need to add them in order
-        sort(fields.begin(), fields.end(), [](Node* f1, Node* f2) { return f1->location() < f2->location(); });
+        sort(fields.begin(), fields.end(), [](DynNode* f1, DynNode* f2) { return f1->location() < f2->location(); });
 
         // Make sure we have only fields
-        for ( Node*& field: fields )
+        for ( DynNode*& field: fields )
         {
             field->computeType();
             field = field->explanation();
@@ -50,14 +50,14 @@ namespace
         }
 
         // Remove all the nulls
-        fields.erase(remove_if(fields.begin(), fields.end(), [](Node* n) { return n == nullptr; }), fields.end());
+        fields.erase(remove_if(fields.begin(), fields.end(), [](DynNode* n) { return n == nullptr; }), fields.end());
 
         return fields;
     }
 }
 
-SprClass::SprClass(const Location& loc, string name, NodeList* parameters, NodeList* baseClasses, NodeList* children, Node* ifClause, AccessType accessType)
-    : Node(classNodeKind(), loc, {parameters, baseClasses, children, ifClause})
+SprClass::SprClass(const Location& loc, string name, NodeList* parameters, NodeList* baseClasses, NodeList* children, DynNode* ifClause, AccessType accessType)
+    : DynNode(classNodeKind(), loc, {parameters, baseClasses, children, ifClause})
 {
     setName(this, move(name));
     setAccessType(this, accessType);
@@ -74,7 +74,7 @@ NodeList* SprClass::classChildren() const
     return (NodeList*) children_[2];
 }
 
-void SprClass::addChild(Node* child)
+void SprClass::addChild(DynNode* child)
 {
     if ( !child )
         return;
@@ -109,7 +109,7 @@ void SprClass::doSetContextForChildren()
     if ( !childrenContext_ )
         childrenContext_ = context_->createChildContext(this, effectiveEvalMode(this));
 
-    Node::doSetContextForChildren();
+    DynNode::doSetContextForChildren();
 }
 
 void SprClass::doComputeType()
@@ -118,12 +118,12 @@ void SprClass::doComputeType()
     NodeList* parameters = (NodeList*) children_[0];
     NodeList* baseClasses = (NodeList*) children_[1];
     NodeList* children = (NodeList*) children_[2];
-    Node* ifClause = children_[3];
+    DynNode* ifClause = children_[3];
 
     // Is this a generic?
     if ( parameters && !parameters->children().empty() )
     {
-        Node* generic = new GenericClass(this, parameters, ifClause);
+        DynNode* generic = new GenericClass(this, parameters, ifClause);
         setProperty(propResultingDecl, generic);
         setExplanation(generic);
         return;
@@ -135,7 +135,7 @@ void SprClass::doComputeType()
     if ( !hasProperty(propNoDefault) )
         modifiers_.push_back(new IntModClassMembers);
     
-    Node* resultingClass = nullptr;
+    DynNode* resultingClass = nullptr;
 
     // Special case for Type class; re-use the existing StdDef class
     const string* nativeName = getPropertyString(propNativeName);
@@ -198,7 +198,7 @@ void SprClass::doComputeType()
     type_ = getDataType(static_cast<Class*>(resultingClass));
 
     // Get the fields from the current class
-    NodeVector fields = getFields(childrenContext_->currentSymTab());
+    DynNodeVector fields = getFields(childrenContext_->currentSymTab());
     static_cast<Class*>(resultingClass)->addFields(fields);
 
     // Check all the children
@@ -209,9 +209,9 @@ void SprClass::doComputeType()
     }
 
     // Take the fields and the methods
-    forEachNodeInNodeList(children, [&] (Node* child) -> void
+    forEachNodeInNodeList(children, [&] (DynNode* child) -> void
     {
-        Node* p = child->explanation();
+        DynNode* p = child->explanation();
         if ( !isField(p) )
         {
             // Methods, generics

@@ -4,8 +4,8 @@
 #include <Util/TypeTraits.h>
 
 
-Null::Null(const Location& loc, Node* typeNode)
-    : Node(classNodeKind(), loc, {typeNode})
+Null::Null(const Location& loc, DynNode* typeNode)
+    : DynNode(classNodeKind(), loc, {typeNode})
 {
 }
 
@@ -17,7 +17,7 @@ void Null::dump(ostream& os) const
 void Null::doSemanticCheck()
 {
     ASSERT(children_.size() == 1);
-    Node* typeNode = children_[0];
+    DynNode* typeNode = children_[0];
     typeNode->computeType();
 
     // Make sure that the type is a reference

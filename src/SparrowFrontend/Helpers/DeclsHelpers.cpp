@@ -18,7 +18,7 @@ using namespace Nest;
 
 namespace
 {
-    void checkNodeAllowed(Node* child, bool insideClass)
+    void checkNodeAllowed(DynNode* child, bool insideClass)
     {
         // Check non-declarations
         int nodeKind = child->explanation()->nodeKind();
@@ -55,9 +55,9 @@ namespace
     }
 }
 
-NodeVector SprFrontend::getDeclsFromNode(Node* n, Node*& baseExp)
+DynNodeVector SprFrontend::getDeclsFromNode(DynNode* n, DynNode*& baseExp)
 {
-    NodeVector res;
+    DynNodeVector res;
     baseExp = nullptr;
     
     n->computeType();
@@ -84,7 +84,7 @@ NodeVector SprFrontend::getDeclsFromNode(Node* n, Node*& baseExp)
         }
         else if ( t->typeKind == typeKindConcept )
         {
-            res.push_back((Node*) conceptOfType(t));
+            res.push_back((DynNode*) conceptOfType(t));
         }
         else
             t = nullptr;
@@ -93,13 +93,13 @@ NodeVector SprFrontend::getDeclsFromNode(Node* n, Node*& baseExp)
     return res;
 }
 
-Node* SprFrontend::resultingDecl(Node* node)
+DynNode* SprFrontend::resultingDecl(DynNode* node)
 {
-    Node*const* res = node->getPropertyNode(propResultingDecl);
+    DynNode*const* res = node->getPropertyNode(propResultingDecl);
     return res ? *res : node;
 }
 
-bool SprFrontend::isField(Node* node)
+bool SprFrontend::isField(DynNode* node)
 {
     if ( node->nodeKind() != nkFeatherDeclVar )
         return false;
@@ -108,24 +108,24 @@ bool SprFrontend::isField(Node* node)
 }
 
 
-AccessType SprFrontend::getAccessType(Node* decl)
+AccessType SprFrontend::getAccessType(DynNode* decl)
 {
     return (AccessType) decl->getCheckPropertyInt("spr.accessType");
 }
 
-bool SprFrontend::hasAccessType(Node* decl)
+bool SprFrontend::hasAccessType(DynNode* decl)
 {
     return decl->hasProperty("spr.accessType");
 }
 
-void SprFrontend::setAccessType(Node* decl, AccessType accessType)
+void SprFrontend::setAccessType(DynNode* decl, AccessType accessType)
 {
     decl->setProperty("spr.accessType", (int) accessType);
 }
 
-Node* SprFrontend::getResultParam(Node* f)
+DynNode* SprFrontend::getResultParam(DynNode* f)
 {
-    Node*const* res = f->getPropertyNode(propResultParam);
+    DynNode*const* res = f->getPropertyNode(propResultParam);
     return res ? *res : nullptr;
 }
 
@@ -133,14 +133,14 @@ void SprFrontend::checkForAllowedNamespaceChildren(NodeList* children, bool insi
 {
     if ( children )
     {
-        for ( Node* child: children->children() )
+        for ( DynNode* child: children->children() )
         {
             checkNodeAllowed(child, insideClass);
         }
     }
 }
 
-void SprFrontend::copyModifiersSetMode(Node* src, Node* dest, EvalMode newMode)
+void SprFrontend::copyModifiersSetMode(DynNode* src, DynNode* dest, EvalMode newMode)
 {
     dest->modifiers().reserve(src->modifiers().size());
     for ( Modifier* mod: src->modifiers() )

@@ -8,24 +8,24 @@
 #include <Util/Decl.h>
 
 
-If::If(const Location& location, Node* condition, Node* thenClause, Node* elseClause, bool isCt)
-    : Node(classNodeKind(), location, {condition, thenClause, elseClause})
+If::If(const Location& location, DynNode* condition, DynNode* thenClause, DynNode* elseClause, bool isCt)
+    : DynNode(classNodeKind(), location, {condition, thenClause, elseClause})
 {
     if ( isCt )
         setEvalMode(this, modeCt);
 }
 
-Node* If::condition() const
+DynNode* If::condition() const
 {
     return children_[0];
 }
 
-Node* If::thenClause() const
+DynNode* If::thenClause() const
 {
     return children_[1];
 }
 
-Node* If::elseClause() const
+DynNode* If::elseClause() const
 {
     return children_[2];
 }
@@ -48,9 +48,9 @@ void If::doSetContextForChildren()
 
 void If::doSemanticCheck()
 {
-    Node* condition = children_[0];
-    Node* thenClause = children_[1];
-    Node* elseClause = children_[2];
+    DynNode* condition = children_[0];
+    DynNode* thenClause = children_[1];
+    DynNode* elseClause = children_[2];
     
     // The resulting type is Void
     type_ = getVoidType(context_->evalMode());
@@ -78,8 +78,8 @@ void If::doSemanticCheck()
             REP_ERROR(condition->location(), "The condition of the ct if should be available at compile-time (%1%)") % condition->type();
 
         // Get the CT value from the condition, and select an active branch
-        Node* c = theCompiler().ctEval(condition);
-        Node* selectedBranch = getBoolCtValue(c) ? thenClause : elseClause;
+        DynNode* c = theCompiler().ctEval(condition);
+        DynNode* selectedBranch = getBoolCtValue(c) ? thenClause : elseClause;
 
         // Expand only the selected branch
         if ( selectedBranch )

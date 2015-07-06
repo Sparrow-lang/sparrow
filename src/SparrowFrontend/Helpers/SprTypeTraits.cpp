@@ -113,7 +113,7 @@ Nest::TypeRef SprFrontend::commonType(CompilationContext* context, Nest::TypeRef
     return StdDef::typeVoid;
 }
 
-Nest::TypeRef SprFrontend::doDereference1(Nest::Node* arg, Nest::Node*& cvt)
+Nest::TypeRef SprFrontend::doDereference1(Nest::DynNode* arg, Nest::DynNode*& cvt)
 {
     cvt = arg;
 
@@ -132,7 +132,7 @@ Nest::TypeRef SprFrontend::doDereference1(Nest::Node* arg, Nest::Node*& cvt)
 
 namespace
 {
-    Node* checkDataTypeConversion(Node* node)
+    DynNode* checkDataTypeConversion(DynNode* node)
     {
         const Location& loc = node->location();
         TypeRef t = node->type();
@@ -147,10 +147,10 @@ namespace
 
         // Generate the call to the ctor
         node->computeType();
-        NodeVector args(1, node);
+        DynNodeVector args(1, node);
         auto cr = call->canCall(node->context(), loc, args, modeRt, true);
         ASSERT(cr);
-        Node* res = call->generateCall(loc);
+        DynNode* res = call->generateCall(loc);
         res = mkMemLoad(loc, res);
 
         // Sanity check
@@ -163,7 +163,7 @@ namespace
     }
 }
 
-Node* SprFrontend::convertCtToRt(Node* node)
+DynNode* SprFrontend::convertCtToRt(DynNode* node)
 {
     const Location& loc = node->location();
 
@@ -190,7 +190,7 @@ Node* SprFrontend::convertCtToRt(Node* node)
         return checkDataTypeConversion(node);
 }
 
-TypeRef SprFrontend::getType(Node* typeNode)
+TypeRef SprFrontend::getType(DynNode* typeNode)
 {
     typeNode->semanticCheck();
     if ( !typeNode->type() )
@@ -204,7 +204,7 @@ TypeRef SprFrontend::getType(Node* typeNode)
     return nullptr;
 }
 
-TypeRef SprFrontend::tryGetTypeValue(Node* typeNode)
+TypeRef SprFrontend::tryGetTypeValue(DynNode* typeNode)
 {
     typeNode->semanticCheck();
     
@@ -212,7 +212,7 @@ TypeRef SprFrontend::tryGetTypeValue(Node* typeNode)
     
     if ( t == StdDef::typeRefType )
     {
-        Node* n = theCompiler().ctEval(typeNode);
+        DynNode* n = theCompiler().ctEval(typeNode);
         CtValue* ctVal = n->as<CtValue>();
         if ( ctVal )
         {
@@ -224,7 +224,7 @@ TypeRef SprFrontend::tryGetTypeValue(Node* typeNode)
     }
     else if ( t == StdDef::typeType )
     {
-        Node* n = theCompiler().ctEval(typeNode);
+        DynNode* n = theCompiler().ctEval(typeNode);
         CtValue* ctVal = n->as<CtValue>();
         if ( ctVal )
         {
@@ -238,21 +238,21 @@ TypeRef SprFrontend::tryGetTypeValue(Node* typeNode)
     return nullptr;
 }
 
-TypeRef SprFrontend::evalTypeIfPossible(Node* typeNode)
+TypeRef SprFrontend::evalTypeIfPossible(DynNode* typeNode)
 {
     TypeRef t = tryGetTypeValue(typeNode);
     return t ? t : typeNode->type();
 }
 
-Node* SprFrontend::createTypeNode(CompilationContext* context, const Location& loc, TypeRef t)
+DynNode* SprFrontend::createTypeNode(CompilationContext* context, const Location& loc, TypeRef t)
 {
-    Node* res = mkCtValue(loc, StdDef::typeType, &t);
+    DynNode* res = mkCtValue(loc, StdDef::typeType, &t);
     if ( context )
         res->setContext(context);
     return res;
 }
 
-Nest::TypeRef SprFrontend::getAutoType(Nest::Node* typeNode, bool addRef)
+Nest::TypeRef SprFrontend::getAutoType(Nest::DynNode* typeNode, bool addRef)
 {
     TypeRef t = typeNode->type();
     

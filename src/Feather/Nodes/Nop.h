@@ -6,7 +6,7 @@ namespace Feather
 {
     /// Intermediate code node that doesn't do anything.
     /// Used for placeholder
-    class Nop : public Node
+    class Nop : public DynNode
     {
         DEFINE_NODE(Nop, nkFeatherNop, "Feather.Nop");
 

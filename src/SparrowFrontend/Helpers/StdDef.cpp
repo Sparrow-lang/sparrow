@@ -57,7 +57,7 @@ void SprFrontend::initTypeType(CompilationContext* ctx)
     typeType = getDataType(clsType, 0, modeCt);
 }
 
-void SprFrontend::checkStdClass(Node* cls)
+void SprFrontend::checkStdClass(DynNode* cls)
 {
     if ( classesFound )
         return;
@@ -115,7 +115,7 @@ void SprFrontend::checkStdClass(Node* cls)
                 && StdDef::typeSizeTypeCt != nullptr;
 }
 
-void SprFrontend::checkStdFunction(Node* fun)
+void SprFrontend::checkStdFunction(DynNode* fun)
 {
     if ( functionsFound )
         return;

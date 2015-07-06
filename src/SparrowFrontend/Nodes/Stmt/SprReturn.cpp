@@ -15,15 +15,15 @@ using namespace Nest;
 using namespace Feather;
 
 
-SprReturn::SprReturn(const Location& loc, Node* exp)
-    : Node(classNodeKind(), loc, {exp})
+SprReturn::SprReturn(const Location& loc, DynNode* exp)
+    : DynNode(classNodeKind(), loc, {exp})
 {
 }
 
 void SprReturn::doSemanticCheck()
 {
     ASSERT(children_.size() == 1);
-    Node* exp = children_[0];
+    DynNode* exp = children_[0];
 
     // Get the parent function of this return
     Function* parentFun = getParentFun(context_);
@@ -32,7 +32,7 @@ void SprReturn::doSemanticCheck()
 
     // Compute the result type of the function
     TypeRef resType = nullptr;
-    Node* resultParam = getResultParam(parentFun);
+    DynNode* resultParam = getResultParam(parentFun);
     if ( resultParam ) // Does this function have a result param?
     {
         resType = removeRef(resultParam->type());
@@ -72,9 +72,9 @@ void SprReturn::doSemanticCheck()
     {
         // Create a ctor to construct the result parameter with the expression received
         const Location& l = resultParam->location();
-        Node* thisArg = mkMemLoad(l, mkVarRef(l, resultParam));
+        DynNode* thisArg = mkMemLoad(l, mkVarRef(l, resultParam));
         thisArg->setContext(context_);
-        Node* action = createCtorCall(l, context_, thisArg, exp);
+        DynNode* action = createCtorCall(l, context_, thisArg, exp);
         if ( !action )
             REP_ERROR(exp->location(), "Cannot construct return type object %1% from %2%") % exp->type() % resType;
 

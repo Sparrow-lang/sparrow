@@ -7,7 +7,7 @@
 
 using namespace SprFrontend;
 
-void ModMacro::beforeComputeType(Node* node)
+void ModMacro::beforeComputeType(DynNode* node)
 {
     /// Check to apply only to functions
     if ( node->nodeKind() != nkSparrowDeclSprFunction )

@@ -26,10 +26,10 @@ namespace
     ///
     /// It will search only the instructions directly inside the given local space, or in a child local space
     /// It will not search inside conditionals, or other instructions
-    bool hasCtorCall(LocalSpace* inSpace, Class* ofClass, bool checkThis, Node* forField)
+    bool hasCtorCall(LocalSpace* inSpace, Class* ofClass, bool checkThis, DynNode* forField)
     {
         // Check all the items in the local space
-        for ( Node* n: inSpace->children() )
+        for ( DynNode* n: inSpace->children() )
         {
             n->computeType();
             n = n->explanation();
@@ -51,7 +51,7 @@ namespace
                 continue;
             if ( funCall->arguments().empty() )
                 continue;
-            Node* thisArg = funCall->arguments()[0];
+            DynNode* thisArg = funCall->arguments()[0];
 
             // If a class is given, check that the call is made to a function of that class
             if ( ofClass )
@@ -93,7 +93,7 @@ namespace
     }
 }
 
-void IntModCtorMembers::beforeSemanticCheck(Node* node)
+void IntModCtorMembers::beforeSemanticCheck(DynNode* node)
 {
     /// Check to apply only to non-static constructors
     SprFunction* fun = node->as<SprFunction>();
@@ -119,7 +119,7 @@ void IntModCtorMembers::beforeSemanticCheck(Node* node)
 
     // Generate the ctor calls in the order of the fields; add them to the body of the constructor
     const Location& loc = body->location();
-    for ( Node* field: boost::adaptors::reverse(cls->fields()) )
+    for ( DynNode* field: boost::adaptors::reverse(cls->fields()) )
     {
         // Make sure we initialize only fields of the current class
         Class* cls2 = getParentClass(field->context());
@@ -128,8 +128,8 @@ void IntModCtorMembers::beforeSemanticCheck(Node* node)
 
         if ( !hasCtorCall(body, nullptr, false, field) )
         {
-            Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
-            Node* call = nullptr;
+            DynNode* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
+            DynNode* call = nullptr;
             if ( field->type()->numReferences == 0 )
             {
                 call = mkOperatorCall(loc, fieldRef, "ctor", nullptr);

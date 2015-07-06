@@ -8,8 +8,8 @@
 using namespace SprFrontend;
 using namespace Feather;
 
-Generic::Generic(int nodeKind, Node* origNode, NodeVector genericParams, Node* ifClause, AccessType accessType)
-    : Node(nodeKind, origNode->location(), { mkInstantiationsSet(origNode, move(genericParams), ifClause) }, { origNode })
+Generic::Generic(int nodeKind, DynNode* origNode, DynNodeVector genericParams, DynNode* ifClause, AccessType accessType)
+    : DynNode(nodeKind, origNode->location(), { mkInstantiationsSet(origNode, move(genericParams), ifClause) }, { origNode })
 {
     setName(this, getName(origNode));
     setAccessType(this, accessType);
@@ -27,7 +27,7 @@ void Generic::doSemanticCheck()
     type_ = explanation_->type();
 }
 
-const NodeVector& Generic::genericParams() const
+const DynNodeVector& Generic::genericParams() const
 {
     return children_[0]->as<InstantiationsSet>()->parameters();
 }

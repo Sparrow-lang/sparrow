@@ -5,17 +5,17 @@
 #include <Util/TypeTraits.h>
 
 
-LocalSpace::LocalSpace(const Location& location, NodeVector children)
-    : Node(classNodeKind(), location, move(children))
+LocalSpace::LocalSpace(const Location& location, DynNodeVector children)
+    : DynNode(classNodeKind(), location, move(children))
 {
 }
 
-void LocalSpace::addChild(Node* p)
+void LocalSpace::addChild(DynNode* p)
 {
     children_.push_back(p);
 }
 
-void LocalSpace::insertChildInFront(Node* p)
+void LocalSpace::insertChildInFront(DynNode* p)
 {
     children_.insert(children_.begin(), p);
 }
@@ -23,7 +23,7 @@ void LocalSpace::insertChildInFront(Node* p)
 void LocalSpace::dump(ostream& os) const
 {
     os << "localSpace(";
-    for ( Node* p: children_ )
+    for ( DynNode* p: children_ )
     {
         os << endl << p;
     }
@@ -33,7 +33,7 @@ void LocalSpace::dump(ostream& os) const
 void LocalSpace::doSetContextForChildren()
 {
     childrenContext_ = context_->createChildContext(this);
-    Node::doSetContextForChildren();
+    DynNode::doSetContextForChildren();
 }
 
 void LocalSpace::doComputeType()
@@ -47,7 +47,7 @@ void LocalSpace::doSemanticCheck()
     doComputeType();
 
     // Semantic check each of the children
-    for ( Node* p: children_ )
+    for ( DynNode* p: children_ )
     {
         try
         {

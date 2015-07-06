@@ -17,9 +17,9 @@ vector<string>* SprFrontend::buildStringList(vector<string>* prevList, string el
     return prevList;
 }
 
-Node* SprFrontend::buildVariables(const Location& loc, const vector<string>& names, Node* typeNode, Node* init, NodeList* mods, AccessType accessType)
+DynNode* SprFrontend::buildVariables(const Location& loc, const vector<string>& names, DynNode* typeNode, DynNode* init, NodeList* mods, AccessType accessType)
 {
-    NodeVector nodes;
+    DynNodeVector nodes;
     nodes.reserve(names.size());
     for ( const string& name: names )
     {
@@ -28,9 +28,9 @@ Node* SprFrontend::buildVariables(const Location& loc, const vector<string>& nam
     return Feather::mkNodeList(loc, nodes, true);
 }
 
-NodeList* SprFrontend::buildParameters(const Location& loc, const vector<string>& names, Node* typeNode, Node* init, NodeList* mods)
+NodeList* SprFrontend::buildParameters(const Location& loc, const vector<string>& names, DynNode* typeNode, DynNode* init, NodeList* mods)
 {
-    NodeVector nodes;
+    DynNodeVector nodes;
     nodes.reserve(names.size());
     for ( const string& name: names )
     {
@@ -41,8 +41,8 @@ NodeList* SprFrontend::buildParameters(const Location& loc, const vector<string>
 
 NodeList* SprFrontend::buildAutoParameter(const Location& loc, const string& name, NodeList* mods)
 {
-    Node* typeNode = mkIdentifier(loc, "AnyType");
-    Node* param = mkModifiers(loc, mkSprParameter(loc, name, typeNode, nullptr), mods);
+    DynNode* typeNode = mkIdentifier(loc, "AnyType");
+    DynNode* param = mkModifiers(loc, mkSprParameter(loc, name, typeNode, nullptr), mods);
     return Feather::mkNodeList(loc, {param}, true);
 }
 

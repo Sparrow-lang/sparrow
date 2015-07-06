@@ -8,20 +8,20 @@
 using namespace SprFrontend;
 using namespace Nest;
 
-SprParameter::SprParameter(const Location& loc, string name, Node* typeNode, Node* init)
-    : Node(classNodeKind(), loc, {typeNode, init})
+SprParameter::SprParameter(const Location& loc, string name, DynNode* typeNode, DynNode* init)
+    : DynNode(classNodeKind(), loc, {typeNode, init})
 {
     Feather::setName(this, move(name));
 }
 
-SprParameter::SprParameter(const Location& loc, string name, TypeRef type, Node* init)
-    : Node(classNodeKind(), loc, {nullptr, init})
+SprParameter::SprParameter(const Location& loc, string name, TypeRef type, DynNode* init)
+    : DynNode(classNodeKind(), loc, {nullptr, init})
 {
     Feather::setName(this, move(name));
     setProperty("spr.givenType", type);
 }
 
-Node* SprParameter::initValue() const
+DynNode* SprParameter::initValue() const
 {
     ASSERT(children_.size() == 2);
     return children_[1];
@@ -48,18 +48,18 @@ void SprParameter::doSetContextForChildren()
 {
     Feather::addToSymTab(this);
 
-    Node::doSetContextForChildren();
+    DynNode::doSetContextForChildren();
 }
 
 void SprParameter::doComputeType()
 {
     ASSERT(children_.size() == 2);
-    Node* typeNode = children_[0];
+    DynNode* typeNode = children_[0];
 
     const TypeRef* givenType = getPropertyType("spr.givenType");
     TypeRef t = givenType ? *givenType : getType(typeNode);
 
-    Node* resultingParam = Feather::mkVar(location_, Feather::getName(this), Feather::mkTypeNode(location_, t), 0, Feather::effectiveEvalMode(this));
+    DynNode* resultingParam = Feather::mkVar(location_, Feather::getName(this), Feather::mkTypeNode(location_, t), 0, Feather::effectiveEvalMode(this));
     Feather::setShouldAddToSymTab(resultingParam, false);
     resultingParam->setContext(context_);
     resultingParam->computeType();
@@ -74,7 +74,7 @@ void SprParameter::doSemanticCheck()
 
     explanation_->semanticCheck();
 
-    Node* init = initValue();
+    DynNode* init = initValue();
     if ( init )
         init->semanticCheck();
 }

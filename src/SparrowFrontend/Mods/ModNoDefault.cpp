@@ -7,7 +7,7 @@
 
 using namespace SprFrontend;
 
-void ModNoDefault::beforeComputeType(Node* node)
+void ModNoDefault::beforeComputeType(DynNode* node)
 {
     /// Check to apply only to classes or functions
     if ( node->nodeKind() != nkSparrowDeclSprFunction && node->nodeKind() != nkSparrowDeclSprClass )

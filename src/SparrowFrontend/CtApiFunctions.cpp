@@ -14,157 +14,157 @@ using namespace Nest;
 
 namespace
 {
-    void ctApi_Sparrow_mkModifiers(Node** sret, Location* loc, Node* main, Node* mods)
+    void ctApi_Sparrow_mkModifiers(DynNode** sret, Location* loc, DynNode* main, DynNode* mods)
     {
         *sret = mkModifiers(*loc, main, mods);
     }
 
-    void ctApi_Sparrow_mkSprCompilationUnit(Node** sret, Location* loc, Node* package, NodeList* imports, NodeList* declarations)
+    void ctApi_Sparrow_mkSprCompilationUnit(DynNode** sret, Location* loc, DynNode* package, NodeList* imports, NodeList* declarations)
     {
         *sret = mkSprCompilationUnit(*loc, package, imports, declarations);
     }
-    void ctApi_Sparrow_mkSprUsing(Node** sret, Location* loc, StringData alias, Node* usingNode)
+    void ctApi_Sparrow_mkSprUsing(DynNode** sret, Location* loc, StringData alias, DynNode* usingNode)
     {
         *sret = mkSprUsing(*loc, alias.toStdString(), usingNode);
     }
-    void ctApi_Sparrow_mkSprPackage(Node** sret, Location* loc, StringData name, NodeList* children)
+    void ctApi_Sparrow_mkSprPackage(DynNode** sret, Location* loc, StringData name, NodeList* children)
     {
         *sret = mkSprPackage(*loc, name.toStdString(), children);
     }
-    void ctApi_Sparrow_mkSprVariable(Node** sret, Location* loc, StringData name, Node* typeNode, Node* init)
+    void ctApi_Sparrow_mkSprVariable(DynNode** sret, Location* loc, StringData name, DynNode* typeNode, DynNode* init)
     {
         *sret = mkSprVariable(*loc, name.toStdString(), typeNode, init);
     }
-    void ctApi_Sparrow_mkSprClass(Node** sret, Location* loc, StringData name, NodeList* parameters, NodeList* baseClasses, Node* ifClause, NodeList* children)
+    void ctApi_Sparrow_mkSprClass(DynNode** sret, Location* loc, StringData name, NodeList* parameters, NodeList* baseClasses, DynNode* ifClause, NodeList* children)
     {
         *sret = mkSprClass(*loc, name.toStdString(), parameters, baseClasses, ifClause, children);
     }
 
-    void ctApi_Sparrow_mkSprConcept(Node** sret, Location* loc, StringData name, Node* baseConcept, StringData paramName, Node* ifClause)
+    void ctApi_Sparrow_mkSprConcept(DynNode** sret, Location* loc, StringData name, DynNode* baseConcept, StringData paramName, DynNode* ifClause)
     {
         *sret = mkSprConcept(*loc, name.toStdString(), paramName.toStdString(), baseConcept, ifClause);
     }
 
-    void ctApi_Sparrow_mkSprFunction(Node** sret, Location* loc, StringData name, NodeList* parameters, Node* returnType, Node* body, Node* ifClause)
+    void ctApi_Sparrow_mkSprFunction(DynNode** sret, Location* loc, StringData name, NodeList* parameters, DynNode* returnType, DynNode* body, DynNode* ifClause)
     {
         *sret = mkSprFunction(*loc, name.toStdString(), parameters, returnType, body);
     }
-    void ctApi_Sparrow_mkSprFunctionExp(Node** sret, Location* loc, StringData name, NodeList* parameters, Node* returnType, Node* bodyExp, Node* ifClause)
+    void ctApi_Sparrow_mkSprFunctionExp(DynNode** sret, Location* loc, StringData name, NodeList* parameters, DynNode* returnType, DynNode* bodyExp, DynNode* ifClause)
     {
         *sret = mkSprFunctionExp(*loc, name.toStdString(), parameters, returnType, bodyExp);
     }
-    void ctApi_Sparrow_mkSprParameter(Node** sret, Location* loc, StringData name, Node* typeNode, Node* init)
+    void ctApi_Sparrow_mkSprParameter(DynNode** sret, Location* loc, StringData name, DynNode* typeNode, DynNode* init)
     {
         *sret = mkSprParameter(*loc, name.toStdString(), typeNode);
     }
-    void ctApi_Sparrow_mkSprAutoParameter(Node** sret, Location* loc, StringData name)
+    void ctApi_Sparrow_mkSprAutoParameter(DynNode** sret, Location* loc, StringData name)
     {
         *sret = mkSprAutoParameter(*loc, name.toStdString());
     }
 
-    void ctApi_Sparrow_mkIdentifier(Node** sret, Location* loc, StringData id)
+    void ctApi_Sparrow_mkIdentifier(DynNode** sret, Location* loc, StringData id)
     {
         *sret = mkIdentifier(*loc, id.toStdString());
     }
-    void ctApi_Sparrow_mkCompoundExp(Node** sret, Location* loc, Node* base, StringData id)
+    void ctApi_Sparrow_mkCompoundExp(DynNode** sret, Location* loc, DynNode* base, StringData id)
     {
         *sret = mkCompoundExp(*loc, base, id.toStdString());
     }
-    void ctApi_Sparrow_mkStarExp(Node** sret, Location* loc, Node* base, StringData operName)
+    void ctApi_Sparrow_mkStarExp(DynNode** sret, Location* loc, DynNode* base, StringData operName)
     {
         *sret = mkStarExp(*loc, base, operName.toStdString());
     }
-    void ctApi_Sparrow_mkPostfixOp(Node** sret, Location* loc, StringData op, Node* base)
+    void ctApi_Sparrow_mkPostfixOp(DynNode** sret, Location* loc, StringData op, DynNode* base)
     {
         *sret = mkPostfixOp(*loc, op.toStdString(), base);
     }
-    void ctApi_Sparrow_mkInfixOp(Node** sret, Location* loc, StringData op, Node* arg1, Node* arg2)
+    void ctApi_Sparrow_mkInfixOp(DynNode** sret, Location* loc, StringData op, DynNode* arg1, DynNode* arg2)
     {
         *sret = mkInfixOp(*loc, op.toStdString(), arg1, arg2);
     }
-    void ctApi_Sparrow_mkPrefixOp(Node** sret, Location* loc, StringData op, Node* base)
+    void ctApi_Sparrow_mkPrefixOp(DynNode** sret, Location* loc, StringData op, DynNode* base)
     {
         *sret = mkPrefixOp(*loc, op.toStdString(), base);
     }
-    void ctApi_Sparrow_mkFunApplication(Node** sret, Location* loc, Node* base, NodeList* arguments)
+    void ctApi_Sparrow_mkFunApplication(DynNode** sret, Location* loc, DynNode* base, NodeList* arguments)
     {
         *sret = mkFunApplication(*loc, base, arguments);
     }
-    void ctApi_Sparrow_mkOperatorCall(Node** sret, Location* loc, Node* arg1, StringData op, Node* arg2)
+    void ctApi_Sparrow_mkOperatorCall(DynNode** sret, Location* loc, DynNode* arg1, StringData op, DynNode* arg2)
     {
         *sret = mkOperatorCall(*loc, arg1, op.toStdString(), arg2);
     }
 
-    void ctApi_Sparrow_mkConditionalExp(Node** sret, Location* loc, Node* cond, Node* alt1, Node* alt2)
+    void ctApi_Sparrow_mkConditionalExp(DynNode** sret, Location* loc, DynNode* cond, DynNode* alt1, DynNode* alt2)
     {
         *sret = mkConditionalExp(*loc, cond, alt1, alt2);
     }
-    void ctApi_Sparrow_mkThisExp(Node** sret, Location* loc)
+    void ctApi_Sparrow_mkThisExp(DynNode** sret, Location* loc)
     {
         *sret = mkThisExp(*loc);
     }
-    void ctApi_Sparrow_mkParenthesisExp(Node** sret, Location* loc, Node* exp)
+    void ctApi_Sparrow_mkParenthesisExp(DynNode** sret, Location* loc, DynNode* exp)
     {
         *sret = mkParenthesisExp(*loc, exp);
     }
-    void ctApi_Sparrow_mkIntLiteral(Node** sret, Location* loc, int value)
+    void ctApi_Sparrow_mkIntLiteral(DynNode** sret, Location* loc, int value)
     {
         *sret = mkIntLiteral(*loc, value);
     }
-    void ctApi_Sparrow_mkUIntLiteral(Node** sret, Location* loc, unsigned int value)
+    void ctApi_Sparrow_mkUIntLiteral(DynNode** sret, Location* loc, unsigned int value)
     {
         *sret = mkUIntLiteral(*loc, value);
     }
-    void ctApi_Sparrow_mkLongLiteral(Node** sret, Location* loc, long value)
+    void ctApi_Sparrow_mkLongLiteral(DynNode** sret, Location* loc, long value)
     {
         *sret = mkLongLiteral(*loc, value);
     }
-    void ctApi_Sparrow_mkULongLiteral(Node** sret, Location* loc, unsigned long value)
+    void ctApi_Sparrow_mkULongLiteral(DynNode** sret, Location* loc, unsigned long value)
     {
         *sret = mkULongLiteral(*loc, value);
     }
-    void ctApi_Sparrow_mkFloatLiteral(Node** sret, Location* loc, float value)
+    void ctApi_Sparrow_mkFloatLiteral(DynNode** sret, Location* loc, float value)
     {
         *sret = mkFloatLiteral(*loc, value);
     }
-    void ctApi_Sparrow_mkDoubleLiteral(Node** sret, Location* loc, double value)
+    void ctApi_Sparrow_mkDoubleLiteral(DynNode** sret, Location* loc, double value)
     {
         *sret = mkDoubleLiteral(*loc, value);
     }
-    void ctApi_Sparrow_mkCharLiteral(Node** sret, Location* loc, char value)
+    void ctApi_Sparrow_mkCharLiteral(DynNode** sret, Location* loc, char value)
     {
         *sret = mkCharLiteral(*loc, value);
     }
-    void ctApi_Sparrow_mkStringLiteral(Node** sret, Location* loc, StringData value)
+    void ctApi_Sparrow_mkStringLiteral(DynNode** sret, Location* loc, StringData value)
     {
         *sret = mkStringLiteral(*loc, value.toStdString());
     }
-    void ctApi_Sparrow_mkNullLiteral(Node** sret, Location* loc)
+    void ctApi_Sparrow_mkNullLiteral(DynNode** sret, Location* loc)
     {
         *sret = mkNullLiteral(*loc);
     }
-    void ctApi_Sparrow_mkBoolLiteral(Node** sret, Location* loc, bool value)
+    void ctApi_Sparrow_mkBoolLiteral(DynNode** sret, Location* loc, bool value)
     {
         *sret = mkBoolLiteral(*loc, value);
     }
-    void ctApi_Sparrow_mkLambdaExp(Node** sret, Location* loc, NodeList* parameters, Node* returnType, Node* body, Node* bodyExp, NodeList* closureParams)
+    void ctApi_Sparrow_mkLambdaExp(DynNode** sret, Location* loc, NodeList* parameters, DynNode* returnType, DynNode* body, DynNode* bodyExp, NodeList* closureParams)
     {
         *sret = mkLambdaExp(*loc, parameters, returnType, body, bodyExp, closureParams);
     }
 
-    void ctApi_Sparrow_mkExpressionStmt(Node** sret, Location* loc, Node* exp)
+    void ctApi_Sparrow_mkExpressionStmt(DynNode** sret, Location* loc, DynNode* exp)
     {
         *sret = mkExpressionStmt(*loc, exp);
     }
-    void ctApi_Sparrow_mkBlockStmt(Node** sret, Location* loc, NodeList* statements)
+    void ctApi_Sparrow_mkBlockStmt(DynNode** sret, Location* loc, NodeList* statements)
     {
         *sret = mkBlockStmt(*loc, statements);
     }
-    void ctApi_Sparrow_mkForStmt(Node** sret, Location* loc, StringData name, Node* type, Node* range, Node* action)
+    void ctApi_Sparrow_mkForStmt(DynNode** sret, Location* loc, StringData name, DynNode* type, DynNode* range, DynNode* action)
     {
         *sret = mkForStmt(*loc, name.toStdString(), type, range, action);
     }
-    void ctApi_Sparrow_mkReturnStmt(Node** sret, Location* loc, Node* exp)
+    void ctApi_Sparrow_mkReturnStmt(DynNode** sret, Location* loc, DynNode* exp)
     {
         *sret = mkReturnStmt(*loc, exp);
     }
@@ -177,7 +177,7 @@ namespace
         UserDefinedSourceCode::registerSelf(ext.toStdString(), funName.toStdString());
         return true;
     }
-    void ctApi_Compiler_parseSprExpression(Node** sret, Location* loc, StringData exp)
+    void ctApi_Compiler_parseSprExpression(DynNode** sret, Location* loc, StringData exp)
     {
         const SparrowSourceCode* ssc = dynamic_cast<const SparrowSourceCode*>(loc->sourceCode());
         if ( ssc )

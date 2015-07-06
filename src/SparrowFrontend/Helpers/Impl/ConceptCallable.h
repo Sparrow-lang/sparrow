@@ -15,12 +15,12 @@ namespace SprFrontend
         virtual const Location& location() const;
         virtual string toString() const;
         virtual size_t paramsCount() const;
-        virtual Node* param(size_t idx) const;
+        virtual DynNode* param(size_t idx) const;
         virtual TypeRef paramType(size_t idx) const;
         virtual EvalMode evalMode() const;
         virtual bool isAutoCt() const;
 
-        virtual Node* generateCall(const Location& loc);
+        virtual DynNode* generateCall(const Location& loc);
 
     private:
         SprConcept* concept_;

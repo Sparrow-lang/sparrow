@@ -54,7 +54,7 @@ vector<Instruction*>& Scope::instructionsStack()
     return instructionsStack_;
 }
 
-void Scope::addScopeDestructAction(Node* destructAction)
+void Scope::addScopeDestructAction(DynNode* destructAction)
 {
     destructActions_.push_back(destructAction);
 }
@@ -68,7 +68,7 @@ void Scope::outputDestructActions()
     }
 
     // Now write the scope destruct actions
-    for ( Node* n: boost::adaptors::reverse(destructActions_) )
+    for ( DynNode* n: boost::adaptors::reverse(destructActions_) )
     {
         translateNode(n, context_);
     }

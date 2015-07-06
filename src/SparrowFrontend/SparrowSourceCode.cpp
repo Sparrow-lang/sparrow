@@ -58,19 +58,19 @@ string SparrowSourceCode::getSourceCodeLine(int lineNo) const
     return line;
 }
 
-boost::function<Nest::Node*(Nest::Node*)> SparrowSourceCode::ctToRtTranslator() const
+boost::function<Nest::DynNode*(Nest::DynNode*)> SparrowSourceCode::ctToRtTranslator() const
 {
     return &convertCtToRt;
 }
 
-Node* SparrowSourceCode::parseExpression(Location loc, const string& code) const
+DynNode* SparrowSourceCode::parseExpression(Location loc, const string& code) const
 {
     // Only use the start part of the location
     loc.setAsStartOf(loc);
 
     istringstream f(code);
     Scanner scanner(f, Parser::token::START_EXPRESSION);
-    Node* res;
+    DynNode* res;
     Parser parser(scanner, loc, &res);
     int rc = parser.parse();
     if ( rc != 0 )

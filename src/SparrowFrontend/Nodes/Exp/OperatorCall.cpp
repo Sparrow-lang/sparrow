@@ -14,14 +14,14 @@ using namespace Feather;
 
 namespace
 {
-    string argTypeStr(Node* node)
+    string argTypeStr(DynNode* node)
     {
         return node && node->type() ? node->type()->description : "?";
     }
 }
 
-OperatorCall::OperatorCall(const Location& loc, Node* arg1, string op, Node* arg2)
-    : Node(classNodeKind(), loc, {arg1, arg2})
+OperatorCall::OperatorCall(const Location& loc, DynNode* arg1, string op, DynNode* arg2)
+    : DynNode(classNodeKind(), loc, {arg1, arg2})
 {
     setProperty("spr.operation", move(op));
 }
@@ -29,8 +29,8 @@ OperatorCall::OperatorCall(const Location& loc, Node* arg1, string op, Node* arg
 void OperatorCall::dump(ostream& os) const
 {
     ASSERT(children_.size() == 2);
-    Node* arg1 = children_[0];
-    Node* arg2 = children_[1];
+    DynNode* arg1 = children_[0];
+    DynNode* arg2 = children_[1];
     const string& operation = getCheckPropertyString("spr.operation");
 
     if ( arg1 && arg2 )
@@ -44,8 +44,8 @@ void OperatorCall::dump(ostream& os) const
 void OperatorCall::doSemanticCheck()
 {
     ASSERT(children_.size() == 2);
-    Node* arg1 = children_[0];
-    Node* arg2 = children_[1];
+    DynNode* arg1 = children_[0];
+    DynNode* arg2 = children_[1];
     const string& operation = getCheckPropertyString("spr.operation");
 
     if ( arg1 && arg2 )
@@ -83,14 +83,14 @@ void OperatorCall::doSemanticCheck()
     }
 
     // Search for the operator
-    Node* res = selectOperator(operation, arg1, arg2);
+    DynNode* res = selectOperator(operation, arg1, arg2);
 
     // If nothing found try fall-back.
     if ( !res && arg1 && arg2 )
     {
         string op1, op2;
-        Node* a1 = arg1;
-        Node* a2 = arg2;
+        DynNode* a1 = arg1;
+        DynNode* a2 = arg2;
 
         if ( operation == "!=" )  // Transform '!=' into '=='
         {
@@ -128,7 +128,7 @@ void OperatorCall::doSemanticCheck()
 
         if ( !op1.empty() )
         {
-            Node* r = selectOperator(op1, a1, a2);
+            DynNode* r = selectOperator(op1, a1, a2);
             if ( r )
             {
                 r->semanticCheck();
@@ -159,11 +159,11 @@ void OperatorCall::doSemanticCheck()
 
 namespace
 {
-    Node* trySelectOperator(const string& operation, const NodeVector& args, CompilationContext* searchContext, bool searchOnlyGivenContext,
+    DynNode* trySelectOperator(const string& operation, const DynNodeVector& args, CompilationContext* searchContext, bool searchOnlyGivenContext,
         CompilationContext* callContext, const Location& callLocation, EvalMode mode)
     {
         SymTab* sTab = searchContext->currentSymTab();
-        NodeVector decls = searchOnlyGivenContext ? sTab->lookupCurrent(operation) : sTab->lookup(operation);
+        DynNodeVector decls = searchOnlyGivenContext ? sTab->lookupCurrent(operation) : sTab->lookup(operation);
         if ( !decls.empty() )
             return selectOverload(callContext, callLocation, mode, move(decls), args, false, operation);
 
@@ -173,13 +173,13 @@ namespace
 
 #define CHECK_RET(expr) \
     { \
-        Node* ret = expr; \
+        DynNode* ret = expr; \
         if ( ret ) return ret; \
     }
 
-Node* OperatorCall::selectOperator(const string& operation, Node* arg1, Node* arg2)
+DynNode* OperatorCall::selectOperator(const string& operation, DynNode* arg1, DynNode* arg2)
 {
-    NodeVector args;
+    DynNodeVector args;
     if ( arg1 )
         args.push_back(arg1);
     if ( arg2 )
@@ -193,13 +193,13 @@ Node* OperatorCall::selectOperator(const string& operation, Node* arg1, Node* ar
         opPrefix = "pre_";
 
     // Identifiy the first valid operand, so that we can search near it
-    Node* base = nullptr;
+    DynNode* base = nullptr;
     if ( arg1 )
         base = arg1;
     else if ( arg2 )
         base = arg2;
 
-    Node* argClass = nullptr;
+    DynNode* argClass = nullptr;
     if ( base )
     {
         base->semanticCheck();
@@ -234,11 +234,11 @@ Node* OperatorCall::selectOperator(const string& operation, Node* arg1, Node* ar
 
 namespace
 {
-    Node* checkConvertNullToRefByte(Node* orig)
+    DynNode* checkConvertNullToRefByte(DynNode* orig)
     {
         if ( isSameTypeIgnoreMode(orig->type(), StdDef::typeNull) )
         {
-            Node* res = mkNull(orig->location(), mkTypeNode(orig->location(), StdDef::typeRefByte));
+            DynNode* res = mkNull(orig->location(), mkTypeNode(orig->location(), StdDef::typeRefByte));
             res->setContext(orig->context());
             res->computeType();
             return res;
@@ -249,8 +249,8 @@ namespace
 
 void OperatorCall::handleFApp()
 {
-    Node* arg1 = children_[0];
-    Node* arg2 = children_[1];
+    DynNode* arg1 = children_[0];
+    DynNode* arg2 = children_[1];
 
     if ( arg2 && arg2->nodeKind() != nkFeatherNodeList )
         REP_INTERNAL(arg2->location(), "Expected node list for function application; found %1%") % arg2;
@@ -260,8 +260,8 @@ void OperatorCall::handleFApp()
 
 void OperatorCall::handleDotExpr()
 {
-    Node* arg1 = children_[0];
-    Node* arg2 = children_[1];
+    DynNode* arg1 = children_[0];
+    DynNode* arg2 = children_[1];
 
     if ( arg2->nodeKind() != nkSparrowExpIdentifier )
         REP_INTERNAL(arg2->location(), "Expected identifier after dot; found %1%") % arg2;
@@ -271,8 +271,8 @@ void OperatorCall::handleDotExpr()
 
 void OperatorCall::handleRefEq()
 {
-    Node* arg1 = children_[0];
-    Node* arg2 = children_[1];
+    DynNode* arg1 = children_[0];
+    DynNode* arg2 = children_[1];
 
     arg1->semanticCheck();
     arg2->semanticCheck();
@@ -287,8 +287,8 @@ void OperatorCall::handleRefEq()
     if ( arg2->type()->numReferences == 0 )
         REP_ERROR(location_, "Right operand of a reference equality operator is not a reference (%1%)") % arg2->type();
 
-    Node* arg1Cvt = nullptr;
-    Node* arg2Cvt = nullptr;
+    DynNode* arg1Cvt = nullptr;
+    DynNode* arg2Cvt = nullptr;
     doDereference1(arg1, arg1Cvt);             // Dereference until the last reference
     doDereference1(arg2, arg2Cvt);
     arg1Cvt = mkBitcast(location_, mkTypeNode(location_, StdDef::typeRefByte), arg1Cvt);
@@ -299,8 +299,8 @@ void OperatorCall::handleRefEq()
 
 void OperatorCall::handleRefNe()
 {
-    Node* arg1 = children_[0];
-    Node* arg2 = children_[1];
+    DynNode* arg1 = children_[0];
+    DynNode* arg2 = children_[1];
 
     arg1->semanticCheck();
     arg2->semanticCheck();
@@ -315,8 +315,8 @@ void OperatorCall::handleRefNe()
     if ( arg2->type()->numReferences == 0 )
         REP_ERROR(location_, "Right operand of a reference equality operator is not a reference (%1%)") % arg2->type();
 
-    Node* arg1Cvt = nullptr;
-    Node* arg2Cvt = nullptr;
+    DynNode* arg1Cvt = nullptr;
+    DynNode* arg2Cvt = nullptr;
     doDereference1(arg1, arg1Cvt);             // Dereference until the last reference
     doDereference1(arg2, arg2Cvt);
     arg1Cvt = mkBitcast(location_, mkTypeNode(location_, StdDef::typeRefByte), arg1Cvt);
@@ -327,8 +327,8 @@ void OperatorCall::handleRefNe()
 
 void OperatorCall::handleRefAssign()
 {
-    Node* arg1 = children_[0];
-    Node* arg2 = children_[1];
+    DynNode* arg1 = children_[0];
+    DynNode* arg2 = children_[1];
 
     arg1->semanticCheck();
     arg2->semanticCheck();
@@ -350,7 +350,7 @@ void OperatorCall::handleRefAssign()
     ConversionResult c = canConvert(arg2, arg1BaseType);
     if ( !c )
         REP_ERROR(location_, "Cannot convert from %1% to %2%") % arg2->type() % arg1BaseType;
-    Node* cvt = c.apply(arg2);
+    DynNode* cvt = c.apply(arg2);
 
     // Return a memstore operator
     setExplanation(mkMemStore(location_, cvt, arg1));
@@ -358,7 +358,7 @@ void OperatorCall::handleRefAssign()
 
 void OperatorCall::handleFunPtr()
 {
-    Node* funNode = children_[1];
+    DynNode* funNode = children_[1];
 
     setExplanation(createFunPtr(funNode));
 }

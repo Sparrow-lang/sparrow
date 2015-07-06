@@ -7,13 +7,13 @@
 #include <Util/TypeTraits.h>
 
 
-Return::Return(const Location& location, Node* exp)
-    : Node(classNodeKind(), location, {exp})
+Return::Return(const Location& location, DynNode* exp)
+    : DynNode(classNodeKind(), location, {exp})
 {
-    setProperty("parentFun", (Node*) nullptr);
+    setProperty("parentFun", (DynNode*) nullptr);
 }
 
-Node* Return::expression() const
+DynNode* Return::expression() const
 {
     return children_[0];
 }

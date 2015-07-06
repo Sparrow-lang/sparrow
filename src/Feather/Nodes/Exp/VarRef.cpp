@@ -7,19 +7,19 @@
 
 namespace
 {
-    bool isField(Node* node)
+    bool isField(DynNode* node)
     {
         if ( node->nodeKind() != nkFeatherDeclVar )
             return false;
         
         // Check the direct parent is a class that contains the given node
         Nest::SymTab* st = node->context()->currentSymTab();
-        Node* parent = st ? st->node() : nullptr;
+        DynNode* parent = st ? st->node() : nullptr;
         parent = parent ? parent->explanation() : nullptr;
         Class* cls = parent ? parent->as<Class>() : nullptr;
         if ( cls )
         {
-            for ( Node* f: cls->fields() )
+            for ( DynNode* f: cls->fields() )
                 if ( f == node )
                     return true;
         }
@@ -28,12 +28,12 @@ namespace
 }
 
 
-VarRef::VarRef(const Location& loc, Node* var)
-    : Node(classNodeKind(), loc, {}, {var})
+VarRef::VarRef(const Location& loc, DynNode* var)
+    : DynNode(classNodeKind(), loc, {}, {var})
 {
 }
 
-Node* VarRef::variable() const
+DynNode* VarRef::variable() const
 {
     return referredNodes_[0];
 }
@@ -45,7 +45,7 @@ void VarRef::dump(ostream& os) const
 
 void VarRef::doSemanticCheck()
 {
-    Node* var = variable();
+    DynNode* var = variable();
     ASSERT(var);
     if ( var->nodeKind() != nkFeatherDeclVar )
         REP_INTERNAL(location_, "VarRef object needs to point to a Field (node kind: %1%)") % var->nodeKindName();

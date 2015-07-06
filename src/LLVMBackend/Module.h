@@ -7,7 +7,7 @@
 #include <string>
 #include <unordered_map>
 
-FWD_CLASS1(Nest, Node);
+FWD_CLASS1(Nest, DynNode);
 FWD_CLASS1(Feather, Decl);
 FWD_CLASS2(LLVMB,Tr, DebugInfo);
 
@@ -17,7 +17,7 @@ FWD_CLASS1(llvm, Function);
 
 namespace LLVMB
 {
-    using Nest::Node;
+    using Nest::DynNode;
 
     /// Class that represents a backend module.
     /// It is responsible for the translation of an intermediate code into LLVM bitcode
@@ -34,7 +34,7 @@ namespace LLVMB
             propWhileEndLabel,
         };
 
-        typedef boost::function<Node*(Node*)> NodeFun;
+        typedef boost::function<DynNode*(DynNode*)> NodeFun;
 
     public:
         explicit Module(const string& name);
@@ -63,32 +63,32 @@ namespace LLVMB
         Tr::DebugInfo* debugInfo() const { return debugInfo_; }
 
         /// Returns true if the given declaration makes sense in the current module
-        bool canUse(Node* decl) const;
+        bool canUse(DynNode* decl) const;
 
         /// Getter/setter for the llvm functions defined by this module
         bool isFunctionDefined(llvm::Function* fun) const;
         void addDefinedFunction(llvm::Function* fun);
 
         /// Getters/setter for node properties
-        boost::any* getNodePropertyPtr(Node* node, NodePropertyType type);
-        void setNodeProperty(Node* node, NodePropertyType type, const boost::any& value);
+        boost::any* getNodePropertyPtr(DynNode* node, NodePropertyType type);
+        void setNodeProperty(DynNode* node, NodePropertyType type, const boost::any& value);
 
     // Helpers
     public:
         template <typename T>
-        T* getNodePropertyValue(Node* node, NodePropertyType type)
+        T* getNodePropertyValue(DynNode* node, NodePropertyType type)
         {
             boost::any* anyVal = getNodePropertyPtr(node, type);
             return !anyVal || anyVal->empty() ? nullptr : boost::any_cast<T>(anyVal);
         }
 
     protected:
-        typedef pair<Node*, NodePropertyType> PropKey;
+        typedef pair<DynNode*, NodePropertyType> PropKey;
         struct PropKeyHash
         {
             size_t operator()(const PropKey& k) const
             {
-                return std::hash<Node*>()(k.first) + 393241*int(k.second);
+                return std::hash<DynNode*>()(k.first) + 393241*int(k.second);
             }
         };
 

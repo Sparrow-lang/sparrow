@@ -70,23 +70,23 @@ void UserDefinedSourceCode::parse(CompilationContext* context)
 
     // Create a node that invokes the given function with the content of the file
     // funName(code: StringRef, location: Meta.Location, context: Meta.CompilationContext): Meta.AstNode
-    Node* codeNode = mkStringLiteral(loc, oss.str());
+    DynNode* codeNode = mkStringLiteral(loc, oss.str());
 
     int* scHandle = reinterpret_cast<int*>(this);
-    Node* scBase = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "SourceCode");
-    Node* scArg = Feather::mkCtValue(loc, StdDef::typeRefInt, &scHandle);
-    Node* scNode = mkFunApplication(loc, scBase, {scArg});
-    Node* locBase = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "Location");
-    Node* locNode = mkFunApplication(loc, locBase, {scNode});
+    DynNode* scBase = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "SourceCode");
+    DynNode* scArg = Feather::mkCtValue(loc, StdDef::typeRefInt, &scHandle);
+    DynNode* scNode = mkFunApplication(loc, scBase, {scArg});
+    DynNode* locBase = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "Location");
+    DynNode* locNode = mkFunApplication(loc, locBase, {scNode});
 
     int* ctxHandle = reinterpret_cast<int*>(context);
-    Node* ctxBase = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "CompilationContext");
-    Node* ctxArg = Feather::mkCtValue(loc, StdDef::typeRefInt, &ctxHandle);
-    Node* ctxNode = mkFunApplication(loc, ctxBase, {ctxArg});
+    DynNode* ctxBase = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "CompilationContext");
+    DynNode* ctxArg = Feather::mkCtValue(loc, StdDef::typeRefInt, &ctxHandle);
+    DynNode* ctxNode = mkFunApplication(loc, ctxBase, {ctxArg});
 
     vector<string> funNameParts;
     boost::split(funNameParts, funName_, boost::is_any_of("."));
-    Node* funBase = nullptr;
+    DynNode* funBase = nullptr;
     for ( string& partName: funNameParts )
     {
         if ( !funBase )
@@ -94,15 +94,15 @@ void UserDefinedSourceCode::parse(CompilationContext* context)
         else
             funBase = mkCompoundExp(loc, funBase, move(partName));
     }
-    Node* funCall = mkFunApplication(loc, funBase, {codeNode, locNode, ctxNode});
+    DynNode* funCall = mkFunApplication(loc, funBase, {codeNode, locNode, ctxNode});
 
     // Compile the function and evaluate it
-    Node* implPart = mkCompoundExp(loc, funCall, "impl");
+    DynNode* implPart = mkCompoundExp(loc, funCall, "impl");
     implPart = Feather::mkMemLoad(loc, implPart);    // Remove LValue
     implPart->setContext(context);
     implPart->semanticCheck();
 
-    iCode_ = (Node*) getIntRefCtValue(implPart);
+    iCode_ = (DynNode*) getIntRefCtValue(implPart);
     if ( !iCode_ )
         REP_INTERNAL(loc, "Invalid parsing function %1%, (used to parse %2%)") % funName_ % filename();
 }

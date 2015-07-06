@@ -5,12 +5,12 @@
 namespace SprFrontend
 {
     /// A Sparrow compilation unit
-    class SprCompilationUnit : public Node
+    class SprCompilationUnit : public DynNode
     {
         DEFINE_NODE(SprCompilationUnit, nkSparrowDeclSprCompilationUnit, "Sparrow.Decl.CompilationUnit");
 
     public:
-        SprCompilationUnit(const Location& loc, Node* package, NodeList* imports, NodeList* declarations);
+        SprCompilationUnit(const Location& loc, DynNode* package, NodeList* imports, NodeList* declarations);
 
     protected:
         virtual void doSetContextForChildren();

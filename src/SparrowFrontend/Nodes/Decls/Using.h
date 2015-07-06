@@ -6,14 +6,14 @@
 namespace SprFrontend
 {
     /// Using declaration
-    class Using : public Node
+    class Using : public DynNode
     {
         DEFINE_NODE(Using, nkSparrowDeclUsing, "Sparrow.Decl.Using");
 
     public:
-        Using(const Location& loc, string alias, Node* usingNode, AccessType accessType = publicAccess);
+        Using(const Location& loc, string alias, DynNode* usingNode, AccessType accessType = publicAccess);
 
-        Node* source() const;
+        DynNode* source() const;
 
     protected:
         virtual void doSetContextForChildren();

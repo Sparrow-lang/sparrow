@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Nest/Intermediate/Node.h>
+#include <Nest/Intermediate/DynNode.h>
 #include <Nest/Intermediate/EvalMode.h>
 #include <SparrowFrontend/Nodes/Decls/AccessType.h>
 
@@ -8,63 +8,63 @@ namespace SprFrontend
 {
     using namespace Nest;
     
-    Node* mkModifiers(const Location& loc, Node* main, Node* mods);
+    DynNode* mkModifiers(const Location& loc, DynNode* main, DynNode* mods);
 
-    Node* mkSprCompilationUnit(const Location& loc, Node* package, NodeList* imports, NodeList* declarations);
-    Node* mkSprUsing(const Location& loc, string alias, Node* usingNode, AccessType accessType = publicAccess);
-    Node* mkSprPackage(const Location& loc, string name, NodeList* children, AccessType accessType = publicAccess);
-    Node* mkSprVariable(const Location& loc, string name, Node* typeNode, Node* init, AccessType accessType = publicAccess);
-    Node* mkSprVariable(const Location& loc, string name, TypeRef type, Node* init, AccessType accessType = publicAccess);
-    Node* mkSprClass(const Location& loc, string name, NodeList* parameters, NodeList* baseClasses, Node* ifClause, NodeList* children, AccessType accessType = publicAccess);
+    DynNode* mkSprCompilationUnit(const Location& loc, DynNode* package, NodeList* imports, NodeList* declarations);
+    DynNode* mkSprUsing(const Location& loc, string alias, DynNode* usingNode, AccessType accessType = publicAccess);
+    DynNode* mkSprPackage(const Location& loc, string name, NodeList* children, AccessType accessType = publicAccess);
+    DynNode* mkSprVariable(const Location& loc, string name, DynNode* typeNode, DynNode* init, AccessType accessType = publicAccess);
+    DynNode* mkSprVariable(const Location& loc, string name, TypeRef type, DynNode* init, AccessType accessType = publicAccess);
+    DynNode* mkSprClass(const Location& loc, string name, NodeList* parameters, NodeList* baseClasses, DynNode* ifClause, NodeList* children, AccessType accessType = publicAccess);
 
-    Node* mkSprConcept(const Location& loc, string name, string paramName, Node* baseConcept, Node* ifClause, AccessType accessType = publicAccess);
+    DynNode* mkSprConcept(const Location& loc, string name, string paramName, DynNode* baseConcept, DynNode* ifClause, AccessType accessType = publicAccess);
 
-    Node* mkSprFunction(const Location& loc, string name, NodeList* parameters, Node* returnType, Node* body, Node* ifClause = nullptr, AccessType accessType = publicAccess);
-    Node* mkSprFunctionExp(const Location& loc, string name, NodeList* parameters, Node* returnType, Node* bodyExp, Node* ifClause = nullptr, AccessType accessType = publicAccess);
-    Node* mkSprParameter(const Location& loc, string name, Node* typeNode, Node* init = nullptr);
-    Node* mkSprParameter(const Location& loc, string name, TypeRef type, Node* init = nullptr);
-    Node* mkSprAutoParameter(const Location& loc, string name);
+    DynNode* mkSprFunction(const Location& loc, string name, NodeList* parameters, DynNode* returnType, DynNode* body, DynNode* ifClause = nullptr, AccessType accessType = publicAccess);
+    DynNode* mkSprFunctionExp(const Location& loc, string name, NodeList* parameters, DynNode* returnType, DynNode* bodyExp, DynNode* ifClause = nullptr, AccessType accessType = publicAccess);
+    DynNode* mkSprParameter(const Location& loc, string name, DynNode* typeNode, DynNode* init = nullptr);
+    DynNode* mkSprParameter(const Location& loc, string name, TypeRef type, DynNode* init = nullptr);
+    DynNode* mkSprAutoParameter(const Location& loc, string name);
 
-    Node* mkIdentifier(const Location& loc, string id);
-    Node* mkCompoundExp(const Location& loc, Node* base, string id);
-    Node* mkStarExp(const Location& loc, Node* base, const string& operName);
-    Node* mkPostfixOp(const Location& loc, string op, Node* base);
-    Node* mkInfixOp(const Location& loc, string op, Node* arg1, Node* arg2);
-    Node* mkPrefixOp(const Location& loc, string op, Node* base);
-    Node* mkFunApplication(const Location& loc, Node* base, NodeList* arguments);
-    Node* mkFunApplication(const Location& loc, Node* base, NodeVector arguments);
-    Node* mkOperatorCall(const Location& loc, Node* arg1, string op, Node* arg2);
+    DynNode* mkIdentifier(const Location& loc, string id);
+    DynNode* mkCompoundExp(const Location& loc, DynNode* base, string id);
+    DynNode* mkStarExp(const Location& loc, DynNode* base, const string& operName);
+    DynNode* mkPostfixOp(const Location& loc, string op, DynNode* base);
+    DynNode* mkInfixOp(const Location& loc, string op, DynNode* arg1, DynNode* arg2);
+    DynNode* mkPrefixOp(const Location& loc, string op, DynNode* base);
+    DynNode* mkFunApplication(const Location& loc, DynNode* base, NodeList* arguments);
+    DynNode* mkFunApplication(const Location& loc, DynNode* base, DynNodeVector arguments);
+    DynNode* mkOperatorCall(const Location& loc, DynNode* arg1, string op, DynNode* arg2);
 
-    Node* mkConditionalExp(const Location& loc, Node* cond, Node* alt1, Node* alt2);
-    Node* mkThisExp(const Location& loc);
-    Node* mkParenthesisExp(const Location& loc, Node* exp);
-    Node* mkIntLiteral(const Location& loc, int value);
-    Node* mkUIntLiteral(const Location& loc, unsigned int value);
-    Node* mkLongLiteral(const Location& loc, long value);
-    Node* mkULongLiteral(const Location& loc, unsigned long value);
-    Node* mkFloatLiteral(const Location& loc, float value);
-    Node* mkDoubleLiteral(const Location& loc, double value);
-    Node* mkCharLiteral(const Location& loc, char value);
-    Node* mkStringLiteral(const Location& loc, string value);
-    Node* mkNullLiteral(const Location& loc);
-    Node* mkBoolLiteral(const Location& loc, bool value);
-    Node* mkLambdaExp(const Location& loc, NodeList* parameters, Node* returnType, Node* body, Node* bodyExp, NodeList* closureParams);
+    DynNode* mkConditionalExp(const Location& loc, DynNode* cond, DynNode* alt1, DynNode* alt2);
+    DynNode* mkThisExp(const Location& loc);
+    DynNode* mkParenthesisExp(const Location& loc, DynNode* exp);
+    DynNode* mkIntLiteral(const Location& loc, int value);
+    DynNode* mkUIntLiteral(const Location& loc, unsigned int value);
+    DynNode* mkLongLiteral(const Location& loc, long value);
+    DynNode* mkULongLiteral(const Location& loc, unsigned long value);
+    DynNode* mkFloatLiteral(const Location& loc, float value);
+    DynNode* mkDoubleLiteral(const Location& loc, double value);
+    DynNode* mkCharLiteral(const Location& loc, char value);
+    DynNode* mkStringLiteral(const Location& loc, string value);
+    DynNode* mkNullLiteral(const Location& loc);
+    DynNode* mkBoolLiteral(const Location& loc, bool value);
+    DynNode* mkLambdaExp(const Location& loc, NodeList* parameters, DynNode* returnType, DynNode* body, DynNode* bodyExp, NodeList* closureParams);
     
-    Node* mkExpressionStmt(const Location& loc, Node* exp);
-    Node* mkBlockStmt(const Location& loc, NodeList* statements);
-    Node* mkIfStmt(const Location& loc, Node* cond, Node* thenClause, Node* elseClause);
-    Node* mkForStmt(const Location& loc, string name, Node* type, Node* range, Node* action);
-    Node* mkWhileStmt(const Location& loc, Node* cond, Node* step, Node* action);
-    Node* mkBreakStmt(const Location& loc);
-    Node* mkContinueStmt(const Location& loc);
-    Node* mkReturnStmt(const Location& loc, Node* exp);
-//    Node* mkThrowStmt(const Location& loc, Node* exp);
-//    Node* mkTryStmt(const Location& loc, Node* actions, NodeList* catches, Node* finallyBlock);
-//    Node* mkCatchBlock(const Location& loc, Node* formal, Node* action);
-//    Node* mkFinallyBlock(const Location& loc, Node* action);
+    DynNode* mkExpressionStmt(const Location& loc, DynNode* exp);
+    DynNode* mkBlockStmt(const Location& loc, NodeList* statements);
+    DynNode* mkIfStmt(const Location& loc, DynNode* cond, DynNode* thenClause, DynNode* elseClause);
+    DynNode* mkForStmt(const Location& loc, string name, DynNode* type, DynNode* range, DynNode* action);
+    DynNode* mkWhileStmt(const Location& loc, DynNode* cond, DynNode* step, DynNode* action);
+    DynNode* mkBreakStmt(const Location& loc);
+    DynNode* mkContinueStmt(const Location& loc);
+    DynNode* mkReturnStmt(const Location& loc, DynNode* exp);
+//    DynNode* mkThrowStmt(const Location& loc, DynNode* exp);
+//    DynNode* mkTryStmt(const Location& loc, DynNode* actions, NodeList* catches, DynNode* finallyBlock);
+//    DynNode* mkCatchBlock(const Location& loc, DynNode* formal, DynNode* action);
+//    DynNode* mkFinallyBlock(const Location& loc, DynNode* action);
 
-    Node* mkDeclExp(const Location& loc, NodeVector decls, Node* baseExp = nullptr);
+    DynNode* mkDeclExp(const Location& loc, DynNodeVector decls, DynNode* baseExp = nullptr);
 
-    Node* mkInstantiation(const Location& loc, NodeVector boundValues, NodeVector boundVars);
-    Node* mkInstantiationsSet(Node* parentNode, NodeVector params, Node* ifClause);
+    DynNode* mkInstantiation(const Location& loc, DynNodeVector boundValues, DynNodeVector boundVars);
+    DynNode* mkInstantiationsSet(DynNode* parentNode, DynNodeVector params, DynNode* ifClause);
 }

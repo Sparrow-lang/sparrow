@@ -7,17 +7,17 @@
 #include <Util/Decl.h>
 
 
-FieldRef::FieldRef(const Location& loc, Node* obj, Node* field)
-    : Node(classNodeKind(), loc, {obj}, {field})
+FieldRef::FieldRef(const Location& loc, DynNode* obj, DynNode* field)
+    : DynNode(classNodeKind(), loc, {obj}, {field})
 {
 }
 
-Node* FieldRef::object() const
+DynNode* FieldRef::object() const
 {
     return children_[0];
 }
 
-Node* FieldRef::field() const
+DynNode* FieldRef::field() const
 {
     return referredNodes_[0];
 }
@@ -29,8 +29,8 @@ void FieldRef::dump(ostream& os) const
 
 void FieldRef::doSemanticCheck()
 {
-    Node* obj = children_[0];
-    Node* field = referredNodes_[0];
+    DynNode* obj = children_[0];
+    DynNode* field = referredNodes_[0];
     ASSERT(obj);
     ASSERT(field);
     if ( field->nodeKind() != nkFeatherDeclVar )

@@ -7,27 +7,27 @@
 namespace SprFrontend
 {
     /// Base class for generics declarations
-    class Generic : public Node
+    class Generic : public DynNode
     {
     public:
-        Generic(int nodeKind, Node* origNode, NodeVector genericParams, Node* ifClause, AccessType accessType = publicAccess);
+        Generic(int nodeKind, DynNode* origNode, DynNodeVector genericParams, DynNode* ifClause, AccessType accessType = publicAccess);
         virtual ~Generic() = 0;
 
         /// Getter for the number of parameters of the generic (bound + free)
         virtual size_t paramsCount() const = 0;
 
         /// Getter for the idx-th parameter of the generic (bound + free)
-        virtual Node* param(size_t idx) const = 0;
+        virtual DynNode* param(size_t idx) const = 0;
 
         /// Checks if we can instantiate this generic with the given arguments; retuns non-null if can instantiate
-        virtual Instantiation* canInstantiate(const NodeVector& args) = 0;
+        virtual Instantiation* canInstantiate(const DynNodeVector& args) = 0;
 
         /// Called to actually instantiate a generic; returns the code that needs to be called to access the generic
-        virtual Node* instantiateGeneric(const Location& loc, CompilationContext* context, const NodeVector& args, Instantiation* instantiation) = 0;
+        virtual DynNode* instantiateGeneric(const Location& loc, CompilationContext* context, const DynNodeVector& args, Instantiation* instantiation) = 0;
 
     protected:
         virtual void doSemanticCheck();
 
-        const NodeVector& genericParams() const;
+        const DynNodeVector& genericParams() const;
     };
 }

@@ -4,10 +4,10 @@
 
 namespace Feather
 {
-    /// Node that contains backend code written in a backend defined manner.
+    /// DynNode that contains backend code written in a backend defined manner.
     /// This node always compile successfully, and always has the type of Void. However, this node may represent various
     /// backend constructs, including function definitions, expressions, etc.
-    class BackendCode : public Node
+    class BackendCode : public DynNode
     {
         DEFINE_NODE(BackendCode, nkFeatherBackendCode, "Feather.BackendCode");
 

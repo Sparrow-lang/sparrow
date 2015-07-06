@@ -10,17 +10,17 @@ namespace Nest
     class SymTabImpl : public SymTab
     {
     public:
-        SymTabImpl(SymTab* parent, Node* node);
+        SymTabImpl(SymTab* parent, DynNode* node);
         virtual ~SymTabImpl();
 
-        virtual void enter(const string& name, Node* definition);
+        virtual void enter(const string& name, DynNode* definition);
         virtual void copyEntries(SymTab* otherSymTab);
-        virtual NodeVector allEntries() const;
-        virtual NodeVector lookupCurrent(const string& name) const;
-        virtual NodeVector lookup(const string& name) const;
+        virtual DynNodeVector allEntries() const;
+        virtual DynNodeVector lookupCurrent(const string& name) const;
+        virtual DynNodeVector lookup(const string& name) const;
 
         virtual SymTab* parent() const;
-        virtual Node* node() const;
+        virtual DynNode* node() const;
 
         virtual void dump(ostream& os) const;
 
@@ -32,12 +32,12 @@ namespace Nest
         SymTab* parent_;
 
         /// The node that introduced this symbol table
-        Node* node_;
+        DynNode* node_;
 
         /// The entries in this symbol table (not copied)
-        unordered_multimap<string, Node*> entries_;
+        unordered_multimap<string, DynNode*> entries_;
 
         /// The entries in this symbol table that are copied. They must be shadowed by 'entries_'
-        unordered_multimap<string, Node*> copiedEntries_;
+        unordered_multimap<string, DynNode*> copiedEntries_;
     };
 }

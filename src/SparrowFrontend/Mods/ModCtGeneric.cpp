@@ -8,7 +8,7 @@
 
 using namespace SprFrontend;
 
-void ModCtGeneric::beforeComputeType(Node* node)
+void ModCtGeneric::beforeComputeType(DynNode* node)
 {
     /// Check to apply only to classes or functions
     if ( node->nodeKind() != nkSparrowDeclSprFunction )

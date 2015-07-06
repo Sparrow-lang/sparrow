@@ -4,7 +4,7 @@
 
 #include <vector>
 
-FWD_CLASS1(Nest, Node);
+FWD_CLASS1(Nest, DynNode);
 FWD_CLASS1(Nest, SourceCode);
 
 namespace Nest
@@ -28,11 +28,11 @@ namespace Nest
 
 		/// Processes the given node at compile-time.
         /// This is called for declarations to introduce them into the CT module
-        virtual void ctProcess(Node* node) = 0;
+        virtual void ctProcess(DynNode* node) = 0;
 
 		/// Evaluates the given node at compile-time. If the result isn't null, the node should be replaced with the returned node
 		/// This should be called for expression that have a (ct) storage type
-        virtual Node* ctEvaluate(Node* node) = 0;
+        virtual DynNode* ctEvaluate(DynNode* node) = 0;
 
         /// Get the size of the given type (in bytes)
         virtual size_t sizeOf(TypeRef type) = 0;

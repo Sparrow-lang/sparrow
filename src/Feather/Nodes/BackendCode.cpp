@@ -9,7 +9,7 @@ namespace
     class CtProcessMod : public Nest::Modifier
     {
     public:
-        virtual void afterSemanticCheck(Node* node)
+        virtual void afterSemanticCheck(DynNode* node)
         {
             theCompiler().ctProcess(node);
         };
@@ -17,7 +17,7 @@ namespace
 }
 
 BackendCode::BackendCode(const Location& location, string code, EvalMode evalMode)
-    : Node(classNodeKind(), location)
+    : DynNode(classNodeKind(), location)
 {
     setProperty(propCode, move(code));
     setProperty(propEvalMode, (int) evalMode);

@@ -9,7 +9,7 @@
 
 using namespace Feather;
 
-bool Feather::isDecl(Nest::Node* node)
+bool Feather::isDecl(Nest::DynNode* node)
 {
     switch ( node->explanation()->nodeKind() )
     {
@@ -22,41 +22,41 @@ bool Feather::isDecl(Nest::Node* node)
     }
 }
 
-bool Feather::isDeclEx(Nest::Node* node)
+bool Feather::isDeclEx(Nest::DynNode* node)
 {
     if ( isDecl(node) )
         return true;
-    Node*const* declPtr = node->getPropertyNode(propResultingDecl);
+    DynNode*const* declPtr = node->getPropertyNode(propResultingDecl);
     return declPtr != nullptr;
 }
 
-const string& Feather::getName(const Node* decl)
+const string& Feather::getName(const DynNode* decl)
 {
     return decl->getCheckPropertyString("name");
 }
 
-bool Feather::hasName(const Node* decl)
+bool Feather::hasName(const DynNode* decl)
 {
     return decl->hasProperty("name");
 }
 
-void Feather::setName(Node* decl, string name)
+void Feather::setName(DynNode* decl, string name)
 {
     decl->setProperty("name", move(name));
 }
 
 
-EvalMode Feather::nodeEvalMode(const Node* decl)
+EvalMode Feather::nodeEvalMode(const DynNode* decl)
 {
     const int* val = decl->getPropertyInt("evalMode");
     return val ? (EvalMode) *val : Nest::modeUnspecified;
 }
-EvalMode Feather::effectiveEvalMode(const Node* decl)
+EvalMode Feather::effectiveEvalMode(const DynNode* decl)
 {
     EvalMode nodeMode = nodeEvalMode(decl);
     return nodeMode != Nest::modeUnspecified ? nodeMode : decl->context()->evalMode();
 }
-void Feather::setEvalMode(Node* decl, EvalMode val)
+void Feather::setEvalMode(DynNode* decl, EvalMode val)
 {
     decl->setProperty("evalMode", (int) val);
 
@@ -67,7 +67,7 @@ void Feather::setEvalMode(Node* decl, EvalMode val)
 //        REP_INTERNAL(location_, "Invalid mode set for node; node has %1%, in context %2%") % curMode % childrenContext_->evalMode();
 }
 
-void Feather::addToSymTab(Node* decl)
+void Feather::addToSymTab(DynNode* decl)
 {
     const int* dontAddToSymTab = decl->getPropertyInt("dontAddToSymTab");
     if ( dontAddToSymTab && *dontAddToSymTab )
@@ -81,7 +81,7 @@ void Feather::addToSymTab(Node* decl)
     decl->context()->currentSymTab()->enter(declName, decl);
 }
 
-void Feather::setShouldAddToSymTab(Node* decl, bool val)
+void Feather::setShouldAddToSymTab(DynNode* decl, bool val)
 {
     decl->setProperty("dontAddToSymTab", val ? 0 : 1);
 }

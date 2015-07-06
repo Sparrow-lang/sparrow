@@ -6,12 +6,12 @@
 
 
 Continue::Continue(const Location& location)
-    : Node(classNodeKind(), location)
+    : DynNode(classNodeKind(), location)
 {
-    setProperty("loop", (Node*) nullptr);
+    setProperty("loop", (DynNode*) nullptr);
 }
 
-Node* Continue::loop() const
+DynNode* Continue::loop() const
 {
     return getCheckPropertyNode("loop");
 }
@@ -24,7 +24,7 @@ void Continue::dump(ostream& os) const
 void Continue::doSemanticCheck()
 {
     // Get the outer-most loop from the context
-    Node* loop = getParentLoop(context_);
+    DynNode* loop = getParentLoop(context_);
     if ( !loop )
         REP_ERROR(location_, "Continue found outside any loop");
     setProperty("loop", loop);

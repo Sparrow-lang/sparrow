@@ -6,18 +6,18 @@ namespace Feather
 {
     /// Intermediate code node that represents a reference to a field of a given object
     /// Given the field, this node will have the same type as the field
-    class FieldRef : public Node
+    class FieldRef : public DynNode
     {
         DEFINE_NODE(FieldRef, nkFeatherExpFieldRef, "Feather.Exp.FieldRef");
 
     public:
-        FieldRef(const Location& loc, Node* obj, Node* field);
+        FieldRef(const Location& loc, DynNode* obj, DynNode* field);
 
         /// Getter to the node that represents the object from which we access the field
-        Node* object() const;
+        DynNode* object() const;
 
         /// Getter for the field this node refers to
-        Node* field() const;
+        DynNode* field() const;
 
     public:
         virtual void dump(ostream& os) const;

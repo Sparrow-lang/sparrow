@@ -5,12 +5,12 @@
 namespace SprFrontend
 {
     /// A return statement that can apply conversions
-    class SprReturn : public Node
+    class SprReturn : public DynNode
     {
         DEFINE_NODE(SprReturn, nkSparrowStmtSprReturn, "Sparrow.Stmt.SprReturn");
 
     public:
-        SprReturn(const Location& loc, Node* exp);
+        SprReturn(const Location& loc, DynNode* exp);
 
     protected:
         virtual void doSemanticCheck();

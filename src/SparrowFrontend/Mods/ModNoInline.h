@@ -8,6 +8,6 @@ namespace SprFrontend
     class ModNoInline : public Nest::Modifier
     {
     public:
-        virtual void beforeComputeType(Node* node);
+        virtual void beforeComputeType(DynNode* node);
     };
 }

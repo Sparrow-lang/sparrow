@@ -5,15 +5,15 @@
 namespace SprFrontend
 {
     /// Class that represents a Sparrow parameter declaration
-    class SprParameter : public Node
+    class SprParameter : public DynNode
     {
         DEFINE_NODE(SprParameter, nkSparrowDeclSprParameter, "Sparrow.Decl.Parameter");
 
     public:
-        SprParameter(const Location& loc, string name, Node* typeNode, Node* init = nullptr);
-        SprParameter(const Location& loc, string name, TypeRef type, Node* init = nullptr);
+        SprParameter(const Location& loc, string name, DynNode* typeNode, DynNode* init = nullptr);
+        SprParameter(const Location& loc, string name, TypeRef type, DynNode* init = nullptr);
 
-        Node* initValue() const;
+        DynNode* initValue() const;
 
         virtual void dump(ostream& os) const;
 

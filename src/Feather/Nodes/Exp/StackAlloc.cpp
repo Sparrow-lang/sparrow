@@ -5,8 +5,8 @@
 #include <Util/TypeTraits.h>
 
 
-StackAlloc::StackAlloc(const Location& loc, Node* elemType, int numElements, size_t alignment)
-    : Node(classNodeKind(), loc, {elemType})
+StackAlloc::StackAlloc(const Location& loc, DynNode* elemType, int numElements, size_t alignment)
+    : DynNode(classNodeKind(), loc, {elemType})
 {
     setProperty("numElements", numElements);
     setProperty("alignment", alignment);
@@ -40,7 +40,7 @@ void StackAlloc::doSemanticCheck()
 
     // Set the resulting type
     ASSERT(children_.size() == 1);
-    Node* elemTypeNode = children_[0];
+    DynNode* elemTypeNode = children_[0];
     elemTypeNode->computeType();
     type_ = adjustMode(getLValueType(elemTypeNode->type()), context_, location_);
 }

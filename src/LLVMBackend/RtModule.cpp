@@ -6,7 +6,7 @@
 #include <Nest/Common/Diagnostic.h>
 #include <Nest/CompilerSettings.h>
 #include <Nest/Compiler.h>
-#include <Nest/Intermediate/Node.h>
+#include <Nest/Intermediate/DynNode.h>
 #include <Nest/Frontend/SourceCode.h>
 
 
@@ -28,7 +28,7 @@ RtModule::~RtModule()
     delete debugInfo_;
 }
 
-void RtModule::generate(Node* rootNode)
+void RtModule::generate(DynNode* rootNode)
 {
     if ( !rootNode || !rootNode->isSemanticallyChecked() )
         REP_INTERNAL(NOLOC, "The root node to be processed by the LLVM backend is not semantically checked");

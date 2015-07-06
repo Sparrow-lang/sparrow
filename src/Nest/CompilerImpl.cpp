@@ -6,7 +6,7 @@
 #include <Common/NodeAllocatorImpl.h>
 #include <Common/TimingSystem.h>
 #include <Common/Serialization.h>
-#include <Intermediate/Node.h>
+#include <Intermediate/DynNode.h>
 #include <Intermediate/CompilationContext.h>
 #include <Frontend/SourceCode.h>
 #include <Frontend/FrontendFactoryImpl.h>
@@ -241,21 +241,21 @@ const SourceCode* CompilerImpl::getSourceCodeForFilename(const string& filename)
     return nullptr;
 }
 
-void CompilerImpl::queueSemanticCheck(Node* node)
+void CompilerImpl::queueSemanticCheck(DynNode* node)
 {
     toSemanticCheck_.push_back(node);
 }
 
-void CompilerImpl::ctProcess(Node* node)
+void CompilerImpl::ctProcess(DynNode* node)
 {
     node->semanticCheck();
     backend_->ctProcess(node);
 }
 
-Node* CompilerImpl::ctEval(Node* node)
+DynNode* CompilerImpl::ctEval(DynNode* node)
 {
     node->semanticCheck();
-    Node* res = backend_->ctEvaluate(node);
+    DynNode* res = backend_->ctEvaluate(node);
     if ( res )
     {
         res->setContext(node->context());
@@ -278,7 +278,7 @@ void CompilerImpl::semanticCheckNodes()
 {
     while ( !toSemanticCheck_.empty() )
     {
-        Node* n = toSemanticCheck_.front();
+        DynNode* n = toSemanticCheck_.front();
         toSemanticCheck_.erase(toSemanticCheck_.begin());
 
         if ( n )

@@ -12,8 +12,8 @@ using namespace Nest;
 using namespace Feather;
 
 
-For::For(const Location& loc, string name, Node* range, Node* action, Node* typeExpr, bool ct)
-    : Node(classNodeKind(), loc, {range, action, typeExpr})
+For::For(const Location& loc, string name, DynNode* range, DynNode* action, DynNode* typeExpr, bool ct)
+    : DynNode(classNodeKind(), loc, {range, action, typeExpr})
 {
     setName(this, move(name));
     if ( ct )
@@ -23,9 +23,9 @@ For::For(const Location& loc, string name, Node* range, Node* action, Node* type
 void For::doSetContextForChildren()
 {
     ASSERT(children_.size() == 3);
-    Node* range = children_[0];
-    Node* action = children_[1];
-    Node* typeExpr = children_[2];
+    DynNode* range = children_[0];
+    DynNode* action = children_[1];
+    DynNode* typeExpr = children_[2];
 
     ASSERT(range);
     CompilationContext* rangeContext = nodeEvalMode(this) == modeCt ? new CompilationContext(context_, modeCt) : context_;
@@ -44,9 +44,9 @@ void For::doComputeType()
 void For::doSemanticCheck()
 {
     ASSERT(children_.size() == 3);
-    Node* range = children_[0];
-    Node* action = children_[1];
-    Node* typeExpr = children_[2];
+    DynNode* range = children_[0];
+    DynNode* action = children_[1];
+    DynNode* typeExpr = children_[2];
 
     bool ctFor = nodeEvalMode(this) == modeCt;
 
@@ -73,38 +73,38 @@ void For::doSemanticCheck()
     // if <type> is not present, we will use '$rangeType.RetType'
 
     // Variable to hold the range - initialize it with the range node
-    Node* rangeVar = mkSprVariable(loc, "$rangeVar", mkIdentifier(loc, "Range"), range);
+    DynNode* rangeVar = mkSprVariable(loc, "$rangeVar", mkIdentifier(loc, "Range"), range);
     if ( ctFor )
         setEvalMode(rangeVar, modeCt);
-    Node* rangeVarRef = mkIdentifier(loc, "$rangeVar");
+    DynNode* rangeVarRef = mkIdentifier(loc, "$rangeVar");
 
     // while condition
-    Node* base1 = mkCompoundExp(loc, rangeVarRef, "isEmpty");
-    Node* whileCond = mkOperatorCall(loc, nullptr, "!", mkFunApplication(loc, base1, {}));
+    DynNode* base1 = mkCompoundExp(loc, rangeVarRef, "isEmpty");
+    DynNode* whileCond = mkOperatorCall(loc, nullptr, "!", mkFunApplication(loc, base1, {}));
 
     // while step
-    Node* base2 = mkCompoundExp(loc, rangeVarRef, "popFront");
-    Node* whileStep = mkFunApplication(loc, base2, {});
+    DynNode* base2 = mkCompoundExp(loc, rangeVarRef, "popFront");
+    DynNode* whileStep = mkFunApplication(loc, base2, {});
 
     // while body
-    Node* whileBody = nullptr;
+    DynNode* whileBody = nullptr;
     if ( action )
     {
         if ( !typeExpr )
             typeExpr = mkCompoundExp(loc, rangeVarRef, "RetType");
 
         // the iteration variable
-        Node* base3 = mkCompoundExp(loc, rangeVarRef, "front");
-        Node* init = mkFunApplication(loc, base3, {});
+        DynNode* base3 = mkCompoundExp(loc, rangeVarRef, "front");
+        DynNode* init = mkFunApplication(loc, base3, {});
 
-        Node* iterVar = mkSprVariable(location_, getName(this), typeExpr, init);
+        DynNode* iterVar = mkSprVariable(location_, getName(this), typeExpr, init);
         if ( ctFor )
             setEvalMode(iterVar, modeCt);
 
         whileBody = mkLocalSpace(action->location(), { iterVar, action });
     }
 
-    Node* whileStmt = mkWhile(loc, whileCond, whileBody, whileStep, ctFor);
+    DynNode* whileStmt = mkWhile(loc, whileCond, whileBody, whileStep, ctFor);
     
     setExplanation(mkLocalSpace(location_, { rangeVar, whileStmt }));
 }

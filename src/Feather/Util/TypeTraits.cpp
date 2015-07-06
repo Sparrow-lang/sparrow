@@ -5,7 +5,7 @@
 #include <Feather/Util/Decl.h>
 #include <Feather/FeatherTypes.h>
 
-#include <Nest/Intermediate/Node.h>
+#include <Nest/Intermediate/DynNode.h>
 #include <Nest/Intermediate/CompilationContext.h>
 #include <Nest/Common/Diagnostic.h>
 
@@ -17,7 +17,7 @@ bool Feather::isCt(TypeRef type)
     return type && type->mode == modeCt;
 }
 
-bool Feather::isCt(Node* node)
+bool Feather::isCt(DynNode* node)
 {
     return isCt(node->type());
 }
@@ -28,9 +28,9 @@ bool Feather::isCt(const vector<Nest::TypeRef>& types)
             return false;
     return true;
 }
-bool Feather::isCt(const NodeVector& nodes)
+bool Feather::isCt(const DynNodeVector& nodes)
 {
-    for ( Node* n: nodes )
+    for ( DynNode* n: nodes )
     {
         if ( !n->type() )
             n->computeType();
@@ -49,7 +49,7 @@ bool Feather::isTestable(TypeRef type)
     return nativeName && (*nativeName == "i1" || *nativeName == "u1");
 }
 
-bool Feather::isTestable(Node* node)
+bool Feather::isTestable(DynNode* node)
 {
     return isTestable(node->type());
 }
@@ -62,7 +62,7 @@ bool Feather::isInteger(TypeRef type)
     return nativeName && (*nativeName == "i32" || *nativeName == "u32");
 }
 
-bool Feather::isInteger(Node* node)
+bool Feather::isInteger(DynNode* node)
 {
     return isInteger(node->type());
 }
@@ -161,7 +161,7 @@ Class* Feather::classForType(Nest::TypeRef t)
     return t->hasStorage ? t->referredNode->as<Class>() : nullptr;
 }
 
-Node* Feather::classForTypeRaw(Nest::TypeRef t)
+DynNode* Feather::classForTypeRaw(Nest::TypeRef t)
 {
     return t->hasStorage ? t->referredNode : nullptr;
 }
@@ -214,7 +214,7 @@ Nest::TypeRef Feather::adjustMode(Nest::TypeRef srcType, Nest::EvalMode baseMode
     return changeTypeMode(srcType, resMode, loc);
 }
 
-void Feather::checkEvalMode(Node* src, Nest::EvalMode referencedEvalMode)
+void Feather::checkEvalMode(DynNode* src, Nest::EvalMode referencedEvalMode)
 {
     ASSERT(src && src->type());
     EvalMode nodeEvalMode = src->type()->mode;
@@ -233,13 +233,13 @@ void Feather::checkEvalMode(Node* src, Nest::EvalMode referencedEvalMode)
         REP_INTERNAL(src->location(), "RT node required; found: %1%") % nodeEvalMode;
 
     // If the node has direct children, check them
-    const NodeVector& children = src->children();
+    const DynNodeVector& children = src->children();
     if ( !children.empty() )
     {
         // If we have a CT eval mode, then all the children must be CT
         if ( nodeEvalMode == modeCt )
         {
-            for ( Node* child: children )
+            for ( DynNode* child: children )
             {
                 if ( !child || !child->type() )
                     continue;
@@ -255,7 +255,7 @@ void Feather::checkEvalMode(Node* src, Nest::EvalMode referencedEvalMode)
         // If we have a RT-CT eval mode, then no children must be RT
         if ( nodeEvalMode == modeRtCt )
         {
-            for ( Node* child: children )
+            for ( DynNode* child: children )
             {
                 if ( !child || !child->type() )
                     continue;

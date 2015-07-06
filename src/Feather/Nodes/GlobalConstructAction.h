@@ -6,15 +6,15 @@ namespace Feather
 {
     /// Intermediate code node that holds a construct action for the whole program.
     /// Nodes of this type should be handled at the begining of the program execution, before entering the main method
-    class GlobalConstructAction : public Node
+    class GlobalConstructAction : public DynNode
     {
         DEFINE_NODE(GlobalConstructAction, nkFeatherGlobalConstructAction, "Feather.GlobalConstructAction");
 
     public:
-        GlobalConstructAction(const Location& loc, Node* action);
+        GlobalConstructAction(const Location& loc, DynNode* action);
 
         /// Getter for the construct action held by this node
-        Node* constructAction() const;
+        DynNode* constructAction() const;
 
     public:
         virtual void dump(ostream& os) const;

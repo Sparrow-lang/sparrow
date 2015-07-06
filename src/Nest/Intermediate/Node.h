@@ -103,10 +103,77 @@ namespace Nest
         vector<Modifier*> modifiers;
     };
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // General Node operations
+    //
+
     /// Creates a node of the given kind
     Node* createNode(int nodeKind);
 
     /// Clone the given node - create one with the same characteristics
     /// We clear the compilation state of the new node when cloning
     Node* cloneNode(Node* node);
+
+    /// Returns true if this is a dynamic node (DynNode)
+    bool isDynNode(Node* node);
+
+    /// Returns a string description out of the given node
+    string toString(Node* node);
+
+    /// Getter for the name of the node kind for the given node
+    string nodeKindName(const Node* node);
+
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Node properties
+    //
+
+    void setProperty(Node* node, const char* name, int val, bool passToExpl = false);
+    void setProperty(Node* node, const char* name, string val, bool passToExpl = false);
+    void setProperty(Node* node, const char* name, DynNode* val, bool passToExpl = false);
+    void setProperty(Node* node, const char* name, TypeRef val, bool passToExpl = false);
+
+    bool hasProperty(const Node* node, const char* name);
+    const int* getPropertyInt(const Node* node, const char* name);
+    const string* getPropertyString(const Node* node, const char* name);
+    DynNode*const* getPropertyNode(const Node* node, const char* name);
+    const TypeRef* getPropertyType(const Node* node, const char* name);
+
+    int getCheckPropertyInt(const Node* node, const char* name);
+    const string& getCheckPropertyString(const Node* node, const char* name);
+    DynNode* getCheckPropertyNode(const Node* node, const char* name);
+    TypeRef getCheckPropertyType(const Node* node, const char* name);
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Compilation processes
+    //
+
+    /// Sets the compilation context for this node; with this we know where this node is put in the program
+    void setContext(Node* node, CompilationContext* context);
+
+    /// Just computes the type, without performing all the semantic check actions; used for declarations
+    void computeType(Node* node); // throws(CompilationError)
+
+    /// Performs all the semantic-check actions
+    void semanticCheck(Node* node); // throws(CompilationError)
+
+    /// Reverts the compilation state; brings the node to un-compiled state
+    void clearCompilationState(Node* node); // nothrow
+
+    /// Add a modifier to this class; this modifier will be called before and after compilation
+    void addModifier(Node* node, Modifier* mod);
+
+    /// Returns the compilation context for the children of this node
+    CompilationContext* childrenContext(const Node* node);
+
+    /// Set the explanation of this node.
+    /// makes sure it has the right context, compiles it, and set the type of the current node to be the type of the
+    /// explanation
+    void setExplanation(Node* node, DynNode* explanation);
+
+    /// Getter for the explanation of this node, if it has one; otherwise returns this node
+    DynNode* explanation(const Node* node);
+
 }

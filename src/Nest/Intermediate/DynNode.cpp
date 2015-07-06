@@ -12,6 +12,11 @@
 using namespace Nest;
 using namespace Nest::Common::Ser;
 
+namespace
+{
+    static unordered_map<const Node*, DynNode*> nodesAssoc;
+}
+
 DynNode::DynNode(int nodeKind, const Location& location, DynNodeVector children, DynNodeVector referredNodes)
     : basicNode_(createNode(nodeKind))
     , location_(basicNode_->location)
@@ -27,7 +32,9 @@ DynNode::DynNode(int nodeKind, const Location& location, DynNodeVector children,
     basicNode_->location = location;
     basicNode_->children = move(children);
     basicNode_->referredNodes = move(referredNodes);
-    // TODO (nodes): associate the Dynamic node with the basic node
+
+    // Associate the basic node with this dynamic node
+    nodesAssoc.insert(make_pair(basicNode_, this));
 }
 
 DynNode::DynNode(const DynNode& other)
@@ -42,7 +49,15 @@ DynNode::DynNode(const DynNode& other)
     , explanation_(basicNode_->explanation)
     , modifiers_(basicNode_->modifiers)
 {
+    // Associate the basic node with this dynamic node
+    nodesAssoc.insert(make_pair(basicNode_, this));
 }
+
+DynNode* DynNode::fromNode(const Node* node)
+{
+    return nodesAssoc[node];
+}
+
 
 void* DynNode::operator new(size_t size)
 {
@@ -104,81 +119,57 @@ void DynNode::setLocation(const Location& loc)
 
 void DynNode::setProperty(const char* name, int val, bool passToExpl)
 {
-    basicNode_->properties[name] = Property(propInt, PropertyValue(val), passToExpl);
+    Nest::setProperty(basicNode_, name, val, passToExpl);
 }
 void DynNode::setProperty(const char* name, string val, bool passToExpl)
 {
-    basicNode_->properties[name] = Property(propString, PropertyValue(move(val)), passToExpl);
+    Nest::setProperty(basicNode_, name, val, passToExpl);
 }
 void DynNode::setProperty(const char* name, DynNode* val, bool passToExpl)
 {
-    basicNode_->properties[name] = Property(propNode, PropertyValue(val), passToExpl);
+    Nest::setProperty(basicNode_, name, val, passToExpl);
 }
 void DynNode::setProperty(const char* name, TypeRef val, bool passToExpl)
 {
-    basicNode_->properties[name] = Property(propType, PropertyValue(val), passToExpl);
+    Nest::setProperty(basicNode_, name, val, passToExpl);
 }
 
 bool DynNode::hasProperty(const char* name) const
 {
-    return basicNode_->properties.find(name) != basicNode_->properties.end();
+    return Nest::hasProperty(basicNode_, name);
 }
 const int* DynNode::getPropertyInt(const char* name) const
 {
-    auto it = basicNode_->properties.find(name);
-    if ( it == basicNode_->properties.end() || it->second.kind_ != propInt )
-        return nullptr;
-    return &it->second.value_.intValue_;
+    return Nest::getPropertyInt(basicNode_, name);
 }
 const string* DynNode::getPropertyString(const char* name) const
 {
-    auto it = basicNode_->properties.find(name);
-    if ( it == basicNode_->properties.end() || it->second.kind_ != propString )
-        return nullptr;
-    return it->second.value_.stringValue_;
+    return Nest::getPropertyString(basicNode_, name);
 }
 DynNode*const* DynNode::getPropertyNode(const char* name) const
 {
-    auto it = basicNode_->properties.find(name);
-    if ( it == basicNode_->properties.end() || it->second.kind_ != propNode )
-        return nullptr;
-    return &it->second.value_.nodeValue_;
+    return Nest::getPropertyNode(basicNode_, name);
 }
 const TypeRef* DynNode::getPropertyType(const char* name) const
 {
-    auto it = basicNode_->properties.find(name);
-    if ( it == basicNode_->properties.end() || it->second.kind_ != propType )
-        return nullptr;
-    return &it->second.value_.typeValue_;
+    return Nest::getPropertyType(basicNode_, name);
 }
 
 int DynNode::getCheckPropertyInt(const char* name) const
 {
-    const int* res = getPropertyInt(name);
-    if ( !res )
-        REP_INTERNAL(basicNode_->location, "DynNode of kind %1% does not have integer property %2%") % nodeKindName() % name;
-    return *res;
+    return Nest::getCheckPropertyInt(basicNode_, name);
 }
 const string& DynNode::getCheckPropertyString(const char* name) const
 {
-    const string* res = getPropertyString(name);
-    if ( !res )
-        REP_INTERNAL(basicNode_->location, "DynNode of kind %1% does not have string property %2%") % nodeKindName() % name;
-    return *res;
+    return Nest::getCheckPropertyString(basicNode_, name);
 }
 DynNode* DynNode::getCheckPropertyNode(const char* name) const
 {
-    DynNode*const* res = getPropertyNode(name);
-    if ( !res )
-        REP_INTERNAL(basicNode_->location, "DynNode of kind %1% does not have DynNode property %2%") % nodeKindName() % name;
-    return *res;
+    return Nest::getCheckPropertyNode(basicNode_, name);
 }
 TypeRef DynNode::getCheckPropertyType(const char* name) const
 {
-    const TypeRef* res = getPropertyType(name);
-    if ( !res )
-        REP_INTERNAL(basicNode_->location, "DynNode of kind %1% does not have Type property %2%") % nodeKindName() % name;
-    return *res;
+    return Nest::getCheckPropertyType(basicNode_, name);
 }
 
 
@@ -199,7 +190,7 @@ DynNode* DynNode::curExplanation()
 
 DynNode* DynNode::explanation()
 {
-    return basicNode_->explanation ? basicNode_->explanation->explanation() : this;
+    return Nest::explanation(basicNode_);
 }
 
 void DynNode::setChildrenContext(CompilationContext* childrenContext)
@@ -211,125 +202,27 @@ void DynNode::setChildrenContext(CompilationContext* childrenContext)
 
 void DynNode::setContext(CompilationContext* context)
 {
-    if ( context == basicNode_->context )
-        return;
-    ASSERT(context);
-    basicNode_->context = context;
-
-    if ( basicNode_->type )
-        clearCompilationState();
-
-    for ( Modifier* mod: modifiers_ )
-        mod->beforeSetContext(this);
-
-    doSetContextForChildren();
-
-    for ( Modifier* mod: modifiers_ )
-        mod->afterSetContext(this);
+    Nest::setContext(basicNode_, context);
 }
 
 void DynNode::computeType()
 {
-    if ( basicNode_->type )
-        return;
-    if ( basicNode_->nodeError )
-        REP_ERROR_THROW("Already marked as having an error");
-
-    try
-    {
-        if ( !basicNode_->context )
-            REP_INTERNAL(basicNode_->location, "No context associated with node (%1%)") % toString();
-
-        // Check for recursive dependency
-        if ( basicNode_->computeTypeStarted )
-            REP_ERROR(basicNode_->location, "Recursive dependency detected while computing the type of the current node");
-        basicNode_->computeTypeStarted = 1;
-
-        for ( Modifier* mod: modifiers_ )
-            mod->beforeComputeType(this);
-
-        // Actually compute the type
-        doComputeType();
-        if ( !basicNode_->type )
-            REP_INTERNAL(basicNode_->location, "Type computed sucessfully, but no actual type was generated");
-
-        for ( Modifier* mod: boost::adaptors::reverse(modifiers_) )
-            mod->afterComputeType(this);
-    }
-    catch (const Nest::Common::CompilationError&)
-    {
-        basicNode_->nodeError = 1;
-        throw;
-    }
-    catch (const exception& e)
-    {
-        basicNode_->nodeError = 1;
-        REP_INTERNAL(basicNode_->location, "Exception thrown during computeType(): %1%") % e.what();
-    }
+    Nest::computeType(basicNode_);
 }
 
 void DynNode::semanticCheck()
 {
-    if ( basicNode_->nodeSemanticallyChecked )
-        return;
-    if ( basicNode_->nodeError )
-        REP_ERROR_THROW("Already marked as having an error");
-
-    try
-    {
-        if ( !basicNode_->context )
-            REP_INTERNAL(basicNode_->location, "No context associated with node (%1%)") % toString();
-
-        // Check for recursive dependency
-        if ( basicNode_->semanticCheckStarted )
-            REP_ERROR(basicNode_->location, "Recursive dependency detected while semantically checking the current node");
-        basicNode_->semanticCheckStarted = 1;
-
-        for ( Modifier* mod: modifiers_ )
-            mod->beforeSemanticCheck(this);
-
-        // Actually do the semantic check
-        doSemanticCheck();
-        if ( !basicNode_->type )
-            REP_INTERNAL(basicNode_->location, "DynNode semantically checked, but no actual type was generated");
-        basicNode_->nodeSemanticallyChecked = 1;
-
-        for ( Modifier* mod: boost::adaptors::reverse(modifiers_) )
-            mod->afterSemanticCheck(this);
-    }
-    catch (const Nest::Common::CompilationError& e)
-    {
-        if ( e.what() ) {}      // Avoid warning about not using e
-        basicNode_->nodeError = 1;
-        throw;
-    }
-    catch (const exception& e)
-    {
-        basicNode_->nodeError = 1;
-        REP_INTERNAL(basicNode_->location, "Exception thrown during semanticCheck(): %1%") % e.what();
-    }
+    Nest::semanticCheck(basicNode_);
 }
 
 void DynNode::clearCompilationState()
 {
-    basicNode_->nodeError = 0;
-    basicNode_->nodeSemanticallyChecked = 0;
-    basicNode_->computeTypeStarted = 0;
-    basicNode_->semanticCheckStarted = 0;
-    basicNode_->explanation = nullptr;
-    basicNode_->type = nullptr;
-    modifiers_.clear();
-
-    for ( DynNode* p: basicNode_->children )
-    {
-        if ( p )
-            p->clearCompilationState();
-    }
+    Nest::clearCompilationState(basicNode_);
 }
 
 void DynNode::addModifier(Modifier* mod)
 {
-    modifiers_.push_back(mod);
+    Nest::addModifier(basicNode_, mod);
 }
 
 bool DynNode::hasError() const
@@ -349,7 +242,7 @@ CompilationContext* DynNode::context() const
 
 CompilationContext* DynNode::childrenContext() const
 {
-    return basicNode_->childrenContext ? basicNode_->childrenContext : basicNode_->context;
+    return Nest::childrenContext(basicNode_);
 }
 
 
@@ -375,20 +268,7 @@ void DynNode::doSemanticCheck()
 
 void DynNode::setExplanation(DynNode* explanation)
 {
-    basicNode_->explanation = explanation;
-
-    // Copy all the properties marked accordingly
-    for ( const auto& prop : basicNode_->properties )
-        if ( prop.second.passToExpl_ )
-            basicNode_->explanation->basicNode_->properties[prop.first] = prop.second;
-
-    // Try to semantically check the explanation
-    if ( !explanation->isSemanticallyChecked() )
-    {
-        basicNode_->explanation->setContext(basicNode_->context);
-        basicNode_->explanation->semanticCheck();
-    }
-    basicNode_->type = basicNode_->explanation->type();
+    Nest::setExplanation(basicNode_, explanation);
 }
 
 

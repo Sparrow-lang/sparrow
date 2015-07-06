@@ -245,68 +245,68 @@ package Compiler
 
 package Kinds
 {
-    using nkFeatherNop = 1;
-    using nkFeatherTypeNode = 2;
-    using nkFeatherBackendCode = 3;
-    using nkFeatherNodeList = 4;
-    using nkFeatherLocalSpace = 5;
-    using nkFeatherGlobalConstructAction = 6;
-    using nkFeatherGlobalDestructAction = 7;
-    using nkFeatherScopeDestructAction = 8;
-    using nkFeatherTempDestructAction = 9;
+    using nkFeatherNop = 101;
+    using nkFeatherTypeNode = 102;
+    using nkFeatherBackendCode = 103;
+    using nkFeatherNodeList = 104;
+    using nkFeatherLocalSpace = 105;
+    using nkFeatherGlobalConstructAction = 106;
+    using nkFeatherGlobalDestructAction = 107;
+    using nkFeatherScopeDestructAction = 108;
+    using nkFeatherTempDestructAction = 109;
     
-    using nkFeatherDeclFunction = 10;
-    using nkFeatherDeclClass = 11;
-    using nkFeatherDeclVar = 12;
+    using nkFeatherDeclFunction = 110;
+    using nkFeatherDeclClass = 111;
+    using nkFeatherDeclVar = 112;
     
-    using nkFeatherExpCtValue = 13;
-    using nkFeatherExpNull = 14;
-    using nkFeatherExpStackAlloc = 15;
-    using nkFeatherExpVarRef = 16;
-    using nkFeatherExpFieldRef = 17;
-    using nkFeatherExpFunRef = 18;
-    using nkFeatherExpFunCall = 19;
-    using nkFeatherExpMemLoad = 20;
-    using nkFeatherExpMemStore = 21;
-    using nkFeatherExpBitcast = 22;
-    using nkFeatherExpConditional = 23;
-    using nkFeatherExpChangeMode = 24;
+    using nkFeatherExpCtValue = 113;
+    using nkFeatherExpNull = 114;
+    using nkFeatherExpStackAlloc = 115;
+    using nkFeatherExpVarRef = 116;
+    using nkFeatherExpFieldRef = 117;
+    using nkFeatherExpFunRef = 118;
+    using nkFeatherExpFunCall = 119;
+    using nkFeatherExpMemLoad = 120;
+    using nkFeatherExpMemStore = 121;
+    using nkFeatherExpBitcast = 122;
+    using nkFeatherExpConditional = 123;
+    using nkFeatherExpChangeMode = 124;
     
-    using nkFeatherStmtIf = 25;
-    using nkFeatherStmtWhile = 26;
-    using nkFeatherStmtBreak = 27;
-    using nkFeatherStmtContinue = 28;
-    using nkFeatherStmtReturn = 29;
+    using nkFeatherStmtIf = 125;
+    using nkFeatherStmtWhile = 126;
+    using nkFeatherStmtBreak = 127;
+    using nkFeatherStmtContinue = 128;
+    using nkFeatherStmtReturn = 129;
 
-    using nkSparrowModifiersNode = 30;
+    using nkSparrowModifiersNode = 130;
     
-    using nkSparrowDeclSprCompilationUnit = 31;
-    using nkSparrowDeclPackage = 32;
-    using nkSparrowDeclSprClass = 33;
-    using nkSparrowDeclSprFunction = 34;
-    using nkSparrowDeclSprParameter = 35;
-    using nkSparrowDeclSprVariable = 36;
-    using nkSparrowDeclSprConcept = 37;
-    using nkSparrowDeclGenericClass = 38;
-    using nkSparrowDeclGenericFunction = 39;
-    using nkSparrowDeclFriend = 40;
-    using nkSparrowDeclUsing = 41;
+    using nkSparrowDeclSprCompilationUnit = 131;
+    using nkSparrowDeclPackage = 132;
+    using nkSparrowDeclSprClass = 133;
+    using nkSparrowDeclSprFunction = 134;
+    using nkSparrowDeclSprParameter = 135;
+    using nkSparrowDeclSprVariable = 136;
+    using nkSparrowDeclSprConcept = 137;
+    using nkSparrowDeclGenericClass = 138;
+    using nkSparrowDeclGenericFunction = 139;
+    using nkSparrowDeclFriend = 140;
+    using nkSparrowDeclUsing = 141;
     
-    using nkSparrowExpLiteral = 42;
-    using nkSparrowExpThis = 43;
-    using nkSparrowExpIdentifier = 44;
-    using nkSparrowExpCompoundExp = 45;
-    using nkSparrowExpSprVarRef = 46;
-    using nkSparrowExpFunApplication = 47;
-    using nkSparrowExpOperatorCall = 48;
-    using nkSparrowExpInfixExp = 49;
-    using nkSparrowExpLambdaClosure = 50;
-    using nkSparrowExpLambdaFunction = 51;
-    using nkSparrowExpSprConditional = 52;
-    using nkSparrowExpParenthesisExp = 53;
-    using nkSparrowExpDeclExp = 53;
-    using nkSparrowExpStarExp = 55;
+    using nkSparrowExpLiteral = 142;
+    using nkSparrowExpThis = 143;
+    using nkSparrowExpIdentifier = 144;
+    using nkSparrowExpCompoundExp = 145;
+    using nkSparrowExpSprVarRef = 146;
+    using nkSparrowExpFunApplication = 147;
+    using nkSparrowExpOperatorCall = 148;
+    using nkSparrowExpInfixExp = 149;
+    using nkSparrowExpLambdaClosure = 150;
+    using nkSparrowExpLambdaFunction = 151;
+    using nkSparrowExpSprConditional = 152;
+    using nkSparrowExpParenthesisExp = 153;
+    using nkSparrowExpDeclExp = 153;
+    using nkSparrowExpStarExp = 155;
     
-    using nkSparrowStmtFor = 56;
-    using nkSparrowStmtSprReturn = 57;
+    using nkSparrowStmtFor = 156;
+    using nkSparrowStmtSprReturn = 157;
 }

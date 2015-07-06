@@ -10,6 +10,7 @@
 #include <boost/any.hpp>
 #include <unordered_map>
 
+FWD_STRUCT1(Nest, Node);
 FWD_CLASS1(Nest, Location);
 FWD_CLASS1(Nest, CompilationContext);
 FWD_CLASS1(Nest, Modifier);
@@ -26,7 +27,10 @@ namespace Nest
         DynNode(const DynNode& other);
         virtual ~DynNode() {}
 
-        static DynNode* fromBasicNode(Node* basicNode);
+        static DynNode* fromNode(const Node* node);
+
+        Node* node() { return basicNode_; }
+        const Node* node() const { return basicNode_; }
 
         static void* operator new(size_t size);
         static void operator delete(void* ptr);
@@ -130,7 +134,7 @@ namespace Nest
         CompilationContext* childrenContext() const;
 
     // Methods to be overridden by the subclasses to implement node functionality
-    protected:
+    public:
         virtual void doSetContextForChildren();
         virtual void doComputeType();
         virtual void doSemanticCheck();
@@ -164,10 +168,11 @@ namespace Nest
         void setExplanation(DynNode* explanation);
 
     // General node attributes
-    protected:
+    public:
         /// The basic node underlying this DynNode
         Node* basicNode_;
 
+    protected:
         // We use the following references, so that we don't change a lot of code at once
         Location& location_;
         DynNodeVector& children_;
@@ -195,6 +200,14 @@ namespace Nest
     {
         if ( n )
             n->dump(os);
+        return os;
+    }
+
+    template <typename T>
+    basic_ostream<T>& operator << (basic_ostream<T>& os, const Node* n)
+    {
+        if ( n )
+            DynNode::fromNode(n)->dump(os);
         return os;
     }
 

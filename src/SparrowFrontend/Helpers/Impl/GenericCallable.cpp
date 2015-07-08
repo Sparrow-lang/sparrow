@@ -21,11 +21,12 @@ string GenericCallable::toString() const
 {
     ostringstream oss;
     oss << generic_->toString() << "(";
-    for ( size_t i=0; i<generic_->paramsCount(); ++i )
+    size_t count = genericParamsCount(generic_);
+    for ( size_t i=0; i<count; ++i )
     {
         if ( i> 0)
             oss << ", ";
-        oss << generic_->param(i)->type();
+        oss << genericParam(generic_, i)->type();
     }
     oss << ")";
     return oss.str();
@@ -33,12 +34,12 @@ string GenericCallable::toString() const
 
 size_t GenericCallable::paramsCount() const
 {
-    return generic_->paramsCount();
+    return genericParamsCount(generic_);
 }
 
 DynNode* GenericCallable::param(size_t idx) const
 {
-    return generic_->param(idx);
+    return genericParam(generic_, idx);
 }
 
 EvalMode GenericCallable::evalMode() const
@@ -60,7 +61,7 @@ ConversionType GenericCallable::canCall(CompilationContext* context, const Locat
     // Check if we can instantiate the generic with the given arguments (with conversions applied)
     argsWithCvt_ = argsWithConversion();
     ASSERT(!inst_);
-    inst_ = generic_->canInstantiate(argsWithCvt_);
+    inst_ = genericCanInstantiate(generic_, argsWithCvt_);
     return inst_ ? res : convNone;
 }
 
@@ -68,7 +69,7 @@ DynNode* GenericCallable::generateCall(const Location& loc)
 {
     ASSERT(inst_);
     ASSERT(context_);
-    DynNode* res = generic_->instantiateGeneric(loc, context_, argsWithCvt_, inst_);
+    DynNode* res = genericDoInstantiate(generic_, loc, context_, argsWithCvt_, inst_);
     res->setContext(context_);
     return res;
 }

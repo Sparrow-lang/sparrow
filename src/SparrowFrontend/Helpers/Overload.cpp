@@ -38,10 +38,9 @@ namespace
         }
 
         // Is this a generic?
-        Generic* generic = dynamic_cast<Generic*>(resDecl);
-        if ( generic )
+        if ( isGeneric(resDecl) )
         {
-            res.push_back(new GenericCallable(generic));
+            res.push_back(new GenericCallable(static_cast<Generic*>(resDecl)));
             return res;
         }
 

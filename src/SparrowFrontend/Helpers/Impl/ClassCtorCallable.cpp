@@ -50,9 +50,8 @@ Callables ClassCtorCallable::getCtorCallables(Class* cls, EvalMode evalMode)
             res.push_back(new ClassCtorCallable(cls, new FunctionCallable(fun), evalMode));
 
         DynNode* resDecl = resultingDecl(decl);
-        Generic* generic = dynamic_cast<Generic*>(resDecl);
-        if ( generic)
-            res.push_back(new ClassCtorCallable(cls, new GenericCallable(generic), evalMode));
+        if ( isGeneric(resDecl) )
+            res.push_back(new ClassCtorCallable(cls, new GenericCallable(static_cast<Generic*>(resDecl)), evalMode));
     }
     return res;
 }

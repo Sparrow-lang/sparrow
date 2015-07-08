@@ -261,13 +261,12 @@ DynNode* SprFrontend::createFunPtr(DynNode* funNode)
         return nullptr;
     }
 
-    // TOOD: In general we should create an object that is albe to call any type of callable
+    // TODO: In general we should create an object that is albe to call any type of callable
 
     // If we have a generic, try to wrap it in a lambda
-    Generic* generic = dynamic_cast<Generic*>(resDecl);
-    if ( generic )
+    if ( isGeneric(resDecl) )
     {
-        size_t numParams = generic->paramsCount();
+        size_t numParams = genericParamsCount(resDecl);
 
         DynNode* paramsType = mkIdentifier(loc, "AnyType");
 

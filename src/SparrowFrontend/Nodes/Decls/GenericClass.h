@@ -14,9 +14,9 @@ namespace SprFrontend
     public:
         explicit GenericClass(SprClass* originalClass, NodeList* parameters, DynNode* ifClause);
 
-        virtual size_t paramsCount() const;
-        virtual DynNode* param(size_t idx) const;
-        virtual Instantiation* canInstantiate(const DynNodeVector& args);
-        virtual DynNode* instantiateGeneric(const Location& loc, CompilationContext* context, const DynNodeVector& args, Instantiation* instantiation);
+        size_t paramsCount() const;
+        DynNode* param(size_t idx) const;
+        Instantiation* canInstantiate(const DynNodeVector& args);
+        DynNode* instantiateGeneric(const Location& loc, CompilationContext* context, const DynNodeVector& args, Instantiation* instantiation);
     };
 }

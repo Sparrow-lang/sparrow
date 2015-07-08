@@ -18,10 +18,10 @@ namespace Feather
         void addChild(DynNode* p);
 
     public:
-        virtual void dump(ostream& os) const;
+        void dump(ostream& os) const;
 
     protected:
-        virtual void doComputeType();
-        virtual void doSemanticCheck();
+        void doComputeType();
+        void doSemanticCheck();
     };
 }

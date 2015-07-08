@@ -13,6 +13,6 @@ namespace SprFrontend
         SprReturn(const Location& loc, DynNode* exp);
 
     protected:
-        virtual void doSemanticCheck();
+        void doSemanticCheck();
     };
 }

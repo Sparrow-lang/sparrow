@@ -32,9 +32,9 @@ namespace Feather
         bool isSingleThread() const;
 
     public:
-        virtual void dump(ostream& os) const;
+        void dump(ostream& os) const;
 
     protected:
-        virtual void doSemanticCheck();
+        void doSemanticCheck();
     };
 }

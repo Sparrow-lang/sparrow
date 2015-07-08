@@ -13,9 +13,9 @@ namespace Feather
         Null(const Location& loc, DynNode* typeNode);
 
     public:
-        virtual void dump(ostream& os) const;
+        void dump(ostream& os) const;
 
     protected:
-        virtual void doSemanticCheck();
+        void doSemanticCheck();
     };
 }

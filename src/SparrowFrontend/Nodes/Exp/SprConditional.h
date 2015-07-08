@@ -14,6 +14,6 @@ namespace SprFrontend
         SprConditional(const Location& location, DynNode* condition, DynNode* alt1, DynNode* alt2);
 
     protected:
-        virtual void doSemanticCheck();
+        void doSemanticCheck();
     };
 }

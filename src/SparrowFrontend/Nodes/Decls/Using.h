@@ -16,8 +16,8 @@ namespace SprFrontend
         DynNode* source() const;
 
     protected:
-        virtual void doSetContextForChildren();
-        virtual void doComputeType();
-        virtual void doSemanticCheck();
+        void doSetContextForChildren();
+        void doComputeType();
+        void doSemanticCheck();
     };
 }

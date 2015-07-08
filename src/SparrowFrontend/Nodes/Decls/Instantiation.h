@@ -30,6 +30,6 @@ namespace SprFrontend
         void setValid(bool valid = true);
 
     protected:
-        virtual void doSemanticCheck();
+        void doSemanticCheck();
     };
 }

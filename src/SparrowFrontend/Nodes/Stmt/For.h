@@ -13,8 +13,8 @@ namespace SprFrontend
         For(const Location& loc, string name, DynNode* range, DynNode* action, DynNode* typeExpr = nullptr, bool ct = false);
 
     protected:
-        virtual void doSetContextForChildren();
-        virtual void doComputeType();
-        virtual void doSemanticCheck();
+        void doSetContextForChildren();
+        void doComputeType();
+        void doSemanticCheck();
     };
 }

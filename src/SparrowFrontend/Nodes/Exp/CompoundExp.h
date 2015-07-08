@@ -16,10 +16,10 @@ namespace SprFrontend
 
         DynNode* baseDataExp() const;
 
-        virtual string toString() const;
-        virtual void dump(ostream& os) const;
+        string toString() const;
+        void dump(ostream& os) const;
 
     protected:
-        virtual void doSemanticCheck();
+        void doSemanticCheck();
     };
 }

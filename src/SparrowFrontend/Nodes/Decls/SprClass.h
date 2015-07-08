@@ -18,11 +18,11 @@ namespace SprFrontend
 
         void addChild(DynNode* child);
 
-        virtual void dump(ostream& os) const;
+        void dump(ostream& os) const;
 
     protected:
-        virtual void doSetContextForChildren();
-        virtual void doComputeType();
-        virtual void doSemanticCheck();
+        void doSetContextForChildren();
+        void doComputeType();
+        void doSemanticCheck();
     };
 }

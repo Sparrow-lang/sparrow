@@ -19,11 +19,11 @@ namespace Feather
         void insertChildInFront(DynNode* p);
 
     public:
-        virtual void dump(ostream& os) const;
+        void dump(ostream& os) const;
 
     protected:
-        virtual void doSetContextForChildren();
-        virtual void doComputeType();
-        virtual void doSemanticCheck();
+        void doSetContextForChildren();
+        void doComputeType();
+        void doSemanticCheck();
     };
 }

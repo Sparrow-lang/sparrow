@@ -14,10 +14,10 @@ namespace SprFrontend
 
         const string& id() const;
 
-        virtual string toString() const;
+        string toString() const;
 
     protected:
-        virtual void doSemanticCheck();
+        void doSemanticCheck();
     };
     
     /// Get the result of the identifier node, given the set of the declarations this identifier points to

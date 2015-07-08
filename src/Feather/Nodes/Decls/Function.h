@@ -27,12 +27,12 @@ namespace Feather
         CallConvention callConvention() const;
 
     public:
-        virtual void dump(ostream& os) const;
-        virtual string toString() const;
+        void dump(ostream& os) const;
+        string toString() const;
 
     protected:
-        virtual void doSetContextForChildren();
-        virtual void doComputeType();
-        virtual void doSemanticCheck();
+        void doSetContextForChildren();
+        void doComputeType();
+        void doSemanticCheck();
     };
 }

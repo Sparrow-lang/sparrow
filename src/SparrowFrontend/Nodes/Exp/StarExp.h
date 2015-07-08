@@ -13,6 +13,6 @@ namespace SprFrontend
         StarExp(const Location& loc, DynNode* base);
 
     protected:
-        virtual void doSemanticCheck();
+        void doSemanticCheck();
     };
 }

@@ -13,6 +13,6 @@ namespace SprFrontend
         explicit This(const Location& loc);
 
     protected:
-        virtual void doSemanticCheck();
+        void doSemanticCheck();
     };
 }

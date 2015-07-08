@@ -14,11 +14,11 @@ namespace SprFrontend
         SprVariable(const Location& loc, string name, DynNode* typeNode, DynNode* init, AccessType accessType = publicAccess);
         SprVariable(const Location& loc, string name, Nest::TypeRef type, DynNode* init, AccessType accessType = publicAccess);
 
-        virtual void dump(ostream& os) const;
+        void dump(ostream& os) const;
 
     protected:
-        virtual void doSetContextForChildren();
-        virtual void doComputeType();
-        virtual void doSemanticCheck();
+        void doSetContextForChildren();
+        void doComputeType();
+        void doSemanticCheck();
     };
 }

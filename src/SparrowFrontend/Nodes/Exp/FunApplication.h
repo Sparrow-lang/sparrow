@@ -17,7 +17,7 @@ namespace SprFrontend
         NodeList* arguments() const;
 
     protected:
-        virtual void doSemanticCheck();
+        void doSemanticCheck();
 
     private:
         void checkStaticCast();

@@ -12,9 +12,9 @@ namespace SprFrontend
     public:
         LambdaFunction(const Location& loc, NodeList* parameters, DynNode* returnType, DynNode* body, NodeList* closureParams);
 
-        virtual void dump(ostream& os) const;
+        void dump(ostream& os) const;
 
     protected:
-        virtual void doSemanticCheck();
+        void doSemanticCheck();
     };
 }

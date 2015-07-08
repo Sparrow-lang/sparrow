@@ -23,7 +23,7 @@ namespace SprFrontend
         TypeRef baseConceptType() const;
 
     protected:
-        virtual void doSetContextForChildren();
-        virtual void doSemanticCheck();
+        void doSetContextForChildren();
+        void doSemanticCheck();
     };
 }

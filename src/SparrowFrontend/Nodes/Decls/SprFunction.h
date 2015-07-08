@@ -22,13 +22,13 @@ namespace SprFrontend
 
         Feather::Function* resultingFun() const;
 
-        virtual string toString() const;
-        virtual void dump(ostream& os) const;
+        string toString() const;
+        void dump(ostream& os) const;
 
     protected:
-        virtual void doSetContextForChildren();
-        virtual void doComputeType();
-        virtual void doSemanticCheck();
+        void doSetContextForChildren();
+        void doComputeType();
+        void doSemanticCheck();
 
     private:
         void handleStaticCtorDtor(bool ctor);

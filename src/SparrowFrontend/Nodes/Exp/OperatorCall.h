@@ -16,10 +16,10 @@ namespace SprFrontend
         // - prefix:    op A    => call OperatorCall(loc, nullptr, op, A);
         OperatorCall(const Location& loc, DynNode* arg1, string op, DynNode* arg2);
 
-        virtual void dump(ostream& os) const;
+        void dump(ostream& os) const;
 
     protected:
-        virtual void doSemanticCheck();
+        void doSemanticCheck();
 
     private:
         DynNode* selectOperator(const string& operation, DynNode* arg1, DynNode* arg2);

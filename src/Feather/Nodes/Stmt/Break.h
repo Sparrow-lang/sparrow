@@ -17,9 +17,9 @@ namespace Feather
         DynNode* loop() const;
 
     public:
-        virtual void dump(ostream& os) const;
+        void dump(ostream& os) const;
 
     protected:
-        virtual void doSemanticCheck();
+        void doSemanticCheck();
     };
 }

@@ -14,8 +14,8 @@ namespace SprFrontend
         Package(const Location& loc, string name, NodeList* children, AccessType accessType = publicAccess);
 
     protected:
-        virtual void doSetContextForChildren();
-        virtual void doComputeType();
-        virtual void doSemanticCheck();
+        void doSetContextForChildren();
+        void doComputeType();
+        void doSemanticCheck();
     };
 }

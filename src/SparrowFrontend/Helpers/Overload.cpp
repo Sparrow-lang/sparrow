@@ -45,7 +45,7 @@ namespace
         }
 
         // Is this a concept?
-        SprConcept* concept = dynamic_cast<SprConcept*>(resDecl);
+        SprConcept* concept = resDecl->as<SprConcept>();
         if ( concept )
         {
             res.push_back(new ConceptCallable(concept));

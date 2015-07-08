@@ -68,6 +68,12 @@ void DynNode::operator delete(void* ptr)
     theCompiler().nodeAllocator().free(ptr);
 }
 
+DynNode* DynNode::clone() const
+{
+    return new DynNode(*this);
+}
+
+
 const char* DynNode::nodeKindName() const
 {
     return getNodeKindName(basicNode_->nodeKind);

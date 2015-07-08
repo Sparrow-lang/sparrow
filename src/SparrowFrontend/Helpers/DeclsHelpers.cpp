@@ -38,7 +38,7 @@ namespace
 
         if ( nodeKind == nkFeatherNodeList )
         {
-            SprFrontend::checkForAllowedNamespaceChildren(dynamic_cast<NodeList*>(child), insideClass);
+            SprFrontend::checkForAllowedNamespaceChildren(child->as<NodeList>(), insideClass);
             return;
         }
 

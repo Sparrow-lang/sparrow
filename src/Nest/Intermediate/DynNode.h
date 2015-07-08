@@ -26,7 +26,6 @@ namespace Nest
     public:
         explicit DynNode(int nodeKind, const Location& location, DynNodeVector children = {}, DynNodeVector referredNodes = {});
         DynNode(const DynNode& other);
-        virtual ~DynNode() {}
 
         static DynNode* fromNode(const Node* node);
 
@@ -37,8 +36,8 @@ namespace Nest
         static void operator delete(void* ptr);
 
         /// Clones the current node
-        virtual DynNode* clone() const = 0;
-        
+        DynNode* clone() const;
+
         /// Returns the object kind ID
         int nodeKind() const { return basicNode_->nodeKind; }
         
@@ -222,7 +221,7 @@ namespace Nest
         int nodeKind() const { return basicNode_->nodeKind; } \
         static const char* classNodeKindName() { return kindName; } \
         const char* nodeKindName() const { return Nest::getNodeKindName(kindId); } \
-        virtual className* clone() const { \
+        className* clone() const { \
             static_assert(sizeof(*this) == sizeof(Nest::DynNode), "Bad node size"); \
             return new className(*this); \
         } \

@@ -122,7 +122,7 @@ namespace
             }
             return nullptr;
         }
-        T* def = dynamic_cast<T*>(entries.front());
+        T* def = entries.front()->as<T>();
         if ( !def  )
         {
             REP_ERROR(loc, "Identifier %1% doesn't denote a %2%") % name % desc;

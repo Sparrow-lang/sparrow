@@ -118,10 +118,10 @@ namespace Nest
     bool isDynNode(Node* node);
 
     /// Returns a string description out of the given node
-    string toString(Node* node);
+    const char* toString(Node* node);
 
     /// Getter for the name of the node kind for the given node
-    string nodeKindName(const Node* node);
+    const char* nodeKindName(const Node* node);
 
 
 
@@ -176,4 +176,19 @@ namespace Nest
     /// Getter for the explanation of this node, if it has one; otherwise returns this node
     DynNode* explanation(const Node* node);
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Default implementation for node-specific functions
+    //
+
+    /// Returns a string description of the given node
+    const char* defaultFunToString(Node* node);
+
+    /// Sets the context for all the children of the given node
+    void defaultFunSetContextForChildren(Node* node);
+
+    /// Computes the type of the node - calls semantic check to compute the type
+    TypeRef defaultFunComputeType(Node* node);
+
+    /// This should never be called - each node should implement a semantic check function
+    Node* defaultFunSemanticCheck(Node* node);
 }

@@ -84,7 +84,19 @@ namespace
     // Helper node used to implement destruct actions for conditional expression
     class DestructActionForConditional : public DynNode
     {
-        DEFINE_NODE(DestructActionForConditional, -1, "LLVMBackend.DestructActionForConditional");
+        DEFINE_NODE(DestructActionForConditional, getNodeKind(), "LLVMBackend.DestructActionForConditional");
+
+        static int getNodeKind()
+        {
+            static bool initialized = false;
+            static int nodeKind = -1;
+            if ( !initialized )
+            {
+                nodeKind = Nest::registerNodeKind(classNodeKindName(), &semanticCheckImpl, &computeTypeImpl, &setContextForChildrenImpl, &toStringImpl); \
+                initialized = true;
+            }
+            return nodeKind;
+        }
     public:
         DestructActionForConditional(TypeRef resType, llvm::Value* cond, DynNodeVector alt1DestructActions, DynNodeVector alt2DestructActions)
             : DynNode(classNodeKind(), NOLOC, {mkNodeList(NOLOC, move(alt1DestructActions)), mkNodeList(NOLOC, move(alt2DestructActions)) })

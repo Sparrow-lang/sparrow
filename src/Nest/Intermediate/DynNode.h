@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Node.h"
+#include "NodeKindRegistrar.h"
 #include "NodeVector.h"
 #include <Nest/Intermediate/TypeRef.h>
 #include <Nest/Frontend/Location.h>
@@ -39,17 +40,17 @@ namespace Nest
         virtual DynNode* clone() const = 0;
         
         /// Returns the object kind ID
-        virtual int nodeKind() const = 0;
+        int nodeKind() const { return basicNode_->nodeKind; }
         
         /// Returns the object kind name
-        virtual const char* nodeKindName() const = 0;
+        const char* nodeKindName() const;
 
         /// Method that returns a string representation of the current object
-        virtual string toString() const;
+        string toString() const;
 
         /// Dumps the information of this node into the given stream
-        virtual void dump(ostream& os) const;
-        virtual void dumpWithType(ostream& os) const;
+        void dump(ostream& os) const;
+        void dumpWithType(ostream& os) const;
 
     // DynNode properties
     public:
@@ -135,9 +136,9 @@ namespace Nest
 
     // Methods to be overridden by the subclasses to implement node functionality
     public:
-        virtual void doSetContextForChildren();
-        virtual void doComputeType();
-        virtual void doSemanticCheck();
+        void doSetContextForChildren();
+        void doComputeType();
+        void doSemanticCheck();
 
     // Helpers
     public:
@@ -218,13 +219,23 @@ namespace Nest
 #define DEFINE_NODE(className, kindId, kindName) \
     public: \
         static int classNodeKind() { return kindId; } \
-        virtual int nodeKind() const { return kindId; } \
+        int nodeKind() const { return basicNode_->nodeKind; } \
         static const char* classNodeKindName() { return kindName; } \
-        virtual const char* nodeKindName() const { return kindName; } \
+        const char* nodeKindName() const { return Nest::getNodeKindName(kindId); } \
         virtual className* clone() const { \
             static_assert(sizeof(*this) == sizeof(Nest::DynNode), "Bad node size"); \
             return new className(*this); \
         } \
         static void* operator new(size_t size) { return DynNode::operator new(size); } \
         static void operator delete(void* ptr) { return DynNode::operator delete(ptr); } \
+    private: \
+        static const char* toStringImpl(Nest::Node* node) { ostringstream oss; static_cast<className*>(DynNode::fromNode(node))->dump(oss); return strdup(oss.str().c_str()); } \
+        static void setContextForChildrenImpl(Nest::Node* node) { static_cast<className*>(DynNode::fromNode(node))->doSetContextForChildren(); } \
+        static TypeRef computeTypeImpl(Nest::Node* node) { className* thisNode = static_cast<className*>(DynNode::fromNode(node)); thisNode->doComputeType(); return thisNode->basicNode_->type; } \
+        static Nest::Node* semanticCheckImpl(Nest::Node* node) { className* thisNode = static_cast<className*>(DynNode::fromNode(node)); thisNode->doSemanticCheck(); return Nest::explanation(thisNode->basicNode_)->basicNode_; } \
+    public: \
+        static void registerSelf() { \
+            int nodeKind = Nest::registerNodeKind(kindName, &semanticCheckImpl, &computeTypeImpl, &setContextForChildrenImpl, &toStringImpl); \
+            ASSERT(kindId < 0 || nodeKind == kindId); \
+        } \
     private:

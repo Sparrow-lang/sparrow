@@ -25,6 +25,7 @@
 #include "Exp/MemStore.h"
 #include "Exp/Bitcast.h"
 #include "Exp/Conditional.h"
+#include "ChangeMode.h"
 
 #include "Stmt/If.h"
 #include "Stmt/While.h"
@@ -45,6 +46,43 @@ using namespace Feather;
 #define REQUIRE_TYPE(loc, type) \
     if ( type ) ; else \
         REP_INTERNAL((loc), "Expected type (%1%)") % ( #type )
+
+void Feather::initFeatherNodeKinds()
+{
+    Feather::Nop::registerSelf();
+    Feather::TypeNode::registerSelf();
+    Feather::BackendCode::registerSelf();
+    Feather::NodeList::registerSelf();
+    Feather::LocalSpace::registerSelf();
+    Feather::GlobalConstructAction::registerSelf();
+    Feather::GlobalDestructAction::registerSelf();
+    Feather::ScopeDestructAction::registerSelf();
+    Feather::TempDestructAction::registerSelf();
+    
+    Feather::Function::registerSelf();
+    Feather::Class::registerSelf();
+    Feather::Var::registerSelf();
+    
+    Feather::CtValue::registerSelf();
+    Feather::Null::registerSelf();
+    Feather::StackAlloc::registerSelf();
+    Feather::VarRef::registerSelf();
+    Feather::FieldRef::registerSelf();
+    Feather::FunRef::registerSelf();
+    Feather::FunCall::registerSelf();
+    Feather::MemLoad::registerSelf();
+    Feather::MemStore::registerSelf();
+    Feather::Bitcast::registerSelf();
+    Feather::Conditional::registerSelf();
+    Feather::ChangeMode::registerSelf();
+    
+    Feather::If::registerSelf();
+    Feather::While::registerSelf();
+    Feather::Break::registerSelf();
+    Feather::Continue::registerSelf();
+    Feather::Return::registerSelf();
+}
+
 
 NodeList* Feather::mkNodeList(const Location& loc, DynNodeVector children, bool voidResult)
 {

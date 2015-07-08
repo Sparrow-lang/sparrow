@@ -7,7 +7,11 @@
 namespace SprFrontend
 {
     using namespace Nest;
-    
+    using Feather::NodeList;
+
+    /// Called to initialize the Feather node kinds
+    void initSparrowNodeKinds();
+
     DynNode* mkModifiers(const Location& loc, DynNode* main, DynNode* mods);
 
     DynNode* mkSprCompilationUnit(const Location& loc, DynNode* package, NodeList* imports, NodeList* declarations);

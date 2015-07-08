@@ -19,6 +19,8 @@ import Time;
 
 fun[macro] compileProlog(sourceString: Meta.AstNode): Meta.AstNode
 {
+    cout << Meta.Kinds.iota << endl;
+    cout << Meta.Kinds.nkSparrowExpLiteral << endl;
     if[ct] ( sourceString.nodeKind() != Meta.Kinds.nkSparrowExpLiteral )
         Meta.report("compileProlog should take a string literal as argument", sourceString.location());
     else

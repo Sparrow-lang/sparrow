@@ -9,7 +9,7 @@ using namespace Nest;
 
 Node* Nest::createNode(int nodeKind)
 {
-    ASSERT(nodeKind > 0);
+    ASSERT(nodeKind >= 0);
 
     // TODO (nodes): Make sure this will return an already zeroed memory
     void* p = theCompiler().nodeAllocator().alloc(sizeof(Node));
@@ -51,18 +51,17 @@ Node* Nest::cloneNode(Node* node)
 
 bool Nest::isDynNode(Node* node)
 {
-    return node->nodeKind >= 100;
+    return node->nodeKind >= 0;
 }
 
-string Nest::toString(Node* node)
+const char* Nest::toString(Node* node)
 {
-    return DynNode::fromNode(node)->toString();
+    return getToStringFun(node->nodeKind)(node);
 }
 
-string Nest::nodeKindName(const Node* node)
+const char* Nest::nodeKindName(const Node* node)
 {
-    // TODO (nodes): Obtain this from the node registrar
-    return DynNode::fromNode(node)->nodeKindName();
+    return Nest::getNodeKindName(node->nodeKind);
 }
 
 
@@ -120,28 +119,28 @@ int Nest::getCheckPropertyInt(const Node* node, const char* name)
 {
     const int* res = getPropertyInt(node, name);
     if ( !res )
-        REP_INTERNAL(node->location, "DynNode of kind %1% does not have integer property %2%") % nodeKindName(node) % name;
+        REP_INTERNAL(node->location, "Node of kind %1% does not have integer property %2%") % nodeKindName(node) % name;
     return *res;
 }
 const string& Nest::getCheckPropertyString(const Node* node, const char* name)
 {
     const string* res = getPropertyString(node, name);
     if ( !res )
-        REP_INTERNAL(node->location, "DynNode of kind %1% does not have string property %2%") % nodeKindName(node) % name;
+        REP_INTERNAL(node->location, "Node of kind %1% does not have string property %2%") % nodeKindName(node) % name;
     return *res;
 }
 DynNode* Nest::getCheckPropertyNode(const Node* node, const char* name)
 {
     DynNode*const* res = getPropertyNode(node, name);
     if ( !res )
-        REP_INTERNAL(node->location, "DynNode of kind %1% does not have DynNode property %2%") % nodeKindName(node) % name;
+        REP_INTERNAL(node->location, "Node of kind %1% does not have Node property %2%") % nodeKindName(node) % name;
     return *res;
 }
 TypeRef Nest::getCheckPropertyType(const Node* node, const char* name)
 {
     const TypeRef* res = getPropertyType(node, name);
     if ( !res )
-        REP_INTERNAL(node->location, "DynNode of kind %1% does not have Type property %2%") % nodeKindName(node) % name;
+        REP_INTERNAL(node->location, "Node of kind %1% does not have Type property %2%") % nodeKindName(node) % name;
     return *res;
 }
 
@@ -161,7 +160,7 @@ void Nest::setContext(Node* node, CompilationContext* context)
     for ( Modifier* mod: node->modifiers )
         mod->beforeSetContext(dynNode);
 
-    dynNode->doSetContextForChildren();
+    getSetContextForChildrenFun(node->nodeKind)(node);
 
     for ( Modifier* mod: node->modifiers )
         mod->afterSetContext(dynNode);
@@ -190,9 +189,10 @@ void Nest::computeType(Node* node)
             mod->beforeComputeType(dynNode);
 
         // Actually compute the type
-        DynNode::fromNode(node)->doComputeType();
-        if ( !node->type )
-            REP_INTERNAL(node->location, "Type computed sucessfully, but no actual type was generated");
+        TypeRef res = getComputeTypeFun(node->nodeKind)(node);
+        if ( !res )
+            REP_INTERNAL(node->location, "Type computed successfully, but no actual type was generated");
+        node->type = res;
 
         for ( Modifier* mod: boost::adaptors::reverse(node->modifiers) )
             mod->afterComputeType(dynNode);
@@ -232,9 +232,11 @@ void Nest::semanticCheck(Node* node)
             mod->beforeSemanticCheck(dynNode);
 
         // Actually do the semantic check
-        DynNode::fromNode(node)->doSemanticCheck();
+        Node* res = getSemanticCheckFun(node->nodeKind)(node);
+        if ( !res )
+            REP_INTERNAL(node->location, "Node semantically checked, but no actual explanation was generated");
         if ( !node->type )
-            REP_INTERNAL(node->location, "DynNode semantically checked, but no actual type was generated");
+            REP_INTERNAL(node->location, "Node semantically checked, but no actual types was generated");
         node->nodeSemanticallyChecked = 1;
 
         for ( Modifier* mod: boost::adaptors::reverse(node->modifiers) )
@@ -303,3 +305,51 @@ DynNode* Nest::explanation(const Node* node)
     return node->explanation ? node->explanation->explanation() : DynNode::fromNode(node);
 }
 
+
+const char* Nest::defaultFunToString(Node* node)
+{
+    ostringstream os;
+    if ( node->explanation && 0 != strcmp(node->explanation->nodeKindName(), "Feather.Nop") )
+        os << node->explanation;
+    else
+    {
+        const string* name = getPropertyString(node, "name");
+        if ( name )
+            os << *name;
+        else
+        {
+            os << nodeKindName(node) << "(";
+            for ( size_t i=0; i<node->children.size(); ++i )
+            {
+                if ( i > 0 )
+                    os << ", ";
+                os << node->children[i];
+            }
+
+            os << ")";
+        }
+    }
+    return strdup(os.str().c_str());
+}
+
+void Nest::defaultFunSetContextForChildren(Node* node)
+{
+    CompilationContext* childrenCtx = childrenContext(node);
+    for ( DynNode* child: node->children )
+    {
+        if ( child )
+            setContext(child->basicNode_, childrenCtx);
+    }
+}
+
+TypeRef Nest::defaultFunComputeType(Node* node)
+{
+    semanticCheck(node);
+    return node->type;
+}
+
+Node* Nest::defaultFunSemanticCheck(Node* node)
+{
+    REP_INTERNAL(node->location, "Don't know how to semantic check a node of kind '%1%'") % nodeKindName(node);
+    return nullptr;
+}

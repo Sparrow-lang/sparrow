@@ -12,11 +12,13 @@
 #include <Nest/Intermediate/CompilationContext.h>
 
 #include <Feather/FeatherTypes.h>
+#include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Frontend/FSimpleSourceCode.h>
 #include <Feather/CtApiFunctions.h>
 #include <LLVMBackend/LLVMSourceCode.h>
 #include <LLVMBackend/LLVMBackend.h>
 #include <SparrowFrontend/SparrowFrontendTypes.h>
+#include <SparrowFrontend/Nodes/SparrowNodes.h>
 #include <SparrowFrontend/SparrowSourceCode.h>
 #include <SparrowFrontend/Helpers/StdDef.h>
 #include <SparrowFrontend/CtApiFunctions.h>
@@ -159,8 +161,11 @@ int main(int argc,char* argv[])
             return 1;
         }
 
+        // TODO (arch): Use modules to perform uniform initialization
         Feather::initFeatherTypeKinds();
+        Feather::initFeatherNodeKinds();
         SprFrontend::initSparrowFrontendTypeKinds();
+        SprFrontend::initSparrowNodeKinds();
 
         Feather::FSimpleSourceCode::registerSelf();
         LLVMB::LLVMSourceCode::registerSelf();

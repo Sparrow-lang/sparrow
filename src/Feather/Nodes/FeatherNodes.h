@@ -11,6 +11,9 @@ namespace Feather
 {
     using namespace Nest;
 
+    /// Called to initialize the Feather node kinds
+    void initFeatherNodeKinds();
+
     NodeList* mkNodeList(const Location& loc, DynNodeVector children, bool voidResult = false);
     NodeList* addToNodeList(NodeList* prevList, DynNode* element);
     NodeList* appendNodeList(NodeList* list, NodeList* newNodes);

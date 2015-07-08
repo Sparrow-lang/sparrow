@@ -12,6 +12,8 @@
 #include <Nodes/Decls/Using.h>
 #include <Nodes/Decls/Instantiation.h>
 #include <Nodes/Decls/InstantiationsSet.h>
+#include <Nodes/Decls/GenericClass.h>
+#include <Nodes/Decls/GenericFunction.h>
 #include <Nodes/Exp/Literal.h>
 #include <Nodes/Exp/Identifier.h>
 #include <Nodes/Exp/CompoundExp.h>
@@ -45,6 +47,40 @@ namespace
         const T* end = ptr + 1;
         return string(reinterpret_cast<const char*>(ptr), reinterpret_cast<const char*>(end));
     }
+}
+
+void SprFrontend::initSparrowNodeKinds()
+{
+    SprFrontend::ModifiersNode::registerSelf();
+    
+    SprFrontend::SprCompilationUnit::registerSelf();
+    SprFrontend::Package::registerSelf();
+    SprFrontend::SprClass::registerSelf();
+    SprFrontend::SprFunction::registerSelf();
+    SprFrontend::SprParameter::registerSelf();
+    SprFrontend::SprVariable::registerSelf();
+    SprFrontend::SprConcept::registerSelf();
+    SprFrontend::GenericClass::registerSelf();
+    SprFrontend::GenericFunction::registerSelf();
+    SprFrontend::Using::registerSelf();
+
+    SprFrontend::Literal::registerSelf();
+    SprFrontend::This::registerSelf();
+    SprFrontend::Identifier::registerSelf();
+    SprFrontend::CompoundExp::registerSelf();
+    SprFrontend::FunApplication::registerSelf();
+    SprFrontend::OperatorCall::registerSelf();
+    SprFrontend::InfixExp::registerSelf();
+    SprFrontend::LambdaFunction::registerSelf();
+    SprFrontend::SprConditional::registerSelf();
+    SprFrontend::DeclExp::registerSelf();
+    SprFrontend::StarExp::registerSelf();
+    
+    SprFrontend::For::registerSelf();
+    SprFrontend::SprReturn::registerSelf();
+    
+    SprFrontend::Instantiation::registerSelf();
+    SprFrontend::InstantiationsSet::registerSelf();
 }
 
 

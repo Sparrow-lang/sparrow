@@ -245,68 +245,68 @@ package Compiler
 
 package Kinds
 {
-    using nkFeatherNop = 101;
-    using nkFeatherTypeNode = 102;
-    using nkFeatherBackendCode = 103;
-    using nkFeatherNodeList = 104;
-    using nkFeatherLocalSpace = 105;
-    using nkFeatherGlobalConstructAction = 106;
-    using nkFeatherGlobalDestructAction = 107;
-    using nkFeatherScopeDestructAction = 108;
-    using nkFeatherTempDestructAction = 109;
-    
-    using nkFeatherDeclFunction = 110;
-    using nkFeatherDeclClass = 111;
-    using nkFeatherDeclVar = 112;
-    
-    using nkFeatherExpCtValue = 113;
-    using nkFeatherExpNull = 114;
-    using nkFeatherExpStackAlloc = 115;
-    using nkFeatherExpVarRef = 116;
-    using nkFeatherExpFieldRef = 117;
-    using nkFeatherExpFunRef = 118;
-    using nkFeatherExpFunCall = 119;
-    using nkFeatherExpMemLoad = 120;
-    using nkFeatherExpMemStore = 121;
-    using nkFeatherExpBitcast = 122;
-    using nkFeatherExpConditional = 123;
-    using nkFeatherExpChangeMode = 124;
-    
-    using nkFeatherStmtIf = 125;
-    using nkFeatherStmtWhile = 126;
-    using nkFeatherStmtBreak = 127;
-    using nkFeatherStmtContinue = 128;
-    using nkFeatherStmtReturn = 129;
+    var[ct] iotaVar = 0;
+    fun[ct] iotaReset { iotaVar = 0; }
+    fun[ct] iota = iotaVar++;
 
-    using nkSparrowModifiersNode = 130;
+    using nkFeatherNop = ctEval(iota);
+    using nkFeatherTypeNode = ctEval(iota);
+    using nkFeatherBackendCode = ctEval(iota);
+    using nkFeatherNodeList = ctEval(iota);
+    using nkFeatherLocalSpace = ctEval(iota);
+    using nkFeatherGlobalConstructAction = ctEval(iota);
+    using nkFeatherGlobalDestructAction = ctEval(iota);
+    using nkFeatherScopeDestructAction = ctEval(iota);
+    using nkFeatherTempDestructAction = ctEval(iota);
     
-    using nkSparrowDeclSprCompilationUnit = 131;
-    using nkSparrowDeclPackage = 132;
-    using nkSparrowDeclSprClass = 133;
-    using nkSparrowDeclSprFunction = 134;
-    using nkSparrowDeclSprParameter = 135;
-    using nkSparrowDeclSprVariable = 136;
-    using nkSparrowDeclSprConcept = 137;
-    using nkSparrowDeclGenericClass = 138;
-    using nkSparrowDeclGenericFunction = 139;
-    using nkSparrowDeclFriend = 140;
-    using nkSparrowDeclUsing = 141;
+    using nkFeatherDeclFunction = ctEval(iota);
+    using nkFeatherDeclClass = ctEval(iota);
+    using nkFeatherDeclVar = ctEval(iota);
     
-    using nkSparrowExpLiteral = 142;
-    using nkSparrowExpThis = 143;
-    using nkSparrowExpIdentifier = 144;
-    using nkSparrowExpCompoundExp = 145;
-    using nkSparrowExpSprVarRef = 146;
-    using nkSparrowExpFunApplication = 147;
-    using nkSparrowExpOperatorCall = 148;
-    using nkSparrowExpInfixExp = 149;
-    using nkSparrowExpLambdaClosure = 150;
-    using nkSparrowExpLambdaFunction = 151;
-    using nkSparrowExpSprConditional = 152;
-    using nkSparrowExpParenthesisExp = 153;
-    using nkSparrowExpDeclExp = 153;
-    using nkSparrowExpStarExp = 155;
+    using nkFeatherExpCtValue = ctEval(iota);
+    using nkFeatherExpNull = ctEval(iota);
+    using nkFeatherExpStackAlloc = ctEval(iota);
+    using nkFeatherExpVarRef = ctEval(iota);
+    using nkFeatherExpFieldRef = ctEval(iota);
+    using nkFeatherExpFunRef = ctEval(iota);
+    using nkFeatherExpFunCall = ctEval(iota);
+    using nkFeatherExpMemLoad = ctEval(iota);
+    using nkFeatherExpMemStore = ctEval(iota);
+    using nkFeatherExpBitcast = ctEval(iota);
+    using nkFeatherExpConditional = ctEval(iota);
+    using nkFeatherExpChangeMode = ctEval(iota);
     
-    using nkSparrowStmtFor = 156;
-    using nkSparrowStmtSprReturn = 157;
+    using nkFeatherStmtIf = ctEval(iota);
+    using nkFeatherStmtWhile = ctEval(iota);
+    using nkFeatherStmtBreak = ctEval(iota);
+    using nkFeatherStmtContinue = ctEval(iota);
+    using nkFeatherStmtReturn = ctEval(iota);
+
+    using nkSparrowModifiersNode = ctEval(iota);
+    
+    using nkSparrowDeclSprCompilationUnit = ctEval(iota);
+    using nkSparrowDeclPackage = ctEval(iota);
+    using nkSparrowDeclSprClass = ctEval(iota);
+    using nkSparrowDeclSprFunction = ctEval(iota);
+    using nkSparrowDeclSprParameter = ctEval(iota);
+    using nkSparrowDeclSprVariable = ctEval(iota);
+    using nkSparrowDeclSprConcept = ctEval(iota);
+    using nkSparrowDeclGenericClass = ctEval(iota);
+    using nkSparrowDeclGenericFunction = ctEval(iota);
+    using nkSparrowDeclUsing = ctEval(iota);
+    
+    using nkSparrowExpLiteral = ctEval(iota);
+    using nkSparrowExpThis = ctEval(iota);
+    using nkSparrowExpIdentifier = ctEval(iota);
+    using nkSparrowExpCompoundExp = ctEval(iota);
+    using nkSparrowExpFunApplication = ctEval(iota);
+    using nkSparrowExpOperatorCall = ctEval(iota);
+    using nkSparrowExpInfixExp = ctEval(iota);
+    using nkSparrowExpLambdaFunction = ctEval(iota);
+    using nkSparrowExpSprConditional = ctEval(iota);
+    using nkSparrowExpDeclExp = ctEval(iota);
+    using nkSparrowExpStarExp = ctEval(iota);
+    
+    using nkSparrowStmtFor = ctEval(iota);
+    using nkSparrowStmtSprReturn = ctEval(iota);
 }

@@ -4,7 +4,7 @@ namespace Feather
 {
     enum FeatherNodeKinds
     {
-        nkFeatherNop = 101,
+        nkFeatherNop = 0,
         nkFeatherTypeNode,
         nkFeatherBackendCode,
         nkFeatherNodeList,

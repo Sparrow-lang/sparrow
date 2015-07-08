@@ -68,11 +68,15 @@ void DynNode::operator delete(void* ptr)
     theCompiler().nodeAllocator().free(ptr);
 }
 
+const char* DynNode::nodeKindName() const
+{
+    return getNodeKindName(basicNode_->nodeKind);
+}
+
+
 string DynNode::toString() const
 {
-    ostringstream oss;
-    dump(oss);
-    return oss.str();
+    return getToStringFun(basicNode_->nodeKind)(basicNode_);
 }
 
 

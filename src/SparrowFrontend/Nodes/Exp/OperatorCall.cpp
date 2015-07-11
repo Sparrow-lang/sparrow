@@ -28,9 +28,9 @@ OperatorCall::OperatorCall(const Location& loc, DynNode* arg1, string op, DynNod
 
 void OperatorCall::dump(ostream& os) const
 {
-    ASSERT(data_->children.size() == 2);
-    DynNode* arg1 = data_->children[0];
-    DynNode* arg2 = data_->children[1];
+    ASSERT(data_.children.size() == 2);
+    DynNode* arg1 = data_.children[0];
+    DynNode* arg2 = data_.children[1];
     const string& operation = getCheckPropertyString("spr.operation");
 
     if ( arg1 && arg2 )
@@ -43,9 +43,9 @@ void OperatorCall::dump(ostream& os) const
 
 void OperatorCall::doSemanticCheck()
 {
-    ASSERT(data_->children.size() == 2);
-    DynNode* arg1 = data_->children[0];
-    DynNode* arg2 = data_->children[1];
+    ASSERT(data_.children.size() == 2);
+    DynNode* arg1 = data_.children[0];
+    DynNode* arg2 = data_.children[1];
     const string& operation = getCheckPropertyString("spr.operation");
 
     if ( arg1 && arg2 )
@@ -145,13 +145,13 @@ void OperatorCall::doSemanticCheck()
     if ( !res )
     {
         if ( arg1 && arg2 )
-            REP_ERROR(data_->location, "Cannot find an overload for calling operator %2% %1% %3%") % operation % argTypeStr(arg1) % argTypeStr(arg2);
+            REP_ERROR(data_.location, "Cannot find an overload for calling operator %2% %1% %3%") % operation % argTypeStr(arg1) % argTypeStr(arg2);
         else if ( arg1 )
-            REP_ERROR(data_->location, "Cannot find an overload for calling operator %2% %1%") % operation % argTypeStr(arg1);
+            REP_ERROR(data_.location, "Cannot find an overload for calling operator %2% %1%") % operation % argTypeStr(arg1);
         else if ( arg2 )
-            REP_ERROR(data_->location, "Cannot find an overload for calling operator %1% %2%") % operation % argTypeStr(arg2);
+            REP_ERROR(data_.location, "Cannot find an overload for calling operator %1% %2%") % operation % argTypeStr(arg2);
         else 
-            REP_ERROR(data_->location, "Cannot find an overload for calling operator %1%") % operation;
+            REP_ERROR(data_.location, "Cannot find an overload for calling operator %1%") % operation;
     }
 
     setExplanation(res);
@@ -213,21 +213,21 @@ DynNode* OperatorCall::selectOperator(const string& operation, DynNode* arg1, Dy
 
         // Step 1: Try to find an operator that match in the class of the base expression
         if ( !opPrefix.empty() )
-            CHECK_RET(trySelectOperator(opPrefix + operation, args, argClass->childrenContext(), true, data_->context, data_->location, mode));
-        CHECK_RET(trySelectOperator(operation, args, argClass->childrenContext(), true, data_->context, data_->location, mode));
+            CHECK_RET(trySelectOperator(opPrefix + operation, args, argClass->childrenContext(), true, data_.context, data_.location, mode));
+        CHECK_RET(trySelectOperator(operation, args, argClass->childrenContext(), true, data_.context, data_.location, mode));
 
         // Step 2: Try to find an operator that match in the near the class the base expression
-        mode = data_->context->evalMode();
+        mode = data_.context->evalMode();
         if ( !opPrefix.empty() )
-            CHECK_RET(trySelectOperator(opPrefix + operation, args, argClass->context(), true, data_->context, data_->location, mode));
-        CHECK_RET(trySelectOperator(operation, args, argClass->context(), true, data_->context, data_->location, mode));
+            CHECK_RET(trySelectOperator(opPrefix + operation, args, argClass->context(), true, data_.context, data_.location, mode));
+        CHECK_RET(trySelectOperator(operation, args, argClass->context(), true, data_.context, data_.location, mode));
     }
 
     // Step 3: General search from the current context
-    mode = data_->context->evalMode();
+    mode = data_.context->evalMode();
     if ( !opPrefix.empty() )
-        CHECK_RET(trySelectOperator(opPrefix + operation, args, data_->context, false, data_->context, data_->location, mode));
-    CHECK_RET(trySelectOperator(operation, args, data_->context, false, data_->context, data_->location, mode));
+        CHECK_RET(trySelectOperator(opPrefix + operation, args, data_.context, false, data_.context, data_.location, mode));
+    CHECK_RET(trySelectOperator(operation, args, data_.context, false, data_.context, data_.location, mode));
 
     return nullptr;
 }
@@ -249,30 +249,30 @@ namespace
 
 void OperatorCall::handleFApp()
 {
-    DynNode* arg1 = data_->children[0];
-    DynNode* arg2 = data_->children[1];
+    DynNode* arg1 = data_.children[0];
+    DynNode* arg2 = data_.children[1];
 
     if ( arg2 && arg2->nodeKind() != nkFeatherNodeList )
         REP_INTERNAL(arg2->location(), "Expected node list for function application; found %1%") % arg2;
 
-    setExplanation(mkFunApplication(data_->location, arg1, (NodeList*) arg2));
+    setExplanation(mkFunApplication(data_.location, arg1, (NodeList*) arg2));
 }
 
 void OperatorCall::handleDotExpr()
 {
-    DynNode* arg1 = data_->children[0];
-    DynNode* arg2 = data_->children[1];
+    DynNode* arg1 = data_.children[0];
+    DynNode* arg2 = data_.children[1];
 
     if ( arg2->nodeKind() != nkSparrowExpIdentifier )
         REP_INTERNAL(arg2->location(), "Expected identifier after dot; found %1%") % arg2;
 
-    setExplanation(mkCompoundExp(data_->location, arg1, arg2->toString()));
+    setExplanation(mkCompoundExp(data_.location, arg1, arg2->toString()));
 }
 
 void OperatorCall::handleRefEq()
 {
-    DynNode* arg1 = data_->children[0];
-    DynNode* arg2 = data_->children[1];
+    DynNode* arg1 = data_.children[0];
+    DynNode* arg2 = data_.children[1];
 
     arg1->semanticCheck();
     arg2->semanticCheck();
@@ -283,24 +283,24 @@ void OperatorCall::handleRefEq()
 
     // Make sure that both the arguments are references
     if ( arg1->type()->numReferences == 0 )
-        REP_ERROR(data_->location, "Left operand of a reference equality operator is not a reference (%1%)") % arg1->type();
+        REP_ERROR(data_.location, "Left operand of a reference equality operator is not a reference (%1%)") % arg1->type();
     if ( arg2->type()->numReferences == 0 )
-        REP_ERROR(data_->location, "Right operand of a reference equality operator is not a reference (%1%)") % arg2->type();
+        REP_ERROR(data_.location, "Right operand of a reference equality operator is not a reference (%1%)") % arg2->type();
 
     DynNode* arg1Cvt = nullptr;
     DynNode* arg2Cvt = nullptr;
     doDereference1(arg1, arg1Cvt);             // Dereference until the last reference
     doDereference1(arg2, arg2Cvt);
-    arg1Cvt = mkBitcast(data_->location, mkTypeNode(data_->location, StdDef::typeRefByte), arg1Cvt);
-    arg2Cvt = mkBitcast(data_->location, mkTypeNode(data_->location, StdDef::typeRefByte), arg2Cvt);
+    arg1Cvt = mkBitcast(data_.location, mkTypeNode(data_.location, StdDef::typeRefByte), arg1Cvt);
+    arg2Cvt = mkBitcast(data_.location, mkTypeNode(data_.location, StdDef::typeRefByte), arg2Cvt);
 
-    setExplanation(mkFunCall(data_->location, StdDef::opRefEq, {arg1Cvt, arg2Cvt}));
+    setExplanation(mkFunCall(data_.location, StdDef::opRefEq, {arg1Cvt, arg2Cvt}));
 }
 
 void OperatorCall::handleRefNe()
 {
-    DynNode* arg1 = data_->children[0];
-    DynNode* arg2 = data_->children[1];
+    DynNode* arg1 = data_.children[0];
+    DynNode* arg2 = data_.children[1];
 
     arg1->semanticCheck();
     arg2->semanticCheck();
@@ -311,31 +311,31 @@ void OperatorCall::handleRefNe()
 
     // Make sure that both the arguments are references
     if ( arg1->type()->numReferences == 0 )
-        REP_ERROR(data_->location, "Left operand of a reference equality operator is not a reference (%1%)") % arg1->type();
+        REP_ERROR(data_.location, "Left operand of a reference equality operator is not a reference (%1%)") % arg1->type();
     if ( arg2->type()->numReferences == 0 )
-        REP_ERROR(data_->location, "Right operand of a reference equality operator is not a reference (%1%)") % arg2->type();
+        REP_ERROR(data_.location, "Right operand of a reference equality operator is not a reference (%1%)") % arg2->type();
 
     DynNode* arg1Cvt = nullptr;
     DynNode* arg2Cvt = nullptr;
     doDereference1(arg1, arg1Cvt);             // Dereference until the last reference
     doDereference1(arg2, arg2Cvt);
-    arg1Cvt = mkBitcast(data_->location, mkTypeNode(data_->location, StdDef::typeRefByte), arg1Cvt);
-    arg2Cvt = mkBitcast(data_->location, mkTypeNode(data_->location, StdDef::typeRefByte), arg2Cvt);
+    arg1Cvt = mkBitcast(data_.location, mkTypeNode(data_.location, StdDef::typeRefByte), arg1Cvt);
+    arg2Cvt = mkBitcast(data_.location, mkTypeNode(data_.location, StdDef::typeRefByte), arg2Cvt);
 
-    setExplanation(mkFunCall(data_->location, StdDef::opRefNe, {arg1Cvt, arg2Cvt}));
+    setExplanation(mkFunCall(data_.location, StdDef::opRefNe, {arg1Cvt, arg2Cvt}));
 }
 
 void OperatorCall::handleRefAssign()
 {
-    DynNode* arg1 = data_->children[0];
-    DynNode* arg2 = data_->children[1];
+    DynNode* arg1 = data_.children[0];
+    DynNode* arg2 = data_.children[1];
 
     arg1->semanticCheck();
     arg2->semanticCheck();
 
     // Make sure the first argument is a reference reference
     if ( arg1->type()->numReferences < 2 )
-        REP_ERROR(data_->location, "Left operand of a reference assign operator is not a reference reference (%1%)") % arg1->type();
+        REP_ERROR(data_.location, "Left operand of a reference assign operator is not a reference reference (%1%)") % arg1->type();
     TypeRef arg1BaseType = Feather::removeRef(arg1->type());
 
     // Check the second type to be null or a reference
@@ -343,22 +343,22 @@ void OperatorCall::handleRefAssign()
     if ( !Feather::isSameTypeIgnoreMode(arg2Type, StdDef::typeNull) )
     {
         if ( arg2Type->numReferences == 0 )
-            REP_ERROR(data_->location, "Right operand of a reference assign operator is not a reference (%1%)") % arg2->type();
+            REP_ERROR(data_.location, "Right operand of a reference assign operator is not a reference (%1%)") % arg2->type();
     }
 
     // Check for a conversion from the second argument to the first argument
     ConversionResult c = canConvert(arg2, arg1BaseType);
     if ( !c )
-        REP_ERROR(data_->location, "Cannot convert from %1% to %2%") % arg2->type() % arg1BaseType;
+        REP_ERROR(data_.location, "Cannot convert from %1% to %2%") % arg2->type() % arg1BaseType;
     DynNode* cvt = c.apply(arg2);
 
     // Return a memstore operator
-    setExplanation(mkMemStore(data_->location, cvt, arg1));
+    setExplanation(mkMemStore(data_.location, cvt, arg1));
 }
 
 void OperatorCall::handleFunPtr()
 {
-    DynNode* funNode = data_->children[1];
+    DynNode* funNode = data_.children[1];
 
     setExplanation(createFunPtr(funNode));
 }

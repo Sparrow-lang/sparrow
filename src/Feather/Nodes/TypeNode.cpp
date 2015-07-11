@@ -16,5 +16,5 @@ void TypeNode::dump(ostream& os) const
 
 void TypeNode::doSemanticCheck()
 {
-    data_->type = getCheckPropertyType("givenType");
+    data_.type = getCheckPropertyType("givenType");
 }

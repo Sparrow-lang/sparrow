@@ -35,12 +35,12 @@ string CompoundExp::toString() const
 
 void CompoundExp::dump(ostream& os) const
 {
-    os << data_->children[0] << "." << getCheckPropertyString("name");
+    os << data_.children[0] << "." << getCheckPropertyString("name");
 }
 
 void CompoundExp::doSemanticCheck()
 {
-    DynNode* base = data_->children[0];
+    DynNode* base = data_.children[0];
     const string& id = getCheckPropertyString("name");
 
     // For the base expression allow it to return DeclExp
@@ -83,11 +83,11 @@ void CompoundExp::doSemanticCheck()
     }
 
     if ( decls.empty() )
-        REP_ERROR(data_->location, "No declarations found with the name '%1%' inside %2%: %3%") % id % base % base->type();
+        REP_ERROR(data_.location, "No declarations found with the name '%1%' inside %2%: %3%") % id % base % base->type();
 
     
     bool allowDeclExp = 0 != getCheckPropertyInt(propAllowDeclExp);
-    DynNode* res = getIdentifierResult(data_->context, data_->location, move(decls), baseDataExp, allowDeclExp);
+    DynNode* res = getIdentifierResult(data_.context, data_.location, move(decls), baseDataExp, allowDeclExp);
     ASSERT(res);
     setExplanation(res);
 }

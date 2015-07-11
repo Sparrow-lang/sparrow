@@ -34,7 +34,7 @@ int Nest::registerNodeKind(const char* name,
 
 const char* Nest::getNodeKindName(int nodeKind)
 {
-    ASSERT(0 <= nodeKind  && nodeKind < registeredNodeKinds.size());
+//    ASSERT(0 <= nodeKind  && nodeKind < registeredNodeKinds.size());
     return registeredNodeKinds[nodeKind].name;
 }
 

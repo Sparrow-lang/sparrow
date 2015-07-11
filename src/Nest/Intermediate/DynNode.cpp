@@ -12,32 +12,27 @@
 using namespace Nest;
 using namespace Nest::Common::Ser;
 
-namespace
-{
-    static unordered_map<const Node*, DynNode*> nodesAssoc;
-}
-
 DynNode::DynNode(int nodeKind, const Location& location, DynNodeVector children, DynNodeVector referredNodes)
-    : data_(createNode(nodeKind))
 {
-    data_->location = location;
-    data_->children = move(children);
-    data_->referredNodes = move(referredNodes);
+    initNode(&data_, nodeKind);
 
-    // Associate the basic node with this dynamic node
-    nodesAssoc.insert(make_pair(data_, this));
+    data_.location = location;
+    data_.children = move(children);
+    data_.referredNodes = move(referredNodes);
 }
 
 DynNode::DynNode(const DynNode& other)
-    : data_(cloneNode(other.data_))
 {
-    // Associate the basic node with this dynamic node
-    nodesAssoc.insert(make_pair(data_, this));
+    initCopyNode(&data_, &other.data_);
 }
 
-DynNode* DynNode::fromNode(const Node* node)
+const DynNode* DynNode::fromNode(const Node* node)
 {
-    return nodesAssoc[node];
+    return reinterpret_cast<const DynNode*>(node);
+}
+DynNode* DynNode::fromNode(Node* node)
+{
+    return reinterpret_cast<DynNode*>(node);
 }
 
 
@@ -58,20 +53,20 @@ DynNode* DynNode::clone() const
 
 const char* DynNode::nodeKindName() const
 {
-    return getNodeKindName(data_->nodeKind);
+    return getNodeKindName(data_.nodeKind);
 }
 
 
 string DynNode::toString() const
 {
-    return getToStringFun(data_->nodeKind)(data_);
+    return getToStringFun(data_.nodeKind)(&data_);
 }
 
 
 void DynNode::dump(ostream& os) const
 {
-    if ( data_->explanation && 0 != strcmp(data_->explanation->nodeKindName(), "Feather.Nop") )
-        os << data_->explanation;
+    if ( data_.explanation && 0 != strcmp(data_.explanation->nodeKindName(), "Feather.Nop") )
+        os << data_.explanation;
     else
     {
         const string* name = getPropertyString("name");
@@ -80,11 +75,11 @@ void DynNode::dump(ostream& os) const
         else
         {
             os << nodeKindName() << "(";
-            for ( size_t i=0; i<data_->children.size(); ++i )
+            for ( size_t i=0; i<data_.children.size(); ++i )
             {
                 if ( i > 0 )
                     os << ", ";
-                os << data_->children[i];
+                os << data_.children[i];
             }
 
             os << ")";
@@ -95,153 +90,153 @@ void DynNode::dump(ostream& os) const
 void DynNode::dumpWithType(ostream& os) const
 {
     dump(os);
-    os << " : " << data_->type;
+    os << " : " << data_.type;
 }
 
 
 const Location& DynNode::location() const
 {
-    return data_->location;
+    return data_.location;
 }
 
 void DynNode::setLocation(const Location& loc)
 {
-    data_->location = loc;
+    data_.location = loc;
 }
 
 void DynNode::setProperty(const char* name, int val, bool passToExpl)
 {
-    Nest::setProperty(data_, name, val, passToExpl);
+    Nest::setProperty(&data_, name, val, passToExpl);
 }
 void DynNode::setProperty(const char* name, string val, bool passToExpl)
 {
-    Nest::setProperty(data_, name, val, passToExpl);
+    Nest::setProperty(&data_, name, val, passToExpl);
 }
 void DynNode::setProperty(const char* name, DynNode* val, bool passToExpl)
 {
-    Nest::setProperty(data_, name, val, passToExpl);
+    Nest::setProperty(&data_, name, val, passToExpl);
 }
 void DynNode::setProperty(const char* name, TypeRef val, bool passToExpl)
 {
-    Nest::setProperty(data_, name, val, passToExpl);
+    Nest::setProperty(&data_, name, val, passToExpl);
 }
 
 bool DynNode::hasProperty(const char* name) const
 {
-    return Nest::hasProperty(data_, name);
+    return Nest::hasProperty(&data_, name);
 }
 const int* DynNode::getPropertyInt(const char* name) const
 {
-    return Nest::getPropertyInt(data_, name);
+    return Nest::getPropertyInt(&data_, name);
 }
 const string* DynNode::getPropertyString(const char* name) const
 {
-    return Nest::getPropertyString(data_, name);
+    return Nest::getPropertyString(&data_, name);
 }
 DynNode*const* DynNode::getPropertyNode(const char* name) const
 {
-    return Nest::getPropertyNode(data_, name);
+    return Nest::getPropertyNode(&data_, name);
 }
 const TypeRef* DynNode::getPropertyType(const char* name) const
 {
-    return Nest::getPropertyType(data_, name);
+    return Nest::getPropertyType(&data_, name);
 }
 
 int DynNode::getCheckPropertyInt(const char* name) const
 {
-    return Nest::getCheckPropertyInt(data_, name);
+    return Nest::getCheckPropertyInt(&data_, name);
 }
 const string& DynNode::getCheckPropertyString(const char* name) const
 {
-    return Nest::getCheckPropertyString(data_, name);
+    return Nest::getCheckPropertyString(&data_, name);
 }
 DynNode* DynNode::getCheckPropertyNode(const char* name) const
 {
-    return Nest::getCheckPropertyNode(data_, name);
+    return Nest::getCheckPropertyNode(&data_, name);
 }
 TypeRef DynNode::getCheckPropertyType(const char* name) const
 {
-    return Nest::getCheckPropertyType(data_, name);
+    return Nest::getCheckPropertyType(&data_, name);
 }
 
 
 TypeRef DynNode::type() const
 {
-    return data_->type;
+    return data_.type;
 }
 
 bool DynNode::isExplained() const
 {
-    return data_->explanation != nullptr;
+    return data_.explanation != nullptr;
 }
 
 DynNode* DynNode::curExplanation()
 {
-    return data_->explanation;
+    return data_.explanation;
 }
 
 DynNode* DynNode::explanation()
 {
-    return Nest::explanation(data_);
+    return Nest::explanation(&data_);
 }
 
 void DynNode::setChildrenContext(CompilationContext* childrenContext)
 {
-    data_->childrenContext = childrenContext;
+    data_.childrenContext = childrenContext;
 }
 
 
 
 void DynNode::setContext(CompilationContext* context)
 {
-    Nest::setContext(data_, context);
+    Nest::setContext(&data_, context);
 }
 
 void DynNode::computeType()
 {
-    Nest::computeType(data_);
+    Nest::computeType(&data_);
 }
 
 void DynNode::semanticCheck()
 {
-    Nest::semanticCheck(data_);
+    Nest::semanticCheck(&data_);
 }
 
 void DynNode::clearCompilationState()
 {
-    Nest::clearCompilationState(data_);
+    Nest::clearCompilationState(&data_);
 }
 
 void DynNode::addModifier(Modifier* mod)
 {
-    Nest::addModifier(data_, mod);
+    Nest::addModifier(&data_, mod);
 }
 
 bool DynNode::hasError() const
 {
-    return 0 != data_->nodeError;
+    return 0 != data_.nodeError;
 }
 
 bool DynNode::isSemanticallyChecked() const
 {
-    return data_->nodeSemanticallyChecked != 0;
+    return data_.nodeSemanticallyChecked != 0;
 }
 
 CompilationContext* DynNode::context() const
 {
-    return data_->context;
+    return data_.context;
 }
 
 CompilationContext* DynNode::childrenContext() const
 {
-    return Nest::childrenContext(data_);
+    return Nest::childrenContext(&data_);
 }
 
 
 void DynNode::doSetContextForChildren()
 {
     CompilationContext* childrenCtx = childrenContext();
-    for ( DynNode* child: data_->children )
+    for ( DynNode* child: data_.children )
     {
         if ( child )
             child->setContext(childrenCtx);
@@ -255,30 +250,30 @@ void DynNode::doComputeType()
 
 void DynNode::doSemanticCheck()
 {
-    REP_INTERNAL(data_->location, "Don't know how to semantic check a node of kind '%1%'") % nodeKindName();
+    REP_INTERNAL(data_.location, "Don't know how to semantic check a node of kind '%1%'") % nodeKindName();
 }
 
 void DynNode::setExplanation(DynNode* explanation)
 {
-    Nest::setExplanation(data_, explanation);
+    Nest::setExplanation(&data_, explanation);
 }
 
 
 void Nest::save(const DynNode& obj, OutArchive& ar)
 {
     // TODO (nodes): Make serialization work
-//    unsigned char flags = (unsigned char) *reinterpret_cast<const unsigned int*>(&obj.data_->flags);
+//    unsigned char flags = (unsigned char) *reinterpret_cast<const unsigned int*>(&obj.data_.flags);
     ar.write("kind", obj.nodeKind());
     ar.write("kindName", obj.nodeKindName());
 //    ar.write("flags", flags);
-    ar.write("location", obj.data_->location);
-    ar.writeArray("children", obj.data_->children, [] (OutArchive& ar, DynNode* child) {
+    ar.write("location", obj.data_.location);
+    ar.writeArray("children", obj.data_.children, [] (OutArchive& ar, DynNode* child) {
         ar.write("", child);
     });
-    ar.writeArray("referredNodes", obj.data_->referredNodes, [] (OutArchive& ar, DynNode* node) {
+    ar.writeArray("referredNodes", obj.data_.referredNodes, [] (OutArchive& ar, DynNode* node) {
         ar.write("", node);
     });
-    ar.writeArray("properties", obj.data_->properties, [] (OutArchive& ar, const PropertyVal& prop) {
+    ar.writeArray("properties", obj.data_.properties, [] (OutArchive& ar, const PropertyVal& prop) {
         ar.write("", prop, [] (OutArchive& ar, const PropertyVal& prop) {
             ar.write("name", prop.first);
             ar.write("kind", (int) prop.second.kind_);
@@ -300,8 +295,8 @@ void Nest::save(const DynNode& obj, OutArchive& ar)
             }
         });
     });
-    ar.write("type", obj.data_->type);
-    ar.write("explanation", obj.data_->explanation);
+    ar.write("type", obj.data_.type);
+    ar.write("explanation", obj.data_.explanation);
 }
 
 void Nest::load(DynNode& obj, InArchive& ar)

@@ -15,12 +15,12 @@ Instantiation::Instantiation(const Location& loc, DynNodeVector boundValues, Dyn
 
 const DynNodeVector& Instantiation::boundValues() const
 {
-    return data_->referredNodes;
+    return data_.referredNodes;
 }
 
 NodeList*& Instantiation::expandedInstantiation()
 {
-    return (NodeList*&) data_->children[0];
+    return (NodeList*&) data_.children[0];
 }
 
 DynNode* Instantiation::instantiatedDecl()
@@ -47,5 +47,5 @@ void Instantiation::setValid(bool valid)
 
 void Instantiation::doSemanticCheck()
 {
-    setExplanation(mkNop(data_->location));
+    setExplanation(mkNop(data_.location));
 }

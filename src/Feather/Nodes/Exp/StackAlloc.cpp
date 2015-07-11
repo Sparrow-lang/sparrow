@@ -14,8 +14,8 @@ StackAlloc::StackAlloc(const Location& loc, DynNode* elemType, int numElements, 
 
 TypeRef StackAlloc::elemType() const
 {
-    ASSERT(data_->children.size() == 1);
-    return data_->children[0]->type();
+    ASSERT(data_.children.size() == 1);
+    return data_.children[0]->type();
 }
 
 size_t StackAlloc::numElements() const
@@ -36,11 +36,11 @@ void StackAlloc::dump(ostream& os) const
 void StackAlloc::doSemanticCheck()
 {
     if ( numElements() == 0 )
-        REP_ERROR(data_->location, "Cannot allocate 0 elements on the stack");
+        REP_ERROR(data_.location, "Cannot allocate 0 elements on the stack");
 
     // Set the resulting type
-    ASSERT(data_->children.size() == 1);
-    DynNode* elemTypeNode = data_->children[0];
+    ASSERT(data_.children.size() == 1);
+    DynNode* elemTypeNode = data_.children[0];
     elemTypeNode->computeType();
-    data_->type = adjustMode(getLValueType(elemTypeNode->type()), data_->context, data_->location);
+    data_.type = adjustMode(getLValueType(elemTypeNode->type()), data_.context, data_.location);
 }

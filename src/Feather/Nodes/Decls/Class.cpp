@@ -34,18 +34,18 @@ void Class::addFields(const DynNodeVector& fields)
             REP_INTERNAL(field->location(), "DynNode %1% must be a field") % field;
     }
     
-    data_->children.insert(data_->children.end(), fields.begin(), fields.end());
+    data_.children.insert(data_.children.end(), fields.begin(), fields.end());
 }
 
 const DynNodeVector& Class::fields() const
 {
-    return data_->children;
+    return data_.children;
 }
 
 void Class::dump(ostream& os) const
 {
     os << "class(\"" << getName(this) << "\", {" << endl;
-    for ( DynNode* field: data_->children )
+    for ( DynNode* field: data_.children )
     {
         os << field << endl;
     }
@@ -54,12 +54,12 @@ void Class::dump(ostream& os) const
 void Class::doSetContextForChildren()
 {
     // If we don't have a children context, create one
-    if ( !data_->childrenContext )
-        data_->childrenContext = data_->context->createChildContext(this, effectiveEvalMode(this));
+    if ( !data_.childrenContext )
+        data_.childrenContext = data_.context->createChildContext(this, effectiveEvalMode(this));
 
     // Set the context for all the children
-    for ( DynNode* field: data_->children )
-        field->setContext(data_->childrenContext);
+    for ( DynNode* field: data_.children )
+        field->setContext(data_.childrenContext);
     
     addToSymTab(this);
 }
@@ -67,10 +67,10 @@ void Class::doSetContextForChildren()
 void Class::doComputeType()
 {
     if ( getName(this).empty() )
-        REP_ERROR(data_->location, "No name given to class");
+        REP_ERROR(data_.location, "No name given to class");
 
     // Compute the type for all the fields
-    for ( DynNode* field: data_->children )
+    for ( DynNode* field: data_.children )
     {
         try
         {
@@ -83,7 +83,7 @@ void Class::doComputeType()
     }
 
     // Set the type for this node
-    data_->type = getDataType(this, 0, effectiveEvalMode(this));
+    data_.type = getDataType(this, 0, effectiveEvalMode(this));
 }
 
 void Class::doSemanticCheck()
@@ -92,7 +92,7 @@ void Class::doSemanticCheck()
     computeType();
 
     // Semantically check all the fields
-    for ( DynNode* field: data_->children )
+    for ( DynNode* field: data_.children )
     {
         try
         {

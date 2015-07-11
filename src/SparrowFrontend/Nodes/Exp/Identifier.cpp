@@ -39,9 +39,9 @@ void Identifier::doSemanticCheck()
     const string& id = getCheckPropertyString("name");
 
     // Search in the current symbol table for the identifier
-    DynNodeVector decls = data_->context->currentSymTab()->lookup(id);
+    DynNodeVector decls = data_.context->currentSymTab()->lookup(id);
     if ( decls.empty() )
-        REP_ERROR(data_->location, "No declarations found with the given name (%1%)") % id;
+        REP_ERROR(data_.location, "No declarations found with the given name (%1%)") % id;
 
     // If at least one decl is a field or method, then transform this into a compound expression starting from 'this'
     bool needsThis = false;
@@ -64,13 +64,13 @@ void Identifier::doSemanticCheck()
     if ( needsThis )
     {
         // Add 'this' parameter to handle this case
-        DynNode* res = mkCompoundExp(data_->location, mkThisExp(data_->location), id);
+        DynNode* res = mkCompoundExp(data_.location, mkThisExp(data_.location), id);
         setExplanation(res);
         return;
     }
 
     bool allowDeclExp = 0 != getCheckPropertyInt(propAllowDeclExp);
-    DynNode* res = getIdentifierResult(data_->context, data_->location, move(decls), nullptr, allowDeclExp);
+    DynNode* res = getIdentifierResult(data_.context, data_.location, move(decls), nullptr, allowDeclExp);
     ASSERT(res);
     setExplanation(res);
 }

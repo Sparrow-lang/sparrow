@@ -43,7 +43,7 @@ FunApplication::FunApplication(const Location& loc, DynNode* base, NodeList* arg
     : DynNode(classNodeKind(), loc, {base, arguments})
 {
     if ( !arguments )
-        data_->children[1] = mkNodeList(loc, {});
+        data_.children[1] = mkNodeList(loc, {});
 }
 
 FunApplication::FunApplication(const Location& loc, DynNode* base, DynNodeVector args)
@@ -53,25 +53,25 @@ FunApplication::FunApplication(const Location& loc, DynNode* base, DynNodeVector
 
 DynNode* FunApplication::base() const
 {
-    ASSERT(data_->children.size() == 2);
-    return data_->children[0];
+    ASSERT(data_.children.size() == 2);
+    return data_.children[0];
 }
 NodeList* FunApplication::arguments() const
 {
-    ASSERT(data_->children.size() == 2);
-    ASSERT(!data_->children[1] || data_->children[1]->nodeKind() == nkFeatherNodeList);
-    return (NodeList*) data_->children[1];
+    ASSERT(data_.children.size() == 2);
+    ASSERT(!data_.children[1] || data_.children[1]->nodeKind() == nkFeatherNodeList);
+    return (NodeList*) data_.children[1];
 }
 
 void FunApplication::doSemanticCheck()
 {
-    ASSERT(data_->children.size() == 2);
-    ASSERT(!data_->children[1] || data_->children[1]->nodeKind() == nkFeatherNodeList);
-    DynNode* base = data_->children[0];
-    NodeList* arguments = (NodeList*) data_->children[1];
+    ASSERT(data_.children.size() == 2);
+    ASSERT(!data_.children[1] || data_.children[1]->nodeKind() == nkFeatherNodeList);
+    DynNode* base = data_.children[0];
+    NodeList* arguments = (NodeList*) data_.children[1];
 
     if ( !base )
-        REP_INTERNAL(data_->location, "Don't know what function to call");
+        REP_INTERNAL(data_.location, "Don't know what function to call");
     
     // For the base expression allow it to return DeclExp
     base->setProperty(propAllowDeclExp, 1, true);
@@ -116,7 +116,7 @@ void FunApplication::doSemanticCheck()
     if ( arguments )
         arguments->semanticCheck();
     if ( arguments && arguments->hasError() )
-        REP_INTERNAL(data_->location, "Args with error");
+        REP_INTERNAL(data_.location, "Args with error");
 
     // Check for Sparrow implicit functions
     if ( ident )
@@ -156,7 +156,7 @@ void FunApplication::doSemanticCheck()
         DynNode* cls = classForTypeRaw(base->type());
         decls = cls->childrenContext()->currentSymTab()->lookupCurrent("()");
         if ( decls.empty() )
-            REP_ERROR(data_->location, "Class %1% has no user defined call operators") % getName(cls);
+            REP_ERROR(data_.location, "Class %1% has no user defined call operators") % getName(cls);
         thisArg = base;
         functionName = "()";
     }
@@ -173,23 +173,23 @@ void FunApplication::doSemanticCheck()
         args.insert(args.end(), arguments->children().begin(), arguments->children().end());
 
     // Check the right overload based on the type of the arguments
-    EvalMode mode = data_->context->evalMode();
+    EvalMode mode = data_.context->evalMode();
     if ( thisArg )
-        mode = combineMode(thisArg->type()->mode, mode, data_->location, false);
-    DynNode* res = selectOverload(data_->context, data_->location, mode, move(decls), args, true, functionName);
+        mode = combineMode(thisArg->type()->mode, mode, data_.location, false);
+    DynNode* res = selectOverload(data_.context, data_.location, mode, move(decls), args, true, functionName);
 
     setExplanation(res);
 }
 
 void FunApplication::checkStaticCast()
 {
-    NodeList* arguments = (NodeList*) data_->children[1];
+    NodeList* arguments = (NodeList*) data_.children[1];
 
     if ( !arguments )
-        REP_ERROR(data_->location, "No arguments given to cast");
+        REP_ERROR(data_.location, "No arguments given to cast");
 
     // Check arguments
-    checkCastArguments(data_->location, "cast", arguments->children());
+    checkCastArguments(data_.location, "cast", arguments->children());
 
     TypeRef destType = getType(arguments->children()[0]);
     TypeRef srcType = arguments->children()[1]->type();
@@ -197,22 +197,22 @@ void FunApplication::checkStaticCast()
     // Check if we can cast
     ConversionResult c = canConvert(arguments->children()[1], destType);
     if ( !c )
-        REP_ERROR(data_->location, "Cannot cast from %1% to %2%; types are unrelated") % srcType % destType;
+        REP_ERROR(data_.location, "Cannot cast from %1% to %2%; types are unrelated") % srcType % destType;
     DynNode* result = c.apply(arguments->children()[1]);
-    result->setLocation(data_->location);
+    result->setLocation(data_.location);
 
     setExplanation(result);
 }
 
 void FunApplication::checkReinterpretCast()
 {
-    NodeList* arguments = (NodeList*) data_->children[1];
+    NodeList* arguments = (NodeList*) data_.children[1];
 
     if ( !arguments )
-        REP_ERROR(data_->location, "No arguments given to reinterpretCast");
+        REP_ERROR(data_.location, "No arguments given to reinterpretCast");
 
     // Check arguments
-    checkCastArguments(data_->location, "reinterpretCast", arguments->children(), true);
+    checkCastArguments(data_.location, "reinterpretCast", arguments->children(), true);
 
     TypeRef srcType = arguments->children()[1]->type();
     TypeRef destType = getType(arguments->children()[0]);
@@ -227,23 +227,23 @@ void FunApplication::checkReinterpretCast()
         arg = mkMemLoad(arg->location(), arg);
 
     // Generate a bitcast operation out of this node
-    setExplanation(mkBitcast(data_->location, mkTypeNode(arguments->children()[0]->location(), destType), arg));
+    setExplanation(mkBitcast(data_.location, mkTypeNode(arguments->children()[0]->location(), destType), arg));
 }
 
 void FunApplication::checkSizeOf()
 {
-    NodeList* arguments = (NodeList*) data_->children[1];
+    NodeList* arguments = (NodeList*) data_.children[1];
 
     if ( !arguments )
-        REP_ERROR(data_->location, "No arguments given to sizeOf");
+        REP_ERROR(data_.location, "No arguments given to sizeOf");
 
     // Make sure we have only one argument
     if ( arguments->children().size() != 1 )
-        REP_ERROR(data_->location, "sizeOf expects one argument; %1% given") % arguments->children().size();
+        REP_ERROR(data_.location, "sizeOf expects one argument; %1% given") % arguments->children().size();
     DynNode* arg = arguments->children()[0];
     TypeRef t = arg->type();
     if ( !t )
-        REP_INTERNAL(data_->location, "Invalid argument");
+        REP_INTERNAL(data_.location, "Invalid argument");
 
     // Make sure that the argument has storage, or it represents a type
     t = evalTypeIfPossible(arg);
@@ -264,17 +264,17 @@ void FunApplication::checkSizeOf()
     uint64_t size = theCompiler().sizeOf(t);
 
     // Create a CtValue to hold the size
-    setExplanation(mkCtValue(data_->location, StdDef::typeSizeType, &size));
+    setExplanation(mkCtValue(data_.location, StdDef::typeSizeType, &size));
 }
 
 void FunApplication::checkTypeOf()
 {
-    NodeList* arguments = (NodeList*) data_->children[1];
+    NodeList* arguments = (NodeList*) data_.children[1];
 
     if ( !arguments )
-        REP_ERROR(data_->location, "No arguments given to typeOf");
+        REP_ERROR(data_.location, "No arguments given to typeOf");
     if ( arguments->children().size() != 1 )
-        REP_ERROR(data_->location, "typeOf expects one argument; %1% given") % arguments->children().size();
+        REP_ERROR(data_.location, "typeOf expects one argument; %1% given") % arguments->children().size();
     DynNode* arg = arguments->children()[0];
 
     // Compile the argument
@@ -283,11 +283,11 @@ void FunApplication::checkTypeOf()
     // Make sure we have only one argument
     TypeRef t = arg->type();
     if ( !t )
-        REP_INTERNAL(data_->location, "Invalid argument");
+        REP_INTERNAL(data_.location, "Invalid argument");
     t = Feather::removeLValueIfPresent(t);
 
     // Create a CtValue to hold the type
-    setExplanation(createTypeNode(data_->context, arg->location(), t));
+    setExplanation(createTypeNode(data_.context, arg->location(), t));
 }
 
 namespace
@@ -320,19 +320,19 @@ namespace
 
 void FunApplication::checkIsValid()
 {
-    NodeList* arguments = (NodeList*) data_->children[1];
+    NodeList* arguments = (NodeList*) data_.children[1];
 
-    bool isValid = checkIsValidImpl(data_->location, arguments, "isValid");
+    bool isValid = checkIsValidImpl(data_.location, arguments, "isValid");
 
     // Create a CtValue to hold the result
-    setExplanation(mkCtValue(data_->location, StdDef::typeBool, &isValid));
+    setExplanation(mkCtValue(data_.location, StdDef::typeBool, &isValid));
 }
 
 void FunApplication::checkIsValidAndTrue()
 {
-    NodeList* arguments = (NodeList*) data_->children[1];
+    NodeList* arguments = (NodeList*) data_.children[1];
 
-    bool res = checkIsValidImpl(data_->location, arguments, "isValidAndTrue");
+    bool res = checkIsValidImpl(data_.location, arguments, "isValidAndTrue");
     if ( res )
     {
         DynNode* arg = arguments->children().front();
@@ -340,14 +340,14 @@ void FunApplication::checkIsValidAndTrue()
 
         // The expression must be CT
         if ( !isCt(arg) )
-            REP_ERROR(data_->location, "ctEval expects an CT argument; %1% given") % arg->type();
+            REP_ERROR(data_.location, "ctEval expects an CT argument; %1% given") % arg->type();
 
         // Make sure we remove all the references
         const Location& loc = arg->location();
         size_t noRefs = arg->type()->numReferences;
         for ( size_t i=0; i<noRefs; ++i)
             arg = mkMemLoad(loc, arg);
-        arg->setContext(data_->context);
+        arg->setContext(data_.context);
         arg->semanticCheck();
 
         DynNode* val = theCompiler().ctEval(arg);
@@ -359,39 +359,39 @@ void FunApplication::checkIsValidAndTrue()
     }
 
     // Create a CtValue to hold the result
-    setExplanation(mkCtValue(data_->location, StdDef::typeBool, &res));
+    setExplanation(mkCtValue(data_.location, StdDef::typeBool, &res));
 }
 
 void FunApplication::checkValueIfValid()
 {
-    NodeList* arguments = (NodeList*) data_->children[1];
+    NodeList* arguments = (NodeList*) data_.children[1];
 
-    bool isValid = checkIsValidImpl(data_->location, arguments, "valueIfValid", 2);
+    bool isValid = checkIsValidImpl(data_.location, arguments, "valueIfValid", 2);
 
     setExplanation(isValid ? arguments->children()[0] : arguments->children()[1]);
 }
 
 void FunApplication::checkCtEval()
 {
-    NodeList* arguments = (NodeList*) data_->children[1];
+    NodeList* arguments = (NodeList*) data_.children[1];
 
     // Make sure we have one argument
     if ( arguments->children().size() != 1 )
-        REP_ERROR(data_->location, "ctEval expects 1 argument; %1% given") % arguments->children().size();
+        REP_ERROR(data_.location, "ctEval expects 1 argument; %1% given") % arguments->children().size();
 
     DynNode* arg = arguments->children().front();
     arg->semanticCheck();
 
     // The expression must be CT
     if ( !isCt(arg) )
-        REP_ERROR(data_->location, "ctEval expects an CT argument; %1% given") % arg->type();
+        REP_ERROR(data_.location, "ctEval expects an CT argument; %1% given") % arg->type();
 
     // Make sure we remove all the references
     const Location& loc = arg->location();
     size_t noRefs = arg->type()->numReferences;
     for ( size_t i=0; i<noRefs; ++i)
         arg = mkMemLoad(loc, arg);
-    arg->setContext(data_->context);
+    arg->setContext(data_.context);
     arg->semanticCheck();
 
     DynNode* res = theCompiler().ctEval(arg);
@@ -403,18 +403,18 @@ void FunApplication::checkCtEval()
 
 void FunApplication::checkLift()
 {
-    NodeList* arguments = (NodeList*) data_->children[1];
+    NodeList* arguments = (NodeList*) data_.children[1];
 
     // Make sure we have one argument
     if ( arguments->children().size() != 1 )
-        REP_ERROR(data_->location, "lift expects 1 argument; %1% given") % arguments->children().size();
+        REP_ERROR(data_.location, "lift expects 1 argument; %1% given") % arguments->children().size();
 
     DynNode* arg = arguments->children().front();
     // Don't sematically check the argument; let the user of the lift to decide when it's better to do so
 
     // Create a construct of an AST node
     int* nodeHandle = (int*) arg;
-    DynNode* base = mkCompoundExp(data_->location, mkIdentifier(data_->location, "Meta"), "AstNode");
-    DynNode* arg1 = mkCtValue(data_->location, StdDef::typeRefInt, &nodeHandle);
-    setExplanation( mkFunApplication(data_->location, base, {arg1}) );
+    DynNode* base = mkCompoundExp(data_.location, mkIdentifier(data_.location, "Meta"), "AstNode");
+    DynNode* arg1 = mkCtValue(data_.location, StdDef::typeRefInt, &nodeHandle);
+    setExplanation( mkFunApplication(data_.location, base, {arg1}) );
 }

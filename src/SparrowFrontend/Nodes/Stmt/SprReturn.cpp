@@ -22,13 +22,13 @@ SprReturn::SprReturn(const Location& loc, DynNode* exp)
 
 void SprReturn::doSemanticCheck()
 {
-    ASSERT(data_->children.size() == 1);
-    DynNode* exp = data_->children[0];
+    ASSERT(data_.children.size() == 1);
+    DynNode* exp = data_.children[0];
 
     // Get the parent function of this return
-    Function* parentFun = getParentFun(data_->context);
+    Function* parentFun = getParentFun(data_.context);
     if ( !parentFun )
-        REP_ERROR(data_->location, "Return found outside any function");
+        REP_ERROR(data_.location, "Return found outside any function");
 
     // Compute the result type of the function
     TypeRef resType = nullptr;
@@ -51,7 +51,7 @@ void SprReturn::doSemanticCheck()
         exp->semanticCheck();
         if ( !resType->hasStorage && exp->type() == resType )
         {
-            setExplanation(mkNodeList(data_->location, { exp, mkReturn(data_->location) }));
+            setExplanation(mkNodeList(data_.location, { exp, mkReturn(data_.location) }));
             return;
         }
         else
@@ -64,7 +64,7 @@ void SprReturn::doSemanticCheck()
     else
     {
         if ( parentFun->resultType()->typeKind != typeKindVoid )
-            REP_ERROR(data_->location, "You must return something in a function that has non-Void result type");
+            REP_ERROR(data_.location, "You must return something in a function that has non-Void result type");
     }
 
     // Build the explanation of this node
@@ -73,19 +73,19 @@ void SprReturn::doSemanticCheck()
         // Create a ctor to construct the result parameter with the expression received
         const Location& l = resultParam->location();
         DynNode* thisArg = mkMemLoad(l, mkVarRef(l, resultParam));
-        thisArg->setContext(data_->context);
-        DynNode* action = createCtorCall(l, data_->context, thisArg, exp);
+        thisArg->setContext(data_.context);
+        DynNode* action = createCtorCall(l, data_.context, thisArg, exp);
         if ( !action )
             REP_ERROR(exp->location(), "Cannot construct return type object %1% from %2%") % exp->type() % resType;
 
         if ( action )
         {
-            setExplanation(mkNodeList(data_->location, { action, mkReturn(data_->location, nullptr)}));
+            setExplanation(mkNodeList(data_.location, { action, mkReturn(data_.location, nullptr)}));
         }
     }
     else
     {
-        exp = exp ? cvt.apply(data_->context, exp) : nullptr;
-        setExplanation(mkReturn(data_->location, exp));
+        exp = exp ? cvt.apply(data_.context, exp) : nullptr;
+        setExplanation(mkReturn(data_.location, exp));
     }
 }

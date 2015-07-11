@@ -18,42 +18,42 @@ While::While(const Location& location, DynNode* condition, DynNode* body, DynNod
 
 DynNode* While::condition() const
 {
-    return data_->children[0];
+    return data_.children[0];
 }
 
 DynNode* While::body() const
 {
-    return data_->children[2];
+    return data_.children[2];
 }
 
 DynNode* While::step() const
 {
-    return data_->children[1];
+    return data_.children[1];
 }
 
 
 void While::dump(ostream& os) const
 {
-    os << "while(" << data_->children[0] << ", " << data_->children[1] << ", " << data_->children[2] << ")";
+    os << "while(" << data_.children[0] << ", " << data_.children[1] << ", " << data_.children[2] << ")";
 }
 
 void While::doSetContextForChildren()
 {
-    data_->childrenContext = data_->context->createChildContext(this);
-    CompilationContext* condContext = nodeEvalMode(this) == modeCt ? new CompilationContext(data_->context, modeCt) : data_->childrenContext;
+    data_.childrenContext = data_.context->createChildContext(this);
+    CompilationContext* condContext = nodeEvalMode(this) == modeCt ? new CompilationContext(data_.context, modeCt) : data_.childrenContext;
 
-    data_->children[0]->setContext(condContext); // condition
-    if ( data_->children[1] )
-        data_->children[1]->setContext(condContext); // step
-    if ( data_->children[2] )
-        data_->children[2]->setContext(data_->childrenContext); // body
+    data_.children[0]->setContext(condContext); // condition
+    if ( data_.children[1] )
+        data_.children[1]->setContext(condContext); // step
+    if ( data_.children[2] )
+        data_.children[2]->setContext(data_.childrenContext); // body
 }
 
 void While::doSemanticCheck()
 {
-    DynNode* condition = data_->children[0];
-    DynNode* step = data_->children[1];
-    DynNode* body = data_->children[2];
+    DynNode* condition = data_.children[0];
+    DynNode* step = data_.children[1];
+    DynNode* body = data_.children[2];
     
     // Semantic check the condition
     condition->semanticCheck();
@@ -85,7 +85,7 @@ void While::doSemanticCheck()
             if ( body )
             {
                 DynNode* curBody = body->clone();
-                curBody->setContext(data_->context);
+                curBody->setContext(data_.context);
                 curBody->semanticCheck();
                 result.push_back(curBody);
             }
@@ -98,10 +98,10 @@ void While::doSemanticCheck()
 
             // Unfortunately, we don't treat 'break' and 'continue' instructions inside the ct while instructions
         }
-        result.push_back(mkNop(data_->location)); // Make sure our resulting type is Void
+        result.push_back(mkNop(data_.location)); // Make sure our resulting type is Void
 
         // Set the explanation and exit
-        setExplanation(mkNodeList(data_->location, result));
+        setExplanation(mkNodeList(data_.location, result));
         return;
     }
     // Semantic check the body and the step
@@ -111,5 +111,5 @@ void While::doSemanticCheck()
         step->semanticCheck();
 
     // The resulting type is Void
-    data_->type = getVoidType(data_->context->evalMode());
+    data_.type = getVoidType(data_.context->evalMode());
 }

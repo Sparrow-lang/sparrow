@@ -49,6 +49,39 @@ Node* Nest::cloneNode(Node* node)
     return res;
 }
 
+void Nest::initNode(Node* node, int nodeKind)
+{
+    node->nodeKind = nodeKind;
+    node->nodeError = 0;
+    node->nodeSemanticallyChecked = 0;
+    node->computeTypeStarted = 0;
+    node->semanticCheckStarted = 0;
+    node->context = nullptr;
+    node->childrenContext = nullptr;
+    node->type = nullptr;
+    node->explanation = nullptr;
+}
+void Nest::initCopyNode(Node* node, const Node* srcNode)
+{
+    node->nodeKind = srcNode->nodeKind;
+    node->location = srcNode->location;
+    node->referredNodes = srcNode->referredNodes;
+    node->properties = srcNode->properties;
+
+    // Clone each node in the children vector
+    size_t size = srcNode->children.size();
+    node->children.resize(size, nullptr);
+    for ( size_t i=0; i<size; ++i )
+    {
+        DynNode* n = srcNode->children[i];
+        if ( n )
+        {
+            node->children[i] = n->clone();
+        }
+    }
+}
+
+
 bool Nest::isDynNode(Node* node)
 {
     return node->nodeKind >= 0;
@@ -289,7 +322,7 @@ void Nest::setExplanation(Node* node, DynNode* explanation)
     // Copy all the properties marked accordingly
     for ( const auto& prop : node->properties )
         if ( prop.second.passToExpl_ )
-            node->explanation->data_->properties[prop.first] = prop.second;
+            node->explanation->data_.properties[prop.first] = prop.second;
 
     // Try to semantically check the explanation
     if ( !explanation->isSemanticallyChecked() )
@@ -300,7 +333,7 @@ void Nest::setExplanation(Node* node, DynNode* explanation)
     node->type = node->explanation->type();
 }
 
-DynNode* Nest::explanation(const Node* node)
+DynNode* Nest::explanation(Node* node)
 {
     return node->explanation ? node->explanation->explanation() : DynNode::fromNode(node);
 }
@@ -338,7 +371,7 @@ void Nest::defaultFunSetContextForChildren(Node* node)
     for ( DynNode* child: node->children )
     {
         if ( child )
-            setContext(child->data_, childrenCtx);
+            setContext(&child->data_, childrenCtx);
     }
 }
 

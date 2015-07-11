@@ -7,7 +7,7 @@ FWD_STRUCT1(Nest, Node);
 namespace Nest
 {
     /// Function that gets a string description for the given node
-    typedef const char* (*FToString)(Node* node);
+    typedef const char* (*FToString)(const Node* node);
     /// Function that sets the context for the children of this node
     typedef void (*FSetContextForChildren)(Node* node);
     /// Function that computes the type of the given node

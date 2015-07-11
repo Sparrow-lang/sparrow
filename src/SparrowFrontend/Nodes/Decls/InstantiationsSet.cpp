@@ -62,7 +62,7 @@ namespace
 InstantiationsSet::InstantiationsSet(DynNode* parentNode, DynNodeVector params, DynNode* ifClause)
     : DynNode(classNodeKind(), parentNode->location(), { ifClause, Feather::mkNodeList(parentNode->location(), {}) }, { parentNode })
 {
-    data_->referredNodes.push_back(mkNodeList(data_->location, move(params)));
+    data_.referredNodes.push_back(mkNodeList(data_.location, move(params)));
 }
 
 Instantiation* InstantiationsSet::canInstantiate(const DynNodeVector& values, EvalMode evalMode)
@@ -114,7 +114,7 @@ Instantiation* InstantiationsSet::canInstantiate(const DynNodeVector& values, Ev
 
 const DynNodeVector& InstantiationsSet::parameters() const
 {
-    return data_->referredNodes[1]->children();
+    return data_.referredNodes[1]->children();
 }
 
 Instantiation* InstantiationsSet::searchInstantiation(const DynNodeVector& values)
@@ -150,8 +150,8 @@ Instantiation* InstantiationsSet::createNewInstantiation(const DynNodeVector& va
     bool insideClass = nullptr != getParentClass(context);
 
     // Create the instantiation
-    auto boundVars = getBoundVariables(data_->location, values, parameters(), insideClass);
-    Instantiation* inst = new Instantiation(data_->location, values, move(boundVars));
+    auto boundVars = getBoundVariables(data_.location, values, parameters(), insideClass);
+    Instantiation* inst = new Instantiation(data_.location, values, move(boundVars));
     instantiations().push_back(inst);
 
     // Compile the newly created instantiation
@@ -163,15 +163,15 @@ Instantiation* InstantiationsSet::createNewInstantiation(const DynNodeVector& va
 
 DynNode* InstantiationsSet::parentNode() const
 {
-    return data_->referredNodes[0];
+    return data_.referredNodes[0];
 }
 
 DynNode*  InstantiationsSet::ifClause() const
 {
-    return data_->children[0];
+    return data_.children[0];
 }
 
 vector<Instantiation*>& InstantiationsSet::instantiations()
 {
-    return reinterpret_cast<vector<Instantiation*>&>(data_->children[1]->children());
+    return reinterpret_cast<vector<Instantiation*>&>(data_.children[1]->children());
 }

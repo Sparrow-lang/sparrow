@@ -13,8 +13,8 @@ FunRef::FunRef(const Location& loc, Function* funDecl, DynNode* resType)
 
 Function* FunRef::funDecl() const
 {
-    ASSERT(data_->referredNodes.size() == 1);
-    return (Function*) data_->referredNodes[0];
+    ASSERT(data_.referredNodes.size() == 1);
+    return (Function*) data_.referredNodes[0];
 }
 
 void FunRef::dump(ostream& os) const
@@ -24,10 +24,10 @@ void FunRef::dump(ostream& os) const
 
 void FunRef::doSemanticCheck()
 {
-    ASSERT(data_->children.size() == 1);
-    DynNode* resType = data_->children[0];
+    ASSERT(data_.children.size() == 1);
+    DynNode* resType = data_.children[0];
     resType->computeType();
 
     funDecl()->computeType();
-    data_->type = adjustMode(resType->type(), data_->context, data_->location);
+    data_.type = adjustMode(resType->type(), data_.context, data_.location);
 }

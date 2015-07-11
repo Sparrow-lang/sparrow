@@ -16,12 +16,12 @@ MemStore::MemStore(const Location& loc, DynNode* value, DynNode* address, size_t
 
 DynNode* MemStore::value() const
 {
-    return data_->children[0];
+    return data_.children[0];
 }
 
 DynNode* MemStore::address() const
 {
-    return data_->children[1];
+    return data_.children[1];
 }
 
 size_t MemStore::alignment() const
@@ -52,8 +52,8 @@ void MemStore::dump(ostream& os) const
 
 void MemStore::doSemanticCheck()
 {
-    DynNode* value = data_->children[0];
-    DynNode* address = data_->children[1];
+    DynNode* value = data_.children[0];
+    DynNode* address = data_.children[1];
     ASSERT(value);
     ASSERT(address);
 
@@ -63,7 +63,7 @@ void MemStore::doSemanticCheck()
 
     // Check if the type of the address is a ref
     if ( !address->type()->hasStorage || address->type()->numReferences == 0 )
-        REP_ERROR(data_->location, "The address of a memory store is not a reference, nor VarRef nor FieldRef (type: %1%)") % address->type();
+        REP_ERROR(data_.location, "The address of a memory store is not a reference, nor VarRef nor FieldRef (type: %1%)") % address->type();
     TypeRef baseAddressType = removeRef(address->type());
 
     // Check the equivalence of types
@@ -72,11 +72,11 @@ void MemStore::doSemanticCheck()
         // Try again, getting rid of l-values
         TypeRef t1 = lvalueToRefIfPresent(value->type());
         if ( !isSameTypeIgnoreMode(t1, baseAddressType) )
-            REP_ERROR(data_->location, "The type of the value doesn't match the type of the address in a memory store (%1% != %2%)")
+            REP_ERROR(data_.location, "The type of the value doesn't match the type of the address in a memory store (%1% != %2%)")
                 % value->type() % baseAddressType;
     }
 
     // The resulting type is Void
-    data_->type = getVoidType(address->type()->mode);
+    data_.type = getVoidType(address->type()->mode);
 }
 

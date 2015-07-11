@@ -11,5 +11,5 @@ This::This(const Location& loc)
 
 void This::doSemanticCheck()
 {
-    setExplanation(mkIdentifier(data_->location, "$this"));
+    setExplanation(mkIdentifier(data_.location, "$this"));
 }

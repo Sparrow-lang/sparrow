@@ -108,7 +108,7 @@ namespace
 
         void doSemanticCheck()
         {
-            data_->type = resType();
+            data_.type = resType();
         }
 
         TypeRef resType() const
@@ -123,12 +123,12 @@ namespace
 
         const DynNodeVector& alt1DestructActions() const
         {
-            return data_->children[0]->children();
+            return data_.children[0]->children();
         }
 
         const DynNodeVector& alt2DestructActions() const
         {
-            return data_->children[1]->children();
+            return data_.children[1]->children();
         }
     };
 

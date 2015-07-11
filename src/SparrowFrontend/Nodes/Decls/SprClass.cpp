@@ -65,13 +65,13 @@ SprClass::SprClass(const Location& loc, string name, NodeList* parameters, NodeL
 
 NodeList* SprClass::baseClasses() const
 {
-    ASSERT(data_->children.size() == 4);
-    return (NodeList*) data_->children[1];
+    ASSERT(data_.children.size() == 4);
+    return (NodeList*) data_.children[1];
 }
 NodeList* SprClass::classChildren() const
 {
-    ASSERT(data_->children.size() == 4);
-    return (NodeList*) data_->children[2];
+    ASSERT(data_.children.size() == 4);
+    return (NodeList*) data_.children[2];
 }
 
 void SprClass::addChild(DynNode* child)
@@ -80,25 +80,25 @@ void SprClass::addChild(DynNode* child)
         return;
     if ( childrenContext() )
         child->setContext(childrenContext());
-    if ( data_->type )
+    if ( data_.type )
         child->computeType();
-    if ( !data_->children[2] )
+    if ( !data_.children[2] )
     {
-        data_->children[2] = mkNodeList(data_->location, {});
+        data_.children[2] = mkNodeList(data_.location, {});
         if ( childrenContext() )
-            data_->children[2]->setContext(childrenContext());
+            data_.children[2]->setContext(childrenContext());
     }
-    static_cast<NodeList*>(data_->children[2])->addChild(child);
+    static_cast<NodeList*>(data_.children[2])->addChild(child);
 }
 
 void SprClass::dump(ostream& os) const
 {
     os << "class " << getName(this);
-    if ( data_->children[0] )
-        os << "(" << data_->children[0] << ")";
-    if ( data_->children[1] )
-        os << ": " << data_->children[1];
-    os << "\nbody: " << data_->children[2] << "\n";
+    if ( data_.children[0] )
+        os << "(" << data_.children[0] << ")";
+    if ( data_.children[1] )
+        os << ": " << data_.children[1];
+    os << "\nbody: " << data_.children[2] << "\n";
 }
 
 void SprClass::doSetContextForChildren()
@@ -106,19 +106,19 @@ void SprClass::doSetContextForChildren()
     addToSymTab(this);
     
     // If we don't have a children context, create one
-    if ( !data_->childrenContext )
-        data_->childrenContext = data_->context->createChildContext(this, effectiveEvalMode(this));
+    if ( !data_.childrenContext )
+        data_.childrenContext = data_.context->createChildContext(this, effectiveEvalMode(this));
 
     DynNode::doSetContextForChildren();
 }
 
 void SprClass::doComputeType()
 {
-    ASSERT(data_->children.size() == 4);
-    NodeList* parameters = (NodeList*) data_->children[0];
-    NodeList* baseClasses = (NodeList*) data_->children[1];
-    NodeList* children = (NodeList*) data_->children[2];
-    DynNode* ifClause = data_->children[3];
+    ASSERT(data_.children.size() == 4);
+    NodeList* parameters = (NodeList*) data_.children[0];
+    NodeList* baseClasses = (NodeList*) data_.children[1];
+    NodeList* children = (NodeList*) data_.children[2];
+    DynNode* ifClause = data_.children[3];
 
     // Is this a generic?
     if ( parameters && !parameters->children().empty() )
@@ -129,7 +129,7 @@ void SprClass::doComputeType()
         return;
     }
     if ( ifClause )
-        REP_ERROR(data_->location, "If clauses must be applied only to generics; this is not a generic class");
+        REP_ERROR(data_.location, "If clauses must be applied only to generics; this is not a generic class");
 
     // Default class members
     if ( !hasProperty(propNoDefault) )
@@ -146,7 +146,7 @@ void SprClass::doComputeType()
 
     // Create the resulting Feather.Class object
     if ( !resultingClass )
-        resultingClass = Feather::mkClass(data_->location, getName(this), {});
+        resultingClass = Feather::mkClass(data_.location, getName(this), {});
     setShouldAddToSymTab(resultingClass, false);
 
     // Copy the "native" and "description" properties to the resulting class
@@ -161,11 +161,11 @@ void SprClass::doComputeType()
     }
 
     setEvalMode(resultingClass, nodeEvalMode(this));
-    resultingClass->setChildrenContext(data_->childrenContext);
-    resultingClass->setContext(data_->context);
+    resultingClass->setChildrenContext(data_.childrenContext);
+    resultingClass->setContext(data_.context);
     setProperty(propResultingDecl, resultingClass);
 
-    data_->explanation = resultingClass;
+    data_.explanation = resultingClass;
 
     // Check for Std classes
     checkStdClass(resultingClass);
@@ -178,7 +178,7 @@ void SprClass::doComputeType()
             // Make sure the type refers to a class
             TypeRef bcType = getType(bcName);
             if ( !bcType || !bcType->hasStorage )
-                REP_ERROR(data_->location, "Invalid base class");
+                REP_ERROR(data_.location, "Invalid base class");
             Class* baseClass = classForType(bcType);
             
             // Compute the type of the base class
@@ -195,10 +195,10 @@ void SprClass::doComputeType()
     }
 
     // We now have a type - from now on we can safely compute the types of the children
-    data_->type = getDataType(static_cast<Class*>(resultingClass));
+    data_.type = getDataType(static_cast<Class*>(resultingClass));
 
     // Get the fields from the current class
-    DynNodeVector fields = getFields(data_->childrenContext->currentSymTab());
+    DynNodeVector fields = getFields(data_.childrenContext->currentSymTab());
     static_cast<Class*>(resultingClass)->addFields(fields);
 
     // Check all the children
@@ -215,8 +215,8 @@ void SprClass::doComputeType()
         if ( !isField(p) )
         {
             // Methods, generics
-            ASSERT(data_->context->sourceCode());
-            data_->context->sourceCode()->addAdditionalNode(child);
+            ASSERT(data_.context->sourceCode());
+            data_.context->sourceCode()->addAdditionalNode(child);
         }
     });
 
@@ -228,14 +228,14 @@ void SprClass::doSemanticCheck()
 {
     computeType();
 
-    data_->explanation->semanticCheck();
+    data_.explanation->semanticCheck();
 
-    if ( data_->explanation->nodeKind() != nkFeatherDeclClass )
+    if ( data_.explanation->nodeKind() != nkFeatherDeclClass )
         return; // This should be a generic; there is nothing else to do here
 
     // Semantic check all the children
-    ASSERT(data_->children.size() == 4);
-    NodeList* children = (NodeList*) data_->children[2];
+    ASSERT(data_.children.size() == 4);
+    NodeList* children = (NodeList*) data_.children[2];
     if ( children )
         children->semanticCheck();
 }

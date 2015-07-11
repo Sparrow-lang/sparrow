@@ -35,7 +35,7 @@ VarRef::VarRef(const Location& loc, DynNode* var)
 
 DynNode* VarRef::variable() const
 {
-    return data_->referredNodes[0];
+    return data_.referredNodes[0];
 }
 
 void VarRef::dump(ostream& os) const
@@ -48,12 +48,12 @@ void VarRef::doSemanticCheck()
     DynNode* var = variable();
     ASSERT(var);
     if ( var->nodeKind() != nkFeatherDeclVar )
-        REP_INTERNAL(data_->location, "VarRef object needs to point to a Field (node kind: %1%)") % var->nodeKindName();
+        REP_INTERNAL(data_.location, "VarRef object needs to point to a Field (node kind: %1%)") % var->nodeKindName();
     var->computeType();
     if ( isField(var) )
-        REP_INTERNAL(data_->location, "VarRef used on a field (%1%). Use FieldRef instead") % getName(var);
+        REP_INTERNAL(data_.location, "VarRef used on a field (%1%). Use FieldRef instead") % getName(var);
     if ( !var->type()->hasStorage )
-        REP_ERROR(data_->location, "Variable type is doesn't have a storage type (type: %1%)") % var->type();
-    data_->type = adjustMode(getLValueType(var->type()), data_->context, data_->location);
+        REP_ERROR(data_.location, "Variable type is doesn't have a storage type (type: %1%)") % var->type();
+    data_.type = adjustMode(getLValueType(var->type()), data_.context, data_.location);
     checkEvalMode(this, var->type()->mode);
 }

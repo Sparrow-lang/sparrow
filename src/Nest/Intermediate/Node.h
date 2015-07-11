@@ -114,6 +114,10 @@ namespace Nest
     /// We clear the compilation state of the new node when cloning
     Node* cloneNode(Node* node);
 
+    // Temporary methods:
+    void initNode(Node* node, int nodeKind);
+    void initCopyNode(Node* node, const Node* srcNode);
+
     /// Returns true if this is a dynamic node (DynNode)
     bool isDynNode(Node* node);
 
@@ -122,6 +126,7 @@ namespace Nest
 
     /// Getter for the name of the node kind for the given node
     const char* nodeKindName(const Node* node);
+
 
 
 
@@ -174,7 +179,7 @@ namespace Nest
     void setExplanation(Node* node, DynNode* explanation);
 
     /// Getter for the explanation of this node, if it has one; otherwise returns this node
-    DynNode* explanation(const Node* node);
+    DynNode* explanation(Node* node);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Default implementation for node-specific functions

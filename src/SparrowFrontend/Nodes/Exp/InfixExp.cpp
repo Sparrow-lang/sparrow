@@ -55,7 +55,7 @@ InfixExp::InfixExp(const Location& loc, string op, DynNode* arg1, DynNode* arg2)
     : DynNode(classNodeKind(), loc, {arg1, arg2})
 {
     if ( op.empty() )
-        REP_ERROR(location_, "Operation name must have at least one character");
+        REP_ERROR(data_->location, "Operation name must have at least one character");
     setProperty(operPropName, move(op));
 }
 
@@ -66,30 +66,30 @@ const string& InfixExp::operation() const
 
 DynNode* InfixExp::arg1() const
 {
-    ASSERT(children_.size() == 2);
-    return children_[0];
+    ASSERT(data_->children.size() == 2);
+    return data_->children[0];
 }
 
 DynNode* InfixExp::arg2() const
 {
-    ASSERT(children_.size() == 2);
-    return children_[1];
+    ASSERT(data_->children.size() == 2);
+    return data_->children[1];
 }
 
 void InfixExp::dump(ostream& os) const
 {
-    ASSERT(children_.size() == 2);
-    DynNode* arg1 = children_[0];
-    DynNode* arg2 = children_[1];
+    ASSERT(data_->children.size() == 2);
+    DynNode* arg1 = data_->children[0];
+    DynNode* arg2 = data_->children[1];
 
     os << arg1 << ' ' << operation() << ' ' << arg2;
 }
 
 void InfixExp::doSemanticCheck()
 {
-    ASSERT(children_.size() == 2);
-    DynNode* arg1 = children_[0];
-    DynNode* arg2 = children_[1];
+    ASSERT(data_->children.size() == 2);
+    DynNode* arg1 = data_->children[0];
+    DynNode* arg2 = data_->children[1];
 
     // This is constructed in such way that left most operations are applied first.
     // This way, we have a tree that has a lot of children on the left side and one children on the right side
@@ -99,17 +99,17 @@ void InfixExp::doSemanticCheck()
     handlePrecedence();
     handleAssociativity();
 
-    arg1 = children_[0];
-    arg2 = children_[1];
+    arg1 = data_->children[0];
+    arg2 = data_->children[1];
 
-//    if ( location_.startLineNo() == 34 )
+//    if ( data_->location.startLineNo() == 34 )
 //    {
 //        cerr << "Infix exp: ";
 //        dumpInfixExp(this);
 //        cerr << endl;
 //    }
 
-    setExplanation(mkOperatorCall(location_, arg1, operation(), arg2));
+    setExplanation(mkOperatorCall(data_->location, arg1, operation(), arg2));
 }
 
 void InfixExp::handlePrecedence()
@@ -121,7 +121,7 @@ void InfixExp::handlePrecedence()
         int rankCur = getPrecedence();
 
         // Check right wing first
-        InfixExp* rightOp = children_[1]->as<InfixExp>();
+        InfixExp* rightOp = data_->children[1]->as<InfixExp>();
         if ( rightOp )
         {
             int rankRight = rightOp->getPrecedence();
@@ -134,7 +134,7 @@ void InfixExp::handlePrecedence()
         }
 
 
-        InfixExp* leftOp = children_[0]->as<InfixExp>();
+        InfixExp* leftOp = data_->children[0]->as<InfixExp>();
         if ( leftOp )
         {
             leftOp->handlePrecedence();
@@ -166,7 +166,7 @@ void InfixExp::handleAssociativity()
     {
         for ( ;/*ever*/; )
         {
-            DynNode* arg2 = children_[1];
+            DynNode* arg2 = data_->children[1];
             InfixExp* rightOp = arg2->as<InfixExp>();
             if ( !rightOp )
                 break;
@@ -183,7 +183,7 @@ void InfixExp::handleAssociativity()
     {
         for ( ;/*ever*/; )
         {
-            DynNode* arg1 = children_[0];
+            DynNode* arg1 = data_->children[0];
             InfixExp* leftOp = arg1->as<InfixExp>();
             if ( !leftOp )
                 break;
@@ -199,7 +199,7 @@ void InfixExp::handleAssociativity()
 
 int InfixExp::getPrecedence()
 {
-    DynNode* arg1 = children_[0];
+    DynNode* arg1 = data_->children[0];
 
     // For prefix operator, search with a special name
     string oper = arg1 ? operation() : "__pre__";
@@ -208,12 +208,12 @@ int InfixExp::getPrecedence()
     string defaultPrecedenceName = "oper_precedence_default";
 
     // Perform a name lookup for the actual precedence name
-    int res = getIntValue(context_->currentSymTab()->lookup(precedenceName), -1);
+    int res = getIntValue(data_->context->currentSymTab()->lookup(precedenceName), -1);
     if ( res > 0 )
         return res;
 
     // Search the default precedence name
-    res = getIntValue(context_->currentSymTab()->lookup(defaultPrecedenceName), -1);
+    res = getIntValue(data_->context->currentSymTab()->lookup(defaultPrecedenceName), -1);
     if ( res > 0 )
         return res;
 
@@ -225,7 +225,7 @@ bool InfixExp::isRightAssociativity()
     string assocName = "oper_assoc_" + operation();
 
     // Perform a name lookup for the actual associativity name
-    int res = getIntValue(context_->currentSymTab()->lookup(assocName), 1);
+    int res = getIntValue(data_->context->currentSymTab()->lookup(assocName), 1);
     return res < 0;
 }
 
@@ -238,7 +238,7 @@ int InfixExp::getIntValue(const DynNodeVector& decls, int defaultVal)
     // If more than one declarations found, issue a warning
     if ( decls.size() > 1 )
     {
-        REP_WARNING(location_, "Multple precedence declarations found for '%1%'") % operation();
+        REP_WARNING(data_->location, "Multple precedence declarations found for '%1%'") % operation();
         for ( DynNode* decl: decls )
             if ( decl )
                 REP_INFO(decl->location(), "See alternative");
@@ -267,13 +267,13 @@ int InfixExp::getIntValue(const DynNodeVector& decls, int defaultVal)
 // The left argument of this will become the right argument of this
 void InfixExp::swapLeft()
 {
-    InfixExp* other = children_[0]->as<InfixExp>();
+    InfixExp* other = data_->children[0]->as<InfixExp>();
     ASSERT(other);
 
-    this->children_[0] = other->children_[0];
-    other->children_[0] = other->children_[1];
-    other->children_[1] = this->children_[1];
-    this->children_[1] = other;
+    this->data_->children[0] = other->data_->children[0];
+    other->data_->children[0] = other->data_->children[1];
+    other->data_->children[1] = this->data_->children[1];
+    this->data_->children[1] = other;
 
     string otherOper = other->operation();
     other->setProperty(operPropName, operation());
@@ -295,13 +295,13 @@ void InfixExp::swapLeft()
 //       it cannot be applied if 'Y' is a unary operator that contains a null 'M'
 void InfixExp::swapRight()
 {
-    InfixExp* other = children_[1]->as<InfixExp>();
+    InfixExp* other = data_->children[1]->as<InfixExp>();
     ASSERT(other);
 
-    this->children_[1] = other->children_[1];
-    other->children_[1] = other->children_[0];
-    other->children_[0] = this->children_[0];
-    this->children_[0] = other;
+    this->data_->children[1] = other->data_->children[1];
+    other->data_->children[1] = other->data_->children[0];
+    other->data_->children[0] = this->data_->children[0];
+    this->data_->children[0] = other;
 
     string otherOper = other->operation();
     other->setProperty(operPropName, operation());

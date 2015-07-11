@@ -17,43 +17,43 @@ If::If(const Location& location, DynNode* condition, DynNode* thenClause, DynNod
 
 DynNode* If::condition() const
 {
-    return children_[0];
+    return data_->children[0];
 }
 
 DynNode* If::thenClause() const
 {
-    return children_[1];
+    return data_->children[1];
 }
 
 DynNode* If::elseClause() const
 {
-    return children_[2];
+    return data_->children[2];
 }
 
 void If::dump(ostream& os) const
 {
-    os << "if(" << children_[0] << ", " << children_[1] << ", " << children_[2] << ")";
+    os << "if(" << data_->children[0] << ", " << data_->children[1] << ", " << data_->children[2] << ")";
 }
 
 void If::doSetContextForChildren()
 {
-    childrenContext_ = context_->createChildContext(this);
+    data_->childrenContext = data_->context->createChildContext(this);
     
-    children_[0]->setContext(childrenContext_);
-    if ( children_[1] )
-        children_[1]->setContext(childrenContext_);
-    if ( children_[2] )
-        children_[2]->setContext(childrenContext_);
+    data_->children[0]->setContext(data_->childrenContext);
+    if ( data_->children[1] )
+        data_->children[1]->setContext(data_->childrenContext);
+    if ( data_->children[2] )
+        data_->children[2]->setContext(data_->childrenContext);
 }
 
 void If::doSemanticCheck()
 {
-    DynNode* condition = children_[0];
-    DynNode* thenClause = children_[1];
-    DynNode* elseClause = children_[2];
+    DynNode* condition = data_->children[0];
+    DynNode* thenClause = data_->children[1];
+    DynNode* elseClause = data_->children[2];
     
     // The resulting type is Void
-    type_ = getVoidType(context_->evalMode());
+    data_->type = getVoidType(data_->context->evalMode());
 
     // Semantic check the condition
     condition->semanticCheck();
@@ -69,7 +69,7 @@ void If::doSemanticCheck()
         condition->setContext(childrenContext());
         condition->semanticCheck();
     }
-    children_[0] = condition;
+    data_->children[0] = condition;
     // TODO (if): Remove this dereference from here
 
     if ( nodeEvalMode(this) == modeCt )
@@ -85,7 +85,7 @@ void If::doSemanticCheck()
         if ( selectedBranch )
             setExplanation(selectedBranch);
         else
-            setExplanation(mkNop(location_));
+            setExplanation(mkNop(data_->location));
         return;
     }
 

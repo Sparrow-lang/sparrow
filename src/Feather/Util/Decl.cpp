@@ -63,8 +63,8 @@ void Feather::setEvalMode(DynNode* decl, EvalMode val)
     
     // Sanity check
 //    EvalMode curMode = declEvalMode(this);
-//    if ( childrenContext_ && curMode != modeUnspecified && childrenContext_->evalMode() != curMode )
-//        REP_INTERNAL(location_, "Invalid mode set for node; node has %1%, in context %2%") % curMode % childrenContext_->evalMode();
+//    if ( data_->childrenContext && curMode != modeUnspecified && data_->childrenContext->evalMode() != curMode )
+//        REP_INTERNAL(data_->location, "Invalid mode set for node; node has %1%, in context %2%") % curMode % data_->childrenContext->evalMode();
 }
 
 void Feather::addToSymTab(DynNode* decl)

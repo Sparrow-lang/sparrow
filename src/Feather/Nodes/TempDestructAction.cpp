@@ -11,16 +11,16 @@ TempDestructAction::TempDestructAction(const Location& loc, DynNode* action)
 
 DynNode* TempDestructAction::destructAction() const
 {
-    return children_[0];
+    return data_->children[0];
 }
 
 void TempDestructAction::dump(ostream& os) const
 {
-    os << "tempDestructAction(" << children_[0] << ")";
+    os << "tempDestructAction(" << data_->children[0] << ")";
 }
 
 void TempDestructAction::doSemanticCheck()
 {
-    children_[0]->semanticCheck();
-    type_ = getVoidType(context_->evalMode());
+    data_->children[0]->semanticCheck();
+    data_->type = getVoidType(data_->context->evalMode());
 }

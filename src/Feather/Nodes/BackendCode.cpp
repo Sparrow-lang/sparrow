@@ -31,7 +31,7 @@ string BackendCode::code() const
 EvalMode BackendCode::evalMode() const
 {
     EvalMode curMode = (EvalMode) getCheckPropertyInt(propEvalMode);
-    return curMode != modeUnspecified ? curMode : context_->evalMode();
+    return curMode != modeUnspecified ? curMode : data_->context->evalMode();
 }
 
 void BackendCode::dump(ostream& os) const
@@ -42,12 +42,12 @@ void BackendCode::dump(ostream& os) const
 void BackendCode::doSemanticCheck()
 {
     EvalMode mode = evalMode();
-    if ( !type_ )
-        type_ = getVoidType(mode);
+    if ( !data_->type )
+        data_->type = getVoidType(mode);
 
     if ( mode != modeRt )
     {
         // CT process this node right after semantic check
-        modifiers_.push_back(new CtProcessMod);
+        addModifier(new CtProcessMod);
     }
 }

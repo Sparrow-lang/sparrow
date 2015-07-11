@@ -16,16 +16,16 @@ void Null::dump(ostream& os) const
 
 void Null::doSemanticCheck()
 {
-    ASSERT(children_.size() == 1);
-    DynNode* typeNode = children_[0];
+    ASSERT(data_->children.size() == 1);
+    DynNode* typeNode = data_->children[0];
     typeNode->computeType();
 
     // Make sure that the type is a reference
     TypeRef t = typeNode->type();
     if ( !t->hasStorage )
-        REP_ERROR(location_, "Null node should have a type with storage (cur type: %1%") % t;
+        REP_ERROR(data_->location, "Null node should have a type with storage (cur type: %1%") % t;
     if ( t->numReferences == 0 )
-        REP_ERROR(location_, "Null node should have a reference type (cur type: %1%)") % t;
+        REP_ERROR(data_->location, "Null node should have a reference type (cur type: %1%)") % t;
 
-    type_ = adjustMode(t, context_, location_);
+    data_->type = adjustMode(t, data_->context, data_->location);
 }

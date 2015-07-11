@@ -13,24 +13,24 @@ GlobalConstructAction::GlobalConstructAction(const Location& loc, DynNode* actio
 
 DynNode* GlobalConstructAction::constructAction() const
 {
-    return children_[0];
+    return data_->children[0];
 }
 
 void GlobalConstructAction::dump(ostream& os) const
 {
-    os << "globalConstructAction(" << children_[0] << ")";
+    os << "globalConstructAction(" << data_->children[0] << ")";
 }
 
 void GlobalConstructAction::doSemanticCheck()
 {
-    children_[0]->semanticCheck();
-    type_ = getVoidType(context_->evalMode());
+    data_->children[0]->semanticCheck();
+    data_->type = getVoidType(data_->context->evalMode());
 
     // For CT construct actions, evaluate them asap
-    if ( isCt(children_[0]) )
+    if ( isCt(data_->children[0]) )
     {
-        theCompiler().ctEval(children_[0]);
-        setExplanation(mkNop(location_));
+        theCompiler().ctEval(data_->children[0]);
+        setExplanation(mkNop(data_->location));
     }
 }
 

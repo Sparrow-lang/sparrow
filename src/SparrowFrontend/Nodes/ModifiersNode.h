@@ -14,7 +14,7 @@ namespace SprFrontend
     public:
         ModifiersNode(const Location& loc, DynNode* base, DynNode* modifierNodes);
 
-        DynNode* base() const { return children_[0]; }
+        DynNode* base() const { return data_->children[0]; }
 
     protected:
         void doSetContextForChildren();

@@ -58,18 +58,18 @@ void Literal::doSemanticCheck()
     const string& data = getCheckPropertyString("spr.literalData");
 
     // Get the type of the literal by looking up the type name
-    Identifier ident(location_, litType);
-    ident.setContext(context_);
+    Identifier ident(data_->location, litType);
+    ident.setContext(data_->context);
     ident.computeType();
     TypeRef t = getType(&ident);
-    t = Feather::changeTypeMode(t, modeCt, location_);
+    t = Feather::changeTypeMode(t, modeCt, data_->location);
     
     if ( litType == "StringRef" )
     {
         // Create the explanation
         Feather::StringData s = Feather::StringData::copyStdString(data);
-        setExplanation(Feather::mkCtValue(location_, t, &s));
+        setExplanation(Feather::mkCtValue(data_->location, t, &s));
     }
     else
-        setExplanation(Feather::mkCtValue(location_, t, data));
+        setExplanation(Feather::mkCtValue(data_->location, t, data));
 }

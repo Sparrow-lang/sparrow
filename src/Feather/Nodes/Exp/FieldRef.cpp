@@ -14,33 +14,33 @@ FieldRef::FieldRef(const Location& loc, DynNode* obj, DynNode* field)
 
 DynNode* FieldRef::object() const
 {
-    return children_[0];
+    return data_->children[0];
 }
 
 DynNode* FieldRef::field() const
 {
-    return referredNodes_[0];
+    return data_->referredNodes[0];
 }
 
 void FieldRef::dump(ostream& os) const
 {
-    os << "fieldRef(" << children_[0] << ", " << referredNodes_[0] << ")";
+    os << "fieldRef(" << data_->children[0] << ", " << data_->referredNodes[0] << ")";
 }
 
 void FieldRef::doSemanticCheck()
 {
-    DynNode* obj = children_[0];
-    DynNode* field = referredNodes_[0];
+    DynNode* obj = data_->children[0];
+    DynNode* field = data_->referredNodes[0];
     ASSERT(obj);
     ASSERT(field);
     if ( field->nodeKind() != nkFeatherDeclVar )
-        REP_INTERNAL(location_, "FieldRef object needs to point to a Field (node kind: %1%)") % field->nodeKindName();
+        REP_INTERNAL(data_->location, "FieldRef object needs to point to a Field (node kind: %1%)") % field->nodeKindName();
 
     // Semantic check the object node - make sure it's a reference to a data type
     obj->semanticCheck();
     ASSERT(obj->type());
     if ( !obj->type() || !obj->type()->hasStorage || obj->type()->numReferences != 1 )
-    	REP_ERROR(location_, "Field access should be done on a reference to a data type (type: %1%)") % obj->type();
+    	REP_ERROR(data_->location, "Field access should be done on a reference to a data type (type: %1%)") % obj->type();
     Class* cls = classForType(obj->type());
     ASSERT(cls);
     cls->computeType();
@@ -59,11 +59,11 @@ void FieldRef::doSemanticCheck()
         }
     }
     if ( !fieldFound )
-    	REP_ERROR(location_, "Field '%1%' not found when accessing object") % getName(field);
+    	REP_ERROR(data_->location, "Field '%1%' not found when accessing object") % getName(field);
 
     // Set the correct type for this node
     ASSERT(field->type());
     ASSERT(field->type()->hasStorage);
-    type_ = getLValueType(field->type());
-    type_ = adjustMode(type_, obj->type()->mode, context_, location_);
+    data_->type = getLValueType(field->type());
+    data_->type = adjustMode(data_->type, obj->type()->mode, data_->context, data_->location);
 }

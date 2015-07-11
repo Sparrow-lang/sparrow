@@ -14,23 +14,23 @@ FunCall::FunCall(const Location& loc, Function* funDecl, DynNodeVector args)
 
 Function* FunCall::funDecl() const
 {
-    return (Function*) referredNodes_[0];
+    return (Function*) data_->referredNodes[0];
 }
 
 const DynNodeVector& FunCall::arguments() const
 {
-    return children_;
+    return data_->children;
 }
 
 
 void FunCall::dump(ostream& os) const
 {
     os << "funCall-" << getName(funDecl()) << "(";
-    for ( size_t i=0; i<children_.size(); ++i )
+    for ( size_t i=0; i<data_->children.size(); ++i )
     {
         if ( i != 0 )
             os << ", ";
-        os << children_[i];
+        os << data_->children[i];
     }
     os << ")";
 }
@@ -43,63 +43,63 @@ void FunCall::doSemanticCheck()
 	fun->computeType();
 
     // Check argument count
-    if ( children_.size() != fun->numParameters() )
-        REP_ERROR(location_, "Invalid function call: expecting %1% parameters, given %2%")
-            % fun->numParameters() % children_.size();
+    if ( data_->children.size() != fun->numParameters() )
+        REP_ERROR(data_->location, "Invalid function call: expecting %1% parameters, given %2%")
+            % fun->numParameters() % data_->children.size();
 
     // Semantic check the arguments
     // Also check that their type matches the corresponding type from the function decl
     bool allParamsAreCtAvailable = true;
-    for ( size_t i=0; i<children_.size(); ++i )
+    for ( size_t i=0; i<data_->children.size(); ++i )
     {
         // Semantically check the argument
-        children_[i]->semanticCheck();
-        if ( !isCt(children_[i]) )
+        data_->children[i]->semanticCheck();
+        if ( !isCt(data_->children[i]) )
             allParamsAreCtAvailable = false;
 
         // Compare types
-        TypeRef argType = children_[i]->type();
+        TypeRef argType = data_->children[i]->type();
         TypeRef paramType = fun->getParameter(i)->type();
         if ( !isSameTypeIgnoreMode(argType, paramType) )
-            REP_ERROR(children_[i]->location(), "Invalid function call: argument %1% is expected to have type %2% (actual type: %3%)")
+            REP_ERROR(data_->children[i]->location(), "Invalid function call: argument %1% is expected to have type %2% (actual type: %3%)")
                 % (i+1) % paramType % argType;
     }
 
     // CT availability checks
-    EvalMode curMode = context_->evalMode();
+    EvalMode curMode = data_->context->evalMode();
     EvalMode calledFunMode = effectiveEvalMode(fun);
     ASSERT(curMode != Nest::modeUnspecified);
     ASSERT(calledFunMode != Nest::modeUnspecified);
     if ( calledFunMode == modeCt && curMode != modeCt && !allParamsAreCtAvailable )
     {
-        REP_ERROR_NOTHROW(location_, "Not all arguments are compile-time, when calling a compile time function");
+        REP_ERROR_NOTHROW(data_->location, "Not all arguments are compile-time, when calling a compile time function");
         REP_INFO(fun->location(), "See called function");
         REP_ERROR_THROW("Bad mode");
     }
     if ( curMode == modeRtCt && calledFunMode == modeRt )
     {
-        REP_ERROR_NOTHROW(location_, "Cannot call RT functions from RTCT contexts");
+        REP_ERROR_NOTHROW(data_->location, "Cannot call RT functions from RTCT contexts");
         REP_INFO(fun->location(), "See called function");
         REP_ERROR_THROW("Bad mode");
     }
     if ( curMode == modeCt && calledFunMode == modeRt )
     {
-        REP_ERROR_NOTHROW(location_, "Cannot call a RT function from a CT context");
+        REP_ERROR_NOTHROW(data_->location, "Cannot call a RT function from a CT context");
         REP_INFO(fun->location(), "See called function");
         REP_ERROR_THROW("Bad mode");
     }
 
     // Get the type from the function decl
-    type_ = fun->resultType();
+    data_->type = fun->resultType();
 
     // Handle autoCt case
-    if ( allParamsAreCtAvailable && type_->mode == modeRtCt && fun->hasProperty(propAutoCt) )
+    if ( allParamsAreCtAvailable && data_->type->mode == modeRtCt && fun->hasProperty(propAutoCt) )
     {
-        type_ = changeTypeMode(type_, modeCt, location_);
+        data_->type = changeTypeMode(data_->type, modeCt, data_->location);
     }
 
     // Make sure we yield a type with the right mode
-    type_ = adjustMode(type_, context_, location_);
+    data_->type = adjustMode(data_->type, data_->context, data_->location);
 
     checkEvalMode(this, calledFunMode);
 }

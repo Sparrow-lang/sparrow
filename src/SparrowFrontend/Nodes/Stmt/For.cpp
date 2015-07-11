@@ -22,31 +22,31 @@ For::For(const Location& loc, string name, DynNode* range, DynNode* action, DynN
 
 void For::doSetContextForChildren()
 {
-    ASSERT(children_.size() == 3);
-    DynNode* range = children_[0];
-    DynNode* action = children_[1];
-    DynNode* typeExpr = children_[2];
+    ASSERT(data_->children.size() == 3);
+    DynNode* range = data_->children[0];
+    DynNode* action = data_->children[1];
+    DynNode* typeExpr = data_->children[2];
 
     ASSERT(range);
-    CompilationContext* rangeContext = nodeEvalMode(this) == modeCt ? new CompilationContext(context_, modeCt) : context_;
+    CompilationContext* rangeContext = nodeEvalMode(this) == modeCt ? new CompilationContext(data_->context, modeCt) : data_->context;
     if ( typeExpr )
         typeExpr->setContext(rangeContext);
     range->setContext(rangeContext);
     if ( action )
-        action->setContext(context_);
+        action->setContext(data_->context);
 }
 
 void For::doComputeType()
 {
-    type_ = getVoidType(context_->evalMode());
+    data_->type = getVoidType(data_->context->evalMode());
 }
 
 void For::doSemanticCheck()
 {
-    ASSERT(children_.size() == 3);
-    DynNode* range = children_[0];
-    DynNode* action = children_[1];
-    DynNode* typeExpr = children_[2];
+    ASSERT(data_->children.size() == 3);
+    DynNode* range = data_->children[0];
+    DynNode* action = data_->children[1];
+    DynNode* typeExpr = data_->children[2];
 
     bool ctFor = nodeEvalMode(this) == modeCt;
 
@@ -97,7 +97,7 @@ void For::doSemanticCheck()
         DynNode* base3 = mkCompoundExp(loc, rangeVarRef, "front");
         DynNode* init = mkFunApplication(loc, base3, {});
 
-        DynNode* iterVar = mkSprVariable(location_, getName(this), typeExpr, init);
+        DynNode* iterVar = mkSprVariable(data_->location, getName(this), typeExpr, init);
         if ( ctFor )
             setEvalMode(iterVar, modeCt);
 
@@ -106,6 +106,6 @@ void For::doSemanticCheck()
 
     DynNode* whileStmt = mkWhile(loc, whileCond, whileBody, whileStep, ctFor);
     
-    setExplanation(mkLocalSpace(location_, { rangeVar, whileStmt }));
+    setExplanation(mkLocalSpace(data_->location, { rangeVar, whileStmt }));
 }
 

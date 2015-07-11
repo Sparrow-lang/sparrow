@@ -190,7 +190,7 @@ GenericFunction::GenericFunction(SprFunction* originalFun, DynNodeVector params,
     : Generic(classNodeKind(), originalFun, move(genericParams), ifClause, publicAccess)
 {
     setEvalMode(this, effectiveEvalMode(originalFun));
-    referredNodes_.push_back(mkNodeList(location_, move(params)));
+    data_->referredNodes.push_back(mkNodeList(data_->location, move(params)));
 }
 
 GenericFunction::~GenericFunction()
@@ -199,8 +199,8 @@ GenericFunction::~GenericFunction()
 
 const DynNodeVector& GenericFunction::params() const
 {
-    ASSERT(referredNodes_.size() == 2);
-    return referredNodes_[1]->children();
+    ASSERT(data_->referredNodes.size() == 2);
+    return data_->referredNodes[1]->children();
 }
 
 
@@ -269,14 +269,14 @@ DynNode* GenericFunction::param(size_t idx) const
 
 Instantiation* GenericFunction::canInstantiate(const DynNodeVector& args)
 {
-    DynNode* originalFun = referredNodes_[0];
+    DynNode* originalFun = data_->referredNodes[0];
     DynNodeVector boundValues = getBoundValues(originalFun->context(), args, genericParams());
 
     EvalMode resultingEvalMode = originalFun->hasProperty(propCtGeneric)
         ? modeCt        // If we have a CT generic, the resulting eval mode is always CT
         : getResultingEvalMode(originalFun->location(), effectiveEvalMode(originalFun), args, genericParams());
 
-    InstantiationsSet* instantiationsSet = children_[0]->as<InstantiationsSet>();
+    InstantiationsSet* instantiationsSet = data_->children[0]->as<InstantiationsSet>();
     return instantiationsSet->canInstantiate(boundValues, resultingEvalMode);
 }
 
@@ -289,7 +289,7 @@ DynNode* GenericFunction::instantiateGeneric(const Location& loc, CompilationCon
     NodeList* expandedInstantiation = inst->expandedInstantiation();
     if ( !instantiatedDecl )
     {
-        SprFunction* originalFun = referredNodes_[0]->as<SprFunction>();
+        SprFunction* originalFun = data_->referredNodes[0]->as<SprFunction>();
         DynNodeVector nonBoundParams = getNonBoundParameters(*inst, originalFun, params(), genericParams());
 
         // Create the actual instantiation declaration

@@ -19,26 +19,26 @@ Generic::Generic(int nodeKind, DynNode* origNode, DynNodeVector genericParams, D
 
 void Generic::doSemanticCheck()
 {
-    explanation_ = mkNop(location_);
-    explanation_->setContext(context_);
-    explanation_->semanticCheck();
-    type_ = explanation_->type();
+    data_->explanation = mkNop(data_->location);
+    data_->explanation->setContext(data_->context);
+    data_->explanation->semanticCheck();
+    data_->type = data_->explanation->type();
 }
 
 const DynNodeVector& Generic::genericParams() const
 {
-    return children_[0]->as<InstantiationsSet>()->parameters();
+    return data_->children[0]->as<InstantiationsSet>()->parameters();
 }
 
 bool SprFrontend::isGeneric(const DynNode* node)
 {
-    return node->basicNode_->nodeKind == nkSparrowDeclGenericClass
-        || node->basicNode_->nodeKind == nkSparrowDeclGenericFunction;
+    return node->data_->nodeKind == nkSparrowDeclGenericClass
+        || node->data_->nodeKind == nkSparrowDeclGenericFunction;
 }
 
 size_t SprFrontend::genericParamsCount(const DynNode* node)
 {
-    switch ( node->basicNode_->nodeKind )
+    switch ( node->data_->nodeKind )
     {
     case nkSparrowDeclGenericClass:
         return static_cast<const GenericClass*>(node)->paramsCount();
@@ -51,7 +51,7 @@ size_t SprFrontend::genericParamsCount(const DynNode* node)
 }
 DynNode* SprFrontend::genericParam(const DynNode* node, size_t idx)
 {
-    switch ( node->basicNode_->nodeKind )
+    switch ( node->data_->nodeKind )
     {
     case nkSparrowDeclGenericClass:
         return static_cast<const GenericClass*>(node)->param(idx);
@@ -65,7 +65,7 @@ DynNode* SprFrontend::genericParam(const DynNode* node, size_t idx)
 
 Instantiation* SprFrontend::genericCanInstantiate(DynNode* node, const DynNodeVector& args)
 {
-    switch ( node->basicNode_->nodeKind )
+    switch ( node->data_->nodeKind )
     {
     case nkSparrowDeclGenericClass:
         return static_cast<GenericClass*>(node)->canInstantiate(args);
@@ -78,7 +78,7 @@ Instantiation* SprFrontend::genericCanInstantiate(DynNode* node, const DynNodeVe
 }
 DynNode* SprFrontend::genericDoInstantiate(DynNode* node, const Location& loc, CompilationContext* context, const DynNodeVector& args, Instantiation* instantiation)
 {
-    switch ( node->basicNode_->nodeKind )
+    switch ( node->data_->nodeKind )
     {
     case nkSparrowDeclGenericClass:
         return static_cast<GenericClass*>(node)->instantiateGeneric(loc, context, args, instantiation);

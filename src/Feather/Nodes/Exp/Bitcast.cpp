@@ -13,39 +13,39 @@ Bitcast::Bitcast(const Location& loc, DynNode* destType, DynNode* exp)
 
 TypeRef Bitcast::destType() const
 {
-    return children_[1]->type();
+    return data_->children[1]->type();
 }
 DynNode* Bitcast::exp() const
 {
-    return children_[0];
+    return data_->children[0];
 }
 
 void Bitcast::dump(ostream& os) const
 {
     if ( destType() )
-        os << "bitcast(" << destType() << ", " << children_[0] << ")";
+        os << "bitcast(" << destType() << ", " << data_->children[0] << ")";
     else
-        os << "bitcast(type(" << children_[1] << "), " << children_[0] << ")";
+        os << "bitcast(type(" << data_->children[1] << "), " << data_->children[0] << ")";
 }
 
 void Bitcast::doSemanticCheck()
 {
-    children_[0]->semanticCheck();
-    children_[1]->computeType();
-    TypeRef tDest = children_[1]->type();
+    data_->children[0]->semanticCheck();
+    data_->children[1]->computeType();
+    TypeRef tDest = data_->children[1]->type();
 
     // Make sure both types have storage
-    TypeRef srcType = children_[0]->type();
+    TypeRef srcType = data_->children[0]->type();
     if ( !srcType->hasStorage )
-        REP_ERROR(location_, "The source of a bitcast is not a type with storage (%1%)") % srcType;
+        REP_ERROR(data_->location, "The source of a bitcast is not a type with storage (%1%)") % srcType;
     if ( !tDest->hasStorage )
-        REP_ERROR(location_, "The destination type of a bitcast is not a type with storage (%1%)") % tDest;
+        REP_ERROR(data_->location, "The destination type of a bitcast is not a type with storage (%1%)") % tDest;
     
     // Make sure both types are references
     if ( srcType->numReferences == 0 )
-        REP_ERROR(location_, "The source of a bitcast is not a reference (%1%)") % srcType;
+        REP_ERROR(data_->location, "The source of a bitcast is not a reference (%1%)") % srcType;
     if ( tDest->numReferences == 0 )
-        REP_ERROR(location_, "The destination type of a bitcast is not a reference (%1%)") % tDest;
+        REP_ERROR(data_->location, "The destination type of a bitcast is not a reference (%1%)") % tDest;
 
-    type_ = adjustMode(tDest, context_, location_);
+    data_->type = adjustMode(tDest, data_->context, data_->location);
 }

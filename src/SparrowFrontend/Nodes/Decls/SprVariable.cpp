@@ -87,9 +87,9 @@ SprVariable::SprVariable(const Location& loc, string name, TypeRef type, DynNode
 
 void SprVariable::dump(ostream& os) const
 {
-    os << "var " << getName(this) << ": " << children_[0];
-    if ( children_[1] )
-        os << " = " << children_[1];
+    os << "var " << getName(this) << ": " << data_->children[0];
+    if ( data_->children[1] )
+        os << " = " << data_->children[1];
 }
 
 void SprVariable::doSetContextForChildren()
@@ -98,30 +98,30 @@ void SprVariable::doSetContextForChildren()
 
     // Create a new child compilation context if the mode has changed; otherwise stay in the same context
     EvalMode curEvalMode = nodeEvalMode(this);
-    if ( curEvalMode != modeUnspecified && curEvalMode != context_->evalMode() )
-        childrenContext_ = new CompilationContext(context_, curEvalMode);
+    if ( curEvalMode != modeUnspecified && curEvalMode != data_->context->evalMode() )
+        data_->childrenContext = new CompilationContext(data_->context, curEvalMode);
     else
-        childrenContext_ = context_;
+        data_->childrenContext = data_->context;
 
     DynNode::doSetContextForChildren();
 }
 
 void SprVariable::doComputeType()
 {
-    ASSERT(children_.size() == 2);
-    DynNode* typeNode = children_[0];
-    DynNode* init = children_[1];
+    ASSERT(data_->children.size() == 2);
+    DynNode* typeNode = data_->children[0];
+    DynNode* init = data_->children[1];
 
     bool isStatic = hasProperty(propIsStatic);
 
     // Check the kind of the variable (local, global, field)
     VarKind varKind = varLocal;
-    Function* parentFun = Feather::getParentFun(context_);
+    Function* parentFun = Feather::getParentFun(data_->context);
     Class* parentClass = nullptr;
     if ( !parentFun )
     {
         // Check if this is a member function
-        parentClass = Feather::getParentClass(context_);
+        parentClass = Feather::getParentClass(data_->context);
         if ( parentClass )
         {
             varKind = isStatic ? varGlobal : varField;
@@ -132,19 +132,19 @@ void SprVariable::doComputeType()
         {
             varKind = varGlobal;
             if ( isStatic )
-                REP_ERROR(location_, "Only variables inside classes can be static");
+                REP_ERROR(data_->location, "Only variables inside classes can be static");
         }
     }
 
     // Get the type of the variable
-    TypeRef t = computeVarType(this, childrenContext_, typeNode, init);
+    TypeRef t = computeVarType(this, data_->childrenContext, typeNode, init);
 
     // If the type of the variable indicates a variable that can only be CT, change the evalMode
     if ( t->mode == modeCt )
         setEvalMode(this, modeCt);
 
     // Create the resulting var
-    DynNode* resultingVar = mkVar(location_, getName(this), mkTypeNode(location_, t));
+    DynNode* resultingVar = mkVar(data_->location, getName(this), mkTypeNode(data_->location, t));
     setEvalMode(resultingVar, effectiveEvalMode(this));
     setShouldAddToSymTab(resultingVar, false);
     this->setProperty(propResultingDecl, resultingVar);
@@ -154,11 +154,11 @@ void SprVariable::doComputeType()
         resultingVar->setProperty(propIsField, 1);
     }
 
-    resultingVar->setContext(childrenContext_);
+    resultingVar->setContext(data_->childrenContext);
     resultingVar->computeType();
 
     // If this is a CT variable in a non-ct function, make this a global variable
-    if ( varKind == varLocal && context_->evalMode() == modeRt && isCt(t) )
+    if ( varKind == varLocal && data_->context->evalMode() == modeRt && isCt(t) )
         varKind = varGlobal;
 
     // If this is a CT variable in a non-ct function, make this a global variable
@@ -173,20 +173,20 @@ void SprVariable::doComputeType()
     {
         ASSERT(resultingVar->type());
 
-        varRef = mkVarRef(location_, resultingVar);
-        varRef->setContext(childrenContext_);
+        varRef = mkVarRef(data_->location, resultingVar);
+        varRef->setContext(data_->childrenContext);
 
         if ( !isRef )
         {
             // Create ctor and dtor
-            ctorCall = createCtorCall(location_, childrenContext_, varRef, init);
+            ctorCall = createCtorCall(data_->location, data_->childrenContext, varRef, init);
             if ( !Feather::isCt(resultingVar->type()) )
-                dtorCall = createDtorCall(location_, childrenContext_, varRef);
+                dtorCall = createDtorCall(data_->location, data_->childrenContext, varRef);
         }
         else if ( init )   // Reference initialization
         {
             // Create an assignment operator
-            ctorCall = mkOperatorCall(location_, varRef, ":=", init);
+            ctorCall = mkOperatorCall(data_->location, varRef, ":=", init);
         }
     }
 
@@ -204,35 +204,35 @@ void SprVariable::doComputeType()
         if ( varKind == varLocal )
         {
             // For local variables, add the ctor & dtor actions in the node list, and make this as explanation
-            dtorCall = dtorCall ? mkScopeDestructAction(location_, dtorCall) : nullptr;
+            dtorCall = dtorCall ? mkScopeDestructAction(data_->location, dtorCall) : nullptr;
         }
         else
         {
             // Add the variable at the top level
-            ASSERT(context_->sourceCode());
-            context_->sourceCode()->addAdditionalNode(resultingVar);
+            ASSERT(data_->context->sourceCode());
+            data_->context->sourceCode()->addAdditionalNode(resultingVar);
             resVar = nullptr;
 
             // For global variables, add the ctor & dtor actions as top level actions
             if ( ctorCall )
-                ctorCall = mkGlobalConstructAction(location_, ctorCall);
+                ctorCall = mkGlobalConstructAction(data_->location, ctorCall);
             if ( dtorCall )
-                dtorCall = mkGlobalDestructAction(location_, dtorCall);
+                dtorCall = mkGlobalDestructAction(data_->location, dtorCall);
         }
-        expl = mkNodeList(location_, { resVar, ctorCall, dtorCall, mkNop(location_) });
+        expl = mkNodeList(data_->location, { resVar, ctorCall, dtorCall, mkNop(data_->location) });
     }
 
     ASSERT(expl);
-    expl->setContext(childrenContext_);
+    expl->setContext(data_->childrenContext);
     expl->computeType();
-    explanation_ = expl;
-    type_ = expl->type();
+    data_->explanation = expl;
+    data_->type = expl->type();
 
     setProperty("spr.resultingVar", resultingVar);
 
     // TODO (var): field initialization
     if ( init && varKind == varField )
-        REP_ERROR(location_, "Initializers for class attributes are not supported yet");
+        REP_ERROR(data_->location, "Initializers for class attributes are not supported yet");
 }
 
 void SprVariable::doSemanticCheck()
@@ -242,5 +242,5 @@ void SprVariable::doSemanticCheck()
     // Semantically check the resulting variable and explanation
     DynNode* resultingVar = getCheckPropertyNode("spr.resultingVar");
     resultingVar->semanticCheck();
-    explanation_->semanticCheck();
+    data_->explanation->semanticCheck();
 }

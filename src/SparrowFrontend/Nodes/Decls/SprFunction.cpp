@@ -37,29 +37,29 @@ bool SprFunction::hasThisParameters() const
 
 DynNode* SprFunction::returnType() const
 {
-    ASSERT(children_.size() == 4);
-    return children_[1];
+    ASSERT(data_->children.size() == 4);
+    return data_->children[1];
 }
 DynNode* SprFunction::body() const
 {
-    ASSERT(children_.size() == 4);
-    return children_[2];
+    ASSERT(data_->children.size() == 4);
+    return data_->children[2];
 }
 
 Feather::Function* SprFunction::resultingFun() const
 {
-    return explanation_->as<Function>();
+    return data_->explanation->as<Function>();
 }
 
 string SprFunction::toString() const
 {
     ostringstream oss;
     oss << getName(this);
-    if ( children_[0] )
+    if ( data_->children[0] )
     {
         oss << '(';
         bool first = true;
-        for ( auto pn: children_[0]->children() )
+        for ( auto pn: data_->children[0]->children() )
         {
             if ( first )
                 first = false;
@@ -76,9 +76,9 @@ string SprFunction::toString() const
 void SprFunction::dump(ostream& os) const
 {
     os << "fun " << toString();
-    if ( children_[1] )
-        os << ": " << children_[1];
-    os << "\nbody: " << children_[2] << "\n";
+    if ( data_->children[1] )
+        os << ": " << data_->children[1];
+    os << "\nbody: " << data_->children[2] << "\n";
 }
 
 void SprFunction::doSetContextForChildren()
@@ -86,27 +86,27 @@ void SprFunction::doSetContextForChildren()
     addToSymTab(this);
 
     // If we don't have a children context, create one
-    if ( !childrenContext_ )
-        childrenContext_ = context_->createChildContext(this, effectiveEvalMode(this));
+    if ( !data_->childrenContext )
+        data_->childrenContext = data_->context->createChildContext(this, effectiveEvalMode(this));
 
     DynNode::doSetContextForChildren();
 }
 
 void SprFunction::doComputeType()
 {
-    ASSERT(children_.size() == 4);
-    NodeList* parameters = (NodeList*) children_[0];
-    DynNode* returnType = children_[1];
-    DynNode* body = children_[2];
-    DynNode* ifClause = children_[3];
+    ASSERT(data_->children.size() == 4);
+    NodeList* parameters = (NodeList*) data_->children[0];
+    DynNode* returnType = data_->children[1];
+    DynNode* body = data_->children[2];
+    DynNode* ifClause = data_->children[3];
 
     bool isStatic = hasProperty(propIsStatic);
 
     // Check if this is a member function
-    Class* parentClass = Feather::getParentClass(context_);
+    Class* parentClass = Feather::getParentClass(data_->context);
     bool isMember = nullptr != parentClass;
     if ( !isMember && isStatic )
-        REP_ERROR(location_, "Only functions inside classes can be static");
+        REP_ERROR(data_->location, "Only functions inside classes can be static");
     if ( isMember )
         setProperty(propIsMember, 1);
 
@@ -118,15 +118,15 @@ void SprFunction::doComputeType()
         if ( generic )
         {
             // TODO (explanation): explanation should be the result of semantic check
-            explanation_ = generic;
-            explanation_->computeType();
-            type_ = explanation_->type();
+            data_->explanation = generic;
+            data_->explanation->computeType();
+            data_->type = data_->explanation->type();
             setProperty(propResultingDecl, generic);
             return;
         }
     }
     if ( ifClause )
-        REP_ERROR(location_, "If clauses must be applied only to generics; this is not a generic function");
+        REP_ERROR(data_->location, "If clauses must be applied only to generics; this is not a generic function");
 
     const string& funName = getName(this);
 
@@ -134,15 +134,15 @@ void SprFunction::doComputeType()
     if ( isMember && !isStatic && !hasProperty(propNoDefault) )
     {
         if ( funName == "ctor" )
-            modifiers_.push_back(new IntModCtorMembers);
+            addModifier(new IntModCtorMembers);
         if ( funName == "dtor" )
-            modifiers_.push_back(new IntModDtorMembers);
+            addModifier(new IntModDtorMembers);
     }
 
     EvalMode thisEvalMode = effectiveEvalMode(this);
 
     // Create the resulting function object
-    Function* resultingFun = (Function*) mkFunction(location_, funName, nullptr, {}, body);
+    Function* resultingFun = (Function*) mkFunction(data_->location, funName, nullptr, {}, body);
     setShouldAddToSymTab(resultingFun, false);
 
     // Copy the "native" and the "autoCt" properties
@@ -155,8 +155,8 @@ void SprFunction::doComputeType()
         resultingFun->setProperty(propNoInline, 1);
 
     setEvalMode(resultingFun, thisEvalMode);
-    resultingFun->setChildrenContext(childrenContext_);
-    resultingFun->setContext(context_);
+    resultingFun->setChildrenContext(data_->childrenContext);
+    resultingFun->setContext(data_->context);
     setProperty(propResultingDecl, resultingFun);
 
     // Compute the types of the parameters first
@@ -167,8 +167,8 @@ void SprFunction::doComputeType()
     if ( isMember && !isStatic )
     {
         TypeRef thisType = getDataType(parentClass, 1, thisEvalMode);
-        DynNode* thisParam = Feather::mkVar(location_, "$this", mkTypeNode(location_, thisType));
-        thisParam->setContext(childrenContext_);
+        DynNode* thisParam = Feather::mkVar(data_->location, "$this", mkTypeNode(data_->location, thisType));
+        thisParam->setContext(data_->childrenContext);
         resultingFun->addParameter(thisParam);
     }
 
@@ -187,24 +187,24 @@ void SprFunction::doComputeType()
     // Compute the type of the return type node
     // We do this after the parameters, as the computation of the result might require access to the parameters
     TypeRef resType = returnType ? getType(returnType) : getVoidType(thisEvalMode);
-    resType = adjustMode(resType, thisEvalMode, childrenContext_, location_);
+    resType = adjustMode(resType, thisEvalMode, data_->childrenContext, data_->location);
 
     // If the parameter is a non-reference class, not basic numeric, add result parameter; otherwise, normal result
     if ( resType->hasStorage && resType->numReferences == 0 && !isBasicNumericType(resType) )
     {
         DynNode* resParam = Feather::mkVar(returnType->location(), "_result", mkTypeNode(returnType->location(), addRef(resType)));
-        resParam->setContext(childrenContext_);
+        resParam->setContext(data_->childrenContext);
         resultingFun->addParameter(resParam, true);
         resultingFun->setProperty(propResultParam, resParam);
         resultingFun->setResultType(mkTypeNode(returnType->location(), getVoidType(thisEvalMode)));
     }
     else
-        resultingFun->setResultType(mkTypeNode(location_, resType));
+        resultingFun->setResultType(mkTypeNode(data_->location, resType));
 
     // TODO (explanation): explanation should be the result of semantic check
-    explanation_ = resultingFun;
-    explanation_->computeType();
-    type_ = explanation_->type();
+    data_->explanation = resultingFun;
+    data_->explanation->computeType();
+    data_->type = data_->explanation->type();
 
     // Check for Std functions
     checkStdFunction(this);
@@ -214,8 +214,8 @@ void SprFunction::doSemanticCheck()
 {
     computeType();
 
-    ASSERT(explanation_);
-    explanation_->semanticCheck();
+    ASSERT(data_->explanation);
+    data_->explanation->semanticCheck();
 
     // Check for static ctors & dtors
     if ( resultingFun() && (!hasProperty(propIsMember) || hasProperty(propIsStatic)) )
@@ -231,18 +231,18 @@ void SprFunction::doSemanticCheck()
 
 void SprFunction::handleStaticCtorDtor(bool ctor)
 {
-    ASSERT(children_.size() == 4);
-    NodeList* parameters = (NodeList*) children_[0];
+    ASSERT(data_->children.size() == 4);
+    NodeList* parameters = (NodeList*) data_->children[0];
 
     // Make sure we don't have any parameters
     if ( parameters && !parameters->children().empty() )
-        REP_ERROR(location_, "Static constructors and destructors cannot have parameters");
+        REP_ERROR(data_->location, "Static constructors and destructors cannot have parameters");
 
     // Add a global construct / destruct action call to this
-    DynNode* funCall = mkFunCall(location_, explanation_, {});
-    DynNode* n = ctor ? mkGlobalConstructAction(location_, funCall) : mkGlobalDestructAction(location_, funCall);
-    n->setContext(context_);
+    DynNode* funCall = mkFunCall(data_->location, data_->explanation, {});
+    DynNode* n = ctor ? mkGlobalConstructAction(data_->location, funCall) : mkGlobalDestructAction(data_->location, funCall);
+    n->setContext(data_->context);
     n->semanticCheck();
-    ASSERT(context_->sourceCode());
-    context_->sourceCode()->addAdditionalNode(n);
+    ASSERT(data_->context->sourceCode());
+    data_->context->sourceCode()->addAdditionalNode(n);
 }

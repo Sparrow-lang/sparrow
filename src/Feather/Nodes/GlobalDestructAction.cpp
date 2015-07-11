@@ -15,22 +15,22 @@ GlobalDestructAction::GlobalDestructAction(const Location& loc, DynNode* action)
 
 DynNode* GlobalDestructAction::destructAction() const
 {
-    return children_[0];
+    return data_->children[0];
 }
 
 void GlobalDestructAction::dump(ostream& os) const
 {
-    os << "globalDestructAction(" << children_[0] << ")";
+    os << "globalDestructAction(" << data_->children[0] << ")";
 }
 
 void GlobalDestructAction::doSemanticCheck()
 {
-    children_[0]->semanticCheck();
-    type_ = getVoidType(context_->evalMode());
+    data_->children[0]->semanticCheck();
+    data_->type = getVoidType(data_->context->evalMode());
 
     // We never CT evaluate global destruct actions
-    if ( isCt(children_[0]) )
+    if ( isCt(data_->children[0]) )
     {
-        setExplanation(mkNop(location_));
+        setExplanation(mkNop(data_->location));
     }
 }

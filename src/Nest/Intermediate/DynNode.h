@@ -29,8 +29,8 @@ namespace Nest
 
         static DynNode* fromNode(const Node* node);
 
-        Node* node() { return basicNode_; }
-        const Node* node() const { return basicNode_; }
+        Node* node() { return data_; }
+        const Node* node() const { return data_; }
 
         static void* operator new(size_t size);
         static void operator delete(void* ptr);
@@ -39,7 +39,7 @@ namespace Nest
         DynNode* clone() const;
 
         /// Returns the object kind ID
-        int nodeKind() const { return basicNode_->nodeKind; }
+        int nodeKind() const { return data_->nodeKind; }
         
         /// Returns the object kind name
         const char* nodeKindName() const;
@@ -60,15 +60,15 @@ namespace Nest
         void setLocation(const Location& loc);
 
         /// Getter for the children nodes of this node - think compositon
-        const DynNodeVector& children() const { return basicNode_->children; }
-        DynNodeVector& children() { return basicNode_->children; }
+        const DynNodeVector& children() const { return data_->children; }
+        DynNodeVector& children() { return data_->children; }
         
         /// Getter for the list of nodes referred by this node
-        const DynNodeVector& referredNodes() const { return basicNode_->referredNodes; }
-        DynNodeVector& referredNodes() { return basicNode_->referredNodes; }
+        const DynNodeVector& referredNodes() const { return data_->referredNodes; }
+        DynNodeVector& referredNodes() { return data_->referredNodes; }
 
-        const vector<Modifier*>& modifiers() const { return basicNode_->modifiers; }
-        vector<Modifier*>& modifiers() { return basicNode_->modifiers; }
+        const vector<Modifier*>& modifiers() const { return data_->modifiers; }
+        vector<Modifier*>& modifiers() { return data_->modifiers; }
         
         void setProperty(const char* name, int val, bool passToExpl = false);
         void setProperty(const char* name, string val, bool passToExpl = false);
@@ -156,7 +156,7 @@ namespace Nest
             if ( !this )
                 REP_INTERNAL(NOLOC, "Expected AST node to reinterpret");
             if ( nodeKind() != T::classNodeKind() )
-                REP_INTERNAL(basicNode_->location, "AST node is not of kind %1% (it's of kind %2%)") % T::classNodeKindName() % nodeKindName();
+                REP_INTERNAL(data_->location, "AST node is not of kind %1% (it's of kind %2%)") % T::classNodeKindName() % nodeKindName();
             return static_cast<T*>(this);
         }
         
@@ -170,20 +170,9 @@ namespace Nest
     // General node attributes
     public:
         /// The basic node underlying this DynNode
-        Node* basicNode_;
+        Node* data_;
 
     protected:
-        // We use the following references, so that we don't change a lot of code at once
-        Location& location_;
-        DynNodeVector& children_;
-        DynNodeVector& referredNodes_;
-        PropertyMap& properties_;
-        CompilationContext*& context_;
-        CompilationContext*& childrenContext_;
-        TypeRef& type_;
-        DynNode*& explanation_;
-        vector<Modifier*>& modifiers_;
-
         friend void save(const DynNode& obj, Common::Ser::OutArchive& ar);
         friend void load(DynNode& obj, Common::Ser::InArchive& ar);
     };
@@ -218,7 +207,7 @@ namespace Nest
 #define DEFINE_NODE(className, kindId, kindName) \
     public: \
         static int classNodeKind() { return kindId; } \
-        int nodeKind() const { return basicNode_->nodeKind; } \
+        int nodeKind() const { return data_->nodeKind; } \
         static const char* classNodeKindName() { return kindName; } \
         const char* nodeKindName() const { return Nest::getNodeKindName(kindId); } \
         className* clone() const { \
@@ -230,8 +219,8 @@ namespace Nest
     private: \
         static const char* toStringImpl(Nest::Node* node) { ostringstream oss; static_cast<className*>(DynNode::fromNode(node))->dump(oss); return strdup(oss.str().c_str()); } \
         static void setContextForChildrenImpl(Nest::Node* node) { static_cast<className*>(DynNode::fromNode(node))->doSetContextForChildren(); } \
-        static TypeRef computeTypeImpl(Nest::Node* node) { className* thisNode = static_cast<className*>(DynNode::fromNode(node)); thisNode->doComputeType(); return thisNode->basicNode_->type; } \
-        static Nest::Node* semanticCheckImpl(Nest::Node* node) { className* thisNode = static_cast<className*>(DynNode::fromNode(node)); thisNode->doSemanticCheck(); return Nest::explanation(thisNode->basicNode_)->basicNode_; } \
+        static TypeRef computeTypeImpl(Nest::Node* node) { className* thisNode = static_cast<className*>(DynNode::fromNode(node)); thisNode->doComputeType(); return thisNode->data_->type; } \
+        static Nest::Node* semanticCheckImpl(Nest::Node* node) { className* thisNode = static_cast<className*>(DynNode::fromNode(node)); thisNode->doSemanticCheck(); return Nest::explanation(thisNode->data_)->data_; } \
     public: \
         static void registerSelf() { \
             int nodeKind = Nest::registerNodeKind(kindName, &semanticCheckImpl, &computeTypeImpl, &setContextForChildrenImpl, &toStringImpl); \

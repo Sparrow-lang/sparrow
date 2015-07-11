@@ -24,11 +24,11 @@ void Continue::dump(ostream& os) const
 void Continue::doSemanticCheck()
 {
     // Get the outer-most loop from the context
-    DynNode* loop = getParentLoop(context_);
+    DynNode* loop = getParentLoop(data_->context);
     if ( !loop )
-        REP_ERROR(location_, "Continue found outside any loop");
+        REP_ERROR(data_->location, "Continue found outside any loop");
     setProperty("loop", loop);
 
     // The resulting type is Void
-    type_ = getVoidType(context_->evalMode());
+    data_->type = getVoidType(data_->context->evalMode());
 }

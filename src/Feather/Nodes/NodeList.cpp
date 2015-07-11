@@ -19,13 +19,13 @@ NodeList::NodeList(const Location& loc, DynNodeVector children, bool resultVoid)
 
 void NodeList::addChild(DynNode* p)
 {
-    children_.push_back(p);
+    data_->children.push_back(p);
 }
 
 void NodeList::dump(ostream& os) const
 {
     os << "nodeList(";
-    for ( DynNode* p: children_ )
+    for ( DynNode* p: data_->children )
     {
         os << endl << p;
     }
@@ -35,7 +35,7 @@ void NodeList::dump(ostream& os) const
 void NodeList::doComputeType()
 {
     // Compute the type for all the children
-    for ( DynNode* p: children_ )
+    for ( DynNode* p: data_->children )
     {
         if ( !p )
             continue;
@@ -44,8 +44,8 @@ void NodeList::doComputeType()
     }
 
     // Get the type of the last node
-    type_ = ( hasProperty(propResultVoid) || children_.empty() || !children_.back()->type() ) ? getVoidType(context_->evalMode()) : children_.back()->type();
-    type_ = adjustMode(type_, context_, location_);
+    data_->type = ( hasProperty(propResultVoid) || data_->children.empty() || !data_->children.back()->type() ) ? getVoidType(data_->context->evalMode()) : data_->children.back()->type();
+    data_->type = adjustMode(data_->type, data_->context, data_->location);
     checkEvalMode(this);
 }
 
@@ -53,7 +53,7 @@ void NodeList::doSemanticCheck()
 {
     // Semantic check each of the children
     bool hasNonCtChildren = false;
-    for ( DynNode* p: children_ )
+    for ( DynNode* p: data_->children )
     {
         if ( !p )
             continue;
@@ -63,11 +63,11 @@ void NodeList::doSemanticCheck()
     }
 
     // Make sure the type is computed
-    if ( !type_ )
+    if ( !data_->type )
     {
         // Get the type of the last node
-        type_ = ( hasProperty(propResultVoid) || children_.empty() || !children_.back()->type() ) ? getVoidType(context_->evalMode()) : children_.back()->type();
-        type_ = adjustMode(type_, context_, location_);
+        data_->type = ( hasProperty(propResultVoid) || data_->children.empty() || !data_->children.back()->type() ) ? getVoidType(data_->context->evalMode()) : data_->children.back()->type();
+        data_->type = adjustMode(data_->type, data_->context, data_->location);
         checkEvalMode(this);
     }
 }

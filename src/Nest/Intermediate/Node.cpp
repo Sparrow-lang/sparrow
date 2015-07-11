@@ -289,7 +289,7 @@ void Nest::setExplanation(Node* node, DynNode* explanation)
     // Copy all the properties marked accordingly
     for ( const auto& prop : node->properties )
         if ( prop.second.passToExpl_ )
-            node->explanation->basicNode_->properties[prop.first] = prop.second;
+            node->explanation->data_->properties[prop.first] = prop.second;
 
     // Try to semantically check the explanation
     if ( !explanation->isSemanticallyChecked() )
@@ -338,7 +338,7 @@ void Nest::defaultFunSetContextForChildren(Node* node)
     for ( DynNode* child: node->children )
     {
         if ( child )
-            setContext(child->basicNode_, childrenCtx);
+            setContext(child->data_, childrenCtx);
     }
 }
 

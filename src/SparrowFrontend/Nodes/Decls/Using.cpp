@@ -18,8 +18,8 @@ Using::Using(const Location& loc, string alias, DynNode* usingNode, AccessType a
 
 DynNode* Using::source() const
 {
-    ASSERT(children_.size() == 1);
-    return children_[0];
+    ASSERT(data_->children.size() == 1);
+    return data_->children[0];
 }
 
 void Using::doSetContextForChildren()
@@ -32,8 +32,8 @@ void Using::doSetContextForChildren()
 
 void Using::doComputeType()
 {
-    ASSERT(children_.size() == 1);
-    DynNode* usingNode = children_[0];
+    ASSERT(data_->children.size() == 1);
+    DynNode* usingNode = data_->children[0];
     const string* alias = getPropertyString("name");
 
     // Compile the using name
@@ -50,7 +50,7 @@ void Using::doComputeType()
         // Add references in the current symbol tab
         for ( DynNode* decl: decls )
         {
-            context_->currentSymTab()->enter(Feather::getName(decl), decl);
+            data_->context->currentSymTab()->enter(Feather::getName(decl), decl);
         }
     }
     else
@@ -58,7 +58,7 @@ void Using::doComputeType()
         // We added this node to the current sym tab, as we set shouldAddToSymTab_ to true
     }
 
-    setExplanation(Feather::mkNop(location_));
+    setExplanation(Feather::mkNop(data_->location));
 }
 
 void Using::doSemanticCheck()

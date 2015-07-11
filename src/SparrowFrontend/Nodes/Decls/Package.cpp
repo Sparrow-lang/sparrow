@@ -21,26 +21,26 @@ void Package::doSetContextForChildren()
     Feather::addToSymTab(this);
 
     // If we don't have a children context, create one
-    if ( !childrenContext_ )
-        childrenContext_ = context_->createChildContext(this);
+    if ( !data_->childrenContext )
+        data_->childrenContext = data_->context->createChildContext(this);
 
     // Set the context for all the children
-    children_[0]->setContext(childrenContext_);
+    data_->children[0]->setContext(data_->childrenContext);
 }
 
 void Package::doComputeType()
 {
     // Compute the type for the children
-    children_[0]->computeType();
-    explanation_ = children_[0];
-    checkForAllowedNamespaceChildren((NodeList*) children_[0]);
+    data_->children[0]->computeType();
+    data_->explanation = data_->children[0];
+    checkForAllowedNamespaceChildren((NodeList*) data_->children[0]);
 
-    type_ = Feather::getVoidType(modeCt);
+    data_->type = Feather::getVoidType(modeCt);
 }
 
 void Package::doSemanticCheck()
 {
     computeType();
-    children_[0]->semanticCheck();
-    explanation_ = children_[0];
+    data_->children[0]->semanticCheck();
+    data_->explanation = data_->children[0];
 }

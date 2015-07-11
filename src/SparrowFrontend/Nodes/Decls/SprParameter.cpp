@@ -23,25 +23,25 @@ SprParameter::SprParameter(const Location& loc, string name, TypeRef type, DynNo
 
 DynNode* SprParameter::initValue() const
 {
-    ASSERT(children_.size() == 2);
-    return children_[1];
+    ASSERT(data_->children.size() == 2);
+    return data_->children[1];
 }
 
 void SprParameter::dump(ostream& os) const
 {
     os << Feather::getName(this) << ": ";
-    if ( type_ )
-        os << type_;
+    if ( data_->type )
+        os << data_->type;
     else
     {
         const TypeRef* givenType = getPropertyType("spr.givenType");
         if ( givenType )
             os << *givenType;
         else
-            os << children_[0];
+            os << data_->children[0];
     }
-    if ( children_[1] )
-        os << " = " << children_[1];
+    if ( data_->children[1] )
+        os << " = " << data_->children[1];
 }
 
 void SprParameter::doSetContextForChildren()
@@ -53,18 +53,18 @@ void SprParameter::doSetContextForChildren()
 
 void SprParameter::doComputeType()
 {
-    ASSERT(children_.size() == 2);
-    DynNode* typeNode = children_[0];
+    ASSERT(data_->children.size() == 2);
+    DynNode* typeNode = data_->children[0];
 
     const TypeRef* givenType = getPropertyType("spr.givenType");
     TypeRef t = givenType ? *givenType : getType(typeNode);
 
-    DynNode* resultingParam = Feather::mkVar(location_, Feather::getName(this), Feather::mkTypeNode(location_, t), 0, Feather::effectiveEvalMode(this));
+    DynNode* resultingParam = Feather::mkVar(data_->location, Feather::getName(this), Feather::mkTypeNode(data_->location, t), 0, Feather::effectiveEvalMode(this));
     Feather::setShouldAddToSymTab(resultingParam, false);
-    resultingParam->setContext(context_);
+    resultingParam->setContext(data_->context);
     resultingParam->computeType();
-    explanation_ = resultingParam;
-    type_ = resultingParam->type();
+    data_->explanation = resultingParam;
+    data_->type = resultingParam->type();
     setProperty(Feather::propResultingDecl, resultingParam);
 }
 
@@ -72,7 +72,7 @@ void SprParameter::doSemanticCheck()
 {
     computeType();
 
-    explanation_->semanticCheck();
+    data_->explanation->semanticCheck();
 
     DynNode* init = initValue();
     if ( init )

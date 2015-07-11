@@ -28,7 +28,7 @@ const string& CtValue::valueData() const
 
 bool CtValue::operator ==(const CtValue& other) const
 {
-    if ( !type_ || type_ != other.type_ )
+    if ( !data_->type || data_->type != other.data_->type )
         return false;
 
     return valueData() == other.valueData();
@@ -42,20 +42,20 @@ bool CtValue::operator !=(const CtValue& other) const
 
 void CtValue::dump(ostream& os) const
 {
-    if ( !type_ )
+    if ( !data_->type )
     {
         os << "ctValue";
         return;
     }
-    os << "ctValue(" << type_ << ": ";
+    os << "ctValue(" << data_->type << ": ";
     
-    const string* nativeName = type_->hasStorage ? Feather::nativeName(type_) : nullptr;
-    if ( 0 == strcmp(type_->description, "Type/ct") )
+    const string* nativeName = data_->type->hasStorage ? Feather::nativeName(data_->type) : nullptr;
+    if ( 0 == strcmp(data_->type->description, "Type/ct") )
     {
         TypeRef t = *this->value<TypeRef>();
         os << t;
     }
-    else if ( nativeName && type_->numReferences == 0 )
+    else if ( nativeName && data_->type->numReferences == 0 )
     {
         if ( *nativeName == "i1" || *nativeName == "u1" )
         {
@@ -90,20 +90,20 @@ void CtValue::dump(ostream& os) const
 void CtValue::doSemanticCheck()
 {
     // Check the type
-    if ( !type_ )
-        type_ = valueType();
-    if ( !type_ || !type_->hasStorage || type_->mode == modeRt )
-        REP_ERROR(location_, "Type specified for Ct Value cannot be used at compile-time");
+    if ( !data_->type )
+        data_->type = valueType();
+    if ( !data_->type || !data_->type->hasStorage || data_->type->mode == modeRt )
+        REP_ERROR(data_->location, "Type specified for Ct Value cannot be used at compile-time");
     
     // Make sure data size matches the size reported by the type
-    size_t valueSize = theCompiler().sizeOf(type_);
+    size_t valueSize = theCompiler().sizeOf(data_->type);
     const string& data = valueData();
     if ( valueSize != data.size() )
     {
-        REP_ERROR(location_, "Read value size (%1%) differs from declared size of the value (%2%)")
+        REP_ERROR(data_->location, "Read value size (%1%) differs from declared size of the value (%2%)")
             % data.size() % valueSize;
     }
 
-    type_ = Feather::changeTypeMode(type_, modeCt, location_);
+    data_->type = Feather::changeTypeMode(data_->type, modeCt, data_->location);
 }
 

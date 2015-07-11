@@ -12,7 +12,7 @@ StarExp::StarExp(const Location& loc, DynNode* base)
 
 void StarExp::doSemanticCheck()
 {
-    DynNode* base = children_[0];
+    DynNode* base = data_->children[0];
 
     // For the base expression allow it to return DeclExp
     base->setProperty(propAllowDeclExp, 1, true);
@@ -43,8 +43,8 @@ void StarExp::doSemanticCheck()
     }
 
     if ( decls.empty() )
-        REP_ERROR(location_, "No declarations found with the star expression");
+        REP_ERROR(data_->location, "No declarations found with the star expression");
     
     // This expands to a declaration expression
-    setExplanation(mkDeclExp(location_, move(decls)));
+    setExplanation(mkDeclExp(data_->location, move(decls)));
 }

@@ -26,8 +26,8 @@ size_t Var::alignment() const
 
 void Var::dump(ostream& os) const
 {
-    ASSERT(children_.size() == 1);
-    os << "var(" << getName(this) << ": " << children_[0]->type() << ")";
+    ASSERT(data_->children.size() == 1);
+    os << "var(" << getName(this) << ": " << data_->children[0]->type() << ")";
 }
 
 void Var::doSetContextForChildren()
@@ -39,15 +39,15 @@ void Var::doSetContextForChildren()
 void Var::doComputeType()
 {
     // Make sure the variable has a type
-    ASSERT(children_.size() == 1);
-    DynNode* typeNode = children_[0];
+    ASSERT(data_->children.size() == 1);
+    DynNode* typeNode = data_->children[0];
     typeNode->computeType();
-    type_ = typeNode->type();
-    if ( !type_ )
-        REP_ERROR(location_, "No type given for variable");
+    data_->type = typeNode->type();
+    if ( !data_->type )
+        REP_ERROR(data_->location, "No type given for variable");
 
     // Adjust the mode of the type
-    type_ = adjustMode(type_, context_, location_);
+    data_->type = adjustMode(data_->type, data_->context, data_->location);
 }
 
 void Var::doSemanticCheck()
@@ -55,8 +55,8 @@ void Var::doSemanticCheck()
     computeType();
 
     // Make sure that the type has storage
-    if ( !type_->hasStorage )
-        REP_ERROR(location_, "Variable type has no storage (%1%") % type_;
+    if ( !data_->type->hasStorage )
+        REP_ERROR(data_->location, "Variable type has no storage (%1%") % data_->type;
 
-    classForTypeRaw(type_)->computeType();           // Make sure the type of the class is computed
+    classForTypeRaw(data_->type)->computeType();           // Make sure the type of the class is computed
 }

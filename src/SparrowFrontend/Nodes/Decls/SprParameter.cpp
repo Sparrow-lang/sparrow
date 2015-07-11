@@ -63,7 +63,7 @@ void SprParameter::doComputeType()
     Feather::setShouldAddToSymTab(resultingParam, false);
     resultingParam->setContext(data_.context);
     resultingParam->computeType();
-    data_.explanation = resultingParam;
+    data_.explanation = resultingParam->node();
     data_.type = resultingParam->type();
     setProperty(Feather::propResultingDecl, resultingParam);
 }
@@ -72,7 +72,7 @@ void SprParameter::doSemanticCheck()
 {
     computeType();
 
-    data_.explanation->semanticCheck();
+    Nest::semanticCheck(data_.explanation);
 
     DynNode* init = initValue();
     if ( init )

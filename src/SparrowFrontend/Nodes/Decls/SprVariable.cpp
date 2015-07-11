@@ -225,7 +225,7 @@ void SprVariable::doComputeType()
     ASSERT(expl);
     expl->setContext(data_.childrenContext);
     expl->computeType();
-    data_.explanation = expl;
+    data_.explanation = expl->node();
     data_.type = expl->type();
 
     setProperty("spr.resultingVar", resultingVar);
@@ -242,5 +242,5 @@ void SprVariable::doSemanticCheck()
     // Semantically check the resulting variable and explanation
     DynNode* resultingVar = getCheckPropertyDynNode("spr.resultingVar");
     resultingVar->semanticCheck();
-    data_.explanation->semanticCheck();
+    Nest::semanticCheck(data_.explanation);
 }

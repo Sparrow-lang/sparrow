@@ -165,7 +165,7 @@ void SprClass::doComputeType()
     resultingClass->setContext(data_.context);
     setProperty(propResultingDecl, resultingClass);
 
-    data_.explanation = resultingClass;
+    data_.explanation = resultingClass->node();
 
     // Check for Std classes
     checkStdClass(resultingClass);
@@ -228,9 +228,9 @@ void SprClass::doSemanticCheck()
 {
     computeType();
 
-    data_.explanation->semanticCheck();
+    Nest::semanticCheck(data_.explanation);
 
-    if ( data_.explanation->nodeKind() != nkFeatherDeclClass )
+    if ( data_.explanation->nodeKind != nkFeatherDeclClass )
         return; // This should be a generic; there is nothing else to do here
 
     // Semantic check all the children

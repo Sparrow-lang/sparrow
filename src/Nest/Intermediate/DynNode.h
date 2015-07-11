@@ -227,7 +227,7 @@ namespace Nest
         static const char* toStringImpl(const Nest::Node* node) { ostringstream oss; static_cast<const className*>(DynNode::fromNode(node))->dump(oss); return strdup(oss.str().c_str()); } \
         static void setContextForChildrenImpl(Nest::Node* node) { static_cast<className*>(DynNode::fromNode(node))->doSetContextForChildren(); } \
         static TypeRef computeTypeImpl(Nest::Node* node) { className* thisNode = static_cast<className*>(DynNode::fromNode(node)); thisNode->doComputeType(); return thisNode->data_.type; } \
-        static Nest::Node* semanticCheckImpl(Nest::Node* node) { className* thisNode = static_cast<className*>(DynNode::fromNode(node)); thisNode->doSemanticCheck(); return &Nest::explanation(&thisNode->data_)->data_; } \
+        static Nest::Node* semanticCheckImpl(Nest::Node* node) { className* thisNode = static_cast<className*>(DynNode::fromNode(node)); thisNode->doSemanticCheck(); return Nest::explanation(&thisNode->data_); } \
     public: \
         static void registerSelf() { \
             int nodeKind = Nest::registerNodeKind(kindName, &semanticCheckImpl, &computeTypeImpl, &setContextForChildrenImpl, &toStringImpl); \

@@ -67,7 +67,7 @@ namespace Nest
     /// Structure representing an AST node
     struct Node
     {
-        /// DynNode flags
+        /// Node flags
         unsigned int nodeKind : 16;
         unsigned int nodeError : 1;
         unsigned int nodeSemanticallyChecked : 1;
@@ -97,7 +97,7 @@ namespace Nest
         
         /// The explanation of this node
         /// A node has explanation if its meaning can be explained with the help of another node (the explanation node)
-        DynNode* explanation;
+        Node* explanation;
 
         /// The modifiers used to adjust the compilation process of this node
         vector<Modifier*> modifiers;
@@ -176,10 +176,10 @@ namespace Nest
     /// Set the explanation of this node.
     /// makes sure it has the right context, compiles it, and set the type of the current node to be the type of the
     /// explanation
-    void setExplanation(Node* node, DynNode* explanation);
+    void setExplanation(Node* node, Node* explanation);
 
     /// Getter for the explanation of this node, if it has one; otherwise returns this node
-    DynNode* explanation(Node* node);
+    Node* explanation(Node* node);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Default implementation for node-specific functions

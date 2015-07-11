@@ -65,7 +65,7 @@ string DynNode::toString() const
 
 void DynNode::dump(ostream& os) const
 {
-    if ( data_.explanation && 0 != strcmp(data_.explanation->nodeKindName(), "Feather.Nop") )
+    if ( data_.explanation && 0 != strcmp(Nest::nodeKindName(data_.explanation), "Feather.Nop") )
         os << data_.explanation;
     else
     {
@@ -184,12 +184,12 @@ bool DynNode::isExplained() const
 
 DynNode* DynNode::curExplanation()
 {
-    return data_.explanation;
+    return (DynNode*) data_.explanation;
 }
 
 DynNode* DynNode::explanation()
 {
-    return Nest::explanation(&data_);
+    return (DynNode*) Nest::explanation(&data_);
 }
 
 void DynNode::setChildrenContext(CompilationContext* childrenContext)
@@ -267,7 +267,7 @@ void DynNode::doSemanticCheck()
 
 void DynNode::setExplanation(DynNode* explanation)
 {
-    Nest::setExplanation(&data_, explanation);
+    Nest::setExplanation(&data_, (Node*) explanation);
 }
 
 

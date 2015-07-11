@@ -51,7 +51,7 @@ void ModifiersNode::doComputeType()
     // Compute the type of the base node
     base->computeType();
     data_.type = base->type();
-    data_.explanation = base;
+    data_.explanation = base->node();
 }
 
 void ModifiersNode::doSemanticCheck()

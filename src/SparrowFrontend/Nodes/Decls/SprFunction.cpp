@@ -48,7 +48,7 @@ DynNode* SprFunction::body() const
 
 Feather::Function* SprFunction::resultingFun() const
 {
-    return data_.explanation->as<Function>();
+    return (Function*) data_.explanation;
 }
 
 string SprFunction::toString() const
@@ -118,9 +118,9 @@ void SprFunction::doComputeType()
         if ( generic )
         {
             // TODO (explanation): explanation should be the result of semantic check
-            data_.explanation = generic;
-            data_.explanation->computeType();
-            data_.type = data_.explanation->type();
+            data_.explanation = generic->node();
+            Nest::computeType(data_.explanation);
+            data_.type = data_.explanation->type;
             setProperty(propResultingDecl, generic);
             return;
         }
@@ -202,9 +202,9 @@ void SprFunction::doComputeType()
         resultingFun->setResultType(mkTypeNode(data_.location, resType));
 
     // TODO (explanation): explanation should be the result of semantic check
-    data_.explanation = resultingFun;
-    data_.explanation->computeType();
-    data_.type = data_.explanation->type();
+    data_.explanation = resultingFun->node();
+    Nest::computeType(data_.explanation);
+    data_.type = data_.explanation->type;
 
     // Check for Std functions
     checkStdFunction(this);
@@ -215,7 +215,7 @@ void SprFunction::doSemanticCheck()
     computeType();
 
     ASSERT(data_.explanation);
-    data_.explanation->semanticCheck();
+    Nest::semanticCheck(data_.explanation);
 
     // Check for static ctors & dtors
     if ( resultingFun() && (!hasProperty(propIsMember) || hasProperty(propIsStatic)) )
@@ -239,7 +239,7 @@ void SprFunction::handleStaticCtorDtor(bool ctor)
         REP_ERROR(data_.location, "Static constructors and destructors cannot have parameters");
 
     // Add a global construct / destruct action call to this
-    DynNode* funCall = mkFunCall(data_.location, data_.explanation, {});
+    DynNode* funCall = mkFunCall(data_.location, (DynNode*) data_.explanation, {});
     DynNode* n = ctor ? mkGlobalConstructAction(data_.location, funCall) : mkGlobalDestructAction(data_.location, funCall);
     n->setContext(data_.context);
     n->semanticCheck();

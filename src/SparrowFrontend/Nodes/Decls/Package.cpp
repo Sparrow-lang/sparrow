@@ -32,7 +32,7 @@ void Package::doComputeType()
 {
     // Compute the type for the children
     data_.children[0]->computeType();
-    data_.explanation = data_.children[0];
+    data_.explanation = data_.children[0]->node();
     checkForAllowedNamespaceChildren((NodeList*) data_.children[0]);
 
     data_.type = Feather::getVoidType(modeCt);
@@ -42,5 +42,5 @@ void Package::doSemanticCheck()
 {
     computeType();
     data_.children[0]->semanticCheck();
-    data_.explanation = data_.children[0];
+    data_.explanation = data_.children[0]->node();
 }

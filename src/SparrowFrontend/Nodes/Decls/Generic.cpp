@@ -19,10 +19,10 @@ Generic::Generic(int nodeKind, DynNode* origNode, DynNodeVector genericParams, D
 
 void Generic::doSemanticCheck()
 {
-    data_.explanation = mkNop(data_.location);
-    data_.explanation->setContext(data_.context);
-    data_.explanation->semanticCheck();
-    data_.type = data_.explanation->type();
+    data_.explanation = mkNop(data_.location)->node();
+    Nest::setContext(data_.explanation, data_.context);
+    Nest::semanticCheck(data_.explanation);
+    data_.type = data_.explanation->type;
 }
 
 const DynNodeVector& Generic::genericParams() const

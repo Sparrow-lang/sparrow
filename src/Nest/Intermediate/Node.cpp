@@ -315,34 +315,34 @@ CompilationContext* Nest::childrenContext(const Node* node)
     return node->childrenContext ? node->childrenContext : node->context;
 }
 
-void Nest::setExplanation(Node* node, DynNode* explanation)
+void Nest::setExplanation(Node* node, Node* explanation)
 {
     node->explanation = explanation;
 
     // Copy all the properties marked accordingly
     for ( const auto& prop : node->properties )
         if ( prop.second.passToExpl_ )
-            node->explanation->data_.properties[prop.first] = prop.second;
+            node->explanation->properties[prop.first] = prop.second;
 
     // Try to semantically check the explanation
-    if ( !explanation->isSemanticallyChecked() )
+    if ( !explanation->nodeSemanticallyChecked )
     {
-        node->explanation->setContext(node->context);
-        node->explanation->semanticCheck();
+        setContext(node->explanation, node->context);
+        semanticCheck(node->explanation);
     }
-    node->type = node->explanation->type();
+    node->type = node->explanation->type;
 }
 
-DynNode* Nest::explanation(Node* node)
+Node* Nest::explanation(Node* node)
 {
-    return node->explanation ? node->explanation->explanation() : DynNode::fromNode(node);
+    return node->explanation ? explanation(node->explanation) : node;
 }
 
 
 const char* Nest::defaultFunToString(Node* node)
 {
     ostringstream os;
-    if ( node->explanation && 0 != strcmp(node->explanation->nodeKindName(), "Feather.Nop") )
+    if ( node->explanation && 0 != strcmp(nodeKindName(node->explanation), "Feather.Nop") )
         os << node->explanation;
     else
     {

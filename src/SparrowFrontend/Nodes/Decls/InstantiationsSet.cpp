@@ -62,7 +62,7 @@ namespace
 InstantiationsSet::InstantiationsSet(DynNode* parentNode, DynNodeVector params, DynNode* ifClause)
     : DynNode(classNodeKind(), parentNode->location(), { ifClause, Feather::mkNodeList(parentNode->location(), {}) }, { parentNode })
 {
-    data_.referredNodes.push_back(mkNodeList(data_.location, move(params)));
+    data_.referredNodes.push_back(mkNodeList(data_.location, move(params))->node());
 }
 
 Instantiation* InstantiationsSet::canInstantiate(const DynNodeVector& values, EvalMode evalMode)
@@ -114,7 +114,7 @@ Instantiation* InstantiationsSet::canInstantiate(const DynNodeVector& values, Ev
 
 const DynNodeVector& InstantiationsSet::parameters() const
 {
-    return data_.referredNodes[1]->children();
+    return data_.referredNodes[1]->children;
 }
 
 Instantiation* InstantiationsSet::searchInstantiation(const DynNodeVector& values)
@@ -163,7 +163,7 @@ Instantiation* InstantiationsSet::createNewInstantiation(const DynNodeVector& va
 
 DynNode* InstantiationsSet::parentNode() const
 {
-    return data_.referredNodes[0];
+    return (DynNode*) data_.referredNodes[0];
 }
 
 DynNode*  InstantiationsSet::ifClause() const

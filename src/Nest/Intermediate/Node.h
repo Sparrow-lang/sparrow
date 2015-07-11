@@ -81,7 +81,7 @@ namespace Nest
         DynNodeVector children;
 
         /// The nodes referred by this node
-        DynNodeVector referredNodes;
+        NodeVector referredNodes;
         
         /// The properties of the node
         PropertyMap properties;

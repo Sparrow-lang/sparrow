@@ -146,7 +146,7 @@ DynNode* GenericClass::param(size_t idx) const
 Instantiation* GenericClass::canInstantiate(const DynNodeVector& args)
 {
     DynNodeVector boundValues = getBoundValues(args);
-    DynNode* originalClass = data_.referredNodes[0];
+    DynNode* originalClass = (DynNode*) data_.referredNodes[0];
     EvalMode resultingEvalMode = getResultingEvalMode(originalClass->location(), effectiveEvalMode(originalClass), boundValues);
     InstantiationsSet* instantiationsSet = data_.children[0]->as<InstantiationsSet>();
     return instantiationsSet->canInstantiate(boundValues, resultingEvalMode);
@@ -161,7 +161,7 @@ DynNode* GenericClass::instantiateGeneric(const Location& loc, CompilationContex
     NodeList* expandedInstantiation = inst->expandedInstantiation();
     if ( !instantiatedDecl )
     {
-        SprClass* originalClass = data_.referredNodes[0]->as<SprClass>();
+        SprClass* originalClass = ((DynNode*) data_.referredNodes[0])->as<SprClass>();
         string description = getDescription(originalClass, inst);
 
         // Create the actual instantiation declaration

@@ -18,7 +18,7 @@ DynNode::DynNode(int nodeKind, const Location& location, DynNodeVector children,
 
     data_.location = location;
     data_.children = move(children);
-    data_.referredNodes = move(referredNodes);
+    data_.referredNodes = move(*reinterpret_cast<NodeVector*>(&referredNodes));
 }
 
 DynNode::DynNode(const DynNode& other)
@@ -282,7 +282,7 @@ void Nest::save(const DynNode& obj, OutArchive& ar)
     ar.writeArray("children", obj.data_.children, [] (OutArchive& ar, DynNode* child) {
         ar.write("", child);
     });
-    ar.writeArray("referredNodes", obj.data_.referredNodes, [] (OutArchive& ar, DynNode* node) {
+    ar.writeArray("referredNodes", obj.data_.referredNodes, [] (OutArchive& ar, Node* node) {
         ar.write("", node);
     });
     ar.writeArray("properties", obj.data_.properties, [] (OutArchive& ar, const PropertyVal& prop) {

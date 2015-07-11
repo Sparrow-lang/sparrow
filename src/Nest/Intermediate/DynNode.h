@@ -65,8 +65,8 @@ namespace Nest
         DynNodeVector& children() { return data_.children; }
         
         /// Getter for the list of nodes referred by this node
-        const DynNodeVector& referredNodes() const { return data_.referredNodes; }
-        DynNodeVector& referredNodes() { return data_.referredNodes; }
+        const DynNodeVector& referredNodes() const { return reinterpret_cast<const DynNodeVector&>(data_.referredNodes); }
+        DynNodeVector& referredNodes() { return reinterpret_cast<DynNodeVector&>(data_.referredNodes); }
 
         const vector<Modifier*>& modifiers() const { return data_.modifiers; }
         vector<Modifier*>& modifiers() { return data_.modifiers; }

@@ -19,7 +19,7 @@ DynNode* FieldRef::object() const
 
 DynNode* FieldRef::field() const
 {
-    return data_.referredNodes[0];
+    return (DynNode*) data_.referredNodes[0];
 }
 
 void FieldRef::dump(ostream& os) const
@@ -30,7 +30,7 @@ void FieldRef::dump(ostream& os) const
 void FieldRef::doSemanticCheck()
 {
     DynNode* obj = data_.children[0];
-    DynNode* field = data_.referredNodes[0];
+    DynNode* field = (DynNode*) data_.referredNodes[0];
     ASSERT(obj);
     ASSERT(field);
     if ( field->nodeKind() != nkFeatherDeclVar )

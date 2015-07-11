@@ -20,8 +20,8 @@ void LambdaFunction::dump(ostream& os) const
 {
     ASSERT(data_.referredNodes.size() == 4);
     NodeList* parameters = (NodeList*) data_.referredNodes[0];
-    DynNode* returnType = data_.referredNodes[1];
-    DynNode* body = data_.referredNodes[2];
+    DynNode* returnType = (DynNode*) data_.referredNodes[1];
+    DynNode* body = (DynNode*) data_.referredNodes[2];
     NodeList* closureParams = (NodeList*) data_.referredNodes[3];
     os << "(fun";
     os << " " << parameters;
@@ -37,8 +37,8 @@ void LambdaFunction::doSemanticCheck()
 {
     ASSERT(data_.referredNodes.size() == 4);
     NodeList* parameters = (NodeList*) data_.referredNodes[0];
-    DynNode* returnType = data_.referredNodes[1];
-    DynNode* body = data_.referredNodes[2];
+    DynNode* returnType = (DynNode*) data_.referredNodes[1];
+    DynNode* body = (DynNode*) data_.referredNodes[2];
     NodeList* closureParams = (NodeList*) data_.referredNodes[3];
 
     Function* parentFun = getParentFun(data_.context);

@@ -15,7 +15,7 @@ Instantiation::Instantiation(const Location& loc, DynNodeVector boundValues, Dyn
 
 const DynNodeVector& Instantiation::boundValues() const
 {
-    return data_.referredNodes;
+    return reinterpret_cast<const DynNodeVector&>(data_.referredNodes);
 }
 
 NodeList*& Instantiation::expandedInstantiation()

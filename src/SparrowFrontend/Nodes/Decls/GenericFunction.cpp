@@ -190,7 +190,7 @@ GenericFunction::GenericFunction(SprFunction* originalFun, DynNodeVector params,
     : Generic(classNodeKind(), originalFun, move(genericParams), ifClause, publicAccess)
 {
     setEvalMode(this, effectiveEvalMode(originalFun));
-    data_.referredNodes.push_back(mkNodeList(data_.location, move(params)));
+    data_.referredNodes.push_back(mkNodeList(data_.location, move(params))->node());
 }
 
 GenericFunction::~GenericFunction()
@@ -200,7 +200,7 @@ GenericFunction::~GenericFunction()
 const DynNodeVector& GenericFunction::params() const
 {
     ASSERT(data_.referredNodes.size() == 2);
-    return data_.referredNodes[1]->children();
+    return data_.referredNodes[1]->children;
 }
 
 
@@ -269,7 +269,7 @@ DynNode* GenericFunction::param(size_t idx) const
 
 Instantiation* GenericFunction::canInstantiate(const DynNodeVector& args)
 {
-    DynNode* originalFun = data_.referredNodes[0];
+    DynNode* originalFun = (DynNode*) data_.referredNodes[0];
     DynNodeVector boundValues = getBoundValues(originalFun->context(), args, genericParams());
 
     EvalMode resultingEvalMode = originalFun->hasProperty(propCtGeneric)
@@ -289,7 +289,7 @@ DynNode* GenericFunction::instantiateGeneric(const Location& loc, CompilationCon
     NodeList* expandedInstantiation = inst->expandedInstantiation();
     if ( !instantiatedDecl )
     {
-        SprFunction* originalFun = data_.referredNodes[0]->as<SprFunction>();
+        SprFunction* originalFun = ((DynNode*) data_.referredNodes[0])->as<SprFunction>();
         DynNodeVector nonBoundParams = getNonBoundParameters(*inst, originalFun, params(), genericParams());
 
         // Create the actual instantiation declaration

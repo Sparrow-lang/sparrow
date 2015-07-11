@@ -35,7 +35,7 @@ VarRef::VarRef(const Location& loc, DynNode* var)
 
 DynNode* VarRef::variable() const
 {
-    return data_.referredNodes[0];
+    return (DynNode*) data_.referredNodes[0];
 }
 
 void VarRef::dump(ostream& os) const

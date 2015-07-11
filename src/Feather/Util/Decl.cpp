@@ -26,7 +26,7 @@ bool Feather::isDeclEx(Nest::DynNode* node)
 {
     if ( isDecl(node) )
         return true;
-    DynNode*const* declPtr = node->getPropertyNode(propResultingDecl);
+    Nest::Node*const* declPtr = node->getPropertyNode(propResultingDecl);
     return declPtr != nullptr;
 }
 

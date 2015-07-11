@@ -25,7 +25,7 @@ NodeList*& Instantiation::expandedInstantiation()
 
 DynNode* Instantiation::instantiatedDecl()
 {
-    return getCheckPropertyNode("instantiatedDecl");
+    return getCheckPropertyDynNode("instantiatedDecl");
 }
 
 void Instantiation::setInstantiatedDecl(DynNode* decl)

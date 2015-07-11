@@ -13,7 +13,7 @@ Continue::Continue(const Location& location)
 
 DynNode* Continue::loop() const
 {
-    return getCheckPropertyNode("loop");
+    return getCheckPropertyDynNode("loop");
 }
 
 void Continue::dump(ostream& os) const

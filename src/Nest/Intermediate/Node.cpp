@@ -106,7 +106,7 @@ void Nest::setProperty(Node* node, const char* name, string val, bool passToExpl
 {
     node->properties[name] = Property(propString, PropertyValue(move(val)), passToExpl);
 }
-void Nest::setProperty(Node* node, const char* name, DynNode* val, bool passToExpl)
+void Nest::setProperty(Node* node, const char* name, Node* val, bool passToExpl)
 {
     node->properties[name] = Property(propNode, PropertyValue(val), passToExpl);
 }
@@ -133,7 +133,7 @@ const string* Nest::getPropertyString(const Node* node, const char* name)
         return nullptr;
     return it->second.value_.stringValue_;
 }
-DynNode*const* Nest::getPropertyNode(const Node* node, const char* name)
+Node*const* Nest::getPropertyNode(const Node* node, const char* name)
 {
     auto it = node->properties.find(name);
     if ( it == node->properties.end() || it->second.kind_ != propNode )
@@ -162,9 +162,9 @@ const string& Nest::getCheckPropertyString(const Node* node, const char* name)
         REP_INTERNAL(node->location, "Node of kind %1% does not have string property %2%") % nodeKindName(node) % name;
     return *res;
 }
-DynNode* Nest::getCheckPropertyNode(const Node* node, const char* name)
+Node* Nest::getCheckPropertyNode(const Node* node, const char* name)
 {
-    DynNode*const* res = getPropertyNode(node, name);
+    Node*const* res = getPropertyNode(node, name);
     if ( !res )
         REP_INTERNAL(node->location, "Node of kind %1% does not have Node property %2%") % nodeKindName(node) % name;
     return *res;

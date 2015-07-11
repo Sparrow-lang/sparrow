@@ -13,7 +13,7 @@ Break::Break(const Location& location)
 
 DynNode* Break::loop() const
 {
-    return getCheckPropertyNode("loop");
+    return getCheckPropertyDynNode("loop");
 }
 
 void Break::dump(ostream& os) const

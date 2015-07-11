@@ -24,7 +24,7 @@ const string& CompoundExp::id() const
 
 DynNode* CompoundExp::baseDataExp() const
 {
-    DynNode*const* res = getPropertyNode("baseDataExp");
+    DynNode*const* res = getPropertyDynNode("baseDataExp");
     return res ? *res : nullptr;
 }
 

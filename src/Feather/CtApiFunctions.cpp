@@ -148,9 +148,9 @@ namespace
             *value = *res;
         return res != nullptr;
     }
-    bool ctApi_AstNode_getPropertyNode(DynNode** thisArg, StringData name, DynNode** value)
+    bool ctApi_AstNode_getPropertyNode(DynNode** thisArg, StringData name, Node** value)
     {
-        DynNode*const* res = (*thisArg)->getPropertyNode(name.begin);
+        Node*const* res = (*thisArg)->getPropertyNode(name.begin);
         if ( res )
             *value = *res;
         return res != nullptr;
@@ -170,7 +170,7 @@ namespace
     {
         (*thisArg)->setProperty(name.begin, value);
     }
-    void ctApi_AstNode_setPropertyNode(DynNode** thisArg, StringData name, DynNode* value)
+    void ctApi_AstNode_setPropertyNode(DynNode** thisArg, StringData name, Node* value)
     {
         (*thisArg)->setProperty(name.begin, value);
     }

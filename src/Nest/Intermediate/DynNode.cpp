@@ -112,9 +112,13 @@ void DynNode::setProperty(const char* name, string val, bool passToExpl)
 {
     Nest::setProperty(&data_, name, val, passToExpl);
 }
-void DynNode::setProperty(const char* name, DynNode* val, bool passToExpl)
+void DynNode::setProperty(const char* name, Node* val, bool passToExpl)
 {
     Nest::setProperty(&data_, name, val, passToExpl);
+}
+void DynNode::setProperty(const char* name, DynNode* val, bool passToExpl)
+{
+    Nest::setProperty(&data_, name, (Node*) val, passToExpl);
 }
 void DynNode::setProperty(const char* name, TypeRef val, bool passToExpl)
 {
@@ -133,9 +137,13 @@ const string* DynNode::getPropertyString(const char* name) const
 {
     return Nest::getPropertyString(&data_, name);
 }
-DynNode*const* DynNode::getPropertyNode(const char* name) const
+Node*const* DynNode::getPropertyNode(const char* name) const
 {
     return Nest::getPropertyNode(&data_, name);
+}
+DynNode*const* DynNode::getPropertyDynNode(const char* name) const
+{
+    return (DynNode*const*) Nest::getPropertyNode(&data_, name);
 }
 const TypeRef* DynNode::getPropertyType(const char* name) const
 {
@@ -150,9 +158,13 @@ const string& DynNode::getCheckPropertyString(const char* name) const
 {
     return Nest::getCheckPropertyString(&data_, name);
 }
-DynNode* DynNode::getCheckPropertyNode(const char* name) const
+Node* DynNode::getCheckPropertyNode(const char* name) const
 {
     return Nest::getCheckPropertyNode(&data_, name);
+}
+DynNode* DynNode::getCheckPropertyDynNode(const char* name) const
+{
+    return (DynNode*) Nest::getCheckPropertyNode(&data_, name);
 }
 TypeRef DynNode::getCheckPropertyType(const char* name) const
 {
@@ -302,4 +314,14 @@ void Nest::save(const DynNode& obj, OutArchive& ar)
 void Nest::load(DynNode& obj, InArchive& ar)
 {
     // TODO
+}
+
+void Nest::save(const Node& obj, OutArchive& ar)
+{
+    save(reinterpret_cast<const DynNode&>(obj), ar);
+}
+
+void Nest::load(Node& obj, InArchive& ar)
+{
+    load(reinterpret_cast<DynNode&>(obj), ar);
 }

@@ -95,7 +95,7 @@ DynNodeVector SprFrontend::getDeclsFromNode(DynNode* n, DynNode*& baseExp)
 
 DynNode* SprFrontend::resultingDecl(DynNode* node)
 {
-    DynNode*const* res = node->getPropertyNode(propResultingDecl);
+    DynNode*const* res = node->getPropertyDynNode(propResultingDecl);
     return res ? *res : node;
 }
 
@@ -125,7 +125,7 @@ void SprFrontend::setAccessType(DynNode* decl, AccessType accessType)
 
 DynNode* SprFrontend::getResultParam(DynNode* f)
 {
-    DynNode*const* res = f->getPropertyNode(propResultParam);
+    DynNode*const* res = f->getPropertyDynNode(propResultParam);
     return res ? *res : nullptr;
 }
 

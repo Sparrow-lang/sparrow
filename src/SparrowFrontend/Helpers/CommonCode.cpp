@@ -41,7 +41,7 @@ DynNode* SprFrontend::createCtorCall(const Location& loc, CompilationContext* co
         arg = arg->explanation();
         if ( classForTypeRaw(arg->type()) == cls )
         {
-            DynNode*const* tempVarConstruction1 = arg->getPropertyNode(propTempVarContstruction);
+            DynNode*const* tempVarConstruction1 = arg->getPropertyDynNode(propTempVarContstruction);
             DynNode* tempVarConstruction = tempVarConstruction1 ? *tempVarConstruction1 : nullptr;
             if ( tempVarConstruction && tempVarConstruction->nodeKind() == nkFeatherExpFunCall )
             {

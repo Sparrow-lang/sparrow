@@ -240,7 +240,7 @@ void SprVariable::doSemanticCheck()
     computeType();
 
     // Semantically check the resulting variable and explanation
-    DynNode* resultingVar = getCheckPropertyNode("spr.resultingVar");
+    DynNode* resultingVar = getCheckPropertyDynNode("spr.resultingVar");
     resultingVar->semanticCheck();
     data_.explanation->semanticCheck();
 }

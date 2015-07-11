@@ -28,7 +28,7 @@ namespace Nest
     {
         int intValue_;
         string* stringValue_;
-        DynNode* nodeValue_;
+        Node* nodeValue_;
         TypeRef typeValue_;
 
         PropertyValue()
@@ -43,7 +43,7 @@ namespace Nest
         {
             stringValue_ = new string(move(val));
         }
-        explicit PropertyValue(DynNode* val)
+        explicit PropertyValue(Node* val)
         {
             nodeValue_ = val;
         }
@@ -136,18 +136,18 @@ namespace Nest
 
     void setProperty(Node* node, const char* name, int val, bool passToExpl = false);
     void setProperty(Node* node, const char* name, string val, bool passToExpl = false);
-    void setProperty(Node* node, const char* name, DynNode* val, bool passToExpl = false);
+    void setProperty(Node* node, const char* name, Node* val, bool passToExpl = false);
     void setProperty(Node* node, const char* name, TypeRef val, bool passToExpl = false);
 
     bool hasProperty(const Node* node, const char* name);
     const int* getPropertyInt(const Node* node, const char* name);
     const string* getPropertyString(const Node* node, const char* name);
-    DynNode*const* getPropertyNode(const Node* node, const char* name);
+    Node*const* getPropertyNode(const Node* node, const char* name);
     const TypeRef* getPropertyType(const Node* node, const char* name);
 
     int getCheckPropertyInt(const Node* node, const char* name);
     const string& getCheckPropertyString(const Node* node, const char* name);
-    DynNode* getCheckPropertyNode(const Node* node, const char* name);
+    Node* getCheckPropertyNode(const Node* node, const char* name);
     TypeRef getCheckPropertyType(const Node* node, const char* name);
 
 

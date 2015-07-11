@@ -102,7 +102,7 @@ namespace
             : DynNode(classNodeKind(), NOLOC, {mkNodeList(NOLOC, move(alt1DestructActions)), mkNodeList(NOLOC, move(alt2DestructActions)) })
         {
             setProperty("resType", resType);
-            setProperty("cond_LLVM_value", reinterpret_cast<DynNode*>(cond));
+            setProperty("cond_LLVM_value", reinterpret_cast<Node*>(cond));
             // store the condition llvm value as a pointer to a node
         }
 

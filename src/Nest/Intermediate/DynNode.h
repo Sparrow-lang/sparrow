@@ -73,18 +73,21 @@ namespace Nest
         
         void setProperty(const char* name, int val, bool passToExpl = false);
         void setProperty(const char* name, string val, bool passToExpl = false);
+        void setProperty(const char* name, Node* val, bool passToExpl = false);
         void setProperty(const char* name, DynNode* val, bool passToExpl = false);
         void setProperty(const char* name, TypeRef val, bool passToExpl = false);
 
         bool hasProperty(const char* name) const;
         const int* getPropertyInt(const char* name) const;
         const string* getPropertyString(const char* name) const;
-        DynNode*const* getPropertyNode(const char* name) const;
+        Node*const* getPropertyNode(const char* name) const;
+        DynNode*const* getPropertyDynNode(const char* name) const;
         const TypeRef* getPropertyType(const char* name) const;
         
         int getCheckPropertyInt(const char* name) const;
         const string& getCheckPropertyString(const char* name) const;
-        DynNode* getCheckPropertyNode(const char* name) const;
+        Node* getCheckPropertyNode(const char* name) const;
+        DynNode* getCheckPropertyDynNode(const char* name) const;
         TypeRef getCheckPropertyType(const char* name) const;
         
 
@@ -203,6 +206,9 @@ namespace Nest
 
     void save(const DynNode& obj, Common::Ser::OutArchive& ar);
     void load(DynNode& obj, Common::Ser::InArchive& ar);
+
+    void save(const Node& obj, Common::Ser::OutArchive& ar);
+    void load(Node& obj, Common::Ser::InArchive& ar);
 }
 
 #define DEFINE_NODE(className, kindId, kindName) \

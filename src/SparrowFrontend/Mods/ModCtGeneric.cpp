@@ -8,12 +8,12 @@
 
 using namespace SprFrontend;
 
-void ModCtGeneric::beforeComputeType(DynNode* node)
+void ModCtGeneric::beforeComputeType(Node* node)
 {
     /// Check to apply only to classes or functions
-    if ( node->nodeKind() != nkSparrowDeclSprFunction )
-        REP_ERROR(node->location(), "ctGeneric modifier can be applied only to functions");
+    if ( node->nodeKind != nkSparrowDeclSprFunction )
+        REP_ERROR(node->location, "ctGeneric modifier can be applied only to functions");
 
-    Feather::setEvalMode(node, Nest::modeCt);
-    node->setProperty(propCtGeneric, 1);
+    Feather::setEvalMode((DynNode*) node, Nest::modeCt);
+    Nest::setProperty(node, propCtGeneric, 1);
 }

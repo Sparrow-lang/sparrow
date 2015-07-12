@@ -272,8 +272,10 @@ namespace
     }
 }
 
-void IntModClassMembers::afterComputeType(DynNode* node)
+void IntModClassMembers::afterComputeType(Node* n)
 {
+    DynNode* node = (DynNode*) n;
+    
     /// Check to apply only to classes
     SprClass* cls = node->as<SprClass>();
     if ( !cls )

@@ -6,7 +6,7 @@
 using namespace SprFrontend;
 
 
-void ModRt::beforeSetContext(DynNode* node)
+void ModRt::beforeSetContext(Node* node)
 {
-    Feather::setEvalMode(node, Nest::modeRt);
+    Feather::setEvalMode((DynNode*) node, Nest::modeRt);
 }

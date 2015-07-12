@@ -9,9 +9,9 @@ namespace
     class CtProcessMod : public Nest::Modifier
     {
     public:
-        virtual void afterSemanticCheck(DynNode* node)
+        virtual void afterSemanticCheck(Node* node)
         {
-            theCompiler().ctProcess(node);
+            theCompiler().ctProcess((DynNode*) node);
         };
     };
 }

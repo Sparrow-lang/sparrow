@@ -6,10 +6,10 @@
 using namespace SprFrontend;
 
 
-void ModStatic::beforeComputeType(DynNode* node)
+void ModStatic::beforeComputeType(Node* node)
 {
-    if ( node->nodeKind() != nkSparrowDeclSprVariable && node->nodeKind() != nkSparrowDeclSprFunction )
-        REP_INTERNAL(node->location(), "Static modifier can be applied only to variables and functions inside classes");
+    if ( node->nodeKind != nkSparrowDeclSprVariable && node->nodeKind != nkSparrowDeclSprFunction )
+        REP_INTERNAL(node->location, "Static modifier can be applied only to variables and functions inside classes");
 
-    node->setProperty(propIsStatic, 1);
+    Nest::setProperty(node, propIsStatic, 1);
 }

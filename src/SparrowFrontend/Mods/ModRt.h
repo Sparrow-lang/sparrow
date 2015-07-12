@@ -8,6 +8,6 @@ namespace SprFrontend
     class ModRt : public Nest::Modifier
     {
     public:
-        virtual void beforeSetContext(DynNode* node);
+        virtual void beforeSetContext(Node* node);
     };
 }

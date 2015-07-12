@@ -1,6 +1,6 @@
 #include <StdInc.h>
 #include "Node.h"
-#include "DynNode.h"
+#include "NodeKindRegistrar.h"
 #include "Modifier.h"
 #include <Compiler.h>
 #include <Common/NodeAllocator.h>
@@ -175,8 +175,6 @@ TypeRef Nest::getCheckPropertyType(const Node* node, const char* name)
 
 void Nest::setContext(Node* node, CompilationContext* context)
 {
-    DynNode* dynNode = DynNode::fromNode(node);
-
     if ( context == node->context )
         return;
     ASSERT(context);
@@ -186,18 +184,16 @@ void Nest::setContext(Node* node, CompilationContext* context)
         clearCompilationState(node);
 
     for ( Modifier* mod: node->modifiers )
-        mod->beforeSetContext(dynNode);
+        mod->beforeSetContext(node);
 
     getSetContextForChildrenFun(node->nodeKind)(node);
 
     for ( Modifier* mod: node->modifiers )
-        mod->afterSetContext(dynNode);
+        mod->afterSetContext(node);
 }
 
 void Nest::computeType(Node* node)
 {
-    DynNode* dynNode = DynNode::fromNode(node);
-
     if ( node->type )
         return;
     if ( node->nodeError )
@@ -214,7 +210,7 @@ void Nest::computeType(Node* node)
         node->computeTypeStarted = 1;
 
         for ( Modifier* mod: node->modifiers )
-            mod->beforeComputeType(dynNode);
+            mod->beforeComputeType(node);
 
         // Actually compute the type
         TypeRef res = getComputeTypeFun(node->nodeKind)(node);
@@ -223,7 +219,7 @@ void Nest::computeType(Node* node)
         node->type = res;
 
         for ( Modifier* mod: boost::adaptors::reverse(node->modifiers) )
-            mod->afterComputeType(dynNode);
+            mod->afterComputeType(node);
     }
     catch (const Nest::Common::CompilationError&)
     {
@@ -239,8 +235,6 @@ void Nest::computeType(Node* node)
 
 void Nest::semanticCheck(Node* node)
 {
-    DynNode* dynNode = DynNode::fromNode(node);
-
     if ( node->nodeSemanticallyChecked )
         return;
     if ( node->nodeError )
@@ -257,7 +251,7 @@ void Nest::semanticCheck(Node* node)
         node->semanticCheckStarted = 1;
 
         for ( Modifier* mod: node->modifiers )
-            mod->beforeSemanticCheck(dynNode);
+            mod->beforeSemanticCheck(node);
 
         // Actually do the semantic check
         Node* res = getSemanticCheckFun(node->nodeKind)(node);
@@ -268,7 +262,7 @@ void Nest::semanticCheck(Node* node)
         node->nodeSemanticallyChecked = 1;
 
         for ( Modifier* mod: boost::adaptors::reverse(node->modifiers) )
-            mod->afterSemanticCheck(dynNode);
+            mod->afterSemanticCheck(node);
     }
     catch (const Nest::Common::CompilationError& e)
     {

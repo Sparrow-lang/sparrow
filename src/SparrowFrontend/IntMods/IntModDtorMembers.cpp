@@ -12,8 +12,10 @@
 using namespace SprFrontend;
 using namespace Feather;
 
-void IntModDtorMembers::beforeSemanticCheck(DynNode* node)
+void IntModDtorMembers::beforeSemanticCheck(Node* n)
 {
+    DynNode* node = (DynNode*) n;
+    
     /// Check to apply only to non-static destructors
     SprFunction* fun = node->as<SprFunction>();
     if ( !fun || getName(fun) != "dtor" )

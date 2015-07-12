@@ -7,12 +7,12 @@
 
 using namespace SprFrontend;
 
-void ModMacro::beforeComputeType(DynNode* node)
+void ModMacro::beforeComputeType(Node* node)
 {
     /// Check to apply only to functions
-    if ( node->nodeKind() != nkSparrowDeclSprFunction )
-        REP_ERROR(node->location(), "macro modifier can be applied only to functions");
+    if ( node->nodeKind != nkSparrowDeclSprFunction )
+        REP_ERROR(node->location, "macro modifier can be applied only to functions");
     
-    node->setProperty(propMacro, 1);
-    node->setProperty(propCtGeneric, 1);
+    Nest::setProperty(node, propMacro, 1);
+    Nest::setProperty(node, propCtGeneric, 1);
 }

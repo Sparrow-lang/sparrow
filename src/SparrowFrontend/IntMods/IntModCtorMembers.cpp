@@ -93,8 +93,10 @@ namespace
     }
 }
 
-void IntModCtorMembers::beforeSemanticCheck(DynNode* node)
+void IntModCtorMembers::beforeSemanticCheck(Node* n)
 {
+    DynNode* node = (DynNode*) n;
+    
     /// Check to apply only to non-static constructors
     SprFunction* fun = node->as<SprFunction>();
     if ( !fun || getName(fun) != "ctor" )

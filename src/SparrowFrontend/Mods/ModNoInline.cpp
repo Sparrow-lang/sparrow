@@ -6,10 +6,10 @@
 using namespace SprFrontend;
 
 
-void ModNoInline::beforeComputeType(DynNode* node)
+void ModNoInline::beforeComputeType(Node* node)
 {
-    if ( node->nodeKind() != nkSparrowDeclSprFunction )
-        REP_INTERNAL(node->location(), "noInline modifier can be applied only to functions");
+    if ( node->nodeKind != nkSparrowDeclSprFunction )
+        REP_INTERNAL(node->location, "noInline modifier can be applied only to functions");
 
-    node->setProperty(Feather::propNoInline, 1);
+    Nest::setProperty(node, Feather::propNoInline, 1);
 }

@@ -8,6 +8,6 @@ namespace SprFrontend
     class ModInitCtor : public Nest::Modifier
     {
     public:
-        virtual void beforeComputeType(DynNode* node);
+        virtual void beforeComputeType(Node* node);
     };
 }

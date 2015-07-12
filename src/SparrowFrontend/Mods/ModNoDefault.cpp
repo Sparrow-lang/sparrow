@@ -7,11 +7,11 @@
 
 using namespace SprFrontend;
 
-void ModNoDefault::beforeComputeType(DynNode* node)
+void ModNoDefault::beforeComputeType(Node* node)
 {
     /// Check to apply only to classes or functions
-    if ( node->nodeKind() != nkSparrowDeclSprFunction && node->nodeKind() != nkSparrowDeclSprClass )
-        REP_INTERNAL(node->location(), "noDefault modifier can be applied only to classes or methods");
+    if ( node->nodeKind != nkSparrowDeclSprFunction && node->nodeKind != nkSparrowDeclSprClass )
+        REP_INTERNAL(node->location, "noDefault modifier can be applied only to classes or methods");
 
-    node->setProperty(propNoDefault, 1);
+    Nest::setProperty(node, propNoDefault, 1);
 }

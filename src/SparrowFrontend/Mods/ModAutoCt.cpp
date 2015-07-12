@@ -7,15 +7,15 @@
 using namespace SprFrontend;
 
 
-void ModAutoCt::beforeSetContext(DynNode* node)
+void ModAutoCt::beforeSetContext(Node* node)
 {
     using namespace Feather;
 
-    if ( node->nodeKind() == nkSparrowDeclSprFunction )
+    if ( node->nodeKind == nkSparrowDeclSprFunction )
     {
-        node->setProperty(propAutoCt, 1);
-        setEvalMode(node, Nest::modeRtCt);
+        setProperty(node, propAutoCt, 1);
+        setEvalMode((DynNode*) node, Nest::modeRtCt);
     }
     else
-        REP_INTERNAL(node->location(), "'autoCt' modifier can be applied only to functions");
+        REP_INTERNAL(node->location, "'autoCt' modifier can be applied only to functions");
 }

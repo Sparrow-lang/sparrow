@@ -10,7 +10,7 @@ ModNative::ModNative(const string& name)
 {
 }
 
-void ModNative::beforeComputeType(DynNode* node)
+void ModNative::beforeComputeType(Node* node)
 {
-    node->setProperty(Feather::propNativeName, name_);
+    Nest::setProperty(node, Feather::propNativeName, name_);
 }

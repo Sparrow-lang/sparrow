@@ -7,7 +7,7 @@
 #include <Common/TimingSystem.h>
 #include <Common/Serialization.h>
 #include <Intermediate/Node.h>
-#include <Intermediate/DynNode.h>
+#include <Intermediate/NodeSer.h>
 #include <Intermediate/CompilationContext.h>
 #include <Frontend/SourceCode.h>
 #include <Frontend/FrontendFactoryImpl.h>

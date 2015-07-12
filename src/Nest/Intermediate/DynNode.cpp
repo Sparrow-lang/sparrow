@@ -273,55 +273,10 @@ void DynNode::setExplanation(DynNode* explanation)
 
 void Nest::save(const DynNode& obj, OutArchive& ar)
 {
-    // TODO (nodes): Make serialization work
-//    unsigned char flags = (unsigned char) *reinterpret_cast<const unsigned int*>(&obj.data_.flags);
-    ar.write("kind", obj.nodeKind());
-    ar.write("kindName", obj.nodeKindName());
-//    ar.write("flags", flags);
-    ar.write("location", obj.data_.location);
-    ar.writeArray("children", obj.data_.children, [] (OutArchive& ar, Node* child) {
-        ar.write("", child);
-    });
-    ar.writeArray("referredNodes", obj.data_.referredNodes, [] (OutArchive& ar, Node* node) {
-        ar.write("", node);
-    });
-    ar.writeArray("properties", obj.data_.properties, [] (OutArchive& ar, const PropertyVal& prop) {
-        ar.write("", prop, [] (OutArchive& ar, const PropertyVal& prop) {
-            ar.write("name", prop.first);
-            ar.write("kind", (int) prop.second.kind_);
-            ar.write("passToExpl", (unsigned char) prop.second.passToExpl_);
-            switch ( prop.second.kind_ )
-            {
-            case propInt:
-                ar.write("val", prop.second.value_.intValue_);
-                break;
-            case propString:
-                ar.write("val", *prop.second.value_.stringValue_);
-                break;
-            case propNode:
-                ar.write("val", prop.second.value_.nodeValue_);
-                break;
-            case propType:
-                ar.write("val", prop.second.value_.typeValue_);
-                break;
-            }
-        });
-    });
-    ar.write("type", obj.data_.type);
-    ar.write("explanation", obj.data_.explanation);
+    Nest::save(*obj.node(), ar);
 }
 
 void Nest::load(DynNode& obj, InArchive& ar)
 {
-    // TODO
-}
-
-void Nest::save(const Node& obj, OutArchive& ar)
-{
-    save(reinterpret_cast<const DynNode&>(obj), ar);
-}
-
-void Nest::load(Node& obj, InArchive& ar)
-{
-    load(reinterpret_cast<DynNode&>(obj), ar);
+    Nest::load(*obj.node(), ar);
 }

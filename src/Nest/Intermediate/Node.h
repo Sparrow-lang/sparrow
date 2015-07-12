@@ -122,7 +122,7 @@ namespace Nest
     bool isDynNode(Node* node);
 
     /// Returns a string description out of the given node
-    const char* toString(Node* node);
+    const char* toString(const Node* node);
 
     /// Getter for the name of the node kind for the given node
     const char* nodeKindName(const Node* node);

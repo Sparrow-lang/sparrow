@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Node.h"
+#include "NodeSer.h"
 #include "NodeKindRegistrar.h"
 #include "NodeVector.h"
 #include <Nest/Intermediate/TypeRef.h>
@@ -196,19 +197,8 @@ namespace Nest
         return os;
     }
 
-    template <typename T>
-    basic_ostream<T>& operator << (basic_ostream<T>& os, const Node* n)
-    {
-        if ( n )
-            DynNode::fromNode(n)->dump(os);
-        return os;
-    }
-
     void save(const DynNode& obj, Common::Ser::OutArchive& ar);
     void load(DynNode& obj, Common::Ser::InArchive& ar);
-
-    void save(const Node& obj, Common::Ser::OutArchive& ar);
-    void load(Node& obj, Common::Ser::InArchive& ar);
 }
 
 #define DEFINE_NODE(className, kindId, kindName) \

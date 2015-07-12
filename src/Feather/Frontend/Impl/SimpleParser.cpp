@@ -212,7 +212,7 @@ namespace
             // Search for the identifier in the current symbol tab to find a class with the same name
             Class* cls = findDefinition<Class>(context, typeNode->stringValue(), typeNode->location(), "class name");
             cls->computeType();
-            return getDataType(cls);
+            return getDataType(cls->node());
         }
     }
 

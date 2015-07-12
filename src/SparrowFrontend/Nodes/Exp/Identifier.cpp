@@ -117,7 +117,7 @@ DynNode* SprFrontend::getIdentifierResult(CompilationContext* ctx, const Locatio
         TypeRef t = nullptr;
         Class* cls = resDecl->as<Feather::Class>();
         if ( cls )
-            t = getDataType(cls);
+            t = getDataType(cls->node());
         SprConcept* concept = resDecl->as<SprConcept>();
         if ( concept )
             t = getConceptType(concept);

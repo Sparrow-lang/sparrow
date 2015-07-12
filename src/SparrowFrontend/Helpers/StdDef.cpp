@@ -54,7 +54,7 @@ void SprFrontend::initTypeType(CompilationContext* ctx)
     setEvalMode(clsType, modeCt);
     clsType->setContext(ctx);
     clsType->computeType();
-    typeType = getDataType(clsType, 0, modeCt);
+    typeType = getDataType(clsType->node(), 0, modeCt);
 }
 
 void SprFrontend::checkStdClass(DynNode* cls)
@@ -63,7 +63,7 @@ void SprFrontend::checkStdClass(DynNode* cls)
         return;
 
     ASSERT(cls->nodeKind() == nkFeatherDeclClass);
-    Class* c = (Class*) cls;
+    Node* c = cls->node();
 
     if ( getName(cls) == "Void" )
         StdDef::typeVoid = getDataType(c);
@@ -71,7 +71,7 @@ void SprFrontend::checkStdClass(DynNode* cls)
         StdDef::typeNull = getDataType(c);
     else if ( getName(cls) == "Bool" )
     {
-        StdDef::clsBool = c;
+        StdDef::clsBool = (Class*) c;
         StdDef::typeBool = getDataType(c);
     }
     else if ( getName(cls) == "Byte" )
@@ -91,7 +91,7 @@ void SprFrontend::checkStdClass(DynNode* cls)
     }
     else if ( getName(cls) == "Uninitialized" )
     {
-        StdDef::clsUninitialized = c;
+        StdDef::clsUninitialized = (Class*) c;
         StdDef::typeUninitialized = getDataType(c);
     }
     else if ( getName(cls) == "Type" )

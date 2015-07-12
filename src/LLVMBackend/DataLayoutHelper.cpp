@@ -33,31 +33,30 @@ namespace
         if ( !type->hasStorage )
             REP_ERROR(NOLOC, "Cannot compute size of a type which has no storage: %1%") % type;
 
-        Feather::Class* clsDecl = type->referredNode->as<Class>();
-        ASSERT(clsDecl);
-        if ( !clsDecl->type() )
-            REP_INTERNAL(clsDecl->location(), "Class %1% doesn't have type computed, while computing its size") % getName(clsDecl);
+        Node* clsDecl = type->referredNode;
+        ASSERT(clsDecl && clsDecl->nodeKind == nkFeatherDeclClass);
+        if ( !clsDecl->type )
+            REP_INTERNAL(clsDecl->location, "Class %1% doesn't have type computed, while computing its size") % getName((DynNode*) clsDecl);
 
         // Check if this is a standard/native type
-        const string* nativeName = clsDecl->getPropertyString(propNativeName);
+        const string* nativeName = Nest::getPropertyString(clsDecl, propNativeName);
         if ( nativeName )
         {
-            llvm::Type* t = Tr::getNativeLLVMType(clsDecl->location(), *nativeName, llvmContext);
+            llvm::Type* t = Tr::getNativeLLVMType(clsDecl->location, *nativeName, llvmContext);
             if ( t )
                 return t;
         }
 
         // Create the type, and set it as a property (don't add any subtypes yet to avoid endless loops)
-        const string* description = clsDecl->getPropertyString(propDescription);
-        llvm::StructType* t = llvm::StructType::create(llvmContext, description ? *description : getName(clsDecl));
+        const string* description = Nest::getPropertyString(clsDecl, propDescription);
+        llvm::StructType* t = llvm::StructType::create(llvmContext, description ? *description : getName((DynNode*) clsDecl));
 
         // Now add the subtypes
         vector<llvm::Type*> fieldTypes;
-        fieldTypes.reserve(clsDecl->fields().size());
-        for ( auto f: clsDecl->fields() )
+        fieldTypes.reserve(clsDecl->children.size());
+        for ( auto field: clsDecl->children )
         {
-            Var* field = (Var*) f;
-            fieldTypes.push_back(getLLVMTypeForSize(field->type(), llvmContext));
+            fieldTypes.push_back(getLLVMTypeForSize(field->type, llvmContext));
         }
         t->setBody(fieldTypes);
         return t;

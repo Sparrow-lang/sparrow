@@ -127,7 +127,7 @@ Nest::TypeRef SprFrontend::doDereference1(Nest::DynNode* arg, Nest::DynNode*& cv
     {
         cvt = mkMemLoad(arg->location(), cvt);
     }
-    return getDataType(classForType(t), 0, t->mode);  // Zero references
+    return getDataType(t->referredNode, 0, t->mode);  // Zero references
 }
 
 namespace
@@ -297,7 +297,7 @@ TypeRef SprFrontend::changeRefCount(TypeRef type, int numRef, const Location& lo
         type = baseType(type);
 
     if ( type->typeKind == typeKindData )
-        type = getDataType(type->referredNode->as<Class>(), numRef, type->mode);
+        type = getDataType(type->referredNode, numRef, type->mode);
     else if ( type->typeKind == typeKindConcept )
         type = getConceptType(conceptOfType(type), numRef, type->mode);
     else

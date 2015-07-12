@@ -111,7 +111,7 @@ void LambdaFunction::doSemanticCheck()
 
     // Compute the type for the enclosing class
     closure->computeType();
-    Class* cls = (Feather::Class*) closure->explanation();
+    Node* cls = closure->explanation()->node();
     ASSERT(cls);
 
     // Make sure the closure class is semantically checked

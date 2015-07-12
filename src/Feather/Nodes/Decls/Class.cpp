@@ -84,7 +84,7 @@ void Class::doComputeType()
     }
 
     // Set the type for this node
-    data_.type = getDataType(this, 0, effectiveEvalMode(this));
+    data_.type = getDataType(node(), 0, effectiveEvalMode(this));
 }
 
 void Class::doSemanticCheck()

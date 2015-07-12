@@ -195,7 +195,7 @@ void SprClass::doComputeType()
     }
 
     // We now have a type - from now on we can safely compute the types of the children
-    data_.type = getDataType(static_cast<Class*>(resultingClass));
+    data_.type = getDataType(resultingClass->node());
 
     // Get the fields from the current class
     DynNodeVector fields = getFields(data_.childrenContext->currentSymTab());

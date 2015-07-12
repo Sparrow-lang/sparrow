@@ -242,7 +242,7 @@ GenericFunction* GenericFunction::createGeneric(SprFunction* originalFun, NodeLi
     // If a 'this' class is passed, add an extra parameter for this
     if ( thisClass )
     {
-        TypeRef thisType = getDataType(thisClass, 1, effectiveEvalMode(originalFun));
+        TypeRef thisType = getDataType((Node*) thisClass, 1, effectiveEvalMode(originalFun));
         DynNode* thisParam = mkSprParameter(originalFun->location(), "$this", thisType);
         thisParam->setContext(originalFun->childrenContext());
         thisParam->computeType();

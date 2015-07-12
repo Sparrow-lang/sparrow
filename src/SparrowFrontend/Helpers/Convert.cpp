@@ -235,7 +235,7 @@ namespace
         bool contextDependent = false;  // TODO (convert): This should be context dependent for private ctors
 
         ConversionResult res = ConversionResult(convCustom, [=](DynNode* src) -> DynNode* {
-            DynNode* refToClass = createTypeNode(src->context(), src->location(), getDataType(destClass));
+            DynNode* refToClass = createTypeNode(src->context(), src->location(), getDataType(destClass->node()));
             return new ChangeMode(src->location(), destMode, mkFunApplication(src->location(), refToClass, {src}));
         }, contextDependent);
         return combine(res, cachedCanConvertImpl(context, flags | flagDontCallConversionCtor, resType, destType));

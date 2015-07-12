@@ -125,7 +125,7 @@ namespace
             sprParams.push_back(mkSprParameter(loc, param.second, param.first));
         }
         NodeList* parameters = sprParams.empty() ? nullptr : (NodeList*) mkNodeList(loc, move(sprParams));
-        DynNode* ret = resClass ? (DynNode*) createTypeNode(parent->childrenContext(), loc, getDataType(resClass)) : nullptr;
+        DynNode* ret = resClass ? (DynNode*) createTypeNode(parent->childrenContext(), loc, getDataType(resClass->node())) : nullptr;
         
         // Add the function
         DynNode* m = mkSprFunction(loc, name, parameters, ret, body);
@@ -268,7 +268,7 @@ namespace
 
         LocalSpace* body = new LocalSpace(loc);
         body->addChild(mkReturnStmt(loc, exp));
-        addMethod(parent, "==", body, getDataType(cls, 1), StdDef::clsBool);
+        addMethod(parent, "==", body, getDataType(cls->node(), 1), StdDef::clsBool);
     }
 }
 
@@ -285,7 +285,7 @@ void IntModClassMembers::afterComputeType(Node* n)
 
     Class* basicClass = cls->explanation()->as<Class>();
     ASSERT(basicClass);
-    TypeRef paramType = getDataType(basicClass, 1);
+    TypeRef paramType = getDataType(basicClass->node(), 1);
 
     // Default ctor
     if ( !checkForMember(cls, "ctor", nullptr) )
@@ -305,7 +305,7 @@ void IntModClassMembers::afterComputeType(Node* n)
     
     // CT to RT ctor
     if ( !checkForCtorFromCt(cls) && !hasReferences(basicClass) )
-        generateMethod(cls, "ctorFromCt", "ctor", changeTypeMode(getDataType(basicClass, 0), modeCt, node->location()), false, modeRt);
+        generateMethod(cls, "ctorFromCt", "ctor", changeTypeMode(getDataType(basicClass->node(), 0), modeCt, node->location()), false, modeRt);
 
     // Dtor
     if ( !checkForMember(cls, "dtor", nullptr) )

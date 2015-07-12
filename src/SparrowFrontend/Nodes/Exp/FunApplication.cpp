@@ -253,7 +253,7 @@ void FunApplication::checkSizeOf()
     }
 
     // Make sure the class that this refers to has the type properly computed
-    Class* cls = classDecl(t);
+    Class* cls = (Class*) classDecl(t);
     DynNode* mainNode = (DynNode*) cls->childrenContext()->currentSymTab()->node();
     mainNode->computeType();
 

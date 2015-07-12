@@ -5,7 +5,7 @@
 
 #include <vector>
 
-FWD_CLASS1(Nest, DynNode)
+FWD_STRUCT1(Nest, Node)
 FWD_CLASS3(Nest,Common,Ser, OutArchive)
 FWD_CLASS3(Nest,Common,Ser, InArchive)
 
@@ -27,7 +27,7 @@ namespace Nest
         TypeRef* subTypes;
 
         /// Optional, the node that introduces this type
-        DynNode* referredNode;
+        Node* referredNode;
 
         /// The description of the type -- mainly used for debugging purposes
         const char* description;

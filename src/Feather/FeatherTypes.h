@@ -3,7 +3,7 @@
 #include <Nest/Intermediate/TypeRef.h>
 #include <Nest/Intermediate/EvalMode.h>
 
-FWD_CLASS1(Feather, Class);
+FWD_STRUCT1(Nest, Node);
 
 namespace Feather
 {
@@ -24,7 +24,7 @@ namespace Feather
 
     /// Returns a type that represents data
     /// A data type is introduced by a class definition and can have one or more references; a data type must have a size
-    TypeRef getDataType(Class* classDecl, uint8_t numReferences = 0, EvalMode mode = modeRtCt);
+    TypeRef getDataType(Node* classDecl, uint8_t numReferences = 0, EvalMode mode = modeRtCt);
 
     /// Returns an L-Value type
     /// This type would represents an l-value to an existing storage type
@@ -41,7 +41,7 @@ namespace Feather
 
     /// Getter for the class that introduces this data type - can be null
     /// Works for only for storage types (data, l-value, array)
-    Class* classDecl(TypeRef type);
+    Node* classDecl(TypeRef type);
 
     /// If the class associated with the given type has an associated name this will return it; otherwise it returns nullptr
     /// Works for only for storage types (data, l-value, array)

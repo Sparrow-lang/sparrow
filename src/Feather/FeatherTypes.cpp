@@ -1,10 +1,11 @@
 #include <StdInc.h>
 #include "FeatherTypes.h"
 #include "Nodes/Properties.h"
-#include "Nodes/Decls/Class.h"
+#include "Nodes/FeatherNodeKinds.h"
 #include "Util/Decl.h"
 
 #include <Nest/Intermediate/TypeKindRegistrar.h>
+#include <Nest/Intermediate/Node.h>
 
 namespace Feather
 {
@@ -25,15 +26,15 @@ namespace
         default:        return "Void";
         }
     }
-    string getDataTypeDescription(DynNode* classDecl, uint8_t numReferences, EvalMode mode)
+    string getDataTypeDescription(Node* classDecl, uint8_t numReferences, EvalMode mode)
     {
         string res;
         for ( uint8_t i=0; i<numReferences; ++i )
             res += '@';
         if ( classDecl )
         {
-            const string* description = classDecl->getPropertyString(propDescription);
-            res += description ? *description : getName(classDecl);
+            const string* description = Nest::getPropertyString(classDecl, propDescription);
+            res += description ? *description : getName((DynNode*) classDecl);
         }
         else
             res += "<no class>";
@@ -73,7 +74,7 @@ namespace
     }
     TypeRef changeTypeModeData(TypeRef type, EvalMode newMode)
     {
-        return getDataType(type->referredNode->as<Class>(), type->numReferences, newMode);
+        return getDataType(type->referredNode, type->numReferences, newMode);
     }
     TypeRef changeTypeModeLValue(TypeRef type, EvalMode newMode)
     {
@@ -124,9 +125,10 @@ TypeRef getVoidType(EvalMode mode)
     return t;
 }
 
-TypeRef getDataType(Class* classDecl, uint8_t numReferences, EvalMode mode)
+TypeRef getDataType(Node* classDecl, uint8_t numReferences, EvalMode mode)
 {
-    EvalMode classMode = classDecl ? effectiveEvalMode(classDecl) : mode;
+    ASSERT(classDecl->nodeKind == nkFeatherDeclClass );
+    EvalMode classMode = classDecl ? effectiveEvalMode((DynNode*) classDecl) : mode;
     if ( mode == modeRtCt && classDecl )
         mode = classMode;
 
@@ -238,16 +240,17 @@ TypeRef getFunctionType(TypeRef* resultTypeAndParams, size_t numTypes, EvalMode 
 }
 
 
-Class* classDecl(TypeRef type)
+Node* classDecl(TypeRef type)
 {
     ASSERT(type && type->hasStorage);
-    return type->referredNode->as<Class>();
+    return type->referredNode;
 }
 
 const string* nativeName(TypeRef type)
 {
-    Class* cls = classDecl(type);
-    return cls ? cls->getPropertyString(propNativeName) : nullptr;
+    if ( type->referredNode && type->referredNode->nodeKind == nkFeatherDeclClass )
+        return Nest::getPropertyString(type->referredNode, propNativeName);
+    return nullptr;
 }
 
 int numReferences(TypeRef type)

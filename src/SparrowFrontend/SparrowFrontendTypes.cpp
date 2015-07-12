@@ -33,7 +33,7 @@ namespace
 
     TypeRef changeTypeModeConcept(TypeRef type, EvalMode newMode)
     {
-        return getConceptType(type->referredNode->as<SprConcept>(), type->numReferences, newMode);
+        return getConceptType(((DynNode*) type->referredNode)->as<SprConcept>(), type->numReferences, newMode);
     }
 }
 
@@ -55,7 +55,7 @@ TypeRef getConceptType(SprConcept* concept, uint8_t numReferences, EvalMode mode
     referenceType.canBeUsedAtCt = 1;
     referenceType.canBeUsedAtRt = 1;
     referenceType.flags         = 0;
-    referenceType.referredNode  = concept;
+    referenceType.referredNode  = concept->node();
     referenceType.description   = getConceptTypeDescription(concept, numReferences, mode);
 
     TypeRef t = findStockType(referenceType);
@@ -68,7 +68,7 @@ TypeRef getConceptType(SprConcept* concept, uint8_t numReferences, EvalMode mode
 SprConcept* conceptOfType(TypeRef type)
 {
     ASSERT(type && type->typeKind == typeKindConcept);
-    return type->referredNode->as<SprConcept>();
+    return (SprConcept*) type->referredNode;
 }
 
 }

@@ -166,7 +166,7 @@ void SprFunction::doComputeType()
     // If this is a non-static member function, add this as a parameter
     if ( isMember && !isStatic )
     {
-        TypeRef thisType = getDataType(parentClass, 1, thisEvalMode);
+        TypeRef thisType = getDataType((Node*) parentClass, 1, thisEvalMode);
         DynNode* thisParam = Feather::mkVar(data_.location, "$this", mkTypeNode(data_.location, thisType));
         thisParam->setContext(data_.childrenContext);
         resultingFun->addParameter(thisParam);

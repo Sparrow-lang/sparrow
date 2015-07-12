@@ -352,7 +352,7 @@ Callable* SprFrontend::selectCtToRtCtor(CompilationContext* context, TypeRef ctT
 
     if ( ctType->mode != modeCt || !ctType->hasStorage )
         return nullptr;
-    Class* cls = Feather::classDecl(ctType);
+    Class* cls = (Class*) Feather::classDecl(ctType);
     if ( effectiveEvalMode(cls) != modeRtCt )
         return nullptr;
 

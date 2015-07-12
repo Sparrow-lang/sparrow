@@ -80,7 +80,7 @@ DynNodeVector SprFrontend::getDeclsFromNode(DynNode* n, DynNode*& baseExp)
         // If we have a Type as base, try a constructor/concept call
         if ( t->hasStorage )
         {
-            res.push_back(classDecl(t));
+            res.push_back((DynNode*) classDecl(t));
         }
         else if ( t->typeKind == typeKindConcept )
         {

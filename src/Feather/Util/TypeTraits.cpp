@@ -105,7 +105,7 @@ TypeRef Feather::addRef(TypeRef type)
     ASSERT(type);
     if ( !type->hasStorage )
         REP_INTERNAL(Location(), "Invalid type given when adding reference (%1%)") % type;
-    return getDataType(type->referredNode->as<Class>(), type->numReferences+1, type->mode);
+    return getDataType(type->referredNode, type->numReferences+1, type->mode);
 }
 
 TypeRef Feather::removeRef(TypeRef type)
@@ -113,7 +113,7 @@ TypeRef Feather::removeRef(TypeRef type)
     ASSERT(type);
     if ( !type->hasStorage || type->numReferences < 1 )
         REP_INTERNAL(Location(), "Invalid type given when removing reference (%1%)") % type;
-    return getDataType(type->referredNode->as<Class>(), type->numReferences-1, type->mode);
+    return getDataType(type->referredNode, type->numReferences-1, type->mode);
 }
 
 TypeRef Feather::removeAllRef(TypeRef type)
@@ -121,7 +121,7 @@ TypeRef Feather::removeAllRef(TypeRef type)
     ASSERT(type);
     if ( !type->hasStorage )
         REP_INTERNAL(Location(), "Invalid type given when removing reference (%1%)") % type;
-    return getDataType(type->referredNode->as<Class>(), 0, type->mode);
+    return getDataType(type->referredNode, 0, type->mode);
 }
 
 TypeRef Feather::removeLValue(TypeRef type)
@@ -129,7 +129,7 @@ TypeRef Feather::removeLValue(TypeRef type)
     ASSERT(type);
     if ( type->typeKind != typeKindLValue )
         REP_INTERNAL(Location(), "Expected l-value type; got %1%") % type;
-    return getDataType(type->referredNode->as<Class>(), type->numReferences-1, type->mode);
+    return getDataType(type->referredNode, type->numReferences-1, type->mode);
 }
 
 TypeRef Feather::removeLValueIfPresent(TypeRef type)
@@ -137,7 +137,7 @@ TypeRef Feather::removeLValueIfPresent(TypeRef type)
     ASSERT(type);
     if ( type->typeKind != typeKindLValue )
         return type;
-    return getDataType(type->referredNode->as<Class>(), type->numReferences-1, type->mode);
+    return getDataType(type->referredNode, type->numReferences-1, type->mode);
 }
 
 TypeRef Feather::lvalueToRef(TypeRef type)
@@ -145,7 +145,7 @@ TypeRef Feather::lvalueToRef(TypeRef type)
     ASSERT(type);
     if ( type->typeKind != typeKindLValue )
         REP_INTERNAL(Location(), "Expected l-value type; got %1%") % type;
-    return getDataType(type->referredNode->as<Class>(), type->numReferences, type->mode);
+    return getDataType(type->referredNode, type->numReferences, type->mode);
 }
 
 TypeRef Feather::lvalueToRefIfPresent(TypeRef type)
@@ -153,17 +153,17 @@ TypeRef Feather::lvalueToRefIfPresent(TypeRef type)
     ASSERT(type);
     if ( type->typeKind != typeKindLValue )
         return type;
-    return getDataType(type->referredNode->as<Class>(), type->numReferences, type->mode);
+    return getDataType(type->referredNode, type->numReferences, type->mode);
 }
 
 Class* Feather::classForType(Nest::TypeRef t)
 {
-    return t->hasStorage ? t->referredNode->as<Class>() : nullptr;
+    return t->hasStorage ? (Class*) t->referredNode : nullptr;
 }
 
 DynNode* Feather::classForTypeRaw(Nest::TypeRef t)
 {
-    return t->hasStorage ? t->referredNode : nullptr;
+    return t->hasStorage ? (DynNode*) t->referredNode : nullptr;
 }
 
 bool Feather::isSameTypeIgnoreMode(Nest::TypeRef t1, Nest::TypeRef t2)

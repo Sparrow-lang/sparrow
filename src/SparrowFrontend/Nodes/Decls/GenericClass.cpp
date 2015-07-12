@@ -182,5 +182,5 @@ DynNode* GenericClass::instantiateGeneric(const Location& loc, CompilationContex
     // Now actually create the call object: a Type CT value
     Class* cls = instantiatedDecl->explanation()->as<Class>();
     ASSERT(cls);
-    return createTypeNode(data_.context, loc, Feather::getDataType(cls));
+    return createTypeNode(data_.context, loc, Feather::getDataType(cls->node()));
 }

@@ -350,7 +350,7 @@ void FunApplication::checkIsValidAndTrue()
         arg->setContext(data_.context);
         arg->semanticCheck();
 
-        DynNode* val = theCompiler().ctEval(arg);
+        DynNode* val = (DynNode*) theCompiler().ctEval(arg->node());
         if ( val->nodeKind() != nkFeatherExpCtValue )
             REP_ERROR(arg->location(), "Unknown value");
 
@@ -394,7 +394,7 @@ void FunApplication::checkCtEval()
     arg->setContext(data_.context);
     arg->semanticCheck();
 
-    DynNode* res = theCompiler().ctEval(arg);
+    DynNode* res = (DynNode*) theCompiler().ctEval(arg->node());
     if ( res->nodeKind() != nkFeatherExpCtValue )
         REP_ERROR(arg->location(), "Unknown value");
 

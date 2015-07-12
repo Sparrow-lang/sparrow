@@ -99,8 +99,8 @@ void LLVMSourceCode::parse(CompilationContext* context)
     const string& fileContent = readFile(filename());
 
     // Create a backend code with the given content
-    iCode_ = Feather::mkBackendCode(Location(*this), fileContent, specifiedCtAvailability(fileContent));
-    iCode_->setContext(context);
+    iCode_ = Feather::mkBackendCode(Location(*this), fileContent, specifiedCtAvailability(fileContent))->node();
+    Nest::setContext(iCode_, context);
 }
 
 string LLVMSourceCode::getSourceCodeLine(int lineNo) const

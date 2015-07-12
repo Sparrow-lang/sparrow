@@ -1177,9 +1177,9 @@ namespace
     // General
     //
     
-    DynNode* convertCtToRt(DynNode* node, TrContext& context)
+    Node* convertCtToRt(Node* node, TrContext& context)
     {
-        DynNode* res = node;
+        Node* res = node;
         if ( context.module().ctToRtTranslator() )
             res = context.module().ctToRtTranslator()(node);
         return res;
@@ -1203,7 +1203,7 @@ llvm::Value* Tr::translateNode(Nest::DynNode* node, TrContext& context)
     // Check if the node is CT available and we are in RT mode. If so, translate the node into RT
     if ( !context.module().isCt() && Feather::isCt(node) )
     {
-        node = convertCtToRt(node, context);
+        node = (DynNode*) convertCtToRt(node->node(), context);
     }
         
     // Now, depending on the type of the node, do a specific translation

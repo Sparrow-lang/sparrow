@@ -107,7 +107,7 @@ void LambdaFunction::doSemanticCheck()
     // Add the closure as a top level node of this node
     closure->setContext(parentContext);  // Put the enclosing class in the context of the parent function
     ASSERT(parentContext->sourceCode());
-    parentContext->sourceCode()->addAdditionalNode(closure);
+    parentContext->sourceCode()->addAdditionalNode(closure->node());
 
     // Compute the type for the enclosing class
     closure->computeType();

@@ -163,16 +163,16 @@ namespace
     }
 }
 
-DynNode* SprFrontend::convertCtToRt(DynNode* node)
+Node* SprFrontend::convertCtToRt(Node* node)
 {
-    const Location& loc = node->location();
+    const Location& loc = node->location;
 
-    TypeRef t = node->type();
+    TypeRef t = node->type;
 
     if ( t->typeKind == typeKindVoid )
     {
         theCompiler().ctEval(node);
-        return Feather::mkNop(loc);
+        return Feather::mkNop(loc)->node();
     }
 
     if ( !t->hasStorage )
@@ -187,7 +187,7 @@ DynNode* SprFrontend::convertCtToRt(DynNode* node)
     if ( isBasicNumericType(t) || Feather::changeTypeMode(t, modeRtCt) == StdDef::typeStringRef )
         return theCompiler().ctEval(node);
     else
-        return checkDataTypeConversion(node);
+        return checkDataTypeConversion((DynNode*) node)->node();
 }
 
 TypeRef SprFrontend::getType(DynNode* typeNode)
@@ -212,7 +212,7 @@ TypeRef SprFrontend::tryGetTypeValue(DynNode* typeNode)
     
     if ( t == StdDef::typeRefType )
     {
-        DynNode* n = theCompiler().ctEval(typeNode);
+        DynNode* n = (DynNode*) theCompiler().ctEval(typeNode->node());
         CtValue* ctVal = n->as<CtValue>();
         if ( ctVal )
         {
@@ -224,7 +224,7 @@ TypeRef SprFrontend::tryGetTypeValue(DynNode* typeNode)
     }
     else if ( t == StdDef::typeType )
     {
-        DynNode* n = theCompiler().ctEval(typeNode);
+        DynNode* n = (DynNode*) theCompiler().ctEval(typeNode->node());
         CtValue* ctVal = n->as<CtValue>();
         if ( ctVal )
         {

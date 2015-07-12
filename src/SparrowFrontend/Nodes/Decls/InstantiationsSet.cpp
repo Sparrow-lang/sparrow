@@ -104,7 +104,7 @@ Instantiation* InstantiationsSet::canInstantiate(const DynNodeVector& values, Ev
             return nullptr;
 
         // Evaluate the if clause condition and check the result
-        if ( !getBoolCtValue(theCompiler().ctEval(cond)) )
+        if ( !getBoolCtValue((DynNode*) theCompiler().ctEval(cond->node())) )
             return nullptr;
     }
 

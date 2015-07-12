@@ -210,7 +210,7 @@ void SprVariable::doComputeType()
         {
             // Add the variable at the top level
             ASSERT(data_.context->sourceCode());
-            data_.context->sourceCode()->addAdditionalNode(resultingVar);
+            data_.context->sourceCode()->addAdditionalNode(resultingVar->node());
             resVar = nullptr;
 
             // For global variables, add the ctor & dtor actions as top level actions

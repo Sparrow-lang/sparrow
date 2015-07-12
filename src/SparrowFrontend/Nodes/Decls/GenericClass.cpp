@@ -35,7 +35,7 @@ namespace
             arg->computeType();
             if ( !Feather::isCt(arg) )
                 REP_INTERNAL(arg->location(), "Argument to a class generic must be CT (type: %1%)") % arg->type();
-            DynNode* n = theCompiler().ctEval(arg);
+            DynNode* n = (DynNode*) theCompiler().ctEval(arg->node());
             if ( !n || n->nodeKind() != nkFeatherExpCtValue )
                 REP_INTERNAL(arg->location(), "Invalid argument %1% when instantiating generic") % (i+1);
             boundValues.push_back(n);
@@ -171,12 +171,12 @@ DynNode* GenericClass::instantiateGeneric(const Location& loc, CompilationContex
             REP_INTERNAL(loc, "Cannot instantiate generic");
         instantiatedDecl->setProperty(propDescription, move(description));
         instantiatedDecl->computeType();
-        theCompiler().queueSemanticCheck(instantiatedDecl);
+        theCompiler().queueSemanticCheck(instantiatedDecl->node());
         inst->setInstantiatedDecl(instantiatedDecl);
 
         // Add the instantiated class as an additional node to the callee source code
         ASSERT(context->sourceCode());
-        context->sourceCode()->addAdditionalNode(expandedInstantiation);
+        context->sourceCode()->addAdditionalNode(expandedInstantiation->node());
     }
 
     // Now actually create the call object: a Type CT value

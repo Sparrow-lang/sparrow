@@ -11,7 +11,7 @@ namespace
     public:
         virtual void afterSemanticCheck(Node* node)
         {
-            theCompiler().ctProcess((DynNode*) node);
+            theCompiler().ctProcess(node);
         };
     };
 }

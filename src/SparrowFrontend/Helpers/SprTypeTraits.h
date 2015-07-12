@@ -13,7 +13,7 @@ namespace SprFrontend
     Nest::TypeRef doDereference1(Nest::DynNode* arg, Nest::DynNode*& cvt);
     
     /// Converts a CT-available node into a node that can be directly used at RT - usually invoked by the backend when translating to RT
-    DynNode* convertCtToRt(DynNode* node);
+    Node* convertCtToRt(Node* node);
 
     /// Given a node that represents a type, get the type expressed by the given node
     /// Yields an error if the given node doesn't indicate to a type

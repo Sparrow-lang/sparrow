@@ -62,7 +62,7 @@ void FSimpleSourceCode::parse(CompilationContext* context)
     SimpleParser parser(*lexer_);
 
     // Parse the file
-    iCode_ = parser.parse(context);
+    iCode_ = parser.parse(context)->node();
 }
 
 string FSimpleSourceCode::getSourceCodeLine(int lineNo) const

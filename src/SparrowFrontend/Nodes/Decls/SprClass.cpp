@@ -216,7 +216,7 @@ void SprClass::doComputeType()
         {
             // Methods, generics
             ASSERT(data_.context->sourceCode());
-            data_.context->sourceCode()->addAdditionalNode(child);
+            data_.context->sourceCode()->addAdditionalNode(child->node());
         }
     });
 

@@ -41,20 +41,20 @@ void LLVMBackend::generateMachineCode(Nest::SourceCode& code)
     rtModule_->setCtToRtTranslator(code.ctToRtTranslator());
 
     // Translate the root node
-    DynNode* rootNode = code.iCode();
+    Node* rootNode = code.iCode();
     ASSERT(rootNode);
-    ASSERT(rootNode->type());
-    ASSERT(rootNode->isSemanticallyChecked());
-    rtModule_->generate(rootNode);
+    ASSERT(rootNode->type);
+    ASSERT(rootNode->nodeSemanticallyChecked);
+    rtModule_->generate((DynNode*) rootNode);
 
     // Translate the additional nodes
-    for ( DynNode* n: code.additionalNodes() )
+    for ( Node* n: code.additionalNodes() )
     {
-        rtModule_->generate(n);
+        rtModule_->generate((DynNode*) n);
     }
 
 
-    rtModule_->setCtToRtTranslator(boost::function<DynNode*(DynNode*)>());
+    rtModule_->setCtToRtTranslator(boost::function<Node*(Node*)>());
 }
 
 void LLVMBackend::link(const string& outFilename)
@@ -85,14 +85,14 @@ void LLVMBackend::link(const string& outFilename)
     LLVMB::link(modules, outFilename);
 }
 
-void LLVMBackend::ctProcess(DynNode* node)
+void LLVMBackend::ctProcess(Node* node)
 {
-    ctModule_->ctProcess(node);
+    ctModule_->ctProcess((DynNode*) node);
 }
 
-DynNode* LLVMBackend::ctEvaluate(DynNode* node)
+Node* LLVMBackend::ctEvaluate(Node* node)
 {
-    return ctModule_->ctEvaluate(node);
+    return ctModule_->ctEvaluate((DynNode*) node)->node();
 }
 
 size_t LLVMBackend::sizeOf(TypeRef type)

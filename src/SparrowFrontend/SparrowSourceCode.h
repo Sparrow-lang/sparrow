@@ -13,7 +13,7 @@ namespace SprFrontend
 
         virtual void parse(Nest::CompilationContext* context);
         virtual string getSourceCodeLine(int lineNo) const;
-        virtual boost::function<Nest::DynNode*(Nest::DynNode*)> ctToRtTranslator() const;
+        virtual boost::function<Nest::Node*(Nest::Node*)> ctToRtTranslator() const;
 
         Nest::DynNode* parseExpression(Nest::Location loc, const string& code) const;
 

@@ -78,7 +78,7 @@ void While::doSemanticCheck()
         while ( true )
         {
             // CT-evaluate the condition; if the condition evaluates to false, exit the while
-            if ( !getBoolCtValue(theCompiler().ctEval(condition)) )
+            if ( !getBoolCtValue((DynNode*) theCompiler().ctEval(condition->node())) )
                 break;
 
             // Put (a copy of) the body in the resulting node-list
@@ -93,7 +93,7 @@ void While::doSemanticCheck()
             // If we have a step, make sure to evaluate it
             if ( step )
             {
-                theCompiler().ctEval(step);    // We don't need the actual result
+                theCompiler().ctEval(step->node());    // We don't need the actual result
             }
 
             // Unfortunately, we don't treat 'break' and 'continue' instructions inside the ct while instructions

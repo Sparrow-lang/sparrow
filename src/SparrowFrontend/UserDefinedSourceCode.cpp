@@ -102,7 +102,7 @@ void UserDefinedSourceCode::parse(CompilationContext* context)
     implPart->setContext(context);
     implPart->semanticCheck();
 
-    iCode_ = (DynNode*) getIntRefCtValue(implPart);
+    iCode_ = (Node*) getIntRefCtValue(implPart);
     if ( !iCode_ )
         REP_INTERNAL(loc, "Invalid parsing function %1%, (used to parse %2%)") % funName_ % filename();
 }

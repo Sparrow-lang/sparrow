@@ -33,12 +33,12 @@ void SparrowSourceCode::parse(CompilationContext* context)
         REP_ERROR(loc, "Cannot open source file");
 
     Scanner scanner(f, Parser::token::START_PROGRAM);
-    Parser parser(scanner, loc, &iCode_);
+    Parser parser(scanner, loc, (DynNode**) &iCode_);
     int rc = parser.parse();
     if ( rc != 0 )
         REP_ERROR(loc, "Cannot parse the source file");
 
-    iCode_->setContext(context);
+    Nest::setContext(iCode_, context);
 }
 
 string SparrowSourceCode::getSourceCodeLine(int lineNo) const
@@ -58,7 +58,7 @@ string SparrowSourceCode::getSourceCodeLine(int lineNo) const
     return line;
 }
 
-boost::function<Nest::DynNode*(Nest::DynNode*)> SparrowSourceCode::ctToRtTranslator() const
+boost::function<Nest::Node*(Nest::Node*)> SparrowSourceCode::ctToRtTranslator() const
 {
     return &convertCtToRt;
 }

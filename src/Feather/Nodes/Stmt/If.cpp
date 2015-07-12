@@ -78,8 +78,8 @@ void If::doSemanticCheck()
             REP_ERROR(condition->location(), "The condition of the ct if should be available at compile-time (%1%)") % condition->type();
 
         // Get the CT value from the condition, and select an active branch
-        DynNode* c = theCompiler().ctEval(condition);
-        DynNode* selectedBranch = getBoolCtValue(c) ? thenClause : elseClause;
+        Node* c = theCompiler().ctEval(condition->node());
+        DynNode* selectedBranch = getBoolCtValue((DynNode*) c) ? thenClause : elseClause;
 
         // Expand only the selected branch
         if ( selectedBranch )

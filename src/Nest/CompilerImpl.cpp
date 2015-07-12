@@ -6,6 +6,7 @@
 #include <Common/NodeAllocatorImpl.h>
 #include <Common/TimingSystem.h>
 #include <Common/Serialization.h>
+#include <Intermediate/Node.h>
 #include <Intermediate/DynNode.h>
 #include <Intermediate/CompilationContext.h>
 #include <Frontend/SourceCode.h>
@@ -241,25 +242,25 @@ const SourceCode* CompilerImpl::getSourceCodeForFilename(const string& filename)
     return nullptr;
 }
 
-void CompilerImpl::queueSemanticCheck(DynNode* node)
+void CompilerImpl::queueSemanticCheck(Node* node)
 {
     toSemanticCheck_.push_back(node);
 }
 
-void CompilerImpl::ctProcess(DynNode* node)
+void CompilerImpl::ctProcess(Node* node)
 {
-    node->semanticCheck();
+    Nest::semanticCheck(node);
     backend_->ctProcess(node);
 }
 
-DynNode* CompilerImpl::ctEval(DynNode* node)
+Node* CompilerImpl::ctEval(Node* node)
 {
-    node->semanticCheck();
-    DynNode* res = backend_->ctEvaluate(node);
+    Nest::semanticCheck(node);
+    Node* res = backend_->ctEvaluate(node);
     if ( res )
     {
-        res->setContext(node->context());
-        res->semanticCheck();
+        Nest::setContext(res, node->context);
+        Nest::semanticCheck(res);
     }
     return res;
 }
@@ -278,11 +279,11 @@ void CompilerImpl::semanticCheckNodes()
 {
     while ( !toSemanticCheck_.empty() )
     {
-        DynNode* n = toSemanticCheck_.front();
+        Node* n = toSemanticCheck_.front();
         toSemanticCheck_.erase(toSemanticCheck_.begin());
 
         if ( n )
-            n->semanticCheck();
+            Nest::semanticCheck(n);
     }
 }
 

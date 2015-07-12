@@ -17,7 +17,7 @@ namespace
     template <typename ValueType>
     ValueType evalValue(DynNode* node, TypeRef expectedExpType)
     {
-        node = theCompiler().ctEval(node);
+        node = (DynNode*) theCompiler().ctEval(node->node());
         TypeRef t = removeLValueIfPresent(node->type());
         if ( !isSameTypeIgnoreMode(t, expectedExpType) )
             REP_INTERNAL(node->location(), "Invalid value; found expression of type %1%, expected %2%") % node->type() % expectedExpType;
@@ -65,7 +65,7 @@ bool SprFrontend::ctValsEqual(DynNode* v1, DynNode* v2)
             funCall->semanticCheck();
             if ( Feather::isTestable(funCall) && Feather::isCt(funCall) )
             {
-                DynNode* c = theCompiler().ctEval(funCall);
+                DynNode* c = (DynNode*) theCompiler().ctEval(funCall->node());
                 return getBoolCtValue(c);
             }
         }

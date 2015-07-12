@@ -244,5 +244,5 @@ void SprFunction::handleStaticCtorDtor(bool ctor)
     n->setContext(data_.context);
     n->semanticCheck();
     ASSERT(data_.context->sourceCode());
-    data_.context->sourceCode()->addAdditionalNode(n);
+    data_.context->sourceCode()->addAdditionalNode(n->node());
 }

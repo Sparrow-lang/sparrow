@@ -50,7 +50,7 @@ namespace
                 arg->computeType();
                 if ( !Feather::isCt(arg) )
                     return {};     // This argument must be CT in order to instantiate the generic
-                DynNode* n = theCompiler().ctEval(arg);
+                DynNode* n = (DynNode*) theCompiler().ctEval(arg->node());
                 if ( !n || n->nodeKind() != nkFeatherExpCtValue )
                     REP_INTERNAL(arg->location(), "Invalid argument %1% when instantiating generic") % (i+1);
                 boundValues[i] = n;
@@ -298,7 +298,7 @@ DynNode* GenericFunction::instantiateGeneric(const Location& loc, CompilationCon
         if ( !instantiatedDecl )
             REP_INTERNAL(loc, "Cannot instantiate generic");
         instantiatedDecl->computeType();
-        theCompiler().queueSemanticCheck(instantiatedDecl);
+        theCompiler().queueSemanticCheck(instantiatedDecl->node());
         inst->setInstantiatedDecl(instantiatedDecl);
 
     }

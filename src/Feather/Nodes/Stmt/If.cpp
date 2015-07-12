@@ -37,7 +37,7 @@ void If::dump(ostream& os) const
 
 void If::doSetContextForChildren()
 {
-    data_.childrenContext = data_.context->createChildContext(this);
+    data_.childrenContext = data_.context->createChildContext(node());
 
     Nest::setContext(data_.children[0], data_.childrenContext);
     if ( data_.children[1] )

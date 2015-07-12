@@ -14,9 +14,9 @@ DynNode* Feather::getParentDecl(CompilationContext* context)
     Nest::SymTab* parentSymTab = context->currentSymTab();
     for ( ; parentSymTab; parentSymTab=parentSymTab->parent() )
     {
-        DynNode* n = parentSymTab->node();
-        if ( n && isDecl(n) )
-            return n;
+        Nest::Node* n = parentSymTab->node();
+        if ( n && isDecl((DynNode*) n) )
+            return (DynNode*) n;
     }
     return nullptr;
 }
@@ -38,7 +38,7 @@ DynNode* Feather::getParentLoop(CompilationContext* context)
     Nest::SymTab* parentSymTab = context->currentSymTab();
     for ( ; parentSymTab; parentSymTab=parentSymTab->parent() )
     {
-        DynNode* n = parentSymTab->node();
+        DynNode* n = (DynNode*) parentSymTab->node();
         
         // Do we have a while node?
         if ( n->explanation()->nodeKind() == nkFeatherStmtWhile )
@@ -54,7 +54,7 @@ DynNode* Feather::getParentLoop(CompilationContext* context)
 CompilationContext* Feather::getSymTabContext(CompilationContext* context)
 {
     Nest::SymTab* parentSymTab = context->currentSymTab();
-    DynNode* n = parentSymTab->node();
+    DynNode* n = (DynNode*) parentSymTab->node();
     return n ? n->childrenContext() : nullptr;
 }
 

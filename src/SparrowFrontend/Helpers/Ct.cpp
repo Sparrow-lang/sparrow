@@ -56,7 +56,7 @@ bool SprFrontend::ctValsEqual(DynNode* v1, DynNode* v2)
 
     // Check if we can call the '==' operator
     // If we can call it, then actually call it and return the result
-    DynNodeVector decls = context->currentSymTab()->lookup("==");
+    DynNodeVector decls = context->currentSymTab()->lookupDyn("==");
     if ( !decls.empty() )
     {
         DynNode* funCall = selectOverload(context, v1->location(), modeCt, move(decls), {v1, v2}, false, "");

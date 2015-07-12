@@ -154,7 +154,7 @@ void FunApplication::doSemanticCheck()
     if ( base->type()->hasStorage && decls.empty() )
     {
         DynNode* cls = classForTypeRaw(base->type());
-        decls = cls->childrenContext()->currentSymTab()->lookupCurrent("()");
+        decls = cls->childrenContext()->currentSymTab()->lookupCurrentDyn("()");
         if ( decls.empty() )
             REP_ERROR(data_.location, "Class %1% has no user defined call operators") % getName(cls);
         thisArg = base;
@@ -254,7 +254,7 @@ void FunApplication::checkSizeOf()
 
     // Make sure the class that this refers to has the type properly computed
     Class* cls = classDecl(t);
-    DynNode* mainNode = cls->childrenContext()->currentSymTab()->node();
+    DynNode* mainNode = (DynNode*) cls->childrenContext()->currentSymTab()->node();
     mainNode->computeType();
 
     // Remove l-value if we have some

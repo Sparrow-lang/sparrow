@@ -39,7 +39,7 @@ void Identifier::doSemanticCheck()
     const string& id = getCheckPropertyString("name");
 
     // Search in the current symbol table for the identifier
-    DynNodeVector decls = data_.context->currentSymTab()->lookup(id);
+    DynNodeVector decls = data_.context->currentSymTab()->lookupDyn(id);
     if ( decls.empty() )
         REP_ERROR(data_.location, "No declarations found with the given name (%1%)") % id;
 

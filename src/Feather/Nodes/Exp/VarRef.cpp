@@ -14,7 +14,7 @@ namespace
         
         // Check the direct parent is a class that contains the given node
         Nest::SymTab* st = node->context()->currentSymTab();
-        DynNode* parent = st ? st->node() : nullptr;
+        DynNode* parent = st ? (DynNode*) st->node() : nullptr;
         parent = parent ? parent->explanation() : nullptr;
         Class* cls = parent ? parent->as<Class>() : nullptr;
         if ( cls )

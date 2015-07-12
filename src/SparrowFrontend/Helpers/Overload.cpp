@@ -297,7 +297,7 @@ bool SprFrontend::selectConversionCtor(CompilationContext* context, Class* destC
     ASSERT(argType);
 
     // Search for the ctors in the class 
-    DynNodeVector decls = destClass->childrenContext()->currentSymTab()->lookupCurrent("ctor");
+    DynNodeVector decls = destClass->childrenContext()->currentSymTab()->lookupCurrentDyn("ctor");
 
 //     cerr << "Convert: " << argType->toString() << " -> " << destClass->toString() << " ?" << endl;
 
@@ -357,7 +357,7 @@ Callable* SprFrontend::selectCtToRtCtor(CompilationContext* context, TypeRef ctT
         return nullptr;
 
     // Search for the ctors in the class 
-    DynNodeVector decls = cls->childrenContext()->currentSymTab()->lookupCurrent("ctorFromCt");
+    DynNodeVector decls = cls->childrenContext()->currentSymTab()->lookupCurrentDyn("ctorFromCt");
 
     // Select the possible ct-to-rt constructors
     Callables candidates;

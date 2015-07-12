@@ -44,7 +44,7 @@ CompilationContext::~CompilationContext()
     delete evalMode_;
 }
 
-CompilationContext* CompilationContext::createChildContext(DynNode* symTabNode, EvalMode mode)
+CompilationContext* CompilationContext::createChildContext(Node* symTabNode, EvalMode mode)
 {
     return new CompilationContext(this, new SymTabImpl(currentSymTab_, symTabNode), mode);
 }

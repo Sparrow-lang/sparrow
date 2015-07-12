@@ -50,7 +50,7 @@ void Using::doComputeType()
         // Add references in the current symbol tab
         for ( DynNode* decl: decls )
         {
-            data_.context->currentSymTab()->enter(Feather::getName(decl), decl);
+            data_.context->currentSymTab()->enter(Feather::getName(decl), decl->node());
         }
     }
     else

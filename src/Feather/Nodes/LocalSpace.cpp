@@ -32,7 +32,7 @@ void LocalSpace::dump(ostream& os) const
 
 void LocalSpace::doSetContextForChildren()
 {
-    data_.childrenContext = data_.context->createChildContext(this);
+    data_.childrenContext = data_.context->createChildContext(node());
     DynNode::doSetContextForChildren();
 }
 

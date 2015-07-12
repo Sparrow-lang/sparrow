@@ -113,16 +113,16 @@ namespace
             }
             catch(...)
             {
-                for ( DynNode* entry: entries )
+                for ( Node* entry: entries )
                 {
                     if ( entry )
-                        REP_INFO(entry->location(), "See possible alternative");
+                        REP_INFO(entry->location, "See possible alternative");
                 }
                 throw;
             }
             return nullptr;
         }
-        T* def = entries.front()->as<T>();
+        T* def = DynNode::fromNode(entries.front())->as<T>();
         if ( !def  )
         {
             REP_ERROR(loc, "Identifier %1% doesn't denote a %2%") % name % desc;

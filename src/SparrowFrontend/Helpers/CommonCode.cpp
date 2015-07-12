@@ -70,7 +70,7 @@ DynNode* SprFrontend::createCtorCall(const Location& loc, CompilationContext* co
     }
 
     // Search for the ctors in the class
-    DynNodeVector decls = cls->childrenContext()->currentSymTab()->lookupCurrent("ctor");
+    DynNodeVector decls = cls->childrenContext()->currentSymTab()->lookupCurrentDyn("ctor");
 
     // If no declarations found, just don't initialize the object
     if ( decls.empty() )
@@ -97,7 +97,7 @@ DynNode* SprFrontend::createDtorCall(const Location& loc, CompilationContext* co
     CHECK(loc, cls);
 
     // Search for the dtor in the class 
-    DynNodeVector decls = cls->childrenContext()->currentSymTab()->lookupCurrent("dtor");
+    DynNodeVector decls = cls->childrenContext()->currentSymTab()->lookupCurrentDyn("dtor");
 
     // If no destructor found, don't call anything
     if ( decls.empty() )

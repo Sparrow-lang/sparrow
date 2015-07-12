@@ -208,12 +208,12 @@ int InfixExp::getPrecedence()
     string defaultPrecedenceName = "oper_precedence_default";
 
     // Perform a name lookup for the actual precedence name
-    int res = getIntValue(data_.context->currentSymTab()->lookup(precedenceName), -1);
+    int res = getIntValue(data_.context->currentSymTab()->lookupDyn(precedenceName), -1);
     if ( res > 0 )
         return res;
 
     // Search the default precedence name
-    res = getIntValue(data_.context->currentSymTab()->lookup(defaultPrecedenceName), -1);
+    res = getIntValue(data_.context->currentSymTab()->lookupDyn(defaultPrecedenceName), -1);
     if ( res > 0 )
         return res;
 
@@ -225,7 +225,7 @@ bool InfixExp::isRightAssociativity()
     string assocName = "oper_assoc_" + operation();
 
     // Perform a name lookup for the actual associativity name
-    int res = getIntValue(data_.context->currentSymTab()->lookup(assocName), 1);
+    int res = getIntValue(data_.context->currentSymTab()->lookupDyn(assocName), 1);
     return res < 0;
 }
 

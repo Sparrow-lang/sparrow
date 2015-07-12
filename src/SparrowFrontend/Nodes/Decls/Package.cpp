@@ -22,7 +22,7 @@ void Package::doSetContextForChildren()
 
     // If we don't have a children context, create one
     if ( !data_.childrenContext )
-        data_.childrenContext = data_.context->createChildContext(this);
+        data_.childrenContext = data_.context->createChildContext(node());
 
     // Set the context for all the children
     Nest::setContext(data_.children[0], data_.childrenContext);

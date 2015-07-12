@@ -56,7 +56,7 @@ void Class::doSetContextForChildren()
 {
     // If we don't have a children context, create one
     if ( !data_.childrenContext )
-        data_.childrenContext = data_.context->createChildContext(this, effectiveEvalMode(this));
+        data_.childrenContext = data_.context->createChildContext(node(), effectiveEvalMode(this));
 
     // Set the context for all the children
     for ( Node* field: data_.children )

@@ -39,7 +39,7 @@ void While::dump(ostream& os) const
 
 void While::doSetContextForChildren()
 {
-    data_.childrenContext = data_.context->createChildContext(this);
+    data_.childrenContext = data_.context->createChildContext(node());
     CompilationContext* condContext = nodeEvalMode(this) == modeCt ? new CompilationContext(data_.context, modeCt) : data_.childrenContext;
 
     Nest::setContext(data_.children[0], condContext); // condition

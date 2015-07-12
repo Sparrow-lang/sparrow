@@ -48,7 +48,7 @@ void SprConcept::doSetContextForChildren()
     addToSymTab(this);
 
     if ( !data_.childrenContext )
-        data_.childrenContext = data_.context->createChildContext(this, effectiveEvalMode(this));
+        data_.childrenContext = data_.context->createChildContext(node(), effectiveEvalMode(this));
 
     DynNode::doSetContextForChildren();
 }

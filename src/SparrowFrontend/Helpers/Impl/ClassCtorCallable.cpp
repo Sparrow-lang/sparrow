@@ -37,7 +37,7 @@ ClassCtorCallable::ClassCtorCallable(Class* cls, Callable* baseCallable, EvalMod
 
 Callables ClassCtorCallable::getCtorCallables(Class* cls, EvalMode evalMode)
 {
-    DynNodeVector decls = cls->childrenContext()->currentSymTab()->lookupCurrent("ctor");
+    DynNodeVector decls = cls->childrenContext()->currentSymTab()->lookupCurrentDyn("ctor");
 
     evalMode = combineMode(effectiveEvalMode(cls), evalMode, cls->location(), false);
 

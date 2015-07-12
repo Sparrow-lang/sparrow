@@ -24,7 +24,7 @@ namespace
     {
         // Check all the nodes registered in the children context so far to discover the fields
         DynNodeVector fields;
-        for ( DynNode* n: curSymTab->allEntries() )
+        for ( DynNode* n: curSymTab->allEntriesDyn() )
         {
             switch ( n->nodeKind() )
             {
@@ -107,7 +107,7 @@ void SprClass::doSetContextForChildren()
     
     // If we don't have a children context, create one
     if ( !data_.childrenContext )
-        data_.childrenContext = data_.context->createChildContext(this, effectiveEvalMode(this));
+        data_.childrenContext = data_.context->createChildContext(node(), effectiveEvalMode(this));
 
     DynNode::doSetContextForChildren();
 }

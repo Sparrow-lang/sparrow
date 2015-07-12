@@ -15,8 +15,8 @@ SprCompilationUnit::SprCompilationUnit(const Location& loc, DynNode* package, No
 void SprCompilationUnit::doSetContextForChildren()
 {
     ASSERT(data_.children.size() == 3);
-    DynNode* packageName = data_.children[0];
-    DynNode* imports = data_.children[1];
+    DynNode* packageName = (DynNode*) data_.children[0];
+    DynNode* imports = (DynNode*) data_.children[1];
     NodeList* declarations = (NodeList*)data_.children[2];
     if ( packageName )
         packageName->setContext(data_.context);
@@ -44,7 +44,7 @@ void SprCompilationUnit::doSetContextForChildren()
             {
                 DynNode* pk = mkSprPackage(packageName->location(), move(names[j]), declarations);
                 declarations = Feather::mkNodeList(packageName->location(), {pk}, true);
-                data_.children[2] = declarations;
+                data_.children[2] = declarations->node();
             }
             break;
         }

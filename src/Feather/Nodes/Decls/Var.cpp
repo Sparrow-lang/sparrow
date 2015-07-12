@@ -27,7 +27,7 @@ size_t Var::alignment() const
 void Var::dump(ostream& os) const
 {
     ASSERT(data_.children.size() == 1);
-    os << "var(" << getName(this) << ": " << data_.children[0]->type() << ")";
+    os << "var(" << getName(this) << ": " << data_.children[0]->type << ")";
 }
 
 void Var::doSetContextForChildren()
@@ -40,7 +40,7 @@ void Var::doComputeType()
 {
     // Make sure the variable has a type
     ASSERT(data_.children.size() == 1);
-    DynNode* typeNode = data_.children[0];
+    DynNode* typeNode = (DynNode*) data_.children[0];
     typeNode->computeType();
     data_.type = typeNode->type();
     if ( !data_.type )

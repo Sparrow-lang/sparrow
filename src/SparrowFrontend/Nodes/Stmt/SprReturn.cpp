@@ -23,7 +23,7 @@ SprReturn::SprReturn(const Location& loc, DynNode* exp)
 void SprReturn::doSemanticCheck()
 {
     ASSERT(data_.children.size() == 1);
-    DynNode* exp = data_.children[0];
+    DynNode* exp = (DynNode*) data_.children[0];
 
     // Get the parent function of this return
     Function* parentFun = getParentFun(data_.context);

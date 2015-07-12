@@ -15,7 +15,7 @@ Return::Return(const Location& location, DynNode* exp)
 
 DynNode* Return::expression() const
 {
-    return data_.children[0];
+    return (DynNode*) data_.children[0];
 }
 
 Function* Return::parentFun() const
@@ -32,7 +32,7 @@ void Return::doSemanticCheck()
 {
     // If we have an expression argument, semantically check it
     if ( data_.children[0] )
-        data_.children[0]->semanticCheck();
+        Nest::semanticCheck(data_.children[0]);
 
     // Get the parent function of this return
     Function* parentFun = getParentFun(data_.context);
@@ -44,7 +44,7 @@ void Return::doSemanticCheck()
     // If the return has an expression, check that has the same type as the function result type
     if ( data_.children[0] )
     {
-        if ( !isSameTypeIgnoreMode(data_.children[0]->type(), parentFun->resultType()) )
+        if ( !isSameTypeIgnoreMode(data_.children[0]->type, parentFun->resultType()) )
             REP_ERROR(data_.location, "Returned expression's type is not the same as function's return type");
     }
     else

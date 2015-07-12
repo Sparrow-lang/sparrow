@@ -25,14 +25,14 @@ void Package::doSetContextForChildren()
         data_.childrenContext = data_.context->createChildContext(this);
 
     // Set the context for all the children
-    data_.children[0]->setContext(data_.childrenContext);
+    Nest::setContext(data_.children[0], data_.childrenContext);
 }
 
 void Package::doComputeType()
 {
     // Compute the type for the children
-    data_.children[0]->computeType();
-    data_.explanation = data_.children[0]->node();
+    Nest::computeType(data_.children[0]);
+    data_.explanation = data_.children[0];
     checkForAllowedNamespaceChildren((NodeList*) data_.children[0]);
 
     data_.type = Feather::getVoidType(modeCt);
@@ -41,6 +41,6 @@ void Package::doComputeType()
 void Package::doSemanticCheck()
 {
     computeType();
-    data_.children[0]->semanticCheck();
-    data_.explanation = data_.children[0]->node();
+    Nest::semanticCheck(data_.children[0]);
+    data_.explanation = data_.children[0];
 }

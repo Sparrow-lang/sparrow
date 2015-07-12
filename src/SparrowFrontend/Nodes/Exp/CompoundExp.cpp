@@ -40,7 +40,7 @@ void CompoundExp::dump(ostream& os) const
 
 void CompoundExp::doSemanticCheck()
 {
-    DynNode* base = data_.children[0];
+    DynNode* base = (DynNode*) data_.children[0];
     const string& id = getCheckPropertyString("name");
 
     // For the base expression allow it to return DeclExp

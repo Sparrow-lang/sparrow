@@ -23,9 +23,9 @@ For::For(const Location& loc, string name, DynNode* range, DynNode* action, DynN
 void For::doSetContextForChildren()
 {
     ASSERT(data_.children.size() == 3);
-    DynNode* range = data_.children[0];
-    DynNode* action = data_.children[1];
-    DynNode* typeExpr = data_.children[2];
+    DynNode* range = (DynNode*) data_.children[0];
+    DynNode* action = (DynNode*) data_.children[1];
+    DynNode* typeExpr = (DynNode*) data_.children[2];
 
     ASSERT(range);
     CompilationContext* rangeContext = nodeEvalMode(this) == modeCt ? new CompilationContext(data_.context, modeCt) : data_.context;
@@ -44,9 +44,9 @@ void For::doComputeType()
 void For::doSemanticCheck()
 {
     ASSERT(data_.children.size() == 3);
-    DynNode* range = data_.children[0];
-    DynNode* action = data_.children[1];
-    DynNode* typeExpr = data_.children[2];
+    DynNode* range = (DynNode*) data_.children[0];
+    DynNode* action = (DynNode*) data_.children[1];
+    DynNode* typeExpr = (DynNode*) data_.children[2];
 
     bool ctFor = nodeEvalMode(this) == modeCt;
 

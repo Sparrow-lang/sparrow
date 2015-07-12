@@ -12,18 +12,18 @@ LocalSpace::LocalSpace(const Location& location, DynNodeVector children)
 
 void LocalSpace::addChild(DynNode* p)
 {
-    data_.children.push_back(p);
+    data_.children.push_back(p->node());
 }
 
 void LocalSpace::insertChildInFront(DynNode* p)
 {
-    data_.children.insert(data_.children.begin(), p);
+    data_.children.insert(data_.children.begin(), p->node());
 }
 
 void LocalSpace::dump(ostream& os) const
 {
     os << "localSpace(";
-    for ( DynNode* p: data_.children )
+    for ( Node* p: data_.children )
     {
         os << endl << p;
     }
@@ -47,11 +47,11 @@ void LocalSpace::doSemanticCheck()
     doComputeType();
 
     // Semantic check each of the children
-    for ( DynNode* p: data_.children )
+    for ( Node* p: data_.children )
     {
         try
         {
-            p->semanticCheck();
+            Nest::semanticCheck(p);
         }
         catch(...)
         {

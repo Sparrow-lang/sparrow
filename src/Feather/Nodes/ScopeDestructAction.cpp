@@ -11,7 +11,7 @@ ScopeDestructAction::ScopeDestructAction(const Location& loc, DynNode* action)
 
 DynNode* ScopeDestructAction::destructAction() const
 {
-    return data_.children[0];
+    return (DynNode*) data_.children[0];
 }
 
 void ScopeDestructAction::dump(ostream& os) const
@@ -21,6 +21,6 @@ void ScopeDestructAction::dump(ostream& os) const
 
 void ScopeDestructAction::doSemanticCheck()
 {
-    data_.children[0]->semanticCheck();
+    Nest::semanticCheck(data_.children[0]);
     data_.type = getVoidType(data_.context->evalMode());
 }

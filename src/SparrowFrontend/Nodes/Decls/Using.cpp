@@ -19,7 +19,7 @@ Using::Using(const Location& loc, string alias, DynNode* usingNode, AccessType a
 DynNode* Using::source() const
 {
     ASSERT(data_.children.size() == 1);
-    return data_.children[0];
+    return (DynNode*) data_.children[0];
 }
 
 void Using::doSetContextForChildren()
@@ -33,7 +33,7 @@ void Using::doSetContextForChildren()
 void Using::doComputeType()
 {
     ASSERT(data_.children.size() == 1);
-    DynNode* usingNode = data_.children[0];
+    DynNode* usingNode = (DynNode*) data_.children[0];
     const string* alias = getPropertyString("name");
 
     // Compile the using name

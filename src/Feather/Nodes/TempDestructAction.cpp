@@ -11,7 +11,7 @@ TempDestructAction::TempDestructAction(const Location& loc, DynNode* action)
 
 DynNode* TempDestructAction::destructAction() const
 {
-    return data_.children[0];
+    return (DynNode*) data_.children[0];
 }
 
 void TempDestructAction::dump(ostream& os) const
@@ -21,6 +21,6 @@ void TempDestructAction::dump(ostream& os) const
 
 void TempDestructAction::doSemanticCheck()
 {
-    data_.children[0]->semanticCheck();
+    Nest::semanticCheck(data_.children[0]);
     data_.type = getVoidType(data_.context->evalMode());
 }

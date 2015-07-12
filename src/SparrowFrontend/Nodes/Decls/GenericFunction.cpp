@@ -200,7 +200,7 @@ GenericFunction::~GenericFunction()
 const DynNodeVector& GenericFunction::params() const
 {
     ASSERT(data_.referredNodes.size() == 2);
-    return data_.referredNodes[1]->children;
+    return reinterpret_cast<const DynNodeVector&>(data_.referredNodes[1]->children);
 }
 
 
@@ -276,7 +276,7 @@ Instantiation* GenericFunction::canInstantiate(const DynNodeVector& args)
         ? modeCt        // If we have a CT generic, the resulting eval mode is always CT
         : getResultingEvalMode(originalFun->location(), effectiveEvalMode(originalFun), args, genericParams());
 
-    InstantiationsSet* instantiationsSet = data_.children[0]->as<InstantiationsSet>();
+    InstantiationsSet* instantiationsSet = (InstantiationsSet*) data_.children[0];
     return instantiationsSet->canInstantiate(boundValues, resultingEvalMode);
 }
 

@@ -61,8 +61,8 @@ namespace Nest
         void setLocation(const Location& loc);
 
         /// Getter for the children nodes of this node - think compositon
-        const DynNodeVector& children() const { return data_.children; }
-        DynNodeVector& children() { return data_.children; }
+        const DynNodeVector& children() const { return reinterpret_cast<const DynNodeVector&>(data_.children); }
+        DynNodeVector& children() { return reinterpret_cast<DynNodeVector&>(data_.children); }
         
         /// Getter for the list of nodes referred by this node
         const DynNodeVector& referredNodes() const { return reinterpret_cast<const DynNodeVector&>(data_.referredNodes); }

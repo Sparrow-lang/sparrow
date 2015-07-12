@@ -17,17 +17,17 @@ If::If(const Location& location, DynNode* condition, DynNode* thenClause, DynNod
 
 DynNode* If::condition() const
 {
-    return data_.children[0];
+    return (DynNode*) data_.children[0];
 }
 
 DynNode* If::thenClause() const
 {
-    return data_.children[1];
+    return (DynNode*) data_.children[1];
 }
 
 DynNode* If::elseClause() const
 {
-    return data_.children[2];
+    return (DynNode*) data_.children[2];
 }
 
 void If::dump(ostream& os) const
@@ -38,19 +38,19 @@ void If::dump(ostream& os) const
 void If::doSetContextForChildren()
 {
     data_.childrenContext = data_.context->createChildContext(this);
-    
-    data_.children[0]->setContext(data_.childrenContext);
+
+    Nest::setContext(data_.children[0], data_.childrenContext);
     if ( data_.children[1] )
-        data_.children[1]->setContext(data_.childrenContext);
+        Nest::setContext(data_.children[1], data_.childrenContext);
     if ( data_.children[2] )
-        data_.children[2]->setContext(data_.childrenContext);
+        Nest::setContext(data_.children[2], data_.childrenContext);
 }
 
 void If::doSemanticCheck()
 {
-    DynNode* condition = data_.children[0];
-    DynNode* thenClause = data_.children[1];
-    DynNode* elseClause = data_.children[2];
+    DynNode* condition = (DynNode*) data_.children[0];
+    DynNode* thenClause = (DynNode*) data_.children[1];
+    DynNode* elseClause = (DynNode*) data_.children[2];
     
     // The resulting type is Void
     data_.type = getVoidType(data_.context->evalMode());
@@ -69,7 +69,7 @@ void If::doSemanticCheck()
         condition->setContext(childrenContext());
         condition->semanticCheck();
     }
-    data_.children[0] = condition;
+    data_.children[0] = condition->node();
     // TODO (if): Remove this dereference from here
 
     if ( nodeEvalMode(this) == modeCt )

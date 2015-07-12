@@ -19,13 +19,13 @@ NodeList::NodeList(const Location& loc, DynNodeVector children, bool resultVoid)
 
 void NodeList::addChild(DynNode* p)
 {
-    data_.children.push_back(p);
+    data_.children.push_back(p->node());
 }
 
 void NodeList::dump(ostream& os) const
 {
     os << "nodeList(";
-    for ( DynNode* p: data_.children )
+    for ( Node* p: data_.children )
     {
         os << endl << p;
     }
@@ -35,16 +35,16 @@ void NodeList::dump(ostream& os) const
 void NodeList::doComputeType()
 {
     // Compute the type for all the children
-    for ( DynNode* p: data_.children )
+    for ( Node* p: data_.children )
     {
         if ( !p )
             continue;
-        
-        p->computeType();
+
+        Nest::computeType(p);
     }
 
     // Get the type of the last node
-    data_.type = ( hasProperty(propResultVoid) || data_.children.empty() || !data_.children.back()->type() ) ? getVoidType(data_.context->evalMode()) : data_.children.back()->type();
+    data_.type = ( hasProperty(propResultVoid) || data_.children.empty() || !data_.children.back()->type ) ? getVoidType(data_.context->evalMode()) : data_.children.back()->type;
     data_.type = adjustMode(data_.type, data_.context, data_.location);
     checkEvalMode(this);
 }
@@ -53,20 +53,20 @@ void NodeList::doSemanticCheck()
 {
     // Semantic check each of the children
     bool hasNonCtChildren = false;
-    for ( DynNode* p: data_.children )
+    for ( Node* p: data_.children )
     {
         if ( !p )
             continue;
-        
-        p->semanticCheck();
-        hasNonCtChildren = hasNonCtChildren || !isCt(p);
+
+        Nest::semanticCheck(p);
+        hasNonCtChildren = hasNonCtChildren || !isCt((DynNode*) p);
     }
 
     // Make sure the type is computed
     if ( !data_.type )
     {
         // Get the type of the last node
-        data_.type = ( hasProperty(propResultVoid) || data_.children.empty() || !data_.children.back()->type() ) ? getVoidType(data_.context->evalMode()) : data_.children.back()->type();
+        data_.type = ( hasProperty(propResultVoid) || data_.children.empty() || !data_.children.back()->type ) ? getVoidType(data_.context->evalMode()) : data_.children.back()->type;
         data_.type = adjustMode(data_.type, data_.context, data_.location);
         checkEvalMode(this);
     }

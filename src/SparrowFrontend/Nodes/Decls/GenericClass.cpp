@@ -133,13 +133,13 @@ GenericClass::GenericClass(SprClass* originalClass, NodeList* parameters, DynNod
 
 size_t GenericClass::paramsCount() const
 {
-    InstantiationsSet* instantiationsSet = data_.children[0]->as<InstantiationsSet>();
+    InstantiationsSet* instantiationsSet = (InstantiationsSet*) data_.children[0];
     return instantiationsSet->parameters().size();
 }
 
 DynNode* GenericClass::param(size_t idx) const
 {
-    InstantiationsSet* instantiationsSet = data_.children[0]->as<InstantiationsSet>();
+    InstantiationsSet* instantiationsSet = (InstantiationsSet*) data_.children[0];
     return instantiationsSet->parameters()[idx];
 }
 
@@ -148,7 +148,7 @@ Instantiation* GenericClass::canInstantiate(const DynNodeVector& args)
     DynNodeVector boundValues = getBoundValues(args);
     DynNode* originalClass = (DynNode*) data_.referredNodes[0];
     EvalMode resultingEvalMode = getResultingEvalMode(originalClass->location(), effectiveEvalMode(originalClass), boundValues);
-    InstantiationsSet* instantiationsSet = data_.children[0]->as<InstantiationsSet>();
+    InstantiationsSet* instantiationsSet = (InstantiationsSet*) data_.children[0];
     return instantiationsSet->canInstantiate(boundValues, resultingEvalMode);
 }
 

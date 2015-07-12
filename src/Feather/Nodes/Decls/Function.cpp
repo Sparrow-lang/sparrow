@@ -23,8 +23,8 @@ Function::Function(const Location& loc, string name, DynNode* resultType, DynNod
     }
 
     // The result type and body is at the beginning of the parameters
-    data_.children.insert(data_.children.begin(), body);
-    data_.children.insert(data_.children.begin(), resultType);
+    data_.children.insert(data_.children.begin(), body->node());
+    data_.children.insert(data_.children.begin(), resultType->node());
 
     setName(this, move(name));
     setProperty("callConvention", (int) callConv);
@@ -37,22 +37,22 @@ void Function::addParameter(DynNode* parameter, bool first)
 
     ASSERT(data_.children.size() >= 2);
     if ( first )
-        data_.children.insert(data_.children.begin()+2, parameter);
+        data_.children.insert(data_.children.begin()+2, parameter->node());
     else
-        data_.children.push_back(parameter);
+        data_.children.push_back(parameter->node());
 }
 
 void Function::setResultType(DynNode* resultType)
 {
     ASSERT(data_.children.size() >= 2);
-    data_.children[0] = resultType;
+    data_.children[0] = resultType->node();
     resultType->setContext(data_.childrenContext);
 }
 
 void Function::setBody(DynNode* body)
 {
     ASSERT(data_.children.size() >= 2);
-    data_.children[1] = body;
+    data_.children[1] = body->node();
 }
 
 size_t Function::numParameters() const
@@ -61,19 +61,19 @@ size_t Function::numParameters() const
 }
 DynNode* Function::getParameter(size_t idx) const
 {
-    return data_.children[idx+2];
+    return (DynNode*) data_.children[idx+2];
 }
 
 TypeRef Function::resultType() const
 {
     ASSERT(data_.children.size() >= 2);
-    return data_.children[0]->type();
+    return data_.children[0]->type;
 }
 
 DynNode* Function::body() const
 {
     ASSERT(data_.children.size() >= 2);
-    return data_.children[1];
+    return (DynNode*) data_.children[1];
 }
 
 CallConvention Function::callConvention() const
@@ -110,9 +110,9 @@ string Function::toString() const
         {
             if ( i > startIdx )
                 oss << ", ";
-            oss << data_.children[i]->type();
+            oss << data_.children[i]->type;
         }
-        oss << "): " << (hasResultParam ? removeRef(data_.children[2]->type()) : resultType());
+        oss << "): " << (hasResultParam ? removeRef(data_.children[2]->type) : resultType());
     }
     return oss.str();
 //    return data_.type ? getName(this) + data_.type->toString() : getName(this);
@@ -135,7 +135,7 @@ void Function::doComputeType()
         REP_ERROR(data_.location, "No name given to function declaration");
 
     // We must have a result type
-    DynNode* resultType = data_.children[0];
+    DynNode* resultType = (DynNode*) data_.children[0];
     resultType->computeType();
     TypeRef resType = resultType->type();
     if ( !resType )
@@ -146,10 +146,10 @@ void Function::doComputeType()
     auto ite = data_.children.end();
     for ( ; it!=ite; ++it )
     {
-        DynNode* param = *it;
+        Node* param = *it;
         if ( !param )
             REP_ERROR(data_.location, "Invalid param");
-	    param->computeType();
+        Nest::computeType(param);
     }
 
     // Set the type for this node
@@ -159,8 +159,8 @@ void Function::doComputeType()
     it = data_.children.begin()+2;
     for ( ; it!=ite; ++it )
     {
-        DynNode* param = *it;
-        subTypes.push_back(param->type());
+        Node* param = *it;
+        subTypes.push_back(param->type);
     }
     data_.type = getFunctionType(&subTypes[0], subTypes.size(), effectiveEvalMode(this));
 }
@@ -175,15 +175,15 @@ void Function::doSemanticCheck()
     auto ite = data_.children.end();
     for ( ; it!=ite; ++it )
     {
-        DynNode* param = *it;
-        param->semanticCheck();
+        Node* param = *it;
+        Nest::semanticCheck(param);
     }
 
     // Semantically check the body, if we have one
     try
     {
         if ( data_.children[1] )
-            data_.children[1]->semanticCheck();
+            Nest::semanticCheck(data_.children[1]);
 
         // TODO (function): Check that all the paths return a value
     }

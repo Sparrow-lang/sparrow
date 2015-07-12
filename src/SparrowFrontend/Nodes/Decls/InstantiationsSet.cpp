@@ -114,7 +114,7 @@ Instantiation* InstantiationsSet::canInstantiate(const DynNodeVector& values, Ev
 
 const DynNodeVector& InstantiationsSet::parameters() const
 {
-    return data_.referredNodes[1]->children;
+    return reinterpret_cast<const DynNodeVector&>(data_.referredNodes[1]->children);
 }
 
 Instantiation* InstantiationsSet::searchInstantiation(const DynNodeVector& values)
@@ -168,10 +168,10 @@ DynNode* InstantiationsSet::parentNode() const
 
 DynNode*  InstantiationsSet::ifClause() const
 {
-    return data_.children[0];
+    return (DynNode*) data_.children[0];
 }
 
 vector<Instantiation*>& InstantiationsSet::instantiations()
 {
-    return reinterpret_cast<vector<Instantiation*>&>(data_.children[1]->children());
+    return reinterpret_cast<vector<Instantiation*>&>(data_.children[1]->children);
 }

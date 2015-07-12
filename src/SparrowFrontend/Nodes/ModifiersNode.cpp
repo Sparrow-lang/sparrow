@@ -29,8 +29,8 @@ ModifiersNode::ModifiersNode(const Location& loc, DynNode* base, DynNode* modifi
 
 void ModifiersNode::doSetContextForChildren()
 {
-    DynNode* base = data_.children[0];
-    DynNode* modifierNodes = data_.children[1];
+    DynNode* base = (DynNode*) data_.children[0];
+    DynNode* modifierNodes = (DynNode*) data_.children[1];
 
     // Set the context of the modifiers
     if ( modifierNodes )
@@ -46,7 +46,7 @@ void ModifiersNode::doSetContextForChildren()
 
 void ModifiersNode::doComputeType()
 {
-    DynNode* base = data_.children[0];
+    DynNode* base = (DynNode*) data_.children[0];
 
     // Compute the type of the base node
     base->computeType();
@@ -59,13 +59,13 @@ void ModifiersNode::doSemanticCheck()
     computeType();
 
     // Semantic check the base
-    DynNode* base = data_.children[0];
+    DynNode* base = (DynNode*) data_.children[0];
     base->semanticCheck();
 }
 
 void ModifiersNode::interpretModifiers()
 {
-    DynNode* modifierNodes = data_.children[1];
+    DynNode* modifierNodes = (DynNode*) data_.children[1];
 
     if ( modifierNodes )
     {
@@ -133,7 +133,7 @@ void ModifiersNode::applyModifier(DynNode* modNode)
     }
     
     // If we recognized a modifier, add it to the base node; otherwise raise an error
-    DynNode* base = data_.children[0];
+    DynNode* base = (DynNode*) data_.children[0];
     if ( mod )
         base->addModifier(mod);
     else

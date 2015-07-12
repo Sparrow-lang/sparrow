@@ -12,7 +12,7 @@ StarExp::StarExp(const Location& loc, DynNode* base)
 
 void StarExp::doSemanticCheck()
 {
-    DynNode* base = data_.children[0];
+    DynNode* base = (DynNode*) data_.children[0];
 
     // For the base expression allow it to return DeclExp
     base->setProperty(propAllowDeclExp, 1, true);

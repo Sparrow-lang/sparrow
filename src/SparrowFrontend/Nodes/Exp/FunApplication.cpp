@@ -43,7 +43,7 @@ FunApplication::FunApplication(const Location& loc, DynNode* base, NodeList* arg
     : DynNode(classNodeKind(), loc, {base, arguments})
 {
     if ( !arguments )
-        data_.children[1] = mkNodeList(loc, {});
+        data_.children[1] = mkNodeList(loc, {})->node();
 }
 
 FunApplication::FunApplication(const Location& loc, DynNode* base, DynNodeVector args)
@@ -54,20 +54,20 @@ FunApplication::FunApplication(const Location& loc, DynNode* base, DynNodeVector
 DynNode* FunApplication::base() const
 {
     ASSERT(data_.children.size() == 2);
-    return data_.children[0];
+    return (DynNode*) data_.children[0];
 }
 NodeList* FunApplication::arguments() const
 {
     ASSERT(data_.children.size() == 2);
-    ASSERT(!data_.children[1] || data_.children[1]->nodeKind() == nkFeatherNodeList);
+    ASSERT(!data_.children[1] || data_.children[1]->nodeKind == nkFeatherNodeList);
     return (NodeList*) data_.children[1];
 }
 
 void FunApplication::doSemanticCheck()
 {
     ASSERT(data_.children.size() == 2);
-    ASSERT(!data_.children[1] || data_.children[1]->nodeKind() == nkFeatherNodeList);
-    DynNode* base = data_.children[0];
+    ASSERT(!data_.children[1] || data_.children[1]->nodeKind == nkFeatherNodeList);
+    DynNode* base = (DynNode*) data_.children[0];
     NodeList* arguments = (NodeList*) data_.children[1];
 
     if ( !base )

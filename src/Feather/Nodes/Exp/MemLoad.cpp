@@ -16,7 +16,7 @@ MemLoad::MemLoad(const Location& loc, DynNode* arg, size_t alignment, bool isVol
 
 DynNode* MemLoad::argument() const
 {
-    return data_.children[0];
+    return (DynNode*) data_.children[0];
 }
 
 size_t MemLoad::alignment() const
@@ -50,11 +50,11 @@ void MemLoad::doSemanticCheck()
     ASSERT(data_.children[0]);
 
     // Semantic check the argument
-    data_.children[0]->semanticCheck();
+    Nest::semanticCheck(data_.children[0]);
 
     // Check if the type of the argument is a ref
-    if ( !data_.children[0]->type()->hasStorage || data_.children[0]->type()->numReferences == 0 )
-        REP_ERROR(data_.location, "Cannot load from a non-reference (%1%, type: %2%)") % data_.children[0] % data_.children[0]->type();
+    if ( !data_.children[0]->type->hasStorage || data_.children[0]->type->numReferences == 0 )
+        REP_ERROR(data_.location, "Cannot load from a non-reference (%1%, type: %2%)") % data_.children[0] % data_.children[0]->type;
 
     // Check flags
     AtomicOrdering ordering = atomicOrdering();
@@ -64,7 +64,7 @@ void MemLoad::doSemanticCheck()
         REP_ERROR(data_.location, "Cannot use atomic acquire-release with a load instruction");
 
     // Remove the 'ref' from the type and get the base type
-    data_.type = removeRef(data_.children[0]->type());
+    data_.type = removeRef(data_.children[0]->type);
     data_.type = adjustMode(data_.type, data_.context, data_.location);
 }
 

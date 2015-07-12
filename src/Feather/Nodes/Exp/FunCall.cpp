@@ -19,7 +19,7 @@ Function* FunCall::funDecl() const
 
 const DynNodeVector& FunCall::arguments() const
 {
-    return data_.children;
+    return reinterpret_cast<const DynNodeVector&>(data_.children);
 }
 
 
@@ -53,15 +53,15 @@ void FunCall::doSemanticCheck()
     for ( size_t i=0; i<data_.children.size(); ++i )
     {
         // Semantically check the argument
-        data_.children[i]->semanticCheck();
-        if ( !isCt(data_.children[i]) )
+        Nest::semanticCheck(data_.children[i]);
+        if ( !isCt((DynNode*) data_.children[i]) )
             allParamsAreCtAvailable = false;
 
         // Compare types
-        TypeRef argType = data_.children[i]->type();
+        TypeRef argType = data_.children[i]->type;
         TypeRef paramType = fun->getParameter(i)->type();
         if ( !isSameTypeIgnoreMode(argType, paramType) )
-            REP_ERROR(data_.children[i]->location(), "Invalid function call: argument %1% is expected to have type %2% (actual type: %3%)")
+            REP_ERROR(data_.children[i]->location, "Invalid function call: argument %1% is expected to have type %2% (actual type: %3%)")
                 % (i+1) % paramType % argType;
     }
 

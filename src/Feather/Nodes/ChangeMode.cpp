@@ -7,20 +7,20 @@ ChangeMode::ChangeMode(const Location& loc, EvalMode mode, DynNode* child)
     : DynNode(classNodeKind(), loc)
 {
     if ( child )
-        data_.children.push_back(child);
+        data_.children.push_back(child->node());
     setProperty(propEvalMode, (int) mode);
 }
 
 DynNode* ChangeMode::child() const
 {
-    return data_.children[0];
+    return (DynNode*) data_.children[0];
 }
 
 void ChangeMode::setChild(DynNode* child)
 {
     ASSERT(child);
     data_.children.resize(1);
-    data_.children[0] = child;
+    data_.children[0] = child->node();
 
     if ( data_.childrenContext )
         child->setContext(data_.childrenContext);
@@ -58,6 +58,6 @@ void ChangeMode::doSemanticCheck()
     if ( !data_.children[0] )
         REP_INTERNAL(data_.location, "No node specified as child to a ChangeMode node");
 
-    data_.children[0]->semanticCheck();
-    setExplanation(data_.children[0]);
+    Nest::semanticCheck(data_.children[0]);
+    setExplanation((DynNode*) data_.children[0]);
 }

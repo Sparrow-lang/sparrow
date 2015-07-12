@@ -17,7 +17,7 @@ void Null::dump(ostream& os) const
 void Null::doSemanticCheck()
 {
     ASSERT(data_.children.size() == 1);
-    DynNode* typeNode = data_.children[0];
+    DynNode* typeNode = (DynNode*) data_.children[0];
     typeNode->computeType();
 
     // Make sure that the type is a reference

@@ -78,7 +78,7 @@ namespace Nest
         Location location;
 
         /// The children of this node
-        DynNodeVector children;
+        NodeVector children;
 
         /// The nodes referred by this node
         NodeVector referredNodes;

@@ -15,9 +15,9 @@ SprConditional::SprConditional(const Location& location, DynNode* condition, Dyn
 void SprConditional::doSemanticCheck()
 {
     ASSERT(data_.children.size() == 3);
-    DynNode* cond = data_.children[0];
-    DynNode* alt1 = data_.children[1];
-    DynNode* alt2 = data_.children[2];
+    DynNode* cond = (DynNode*) data_.children[0];
+    DynNode* alt1 = (DynNode*) data_.children[1];
+    DynNode* alt2 = (DynNode*) data_.children[2];
 
     alt1->semanticCheck();
     alt2->semanticCheck();

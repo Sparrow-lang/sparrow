@@ -29,8 +29,8 @@ OperatorCall::OperatorCall(const Location& loc, DynNode* arg1, string op, DynNod
 void OperatorCall::dump(ostream& os) const
 {
     ASSERT(data_.children.size() == 2);
-    DynNode* arg1 = data_.children[0];
-    DynNode* arg2 = data_.children[1];
+    Node* arg1 = data_.children[0];
+    Node* arg2 = data_.children[1];
     const string& operation = getCheckPropertyString("spr.operation");
 
     if ( arg1 && arg2 )
@@ -44,8 +44,8 @@ void OperatorCall::dump(ostream& os) const
 void OperatorCall::doSemanticCheck()
 {
     ASSERT(data_.children.size() == 2);
-    DynNode* arg1 = data_.children[0];
-    DynNode* arg2 = data_.children[1];
+    DynNode* arg1 = (DynNode*) data_.children[0];
+    DynNode* arg2 = (DynNode*) data_.children[1];
     const string& operation = getCheckPropertyString("spr.operation");
 
     if ( arg1 && arg2 )
@@ -249,8 +249,8 @@ namespace
 
 void OperatorCall::handleFApp()
 {
-    DynNode* arg1 = data_.children[0];
-    DynNode* arg2 = data_.children[1];
+    DynNode* arg1 = (DynNode*) data_.children[0];
+    DynNode* arg2 = (DynNode*) data_.children[1];
 
     if ( arg2 && arg2->nodeKind() != nkFeatherNodeList )
         REP_INTERNAL(arg2->location(), "Expected node list for function application; found %1%") % arg2;
@@ -260,8 +260,8 @@ void OperatorCall::handleFApp()
 
 void OperatorCall::handleDotExpr()
 {
-    DynNode* arg1 = data_.children[0];
-    DynNode* arg2 = data_.children[1];
+    DynNode* arg1 = (DynNode*) data_.children[0];
+    DynNode* arg2 = (DynNode*) data_.children[1];
 
     if ( arg2->nodeKind() != nkSparrowExpIdentifier )
         REP_INTERNAL(arg2->location(), "Expected identifier after dot; found %1%") % arg2;
@@ -271,8 +271,8 @@ void OperatorCall::handleDotExpr()
 
 void OperatorCall::handleRefEq()
 {
-    DynNode* arg1 = data_.children[0];
-    DynNode* arg2 = data_.children[1];
+    DynNode* arg1 = (DynNode*) data_.children[0];
+    DynNode* arg2 = (DynNode*) data_.children[1];
 
     arg1->semanticCheck();
     arg2->semanticCheck();
@@ -299,8 +299,8 @@ void OperatorCall::handleRefEq()
 
 void OperatorCall::handleRefNe()
 {
-    DynNode* arg1 = data_.children[0];
-    DynNode* arg2 = data_.children[1];
+    DynNode* arg1 = (DynNode*) data_.children[0];
+    DynNode* arg2 = (DynNode*) data_.children[1];
 
     arg1->semanticCheck();
     arg2->semanticCheck();
@@ -327,8 +327,8 @@ void OperatorCall::handleRefNe()
 
 void OperatorCall::handleRefAssign()
 {
-    DynNode* arg1 = data_.children[0];
-    DynNode* arg2 = data_.children[1];
+    DynNode* arg1 = (DynNode*) data_.children[0];
+    DynNode* arg2 = (DynNode*) data_.children[1];
 
     arg1->semanticCheck();
     arg2->semanticCheck();
@@ -358,7 +358,7 @@ void OperatorCall::handleRefAssign()
 
 void OperatorCall::handleFunPtr()
 {
-    DynNode* funNode = data_.children[1];
+    DynNode* funNode = (DynNode*) data_.children[1];
 
     setExplanation(createFunPtr(funNode));
 }

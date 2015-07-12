@@ -23,7 +23,7 @@ SprConcept::SprConcept(const Location& loc, string name, string paramName, DynNo
 
 bool SprConcept::isFulfilled(TypeRef type)
 {
-    InstantiationsSet* instantiationsSet = data_.children[2]->as<InstantiationsSet>();
+    InstantiationsSet* instantiationsSet = (InstantiationsSet*) data_.children[2];
 
     if ( !isSemanticallyChecked() || !instantiationsSet )
         REP_INTERNAL(data_.location, "Invalid concept");
@@ -36,7 +36,7 @@ bool SprConcept::isFulfilled(TypeRef type)
 
 TypeRef SprConcept::baseConceptType() const
 {
-    DynNode* baseConcept = data_.children[0];
+    DynNode* baseConcept = (DynNode*) data_.children[0];
 
     TypeRef res = baseConcept ? getType(baseConcept) : getConceptType();
     res = adjustMode(res, data_.context, data_.location);
@@ -56,9 +56,9 @@ void SprConcept::doSetContextForChildren()
 void SprConcept::doSemanticCheck()
 {
     ASSERT(data_.children.size() == 3);
-    DynNode* baseConcept = data_.children[0];
-    DynNode* ifClause = data_.children[1];
-    DynNode*& instantiationsSet = data_.children[2];
+    DynNode* baseConcept = (DynNode*) data_.children[0];
+    DynNode* ifClause = (DynNode*) data_.children[1];
+    Node*& instantiationsSet = data_.children[2];
     const string& paramName = getCheckPropertyString("spr.paramName");
 
     // Compile the base concept node; make sure it's ct
@@ -76,6 +76,6 @@ void SprConcept::doSemanticCheck()
     param->computeType();       // But not semanticCheck, as it will complain of instantiating a var of type auto
 
     delete instantiationsSet;
-    instantiationsSet = new InstantiationsSet(this, { param }, ifClause);
+    instantiationsSet = (Node*) new InstantiationsSet(this, { param }, ifClause);
     setExplanation(Feather::mkNop(data_.location));
 }

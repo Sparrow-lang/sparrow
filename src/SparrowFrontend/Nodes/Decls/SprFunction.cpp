@@ -38,12 +38,12 @@ bool SprFunction::hasThisParameters() const
 DynNode* SprFunction::returnType() const
 {
     ASSERT(data_.children.size() == 4);
-    return data_.children[1];
+    return (DynNode*) data_.children[1];
 }
 DynNode* SprFunction::body() const
 {
     ASSERT(data_.children.size() == 4);
-    return data_.children[2];
+    return (DynNode*) data_.children[2];
 }
 
 Feather::Function* SprFunction::resultingFun() const
@@ -59,7 +59,7 @@ string SprFunction::toString() const
     {
         oss << '(';
         bool first = true;
-        for ( auto pn: data_.children[0]->children() )
+        for ( auto pn: data_.children[0]->children )
         {
             if ( first )
                 first = false;
@@ -96,9 +96,9 @@ void SprFunction::doComputeType()
 {
     ASSERT(data_.children.size() == 4);
     NodeList* parameters = (NodeList*) data_.children[0];
-    DynNode* returnType = data_.children[1];
-    DynNode* body = data_.children[2];
-    DynNode* ifClause = data_.children[3];
+    DynNode* returnType = (DynNode*) data_.children[1];
+    DynNode* body = (DynNode*) data_.children[2];
+    DynNode* ifClause = (DynNode*) data_.children[3];
 
     bool isStatic = hasProperty(propIsStatic);
 

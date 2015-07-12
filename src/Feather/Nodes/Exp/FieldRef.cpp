@@ -14,7 +14,7 @@ FieldRef::FieldRef(const Location& loc, DynNode* obj, DynNode* field)
 
 DynNode* FieldRef::object() const
 {
-    return data_.children[0];
+    return (DynNode*) data_.children[0];
 }
 
 DynNode* FieldRef::field() const
@@ -29,7 +29,7 @@ void FieldRef::dump(ostream& os) const
 
 void FieldRef::doSemanticCheck()
 {
-    DynNode* obj = data_.children[0];
+    DynNode* obj = (DynNode*) data_.children[0];
     DynNode* field = (DynNode*) data_.referredNodes[0];
     ASSERT(obj);
     ASSERT(field);

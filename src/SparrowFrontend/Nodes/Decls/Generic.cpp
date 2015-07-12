@@ -27,7 +27,7 @@ void Generic::doSemanticCheck()
 
 const DynNodeVector& Generic::genericParams() const
 {
-    return data_.children[0]->as<InstantiationsSet>()->parameters();
+    return ((InstantiationsSet*) data_.children[0])->parameters();
 }
 
 bool SprFrontend::isGeneric(const DynNode* node)

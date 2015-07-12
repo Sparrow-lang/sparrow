@@ -28,6 +28,9 @@ Node* Nest::createNode(int nodeKind)
 
 Node* Nest::cloneNode(Node* node)
 {
+    if ( !node )
+        return NULL;
+
     ASSERT(node);
     Node* res = createNode(node->nodeKind);
 
@@ -40,11 +43,7 @@ Node* Nest::cloneNode(Node* node)
     res->children.resize(size, nullptr);
     for ( size_t i=0; i<size; ++i )
     {
-        DynNode* n = node->children[i];
-        if ( n )
-        {
-            res->children[i] = n->clone();
-        }
+        res->children[i] = cloneNode(node->children[i]);
     }
     return res;
 }
@@ -73,11 +72,7 @@ void Nest::initCopyNode(Node* node, const Node* srcNode)
     node->children.resize(size, nullptr);
     for ( size_t i=0; i<size; ++i )
     {
-        DynNode* n = srcNode->children[i];
-        if ( n )
-        {
-            node->children[i] = n->clone();
-        }
+        node->children[i] = cloneNode(srcNode->children[i]);
     }
 }
 
@@ -298,10 +293,10 @@ void Nest::clearCompilationState(Node* node)
     node->type = nullptr;
     node->modifiers.clear();
 
-    for ( DynNode* p: node->children )
+    for ( Node* p: node->children )
     {
         if ( p )
-            clearCompilationState(p->node());
+            clearCompilationState(p);
     }
 }
 
@@ -368,10 +363,10 @@ const char* Nest::defaultFunToString(Node* node)
 void Nest::defaultFunSetContextForChildren(Node* node)
 {
     CompilationContext* childrenCtx = childrenContext(node);
-    for ( DynNode* child: node->children )
+    for ( Node* child: node->children )
     {
         if ( child )
-            setContext(&child->data_, childrenCtx);
+            setContext(child, childrenCtx);
     }
 }
 

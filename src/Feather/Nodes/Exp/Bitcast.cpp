@@ -13,11 +13,11 @@ Bitcast::Bitcast(const Location& loc, DynNode* destType, DynNode* exp)
 
 TypeRef Bitcast::destType() const
 {
-    return data_.children[1]->type();
+    return data_.children[1]->type;
 }
 DynNode* Bitcast::exp() const
 {
-    return data_.children[0];
+    return (DynNode*) data_.children[0];
 }
 
 void Bitcast::dump(ostream& os) const
@@ -30,12 +30,12 @@ void Bitcast::dump(ostream& os) const
 
 void Bitcast::doSemanticCheck()
 {
-    data_.children[0]->semanticCheck();
-    data_.children[1]->computeType();
-    TypeRef tDest = data_.children[1]->type();
+    Nest::semanticCheck(data_.children[0]);
+    Nest::computeType(data_.children[1]);
+    TypeRef tDest = data_.children[1]->type;
 
     // Make sure both types have storage
-    TypeRef srcType = data_.children[0]->type();
+    TypeRef srcType = data_.children[0]->type;
     if ( !srcType->hasStorage )
         REP_ERROR(data_.location, "The source of a bitcast is not a type with storage (%1%)") % srcType;
     if ( !tDest->hasStorage )

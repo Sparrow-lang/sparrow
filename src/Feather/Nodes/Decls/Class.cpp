@@ -33,19 +33,20 @@ void Class::addFields(const DynNodeVector& fields)
         if ( field->nodeKind() != nkFeatherDeclVar )
             REP_INTERNAL(field->location(), "DynNode %1% must be a field") % field;
     }
-    
-    data_.children.insert(data_.children.end(), fields.begin(), fields.end());
+
+    const NodeVector& f = reinterpret_cast<const NodeVector&>(fields);
+    data_.children.insert(data_.children.end(), f.begin(), f.end());
 }
 
 const DynNodeVector& Class::fields() const
 {
-    return data_.children;
+    return reinterpret_cast<const DynNodeVector&>(data_.children);
 }
 
 void Class::dump(ostream& os) const
 {
     os << "class(\"" << getName(this) << "\", {" << endl;
-    for ( DynNode* field: data_.children )
+    for ( Node* field: data_.children )
     {
         os << field << endl;
     }
@@ -58,8 +59,8 @@ void Class::doSetContextForChildren()
         data_.childrenContext = data_.context->createChildContext(this, effectiveEvalMode(this));
 
     // Set the context for all the children
-    for ( DynNode* field: data_.children )
-        field->setContext(data_.childrenContext);
+    for ( Node* field: data_.children )
+        Nest::setContext(field, data_.childrenContext);
     
     addToSymTab(this);
 }
@@ -70,11 +71,11 @@ void Class::doComputeType()
         REP_ERROR(data_.location, "No name given to class");
 
     // Compute the type for all the fields
-    for ( DynNode* field: data_.children )
+    for ( Node* field: data_.children )
     {
         try
         {
-	        field->computeType();
+            Nest::computeType(field);
         }
         catch (const exception&)
         {
@@ -92,11 +93,11 @@ void Class::doSemanticCheck()
     computeType();
 
     // Semantically check all the fields
-    for ( DynNode* field: data_.children )
+    for ( Node* field: data_.children )
     {
         try
         {
-	        field->semanticCheck();
+            Nest::semanticCheck(field);
         }
         catch (const exception&)
         {

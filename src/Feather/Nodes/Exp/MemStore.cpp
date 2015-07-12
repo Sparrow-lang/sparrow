@@ -16,12 +16,12 @@ MemStore::MemStore(const Location& loc, DynNode* value, DynNode* address, size_t
 
 DynNode* MemStore::value() const
 {
-    return data_.children[0];
+    return (DynNode*) data_.children[0];
 }
 
 DynNode* MemStore::address() const
 {
-    return data_.children[1];
+    return (DynNode*) data_.children[1];
 }
 
 size_t MemStore::alignment() const
@@ -52,8 +52,8 @@ void MemStore::dump(ostream& os) const
 
 void MemStore::doSemanticCheck()
 {
-    DynNode* value = data_.children[0];
-    DynNode* address = data_.children[1];
+    DynNode* value = (DynNode*) data_.children[0];
+    DynNode* address = (DynNode*) data_.children[1];
     ASSERT(value);
     ASSERT(address);
 

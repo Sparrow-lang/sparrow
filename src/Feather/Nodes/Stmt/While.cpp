@@ -18,17 +18,17 @@ While::While(const Location& location, DynNode* condition, DynNode* body, DynNod
 
 DynNode* While::condition() const
 {
-    return data_.children[0];
+    return (DynNode*) data_.children[0];
 }
 
 DynNode* While::body() const
 {
-    return data_.children[2];
+    return (DynNode*) data_.children[2];
 }
 
 DynNode* While::step() const
 {
-    return data_.children[1];
+    return (DynNode*) data_.children[1];
 }
 
 
@@ -42,18 +42,18 @@ void While::doSetContextForChildren()
     data_.childrenContext = data_.context->createChildContext(this);
     CompilationContext* condContext = nodeEvalMode(this) == modeCt ? new CompilationContext(data_.context, modeCt) : data_.childrenContext;
 
-    data_.children[0]->setContext(condContext); // condition
+    Nest::setContext(data_.children[0], condContext); // condition
     if ( data_.children[1] )
-        data_.children[1]->setContext(condContext); // step
+        Nest::setContext(data_.children[1], condContext); // step
     if ( data_.children[2] )
-        data_.children[2]->setContext(data_.childrenContext); // body
+        Nest::setContext(data_.children[2], data_.childrenContext); // body
 }
 
 void While::doSemanticCheck()
 {
-    DynNode* condition = data_.children[0];
-    DynNode* step = data_.children[1];
-    DynNode* body = data_.children[2];
+    DynNode* condition = (DynNode*) data_.children[0];
+    DynNode* step = (DynNode*) data_.children[1];
+    DynNode* body = (DynNode*) data_.children[2];
     
     // Semantic check the condition
     condition->semanticCheck();

@@ -13,17 +13,17 @@ Conditional::Conditional(const Location& location, DynNode* condition, DynNode* 
 
 DynNode* Conditional::condition() const
 {
-    return data_.children[0];
+    return (DynNode*) data_.children[0];
 }
 
 DynNode* Conditional::alternative1() const
 {
-    return data_.children[1];
+    return (DynNode*) data_.children[1];
 }
 
 DynNode* Conditional::alternative2() const
 {
-    return data_.children[2];
+    return (DynNode*) data_.children[2];
 }
 
 
@@ -35,28 +35,28 @@ void Conditional::dump(ostream& os) const
 void Conditional::doSemanticCheck()
 {
     // Semantic check the condition
-    data_.children[0]->semanticCheck();
+    Nest::semanticCheck(data_.children[0]);
 
     // Check that the type of the condition is 'Testable'
-    if ( !isTestable(data_.children[0]) )
-        REP_ERROR(data_.children[0]->location(), "The condition of the conditional expression is not Testable");
+    if ( !isTestable((DynNode*) data_.children[0]) )
+        REP_ERROR(data_.children[0]->location, "The condition of the conditional expression is not Testable");
 
     // Dereference the condition as much as possible
-    while ( data_.children[0]->type() && data_.children[0]->type()->numReferences > 0 )
+    while ( data_.children[0]->type && data_.children[0]->type->numReferences > 0 )
     {
-        data_.children[0] = mkMemLoad(data_.children[0]->location(), data_.children[0]);
-        data_.children[0]->setContext(childrenContext());
-        data_.children[0]->semanticCheck();
+        data_.children[0] = mkMemLoad(data_.children[0]->location, (DynNode*) data_.children[0])->node();
+        Nest::setContext(data_.children[0], childrenContext());
+        Nest::semanticCheck(data_.children[0]);
     }
     // TODO (conditional): This shouldn't be performed here
 
     // Semantic check the alternatives
-    data_.children[1]->semanticCheck();
-    data_.children[2]->semanticCheck();
+    Nest::semanticCheck(data_.children[1]);
+    Nest::semanticCheck(data_.children[2]);
 
     // Make sure the types of the alternatives are equal
-    if ( !isSameTypeIgnoreMode(data_.children[1]->type(), data_.children[2]->type()) )
-        REP_ERROR(data_.location, "The types of the alternatives of a conditional must be equal (%1% != %2%)") % data_.children[1]->type() % data_.children[2]->type();
+    if ( !isSameTypeIgnoreMode(data_.children[1]->type, data_.children[2]->type) )
+        REP_ERROR(data_.location, "The types of the alternatives of a conditional must be equal (%1% != %2%)") % data_.children[1]->type % data_.children[2]->type;
 
-    data_.type = adjustMode(data_.children[1]->type(), data_.children[0]->type()->mode, data_.context, data_.location);
+    data_.type = adjustMode(data_.children[1]->type, data_.children[0]->type->mode, data_.context, data_.location);
 }

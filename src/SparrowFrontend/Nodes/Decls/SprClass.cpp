@@ -84,11 +84,11 @@ void SprClass::addChild(DynNode* child)
         child->computeType();
     if ( !data_.children[2] )
     {
-        data_.children[2] = mkNodeList(data_.location, {});
+        data_.children[2] = mkNodeList(data_.location, {})->node();
         if ( childrenContext() )
-            data_.children[2]->setContext(childrenContext());
+            Nest::setContext(data_.children[2], childrenContext());
     }
-    static_cast<NodeList*>(data_.children[2])->addChild(child);
+    static_cast<NodeList*>((DynNode*) data_.children[2])->addChild(child);
 }
 
 void SprClass::dump(ostream& os) const
@@ -118,7 +118,7 @@ void SprClass::doComputeType()
     NodeList* parameters = (NodeList*) data_.children[0];
     NodeList* baseClasses = (NodeList*) data_.children[1];
     NodeList* children = (NodeList*) data_.children[2];
-    DynNode* ifClause = data_.children[3];
+    DynNode* ifClause = (DynNode*) data_.children[3];
 
     // Is this a generic?
     if ( parameters && !parameters->children().empty() )

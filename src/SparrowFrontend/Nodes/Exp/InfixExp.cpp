@@ -67,20 +67,20 @@ const string& InfixExp::operation() const
 DynNode* InfixExp::arg1() const
 {
     ASSERT(data_.children.size() == 2);
-    return data_.children[0];
+    return (DynNode*) data_.children[0];
 }
 
 DynNode* InfixExp::arg2() const
 {
     ASSERT(data_.children.size() == 2);
-    return data_.children[1];
+    return (DynNode*) data_.children[1];
 }
 
 void InfixExp::dump(ostream& os) const
 {
     ASSERT(data_.children.size() == 2);
-    DynNode* arg1 = data_.children[0];
-    DynNode* arg2 = data_.children[1];
+    Node* arg1 = data_.children[0];
+    Node* arg2 = data_.children[1];
 
     os << arg1 << ' ' << operation() << ' ' << arg2;
 }
@@ -88,8 +88,8 @@ void InfixExp::dump(ostream& os) const
 void InfixExp::doSemanticCheck()
 {
     ASSERT(data_.children.size() == 2);
-    DynNode* arg1 = data_.children[0];
-    DynNode* arg2 = data_.children[1];
+    Node* arg1 = data_.children[0];
+    Node* arg2 = data_.children[1];
 
     // This is constructed in such way that left most operations are applied first.
     // This way, we have a tree that has a lot of children on the left side and one children on the right side
@@ -109,7 +109,7 @@ void InfixExp::doSemanticCheck()
 //        cerr << endl;
 //    }
 
-    setExplanation(mkOperatorCall(data_.location, arg1, operation(), arg2));
+    setExplanation(mkOperatorCall(data_.location, (DynNode*) arg1, operation(), (DynNode*) arg2));
 }
 
 void InfixExp::handlePrecedence()
@@ -121,7 +121,7 @@ void InfixExp::handlePrecedence()
         int rankCur = getPrecedence();
 
         // Check right wing first
-        InfixExp* rightOp = data_.children[1]->as<InfixExp>();
+        InfixExp* rightOp = DynNode::fromNode(data_.children[1])->as<InfixExp>();
         if ( rightOp )
         {
             int rankRight = rightOp->getPrecedence();
@@ -134,7 +134,7 @@ void InfixExp::handlePrecedence()
         }
 
 
-        InfixExp* leftOp = data_.children[0]->as<InfixExp>();
+        InfixExp* leftOp = DynNode::fromNode(data_.children[0])->as<InfixExp>();
         if ( leftOp )
         {
             leftOp->handlePrecedence();
@@ -166,7 +166,7 @@ void InfixExp::handleAssociativity()
     {
         for ( ;/*ever*/; )
         {
-            DynNode* arg2 = data_.children[1];
+            DynNode* arg2 = (DynNode*) data_.children[1];
             InfixExp* rightOp = arg2->as<InfixExp>();
             if ( !rightOp )
                 break;
@@ -183,7 +183,7 @@ void InfixExp::handleAssociativity()
     {
         for ( ;/*ever*/; )
         {
-            DynNode* arg1 = data_.children[0];
+            DynNode* arg1 = (DynNode*) data_.children[0];
             InfixExp* leftOp = arg1->as<InfixExp>();
             if ( !leftOp )
                 break;
@@ -199,7 +199,7 @@ void InfixExp::handleAssociativity()
 
 int InfixExp::getPrecedence()
 {
-    DynNode* arg1 = data_.children[0];
+    DynNode* arg1 = (DynNode*) data_.children[0];
 
     // For prefix operator, search with a special name
     string oper = arg1 ? operation() : "__pre__";
@@ -267,13 +267,13 @@ int InfixExp::getIntValue(const DynNodeVector& decls, int defaultVal)
 // The left argument of this will become the right argument of this
 void InfixExp::swapLeft()
 {
-    InfixExp* other = data_.children[0]->as<InfixExp>();
+    InfixExp* other = DynNode::fromNode(data_.children[0])->as<InfixExp>();
     ASSERT(other);
 
     this->data_.children[0] = other->data_.children[0];
     other->data_.children[0] = other->data_.children[1];
     other->data_.children[1] = this->data_.children[1];
-    this->data_.children[1] = other;
+    this->data_.children[1] = other->node();
 
     string otherOper = other->operation();
     other->setProperty(operPropName, operation());
@@ -295,13 +295,13 @@ void InfixExp::swapLeft()
 //       it cannot be applied if 'Y' is a unary operator that contains a null 'M'
 void InfixExp::swapRight()
 {
-    InfixExp* other = data_.children[1]->as<InfixExp>();
+    InfixExp* other = DynNode::fromNode(data_.children[1])->as<InfixExp>();
     ASSERT(other);
 
     this->data_.children[1] = other->data_.children[1];
     other->data_.children[1] = other->data_.children[0];
     other->data_.children[0] = this->data_.children[0];
-    this->data_.children[0] = other;
+    this->data_.children[0] = other->node();
 
     string otherOper = other->operation();
     other->setProperty(operPropName, operation());

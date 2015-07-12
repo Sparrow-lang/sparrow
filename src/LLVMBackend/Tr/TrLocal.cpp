@@ -123,12 +123,12 @@ namespace
 
         const DynNodeVector& alt1DestructActions() const
         {
-            return data_.children[0]->children();
+            return DynNode::fromNode(data_.children[0])->children();
         }
 
         const DynNodeVector& alt2DestructActions() const
         {
-            return data_.children[1]->children();
+            return DynNode::fromNode(data_.children[1])->children();
         }
     };
 

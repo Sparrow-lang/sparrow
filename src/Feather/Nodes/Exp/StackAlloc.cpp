@@ -15,7 +15,7 @@ StackAlloc::StackAlloc(const Location& loc, DynNode* elemType, int numElements, 
 TypeRef StackAlloc::elemType() const
 {
     ASSERT(data_.children.size() == 1);
-    return data_.children[0]->type();
+    return data_.children[0]->type;
 }
 
 size_t StackAlloc::numElements() const
@@ -40,7 +40,7 @@ void StackAlloc::doSemanticCheck()
 
     // Set the resulting type
     ASSERT(data_.children.size() == 1);
-    DynNode* elemTypeNode = data_.children[0];
+    DynNode* elemTypeNode = (DynNode*) data_.children[0];
     elemTypeNode->computeType();
     data_.type = adjustMode(getLValueType(elemTypeNode->type()), data_.context, data_.location);
 }

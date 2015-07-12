@@ -109,8 +109,8 @@ void SprVariable::doSetContextForChildren()
 void SprVariable::doComputeType()
 {
     ASSERT(data_.children.size() == 2);
-    DynNode* typeNode = data_.children[0];
-    DynNode* init = data_.children[1];
+    DynNode* typeNode = (DynNode*) data_.children[0];
+    DynNode* init = (DynNode*) data_.children[1];
 
     bool isStatic = hasProperty(propIsStatic);
 

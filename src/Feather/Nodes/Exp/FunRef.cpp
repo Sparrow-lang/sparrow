@@ -25,7 +25,7 @@ void FunRef::dump(ostream& os) const
 void FunRef::doSemanticCheck()
 {
     ASSERT(data_.children.size() == 1);
-    DynNode* resType = data_.children[0];
+    DynNode* resType = (DynNode*) data_.children[0];
     resType->computeType();
 
     funDecl()->computeType();

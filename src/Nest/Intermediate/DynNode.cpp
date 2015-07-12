@@ -17,8 +17,8 @@ DynNode::DynNode(int nodeKind, const Location& location, DynNodeVector children,
     initNode(&data_, nodeKind);
 
     data_.location = location;
-    data_.children = move(children);
-    data_.referredNodes = move(*reinterpret_cast<NodeVector*>(&referredNodes));
+    data_.children = move(reinterpret_cast<NodeVector&>(children));
+    data_.referredNodes = move(reinterpret_cast<NodeVector&>(referredNodes));
 }
 
 DynNode::DynNode(const DynNode& other)
@@ -248,10 +248,10 @@ CompilationContext* DynNode::childrenContext() const
 void DynNode::doSetContextForChildren()
 {
     CompilationContext* childrenCtx = childrenContext();
-    for ( DynNode* child: data_.children )
+    for ( Node* child: data_.children )
     {
         if ( child )
-            child->setContext(childrenCtx);
+            Nest::setContext(child, childrenCtx);
     }
 }
 
@@ -279,7 +279,7 @@ void Nest::save(const DynNode& obj, OutArchive& ar)
     ar.write("kindName", obj.nodeKindName());
 //    ar.write("flags", flags);
     ar.write("location", obj.data_.location);
-    ar.writeArray("children", obj.data_.children, [] (OutArchive& ar, DynNode* child) {
+    ar.writeArray("children", obj.data_.children, [] (OutArchive& ar, Node* child) {
         ar.write("", child);
     });
     ar.writeArray("referredNodes", obj.data_.referredNodes, [] (OutArchive& ar, Node* node) {

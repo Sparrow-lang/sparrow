@@ -1,6 +1,6 @@
 #pragma once
 
-FWD_CLASS1(Nest, DynNode);
+FWD_CLASS1(Feather, DynNode);
 FWD_CLASS1(Feather, Class);
 
 #include <Nest/Intermediate/TypeRef.h>
@@ -10,17 +10,17 @@ namespace Feather
 {
     /// Tests if the given type/expression is available at CT
     bool isCt(Nest::TypeRef type);
-    bool isCt(Nest::DynNode* node);
+    bool isCt(Feather::DynNode* node);
     bool isCt(const vector<Nest::TypeRef>& types);
-    bool isCt(const Nest::DynNodeVector& nodes);
+    bool isCt(const Feather::DynNodeVector& nodes);
     
     /// Tests if the given type/expression has a "Testable" type
     bool isTestable(Nest::TypeRef type);
-    bool isTestable(Nest::DynNode* node);
+    bool isTestable(Feather::DynNode* node);
     
     /// Tests if the given type/expression is an integer type
     bool isInteger(Nest::TypeRef type);
-    bool isInteger(Nest::DynNode* node);
+    bool isInteger(Feather::DynNode* node);
 
     /// Checks if the given type is a basic numeric type (bool, integral, floating point, char)
     bool isBasicNumericType(Nest::TypeRef type);
@@ -47,7 +47,7 @@ namespace Feather
 
     /// Gets the class declaration for the given type; if it doesn't have one, return null
     Class* classForType(Nest::TypeRef t);
-    Nest::DynNode* classForTypeRaw(Nest::TypeRef t);
+    Feather::DynNode* classForTypeRaw(Nest::TypeRef t);
 
     /// Check the types are the same, but also consider the operation mode
     bool isSameTypeIgnoreMode(Nest::TypeRef t1, Nest::TypeRef t2);
@@ -62,5 +62,5 @@ namespace Feather
     Nest::TypeRef adjustMode(Nest::TypeRef srcType, Nest::EvalMode baseMode, Nest::CompilationContext* context, const Nest::Location& loc);
 
     /// Check if the given node has the eval-mode correctly set
-    void checkEvalMode(Nest::DynNode* src, Nest::EvalMode referencedEvalMode = Nest::modeRtCt);
+    void checkEvalMode(Feather::DynNode* src, Nest::EvalMode referencedEvalMode = Nest::modeRtCt);
 }

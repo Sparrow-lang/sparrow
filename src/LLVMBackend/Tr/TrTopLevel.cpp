@@ -5,12 +5,12 @@
 #include "TrLocal.h"
 #include "Module.h"
 
-#include <Nest/Intermediate/DynNode.h>
 #include <Nest/Intermediate/Type.h>
 #include <Nest/Common/Diagnostic.h>
 #include <Nest/Compiler.h>
 #include <Nest/CompilerSettings.h>
 
+#include <Feather/Nodes/DynNode.h>
 #include <Feather/Nodes/Properties.h>
 #include <Feather/Nodes/NodeList.h>
 #include <Feather/Nodes/BackendCode.h>
@@ -65,7 +65,7 @@ namespace
 
 
 
-void Tr::translateTopLevelNode(Nest::DynNode* node, Module& module)
+void Tr::translateTopLevelNode(Feather::DynNode* node, Module& module)
 {
     // If this node is explained, then translate its explanation
     if ( node->isExplained() )

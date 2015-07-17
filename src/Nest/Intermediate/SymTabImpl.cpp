@@ -58,11 +58,6 @@ NodeVector SymTabImpl::allEntries() const
         boost::bind(&unordered_multimap<string, Node*>::value_type::second, _1) );
     return result;
 }
-DynNodeVector SymTabImpl::allEntriesDyn() const
-{
-    NodeVector r = allEntries();
-    return move(reinterpret_cast<DynNodeVector&>(r));
-}
 
 NodeVector SymTabImpl::lookupCurrent(const string& name) const
 {
@@ -78,21 +73,11 @@ NodeVector SymTabImpl::lookupCurrent(const string& name) const
     }
     return result;
 }
-DynNodeVector SymTabImpl::lookupCurrentDyn(const string& name) const
-{
-    NodeVector r = lookupCurrent(name);
-    return move(reinterpret_cast<DynNodeVector&>(r));
-}
 
 NodeVector SymTabImpl::lookup(const string& name) const
 {
     NodeVector res = lookupCurrent(name);
     return !res.empty() || !parent_ ? res : parent_->lookup(name);
-}
-DynNodeVector SymTabImpl::lookupDyn(const string& name) const
-{
-    NodeVector r = lookup(name);
-    return move(reinterpret_cast<DynNodeVector&>(r));
 }
 
 SymTab* SymTabImpl::parent() const

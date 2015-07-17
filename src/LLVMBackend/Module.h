@@ -8,7 +8,7 @@
 #include <unordered_map>
 
 FWD_STRUCT1(Nest, Node);
-FWD_CLASS1(Nest, DynNode);
+FWD_CLASS1(Feather, DynNode);
 FWD_CLASS1(Feather, Decl);
 FWD_CLASS2(LLVMB,Tr, DebugInfo);
 
@@ -18,7 +18,7 @@ FWD_CLASS1(llvm, Function);
 
 namespace LLVMB
 {
-    using Nest::DynNode;
+    using Feather::DynNode;
     using Nest::Node;
 
     /// Class that represents a backend module.

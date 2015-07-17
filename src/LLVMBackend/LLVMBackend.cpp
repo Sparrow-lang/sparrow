@@ -5,7 +5,7 @@
 #include "CtModule.h"
 #include "Tr/DebugInfo.h"
 
-#include <Nest/Intermediate/DynNode.h>
+#include <Feather/Nodes/DynNode.h>
 #include <Nest/Frontend/SourceCode.h>
 #include <Nest/Backend/BackendFactory.h>
 #include <Nest/Compiler.h>

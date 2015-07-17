@@ -9,7 +9,6 @@
 #include "DebugInfo.h"
 #include "Module.h"
 
-#include <Nest/Intermediate/DynNode.h>
 #include <Nest/Intermediate/Type.h>
 #include <Nest/Common/Diagnostic.h>
 
@@ -1187,7 +1186,7 @@ namespace
 }
 
 
-llvm::Value* Tr::translateNode(Nest::DynNode* node, TrContext& context)
+llvm::Value* Tr::translateNode(Feather::DynNode* node, TrContext& context)
 {
     // Make sure the node is compiled
     node->semanticCheck();

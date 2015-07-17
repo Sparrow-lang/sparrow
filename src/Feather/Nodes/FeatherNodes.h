@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Nest/Intermediate/DynNode.h>
 #include <Nest/Intermediate/EvalMode.h>
+#include <Feather/Nodes/DynNode.h>
 #include <Feather/Nodes/Exp/AtomicOrdering.h>
 #include <Feather/Nodes/Decls/CallConvention.h>
 

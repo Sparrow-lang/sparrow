@@ -24,7 +24,7 @@ namespace
     {
         // Check all the nodes registered in the children context so far to discover the fields
         DynNodeVector fields;
-        for ( DynNode* n: curSymTab->allEntriesDyn() )
+        for ( DynNode* n: toDyn(curSymTab->allEntries()) )
         {
             switch ( n->nodeKind() )
             {

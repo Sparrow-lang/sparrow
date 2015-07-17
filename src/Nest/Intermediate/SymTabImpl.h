@@ -16,11 +16,8 @@ namespace Nest
         virtual void enter(const string& name, Node* definition);
         virtual void copyEntries(SymTab* otherSymTab);
         virtual NodeVector allEntries() const;
-        virtual DynNodeVector allEntriesDyn() const;
         virtual NodeVector lookupCurrent(const string& name) const;
-        virtual DynNodeVector lookupCurrentDyn(const string& name) const;
         virtual NodeVector lookup(const string& name) const;
-        virtual DynNodeVector lookupDyn(const string& name) const;
 
         virtual SymTab* parent() const;
         virtual Node* node() const;

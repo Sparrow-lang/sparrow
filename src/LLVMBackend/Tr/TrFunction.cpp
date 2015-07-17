@@ -28,7 +28,7 @@ namespace
 {
     /// Called to translate the function body
     /// If 'addressToStoreResult' is given, we add a mem-store to the result of 'node' in the given address
-    void translateFunctionBody(Module& module, Nest::DynNode* node, llvm::BasicBlock& insertionPoint, llvm::IRBuilder<>& llvmBuilder, llvm::Value* addressToStoreResult = nullptr)
+    void translateFunctionBody(Module& module, Feather::DynNode* node, llvm::BasicBlock& insertionPoint, llvm::IRBuilder<>& llvmBuilder, llvm::Value* addressToStoreResult = nullptr)
     {
         // Create a context for the body of the function
         TrContext trContext(module, &insertionPoint, llvmBuilder);
@@ -218,7 +218,7 @@ llvm::Function* Tr::translateFunction(Feather::Function* node, Module& module)
     return f;
 }
 
-llvm::Function* Tr::makeFunThatCalls(Nest::DynNode* node, Module& module, const char* funName, bool expectsResult)
+llvm::Function* Tr::makeFunThatCalls(Feather::DynNode* node, Module& module, const char* funName, bool expectsResult)
 {
 	// Create the function type
 	vector<llvm::Type*> llvmParamTypes;

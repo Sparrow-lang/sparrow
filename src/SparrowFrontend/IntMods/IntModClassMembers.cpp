@@ -24,7 +24,7 @@ namespace
     /// Search in the given class for a function with a specified name, taking the given type of parameter
     bool checkForMember(DynNode* cls, const string& funName, Class* paramClass)
     {
-        DynNodeVector decls = cls->childrenContext()->currentSymTab()->lookupCurrentDyn(funName);
+        DynNodeVector decls = toDyn(cls->childrenContext()->currentSymTab()->lookupCurrent(funName));
         for ( DynNode* decl: decls )
         {
             decl = decl->explanation();
@@ -76,7 +76,7 @@ namespace
     /// Checks if the class has a 'ctorFromCt' method
     bool checkForCtorFromCt(DynNode* cls)
     {
-        DynNodeVector decls = cls->childrenContext()->currentSymTab()->lookupCurrentDyn("ctorFromCt");
+        DynNodeVector decls = toDyn(cls->childrenContext()->currentSymTab()->lookupCurrent("ctorFromCt"));
         for ( DynNode* n: decls )
         {
             if ( effectiveEvalMode(n) == modeRt )

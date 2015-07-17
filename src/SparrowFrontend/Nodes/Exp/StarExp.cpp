@@ -39,7 +39,7 @@ void StarExp::doSemanticCheck()
         // Get all the symbols from the symbol table
 
         // Search in the symbol table of the base for the identifier
-        decls = baseSymTab->allEntriesDyn();
+        decls = Feather::toDyn(baseSymTab->allEntries());
     }
 
     if ( decls.empty() )

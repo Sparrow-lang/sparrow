@@ -2,11 +2,11 @@
 
 #include <Nest/Intermediate/EvalMode.h>
 
-FWD_CLASS1(Nest, DynNode);
+FWD_CLASS1(Feather, DynNode);
 
 namespace Feather
 {
-    using Nest::DynNode;
+    using Feather::DynNode;
     using Nest::EvalMode;
 
     /// Tests if the given node is a declaration (a node that will expand to a Feather declaration)

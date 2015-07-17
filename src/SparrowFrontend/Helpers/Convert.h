@@ -63,5 +63,5 @@ namespace SprFrontend
     ConversionResult canConvertType(CompilationContext* context, Nest::TypeRef srcType, Nest::TypeRef destType, ConversionFlags flags = flagsDefault);
 
     /// Checks if an "argument" node can be converted to a given type
-    ConversionResult canConvert(Nest::DynNode* arg, Nest::TypeRef destType, ConversionFlags flags = flagsDefault);
+    ConversionResult canConvert(Feather::DynNode* arg, Nest::TypeRef destType, ConversionFlags flags = flagsDefault);
 }

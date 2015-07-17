@@ -68,7 +68,7 @@ void CompoundExp::doSemanticCheck()
         // Get the referred declarations; search for our id inside the symbol table of the declarations of the base
         for ( DynNode* baseDecl: baseDecls )
         {
-            DynNodeVector declsCur = baseDecl->childrenContext()->currentSymTab()->lookupCurrentDyn(id);
+            DynNodeVector declsCur = toDyn(baseDecl->childrenContext()->currentSymTab()->lookupCurrent(id));
             decls.insert(decls.end(), declsCur.begin(), declsCur.end());
         }
     }
@@ -79,7 +79,7 @@ void CompoundExp::doSemanticCheck()
         classDecl->computeType();
 
         // Search for a declaration in the class 
-        decls = classDecl->childrenContext()->currentSymTab()->lookupCurrentDyn(id);
+        decls = toDyn(classDecl->childrenContext()->currentSymTab()->lookupCurrent(id));
     }
 
     if ( decls.empty() )

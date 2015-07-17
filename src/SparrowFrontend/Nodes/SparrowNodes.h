@@ -1,12 +1,14 @@
 #pragma once
 
-#include <Nest/Intermediate/DynNode.h>
 #include <Nest/Intermediate/EvalMode.h>
+#include <Feather/Nodes/DynNode.h>
 #include <SparrowFrontend/Nodes/Decls/AccessType.h>
 
 namespace SprFrontend
 {
     using namespace Nest;
+    using Feather::DynNode;
+    using Feather::DynNodeVector;
     using Feather::NodeList;
 
     /// Called to initialize the Feather node kinds

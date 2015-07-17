@@ -10,12 +10,9 @@
 
     #include <Nodes/Decls/AccessType.h>
 
-    namespace Nest
-    {
-        class DynNode;
-    }
     namespace Feather
     {
+        class DynNode;
         class NodeList;
     }
     namespace SprFrontend
@@ -89,7 +86,7 @@ using namespace std;
 // The parameters to be passed to the grammar - also stored in the Parser class
 %parse-param { SprFrontend::Scanner& scanner }
 %parse-param { Nest::Location startLocation }
-%parse-param { Nest::DynNode** resultNode }
+%parse-param { Feather::DynNode** resultNode }
 
 %initial-action         // Actions to be performed when start parsing
 {
@@ -108,7 +105,7 @@ using namespace std;
     char                charVal;
     string*             stringVal;
     vector<string>*     stringList;
-    Nest::DynNode*      node;
+    Feather::DynNode*      node;
     Feather::NodeList*  nodeList;
     AccessType          accessType;
 }

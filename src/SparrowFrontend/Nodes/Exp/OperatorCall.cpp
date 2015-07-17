@@ -163,7 +163,7 @@ namespace
         CompilationContext* callContext, const Location& callLocation, EvalMode mode)
     {
         SymTab* sTab = searchContext->currentSymTab();
-        DynNodeVector decls = searchOnlyGivenContext ? sTab->lookupCurrentDyn(operation) : sTab->lookupDyn(operation);
+        DynNodeVector decls = searchOnlyGivenContext ? toDyn(sTab->lookupCurrent(operation)) : toDyn(sTab->lookup(operation));
         if ( !decls.empty() )
             return selectOverload(callContext, callLocation, mode, move(decls), args, false, operation);
 

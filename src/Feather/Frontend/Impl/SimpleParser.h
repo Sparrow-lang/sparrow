@@ -13,7 +13,7 @@ namespace Feather
         SimpleParser(SimpleLexer& lexer);
 
         /// Does the parsing and returns the found content as a Nest node
-        Nest::DynNode* parse(Nest::CompilationContext* context);
+        Feather::DynNode* parse(Nest::CompilationContext* context);
 
     private:
         /// The lexer used to read the tokens
@@ -24,6 +24,6 @@ namespace Feather
         SimpleAstNode* parseSourceNode();
 
         /// Interpret a source AST node, and return a Nest node
-        Nest::DynNode* interpret(Nest::CompilationContext* context, SimpleAstNode* srcNode);
+        Feather::DynNode* interpret(Nest::CompilationContext* context, SimpleAstNode* srcNode);
     };
 }

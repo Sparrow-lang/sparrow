@@ -15,7 +15,7 @@ namespace SprFrontend
         virtual string getSourceCodeLine(int lineNo) const;
         virtual boost::function<Nest::Node*(Nest::Node*)> ctToRtTranslator() const;
 
-        Nest::DynNode* parseExpression(Nest::Location loc, const string& code) const;
+        Feather::DynNode* parseExpression(Nest::Location loc, const string& code) const;
 
         static void registerSelf();
     };

@@ -33,22 +33,22 @@ Instruction::~Instruction()
     scope_.instructionsStack().pop_back();
 }
 
-void Instruction::addTempDestructAction(DynNode* destructAction)
+void Instruction::addTempDestructAction(Feather::DynNode* destructAction)
 {
     destructActions_.push_back(destructAction);
 }
 
 void Instruction::outputDestructActions()
 {
-    for ( DynNode* n: boost::adaptors::reverse(destructActions_) )
+    for ( Feather::DynNode* n: boost::adaptors::reverse(destructActions_) )
     {
         translateNode(n, scope_.context());
     }
 }
 
-Nest::DynNodeVector Instruction::stealDestructActions()
+Feather::DynNodeVector Instruction::stealDestructActions()
 {
-    Nest::DynNodeVector res;
+    Feather::DynNodeVector res;
     res.swap(destructActions_);
     return res;
 }

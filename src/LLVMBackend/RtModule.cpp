@@ -3,10 +3,11 @@
 #include <Tr/TrTopLevel.h>
 #include <Tr/DebugInfo.h>
 
+#include <Feather/Nodes/DynNode.h>
+
 #include <Nest/Common/Diagnostic.h>
 #include <Nest/CompilerSettings.h>
 #include <Nest/Compiler.h>
-#include <Nest/Intermediate/DynNode.h>
 #include <Nest/Frontend/SourceCode.h>
 
 

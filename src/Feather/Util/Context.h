@@ -3,14 +3,14 @@
 #include <Nest/Intermediate/EvalMode.h>
 
 FWD_CLASS1(Nest, CompilationContext);
-FWD_CLASS1(Nest, DynNode);
+FWD_CLASS1(Feather, DynNode);
 FWD_CLASS1(Feather, Function);
 FWD_CLASS1(Feather, Class);
 
 namespace Feather
 {
     using Nest::CompilationContext;
-    using Nest::DynNode;
+    using Feather::DynNode;
     
     DynNode* getParentDecl(CompilationContext* context);
     Function* getParentFun(CompilationContext* context);

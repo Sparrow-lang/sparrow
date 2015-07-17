@@ -104,7 +104,7 @@ Instantiation* InstantiationsSet::canInstantiate(const DynNodeVector& values, Ev
             return nullptr;
 
         // Evaluate the if clause condition and check the result
-        if ( !getBoolCtValue((DynNode*) theCompiler().ctEval(cond->node())) )
+        if ( !SprFrontend::getBoolCtValue((DynNode*) theCompiler().ctEval(cond->node())) )
             return nullptr;
     }
 

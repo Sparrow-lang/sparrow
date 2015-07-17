@@ -58,8 +58,6 @@ SET(sourceFiles
     "Intermediate/NodeKindRegistrar.cpp"
     "Intermediate/NodeSer.h"
     "Intermediate/NodeSer.cpp"
-    "Intermediate/DynNode.h"
-    "Intermediate/DynNode.cpp"
     "Intermediate/Modifier.h"
     "Intermediate/EvalMode.h"
     "Intermediate/SymTab.h"

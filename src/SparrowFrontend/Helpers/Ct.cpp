@@ -56,7 +56,7 @@ bool SprFrontend::ctValsEqual(DynNode* v1, DynNode* v2)
 
     // Check if we can call the '==' operator
     // If we can call it, then actually call it and return the result
-    DynNodeVector decls = context->currentSymTab()->lookupDyn("==");
+    DynNodeVector decls = toDyn(context->currentSymTab()->lookup("=="));
     if ( !decls.empty() )
     {
         DynNode* funCall = selectOverload(context, v1->location(), modeCt, move(decls), {v1, v2}, false, "");
@@ -66,7 +66,7 @@ bool SprFrontend::ctValsEqual(DynNode* v1, DynNode* v2)
             if ( Feather::isTestable(funCall) && Feather::isCt(funCall) )
             {
                 DynNode* c = (DynNode*) theCompiler().ctEval(funCall->node());
-                return getBoolCtValue(c);
+                return SprFrontend::getBoolCtValue(c);
             }
         }
     }

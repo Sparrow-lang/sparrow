@@ -28,18 +28,15 @@ namespace Nest
 
         /// Returns a list of symbol table entries
         virtual NodeVector allEntries() const = 0;
-        virtual DynNodeVector allEntriesDyn() const = 0;
 
         /// Look up an existing symbol table entry, by the name of the symbol
         /// Note that more than one symbols can be registered in the table with the same name
         virtual NodeVector lookupCurrent(const string& name) const = 0;
-        virtual DynNodeVector lookupCurrentDyn(const string& name) const = 0;
 
         /// Look up an existing symbol table entry and parent entries, by the name of the symbol
         /// If no matching symbol is found in the current symbol table, this will recursively try in the parent tables.
         /// Note that more than one symbols can be registered in the table with the same name
         virtual NodeVector lookup(const string& name) const = 0;
-        virtual DynNodeVector lookupDyn(const string& name) const = 0;
 
 
         /// Returns the symbol table that contains this table. May return null.

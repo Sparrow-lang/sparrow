@@ -32,7 +32,7 @@ void SprCompilationUnit::doSetContextForChildren()
         for ( int i=0; i<(int)names.size(); ++i )
         {
             // Try to find an existing package in the current symbol table
-            DynNodeVector decls = data_.context->currentSymTab()->lookupCurrentDyn(names[i]);
+            DynNodeVector decls = Feather::toDyn(data_.context->currentSymTab()->lookupCurrent(names[i]));
             if ( decls.size() == 1 )
             {
                 data_.context = decls.front()->childrenContext();

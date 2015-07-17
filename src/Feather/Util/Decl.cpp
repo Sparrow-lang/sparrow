@@ -9,7 +9,7 @@
 
 using namespace Feather;
 
-bool Feather::isDecl(Nest::DynNode* node)
+bool Feather::isDecl(Feather::DynNode* node)
 {
     switch ( node->explanation()->nodeKind() )
     {
@@ -22,7 +22,7 @@ bool Feather::isDecl(Nest::DynNode* node)
     }
 }
 
-bool Feather::isDeclEx(Nest::DynNode* node)
+bool Feather::isDeclEx(Feather::DynNode* node)
 {
     if ( isDecl(node) )
         return true;

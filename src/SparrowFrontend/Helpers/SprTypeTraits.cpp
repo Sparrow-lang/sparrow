@@ -113,7 +113,7 @@ Nest::TypeRef SprFrontend::commonType(CompilationContext* context, Nest::TypeRef
     return StdDef::typeVoid;
 }
 
-Nest::TypeRef SprFrontend::doDereference1(Nest::DynNode* arg, Nest::DynNode*& cvt)
+Nest::TypeRef SprFrontend::doDereference1(Feather::DynNode* arg, Feather::DynNode*& cvt)
 {
     cvt = arg;
 
@@ -252,7 +252,7 @@ DynNode* SprFrontend::createTypeNode(CompilationContext* context, const Location
     return res;
 }
 
-Nest::TypeRef SprFrontend::getAutoType(Nest::DynNode* typeNode, bool addRef)
+Nest::TypeRef SprFrontend::getAutoType(Feather::DynNode* typeNode, bool addRef)
 {
     TypeRef t = typeNode->type();
     

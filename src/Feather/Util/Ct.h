@@ -1,10 +1,8 @@
 #pragma once
 
-FWD_CLASS1(Nest, DynNode);
+FWD_CLASS1(Feather, DynNode);
 
 namespace Feather
 {
-    using Nest::DynNode;
-
     bool getBoolCtValue(DynNode* ctVal);
 }

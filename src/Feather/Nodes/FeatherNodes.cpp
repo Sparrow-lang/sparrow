@@ -47,6 +47,41 @@ using namespace Feather;
     if ( type ) ; else \
         REP_INTERNAL((loc), "Expected type (%1%)") % ( #type )
 
+int Feather::firstFeatherNodeKind = 0;
+
+int Feather::nkFeatherNop = 0;
+int Feather::nkFeatherTypeNode = 0;
+int Feather::nkFeatherBackendCode = 0;
+int Feather::nkFeatherNodeList = 0;
+int Feather::nkFeatherLocalSpace = 0;
+int Feather::nkFeatherGlobalConstructAction = 0;
+int Feather::nkFeatherGlobalDestructAction = 0;
+int Feather::nkFeatherScopeDestructAction = 0;
+int Feather::nkFeatherTempDestructAction = 0;
+
+int Feather::nkFeatherDeclFunction = 0;
+int Feather::nkFeatherDeclClass = 0;
+int Feather::nkFeatherDeclVar = 0;
+
+int Feather::nkFeatherExpCtValue = 0;
+int Feather::nkFeatherExpNull = 0;
+int Feather::nkFeatherExpStackAlloc = 0;
+int Feather::nkFeatherExpVarRef = 0;
+int Feather::nkFeatherExpFieldRef = 0;
+int Feather::nkFeatherExpFunRef = 0;
+int Feather::nkFeatherExpFunCall = 0;
+int Feather::nkFeatherExpMemLoad = 0;
+int Feather::nkFeatherExpMemStore = 0;
+int Feather::nkFeatherExpBitcast = 0;
+int Feather::nkFeatherExpConditional = 0;
+int Feather::nkFeatherExpChangeMode = 0;
+
+int Feather::nkFeatherStmtIf = 0;
+int Feather::nkFeatherStmtWhile = 0;
+int Feather::nkFeatherStmtBreak = 0;
+int Feather::nkFeatherStmtContinue = 0;
+int Feather::nkFeatherStmtReturn = 0;
+
 void Feather::initFeatherNodeKinds()
 {
     Feather::Nop::registerSelf();
@@ -81,6 +116,41 @@ void Feather::initFeatherNodeKinds()
     Feather::Break::registerSelf();
     Feather::Continue::registerSelf();
     Feather::Return::registerSelf();
+
+    nkFeatherNop =                      Nop::classNodeKind();
+    nkFeatherTypeNode =                 TypeNode::classNodeKind();
+    nkFeatherBackendCode =              BackendCode::classNodeKind();
+    nkFeatherNodeList =                 NodeList::classNodeKind();
+    nkFeatherLocalSpace =               LocalSpace::classNodeKind();
+    nkFeatherGlobalConstructAction =    GlobalConstructAction::classNodeKind();
+    nkFeatherGlobalDestructAction =     GlobalDestructAction::classNodeKind();
+    nkFeatherScopeDestructAction =      ScopeDestructAction::classNodeKind();
+    nkFeatherTempDestructAction =       TempDestructAction::classNodeKind();
+    
+    nkFeatherDeclFunction =             Function::classNodeKind();
+    nkFeatherDeclClass =                Class::classNodeKind();
+    nkFeatherDeclVar =                  Var::classNodeKind();
+    
+    nkFeatherExpCtValue =               CtValue::classNodeKind();
+    nkFeatherExpNull =                  Null::classNodeKind();
+    nkFeatherExpStackAlloc =            StackAlloc::classNodeKind();
+    nkFeatherExpVarRef =                VarRef::classNodeKind();
+    nkFeatherExpFieldRef =              FieldRef::classNodeKind();
+    nkFeatherExpFunRef =                FunRef::classNodeKind();
+    nkFeatherExpFunCall =               FunCall::classNodeKind();
+    nkFeatherExpMemLoad =               MemLoad::classNodeKind();
+    nkFeatherExpMemStore =              MemStore::classNodeKind();
+    nkFeatherExpBitcast =               Bitcast::classNodeKind();
+    nkFeatherExpConditional =           Conditional::classNodeKind();
+    nkFeatherExpChangeMode =            ChangeMode::classNodeKind();
+    
+    nkFeatherStmtIf =                   If::classNodeKind();
+    nkFeatherStmtWhile =                While::classNodeKind();
+    nkFeatherStmtBreak =                Break::classNodeKind();
+    nkFeatherStmtContinue =             Continue::classNodeKind();
+    nkFeatherStmtReturn =               Return::classNodeKind();
+
+    firstFeatherNodeKind = nkFeatherNop;
 }
 
 

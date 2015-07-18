@@ -26,15 +26,8 @@ namespace
         DynNodeVector fields;
         for ( DynNode* n: toDyn(curSymTab->allEntries()) )
         {
-            switch ( n->nodeKind() )
-            {
-                case nkFeatherDeclVar:
-                    fields.push_back(n);
-                    break;
-                case nkSparrowDeclSprVariable:
-                    fields.push_back(n);
-                    break;
-            }
+            if ( n->nodeKind() == nkFeatherDeclVar || n->nodeKind() == nkSparrowDeclSprVariable )
+                fields.push_back(n);
         }
 
         // Sort the fields by location - we need to add them in order

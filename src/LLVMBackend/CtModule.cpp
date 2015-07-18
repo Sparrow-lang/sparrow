@@ -80,13 +80,13 @@ void CtModule::ctProcess(Node* node)
 	if ( node->type->mode == modeRt )
 		REP_INTERNAL(node->location, "Cannot CT process this node: it has no meaning at compile-time");
 
-    switch ( node->nodeKind )
+    switch ( node->nodeKind - firstFeatherNodeKind )
     {
-    case nkFeatherExpCtValue:   return;
-    case nkFeatherDeclVar:      ctProcessVariable((Var*) node); break;
-    case nkFeatherDeclFunction: ctProcessFunction((Function*) node); break;
-    case nkFeatherDeclClass:    ctProcessClass((Class*) node); break;
-    case nkFeatherBackendCode:  ctProcessBackendCode((BackendCode*) node); break;
+    case nkRelFeatherExpCtValue:   return;
+    case nkRelFeatherDeclVar:      ctProcessVariable((Var*) node); break;
+    case nkRelFeatherDeclFunction: ctProcessFunction((Function*) node); break;
+    case nkRelFeatherDeclClass:    ctProcessClass((Class*) node); break;
+    case nkRelFeatherBackendCode:  ctProcessBackendCode((BackendCode*) node); break;
     default:
         REP_INTERNAL(node->location, "Don't know how to CT process node (%1%)") % node;
     }

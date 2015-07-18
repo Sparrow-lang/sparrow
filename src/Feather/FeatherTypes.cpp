@@ -1,7 +1,7 @@
 #include <StdInc.h>
 #include "FeatherTypes.h"
 #include "Nodes/Properties.h"
-#include "Nodes/FeatherNodeKinds.h"
+#include "Nodes/FeatherNodes.h"
 #include "Util/Decl.h"
 
 #include <Nest/Intermediate/TypeKindRegistrar.h>

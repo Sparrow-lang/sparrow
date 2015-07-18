@@ -5,7 +5,7 @@
 #include <Nest/Intermediate/EvalMode.h>
 
 #include <Feather/Nodes/DynNode.h>
-#include "Nodes/FeatherNodeKinds.h"
+#include "Nodes/FeatherNodes.h"
 
 namespace Feather
 {

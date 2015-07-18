@@ -11,6 +11,75 @@ namespace SprFrontend
     using Feather::DynNodeVector;
     using Feather::NodeList;
 
+    enum SparrowNodeKinds
+    {
+        nkRelSparrowModifiersNode = 0,
+        
+        nkRelSparrowDeclSprCompilationUnit,
+        nkRelSparrowDeclPackage,
+        nkRelSparrowDeclSprClass,
+        nkRelSparrowDeclSprFunction,
+        nkRelSparrowDeclSprParameter,
+        nkRelSparrowDeclSprVariable,
+        nkRelSparrowDeclSprConcept,
+        nkRelSparrowDeclGenericClass,
+        nkRelSparrowDeclGenericFunction,
+        nkRelSparrowDeclUsing,
+
+        nkRelSparrowExpLiteral,
+        nkRelSparrowExpThis,
+        nkRelSparrowExpIdentifier,
+        nkRelSparrowExpCompoundExp,
+        nkRelSparrowExpFunApplication,
+        nkRelSparrowExpOperatorCall,
+        nkRelSparrowExpInfixExp,
+        nkRelSparrowExpLambdaFunction,
+        nkRelSparrowExpSprConditional,
+        nkRelSparrowExpDeclExp,
+        nkRelSparrowExpStarExp,
+        
+        nkRelSparrowStmtFor,
+        nkRelSparrowStmtSprReturn,
+        
+        nkRelSparrowInnerInstantiation,
+        nkRelSparrowInnerInstantiationsSet,
+    };
+
+    // The ID for the first Sparrow node kind
+    extern int firstSparrowNodeKind;
+
+    // The IDs for all the Sparrow node kinds
+    extern int nkSparrowModifiersNode;
+    
+    extern int nkSparrowDeclSprCompilationUnit;
+    extern int nkSparrowDeclPackage;
+    extern int nkSparrowDeclSprClass;
+    extern int nkSparrowDeclSprFunction;
+    extern int nkSparrowDeclSprParameter;
+    extern int nkSparrowDeclSprVariable;
+    extern int nkSparrowDeclSprConcept;
+    extern int nkSparrowDeclGenericClass;
+    extern int nkSparrowDeclGenericFunction;
+    extern int nkSparrowDeclUsing;
+
+    extern int nkSparrowExpLiteral;
+    extern int nkSparrowExpThis;
+    extern int nkSparrowExpIdentifier;
+    extern int nkSparrowExpCompoundExp;
+    extern int nkSparrowExpFunApplication;
+    extern int nkSparrowExpOperatorCall;
+    extern int nkSparrowExpInfixExp;
+    extern int nkSparrowExpLambdaFunction;
+    extern int nkSparrowExpSprConditional;
+    extern int nkSparrowExpDeclExp;
+    extern int nkSparrowExpStarExp;
+    
+    extern int nkSparrowStmtFor;
+    extern int nkSparrowStmtSprReturn;
+    
+    extern int nkSparrowInnerInstantiation;
+    extern int nkSparrowInnerInstantiationsSet;
+
     /// Called to initialize the Feather node kinds
     void initSparrowNodeKinds();
 

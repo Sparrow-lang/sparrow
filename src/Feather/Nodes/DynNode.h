@@ -188,11 +188,13 @@ namespace Feather
 }
 
 #define DEFINE_NODE(className, kindId, kindName) \
+    private: \
+        static int& classNodeKindRef() { static int clsNodeKind = 0; return clsNodeKind; } \
     public: \
-        static int classNodeKind() { return kindId; } \
+        static int classNodeKind() { return classNodeKindRef(); } \
         int nodeKind() const { return data_.nodeKind; } \
         static const char* classNodeKindName() { return kindName; } \
-        const char* nodeKindName() const { return Nest::getNodeKindName(kindId); } \
+        const char* nodeKindName() const { return Nest::getNodeKindName(classNodeKindRef()); } \
         className* clone() const { \
             static_assert(sizeof(*this) == sizeof(Nest::Node), "Bad node size"); \
             return new className(*this); \
@@ -206,7 +208,6 @@ namespace Feather
         static Nest::Node* semanticCheckImpl(Nest::Node* node) { className* thisNode = static_cast<className*>(DynNode::fromNode(node)); thisNode->doSemanticCheck(); return Nest::explanation(&thisNode->data_); } \
     public: \
         static void registerSelf() { \
-            int nodeKind = Nest::registerNodeKind(kindName, &semanticCheckImpl, &computeTypeImpl, &setContextForChildrenImpl, &toStringImpl); \
-            ASSERT(kindId < 0 || nodeKind == kindId); \
+            classNodeKindRef() = Nest::registerNodeKind(kindName, &semanticCheckImpl, &computeTypeImpl, &setContextForChildrenImpl, &toStringImpl); \
         } \
     private:

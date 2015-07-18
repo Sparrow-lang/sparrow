@@ -88,17 +88,16 @@ namespace
         static int getNodeKind()
         {
             static bool initialized = false;
-            static int nodeKind = -1;
             if ( !initialized )
             {
-                nodeKind = Nest::registerNodeKind(classNodeKindName(), &semanticCheckImpl, &computeTypeImpl, &setContextForChildrenImpl, &toStringImpl); \
+                registerSelf();
                 initialized = true;
             }
-            return nodeKind;
+            return classNodeKind();
         }
     public:
         DestructActionForConditional(TypeRef resType, llvm::Value* cond, NodeVector alt1DestructActions, NodeVector alt2DestructActions)
-            : DynNode(classNodeKind(), NOLOC, {mkNodeList(NOLOC, toDyn(move(alt1DestructActions))), mkNodeList(NOLOC, toDyn(move(alt2DestructActions))) })
+            : DynNode(getNodeKind(), NOLOC, {mkNodeList(NOLOC, toDyn(move(alt1DestructActions))), mkNodeList(NOLOC, toDyn(move(alt2DestructActions))) })
         {
             setProperty("resType", resType);
             setProperty("cond_LLVM_value", reinterpret_cast<Node*>(cond));
@@ -1211,32 +1210,32 @@ llvm::Value* Tr::translateNode(Node* node, TrContext& context)
     if ( context.module().debugInfo() )
         context.module().debugInfo()->emitLocation(context.builder(), node->location);
 
-    switch ( node->nodeKind )
+    switch ( node->nodeKind - firstFeatherNodeKind )
     {
-    case nkFeatherNodeList:                         return translate((NodeList&) *node, context);
-    case nkFeatherLocalSpace:                       return translate((LocalSpace&) *node, context);
-    case nkFeatherNop:                              return translate((Nop&) *node, context);
-    case nkFeatherTempDestructAction:               return translate((TempDestructAction&) *node, context);
-    case nkFeatherScopeDestructAction:              return translate((ScopeDestructAction&) *node, context);
-    case nkFeatherExpCtValue:                       return translate((CtValue&) *node, context);
-    case nkFeatherExpStackAlloc:                    return translate((StackAlloc&) *node, context);
-    case nkFeatherExpMemLoad:                       return translate((MemLoad&) *node, context);
-    case nkFeatherExpMemStore:                      return translate((MemStore&) *node, context);
-    case nkFeatherExpVarRef:                        return translate((VarRef&) *node, context);
-    case nkFeatherExpFieldRef:                      return translate((FieldRef&) *node, context);
-    case nkFeatherExpFunRef:                        return translate((FunRef&) *node, context);
-    case nkFeatherExpFunCall:                       return translate((FunCall&) *node, context);
-    case nkFeatherExpBitcast:                       return translate((Bitcast&) *node, context);
-    case nkFeatherExpConditional:                   return translate((Conditional&) *node, context);
-    case nkFeatherExpNull:                          return translate((Null&) *node, context);
-    case nkFeatherStmtReturn:                       return translate((Return&) *node, context);
-    case nkFeatherStmtIf:                           return translate((If&) *node, context);
-    case nkFeatherStmtWhile:                        return translate((While&) *node, context);
-    case nkFeatherStmtBreak:                        return translate((Break&) *node, context);
-    case nkFeatherStmtContinue:                     return translate((Continue&) *node, context);
-    case nkFeatherDeclVar:                          return translate((Var&) *node, context);
+    case nkRelFeatherNodeList:                         return translate((NodeList&) *node, context);
+    case nkRelFeatherLocalSpace:                       return translate((LocalSpace&) *node, context);
+    case nkRelFeatherNop:                              return translate((Nop&) *node, context);
+    case nkRelFeatherTempDestructAction:               return translate((TempDestructAction&) *node, context);
+    case nkRelFeatherScopeDestructAction:              return translate((ScopeDestructAction&) *node, context);
+    case nkRelFeatherExpCtValue:                       return translate((CtValue&) *node, context);
+    case nkRelFeatherExpStackAlloc:                    return translate((StackAlloc&) *node, context);
+    case nkRelFeatherExpMemLoad:                       return translate((MemLoad&) *node, context);
+    case nkRelFeatherExpMemStore:                      return translate((MemStore&) *node, context);
+    case nkRelFeatherExpVarRef:                        return translate((VarRef&) *node, context);
+    case nkRelFeatherExpFieldRef:                      return translate((FieldRef&) *node, context);
+    case nkRelFeatherExpFunRef:                        return translate((FunRef&) *node, context);
+    case nkRelFeatherExpFunCall:                       return translate((FunCall&) *node, context);
+    case nkRelFeatherExpBitcast:                       return translate((Bitcast&) *node, context);
+    case nkRelFeatherExpConditional:                   return translate((Conditional&) *node, context);
+    case nkRelFeatherExpNull:                          return translate((Null&) *node, context);
+    case nkRelFeatherStmtReturn:                       return translate((Return&) *node, context);
+    case nkRelFeatherStmtIf:                           return translate((If&) *node, context);
+    case nkRelFeatherStmtWhile:                        return translate((While&) *node, context);
+    case nkRelFeatherStmtBreak:                        return translate((Break&) *node, context);
+    case nkRelFeatherStmtContinue:                     return translate((Continue&) *node, context);
+    case nkRelFeatherDeclVar:                          return translate((Var&) *node, context);
     default:
-        if ( Nest::nodeKindName(node) == DestructActionForConditional::classNodeKindName() )
+        if ( node->nodeKind == DestructActionForConditional::classNodeKind() )
             return translate((DestructActionForConditional&) *node, context);
         else
         {

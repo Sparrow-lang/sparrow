@@ -6,7 +6,7 @@
 #include <Feather/Nodes/DynNode.h>
 #include <Feather/Nodes/NodeList.h>
 
-#include "Nodes/SparrowNodeKinds.h"
+#include "Nodes/SparrowNodes.h"
 
 FWD_CLASS1(Feather, NodeList)
 

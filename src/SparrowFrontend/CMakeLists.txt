@@ -26,7 +26,6 @@ SET(sourceFiles
     "Grammar/scanner.ll"
     "Grammar/Scanner.h"
     "Grammar/Scanner.cpp"
-    "Nodes/SparrowNodeKinds.h"
     "Nodes/SparrowNodes.h"
     "Nodes/SparrowNodes.cpp"
     "Nodes/SprProperties.h"

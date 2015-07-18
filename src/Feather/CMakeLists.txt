@@ -11,7 +11,6 @@ SET(sourceFiles
     "CtApiFunctions.cpp"
     "Nodes/Properties.h"
     "Nodes/Properties.cpp"
-    "Nodes/FeatherNodeKinds.h"
     "Nodes/FeatherNodes.h"
     "Nodes/FeatherNodes.cpp"
     "Nodes/DynNode.h"

@@ -75,16 +75,16 @@ void Tr::translateTopLevelNode(Node* node, Module& module)
     {
         // Depending on the type of the node, do a specific translation
 
-        switch ( node->nodeKind )
+        switch ( node->nodeKind - firstFeatherNodeKind )
         {
-        case nkFeatherNop:                      break;
-        case nkFeatherNodeList:                 translateNodeList((NodeList*) node, module); break;
-        case nkFeatherBackendCode:              translateBackendCode((BackendCode*) node, module); break;
-        case nkFeatherGlobalDestructAction:     translate((GlobalDestructAction&) *node, module); break;
-        case nkFeatherGlobalConstructAction:    translate((GlobalConstructAction&) *node, module); break;
-        case nkFeatherDeclClass:                translateClass((Class*) node, module); break;
-        case nkFeatherDeclFunction:             translateFunction((Function*) node, module); break;
-        case nkFeatherDeclVar:                  translateGlobalVar((Var*) node, module); break;
+        case nkRelFeatherNop:                      break;
+        case nkRelFeatherNodeList:                 translateNodeList((NodeList*) node, module); break;
+        case nkRelFeatherBackendCode:              translateBackendCode((BackendCode*) node, module); break;
+        case nkRelFeatherGlobalDestructAction:     translate((GlobalDestructAction&) *node, module); break;
+        case nkRelFeatherGlobalConstructAction:    translate((GlobalConstructAction&) *node, module); break;
+        case nkRelFeatherDeclClass:                translateClass((Class*) node, module); break;
+        case nkRelFeatherDeclFunction:             translateFunction((Function*) node, module); break;
+        case nkRelFeatherDeclVar:                  translateGlobalVar((Var*) node, module); break;
         default:
             REP_ERROR(node->location, "Don't know how to interpret a node of this kind (%1%)") % Nest::nodeKindName(node);
         }

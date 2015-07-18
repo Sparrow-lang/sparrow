@@ -49,6 +49,39 @@ namespace
     }
 }
 
+int SprFrontend::firstSparrowNodeKind = 0;
+
+int SprFrontend::nkSparrowModifiersNode = 0;
+
+int SprFrontend::nkSparrowDeclSprCompilationUnit = 0;
+int SprFrontend::nkSparrowDeclPackage = 0;
+int SprFrontend::nkSparrowDeclSprClass = 0;
+int SprFrontend::nkSparrowDeclSprFunction = 0;
+int SprFrontend::nkSparrowDeclSprParameter = 0;
+int SprFrontend::nkSparrowDeclSprVariable = 0;
+int SprFrontend::nkSparrowDeclSprConcept = 0;
+int SprFrontend::nkSparrowDeclGenericClass = 0;
+int SprFrontend::nkSparrowDeclGenericFunction = 0;
+int SprFrontend::nkSparrowDeclUsing = 0;
+
+int SprFrontend::nkSparrowExpLiteral = 0;
+int SprFrontend::nkSparrowExpThis = 0;
+int SprFrontend::nkSparrowExpIdentifier = 0;
+int SprFrontend::nkSparrowExpCompoundExp = 0;
+int SprFrontend::nkSparrowExpFunApplication = 0;
+int SprFrontend::nkSparrowExpOperatorCall = 0;
+int SprFrontend::nkSparrowExpInfixExp = 0;
+int SprFrontend::nkSparrowExpLambdaFunction = 0;
+int SprFrontend::nkSparrowExpSprConditional = 0;
+int SprFrontend::nkSparrowExpDeclExp = 0;
+int SprFrontend::nkSparrowExpStarExp = 0;
+
+int SprFrontend::nkSparrowStmtFor = 0;
+int SprFrontend::nkSparrowStmtSprReturn = 0;
+
+int SprFrontend::nkSparrowInnerInstantiation = 0;
+int SprFrontend::nkSparrowInnerInstantiationsSet = 0;
+
 void SprFrontend::initSparrowNodeKinds()
 {
     SprFrontend::ModifiersNode::registerSelf();
@@ -81,6 +114,40 @@ void SprFrontend::initSparrowNodeKinds()
     
     SprFrontend::Instantiation::registerSelf();
     SprFrontend::InstantiationsSet::registerSelf();
+
+    nkSparrowModifiersNode =            ModifiersNode::classNodeKind();
+    
+    nkSparrowDeclSprCompilationUnit =   SprCompilationUnit::classNodeKind();
+    nkSparrowDeclPackage =              Package::classNodeKind();
+    nkSparrowDeclSprClass =             SprClass::classNodeKind();
+    nkSparrowDeclSprFunction =          SprFunction::classNodeKind();
+    nkSparrowDeclSprParameter =         SprParameter::classNodeKind();
+    nkSparrowDeclSprVariable =          SprVariable::classNodeKind();
+    nkSparrowDeclSprConcept =           SprConcept::classNodeKind();
+    nkSparrowDeclGenericClass =         GenericClass::classNodeKind();
+    nkSparrowDeclGenericFunction =      GenericFunction::classNodeKind();
+    nkSparrowDeclUsing =                Using::classNodeKind();
+
+    nkSparrowExpLiteral =               Literal::classNodeKind();
+    nkSparrowExpThis =                  This::classNodeKind();
+    nkSparrowExpIdentifier =            Identifier::classNodeKind();
+    nkSparrowExpCompoundExp =           CompoundExp::classNodeKind();
+    nkSparrowExpFunApplication =        FunApplication::classNodeKind();
+    nkSparrowExpOperatorCall =          OperatorCall::classNodeKind();
+    nkSparrowExpInfixExp =              InfixExp::classNodeKind();
+    nkSparrowExpLambdaFunction =        LambdaFunction::classNodeKind();
+    nkSparrowExpSprConditional =        SprConditional::classNodeKind();
+    nkSparrowExpDeclExp =               DeclExp::classNodeKind();
+    nkSparrowExpStarExp =               StarExp::classNodeKind();
+    
+    nkSparrowStmtFor =                  For::classNodeKind();
+    nkSparrowStmtSprReturn =            SprReturn::classNodeKind();
+    
+    nkSparrowInnerInstantiation =       Instantiation::classNodeKind();
+    nkSparrowInnerInstantiationsSet =   InstantiationsSet::classNodeKind();
+
+
+    firstSparrowNodeKind = nkSparrowModifiersNode;
 }
 
 

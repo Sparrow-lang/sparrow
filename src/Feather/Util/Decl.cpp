@@ -1,6 +1,6 @@
 #include <StdInc.h>
 #include "Decl.h"
-#include <Nodes/FeatherNodeKinds.h>
+#include <Nodes/FeatherNodes.h>
 #include <Nodes/Properties.h>
 #include <Nodes/Decls/Class.h>
 #include <Nest/Intermediate/CompilationContext.h>
@@ -12,11 +12,11 @@ using Nest::Node;
 
 bool Feather::isDecl(Node* node)
 {
-    switch ( explanation(node)->nodeKind )
+    switch ( explanation(node)->nodeKind - firstFeatherNodeKind )
     {
-        case nkFeatherDeclFunction:
-        case nkFeatherDeclClass:
-        case nkFeatherDeclVar:
+        case nkRelFeatherDeclFunction:
+        case nkRelFeatherDeclClass:
+        case nkRelFeatherDeclVar:
             return true;
         default:
             return false;

@@ -11,6 +11,79 @@ namespace Feather
 {
     using namespace Nest;
 
+    enum FeatherNodeKinds
+    {
+        nkRelFeatherNop = 0,
+        nkRelFeatherTypeNode,
+        nkRelFeatherBackendCode,
+        nkRelFeatherNodeList,
+        nkRelFeatherLocalSpace,
+        nkRelFeatherGlobalConstructAction,
+        nkRelFeatherGlobalDestructAction,
+        nkRelFeatherScopeDestructAction,
+        nkRelFeatherTempDestructAction,
+        
+        nkRelFeatherDeclFunction,
+        nkRelFeatherDeclClass,
+        nkRelFeatherDeclVar,
+        
+        nkRelFeatherExpCtValue,
+        nkRelFeatherExpNull,
+        nkRelFeatherExpStackAlloc,
+        nkRelFeatherExpVarRef,
+        nkRelFeatherExpFieldRef,
+        nkRelFeatherExpFunRef,
+        nkRelFeatherExpFunCall,
+        nkRelFeatherExpMemLoad,
+        nkRelFeatherExpMemStore,
+        nkRelFeatherExpBitcast,
+        nkRelFeatherExpConditional,
+        nkRelFeatherExpChangeMode,
+        
+        nkRelFeatherStmtIf,
+        nkRelFeatherStmtWhile,
+        nkRelFeatherStmtBreak,
+        nkRelFeatherStmtContinue,
+        nkRelFeatherStmtReturn,
+    };
+
+    // The ID for the first Feather node kind
+    extern int firstFeatherNodeKind;
+
+    // The IDs for all the feather node kinds
+    extern int nkFeatherNop;
+    extern int nkFeatherTypeNode;
+    extern int nkFeatherBackendCode;
+    extern int nkFeatherNodeList;
+    extern int nkFeatherLocalSpace;
+    extern int nkFeatherGlobalConstructAction;
+    extern int nkFeatherGlobalDestructAction;
+    extern int nkFeatherScopeDestructAction;
+    extern int nkFeatherTempDestructAction;
+    
+    extern int nkFeatherDeclFunction;
+    extern int nkFeatherDeclClass;
+    extern int nkFeatherDeclVar;
+    
+    extern int nkFeatherExpCtValue;
+    extern int nkFeatherExpNull;
+    extern int nkFeatherExpStackAlloc;
+    extern int nkFeatherExpVarRef;
+    extern int nkFeatherExpFieldRef;
+    extern int nkFeatherExpFunRef;
+    extern int nkFeatherExpFunCall;
+    extern int nkFeatherExpMemLoad;
+    extern int nkFeatherExpMemStore;
+    extern int nkFeatherExpBitcast;
+    extern int nkFeatherExpConditional;
+    extern int nkFeatherExpChangeMode;
+    
+    extern int nkFeatherStmtIf;
+    extern int nkFeatherStmtWhile;
+    extern int nkFeatherStmtBreak;
+    extern int nkFeatherStmtContinue;
+    extern int nkFeatherStmtReturn;
+
     /// Called to initialize the Feather node kinds
     void initFeatherNodeKinds();
 

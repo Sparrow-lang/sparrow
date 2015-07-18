@@ -38,11 +38,11 @@ bool SprFrontend::isGeneric(const DynNode* node)
 
 size_t SprFrontend::genericParamsCount(const DynNode* node)
 {
-    switch ( node->data_.nodeKind )
+    switch ( node->data_.nodeKind - firstSparrowNodeKind )
     {
-    case nkSparrowDeclGenericClass:
+    case nkRelSparrowDeclGenericClass:
         return static_cast<const GenericClass*>(node)->paramsCount();
-    case nkSparrowDeclGenericFunction:
+    case nkRelSparrowDeclGenericFunction:
         return static_cast<const GenericFunction*>(node)->paramsCount();
     default:
         REP_INTERNAL(node->location(), "Node is not a generic: %1%") % node->nodeKindName();
@@ -51,11 +51,11 @@ size_t SprFrontend::genericParamsCount(const DynNode* node)
 }
 DynNode* SprFrontend::genericParam(const DynNode* node, size_t idx)
 {
-    switch ( node->data_.nodeKind )
+    switch ( node->data_.nodeKind - firstSparrowNodeKind )
     {
-    case nkSparrowDeclGenericClass:
+    case nkRelSparrowDeclGenericClass:
         return static_cast<const GenericClass*>(node)->param(idx);
-    case nkSparrowDeclGenericFunction:
+    case nkRelSparrowDeclGenericFunction:
         return static_cast<const GenericFunction*>(node)->param(idx);
     default:
         REP_INTERNAL(node->location(), "Node is not a generic: %1%") % node->nodeKindName();
@@ -65,11 +65,11 @@ DynNode* SprFrontend::genericParam(const DynNode* node, size_t idx)
 
 Instantiation* SprFrontend::genericCanInstantiate(DynNode* node, const DynNodeVector& args)
 {
-    switch ( node->data_.nodeKind )
+    switch ( node->data_.nodeKind - firstSparrowNodeKind )
     {
-    case nkSparrowDeclGenericClass:
+    case nkRelSparrowDeclGenericClass:
         return static_cast<GenericClass*>(node)->canInstantiate(args);
-    case nkSparrowDeclGenericFunction:
+    case nkRelSparrowDeclGenericFunction:
         return static_cast<GenericFunction*>(node)->canInstantiate(args);
     default:
         REP_INTERNAL(node->location(), "Node is not a generic: %1%") % node->nodeKindName();
@@ -78,11 +78,11 @@ Instantiation* SprFrontend::genericCanInstantiate(DynNode* node, const DynNodeVe
 }
 DynNode* SprFrontend::genericDoInstantiate(DynNode* node, const Location& loc, CompilationContext* context, const DynNodeVector& args, Instantiation* instantiation)
 {
-    switch ( node->data_.nodeKind )
+    switch ( node->data_.nodeKind - firstSparrowNodeKind )
     {
-    case nkSparrowDeclGenericClass:
+    case nkRelSparrowDeclGenericClass:
         return static_cast<GenericClass*>(node)->instantiateGeneric(loc, context, args, instantiation);
-    case nkSparrowDeclGenericFunction:
+    case nkRelSparrowDeclGenericFunction:
         return static_cast<GenericFunction*>(node)->instantiateGeneric(loc, context, args, instantiation);
     default:
         REP_INTERNAL(node->location(), "Node is not a generic: %1%") % node->nodeKindName();

@@ -29,12 +29,12 @@ DynNode* SprFrontend::createCtorCall(const Location& loc, CompilationContext* co
     // Get the class from 'thisArg'
     DynNode* thisArg = args[0];
     thisArg->computeType();
-    DynNode* cls = classForTypeRaw(thisArg->type());
+    Node* cls = classForTypeRaw(thisArg->type());
     CHECK(loc, cls);
 
     // Check if we can apply RVO, or pseudo-RVO
     // Whenever we try to construct an object from another temporary object, try to bypass the temporary object creation
-    if ( args.size() == 2 && !theCompiler().settings().noRVO_ && !isCt(thisArg) )
+    if ( args.size() == 2 && !theCompiler().settings().noRVO_ && !isCt(thisArg->node()) )
     {
         DynNode* arg = args[1];
         arg->computeType();
@@ -70,7 +70,7 @@ DynNode* SprFrontend::createCtorCall(const Location& loc, CompilationContext* co
     }
 
     // Search for the ctors in the class
-    DynNodeVector decls = toDyn(cls->childrenContext()->currentSymTab()->lookupCurrent("ctor"));
+    DynNodeVector decls = toDyn(cls->childrenContext->currentSymTab()->lookupCurrent("ctor"));
 
     // If no declarations found, just don't initialize the object
     if ( decls.empty() )
@@ -93,11 +93,11 @@ DynNode* SprFrontend::createDtorCall(const Location& loc, CompilationContext* co
 {
     // Get the class from 'thisArg'
     thisArg->computeType();
-    DynNode* cls = classForTypeRaw(thisArg->type());
+    Node* cls = classForTypeRaw(thisArg->type());
     CHECK(loc, cls);
 
     // Search for the dtor in the class 
-    DynNodeVector decls = toDyn(cls->childrenContext()->currentSymTab()->lookupCurrent("dtor"));
+    DynNodeVector decls = toDyn(cls->childrenContext->currentSymTab()->lookupCurrent("dtor"));
 
     // If no destructor found, don't call anything
     if ( decls.empty() )
@@ -114,7 +114,7 @@ DynNode* SprFrontend::createDtorCall(const Location& loc, CompilationContext* co
 
     // Check this parameter
     TypeRef thisParamType = dtor->getParameter(0)->type();
-    if ( Feather::isCt(thisArg) )
+    if ( Feather::isCt(thisArg->node()) )
         thisParamType = Feather::changeTypeMode(thisParamType, modeCt, thisArg->location());
     ConversionResult c = canConvert(thisArg, thisParamType);
     if ( !c )
@@ -141,10 +141,10 @@ DynNode* SprFrontend::createFunctionCall(const Location& loc, CompilationContext
     {
         // Get the resulting type; check for CT-ness
         TypeRef resTypeRef = resultParam->type();
-        EvalMode funEvalMode = effectiveEvalMode(fun);
+        EvalMode funEvalMode = effectiveEvalMode(fun->node());
         if ( funEvalMode == modeCt && !isCt(resTypeRef) )
             resTypeRef = changeTypeMode(resTypeRef, modeCt, resultParam->location());
-        if ( funEvalMode == modeRtCt && fun->hasProperty(propAutoCt) && !isCt(resTypeRef) && isCt(args) )
+        if ( funEvalMode == modeRtCt && fun->hasProperty(propAutoCt) && !isCt(resTypeRef) && isCt(fromDyn(args)) )
             resTypeRef = changeTypeMode(resTypeRef, modeCt, resultParam->location());
 
         // Create a temporary variable for the result
@@ -191,7 +191,7 @@ DynNode* SprFrontend::createTempVarConstruct(const Location& loc, CompilationCon
 
     // Create a temp destruct action with the call of the destructor
     DynNode* destructAction = nullptr;
-    if ( !isCt(thisArg) )
+    if ( !isCt(thisArg->node()) )
     {
         DynNode* dtorCall = createDtorCall(loc, context, thisArg);
         if ( dtorCall )
@@ -207,7 +207,7 @@ DynNode* SprFrontend::createTempVarConstruct(const Location& loc, CompilationCon
     res->setProperty(propTempVarContstruction, constructAction);
 
     // CT sanity checks
-    checkEvalMode(res, var->type()->mode);
+    checkEvalMode(res->node(), var->type()->mode);
 
     return res;
 }

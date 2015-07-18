@@ -228,7 +228,7 @@ namespace
         if ( id == "autoct" )
         {
             checkNoChildren(srcNode);
-            setEvalMode(node, modeRtCt);
+            setEvalMode(node->node(), modeRtCt);
             return true;
         }
 

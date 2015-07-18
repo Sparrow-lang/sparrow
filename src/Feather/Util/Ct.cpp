@@ -5,10 +5,10 @@
 
 using namespace Feather;
 
-bool Feather::getBoolCtValue(DynNode* ctVal)
+bool Feather::getBoolCtValue(Nest::Node* ctVal)
 {
-    CtValue* ctValue = ctVal->as<CtValue>();
-    if ( !ctValue )
-        REP_INTERNAL(ctVal->location(), "Invalid CtValue");
+    if ( ctVal->nodeKind != nkFeatherExpCtValue )
+        REP_INTERNAL(ctVal->location, "Invalid CtValue");
+    CtValue* ctValue = (CtValue*) ctVal;
     return (0 != *ctValue->value<unsigned char>());
 }

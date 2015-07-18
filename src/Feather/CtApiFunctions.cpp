@@ -354,7 +354,7 @@ namespace
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Util
     //
-    void ctApi_Util_getParentDecl(DynNode** sret, CompilationContext* context)
+    void ctApi_Util_getParentDecl(Node** sret, CompilationContext* context)
     {
         *sret = getParentDecl(context);
     }
@@ -366,7 +366,7 @@ namespace
     {
         *sret = getParentClass(context);
     }
-    void ctApi_Util_getParentLoop(DynNode** sret, CompilationContext* context)
+    void ctApi_Util_getParentLoop(Node** sret, CompilationContext* context)
     {
         *sret = getParentLoop(context);
     }

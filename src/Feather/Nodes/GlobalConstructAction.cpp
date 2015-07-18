@@ -27,7 +27,7 @@ void GlobalConstructAction::doSemanticCheck()
     data_.type = getVoidType(data_.context->evalMode());
 
     // For CT construct actions, evaluate them asap
-    if ( isCt((DynNode*) data_.children[0]) )
+    if ( isCt(data_.children[0]) )
     {
         theCompiler().ctEval(data_.children[0]);
         setExplanation(mkNop(data_.location));

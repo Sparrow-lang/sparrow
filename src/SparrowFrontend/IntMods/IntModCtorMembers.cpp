@@ -47,7 +47,7 @@ namespace
 
             // We consider function calls for our checks
             FunCall* funCall = n->as<FunCall>();
-            if ( !funCall || getName(funCall->funDecl()) != "ctor" )
+            if ( !funCall || getName(funCall->funDecl()->node()) != "ctor" )
                 continue;
             if ( funCall->arguments().empty() )
                 continue;
@@ -70,7 +70,7 @@ namespace
                     thisArg = ml->argument()->explanation();
 
                 VarRef* varRef = thisArg->as<VarRef>();
-                if ( !varRef || getName(varRef->variable()) != "$this" )
+                if ( !varRef || getName(varRef->variable()->node()) != "$this" )
                     continue;
             }
 
@@ -99,7 +99,7 @@ void IntModCtorMembers::beforeSemanticCheck(Node* n)
     
     /// Check to apply only to non-static constructors
     SprFunction* fun = node->as<SprFunction>();
-    if ( !fun || getName(fun) != "ctor" )
+    if ( !fun || getName(fun->node()) != "ctor" )
         REP_INTERNAL(node->location(), "IntModCtorMembers modifier can be applied only to constructors");
     if ( !fun->hasThisParameters() )
         REP_INTERNAL(node->location(), "IntModCtorMembers cannot be applied to static constructors");

@@ -14,7 +14,7 @@ void ModAutoCt::beforeSetContext(Node* node)
     if ( node->nodeKind == nkSparrowDeclSprFunction )
     {
         setProperty(node, propAutoCt, 1);
-        setEvalMode((DynNode*) node, Nest::modeRtCt);
+        setEvalMode(node, Nest::modeRtCt);
     }
     else
         REP_INTERNAL(node->location, "'autoCt' modifier can be applied only to functions");

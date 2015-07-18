@@ -38,7 +38,7 @@ void Conditional::doSemanticCheck()
     Nest::semanticCheck(data_.children[0]);
 
     // Check that the type of the condition is 'Testable'
-    if ( !isTestable((DynNode*) data_.children[0]) )
+    if ( !isTestable(data_.children[0]) )
         REP_ERROR(data_.children[0]->location, "The condition of the conditional expression is not Testable");
 
     // Dereference the condition as much as possible

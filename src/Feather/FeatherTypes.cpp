@@ -34,7 +34,7 @@ namespace
         if ( classDecl )
         {
             const string* description = Nest::getPropertyString(classDecl, propDescription);
-            res += description ? *description : getName((DynNode*) classDecl);
+            res += description ? *description : getName(classDecl);
         }
         else
             res += "<no class>";
@@ -128,7 +128,7 @@ TypeRef getVoidType(EvalMode mode)
 TypeRef getDataType(Node* classDecl, uint8_t numReferences, EvalMode mode)
 {
     ASSERT(classDecl->nodeKind == nkFeatherDeclClass );
-    EvalMode classMode = classDecl ? effectiveEvalMode((DynNode*) classDecl) : mode;
+    EvalMode classMode = classDecl ? effectiveEvalMode(classDecl) : mode;
     if ( mode == modeRtCt && classDecl )
         mode = classMode;
 

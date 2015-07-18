@@ -11,14 +11,14 @@ using namespace Nest;
 Package::Package(const Location& loc, string name, NodeList* children, AccessType accessType)
     : DynNode(classNodeKind(), loc, {children})
 {
-    Feather::setName(this, move(name));
+    Feather::setName(&data_, move(name));
     setAccessType(this, accessType);
 }
 
 void Package::doSetContextForChildren()
 {
     // TODO (now): Try to remove this
-    Feather::addToSymTab(this);
+    Feather::addToSymTab(&data_);
 
     // If we don't have a children context, create one
     if ( !data_.childrenContext )

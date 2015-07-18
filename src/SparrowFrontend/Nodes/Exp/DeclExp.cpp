@@ -32,7 +32,7 @@ void DeclExp::dump(ostream& os) const
     {
         if ( i>1 )
             os << ", ";
-        os << Feather::getName((DynNode*) data_.referredNodes[i]);
+        os << Feather::getName(data_.referredNodes[i]);
     }
     os << ")";
 }

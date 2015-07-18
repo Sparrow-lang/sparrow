@@ -26,7 +26,7 @@ Function::Function(const Location& loc, string name, DynNode* resultType, DynNod
     data_.children.insert(data_.children.begin(), body->node());
     data_.children.insert(data_.children.begin(), resultType->node());
 
-    setName(this, move(name));
+    setName(node(), move(name));
     setProperty("callConvention", (int) callConv);
 }
 
@@ -85,7 +85,7 @@ CallConvention Function::callConvention() const
 void Function::dump(ostream& os) const
 {
     os << endl;
-    os << "fun(\"" << getName(this) << "\"";
+    os << "fun(\"" << getName(node()) << "\"";
     auto it = data_.children.begin()+2;
     auto ite = data_.children.end();
     for ( ; it!=ite; ++it )
@@ -100,7 +100,7 @@ void Function::dump(ostream& os) const
 string Function::toString() const
 {
     ostringstream oss;
-    oss << getName(this);
+    oss << getName(node());
     if ( data_.type )
     {
         oss << '(';
@@ -122,16 +122,16 @@ void Function::doSetContextForChildren()
 {
     // If we don't have a children context, create one
     if ( !data_.childrenContext )
-        data_.childrenContext = data_.context->createChildContext(node(), effectiveEvalMode(this));
+        data_.childrenContext = data_.context->createChildContext(node(), effectiveEvalMode(node()));
 
     DynNode::doSetContextForChildren();
     
-    addToSymTab(this);
+    addToSymTab(node());
 }
 
 void Function::doComputeType()
 {
-    if ( getName(this).empty() )
+    if ( getName(node()).empty() )
         REP_ERROR(data_.location, "No name given to function declaration");
 
     // We must have a result type
@@ -139,7 +139,7 @@ void Function::doComputeType()
     resultType->computeType();
     TypeRef resType = resultType->type();
     if ( !resType )
-        REP_ERROR(data_.location, "No result type given to function %1%") % getName(this);
+        REP_ERROR(data_.location, "No result type given to function %1%") % getName(node());
 
     // Compute the type for all the parameters
     auto it = data_.children.begin()+2;
@@ -162,7 +162,7 @@ void Function::doComputeType()
         Node* param = *it;
         subTypes.push_back(param->type);
     }
-    data_.type = getFunctionType(&subTypes[0], subTypes.size(), effectiveEvalMode(this));
+    data_.type = getFunctionType(&subTypes[0], subTypes.size(), effectiveEvalMode(node()));
 }
 
 void Function::doSemanticCheck()

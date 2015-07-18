@@ -16,9 +16,9 @@ bool Feather::isCt(TypeRef type)
     return type && type->mode == modeCt;
 }
 
-bool Feather::isCt(DynNode* node)
+bool Feather::isCt(Node* node)
 {
-    return isCt(node->type());
+    return isCt(node->type);
 }
 bool Feather::isCt(const vector<Nest::TypeRef>& types)
 {
@@ -27,13 +27,13 @@ bool Feather::isCt(const vector<Nest::TypeRef>& types)
             return false;
     return true;
 }
-bool Feather::isCt(const DynNodeVector& nodes)
+bool Feather::isCt(const NodeVector& nodes)
 {
-    for ( DynNode* n: nodes )
+    for ( Node* n: nodes )
     {
-        if ( !n->type() )
-            n->computeType();
-        if ( !isCt(n->type()) )
+        if ( !n->type )
+            Nest::computeType(n);
+        if ( !isCt(n->type) )
             return false;
     }
     return true;
@@ -48,9 +48,9 @@ bool Feather::isTestable(TypeRef type)
     return nativeName && (*nativeName == "i1" || *nativeName == "u1");
 }
 
-bool Feather::isTestable(DynNode* node)
+bool Feather::isTestable(Node* node)
 {
-    return isTestable(node->type());
+    return isTestable(node->type);
 }
 
 bool Feather::isInteger(TypeRef type)
@@ -61,9 +61,9 @@ bool Feather::isInteger(TypeRef type)
     return nativeName && (*nativeName == "i32" || *nativeName == "u32");
 }
 
-bool Feather::isInteger(DynNode* node)
+bool Feather::isInteger(Node* node)
 {
-    return isInteger(node->type());
+    return isInteger(node->type);
 }
 
 bool Feather::isBasicNumericType(TypeRef type)
@@ -160,9 +160,9 @@ Class* Feather::classForType(Nest::TypeRef t)
     return t->hasStorage ? (Class*) t->referredNode : nullptr;
 }
 
-DynNode* Feather::classForTypeRaw(Nest::TypeRef t)
+Node* Feather::classForTypeRaw(Nest::TypeRef t)
 {
-    return t->hasStorage ? (DynNode*) t->referredNode : nullptr;
+    return t->hasStorage ? (Node*) t->referredNode : nullptr;
 }
 
 bool Feather::isSameTypeIgnoreMode(Nest::TypeRef t1, Nest::TypeRef t2)
@@ -213,58 +213,58 @@ Nest::TypeRef Feather::adjustMode(Nest::TypeRef srcType, Nest::EvalMode baseMode
     return changeTypeMode(srcType, resMode, loc);
 }
 
-void Feather::checkEvalMode(DynNode* src, Nest::EvalMode referencedEvalMode)
+void Feather::checkEvalMode(Node* src, Nest::EvalMode referencedEvalMode)
 {
-    ASSERT(src && src->type());
-    EvalMode nodeEvalMode = src->type()->mode;
-    EvalMode contextEvalMode = src->context()->evalMode();
+    ASSERT(src && src->type);
+    EvalMode nodeEvalMode = src->type->mode;
+    EvalMode contextEvalMode = src->context->evalMode();
 
     // Check if the context eval mode requirements are fulfilled
     if ( contextEvalMode == modeRtCt && nodeEvalMode == modeRt )
-        REP_INTERNAL(src->location(), "Cannot have RT nodes in a RT-CT context");
+        REP_INTERNAL(src->location, "Cannot have RT nodes in a RT-CT context");
     if ( contextEvalMode == modeCt && nodeEvalMode != modeCt )
-        REP_INTERNAL(src->location(), "Cannot have non-CT nodes in a CT context");
+        REP_INTERNAL(src->location, "Cannot have non-CT nodes in a CT context");
 
     // Check if the referenced eval mode requirements are fulfilled
     if ( referencedEvalMode == modeCt && nodeEvalMode != modeCt )
-        REP_INTERNAL(src->location(), "CT node required; found: %1%") % nodeEvalMode;
+        REP_INTERNAL(src->location, "CT node required; found: %1%") % nodeEvalMode;
     if ( referencedEvalMode == modeRt && nodeEvalMode != modeRt )
-        REP_INTERNAL(src->location(), "RT node required; found: %1%") % nodeEvalMode;
+        REP_INTERNAL(src->location, "RT node required; found: %1%") % nodeEvalMode;
 
     // If the node has direct children, check them
-    const DynNodeVector& children = src->children();
+    const NodeVector& children = src->children;
     if ( !children.empty() )
     {
         // If we have a CT eval mode, then all the children must be CT
         if ( nodeEvalMode == modeCt )
         {
-            for ( DynNode* child: children )
+            for ( Node* child: children )
             {
-                if ( !child || !child->type() )
+                if ( !child || !child->type )
                     continue;
 
                 // Ignore declarations
                 if ( isDecl(child) )
                     continue;
 
-                if ( child->type()->mode != modeCt )
-                    REP_INTERNAL(child->location(), "Children of a CT node must be CT; current mode: %1% (%2%)") % child->type()->mode % child;
+                if ( child->type->mode != modeCt )
+                    REP_INTERNAL(child->location, "Children of a CT node must be CT; current mode: %1% (%2%)") % child->type->mode % child;
             }
         }
         // If we have a RT-CT eval mode, then no children must be RT
         if ( nodeEvalMode == modeRtCt )
         {
-            for ( DynNode* child: children )
+            for ( Node* child: children )
             {
-                if ( !child || !child->type() )
+                if ( !child || !child->type )
                     continue;
 
                 // Ignore declarations
                 if ( isDecl(child) )
                     continue;
 
-                if ( child->type() && child->type()->mode == modeRt )
-                    REP_INTERNAL(child->location(), "Children of a RT-CT node must not be RT; current mode: %1%") % child->type()->mode;
+                if ( child->type && child->type->mode == modeRt )
+                    REP_INTERNAL(child->location, "Children of a RT-CT node must not be RT; current mode: %1%") % child->type->mode;
             }
         }
     }

@@ -18,7 +18,7 @@ void IntModDtorMembers::beforeSemanticCheck(Node* n)
     
     /// Check to apply only to non-static destructors
     SprFunction* fun = node->as<SprFunction>();
-    if ( !fun || getName(fun) != "dtor" )
+    if ( !fun || getName(fun->node()) != "dtor" )
         REP_INTERNAL(node->location(), "IntModDtorMembers modifier can be applied only to destructors");
     if ( !fun->hasThisParameters() )
         REP_INTERNAL(node->location(), "IntModDtorMembers cannot be applied to static destructors");

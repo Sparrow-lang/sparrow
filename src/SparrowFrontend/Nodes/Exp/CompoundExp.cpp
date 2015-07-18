@@ -75,11 +75,11 @@ void CompoundExp::doSemanticCheck()
     else if ( base->type()->hasStorage )
     {
         // If the base is an expression with a data type, treat this as a data access
-        DynNode* classDecl = classForTypeRaw(base->type());
-        classDecl->computeType();
+        Node* classDecl = classForTypeRaw(base->type());
+        Nest::computeType(classDecl);
 
         // Search for a declaration in the class 
-        decls = toDyn(classDecl->childrenContext()->currentSymTab()->lookupCurrent(id));
+        decls = toDyn(classDecl->childrenContext->currentSymTab()->lookupCurrent(id));
     }
 
     if ( decls.empty() )

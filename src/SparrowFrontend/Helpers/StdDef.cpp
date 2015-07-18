@@ -49,9 +49,9 @@ void SprFrontend::initTypeType(CompilationContext* ctx)
         return;
     
     clsType = (Class*) mkClass(NOLOC, "Type", {});
-    setShouldAddToSymTab(clsType, false);
+    setShouldAddToSymTab(clsType->node(), false);
     clsType->setProperty(propNativeName, string("Type"));
-    setEvalMode(clsType, modeCt);
+    setEvalMode(clsType->node(), modeCt);
     clsType->setContext(ctx);
     clsType->computeType();
     typeType = getDataType(clsType->node(), 0, modeCt);
@@ -65,41 +65,41 @@ void SprFrontend::checkStdClass(DynNode* cls)
     ASSERT(cls->nodeKind() == nkFeatherDeclClass);
     Node* c = cls->node();
 
-    if ( getName(cls) == "Void" )
+    if ( getName(c) == "Void" )
         StdDef::typeVoid = getDataType(c);
-    else if ( getName(cls) == "Null" )
+    else if ( getName(c) == "Null" )
         StdDef::typeNull = getDataType(c);
-    else if ( getName(cls) == "Bool" )
+    else if ( getName(c) == "Bool" )
     {
         StdDef::clsBool = (Class*) c;
         StdDef::typeBool = getDataType(c);
     }
-    else if ( getName(cls) == "Byte" )
+    else if ( getName(c) == "Byte" )
     {
         StdDef::typeByte = getDataType(c);
         StdDef::typeRefByte = getDataType(c, 1);
     }
-    else if ( getName(cls) == "Int" )
+    else if ( getName(c) == "Int" )
     {
         StdDef::typeInt = getDataType(c);
         StdDef::typeRefInt = getDataType(c, 1);
     }
-    else if ( getName(cls) == "SizeType" )
+    else if ( getName(c) == "SizeType" )
     {
         StdDef::typeSizeType = getDataType(c);
         StdDef::typeSizeTypeCt = getDataType(c, 0, modeCt);
     }
-    else if ( getName(cls) == "Uninitialized" )
+    else if ( getName(c) == "Uninitialized" )
     {
         StdDef::clsUninitialized = (Class*) c;
         StdDef::typeUninitialized = getDataType(c);
     }
-    else if ( getName(cls) == "Type" )
+    else if ( getName(c) == "Type" )
     {
         StdDef::typeType = getDataType(c);
         StdDef::typeRefType = getDataType(c, 1);
     }
-    else if ( getName(cls) == "StringRef" )
+    else if ( getName(c) == "StringRef" )
         StdDef::typeStringRef = getDataType(c);
 
     classesFound = StdDef::typeVoid != nullptr
@@ -123,9 +123,9 @@ void SprFrontend::checkStdFunction(DynNode* fun)
     Function* f = resultingDecl(fun)->as<Function>();
     ASSERT(f);
 
-    if ( getName(fun) == "_opRefEQ" )
+    if ( getName(fun->node()) == "_opRefEQ" )
         StdDef::opRefEq = f;
-    if ( getName(fun) == "_opRefNE" )
+    if ( getName(fun->node()) == "_opRefNE" )
         StdDef::opRefNe = f;
 
     functionsFound = StdDef::opRefEq != nullptr && StdDef::opRefNe != nullptr;

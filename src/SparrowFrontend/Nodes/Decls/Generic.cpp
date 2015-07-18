@@ -13,7 +13,7 @@ using namespace Feather;
 Generic::Generic(int nodeKind, DynNode* origNode, DynNodeVector genericParams, DynNode* ifClause, AccessType accessType)
     : DynNode(nodeKind, origNode->location(), { mkInstantiationsSet(origNode, move(genericParams), ifClause) }, { origNode })
 {
-    setName(this, getName(origNode));
+    setName(node(), getName(origNode->node()));
     setAccessType(this, accessType);
 }
 

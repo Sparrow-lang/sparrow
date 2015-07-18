@@ -28,7 +28,7 @@ Module::~Module()
 
 bool Module::canUse(DynNode* decl) const
 {
-    Nest::EvalMode mode = Feather::effectiveEvalMode(decl);
+    Nest::EvalMode mode = Feather::effectiveEvalMode((Node*) decl);
     ASSERT(mode != Nest::modeUnspecified);
     if ( mode == Nest::modeRt && isCt() )
         return false;

@@ -154,7 +154,7 @@ llvm::Type* Tr::translateClass(Feather::Class* node, Module& module)
     {
         const string* description = node->getPropertyString(propDescription);
         // Create a new struct type, possible with another name
-        t = llvm::StructType::create(module.llvmContext(), description ? *description : getName(node));
+        t = llvm::StructType::create(module.llvmContext(), description ? *description : getName(node->node()));
     }
     module.setNodeProperty(node, Module::propTransType, boost::any(static_cast<llvm::Type*>(t)));
 
@@ -180,7 +180,7 @@ llvm::Value* Tr::translateGlobalVar(Feather::Var* node, Module& module)
         return nullptr;
 
     if ( node->nodeKind() != nkFeatherDeclVar )
-        REP_ERROR(node->location(), "Invalid global variable %1%") % getName(node);
+        REP_ERROR(node->location(), "Invalid global variable %1%") % getName(node->node());
 
     // If we already translated this variable, make sure not to translate it again
     llvm::Value* val = getValue(module, *node, false);
@@ -202,7 +202,7 @@ llvm::Value* Tr::translateGlobalVar(Feather::Var* node, Module& module)
             false, // isConstant
             llvm::GlobalValue::ExternalLinkage, // linkage
             0, // initializer - specified below
-            getName(node)
+            getName(node->node())
             );
     }
 

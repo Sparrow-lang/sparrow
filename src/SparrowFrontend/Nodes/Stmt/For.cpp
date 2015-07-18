@@ -15,9 +15,9 @@ using namespace Feather;
 For::For(const Location& loc, string name, DynNode* range, DynNode* action, DynNode* typeExpr, bool ct)
     : DynNode(classNodeKind(), loc, {range, action, typeExpr})
 {
-    setName(this, move(name));
+    setName(node(), move(name));
     if ( ct )
-        setEvalMode(this, modeCt);
+        setEvalMode(node(), modeCt);
 }
 
 void For::doSetContextForChildren()
@@ -28,7 +28,7 @@ void For::doSetContextForChildren()
     DynNode* typeExpr = (DynNode*) data_.children[2];
 
     ASSERT(range);
-    CompilationContext* rangeContext = nodeEvalMode(this) == modeCt ? new CompilationContext(data_.context, modeCt) : data_.context;
+    CompilationContext* rangeContext = nodeEvalMode(node()) == modeCt ? new CompilationContext(data_.context, modeCt) : data_.context;
     if ( typeExpr )
         typeExpr->setContext(rangeContext);
     range->setContext(rangeContext);
@@ -48,7 +48,7 @@ void For::doSemanticCheck()
     DynNode* action = (DynNode*) data_.children[1];
     DynNode* typeExpr = (DynNode*) data_.children[2];
 
-    bool ctFor = nodeEvalMode(this) == modeCt;
+    bool ctFor = nodeEvalMode(node()) == modeCt;
 
     if ( typeExpr )
         typeExpr->semanticCheck();
@@ -75,7 +75,7 @@ void For::doSemanticCheck()
     // Variable to hold the range - initialize it with the range node
     DynNode* rangeVar = mkSprVariable(loc, "$rangeVar", mkIdentifier(loc, "Range"), range);
     if ( ctFor )
-        setEvalMode(rangeVar, modeCt);
+        setEvalMode(rangeVar->node(), modeCt);
     DynNode* rangeVarRef = mkIdentifier(loc, "$rangeVar");
 
     // while condition
@@ -97,9 +97,9 @@ void For::doSemanticCheck()
         DynNode* base3 = mkCompoundExp(loc, rangeVarRef, "front");
         DynNode* init = mkFunApplication(loc, base3, {});
 
-        DynNode* iterVar = mkSprVariable(data_.location, getName(this), typeExpr, init);
+        DynNode* iterVar = mkSprVariable(data_.location, getName(node()), typeExpr, init);
         if ( ctFor )
-            setEvalMode(iterVar, modeCt);
+            setEvalMode(iterVar->node(), modeCt);
 
         whileBody = mkLocalSpace(action->location(), { iterVar, action });
     }

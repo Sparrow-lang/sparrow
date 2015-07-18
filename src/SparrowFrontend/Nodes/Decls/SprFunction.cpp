@@ -26,7 +26,7 @@ namespace
 SprFunction::SprFunction(const Location& loc, string name, NodeList* parameters, DynNode* returnType, DynNode* body, DynNode* ifClause, AccessType accessType)
     : DynNode(classNodeKind(), loc, {parameters, returnType, body, ifClause})
 {
-    setName(this, move(name));
+    setName(node(), move(name));
     setAccessType(this, accessType);
 }
 
@@ -54,7 +54,7 @@ Feather::Function* SprFunction::resultingFun() const
 string SprFunction::toString() const
 {
     ostringstream oss;
-    oss << getName(this);
+    oss << getName(node());
     if ( data_.children[0] )
     {
         oss << '(';
@@ -83,11 +83,11 @@ void SprFunction::dump(ostream& os) const
 
 void SprFunction::doSetContextForChildren()
 {
-    addToSymTab(this);
+    addToSymTab(node());
 
     // If we don't have a children context, create one
     if ( !data_.childrenContext )
-        data_.childrenContext = data_.context->createChildContext(node(), effectiveEvalMode(this));
+        data_.childrenContext = data_.context->createChildContext(node(), effectiveEvalMode(node()));
 
     DynNode::doSetContextForChildren();
 }
@@ -128,7 +128,7 @@ void SprFunction::doComputeType()
     if ( ifClause )
         REP_ERROR(data_.location, "If clauses must be applied only to generics; this is not a generic function");
 
-    const string& funName = getName(this);
+    const string& funName = getName(node());
 
     // Special modifier for ctors & dtors
     if ( isMember && !isStatic && !hasProperty(propNoDefault) )
@@ -139,11 +139,11 @@ void SprFunction::doComputeType()
             addModifier(new IntModDtorMembers);
     }
 
-    EvalMode thisEvalMode = effectiveEvalMode(this);
+    EvalMode thisEvalMode = effectiveEvalMode(node());
 
     // Create the resulting function object
     Function* resultingFun = (Function*) mkFunction(data_.location, funName, nullptr, {}, body);
-    setShouldAddToSymTab(resultingFun, false);
+    setShouldAddToSymTab(resultingFun->node(), false);
 
     // Copy the "native" and the "autoCt" properties
     const string* nativeName = getPropertyString(propNativeName);
@@ -154,7 +154,7 @@ void SprFunction::doComputeType()
     if ( hasProperty(propNoInline) )
         resultingFun->setProperty(propNoInline, 1);
 
-    setEvalMode(resultingFun, thisEvalMode);
+    setEvalMode(resultingFun->node(), thisEvalMode);
     resultingFun->setChildrenContext(data_.childrenContext);
     resultingFun->setContext(data_.context);
     setProperty(propResultingDecl, resultingFun);
@@ -220,7 +220,7 @@ void SprFunction::doSemanticCheck()
     // Check for static ctors & dtors
     if ( resultingFun() && (!hasProperty(propIsMember) || hasProperty(propIsStatic)) )
     {
-        const string& funName = getName(this);
+        const string& funName = getName(node());
         
         if ( funName == "ctor" )
             handleStaticCtorDtor(true);

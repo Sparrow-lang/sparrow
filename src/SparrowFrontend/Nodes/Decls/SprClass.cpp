@@ -59,7 +59,7 @@ namespace
 SprClass::SprClass(const Location& loc, string name, NodeList* parameters, NodeList* baseClasses, NodeList* children, DynNode* ifClause, AccessType accessType)
     : DynNode(classNodeKind(), loc, {parameters, baseClasses, children, ifClause})
 {
-    setName(this, move(name));
+    setName(node(), move(name));
     setAccessType(this, accessType);
 }
 
@@ -93,7 +93,7 @@ void SprClass::addChild(DynNode* child)
 
 void SprClass::dump(ostream& os) const
 {
-    os << "class " << getName(this);
+    os << "class " << getName(node());
     if ( data_.children[0] )
         os << "(" << data_.children[0] << ")";
     if ( data_.children[1] )
@@ -103,11 +103,11 @@ void SprClass::dump(ostream& os) const
 
 void SprClass::doSetContextForChildren()
 {
-    addToSymTab(this);
+    addToSymTab(node());
     
     // If we don't have a children context, create one
     if ( !data_.childrenContext )
-        data_.childrenContext = data_.context->createChildContext(node(), effectiveEvalMode(this));
+        data_.childrenContext = data_.context->createChildContext(node(), effectiveEvalMode(node()));
 
     DynNode::doSetContextForChildren();
 }
@@ -146,8 +146,8 @@ void SprClass::doComputeType()
 
     // Create the resulting Feather.Class object
     if ( !resultingClass )
-        resultingClass = Feather::mkClass(data_.location, getName(this), {});
-    setShouldAddToSymTab(resultingClass, false);
+        resultingClass = Feather::mkClass(data_.location, getName(node()), {});
+    setShouldAddToSymTab(resultingClass->node(), false);
 
     // Copy the "native" and "description" properties to the resulting class
     if ( nativeName )
@@ -160,7 +160,7 @@ void SprClass::doComputeType()
         resultingClass->setProperty(propDescription, *description);
     }
 
-    setEvalMode(resultingClass, nodeEvalMode(this));
+    setEvalMode(resultingClass->node(), nodeEvalMode(node()));
     resultingClass->setChildrenContext(data_.childrenContext);
     resultingClass->setContext(data_.context);
     setProperty(propResultingDecl, resultingClass);

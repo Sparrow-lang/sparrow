@@ -50,7 +50,7 @@ namespace
             size_t numParams = f->numParameters();
             if ( numParams < 1+thisParamIdx )
                 continue;
-            if ( getName(f->getParameter(thisParamIdx)) != "$this" )
+            if ( getName(f->getParameter(thisParamIdx)->node()) != "$this" )
                 continue;
 
             if ( paramClass )
@@ -76,8 +76,8 @@ namespace
     /// Checks if the class has a 'ctorFromCt' method
     bool checkForCtorFromCt(DynNode* cls)
     {
-        DynNodeVector decls = toDyn(cls->childrenContext()->currentSymTab()->lookupCurrent("ctorFromCt"));
-        for ( DynNode* n: decls )
+        NodeVector decls = cls->childrenContext()->currentSymTab()->lookupCurrent("ctorFromCt");
+        for ( Node* n: decls )
         {
             if ( effectiveEvalMode(n) == modeRt )
                 return true;
@@ -130,7 +130,7 @@ namespace
         // Add the function
         DynNode* m = mkSprFunction(loc, name, parameters, ret, body);
         m->setProperty(propNoDefault, 1);
-        setEvalMode(m, mode == modeUnspecified ? effectiveEvalMode(parent) : mode);
+        setEvalMode(m->node(), mode == modeUnspecified ? effectiveEvalMode(parent->node()) : mode);
         parent->addChild(m);
         m->computeType();
         return m;
@@ -221,7 +221,7 @@ namespace
             TypeRef t = field->type();
             
             // Add a parameter for the base
-            string paramName = "f"+getName(field);
+            string paramName = "f"+getName(field->node());
             params.push_back({t, paramName});
             DynNode* paramId = mkIdentifier(loc, move(paramName));
             if ( t->numReferences > 0 )
@@ -281,7 +281,7 @@ void IntModClassMembers::afterComputeType(Node* n)
     if ( !cls )
         REP_INTERNAL(node->location(), "IntModClassMembers modifier can be applied only to classes");
     if ( !cls->type() )
-        REP_INTERNAL(node->location(), "Type was not computed for %1% when applying IntModClassMembers") % getName(cls);
+        REP_INTERNAL(node->location(), "Type was not computed for %1% when applying IntModClassMembers") % getName(cls->node());
 
     Class* basicClass = cls->explanation()->as<Class>();
     ASSERT(basicClass);

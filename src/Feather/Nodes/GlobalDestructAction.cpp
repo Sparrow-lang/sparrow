@@ -29,7 +29,7 @@ void GlobalDestructAction::doSemanticCheck()
     data_.type = getVoidType(data_.context->evalMode());
 
     // We never CT evaluate global destruct actions
-    if ( isCt((DynNode*) data_.children[0]) )
+    if ( isCt(data_.children[0]) )
     {
         setExplanation(mkNop(data_.location));
     }

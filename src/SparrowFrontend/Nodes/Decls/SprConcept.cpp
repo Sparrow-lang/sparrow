@@ -16,7 +16,7 @@ using namespace Feather;
 SprConcept::SprConcept(const Location& loc, string name, string paramName, DynNode* baseConcept, DynNode* ifClause, AccessType accessType)
     : DynNode(classNodeKind(), loc, {baseConcept, ifClause, nullptr})
 {
-    setName(this, move(name));
+    setName(node(), move(name));
     setAccessType(this, accessType);
     setProperty("spr.paramName", move(paramName));
 }
@@ -45,10 +45,10 @@ TypeRef SprConcept::baseConceptType() const
 
 void SprConcept::doSetContextForChildren()
 {
-    addToSymTab(this);
+    addToSymTab(node());
 
     if ( !data_.childrenContext )
-        data_.childrenContext = data_.context->createChildContext(node(), effectiveEvalMode(this));
+        data_.childrenContext = data_.context->createChildContext(node(), effectiveEvalMode(node()));
 
     DynNode::doSetContextForChildren();
 }
@@ -65,7 +65,7 @@ void SprConcept::doSemanticCheck()
     if ( baseConcept )
     {
         baseConcept->semanticCheck();
-        if ( !isCt(baseConcept) )
+        if ( !isCt(baseConcept->node()) )
             REP_ERROR(baseConcept->location(), "Base concept type needs to be compile-time (type=%1%)") % baseConcept->type();
     }
 

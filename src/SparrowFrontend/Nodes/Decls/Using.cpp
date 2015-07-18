@@ -12,7 +12,7 @@ Using::Using(const Location& loc, string alias, DynNode* usingNode, AccessType a
     : DynNode(classNodeKind(), loc, {usingNode})
 {
     if ( !alias.empty() )
-        Feather::setName(this, move(alias));
+        Feather::setName(node(), move(alias));
     setAccessType(this, accessType);
 }
 
@@ -24,8 +24,8 @@ DynNode* Using::source() const
 
 void Using::doSetContextForChildren()
 {
-    if ( Feather::hasName(this) )
-        Feather::addToSymTab(this);
+    if ( Feather::hasName(node()) )
+        Feather::addToSymTab(node());
 
     DynNode::doSetContextForChildren();
 }
@@ -50,7 +50,7 @@ void Using::doComputeType()
         // Add references in the current symbol tab
         for ( DynNode* decl: decls )
         {
-            data_.context->currentSymTab()->enter(Feather::getName(decl), decl->node());
+            data_.context->currentSymTab()->enter(Feather::getName(decl->node()), decl->node());
         }
     }
     else

@@ -25,7 +25,7 @@ const DynNodeVector& FunCall::arguments() const
 
 void FunCall::dump(ostream& os) const
 {
-    os << "funCall-" << getName(funDecl()) << "(";
+    os << "funCall-" << getName(funDecl()->node()) << "(";
     for ( size_t i=0; i<data_.children.size(); ++i )
     {
         if ( i != 0 )
@@ -54,7 +54,7 @@ void FunCall::doSemanticCheck()
     {
         // Semantically check the argument
         Nest::semanticCheck(data_.children[i]);
-        if ( !isCt((DynNode*) data_.children[i]) )
+        if ( !isCt(data_.children[i]) )
             allParamsAreCtAvailable = false;
 
         // Compare types
@@ -67,7 +67,7 @@ void FunCall::doSemanticCheck()
 
     // CT availability checks
     EvalMode curMode = data_.context->evalMode();
-    EvalMode calledFunMode = effectiveEvalMode(fun);
+    EvalMode calledFunMode = effectiveEvalMode(fun->node());
     ASSERT(curMode != Nest::modeUnspecified);
     ASSERT(calledFunMode != Nest::modeUnspecified);
     if ( calledFunMode == modeCt && curMode != modeCt && !allParamsAreCtAvailable )
@@ -101,6 +101,6 @@ void FunCall::doSemanticCheck()
     // Make sure we yield a type with the right mode
     data_.type = adjustMode(data_.type, data_.context, data_.location);
 
-    checkEvalMode(this, calledFunMode);
+    checkEvalMode(node(), calledFunMode);
 }
 

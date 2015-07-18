@@ -353,7 +353,7 @@ Callable* SprFrontend::selectCtToRtCtor(CompilationContext* context, TypeRef ctT
     if ( ctType->mode != modeCt || !ctType->hasStorage )
         return nullptr;
     Class* cls = (Class*) Feather::classDecl(ctType);
-    if ( effectiveEvalMode(cls) != modeRtCt )
+    if ( effectiveEvalMode(cls->node()) != modeRtCt )
         return nullptr;
 
     // Search for the ctors in the class 
@@ -364,12 +364,12 @@ Callable* SprFrontend::selectCtToRtCtor(CompilationContext* context, TypeRef ctT
     candidates.reserve(decls.size());
     for ( DynNode* decl: decls )
     {
-        if ( effectiveEvalMode(decl) != modeRt )
+        if ( effectiveEvalMode(decl->node()) != modeRt )
             continue;
 
         decl->computeType();
         DynNode* resDecl = resultingDecl(decl);
-        ASSERT(effectiveEvalMode(resDecl) == modeRt);
+        ASSERT(effectiveEvalMode(resDecl->node()) == modeRt);
 
         Callables callables = getCallables(resDecl, modeRt);
         for ( Callable* c: callables )

@@ -58,5 +58,5 @@ void LocalSpace::doSemanticCheck()
             // Don't pass errors upwards
         }
     }
-    checkEvalMode(this);
+    checkEvalMode(node());
 }

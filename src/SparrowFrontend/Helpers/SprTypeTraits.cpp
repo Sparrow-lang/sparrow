@@ -137,7 +137,7 @@ namespace
         const Location& loc = node->location();
         TypeRef t = node->type();
         Class* cls = classForType(t);
-        if ( effectiveEvalMode(cls) != modeRtCt )
+        if ( effectiveEvalMode(cls->node()) != modeRtCt )
             REP_INTERNAL(loc, "Cannot convert ct to rt for non-rtct classes (%1%)") % cls;
 
         // Check if we have a ct-to-rt ctor

@@ -10,13 +10,13 @@ void SprFrontend::interpretQualifiedId(DynNode* n, vector<string>& res)
     ASSERT(n);
     if ( n->nodeKind() == nkSparrowExpIdentifier )
     {
-        res.emplace_back(getName(n));
+        res.emplace_back(getName(n->node()));
     }
     else if ( n->nodeKind() == nkSparrowExpCompoundExp )
     {
         DynNode* base = n->children()[0];
         interpretQualifiedId(base, res);
-        res.emplace_back(getName(n));
+        res.emplace_back(getName(n->node()));
     }
     else if ( n->nodeKind() == nkSparrowExpStarExp )
     {

@@ -153,8 +153,8 @@ void FunApplication::doSemanticCheck()
     // If we didn't find any declarations, try the operator call
     if ( base->type()->hasStorage && decls.empty() )
     {
-        DynNode* cls = classForTypeRaw(base->type());
-        decls = toDyn(cls->childrenContext()->currentSymTab()->lookupCurrent("()"));
+        Node* cls = classForTypeRaw(base->type());
+        decls = toDyn(cls->childrenContext->currentSymTab()->lookupCurrent("()"));
         if ( decls.empty() )
             REP_ERROR(data_.location, "Class %1% has no user defined call operators") % getName(cls);
         thisArg = base;
@@ -339,7 +339,7 @@ void FunApplication::checkIsValidAndTrue()
         arg->semanticCheck();
 
         // The expression must be CT
-        if ( !isCt(arg) )
+        if ( !isCt(arg->node()) )
             REP_ERROR(data_.location, "ctEval expects an CT argument; %1% given") % arg->type();
 
         // Make sure we remove all the references
@@ -383,7 +383,7 @@ void FunApplication::checkCtEval()
     arg->semanticCheck();
 
     // The expression must be CT
-    if ( !isCt(arg) )
+    if ( !isCt(arg->node()) )
         REP_ERROR(data_.location, "ctEval expects an CT argument; %1% given") % arg->type();
 
     // Make sure we remove all the references

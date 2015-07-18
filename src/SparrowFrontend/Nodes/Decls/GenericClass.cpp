@@ -33,7 +33,7 @@ namespace
 
             // Evaluate the node and add the resulting CtValue as a bound argument
             arg->computeType();
-            if ( !Feather::isCt(arg) )
+            if ( !Feather::isCt(arg->node()) )
                 REP_INTERNAL(arg->location(), "Argument to a class generic must be CT (type: %1%)") % arg->type();
             DynNode* n = (DynNode*) theCompiler().ctEval(arg->node());
             if ( !n || n->nodeKind() != nkFeatherExpCtValue )
@@ -85,7 +85,7 @@ namespace
         NodeList* children = orig->classChildren();
         baseClasses = baseClasses ? baseClasses->clone() : nullptr;
         children = children ? children->clone() : nullptr;
-        DynNode* newClass = mkSprClass(loc, getName(orig), nullptr, baseClasses, nullptr, children);
+        DynNode* newClass = mkSprClass(loc, getName(orig->node()), nullptr, baseClasses, nullptr, children);
 
         copyModifiersSetMode(orig, newClass, context->evalMode());
 
@@ -99,7 +99,7 @@ namespace
     string getDescription(SprClass* cls, Instantiation* inst)
     {
         ostringstream oss;
-        oss << getName(cls) << "[";
+        oss << getName(cls->node()) << "[";
         const auto& boundValues = inst->boundValues();
         for ( size_t i=0; i<boundValues.size(); ++i )
         {
@@ -120,7 +120,7 @@ namespace
 GenericClass::GenericClass(SprClass* originalClass, NodeList* parameters, DynNode* ifClause)
     : Generic(classNodeKind(), originalClass, parameters->children(), ifClause, publicAccess)
 {
-    setEvalMode(this, effectiveEvalMode(originalClass));
+    setEvalMode(node(), effectiveEvalMode(originalClass->node()));
 
     // Semantic check the arguments
     for ( DynNode* param: parameters->children() )
@@ -147,7 +147,7 @@ Instantiation* GenericClass::canInstantiate(const DynNodeVector& args)
 {
     DynNodeVector boundValues = getBoundValues(args);
     DynNode* originalClass = (DynNode*) data_.referredNodes[0];
-    EvalMode resultingEvalMode = getResultingEvalMode(originalClass->location(), effectiveEvalMode(originalClass), boundValues);
+    EvalMode resultingEvalMode = getResultingEvalMode(originalClass->location(), effectiveEvalMode(originalClass->node()), boundValues);
     InstantiationsSet* instantiationsSet = (InstantiationsSet*) data_.children[0];
     return instantiationsSet->canInstantiate(boundValues, resultingEvalMode);
 }

@@ -151,20 +151,20 @@ DynNode* Feather::mkTempDestructAction(const Location& loc, DynNode* action)
 DynNode* Feather::mkFunction(const Location& loc, string name, DynNode* resType, DynNodeVector params, DynNode* body, CallConvention callConv, EvalMode evalMode)
 {
     Function* fun = new Function(loc, name, resType, body, move(params), callConv);
-    setEvalMode(fun, evalMode);
+    setEvalMode(fun->node(), evalMode);
     return fun;
 }
 DynNode* Feather::mkClass(const Location& loc, string name, DynNodeVector fields, EvalMode evalMode)
 {
     Class* res = new Class(loc, name, move(fields));
-    setEvalMode(res, evalMode);
+    setEvalMode(res->node(), evalMode);
     return res;
 }
 DynNode* Feather::mkVar(const Location& loc, string name, DynNode* typeNode, size_t alignment, EvalMode evalMode)
 {
     REQUIRE_TYPE(loc, typeNode);
     Var* res = new Var(loc, move(name), typeNode, alignment);
-    setEvalMode(res, evalMode);
+    setEvalMode(res->node(), evalMode);
     return res;
 }
 

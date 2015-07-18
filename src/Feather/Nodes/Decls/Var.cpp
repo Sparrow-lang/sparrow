@@ -15,7 +15,7 @@ using namespace Feather;
 Var::Var(const Location& loc, string name, DynNode* typeNode, size_t alignment)
     : DynNode(classNodeKind(), loc, {typeNode})
 {
-    setName(this, move(name));
+    setName(node(), move(name));
     setProperty("alignment", alignment);
 }
 
@@ -27,13 +27,13 @@ size_t Var::alignment() const
 void Var::dump(ostream& os) const
 {
     ASSERT(data_.children.size() == 1);
-    os << "var(" << getName(this) << ": " << data_.children[0]->type << ")";
+    os << "var(" << getName(node()) << ": " << data_.children[0]->type << ")";
 }
 
 void Var::doSetContextForChildren()
 {
     DynNode::doSetContextForChildren();
-    addToSymTab(this);
+    addToSymTab(node());
 }
 
 void Var::doComputeType()
@@ -58,5 +58,5 @@ void Var::doSemanticCheck()
     if ( !data_.type->hasStorage )
         REP_ERROR(data_.location, "Variable type has no storage (%1%") % data_.type;
 
-    classForTypeRaw(data_.type)->computeType();           // Make sure the type of the class is computed
+    Nest::computeType(classForTypeRaw(data_.type));           // Make sure the type of the class is computed
 }

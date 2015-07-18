@@ -73,31 +73,31 @@ namespace
 SprVariable::SprVariable(const Location& loc, string name, DynNode* typeNode, DynNode* init, AccessType accessType)
     : DynNode(classNodeKind(), loc, {typeNode, init})
 {
-    setName(this, move(name));
+    setName(node(), move(name));
     setAccessType(this, accessType);
 }
 
 SprVariable::SprVariable(const Location& loc, string name, TypeRef type, DynNode* init, AccessType accessType)
     : DynNode(classNodeKind(), loc, {nullptr, init})
 {
-    setName(this, move(name));
+    setName(node(), move(name));
     setAccessType(this, accessType);
     setProperty("spr.givenType", type);
 }
 
 void SprVariable::dump(ostream& os) const
 {
-    os << "var " << getName(this) << ": " << data_.children[0];
+    os << "var " << getName(node()) << ": " << data_.children[0];
     if ( data_.children[1] )
         os << " = " << data_.children[1];
 }
 
 void SprVariable::doSetContextForChildren()
 {
-    addToSymTab(this);
+    addToSymTab(node());
 
     // Create a new child compilation context if the mode has changed; otherwise stay in the same context
-    EvalMode curEvalMode = nodeEvalMode(this);
+    EvalMode curEvalMode = nodeEvalMode(node());
     if ( curEvalMode != modeUnspecified && curEvalMode != data_.context->evalMode() )
         data_.childrenContext = new CompilationContext(data_.context, curEvalMode);
     else
@@ -141,12 +141,12 @@ void SprVariable::doComputeType()
 
     // If the type of the variable indicates a variable that can only be CT, change the evalMode
     if ( t->mode == modeCt )
-        setEvalMode(this, modeCt);
+        setEvalMode(node(), modeCt);
 
     // Create the resulting var
-    DynNode* resultingVar = mkVar(data_.location, getName(this), mkTypeNode(data_.location, t));
-    setEvalMode(resultingVar, effectiveEvalMode(this));
-    setShouldAddToSymTab(resultingVar, false);
+    DynNode* resultingVar = mkVar(data_.location, getName(node()), mkTypeNode(data_.location, t));
+    setEvalMode(resultingVar->node(), effectiveEvalMode(node()));
+    setShouldAddToSymTab(resultingVar->node(), false);
     this->setProperty(propResultingDecl, resultingVar);
 
     if ( varKind == varField )

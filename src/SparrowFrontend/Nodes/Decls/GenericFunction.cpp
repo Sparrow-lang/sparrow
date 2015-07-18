@@ -48,7 +48,7 @@ namespace
             {
                 // Evaluate the node and add the resulting CtValue as a bound argument
                 arg->computeType();
-                if ( !Feather::isCt(arg) )
+                if ( !Feather::isCt(arg->node()) )
                     return {};     // This argument must be CT in order to instantiate the generic
                 DynNode* n = (DynNode*) theCompiler().ctEval(arg->node());
                 if ( !n || n->nodeKind() != nkFeatherExpCtValue )
@@ -86,7 +86,7 @@ namespace
             }
             else if ( isConceptType(p->type()) )   // For auto-type parameters, we also create a non-bound parameter
             {
-                nonBoundParams.push_back(mkSprParameter(p->location(), getName(p), boundValue));
+                nonBoundParams.push_back(mkSprParameter(p->location(), getName(p->node()), boundValue));
             }
         }
         return nonBoundParams;
@@ -166,9 +166,9 @@ namespace
         DynNode* body = origFun->body();
         returnType = returnType ? returnType->clone() : nullptr;
         body = body ? body->clone() : nullptr;
-        DynNode* newFun = mkSprFunction(loc, getName(origFun), parameters, returnType, body);
+        DynNode* newFun = mkSprFunction(loc, getName(origFun->node()), parameters, returnType, body);
         copyModifiersSetMode(origFun, newFun, context->evalMode());
-        setShouldAddToSymTab(newFun, false);
+        setShouldAddToSymTab(newFun->node(), false);
         newFun->setContext(context);
 
         //REP_INFO(loc, "Instantiated %1%") % newFun->toString();
@@ -180,7 +180,7 @@ namespace
         SprFunction* sprFun = static_cast<SprFunction*>(inst);
         sprFun->computeType();
         if ( !sprFun->resultingFun() )
-            REP_ERROR(loc, "Cannot instantiate function generic %1%") % getName(inst);
+            REP_ERROR(loc, "Cannot instantiate function generic %1%") % getName(inst->node());
         return createFunctionCall(loc, context, sprFun->resultingFun(), nonBoundArgs);
     }
 }
@@ -189,7 +189,7 @@ namespace
 GenericFunction::GenericFunction(SprFunction* originalFun, DynNodeVector params, DynNodeVector genericParams, DynNode* ifClause)
     : Generic(classNodeKind(), originalFun, move(genericParams), ifClause, publicAccess)
 {
-    setEvalMode(this, effectiveEvalMode(originalFun));
+    setEvalMode(node(), effectiveEvalMode(originalFun->node()));
     data_.referredNodes.push_back(mkNodeList(data_.location, move(params))->node());
 }
 
@@ -207,7 +207,7 @@ const DynNodeVector& GenericFunction::params() const
 GenericFunction* GenericFunction::createGeneric(SprFunction* originalFun, NodeList* parameters, DynNode* ifClause, Class* thisClass)
 {
     // If we are in a CT function, don't consider CT parameters
-    bool inCtFun = effectiveEvalMode(originalFun) == modeCt;
+    bool inCtFun = effectiveEvalMode(originalFun->node()) == modeCt;
     // For CT-generics, we consider all the parameters to be generic parameters
     bool isCtGeneric = originalFun->hasProperty(propCtGeneric);
 
@@ -229,7 +229,7 @@ GenericFunction* GenericFunction::createGeneric(SprFunction* originalFun, NodeLi
             genericParams[i] = param;
             hasGenericParams = true;
         }
-        if ( (!inCtFun || isCtGeneric) && isCt(param) )
+        if ( (!inCtFun || isCtGeneric) && isCt(param->node()) )
         {
             genericParams[i] = param;
             hasGenericParams = true;
@@ -242,7 +242,7 @@ GenericFunction* GenericFunction::createGeneric(SprFunction* originalFun, NodeLi
     // If a 'this' class is passed, add an extra parameter for this
     if ( thisClass )
     {
-        TypeRef thisType = getDataType((Node*) thisClass, 1, effectiveEvalMode(originalFun));
+        TypeRef thisType = getDataType((Node*) thisClass, 1, effectiveEvalMode(originalFun->node()));
         DynNode* thisParam = mkSprParameter(originalFun->location(), "$this", thisType);
         thisParam->setContext(originalFun->childrenContext());
         thisParam->computeType();
@@ -252,7 +252,7 @@ GenericFunction* GenericFunction::createGeneric(SprFunction* originalFun, NodeLi
 
     // Actually create the generic
     GenericFunction* res = new GenericFunction(originalFun, move(ourParams), move(genericParams), ifClause);
-    setEvalMode(res, effectiveEvalMode(originalFun));
+    setEvalMode(res->node(), effectiveEvalMode(originalFun->node()));
     res->setContext(originalFun->context());
     return res;
 }
@@ -274,7 +274,7 @@ Instantiation* GenericFunction::canInstantiate(const DynNodeVector& args)
 
     EvalMode resultingEvalMode = originalFun->hasProperty(propCtGeneric)
         ? modeCt        // If we have a CT generic, the resulting eval mode is always CT
-        : getResultingEvalMode(originalFun->location(), effectiveEvalMode(originalFun), args, genericParams());
+        : getResultingEvalMode(originalFun->location(), effectiveEvalMode(originalFun->node()), args, genericParams());
 
     InstantiationsSet* instantiationsSet = (InstantiationsSet*) data_.children[0];
     return instantiationsSet->canInstantiate(boundValues, resultingEvalMode);

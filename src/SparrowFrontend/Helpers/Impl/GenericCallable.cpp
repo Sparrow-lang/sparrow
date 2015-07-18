@@ -44,7 +44,7 @@ DynNode* GenericCallable::param(size_t idx) const
 
 EvalMode GenericCallable::evalMode() const
 {
-    return Feather::effectiveEvalMode(generic_);
+    return Feather::effectiveEvalMode(generic_->node());
 }
 bool GenericCallable::isAutoCt() const
 {

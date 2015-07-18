@@ -46,7 +46,7 @@ void NodeList::doComputeType()
     // Get the type of the last node
     data_.type = ( hasProperty(propResultVoid) || data_.children.empty() || !data_.children.back()->type ) ? getVoidType(data_.context->evalMode()) : data_.children.back()->type;
     data_.type = adjustMode(data_.type, data_.context, data_.location);
-    checkEvalMode(this);
+    checkEvalMode(node());
 }
 
 void NodeList::doSemanticCheck()
@@ -59,7 +59,7 @@ void NodeList::doSemanticCheck()
             continue;
 
         Nest::semanticCheck(p);
-        hasNonCtChildren = hasNonCtChildren || !isCt((DynNode*) p);
+        hasNonCtChildren = hasNonCtChildren || !isCt(p);
     }
 
     // Make sure the type is computed
@@ -68,6 +68,6 @@ void NodeList::doSemanticCheck()
         // Get the type of the last node
         data_.type = ( hasProperty(propResultVoid) || data_.children.empty() || !data_.children.back()->type ) ? getVoidType(data_.context->evalMode()) : data_.children.back()->type;
         data_.type = adjustMode(data_.type, data_.context, data_.location);
-        checkEvalMode(this);
+        checkEvalMode(node());
     }
 }

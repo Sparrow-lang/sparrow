@@ -59,7 +59,7 @@ void FieldRef::doSemanticCheck()
         }
     }
     if ( !fieldFound )
-    	REP_ERROR(data_.location, "Field '%1%' not found when accessing object") % getName(field);
+    	REP_ERROR(data_.location, "Field '%1%' not found when accessing object") % getName(field->node());
 
     // Set the correct type for this node
     ASSERT(field->type());

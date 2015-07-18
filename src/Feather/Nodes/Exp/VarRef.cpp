@@ -40,7 +40,7 @@ DynNode* VarRef::variable() const
 
 void VarRef::dump(ostream& os) const
 {
-    os << "varRef(" << getName(variable()) << ")";
+    os << "varRef(" << getName(variable()->node()) << ")";
 }
 
 void VarRef::doSemanticCheck()
@@ -51,9 +51,9 @@ void VarRef::doSemanticCheck()
         REP_INTERNAL(data_.location, "VarRef object needs to point to a Field (node kind: %1%)") % var->nodeKindName();
     var->computeType();
     if ( isField(var) )
-        REP_INTERNAL(data_.location, "VarRef used on a field (%1%). Use FieldRef instead") % getName(var);
+        REP_INTERNAL(data_.location, "VarRef used on a field (%1%). Use FieldRef instead") % getName(var->node());
     if ( !var->type()->hasStorage )
         REP_ERROR(data_.location, "Variable type is doesn't have a storage type (type: %1%)") % var->type();
     data_.type = adjustMode(getLValueType(var->type()), data_.context, data_.location);
-    checkEvalMode(this, var->type()->mode);
+    checkEvalMode(node(), var->type()->mode);
 }

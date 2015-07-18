@@ -12,7 +12,7 @@ If::If(const Location& location, DynNode* condition, DynNode* thenClause, DynNod
     : DynNode(classNodeKind(), location, {condition, thenClause, elseClause})
 {
     if ( isCt )
-        setEvalMode(this, modeCt);
+        setEvalMode(node(), modeCt);
 }
 
 DynNode* If::condition() const
@@ -59,7 +59,7 @@ void If::doSemanticCheck()
     condition->semanticCheck();
 
     // Check that the type of the condition is 'Testable'
-    if ( !isTestable(condition) )
+    if ( !isTestable(condition->node()) )
         REP_ERROR(condition->location(), "The condition of the if is not Testable");
 
     // Dereference the condition as much as possible
@@ -72,14 +72,14 @@ void If::doSemanticCheck()
     data_.children[0] = condition->node();
     // TODO (if): Remove this dereference from here
 
-    if ( nodeEvalMode(this) == modeCt )
+    if ( nodeEvalMode(node()) == modeCt )
     {
-        if ( !isCt(condition) )
+        if ( !isCt(condition->node()) )
             REP_ERROR(condition->location(), "The condition of the ct if should be available at compile-time (%1%)") % condition->type();
 
         // Get the CT value from the condition, and select an active branch
         Node* c = theCompiler().ctEval(condition->node());
-        DynNode* selectedBranch = getBoolCtValue((DynNode*) c) ? thenClause : elseClause;
+        DynNode* selectedBranch = getBoolCtValue(c) ? thenClause : elseClause;
 
         // Expand only the selected branch
         if ( selectedBranch )

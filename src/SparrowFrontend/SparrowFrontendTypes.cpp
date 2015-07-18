@@ -16,7 +16,7 @@ namespace
         ostringstream os;
         if ( concept )
         {
-            os << '#' << Feather::getName(concept);
+            os << '#' << Feather::getName(concept->node());
         }
         else
         {

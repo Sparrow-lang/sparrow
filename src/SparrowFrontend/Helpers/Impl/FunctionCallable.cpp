@@ -291,7 +291,7 @@ DynNode* FunctionCallable::param(size_t idx) const
 
 EvalMode FunctionCallable::evalMode() const
 {
-    return effectiveEvalMode(fun_);
+    return effectiveEvalMode(fun_->node());
 }
 bool FunctionCallable::isAutoCt() const
 {

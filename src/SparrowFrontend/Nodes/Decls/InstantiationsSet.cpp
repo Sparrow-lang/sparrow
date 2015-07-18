@@ -39,17 +39,17 @@ namespace
             {
                 TypeRef t = getType(boundValue);
 
-                DynNode* var = mkSprVariable(p->location(), getName(p), t, nullptr);
+                DynNode* var = mkSprVariable(p->location(), getName(p->node()), t, nullptr);
                 if ( insideClass )
                     var->setProperty(propIsStatic, 1);
                 nodes.push_back(var);
             }
             else
             {
-                DynNode* var = (DynNode*) mkSprVariable(p->location(), getName(p), boundValue->type(), boundValue);
+                DynNode* var = (DynNode*) mkSprVariable(p->location(), getName(p->node()), boundValue->type(), boundValue);
                 if ( insideClass )
                     var->setProperty(propIsStatic, 1);
-                setEvalMode(var, modeCt);
+                setEvalMode(var->node(), modeCt);
                 nodes.push_back(var);
             }
         }
@@ -93,8 +93,8 @@ Instantiation* InstantiationsSet::canInstantiate(const DynNodeVector& values, Ev
             Nest::theCompiler().diagnosticReporter().setSeverityLevel(Nest::Common::diagInternalError);
             cond->semanticCheck();
             isValid = !cond->hasError()
-                && Feather::isCt(cond)          // We must have a value at CT
-                && Feather::isTestable(cond);   // The value must be boolean
+                && Feather::isCt(cond->node())          // We must have a value at CT
+                && Feather::isTestable(cond->node());   // The value must be boolean
         }
         catch (...)
         {

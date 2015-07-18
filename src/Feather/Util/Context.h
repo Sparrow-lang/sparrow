@@ -10,12 +10,12 @@ FWD_CLASS1(Feather, Class);
 namespace Feather
 {
     using Nest::CompilationContext;
-    using Feather::DynNode;
+    using Nest::Node;
     
-    DynNode* getParentDecl(CompilationContext* context);
+    Node* getParentDecl(CompilationContext* context);
     Function* getParentFun(CompilationContext* context);
     Class* getParentClass(CompilationContext* context);
-    DynNode* getParentLoop(CompilationContext* context);
+    Node* getParentLoop(CompilationContext* context);
 
     /// Getter for the context of the node that introduces the sym-tab
     /// It can be the context of the package, class or function

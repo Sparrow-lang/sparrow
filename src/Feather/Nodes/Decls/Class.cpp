@@ -22,7 +22,7 @@ Class::Class(const Location& loc, string name, DynNodeVector fields)
             REP_INTERNAL(field->location(), "DynNode %1% must be a field") % field;
     }
 
-    setName(this, move(name));
+    setName(node(), move(name));
 }
 
 void Class::addFields(const DynNodeVector& fields)
@@ -45,7 +45,7 @@ const DynNodeVector& Class::fields() const
 
 void Class::dump(ostream& os) const
 {
-    os << "class(\"" << getName(this) << "\", {" << endl;
+    os << "class(\"" << getName(node()) << "\", {" << endl;
     for ( Node* field: data_.children )
     {
         os << field << endl;
@@ -56,18 +56,18 @@ void Class::doSetContextForChildren()
 {
     // If we don't have a children context, create one
     if ( !data_.childrenContext )
-        data_.childrenContext = data_.context->createChildContext(node(), effectiveEvalMode(this));
+        data_.childrenContext = data_.context->createChildContext(node(), effectiveEvalMode(node()));
 
     // Set the context for all the children
     for ( Node* field: data_.children )
         Nest::setContext(field, data_.childrenContext);
     
-    addToSymTab(this);
+    addToSymTab(node());
 }
 
 void Class::doComputeType()
 {
-    if ( getName(this).empty() )
+    if ( getName(node()).empty() )
         REP_ERROR(data_.location, "No name given to class");
 
     // Compute the type for all the fields
@@ -84,7 +84,7 @@ void Class::doComputeType()
     }
 
     // Set the type for this node
-    data_.type = getDataType(node(), 0, effectiveEvalMode(this));
+    data_.type = getDataType(node(), 0, effectiveEvalMode(node()));
 }
 
 void Class::doSemanticCheck()

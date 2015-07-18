@@ -104,7 +104,7 @@ DynNode* CtModule::ctEvaluate(DynNode* node)
 	}
 
 	// Make sure the type of the node can be used at compile time
-	if ( !Feather::isCt(node) )
+	if ( !Feather::isCt(node->node()) )
 		REP_INTERNAL(node->location(), "Cannot CT evaluate this node: it has no meaning at compile-time");
 
     if ( !node->type()->hasStorage && node->type()->typeKind != typeKindVoid )

@@ -85,7 +85,7 @@ void DebugInfo::emitFunctionStart(LlvmBuilder& builder, Feather::Function* fun, 
     llvm::DISubprogram diSubprogram;
     diSubprogram = diBuilder_.createFunction(
         fileDesc,                   // function scope
-        Feather::getName(fun),      // function name
+        Feather::getName(fun->node()),      // function name
         llvmFun->getName(),         // mangled function name (link name)
         file,                       // file where this is defined
         loc.startLineNo(),          // line number

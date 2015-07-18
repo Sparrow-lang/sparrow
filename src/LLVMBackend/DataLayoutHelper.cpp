@@ -36,7 +36,7 @@ namespace
         Node* clsDecl = type->referredNode;
         ASSERT(clsDecl && clsDecl->nodeKind == nkFeatherDeclClass);
         if ( !clsDecl->type )
-            REP_INTERNAL(clsDecl->location, "Class %1% doesn't have type computed, while computing its size") % getName((DynNode*) clsDecl);
+            REP_INTERNAL(clsDecl->location, "Class %1% doesn't have type computed, while computing its size") % getName(clsDecl);
 
         // Check if this is a standard/native type
         const string* nativeName = Nest::getPropertyString(clsDecl, propNativeName);
@@ -49,7 +49,7 @@ namespace
 
         // Create the type, and set it as a property (don't add any subtypes yet to avoid endless loops)
         const string* description = Nest::getPropertyString(clsDecl, propDescription);
-        llvm::StructType* t = llvm::StructType::create(llvmContext, description ? *description : getName((DynNode*) clsDecl));
+        llvm::StructType* t = llvm::StructType::create(llvmContext, description ? *description : getName(clsDecl));
 
         // Now add the subtypes
         vector<llvm::Type*> fieldTypes;

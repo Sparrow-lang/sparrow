@@ -63,7 +63,7 @@ bool SprFrontend::ctValsEqual(DynNode* v1, DynNode* v2)
         if ( funCall )
         {
             funCall->semanticCheck();
-            if ( Feather::isTestable(funCall) && Feather::isCt(funCall) )
+            if ( Feather::isTestable(funCall->node()) && Feather::isCt(funCall->node()) )
             {
                 DynNode* c = (DynNode*) theCompiler().ctEval(funCall->node());
                 return SprFrontend::getBoolCtValue(c);

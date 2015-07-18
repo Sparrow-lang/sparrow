@@ -13,7 +13,7 @@ While::While(const Location& location, DynNode* condition, DynNode* body, DynNod
     : DynNode(classNodeKind(), location, {condition, step, body})
 {
     if ( isCt )
-        setEvalMode(this, modeCt);
+        setEvalMode(node(), modeCt);
 }
 
 DynNode* While::condition() const
@@ -40,7 +40,7 @@ void While::dump(ostream& os) const
 void While::doSetContextForChildren()
 {
     data_.childrenContext = data_.context->createChildContext(node());
-    CompilationContext* condContext = nodeEvalMode(this) == modeCt ? new CompilationContext(data_.context, modeCt) : data_.childrenContext;
+    CompilationContext* condContext = nodeEvalMode(node()) == modeCt ? new CompilationContext(data_.context, modeCt) : data_.childrenContext;
 
     Nest::setContext(data_.children[0], condContext); // condition
     if ( data_.children[1] )
@@ -61,14 +61,14 @@ void While::doSemanticCheck()
         step->computeType();
 
     // Check that the type of the condition is 'Testable'
-    if ( !isTestable(condition) )
+    if ( !isTestable(condition->node()) )
         REP_ERROR(condition->location(), "The condition of the while is not Testable");
 
-    if ( nodeEvalMode(this) == modeCt )
+    if ( nodeEvalMode(node()) == modeCt )
     {
-        if ( !isCt(condition) )
+        if ( !isCt(condition->node()) )
             REP_ERROR(condition->location(), "The condition of the ct while should be available at compile-time (%1%)") % condition->type();
-        if ( step && !isCt(step) )
+        if ( step && !isCt(step->node()) )
             REP_ERROR(step->location(), "The step of the ct while should be available at compile-time (%1%)") % step->type();
 
         // Create a node-list that will be our explanation
@@ -78,7 +78,7 @@ void While::doSemanticCheck()
         while ( true )
         {
             // CT-evaluate the condition; if the condition evaluates to false, exit the while
-            if ( !getBoolCtValue((DynNode*) theCompiler().ctEval(condition->node())) )
+            if ( !getBoolCtValue(theCompiler().ctEval(condition->node())) )
                 break;
 
             // Put (a copy of) the body in the resulting node-list

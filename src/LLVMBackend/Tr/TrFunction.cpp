@@ -90,7 +90,7 @@ llvm::Function* Tr::translateFunction(Feather::Function* node, Module& module)
 
     // Check if this is a standard/native type
     const string* nativeName = node->getPropertyString(propNativeName);
-    string name = getName(node);
+    string name = getName(node->node());
 //    Feather::Class* cls = getParentClass(node->context());
 //    if ( cls )
 //    {
@@ -180,7 +180,7 @@ llvm::Function* Tr::translateFunction(Feather::Function* node, Module& module)
         size_t idx = 0;
         for ( auto argIt=f->arg_begin(); argIt!=f->arg_end(); ++argIt, ++idx )
         {
-            argIt->setName(getName(node->getParameter(idx)));
+            argIt->setName(getName(node->getParameter(idx)->node()));
         }
 
         // Create the block in which we insert the code
@@ -194,7 +194,7 @@ llvm::Function* Tr::translateFunction(Feather::Function* node, Module& module)
             Var* param = paramNode->explanation()->as<Var>();
             if ( !param )
                 REP_INTERNAL(paramNode->location(), "Expected Var node; found %1%") % paramNode;
-            llvm::AllocaInst* newVar = new llvm::AllocaInst(argIt->getType(), getName(param)+".addr", bodyBlock);
+            llvm::AllocaInst* newVar = new llvm::AllocaInst(argIt->getType(), getName(param->node())+".addr", bodyBlock);
             newVar->setAlignment(param->alignment());
             new llvm::StoreInst(argIt, newVar, bodyBlock); // Copy the value of the parameter into it
             module.setNodeProperty(param, Module::propValue, boost::any(newVar));

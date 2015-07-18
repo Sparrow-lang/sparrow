@@ -69,7 +69,7 @@ void LambdaFunction::doSemanticCheck()
         {
             if ( !arg || arg->nodeKind() != nkSparrowExpIdentifier )
                 REP_INTERNAL(arg->location(), "The closure parameter must be identifier");
-            const string& varName = getName(arg);
+            const string& varName = getName(arg->node());
             const Location& loc = arg->location();
 
             // Create an argument node to pass to the ctor

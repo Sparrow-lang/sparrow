@@ -8,5 +8,5 @@ using namespace SprFrontend;
 
 void ModCt::beforeSetContext(Node* node)
 {
-    Feather::setEvalMode((DynNode*) node, Nest::modeCt);
+    Feather::setEvalMode(node, Nest::modeCt);
 }

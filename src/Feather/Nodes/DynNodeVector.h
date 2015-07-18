@@ -15,4 +15,9 @@ namespace Feather
     {
         return move(reinterpret_cast<DynNodeVector&>(v));
     }
+
+    inline Nest::NodeVector fromDyn(DynNodeVector v)
+    {
+        return move(reinterpret_cast<Nest::NodeVector&>(v));
+    }
 }

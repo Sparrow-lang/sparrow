@@ -729,15 +729,15 @@ namespace
             // If we are here, we are trying to reference a variable that wasn't declared yet.
             // This can only happen for global variables that were not yet translated
             if ( node.variable()->nodeKind() != nkFeatherDeclVar )
-                REP_INTERNAL(node.variable()->location(), "Cannot find variable %1%") % getName(node.variable());
+                REP_INTERNAL(node.variable()->location(), "Cannot find variable %1%") % getName(node.variable()->node());
 
             varVal = Tr::translateGlobalVar((Var*) node.variable(), context.module());
             if ( !varVal )
             {
-                if ( effectiveEvalMode(node.variable()) == modeCt && !context.module().isCt() )
-                    REP_INTERNAL(node.location(), "Trying to reference a compile-time variable %1% from run-time") % getName(node.variable());
+                if ( effectiveEvalMode(node.variable()->node()) == modeCt && !context.module().isCt() )
+                    REP_INTERNAL(node.location(), "Trying to reference a compile-time variable %1% from run-time") % getName(node.variable()->node());
                 else
-                    REP_INTERNAL(node.location(), "Cannot find variable %1% in the current module") % getName(node.variable());
+                    REP_INTERNAL(node.location(), "Cannot find variable %1% in the current module") % getName(node.variable()->node());
             }
         }
         return setValue(context.module(), node, varVal);
@@ -763,7 +763,7 @@ namespace
         }
         if ( idx == clsDecl->fields().size() )
             REP_INTERNAL(node.location(), "Cannot find field '%1%' in class '%2%'")
-                % getName(node.field()) % getName(clsDecl);
+                % getName(node.field()->node()) % getName(clsDecl->node());
 
         // Create a 'getelementptr' instruction
         vector<llvm::Value*> indices;
@@ -1165,7 +1165,7 @@ namespace
 
         // Create an 'alloca' instruction for the local variable
         llvm::Type* t = Tr::getLLVMType(node.type(), context.module());
-		llvm::AllocaInst* val = context.addVariable(t, getName(&node).c_str());
+		llvm::AllocaInst* val = context.addVariable(t, getName(node.node()).c_str());
 		if ( node.alignment() > 0 )
 			val->setAlignment(node.alignment());
 		return setValue(context.module(), node, val);
@@ -1200,7 +1200,7 @@ llvm::Value* Tr::translateNode(Feather::DynNode* node, TrContext& context)
     }
 
     // Check if the node is CT available and we are in RT mode. If so, translate the node into RT
-    if ( !context.module().isCt() && Feather::isCt(node) )
+    if ( !context.module().isCt() && Feather::isCt(node->node()) )
     {
         node = (DynNode*) convertCtToRt(node->node(), context);
     }

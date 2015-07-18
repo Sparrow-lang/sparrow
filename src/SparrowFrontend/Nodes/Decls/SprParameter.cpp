@@ -11,13 +11,13 @@ using namespace Nest;
 SprParameter::SprParameter(const Location& loc, string name, DynNode* typeNode, DynNode* init)
     : DynNode(classNodeKind(), loc, {typeNode, init})
 {
-    Feather::setName(this, move(name));
+    Feather::setName(node(), move(name));
 }
 
 SprParameter::SprParameter(const Location& loc, string name, TypeRef type, DynNode* init)
     : DynNode(classNodeKind(), loc, {nullptr, init})
 {
-    Feather::setName(this, move(name));
+    Feather::setName(node(), move(name));
     setProperty("spr.givenType", type);
 }
 
@@ -29,7 +29,7 @@ DynNode* SprParameter::initValue() const
 
 void SprParameter::dump(ostream& os) const
 {
-    os << Feather::getName(this) << ": ";
+    os << Feather::getName(node()) << ": ";
     if ( data_.type )
         os << data_.type;
     else
@@ -46,7 +46,7 @@ void SprParameter::dump(ostream& os) const
 
 void SprParameter::doSetContextForChildren()
 {
-    Feather::addToSymTab(this);
+    Feather::addToSymTab(node());
 
     DynNode::doSetContextForChildren();
 }
@@ -59,8 +59,8 @@ void SprParameter::doComputeType()
     const TypeRef* givenType = getPropertyType("spr.givenType");
     TypeRef t = givenType ? *givenType : getType(typeNode);
 
-    DynNode* resultingParam = Feather::mkVar(data_.location, Feather::getName(this), Feather::mkTypeNode(data_.location, t), 0, Feather::effectiveEvalMode(this));
-    Feather::setShouldAddToSymTab(resultingParam, false);
+    DynNode* resultingParam = Feather::mkVar(data_.location, Feather::getName(node()), Feather::mkTypeNode(data_.location, t), 0, Feather::effectiveEvalMode(node()));
+    Feather::setShouldAddToSymTab(resultingParam->node(), false);
     resultingParam->setContext(data_.context);
     resultingParam->computeType();
     data_.explanation = resultingParam->node();

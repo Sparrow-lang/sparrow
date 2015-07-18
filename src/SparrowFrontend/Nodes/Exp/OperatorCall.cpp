@@ -203,7 +203,7 @@ DynNode* OperatorCall::selectOperator(const string& operation, DynNode* arg1, Dy
     if ( base )
     {
         base->semanticCheck();
-        argClass = classForTypeRaw(base->type());
+        argClass = (DynNode*) classForTypeRaw(base->type());
     }
 
     EvalMode mode;

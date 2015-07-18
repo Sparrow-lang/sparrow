@@ -10,7 +10,6 @@
 #include <Nest/Compiler.h>
 #include <Nest/CompilerSettings.h>
 
-#include <Feather/Nodes/DynNode.h>
 #include <Feather/Nodes/Properties.h>
 #include <Feather/Nodes/NodeList.h>
 #include <Feather/Nodes/BackendCode.h>
@@ -43,21 +42,21 @@ namespace
     {
         for ( DynNode* child: node->children() )
         {
-            if ( child)
-                translateTopLevelNode(child, module);
+            if ( child )
+                translateTopLevelNode(child->node(), module);
         }
     }
 
     void translate(GlobalDestructAction& node, Module& module)
     {
-        llvm::Function* fun = makeFunThatCalls(node.destructAction(), module, "__global_dtor");
+        llvm::Function* fun = makeFunThatCalls(node.destructAction()->node(), module, "__global_dtor");
         if ( fun )
             module.addGlobalDtor(fun);
     }
 
     void translate(GlobalConstructAction& node, Module& module)
     {
-        llvm::Function* fun = makeFunThatCalls(node.constructAction(), module, "__global_ctor");
+        llvm::Function* fun = makeFunThatCalls(node.constructAction()->node(), module, "__global_ctor");
         if ( fun )
             module.addGlobalCtor(fun);
     }
@@ -65,29 +64,29 @@ namespace
 
 
 
-void Tr::translateTopLevelNode(Feather::DynNode* node, Module& module)
+void Tr::translateTopLevelNode(Node* node, Module& module)
 {
     // If this node is explained, then translate its explanation
-    if ( node->isExplained() )
+    if ( node->explanation )
     {
-        translateTopLevelNode(node->curExplanation(), module);
+        translateTopLevelNode(node->explanation, module);
     }
     else
     {
         // Depending on the type of the node, do a specific translation
 
-        switch ( node->nodeKind() )
+        switch ( node->nodeKind )
         {
         case nkFeatherNop:                      break;
-        case nkFeatherNodeList:                 translateNodeList(static_cast<NodeList*>(node), module); break;
-        case nkFeatherBackendCode:              translateBackendCode(static_cast<BackendCode*>(node), module); break;
-        case nkFeatherGlobalDestructAction:     translate(static_cast<GlobalDestructAction&>(*node), module); break;
-        case nkFeatherGlobalConstructAction:    translate(static_cast<GlobalConstructAction&>(*node), module); break;
-        case nkFeatherDeclClass:                translateClass(static_cast<Class*>(node), module); break;
-        case nkFeatherDeclFunction:             translateFunction(static_cast<Function*>(node), module); break;
-        case nkFeatherDeclVar:                  translateGlobalVar(static_cast<Var*>(node), module); break;
+        case nkFeatherNodeList:                 translateNodeList((NodeList*) node, module); break;
+        case nkFeatherBackendCode:              translateBackendCode((BackendCode*) node, module); break;
+        case nkFeatherGlobalDestructAction:     translate((GlobalDestructAction&) *node, module); break;
+        case nkFeatherGlobalConstructAction:    translate((GlobalConstructAction&) *node, module); break;
+        case nkFeatherDeclClass:                translateClass((Class*) node, module); break;
+        case nkFeatherDeclFunction:             translateFunction((Function*) node, module); break;
+        case nkFeatherDeclVar:                  translateGlobalVar((Var*) node, module); break;
         default:
-            REP_ERROR(node->location(), "Don't know how to interpret a node of this kind (%1%)") % node->nodeKindName();
+            REP_ERROR(node->location, "Don't know how to interpret a node of this kind (%1%)") % Nest::nodeKindName(node);
         }
     }
 }
@@ -120,7 +119,7 @@ void Tr::translateBackendCode(Feather::BackendCode* node, Module& module)
 llvm::Type* Tr::translateClass(Feather::Class* node, Module& module)
 {
     // Check for ct/non-ct compatibility
-    if ( !module.canUse(node) )
+    if ( !module.canUse(node->node()) )
         return nullptr;
 
     if ( !node->type() || 0 == strcmp(node->type()->description, "BasicBlock") )
@@ -129,7 +128,7 @@ llvm::Type* Tr::translateClass(Feather::Class* node, Module& module)
     }
 
     // If this class was already translated, don't do it again
-    llvm::Type** transType = module.getNodePropertyValue<llvm::Type*>(node, Module::propTransType);
+    llvm::Type** transType = module.getNodePropertyValue<llvm::Type*>(node->node(), Module::propTransType);
     if ( transType )
         return *transType;
 
@@ -141,7 +140,7 @@ llvm::Type* Tr::translateClass(Feather::Class* node, Module& module)
         if ( t )
         {
             // Set the translation type for this item
-            module.setNodeProperty(node, Module::propTransType, boost::any(t));
+            module.setNodeProperty(node->node(), Module::propTransType, boost::any(t));
             return t;
         }
     }
@@ -156,7 +155,7 @@ llvm::Type* Tr::translateClass(Feather::Class* node, Module& module)
         // Create a new struct type, possible with another name
         t = llvm::StructType::create(module.llvmContext(), description ? *description : getName(node->node()));
     }
-    module.setNodeProperty(node, Module::propTransType, boost::any(static_cast<llvm::Type*>(t)));
+    module.setNodeProperty(node->node(), Module::propTransType, boost::any(static_cast<llvm::Type*>(t)));
 
     // Now add the subtypes
     vector<llvm::Type*> fieldTypes;
@@ -176,14 +175,14 @@ llvm::Type* Tr::translateClass(Feather::Class* node, Module& module)
 llvm::Value* Tr::translateGlobalVar(Feather::Var* node, Module& module)
 {
     // Check for ct/non-ct compatibility
-    if ( !module.canUse(node) )
+    if ( !module.canUse(node->node()) )
         return nullptr;
 
     if ( node->nodeKind() != nkFeatherDeclVar )
         REP_ERROR(node->location(), "Invalid global variable %1%") % getName(node->node());
 
     // If we already translated this variable, make sure not to translate it again
-    llvm::Value* val = getValue(module, *node, false);
+    llvm::Value* val = getValue(module, *node->node(), false);
     if ( val )
         return val;
 
@@ -230,6 +229,6 @@ llvm::Value* Tr::translateGlobalVar(Feather::Var* node, Module& module)
     }
 
     // Set the value for the variable
-    setValue(module, *node, var);
+    setValue(module, *node->node(), var);
     return var;
 }

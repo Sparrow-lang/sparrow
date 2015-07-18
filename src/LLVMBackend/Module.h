@@ -8,7 +8,6 @@
 #include <unordered_map>
 
 FWD_STRUCT1(Nest, Node);
-FWD_CLASS1(Feather, DynNode);
 FWD_CLASS1(Feather, Decl);
 FWD_CLASS2(LLVMB,Tr, DebugInfo);
 
@@ -18,7 +17,6 @@ FWD_CLASS1(llvm, Function);
 
 namespace LLVMB
 {
-    using Feather::DynNode;
     using Nest::Node;
 
     /// Class that represents a backend module.
@@ -65,32 +63,32 @@ namespace LLVMB
         Tr::DebugInfo* debugInfo() const { return debugInfo_; }
 
         /// Returns true if the given declaration makes sense in the current module
-        bool canUse(DynNode* decl) const;
+        bool canUse(Node* decl) const;
 
         /// Getter/setter for the llvm functions defined by this module
         bool isFunctionDefined(llvm::Function* fun) const;
         void addDefinedFunction(llvm::Function* fun);
 
         /// Getters/setter for node properties
-        boost::any* getNodePropertyPtr(DynNode* node, NodePropertyType type);
-        void setNodeProperty(DynNode* node, NodePropertyType type, const boost::any& value);
+        boost::any* getNodePropertyPtr(Node* node, NodePropertyType type);
+        void setNodeProperty(Node* node, NodePropertyType type, const boost::any& value);
 
     // Helpers
     public:
         template <typename T>
-        T* getNodePropertyValue(DynNode* node, NodePropertyType type)
+        T* getNodePropertyValue(Node* node, NodePropertyType type)
         {
             boost::any* anyVal = getNodePropertyPtr(node, type);
             return !anyVal || anyVal->empty() ? nullptr : boost::any_cast<T>(anyVal);
         }
 
     protected:
-        typedef pair<DynNode*, NodePropertyType> PropKey;
+        typedef pair<Node*, NodePropertyType> PropKey;
         struct PropKeyHash
         {
             size_t operator()(const PropKey& k) const
             {
-                return std::hash<DynNode*>()(k.first) + 393241*int(k.second);
+                return std::hash<Node*>()(k.first) + 393241*int(k.second);
             }
         };
 

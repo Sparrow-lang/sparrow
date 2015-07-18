@@ -26,7 +26,7 @@ Module::~Module()
     delete llvmContext_;
 }
 
-bool Module::canUse(DynNode* decl) const
+bool Module::canUse(Node* decl) const
 {
     Nest::EvalMode mode = Feather::effectiveEvalMode((Node*) decl);
     ASSERT(mode != Nest::modeUnspecified);
@@ -49,13 +49,13 @@ void Module::addDefinedFunction(llvm::Function* fun)
     definedFunctions_.insert(fun);
 }
 
-boost::any* Module::getNodePropertyPtr(DynNode* node, NodePropertyType type)
+boost::any* Module::getNodePropertyPtr(Node* node, NodePropertyType type)
 {
     auto it = nodeProperties_.find(PropKey(node, type));
     return it == nodeProperties_.end() ? nullptr : &it->second;
 }
 
-void Module::setNodeProperty(DynNode* node, NodePropertyType type, const boost::any& value)
+void Module::setNodeProperty(Node* node, NodePropertyType type, const boost::any& value)
 {
     nodeProperties_[PropKey(node, type)] = value;
 }

@@ -1,9 +1,7 @@
 #pragma once
 
-#include <Feather/Nodes/DynNodeVector.h>
 #include <Nest/Intermediate/NodeVector.h>
 
-FWD_CLASS1(Feather, DynNode);
 FWD_CLASS2(LLVMB,Tr, Scope);
 FWD_CLASS2(LLVMB,Tr, TrContext);
 
@@ -25,16 +23,16 @@ namespace LLVMB { namespace Tr
         ~Instruction();
 
         /// Adds an temporary destruct action
-        void addTempDestructAction(Feather::DynNode* destructAction);
+        void addTempDestructAction(Nest::Node* destructAction);
 
         /// Translate the destruct actions corresponding to this node
         void outputDestructActions();
 
         /// Returns the list of destruct actions and removes them from the current instruction
-        Feather::DynNodeVector stealDestructActions();
+        Nest::NodeVector stealDestructActions();
 
     protected:
         Scope& scope_;
-        Feather::DynNodeVector destructActions_;
+        Nest::NodeVector destructActions_;
     };
 }}

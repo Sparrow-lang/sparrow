@@ -1,11 +1,8 @@
 #pragma once
 
-#include <Feather/Nodes/DynNodeVector.h>
-
 #include <Nest/Frontend/Location.h>
 #include <Nest/Intermediate/NodeVector.h>
 
-FWD_CLASS1(Feather, DynNode);
 FWD_CLASS2(LLVMB,Tr, TrContext);
 FWD_CLASS2(LLVMB,Tr, Instruction);
 
@@ -37,7 +34,7 @@ namespace LLVMB { namespace Tr
         vector<Instruction*>& instructionsStack();
 
         /// Adds an scope destruct action
-        void addScopeDestructAction(Feather::DynNode* destructAction);
+        void addScopeDestructAction(Nest::Node* destructAction);
 
         /// Translate the destruct actions corresponding to this node
         void outputDestructActions();
@@ -45,7 +42,7 @@ namespace LLVMB { namespace Tr
     protected:
         TrContext& context_;
         vector<Instruction*> instructionsStack_;
-        Feather::DynNodeVector destructActions_;
+        Nest::NodeVector destructActions_;
         Nest::Location location_;
     };
 }}

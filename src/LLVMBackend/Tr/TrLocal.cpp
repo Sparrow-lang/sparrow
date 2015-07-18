@@ -56,11 +56,11 @@ namespace
     //
 
     /// Translate the given node, and makes sure that the node returns a valid llvm-value
-    llvm::Value* translateNodeCheck(DynNode* node, TrContext& context)
+    llvm::Value* translateNodeCheck(Node* node, TrContext& context)
     {
         llvm::Value* res = translateNode(node, context);
         if ( !res )
-            REP_ERROR(node->location(), "Invalid LLVM value returned for node %1%") % node->toString();
+            REP_ERROR(node->location, "Invalid LLVM value returned for node %1%") % node;
         return res;
     }
 
@@ -97,8 +97,8 @@ namespace
             return nodeKind;
         }
     public:
-        DestructActionForConditional(TypeRef resType, llvm::Value* cond, DynNodeVector alt1DestructActions, DynNodeVector alt2DestructActions)
-            : DynNode(classNodeKind(), NOLOC, {mkNodeList(NOLOC, move(alt1DestructActions)), mkNodeList(NOLOC, move(alt2DestructActions)) })
+        DestructActionForConditional(TypeRef resType, llvm::Value* cond, NodeVector alt1DestructActions, NodeVector alt2DestructActions)
+            : DynNode(classNodeKind(), NOLOC, {mkNodeList(NOLOC, toDyn(move(alt1DestructActions))), mkNodeList(NOLOC, toDyn(move(alt2DestructActions))) })
         {
             setProperty("resType", resType);
             setProperty("cond_LLVM_value", reinterpret_cast<Node*>(cond));
@@ -120,14 +120,14 @@ namespace
             return reinterpret_cast<llvm::Value*>(getCheckPropertyNode("cond_LLVM_value"));
         }
 
-        const DynNodeVector& alt1DestructActions() const
+        const NodeVector& alt1DestructActions() const
         {
-            return DynNode::fromNode(data_.children[0])->children();
+            return data_.children[0]->children;
         }
 
-        const DynNodeVector& alt2DestructActions() const
+        const NodeVector& alt2DestructActions() const
         {
-            return DynNode::fromNode(data_.children[1])->children();
+            return data_.children[1]->children;
         }
     };
 
@@ -142,7 +142,7 @@ namespace
         llvm::Value* translate(TrContext& context) const
         {
             if ( !value_ )
-                value_ = translateNode(node_, context);
+                value_ = translateNode(node_->node(), context);
             return value_;
         }
 
@@ -161,12 +161,12 @@ namespace
         llvm::BasicBlock* afterBlock = llvm::BasicBlock::Create(context.llvmContext(), "cond.end", context.parentFun());
 
         // Translate the condition expression
-        llvm::Value* condValue = translateNode(cond, context);
+        llvm::Value* condValue = translateNode(cond->node(), context);
         context.ensureInsertionPoint();
         context.builder().CreateCondBr(condValue, alt1Block, alt2Block);
 
-        DynNodeVector destructActions1;
-        DynNodeVector destructActions2;
+        NodeVector destructActions1;
+        NodeVector destructActions2;
         llvm::Value* val1;
         llvm::Value* val2;
 
@@ -208,7 +208,7 @@ namespace
             DynNode* destructAction = new DestructActionForConditional(destType, condValue, move(destructActions1), move(destructActions2));
             destructAction->setContext(compContext);
             destructAction->semanticCheck();
-            context.curInstruction().addTempDestructAction(destructAction);
+            context.curInstruction().addTempDestructAction(destructAction->node());
         }
 
         return phiVal;
@@ -227,7 +227,7 @@ namespace
         DynNode* arg2 = funCall.arguments()[1];
         llvm::Value* trueConst = llvm::ConstantInt::getTrue(context.llvmContext());
         llvm::Value* res = generateConditionalCode(arg1->type(), arg1->context(), arg1, Exp(trueConst), Exp(arg2), context);
-        return setValue(context.module(), funCall, res);
+        return setValue(context.module(), *funCall.node(), res);
     }
 
     llvm::Value* handleLogicalAnd(FunCall& funCall, TrContext& context)
@@ -239,7 +239,7 @@ namespace
         DynNode* arg2 = funCall.arguments()[1];
         llvm::Value* falseConst = llvm::ConstantInt::getFalse(context.llvmContext());
         llvm::Value* res = generateConditionalCode(arg1->type(), arg1->context(), arg1, Exp(arg2), Exp(falseConst), context);
-        return setValue(context.module(), funCall, res);
+        return setValue(context.module(), funCall.data_, res);
     }
 
     llvm::Value* handleFunPtr(FunCall& funCall, TrContext& context)
@@ -257,7 +257,7 @@ namespace
         args.reserve(funCall.arguments().size());
         for ( auto arg: funCall.arguments() )
         {
-            llvm::Value* v = translateNode(arg, context);
+            llvm::Value* v = translateNode(arg->node(), context);
             CHECK(arg->location(), v);
             args.push_back(v);
         }
@@ -280,13 +280,13 @@ namespace
         // Create a call instruction to the pointer to function
         llvm::CallInst* val = context.builder().CreateCall(ptrToFun, args, "");
         val->setCallingConv(Tr::translateCallingConv(fun.callConvention()));
-        return setValue(context.module(), funCall, val);
+        return setValue(context.module(), *funCall.node(), val);
     }
 
     llvm::Value* handleNativeFunCall(const string& native, FunCall& funCall, TrContext& context)
     {
 #define B()                     context.builder()
-#define ARG(argNum)             translateNode(args[argNum], context)
+#define ARG(argNum)             translateNode(args[argNum]->node(), context)
 #define Ti(numBits)             llvm::IntegerType::get(context.llvmContext(), numBits)
 #define Tf()                    llvm::Type::getFloatTy(context.llvmContext())
 #define Td()                    llvm::Type::getDoubleTy(context.llvmContext())
@@ -473,7 +473,7 @@ namespace
         for ( DynNode* child: node.children() )
         {
             if ( child )
-                res = translateNode(child, context);
+                res = translateNode(child->node(), context);
         }
         return res;
     }
@@ -486,7 +486,7 @@ namespace
         for ( DynNode* child: node.children() )
         {
             Instruction instrGuard(context);
-            translateNode(child, context);
+            translateNode(child->node(), context);
         }
 
         return nullptr;
@@ -501,14 +501,14 @@ namespace
     llvm::Value* translate(TempDestructAction& node, TrContext& context)
     {
         // Add the action to the temp destruct actions in the context
-        context.curInstruction().addTempDestructAction(node.destructAction());
+        context.curInstruction().addTempDestructAction(node.destructAction()->node());
         return nullptr;
     }
 
     llvm::Value* translate(ScopeDestructAction& node, TrContext& context)
     {
         // Add the action to the scope destruct actions in the context
-        context.curScope().addScopeDestructAction(node.destructAction());
+        context.curScope().addScopeDestructAction(node.destructAction()->node());
         return nullptr;
     }
 
@@ -617,15 +617,15 @@ namespace
                 }
             }
 
-            return setValue(context.module(), node, llvm::ConstantInt::get(static_cast<llvm::IntegerType*>(t), val));
+            return setValue(context.module(), *node.node(), llvm::ConstantInt::get(static_cast<llvm::IntegerType*>(t), val));
         }
         else if ( t->isFloatTy() )
         {
-            return setValue(context.module(), node, llvm::ConstantFP::get(t, *node.value<float>()));
+            return setValue(context.module(), *node.node(), llvm::ConstantFP::get(t, *node.value<float>()));
         }
         else if ( t->isDoubleTy() )
         {
-            return setValue(context.module(), node, llvm::ConstantFP::get(t, *node.value<double>()));
+            return setValue(context.module(), *node.node(), llvm::ConstantFP::get(t, *node.value<double>()));
         }
         else if ( t->isPointerTy() )
         {
@@ -677,13 +677,13 @@ namespace
         llvm::AllocaInst* val = context.addVariable(t, "stackAlloc");
         if ( node.alignment() > 0 )
             val->setAlignment(node.alignment());
-        return setValue(context.module(), node, val);
+        return setValue(context.module(), *node.node(), val);
     }
 
     llvm::Value* translate(MemLoad& node, TrContext& context)
     {
         // Create a 'load' instruction
-        llvm::Value* argVal = translateNodeCheck(node.argument(), context);
+        llvm::Value* argVal = translateNodeCheck(node.argument()->node(), context);
         CHECK(node.location(), argVal);
         context.ensureInsertionPoint();
         llvm::LoadInst* val = context.builder().CreateLoad(argVal);
@@ -692,7 +692,7 @@ namespace
         val->setVolatile(node.isVolatile());
         val->setOrdering(llvmOrdering(node.atomicOrdering()));
         val->setSynchScope(node.isSingleThread() ? llvm::SingleThread : llvm::CrossThread);
-        return setValue(context.module(), node, val);
+        return setValue(context.module(), *node.node(), val);
     }
 
     llvm::Value* translate(MemStore& node, TrContext& context)
@@ -700,9 +700,9 @@ namespace
         context.ensureInsertionPoint();
 
         // Create a 'store' instruction
-        llvm::Value* value = translateNode(node.value(), context);
+        llvm::Value* value = translateNode(node.value()->node(), context);
         CHECK(node.location(), value);
-        llvm::Value* address = translateNode(node.address(), context);
+        llvm::Value* address = translateNode(node.address()->node(), context);
         CHECK(node.location(), address);
         context.ensureInsertionPoint();
         llvm::StoreInst* val = context.builder().CreateStore(value, address);
@@ -711,7 +711,7 @@ namespace
         val->setVolatile(node.isVolatile());
         val->setOrdering(llvmOrdering(node.atomicOrdering()));
         val->setSynchScope(node.isSingleThread() ? llvm::SingleThread : llvm::CrossThread);
-        return setValue(context.module(), node, val);
+        return setValue(context.module(), node.data_, val);
     }
 
     llvm::Value* translate(VarRef& node, TrContext& context)
@@ -719,7 +719,7 @@ namespace
         // Simply take the value from the referenced variable
         CHECK(node.location(), node.variable());
         llvm::Value* varVal = nullptr;
-        llvm::Value** val = context.module().getNodePropertyValue<llvm::Value*>(node.variable(), Module::propValue);
+        llvm::Value** val = context.module().getNodePropertyValue<llvm::Value*>(node.variable()->node(), Module::propValue);
         if ( val )
         {
             varVal = *val;
@@ -740,14 +740,14 @@ namespace
                     REP_INTERNAL(node.location(), "Cannot find variable %1% in the current module") % getName(node.variable()->node());
             }
         }
-        return setValue(context.module(), node, varVal);
+        return setValue(context.module(), *node.node(), varVal);
     }
 
     llvm::Value* translate(FieldRef& node, TrContext& context)
     {
         // Make sure the object is translated
         CHECK(node.location(), node.object());
-        llvm::Value* objVal = translateNode(node.object(), context);
+        llvm::Value* objVal = translateNode(node.object()->node(), context);
         CHECK(node.location(), objVal);
 
         // Compute the index of the field
@@ -771,7 +771,7 @@ namespace
         indices.push_back(llvm::ConstantInt::get(context.llvmContext(), llvm::APInt(32, idx, false)));
         context.ensureInsertionPoint();
         llvm::Value* val = context.builder().CreateInBoundsGEP(objVal, indices, "");
-        return setValue(context.module(), node, val);
+        return setValue(context.module(), node.data_, val);
     }
 
     llvm::Value* translate(FunRef& node, TrContext& context)
@@ -791,7 +791,7 @@ namespace
         context.builder().CreateStore(func, tmpVal);
         llvm::Value* bc = context.builder().CreateBitCast(tmpVal, pt);
         llvm::Value* res = context.builder().CreateLoad(bc);
-        return setValue(context.module(), node, res);
+        return setValue(context.module(), node.data_, res);
     }
 
     llvm::Value* translate(FunCall& node, TrContext& context)
@@ -815,7 +815,7 @@ namespace
             context.ensureInsertionPoint();
             auto res = handleNativeFunCall(*nativeName, node, context);
             if ( res )
-                return setValue(context.module(), node, res);
+                return setValue(context.module(), node.data_, res);
         }
 
         llvm::Function* func = translateFunction(funDecl, context.module());
@@ -828,7 +828,7 @@ namespace
         args.reserve(node.arguments().size());
         for ( auto arg: node.arguments() )
         {
-            llvm::Value* v = translateNode(arg, context);
+            llvm::Value* v = translateNode(arg->node(), context);
             CHECK(arg->location(), v);
             args.push_back(v);
         }
@@ -845,11 +845,11 @@ namespace
 
     llvm::Value* translate(Bitcast& node, TrContext& context)
     {
-        llvm::Value* exp = translateNode(node.exp(), context);
+        llvm::Value* exp = translateNode(node.exp()->node(), context);
         CHECK(node.location(), exp);
         llvm::Type* destType = Tr::getLLVMType(node.destType(), context.module());
         if ( exp->getType() == destType )
-            return setValue(context.module(), node, exp);
+            return setValue(context.module(), node.data_, exp);
 
         // Create a 'bitcast' instruction
         llvm::Value* val;
@@ -857,7 +857,7 @@ namespace
         ASSERT(node.exp()->type()->numReferences > 0 );
         context.ensureInsertionPoint();
         val = context.builder().CreateBitCast(exp, destType);
-        return setValue(context.module(), node, val);
+        return setValue(context.module(), node.data_, val);
     }
 
     llvm::Value* translate(Conditional& node, TrContext& context)
@@ -868,13 +868,13 @@ namespace
         llvm::BasicBlock* afterBlock = llvm::BasicBlock::Create(context.llvmContext(), "cond_end", context.parentFun());
 
         // Translate the condition expression
-        llvm::Value* condValue = translateNode(node.condition(), context);
+        llvm::Value* condValue = translateNode(node.condition()->node(), context);
         CHECK(node.condition()->location(), condValue);
         context.ensureInsertionPoint();
         context.builder().CreateCondBr(condValue, alt1Block, alt2Block);
 
-        DynNodeVector destructActions1;
-        DynNodeVector destructActions2;
+        NodeVector destructActions1;
+        NodeVector destructActions2;
         llvm::Value* val1;
         llvm::Value* val2;
 
@@ -883,7 +883,7 @@ namespace
 
             // Translate the first alternative
             context.setInsertionPoint(alt1Block);
-            val1 = translateNode(node.alternative1(), context);
+            val1 = translateNode(node.alternative1()->node(), context);
             context.ensureInsertionPoint();
             context.builder().CreateBr(afterBlock);
 
@@ -894,7 +894,7 @@ namespace
 
             // Translate the second alternative
             context.setInsertionPoint(alt2Block);
-            val2 = translateNode(node.alternative2(), context);
+            val2 = translateNode(node.alternative2()->node(), context);
             context.ensureInsertionPoint();
             context.builder().CreateBr(afterBlock);
 
@@ -917,7 +917,7 @@ namespace
             destructAction->semanticCheck();
             ASSERT(!context.scopesStack().empty());
             ASSERT(!context.scopesStack().back()->instructionsStack().empty());
-            context.scopesStack().back()->instructionsStack().back()->addTempDestructAction(destructAction);
+            context.scopesStack().back()->instructionsStack().back()->addTempDestructAction(destructAction->node());
         }
 
         return phiVal;
@@ -936,7 +936,7 @@ namespace
 
         // Alternative 1 destruct actions
         context.setInsertionPoint(alt1Block);
-        for ( DynNode* n: boost::adaptors::reverse(node.alt1DestructActions()) )
+        for ( Node* n: boost::adaptors::reverse(node.alt1DestructActions()) )
         {
             translateNode(n, context);
         }
@@ -945,7 +945,7 @@ namespace
 
         // Alternative 2 destruct actions
         context.setInsertionPoint(alt2Block);
-        for ( DynNode* n: boost::adaptors::reverse(node.alt2DestructActions()) )
+        for ( Node* n: boost::adaptors::reverse(node.alt2DestructActions()) )
         {
             translateNode(n, context);
         }
@@ -975,7 +975,7 @@ namespace
         llvm::Value* retVal = nullptr;
         if ( node.expression() )
         {
-            retVal = translateNode(node.expression(), context);
+            retVal = translateNode(node.expression()->node(), context);
             CHECK(node.expression()->location(), retVal);
             llvm::Function* f = context.parentFun();
             if ( f->hasStructRetAttr() )
@@ -1015,7 +1015,7 @@ namespace
             context.setInsertionPoint(ifBlock);
 
             // Translate the condition expression
-            llvm::Value* condValue = translateNode(node.condition(), context);
+            llvm::Value* condValue = translateNode(node.condition()->node(), context);
             CHECK(node.condition()->location(), condValue);
             context.ensureInsertionPoint();
             context.builder().CreateCondBr(condValue, thenBlock, elseBlock);
@@ -1027,7 +1027,7 @@ namespace
                 context.setInsertionPoint(thenBlock);
                 {
                     Instruction instrGuard(context);
-                    translateNode(node.thenClause(), context);
+                    translateNode(node.thenClause()->node(), context);
                 }
                 context.ensureInsertionPoint();
                 context.builder().CreateBr(afterBlock);
@@ -1040,7 +1040,7 @@ namespace
                 context.setInsertionPoint(elseBlock);
                 {
                     Instruction instrGuard(context);
-                    translateNode(node.elseClause(), context);
+                    translateNode(node.elseClause()->node(), context);
                 }
                 context.ensureInsertionPoint();
                 context.builder().CreateBr(afterBlock);
@@ -1065,9 +1065,9 @@ namespace
 
         // Store the step & the end labels (blocks) in the object
         ASSERT(!context.scopesStack().empty());
-        context.module().setNodeProperty(&node, Module::propWhileInstr, boost::any(&scopeGuard));
-        context.module().setNodeProperty(&node, Module::propWhileStepLabel, boost::any(whileStep));
-        context.module().setNodeProperty(&node, Module::propWhileEndLabel, boost::any(whileEnd));
+        context.module().setNodeProperty(node.node(), Module::propWhileInstr, boost::any(&scopeGuard));
+        context.module().setNodeProperty(node.node(), Module::propWhileStepLabel, boost::any(whileStep));
+        context.module().setNodeProperty(node.node(), Module::propWhileEndLabel, boost::any(whileEnd));
 
         // Jump in the while block
         {
@@ -1076,7 +1076,7 @@ namespace
 
             // Translate the condition
             context.setInsertionPoint(whileBlock);
-            llvm::Value* condValue = translateNode(node.condition(), context);
+            llvm::Value* condValue = translateNode(node.condition()->node(), context);
             CHECK(node.condition()->location(), condValue);
             context.ensureInsertionPoint();
             context.builder().CreateCondBr(condValue, whileBody, whileEnd);
@@ -1086,7 +1086,7 @@ namespace
             if ( node.body() )
             {
                 Instruction instrGuard(context);
-                translateNode(node.body(), context);
+                translateNode(node.body()->node(), context);
             }
             context.ensureInsertionPoint();
             context.builder().CreateBr(whileStep);
@@ -1094,7 +1094,7 @@ namespace
             if ( node.step() )
             {
                 Instruction instrGuard(context);
-                translateNode(node.step(), context);
+                translateNode(node.step()->node(), context);
             }
 
             // Translate the end - jump to the beginning of the while
@@ -1112,14 +1112,14 @@ namespace
         CHECK(node.location(), whileNode);
 
         // Get the instruction guard for the while instruction
-        Scope** whileInstr = context.module().getNodePropertyValue<Scope*>(whileNode, Module::propWhileInstr);
+        Scope** whileInstr = context.module().getNodePropertyValue<Scope*>(whileNode->node(), Module::propWhileInstr);
         CHECK(node.location(), whileInstr);
 
         // Translate the destruct actions until the while instruction
         unwind(context, *whileInstr);
 
         // Get the while's end label
-        llvm::BasicBlock** endLabel = context.module().getNodePropertyValue<llvm::BasicBlock*>(whileNode, Module::propWhileEndLabel);
+        llvm::BasicBlock** endLabel = context.module().getNodePropertyValue<llvm::BasicBlock*>(whileNode->node(), Module::propWhileEndLabel);
         CHECK(node.location(), endLabel);
 
         // Create a jump to the end-of-while label
@@ -1136,14 +1136,14 @@ namespace
         CHECK(node.location(), whileNode);
 
         // Get the instruction guard for the while instruction
-        Scope** whileInstr = context.module().getNodePropertyValue<Scope*>(whileNode, Module::propWhileInstr);
+        Scope** whileInstr = context.module().getNodePropertyValue<Scope*>(whileNode->node(), Module::propWhileInstr);
         CHECK(node.location(), whileInstr);
 
         // Translate the destruct actions until the while instruction
         unwind(context, *whileInstr);
 
         // Get the while's step label
-        llvm::BasicBlock** stepLabel = context.module().getNodePropertyValue<llvm::BasicBlock*>(whileNode, Module::propWhileStepLabel);
+        llvm::BasicBlock** stepLabel = context.module().getNodePropertyValue<llvm::BasicBlock*>(whileNode->node(), Module::propWhileStepLabel);
         CHECK(node.location(), stepLabel);
 
         // Create a jump to the while-step label
@@ -1168,7 +1168,7 @@ namespace
 		llvm::AllocaInst* val = context.addVariable(t, getName(node.node()).c_str());
 		if ( node.alignment() > 0 )
 			val->setAlignment(node.alignment());
-		return setValue(context.module(), node, val);
+		return setValue(context.module(), node.data_, val);
     }
 
 
@@ -1186,76 +1186,76 @@ namespace
 }
 
 
-llvm::Value* Tr::translateNode(Feather::DynNode* node, TrContext& context)
+llvm::Value* Tr::translateNode(Node* node, TrContext& context)
 {
     // Make sure the node is compiled
-    node->semanticCheck();
-    if ( !node->type() )
-        REP_INTERNAL(node->location(), "No type found for node (%1%)") % node->toString();
+    Nest::semanticCheck(node);
+    if ( !node->type )
+        REP_INTERNAL(node->location, "No type found for node (%1%)") % node;
 
     // If this node is explained, then translate its explanation
-    if ( node->isExplained() )
+    if ( node->explanation )
     {
-        return translateNode(node->curExplanation(), context);
+        return translateNode(node->explanation, context);
     }
 
     // Check if the node is CT available and we are in RT mode. If so, translate the node into RT
-    if ( !context.module().isCt() && Feather::isCt(node->node()) )
+    if ( !context.module().isCt() && Feather::isCt(node) )
     {
-        node = (DynNode*) convertCtToRt(node->node(), context);
+        node = convertCtToRt(node, context);
     }
         
     // Now, depending on the type of the node, do a specific translation
 
     // Set the correct location when translating a node
     if ( context.module().debugInfo() )
-        context.module().debugInfo()->emitLocation(context.builder(), node->location());
+        context.module().debugInfo()->emitLocation(context.builder(), node->location);
 
-    switch ( node->nodeKind() )
+    switch ( node->nodeKind )
     {
-    case nkFeatherNodeList:                         return translate(static_cast<NodeList&>(*node), context);
-    case nkFeatherLocalSpace:                       return translate(static_cast<LocalSpace&>(*node), context);
-    case nkFeatherNop:                              return translate(static_cast<Nop&>(*node), context);
-    case nkFeatherTempDestructAction:               return translate(static_cast<TempDestructAction&>(*node), context);
-    case nkFeatherScopeDestructAction:              return translate(static_cast<ScopeDestructAction&>(*node), context);
-    case nkFeatherExpCtValue:                       return translate(static_cast<CtValue&>(*node), context);
-    case nkFeatherExpStackAlloc:                    return translate(static_cast<StackAlloc&>(*node), context);
-    case nkFeatherExpMemLoad:                       return translate(static_cast<MemLoad&>(*node), context);
-    case nkFeatherExpMemStore:                      return translate(static_cast<MemStore&>(*node), context);
-    case nkFeatherExpVarRef:                        return translate(static_cast<VarRef&>(*node), context);
-    case nkFeatherExpFieldRef:                      return translate(static_cast<FieldRef&>(*node), context);
-    case nkFeatherExpFunRef:                        return translate(static_cast<FunRef&>(*node), context);
-    case nkFeatherExpFunCall:                       return translate(static_cast<FunCall&>(*node), context);
-    case nkFeatherExpBitcast:                       return translate(static_cast<Bitcast&>(*node), context);
-    case nkFeatherExpConditional:                   return translate(static_cast<Conditional&>(*node), context);
-    case nkFeatherExpNull:                          return translate(static_cast<Null&>(*node), context);
-    case nkFeatherStmtReturn:                       return translate(static_cast<Return&>(*node), context);
-    case nkFeatherStmtIf:                           return translate(static_cast<If&>(*node), context);
-    case nkFeatherStmtWhile:                        return translate(static_cast<While&>(*node), context);
-    case nkFeatherStmtBreak:                        return translate(static_cast<Break&>(*node), context);
-    case nkFeatherStmtContinue:                     return translate(static_cast<Continue&>(*node), context);
-    case nkFeatherDeclVar:                          return translate(static_cast<Var&>(*node), context);
+    case nkFeatherNodeList:                         return translate((NodeList&) *node, context);
+    case nkFeatherLocalSpace:                       return translate((LocalSpace&) *node, context);
+    case nkFeatherNop:                              return translate((Nop&) *node, context);
+    case nkFeatherTempDestructAction:               return translate((TempDestructAction&) *node, context);
+    case nkFeatherScopeDestructAction:              return translate((ScopeDestructAction&) *node, context);
+    case nkFeatherExpCtValue:                       return translate((CtValue&) *node, context);
+    case nkFeatherExpStackAlloc:                    return translate((StackAlloc&) *node, context);
+    case nkFeatherExpMemLoad:                       return translate((MemLoad&) *node, context);
+    case nkFeatherExpMemStore:                      return translate((MemStore&) *node, context);
+    case nkFeatherExpVarRef:                        return translate((VarRef&) *node, context);
+    case nkFeatherExpFieldRef:                      return translate((FieldRef&) *node, context);
+    case nkFeatherExpFunRef:                        return translate((FunRef&) *node, context);
+    case nkFeatherExpFunCall:                       return translate((FunCall&) *node, context);
+    case nkFeatherExpBitcast:                       return translate((Bitcast&) *node, context);
+    case nkFeatherExpConditional:                   return translate((Conditional&) *node, context);
+    case nkFeatherExpNull:                          return translate((Null&) *node, context);
+    case nkFeatherStmtReturn:                       return translate((Return&) *node, context);
+    case nkFeatherStmtIf:                           return translate((If&) *node, context);
+    case nkFeatherStmtWhile:                        return translate((While&) *node, context);
+    case nkFeatherStmtBreak:                        return translate((Break&) *node, context);
+    case nkFeatherStmtContinue:                     return translate((Continue&) *node, context);
+    case nkFeatherDeclVar:                          return translate((Var&) *node, context);
     default:
-        if ( node->nodeKindName() == DestructActionForConditional::classNodeKindName() )
-            return translate(static_cast<DestructActionForConditional&>(*node), context);
+        if ( Nest::nodeKindName(node) == DestructActionForConditional::classNodeKindName() )
+            return translate((DestructActionForConditional&) *node, context);
         else
         {
-            REP_ERROR(node->location(), "Don't know how to interpret a node of this kind (%1%)") % node->nodeKindName();
+            REP_ERROR(node->location, "Don't know how to interpret a node of this kind (%1%)") % Nest::nodeKindName(node);
             return nullptr;
         }
     }
 }
 
-llvm::Value* Tr::setValue(Module& module, DynNode& node, llvm::Value* val)
+llvm::Value* Tr::setValue(Module& module, Node& node, llvm::Value* val)
 {
     module.setNodeProperty(&node, Module::propValue, boost::any(val));
     return val;
 }
 
-llvm::Value* Tr::getValue(Module& module, DynNode& node, bool doCheck)
+llvm::Value* Tr::getValue(Module& module, Node& node, bool doCheck)
 {
     llvm::Value** val = module.getNodePropertyValue<llvm::Value*>(&node, Module::propValue);
     if ( !val && doCheck )
-        REP_INTERNAL(node.location(), "Expected LLVM value for node %1%") % node.toString();
+        REP_INTERNAL(node.location, "Expected LLVM value for node %1%") % &node;
     return val ? *val : nullptr;
 }

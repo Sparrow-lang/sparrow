@@ -5,7 +5,7 @@
 #include "CtModule.h"
 #include "Tr/DebugInfo.h"
 
-#include <Feather/Nodes/DynNode.h>
+#include <Nest/Intermediate/Node.h>
 #include <Nest/Frontend/SourceCode.h>
 #include <Nest/Backend/BackendFactory.h>
 #include <Nest/Compiler.h>
@@ -45,12 +45,12 @@ void LLVMBackend::generateMachineCode(Nest::SourceCode& code)
     ASSERT(rootNode);
     ASSERT(rootNode->type);
     ASSERT(rootNode->nodeSemanticallyChecked);
-    rtModule_->generate((DynNode*) rootNode);
+    rtModule_->generate(rootNode);
 
     // Translate the additional nodes
     for ( Node* n: code.additionalNodes() )
     {
-        rtModule_->generate((DynNode*) n);
+        rtModule_->generate(n);
     }
 
 
@@ -87,12 +87,12 @@ void LLVMBackend::link(const string& outFilename)
 
 void LLVMBackend::ctProcess(Node* node)
 {
-    ctModule_->ctProcess((DynNode*) node);
+    ctModule_->ctProcess(node);
 }
 
 Node* LLVMBackend::ctEvaluate(Node* node)
 {
-    return ctModule_->ctEvaluate((DynNode*) node)->node();
+    return ctModule_->ctEvaluate(node);
 }
 
 size_t LLVMBackend::sizeOf(TypeRef type)

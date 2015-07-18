@@ -3,9 +3,8 @@
 #include <Tr/TrTopLevel.h>
 #include <Tr/DebugInfo.h>
 
-#include <Feather/Nodes/DynNode.h>
-
 #include <Nest/Common/Diagnostic.h>
+#include <Nest/Intermediate/Node.h>
 #include <Nest/CompilerSettings.h>
 #include <Nest/Compiler.h>
 #include <Nest/Frontend/SourceCode.h>
@@ -29,9 +28,9 @@ RtModule::~RtModule()
     delete debugInfo_;
 }
 
-void RtModule::generate(DynNode* rootNode)
+void RtModule::generate(Node* rootNode)
 {
-    if ( !rootNode || !rootNode->isSemanticallyChecked() )
+    if ( !rootNode || !rootNode->nodeSemanticallyChecked )
         REP_INTERNAL(NOLOC, "The root node to be processed by the LLVM backend is not semantically checked");
 
     // Translate the root node as a top level node

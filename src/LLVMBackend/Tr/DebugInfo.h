@@ -12,7 +12,6 @@
 #pragma warning(pop)
 #endif
 
-FWD_CLASS1(Feather, DynNode);
 FWD_CLASS1(Nest, SourceCode);
 FWD_CLASS1(Feather, Decl);
 FWD_CLASS1(Feather, Function);

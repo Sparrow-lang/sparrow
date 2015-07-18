@@ -328,7 +328,7 @@ Node* Nest::explanation(Node* node)
 }
 
 
-const char* Nest::defaultFunToString(Node* node)
+const char* Nest::defaultFunToString(const Node* node)
 {
     ostringstream os;
     if ( node->explanation && 0 != strcmp(nodeKindName(node->explanation), "Feather.Nop") )
@@ -370,8 +370,3 @@ TypeRef Nest::defaultFunComputeType(Node* node)
     return node->type;
 }
 
-Node* Nest::defaultFunSemanticCheck(Node* node)
-{
-    REP_INTERNAL(node->location, "Don't know how to semantic check a node of kind '%1%'") % nodeKindName(node);
-    return nullptr;
-}

@@ -26,6 +26,9 @@ int Nest::registerNodeKind(const char* name,
                            FToString funToString)
 {
     int nodeKindId = registeredNodeKinds.size();
+    if ( !funComputeType )              funComputeType = defaultFunComputeType;
+    if ( !funSetContextForChildren )    funSetContextForChildren = defaultFunSetContextForChildren;
+    if ( !funToString )                 funToString = defaultFunToString;
     NodeKindDescription nk = { name, funSemanticCheck, funComputeType, funSetContextForChildren, funToString };
     registeredNodeKinds.push_back(nk);
     return nodeKindId;

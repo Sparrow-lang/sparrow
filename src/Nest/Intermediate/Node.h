@@ -186,14 +186,11 @@ namespace Nest
     //
 
     /// Returns a string description of the given node
-    const char* defaultFunToString(Node* node);
+    const char* defaultFunToString(const Node* node);
 
     /// Sets the context for all the children of the given node
     void defaultFunSetContextForChildren(Node* node);
 
     /// Computes the type of the node - calls semantic check to compute the type
     TypeRef defaultFunComputeType(Node* node);
-
-    /// This should never be called - each node should implement a semantic check function
-    Node* defaultFunSemanticCheck(Node* node);
 }

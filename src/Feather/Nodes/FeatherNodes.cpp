@@ -9,6 +9,7 @@
 #include "GlobalDestructAction.h"
 #include "ScopeDestructAction.h"
 #include "TempDestructAction.h"
+#include "FeatherNodeCommonsCpp.h"
 
 #include "Decls/Function.h"
 #include "Decls/Class.h"
@@ -33,9 +34,13 @@
 #include "Stmt/Continue.h"
 #include "Stmt/Return.h"
 
+#include <Feather/FeatherTypes.h>
+
 #include <Util/Decl.h>
+#include <Util/TypeTraits.h>
 
 #include <Nest/Common/Diagnostic.h>
+#include <Nest/Intermediate/Modifier.h>
 
 
 using namespace Feather;
@@ -46,6 +51,163 @@ using namespace Feather;
 #define REQUIRE_TYPE(loc, type) \
     if ( type ) ; else \
         REP_INTERNAL((loc), "Expected type (%1%)") % ( #type )
+
+namespace
+{
+    class CtProcessMod : public Nest::Modifier
+    {
+    public:
+        virtual void afterSemanticCheck(Node* node)
+        {
+            theCompiler().ctProcess(node);
+        };
+    };
+
+    const char* propResultVoid = "nodeList.resultVoid";
+
+
+    Node* Nop_SemanticCheck(Node* node)
+    {
+        node->type = getVoidType(node->context->evalMode());
+        return node;
+    }
+
+    Node* TypeNode_SemanticCheck(Node* node)
+    {
+        node->type = Nest::getCheckPropertyType(node, "givenType");
+        return node;
+    }
+    const char* TypeNode_toString(const Node* node)
+    {
+        ostringstream os;
+        os << "type(" << getCheckPropertyType(node, "givenType") << ")";
+        return strdup(os.str().c_str());
+    }
+
+    Node* BackendCode_SemanticCheck(Node* node)
+    {
+        EvalMode mode = BackendCode_getEvalMode(node);
+        if ( !node->type )
+            node->type = getVoidType(mode);
+
+        if ( mode != modeRt )
+        {
+            // CT process this node right after semantic check
+            addModifier(node, new CtProcessMod);
+        }
+        return node;
+    }
+    const char* BackendCode_toString(const Node* node)
+    {
+        ostringstream os;
+        os << "backendCode(" << BackendCode_getCode(node) << ")";
+        return strdup(os.str().c_str());
+    }
+
+    TypeRef NodeList_ComputeType(Node* node)
+    {
+        // Compute the type for all the children
+        for ( Node* c: node->children )
+        {
+            if ( c )
+                Nest::computeType(c);
+        }
+
+        // Get the type of the last node
+        TypeRef res = ( hasProperty(node, propResultVoid) || node->children.empty() || !node->children.back()->type ) ? getVoidType(node->context->evalMode()) : node->children.back()->type;
+        res = adjustMode(res, node->context, node->location);
+        return res;
+    }
+    Node* NodeList_SemanticCheck(Node* node)
+    {
+        // Semantic check each of the children
+        bool hasNonCtChildren = false;
+        for ( Node* c: node->children )
+        {
+            if ( c )
+            {
+                Nest::semanticCheck(c);
+                hasNonCtChildren = hasNonCtChildren || !isCt(c);
+            }
+        }
+
+        // Make sure the type is computed
+        if ( !node->type )
+        {
+            // Get the type of the last node
+            TypeRef t = ( hasProperty(node, propResultVoid) || node->children.empty() || !node->children.back()->type ) ? getVoidType(node->context->evalMode()) : node->children.back()->type;
+            t = adjustMode(t, node->context, node->location);
+            node->type = t;
+            checkEvalMode(node);
+        }
+        return node;
+    }
+
+    void LocalSpace_SetContextForChildren(Node* node)
+    {
+        node->childrenContext = node->context->createChildContext(node);
+        Nest::defaultFunSetContextForChildren(node);
+    }
+    TypeRef LocalSpace_ComputeType(Node* node)
+    {
+        return getVoidType(node->context->evalMode());
+    }
+    Node* LocalSpace_SemanticCheck(Node* node)
+    {
+        // Compute type first
+        computeType(node);
+
+        // Semantic check each of the children
+        for ( Node* c: node->children )
+        {
+            try
+            {
+                Nest::semanticCheck(c);
+            }
+            catch(...)
+            {
+                // Don't pass errors upwards
+            }
+        }
+        checkEvalMode(node);
+        return node;
+    }
+
+    Node* GlobalConstructAction_SemanticCheck(Node* node)
+    {
+        Nest::semanticCheck(node->children[0]);
+        node->type = getVoidType(node->context->evalMode());
+
+        // For CT construct actions, evaluate them asap
+        if ( isCt(node->children[0]) )
+        {
+            theCompiler().ctEval(node->children[0]);
+            return mkNop(node->location)->node();
+        }
+        return node;
+    }
+
+    Node* GlobalDestructAction_SemanticCheck(Node* node)
+    {
+        Nest::semanticCheck(node->children[0]);
+        node->type = getVoidType(node->context->evalMode());
+
+        // We never CT evaluate global destruct actions
+        if ( isCt(node->children[0]) )
+        {
+            return mkNop(node->location)->node();
+        }
+        return node;
+    }
+
+    // Both for ScopeDestructAction and for TempDestructAction
+    Node* ScopeTempDestructAction_SemanticCheck(Node* node)
+    {
+        Nest::semanticCheck(node->children[0]);
+        node->type = getVoidType(node->context->evalMode());
+        return node;
+    }
+}
 
 int Feather::firstFeatherNodeKind = 0;
 
@@ -84,15 +246,25 @@ int Feather::nkFeatherStmtReturn = 0;
 
 void Feather::initFeatherNodeKinds()
 {
-    Feather::Nop::registerSelf();
-    Feather::TypeNode::registerSelf();
-    Feather::BackendCode::registerSelf();
-    Feather::NodeList::registerSelf();
-    Feather::LocalSpace::registerSelf();
-    Feather::GlobalConstructAction::registerSelf();
-    Feather::GlobalDestructAction::registerSelf();
-    Feather::ScopeDestructAction::registerSelf();
-    Feather::TempDestructAction::registerSelf();
+    nkFeatherNop = registerNodeKind("nop", &Nop_SemanticCheck);
+    nkFeatherTypeNode = registerNodeKind("typeNode", &TypeNode_SemanticCheck, NULL, NULL, &TypeNode_toString);
+    nkFeatherBackendCode = registerNodeKind("backendCode", &BackendCode_SemanticCheck, NULL, NULL, &BackendCode_toString);
+    nkFeatherNodeList = registerNodeKind("nodeList", &NodeList_SemanticCheck, &NodeList_ComputeType, NULL, NULL);
+    nkFeatherLocalSpace = registerNodeKind("localSpace", &LocalSpace_SemanticCheck, &LocalSpace_ComputeType, &LocalSpace_SetContextForChildren, NULL);
+    nkFeatherGlobalConstructAction = registerNodeKind("globalConstructAction", &GlobalConstructAction_SemanticCheck, NULL, NULL, NULL);
+    nkFeatherGlobalDestructAction = registerNodeKind("globalDestructAction", &GlobalDestructAction_SemanticCheck, NULL, NULL, NULL);
+    nkFeatherScopeDestructAction = registerNodeKind("scopelDestructAction", &ScopeTempDestructAction_SemanticCheck, NULL, NULL, NULL);
+    nkFeatherTempDestructAction = registerNodeKind("tempDestructAction", &ScopeTempDestructAction_SemanticCheck, NULL, NULL, NULL);
+
+    Nop::classNodeKindRef() = nkFeatherNop;
+    TypeNode::classNodeKindRef() = nkFeatherTypeNode;
+    BackendCode::classNodeKindRef() = nkFeatherBackendCode;
+    NodeList::classNodeKindRef() = nkFeatherNodeList;
+    LocalSpace::classNodeKindRef() = nkFeatherLocalSpace;
+    GlobalConstructAction::classNodeKindRef() = nkFeatherGlobalConstructAction;
+    GlobalDestructAction::classNodeKindRef() = nkFeatherGlobalDestructAction;
+    ScopeDestructAction::classNodeKindRef() = nkFeatherScopeDestructAction;
+    TempDestructAction::classNodeKindRef() = nkFeatherTempDestructAction;
     
     Feather::Function::registerSelf();
     Feather::Class::registerSelf();
@@ -117,16 +289,6 @@ void Feather::initFeatherNodeKinds()
     Feather::Continue::registerSelf();
     Feather::Return::registerSelf();
 
-    nkFeatherNop =                      Nop::classNodeKind();
-    nkFeatherTypeNode =                 TypeNode::classNodeKind();
-    nkFeatherBackendCode =              BackendCode::classNodeKind();
-    nkFeatherNodeList =                 NodeList::classNodeKind();
-    nkFeatherLocalSpace =               LocalSpace::classNodeKind();
-    nkFeatherGlobalConstructAction =    GlobalConstructAction::classNodeKind();
-    nkFeatherGlobalDestructAction =     GlobalDestructAction::classNodeKind();
-    nkFeatherScopeDestructAction =      ScopeDestructAction::classNodeKind();
-    nkFeatherTempDestructAction =       TempDestructAction::classNodeKind();
-    
     nkFeatherDeclFunction =             Function::classNodeKind();
     nkFeatherDeclClass =                Class::classNodeKind();
     nkFeatherDeclVar =                  Var::classNodeKind();
@@ -156,17 +318,26 @@ void Feather::initFeatherNodeKinds()
 
 NodeList* Feather::mkNodeList(const Location& loc, DynNodeVector children, bool voidResult)
 {
-    return new NodeList(loc, move(children), voidResult);
+    Node* res = createNode(nkFeatherNodeList);
+    res->location = loc;
+    if ( voidResult )
+        setProperty(res, propResultVoid, 1);
+    res->children = move(fromDyn(children));
+    return (NodeList*) res;
 }
 NodeList* Feather::addToNodeList(NodeList* prevList, DynNode* element)
 {
-    if ( !prevList )
+    Node* res = prevList->node();
+    if ( !res )
     {
-        prevList = new NodeList(element ? element->location() : Location(), {}, true);
+        res = createNode(nkFeatherNodeList);
+        if ( element )
+            res->location = element->location();
+        setProperty(res, propResultVoid, 1);    // voidResult == true
     }
     
-    prevList->addChild(element);
-    return prevList;
+    res->children.push_back(element->node());
+    return (NodeList*) res;
 }
 NodeList* Feather::appendNodeList(NodeList* list, NodeList* newNodes)
 {
@@ -175,46 +346,72 @@ NodeList* Feather::appendNodeList(NodeList* list, NodeList* newNodes)
     if ( !newNodes )
         return list;
     
-    list->children().insert(list->children().end(), newNodes->children().begin(), newNodes->children().end());
-    return list;
+    Node* res = list->node();
+    NodeVector& otherChildren = newNodes->node()->children;
+    res->children.insert(res->children.end(), otherChildren.begin(), otherChildren.end());
+    return (NodeList*) res;
 }
 
 
 DynNode* Feather::mkNop(const Location& loc)
 {
-    return new Nop(loc);
+    Node* res = createNode(nkFeatherNop);
+    res->location = loc;
+    return (DynNode*) res;
 }
 DynNode* Feather::mkTypeNode(const Location& loc, TypeRef type)
 {
-    return new TypeNode(loc, type);
+    Node* res = createNode(nkFeatherTypeNode);
+    res->location = loc;
+    setProperty(res, "givenType", type);
+    return (DynNode*) res;
 }
 DynNode* Feather::mkBackendCode(const Location& loc, string code, EvalMode evalMode)
 {
-    return new BackendCode(loc, move(code), evalMode);
+    Node* res = createNode(nkFeatherBackendCode);
+    res->location = loc;
+    setProperty(res, propCode, move(code));
+    setProperty(res, propEvalMode, (int) evalMode);
+    return (DynNode*) res;
 }
 DynNode* Feather::mkLocalSpace(const Location& loc, DynNodeVector children)
 {
-    return new LocalSpace(loc, move(children));
+    Node* res = createNode(nkFeatherLocalSpace);
+    res->location = loc;
+    res->children = move(fromDyn(children));
+    return (DynNode*) res;
 }
 DynNode* Feather::mkGlobalConstructAction(const Location& loc, DynNode* action)
 {
     REQUIRE_NODE(loc, action);
-    return new GlobalConstructAction(loc, action);
+    Node* res = createNode(nkFeatherGlobalConstructAction);
+    res->location = loc;
+    res->children = { action->node() };
+    return (DynNode*) res;
 }
 DynNode* Feather::mkGlobalDestructAction(const Location& loc, DynNode* action)
 {
     REQUIRE_NODE(loc, action);
-    return new GlobalDestructAction(loc, action);
+    Node* res = createNode(nkFeatherGlobalDestructAction);
+    res->location = loc;
+    res->children = { action->node() };
+    return (DynNode*) res;
 }
 DynNode* Feather::mkScopeDestructAction(const Location& loc, DynNode* action)
 {
     REQUIRE_NODE(loc, action);
-    return new ScopeDestructAction(loc, action);
+    Node* res = createNode(nkFeatherScopeDestructAction);
+    res->location = loc;
+    res->children = { action->node() };
+    return (DynNode*) res;
 }
 DynNode* Feather::mkTempDestructAction(const Location& loc, DynNode* action)
 {
     REQUIRE_NODE(loc, action);
-    return new TempDestructAction(loc, action);
+    Node* res = createNode(nkFeatherTempDestructAction);
+    res->location = loc;
+    res->children = { action->node() };
+    return (DynNode*) res;
 }
 
 
@@ -333,4 +530,18 @@ DynNode* Feather::mkContinue(const Location& loc)
 DynNode* Feather::mkReturn(const Location& loc, DynNode* exp)
 {
     return new Return(loc, exp);
+}
+
+
+const char* Feather::BackendCode_getCode(const Node* node)
+{
+    ASSERT(node->nodeKind == nkFeatherBackendCode);
+    return getCheckPropertyString(node, propCode).c_str();
+}
+
+EvalMode Feather::BackendCode_getEvalMode(Node* node)
+{
+    ASSERT(node->nodeKind == nkFeatherBackendCode);
+    EvalMode curMode = (EvalMode) getCheckPropertyInt(node, propEvalMode);
+    return curMode != modeUnspecified ? curMode : node->context->evalMode();
 }

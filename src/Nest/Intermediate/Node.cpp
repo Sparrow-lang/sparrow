@@ -257,6 +257,7 @@ void Nest::semanticCheck(Node* node)
         Node* res = getSemanticCheckFun(node->nodeKind)(node);
         if ( !res )
             REP_INTERNAL(node->location, "Node semantically checked, but no actual explanation was generated");
+        setExplanation(node, res);
         if ( !node->type )
             REP_INTERNAL(node->location, "Node semantically checked, but no actual types was generated");
         node->nodeSemanticallyChecked = 1;
@@ -306,6 +307,9 @@ CompilationContext* Nest::childrenContext(const Node* node)
 
 void Nest::setExplanation(Node* node, Node* explanation)
 {
+    if ( explanation == node || explanation == node->explanation )
+        return;
+
     node->explanation = explanation;
 
     // Copy all the properties marked accordingly
@@ -324,7 +328,7 @@ void Nest::setExplanation(Node* node, Node* explanation)
 
 Node* Nest::explanation(Node* node)
 {
-    return node->explanation ? explanation(node->explanation) : node;
+    return node->explanation && node->explanation != node ? explanation(node->explanation) : node;
 }
 
 

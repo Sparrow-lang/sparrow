@@ -129,4 +129,7 @@ namespace Feather
         string dataStr(p, p+sizeof(*dataVal));
         return mkCtValue(loc, type, move(dataStr));
     }
+
+    const char* BackendCode_getCode(const Node* node);
+    EvalMode BackendCode_getEvalMode(Node* node);
 }

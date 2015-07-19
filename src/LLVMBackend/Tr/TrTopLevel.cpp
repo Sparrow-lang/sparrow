@@ -67,9 +67,10 @@ namespace
 void Tr::translateTopLevelNode(Node* node, Module& module)
 {
     // If this node is explained, then translate its explanation
-    if ( node->explanation )
+    Node* expl = Nest::explanation(node);
+    if ( node != expl )
     {
-        translateTopLevelNode(node->explanation, module);
+        translateTopLevelNode(expl, module);
     }
     else
     {

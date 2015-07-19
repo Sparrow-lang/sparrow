@@ -188,9 +188,8 @@ namespace Feather
 }
 
 #define DEFINE_NODE(className, kindId, kindName) \
-    private: \
-        static int& classNodeKindRef() { static int clsNodeKind = 0; return clsNodeKind; } \
     public: \
+        static int& classNodeKindRef() { static int clsNodeKind = 0; return clsNodeKind; } \
         static int classNodeKind() { return classNodeKindRef(); } \
         int nodeKind() const { return data_.nodeKind; } \
         static const char* classNodeKindName() { return kindName; } \

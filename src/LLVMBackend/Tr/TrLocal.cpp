@@ -1193,9 +1193,10 @@ llvm::Value* Tr::translateNode(Node* node, TrContext& context)
         REP_INTERNAL(node->location, "No type found for node (%1%)") % node;
 
     // If this node is explained, then translate its explanation
-    if ( node->explanation )
+    Node* expl = Nest::explanation(node);
+    if ( node != expl )
     {
-        return translateNode(node->explanation, context);
+        return translateNode(expl, context);
     }
 
     // Check if the node is CT available and we are in RT mode. If so, translate the node into RT

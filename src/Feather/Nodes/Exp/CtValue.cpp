@@ -100,8 +100,8 @@ void CtValue::doSemanticCheck()
     const string& data = valueData();
     if ( valueSize != data.size() )
     {
-        REP_ERROR(data_.location, "Read value size (%1%) differs from declared size of the value (%2%)")
-            % data.size() % valueSize;
+        REP_ERROR(data_.location, "Read value size (%1%) differs from declared size of the value (%2%) - type: %3%")
+            % data.size() % valueSize % data_.type;
     }
 
     data_.type = Feather::changeTypeMode(data_.type, modeCt, data_.location);

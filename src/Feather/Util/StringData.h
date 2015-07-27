@@ -33,7 +33,7 @@ namespace Feather
             return res;
         }
 
-        string toStdString()
+        string toStdString() const
         {
             return string(begin, end);
         }

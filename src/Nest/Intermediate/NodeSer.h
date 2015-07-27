@@ -9,14 +9,6 @@ namespace Nest
     // Forward declaration
     const char* toString(const Node* node);
 
-    template <typename T>
-    basic_ostream<T>& operator << (basic_ostream<T>& os, const Node* n)
-    {
-        if ( n )
-            os << toString(n);
-        return os;
-    }
-
     void save(const Node& obj, Common::Ser::OutArchive& ar);
     void load(Node& obj, Common::Ser::InArchive& ar);
 }

@@ -103,6 +103,7 @@ namespace Nest
         vector<Modifier*> modifiers;
     };
 
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // General Node operations
     //
@@ -180,6 +181,15 @@ namespace Nest
 
     /// Getter for the explanation of this node, if it has one; otherwise returns this node
     Node* explanation(Node* node);
+
+
+    template <typename T>
+    basic_ostream<T>& operator << (basic_ostream<T>& os, const Node* n)
+    {
+        if ( n )
+            os << Nest::toString(n);
+        return os;
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Default implementation for node-specific functions

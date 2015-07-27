@@ -158,8 +158,7 @@ package Feather
     fun[ct, native("$Meta.Feather.mkBitcast")] mkBitcast(loc: @Location, destType: AstNode, node: AstNode): AstNode;
     fun[ct, native("$Meta.Feather.mkConditional")] mkConditional(loc: @Location, condition, alt1, alt2: AstNode): AstNode;
 
-    fun[ct, native("$Meta.Feather.mkIf")] mkIf(loc: @Location, condition, thenClause, elseClause: AstNode): AstNode;
-    fun[ct, native("$Meta.Feather.mkIf")] mkIf(loc: @Location, condition, thenClause, elseClause: AstNode, isCt: Bool): AstNode;
+    fun[ct, native("$Meta.Feather.mkIf")] mkIf(loc: @Location, condition, thenClause, elseClause: AstNode, isCt: Bool = false): AstNode;
     fun[ct, native("$Meta.Feather.mkWhile")] mkWhile(loc: @Location, condition, body, step: AstNode): AstNode;
     fun[ct, native("$Meta.Feather.mkWhile")] mkWhile(loc: @Location, condition, body, step: AstNode, isCt: Bool): AstNode;
     fun[ct, native("$Meta.Feather.mkBreak")] mkBreak(loc: Location): AstNode;

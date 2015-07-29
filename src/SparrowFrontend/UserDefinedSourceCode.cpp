@@ -74,14 +74,14 @@ void UserDefinedSourceCode::parse(CompilationContext* context)
 
     int* scHandle = reinterpret_cast<int*>(this);
     DynNode* scBase = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "SourceCode");
-    DynNode* scArg = Feather::mkCtValue(loc, StdDef::typeRefInt, &scHandle);
+    DynNode* scArg = (DynNode*) Feather::mkCtValue(loc, StdDef::typeRefInt, &scHandle);
     DynNode* scNode = mkFunApplication(loc, scBase, {scArg});
     DynNode* locBase = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "Location");
     DynNode* locNode = mkFunApplication(loc, locBase, {scNode});
 
     int* ctxHandle = reinterpret_cast<int*>(context);
     DynNode* ctxBase = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "CompilationContext");
-    DynNode* ctxArg = Feather::mkCtValue(loc, StdDef::typeRefInt, &ctxHandle);
+    DynNode* ctxArg = (DynNode*) Feather::mkCtValue(loc, StdDef::typeRefInt, &ctxHandle);
     DynNode* ctxNode = mkFunApplication(loc, ctxBase, {ctxArg});
 
     vector<string> funNameParts;
@@ -98,7 +98,7 @@ void UserDefinedSourceCode::parse(CompilationContext* context)
 
     // Compile the function and evaluate it
     DynNode* implPart = mkCompoundExp(loc, funCall, "impl");
-    implPart = Feather::mkMemLoad(loc, implPart);    // Remove LValue
+    implPart = (DynNode*) Feather::mkMemLoad(loc, implPart->node());    // Remove LValue
     implPart->setContext(context);
     implPart->semanticCheck();
 

@@ -23,14 +23,14 @@ void GlobalConstructAction::dump(ostream& os) const
 
 void GlobalConstructAction::doSemanticCheck()
 {
-    Nest::semanticCheck(data_.children[0]);
-    data_.type = getVoidType(data_.context->evalMode());
+    // Nest::semanticCheck(data_.children[0]);
+    // data_.type = getVoidType(data_.context->evalMode());
 
-    // For CT construct actions, evaluate them asap
-    if ( isCt(data_.children[0]) )
-    {
-        theCompiler().ctEval(data_.children[0]);
-        setExplanation(mkNop(data_.location));
-    }
+    // // For CT construct actions, evaluate them asap
+    // if ( isCt(data_.children[0]) )
+    // {
+    //     theCompiler().ctEval(data_.children[0]);
+    //     setExplanation(mkNop(data_.location));
+    // }
 }
 

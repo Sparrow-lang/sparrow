@@ -62,9 +62,9 @@ DynNode* ConceptCallable::generateCall(const Location& loc)
 
     // Check if the type of the argument fulfills the concept
     bool conceptFulfilled = concept_->isFulfilled(arg->type());
-    DynNode* result = mkCtValue(loc, StdDef::typeBool, &conceptFulfilled);
-    result->setContext(context_);
-    result->semanticCheck();
-    return result;
+    Node* result = mkCtValue(loc, StdDef::typeBool, &conceptFulfilled);
+    setContext(result, context_);
+    semanticCheck(result);
+    return (DynNode*) result;
 }
 

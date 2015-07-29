@@ -203,7 +203,7 @@ using namespace Feather;
         if ( isCt(node->children[0]) )
         {
             theCompiler().ctEval(node->children[0]);
-            return mkNop(node->location)->node();
+            return mkNop(node->location);
         }
         return node;
     }
@@ -216,7 +216,7 @@ using namespace Feather;
         // We never CT evaluate global destruct actions
         if ( isCt(node->children[0]) )
         {
-            return mkNop(node->location)->node();
+            return mkNop(node->location);
         }
         return node;
     }
@@ -471,11 +471,11 @@ using namespace Feather;
     Node* Null_SemanticCheck(Node* node)
     {
         ASSERT(node->children.size() == 1);
-        DynNode* typeNode = (DynNode*) node->children[0];
-        typeNode->computeType();
+        Node* typeNode = node->children[0];
+        computeType(typeNode);
 
         // Make sure that the type is a reference
-        TypeRef t = typeNode->type();
+        TypeRef t = typeNode->type;
         if ( !t->hasStorage )
             REP_ERROR(node->location, "Null node should have a type with storage (cur type: %1%") % t;
         if ( t->numReferences == 0 )
@@ -498,9 +498,9 @@ using namespace Feather;
 
         // Set the resulting type
         ASSERT(node->children.size() == 1);
-        DynNode* elemTypeNode = (DynNode*) node->children[0];
-        elemTypeNode->computeType();
-        node->type = adjustMode(getLValueType(elemTypeNode->type()), node->context, node->location);
+        Node* elemTypeNode = node->children[0];
+        computeType(elemTypeNode);
+        node->type = adjustMode(getLValueType(elemTypeNode->type), node->context, node->location);
         return node;
     }
     const char* StackAlloc_toString(const Node* node)
@@ -512,17 +512,17 @@ using namespace Feather;
 
     Node* VarRef_SemanticCheck(Node* node)
     {
-        DynNode* var = (DynNode*) node->referredNodes[0];
+        Node* var = node->referredNodes[0];
         ASSERT(var);
-        if ( var->nodeKind() != nkFeatherDeclVar )
-            REP_INTERNAL(node->location, "VarRef object needs to point to a Field (node kind: %1%)") % var->nodeKindName();
-        var->computeType();
-        if ( isField(var->node()) )
-            REP_INTERNAL(node->location, "VarRef used on a field (%1%). Use FieldRef instead") % getName(var->node());
-        if ( !var->type()->hasStorage )
-            REP_ERROR(node->location, "Variable type is doesn't have a storage type (type: %1%)") % var->type();
-        node->type = adjustMode(getLValueType(var->type()), node->context, node->location);
-        checkEvalMode(node, var->type()->mode);
+        if ( var->nodeKind != nkFeatherDeclVar )
+            REP_INTERNAL(node->location, "VarRef object needs to point to a Field (node kind: %1%)") % nodeKindName(var);
+        computeType(var);
+        if ( isField(var) )
+            REP_INTERNAL(node->location, "VarRef used on a field (%1%). Use FieldRef instead") % getName(var);
+        if ( !var->type->hasStorage )
+            REP_ERROR(node->location, "Variable type is doesn't have a storage type (type: %1%)") % var->type;
+        node->type = adjustMode(getLValueType(var->type), node->context, node->location);
+        checkEvalMode(node, var->type->mode);
         return node;
     }
     const char* VarRef_toString(const Node* node)
@@ -534,24 +534,24 @@ using namespace Feather;
 
     Node* FieldRef_SemanticCheck(Node* node)
     {
-        DynNode* obj = (DynNode*) node->children[0];
-        DynNode* field = (DynNode*) node->referredNodes[0];
+        Node* obj = node->children[0];
+        Node* field = node->referredNodes[0];
         ASSERT(obj);
         ASSERT(field);
-        if ( field->nodeKind() != nkFeatherDeclVar )
-            REP_INTERNAL(node->location, "FieldRef object needs to point to a Field (node kind: %1%)") % field->nodeKindName();
+        if ( field->nodeKind != nkFeatherDeclVar )
+            REP_INTERNAL(node->location, "FieldRef object needs to point to a Field (node kind: %1%)") % nodeKindName(field);
 
         // Semantic check the object node - make sure it's a reference to a data type
-        obj->semanticCheck();
-        ASSERT(obj->type());
-        if ( !obj->type() || !obj->type()->hasStorage || obj->type()->numReferences != 1 )
-            REP_ERROR(node->location, "Field access should be done on a reference to a data type (type: %1%)") % obj->type();
-        Class* cls = classForType(obj->type());
+        semanticCheck(obj);
+        ASSERT(obj->type);
+        if ( !obj->type || !obj->type->hasStorage || obj->type->numReferences != 1 )
+            REP_ERROR(node->location, "Field access should be done on a reference to a data type (type: %1%)") % obj->type;
+        Class* cls = classForType(obj->type);
         ASSERT(cls);
         cls->computeType();
 
         // Compute the type of the field
-        field->computeType();
+        computeType(field);
 
         // Make sure that the type of a object is a data type that refers to a class the contains the given field
         bool fieldFound = false;
@@ -564,13 +564,13 @@ using namespace Feather;
             }
         }
         if ( !fieldFound )
-            REP_ERROR(node->location, "Field '%1%' not found when accessing object") % getName(field->node());
+            REP_ERROR(node->location, "Field '%1%' not found when accessing object") % getName(field);
 
         // Set the correct type for this node
-        ASSERT(field->type());
-        ASSERT(field->type()->hasStorage);
-        node->type = getLValueType(field->type());
-        node->type = adjustMode(node->type, obj->type()->mode, node->context, node->location);
+        ASSERT(field->type);
+        ASSERT(field->type->hasStorage);
+        node->type = getLValueType(field->type);
+        node->type = adjustMode(node->type, obj->type->mode, node->context, node->location);
         return node;
     }
     const char* FieldRef_toString(const Node* node)
@@ -583,11 +583,11 @@ using namespace Feather;
     Node* FunRef_SemanticCheck(Node* node)
     {
         ASSERT(node->children.size() == 1);
-        DynNode* resType = (DynNode*) node->children[0];
-        resType->computeType();
+        Node* resType = node->children[0];
+        computeType(resType);
 
         computeType(node->referredNodes[0]);
-        node->type = adjustMode(resType->type(), node->context, node->location);
+        node->type = adjustMode(resType->type, node->context, node->location);
         return node;
     }
     const char* FunRef_toString(const Node* node)
@@ -706,32 +706,32 @@ using namespace Feather;
 
     Node* MemStore_SemanticCheck(Node* node)
     {
-        DynNode* value = (DynNode*) node->children[0];
-        DynNode* address = (DynNode*) node->children[1];
+        Node* value = node->children[0];
+        Node* address = node->children[1];
         ASSERT(value);
         ASSERT(address);
 
         // Semantic check the arguments
-        value->semanticCheck();
-        address->semanticCheck();
+        semanticCheck(value);
+        semanticCheck(address);
 
         // Check if the type of the address is a ref
-        if ( !address->type()->hasStorage || address->type()->numReferences == 0 )
-            REP_ERROR(node->location, "The address of a memory store is not a reference, nor VarRef nor FieldRef (type: %1%)") % address->type();
-        TypeRef baseAddressType = removeRef(address->type());
+        if ( !address->type->hasStorage || address->type->numReferences == 0 )
+            REP_ERROR(node->location, "The address of a memory store is not a reference, nor VarRef nor FieldRef (type: %1%)") % address->type;
+        TypeRef baseAddressType = removeRef(address->type);
 
         // Check the equivalence of types
-        if ( !isSameTypeIgnoreMode(value->type(), baseAddressType) )
+        if ( !isSameTypeIgnoreMode(value->type, baseAddressType) )
         {
             // Try again, getting rid of l-values
-            TypeRef t1 = lvalueToRefIfPresent(value->type());
+            TypeRef t1 = lvalueToRefIfPresent(value->type);
             if ( !isSameTypeIgnoreMode(t1, baseAddressType) )
                 REP_ERROR(node->location, "The type of the value doesn't match the type of the address in a memory store (%1% != %2%)")
-                    % value->type() % baseAddressType;
+                    % value->type % baseAddressType;
         }
 
         // The resulting type is Void
-        node->type = getVoidType(address->type()->mode);
+        node->type = getVoidType(address->type->mode);
         return node;
     }
 
@@ -779,7 +779,7 @@ using namespace Feather;
         // Dereference the condition as much as possible
         while ( node->children[0]->type && node->children[0]->type->numReferences > 0 )
         {
-            node->children[0] = mkMemLoad(node->children[0]->location, (DynNode*) node->children[0])->node();
+            node->children[0] = mkMemLoad(node->children[0]->location, node->children[0]);
             Nest::setContext(node->children[0], childrenContext(node));
             Nest::semanticCheck(node->children[0]);
         }
@@ -861,7 +861,7 @@ using namespace Feather;
         // Dereference the condition as much as possible
         while ( condition->type && condition->type->numReferences > 0 )
         {
-            condition = mkMemLoad(condition->location, (DynNode*) condition)->node();
+            condition = mkMemLoad(condition->location, condition);
             setContext(condition, childrenContext(node));
             semanticCheck(condition);
         }
@@ -881,7 +881,7 @@ using namespace Feather;
             if ( selectedBranch )
                 return selectedBranch;
             else
-                return mkNop(node->location)->node();
+                return mkNop(node->location);
         }
 
         // Semantic check the clauses
@@ -953,10 +953,10 @@ using namespace Feather;
 
                 // Unfortunately, we don't treat 'break' and 'continue' instructions inside the ct while instructions
             }
-            result.push_back(mkNop(node->location)->node()); // Make sure our resulting type is Void
+            result.push_back(mkNop(node->location)); // Make sure our resulting type is Void
 
             // Set the explanation and exit
-            return mkNodeList(node->location, toDyn(move(result)))->node();
+            return mkNodeList(node->location, move(result));
         }
 
         // Semantic check the body and the step
@@ -1138,110 +1138,113 @@ void Feather::initFeatherNodeKinds()
 }
 
 
-NodeList* Feather::mkNodeList(const Location& loc, DynNodeVector children, bool voidResult)
+Node* Feather::mkNodeList(const Location& loc, NodeVector children, bool voidResult)
 {
     Node* res = createNode(nkFeatherNodeList);
     res->location = loc;
     if ( voidResult )
         setProperty(res, propResultVoid, 1);
-    res->children = move(fromDyn(children));
-    return (NodeList*) res;
+    res->children = move(children);
+    return res;
 }
-NodeList* Feather::addToNodeList(NodeList* prevList, DynNode* element)
+Node* Feather::addToNodeList(Node* prevList, Node* element)
 {
-    Node* res = prevList->node();
+    ASSERT(prevList->nodeKind == nkFeatherNodeList);
+    Node* res = prevList;
     if ( !res )
     {
         res = createNode(nkFeatherNodeList);
         if ( element )
-            res->location = element->location();
+            res->location = element->location;
         setProperty(res, propResultVoid, 1);    // voidResult == true
     }
     
-    res->children.push_back(element->node());
-    return (NodeList*) res;
+    res->children.push_back(element);
+    return res;
 }
-NodeList* Feather::appendNodeList(NodeList* list, NodeList* newNodes)
+Node* Feather::appendNodeList(Node* list, Node* newNodes)
 {
     if ( !list )
         return newNodes;
     if ( !newNodes )
         return list;
     
-    Node* res = list->node();
-    NodeVector& otherChildren = newNodes->node()->children;
+    ASSERT(list->nodeKind == nkFeatherNodeList);
+    ASSERT(newNodes->nodeKind == nkFeatherNodeList);
+    Node* res = list;
+    NodeVector& otherChildren = newNodes->children;
     res->children.insert(res->children.end(), otherChildren.begin(), otherChildren.end());
-    return (NodeList*) res;
+    return res;
 }
 
 
-DynNode* Feather::mkNop(const Location& loc)
+Node* Feather::mkNop(const Location& loc)
 {
     Node* res = createNode(nkFeatherNop);
     res->location = loc;
-    return (DynNode*) res;
+    return res;
 }
-DynNode* Feather::mkTypeNode(const Location& loc, TypeRef type)
+Node* Feather::mkTypeNode(const Location& loc, TypeRef type)
 {
     Node* res = createNode(nkFeatherTypeNode);
     res->location = loc;
     setProperty(res, "givenType", type);
-    return (DynNode*) res;
+    return res;
 }
-DynNode* Feather::mkBackendCode(const Location& loc, string code, EvalMode evalMode)
+Node* Feather::mkBackendCode(const Location& loc, string code, EvalMode evalMode)
 {
     Node* res = createNode(nkFeatherBackendCode);
     res->location = loc;
     setProperty(res, propCode, move(code));
     setProperty(res, propEvalMode, (int) evalMode);
-    return (DynNode*) res;
+    return res;
 }
-DynNode* Feather::mkLocalSpace(const Location& loc, DynNodeVector children)
+Node* Feather::mkLocalSpace(const Location& loc, NodeVector children)
 {
     Node* res = createNode(nkFeatherLocalSpace);
     res->location = loc;
-    res->children = move(fromDyn(children));
-    return (DynNode*) res;
+    res->children = move(children);
+    return res;
 }
-DynNode* Feather::mkGlobalConstructAction(const Location& loc, DynNode* action)
+Node* Feather::mkGlobalConstructAction(const Location& loc, Node* action)
 {
     REQUIRE_NODE(loc, action);
     Node* res = createNode(nkFeatherGlobalConstructAction);
     res->location = loc;
-    res->children = { action->node() };
-    return (DynNode*) res;
+    res->children = { action };
+    return res;
 }
-DynNode* Feather::mkGlobalDestructAction(const Location& loc, DynNode* action)
+Node* Feather::mkGlobalDestructAction(const Location& loc, Node* action)
 {
     REQUIRE_NODE(loc, action);
     Node* res = createNode(nkFeatherGlobalDestructAction);
     res->location = loc;
-    res->children = { action->node() };
-    return (DynNode*) res;
+    res->children = { action };
+    return res;
 }
-DynNode* Feather::mkScopeDestructAction(const Location& loc, DynNode* action)
+Node* Feather::mkScopeDestructAction(const Location& loc, Node* action)
 {
     REQUIRE_NODE(loc, action);
     Node* res = createNode(nkFeatherScopeDestructAction);
     res->location = loc;
-    res->children = { action->node() };
-    return (DynNode*) res;
+    res->children = { action };
+    return res;
 }
-DynNode* Feather::mkTempDestructAction(const Location& loc, DynNode* action)
+Node* Feather::mkTempDestructAction(const Location& loc, Node* action)
 {
     REQUIRE_NODE(loc, action);
     Node* res = createNode(nkFeatherTempDestructAction);
     res->location = loc;
-    res->children = { action->node() };
-    return (DynNode*) res;
+    res->children = { action };
+    return res;
 }
 
 
-DynNode* Feather::mkFunction(const Location& loc, string name, DynNode* resType, DynNodeVector params, DynNode* body, CallConvention callConv, EvalMode evalMode)
+Node* Feather::mkFunction(const Location& loc, string name, Node* resType, NodeVector params, Node* body, CallConvention callConv, EvalMode evalMode)
 {
     Node* res = createNode(nkFeatherDeclFunction);
     res->location = loc;
-    res->children = fromDyn(move(params));
+    res->children = move(params);
     setName(res, move(name));
     setProperty(res, "callConvention", (int) callConv);
     setEvalMode(res, evalMode);
@@ -1254,16 +1257,16 @@ DynNode* Feather::mkFunction(const Location& loc, string name, DynNode* resType,
     }
 
     // The result type and body is at the beginning of the parameters
-    res->children.insert(res->children.begin(), body->node());
-    res->children.insert(res->children.begin(), resType->node());
+    res->children.insert(res->children.begin(), body);
+    res->children.insert(res->children.begin(), resType);
 
-    return (DynNode*) res;
+    return res;
 }
-DynNode* Feather::mkClass(const Location& loc, string name, DynNodeVector fields, EvalMode evalMode)
+Node* Feather::mkClass(const Location& loc, string name, NodeVector fields, EvalMode evalMode)
 {
     Node* res = createNode(nkFeatherDeclClass);
     res->location = loc;
-    res->children = fromDyn(move(fields));
+    res->children = move(fields);
     setName(res, move(name));
     setEvalMode(res, evalMode);
 
@@ -1274,181 +1277,189 @@ DynNode* Feather::mkClass(const Location& loc, string name, DynNodeVector fields
             REP_INTERNAL(field->location, "Node %1% must be a field") % field;
     }
 
-    return (DynNode*) res;
+    return res;
 }
-DynNode* Feather::mkVar(const Location& loc, string name, DynNode* typeNode, size_t alignment, EvalMode evalMode)
+Node* Feather::mkVar(const Location& loc, string name, Node* typeNode, size_t alignment, EvalMode evalMode)
 {
     REQUIRE_TYPE(loc, typeNode);
     Node* res = createNode(nkFeatherDeclVar);
     res->location = loc;
-    res->children = { typeNode->node() };
+    res->children = { typeNode };
     setName(res, move(name));
     setProperty(res, "alignment", alignment);
     setEvalMode(res, evalMode);
-    return (DynNode*) res;
+    return res;
 }
 
 
-DynNode* Feather::mkCtValue(const Location& loc, TypeRef type, string data)
+Node* Feather::mkCtValue(const Location& loc, TypeRef type, string data)
 {
     REQUIRE_TYPE(loc, type);
     Node* res = createNode(nkFeatherExpCtValue);
     res->location = loc;
     setProperty(res, "valueType", type);
     setProperty(res, "valueData", move(data));
-    return (DynNode*) res;
+    return res;
 }
-DynNode* Feather::mkNull(const Location& loc, DynNode* typeNode)
+Node* Feather::mkNull(const Location& loc, Node* typeNode)
 {
     REQUIRE_NODE(loc, typeNode);
     Node* res = createNode(nkFeatherExpNull);
     res->location = loc;
-    res->children = { typeNode->node() };
-    return (DynNode*) res;
+    res->children = { typeNode };
+    return res;
 }
-DynNode* Feather::mkStackAlloc(const Location& loc, DynNode* typeNode, int numElements, int alignment)
+Node* Feather::mkStackAlloc(const Location& loc, Node* typeNode, int numElements, int alignment)
 {
     REQUIRE_NODE(loc, typeNode);
     Node* res = createNode(nkFeatherExpStackAlloc);
     res->location = loc;
-    res->children = { typeNode->node() };
+    res->children = { typeNode };
     setProperty(res, "numElements", numElements);
     setProperty(res, "alignment", alignment);
-    return (DynNode*) res;
+    return res;
 }
-DynNode* Feather::mkVarRef(const Location& loc, DynNode* varDecl)
+Node* Feather::mkVarRef(const Location& loc, Node* varDecl)
 {
     REQUIRE_NODE(loc, varDecl);
-    if ( varDecl->nodeKind() != nkFeatherDeclVar )
-        REP_INTERNAL(loc, "A VarRef node must be applied on a variable declaration (%1% given)") % varDecl->nodeKindName();
+    if ( varDecl->nodeKind != nkFeatherDeclVar )
+        REP_INTERNAL(loc, "A VarRef node must be applied on a variable declaration (%1% given)") % nodeKindName(varDecl);
     Node* res = createNode(nkFeatherExpVarRef);
     res->location = loc;
-    res->referredNodes = { varDecl->node() };
-    return (DynNode*) res;
+    res->referredNodes = { varDecl };
+    return res;
 }
-DynNode* Feather::mkFieldRef(const Location& loc, DynNode* obj, DynNode* fieldDecl)
+Node* Feather::mkFieldRef(const Location& loc, Node* obj, Node* fieldDecl)
 {
     REQUIRE_NODE(loc, obj);
     REQUIRE_NODE(loc, fieldDecl);
-    if ( fieldDecl->nodeKind() != nkFeatherDeclVar )
-        REP_INTERNAL(loc, "A FieldRef node must be applied on a field declaration (%1% given)") % fieldDecl->nodeKindName();
+    if ( fieldDecl->nodeKind != nkFeatherDeclVar )
+        REP_INTERNAL(loc, "A FieldRef node must be applied on a field declaration (%1% given)") % nodeKindName(fieldDecl);
     Node* res = createNode(nkFeatherExpFieldRef);
     res->location = loc;
-    res->children = { obj->node() };
-    res->referredNodes = { fieldDecl->node() };
-    return (DynNode*) res;
+    res->children = { obj };
+    res->referredNodes = { fieldDecl };
+    return res;
 }
-DynNode* Feather::mkFunRef(const Location& loc, DynNode* funDecl, DynNode* resType)
+Node* Feather::mkFunRef(const Location& loc, Node* funDecl, Node* resType)
 {
     REQUIRE_NODE(loc, funDecl);
     REQUIRE_NODE(loc, resType);
-    if ( funDecl->nodeKind() != nkFeatherDeclFunction )
-        REP_INTERNAL(loc, "A FunRef node must be applied on a function declaration (%1% given)") % funDecl->nodeKindName();
+    if ( funDecl->nodeKind != nkFeatherDeclFunction )
+        REP_INTERNAL(loc, "A FunRef node must be applied on a function declaration (%1% given)") % nodeKindName(funDecl);
     Node* res = createNode(nkFeatherExpFunRef);
     res->location = loc;
-    res->children = { resType->node() };
-    res->referredNodes = { funDecl->node() };
-    return (DynNode*) res;
+    res->children = { resType };
+    res->referredNodes = { funDecl };
+    return res;
 }
-DynNode* Feather::mkFunCall(const Location& loc, DynNode* funDecl, DynNodeVector args)
+Node* Feather::mkFunCall(const Location& loc, Node* funDecl, NodeVector args)
 {
     REQUIRE_NODE(loc, funDecl);
-    Function* fun = funDecl->as<Function>();
-    if ( !fun )
-        REP_INTERNAL(loc, "A FunCall node must be applied on a function declaration (%1% given)") % funDecl->nodeKindName();
+    if ( funDecl->nodeKind != nkFeatherDeclFunction )
+        REP_INTERNAL(loc, "A FunCall node must be applied on a function declaration (%1% given)") % nodeKindName(funDecl);
     Node* res = createNode(nkFeatherExpFunCall);
     res->location = loc;
-    res->children = fromDyn(move(args));
-    res->referredNodes = { funDecl->node() };
-    return (DynNode*) res;
+    res->children = move(args);
+    res->referredNodes = { funDecl };
+    return res;
 }
-DynNode* Feather::mkMemLoad(const Location& loc, DynNode* exp, size_t alignment, bool isVolatile, AtomicOrdering ordering, bool singleThreaded)
+Node* Feather::mkMemLoad(const Location& loc, Node* exp, size_t alignment, bool isVolatile, AtomicOrdering ordering, bool singleThreaded)
 {
     REQUIRE_NODE(loc, exp);
     Node* res = createNode(nkFeatherExpMemLoad);
     res->location = loc;
-    res->children = { exp->node() };
+    res->children = { exp };
     setProperty(res, "alignment", alignment);
     setProperty(res, "volatile", isVolatile ? 1 : 0);
     setProperty(res, "atomicOrdering", (int) ordering);
     setProperty(res, "singleThreaded", singleThreaded ? 1 : 0);
-    return (DynNode*) res;
+    return res;
 }
-DynNode* Feather::mkMemStore(const Location& loc, DynNode* value, DynNode* address, size_t alignment, bool isVolatile, AtomicOrdering ordering, bool singleThreaded)
+Node* Feather::mkMemStore(const Location& loc, Node* value, Node* address, size_t alignment, bool isVolatile, AtomicOrdering ordering, bool singleThreaded)
 {
     REQUIRE_NODE(loc, value);
     REQUIRE_NODE(loc, address);
     Node* res = createNode(nkFeatherExpMemStore);
     res->location = loc;
-    res->children = { value->node(), address->node() };
+    res->children = { value, address };
     setProperty(res, "alignment", alignment);
     setProperty(res, "volatile", isVolatile ? 1 : 0);
     setProperty(res, "atomicOrdering", (int) ordering);
     setProperty(res, "singleThreaded", singleThreaded ? 1 : 0);
-    return (DynNode*) res;
+    return res;
 }
-DynNode* Feather::mkBitcast(const Location& loc, DynNode* destType, DynNode* exp)
+Node* Feather::mkBitcast(const Location& loc, Node* destType, Node* exp)
 {
     REQUIRE_NODE(loc, destType);
     REQUIRE_NODE(loc, exp);
     Node* res = createNode(nkFeatherExpBitcast);
     res->location = loc;
-    res->children = { exp->node(), destType->node() };
-    return (DynNode*) res;
+    res->children = { exp, destType };
+    return res;
 }
-DynNode* Feather::mkConditional(const Location& loc, DynNode* condition, DynNode* alt1, DynNode* alt2)
+Node* Feather::mkConditional(const Location& loc, Node* condition, Node* alt1, Node* alt2)
 {
     REQUIRE_NODE(loc, condition);
     REQUIRE_NODE(loc, alt1);
     REQUIRE_NODE(loc, alt2);
     Node* res = createNode(nkFeatherExpConditional);
     res->location = loc;
-    res->children = { condition->node(), alt1->node(), alt2->node() };
-    return (DynNode*) res;
+    res->children = { condition, alt1, alt2 };
+    return res;
+}
+Node* Feather::mkChangeMode(const Location& loc, Node* child, EvalMode mode)
+{
+    REQUIRE_NODE(loc, child);
+    Node* res = createNode(nkFeatherExpChangeMode);
+    res->location = loc;
+    res->children = { child };
+    setProperty(res, propEvalMode, (int) mode);
+    return res;
 }
 
 
-DynNode* Feather::mkIf(const Location& loc, DynNode* condition, DynNode* thenClause, DynNode* elseClause, bool isCt)
+Node* Feather::mkIf(const Location& loc, Node* condition, Node* thenClause, Node* elseClause, bool isCt)
 {
     REQUIRE_NODE(loc, condition);
     Node* res = createNode(nkFeatherStmtIf);
     res->location = loc;
-    res->children = { condition->node(), thenClause->node(), elseClause->node() };
+    res->children = { condition, thenClause, elseClause };
     if ( isCt )
         setEvalMode(res, modeCt);
-    return (DynNode*) res;
+    return res;
 }
-DynNode* Feather::mkWhile(const Location& loc, DynNode* condition, DynNode* body, DynNode* step, bool isCt)
+Node* Feather::mkWhile(const Location& loc, Node* condition, Node* body, Node* step, bool isCt)
 {
     REQUIRE_NODE(loc, condition);
     Node* res = createNode(nkFeatherStmtWhile);
     res->location = loc;
-    res->children = { condition->node(), step->node(), body->node() };
+    res->children = { condition, step, body };
     if ( isCt )
         setEvalMode(res, modeCt);
-    return (DynNode*) res;
+    return res;
 }
-DynNode* Feather::mkBreak(const Location& loc)
+Node* Feather::mkBreak(const Location& loc)
 {
     Node* res = createNode(nkFeatherStmtBreak);
     res->location = loc;
     setProperty(res, "loop", (Node*) nullptr);
-    return (DynNode*) res;
+    return res;
 }
-DynNode* Feather::mkContinue(const Location& loc)
+Node* Feather::mkContinue(const Location& loc)
 {
     Node* res = createNode(nkFeatherStmtContinue);
     res->location = loc;
     setProperty(res, "loop", (Node*) nullptr);
-    return (DynNode*) res;
+    return res;
 }
-DynNode* Feather::mkReturn(const Location& loc, DynNode* exp)
+Node* Feather::mkReturn(const Location& loc, Node* exp)
 {
     Node* res = createNode(nkFeatherStmtReturn);
     res->location = loc;
-    res->children = { exp->node() };
+    res->children = { exp };
     setProperty(res, "parentFun", (Node*) nullptr);
-    return (DynNode*) res;
+    return res;
 }
 
 

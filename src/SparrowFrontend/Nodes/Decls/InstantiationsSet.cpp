@@ -53,16 +53,16 @@ namespace
                 nodes.push_back(var);
             }
         }
-        nodes.push_back(mkNop(loc));    // Make sure the resulting type is Void
+        nodes.push_back((DynNode*) mkNop(loc));    // Make sure the resulting type is Void
         return nodes;
     }
 }
 
 
 InstantiationsSet::InstantiationsSet(DynNode* parentNode, DynNodeVector params, DynNode* ifClause)
-    : DynNode(classNodeKind(), parentNode->location(), { ifClause, Feather::mkNodeList(parentNode->location(), {}) }, { parentNode })
+    : DynNode(classNodeKind(), parentNode->location(), { ifClause, (DynNode*) Feather::mkNodeList(parentNode->location(), {}) }, { parentNode })
 {
-    data_.referredNodes.push_back(mkNodeList(data_.location, move(params))->node());
+    data_.referredNodes.push_back(mkNodeList(data_.location, fromDyn(move(params))));
 }
 
 Instantiation* InstantiationsSet::canInstantiate(const DynNodeVector& values, EvalMode evalMode)

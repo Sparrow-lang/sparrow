@@ -43,11 +43,11 @@ FunApplication::FunApplication(const Location& loc, DynNode* base, NodeList* arg
     : DynNode(classNodeKind(), loc, {base, arguments})
 {
     if ( !arguments )
-        data_.children[1] = mkNodeList(loc, {})->node();
+        data_.children[1] = mkNodeList(loc, {});
 }
 
 FunApplication::FunApplication(const Location& loc, DynNode* base, DynNodeVector args)
-    : DynNode(classNodeKind(), loc, {base, mkNodeList(loc, move(args))})
+    : DynNode(classNodeKind(), loc, {base, (NodeList*) mkNodeList(loc, fromDyn(move(args)))})
 {
 }
 
@@ -224,10 +224,10 @@ void FunApplication::checkReinterpretCast()
     // If source is an l-value and the number of source reference is greater than the destination references, remove lvalue
     DynNode* arg = arguments->children()[1];
     if ( srcType->numReferences > destType->numReferences && srcType->typeKind == typeKindLValue )
-        arg = mkMemLoad(arg->location(), arg);
+        arg = (DynNode*) mkMemLoad(arg->location(), arg->node());
 
     // Generate a bitcast operation out of this node
-    setExplanation(mkBitcast(data_.location, mkTypeNode(arguments->children()[0]->location(), destType), arg));
+    setExplanation((DynNode*) mkBitcast(data_.location, mkTypeNode(arguments->children()[0]->location(), destType), arg->node()));
 }
 
 void FunApplication::checkSizeOf()
@@ -264,7 +264,7 @@ void FunApplication::checkSizeOf()
     uint64_t size = theCompiler().sizeOf(t);
 
     // Create a CtValue to hold the size
-    setExplanation(mkCtValue(data_.location, StdDef::typeSizeType, &size));
+    setExplanation((DynNode*) mkCtValue(data_.location, StdDef::typeSizeType, &size));
 }
 
 void FunApplication::checkTypeOf()
@@ -325,7 +325,7 @@ void FunApplication::checkIsValid()
     bool isValid = checkIsValidImpl(data_.location, arguments, "isValid");
 
     // Create a CtValue to hold the result
-    setExplanation(mkCtValue(data_.location, StdDef::typeBool, &isValid));
+    setExplanation((DynNode*) mkCtValue(data_.location, StdDef::typeBool, &isValid));
 }
 
 void FunApplication::checkIsValidAndTrue()
@@ -346,7 +346,7 @@ void FunApplication::checkIsValidAndTrue()
         const Location& loc = arg->location();
         size_t noRefs = arg->type()->numReferences;
         for ( size_t i=0; i<noRefs; ++i)
-            arg = mkMemLoad(loc, arg);
+            arg = (DynNode*) mkMemLoad(loc, arg->node());
         arg->setContext(data_.context);
         arg->semanticCheck();
 
@@ -359,7 +359,7 @@ void FunApplication::checkIsValidAndTrue()
     }
 
     // Create a CtValue to hold the result
-    setExplanation(mkCtValue(data_.location, StdDef::typeBool, &res));
+    setExplanation((DynNode*) mkCtValue(data_.location, StdDef::typeBool, &res));
 }
 
 void FunApplication::checkValueIfValid()
@@ -390,7 +390,7 @@ void FunApplication::checkCtEval()
     const Location& loc = arg->location();
     size_t noRefs = arg->type()->numReferences;
     for ( size_t i=0; i<noRefs; ++i)
-        arg = mkMemLoad(loc, arg);
+        arg = (DynNode*) mkMemLoad(loc, arg->node());
     arg->setContext(data_.context);
     arg->semanticCheck();
 
@@ -415,6 +415,6 @@ void FunApplication::checkLift()
     // Create a construct of an AST node
     int* nodeHandle = (int*) arg;
     DynNode* base = mkCompoundExp(data_.location, mkIdentifier(data_.location, "Meta"), "AstNode");
-    DynNode* arg1 = mkCtValue(data_.location, StdDef::typeRefInt, &nodeHandle);
+    DynNode* arg1 = (DynNode*) mkCtValue(data_.location, StdDef::typeRefInt, &nodeHandle);
     setExplanation( mkFunApplication(data_.location, base, {arg1}) );
 }

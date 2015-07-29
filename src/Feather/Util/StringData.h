@@ -18,6 +18,11 @@ namespace Feather
             , end(begin + str.size())
         {}
 
+        StringData(const char* str)
+            : begin(str)
+            , end(str + strlen(str))
+        {}
+
         static StringData copyStdString(const string& src)
         {
             StringData res;

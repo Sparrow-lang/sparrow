@@ -6,7 +6,7 @@ using namespace Feather;
 using namespace Nest;
 
 Instantiation::Instantiation(const Location& loc, DynNodeVector boundValues, DynNodeVector boundVars)
-    : DynNode(classNodeKind(), loc, { Feather::mkNodeList(loc, move(boundVars)) }, move(boundValues))
+    : DynNode(classNodeKind(), loc, { (DynNode*) Feather::mkNodeList(loc, fromDyn(move(boundVars))) }, move(boundValues))
 {
     setProperty("instIsValid", 0);
     setProperty("instantiatedDecl", (DynNode*) nullptr);
@@ -47,5 +47,5 @@ void Instantiation::setValid(bool valid)
 
 void Instantiation::doSemanticCheck()
 {
-    setExplanation(mkNop(data_.location));
+    setExplanation((DynNode*) mkNop(data_.location));
 }

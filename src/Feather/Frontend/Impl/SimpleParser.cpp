@@ -66,7 +66,7 @@ namespace
 
 namespace
 {
-    DynNode* interpretNode(CompilationContext* context, SimpleAstNode* srcNode);
+    Node* interpretNode(CompilationContext* context, SimpleAstNode* srcNode);
 
     void checkNoChildren(SimpleAstNode* srcNode)
     {
@@ -166,14 +166,14 @@ namespace
         return intNode->intValue();
     }
 
-    DynNode* readNode(CompilationContext* context, SimpleAstNode* srcNode, const char* errDetails)
+    Node* readNode(CompilationContext* context, SimpleAstNode* srcNode, const char* errDetails)
     {
         if ( !srcNode->isIdentifier() )
         {
             REP_ERROR(srcNode->location(), "Expecting node argument (%1%)") % errDetails;
             return nullptr;
         }
-        DynNode* res = interpretNode(context, srcNode);
+        Node* res = interpretNode(context, srcNode);
         if ( !res )
             REP_ERROR(srcNode->location(), "Invalid node argument (%1%)") % errDetails;
         return res;
@@ -264,31 +264,31 @@ namespace
 
 
 
-    DynNode* interpretNodeList(CompilationContext* context, SimpleAstNode* srcNode)
+    Node* interpretNodeList(CompilationContext* context, SimpleAstNode* srcNode)
     {
         NodeList* res = (NodeList*) mkNodeList(srcNode->location(), {});
-        res->setContext(context);
+        setContext(res->node(), context);
         for ( auto child: srcNode->children() )
         {
-            DynNode* childNode = readNode(res->childrenContext(), child, "<node list child>");
+            Node* childNode = readNode(res->childrenContext(), child, "<node list child>");
             if ( !childNode ) continue;
-            res->addChild(childNode);
+            res->addChild((DynNode*) childNode);
         }
-        return res;
+        return res->node();
     }
 
-    DynNode* interpretNop(CompilationContext* context, SimpleAstNode* srcNode)
+    Node* interpretNop(CompilationContext* context, SimpleAstNode* srcNode)
     {
         checkNoChildren(srcNode);
-        DynNode* res = mkNop(srcNode->location());
-        res->setContext(context);
+        Node* res = mkNop(srcNode->location());
+        setContext(res, context);
         return res;
     }
 
-    DynNode* interpretChangeMode(CompilationContext* context, SimpleAstNode* srcNode)
+    Node* interpretChangeMode(CompilationContext* context, SimpleAstNode* srcNode)
     {
         checkChildrenCount(srcNode, 2, "<exp>, <mode>");
-        DynNode* exp = readNode(context, srcNode->children()[0], "<exp>");
+        Node* exp = readNode(context, srcNode->children()[0], "<exp>");
         const string& modeStr = srcNode->children()[1]->stringValue();
         EvalMode mode = modeRtCt;
         if ( modeStr == "ct" )
@@ -299,12 +299,12 @@ namespace
             mode = modeRtCt;
         else
             REP_ERROR(srcNode->children()[1]->location(), "Invalid evaluation mode found: '%1%'") % modeStr;
-        DynNode* res = new ChangeMode(srcNode->location(), mode, exp);
-        res->setContext(context);
+        Node* res = mkChangeMode(srcNode->location(), exp, mode);
+        setContext(res, context);
         return res;
     }
 
-    DynNode* interpretBackendCode(CompilationContext* context, SimpleAstNode* srcNode)
+    Node* interpretBackendCode(CompilationContext* context, SimpleAstNode* srcNode)
     {
         // Read all the parameters - make sure they are strings
         // Concatenate all the strings to produce the final code
@@ -315,83 +315,83 @@ namespace
             code += c;
             code += "\n";
         }
-        DynNode* res = mkBackendCode(srcNode->location(), code);
-        res->setContext(context);
+        Node* res = mkBackendCode(srcNode->location(), code);
+        setContext(res, context);
         return res;
     }
 
-    DynNode* interpretTempDestructAction(CompilationContext* context, SimpleAstNode* srcNode)
+    Node* interpretTempDestructAction(CompilationContext* context, SimpleAstNode* srcNode)
     {
         checkChildrenCount(srcNode, 1, "<destruct action>");
-        DynNode* action = readNode(context, srcNode->children()[0], "<destruct action>");
-        DynNode* res = mkTempDestructAction(srcNode->location(), action);
-        res->setContext(context);
+        Node* action = readNode(context, srcNode->children()[0], "<destruct action>");
+        Node* res = mkTempDestructAction(srcNode->location(), action);
+        setContext(res, context);
         return res;
     }
 
-    DynNode* interpretScopeDestructAction(CompilationContext* context, SimpleAstNode* srcNode)
+    Node* interpretScopeDestructAction(CompilationContext* context, SimpleAstNode* srcNode)
     {
         checkChildrenCount(srcNode, 1, "<destruct action>");
-        DynNode* action = readNode(context, srcNode->children()[0], "<destruct action>");
-        DynNode* res = mkScopeDestructAction(srcNode->location(), action);
-        res->setContext(context);
+        Node* action = readNode(context, srcNode->children()[0], "<destruct action>");
+        Node* res = mkScopeDestructAction(srcNode->location(), action);
+        setContext(res, context);
         return res;
     }
 
-    DynNode* interpretGlobalDestructAction(CompilationContext* context, SimpleAstNode* srcNode)
+    Node* interpretGlobalDestructAction(CompilationContext* context, SimpleAstNode* srcNode)
     {
         checkChildrenCount(srcNode, 1, "<destruct action>");
-        DynNode* action = readNode(context, srcNode->children()[0], "<destruct action>");
-        DynNode* res = mkGlobalDestructAction(srcNode->location(), action);
-        res->setContext(context);
+        Node* action = readNode(context, srcNode->children()[0], "<destruct action>");
+        Node* res = mkGlobalDestructAction(srcNode->location(), action);
+        setContext(res, context);
         return res;
     }
 
-    DynNode* interpretGlobalConstructAction(CompilationContext* context, SimpleAstNode* srcNode)
+    Node* interpretGlobalConstructAction(CompilationContext* context, SimpleAstNode* srcNode)
     {
         checkChildrenCount(srcNode, 1, "<construct action>");
-        DynNode* action = readNode(context, srcNode->children()[0], "<construct action>");
-        DynNode* res = mkGlobalConstructAction(srcNode->location(), action);
-        res->setContext(context);
+        Node* action = readNode(context, srcNode->children()[0], "<construct action>");
+        Node* res = mkGlobalConstructAction(srcNode->location(), action);
+        setContext(res, context);
         return res;
     }
 
-    DynNode* interpretLocalSpace(CompilationContext* context, SimpleAstNode* srcNode)
+    Node* interpretLocalSpace(CompilationContext* context, SimpleAstNode* srcNode)
     {
-        DynNodeVector children;
+        NodeVector children;
         for ( auto child: srcNode->children() )
         {
-            DynNode* childNode = readNode(context, child, "<local space item>");
+            Node* childNode = readNode(context, child, "<local space item>");
             if ( !childNode ) continue;
             children.push_back(childNode);
         }
-        DynNode* res = mkLocalSpace(srcNode->location(), children);
-        res->setContext(context);
+        Node* res = mkLocalSpace(srcNode->location(), children);
+        setContext(res, context);
         return res;
     }
 
-    DynNode* interpretCtValue(CompilationContext* context, SimpleAstNode* srcNode)
+    Node* interpretCtValue(CompilationContext* context, SimpleAstNode* srcNode)
     {
         checkChildrenCount(srcNode, 2, "<type>, <value>");
         TypeRef type = readType(context, srcNode->children()[0], "<type>");
         string val = readString(srcNode->children()[1], "<value>");
-        DynNode* res = mkCtValue(srcNode->children()[1]->location(), type, val);
-        res->setContext(context);
+        Node* res = mkCtValue(srcNode->children()[1]->location(), type, val);
+        setContext(res, context);
         return res;
     }
 
-    DynNode* interpretCtValueBin(CompilationContext* context, SimpleAstNode* srcNode)
+    Node* interpretCtValueBin(CompilationContext* context, SimpleAstNode* srcNode)
     {
         checkChildrenCount(srcNode, 2, "<type>, <bin-value>");
         TypeRef type = readType(context, srcNode->children()[0], "<type>");
         string val = readString(srcNode->children()[1], "<bin-value>");
         const Location& loc = srcNode->children()[1]->location();
-        DynNode* res = mkCtValue(loc, type, decodeBinaryValue(loc, val));
-        res->setContext(context);
+        Node* res = mkCtValue(loc, type, decodeBinaryValue(loc, val));
+        setContext(res, context);
         return res;
     }
 
-    DynNode* interpretStackAlloc(CompilationContext* context, SimpleAstNode* srcNode)
+    Node* interpretStackAlloc(CompilationContext* context, SimpleAstNode* srcNode)
     {
         checkChildrenCountRange(srcNode, 1, 3, "<type>, [num-elements], [alignment]");
         TypeRef type = readType(context, srcNode->children()[0], "<type>");
@@ -405,15 +405,15 @@ namespace
         {
             alignment = readInt(srcNode->children()[2], "<alignment>");
         }
-        DynNode* res = mkStackAlloc(srcNode->location(), mkTypeNode(srcNode->children()[0]->location(), type), numElements, alignment);
-        res->setContext(context);
+        Node* res = mkStackAlloc(srcNode->location(), mkTypeNode(srcNode->children()[0]->location(), type), numElements, alignment);
+        setContext(res, context);
         return res;
     }
 
-    DynNode* interpretMemLoad(CompilationContext* context, SimpleAstNode* srcNode)
+    Node* interpretMemLoad(CompilationContext* context, SimpleAstNode* srcNode)
     {
         checkChildrenCountRange(srcNode, 1, 5, "<address>, [<alignment>], [volatile], [unordered|monotonic|acquire|release|acquirerelease|seqconsistent], [singlethread]");
-        DynNode* arg = readNode(context, srcNode->children()[0], "<address>");
+        Node* arg = readNode(context, srcNode->children()[0], "<address>");
         int alignment = 0;
         bool isVolatile = false;
         bool isSingleThread = false;
@@ -445,16 +445,16 @@ namespace
                 REP_ERROR(srcNode->children()[i]->location(), "Invalid argument for MemLoad (%1%)") % srcNode->children()[i]->stringValue();
             }
         }
-        DynNode* res = mkMemLoad(srcNode->location(), arg, alignment, isVolatile, ordering, isSingleThread);
-        res->setContext(context);
+        Node* res = mkMemLoad(srcNode->location(), arg, alignment, isVolatile, ordering, isSingleThread);
+        setContext(res, context);
         return res;
     }
 
-    DynNode* interpretMemStore(CompilationContext* context, SimpleAstNode* srcNode)
+    Node* interpretMemStore(CompilationContext* context, SimpleAstNode* srcNode)
     {
         checkChildrenCountRange(srcNode, 1, 6, "<value>, <address>, [<alignment>], [volatile], [unordered|monotonic|acquire|release|acquirerelease|seqconsistent], [singlethread]");
-        DynNode* value = readNode(context, srcNode->children()[0], "<value>");
-        DynNode* address = readNode(context, srcNode->children()[1], "<address>");
+        Node* value = readNode(context, srcNode->children()[0], "<value>");
+        Node* address = readNode(context, srcNode->children()[1], "<address>");
         int alignment = 0;
         bool isVolatile = false;
         bool isSingleThread = false;
@@ -486,41 +486,41 @@ namespace
                 REP_ERROR(srcNode->children()[i]->location(), "Invalid argument for MemStore (%1%)") % srcNode->children()[i]->stringValue();
             }
         }
-        DynNode* res = mkMemStore(srcNode->location(), value, address, alignment, isVolatile, ordering, isSingleThread);
-        res->setContext(context);
+        Node* res = mkMemStore(srcNode->location(), value, address, alignment, isVolatile, ordering, isSingleThread);
+        setContext(res, context);
         return res;
     }
 
-    DynNode* interpretVarRef(CompilationContext* context, SimpleAstNode* srcNode)
+    Node* interpretVarRef(CompilationContext* context, SimpleAstNode* srcNode)
     {
         checkChildrenCount(srcNode, 1, "<var-name>");
         string varName = readIdentifier(srcNode->children()[0], "<var-name>");
-        DynNode* var = findDefinition<Var>(context, varName, srcNode->children()[0]->location(), "variable");
-        DynNode* res = mkVarRef(srcNode->location(), var);
-        res->setContext(context);
+        Node* var = findDefinition<Var>(context, varName, srcNode->children()[0]->location(), "variable")->node();
+        Node* res = mkVarRef(srcNode->location(), var);
+        setContext(res, context);
         return res;
     }
 
-    DynNode* interpretFieldRef(CompilationContext* context, SimpleAstNode* srcNode)
+    Node* interpretFieldRef(CompilationContext* context, SimpleAstNode* srcNode)
     {
         checkChildrenCount(srcNode, 3, "<obj>, <class-name>, <field-name>");
-        DynNode* obj = readNode(context, srcNode->children()[0], "<obj>");
+        Node* obj = readNode(context, srcNode->children()[0], "<obj>");
         string className = readIdentifier(srcNode->children()[1], "<class-name>");
         string fieldName = readIdentifier(srcNode->children()[2], "<field-name>");
         Class* cls = findDefinition<Class>(context, className, srcNode->children()[1]->location(), "class");
         cls->computeType();
-        DynNode* field = findDefinition<Var>(cls->childrenContext()->currentSymTab(), fieldName, srcNode->children()[2]->location(), "field", true);
-        DynNode* res = mkFieldRef(srcNode->location(), obj, field);
-        res->setContext(context);
+        Node* field = findDefinition<Var>(cls->childrenContext()->currentSymTab(), fieldName, srcNode->children()[2]->location(), "field", true)->node();
+        Node* res = mkFieldRef(srcNode->location(), obj, field);
+        setContext(res, context);
         return res;
     }
 
-    DynNode* interpretFunCall(CompilationContext* context, SimpleAstNode* srcNode)
+    Node* interpretFunCall(CompilationContext* context, SimpleAstNode* srcNode)
     {
         checkChildrenCountRange(srcNode, 1, 100, "<function-name>, [<arguments>]");
         string funName = readIdentifier(srcNode->children()[0], "<function-name>");
-        Function* funDecl = findDefinition<Function>(context, funName, srcNode->children()[0]->location(), "function");
-        DynNodeVector args;
+        Node* funDecl = findDefinition<Function>(context, funName, srcNode->children()[0]->location(), "function")->node();
+        NodeVector args;
         for ( size_t i=1; i<srcNode->children().size(); ++i )
         {
             args.push_back(readNode(context, srcNode->children()[i], "<argument>"));
@@ -529,9 +529,9 @@ namespace
         return mkFunCall(srcNode->location(), funDecl, args);
     }
 
-    DynNode* interpretReturn(CompilationContext* context, SimpleAstNode* srcNode)
+    Node* interpretReturn(CompilationContext* context, SimpleAstNode* srcNode)
     {
-        DynNode* res;
+        Node* res;
         if ( srcNode->children().empty() )
         {
             res = mkReturn(srcNode->location(), nullptr);;
@@ -539,69 +539,69 @@ namespace
         else
         {
             checkChildrenCount(srcNode, 1, "<expression>");
-            DynNode* exp = readNode(context, srcNode->children()[0], "<expression>");
+            Node* exp = readNode(context, srcNode->children()[0], "<expression>");
             res = mkReturn(srcNode->location(), exp);
         }
-        res->setContext(context);
+        setContext(res, context);
         return res;
     }
 
-    DynNode* interpretIf(CompilationContext* context, SimpleAstNode* srcNode)
+    Node* interpretIf(CompilationContext* context, SimpleAstNode* srcNode)
     {
         checkChildrenCountRange(srcNode, 2, 3, "<condition>, <then-clause>, [<else-clause>]");
-        DynNode* cond = readNode(context, srcNode->children()[0], "<condition>");
-        DynNode* thenClause = readNode(context, srcNode->children()[1], "<then-clause>");
-        DynNode* elseClause = nullptr;
+        Node* cond = readNode(context, srcNode->children()[0], "<condition>");
+        Node* thenClause = readNode(context, srcNode->children()[1], "<then-clause>");
+        Node* elseClause = nullptr;
         if ( srcNode->children().size() >= 3 )
             elseClause = readNode(context, srcNode->children()[2], "<else-clause>");
-        DynNode* res = mkIf(srcNode->location(), cond, thenClause, elseClause);
-        res->setContext(context);
+        Node* res = mkIf(srcNode->location(), cond, thenClause, elseClause);
+        setContext(res, context);
         return res;
     }
 
-    DynNode* interpretStaticIf(CompilationContext* context, SimpleAstNode* srcNode)
+    Node* interpretStaticIf(CompilationContext* context, SimpleAstNode* srcNode)
     {
         checkChildrenCountRange(srcNode, 2, 3, "<condition>, <then-clause>, [<else-clause>]");
-        DynNode* cond = readNode(context, srcNode->children()[0], "<condition>");
-        DynNode* thenClause = readNode(context, srcNode->children()[1], "<then-clause>");
-        DynNode* elseClause = nullptr;
+        Node* cond = readNode(context, srcNode->children()[0], "<condition>");
+        Node* thenClause = readNode(context, srcNode->children()[1], "<then-clause>");
+        Node* elseClause = nullptr;
         if ( srcNode->children().size() >= 3 )
             elseClause = readNode(context, srcNode->children()[2], "<else-clause>");
-        DynNode* res = mkIf(srcNode->location(), cond, thenClause, elseClause, true);
-        res->setContext(context);
+        Node* res = mkIf(srcNode->location(), cond, thenClause, elseClause, true);
+        setContext(res, context);
         return res;
     }
 
-    DynNode* interpretWhile(CompilationContext* context, SimpleAstNode* srcNode)
+    Node* interpretWhile(CompilationContext* context, SimpleAstNode* srcNode)
     {
         checkChildrenCountRange(srcNode, 2, 3, "<condition>, <body>, [<step>]");
-        DynNode* cond = readNode(context, srcNode->children()[0], "<condition>");
-        DynNode* body = readNode(context, srcNode->children()[1], "<body>");
-        DynNode* step = nullptr;
+        Node* cond = readNode(context, srcNode->children()[0], "<condition>");
+        Node* body = readNode(context, srcNode->children()[1], "<body>");
+        Node* step = nullptr;
         if ( srcNode->children().size() >= 3 )
             step = readNode(context, srcNode->children()[2], "<step>");
-        DynNode* res = mkWhile(srcNode->location(), cond, body, step);
-        res->setContext(context);
+        Node* res = mkWhile(srcNode->location(), cond, body, step);
+        setContext(res, context);
         return res;
     }
 
-    DynNode* interpretBreak(CompilationContext* context, SimpleAstNode* srcNode)
+    Node* interpretBreak(CompilationContext* context, SimpleAstNode* srcNode)
     {
         checkNoChildren(srcNode);
-        DynNode* res = mkBreak(srcNode->location());
-        res->setContext(context);
+        Node* res = mkBreak(srcNode->location());
+        setContext(res, context);
         return res;
     }
 
-    DynNode* interpretContinue(CompilationContext* context, SimpleAstNode* srcNode)
+    Node* interpretContinue(CompilationContext* context, SimpleAstNode* srcNode)
     {
         checkNoChildren(srcNode);
-        DynNode* res = mkContinue(srcNode->location());
-        res->setContext(context);
+        Node* res = mkContinue(srcNode->location());
+        setContext(res, context);
         return res;
     }
 
-    DynNode* interpretVar(CompilationContext* context, SimpleAstNode* srcNode)
+    Node* interpretVar(CompilationContext* context, SimpleAstNode* srcNode)
     {
         checkChildrenCountRange(srcNode, 2, 3, "<name>, <type>, [<alignment>]");
         string name = readIdentifier(srcNode->children()[0], "<name>");
@@ -612,12 +612,12 @@ namespace
             alignment = readInt(srcNode->children()[2], "<alignment>");
         }
         
-        DynNode* res = Feather::mkVar(srcNode->location(), name, mkTypeNode(srcNode->children()[1]->location(), type), alignment);
-        res->setContext(context);
+        Node* res = Feather::mkVar(srcNode->location(), name, mkTypeNode(srcNode->children()[1]->location(), type), alignment);
+        setContext(res, context);
         return res;
     }
 
-    DynNode* interpretClass(CompilationContext* context, SimpleAstNode* srcNode)
+    Node* interpretClass(CompilationContext* context, SimpleAstNode* srcNode)
     {
         checkChildrenCountRange(srcNode, 1, 100, "<class-name>, [<fields>]");
         string name = readIdentifier(srcNode->children()[0], "<class-name>");
@@ -634,8 +634,8 @@ namespace
                 try
                 {
                     checkChildrenCountRange(srcNode->children()[i], 2, 3, "<name>, <type>, [<alignment>]");
-                    DynNode* f = interpretVar(cls->childrenContext(), srcNode->children()[i]);
-                    fields.push_back(f);
+                    Node* f = interpretVar(cls->childrenContext(), srcNode->children()[i]);
+                    fields.push_back((DynNode*) f);
                 }
                 catch(...)
                 {
@@ -648,10 +648,10 @@ namespace
             REP_ERROR(srcNode->children()[i]->location(), "Invalid identifier in class (%1%)") % ident;
         }
         cls->addFields(fields);
-        return cls;
+        return cls->node();
     }
 
-    DynNode* interpretFunction(CompilationContext* context, SimpleAstNode* srcNode)
+    Node* interpretFunction(CompilationContext* context, SimpleAstNode* srcNode)
     {
         checkChildrenCountRange(srcNode, 3, 4, "<function-name>, params(...), <result-type>, [<body>]");
         string name = readIdentifier(srcNode->children()[0], "<function-name>");
@@ -669,22 +669,22 @@ namespace
         {
             if ( !testIdentifier(p, "var") )
                 REP_ERROR(p->location(), "Expected var(<name>, <type>, [<alignment>])");
-            DynNode* param = interpretVar(fun->childrenContext(), p);
-            fun->addParameter(param);
+            Node* param = interpretVar(fun->childrenContext(), p);
+            fun->addParameter((DynNode*) param);
         }
 
         // Read the body
         if ( srcNode->children().size() >= 4 )
         {
-            DynNode* body = readNode(fun->childrenContext(), srcNode->children()[3], "<body>");
-            fun->setBody(body);
+            Node* body = readNode(fun->childrenContext(), srcNode->children()[3], "<body>");
+            fun->setBody((DynNode*) body);
         }
 
-        return fun;
+        return fun->node();
     }
 
 
-    DynNode* interpretNode(CompilationContext* context, SimpleAstNode* srcNode)
+    Node* interpretNode(CompilationContext* context, SimpleAstNode* srcNode)
     {
         // Make sure we start with an identifier
         if ( !srcNode->isIdentifier() )
@@ -694,7 +694,7 @@ namespace
         string id = srcNode->stringValue();
         boost::algorithm::to_lower(id);
 
-        DynNode* res = nullptr;
+        Node* res = nullptr;
         if ( id == "nodelist" )
         {
             res = interpretNodeList(context, srcNode);
@@ -808,9 +808,9 @@ namespace
             REP_ERROR(srcNode->location(), "Unknown construct found: %1%") % srcNode->stringValue();
         if ( res )
         {
-            res->setLocation(srcNode->location());
-            if ( !res->context() )
-                res->setContext(context);
+            res->location = srcNode->location();
+            if ( !res->context )
+                setContext(res, context);
         }
         return res;
     }
@@ -901,7 +901,7 @@ DynNode* SimpleParser::parse(CompilationContext* context)
 
 DynNode* SimpleParser::interpret(CompilationContext* context, SimpleAstNode* srcNode)
 {
-    DynNode* n = interpretNode(context, srcNode);
-    n->setContext(context);
-    return n;
+    Node* n = interpretNode(context, srcNode);
+    setContext(n, context);
+    return (DynNode*) n;
 }

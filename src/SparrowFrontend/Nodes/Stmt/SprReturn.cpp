@@ -51,7 +51,7 @@ void SprReturn::doSemanticCheck()
         exp->semanticCheck();
         if ( !resType->hasStorage && exp->type() == resType )
         {
-            setExplanation(mkNodeList(data_.location, { exp, mkReturn(data_.location) }));
+            setExplanation((DynNode*) mkNodeList(data_.location, { exp->node(), mkReturn(data_.location) }));
             return;
         }
         else
@@ -72,7 +72,7 @@ void SprReturn::doSemanticCheck()
     {
         // Create a ctor to construct the result parameter with the expression received
         const Location& l = resultParam->location();
-        DynNode* thisArg = mkMemLoad(l, mkVarRef(l, resultParam));
+        DynNode* thisArg = (DynNode*) mkMemLoad(l, mkVarRef(l, resultParam->node()));
         thisArg->setContext(data_.context);
         DynNode* action = createCtorCall(l, data_.context, thisArg, exp);
         if ( !action )
@@ -80,12 +80,12 @@ void SprReturn::doSemanticCheck()
 
         if ( action )
         {
-            setExplanation(mkNodeList(data_.location, { action, mkReturn(data_.location, nullptr)}));
+            setExplanation((DynNode*) mkNodeList(data_.location, { action->node(), mkReturn(data_.location, nullptr)}));
         }
     }
     else
     {
         exp = exp ? cvt.apply(data_.context, exp) : nullptr;
-        setExplanation(mkReturn(data_.location, exp));
+        setExplanation((DynNode*) mkReturn(data_.location, exp->node()));
     }
 }

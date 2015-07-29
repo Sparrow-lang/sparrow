@@ -200,9 +200,9 @@ DynNode* SprFrontend::mkSprFunction(const Location& loc, string name, NodeList* 
 DynNode* SprFrontend::mkSprFunctionExp(const Location& loc, string name, NodeList* parameters, DynNode* returnType, DynNode* bodyExp, DynNode* ifClause, AccessType accessType)
 {
     const Location& loc2 = bodyExp->location();
-    DynNode* body = mkBlockStmt(loc2, (NodeList*) Feather::mkNodeList(loc2, { mkReturnStmt(loc2, bodyExp) }));
+    DynNode* body = mkBlockStmt(loc2, (NodeList*) Feather::mkNodeList(loc2, { mkReturnStmt(loc2, bodyExp)->node() }));
     if ( !returnType )
-        returnType = mkFunApplication(loc2, mkIdentifier(loc2, "typeOf"), (NodeList*) Feather::mkNodeList(loc2, { bodyExp }));
+        returnType = mkFunApplication(loc2, mkIdentifier(loc2, "typeOf"), (NodeList*) Feather::mkNodeList(loc2, { bodyExp->node() }));
 
     return new SprFunction(loc, move(name), parameters, returnType, body, ifClause, accessType);
 }
@@ -280,7 +280,7 @@ DynNode* SprFrontend::mkThisExp(const Location& loc)
 
 DynNode* SprFrontend::mkParenthesisExp(const Location& loc, DynNode* exp)
 {
-    return Feather::mkNodeList(loc, {exp}, false);
+    return (DynNode*) Feather::mkNodeList(loc, {exp->node()}, false);
 }
 
 DynNode* SprFrontend::mkIntLiteral(const Location& loc, int value)
@@ -339,9 +339,9 @@ DynNode* SprFrontend::mkLambdaExp(const Location& loc, NodeList* parameters, Dyn
     {
         ASSERT(!body);
         const Location& loc = bodyExp->location();
-        body = mkBlockStmt(loc, (NodeList*) Feather::mkNodeList(loc, { mkReturnStmt(loc, bodyExp) }));
+        body = mkBlockStmt(loc, (NodeList*) Feather::mkNodeList(loc, { mkReturnStmt(loc, bodyExp)->node() }));
         if ( !returnType )
-            returnType = mkFunApplication(loc, mkIdentifier(loc, "typeOf"), (NodeList*) Feather::mkNodeList(loc, { bodyExp }));
+            returnType = mkFunApplication(loc, mkIdentifier(loc, "typeOf"), (NodeList*) Feather::mkNodeList(loc, { bodyExp->node() }));
     }
     return new LambdaFunction(loc, parameters, returnType, body, closureParams);
 }
@@ -354,12 +354,12 @@ DynNode* SprFrontend::mkExpressionStmt(const Location& /*loc*/, DynNode* exp)
 
 DynNode* SprFrontend::mkBlockStmt(const Location& loc, NodeList* statements)
 {
-    return Feather::mkLocalSpace(loc, statements ? statements->children() : DynNodeVector());
+    return (DynNode*) Feather::mkLocalSpace(loc, statements ? statements->data_.children : NodeVector());
 }
 
 DynNode* SprFrontend::mkIfStmt(const Location& loc, DynNode* cond, DynNode* thenClause, DynNode* elseClause)
 {
-    return Feather::mkIf(loc, cond, thenClause, elseClause);
+    return (DynNode*) Feather::mkIf(loc, cond->node(), thenClause->node(), elseClause->node());
 }
 
 DynNode* SprFrontend::mkForStmt(const Location& loc, string name, DynNode* type, DynNode* range, DynNode* action)
@@ -369,17 +369,17 @@ DynNode* SprFrontend::mkForStmt(const Location& loc, string name, DynNode* type,
 
 DynNode* SprFrontend::mkWhileStmt(const Location& loc, DynNode* cond, DynNode* step, DynNode* action)
 {
-    return Feather::mkWhile(loc, cond, action, step);
+    return (DynNode*) Feather::mkWhile(loc, cond->node(), action->node(), step->node());
 }
 
 DynNode* SprFrontend::mkBreakStmt(const Location& loc)
 {
-    return Feather::mkBreak(loc);
+    return (DynNode*) Feather::mkBreak(loc);
 }
 
 DynNode* SprFrontend::mkContinueStmt(const Location& loc)
 {
-    return Feather::mkContinue(loc);
+    return (DynNode*) Feather::mkContinue(loc);
 }
 
 DynNode* SprFrontend::mkReturnStmt(const Location& loc, DynNode* exp)

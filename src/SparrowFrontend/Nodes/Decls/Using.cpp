@@ -58,7 +58,7 @@ void Using::doComputeType()
         // We added this node to the current sym tab, as we set shouldAddToSymTab_ to true
     }
 
-    setExplanation(Feather::mkNop(data_.location));
+    setExplanation((DynNode*) Feather::mkNop(data_.location));
 }
 
 void Using::doSemanticCheck()

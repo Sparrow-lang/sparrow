@@ -59,13 +59,13 @@ void SprParameter::doComputeType()
     const TypeRef* givenType = getPropertyType("spr.givenType");
     TypeRef t = givenType ? *givenType : getType(typeNode);
 
-    DynNode* resultingParam = Feather::mkVar(data_.location, Feather::getName(node()), Feather::mkTypeNode(data_.location, t), 0, Feather::effectiveEvalMode(node()));
-    Feather::setShouldAddToSymTab(resultingParam->node(), false);
-    resultingParam->setContext(data_.context);
-    resultingParam->computeType();
-    data_.explanation = resultingParam->node();
-    data_.type = resultingParam->type();
-    setProperty(Feather::propResultingDecl, resultingParam);
+    Node* resultingParam = Feather::mkVar(data_.location, Feather::getName(node()), Feather::mkTypeNode(data_.location, t), 0, Feather::effectiveEvalMode(node()));
+    Feather::setShouldAddToSymTab(resultingParam, false);
+    Nest::setContext(resultingParam, data_.context);
+    Nest::computeType(resultingParam);
+    data_.explanation = resultingParam;
+    data_.type = resultingParam->type;
+    Nest::setProperty(node(), Feather::propResultingDecl, resultingParam);
 }
 
 void SprParameter::doSemanticCheck()

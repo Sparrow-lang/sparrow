@@ -130,7 +130,7 @@ void IntModCtorMembers::beforeSemanticCheck(Node* n)
 
         if ( !hasCtorCall(body, nullptr, false, field) )
         {
-            DynNode* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
+            DynNode* fieldRef = (DynNode*) mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)->node()), field->node());
             DynNode* call = nullptr;
             if ( field->type()->numReferences == 0 )
             {

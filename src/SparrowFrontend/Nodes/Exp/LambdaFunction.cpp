@@ -48,13 +48,13 @@ void LambdaFunction::doSemanticCheck()
     NodeList* ctorParams = nullptr;
 
     // Create the enclosing class body node list
-    NodeList* classBody = mkNodeList(data_.location, {});
+    NodeList* classBody = (NodeList*) mkNodeList(data_.location, {});
 
     // The actual enclosed function
     classBody->addChild(mkSprFunction(data_.location, "()", parameters, returnType, body));
 
     // Add a private default ctor
-    classBody->addChild(mkSprFunction(data_.location, "ctor", nullptr, nullptr, mkLocalSpace(data_.location, DynNodeVector()), nullptr, privateAccess));
+    classBody->addChild(mkSprFunction(data_.location, "ctor", nullptr, nullptr, (DynNode*) mkLocalSpace(data_.location, {}), nullptr, privateAccess));
 
     // For each closure variable, create:
     // - a member variable in the class
@@ -91,12 +91,12 @@ void LambdaFunction::doSemanticCheck()
             DynNode* initCall = mkOperatorCall(loc, fieldRef, op, paramRef);
             ctorStmts.push_back(initCall);
         }
-        ctorArgs = mkNodeList(data_.location, move(ctorArgsNodes));
-        ctorParams = mkNodeList(data_.location, move(ctorParamsNodes));
+        ctorArgs = (NodeList*) mkNodeList(data_.location, fromDyn(move(ctorArgsNodes)));
+        ctorParams = (NodeList*) mkNodeList(data_.location, fromDyn(move(ctorParamsNodes)));
     }
 
     // Create the ctor used to initialize the closure class
-    DynNode* ctorBody = mkLocalSpace(data_.location, ctorStmts);
+    DynNode* ctorBody = (DynNode*) mkLocalSpace(data_.location, fromDyn(ctorStmts));
     DynNode* enclosingCtor = mkSprFunction(data_.location, "ctor", ctorParams, nullptr, ctorBody);
     enclosingCtor->setProperty(propNoDefault, 1);
     classBody->addChild(enclosingCtor);

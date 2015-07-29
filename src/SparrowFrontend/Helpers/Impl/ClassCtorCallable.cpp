@@ -98,10 +98,10 @@ ConversionType ClassCtorCallable::canCall(CompilationContext* context, const Loc
     context_ = context;
 
     // Create a temporary variable - use it as a this argument
-    tmpVar_ = Feather::mkVar(loc, "tmp.v", mkTypeNode(loc, varType(cls_, evalMode_)), 0, evalMode_);
+    tmpVar_ = (DynNode*) Feather::mkVar(loc, "tmp.v", mkTypeNode(loc, varType(cls_, evalMode_)), 0, evalMode_);
     tmpVar_->setContext(context);
     tmpVar_->computeType();
-    thisArg_ = mkVarRef(loc, tmpVar_);
+    thisArg_ = (DynNode*) mkVarRef(loc, tmpVar_->node());
     thisArg_->setContext(context);
     thisArg_->computeType();
 

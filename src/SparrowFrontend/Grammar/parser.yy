@@ -105,8 +105,8 @@ using namespace std;
     char                charVal;
     string*             stringVal;
     vector<string>*     stringList;
-    Feather::DynNode*      node;
-    Feather::NodeList*  nodeList;
+    Feather::DynNode*   node;
+    Feather::DynNode*   nodeList;
     AccessType          accessType;
 }
 
@@ -252,9 +252,9 @@ IdentifierList
 
 IdentifierListNode
     : IdentifierListNode COMMA IDENTIFIER
-        { $$ = Feather::addToNodeList($1, mkIdentifier(@3, *$3)); }
+        { $$ = (DynNode*) Feather::addToNodeList($1->node(), mkIdentifier(@3, *$3)->node()); }
     | IDENTIFIER
-        { $$ = Feather::mkNodeList(@$, { mkIdentifier(@$, *$1)}); }
+        { $$ = (DynNode*) Feather::mkNodeList(@$, { mkIdentifier(@$, *$1)->node() }); }
     ;
 
 ModifierSpec
@@ -266,9 +266,9 @@ ModifierSpec
 
 Modifiers
 	: Modifiers COMMA Expr
-        { $$ = Feather::addToNodeList($1, $3); }
+        { $$ = (DynNode*) Feather::addToNodeList($1->node(), $3->node()); }
 	| Expr
-        { $$ = Feather::addToNodeList(NULL, $1); }
+        { $$ = (DynNode*) Feather::addToNodeList(NULL, $1->node()); }
 	;
 
 
@@ -278,7 +278,7 @@ Modifiers
 
 ProgramFile
 	: PackageTopDeclaration ImportDeclarationsOpt DeclarationsOpt END
-        { $$ = mkSprCompilationUnit(@$, $1, $2, $3); }
+        { $$ = mkSprCompilationUnit(@$, $1, (NodeList*) $2, (NodeList*) $3); }
 	;
 
 PackageTopDeclaration
@@ -297,9 +297,9 @@ ImportDeclarationsOpt
 
 ImportDeclarations
 	: ImportDeclarations ImportDeclaration
-        { $$ = Feather::addToNodeList($1, $2); }
+        { $$ = (DynNode*) Feather::addToNodeList($1->node(), $2->node()); }
 	| ImportDeclaration
-        { $$ = Feather::addToNodeList(NULL, $1); }
+        { $$ = (DynNode*) Feather::addToNodeList(NULL, $1->node()); }
 	;
 
 ImportDeclaration
@@ -317,9 +317,9 @@ DeclarationsOpt
 
 Declarations
 	: Declarations Declaration
-        { $$ = Feather::addToNodeList($1, $2); }
+        { $$ = (DynNode*) Feather::addToNodeList($1->node(), $2->node()); }
 	| Declaration
-        { $$ = Feather::addToNodeList(NULL, $1); }
+        { $$ = (DynNode*) Feather::addToNodeList(NULL, $1->node()); }
 	;
 
 Declaration
@@ -373,23 +373,23 @@ UsingDeclaration
 
 PackageDeclaration
 	: AccessSpec PACKAGE ModifierSpec IDENTIFIER LCURLY DeclarationsOpt RCURLY
-        { $$ = mkModifiers(@$, mkSprPackage(@$, *$4, $6, $1), $3); }
+        { $$ = mkModifiers(@$, mkSprPackage(@$, *$4, (NodeList*) $6, $1), $3); }
 	;
 
 VarDeclaration                        
 	: AccessSpec VAR ModifierSpec IdentifierList COLON ExprNoEq EQUAL Expr SEMICOLON    // var[...] a,b,c : Int = 3;
-        { $$ = buildVariables(@$, *$4, $6, $8, $3, $1); delete $4; }
+        { $$ = buildVariables(@$, *$4, $6, $8, (NodeList*) $3, $1); delete $4; }
 	| AccessSpec VAR ModifierSpec IdentifierList COLON ExprNoEq SEMICOLON               // var[...] a,b,c : Int;
-        { $$ = buildVariables(@$, *$4, $6, NULL, $3, $1); delete $4; }
+        { $$ = buildVariables(@$, *$4, $6, NULL, (NodeList*) $3, $1); delete $4; }
 	| AccessSpec VAR ModifierSpec IdentifierList EQUAL Expr SEMICOLON                   // var[...] a,b,c = 3;
-        { $$ = buildVariables(@$, *$4, NULL, $6, $3, $1); delete $4; }
+        { $$ = buildVariables(@$, *$4, NULL, $6, (NodeList*) $3, $1); delete $4; }
 	;
 
 ClassDeclaration
 	: AccessSpec CLASS ModifierSpec IDENTIFIER FormalsOpt COLON ExprListOpt IfClause LCURLY DeclarationsOpt RCURLY
-        { $$ = mkModifiers(@$, mkSprClass(@$, *$4, $5, $7, $8, $10, $1), $3); }
+        { $$ = mkModifiers(@$, mkSprClass(@$, *$4, (NodeList*) $5, (NodeList*) $7, $8, (NodeList*) $10, $1), (NodeList*) $3); }
 	| AccessSpec CLASS ModifierSpec IDENTIFIER FormalsOpt IfClause LCURLY DeclarationsOpt RCURLY
-        { $$ = mkModifiers(@$, mkSprClass(@$, *$4, $5, NULL, $6, $8, $1), $3); }
+        { $$ = mkModifiers(@$, mkSprClass(@$, *$4, (NodeList*) $5, NULL, $6, (NodeList*) $8, $1), (NodeList*) $3); }
 	;
 
 ConceptDeclaration
@@ -399,9 +399,9 @@ ConceptDeclaration
 
 FunDeclaration
 	: AccessSpec FUN ModifierSpec FunOrOperName FormalsOpt FunRetType IfClause FunctionBody
-        { $$ = mkModifiers(@$, mkSprFunction(@$, *$4, $5, $6, $8, $7, $1), $3); }
+        { $$ = mkModifiers(@$, mkSprFunction(@$, *$4, (NodeList*) $5, $6, $8, $7, $1), (NodeList*) $3); }
 	| AccessSpec FUN ModifierSpec FunOrOperName FormalsOpt FunRetType EQUAL Expr IfClause SEMICOLON
-        { $$ = mkModifiers(@$, mkSprFunctionExp(@$, *$4, $5, $6, $8, $9, $1), $3); }
+        { $$ = mkModifiers(@$, mkSprFunctionExp(@$, *$4, (NodeList*) $5, $6, $8, $9, $1), (NodeList*) $3); }
 	;
 
 FunRetType
@@ -436,7 +436,7 @@ FormalsOpt
 
 Formals
 	: Formals COMMA Formal
-        { $$ = appendNodeList($1, $3); }
+        { $$ = (DynNode*) Feather::appendNodeList($1->node(), $3->node()); }
 	| Formal
         { $$ = $1; }
 	;
@@ -470,9 +470,9 @@ ExprListOpt
 
 ExprList
 	: ExprList COMMA Expr
-        { $$ = Feather::addToNodeList($1, $3); }
+        { $$ = (DynNode*) Feather::addToNodeList($1->node(), $3->node()); }
 	| Expr
-        { $$ = Feather::addToNodeList(NULL, $1); }
+        { $$ = (DynNode*) Feather::addToNodeList(NULL, $1->node()); }
 	;
 
 Expr
@@ -614,9 +614,9 @@ SimpleExprNoEq
 
 LambdaExpr
     :   LPAREN FUN LambdaClosureParams FormalsOpt FunRetType FunctionBody RPAREN
-        { $$ = mkLambdaExp(@$, $4, $5, $6, NULL, $3); }
+        { $$ = mkLambdaExp(@$, (NodeList*) $4, $5, $6, NULL, (NodeList*) $3); }
     |   LPAREN FUN LambdaClosureParams FormalsOpt FunRetType EQUAL Expr RPAREN
-        { $$ = mkLambdaExp(@$, $4, $5, NULL, $7, $3); }
+        { $$ = mkLambdaExp(@$, (NodeList*) $4, $5, NULL, $7, (NodeList*) $3); }
     ;
 
 LambdaClosureParams
@@ -635,7 +635,7 @@ LambdaClosureParams
 
 Statements
     : Statements Statement
-        { $$ = Feather::addToNodeList($1, $2); }
+        { $$ = (DynNode*) Feather::addToNodeList($1->node(), $2->node()); }
     | /*nothing*/
         { $$ = NULL; }
     ;
@@ -679,7 +679,7 @@ ExpressionStmt
 
 BlockStmt
     : LCURLY Statements RCURLY
-        { $$ = mkBlockStmt(@$, $2); }
+        { $$ = mkBlockStmt(@$, (NodeList*) $2); }
     ;
 
 IfStmt

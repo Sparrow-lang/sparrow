@@ -68,8 +68,8 @@ void Literal::doSemanticCheck()
     {
         // Create the explanation
         Feather::StringData s = Feather::StringData::copyStdString(data);
-        setExplanation(Feather::mkCtValue(data_.location, t, &s));
+        setExplanation((DynNode*) Feather::mkCtValue(data_.location, t, &s));
     }
     else
-        setExplanation(Feather::mkCtValue(data_.location, t, data));
+        setExplanation((DynNode*) Feather::mkCtValue(data_.location, t, data));
 }

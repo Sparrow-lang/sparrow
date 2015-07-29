@@ -77,5 +77,5 @@ void SprConcept::doSemanticCheck()
 
     delete instantiationsSet;
     instantiationsSet = (Node*) new InstantiationsSet(this, { param }, ifClause);
-    setExplanation(Feather::mkNop(data_.location));
+    setExplanation((DynNode*) Feather::mkNop(data_.location));
 }

@@ -46,7 +46,7 @@ void IntModDtorMembers::beforeSemanticCheck(Node* n)
 
         if ( field->type()->numReferences == 0 )
         {
-            DynNode* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
+            DynNode* fieldRef = (DynNode*) mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)->node()), field->node());
             fieldRef->setContext(context);
             DynNode* call = mkOperatorCall(loc, fieldRef, "dtor", nullptr);
             call->setContext(context);

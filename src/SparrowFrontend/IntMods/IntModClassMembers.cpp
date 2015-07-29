@@ -118,11 +118,11 @@ namespace
         loc.setAsStartOf(loc);
 
         // Construct the parameters list, return type node
-        DynNodeVector sprParams;
+        NodeVector sprParams;
         sprParams.reserve(params.size());
         for ( auto param: params )
         {
-            sprParams.push_back(mkSprParameter(loc, param.second, param.first));
+            sprParams.push_back(mkSprParameter(loc, param.second, param.first)->node());
         }
         NodeList* parameters = sprParams.empty() ? nullptr : (NodeList*) mkNodeList(loc, move(sprParams));
         DynNode* ret = resClass ? (DynNode*) createTypeNode(parent->childrenContext(), loc, getDataType(resClass->node())) : nullptr;
@@ -155,7 +155,7 @@ namespace
         {
             otherRef = mkIdentifier(loc, "other");
             if ( otherParam->numReferences > 0 )
-                otherRef = mkMemLoad(loc, otherRef);
+                otherRef = (DynNode*) mkMemLoad(loc, otherRef->node());
         }
 
         // Construct the body
@@ -167,8 +167,8 @@ namespace
             if ( cls2 != cls )
                 continue;
 
-            DynNode* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
-            DynNode* otherFieldRef = otherParam ? mkFieldRef(loc, otherRef, field) : nullptr;
+            DynNode* fieldRef = (DynNode*) mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)->node()), field->node());
+            DynNode* otherFieldRef = otherParam ? (DynNode*) mkFieldRef(loc, otherRef->node(), field->node()) : nullptr;
 
             string oper = op;
             if ( field->type()->numReferences > 0 )
@@ -225,9 +225,9 @@ namespace
             params.push_back({t, paramName});
             DynNode* paramId = mkIdentifier(loc, move(paramName));
             if ( t->numReferences > 0 )
-                paramId = mkMemLoad(loc, paramId);
+                paramId = (DynNode*) mkMemLoad(loc, paramId->node());
             
-            DynNode* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
+            DynNode* fieldRef = (DynNode*) mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)->node()), field->node());
             
             string oper = t->numReferences > 0 ? ":=" : "ctor";
             addOperatorCall(body, false, fieldRef, oper, paramId);
@@ -253,8 +253,8 @@ namespace
             if ( cls2 != cls )
                 continue;
 
-            DynNode* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
-            DynNode* otherFieldRef = mkFieldRef(loc, mkMemLoad(loc, mkIdentifier(loc, "other")), field);
+            DynNode* fieldRef = (DynNode*) mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)->node()), field->node());
+            DynNode* otherFieldRef = (DynNode*) mkFieldRef(loc, mkMemLoad(loc, mkIdentifier(loc, "other")->node()), field->node());
 
             const char* op = (field->type()->numReferences == 0) ? "==" : "===";
             DynNode* curExp = mkOperatorCall(loc, fieldRef, op, otherFieldRef);

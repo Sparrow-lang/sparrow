@@ -204,7 +204,7 @@ DynNode* SprFrontend::selectOverload(CompilationContext* context, const Location
         for ( auto& arg: args )
         {
             const Location& l = arg->location();
-            arg = mkFunApplication(l, mkIdentifier(l, "lift"), mkNodeList(l, {arg}, true));
+            arg = mkFunApplication(l, mkIdentifier(l, "lift"), (NodeList*) mkNodeList(l, {arg->node()}, true));
             arg->setContext(context);
         }
     }

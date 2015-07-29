@@ -97,7 +97,7 @@ namespace
         }
     public:
         DestructActionForConditional(TypeRef resType, llvm::Value* cond, NodeVector alt1DestructActions, NodeVector alt2DestructActions)
-            : DynNode(getNodeKind(), NOLOC, {mkNodeList(NOLOC, toDyn(move(alt1DestructActions))), mkNodeList(NOLOC, toDyn(move(alt2DestructActions))) })
+            : DynNode(getNodeKind(), NOLOC, {(DynNode*) mkNodeList(NOLOC, move(alt1DestructActions)), (DynNode*) mkNodeList(NOLOC, move(alt2DestructActions)) })
         {
             setProperty("resType", resType);
             setProperty("cond_LLVM_value", reinterpret_cast<Node*>(cond));

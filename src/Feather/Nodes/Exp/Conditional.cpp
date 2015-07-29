@@ -44,7 +44,7 @@ void Conditional::doSemanticCheck()
     // Dereference the condition as much as possible
     while ( data_.children[0]->type && data_.children[0]->type->numReferences > 0 )
     {
-        data_.children[0] = mkMemLoad(data_.children[0]->location, (DynNode*) data_.children[0])->node();
+        data_.children[0] = mkMemLoad(data_.children[0]->location, data_.children[0]);
         Nest::setContext(data_.children[0], childrenContext());
         Nest::semanticCheck(data_.children[0]);
     }

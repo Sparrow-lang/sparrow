@@ -104,9 +104,9 @@ DynNode* SprFrontend::getIdentifierResult(CompilationContext* ctx, const Locatio
                 doDereference1(baseExp, baseCvt);  // ... but no more than one reference
                 baseExp = baseCvt;
                 
-                return mkFieldRef(loc, baseExp, resDecl);
+                return (DynNode*) mkFieldRef(loc, baseExp->node(), resDecl->node());
             }
-            return mkVarRef(loc, resDecl);
+            return (DynNode*) mkVarRef(loc, resDecl->node());
         }
         
         // If this is a using, get its value

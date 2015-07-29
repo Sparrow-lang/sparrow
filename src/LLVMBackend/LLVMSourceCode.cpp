@@ -5,6 +5,7 @@
 
 #include <Nest/Common/Diagnostic.h>
 #include <Nest/Intermediate/EvalMode.h>
+#include <Nest/Intermediate/Node.h>
 
 #include <Nest/Compiler.h>
 #include <Nest/Frontend/FrontendFactory.h>
@@ -99,7 +100,7 @@ void LLVMSourceCode::parse(CompilationContext* context)
     const string& fileContent = readFile(filename());
 
     // Create a backend code with the given content
-    iCode_ = Feather::mkBackendCode(Location(*this), fileContent, specifiedCtAvailability(fileContent))->node();
+    iCode_ = Feather::mkBackendCode(Location(*this), fileContent, specifiedCtAvailability(fileContent));
     Nest::setContext(iCode_, context);
 }
 

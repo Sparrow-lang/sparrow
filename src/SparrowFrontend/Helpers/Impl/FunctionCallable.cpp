@@ -19,7 +19,7 @@ namespace
     {
         CHECK(loc, args.size() == 1);
         const char* val = getStringCtValue(args[0]);
-        return Feather::mkBackendCode(loc, val, mode);
+        return (DynNode*) Feather::mkBackendCode(loc, val, mode);
     }
     
     DynNode* impl_typeDescription(CompilationContext* context, const Location& loc, const DynNodeVector& args)
@@ -175,7 +175,7 @@ namespace
 
         // Get the impl part of the node
         DynNode* implPart = mkCompoundExp(loc, args[0], "impl");
-        implPart = mkMemLoad(loc, implPart);    // Remove LValue
+        implPart = (DynNode*) mkMemLoad(loc, implPart->node());    // Remove LValue
         implPart->setContext(context);
         implPart->semanticCheck();
 
@@ -193,7 +193,7 @@ namespace
         SourceCode* sc = context->sourceCode();
         int* scHandle = reinterpret_cast<int*>(sc);
         DynNode* base = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "SourceCode");
-        DynNode* arg = mkCtValue(loc, StdDef::typeRefInt, &scHandle);
+        DynNode* arg = (DynNode*) mkCtValue(loc, StdDef::typeRefInt, &scHandle);
         return mkFunApplication(loc, base, {arg});
     }
 
@@ -203,7 +203,7 @@ namespace
 
         int* ctxHandle = reinterpret_cast<int*>(context);
         DynNode* base = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "CompilationContext");
-        DynNode* arg = mkCtValue(loc, StdDef::typeRefInt, &ctxHandle);
+        DynNode* arg = (DynNode*) mkCtValue(loc, StdDef::typeRefInt, &ctxHandle);
         return mkFunApplication(loc, base, {arg});
     }
 

@@ -4,6 +4,8 @@
 #include <Feather/Nodes/DynNode.h>
 #include <SparrowFrontend/Nodes/Decls/AccessType.h>
 
+FWD_CLASS1(Feather, NodeList);
+
 namespace SprFrontend
 {
     using namespace Nest;

@@ -142,7 +142,7 @@ void SprFunction::doComputeType()
     EvalMode thisEvalMode = effectiveEvalMode(node());
 
     // Create the resulting function object
-    Function* resultingFun = (Function*) mkFunction(data_.location, funName, nullptr, {}, body);
+    Function* resultingFun = (Function*) mkFunction(data_.location, funName, nullptr, {}, body->node());
     setShouldAddToSymTab(resultingFun->node(), false);
 
     // Copy the "native" and the "autoCt" properties
@@ -167,9 +167,9 @@ void SprFunction::doComputeType()
     if ( isMember && !isStatic )
     {
         TypeRef thisType = getDataType((Node*) parentClass, 1, thisEvalMode);
-        DynNode* thisParam = Feather::mkVar(data_.location, "$this", mkTypeNode(data_.location, thisType));
-        thisParam->setContext(data_.childrenContext);
-        resultingFun->addParameter(thisParam);
+        Node* thisParam = Feather::mkVar(data_.location, "$this", mkTypeNode(data_.location, thisType));
+        Nest::setContext(thisParam, data_.childrenContext);
+        resultingFun->addParameter((DynNode*) thisParam);
     }
 
     // Add the actual specified parameters
@@ -192,14 +192,14 @@ void SprFunction::doComputeType()
     // If the parameter is a non-reference class, not basic numeric, add result parameter; otherwise, normal result
     if ( resType->hasStorage && resType->numReferences == 0 && !isBasicNumericType(resType) )
     {
-        DynNode* resParam = Feather::mkVar(returnType->location(), "_result", mkTypeNode(returnType->location(), addRef(resType)));
-        resParam->setContext(data_.childrenContext);
-        resultingFun->addParameter(resParam, true);
-        resultingFun->setProperty(propResultParam, resParam);
-        resultingFun->setResultType(mkTypeNode(returnType->location(), getVoidType(thisEvalMode)));
+        Node* resParam = Feather::mkVar(returnType->location(), "_result", mkTypeNode(returnType->location(), addRef(resType)));
+        Nest::setContext(resParam, data_.childrenContext);
+        resultingFun->addParameter((DynNode*) resParam, true);
+        resultingFun->setProperty(propResultParam, (DynNode*) resParam);
+        resultingFun->setResultType((DynNode*) mkTypeNode(returnType->location(), getVoidType(thisEvalMode)));
     }
     else
-        resultingFun->setResultType(mkTypeNode(data_.location, resType));
+        resultingFun->setResultType((DynNode*) mkTypeNode(data_.location, resType));
 
     // TODO (explanation): explanation should be the result of semantic check
     data_.explanation = resultingFun->node();
@@ -239,10 +239,10 @@ void SprFunction::handleStaticCtorDtor(bool ctor)
         REP_ERROR(data_.location, "Static constructors and destructors cannot have parameters");
 
     // Add a global construct / destruct action call to this
-    DynNode* funCall = mkFunCall(data_.location, (DynNode*) data_.explanation, {});
-    DynNode* n = ctor ? mkGlobalConstructAction(data_.location, funCall) : mkGlobalDestructAction(data_.location, funCall);
-    n->setContext(data_.context);
-    n->semanticCheck();
+    Node* funCall = mkFunCall(data_.location, data_.explanation, {});
+    Node* n = ctor ? mkGlobalConstructAction(data_.location, funCall) : mkGlobalDestructAction(data_.location, funCall);
+    Nest::setContext(n, data_.context);
+    Nest::semanticCheck(n);
     ASSERT(data_.context->sourceCode());
-    data_.context->sourceCode()->addAdditionalNode(n->node());
+    data_.context->sourceCode()->addAdditionalNode(n);
 }

@@ -161,7 +161,7 @@ namespace
 
         //REP_INFO(loc, "Instantiating %1% with %2% params") % getName(origFun) % nonBoundParams.size();
 
-        NodeList* parameters = mkNodeList(loc, nonBoundParams);
+        NodeList* parameters = (NodeList*) mkNodeList(loc, fromDyn(nonBoundParams));
         DynNode* returnType = origFun->returnType();
         DynNode* body = origFun->body();
         returnType = returnType ? returnType->clone() : nullptr;
@@ -190,7 +190,7 @@ GenericFunction::GenericFunction(SprFunction* originalFun, DynNodeVector params,
     : Generic(classNodeKind(), originalFun, move(genericParams), ifClause, publicAccess)
 {
     setEvalMode(node(), effectiveEvalMode(originalFun->node()));
-    data_.referredNodes.push_back(mkNodeList(data_.location, move(params))->node());
+    data_.referredNodes.push_back(mkNodeList(data_.location, fromDyn(move(params))));
 }
 
 GenericFunction::~GenericFunction()

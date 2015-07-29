@@ -54,17 +54,17 @@ DynNode* SprFrontend::createCtorCall(const Location& loc, CompilationContext* co
                 ConversionResult cvt = canConvert(thisArg, thisParamType);
                 if ( !cvt )
                     REP_INTERNAL(loc, "Cannot convert this arg in RVO (%1% -> %2%)") % thisArg->type() % thisParamType;
-                DynNode* thisArg1 = cvt.apply(thisArg);
+                Node* thisArg1 = cvt.apply(thisArg)->node();
 
                 // Create a new call based on the original temp var construction call, but changing the this argument
-                DynNodeVector args;
+                NodeVector args;
                 args.reserve(fnCall->arguments().size()+1);
                 args.push_back(thisArg1);
                 for ( size_t i=1; i<fnCall->arguments().size(); ++i )
-                    args.push_back(fnCall->arguments()[i]);
-                DynNode* newCall = mkFunCall(loc, fnCall->funDecl(), args);
-                newCall->setContext(context);
-                return newCall;
+                    args.push_back(fnCall->arguments()[i]->node());
+                Node* newCall = mkFunCall(loc, fnCall->funDecl()->node(), move(args));
+                setContext(newCall, context);
+                return (DynNode*) newCall;
             }
         }
     }
@@ -119,11 +119,11 @@ DynNode* SprFrontend::createDtorCall(const Location& loc, CompilationContext* co
     ConversionResult c = canConvert(thisArg, thisParamType);
     if ( !c )
         REP_INTERNAL(loc, "Invalid this argument when calling dtor");
-    DynNode* argWithConversion = c.apply(thisArg);
+    Node* argWithConversion = c.apply(thisArg)->node();
 
-    DynNode* funCall = mkFunCall(loc, dtor, DynNodeVector(1, argWithConversion));
-    funCall->setContext(context);
-    return funCall;
+    Node* funCall = mkFunCall(loc, dtor->node(), NodeVector(1, argWithConversion));
+    setContext(funCall, context);
+    return (DynNode*) funCall;
 }
 
 DynNode* SprFrontend::createFunctionCall(const Location& loc, CompilationContext* context, Feather::Function* fun, DynNodeVector args)
@@ -134,7 +134,7 @@ DynNode* SprFrontend::createFunctionCall(const Location& loc, CompilationContext
     // Set the arguments to the function call.
     // If we have a result param, create a temporary variable for it, and call the function with it; then we return the
     // content of the variable
-    DynNode* tmpVarRef = nullptr;
+    Node* tmpVarRef = nullptr;
     DynNode* res = nullptr;
     DynNode* resultParam = getResultParam(fun);
     if ( resultParam )
@@ -148,28 +148,28 @@ DynNode* SprFrontend::createFunctionCall(const Location& loc, CompilationContext
             resTypeRef = changeTypeMode(resTypeRef, modeCt, resultParam->location());
 
         // Create a temporary variable for the result
-        DynNode* tmpVar = Feather::mkVar(loc, "$tmpC", mkTypeNode(loc, removeRef(resTypeRef)));
-        tmpVar->setContext(context);
+        Node* tmpVar = Feather::mkVar(loc, "$tmpC", mkTypeNode(loc, removeRef(resTypeRef)));
+        setContext(tmpVar, context);
         tmpVarRef = mkVarRef(loc, tmpVar);
-        tmpVarRef->setContext(context);
+        setContext(tmpVarRef, context);
 
         // Add a new argument with the temporary variable
-        DynNodeVector args1 = args;
-        DynNode* arg = mkBitcast(tmpVarRef->location(), mkTypeNode(loc, resTypeRef), tmpVarRef);
-        arg->setContext(context);
+        NodeVector args1 = fromDyn(args);
+        Node* arg = mkBitcast(tmpVarRef->location, mkTypeNode(loc, resTypeRef), tmpVarRef);
+        setContext(arg, context);
         args1.insert(args1.begin(), arg);
-        DynNode* funCall = mkFunCall(loc, fun, args1);
+        Node* funCall = mkFunCall(loc, fun->node(), args1);
 
-        res = createTempVarConstruct(loc, context, funCall, tmpVar);
+        res = createTempVarConstruct(loc, context, (DynNode*) funCall, (DynNode*) tmpVar);
 
         // TODO: Check why we cannot return a reference when the result is a type
         if ( resTypeRef == StdDef::typeRefType )
-            res = mkMemLoad(loc, res);
+            res = (DynNode*) mkMemLoad(loc, res->node());
     }
     else
     {
-        DynNode* funCall = mkFunCall(loc, fun, args);
-        res = funCall;
+        Node* funCall = mkFunCall(loc, fun->node(), fromDyn(args));
+        res = (DynNode*) funCall;
     }
 
     res->setContext(context);
@@ -190,26 +190,26 @@ DynNode* SprFrontend::createTempVarConstruct(const Location& loc, CompilationCon
     thisArg->computeType();
 
     // Create a temp destruct action with the call of the destructor
-    DynNode* destructAction = nullptr;
+    Node* destructAction = nullptr;
     if ( !isCt(thisArg->node()) )
     {
-        DynNode* dtorCall = createDtorCall(loc, context, thisArg);
+        Node* dtorCall = createDtorCall(loc, context, thisArg)->node();
         if ( dtorCall )
             destructAction = mkTempDestructAction(loc, dtorCall);
     }
 
     // The result of the expressions
-    DynNode* result = mkVarRef(loc, var);   // Return a var-ref to the temporary object
+    Node* result = mkVarRef(loc, var->node());   // Return a var-ref to the temporary object
 
-    DynNode* res = mkNodeList(loc, { var, constructAction, destructAction, result });
-    res->setContext(context);
-    res->computeType();
-    res->setProperty(propTempVarContstruction, constructAction);
+    Node* res = mkNodeList(loc, { var->node(), constructAction->node(), destructAction, result });
+    setContext(res, context);
+    computeType(res);
+    setProperty(res, propTempVarContstruction, constructAction->node());
 
     // CT sanity checks
-    checkEvalMode(res->node(), var->type()->mode);
+    checkEvalMode(res, var->type()->mode);
 
-    return res;
+    return (DynNode*) res;
 }
 
 DynNode* SprFrontend::createFunPtr(DynNode* funNode)
@@ -237,25 +237,25 @@ DynNode* SprFrontend::createFunPtr(DynNode* funNode)
         DynNode* resParam = getResultParam(fun);
 
         // Try to instantiate the corresponding FunctionPtr class
-        DynNodeVector parameters;
+        NodeVector parameters;
         parameters.reserve(1+fun->numParameters());
         TypeRef resType = resParam ? removeRef(resParam->type()) : fun->resultType();
-        parameters.push_back(createTypeNode(ctx, loc, resType));
+        parameters.push_back(createTypeNode(ctx, loc, resType)->node());
         for ( size_t i = resParam ? 1 : 0; i<fun->numParameters(); ++i )
         {
-            parameters.push_back(createTypeNode(ctx, loc, fun->getParameter(i)->type()));
+            parameters.push_back(createTypeNode(ctx, loc, fun->getParameter(i)->type())->node());
         }
         string className = "FunctionPtr";
-        DynNode* classCall = mkFunApplication(loc, mkIdentifier(loc, className), mkNodeList(loc, parameters));
-        classCall->setContext(ctx);
-        classCall->computeType();
+        Node* classCall = mkFunApplication(loc, mkIdentifier(loc, className), (NodeList*) mkNodeList(loc, parameters))->node();
+        setContext(classCall, ctx);
+        computeType(classCall);
 
         // Get the actual class object from the instantiation
-        TypeRef t = getType(classCall);
+        TypeRef t = getType((DynNode*) classCall);
 
         // If the class is valid, we have a conversion
         if ( t )
-            return mkFunRef(loc, fun, mkTypeNode(loc, t));
+            return (DynNode*) mkFunRef(loc, fun->node(), mkTypeNode(loc, t));
         
         REP_ERROR(loc, "Invalid function: %1%") % funNode;
         return nullptr;
@@ -270,19 +270,19 @@ DynNode* SprFrontend::createFunPtr(DynNode* funNode)
 
         DynNode* paramsType = mkIdentifier(loc, "AnyType");
 
-        vector<DynNode*> paramIds(numParams, nullptr);
-        vector<DynNode*> args(numParams, nullptr);
+        NodeVector paramIds(numParams, nullptr);
+        NodeVector args(numParams, nullptr);
         for ( size_t i=0; i<numParams; ++i )
         {
             string name = "p" + boost::lexical_cast<string>(i);
-            paramIds[i] = mkSprParameter(loc, name, paramsType, nullptr);
-            args[i] = mkIdentifier(loc, name);
+            paramIds[i] = mkSprParameter(loc, name, paramsType, nullptr)->node();
+            args[i] = mkIdentifier(loc, name)->node();
         }
 
-        NodeList* parameters = mkNodeList(loc, paramIds);
-        DynNode* bodyExp = mkFunApplication(loc, funNode, mkNodeList(loc, args));
+        Node* parameters = mkNodeList(loc, paramIds);
+        DynNode* bodyExp = mkFunApplication(loc, funNode, (NodeList*) mkNodeList(loc, args));
 
-        DynNode* res = mkLambdaExp(loc, parameters, nullptr, nullptr, bodyExp, nullptr);
+        DynNode* res = mkLambdaExp(loc, (NodeList*) parameters, nullptr, nullptr, bodyExp, nullptr);
         return res;
     }
 

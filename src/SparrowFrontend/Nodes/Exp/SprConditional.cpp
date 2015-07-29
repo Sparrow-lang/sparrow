@@ -37,6 +37,6 @@ void SprConditional::doSemanticCheck()
     alt1 = c1.apply(data_.context, alt1);
     alt2 = c2.apply(data_.context, alt2);
 
-    setExplanation(Feather::mkConditional(data_.location, cond, alt1, alt2));
+    setExplanation((DynNode*) Feather::mkConditional(data_.location, cond->node(), alt1->node(), alt2->node()));
 }
 

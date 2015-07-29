@@ -93,7 +93,7 @@ namespace
                 srcTypeNew = Feather::removeLValueIfPresent(srcTypeNew);
 
                 res = ConversionResult(convDirect, [=](DynNode* src) -> DynNode* {
-                    return mkMemLoad(src->location(), src);
+                    return (DynNode*) mkMemLoad(src->location(), src->node());
                 });
             }
             if ( srcTypeNew->numReferences > 0 )
@@ -152,7 +152,7 @@ namespace
 
             // First check conversion without reference
             ConversionResult res1 = ConversionResult(convDirect, [=](DynNode* src) -> DynNode* {
-                return mkMemLoad(src->location(), src);
+                return (DynNode*) mkMemLoad(src->location(), src->node());
             });
             ConversionResult c1 = combine(res1, cachedCanConvertImpl(context, flags | flagDontAddReference, t1, destType));
             if ( c1 )
@@ -160,7 +160,7 @@ namespace
 
             // Now try to convert to reference
             ConversionResult res2 = ConversionResult(convImplicit, [=](DynNode* src) -> DynNode* {
-                return mkBitcast(src->location(), mkTypeNode(src->location(), t2), src);
+                return (DynNode*) mkBitcast(src->location(), mkTypeNode(src->location(), t2), src->node());
             });
             return combine(res2, cachedCanConvertImpl(context, flags, t2, destType));
         }
@@ -176,7 +176,7 @@ namespace
             return convNone;
 
         return ConversionResult(convImplicit, [=](DynNode* src) -> DynNode* {
-            return mkNull(src->location(), mkTypeNode(src->location(), destType));
+            return (DynNode*) mkNull(src->location(), mkTypeNode(src->location(), destType));
         });
     }
 
@@ -189,7 +189,7 @@ namespace
         TypeRef t = removeRef(srcType);
 
         ConversionResult res = ConversionResult(convImplicit, [=](DynNode* src) -> DynNode* {
-            return mkMemLoad(src->location(), src);
+            return (DynNode*) mkMemLoad(src->location(), src->node());
         });
         return combine(res, cachedCanConvertImpl(context, flags | flagDontAddReference, t, destType));
     }
@@ -203,11 +203,11 @@ namespace
         TypeRef baseDataType = addRef(srcType);
 
         ConversionResult res(convImplicit, [=](DynNode* src) -> DynNode* {
-            DynNode* var = Feather::mkVar(src->location(), "$tmpForRef", mkTypeNode(src->location(), srcType));
-            DynNode* varRef = mkVarRef(src->location(), var);
-            DynNode* store = mkMemStore(src->location(), src, varRef);
-            DynNode* cast = mkBitcast(src->location(), mkTypeNode(src->location(), baseDataType), varRef);
-            return mkNodeList(src->location(), {var, store, cast});
+            Node* var = Feather::mkVar(src->location(), "$tmpForRef", mkTypeNode(src->location(), srcType));
+            Node* varRef = mkVarRef(src->location(), var);
+            Node* store = mkMemStore(src->location(), src->node(), varRef);
+            Node* cast = mkBitcast(src->location(), mkTypeNode(src->location(), baseDataType), varRef);
+            return (DynNode*) mkNodeList(src->location(), {var, store, cast});
         });
         return combine(res, cachedCanConvertImpl(context, flags | flagDontAddReference, baseDataType, destType));
     }

@@ -125,7 +125,7 @@ Nest::TypeRef SprFrontend::doDereference1(Feather::DynNode* arg, Feather::DynNod
     // If we have N references apply N-1 dereferencing operations
     for ( size_t i=1; i<t->numReferences; ++i )
     {
-        cvt = mkMemLoad(arg->location(), cvt);
+        cvt = (DynNode*) mkMemLoad(arg->location(), cvt->node());
     }
     return getDataType(t->referredNode, 0, t->mode);  // Zero references
 }
@@ -151,7 +151,7 @@ namespace
         auto cr = call->canCall(node->context(), loc, args, modeRt, true);
         ASSERT(cr);
         DynNode* res = call->generateCall(loc);
-        res = mkMemLoad(loc, res);
+        res = (DynNode*) mkMemLoad(loc, res->node());
 
         // Sanity check
         res->setContext(node->context());
@@ -172,7 +172,7 @@ Node* SprFrontend::convertCtToRt(Node* node)
     if ( t->typeKind == typeKindVoid )
     {
         theCompiler().ctEval(node);
-        return Feather::mkNop(loc)->node();
+        return Feather::mkNop(loc);
     }
 
     if ( !t->hasStorage )
@@ -246,10 +246,10 @@ TypeRef SprFrontend::evalTypeIfPossible(DynNode* typeNode)
 
 DynNode* SprFrontend::createTypeNode(CompilationContext* context, const Location& loc, TypeRef t)
 {
-    DynNode* res = mkCtValue(loc, StdDef::typeType, &t);
+    Node* res = mkCtValue(loc, StdDef::typeType, &t);
     if ( context )
-        res->setContext(context);
-    return res;
+        setContext(res, context);
+    return (DynNode*) res;
 }
 
 Nest::TypeRef SprFrontend::getAutoType(Feather::DynNode* typeNode, bool addRef)

@@ -77,7 +77,7 @@ void SprClass::addChild(DynNode* child)
         child->computeType();
     if ( !data_.children[2] )
     {
-        data_.children[2] = mkNodeList(data_.location, {})->node();
+        data_.children[2] = mkNodeList(data_.location, {});
         if ( childrenContext() )
             Nest::setContext(data_.children[2], childrenContext());
     }
@@ -139,7 +139,7 @@ void SprClass::doComputeType()
 
     // Create the resulting Feather.Class object
     if ( !resultingClass )
-        resultingClass = Feather::mkClass(data_.location, getName(node()), {});
+        resultingClass = (DynNode*) Feather::mkClass(data_.location, getName(node()), {});
     setShouldAddToSymTab(resultingClass->node(), false);
 
     // Copy the "native" and "description" properties to the resulting class

@@ -208,7 +208,7 @@ Node* CtModule::ctEvaluateExpression(Node* node)
         TypeRef t = node->type;
         if ( !Feather::isCt(t) )
 	        t = Feather::changeTypeMode(t, modeCt, node->location);
-	    return mkCtValue(node->location, t, dataBuffer)->node();
+	    return mkCtValue(node->location, t, dataBuffer);
     }
     else
     {

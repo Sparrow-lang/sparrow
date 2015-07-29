@@ -43,7 +43,7 @@ void SprCompilationUnit::doSetContextForChildren()
             for ( int j=(int)names.size()-1; j>=i; --j )
             {
                 DynNode* pk = mkSprPackage(packageName->location(), move(names[j]), declarations);
-                declarations = Feather::mkNodeList(packageName->location(), {pk}, true);
+                declarations = (NodeList*) Feather::mkNodeList(packageName->location(), {pk->node()}, true);
                 data_.children[2] = declarations->node();
             }
             break;
@@ -104,6 +104,6 @@ void SprCompilationUnit::doSemanticCheck()
     ASSERT(data_.children.size() == 3);
     NodeList* declarations = (NodeList*)data_.children[2];
 
-    setExplanation(declarations ? declarations : Feather::mkNop(data_.location));
+    setExplanation(declarations ? declarations : (DynNode*) Feather::mkNop(data_.location));
 }
 

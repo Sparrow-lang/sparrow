@@ -238,7 +238,7 @@ namespace
     {
         if ( isSameTypeIgnoreMode(orig->type(), StdDef::typeNull) )
         {
-            DynNode* res = mkNull(orig->location(), mkTypeNode(orig->location(), StdDef::typeRefByte));
+            DynNode* res = (DynNode*) mkNull(orig->location(), mkTypeNode(orig->location(), StdDef::typeRefByte));
             res->setContext(orig->context());
             res->computeType();
             return res;
@@ -291,10 +291,10 @@ void OperatorCall::handleRefEq()
     DynNode* arg2Cvt = nullptr;
     doDereference1(arg1, arg1Cvt);             // Dereference until the last reference
     doDereference1(arg2, arg2Cvt);
-    arg1Cvt = mkBitcast(data_.location, mkTypeNode(data_.location, StdDef::typeRefByte), arg1Cvt);
-    arg2Cvt = mkBitcast(data_.location, mkTypeNode(data_.location, StdDef::typeRefByte), arg2Cvt);
+    arg1Cvt = (DynNode*) mkBitcast(data_.location, mkTypeNode(data_.location, StdDef::typeRefByte), arg1Cvt->node());
+    arg2Cvt = (DynNode*) mkBitcast(data_.location, mkTypeNode(data_.location, StdDef::typeRefByte), arg2Cvt->node());
 
-    setExplanation(mkFunCall(data_.location, StdDef::opRefEq, {arg1Cvt, arg2Cvt}));
+    setExplanation((DynNode*) mkFunCall(data_.location, StdDef::opRefEq->node(), {arg1Cvt->node(), arg2Cvt->node()}));
 }
 
 void OperatorCall::handleRefNe()
@@ -319,10 +319,10 @@ void OperatorCall::handleRefNe()
     DynNode* arg2Cvt = nullptr;
     doDereference1(arg1, arg1Cvt);             // Dereference until the last reference
     doDereference1(arg2, arg2Cvt);
-    arg1Cvt = mkBitcast(data_.location, mkTypeNode(data_.location, StdDef::typeRefByte), arg1Cvt);
-    arg2Cvt = mkBitcast(data_.location, mkTypeNode(data_.location, StdDef::typeRefByte), arg2Cvt);
+    arg1Cvt = (DynNode*) mkBitcast(data_.location, mkTypeNode(data_.location, StdDef::typeRefByte), arg1Cvt->node());
+    arg2Cvt = (DynNode*) mkBitcast(data_.location, mkTypeNode(data_.location, StdDef::typeRefByte), arg2Cvt->node());
 
-    setExplanation(mkFunCall(data_.location, StdDef::opRefNe, {arg1Cvt, arg2Cvt}));
+    setExplanation((DynNode*) mkFunCall(data_.location, StdDef::opRefNe->node(), {arg1Cvt->node(), arg2Cvt->node()}));
 }
 
 void OperatorCall::handleRefAssign()
@@ -353,7 +353,7 @@ void OperatorCall::handleRefAssign()
     DynNode* cvt = c.apply(arg2);
 
     // Return a memstore operator
-    setExplanation(mkMemStore(data_.location, cvt, arg1));
+    setExplanation((DynNode*) mkMemStore(data_.location, cvt->node(), arg1->node()));
 }
 
 void OperatorCall::handleFunPtr()

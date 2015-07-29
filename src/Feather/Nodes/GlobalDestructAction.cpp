@@ -25,12 +25,12 @@ void GlobalDestructAction::dump(ostream& os) const
 
 void GlobalDestructAction::doSemanticCheck()
 {
-    Nest::semanticCheck(data_.children[0]);
-    data_.type = getVoidType(data_.context->evalMode());
+    // Nest::semanticCheck(data_.children[0]);
+    // data_.type = getVoidType(data_.context->evalMode());
 
-    // We never CT evaluate global destruct actions
-    if ( isCt(data_.children[0]) )
-    {
-        setExplanation(mkNop(data_.location));
-    }
+    // // We never CT evaluate global destruct actions
+    // if ( isCt(data_.children[0]) )
+    // {
+    //     setExplanation(mkNop(data_.location));
+    // }
 }

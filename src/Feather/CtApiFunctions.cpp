@@ -90,263 +90,261 @@ namespace
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // AstNode
     //
-    void ctApi_AstNode_clone(DynNode** sret, DynNode** thisArg)
+    void ctApi_AstNode_clone(Node** sret, Node** thisArg)
     {
-        *sret = (*thisArg)->clone();
+        *sret = cloneNode(*thisArg);
     }
-    int ctApi_AstNode_nodeKind(DynNode** thisArg)
+    int ctApi_AstNode_nodeKind(Node** thisArg)
     {
-        return (*thisArg)->nodeKind();
+        return (*thisArg)->nodeKind;
     }
-    void ctApi_AstNode_nodeKindName(StringData* sret, DynNode** thisArg)
+    void ctApi_AstNode_nodeKindName(StringData* sret, Node** thisArg)
     {
-        *sret = StringData(*new string((*thisArg)->nodeKindName()));
+        *sret = StringData(nodeKindName(*thisArg));
     }
-    void ctApi_AstNode_toString(StringData* sret, DynNode** thisArg)
+    void ctApi_AstNode_toString(StringData* sret, Node** thisArg)
     {
-        *sret = StringData(*new string((*thisArg)->toString()));
+        *sret = StringData(toString(*thisArg));
     }
-    void ctApi_AstNode_toStringExt(StringData* sret, DynNode** thisArg)
+    void ctApi_AstNode_toStringExt(StringData* sret, Node** thisArg)
     {
-        ostringstream oss;
-        oss << *thisArg;
-        *sret = StringData(*new string(oss.str()));
+        *sret = StringData(toString(*thisArg));
     }
-    void ctApi_AstNode_location(Location* sret, DynNode** thisArg)
+    void ctApi_AstNode_location(Location* sret, Node** thisArg)
     {
-        *sret = (*thisArg)->location();
+        *sret = (*thisArg)->location;
     }
-    void ctApi_AstNode_children(DynNode** thisArg, DynNode*** retBegin, DynNode*** retEnd)
+    void ctApi_AstNode_children(Node** thisArg, Node*** retBegin, Node*** retEnd)
     {
-        *retBegin = &*(*thisArg)->children().begin();
-        *retEnd = &*(*thisArg)->children().end();
+        *retBegin = &*(*thisArg)->children.begin();
+        *retEnd = &*(*thisArg)->children.end();
     }
-    void ctApi_AstNode_getChild(DynNode** sret, DynNode** thisArg, int n)
+    void ctApi_AstNode_getChild(Node** sret, Node** thisArg, int n)
     {
-        *sret = (*thisArg)->children()[n];
+        *sret = (*thisArg)->children[n];
     }
-    void ctApi_AstNode_referredNodes(DynNode** thisArg, DynNode*** retBegin, DynNode*** retEnd)
+    void ctApi_AstNode_referredNodes(Node** thisArg, Node*** retBegin, Node*** retEnd)
     {
-        *retBegin = &*(*thisArg)->referredNodes().begin();
-        *retEnd = &*(*thisArg)->referredNodes().end();
+        *retBegin = &*(*thisArg)->referredNodes.begin();
+        *retEnd = &*(*thisArg)->referredNodes.end();
     }
-    bool ctApi_AstNode_hasProperty(DynNode** thisArg, StringData name)
+    bool ctApi_AstNode_hasProperty(Node** thisArg, StringData name)
     {
-        return (*thisArg)->hasProperty(name.begin);
+        return hasProperty(*thisArg, name.begin);
     }
-    bool ctApi_AstNode_getPropertyString(DynNode** thisArg, StringData name, StringData* value)
+    bool ctApi_AstNode_getPropertyString(Node** thisArg, StringData name, StringData* value)
     {
-        const string* res = (*thisArg)->getPropertyString(name.begin);
+        const string* res = getPropertyString(*thisArg, name.begin);
         if ( res )
             *value = StringData(*res);
         return res != nullptr;
     }
-    bool ctApi_AstNode_getPropertyInt(DynNode** thisArg, StringData name, int* value)
+    bool ctApi_AstNode_getPropertyInt(Node** thisArg, StringData name, int* value)
     {
-        const int* res = (*thisArg)->getPropertyInt(name.begin);
+        const int* res = getPropertyInt(*thisArg, name.begin);
         if ( res )
             *value = *res;
         return res != nullptr;
     }
-    bool ctApi_AstNode_getPropertyNode(DynNode** thisArg, StringData name, Node** value)
+    bool ctApi_AstNode_getPropertyNode(Node** thisArg, StringData name, Node** value)
     {
-        Node*const* res = (*thisArg)->getPropertyNode(name.begin);
+        Node*const* res = getPropertyNode(*thisArg, name.begin);
         if ( res )
             *value = *res;
         return res != nullptr;
     }
-    bool ctApi_AstNode_getPropertyType(DynNode** thisArg, StringData name, TypeRef* value)
+    bool ctApi_AstNode_getPropertyType(Node** thisArg, StringData name, TypeRef* value)
     {
-        const TypeRef* res = (*thisArg)->getPropertyType(name.begin);
+        const TypeRef* res = getPropertyType(*thisArg, name.begin);
         if ( res )
             *value = *res;
         return res != nullptr;
     }
-    void ctApi_AstNode_setPropertyString(DynNode** thisArg, StringData name, StringData value)
+    void ctApi_AstNode_setPropertyString(Node** thisArg, StringData name, StringData value)
     {
-        (*thisArg)->setProperty(name.begin, value.toStdString());
+        setProperty(*thisArg, name.begin, value.toStdString());
     }
-    void ctApi_AstNode_setPropertyInt(DynNode** thisArg, StringData name, int value)
+    void ctApi_AstNode_setPropertyInt(Node** thisArg, StringData name, int value)
     {
-        (*thisArg)->setProperty(name.begin, value);
+        setProperty(*thisArg, name.begin, value);
     }
-    void ctApi_AstNode_setPropertyNode(DynNode** thisArg, StringData name, Node* value)
+    void ctApi_AstNode_setPropertyNode(Node** thisArg, StringData name, Node* value)
     {
-        (*thisArg)->setProperty(name.begin, value);
+        setProperty(*thisArg, name.begin, value);
     }
-    void ctApi_AstNode_setPropertyType(DynNode** thisArg, StringData name, TypeRef value)
+    void ctApi_AstNode_setPropertyType(Node** thisArg, StringData name, TypeRef value)
     {
-        (*thisArg)->setProperty(name.begin, value);
+        setProperty(*thisArg, name.begin, value);
     }
-    void ctApi_AstNode_setContext(DynNode** thisArg, CompilationContext* context)
+    void ctApi_AstNode_setContext(Node** thisArg, CompilationContext* context)
     {
-        (*thisArg)->setContext(context);
+        setContext(*thisArg, context);
     }
-    void ctApi_AstNode_computeType(DynNode** thisArg)
+    void ctApi_AstNode_computeType(Node** thisArg)
     {
-        (*thisArg)->computeType();
+        computeType(*thisArg);
     }
-    void ctApi_AstNode_semanticCheck(DynNode** thisArg)
+    void ctApi_AstNode_semanticCheck(Node** thisArg)
     {
-        (*thisArg)->semanticCheck();
+        semanticCheck(*thisArg);
     }
-    void ctApi_AstNode_clearCompilationState(DynNode** thisArg)
+    void ctApi_AstNode_clearCompilationState(Node** thisArg)
     {
-        (*thisArg)->clearCompilationState();
+        clearCompilationState(*thisArg);
     }
-    void ctApi_AstNode_context(CompilationContext** sret, DynNode** thisArg)
+    void ctApi_AstNode_context(CompilationContext** sret, Node** thisArg)
     {
-        *sret = (*thisArg)->context();
+        *sret = (*thisArg)->context;
     }
-    bool ctApi_AstNode_hasError(DynNode** thisArg)
+    bool ctApi_AstNode_hasError(Node** thisArg)
     {
-        return (*thisArg)->hasError();
+        return (*thisArg)->nodeError != 0;
     }
-    bool ctApi_AstNode_isSemanticallyChecked(DynNode** thisArg)
+    bool ctApi_AstNode_isSemanticallyChecked(Node** thisArg)
     {
-        return (*thisArg)->isSemanticallyChecked();
+        return (*thisArg)->nodeSemanticallyChecked != 0;
     }
-    void ctApi_AstNode_type(TypeRef* sret, DynNode** thisArg)
+    void ctApi_AstNode_type(TypeRef* sret, Node** thisArg)
     {
-        *sret = (*thisArg)->type();
+        *sret = (*thisArg)->type;
     }
-    bool ctApi_AstNode_isExplained(DynNode** thisArg)
+    bool ctApi_AstNode_isExplained(Node** thisArg)
     {
-        return (*thisArg)->isExplained();
+        return (*thisArg)->explanation != NULL;
     }
-    void ctApi_AstNode_explanation(DynNode** sret, DynNode** thisArg)
+    void ctApi_AstNode_explanation(Node** sret, Node** thisArg)
     {
-        *sret = (*thisArg)->explanation();
+        *sret = explanation(*thisArg);
     }
-    void ctApi_AstNode_curExplanation(DynNode** sret, DynNode** thisArg)
+    void ctApi_AstNode_curExplanation(Node** sret, Node** thisArg)
     {
-        *sret = (*thisArg)->curExplanation();
+        *sret = (*thisArg)->explanation;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Feather nodes creation functions
     //
-    void ctApi_Feather_mkNodeList(NodeList** sret, Location* loc, DynNode** childrenBegin, DynNode** childrenEnd, bool voidResult)
+    void ctApi_Feather_mkNodeList(Node** sret, Location* loc, Node** childrenBegin, Node** childrenEnd, bool voidResult)
     {
-        *sret = mkNodeList(*loc, DynNodeVector(childrenBegin, childrenEnd), voidResult);
+        *sret = mkNodeList(*loc, NodeVector(childrenBegin, childrenEnd), voidResult);
     }
-    void ctApi_Feather_addToNodeList(NodeList** sret, NodeList* prevList, DynNode* element)
+    void ctApi_Feather_addToNodeList(Node** sret, Node* prevList, Node* element)
     {
         *sret =  addToNodeList(prevList, element);
     }
-    void ctApi_Feather_appendNodeList(NodeList** sret, NodeList* list, NodeList* newNodes)
+    void ctApi_Feather_appendNodeList(Node** sret, Node* list, Node* newNodes)
     {
         *sret = appendNodeList(list, newNodes);
     }
 
-    void ctApi_Feather_mkNop(DynNode** sret, Location* loc)
+    void ctApi_Feather_mkNop(Node** sret, Location* loc)
     {
         *sret = mkNop(*loc);
     }
-    void ctApi_Feather_mkTypeNode(DynNode** sret, Location* loc, TypeRef type)
+    void ctApi_Feather_mkTypeNode(Node** sret, Location* loc, TypeRef type)
     {
         *sret = mkTypeNode(*loc, type);
     }
-    void ctApi_Feather_mkBackendCode(DynNode** sret, Location* loc, StringData code, int evalMode)
+    void ctApi_Feather_mkBackendCode(Node** sret, Location* loc, StringData code, int evalMode)
     {
         *sret = mkBackendCode(*loc, code.toStdString(), (EvalMode) evalMode);
     }
-    void ctApi_Feather_mkLocalSpace(DynNode** sret, Location* loc, DynNode** childrenBegin, DynNode** childrenEnd)
+    void ctApi_Feather_mkLocalSpace(Node** sret, Location* loc, Node** childrenBegin, Node** childrenEnd)
     {
-        *sret = mkLocalSpace(*loc, DynNodeVector(childrenBegin, childrenEnd));
+        *sret = mkLocalSpace(*loc, NodeVector(childrenBegin, childrenEnd));
     }
-    void ctApi_Feather_mkGlobalConstructAction(DynNode** sret, Location* loc, DynNode* action)
+    void ctApi_Feather_mkGlobalConstructAction(Node** sret, Location* loc, Node* action)
     {
         *sret = mkGlobalConstructAction(*loc, action);
     }
-    void ctApi_Feather_mkGlobalDestructAction(DynNode** sret, Location* loc, DynNode* action)
+    void ctApi_Feather_mkGlobalDestructAction(Node** sret, Location* loc, Node* action)
     {
         *sret = mkGlobalDestructAction(*loc, action);
     }
-    void ctApi_Feather_mkScopeDestructAction(DynNode** sret, Location* loc, DynNode* action)
+    void ctApi_Feather_mkScopeDestructAction(Node** sret, Location* loc, Node* action)
     {
         *sret = mkScopeDestructAction(*loc, action);
     }
-    void ctApi_Feather_mkTempDestructAction(DynNode** sret, Location* loc, DynNode* action)
+    void ctApi_Feather_mkTempDestructAction(Node** sret, Location* loc, Node* action)
     {
         *sret = mkTempDestructAction(*loc, action);
     }
 
-    void ctApi_Feather_mkFunction(DynNode** sret, Location* loc, StringData name, DynNode* resType, DynNode** paramsBegin, DynNode** paramsEnd, DynNode* body, int evalMode)
+    void ctApi_Feather_mkFunction(Node** sret, Location* loc, StringData name, Node* resType, Node** paramsBegin, Node** paramsEnd, Node* body, int evalMode)
     {
-        *sret = mkFunction(*loc, name.toStdString(), resType, DynNodeVector(paramsBegin, paramsEnd), body);
+        *sret = mkFunction(*loc, name.toStdString(), resType, NodeVector(paramsBegin, paramsEnd), body);
     }
-    void ctApi_Feather_mkClass(DynNode** sret, Location* loc, StringData name, DynNode** fieldsBegin, DynNode** fieldsEnd, int evalMode)
+    void ctApi_Feather_mkClass(Node** sret, Location* loc, StringData name, Node** fieldsBegin, Node** fieldsEnd, int evalMode)
     {
-        *sret = mkClass(*loc, name.toStdString(), DynNodeVector(fieldsBegin, fieldsEnd));
+        *sret = mkClass(*loc, name.toStdString(), NodeVector(fieldsBegin, fieldsEnd));
     }
-    void ctApi_Feather_mkVar(DynNode** sret, Location* loc, StringData name, DynNode* type, int evalMode)
+    void ctApi_Feather_mkVar(Node** sret, Location* loc, StringData name, Node* type, int evalMode)
     {
         *sret = mkVar(*loc, name.toStdString(), type, 0, (EvalMode) evalMode);
     }
 
-    void ctApi_Feather_mkCtValue(DynNode** sret, Location* loc, TypeRef type, StringData data)
+    void ctApi_Feather_mkCtValue(Node** sret, Location* loc, TypeRef type, StringData data)
     {
         *sret = mkCtValue(*loc, type, data.toStdString());
     }
-    void ctApi_Feather_mkNull(DynNode** sret, Location* loc, DynNode* typeNode)
+    void ctApi_Feather_mkNull(Node** sret, Location* loc, Node* typeNode)
     {
         *sret = mkNull(*loc, typeNode);
     }
-    void ctApi_Feather_mkStackAlloc(DynNode** sret, Location* loc, DynNode* typeNode, int numElements)
+    void ctApi_Feather_mkStackAlloc(Node** sret, Location* loc, Node* typeNode, int numElements)
     {
         *sret = mkStackAlloc(*loc, typeNode, numElements);
     }
-    void ctApi_Feather_mkVarRef(DynNode** sret, Location* loc, DynNode* varDecl)
+    void ctApi_Feather_mkVarRef(Node** sret, Location* loc, Node* varDecl)
     {
         *sret = mkVarRef(*loc, varDecl);
     }
-    void ctApi_Feather_mkFieldRef(DynNode** sret, Location* loc, DynNode* obj, DynNode* fieldDecl)
+    void ctApi_Feather_mkFieldRef(Node** sret, Location* loc, Node* obj, Node* fieldDecl)
     {
         *sret = mkFieldRef(*loc, obj, fieldDecl);
     }
-    void ctApi_Feather_mkFunRef(DynNode** sret, Location* loc, DynNode* funDecl, DynNode* resType)
+    void ctApi_Feather_mkFunRef(Node** sret, Location* loc, Node* funDecl, Node* resType)
     {
         *sret = mkFunRef(*loc, funDecl, resType);
     }
-    void ctApi_Feather_mkFunCall(DynNode** sret, Location* loc, DynNode* funDecl, DynNode** argsBegin, DynNode** argsEnd)
+    void ctApi_Feather_mkFunCall(Node** sret, Location* loc, Node* funDecl, Node** argsBegin, Node** argsEnd)
     {
-        *sret = mkFunCall(*loc, funDecl, DynNodeVector(argsBegin, argsEnd));
+        *sret = mkFunCall(*loc, funDecl, NodeVector(argsBegin, argsEnd));
     }
-    void ctApi_Feather_mkMemLoad(DynNode** sret, Location* loc, DynNode* exp)
+    void ctApi_Feather_mkMemLoad(Node** sret, Location* loc, Node* exp)
     {
         *sret = mkMemLoad(*loc, exp);
     }
-    void ctApi_Feather_mkMemStore(DynNode** sret, Location* loc, DynNode* value, DynNode* address)
+    void ctApi_Feather_mkMemStore(Node** sret, Location* loc, Node* value, Node* address)
     {
         *sret = mkMemStore(*loc, value, address);
     }
-    void ctApi_Feather_mkBitcast(DynNode** sret, Location* loc, DynNode* destType, DynNode* exp)
+    void ctApi_Feather_mkBitcast(Node** sret, Location* loc, Node* destType, Node* exp)
     {
         *sret = mkBitcast(*loc, destType, exp);
     }
-    void ctApi_Feather_mkConditional(DynNode** sret, Location* loc, DynNode* condition, DynNode* alt1, DynNode* alt2)
+    void ctApi_Feather_mkConditional(Node** sret, Location* loc, Node* condition, Node* alt1, Node* alt2)
     {
         *sret = mkConditional(*loc, condition, alt1, alt2);
     }
 
-    void ctApi_Feather_mkIf(DynNode** sret, Location* loc, DynNode* condition, DynNode* thenClause, DynNode* elseClause, bool isCt)
+    void ctApi_Feather_mkIf(Node** sret, Location* loc, Node* condition, Node* thenClause, Node* elseClause, bool isCt)
     {
         *sret = mkIf(*loc, condition, thenClause, elseClause, isCt);
     }
-    void ctApi_Feather_mkWhile(DynNode** sret, Location* loc, DynNode* condition, DynNode* body, DynNode* step, bool isCt)
+    void ctApi_Feather_mkWhile(Node** sret, Location* loc, Node* condition, Node* body, Node* step, bool isCt)
     {
         *sret = mkWhile(*loc, condition, body, step, isCt);
     }
-    void ctApi_Feather_mkBreak(DynNode** sret, Location* loc)
+    void ctApi_Feather_mkBreak(Node** sret, Location* loc)
     {
         *sret = mkBreak(*loc);
     }
-    void ctApi_Feather_mkContinue(DynNode** sret, Location* loc)
+    void ctApi_Feather_mkContinue(Node** sret, Location* loc)
     {
         *sret = mkContinue(*loc);
     }
-    void ctApi_Feather_mkReturn(DynNode** sret, Location* loc, DynNode* exp)
+    void ctApi_Feather_mkReturn(Node** sret, Location* loc, Node* exp)
     {
         *sret = mkReturn(*loc, exp);
     }

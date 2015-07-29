@@ -87,7 +87,7 @@ void For::doSemanticCheck()
     DynNode* whileStep = mkFunApplication(loc, base2, {});
 
     // while body
-    DynNode* whileBody = nullptr;
+    Node* whileBody = nullptr;
     if ( action )
     {
         if ( !typeExpr )
@@ -101,11 +101,11 @@ void For::doSemanticCheck()
         if ( ctFor )
             setEvalMode(iterVar->node(), modeCt);
 
-        whileBody = mkLocalSpace(action->location(), { iterVar, action });
+        whileBody = mkLocalSpace(action->location(), { iterVar->node(), action->node() });
     }
 
-    DynNode* whileStmt = mkWhile(loc, whileCond, whileBody, whileStep, ctFor);
+    Node* whileStmt = mkWhile(loc, whileCond->node(), whileBody, whileStep->node(), ctFor);
     
-    setExplanation(mkLocalSpace(data_.location, { rangeVar, whileStmt }));
+    setExplanation((DynNode*) mkLocalSpace(data_.location, { rangeVar->node(), whileStmt }));
 }
 

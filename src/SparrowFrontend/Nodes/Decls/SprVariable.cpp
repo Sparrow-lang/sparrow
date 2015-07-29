@@ -144,18 +144,18 @@ void SprVariable::doComputeType()
         setEvalMode(node(), modeCt);
 
     // Create the resulting var
-    DynNode* resultingVar = mkVar(data_.location, getName(node()), mkTypeNode(data_.location, t));
-    setEvalMode(resultingVar->node(), effectiveEvalMode(node()));
-    setShouldAddToSymTab(resultingVar->node(), false);
-    this->setProperty(propResultingDecl, resultingVar);
+    Node* resultingVar = mkVar(data_.location, getName(node()), mkTypeNode(data_.location, t));
+    setEvalMode(resultingVar, effectiveEvalMode(node()));
+    setShouldAddToSymTab(resultingVar, false);
+    this->setProperty(propResultingDecl, (DynNode*) resultingVar);
 
     if ( varKind == varField )
     {
-        resultingVar->setProperty(propIsField, 1);
+        Nest::setProperty(resultingVar, propIsField, 1);
     }
 
-    resultingVar->setContext(data_.childrenContext);
-    resultingVar->computeType();
+    Nest::setContext(resultingVar, data_.childrenContext);
+    Nest::computeType(resultingVar);
 
     // If this is a CT variable in a non-ct function, make this a global variable
     if ( varKind == varLocal && data_.context->evalMode() == modeRt && isCt(t) )
@@ -171,16 +171,16 @@ void SprVariable::doComputeType()
     DynNode* varRef = nullptr;
     if ( varKind != varField && (init || !isRef) )
     {
-        ASSERT(resultingVar->type());
+        ASSERT(resultingVar->type);
 
-        varRef = mkVarRef(data_.location, resultingVar);
+        varRef = (DynNode*) mkVarRef(data_.location, resultingVar);
         varRef->setContext(data_.childrenContext);
 
         if ( !isRef )
         {
             // Create ctor and dtor
             ctorCall = createCtorCall(data_.location, data_.childrenContext, varRef, init);
-            if ( !Feather::isCt(resultingVar->type()) )
+            if ( !Feather::isCt(resultingVar->type) )
                 dtorCall = createDtorCall(data_.location, data_.childrenContext, varRef);
         }
         else if ( init )   // Reference initialization
@@ -195,31 +195,31 @@ void SprVariable::doComputeType()
     if ( varKind == varField )
     {
         // For fields, just explain this as the resulting var
-        expl = resultingVar;
+        expl = (DynNode*) resultingVar;
     }
     else
     {
         // For local and global variables take into consideration the ctor and dtor calls
-        DynNode* resVar = resultingVar;
+        DynNode* resVar = (DynNode*) resultingVar;
         if ( varKind == varLocal )
         {
             // For local variables, add the ctor & dtor actions in the node list, and make this as explanation
-            dtorCall = dtorCall ? mkScopeDestructAction(data_.location, dtorCall) : nullptr;
+            dtorCall = dtorCall ? (DynNode*) mkScopeDestructAction(data_.location, dtorCall->node()) : nullptr;
         }
         else
         {
             // Add the variable at the top level
             ASSERT(data_.context->sourceCode());
-            data_.context->sourceCode()->addAdditionalNode(resultingVar->node());
+            data_.context->sourceCode()->addAdditionalNode(resultingVar);
             resVar = nullptr;
 
             // For global variables, add the ctor & dtor actions as top level actions
             if ( ctorCall )
-                ctorCall = mkGlobalConstructAction(data_.location, ctorCall);
+                ctorCall = (DynNode*) mkGlobalConstructAction(data_.location, ctorCall->node());
             if ( dtorCall )
-                dtorCall = mkGlobalDestructAction(data_.location, dtorCall);
+                dtorCall = (DynNode*) mkGlobalDestructAction(data_.location, dtorCall->node());
         }
-        expl = mkNodeList(data_.location, { resVar, ctorCall, dtorCall, mkNop(data_.location) });
+        expl = (DynNode*) mkNodeList(data_.location, { resVar->node(), ctorCall->node(), dtorCall->node(), mkNop(data_.location) });
     }
 
     ASSERT(expl);

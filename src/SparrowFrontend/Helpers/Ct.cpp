@@ -15,34 +15,34 @@ using namespace Nest;
 namespace
 {
     template <typename ValueType>
-    ValueType evalValue(DynNode* node, TypeRef expectedExpType)
+    ValueType evalValue(Node* node, TypeRef expectedExpType)
     {
-        node = (DynNode*) theCompiler().ctEval(node->node());
-        TypeRef t = removeLValueIfPresent(node->type());
+        node = theCompiler().ctEval(node);
+        TypeRef t = removeLValueIfPresent(node->type);
         if ( !isSameTypeIgnoreMode(t, expectedExpType) )
-            REP_INTERNAL(node->location(), "Invalid value; found expression of type %1%, expected %2%") % node->type() % expectedExpType;
-        CtValue* valNode = node->as<CtValue>();
-        CHECK(node->location(), valNode);
+            REP_INTERNAL(node->location, "Invalid value; found expression of type %1%, expected %2%") % node->type % expectedExpType;
+        CHECK(node->location, node->nodeKind == Feather::nkFeatherExpCtValue);
+        CtValue* valNode = (CtValue*) node;
         ValueType* val = valNode ? valNode->value<ValueType>() : nullptr;
         if ( !val )
-            REP_ERROR(node->location(), "Invalid value");
+            REP_ERROR(node->location, "Invalid value");
         return *val;
     }
 }
 
-bool SprFrontend::ctValsEqual(DynNode* v1, DynNode* v2)
+bool SprFrontend::ctValsEqual(Node* v1, Node* v2)
 {
-    if ( v1->nodeKind() != nkFeatherExpCtValue )
-        REP_INTERNAL(v1->location(), "CtValue required when comparing CT value equality");
-    if ( v2->nodeKind() != nkFeatherExpCtValue )
-        REP_INTERNAL(v1->location(), "CtValue required when comparing CT value equality");
+    if ( v1->nodeKind != nkFeatherExpCtValue )
+        REP_INTERNAL(v1->location, "CtValue required when comparing CT value equality");
+    if ( v2->nodeKind != nkFeatherExpCtValue )
+        REP_INTERNAL(v1->location, "CtValue required when comparing CT value equality");
 
-    CompilationContext* context = v1->context();
+    CompilationContext* context = v1->context;
 
-    ASSERT(v1->type());
-    ASSERT(v2->type());
+    ASSERT(v1->type);
+    ASSERT(v2->type);
 
-    if ( v1->type() != v2->type() )
+    if ( v1->type != v2->type )
         return false;
 
     // Check if we are comparing type values
@@ -56,42 +56,42 @@ bool SprFrontend::ctValsEqual(DynNode* v1, DynNode* v2)
 
     // Check if we can call the '==' operator
     // If we can call it, then actually call it and return the result
-    DynNodeVector decls = toDyn(context->currentSymTab()->lookup("=="));
+    NodeVector decls = context->currentSymTab()->lookup("==");
     if ( !decls.empty() )
     {
-        DynNode* funCall = selectOverload(context, v1->location(), modeCt, move(decls), {v1, v2}, false, "");
+        Node* funCall = selectOverload(context, v1->location, modeCt, move(decls), {v1, v2}, false, "");
         if ( funCall )
         {
-            funCall->semanticCheck();
-            if ( Feather::isTestable(funCall->node()) && Feather::isCt(funCall->node()) )
+            Nest::semanticCheck(funCall);
+            if ( Feather::isTestable(funCall) && Feather::isCt(funCall) )
             {
-                DynNode* c = (DynNode*) theCompiler().ctEval(funCall->node());
+                Node* c = theCompiler().ctEval(funCall);
                 return SprFrontend::getBoolCtValue(c);
             }
         }
     }
 
     // Just compare the values
-    return *static_cast<CtValue*>(v1) == *static_cast<CtValue*>(v2);
+    return *reinterpret_cast<CtValue*>(v1) == *reinterpret_cast<CtValue*>(v2);
 }
 
-const char* SprFrontend::getStringCtValue(DynNode* val)
+const char* SprFrontend::getStringCtValue(Node* val)
 {
     return evalValue<const char*>(val, StdDef::typeStringRef);
 }
-bool SprFrontend::getBoolCtValue(DynNode* val)
+bool SprFrontend::getBoolCtValue(Node* val)
 {
     return evalValue<bool>(val, StdDef::typeBool);
 }
-int SprFrontend::getIntCtValue(DynNode* val)
+int SprFrontend::getIntCtValue(Node* val)
 {
     return evalValue<int>(val, StdDef::typeInt);
 }
-int* SprFrontend::getIntRefCtValue(DynNode* val)
+int* SprFrontend::getIntRefCtValue(Node* val)
 {
     return evalValue<int*>(val, StdDef::typeRefInt);
 }
-size_t SprFrontend::getSizeTypeCtValue(DynNode* val)
+size_t SprFrontend::getSizeTypeCtValue(Node* val)
 {
     return evalValue<size_t>(val, StdDef::typeSizeType);
 }

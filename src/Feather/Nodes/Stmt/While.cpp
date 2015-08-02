@@ -2,7 +2,6 @@
 #include "While.h"
 #include <Feather/FeatherNodeCommonsCpp.h>
 #include <Nodes/FeatherNodes.h>
-#include <Nodes/NodeList.h>
 
 #include <Util/TypeTraits.h>
 #include <Util/Ct.h>

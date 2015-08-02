@@ -23,9 +23,10 @@ namespace
     static const char* propIsMember = "spr.isMember";
 }
 
-SprFunction::SprFunction(const Location& loc, string name, NodeList* parameters, DynNode* returnType, DynNode* body, DynNode* ifClause, AccessType accessType)
-    : DynNode(classNodeKind(), loc, {parameters, returnType, body, ifClause})
+SprFunction::SprFunction(const Location& loc, string name, Node* parameters, DynNode* returnType, DynNode* body, DynNode* ifClause, AccessType accessType)
+    : DynNode(classNodeKind(), loc, {(DynNode*) parameters, returnType, body, ifClause})
 {
+    ASSERT( !parameters || parameters->nodeKind == nkFeatherNodeList );
     setName(node(), move(name));
     setAccessType(this, accessType);
 }
@@ -95,7 +96,7 @@ void SprFunction::doSetContextForChildren()
 void SprFunction::doComputeType()
 {
     ASSERT(data_.children.size() == 4);
-    NodeList* parameters = (NodeList*) data_.children[0];
+    Node* parameters = data_.children[0];
     DynNode* returnType = (DynNode*) data_.children[1];
     DynNode* body = (DynNode*) data_.children[2];
     DynNode* ifClause = (DynNode*) data_.children[3];
@@ -161,7 +162,7 @@ void SprFunction::doComputeType()
 
     // Compute the types of the parameters first
     if ( parameters )
-        parameters->computeType();
+        Nest::computeType(parameters);
 
     // If this is a non-static member function, add this as a parameter
     if ( isMember && !isStatic )
@@ -175,12 +176,12 @@ void SprFunction::doComputeType()
     // Add the actual specified parameters
     if ( parameters )
     {
-        for ( DynNode* n: parameters->children() )
+        for ( Node* n: parameters->children )
         {
             if ( !n )
-                REP_ERROR(n->location(), "Invalid node as parameter");
+                REP_ERROR(n->location, "Invalid node as parameter");
 
-            resultingFun->addParameter(n);
+            resultingFun->addParameter((DynNode*) n);
         }
     }
 
@@ -232,10 +233,10 @@ void SprFunction::doSemanticCheck()
 void SprFunction::handleStaticCtorDtor(bool ctor)
 {
     ASSERT(data_.children.size() == 4);
-    NodeList* parameters = (NodeList*) data_.children[0];
+    Node* parameters = data_.children[0];
 
     // Make sure we don't have any parameters
-    if ( parameters && !parameters->children().empty() )
+    if ( parameters && !parameters->children.empty() )
         REP_ERROR(data_.location, "Static constructors and destructors cannot have parameters");
 
     // Add a global construct / destruct action call to this

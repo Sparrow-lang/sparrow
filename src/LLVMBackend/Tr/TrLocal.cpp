@@ -13,9 +13,7 @@
 #include <Nest/Common/Diagnostic.h>
 
 #include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Nodes/NodeList.h>
 #include <Feather/Nodes/LocalSpace.h>
-#include <Feather/Nodes/Nop.h>
 #include <Feather/Nodes/TempDestructAction.h>
 #include <Feather/Nodes/ScopeDestructAction.h>
 #include <Feather/Nodes/Exp/CtValue.h>
@@ -466,13 +464,13 @@ namespace
     // Common nodes
     //
 
-    llvm::Value* translate(NodeList& node, TrContext& context)
+    llvm::Value* translateNodeList(Node* node, TrContext& context)
     {
         llvm::Value* res = nullptr;
-        for ( DynNode* child: node.children() )
+        for ( Node* child: node->children )
         {
             if ( child )
-                res = translateNode(child->node(), context);
+                res = translateNode(child, context);
         }
         return res;
     }
@@ -491,7 +489,7 @@ namespace
         return nullptr;
     }
 
-    llvm::Value* translate(Nop& /*node*/, TrContext& /*context*/)
+    llvm::Value* translateNop(Node* /*node*/, TrContext& /*context*/)
     {
         // Do nothing
         return nullptr;
@@ -1213,9 +1211,9 @@ llvm::Value* Tr::translateNode(Node* node, TrContext& context)
 
     switch ( node->nodeKind - firstFeatherNodeKind )
     {
-    case nkRelFeatherNodeList:                         return translate((NodeList&) *node, context);
+    case nkRelFeatherNodeList:                         return translateNodeList(node, context);
     case nkRelFeatherLocalSpace:                       return translate((LocalSpace&) *node, context);
-    case nkRelFeatherNop:                              return translate((Nop&) *node, context);
+    case nkRelFeatherNop:                              return translateNop(node, context);
     case nkRelFeatherTempDestructAction:               return translate((TempDestructAction&) *node, context);
     case nkRelFeatherScopeDestructAction:              return translate((ScopeDestructAction&) *node, context);
     case nkRelFeatherExpCtValue:                       return translate((CtValue&) *node, context);

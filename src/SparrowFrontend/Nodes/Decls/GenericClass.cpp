@@ -81,19 +81,19 @@ namespace
     {
         const Location& loc = orig->location();
 
-        NodeList* baseClasses = orig->baseClasses();
-        NodeList* children = orig->classChildren();
-        baseClasses = baseClasses ? baseClasses->clone() : nullptr;
-        children = children ? children->clone() : nullptr;
-        DynNode* newClass = mkSprClass(loc, getName(orig->node()), nullptr, baseClasses, nullptr, children);
+        Node* baseClasses = orig->baseClasses();
+        Node* children = orig->classChildren();
+        baseClasses = baseClasses ? Nest::cloneNode(baseClasses) : nullptr;
+        children = children ? Nest::cloneNode(children) : nullptr;
+        Node* newClass = mkSprClass(loc, getName(orig->node()), nullptr, baseClasses, nullptr, children);
 
-        copyModifiersSetMode(orig, newClass, context->evalMode());
+        copyModifiersSetMode(orig, (DynNode*) newClass, context->evalMode());
 
         //setShouldAddToSymTab(newClass, false);    // TODO (generics): Uncomment this line
-        newClass->setContext(context);
+        Nest::setContext(newClass, context);
 
 //        REP_INFO(loc, "Instantiated %1%") % description;
-        return newClass;
+        return (DynNode*) newClass;
     }
 
     string getDescription(SprClass* cls, Instantiation* inst)
@@ -117,17 +117,17 @@ namespace
 }
 
 
-GenericClass::GenericClass(SprClass* originalClass, NodeList* parameters, DynNode* ifClause)
-    : Generic(classNodeKind(), originalClass, parameters->children(), ifClause, publicAccess)
+GenericClass::GenericClass(SprClass* originalClass, Node* parameters, DynNode* ifClause)
+    : Generic(classNodeKind(), originalClass, toDyn(parameters->children), ifClause, publicAccess)
 {
     setEvalMode(node(), effectiveEvalMode(originalClass->node()));
 
     // Semantic check the arguments
-    for ( DynNode* param: parameters->children() )
+    for ( Node* param: parameters->children )
     {
-        param->semanticCheck();
-        if ( isConceptType(param->type()) )
-            REP_ERROR(param->location(), "Cannot use auto or concept parameters for class generics");
+        Nest::semanticCheck(param);
+        if ( isConceptType(param->type) )
+            REP_ERROR(param->location, "Cannot use auto or concept parameters for class generics");
     }
 }
 
@@ -158,14 +158,14 @@ DynNode* GenericClass::instantiateGeneric(const Location& loc, CompilationContex
 
     // If not already created, create the actual instantiation declaration
     DynNode* instantiatedDecl = inst->instantiatedDecl();
-    NodeList* expandedInstantiation = inst->expandedInstantiation();
+    Node* expandedInstantiation = inst->expandedInstantiation();
     if ( !instantiatedDecl )
     {
         SprClass* originalClass = ((DynNode*) data_.referredNodes[0])->as<SprClass>();
         string description = getDescription(originalClass, inst);
 
         // Create the actual instantiation declaration
-        CompilationContext* ctx = expandedInstantiation->childrenContext();
+        CompilationContext* ctx = Nest::childrenContext(expandedInstantiation);
         instantiatedDecl = createInstantiatedClass(ctx, originalClass, description);
         if ( !instantiatedDecl )
             REP_INTERNAL(loc, "Cannot instantiate generic");
@@ -176,7 +176,7 @@ DynNode* GenericClass::instantiateGeneric(const Location& loc, CompilationContex
 
         // Add the instantiated class as an additional node to the callee source code
         ASSERT(context->sourceCode());
-        context->sourceCode()->addAdditionalNode(expandedInstantiation->node());
+        context->sourceCode()->addAdditionalNode(expandedInstantiation);
     }
 
     // Now actually create the call object: a Type CT value

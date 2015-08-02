@@ -190,6 +190,13 @@ namespace
     }
 }
 
+Node* SprFrontend::selectOverload(CompilationContext* context, const Location& loc, Nest::EvalMode evalMode,
+        NodeVector decls, NodeVector args,
+        bool reportErrors, const string& funName)
+{
+    return selectOverload(context, loc, evalMode, toDyn(move(decls)), toDyn(move(args)), reportErrors, funName)->node();
+}
+
 DynNode* SprFrontend::selectOverload(CompilationContext* context, const Location& loc, Nest::EvalMode evalMode,
         DynNodeVector decls, DynNodeVector args,
         bool reportErrors, const string& funName)
@@ -204,7 +211,7 @@ DynNode* SprFrontend::selectOverload(CompilationContext* context, const Location
         for ( auto& arg: args )
         {
             const Location& l = arg->location();
-            arg = mkFunApplication(l, mkIdentifier(l, "lift"), (NodeList*) mkNodeList(l, {arg->node()}, true));
+            arg = (DynNode*) mkFunApplication(l, mkIdentifier(l, "lift"), mkNodeList(l, NodeVector(1, arg->node()), true));
             arg->setContext(context);
         }
     }
@@ -273,7 +280,7 @@ DynNode* SprFrontend::selectOverload(CompilationContext* context, const Location
     ASSERT(res->context());
     if ( changeModeNode )
     {
-        changeModeNode->setChild(res);
+        changeModeNode->setChild(res->node());
         res = changeModeNode;
     }
 
@@ -281,8 +288,8 @@ DynNode* SprFrontend::selectOverload(CompilationContext* context, const Location
     if ( isMacro )
     {
         // Wrap the function call in a Meta.astEval(...) call
-        DynNode* funName = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "astEval");
-        res = mkFunApplication(loc, funName, { res });
+        Node* funName = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "astEval");
+        res = (DynNode*) mkFunApplication(loc, funName, NodeVector(1, res->node()));
         res->setContext(context);
     }
 

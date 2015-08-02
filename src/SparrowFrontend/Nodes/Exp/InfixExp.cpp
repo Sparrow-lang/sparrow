@@ -109,7 +109,7 @@ void InfixExp::doSemanticCheck()
 //        cerr << endl;
 //    }
 
-    setExplanation(mkOperatorCall(data_.location, (DynNode*) arg1, operation(), (DynNode*) arg2));
+    setExplanation(mkOperatorCall(data_.location, arg1, operation(), arg2));
 }
 
 void InfixExp::handlePrecedence()
@@ -250,7 +250,7 @@ int InfixExp::getIntValue(const DynNodeVector& decls, int defaultVal)
     if ( node->nodeKind() == nkSparrowDeclUsing )
         node = static_cast<Using*>(node)->source();
 
-    return getIntCtValue(node->explanation());
+    return getIntCtValue(node->explanation()->node());
 }
 
 

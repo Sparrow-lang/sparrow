@@ -3,27 +3,27 @@
 #include "FeatherNodeCommonsCpp.h"
 
 
-ChangeMode::ChangeMode(const Location& loc, EvalMode mode, DynNode* child)
+ChangeMode::ChangeMode(const Location& loc, EvalMode mode, Node* child)
     : DynNode(classNodeKind(), loc)
 {
     if ( child )
-        data_.children.push_back(child->node());
+        data_.children.push_back(child);
     setProperty(propEvalMode, (int) mode);
 }
 
-DynNode* ChangeMode::child() const
+Node* ChangeMode::child() const
 {
-    return (DynNode*) data_.children[0];
+    return data_.children[0];
 }
 
-void ChangeMode::setChild(DynNode* child)
+void ChangeMode::setChild(Node* child)
 {
     ASSERT(child);
     data_.children.resize(1);
-    data_.children[0] = child->node();
+    data_.children[0] = child;
 
     if ( data_.childrenContext )
-        child->setContext(data_.childrenContext);
+        Nest::setContext(child, data_.childrenContext);
 }
 
 EvalMode ChangeMode::evalMode() const
@@ -59,5 +59,5 @@ void ChangeMode::doSemanticCheck()
         REP_INTERNAL(data_.location, "No node specified as child to a ChangeMode node");
 
     Nest::semanticCheck(data_.children[0]);
-    setExplanation((DynNode*) data_.children[0]);
+    setExplanation(data_.children[0]);
 }

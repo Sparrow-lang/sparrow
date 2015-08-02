@@ -16,7 +16,7 @@ namespace SprFrontend
         ~GenericFunction();
 
         /// Checks if the given declaration with the given parameters is a generic; if yes, creates an object of this type
-        static GenericFunction* createGeneric(SprFunction* originalFun, NodeList* parameters, DynNode* ifClause, Feather::Class* thisClass = nullptr);
+        static GenericFunction* createGeneric(SprFunction* originalFun, Node* parameters, DynNode* ifClause, Feather::Class* thisClass = nullptr);
 
         size_t paramsCount() const;
         DynNode* param(size_t idx) const;

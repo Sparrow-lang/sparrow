@@ -4,11 +4,8 @@
 #include <Nest/Intermediate/Type.h>
 
 #include <Feather/Nodes/DynNode.h>
-#include <Feather/Nodes/NodeList.h>
 
 #include "Nodes/SparrowNodes.h"
-
-FWD_CLASS1(Feather, NodeList)
 
 namespace SprFrontend
 {
@@ -18,8 +15,6 @@ namespace SprFrontend
     using Feather::DynNodeVector;
     using Nest::TypeRef;
     using Nest::SymTab;
-
-    using Feather::NodeList;
 
     using Nest::Modifier;
 }

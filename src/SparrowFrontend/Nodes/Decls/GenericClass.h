@@ -12,7 +12,7 @@ namespace SprFrontend
         DEFINE_NODE(GenericClass, nkSparrowDeclGenericClass, "Sparrow.Decl.GenericClass");
 
     public:
-        explicit GenericClass(SprClass* originalClass, NodeList* parameters, DynNode* ifClause);
+        explicit GenericClass(SprClass* originalClass, Node* parameters, DynNode* ifClause);
 
         size_t paramsCount() const;
         DynNode* param(size_t idx) const;

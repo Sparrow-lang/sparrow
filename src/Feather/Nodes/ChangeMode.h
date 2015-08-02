@@ -10,13 +10,13 @@ namespace Feather
         DEFINE_NODE(ChangeMode, nkFeatherExpChangeMode, "Feather.ChangeMode");
 
     public:
-        ChangeMode(const Location& loc, EvalMode mode, DynNode* child = nullptr);
+        ChangeMode(const Location& loc, EvalMode mode, Node* child = nullptr);
 
         /// Getter for child of this node
-        DynNode* child() const;
+        Node* child() const;
 
         /// Setter for the child of this node, the one that will have a different eval mode
-        void setChild(DynNode* child);
+        void setChild(Node* child);
         
         /// Getter for the evaluation mode of this node
         EvalMode evalMode() const;

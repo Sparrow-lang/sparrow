@@ -86,7 +86,7 @@ namespace
             }
             else if ( isConceptType(p->type()) )   // For auto-type parameters, we also create a non-bound parameter
             {
-                nonBoundParams.push_back(mkSprParameter(p->location(), getName(p->node()), boundValue));
+                nonBoundParams.push_back((DynNode*) mkSprParameter(p->location(), getName(p->node()), boundValue->node()));
             }
         }
         return nonBoundParams;
@@ -161,18 +161,18 @@ namespace
 
         //REP_INFO(loc, "Instantiating %1% with %2% params") % getName(origFun) % nonBoundParams.size();
 
-        NodeList* parameters = (NodeList*) mkNodeList(loc, fromDyn(nonBoundParams));
+        Node* parameters = mkNodeList(loc, fromDyn(nonBoundParams));
         DynNode* returnType = origFun->returnType();
         DynNode* body = origFun->body();
         returnType = returnType ? returnType->clone() : nullptr;
         body = body ? body->clone() : nullptr;
-        DynNode* newFun = mkSprFunction(loc, getName(origFun->node()), parameters, returnType, body);
-        copyModifiersSetMode(origFun, newFun, context->evalMode());
-        setShouldAddToSymTab(newFun->node(), false);
-        newFun->setContext(context);
+        Node* newFun = mkSprFunction(loc, getName(origFun->node()), parameters, returnType->node(), body->node());
+        copyModifiersSetMode(origFun, (DynNode*) newFun, context->evalMode());
+        setShouldAddToSymTab(newFun, false);
+        Nest::setContext(newFun, context);
 
         //REP_INFO(loc, "Instantiated %1%") % newFun->toString();
-        return newFun;
+        return (DynNode*) newFun;
     }
 
     DynNode* createCallFn(const Location& loc, CompilationContext* context, DynNode* inst, const DynNodeVector& nonBoundArgs)
@@ -204,7 +204,7 @@ const DynNodeVector& GenericFunction::params() const
 }
 
 
-GenericFunction* GenericFunction::createGeneric(SprFunction* originalFun, NodeList* parameters, DynNode* ifClause, Class* thisClass)
+GenericFunction* GenericFunction::createGeneric(SprFunction* originalFun, Node* parameters, DynNode* ifClause, Class* thisClass)
 {
     // If we are in a CT function, don't consider CT parameters
     bool inCtFun = effectiveEvalMode(originalFun->node()) == modeCt;
@@ -213,25 +213,25 @@ GenericFunction* GenericFunction::createGeneric(SprFunction* originalFun, NodeLi
 
     // Check if we have some CT parameters
     ASSERT(parameters);
-    const DynNodeVector& params = parameters->children();
+    const NodeVector& params = parameters->children;
     DynNodeVector ourParams(params.size(), nullptr);
     DynNodeVector genericParams(params.size(), nullptr);
     bool hasGenericParams = false;
     for ( size_t i=0; i<params.size(); ++i )
     {
-        DynNode* param = params[i];
-        param->computeType();
-        ASSERT(param->type());
+        Node* param = params[i];
+        Nest::computeType(param);
+        ASSERT(param->type);
 
-        ourParams[i] = param;
-        if ( isConceptType(param->type()) )
+        ourParams[i] = (DynNode*) param;
+        if ( isConceptType(param->type) )
         {
-            genericParams[i] = param;
+            genericParams[i] = (DynNode*) param;
             hasGenericParams = true;
         }
-        if ( (!inCtFun || isCtGeneric) && isCt(param->node()) )
+        if ( (!inCtFun || isCtGeneric) && isCt(param) )
         {
-            genericParams[i] = param;
+            genericParams[i] = (DynNode*) param;
             hasGenericParams = true;
         }
     }
@@ -243,10 +243,10 @@ GenericFunction* GenericFunction::createGeneric(SprFunction* originalFun, NodeLi
     if ( thisClass )
     {
         TypeRef thisType = getDataType((Node*) thisClass, 1, effectiveEvalMode(originalFun->node()));
-        DynNode* thisParam = mkSprParameter(originalFun->location(), "$this", thisType);
-        thisParam->setContext(originalFun->childrenContext());
-        thisParam->computeType();
-        ourParams.insert(ourParams.begin(), thisParam);
+        Node* thisParam = mkSprParameter(originalFun->location(), "$this", thisType);
+        Nest::setContext(thisParam, originalFun->childrenContext());
+        Nest::computeType(thisParam);
+        ourParams.insert(ourParams.begin(), (DynNode*) thisParam);
         genericParams.insert(genericParams.begin(), nullptr);
     }
 
@@ -286,14 +286,14 @@ DynNode* GenericFunction::instantiateGeneric(const Location& loc, CompilationCon
 
     // If not already created, create the actual instantiation declaration
     DynNode* instantiatedDecl = inst->instantiatedDecl();
-    NodeList* expandedInstantiation = inst->expandedInstantiation();
+    Node* expandedInstantiation = inst->expandedInstantiation();
     if ( !instantiatedDecl )
     {
         SprFunction* originalFun = ((DynNode*) data_.referredNodes[0])->as<SprFunction>();
         DynNodeVector nonBoundParams = getNonBoundParameters(*inst, originalFun, params(), genericParams());
 
         // Create the actual instantiation declaration
-        CompilationContext* ctx = expandedInstantiation->childrenContext();
+        CompilationContext* ctx = Nest::childrenContext(expandedInstantiation);
         instantiatedDecl = createInstFn(ctx, originalFun, nonBoundParams);
         if ( !instantiatedDecl )
             REP_INTERNAL(loc, "Cannot instantiate generic");

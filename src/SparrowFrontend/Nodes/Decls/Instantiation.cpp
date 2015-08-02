@@ -18,9 +18,9 @@ const DynNodeVector& Instantiation::boundValues() const
     return reinterpret_cast<const DynNodeVector&>(data_.referredNodes);
 }
 
-NodeList*& Instantiation::expandedInstantiation()
+Node*& Instantiation::expandedInstantiation()
 {
-    return (NodeList*&) data_.children[0];
+    return data_.children[0];
 }
 
 DynNode* Instantiation::instantiatedDecl()
@@ -31,7 +31,7 @@ DynNode* Instantiation::instantiatedDecl()
 void Instantiation::setInstantiatedDecl(DynNode* decl)
 {
     setProperty("instantiatedDecl", decl);
-    expandedInstantiation()->addChild(decl);
+    expandedInstantiation()->children.push_back(decl->node());
 }
 
 bool Instantiation::isValid() const

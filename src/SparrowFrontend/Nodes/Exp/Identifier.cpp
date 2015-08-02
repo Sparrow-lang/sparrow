@@ -64,7 +64,7 @@ void Identifier::doSemanticCheck()
     if ( needsThis )
     {
         // Add 'this' parameter to handle this case
-        DynNode* res = mkCompoundExp(data_.location, mkThisExp(data_.location), id);
+        Node* res = mkCompoundExp(data_.location, mkThisExp(data_.location), id);
         setExplanation(res);
         return;
     }
@@ -128,11 +128,11 @@ DynNode* SprFrontend::getIdentifierResult(CompilationContext* ctx, const Locatio
 
     // Add the referenced declarations as a property to our result
     if ( allowDeclExp )
-        return mkDeclExp(loc, decls, baseExp);
+        return (DynNode*) mkDeclExp(loc, fromDyn(decls), baseExp->node());
 
     // If we are here, this identifier could only represent a function application
-    DynNode* fapp = mkFunApplication(loc, mkDeclExp(loc, decls, baseExp), nullptr);
-    fapp->setContext(ctx);
-    fapp->semanticCheck();
-    return fapp;
+    Node* fapp = mkFunApplication(loc, mkDeclExp(loc, fromDyn(decls), baseExp->node()), nullptr);
+    Nest::setContext(fapp, ctx);
+    Nest::semanticCheck(fapp);
+    return (DynNode*) fapp;
 }

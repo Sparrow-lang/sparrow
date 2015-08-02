@@ -20,7 +20,7 @@ namespace SprFrontend
 
         /// NodeList containing the variables & the actual instantiation
         /// This will contain variables for each bound value, and then the actual instantiated declaration
-        NodeList*& expandedInstantiation();
+        Node*& expandedInstantiation();
 
         /// The actual declaration instantiation. This will be a part of 'expandedInstantiation'
         DynNode* instantiatedDecl();

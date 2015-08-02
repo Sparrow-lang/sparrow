@@ -265,6 +265,11 @@ void DynNode::setExplanation(DynNode* explanation)
     Nest::setExplanation(&data_, (Node*) explanation);
 }
 
+void DynNode::setExplanation(Node* explanation)
+{
+    Nest::setExplanation(&data_, explanation);
+}
+
 
 void Feather::save(const DynNode& obj, OutArchive& ar)
 {

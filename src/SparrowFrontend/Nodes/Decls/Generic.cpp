@@ -11,7 +11,7 @@ using namespace SprFrontend;
 using namespace Feather;
 
 Generic::Generic(int nodeKind, DynNode* origNode, DynNodeVector genericParams, DynNode* ifClause, AccessType accessType)
-    : DynNode(nodeKind, origNode->location(), { mkInstantiationsSet(origNode, move(genericParams), ifClause) }, { origNode })
+    : DynNode(nodeKind, origNode->location(), { (DynNode*) mkInstantiationsSet(origNode->node(), fromDyn(move(genericParams)), ifClause->node()) }, { origNode })
 {
     setName(node(), getName(origNode->node()));
     setAccessType(this, accessType);

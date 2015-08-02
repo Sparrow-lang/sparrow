@@ -11,9 +11,6 @@
 #include <Nest/CompilerSettings.h>
 
 #include <Feather/Nodes/Properties.h>
-#include <Feather/Nodes/NodeList.h>
-#include <Feather/Nodes/BackendCode.h>
-#include <Feather/Nodes/Nop.h>
 #include <Feather/Nodes/GlobalDestructAction.h>
 #include <Feather/Nodes/GlobalConstructAction.h>
 #include <Feather/Nodes/Decls/Class.h>
@@ -38,12 +35,12 @@ using namespace Feather;
 
 namespace
 {
-    void translateNodeList(Feather::NodeList* node, Module& module)
+    void translateNodeList(Node* node, Module& module)
     {
-        for ( DynNode* child: node->children() )
+        for ( Node* child: node->children )
         {
             if ( child )
-                translateTopLevelNode(child->node(), module);
+                translateTopLevelNode(child, module);
         }
     }
 
@@ -79,8 +76,8 @@ void Tr::translateTopLevelNode(Node* node, Module& module)
         switch ( node->nodeKind - firstFeatherNodeKind )
         {
         case nkRelFeatherNop:                      break;
-        case nkRelFeatherNodeList:                 translateNodeList((NodeList*) node, module); break;
-        case nkRelFeatherBackendCode:              translateBackendCode((BackendCode*) node, module); break;
+        case nkRelFeatherNodeList:                 translateNodeList(node, module); break;
+        case nkRelFeatherBackendCode:              translateBackendCode(node, module); break;
         case nkRelFeatherGlobalDestructAction:     translate((GlobalDestructAction&) *node, module); break;
         case nkRelFeatherGlobalConstructAction:    translate((GlobalConstructAction&) *node, module); break;
         case nkRelFeatherDeclClass:                translateClass((Class*) node, module); break;
@@ -93,16 +90,17 @@ void Tr::translateTopLevelNode(Node* node, Module& module)
 }
 
 
-void Tr::translateBackendCode(Feather::BackendCode* node, Module& module)
+void Tr::translateBackendCode(Node* node, Module& module)
 {
     // Generate a new module from the given backend code
     llvm::SMDiagnostic error;
-    llvm::Module* resModule = llvm::ParseAssemblyString(node->code().c_str(), nullptr, error, module.llvmContext());
+    const string& code = Nest::getCheckPropertyString(node, propCode);
+    llvm::Module* resModule = llvm::ParseAssemblyString(code.c_str(), nullptr, error, module.llvmContext());
     if ( !resModule )
     {
-        Location loc = node->location();
+        Location loc = node->location;
         if ( loc.startLineNo() == 1 && loc.startColNo() == 1 )
-            loc = Location(*node->location().sourceCode(), error.getLineNo(), error.getColumnNo());
+            loc = Location(*node->location.sourceCode(), error.getLineNo(), error.getColumnNo());
         REP_ERROR(loc, "Cannot parse backend code node: %1% (line: %2%)") % string(error.getMessage()) % error.getLineNo();
     }
 
@@ -114,7 +112,7 @@ void Tr::translateBackendCode(Feather::BackendCode* node, Module& module)
     string errMsg;
     llvm::Linker::LinkModules(&module.llvmModule(), resModule, llvm::Linker::DestroySource, &errMsg);
     if ( !errMsg.empty() )
-        REP_ERROR(node->location(), "Cannot merge backend code node into main LLVM module: %1%") % errMsg;
+        REP_ERROR(node->location, "Cannot merge backend code node into main LLVM module: %1%") % errMsg;
 }
 
 llvm::Type* Tr::translateClass(Feather::Class* node, Module& module)

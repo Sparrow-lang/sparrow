@@ -104,11 +104,11 @@ namespace
     // Add to a local space an operator call
     void addOperatorCall(LocalSpace* dest, bool reverse, DynNode* operand1, const string& op, DynNode* operand2)
     {
-        DynNode* call = mkOperatorCall(dest->location(), operand1, op, operand2);
+        Node* call = mkOperatorCall(dest->location(), operand1->node(), op, operand2->node());
         if ( !reverse )
-            dest->addChild(call);
+            dest->addChild((DynNode*) call);
         else
-            dest->insertChildInFront(call);
+            dest->insertChildInFront((DynNode*) call);
     }
 
     // Add a method with the given body and given atguments to the parent class
@@ -122,18 +122,18 @@ namespace
         sprParams.reserve(params.size());
         for ( auto param: params )
         {
-            sprParams.push_back(mkSprParameter(loc, param.second, param.first)->node());
+            sprParams.push_back(mkSprParameter(loc, param.second, param.first));
         }
-        NodeList* parameters = sprParams.empty() ? nullptr : (NodeList*) mkNodeList(loc, move(sprParams));
-        DynNode* ret = resClass ? (DynNode*) createTypeNode(parent->childrenContext(), loc, getDataType(resClass->node())) : nullptr;
+        Node* parameters = sprParams.empty() ? nullptr : mkNodeList(loc, move(sprParams));
+        Node* ret = resClass ? createTypeNode(parent->childrenContext(), loc, getDataType(resClass->node()))->node() : nullptr;
         
         // Add the function
-        DynNode* m = mkSprFunction(loc, name, parameters, ret, body);
-        m->setProperty(propNoDefault, 1);
-        setEvalMode(m->node(), mode == modeUnspecified ? effectiveEvalMode(parent->node()) : mode);
-        parent->addChild(m);
-        m->computeType();
-        return m;
+        Node* m = mkSprFunction(loc, name, parameters, ret, body->node());
+        Nest::setProperty(m, propNoDefault, 1);
+        setEvalMode(m, mode == modeUnspecified ? effectiveEvalMode(parent->node()) : mode);
+        parent->addChild((DynNode*) m);
+        Nest::computeType(m);
+        return (DynNode*) m;
     }
     
     // Add a method with the given body to the parent class
@@ -150,12 +150,12 @@ namespace
         Class* cls = parent->explanation()->as<Class>();
         ASSERT(cls);
 
-        DynNode* otherRef = nullptr;
+        Node* otherRef = nullptr;
         if ( otherParam )
         {
             otherRef = mkIdentifier(loc, "other");
             if ( otherParam->numReferences > 0 )
-                otherRef = (DynNode*) mkMemLoad(loc, otherRef->node());
+                otherRef = mkMemLoad(loc, otherRef);
         }
 
         // Construct the body
@@ -167,8 +167,8 @@ namespace
             if ( cls2 != cls )
                 continue;
 
-            DynNode* fieldRef = (DynNode*) mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)->node()), field->node());
-            DynNode* otherFieldRef = otherParam ? (DynNode*) mkFieldRef(loc, otherRef->node(), field->node()) : nullptr;
+            Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field->node());
+            Node* otherFieldRef = otherParam ? mkFieldRef(loc, otherRef, field->node()) : nullptr;
 
             string oper = op;
             if ( field->type()->numReferences > 0 )
@@ -182,7 +182,7 @@ namespace
                 else if ( op == "dtor" )
                     continue;       // Nothing to destruct on references
             }
-            addOperatorCall(body, reverse, fieldRef, oper, otherFieldRef);
+            addOperatorCall(body, reverse, (DynNode*) fieldRef, oper, (DynNode*) otherFieldRef);
         }
 
         addMethod(parent, name, body, otherParam, nullptr, mode);
@@ -223,14 +223,14 @@ namespace
             // Add a parameter for the base
             string paramName = "f"+getName(field->node());
             params.push_back({t, paramName});
-            DynNode* paramId = mkIdentifier(loc, move(paramName));
+            Node* paramId = mkIdentifier(loc, move(paramName));
             if ( t->numReferences > 0 )
-                paramId = (DynNode*) mkMemLoad(loc, paramId->node());
+                paramId = mkMemLoad(loc, paramId);
             
-            DynNode* fieldRef = (DynNode*) mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)->node()), field->node());
+            Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field->node());
             
             string oper = t->numReferences > 0 ? ":=" : "ctor";
-            addOperatorCall(body, false, fieldRef, oper, paramId);
+            addOperatorCall(body, false, (DynNode*) fieldRef, oper, (DynNode*) paramId);
         }
         
         addMethod(parent, "ctor", body, params);
@@ -245,7 +245,7 @@ namespace
         ASSERT(cls);
 
         // Construct the equality check expression
-        DynNode* exp = nullptr;
+        Node* exp = nullptr;
         for ( DynNode* field: cls->fields() )
         {
             // Take in account only fields of the current class
@@ -253,11 +253,11 @@ namespace
             if ( cls2 != cls )
                 continue;
 
-            DynNode* fieldRef = (DynNode*) mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)->node()), field->node());
-            DynNode* otherFieldRef = (DynNode*) mkFieldRef(loc, mkMemLoad(loc, mkIdentifier(loc, "other")->node()), field->node());
+            Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field->node());
+            Node* otherFieldRef = mkFieldRef(loc, mkMemLoad(loc, mkIdentifier(loc, "other")), field->node());
 
             const char* op = (field->type()->numReferences == 0) ? "==" : "===";
-            DynNode* curExp = mkOperatorCall(loc, fieldRef, op, otherFieldRef);
+            Node* curExp = mkOperatorCall(loc, fieldRef, op, otherFieldRef);
             if ( !exp )
                 exp = curExp;
             else
@@ -267,7 +267,7 @@ namespace
             exp = mkBoolLiteral(loc, true);
 
         LocalSpace* body = new LocalSpace(loc);
-        body->addChild(mkReturnStmt(loc, exp));
+        body->addChild((DynNode*) mkReturnStmt(loc, exp));
         addMethod(parent, "==", body, getDataType(cls->node(), 1), StdDef::clsBool);
     }
 }

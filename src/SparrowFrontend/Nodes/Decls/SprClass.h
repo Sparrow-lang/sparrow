@@ -11,10 +11,10 @@ namespace SprFrontend
         DEFINE_NODE(SprClass, nkSparrowDeclSprClass, "Sparrow.Decl.Class");
 
     public:
-        SprClass(const Location& loc, string name, NodeList* parameters,  NodeList* baseClasses, NodeList* children, DynNode* ifClause, AccessType accessType = publicAccess);
+        SprClass(const Location& loc, string name, Node* parameters,  Node* baseClasses, Node* children, DynNode* ifClause, AccessType accessType = publicAccess);
 
-        NodeList* baseClasses() const;
-        NodeList* classChildren() const;
+        Node* baseClasses() const;
+        Node* classChildren() const;
 
         void addChild(DynNode* child);
 

@@ -46,11 +46,11 @@ void IntModDtorMembers::beforeSemanticCheck(Node* n)
 
         if ( field->type()->numReferences == 0 )
         {
-            DynNode* fieldRef = (DynNode*) mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)->node()), field->node());
-            fieldRef->setContext(context);
-            DynNode* call = mkOperatorCall(loc, fieldRef, "dtor", nullptr);
-            call->setContext(context);
-            body->addChild(call);
+            Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field->node());
+            Nest::setContext(fieldRef, context);
+            Node* call = mkOperatorCall(loc, fieldRef, "dtor", nullptr);
+            Nest::setContext(call, context);
+            body->addChild((DynNode*) call);
         }
 
     }

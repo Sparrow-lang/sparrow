@@ -236,7 +236,7 @@ namespace
 
         ConversionResult res = ConversionResult(convCustom, [=](DynNode* src) -> DynNode* {
             DynNode* refToClass = createTypeNode(src->context(), src->location(), getDataType(destClass->node()));
-            return new ChangeMode(src->location(), destMode, mkFunApplication(src->location(), refToClass, {src}));
+            return new ChangeMode(src->location(), destMode, mkFunApplication(src->location(), refToClass->node(), NodeVector(1, src->node())));
         }, contextDependent);
         return combine(res, cachedCanConvertImpl(context, flags | flagDontCallConversionCtor, resType, destType));
     }
@@ -357,6 +357,16 @@ ConversionResult::ConversionResult(ConversionType convType, const ConversionFun&
 {
 }
 
+Node* ConversionResult::apply(Node* src) const
+{
+    return apply((DynNode*) src)->node();
+}
+
+Node* ConversionResult::apply(CompilationContext* context, Node* src) const
+{
+    return apply(context, (DynNode*) src)->node();
+}
+
 DynNode* ConversionResult::apply(DynNode* src) const
 {
     return convType_ != convNone && convFun_
@@ -379,6 +389,10 @@ ConversionResult SprFrontend::canConvertType(CompilationContext* context, Nest::
     return cachedCanConvertImpl(context, flags, srcType, destType);
 }
 
+ConversionResult SprFrontend::canConvert(Node* arg, TypeRef destType, ConversionFlags flags)
+{
+    return canConvert((DynNode*) arg, destType, flags);
+}
 ConversionResult SprFrontend::canConvert(DynNode* arg, TypeRef destType, ConversionFlags flags)
 {
     ENTER_TIMER_DESC(Nest::theCompiler().timingSystem(), "type.convert", "Type conversion checking");

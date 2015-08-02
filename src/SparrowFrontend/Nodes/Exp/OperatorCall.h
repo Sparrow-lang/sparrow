@@ -22,7 +22,7 @@ namespace SprFrontend
         void doSemanticCheck();
 
     private:
-        DynNode* selectOperator(const string& operation, DynNode* arg1, DynNode* arg2);
+        Node* selectOperator(const string& operation, Node* arg1, Node* arg2);
         void handleFApp();
         void handleDotExpr();
         void handleRefEq();

@@ -7,9 +7,11 @@
 
 using namespace SprFrontend;
 
-SprCompilationUnit::SprCompilationUnit(const Location& loc, DynNode* package, NodeList* imports, NodeList* declarations)
-    : DynNode(classNodeKind(), loc, {package, imports, declarations})
+SprCompilationUnit::SprCompilationUnit(const Location& loc, DynNode* package, Node* imports, Node* declarations)
+    : DynNode(classNodeKind(), loc, {package, (DynNode*) imports, (DynNode*) declarations})
 {
+    ASSERT( !imports || imports->nodeKind == Feather::nkFeatherNodeList );
+    ASSERT( !declarations || declarations->nodeKind == Feather::nkFeatherNodeList );
 }
 
 void SprCompilationUnit::doSetContextForChildren()
@@ -17,7 +19,7 @@ void SprCompilationUnit::doSetContextForChildren()
     ASSERT(data_.children.size() == 3);
     DynNode* packageName = (DynNode*) data_.children[0];
     DynNode* imports = (DynNode*) data_.children[1];
-    NodeList* declarations = (NodeList*)data_.children[2];
+    Node* declarations = data_.children[2];
     if ( packageName )
         packageName->setContext(data_.context);
 
@@ -42,9 +44,9 @@ void SprCompilationUnit::doSetContextForChildren()
             // We didn't find the package part. From now on create new namespaces
             for ( int j=(int)names.size()-1; j>=i; --j )
             {
-                DynNode* pk = mkSprPackage(packageName->location(), move(names[j]), declarations);
-                declarations = (NodeList*) Feather::mkNodeList(packageName->location(), {pk->node()}, true);
-                data_.children[2] = declarations->node();
+                Node* pk = mkSprPackage(packageName->location(), move(names[j]), declarations);
+                declarations = Feather::mkNodeList(packageName->location(), {pk}, true);
+                data_.children[2] = declarations;
             }
             break;
         }
@@ -57,7 +59,7 @@ void SprCompilationUnit::doSetContextForChildren()
 
     // Set the context for all the children
     if ( declarations )
-        declarations->setContext(data_.childrenContext);
+        Nest::setContext(declarations, data_.childrenContext);
     if ( imports )
         imports->setContext(data_.childrenContext);
 
@@ -85,12 +87,12 @@ void SprCompilationUnit::doSetContextForChildren()
 void SprCompilationUnit::doComputeType()
 {
     ASSERT(data_.children.size() == 3);
-    NodeList* declarations = (NodeList*)data_.children[2];
+    Node* declarations = data_.children[2];
 
     // Compute the type for the children
     if ( declarations )
     {
-        declarations->computeType();
+        Nest::computeType(declarations);
         checkForAllowedNamespaceChildren(declarations);
     }
 
@@ -102,8 +104,8 @@ void SprCompilationUnit::doSemanticCheck()
     computeType();
 
     ASSERT(data_.children.size() == 3);
-    NodeList* declarations = (NodeList*)data_.children[2];
+    Node* declarations = data_.children[2];
 
-    setExplanation(declarations ? declarations : (DynNode*) Feather::mkNop(data_.location));
+    setExplanation((DynNode*) declarations ? declarations : Feather::mkNop(data_.location));
 }
 

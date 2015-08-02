@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Feather/Nodes/NodeList.h>
-
 namespace SprFrontend
 {
     /// Iterates recursively over all the nodes in the given node list, calling the given 'fun' function
@@ -9,22 +7,22 @@ namespace SprFrontend
     /// If a NodeList node is found as a child of the given node list, this will recursively call itself to gather the
     /// children from that node list too. The given function is not called for node-list nodes.
     template <typename F>
-    inline void forEachNodeInNodeList(Feather::NodeList* nodeList, F fun)
+    inline void forEachNodeInNodeList(Node* nodeList, F fun)
     {
         if ( nodeList )
         {
-            for ( DynNode* n: nodeList->children() )
+            ASSERT( nodeList->nodeKind == Feather::nkFeatherNodeList );
+            for ( Node* n: nodeList->children )
             {
                 if ( !n )
                     continue;
 
-                DynNode* nn = n->explanation();
-                NodeList* nl = nn->as<NodeList>();
+                Node* nn = Nest::explanation(n);
 
-                if ( nl )
-                    forEachNodeInNodeList(nl, fun);
+                if ( nn->nodeKind == Feather::nkFeatherNodeList )
+                    forEachNodeInNodeList(nn, fun);
                 else
-                    fun(n);
+                    fun((DynNode*) n);
             }
         }
     }

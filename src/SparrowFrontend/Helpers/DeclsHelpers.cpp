@@ -38,7 +38,7 @@ namespace
 
         if ( nodeKind == nkFeatherNodeList )
         {
-            SprFrontend::checkForAllowedNamespaceChildren(child->as<NodeList>(), insideClass);
+            SprFrontend::checkForAllowedNamespaceChildren(child->node(), insideClass);
             return;
         }
 
@@ -129,13 +129,14 @@ DynNode* SprFrontend::getResultParam(DynNode* f)
     return res ? *res : nullptr;
 }
 
-void SprFrontend::checkForAllowedNamespaceChildren(NodeList* children, bool insideClass)
+void SprFrontend::checkForAllowedNamespaceChildren(Node* children, bool insideClass)
 {
-    if ( children )
+    if ( children && children->nodeKind == nkFeatherNodeList )
     {
-        for ( DynNode* child: children->children() )
+        for ( Node* child: children->children )
         {
-            checkNodeAllowed(child, insideClass);
+            if ( child )
+                checkNodeAllowed((DynNode*) child, insideClass);
         }
     }
 }

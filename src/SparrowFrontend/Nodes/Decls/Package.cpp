@@ -8,8 +8,8 @@
 using namespace SprFrontend;
 using namespace Nest;
 
-Package::Package(const Location& loc, string name, NodeList* children, AccessType accessType)
-    : DynNode(classNodeKind(), loc, {children})
+Package::Package(const Location& loc, string name, Node* children, AccessType accessType)
+    : DynNode(classNodeKind(), loc, { (DynNode*) children })
 {
     Feather::setName(&data_, move(name));
     setAccessType(this, accessType);
@@ -33,7 +33,7 @@ void Package::doComputeType()
     // Compute the type for the children
     Nest::computeType(data_.children[0]);
     data_.explanation = data_.children[0];
-    checkForAllowedNamespaceChildren((NodeList*) data_.children[0]);
+    checkForAllowedNamespaceChildren(data_.children[0]);
 
     data_.type = Feather::getVoidType(modeCt);
 }

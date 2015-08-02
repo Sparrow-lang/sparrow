@@ -130,8 +130,8 @@ void IntModCtorMembers::beforeSemanticCheck(Node* n)
 
         if ( !hasCtorCall(body, nullptr, false, field) )
         {
-            DynNode* fieldRef = (DynNode*) mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)->node()), field->node());
-            DynNode* call = nullptr;
+            Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field->node());
+            Node* call = nullptr;
             if ( field->type()->numReferences == 0 )
             {
                 call = mkOperatorCall(loc, fieldRef, "ctor", nullptr);
@@ -140,8 +140,8 @@ void IntModCtorMembers::beforeSemanticCheck(Node* n)
             {
                 call = mkOperatorCall(loc, fieldRef, ":=", mkNullLiteral(loc));
             }
-            call->setContext(body->childrenContext());
-            body->insertChildInFront(call);
+            Nest::setContext(call, body->childrenContext());
+            body->insertChildInFront((DynNode*) call);
         }
     }
 }

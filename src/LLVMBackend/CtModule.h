@@ -5,7 +5,6 @@
 FWD_CLASS1(Feather, Var);
 FWD_CLASS1(Feather, Function);
 FWD_CLASS1(Feather, Class);
-FWD_CLASS1(Feather, BackendCode);
 FWD_CLASS1(Feather, GlobalConstructAction);
 
 FWD_CLASS1(llvm, ExecutionEngine);
@@ -42,7 +41,7 @@ namespace LLVMB { namespace Tr
 		void ctProcessVariable(Feather::Var* node);
 		void ctProcessFunction(Feather::Function* node);
 		void ctProcessClass(Feather::Class* node);
-		void ctProcessBackendCode(Feather::BackendCode* node);
+		void ctProcessBackendCode(Node* node);
 		Node* ctEvaluateExpression(Node* node);
 
     private:

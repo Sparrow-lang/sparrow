@@ -10,10 +10,9 @@
 
     #include <Nodes/Decls/AccessType.h>
 
-    namespace Feather
+    namespace Nest
     {
-        class DynNode;
-        class NodeList;
+        struct Node;
     }
     namespace SprFrontend
     {
@@ -53,8 +52,6 @@
 using namespace SprFrontend;
 using namespace Nest;
 
-using Feather::NodeList;
-
 using namespace std;
 
 #ifdef _WIN32
@@ -86,7 +83,7 @@ using namespace std;
 // The parameters to be passed to the grammar - also stored in the Parser class
 %parse-param { SprFrontend::Scanner& scanner }
 %parse-param { Nest::Location startLocation }
-%parse-param { Feather::DynNode** resultNode }
+%parse-param { Nest::Node** resultNode }
 
 %initial-action         // Actions to be performed when start parsing
 {
@@ -105,8 +102,7 @@ using namespace std;
     char                charVal;
     string*             stringVal;
     vector<string>*     stringList;
-    Feather::DynNode*   node;
-    Feather::DynNode*   nodeList;
+    Nest::Node*         node;
     AccessType          accessType;
 }
 
@@ -153,13 +149,13 @@ using namespace std;
 %type <stringVal>   Operator OperatorNoEq IdentifierOrOperator IdentifierOrOperatorNoEq
 %type <node>        QualifiedName QualifiedNameStar
 %type <stringList>  IdentifierList
-%type <nodeList>    IdentifierListNode Modifiers ModifierSpec
+%type <node>       IdentifierListNode Modifiers ModifierSpec
 
 %destructor { delete $$; } Operator OperatorNoEq IdentifierOrOperator IdentifierOrOperatorNoEq
 
 %type <node>        Start ProgramFile PackageTopDeclaration ImportDeclaration
-%type <nodeList>    ImportDeclarationsOpt ImportDeclarations
-%type <nodeList>    DeclarationsOpt Declarations FormalsOpt Formals Formal
+%type <node>        ImportDeclarationsOpt ImportDeclarations
+%type <node>        DeclarationsOpt Declarations FormalsOpt Formals Formal
 %type <node>        Declaration InFunctionDeclaration PackageDeclaration ClassDeclaration ConceptDeclaration VarDeclaration FunDeclaration UsingDeclaration
 //FriendDeclaration
 %type <node>        IfClause FunRetType FunctionBody
@@ -171,11 +167,11 @@ using namespace std;
 %type <node>        Expr PostfixExpr InfixExpr PrefixExpr SimpleExpr
 %type <node>        ExprNoEq PostfixExprNoEq InfixExprNoEq PrefixExprNoEq SimpleExprNoEq
 %type <node>        LambdaExpr
-%type <nodeList>    ExprList ExprListOpt LambdaClosureParams
+%type <node>        ExprList ExprListOpt LambdaClosureParams
 
 %type <node>        Statement EmptyStmt ExpressionStmt BlockStmt BreakStmt ContinueStmt IfStmt ForStmt ReturnStmt WhileStmt
 //ThrowStmt TryStmt CatchBlock FinallyBlock
-%type <nodeList>    Statements
+%type <node>        Statements
 //Catches
 
 
@@ -252,9 +248,9 @@ IdentifierList
 
 IdentifierListNode
     : IdentifierListNode COMMA IDENTIFIER
-        { $$ = (DynNode*) Feather::addToNodeList($1->node(), mkIdentifier(@3, *$3)->node()); }
+        { $$ = Feather::addToNodeList($1, mkIdentifier(@3, *$3)); }
     | IDENTIFIER
-        { $$ = (DynNode*) Feather::mkNodeList(@$, { mkIdentifier(@$, *$1)->node() }); }
+        { $$ = Feather::mkNodeList(@$, { mkIdentifier(@$, *$1) }); }
     ;
 
 ModifierSpec
@@ -266,9 +262,9 @@ ModifierSpec
 
 Modifiers
 	: Modifiers COMMA Expr
-        { $$ = (DynNode*) Feather::addToNodeList($1->node(), $3->node()); }
+        { $$ = Feather::addToNodeList($1, $3); }
 	| Expr
-        { $$ = (DynNode*) Feather::addToNodeList(NULL, $1->node()); }
+        { $$ = Feather::addToNodeList(NULL, $1); }
 	;
 
 
@@ -278,7 +274,7 @@ Modifiers
 
 ProgramFile
 	: PackageTopDeclaration ImportDeclarationsOpt DeclarationsOpt END
-        { $$ = mkSprCompilationUnit(@$, $1, (NodeList*) $2, (NodeList*) $3); }
+        { $$ = mkSprCompilationUnit(@$, $1, $2, $3); }
 	;
 
 PackageTopDeclaration
@@ -297,9 +293,9 @@ ImportDeclarationsOpt
 
 ImportDeclarations
 	: ImportDeclarations ImportDeclaration
-        { $$ = (DynNode*) Feather::addToNodeList($1->node(), $2->node()); }
+        { $$ = Feather::addToNodeList($1, $2); }
 	| ImportDeclaration
-        { $$ = (DynNode*) Feather::addToNodeList(NULL, $1->node()); }
+        { $$ = Feather::addToNodeList(NULL, $1); }
 	;
 
 ImportDeclaration
@@ -317,9 +313,9 @@ DeclarationsOpt
 
 Declarations
 	: Declarations Declaration
-        { $$ = (DynNode*) Feather::addToNodeList($1->node(), $2->node()); }
+        { $$ = Feather::addToNodeList($1, $2); }
 	| Declaration
-        { $$ = (DynNode*) Feather::addToNodeList(NULL, $1->node()); }
+        { $$ = Feather::addToNodeList(NULL, $1); }
 	;
 
 Declaration
@@ -373,23 +369,23 @@ UsingDeclaration
 
 PackageDeclaration
 	: AccessSpec PACKAGE ModifierSpec IDENTIFIER LCURLY DeclarationsOpt RCURLY
-        { $$ = mkModifiers(@$, mkSprPackage(@$, *$4, (NodeList*) $6, $1), $3); }
+        { $$ = mkModifiers(@$, mkSprPackage(@$, *$4, $6, $1), $3); }
 	;
 
 VarDeclaration                        
 	: AccessSpec VAR ModifierSpec IdentifierList COLON ExprNoEq EQUAL Expr SEMICOLON    // var[...] a,b,c : Int = 3;
-        { $$ = buildVariables(@$, *$4, $6, $8, (NodeList*) $3, $1); delete $4; }
+        { $$ = buildVariables(@$, *$4, $6, $8, $3, $1); delete $4; }
 	| AccessSpec VAR ModifierSpec IdentifierList COLON ExprNoEq SEMICOLON               // var[...] a,b,c : Int;
-        { $$ = buildVariables(@$, *$4, $6, NULL, (NodeList*) $3, $1); delete $4; }
+        { $$ = buildVariables(@$, *$4, $6, NULL, $3, $1); delete $4; }
 	| AccessSpec VAR ModifierSpec IdentifierList EQUAL Expr SEMICOLON                   // var[...] a,b,c = 3;
-        { $$ = buildVariables(@$, *$4, NULL, $6, (NodeList*) $3, $1); delete $4; }
+        { $$ = buildVariables(@$, *$4, NULL, $6, $3, $1); delete $4; }
 	;
 
 ClassDeclaration
 	: AccessSpec CLASS ModifierSpec IDENTIFIER FormalsOpt COLON ExprListOpt IfClause LCURLY DeclarationsOpt RCURLY
-        { $$ = mkModifiers(@$, mkSprClass(@$, *$4, (NodeList*) $5, (NodeList*) $7, $8, (NodeList*) $10, $1), (NodeList*) $3); }
+        { $$ = mkModifiers(@$, mkSprClass(@$, *$4, $5, $7, $8, $10, $1), $3); }
 	| AccessSpec CLASS ModifierSpec IDENTIFIER FormalsOpt IfClause LCURLY DeclarationsOpt RCURLY
-        { $$ = mkModifiers(@$, mkSprClass(@$, *$4, (NodeList*) $5, NULL, $6, (NodeList*) $8, $1), (NodeList*) $3); }
+        { $$ = mkModifiers(@$, mkSprClass(@$, *$4, $5, NULL, $6, $8, $1), $3); }
 	;
 
 ConceptDeclaration
@@ -399,9 +395,9 @@ ConceptDeclaration
 
 FunDeclaration
 	: AccessSpec FUN ModifierSpec FunOrOperName FormalsOpt FunRetType IfClause FunctionBody
-        { $$ = mkModifiers(@$, mkSprFunction(@$, *$4, (NodeList*) $5, $6, $8, $7, $1), (NodeList*) $3); }
+        { $$ = mkModifiers(@$, mkSprFunction(@$, *$4, $5, $6, $8, $7, $1), $3); }
 	| AccessSpec FUN ModifierSpec FunOrOperName FormalsOpt FunRetType EQUAL Expr IfClause SEMICOLON
-        { $$ = mkModifiers(@$, mkSprFunctionExp(@$, *$4, (NodeList*) $5, $6, $8, $9, $1), (NodeList*) $3); }
+        { $$ = mkModifiers(@$, mkSprFunctionExp(@$, *$4, $5, $6, $8, $9, $1), $3); }
 	;
 
 FunRetType
@@ -436,7 +432,7 @@ FormalsOpt
 
 Formals
 	: Formals COMMA Formal
-        { $$ = (DynNode*) Feather::appendNodeList($1->node(), $3->node()); }
+        { $$ = Feather::appendNodeList($1, $3); }
 	| Formal
         { $$ = $1; }
 	;
@@ -470,9 +466,9 @@ ExprListOpt
 
 ExprList
 	: ExprList COMMA Expr
-        { $$ = (DynNode*) Feather::addToNodeList($1->node(), $3->node()); }
+        { $$ = Feather::addToNodeList($1, $3); }
 	| Expr
-        { $$ = (DynNode*) Feather::addToNodeList(NULL, $1->node()); }
+        { $$ = Feather::addToNodeList(NULL, $1); }
 	;
 
 Expr
@@ -614,9 +610,9 @@ SimpleExprNoEq
 
 LambdaExpr
     :   LPAREN FUN LambdaClosureParams FormalsOpt FunRetType FunctionBody RPAREN
-        { $$ = mkLambdaExp(@$, (NodeList*) $4, $5, $6, NULL, (NodeList*) $3); }
+        { $$ = mkLambdaExp(@$, $4, $5, $6, NULL, $3); }
     |   LPAREN FUN LambdaClosureParams FormalsOpt FunRetType EQUAL Expr RPAREN
-        { $$ = mkLambdaExp(@$, (NodeList*) $4, $5, NULL, $7, (NodeList*) $3); }
+        { $$ = mkLambdaExp(@$, $4, $5, NULL, $7, $3); }
     ;
 
 LambdaClosureParams
@@ -635,7 +631,7 @@ LambdaClosureParams
 
 Statements
     : Statements Statement
-        { $$ = (DynNode*) Feather::addToNodeList($1->node(), $2->node()); }
+        { $$ = Feather::addToNodeList($1, $2); }
     | /*nothing*/
         { $$ = NULL; }
     ;
@@ -679,7 +675,7 @@ ExpressionStmt
 
 BlockStmt
     : LCURLY Statements RCURLY
-        { $$ = mkBlockStmt(@$, (NodeList*) $2); }
+        { $$ = mkBlockStmt(@$, $2); }
     ;
 
 IfStmt

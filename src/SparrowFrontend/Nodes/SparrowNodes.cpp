@@ -28,7 +28,6 @@
 #include <Nodes/Stmt/For.h>
 #include <Nodes/Stmt/SprReturn.h>
 
-#include <Feather/Nodes/NodeList.h>
 #include <Feather/Nodes/FeatherNodes.h>
 
 #include <Nest/Common/Diagnostic.h>
@@ -151,277 +150,277 @@ void SprFrontend::initSparrowNodeKinds()
 }
 
 
-DynNode* SprFrontend::mkModifiers(const Location& loc, DynNode* main, DynNode* mods)
+Node* SprFrontend::mkModifiers(const Location& loc, Node* main, Node* mods)
 {
     REQUIRE_NODE(loc, main);
-    return mods ? new ModifiersNode(loc, main, mods) : main;
+    return mods ? (new ModifiersNode(loc, (DynNode*) main, (DynNode*) mods))->node() : main;
 }
 
-DynNode* SprFrontend::mkSprCompilationUnit(const Location& loc, DynNode* package, NodeList* imports, NodeList* declarations)
+Node* SprFrontend::mkSprCompilationUnit(const Location& loc, Node* package, Node* imports, Node* declarations)
 {
-    return new SprCompilationUnit(loc, package, imports, declarations);
+    return (new SprCompilationUnit(loc, (DynNode*) package, imports, declarations))->node();
 }
 
-DynNode* SprFrontend::mkSprUsing(const Location& loc, string alias, DynNode* usingNode, AccessType accessType)
+Node* SprFrontend::mkSprUsing(const Location& loc, string alias, Node* usingNode, AccessType accessType)
 {
-    return new Using(loc, move(alias), usingNode, accessType);
+    return (new Using(loc, move(alias), (DynNode*) usingNode, accessType))->node();
 }
 
-DynNode* SprFrontend::mkSprPackage(const Location& loc, string name, NodeList* children, AccessType accessType)
+Node* SprFrontend::mkSprPackage(const Location& loc, string name, Node* children, AccessType accessType)
 {
-    return new Package(loc, move(name), children, accessType);
+    return (new Package(loc, move(name), children, accessType))->node();
 }
 
-DynNode* SprFrontend::mkSprVariable(const Location& loc, string name, DynNode* typeNode, DynNode* init, AccessType accessType)
+Node* SprFrontend::mkSprVariable(const Location& loc, string name, Node* typeNode, Node* init, AccessType accessType)
 {
-    return new SprVariable(loc, move(name), typeNode, init, accessType);
+    return (new SprVariable(loc, move(name), (DynNode*) typeNode, (DynNode*) init, accessType))->node();
 }
 
-DynNode* SprFrontend::mkSprVariable(const Location& loc, string name, TypeRef type, DynNode* init, AccessType accessType)
+Node* SprFrontend::mkSprVariable(const Location& loc, string name, TypeRef type, Node* init, AccessType accessType)
 {
-    return new SprVariable(loc, move(name), type, init, accessType);
+    return (new SprVariable(loc, move(name), type, (DynNode*) init, accessType))->node();
 }
 
-DynNode* SprFrontend::mkSprClass(const Location& loc, string name, NodeList* parameters, NodeList* baseClasses, DynNode* ifClause, NodeList* children, AccessType accessType)
+Node* SprFrontend::mkSprClass(const Location& loc, string name, Node* parameters, Node* baseClasses, Node* ifClause, Node* children, AccessType accessType)
 {
-    return new SprClass(loc, move(name), parameters, baseClasses, children, ifClause, accessType);
+    return (new SprClass(loc, move(name), parameters, baseClasses, children, (DynNode*) ifClause, accessType))->node();
 }
 
-DynNode* SprFrontend::mkSprConcept(const Location& loc, string name, string paramName, DynNode* baseConcept, DynNode* ifClause, AccessType accessType)
+Node* SprFrontend::mkSprConcept(const Location& loc, string name, string paramName, Node* baseConcept, Node* ifClause, AccessType accessType)
 {
-    return new SprConcept(loc, move(name), move(paramName), baseConcept, ifClause, accessType);
+    return (new SprConcept(loc, move(name), move(paramName), (DynNode*) baseConcept, (DynNode*) ifClause, accessType))->node();
 }
 
-DynNode* SprFrontend::mkSprFunction(const Location& loc, string name, NodeList* parameters, DynNode* returnType, DynNode* body, DynNode* ifClause, AccessType accessType)
+Node* SprFrontend::mkSprFunction(const Location& loc, string name, Node* parameters, Node* returnType, Node* body, Node* ifClause, AccessType accessType)
 {
-    return new SprFunction(loc, move(name), parameters, returnType, body, ifClause, accessType);
+    return (new SprFunction(loc, move(name), parameters, (DynNode*) returnType, (DynNode*) body, (DynNode*) ifClause, accessType))->node();
 }
 
-DynNode* SprFrontend::mkSprFunctionExp(const Location& loc, string name, NodeList* parameters, DynNode* returnType, DynNode* bodyExp, DynNode* ifClause, AccessType accessType)
+Node* SprFrontend::mkSprFunctionExp(const Location& loc, string name, Node* parameters, Node* returnType, Node* bodyExp, Node* ifClause, AccessType accessType)
 {
-    const Location& loc2 = bodyExp->location();
-    DynNode* body = mkBlockStmt(loc2, (NodeList*) Feather::mkNodeList(loc2, { mkReturnStmt(loc2, bodyExp)->node() }));
+    const Location& loc2 = bodyExp->location;
+    Node* body = mkBlockStmt(loc2, Feather::mkNodeList(loc2, { mkReturnStmt(loc2, bodyExp) }));
     if ( !returnType )
-        returnType = mkFunApplication(loc2, mkIdentifier(loc2, "typeOf"), (NodeList*) Feather::mkNodeList(loc2, { bodyExp->node() }));
+        returnType = mkFunApplication(loc2, mkIdentifier(loc2, "typeOf"), Feather::mkNodeList(loc2, { bodyExp }));
 
-    return new SprFunction(loc, move(name), parameters, returnType, body, ifClause, accessType);
+    return (new SprFunction(loc, move(name), parameters, (DynNode*) returnType, (DynNode*) body, (DynNode*) ifClause, accessType))->node();
 }
 
-DynNode* SprFrontend::mkSprParameter(const Location& loc, string name, DynNode* typeNode, DynNode* init)
+Node* SprFrontend::mkSprParameter(const Location& loc, string name, Node* typeNode, Node* init)
 {
-    return new SprParameter(loc, move(name), typeNode, init);
+    return (new SprParameter(loc, move(name), (DynNode*) typeNode, (DynNode*) init))->node();
 }
 
-DynNode* SprFrontend::mkSprParameter(const Location& loc, string name, TypeRef type, DynNode* init)
+Node* SprFrontend::mkSprParameter(const Location& loc, string name, TypeRef type, Node* init)
 {
-    return new SprParameter(loc, move(name), type, init);
+    return (new SprParameter(loc, move(name), type, (DynNode*) init))->node();
 }
 
-DynNode* SprFrontend::mkSprAutoParameter(const Location& loc, string name)
+Node* SprFrontend::mkSprAutoParameter(const Location& loc, string name)
 {
-    return new SprParameter(loc, move(name), mkIdentifier(loc, "AnyType"), nullptr);
+    return (new SprParameter(loc, move(name), (DynNode*) mkIdentifier(loc, "AnyType"), nullptr))->node();
 }
 
-DynNode* SprFrontend::mkIdentifier(const Location& loc, string id)
+Node* SprFrontend::mkIdentifier(const Location& loc, string id)
 {
-    return new Identifier(loc, move(id));
+    return (new Identifier(loc, move(id)))->node();
 }
 
-DynNode* SprFrontend::mkCompoundExp(const Location& loc, DynNode* base, string id)
+Node* SprFrontend::mkCompoundExp(const Location& loc, Node* base, string id)
 {
-    return new CompoundExp(loc, base, move(id));
+    return (new CompoundExp(loc, (DynNode*) base, move(id)))->node();
 }
 
-DynNode* SprFrontend::mkStarExp(const Location& loc, DynNode* base, const string& operName)
+Node* SprFrontend::mkStarExp(const Location& loc, Node* base, const string& operName)
 {
     if ( operName != "*" )
         REP_ERROR(loc, "Expected '*' in expression; found '%1%'") % operName;
-    return new StarExp(loc, base);
+    return (new StarExp(loc, (DynNode*) base))->node();
 }
 
-DynNode* SprFrontend::mkPostfixOp(const Location& loc, string op, DynNode* base)
+Node* SprFrontend::mkPostfixOp(const Location& loc, string op, Node* base)
 {
-    return new OperatorCall(loc, base, move(op), nullptr);
+    return (new OperatorCall(loc, (DynNode*) base, move(op), nullptr))->node();
 }
 
-DynNode* SprFrontend::mkInfixOp(const Location& loc, string op, DynNode* arg1, DynNode* arg2)
+Node* SprFrontend::mkInfixOp(const Location& loc, string op, Node* arg1, Node* arg2)
 {
-    return new InfixExp(loc, move(op), arg1, arg2);
+    return (new InfixExp(loc, move(op), (DynNode*) arg1, (DynNode*) arg2))->node();
 }
 
-DynNode* SprFrontend::mkPrefixOp(const Location& loc, string op, DynNode* base)
+Node* SprFrontend::mkPrefixOp(const Location& loc, string op, Node* base)
 {
-    return new InfixExp(loc, move(op), nullptr, base);
+    return (new InfixExp(loc, move(op), nullptr, (DynNode*) base))->node();
 }
 
-DynNode* SprFrontend::mkFunApplication(const Location& loc, DynNode* base, NodeList* arguments)
+Node* SprFrontend::mkFunApplication(const Location& loc, Node* base, Node* arguments)
 {
-    return new FunApplication(loc, base, arguments);
+    return (new FunApplication(loc, (DynNode*) base, arguments))->node();
 }
-DynNode* SprFrontend::mkFunApplication(const Location& loc, DynNode* base, DynNodeVector arguments)
+Node* SprFrontend::mkFunApplication(const Location& loc, Node* base, NodeVector arguments)
 {
-    return new FunApplication(loc, base, move(arguments));
+    return (new FunApplication(loc, (DynNode*) base, Feather::toDyn(move(arguments))))->node();
 }
-DynNode* SprFrontend::mkOperatorCall(const Location& loc, DynNode* arg1, string op, DynNode* arg2)
+Node* SprFrontend::mkOperatorCall(const Location& loc, Node* arg1, string op, Node* arg2)
 {
-    return new OperatorCall(loc, arg1, move(op), arg2);
-}
-
-
-DynNode* SprFrontend::mkConditionalExp(const Location& loc, DynNode* cond, DynNode* alt1, DynNode* alt2)
-{
-    return new SprConditional(loc, cond, alt1, alt2);
+    return (new OperatorCall(loc, (DynNode*) arg1, move(op), (DynNode*) arg2))->node();
 }
 
-DynNode* SprFrontend::mkThisExp(const Location& loc)
+
+Node* SprFrontend::mkConditionalExp(const Location& loc, Node* cond, Node* alt1, Node* alt2)
 {
-    return new This(loc);
+    return (new SprConditional(loc, (DynNode*) cond, (DynNode*) alt1, (DynNode*) alt2))->node();
 }
 
-DynNode* SprFrontend::mkParenthesisExp(const Location& loc, DynNode* exp)
+Node* SprFrontend::mkThisExp(const Location& loc)
 {
-    return (DynNode*) Feather::mkNodeList(loc, {exp->node()}, false);
+    return (new This(loc))->node();
 }
 
-DynNode* SprFrontend::mkIntLiteral(const Location& loc, int value)
+Node* SprFrontend::mkParenthesisExp(const Location& loc, Node* exp)
 {
-    return new Literal(loc, "Int", toStrData(value));;
+    return Feather::mkNodeList(loc, {exp}, false);
 }
 
-DynNode* SprFrontend::mkUIntLiteral(const Location& loc, unsigned int value)
+Node* SprFrontend::mkIntLiteral(const Location& loc, int value)
 {
-    return new Literal(loc, "UInt", toStrData(value));;
+    return (new Literal(loc, "Int", toStrData(value)))->node();
 }
 
-DynNode* SprFrontend::mkLongLiteral(const Location& loc, long value)
+Node* SprFrontend::mkUIntLiteral(const Location& loc, unsigned int value)
 {
-    return new Literal(loc, "Long", toStrData(value));;
+    return (new Literal(loc, "UInt", toStrData(value)))->node();
 }
 
-DynNode* SprFrontend::mkULongLiteral(const Location& loc, unsigned long value)
+Node* SprFrontend::mkLongLiteral(const Location& loc, long value)
 {
-    return new Literal(loc, "ULong", toStrData(value));;
+    return (new Literal(loc, "Long", toStrData(value)))->node();
 }
 
-DynNode* SprFrontend::mkFloatLiteral(const Location& loc, float value)
+Node* SprFrontend::mkULongLiteral(const Location& loc, unsigned long value)
 {
-    return new Literal(loc, "Float", toStrData(value));;
+    return (new Literal(loc, "ULong", toStrData(value)))->node();
 }
 
-DynNode* SprFrontend::mkDoubleLiteral(const Location& loc, double value)
+Node* SprFrontend::mkFloatLiteral(const Location& loc, float value)
 {
-    return new Literal(loc, "Double", toStrData(value));;
+    return (new Literal(loc, "Float", toStrData(value)))->node();
 }
 
-DynNode* SprFrontend::mkCharLiteral(const Location& loc, char value)
+Node* SprFrontend::mkDoubleLiteral(const Location& loc, double value)
 {
-    return new Literal(loc, "Char", toStrData(value));;
+    return (new Literal(loc, "Double", toStrData(value)))->node();
 }
 
-DynNode* SprFrontend::mkStringLiteral(const Location& loc, string value)
+Node* SprFrontend::mkCharLiteral(const Location& loc, char value)
 {
-    return new Literal(loc, "StringRef", move(value));
+    return (new Literal(loc, "Char", toStrData(value)))->node();
 }
 
-DynNode* SprFrontend::mkNullLiteral(const Location& loc)
+Node* SprFrontend::mkStringLiteral(const Location& loc, string value)
 {
-    return new Literal(loc, "Null", string());;
+    return (new Literal(loc, "StringRef", move(value)))->node();
 }
 
-DynNode* SprFrontend::mkBoolLiteral(const Location& loc, bool value)
+Node* SprFrontend::mkNullLiteral(const Location& loc)
 {
-    return new Literal(loc, "Bool", toStrData(value));;
+    return (new Literal(loc, "Null", string()))->node();
 }
 
-DynNode* SprFrontend::mkLambdaExp(const Location& loc, NodeList* parameters, DynNode* returnType, DynNode* body, DynNode* bodyExp, NodeList* closureParams)
+Node* SprFrontend::mkBoolLiteral(const Location& loc, bool value)
+{
+    return (new Literal(loc, "Bool", toStrData(value)))->node();
+}
+
+Node* SprFrontend::mkLambdaExp(const Location& loc, Node* parameters, Node* returnType, Node* body, Node* bodyExp, Node* closureParams)
 {
     if ( bodyExp )
     {
         ASSERT(!body);
-        const Location& loc = bodyExp->location();
-        body = mkBlockStmt(loc, (NodeList*) Feather::mkNodeList(loc, { mkReturnStmt(loc, bodyExp)->node() }));
+        const Location& loc = bodyExp->location;
+        body = mkBlockStmt(loc, Feather::mkNodeList(loc, { mkReturnStmt(loc, bodyExp) }));
         if ( !returnType )
-            returnType = mkFunApplication(loc, mkIdentifier(loc, "typeOf"), (NodeList*) Feather::mkNodeList(loc, { bodyExp->node() }));
+            returnType = mkFunApplication(loc, mkIdentifier(loc, "typeOf"), Feather::mkNodeList(loc, { bodyExp }));
     }
-    return new LambdaFunction(loc, parameters, returnType, body, closureParams);
+    return (new LambdaFunction(loc, parameters, (DynNode*) returnType, (DynNode*) body, closureParams))->node();
 }
 
 
-DynNode* SprFrontend::mkExpressionStmt(const Location& /*loc*/, DynNode* exp)
+Node* SprFrontend::mkExpressionStmt(const Location& /*loc*/, Node* exp)
 {
     return exp;
 }
 
-DynNode* SprFrontend::mkBlockStmt(const Location& loc, NodeList* statements)
+Node* SprFrontend::mkBlockStmt(const Location& loc, Node* statements)
 {
-    return (DynNode*) Feather::mkLocalSpace(loc, statements ? statements->data_.children : NodeVector());
+    return Feather::mkLocalSpace(loc, statements ? statements->children : NodeVector());
 }
 
-DynNode* SprFrontend::mkIfStmt(const Location& loc, DynNode* cond, DynNode* thenClause, DynNode* elseClause)
+Node* SprFrontend::mkIfStmt(const Location& loc, Node* cond, Node* thenClause, Node* elseClause)
 {
-    return (DynNode*) Feather::mkIf(loc, cond->node(), thenClause->node(), elseClause->node());
+    return Feather::mkIf(loc, cond, thenClause, elseClause);
 }
 
-DynNode* SprFrontend::mkForStmt(const Location& loc, string name, DynNode* type, DynNode* range, DynNode* action)
+Node* SprFrontend::mkForStmt(const Location& loc, string name, Node* type, Node* range, Node* action)
 {
-    return new For(loc, move(name), range, action, type);
+    return (new For(loc, move(name), (DynNode*) range, (DynNode*) action, (DynNode*) type))->node();
 }
 
-DynNode* SprFrontend::mkWhileStmt(const Location& loc, DynNode* cond, DynNode* step, DynNode* action)
+Node* SprFrontend::mkWhileStmt(const Location& loc, Node* cond, Node* step, Node* action)
 {
-    return (DynNode*) Feather::mkWhile(loc, cond->node(), action->node(), step->node());
+    return Feather::mkWhile(loc, cond, action, step);
 }
 
-DynNode* SprFrontend::mkBreakStmt(const Location& loc)
+Node* SprFrontend::mkBreakStmt(const Location& loc)
 {
-    return (DynNode*) Feather::mkBreak(loc);
+    return Feather::mkBreak(loc);
 }
 
-DynNode* SprFrontend::mkContinueStmt(const Location& loc)
+Node* SprFrontend::mkContinueStmt(const Location& loc)
 {
-    return (DynNode*) Feather::mkContinue(loc);
+    return Feather::mkContinue(loc);
 }
 
-DynNode* SprFrontend::mkReturnStmt(const Location& loc, DynNode* exp)
+Node* SprFrontend::mkReturnStmt(const Location& loc, Node* exp)
 {
-    return new SprReturn(loc, exp);
+    return (new SprReturn(loc, (DynNode*) exp))->node();
 }
 
-//DynNode* SprFrontend::mkThrowStmt(const Location& loc, DynNode* exp)
+//Node* SprFrontend::mkThrowStmt(const Location& loc, Node* exp)
 //{
 //    UNUSED(loc); UNUSED(exp);
 //    return NULL; // TODO
 //}
 //
-//DynNode* SprFrontend::mkTryStmt(const Location& loc, DynNode* actions, NodeList* catches, DynNode* finallyBlock)
+//Node* SprFrontend::mkTryStmt(const Location& loc, Node* actions, Node* catches, Node* finallyBlock)
 //{
 //    UNUSED(loc); UNUSED(actions); UNUSED(catches); UNUSED(finallyBlock);
 //    return NULL; // TODO
 //}
 //
-//DynNode* SprFrontend::mkCatchBlock(const Location& loc, DynNode* formal, DynNode* action)
+//Node* SprFrontend::mkCatchBlock(const Location& loc, Node* formal, Node* action)
 //{
 //    UNUSED(loc); UNUSED(formal); UNUSED(action);
 //    return NULL; // TODO
 //}
 //
-//DynNode* SprFrontend::mkFinallyBlock(const Location& loc, DynNode* action)
+//Node* SprFrontend::mkFinallyBlock(const Location& loc, Node* action)
 //{
 //    UNUSED(loc); UNUSED(action);
 //    return NULL; // TODO
 //}
 
-DynNode* SprFrontend::mkDeclExp(const Location& loc, DynNodeVector decls, DynNode* baseExp)
+Node* SprFrontend::mkDeclExp(const Location& loc, NodeVector decls, Node* baseExp)
 {
-    return new DeclExp(loc, move(decls), baseExp);
+    return (new DeclExp(loc, Feather::toDyn(move(decls)), (DynNode*) baseExp))->node();
 }
 
-DynNode* SprFrontend::mkInstantiation(const Location& loc, DynNodeVector boundValues, DynNodeVector boundVars)
+Node* SprFrontend::mkInstantiation(const Location& loc, NodeVector boundValues, NodeVector boundVars)
 {
-    return new Instantiation(loc, boundValues, boundVars);
+    return (new Instantiation(loc, Feather::toDyn(boundValues), Feather::toDyn(boundVars)))->node();
 }
 
-DynNode* SprFrontend::mkInstantiationsSet(DynNode* parentNode, DynNodeVector params, DynNode* ifClause)
+Node* SprFrontend::mkInstantiationsSet(Node* parentNode, NodeVector params, Node* ifClause)
 {
-    return new InstantiationsSet(parentNode, params, ifClause);
+    return (new InstantiationsSet((DynNode*) parentNode, Feather::toDyn(move(params)), (DynNode*) ifClause))->node();
 }

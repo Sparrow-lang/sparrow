@@ -44,20 +44,20 @@ void For::doComputeType()
 void For::doSemanticCheck()
 {
     ASSERT(data_.children.size() == 3);
-    DynNode* range = (DynNode*) data_.children[0];
-    DynNode* action = (DynNode*) data_.children[1];
-    DynNode* typeExpr = (DynNode*) data_.children[2];
+    Node* range = data_.children[0];
+    Node* action = data_.children[1];
+    Node* typeExpr = data_.children[2];
 
     bool ctFor = nodeEvalMode(node()) == modeCt;
 
     if ( typeExpr )
-        typeExpr->semanticCheck();
-    range->semanticCheck();
+        Nest::semanticCheck(typeExpr);
+    Nest::semanticCheck(range);
 
-    const Location& loc = range->location();
+    const Location& loc = range->location;
 
-    if ( ctFor && !isCt(range->type()) )
-        REP_ERROR(loc, "Range must be available at CT, for a CT for (range type: %1%)") % range->type();
+    if ( ctFor && !isCt(range->type) )
+        REP_ERROR(loc, "Range must be available at CT, for a CT for (range type: %1%)") % range->type;
 
     // Expand the for statement of the form
     //      for ( <name>: <type> = <range> ) action;
@@ -73,18 +73,18 @@ void For::doSemanticCheck()
     // if <type> is not present, we will use '$rangeType.RetType'
 
     // Variable to hold the range - initialize it with the range node
-    DynNode* rangeVar = mkSprVariable(loc, "$rangeVar", mkIdentifier(loc, "Range"), range);
+    Node* rangeVar = mkSprVariable(loc, "$rangeVar", mkIdentifier(loc, "Range"), range);
     if ( ctFor )
-        setEvalMode(rangeVar->node(), modeCt);
-    DynNode* rangeVarRef = mkIdentifier(loc, "$rangeVar");
+        setEvalMode(rangeVar, modeCt);
+    Node* rangeVarRef = mkIdentifier(loc, "$rangeVar");
 
     // while condition
-    DynNode* base1 = mkCompoundExp(loc, rangeVarRef, "isEmpty");
-    DynNode* whileCond = mkOperatorCall(loc, nullptr, "!", mkFunApplication(loc, base1, {}));
+    Node* base1 = mkCompoundExp(loc, rangeVarRef, "isEmpty");
+    Node* whileCond = mkOperatorCall(loc, nullptr, "!", mkFunApplication(loc, base1, nullptr));
 
     // while step
-    DynNode* base2 = mkCompoundExp(loc, rangeVarRef, "popFront");
-    DynNode* whileStep = mkFunApplication(loc, base2, {});
+    Node* base2 = mkCompoundExp(loc, rangeVarRef, "popFront");
+    Node* whileStep = mkFunApplication(loc, base2, nullptr);
 
     // while body
     Node* whileBody = nullptr;
@@ -94,18 +94,18 @@ void For::doSemanticCheck()
             typeExpr = mkCompoundExp(loc, rangeVarRef, "RetType");
 
         // the iteration variable
-        DynNode* base3 = mkCompoundExp(loc, rangeVarRef, "front");
-        DynNode* init = mkFunApplication(loc, base3, {});
+        Node* base3 = mkCompoundExp(loc, rangeVarRef, "front");
+        Node* init = mkFunApplication(loc, base3, nullptr);
 
-        DynNode* iterVar = mkSprVariable(data_.location, getName(node()), typeExpr, init);
+        Node* iterVar = mkSprVariable(data_.location, getName(node()), typeExpr, init);
         if ( ctFor )
-            setEvalMode(iterVar->node(), modeCt);
+            setEvalMode(iterVar, modeCt);
 
-        whileBody = mkLocalSpace(action->location(), { iterVar->node(), action->node() });
+        whileBody = mkLocalSpace(action->location, { iterVar, action });
     }
 
-    Node* whileStmt = mkWhile(loc, whileCond->node(), whileBody, whileStep->node(), ctFor);
+    Node* whileStmt = mkWhile(loc, whileCond, whileBody, whileStep, ctFor);
     
-    setExplanation((DynNode*) mkLocalSpace(data_.location, { rangeVar->node(), whileStmt }));
+    setExplanation(mkLocalSpace(data_.location, { rangeVar, whileStmt }));
 }
 

@@ -157,6 +157,7 @@ namespace Feather
         /// makes sure it has the right context, compiles it, and set the type of the current node to be the type of the
         /// explanation
         void setExplanation(DynNode* explanation);
+        void setExplanation(Nest::Node* explanation);
 
     // General node attributes
     public:

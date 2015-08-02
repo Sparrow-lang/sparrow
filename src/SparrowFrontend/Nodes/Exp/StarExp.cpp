@@ -25,7 +25,7 @@ void StarExp::doSemanticCheck()
         REP_ERROR(base->location(), "Invalid expression inside star expression (no referred declarations)");
 
     // Get the referred declarations
-    DynNodeVector decls;
+    NodeVector decls;
     for ( DynNode* baseDecl: baseDecls )
     {
         if ( !baseDecl )
@@ -39,7 +39,7 @@ void StarExp::doSemanticCheck()
         // Get all the symbols from the symbol table
 
         // Search in the symbol table of the base for the identifier
-        decls = Feather::toDyn(baseSymTab->allEntries());
+        decls = baseSymTab->allEntries();
     }
 
     if ( decls.empty() )

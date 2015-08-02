@@ -11,7 +11,7 @@ namespace SprFrontend
         DEFINE_NODE(Package, nkSparrowDeclPackage, "Sparrow.Decl.Package");
 
     public:
-        Package(const Location& loc, string name, NodeList* children, AccessType accessType = publicAccess);
+        Package(const Location& loc, string name, Node* children, AccessType accessType = publicAccess);
 
     protected:
         void doSetContextForChildren();

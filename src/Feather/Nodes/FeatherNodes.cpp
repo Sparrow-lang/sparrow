@@ -1,9 +1,5 @@
 #include <StdInc.h>
 #include "FeatherNodes.h"
-#include "Nop.h"
-#include "TypeNode.h"
-#include "BackendCode.h"
-#include "NodeList.h"
 #include "LocalSpace.h"
 #include "GlobalConstructAction.h"
 #include "GlobalDestructAction.h"
@@ -1100,10 +1096,6 @@ void Feather::initFeatherNodeKinds()
     nkFeatherStmtReturn = registerNodeKind("return", &Return_SemanticCheck, NULL, NULL, NULL);
 
 
-    Nop::classNodeKindRef() = nkFeatherNop;
-    TypeNode::classNodeKindRef() = nkFeatherTypeNode;
-    BackendCode::classNodeKindRef() = nkFeatherBackendCode;
-    NodeList::classNodeKindRef() = nkFeatherNodeList;
     LocalSpace::classNodeKindRef() = nkFeatherLocalSpace;
     GlobalConstructAction::classNodeKindRef() = nkFeatherGlobalConstructAction;
     GlobalDestructAction::classNodeKindRef() = nkFeatherGlobalDestructAction;
@@ -1149,7 +1141,7 @@ Node* Feather::mkNodeList(const Location& loc, NodeVector children, bool voidRes
 }
 Node* Feather::addToNodeList(Node* prevList, Node* element)
 {
-    ASSERT(prevList->nodeKind == nkFeatherNodeList);
+    ASSERT(!prevList || prevList->nodeKind == nkFeatherNodeList);
     Node* res = prevList;
     if ( !res )
     {

@@ -20,5 +20,6 @@ namespace SprFrontend
     DynNode* createTempVarConstruct(const Location& loc, CompilationContext* context, DynNode* constructAction, DynNode* var);
 
     /// Assuming the given node points to a function, creates a FunPtr object to refer to that function
+    Node* createFunPtr(Node* funNode);
     DynNode* createFunPtr(DynNode* funNode);
 }

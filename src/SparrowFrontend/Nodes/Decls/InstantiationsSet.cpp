@@ -39,18 +39,18 @@ namespace
             {
                 TypeRef t = getType(boundValue);
 
-                DynNode* var = mkSprVariable(p->location(), getName(p->node()), t, nullptr);
+                Node* var = mkSprVariable(p->location(), getName(p->node()), t, nullptr);
                 if ( insideClass )
-                    var->setProperty(propIsStatic, 1);
-                nodes.push_back(var);
+                    Nest::setProperty(var, propIsStatic, 1);
+                nodes.push_back((DynNode*) var);
             }
             else
             {
-                DynNode* var = (DynNode*) mkSprVariable(p->location(), getName(p->node()), boundValue->type(), boundValue);
+                Node* var = mkSprVariable(p->location(), getName(p->node()), boundValue->type(), boundValue->node());
                 if ( insideClass )
-                    var->setProperty(propIsStatic, 1);
-                setEvalMode(var->node(), modeCt);
-                nodes.push_back(var);
+                    Nest::setProperty(var, propIsStatic, 1);
+                setEvalMode(var, modeCt);
+                nodes.push_back((DynNode*) var);
             }
         }
         nodes.push_back((DynNode*) mkNop(loc));    // Make sure the resulting type is Void
@@ -83,7 +83,7 @@ Instantiation* InstantiationsSet::canInstantiate(const DynNodeVector& values, Ev
     {
         // Always use a clone of the original node
         DynNode* cond = ifClause()->clone();
-        cond->setContext(inst->expandedInstantiation()->childrenContext());
+        cond->setContext(Nest::childrenContext(inst->expandedInstantiation()));
 
         // If the condition does not compile, we cannot instantiate
         bool isValid = false;
@@ -104,7 +104,7 @@ Instantiation* InstantiationsSet::canInstantiate(const DynNodeVector& values, Ev
             return nullptr;
 
         // Evaluate the if clause condition and check the result
-        if ( !SprFrontend::getBoolCtValue((DynNode*) theCompiler().ctEval(cond->node())) )
+        if ( !SprFrontend::getBoolCtValue(theCompiler().ctEval(cond->node())) )
             return nullptr;
     }
 
@@ -130,7 +130,7 @@ Instantiation* InstantiationsSet::searchInstantiation(const DynNodeVector& value
         {
             if ( !boundValues[i] )
                 continue;
-            if ( !values[i] || !ctValsEqual(values[i], boundValues[i]) )
+            if ( !values[i] || !ctValsEqual(values[i]->node(), boundValues[i]->node()) )
             {
                 argsMatch = false;
                 break;
@@ -155,8 +155,8 @@ Instantiation* InstantiationsSet::createNewInstantiation(const DynNodeVector& va
     instantiations().push_back(inst);
 
     // Compile the newly created instantiation
-    inst->expandedInstantiation()->setContext(context);
-    inst->expandedInstantiation()->semanticCheck();
+    Nest::setContext(inst->expandedInstantiation(), context);
+    Nest::semanticCheck(inst->expandedInstantiation());
 
     return inst;
 }

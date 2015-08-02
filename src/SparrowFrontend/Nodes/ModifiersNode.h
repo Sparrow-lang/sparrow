@@ -23,6 +23,6 @@ namespace SprFrontend
 
     private:
         void interpretModifiers();
-        void applyModifier(DynNode* modNode);
+        void applyModifier(Node* modNode);
     };
 }

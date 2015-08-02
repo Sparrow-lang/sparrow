@@ -49,22 +49,25 @@ namespace
     }
 }
 
-SprClass::SprClass(const Location& loc, string name, NodeList* parameters, NodeList* baseClasses, NodeList* children, DynNode* ifClause, AccessType accessType)
-    : DynNode(classNodeKind(), loc, {parameters, baseClasses, children, ifClause})
+SprClass::SprClass(const Location& loc, string name, Node* parameters, Node* baseClasses, Node* children, DynNode* ifClause, AccessType accessType)
+    : DynNode(classNodeKind(), loc, {(DynNode*) parameters, (DynNode*) baseClasses, (DynNode*) children, ifClause})
 {
+    ASSERT( !parameters || parameters->nodeKind == nkFeatherNodeList );
+    ASSERT( !baseClasses || baseClasses->nodeKind == nkFeatherNodeList );
+    ASSERT( !children || children->nodeKind == nkFeatherNodeList );
     setName(node(), move(name));
     setAccessType(this, accessType);
 }
 
-NodeList* SprClass::baseClasses() const
+Node* SprClass::baseClasses() const
 {
     ASSERT(data_.children.size() == 4);
-    return (NodeList*) data_.children[1];
+    return data_.children[1];
 }
-NodeList* SprClass::classChildren() const
+Node* SprClass::classChildren() const
 {
     ASSERT(data_.children.size() == 4);
-    return (NodeList*) data_.children[2];
+    return data_.children[2];
 }
 
 void SprClass::addChild(DynNode* child)
@@ -81,7 +84,7 @@ void SprClass::addChild(DynNode* child)
         if ( childrenContext() )
             Nest::setContext(data_.children[2], childrenContext());
     }
-    static_cast<NodeList*>((DynNode*) data_.children[2])->addChild(child);
+    data_.children[2]->children.push_back(child->node());
 }
 
 void SprClass::dump(ostream& os) const
@@ -108,13 +111,13 @@ void SprClass::doSetContextForChildren()
 void SprClass::doComputeType()
 {
     ASSERT(data_.children.size() == 4);
-    NodeList* parameters = (NodeList*) data_.children[0];
-    NodeList* baseClasses = (NodeList*) data_.children[1];
-    NodeList* children = (NodeList*) data_.children[2];
+    Node* parameters = data_.children[0];
+    Node* baseClasses = data_.children[1];
+    Node* children = data_.children[2];
     DynNode* ifClause = (DynNode*) data_.children[3];
 
     // Is this a generic?
-    if ( parameters && !parameters->children().empty() )
+    if ( parameters && !parameters->children.empty() )
     {
         DynNode* generic = new GenericClass(this, parameters, ifClause);
         setProperty(propResultingDecl, generic);
@@ -166,7 +169,7 @@ void SprClass::doComputeType()
     // First check all the base classes
     if ( baseClasses )
     {
-        for ( auto& bcName: baseClasses->children() )
+        for ( auto& bcName: baseClasses->children )
         {
             // Make sure the type refers to a class
             TypeRef bcType = getType(bcName);
@@ -197,7 +200,7 @@ void SprClass::doComputeType()
     // Check all the children
     if ( children )
     {
-        children->computeType();
+        Nest::computeType(children);
         checkForAllowedNamespaceChildren(children, true);
     }
 
@@ -228,7 +231,7 @@ void SprClass::doSemanticCheck()
 
     // Semantic check all the children
     ASSERT(data_.children.size() == 4);
-    NodeList* children = (NodeList*) data_.children[2];
+    Node* children = data_.children[2];
     if ( children )
-        children->semanticCheck();
+        Nest::semanticCheck(children);
 }

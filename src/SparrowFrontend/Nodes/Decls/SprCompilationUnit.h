@@ -10,7 +10,7 @@ namespace SprFrontend
         DEFINE_NODE(SprCompilationUnit, nkSparrowDeclSprCompilationUnit, "Sparrow.Decl.CompilationUnit");
 
     public:
-        SprCompilationUnit(const Location& loc, DynNode* package, NodeList* imports, NodeList* declarations);
+        SprCompilationUnit(const Location& loc, DynNode* package, Node* imports, Node* declarations);
 
     protected:
         void doSetContextForChildren();

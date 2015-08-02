@@ -186,7 +186,7 @@ void SprVariable::doComputeType()
         else if ( init )   // Reference initialization
         {
             // Create an assignment operator
-            ctorCall = mkOperatorCall(data_.location, varRef, ":=", init);
+            ctorCall = (DynNode*) mkOperatorCall(data_.location, varRef->node(), ":=", init->node());
         }
     }
 

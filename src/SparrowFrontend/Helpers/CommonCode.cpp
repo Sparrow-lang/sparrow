@@ -212,6 +212,10 @@ DynNode* SprFrontend::createTempVarConstruct(const Location& loc, CompilationCon
     return (DynNode*) res;
 }
 
+Node* SprFrontend::createFunPtr(Node* funNode)
+{
+    return createFunPtr((DynNode*) funNode)->node();
+}
 DynNode* SprFrontend::createFunPtr(DynNode* funNode)
 {
     CompilationContext* ctx = funNode->context();
@@ -246,7 +250,7 @@ DynNode* SprFrontend::createFunPtr(DynNode* funNode)
             parameters.push_back(createTypeNode(ctx, loc, fun->getParameter(i)->type())->node());
         }
         string className = "FunctionPtr";
-        Node* classCall = mkFunApplication(loc, mkIdentifier(loc, className), (NodeList*) mkNodeList(loc, parameters))->node();
+        Node* classCall = mkFunApplication(loc, mkIdentifier(loc, className), mkNodeList(loc, parameters));
         setContext(classCall, ctx);
         computeType(classCall);
 
@@ -261,29 +265,29 @@ DynNode* SprFrontend::createFunPtr(DynNode* funNode)
         return nullptr;
     }
 
-    // TODO: In general we should create an object that is albe to call any type of callable
+    // TODO: In general we should create an object that is able to call any type of callable
 
     // If we have a generic, try to wrap it in a lambda
     if ( isGeneric(resDecl) )
     {
         size_t numParams = genericParamsCount(resDecl);
 
-        DynNode* paramsType = mkIdentifier(loc, "AnyType");
+        Node* paramsType = mkIdentifier(loc, "AnyType");
 
         NodeVector paramIds(numParams, nullptr);
         NodeVector args(numParams, nullptr);
         for ( size_t i=0; i<numParams; ++i )
         {
             string name = "p" + boost::lexical_cast<string>(i);
-            paramIds[i] = mkSprParameter(loc, name, paramsType, nullptr)->node();
-            args[i] = mkIdentifier(loc, name)->node();
+            paramIds[i] = mkSprParameter(loc, name, paramsType, nullptr);
+            args[i] = mkIdentifier(loc, name);
         }
 
         Node* parameters = mkNodeList(loc, paramIds);
-        DynNode* bodyExp = mkFunApplication(loc, funNode, (NodeList*) mkNodeList(loc, args));
+        Node* bodyExp = mkFunApplication(loc, funNode->node(), mkNodeList(loc, args));
 
-        DynNode* res = mkLambdaExp(loc, (NodeList*) parameters, nullptr, nullptr, bodyExp, nullptr);
-        return res;
+        Node* res = mkLambdaExp(loc, parameters, nullptr, nullptr, bodyExp, nullptr);
+        return (DynNode*) res;
     }
 
     if ( !fun )

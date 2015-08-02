@@ -34,6 +34,8 @@ namespace SprFrontend
         ConversionFun conversionFun() const { return convFun_; }
         bool contextDependent() const { return contextDependent_; }
 
+        Node* apply(Node* src) const;
+        Node* apply(CompilationContext* context, Node* src) const;
         DynNode* apply(DynNode* src) const;
         DynNode* apply(CompilationContext* context, DynNode* src) const;
 
@@ -63,5 +65,6 @@ namespace SprFrontend
     ConversionResult canConvertType(CompilationContext* context, Nest::TypeRef srcType, Nest::TypeRef destType, ConversionFlags flags = flagsDefault);
 
     /// Checks if an "argument" node can be converted to a given type
+    ConversionResult canConvert(Nest::Node* arg, Nest::TypeRef destType, ConversionFlags flags = flagsDefault);
     ConversionResult canConvert(Feather::DynNode* arg, Nest::TypeRef destType, ConversionFlags flags = flagsDefault);
 }

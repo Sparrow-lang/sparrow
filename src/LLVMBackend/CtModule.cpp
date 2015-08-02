@@ -5,8 +5,6 @@
 #include <Tr/TrType.h>
 
 #include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Nodes/Nop.h>
-#include <Feather/Nodes/BackendCode.h>
 #include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Nodes/Decls/Var.h>
 #include <Feather/Nodes/Decls/Function.h>
@@ -86,7 +84,7 @@ void CtModule::ctProcess(Node* node)
     case nkRelFeatherDeclVar:      ctProcessVariable((Var*) node); break;
     case nkRelFeatherDeclFunction: ctProcessFunction((Function*) node); break;
     case nkRelFeatherDeclClass:    ctProcessClass((Class*) node); break;
-    case nkRelFeatherBackendCode:  ctProcessBackendCode((BackendCode*) node); break;
+    case nkRelFeatherBackendCode:  ctProcessBackendCode(node); break;
     default:
         REP_INTERNAL(node->location, "Don't know how to CT process node (%1%)") % node;
     }
@@ -167,7 +165,7 @@ void CtModule::ctProcessClass(Feather::Class* node)
     Tr::translateClass(node, *this);
 }
 
-void CtModule::ctProcessBackendCode(Feather::BackendCode* node)
+void CtModule::ctProcessBackendCode(Node* node)
 {
     Tr::translateBackendCode(node, *this);
 }
@@ -217,6 +215,6 @@ Node* CtModule::ctEvaluateExpression(Node* node)
         llvmExecutionEngine_->freeMachineCodeForFunction(f);
 
 	    // Create a Nop operation for return
-        return (new Nop(node->location))->node();
+        return mkNop(node->location);
     }
 }

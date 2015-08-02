@@ -10,7 +10,7 @@ namespace SprFrontend
         DEFINE_NODE(LambdaFunction, nkSparrowExpLambdaFunction, "Sparrow.Exp.LambdaFunction");
 
     public:
-        LambdaFunction(const Location& loc, NodeList* parameters, DynNode* returnType, DynNode* body, NodeList* closureParams);
+        LambdaFunction(const Location& loc, Node* parameters, DynNode* returnType, DynNode* body, Node* closureParams);
 
         void dump(ostream& os) const;
 

@@ -113,6 +113,22 @@ Nest::TypeRef SprFrontend::commonType(CompilationContext* context, Nest::TypeRef
     return StdDef::typeVoid;
 }
 
+Nest::TypeRef SprFrontend::doDereference1(Node* arg, Node*& cvt)
+{
+    cvt = arg;
+
+    // If the base is an expression with a data type, treat this as a data access
+    TypeRef t = arg->type;
+    if ( !t->hasStorage )
+        return t;
+
+    // If we have N references apply N-1 dereferencing operations
+    for ( size_t i=1; i<t->numReferences; ++i )
+    {
+        cvt = mkMemLoad(arg->location, cvt);
+    }
+    return getDataType(t->referredNode, 0, t->mode);  // Zero references
+}
 Nest::TypeRef SprFrontend::doDereference1(Feather::DynNode* arg, Feather::DynNode*& cvt)
 {
     cvt = arg;
@@ -190,6 +206,10 @@ Node* SprFrontend::convertCtToRt(Node* node)
         return checkDataTypeConversion((DynNode*) node)->node();
 }
 
+TypeRef SprFrontend::getType(Node* typeNode)
+{
+    return getType((DynNode*) typeNode);
+}
 TypeRef SprFrontend::getType(DynNode* typeNode)
 {
     typeNode->semanticCheck();
@@ -204,6 +224,10 @@ TypeRef SprFrontend::getType(DynNode* typeNode)
     return nullptr;
 }
 
+TypeRef SprFrontend::tryGetTypeValue(Node* typeNode)
+{
+    return tryGetTypeValue((DynNode*) typeNode);
+}
 TypeRef SprFrontend::tryGetTypeValue(DynNode* typeNode)
 {
     typeNode->semanticCheck();
@@ -238,6 +262,11 @@ TypeRef SprFrontend::tryGetTypeValue(DynNode* typeNode)
     return nullptr;
 }
 
+TypeRef SprFrontend::evalTypeIfPossible(Node* typeNode)
+{
+    TypeRef t = tryGetTypeValue(typeNode);
+    return t ? t : typeNode->type;
+}
 TypeRef SprFrontend::evalTypeIfPossible(DynNode* typeNode)
 {
     TypeRef t = tryGetTypeValue(typeNode);

@@ -56,7 +56,7 @@ void SprConcept::doSetContextForChildren()
 void SprConcept::doSemanticCheck()
 {
     ASSERT(data_.children.size() == 3);
-    DynNode* baseConcept = (DynNode*) data_.children[0];
+    Node* baseConcept = data_.children[0];
     DynNode* ifClause = (DynNode*) data_.children[1];
     Node*& instantiationsSet = data_.children[2];
     const string& paramName = getCheckPropertyString("spr.paramName");
@@ -64,18 +64,18 @@ void SprConcept::doSemanticCheck()
     // Compile the base concept node; make sure it's ct
     if ( baseConcept )
     {
-        baseConcept->semanticCheck();
-        if ( !isCt(baseConcept->node()) )
-            REP_ERROR(baseConcept->location(), "Base concept type needs to be compile-time (type=%1%)") % baseConcept->type();
+        Nest::semanticCheck(baseConcept);
+        if ( !isCt(baseConcept) )
+            REP_ERROR(baseConcept->location, "Base concept type needs to be compile-time (type=%1%)") % baseConcept->type;
     }
 
-    DynNode* param = baseConcept
+    Node* param = baseConcept
         ? mkSprParameter(data_.location, paramName, baseConcept)
         : mkSprParameter(data_.location, paramName, getConceptType());
-    param->setContext(data_.childrenContext);
-    param->computeType();       // But not semanticCheck, as it will complain of instantiating a var of type auto
+    Nest::setContext(param, data_.childrenContext);
+    Nest::computeType(param);       // But not semanticCheck, as it will complain of instantiating a var of type auto
 
     delete instantiationsSet;
-    instantiationsSet = (Node*) new InstantiationsSet(this, { param }, ifClause);
-    setExplanation((DynNode*) Feather::mkNop(data_.location));
+    instantiationsSet = (Node*) new InstantiationsSet(this, { (DynNode*) param }, ifClause);
+    setExplanation(Feather::mkNop(data_.location));
 }

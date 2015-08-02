@@ -65,17 +65,16 @@ void ModifiersNode::doSemanticCheck()
 
 void ModifiersNode::interpretModifiers()
 {
-    DynNode* modifierNodes = (DynNode*) data_.children[1];
+    Node* modifierNodes = data_.children[1];
 
     if ( modifierNodes )
     {
-        NodeList* modNodes = modifierNodes->as<NodeList>();
-        if ( modifierNodes )
+        if ( modifierNodes->nodeKind == Feather::nkFeatherNodeList )
         {
             // Add the modifiers to the base node
-            forEachNodeInNodeList(modNodes, [&] (DynNode* modNode)
+            forEachNodeInNodeList(modifierNodes, [&] (DynNode* modNode)
             {
-                applyModifier(modNode);
+                applyModifier(modNode->node());
             });
         }
         else
@@ -85,11 +84,11 @@ void ModifiersNode::interpretModifiers()
     }
 }
 
-void ModifiersNode::applyModifier(DynNode* modNode)
+void ModifiersNode::applyModifier(Node* modNode)
 {
     Nest::Modifier* mod = nullptr;
     
-    Identifier* ident = modNode->as<Identifier>();
+    Identifier* ident = ((DynNode*) modNode)->as<Identifier>();
     if ( ident )
     {
         if ( ident->id() == "static" )
@@ -117,14 +116,16 @@ void ModifiersNode::applyModifier(DynNode* modNode)
     }
     else
     {
-        InfixExp* fapp = modNode->as<InfixExp>();
+        InfixExp* fapp = ((DynNode*) modNode)->as<InfixExp>();
         if ( fapp )
         {
             Identifier* ident = fapp->arg1()->as<Identifier>();
-            NodeList* args = fapp->arg2()->as<NodeList>();
-            if ( ident && args && args->children().size() == 1 )
+            Node* args = fapp->arg2()->node();
+            if ( args && args->nodeKind != Feather::nkFeatherNodeList )
+                args = nullptr;
+            if ( ident && args && args->children.size() == 1 )
             {
-                Literal* funArg = args->children().front()->as<Literal>();
+                Literal* funArg = ((DynNode*) args->children.front())->as<Literal>();
 
                 if ( ident->id() == "native" && funArg && funArg->isString() )
                     mod = new ModNative(funArg->asString());
@@ -137,6 +138,6 @@ void ModifiersNode::applyModifier(DynNode* modNode)
     if ( mod )
         base->addModifier(mod);
     else
-        REP_ERROR(modNode->location(), "Unknown modifier found (%1%)") % modNode->toString();
+        REP_ERROR(modNode->location, "Unknown modifier found (%1%)") % modNode;
 }
 

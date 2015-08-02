@@ -33,7 +33,7 @@ void SparrowSourceCode::parse(CompilationContext* context)
         REP_ERROR(loc, "Cannot open source file");
 
     Scanner scanner(f, Parser::token::START_PROGRAM);
-    Parser parser(scanner, loc, (DynNode**) &iCode_);
+    Parser parser(scanner, loc, &iCode_);
     int rc = parser.parse();
     if ( rc != 0 )
         REP_ERROR(loc, "Cannot parse the source file");
@@ -70,12 +70,12 @@ DynNode* SparrowSourceCode::parseExpression(Location loc, const string& code) co
 
     istringstream f(code);
     Scanner scanner(f, Parser::token::START_EXPRESSION);
-    DynNode* res;
+    Node* res;
     Parser parser(scanner, loc, &res);
     int rc = parser.parse();
     if ( rc != 0 )
         REP_ERROR(loc, "Cannot parse the expression code");
-    return res;
+    return (DynNode*) res;
 }
 
 void SparrowSourceCode::registerSelf()

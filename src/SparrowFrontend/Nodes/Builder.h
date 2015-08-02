@@ -8,11 +8,11 @@
 
 namespace SprFrontend
 {
-    DynNode* addModifiers(NodeList* mods, DynNode* main);
+    Node* addModifiers(Node* mods, Node* main);
 
     vector<string>* buildStringList(vector<string>* prevList, string element);
 
-    DynNode* buildVariables(const Location& loc, const vector<string>& names, DynNode* typeNode, DynNode* init, NodeList* mods, AccessType accessType);
-    NodeList* buildParameters(const Location& loc, const vector<string>& names, DynNode* typeNode, DynNode* init, NodeList* mods);
-    NodeList* buildAutoParameter(const Location& loc, const string& name, NodeList* mods);
+    Node* buildVariables(const Location& loc, const vector<string>& names, Node* typeNode, Node* init, Node* mods, AccessType accessType);
+    Node* buildParameters(const Location& loc, const vector<string>& names, Node* typeNode, Node* init, Node* mods);
+    Node* buildAutoParameter(const Location& loc, const string& name, Node* mods);
 }

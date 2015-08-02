@@ -4,7 +4,6 @@
 #include "SimpleAstNode.h"
 
 #include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Nodes/NodeList.h>
 #include <Feather/Nodes/ChangeMode.h>
 #include <Feather/Nodes/Exp/AtomicOrdering.h>
 #include <Feather/Nodes/Decls/Class.h>
@@ -266,15 +265,15 @@ namespace
 
     Node* interpretNodeList(CompilationContext* context, SimpleAstNode* srcNode)
     {
-        NodeList* res = (NodeList*) mkNodeList(srcNode->location(), {});
-        setContext(res->node(), context);
+        Node* res = mkNodeList(srcNode->location(), {});
+        setContext(res, context);
         for ( auto child: srcNode->children() )
         {
-            Node* childNode = readNode(res->childrenContext(), child, "<node list child>");
+            Node* childNode = readNode(Nest::childrenContext(res), child, "<node list child>");
             if ( !childNode ) continue;
-            res->addChild((DynNode*) childNode);
+            res->children.push_back(childNode);
         }
-        return res->node();
+        return res;
     }
 
     Node* interpretNop(CompilationContext* context, SimpleAstNode* srcNode)

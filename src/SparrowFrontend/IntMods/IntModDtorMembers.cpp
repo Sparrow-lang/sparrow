@@ -5,7 +5,6 @@
 #include <Helpers/DeclsHelpers.h>
 #include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Nodes/Decls/Class.h>
-#include <Feather/Nodes/LocalSpace.h>
 #include <Feather/Util/Context.h>
 #include <Feather/Util/Decl.h>
 
@@ -26,8 +25,8 @@ void IntModDtorMembers::beforeSemanticCheck(Node* n)
     // If we have a body, make sure it's a local space
     if ( !fun->body() )
         return; // nothing to do
-    LocalSpace* body = fun->body()->as<LocalSpace>();
-    if ( !body )
+    Node* body = fun->body()->node();
+    if ( body->nodeKind != nkFeatherLocalSpace )
         REP_INTERNAL(node->location(), "Destructor body is not a local space (needed by IntModDtorMembers)");
 
     // Get the class
@@ -35,8 +34,8 @@ void IntModDtorMembers::beforeSemanticCheck(Node* n)
     CHECK(node->location(), cls);
 
     // Generate the dtor calls in reverse order of the fields; add them to the body of the destructor
-    CompilationContext* context = body->childrenContext();
-    const Location& loc = body->location();
+    CompilationContext* context = Nest::childrenContext(body);
+    const Location& loc = body->location;
     for ( DynNode* field: boost::adaptors::reverse(cls->fields()) )
     {
         // Make sure we destruct only fields of the current class
@@ -50,7 +49,7 @@ void IntModDtorMembers::beforeSemanticCheck(Node* n)
             Nest::setContext(fieldRef, context);
             Node* call = mkOperatorCall(loc, fieldRef, "dtor", nullptr);
             Nest::setContext(call, context);
-            body->addChild((DynNode*) call);
+            body->children.push_back(call);
         }
 
     }

@@ -8,7 +8,6 @@
 #include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Nodes/Decls/Function.h>
-#include <Feather/Nodes/LocalSpace.h>
 #include <Feather/Util/Context.h>
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/Util/Decl.h>
@@ -102,17 +101,17 @@ namespace
     }
 
     // Add to a local space an operator call
-    void addOperatorCall(LocalSpace* dest, bool reverse, DynNode* operand1, const string& op, DynNode* operand2)
+    void addOperatorCall(Node* dest, bool reverse, DynNode* operand1, const string& op, DynNode* operand2)
     {
-        Node* call = mkOperatorCall(dest->location(), operand1->node(), op, operand2->node());
+        Node* call = mkOperatorCall(dest->location, operand1->node(), op, operand2->node());
         if ( !reverse )
-            dest->addChild((DynNode*) call);
+            dest->children.push_back(call);
         else
-            dest->insertChildInFront((DynNode*) call);
+            dest->children.insert(dest->children.begin(), call);
     }
 
     // Add a method with the given body and given atguments to the parent class
-    DynNode* addMethod(SprClass* parent, const string& name, LocalSpace* body, vector<pair<TypeRef, string>> params, Class* resClass = nullptr, EvalMode mode = modeUnspecified)
+    DynNode* addMethod(SprClass* parent, const string& name, Node* body, vector<pair<TypeRef, string>> params, Class* resClass = nullptr, EvalMode mode = modeUnspecified)
     {
         Location loc = parent->location();
         loc.setAsStartOf(loc);
@@ -128,7 +127,7 @@ namespace
         Node* ret = resClass ? createTypeNode(parent->childrenContext(), loc, getDataType(resClass->node()))->node() : nullptr;
         
         // Add the function
-        Node* m = mkSprFunction(loc, name, parameters, ret, body->node());
+        Node* m = mkSprFunction(loc, name, parameters, ret, body);
         Nest::setProperty(m, propNoDefault, 1);
         setEvalMode(m, mode == modeUnspecified ? effectiveEvalMode(parent->node()) : mode);
         parent->addChild((DynNode*) m);
@@ -137,7 +136,7 @@ namespace
     }
     
     // Add a method with the given body to the parent class
-    DynNode* addMethod(SprClass* parent, const string& name, LocalSpace* body, TypeRef otherParam, Class* resClass = nullptr, EvalMode mode = modeUnspecified)
+    DynNode* addMethod(SprClass* parent, const string& name, Node* body, TypeRef otherParam, Class* resClass = nullptr, EvalMode mode = modeUnspecified)
     {
         return addMethod(parent, name, body, otherParam ? vector<pair<TypeRef, string>>({ {otherParam, string("other")} }) : vector<pair<TypeRef, string>>({}), resClass, mode);
     }
@@ -159,7 +158,7 @@ namespace
         }
 
         // Construct the body
-        LocalSpace* body = new LocalSpace(loc);
+        Node* body = mkLocalSpace(loc, {});
         for ( DynNode* field: cls->fields() )
         {
             // Take in account only fields of the current class
@@ -194,7 +193,7 @@ namespace
         Location loc = parent->location();
         loc.setAsStartOf(loc);
 
-        LocalSpace* body = new LocalSpace(loc);
+        Node* body = mkLocalSpace(loc, {});
         addMethod(parent, "ctor", body, StdDef::typeUninitialized);
     }
 
@@ -210,7 +209,7 @@ namespace
         ASSERT(cls);
 
         // Construct the body
-        LocalSpace* body = new LocalSpace(loc);
+        Node* body = mkLocalSpace(loc, {});
         for ( DynNode* field: cls->fields() )
         {
             // Take in account only fields of the current class
@@ -266,8 +265,8 @@ namespace
         if ( !exp )
             exp = mkBoolLiteral(loc, true);
 
-        LocalSpace* body = new LocalSpace(loc);
-        body->addChild((DynNode*) mkReturnStmt(loc, exp));
+        Node* body = mkLocalSpace(loc, {});
+        body->children.push_back(mkReturnStmt(loc, exp));
         addMethod(parent, "==", body, getDataType(cls->node(), 1), StdDef::clsBool);
     }
 }

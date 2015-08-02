@@ -22,6 +22,7 @@ namespace Feather
         nkRelFeatherGlobalDestructAction,
         nkRelFeatherScopeDestructAction,
         nkRelFeatherTempDestructAction,
+        nkRelFeatherChangeMode,
         
         nkRelFeatherDeclFunction,
         nkRelFeatherDeclClass,
@@ -38,7 +39,6 @@ namespace Feather
         nkRelFeatherExpMemStore,
         nkRelFeatherExpBitcast,
         nkRelFeatherExpConditional,
-        nkRelFeatherExpChangeMode,
         
         nkRelFeatherStmtIf,
         nkRelFeatherStmtWhile,
@@ -60,6 +60,7 @@ namespace Feather
     extern int nkFeatherGlobalDestructAction;
     extern int nkFeatherScopeDestructAction;
     extern int nkFeatherTempDestructAction;
+    extern int nkFeatherChangeMode;
     
     extern int nkFeatherDeclFunction;
     extern int nkFeatherDeclClass;
@@ -76,7 +77,6 @@ namespace Feather
     extern int nkFeatherExpMemStore;
     extern int nkFeatherExpBitcast;
     extern int nkFeatherExpConditional;
-    extern int nkFeatherExpChangeMode;
     
     extern int nkFeatherStmtIf;
     extern int nkFeatherStmtWhile;
@@ -99,6 +99,7 @@ namespace Feather
     Node* mkGlobalDestructAction(const Location& loc, Node* action);
     Node* mkScopeDestructAction(const Location& loc, Node* action);
     Node* mkTempDestructAction(const Location& loc, Node* action);
+    Node* mkChangeMode(const Location& loc, Node* child, EvalMode mode);
     
     Node* mkFunction(const Location& loc, string name, Node* resType, NodeVector params, Node* body, CallConvention callConv = ccC, EvalMode evalMode = modeUnspecified);
     Node* mkClass(const Location& loc, string name, NodeVector fields, EvalMode evalMode = modeUnspecified);
@@ -115,7 +116,6 @@ namespace Feather
     Node* mkMemStore(const Location& loc, Node* value, Node* address, size_t alignment = 0, bool isVolatile = false, AtomicOrdering ordering = atomicNone, bool singleThreaded = false);
     Node* mkBitcast(const Location& loc, Node* destType, Node* exp);
     Node* mkConditional(const Location& loc, Node* condition, Node* alt1, Node* alt2);
-    Node* mkChangeMode(const Location& loc, Node* child, EvalMode mode);
     
     Node* mkIf(const Location& loc, Node* condition, Node* thenClause, Node* elseClause, bool isCt = false);
     Node* mkWhile(const Location& loc, Node* condition, Node* body, Node* step, bool isCt = false);
@@ -133,4 +133,7 @@ namespace Feather
 
     const char* BackendCode_getCode(const Node* node);
     EvalMode BackendCode_getEvalMode(Node* node);
+
+    void ChangeMode_setChild(Node* node, Node* child);
+    EvalMode ChangeMode_getEvalMode(Node* node);
 }

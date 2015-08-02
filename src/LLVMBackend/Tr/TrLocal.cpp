@@ -13,9 +13,6 @@
 #include <Nest/Common/Diagnostic.h>
 
 #include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Nodes/LocalSpace.h>
-#include <Feather/Nodes/TempDestructAction.h>
-#include <Feather/Nodes/ScopeDestructAction.h>
 #include <Feather/Nodes/Exp/CtValue.h>
 #include <Feather/Nodes/Exp/StackAlloc.h>
 #include <Feather/Nodes/Exp/MemLoad.h>
@@ -475,15 +472,15 @@ namespace
         return res;
     }
 
-    llvm::Value* translate(LocalSpace& node, TrContext& context)
+    llvm::Value* translateLocalSpace(Node* node, TrContext& context)
     {
-        Scope scopeGuard(context, node.location());
+        Scope scopeGuard(context, node->location);
 
         // Translate all the instructions in the local space
-        for ( DynNode* child: node.children() )
+        for ( Node* child: node->children )
         {
             Instruction instrGuard(context);
-            translateNode(child->node(), context);
+            translateNode(child, context);
         }
 
         return nullptr;
@@ -495,17 +492,17 @@ namespace
         return nullptr;
     }
 
-    llvm::Value* translate(TempDestructAction& node, TrContext& context)
+    llvm::Value* translateTempDestructAction(Node* node, TrContext& context)
     {
         // Add the action to the temp destruct actions in the context
-        context.curInstruction().addTempDestructAction(node.destructAction()->node());
+        context.curInstruction().addTempDestructAction(node->children[0]);
         return nullptr;
     }
 
-    llvm::Value* translate(ScopeDestructAction& node, TrContext& context)
+    llvm::Value* translateScopeDestructAction(Node* node, TrContext& context)
     {
         // Add the action to the scope destruct actions in the context
-        context.curScope().addScopeDestructAction(node.destructAction()->node());
+        context.curScope().addScopeDestructAction(node->children[0]);
         return nullptr;
     }
 
@@ -1212,10 +1209,10 @@ llvm::Value* Tr::translateNode(Node* node, TrContext& context)
     switch ( node->nodeKind - firstFeatherNodeKind )
     {
     case nkRelFeatherNodeList:                         return translateNodeList(node, context);
-    case nkRelFeatherLocalSpace:                       return translate((LocalSpace&) *node, context);
+    case nkRelFeatherLocalSpace:                       return translateLocalSpace(node, context);
     case nkRelFeatherNop:                              return translateNop(node, context);
-    case nkRelFeatherTempDestructAction:               return translate((TempDestructAction&) *node, context);
-    case nkRelFeatherScopeDestructAction:              return translate((ScopeDestructAction&) *node, context);
+    case nkRelFeatherTempDestructAction:               return translateTempDestructAction(node, context);
+    case nkRelFeatherScopeDestructAction:              return translateScopeDestructAction(node, context);
     case nkRelFeatherExpCtValue:                       return translate((CtValue&) *node, context);
     case nkRelFeatherExpStackAlloc:                    return translate((StackAlloc&) *node, context);
     case nkRelFeatherExpMemLoad:                       return translate((MemLoad&) *node, context);

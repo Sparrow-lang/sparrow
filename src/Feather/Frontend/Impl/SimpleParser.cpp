@@ -4,7 +4,6 @@
 #include "SimpleAstNode.h"
 
 #include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Nodes/ChangeMode.h>
 #include <Feather/Nodes/Exp/AtomicOrdering.h>
 #include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Nodes/Decls/Var.h>

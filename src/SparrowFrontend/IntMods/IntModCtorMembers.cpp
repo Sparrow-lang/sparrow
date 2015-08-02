@@ -11,7 +11,6 @@
 #include <Feather/Nodes/Exp/FieldRef.h>
 #include <Feather/Nodes/Exp/Bitcast.h>
 #include <Feather/Nodes/Exp/MemLoad.h>
-#include <Feather/Nodes/LocalSpace.h>
 #include <Feather/Util/Context.h>
 #include <Feather/Util/Decl.h>
 
@@ -26,28 +25,29 @@ namespace
     ///
     /// It will search only the instructions directly inside the given local space, or in a child local space
     /// It will not search inside conditionals, or other instructions
-    bool hasCtorCall(LocalSpace* inSpace, Class* ofClass, bool checkThis, DynNode* forField)
+    bool hasCtorCall(Node* inSpace, Class* ofClass, bool checkThis, DynNode* forField)
     {
         // Check all the items in the local space
-        for ( DynNode* n: inSpace->children() )
+        for ( Node* n: inSpace->children )
         {
-            n->computeType();
-            n = n->explanation();
+            Nest::computeType(n);
+            n = Nest::explanation(n);
             if ( !n )
                 continue;
 
             // Check inner local spaces
-            LocalSpace* ls = n->as<LocalSpace>();
-            if ( ls )
+            if ( n->nodeKind == nkFeatherLocalSpace )
             {
-                if ( hasCtorCall(ls, ofClass, checkThis, forField) )
+                if ( hasCtorCall(n, ofClass, checkThis, forField) )
                     return true;
                 continue;
             }
 
             // We consider function calls for our checks
-            FunCall* funCall = n->as<FunCall>();
-            if ( !funCall || getName(funCall->funDecl()->node()) != "ctor" )
+            if ( n->nodeKind != nkFeatherExpFunCall )
+                continue;
+            FunCall* funCall = (FunCall*) n;
+            if ( getName(funCall->funDecl()->node()) != "ctor" )
                 continue;
             if ( funCall->arguments().empty() )
                 continue;
@@ -107,8 +107,8 @@ void IntModCtorMembers::beforeSemanticCheck(Node* n)
     // If we have a body, make sure it's a local space
     if ( !fun->body() )
         return; // nothing to do
-    LocalSpace* body = fun->body()->as<LocalSpace>();
-    if ( !body )
+    Node* body = fun->body()->node();
+    if ( body->nodeKind != nkFeatherLocalSpace )
         REP_INTERNAL(node->location(), "Constructor body is not a local space (needed by IntModCtorMembers)");
 
     // Get the class
@@ -120,7 +120,7 @@ void IntModCtorMembers::beforeSemanticCheck(Node* n)
         return;
 
     // Generate the ctor calls in the order of the fields; add them to the body of the constructor
-    const Location& loc = body->location();
+    const Location& loc = body->location;
     for ( DynNode* field: boost::adaptors::reverse(cls->fields()) )
     {
         // Make sure we initialize only fields of the current class
@@ -140,8 +140,8 @@ void IntModCtorMembers::beforeSemanticCheck(Node* n)
             {
                 call = mkOperatorCall(loc, fieldRef, ":=", mkNullLiteral(loc));
             }
-            Nest::setContext(call, body->childrenContext());
-            body->insertChildInFront((DynNode*) call);
+            Nest::setContext(call, Nest::childrenContext(body));
+            body->children.insert(body->children.begin(), call);
         }
     }
 }

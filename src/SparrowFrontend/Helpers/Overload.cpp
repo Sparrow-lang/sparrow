@@ -9,7 +9,6 @@
 #include <NodeCommonsCpp.h>
 #include <Nodes/Decls/SprConcept.h>
 
-#include <Feather/Nodes/ChangeMode.h>
 #include <Feather/Nodes/Decls/Function.h>
 #include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Util/Decl.h>
@@ -232,12 +231,12 @@ DynNode* SprFrontend::selectOverload(CompilationContext* context, const Location
 
     // If the desired eval-mode is different from the context's mode, create a new context
     // We do this by wrapping everything inside a ChangeMode node
-    ChangeMode* changeModeNode = nullptr;
+    Node* changeModeNode = nullptr;
     if ( context->evalMode() != evalMode )
     {
-        changeModeNode = new ChangeMode(loc, evalMode);
-        changeModeNode->setContext(context);
-        context = changeModeNode->childrenContext();
+        changeModeNode = mkChangeMode(loc, nullptr, evalMode);
+        Nest::setContext(changeModeNode, context);
+        context = Nest::childrenContext(changeModeNode);
     }
 
     // First, get all the candidates
@@ -280,8 +279,8 @@ DynNode* SprFrontend::selectOverload(CompilationContext* context, const Location
     ASSERT(res->context());
     if ( changeModeNode )
     {
-        changeModeNode->setChild(res->node());
-        res = changeModeNode;
+        ChangeMode_setChild(changeModeNode, res->node());
+        res = (DynNode*) changeModeNode;
     }
 
 

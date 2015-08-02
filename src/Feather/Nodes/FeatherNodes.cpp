@@ -1,10 +1,5 @@
 #include <StdInc.h>
 #include "FeatherNodes.h"
-#include "LocalSpace.h"
-#include "GlobalConstructAction.h"
-#include "GlobalDestructAction.h"
-#include "ScopeDestructAction.h"
-#include "TempDestructAction.h"
 #include "FeatherNodeCommonsCpp.h"
 
 #include "Decls/Function.h"
@@ -22,7 +17,6 @@
 #include "Exp/MemStore.h"
 #include "Exp/Bitcast.h"
 #include "Exp/Conditional.h"
-#include "ChangeMode.h"
 
 #include "Stmt/If.h"
 #include "Stmt/While.h"
@@ -223,6 +217,41 @@ using namespace Feather;
         Nest::semanticCheck(node->children[0]);
         node->type = getVoidType(node->context->evalMode());
         return node;
+    }
+
+    void ChangeMode_SetContextForChildren(Node* node)
+    {
+        EvalMode curMode = (EvalMode) getCheckPropertyInt(node, propEvalMode);
+        EvalMode newMode = curMode != modeUnspecified ? curMode : node->context->evalMode();
+        node->childrenContext = new CompilationContext(node->context, newMode);
+        Nest::defaultFunSetContextForChildren(node);
+    }
+    Node* ChangeMode_SemanticCheck(Node* node)
+    {
+        // Make sure we are allowed to change the mode
+        EvalMode baseMode = node->context->evalMode();
+        EvalMode curMode = (EvalMode) getCheckPropertyInt(node, propEvalMode);
+        EvalMode newMode = curMode != modeUnspecified ? curMode : node->context->evalMode();
+        if ( newMode == modeUnspecified )
+            REP_INTERNAL(node->location, "Cannot change the mode to Unspecified");
+        if ( newMode == modeRt && baseMode != modeRt )
+            REP_ERROR(node->location, "Cannot change mode to RT in a non-RT context (%1%)") % baseMode;
+        if ( newMode == modeRtCt && baseMode != modeRtCt )
+            REP_ERROR(node->location, "Cannot change mode to RTCT in a non-RTCT context (%1%)") % baseMode;
+
+        if ( !node->children[0] )
+            REP_INTERNAL(node->location, "No node specified as child to a ChangeMode node");
+
+        Nest::semanticCheck(node->children[0]);
+        return node->children[0];
+    }
+    const char* ChangeMode_toString(const Node* node)
+    {
+        ostringstream os;
+        EvalMode curMode = (EvalMode) getCheckPropertyInt(node, propEvalMode);
+        EvalMode newMode = curMode != modeUnspecified ? curMode : node->context->evalMode();
+        os << "changeMode(" << node->children[0] << ", " << newMode << ")";
+        return strdup(os.str().c_str());
     }
 
     void Function_SetContextForChildren(Node* node)
@@ -793,41 +822,6 @@ using namespace Feather;
         return node;
     }
 
-    void ChangeMode_SetContextForChildren(Node* node)
-    {
-        EvalMode curMode = (EvalMode) getCheckPropertyInt(node, propEvalMode);
-        EvalMode newMode = curMode != modeUnspecified ? curMode : node->context->evalMode();
-        node->childrenContext = new CompilationContext(node->context, newMode);
-        Nest::defaultFunSetContextForChildren(node);
-    }
-    Node* ChangeMode_SemanticCheck(Node* node)
-    {
-        // Make sure we are allowed to change the mode
-        EvalMode baseMode = node->context->evalMode();
-        EvalMode curMode = (EvalMode) getCheckPropertyInt(node, propEvalMode);
-        EvalMode newMode = curMode != modeUnspecified ? curMode : node->context->evalMode();
-        if ( newMode == modeUnspecified )
-            REP_INTERNAL(node->location, "Cannot change the mode to Unspecified");
-        if ( newMode == modeRt && baseMode != modeRt )
-            REP_ERROR(node->location, "Cannot change mode to RT in a non-RT context (%1%)") % baseMode;
-        if ( newMode == modeRtCt && baseMode != modeRtCt )
-            REP_ERROR(node->location, "Cannot change mode to RTCT in a non-RTCT context (%1%)") % baseMode;
-
-        if ( !node->children[0] )
-            REP_INTERNAL(node->location, "No node specified as child to a ChangeMode node");
-
-        Nest::semanticCheck(node->children[0]);
-        return node->children[0];
-    }
-    const char* ChangeMode_toString(const Node* node)
-    {
-        ostringstream os;
-        EvalMode curMode = (EvalMode) getCheckPropertyInt(node, propEvalMode);
-        EvalMode newMode = curMode != modeUnspecified ? curMode : node->context->evalMode();
-        os << "changeMode(" << node->children[0] << ", " << newMode << ")";
-        return strdup(os.str().c_str());
-    }
-
     void If_SetContextForChildren(Node* node)
     {
         node->childrenContext = node->context->createChildContext(node);
@@ -1036,6 +1030,7 @@ int Feather::nkFeatherGlobalConstructAction = 0;
 int Feather::nkFeatherGlobalDestructAction = 0;
 int Feather::nkFeatherScopeDestructAction = 0;
 int Feather::nkFeatherTempDestructAction = 0;
+int Feather::nkFeatherChangeMode = 0;
 
 int Feather::nkFeatherDeclFunction = 0;
 int Feather::nkFeatherDeclClass = 0;
@@ -1052,7 +1047,6 @@ int Feather::nkFeatherExpMemLoad = 0;
 int Feather::nkFeatherExpMemStore = 0;
 int Feather::nkFeatherExpBitcast = 0;
 int Feather::nkFeatherExpConditional = 0;
-int Feather::nkFeatherExpChangeMode = 0;
 
 int Feather::nkFeatherStmtIf = 0;
 int Feather::nkFeatherStmtWhile = 0;
@@ -1071,6 +1065,7 @@ void Feather::initFeatherNodeKinds()
     nkFeatherGlobalDestructAction = registerNodeKind("globalDestructAction", &GlobalDestructAction_SemanticCheck, NULL, NULL, NULL);
     nkFeatherScopeDestructAction = registerNodeKind("scopelDestructAction", &ScopeTempDestructAction_SemanticCheck, NULL, NULL, NULL);
     nkFeatherTempDestructAction = registerNodeKind("tempDestructAction", &ScopeTempDestructAction_SemanticCheck, NULL, NULL, NULL);
+    nkFeatherChangeMode = registerNodeKind("changeMode", &ChangeMode_SemanticCheck, NULL, &ChangeMode_SetContextForChildren, &ChangeMode_toString);
 
     nkFeatherDeclFunction = registerNodeKind("fun", &Function_SemanticCheck, &Function_ComputeType, &Function_SetContextForChildren, &Function_toString);
     nkFeatherDeclClass = registerNodeKind("class", &Class_SemanticCheck, &Class_ComputeType, &Class_SetContextForChildren, NULL);
@@ -1087,7 +1082,6 @@ void Feather::initFeatherNodeKinds()
     nkFeatherExpMemStore = registerNodeKind("memStore", &MemStore_SemanticCheck, NULL, NULL, NULL);
     nkFeatherExpBitcast = registerNodeKind("bitcast", &Bitcast_SemanticCheck, NULL, NULL, &Bitcast_toString);
     nkFeatherExpConditional = registerNodeKind("conditional", &Conditional_SemanticCheck, NULL, NULL, NULL);
-    nkFeatherExpChangeMode = registerNodeKind("changeMode", &ChangeMode_SemanticCheck, NULL, &ChangeMode_SetContextForChildren, &ChangeMode_toString);
 
     nkFeatherStmtIf = registerNodeKind("if", &If_SemanticCheck, NULL, &If_SetContextForChildren, NULL);
     nkFeatherStmtWhile = registerNodeKind("while", &While_SemanticCheck, NULL, &While_SetContextForChildren, NULL);
@@ -1095,12 +1089,6 @@ void Feather::initFeatherNodeKinds()
     nkFeatherStmtContinue = registerNodeKind("continue", &Continue_SemanticCheck, NULL, NULL, NULL);
     nkFeatherStmtReturn = registerNodeKind("return", &Return_SemanticCheck, NULL, NULL, NULL);
 
-
-    LocalSpace::classNodeKindRef() = nkFeatherLocalSpace;
-    GlobalConstructAction::classNodeKindRef() = nkFeatherGlobalConstructAction;
-    GlobalDestructAction::classNodeKindRef() = nkFeatherGlobalDestructAction;
-    ScopeDestructAction::classNodeKindRef() = nkFeatherScopeDestructAction;
-    TempDestructAction::classNodeKindRef() = nkFeatherTempDestructAction;
 
     Function::classNodeKindRef() = nkFeatherDeclFunction;
     Class::classNodeKindRef() = nkFeatherDeclClass;
@@ -1117,7 +1105,6 @@ void Feather::initFeatherNodeKinds()
     MemStore::classNodeKindRef() = nkFeatherExpMemStore;
     Bitcast::classNodeKindRef() = nkFeatherExpBitcast;
     Conditional::classNodeKindRef() = nkFeatherExpConditional;
-    ChangeMode::classNodeKindRef() = nkFeatherExpChangeMode;
     
     If::classNodeKindRef() = nkFeatherStmtIf;
     While::classNodeKindRef() = nkFeatherStmtWhile;
@@ -1402,8 +1389,7 @@ Node* Feather::mkConditional(const Location& loc, Node* condition, Node* alt1, N
 }
 Node* Feather::mkChangeMode(const Location& loc, Node* child, EvalMode mode)
 {
-    REQUIRE_NODE(loc, child);
-    Node* res = createNode(nkFeatherExpChangeMode);
+    Node* res = createNode(nkFeatherChangeMode);
     res->location = loc;
     res->children = { child };
     setProperty(res, propEvalMode, (int) mode);
@@ -1460,10 +1446,25 @@ const char* Feather::BackendCode_getCode(const Node* node)
     ASSERT(node->nodeKind == nkFeatherBackendCode);
     return getCheckPropertyString(node, propCode).c_str();
 }
-
 EvalMode Feather::BackendCode_getEvalMode(Node* node)
 {
     ASSERT(node->nodeKind == nkFeatherBackendCode);
+    EvalMode curMode = (EvalMode) getCheckPropertyInt(node, propEvalMode);
+    return curMode != modeUnspecified ? curMode : node->context->evalMode();
+}
+
+void Feather::ChangeMode_setChild(Node* node, Node* child)
+{
+    ASSERT(node);
+    node->children.resize(1);
+    node->children[0] = child;
+
+    if ( node->childrenContext )
+        Nest::setContext(child, node->childrenContext);
+}
+
+EvalMode Feather::ChangeMode_getEvalMode(Node* node)
+{
     EvalMode curMode = (EvalMode) getCheckPropertyInt(node, propEvalMode);
     return curMode != modeUnspecified ? curMode : node->context->evalMode();
 }

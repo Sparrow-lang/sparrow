@@ -5,7 +5,6 @@
 FWD_CLASS1(Feather, Var);
 FWD_CLASS1(Feather, Function);
 FWD_CLASS1(Feather, Class);
-FWD_CLASS1(Feather, GlobalConstructAction);
 
 FWD_CLASS1(llvm, ExecutionEngine);
 FWD_CLASS1(llvm, Function);

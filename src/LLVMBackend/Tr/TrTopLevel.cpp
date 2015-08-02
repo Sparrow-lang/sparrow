@@ -11,8 +11,6 @@
 #include <Nest/CompilerSettings.h>
 
 #include <Feather/Nodes/Properties.h>
-#include <Feather/Nodes/GlobalDestructAction.h>
-#include <Feather/Nodes/GlobalConstructAction.h>
 #include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Nodes/Decls/Function.h>
 #include <Feather/Nodes/Decls/Var.h>
@@ -44,16 +42,16 @@ namespace
         }
     }
 
-    void translate(GlobalDestructAction& node, Module& module)
+    void translateGlobalDestructAction(Node* node, Module& module)
     {
-        llvm::Function* fun = makeFunThatCalls(node.destructAction()->node(), module, "__global_dtor");
+        llvm::Function* fun = makeFunThatCalls(node->children[0], module, "__global_dtor");
         if ( fun )
             module.addGlobalDtor(fun);
     }
 
-    void translate(GlobalConstructAction& node, Module& module)
+    void translateGlobalConstructAction(Node* node, Module& module)
     {
-        llvm::Function* fun = makeFunThatCalls(node.constructAction()->node(), module, "__global_ctor");
+        llvm::Function* fun = makeFunThatCalls(node->children[0], module, "__global_ctor");
         if ( fun )
             module.addGlobalCtor(fun);
     }
@@ -78,8 +76,8 @@ void Tr::translateTopLevelNode(Node* node, Module& module)
         case nkRelFeatherNop:                      break;
         case nkRelFeatherNodeList:                 translateNodeList(node, module); break;
         case nkRelFeatherBackendCode:              translateBackendCode(node, module); break;
-        case nkRelFeatherGlobalDestructAction:     translate((GlobalDestructAction&) *node, module); break;
-        case nkRelFeatherGlobalConstructAction:    translate((GlobalConstructAction&) *node, module); break;
+        case nkRelFeatherGlobalDestructAction:     translateGlobalDestructAction(node, module); break;
+        case nkRelFeatherGlobalConstructAction:    translateGlobalConstructAction(node, module); break;
         case nkRelFeatherDeclClass:                translateClass((Class*) node, module); break;
         case nkRelFeatherDeclFunction:             translateFunction((Function*) node, module); break;
         case nkRelFeatherDeclVar:                  translateGlobalVar((Var*) node, module); break;

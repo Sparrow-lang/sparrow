@@ -9,7 +9,6 @@
 #include <SparrowFrontendTypes.h>
 
 #include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Nodes/ChangeMode.h>
 #include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Util/TypeTraits.h>
 
@@ -236,7 +235,7 @@ namespace
 
         ConversionResult res = ConversionResult(convCustom, [=](DynNode* src) -> DynNode* {
             DynNode* refToClass = createTypeNode(src->context(), src->location(), getDataType(destClass->node()));
-            return new ChangeMode(src->location(), destMode, mkFunApplication(src->location(), refToClass->node(), NodeVector(1, src->node())));
+            return (DynNode*) mkChangeMode(src->location(), mkFunApplication(src->location(), refToClass->node(), NodeVector(1, src->node())), destMode);
         }, contextDependent);
         return combine(res, cachedCanConvertImpl(context, flags | flagDontCallConversionCtor, resType, destType));
     }

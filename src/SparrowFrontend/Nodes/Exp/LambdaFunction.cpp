@@ -2,7 +2,6 @@
 #include "LambdaFunction.h"
 #include <Helpers/SprTypeTraits.h>
 
-#include <Feather/Nodes/Decls/Function.h>
 #include <Feather/Util/Context.h>
 #include <Feather/Util/Decl.h>
 
@@ -43,8 +42,8 @@ void LambdaFunction::doSemanticCheck()
     Node* body = data_.referredNodes[2];
     Node* closureParams = data_.referredNodes[3];
 
-    Function* parentFun = getParentFun(data_.context);
-    CompilationContext* parentContext = parentFun ? parentFun->context() : context();
+    Node* parentFun = getParentFun(data_.context);
+    CompilationContext* parentContext = parentFun ? parentFun->context : context();
 
     Node* ctorArgs = nullptr;
     Node* ctorParams = nullptr;

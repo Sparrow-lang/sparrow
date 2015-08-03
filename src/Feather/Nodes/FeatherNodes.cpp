@@ -2,7 +2,6 @@
 #include "FeatherNodes.h"
 #include "FeatherNodeCommonsCpp.h"
 
-#include "Decls/Function.h"
 #include "Decls/Class.h"
 #include "Decls/Var.h"
 
@@ -624,15 +623,16 @@ using namespace Feather;
 
     Node* FunCall_SemanticCheck(Node* node)
     {
-        Function* fun = (Function*) node->referredNodes[0];
+        Node* fun = node->referredNodes[0];
         
         // Make sure the function declaration is has a valid type
-        fun->computeType();
+        computeType(fun);
 
         // Check argument count
-        if ( node->children.size() != fun->numParameters() )
+        size_t numParameters = Function_numParameters(fun);
+        if ( node->children.size() != numParameters )
             REP_ERROR(node->location, "Invalid function call: expecting %1% parameters, given %2%")
-                % fun->numParameters() % node->children.size();
+                % numParameters % node->children.size();
 
         // Semantic check the arguments
         // Also check that their type matches the corresponding type from the function decl
@@ -646,7 +646,7 @@ using namespace Feather;
 
             // Compare types
             TypeRef argType = node->children[i]->type;
-            TypeRef paramType = fun->getParameter(i)->type();
+            TypeRef paramType = Function_getParameter(fun, i)->type;
             if ( !isSameTypeIgnoreMode(argType, paramType) )
                 REP_ERROR(node->children[i]->location, "Invalid function call: argument %1% is expected to have type %2% (actual type: %3%)")
                     % (i+1) % paramType % argType;
@@ -654,33 +654,33 @@ using namespace Feather;
 
         // CT availability checks
         EvalMode curMode = node->context->evalMode();
-        EvalMode calledFunMode = effectiveEvalMode(fun->node());
+        EvalMode calledFunMode = effectiveEvalMode(fun);
         ASSERT(curMode != Nest::modeUnspecified);
         ASSERT(calledFunMode != Nest::modeUnspecified);
         if ( calledFunMode == modeCt && curMode != modeCt && !allParamsAreCtAvailable )
         {
             REP_ERROR_NOTHROW(node->location, "Not all arguments are compile-time, when calling a compile time function");
-            REP_INFO(fun->location(), "See called function");
+            REP_INFO(fun->location, "See called function");
             REP_ERROR_THROW("Bad mode");
         }
         if ( curMode == modeRtCt && calledFunMode == modeRt )
         {
             REP_ERROR_NOTHROW(node->location, "Cannot call RT functions from RTCT contexts");
-            REP_INFO(fun->location(), "See called function");
+            REP_INFO(fun->location, "See called function");
             REP_ERROR_THROW("Bad mode");
         }
         if ( curMode == modeCt && calledFunMode == modeRt )
         {
             REP_ERROR_NOTHROW(node->location, "Cannot call a RT function from a CT context");
-            REP_INFO(fun->location(), "See called function");
+            REP_INFO(fun->location, "See called function");
             REP_ERROR_THROW("Bad mode");
         }
 
         // Get the type from the function decl
-        node->type = fun->resultType();
+        node->type = Function_resultType(fun);
 
         // Handle autoCt case
-        if ( allParamsAreCtAvailable && node->type->mode == modeRtCt && fun->hasProperty(propAutoCt) )
+        if ( allParamsAreCtAvailable && node->type->mode == modeRtCt && hasProperty(fun, propAutoCt) )
         {
             node->type = changeTypeMode(node->type, modeCt, node->location);
         }
@@ -993,22 +993,23 @@ using namespace Feather;
             semanticCheck(node->children[0]);
 
         // Get the parent function of this return
-        Function* parentFun = getParentFun(node->context);
+        Node* parentFun = getParentFun(node->context);
         if ( !parentFun )
             REP_ERROR(node->location, "Return found outside any function");
-        ASSERT(parentFun->resultType());
-        setProperty(node, "parentFun", parentFun->node());
+        TypeRef resultType = Function_resultType(parentFun);
+        ASSERT(resultType);
+        setProperty(node, "parentFun", parentFun);
 
         // If the return has an expression, check that has the same type as the function result type
         if ( node->children[0] )
         {
-            if ( !isSameTypeIgnoreMode(node->children[0]->type, parentFun->resultType()) )
+            if ( !isSameTypeIgnoreMode(node->children[0]->type, resultType) )
                 REP_ERROR(node->location, "Returned expression's type is not the same as function's return type");
         }
         else
         {
             // Make sure that the function has a void return type
-            if ( parentFun->resultType()->typeKind != typeKindVoid )
+            if ( resultType->typeKind != typeKindVoid )
                 REP_ERROR(node->location, "You must return something in a function that has non-Void result type");
         }
 
@@ -1090,7 +1091,7 @@ void Feather::initFeatherNodeKinds()
     nkFeatherStmtReturn = registerNodeKind("return", &Return_SemanticCheck, NULL, NULL, NULL);
 
 
-    Function::classNodeKindRef() = nkFeatherDeclFunction;
+    // Function::classNodeKindRef() = nkFeatherDeclFunction;
     Class::classNodeKindRef() = nkFeatherDeclClass;
     Var::classNodeKindRef() = nkFeatherDeclVar;
     
@@ -1462,9 +1463,53 @@ void Feather::ChangeMode_setChild(Node* node, Node* child)
     if ( node->childrenContext )
         Nest::setContext(child, node->childrenContext);
 }
-
 EvalMode Feather::ChangeMode_getEvalMode(Node* node)
 {
     EvalMode curMode = (EvalMode) getCheckPropertyInt(node, propEvalMode);
     return curMode != modeUnspecified ? curMode : node->context->evalMode();
+}
+
+void Feather::Function_addParameter(Node* node, Node* parameter, bool first)
+{
+    if ( explanation(parameter)->nodeKind != nkFeatherDeclVar )
+        REP_INTERNAL(parameter->location, "Node %1% must be a parameter") % parameter;
+
+    ASSERT(node->children.size() >= 2);
+    if ( first )
+        node->children.insert(node->children.begin()+2, parameter);
+    else
+        node->children.push_back(parameter);
+}
+void Feather::Function_setResultType(Node* node, Node* resultType)
+{
+    ASSERT(node->children.size() >= 2);
+    node->children[0] = resultType;
+    setContext(resultType, node->childrenContext);
+}
+void Feather::Function_setBody(Node* node, Node* body)
+{
+    ASSERT(node->children.size() >= 2);
+    node->children[1] = body;
+}
+size_t Feather::Function_numParameters(Node* node)
+{
+    return node->children.size()-2;
+}
+Node* Feather::Function_getParameter(Node* node, size_t idx)
+{
+    return node->children[idx+2];
+}
+TypeRef Feather::Function_resultType(Node* node)
+{
+    ASSERT(node->children.size() >= 2);
+    return node->children[0]->type;
+}
+Node* Feather::Function_body(Node* node)
+{
+    ASSERT(node->children.size() >= 2);
+    return node->children[1];
+}
+CallConvention Feather::Function_callConvention(Node* node)
+{
+    return (CallConvention) getCheckPropertyInt(node, "callConvention");
 }

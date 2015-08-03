@@ -6,7 +6,6 @@
 #include <Helpers/StdDef.h>
 #include <Helpers/CommonCode.h>
 
-#include <Feather/Nodes/Decls/Function.h>
 #include <Feather/Util/TypeTraits.h>
 
 using namespace SprFrontend;
@@ -294,7 +293,7 @@ void OperatorCall::handleRefEq()
     arg1Cvt = mkBitcast(data_.location, mkTypeNode(data_.location, StdDef::typeRefByte), arg1Cvt);
     arg2Cvt = mkBitcast(data_.location, mkTypeNode(data_.location, StdDef::typeRefByte), arg2Cvt);
 
-    setExplanation(mkFunCall(data_.location, StdDef::opRefEq->node(), {arg1Cvt, arg2Cvt}));
+    setExplanation(mkFunCall(data_.location, StdDef::opRefEq, {arg1Cvt, arg2Cvt}));
 }
 
 void OperatorCall::handleRefNe()
@@ -322,7 +321,7 @@ void OperatorCall::handleRefNe()
     arg1Cvt = mkBitcast(data_.location, mkTypeNode(data_.location, StdDef::typeRefByte), arg1Cvt);
     arg2Cvt = mkBitcast(data_.location, mkTypeNode(data_.location, StdDef::typeRefByte), arg2Cvt);
 
-    setExplanation(mkFunCall(data_.location, StdDef::opRefNe->node(), {arg1Cvt, arg2Cvt}));
+    setExplanation(mkFunCall(data_.location, StdDef::opRefNe, {arg1Cvt, arg2Cvt}));
 }
 
 void OperatorCall::handleRefAssign()

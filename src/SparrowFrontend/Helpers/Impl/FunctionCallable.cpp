@@ -7,7 +7,6 @@
 #include <Helpers/StdDef.h>
 #include <Nodes/Builder.h>
 #include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Nodes/Decls/Function.h>
 #include <Feather/Util/Decl.h>
 
 using namespace SprFrontend;
@@ -207,10 +206,10 @@ namespace
         return (DynNode*) mkFunApplication(loc, base, NodeVector(1, arg));
     }
 
-    DynNode* handleIntrinsic(Function* fun, CompilationContext* context, const Location& loc, const DynNodeVector& args)
+    DynNode* handleIntrinsic(Node* fun, CompilationContext* context, const Location& loc, const DynNodeVector& args)
     {
         // Check for natives
-        const string* nativeName = fun->getPropertyString(propNativeName);
+        const string* nativeName = getPropertyString(fun, propNativeName);
         if ( nativeName && !nativeName->empty() && (*nativeName)[0] == '$' )
         {
             if ( *nativeName == "$injectBackendCodeRt" )
@@ -261,7 +260,7 @@ namespace
     }
 }
 
-FunctionCallable::FunctionCallable(Function* fun)
+FunctionCallable::FunctionCallable(Node* fun)
     : fun_(fun)
     , hasResultParam_(nullptr != getResultParam(fun))
 {
@@ -269,40 +268,40 @@ FunctionCallable::FunctionCallable(Function* fun)
 
 const Location& FunctionCallable::location() const
 {
-    return fun_->location();
+    return fun_->location;
 }
 
 string FunctionCallable::toString() const
 {
-    return fun_->toString();
+    return Nest::toString(fun_);
 }
 
 size_t FunctionCallable::paramsCount() const
 {
     int offset = hasResultParam_ ? 1 : 0;
-    return fun_->numParameters() - offset;
+    return Function_numParameters(fun_) - offset;
 }
 
 DynNode* FunctionCallable::param(size_t idx) const
 {
     int offset = hasResultParam_ ? 1 : 0;
-    return fun_->getParameter(idx+offset);
+    return (DynNode*) Function_getParameter(fun_, idx+offset);
 }
 
 EvalMode FunctionCallable::evalMode() const
 {
-    return effectiveEvalMode(fun_->node());
+    return effectiveEvalMode(fun_);
 }
 bool FunctionCallable::isAutoCt() const
 {
-    return fun_->hasProperty(propAutoCt);
+    return hasProperty(fun_, propAutoCt);
 }
 
 
 DynNode* FunctionCallable::generateCall(const Location& loc)
 {
     ASSERT(context_);
-    fun_->computeType();
+    Nest::computeType(fun_);
 
     auto argsCvt = argsWithConversion();
     

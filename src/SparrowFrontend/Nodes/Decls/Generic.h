@@ -18,9 +18,9 @@ namespace SprFrontend
         const DynNodeVector& genericParams() const;
     };
 
-    bool isGeneric(const DynNode* node);
-    size_t genericParamsCount(const DynNode* node);
-    DynNode* genericParam(const DynNode* node, size_t idx);
-    Instantiation* genericCanInstantiate(DynNode* node, const DynNodeVector& args);
-    DynNode* genericDoInstantiate(DynNode* node, const Location& loc, CompilationContext* context, const DynNodeVector& args, Instantiation* instantiation);
+    bool isGeneric(const Node* node);
+    size_t genericParamsCount(const Node* node);
+    Node* genericParam(const Node* node, size_t idx);
+    Instantiation* genericCanInstantiate(Node* node, const NodeVector& args);
+    Node* genericDoInstantiate(Node* node, const Location& loc, CompilationContext* context, const NodeVector& args, Instantiation* instantiation);
 }

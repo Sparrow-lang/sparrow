@@ -328,7 +328,7 @@ void Nest::setExplanation(Node* node, Node* explanation)
 
 Node* Nest::explanation(Node* node)
 {
-    return node->explanation && node->explanation != node ? explanation(node->explanation) : node;
+    return node && node->explanation && node->explanation != node ? explanation(node->explanation) : node;
 }
 
 

@@ -30,62 +30,62 @@ const DynNodeVector& Generic::genericParams() const
     return ((InstantiationsSet*) data_.children[0])->parameters();
 }
 
-bool SprFrontend::isGeneric(const DynNode* node)
+bool SprFrontend::isGeneric(const Node* node)
 {
-    return node->data_.nodeKind == nkSparrowDeclGenericClass
-        || node->data_.nodeKind == nkSparrowDeclGenericFunction;
+    return node->nodeKind == nkSparrowDeclGenericClass
+        || node->nodeKind == nkSparrowDeclGenericFunction;
 }
 
-size_t SprFrontend::genericParamsCount(const DynNode* node)
+size_t SprFrontend::genericParamsCount(const Node* node)
 {
-    switch ( node->data_.nodeKind - firstSparrowNodeKind )
+    switch ( node->nodeKind - firstSparrowNodeKind )
     {
     case nkRelSparrowDeclGenericClass:
-        return static_cast<const GenericClass*>(node)->paramsCount();
+        return reinterpret_cast<const GenericClass*>(node)->paramsCount();
     case nkRelSparrowDeclGenericFunction:
-        return static_cast<const GenericFunction*>(node)->paramsCount();
+        return reinterpret_cast<const GenericFunction*>(node)->paramsCount();
     default:
-        REP_INTERNAL(node->location(), "Node is not a generic: %1%") % node->nodeKindName();
+        REP_INTERNAL(node->location, "Node is not a generic: %1%") % node;
         return 0;
     }
 }
-DynNode* SprFrontend::genericParam(const DynNode* node, size_t idx)
+Node* SprFrontend::genericParam(const Node* node, size_t idx)
 {
-    switch ( node->data_.nodeKind - firstSparrowNodeKind )
+    switch ( node->nodeKind - firstSparrowNodeKind )
     {
     case nkRelSparrowDeclGenericClass:
-        return static_cast<const GenericClass*>(node)->param(idx);
+        return reinterpret_cast<const GenericClass*>(node)->param(idx)->node();
     case nkRelSparrowDeclGenericFunction:
-        return static_cast<const GenericFunction*>(node)->param(idx);
+        return reinterpret_cast<const GenericFunction*>(node)->param(idx)->node();
     default:
-        REP_INTERNAL(node->location(), "Node is not a generic: %1%") % node->nodeKindName();
+        REP_INTERNAL(node->location, "Node is not a generic: %1%") % node;
         return nullptr;
     }
 }
 
-Instantiation* SprFrontend::genericCanInstantiate(DynNode* node, const DynNodeVector& args)
+Instantiation* SprFrontend::genericCanInstantiate(Node* node, const NodeVector& args)
 {
-    switch ( node->data_.nodeKind - firstSparrowNodeKind )
+    switch ( node->nodeKind - firstSparrowNodeKind )
     {
     case nkRelSparrowDeclGenericClass:
-        return static_cast<GenericClass*>(node)->canInstantiate(args);
+        return reinterpret_cast<GenericClass*>(node)->canInstantiate(toDyn(args));
     case nkRelSparrowDeclGenericFunction:
-        return static_cast<GenericFunction*>(node)->canInstantiate(args);
+        return reinterpret_cast<GenericFunction*>(node)->canInstantiate(toDyn(args));
     default:
-        REP_INTERNAL(node->location(), "Node is not a generic: %1%") % node->nodeKindName();
+        REP_INTERNAL(node->location, "Node is not a generic: %1%") % node;
         return nullptr;
     }
 }
-DynNode* SprFrontend::genericDoInstantiate(DynNode* node, const Location& loc, CompilationContext* context, const DynNodeVector& args, Instantiation* instantiation)
+Node* SprFrontend::genericDoInstantiate(Node* node, const Location& loc, CompilationContext* context, const NodeVector& args, Instantiation* instantiation)
 {
-    switch ( node->data_.nodeKind - firstSparrowNodeKind )
+    switch ( node->nodeKind - firstSparrowNodeKind )
     {
     case nkRelSparrowDeclGenericClass:
-        return static_cast<GenericClass*>(node)->instantiateGeneric(loc, context, args, instantiation);
+        return reinterpret_cast<GenericClass*>(node)->instantiateGeneric(loc, context, toDyn(args), instantiation)->node();
     case nkRelSparrowDeclGenericFunction:
-        return static_cast<GenericFunction*>(node)->instantiateGeneric(loc, context, args, instantiation);
+        return reinterpret_cast<GenericFunction*>(node)->instantiateGeneric(loc, context, toDyn(args), instantiation)->node();
     default:
-        REP_INTERNAL(node->location(), "Node is not a generic: %1%") % node->nodeKindName();
+        REP_INTERNAL(node->location, "Node is not a generic: %1%") % node;
         return nullptr;
     }
 }

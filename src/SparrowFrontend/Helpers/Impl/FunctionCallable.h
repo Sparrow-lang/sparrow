@@ -2,17 +2,13 @@
 
 #include "Callable.h"
 
-FWD_CLASS1(Feather, Function);
-
 namespace SprFrontend
 {
-    using Feather::Function;
-
     /// A normal function, as a callable object
     class FunctionCallable : public Callable
     {
     public:
-        FunctionCallable(Function* fun);
+        FunctionCallable(Node* fun);
 
         virtual const Location& location() const;
         virtual string toString() const;
@@ -24,7 +20,7 @@ namespace SprFrontend
         virtual DynNode* generateCall(const Location& loc);
 
     private:
-        Function* fun_;
+        Node* fun_;
         bool hasResultParam_;
     };
 }

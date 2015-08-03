@@ -2,9 +2,6 @@
 
 #include <Feather/FeatherNodeCommonsH.h>
 
-FWD_CLASS1(Feather, Function);
-
-
 namespace Feather
 {
     /// Intermediate code node that represents a reference to a function, wrapped in a data type
@@ -14,10 +11,10 @@ namespace Feather
         DEFINE_NODE(FunRef, nkFeatherExpFunRef, "Feather.Exp.FunRef");
 
     public:
-        FunRef(const Location& loc, Function* funDecl, DynNode* resType);
+        FunRef(const Location& loc, Node* funDecl, DynNode* resType);
 
         /// Getter for the function declaration this node refers to
-        Function* funDecl() const;
+        Node* funDecl() const;
 
     public:
         void dump(ostream& os) const;

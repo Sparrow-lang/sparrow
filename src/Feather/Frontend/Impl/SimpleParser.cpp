@@ -7,7 +7,6 @@
 #include <Feather/Nodes/Exp/AtomicOrdering.h>
 #include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Nodes/Decls/Var.h>
-#include <Feather/Nodes/Decls/Function.h>
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/Util/Decl.h>
 #include <Feather/FeatherTypes.h>
@@ -93,8 +92,7 @@ namespace
     }
 
     // Find a definition in the current symbol table, based on the name
-    template <typename T>
-    T* findDefinition(SymTab* symTab, const string& name, const Location& loc, const char* desc, bool onlyCurrent = false)
+    Node* findDefinition(int nodeKind, SymTab* symTab, const string& name, const Location& loc, const char* desc, bool onlyCurrent = false)
     {
         ASSERT(symTab);
         const auto& entries = onlyCurrent ? symTab->lookupCurrent(name) : symTab->lookup(name);
@@ -120,18 +118,17 @@ namespace
             }
             return nullptr;
         }
-        T* def = DynNode::fromNode(entries.front())->as<T>();
-        if ( !def  )
+        Node* res = entries.front();
+        if ( res->nodeKind != nodeKind  )
         {
-            REP_ERROR(loc, "Identifier %1% doesn't denote a %2%") % name % desc;
+            REP_ERROR(loc, "Identifier %1% doesn't denote a %2% (we have %3%)") % name % desc % res;
             return nullptr;
         }
-        return def;
+        return res;
     }
-    template <typename T>
-    T* findDefinition(CompilationContext* context, const string& name, const Location& loc, const char* desc)
+    Node* findDefinition(int nodeKind, CompilationContext* context, const string& name, const Location& loc, const char* desc)
     {
-        return findDefinition<T>(context->currentSymTab(), name, loc, desc);
+        return findDefinition(nodeKind, context->currentSymTab(), name, loc, desc);
     }
 
     string readIdentifier(SimpleAstNode* srcNode, const char* errDetails)
@@ -208,9 +205,9 @@ namespace
         else
         {
             // Search for the identifier in the current symbol tab to find a class with the same name
-            Class* cls = findDefinition<Class>(context, typeNode->stringValue(), typeNode->location(), "class name");
-            cls->computeType();
-            return getDataType(cls->node());
+            Node* cls = findDefinition(nkFeatherDeclClass, context, typeNode->stringValue(), typeNode->location(), "class name");
+            computeType(cls);
+            return getDataType(cls);
         }
     }
 
@@ -493,7 +490,7 @@ namespace
     {
         checkChildrenCount(srcNode, 1, "<var-name>");
         string varName = readIdentifier(srcNode->children()[0], "<var-name>");
-        Node* var = findDefinition<Var>(context, varName, srcNode->children()[0]->location(), "variable")->node();
+        Node* var = findDefinition(nkFeatherDeclVar, context, varName, srcNode->children()[0]->location(), "variable");
         Node* res = mkVarRef(srcNode->location(), var);
         setContext(res, context);
         return res;
@@ -505,9 +502,9 @@ namespace
         Node* obj = readNode(context, srcNode->children()[0], "<obj>");
         string className = readIdentifier(srcNode->children()[1], "<class-name>");
         string fieldName = readIdentifier(srcNode->children()[2], "<field-name>");
-        Class* cls = findDefinition<Class>(context, className, srcNode->children()[1]->location(), "class");
-        cls->computeType();
-        Node* field = findDefinition<Var>(cls->childrenContext()->currentSymTab(), fieldName, srcNode->children()[2]->location(), "field", true)->node();
+        Node* cls = findDefinition(nkFeatherDeclClass, context, className, srcNode->children()[1]->location(), "class");
+        computeType(cls);
+        Node* field = findDefinition(nkFeatherDeclVar, cls->childrenContext->currentSymTab(), fieldName, srcNode->children()[2]->location(), "field", true);
         Node* res = mkFieldRef(srcNode->location(), obj, field);
         setContext(res, context);
         return res;
@@ -517,7 +514,7 @@ namespace
     {
         checkChildrenCountRange(srcNode, 1, 100, "<function-name>, [<arguments>]");
         string funName = readIdentifier(srcNode->children()[0], "<function-name>");
-        Node* funDecl = findDefinition<Function>(context, funName, srcNode->children()[0]->location(), "function")->node();
+        Node* funDecl = findDefinition(nkFeatherDeclFunction, context, funName, srcNode->children()[0]->location(), "function");
         NodeVector args;
         for ( size_t i=1; i<srcNode->children().size(); ++i )
         {
@@ -656,8 +653,8 @@ namespace
         TypeRef resultType = readType(context, srcNode->children()[2], "<result-type>");
 
         // Create the function
-        Function* fun = (Function*) Feather::mkFunction(srcNode->location(), name, mkTypeNode(srcNode->children()[2]->location(), resultType), {}, nullptr);
-        fun->setContext(context);
+        Node* fun = Feather::mkFunction(srcNode->location(), name, mkTypeNode(srcNode->children()[2]->location(), resultType), {}, nullptr);
+        Nest::setContext(fun, context);
 
         // Read the parameters
         if ( !testIdentifier(srcNode->children()[1], "params") )
@@ -667,18 +664,18 @@ namespace
         {
             if ( !testIdentifier(p, "var") )
                 REP_ERROR(p->location(), "Expected var(<name>, <type>, [<alignment>])");
-            Node* param = interpretVar(fun->childrenContext(), p);
-            fun->addParameter((DynNode*) param);
+            Node* param = interpretVar(Nest::childrenContext(fun), p);
+            Function_addParameter(fun, param);
         }
 
         // Read the body
         if ( srcNode->children().size() >= 4 )
         {
-            Node* body = readNode(fun->childrenContext(), srcNode->children()[3], "<body>");
-            fun->setBody((DynNode*) body);
+            Node* body = readNode(childrenContext(fun), srcNode->children()[3], "<body>");
+            Function_setBody(fun, body);
         }
 
-        return fun->node();
+        return fun;
     }
 
 

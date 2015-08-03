@@ -7,6 +7,7 @@ namespace SprFrontend
     DynNodeVector getDeclsFromNode(DynNode* n, DynNode*& baseExp);
 
     /// Get the resulting declaration from the given node
+    Node* resultingDecl(Node* node);
     DynNode* resultingDecl(DynNode* node);
     
     /// Check if the given node is a field or not
@@ -25,6 +26,7 @@ namespace SprFrontend
     
     
     /// Gets the result parameter of a function, if it has one
+    Node* getResultParam(Node* f);
     DynNode* getResultParam(DynNode* f);
     
     /// Checks all the children of a namespace or a class are of allowed types

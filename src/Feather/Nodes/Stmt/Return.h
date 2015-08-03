@@ -2,8 +2,6 @@
 
 #include <Feather/FeatherNodeCommonsH.h>
 
-FWD_CLASS1(Feather, Function);
-
 namespace Feather
 {
     /// Intermediate code node that represents return statement
@@ -19,7 +17,7 @@ namespace Feather
         DynNode* expression() const;
 
         /// Getter for the function declaration that contains this node; set during compilation
-        Function* parentFun() const;
+        Node* parentFun() const;
 
     public:
         void dump(ostream& os) const;

@@ -2,11 +2,11 @@
 #include "DebugInfo.h"
 #include "TrContext.h"
 
-#include <Feather/Nodes/Decls/Function.h>
 #include <Feather/Util/Decl.h>
 
 #include <Nest/Common/Diagnostic.h>
 #include <Nest/Frontend/SourceCode.h>
+#include <Nest/Intermediate/Node.h>
 
 #include <boost/filesystem.hpp>
 
@@ -65,13 +65,13 @@ void DebugInfo::emitLocation(LlvmBuilder& builder, const Location& loc, bool tak
         builder.SetCurrentDebugLocation(getDebugLoc(curLoc_, scope, takeStart));
 }
 
-void DebugInfo::emitFunctionStart(LlvmBuilder& builder, Feather::Function* fun, llvm::Function* llvmFun)
+void DebugInfo::emitFunctionStart(LlvmBuilder& builder, Node* fun, llvm::Function* llvmFun)
 {
     regionCountAtFunStartStack_.push_back(lexicalBlockStack_.size());
 
-    const Location& loc = fun->location();
+    const Location& loc = fun->location;
 
-    llvm::DIFile file = getOrCreateFile(fun->location());
+    llvm::DIFile file = getOrCreateFile(fun->location);
     llvm::DIDescriptor fileDesc(file);
 
     // For now, just create an empty function declaration
@@ -85,7 +85,7 @@ void DebugInfo::emitFunctionStart(LlvmBuilder& builder, Feather::Function* fun, 
     llvm::DISubprogram diSubprogram;
     diSubprogram = diBuilder_.createFunction(
         fileDesc,                   // function scope
-        Feather::getName(fun->node()),      // function name
+        Feather::getName(fun),      // function name
         llvmFun->getName(),         // mangled function name (link name)
         file,                       // file where this is defined
         loc.startLineNo(),          // line number
@@ -103,7 +103,7 @@ void DebugInfo::emitFunctionStart(LlvmBuilder& builder, Feather::Function* fun, 
 
     // Push function on region stack.
     lexicalBlockStack_.push_back((llvm::MDNode*) diSubprogram);
-    regionMap_[(Feather::Decl*)fun] = llvm::WeakVH(diSubprogram);
+    regionMap_[fun] = llvm::WeakVH(diSubprogram);
 }
 
 void DebugInfo::emitFunctionEnd(LlvmBuilder& builder, const Location& loc)

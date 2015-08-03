@@ -11,7 +11,6 @@
 #include <Feather/Util/Context.h>
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/Util/Decl.h>
-#include <Feather/Nodes/Decls/Function.h>
 
 #include <Nest/Frontend/SourceCode.h>
 
@@ -47,9 +46,9 @@ DynNode* SprFunction::body() const
     return (DynNode*) data_.children[2];
 }
 
-Feather::Function* SprFunction::resultingFun() const
+Node* SprFunction::resultingFun() const
 {
-    return (Function*) data_.explanation;
+    return data_.explanation;
 }
 
 string SprFunction::toString() const
@@ -143,21 +142,21 @@ void SprFunction::doComputeType()
     EvalMode thisEvalMode = effectiveEvalMode(node());
 
     // Create the resulting function object
-    Function* resultingFun = (Function*) mkFunction(data_.location, funName, nullptr, {}, body->node());
-    setShouldAddToSymTab(resultingFun->node(), false);
+    Node* resultingFun = mkFunction(data_.location, funName, nullptr, {}, body->node());
+    setShouldAddToSymTab(resultingFun, false);
 
     // Copy the "native" and the "autoCt" properties
     const string* nativeName = getPropertyString(propNativeName);
     if ( nativeName )
-        resultingFun->setProperty(Feather::propNativeName, *nativeName);
+        Nest::setProperty(resultingFun, Feather::propNativeName, *nativeName);
     if ( hasProperty(propAutoCt) )
-        resultingFun->setProperty(propAutoCt, 1);
+        Nest::setProperty(resultingFun, propAutoCt, 1);
     if ( hasProperty(propNoInline) )
-        resultingFun->setProperty(propNoInline, 1);
+        Nest::setProperty(resultingFun, propNoInline, 1);
 
-    setEvalMode(resultingFun->node(), thisEvalMode);
-    resultingFun->setChildrenContext(data_.childrenContext);
-    resultingFun->setContext(data_.context);
+    setEvalMode(resultingFun, thisEvalMode);
+    resultingFun->childrenContext = data_.childrenContext;
+    Nest::setContext(resultingFun, data_.context);
     setProperty(propResultingDecl, resultingFun);
 
     // Compute the types of the parameters first
@@ -170,7 +169,7 @@ void SprFunction::doComputeType()
         TypeRef thisType = getDataType((Node*) parentClass, 1, thisEvalMode);
         Node* thisParam = Feather::mkVar(data_.location, "$this", mkTypeNode(data_.location, thisType));
         Nest::setContext(thisParam, data_.childrenContext);
-        resultingFun->addParameter((DynNode*) thisParam);
+        Function_addParameter(resultingFun, thisParam);
     }
 
     // Add the actual specified parameters
@@ -181,7 +180,7 @@ void SprFunction::doComputeType()
             if ( !n )
                 REP_ERROR(n->location, "Invalid node as parameter");
 
-            resultingFun->addParameter((DynNode*) n);
+            Function_addParameter(resultingFun, n);
         }
     }
 
@@ -195,15 +194,15 @@ void SprFunction::doComputeType()
     {
         Node* resParam = Feather::mkVar(returnType->location(), "_result", mkTypeNode(returnType->location(), addRef(resType)));
         Nest::setContext(resParam, data_.childrenContext);
-        resultingFun->addParameter((DynNode*) resParam, true);
-        resultingFun->setProperty(propResultParam, (DynNode*) resParam);
-        resultingFun->setResultType((DynNode*) mkTypeNode(returnType->location(), getVoidType(thisEvalMode)));
+        Function_addParameter(resultingFun, resParam, true);
+        Nest::setProperty(resultingFun, propResultParam, resParam);
+        Function_setResultType(resultingFun, mkTypeNode(returnType->location(), getVoidType(thisEvalMode)));
     }
     else
-        resultingFun->setResultType((DynNode*) mkTypeNode(data_.location, resType));
+        Function_setResultType(resultingFun, mkTypeNode(data_.location, resType));
 
     // TODO (explanation): explanation should be the result of semantic check
-    data_.explanation = resultingFun->node();
+    data_.explanation = resultingFun;
     Nest::computeType(data_.explanation);
     data_.type = data_.explanation->type;
 

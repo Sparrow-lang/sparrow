@@ -5,7 +5,6 @@
 #include <Helpers/DeclsHelpers.h>
 #include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Nodes/Decls/Class.h>
-#include <Feather/Nodes/Decls/Function.h>
 #include <Feather/Nodes/Exp/FunCall.h>
 #include <Feather/Nodes/Exp/VarRef.h>
 #include <Feather/Nodes/Exp/FieldRef.h>
@@ -47,7 +46,7 @@ namespace
             if ( n->nodeKind != nkFeatherExpFunCall )
                 continue;
             FunCall* funCall = (FunCall*) n;
-            if ( getName(funCall->funDecl()->node()) != "ctor" )
+            if ( getName(funCall->funDecl()) != "ctor" )
                 continue;
             if ( funCall->arguments().empty() )
                 continue;
@@ -56,7 +55,7 @@ namespace
             // If a class is given, check that the call is made to a function of that class
             if ( ofClass )
             {
-                Class* parentCls = getParentClass(funCall->funDecl()->context());
+                Class* parentCls = getParentClass(funCall->funDecl()->context);
                 if ( parentCls != ofClass )
                     continue;
             }

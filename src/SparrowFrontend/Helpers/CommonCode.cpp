@@ -10,7 +10,6 @@
 #include <Nodes/Decls/Generic.h>
 
 #include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Nodes/Decls/Function.h>
 #include <Feather/Nodes/Exp/FunCall.h>
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/Util/Decl.h>
@@ -49,8 +48,8 @@ DynNode* SprFrontend::createCtorCall(const Location& loc, CompilationContext* co
                 ASSERT(fnCall->arguments().size() >= 1);
 
                 // This argument - make sure it's of the required type
-                DynNode* thisParam = fnCall->funDecl()->getParameter(0);
-                TypeRef thisParamType = thisParam->type();
+                Node* thisParam = Function_getParameter(fnCall->funDecl(), 0);
+                TypeRef thisParamType = thisParam->type;
                 ConversionResult cvt = canConvert(thisArg, thisParamType);
                 if ( !cvt )
                     REP_INTERNAL(loc, "Cannot convert this arg in RVO (%1% -> %2%)") % thisArg->type() % thisParamType;
@@ -62,7 +61,7 @@ DynNode* SprFrontend::createCtorCall(const Location& loc, CompilationContext* co
                 args.push_back(thisArg1);
                 for ( size_t i=1; i<fnCall->arguments().size(); ++i )
                     args.push_back(fnCall->arguments()[i]->node());
-                Node* newCall = mkFunCall(loc, fnCall->funDecl()->node(), move(args));
+                Node* newCall = mkFunCall(loc, fnCall->funDecl(), move(args));
                 setContext(newCall, context);
                 return (DynNode*) newCall;
             }
@@ -97,7 +96,7 @@ DynNode* SprFrontend::createDtorCall(const Location& loc, CompilationContext* co
     CHECK(loc, cls);
 
     // Search for the dtor in the class 
-    DynNodeVector decls = toDyn(cls->childrenContext->currentSymTab()->lookupCurrent("dtor"));
+    NodeVector decls = cls->childrenContext->currentSymTab()->lookupCurrent("dtor");
 
     // If no destructor found, don't call anything
     if ( decls.empty() )
@@ -106,14 +105,14 @@ DynNode* SprFrontend::createDtorCall(const Location& loc, CompilationContext* co
     // Sanity checks
     if ( decls.size() > 1 )
         REP_ERROR(loc, "Multiple destructors found for class %1%") % getName(cls);
-    Function* dtor = decls.front()->explanation()->as<Function>();
-    if ( !dtor )
-        REP_ERROR(decls.front()->location(), "Invalid destructor found for class %1%") % getName(cls);
-    if ( dtor->numParameters() != 1 )
-        REP_INTERNAL(decls.front()->location(), "Invalid destructor found for class %1%; it has %2% parameters") % getName(cls) % dtor->numParameters();
+    Node* dtor = explanation(decls.front());
+    if ( !dtor || dtor->nodeKind != nkFeatherDeclFunction )
+        REP_ERROR(decls.front()->location, "Invalid destructor found for class %1%") % getName(cls);
+    if ( Function_numParameters(dtor) != 1 )
+        REP_INTERNAL(decls.front()->location, "Invalid destructor found for class %1%; it has %2% parameters") % getName(cls) % Function_numParameters(dtor);
 
     // Check this parameter
-    TypeRef thisParamType = dtor->getParameter(0)->type();
+    TypeRef thisParamType = Function_getParameter(dtor, 0)->type;
     if ( Feather::isCt(thisArg->node()) )
         thisParamType = Feather::changeTypeMode(thisParamType, modeCt, thisArg->location());
     ConversionResult c = canConvert(thisArg, thisParamType);
@@ -121,31 +120,31 @@ DynNode* SprFrontend::createDtorCall(const Location& loc, CompilationContext* co
         REP_INTERNAL(loc, "Invalid this argument when calling dtor");
     Node* argWithConversion = c.apply(thisArg)->node();
 
-    Node* funCall = mkFunCall(loc, dtor->node(), NodeVector(1, argWithConversion));
+    Node* funCall = mkFunCall(loc, dtor, NodeVector(1, argWithConversion));
     setContext(funCall, context);
     return (DynNode*) funCall;
 }
 
-DynNode* SprFrontend::createFunctionCall(const Location& loc, CompilationContext* context, Feather::Function* fun, DynNodeVector args)
+DynNode* SprFrontend::createFunctionCall(const Location& loc, CompilationContext* context, Node* fun, DynNodeVector args)
 {
     ASSERT(context);
-    fun->computeType();
+    computeType(fun);
 
     // Set the arguments to the function call.
     // If we have a result param, create a temporary variable for it, and call the function with it; then we return the
     // content of the variable
     Node* tmpVarRef = nullptr;
     DynNode* res = nullptr;
-    DynNode* resultParam = getResultParam(fun);
+    Node* resultParam = getResultParam(fun);
     if ( resultParam )
     {
         // Get the resulting type; check for CT-ness
-        TypeRef resTypeRef = resultParam->type();
-        EvalMode funEvalMode = effectiveEvalMode(fun->node());
+        TypeRef resTypeRef = resultParam->type;
+        EvalMode funEvalMode = effectiveEvalMode(fun);
         if ( funEvalMode == modeCt && !isCt(resTypeRef) )
-            resTypeRef = changeTypeMode(resTypeRef, modeCt, resultParam->location());
-        if ( funEvalMode == modeRtCt && fun->hasProperty(propAutoCt) && !isCt(resTypeRef) && isCt(fromDyn(args)) )
-            resTypeRef = changeTypeMode(resTypeRef, modeCt, resultParam->location());
+            resTypeRef = changeTypeMode(resTypeRef, modeCt, resultParam->location);
+        if ( funEvalMode == modeRtCt && hasProperty(fun, propAutoCt) && !isCt(resTypeRef) && isCt(fromDyn(args)) )
+            resTypeRef = changeTypeMode(resTypeRef, modeCt, resultParam->location);
 
         // Create a temporary variable for the result
         Node* tmpVar = Feather::mkVar(loc, "$tmpC", mkTypeNode(loc, removeRef(resTypeRef)));
@@ -158,7 +157,7 @@ DynNode* SprFrontend::createFunctionCall(const Location& loc, CompilationContext
         Node* arg = mkBitcast(tmpVarRef->location, mkTypeNode(loc, resTypeRef), tmpVarRef);
         setContext(arg, context);
         args1.insert(args1.begin(), arg);
-        Node* funCall = mkFunCall(loc, fun->node(), args1);
+        Node* funCall = mkFunCall(loc, fun, args1);
 
         res = createTempVarConstruct(loc, context, (DynNode*) funCall, (DynNode*) tmpVar);
 
@@ -168,7 +167,7 @@ DynNode* SprFrontend::createFunctionCall(const Location& loc, CompilationContext
     }
     else
     {
-        Node* funCall = mkFunCall(loc, fun->node(), fromDyn(args));
+        Node* funCall = mkFunCall(loc, fun, fromDyn(args));
         res = (DynNode*) funCall;
     }
 
@@ -233,21 +232,21 @@ DynNode* SprFrontend::createFunPtr(DynNode* funNode)
 
 
     // Basic case: is this a plain function?
-    DynNode* resDecl = decls.size() >= 1 ? resultingDecl(decls[0]) : nullptr;
-    Function* fun = resDecl->as<Function>();
+    Node* resDecl = decls.size() >= 1 ? resultingDecl(decls[0])->node() : nullptr;
+    Node* fun = (resDecl && resDecl->nodeKind == nkFeatherDeclFunction) ? resDecl : nullptr;
     if ( fun )
     {
         // Does this have a result parameter?
-        DynNode* resParam = getResultParam(fun);
+        Node* resParam = getResultParam(resDecl);
 
         // Try to instantiate the corresponding FunctionPtr class
         NodeVector parameters;
-        parameters.reserve(1+fun->numParameters());
-        TypeRef resType = resParam ? removeRef(resParam->type()) : fun->resultType();
+        parameters.reserve(1+Function_numParameters(fun));
+        TypeRef resType = resParam ? removeRef(resParam->type) : Function_resultType(fun);
         parameters.push_back(createTypeNode(ctx, loc, resType)->node());
-        for ( size_t i = resParam ? 1 : 0; i<fun->numParameters(); ++i )
+        for ( size_t i = resParam ? 1 : 0; i<Function_numParameters(fun); ++i )
         {
-            parameters.push_back(createTypeNode(ctx, loc, fun->getParameter(i)->type())->node());
+            parameters.push_back(createTypeNode(ctx, loc, Function_getParameter(fun, i)->type)->node());
         }
         string className = "FunctionPtr";
         Node* classCall = mkFunApplication(loc, mkIdentifier(loc, className), mkNodeList(loc, parameters));
@@ -259,7 +258,7 @@ DynNode* SprFrontend::createFunPtr(DynNode* funNode)
 
         // If the class is valid, we have a conversion
         if ( t )
-            return (DynNode*) mkFunRef(loc, fun->node(), mkTypeNode(loc, t));
+            return (DynNode*) mkFunRef(loc, fun, mkTypeNode(loc, t));
         
         REP_ERROR(loc, "Invalid function: %1%") % funNode;
         return nullptr;

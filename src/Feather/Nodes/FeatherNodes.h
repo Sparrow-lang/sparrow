@@ -136,4 +136,13 @@ namespace Feather
 
     void ChangeMode_setChild(Node* node, Node* child);
     EvalMode ChangeMode_getEvalMode(Node* node);
+
+    void Function_addParameter(Node* node, Node* parameter, bool first = false);
+    void Function_setResultType(Node* node, Node* resultType);
+    void Function_setBody(Node* node, Node* body);
+    size_t Function_numParameters(Node* node);
+    Node* Function_getParameter(Node* node, size_t idx);
+    TypeRef Function_resultType(Node* node);
+    Node* Function_body(Node* node);
+    CallConvention Function_callConvention(Node* node);
 }

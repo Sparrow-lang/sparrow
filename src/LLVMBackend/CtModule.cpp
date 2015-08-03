@@ -7,7 +7,6 @@
 #include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Nodes/Decls/Var.h>
-#include <Feather/Nodes/Decls/Function.h>
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/FeatherTypes.h>
 
@@ -82,7 +81,7 @@ void CtModule::ctProcess(Node* node)
     {
     case nkRelFeatherExpCtValue:   return;
     case nkRelFeatherDeclVar:      ctProcessVariable((Var*) node); break;
-    case nkRelFeatherDeclFunction: ctProcessFunction((Function*) node); break;
+    case nkRelFeatherDeclFunction: ctProcessFunction(node); break;
     case nkRelFeatherDeclClass:    ctProcessClass((Class*) node); break;
     case nkRelFeatherBackendCode:  ctProcessBackendCode(node); break;
     default:
@@ -147,7 +146,7 @@ void CtModule::ctProcessVariable(Feather::Var* node)
 	//llvmModule().dump();
 }
 
-void CtModule::ctProcessFunction(Feather::Function* node)
+void CtModule::ctProcessFunction(Node* node)
 {
     llvm::Function* f = Tr::translateFunction(node, *this);
     ((void) f);

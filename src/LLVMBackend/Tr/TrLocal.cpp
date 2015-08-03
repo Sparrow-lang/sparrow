@@ -31,7 +31,6 @@
 #include <Feather/Nodes/Stmt/Continue.h>
 #include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Nodes/Decls/Var.h>
-#include <Feather/Nodes/Decls/Function.h>
 #include <Feather/Nodes/Properties.h>
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/Util/Context.h>
@@ -238,11 +237,11 @@ namespace
 
     llvm::Value* handleFunPtr(FunCall& funCall, TrContext& context)
     {
-        Function& fun = *funCall.funDecl();
+        Node* fun = funCall.funDecl();
 
         // Does the resulting function has a resulting parameter?
         // Depending on that, compute the position of the this argument
-        size_t thisArgPos = fun.getPropertyNode(propResultParam) ? 1 : 0;
+        size_t thisArgPos = getPropertyNode(fun, propResultParam) ? 1 : 0;
 
         ASSERT(!funCall.arguments().empty());
 
@@ -259,7 +258,7 @@ namespace
         context.ensureInsertionPoint();
 
         // Create a function type pointer based on the arguments of the function
-        llvm::Type* fType = getLLVMFunctionType(&fun, thisArgPos, context.module());
+        llvm::Type* fType = getLLVMFunctionType(fun, thisArgPos, context.module());
         llvm::Type* pfType = llvm::PointerType::get(fType, 0);
         llvm::Type* ppfType = llvm::PointerType::get(pfType, 0);
 
@@ -273,7 +272,7 @@ namespace
 
         // Create a call instruction to the pointer to function
         llvm::CallInst* val = context.builder().CreateCall(ptrToFun, args, "");
-        val->setCallingConv(Tr::translateCallingConv(fun.callConvention()));
+        val->setCallingConv(Tr::translateCallingConv(Function_callConvention(fun)));
         return setValue(context.module(), *funCall.node(), val);
     }
 
@@ -790,11 +789,11 @@ namespace
 
     llvm::Value* translate(FunCall& node, TrContext& context)
     {
-        Function* funDecl = node.funDecl();
+        Node* funDecl = node.funDecl();
         CHECK(node.location(), funDecl);
 
         // Check for intrinsic native functions
-        const string* nativeName = funDecl->getPropertyString(propNativeName);
+        const string* nativeName = getPropertyString(funDecl, propNativeName);
         if ( nativeName && !nativeName->empty() && (*nativeName)[0] == '$' )
         {
             if ( *nativeName == "$logicalOr" )
@@ -830,7 +829,7 @@ namespace
         // Create a 'call' instruction
         context.ensureInsertionPoint();
         llvm::CallInst* val = context.builder().CreateCall(func, args, "");;
-        val->setCallingConv(Tr::translateCallingConv(funDecl->callConvention()));
+        val->setCallingConv(Tr::translateCallingConv(Function_callConvention(funDecl)));
         if ( res )
             return context.builder().CreateLoad(res);
         else

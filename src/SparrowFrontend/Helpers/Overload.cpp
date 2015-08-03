@@ -9,7 +9,6 @@
 #include <NodeCommonsCpp.h>
 #include <Nodes/Decls/SprConcept.h>
 
-#include <Feather/Nodes/Decls/Function.h>
 #include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Util/Decl.h>
 
@@ -26,25 +25,24 @@ namespace
     {
         Callables res;
 
-        DynNode* resDecl = resultingDecl(decl);
+        Node* resDecl = resultingDecl(decl->node());
 
         // Is this a normal function call?
-        Function* fun = resDecl->as<Function>();
-        if ( fun )
+        if ( resDecl && resDecl->nodeKind == nkFeatherDeclFunction )
         {
-            res.push_back(new FunctionCallable(fun));
+            res.push_back(new FunctionCallable(resDecl));
             return res;
         }
 
         // Is this a generic?
         if ( isGeneric(resDecl) )
         {
-            res.push_back(new GenericCallable(static_cast<Generic*>(resDecl)));
+            res.push_back(new GenericCallable(reinterpret_cast<Generic*>(resDecl)));
             return res;
         }
 
         // Is this a concept?
-        SprConcept* concept = resDecl->as<SprConcept>();
+        SprConcept* concept = ((DynNode*) resDecl)->as<SprConcept>();
         if ( concept )
         {
             res.push_back(new ConceptCallable(concept));
@@ -52,7 +50,7 @@ namespace
         }
 
         // Is this a temporary object creation?
-        Class* cls = resDecl->as<Class>();
+        Class* cls = ((DynNode*) resDecl)->as<Class>();
         if ( cls )
             return ClassCtorCallable::getCtorCallables(cls, evalMode);
 

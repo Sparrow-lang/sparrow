@@ -3,7 +3,6 @@
 #include <Nest/Intermediate/TypeRef.h>
 
 FWD_CLASS1(Feather, Class);
-FWD_CLASS1(Feather, Function);
 
 namespace SprFrontend
 {
@@ -28,8 +27,8 @@ namespace SprFrontend
         extern Feather::Class* clsUninitialized;
         extern Feather::Class* clsBool;
 
-        extern Feather::Function* opRefEq;
-        extern Feather::Function* opRefNe;
+        extern Node* opRefEq;
+        extern Node* opRefNe;
     }
 
     /// Creates the Type class & corresponding type; we need it before loading anything else

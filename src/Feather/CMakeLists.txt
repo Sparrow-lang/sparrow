@@ -54,8 +54,6 @@ SET(sourceFiles
     "Nodes/Decls/Var.h"
     "Nodes/Decls/Var.cpp"
     "Nodes/Decls/CallConvention.h"
-    "Nodes/Decls/Function.h"
-    "Nodes/Decls/Function.cpp"
     "Util/Context.h"
     "Util/Context.cpp"
     "Util/Decl.h"

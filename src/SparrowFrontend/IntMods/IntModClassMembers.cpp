@@ -7,7 +7,6 @@
 #include <Helpers/StdDef.h>
 #include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Nodes/Decls/Class.h>
-#include <Feather/Nodes/Decls/Function.h>
 #include <Feather/Util/Context.h>
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/Util/Decl.h>
@@ -23,40 +22,39 @@ namespace
     /// Search in the given class for a function with a specified name, taking the given type of parameter
     bool checkForMember(DynNode* cls, const string& funName, Class* paramClass)
     {
-        DynNodeVector decls = toDyn(cls->childrenContext()->currentSymTab()->lookupCurrent(funName));
-        for ( DynNode* decl: decls )
+        NodeVector decls = cls->childrenContext()->currentSymTab()->lookupCurrent(funName);
+        for ( Node* decl: decls )
         {
-            decl = decl->explanation();
+            decl = explanation(decl);
             if ( !decl )
                 continue;
-            Function* f = decl->as<Function>();
-            if ( !f )
+            if ( !decl || decl->nodeKind != nkFeatherDeclFunction )
                 continue;
 
             // Make sure we only take in considerations operations of this class
-            Class* cls2 = getParentClass(decl->context());
+            Class* cls2 = getParentClass(decl->context);
             if ( cls2 != cls->explanation() )
                 continue;
 
             // Check 'this' and 'other' parameters
             size_t thisParamIdx = 0;
             size_t otherParamIdx = 1;
-            if ( getResultParam(f) )
+            if ( getResultParam(decl) )
             {
                 ++thisParamIdx;
                 ++otherParamIdx;
             }
-            size_t numParams = f->numParameters();
+            size_t numParams = Function_numParameters(decl);
             if ( numParams < 1+thisParamIdx )
                 continue;
-            if ( getName(f->getParameter(thisParamIdx)->node()) != "$this" )
+            if ( getName(Function_getParameter(decl, thisParamIdx)) != "$this" )
                 continue;
 
             if ( paramClass )
             {
                 if ( numParams != 1+otherParamIdx )
                     continue;
-                TypeRef paramType = f->getParameter(otherParamIdx)->type();
+                TypeRef paramType = Function_getParameter(decl, otherParamIdx)->type;
                 if ( paramType->hasStorage )
                 {
                     if ( classForType(paramType) == paramClass )
@@ -65,7 +63,7 @@ namespace
             }
             else
             {
-                if ( f->numParameters() == 1+thisParamIdx )
+                if ( numParams == 1+thisParamIdx )
                     return true;
             }
         }

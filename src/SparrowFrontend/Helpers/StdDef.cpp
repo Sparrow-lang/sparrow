@@ -5,7 +5,6 @@
 
 #include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Nodes/Decls/Class.h>
-#include <Feather/Nodes/Decls/Function.h>
 #include <Feather/Util/Decl.h>
 
 using namespace SprFrontend;
@@ -34,8 +33,8 @@ Feather::Class* StdDef::clsType = nullptr;
 Feather::Class* StdDef::clsUninitialized = nullptr;
 Feather::Class* StdDef::clsBool = nullptr;
 
-Feather::Function* StdDef::opRefEq = nullptr;
-Feather::Function* StdDef::opRefNe = nullptr;
+Node* StdDef::opRefEq = nullptr;
+Node* StdDef::opRefNe = nullptr;
 
 namespace
 {
@@ -120,8 +119,8 @@ void SprFrontend::checkStdFunction(DynNode* fun)
     if ( functionsFound )
         return;
 
-    Function* f = resultingDecl(fun)->as<Function>();
-    ASSERT(f);
+    Node* f = resultingDecl(fun->node());
+    ASSERT(f && f->nodeKind == nkFeatherDeclFunction);
 
     if ( getName(fun->node()) == "_opRefEQ" )
         StdDef::opRefEq = f;

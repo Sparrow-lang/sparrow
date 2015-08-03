@@ -3,8 +3,6 @@
 #include "AccessType.h"
 #include <NodeCommonsH.h>
 
-FWD_CLASS1(Feather, Function);
-
 namespace SprFrontend
 {
     /// Class that represents a Sparrow namespace declaration (or compilation unit)
@@ -20,7 +18,7 @@ namespace SprFrontend
         DynNode* returnType() const;
         DynNode* body() const;
 
-        Feather::Function* resultingFun() const;
+        Node* resultingFun() const;
 
         string toString() const;
         void dump(ostream& os) const;

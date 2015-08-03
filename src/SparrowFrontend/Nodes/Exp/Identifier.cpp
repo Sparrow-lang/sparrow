@@ -9,7 +9,6 @@
 #include <Helpers/Convert.h>
 
 #include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Nodes/Decls/Function.h>
 #include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Util/Decl.h>
 

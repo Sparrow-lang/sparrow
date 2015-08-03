@@ -5,9 +5,10 @@
 
 #include <Nest/Common/Diagnostic.h>
 #include <Nest/Intermediate/TypeRef.h>
+#include <Nest/Intermediate/Type.h>
+#include <Nest/Intermediate/Node.h>
 
 #include <Feather/FeatherTypes.h>
-#include <Feather/Nodes/Decls/Function.h>
 
 #include <boost/bind.hpp>
 #include <algorithm>
@@ -125,10 +126,10 @@ llvm::Type* Tr::getNativeLLVMType(const Nest::Location& loc, const string& nativ
     return nullptr;
 }
 
-llvm::Type* Tr::getLLVMFunctionType(Feather::Function* funDecl, int ignoreArg, Module& module)
+llvm::Type* Tr::getLLVMFunctionType(Node* funDecl, int ignoreArg, Module& module)
 {
     ASSERT(funDecl);
-    TypeRef t = funDecl->type();
+    TypeRef t = funDecl->type;
     ASSERT(t && t->typeKind == typeKindFunction);
     return transformFunctionType(t, ignoreArg, module);
 }

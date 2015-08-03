@@ -116,7 +116,7 @@ void SprVariable::doComputeType()
 
     // Check the kind of the variable (local, global, field)
     VarKind varKind = varLocal;
-    Function* parentFun = Feather::getParentFun(data_.context);
+    Node* parentFun = Feather::getParentFun(data_.context);
     Class* parentClass = nullptr;
     if ( !parentFun )
     {

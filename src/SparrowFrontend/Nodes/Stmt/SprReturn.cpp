@@ -6,7 +6,6 @@
 #include <Helpers/DeclsHelpers.h>
 
 #include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Nodes/Decls/Function.h>
 #include <Feather/Util/Context.h>
 #include <Feather/Util/TypeTraits.h>
 
@@ -26,21 +25,21 @@ void SprReturn::doSemanticCheck()
     DynNode* exp = (DynNode*) data_.children[0];
 
     // Get the parent function of this return
-    Function* parentFun = getParentFun(data_.context);
+    Node* parentFun = getParentFun(data_.context);
     if ( !parentFun )
         REP_ERROR(data_.location, "Return found outside any function");
 
     // Compute the result type of the function
     TypeRef resType = nullptr;
-    DynNode* resultParam = getResultParam(parentFun);
+    Node* resultParam = getResultParam(parentFun);
     if ( resultParam ) // Does this function have a result param?
     {
-        resType = removeRef(resultParam->type());
-        ASSERT(!parentFun->resultType()->hasStorage); // The function should have void result
+        resType = removeRef(resultParam->type);
+        ASSERT(!Function_resultType(parentFun)->hasStorage); // The function should have void result
     }
     else
     {
-        resType = parentFun->resultType();
+        resType = Function_resultType(parentFun);
     }
     ASSERT(resType);
 
@@ -63,7 +62,7 @@ void SprReturn::doSemanticCheck()
     }
     else
     {
-        if ( parentFun->resultType()->typeKind != typeKindVoid )
+        if ( Function_resultType(parentFun)->typeKind != typeKindVoid )
             REP_ERROR(data_.location, "You must return something in a function that has non-Void result type");
     }
 
@@ -71,8 +70,8 @@ void SprReturn::doSemanticCheck()
     if ( resultParam )
     {
         // Create a ctor to construct the result parameter with the expression received
-        const Location& l = resultParam->location();
-        DynNode* thisArg = (DynNode*) mkMemLoad(l, mkVarRef(l, resultParam->node()));
+        const Location& l = resultParam->location;
+        DynNode* thisArg = (DynNode*) mkMemLoad(l, mkVarRef(l, resultParam));
         thisArg->setContext(data_.context);
         DynNode* action = createCtorCall(l, data_.context, thisArg, exp);
         if ( !action )

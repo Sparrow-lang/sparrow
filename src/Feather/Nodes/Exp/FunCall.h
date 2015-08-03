@@ -2,8 +2,6 @@
 
 #include <Feather/FeatherNodeCommonsH.h>
 
-FWD_CLASS1(Feather, Function);
-
 namespace Feather
 {
     /// Intermediate code node that represents a function call operation
@@ -13,10 +11,10 @@ namespace Feather
         DEFINE_NODE(FunCall, nkFeatherExpFunCall, "Feather.Exp.FunCall");
 
     public:
-        FunCall(const Location& loc, Function* funDecl, DynNodeVector args = {});
+        FunCall(const Location& loc, Node* funDecl, DynNodeVector args = {});
 
         /// Getter for the function decl to be called
-        Function* funDecl() const;
+        Node* funDecl() const;
 
         /// Getter for the arguments of this function call
         const DynNodeVector& arguments() const;

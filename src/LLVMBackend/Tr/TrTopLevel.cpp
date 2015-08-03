@@ -12,7 +12,6 @@
 
 #include <Feather/Nodes/Properties.h>
 #include <Feather/Nodes/Decls/Class.h>
-#include <Feather/Nodes/Decls/Function.h>
 #include <Feather/Nodes/Decls/Var.h>
 #include <Feather/Util/Decl.h>
 
@@ -79,7 +78,7 @@ void Tr::translateTopLevelNode(Node* node, Module& module)
         case nkRelFeatherGlobalDestructAction:     translateGlobalDestructAction(node, module); break;
         case nkRelFeatherGlobalConstructAction:    translateGlobalConstructAction(node, module); break;
         case nkRelFeatherDeclClass:                translateClass((Class*) node, module); break;
-        case nkRelFeatherDeclFunction:             translateFunction((Function*) node, module); break;
+        case nkRelFeatherDeclFunction:             translateFunction(node, module); break;
         case nkRelFeatherDeclVar:                  translateGlobalVar((Var*) node, module); break;
         default:
             REP_ERROR(node->location, "Don't know how to interpret a node of this kind (%1%)") % Nest::nodeKindName(node);

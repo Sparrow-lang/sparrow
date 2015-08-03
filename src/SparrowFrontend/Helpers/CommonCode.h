@@ -1,7 +1,5 @@
 #pragma once
 
-FWD_CLASS1(Feather, Function);
-
 namespace SprFrontend
 {
     /// Create a constructor call with any number of arguments
@@ -14,7 +12,7 @@ namespace SprFrontend
     DynNode* createDtorCall(const Location& loc, CompilationContext* context, DynNode* thisArg);
 
     /// Creates the code that calls the given function
-    DynNode* createFunctionCall(const Location& loc, CompilationContext* context, Feather::Function* fun, DynNodeVector args);
+    DynNode* createFunctionCall(const Location& loc, CompilationContext* context, Node* fun, DynNodeVector args);
 
     /// Create a temporary variable structure given the construct action for the given variable
     DynNode* createTempVarConstruct(const Location& loc, CompilationContext* context, DynNode* constructAction, DynNode* var);

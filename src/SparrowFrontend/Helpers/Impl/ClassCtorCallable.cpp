@@ -6,7 +6,6 @@
 #include <Helpers/CommonCode.h>
 #include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Nodes/Decls/Class.h>
-#include <Feather/Nodes/Decls/Function.h>
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/Util/Decl.h>
 
@@ -37,21 +36,21 @@ ClassCtorCallable::ClassCtorCallable(Class* cls, Callable* baseCallable, EvalMod
 
 Callables ClassCtorCallable::getCtorCallables(Class* cls, EvalMode evalMode)
 {
-    DynNodeVector decls = toDyn(cls->childrenContext()->currentSymTab()->lookupCurrent("ctor"));
+    NodeVector decls = cls->childrenContext()->currentSymTab()->lookupCurrent("ctor");
 
     evalMode = combineMode(effectiveEvalMode(cls->node()), evalMode, cls->location(), false);
 
     Callables res;
     res.reserve(decls.size());
-    for ( DynNode* decl: decls )
+    for ( Node* decl: decls )
     {
-        Function* fun = decl->explanation()->as<Function>();
-        if ( fun )
+        Node* fun = explanation(decl);
+        if ( fun && fun->nodeKind == nkFeatherDeclFunction )
             res.push_back(new ClassCtorCallable(cls, new FunctionCallable(fun), evalMode));
 
-        DynNode* resDecl = resultingDecl(decl);
+        Node* resDecl = resultingDecl(decl);
         if ( isGeneric(resDecl) )
-            res.push_back(new ClassCtorCallable(cls, new GenericCallable(static_cast<Generic*>(resDecl)), evalMode));
+            res.push_back(new ClassCtorCallable(cls, new GenericCallable(reinterpret_cast<Generic*>(resDecl)), evalMode));
     }
     return res;
 }

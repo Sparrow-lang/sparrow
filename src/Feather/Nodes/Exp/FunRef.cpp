@@ -2,19 +2,18 @@
 #include "FunRef.h"
 #include <Feather/FeatherNodeCommonsCpp.h>
 
-#include <Nodes/Decls/Function.h>
 #include <Util/TypeTraits.h>
 
 
-FunRef::FunRef(const Location& loc, Function* funDecl, DynNode* resType)
-    : DynNode(classNodeKind(), loc, {resType}, {funDecl})
+FunRef::FunRef(const Location& loc, Node* funDecl, DynNode* resType)
+    : DynNode(classNodeKind(), loc, {resType}, { (DynNode*) funDecl})
 {
 }
 
-Function* FunRef::funDecl() const
+Node* FunRef::funDecl() const
 {
     ASSERT(data_.referredNodes.size() == 1);
-    return (Function*) data_.referredNodes[0];
+    return data_.referredNodes[0];
 }
 
 void FunRef::dump(ostream& os) const
@@ -28,6 +27,6 @@ void FunRef::doSemanticCheck()
     DynNode* resType = (DynNode*) data_.children[0];
     resType->computeType();
 
-    funDecl()->computeType();
+    Nest::computeType(funDecl());
     data_.type = adjustMode(resType->type(), data_.context, data_.location);
 }

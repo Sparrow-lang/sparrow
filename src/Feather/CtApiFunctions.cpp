@@ -356,7 +356,7 @@ namespace
     {
         *sret = getParentDecl(context);
     }
-    void ctApi_Util_getParentFun(Function** sret, CompilationContext* context)
+    void ctApi_Util_getParentFun(Node** sret, CompilationContext* context)
     {
         *sret = getParentFun(context);
     }

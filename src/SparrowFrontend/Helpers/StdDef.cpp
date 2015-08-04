@@ -4,7 +4,6 @@
 #include <Helpers/DeclsHelpers.h>
 
 #include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Util/Decl.h>
 
 using namespace SprFrontend;
@@ -29,9 +28,9 @@ Nest::TypeRef StdDef::typeRefByte = nullptr;
 Nest::TypeRef StdDef::typeRefInt = nullptr;
 Nest::TypeRef StdDef::typeSizeTypeCt = nullptr;
 
-Feather::Class* StdDef::clsType = nullptr;
-Feather::Class* StdDef::clsUninitialized = nullptr;
-Feather::Class* StdDef::clsBool = nullptr;
+Node* StdDef::clsType = nullptr;
+Node* StdDef::clsUninitialized = nullptr;
+Node* StdDef::clsBool = nullptr;
 
 Node* StdDef::opRefEq = nullptr;
 Node* StdDef::opRefNe = nullptr;
@@ -47,13 +46,13 @@ void SprFrontend::initTypeType(CompilationContext* ctx)
     if ( typeType )
         return;
     
-    clsType = (Class*) mkClass(NOLOC, "Type", {});
-    setShouldAddToSymTab(clsType->node(), false);
-    clsType->setProperty(propNativeName, string("Type"));
-    setEvalMode(clsType->node(), modeCt);
-    clsType->setContext(ctx);
-    clsType->computeType();
-    typeType = getDataType(clsType->node(), 0, modeCt);
+    clsType = mkClass(NOLOC, "Type", {});
+    setShouldAddToSymTab(clsType, false);
+    setProperty(clsType, propNativeName, string("Type"));
+    setEvalMode(clsType, modeCt);
+    setContext(clsType, ctx);
+    computeType(clsType);
+    typeType = getDataType(clsType, 0, modeCt);
 }
 
 void SprFrontend::checkStdClass(DynNode* cls)
@@ -70,7 +69,7 @@ void SprFrontend::checkStdClass(DynNode* cls)
         StdDef::typeNull = getDataType(c);
     else if ( getName(c) == "Bool" )
     {
-        StdDef::clsBool = (Class*) c;
+        StdDef::clsBool = c;
         StdDef::typeBool = getDataType(c);
     }
     else if ( getName(c) == "Byte" )
@@ -90,7 +89,7 @@ void SprFrontend::checkStdClass(DynNode* cls)
     }
     else if ( getName(c) == "Uninitialized" )
     {
-        StdDef::clsUninitialized = (Class*) c;
+        StdDef::clsUninitialized = c;
         StdDef::typeUninitialized = getDataType(c);
     }
     else if ( getName(c) == "Type" )

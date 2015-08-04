@@ -8,7 +8,6 @@
 #include "Tr/DebugInfo.h"
 
 #include <Feather/Nodes/Properties.h>
-#include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Nodes/Decls/Var.h>
 #include <Feather/Util/Decl.h>
 #include <Feather/Util/Context.h>
@@ -90,10 +89,10 @@ llvm::Function* Tr::translateFunction(Node* node, Module& module)
     // Check if this is a standard/native type
     const string* nativeName = getPropertyString(node, propNativeName);
     string name = getName(node);
-//    Feather::Class* cls = getParentClass(node->context());
+//    Node* cls = getParentClass(node->context());
 //    if ( cls )
 //    {
-//        const string* clsDescription = cls->getPropertyString(propDescription);
+//        const string* clsDescription = getPropertyString(cls, propDescription);
 //        name = (clsDescription ? *clsDescription : getName(cls)) + "." + name;
 //    }
     const string& funName = nativeName ? *nativeName : name;

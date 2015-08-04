@@ -9,7 +9,6 @@
 #include <Helpers/Convert.h>
 
 #include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Util/Decl.h>
 
 using namespace SprFrontend;
@@ -114,9 +113,9 @@ DynNode* SprFrontend::getIdentifierResult(CompilationContext* ctx, const Locatio
 
         // Try to convert this to a type
         TypeRef t = nullptr;
-        Class* cls = resDecl->as<Feather::Class>();
+        Node* cls = ofKind(resDecl->node(), nkFeatherDeclClass);
         if ( cls )
-            t = getDataType(cls->node());
+            t = getDataType(cls);
         SprConcept* concept = resDecl->as<SprConcept>();
         if ( concept )
             t = getConceptType(concept);

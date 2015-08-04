@@ -2,7 +2,6 @@
 #include "FeatherNodes.h"
 #include "FeatherNodeCommonsCpp.h"
 
-#include "Decls/Class.h"
 #include "Decls/Var.h"
 
 #include "Exp/CtValue.h"
@@ -417,7 +416,7 @@ using namespace Feather;
         if ( !node->type->hasStorage )
             REP_ERROR(node->location, "Variable type has no storage (%1%") % node->type;
 
-        Nest::computeType(classForTypeRaw(node->type));           // Make sure the type of the class is computed
+        Nest::computeType(classForType(node->type));           // Make sure the type of the class is computed
         return node;
     }
 
@@ -570,16 +569,16 @@ using namespace Feather;
         ASSERT(obj->type);
         if ( !obj->type || !obj->type->hasStorage || obj->type->numReferences != 1 )
             REP_ERROR(node->location, "Field access should be done on a reference to a data type (type: %1%)") % obj->type;
-        Class* cls = classForType(obj->type);
+        Node* cls = classForType(obj->type);
         ASSERT(cls);
-        cls->computeType();
+        computeType(cls);
 
         // Compute the type of the field
         computeType(field);
 
         // Make sure that the type of a object is a data type that refers to a class the contains the given field
         bool fieldFound = false;
-        for ( auto field: cls->fields() )
+        for ( auto field: cls->children )
         {
             if ( &*field == field )
             {
@@ -1091,8 +1090,6 @@ void Feather::initFeatherNodeKinds()
     nkFeatherStmtReturn = registerNodeKind("return", &Return_SemanticCheck, NULL, NULL, NULL);
 
 
-    // Function::classNodeKindRef() = nkFeatherDeclFunction;
-    Class::classNodeKindRef() = nkFeatherDeclClass;
     Var::classNodeKindRef() = nkFeatherDeclVar;
     
     CtValue::classNodeKindRef() = nkFeatherExpCtValue;

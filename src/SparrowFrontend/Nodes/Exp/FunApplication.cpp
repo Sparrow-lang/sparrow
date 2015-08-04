@@ -8,7 +8,6 @@
 #include <Helpers/Ct.h>
 #include <Helpers/StdDef.h>
 
-#include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Util/Decl.h>
 
 using namespace SprFrontend;
@@ -154,7 +153,7 @@ void FunApplication::doSemanticCheck()
     // If we didn't find any declarations, try the operator call
     if ( base->type()->hasStorage && decls.empty() )
     {
-        Node* cls = classForTypeRaw(base->type());
+        Node* cls = classForType(base->type());
         decls = cls->childrenContext->currentSymTab()->lookupCurrent("()");
         if ( decls.empty() )
             REP_ERROR(data_.location, "Class %1% has no user defined call operators") % getName(cls);
@@ -254,9 +253,9 @@ void FunApplication::checkSizeOf()
     }
 
     // Make sure the class that this refers to has the type properly computed
-    Class* cls = (Class*) classDecl(t);
-    DynNode* mainNode = (DynNode*) cls->childrenContext()->currentSymTab()->node();
-    mainNode->computeType();
+    Node* cls = classDecl(t);
+    Node* mainNode = Nest::childrenContext(cls)->currentSymTab()->node();
+    Nest::computeType(mainNode);
 
     // Remove l-value if we have some
     t = Feather::removeLValueIfPresent(t);

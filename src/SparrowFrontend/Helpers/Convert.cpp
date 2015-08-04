@@ -9,7 +9,6 @@
 #include <SparrowFrontendTypes.h>
 
 #include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Util/TypeTraits.h>
 
 #include <Nest/Common/Tuple.h>
@@ -217,14 +216,14 @@ namespace
         if ( !destType->hasStorage )
             return convNone;
 
-        Class* destClass = classForType(destType);
-        destClass->computeType();
+        Node* destClass = classForType(destType);
+        Nest::computeType(destClass);
 
         // Try to convert srcType to lv destClass
         if ( !selectConversionCtor(context, destClass, destType->mode, srcType, nullptr, nullptr) )
             return convNone;
 
-        TypeRef t = destClass->type();
+        TypeRef t = destClass->type;
         EvalMode destMode = t->mode;
         if ( destMode == modeRtCt )
             destMode = srcType->mode;
@@ -234,7 +233,7 @@ namespace
         bool contextDependent = false;  // TODO (convert): This should be context dependent for private ctors
 
         ConversionResult res = ConversionResult(convCustom, [=](DynNode* src) -> DynNode* {
-            DynNode* refToClass = createTypeNode(src->context(), src->location(), getDataType(destClass->node()));
+            DynNode* refToClass = createTypeNode(src->context(), src->location(), getDataType(destClass));
             return (DynNode*) mkChangeMode(src->location(), mkFunApplication(src->location(), refToClass->node(), NodeVector(1, src->node())), destMode);
         }, contextDependent);
         return combine(res, cachedCanConvertImpl(context, flags | flagDontCallConversionCtor, resType, destType));

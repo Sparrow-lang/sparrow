@@ -8,7 +8,6 @@
 #include <Helpers/StdDef.h>
 #include <IntMods/IntModClassMembers.h>
 
-#include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Util/Decl.h>
 
 #include <Nest/Frontend/SourceCode.h>
@@ -131,7 +130,7 @@ void SprClass::doComputeType()
     if ( !hasProperty(propNoDefault) )
         addModifier(new IntModClassMembers);
     
-    DynNode* resultingClass = nullptr;
+    Node* resultingClass = nullptr;
 
     // Special case for Type class; re-use the existing StdDef class
     const string* nativeName = getPropertyString(propNativeName);
@@ -142,29 +141,29 @@ void SprClass::doComputeType()
 
     // Create the resulting Feather.Class object
     if ( !resultingClass )
-        resultingClass = (DynNode*) Feather::mkClass(data_.location, getName(node()), {});
-    setShouldAddToSymTab(resultingClass->node(), false);
+        resultingClass = Feather::mkClass(data_.location, getName(node()), {});
+    setShouldAddToSymTab(resultingClass, false);
 
     // Copy the "native" and "description" properties to the resulting class
     if ( nativeName )
     {
-        resultingClass->setProperty(Feather::propNativeName, *nativeName);
+        Nest::setProperty(resultingClass, Feather::propNativeName, *nativeName);
     }
     const string* description = getPropertyString(propDescription);
     if ( description )
     {
-        resultingClass->setProperty(propDescription, *description);
+        Nest::setProperty(resultingClass, propDescription, *description);
     }
 
-    setEvalMode(resultingClass->node(), nodeEvalMode(node()));
-    resultingClass->setChildrenContext(data_.childrenContext);
-    resultingClass->setContext(data_.context);
+    setEvalMode(resultingClass, nodeEvalMode(node()));
+    resultingClass->childrenContext = data_.childrenContext;
+    Nest::setContext(resultingClass, data_.context);
     setProperty(propResultingDecl, resultingClass);
 
-    data_.explanation = resultingClass->node();
+    data_.explanation = resultingClass;
 
     // Check for Std classes
-    checkStdClass(resultingClass);
+    checkStdClass((DynNode*) resultingClass);
     
     // First check all the base classes
     if ( baseClasses )
@@ -175,27 +174,27 @@ void SprClass::doComputeType()
             TypeRef bcType = getType(bcName);
             if ( !bcType || !bcType->hasStorage )
                 REP_ERROR(data_.location, "Invalid base class");
-            Class* baseClass = classForType(bcType);
+            Node* baseClass = classForType(bcType);
             
             // Compute the type of the base class
-            baseClass->computeType();
+            Nest::computeType(baseClass);
 
             // Add the fields of the base class to the resulting basic class
-            static_cast<Class*>(resultingClass)->addFields(baseClass->fields());
+            resultingClass->children.insert(resultingClass->children.end(), baseClass->children.begin(), baseClass->children.end());
 
             // Copy the symbol table entries of the base to this class
             SymTab* ourSymTab = childrenContext()->currentSymTab();
-            SymTab* baseSymTab = baseClass->childrenContext()->currentSymTab();
+            SymTab* baseSymTab = Nest::childrenContext(baseClass)->currentSymTab();
             ourSymTab->copyEntries(baseSymTab);
         }
     }
 
     // We now have a type - from now on we can safely compute the types of the children
-    data_.type = getDataType(resultingClass->node());
+    data_.type = getDataType(resultingClass);
 
     // Get the fields from the current class
-    DynNodeVector fields = getFields(data_.childrenContext->currentSymTab());
-    static_cast<Class*>(resultingClass)->addFields(fields);
+    NodeVector fields = fromDyn(getFields(data_.childrenContext->currentSymTab()));
+    resultingClass->children.insert(resultingClass->children.end(), fields.begin(), fields.end());
 
     // Check all the children
     if ( children )
@@ -217,7 +216,7 @@ void SprClass::doComputeType()
     });
 
     // Compute the type for the basic class
-    resultingClass->computeType();
+    Nest::computeType(resultingClass);
 }
 
 void SprClass::doSemanticCheck()

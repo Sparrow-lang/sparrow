@@ -5,7 +5,6 @@
 #include <Helpers/DeclsHelpers.h>
 #include <Helpers/CommonCode.h>
 #include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/Util/Decl.h>
 
@@ -15,17 +14,17 @@ using namespace Nest;
 
 namespace
 {
-    TypeRef varType(Class* cls, EvalMode mode)
+    TypeRef varType(Node* cls, EvalMode mode)
     {
         // Get the type of the temporary variable
-        TypeRef t = cls->type();
+        TypeRef t = cls->type;
         if ( mode != modeRtCt )
-            t = changeTypeMode(t, mode, cls->location());
+            t = changeTypeMode(t, mode, cls->location);
         return t;
     }
 }
 
-ClassCtorCallable::ClassCtorCallable(Class* cls, Callable* baseCallable, EvalMode evalMode)
+ClassCtorCallable::ClassCtorCallable(Node* cls, Callable* baseCallable, EvalMode evalMode)
     : cls_(cls)
     , baseCallable_(baseCallable)
     , evalMode_(evalMode)
@@ -34,11 +33,11 @@ ClassCtorCallable::ClassCtorCallable(Class* cls, Callable* baseCallable, EvalMod
 {
 }
 
-Callables ClassCtorCallable::getCtorCallables(Class* cls, EvalMode evalMode)
+Callables ClassCtorCallable::getCtorCallables(Node* cls, EvalMode evalMode)
 {
-    NodeVector decls = cls->childrenContext()->currentSymTab()->lookupCurrent("ctor");
+    NodeVector decls = childrenContext(cls)->currentSymTab()->lookupCurrent("ctor");
 
-    evalMode = combineMode(effectiveEvalMode(cls->node()), evalMode, cls->location(), false);
+    evalMode = combineMode(effectiveEvalMode(cls), evalMode, cls->location, false);
 
     Callables res;
     res.reserve(decls.size());

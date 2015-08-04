@@ -30,7 +30,7 @@ namespace
         // Call the translation method for the class declaration
         auto cls = classDecl(type);
         ASSERT(cls);
-        llvm::Type* t = Tr::translateClass((Class*) cls, module);
+        llvm::Type* t = Tr::translateClass(cls, module);
         for ( size_t i=0; i<type->numReferences; ++i )
             t = llvm::PointerType::get(t, 0);
         return t;

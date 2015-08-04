@@ -360,7 +360,7 @@ namespace
     {
         *sret = getParentFun(context);
     }
-    void ctApi_Util_getParentClass(Class** sret, CompilationContext* context)
+    void ctApi_Util_getParentClass(Node** sret, CompilationContext* context)
     {
         *sret = getParentClass(context);
     }

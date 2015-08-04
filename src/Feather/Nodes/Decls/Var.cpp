@@ -58,5 +58,5 @@ void Var::doSemanticCheck()
     if ( !data_.type->hasStorage )
         REP_ERROR(data_.location, "Variable type has no storage (%1%") % data_.type;
 
-    Nest::computeType(classForTypeRaw(data_.type));           // Make sure the type of the class is computed
+    Nest::computeType(classForType(data_.type));           // Make sure the type of the class is computed
 }

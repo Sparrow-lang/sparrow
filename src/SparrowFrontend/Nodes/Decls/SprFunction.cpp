@@ -103,7 +103,7 @@ void SprFunction::doComputeType()
     bool isStatic = hasProperty(propIsStatic);
 
     // Check if this is a member function
-    Class* parentClass = Feather::getParentClass(data_.context);
+    Node* parentClass = Feather::getParentClass(data_.context);
     bool isMember = nullptr != parentClass;
     if ( !isMember && isStatic )
         REP_ERROR(data_.location, "Only functions inside classes can be static");
@@ -113,7 +113,7 @@ void SprFunction::doComputeType()
     // Is this a generic?
     if ( parameters )
     {
-        Class* thisClass = isMember && !isStatic ? parentClass : nullptr;
+        Node* thisClass = isMember && !isStatic ? parentClass : nullptr;
         DynNode* generic = GenericFunction::createGeneric(this, parameters, ifClause, thisClass);
         if ( generic )
         {

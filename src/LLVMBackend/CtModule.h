@@ -3,7 +3,6 @@
 #include "Module.h"
 
 FWD_CLASS1(Feather, Var);
-FWD_CLASS1(Feather, Class);
 
 FWD_CLASS1(llvm, ExecutionEngine);
 FWD_CLASS1(llvm, Function);
@@ -38,7 +37,7 @@ namespace LLVMB { namespace Tr
     private:
 		void ctProcessVariable(Feather::Var* node);
 		void ctProcessFunction(Node* node);
-		void ctProcessClass(Feather::Class* node);
+		void ctProcessClass(Node* node);
 		void ctProcessBackendCode(Node* node);
 		Node* ctEvaluateExpression(Node* node);
 

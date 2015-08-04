@@ -6,7 +6,6 @@
 #include <Helpers/SprTypeTraits.h>
 #include <Helpers/DeclsHelpers.h>
 
-#include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/Util/Decl.h>
 
@@ -180,7 +179,7 @@ DynNode* GenericClass::instantiateGeneric(const Location& loc, CompilationContex
     }
 
     // Now actually create the call object: a Type CT value
-    Class* cls = instantiatedDecl->explanation()->as<Class>();
+    Node* cls = ofKind(instantiatedDecl->explanation()->node(), nkFeatherDeclClass);
     ASSERT(cls);
-    return createTypeNode(data_.context, loc, Feather::getDataType(cls->node()));
+    return createTypeNode(data_.context, loc, Feather::getDataType(cls));
 }

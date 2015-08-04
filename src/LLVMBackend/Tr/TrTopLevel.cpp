@@ -11,7 +11,6 @@
 #include <Nest/CompilerSettings.h>
 
 #include <Feather/Nodes/Properties.h>
-#include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Nodes/Decls/Var.h>
 #include <Feather/Util/Decl.h>
 
@@ -77,7 +76,7 @@ void Tr::translateTopLevelNode(Node* node, Module& module)
         case nkRelFeatherBackendCode:              translateBackendCode(node, module); break;
         case nkRelFeatherGlobalDestructAction:     translateGlobalDestructAction(node, module); break;
         case nkRelFeatherGlobalConstructAction:    translateGlobalConstructAction(node, module); break;
-        case nkRelFeatherDeclClass:                translateClass((Class*) node, module); break;
+        case nkRelFeatherDeclClass:                translateClass(node, module); break;
         case nkRelFeatherDeclFunction:             translateFunction(node, module); break;
         case nkRelFeatherDeclVar:                  translateGlobalVar((Var*) node, module); break;
         default:
@@ -112,31 +111,31 @@ void Tr::translateBackendCode(Node* node, Module& module)
         REP_ERROR(node->location, "Cannot merge backend code node into main LLVM module: %1%") % errMsg;
 }
 
-llvm::Type* Tr::translateClass(Feather::Class* node, Module& module)
+llvm::Type* Tr::translateClass(Node* node, Module& module)
 {
     // Check for ct/non-ct compatibility
-    if ( !module.canUse(node->node()) )
+    if ( !module.canUse(node) )
         return nullptr;
 
-    if ( !node->type() || 0 == strcmp(node->type()->description, "BasicBlock") )
+    if ( !node->type || 0 == strcmp(node->type->description, "BasicBlock") )
     {
         ASSERT(true);
     }
 
     // If this class was already translated, don't do it again
-    llvm::Type** transType = module.getNodePropertyValue<llvm::Type*>(node->node(), Module::propTransType);
+    llvm::Type** transType = module.getNodePropertyValue<llvm::Type*>(node, Module::propTransType);
     if ( transType )
         return *transType;
 
     // Check if this is a standard/native type
-    const string* nativeName = node->getPropertyString(propNativeName);
+    const string* nativeName = getPropertyString(node, propNativeName);
     if ( nativeName )
     {
-        llvm::Type* t = getNativeLLVMType(node->location(), *nativeName, module.llvmContext());
+        llvm::Type* t = getNativeLLVMType(node->location, *nativeName, module.llvmContext());
         if ( t )
         {
             // Set the translation type for this item
-            module.setNodeProperty(node->node(), Module::propTransType, boost::any(t));
+            module.setNodeProperty(node, Module::propTransType, boost::any(t));
             return t;
         }
     }
@@ -147,19 +146,18 @@ llvm::Type* Tr::translateClass(Feather::Class* node, Module& module)
         t = module.llvmModule().getTypeByName(*nativeName);    // Make sure we reuse the name
     if ( !t )
     {
-        const string* description = node->getPropertyString(propDescription);
+        const string* description = getPropertyString(node, propDescription);
         // Create a new struct type, possible with another name
-        t = llvm::StructType::create(module.llvmContext(), description ? *description : getName(node->node()));
+        t = llvm::StructType::create(module.llvmContext(), description ? *description : getName(node));
     }
-    module.setNodeProperty(node->node(), Module::propTransType, boost::any(static_cast<llvm::Type*>(t)));
+    module.setNodeProperty(node, Module::propTransType, boost::any(static_cast<llvm::Type*>(t)));
 
     // Now add the subtypes
     vector<llvm::Type*> fieldTypes;
-    fieldTypes.reserve(node->fields().size());
-    for ( auto f: node->fields() )
+    fieldTypes.reserve(node->children.size());
+    for ( auto field: node->children )
     {
-        Var* field = (Var*) f;
-        fieldTypes.push_back(getLLVMType(field->type(), module));
+        fieldTypes.push_back(getLLVMType(field->type, module));
     }
     if ( t->isOpaque() )
     {

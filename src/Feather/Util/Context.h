@@ -4,7 +4,6 @@
 
 FWD_CLASS1(Nest, CompilationContext);
 FWD_CLASS1(Feather, DynNode);
-FWD_CLASS1(Feather, Class);
 
 namespace Feather
 {
@@ -13,7 +12,7 @@ namespace Feather
     
     Node* getParentDecl(CompilationContext* context);
     Node* getParentFun(CompilationContext* context);
-    Class* getParentClass(CompilationContext* context);
+    Node* getParentClass(CompilationContext* context);
     Node* getParentLoop(CompilationContext* context);
 
     /// Getter for the context of the node that introduces the sym-tab

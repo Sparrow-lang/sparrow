@@ -28,7 +28,7 @@ DynNode* SprFrontend::createCtorCall(const Location& loc, CompilationContext* co
     // Get the class from 'thisArg'
     DynNode* thisArg = args[0];
     thisArg->computeType();
-    Node* cls = classForTypeRaw(thisArg->type());
+    Node* cls = classForType(thisArg->type());
     CHECK(loc, cls);
 
     // Check if we can apply RVO, or pseudo-RVO
@@ -38,7 +38,7 @@ DynNode* SprFrontend::createCtorCall(const Location& loc, CompilationContext* co
         DynNode* arg = args[1];
         arg->computeType();
         arg = arg->explanation();
-        if ( classForTypeRaw(arg->type()) == cls )
+        if ( classForType(arg->type()) == cls )
         {
             DynNode*const* tempVarConstruction1 = arg->getPropertyDynNode(propTempVarContstruction);
             DynNode* tempVarConstruction = tempVarConstruction1 ? *tempVarConstruction1 : nullptr;
@@ -92,7 +92,7 @@ DynNode* SprFrontend::createDtorCall(const Location& loc, CompilationContext* co
 {
     // Get the class from 'thisArg'
     thisArg->computeType();
-    Node* cls = classForTypeRaw(thisArg->type());
+    Node* cls = classForType(thisArg->type());
     CHECK(loc, cls);
 
     // Search for the dtor in the class 

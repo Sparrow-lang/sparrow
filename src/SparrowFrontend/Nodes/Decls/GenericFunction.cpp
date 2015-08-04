@@ -204,7 +204,7 @@ const DynNodeVector& GenericFunction::params() const
 }
 
 
-GenericFunction* GenericFunction::createGeneric(SprFunction* originalFun, Node* parameters, DynNode* ifClause, Class* thisClass)
+GenericFunction* GenericFunction::createGeneric(SprFunction* originalFun, Node* parameters, DynNode* ifClause, Node* thisClass)
 {
     // If we are in a CT function, don't consider CT parameters
     bool inCtFun = effectiveEvalMode(originalFun->node()) == modeCt;
@@ -242,7 +242,7 @@ GenericFunction* GenericFunction::createGeneric(SprFunction* originalFun, Node* 
     // If a 'this' class is passed, add an extra parameter for this
     if ( thisClass )
     {
-        TypeRef thisType = getDataType((Node*) thisClass, 1, effectiveEvalMode(originalFun->node()));
+        TypeRef thisType = getDataType(thisClass, 1, effectiveEvalMode(originalFun->node()));
         Node* thisParam = mkSprParameter(originalFun->location(), "$this", thisType);
         Nest::setContext(thisParam, originalFun->childrenContext());
         Nest::computeType(thisParam);

@@ -1,7 +1,6 @@
 #pragma once
 
 FWD_CLASS1(Feather, DynNode);
-FWD_CLASS1(Feather, Class);
 
 #include <Nest/Intermediate/TypeRef.h>
 #include <Nest/Intermediate/EvalMode.h>
@@ -48,8 +47,7 @@ namespace Feather
     Nest::TypeRef lvalueToRefIfPresent(Nest::TypeRef type);
 
     /// Gets the class declaration for the given type; if it doesn't have one, return null
-    Class* classForType(Nest::TypeRef t);
-    Node* classForTypeRaw(Nest::TypeRef t);
+    Node* classForType(Nest::TypeRef t);
 
     /// Check the types are the same, but also consider the operation mode
     bool isSameTypeIgnoreMode(Nest::TypeRef t1, Nest::TypeRef t2);

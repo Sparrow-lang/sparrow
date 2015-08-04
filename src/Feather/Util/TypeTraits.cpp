@@ -1,7 +1,6 @@
 #include <StdInc.h>
 #include "TypeTraits.h"
 
-#include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Util/Decl.h>
 #include <Feather/FeatherTypes.h>
 
@@ -155,14 +154,9 @@ TypeRef Feather::lvalueToRefIfPresent(TypeRef type)
     return getDataType(type->referredNode, type->numReferences, type->mode);
 }
 
-Class* Feather::classForType(Nest::TypeRef t)
+Node* Feather::classForType(Nest::TypeRef t)
 {
-    return t->hasStorage ? (Class*) t->referredNode : nullptr;
-}
-
-Node* Feather::classForTypeRaw(Nest::TypeRef t)
-{
-    return t->hasStorage ? (Node*) t->referredNode : nullptr;
+    return t->hasStorage ? t->referredNode : nullptr;
 }
 
 bool Feather::isSameTypeIgnoreMode(Nest::TypeRef t1, Nest::TypeRef t2)

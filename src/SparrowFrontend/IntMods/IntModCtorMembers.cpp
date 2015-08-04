@@ -4,7 +4,6 @@
 #include <Nodes/Decls/SprFunction.h>
 #include <Helpers/DeclsHelpers.h>
 #include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Nodes/Exp/FunCall.h>
 #include <Feather/Nodes/Exp/VarRef.h>
 #include <Feather/Nodes/Exp/FieldRef.h>
@@ -24,7 +23,7 @@ namespace
     ///
     /// It will search only the instructions directly inside the given local space, or in a child local space
     /// It will not search inside conditionals, or other instructions
-    bool hasCtorCall(Node* inSpace, Class* ofClass, bool checkThis, DynNode* forField)
+    bool hasCtorCall(Node* inSpace, Node* ofClass, bool checkThis, DynNode* forField)
     {
         // Check all the items in the local space
         for ( Node* n: inSpace->children )
@@ -55,7 +54,7 @@ namespace
             // If a class is given, check that the call is made to a function of that class
             if ( ofClass )
             {
-                Class* parentCls = getParentClass(funCall->funDecl()->context);
+                Node* parentCls = getParentClass(funCall->funDecl()->context);
                 if ( parentCls != ofClass )
                     continue;
             }
@@ -111,7 +110,7 @@ void IntModCtorMembers::beforeSemanticCheck(Node* n)
         REP_INTERNAL(node->location(), "Constructor body is not a local space (needed by IntModCtorMembers)");
 
     // Get the class
-    Class* cls = getParentClass(fun->context());
+    Node* cls = getParentClass(fun->context());
     CHECK(node->location(), cls);
 
     // If we are calling other constructor of this class, don't add any initialization
@@ -120,18 +119,18 @@ void IntModCtorMembers::beforeSemanticCheck(Node* n)
 
     // Generate the ctor calls in the order of the fields; add them to the body of the constructor
     const Location& loc = body->location;
-    for ( DynNode* field: boost::adaptors::reverse(cls->fields()) )
+    for ( Node* field: boost::adaptors::reverse(cls->children) )
     {
         // Make sure we initialize only fields of the current class
-        Class* cls2 = getParentClass(field->context());
+        Node* cls2 = getParentClass(field->context);
         if ( cls2 != cls )
             continue;
 
-        if ( !hasCtorCall(body, nullptr, false, field) )
+        if ( !hasCtorCall(body, nullptr, false, (DynNode*) field) )
         {
-            Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field->node());
+            Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
             Node* call = nullptr;
-            if ( field->type()->numReferences == 0 )
+            if ( field->type->numReferences == 0 )
             {
                 call = mkOperatorCall(loc, fieldRef, "ctor", nullptr);
             }

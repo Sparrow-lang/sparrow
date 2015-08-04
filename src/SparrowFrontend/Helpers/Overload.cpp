@@ -9,7 +9,6 @@
 #include <NodeCommonsCpp.h>
 #include <Nodes/Decls/SprConcept.h>
 
-#include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Util/Decl.h>
 
 #include <Nest/Common/ScopeGuard.h>
@@ -50,7 +49,7 @@ namespace
         }
 
         // Is this a temporary object creation?
-        Class* cls = ((DynNode*) resDecl)->as<Class>();
+        Node* cls = resDecl && resDecl->nodeKind == nkFeatherDeclClass ? resDecl : nullptr;
         if ( cls )
             return ClassCtorCallable::getCtorCallables(cls, evalMode);
 
@@ -293,7 +292,7 @@ DynNode* SprFrontend::selectOverload(CompilationContext* context, const Location
     return res;
 }
 
-bool SprFrontend::selectConversionCtor(CompilationContext* context, Class* destClass, EvalMode destMode,
+bool SprFrontend::selectConversionCtor(CompilationContext* context, Node* destClass, EvalMode destMode,
         TypeRef argType, DynNode* arg, DynNode** conv)
 {
     ENTER_TIMER_DESC(Nest::theCompiler().timingSystem(), "others.selCvtCtor", "Selecting conversion ctor");
@@ -301,9 +300,9 @@ bool SprFrontend::selectConversionCtor(CompilationContext* context, Class* destC
     ASSERT(argType);
 
     // Search for the ctors in the class 
-    DynNodeVector decls = toDyn(destClass->childrenContext()->currentSymTab()->lookupCurrent("ctor"));
+    DynNodeVector decls = toDyn(childrenContext(destClass)->currentSymTab()->lookupCurrent("ctor"));
 
-//     cerr << "Convert: " << argType->toString() << " -> " << destClass->toString() << " ?" << endl;
+//     cerr << "Convert: " << argType->toString() << " -> " << Nest::toString(destClass) << " ?" << endl;
 
     // Get all the candidates
     Callables candidates;
@@ -356,12 +355,12 @@ Callable* SprFrontend::selectCtToRtCtor(CompilationContext* context, TypeRef ctT
 
     if ( ctType->mode != modeCt || !ctType->hasStorage )
         return nullptr;
-    Class* cls = (Class*) Feather::classDecl(ctType);
-    if ( effectiveEvalMode(cls->node()) != modeRtCt )
+    Node* cls = Feather::classDecl(ctType);
+    if ( effectiveEvalMode(cls) != modeRtCt )
         return nullptr;
 
     // Search for the ctors in the class 
-    DynNodeVector decls = toDyn(cls->childrenContext()->currentSymTab()->lookupCurrent("ctorFromCt"));
+    DynNodeVector decls = toDyn(childrenContext(cls)->currentSymTab()->lookupCurrent("ctorFromCt"));
 
     // Select the possible ct-to-rt constructors
     Callables candidates;

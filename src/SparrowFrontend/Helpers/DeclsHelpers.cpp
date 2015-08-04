@@ -10,8 +10,6 @@
 #include <Mods/ModCt.h>
 #include <Mods/ModRtCt.h>
 
-#include <Feather/Nodes/Decls/Class.h>
-
 using namespace SprFrontend;
 using namespace Feather;
 using namespace Nest;

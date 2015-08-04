@@ -8,7 +8,6 @@
 
 #include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Nodes/Exp/CtValue.h>
-#include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Util/Decl.h>
 
 
@@ -21,10 +20,10 @@ namespace
     {
         if ( !t->hasStorage )
             return false;
-        Class* cls = classForType(t);
+        Node* cls = classForType(t);
         ASSERT(cls);
         
-        const string* nativeName = cls->getPropertyString(propNativeName);
+        const string* nativeName = getPropertyString(cls, propNativeName);
         if ( !nativeName || nativeName->size() <= 1 || !islower((*nativeName)[0]) )
             return false;
         
@@ -152,8 +151,8 @@ namespace
     {
         const Location& loc = node->location();
         TypeRef t = node->type();
-        Class* cls = classForType(t);
-        if ( effectiveEvalMode(cls->node()) != modeRtCt )
+        Node* cls = classForType(t);
+        if ( effectiveEvalMode(cls) != modeRtCt )
             REP_INTERNAL(loc, "Cannot convert ct to rt for non-rtct classes (%1%)") % cls;
 
         // Check if we have a ct-to-rt ctor

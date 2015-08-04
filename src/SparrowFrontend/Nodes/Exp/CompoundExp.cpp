@@ -75,7 +75,7 @@ void CompoundExp::doSemanticCheck()
     else if ( base->type()->hasStorage )
     {
         // If the base is an expression with a data type, treat this as a data access
-        Node* classDecl = classForTypeRaw(base->type());
+        Node* classDecl = classForType(base->type());
         Nest::computeType(classDecl);
 
         // Search for a declaration in the class 

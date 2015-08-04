@@ -5,7 +5,6 @@
 #include <Tr/TrType.h>
 
 #include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Nodes/Decls/Var.h>
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/FeatherTypes.h>
@@ -82,7 +81,7 @@ void CtModule::ctProcess(Node* node)
     case nkRelFeatherExpCtValue:   return;
     case nkRelFeatherDeclVar:      ctProcessVariable((Var*) node); break;
     case nkRelFeatherDeclFunction: ctProcessFunction(node); break;
-    case nkRelFeatherDeclClass:    ctProcessClass((Class*) node); break;
+    case nkRelFeatherDeclClass:    ctProcessClass(node); break;
     case nkRelFeatherBackendCode:  ctProcessBackendCode(node); break;
     default:
         REP_INTERNAL(node->location, "Don't know how to CT process node (%1%)") % node;
@@ -159,7 +158,7 @@ void CtModule::ctProcessFunction(Node* node)
     //REP_INFO(node->location, "CT process fun: %1%") % node;
 }
 
-void CtModule::ctProcessClass(Feather::Class* node)
+void CtModule::ctProcessClass(Node* node)
 {
     Tr::translateClass(node, *this);
 }

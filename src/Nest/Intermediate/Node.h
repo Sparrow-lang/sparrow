@@ -191,6 +191,9 @@ namespace Nest
         return os;
     }
 
+    /// Returns 'src' if the given node is of the specified type; null otherwise
+    Node* ofKind(Node* src, int desiredNodeKind);
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Default implementation for node-specific functions
     //

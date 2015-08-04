@@ -2,7 +2,6 @@
 #include "DataLayoutHelper.h"
 #include <Tr/TrType.h>
 
-#include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Nodes/Decls/Var.h>
 #include <Feather/Nodes/Properties.h>
 #include <Feather/Util/Decl.h>

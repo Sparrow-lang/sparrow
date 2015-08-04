@@ -331,6 +331,11 @@ Node* Nest::explanation(Node* node)
     return node && node->explanation && node->explanation != node ? explanation(node->explanation) : node;
 }
 
+Node* Nest::ofKind(Node* src, int desiredNodeKind)
+{
+    return src && src->nodeKind == desiredNodeKind ? src : nullptr;
+}
+
 
 const char* Nest::defaultFunToString(const Node* node)
 {

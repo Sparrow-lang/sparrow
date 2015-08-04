@@ -5,7 +5,6 @@
 
 #include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Nodes/Exp/AtomicOrdering.h>
-#include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Nodes/Decls/Var.h>
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/Util/Decl.h>
@@ -216,14 +215,14 @@ namespace
         return srcNode->isIdentifier() && srcNode->stringValue() == identifier;
     }
 
-    bool testReadProperty(const string& ident, SimpleAstNode* srcNode, Class* node)
+    bool testReadProperty(const string& ident, SimpleAstNode* srcNode, Node* node)
     {
         string id = boost::algorithm::to_lower_copy(ident);
 
         if ( id == "autoct" )
         {
             checkNoChildren(srcNode);
-            setEvalMode(node->node(), modeRtCt);
+            setEvalMode(node, modeRtCt);
             return true;
         }
 
@@ -232,7 +231,7 @@ namespace
             checkChildrenCount(srcNode, 2, "<name>, <value>");
             string name = readString(srcNode->children()[0], "<name>");
             string value = readString(srcNode->children()[1], "<value>");
-            node->setProperty(name.c_str(), value);
+            setProperty(node, name.c_str(), value);
             return true;
         }
 
@@ -241,7 +240,7 @@ namespace
             checkChildrenCount(srcNode, 2, "<name>, <value>");
             string name = readString(srcNode->children()[0], "<name>");
             int value = readInt(srcNode->children()[1], "<value>");
-            node->setProperty(name.c_str(), value);
+            setProperty(node, name.c_str(), value);
             return true;
         }
 
@@ -250,7 +249,7 @@ namespace
             checkChildrenCount(srcNode, 2, "<name>, <value>");
             string name = readString(srcNode->children()[0], "<name>");
             int value = readInt(srcNode->children()[1], "<value>");
-            node->setProperty(name.c_str(), value);
+            setProperty(node, name.c_str(), value);
             return true;
         }
 
@@ -616,10 +615,10 @@ namespace
     {
         checkChildrenCountRange(srcNode, 1, 100, "<class-name>, [<fields>]");
         string name = readIdentifier(srcNode->children()[0], "<class-name>");
-        Class* cls = (Class*) mkClass(srcNode->location(), name, {});
-        cls->setContext(context);
+        Node* cls = mkClass(srcNode->location(), name, {});
+        setContext(cls, context);
 
-        DynNodeVector fields;
+        NodeVector fields;
 
         for ( size_t i=1; i<srcNode->children().size(); ++i )
         {
@@ -629,8 +628,8 @@ namespace
                 try
                 {
                     checkChildrenCountRange(srcNode->children()[i], 2, 3, "<name>, <type>, [<alignment>]");
-                    Node* f = interpretVar(cls->childrenContext(), srcNode->children()[i]);
-                    fields.push_back((DynNode*) f);
+                    Node* f = interpretVar(childrenContext(cls), srcNode->children()[i]);
+                    fields.push_back(f);
                 }
                 catch(...)
                 {
@@ -642,8 +641,8 @@ namespace
 
             REP_ERROR(srcNode->children()[i]->location(), "Invalid identifier in class (%1%)") % ident;
         }
-        cls->addFields(fields);
-        return cls->node();
+        cls->children.insert(cls->children.end(), fields.begin(), fields.end());
+        return cls;
     }
 
     Node* interpretFunction(CompilationContext* context, SimpleAstNode* srcNode)

@@ -2,7 +2,6 @@
 #include "Decl.h"
 #include <Nodes/FeatherNodes.h>
 #include <Nodes/Properties.h>
-#include <Nodes/Decls/Class.h>
 #include <Nest/Intermediate/CompilationContext.h>
 #include <Nest/Intermediate/SymTab.h>
 #include <Nest/Common/Diagnostic.h>

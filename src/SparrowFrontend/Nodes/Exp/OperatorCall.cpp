@@ -202,7 +202,7 @@ Node* OperatorCall::selectOperator(const string& operation, Node* arg1, Node* ar
     if ( base )
     {
         Nest::semanticCheck(base);
-        argClass = classForTypeRaw(base->type);
+        argClass = classForType(base->type);
     }
 
     EvalMode mode;

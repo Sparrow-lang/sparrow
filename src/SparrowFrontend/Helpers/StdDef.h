@@ -2,8 +2,6 @@
 
 #include <Nest/Intermediate/TypeRef.h>
 
-FWD_CLASS1(Feather, Class);
-
 namespace SprFrontend
 {
     namespace StdDef
@@ -23,9 +21,9 @@ namespace SprFrontend
         extern Nest::TypeRef typeRefInt;
         extern Nest::TypeRef typeSizeTypeCt;
 
-        extern Feather::Class* clsType;
-        extern Feather::Class* clsUninitialized;
-        extern Feather::Class* clsBool;
+        extern Node* clsType;
+        extern Node* clsUninitialized;
+        extern Node* clsBool;
 
         extern Node* opRefEq;
         extern Node* opRefNe;

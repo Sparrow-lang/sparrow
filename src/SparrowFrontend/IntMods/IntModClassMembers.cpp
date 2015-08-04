@@ -6,7 +6,6 @@
 #include <Helpers/DeclsHelpers.h>
 #include <Helpers/StdDef.h>
 #include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Util/Context.h>
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/Util/Decl.h>
@@ -20,7 +19,7 @@ using namespace std;
 namespace
 {
     /// Search in the given class for a function with a specified name, taking the given type of parameter
-    bool checkForMember(DynNode* cls, const string& funName, Class* paramClass)
+    bool checkForMember(DynNode* cls, const string& funName, Node* paramClass)
     {
         NodeVector decls = cls->childrenContext()->currentSymTab()->lookupCurrent(funName);
         for ( Node* decl: decls )
@@ -32,8 +31,8 @@ namespace
                 continue;
 
             // Make sure we only take in considerations operations of this class
-            Class* cls2 = getParentClass(decl->context);
-            if ( cls2 != cls->explanation() )
+            Node* cls2 = getParentClass(decl->context);
+            if ( cls2 != explanation(cls->node()) )
                 continue;
 
             // Check 'this' and 'other' parameters
@@ -83,16 +82,16 @@ namespace
     }
 
     /// Checks if the given class has reference fields
-    bool hasReferences(Class* cls)
+    bool hasReferences(Node* cls)
     {
-        for ( DynNode* field: cls->fields() )
+        for ( Node* field: cls->children )
         {
             // Take in account only fields of the current class
-            Class* cls2 = getParentClass(field->context());
+            Node* cls2 = getParentClass(field->context);
             if ( cls2 != cls )
                 continue;
 
-            if ( field->type()->numReferences > 0 )
+            if ( field->type->numReferences > 0 )
                 return true;
         }
         return false;
@@ -109,7 +108,7 @@ namespace
     }
 
     // Add a method with the given body and given atguments to the parent class
-    DynNode* addMethod(SprClass* parent, const string& name, Node* body, vector<pair<TypeRef, string>> params, Class* resClass = nullptr, EvalMode mode = modeUnspecified)
+    DynNode* addMethod(SprClass* parent, const string& name, Node* body, vector<pair<TypeRef, string>> params, Node* resClass = nullptr, EvalMode mode = modeUnspecified)
     {
         Location loc = parent->location();
         loc.setAsStartOf(loc);
@@ -122,7 +121,7 @@ namespace
             sprParams.push_back(mkSprParameter(loc, param.second, param.first));
         }
         Node* parameters = sprParams.empty() ? nullptr : mkNodeList(loc, move(sprParams));
-        Node* ret = resClass ? createTypeNode(parent->childrenContext(), loc, getDataType(resClass->node()))->node() : nullptr;
+        Node* ret = resClass ? createTypeNode(parent->childrenContext(), loc, getDataType(resClass))->node() : nullptr;
         
         // Add the function
         Node* m = mkSprFunction(loc, name, parameters, ret, body);
@@ -134,7 +133,7 @@ namespace
     }
     
     // Add a method with the given body to the parent class
-    DynNode* addMethod(SprClass* parent, const string& name, Node* body, TypeRef otherParam, Class* resClass = nullptr, EvalMode mode = modeUnspecified)
+    DynNode* addMethod(SprClass* parent, const string& name, Node* body, TypeRef otherParam, Node* resClass = nullptr, EvalMode mode = modeUnspecified)
     {
         return addMethod(parent, name, body, otherParam ? vector<pair<TypeRef, string>>({ {otherParam, string("other")} }) : vector<pair<TypeRef, string>>({}), resClass, mode);
     }
@@ -144,7 +143,8 @@ namespace
     {
         Location loc = parent->location();
         loc.setAsStartOf(loc);
-        Class* cls = parent->explanation()->as<Class>();
+        Node* cls = parent->explanation()->node();
+        cls = cls && cls->nodeKind == nkFeatherDeclClass ? cls : nullptr;
         ASSERT(cls);
 
         Node* otherRef = nullptr;
@@ -157,18 +157,18 @@ namespace
 
         // Construct the body
         Node* body = mkLocalSpace(loc, {});
-        for ( DynNode* field: cls->fields() )
+        for ( Node* field: cls->children )
         {
             // Take in account only fields of the current class
-            Class* cls2 = getParentClass(field->context());
+            Node* cls2 = getParentClass(field->context);
             if ( cls2 != cls )
                 continue;
 
-            Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field->node());
-            Node* otherFieldRef = otherParam ? mkFieldRef(loc, otherRef, field->node()) : nullptr;
+            Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
+            Node* otherFieldRef = otherParam ? mkFieldRef(loc, otherRef, field) : nullptr;
 
             string oper = op;
-            if ( field->type()->numReferences > 0 )
+            if ( field->type->numReferences > 0 )
             {
                 if ( op == "=" || op == "ctor" )
                 {
@@ -203,28 +203,29 @@ namespace
         
         Location loc = parent->location();
         loc.setAsStartOf(loc);
-        Class* cls = parent->explanation()->as<Class>();
+        Node* cls = parent->explanation()->node();
+        cls = cls && cls->nodeKind == nkFeatherDeclClass ? cls : nullptr;
         ASSERT(cls);
 
         // Construct the body
         Node* body = mkLocalSpace(loc, {});
-        for ( DynNode* field: cls->fields() )
+        for ( Node* field: cls->children )
         {
             // Take in account only fields of the current class
-            Class* cls2 = getParentClass(field->context());
+            Node* cls2 = getParentClass(field->context);
             if ( cls2 != cls )
                 continue;
             
-            TypeRef t = field->type();
+            TypeRef t = field->type;
             
             // Add a parameter for the base
-            string paramName = "f"+getName(field->node());
+            string paramName = "f"+getName(field);
             params.push_back({t, paramName});
             Node* paramId = mkIdentifier(loc, move(paramName));
             if ( t->numReferences > 0 )
                 paramId = mkMemLoad(loc, paramId);
             
-            Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field->node());
+            Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
             
             string oper = t->numReferences > 0 ? ":=" : "ctor";
             addOperatorCall(body, false, (DynNode*) fieldRef, oper, (DynNode*) paramId);
@@ -238,22 +239,23 @@ namespace
     {
         Location loc = parent->location();
         loc.setAsStartOf(loc);
-        Class* cls = parent->explanation()->as<Class>();
+        Node* cls = parent->explanation()->node();
+        cls = cls && cls->nodeKind == nkFeatherDeclClass ? cls : nullptr;
         ASSERT(cls);
 
         // Construct the equality check expression
         Node* exp = nullptr;
-        for ( DynNode* field: cls->fields() )
+        for ( Node* field: cls->children )
         {
             // Take in account only fields of the current class
-            Class* cls2 = getParentClass(field->context());
+            Node* cls2 = getParentClass(field->context);
             if ( cls2 != cls )
                 continue;
 
-            Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field->node());
-            Node* otherFieldRef = mkFieldRef(loc, mkMemLoad(loc, mkIdentifier(loc, "other")), field->node());
+            Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
+            Node* otherFieldRef = mkFieldRef(loc, mkMemLoad(loc, mkIdentifier(loc, "other")), field);
 
-            const char* op = (field->type()->numReferences == 0) ? "==" : "===";
+            const char* op = (field->type->numReferences == 0) ? "==" : "===";
             Node* curExp = mkOperatorCall(loc, fieldRef, op, otherFieldRef);
             if ( !exp )
                 exp = curExp;
@@ -265,7 +267,7 @@ namespace
 
         Node* body = mkLocalSpace(loc, {});
         body->children.push_back(mkReturnStmt(loc, exp));
-        addMethod(parent, "==", body, getDataType(cls->node(), 1), StdDef::clsBool);
+        addMethod(parent, "==", body, getDataType(cls, 1), StdDef::clsBool);
     }
 }
 
@@ -280,9 +282,10 @@ void IntModClassMembers::afterComputeType(Node* n)
     if ( !cls->type() )
         REP_INTERNAL(node->location(), "Type was not computed for %1% when applying IntModClassMembers") % getName(cls->node());
 
-    Class* basicClass = cls->explanation()->as<Class>();
+    Node* basicClass = Nest::explanation(cls->node());
+    basicClass = basicClass && basicClass->nodeKind == nkFeatherDeclClass ? basicClass : nullptr;
     ASSERT(basicClass);
-    TypeRef paramType = getDataType(basicClass->node(), 1);
+    TypeRef paramType = getDataType(basicClass, 1);
 
     // Default ctor
     if ( !checkForMember(cls, "ctor", nullptr) )
@@ -302,7 +305,7 @@ void IntModClassMembers::afterComputeType(Node* n)
     
     // CT to RT ctor
     if ( !checkForCtorFromCt(cls) && !hasReferences(basicClass) )
-        generateMethod(cls, "ctorFromCt", "ctor", changeTypeMode(getDataType(basicClass->node(), 0), modeCt, node->location()), false, modeRt);
+        generateMethod(cls, "ctorFromCt", "ctor", changeTypeMode(getDataType(basicClass, 0), modeCt, node->location()), false, modeRt);
 
     // Dtor
     if ( !checkForMember(cls, "dtor", nullptr) )

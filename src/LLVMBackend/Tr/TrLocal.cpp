@@ -29,7 +29,6 @@
 #include <Feather/Nodes/Stmt/While.h>
 #include <Feather/Nodes/Stmt/Break.h>
 #include <Feather/Nodes/Stmt/Continue.h>
-#include <Feather/Nodes/Decls/Class.h>
 #include <Feather/Nodes/Decls/Var.h>
 #include <Feather/Nodes/Properties.h>
 #include <Feather/Util/TypeTraits.h>
@@ -746,17 +745,17 @@ namespace
         // Compute the index of the field
         uint64_t idx = 0;
         ASSERT(node.object()->type());
-        Class* clsDecl = classForType(node.object()->type());
+        Node* clsDecl = classForType(node.object()->type());
         CHECK(node.location(), clsDecl);
-        for ( auto f: clsDecl->fields() )
+        for ( auto f: clsDecl->children )
         {
-            if ( node.field() == f )
+            if ( node.field()->node() == f )
                 break;
             ++idx;
         }
-        if ( idx == clsDecl->fields().size() )
+        if ( idx == clsDecl->children.size() )
             REP_INTERNAL(node.location(), "Cannot find field '%1%' in class '%2%'")
-                % getName(node.field()->node()) % getName(clsDecl->node());
+                % getName(node.field()->node()) % getName(clsDecl);
 
         // Create a 'getelementptr' instruction
         vector<llvm::Value*> indices;

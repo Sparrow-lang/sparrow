@@ -2,20 +2,16 @@
 
 #include "Callable.h"
 
-FWD_CLASS1(Feather, Class);
-
 namespace SprFrontend
 {
-    using Feather::Class;
-
     /// A callable object for constructing temporary objects of a class
     class ClassCtorCallable : public Callable
     {
     public:
-        ClassCtorCallable(Class* cls, Callable* baseCallable, EvalMode evalMode);
+        ClassCtorCallable(Node* cls, Callable* baseCallable, EvalMode evalMode);
 
         /// Get the constructors of the given class as callable objects
-        static Callables getCtorCallables(Class* cls, EvalMode evalMode);
+        static Callables getCtorCallables(Node* cls, EvalMode evalMode);
 
         virtual const Location& location() const;
         virtual string toString() const;
@@ -29,7 +25,7 @@ namespace SprFrontend
         virtual DynNode* generateCall(const Location& loc);
 
     private:
-        Class* cls_;
+        Node* cls_;
         Callable* baseCallable_;    // Function or generic
         EvalMode evalMode_;
         DynNode* tmpVar_;

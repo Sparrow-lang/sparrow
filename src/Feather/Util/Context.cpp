@@ -2,7 +2,7 @@
 #include "Context.h"
 #include "Decl.h"
 #include <Nodes/Properties.h>
-#include <Nodes/Decls/Class.h>
+#include <Nodes/FeatherNodes.h>
 #include <Nest/Intermediate/CompilationContext.h>
 #include <Nest/Intermediate/SymTab.h>
 
@@ -22,14 +22,12 @@ Node* Feather::getParentDecl(CompilationContext* context)
 
 Node* Feather::getParentFun(CompilationContext* context)
 {
-    Node* decl = Nest::explanation(getParentDecl(context));
-    return decl && decl->nodeKind == nkFeatherDeclFunction ? decl : nullptr;
+    return Nest::ofKind(Nest::explanation(getParentDecl(context)), nkFeatherDeclFunction);
 }
 
-Class* Feather::getParentClass(CompilationContext* context)
+Node* Feather::getParentClass(CompilationContext* context)
 {
-    DynNode* decl = (DynNode*) getParentDecl(context);
-    return decl ? decl->explanation()->as<Class>() : nullptr;
+    return Nest::ofKind(Nest::explanation(getParentDecl(context)), nkFeatherDeclClass);
 }
 
 Node* Feather::getParentLoop(CompilationContext* context)

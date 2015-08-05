@@ -1,14 +1,32 @@
 #include <StdInc.h>
 #include "Ct.h"
-#include <Nodes/Exp/CtValue.h>
+#include <Feather/Nodes/FeatherNodes.h>
 #include <Nest/Common/Diagnostic.h>
 
 using namespace Feather;
 
-bool Feather::getBoolCtValue(Nest::Node* ctVal)
+Nest::TypeRef Feather::getCtValueType(Nest::Node* ctVal)
 {
     if ( ctVal->nodeKind != nkFeatherExpCtValue )
         REP_INTERNAL(ctVal->location, "Invalid CtValue");
-    CtValue* ctValue = (CtValue*) ctVal;
-    return (0 != *ctValue->value<unsigned char>());
+    return getCheckPropertyType(ctVal, "valueType");
+}
+
+/// Getter for the value data of a CtValue node -- the data is encoded in a string
+const string& Feather::getCtValueDataAsString(Nest::Node* ctVal)
+{
+    if ( ctVal->nodeKind != nkFeatherExpCtValue )
+        REP_INTERNAL(ctVal->location, "Invalid CtValue");
+    return getCheckPropertyString(ctVal, "valueData");
+}
+
+bool Feather::getBoolCtValue(Nest::Node* ctVal)
+{
+    return (0 != *getCtValueData<unsigned char>(ctVal));
+}
+
+bool Feather::sameCtValue(Nest::Node* ctVal1, Nest::Node* ctVal2)
+{
+    return getCtValueType(ctVal1) == getCtValueType(ctVal2)
+        && getCtValueDataAsString(ctVal1) == getCtValueDataAsString(ctVal2);
 }

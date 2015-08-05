@@ -264,7 +264,7 @@ void FunApplication::checkSizeOf()
     uint64_t size = theCompiler().sizeOf(t);
 
     // Create a CtValue to hold the size
-    setExplanation((DynNode*) mkCtValue(data_.location, StdDef::typeSizeType, &size));
+    setExplanation(mkCtValue(data_.location, StdDef::typeSizeType, &size));
 }
 
 void FunApplication::checkTypeOf()
@@ -325,7 +325,7 @@ void FunApplication::checkIsValid()
     bool isValid = checkIsValidImpl(data_.location, arguments, "isValid");
 
     // Create a CtValue to hold the result
-    setExplanation((DynNode*) mkCtValue(data_.location, StdDef::typeBool, &isValid));
+    setExplanation(mkCtValue(data_.location, StdDef::typeBool, &isValid));
 }
 
 void FunApplication::checkIsValidAndTrue()
@@ -359,7 +359,7 @@ void FunApplication::checkIsValidAndTrue()
     }
 
     // Create a CtValue to hold the result
-    setExplanation((DynNode*) mkCtValue(data_.location, StdDef::typeBool, &res));
+    setExplanation(mkCtValue(data_.location, StdDef::typeBool, &res));
 }
 
 void FunApplication::checkValueIfValid()

@@ -5,7 +5,6 @@
 #include "StdDef.h"
 #include <NodeCommonsCpp.h>
 
-#include <Feather/Nodes/Exp/CtValue.h>
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/Util/Ct.h>
 
@@ -22,8 +21,7 @@ namespace
         if ( !isSameTypeIgnoreMode(t, expectedExpType) )
             REP_INTERNAL(node->location, "Invalid value; found expression of type %1%, expected %2%") % node->type % expectedExpType;
         CHECK(node->location, node->nodeKind == Feather::nkFeatherExpCtValue);
-        CtValue* valNode = (CtValue*) node;
-        ValueType* val = valNode ? valNode->value<ValueType>() : nullptr;
+        ValueType* val = node ? getCtValueData<ValueType>(node) : nullptr;
         if ( !val )
             REP_ERROR(node->location, "Invalid value");
         return *val;
@@ -72,7 +70,7 @@ bool SprFrontend::ctValsEqual(Node* v1, Node* v2)
     }
 
     // Just compare the values
-    return *reinterpret_cast<CtValue*>(v1) == *reinterpret_cast<CtValue*>(v2);
+    return sameCtValue(v1, v2);
 }
 
 const char* SprFrontend::getStringCtValue(Node* val)

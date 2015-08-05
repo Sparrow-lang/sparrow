@@ -4,11 +4,6 @@
 #include <Nodes/Decls/SprFunction.h>
 #include <Helpers/DeclsHelpers.h>
 #include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Nodes/Exp/FunCall.h>
-#include <Feather/Nodes/Exp/VarRef.h>
-#include <Feather/Nodes/Exp/FieldRef.h>
-#include <Feather/Nodes/Exp/Bitcast.h>
-#include <Feather/Nodes/Exp/MemLoad.h>
 #include <Feather/Util/Context.h>
 #include <Feather/Util/Decl.h>
 
@@ -44,17 +39,16 @@ namespace
             // We consider function calls for our checks
             if ( n->nodeKind != nkFeatherExpFunCall )
                 continue;
-            FunCall* funCall = (FunCall*) n;
-            if ( getName(funCall->funDecl()) != "ctor" )
+            if ( getName(n->referredNodes[0]) != "ctor" )
                 continue;
-            if ( funCall->arguments().empty() )
+            if ( n->children.empty() )
                 continue;
-            DynNode* thisArg = funCall->arguments()[0];
+            Node* thisArg = n->children[0];
 
             // If a class is given, check that the call is made to a function of that class
             if ( ofClass )
             {
-                Node* parentCls = getParentClass(funCall->funDecl()->context);
+                Node* parentCls = getParentClass(n->referredNodes[0]->context);
                 if ( parentCls != ofClass )
                     continue;
             }
@@ -63,12 +57,11 @@ namespace
             if ( checkThis )
             {
                 // If we have a MemLoad, just ignore it
-                MemLoad* ml = thisArg->as<MemLoad>();
-                if ( ml )
-                    thisArg = ml->argument()->explanation();
+                if ( thisArg->nodeKind == nkFeatherExpMemLoad )
+                    thisArg = explanation(thisArg->children[0]);
 
-                VarRef* varRef = thisArg->as<VarRef>();
-                if ( !varRef || getName(varRef->variable()->node()) != "$this" )
+                if ( !thisArg || thisArg->nodeKind != nkFeatherExpVarRef
+                    || getName(thisArg->referredNodes[0]) != "$this" )
                     continue;
             }
 
@@ -76,12 +69,11 @@ namespace
             if ( forField )
             {
                 // If we have a Bitcast, just ignore it
-                Bitcast* bc = thisArg->as<Bitcast>();
-                if ( bc )
-                    thisArg = bc->exp()->explanation();
+                if ( thisArg->nodeKind == nkFeatherExpBitcast )
+                    thisArg = explanation(thisArg->children[0]);
 
-                FieldRef* fieldRef = thisArg->as<FieldRef>();
-                if ( !fieldRef || fieldRef->field() != forField )
+                if ( !thisArg || thisArg->nodeKind != nkFeatherExpFieldRef
+                    || thisArg->referredNodes[0] != forField->node() )
                     continue;
             }
 

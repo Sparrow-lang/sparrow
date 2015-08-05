@@ -201,7 +201,7 @@ Node* CtModule::ctEvaluateExpression(Node* node)
 	    llvmExecutionEngine_->runFunction(f, args);
         llvmExecutionEngine_->freeMachineCodeForFunction(f);
 
-	    // Create a CtValue containing the data resulted from expression evaluation
+        // Create a CtValue containing the data resulted from expression evaluation
         TypeRef t = node->type;
         if ( !Feather::isCt(t) )
 	        t = Feather::changeTypeMode(t, modeCt, node->location);

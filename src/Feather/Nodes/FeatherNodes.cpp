@@ -2,18 +2,6 @@
 #include "FeatherNodes.h"
 #include "FeatherNodeCommonsCpp.h"
 
-#include "Exp/CtValue.h"
-#include "Exp/Null.h"
-#include "Exp/StackAlloc.h"
-#include "Exp/VarRef.h"
-#include "Exp/FieldRef.h"
-#include "Exp/FunRef.h"
-#include "Exp/FunCall.h"
-#include "Exp/MemLoad.h"
-#include "Exp/MemStore.h"
-#include "Exp/Bitcast.h"
-#include "Exp/Conditional.h"
-
 #include <Feather/FeatherTypes.h>
 
 #include <Util/Decl.h>
@@ -1080,26 +1068,6 @@ void Feather::initFeatherNodeKinds()
     nkFeatherStmtBreak = registerNodeKind("break", &Break_SemanticCheck, NULL, NULL, NULL);
     nkFeatherStmtContinue = registerNodeKind("continue", &Continue_SemanticCheck, NULL, NULL, NULL);
     nkFeatherStmtReturn = registerNodeKind("return", &Return_SemanticCheck, NULL, NULL, NULL);
-
-
-    CtValue::classNodeKindRef() = nkFeatherExpCtValue;
-    Null::classNodeKindRef() = nkFeatherExpNull;
-    StackAlloc::classNodeKindRef() = nkFeatherExpStackAlloc;
-    VarRef::classNodeKindRef() = nkFeatherExpVarRef;
-    FieldRef::classNodeKindRef() = nkFeatherExpFieldRef;
-    FunRef::classNodeKindRef() = nkFeatherExpFunRef;
-    FunCall::classNodeKindRef() = nkFeatherExpFunCall;
-    MemLoad::classNodeKindRef() = nkFeatherExpMemLoad;
-    MemStore::classNodeKindRef() = nkFeatherExpMemStore;
-    Bitcast::classNodeKindRef() = nkFeatherExpBitcast;
-    Conditional::classNodeKindRef() = nkFeatherExpConditional;
-    
-    // If::classNodeKindRef() = nkFeatherStmtIf;
-    // While::classNodeKindRef() = nkFeatherStmtWhile;
-    // Break::classNodeKindRef() = nkFeatherStmtBreak;
-    // Continue::classNodeKindRef() = nkFeatherStmtContinue;
-    // Return::classNodeKindRef() = nkFeatherStmtReturn;
-
 
     firstFeatherNodeKind = nkFeatherNop;
 }

@@ -10,7 +10,6 @@
 #include <Nodes/Decls/Generic.h>
 
 #include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Nodes/Exp/FunCall.h>
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/Util/Decl.h>
 
@@ -44,11 +43,11 @@ DynNode* SprFrontend::createCtorCall(const Location& loc, CompilationContext* co
             DynNode* tempVarConstruction = tempVarConstruction1 ? *tempVarConstruction1 : nullptr;
             if ( tempVarConstruction && tempVarConstruction->nodeKind() == nkFeatherExpFunCall )
             {
-                FunCall* fnCall = static_cast<FunCall*>(tempVarConstruction);
-                ASSERT(fnCall->arguments().size() >= 1);
+                Node* fnCall = tempVarConstruction->node();
+                ASSERT(fnCall->children.size() >= 1);
 
                 // This argument - make sure it's of the required type
-                Node* thisParam = Function_getParameter(fnCall->funDecl(), 0);
+                Node* thisParam = Function_getParameter(fnCall->referredNodes[0], 0);
                 TypeRef thisParamType = thisParam->type;
                 ConversionResult cvt = canConvert(thisArg, thisParamType);
                 if ( !cvt )
@@ -57,11 +56,11 @@ DynNode* SprFrontend::createCtorCall(const Location& loc, CompilationContext* co
 
                 // Create a new call based on the original temp var construction call, but changing the this argument
                 NodeVector args;
-                args.reserve(fnCall->arguments().size()+1);
+                args.reserve(fnCall->children.size()+1);
                 args.push_back(thisArg1);
-                for ( size_t i=1; i<fnCall->arguments().size(); ++i )
-                    args.push_back(fnCall->arguments()[i]->node());
-                Node* newCall = mkFunCall(loc, fnCall->funDecl(), move(args));
+                for ( size_t i=1; i<fnCall->children.size(); ++i )
+                    args.push_back(fnCall->children[i]);
+                Node* newCall = mkFunCall(loc, fnCall->referredNodes[0], move(args));
                 setContext(newCall, context);
                 return (DynNode*) newCall;
             }
@@ -183,16 +182,16 @@ DynNode* SprFrontend::createFunctionCall(const Location& loc, CompilationContext
 DynNode* SprFrontend::createTempVarConstruct(const Location& loc, CompilationContext* context, DynNode* constructAction, DynNode* var)
 {
     CHECK(loc, constructAction->nodeKind() == nkFeatherExpFunCall);
-    FunCall* funCall = static_cast<FunCall*>(constructAction);
-    CHECK(loc, !funCall->arguments().empty());
-    DynNode* thisArg = funCall->arguments()[0];
-    thisArg->computeType();
+    Node* funCall = constructAction->node();
+    CHECK(loc, !funCall->children.empty());
+    Node* thisArg = funCall->children[0];
+    computeType(thisArg);
 
     // Create a temp destruct action with the call of the destructor
     Node* destructAction = nullptr;
-    if ( !isCt(thisArg->node()) )
+    if ( !isCt(thisArg) )
     {
-        Node* dtorCall = createDtorCall(loc, context, thisArg)->node();
+        Node* dtorCall = createDtorCall(loc, context, (DynNode*) thisArg)->node();
         if ( dtorCall )
             destructAction = mkTempDestructAction(loc, dtorCall);
     }

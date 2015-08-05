@@ -7,8 +7,8 @@
 #include <NodeCommonsCpp.h>
 
 #include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Nodes/Exp/CtValue.h>
 #include <Feather/Util/Decl.h>
+#include <Feather/Util/Ct.h>
 
 
 using namespace SprFrontend;
@@ -235,11 +235,10 @@ TypeRef SprFrontend::tryGetTypeValue(DynNode* typeNode)
     
     if ( t == StdDef::typeRefType )
     {
-        DynNode* n = (DynNode*) theCompiler().ctEval(typeNode->node());
-        CtValue* ctVal = n->as<CtValue>();
-        if ( ctVal )
+        Node* n = theCompiler().ctEval(typeNode->node());
+        if ( n->nodeKind == nkFeatherExpCtValue )
         {
-            TypeRef** t = ctVal->value<TypeRef*>();
+            TypeRef** t = getCtValueData<TypeRef*>(n);
             if ( !t || !*t || !**t )
                 REP_ERROR(typeNode->location(), "No type was set for node");
             return **t;
@@ -247,11 +246,10 @@ TypeRef SprFrontend::tryGetTypeValue(DynNode* typeNode)
     }
     else if ( t == StdDef::typeType )
     {
-        DynNode* n = (DynNode*) theCompiler().ctEval(typeNode->node());
-        CtValue* ctVal = n->as<CtValue>();
-        if ( ctVal )
+        Node* n = theCompiler().ctEval(typeNode->node());
+        if ( n->nodeKind == nkFeatherExpCtValue )
         {
-            TypeRef* t = ctVal->value<TypeRef>();
+            TypeRef* t = getCtValueData<TypeRef>(n);
             if ( !t || !*t )
                 REP_ERROR(typeNode->location(), "No type was set for node");
             return *t;

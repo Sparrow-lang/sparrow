@@ -14,12 +14,6 @@
 #include "Exp/Bitcast.h"
 #include "Exp/Conditional.h"
 
-#include "Stmt/If.h"
-#include "Stmt/While.h"
-#include "Stmt/Break.h"
-#include "Stmt/Continue.h"
-#include "Stmt/Return.h"
-
 #include <Feather/FeatherTypes.h>
 
 #include <Util/Decl.h>
@@ -1100,11 +1094,11 @@ void Feather::initFeatherNodeKinds()
     Bitcast::classNodeKindRef() = nkFeatherExpBitcast;
     Conditional::classNodeKindRef() = nkFeatherExpConditional;
     
-    If::classNodeKindRef() = nkFeatherStmtIf;
-    While::classNodeKindRef() = nkFeatherStmtWhile;
-    Break::classNodeKindRef() = nkFeatherStmtBreak;
-    Continue::classNodeKindRef() = nkFeatherStmtContinue;
-    Return::classNodeKindRef() = nkFeatherStmtReturn;
+    // If::classNodeKindRef() = nkFeatherStmtIf;
+    // While::classNodeKindRef() = nkFeatherStmtWhile;
+    // Break::classNodeKindRef() = nkFeatherStmtBreak;
+    // Continue::classNodeKindRef() = nkFeatherStmtContinue;
+    // Return::classNodeKindRef() = nkFeatherStmtReturn;
 
 
     firstFeatherNodeKind = nkFeatherNop;

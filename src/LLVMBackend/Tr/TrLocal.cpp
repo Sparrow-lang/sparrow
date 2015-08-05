@@ -24,11 +24,6 @@
 #include <Feather/Nodes/Exp/Bitcast.h>
 #include <Feather/Nodes/Exp/Conditional.h>
 #include <Feather/Nodes/Exp/Null.h>
-#include <Feather/Nodes/Stmt/Return.h>
-#include <Feather/Nodes/Stmt/If.h>
-#include <Feather/Nodes/Stmt/While.h>
-#include <Feather/Nodes/Stmt/Break.h>
-#include <Feather/Nodes/Stmt/Continue.h>
 #include <Feather/Nodes/Properties.h>
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/Util/Context.h>
@@ -961,13 +956,14 @@ namespace
     // Statements
     //
 
-    llvm::Value* translate(Return& node, TrContext& context)
+    llvm::Value* translateReturn(Node* node, TrContext& context)
     {
         llvm::Value* retVal = nullptr;
-        if ( node.expression() )
+        Node* expression = node->children[0];
+        if ( expression )
         {
-            retVal = translateNode(node.expression()->node(), context);
-            CHECK(node.expression()->location(), retVal);
+            retVal = translateNode(expression, context);
+            CHECK(expression->location, retVal);
             llvm::Function* f = context.parentFun();
             if ( f->hasStructRetAttr() )
             {
@@ -987,12 +983,16 @@ namespace
         return nullptr;
     }
 
-    llvm::Value* translate(If& node, TrContext& context)
+    llvm::Value* translateIf(Node* node, TrContext& context)
     {
+        Node* condition = node->children[0];
+        Node* thenClause = node->children[1];
+        Node* elseClause = node->children[2];
+
         // Create the different blocks
         llvm::BasicBlock* ifBlock = llvm::BasicBlock::Create(context.llvmContext(), "if_block", context.parentFun());
-        llvm::BasicBlock* thenBlock = node.thenClause() ? llvm::BasicBlock::Create(context.llvmContext(), "if_then", context.parentFun()) : nullptr;
-        llvm::BasicBlock* elseBlock = node.elseClause() ? llvm::BasicBlock::Create(context.llvmContext(), "if_else", context.parentFun()) : nullptr;
+        llvm::BasicBlock* thenBlock = thenClause ? llvm::BasicBlock::Create(context.llvmContext(), "if_then", context.parentFun()) : nullptr;
+        llvm::BasicBlock* elseBlock = elseClause ? llvm::BasicBlock::Create(context.llvmContext(), "if_else", context.parentFun()) : nullptr;
         llvm::BasicBlock* afterBlock = llvm::BasicBlock::Create(context.llvmContext(), "if_end", context.parentFun());
         if ( !thenBlock )
             thenBlock = afterBlock;
@@ -1006,32 +1006,32 @@ namespace
             context.setInsertionPoint(ifBlock);
 
             // Translate the condition expression
-            llvm::Value* condValue = translateNode(node.condition()->node(), context);
-            CHECK(node.condition()->location(), condValue);
+            llvm::Value* condValue = translateNode(condition, context);
+            CHECK(condition->location, condValue);
             context.ensureInsertionPoint();
             context.builder().CreateCondBr(condValue, thenBlock, elseBlock);
 
             // Translate the then branch
-            if ( node.thenClause() )
+            if ( thenClause )
             {
                 ASSERT(thenBlock);
                 context.setInsertionPoint(thenBlock);
                 {
                     Instruction instrGuard(context);
-                    translateNode(node.thenClause()->node(), context);
+                    translateNode(thenClause, context);
                 }
                 context.ensureInsertionPoint();
                 context.builder().CreateBr(afterBlock);
             }
 
             // Translate the else branch
-            if ( node.elseClause() )
+            if ( elseClause )
             {
                 ASSERT(elseBlock);
                 context.setInsertionPoint(elseBlock);
                 {
                     Instruction instrGuard(context);
-                    translateNode(node.elseClause()->node(), context);
+                    translateNode(elseClause, context);
                 }
                 context.ensureInsertionPoint();
                 context.builder().CreateBr(afterBlock);
@@ -1042,10 +1042,14 @@ namespace
         return nullptr;
     }
 
-    llvm::Value* translate(While& node, TrContext& context)
+    llvm::Value* translateWhile(Node* node, TrContext& context)
     {
+        Node* condition = node->children[0];
+        Node* step = node->children[1];
+        Node* body = node->children[2];
+
         // Create a new scope for the while instruction
-        Scope scopeGuard(context, node.location());
+        Scope scopeGuard(context, node->location);
         Instruction instructionGuard(context);
 
         // Create the different blocks
@@ -1056,9 +1060,9 @@ namespace
 
         // Store the step & the end labels (blocks) in the object
         ASSERT(!context.scopesStack().empty());
-        context.module().setNodeProperty(node.node(), Module::propWhileInstr, boost::any(&scopeGuard));
-        context.module().setNodeProperty(node.node(), Module::propWhileStepLabel, boost::any(whileStep));
-        context.module().setNodeProperty(node.node(), Module::propWhileEndLabel, boost::any(whileEnd));
+        context.module().setNodeProperty(node, Module::propWhileInstr, boost::any(&scopeGuard));
+        context.module().setNodeProperty(node, Module::propWhileStepLabel, boost::any(whileStep));
+        context.module().setNodeProperty(node, Module::propWhileEndLabel, boost::any(whileEnd));
 
         // Jump in the while block
         {
@@ -1067,25 +1071,25 @@ namespace
 
             // Translate the condition
             context.setInsertionPoint(whileBlock);
-            llvm::Value* condValue = translateNode(node.condition()->node(), context);
-            CHECK(node.condition()->location(), condValue);
+            llvm::Value* condValue = translateNode(condition, context);
+            CHECK(condition->location, condValue);
             context.ensureInsertionPoint();
             context.builder().CreateCondBr(condValue, whileBody, whileEnd);
 
             // Translate the body and the step instruction
             context.setInsertionPoint(whileBody);
-            if ( node.body() )
+            if ( body )
             {
                 Instruction instrGuard(context);
-                translateNode(node.body()->node(), context);
+                translateNode(body, context);
             }
             context.ensureInsertionPoint();
             context.builder().CreateBr(whileStep);
             context.setInsertionPoint(whileStep);
-            if ( node.step() )
+            if ( step )
             {
                 Instruction instrGuard(context);
-                translateNode(node.step()->node(), context);
+                translateNode(step, context);
             }
 
             // Translate the end - jump to the beginning of the while
@@ -1097,21 +1101,21 @@ namespace
         return nullptr;
     }
 
-    llvm::Value* translate(Break& node, TrContext& context)
+    llvm::Value* translateBreak(Node* node, TrContext& context)
     {
-        DynNode* whileNode = node.loop();
-        CHECK(node.location(), whileNode);
+        Node* whileNode = getCheckPropertyNode(node, "loop");
+        CHECK(node->location, whileNode);
 
         // Get the instruction guard for the while instruction
-        Scope** whileInstr = context.module().getNodePropertyValue<Scope*>(whileNode->node(), Module::propWhileInstr);
-        CHECK(node.location(), whileInstr);
+        Scope** whileInstr = context.module().getNodePropertyValue<Scope*>(whileNode, Module::propWhileInstr);
+        CHECK(node->location, whileInstr);
 
         // Translate the destruct actions until the while instruction
         unwind(context, *whileInstr);
 
         // Get the while's end label
-        llvm::BasicBlock** endLabel = context.module().getNodePropertyValue<llvm::BasicBlock*>(whileNode->node(), Module::propWhileEndLabel);
-        CHECK(node.location(), endLabel);
+        llvm::BasicBlock** endLabel = context.module().getNodePropertyValue<llvm::BasicBlock*>(whileNode, Module::propWhileEndLabel);
+        CHECK(node->location, endLabel);
 
         // Create a jump to the end-of-while label
         context.ensureInsertionPoint();
@@ -1121,21 +1125,21 @@ namespace
         return nullptr;
     }
 
-    llvm::Value* translate(Continue& node, TrContext& context)
+    llvm::Value* translateContinue(Node* node, TrContext& context)
     {
-        DynNode* whileNode = node.loop();
-        CHECK(node.location(), whileNode);
+        Node* whileNode = getCheckPropertyNode(node, "loop");
+        CHECK(node->location, whileNode);
 
         // Get the instruction guard for the while instruction
-        Scope** whileInstr = context.module().getNodePropertyValue<Scope*>(whileNode->node(), Module::propWhileInstr);
-        CHECK(node.location(), whileInstr);
+        Scope** whileInstr = context.module().getNodePropertyValue<Scope*>(whileNode, Module::propWhileInstr);
+        CHECK(node->location, whileInstr);
 
         // Translate the destruct actions until the while instruction
         unwind(context, *whileInstr);
 
         // Get the while's step label
-        llvm::BasicBlock** stepLabel = context.module().getNodePropertyValue<llvm::BasicBlock*>(whileNode->node(), Module::propWhileStepLabel);
-        CHECK(node.location(), stepLabel);
+        llvm::BasicBlock** stepLabel = context.module().getNodePropertyValue<llvm::BasicBlock*>(whileNode, Module::propWhileStepLabel);
+        CHECK(node->location, stepLabel);
 
         // Create a jump to the while-step label
         context.ensureInsertionPoint();
@@ -1222,11 +1226,11 @@ llvm::Value* Tr::translateNode(Node* node, TrContext& context)
     case nkRelFeatherExpBitcast:                       return translate((Bitcast&) *node, context);
     case nkRelFeatherExpConditional:                   return translate((Conditional&) *node, context);
     case nkRelFeatherExpNull:                          return translate((Null&) *node, context);
-    case nkRelFeatherStmtReturn:                       return translate((Return&) *node, context);
-    case nkRelFeatherStmtIf:                           return translate((If&) *node, context);
-    case nkRelFeatherStmtWhile:                        return translate((While&) *node, context);
-    case nkRelFeatherStmtBreak:                        return translate((Break&) *node, context);
-    case nkRelFeatherStmtContinue:                     return translate((Continue&) *node, context);
+    case nkRelFeatherStmtReturn:                       return translateReturn(node, context);
+    case nkRelFeatherStmtIf:                           return translateIf(node, context);
+    case nkRelFeatherStmtWhile:                        return translateWhile(node, context);
+    case nkRelFeatherStmtBreak:                        return translateBreak(node, context);
+    case nkRelFeatherStmtContinue:                     return translateContinue(node, context);
     case nkRelFeatherDeclVar:                          return translateVar(node, context);
     default:
         if ( node->nodeKind == DestructActionForConditional::classNodeKind() )

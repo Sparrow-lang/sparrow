@@ -5,11 +5,12 @@
 #include <Tr/TrType.h>
 
 #include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Nodes/Decls/Var.h>
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/FeatherTypes.h>
 
 #include <Nest/Common/TimingSystem.h>
+#include <Nest/Intermediate/Node.h>
+#include <Nest/Intermediate/Type.h>
 
 #ifdef _MSC_VER
 #pragma warning(push,1)
@@ -79,7 +80,7 @@ void CtModule::ctProcess(Node* node)
     switch ( node->nodeKind - firstFeatherNodeKind )
     {
     case nkRelFeatherExpCtValue:   return;
-    case nkRelFeatherDeclVar:      ctProcessVariable((Var*) node); break;
+    case nkRelFeatherDeclVar:      ctProcessVariable(node); break;
     case nkRelFeatherDeclFunction: ctProcessFunction(node); break;
     case nkRelFeatherDeclClass:    ctProcessClass(node); break;
     case nkRelFeatherBackendCode:  ctProcessBackendCode(node); break;
@@ -139,7 +140,7 @@ CtModule::NodeFun CtModule::ctToRtTranslator() const
 }
 
 
-void CtModule::ctProcessVariable(Feather::Var* node)
+void CtModule::ctProcessVariable(Node* node)
 {
     Tr::translateGlobalVar(node, *this);
 	//llvmModule().dump();

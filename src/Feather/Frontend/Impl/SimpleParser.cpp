@@ -5,7 +5,6 @@
 
 #include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Nodes/Exp/AtomicOrdering.h>
-#include <Feather/Nodes/Decls/Var.h>
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/Util/Decl.h>
 #include <Feather/FeatherTypes.h>

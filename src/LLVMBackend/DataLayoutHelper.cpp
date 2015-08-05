@@ -2,11 +2,12 @@
 #include "DataLayoutHelper.h"
 #include <Tr/TrType.h>
 
-#include <Feather/Nodes/Decls/Var.h>
+#include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Nodes/Properties.h>
 #include <Feather/Util/Decl.h>
 #include <Feather/FeatherTypes.h>
 
+#include <Nest/Intermediate/Node.h>
 #include <Nest/Intermediate/Type.h>
 #include <Nest/CompilerSettings.h>
 #include <Nest/Compiler.h>
@@ -19,7 +20,7 @@ namespace
 {
     llvm::Type* getLLVMTypeForSize(TypeRef type, llvm::LLVMContext& llvmContext)
     {
-        // If the number of references is greater than zero, just return an aribitrary pointer type
+        // If the number of references is greater than zero, just return an arbitrary pointer type
         if ( type->numReferences > 0 )
             return llvm::PointerType::get(llvm::IntegerType::get(llvmContext, 32), 0);
 
@@ -33,7 +34,7 @@ namespace
             REP_ERROR(NOLOC, "Cannot compute size of a type which has no storage: %1%") % type;
 
         Node* clsDecl = type->referredNode;
-        ASSERT(clsDecl && clsDecl->nodeKind == nkFeatherDeclClass);
+        ASSERT(clsDecl && clsDecl->nodeKind == Feather::nkFeatherDeclClass);
         if ( !clsDecl->type )
             REP_INTERNAL(clsDecl->location, "Class %1% doesn't have type computed, while computing its size") % getName(clsDecl);
 

@@ -2,8 +2,6 @@
 
 #include "Module.h"
 
-FWD_CLASS1(Feather, Var);
-
 FWD_CLASS1(llvm, ExecutionEngine);
 FWD_CLASS1(llvm, Function);
 
@@ -35,7 +33,7 @@ namespace LLVMB { namespace Tr
         virtual NodeFun ctToRtTranslator() const;
 
     private:
-		void ctProcessVariable(Feather::Var* node);
+		void ctProcessVariable(Node* node);
 		void ctProcessFunction(Node* node);
 		void ctProcessClass(Node* node);
 		void ctProcessBackendCode(Node* node);

@@ -7,11 +7,12 @@
 #include "Module.h"
 #include "Tr/DebugInfo.h"
 
+#include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Nodes/Properties.h>
-#include <Feather/Nodes/Decls/Var.h>
 #include <Feather/Util/Decl.h>
 #include <Feather/Util/Context.h>
 
+#include <Nest/Intermediate/Node.h>
 #include <Nest/Intermediate/Type.h>
 #include <Nest/Common/Diagnostic.h>
 #include <Nest/Compiler.h>
@@ -190,14 +191,14 @@ llvm::Function* Tr::translateFunction(Node* node, Module& module)
         for ( auto argIt=f->arg_begin(); argIt!=f->arg_end(); ++argIt, ++idx )
         {
             Node* paramNode = Function_getParameter(node, idx);
-            Var* param = ((DynNode*) paramNode)->explanation()->as<Var>();
+            Node* param = ofKind(explanation(paramNode), nkFeatherDeclVar);
             if ( !param )
                 REP_INTERNAL(paramNode->location, "Expected Var node; found %1%") % paramNode;
-            llvm::AllocaInst* newVar = new llvm::AllocaInst(argIt->getType(), getName(param->node())+".addr", bodyBlock);
-            newVar->setAlignment(param->alignment());
+            llvm::AllocaInst* newVar = new llvm::AllocaInst(argIt->getType(), getName(param)+".addr", bodyBlock);
+            newVar->setAlignment(getCheckPropertyInt(param, "alignment"));
             new llvm::StoreInst(argIt, newVar, bodyBlock); // Copy the value of the parameter into it
-            module.setNodeProperty(param->node(), Module::propValue, boost::any(newVar));
-            Tr::setValue(module, *param->node(), newVar); // We point now to the new temp variable
+            module.setNodeProperty(param, Module::propValue, boost::any(newVar));
+            Tr::setValue(module, *param, newVar); // We point now to the new temp variable
         }
 
         // Translate the body

@@ -2,8 +2,6 @@
 #include "FeatherNodes.h"
 #include "FeatherNodeCommonsCpp.h"
 
-#include "Decls/Var.h"
-
 #include "Exp/CtValue.h"
 #include "Exp/Null.h"
 #include "Exp/StackAlloc.h"
@@ -1090,8 +1088,6 @@ void Feather::initFeatherNodeKinds()
     nkFeatherStmtReturn = registerNodeKind("return", &Return_SemanticCheck, NULL, NULL, NULL);
 
 
-    Var::classNodeKindRef() = nkFeatherDeclVar;
-    
     CtValue::classNodeKindRef() = nkFeatherExpCtValue;
     Null::classNodeKindRef() = nkFeatherExpNull;
     StackAlloc::classNodeKindRef() = nkFeatherExpStackAlloc;

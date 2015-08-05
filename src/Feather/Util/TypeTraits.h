@@ -1,6 +1,7 @@
 #pragma once
 
 FWD_CLASS1(Feather, DynNode);
+FWD_CLASS1(Nest, CompilationContext);
 
 #include <Nest/Intermediate/TypeRef.h>
 #include <Nest/Intermediate/EvalMode.h>

@@ -29,7 +29,6 @@
 #include <Feather/Nodes/Stmt/While.h>
 #include <Feather/Nodes/Stmt/Break.h>
 #include <Feather/Nodes/Stmt/Continue.h>
-#include <Feather/Nodes/Decls/Var.h>
 #include <Feather/Nodes/Properties.h>
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/Util/Context.h>
@@ -723,7 +722,7 @@ namespace
             if ( node.variable()->nodeKind() != nkFeatherDeclVar )
                 REP_INTERNAL(node.variable()->location(), "Cannot find variable %1%") % getName(node.variable()->node());
 
-            varVal = Tr::translateGlobalVar((Var*) node.variable(), context.module());
+            varVal = Tr::translateGlobalVar(node.variable()->node(), context.module());
             if ( !varVal )
             {
                 if ( effectiveEvalMode(node.variable()->node()) == modeCt && !context.module().isCt() )
@@ -1151,16 +1150,17 @@ namespace
     // Local declarations
     //
 
-    llvm::Value* translate(Var& node, TrContext& context)
+    llvm::Value* translateVar(Node* node, TrContext& context)
     {
 		ASSERT(context.parentFun());
 
         // Create an 'alloca' instruction for the local variable
-        llvm::Type* t = Tr::getLLVMType(node.type(), context.module());
-		llvm::AllocaInst* val = context.addVariable(t, getName(node.node()).c_str());
-		if ( node.alignment() > 0 )
-			val->setAlignment(node.alignment());
-		return setValue(context.module(), node.data_, val);
+        llvm::Type* t = Tr::getLLVMType(node->type, context.module());
+		llvm::AllocaInst* val = context.addVariable(t, getName(node).c_str());
+        int alignment = getCheckPropertyInt(node, "alignment");
+		if ( alignment > 0 )
+			val->setAlignment(alignment);
+		return setValue(context.module(), *node, val);
     }
 
 
@@ -1227,7 +1227,7 @@ llvm::Value* Tr::translateNode(Node* node, TrContext& context)
     case nkRelFeatherStmtWhile:                        return translate((While&) *node, context);
     case nkRelFeatherStmtBreak:                        return translate((Break&) *node, context);
     case nkRelFeatherStmtContinue:                     return translate((Continue&) *node, context);
-    case nkRelFeatherDeclVar:                          return translate((Var&) *node, context);
+    case nkRelFeatherDeclVar:                          return translateVar(node, context);
     default:
         if ( node->nodeKind == DestructActionForConditional::classNodeKind() )
             return translate((DestructActionForConditional&) *node, context);

@@ -49,8 +49,6 @@ SET(sourceFiles
     "Nodes/Stmt/Continue.cpp"
     "Nodes/Stmt/Return.h"
     "Nodes/Stmt/Return.cpp"
-    "Nodes/Decls/Var.h"
-    "Nodes/Decls/Var.cpp"
     "Nodes/Decls/CallConvention.h"
     "Util/Context.h"
     "Util/Context.cpp"

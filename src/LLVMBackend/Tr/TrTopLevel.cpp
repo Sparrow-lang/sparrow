@@ -5,13 +5,14 @@
 #include "TrLocal.h"
 #include "Module.h"
 
+#include <Nest/Intermediate/Node.h>
 #include <Nest/Intermediate/Type.h>
 #include <Nest/Common/Diagnostic.h>
 #include <Nest/Compiler.h>
 #include <Nest/CompilerSettings.h>
 
+#include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Nodes/Properties.h>
-#include <Feather/Nodes/Decls/Var.h>
 #include <Feather/Util/Decl.h>
 
 #ifdef _MSC_VER
@@ -78,7 +79,7 @@ void Tr::translateTopLevelNode(Node* node, Module& module)
         case nkRelFeatherGlobalConstructAction:    translateGlobalConstructAction(node, module); break;
         case nkRelFeatherDeclClass:                translateClass(node, module); break;
         case nkRelFeatherDeclFunction:             translateFunction(node, module); break;
-        case nkRelFeatherDeclVar:                  translateGlobalVar((Var*) node, module); break;
+        case nkRelFeatherDeclVar:                  translateGlobalVar(node, module); break;
         default:
             REP_ERROR(node->location, "Don't know how to interpret a node of this kind (%1%)") % Nest::nodeKindName(node);
         }
@@ -166,25 +167,25 @@ llvm::Type* Tr::translateClass(Node* node, Module& module)
     return t;
 }
 
-llvm::Value* Tr::translateGlobalVar(Feather::Var* node, Module& module)
+llvm::Value* Tr::translateGlobalVar(Node* node, Module& module)
 {
     // Check for ct/non-ct compatibility
-    if ( !module.canUse(node->node()) )
+    if ( !module.canUse(node) )
         return nullptr;
 
-    if ( node->nodeKind() != nkFeatherDeclVar )
-        REP_ERROR(node->location(), "Invalid global variable %1%") % getName(node->node());
+    if ( node->nodeKind != nkFeatherDeclVar )
+        REP_ERROR(node->location, "Invalid global variable %1%") % getName(node);
 
     // If we already translated this variable, make sure not to translate it again
-    llvm::Value* val = getValue(module, *node->node(), false);
+    llvm::Value* val = getValue(module, *node, false);
     if ( val )
         return val;
 
-    llvm::Type* t = getLLVMType(node->type(), module);
+    llvm::Type* t = getLLVMType(node->type, module);
 
     // Check if the variable has been declared before; if not, create it
     llvm::GlobalVariable* var = nullptr;
-    const string* nativeName = node->getPropertyString(propNativeName);
+    const string* nativeName = getPropertyString(node, propNativeName);
     if ( nativeName )
         var = module.llvmModule().getGlobalVariable(*nativeName);
     if ( !var )
@@ -195,7 +196,7 @@ llvm::Value* Tr::translateGlobalVar(Feather::Var* node, Module& module)
             false, // isConstant
             llvm::GlobalValue::ExternalLinkage, // linkage
             0, // initializer - specified below
-            getName(node->node())
+            getName(node)
             );
     }
 
@@ -218,11 +219,11 @@ llvm::Value* Tr::translateGlobalVar(Feather::Var* node, Module& module)
     }
     else
     {
-        REP_ERROR(node->location(), "Don't know how to create zero initializer for the variable of type %1%")
-            % node->type();
+        REP_ERROR(node->location, "Don't know how to create zero initializer for the variable of type %1%")
+            % node->type;
     }
 
     // Set the value for the variable
-    setValue(module, *node->node(), var);
+    setValue(module, *node, var);
     return var;
 }

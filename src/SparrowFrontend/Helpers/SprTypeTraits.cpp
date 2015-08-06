@@ -128,7 +128,7 @@ Nest::TypeRef SprFrontend::doDereference1(Node* arg, Node*& cvt)
     }
     return getDataType(t->referredNode, 0, t->mode);  // Zero references
 }
-Nest::TypeRef SprFrontend::doDereference1(Feather::DynNode* arg, Feather::DynNode*& cvt)
+Nest::TypeRef SprFrontend::doDereference1(DynNode* arg, DynNode*& cvt)
 {
     cvt = arg;
 
@@ -278,7 +278,7 @@ DynNode* SprFrontend::createTypeNode(CompilationContext* context, const Location
     return (DynNode*) res;
 }
 
-Nest::TypeRef SprFrontend::getAutoType(Feather::DynNode* typeNode, bool addRef)
+Nest::TypeRef SprFrontend::getAutoType(DynNode* typeNode, bool addRef)
 {
     TypeRef t = typeNode->type();
     

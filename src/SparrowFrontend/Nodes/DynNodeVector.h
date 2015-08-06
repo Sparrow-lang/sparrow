@@ -6,7 +6,7 @@ namespace Nest
     typedef vector<Node*> NodeVector;
 }
 
-namespace Feather
+namespace SprFrontend
 {
     class DynNode;
     typedef vector<DynNode*> DynNodeVector;

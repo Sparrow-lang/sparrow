@@ -1,11 +1,11 @@
 #pragma once
 
-#include <Feather/Nodes/DynNode.h>
+#include <Nodes/DynNode.h>
 
 namespace SprFrontend
 {
     /// Class that represents a lambda function expression
-    class LambdaFunction : public Feather::DynNode
+    class LambdaFunction : public DynNode
     {
         DEFINE_NODE(LambdaFunction, nkSparrowExpLambdaFunction, "Sparrow.Exp.LambdaFunction");
 

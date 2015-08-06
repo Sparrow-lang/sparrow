@@ -14,7 +14,7 @@ namespace SprFrontend
         Feather::NodeVector decls, Feather::NodeVector args,
         bool reportErrors, const string& funName);
     DynNode* selectOverload(CompilationContext* context, const Location& loc, Nest::EvalMode evalMode,
-        Feather::DynNodeVector decls, Feather::DynNodeVector args,
+        DynNodeVector decls, DynNodeVector args,
         bool reportErrors, const string& funName);
 
     /// Try to search for a conversion constructor of the given class that can take the given argument

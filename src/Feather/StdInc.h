@@ -7,5 +7,3 @@
 #include <Nest/Frontend/Location.h>
 #include <Nest/Intermediate/Type.h>
 #include <Nest/Intermediate/CompilationContext.h>
-
-#include <Feather/Nodes/DynNode.h>

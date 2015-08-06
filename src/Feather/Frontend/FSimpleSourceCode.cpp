@@ -4,6 +4,7 @@
 #include "Impl/SimpleParser.h"
 
 #include <Nest/Common/Diagnostic.h>
+#include <Nest/Intermediate/Node.h>
 
 #include <Nest/Compiler.h>
 #include <Nest/Frontend/FrontendFactory.h>
@@ -62,7 +63,7 @@ void FSimpleSourceCode::parse(CompilationContext* context)
     SimpleParser parser(*lexer_);
 
     // Parse the file
-    iCode_ = parser.parse(context)->node();
+    iCode_ = parser.parse(context);
 }
 
 string FSimpleSourceCode::getSourceCodeLine(int lineNo) const

@@ -32,6 +32,6 @@ namespace SprFrontend
     /// Creates the Type class & corresponding type; we need it before loading anything else
     void initTypeType(Nest::CompilationContext* ctx);
     
-    void checkStdClass(Feather::DynNode* cls);
-    void checkStdFunction(Feather::DynNode* cls);
+    void checkStdClass(DynNode* cls);
+    void checkStdFunction(DynNode* cls);
 }

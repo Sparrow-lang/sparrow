@@ -4,6 +4,7 @@
 #include <Feather/Util/Decl.h>
 #include <Feather/FeatherTypes.h>
 
+#include <Nest/Intermediate/Node.h>
 #include <Nest/Intermediate/CompilationContext.h>
 #include <Nest/Common/Diagnostic.h>
 

@@ -3,7 +3,6 @@
 #include <Nest/Intermediate/EvalMode.h>
 
 FWD_CLASS1(Nest, CompilationContext);
-FWD_CLASS1(Feather, DynNode);
 
 namespace Feather
 {

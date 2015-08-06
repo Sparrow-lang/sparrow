@@ -259,7 +259,7 @@ Node* SprFrontend::mkFunApplication(const Location& loc, Node* base, Node* argum
 }
 Node* SprFrontend::mkFunApplication(const Location& loc, Node* base, NodeVector arguments)
 {
-    return (new FunApplication(loc, (DynNode*) base, Feather::toDyn(move(arguments))))->node();
+    return (new FunApplication(loc, (DynNode*) base, toDyn(move(arguments))))->node();
 }
 Node* SprFrontend::mkOperatorCall(const Location& loc, Node* arg1, string op, Node* arg2)
 {
@@ -412,15 +412,15 @@ Node* SprFrontend::mkReturnStmt(const Location& loc, Node* exp)
 
 Node* SprFrontend::mkDeclExp(const Location& loc, NodeVector decls, Node* baseExp)
 {
-    return (new DeclExp(loc, Feather::toDyn(move(decls)), (DynNode*) baseExp))->node();
+    return (new DeclExp(loc, toDyn(move(decls)), (DynNode*) baseExp))->node();
 }
 
 Node* SprFrontend::mkInstantiation(const Location& loc, NodeVector boundValues, NodeVector boundVars)
 {
-    return (new Instantiation(loc, Feather::toDyn(boundValues), Feather::toDyn(boundVars)))->node();
+    return (new Instantiation(loc, toDyn(boundValues), toDyn(boundVars)))->node();
 }
 
 Node* SprFrontend::mkInstantiationsSet(Node* parentNode, NodeVector params, Node* ifClause)
 {
-    return (new InstantiationsSet((DynNode*) parentNode, Feather::toDyn(move(params)), (DynNode*) ifClause))->node();
+    return (new InstantiationsSet((DynNode*) parentNode, toDyn(move(params)), (DynNode*) ifClause))->node();
 }

@@ -4,15 +4,14 @@
 #include <Nest/Intermediate/Type.h>
 #include <Nest/Intermediate/EvalMode.h>
 
-#include <Feather/Nodes/DynNode.h>
 #include "Nodes/FeatherNodes.h"
+
+FWD_CLASS1(Nest, Modifier);
 
 namespace Feather
 {
     using Nest::Location;
     using Nest::CompilationContext;
-    using Feather::DynNode;
-    using Feather::DynNodeVector;
     using Nest::TypeRef;
     using Nest::SymTab;
     using Nest::Modifier;

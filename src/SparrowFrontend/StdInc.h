@@ -7,7 +7,7 @@
 #include <Nest/Frontend/Location.h>
 #include <Nest/Intermediate/Type.h>
 
-#include <Feather/Nodes/DynNode.h>
+#include <Nodes/DynNode.h>
 
 // To speed up the compilation of the nodes
 #include "NodeCommonsCpp.h"

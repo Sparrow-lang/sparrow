@@ -3,7 +3,7 @@
 #include <Nest/Intermediate/NodeSer.h>
 #include <Nest/Common/NodeAllocator.h>
 
-using namespace Feather;
+using namespace SprFrontend;
 using namespace Nest;
 using namespace Nest::Common::Ser;
 
@@ -60,7 +60,7 @@ string DynNode::toString() const
 
 void DynNode::dump(ostream& os) const
 {
-    if ( data_.explanation && 0 != strcmp(Nest::nodeKindName(data_.explanation), "Feather.Nop") )
+    if ( data_.explanation && 0 != strcmp(Nest::nodeKindName(data_.explanation), "SprFrontend.Nop") )
         os << data_.explanation;
     else
     {
@@ -271,12 +271,12 @@ void DynNode::setExplanation(Node* explanation)
 }
 
 
-void Feather::save(const DynNode& obj, OutArchive& ar)
+void SprFrontend::save(const DynNode& obj, OutArchive& ar)
 {
     Nest::save(*obj.node(), ar);
 }
 
-void Feather::load(DynNode& obj, InArchive& ar)
+void SprFrontend::load(DynNode& obj, InArchive& ar)
 {
     Nest::load(*obj.node(), ar);
 }

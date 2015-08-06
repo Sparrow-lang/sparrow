@@ -11,6 +11,8 @@
 #include <Util/StringData.h>
 
 #include <Nest/Common/Diagnostic.h>
+#include <Nest/Intermediate/Node.h>
+#include <Nest/Intermediate/NodeKindRegistrar.h>
 #include <Nest/Intermediate/Modifier.h>
 
 

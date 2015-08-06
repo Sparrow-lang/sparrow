@@ -77,11 +77,6 @@ void Nest::initCopyNode(Node* node, const Node* srcNode)
 }
 
 
-bool Nest::isDynNode(Node* node)
-{
-    return node->nodeKind >= 0;
-}
-
 const char* Nest::toString(const Node* node)
 {
     return getToStringFun(node->nodeKind)(node);

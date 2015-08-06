@@ -2,14 +2,12 @@
 
 #include <Nest/Intermediate/EvalMode.h>
 #include <Nest/Intermediate/NodeVector.h>
-#include <Feather/Nodes/DynNode.h>
+#include <SparrowFrontend/Nodes/DynNode.h>
 #include <SparrowFrontend/Nodes/Decls/AccessType.h>
 
 namespace SprFrontend
 {
     using namespace Nest;
-    using Feather::DynNode;
-    using Feather::DynNodeVector;
 
     enum SparrowNodeKinds
     {

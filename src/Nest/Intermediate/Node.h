@@ -119,9 +119,6 @@ namespace Nest
     void initNode(Node* node, int nodeKind);
     void initCopyNode(Node* node, const Node* srcNode);
 
-    /// Returns true if this is a dynamic node (DynNode)
-    bool isDynNode(Node* node);
-
     /// Returns a string description out of the given node
     const char* toString(const Node* node);
 

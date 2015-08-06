@@ -3,6 +3,7 @@
 #include "Decl.h"
 #include <Nodes/Properties.h>
 #include <Nodes/FeatherNodes.h>
+#include <Nest/Intermediate/Node.h>
 #include <Nest/Intermediate/CompilationContext.h>
 #include <Nest/Intermediate/SymTab.h>
 
@@ -35,14 +36,15 @@ Node* Feather::getParentLoop(CompilationContext* context)
     Nest::SymTab* parentSymTab = context->currentSymTab();
     for ( ; parentSymTab; parentSymTab=parentSymTab->parent() )
     {
-        DynNode* n = (DynNode*) parentSymTab->node();
+        Node* n = parentSymTab->node();
         
         // Do we have a while node?
-        if ( n->explanation()->nodeKind() == nkFeatherStmtWhile )
-            return n->explanation()->node();
+        Node* expl = explanation(n);
+        if ( expl->nodeKind == nkFeatherStmtWhile )
+            return expl;
 
         // Stop if we encounter a declaration
-        if ( isDecl(n->node()) )
+        if ( isDecl(n) )
             return nullptr;
     }
     return nullptr;
@@ -51,8 +53,8 @@ Node* Feather::getParentLoop(CompilationContext* context)
 CompilationContext* Feather::getSymTabContext(CompilationContext* context)
 {
     Nest::SymTab* parentSymTab = context->currentSymTab();
-    DynNode* n = (DynNode*) parentSymTab->node();
-    return n ? n->childrenContext() : nullptr;
+    Node* n = parentSymTab->node();
+    return n ? childrenContext(n) : nullptr;
 }
 
 bool Feather::isLocal(CompilationContext* context)

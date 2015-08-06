@@ -2,6 +2,7 @@
 #include "Ct.h"
 #include <Feather/Nodes/FeatherNodes.h>
 #include <Nest/Common/Diagnostic.h>
+#include <Nest/Intermediate/Node.h>
 
 using namespace Feather;
 

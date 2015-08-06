@@ -5,7 +5,7 @@
 #include "DynNodeVector.h"
 
 
-namespace Feather
+namespace SprFrontend
 {
     /// Interface class for an intermediate code node
     class DynNode

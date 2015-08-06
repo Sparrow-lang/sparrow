@@ -5,8 +5,10 @@
 #include <Util/StringData.h>
 #include <Util/Context.h>
 
+#include <Nest/Intermediate/Node.h>
 #include <Nest/Backend/Backend.h>
 #include <Nest/Frontend/SourceCode.h>
+#include <Nest/Common/Diagnostic.h>
 
 using namespace Feather;
 using namespace Nest;

@@ -10,6 +10,7 @@
 #include <Feather/FeatherTypes.h>
 
 #include <Nest/Common/Diagnostic.h>
+#include <Nest/Intermediate/Node.h>
 #include <Nest/Intermediate/SymTab.h>
 #include <Nest/Intermediate/CompilationContext.h>
 
@@ -657,7 +658,6 @@ namespace
         // Read the parameters
         if ( !testIdentifier(srcNode->children()[1], "params") )
             REP_ERROR(srcNode->children()[1]->location(), "Expected params(...) as second argument to function");
-        DynNodeVector params;
         for ( auto p: srcNode->children()[1]->children() )
         {
             if ( !testIdentifier(p, "var") )
@@ -887,14 +887,14 @@ SimpleAstNode* SimpleParser::parseSourceNode()
     return node;
 }
 
-DynNode* SimpleParser::parse(CompilationContext* context)
+Node* SimpleParser::parse(CompilationContext* context)
 {
     return interpret(context, parseSourceNode());
 }
 
-DynNode* SimpleParser::interpret(CompilationContext* context, SimpleAstNode* srcNode)
+Node* SimpleParser::interpret(CompilationContext* context, SimpleAstNode* srcNode)
 {
     Node* n = interpretNode(context, srcNode);
     setContext(n, context);
-    return (DynNode*) n;
+    return n;
 }

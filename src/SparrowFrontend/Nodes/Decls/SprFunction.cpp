@@ -27,7 +27,7 @@ SprFunction::SprFunction(const Location& loc, string name, Node* parameters, Dyn
 {
     ASSERT( !parameters || parameters->nodeKind == nkFeatherNodeList );
     setName(node(), move(name));
-    setAccessType(this, accessType);
+    setAccessType(node(), accessType);
 }
 
 bool SprFunction::hasThisParameters() const
@@ -186,7 +186,7 @@ void SprFunction::doComputeType()
 
     // Compute the type of the return type node
     // We do this after the parameters, as the computation of the result might require access to the parameters
-    TypeRef resType = returnType ? getType(returnType) : getVoidType(thisEvalMode);
+    TypeRef resType = returnType ? getType(returnType->node()) : getVoidType(thisEvalMode);
     resType = adjustMode(resType, thisEvalMode, data_.childrenContext, data_.location);
 
     // If the parameter is a non-reference class, not basic numeric, add result parameter; otherwise, normal result
@@ -207,7 +207,7 @@ void SprFunction::doComputeType()
     data_.type = data_.explanation->type;
 
     // Check for Std functions
-    checkStdFunction(this);
+    checkStdFunction(node());
 }
 
 void SprFunction::doSemanticCheck()

@@ -54,7 +54,7 @@ void SprParameter::doSetContextForChildren()
 void SprParameter::doComputeType()
 {
     ASSERT(data_.children.size() == 2);
-    DynNode* typeNode = (DynNode*) data_.children[0];
+    Node* typeNode = data_.children[0];
 
     const TypeRef* givenType = getPropertyType("spr.givenType");
     TypeRef t = givenType ? *givenType : getType(typeNode);

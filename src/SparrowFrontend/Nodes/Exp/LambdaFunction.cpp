@@ -119,6 +119,6 @@ void LambdaFunction::doSemanticCheck()
     Nest::semanticCheck(closure);
 
     // Create a resulting object: a constructor call to our class
-    Node* classId = createTypeNode(data_.context, data_.location, getDataType(cls))->node();
+    Node* classId = createTypeNode(data_.context, data_.location, getDataType(cls));
     setExplanation(mkFunApplication(data_.location, classId, ctorArgs));
 }

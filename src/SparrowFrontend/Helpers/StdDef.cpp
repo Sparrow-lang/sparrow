@@ -55,50 +55,49 @@ void SprFrontend::initTypeType(CompilationContext* ctx)
     typeType = getDataType(clsType, 0, modeCt);
 }
 
-void SprFrontend::checkStdClass(DynNode* cls)
+void SprFrontend::checkStdClass(Node* cls)
 {
     if ( classesFound )
         return;
 
-    ASSERT(cls->nodeKind() == nkFeatherDeclClass);
-    Node* c = cls->node();
+    ASSERT(cls->nodeKind == nkFeatherDeclClass);
 
-    if ( getName(c) == "Void" )
-        StdDef::typeVoid = getDataType(c);
-    else if ( getName(c) == "Null" )
-        StdDef::typeNull = getDataType(c);
-    else if ( getName(c) == "Bool" )
+    if ( getName(cls) == "Void" )
+        StdDef::typeVoid = getDataType(cls);
+    else if ( getName(cls) == "Null" )
+        StdDef::typeNull = getDataType(cls);
+    else if ( getName(cls) == "Bool" )
     {
-        StdDef::clsBool = c;
-        StdDef::typeBool = getDataType(c);
+        StdDef::clsBool = cls;
+        StdDef::typeBool = getDataType(cls);
     }
-    else if ( getName(c) == "Byte" )
+    else if ( getName(cls) == "Byte" )
     {
-        StdDef::typeByte = getDataType(c);
-        StdDef::typeRefByte = getDataType(c, 1);
+        StdDef::typeByte = getDataType(cls);
+        StdDef::typeRefByte = getDataType(cls, 1);
     }
-    else if ( getName(c) == "Int" )
+    else if ( getName(cls) == "Int" )
     {
-        StdDef::typeInt = getDataType(c);
-        StdDef::typeRefInt = getDataType(c, 1);
+        StdDef::typeInt = getDataType(cls);
+        StdDef::typeRefInt = getDataType(cls, 1);
     }
-    else if ( getName(c) == "SizeType" )
+    else if ( getName(cls) == "SizeType" )
     {
-        StdDef::typeSizeType = getDataType(c);
-        StdDef::typeSizeTypeCt = getDataType(c, 0, modeCt);
+        StdDef::typeSizeType = getDataType(cls);
+        StdDef::typeSizeTypeCt = getDataType(cls, 0, modeCt);
     }
-    else if ( getName(c) == "Uninitialized" )
+    else if ( getName(cls) == "Uninitialized" )
     {
-        StdDef::clsUninitialized = c;
-        StdDef::typeUninitialized = getDataType(c);
+        StdDef::clsUninitialized = cls;
+        StdDef::typeUninitialized = getDataType(cls);
     }
-    else if ( getName(c) == "Type" )
+    else if ( getName(cls) == "Type" )
     {
-        StdDef::typeType = getDataType(c);
-        StdDef::typeRefType = getDataType(c, 1);
+        StdDef::typeType = getDataType(cls);
+        StdDef::typeRefType = getDataType(cls, 1);
     }
-    else if ( getName(c) == "StringRef" )
-        StdDef::typeStringRef = getDataType(c);
+    else if ( getName(cls) == "StringRef" )
+        StdDef::typeStringRef = getDataType(cls);
 
     classesFound = StdDef::typeVoid != nullptr
                 && StdDef::typeNull != nullptr
@@ -113,17 +112,17 @@ void SprFrontend::checkStdClass(DynNode* cls)
                 && StdDef::typeSizeTypeCt != nullptr;
 }
 
-void SprFrontend::checkStdFunction(DynNode* fun)
+void SprFrontend::checkStdFunction(Node* fun)
 {
     if ( functionsFound )
         return;
 
-    Node* f = resultingDecl(fun->node());
+    Node* f = resultingDecl(fun);
     ASSERT(f && f->nodeKind == nkFeatherDeclFunction);
 
-    if ( getName(fun->node()) == "_opRefEQ" )
+    if ( getName(fun) == "_opRefEQ" )
         StdDef::opRefEq = f;
-    if ( getName(fun->node()) == "_opRefNE" )
+    if ( getName(fun) == "_opRefNE" )
         StdDef::opRefNe = f;
 
     functionsFound = StdDef::opRefEq != nullptr && StdDef::opRefNe != nullptr;

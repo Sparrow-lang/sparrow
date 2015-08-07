@@ -63,7 +63,7 @@ boost::function<Nest::Node*(Nest::Node*)> SparrowSourceCode::ctToRtTranslator() 
     return &convertCtToRt;
 }
 
-DynNode* SparrowSourceCode::parseExpression(Location loc, const string& code) const
+Node* SparrowSourceCode::parseExpression(Location loc, const string& code) const
 {
     // Only use the start part of the location
     loc.setAsStartOf(loc);
@@ -75,7 +75,7 @@ DynNode* SparrowSourceCode::parseExpression(Location loc, const string& code) co
     int rc = parser.parse();
     if ( rc != 0 )
         REP_ERROR(loc, "Cannot parse the expression code");
-    return (DynNode*) res;
+    return res;
 }
 
 void SparrowSourceCode::registerSelf()

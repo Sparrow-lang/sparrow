@@ -13,7 +13,7 @@ Using::Using(const Location& loc, string alias, DynNode* usingNode, AccessType a
 {
     if ( !alias.empty() )
         Feather::setName(node(), move(alias));
-    setAccessType(this, accessType);
+    setAccessType(node(), accessType);
 }
 
 DynNode* Using::source() const
@@ -33,24 +33,24 @@ void Using::doSetContextForChildren()
 void Using::doComputeType()
 {
     ASSERT(data_.children.size() == 1);
-    DynNode* usingNode = (DynNode*) data_.children[0];
+    Node* usingNode = data_.children[0];
     const string* alias = getPropertyString("name");
 
     // Compile the using name
-    usingNode->semanticCheck();
+    Nest::semanticCheck(usingNode);
     
     if ( !alias || alias->empty() )
     {
         // Make sure that this node refers to one or more declaration
-        DynNode* baseExp;
-        DynNodeVector decls = getDeclsFromNode(usingNode, baseExp);
+        Node* baseExp;
+        NodeVector decls = getDeclsFromNode(usingNode, baseExp);
         if ( decls.empty() )
-            REP_ERROR(usingNode->location(), "Invalid using name - no declarations can be found");
+            REP_ERROR(usingNode->location, "Invalid using name - no declarations can be found");
 
         // Add references in the current symbol tab
-        for ( DynNode* decl: decls )
+        for ( Node* decl: decls )
         {
-            data_.context->currentSymTab()->enter(Feather::getName(decl->node()), decl->node());
+            data_.context->currentSymTab()->enter(Feather::getName(decl), decl);
         }
     }
     else
@@ -58,7 +58,7 @@ void Using::doComputeType()
         // We added this node to the current sym tab, as we set shouldAddToSymTab_ to true
     }
 
-    setExplanation((DynNode*) Feather::mkNop(data_.location));
+    setExplanation(Feather::mkNop(data_.location));
 }
 
 void Using::doSemanticCheck()

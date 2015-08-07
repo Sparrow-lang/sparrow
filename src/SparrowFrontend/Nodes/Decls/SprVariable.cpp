@@ -24,9 +24,9 @@ namespace
         varGlobal,
     };
 
-    TypeRef computeVarType(DynNode* parent, CompilationContext* ctx, DynNode* typeNode, DynNode* init)
+    TypeRef computeVarType(Node* parent, CompilationContext* ctx, Node* typeNode, Node* init)
     {
-        const Location& loc = parent->location();
+        const Location& loc = parent->location;
 
         TypeRef t = nullptr;
 
@@ -40,7 +40,7 @@ namespace
         else
         {
             // If no type node was given, maybe a type was given directly; if so, take it
-            const TypeRef* givenType = parent->getPropertyType("spr.givenType");
+            const TypeRef* givenType = getPropertyType(parent, "spr.givenType");
             t = givenType ? *givenType : nullptr;
         }
 
@@ -54,12 +54,12 @@ namespace
             if ( !init )
                 REP_ERROR(loc, "Initializer is requrired to deduce the type of the variable");
 
-            init->computeType();
+            Nest::computeType(init);
 
             // If still have a type (i.e, auto type), check for conversion
             if ( t && !canConvert(init, t) )
-                REP_ERROR(init->location(), "Initializer of the variable (%1%) cannot be converted to variable type (%2%)")
-                % init->type() % t;
+                REP_ERROR(init->location, "Initializer of the variable (%1%) cannot be converted to variable type (%2%)")
+                % init->type % t;
             
             t = getAutoType(init, isRefAuto);
         }
@@ -74,14 +74,14 @@ SprVariable::SprVariable(const Location& loc, string name, DynNode* typeNode, Dy
     : DynNode(classNodeKind(), loc, {typeNode, init})
 {
     setName(node(), move(name));
-    setAccessType(this, accessType);
+    setAccessType(node(), accessType);
 }
 
 SprVariable::SprVariable(const Location& loc, string name, TypeRef type, DynNode* init, AccessType accessType)
     : DynNode(classNodeKind(), loc, {nullptr, init})
 {
     setName(node(), move(name));
-    setAccessType(this, accessType);
+    setAccessType(node(), accessType);
     setProperty("spr.givenType", type);
 }
 
@@ -109,8 +109,8 @@ void SprVariable::doSetContextForChildren()
 void SprVariable::doComputeType()
 {
     ASSERT(data_.children.size() == 2);
-    DynNode* typeNode = (DynNode*) data_.children[0];
-    DynNode* init = (DynNode*) data_.children[1];
+    Node* typeNode = data_.children[0];
+    Node* init = data_.children[1];
 
     bool isStatic = hasProperty(propIsStatic);
 
@@ -137,7 +137,7 @@ void SprVariable::doComputeType()
     }
 
     // Get the type of the variable
-    TypeRef t = computeVarType(this, data_.childrenContext, typeNode, init);
+    TypeRef t = computeVarType(node(), data_.childrenContext, typeNode, init);
 
     // If the type of the variable indicates a variable that can only be CT, change the evalMode
     if ( t->mode == modeCt )
@@ -166,15 +166,15 @@ void SprVariable::doComputeType()
     bool isRef = t->numReferences > 0;
 
     // Generate the initialization and destruction calls
-    DynNode* ctorCall = nullptr;
-    DynNode* dtorCall = nullptr;
-    DynNode* varRef = nullptr;
+    Node* ctorCall = nullptr;
+    Node* dtorCall = nullptr;
+    Node* varRef = nullptr;
     if ( varKind != varField && (init || !isRef) )
     {
         ASSERT(resultingVar->type);
 
-        varRef = (DynNode*) mkVarRef(data_.location, resultingVar);
-        varRef->setContext(data_.childrenContext);
+        varRef = mkVarRef(data_.location, resultingVar);
+        Nest::setContext(varRef, data_.childrenContext);
 
         if ( !isRef )
         {
@@ -186,25 +186,25 @@ void SprVariable::doComputeType()
         else if ( init )   // Reference initialization
         {
             // Create an assignment operator
-            ctorCall = (DynNode*) mkOperatorCall(data_.location, varRef->node(), ":=", init->node());
+            ctorCall = mkOperatorCall(data_.location, varRef, ":=", init);
         }
     }
 
     // Set the explanation of this node
-    DynNode* expl = nullptr;
+    Node* expl = nullptr;
     if ( varKind == varField )
     {
         // For fields, just explain this as the resulting var
-        expl = (DynNode*) resultingVar;
+        expl = resultingVar;
     }
     else
     {
         // For local and global variables take into consideration the ctor and dtor calls
-        DynNode* resVar = (DynNode*) resultingVar;
+        Node* resVar = resultingVar;
         if ( varKind == varLocal )
         {
             // For local variables, add the ctor & dtor actions in the node list, and make this as explanation
-            dtorCall = dtorCall ? (DynNode*) mkScopeDestructAction(data_.location, dtorCall->node()) : nullptr;
+            dtorCall = dtorCall ? mkScopeDestructAction(data_.location, dtorCall) : nullptr;
         }
         else
         {
@@ -215,18 +215,18 @@ void SprVariable::doComputeType()
 
             // For global variables, add the ctor & dtor actions as top level actions
             if ( ctorCall )
-                ctorCall = (DynNode*) mkGlobalConstructAction(data_.location, ctorCall->node());
+                ctorCall = mkGlobalConstructAction(data_.location, ctorCall);
             if ( dtorCall )
-                dtorCall = (DynNode*) mkGlobalDestructAction(data_.location, dtorCall->node());
+                dtorCall = mkGlobalDestructAction(data_.location, dtorCall);
         }
-        expl = (DynNode*) mkNodeList(data_.location, { resVar->node(), ctorCall->node(), dtorCall->node(), mkNop(data_.location) });
+        expl = mkNodeList(data_.location, { resVar, ctorCall, dtorCall, mkNop(data_.location) });
     }
 
     ASSERT(expl);
-    expl->setContext(data_.childrenContext);
-    expl->computeType();
-    data_.explanation = expl->node();
-    data_.type = expl->type();
+    Nest::setContext(expl, data_.childrenContext);
+    Nest::computeType(expl);
+    data_.explanation = expl;
+    data_.type = expl->type;
 
     setProperty("spr.resultingVar", resultingVar);
 

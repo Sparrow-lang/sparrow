@@ -18,7 +18,7 @@ namespace
     ///
     /// It will search only the instructions directly inside the given local space, or in a child local space
     /// It will not search inside conditionals, or other instructions
-    bool hasCtorCall(Node* inSpace, Node* ofClass, bool checkThis, DynNode* forField)
+    bool hasCtorCall(Node* inSpace, Node* ofClass, bool checkThis, Node* forField)
     {
         // Check all the items in the local space
         for ( Node* n: inSpace->children )
@@ -73,7 +73,7 @@ namespace
                     thisArg = explanation(thisArg->children[0]);
 
                 if ( !thisArg || thisArg->nodeKind != nkFeatherExpFieldRef
-                    || thisArg->referredNodes[0] != forField->node() )
+                    || thisArg->referredNodes[0] != forField )
                     continue;
             }
 
@@ -83,27 +83,25 @@ namespace
     }
 }
 
-void IntModCtorMembers::beforeSemanticCheck(Node* n)
+void IntModCtorMembers::beforeSemanticCheck(Node* node)
 {
-    DynNode* node = (DynNode*) n;
-    
     /// Check to apply only to non-static constructors
-    SprFunction* fun = node->as<SprFunction>();
-    if ( !fun || getName(fun->node()) != "ctor" )
-        REP_INTERNAL(node->location(), "IntModCtorMembers modifier can be applied only to constructors");
+    if ( node->nodeKind != nkSparrowDeclSprFunction || getName(node) != "ctor" )
+        REP_INTERNAL(node->location, "IntModCtorMembers modifier can be applied only to constructors");
+    SprFunction* fun = (SprFunction*) node;
     if ( !fun->hasThisParameters() )
-        REP_INTERNAL(node->location(), "IntModCtorMembers cannot be applied to static constructors");
+        REP_INTERNAL(node->location, "IntModCtorMembers cannot be applied to static constructors");
 
     // If we have a body, make sure it's a local space
     if ( !fun->body() )
         return; // nothing to do
     Node* body = fun->body()->node();
     if ( body->nodeKind != nkFeatherLocalSpace )
-        REP_INTERNAL(node->location(), "Constructor body is not a local space (needed by IntModCtorMembers)");
+        REP_INTERNAL(node->location, "Constructor body is not a local space (needed by IntModCtorMembers)");
 
     // Get the class
     Node* cls = getParentClass(fun->context());
-    CHECK(node->location(), cls);
+    CHECK(node->location, cls);
 
     // If we are calling other constructor of this class, don't add any initialization
     if ( hasCtorCall(body, cls, true, nullptr) )
@@ -118,7 +116,7 @@ void IntModCtorMembers::beforeSemanticCheck(Node* n)
         if ( cls2 != cls )
             continue;
 
-        if ( !hasCtorCall(body, nullptr, false, (DynNode*) field) )
+        if ( !hasCtorCall(body, nullptr, false, field) )
         {
             Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
             Node* call = nullptr;

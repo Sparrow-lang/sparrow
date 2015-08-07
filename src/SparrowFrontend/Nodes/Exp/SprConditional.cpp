@@ -15,15 +15,15 @@ SprConditional::SprConditional(const Location& location, DynNode* condition, Dyn
 void SprConditional::doSemanticCheck()
 {
     ASSERT(data_.children.size() == 3);
-    DynNode* cond = (DynNode*) data_.children[0];
-    DynNode* alt1 = (DynNode*) data_.children[1];
-    DynNode* alt2 = (DynNode*) data_.children[2];
+    Node* cond = data_.children[0];
+    Node* alt1 = data_.children[1];
+    Node* alt2 = data_.children[2];
 
-    alt1->semanticCheck();
-    alt2->semanticCheck();
+    Nest::semanticCheck(alt1);
+    Nest::semanticCheck(alt2);
 
-    TypeRef t1 = alt1->type();
-    TypeRef t2 = alt2->type();
+    TypeRef t1 = alt1->type;
+    TypeRef t2 = alt2->type;
 
     // Get the common type
     TypeRef resType = commonType(data_.context, t1, t2);
@@ -37,6 +37,6 @@ void SprConditional::doSemanticCheck()
     alt1 = c1.apply(data_.context, alt1);
     alt2 = c2.apply(data_.context, alt2);
 
-    setExplanation((DynNode*) Feather::mkConditional(data_.location, cond->node(), alt1->node(), alt2->node()));
+    setExplanation(Feather::mkConditional(data_.location, cond, alt1, alt2));
 }
 

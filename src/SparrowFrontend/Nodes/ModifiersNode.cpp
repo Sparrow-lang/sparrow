@@ -72,9 +72,9 @@ void ModifiersNode::interpretModifiers()
         if ( modifierNodes->nodeKind == Feather::nkFeatherNodeList )
         {
             // Add the modifiers to the base node
-            forEachNodeInNodeList(modifierNodes, [&] (DynNode* modNode)
+            forEachNodeInNodeList(modifierNodes, [&] (Node* modNode)
             {
-                applyModifier(modNode->node());
+                applyModifier(modNode);
             });
         }
         else

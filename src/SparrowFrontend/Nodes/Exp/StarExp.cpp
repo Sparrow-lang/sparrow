@@ -12,27 +12,27 @@ StarExp::StarExp(const Location& loc, DynNode* base)
 
 void StarExp::doSemanticCheck()
 {
-    DynNode* base = (DynNode*) data_.children[0];
+    Node* base = data_.children[0];
 
     // For the base expression allow it to return DeclExp
-    base->setProperty(propAllowDeclExp, 1, true);
+    Nest::setProperty(base, propAllowDeclExp, 1, true);
 
     // Get the declarations from the base expression
-    base->semanticCheck();
-    DynNode* baseExp;
-    DynNodeVector baseDecls = getDeclsFromNode(base, baseExp);
+    Nest::semanticCheck(base);
+    Node* baseExp;
+    NodeVector baseDecls = getDeclsFromNode(base, baseExp);
     if ( baseDecls.empty() )
-        REP_ERROR(base->location(), "Invalid expression inside star expression (no referred declarations)");
+        REP_ERROR(base->location, "Invalid expression inside star expression (no referred declarations)");
 
     // Get the referred declarations
     NodeVector decls;
-    for ( DynNode* baseDecl: baseDecls )
+    for ( Node* baseDecl: baseDecls )
     {
         if ( !baseDecl )
             continue;
 
         // Get the sym tab from the base declaration
-        SymTab* baseSymTab = baseDecl->childrenContext()->currentSymTab();
+        SymTab* baseSymTab = Nest::childrenContext(baseDecl)->currentSymTab();
         if ( !baseSymTab )
             continue;
 

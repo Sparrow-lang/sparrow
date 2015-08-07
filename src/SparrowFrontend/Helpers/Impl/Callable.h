@@ -25,7 +25,7 @@ namespace SprFrontend
         /// The number of parameters of the callable
         virtual size_t paramsCount() const = 0;
         /// Returns the parameter at the given index
-        virtual DynNode* param(size_t idx) const = 0;
+        virtual Node* param(size_t idx) const = 0;
         /// The type of the parameter at the given index
         virtual TypeRef paramType(size_t idx) const;
         /// The evaluation mode of the callable (declaration)
@@ -36,30 +36,30 @@ namespace SprFrontend
 
         /// Checks if we can call this with the given arguments
         /// This method can cache some information needed by the 'generateCall'
-        virtual ConversionType canCall(CompilationContext* context, const Location& loc, const DynNodeVector& args, EvalMode evalMode, bool noCustomCvt = false);
+        virtual ConversionType canCall(CompilationContext* context, const Location& loc, const NodeVector& args, EvalMode evalMode, bool noCustomCvt = false);
 
         /// Same as above, but makes the check only on type, and not on the actual argument; doesn't cache any args_
         virtual ConversionType canCall(CompilationContext* context, const Location& loc, const vector<TypeRef>& argTypes, EvalMode evalMode, bool noCustomCvt = false);
 
         /// Generates the node that actually calls this callable
         /// This must be called only if 'canCall' method returned a success conversion type
-        virtual DynNode* generateCall(const Location& loc) = 0;
+        virtual Node* generateCall(const Location& loc) = 0;
 
     protected:
         Callable();
 
         /// If the parameter with the given index has a default value, this will return that expression
-        DynNode* paramDefaultVal(size_t idx) const;
+        Node* paramDefaultVal(size_t idx) const;
 
         /// Returns the arguments with the conversions applied
-        DynNodeVector argsWithConversion();
+        NodeVector argsWithConversion();
 
     protected:
         /// The context in which we may generate the call; set by 'canCall'
         CompilationContext* context_;
 
         /// The original arguments passed to 'canCall'
-        DynNodeVector args_;
+        NodeVector args_;
 
         /// The conversions needed for each argument; computed by 'canCall'
         vector<ConversionResult> conversions_;

@@ -128,50 +128,34 @@ Nest::TypeRef SprFrontend::doDereference1(Node* arg, Node*& cvt)
     }
     return getDataType(t->referredNode, 0, t->mode);  // Zero references
 }
-Nest::TypeRef SprFrontend::doDereference1(DynNode* arg, DynNode*& cvt)
-{
-    cvt = arg;
-
-    // If the base is an expression with a data type, treat this as a data access
-    TypeRef t = arg->type();
-    if ( !t->hasStorage )
-        return t;
-
-    // If we have N references apply N-1 dereferencing operations
-    for ( size_t i=1; i<t->numReferences; ++i )
-    {
-        cvt = (DynNode*) mkMemLoad(arg->location(), cvt->node());
-    }
-    return getDataType(t->referredNode, 0, t->mode);  // Zero references
-}
 
 namespace
 {
-    DynNode* checkDataTypeConversion(DynNode* node)
+    Node* checkDataTypeConversion(Node* node)
     {
-        const Location& loc = node->location();
-        TypeRef t = node->type();
+        const Location& loc = node->location;
+        TypeRef t = node->type;
         Node* cls = classForType(t);
         if ( effectiveEvalMode(cls) != modeRtCt )
             REP_INTERNAL(loc, "Cannot convert ct to rt for non-rtct classes (%1%)") % cls;
 
         // Check if we have a ct-to-rt ctor
-        Callable* call = selectCtToRtCtor(node->context(), t);
+        Callable* call = selectCtToRtCtor(node->context, t);
         if ( !call )
             REP_ERROR(loc, "Cannot convert %1% from CT to RT (make sure 'ctorFromRt' method exists)") % t;
 
         // Generate the call to the ctor
-        node->computeType();
-        DynNodeVector args(1, node);
-        auto cr = call->canCall(node->context(), loc, args, modeRt, true);
+        computeType(node);
+        NodeVector args(1, node);
+        auto cr = call->canCall(node->context, loc, args, modeRt, true);
         ASSERT(cr);
-        DynNode* res = call->generateCall(loc);
-        res = (DynNode*) mkMemLoad(loc, res->node());
+        Node* res = call->generateCall(loc);
+        res = mkMemLoad(loc, res);
 
         // Sanity check
-        res->setContext(node->context());
-        res->computeType();
-        if ( res->type() != Feather::changeTypeMode(node->type(), modeRt) )
+        setContext(res, node->context);
+        computeType(res);
+        if ( res->type != Feather::changeTypeMode(node->type, modeRt) )
             REP_INTERNAL(loc, "Cannot convert %1% from CT to RT (invalid returned type)") % t;
 
         return res;
@@ -202,56 +186,48 @@ Node* SprFrontend::convertCtToRt(Node* node)
     if ( isBasicNumericType(t) || Feather::changeTypeMode(t, modeRtCt) == StdDef::typeStringRef )
         return theCompiler().ctEval(node);
     else
-        return checkDataTypeConversion((DynNode*) node)->node();
+        return checkDataTypeConversion(node);
 }
 
 TypeRef SprFrontend::getType(Node* typeNode)
 {
-    return getType((DynNode*) typeNode);
-}
-TypeRef SprFrontend::getType(DynNode* typeNode)
-{
-    typeNode->semanticCheck();
-    if ( !typeNode->type() )
-        REP_ERROR(typeNode->location(), "Invalid type name");
+    semanticCheck(typeNode);
+    if ( !typeNode->type )
+        REP_ERROR(typeNode->location, "Invalid type name");
     
     TypeRef t = tryGetTypeValue(typeNode);
     if ( t )
         return t;
     
-    REP_ERROR(typeNode->location(), "Invalid type name (%1%)") % typeNode->type();
+    REP_ERROR(typeNode->location, "Invalid type name (%1%)") % typeNode->type;
     return nullptr;
 }
 
 TypeRef SprFrontend::tryGetTypeValue(Node* typeNode)
 {
-    return tryGetTypeValue((DynNode*) typeNode);
-}
-TypeRef SprFrontend::tryGetTypeValue(DynNode* typeNode)
-{
-    typeNode->semanticCheck();
+    semanticCheck(typeNode);
     
-    TypeRef t = Feather::lvalueToRefIfPresent(typeNode->type());
+    TypeRef t = Feather::lvalueToRefIfPresent(typeNode->type);
     
     if ( t == StdDef::typeRefType )
     {
-        Node* n = theCompiler().ctEval(typeNode->node());
+        Node* n = theCompiler().ctEval(typeNode);
         if ( n->nodeKind == nkFeatherExpCtValue )
         {
             TypeRef** t = getCtValueData<TypeRef*>(n);
             if ( !t || !*t || !**t )
-                REP_ERROR(typeNode->location(), "No type was set for node");
+                REP_ERROR(typeNode->location, "No type was set for node");
             return **t;
         }
     }
     else if ( t == StdDef::typeType )
     {
-        Node* n = theCompiler().ctEval(typeNode->node());
+        Node* n = theCompiler().ctEval(typeNode);
         if ( n->nodeKind == nkFeatherExpCtValue )
         {
             TypeRef* t = getCtValueData<TypeRef>(n);
             if ( !t || !*t )
-                REP_ERROR(typeNode->location(), "No type was set for node");
+                REP_ERROR(typeNode->location, "No type was set for node");
             return *t;
         }
     }
@@ -264,23 +240,18 @@ TypeRef SprFrontend::evalTypeIfPossible(Node* typeNode)
     TypeRef t = tryGetTypeValue(typeNode);
     return t ? t : typeNode->type;
 }
-TypeRef SprFrontend::evalTypeIfPossible(DynNode* typeNode)
-{
-    TypeRef t = tryGetTypeValue(typeNode);
-    return t ? t : typeNode->type();
-}
 
-DynNode* SprFrontend::createTypeNode(CompilationContext* context, const Location& loc, TypeRef t)
+Node* SprFrontend::createTypeNode(CompilationContext* context, const Location& loc, TypeRef t)
 {
     Node* res = mkCtValue(loc, StdDef::typeType, &t);
     if ( context )
         setContext(res, context);
-    return (DynNode*) res;
+    return res;
 }
 
-Nest::TypeRef SprFrontend::getAutoType(DynNode* typeNode, bool addRef)
+Nest::TypeRef SprFrontend::getAutoType(Node* typeNode, bool addRef)
 {
-    TypeRef t = typeNode->type();
+    TypeRef t = typeNode->type;
     
     // Nothing to do for function types
     if ( t->typeKind == typeKindFunction )
@@ -295,7 +266,7 @@ Nest::TypeRef SprFrontend::getAutoType(DynNode* typeNode, bool addRef)
     
     if ( addRef )
         t = Feather::addRef(t);
-    t = Feather::changeTypeMode(t, modeRtCt, typeNode->location());
+    t = Feather::changeTypeMode(t, modeRtCt, typeNode->location);
     return t;
 }
 

@@ -3,21 +3,20 @@
 namespace SprFrontend
 {
     /// Create a constructor call with any number of arguments
-    DynNode* createCtorCall(const Location& loc, CompilationContext* context, DynNodeVector args);
+    Node* createCtorCall(const Location& loc, CompilationContext* context, NodeVector args);
 
     /// Create a constructor call with one argument
-    DynNode* createCtorCall(const Location& loc, CompilationContext* context, DynNode* thisArg, DynNode* initArg);
+    Node* createCtorCall(const Location& loc, CompilationContext* context, Node* thisArg, Node* initArg);
 
     /// Create a destructor call
-    DynNode* createDtorCall(const Location& loc, CompilationContext* context, DynNode* thisArg);
+    Node* createDtorCall(const Location& loc, CompilationContext* context, Node* thisArg);
 
     /// Creates the code that calls the given function
-    DynNode* createFunctionCall(const Location& loc, CompilationContext* context, Node* fun, DynNodeVector args);
+    Node* createFunctionCall(const Location& loc, CompilationContext* context, Node* fun, NodeVector args);
 
     /// Create a temporary variable structure given the construct action for the given variable
-    DynNode* createTempVarConstruct(const Location& loc, CompilationContext* context, DynNode* constructAction, DynNode* var);
+    Node* createTempVarConstruct(const Location& loc, CompilationContext* context, Node* constructAction, Node* var);
 
     /// Assuming the given node points to a function, creates a FunPtr object to refer to that function
     Node* createFunPtr(Node* funNode);
-    DynNode* createFunPtr(DynNode* funNode);
 }

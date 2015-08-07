@@ -17,7 +17,7 @@ SprConcept::SprConcept(const Location& loc, string name, string paramName, DynNo
     : DynNode(classNodeKind(), loc, {baseConcept, ifClause, nullptr})
 {
     setName(node(), move(name));
-    setAccessType(this, accessType);
+    setAccessType(node(), accessType);
     setProperty("spr.paramName", move(paramName));
 }
 
@@ -28,17 +28,17 @@ bool SprConcept::isFulfilled(TypeRef type)
     if ( !isSemanticallyChecked() || !instantiationsSet )
         REP_INTERNAL(data_.location, "Invalid concept");
 
-    DynNode* typeValue = createTypeNode(data_.context, data_.location, type);
-    typeValue->semanticCheck();
+    Node* typeValue = createTypeNode(data_.context, data_.location, type);
+    Nest::semanticCheck(typeValue);
 
-    return nullptr != instantiationsSet->canInstantiate({typeValue}, data_.context->evalMode());
+    return nullptr != instantiationsSet->canInstantiate({(DynNode*) typeValue}, data_.context->evalMode());
 }
 
 TypeRef SprConcept::baseConceptType() const
 {
     DynNode* baseConcept = (DynNode*) data_.children[0];
 
-    TypeRef res = baseConcept ? getType(baseConcept) : getConceptType();
+    TypeRef res = baseConcept ? getType(baseConcept->node()) : getConceptType();
     res = adjustMode(res, data_.context, data_.location);
     return res;
 }

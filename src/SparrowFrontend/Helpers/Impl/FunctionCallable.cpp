@@ -14,78 +14,78 @@ using namespace Feather;
 
 namespace
 {
-    DynNode* impl_injectBackendCode(CompilationContext* context, const Location& loc, const DynNodeVector& args, EvalMode mode)
+    Node* impl_injectBackendCode(CompilationContext* context, const Location& loc, const NodeVector& args, EvalMode mode)
     {
         CHECK(loc, args.size() == 1);
-        const char* val = getStringCtValue(args[0]->node());
-        return (DynNode*) Feather::mkBackendCode(loc, val, mode);
+        const char* val = getStringCtValue(args[0]);
+        return Feather::mkBackendCode(loc, val, mode);
     }
     
-    DynNode* impl_typeDescription(CompilationContext* context, const Location& loc, const DynNodeVector& args)
-    {
-        CHECK(loc, args.size() == 1);
-        TypeRef t = getType(args[0]);
-        return (DynNode*) mkStringLiteral(loc, t->description);
-    }
-    
-    DynNode* impl_typeHasStorage(CompilationContext* context, const Location& loc, const DynNodeVector& args)
+    Node* impl_typeDescription(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 1);
         TypeRef t = getType(args[0]);
-        return (DynNode*) mkBoolLiteral(loc, t->hasStorage);
+        return mkStringLiteral(loc, t->description);
     }
     
-    DynNode* impl_typeMode(CompilationContext* context, const Location& loc, const DynNodeVector& args)
+    Node* impl_typeHasStorage(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 1);
         TypeRef t = getType(args[0]);
-        return (DynNode*) mkIntLiteral(loc, t->mode);
+        return mkBoolLiteral(loc, t->hasStorage);
     }
     
-    DynNode* impl_typeCanBeUsedAtCt(CompilationContext* context, const Location& loc, const DynNodeVector& args)
+    Node* impl_typeMode(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 1);
         TypeRef t = getType(args[0]);
-        return (DynNode*) mkBoolLiteral(loc, t->canBeUsedAtCt);
+        return mkIntLiteral(loc, t->mode);
     }
     
-    DynNode* impl_typeCanBeUsedAtRt(CompilationContext* context, const Location& loc, const DynNodeVector& args)
+    Node* impl_typeCanBeUsedAtCt(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 1);
         TypeRef t = getType(args[0]);
-        return (DynNode*) mkBoolLiteral(loc, t->canBeUsedAtRt);
+        return mkBoolLiteral(loc, t->canBeUsedAtCt);
     }
     
-    DynNode* impl_typeNumRef(CompilationContext* context, const Location& loc, const DynNodeVector& args)
+    Node* impl_typeCanBeUsedAtRt(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 1);
         TypeRef t = getType(args[0]);
-        return (DynNode*) mkIntLiteral(loc, t->numReferences);
+        return mkBoolLiteral(loc, t->canBeUsedAtRt);
     }
     
-    DynNode* impl_typeChangeMode(CompilationContext* context, const Location& loc, const DynNodeVector& args)
+    Node* impl_typeNumRef(CompilationContext* context, const Location& loc, const NodeVector& args)
+    {
+        CHECK(loc, args.size() == 1);
+        TypeRef t = getType(args[0]);
+        return mkIntLiteral(loc, t->numReferences);
+    }
+    
+    Node* impl_typeChangeMode(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 2);
         TypeRef t = getType(args[0]);
-        int mode = getIntCtValue(args[1]->node());
+        int mode = getIntCtValue(args[1]);
         
         TypeRef res = changeTypeMode(t, (EvalMode) mode, loc);
         
         return createTypeNode(context, loc, res);
     }
     
-    DynNode* impl_typeChangeRefCount(CompilationContext* context, const Location& loc, const DynNodeVector& args)
+    Node* impl_typeChangeRefCount(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 2);
         TypeRef t = getType(args[0]);
-        int numRef = getIntCtValue(args[1]->node());
+        int numRef = getIntCtValue(args[1]);
         
         TypeRef res = changeRefCount(t, numRef, loc);
         
         return createTypeNode(context, loc, res);
     }
 
-    DynNode* impl_typeEQ(CompilationContext* context, const Location& loc, const DynNodeVector& args)
+    Node* impl_typeEQ(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 2);
         TypeRef t1 = getType(args[0]);
@@ -97,10 +97,10 @@ namespace
         bool equals = isSameTypeIgnoreMode(t1, t2);
         
         // Build a CT value of type bool
-        return (DynNode*) mkBoolLiteral(loc, equals);
+        return mkBoolLiteral(loc, equals);
     }
     
-    DynNode* impl_typeAddRef(CompilationContext* context, const Location& loc, const DynNodeVector& args)
+    Node* impl_typeAddRef(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 1);
         TypeRef t = getType(args[0]);
@@ -110,7 +110,7 @@ namespace
         return createTypeNode(context, loc, t);
     }
     
-    DynNode* impl_ct(CompilationContext* context, const Location& loc, const DynNodeVector& args)
+    Node* impl_ct(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         TypeRef t = getType(args[0]);
         
@@ -122,7 +122,7 @@ namespace
         return createTypeNode(context, loc, t);
     }
     
-    DynNode* impl_rt(CompilationContext* context, const Location& loc, const DynNodeVector& args)
+    Node* impl_rt(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         TypeRef t = getType(args[0]);
         
@@ -134,7 +134,7 @@ namespace
         return createTypeNode(context, loc, t);
     }
     
-    DynNode* impl_convertsTo(CompilationContext* context, const Location& loc, const DynNodeVector& args)
+    Node* impl_convertsTo(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 2);
         TypeRef t1 = getType(args[0]);
@@ -142,14 +142,14 @@ namespace
         
         bool result = !!(canConvertType(context, t1, t2));
 
-        return (DynNode*) mkBoolLiteral(loc, result);
+        return mkBoolLiteral(loc, result);
     }
     
-    DynNode* impl_staticBuffer(CompilationContext* context, const Location& loc, const DynNodeVector& args)
+    Node* impl_staticBuffer(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 1);
 
-        int size = getSizeTypeCtValue(args[0]->node());
+        int size = getSizeTypeCtValue(args[0]);
         
         if ( size > numeric_limits<size_t>::max() )
             REP_ERROR(loc, "Size of static buffer is too large");
@@ -158,7 +158,7 @@ namespace
         return createTypeNode(context, loc, arrType);
     }
     
-    DynNode* impl_commonType(CompilationContext* context, const Location& loc, const DynNodeVector& args)
+    Node* impl_commonType(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 2);
         TypeRef t1 = getType(args[0]);
@@ -168,24 +168,24 @@ namespace
         return createTypeNode(context, loc, resType);
     }
 
-    DynNode* impl_Meta_astEval(CompilationContext* context, const Location& loc, const DynNodeVector& args)
+    Node* impl_Meta_astEval(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 1);
 
         // Get the impl part of the node
-        Node* implPart = mkCompoundExp(loc, args[0]->node(), "impl");
+        Node* implPart = mkCompoundExp(loc, args[0], "impl");
         implPart = mkMemLoad(loc, implPart);    // Remove LValue
         Nest::setContext(implPart, context);
         Nest::semanticCheck(implPart);
 
         // Evaluate the handle and get the resulting node
-        DynNode* nodeHandle = (DynNode*) getIntRefCtValue(implPart);
+        Node* nodeHandle = (Node*) getIntRefCtValue(implPart);
         if ( !nodeHandle )
-            REP_INTERNAL(loc, "DynNode passed to astEval is invalid");
+            REP_INTERNAL(loc, "Node passed to astEval is invalid");
         return nodeHandle;
     }
     
-    DynNode* impl_Meta_SourceCode_current(CompilationContext* context, const Location& loc, const DynNodeVector& args)
+    Node* impl_Meta_SourceCode_current(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 0);
 
@@ -193,20 +193,20 @@ namespace
         int* scHandle = reinterpret_cast<int*>(sc);
         Node* base = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "SourceCode");
         Node* arg = mkCtValue(loc, StdDef::typeRefInt, &scHandle);
-        return (DynNode*) mkFunApplication(loc, base, NodeVector(1, arg));
+        return mkFunApplication(loc, base, NodeVector(1, arg));
     }
 
-    DynNode* impl_Meta_CompilationContext_current(CompilationContext* context, const Location& loc, const DynNodeVector& args)
+    Node* impl_Meta_CompilationContext_current(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 0);
 
         int* ctxHandle = reinterpret_cast<int*>(context);
         Node* base = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "CompilationContext");
         Node* arg = mkCtValue(loc, StdDef::typeRefInt, &ctxHandle);
-        return (DynNode*) mkFunApplication(loc, base, NodeVector(1, arg));
+        return mkFunApplication(loc, base, NodeVector(1, arg));
     }
 
-    DynNode* handleIntrinsic(Node* fun, CompilationContext* context, const Location& loc, const DynNodeVector& args)
+    Node* handleIntrinsic(Node* fun, CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         // Check for natives
         const string* nativeName = getPropertyString(fun, propNativeName);
@@ -282,10 +282,10 @@ size_t FunctionCallable::paramsCount() const
     return Function_numParameters(fun_) - offset;
 }
 
-DynNode* FunctionCallable::param(size_t idx) const
+Node* FunctionCallable::param(size_t idx) const
 {
     int offset = hasResultParam_ ? 1 : 0;
-    return (DynNode*) Function_getParameter(fun_, idx+offset);
+    return Function_getParameter(fun_, idx+offset);
 }
 
 EvalMode FunctionCallable::evalMode() const
@@ -298,17 +298,17 @@ bool FunctionCallable::isAutoCt() const
 }
 
 
-DynNode* FunctionCallable::generateCall(const Location& loc)
+Node* FunctionCallable::generateCall(const Location& loc)
 {
     ASSERT(context_);
     Nest::computeType(fun_);
 
     auto argsCvt = argsWithConversion();
     
-    DynNode* res = handleIntrinsic(fun_, context_, loc, argsCvt);
+    Node* res = handleIntrinsic(fun_, context_, loc, argsCvt);
     if ( res )
     {
-        res->setContext(context_);
+        setContext(res, context_);
         return res;
     }
 

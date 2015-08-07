@@ -49,7 +49,7 @@ namespace
         for ( DynNode* boundVal: boundValues )
         {
             // Test the type given to the 'Type' parameters (i.e., we need to know if Vector(t) can be rtct based on the mode of t)
-            TypeRef t = tryGetTypeValue(boundVal);
+            TypeRef t = tryGetTypeValue(boundVal->node());
             if ( t )
             {
                 if ( t->mode == modeRt )
@@ -86,7 +86,7 @@ namespace
         children = children ? Nest::cloneNode(children) : nullptr;
         Node* newClass = mkSprClass(loc, getName(orig->node()), nullptr, baseClasses, nullptr, children);
 
-        copyModifiersSetMode(orig, (DynNode*) newClass, context->evalMode());
+        copyModifiersSetMode(orig->node(), newClass, context->evalMode());
 
         //setShouldAddToSymTab(newClass, false);    // TODO (generics): Uncomment this line
         Nest::setContext(newClass, context);
@@ -104,7 +104,7 @@ namespace
         {
             if ( i>0 )
                 oss << ", ";
-            TypeRef t = evalTypeIfPossible(boundValues[i]);
+            TypeRef t = evalTypeIfPossible(boundValues[i]->node());
             if ( t )
                 oss << t;
             else
@@ -181,5 +181,5 @@ DynNode* GenericClass::instantiateGeneric(const Location& loc, CompilationContex
     // Now actually create the call object: a Type CT value
     Node* cls = ofKind(instantiatedDecl->explanation()->node(), nkFeatherDeclClass);
     ASSERT(cls);
-    return createTypeNode(data_.context, loc, Feather::getDataType(cls));
+    return (DynNode*) createTypeNode(data_.context, loc, Feather::getDataType(cls));
 }

@@ -16,6 +16,7 @@ namespace SprFrontend
         Node* baseClasses() const;
         Node* classChildren() const;
 
+        void addChild(Node* child);
         void addChild(DynNode* child);
 
         void dump(ostream& os) const;

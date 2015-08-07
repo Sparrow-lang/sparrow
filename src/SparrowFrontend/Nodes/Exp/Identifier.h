@@ -22,5 +22,5 @@ namespace SprFrontend
     
     /// Get the result of the identifier node, given the set of the declarations this identifier points to
     /// This method can be used both with identifiers and compound expressions
-    DynNode* getIdentifierResult(CompilationContext* ctx, const Location& loc, const DynNodeVector& decls, DynNode* baseExp, bool allowDeclExp);
+    Node* getIdentifierResult(CompilationContext* ctx, const Location& loc, const NodeVector& decls, Node* baseExp, bool allowDeclExp);
 }

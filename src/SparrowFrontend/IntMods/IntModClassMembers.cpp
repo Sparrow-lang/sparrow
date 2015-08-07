@@ -19,9 +19,9 @@ using namespace std;
 namespace
 {
     /// Search in the given class for a function with a specified name, taking the given type of parameter
-    bool checkForMember(DynNode* cls, const string& funName, Node* paramClass)
+    bool checkForMember(Node* cls, const string& funName, Node* paramClass)
     {
-        NodeVector decls = cls->childrenContext()->currentSymTab()->lookupCurrent(funName);
+        NodeVector decls = childrenContext(cls)->currentSymTab()->lookupCurrent(funName);
         for ( Node* decl: decls )
         {
             decl = explanation(decl);
@@ -32,7 +32,7 @@ namespace
 
             // Make sure we only take in considerations operations of this class
             Node* cls2 = getParentClass(decl->context);
-            if ( cls2 != explanation(cls->node()) )
+            if ( cls2 != explanation(cls) )
                 continue;
 
             // Check 'this' and 'other' parameters
@@ -70,9 +70,9 @@ namespace
     }
 
     /// Checks if the class has a 'ctorFromCt' method
-    bool checkForCtorFromCt(DynNode* cls)
+    bool checkForCtorFromCt(Node* cls)
     {
-        NodeVector decls = cls->childrenContext()->currentSymTab()->lookupCurrent("ctorFromCt");
+        NodeVector decls = childrenContext(cls)->currentSymTab()->lookupCurrent("ctorFromCt");
         for ( Node* n: decls )
         {
             if ( effectiveEvalMode(n) == modeRt )
@@ -98,9 +98,9 @@ namespace
     }
 
     // Add to a local space an operator call
-    void addOperatorCall(Node* dest, bool reverse, DynNode* operand1, const string& op, DynNode* operand2)
+    void addOperatorCall(Node* dest, bool reverse, Node* operand1, const string& op, Node* operand2)
     {
-        Node* call = mkOperatorCall(dest->location, operand1->node(), op, operand2->node());
+        Node* call = mkOperatorCall(dest->location, operand1, op, operand2);
         if ( !reverse )
             dest->children.push_back(call);
         else
@@ -108,7 +108,7 @@ namespace
     }
 
     // Add a method with the given body and given atguments to the parent class
-    DynNode* addMethod(SprClass* parent, const string& name, Node* body, vector<pair<TypeRef, string>> params, Node* resClass = nullptr, EvalMode mode = modeUnspecified)
+    Node* addMethod(SprClass* parent, const string& name, Node* body, vector<pair<TypeRef, string>> params, Node* resClass = nullptr, EvalMode mode = modeUnspecified)
     {
         Location loc = parent->location();
         loc.setAsStartOf(loc);
@@ -121,19 +121,19 @@ namespace
             sprParams.push_back(mkSprParameter(loc, param.second, param.first));
         }
         Node* parameters = sprParams.empty() ? nullptr : mkNodeList(loc, move(sprParams));
-        Node* ret = resClass ? createTypeNode(parent->childrenContext(), loc, getDataType(resClass))->node() : nullptr;
+        Node* ret = resClass ? createTypeNode(parent->childrenContext(), loc, getDataType(resClass)) : nullptr;
         
         // Add the function
         Node* m = mkSprFunction(loc, name, parameters, ret, body);
         Nest::setProperty(m, propNoDefault, 1);
         setEvalMode(m, mode == modeUnspecified ? effectiveEvalMode(parent->node()) : mode);
-        parent->addChild((DynNode*) m);
+        parent->addChild(m);
         Nest::computeType(m);
-        return (DynNode*) m;
+        return m;
     }
     
     // Add a method with the given body to the parent class
-    DynNode* addMethod(SprClass* parent, const string& name, Node* body, TypeRef otherParam, Node* resClass = nullptr, EvalMode mode = modeUnspecified)
+    Node* addMethod(SprClass* parent, const string& name, Node* body, TypeRef otherParam, Node* resClass = nullptr, EvalMode mode = modeUnspecified)
     {
         return addMethod(parent, name, body, otherParam ? vector<pair<TypeRef, string>>({ {otherParam, string("other")} }) : vector<pair<TypeRef, string>>({}), resClass, mode);
     }
@@ -179,7 +179,7 @@ namespace
                 else if ( op == "dtor" )
                     continue;       // Nothing to destruct on references
             }
-            addOperatorCall(body, reverse, (DynNode*) fieldRef, oper, (DynNode*) otherFieldRef);
+            addOperatorCall(body, reverse, fieldRef, oper, otherFieldRef);
         }
 
         addMethod(parent, name, body, otherParam, nullptr, mode);
@@ -228,7 +228,7 @@ namespace
             Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
             
             string oper = t->numReferences > 0 ? ":=" : "ctor";
-            addOperatorCall(body, false, (DynNode*) fieldRef, oper, (DynNode*) paramId);
+            addOperatorCall(body, false, fieldRef, oper, paramId);
         }
         
         addMethod(parent, "ctor", body, params);
@@ -271,32 +271,30 @@ namespace
     }
 }
 
-void IntModClassMembers::afterComputeType(Node* n)
+void IntModClassMembers::afterComputeType(Node* node)
 {
-    DynNode* node = (DynNode*) n;
-    
     /// Check to apply only to classes
-    SprClass* cls = node->as<SprClass>();
-    if ( !cls )
-        REP_INTERNAL(node->location(), "IntModClassMembers modifier can be applied only to classes");
+    if ( node->nodeKind != nkSparrowDeclSprClass )
+        REP_INTERNAL(node->location, "IntModClassMembers modifier can be applied only to classes");
+    SprClass* cls = (SprClass*) node;
     if ( !cls->type() )
-        REP_INTERNAL(node->location(), "Type was not computed for %1% when applying IntModClassMembers") % getName(cls->node());
+        REP_INTERNAL(node->location, "Type was not computed for %1% when applying IntModClassMembers") % getName(node);
 
-    Node* basicClass = Nest::explanation(cls->node());
+    Node* basicClass = Nest::explanation(node);
     basicClass = basicClass && basicClass->nodeKind == nkFeatherDeclClass ? basicClass : nullptr;
     ASSERT(basicClass);
     TypeRef paramType = getDataType(basicClass, 1);
 
     // Default ctor
-    if ( !checkForMember(cls, "ctor", nullptr) )
+    if ( !checkForMember(cls->node(), "ctor", nullptr) )
         generateMethod(cls, "ctor", "ctor", nullptr);
 
     // Uninitialized ctor
-    if ( !checkForMember(cls, "ctor", StdDef::clsUninitialized) )
+    if ( !checkForMember(cls->node(), "ctor", StdDef::clsUninitialized) )
         generateUnititializedCtor(cls);
 
     // Copy ctor
-    if ( !checkForMember(cls, "ctor", basicClass) )
+    if ( !checkForMember(cls->node(), "ctor", basicClass) )
         generateMethod(cls, "ctor", "ctor", paramType);
 
     // Initialization ctor
@@ -304,18 +302,18 @@ void IntModClassMembers::afterComputeType(Node* n)
         generateInitCtor(cls);
     
     // CT to RT ctor
-    if ( !checkForCtorFromCt(cls) && !hasReferences(basicClass) )
-        generateMethod(cls, "ctorFromCt", "ctor", changeTypeMode(getDataType(basicClass, 0), modeCt, node->location()), false, modeRt);
+    if ( !checkForCtorFromCt(cls->node()) && !hasReferences(basicClass) )
+        generateMethod(cls, "ctorFromCt", "ctor", changeTypeMode(getDataType(basicClass, 0), modeCt, node->location), false, modeRt);
 
     // Dtor
-    if ( !checkForMember(cls, "dtor", nullptr) )
+    if ( !checkForMember(cls->node(), "dtor", nullptr) )
         generateMethod(cls, "dtor", "dtor", nullptr, true);
 
     // Assignment operator
-    if ( !checkForMember(cls, "=", basicClass) )
+    if ( !checkForMember(cls->node(), "=", basicClass) )
         generateMethod(cls, "=", "=", paramType);
 
     // Equality test operator
-    if ( !checkForMember(cls, "==", basicClass) )
+    if ( !checkForMember(cls->node(), "==", basicClass) )
         generateEqualityCheckMethod(cls);
 }

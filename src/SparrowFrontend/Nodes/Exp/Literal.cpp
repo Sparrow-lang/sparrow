@@ -61,7 +61,7 @@ void Literal::doSemanticCheck()
     Identifier ident(data_.location, litType);
     ident.setContext(data_.context);
     ident.computeType();
-    TypeRef t = getType(&ident);
+    TypeRef t = getType(ident.node());
     t = Feather::changeTypeMode(t, modeCt, data_.location);
     
     if ( litType == "StringRef" )

@@ -37,7 +37,7 @@ namespace
 
             if ( isConceptType(p->type()) )
             {
-                TypeRef t = getType(boundValue);
+                TypeRef t = getType(boundValue->node());
 
                 Node* var = mkSprVariable(p->location(), getName(p->node()), t, nullptr);
                 if ( insideClass )

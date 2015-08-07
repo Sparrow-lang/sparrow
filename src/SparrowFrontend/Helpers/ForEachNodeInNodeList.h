@@ -22,7 +22,7 @@ namespace SprFrontend
                 if ( nn->nodeKind == Feather::nkFeatherNodeList )
                     forEachNodeInNodeList(nn, fun);
                 else
-                    fun((DynNode*) n);
+                    fun(n);
             }
         }
     }

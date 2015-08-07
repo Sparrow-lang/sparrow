@@ -39,8 +39,8 @@ namespace
             {
                 // Create a CtValue with the type of the argument corresponding to the auto parameter
                 arg->computeType();
-                TypeRef t = getAutoType(arg, isRefAuto);
-                DynNode* typeNode = createTypeNode(context, param->location(), t);
+                TypeRef t = getAutoType(arg->node(), isRefAuto);
+                DynNode* typeNode = (DynNode*) createTypeNode(context, param->location(), t);
                 typeNode->computeType();
                 boundValues[i] = typeNode;
             }
@@ -113,7 +113,7 @@ namespace
             else
             {
                 // Is the argument a Type?
-                typeToCheck = tryGetTypeValue(args[i]);
+                typeToCheck = tryGetTypeValue(args[i]->node());
             }
             if ( typeToCheck )
             {
@@ -167,7 +167,7 @@ namespace
         returnType = returnType ? returnType->clone() : nullptr;
         body = body ? body->clone() : nullptr;
         Node* newFun = mkSprFunction(loc, getName(origFun->node()), parameters, returnType->node(), body->node());
-        copyModifiersSetMode(origFun, (DynNode*) newFun, context->evalMode());
+        copyModifiersSetMode(origFun->node(), newFun, context->evalMode());
         setShouldAddToSymTab(newFun, false);
         Nest::setContext(newFun, context);
 
@@ -181,7 +181,7 @@ namespace
         sprFun->computeType();
         if ( !sprFun->resultingFun() )
             REP_ERROR(loc, "Cannot instantiate function generic %1%") % getName(inst->node());
-        return createFunctionCall(loc, context, sprFun->resultingFun(), nonBoundArgs);
+        return (DynNode*) createFunctionCall(loc, context, sprFun->resultingFun(), fromDyn(nonBoundArgs));
     }
 }
 

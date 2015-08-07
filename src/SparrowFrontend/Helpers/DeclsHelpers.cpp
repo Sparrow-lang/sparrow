@@ -4,6 +4,7 @@
 #include "ForEachNodeInNodeList.h"
 #include <NodeCommonsCpp.h>
 #include <Nodes/ModifiersNode.h>
+#include <Nodes/Decls/SprConcept.h>
 #include <Nodes/Exp/DeclExp.h>
 #include <SparrowFrontendTypes.h>
 #include <Mods/ModRt.h>
@@ -16,10 +17,10 @@ using namespace Nest;
 
 namespace
 {
-    void checkNodeAllowed(DynNode* child, bool insideClass)
+    void checkNodeAllowed(Node* child, bool insideClass)
     {
         // Check non-declarations
-        int nodeKind = child->explanation()->nodeKind();
+        int nodeKind = explanation(child)->nodeKind;
         if (   nodeKind == nkFeatherNop
             || (!insideClass && nodeKind == nkFeatherBackendCode)
             || (!insideClass && nodeKind == nkFeatherGlobalConstructAction)
@@ -29,14 +30,14 @@ namespace
 
         if ( nodeKind == nkSparrowModifiersNode )
         {
-            if ( !child->explanation()->hasError() )
-                checkNodeAllowed(static_cast<ModifiersNode*>(child)->base(), insideClass);
+            if ( !explanation(child)->nodeError )
+                checkNodeAllowed(child->children[0], insideClass);
             return;
         }
 
         if ( nodeKind == nkFeatherNodeList )
         {
-            SprFrontend::checkForAllowedNamespaceChildren(child->node(), insideClass);
+            SprFrontend::checkForAllowedNamespaceChildren(child, insideClass);
             return;
         }
 
@@ -49,25 +50,25 @@ namespace
             )
             return;
 
-        REP_ERROR(child->location(), "Invalid node found (%1%)") % child->toString();
+        REP_ERROR(child->location, "Invalid node found: %1%") % child;
     }
 }
 
-DynNodeVector SprFrontend::getDeclsFromNode(DynNode* n, DynNode*& baseExp)
+NodeVector SprFrontend::getDeclsFromNode(Node* n, Node*& baseExp)
 {
-    DynNodeVector res;
+    NodeVector res;
     baseExp = nullptr;
     
-    n->computeType();
-    n = n->explanation();
+    computeType(n);
+    n = explanation(n);
     ASSERT(n);
 
     // Check if the node is a DeclExp, pointing to the actual references
-    DeclExp* declExp = n->as<DeclExp>();
-    if ( declExp )
+    if ( n->nodeKind == nkSparrowExpDeclExp )
     {
-        baseExp = declExp->baseExp();
-        res = declExp->decls();
+        DeclExp* declExp = (DeclExp*) n;
+        baseExp = declExp->baseExp()->node();
+        res = fromDyn(declExp->decls());
         return res;
     }
     
@@ -78,11 +79,11 @@ DynNodeVector SprFrontend::getDeclsFromNode(DynNode* n, DynNode*& baseExp)
         // If we have a Type as base, try a constructor/concept call
         if ( t->hasStorage )
         {
-            res.push_back((DynNode*) classDecl(t));
+            res.push_back(classDecl(t));
         }
         else if ( t->typeKind == typeKindConcept )
         {
-            res.push_back((DynNode*) conceptOfType(t));
+            res.push_back(conceptOfType(t)->node());
         }
         else
             t = nullptr;
@@ -97,44 +98,33 @@ Node* SprFrontend::resultingDecl(Node* node)
     return res ? *res : node;
 }
 
-DynNode* SprFrontend::resultingDecl(DynNode* node)
+bool SprFrontend::isField(Node* node)
 {
-    DynNode*const* res = node->getPropertyDynNode(propResultingDecl);
-    return res ? *res : node;
-}
-
-bool SprFrontend::isField(DynNode* node)
-{
-    if ( node->nodeKind() != nkFeatherDeclVar )
+    if ( node->nodeKind != nkFeatherDeclVar )
         return false;
-    const int* isFieldFlag = node->getPropertyInt(propIsField);
+    const int* isFieldFlag = getPropertyInt(node, propIsField);
     return isFieldFlag && *isFieldFlag;
 }
 
 
-AccessType SprFrontend::getAccessType(DynNode* decl)
+AccessType SprFrontend::getAccessType(Node* decl)
 {
-    return (AccessType) decl->getCheckPropertyInt("spr.accessType");
+    return (AccessType) getCheckPropertyInt(decl, "spr.accessType");
 }
 
-bool SprFrontend::hasAccessType(DynNode* decl)
+bool SprFrontend::hasAccessType(Node* decl)
 {
-    return decl->hasProperty("spr.accessType");
+    return hasProperty(decl, "spr.accessType");
 }
 
-void SprFrontend::setAccessType(DynNode* decl, AccessType accessType)
+void SprFrontend::setAccessType(Node* decl, AccessType accessType)
 {
-    decl->setProperty("spr.accessType", (int) accessType);
+    setProperty(decl, "spr.accessType", (int) accessType);
 }
 
 Node* SprFrontend::getResultParam(Node* f)
 {
     Node*const* res = getPropertyNode(f, propResultParam);
-    return res ? *res : nullptr;
-}
-DynNode* SprFrontend::getResultParam(DynNode* f)
-{
-    DynNode*const* res = f->getPropertyDynNode(propResultParam);
     return res ? *res : nullptr;
 }
 
@@ -145,31 +135,31 @@ void SprFrontend::checkForAllowedNamespaceChildren(Node* children, bool insideCl
         for ( Node* child: children->children )
         {
             if ( child )
-                checkNodeAllowed((DynNode*) child, insideClass);
+                checkNodeAllowed(child, insideClass);
         }
     }
 }
 
-void SprFrontend::copyModifiersSetMode(DynNode* src, DynNode* dest, EvalMode newMode)
+void SprFrontend::copyModifiersSetMode(Node* src, Node* dest, EvalMode newMode)
 {
-    dest->modifiers().reserve(src->modifiers().size());
-    for ( Modifier* mod: src->modifiers() )
+    dest->modifiers.reserve(src->modifiers.size());
+    for ( Modifier* mod: src->modifiers )
     {
         if ( !dynamic_cast<ModRt*>(mod) && !dynamic_cast<ModCt*>(mod) && !dynamic_cast<ModRtCt*>(mod) )
-            dest->modifiers().push_back(mod);
+            dest->modifiers.push_back(mod);
     }
 
     // Make sure we preserve the evaluation mode of the class, after instantiation
     switch ( newMode )
     {
         case Nest::modeRt:
-            dest->modifiers().push_back(new ModRt);
+            dest->modifiers.push_back(new ModRt);
             break;
         case Nest::modeCt:
-            dest->modifiers().push_back(new ModCt);
+            dest->modifiers.push_back(new ModCt);
             break;
         case Nest::modeRtCt:
-            dest->modifiers().push_back(new ModRtCt);
+            dest->modifiers.push_back(new ModRtCt);
             break;
         default:
             break;

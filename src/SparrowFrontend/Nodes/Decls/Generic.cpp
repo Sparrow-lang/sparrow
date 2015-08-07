@@ -14,7 +14,7 @@ Generic::Generic(int nodeKind, DynNode* origNode, DynNodeVector genericParams, D
     : DynNode(nodeKind, origNode->location(), { (DynNode*) mkInstantiationsSet(origNode->node(), fromDyn(move(genericParams)), ifClause->node()) }, { origNode })
 {
     setName(node(), getName(origNode->node()));
-    setAccessType(this, accessType);
+    setAccessType(node(), accessType);
 }
 
 void Generic::doSemanticCheck()

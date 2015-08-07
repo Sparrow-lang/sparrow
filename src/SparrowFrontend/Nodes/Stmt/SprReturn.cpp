@@ -22,7 +22,7 @@ SprReturn::SprReturn(const Location& loc, DynNode* exp)
 void SprReturn::doSemanticCheck()
 {
     ASSERT(data_.children.size() == 1);
-    DynNode* exp = (DynNode*) data_.children[0];
+    Node* exp = data_.children[0];
 
     // Get the parent function of this return
     Node* parentFun = getParentFun(data_.context);
@@ -47,10 +47,10 @@ void SprReturn::doSemanticCheck()
     ConversionResult cvt = convNone;
     if ( exp )
     {
-        exp->semanticCheck();
-        if ( !resType->hasStorage && exp->type() == resType )
+        Nest::semanticCheck(exp);
+        if ( !resType->hasStorage && exp->type == resType )
         {
-            setExplanation((DynNode*) mkNodeList(data_.location, { exp->node(), mkReturn(data_.location) }));
+            setExplanation(mkNodeList(data_.location, { exp, mkReturn(data_.location) }));
             return;
         }
         else
@@ -58,7 +58,7 @@ void SprReturn::doSemanticCheck()
             cvt = canConvert(exp, resType);
         }
         if ( !cvt )
-            REP_ERROR(exp->location(), "Cannot convert return expression (%1%) to %2%") % exp->type() % resType;
+            REP_ERROR(exp->location, "Cannot convert return expression (%1%) to %2%") % exp->type % resType;
     }
     else
     {
@@ -71,20 +71,20 @@ void SprReturn::doSemanticCheck()
     {
         // Create a ctor to construct the result parameter with the expression received
         const Location& l = resultParam->location;
-        DynNode* thisArg = (DynNode*) mkMemLoad(l, mkVarRef(l, resultParam));
-        thisArg->setContext(data_.context);
-        DynNode* action = createCtorCall(l, data_.context, thisArg, exp);
+        Node* thisArg = mkMemLoad(l, mkVarRef(l, resultParam));
+        Nest::setContext(thisArg, data_.context);
+        Node* action = createCtorCall(l, data_.context, thisArg, exp);
         if ( !action )
-            REP_ERROR(exp->location(), "Cannot construct return type object %1% from %2%") % exp->type() % resType;
+            REP_ERROR(exp->location, "Cannot construct return type object %1% from %2%") % exp->type % resType;
 
         if ( action )
         {
-            setExplanation((DynNode*) mkNodeList(data_.location, { action->node(), mkReturn(data_.location, nullptr)}));
+            setExplanation(mkNodeList(data_.location, { action, mkReturn(data_.location, nullptr)}));
         }
     }
     else
     {
         exp = exp ? cvt.apply(data_.context, exp) : nullptr;
-        setExplanation((DynNode*) mkReturn(data_.location, exp->node()));
+        setExplanation(mkReturn(data_.location, exp));
     }
 }

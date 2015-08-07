@@ -181,7 +181,7 @@ namespace
     {
         const SparrowSourceCode* ssc = dynamic_cast<const SparrowSourceCode*>(loc->sourceCode());
         if ( ssc )
-            *sret = ssc->parseExpression(*loc, exp.toStdString())->node();
+            *sret = ssc->parseExpression(*loc, exp.toStdString());
         else
             *sret = nullptr;
     }

@@ -37,23 +37,22 @@ void Identifier::doSemanticCheck()
     const string& id = getCheckPropertyString("name");
 
     // Search in the current symbol table for the identifier
-    DynNodeVector decls = toDyn(data_.context->currentSymTab()->lookup(id));
+    NodeVector decls = data_.context->currentSymTab()->lookup(id);
     if ( decls.empty() )
         REP_ERROR(data_.location, "No declarations found with the given name (%1%)") % id;
 
     // If at least one decl is a field or method, then transform this into a compound expression starting from 'this'
     bool needsThis = false;
-    for ( DynNode* decl: decls )
+    for ( Node* decl: decls )
     {
-        decl->computeType();
-        DynNode* expl = decl->explanation();
+        Nest::computeType(decl);
+        Node* expl = Nest::explanation(decl);
         if ( isField(expl) )
         {
             needsThis = true;
             break;
         }
-        SprFunction* fun = decl->as<SprFunction>();
-        if ( fun && fun->hasThisParameters() )
+        if ( decl && decl->nodeKind == nkSparrowDeclSprFunction && ((SprFunction*) decl)->hasThisParameters() )
         {
             needsThis = true;
             break;
@@ -68,21 +67,21 @@ void Identifier::doSemanticCheck()
     }
 
     bool allowDeclExp = 0 != getCheckPropertyInt(propAllowDeclExp);
-    DynNode* res = getIdentifierResult(data_.context, data_.location, move(decls), nullptr, allowDeclExp);
+    Node* res = getIdentifierResult(data_.context, data_.location, move(decls), nullptr, allowDeclExp);
     ASSERT(res);
     setExplanation(res);
 }
 
-DynNode* SprFrontend::getIdentifierResult(CompilationContext* ctx, const Location& loc, const DynNodeVector& decls, DynNode* baseExp, bool allowDeclExp)
+Node* SprFrontend::getIdentifierResult(CompilationContext* ctx, const Location& loc, const NodeVector& decls, Node* baseExp, bool allowDeclExp)
 {
     // If this points to one declaration only, try to use that declaration
     if ( decls.size() == 1 )
     {
-        DynNode* resDecl = resultingDecl(decls[0]);
+        Node* resDecl = resultingDecl(decls[0]);
         ASSERT(resDecl);
         
         // Check if we can refer to a variable
-        if ( resDecl->nodeKind() == nkFeatherDeclVar )
+        if ( resDecl->nodeKind == nkFeatherDeclVar )
         {
             if ( isField(resDecl) )
             {
@@ -90,47 +89,46 @@ DynNode* SprFrontend::getIdentifierResult(CompilationContext* ctx, const Locatio
                     REP_INTERNAL(loc, "No base expression to refer to a field");
 
                 // Make sure the base is a reference
-                if ( baseExp->type()->numReferences == 0 )
+                if ( baseExp->type->numReferences == 0 )
                 {
-                    ConversionResult res = canConvert(baseExp, addRef(baseExp->type()));
+                    ConversionResult res = canConvert(baseExp, addRef(baseExp->type));
                     if ( !res )
                         REP_INTERNAL(loc, "Cannot add reference to base of field access");
                     baseExp = res.apply(baseExp);
-                    baseExp->computeType();
+                    Nest::computeType(baseExp);
                 }
-                DynNode* baseCvt = nullptr;
+                Node* baseCvt = nullptr;
                 doDereference1(baseExp, baseCvt);  // ... but no more than one reference
                 baseExp = baseCvt;
                 
-                return (DynNode*) mkFieldRef(loc, baseExp->node(), resDecl->node());
+                return mkFieldRef(loc, baseExp, resDecl);
             }
-            return (DynNode*) mkVarRef(loc, resDecl->node());
+            return mkVarRef(loc, resDecl);
         }
         
         // If this is a using, get its value
-        if ( resDecl->nodeKind() == nkSparrowDeclUsing )
-            return resDecl->children()[0];
+        if ( resDecl->nodeKind == nkSparrowDeclUsing )
+            return resDecl->children[0];
 
         // Try to convert this to a type
         TypeRef t = nullptr;
-        Node* cls = ofKind(resDecl->node(), nkFeatherDeclClass);
+        Node* cls = ofKind(resDecl, nkFeatherDeclClass);
         if ( cls )
             t = getDataType(cls);
-        SprConcept* concept = resDecl->as<SprConcept>();
-        if ( concept )
-            t = getConceptType(concept);
+        if ( resDecl->nodeKind == nkSparrowDeclSprConcept )
+            t = getConceptType((SprConcept*) resDecl);
         if ( t )
-            return (DynNode*) createTypeNode(ctx, loc, t);
+            return createTypeNode(ctx, loc, t);
 
     }
 
     // Add the referenced declarations as a property to our result
     if ( allowDeclExp )
-        return (DynNode*) mkDeclExp(loc, fromDyn(decls), baseExp->node());
+        return mkDeclExp(loc, decls, baseExp);
 
     // If we are here, this identifier could only represent a function application
-    Node* fapp = mkFunApplication(loc, mkDeclExp(loc, fromDyn(decls), baseExp->node()), nullptr);
+    Node* fapp = mkFunApplication(loc, mkDeclExp(loc, decls, baseExp), nullptr);
     Nest::setContext(fapp, ctx);
     Nest::semanticCheck(fapp);
-    return (DynNode*) fapp;
+    return fapp;
 }

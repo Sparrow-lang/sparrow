@@ -147,8 +147,8 @@ void FunApplication::doSemanticCheck()
     string functionName = base->toString();
     
     // Try to get the declarations pointed by the base node
-    DynNode* thisArg = nullptr;
-    NodeVector decls = fromDyn(getDeclsFromNode(base, thisArg));
+    Node* thisArg = nullptr;
+    NodeVector decls = getDeclsFromNode(base->node(), thisArg);
 
     // If we didn't find any declarations, try the operator call
     if ( base->type()->hasStorage && decls.empty() )
@@ -157,25 +157,25 @@ void FunApplication::doSemanticCheck()
         decls = cls->childrenContext->currentSymTab()->lookupCurrent("()");
         if ( decls.empty() )
             REP_ERROR(data_.location, "Class %1% has no user defined call operators") % getName(cls);
-        thisArg = base;
+        thisArg = base->node();
         functionName = "()";
     }
 
     // The name of function we are trying to call
-    if ( functionName == base->nodeKindName() )
+    if ( functionName == Nest::nodeKindName(base->node()) )
         functionName = "function";
 
     // The arguments to be used, including thisArg
     NodeVector args;
     if ( thisArg )
-        args.push_back(thisArg->node());
+        args.push_back(thisArg);
     if ( arguments )
         args.insert(args.end(), arguments->children.begin(), arguments->children.end());
 
     // Check the right overload based on the type of the arguments
     EvalMode mode = data_.context->evalMode();
     if ( thisArg )
-        mode = combineMode(thisArg->type()->mode, mode, data_.location, false);
+        mode = combineMode(thisArg->type->mode, mode, data_.location, false);
     Node* res = selectOverload(data_.context, data_.location, mode, move(decls), args, true, functionName);
 
     setExplanation(res);
@@ -195,11 +195,11 @@ void FunApplication::checkStaticCast()
     TypeRef srcType = arguments->children[1]->type;
 
     // Check if we can cast
-    ConversionResult c = canConvert((DynNode*) arguments->children[1], destType);
+    ConversionResult c = canConvert(arguments->children[1], destType);
     if ( !c )
         REP_ERROR(data_.location, "Cannot cast from %1% to %2%; types are unrelated") % srcType % destType;
-    DynNode* result = c.apply((DynNode*) arguments->children[1]);
-    result->setLocation(data_.location);
+    Node* result = c.apply(arguments->children[1]);
+    result->location = data_.location;
 
     setExplanation(result);
 }

@@ -12,7 +12,7 @@ Package::Package(const Location& loc, string name, Node* children, AccessType ac
     : DynNode(classNodeKind(), loc, { (DynNode*) children })
 {
     Feather::setName(&data_, move(name));
-    setAccessType(this, accessType);
+    setAccessType(node(), accessType);
 }
 
 void Package::doSetContextForChildren()

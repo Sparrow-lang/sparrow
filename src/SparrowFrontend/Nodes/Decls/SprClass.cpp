@@ -37,7 +37,7 @@ namespace
         {
             field->computeType();
             field = field->explanation();
-            if ( field->nodeKind() != nkFeatherDeclVar || !isField(field) )
+            if ( field->nodeKind() != nkFeatherDeclVar || !isField(field->node()) )
                 field = nullptr;
         }
 
@@ -55,7 +55,7 @@ SprClass::SprClass(const Location& loc, string name, Node* parameters, Node* bas
     ASSERT( !baseClasses || baseClasses->nodeKind == nkFeatherNodeList );
     ASSERT( !children || children->nodeKind == nkFeatherNodeList );
     setName(node(), move(name));
-    setAccessType(this, accessType);
+    setAccessType(node(), accessType);
 }
 
 Node* SprClass::baseClasses() const
@@ -71,19 +71,23 @@ Node* SprClass::classChildren() const
 
 void SprClass::addChild(DynNode* child)
 {
+    addChild(child->node());
+}
+void SprClass::addChild(Node* child)
+{
     if ( !child )
         return;
     if ( childrenContext() )
-        child->setContext(childrenContext());
+        Nest::setContext(child, childrenContext());
     if ( data_.type )
-        child->computeType();
+        Nest::computeType(child);
     if ( !data_.children[2] )
     {
         data_.children[2] = mkNodeList(data_.location, {});
         if ( childrenContext() )
             Nest::setContext(data_.children[2], childrenContext());
     }
-    data_.children[2]->children.push_back(child->node());
+    data_.children[2]->children.push_back(child);
 }
 
 void SprClass::dump(ostream& os) const
@@ -163,7 +167,7 @@ void SprClass::doComputeType()
     data_.explanation = resultingClass;
 
     // Check for Std classes
-    checkStdClass((DynNode*) resultingClass);
+    checkStdClass(resultingClass);
     
     // First check all the base classes
     if ( baseClasses )
@@ -204,14 +208,14 @@ void SprClass::doComputeType()
     }
 
     // Take the fields and the methods
-    forEachNodeInNodeList(children, [&] (DynNode* child) -> void
+    forEachNodeInNodeList(children, [&] (Node* child) -> void
     {
-        DynNode* p = child->explanation();
+        Node* p = Nest::explanation(child);
         if ( !isField(p) )
         {
             // Methods, generics
             ASSERT(data_.context->sourceCode());
-            data_.context->sourceCode()->addAdditionalNode(child->node());
+            data_.context->sourceCode()->addAdditionalNode(child);
         }
     });
 

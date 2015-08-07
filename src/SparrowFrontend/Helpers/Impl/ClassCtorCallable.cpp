@@ -69,7 +69,7 @@ size_t ClassCtorCallable::paramsCount() const
     return baseCallable_->paramsCount()-1;      // The 'this' param is hidden
 }
 
-DynNode* ClassCtorCallable::param(size_t idx) const
+Node* ClassCtorCallable::param(size_t idx) const
 {
     return baseCallable_->param(idx+1);        // The 'this' param is hidden
 }
@@ -91,30 +91,30 @@ ConversionType ClassCtorCallable::canCall(CompilationContext* context, const Loc
     return baseCallable_->canCall(context, loc, argTypes2, evalMode, noCustomCvt);
 }
 
-ConversionType ClassCtorCallable::canCall(CompilationContext* context, const Location& loc, const DynNodeVector& args, EvalMode evalMode, bool noCustomCvt)
+ConversionType ClassCtorCallable::canCall(CompilationContext* context, const Location& loc, const NodeVector& args, EvalMode evalMode, bool noCustomCvt)
 {
     context_ = context;
 
     // Create a temporary variable - use it as a this argument
-    tmpVar_ = (DynNode*) Feather::mkVar(loc, "tmp.v", mkTypeNode(loc, varType(cls_, evalMode_)), 0, evalMode_);
-    tmpVar_->setContext(context);
-    tmpVar_->computeType();
-    thisArg_ = (DynNode*) mkVarRef(loc, tmpVar_->node());
-    thisArg_->setContext(context);
-    thisArg_->computeType();
+    tmpVar_ = Feather::mkVar(loc, "tmp.v", mkTypeNode(loc, varType(cls_, evalMode_)), 0, evalMode_);
+    setContext(tmpVar_, context);
+    computeType(tmpVar_);
+    thisArg_ = mkVarRef(loc, tmpVar_);
+    setContext(thisArg_, context);
+    computeType(thisArg_);
 
-    DynNodeVector args2 = args;
+    NodeVector args2 = args;
     args2.insert(args2.begin(), thisArg_);
     return baseCallable_->canCall(context, loc, args2, evalMode, noCustomCvt);
 }
 
 
-DynNode* ClassCtorCallable::generateCall(const Location& loc)
+Node* ClassCtorCallable::generateCall(const Location& loc)
 {
     ASSERT(context_);
     ASSERT(tmpVar_);
     ASSERT(thisArg_);
 
-    DynNode* ctorCall = baseCallable_->generateCall(loc);
+    Node* ctorCall = baseCallable_->generateCall(loc);
     return createTempVarConstruct(loc, context_, ctorCall, tmpVar_);
 }

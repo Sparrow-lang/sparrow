@@ -17,11 +17,11 @@ SprCompilationUnit::SprCompilationUnit(const Location& loc, DynNode* package, No
 void SprCompilationUnit::doSetContextForChildren()
 {
     ASSERT(data_.children.size() == 3);
-    DynNode* packageName = (DynNode*) data_.children[0];
-    DynNode* imports = (DynNode*) data_.children[1];
+    Node* packageName = data_.children[0];
+    Node* imports = data_.children[1];
     Node* declarations = data_.children[2];
     if ( packageName )
-        packageName->setContext(data_.context);
+        Nest::setContext(packageName, data_.context);
 
     // Handle package name - create namespaces for it
     if ( packageName )
@@ -44,8 +44,8 @@ void SprCompilationUnit::doSetContextForChildren()
             // We didn't find the package part. From now on create new namespaces
             for ( int j=(int)names.size()-1; j>=i; --j )
             {
-                Node* pk = mkSprPackage(packageName->location(), move(names[j]), declarations);
-                declarations = Feather::mkNodeList(packageName->location(), {pk}, true);
+                Node* pk = mkSprPackage(packageName->location, move(names[j]), declarations);
+                declarations = Feather::mkNodeList(packageName->location, {pk}, true);
                 data_.children[2] = declarations;
             }
             break;
@@ -61,15 +61,15 @@ void SprCompilationUnit::doSetContextForChildren()
     if ( declarations )
         Nest::setContext(declarations, data_.childrenContext);
     if ( imports )
-        imports->setContext(data_.childrenContext);
+        Nest::setContext(imports, data_.childrenContext);
 
     // Handle imports
     if ( imports )
     {
         const Nest::SourceCode* sourceCode = data_.location.sourceCode();
-        for ( DynNode* i: imports->children() )
+        for ( Node* i: imports->children )
         {
-            Literal* lit = i->as<Literal>();
+            Literal* lit = ((DynNode*) i)->as<Literal>();
             if ( lit && lit->isString() )
             {
                 Nest::theCompiler().addSourceCodeByFilename(sourceCode, lit->asString());

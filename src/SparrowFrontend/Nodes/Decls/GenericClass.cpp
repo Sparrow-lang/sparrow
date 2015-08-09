@@ -21,35 +21,35 @@ namespace
 {
     /// Get the bound arguments corresponding to the arguments passed to the generic
     /// We return here the CT values of these arguments; we use their value to check for duplicate instantiations
-    DynNodeVector getBoundValues(const DynNodeVector& args)
+    NodeVector getBoundValues(const NodeVector& args)
     {
-        DynNodeVector boundValues;
+        NodeVector boundValues;
         boundValues.reserve(args.size());
 
         for ( size_t i=0; i<args.size(); ++i )
         {
-            DynNode* arg = args[i];
+            Node* arg = args[i];
 
             // Evaluate the node and add the resulting CtValue as a bound argument
-            arg->computeType();
-            if ( !Feather::isCt(arg->node()) )
-                REP_INTERNAL(arg->location(), "Argument to a class generic must be CT (type: %1%)") % arg->type();
-            DynNode* n = (DynNode*) theCompiler().ctEval(arg->node());
-            if ( !n || n->nodeKind() != nkFeatherExpCtValue )
-                REP_INTERNAL(arg->location(), "Invalid argument %1% when instantiating generic") % (i+1);
+            Nest::computeType(arg);
+            if ( !Feather::isCt(arg) )
+                REP_INTERNAL(arg->location, "Argument to a class generic must be CT (type: %1%)") % arg->type;
+            Node* n = theCompiler().ctEval(arg);
+            if ( !n || n->nodeKind != nkFeatherExpCtValue )
+                REP_INTERNAL(arg->location, "Invalid argument %1% when instantiating generic") % (i+1);
             boundValues.push_back(n);
         }
         return boundValues;
     }
 
-    EvalMode getResultingEvalMode(const Location& loc, EvalMode mainEvalMode, const DynNodeVector& boundValues)
+    EvalMode getResultingEvalMode(const Location& loc, EvalMode mainEvalMode, const NodeVector& boundValues)
     {
         bool hasRtOnlyArgs = false;
         bool hasCtOnlyArgs = false;
-        for ( DynNode* boundVal: boundValues )
+        for ( Node* boundVal: boundValues )
         {
             // Test the type given to the 'Type' parameters (i.e., we need to know if Vector(t) can be rtct based on the mode of t)
-            TypeRef t = tryGetTypeValue(boundVal->node());
+            TypeRef t = tryGetTypeValue(boundVal);
             if ( t )
             {
                 if ( t->mode == modeRt )
@@ -57,7 +57,7 @@ namespace
                 else if ( t->mode == modeCt )
                     hasCtOnlyArgs = true;
             }
-            else if ( !boundVal->type()->canBeUsedAtRt )
+            else if ( !boundVal->type->canBeUsedAtRt )
             {
                 hasCtOnlyArgs = true;
             }
@@ -76,7 +76,7 @@ namespace
         return mainEvalMode;
     }
 
-    DynNode* createInstantiatedClass(CompilationContext* context, SprClass* orig, const string& description)
+    Node* createInstantiatedClass(CompilationContext* context, SprClass* orig, const string& description)
     {
         const Location& loc = orig->location();
 
@@ -92,7 +92,7 @@ namespace
         Nest::setContext(newClass, context);
 
 //        REP_INFO(loc, "Instantiated %1%") % description;
-        return (DynNode*) newClass;
+        return newClass;
     }
 
     string getDescription(SprClass* cls, Instantiation* inst)
@@ -104,7 +104,7 @@ namespace
         {
             if ( i>0 )
                 oss << ", ";
-            TypeRef t = evalTypeIfPossible(boundValues[i]->node());
+            TypeRef t = evalTypeIfPossible(boundValues[i]);
             if ( t )
                 oss << t;
             else
@@ -116,8 +116,8 @@ namespace
 }
 
 
-GenericClass::GenericClass(SprClass* originalClass, Node* parameters, DynNode* ifClause)
-    : Generic(classNodeKind(), originalClass, toDyn(parameters->children), ifClause, publicAccess)
+GenericClass::GenericClass(SprClass* originalClass, Node* parameters, Node* ifClause)
+    : Generic(classNodeKind(), originalClass->node(), parameters->children, ifClause, publicAccess)
 {
     setEvalMode(node(), effectiveEvalMode(originalClass->node()));
 
@@ -136,31 +136,31 @@ size_t GenericClass::paramsCount() const
     return instantiationsSet->parameters().size();
 }
 
-DynNode* GenericClass::param(size_t idx) const
+Node* GenericClass::param(size_t idx) const
 {
     InstantiationsSet* instantiationsSet = (InstantiationsSet*) data_.children[0];
     return instantiationsSet->parameters()[idx];
 }
 
-Instantiation* GenericClass::canInstantiate(const DynNodeVector& args)
+Instantiation* GenericClass::canInstantiate(const NodeVector& args)
 {
-    DynNodeVector boundValues = getBoundValues(args);
-    DynNode* originalClass = (DynNode*) data_.referredNodes[0];
-    EvalMode resultingEvalMode = getResultingEvalMode(originalClass->location(), effectiveEvalMode(originalClass->node()), boundValues);
+    NodeVector boundValues = getBoundValues(args);
+    Node* originalClass = data_.referredNodes[0];
+    EvalMode resultingEvalMode = getResultingEvalMode(originalClass->location, effectiveEvalMode(originalClass), boundValues);
     InstantiationsSet* instantiationsSet = (InstantiationsSet*) data_.children[0];
     return instantiationsSet->canInstantiate(boundValues, resultingEvalMode);
 }
 
-DynNode* GenericClass::instantiateGeneric(const Location& loc, CompilationContext* context, const DynNodeVector& /*args*/, Instantiation* inst)
+Node* GenericClass::instantiateGeneric(const Location& loc, CompilationContext* context, const NodeVector& /*args*/, Instantiation* inst)
 {
     ASSERT(inst);
 
     // If not already created, create the actual instantiation declaration
-    DynNode* instantiatedDecl = inst->instantiatedDecl();
+    Node* instantiatedDecl = inst->instantiatedDecl();
     Node* expandedInstantiation = inst->expandedInstantiation();
     if ( !instantiatedDecl )
     {
-        SprClass* originalClass = ((DynNode*) data_.referredNodes[0])->as<SprClass>();
+        SprClass* originalClass = (SprClass*) ofKind(data_.referredNodes[0], nkSparrowDeclSprClass);
         string description = getDescription(originalClass, inst);
 
         // Create the actual instantiation declaration
@@ -168,9 +168,9 @@ DynNode* GenericClass::instantiateGeneric(const Location& loc, CompilationContex
         instantiatedDecl = createInstantiatedClass(ctx, originalClass, description);
         if ( !instantiatedDecl )
             REP_INTERNAL(loc, "Cannot instantiate generic");
-        instantiatedDecl->setProperty(propDescription, move(description));
-        instantiatedDecl->computeType();
-        theCompiler().queueSemanticCheck(instantiatedDecl->node());
+        Nest::setProperty(instantiatedDecl, propDescription, move(description));
+        Nest::computeType(instantiatedDecl);
+        theCompiler().queueSemanticCheck(instantiatedDecl);
         inst->setInstantiatedDecl(instantiatedDecl);
 
         // Add the instantiated class as an additional node to the callee source code
@@ -179,7 +179,7 @@ DynNode* GenericClass::instantiateGeneric(const Location& loc, CompilationContex
     }
 
     // Now actually create the call object: a Type CT value
-    Node* cls = ofKind(instantiatedDecl->explanation()->node(), nkFeatherDeclClass);
+    Node* cls = ofKind(Nest::explanation(instantiatedDecl), nkFeatherDeclClass);
     ASSERT(cls);
-    return (DynNode*) createTypeNode(data_.context, loc, Feather::getDataType(cls));
+    return createTypeNode(data_.context, loc, Feather::getDataType(cls));
 }

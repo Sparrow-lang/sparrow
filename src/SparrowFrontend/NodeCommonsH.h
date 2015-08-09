@@ -15,4 +15,6 @@ namespace SprFrontend
     using Nest::SymTab;
 
     using Nest::Modifier;
+    using Nest::Node;
+    using Nest::NodeVector;
 }

@@ -1,17 +1,20 @@
 #pragma once
 
 #include <Nest/Intermediate/Node.h>
+#include <Nest/Intermediate/NodeVector.h>
 #include <Nest/Intermediate/NodeKindRegistrar.h>
-#include "DynNodeVector.h"
 
 
 namespace SprFrontend
 {
+    using Nest::Node;
+    using Nest::NodeVector;
+
     /// Interface class for an intermediate code node
     class DynNode
     {
     public:
-        explicit DynNode(int nodeKind, const Nest::Location& location, DynNodeVector children = {}, DynNodeVector referredNodes = {});
+        explicit DynNode(int nodeKind, const Nest::Location& location, NodeVector children = {}, NodeVector referredNodes = {});
         DynNode(const DynNode& other);
 
         static const DynNode* fromNode(const Nest::Node* node);
@@ -48,12 +51,12 @@ namespace SprFrontend
         void setLocation(const Nest::Location& loc);
 
         /// Getter for the children nodes of this node - think compositon
-        const DynNodeVector& children() const { return reinterpret_cast<const DynNodeVector&>(data_.children); }
-        DynNodeVector& children() { return reinterpret_cast<DynNodeVector&>(data_.children); }
+        const NodeVector& children() const { return data_.children; }
+        NodeVector& children() { return data_.children; }
         
         /// Getter for the list of nodes referred by this node
-        const DynNodeVector& referredNodes() const { return reinterpret_cast<const DynNodeVector&>(data_.referredNodes); }
-        DynNodeVector& referredNodes() { return reinterpret_cast<DynNodeVector&>(data_.referredNodes); }
+        const NodeVector& referredNodes() const { return data_.referredNodes; }
+        NodeVector& referredNodes() { return data_.referredNodes; }
 
         const vector<Nest::Modifier*>& modifiers() const { return data_.modifiers; }
         vector<Nest::Modifier*>& modifiers() { return data_.modifiers; }
@@ -61,20 +64,17 @@ namespace SprFrontend
         void setProperty(const char* name, int val, bool passToExpl = false);
         void setProperty(const char* name, string val, bool passToExpl = false);
         void setProperty(const char* name, Nest::Node* val, bool passToExpl = false);
-        void setProperty(const char* name, DynNode* val, bool passToExpl = false);
         void setProperty(const char* name, Nest::TypeRef val, bool passToExpl = false);
 
         bool hasProperty(const char* name) const;
         const int* getPropertyInt(const char* name) const;
         const string* getPropertyString(const char* name) const;
         Nest::Node*const* getPropertyNode(const char* name) const;
-        DynNode*const* getPropertyDynNode(const char* name) const;
         const Nest::TypeRef* getPropertyType(const char* name) const;
         
         int getCheckPropertyInt(const char* name) const;
         const string& getCheckPropertyString(const char* name) const;
         Nest::Node* getCheckPropertyNode(const char* name) const;
-        DynNode* getCheckPropertyDynNode(const char* name) const;
         Nest::TypeRef getCheckPropertyType(const char* name) const;
         
 
@@ -87,10 +87,10 @@ namespace SprFrontend
         bool isExplained() const;
 
         /// Getter for the current explanation of this node; can return null; will not get the explanation recursively
-        DynNode* curExplanation();
+        Node* curExplanation();
 
         /// Getter for the explanation of this node, if it has one; otherwise returns this node
-        DynNode* explanation();
+        Node* explanation();
 
         /// Setter for the children compilation context
         void setChildrenContext(Nest::CompilationContext* childrenContext);
@@ -131,32 +131,10 @@ namespace SprFrontend
         void doSemanticCheck();
 
     // Helpers
-    public:
-
-        /// Convert this node to the given node type
-        template <typename T>
-        T* as()
-        {
-            return this && nodeKind() == T::classNodeKind() ? static_cast<T*>(this) : nullptr;
-        }
-
-        /// Convert this node to the given node type; perform safety checks
-        template <typename T>
-        T* reinterpret()
-        {
-            if ( !this )
-                REP_INTERNAL(NOLOC, "Expected AST node to reinterpret");
-            if ( nodeKind() != T::classNodeKind() )
-                REP_INTERNAL(data_.location, "AST node is not of kind %1% (it's of kind %2%)") % T::classNodeKindName() % nodeKindName();
-            return static_cast<T*>(this);
-        }
-        
-    // Helpers
     protected:
         /// Set the explanation of this node.
         /// makes sure it has the right context, compiles it, and set the type of the current node to be the type of the
         /// explanation
-        void setExplanation(DynNode* explanation);
         void setExplanation(Nest::Node* explanation);
 
     // General node attributes

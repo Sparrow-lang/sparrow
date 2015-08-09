@@ -11,7 +11,7 @@ namespace
 {
     static const char* operPropName = "spr.operation";
 
-//    void dumpInfixExp(DynNode* exp)
+//    void dumpInfixExp(Node* exp)
 //    {
 //        if ( !exp )
 //        {
@@ -19,7 +19,7 @@ namespace
 //        }
 //        else
 //        {
-//            InfixExp* ie = exp->as<InfixExp>();
+//            InfixExp* ie = (InfixExp*) ofKind(exp, nkSparrowExpInfixExp);
 //            if ( ie )
 //            {
 //                cerr << "(";
@@ -51,7 +51,7 @@ namespace
 //    }
 }
 
-InfixExp::InfixExp(const Location& loc, string op, DynNode* arg1, DynNode* arg2)
+InfixExp::InfixExp(const Location& loc, string op, Node* arg1, Node* arg2)
     : DynNode(classNodeKind(), loc, {arg1, arg2})
 {
     if ( op.empty() )
@@ -64,16 +64,16 @@ const string& InfixExp::operation() const
     return getCheckPropertyString(operPropName);
 }
 
-DynNode* InfixExp::arg1() const
+Node* InfixExp::arg1() const
 {
     ASSERT(data_.children.size() == 2);
-    return (DynNode*) data_.children[0];
+    return data_.children[0];
 }
 
-DynNode* InfixExp::arg2() const
+Node* InfixExp::arg2() const
 {
     ASSERT(data_.children.size() == 2);
-    return (DynNode*) data_.children[1];
+    return data_.children[1];
 }
 
 void InfixExp::dump(ostream& os) const
@@ -121,7 +121,7 @@ void InfixExp::handlePrecedence()
         int rankCur = getPrecedence();
 
         // Check right wing first
-        InfixExp* rightOp = DynNode::fromNode(data_.children[1])->as<InfixExp>();
+        InfixExp* rightOp = (InfixExp*) ofKind(data_.children[1], nkSparrowExpInfixExp);
         if ( rightOp )
         {
             int rankRight = rightOp->getPrecedence();
@@ -134,7 +134,7 @@ void InfixExp::handlePrecedence()
         }
 
 
-        InfixExp* leftOp = DynNode::fromNode(data_.children[0])->as<InfixExp>();
+        InfixExp* leftOp = (InfixExp*) ofKind(data_.children[0], nkSparrowExpInfixExp);
         if ( leftOp )
         {
             leftOp->handlePrecedence();
@@ -166,10 +166,10 @@ void InfixExp::handleAssociativity()
     {
         for ( ;/*ever*/; )
         {
-            DynNode* arg2 = (DynNode*) data_.children[1];
-            InfixExp* rightOp = arg2->as<InfixExp>();
-            if ( !rightOp )
+            Node* arg2 = data_.children[1];
+            if ( !arg2 || arg2->nodeKind != nkSparrowExpInfixExp )
                 break;
+            InfixExp* rightOp = (InfixExp*) arg2;
 
             rightOp->handleAssociativity();
             // We never swap right if on the right we have a prefix operator (no 1st arg)
@@ -183,10 +183,10 @@ void InfixExp::handleAssociativity()
     {
         for ( ;/*ever*/; )
         {
-            DynNode* arg1 = (DynNode*) data_.children[0];
-            InfixExp* leftOp = arg1->as<InfixExp>();
-            if ( !leftOp )
+            Node* arg1 = data_.children[0];
+            if ( !arg1 || arg1->nodeKind != nkSparrowExpInfixExp )
                 break;
+            InfixExp* leftOp = (InfixExp*) arg1;
 
             leftOp->handleAssociativity();
             if ( leftOp && curOp == leftOp->operation() )
@@ -199,7 +199,7 @@ void InfixExp::handleAssociativity()
 
 int InfixExp::getPrecedence()
 {
-    DynNode* arg1 = (DynNode*) data_.children[0];
+    Node* arg1 = data_.children[0];
 
     // For prefix operator, search with a special name
     string oper = arg1 ? operation() : "__pre__";
@@ -208,12 +208,12 @@ int InfixExp::getPrecedence()
     string defaultPrecedenceName = "oper_precedence_default";
 
     // Perform a name lookup for the actual precedence name
-    int res = getIntValue(toDyn(data_.context->currentSymTab()->lookup(precedenceName)), -1);
+    int res = getIntValue(data_.context->currentSymTab()->lookup(precedenceName), -1);
     if ( res > 0 )
         return res;
 
     // Search the default precedence name
-    res = getIntValue(toDyn(data_.context->currentSymTab()->lookup(defaultPrecedenceName)), -1);
+    res = getIntValue(data_.context->currentSymTab()->lookup(defaultPrecedenceName), -1);
     if ( res > 0 )
         return res;
 
@@ -225,11 +225,11 @@ bool InfixExp::isRightAssociativity()
     string assocName = "oper_assoc_" + operation();
 
     // Perform a name lookup for the actual associativity name
-    int res = getIntValue(toDyn(data_.context->currentSymTab()->lookup(assocName)), 1);
+    int res = getIntValue(data_.context->currentSymTab()->lookup(assocName), 1);
     return res < 0;
 }
 
-int InfixExp::getIntValue(const DynNodeVector& decls, int defaultVal)
+int InfixExp::getIntValue(const NodeVector& decls, int defaultVal)
 {
     // If no declarations found, return the default value
     if ( decls.empty() )
@@ -239,18 +239,18 @@ int InfixExp::getIntValue(const DynNodeVector& decls, int defaultVal)
     if ( decls.size() > 1 )
     {
         REP_WARNING(data_.location, "Multple precedence declarations found for '%1%'") % operation();
-        for ( DynNode* decl: decls )
+        for ( Node* decl: decls )
             if ( decl )
-                REP_INFO(decl->location(), "See alternative");
+                REP_INFO(decl->location, "See alternative");
     }
 
     // Just one found. Evaluate its value
-    DynNode* node = decls.front();
-    node->semanticCheck();
-    if ( node->nodeKind() == nkSparrowDeclUsing )
-        node = static_cast<Using*>(node)->source();
+    Node* node = decls.front();
+    Nest::semanticCheck(node);
+    if ( node->nodeKind == nkSparrowDeclUsing )
+        node = reinterpret_cast<Using*>(node)->source();
 
-    return getIntCtValue(node->explanation()->node());
+    return getIntCtValue(Nest::explanation(node));
 }
 
 
@@ -267,7 +267,7 @@ int InfixExp::getIntValue(const DynNodeVector& decls, int defaultVal)
 // The left argument of this will become the right argument of this
 void InfixExp::swapLeft()
 {
-    InfixExp* other = DynNode::fromNode(data_.children[0])->as<InfixExp>();
+    InfixExp* other = (InfixExp*) ofKind(data_.children[0], nkSparrowExpInfixExp);
     ASSERT(other);
 
     this->data_.children[0] = other->data_.children[0];
@@ -295,7 +295,7 @@ void InfixExp::swapLeft()
 //       it cannot be applied if 'Y' is a unary operator that contains a null 'M'
 void InfixExp::swapRight()
 {
-    InfixExp* other = DynNode::fromNode(data_.children[1])->as<InfixExp>();
+    InfixExp* other = (InfixExp*) ofKind(data_.children[1], nkSparrowExpInfixExp);
     ASSERT(other);
 
     this->data_.children[1] = other->data_.children[1];

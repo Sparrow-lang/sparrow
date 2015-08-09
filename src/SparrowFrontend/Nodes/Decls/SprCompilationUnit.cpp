@@ -7,8 +7,8 @@
 
 using namespace SprFrontend;
 
-SprCompilationUnit::SprCompilationUnit(const Location& loc, DynNode* package, Node* imports, Node* declarations)
-    : DynNode(classNodeKind(), loc, {package, (DynNode*) imports, (DynNode*) declarations})
+SprCompilationUnit::SprCompilationUnit(const Location& loc, Node* package, Node* imports, Node* declarations)
+    : DynNode(classNodeKind(), loc, {package, imports, declarations})
 {
     ASSERT( !imports || imports->nodeKind == Feather::nkFeatherNodeList );
     ASSERT( !declarations || declarations->nodeKind == Feather::nkFeatherNodeList );
@@ -34,10 +34,10 @@ void SprCompilationUnit::doSetContextForChildren()
         for ( int i=0; i<(int)names.size(); ++i )
         {
             // Try to find an existing package in the current symbol table
-            DynNodeVector decls = toDyn(data_.context->currentSymTab()->lookupCurrent(names[i]));
+            NodeVector decls = data_.context->currentSymTab()->lookupCurrent(names[i]);
             if ( decls.size() == 1 )
             {
-                data_.context = decls.front()->childrenContext();
+                data_.context = Nest::childrenContext(decls.front());
                 continue;
             }
 
@@ -69,7 +69,7 @@ void SprCompilationUnit::doSetContextForChildren()
         const Nest::SourceCode* sourceCode = data_.location.sourceCode();
         for ( Node* i: imports->children )
         {
-            Literal* lit = ((DynNode*) i)->as<Literal>();
+            Literal* lit = (Literal*) ofKind(i, nkSparrowExpLiteral);
             if ( lit && lit->isString() )
             {
                 Nest::theCompiler().addSourceCodeByFilename(sourceCode, lit->asString());
@@ -101,11 +101,11 @@ void SprCompilationUnit::doComputeType()
 
 void SprCompilationUnit::doSemanticCheck()
 {
-    computeType();
+    Nest::computeType(node());
 
     ASSERT(data_.children.size() == 3);
     Node* declarations = data_.children[2];
 
-    setExplanation((DynNode*) declarations ? declarations : Feather::mkNop(data_.location));
+    setExplanation(declarations ? declarations : Feather::mkNop(data_.location));
 }
 

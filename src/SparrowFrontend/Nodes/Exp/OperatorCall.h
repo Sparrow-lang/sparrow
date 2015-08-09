@@ -14,7 +14,7 @@ namespace SprFrontend
         // - infix:     A op B  => call OperatorCall(loc, A, op, B);
         // - postfix:   A op    => call OperatorCall(loc, A, op, nullptr);
         // - prefix:    op A    => call OperatorCall(loc, nullptr, op, A);
-        OperatorCall(const Location& loc, DynNode* arg1, string op, DynNode* arg2);
+        OperatorCall(const Location& loc, Node* arg1, string op, Node* arg2);
 
         void dump(ostream& os) const;
 

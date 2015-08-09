@@ -14,7 +14,7 @@ using namespace Nest;
 using namespace Feather;
 
 
-SprReturn::SprReturn(const Location& loc, DynNode* exp)
+SprReturn::SprReturn(const Location& loc, Node* exp)
     : DynNode(classNodeKind(), loc, {exp})
 {
 }

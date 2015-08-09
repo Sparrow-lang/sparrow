@@ -8,23 +8,23 @@
 using namespace SprFrontend;
 using namespace Nest;
 
-SprParameter::SprParameter(const Location& loc, string name, DynNode* typeNode, DynNode* init)
+SprParameter::SprParameter(const Location& loc, string name, Node* typeNode, Node* init)
     : DynNode(classNodeKind(), loc, {typeNode, init})
 {
     Feather::setName(node(), move(name));
 }
 
-SprParameter::SprParameter(const Location& loc, string name, TypeRef type, DynNode* init)
+SprParameter::SprParameter(const Location& loc, string name, TypeRef type, Node* init)
     : DynNode(classNodeKind(), loc, {nullptr, init})
 {
     Feather::setName(node(), move(name));
     setProperty("spr.givenType", type);
 }
 
-DynNode* SprParameter::initValue() const
+Node* SprParameter::initValue() const
 {
     ASSERT(data_.children.size() == 2);
-    return (DynNode*) data_.children[1];
+    return data_.children[1];
 }
 
 void SprParameter::dump(ostream& os) const
@@ -70,11 +70,11 @@ void SprParameter::doComputeType()
 
 void SprParameter::doSemanticCheck()
 {
-    computeType();
+    Nest::computeType(node());
 
     Nest::semanticCheck(data_.explanation);
 
-    DynNode* init = initValue();
+    Node* init = initValue();
     if ( init )
-        init->semanticCheck();
+        Nest::semanticCheck(init);
 }

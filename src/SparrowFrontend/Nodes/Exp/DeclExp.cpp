@@ -6,23 +6,21 @@
 using namespace SprFrontend;
 using namespace Nest;
 
-DeclExp::DeclExp(const Location& loc, DynNodeVector decls, DynNode* baseExp)
+DeclExp::DeclExp(const Location& loc, NodeVector decls, Node* baseExp)
     : DynNode(classNodeKind(), loc, {}, move(decls))
 {
-    data_.referredNodes.insert(data_.referredNodes.begin(), baseExp->node());
+    data_.referredNodes.insert(data_.referredNodes.begin(), baseExp);
 }
 
-DynNodeVector DeclExp::decls() const
+NodeVector DeclExp::decls() const
 {
-    ASSERT(!data_.referredNodes.empty());
-    const DynNodeVector& refNodes = reinterpret_cast<const DynNodeVector&>(data_.referredNodes);
-    return DynNodeVector(refNodes.begin()+1, refNodes.end());
+    return NodeVector(data_.referredNodes.begin()+1, data_.referredNodes.end());
 }
 
-DynNode* DeclExp::baseExp() const
+Node* DeclExp::baseExp() const
 {
     ASSERT(!data_.referredNodes.empty());
-    return (DynNode*) data_.referredNodes[0];
+    return data_.referredNodes[0];
 }
 
 void DeclExp::dump(ostream& os) const

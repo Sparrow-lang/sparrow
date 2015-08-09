@@ -22,7 +22,7 @@ void IntModDtorMembers::beforeSemanticCheck(Node* node)
     // If we have a body, make sure it's a local space
     if ( !fun->body() )
         return; // nothing to do
-    Node* body = fun->body()->node();
+    Node* body = fun->body();
     if ( body->nodeKind != nkFeatherLocalSpace )
         REP_INTERNAL(node->location, "Destructor body is not a local space (needed by IntModDtorMembers)");
 

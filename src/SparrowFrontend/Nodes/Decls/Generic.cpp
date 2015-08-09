@@ -10,10 +10,10 @@
 using namespace SprFrontend;
 using namespace Feather;
 
-Generic::Generic(int nodeKind, DynNode* origNode, DynNodeVector genericParams, DynNode* ifClause, AccessType accessType)
-    : DynNode(nodeKind, origNode->location(), { (DynNode*) mkInstantiationsSet(origNode->node(), fromDyn(move(genericParams)), ifClause->node()) }, { origNode })
+Generic::Generic(int nodeKind, Node* origNode, NodeVector genericParams, Node* ifClause, AccessType accessType)
+    : DynNode(nodeKind, origNode->location, { mkInstantiationsSet(origNode, move(genericParams), ifClause) }, { origNode })
 {
-    setName(node(), getName(origNode->node()));
+    setName(node(), getName(origNode));
     setAccessType(node(), accessType);
 }
 
@@ -25,7 +25,7 @@ void Generic::doSemanticCheck()
     data_.type = data_.explanation->type;
 }
 
-const DynNodeVector& Generic::genericParams() const
+const NodeVector& Generic::genericParams() const
 {
     return ((InstantiationsSet*) data_.children[0])->parameters();
 }
@@ -54,9 +54,9 @@ Node* SprFrontend::genericParam(const Node* node, size_t idx)
     switch ( node->nodeKind - firstSparrowNodeKind )
     {
     case nkRelSparrowDeclGenericClass:
-        return reinterpret_cast<const GenericClass*>(node)->param(idx)->node();
+        return reinterpret_cast<const GenericClass*>(node)->param(idx);
     case nkRelSparrowDeclGenericFunction:
-        return reinterpret_cast<const GenericFunction*>(node)->param(idx)->node();
+        return reinterpret_cast<const GenericFunction*>(node)->param(idx);
     default:
         REP_INTERNAL(node->location, "Node is not a generic: %1%") % node;
         return nullptr;
@@ -68,9 +68,9 @@ Instantiation* SprFrontend::genericCanInstantiate(Node* node, const NodeVector& 
     switch ( node->nodeKind - firstSparrowNodeKind )
     {
     case nkRelSparrowDeclGenericClass:
-        return reinterpret_cast<GenericClass*>(node)->canInstantiate(toDyn(args));
+        return reinterpret_cast<GenericClass*>(node)->canInstantiate(args);
     case nkRelSparrowDeclGenericFunction:
-        return reinterpret_cast<GenericFunction*>(node)->canInstantiate(toDyn(args));
+        return reinterpret_cast<GenericFunction*>(node)->canInstantiate(args);
     default:
         REP_INTERNAL(node->location, "Node is not a generic: %1%") % node;
         return nullptr;
@@ -81,9 +81,9 @@ Node* SprFrontend::genericDoInstantiate(Node* node, const Location& loc, Compila
     switch ( node->nodeKind - firstSparrowNodeKind )
     {
     case nkRelSparrowDeclGenericClass:
-        return reinterpret_cast<GenericClass*>(node)->instantiateGeneric(loc, context, toDyn(args), instantiation)->node();
+        return reinterpret_cast<GenericClass*>(node)->instantiateGeneric(loc, context, args, instantiation);
     case nkRelSparrowDeclGenericFunction:
-        return reinterpret_cast<GenericFunction*>(node)->instantiateGeneric(loc, context, toDyn(args), instantiation)->node();
+        return reinterpret_cast<GenericFunction*>(node)->instantiateGeneric(loc, context, args, instantiation);
     default:
         REP_INTERNAL(node->location, "Node is not a generic: %1%") % node;
         return nullptr;

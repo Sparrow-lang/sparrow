@@ -10,7 +10,7 @@ namespace SprFrontend
         DEFINE_NODE(SprReturn, nkSparrowStmtSprReturn, "Sparrow.Stmt.SprReturn");
 
     public:
-        SprReturn(const Location& loc, DynNode* exp);
+        SprReturn(const Location& loc, Node* exp);
 
     protected:
         void doSemanticCheck();

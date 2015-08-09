@@ -33,7 +33,7 @@ namespace
 
     TypeRef changeTypeModeConcept(TypeRef type, EvalMode newMode)
     {
-        return getConceptType(((DynNode*) type->referredNode)->as<SprConcept>(), type->numReferences, newMode);
+        return getConceptType((SprConcept*) ofKind(type->referredNode, nkSparrowDeclSprConcept), type->numReferences, newMode);
     }
 }
 

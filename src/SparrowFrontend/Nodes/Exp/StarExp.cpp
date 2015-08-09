@@ -5,7 +5,7 @@
 using namespace SprFrontend;
 using namespace Nest;
 
-StarExp::StarExp(const Location& loc, DynNode* base)
+StarExp::StarExp(const Location& loc, Node* base)
     : DynNode(classNodeKind(), loc, {base})
 {
 }

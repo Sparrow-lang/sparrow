@@ -13,7 +13,7 @@
 using namespace SprFrontend;
 using namespace Feather;
 
-SprConcept::SprConcept(const Location& loc, string name, string paramName, DynNode* baseConcept, DynNode* ifClause, AccessType accessType)
+SprConcept::SprConcept(const Location& loc, string name, string paramName, Node* baseConcept, Node* ifClause, AccessType accessType)
     : DynNode(classNodeKind(), loc, {baseConcept, ifClause, nullptr})
 {
     setName(node(), move(name));
@@ -31,14 +31,14 @@ bool SprConcept::isFulfilled(TypeRef type)
     Node* typeValue = createTypeNode(data_.context, data_.location, type);
     Nest::semanticCheck(typeValue);
 
-    return nullptr != instantiationsSet->canInstantiate({(DynNode*) typeValue}, data_.context->evalMode());
+    return nullptr != instantiationsSet->canInstantiate({typeValue}, data_.context->evalMode());
 }
 
 TypeRef SprConcept::baseConceptType() const
 {
-    DynNode* baseConcept = (DynNode*) data_.children[0];
+    Node* baseConcept = data_.children[0];
 
-    TypeRef res = baseConcept ? getType(baseConcept->node()) : getConceptType();
+    TypeRef res = baseConcept ? getType(baseConcept) : getConceptType();
     res = adjustMode(res, data_.context, data_.location);
     return res;
 }
@@ -57,7 +57,7 @@ void SprConcept::doSemanticCheck()
 {
     ASSERT(data_.children.size() == 3);
     Node* baseConcept = data_.children[0];
-    DynNode* ifClause = (DynNode*) data_.children[1];
+    Node* ifClause = data_.children[1];
     Node*& instantiationsSet = data_.children[2];
     const string& paramName = getCheckPropertyString("spr.paramName");
 
@@ -76,6 +76,6 @@ void SprConcept::doSemanticCheck()
     Nest::computeType(param);       // But not semanticCheck, as it will complain of instantiating a var of type auto
 
     delete instantiationsSet;
-    instantiationsSet = (Node*) new InstantiationsSet(this, { (DynNode*) param }, ifClause);
+    instantiationsSet = (Node*) new InstantiationsSet(node(), { (Node*) param }, ifClause);
     setExplanation(Feather::mkNop(data_.location));
 }

@@ -19,37 +19,37 @@ namespace
 {
     /// Get the fields from the symtab of the current class
     /// In the process it might compute the type of the SprVariables
-    DynNodeVector getFields(SymTab* curSymTab)
+    NodeVector getFields(SymTab* curSymTab)
     {
         // Check all the nodes registered in the children context so far to discover the fields
-        DynNodeVector fields;
-        for ( DynNode* n: toDyn(curSymTab->allEntries()) )
+        NodeVector fields;
+        for ( Node* n: curSymTab->allEntries() )
         {
-            if ( n->nodeKind() == nkFeatherDeclVar || n->nodeKind() == nkSparrowDeclSprVariable )
+            if ( n->nodeKind == nkFeatherDeclVar || n->nodeKind == nkSparrowDeclSprVariable )
                 fields.push_back(n);
         }
 
         // Sort the fields by location - we need to add them in order
-        sort(fields.begin(), fields.end(), [](DynNode* f1, DynNode* f2) { return f1->location() < f2->location(); });
+        sort(fields.begin(), fields.end(), [](Node* f1, Node* f2) { return f1->location < f2->location; });
 
         // Make sure we have only fields
-        for ( DynNode*& field: fields )
+        for ( Node*& field: fields )
         {
-            field->computeType();
-            field = field->explanation();
-            if ( field->nodeKind() != nkFeatherDeclVar || !isField(field->node()) )
+            Nest::computeType(field);
+            field = Nest::explanation(field);
+            if ( field->nodeKind != nkFeatherDeclVar || !isField(field) )
                 field = nullptr;
         }
 
         // Remove all the nulls
-        fields.erase(remove_if(fields.begin(), fields.end(), [](DynNode* n) { return n == nullptr; }), fields.end());
+        fields.erase(remove_if(fields.begin(), fields.end(), [](Node* n) { return n == nullptr; }), fields.end());
 
         return fields;
     }
 }
 
-SprClass::SprClass(const Location& loc, string name, Node* parameters, Node* baseClasses, Node* children, DynNode* ifClause, AccessType accessType)
-    : DynNode(classNodeKind(), loc, {(DynNode*) parameters, (DynNode*) baseClasses, (DynNode*) children, ifClause})
+SprClass::SprClass(const Location& loc, string name, Node* parameters, Node* baseClasses, Node* children, Node* ifClause, AccessType accessType)
+    : DynNode(classNodeKind(), loc, {parameters, baseClasses, children, ifClause})
 {
     ASSERT( !parameters || parameters->nodeKind == nkFeatherNodeList );
     ASSERT( !baseClasses || baseClasses->nodeKind == nkFeatherNodeList );
@@ -69,10 +69,6 @@ Node* SprClass::classChildren() const
     return data_.children[2];
 }
 
-void SprClass::addChild(DynNode* child)
-{
-    addChild(child->node());
-}
 void SprClass::addChild(Node* child)
 {
     if ( !child )
@@ -117,12 +113,12 @@ void SprClass::doComputeType()
     Node* parameters = data_.children[0];
     Node* baseClasses = data_.children[1];
     Node* children = data_.children[2];
-    DynNode* ifClause = (DynNode*) data_.children[3];
+    Node* ifClause = data_.children[3];
 
     // Is this a generic?
     if ( parameters && !parameters->children.empty() )
     {
-        DynNode* generic = new GenericClass(this, parameters, ifClause);
+        Node* generic = (new GenericClass(this, parameters, ifClause))->node();
         setProperty(propResultingDecl, generic);
         setExplanation(generic);
         return;
@@ -197,7 +193,7 @@ void SprClass::doComputeType()
     data_.type = getDataType(resultingClass);
 
     // Get the fields from the current class
-    NodeVector fields = fromDyn(getFields(data_.childrenContext->currentSymTab()));
+    NodeVector fields = getFields(data_.childrenContext->currentSymTab());
     resultingClass->children.insert(resultingClass->children.end(), fields.begin(), fields.end());
 
     // Check all the children
@@ -225,7 +221,7 @@ void SprClass::doComputeType()
 
 void SprClass::doSemanticCheck()
 {
-    computeType();
+    Nest::computeType(node());
 
     Nest::semanticCheck(data_.explanation);
 

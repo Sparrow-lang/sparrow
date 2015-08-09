@@ -12,7 +12,7 @@ using namespace Nest;
 using namespace Feather;
 
 
-For::For(const Location& loc, string name, DynNode* range, DynNode* action, DynNode* typeExpr, bool ct)
+For::For(const Location& loc, string name, Node* range, Node* action, Node* typeExpr, bool ct)
     : DynNode(classNodeKind(), loc, {range, action, typeExpr})
 {
     setName(node(), move(name));
@@ -23,17 +23,17 @@ For::For(const Location& loc, string name, DynNode* range, DynNode* action, DynN
 void For::doSetContextForChildren()
 {
     ASSERT(data_.children.size() == 3);
-    DynNode* range = (DynNode*) data_.children[0];
-    DynNode* action = (DynNode*) data_.children[1];
-    DynNode* typeExpr = (DynNode*) data_.children[2];
+    Node* range = data_.children[0];
+    Node* action = data_.children[1];
+    Node* typeExpr = data_.children[2];
 
     ASSERT(range);
     CompilationContext* rangeContext = nodeEvalMode(node()) == modeCt ? new CompilationContext(data_.context, modeCt) : data_.context;
     if ( typeExpr )
-        typeExpr->setContext(rangeContext);
-    range->setContext(rangeContext);
+        Nest::setContext(typeExpr, rangeContext);
+    Nest::setContext(range, rangeContext);
     if ( action )
-        action->setContext(data_.context);
+        Nest::setContext(action, data_.context);
 }
 
 void For::doComputeType()

@@ -6,15 +6,15 @@
 
 namespace SprFrontend
 {
-    /// DynNode that holds a list of modifiers to be used for another node
+    /// Node that holds a list of modifiers to be used for another node
     class ModifiersNode : public DynNode
     {
         DEFINE_NODE(ModifiersNode, nkSparrowModifiersNode, "Sparrow.ModifiersNode");
 
     public:
-        ModifiersNode(const Location& loc, DynNode* base, DynNode* modifierNodes);
+        ModifiersNode(const Location& loc, Node* base, Node* modifierNodes);
 
-        DynNode* base() const { return (DynNode*) data_.children[0]; }
+        Node* base() const { return data_.children[0]; }
 
     protected:
         void doSetContextForChildren();

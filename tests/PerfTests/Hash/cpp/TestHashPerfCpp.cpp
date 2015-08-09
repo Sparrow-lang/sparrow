@@ -146,19 +146,19 @@ namespace Spr
         // typedef hashType HashType;
         // typedef compareType CompareType;
 
-        class DynNode;
-        // typedef Ptr<DynNode> NodePtr;
-        typedef DynNode* NodePtr;
+        class Node;
+        // typedef Ptr<Node> NodePtr;
+        typedef Node* NodePtr;
         typedef vector<NodePtr> BucketsType;
 
-        class DynNode
+        class Node
         {
         public:
             NodePtr next;
             size_t hash;
             ValueType data;
 
-            DynNode(NodePtr aNext, size_t aHash, const ValueType& aData)
+            Node(NodePtr aNext, size_t aHash, const ValueType& aData)
                 : next(aNext)
                 , hash(aHash)
                 , data(aData)
@@ -432,7 +432,7 @@ namespace Spr
         HashType hash;
         CompareType comp;
 
-        // NodePtr guardNode()         { return NodePtr(*reinterpret_cast<DynNode*>(&guard)); }
+        // NodePtr guardNode()         { return NodePtr(*reinterpret_cast<Node*>(&guard)); }
         NodePtr guardNode()         { return NodePtr(reinterpret_cast<NodePtr*>(&firstElem)); }
         NodePtr getFirstElem()      { return firstElem; }
 
@@ -503,7 +503,7 @@ namespace Spr
             NodePtr node = findNodeInBucket(bi, key);
             if ( node == nullptr )
             {
-                node = new DynNode(NodePtr(), h, value);
+                node = new Node(NodePtr(), h, value);
                 ++numElements;
                 insertNode(node);
             }

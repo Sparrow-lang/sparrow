@@ -10,8 +10,8 @@
 using namespace SprFrontend;
 using namespace Feather;
 
-LambdaFunction::LambdaFunction(const Location& loc, Node* parameters, DynNode* returnType, DynNode* body, Node* closureParams)
-    : DynNode(classNodeKind(), loc, {}, {(DynNode*) parameters, returnType, body, (DynNode*) closureParams})
+LambdaFunction::LambdaFunction(const Location& loc, Node* parameters, Node* returnType, Node* body, Node* closureParams)
+    : DynNode(classNodeKind(), loc, {}, {parameters, returnType, body, closureParams})
 {
     ASSERT( !parameters || parameters->nodeKind == nkFeatherNodeList );
     ASSERT( !closureParams || closureParams->nodeKind == nkFeatherNodeList );
@@ -21,8 +21,8 @@ void LambdaFunction::dump(ostream& os) const
 {
     ASSERT(data_.referredNodes.size() == 4);
     Node* parameters = data_.referredNodes[0];
-    DynNode* returnType = (DynNode*) data_.referredNodes[1];
-    DynNode* body = (DynNode*) data_.referredNodes[2];
+    Node* returnType = data_.referredNodes[1];
+    Node* body = data_.referredNodes[2];
     Node* closureParams = data_.referredNodes[3];
     os << "(fun";
     os << " " << parameters;

@@ -11,9 +11,9 @@ namespace SprFrontend
         DEFINE_NODE(Using, nkSparrowDeclUsing, "Sparrow.Decl.Using");
 
     public:
-        Using(const Location& loc, string alias, DynNode* usingNode, AccessType accessType = publicAccess);
+        Using(const Location& loc, string alias, Node* usingNode, AccessType accessType = publicAccess);
 
-        DynNode* source() const;
+        Node* source() const;
 
     protected:
         void doSetContextForChildren();

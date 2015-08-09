@@ -10,12 +10,12 @@ namespace SprFrontend
     class Generic : public DynNode
     {
     public:
-        Generic(int nodeKind, DynNode* origNode, DynNodeVector genericParams, DynNode* ifClause, AccessType accessType = publicAccess);
+        Generic(int nodeKind, Node* origNode, NodeVector genericParams, Node* ifClause, AccessType accessType = publicAccess);
 
     protected:
         void doSemanticCheck();
 
-        const DynNodeVector& genericParams() const;
+        const NodeVector& genericParams() const;
     };
 
     bool isGeneric(const Node* node);

@@ -14,7 +14,7 @@ namespace SprFrontend
         DEFINE_NODE(SprConcept, nkSparrowDeclSprConcept, "Sparrow.Decl.Concept");
 
     public:
-        SprConcept(const Location& loc, string name, string paramName, DynNode* baseConcept, DynNode* ifClause, AccessType accessType = publicAccess);
+        SprConcept(const Location& loc, string name, string paramName, Node* baseConcept, Node* ifClause, AccessType accessType = publicAccess);
 
         /// Checks if the concept is fulfilled for the given type
         bool isFulfilled(TypeRef type);

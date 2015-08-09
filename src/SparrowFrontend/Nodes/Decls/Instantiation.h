@@ -12,19 +12,19 @@ namespace SprFrontend
         DEFINE_NODE(Instantiation, nkSparrowInnerInstantiation, "Sparrow.Inner.Instantiation");
 
     public:
-        Instantiation(const Location& loc, DynNodeVector boundValues, DynNodeVector boundVars);
+        Instantiation(const Location& loc, NodeVector boundValues, NodeVector boundVars);
 
         /// The bound values - the values that define the instantiation as a particular case of a generic
         /// Usually this is a vector of CtValue nodes
-        const DynNodeVector& boundValues() const;
+        const NodeVector& boundValues() const;
 
         /// NodeList containing the variables & the actual instantiation
         /// This will contain variables for each bound value, and then the actual instantiated declaration
         Node*& expandedInstantiation();
 
         /// The actual declaration instantiation. This will be a part of 'expandedInstantiation'
-        DynNode* instantiatedDecl();
-        void setInstantiatedDecl(DynNode* decl);
+        Node* instantiatedDecl();
+        void setInstantiatedDecl(Node* decl);
 
         bool isValid() const;
         void setValid(bool valid = true);

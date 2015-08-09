@@ -67,8 +67,8 @@ NodeVector SprFrontend::getDeclsFromNode(Node* n, Node*& baseExp)
     if ( n->nodeKind == nkSparrowExpDeclExp )
     {
         DeclExp* declExp = (DeclExp*) n;
-        baseExp = declExp->baseExp()->node();
-        res = fromDyn(declExp->decls());
+        baseExp = declExp->baseExp();
+        res = declExp->decls();
         return res;
     }
     

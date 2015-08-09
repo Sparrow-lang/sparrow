@@ -10,10 +10,10 @@ namespace SprFrontend
         DEFINE_NODE(FunApplication, nkSparrowExpFunApplication, "Sparrow.Exp.FunApplication");
 
     public:
-        FunApplication(const Location& loc, DynNode* base, Node* arguments);
-        FunApplication(const Location& loc, DynNode* base, DynNodeVector args);
+        FunApplication(const Location& loc, Node* base, Node* arguments);
+        FunApplication(const Location& loc, Node* base, NodeVector args);
 
-        DynNode* base() const;
+        Node* base() const;
         Node* arguments() const;
 
     protected:

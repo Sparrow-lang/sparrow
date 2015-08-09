@@ -10,7 +10,7 @@ namespace SprFrontend
         DEFINE_NODE(StarExp, nkSparrowExpStarExp, "Sparrow.Exp.StarExp");
 
     public:
-        StarExp(const Location& loc, DynNode* base);
+        StarExp(const Location& loc, Node* base);
 
     protected:
         void doSemanticCheck();

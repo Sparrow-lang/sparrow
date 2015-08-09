@@ -7,7 +7,7 @@
 
 using namespace SprFrontend;
 
-SprConditional::SprConditional(const Location& location, DynNode* condition, DynNode* alt1, DynNode* alt2)
+SprConditional::SprConditional(const Location& location, Node* condition, Node* alt1, Node* alt2)
     : DynNode(classNodeKind(), location, {condition, alt1, alt2})
 {
 }

@@ -38,23 +38,23 @@ namespace
     }
 }
 
-FunApplication::FunApplication(const Location& loc, DynNode* base, Node* arguments)
-    : DynNode(classNodeKind(), loc, {base, (DynNode*) arguments})
+FunApplication::FunApplication(const Location& loc, Node* base, Node* arguments)
+    : DynNode(classNodeKind(), loc, {base, arguments})
 {
     ASSERT( !arguments || arguments->nodeKind == nkFeatherNodeList );
     if ( !arguments )
         data_.children[1] = mkNodeList(loc, {});
 }
 
-FunApplication::FunApplication(const Location& loc, DynNode* base, DynNodeVector args)
-    : DynNode(classNodeKind(), loc, {base, (DynNode*) mkNodeList(loc, fromDyn(move(args)))})
+FunApplication::FunApplication(const Location& loc, Node* base, NodeVector args)
+    : DynNode(classNodeKind(), loc, {base, mkNodeList(loc, move(args))})
 {
 }
 
-DynNode* FunApplication::base() const
+Node* FunApplication::base() const
 {
     ASSERT(data_.children.size() == 2);
-    return (DynNode*) data_.children[0];
+    return data_.children[0];
 }
 Node* FunApplication::arguments() const
 {
@@ -67,23 +67,24 @@ void FunApplication::doSemanticCheck()
 {
     ASSERT(data_.children.size() == 2);
     ASSERT(!data_.children[1] || data_.children[1]->nodeKind == nkFeatherNodeList);
-    DynNode* base = (DynNode*) data_.children[0];
+    Node* base = data_.children[0];
     Node* arguments = data_.children[1];
 
     if ( !base )
         REP_INTERNAL(data_.location, "Don't know what function to call");
     
     // For the base expression allow it to return DeclExp
-    base->setProperty(propAllowDeclExp, 1, true);
+    Nest::setProperty(base, propAllowDeclExp, 1, true);
 
     // Compile the base expression
     // We can expect here both traditional expressions and nodes yielding decl-type types
-    base->semanticCheck();
+    Nest::semanticCheck(base);
 
     // Check for Sparrow implicit functions
-    Identifier* ident = base->as<Identifier>();
-    if ( ident )
+    Identifier* ident = nullptr;
+    if ( base->nodeKind == nkSparrowExpIdentifier )
     {
+        ident = (Identifier*) base;
         const string& id = ident->id();
         if ( id == "isValid" )
         {
@@ -144,25 +145,25 @@ void FunApplication::doSemanticCheck()
         }
     }
 
-    string functionName = base->toString();
+    string functionName = Nest::toString(base);
     
     // Try to get the declarations pointed by the base node
     Node* thisArg = nullptr;
-    NodeVector decls = getDeclsFromNode(base->node(), thisArg);
+    NodeVector decls = getDeclsFromNode(base, thisArg);
 
     // If we didn't find any declarations, try the operator call
-    if ( base->type()->hasStorage && decls.empty() )
+    if ( base->type->hasStorage && decls.empty() )
     {
-        Node* cls = classForType(base->type());
+        Node* cls = classForType(base->type);
         decls = cls->childrenContext->currentSymTab()->lookupCurrent("()");
         if ( decls.empty() )
             REP_ERROR(data_.location, "Class %1% has no user defined call operators") % getName(cls);
-        thisArg = base->node();
+        thisArg = base;
         functionName = "()";
     }
 
     // The name of function we are trying to call
-    if ( functionName == Nest::nodeKindName(base->node()) )
+    if ( functionName == Nest::nodeKindName(base) )
         functionName = "function";
 
     // The arguments to be used, including thisArg
@@ -394,8 +395,8 @@ void FunApplication::checkCtEval()
     Nest::setContext(arg, data_.context);
     Nest::semanticCheck(arg);
 
-    DynNode* res = (DynNode*) theCompiler().ctEval(arg);
-    if ( res->nodeKind() != nkFeatherExpCtValue )
+    Node* res = theCompiler().ctEval(arg);
+    if ( res->nodeKind != nkFeatherExpCtValue )
         REP_ERROR(arg->location, "Unknown value");
 
     setExplanation(res);

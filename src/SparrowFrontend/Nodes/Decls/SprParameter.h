@@ -10,10 +10,10 @@ namespace SprFrontend
         DEFINE_NODE(SprParameter, nkSparrowDeclSprParameter, "Sparrow.Decl.Parameter");
 
     public:
-        SprParameter(const Location& loc, string name, DynNode* typeNode, DynNode* init = nullptr);
-        SprParameter(const Location& loc, string name, TypeRef type, DynNode* init = nullptr);
+        SprParameter(const Location& loc, string name, Node* typeNode, Node* init = nullptr);
+        SprParameter(const Location& loc, string name, TypeRef type, Node* init = nullptr);
 
-        DynNode* initValue() const;
+        Node* initValue() const;
 
         void dump(ostream& os) const;
 

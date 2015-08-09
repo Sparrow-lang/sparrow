@@ -22,8 +22,8 @@ namespace
     static const char* propIsMember = "spr.isMember";
 }
 
-SprFunction::SprFunction(const Location& loc, string name, Node* parameters, DynNode* returnType, DynNode* body, DynNode* ifClause, AccessType accessType)
-    : DynNode(classNodeKind(), loc, {(DynNode*) parameters, returnType, body, ifClause})
+SprFunction::SprFunction(const Location& loc, string name, Node* parameters, Node* returnType, Node* body, Node* ifClause, AccessType accessType)
+    : DynNode(classNodeKind(), loc, {parameters, returnType, body, ifClause})
 {
     ASSERT( !parameters || parameters->nodeKind == nkFeatherNodeList );
     setName(node(), move(name));
@@ -35,15 +35,15 @@ bool SprFunction::hasThisParameters() const
     return hasProperty(propIsMember) && !hasProperty(propIsStatic);
 }
 
-DynNode* SprFunction::returnType() const
+Node* SprFunction::returnType() const
 {
     ASSERT(data_.children.size() == 4);
-    return (DynNode*) data_.children[1];
+    return data_.children[1];
 }
-DynNode* SprFunction::body() const
+Node* SprFunction::body() const
 {
     ASSERT(data_.children.size() == 4);
-    return (DynNode*) data_.children[2];
+    return data_.children[2];
 }
 
 Node* SprFunction::resultingFun() const
@@ -96,9 +96,9 @@ void SprFunction::doComputeType()
 {
     ASSERT(data_.children.size() == 4);
     Node* parameters = data_.children[0];
-    DynNode* returnType = (DynNode*) data_.children[1];
-    DynNode* body = (DynNode*) data_.children[2];
-    DynNode* ifClause = (DynNode*) data_.children[3];
+    Node* returnType = data_.children[1];
+    Node* body = data_.children[2];
+    Node* ifClause = data_.children[3];
 
     bool isStatic = hasProperty(propIsStatic);
 
@@ -114,11 +114,11 @@ void SprFunction::doComputeType()
     if ( parameters )
     {
         Node* thisClass = isMember && !isStatic ? parentClass : nullptr;
-        DynNode* generic = GenericFunction::createGeneric(this, parameters, ifClause, thisClass);
+        Node* generic = GenericFunction::createGeneric(this, parameters, ifClause, thisClass)->node();
         if ( generic )
         {
             // TODO (explanation): explanation should be the result of semantic check
-            data_.explanation = generic->node();
+            data_.explanation = generic;
             Nest::computeType(data_.explanation);
             data_.type = data_.explanation->type;
             setProperty(propResultingDecl, generic);
@@ -142,7 +142,7 @@ void SprFunction::doComputeType()
     EvalMode thisEvalMode = effectiveEvalMode(node());
 
     // Create the resulting function object
-    Node* resultingFun = mkFunction(data_.location, funName, nullptr, {}, body->node());
+    Node* resultingFun = mkFunction(data_.location, funName, nullptr, {}, body);
     setShouldAddToSymTab(resultingFun, false);
 
     // Copy the "native" and the "autoCt" properties
@@ -166,7 +166,7 @@ void SprFunction::doComputeType()
     // If this is a non-static member function, add this as a parameter
     if ( isMember && !isStatic )
     {
-        TypeRef thisType = getDataType((Node*) parentClass, 1, thisEvalMode);
+        TypeRef thisType = getDataType(parentClass, 1, thisEvalMode);
         Node* thisParam = Feather::mkVar(data_.location, "$this", mkTypeNode(data_.location, thisType));
         Nest::setContext(thisParam, data_.childrenContext);
         Function_addParameter(resultingFun, thisParam);
@@ -186,17 +186,17 @@ void SprFunction::doComputeType()
 
     // Compute the type of the return type node
     // We do this after the parameters, as the computation of the result might require access to the parameters
-    TypeRef resType = returnType ? getType(returnType->node()) : getVoidType(thisEvalMode);
+    TypeRef resType = returnType ? getType(returnType) : getVoidType(thisEvalMode);
     resType = adjustMode(resType, thisEvalMode, data_.childrenContext, data_.location);
 
     // If the parameter is a non-reference class, not basic numeric, add result parameter; otherwise, normal result
     if ( resType->hasStorage && resType->numReferences == 0 && !isBasicNumericType(resType) )
     {
-        Node* resParam = Feather::mkVar(returnType->location(), "_result", mkTypeNode(returnType->location(), addRef(resType)));
+        Node* resParam = Feather::mkVar(returnType->location, "_result", mkTypeNode(returnType->location, addRef(resType)));
         Nest::setContext(resParam, data_.childrenContext);
         Function_addParameter(resultingFun, resParam, true);
         Nest::setProperty(resultingFun, propResultParam, resParam);
-        Function_setResultType(resultingFun, mkTypeNode(returnType->location(), getVoidType(thisEvalMode)));
+        Function_setResultType(resultingFun, mkTypeNode(returnType->location, getVoidType(thisEvalMode)));
     }
     else
         Function_setResultType(resultingFun, mkTypeNode(data_.location, resType));
@@ -212,7 +212,7 @@ void SprFunction::doComputeType()
 
 void SprFunction::doSemanticCheck()
 {
-    computeType();
+    Nest::computeType(node());
 
     ASSERT(data_.explanation);
     Nest::semanticCheck(data_.explanation);

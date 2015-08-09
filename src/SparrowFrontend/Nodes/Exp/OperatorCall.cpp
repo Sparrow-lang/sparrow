@@ -19,7 +19,7 @@ namespace
     }
 }
 
-OperatorCall::OperatorCall(const Location& loc, DynNode* arg1, string op, DynNode* arg2)
+OperatorCall::OperatorCall(const Location& loc, Node* arg1, string op, Node* arg2)
     : DynNode(classNodeKind(), loc, {arg1, arg2})
 {
     setProperty("spr.operation", move(op));

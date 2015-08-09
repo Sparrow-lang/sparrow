@@ -15,18 +15,18 @@ namespace SprFrontend
         ~GenericFunction();
 
         /// Checks if the given declaration with the given parameters is a generic; if yes, creates an object of this type
-        static GenericFunction* createGeneric(SprFunction* originalFun, Node* parameters, DynNode* ifClause, Node* thisClass = nullptr);
+        static GenericFunction* createGeneric(SprFunction* originalFun, Node* parameters, Node* ifClause, Node* thisClass = nullptr);
 
         size_t paramsCount() const;
-        DynNode* param(size_t idx) const;
-        Instantiation* canInstantiate(const DynNodeVector& args);
-        DynNode* instantiateGeneric(const Location& loc, CompilationContext* context, const DynNodeVector& args, Instantiation* instantiation);
+        Node* param(size_t idx) const;
+        Instantiation* canInstantiate(const NodeVector& args);
+        Node* instantiateGeneric(const Location& loc, CompilationContext* context, const NodeVector& args, Instantiation* instantiation);
 
     private:
-        GenericFunction(SprFunction* originalFun, DynNodeVector params, DynNodeVector genericParams, DynNode* ifClause);
+        GenericFunction(SprFunction* originalFun, NodeVector params, NodeVector genericParams, Node* ifClause);
 
     private:
         /// All the parameters of the declaration (bound + unbound) - here we have the original parameters of the declaration
-        const DynNodeVector& params() const;
+        const NodeVector& params() const;
     };
 }

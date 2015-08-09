@@ -143,7 +143,7 @@ namespace
     {
         Location loc = parent->location();
         loc.setAsStartOf(loc);
-        Node* cls = parent->explanation()->node();
+        Node* cls = parent->explanation();
         cls = cls && cls->nodeKind == nkFeatherDeclClass ? cls : nullptr;
         ASSERT(cls);
 
@@ -203,7 +203,7 @@ namespace
         
         Location loc = parent->location();
         loc.setAsStartOf(loc);
-        Node* cls = parent->explanation()->node();
+        Node* cls = parent->explanation();
         cls = cls && cls->nodeKind == nkFeatherDeclClass ? cls : nullptr;
         ASSERT(cls);
 
@@ -239,7 +239,7 @@ namespace
     {
         Location loc = parent->location();
         loc.setAsStartOf(loc);
-        Node* cls = parent->explanation()->node();
+        Node* cls = parent->explanation();
         cls = cls && cls->nodeKind == nkFeatherDeclClass ? cls : nullptr;
         ASSERT(cls);
 

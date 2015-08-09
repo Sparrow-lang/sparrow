@@ -11,7 +11,7 @@ namespace SprFrontend
         DEFINE_NODE(SprConditional, nkSparrowExpSprConditional, "Sparrow.Exp.SprConditional");
 
     public:
-        SprConditional(const Location& location, DynNode* condition, DynNode* alt1, DynNode* alt2);
+        SprConditional(const Location& location, Node* condition, Node* alt1, Node* alt2);
 
     protected:
         void doSemanticCheck();

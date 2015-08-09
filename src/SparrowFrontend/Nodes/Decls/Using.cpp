@@ -8,7 +8,7 @@
 using namespace SprFrontend;
 using namespace Nest;
 
-Using::Using(const Location& loc, string alias, DynNode* usingNode, AccessType accessType)
+Using::Using(const Location& loc, string alias, Node* usingNode, AccessType accessType)
     : DynNode(classNodeKind(), loc, {usingNode})
 {
     if ( !alias.empty() )
@@ -16,10 +16,10 @@ Using::Using(const Location& loc, string alias, DynNode* usingNode, AccessType a
     setAccessType(node(), accessType);
 }
 
-DynNode* Using::source() const
+Node* Using::source() const
 {
     ASSERT(data_.children.size() == 1);
-    return (DynNode*) data_.children[0];
+    return data_.children[0];
 }
 
 void Using::doSetContextForChildren()
@@ -63,5 +63,5 @@ void Using::doComputeType()
 
 void Using::doSemanticCheck()
 {
-    computeType();
+    Nest::computeType(node());
 }

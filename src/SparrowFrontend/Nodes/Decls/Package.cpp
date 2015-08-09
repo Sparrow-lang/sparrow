@@ -9,7 +9,7 @@ using namespace SprFrontend;
 using namespace Nest;
 
 Package::Package(const Location& loc, string name, Node* children, AccessType accessType)
-    : DynNode(classNodeKind(), loc, { (DynNode*) children })
+    : DynNode(classNodeKind(), loc, { children })
 {
     Feather::setName(&data_, move(name));
     setAccessType(node(), accessType);
@@ -40,7 +40,7 @@ void Package::doComputeType()
 
 void Package::doSemanticCheck()
 {
-    computeType();
+    Nest::computeType(node());
     Nest::semanticCheck(data_.children[0]);
     data_.explanation = data_.children[0];
 }

@@ -19,9 +19,9 @@ namespace
 {
     /// Get the bound arguments corresponding to the CT or Auto parameters of the generic
     /// We return here the CT values of these arguments; we use their value to check for duplicate instantiations
-    DynNodeVector getBoundValues(CompilationContext* context, const DynNodeVector& args, const DynNodeVector& genericParams)
+    NodeVector getBoundValues(CompilationContext* context, const NodeVector& args, const NodeVector& genericParams)
     {
-        DynNodeVector boundValues;
+        NodeVector boundValues;
         boundValues.resize(args.size(), nullptr);
 
         // There are two types of bound arguments:
@@ -29,30 +29,30 @@ namespace
         //  - auto parameters - in this case we retain the type of the argument as a bound value
         for ( size_t i=0; i<args.size(); ++i )
         {
-            DynNode* arg = args[i];
-            DynNode* param = genericParams[i];
+            Node* arg = args[i];
+            Node* param = genericParams[i];
             if ( !param )
                 continue;
 
             bool isRefAuto;
-            if ( isConceptType(param->type(), isRefAuto) )
+            if ( isConceptType(param->type, isRefAuto) )
             {
                 // Create a CtValue with the type of the argument corresponding to the auto parameter
-                arg->computeType();
-                TypeRef t = getAutoType(arg->node(), isRefAuto);
-                DynNode* typeNode = (DynNode*) createTypeNode(context, param->location(), t);
-                typeNode->computeType();
+                Nest::computeType(arg);
+                TypeRef t = getAutoType(arg, isRefAuto);
+                Node* typeNode = createTypeNode(context, param->location, t);
+                Nest::computeType(typeNode);
                 boundValues[i] = typeNode;
             }
             else
             {
                 // Evaluate the node and add the resulting CtValue as a bound argument
-                arg->computeType();
-                if ( !Feather::isCt(arg->node()) )
+                Nest::computeType(arg);
+                if ( !Feather::isCt(arg) )
                     return {};     // This argument must be CT in order to instantiate the generic
-                DynNode* n = (DynNode*) theCompiler().ctEval(arg->node());
-                if ( !n || n->nodeKind() != nkFeatherExpCtValue )
-                    REP_INTERNAL(arg->location(), "Invalid argument %1% when instantiating generic") % (i+1);
+                Node* n = theCompiler().ctEval(arg);
+                if ( !n || n->nodeKind != nkFeatherExpCtValue )
+                    REP_INTERNAL(arg->location, "Invalid argument %1% when instantiating generic") % (i+1);
                 boundValues[i] = n;
             }
         }
@@ -66,27 +66,27 @@ namespace
     /// For auto parameters create a parameter with the auto-type corresponding to the bound type of the argument
     /// Do not return the this parameter.
     /// Does not return the original parameters; creates a clone if needed
-    DynNodeVector getNonBoundParameters(Instantiation& inst, SprFunction* originalFun, const DynNodeVector& params, const DynNodeVector& genericParams)
+    NodeVector getNonBoundParameters(Instantiation& inst, SprFunction* originalFun, const NodeVector& params, const NodeVector& genericParams)
     {
         const auto& boundValues = inst.boundValues();
         ASSERT(!boundValues.empty());
-        DynNodeVector nonBoundParams;
+        NodeVector nonBoundParams;
         nonBoundParams.reserve(params.size());
         for ( size_t i=0; i<params.size(); ++i )
         {
             if ( i==0 && originalFun->hasThisParameters() )
                 continue;
 
-            DynNode* p = params[i];
-            DynNode* boundValue = boundValues[i];
+            Node* p = params[i];
+            Node* boundValue = boundValues[i];
 
             if ( !genericParams[i] )            // If this is not a generic parameter => non-bound parameter
             {
-                nonBoundParams.push_back(p->clone());
+                nonBoundParams.push_back(cloneNode(p));
             }
-            else if ( isConceptType(p->type()) )   // For auto-type parameters, we also create a non-bound parameter
+            else if ( isConceptType(p->type) )   // For auto-type parameters, we also create a non-bound parameter
             {
-                nonBoundParams.push_back((DynNode*) mkSprParameter(p->location(), getName(p->node()), boundValue->node()));
+                nonBoundParams.push_back(mkSprParameter(p->location, getName(p), boundValue));
             }
         }
         return nonBoundParams;
@@ -94,7 +94,7 @@ namespace
 
 
     /// Get the eval mode for the resulting function; check the eval mode of the original function, of the non-bound arguments, and of the types
-    EvalMode getResultingEvalMode(const Location& loc, EvalMode mainEvalMode, const DynNodeVector& args, const DynNodeVector& genericParams)
+    EvalMode getResultingEvalMode(const Location& loc, EvalMode mainEvalMode, const NodeVector& args, const NodeVector& genericParams)
     {
         bool hasRtOnlyArgs = false;
         bool hasCtOnlyArgs = false;
@@ -103,17 +103,17 @@ namespace
         {
             // Test auto and non-bound arguments
             // Also test the type given to the 'Type' parameters (i.e., we need to know if Vector(t) can be rtct based on the mode of t)
-            TypeRef pType = genericParams[i] ? genericParams[i]->type() : nullptr;
+            TypeRef pType = genericParams[i] ? genericParams[i]->type : nullptr;
             TypeRef typeToCheck = nullptr;
             if ( !pType || isConceptType(pType) )
             {
-                args[i]->computeType();
-                typeToCheck = args[i]->type();
+                Nest::computeType(args[i]);
+                typeToCheck = args[i]->type;
             }
             else
             {
                 // Is the argument a Type?
-                typeToCheck = tryGetTypeValue(args[i]->node());
+                typeToCheck = tryGetTypeValue(args[i]);
             }
             if ( typeToCheck )
             {
@@ -140,14 +140,14 @@ namespace
     /// From the list of arguments passed at generic instantiation, filter only the ones corresponding to the non-bound
     /// parameters, the ones that are passed to the actual instantiation.
     /// Note that this also returns the arguments corresponding to the auto parameters
-    DynNodeVector getNonBoundArgs(const DynNodeVector& args, const DynNodeVector& genericParams)
+    NodeVector getNonBoundArgs(const NodeVector& args, const NodeVector& genericParams)
     {
-        DynNodeVector nonBoundArgs;
+        NodeVector nonBoundArgs;
         nonBoundArgs.reserve(args.size());
         for ( size_t i=0; i<args.size(); ++i )
         {
-            DynNode* param = genericParams[i];
-            if ( !param || isConceptType(param->type()) )     // Get non-generic and also parameters
+            Node* param = genericParams[i];
+            if ( !param || isConceptType(param->type) )     // Get non-generic and also parameters
             {
                 nonBoundArgs.push_back(args[i]);
             }
@@ -155,56 +155,56 @@ namespace
         return nonBoundArgs;
     }
 
-    DynNode* createInstFn(CompilationContext* context, SprFunction* origFun, const DynNodeVector& nonBoundParams)
+    Node* createInstFn(CompilationContext* context, SprFunction* origFun, const NodeVector& nonBoundParams)
     {
         const Location& loc = origFun->location();
 
         //REP_INFO(loc, "Instantiating %1% with %2% params") % getName(origFun) % nonBoundParams.size();
 
-        Node* parameters = mkNodeList(loc, fromDyn(nonBoundParams));
-        DynNode* returnType = origFun->returnType();
-        DynNode* body = origFun->body();
-        returnType = returnType ? returnType->clone() : nullptr;
-        body = body ? body->clone() : nullptr;
-        Node* newFun = mkSprFunction(loc, getName(origFun->node()), parameters, returnType->node(), body->node());
+        Node* parameters = mkNodeList(loc, nonBoundParams);
+        Node* returnType = origFun->returnType();
+        Node* body = origFun->body();
+        returnType = returnType ? cloneNode(returnType) : nullptr;
+        body = body ? cloneNode(body) : nullptr;
+        Node* newFun = mkSprFunction(loc, getName(origFun->node()), parameters, returnType, body);
         copyModifiersSetMode(origFun->node(), newFun, context->evalMode());
         setShouldAddToSymTab(newFun, false);
         Nest::setContext(newFun, context);
 
         //REP_INFO(loc, "Instantiated %1%") % newFun->toString();
-        return (DynNode*) newFun;
+        return newFun;
     }
 
-    DynNode* createCallFn(const Location& loc, CompilationContext* context, DynNode* inst, const DynNodeVector& nonBoundArgs)
+    Node* createCallFn(const Location& loc, CompilationContext* context, Node* inst, const NodeVector& nonBoundArgs)
     {
-        SprFunction* sprFun = static_cast<SprFunction*>(inst);
-        sprFun->computeType();
+        SprFunction* sprFun = reinterpret_cast<SprFunction*>(inst);
+        Nest::computeType(sprFun->node());
         if ( !sprFun->resultingFun() )
-            REP_ERROR(loc, "Cannot instantiate function generic %1%") % getName(inst->node());
-        return (DynNode*) createFunctionCall(loc, context, sprFun->resultingFun(), fromDyn(nonBoundArgs));
+            REP_ERROR(loc, "Cannot instantiate function generic %1%") % getName(inst);
+        return createFunctionCall(loc, context, sprFun->resultingFun(), nonBoundArgs);
     }
 }
 
 
-GenericFunction::GenericFunction(SprFunction* originalFun, DynNodeVector params, DynNodeVector genericParams, DynNode* ifClause)
-    : Generic(classNodeKind(), originalFun, move(genericParams), ifClause, publicAccess)
+GenericFunction::GenericFunction(SprFunction* originalFun, NodeVector params, NodeVector genericParams, Node* ifClause)
+    : Generic(classNodeKind(), originalFun->node(), move(genericParams), ifClause, publicAccess)
 {
     setEvalMode(node(), effectiveEvalMode(originalFun->node()));
-    data_.referredNodes.push_back(mkNodeList(data_.location, fromDyn(move(params))));
+    data_.referredNodes.push_back(mkNodeList(data_.location, move(params)));
 }
 
 GenericFunction::~GenericFunction()
 {
 }
 
-const DynNodeVector& GenericFunction::params() const
+const NodeVector& GenericFunction::params() const
 {
     ASSERT(data_.referredNodes.size() == 2);
-    return reinterpret_cast<const DynNodeVector&>(data_.referredNodes[1]->children);
+    return reinterpret_cast<const NodeVector&>(data_.referredNodes[1]->children);
 }
 
 
-GenericFunction* GenericFunction::createGeneric(SprFunction* originalFun, Node* parameters, DynNode* ifClause, Node* thisClass)
+GenericFunction* GenericFunction::createGeneric(SprFunction* originalFun, Node* parameters, Node* ifClause, Node* thisClass)
 {
     // If we are in a CT function, don't consider CT parameters
     bool inCtFun = effectiveEvalMode(originalFun->node()) == modeCt;
@@ -214,8 +214,8 @@ GenericFunction* GenericFunction::createGeneric(SprFunction* originalFun, Node* 
     // Check if we have some CT parameters
     ASSERT(parameters);
     const NodeVector& params = parameters->children;
-    DynNodeVector ourParams(params.size(), nullptr);
-    DynNodeVector genericParams(params.size(), nullptr);
+    NodeVector ourParams(params.size(), nullptr);
+    NodeVector genericParams(params.size(), nullptr);
     bool hasGenericParams = false;
     for ( size_t i=0; i<params.size(); ++i )
     {
@@ -223,15 +223,15 @@ GenericFunction* GenericFunction::createGeneric(SprFunction* originalFun, Node* 
         Nest::computeType(param);
         ASSERT(param->type);
 
-        ourParams[i] = (DynNode*) param;
+        ourParams[i] = param;
         if ( isConceptType(param->type) )
         {
-            genericParams[i] = (DynNode*) param;
+            genericParams[i] = param;
             hasGenericParams = true;
         }
         if ( (!inCtFun || isCtGeneric) && isCt(param) )
         {
-            genericParams[i] = (DynNode*) param;
+            genericParams[i] = param;
             hasGenericParams = true;
         }
     }
@@ -246,14 +246,14 @@ GenericFunction* GenericFunction::createGeneric(SprFunction* originalFun, Node* 
         Node* thisParam = mkSprParameter(originalFun->location(), "$this", thisType);
         Nest::setContext(thisParam, originalFun->childrenContext());
         Nest::computeType(thisParam);
-        ourParams.insert(ourParams.begin(), (DynNode*) thisParam);
+        ourParams.insert(ourParams.begin(), thisParam);
         genericParams.insert(genericParams.begin(), nullptr);
     }
 
     // Actually create the generic
     GenericFunction* res = new GenericFunction(originalFun, move(ourParams), move(genericParams), ifClause);
     setEvalMode(res->node(), effectiveEvalMode(originalFun->node()));
-    res->setContext(originalFun->context());
+    Nest::setContext(res->node(), originalFun->context());
     return res;
 }
 
@@ -262,50 +262,50 @@ size_t GenericFunction::paramsCount() const
     return params().size();
 }
 
-DynNode* GenericFunction::param(size_t idx) const
+Node* GenericFunction::param(size_t idx) const
 {
     return params()[idx];
 }
 
-Instantiation* GenericFunction::canInstantiate(const DynNodeVector& args)
+Instantiation* GenericFunction::canInstantiate(const NodeVector& args)
 {
-    DynNode* originalFun = (DynNode*) data_.referredNodes[0];
-    DynNodeVector boundValues = getBoundValues(originalFun->context(), args, genericParams());
+    Node* originalFun = data_.referredNodes[0];
+    NodeVector boundValues = getBoundValues(originalFun->context, args, genericParams());
 
-    EvalMode resultingEvalMode = originalFun->hasProperty(propCtGeneric)
+    EvalMode resultingEvalMode = Nest::hasProperty(originalFun, propCtGeneric)
         ? modeCt        // If we have a CT generic, the resulting eval mode is always CT
-        : getResultingEvalMode(originalFun->location(), effectiveEvalMode(originalFun->node()), args, genericParams());
+        : getResultingEvalMode(originalFun->location, effectiveEvalMode(originalFun), args, genericParams());
 
     InstantiationsSet* instantiationsSet = (InstantiationsSet*) data_.children[0];
     return instantiationsSet->canInstantiate(boundValues, resultingEvalMode);
 }
 
-DynNode* GenericFunction::instantiateGeneric(const Location& loc, CompilationContext* context, const DynNodeVector& args, Instantiation* inst)
+Node* GenericFunction::instantiateGeneric(const Location& loc, CompilationContext* context, const NodeVector& args, Instantiation* inst)
 {
     ASSERT(inst);
 
     // If not already created, create the actual instantiation declaration
-    DynNode* instantiatedDecl = inst->instantiatedDecl();
+    Node* instantiatedDecl = inst->instantiatedDecl();
     Node* expandedInstantiation = inst->expandedInstantiation();
     if ( !instantiatedDecl )
     {
-        SprFunction* originalFun = ((DynNode*) data_.referredNodes[0])->as<SprFunction>();
-        DynNodeVector nonBoundParams = getNonBoundParameters(*inst, originalFun, params(), genericParams());
+        SprFunction* originalFun = (SprFunction*) ofKind(data_.referredNodes[0], nkSparrowDeclSprFunction);
+        NodeVector nonBoundParams = getNonBoundParameters(*inst, originalFun, params(), genericParams());
 
         // Create the actual instantiation declaration
         CompilationContext* ctx = Nest::childrenContext(expandedInstantiation);
         instantiatedDecl = createInstFn(ctx, originalFun, nonBoundParams);
         if ( !instantiatedDecl )
             REP_INTERNAL(loc, "Cannot instantiate generic");
-        instantiatedDecl->computeType();
-        theCompiler().queueSemanticCheck(instantiatedDecl->node());
+        Nest::computeType(instantiatedDecl);
+        theCompiler().queueSemanticCheck(instantiatedDecl);
         inst->setInstantiatedDecl(instantiatedDecl);
 
     }
 
     // Now actually create the call object
-    DynNodeVector nonBoundArgs = getNonBoundArgs(args, genericParams());
-    DynNode* res = createCallFn(loc, context, instantiatedDecl, nonBoundArgs);
+    NodeVector nonBoundArgs = getNonBoundArgs(args, genericParams());
+    Node* res = createCallFn(loc, context, instantiatedDecl, nonBoundArgs);
     if ( !res )
         REP_INTERNAL(loc, "Cannot create code that calls generic");
     return res;

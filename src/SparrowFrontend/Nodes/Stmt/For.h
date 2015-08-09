@@ -10,7 +10,7 @@ namespace SprFrontend
         DEFINE_NODE(For, nkSparrowStmtFor, "Sparrow.Stmt.For");
 
     public:
-        For(const Location& loc, string name, DynNode* range, DynNode* action, DynNode* typeExpr = nullptr, bool ct = false);
+        For(const Location& loc, string name, Node* range, Node* action, Node* typeExpr = nullptr, bool ct = false);
 
     protected:
         void doSetContextForChildren();

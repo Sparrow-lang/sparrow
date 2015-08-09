@@ -59,8 +59,8 @@ void Literal::doSemanticCheck()
 
     // Get the type of the literal by looking up the type name
     Identifier ident(data_.location, litType);
-    ident.setContext(data_.context);
-    ident.computeType();
+    Nest::setContext(ident.node(), data_.context);
+    Nest::computeType(ident.node());
     TypeRef t = getType(ident.node());
     t = Feather::changeTypeMode(t, modeCt, data_.location);
     
@@ -68,8 +68,8 @@ void Literal::doSemanticCheck()
     {
         // Create the explanation
         Feather::StringData s = Feather::StringData::copyStdString(data);
-        setExplanation((DynNode*) Feather::mkCtValue(data_.location, t, &s));
+        setExplanation(Feather::mkCtValue(data_.location, t, &s));
     }
     else
-        setExplanation((DynNode*) Feather::mkCtValue(data_.location, t, data));
+        setExplanation(Feather::mkCtValue(data_.location, t, data));
 }

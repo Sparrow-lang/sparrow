@@ -5,17 +5,17 @@ using namespace SprFrontend;
 using namespace Feather;
 using namespace Nest;
 
-Instantiation::Instantiation(const Location& loc, DynNodeVector boundValues, DynNodeVector boundVars)
-    : DynNode(classNodeKind(), loc, { (DynNode*) Feather::mkNodeList(loc, fromDyn(move(boundVars))) }, move(boundValues))
+Instantiation::Instantiation(const Location& loc, NodeVector boundValues, NodeVector boundVars)
+    : DynNode(classNodeKind(), loc, { Feather::mkNodeList(loc, move(boundVars)) }, move(boundValues))
 {
     setProperty("instIsValid", 0);
-    setProperty("instantiatedDecl", (DynNode*) nullptr);
+    setProperty("instantiatedDecl", (Node*) nullptr);
 
 }
 
-const DynNodeVector& Instantiation::boundValues() const
+const NodeVector& Instantiation::boundValues() const
 {
-    return reinterpret_cast<const DynNodeVector&>(data_.referredNodes);
+    return reinterpret_cast<const NodeVector&>(data_.referredNodes);
 }
 
 Node*& Instantiation::expandedInstantiation()
@@ -23,15 +23,15 @@ Node*& Instantiation::expandedInstantiation()
     return data_.children[0];
 }
 
-DynNode* Instantiation::instantiatedDecl()
+Node* Instantiation::instantiatedDecl()
 {
-    return getCheckPropertyDynNode("instantiatedDecl");
+    return getCheckPropertyNode("instantiatedDecl");
 }
 
-void Instantiation::setInstantiatedDecl(DynNode* decl)
+void Instantiation::setInstantiatedDecl(Node* decl)
 {
     setProperty("instantiatedDecl", decl);
-    expandedInstantiation()->children.push_back(decl->node());
+    expandedInstantiation()->children.push_back(decl);
 }
 
 bool Instantiation::isValid() const
@@ -47,5 +47,5 @@ void Instantiation::setValid(bool valid)
 
 void Instantiation::doSemanticCheck()
 {
-    setExplanation((DynNode*) mkNop(data_.location));
+    setExplanation(mkNop(data_.location));
 }

@@ -70,14 +70,14 @@ namespace
     }
 }
 
-SprVariable::SprVariable(const Location& loc, string name, DynNode* typeNode, DynNode* init, AccessType accessType)
+SprVariable::SprVariable(const Location& loc, string name, Node* typeNode, Node* init, AccessType accessType)
     : DynNode(classNodeKind(), loc, {typeNode, init})
 {
     setName(node(), move(name));
     setAccessType(node(), accessType);
 }
 
-SprVariable::SprVariable(const Location& loc, string name, TypeRef type, DynNode* init, AccessType accessType)
+SprVariable::SprVariable(const Location& loc, string name, TypeRef type, Node* init, AccessType accessType)
     : DynNode(classNodeKind(), loc, {nullptr, init})
 {
     setName(node(), move(name));
@@ -147,7 +147,7 @@ void SprVariable::doComputeType()
     Node* resultingVar = mkVar(data_.location, getName(node()), mkTypeNode(data_.location, t));
     setEvalMode(resultingVar, effectiveEvalMode(node()));
     setShouldAddToSymTab(resultingVar, false);
-    this->setProperty(propResultingDecl, (DynNode*) resultingVar);
+    this->setProperty(propResultingDecl, resultingVar);
 
     if ( varKind == varField )
     {
@@ -237,10 +237,10 @@ void SprVariable::doComputeType()
 
 void SprVariable::doSemanticCheck()
 {
-    computeType();
+    Nest::computeType(node());
 
     // Semantically check the resulting variable and explanation
-    DynNode* resultingVar = getCheckPropertyDynNode("spr.resultingVar");
-    resultingVar->semanticCheck();
+    Node* resultingVar = getCheckPropertyNode("spr.resultingVar");
+    Nest::semanticCheck(resultingVar);
     Nest::semanticCheck(data_.explanation);
 }

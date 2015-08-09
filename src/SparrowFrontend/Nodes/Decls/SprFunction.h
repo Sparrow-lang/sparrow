@@ -11,12 +11,12 @@ namespace SprFrontend
         DEFINE_NODE(SprFunction, nkSparrowDeclSprFunction, "Sparrow.Decl.Function");
 
     public:
-        SprFunction(const Location& loc, string name, Node* parameters, DynNode* returnType, DynNode* body, DynNode* ifClause, AccessType accessType = publicAccess);
+        SprFunction(const Location& loc, string name, Node* parameters, Node* returnType, Node* body, Node* ifClause, AccessType accessType = publicAccess);
 
         bool hasThisParameters() const;
 
-        DynNode* returnType() const;
-        DynNode* body() const;
+        Node* returnType() const;
+        Node* body() const;
 
         Node* resultingFun() const;
 

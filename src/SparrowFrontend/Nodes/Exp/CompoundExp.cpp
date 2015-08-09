@@ -10,7 +10,7 @@ using namespace Nest;
 using namespace Feather;
 
 
-CompoundExp::CompoundExp(const Location& loc, DynNode* base, string id)
+CompoundExp::CompoundExp(const Location& loc, Node* base, string id)
     : DynNode(classNodeKind(), loc, {base})
 {
     setProperty("name", move(id));
@@ -22,9 +22,9 @@ const string& CompoundExp::id() const
     return getCheckPropertyString("name");
 }
 
-DynNode* CompoundExp::baseDataExp() const
+Node* CompoundExp::baseDataExp() const
 {
-    DynNode*const* res = getPropertyDynNode("baseDataExp");
+    Node*const* res = getPropertyNode("baseDataExp");
     return res ? *res : nullptr;
 }
 

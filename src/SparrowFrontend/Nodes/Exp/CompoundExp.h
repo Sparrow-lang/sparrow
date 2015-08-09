@@ -10,11 +10,11 @@ namespace SprFrontend
         DEFINE_NODE(CompoundExp, nkSparrowExpCompoundExp, "Sparrow.Exp.CompoundExp");
 
     public:
-        CompoundExp(const Location& loc, DynNode* base, string id);
+        CompoundExp(const Location& loc, Node* base, string id);
 
         const string& id() const;
 
-        DynNode* baseDataExp() const;
+        Node* baseDataExp() const;
 
         string toString() const;
         void dump(ostream& os) const;

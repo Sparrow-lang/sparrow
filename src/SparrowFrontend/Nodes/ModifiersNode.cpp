@@ -22,45 +22,45 @@
 #include "Mods/ModNoInline.h"
 
 
-ModifiersNode::ModifiersNode(const Location& loc, DynNode* base, DynNode* modifierNodes)
+ModifiersNode::ModifiersNode(const Location& loc, Node* base, Node* modifierNodes)
     : DynNode(classNodeKind(), loc, {base, modifierNodes})
 {
 }
 
 void ModifiersNode::doSetContextForChildren()
 {
-    DynNode* base = (DynNode*) data_.children[0];
-    DynNode* modifierNodes = (DynNode*) data_.children[1];
+    Node* base = data_.children[0];
+    Node* modifierNodes = data_.children[1];
 
     // Set the context of the modifiers
     if ( modifierNodes )
-        modifierNodes->setContext(data_.context);
+        Nest::setContext(modifierNodes, data_.context);
 
     // Interpret the modifiers here - as much as possible
     interpretModifiers();
 
     // Set the context for the base
     if ( base )
-        base->setContext(data_.context);
+        Nest::setContext(base, data_.context);
 }
 
 void ModifiersNode::doComputeType()
 {
-    DynNode* base = (DynNode*) data_.children[0];
+    Node* base = data_.children[0];
 
     // Compute the type of the base node
-    base->computeType();
-    data_.type = base->type();
-    data_.explanation = base->node();
+    Nest::computeType(base);
+    data_.type = base->type;
+    data_.explanation = base;
 }
 
 void ModifiersNode::doSemanticCheck()
 {
-    computeType();
+    Nest::computeType(node());
 
     // Semantic check the base
-    DynNode* base = (DynNode*) data_.children[0];
-    base->semanticCheck();
+    Node* base = data_.children[0];
+    Nest::semanticCheck(base);
 }
 
 void ModifiersNode::interpretModifiers()
@@ -88,7 +88,7 @@ void ModifiersNode::applyModifier(Node* modNode)
 {
     Nest::Modifier* mod = nullptr;
     
-    Identifier* ident = ((DynNode*) modNode)->as<Identifier>();
+    Identifier* ident = (Identifier*) ofKind(modNode, nkSparrowExpIdentifier);
     if ( ident )
     {
         if ( ident->id() == "static" )
@@ -116,16 +116,20 @@ void ModifiersNode::applyModifier(Node* modNode)
     }
     else
     {
-        InfixExp* fapp = ((DynNode*) modNode)->as<InfixExp>();
+        InfixExp* fapp = (InfixExp*) ofKind(modNode, nkSparrowExpInfixExp);
         if ( fapp )
         {
-            Identifier* ident = fapp->arg1()->as<Identifier>();
-            Node* args = fapp->arg2()->node();
+            Identifier* ident = nullptr;
+            if ( fapp->arg1()->nodeKind == nkSparrowExpIdentifier )
+                ident = (Identifier*) fapp->arg1();
+            Node* args = fapp->arg2();
             if ( args && args->nodeKind != Feather::nkFeatherNodeList )
                 args = nullptr;
             if ( ident && args && args->children.size() == 1 )
             {
-                Literal* funArg = ((DynNode*) args->children.front())->as<Literal>();
+                Literal* funArg = nullptr;
+                if ( args->children.front()->nodeKind == nkSparrowExpLiteral )
+                    funArg = (Literal*) args->children.front();
 
                 if ( ident->id() == "native" && funArg && funArg->isString() )
                     mod = new ModNative(funArg->asString());
@@ -134,9 +138,9 @@ void ModifiersNode::applyModifier(Node* modNode)
     }
     
     // If we recognized a modifier, add it to the base node; otherwise raise an error
-    DynNode* base = (DynNode*) data_.children[0];
+    Node* base = data_.children[0];
     if ( mod )
-        base->addModifier(mod);
+        Nest::addModifier(base, mod);
     else
         REP_ERROR(modNode->location, "Unknown modifier found (%1%)") % modNode;
 }

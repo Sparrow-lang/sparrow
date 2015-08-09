@@ -7,7 +7,7 @@ using namespace SprFrontend;
 using namespace Nest;
 using namespace Nest::Common::Ser;
 
-DynNode::DynNode(int nodeKind, const Location& location, DynNodeVector children, DynNodeVector referredNodes)
+DynNode::DynNode(int nodeKind, const Location& location, NodeVector children, NodeVector referredNodes)
 {
     initNode(&data_, nodeKind);
 
@@ -111,10 +111,6 @@ void DynNode::setProperty(const char* name, Node* val, bool passToExpl)
 {
     Nest::setProperty(&data_, name, val, passToExpl);
 }
-void DynNode::setProperty(const char* name, DynNode* val, bool passToExpl)
-{
-    Nest::setProperty(&data_, name, (Node*) val, passToExpl);
-}
 void DynNode::setProperty(const char* name, TypeRef val, bool passToExpl)
 {
     Nest::setProperty(&data_, name, val, passToExpl);
@@ -136,10 +132,6 @@ Node*const* DynNode::getPropertyNode(const char* name) const
 {
     return Nest::getPropertyNode(&data_, name);
 }
-DynNode*const* DynNode::getPropertyDynNode(const char* name) const
-{
-    return (DynNode*const*) Nest::getPropertyNode(&data_, name);
-}
 const TypeRef* DynNode::getPropertyType(const char* name) const
 {
     return Nest::getPropertyType(&data_, name);
@@ -157,10 +149,6 @@ Node* DynNode::getCheckPropertyNode(const char* name) const
 {
     return Nest::getCheckPropertyNode(&data_, name);
 }
-DynNode* DynNode::getCheckPropertyDynNode(const char* name) const
-{
-    return (DynNode*) Nest::getCheckPropertyNode(&data_, name);
-}
 TypeRef DynNode::getCheckPropertyType(const char* name) const
 {
     return Nest::getCheckPropertyType(&data_, name);
@@ -177,14 +165,14 @@ bool DynNode::isExplained() const
     return data_.explanation != nullptr;
 }
 
-DynNode* DynNode::curExplanation()
+Node* DynNode::curExplanation()
 {
-    return (DynNode*) data_.explanation;
+    return data_.explanation;
 }
 
-DynNode* DynNode::explanation()
+Node* DynNode::explanation()
 {
-    return (DynNode*) Nest::explanation(&data_);
+    return Nest::explanation(&data_);
 }
 
 void DynNode::setChildrenContext(CompilationContext* childrenContext)
@@ -258,11 +246,6 @@ void DynNode::doComputeType()
 void DynNode::doSemanticCheck()
 {
     REP_INTERNAL(data_.location, "Don't know how to semantic check a node of kind '%1%'") % nodeKindName();
-}
-
-void DynNode::setExplanation(DynNode* explanation)
-{
-    Nest::setExplanation(&data_, (Node*) explanation);
 }
 
 void DynNode::setExplanation(Node* explanation)

@@ -13,10 +13,10 @@ namespace SprFrontend
         DEFINE_NODE(DeclExp, nkSparrowExpDeclExp, "Sparrow.Exp.DeclExp");
 
     public:
-        DeclExp(const Location& loc, DynNodeVector decls, DynNode* baseExp = nullptr);
+        DeclExp(const Location& loc, NodeVector decls, Node* baseExp = nullptr);
 
-        DynNodeVector decls() const;
-        DynNode* baseExp() const;
+        NodeVector decls() const;
+        Node* baseExp() const;
 
     public:
         void dump(ostream& os) const;

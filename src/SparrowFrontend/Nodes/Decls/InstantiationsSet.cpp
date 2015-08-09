@@ -22,50 +22,50 @@ namespace
     /// created for each instantiated and put in the node-list of the instantiation (the expanded instantiation node).
     /// Note that for auto-parameters we will create RT variables; the only thing we can do with them is to use their type
     /// In the expanded instantiation we need to add the actual instantiated declaration - in other place, not here
-    DynNodeVector getBoundVariables(const Location& loc, const DynNodeVector& boundValues, const DynNodeVector& params, bool insideClass)
+    NodeVector getBoundVariables(const Location& loc, const NodeVector& boundValues, const NodeVector& params, bool insideClass)
     {
         // Create a variable for each bound parameter - put everything in a node list
-        DynNodeVector nodes;
-        DynNodeVector nonBoundParams;
+        NodeVector nodes;
+        NodeVector nonBoundParams;
         size_t idx = 0;
-        for ( DynNode* p: params )
+        for ( Node* p: params )
         {
-            DynNode* boundValue = boundValues[idx++];
+            Node* boundValue = boundValues[idx++];
             if ( !p )
                 continue;
             ASSERT(boundValue);
 
-            if ( isConceptType(p->type()) )
+            if ( isConceptType(p->type) )
             {
-                TypeRef t = getType(boundValue->node());
+                TypeRef t = getType(boundValue);
 
-                Node* var = mkSprVariable(p->location(), getName(p->node()), t, nullptr);
+                Node* var = mkSprVariable(p->location, getName(p), t, nullptr);
                 if ( insideClass )
                     Nest::setProperty(var, propIsStatic, 1);
-                nodes.push_back((DynNode*) var);
+                nodes.push_back(var);
             }
             else
             {
-                Node* var = mkSprVariable(p->location(), getName(p->node()), boundValue->type(), boundValue->node());
+                Node* var = mkSprVariable(p->location, getName(p), boundValue->type, boundValue);
                 if ( insideClass )
                     Nest::setProperty(var, propIsStatic, 1);
                 setEvalMode(var, modeCt);
-                nodes.push_back((DynNode*) var);
+                nodes.push_back(var);
             }
         }
-        nodes.push_back((DynNode*) mkNop(loc));    // Make sure the resulting type is Void
+        nodes.push_back(mkNop(loc));    // Make sure the resulting type is Void
         return nodes;
     }
 }
 
 
-InstantiationsSet::InstantiationsSet(DynNode* parentNode, DynNodeVector params, DynNode* ifClause)
-    : DynNode(classNodeKind(), parentNode->location(), { ifClause, (DynNode*) Feather::mkNodeList(parentNode->location(), {}) }, { parentNode })
+InstantiationsSet::InstantiationsSet(Node* parentNode, NodeVector params, Node* ifClause)
+    : DynNode(classNodeKind(), parentNode->location, { ifClause, Feather::mkNodeList(parentNode->location, {}) }, { parentNode })
 {
-    data_.referredNodes.push_back(mkNodeList(data_.location, fromDyn(move(params))));
+    data_.referredNodes.push_back(mkNodeList(data_.location, move(params)));
 }
 
-Instantiation* InstantiationsSet::canInstantiate(const DynNodeVector& values, EvalMode evalMode)
+Instantiation* InstantiationsSet::canInstantiate(const NodeVector& values, EvalMode evalMode)
 {
     // Try to find an existing instantiation
     Instantiation* inst = searchInstantiation(values);
@@ -82,8 +82,8 @@ Instantiation* InstantiationsSet::canInstantiate(const DynNodeVector& values, Ev
     if ( ifClause() )
     {
         // Always use a clone of the original node
-        DynNode* cond = ifClause()->clone();
-        cond->setContext(Nest::childrenContext(inst->expandedInstantiation()));
+        Node* cond = cloneNode(ifClause());
+        Nest::setContext(cond, Nest::childrenContext(inst->expandedInstantiation()));
 
         // If the condition does not compile, we cannot instantiate
         bool isValid = false;
@@ -91,10 +91,10 @@ Instantiation* InstantiationsSet::canInstantiate(const DynNodeVector& values, Ev
         try
         {
             Nest::theCompiler().diagnosticReporter().setSeverityLevel(Nest::Common::diagInternalError);
-            cond->semanticCheck();
-            isValid = !cond->hasError()
-                && Feather::isCt(cond->node())          // We must have a value at CT
-                && Feather::isTestable(cond->node());   // The value must be boolean
+            Nest::semanticCheck(cond);
+            isValid = !cond->nodeError
+                && Feather::isCt(cond)          // We must have a value at CT
+                && Feather::isTestable(cond);   // The value must be boolean
         }
         catch (...)
         {
@@ -104,7 +104,7 @@ Instantiation* InstantiationsSet::canInstantiate(const DynNodeVector& values, Ev
             return nullptr;
 
         // Evaluate the if clause condition and check the result
-        if ( !SprFrontend::getBoolCtValue(theCompiler().ctEval(cond->node())) )
+        if ( !SprFrontend::getBoolCtValue(theCompiler().ctEval(cond)) )
             return nullptr;
     }
 
@@ -112,12 +112,12 @@ Instantiation* InstantiationsSet::canInstantiate(const DynNodeVector& values, Ev
     return inst;
 }
 
-const DynNodeVector& InstantiationsSet::parameters() const
+const NodeVector& InstantiationsSet::parameters() const
 {
-    return reinterpret_cast<const DynNodeVector&>(data_.referredNodes[1]->children);
+    return reinterpret_cast<const NodeVector&>(data_.referredNodes[1]->children);
 }
 
-Instantiation* InstantiationsSet::searchInstantiation(const DynNodeVector& values)
+Instantiation* InstantiationsSet::searchInstantiation(const NodeVector& values)
 {
     for ( Instantiation* inst: instantiations() )
     {
@@ -130,7 +130,7 @@ Instantiation* InstantiationsSet::searchInstantiation(const DynNodeVector& value
         {
             if ( !boundValues[i] )
                 continue;
-            if ( !values[i] || !ctValsEqual(values[i]->node(), boundValues[i]->node()) )
+            if ( !values[i] || !ctValsEqual(values[i], boundValues[i]) )
             {
                 argsMatch = false;
                 break;
@@ -142,10 +142,10 @@ Instantiation* InstantiationsSet::searchInstantiation(const DynNodeVector& value
     return nullptr;
 }
 
-Instantiation* InstantiationsSet::createNewInstantiation(const DynNodeVector& values, EvalMode evalMode)
+Instantiation* InstantiationsSet::createNewInstantiation(const NodeVector& values, EvalMode evalMode)
 {
     // Create a new context, but at the same level as the context of the parent node
-    CompilationContext* context = parentNode()->context()->createChildContext(nullptr);
+    CompilationContext* context = parentNode()->context->createChildContext(nullptr);
     context->setEvalMode(evalMode);
     bool insideClass = nullptr != getParentClass(context);
 
@@ -161,14 +161,14 @@ Instantiation* InstantiationsSet::createNewInstantiation(const DynNodeVector& va
     return inst;
 }
 
-DynNode* InstantiationsSet::parentNode() const
+Node* InstantiationsSet::parentNode() const
 {
-    return (DynNode*) data_.referredNodes[0];
+    return data_.referredNodes[0];
 }
 
-DynNode*  InstantiationsSet::ifClause() const
+Node*  InstantiationsSet::ifClause() const
 {
-    return (DynNode*) data_.children[0];
+    return data_.children[0];
 }
 
 vector<Instantiation*>& InstantiationsSet::instantiations()

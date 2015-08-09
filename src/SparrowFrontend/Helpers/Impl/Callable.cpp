@@ -102,7 +102,7 @@ Node* Callable::paramDefaultVal(size_t idx) const
     Node* p = param(idx);
     ASSERT(p);
     SprParameter* sprParam = (SprParameter*) ofKind(p, nkSparrowDeclSprParameter);
-    return sprParam ? sprParam->initValue()->node() : nullptr;
+    return sprParam ? sprParam->initValue() : nullptr;
 }
 
 NodeVector Callable::argsWithConversion()

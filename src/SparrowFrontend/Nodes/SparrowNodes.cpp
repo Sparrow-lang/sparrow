@@ -42,10 +42,15 @@
 #include "Mods/ModNoInline.h"
 
 #include <Helpers/ForEachNodeInNodeList.h>
-
+#include <Helpers/DeclsHelpers.h>
+#include <Helpers/Convert.h>
+#include <Helpers/CommonCode.h>
 
 
 #include <Feather/Nodes/FeatherNodes.h>
+#include <Feather/Util/Decl.h>
+#include <Feather/Util/TypeTraits.h>
+#include <Feather/Util/Context.h>
 
 #include <Nest/Common/Diagnostic.h>
 
@@ -194,6 +199,175 @@ Node* InstantiationsSet_SemanticCheck(Node* node)
 }
 
 
+////////////////////////////////////////////////////////////////////////////////
+// For
+//
+
+void For_SetContextForChildren(Node* node)
+{
+    ASSERT(node->children.size() == 3);
+    Node* range = node->children[0];
+    Node* action = node->children[1];
+    Node* typeExpr = node->children[2];
+
+    ASSERT(range);
+    CompilationContext* rangeContext = nodeEvalMode(node) == modeCt ? new CompilationContext(node->context, modeCt) : node->context;
+    if ( typeExpr )
+        Nest::setContext(typeExpr, rangeContext);
+    Nest::setContext(range, rangeContext);
+    if ( action )
+        Nest::setContext(action, node->context);
+}
+
+TypeRef For_ComputeType(Node* node)
+{
+    return getVoidType(node->context->evalMode());
+}
+
+Node* For_SemanticCheck(Node* node)
+{
+    ASSERT(node->children.size() == 3);
+    Node* range = node->children[0];
+    Node* action = node->children[1];
+    Node* typeExpr = node->children[2];
+
+    bool ctFor = nodeEvalMode(node) == modeCt;
+
+    if ( typeExpr )
+        Nest::semanticCheck(typeExpr);
+    Nest::semanticCheck(range);
+
+    const Location& loc = range->location;
+
+    if ( ctFor && !isCt(range->type) )
+        REP_ERROR(loc, "Range must be available at CT, for a CT for (range type: %1%)") % range->type;
+
+    // Expand the for statement of the form
+    //      for ( <name>: <type> = <range> ) action;
+    //
+    // into:
+    //      var $rangeVar: Range = <range>;
+    //      while ( ! $rangeVar.isEmpty() ; $rangeVar.popFront() )
+    //      {
+    //          var <name>: <type> = $rangeVar.front();
+    //          action;
+    //      }
+    //
+    // if <type> is not present, we will use '$rangeType.RetType'
+
+    // Variable to hold the range - initialize it with the range node
+    Node* rangeVar = mkSprVariable(loc, "$rangeVar", mkIdentifier(loc, "Range"), range);
+    if ( ctFor )
+        setEvalMode(rangeVar, modeCt);
+    Node* rangeVarRef = mkIdentifier(loc, "$rangeVar");
+
+    // while condition
+    Node* base1 = mkCompoundExp(loc, rangeVarRef, "isEmpty");
+    Node* whileCond = mkOperatorCall(loc, nullptr, "!", mkFunApplication(loc, base1, nullptr));
+
+    // while step
+    Node* base2 = mkCompoundExp(loc, rangeVarRef, "popFront");
+    Node* whileStep = mkFunApplication(loc, base2, nullptr);
+
+    // while body
+    Node* whileBody = nullptr;
+    if ( action )
+    {
+        if ( !typeExpr )
+            typeExpr = mkCompoundExp(loc, rangeVarRef, "RetType");
+
+        // the iteration variable
+        Node* base3 = mkCompoundExp(loc, rangeVarRef, "front");
+        Node* init = mkFunApplication(loc, base3, nullptr);
+
+        Node* iterVar = mkSprVariable(node->location, getName(node), typeExpr, init);
+        if ( ctFor )
+            setEvalMode(iterVar, modeCt);
+
+        whileBody = mkLocalSpace(action->location, { iterVar, action });
+    }
+
+    Node* whileStmt = mkWhile(loc, whileCond, whileBody, whileStep, ctFor);
+    
+    return mkLocalSpace(node->location, { rangeVar, whileStmt });
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// SprReturn
+//
+
+Node* SprReturn_SemanticCheck(Node* node)
+{
+    ASSERT(node->children.size() == 1);
+    Node* exp = node->children[0];
+
+    // Get the parent function of this return
+    Node* parentFun = getParentFun(node->context);
+    if ( !parentFun )
+        REP_ERROR(node->location, "Return found outside any function");
+
+    // Compute the result type of the function
+    TypeRef resType = nullptr;
+    Node* resultParam = getResultParam(parentFun);
+    if ( resultParam ) // Does this function have a result param?
+    {
+        resType = removeRef(resultParam->type);
+        ASSERT(!Function_resultType(parentFun)->hasStorage); // The function should have void result
+    }
+    else
+    {
+        resType = Function_resultType(parentFun);
+    }
+    ASSERT(resType);
+
+    // Check match between return expression and function result type
+    ConversionResult cvt = convNone;
+    if ( exp )
+    {
+        Nest::semanticCheck(exp);
+        if ( !resType->hasStorage && exp->type == resType )
+        {
+            return mkNodeList(node->location, { exp, mkReturn(node->location) });
+        }
+        else
+        {
+            cvt = canConvert(exp, resType);
+        }
+        if ( !cvt )
+            REP_ERROR(exp->location, "Cannot convert return expression (%1%) to %2%") % exp->type % resType;
+    }
+    else
+    {
+        if ( Function_resultType(parentFun)->typeKind != typeKindVoid )
+            REP_ERROR(node->location, "You must return something in a function that has non-Void result type");
+    }
+
+    // Build the explanation of this node
+    if ( resultParam )
+    {
+        // Create a ctor to construct the result parameter with the expression received
+        const Location& l = resultParam->location;
+        Node* thisArg = mkMemLoad(l, mkVarRef(l, resultParam));
+        Nest::setContext(thisArg, node->context);
+        Node* action = createCtorCall(l, node->context, thisArg, exp);
+        if ( !action )
+            REP_ERROR(exp->location, "Cannot construct return type object %1% from %2%") % exp->type % resType;
+
+        return mkNodeList(node->location, { action, mkReturn(node->location, nullptr)});
+    }
+    else
+    {
+        exp = exp ? cvt.apply(node->context, exp) : nullptr;
+        return mkReturn(node->location, exp);
+    }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Node kind variables
+//
+
 int SprFrontend::firstSparrowNodeKind = 0;
 
 int SprFrontend::nkSparrowModifiersNode = 0;
@@ -227,6 +401,10 @@ int SprFrontend::nkSparrowStmtSprReturn = 0;
 int SprFrontend::nkSparrowInnerInstantiation = 0;
 int SprFrontend::nkSparrowInnerInstantiationsSet = 0;
 
+////////////////////////////////////////////////////////////////////////////////
+// Functions from the header
+//
+
 void SprFrontend::initSparrowNodeKinds()
 {
     nkSparrowModifiersNode = registerNodeKind("spr.modifiers", &ModifiersNode_SemanticCheck, &ModifiersNode_ComputeType, &ModifiersNode_SetContextForChildren, NULL);
@@ -256,12 +434,6 @@ void SprFrontend::initSparrowNodeKinds()
     SprFrontend::DeclExp::registerSelf();
     SprFrontend::StarExp::registerSelf();
     
-    SprFrontend::For::registerSelf();
-    SprFrontend::SprReturn::registerSelf();
-    
-    SprFrontend::Instantiation::registerSelf();
-    SprFrontend::InstantiationsSet::registerSelf();
-
     nkSparrowModifiersNode =            ModifiersNode::classNodeKind();
     
     nkSparrowDeclSprCompilationUnit =   SprCompilationUnit::classNodeKind();
@@ -287,11 +459,14 @@ void SprFrontend::initSparrowNodeKinds()
     nkSparrowExpDeclExp =               DeclExp::classNodeKind();
     nkSparrowExpStarExp =               StarExp::classNodeKind();
     
-    nkSparrowStmtFor =                  For::classNodeKind();
-    nkSparrowStmtSprReturn =            SprReturn::classNodeKind();
-    
+    nkSparrowStmtFor = registerNodeKind("spr.for", &For_SemanticCheck, &For_ComputeType, &For_SetContextForChildren, NULL);
+    nkSparrowStmtSprReturn = registerNodeKind("spr.return", &SprReturn_SemanticCheck, NULL, NULL, NULL);
+
     nkSparrowInnerInstantiation = registerNodeKind("spr.instantiation", &Instantiation_SemanticCheck, NULL, NULL, NULL);
     nkSparrowInnerInstantiationsSet = registerNodeKind("spr.instantiationSet", &InstantiationsSet_SemanticCheck, NULL, NULL, NULL);
+
+    SprFrontend::For::classNodeKindRef() = nkSparrowStmtFor;
+    SprFrontend::SprReturn::classNodeKindRef() = nkSparrowStmtSprReturn;
 
     SprFrontend::Instantiation::classNodeKindRef() = nkSparrowInnerInstantiation;
     SprFrontend::InstantiationsSet::classNodeKindRef() = nkSparrowInnerInstantiationsSet;

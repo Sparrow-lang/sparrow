@@ -28,12 +28,31 @@
 #include <Nodes/Stmt/For.h>
 #include <Nodes/Stmt/SprReturn.h>
 
+#include "Mods/ModStatic.h"
+#include "Mods/ModCt.h"
+#include "Mods/ModRt.h"
+#include "Mods/ModRtCt.h"
+#include "Mods/ModAutoCt.h"
+#include "Mods/ModCtGeneric.h"
+#include "Mods/ModNative.h"
+#include "Mods/ModConvert.h"
+#include "Mods/ModNoDefault.h"
+#include "Mods/ModInitCtor.h"
+#include "Mods/ModMacro.h"
+#include "Mods/ModNoInline.h"
+
+#include <Helpers/ForEachNodeInNodeList.h>
+
+
+
 #include <Feather/Nodes/FeatherNodes.h>
 
 #include <Nest/Common/Diagnostic.h>
 
 
 using namespace SprFrontend;
+using namespace Feather;
+using namespace Nest;
 
 #define UNUSED(x) (void)(x)
 
@@ -47,6 +66,133 @@ namespace
         return string(reinterpret_cast<const char*>(ptr), reinterpret_cast<const char*>(end));
     }
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// ModifiersNode
+//
+
+void applyModifier(Node* base, Node* modNode)
+{
+    Nest::Modifier* mod = nullptr;
+    
+    if ( modNode->nodeKind == nkSparrowExpIdentifier )
+    {
+        const string& name = getCheckPropertyString(modNode, "name");
+        if ( name == "static" )
+            mod = new ModStatic;
+        else if ( name == "ct" )
+            mod = new ModCt;
+        else if ( name == "rt" )
+            mod = new ModRt;
+        else if ( name == "rtct" )
+            mod = new ModRtCt;
+        else if ( name == "autoCt" )
+            mod = new ModAutoCt;
+        else if ( name == "ctGeneric" )
+            mod = new ModCtGeneric;
+        else if ( name == "convert" )
+            mod = new ModConvert;
+        else if ( name == "noDefault" )
+            mod = new ModNoDefault;
+        else if ( name == "initCtor" )
+            mod = new ModInitCtor;
+        else if ( name == "macro" )
+            mod = new ModMacro;
+        else if ( name == "noInline" )
+            mod = new ModNoInline;
+    }
+    else
+    {
+        // check for: native("name")
+        if ( modNode->nodeKind == nkSparrowExpInfixExp )    // fun application
+        {
+            Node* fbase = modNode->children[0];
+            Node* fargs = modNode->children[1];
+            if ( fbase->nodeKind == nkSparrowExpIdentifier && getCheckPropertyString(fbase, "name") == "native" )
+            {
+                // one argument: a literal
+                if ( fargs && fargs->nodeKind == Feather::nkFeatherNodeList && fargs->children.size() == 1
+                && fargs->children.front()->nodeKind == nkSparrowExpLiteral )
+                {
+                    Node* arg = fargs->children.front();
+                    const string& type = getCheckPropertyString(arg, "spr.literalType"); 
+                    if ( type == "StringRef" )
+                    {
+                        const string& dataStr = getCheckPropertyString(arg, "spr.literalData");
+                        mod = new ModNative(dataStr);
+                    }
+                }
+            }
+        }
+    }
+    
+    // If we recognized a modifier, add it to the base node; otherwise raise an error
+    if ( mod )
+        Nest::addModifier(base, mod);
+    else
+        REP_ERROR(modNode->location, "Unknown modifier found: %1%") % modNode;
+}
+void ModifiersNode_SetContextForChildren(Node* node)
+{
+    Node* base = node->children[0];
+    Node* modifierNodes = node->children[1];
+
+    // Set the context of the modifiers
+    if ( modifierNodes )
+        Nest::setContext(modifierNodes, node->context);
+
+    // Interpret the modifiers here - as much as possible
+    if ( modifierNodes )
+    {
+        if ( modifierNodes->nodeKind == Feather::nkFeatherNodeList )
+        {
+            // Add the modifiers to the base node
+            forEachNodeInNodeList(modifierNodes, [&] (Node* modNode)
+            {
+                applyModifier(base, modNode);
+            });
+        }
+        else
+        {
+            applyModifier(base, modifierNodes);
+        }
+    }
+
+    // Set the context for the base
+    if ( base )
+        Nest::setContext(base, node->context);
+}
+TypeRef ModifiersNode_ComputeType(Node* node)
+{
+    Node* base = node->children[0];
+    computeType(base);
+    return base->type;
+}
+Node* ModifiersNode_SemanticCheck(Node* node)
+{
+    return node->children[0];
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Instantiation
+//
+
+Node* Instantiation_SemanticCheck(Node* node)
+{
+    return mkNop(node->location);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// InstantiationSet
+//
+
+Node* InstantiationsSet_SemanticCheck(Node* node)
+{
+    return mkNop(node->location);
+}
+
 
 int SprFrontend::firstSparrowNodeKind = 0;
 
@@ -83,7 +229,9 @@ int SprFrontend::nkSparrowInnerInstantiationsSet = 0;
 
 void SprFrontend::initSparrowNodeKinds()
 {
-    SprFrontend::ModifiersNode::registerSelf();
+    nkSparrowModifiersNode = registerNodeKind("spr.modifiers", &ModifiersNode_SemanticCheck, &ModifiersNode_ComputeType, &ModifiersNode_SetContextForChildren, NULL);
+
+    SprFrontend::ModifiersNode::classNodeKindRef() = nkSparrowModifiersNode;
     
     SprFrontend::SprCompilationUnit::registerSelf();
     SprFrontend::Package::registerSelf();
@@ -142,9 +290,11 @@ void SprFrontend::initSparrowNodeKinds()
     nkSparrowStmtFor =                  For::classNodeKind();
     nkSparrowStmtSprReturn =            SprReturn::classNodeKind();
     
-    nkSparrowInnerInstantiation =       Instantiation::classNodeKind();
-    nkSparrowInnerInstantiationsSet =   InstantiationsSet::classNodeKind();
+    nkSparrowInnerInstantiation = registerNodeKind("spr.instantiation", &Instantiation_SemanticCheck, NULL, NULL, NULL);
+    nkSparrowInnerInstantiationsSet = registerNodeKind("spr.instantiationSet", &InstantiationsSet_SemanticCheck, NULL, NULL, NULL);
 
+    SprFrontend::Instantiation::classNodeKindRef() = nkSparrowInnerInstantiation;
+    SprFrontend::InstantiationsSet::classNodeKindRef() = nkSparrowInnerInstantiationsSet;
 
     firstSparrowNodeKind = nkSparrowModifiersNode;
 }
@@ -153,7 +303,13 @@ void SprFrontend::initSparrowNodeKinds()
 Node* SprFrontend::mkModifiers(const Location& loc, Node* main, Node* mods)
 {
     REQUIRE_NODE(loc, main);
-    return mods ? (new ModifiersNode(loc, main, mods))->node() : main;
+    if ( !mods )
+        return main;
+
+    Node* res = createNode(nkSparrowModifiersNode);
+    res->location = loc;
+    res->children = { main, mods };
+    return res;
 }
 
 Node* SprFrontend::mkSprCompilationUnit(const Location& loc, Node* package, Node* imports, Node* declarations)
@@ -417,10 +573,21 @@ Node* SprFrontend::mkDeclExp(const Location& loc, NodeVector decls, Node* baseEx
 
 Node* SprFrontend::mkInstantiation(const Location& loc, NodeVector boundValues, NodeVector boundVars)
 {
-    return (new Instantiation(loc, move(boundValues), move(boundVars)))->node();
+    Node* res = createNode(nkSparrowInnerInstantiation);
+    res->location = loc;
+    res->children = { Feather::mkNodeList(loc, move(boundVars)) };
+    res->referredNodes = move(boundValues);
+    setProperty(res, "instIsValid", 0);
+    setProperty(res, "instantiatedDecl", (Node*) nullptr);
+    return res;
 }
 
 Node* SprFrontend::mkInstantiationsSet(Node* parentNode, NodeVector params, Node* ifClause)
 {
-    return (new InstantiationsSet(parentNode, move(params), ifClause))->node();
+    Location loc = parentNode->location;
+    Node* res = createNode(nkSparrowInnerInstantiationsSet);
+    res->location = loc;
+    res->children = { ifClause, Feather::mkNodeList(loc, {}) };
+    res->referredNodes = { parentNode, mkNodeList(loc, move(params)) };
+    return res;
 }

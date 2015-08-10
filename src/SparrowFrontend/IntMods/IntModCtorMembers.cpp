@@ -2,6 +2,7 @@
 #include "IntModCtorMembers.h"
 
 #include <Nodes/Decls/SprFunction.h>
+#include <Nodes/Builder.h>
 #include <Helpers/DeclsHelpers.h>
 #include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Util/Context.h>
@@ -126,7 +127,7 @@ void IntModCtorMembers::beforeSemanticCheck(Node* node)
             }
             else
             {
-                call = mkOperatorCall(loc, fieldRef, ":=", mkNullLiteral(loc));
+                call = mkOperatorCall(loc, fieldRef, ":=", buildNullLiteral(loc));
             }
             Nest::setContext(call, Nest::childrenContext(body));
             body->children.insert(body->children.begin(), call);

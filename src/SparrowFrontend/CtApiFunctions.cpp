@@ -4,6 +4,7 @@
 #include "SparrowSourceCode.h"
 
 #include <Nodes/SparrowNodes.h>
+#include <Nodes/Builder.h>
 #include <Feather/Util/StringData.h>
 
 #include <Nest/Backend/Backend.h>
@@ -51,7 +52,7 @@ namespace
     }
     void ctApi_Sparrow_mkSprFunctionExp(Node** sret, Location* loc, StringData name, Node* parameters, Node* returnType, Node* bodyExp, Node* ifClause)
     {
-        *sret = mkSprFunctionExp(*loc, name.toStdString(), parameters, returnType, bodyExp);
+        *sret = buildSprFunctionExp(*loc, name.toStdString(), parameters, returnType, bodyExp);
     }
     void ctApi_Sparrow_mkSprParameter(Node** sret, Location* loc, StringData name, Node* typeNode, Node* init)
     {
@@ -76,7 +77,7 @@ namespace
     }
     void ctApi_Sparrow_mkPostfixOp(Node** sret, Location* loc, StringData op, Node* base)
     {
-        *sret = mkPostfixOp(*loc, op.toStdString(), base);
+        *sret = buildPostfixOp(*loc, op.toStdString(), base);
     }
     void ctApi_Sparrow_mkInfixOp(Node** sret, Location* loc, StringData op, Node* arg1, Node* arg2)
     {
@@ -84,7 +85,7 @@ namespace
     }
     void ctApi_Sparrow_mkPrefixOp(Node** sret, Location* loc, StringData op, Node* base)
     {
-        *sret = mkPrefixOp(*loc, op.toStdString(), base);
+        *sret = buildPrefixOp(*loc, op.toStdString(), base);
     }
     void ctApi_Sparrow_mkFunApplication(Node** sret, Location* loc, Node* base, Node* arguments)
     {
@@ -105,47 +106,47 @@ namespace
     }
     void ctApi_Sparrow_mkParenthesisExp(Node** sret, Location* loc, Node* exp)
     {
-        *sret = mkParenthesisExp(*loc, exp);
+        *sret = buildParenthesisExp(*loc, exp);
     }
     void ctApi_Sparrow_mkIntLiteral(Node** sret, Location* loc, int value)
     {
-        *sret = mkIntLiteral(*loc, value);
+        *sret = buildIntLiteral(*loc, value);
     }
     void ctApi_Sparrow_mkUIntLiteral(Node** sret, Location* loc, unsigned int value)
     {
-        *sret = mkUIntLiteral(*loc, value);
+        *sret = buildUIntLiteral(*loc, value);
     }
     void ctApi_Sparrow_mkLongLiteral(Node** sret, Location* loc, long value)
     {
-        *sret = mkLongLiteral(*loc, value);
+        *sret = buildLongLiteral(*loc, value);
     }
     void ctApi_Sparrow_mkULongLiteral(Node** sret, Location* loc, unsigned long value)
     {
-        *sret = mkULongLiteral(*loc, value);
+        *sret = buildULongLiteral(*loc, value);
     }
     void ctApi_Sparrow_mkFloatLiteral(Node** sret, Location* loc, float value)
     {
-        *sret = mkFloatLiteral(*loc, value);
+        *sret = buildFloatLiteral(*loc, value);
     }
     void ctApi_Sparrow_mkDoubleLiteral(Node** sret, Location* loc, double value)
     {
-        *sret = mkDoubleLiteral(*loc, value);
+        *sret = buildDoubleLiteral(*loc, value);
     }
     void ctApi_Sparrow_mkCharLiteral(Node** sret, Location* loc, char value)
     {
-        *sret = mkCharLiteral(*loc, value);
+        *sret = buildCharLiteral(*loc, value);
     }
     void ctApi_Sparrow_mkStringLiteral(Node** sret, Location* loc, StringData value)
     {
-        *sret = mkStringLiteral(*loc, value.toStdString());
+        *sret = buildStringLiteral(*loc, value.toStdString());
     }
     void ctApi_Sparrow_mkNullLiteral(Node** sret, Location* loc)
     {
-        *sret = mkNullLiteral(*loc);
+        *sret = buildNullLiteral(*loc);
     }
     void ctApi_Sparrow_mkBoolLiteral(Node** sret, Location* loc, bool value)
     {
-        *sret = mkBoolLiteral(*loc, value);
+        *sret = buildBoolLiteral(*loc, value);
     }
     void ctApi_Sparrow_mkLambdaExp(Node** sret, Location* loc, Node* parameters, Node* returnType, Node* body, Node* bodyExp, Node* closureParams)
     {
@@ -154,11 +155,11 @@ namespace
 
     void ctApi_Sparrow_mkExpressionStmt(Node** sret, Location* loc, Node* exp)
     {
-        *sret = mkExpressionStmt(*loc, exp);
+        *sret = buildExpressionStmt(*loc, exp);
     }
     void ctApi_Sparrow_mkBlockStmt(Node** sret, Location* loc, Node* statements)
     {
-        *sret = mkBlockStmt(*loc, statements);
+        *sret = buildBlockStmt(*loc, statements);
     }
     void ctApi_Sparrow_mkForStmt(Node** sret, Location* loc, StringData name, Node* type, Node* range, Node* action)
     {

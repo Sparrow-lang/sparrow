@@ -25,42 +25,42 @@ namespace
     {
         CHECK(loc, args.size() == 1);
         TypeRef t = getType(args[0]);
-        return mkStringLiteral(loc, t->description);
+        return buildStringLiteral(loc, t->description);
     }
     
     Node* impl_typeHasStorage(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 1);
         TypeRef t = getType(args[0]);
-        return mkBoolLiteral(loc, t->hasStorage);
+        return buildBoolLiteral(loc, t->hasStorage);
     }
     
     Node* impl_typeMode(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 1);
         TypeRef t = getType(args[0]);
-        return mkIntLiteral(loc, t->mode);
+        return buildIntLiteral(loc, t->mode);
     }
     
     Node* impl_typeCanBeUsedAtCt(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 1);
         TypeRef t = getType(args[0]);
-        return mkBoolLiteral(loc, t->canBeUsedAtCt);
+        return buildBoolLiteral(loc, t->canBeUsedAtCt);
     }
     
     Node* impl_typeCanBeUsedAtRt(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 1);
         TypeRef t = getType(args[0]);
-        return mkBoolLiteral(loc, t->canBeUsedAtRt);
+        return buildBoolLiteral(loc, t->canBeUsedAtRt);
     }
     
     Node* impl_typeNumRef(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 1);
         TypeRef t = getType(args[0]);
-        return mkIntLiteral(loc, t->numReferences);
+        return buildIntLiteral(loc, t->numReferences);
     }
     
     Node* impl_typeChangeMode(CompilationContext* context, const Location& loc, const NodeVector& args)
@@ -97,7 +97,7 @@ namespace
         bool equals = isSameTypeIgnoreMode(t1, t2);
         
         // Build a CT value of type bool
-        return mkBoolLiteral(loc, equals);
+        return buildBoolLiteral(loc, equals);
     }
     
     Node* impl_typeAddRef(CompilationContext* context, const Location& loc, const NodeVector& args)
@@ -142,7 +142,7 @@ namespace
         
         bool result = !!(canConvertType(context, t1, t2));
 
-        return mkBoolLiteral(loc, result);
+        return buildBoolLiteral(loc, result);
     }
     
     Node* impl_staticBuffer(CompilationContext* context, const Location& loc, const NodeVector& args)

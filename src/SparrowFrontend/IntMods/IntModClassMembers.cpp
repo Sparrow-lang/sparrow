@@ -2,6 +2,7 @@
 #include "IntModClassMembers.h"
 
 #include <Nodes/Decls/SprClass.h>
+#include <Nodes/Builder.h>
 #include <Helpers/SprTypeTraits.h>
 #include <Helpers/DeclsHelpers.h>
 #include <Helpers/StdDef.h>
@@ -174,7 +175,7 @@ namespace
                 {
                     oper = ":=";    // Transform into ref assignment
                     if ( !otherFieldRef )
-                        otherFieldRef = mkNullLiteral(loc);
+                        otherFieldRef = buildNullLiteral(loc);
                 }
                 else if ( op == "dtor" )
                     continue;       // Nothing to destruct on references
@@ -263,7 +264,7 @@ namespace
                 exp = mkOperatorCall(loc, exp, "&&", curExp);
         }
         if ( !exp )
-            exp = mkBoolLiteral(loc, true);
+            exp = buildBoolLiteral(loc, true);
 
         Node* body = mkLocalSpace(loc, {});
         body->children.push_back(mkReturnStmt(loc, exp));

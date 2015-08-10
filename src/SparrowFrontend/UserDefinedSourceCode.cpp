@@ -1,6 +1,5 @@
 #include <StdInc.h>
 #include "UserDefinedSourceCode.h"
-// TODO (now)
 #include "Grammar/Scanner.h"
 #include <parser.yy.hpp>
 #include <Helpers/SprTypeTraits.h>
@@ -8,6 +7,7 @@
 #include <Helpers/Ct.h>
 
 #include <Nodes/SparrowNodes.h>
+#include <Nodes/Builder.h>
 #include <Feather/Nodes/FeatherNodes.h>
 
 #include <Nest/Compiler.h>
@@ -70,7 +70,7 @@ void UserDefinedSourceCode::parse(CompilationContext* context)
 
     // Create a node that invokes the given function with the content of the file
     // funName(code: StringRef, location: Meta.Location, context: Meta.CompilationContext): Meta.AstNode
-    Node* codeNode = mkStringLiteral(loc, oss.str());
+    Node* codeNode = buildStringLiteral(loc, oss.str());
 
     int* scHandle = reinterpret_cast<int*>(this);
     Node* scBase = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "SourceCode");

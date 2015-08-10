@@ -61,17 +61,6 @@ using namespace Nest;
 
 #define UNUSED(x) (void)(x)
 
-namespace
-{
-    template <typename T>
-    string toStrData(T val)
-    {
-        const T* ptr = &val;
-        const T* end = ptr + 1;
-        return string(reinterpret_cast<const char*>(ptr), reinterpret_cast<const char*>(end));
-    }
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // ModifiersNode
 //
@@ -527,16 +516,6 @@ Node* SprFrontend::mkSprFunction(const Location& loc, string name, Node* paramet
     return (new SprFunction(loc, move(name), parameters, returnType, body, ifClause, accessType))->node();
 }
 
-Node* SprFrontend::mkSprFunctionExp(const Location& loc, string name, Node* parameters, Node* returnType, Node* bodyExp, Node* ifClause, AccessType accessType)
-{
-    const Location& loc2 = bodyExp->location;
-    Node* body = mkBlockStmt(loc2, Feather::mkNodeList(loc2, { mkReturnStmt(loc2, bodyExp) }));
-    if ( !returnType )
-        returnType = mkFunApplication(loc2, mkIdentifier(loc2, "typeOf"), Feather::mkNodeList(loc2, { bodyExp }));
-
-    return (new SprFunction(loc, move(name), parameters, returnType, body, ifClause, accessType))->node();
-}
-
 Node* SprFrontend::mkSprParameter(const Location& loc, string name, Node* typeNode, Node* init)
 {
     return (new SprParameter(loc, move(name), typeNode, init))->node();
@@ -552,6 +531,17 @@ Node* SprFrontend::mkSprAutoParameter(const Location& loc, string name)
     return (new SprParameter(loc, move(name), mkIdentifier(loc, "AnyType"), nullptr))->node();
 }
 
+
+Node* SprFrontend::mkLiteral(const Location& loc, string litType, string data)
+{
+    return (new Literal(loc, move(litType), move(data)))->node();
+}
+
+Node* SprFrontend::mkThisExp(const Location& loc)
+{
+    return (new This(loc))->node();
+}
+
 Node* SprFrontend::mkIdentifier(const Location& loc, string id)
 {
     return (new Identifier(loc, move(id)))->node();
@@ -562,28 +552,6 @@ Node* SprFrontend::mkCompoundExp(const Location& loc, Node* base, string id)
     return (new CompoundExp(loc, base, move(id)))->node();
 }
 
-Node* SprFrontend::mkStarExp(const Location& loc, Node* base, const string& operName)
-{
-    if ( operName != "*" )
-        REP_ERROR(loc, "Expected '*' in expression; found '%1%'") % operName;
-    return (new StarExp(loc, base))->node();
-}
-
-Node* SprFrontend::mkPostfixOp(const Location& loc, string op, Node* base)
-{
-    return (new OperatorCall(loc, base, move(op), nullptr))->node();
-}
-
-Node* SprFrontend::mkInfixOp(const Location& loc, string op, Node* arg1, Node* arg2)
-{
-    return (new InfixExp(loc, move(op), arg1, arg2))->node();
-}
-
-Node* SprFrontend::mkPrefixOp(const Location& loc, string op, Node* base)
-{
-    return (new InfixExp(loc, move(op), nullptr, base))->node();
-}
-
 Node* SprFrontend::mkFunApplication(const Location& loc, Node* base, Node* arguments)
 {
     return (new FunApplication(loc, base, arguments))->node();
@@ -592,75 +560,15 @@ Node* SprFrontend::mkFunApplication(const Location& loc, Node* base, NodeVector 
 {
     return (new FunApplication(loc, base, move(arguments)))->node();
 }
+
 Node* SprFrontend::mkOperatorCall(const Location& loc, Node* arg1, string op, Node* arg2)
 {
     return (new OperatorCall(loc, arg1, move(op), arg2))->node();
 }
 
-
-Node* SprFrontend::mkConditionalExp(const Location& loc, Node* cond, Node* alt1, Node* alt2)
+Node* SprFrontend::mkInfixOp(const Location& loc, string op, Node* arg1, Node* arg2)
 {
-    return (new SprConditional(loc, cond, alt1, alt2))->node();
-}
-
-Node* SprFrontend::mkThisExp(const Location& loc)
-{
-    return (new This(loc))->node();
-}
-
-Node* SprFrontend::mkParenthesisExp(const Location& loc, Node* exp)
-{
-    return Feather::mkNodeList(loc, {exp}, false);
-}
-
-Node* SprFrontend::mkIntLiteral(const Location& loc, int value)
-{
-    return (new Literal(loc, "Int", toStrData(value)))->node();
-}
-
-Node* SprFrontend::mkUIntLiteral(const Location& loc, unsigned int value)
-{
-    return (new Literal(loc, "UInt", toStrData(value)))->node();
-}
-
-Node* SprFrontend::mkLongLiteral(const Location& loc, long value)
-{
-    return (new Literal(loc, "Long", toStrData(value)))->node();
-}
-
-Node* SprFrontend::mkULongLiteral(const Location& loc, unsigned long value)
-{
-    return (new Literal(loc, "ULong", toStrData(value)))->node();
-}
-
-Node* SprFrontend::mkFloatLiteral(const Location& loc, float value)
-{
-    return (new Literal(loc, "Float", toStrData(value)))->node();
-}
-
-Node* SprFrontend::mkDoubleLiteral(const Location& loc, double value)
-{
-    return (new Literal(loc, "Double", toStrData(value)))->node();
-}
-
-Node* SprFrontend::mkCharLiteral(const Location& loc, char value)
-{
-    return (new Literal(loc, "Char", toStrData(value)))->node();
-}
-
-Node* SprFrontend::mkStringLiteral(const Location& loc, string value)
-{
-    return (new Literal(loc, "StringRef", move(value)))->node();
-}
-
-Node* SprFrontend::mkNullLiteral(const Location& loc)
-{
-    return (new Literal(loc, "Null", string()))->node();
-}
-
-Node* SprFrontend::mkBoolLiteral(const Location& loc, bool value)
-{
-    return (new Literal(loc, "Bool", toStrData(value)))->node();
+    return (new InfixExp(loc, move(op), arg1, arg2))->node();
 }
 
 Node* SprFrontend::mkLambdaExp(const Location& loc, Node* parameters, Node* returnType, Node* body, Node* bodyExp, Node* closureParams)
@@ -669,81 +577,39 @@ Node* SprFrontend::mkLambdaExp(const Location& loc, Node* parameters, Node* retu
     {
         ASSERT(!body);
         const Location& loc = bodyExp->location;
-        body = mkBlockStmt(loc, Feather::mkNodeList(loc, { mkReturnStmt(loc, bodyExp) }));
+        body = Feather::mkLocalSpace(loc, { mkReturnStmt(loc, bodyExp) });
         if ( !returnType )
             returnType = mkFunApplication(loc, mkIdentifier(loc, "typeOf"), Feather::mkNodeList(loc, { bodyExp }));
     }
     return (new LambdaFunction(loc, parameters, returnType, body, closureParams))->node();
 }
 
-
-Node* SprFrontend::mkExpressionStmt(const Location& /*loc*/, Node* exp)
+Node* SprFrontend::mkConditionalExp(const Location& loc, Node* cond, Node* alt1, Node* alt2)
 {
-    return exp;
+    return (new SprConditional(loc, cond, alt1, alt2))->node();
 }
 
-Node* SprFrontend::mkBlockStmt(const Location& loc, Node* statements)
+Node* SprFrontend::mkDeclExp(const Location& loc, NodeVector decls, Node* baseExp)
 {
-    return Feather::mkLocalSpace(loc, statements ? statements->children : NodeVector());
+    return (new DeclExp(loc, move(decls), baseExp))->node();
 }
 
-Node* SprFrontend::mkIfStmt(const Location& loc, Node* cond, Node* thenClause, Node* elseClause)
+Node* SprFrontend::mkStarExp(const Location& loc, Node* base, const string& operName)
 {
-    return Feather::mkIf(loc, cond, thenClause, elseClause);
+    if ( operName != "*" )
+        REP_ERROR(loc, "Expected '*' in expression; found '%1%'") % operName;
+    return (new StarExp(loc, base))->node();
 }
+
 
 Node* SprFrontend::mkForStmt(const Location& loc, string name, Node* type, Node* range, Node* action)
 {
     return (new For(loc, move(name), range, action, type))->node();
 }
 
-Node* SprFrontend::mkWhileStmt(const Location& loc, Node* cond, Node* step, Node* action)
-{
-    return Feather::mkWhile(loc, cond, action, step);
-}
-
-Node* SprFrontend::mkBreakStmt(const Location& loc)
-{
-    return Feather::mkBreak(loc);
-}
-
-Node* SprFrontend::mkContinueStmt(const Location& loc)
-{
-    return Feather::mkContinue(loc);
-}
-
 Node* SprFrontend::mkReturnStmt(const Location& loc, Node* exp)
 {
     return (new SprReturn(loc, exp))->node();
-}
-
-//Node* SprFrontend::mkThrowStmt(const Location& loc, Node* exp)
-//{
-//    UNUSED(loc); UNUSED(exp);
-//    return NULL; // TODO
-//}
-//
-//Node* SprFrontend::mkTryStmt(const Location& loc, Node* actions, Node* catches, Node* finallyBlock)
-//{
-//    UNUSED(loc); UNUSED(actions); UNUSED(catches); UNUSED(finallyBlock);
-//    return NULL; // TODO
-//}
-//
-//Node* SprFrontend::mkCatchBlock(const Location& loc, Node* formal, Node* action)
-//{
-//    UNUSED(loc); UNUSED(formal); UNUSED(action);
-//    return NULL; // TODO
-//}
-//
-//Node* SprFrontend::mkFinallyBlock(const Location& loc, Node* action)
-//{
-//    UNUSED(loc); UNUSED(action);
-//    return NULL; // TODO
-//}
-
-Node* SprFrontend::mkDeclExp(const Location& loc, NodeVector decls, Node* baseExp)
-{
-    return (new DeclExp(loc, move(decls), baseExp))->node();
 }
 
 Node* SprFrontend::mkInstantiation(const Location& loc, NodeVector boundValues, NodeVector boundVars)

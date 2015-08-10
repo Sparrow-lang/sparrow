@@ -302,7 +302,7 @@ ImportDeclaration
 	: IMPORT QualifiedNameStar SEMICOLON
         { $$ = $2; }
 	| IMPORT STRING_LITERAL SEMICOLON
-        { $$ = mkStringLiteral(@$, static_cast<string&>(*$<stringVal>2)); }
+        { $$ = buildStringLiteral(@$, static_cast<string&>(*$<stringVal>2)); }
 	;
 
 DeclarationsOpt
@@ -397,7 +397,7 @@ FunDeclaration
 	: AccessSpec FUN ModifierSpec FunOrOperName FormalsOpt FunRetType IfClause FunctionBody
         { $$ = mkModifiers(@$, mkSprFunction(@$, *$4, $5, $6, $8, $7, $1), $3); }
 	| AccessSpec FUN ModifierSpec FunOrOperName FormalsOpt FunRetType EQUAL Expr IfClause SEMICOLON
-        { $$ = mkModifiers(@$, mkSprFunctionExp(@$, *$4, $5, $6, $8, $9, $1), $3); }
+        { $$ = mkModifiers(@$, buildSprFunctionExp(@$, *$4, $5, $6, $8, $9, $1), $3); }
 	;
 
 FunRetType
@@ -486,14 +486,14 @@ PostfixExpr
     : InfixExpr
         { $$ = $1; }
     | InfixExpr IdentifierOrOperator
-        { $$ = mkPostfixOp(@$, *$2, $1); }
+        { $$ = buildPostfixOp(@$, *$2, $1); }
     ;
 
 PostfixExprNoEq
     : InfixExprNoEq
         { $$ = $1; }
     | InfixExprNoEq IdentifierOrOperatorNoEq
-        { $$ = mkPostfixOp(@$, *$2, $1); }
+        { $$ = buildPostfixOp(@$, *$2, $1); }
     ;
 
 InfixExpr
@@ -514,18 +514,18 @@ PrefixExpr
     : SimpleExpr
         { $$ = $1; }
     | Operator PrefixExpr
-        { $$ = mkPrefixOp(@$, *$1, $2); }
+        { $$ = buildPrefixOp(@$, *$1, $2); }
     | BACKSQUOTE IDENTIFIER BACKSQUOTE PrefixExpr
-        { $$ = mkPrefixOp(@$, *$2, $4); }
+        { $$ = buildPrefixOp(@$, *$2, $4); }
     ;
 
 PrefixExprNoEq
     : SimpleExprNoEq
         { $$ = $1; }
     | OperatorNoEq PrefixExpr
-        { $$ = mkPrefixOp(@$, *$1, $2); }
+        { $$ = buildPrefixOp(@$, *$1, $2); }
     | BACKSQUOTE IDENTIFIER BACKSQUOTE PrefixExprNoEq
-        { $$ = mkPrefixOp(@$, *$2, $4); }
+        { $$ = buildPrefixOp(@$, *$2, $4); }
     ;
 
 SimpleExpr
@@ -540,33 +540,33 @@ SimpleExpr
     | LambdaExpr
         { $$ = $1; }
 	| LPAREN Expr RPAREN
-        { $$ = mkParenthesisExp(@$, $2); }
+        { $$ = buildParenthesisExp(@$, $2); }
 	| IDENTIFIER
         { $$ = mkIdentifier(@$, *$1); }
 	| THIS
         { $$ = mkThisExp(@$); }
 	| NULLCT
-        { $$ = mkNullLiteral(@$); }
+        { $$ = buildNullLiteral(@$); }
 	| TRUE
-        { $$ = mkBoolLiteral(@$, true); }
+        { $$ = buildBoolLiteral(@$, true); }
 	| FALSE
-        { $$ = mkBoolLiteral(@$, false); }
+        { $$ = buildBoolLiteral(@$, false); }
 	| INT_LITERAL
-        { $$ = mkIntLiteral(@$, static_cast<int>($<integerVal>1)); }
+        { $$ = buildIntLiteral(@$, static_cast<int>($<integerVal>1)); }
 	| LONG_LITERAL
-        { $$ = mkLongLiteral(@$, static_cast<long>($<integerVal>1)); }
+        { $$ = buildLongLiteral(@$, static_cast<long>($<integerVal>1)); }
 	| UINT_LITERAL
-        { $$ = mkUIntLiteral(@$, static_cast<unsigned>($<integerVal>1)); }
+        { $$ = buildUIntLiteral(@$, static_cast<unsigned>($<integerVal>1)); }
 	| ULONG_LITERAL
-        { $$ = mkULongLiteral(@$, static_cast<unsigned long>($<integerVal>1)); }
+        { $$ = buildULongLiteral(@$, static_cast<unsigned long>($<integerVal>1)); }
 	| FLOAT_LITERAL
-        { $$ = mkFloatLiteral(@$, static_cast<float>($<floatingVal>1)); }
+        { $$ = buildFloatLiteral(@$, static_cast<float>($<floatingVal>1)); }
 	| DOUBLE_LITERAL
-        { $$ = mkDoubleLiteral(@$, static_cast<double>($<floatingVal>1)); }
+        { $$ = buildDoubleLiteral(@$, static_cast<double>($<floatingVal>1)); }
 	| CHAR_LITERAL
-        { $$ = mkCharLiteral(@$, static_cast<char>($<charVal>1)); }
+        { $$ = buildCharLiteral(@$, static_cast<char>($<charVal>1)); }
 	| STRING_LITERAL
-        { $$ = mkStringLiteral(@$, static_cast<string&>(*$<stringVal>1)); }
+        { $$ = buildStringLiteral(@$, static_cast<string&>(*$<stringVal>1)); }
 	;
 
 SimpleExprNoEq
@@ -579,33 +579,33 @@ SimpleExprNoEq
     | LambdaExpr
         { $$ = $1; }
 	| LPAREN Expr RPAREN
-        { $$ = mkParenthesisExp(@$, $2); }
+        { $$ = buildParenthesisExp(@$, $2); }
 	| IDENTIFIER
         { $$ = mkIdentifier(@$, *$1); }
 	| THIS
         { $$ = mkThisExp(@$); }
 	| NULLCT
-        { $$ = mkNullLiteral(@$); }
+        { $$ = buildNullLiteral(@$); }
 	| TRUE
-        { $$ = mkBoolLiteral(@$, true); }
+        { $$ = buildBoolLiteral(@$, true); }
 	| FALSE
-        { $$ = mkBoolLiteral(@$, false); }
+        { $$ = buildBoolLiteral(@$, false); }
 	| INT_LITERAL
-        { $$ = mkIntLiteral(@$, static_cast<int>($<integerVal>1)); }
+        { $$ = buildIntLiteral(@$, static_cast<int>($<integerVal>1)); }
 	| LONG_LITERAL
-        { $$ = mkLongLiteral(@$, static_cast<long>($<integerVal>1)); }
+        { $$ = buildLongLiteral(@$, static_cast<long>($<integerVal>1)); }
 	| UINT_LITERAL
-        { $$ = mkUIntLiteral(@$, static_cast<unsigned>($<integerVal>1)); }
+        { $$ = buildUIntLiteral(@$, static_cast<unsigned>($<integerVal>1)); }
 	| ULONG_LITERAL
-        { $$ = mkULongLiteral(@$, static_cast<unsigned long>($<integerVal>1)); }
+        { $$ = buildULongLiteral(@$, static_cast<unsigned long>($<integerVal>1)); }
 	| FLOAT_LITERAL
-        { $$ = mkFloatLiteral(@$, static_cast<float>($<floatingVal>1)); }
+        { $$ = buildFloatLiteral(@$, static_cast<float>($<floatingVal>1)); }
 	| DOUBLE_LITERAL
-        { $$ = mkDoubleLiteral(@$, static_cast<double>($<floatingVal>1)); }
+        { $$ = buildDoubleLiteral(@$, static_cast<double>($<floatingVal>1)); }
 	| CHAR_LITERAL
-        { $$ = mkCharLiteral(@$, static_cast<char>($<charVal>1)); }
+        { $$ = buildCharLiteral(@$, static_cast<char>($<charVal>1)); }
 	| STRING_LITERAL
-        { $$ = mkStringLiteral(@$, static_cast<string&>(*$<stringVal>1)); }
+        { $$ = buildStringLiteral(@$, static_cast<string&>(*$<stringVal>1)); }
 	;
 
 LambdaExpr
@@ -670,19 +670,19 @@ EmptyStmt
 
 ExpressionStmt
 	: Expr SEMICOLON
-        { $$ = mkExpressionStmt(@$, $1); }
+        { $$ = buildExpressionStmt(@$, $1); }
 	;
 
 BlockStmt
     : LCURLY Statements RCURLY
-        { $$ = mkBlockStmt(@$, $2); }
+        { $$ = buildBlockStmt(@$, $2); }
     ;
 
 IfStmt
 	: IF ModifierSpec LPAREN Expr RPAREN Statement ELSE Statement
-        { $$ = mkModifiers(@$, mkIfStmt(@$, $4, $6, $8), $2); }
+        { $$ = mkModifiers(@$, buildIfStmt(@$, $4, $6, $8), $2); }
 	| IF ModifierSpec LPAREN Expr RPAREN Statement %prec THEN_CLAUSE
-        { $$ = mkModifiers(@$, mkIfStmt(@$, $4, $6, NULL), $2); }
+        { $$ = mkModifiers(@$, buildIfStmt(@$, $4, $6, NULL), $2); }
 	;
 
 ForStmt
@@ -694,21 +694,21 @@ ForStmt
 
 WhileStmt
 	: WHILE ModifierSpec LPAREN Expr RPAREN Statement
-        { $$ = mkModifiers(@$, mkWhileStmt(@$, $4, NULL, $6), $2); }
+        { $$ = mkModifiers(@$, buildWhileStmt(@$, $4, NULL, $6), $2); }
 	| WHILE ModifierSpec LPAREN Expr SEMICOLON Statement RPAREN Statement
-        { $$ = mkModifiers(@$, mkWhileStmt(@$, $4, $6, $8), $2); }
+        { $$ = mkModifiers(@$, buildWhileStmt(@$, $4, $6, $8), $2); }
 	| WHILE ModifierSpec LPAREN Expr SEMICOLON Expr RPAREN Statement
-        { $$ = mkModifiers(@$, mkWhileStmt(@$, $4, $6, $8), $2); }
+        { $$ = mkModifiers(@$, buildWhileStmt(@$, $4, $6, $8), $2); }
 	;
 
 BreakStmt
 	: BREAK SEMICOLON
-        { $$ = mkBreakStmt(@$); }
+        { $$ = buildBreakStmt(@$); }
 	;
 
 ContinueStmt
 	: CONTINUE SEMICOLON
-        { $$ = mkContinueStmt(@$); }
+        { $$ = buildContinueStmt(@$); }
 	;
 
 ReturnStmt

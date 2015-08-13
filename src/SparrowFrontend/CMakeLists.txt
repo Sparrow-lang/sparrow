@@ -28,6 +28,7 @@ SET(sourceFiles
     "Grammar/Scanner.cpp"
     "Nodes/SparrowNodes.h"
     "Nodes/SparrowNodes.cpp"
+    "Nodes/SparrowNodes_Exp.cpp"
     "Nodes/DynNode.h"
     "Nodes/DynNode.cpp"
     "Nodes/DynNodeVector.h"

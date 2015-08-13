@@ -165,3 +165,9 @@ void SprFrontend::copyModifiersSetMode(Node* src, Node* dest, EvalMode newMode)
             break;
     }
 }
+
+bool SprFrontend::funHasThisParameters(Node* fun)
+{
+    return fun && fun->nodeKind == nkSparrowDeclSprFunction
+        && hasProperty(fun, "spr.isMember") && !hasProperty(fun, propIsStatic);
+}

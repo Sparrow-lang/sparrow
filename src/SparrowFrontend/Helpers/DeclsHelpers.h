@@ -33,4 +33,8 @@ namespace SprFrontend
     /// Copy the modifiers from the source node to the destination node; we do not copy any mode changing modifiers;
     /// instead we add a new modifier to change the mode
     void copyModifiersSetMode(Node* src, Node* dest, EvalMode newMode);
+
+    /// Check if the given function node has a this parameter
+    /// returns false if the given node is null or is not a function
+    bool funHasThisParameters(Node* fun);
 }

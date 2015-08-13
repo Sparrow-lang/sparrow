@@ -353,6 +353,25 @@ Node* SprReturn_SemanticCheck(Node* node)
 }
 
 
+
+////////////////////////////////////////////////////////////////////////////////
+// Function forwards - implemented in SparrowNodes_Exp.cpp
+//
+
+Node* Literal_SemanticCheck(Node* node);
+Node* This_SemanticCheck(Node* node);
+Node* Identifier_SemanticCheck(Node* node);
+Node* CompoundExp_SemanticCheck(Node* node);
+Node* FunApplication_SemanticCheck(Node* node);
+Node* OperatorCall_SemanticCheck(Node* node);
+Node* InfixExp_SemanticCheck(Node* node);
+Node* LambdaFunction_SemanticCheck(Node* node);
+Node* SprConditional_SemanticCheck(Node* node);
+Node* DeclExp_SemanticCheck(Node* node);
+Node* StarExp_SemanticCheck(Node* node);
+
+
+
 ////////////////////////////////////////////////////////////////////////////////
 // Node kind variables
 //
@@ -411,20 +430,6 @@ void SprFrontend::initSparrowNodeKinds()
     SprFrontend::GenericFunction::registerSelf();
     SprFrontend::Using::registerSelf();
 
-    SprFrontend::Literal::registerSelf();
-    SprFrontend::This::registerSelf();
-    SprFrontend::Identifier::registerSelf();
-    SprFrontend::CompoundExp::registerSelf();
-    SprFrontend::FunApplication::registerSelf();
-    SprFrontend::OperatorCall::registerSelf();
-    SprFrontend::InfixExp::registerSelf();
-    SprFrontend::LambdaFunction::registerSelf();
-    SprFrontend::SprConditional::registerSelf();
-    SprFrontend::DeclExp::registerSelf();
-    SprFrontend::StarExp::registerSelf();
-    
-    nkSparrowModifiersNode =            ModifiersNode::classNodeKind();
-    
     nkSparrowDeclSprCompilationUnit =   SprCompilationUnit::classNodeKind();
     nkSparrowDeclPackage =              Package::classNodeKind();
     nkSparrowDeclSprClass =             SprClass::classNodeKind();
@@ -436,23 +441,35 @@ void SprFrontend::initSparrowNodeKinds()
     nkSparrowDeclGenericFunction =      GenericFunction::classNodeKind();
     nkSparrowDeclUsing =                Using::classNodeKind();
 
-    nkSparrowExpLiteral =               Literal::classNodeKind();
-    nkSparrowExpThis =                  This::classNodeKind();
-    nkSparrowExpIdentifier =            Identifier::classNodeKind();
-    nkSparrowExpCompoundExp =           CompoundExp::classNodeKind();
-    nkSparrowExpFunApplication =        FunApplication::classNodeKind();
-    nkSparrowExpOperatorCall =          OperatorCall::classNodeKind();
-    nkSparrowExpInfixExp =              InfixExp::classNodeKind();
-    nkSparrowExpLambdaFunction =        LambdaFunction::classNodeKind();
-    nkSparrowExpSprConditional =        SprConditional::classNodeKind();
-    nkSparrowExpDeclExp =               DeclExp::classNodeKind();
-    nkSparrowExpStarExp =               StarExp::classNodeKind();
+    nkSparrowExpLiteral =               registerNodeKind("spr.literal", &Literal_SemanticCheck, NULL, NULL, NULL);
+    nkSparrowExpThis =                  registerNodeKind("spr.this", &This_SemanticCheck, NULL, NULL, NULL);
+    nkSparrowExpIdentifier =            registerNodeKind("spr.identifier", &Identifier_SemanticCheck, NULL, NULL, NULL);
+    nkSparrowExpCompoundExp =           registerNodeKind("spr.compoundExp", &CompoundExp_SemanticCheck, NULL, NULL, NULL);
+    nkSparrowExpFunApplication =        registerNodeKind("spr.funApplication", &FunApplication_SemanticCheck, NULL, NULL, NULL);
+    nkSparrowExpOperatorCall =          registerNodeKind("spr.operatorCall", &OperatorCall_SemanticCheck, NULL, NULL, NULL);
+    nkSparrowExpInfixExp =              registerNodeKind("spr.infixExp", &InfixExp_SemanticCheck, NULL, NULL, NULL);
+    nkSparrowExpLambdaFunction =        registerNodeKind("spr.lambdaFunction", &LambdaFunction_SemanticCheck, NULL, NULL, NULL);
+    nkSparrowExpSprConditional =        registerNodeKind("spr.sprConditional", &SprConditional_SemanticCheck, NULL, NULL, NULL);
+    nkSparrowExpDeclExp =               registerNodeKind("spr.declExp", &DeclExp_SemanticCheck, NULL, NULL, NULL);
+    nkSparrowExpStarExp =               registerNodeKind("spr.starExp", &StarExp_SemanticCheck, NULL, NULL, NULL);
     
     nkSparrowStmtFor = registerNodeKind("spr.for", &For_SemanticCheck, &For_ComputeType, &For_SetContextForChildren, NULL);
     nkSparrowStmtSprReturn = registerNodeKind("spr.return", &SprReturn_SemanticCheck, NULL, NULL, NULL);
 
     nkSparrowInnerInstantiation = registerNodeKind("spr.instantiation", &Instantiation_SemanticCheck, NULL, NULL, NULL);
     nkSparrowInnerInstantiationsSet = registerNodeKind("spr.instantiationSet", &InstantiationsSet_SemanticCheck, NULL, NULL, NULL);
+
+    SprFrontend::Literal::classNodeKindRef() = nkSparrowExpLiteral;
+    SprFrontend::This::classNodeKindRef() = nkSparrowExpThis;
+    SprFrontend::Identifier::classNodeKindRef() = nkSparrowExpIdentifier;
+    SprFrontend::CompoundExp::classNodeKindRef() = nkSparrowExpCompoundExp;
+    SprFrontend::FunApplication::classNodeKindRef() = nkSparrowExpFunApplication;
+    SprFrontend::OperatorCall::classNodeKindRef() = nkSparrowExpOperatorCall;
+    SprFrontend::InfixExp::classNodeKindRef() = nkSparrowExpInfixExp;
+    SprFrontend::LambdaFunction::classNodeKindRef() = nkSparrowExpLambdaFunction;
+    SprFrontend::SprConditional::classNodeKindRef() = nkSparrowExpSprConditional;
+    SprFrontend::DeclExp::classNodeKindRef() = nkSparrowExpDeclExp;
+    SprFrontend::StarExp::classNodeKindRef() = nkSparrowExpStarExp;
 
     SprFrontend::For::classNodeKindRef() = nkSparrowStmtFor;
     SprFrontend::SprReturn::classNodeKindRef() = nkSparrowStmtSprReturn;
@@ -534,41 +551,75 @@ Node* SprFrontend::mkSprAutoParameter(const Location& loc, string name)
 
 Node* SprFrontend::mkLiteral(const Location& loc, string litType, string data)
 {
-    return (new Literal(loc, move(litType), move(data)))->node();
+    Node* res = createNode(nkSparrowExpLiteral);
+    res->location = loc;
+    setProperty(res, "spr.literalType", move(litType));
+    setProperty(res, "spr.literalData", move(data));
+    return res;
 }
 
 Node* SprFrontend::mkThisExp(const Location& loc)
 {
-    return (new This(loc))->node();
+    Node* res = createNode(nkSparrowExpThis);
+    res->location = loc;
+    return res;
 }
 
 Node* SprFrontend::mkIdentifier(const Location& loc, string id)
 {
-    return (new Identifier(loc, move(id)))->node();
+    Node* res = createNode(nkSparrowExpIdentifier);
+    res->location = loc;
+    setProperty(res, "name", move(id));
+    setProperty(res, propAllowDeclExp, 0);
+    return res;
 }
 
 Node* SprFrontend::mkCompoundExp(const Location& loc, Node* base, string id)
 {
-    return (new CompoundExp(loc, base, move(id)))->node();
+    Node* res = createNode(nkSparrowExpCompoundExp);
+    res->location = loc;
+    res->children = { base };
+    setProperty(res, "name", move(id));
+    setProperty(res, propAllowDeclExp, 0);
+    return res;
 }
 
 Node* SprFrontend::mkFunApplication(const Location& loc, Node* base, Node* arguments)
 {
-    return (new FunApplication(loc, base, arguments))->node();
+    Node* res = createNode(nkSparrowExpFunApplication);
+    res->location = loc;
+    res->children = { base, arguments };
+    ASSERT( !arguments || arguments->nodeKind == nkFeatherNodeList );
+    if ( !arguments )
+        res->children[1] = mkNodeList(loc, {});
+    return res;
 }
 Node* SprFrontend::mkFunApplication(const Location& loc, Node* base, NodeVector arguments)
 {
-    return (new FunApplication(loc, base, move(arguments)))->node();
+    Node* res = createNode(nkSparrowExpFunApplication);
+    res->location = loc;
+    res->children = { base, mkNodeList(loc, move(arguments)) };
+    return res;
 }
 
 Node* SprFrontend::mkOperatorCall(const Location& loc, Node* arg1, string op, Node* arg2)
 {
-    return (new OperatorCall(loc, arg1, move(op), arg2))->node();
+    Node* res = createNode(nkSparrowExpOperatorCall);
+    res->location = loc;
+    res->children = { arg1, arg2 };
+    setProperty(res, "spr.operation", move(op));
+    return res;
 }
 
 Node* SprFrontend::mkInfixOp(const Location& loc, string op, Node* arg1, Node* arg2)
 {
-    return (new InfixExp(loc, move(op), arg1, arg2))->node();
+    Node* res = createNode(nkSparrowExpInfixExp);
+    res->location = loc;
+    res->children = { arg1, arg2 };
+    if ( op.empty() )
+        REP_ERROR(res->location, "Operation name must have at least one character");
+    setProperty(res, "spr.operation", move(op));
+    return res;
 }
 
 Node* SprFrontend::mkLambdaExp(const Location& loc, Node* parameters, Node* returnType, Node* body, Node* bodyExp, Node* closureParams)
@@ -581,35 +632,59 @@ Node* SprFrontend::mkLambdaExp(const Location& loc, Node* parameters, Node* retu
         if ( !returnType )
             returnType = mkFunApplication(loc, mkIdentifier(loc, "typeOf"), Feather::mkNodeList(loc, { bodyExp }));
     }
-    return (new LambdaFunction(loc, parameters, returnType, body, closureParams))->node();
+    Node* res = createNode(nkSparrowExpLambdaFunction);
+    res->location = loc;
+    res->children = {};
+    res->referredNodes = { parameters, returnType, body, closureParams };
+    ASSERT( !parameters || parameters->nodeKind == nkFeatherNodeList );
+    ASSERT( !closureParams || closureParams->nodeKind == nkFeatherNodeList );
+    return res;
 }
 
 Node* SprFrontend::mkConditionalExp(const Location& loc, Node* cond, Node* alt1, Node* alt2)
 {
-    return (new SprConditional(loc, cond, alt1, alt2))->node();
+    Node* res = createNode(nkSparrowExpSprConditional);
+    res->location = loc;
+    res->children = { cond, alt1, alt2 };
+    return res;
 }
 
 Node* SprFrontend::mkDeclExp(const Location& loc, NodeVector decls, Node* baseExp)
 {
-    return (new DeclExp(loc, move(decls), baseExp))->node();
+    Node* res = createNode(nkSparrowExpDeclExp);
+    res->location = loc;
+    res->children = { };
+    res->referredNodes = move(decls);
+    res->referredNodes.insert(res->referredNodes.begin(), baseExp);
+    return res;
 }
 
 Node* SprFrontend::mkStarExp(const Location& loc, Node* base, const string& operName)
 {
     if ( operName != "*" )
         REP_ERROR(loc, "Expected '*' in expression; found '%1%'") % operName;
-    return (new StarExp(loc, base))->node();
+    Node* res = createNode(nkSparrowExpStarExp);
+    res->location = loc;
+    res->children = { base };
+    return res;
 }
 
 
 Node* SprFrontend::mkForStmt(const Location& loc, string name, Node* type, Node* range, Node* action)
 {
-    return (new For(loc, move(name), range, action, type))->node();
+    Node* res = createNode(nkSparrowStmtFor);
+    res->location = loc;
+    res->children = { range, action, type };
+    setName(res, move(name));
+    return res;
 }
 
 Node* SprFrontend::mkReturnStmt(const Location& loc, Node* exp)
 {
-    return (new SprReturn(loc, exp))->node();
+    Node* res = createNode(nkSparrowStmtSprReturn);
+    res->location = loc;
+    res->children = { exp };
+    return res;
 }
 
 Node* SprFrontend::mkInstantiation(const Location& loc, NodeVector boundValues, NodeVector boundVars)

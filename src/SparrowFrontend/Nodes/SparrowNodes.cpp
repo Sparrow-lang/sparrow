@@ -1,5 +1,6 @@
 #include <StdInc.h>
 #include "SparrowNodes.h"
+#include "SparrowNodesAccessors.h"
 
 #include <Nodes/ModifiersNode.h>
 #include <Nodes/Decls/SprCompilationUnit.h>
@@ -43,6 +44,7 @@
 
 #include <Helpers/ForEachNodeInNodeList.h>
 #include <Helpers/DeclsHelpers.h>
+#include <Helpers/SprTypeTraits.h>
 #include <Helpers/Convert.h>
 #include <Helpers/CommonCode.h>
 
@@ -109,11 +111,9 @@ void applyModifier(Node* base, Node* modNode)
                 && fargs->children.front()->nodeKind == nkSparrowExpLiteral )
                 {
                     Node* arg = fargs->children.front();
-                    const string& type = getCheckPropertyString(arg, "spr.literalType"); 
-                    if ( type == "StringRef" )
+                    if ( Literal_isString(arg) )
                     {
-                        const string& dataStr = getCheckPropertyString(arg, "spr.literalData");
-                        mod = new ModNative(dataStr);
+                        mod = new ModNative(Literal_getData(arg));
                     }
                 }
             }
@@ -355,6 +355,43 @@ Node* SprReturn_SemanticCheck(Node* node)
 
 
 ////////////////////////////////////////////////////////////////////////////////
+// Function forwards - implemented in SparrowNodes_Decl.cpp
+//
+
+void SprCompilationUnit_SetContextForChildren(Node* node);
+TypeRef SprCompilationUnit_ComputeType(Node* node);
+Node* SprCompilationUnit_SemanticCheck(Node* node);
+
+void Package_SetContextForChildren(Node* node);
+TypeRef Package_ComputeType(Node* node);
+Node* Package_SemanticCheck(Node* node);
+
+void SprClass_SetContextForChildren(Node* node);
+TypeRef SprClass_ComputeType(Node* node);
+Node* SprClass_SemanticCheck(Node* node);
+
+void SprFunction_SetContextForChildren(Node* node);
+TypeRef SprFunction_ComputeType(Node* node);
+Node* SprFunction_SemanticCheck(Node* node);
+
+void SprParameter_SetContextForChildren(Node* node);
+TypeRef SprParameter_ComputeType(Node* node);
+Node* SprParameter_SemanticCheck(Node* node);
+
+void SprVariable_SetContextForChildren(Node* node);
+TypeRef SprVariable_ComputeType(Node* node);
+Node* SprVariable_SemanticCheck(Node* node);
+
+void SprConcept_SetContextForChildren(Node* node);
+Node* SprConcept_SemanticCheck(Node* node);
+
+Node* Generic_SemanticCheck(Node* node);
+
+void Using_SetContextForChildren(Node* node);
+TypeRef Using_ComputeType(Node* node);
+Node* Using_SemanticCheck(Node* node);
+
+////////////////////////////////////////////////////////////////////////////////
 // Function forwards - implemented in SparrowNodes_Exp.cpp
 //
 
@@ -415,31 +452,18 @@ int SprFrontend::nkSparrowInnerInstantiationsSet = 0;
 
 void SprFrontend::initSparrowNodeKinds()
 {
-    nkSparrowModifiersNode = registerNodeKind("spr.modifiers", &ModifiersNode_SemanticCheck, &ModifiersNode_ComputeType, &ModifiersNode_SetContextForChildren, NULL);
+    nkSparrowModifiersNode =            registerNodeKind("spr.modifiers", &ModifiersNode_SemanticCheck, &ModifiersNode_ComputeType, &ModifiersNode_SetContextForChildren, NULL);
 
-    SprFrontend::ModifiersNode::classNodeKindRef() = nkSparrowModifiersNode;
-    
-    SprFrontend::SprCompilationUnit::registerSelf();
-    SprFrontend::Package::registerSelf();
-    SprFrontend::SprClass::registerSelf();
-    SprFrontend::SprFunction::registerSelf();
-    SprFrontend::SprParameter::registerSelf();
-    SprFrontend::SprVariable::registerSelf();
-    SprFrontend::SprConcept::registerSelf();
-    SprFrontend::GenericClass::registerSelf();
-    SprFrontend::GenericFunction::registerSelf();
-    SprFrontend::Using::registerSelf();
-
-    nkSparrowDeclSprCompilationUnit =   SprCompilationUnit::classNodeKind();
-    nkSparrowDeclPackage =              Package::classNodeKind();
-    nkSparrowDeclSprClass =             SprClass::classNodeKind();
-    nkSparrowDeclSprFunction =          SprFunction::classNodeKind();
-    nkSparrowDeclSprParameter =         SprParameter::classNodeKind();
-    nkSparrowDeclSprVariable =          SprVariable::classNodeKind();
-    nkSparrowDeclSprConcept =           SprConcept::classNodeKind();
-    nkSparrowDeclGenericClass =         GenericClass::classNodeKind();
-    nkSparrowDeclGenericFunction =      GenericFunction::classNodeKind();
-    nkSparrowDeclUsing =                Using::classNodeKind();
+    nkSparrowDeclSprCompilationUnit =   registerNodeKind("spr.sprCompilationUnit", &SprCompilationUnit_SemanticCheck, &SprCompilationUnit_ComputeType, &SprCompilationUnit_SetContextForChildren, NULL);
+    nkSparrowDeclPackage =              registerNodeKind("spr.package", &Package_SemanticCheck, &Package_ComputeType, &Package_SetContextForChildren, NULL);
+    nkSparrowDeclSprClass =             registerNodeKind("spr.sprClass", &SprClass_SemanticCheck, &SprClass_ComputeType, &SprClass_SetContextForChildren, NULL);
+    nkSparrowDeclSprFunction =          registerNodeKind("spr.sprFunction", &SprFunction_SemanticCheck, &SprFunction_ComputeType, &SprFunction_SetContextForChildren, NULL);
+    nkSparrowDeclSprParameter =         registerNodeKind("spr.sprParameter", &SprParameter_SemanticCheck, &SprParameter_ComputeType, &SprParameter_SetContextForChildren, NULL);
+    nkSparrowDeclSprVariable =          registerNodeKind("spr.sprVariable", &SprVariable_SemanticCheck, &SprVariable_ComputeType, &SprVariable_SetContextForChildren, NULL);
+    nkSparrowDeclSprConcept =           registerNodeKind("spr.sprConcept", &SprConcept_SemanticCheck, NULL, &SprConcept_SetContextForChildren, NULL);
+    nkSparrowDeclGenericClass =         registerNodeKind("spr.genericClass", &Generic_SemanticCheck, NULL, NULL, NULL);
+    nkSparrowDeclGenericFunction =      registerNodeKind("spr.genericFunction", &Generic_SemanticCheck, NULL, NULL, NULL);
+    nkSparrowDeclUsing =                registerNodeKind("spr.using", &Using_SemanticCheck, &Using_ComputeType, &Using_SetContextForChildren, NULL);
 
     nkSparrowExpLiteral =               registerNodeKind("spr.literal", &Literal_SemanticCheck, NULL, NULL, NULL);
     nkSparrowExpThis =                  registerNodeKind("spr.this", &This_SemanticCheck, NULL, NULL, NULL);
@@ -453,11 +477,24 @@ void SprFrontend::initSparrowNodeKinds()
     nkSparrowExpDeclExp =               registerNodeKind("spr.declExp", &DeclExp_SemanticCheck, NULL, NULL, NULL);
     nkSparrowExpStarExp =               registerNodeKind("spr.starExp", &StarExp_SemanticCheck, NULL, NULL, NULL);
     
-    nkSparrowStmtFor = registerNodeKind("spr.for", &For_SemanticCheck, &For_ComputeType, &For_SetContextForChildren, NULL);
-    nkSparrowStmtSprReturn = registerNodeKind("spr.return", &SprReturn_SemanticCheck, NULL, NULL, NULL);
+    nkSparrowStmtFor =                  registerNodeKind("spr.for", &For_SemanticCheck, &For_ComputeType, &For_SetContextForChildren, NULL);
+    nkSparrowStmtSprReturn =            registerNodeKind("spr.return", &SprReturn_SemanticCheck, NULL, NULL, NULL);
 
-    nkSparrowInnerInstantiation = registerNodeKind("spr.instantiation", &Instantiation_SemanticCheck, NULL, NULL, NULL);
-    nkSparrowInnerInstantiationsSet = registerNodeKind("spr.instantiationSet", &InstantiationsSet_SemanticCheck, NULL, NULL, NULL);
+    nkSparrowInnerInstantiation =       registerNodeKind("spr.instantiation", &Instantiation_SemanticCheck, NULL, NULL, NULL);
+    nkSparrowInnerInstantiationsSet =   registerNodeKind("spr.instantiationSet", &InstantiationsSet_SemanticCheck, NULL, NULL, NULL);
+
+    SprFrontend::ModifiersNode::classNodeKindRef() = nkSparrowModifiersNode;
+
+    SprCompilationUnit::classNodeKindRef() = nkSparrowDeclSprCompilationUnit;
+    Package::classNodeKindRef() = nkSparrowDeclPackage;
+    SprClass::classNodeKindRef() = nkSparrowDeclSprClass;
+    SprFunction::classNodeKindRef() = nkSparrowDeclSprFunction;
+    SprParameter::classNodeKindRef() = nkSparrowDeclSprParameter;
+    SprVariable::classNodeKindRef() = nkSparrowDeclSprVariable;
+    SprConcept::classNodeKindRef() = nkSparrowDeclSprConcept;
+    GenericClass::classNodeKindRef() = nkSparrowDeclGenericClass;
+    GenericFunction::classNodeKindRef() = nkSparrowDeclGenericFunction;
+    Using::classNodeKindRef() = nkSparrowDeclUsing;
 
     SprFrontend::Literal::classNodeKindRef() = nkSparrowExpLiteral;
     SprFrontend::This::classNodeKindRef() = nkSparrowExpThis;
@@ -495,59 +532,151 @@ Node* SprFrontend::mkModifiers(const Location& loc, Node* main, Node* mods)
 
 Node* SprFrontend::mkSprCompilationUnit(const Location& loc, Node* package, Node* imports, Node* declarations)
 {
-    return (new SprCompilationUnit(loc, package, imports, declarations))->node();
+    Node* res = createNode(nkSparrowDeclSprCompilationUnit);
+    res->location = loc;
+    res->children = { package, imports, declarations };
+    ASSERT( !imports || imports->nodeKind == Feather::nkFeatherNodeList );
+    ASSERT( !declarations || declarations->nodeKind == Feather::nkFeatherNodeList );
+    return res;
 }
 
 Node* SprFrontend::mkSprUsing(const Location& loc, string alias, Node* usingNode, AccessType accessType)
 {
-    return (new Using(loc, move(alias), usingNode, accessType))->node();
+    Node* res = createNode(nkSparrowDeclUsing);
+    res->location = loc;
+    res->children = { usingNode };
+    if ( !alias.empty() )
+        Feather::setName(res, move(alias));
+    setAccessType(res, accessType);
+    return res;
 }
 
 Node* SprFrontend::mkSprPackage(const Location& loc, string name, Node* children, AccessType accessType)
 {
-    return (new Package(loc, move(name), children, accessType))->node();
+    Node* res = createNode(nkSparrowDeclPackage);
+    res->location = loc;
+    res->children = { children };
+    Feather::setName(res, move(name));
+    setAccessType(res, accessType);
+    return res;
 }
 
 Node* SprFrontend::mkSprVariable(const Location& loc, string name, Node* typeNode, Node* init, AccessType accessType)
 {
-    return (new SprVariable(loc, move(name), typeNode, init, accessType))->node();
+    Node* res = createNode(nkSparrowDeclSprVariable);
+    res->location = loc;
+    res->children = { typeNode, init };
+    setName(res, move(name));
+    setAccessType(res, accessType);
+    return res;
 }
 
 Node* SprFrontend::mkSprVariable(const Location& loc, string name, TypeRef type, Node* init, AccessType accessType)
 {
-    return (new SprVariable(loc, move(name), type, init, accessType))->node();
+    Node* res = createNode(nkSparrowDeclSprVariable);
+    res->location = loc;
+    res->children = { nullptr, init };
+    setName(res, move(name));
+    setAccessType(res, accessType);
+    setProperty(res, "spr.givenType", type);
+    return res;
 }
 
 Node* SprFrontend::mkSprClass(const Location& loc, string name, Node* parameters, Node* baseClasses, Node* ifClause, Node* children, AccessType accessType)
 {
-    return (new SprClass(loc, move(name), parameters, baseClasses, children, ifClause, accessType))->node();
+    Node* res = createNode(nkSparrowDeclSprClass);
+    res->location = loc;
+    res->children = { parameters, baseClasses, children, ifClause };
+    ASSERT( !parameters || parameters->nodeKind == nkFeatherNodeList );
+    ASSERT( !baseClasses || baseClasses->nodeKind == nkFeatherNodeList );
+    ASSERT( !children || children->nodeKind == nkFeatherNodeList );
+    setName(res, move(name));
+    setAccessType(res, accessType);
+    return res;
 }
 
 Node* SprFrontend::mkSprConcept(const Location& loc, string name, string paramName, Node* baseConcept, Node* ifClause, AccessType accessType)
 {
-    return (new SprConcept(loc, move(name), move(paramName), baseConcept, ifClause, accessType))->node();
+    Node* res = createNode(nkSparrowDeclSprConcept);
+    res->location = loc;
+    res->children = { baseConcept, ifClause, nullptr };
+    setName(res, move(name));
+    setAccessType(res, accessType);
+    setProperty(res, "spr.paramName", move(paramName));
+    return res;
 }
 
 Node* SprFrontend::mkSprFunction(const Location& loc, string name, Node* parameters, Node* returnType, Node* body, Node* ifClause, AccessType accessType)
 {
-    return (new SprFunction(loc, move(name), parameters, returnType, body, ifClause, accessType))->node();
+    Node* res = createNode(nkSparrowDeclSprFunction);
+    res->location = loc;
+    res->children = { parameters, returnType, body, ifClause };
+    ASSERT( !parameters || parameters->nodeKind == nkFeatherNodeList );
+    setName(res, move(name));
+    setAccessType(res, accessType);
+    return res;
 }
 
 Node* SprFrontend::mkSprParameter(const Location& loc, string name, Node* typeNode, Node* init)
 {
-    return (new SprParameter(loc, move(name), typeNode, init))->node();
+    Node* res = createNode(nkSparrowDeclSprParameter);
+    res->location = loc;
+    res->children = { typeNode, init };
+    Feather::setName(res, move(name));
+    return res;
 }
 
 Node* SprFrontend::mkSprParameter(const Location& loc, string name, TypeRef type, Node* init)
 {
-    return (new SprParameter(loc, move(name), type, init))->node();
+    Node* res = createNode(nkSparrowDeclSprParameter);
+    res->location = loc;
+    res->children = { nullptr, init };
+    Feather::setName(res, move(name));
+    setProperty(res, "spr.givenType", type);
+    return res;
 }
 
 Node* SprFrontend::mkSprAutoParameter(const Location& loc, string name)
 {
-    return (new SprParameter(loc, move(name), mkIdentifier(loc, "AnyType"), nullptr))->node();
+    Node* res = createNode(nkSparrowDeclSprParameter);
+    res->location = loc;
+    res->children = { mkIdentifier(loc, "AnyType"), nullptr };
+    Feather::setName(res, move(name));
+    return res;
 }
 
+
+Node* SprFrontend::mkGenericClass(Node* originalClass, Node* parameters, Node* ifClause)
+{
+    Node* res = createNode(nkSparrowDeclGenericClass);
+    res->location = originalClass->location;
+    res->children = { mkInstantiationsSet(originalClass, parameters->children, ifClause) };
+    res->referredNodes = { originalClass };
+    setName(res, getName(originalClass));
+    setAccessType(res, publicAccess);
+    setEvalMode(res, effectiveEvalMode(originalClass));
+
+    // Semantic check the arguments
+    for ( Node* param: parameters->children )
+    {
+        Nest::semanticCheck(param);
+        if ( isConceptType(param->type) )
+            REP_ERROR(param->location, "Cannot use auto or concept parameters for class generics");
+    }
+    return res;
+}
+
+Node* SprFrontend::mkGenericFunction(Node* originalFun, NodeVector params, NodeVector genericParams, Node* ifClause, Node* thisClass)
+{
+    Node* res = createNode(nkSparrowDeclGenericFunction);
+    res->location = originalFun->location;
+    res->children = { mkInstantiationsSet(originalFun, move(genericParams), ifClause) };
+    res->referredNodes = { originalFun, mkNodeList(res->location, move(params)) };
+    setName(res, getName(originalFun));
+    setAccessType(res, publicAccess);
+    setEvalMode(res, effectiveEvalMode(originalFun));
+    return res;
+}
 
 Node* SprFrontend::mkLiteral(const Location& loc, string litType, string data)
 {

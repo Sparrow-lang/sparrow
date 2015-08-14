@@ -97,6 +97,9 @@ namespace SprFrontend
     Node* mkSprParameter(const Location& loc, string name, TypeRef type, Node* init = nullptr);
     Node* mkSprAutoParameter(const Location& loc, string name);
 
+    Node* mkGenericClass(Node* originalClass, Node* parameters, Node* ifClause);
+    Node* mkGenericFunction(Node* originalFun, NodeVector params, NodeVector genericParams, Node* ifClause, Node* thisClass = nullptr);
+
     Node* mkLiteral(const Location& loc, string litType, string data);
     Node* mkThisExp(const Location& loc);
     Node* mkIdentifier(const Location& loc, string id);

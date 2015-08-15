@@ -2,10 +2,8 @@
 #include "SparrowNodes.h"
 #include "SparrowNodesAccessors.h"
 
-#include <Nodes/Decls/SprCompilationUnit.h>
 #include <Nodes/Decls/SprClass.h>
 #include <Nodes/Decls/SprConcept.h>
-#include <Nodes/Decls/Package.h>
 #include <Nodes/Decls/SprFunction.h>
 #include <Nodes/Decls/SprParameter.h>
 #include <Nodes/Decls/SprVariable.h>
@@ -469,8 +467,6 @@ void SprFrontend::initSparrowNodeKinds()
     nkSparrowInnerInstantiation =       registerNodeKind("spr.instantiation", &Instantiation_SemanticCheck, NULL, NULL, NULL);
     nkSparrowInnerInstantiationsSet =   registerNodeKind("spr.instantiationSet", &InstantiationsSet_SemanticCheck, NULL, NULL, NULL);
 
-    SprCompilationUnit::classNodeKindRef() = nkSparrowDeclSprCompilationUnit;
-    Package::classNodeKindRef() = nkSparrowDeclPackage;
     SprClass::classNodeKindRef() = nkSparrowDeclSprClass;
     SprFunction::classNodeKindRef() = nkSparrowDeclSprFunction;
     SprParameter::classNodeKindRef() = nkSparrowDeclSprParameter;

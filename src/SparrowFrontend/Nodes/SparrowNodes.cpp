@@ -3,8 +3,6 @@
 #include "SparrowNodesAccessors.h"
 
 #include <Nodes/Decls/SprConcept.h>
-#include <Nodes/Decls/SprVariable.h>
-#include <Nodes/Decls/Using.h>
 #include <Nodes/Decls/Instantiation.h>
 #include <Nodes/Decls/InstantiationsSet.h>
 #include <Nodes/Decls/GenericClass.h>
@@ -464,11 +462,9 @@ void SprFrontend::initSparrowNodeKinds()
     nkSparrowInnerInstantiation =       registerNodeKind("spr.instantiation", &Instantiation_SemanticCheck, NULL, NULL, NULL);
     nkSparrowInnerInstantiationsSet =   registerNodeKind("spr.instantiationSet", &InstantiationsSet_SemanticCheck, NULL, NULL, NULL);
 
-    SprVariable::classNodeKindRef() = nkSparrowDeclSprVariable;
     SprConcept::classNodeKindRef() = nkSparrowDeclSprConcept;
     GenericClass::classNodeKindRef() = nkSparrowDeclGenericClass;
     GenericFunction::classNodeKindRef() = nkSparrowDeclGenericFunction;
-    Using::classNodeKindRef() = nkSparrowDeclUsing;
 
     SprFrontend::Instantiation::classNodeKindRef() = nkSparrowInnerInstantiation;
     SprFrontend::InstantiationsSet::classNodeKindRef() = nkSparrowInnerInstantiationsSet;

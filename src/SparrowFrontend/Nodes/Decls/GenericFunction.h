@@ -2,8 +2,6 @@
 
 #include "Generic.h"
 
-FWD_CLASS1(SprFrontend, SprFunction);
-
 namespace SprFrontend
 {
     /// Class that implements the generics behavior of a declaration
@@ -15,7 +13,7 @@ namespace SprFrontend
         ~GenericFunction();
 
         /// Checks if the given declaration with the given parameters is a generic; if yes, creates an object of this type
-        static GenericFunction* createGeneric(SprFunction* originalFun, Node* parameters, Node* ifClause, Node* thisClass = nullptr);
+        static GenericFunction* createGeneric(Node* originalFun, Node* parameters, Node* ifClause, Node* thisClass = nullptr);
 
         size_t paramsCount() const;
         Node* param(size_t idx) const;
@@ -23,7 +21,7 @@ namespace SprFrontend
         Node* instantiateGeneric(const Location& loc, CompilationContext* context, const NodeVector& args, Instantiation* instantiation);
 
     private:
-        GenericFunction(SprFunction* originalFun, NodeVector params, NodeVector genericParams, Node* ifClause);
+        GenericFunction(Node* originalFun, NodeVector params, NodeVector genericParams, Node* ifClause);
 
     private:
         /// All the parameters of the declaration (bound + unbound) - here we have the original parameters of the declaration

@@ -1,7 +1,6 @@
 #include <StdInc.h>
 #include "GenericFunction.h"
 #include "Instantiation.h"
-#include "SprFunction.h"
 #include <Helpers/StdDef.h>
 #include <Helpers/SprTypeTraits.h>
 #include <Helpers/CommonCode.h>
@@ -66,7 +65,7 @@ namespace
     /// For auto parameters create a parameter with the auto-type corresponding to the bound type of the argument
     /// Do not return the this parameter.
     /// Does not return the original parameters; creates a clone if needed
-    NodeVector getNonBoundParameters(Instantiation& inst, SprFunction* originalFun, const NodeVector& params, const NodeVector& genericParams)
+    NodeVector getNonBoundParameters(Instantiation& inst, Node* origFun, const NodeVector& params, const NodeVector& genericParams)
     {
         const auto& boundValues = inst.boundValues();
         ASSERT(!boundValues.empty());
@@ -74,7 +73,7 @@ namespace
         nonBoundParams.reserve(params.size());
         for ( size_t i=0; i<params.size(); ++i )
         {
-            if ( i==0 && originalFun->hasThisParameters() )
+            if ( i==0 && funHasThisParameters(origFun) )
                 continue;
 
             Node* p = params[i];
@@ -155,19 +154,19 @@ namespace
         return nonBoundArgs;
     }
 
-    Node* createInstFn(CompilationContext* context, SprFunction* origFun, const NodeVector& nonBoundParams)
+    Node* createInstFn(CompilationContext* context, Node* origFun, const NodeVector& nonBoundParams)
     {
-        const Location& loc = origFun->location();
+        const Location& loc = origFun->location;
 
         //REP_INFO(loc, "Instantiating %1% with %2% params") % getName(origFun) % nonBoundParams.size();
 
         Node* parameters = mkNodeList(loc, nonBoundParams);
-        Node* returnType = origFun->returnType();
-        Node* body = origFun->body();
+        Node* returnType = origFun->children[1];
+        Node* body = origFun->children[2];
         returnType = returnType ? cloneNode(returnType) : nullptr;
         body = body ? cloneNode(body) : nullptr;
-        Node* newFun = mkSprFunction(loc, getName(origFun->node()), parameters, returnType, body);
-        copyModifiersSetMode(origFun->node(), newFun, context->evalMode());
+        Node* newFun = mkSprFunction(loc, getName(origFun), parameters, returnType, body);
+        copyModifiersSetMode(origFun, newFun, context->evalMode());
         setShouldAddToSymTab(newFun, false);
         Nest::setContext(newFun, context);
 
@@ -177,19 +176,20 @@ namespace
 
     Node* createCallFn(const Location& loc, CompilationContext* context, Node* inst, const NodeVector& nonBoundArgs)
     {
-        SprFunction* sprFun = reinterpret_cast<SprFunction*>(inst);
-        Nest::computeType(sprFun->node());
-        if ( !sprFun->resultingFun() )
+        ASSERT(inst->nodeKind == nkSparrowDeclSprFunction);
+        Nest::computeType(inst);
+        Node* resultingFun = explanation(inst);
+        if ( !resultingFun )
             REP_ERROR(loc, "Cannot instantiate function generic %1%") % getName(inst);
-        return createFunctionCall(loc, context, sprFun->resultingFun(), nonBoundArgs);
+        return createFunctionCall(loc, context, resultingFun, nonBoundArgs);
     }
 }
 
 
-GenericFunction::GenericFunction(SprFunction* originalFun, NodeVector params, NodeVector genericParams, Node* ifClause)
-    : Generic(classNodeKind(), originalFun->node(), move(genericParams), ifClause, publicAccess)
+GenericFunction::GenericFunction(Node* originalFun, NodeVector params, NodeVector genericParams, Node* ifClause)
+    : Generic(classNodeKind(), originalFun, move(genericParams), ifClause, publicAccess)
 {
-    setEvalMode(node(), effectiveEvalMode(originalFun->node()));
+    setEvalMode(node(), effectiveEvalMode(originalFun));
     data_.referredNodes.push_back(mkNodeList(data_.location, move(params)));
 }
 
@@ -204,12 +204,12 @@ const NodeVector& GenericFunction::params() const
 }
 
 
-GenericFunction* GenericFunction::createGeneric(SprFunction* originalFun, Node* parameters, Node* ifClause, Node* thisClass)
+GenericFunction* GenericFunction::createGeneric(Node* originalFun, Node* parameters, Node* ifClause, Node* thisClass)
 {
     // If we are in a CT function, don't consider CT parameters
-    bool inCtFun = effectiveEvalMode(originalFun->node()) == modeCt;
+    bool inCtFun = effectiveEvalMode(originalFun) == modeCt;
     // For CT-generics, we consider all the parameters to be generic parameters
-    bool isCtGeneric = originalFun->hasProperty(propCtGeneric);
+    bool isCtGeneric = Nest::hasProperty(originalFun, propCtGeneric);
 
     // Check if we have some CT parameters
     ASSERT(parameters);
@@ -242,9 +242,9 @@ GenericFunction* GenericFunction::createGeneric(SprFunction* originalFun, Node* 
     // If a 'this' class is passed, add an extra parameter for this
     if ( thisClass )
     {
-        TypeRef thisType = getDataType(thisClass, 1, effectiveEvalMode(originalFun->node()));
-        Node* thisParam = mkSprParameter(originalFun->location(), "$this", thisType);
-        Nest::setContext(thisParam, originalFun->childrenContext());
+        TypeRef thisType = getDataType(thisClass, 1, effectiveEvalMode(originalFun));
+        Node* thisParam = mkSprParameter(originalFun->location, "$this", thisType);
+        Nest::setContext(thisParam, Nest::childrenContext(originalFun));
         Nest::computeType(thisParam);
         ourParams.insert(ourParams.begin(), thisParam);
         genericParams.insert(genericParams.begin(), nullptr);
@@ -252,8 +252,8 @@ GenericFunction* GenericFunction::createGeneric(SprFunction* originalFun, Node* 
 
     // Actually create the generic
     GenericFunction* res = new GenericFunction(originalFun, move(ourParams), move(genericParams), ifClause);
-    setEvalMode(res->node(), effectiveEvalMode(originalFun->node()));
-    Nest::setContext(res->node(), originalFun->context());
+    setEvalMode(res->node(), effectiveEvalMode(originalFun));
+    Nest::setContext(res->node(), originalFun->context);
     return res;
 }
 
@@ -289,7 +289,8 @@ Node* GenericFunction::instantiateGeneric(const Location& loc, CompilationContex
     Node* expandedInstantiation = inst->expandedInstantiation();
     if ( !instantiatedDecl )
     {
-        SprFunction* originalFun = (SprFunction*) ofKind(data_.referredNodes[0], nkSparrowDeclSprFunction);
+        Node* originalFun = data_.referredNodes[0];
+        ASSERT(originalFun->nodeKind == nkSparrowDeclSprFunction);
         NodeVector nonBoundParams = getNonBoundParameters(*inst, originalFun, params(), genericParams());
 
         // Create the actual instantiation declaration

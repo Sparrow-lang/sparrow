@@ -1,7 +1,6 @@
 #include <StdInc.h>
 #include "IntModCtorMembers.h"
 
-#include <Nodes/Decls/SprFunction.h>
 #include <Nodes/Builder.h>
 #include <Helpers/DeclsHelpers.h>
 #include <Feather/Nodes/FeatherNodes.h>
@@ -84,25 +83,24 @@ namespace
     }
 }
 
-void IntModCtorMembers::beforeSemanticCheck(Node* node)
+void IntModCtorMembers::beforeSemanticCheck(Node* fun)
 {
     /// Check to apply only to non-static constructors
-    if ( node->nodeKind != nkSparrowDeclSprFunction || getName(node) != "ctor" )
-        REP_INTERNAL(node->location, "IntModCtorMembers modifier can be applied only to constructors");
-    SprFunction* fun = (SprFunction*) node;
-    if ( !fun->hasThisParameters() )
-        REP_INTERNAL(node->location, "IntModCtorMembers cannot be applied to static constructors");
+    if ( fun->nodeKind != nkSparrowDeclSprFunction || getName(fun) != "ctor" )
+        REP_INTERNAL(fun->location, "IntModCtorMembers modifier can be applied only to constructors");
+    if ( !funHasThisParameters(fun) )
+        REP_INTERNAL(fun->location, "IntModCtorMembers cannot be applied to static constructors");
 
     // If we have a body, make sure it's a local space
-    if ( !fun->body() )
+    Node* body = fun->children[2];
+    if ( !body )
         return; // nothing to do
-    Node* body = fun->body();
     if ( body->nodeKind != nkFeatherLocalSpace )
-        REP_INTERNAL(node->location, "Constructor body is not a local space (needed by IntModCtorMembers)");
+        REP_INTERNAL(fun->location, "Constructor body is not a local space (needed by IntModCtorMembers)");
 
     // Get the class
-    Node* cls = getParentClass(fun->context());
-    CHECK(node->location, cls);
+    Node* cls = getParentClass(fun->context);
+    CHECK(fun->location, cls);
 
     // If we are calling other constructor of this class, don't add any initialization
     if ( hasCtorCall(body, cls, true, nullptr) )

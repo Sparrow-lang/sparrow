@@ -440,7 +440,7 @@ TypeRef SprFunction_ComputeType(Node* node)
     if ( parameters )
     {
         Node* thisClass = isMember && !isStatic ? parentClass : nullptr;
-        Node* generic = GenericFunction::createGeneric((SprFunction*) node, parameters, ifClause, thisClass)->node();
+        Node* generic = GenericFunction::createGeneric(node, parameters, ifClause, thisClass)->node();
         if ( generic )
         {
             // TODO (explanation): explanation should be the result of semantic check

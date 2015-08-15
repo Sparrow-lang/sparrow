@@ -46,8 +46,6 @@ SET(sourceFiles
     "Nodes/Decls/SprVariable.cpp"
     "Nodes/Decls/SprParameter.h"
     "Nodes/Decls/SprParameter.cpp"
-    "Nodes/Decls/SprFunction.h"
-    "Nodes/Decls/SprFunction.cpp"
     "Nodes/Decls/Using.h"
     "Nodes/Decls/Using.cpp"
     "Nodes/Decls/Generic.h"

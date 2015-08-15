@@ -28,8 +28,6 @@ SET(sourceFiles
     "Common/NodeAllocator.h"
     "Common/NodeAllocatorImpl.h"
     "Common/NodeAllocatorImpl.cpp"
-    "Common/TimingSystem.h"
-    "Common/TimingSystem.cpp"
     "Common/PrintTimer.h"
     "Common/Serialization.h"
     "Common/Serialization.cpp"

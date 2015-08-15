@@ -4,7 +4,6 @@
 #include <Common/Diagnostic.h>
 #include <Common/DiagnosticReporter.h>
 #include <Common/NodeAllocatorImpl.h>
-#include <Common/TimingSystem.h>
 #include <Common/Serialization.h>
 #include <Intermediate/Node.h>
 #include <Intermediate/NodeSer.h>
@@ -37,7 +36,6 @@ CompilerImpl::CompilerImpl()
     , backendFactory_(new BackendFactoryImpl)
     , backend_(nullptr)
     , nodeAllocator_(new Common::NodeAllocatorImpl)
-    , timingSystem_(new Common::TimingSystem)
 {
     try
     {
@@ -56,7 +54,6 @@ CompilerImpl::~CompilerImpl()
     for ( auto& p: sourceCodes_ )
         delete p.first;
 
-    delete timingSystem_;
     delete diagnosticReporter_;
     delete frontendFactory_;
     delete backendFactory_;
@@ -104,11 +101,6 @@ Common::NodeAllocator& CompilerImpl::nodeAllocator() const
     return *nodeAllocator_;
 }
 
-Common::TimingSystem* CompilerImpl::timingSystem() const
-{
-    return timingSystem_;
-}
-
 void CompilerImpl::createBackend(const string& backendName)
 {
     delete backend_;
@@ -124,8 +116,6 @@ void CompilerImpl::compileFile(const string& filename)
     if ( filename.empty() || filename[0] == '\r' || filename[0] == '\n' )
         return;
 
-    ENTER_TIMER_DESC(theCompiler().timingSystem(), "comp", "File compilation");
-
     if ( !backend_ )
         REP_INTERNAL(NOLOC, "No backend set");
 
@@ -140,8 +130,6 @@ void CompilerImpl::compileFile(const string& filename)
         vector<SourceCode*> toCodeGenerate;
 
         {
-            ENTER_TIMER_DESC(theCompiler().timingSystem(), "comp.2semanticChec", "  Semantic checking");
-
             // Compile everything we have to compile
             // One file might include multiple files, and therefore we may need to compile those too
             while ( !toCompile_.empty() )
@@ -187,8 +175,6 @@ void CompilerImpl::compileFile(const string& filename)
                 toCodeGenerate.push_back(sourceCode);
             }
         }
-
-        ENTER_TIMER_DESC(theCompiler().timingSystem(), "comp.3backend", "  Backend processing");
 
         // Do the code generation in backend
         if ( !theCompiler().settings().syntaxOnly_ )
@@ -389,8 +375,6 @@ bool CompilerImpl::handleImportFile(const ImportInfo& import)
     // Check if this file was handled before
     if ( handledFiles_.find(absPath) != handledFiles_.end() )
         return true;
-
-    ENTER_TIMER_DESC(theCompiler().timingSystem(), "comp.1parsing", "  Parsing source code");
 
     // Try to create a parser for the input file
     SourceCode* parser = theCompiler().frontendFactory().createParser(import.filename_.string());

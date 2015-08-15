@@ -379,8 +379,6 @@ ConversionResult SprFrontend::canConvertType(CompilationContext* context, Nest::
 
 ConversionResult SprFrontend::canConvert(Node* arg, TypeRef destType, ConversionFlags flags)
 {
-    ENTER_TIMER_DESC(Nest::theCompiler().timingSystem(), "type.convert", "Type conversion checking");
-
     ASSERT(arg);
     computeType(arg);
     TypeRef srcType = arg->type;

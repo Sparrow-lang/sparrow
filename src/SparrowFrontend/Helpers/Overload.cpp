@@ -189,8 +189,6 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
         NodeVector decls, NodeVector args,
         bool reportErrors, const string& funName)
 {
-    ENTER_TIMER_DESC(Nest::theCompiler().timingSystem(), "others.overload", "Overloading selection");
-
     // Special case for macro calls
     bool isMacro = decls.size() == 1 && hasProperty(decls[0], propMacro);
     if ( isMacro )
@@ -287,8 +285,6 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
 bool SprFrontend::selectConversionCtor(CompilationContext* context, Node* destClass, EvalMode destMode,
         TypeRef argType, Node* arg, Node** conv)
 {
-    ENTER_TIMER_DESC(Nest::theCompiler().timingSystem(), "others.selCvtCtor", "Selecting conversion ctor");
-
     ASSERT(argType);
 
     // Search for the ctors in the class 
@@ -343,8 +339,6 @@ bool SprFrontend::selectConversionCtor(CompilationContext* context, Node* destCl
 
 Callable* SprFrontend::selectCtToRtCtor(CompilationContext* context, TypeRef ctType)
 {
-    ENTER_TIMER_DESC(Nest::theCompiler().timingSystem(), "others.selCtRtCtor", "Selecting ct-to-rt ctor");
-
     if ( ctType->mode != modeCt || !ctType->hasStorage )
         return nullptr;
     Node* cls = Feather::classDecl(ctType);

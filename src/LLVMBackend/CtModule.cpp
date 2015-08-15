@@ -8,7 +8,6 @@
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/FeatherTypes.h>
 
-#include <Nest/Common/TimingSystem.h>
 #include <Nest/Intermediate/Node.h>
 #include <Nest/Intermediate/Type.h>
 
@@ -60,8 +59,6 @@ CtModule::~CtModule()
 
 void CtModule::ctProcess(Node* node)
 {
-    ENTER_TIMER_DESC(Nest::theCompiler().timingSystem(), "ctEval", "CT processing");
-
     // This should be called now only for BackendCode; the rest of CT declarations are processed when referenced
 
 	// Uncomment this for CT debugging
@@ -91,8 +88,6 @@ void CtModule::ctProcess(Node* node)
 
 Node* CtModule::ctEvaluate(Node* node)
 {
-    ENTER_TIMER_DESC(Nest::theCompiler().timingSystem(), "ctEval", "CT processing");
-
     // Make sure the node is semantically checked
 	if ( !node->nodeSemanticallyChecked )
 	{

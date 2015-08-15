@@ -5,7 +5,6 @@
 #include <Nest/Compiler.h>
 #include <Nest/CompilerSettings.h>
 #include <Nest/Common/Diagnostic.h>
-#include <Nest/Common/TimingSystem.h>
 #include <Nest/Common/PrintTimer.h>
 #include <Nest/Backend/Backend.h>
 #include <Nest/Backend/BackendFactory.h>
@@ -128,8 +127,6 @@ int main(int argc,char* argv[])
     CompilerInstance::instance().reset();
 
     {
-        ENTER_TIMER_DESC(theCompiler().timingSystem(), "", "Compiler execution");
-
         try
         {
             initSettingsWithArgs(argc, argv);
@@ -179,8 +176,6 @@ int main(int argc,char* argv[])
         catch (...)
         {
         }
-
-        theCompiler().timingSystem()->dump();
     }
 
     CompilerInstance::instance().destroy();

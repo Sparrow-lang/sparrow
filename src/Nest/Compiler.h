@@ -12,7 +12,6 @@ FWD_CLASS1(Nest, BackendFactory);
 FWD_CLASS2(Nest,Common, DiagnosticReporter);
 FWD_CLASS2(Nest,Common, ObjectFactoryReg);
 FWD_CLASS2(Nest,Common, NodeAllocator);
-FWD_CLASS2(Nest,Common, TimingSystem);
 
 namespace Nest
 {
@@ -45,9 +44,6 @@ namespace Nest
 
         /// The object used to allocate nodes on memory
         virtual Common::NodeAllocator& nodeAllocator() const = 0;
-
-        /// The timing system to be used in the application
-        virtual Common::TimingSystem* timingSystem() const = 0;
 
     // Compilation flow
     public:

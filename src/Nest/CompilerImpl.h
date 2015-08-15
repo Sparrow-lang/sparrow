@@ -31,7 +31,6 @@ namespace Nest
         virtual BackendFactory& backendFactory() const;
         virtual Backend& backend() const;
         virtual Common::NodeAllocator& nodeAllocator() const;
-        virtual Common::TimingSystem* timingSystem() const;
 
     public:
         virtual void createBackend(const string& backendName);
@@ -75,7 +74,6 @@ namespace Nest
         BackendFactory* backendFactory_;
         Backend* backend_;
         Common::NodeAllocator* nodeAllocator_;
-        Common::TimingSystem* timingSystem_;
 
         /// The path of the current directory
         boost::filesystem::path curPath_;

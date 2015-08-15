@@ -1,6 +1,5 @@
 #include <StdInc.h>
 #include "Callable.h"
-#include <Nodes/Decls/SprParameter.h>
 #include <Feather/Util/TypeTraits.h>
 
 using namespace SprFrontend;
@@ -101,8 +100,8 @@ Node* Callable::paramDefaultVal(size_t idx) const
 {
     Node* p = param(idx);
     ASSERT(p);
-    SprParameter* sprParam = (SprParameter*) ofKind(p, nkSparrowDeclSprParameter);
-    return sprParam ? sprParam->initValue() : nullptr;
+    Node* sprParam = ofKind(p, nkSparrowDeclSprParameter);
+    return sprParam ? sprParam->children[1] : nullptr;
 }
 
 NodeVector Callable::argsWithConversion()

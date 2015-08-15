@@ -2,9 +2,6 @@
 #include "SparrowNodes.h"
 #include "SparrowNodesAccessors.h"
 
-// TODO: remove this
-#include "Decls/GenericFunction.h"
-
 #include "IntMods/IntModClassMembers.h"
 #include "IntMods/IntModCtorMembers.h"
 #include "IntMods/IntModDtorMembers.h"
@@ -14,6 +11,7 @@
 #include <Helpers/CommonCode.h>
 #include <Helpers/SprTypeTraits.h>
 #include <Helpers/DeclsHelpers.h>
+#include <Helpers/Generics.h>
 #include <Helpers/StdDef.h>
 #include <Helpers/Convert.h>
 #include <Helpers/QualifiedId.h>
@@ -440,7 +438,7 @@ TypeRef SprFunction_ComputeType(Node* node)
     if ( parameters )
     {
         Node* thisClass = isMember && !isStatic ? parentClass : nullptr;
-        Node* generic = GenericFunction::createGeneric(node, parameters, ifClause, thisClass)->node();
+        Node* generic = createGenericFun(node, parameters, ifClause, thisClass);
         if ( generic )
         {
             // TODO (explanation): explanation should be the result of semantic check
@@ -780,7 +778,7 @@ Node* SprConcept_SemanticCheck(Node* node)
     Nest::computeType(param);       // But not semanticCheck, as it will complain of instantiating a var of type auto
 
     delete instantiationsSet;
-    instantiationsSet = (Node*) new InstantiationsSet(node, { (Node*) param }, ifClause);
+    instantiationsSet = mkInstantiationsSet(node, { (Node*) param }, ifClause);
     return Feather::mkNop(node->location);
 }
 

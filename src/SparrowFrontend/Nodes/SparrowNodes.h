@@ -2,7 +2,6 @@
 
 #include <Nest/Intermediate/EvalMode.h>
 #include <Nest/Intermediate/NodeVector.h>
-#include <SparrowFrontend/Nodes/DynNode.h>
 #include <SparrowFrontend/Nodes/Decls/AccessType.h>
 
 namespace SprFrontend

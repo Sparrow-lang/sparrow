@@ -6,8 +6,8 @@
 #include "Impl/ClassCtorCallable.h"
 #include "Impl/ConceptCallable.h"
 #include <Helpers/DeclsHelpers.h>
+#include <Helpers/Generics.h>
 #include <NodeCommonsCpp.h>
-#include <Nodes/Decls/SprConcept.h>
 
 #include <Feather/Util/Decl.h>
 
@@ -36,14 +36,14 @@ namespace
         // Is this a generic?
         if ( isGeneric(resDecl) )
         {
-            res.push_back(new GenericCallable(reinterpret_cast<Generic*>(resDecl)));
+            res.push_back(new GenericCallable(resDecl));
             return res;
         }
 
         // Is this a concept?
         if ( resDecl->nodeKind == nkSparrowDeclSprConcept )
         {
-            res.push_back(new ConceptCallable((SprConcept*) resDecl));
+            res.push_back(new ConceptCallable(resDecl));
             return res;
         }
 

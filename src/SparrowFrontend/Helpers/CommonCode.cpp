@@ -6,8 +6,8 @@
 #include "Ct.h"
 #include "StdDef.h"
 #include "SprTypeTraits.h"
+#include "Generics.h"
 #include <NodeCommonsCpp.h>
-#include <Nodes/Decls/Generic.h>
 
 #include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Util/TypeTraits.h>

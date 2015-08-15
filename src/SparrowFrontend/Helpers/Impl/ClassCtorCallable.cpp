@@ -4,6 +4,7 @@
 #include "GenericCallable.h"
 #include <Helpers/DeclsHelpers.h>
 #include <Helpers/CommonCode.h>
+#include <Helpers/Generics.h>
 #include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/Util/Decl.h>
@@ -49,7 +50,7 @@ Callables ClassCtorCallable::getCtorCallables(Node* cls, EvalMode evalMode)
 
         Node* resDecl = resultingDecl(decl);
         if ( isGeneric(resDecl) )
-            res.push_back(new ClassCtorCallable(cls, new GenericCallable(reinterpret_cast<Generic*>(resDecl)), evalMode));
+            res.push_back(new ClassCtorCallable(cls, new GenericCallable(resDecl), evalMode));
     }
     return res;
 }

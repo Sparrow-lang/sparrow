@@ -71,7 +71,7 @@ namespace
             if ( cls )
                 t = getDataType(cls);
             if ( resDecl->nodeKind == nkSparrowDeclSprConcept )
-                t = getConceptType((SprConcept*) resDecl);
+                t = getConceptType(resDecl);
             if ( t )
                 return createTypeNode(ctx, loc, t);
 

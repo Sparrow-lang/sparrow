@@ -2,15 +2,13 @@
 
 #include "Callable.h"
 
-FWD_CLASS1(SprFrontend, SprConcept);
-
 namespace SprFrontend
 {
     /// A concept-check expression, as a callable object
     class ConceptCallable : public Callable
     {
     public:
-        ConceptCallable(SprConcept* concept);
+        ConceptCallable(Node* concept);
 
         virtual const Location& location() const;
         virtual string toString() const;
@@ -23,6 +21,6 @@ namespace SprFrontend
         virtual Node* generateCall(const Location& loc);
 
     private:
-        SprConcept* concept_;
+        Node* concept_;
     };
 }

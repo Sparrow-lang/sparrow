@@ -5,8 +5,8 @@
 #include "StdDef.h"
 #include "Impl/Callable.h"
 #include <NodeCommonsCpp.h>
-#include <Nodes/Decls/SprConcept.h>
 #include <SparrowFrontendTypes.h>
+#include <Helpers/Generics.h>
 
 #include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Util/TypeTraits.h>
@@ -111,11 +111,11 @@ namespace
 
         if ( srcType->typeKind != typeKindLValue && srcType->numReferences == destType->numReferences )
         {
-            SprConcept* concept = conceptOfType(destType);
+            Node* concept = conceptOfType(destType);
 
             // If we have a concept, check if the type fulfills the concept
             if ( concept )
-                return concept->isFulfilled(srcType) ? convConcept : convNone;
+                return conceptIsFulfilled(concept, srcType) ? convConcept : convNone;
             else
                 return convConcept;
         }
@@ -130,12 +130,12 @@ namespace
             || srcType->numReferences != destType->numReferences )
             return convNone;
 
-        SprConcept* srcConcept = conceptOfType(srcType);
+        Node* srcConcept = conceptOfType(srcType);
         if ( !srcConcept )
             return convNone;
 
         // If we have a concept, check if the type fulfills the concept
-        TypeRef srcBaseConceptType = srcConcept->baseConceptType();
+        TypeRef srcBaseConceptType = baseConceptType(srcConcept);
         return cachedCanConvertImpl(context, flags, srcBaseConceptType, destType);
     }
     

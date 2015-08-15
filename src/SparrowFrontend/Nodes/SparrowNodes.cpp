@@ -2,12 +2,6 @@
 #include "SparrowNodes.h"
 #include "SparrowNodesAccessors.h"
 
-#include <Nodes/Decls/SprConcept.h>
-#include <Nodes/Decls/Instantiation.h>
-#include <Nodes/Decls/InstantiationsSet.h>
-#include <Nodes/Decls/GenericClass.h>
-#include <Nodes/Decls/GenericFunction.h>
-
 #include "Mods/ModStatic.h"
 #include "Mods/ModCt.h"
 #include "Mods/ModRt.h"
@@ -34,6 +28,7 @@
 #include <Feather/Util/Context.h>
 
 #include <Nest/Common/Diagnostic.h>
+#include <Nest/Intermediate/NodeKindRegistrar.h>
 
 
 using namespace SprFrontend;
@@ -461,13 +456,6 @@ void SprFrontend::initSparrowNodeKinds()
 
     nkSparrowInnerInstantiation =       registerNodeKind("spr.instantiation", &Instantiation_SemanticCheck, NULL, NULL, NULL);
     nkSparrowInnerInstantiationsSet =   registerNodeKind("spr.instantiationSet", &InstantiationsSet_SemanticCheck, NULL, NULL, NULL);
-
-    SprConcept::classNodeKindRef() = nkSparrowDeclSprConcept;
-    GenericClass::classNodeKindRef() = nkSparrowDeclGenericClass;
-    GenericFunction::classNodeKindRef() = nkSparrowDeclGenericFunction;
-
-    SprFrontend::Instantiation::classNodeKindRef() = nkSparrowInnerInstantiation;
-    SprFrontend::InstantiationsSet::classNodeKindRef() = nkSparrowInnerInstantiationsSet;
 
     firstSparrowNodeKind = nkSparrowModifiersNode;
 }

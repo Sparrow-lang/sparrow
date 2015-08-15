@@ -1,26 +1,26 @@
 #include <StdInc.h>
 #include "ConceptCallable.h"
 #include <Helpers/StdDef.h>
-#include <Nodes/Decls/SprConcept.h>
 #include <SparrowFrontendTypes.h>
+#include <Helpers/Generics.h>
 #include <Feather/Nodes/FeatherNodes.h>
 
 using namespace SprFrontend;
 using namespace Feather;
 
-ConceptCallable::ConceptCallable(SprConcept* concept)
+ConceptCallable::ConceptCallable(Node* concept)
     : concept_(concept)
 {
 }
 
 const Location& ConceptCallable::location() const
 {
-    return concept_->location();
+    return concept_->location;
 }
 
 string ConceptCallable::toString() const
 {
-    return concept_->toString();
+    return Nest::toString(concept_);
 }
 
 size_t ConceptCallable::paramsCount() const
@@ -61,7 +61,7 @@ Node* ConceptCallable::generateCall(const Location& loc)
     semanticCheck(arg);
 
     // Check if the type of the argument fulfills the concept
-    bool conceptFulfilled = concept_->isFulfilled(arg->type);
+    bool conceptFulfilled = conceptIsFulfilled(concept_, arg->type);
     Node* result = mkCtValue(loc, StdDef::typeBool, &conceptFulfilled);
     setContext(result, context_);
     semanticCheck(result);

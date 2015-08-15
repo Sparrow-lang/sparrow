@@ -2,8 +2,6 @@
 #include "SparrowFrontendTypes.h"
 #include <Feather/Util/Decl.h>
 
-#include <SparrowFrontend/Nodes/Decls/SprConcept.h>
-
 #include <Nest/Intermediate/TypeKindRegistrar.h>
 
 namespace SprFrontend
@@ -11,12 +9,12 @@ namespace SprFrontend
 
 namespace
 {
-    const char* getConceptTypeDescription(SprConcept* concept, uint8_t numReferences, EvalMode mode)
+    const char* getConceptTypeDescription(Node* concept, uint8_t numReferences, EvalMode mode)
     {
         ostringstream os;
         if ( concept )
         {
-            os << '#' << Feather::getName(concept->node());
+            os << '#' << Feather::getName(concept);
         }
         else
         {
@@ -33,7 +31,7 @@ namespace
 
     TypeRef changeTypeModeConcept(TypeRef type, EvalMode newMode)
     {
-        return getConceptType((SprConcept*) ofKind(type->referredNode, nkSparrowDeclSprConcept), type->numReferences, newMode);
+        return getConceptType(ofKind(type->referredNode, nkSparrowDeclSprConcept), type->numReferences, newMode);
     }
 }
 
@@ -44,8 +42,9 @@ void initSparrowFrontendTypeKinds()
     typeKindConcept = registerTypeKind(&changeTypeModeConcept);
 }
 
-TypeRef getConceptType(SprConcept* concept, uint8_t numReferences, EvalMode mode)
+TypeRef getConceptType(Node* concept, uint8_t numReferences, EvalMode mode)
 {
+    ASSERT(!concept || concept->nodeKind == nkSparrowDeclSprConcept);
     Type referenceType;
     referenceType.typeKind      = typeKindConcept;
     referenceType.mode          = mode;
@@ -55,7 +54,7 @@ TypeRef getConceptType(SprConcept* concept, uint8_t numReferences, EvalMode mode
     referenceType.canBeUsedAtCt = 1;
     referenceType.canBeUsedAtRt = 1;
     referenceType.flags         = 0;
-    referenceType.referredNode  = concept->node();
+    referenceType.referredNode  = concept;
     referenceType.description   = getConceptTypeDescription(concept, numReferences, mode);
 
     TypeRef t = findStockType(referenceType);
@@ -65,10 +64,10 @@ TypeRef getConceptType(SprConcept* concept, uint8_t numReferences, EvalMode mode
 }
 
 
-SprConcept* conceptOfType(TypeRef type)
+Node* conceptOfType(TypeRef type)
 {
     ASSERT(type && type->typeKind == typeKindConcept);
-    return (SprConcept*) type->referredNode;
+    return type->referredNode;
 }
 
 }

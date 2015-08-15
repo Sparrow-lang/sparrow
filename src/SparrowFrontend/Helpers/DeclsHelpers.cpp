@@ -3,7 +3,6 @@
 #include "SprTypeTraits.h"
 #include "ForEachNodeInNodeList.h"
 #include <NodeCommonsCpp.h>
-#include <Nodes/Decls/SprConcept.h>
 #include <SparrowFrontendTypes.h>
 #include <Mods/ModRt.h>
 #include <Mods/ModCt.h>
@@ -80,7 +79,7 @@ NodeVector SprFrontend::getDeclsFromNode(Node* n, Node*& baseExp)
         }
         else if ( t->typeKind == typeKindConcept )
         {
-            res.push_back(conceptOfType(t)->node());
+            res.push_back(conceptOfType(t));
         }
         else
             t = nullptr;

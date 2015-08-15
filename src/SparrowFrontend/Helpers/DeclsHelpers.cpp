@@ -3,7 +3,6 @@
 #include "SprTypeTraits.h"
 #include "ForEachNodeInNodeList.h"
 #include <NodeCommonsCpp.h>
-#include <Nodes/ModifiersNode.h>
 #include <Nodes/Decls/SprConcept.h>
 #include <SparrowFrontendTypes.h>
 #include <Mods/ModRt.h>

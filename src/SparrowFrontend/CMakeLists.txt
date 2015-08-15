@@ -37,8 +37,6 @@ SET(sourceFiles
     "Nodes/DynNodeVector.h"
     "Nodes/SprProperties.h"
     "Nodes/SprProperties.cpp"
-    "Nodes/ModifiersNode.h"
-    "Nodes/ModifiersNode.cpp"
     "Nodes/Builder.h"
     "Nodes/Builder.cpp"
     "Nodes/Decls/AccessType.h"

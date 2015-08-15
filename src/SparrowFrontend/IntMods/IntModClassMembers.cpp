@@ -1,8 +1,8 @@
 #include <StdInc.h>
 #include "IntModClassMembers.h"
 
-#include <Nodes/Decls/SprClass.h>
 #include <Nodes/Builder.h>
+#include <Nodes/SparrowNodesAccessors.h>
 #include <Helpers/SprTypeTraits.h>
 #include <Helpers/DeclsHelpers.h>
 #include <Helpers/StdDef.h>
@@ -109,9 +109,9 @@ namespace
     }
 
     // Add a method with the given body and given atguments to the parent class
-    Node* addMethod(SprClass* parent, const string& name, Node* body, vector<pair<TypeRef, string>> params, Node* resClass = nullptr, EvalMode mode = modeUnspecified)
+    Node* addMethod(Node* parent, const string& name, Node* body, vector<pair<TypeRef, string>> params, Node* resClass = nullptr, EvalMode mode = modeUnspecified)
     {
-        Location loc = parent->location();
+        Location loc = parent->location;
         loc.setAsStartOf(loc);
 
         // Construct the parameters list, return type node
@@ -122,29 +122,29 @@ namespace
             sprParams.push_back(mkSprParameter(loc, param.second, param.first));
         }
         Node* parameters = sprParams.empty() ? nullptr : mkNodeList(loc, move(sprParams));
-        Node* ret = resClass ? createTypeNode(parent->childrenContext(), loc, getDataType(resClass)) : nullptr;
+        Node* ret = resClass ? createTypeNode(childrenContext(parent), loc, getDataType(resClass)) : nullptr;
         
         // Add the function
         Node* m = mkSprFunction(loc, name, parameters, ret, body);
         Nest::setProperty(m, propNoDefault, 1);
-        setEvalMode(m, mode == modeUnspecified ? effectiveEvalMode(parent->node()) : mode);
-        parent->addChild(m);
+        setEvalMode(m, mode == modeUnspecified ? effectiveEvalMode(parent) : mode);
+        Class_addChild(parent, m);
         Nest::computeType(m);
         return m;
     }
     
     // Add a method with the given body to the parent class
-    Node* addMethod(SprClass* parent, const string& name, Node* body, TypeRef otherParam, Node* resClass = nullptr, EvalMode mode = modeUnspecified)
+    Node* addMethod(Node* parent, const string& name, Node* body, TypeRef otherParam, Node* resClass = nullptr, EvalMode mode = modeUnspecified)
     {
         return addMethod(parent, name, body, otherParam ? vector<pair<TypeRef, string>>({ {otherParam, string("other")} }) : vector<pair<TypeRef, string>>({}), resClass, mode);
     }
     
     /// Generate a typical method with the given name, by calling 'op' for the base classes and fields
-    void generateMethod(SprClass* parent, const string& name, const string& op, TypeRef otherParam, bool reverse = false, EvalMode mode = modeUnspecified)
+    void generateMethod(Node* parent, const string& name, const string& op, TypeRef otherParam, bool reverse = false, EvalMode mode = modeUnspecified)
     {
-        Location loc = parent->location();
+        Location loc = parent->location;
         loc.setAsStartOf(loc);
-        Node* cls = parent->explanation();
+        Node* cls = explanation(parent);
         cls = cls && cls->nodeKind == nkFeatherDeclClass ? cls : nullptr;
         ASSERT(cls);
 
@@ -187,9 +187,9 @@ namespace
     }
 
     /// Generate an empty, uninitialized ctor
-    void generateUnititializedCtor(SprClass* parent)
+    void generateUnititializedCtor(Node* parent)
     {
-        Location loc = parent->location();
+        Location loc = parent->location;
         loc.setAsStartOf(loc);
 
         Node* body = mkLocalSpace(loc, {});
@@ -198,13 +198,13 @@ namespace
 
     
     /// Generate an init ctor, that initializes all the members with data received as arguments
-    void generateInitCtor(SprClass* parent)
+    void generateInitCtor(Node* parent)
     {
         vector<pair<TypeRef, string>> params;
         
-        Location loc = parent->location();
+        Location loc = parent->location;
         loc.setAsStartOf(loc);
-        Node* cls = parent->explanation();
+        Node* cls = explanation(parent);
         cls = cls && cls->nodeKind == nkFeatherDeclClass ? cls : nullptr;
         ASSERT(cls);
 
@@ -236,11 +236,11 @@ namespace
     }
 
     /// Generate the equality check method for the given class
-    void generateEqualityCheckMethod(SprClass* parent)
+    void generateEqualityCheckMethod(Node* parent)
     {
-        Location loc = parent->location();
+        Location loc = parent->location;
         loc.setAsStartOf(loc);
-        Node* cls = parent->explanation();
+        Node* cls = explanation(parent);
         cls = cls && cls->nodeKind == nkFeatherDeclClass ? cls : nullptr;
         ASSERT(cls);
 
@@ -277,8 +277,8 @@ void IntModClassMembers::afterComputeType(Node* node)
     /// Check to apply only to classes
     if ( node->nodeKind != nkSparrowDeclSprClass )
         REP_INTERNAL(node->location, "IntModClassMembers modifier can be applied only to classes");
-    SprClass* cls = (SprClass*) node;
-    if ( !cls->type() )
+    Node* cls = node;
+    if ( !cls->type )
         REP_INTERNAL(node->location, "Type was not computed for %1% when applying IntModClassMembers") % getName(node);
 
     Node* basicClass = Nest::explanation(node);
@@ -287,34 +287,34 @@ void IntModClassMembers::afterComputeType(Node* node)
     TypeRef paramType = getDataType(basicClass, 1);
 
     // Default ctor
-    if ( !checkForMember(cls->node(), "ctor", nullptr) )
+    if ( !checkForMember(cls, "ctor", nullptr) )
         generateMethod(cls, "ctor", "ctor", nullptr);
 
     // Uninitialized ctor
-    if ( !checkForMember(cls->node(), "ctor", StdDef::clsUninitialized) )
+    if ( !checkForMember(cls, "ctor", StdDef::clsUninitialized) )
         generateUnititializedCtor(cls);
 
     // Copy ctor
-    if ( !checkForMember(cls->node(), "ctor", basicClass) )
+    if ( !checkForMember(cls, "ctor", basicClass) )
         generateMethod(cls, "ctor", "ctor", paramType);
 
     // Initialization ctor
-    if ( cls->hasProperty(propGenerateInitCtor) )
+    if ( hasProperty(cls, propGenerateInitCtor) )
         generateInitCtor(cls);
     
     // CT to RT ctor
-    if ( !checkForCtorFromCt(cls->node()) && !hasReferences(basicClass) )
+    if ( !checkForCtorFromCt(cls) && !hasReferences(basicClass) )
         generateMethod(cls, "ctorFromCt", "ctor", changeTypeMode(getDataType(basicClass, 0), modeCt, node->location), false, modeRt);
 
     // Dtor
-    if ( !checkForMember(cls->node(), "dtor", nullptr) )
+    if ( !checkForMember(cls, "dtor", nullptr) )
         generateMethod(cls, "dtor", "dtor", nullptr, true);
 
     // Assignment operator
-    if ( !checkForMember(cls->node(), "=", basicClass) )
+    if ( !checkForMember(cls, "=", basicClass) )
         generateMethod(cls, "=", "=", paramType);
 
     // Equality test operator
-    if ( !checkForMember(cls->node(), "==", basicClass) )
+    if ( !checkForMember(cls, "==", basicClass) )
         generateEqualityCheckMethod(cls);
 }

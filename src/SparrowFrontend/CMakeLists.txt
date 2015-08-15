@@ -40,8 +40,6 @@ SET(sourceFiles
     "Nodes/Builder.h"
     "Nodes/Builder.cpp"
     "Nodes/Decls/AccessType.h"
-    "Nodes/Decls/SprClass.h"
-    "Nodes/Decls/SprClass.cpp"
     "Nodes/Decls/SprConcept.h"
     "Nodes/Decls/SprConcept.cpp"
     "Nodes/Decls/SprVariable.h"

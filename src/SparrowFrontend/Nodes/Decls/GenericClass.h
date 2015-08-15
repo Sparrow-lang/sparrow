@@ -2,8 +2,6 @@
 
 #include "Generic.h"
 
-FWD_CLASS1(SprFrontend, SprClass);
-
 namespace SprFrontend
 {
     /// Class that implements a class generic
@@ -12,7 +10,7 @@ namespace SprFrontend
         DEFINE_NODE(GenericClass, nkSparrowDeclGenericClass, "Sparrow.Decl.GenericClass");
 
     public:
-        explicit GenericClass(SprClass* originalClass, Node* parameters, Node* ifClause);
+        explicit GenericClass(Node* originalClass, Node* parameters, Node* ifClause);
 
         size_t paramsCount() const;
         Node* param(size_t idx) const;

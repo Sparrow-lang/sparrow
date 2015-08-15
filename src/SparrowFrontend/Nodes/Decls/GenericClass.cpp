@@ -1,7 +1,6 @@
 #include <StdInc.h>
 #include "GenericClass.h"
 #include "Instantiation.h"
-#include "SprClass.h"
 #include <Helpers/StdDef.h>
 #include <Helpers/SprTypeTraits.h>
 #include <Helpers/DeclsHelpers.h>
@@ -76,17 +75,17 @@ namespace
         return mainEvalMode;
     }
 
-    Node* createInstantiatedClass(CompilationContext* context, SprClass* orig, const string& description)
+    Node* createInstantiatedClass(CompilationContext* context, Node* orig, const string& description)
     {
-        const Location& loc = orig->location();
+        const Location& loc = orig->location;
 
-        Node* baseClasses = orig->baseClasses();
-        Node* children = orig->classChildren();
+        Node* baseClasses = orig->children[1];
+        Node* children = orig->children[2];
         baseClasses = baseClasses ? Nest::cloneNode(baseClasses) : nullptr;
         children = children ? Nest::cloneNode(children) : nullptr;
-        Node* newClass = mkSprClass(loc, getName(orig->node()), nullptr, baseClasses, nullptr, children);
+        Node* newClass = mkSprClass(loc, getName(orig), nullptr, baseClasses, nullptr, children);
 
-        copyModifiersSetMode(orig->node(), newClass, context->evalMode());
+        copyModifiersSetMode(orig, newClass, context->evalMode());
 
         //setShouldAddToSymTab(newClass, false);    // TODO (generics): Uncomment this line
         Nest::setContext(newClass, context);
@@ -95,10 +94,10 @@ namespace
         return newClass;
     }
 
-    string getDescription(SprClass* cls, Instantiation* inst)
+    string getDescription(Node* cls, Instantiation* inst)
     {
         ostringstream oss;
-        oss << getName(cls->node()) << "[";
+        oss << getName(cls) << "[";
         const auto& boundValues = inst->boundValues();
         for ( size_t i=0; i<boundValues.size(); ++i )
         {
@@ -116,10 +115,10 @@ namespace
 }
 
 
-GenericClass::GenericClass(SprClass* originalClass, Node* parameters, Node* ifClause)
-    : Generic(classNodeKind(), originalClass->node(), parameters->children, ifClause, publicAccess)
+GenericClass::GenericClass(Node* originalClass, Node* parameters, Node* ifClause)
+    : Generic(classNodeKind(), originalClass, parameters->children, ifClause, publicAccess)
 {
-    setEvalMode(node(), effectiveEvalMode(originalClass->node()));
+    setEvalMode(node(), effectiveEvalMode(originalClass));
 
     // Semantic check the arguments
     for ( Node* param: parameters->children )
@@ -160,7 +159,7 @@ Node* GenericClass::instantiateGeneric(const Location& loc, CompilationContext* 
     Node* expandedInstantiation = inst->expandedInstantiation();
     if ( !instantiatedDecl )
     {
-        SprClass* originalClass = (SprClass*) ofKind(data_.referredNodes[0], nkSparrowDeclSprClass);
+        Node* originalClass = ofKind(data_.referredNodes[0], nkSparrowDeclSprClass);
         string description = getDescription(originalClass, inst);
 
         // Create the actual instantiation declaration

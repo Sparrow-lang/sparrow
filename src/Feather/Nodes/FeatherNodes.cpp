@@ -496,25 +496,6 @@ using namespace Feather;
         return strdup(os.str().c_str());
     }
 
-    Node* StackAlloc_SemanticCheck(Node* node)
-    {
-        if ( getCheckPropertyInt(node, "numElements") == 0 )
-            REP_ERROR(node->location, "Cannot allocate 0 elements on the stack");
-
-        // Set the resulting type
-        ASSERT(node->children.size() == 1);
-        Node* elemTypeNode = node->children[0];
-        computeType(elemTypeNode);
-        node->type = adjustMode(getLValueType(elemTypeNode->type), node->context, node->location);
-        return node;
-    }
-    const char* StackAlloc_toString(const Node* node)
-    {
-        ostringstream os;
-        os << "stackAlloc(" << node->children[0]->type << ", " << getCheckPropertyInt(node, "numElements") << ")";
-        return strdup(os.str().c_str());
-    }
-
     Node* VarRef_SemanticCheck(Node* node)
     {
         Node* var = node->referredNodes[0];
@@ -1020,7 +1001,6 @@ int Feather::nkFeatherDeclVar = 0;
 
 int Feather::nkFeatherExpCtValue = 0;
 int Feather::nkFeatherExpNull = 0;
-int Feather::nkFeatherExpStackAlloc = 0;
 int Feather::nkFeatherExpVarRef = 0;
 int Feather::nkFeatherExpFieldRef = 0;
 int Feather::nkFeatherExpFunRef = 0;
@@ -1055,7 +1035,6 @@ void Feather::initFeatherNodeKinds()
 
     nkFeatherExpCtValue = registerNodeKind("ctValue", &CtValue_SemanticCheck, NULL, NULL, &CtValue_toString);
     nkFeatherExpNull = registerNodeKind("null", &Null_SemanticCheck, NULL, NULL, &Null_toString);
-    nkFeatherExpStackAlloc = registerNodeKind("stackAlloc", &StackAlloc_SemanticCheck, NULL, NULL, &StackAlloc_toString);
     nkFeatherExpVarRef = registerNodeKind("varRef", &VarRef_SemanticCheck, NULL, NULL, &VarRef_toString);
     nkFeatherExpFieldRef = registerNodeKind("fieldRef", &FieldRef_SemanticCheck, NULL, NULL, &FieldRef_toString);
     nkFeatherExpFunRef = registerNodeKind("funRef", &FunRef_SemanticCheck, NULL, NULL, &FunRef_toString);
@@ -1244,16 +1223,6 @@ Node* Feather::mkNull(const Location& loc, Node* typeNode)
     Node* res = createNode(nkFeatherExpNull);
     res->location = loc;
     res->children = { typeNode };
-    return res;
-}
-Node* Feather::mkStackAlloc(const Location& loc, Node* typeNode, int numElements, int alignment)
-{
-    REQUIRE_NODE(loc, typeNode);
-    Node* res = createNode(nkFeatherExpStackAlloc);
-    res->location = loc;
-    res->children = { typeNode };
-    setProperty(res, "numElements", numElements);
-    setProperty(res, "alignment", alignment);
     return res;
 }
 Node* Feather::mkVarRef(const Location& loc, Node* varDecl)

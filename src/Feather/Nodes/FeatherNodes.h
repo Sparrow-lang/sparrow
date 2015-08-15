@@ -30,7 +30,6 @@ namespace Feather
         
         nkRelFeatherExpCtValue,
         nkRelFeatherExpNull,
-        nkRelFeatherExpStackAlloc,
         nkRelFeatherExpVarRef,
         nkRelFeatherExpFieldRef,
         nkRelFeatherExpFunRef,
@@ -68,7 +67,6 @@ namespace Feather
     
     extern int nkFeatherExpCtValue;
     extern int nkFeatherExpNull;
-    extern int nkFeatherExpStackAlloc;
     extern int nkFeatherExpVarRef;
     extern int nkFeatherExpFieldRef;
     extern int nkFeatherExpFunRef;
@@ -107,7 +105,6 @@ namespace Feather
     
     Node* mkCtValue(const Location& loc, TypeRef typeNode, string data);
     Node* mkNull(const Location& loc, Node* typeNode);
-    Node* mkStackAlloc(const Location& loc, Node* typeNode, int numElements = 1, int alignment = 0);
     Node* mkVarRef(const Location& loc, Node* varDecl);
     Node* mkFieldRef(const Location& loc, Node* obj, Node* fieldDecl);
     Node* mkFunRef(const Location& loc, Node* funDecl, Node* resType);

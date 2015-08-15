@@ -293,10 +293,6 @@ namespace
     {
         *sret = mkNull(*loc, typeNode);
     }
-    void ctApi_Feather_mkStackAlloc(Node** sret, Location* loc, Node* typeNode, int numElements)
-    {
-        *sret = mkStackAlloc(*loc, typeNode, numElements);
-    }
     void ctApi_Feather_mkVarRef(Node** sret, Location* loc, Node* varDecl)
     {
         *sret = mkVarRef(*loc, varDecl);
@@ -443,7 +439,6 @@ void Feather::registerCtApiFunctions(Backend& backend)
     backend.ctApiRegisterFun("$Meta.Feather.mkVar",                     (void*) &ctApi_Feather_mkVar);
     backend.ctApiRegisterFun("$Meta.Feather.mkCtValue",                 (void*) &ctApi_Feather_mkCtValue);
     backend.ctApiRegisterFun("$Meta.Feather.mkNull",                    (void*) &ctApi_Feather_mkNull);
-    backend.ctApiRegisterFun("$Meta.Feather.mkStackAlloc",              (void*) &ctApi_Feather_mkStackAlloc);
     backend.ctApiRegisterFun("$Meta.Feather.mkVarRef",                  (void*) &ctApi_Feather_mkVarRef);
     backend.ctApiRegisterFun("$Meta.Feather.mkFieldRef",                (void*) &ctApi_Feather_mkFieldRef);
     backend.ctApiRegisterFun("$Meta.Feather.mkFunRef",                  (void*) &ctApi_Feather_mkFunRef);

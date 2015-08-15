@@ -147,7 +147,6 @@ package Feather
 
     fun[ct, native("$Meta.Feather.mkCtValue")] mkCtValue(loc: @Location, type: AstType, data: StringRef): AstNode;
     fun[ct, native("$Meta.Feather.mkNull")] mkNull(loc: @Location, typeNode: AstNode): AstNode;
-    fun[ct, native("$Meta.Feather.mkStackAlloc")] mkStackAlloc(loc: @Location, typeNode: AstNode, numElements: Int): AstNode;
     fun[ct, native("$Meta.Feather.mkVarRef")] mkVarRef(loc: @Location, varDecl: AstNode): AstNode;
     fun[ct, native("$Meta.Feather.mkFieldRef")] mkFieldRef(loc: @Location, obj, fieldDecl: AstNode): AstNode;
     fun[ct, native("$Meta.Feather.mkFunRef")] mkFunRef(loc: @Location, funDecl: AstNode, resType: AstNode): AstNode;
@@ -264,7 +263,6 @@ package Kinds
     
     using nkFeatherExpCtValue = ctEval(iota);
     using nkFeatherExpNull = ctEval(iota);
-    using nkFeatherExpStackAlloc = ctEval(iota);
     using nkFeatherExpVarRef = ctEval(iota);
     using nkFeatherExpFieldRef = ctEval(iota);
     using nkFeatherExpFunRef = ctEval(iota);

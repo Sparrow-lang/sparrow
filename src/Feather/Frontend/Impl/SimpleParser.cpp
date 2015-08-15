@@ -385,25 +385,6 @@ namespace
         return res;
     }
 
-    Node* interpretStackAlloc(CompilationContext* context, SimpleAstNode* srcNode)
-    {
-        checkChildrenCountRange(srcNode, 1, 3, "<type>, [num-elements], [alignment]");
-        TypeRef type = readType(context, srcNode->children()[0], "<type>");
-        int numElements = 1;
-        int alignment = 0;
-        if ( srcNode->children().size() >= 2 )
-        {
-            numElements = readInt(srcNode->children()[1], "<num-elements>");
-        }
-        if ( srcNode->children().size() >= 3 )
-        {
-            alignment = readInt(srcNode->children()[2], "<alignment>");
-        }
-        Node* res = mkStackAlloc(srcNode->location(), mkTypeNode(srcNode->children()[0]->location(), type), numElements, alignment);
-        setContext(res, context);
-        return res;
-    }
-
     Node* interpretMemLoad(CompilationContext* context, SimpleAstNode* srcNode)
     {
         checkChildrenCountRange(srcNode, 1, 5, "<address>, [<alignment>], [volatile], [unordered|monotonic|acquire|release|acquirerelease|seqconsistent], [singlethread]");
@@ -731,10 +712,6 @@ namespace
         else if ( id == "ctvaluebin" )
         {
             res = interpretCtValueBin(context, srcNode);
-        }
-        else if ( id == "stackalloc" )
-        {
-            res = interpretStackAlloc(context, srcNode);
         }
         else if ( id == "memload" )
         {

@@ -623,22 +623,6 @@ namespace
         }
     }
 
-    llvm::Value* translateStackAlloc(Node* node, TrContext& context)
-    {
-        // Get the type for the stack alloc
-        llvm::Type* t = Tr::getLLVMType(node->children[0]->type, context.module());
-        int numElements = getCheckPropertyInt(node, "numElements");
-        if ( numElements > 1 )
-            t = llvm::ArrayType::get(t, numElements);
-
-        // Create an 'alloca' instruction
-        llvm::AllocaInst* val = context.addVariable(t, "stackAlloc");
-        int alignment = getCheckPropertyInt(node, "alignment");
-        if ( alignment > 0 )
-            val->setAlignment(alignment);
-        return setValue(context.module(), *node, val);
-    }
-
     llvm::Value* translateMemLoad(Node* node, TrContext& context)
     {
         // Create a 'load' instruction
@@ -1195,7 +1179,6 @@ llvm::Value* Tr::translateNode(Node* node, TrContext& context)
     case nkRelFeatherTempDestructAction:               return translateTempDestructAction(node, context);
     case nkRelFeatherScopeDestructAction:              return translateScopeDestructAction(node, context);
     case nkRelFeatherExpCtValue:                       return translateCtValue(node, context);
-    case nkRelFeatherExpStackAlloc:                    return translateStackAlloc(node, context);
     case nkRelFeatherExpMemLoad:                       return translateMemLoad(node, context);
     case nkRelFeatherExpMemStore:                      return translateMemStore(node, context);
     case nkRelFeatherExpVarRef:                        return translateVarRef(node, context);

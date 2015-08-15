@@ -15,19 +15,6 @@
 #include <Nodes/Decls/InstantiationsSet.h>
 #include <Nodes/Decls/GenericClass.h>
 #include <Nodes/Decls/GenericFunction.h>
-#include <Nodes/Exp/Literal.h>
-#include <Nodes/Exp/Identifier.h>
-#include <Nodes/Exp/CompoundExp.h>
-#include <Nodes/Exp/StarExp.h>
-#include <Nodes/Exp/This.h>
-#include <Nodes/Exp/FunApplication.h>
-#include <Nodes/Exp/OperatorCall.h>
-#include <Nodes/Exp/InfixExp.h>
-#include <Nodes/Exp/SprConditional.h>
-#include <Nodes/Exp/LambdaFunction.h>
-#include <Nodes/Exp/DeclExp.h>
-#include <Nodes/Stmt/For.h>
-#include <Nodes/Stmt/SprReturn.h>
 
 #include "Mods/ModStatic.h"
 #include "Mods/ModCt.h"
@@ -495,21 +482,6 @@ void SprFrontend::initSparrowNodeKinds()
     GenericClass::classNodeKindRef() = nkSparrowDeclGenericClass;
     GenericFunction::classNodeKindRef() = nkSparrowDeclGenericFunction;
     Using::classNodeKindRef() = nkSparrowDeclUsing;
-
-    SprFrontend::Literal::classNodeKindRef() = nkSparrowExpLiteral;
-    SprFrontend::This::classNodeKindRef() = nkSparrowExpThis;
-    SprFrontend::Identifier::classNodeKindRef() = nkSparrowExpIdentifier;
-    SprFrontend::CompoundExp::classNodeKindRef() = nkSparrowExpCompoundExp;
-    SprFrontend::FunApplication::classNodeKindRef() = nkSparrowExpFunApplication;
-    SprFrontend::OperatorCall::classNodeKindRef() = nkSparrowExpOperatorCall;
-    SprFrontend::InfixExp::classNodeKindRef() = nkSparrowExpInfixExp;
-    SprFrontend::LambdaFunction::classNodeKindRef() = nkSparrowExpLambdaFunction;
-    SprFrontend::SprConditional::classNodeKindRef() = nkSparrowExpSprConditional;
-    SprFrontend::DeclExp::classNodeKindRef() = nkSparrowExpDeclExp;
-    SprFrontend::StarExp::classNodeKindRef() = nkSparrowExpStarExp;
-
-    SprFrontend::For::classNodeKindRef() = nkSparrowStmtFor;
-    SprFrontend::SprReturn::classNodeKindRef() = nkSparrowStmtSprReturn;
 
     SprFrontend::Instantiation::classNodeKindRef() = nkSparrowInnerInstantiation;
     SprFrontend::InstantiationsSet::classNodeKindRef() = nkSparrowInnerInstantiationsSet;

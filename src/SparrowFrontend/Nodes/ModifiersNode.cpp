@@ -1,12 +1,8 @@
 #include <StdInc.h>
 #include "ModifiersNode.h"
 #include "SprProperties.h"
-#include "Exp/Identifier.h"
-#include "Exp/Literal.h"
-#include "Exp/FunApplication.h"
-#include "Exp/InfixExp.h"
+#include "SparrowNodesAccessors.h"
 #include <Helpers/ForEachNodeInNodeList.h>
-
 
 #include "Mods/ModStatic.h"
 #include "Mods/ModCt.h"
@@ -20,6 +16,8 @@
 #include "Mods/ModInitCtor.h"
 #include "Mods/ModMacro.h"
 #include "Mods/ModNoInline.h"
+
+#include <Feather/Util/Decl.h>
 
 
 ModifiersNode::ModifiersNode(const Location& loc, Node* base, Node* modifierNodes)
@@ -88,51 +86,46 @@ void ModifiersNode::applyModifier(Node* modNode)
 {
     Nest::Modifier* mod = nullptr;
     
-    Identifier* ident = (Identifier*) ofKind(modNode, nkSparrowExpIdentifier);
-    if ( ident )
+    if ( modNode->nodeKind == nkSparrowExpIdentifier )
     {
-        if ( ident->id() == "static" )
+        const string& id = Feather::getName(modNode);
+        if ( id == "static" )
             mod = new ModStatic;
-        else if ( ident->id() == "ct" )
+        else if ( id == "ct" )
             mod = new ModCt;
-        else if ( ident->id() == "rt" )
+        else if ( id == "rt" )
             mod = new ModRt;
-        else if ( ident->id() == "rtct" )
+        else if ( id == "rtct" )
             mod = new ModRtCt;
-        else if ( ident->id() == "autoCt" )
+        else if ( id == "autoCt" )
             mod = new ModAutoCt;
-        else if ( ident->id() == "ctGeneric" )
+        else if ( id == "ctGeneric" )
             mod = new ModCtGeneric;
-        else if ( ident->id() == "convert" )
+        else if ( id == "convert" )
             mod = new ModConvert;
-        else if ( ident->id() == "noDefault" )
+        else if ( id == "noDefault" )
             mod = new ModNoDefault;
-        else if ( ident->id() == "initCtor" )
+        else if ( id == "initCtor" )
             mod = new ModInitCtor;
-        else if ( ident->id() == "macro" )
+        else if ( id == "macro" )
             mod = new ModMacro;
-        else if ( ident->id() == "noInline" )
+        else if ( id == "noInline" )
             mod = new ModNoInline;
     }
     else
     {
-        InfixExp* fapp = (InfixExp*) ofKind(modNode, nkSparrowExpInfixExp);
-        if ( fapp )
+        if ( modNode->nodeKind == nkSparrowExpInfixExp )
         {
-            Identifier* ident = nullptr;
-            if ( fapp->arg1()->nodeKind == nkSparrowExpIdentifier )
-                ident = (Identifier*) fapp->arg1();
-            Node* args = fapp->arg2();
+            Node* ident = ofKind(modNode->children[0], nkSparrowExpIdentifier);
+            Node* args = modNode->children[1];
             if ( args && args->nodeKind != Feather::nkFeatherNodeList )
                 args = nullptr;
             if ( ident && args && args->children.size() == 1 )
             {
-                Literal* funArg = nullptr;
-                if ( args->children.front()->nodeKind == nkSparrowExpLiteral )
-                    funArg = (Literal*) args->children.front();
+                Node* funArg = ofKind(args->children.front(), nkSparrowExpLiteral);
 
-                if ( ident->id() == "native" && funArg && funArg->isString() )
-                    mod = new ModNative(funArg->asString());
+                if ( Feather::getName(ident) == "native" && funArg && Literal_isString(funArg) )
+                    mod = new ModNative(Literal_getData(funArg));
             }
         }
     }

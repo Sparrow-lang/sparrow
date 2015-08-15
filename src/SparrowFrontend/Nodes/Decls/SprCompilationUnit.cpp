@@ -1,9 +1,9 @@
 #include <StdInc.h>
 #include "SprCompilationUnit.h"
 #include <NodeCommonsCpp.h>
+#include <Nodes/SparrowNodesAccessors.h>
 #include <Helpers/DeclsHelpers.h>
 #include <Helpers/QualifiedId.h>
-#include <Nodes/Exp/Literal.h>
 
 using namespace SprFrontend;
 
@@ -69,10 +69,10 @@ void SprCompilationUnit::doSetContextForChildren()
         const Nest::SourceCode* sourceCode = data_.location.sourceCode();
         for ( Node* i: imports->children )
         {
-            Literal* lit = (Literal*) ofKind(i, nkSparrowExpLiteral);
-            if ( lit && lit->isString() )
+            Node* lit = ofKind(i, nkSparrowExpLiteral);
+            if ( lit && Literal_isString(lit) )
             {
-                Nest::theCompiler().addSourceCodeByFilename(sourceCode, lit->asString());
+                Nest::theCompiler().addSourceCodeByFilename(sourceCode, Literal_getData(lit));
             }
             else
             {

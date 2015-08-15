@@ -5,7 +5,6 @@
 #include <NodeCommonsCpp.h>
 #include <Nodes/ModifiersNode.h>
 #include <Nodes/Decls/SprConcept.h>
-#include <Nodes/Exp/DeclExp.h>
 #include <SparrowFrontendTypes.h>
 #include <Mods/ModRt.h>
 #include <Mods/ModCt.h>
@@ -66,9 +65,8 @@ NodeVector SprFrontend::getDeclsFromNode(Node* n, Node*& baseExp)
     // Check if the node is a DeclExp, pointing to the actual references
     if ( n->nodeKind == nkSparrowExpDeclExp )
     {
-        DeclExp* declExp = (DeclExp*) n;
-        baseExp = declExp->baseExp();
-        res = declExp->decls();
+        baseExp = n->referredNodes[0];
+        res = NodeVector(n->referredNodes.begin()+1, n->referredNodes.end());
         return res;
     }
     

@@ -15,7 +15,7 @@ SET(sourceFiles
     "CompilerSettings.h"
     "Common/Fwd.h"
     "Common/Alloc.h"
-    "Common/Alloc.cpp"
+    "Common/Alloc.c"
     "Common/Assert.h"
     "Common/Tuple.h"
     "Common/SaveValue.h"

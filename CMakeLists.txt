@@ -113,14 +113,14 @@ IF(MSVC)
     ENDIF()
 ELSEIF(APPLE)
     ADD_DEFINITIONS( -D__STDC_LIMIT_MACROS=1 )
-    ADD_DEFINITIONS( -std=gnu++0x )
+    SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=gnu++0x" )
     ADD_DEFINITIONS( -Wall )                    # All warnings...
     ADD_DEFINITIONS( -Wno-c++11-extensions )    # ... except C++11 extensions warnings
     ADD_DEFINITIONS( -Wno-deprecated )          # ... and except deprecated functions
     ADD_DEFINITIONS( -Wno-undefined-bool-conversion ) # ... and except undefined bool conversions
 ELSE()
     ADD_DEFINITIONS( -Wno-deprecated )
-    ADD_DEFINITIONS( -std=gnu++0x )
+    SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=gnu++0x" )
 ENDIF()
 
 

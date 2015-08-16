@@ -3,6 +3,7 @@
 #include <Feather/Util/Decl.h>
 
 #include <Nest/Intermediate/TypeKindRegistrar.h>
+#include <Nest/Common/Alloc.h>
 
 namespace SprFrontend
 {
@@ -26,7 +27,7 @@ namespace
             os << "/ct";
         if ( mode == modeRtCt )
             os << "/rtct";
-        return strdup(os.str().c_str());
+        return dupString(os.str().c_str());
     }
 
     TypeRef changeTypeModeConcept(TypeRef type, EvalMode newMode)

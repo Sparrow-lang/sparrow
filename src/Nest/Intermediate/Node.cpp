@@ -353,7 +353,7 @@ const char* Nest::defaultFunToString(const Node* node)
             os << ")";
         }
     }
-    return strdup(os.str().c_str());
+    return dupString(os.str().c_str());
 }
 
 void Nest::defaultFunSetContextForChildren(Node* node)

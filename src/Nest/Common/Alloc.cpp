@@ -51,9 +51,8 @@ char* dupString(const char* str)
     size_t len = strlen(str);
     if ( len == 0 )
         return NULL;
-    char* p = (char*) alloc(len, allocString);
-    strcpy(p, str);
-    return p;
+    char* p = (char*) alloc(len+1, allocString);
+    return strcpy(p, str);
 }
 
 char* startString(size_t maxLen)

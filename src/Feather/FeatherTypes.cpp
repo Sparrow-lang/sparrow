@@ -6,6 +6,7 @@
 
 #include <Nest/Intermediate/TypeKindRegistrar.h>
 #include <Nest/Intermediate/Node.h>
+#include <Nest/Common/Alloc.h>
 
 namespace Feather
 {
@@ -14,7 +15,7 @@ namespace
 {
     const char* str(const string& s)
     {
-        return strdup(s.c_str());
+        return dupString(s.c_str());
     }
 
     const char* getVoidDescription(EvalMode mode)

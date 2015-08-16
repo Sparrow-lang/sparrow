@@ -11,6 +11,7 @@
 #include <Util/StringData.h>
 
 #include <Nest/Common/Diagnostic.h>
+#include <Nest/Common/Alloc.h>
 #include <Nest/Intermediate/Node.h>
 #include <Nest/Intermediate/NodeKindRegistrar.h>
 #include <Nest/Intermediate/Modifier.h>
@@ -72,7 +73,7 @@ using namespace Feather;
     {
         ostringstream os;
         os << "type(" << getCheckPropertyType(node, "givenType") << ")";
-        return strdup(os.str().c_str());
+        return dupString(os.str().c_str());
     }
 
     Node* BackendCode_SemanticCheck(Node* node)
@@ -92,7 +93,7 @@ using namespace Feather;
     {
         ostringstream os;
         os << "backendCode(" << BackendCode_getCode(node) << ")";
-        return strdup(os.str().c_str());
+        return dupString(os.str().c_str());
     }
 
     TypeRef NodeList_ComputeType(Node* node)
@@ -231,7 +232,7 @@ using namespace Feather;
         EvalMode curMode = (EvalMode) getCheckPropertyInt(node, propEvalMode);
         EvalMode newMode = curMode != modeUnspecified ? curMode : node->context->evalMode();
         os << "changeMode(" << node->children[0] << ", " << newMode << ")";
-        return strdup(os.str().c_str());
+        return dupString(os.str().c_str());
     }
 
     void Function_SetContextForChildren(Node* node)
@@ -324,7 +325,7 @@ using namespace Feather;
             }
             os << "): " << (hasResultParam ? removeRef(node->children[2]->type) : node->children[0]->type);
         }
-        return strdup(os.str().c_str());
+        return dupString(os.str().c_str());
     }
 
     void Class_SetContextForChildren(Node* node)
@@ -470,7 +471,7 @@ using namespace Feather;
         else
             os << "'" << valueDataStr << "'";
         os << ")";
-        return strdup(os.str().c_str());
+        return dupString(os.str().c_str());
     }
 
     Node* Null_SemanticCheck(Node* node)
@@ -493,7 +494,7 @@ using namespace Feather;
     {
         ostringstream os;
         os << "null(" << node->type << ")";
-        return strdup(os.str().c_str());
+        return dupString(os.str().c_str());
     }
 
     Node* VarRef_SemanticCheck(Node* node)
@@ -515,7 +516,7 @@ using namespace Feather;
     {
         ostringstream os;
         os << "varRef(" << getName(node->referredNodes[0]) << ")";
-        return strdup(os.str().c_str());
+        return dupString(os.str().c_str());
     }
 
     Node* FieldRef_SemanticCheck(Node* node)
@@ -563,7 +564,7 @@ using namespace Feather;
     {
         ostringstream os;
         os << "fieldRef(" << node->children[0] << ", " << node->referredNodes[0] << ")";
-        return strdup(os.str().c_str());
+        return dupString(os.str().c_str());
     }
 
     Node* FunRef_SemanticCheck(Node* node)
@@ -580,7 +581,7 @@ using namespace Feather;
     {
         ostringstream os;
         os << "FunRef(" << node->referredNodes[0] << ")";
-        return strdup(os.str().c_str());
+        return dupString(os.str().c_str());
     }
 
     Node* FunCall_SemanticCheck(Node* node)
@@ -664,7 +665,7 @@ using namespace Feather;
             os << node->children[i];
         }
         os << ")";
-        return strdup(os.str().c_str());
+        return dupString(os.str().c_str());
     }
 
     Node* MemLoad_SemanticCheck(Node* node)
@@ -751,7 +752,7 @@ using namespace Feather;
             os << "bitcast(" << node->children[1]->type << ", " << node->children[0] << ")";
         else
             os << "bitcast(type(" << node->children[1] << "), " << node->children[0] << ")";
-        return strdup(os.str().c_str());
+        return dupString(os.str().c_str());
     }
 
     Node* Conditional_SemanticCheck(Node* node)

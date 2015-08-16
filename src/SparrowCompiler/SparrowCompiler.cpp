@@ -1,6 +1,8 @@
 #include <StdInc.h>
 #include <Settings.h>
 
+#include <Nest/Nest.h>
+#include <Nest/CompilerModule.h>
 #include <Nest/CompilerInstance.h>
 #include <Nest/Compiler.h>
 #include <Nest/CompilerSettings.h>
@@ -10,17 +12,9 @@
 #include <Nest/Backend/BackendFactory.h>
 #include <Nest/Intermediate/CompilationContext.h>
 
-#include <Feather/FeatherTypes.h>
-#include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Frontend/FSimpleSourceCode.h>
-#include <Feather/CtApiFunctions.h>
-#include <LLVMBackend/LLVMSourceCode.h>
-#include <LLVMBackend/LLVMBackend.h>
-#include <SparrowFrontend/SparrowFrontendTypes.h>
-#include <SparrowFrontend/Nodes/SparrowNodes.h>
-#include <SparrowFrontend/SparrowSourceCode.h>
-#include <SparrowFrontend/Helpers/StdDef.h>
-#include <SparrowFrontend/CtApiFunctions.h>
+#include <Feather/Feather.h>
+#include <LLVMBackend/LLVMBackendMod.h>
+#include <SparrowFrontend/SparrowFrontend.h>
 
 #include <boost/filesystem.hpp>
 #include <boost/scoped_ptr.hpp>
@@ -54,7 +48,7 @@ bool ensureImplicitLib()
         || tryImplicitLibPath("/../../SparrowImplicitLib");
 }
 
-void doCompilation()
+void doCompilation(const vector<CompilerModule*>& modules)
 {
     // Set the LLVM backend
     theCompiler().createBackend("llvm");
@@ -64,6 +58,13 @@ void doCompilation()
     // Initialize the backend
     ASSERT(!s.filesToBeCompiled_.empty());
     theCompiler().backend().init(s.filesToBeCompiled_[0]);
+
+    // Tell the modules we have a backend
+    for ( CompilerModule* mod : modules )
+    {
+        if ( mod->onBackendSetFun )
+            mod->onBackendSetFun(&theCompiler().backend());
+    }
 
     // Compute the output filename
     string extension = ".out";
@@ -79,13 +80,6 @@ void doCompilation()
     // Phase 1: Implicit lib
     {
         Nest::Common::PrintTimer timer(s.verbose_, "<implicit lib>", "   [%ws]\n");
-
-        // Initialize the Type type before loading anything
-        SprFrontend::initTypeType(theCompiler().rootContext());
-
-        // Register the CT API functions
-        Feather::registerCtApiFunctions(theCompiler().backend());
-        SprFrontend::registerCtApiFunctions(theCompiler().backend());
 
         // Process the implicit definitions file
         if ( !s.implicitLibFilePath_.empty() )
@@ -117,6 +111,16 @@ void doCompilation()
         }
     }
 };
+
+vector<CompilerModule*> gatherModules()
+{
+    vector<CompilerModule*> res;
+    res.emplace_back(getNestModule());
+    res.emplace_back(getFeatherModule());
+    res.emplace_back(getLLVMBackendModule());
+    res.emplace_back(getSparrowFrontendModule());
+    return res;
+}
 
 int main(int argc,char* argv[])
 {
@@ -158,23 +162,27 @@ int main(int argc,char* argv[])
             return 1;
         }
 
-        // TODO (arch): Use modules to perform uniform initialization
-        Feather::initFeatherTypeKinds();
-        Feather::initFeatherNodeKinds();
-        SprFrontend::initSparrowFrontendTypeKinds();
-        SprFrontend::initSparrowNodeKinds();
-
-        Feather::FSimpleSourceCode::registerSelf();
-        LLVMB::LLVMSourceCode::registerSelf();
-        LLVMB::LLVMBackend::registerSelf();
-        SprFrontend::SparrowSourceCode::registerSelf();
+        // Initialize the modules
+        vector<CompilerModule*> modules = gatherModules();
+        for ( CompilerModule* mod : modules )
+        {
+            if ( mod->initFun )
+                mod->initFun();
+        }
 
         try
         {
-            doCompilation();
+            doCompilation(modules);
         }
         catch (...)
         {
+        }
+
+        // Destroy the modules
+        for ( CompilerModule* mod : modules )
+        {
+            if ( mod->destroyFun )
+                mod->destroyFun();
         }
     }
 

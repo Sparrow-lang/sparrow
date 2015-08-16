@@ -3,6 +3,8 @@
 SET(sourceFiles
     "StdInc.h"
     "StdInc.cpp"
+    "LLVMBackendMod.h"
+    "LLVMBackendMod.cpp"
     "LLVMBackend.h"
     "LLVMBackend.cpp"
     "LLVMSourceCode.h"

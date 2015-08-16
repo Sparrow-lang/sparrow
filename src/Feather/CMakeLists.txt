@@ -3,6 +3,8 @@
 SET(sourceFiles
     "StdInc.h"
     "StdInc.cpp"
+    "Feather.h"
+    "Feather.cpp"
     "FeatherNodeCommonsH.h"
     "FeatherNodeCommonsCpp.h"
     "FeatherTypes.h"

@@ -12,6 +12,8 @@ include_directories(${FLEX_INCLUDE_DIR})
 SET(sourceFiles
     "StdInc.h"
     "StdInc.cpp"
+    "SparrowFrontend.h"
+    "SparrowFrontend.cpp"
     "SparrowSourceCode.h"
     "SparrowSourceCode.cpp"
     "UserDefinedSourceCode.h"

@@ -3,7 +3,6 @@
 
 #include <Common/Diagnostic.h>
 #include <Common/DiagnosticReporter.h>
-#include <Common/NodeAllocatorImpl.h>
 #include <Common/Serialization.h>
 #include <Intermediate/Node.h>
 #include <Intermediate/NodeSer.h>
@@ -35,7 +34,6 @@ CompilerImpl::CompilerImpl()
     , frontendFactory_(new FrontendFactoryImpl)
     , backendFactory_(new BackendFactoryImpl)
     , backend_(nullptr)
-    , nodeAllocator_(new Common::NodeAllocatorImpl)
 {
     try
     {
@@ -94,11 +92,6 @@ BackendFactory& CompilerImpl::backendFactory() const
 Backend& CompilerImpl::backend() const
 {
     return *backend_;
-}
-
-Common::NodeAllocator& CompilerImpl::nodeAllocator() const
-{
-    return *nodeAllocator_;
 }
 
 void CompilerImpl::createBackend(const string& backendName)

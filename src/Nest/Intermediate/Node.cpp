@@ -3,7 +3,7 @@
 #include "NodeKindRegistrar.h"
 #include "Modifier.h"
 #include <Compiler.h>
-#include <Common/NodeAllocator.h>
+#include <Common/Alloc.h>
 
 using namespace Nest;
 
@@ -11,9 +11,7 @@ Node* Nest::createNode(int nodeKind)
 {
     ASSERT(nodeKind >= 0);
 
-    // TODO (nodes): Make sure this will return an already zeroed memory
-    void* p = theCompiler().nodeAllocator().alloc(sizeof(Node));
-    Node* res = new (p) Node();
+    Node* res = (Node*) alloc(sizeof(Node), allocNode);
     res->nodeKind = nodeKind;
     res->nodeError = 0;
     res->nodeSemanticallyChecked = 0;

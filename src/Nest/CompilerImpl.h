@@ -30,7 +30,6 @@ namespace Nest
         virtual FrontendFactory& frontendFactory() const;
         virtual BackendFactory& backendFactory() const;
         virtual Backend& backend() const;
-        virtual Common::NodeAllocator& nodeAllocator() const;
 
     public:
         virtual void createBackend(const string& backendName);
@@ -73,7 +72,6 @@ namespace Nest
         FrontendFactory* frontendFactory_;
         BackendFactory* backendFactory_;
         Backend* backend_;
-        Common::NodeAllocator* nodeAllocator_;
 
         /// The path of the current directory
         boost::filesystem::path curPath_;

@@ -11,7 +11,6 @@ FWD_CLASS1(Nest, Backend);
 FWD_CLASS1(Nest, BackendFactory);
 FWD_CLASS2(Nest,Common, DiagnosticReporter);
 FWD_CLASS2(Nest,Common, ObjectFactoryReg);
-FWD_CLASS2(Nest,Common, NodeAllocator);
 
 namespace Nest
 {
@@ -41,9 +40,6 @@ namespace Nest
 
         /// The backend object used to generate the resulting code
         virtual Backend& backend() const = 0;
-
-        /// The object used to allocate nodes on memory
-        virtual Common::NodeAllocator& nodeAllocator() const = 0;
 
     // Compilation flow
     public:

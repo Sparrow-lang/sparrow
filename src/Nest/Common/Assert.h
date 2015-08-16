@@ -4,8 +4,8 @@
 #ifndef NDEBUG
     #if _MSC_VER > 1000
         #include <crtdbg.h>
-        #include <iostream>
-        #define ASSERT(expr) (void)( (!!(expr)) || ( (cerr << "Assertion failed: " << (#expr) << ", file "##__FILE__##", line " << __LINE__ << endl), _CrtDbgBreak(), 0) )
+        #include <stdio.h>
+        #define ASSERT(expr) (void)( (!!(expr)) || ( (fprintf(stderr, "Assertion failed: %s, file %s, line %d\n", (#expr), __FILE__, __LINE__), _CrtDbgBreak(), 0) )
         #define VERIFY ASSERT
     #else
         #include <assert.h>
@@ -13,7 +13,7 @@
         #define VERIFY ASSERT
     #endif
 #else
-    #define ASSERT(expr) if (true) ((void)0); else (!!(expr))
+    #define ASSERT(expr) if (1) ((void)0); else (!!(expr))
     #define VERIFY(expr) (expr)
 #endif
 

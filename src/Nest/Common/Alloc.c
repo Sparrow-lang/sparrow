@@ -1,5 +1,6 @@
 // #include <StdInc.h>
 #include "Alloc.h"
+#include "Assert.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -27,7 +28,7 @@ void* startBuffer(unsigned int size, AllocBucket bucket)
 {
     BucketInfo* bucketInfo = &buckets[bucket];
 
-    // ASSERT(size < noBytesPerPage);
+    ASSERT(size < noBytesPerPage);
     if ( bucketInfo->freeBytes < size )
     {
         bucketInfo->curPage = (char*) calloc(noBytesPerPage, 1);

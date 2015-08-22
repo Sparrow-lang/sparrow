@@ -8,12 +8,12 @@ Location Nest_mkEmptyLocation()
     Location loc = { NULL, {1, 1}, {1, 1} };
     return loc;
 }
-Location Nest_mkLocation(const void* sourceCode, unsigned int startLineNo, unsigned int startColNo, unsigned int endLineNo, unsigned int endColNo)
+Location Nest_mkLocation(const SourceCode* sourceCode, unsigned int startLineNo, unsigned int startColNo, unsigned int endLineNo, unsigned int endColNo)
 {
     Location loc = { sourceCode, {startLineNo, startColNo}, {endLineNo, endColNo} };
     return loc;
 }
-Location Nest_mkLocation1(const void* sourceCode, unsigned int lineNo, unsigned int colNo)
+Location Nest_mkLocation1(const SourceCode* sourceCode, unsigned int lineNo, unsigned int colNo)
 {
     Location loc = { sourceCode, {lineNo, colNo}, {lineNo, colNo} };
     return loc;

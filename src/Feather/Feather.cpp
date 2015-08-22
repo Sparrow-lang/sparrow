@@ -12,7 +12,7 @@ void Feather_initModule()
 {
     Feather::initFeatherTypeKinds();
     Feather::initFeatherNodeKinds();
-    Feather::FSimpleSourceCode::registerSelf();
+    Feather_registerFSimpleSourceCode();
 }
 
 void Feather_onBackendSetFun(Nest::Backend* backend)

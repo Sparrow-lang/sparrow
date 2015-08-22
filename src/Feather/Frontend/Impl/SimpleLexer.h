@@ -2,7 +2,7 @@
 
 #include "SimpleToken.h"
 
-FWD_CLASS1(Nest, SourceCode);
+typedef struct Nest_SourceCode SourceCode;
 
 namespace Feather
 {
@@ -10,7 +10,7 @@ namespace Feather
     class SimpleLexer
     {
     public:
-        SimpleLexer(const Nest::SourceCode& sourceCode, const char* sourceBuffer);
+        SimpleLexer(const SourceCode& sourceCode, const char* sourceBuffer);
 
         /// Gets the new token from the input source - the token is consumed
         SimpleToken consumeToken();

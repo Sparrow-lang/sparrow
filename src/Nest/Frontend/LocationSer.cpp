@@ -8,8 +8,7 @@ using namespace Nest;
 
 ostream& operator << (ostream& os, const Location* loc)
 {
-    const SourceCode* sourceCode = (SourceCode*) loc->sourceCode;
-    os << (sourceCode ? sourceCode->filename() : string("<no-source>"));
+    os << (loc->sourceCode ? loc->sourceCode->url : "<no-source>");
     if ( loc->start.line == loc->end.line )
         os << '(' << loc->start.line << ':' << loc->start.col << '-' << loc->end.col << ')';
     else

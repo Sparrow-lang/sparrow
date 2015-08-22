@@ -1,6 +1,7 @@
 #include <StdInc.h>
 #include "CompilerImpl.h"
 
+#include <Common/Alloc.h>
 #include <Common/Diagnostic.h>
 #include <Common/DiagnosticReporter.h>
 #include <Common/Serialization.h>
@@ -8,7 +9,7 @@
 #include <Intermediate/NodeSer.h>
 #include <Intermediate/CompilationContext.h>
 #include <Frontend/SourceCode.h>
-#include <Frontend/FrontendFactoryImpl.h>
+#include <Frontend/SourceCodeKindRegistrar.h>
 #include <Backend/Backend.h>
 #include <Backend/BackendFactoryImpl.h>
 
@@ -24,14 +25,13 @@ namespace
         // At this point, because we process a lot of files and we are actually
         // interested in the last file, this is a feature, not a bug.
         string filenameBase = isCompiled ? "nodesComp" : "nodesOrig";
-        Common::saveToBinFile(sc.iCode(), (filenameBase + ".out").c_str());
-        Common::saveToJsonFile(sc.iCode(), (filenameBase + ".json").c_str());
+        Common::saveToBinFile(sc.mainNode, (filenameBase + ".out").c_str());
+        Common::saveToJsonFile(sc.mainNode, (filenameBase + ".json").c_str());
     }
 }
 
 CompilerImpl::CompilerImpl()
     : diagnosticReporter_(new Common::DiagnosticReporter)
-    , frontendFactory_(new FrontendFactoryImpl)
     , backendFactory_(new BackendFactoryImpl)
     , backend_(nullptr)
 {
@@ -48,12 +48,7 @@ CompilerImpl::CompilerImpl()
 
 CompilerImpl::~CompilerImpl()
 {
-    // Remove all the source codes
-    for ( auto& p: sourceCodes_ )
-        delete p.first;
-
     delete diagnosticReporter_;
-    delete frontendFactory_;
     delete backendFactory_;
     delete backend_;
 }
@@ -77,11 +72,6 @@ Common::DiagnosticReporter& CompilerImpl::diagnosticReporter() const
 CompilationContext* CompilerImpl::rootContext() const
 {
     return rootContext_;
-}
-
-FrontendFactory& CompilerImpl::frontendFactory() const
-{
-    return *frontendFactory_;
 }
 
 BackendFactory& CompilerImpl::backendFactory() const
@@ -154,7 +144,7 @@ void CompilerImpl::compileFile(const string& filename)
                 int errorCount = theCompiler().diagnosticReporter().errorsCount();
 
                 // Semantic check the source code
-                queueSemanticCheck(sourceCode->iCode());
+                queueSemanticCheck(sourceCode->mainNode);
                 semanticCheckNodes();
 
                 // Move to the next source code if we have some errors
@@ -369,31 +359,35 @@ bool CompilerImpl::handleImportFile(const ImportInfo& import)
     if ( handledFiles_.find(absPath) != handledFiles_.end() )
         return true;
 
-    // Try to create a parser for the input file
-    SourceCode* parser = theCompiler().frontendFactory().createParser(import.filename_.string());
-    if ( !parser )
+    // Try to create a source code for the input file
+    const char* url = dupString(import.filename_.string().c_str());
+    int scKind = Nest_getSourceCodeKindForFilename(url);
+    if ( scKind < 0 )
     {
         unhandledImports_[import.originSourceCode_].push_back(import);
         return false;
     }
-    sourceCodes_.insert(make_pair(parser, absPath));
+    SourceCode* sourceCode = (SourceCode*) alloc(sizeof(SourceCode), allocGeneral);
+    sourceCode->kind = scKind;
+    sourceCode->url = url;
+    sourceCodes_.insert(make_pair(sourceCode, absPath));
 
     // Mark this file as being handled
     handledFiles_.insert(absPath);
 
     int errorCount = theCompiler().diagnosticReporter().errorsCount();
 
-    // Create a new CompilationContext for the parser
+    // Create a new CompilationContext for the sourceCode
     CompilationContext* newContext = new CompilationContext(rootContext_);
-    newContext->setSourceCode(parser);
+    newContext->setSourceCode(sourceCode);
 
     // Do the parsing
 //    REP_INFO(NOLOC, "Parsing: %1%") % import.filename_.string();
-    parser->parse(newContext);
+    Nest_parseSourceCode(sourceCode, newContext);
 
     // Dump the content of the file, before compiling it
     if ( settings_.dumpAST_ )
-        dumpAst(*parser, false);
+        dumpAst(*sourceCode, false);
 
     // Stop if we have some (parsing) errors
     if ( errorCount != theCompiler().diagnosticReporter().errorsCount() )
@@ -406,11 +400,11 @@ bool CompilerImpl::handleImportFile(const ImportInfo& import)
         if ( import.qid_.size() > 1 )
         {
             // TODO (import): Implement this
-            //checkQidAgainstUnit(parser, qid);
+            //checkQidAgainstUnit(sourceCode, qid);
         }
 
         // We need to compile this source code
-        toCompile_.push_back(parser);
+        toCompile_.push_back(sourceCode);
     }
     
     return true;

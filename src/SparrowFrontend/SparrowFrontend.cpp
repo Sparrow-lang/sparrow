@@ -13,7 +13,7 @@ void SparrowFrontend_initModule()
 {
     SprFrontend::initSparrowFrontendTypeKinds();
     SprFrontend::initSparrowNodeKinds();
-    SprFrontend::SparrowSourceCode::registerSelf();
+    SprFe_registerSparrowSourceCode();
 }
 
 void SparrowFrontend_onBackendSetFun(Nest::Backend* backend)

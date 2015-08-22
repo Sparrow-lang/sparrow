@@ -5,7 +5,8 @@
 #include <vector>
 
 FWD_STRUCT1(Nest, Node);
-FWD_CLASS1(Nest, SourceCode);
+
+typedef struct Nest_SourceCode SourceCode;
 
 namespace Nest
 {

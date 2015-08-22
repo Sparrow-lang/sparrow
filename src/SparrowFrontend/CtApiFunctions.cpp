@@ -175,16 +175,12 @@ namespace
     //
     bool ctApi_Compiler_registerFrontendFun(StringData ext, StringData funName)
     {
-        UserDefinedSourceCode::registerSelf(ext.toStdString(), funName.toStdString());
-        return true;
+        int kind = SprFe_registerUserDefinedSourceCode(ext.begin, funName.begin);
+        return kind >= 0;
     }
     void ctApi_Compiler_parseSprExpression(Node** sret, Location* loc, StringData exp)
     {
-        const SparrowSourceCode* ssc = dynamic_cast<const SparrowSourceCode*>((Nest::SourceCode*) loc->sourceCode);
-        if ( ssc )
-            *sret = ssc->parseExpression(*loc, exp.toStdString());
-        else
-            *sret = nullptr;
+        *sret = SprFe_parseSparrowExpression(*loc, exp.begin);
     }
 }
 

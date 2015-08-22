@@ -7,7 +7,7 @@ using namespace Feather;
 using namespace Nest::Common;
 using namespace Nest;
 
-SimpleLexer::SimpleLexer(const Nest::SourceCode& sourceCode, const char* sourceBuffer)
+SimpleLexer::SimpleLexer(const SourceCode& sourceCode, const char* sourceBuffer)
     : origSource_(sourceBuffer)
     , source_(nullptr)
     , curToken_(Location(), tokenEof)

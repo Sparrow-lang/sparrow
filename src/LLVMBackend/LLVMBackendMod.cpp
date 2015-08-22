@@ -7,7 +7,7 @@
 
 void LLVMBackend_initModule()
 {
-    LLVMB::LLVMSourceCode::registerSelf();
+    LLVMBe_registerLLVMSourceCode();
     LLVMB::LLVMBackend::registerSelf();
 }
 

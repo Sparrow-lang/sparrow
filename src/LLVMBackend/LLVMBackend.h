@@ -16,7 +16,7 @@ namespace LLVMB
         virtual ~LLVMBackend();
 
         virtual void init(const string& mainFilename);
-        virtual void generateMachineCode(Nest::SourceCode& code);
+        virtual void generateMachineCode(SourceCode& code);
         virtual void link(const string& outFilename);
         virtual void ctProcess(Nest::Node* node);
         virtual Nest::Node* ctEvaluate(Nest::Node* node);

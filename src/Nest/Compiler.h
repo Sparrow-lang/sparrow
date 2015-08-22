@@ -5,12 +5,12 @@
 FWD_STRUCT1(Nest, Node);
 FWD_CLASS1(Nest, CompilationContext);
 FWD_CLASS1(Nest, CompilerSettings);
-FWD_CLASS1(Nest, SourceCode);
-FWD_CLASS1(Nest, FrontendFactory);
 FWD_CLASS1(Nest, Backend);
 FWD_CLASS1(Nest, BackendFactory);
 FWD_CLASS2(Nest,Common, DiagnosticReporter);
 FWD_CLASS2(Nest,Common, ObjectFactoryReg);
+
+typedef struct Nest_SourceCode SourceCode;
 
 namespace Nest
 {
@@ -32,9 +32,6 @@ namespace Nest
         /// The root compilation context that contains all the code compiled
         virtual CompilationContext* rootContext() const = 0;
 
-        /// The factory object used to create frontend objects
-        virtual FrontendFactory& frontendFactory() const = 0;
-
         /// The factory object used to create backend objects
         virtual BackendFactory& backendFactory() const = 0;
 
@@ -50,10 +47,10 @@ namespace Nest
         virtual void compileFile(const string& filename) = 0;
 
         /// Add a source code to be compiled, given the filename
-        virtual void addSourceCodeByFilename(const Nest::SourceCode* orig, string filename) = 0;
+        virtual void addSourceCodeByFilename(const SourceCode* orig, string filename) = 0;
 
         /// Add a source code to be compiled, given a qualified ID to the source code
-        virtual void addSourceCodeByQid(const Nest::SourceCode* orig, vector<string> qid) = 0;
+        virtual void addSourceCodeByQid(const SourceCode* orig, vector<string> qid) = 0;
         
         /// Get the SourceCode corresponding to the given filename
         virtual const SourceCode* getSourceCodeForFilename(const string& filename) = 0;

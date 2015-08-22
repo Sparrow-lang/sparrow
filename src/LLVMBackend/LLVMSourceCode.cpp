@@ -3,18 +3,16 @@
 
 #include <Feather/Nodes/FeatherNodes.h>
 
+#include <Nest/Common/Alloc.h>
 #include <Nest/Common/Diagnostic.h>
 #include <Nest/Intermediate/EvalMode.h>
 #include <Nest/Intermediate/Node.h>
 
-#include <Nest/Compiler.h>
-#include <Nest/Frontend/FrontendFactory.h>
-
-#include <boost/lambda/construct.hpp>
+#include <Nest/Frontend/SourceCode.h>
+#include <Nest/Frontend/SourceCodeKindRegistrar.h>
 
 #include <fstream>
 
-using namespace LLVMB;
 using Nest::CompilationContext;
 
 namespace
@@ -85,44 +83,44 @@ namespace
             return modeRt;
         return modeRt;
     }
-}
 
-LLVMSourceCode::LLVMSourceCode(const string& filename)
-    : SourceCode(filename)
-{
-
-}
-
-void LLVMSourceCode::parse(CompilationContext* context)
-{
-    // Read the LLVM content
-    const string& fileContent = readFile(filename());
-
-    // Create a backend code with the given content
-    iCode_ = Feather::mkBackendCode(Nest_mkLocation1(this, 1, 1), fileContent, specifiedCtAvailability(fileContent));
-    Nest::setContext(iCode_, context);
-}
-
-string LLVMSourceCode::getSourceCodeLine(int lineNo) const
-{
-    ifstream f(filename().c_str());
-    if ( !f )
-        return string();
-
-    static const int MAXLINE=512;
-    char line[MAXLINE];
-    for ( int i=0; i<lineNo; ++i )
+    void parseSourceCode(SourceCode* sourceCode, Nest::CompilationContext* ctx)
     {
-        f.getline(line, MAXLINE);
-        if ( !f.good() )
-            return string();
+        // Read the LLVM content
+        const string& fileContent = readFile(sourceCode->url);
+
+        // Create a backend code with the given content
+        Nest::EvalMode evalMode = specifiedCtAvailability(fileContent);
+        sourceCode->mainNode = Feather::mkBackendCode(Nest_mkLocation1(sourceCode, 1, 1), fileContent, evalMode);
+        Nest::setContext(sourceCode->mainNode, ctx);
     }
-    return line;
+
+    StringRef getSourceCodeLine(const SourceCode* sourceCode, int lineNo)
+    {
+        StringRef res {NULL, NULL};
+        ifstream f(sourceCode->url);
+        if ( !f )
+            return res;
+
+        static const int MAXLINE=512;
+        char line[MAXLINE];
+        for ( int i=0; i<lineNo; ++i )
+        {
+            f.getline(line, MAXLINE);
+            if ( !f.good() )
+                return res;
+        }
+        res.begin = dupString(line);
+        res.end = res.begin + strlen(line);
+        return res;
+    }
 }
 
-void LLVMSourceCode::registerSelf()
-{
-    using namespace boost::lambda;
+int LLVMBe_kindLLVMSourceCode = -1;
 
-    Nest::theCompiler().frontendFactory().registerParser("LLVM-backend-code", ".llvm", new_ptr<LLVMSourceCode>());
+void LLVMBe_registerLLVMSourceCode()
+{
+    LLVMBe_kindLLVMSourceCode = Nest_registerSourceCodeKind(".llvm",
+        "LLVM source code", "",
+        &parseSourceCode, &getSourceCodeLine, NULL);
 }

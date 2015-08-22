@@ -209,7 +209,7 @@ llvm::DIFile DebugInfo::getOrCreateFile(const Location& loc)
         return diBuilder_.createFile(compileUnit_.getFilename(), compileUnit_.getDirectory());
 
     // Check the cache first
-    auto it = filenameCache_.find((SourceCode*) loc.sourceCode);
+    auto it = filenameCache_.find(loc.sourceCode);
     if ( it != filenameCache_.end() )
     {
         llvm::Value* val = it->second;
@@ -218,9 +218,8 @@ llvm::DIFile DebugInfo::getOrCreateFile(const Location& loc)
     }
 
     // Create the file, and cache it
-    SourceCode* sourceCode = (SourceCode*) loc.sourceCode;
-    auto p = splitFilename(sourceCode->filename());
+    auto p = splitFilename(loc.sourceCode->url);
     llvm::DIFile file = diBuilder_.createFile(p.second, p.first);
-    filenameCache_.insert(make_pair(sourceCode, file));
+    filenameCache_.insert(make_pair(loc.sourceCode, file));
     return file;
 }

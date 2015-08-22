@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Nest/Common/StringRef.h>
+
 namespace Feather
 {
     /// Structure that matches a string as it is translated in the generated code
@@ -11,6 +13,11 @@ namespace Feather
         StringData()
             : begin(nullptr)
             , end(nullptr)
+        {}
+
+        StringData(StringRef str)
+            : begin(str.begin)
+            , end(str.end)
         {}
 
         StringData(const string& str)

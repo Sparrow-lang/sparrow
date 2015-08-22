@@ -1202,7 +1202,7 @@ Node* LambdaFunction_SemanticCheck(Node* node)
     // Add the closure as a top level node of this node
     Nest::setContext(closure, parentContext);  // Put the enclosing class in the context of the parent function
     ASSERT(parentContext->sourceCode());
-    parentContext->sourceCode()->addAdditionalNode(closure);
+    parentContext->sourceCode()->additionalNodes.push_back(closure);
 
     // Compute the type for the enclosing class
     Nest::computeType(closure);

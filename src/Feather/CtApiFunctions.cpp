@@ -24,20 +24,25 @@ namespace
     }
     void ctApi_SourceCode_filename(StringData* sret, SourceCode** thisArg)
     {
-        *sret = StringData(*new string((*thisArg)->filename()));
+        *sret = StringData((*thisArg)->url);
     }
 
     void ctApi_Location_getCorrespondingCode(StringData* sret, Location* thisArg)
     {
         const SourceCode* sourceCode = (const SourceCode*) thisArg->sourceCode;
         string code;
+        StringRef lineStr;
         if ( sourceCode )
         {
-            string line = sourceCode->getSourceCodeLine(thisArg->start.line);
-            size_t count = thisArg->end.line == thisArg->start.line ? thisArg->end.col - thisArg->start.col : line.size()-thisArg->start.col;
-            code = line.substr(thisArg->start.col-1, count);
+            lineStr = Nest_getSourceCodeLine(sourceCode, thisArg->start.line);
+            size_t len = lineStr.end - lineStr.begin;
+            size_t count = thisArg->end.line == thisArg->start.line
+                            ? thisArg->end.col - thisArg->start.col
+                            : len - thisArg->start.col; // first line until the end
+            lineStr.begin += thisArg->start.col-1;
+            lineStr.end = lineStr.begin + count;
         }
-        *sret = StringData(*new string(code));
+        *sret = StringData(lineStr);
     }
 
     void ctApi_report(int type, StringData message, Location* location)

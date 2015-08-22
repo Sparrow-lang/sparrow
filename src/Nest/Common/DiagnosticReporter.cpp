@@ -15,11 +15,8 @@ namespace
     void doReport(const Location& loc, DiagnosticSeverity severity, const string& message)
     {
         // Write location: 'filename(line:col) : '
-        const SourceCode* sourceCode = nullptr;
         if ( !Nest_isLocEmpty(&loc) )
         {
-            sourceCode = (const SourceCode*) loc.sourceCode;
-            ASSERT(loc.sourceCode);
             cerr << loc << " : ";
         }
 
@@ -40,20 +37,21 @@ namespace
         if ( !Nest_isLocEmpty(&loc) )
         {
             // Get the actual source line
-            const string& sourceLine = sourceCode->getSourceCodeLine(loc.start.line);
-            if ( !sourceLine.empty() )
+            StringRef sourceLine = Nest_getSourceCodeLine(loc.sourceCode, loc.start.line);
+            size_t sourceLineLen = sourceLine.end - sourceLine.begin;
+            if ( sourceLineLen > 0 )
             {
-                char lastChar = sourceLine[sourceLine.size()-1];
+                char lastChar = *(sourceLine.end-1);
             
                 // Add the source line
-                cerr << "> " << sourceLine;
+                cerr << "> " << string(sourceLine.begin, sourceLine.end);
                 if ( lastChar != '\n' )
                     cerr << "\n";
 
                 // Add the pointer to the output string
                 int count = loc.end.line == loc.start.line
                                 ? loc.end.col - loc.start.col
-                                : sourceLine.length() - loc.start.col+1;
+                                : sourceLineLen - loc.start.col+1;
                 if ( count <= 1 )
                     count = 1;
                 cerr << "  ";

@@ -12,6 +12,7 @@
 #include <Nest/CompilerSettings.h>
 
 #include <boost/lambda/construct.hpp>
+#include <boost/bind.hpp>
 
 using namespace LLVMB;
 using namespace Nest;
@@ -34,21 +35,21 @@ void LLVMBackend::init(const string& mainFilename)
     ctModule_ = new Tr::CtModule("LLVM backend module CT");
 }
 
-void LLVMBackend::generateMachineCode(Nest::SourceCode& code)
+void LLVMBackend::generateMachineCode(SourceCode& code)
 {
     ASSERT(rtModule_);
 
-    rtModule_->setCtToRtTranslator(code.ctToRtTranslator());
+    rtModule_->setCtToRtTranslator(boost::bind(&Nest_translateCtToRt, &code, _1));
 
     // Translate the root node
-    Node* rootNode = code.iCode();
+    Node* rootNode = code.mainNode;
     ASSERT(rootNode);
     ASSERT(rootNode->type);
     ASSERT(rootNode->nodeSemanticallyChecked);
     rtModule_->generate(rootNode);
 
     // Translate the additional nodes
-    for ( Node* n: code.additionalNodes() )
+    for ( Node* n: code.additionalNodes )
     {
         rtModule_->generate(n);
     }

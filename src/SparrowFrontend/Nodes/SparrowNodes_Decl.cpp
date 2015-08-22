@@ -83,7 +83,7 @@ namespace
         Nest::setContext(n, node->context);
         Nest::semanticCheck(n);
         ASSERT(node->context->sourceCode());
-        node->context->sourceCode()->addAdditionalNode(n);
+        node->context->sourceCode()->additionalNodes.push_back(n);
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -195,7 +195,7 @@ void SprCompilationUnit_SetContextForChildren(Node* node)
     // Handle imports
     if ( imports )
     {
-        const Nest::SourceCode* sourceCode = (Nest::SourceCode*) node->location.sourceCode;
+        const SourceCode* sourceCode = node->location.sourceCode;
         for ( Node* i: imports->children )
         {
             Node* lit = ofKind(i, nkSparrowExpLiteral);
@@ -380,7 +380,7 @@ TypeRef SprClass_ComputeType(Node* node)
         {
             // Methods, generics
             ASSERT(node->context->sourceCode());
-            node->context->sourceCode()->addAdditionalNode(child);
+            node->context->sourceCode()->additionalNodes.push_back(child);
         }
     });
 
@@ -707,7 +707,7 @@ TypeRef SprVariable_ComputeType(Node* node)
         {
             // Add the variable at the top level
             ASSERT(node->context->sourceCode());
-            node->context->sourceCode()->addAdditionalNode(resultingVar);
+            node->context->sourceCode()->additionalNodes.push_back(resultingVar);
             resVar = nullptr;
 
             // For global variables, add the ctor & dtor actions as top level actions

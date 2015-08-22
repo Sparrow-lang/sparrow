@@ -12,7 +12,8 @@
 #pragma warning(pop)
 #endif
 
-FWD_CLASS1(Nest, SourceCode);
+typedef struct Nest_SourceCode SourceCode;
+
 FWD_STRUCT1(Nest, Node);
 
 namespace LLVMB { namespace Tr
@@ -64,7 +65,7 @@ namespace LLVMB { namespace Tr
         llvm::DenseMap<const Nest::Node*, llvm::WeakVH> regionMap_;
 
         /// Map containing the filename nodes - the filenames are represented by the SourceCode pointer
-        llvm::DenseMap<const Nest::SourceCode*, llvm::DIFile> filenameCache_;
+        llvm::DenseMap<const SourceCode*, llvm::DIFile> filenameCache_;
 
         /// The current location for which we set debug information
         Location curLoc_;

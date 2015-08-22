@@ -27,7 +27,6 @@ namespace Nest
 
         virtual Common::DiagnosticReporter& diagnosticReporter() const;
         virtual CompilationContext* rootContext() const;
-        virtual FrontendFactory& frontendFactory() const;
         virtual BackendFactory& backendFactory() const;
         virtual Backend& backend() const;
 
@@ -69,7 +68,6 @@ namespace Nest
         CompilerSettings settings_;
         Common::DiagnosticReporter* diagnosticReporter_;
         CompilationContext* rootContext_;
-        FrontendFactory* frontendFactory_;
         BackendFactory* backendFactory_;
         Backend* backend_;
 

@@ -97,7 +97,7 @@ llvm::Type* Tr::getLLVMType(TypeRef type, Module& module)
     return llvmType;
 }
 
-llvm::Type* Tr::getNativeLLVMType(const Nest::Location& loc, const string& nativeName, llvm::LLVMContext& llvmContext)
+llvm::Type* Tr::getNativeLLVMType(const Location& loc, const string& nativeName, llvm::LLVMContext& llvmContext)
 {
     if ( nativeName.size() > 1 && islower(nativeName[0]) )
     {

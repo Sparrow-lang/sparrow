@@ -19,18 +19,16 @@
         class Scanner;
     }
 
-    using Nest::Location;
-
     // Define the macro that is used to advance the current location to the end of the N-th location in the stack
     #define YYLLOC_DEFAULT(curLoc, rhs, N) \
         if ( N > 0 ) \
         { \
-            curLoc.copyStart(YYRHSLOC(rhs, 1)); \
-            curLoc.copyEnd(YYRHSLOC(rhs, N)); \
+            copyStart(&curLoc, &YYRHSLOC(rhs, 1)); \
+            copyEnd(&curLoc, &YYRHSLOC(rhs, N)); \
         } \
         else \
         { \
-            curLoc.setAsEndOf(YYRHSLOC(rhs, 0)); \
+            setAsEndOf(&curLoc, &YYRHSLOC(rhs, 0)); \
         }
 }
 
@@ -59,7 +57,7 @@ using namespace std;
 #endif
 
     // Used for empty rules to move the location to the start of the next token
-    #define NEXT_LOC        yylhs.location.setAsStartOf(yyla.location)
+    #define NEXT_LOC        setAsStartOf(&yylhs.location, &yyla.location)
 }
 
 /*********************************************************************************************************************
@@ -76,13 +74,13 @@ using namespace std;
 %skeleton "lalr1.cc"                    // use newer C++ skeleton file
 %name-prefix "SprFrontend"              // namespace to enclose parser in
 %define "parser_class_name" {Parser}    // set the parser's class identifier
-%define api.location.type {Nest::Location} // the type that holds a location
+%define api.location.type {Location}    // the type that holds a location
 
 %start Start                            // the start rule
 
 // The parameters to be passed to the grammar - also stored in the Parser class
 %parse-param { SprFrontend::Scanner& scanner }
-%parse-param { Nest::Location startLocation }
+%parse-param { Location startLocation }
 %parse-param { Nest::Node** resultNode }
 
 %initial-action         // Actions to be performed when start parsing

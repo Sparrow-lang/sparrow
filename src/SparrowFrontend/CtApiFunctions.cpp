@@ -180,7 +180,7 @@ namespace
     }
     void ctApi_Compiler_parseSprExpression(Node** sret, Location* loc, StringData exp)
     {
-        const SparrowSourceCode* ssc = dynamic_cast<const SparrowSourceCode*>(loc->sourceCode());
+        const SparrowSourceCode* ssc = dynamic_cast<const SparrowSourceCode*>((Nest::SourceCode*) loc->sourceCode);
         if ( ssc )
             *sret = ssc->parseExpression(*loc, exp.toStdString());
         else

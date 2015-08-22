@@ -17,7 +17,6 @@ FWD_STRUCT1(Nest, Node);
 
 namespace LLVMB { namespace Tr
 {
-    using Nest::Location;
     using Nest::Node;
 
     /// Helper class used to generate debug information for the translated compile unit.

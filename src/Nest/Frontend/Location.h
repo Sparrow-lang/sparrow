@@ -1,89 +1,50 @@
 #pragma once
 
-FWD_CLASS1(Nest, SourceCode)
-FWD_CLASS3(Nest,Common,Ser, OutArchive)
-FWD_CLASS3(Nest,Common,Ser, InArchive)
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-namespace Nest
+/// A location indicates a region of characters in a particular source code
+typedef struct Location_t
 {
-    /// Holds a location in a source code file. The location has a start and an end position in the same source code
-    class Location
-    {
-    public:
-        Location();
-        Location(const SourceCode& sourceCode);
-        Location(const SourceCode& sourceCode, size_t lineNo, size_t colNo);
-        Location(const SourceCode& sourceCode, size_t startLineNo, size_t startColNo, size_t endLineNo, size_t endColNo);
+    const void* sourceCode;     ///< The source code containing this location
+    unsigned int startLineNo;   ///< The start line number
+    unsigned int startColNo;    ///< The start column number
+    unsigned int endLineNo;     ///< The ending line number
+    unsigned int endColNo;      ///< The ending column number
+} Location;
 
-        /// Returns true if this not indicates a valid location
-        bool empty() const;
+Location mkEmptyLocation();
+Location mkLocation(const void* sourceCode, unsigned int startLineNo, unsigned int startColNo, unsigned int endLineNo, unsigned int endColNo);
+Location mkLocation1(const void* sourceCode, unsigned int lineNo, unsigned int colNo);
 
-        /// Getter for the filename string
-        const SourceCode* sourceCode() const;
+int isEmpty(const Location* loc);
 
-        /// Getter for the start line number
-        size_t startLineNo() const;
+/// Make the start position to be the same as the end position
+void step(Location* loc);
 
-        /// Getter for the start column number
-        size_t startColNo() const;
+/// Add the given number of columns to the end position; start position remains unchanged
+void addColumns(Location* loc, unsigned int count);
 
-        /// Getter for the start line number
-        size_t endLineNo() const;
+/// Add the given number of lines to the end position; start position remains unchanged
+void addLines(Location* loc, unsigned int count);
 
-        /// Getter for the start column number
-        size_t endColNo() const;
+/// Set the start position of this location to the start position of the given location; the end position remains unchanged
+void copyStart(Location* loc, const Location* rhs);
 
-        /// Gets a short string representation of the location
-        string toString() const;
+/// Set the end position of this location to the end position of the given location; the start position remains unchanged
+void copyEnd(Location* loc, const Location* rhs);
 
-        /// Gets the code corresponding to this location
-        string getCorrespondingCode() const;
+/// Set this location with both start and end to equal the start of the given location
+void setAsStartOf(Location* loc, const Location* rhs);
 
-    // Location manipulation functions
-    public:
-        /// Make the start position to be the same as the end position
-        void step();
+/// Set this location with both start and end to equal the end of the given location
+void setAsEndOf(Location* loc, const Location* rhs);
 
-        /// Add the given number of columns to the end position; start position remains unchanged
-        void addColumns(size_t count = 1);
+/// Compare two locations
+int compareLocations(const Location* loc1, const Location* loc2);
 
-        /// Add the given number of lines to the end position; start position remains unchanged
-        void addLines(size_t count = 1);
 
-        /// Set the start position of this location to the start position of the given location; the end position remains unchanged
-        void copyStart(const Location& rhs);
-
-        /// Set the end position of this location to the end position of the given location; the start position remains unchanged
-        void copyEnd(const Location& rhs);
-
-        /// Set this location with both start and end to equal the start of the given location
-        void setAsStartOf(const Location& rhs);
-
-        /// Set this location with both start and end to equal the end of the given location
-        void setAsEndOf(const Location& rhs);
-
-    private:
-        // The corresponding source code
-        const SourceCode* sourceCode_;
-        
-        unsigned int startLineNo_;        /// The start line number
-        unsigned int startColNo_;         /// The start column number
-        unsigned int endLineNo_;          /// The ending line number
-        unsigned int endColNo_;           /// The ending column number
-
-        friend void save(const Location& obj, Common::Ser::OutArchive& ar);
-        friend void load(Location& obj, Common::Ser::InArchive& ar);
-    };
-
-    ostream& operator << (ostream& os, const Location& loc);
-
-    bool operator <(const Location& loc1, const Location& loc2);
-
-    bool operator ==(const Location& l1, const Location& l2);
-    bool operator !=(const Location& l1, const Location& l2);
-
-    // Serialization
-    void save(const Location& obj, Common::Ser::OutArchive& ar);
-    void load(Location& obj, Common::Ser::InArchive& ar);
-
+#ifdef __cplusplus
 }
+#endif

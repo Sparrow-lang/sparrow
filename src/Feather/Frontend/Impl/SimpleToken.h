@@ -8,8 +8,6 @@
 
 namespace Feather
 {
-    using Nest::Location;
-
     /// Structure for representing a token read from the FSimple input source code
     class SimpleToken
     {

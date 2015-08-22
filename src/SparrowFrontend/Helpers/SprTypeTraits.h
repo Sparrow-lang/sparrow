@@ -28,7 +28,7 @@ namespace SprFrontend
     Nest::TypeRef evalTypeIfPossible(Nest::Node* typeNode);
     
     /// create a type node from the given type
-    Node* createTypeNode(CompilationContext* context, const Nest::Location& loc, Nest::TypeRef t);
+    Node* createTypeNode(CompilationContext* context, const Location& loc, Nest::TypeRef t);
     
     
     /// Gets the type to be used when auto is found for a node; removes l-values, but tries to preserve references
@@ -40,5 +40,5 @@ namespace SprFrontend
 
 
     /// Creates a new type from the original type, with the specified reference count
-    Nest::TypeRef changeRefCount(Nest::TypeRef type, int numRef, const Nest::Location& loc = Nest::Location());
+    Nest::TypeRef changeRefCount(Nest::TypeRef type, int numRef, const Location& loc = Location());
 }

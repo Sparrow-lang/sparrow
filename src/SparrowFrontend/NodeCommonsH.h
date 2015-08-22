@@ -8,7 +8,6 @@
 
 namespace SprFrontend
 {
-    using Nest::Location;
     using Nest::CompilationContext;
     using Nest::TypeRef;
     using Nest::SymTab;

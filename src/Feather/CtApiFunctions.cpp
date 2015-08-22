@@ -29,8 +29,15 @@ namespace
 
     void ctApi_Location_getCorrespondingCode(StringData* sret, Location* thisArg)
     {
-
-        *sret = StringData(*new string(thisArg->getCorrespondingCode()));
+        const SourceCode* sourceCode = (const SourceCode*) thisArg->sourceCode;
+        string code;
+        if ( sourceCode )
+        {
+            string line = sourceCode->getSourceCodeLine(thisArg->startLineNo);
+            size_t count = thisArg->endLineNo == thisArg->startLineNo ? thisArg->endColNo - thisArg->startColNo : line.size()-thisArg->startColNo;
+            code = line.substr(thisArg->startColNo-1, count);
+        }
+        *sret = StringData(*new string(code));
     }
 
     void ctApi_report(int type, StringData message, Location* location)

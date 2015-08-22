@@ -15,7 +15,6 @@
 #include <fstream>
 
 using namespace LLVMB;
-using Nest::Location;
 using Nest::CompilationContext;
 
 namespace
@@ -100,7 +99,7 @@ void LLVMSourceCode::parse(CompilationContext* context)
     const string& fileContent = readFile(filename());
 
     // Create a backend code with the given content
-    iCode_ = Feather::mkBackendCode(Location(*this), fileContent, specifiedCtAvailability(fileContent));
+    iCode_ = Feather::mkBackendCode(mkLocation1(this, 1, 1), fileContent, specifiedCtAvailability(fileContent));
     Nest::setContext(iCode_, context);
 }
 

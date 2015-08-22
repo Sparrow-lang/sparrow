@@ -96,8 +96,8 @@ void Tr::translateBackendCode(Node* node, Module& module)
     if ( !resModule )
     {
         Location loc = node->location;
-        if ( loc.startLineNo() == 1 && loc.startColNo() == 1 )
-            loc = Location(*node->location.sourceCode(), error.getLineNo(), error.getColumnNo());
+        if ( loc.startLineNo == 1 && loc.startColNo == 1 )
+            loc = mkLocation1(node->location.sourceCode, error.getLineNo(), error.getColumnNo());
         REP_ERROR(loc, "Cannot parse backend code node: %1% (line: %2%)") % string(error.getMessage()) % error.getLineNo();
     }
 

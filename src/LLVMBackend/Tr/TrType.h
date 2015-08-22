@@ -2,7 +2,8 @@
 
 #include <Nest/Intermediate/TypeRef.h>
 
-FWD_CLASS1(Nest, Location)
+typedef struct Location_t Location;
+
 FWD_STRUCT1(Nest, Node)
 FWD_CLASS1(LLVMB, Module)
 
@@ -16,7 +17,7 @@ namespace LLVMB { namespace Tr
 
     /// Get the LLVM type for a native type
     /// If this is not a LLVM native type, it will return null
-    llvm::Type* getNativeLLVMType(const Nest::Location& loc, const string& nativeName, llvm::LLVMContext& llvmContext);
+    llvm::Type* getNativeLLVMType(const Location& loc, const string& nativeName, llvm::LLVMContext& llvmContext);
 
     /// Gets the LLVM type corresponding to the given function declaration
     llvm::Type* getLLVMFunctionType(Nest::Node* funDecl, int ignoreArg, Module& module);

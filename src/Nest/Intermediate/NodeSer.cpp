@@ -2,6 +2,7 @@
 #include "NodeSer.h"
 #include "Node.h"
 #include "Type.h"
+#include "Frontend/LocationSer.h"
 #include <Common/Ser/OutArchive.h>
 #include <Common/Ser/InArchive.h>
 

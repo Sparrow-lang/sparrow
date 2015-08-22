@@ -52,12 +52,12 @@ UserDefinedSourceCode::~UserDefinedSourceCode()
 
 void UserDefinedSourceCode::parse(CompilationContext* context)
 {
+    Location loc = mkLocation1(this, 1,1);
+
     // Open the filename
     ifstream f(filename().c_str());
     if ( !f )
-        REP_ERROR(Location(*this), "Cannot open source file");
-
-    Location loc(*this);
+        REP_ERROR(loc, "Cannot open source file");
 
     // Get the content of the file
     ostringstream oss;

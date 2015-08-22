@@ -2,7 +2,7 @@
 
 #include "DiagnosticSeverity.h"
 
-FWD_CLASS1(Nest, Location);
+typedef struct Location_t Location;
 
 namespace Nest { namespace Common
 {

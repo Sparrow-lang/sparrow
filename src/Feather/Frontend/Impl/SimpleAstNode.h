@@ -7,8 +7,6 @@
 
 namespace Feather
 {
-    using Nest::Location;
-
     /// Class that represent an AST node in the FSimple source code
     class SimpleAstNode
     {

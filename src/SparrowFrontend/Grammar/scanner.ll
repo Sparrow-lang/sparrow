@@ -50,7 +50,7 @@ typedef SprFrontend::Parser::token_type token_type;
 /* The following paragraph suffices to track locations accurately. Each time
  * yylex is invoked, the begin position is moved onto the end position. */
 %{
-#define YY_USER_ACTION  yylloc->addColumns(yyleng);
+#define YY_USER_ACTION  addColumns(yylloc, yyleng);
 %}
 
 /*
@@ -133,7 +133,7 @@ Newline         [\n]
  /* code to place at the beginning of yylex() */
 %{
     // reset location
-    yylloc->step();
+    step(yylloc);
 
     // Fake a start token, if we received one
     if ( startToken_ != Parser::token::END )
@@ -145,11 +145,11 @@ Newline         [\n]
 %}
 
 {Whitespace}+ {
-    yylloc->step();
+    step(yylloc);
 }
 
 {Newline} {
-    yylloc->addLines(1); yylloc->step();
+    addLines(yylloc, 1); step(yylloc);
 }
 
 "/*"[^\*\n]* {
@@ -160,7 +160,7 @@ Newline         [\n]
         switch ( c )
         {
         case '\n':
-            yylloc->addLines(1);
+            addLines(yylloc, 1);
             break;
 
         case '*':
@@ -174,10 +174,10 @@ Newline         [\n]
         }
     }
 done:
-    yylloc->step();
+    step(yylloc);
 }
 
-{SingleComment}     { yylloc->step(); }
+{SingleComment}     { step(yylloc); }
 
 
  /* Symbols */
@@ -504,7 +504,7 @@ octal_done1:
         else
         {
             if (*p == '\n')
-                yylloc->addLines(1);
+                addLines(yylloc, 1);
             yylval->stringVal->push_back(*p);
         }
         ++p;
@@ -524,7 +524,7 @@ octal_done1:
         switch ( c )
         {
         case '\n':
-            yylloc->addLines(1);
+            addLines(yylloc, 1);
             break;
             
         case '}':
@@ -539,7 +539,7 @@ octal_done1:
         yylval->stringVal->push_back(c);
     }
 done2:
-    yylloc->step();
+    step(yylloc);
     
     return token::STRING_LITERAL;
 }

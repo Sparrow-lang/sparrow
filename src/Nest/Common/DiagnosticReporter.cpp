@@ -5,6 +5,7 @@
 #include <Compiler.h>
 #include <Common/Diagnostic.h>
 #include <Frontend/SourceCode.h>
+#include <Frontend/LocationSer.h>
 
 using namespace Nest;
 using namespace Nest::Common;
@@ -14,9 +15,11 @@ namespace
     void doReport(const Location& loc, DiagnosticSeverity severity, const string& message)
     {
         // Write location: 'filename(line:col) : '
-        if ( !loc.empty() )
+        const SourceCode* sourceCode = nullptr;
+        if ( !isEmpty(&loc) )
         {
-            ASSERT(loc.sourceCode());
+            sourceCode = (const SourceCode*) loc.sourceCode;
+            ASSERT(loc.sourceCode);
             cerr << loc << " : ";
         }
 
@@ -34,10 +37,10 @@ namespace
         cerr << ConsoleColors::stClear << ConsoleColors::stBold << message << ConsoleColors::stClear << endl;
 
         // Try to write the source line no in which the diagnostic occurred
-        if ( !loc.empty() )
+        if ( !isEmpty(&loc) )
         {
             // Get the actual source line
-            const string& sourceLine = loc.sourceCode()->getSourceCodeLine(loc.startLineNo());
+            const string& sourceLine = sourceCode->getSourceCodeLine(loc.startLineNo);
             if ( !sourceLine.empty() )
             {
                 char lastChar = sourceLine[sourceLine.size()-1];
@@ -48,13 +51,13 @@ namespace
                     cerr << "\n";
 
                 // Add the pointer to the output string
-                int count = loc.endLineNo() == loc.startLineNo()
-                                ? loc.endColNo() - loc.startColNo()
-                                : sourceLine.length() - loc.startColNo()+1;
+                int count = loc.endLineNo == loc.startLineNo
+                                ? loc.endColNo - loc.startColNo
+                                : sourceLine.length() - loc.startColNo+1;
                 if ( count <= 1 )
                     count = 1;
                 cerr << "  ";
-                cerr << string(loc.startColNo()-1, ' ');      // spaces used for alignment
+                cerr << string(loc.startColNo-1, ' ');      // spaces used for alignment
                 cerr << ConsoleColors::fgLoRed;
                 cerr << string(count, '~');                   // arrow to underline the whole location range
                 cerr << ConsoleColors::stClear << endl;

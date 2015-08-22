@@ -22,7 +22,7 @@ namespace LLVMB { namespace Tr
     class Scope
     {
     public:
-        Scope(TrContext& context, const Nest::Location& loc);
+        Scope(TrContext& context, const Location& loc);
         ~Scope();
 
         /// Returns the parent context of this scope
@@ -43,6 +43,6 @@ namespace LLVMB { namespace Tr
         TrContext& context_;
         vector<Instruction*> instructionsStack_;
         Nest::NodeVector destructActions_;
-        Nest::Location location_;
+        Location location_;
     };
 }}

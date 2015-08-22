@@ -2,7 +2,8 @@
 
 #include "LlvmBuilder.h"
 
-FWD_CLASS1(Nest, Location);
+typedef struct Location_t Location;
+
 FWD_CLASS1(LLVMB, Module);
 FWD_CLASS2(LLVMB,Tr, Scope);
 FWD_CLASS2(LLVMB,Tr, Instruction);

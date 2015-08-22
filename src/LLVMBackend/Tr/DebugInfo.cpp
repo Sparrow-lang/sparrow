@@ -25,8 +25,8 @@ namespace
 
     llvm::DebugLoc getDebugLoc(const Location& loc, llvm::MDNode* scope, bool takeStart = true)
     {
-        size_t line = takeStart ? loc.startLineNo : loc.endLineNo;
-        size_t col = takeStart ? loc.startColNo : loc.endColNo;
+        size_t line = takeStart ? loc.start.line : loc.end.line;
+        size_t col = takeStart ? loc.start.col : loc.end.col;
         return llvm::DebugLoc::get(line, col, scope);
     }
 }
@@ -54,7 +54,7 @@ void DebugInfo::emitLocation(LlvmBuilder& builder, const Location& loc, bool tak
 {
     // Update our current location
     setLocation(loc);
-    if ( isEmpty(&curLoc_) || 0 == compareLocations(&curLoc_, &prevLoc_) )
+    if ( Nest_isLocEmpty(&curLoc_) || 0 == Nest_compareLocations(&curLoc_, &prevLoc_) )
         return;
 
     prevLoc_ = curLoc_;
@@ -88,11 +88,11 @@ void DebugInfo::emitFunctionStart(LlvmBuilder& builder, Node* fun, llvm::Functio
         Feather::getName(fun),      // function name
         llvmFun->getName(),         // mangled function name (link name)
         file,                       // file where this is defined
-        loc.startLineNo,            // line number
+        loc.start.line,             // line number
         diFunType,                  // function type
         true,                       // true if this function is not externally visible
         true,                       // is a function definition
-        loc.startLineNo,            // the beginning of the scope this starts
+        loc.start.line,             // the beginning of the scope this starts
         0,                          // flags
         false,                      // is optimized
         llvmFun,                    // llvm::Function pointer
@@ -130,8 +130,8 @@ void DebugInfo::emitLexicalBlockStart(LlvmBuilder& builder, const Location& loc)
     llvm::DIDescriptor desc = diBuilder_.createLexicalBlock(
         scope,                      // the scope of this lexical block
         getOrCreateFile(loc),       // the file of this lexical block
-        loc.startLineNo,            // the start line number of this lexical block
-        loc.startColNo,             // the start column number of the lexical block
+        loc.start.line,            // the start line number of this lexical block
+        loc.start.col,             // the start column number of the lexical block
         0);                         // DRAWF path discriminator
     llvm::MDNode* node = desc;
     lexicalBlockStack_.push_back(node);
@@ -174,13 +174,13 @@ void DebugInfo::createCompileUnit(const string& mainFilename)
 void DebugInfo::setLocation(const Location& loc)
 {
     // If the new location isn't valid return.
-    if ( isEmpty(&loc) )
+    if ( Nest_isLocEmpty(&loc) )
         return;
 
     curLoc_ = loc;
 
     // If we changed the files in the middle of a lexical scope, create a new lexical scope
-    if ( !isEmpty(&curLoc_) && isEmpty(&prevLoc_) && curLoc_.sourceCode != prevLoc_.sourceCode && !lexicalBlockStack_.empty() )
+    if ( !Nest_isLocEmpty(&curLoc_) && Nest_isLocEmpty(&prevLoc_) && curLoc_.sourceCode != prevLoc_.sourceCode && !lexicalBlockStack_.empty() )
     {
         llvm::MDNode* lexicalBlock = lexicalBlockStack_.back();
         llvm::DIScope scope = llvm::DIScope(lexicalBlock);
@@ -205,7 +205,7 @@ void DebugInfo::setLocation(const Location& loc)
 llvm::DIFile DebugInfo::getOrCreateFile(const Location& loc)
 {
     // If the location is not valid, then return the main file
-    if ( isEmpty(&loc) )
+    if ( Nest_isLocEmpty(&loc) )
         return diBuilder_.createFile(compileUnit_.getFilename(), compileUnit_.getDirectory());
 
     // Check the cache first

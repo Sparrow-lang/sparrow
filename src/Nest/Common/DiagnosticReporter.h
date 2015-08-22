@@ -2,7 +2,7 @@
 
 #include "DiagnosticSeverity.h"
 
-typedef struct Location_t Location;
+typedef struct Nest_Location Location;
 
 namespace Nest { namespace Common
 {

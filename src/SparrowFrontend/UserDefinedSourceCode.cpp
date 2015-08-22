@@ -52,7 +52,7 @@ UserDefinedSourceCode::~UserDefinedSourceCode()
 
 void UserDefinedSourceCode::parse(CompilationContext* context)
 {
-    Location loc = mkLocation1(this, 1,1);
+    Location loc = Nest_mkLocation1(this, 1,1);
 
     // Open the filename
     ifstream f(filename().c_str());

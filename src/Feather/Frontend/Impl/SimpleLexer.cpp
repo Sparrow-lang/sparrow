@@ -12,7 +12,7 @@ SimpleLexer::SimpleLexer(const Nest::SourceCode& sourceCode, const char* sourceB
     , source_(nullptr)
     , curToken_(Location(), tokenEof)
 {
-    location_ = mkLocation1(&sourceCode, 1, 1);
+    location_ = Nest_mkLocation1(&sourceCode, 1, 1);
 }
 
 SimpleToken SimpleLexer::consumeToken()
@@ -69,7 +69,7 @@ void SimpleLexer::nextToken()
     consumeIgnoreChars();
 
     // Start the location range from the current point
-    step(&location_);
+    location_.start = location_.end;
 
     // Check for EOF
     if ( *source_ == 0 )
@@ -123,7 +123,7 @@ void SimpleLexer::nextToken()
 
 void SimpleLexer::nextChar()
 {
-    addColumns(&location_, 1);
+    ++location_.end.col;
     ++source_;
 }
 
@@ -179,7 +179,8 @@ bool SimpleLexer::consumeNewLine()
 {
     if ( consumeNewLineImpl(source_) )
     {
-        addLines(&location_, 1);
+        ++location_.end.line;
+        location_.end.col = 1;
         return true;
     }
     else

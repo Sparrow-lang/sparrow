@@ -2,7 +2,7 @@
 
 #include <Nest/Intermediate/TypeRef.h>
 
-typedef struct Location_t Location;
+typedef struct Nest_Location Location;
 
 FWD_STRUCT1(Nest, Node)
 FWD_CLASS1(LLVMB, Module)

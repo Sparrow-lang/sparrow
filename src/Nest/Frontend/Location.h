@@ -4,45 +4,32 @@
 extern "C" {
 #endif
 
+struct Nest_LocationPos {
+    unsigned int line;  ///< Line number (starting with 1)
+    unsigned int col;   ///< Column number (starting with 1)
+};
+typedef struct Nest_LocationPos Nest_LocationPos;
+typedef struct Nest_LocationPos LocationPos;
+
 /// A location indicates a region of characters in a particular source code
-typedef struct Location_t
-{
+struct Nest_Location {
     const void* sourceCode;     ///< The source code containing this location
-    unsigned int startLineNo;   ///< The start line number
-    unsigned int startColNo;    ///< The start column number
-    unsigned int endLineNo;     ///< The ending line number
-    unsigned int endColNo;      ///< The ending column number
-} Location;
+    Nest_LocationPos start;     ///< The start position in the source code
+    Nest_LocationPos end;       ///< The end position in the source code
+};
 
-Location mkEmptyLocation();
-Location mkLocation(const void* sourceCode, unsigned int startLineNo, unsigned int startColNo, unsigned int endLineNo, unsigned int endColNo);
-Location mkLocation1(const void* sourceCode, unsigned int lineNo, unsigned int colNo);
+typedef struct Nest_Location Nest_Location;
+typedef struct Nest_Location Location;
 
-int isEmpty(const Location* loc);
+Location Nest_mkEmptyLocation();
+Location Nest_mkLocation(const void* sourceCode, unsigned int startLineNo, unsigned int startColNo, unsigned int endLineNo, unsigned int endColNo);
+Location Nest_mkLocation1(const void* sourceCode, unsigned int lineNo, unsigned int colNo);
 
-/// Make the start position to be the same as the end position
-void step(Location* loc);
-
-/// Add the given number of columns to the end position; start position remains unchanged
-void addColumns(Location* loc, unsigned int count);
-
-/// Add the given number of lines to the end position; start position remains unchanged
-void addLines(Location* loc, unsigned int count);
-
-/// Set the start position of this location to the start position of the given location; the end position remains unchanged
-void copyStart(Location* loc, const Location* rhs);
-
-/// Set the end position of this location to the end position of the given location; the start position remains unchanged
-void copyEnd(Location* loc, const Location* rhs);
-
-/// Set this location with both start and end to equal the start of the given location
-void setAsStartOf(Location* loc, const Location* rhs);
-
-/// Set this location with both start and end to equal the end of the given location
-void setAsEndOf(Location* loc, const Location* rhs);
+/// Check if the given location is empty; true if it has no source code
+int Nest_isLocEmpty(const Location* loc);
 
 /// Compare two locations
-int compareLocations(const Location* loc1, const Location* loc2);
+int Nest_compareLocations(const Location* loc1, const Location* loc2);
 
 
 #ifdef __cplusplus

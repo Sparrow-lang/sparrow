@@ -10,10 +10,10 @@ ostream& operator << (ostream& os, const Location* loc)
 {
     const SourceCode* sourceCode = (SourceCode*) loc->sourceCode;
     os << (sourceCode ? sourceCode->filename() : string("<no-source>"));
-    if ( loc->startLineNo == loc->endLineNo )
-        os << '(' << loc->startLineNo << ':' << loc->startColNo << '-' << loc->endColNo << ')';
+    if ( loc->start.line == loc->end.line )
+        os << '(' << loc->start.line << ':' << loc->start.col << '-' << loc->end.col << ')';
     else
-        os << '(' << loc->startLineNo << ':' << loc->startColNo << " - " << loc->endLineNo << ':' << loc->endColNo << ')';
+        os << '(' << loc->start.line << ':' << loc->start.col << " - " << loc->end.line << ':' << loc->end.col << ')';
     return os;
 }
 ostream& operator << (ostream& os, const Location& loc)
@@ -29,20 +29,20 @@ void save(const Location& obj, Common::Ser::OutArchive& ar)
     if ( true )
     {
         // Use compact location info
-        unsigned short startLineNo = obj.startLineNo;
-        unsigned short endLineNo = obj.endLineNo;
-        unsigned short startColNo = obj.startColNo;
-        unsigned short endColNo = obj.endColNo;
+        unsigned short startLine = obj.start.line;
+        unsigned short endLine = obj.end.line;
+        unsigned short startCol = obj.start.col;
+        unsigned short endCol = obj.end.col;
         typedef unsigned long long u64;
-        u64 locInfo = u64(endColNo) + (u64(startColNo)<<16) + (u64(endLineNo)<<32) + (u64(startLineNo)<<48);
+        u64 locInfo = u64(endCol) + (u64(startCol)<<16) + (u64(endLine)<<32) + (u64(startLine)<<48);
         ar.write("locInfo", locInfo);
     }
     else
     {
-        ar.write("startLineNo", obj.startLineNo);
-        ar.write("endLineNo", obj.endLineNo);
-        ar.write("startColNo", obj.startColNo);
-        ar.write("endColNo", obj.endColNo);
+        ar.write("start.line", obj.start.line);
+        ar.write("end.line", obj.end.line);
+        ar.write("start.col", obj.start.col);
+        ar.write("end.col", obj.end.col);
     }
 }
 
@@ -54,17 +54,17 @@ void load(Location& obj, Common::Ser::InArchive& ar)
         typedef unsigned long long u64;
         u64 locInfo;
         ar.read("locInfo", locInfo);
-        obj.endColNo = locInfo & 0xFFFF;
-        obj.startColNo = (locInfo >> 16) & 0xFFFF;
-        obj.startLineNo = (locInfo >> 32) & 0xFFFF;
-        obj.endLineNo = (locInfo >> 48) & 0xFFFF;
+        obj.end.col = locInfo & 0xFFFF;
+        obj.start.col = (locInfo >> 16) & 0xFFFF;
+        obj.start.line = (locInfo >> 32) & 0xFFFF;
+        obj.end.line = (locInfo >> 48) & 0xFFFF;
     }
     else
     {
-        ar.read("startLineNo", obj.startLineNo);
-        ar.read("endLineNo", obj.endLineNo);
-        ar.read("startColNo", obj.startColNo);
-        ar.read("endColNo", obj.endColNo);
+        ar.read("start.line", obj.start.line);
+        ar.read("end.line", obj.end.line);
+        ar.read("start.col", obj.start.col);
+        ar.read("end.col", obj.end.col);
     }
 }
 

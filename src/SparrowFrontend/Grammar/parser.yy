@@ -23,12 +23,15 @@
     #define YYLLOC_DEFAULT(curLoc, rhs, N) \
         if ( N > 0 ) \
         { \
-            copyStart(&curLoc, &YYRHSLOC(rhs, 1)); \
-            copyEnd(&curLoc, &YYRHSLOC(rhs, N)); \
+            (curLoc).sourceCode = YYRHSLOC(rhs, 1).sourceCode; \
+            (curLoc).start = YYRHSLOC(rhs, 1).start; \
+            (curLoc).end = YYRHSLOC(rhs, N).end; \
         } \
         else \
         { \
-            setAsEndOf(&curLoc, &YYRHSLOC(rhs, 0)); \
+            (curLoc).sourceCode = YYRHSLOC(rhs, 0).sourceCode; \
+            (curLoc).start = YYRHSLOC(rhs, 0).end; \
+            (curLoc).end = YYRHSLOC(rhs, 0).end; \
         }
 }
 
@@ -57,7 +60,8 @@ using namespace std;
 #endif
 
     // Used for empty rules to move the location to the start of the next token
-    #define NEXT_LOC        setAsStartOf(&yylhs.location, &yyla.location)
+    #define NEXT_LOC \
+        { yylhs.location.sourceCode = yyla.location.sourceCode; yylhs.location.start = yyla.location.start; yylhs.location.end = yyla.location.start; }
 }
 
 /*********************************************************************************************************************

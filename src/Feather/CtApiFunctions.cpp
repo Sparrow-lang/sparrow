@@ -33,9 +33,9 @@ namespace
         string code;
         if ( sourceCode )
         {
-            string line = sourceCode->getSourceCodeLine(thisArg->startLineNo);
-            size_t count = thisArg->endLineNo == thisArg->startLineNo ? thisArg->endColNo - thisArg->startColNo : line.size()-thisArg->startColNo;
-            code = line.substr(thisArg->startColNo-1, count);
+            string line = sourceCode->getSourceCodeLine(thisArg->start.line);
+            size_t count = thisArg->end.line == thisArg->start.line ? thisArg->end.col - thisArg->start.col : line.size()-thisArg->start.col;
+            code = line.substr(thisArg->start.col-1, count);
         }
         *sret = StringData(*new string(code));
     }

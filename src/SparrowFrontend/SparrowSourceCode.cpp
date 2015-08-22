@@ -25,7 +25,7 @@ SparrowSourceCode::~SparrowSourceCode()
 
 void SparrowSourceCode::parse(CompilationContext* context)
 {
-    Location loc = mkLocation1(this, 1, 1);
+    Location loc = Nest_mkLocation1(this, 1, 1);
 
     // Open the filename
     ifstream f(filename().c_str());
@@ -66,7 +66,7 @@ boost::function<Nest::Node*(Nest::Node*)> SparrowSourceCode::ctToRtTranslator() 
 Node* SparrowSourceCode::parseExpression(Location loc, const string& code) const
 {
     // Only use the start part of the location
-    setAsStartOf(&loc, &loc);
+    loc.end = loc.start;
 
     istringstream f(code);
     Scanner scanner(f, Parser::token::START_EXPRESSION);

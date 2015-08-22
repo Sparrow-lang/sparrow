@@ -99,7 +99,7 @@ void LLVMSourceCode::parse(CompilationContext* context)
     const string& fileContent = readFile(filename());
 
     // Create a backend code with the given content
-    iCode_ = Feather::mkBackendCode(mkLocation1(this, 1, 1), fileContent, specifiedCtAvailability(fileContent));
+    iCode_ = Feather::mkBackendCode(Nest_mkLocation1(this, 1, 1), fileContent, specifiedCtAvailability(fileContent));
     Nest::setContext(iCode_, context);
 }
 

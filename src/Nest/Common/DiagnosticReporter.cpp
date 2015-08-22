@@ -16,7 +16,7 @@ namespace
     {
         // Write location: 'filename(line:col) : '
         const SourceCode* sourceCode = nullptr;
-        if ( !isEmpty(&loc) )
+        if ( !Nest_isLocEmpty(&loc) )
         {
             sourceCode = (const SourceCode*) loc.sourceCode;
             ASSERT(loc.sourceCode);
@@ -37,10 +37,10 @@ namespace
         cerr << ConsoleColors::stClear << ConsoleColors::stBold << message << ConsoleColors::stClear << endl;
 
         // Try to write the source line no in which the diagnostic occurred
-        if ( !isEmpty(&loc) )
+        if ( !Nest_isLocEmpty(&loc) )
         {
             // Get the actual source line
-            const string& sourceLine = sourceCode->getSourceCodeLine(loc.startLineNo);
+            const string& sourceLine = sourceCode->getSourceCodeLine(loc.start.line);
             if ( !sourceLine.empty() )
             {
                 char lastChar = sourceLine[sourceLine.size()-1];
@@ -51,13 +51,13 @@ namespace
                     cerr << "\n";
 
                 // Add the pointer to the output string
-                int count = loc.endLineNo == loc.startLineNo
-                                ? loc.endColNo - loc.startColNo
-                                : sourceLine.length() - loc.startColNo+1;
+                int count = loc.end.line == loc.start.line
+                                ? loc.end.col - loc.start.col
+                                : sourceLine.length() - loc.start.col+1;
                 if ( count <= 1 )
                     count = 1;
                 cerr << "  ";
-                cerr << string(loc.startColNo-1, ' ');      // spaces used for alignment
+                cerr << string(loc.start.col-1, ' ');      // spaces used for alignment
                 cerr << ConsoleColors::fgLoRed;
                 cerr << string(count, '~');                   // arrow to underline the whole location range
                 cerr << ConsoleColors::stClear << endl;

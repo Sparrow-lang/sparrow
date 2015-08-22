@@ -45,7 +45,7 @@ namespace
         }
 
         // Sort the fields by location - we need to add them in order
-        sort(fields.begin(), fields.end(), [](Node* f1, Node* f2) { return compareLocations(&f1->location, &f2->location) < 0; });
+        sort(fields.begin(), fields.end(), [](Node* f1, Node* f2) { return Nest_compareLocations(&f1->location, &f2->location) < 0; });
 
         // Make sure we have only fields
         for ( Node*& field: fields )

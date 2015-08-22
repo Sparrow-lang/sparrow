@@ -11,7 +11,7 @@
     Nest::Common::diagnosticReporter() = Nest::Common::DiagnosticFormatter(Nest::Common:: type, fmt, (dontThrow))
 
 
-#define NOLOC                           mkEmptyLocation()
+#define NOLOC                           Nest_mkEmptyLocation()
 
 #define REP_INTERNAL(loc, fmt)          __REP_IMPL(diagInternalError, fmt, (loc), false)
 #define REP_ERROR(loc, fmt)             __REP_IMPL(diagError, fmt, (loc), false)

@@ -112,7 +112,7 @@ namespace
     Node* addMethod(Node* parent, const string& name, Node* body, vector<pair<TypeRef, string>> params, Node* resClass = nullptr, EvalMode mode = modeUnspecified)
     {
         Location loc = parent->location;
-        setAsStartOf(&loc, &loc);
+        loc.end = loc.start;
 
         // Construct the parameters list, return type node
         NodeVector sprParams;
@@ -143,7 +143,7 @@ namespace
     void generateMethod(Node* parent, const string& name, const string& op, TypeRef otherParam, bool reverse = false, EvalMode mode = modeUnspecified)
     {
         Location loc = parent->location;
-        setAsStartOf(&loc, &loc);
+        loc.end = loc.start;
         Node* cls = explanation(parent);
         cls = cls && cls->nodeKind == nkFeatherDeclClass ? cls : nullptr;
         ASSERT(cls);
@@ -190,7 +190,7 @@ namespace
     void generateUnititializedCtor(Node* parent)
     {
         Location loc = parent->location;
-        setAsStartOf(&loc, &loc);
+        loc.end = loc.start;
 
         Node* body = mkLocalSpace(loc, {});
         addMethod(parent, "ctor", body, StdDef::typeUninitialized);
@@ -203,7 +203,7 @@ namespace
         vector<pair<TypeRef, string>> params;
         
         Location loc = parent->location;
-        setAsStartOf(&loc, &loc);
+        loc.end = loc.start;
         Node* cls = explanation(parent);
         cls = cls && cls->nodeKind == nkFeatherDeclClass ? cls : nullptr;
         ASSERT(cls);
@@ -239,7 +239,7 @@ namespace
     void generateEqualityCheckMethod(Node* parent)
     {
         Location loc = parent->location;
-        setAsStartOf(&loc, &loc);
+        loc.end = loc.start;
         Node* cls = explanation(parent);
         cls = cls && cls->nodeKind == nkFeatherDeclClass ? cls : nullptr;
         ASSERT(cls);

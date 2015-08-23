@@ -14,7 +14,7 @@ struct Nest_CompilationContext {
     struct Nest_CompilationContext* parent; ///< The parent compilation context
     Backend* backend;                       ///< The backend (used for CT evaluation)
     Nest::SymTab* currentSymTab;            ///< The current symbol table
-    Nest::EvalMode* evalMode;               ///< Contains the evaluation mode that is applied in the current context
+    Nest::EvalMode evalMode;                ///< Contains the evaluation mode that is applied in the current context
     SourceCode* sourceCode;                 ///< The current source code in which we are compiling
 };
 
@@ -33,6 +33,3 @@ CompilationContext* Nest_mkChildContext(CompilationContext* parent, Nest::EvalMo
 /// Always creates a SymTab, even if the given node is NULL
 /// If 'mode' is not modeUnspecified, it will use the given mode; otherwise it will inherit the mode from the parent
 CompilationContext* Nest_mkChildContextWithSymTab(CompilationContext* parent, Nest::Node* symTabNode, Nest::EvalMode mode);
-
-/// Gets the eval mode of this context (can be inherited from a parent context)
-Nest::EvalMode Nest_getEvalMode(CompilationContext* ctx);

@@ -273,7 +273,7 @@ namespace
         children = children ? Nest::cloneNode(children) : nullptr;
         Node* newClass = mkSprClass(loc, getName(orig), nullptr, baseClasses, nullptr, children);
 
-        copyModifiersSetMode(orig, newClass, Nest_getEvalMode(context));
+        copyModifiersSetMode(orig, newClass, context->evalMode);
 
         //setShouldAddToSymTab(newClass, false);    // TODO (generics): Uncomment this line
         Nest::setContext(newClass, context);
@@ -455,7 +455,7 @@ namespace
         returnType = returnType ? cloneNode(returnType) : nullptr;
         body = body ? cloneNode(body) : nullptr;
         Node* newFun = mkSprFunction(loc, getName(origFun), parameters, returnType, body);
-        copyModifiersSetMode(origFun, newFun, Nest_getEvalMode(context));
+        copyModifiersSetMode(origFun, newFun, context->evalMode);
         setShouldAddToSymTab(newFun, false);
         Nest::setContext(newFun, context);
 
@@ -484,7 +484,7 @@ bool SprFrontend::conceptIsFulfilled(Node* concept, TypeRef type)
     Node* typeValue = createTypeNode(concept->context, concept->location, type);
     Nest::semanticCheck(typeValue);
 
-    return nullptr != canInstantiate(instantiationsSet, {typeValue}, Nest_getEvalMode(concept->context));
+    return nullptr != canInstantiate(instantiationsSet, {typeValue}, concept->context->evalMode);
 }
 
 TypeRef SprFrontend::baseConceptType(Node* concept)

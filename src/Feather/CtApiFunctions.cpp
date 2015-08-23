@@ -61,7 +61,7 @@ namespace
     //
     int ctApi_CompilationContext_evalMode(CompilationContext** thisArg)
     {
-        return Nest_getEvalMode(*thisArg);
+        return (*thisArg)->evalMode;
     }
 
     void ctApi_CompilationContext_sourceCode(SourceCode** sret, CompilationContext** thisArg)

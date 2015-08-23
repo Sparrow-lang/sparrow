@@ -184,7 +184,7 @@ void For_SetContextForChildren(Node* node)
 
 TypeRef For_ComputeType(Node* node)
 {
-    return getVoidType(Nest_getEvalMode(node->context));
+    return getVoidType(node->context->evalMode);
 }
 
 Node* For_SemanticCheck(Node* node)

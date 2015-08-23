@@ -596,7 +596,7 @@ void SprVariable_SetContextForChildren(Node* node)
 
     // Create a new child compilation context if the mode has changed; otherwise stay in the same context
     EvalMode curEvalMode = nodeEvalMode(node);
-    if ( curEvalMode != modeUnspecified && curEvalMode != Nest_getEvalMode(node->context) )
+    if ( curEvalMode != modeUnspecified && curEvalMode != node->context->evalMode )
         node->childrenContext = Nest_mkChildContext(node->context, curEvalMode);
     else
         node->childrenContext = node->context;
@@ -655,7 +655,7 @@ TypeRef SprVariable_ComputeType(Node* node)
     Nest::computeType(resultingVar);
 
     // If this is a CT variable in a non-ct function, make this a global variable
-    if ( varKind == varLocal && Nest_getEvalMode(node->context) == modeRt && isCt(t) )
+    if ( varKind == varLocal && node->context->evalMode == modeRt && isCt(t) )
         varKind = varGlobal;
 
     // If this is a CT variable in a non-ct function, make this a global variable

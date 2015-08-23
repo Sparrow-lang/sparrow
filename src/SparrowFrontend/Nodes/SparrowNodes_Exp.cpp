@@ -411,14 +411,14 @@ namespace
             CHECK_RET(trySelectOperator(operation, args, Nest::childrenContext(argClass), true, node->context, node->location, mode));
 
             // Step 2: Try to find an operator that match in the near the class the base expression
-            mode = Nest_getEvalMode(node->context);
+            mode = node->context->evalMode;
             if ( !opPrefix.empty() )
                 CHECK_RET(trySelectOperator(opPrefix + operation, args, argClass->context, true, node->context, node->location, mode));
             CHECK_RET(trySelectOperator(operation, args, argClass->context, true, node->context, node->location, mode));
         }
 
         // Step 3: General search from the current context
-        mode = Nest_getEvalMode(node->context);
+        mode = node->context->evalMode;
         if ( !opPrefix.empty() )
             CHECK_RET(trySelectOperator(opPrefix + operation, args, node->context, false, node->context, node->location, mode));
         CHECK_RET(trySelectOperator(operation, args, node->context, false, node->context, node->location, mode));
@@ -990,7 +990,7 @@ Node* FunApplication_SemanticCheck(Node* node)
         args.insert(args.end(), arguments->children.begin(), arguments->children.end());
 
     // Check the right overload based on the type of the arguments
-    EvalMode mode = Nest_getEvalMode(node->context);
+    EvalMode mode = node->context->evalMode;
     if ( thisArg )
         mode = combineMode(thisArg->type->mode, mode, node->location, false);
     Node* res = selectOverload(node->context, node->location, mode, move(decls), args, true, functionName);
@@ -1253,7 +1253,7 @@ Node* DeclExp_SemanticCheck(Node* node)
         if ( n )
             Nest::computeType(n);
     }
-    node->type = Feather::getVoidType(Nest_getEvalMode(node->context));
+    node->type = Feather::getVoidType(node->context->evalMode);
     return node;    // This node should never be translated directly
 }
 

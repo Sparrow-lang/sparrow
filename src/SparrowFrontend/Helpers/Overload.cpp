@@ -219,7 +219,7 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
     // If the desired eval-mode is different from the context's mode, create a new context
     // We do this by wrapping everything inside a ChangeMode node
     Node* changeModeNode = nullptr;
-    if ( Nest_getEvalMode(context) != evalMode )
+    if ( context->evalMode != evalMode )
     {
         changeModeNode = mkChangeMode(loc, nullptr, evalMode);
         Nest::setContext(changeModeNode, context);

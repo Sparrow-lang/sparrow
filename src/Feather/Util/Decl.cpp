@@ -55,7 +55,7 @@ EvalMode Feather::nodeEvalMode(const Node* decl)
 EvalMode Feather::effectiveEvalMode(const Node* decl)
 {
     EvalMode nodeMode = nodeEvalMode(decl);
-    return nodeMode != Nest::modeUnspecified ? nodeMode : Nest_getEvalMode(decl->context);
+    return nodeMode != Nest::modeUnspecified ? nodeMode : decl->context->evalMode;
 }
 void Feather::setEvalMode(Node* decl, EvalMode val)
 {

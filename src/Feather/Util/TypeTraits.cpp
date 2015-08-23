@@ -195,7 +195,7 @@ Nest::TypeRef Feather::adjustMode(Nest::TypeRef srcType, CompilationContext* con
 {
     ASSERT(srcType);
     ASSERT(context);
-    EvalMode resMode = combineMode(srcType->mode, Nest_getEvalMode(context), loc);
+    EvalMode resMode = combineMode(srcType->mode, context->evalMode, loc);
     return changeTypeMode(srcType, resMode, loc);
 }
 
@@ -203,7 +203,7 @@ Nest::TypeRef Feather::adjustMode(Nest::TypeRef srcType, Nest::EvalMode baseMode
 {
     ASSERT(srcType);
     ASSERT(context);
-    baseMode = combineMode(baseMode, Nest_getEvalMode(context), loc);
+    baseMode = combineMode(baseMode, context->evalMode, loc);
     EvalMode resMode = combineMode(srcType->mode, baseMode, loc, true);
     return changeTypeMode(srcType, resMode, loc);
 }
@@ -212,7 +212,7 @@ void Feather::checkEvalMode(Node* src, Nest::EvalMode referencedEvalMode)
 {
     ASSERT(src && src->type);
     EvalMode nodeEvalMode = src->type->mode;
-    EvalMode contextEvalMode = Nest_getEvalMode(src->context);
+    EvalMode contextEvalMode = src->context->evalMode;
 
     // Check if the context eval mode requirements are fulfilled
     if ( contextEvalMode == modeRtCt && nodeEvalMode == modeRt )

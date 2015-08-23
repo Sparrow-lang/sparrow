@@ -12,7 +12,7 @@ CompilationContext* Nest_mkRootContext(Backend* backend, EvalMode mode)
     ctx->parent = NULL;
     ctx->backend = backend;
     ctx->currentSymTab = new SymTabImpl(NULL, NULL);
-    ctx->evalMode = new EvalMode(mode);
+    ctx->evalMode = mode;
     ctx->sourceCode = NULL;
     return ctx;
 }
@@ -23,13 +23,13 @@ CompilationContext* Nest_mkChildContext(CompilationContext* parent, EvalMode mod
     ctx->parent = parent;
     ctx->backend = parent->backend;
     ctx->currentSymTab = parent->currentSymTab;
-    ctx->evalMode = (mode == modeUnspecified) ? NULL : new EvalMode(mode);
+    ctx->evalMode = (mode == modeUnspecified) ? parent->evalMode : mode;
     ctx->sourceCode = parent->sourceCode;
 
     // TODO (rtct): Handle this
-//     if ( Nest_getEvalMode(parent) == modeCt && mode != modeCt )
+//     if ( parent->evalMode == modeCt && mode != modeCt )
 //         REP_ERROR(NOLOC, "Cannot create non-CT context inside of a CT context");
-    if ( Nest_getEvalMode(parent) == modeRtCt && mode == modeRt )
+    if ( parent->evalMode == modeRtCt && mode == modeRt )
         REP_ERROR(NOLOC, "Cannot create RT context inside of a RTCT context");
 
     return ctx;
@@ -41,14 +41,7 @@ CompilationContext* Nest_mkChildContextWithSymTab(CompilationContext* parent, No
     ctx->parent = parent;
     ctx->backend = parent->backend;
     ctx->currentSymTab = new SymTabImpl(parent->currentSymTab, symTabNode);
-    ctx->evalMode = (mode == modeUnspecified) ? NULL : new EvalMode(mode);
+    ctx->evalMode = (mode == modeUnspecified) ? parent->evalMode : mode;
     ctx->sourceCode = parent->sourceCode;
     return ctx;
-}
-
-EvalMode Nest_getEvalMode(CompilationContext* ctx)
-{
-    if ( !ctx )
-        return modeUnspecified;
-    return ctx->evalMode ? *ctx->evalMode : Nest_getEvalMode(ctx->parent);
 }

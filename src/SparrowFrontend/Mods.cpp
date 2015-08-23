@@ -113,17 +113,17 @@ void ModNoInline_beforeComputeType(Modifier*, Node* node)
 }
 
 
-Modifier _staticMod = { NULL,NULL, &ModStatic_beforeComputeType,NULL, NULL,NULL };
-Modifier _ctMod = { &ModCt_beforeSetContext,NULL, NULL,NULL, NULL,NULL };
-Modifier _rtMod = { &ModRt_beforeSetContext,NULL, NULL,NULL, NULL,NULL };
-Modifier _rtCtMod = { &ModRtCt_beforeSetContext,NULL, NULL,NULL, NULL,NULL };
-Modifier _autoCtMod = { &ModAutoCt_beforeSetContext,NULL, NULL,NULL, NULL,NULL };
-Modifier _ctGenericMod = { NULL,NULL, &ModCtGeneric_beforeComputeType,NULL, NULL,NULL };
-Modifier _convertMod = { NULL,NULL, &ModConvert_beforeComputeType,NULL, NULL,NULL };
-Modifier _noDefaultMod = { NULL,NULL, &ModNoDefault_beforeComputeType,NULL, NULL,NULL };
-Modifier _initCtorMod = { NULL,NULL, ModInitCtor_beforeComputeType,NULL, NULL,NULL };
-Modifier _macroMod = { NULL,NULL, &ModMacro_beforeComputeType,NULL, NULL,NULL };
-Modifier _noInlineMod = { NULL,NULL, &ModNoInline_beforeComputeType,NULL, NULL,NULL };
+Modifier _staticMod = { modTypeBeforeComputeType, &ModStatic_beforeComputeType };
+Modifier _ctMod = { modTypeBeforeSetContext, &ModCt_beforeSetContext };
+Modifier _rtMod = { modTypeBeforeSetContext, &ModRt_beforeSetContext };
+Modifier _rtCtMod = { modTypeBeforeSetContext, &ModRtCt_beforeSetContext };
+Modifier _autoCtMod = { modTypeBeforeSetContext, &ModAutoCt_beforeSetContext };
+Modifier _ctGenericMod = { modTypeBeforeComputeType, &ModCtGeneric_beforeComputeType };
+Modifier _convertMod = { modTypeBeforeComputeType, &ModConvert_beforeComputeType };
+Modifier _noDefaultMod = { modTypeBeforeComputeType, &ModNoDefault_beforeComputeType };
+Modifier _initCtorMod = { modTypeBeforeComputeType, ModInitCtor_beforeComputeType };
+Modifier _macroMod = { modTypeBeforeComputeType, &ModMacro_beforeComputeType };
+Modifier _noInlineMod = { modTypeBeforeComputeType, &ModNoInline_beforeComputeType };
 
 Modifier* SprFe_getStaticMod()
 {
@@ -174,7 +174,8 @@ Modifier* SprFe_getNativeMod(const char* name)
 {
     _NativeMod* res = (_NativeMod*) alloc(sizeof(_NativeMod), allocGeneral);
     res->name = dupString(name);
-    res->base.beforeComputeType = &ModNative_beforeComputeType;
+    res->base.modifierType = modTypeBeforeComputeType;
+    res->base.modifierFun = &ModNative_beforeComputeType;
     return (Modifier*) res;
 }
 

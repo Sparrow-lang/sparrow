@@ -177,14 +177,14 @@ void Nest::setContext(Node* node, CompilationContext* context)
         clearCompilationState(node);
 
     for ( Modifier* mod: node->modifiers )
-        if ( mod->beforeSetContext )
-            mod->beforeSetContext(mod, node);
+        if ( mod->modifierType == modTypeBeforeSetContext )
+            mod->modifierFun(mod, node);
 
     getSetContextForChildrenFun(node->nodeKind)(node);
 
     for ( Modifier* mod: node->modifiers )
-        if ( mod->afterSetContext )
-            mod->afterSetContext(mod, node);
+        if ( mod->modifierType == modTypeAfterSetContext )
+            mod->modifierFun(mod, node);
 }
 
 void Nest::computeType(Node* node)
@@ -205,8 +205,8 @@ void Nest::computeType(Node* node)
         node->computeTypeStarted = 1;
 
         for ( Modifier* mod: node->modifiers )
-            if ( mod->beforeComputeType )
-                mod->beforeComputeType(mod, node);
+            if ( mod->modifierType == modTypeBeforeComputeType )
+                mod->modifierFun(mod, node);
 
         // Actually compute the type
         TypeRef res = getComputeTypeFun(node->nodeKind)(node);
@@ -215,8 +215,8 @@ void Nest::computeType(Node* node)
         node->type = res;
 
         for ( Modifier* mod: boost::adaptors::reverse(node->modifiers) )
-            if ( mod->afterComputeType )
-                mod->afterComputeType(mod, node);
+            if ( mod->modifierType == modTypeAfterComputeType )
+                mod->modifierFun(mod, node);
     }
     catch (const Nest::Common::CompilationError&)
     {
@@ -248,8 +248,8 @@ void Nest::semanticCheck(Node* node)
         node->semanticCheckStarted = 1;
 
         for ( Modifier* mod: node->modifiers )
-            if ( mod->beforeSemanticCheck )
-                mod->beforeSemanticCheck(mod, node);
+            if ( mod->modifierType == modTypeBeforeSemanticCheck )
+                mod->modifierFun(mod, node);
 
         // Actually do the semantic check
         Node* res = getSemanticCheckFun(node->nodeKind)(node);
@@ -261,8 +261,8 @@ void Nest::semanticCheck(Node* node)
         node->nodeSemanticallyChecked = 1;
 
         for ( Modifier* mod: boost::adaptors::reverse(node->modifiers) )
-            if ( mod->afterSemanticCheck )
-                mod->afterSemanticCheck(mod, node);
+            if ( mod->modifierType == modTypeAfterSemanticCheck )
+                mod->modifierFun(mod, node);
     }
     catch (const Nest::Common::CompilationError& e)
     {

@@ -33,7 +33,7 @@ using namespace Feather;
     {
         theCompiler().ctProcess(node);
     }
-    Modifier ctProcessMod = { NULL, NULL, NULL, NULL, NULL, &CtProcessMod_afterSemanticCheck };
+    Modifier ctProcessMod = { modTypeAfterSemanticCheck, &CtProcessMod_afterSemanticCheck };
 
     const char* propResultVoid = "nodeList.resultVoid";
 

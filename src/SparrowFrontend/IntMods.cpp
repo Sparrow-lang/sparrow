@@ -481,9 +481,9 @@ void IntModDtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
     }
 }
 
-Modifier _classMembersIntMod = { NULL,NULL, NULL,&_IntModClassMembers_afterComputeType, NULL,NULL };
-Modifier _ctorMembersIntMod = { NULL,NULL, NULL,NULL, &IntModCtorMembers_beforeSemanticCheck,NULL };
-Modifier _dtorMembersIntMod = { NULL,NULL, NULL,NULL, &IntModDtorMembers_beforeSemanticCheck,NULL };
+Modifier _classMembersIntMod = { modTypeAfterComputeType, &_IntModClassMembers_afterComputeType };
+Modifier _ctorMembersIntMod = { modTypeBeforeSemanticCheck, &IntModCtorMembers_beforeSemanticCheck };
+Modifier _dtorMembersIntMod = { modTypeBeforeSemanticCheck, &IntModDtorMembers_beforeSemanticCheck };
 
 Modifier* SprFe_getClassMembersIntMod()
 {

@@ -6,10 +6,9 @@
 
 #include "Nodes/FeatherNodes.h"
 
-FWD_CLASS1(Nest, Modifier);
+typedef struct Nest_Modifier Modifier;
 
 namespace Feather
 {
     using Nest::TypeRef;
-    using Nest::Modifier;
 }

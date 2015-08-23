@@ -2,19 +2,24 @@
 
 FWD_STRUCT1(Nest, Node);
 
-namespace Nest
-{
-    /// Class that represents a modifier; objects of this type will be called to modify the compilation of nodes
-    class Modifier
-    {
-    public:
-        virtual ~Modifier() {}
+typedef struct Nest_Modifier Modifier;
 
-        virtual void beforeSetContext(Node* /*node*/) {};
-        virtual void afterSetContext(Node* /*node*/) {};
-        virtual void beforeComputeType(Node* /*node*/) {};
-        virtual void afterComputeType(Node* /*node*/) {};
-        virtual void beforeSemanticCheck(Node* /*node*/) {};
-        virtual void afterSemanticCheck(Node* /*node*/) {};
-    };
-}
+typedef void (*FModifierBeforeSetContext)(Nest_Modifier* mod, Nest::Node* node);
+typedef void (*FModifierAfterSetContext)(Nest_Modifier* mod, Nest::Node* node);
+typedef void (*FModifierBeforeComputeType)(Nest_Modifier* mod, Nest::Node* node);
+typedef void (*FModifierAfterComputeType)(Nest_Modifier* mod, Nest::Node* node);
+typedef void (*FModifierBeforeSemanticCheck)(Nest_Modifier* mod, Nest::Node* node);
+typedef void (*FModifierAfterSemanticCheck)(Nest_Modifier* mod, Nest::Node* node);
+
+/// Structure defining an interface for a modifier
+/// The modifier is called for all the important operations that happen to a node
+/// This way, the modifier can change the compilation of the node
+struct Nest_Modifier {
+    FModifierBeforeSetContext beforeSetContext;
+    FModifierAfterSetContext afterSetContext;
+    FModifierBeforeComputeType beforeComputeType;
+    FModifierAfterComputeType afterComputeType;
+    FModifierBeforeSemanticCheck beforeSemanticCheck;
+    FModifierAfterSemanticCheck afterSemanticCheck;
+};
+typedef struct Nest_Modifier Nest_Modifier;

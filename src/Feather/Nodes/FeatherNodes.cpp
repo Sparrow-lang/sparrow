@@ -28,14 +28,12 @@ using namespace Feather;
 
 // namespace
 // {
-    class CtProcessMod : public Nest::Modifier
+
+    void CtProcessMod_afterSemanticCheck(Modifier* mod, Node* node)
     {
-    public:
-        virtual void afterSemanticCheck(Node* node)
-        {
-            theCompiler().ctProcess(node);
-        };
-    };
+        theCompiler().ctProcess(node);
+    }
+    Modifier ctProcessMod = { NULL, NULL, NULL, NULL, NULL, &CtProcessMod_afterSemanticCheck };
 
     const char* propResultVoid = "nodeList.resultVoid";
 
@@ -85,7 +83,7 @@ using namespace Feather;
         if ( mode != modeRt )
         {
             // CT process this node right after semantic check
-            addModifier(node, new CtProcessMod);
+            addModifier(node, &ctProcessMod);
         }
         return node;
     }

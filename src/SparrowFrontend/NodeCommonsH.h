@@ -10,7 +10,6 @@ namespace SprFrontend
 {
     using Nest::TypeRef;
 
-    using Nest::Modifier;
     using Nest::Node;
     using Nest::NodeVector;
 }

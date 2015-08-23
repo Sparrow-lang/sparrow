@@ -4,9 +4,7 @@
 #include "ForEachNodeInNodeList.h"
 #include <NodeCommonsCpp.h>
 #include <SparrowFrontendTypes.h>
-#include <Mods/ModRt.h>
-#include <Mods/ModCt.h>
-#include <Mods/ModRtCt.h>
+#include <Mods.h>
 
 using namespace SprFrontend;
 using namespace Feather;
@@ -141,7 +139,8 @@ void SprFrontend::copyModifiersSetMode(Node* src, Node* dest, EvalMode newMode)
     dest->modifiers.reserve(src->modifiers.size());
     for ( Modifier* mod: src->modifiers )
     {
-        if ( !dynamic_cast<ModRt*>(mod) && !dynamic_cast<ModCt*>(mod) && !dynamic_cast<ModRtCt*>(mod) )
+        // TODO (rtct): This is not ok; we should find another way
+        if ( !SprFe_isEvalModeMod(mod) )
             dest->modifiers.push_back(mod);
     }
 
@@ -149,13 +148,13 @@ void SprFrontend::copyModifiersSetMode(Node* src, Node* dest, EvalMode newMode)
     switch ( newMode )
     {
         case modeRt:
-            dest->modifiers.push_back(new ModRt);
+            dest->modifiers.push_back(SprFe_getRtMod());
             break;
         case modeCt:
-            dest->modifiers.push_back(new ModCt);
+            dest->modifiers.push_back(SprFe_getCtMod());
             break;
         case modeRtCt:
-            dest->modifiers.push_back(new ModRtCt);
+            dest->modifiers.push_back(SprFe_getRtCtMod());
             break;
         default:
             break;

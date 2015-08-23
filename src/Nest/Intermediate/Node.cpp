@@ -177,12 +177,14 @@ void Nest::setContext(Node* node, CompilationContext* context)
         clearCompilationState(node);
 
     for ( Modifier* mod: node->modifiers )
-        mod->beforeSetContext(node);
+        if ( mod->beforeSetContext )
+            mod->beforeSetContext(mod, node);
 
     getSetContextForChildrenFun(node->nodeKind)(node);
 
     for ( Modifier* mod: node->modifiers )
-        mod->afterSetContext(node);
+        if ( mod->afterSetContext )
+            mod->afterSetContext(mod, node);
 }
 
 void Nest::computeType(Node* node)
@@ -203,7 +205,8 @@ void Nest::computeType(Node* node)
         node->computeTypeStarted = 1;
 
         for ( Modifier* mod: node->modifiers )
-            mod->beforeComputeType(node);
+            if ( mod->beforeComputeType )
+                mod->beforeComputeType(mod, node);
 
         // Actually compute the type
         TypeRef res = getComputeTypeFun(node->nodeKind)(node);
@@ -212,7 +215,8 @@ void Nest::computeType(Node* node)
         node->type = res;
 
         for ( Modifier* mod: boost::adaptors::reverse(node->modifiers) )
-            mod->afterComputeType(node);
+            if ( mod->afterComputeType )
+                mod->afterComputeType(mod, node);
     }
     catch (const Nest::Common::CompilationError&)
     {
@@ -244,7 +248,8 @@ void Nest::semanticCheck(Node* node)
         node->semanticCheckStarted = 1;
 
         for ( Modifier* mod: node->modifiers )
-            mod->beforeSemanticCheck(node);
+            if ( mod->beforeSemanticCheck )
+                mod->beforeSemanticCheck(mod, node);
 
         // Actually do the semantic check
         Node* res = getSemanticCheckFun(node->nodeKind)(node);
@@ -256,7 +261,8 @@ void Nest::semanticCheck(Node* node)
         node->nodeSemanticallyChecked = 1;
 
         for ( Modifier* mod: boost::adaptors::reverse(node->modifiers) )
-            mod->afterSemanticCheck(node);
+            if ( mod->afterSemanticCheck )
+                mod->afterSemanticCheck(mod, node);
     }
     catch (const Nest::Common::CompilationError& e)
     {

@@ -1,11 +1,7 @@
 #include <StdInc.h>
 #include "SparrowNodes.h"
 #include "SparrowNodesAccessors.h"
-
-#include "IntMods/IntModClassMembers.h"
-#include "IntMods/IntModCtorMembers.h"
-#include "IntMods/IntModDtorMembers.h"
-
+#include "IntMods.h"
 #include <SparrowFrontendTypes.h>
 
 #include <Helpers/CommonCode.h>
@@ -297,7 +293,7 @@ TypeRef SprClass_ComputeType(Node* node)
 
     // Default class members
     if ( !hasProperty(node, propNoDefault) )
-        addModifier(node, new IntModClassMembers);
+        addModifier(node, SprFe_getClassMembersIntMod());
     
     Node* resultingClass = nullptr;
 
@@ -457,9 +453,9 @@ TypeRef SprFunction_ComputeType(Node* node)
     if ( isMember && !isStatic && !hasProperty(node, propNoDefault) )
     {
         if ( funName == "ctor" )
-            addModifier(node, new IntModCtorMembers);
+            addModifier(node, SprFe_getCtorMembersIntMod());
         if ( funName == "dtor" )
-            addModifier(node, new IntModDtorMembers);
+            addModifier(node, SprFe_getDtorMembersIntMod());
     }
 
     EvalMode thisEvalMode = effectiveEvalMode(node);

@@ -1,19 +1,7 @@
 #include <StdInc.h>
 #include "SparrowNodes.h"
 #include "SparrowNodesAccessors.h"
-
-#include "Mods/ModStatic.h"
-#include "Mods/ModCt.h"
-#include "Mods/ModRt.h"
-#include "Mods/ModRtCt.h"
-#include "Mods/ModAutoCt.h"
-#include "Mods/ModCtGeneric.h"
-#include "Mods/ModNative.h"
-#include "Mods/ModConvert.h"
-#include "Mods/ModNoDefault.h"
-#include "Mods/ModInitCtor.h"
-#include "Mods/ModMacro.h"
-#include "Mods/ModNoInline.h"
+#include "Mods.h"
 
 #include <Helpers/ForEachNodeInNodeList.h>
 #include <Helpers/DeclsHelpers.h>
@@ -43,33 +31,33 @@ using namespace Nest;
 
 void applyModifier(Node* base, Node* modNode)
 {
-    Nest::Modifier* mod = nullptr;
+    Modifier* mod = nullptr;
     
     if ( modNode->nodeKind == nkSparrowExpIdentifier )
     {
         const string& name = getCheckPropertyString(modNode, "name");
         if ( name == "static" )
-            mod = new ModStatic;
+            mod = SprFe_getStaticMod();
         else if ( name == "ct" )
-            mod = new ModCt;
+            mod = SprFe_getCtMod();
         else if ( name == "rt" )
-            mod = new ModRt;
+            mod = SprFe_getRtMod();
         else if ( name == "rtct" )
-            mod = new ModRtCt;
+            mod = SprFe_getRtCtMod();
         else if ( name == "autoCt" )
-            mod = new ModAutoCt;
+            mod = SprFe_getAutoCtMod();
         else if ( name == "ctGeneric" )
-            mod = new ModCtGeneric;
+            mod = SprFe_getCtGenericMod();
         else if ( name == "convert" )
-            mod = new ModConvert;
+            mod = SprFe_getConvertMod();
         else if ( name == "noDefault" )
-            mod = new ModNoDefault;
+            mod = SprFe_getNoDefaultMod();
         else if ( name == "initCtor" )
-            mod = new ModInitCtor;
+            mod = SprFe_getInitCtorMod();
         else if ( name == "macro" )
-            mod = new ModMacro;
+            mod = SprFe_getMacroMod();
         else if ( name == "noInline" )
-            mod = new ModNoInline;
+            mod = SprFe_getNoInlineMod();
     }
     else
     {
@@ -87,7 +75,7 @@ void applyModifier(Node* base, Node* modNode)
                     Node* arg = fargs->children.front();
                     if ( Literal_isString(arg) )
                     {
-                        mod = new ModNative(Literal_getData(arg));
+                        mod = SprFe_getNativeMod(Literal_getData(arg).c_str());
                     }
                 }
             }

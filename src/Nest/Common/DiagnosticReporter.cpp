@@ -2,6 +2,7 @@
 #include "DiagnosticReporter.h"
 #include "CompilationError.h"
 #include "ConsoleColors.h"
+#include "StringRef.h"
 #include <Compiler.h>
 #include <Common/Diagnostic.h>
 #include <Frontend/SourceCode.h>

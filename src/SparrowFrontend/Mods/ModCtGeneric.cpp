@@ -14,6 +14,6 @@ void ModCtGeneric::beforeComputeType(Node* node)
     if ( node->nodeKind != nkSparrowDeclSprFunction )
         REP_ERROR(node->location, "ctGeneric modifier can be applied only to functions");
 
-    Feather::setEvalMode(node, Nest::modeCt);
+    Feather::setEvalMode(node, modeCt);
     Nest::setProperty(node, propCtGeneric, 1);
 }

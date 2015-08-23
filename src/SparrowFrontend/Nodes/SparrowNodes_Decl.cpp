@@ -224,7 +224,7 @@ TypeRef SprCompilationUnit_ComputeType(Node* node)
         checkForAllowedNamespaceChildren(declarations);
     }
 
-    return Feather::getVoidType(Feather::modeCt);
+    return Feather::getVoidType(modeCt);
 }
 Node* SprCompilationUnit_SemanticCheck(Node* node)
 {

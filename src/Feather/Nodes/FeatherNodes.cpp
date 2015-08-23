@@ -618,8 +618,8 @@ using namespace Feather;
         // CT availability checks
         EvalMode curMode = node->context->evalMode;
         EvalMode calledFunMode = effectiveEvalMode(fun);
-        ASSERT(curMode != Nest::modeUnspecified);
-        ASSERT(calledFunMode != Nest::modeUnspecified);
+        ASSERT(curMode != modeUnspecified);
+        ASSERT(calledFunMode != modeUnspecified);
         if ( calledFunMode == modeCt && curMode != modeCt && !allParamsAreCtAvailable )
         {
             REP_ERROR_NOTHROW(node->location, "Not all arguments are compile-time, when calling a compile time function");

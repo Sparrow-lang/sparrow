@@ -148,13 +148,13 @@ void SprFrontend::copyModifiersSetMode(Node* src, Node* dest, EvalMode newMode)
     // Make sure we preserve the evaluation mode of the class, after instantiation
     switch ( newMode )
     {
-        case Nest::modeRt:
+        case modeRt:
             dest->modifiers.push_back(new ModRt);
             break;
-        case Nest::modeCt:
+        case modeCt:
             dest->modifiers.push_back(new ModCt);
             break;
-        case Nest::modeRtCt:
+        case modeRtCt:
             dest->modifiers.push_back(new ModRtCt);
             break;
         default:

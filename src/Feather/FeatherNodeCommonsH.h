@@ -12,5 +12,4 @@ namespace Feather
 {
     using Nest::TypeRef;
     using Nest::Modifier;
-    using Nest::EvalMode;
 }

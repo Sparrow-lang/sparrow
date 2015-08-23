@@ -199,7 +199,7 @@ Nest::TypeRef Feather::adjustMode(Nest::TypeRef srcType, CompilationContext* con
     return changeTypeMode(srcType, resMode, loc);
 }
 
-Nest::TypeRef Feather::adjustMode(Nest::TypeRef srcType, Nest::EvalMode baseMode, CompilationContext* context, const Location& loc)
+Nest::TypeRef Feather::adjustMode(Nest::TypeRef srcType, EvalMode baseMode, CompilationContext* context, const Location& loc)
 {
     ASSERT(srcType);
     ASSERT(context);
@@ -208,7 +208,7 @@ Nest::TypeRef Feather::adjustMode(Nest::TypeRef srcType, Nest::EvalMode baseMode
     return changeTypeMode(srcType, resMode, loc);
 }
 
-void Feather::checkEvalMode(Node* src, Nest::EvalMode referencedEvalMode)
+void Feather::checkEvalMode(Node* src, EvalMode referencedEvalMode)
 {
     ASSERT(src && src->type);
     EvalMode nodeEvalMode = src->type->mode;

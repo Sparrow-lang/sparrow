@@ -185,7 +185,7 @@ namespace
     }
 }
 
-Node* SprFrontend::selectOverload(CompilationContext* context, const Location& loc, Nest::EvalMode evalMode,
+Node* SprFrontend::selectOverload(CompilationContext* context, const Location& loc, EvalMode evalMode,
         NodeVector decls, NodeVector args,
         bool reportErrors, const string& funName)
 {

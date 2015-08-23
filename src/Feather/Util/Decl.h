@@ -5,7 +5,6 @@
 namespace Feather
 {
     using Nest::Node;
-    using Nest::EvalMode;
 
     /// Tests if the given node is a declaration (a node that will expand to a Feather declaration)
     bool isDecl(Node* node);

@@ -28,7 +28,7 @@ namespace Feather
     bool isBasicNumericType(Nest::TypeRef type);
     
     /// Creates a new type from the original type, and change its mode
-    Nest::TypeRef changeTypeMode(Nest::TypeRef type, Nest::EvalMode mode, const Location& loc = Location());
+    Nest::TypeRef changeTypeMode(Nest::TypeRef type, EvalMode mode, const Location& loc = Location());
     
     /// Add a reference to the given type
     Nest::TypeRef addRef(Nest::TypeRef type);
@@ -54,14 +54,14 @@ namespace Feather
     bool isSameTypeIgnoreMode(Nest::TypeRef t1, Nest::TypeRef t2);
 
     // Combines two modes together; raises error if the modes cannot be combined
-    Nest::EvalMode combineMode(Nest::EvalMode mode, Nest::EvalMode baseMode, const Location& loc, bool forceBase = false);
+    EvalMode combineMode(EvalMode mode, EvalMode baseMode, const Location& loc, bool forceBase = false);
 
     /// Adjust the mode of the type, to match the evaluation mode of the compilation context
     Nest::TypeRef adjustMode(Nest::TypeRef srcType, CompilationContext* context, const Location& loc);
     /// Adjust the mode of the type, to match the evaluation mode of the compilation context; takes in account a
     /// 'baseMode' that is the means trough which we can actually access the given type
-    Nest::TypeRef adjustMode(Nest::TypeRef srcType, Nest::EvalMode baseMode, CompilationContext* context, const Location& loc);
+    Nest::TypeRef adjustMode(Nest::TypeRef srcType, EvalMode baseMode, CompilationContext* context, const Location& loc);
 
     /// Check if the given node has the eval-mode correctly set
-    void checkEvalMode(Node* src, Nest::EvalMode referencedEvalMode = Nest::modeRtCt);
+    void checkEvalMode(Node* src, EvalMode referencedEvalMode = modeRtCt);
 }

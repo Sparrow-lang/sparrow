@@ -8,8 +8,6 @@
 
 namespace SprFrontend
 {
-    using Nest::EvalMode;
-
     /// Base class for all the callable items in Sparrow.
     /// A callable is an entity (declaration) that can be called by a fun application.
     class Callable

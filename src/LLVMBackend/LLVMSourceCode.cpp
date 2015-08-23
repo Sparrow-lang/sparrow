@@ -59,7 +59,7 @@ namespace
         return result;
     }
 
-    Nest::EvalMode specifiedCtAvailability(const string& fileContent)
+    EvalMode specifiedCtAvailability(const string& fileContent)
     {
         using namespace Nest;
 
@@ -88,7 +88,7 @@ namespace
         const string& fileContent = readFile(sourceCode->url);
 
         // Create a backend code with the given content
-        Nest::EvalMode evalMode = specifiedCtAvailability(fileContent);
+        EvalMode evalMode = specifiedCtAvailability(fileContent);
         sourceCode->mainNode = Feather::mkBackendCode(Nest_mkLocation1(sourceCode, 1, 1), fileContent, evalMode);
         Nest::setContext(sourceCode->mainNode, ctx);
     }

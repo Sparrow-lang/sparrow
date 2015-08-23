@@ -50,12 +50,12 @@ void Feather::setName(Node* decl, string name)
 EvalMode Feather::nodeEvalMode(const Node* decl)
 {
     const int* val = Nest::getPropertyInt(decl, "evalMode");
-    return val ? (EvalMode) *val : Nest::modeUnspecified;
+    return val ? (EvalMode) *val : modeUnspecified;
 }
 EvalMode Feather::effectiveEvalMode(const Node* decl)
 {
     EvalMode nodeMode = nodeEvalMode(decl);
-    return nodeMode != Nest::modeUnspecified ? nodeMode : decl->context->evalMode;
+    return nodeMode != modeUnspecified ? nodeMode : decl->context->evalMode;
 }
 void Feather::setEvalMode(Node* decl, EvalMode val)
 {

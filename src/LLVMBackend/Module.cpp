@@ -28,11 +28,11 @@ Module::~Module()
 
 bool Module::canUse(Node* decl) const
 {
-    Nest::EvalMode mode = Feather::effectiveEvalMode(decl);
-    ASSERT(mode != Nest::modeUnspecified);
-    if ( mode == Nest::modeRt && isCt() )
+    EvalMode mode = Feather::effectiveEvalMode(decl);
+    ASSERT(mode != modeUnspecified);
+    if ( mode == modeRt && isCt() )
         return false;
-    else if ( mode == Nest::modeCt && !isCt() )
+    else if ( mode == modeCt && !isCt() )
         return false;
     else
         return true;

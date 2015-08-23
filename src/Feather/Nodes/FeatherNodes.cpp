@@ -45,8 +45,8 @@ using namespace Feather;
             return false;
         
         // Check the direct parent is a class that contains the given node
-        Nest::SymTab* st = node->context->currentSymTab;
-        Node* parent = st ? st->node() : nullptr;
+        SymTab* st = node->context->currentSymTab;
+        Node* parent = st ? st->node : nullptr;
         parent = parent ? explanation(parent) : nullptr;
         if ( parent && parent->nodeKind == nkFeatherDeclClass )
         {

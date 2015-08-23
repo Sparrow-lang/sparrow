@@ -188,7 +188,7 @@ namespace
 
         // Make sure the class that this refers to has the type properly computed
         Node* cls = classDecl(t);
-        Node* mainNode = Nest::childrenContext(cls)->currentSymTab->node();
+        Node* mainNode = Nest::childrenContext(cls)->currentSymTab->node;
         Nest::computeType(mainNode);
 
         // Remove l-value if we have some
@@ -358,7 +358,7 @@ namespace
         CompilationContext* callContext, const Location& callLocation, EvalMode mode)
     {
         SymTab* sTab = searchContext->currentSymTab;
-        NodeVector decls = searchOnlyGivenContext ? sTab->lookupCurrent(operation) : sTab->lookup(operation);
+        NodeVector decls = searchOnlyGivenContext ? Nest_symTabLookupCurrent(sTab, operation.c_str()) : Nest_symTabLookup(sTab, operation.c_str());
         if ( !decls.empty() )
             return selectOverload(callContext, callLocation, mode, move(decls), args, false, operation);
 
@@ -658,12 +658,12 @@ namespace
         string defaultPrecedenceName = "oper_precedence_default";
 
         // Perform a name lookup for the actual precedence name
-        int res = getIntValue(node, node->context->currentSymTab->lookup(precedenceName), -1);
+        int res = getIntValue(node, Nest_symTabLookup(node->context->currentSymTab, precedenceName.c_str()), -1);
         if ( res > 0 )
             return res;
 
         // Search the default precedence name
-        res = getIntValue(node, node->context->currentSymTab->lookup(defaultPrecedenceName), -1);
+        res = getIntValue(node, Nest_symTabLookup(node->context->currentSymTab, defaultPrecedenceName.c_str()), -1);
         if ( res > 0 )
             return res;
 
@@ -675,7 +675,7 @@ namespace
         string assocName = "oper_assoc_" + getOperation(node);
 
         // Perform a name lookup for the actual associativity name
-        int res = getIntValue(node, node->context->currentSymTab->lookup(assocName), 1);
+        int res = getIntValue(node, Nest_symTabLookup(node->context->currentSymTab, assocName.c_str()), 1);
         return res < 0;
     }
 
@@ -800,7 +800,7 @@ Node* Identifier_SemanticCheck(Node* node)
     const string& id = getCheckPropertyString(node, "name");
 
     // Search in the current symbol table for the identifier
-    NodeVector decls = node->context->currentSymTab->lookup(id);
+    NodeVector decls = Nest_symTabLookup(node->context->currentSymTab, id.c_str());
     if ( decls.empty() )
         REP_ERROR(node->location, "No declarations found with the given name (%1%)") % id;
 
@@ -864,7 +864,7 @@ Node* CompoundExp_SemanticCheck(Node* node)
         // Get the referred declarations; search for our id inside the symbol table of the declarations of the base
         for ( Node* baseDecl: baseDecls )
         {
-            NodeVector declsCur = baseDecl->childrenContext->currentSymTab->lookupCurrent(id);
+            NodeVector declsCur = Nest_symTabLookupCurrent(baseDecl->childrenContext->currentSymTab, id.c_str());
             decls.insert(decls.end(), declsCur.begin(), declsCur.end());
         }
     }
@@ -875,7 +875,7 @@ Node* CompoundExp_SemanticCheck(Node* node)
         Nest::computeType(classDecl);
 
         // Search for a declaration in the class 
-        decls = classDecl->childrenContext->currentSymTab->lookupCurrent(id);
+        decls = Nest_symTabLookupCurrent(classDecl->childrenContext->currentSymTab, id.c_str());
     }
 
     if ( decls.empty() )
@@ -971,7 +971,7 @@ Node* FunApplication_SemanticCheck(Node* node)
     if ( base->type->hasStorage && decls.empty() )
     {
         Node* cls = classForType(base->type);
-        decls = cls->childrenContext->currentSymTab->lookupCurrent("()");
+        decls = Nest_symTabLookupCurrent(cls->childrenContext->currentSymTab, "()");
         if ( decls.empty() )
             REP_ERROR(node->location, "Class %1% has no user defined call operators") % getName(cls);
         thisArg = base;
@@ -1286,7 +1286,7 @@ Node* StarExp_SemanticCheck(Node* node)
         // Get all the symbols from the symbol table
 
         // Search in the symbol table of the base for the identifier
-        decls = baseSymTab->allEntries();
+        decls = Nest_symTabAllEntries(baseSymTab);
     }
 
     if ( decls.empty() )

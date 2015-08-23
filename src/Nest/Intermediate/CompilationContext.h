@@ -3,17 +3,17 @@
 #include "EvalMode.h"
 
 FWD_STRUCT1(Nest, Node);
-FWD_CLASS1(Nest, SymTab);
 
 typedef struct Nest_SourceCode SourceCode;
 typedef struct Nest_Backend Backend;
+typedef struct Nest_SymTab SymTab;
 
 /// Structure describing the context in which a node is compiled
 /// Each node must have such a context before it is compiled
 struct Nest_CompilationContext {
     struct Nest_CompilationContext* parent; ///< The parent compilation context
     Backend* backend;                       ///< The backend (used for CT evaluation)
-    Nest::SymTab* currentSymTab;            ///< The current symbol table
+    SymTab* currentSymTab;                  ///< The current symbol table
     Nest::EvalMode evalMode;                ///< Contains the evaluation mode that is applied in the current context
     SourceCode* sourceCode;                 ///< The current source code in which we are compiling
 };

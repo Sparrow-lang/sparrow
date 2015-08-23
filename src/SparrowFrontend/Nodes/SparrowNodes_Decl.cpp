@@ -38,7 +38,7 @@ namespace
     {
         // Check all the nodes registered in the children context so far to discover the fields
         NodeVector fields;
-        for ( Node* n: curSymTab->allEntries() )
+        for ( Node* n: Nest_symTabAllEntries(curSymTab) )
         {
             if ( n->nodeKind == nkFeatherDeclVar || n->nodeKind == nkSparrowDeclSprVariable )
                 fields.push_back(n);
@@ -163,7 +163,7 @@ void SprCompilationUnit_SetContextForChildren(Node* node)
         for ( int i=0; i<(int)names.size(); ++i )
         {
             // Try to find an existing package in the current symbol table
-            NodeVector decls = node->context->currentSymTab->lookupCurrent(names[i]);
+            NodeVector decls = Nest_symTabLookupCurrent(node->context->currentSymTab, names[i].c_str());
             if ( decls.size() == 1 )
             {
                 node->context = Nest::childrenContext(decls.front());
@@ -354,7 +354,7 @@ TypeRef SprClass_ComputeType(Node* node)
             // Copy the symbol table entries of the base to this class
             SymTab* ourSymTab = childrenContext(node)->currentSymTab;
             SymTab* baseSymTab = Nest::childrenContext(baseClass)->currentSymTab;
-            ourSymTab->copyEntries(baseSymTab);
+            Nest_symTabCopyEntries(ourSymTab, baseSymTab);
         }
     }
 
@@ -814,7 +814,7 @@ TypeRef Using_ComputeType(Node* node)
         // Add references in the current symbol tab
         for ( Node* decl: decls )
         {
-            node->context->currentSymTab->enter(Feather::getName(decl), decl);
+            Nest_symTabEnter(node->context->currentSymTab, Feather::getName(decl).c_str(), decl);
         }
     }
     else

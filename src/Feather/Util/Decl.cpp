@@ -79,7 +79,7 @@ void Feather::addToSymTab(Node* decl)
     const string& declName = getName(decl);
     if ( declName.empty() )
         REP_INTERNAL(decl->location, "Cannot add node %1% to sym-tab: no name set") % Nest::nodeKindName(decl);
-    decl->context->currentSymTab->enter(declName, decl);
+    Nest_symTabEnter(decl->context->currentSymTab, declName.c_str(), decl);
 }
 
 void Feather::setShouldAddToSymTab(Node* decl, bool val)

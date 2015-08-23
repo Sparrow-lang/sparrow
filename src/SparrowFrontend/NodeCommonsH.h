@@ -9,7 +9,6 @@
 namespace SprFrontend
 {
     using Nest::TypeRef;
-    using Nest::SymTab;
 
     using Nest::Modifier;
     using Nest::Node;

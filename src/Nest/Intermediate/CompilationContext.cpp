@@ -1,6 +1,6 @@
 #include <StdInc.h>
 #include "CompilationContext.h"
-#include "SymTabImpl.h"
+#include "SymTab.h"
 #include <Common/Diagnostic.h>
 #include <Common/Alloc.h>
 
@@ -11,7 +11,7 @@ CompilationContext* Nest_mkRootContext(Backend* backend, EvalMode mode)
     CompilationContext* ctx = (CompilationContext*) alloc(sizeof(CompilationContext), allocGeneral);
     ctx->parent = NULL;
     ctx->backend = backend;
-    ctx->currentSymTab = new SymTabImpl(NULL, NULL);
+    ctx->currentSymTab = Nest_mkSymTab(NULL, NULL);
     ctx->evalMode = mode;
     ctx->sourceCode = NULL;
     return ctx;
@@ -40,7 +40,7 @@ CompilationContext* Nest_mkChildContextWithSymTab(CompilationContext* parent, No
     CompilationContext* ctx = (CompilationContext*) alloc(sizeof(CompilationContext), allocGeneral);
     ctx->parent = parent;
     ctx->backend = parent->backend;
-    ctx->currentSymTab = new SymTabImpl(parent->currentSymTab, symTabNode);
+    ctx->currentSymTab = Nest_mkSymTab(parent->currentSymTab, symTabNode);
     ctx->evalMode = (mode == modeUnspecified) ? parent->evalMode : mode;
     ctx->sourceCode = parent->sourceCode;
     return ctx;

@@ -94,7 +94,7 @@ namespace
     Node* findDefinition(int nodeKind, SymTab* symTab, const string& name, const Location& loc, const char* desc, bool onlyCurrent = false)
     {
         ASSERT(symTab);
-        const auto& entries = onlyCurrent ? symTab->lookupCurrent(name) : symTab->lookup(name);
+        const auto& entries = onlyCurrent ? Nest_symTabLookupCurrent(symTab, name.c_str()) : Nest_symTabLookup(symTab, name.c_str());
         if ( entries.empty() )
         {
             REP_ERROR(loc, "Cannot find %1%") % name;

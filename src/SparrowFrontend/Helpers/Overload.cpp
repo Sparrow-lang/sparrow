@@ -288,7 +288,7 @@ bool SprFrontend::selectConversionCtor(CompilationContext* context, Node* destCl
     ASSERT(argType);
 
     // Search for the ctors in the class 
-    NodeVector decls = childrenContext(destClass)->currentSymTab->lookupCurrent("ctor");
+    NodeVector decls = Nest_symTabLookupCurrent(childrenContext(destClass)->currentSymTab, "ctor");
 
 //     cerr << "Convert: " << argType->toString() << " -> " << Nest::toString(destClass) << " ?" << endl;
 
@@ -346,7 +346,7 @@ Callable* SprFrontend::selectCtToRtCtor(CompilationContext* context, TypeRef ctT
         return nullptr;
 
     // Search for the ctors in the class 
-    NodeVector decls = childrenContext(cls)->currentSymTab->lookupCurrent("ctorFromCt");
+    NodeVector decls = Nest_symTabLookupCurrent(childrenContext(cls)->currentSymTab, "ctorFromCt");
 
     // Select the possible ct-to-rt constructors
     Callables candidates;

@@ -22,7 +22,7 @@ namespace
     /// Search in the given class for a function with a specified name, taking the given type of parameter
     bool checkForMember(Node* cls, const string& funName, Node* paramClass)
     {
-        NodeVector decls = childrenContext(cls)->currentSymTab->lookupCurrent(funName);
+        NodeVector decls = Nest_symTabLookupCurrent(childrenContext(cls)->currentSymTab, funName.c_str());
         for ( Node* decl: decls )
         {
             decl = explanation(decl);
@@ -73,7 +73,7 @@ namespace
     /// Checks if the class has a 'ctorFromCt' method
     bool checkForCtorFromCt(Node* cls)
     {
-        NodeVector decls = childrenContext(cls)->currentSymTab->lookupCurrent("ctorFromCt");
+        NodeVector decls = Nest_symTabLookupCurrent(childrenContext(cls)->currentSymTab, "ctorFromCt");
         for ( Node* n: decls )
         {
             if ( effectiveEvalMode(n) == modeRt )

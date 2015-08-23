@@ -54,7 +54,7 @@ bool SprFrontend::ctValsEqual(Node* v1, Node* v2)
 
     // Check if we can call the '==' operator
     // If we can call it, then actually call it and return the result
-    NodeVector decls = context->currentSymTab->lookup("==");
+    NodeVector decls = Nest_symTabLookup(context->currentSymTab, "==");
     if ( !decls.empty() )
     {
         Node* funCall = selectOverload(context, v1->location, modeCt, move(decls), {v1, v2}, false, "");

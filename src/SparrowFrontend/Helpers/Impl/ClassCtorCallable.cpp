@@ -36,7 +36,7 @@ ClassCtorCallable::ClassCtorCallable(Node* cls, Callable* baseCallable, EvalMode
 
 Callables ClassCtorCallable::getCtorCallables(Node* cls, EvalMode evalMode)
 {
-    NodeVector decls = childrenContext(cls)->currentSymTab->lookupCurrent("ctor");
+    NodeVector decls = Nest_symTabLookupCurrent(childrenContext(cls)->currentSymTab, "ctor");
 
     evalMode = combineMode(effectiveEvalMode(cls), evalMode, cls->location, false);
 

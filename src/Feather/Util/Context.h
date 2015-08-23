@@ -2,11 +2,10 @@
 
 #include <Nest/Intermediate/EvalMode.h>
 
-FWD_CLASS1(Nest, CompilationContext);
+typedef struct Nest_CompilationContext CompilationContext;
 
 namespace Feather
 {
-    using Nest::CompilationContext;
     using Nest::Node;
     
     Node* getParentDecl(CompilationContext* context);

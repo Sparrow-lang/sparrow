@@ -5,7 +5,7 @@
 
 using namespace Nest;
 
-void Nest_parseSourceCode(SourceCode* sourceCode, Nest::CompilationContext* ctx)
+void Nest_parseSourceCode(SourceCode* sourceCode, CompilationContext* ctx)
 {
     ASSERT(sourceCode);
     FParseSourceCode f = Nest_getParseSourceCodeFun(sourceCode->kind);

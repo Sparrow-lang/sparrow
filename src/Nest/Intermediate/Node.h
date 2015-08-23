@@ -9,10 +9,11 @@
 #include <boost/any.hpp>
 #include <unordered_map>
 
-FWD_CLASS1(Nest, CompilationContext);
 FWD_CLASS1(Nest, Modifier);
 FWD_CLASS3(Nest,Common,Ser, OutArchive)
 FWD_CLASS3(Nest,Common,Ser, InArchive)
+
+typedef struct Nest_CompilationContext CompilationContext;
 
 namespace Nest
 {

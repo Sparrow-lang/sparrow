@@ -1,10 +1,10 @@
 #pragma once
 
-FWD_CLASS1(Nest, CompilationContext);
-
 #include <Nest/Intermediate/NodeVector.h>
 #include <Nest/Intermediate/TypeRef.h>
 #include <Nest/Intermediate/EvalMode.h>
+
+typedef struct Nest_CompilationContext CompilationContext;
 
 namespace Feather
 {
@@ -57,10 +57,10 @@ namespace Feather
     Nest::EvalMode combineMode(Nest::EvalMode mode, Nest::EvalMode baseMode, const Location& loc, bool forceBase = false);
 
     /// Adjust the mode of the type, to match the evaluation mode of the compilation context
-    Nest::TypeRef adjustMode(Nest::TypeRef srcType, Nest::CompilationContext* context, const Location& loc);
+    Nest::TypeRef adjustMode(Nest::TypeRef srcType, CompilationContext* context, const Location& loc);
     /// Adjust the mode of the type, to match the evaluation mode of the compilation context; takes in account a
     /// 'baseMode' that is the means trough which we can actually access the given type
-    Nest::TypeRef adjustMode(Nest::TypeRef srcType, Nest::EvalMode baseMode, Nest::CompilationContext* context, const Location& loc);
+    Nest::TypeRef adjustMode(Nest::TypeRef srcType, Nest::EvalMode baseMode, CompilationContext* context, const Location& loc);
 
     /// Check if the given node has the eval-mode correctly set
     void checkEvalMode(Node* src, Nest::EvalMode referencedEvalMode = Nest::modeRtCt);

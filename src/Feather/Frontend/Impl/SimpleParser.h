@@ -1,8 +1,9 @@
 #pragma once
 
-FWD_CLASS1(Nest, CompilationContext);
 FWD_CLASS1(Feather, SimpleLexer);
 FWD_CLASS1(Feather, SimpleAstNode);
+
+typedef struct Nest_CompilationContext CompilationContext;
 
 namespace Feather
 {
@@ -13,7 +14,7 @@ namespace Feather
         SimpleParser(SimpleLexer& lexer);
 
         /// Does the parsing and returns the found content as a Nest node
-        Nest::Node* parse(Nest::CompilationContext* context);
+        Nest::Node* parse(CompilationContext* context);
 
     private:
         /// The lexer used to read the tokens
@@ -24,6 +25,6 @@ namespace Feather
         SimpleAstNode* parseSourceNode();
 
         /// Interpret a source AST node, and return a Nest node
-        Nest::Node* interpret(Nest::CompilationContext* context, SimpleAstNode* srcNode);
+        Nest::Node* interpret(CompilationContext* context, SimpleAstNode* srcNode);
     };
 }

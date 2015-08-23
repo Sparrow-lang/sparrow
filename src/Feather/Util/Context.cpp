@@ -11,7 +11,7 @@ using namespace Feather;
 
 Node* Feather::getParentDecl(CompilationContext* context)
 {
-    Nest::SymTab* parentSymTab = context->currentSymTab();
+    Nest::SymTab* parentSymTab = context->currentSymTab;
     for ( ; parentSymTab; parentSymTab=parentSymTab->parent() )
     {
         Nest::Node* n = parentSymTab->node();
@@ -33,7 +33,7 @@ Node* Feather::getParentClass(CompilationContext* context)
 
 Node* Feather::getParentLoop(CompilationContext* context)
 {
-    Nest::SymTab* parentSymTab = context->currentSymTab();
+    Nest::SymTab* parentSymTab = context->currentSymTab;
     for ( ; parentSymTab; parentSymTab=parentSymTab->parent() )
     {
         Node* n = parentSymTab->node();
@@ -52,7 +52,7 @@ Node* Feather::getParentLoop(CompilationContext* context)
 
 CompilationContext* Feather::getSymTabContext(CompilationContext* context)
 {
-    Nest::SymTab* parentSymTab = context->currentSymTab();
+    Nest::SymTab* parentSymTab = context->currentSymTab;
     Node* n = parentSymTab->node();
     return n ? childrenContext(n) : nullptr;
 }

@@ -85,8 +85,7 @@ void CompilerImpl::createBackend(const char* mainFilename)
     backend_->init(backend_, mainFilename);
 
     // Also create the root context
-    rootContext_ = new CompilationContext(*backend_);
-    rootContext_->setEvalMode(modeRt);
+    rootContext_ = Nest_mkRootContext(backend_, modeRt);
 }
 
 void CompilerImpl::compileFile(const string& filename)
@@ -373,8 +372,8 @@ bool CompilerImpl::handleImportFile(const ImportInfo& import)
     int errorCount = theCompiler().diagnosticReporter().errorsCount();
 
     // Create a new CompilationContext for the sourceCode
-    CompilationContext* newContext = new CompilationContext(rootContext_);
-    newContext->setSourceCode(sourceCode);
+    CompilationContext* newContext = Nest_mkChildContext(rootContext_, modeUnspecified);
+    newContext->sourceCode = sourceCode;
 
     // Do the parsing
 //    REP_INFO(NOLOC, "Parsing: %1%") % import.filename_.string();

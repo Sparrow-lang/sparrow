@@ -4,15 +4,14 @@
 
 #include <functional>
 
-// FWD_CLASS1(Nest, DynSourceCode);
 FWD_STRUCT1(Nest, Node);
-FWD_CLASS1(Nest, CompilationContext);
 
 typedef struct Nest_SourceCode SourceCode;
+typedef struct Nest_CompilationContext CompilationContext;
 
 
 /// Function that is capable to parse the given source code
-typedef void (*FParseSourceCode)(SourceCode*, Nest::CompilationContext*);
+typedef void (*FParseSourceCode)(SourceCode*, CompilationContext*);
 /// Function that gets a specific line from the source code
 typedef StringRef (*FGetSourceCodeLine)(const SourceCode*, int);
 /// Function that translates a node from CT to RT for the given source code

@@ -174,7 +174,7 @@ void For_SetContextForChildren(Node* node)
     Node* typeExpr = node->children[2];
 
     ASSERT(range);
-    CompilationContext* rangeContext = nodeEvalMode(node) == modeCt ? new CompilationContext(node->context, modeCt) : node->context;
+    CompilationContext* rangeContext = nodeEvalMode(node) == modeCt ? Nest_mkChildContext(node->context, modeCt) : node->context;
     if ( typeExpr )
         Nest::setContext(typeExpr, rangeContext);
     Nest::setContext(range, rangeContext);
@@ -184,7 +184,7 @@ void For_SetContextForChildren(Node* node)
 
 TypeRef For_ComputeType(Node* node)
 {
-    return getVoidType(node->context->evalMode());
+    return getVoidType(Nest_getEvalMode(node->context));
 }
 
 Node* For_SemanticCheck(Node* node)

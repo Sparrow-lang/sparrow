@@ -131,8 +131,7 @@ namespace
     {
         // Create a new context, but at the same level as the context of the parent node
         Node* parentNode = instSet->referredNodes[0];
-        CompilationContext* context = parentNode->context->createChildContext(nullptr);
-        context->setEvalMode(evalMode);
+        CompilationContext* context = Nest_mkChildContextWithSymTab(parentNode->context, nullptr, evalMode);
         bool insideClass = nullptr != getParentClass(context);
 
         // Create the instantiation
@@ -274,7 +273,7 @@ namespace
         children = children ? Nest::cloneNode(children) : nullptr;
         Node* newClass = mkSprClass(loc, getName(orig), nullptr, baseClasses, nullptr, children);
 
-        copyModifiersSetMode(orig, newClass, context->evalMode());
+        copyModifiersSetMode(orig, newClass, Nest_getEvalMode(context));
 
         //setShouldAddToSymTab(newClass, false);    // TODO (generics): Uncomment this line
         Nest::setContext(newClass, context);
@@ -456,7 +455,7 @@ namespace
         returnType = returnType ? cloneNode(returnType) : nullptr;
         body = body ? cloneNode(body) : nullptr;
         Node* newFun = mkSprFunction(loc, getName(origFun), parameters, returnType, body);
-        copyModifiersSetMode(origFun, newFun, context->evalMode());
+        copyModifiersSetMode(origFun, newFun, Nest_getEvalMode(context));
         setShouldAddToSymTab(newFun, false);
         Nest::setContext(newFun, context);
 
@@ -485,7 +484,7 @@ bool SprFrontend::conceptIsFulfilled(Node* concept, TypeRef type)
     Node* typeValue = createTypeNode(concept->context, concept->location, type);
     Nest::semanticCheck(typeValue);
 
-    return nullptr != canInstantiate(instantiationsSet, {typeValue}, concept->context->evalMode());
+    return nullptr != canInstantiate(instantiationsSet, {typeValue}, Nest_getEvalMode(concept->context));
 }
 
 TypeRef SprFrontend::baseConceptType(Node* concept)
@@ -645,8 +644,8 @@ Node* SprFrontend::genericDoInstantiate(Node* node, const Location& loc, Compila
                 setInstantiatedDecl(inst, instDecl);
 
                 // Add the instantiated class as an additional node to the callee source code
-                ASSERT(context->sourceCode());
-                context->sourceCode()->additionalNodes.push_back(expandedInst);
+                ASSERT(context->sourceCode);
+                context->sourceCode->additionalNodes.push_back(expandedInst);
             }
 
             // Now actually create the call object: a Type CT value

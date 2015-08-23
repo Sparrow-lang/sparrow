@@ -188,7 +188,7 @@ namespace
 
         // Make sure the class that this refers to has the type properly computed
         Node* cls = classDecl(t);
-        Node* mainNode = Nest::childrenContext(cls)->currentSymTab()->node();
+        Node* mainNode = Nest::childrenContext(cls)->currentSymTab->node();
         Nest::computeType(mainNode);
 
         // Remove l-value if we have some
@@ -357,7 +357,7 @@ namespace
     Node* trySelectOperator(const string& operation, const NodeVector& args, CompilationContext* searchContext, bool searchOnlyGivenContext,
         CompilationContext* callContext, const Location& callLocation, EvalMode mode)
     {
-        SymTab* sTab = searchContext->currentSymTab();
+        SymTab* sTab = searchContext->currentSymTab;
         NodeVector decls = searchOnlyGivenContext ? sTab->lookupCurrent(operation) : sTab->lookup(operation);
         if ( !decls.empty() )
             return selectOverload(callContext, callLocation, mode, move(decls), args, false, operation);
@@ -411,14 +411,14 @@ namespace
             CHECK_RET(trySelectOperator(operation, args, Nest::childrenContext(argClass), true, node->context, node->location, mode));
 
             // Step 2: Try to find an operator that match in the near the class the base expression
-            mode = node->context->evalMode();
+            mode = Nest_getEvalMode(node->context);
             if ( !opPrefix.empty() )
                 CHECK_RET(trySelectOperator(opPrefix + operation, args, argClass->context, true, node->context, node->location, mode));
             CHECK_RET(trySelectOperator(operation, args, argClass->context, true, node->context, node->location, mode));
         }
 
         // Step 3: General search from the current context
-        mode = node->context->evalMode();
+        mode = Nest_getEvalMode(node->context);
         if ( !opPrefix.empty() )
             CHECK_RET(trySelectOperator(opPrefix + operation, args, node->context, false, node->context, node->location, mode));
         CHECK_RET(trySelectOperator(operation, args, node->context, false, node->context, node->location, mode));
@@ -658,12 +658,12 @@ namespace
         string defaultPrecedenceName = "oper_precedence_default";
 
         // Perform a name lookup for the actual precedence name
-        int res = getIntValue(node, node->context->currentSymTab()->lookup(precedenceName), -1);
+        int res = getIntValue(node, node->context->currentSymTab->lookup(precedenceName), -1);
         if ( res > 0 )
             return res;
 
         // Search the default precedence name
-        res = getIntValue(node, node->context->currentSymTab()->lookup(defaultPrecedenceName), -1);
+        res = getIntValue(node, node->context->currentSymTab->lookup(defaultPrecedenceName), -1);
         if ( res > 0 )
             return res;
 
@@ -675,7 +675,7 @@ namespace
         string assocName = "oper_assoc_" + getOperation(node);
 
         // Perform a name lookup for the actual associativity name
-        int res = getIntValue(node, node->context->currentSymTab()->lookup(assocName), 1);
+        int res = getIntValue(node, node->context->currentSymTab->lookup(assocName), 1);
         return res < 0;
     }
 
@@ -800,7 +800,7 @@ Node* Identifier_SemanticCheck(Node* node)
     const string& id = getCheckPropertyString(node, "name");
 
     // Search in the current symbol table for the identifier
-    NodeVector decls = node->context->currentSymTab()->lookup(id);
+    NodeVector decls = node->context->currentSymTab->lookup(id);
     if ( decls.empty() )
         REP_ERROR(node->location, "No declarations found with the given name (%1%)") % id;
 
@@ -864,7 +864,7 @@ Node* CompoundExp_SemanticCheck(Node* node)
         // Get the referred declarations; search for our id inside the symbol table of the declarations of the base
         for ( Node* baseDecl: baseDecls )
         {
-            NodeVector declsCur = baseDecl->childrenContext->currentSymTab()->lookupCurrent(id);
+            NodeVector declsCur = baseDecl->childrenContext->currentSymTab->lookupCurrent(id);
             decls.insert(decls.end(), declsCur.begin(), declsCur.end());
         }
     }
@@ -875,7 +875,7 @@ Node* CompoundExp_SemanticCheck(Node* node)
         Nest::computeType(classDecl);
 
         // Search for a declaration in the class 
-        decls = classDecl->childrenContext->currentSymTab()->lookupCurrent(id);
+        decls = classDecl->childrenContext->currentSymTab->lookupCurrent(id);
     }
 
     if ( decls.empty() )
@@ -971,7 +971,7 @@ Node* FunApplication_SemanticCheck(Node* node)
     if ( base->type->hasStorage && decls.empty() )
     {
         Node* cls = classForType(base->type);
-        decls = cls->childrenContext->currentSymTab()->lookupCurrent("()");
+        decls = cls->childrenContext->currentSymTab->lookupCurrent("()");
         if ( decls.empty() )
             REP_ERROR(node->location, "Class %1% has no user defined call operators") % getName(cls);
         thisArg = base;
@@ -990,7 +990,7 @@ Node* FunApplication_SemanticCheck(Node* node)
         args.insert(args.end(), arguments->children.begin(), arguments->children.end());
 
     // Check the right overload based on the type of the arguments
-    EvalMode mode = node->context->evalMode();
+    EvalMode mode = Nest_getEvalMode(node->context);
     if ( thisArg )
         mode = combineMode(thisArg->type->mode, mode, node->location, false);
     Node* res = selectOverload(node->context, node->location, mode, move(decls), args, true, functionName);
@@ -1201,8 +1201,8 @@ Node* LambdaFunction_SemanticCheck(Node* node)
 
     // Add the closure as a top level node of this node
     Nest::setContext(closure, parentContext);  // Put the enclosing class in the context of the parent function
-    ASSERT(parentContext->sourceCode());
-    parentContext->sourceCode()->additionalNodes.push_back(closure);
+    ASSERT(parentContext->sourceCode);
+    parentContext->sourceCode->additionalNodes.push_back(closure);
 
     // Compute the type for the enclosing class
     Nest::computeType(closure);
@@ -1253,7 +1253,7 @@ Node* DeclExp_SemanticCheck(Node* node)
         if ( n )
             Nest::computeType(n);
     }
-    node->type = Feather::getVoidType(node->context->evalMode());
+    node->type = Feather::getVoidType(Nest_getEvalMode(node->context));
     return node;    // This node should never be translated directly
 }
 
@@ -1279,7 +1279,7 @@ Node* StarExp_SemanticCheck(Node* node)
             continue;
 
         // Get the sym tab from the base declaration
-        SymTab* baseSymTab = Nest::childrenContext(baseDecl)->currentSymTab();
+        SymTab* baseSymTab = Nest::childrenContext(baseDecl)->currentSymTab;
         if ( !baseSymTab )
             continue;
 

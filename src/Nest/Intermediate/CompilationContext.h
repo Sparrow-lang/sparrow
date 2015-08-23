@@ -8,55 +8,31 @@ FWD_CLASS1(Nest, SymTab);
 typedef struct Nest_SourceCode SourceCode;
 typedef struct Nest_Backend Backend;
 
-namespace Nest
-{
-    /// Class that holds the context of compilation
-    class CompilationContext
-    {
-    public:
-        explicit CompilationContext(Backend& backend);
-        CompilationContext(CompilationContext* src, EvalMode mode = modeUnspecified);
-        CompilationContext(CompilationContext* src, SymTab* curSymTab, EvalMode mode = modeUnspecified);
-        ~CompilationContext();
+/// Structure describing the context in which a node is compiled
+/// Each node must have such a context before it is compiled
+struct Nest_CompilationContext {
+    struct Nest_CompilationContext* parent; ///< The parent compilation context
+    Backend* backend;                       ///< The backend (used for CT evaluation)
+    Nest::SymTab* currentSymTab;            ///< The current symbol table
+    Nest::EvalMode* evalMode;               ///< Contains the evaluation mode that is applied in the current context
+    SourceCode* sourceCode;                 ///< The current source code in which we are compiling
+};
 
-        /// Create a child context with a new symtab
-        CompilationContext* createChildContext(Node* symTabNode, EvalMode mode = modeUnspecified);
+typedef struct Nest_CompilationContext Nest_CompilationContext;
+typedef struct Nest_CompilationContext CompilationContext;
 
-    // State getters
-    public:
-        /// Getter for the backend used for CT evaluation
-        Backend& backend() const { return backend_; }
+/// Create a root context for the given node. This will not have any parent context
+/// By default it will not have any symtab and no source code attached to it.
+CompilationContext* Nest_mkRootContext(Backend* backend, Nest::EvalMode mode);
 
-        /// Getter for the current symbol table
-        SymTab* currentSymTab() const;
+/// Create a child context from the given context
+/// If 'mode' is not modeUnspecified, it will use the given mode; otherwise it will inherit the mode from the parent
+CompilationContext* Nest_mkChildContext(CompilationContext* parent, Nest::EvalMode mode);
 
-        /// Returns the evaluation mode of this context
-        EvalMode evalMode() const;
+/// Create a child context from the given context
+/// Always creates a SymTab, even if the given node is NULL
+/// If 'mode' is not modeUnspecified, it will use the given mode; otherwise it will inherit the mode from the parent
+CompilationContext* Nest_mkChildContextWithSymTab(CompilationContext* parent, Nest::Node* symTabNode, Nest::EvalMode mode);
 
-        /// Returns the current source code, in which we are compiling
-        SourceCode* sourceCode() const;
-
-    // Context modifiers
-    public:
-        void setCurSymTab(SymTab* symTab);
-        void setEvalMode(EvalMode val);
-        void setSourceCode(SourceCode* sourceCode);
-
-    // Data
-    private:
-        /// The parent compilation context
-        CompilationContext* parent_;
-
-        /// The backend used for CT evaluation
-        Backend& backend_;
-
-        /// The current symbol table
-        SymTab* currentSymTab_;
-
-        /// Contains the evaluation mode that is applied in the current context
-        EvalMode* evalMode_;
-
-        /// The current source code in which we are compiling
-        SourceCode* sourceCode_;
-    };
-}
+/// Gets the eval mode of this context (can be inherited from a parent context)
+Nest::EvalMode Nest_getEvalMode(CompilationContext* ctx);

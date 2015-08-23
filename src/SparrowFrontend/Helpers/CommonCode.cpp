@@ -68,7 +68,7 @@ Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* conte
     }
 
     // Search for the ctors in the class
-    NodeVector decls = cls->childrenContext->currentSymTab()->lookupCurrent("ctor");
+    NodeVector decls = cls->childrenContext->currentSymTab->lookupCurrent("ctor");
 
     // If no declarations found, just don't initialize the object
     if ( decls.empty() )
@@ -95,7 +95,7 @@ Node* SprFrontend::createDtorCall(const Location& loc, CompilationContext* conte
     CHECK(loc, cls);
 
     // Search for the dtor in the class 
-    NodeVector decls = cls->childrenContext->currentSymTab()->lookupCurrent("dtor");
+    NodeVector decls = cls->childrenContext->currentSymTab->lookupCurrent("dtor");
 
     // If no destructor found, don't call anything
     if ( decls.empty() )

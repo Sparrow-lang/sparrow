@@ -55,7 +55,7 @@ EvalMode Feather::nodeEvalMode(const Node* decl)
 EvalMode Feather::effectiveEvalMode(const Node* decl)
 {
     EvalMode nodeMode = nodeEvalMode(decl);
-    return nodeMode != Nest::modeUnspecified ? nodeMode : decl->context->evalMode();
+    return nodeMode != Nest::modeUnspecified ? nodeMode : Nest_getEvalMode(decl->context);
 }
 void Feather::setEvalMode(Node* decl, EvalMode val)
 {
@@ -79,7 +79,7 @@ void Feather::addToSymTab(Node* decl)
     const string& declName = getName(decl);
     if ( declName.empty() )
         REP_INTERNAL(decl->location, "Cannot add node %1% to sym-tab: no name set") % Nest::nodeKindName(decl);
-    decl->context->currentSymTab()->enter(declName, decl);
+    decl->context->currentSymTab->enter(declName, decl);
 }
 
 void Feather::setShouldAddToSymTab(Node* decl, bool val)

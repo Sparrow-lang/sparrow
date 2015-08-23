@@ -19,7 +19,7 @@ using namespace SprFrontend;
 
 namespace
 {
-    void parseSourceCode(SourceCode* sourceCode, Nest::CompilationContext* ctx)
+    void parseSourceCode(SourceCode* sourceCode, CompilationContext* ctx)
     {
         Location loc = Nest_mkLocation1(sourceCode, 1,1);
 

@@ -189,7 +189,7 @@ namespace
     {
         CHECK(loc, args.size() == 0);
 
-        SourceCode* sc = context->sourceCode();
+        SourceCode* sc = context->sourceCode;
         int* scHandle = reinterpret_cast<int*>(sc);
         Node* base = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "SourceCode");
         Node* arg = mkCtValue(loc, StdDef::typeRefInt, &scHandle);

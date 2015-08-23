@@ -45,7 +45,7 @@ using namespace Feather;
             return false;
         
         // Check the direct parent is a class that contains the given node
-        Nest::SymTab* st = node->context->currentSymTab();
+        Nest::SymTab* st = node->context->currentSymTab;
         Node* parent = st ? st->node() : nullptr;
         parent = parent ? explanation(parent) : nullptr;
         if ( parent && parent->nodeKind == nkFeatherDeclClass )
@@ -60,7 +60,7 @@ using namespace Feather;
 
     Node* Nop_SemanticCheck(Node* node)
     {
-        node->type = getVoidType(node->context->evalMode());
+        node->type = getVoidType(Nest_getEvalMode(node->context));
         return node;
     }
 
@@ -106,7 +106,7 @@ using namespace Feather;
         }
 
         // Get the type of the last node
-        TypeRef res = ( hasProperty(node, propResultVoid) || node->children.empty() || !node->children.back()->type ) ? getVoidType(node->context->evalMode()) : node->children.back()->type;
+        TypeRef res = ( hasProperty(node, propResultVoid) || node->children.empty() || !node->children.back()->type ) ? getVoidType(Nest_getEvalMode(node->context)) : node->children.back()->type;
         res = adjustMode(res, node->context, node->location);
         return res;
     }
@@ -127,7 +127,7 @@ using namespace Feather;
         if ( !node->type )
         {
             // Get the type of the last node
-            TypeRef t = ( hasProperty(node, propResultVoid) || node->children.empty() || !node->children.back()->type ) ? getVoidType(node->context->evalMode()) : node->children.back()->type;
+            TypeRef t = ( hasProperty(node, propResultVoid) || node->children.empty() || !node->children.back()->type ) ? getVoidType(Nest_getEvalMode(node->context)) : node->children.back()->type;
             t = adjustMode(t, node->context, node->location);
             node->type = t;
             checkEvalMode(node);
@@ -137,12 +137,12 @@ using namespace Feather;
 
     void LocalSpace_SetContextForChildren(Node* node)
     {
-        node->childrenContext = node->context->createChildContext(node);
+        node->childrenContext = Nest_mkChildContextWithSymTab(node->context, node, modeUnspecified);
         Nest::defaultFunSetContextForChildren(node);
     }
     TypeRef LocalSpace_ComputeType(Node* node)
     {
-        return getVoidType(node->context->evalMode());
+        return getVoidType(Nest_getEvalMode(node->context));
     }
     Node* LocalSpace_SemanticCheck(Node* node)
     {
@@ -168,7 +168,7 @@ using namespace Feather;
     Node* GlobalConstructAction_SemanticCheck(Node* node)
     {
         Nest::semanticCheck(node->children[0]);
-        node->type = getVoidType(node->context->evalMode());
+        node->type = getVoidType(Nest_getEvalMode(node->context));
 
         // For CT construct actions, evaluate them asap
         if ( isCt(node->children[0]) )
@@ -182,7 +182,7 @@ using namespace Feather;
     Node* GlobalDestructAction_SemanticCheck(Node* node)
     {
         Nest::semanticCheck(node->children[0]);
-        node->type = getVoidType(node->context->evalMode());
+        node->type = getVoidType(Nest_getEvalMode(node->context));
 
         // We never CT evaluate global destruct actions
         if ( isCt(node->children[0]) )
@@ -196,23 +196,23 @@ using namespace Feather;
     Node* ScopeTempDestructAction_SemanticCheck(Node* node)
     {
         Nest::semanticCheck(node->children[0]);
-        node->type = getVoidType(node->context->evalMode());
+        node->type = getVoidType(Nest_getEvalMode(node->context));
         return node;
     }
 
     void ChangeMode_SetContextForChildren(Node* node)
     {
         EvalMode curMode = (EvalMode) getCheckPropertyInt(node, propEvalMode);
-        EvalMode newMode = curMode != modeUnspecified ? curMode : node->context->evalMode();
-        node->childrenContext = new CompilationContext(node->context, newMode);
+        EvalMode newMode = curMode != modeUnspecified ? curMode : Nest_getEvalMode(node->context);
+        node->childrenContext = Nest_mkChildContext(node->context, newMode);
         Nest::defaultFunSetContextForChildren(node);
     }
     Node* ChangeMode_SemanticCheck(Node* node)
     {
         // Make sure we are allowed to change the mode
-        EvalMode baseMode = node->context->evalMode();
+        EvalMode baseMode = Nest_getEvalMode(node->context);
         EvalMode curMode = (EvalMode) getCheckPropertyInt(node, propEvalMode);
-        EvalMode newMode = curMode != modeUnspecified ? curMode : node->context->evalMode();
+        EvalMode newMode = curMode != modeUnspecified ? curMode : Nest_getEvalMode(node->context);
         if ( newMode == modeUnspecified )
             REP_INTERNAL(node->location, "Cannot change the mode to Unspecified");
         if ( newMode == modeRt && baseMode != modeRt )
@@ -230,7 +230,7 @@ using namespace Feather;
     {
         ostringstream os;
         EvalMode curMode = (EvalMode) getCheckPropertyInt(node, propEvalMode);
-        EvalMode newMode = curMode != modeUnspecified ? curMode : node->context->evalMode();
+        EvalMode newMode = curMode != modeUnspecified ? curMode : Nest_getEvalMode(node->context);
         os << "changeMode(" << node->children[0] << ", " << newMode << ")";
         return dupString(os.str().c_str());
     }
@@ -239,7 +239,7 @@ using namespace Feather;
     {
         // If we don't have a children context, create one
         if ( !node->childrenContext )
-            node->childrenContext = node->context->createChildContext(node, effectiveEvalMode(node));
+            node->childrenContext = Nest_mkChildContextWithSymTab(node->context, node, effectiveEvalMode(node));
 
         Nest::defaultFunSetContextForChildren(node);
         
@@ -332,7 +332,7 @@ using namespace Feather;
     {
         // If we don't have a children context, create one
         if ( !node->childrenContext )
-            node->childrenContext = node->context->createChildContext(node, effectiveEvalMode(node));
+            node->childrenContext = Nest_mkChildContextWithSymTab(node->context, node, effectiveEvalMode(node));
 
         Nest::defaultFunSetContextForChildren(node);
         
@@ -616,7 +616,7 @@ using namespace Feather;
         }
 
         // CT availability checks
-        EvalMode curMode = node->context->evalMode();
+        EvalMode curMode = Nest_getEvalMode(node->context);
         EvalMode calledFunMode = effectiveEvalMode(fun);
         ASSERT(curMode != Nest::modeUnspecified);
         ASSERT(calledFunMode != Nest::modeUnspecified);
@@ -787,7 +787,7 @@ using namespace Feather;
 
     void If_SetContextForChildren(Node* node)
     {
-        node->childrenContext = node->context->createChildContext(node);
+        node->childrenContext = Nest_mkChildContextWithSymTab(node->context, node, modeUnspecified);
 
         Nest::setContext(node->children[0], node->childrenContext);
         if ( node->children[1] )
@@ -802,7 +802,7 @@ using namespace Feather;
         Node* elseClause = node->children[2];
         
         // The resulting type is Void
-        node->type = getVoidType(node->context->evalMode());
+        node->type = getVoidType(Nest_getEvalMode(node->context));
 
         // Semantic check the condition
         semanticCheck(condition);
@@ -847,8 +847,8 @@ using namespace Feather;
 
     void While_SetContextForChildren(Node* node)
     {
-        node->childrenContext = node->context->createChildContext(node);
-        CompilationContext* condContext = nodeEvalMode(node) == modeCt ? new CompilationContext(node->context, modeCt) : node->childrenContext;
+        node->childrenContext = Nest_mkChildContextWithSymTab(node->context, node, modeUnspecified);
+        CompilationContext* condContext = nodeEvalMode(node) == modeCt ? Nest_mkChildContext(node->context, modeCt) : node->childrenContext;
 
         Nest::setContext(node->children[0], condContext); // condition
         if ( node->children[1] )
@@ -919,7 +919,7 @@ using namespace Feather;
             semanticCheck(step);
 
         // The resulting type is Void
-        node->type = getVoidType(node->context->evalMode());
+        node->type = getVoidType(Nest_getEvalMode(node->context));
         return node;
     }
 
@@ -932,7 +932,7 @@ using namespace Feather;
         setProperty(node, "loop", loop);
 
         // The resulting type is Void
-        node->type = getVoidType(node->context->evalMode());
+        node->type = getVoidType(Nest_getEvalMode(node->context));
         return node;
     }
 
@@ -945,7 +945,7 @@ using namespace Feather;
         setProperty(node, "loop", loop);
 
         // The resulting type is Void
-        node->type = getVoidType(node->context->evalMode());
+        node->type = getVoidType(Nest_getEvalMode(node->context));
         return node;
     }
 
@@ -977,7 +977,7 @@ using namespace Feather;
         }
 
         // The resulting type is Void
-        node->type = getVoidType(node->context->evalMode());
+        node->type = getVoidType(Nest_getEvalMode(node->context));
         return node;
     }
 
@@ -1378,7 +1378,7 @@ EvalMode Feather::BackendCode_getEvalMode(Node* node)
 {
     ASSERT(node->nodeKind == nkFeatherBackendCode);
     EvalMode curMode = (EvalMode) getCheckPropertyInt(node, propEvalMode);
-    return curMode != modeUnspecified ? curMode : node->context->evalMode();
+    return curMode != modeUnspecified ? curMode : Nest_getEvalMode(node->context);
 }
 
 void Feather::ChangeMode_setChild(Node* node, Node* child)
@@ -1393,7 +1393,7 @@ void Feather::ChangeMode_setChild(Node* node, Node* child)
 EvalMode Feather::ChangeMode_getEvalMode(Node* node)
 {
     EvalMode curMode = (EvalMode) getCheckPropertyInt(node, propEvalMode);
-    return curMode != modeUnspecified ? curMode : node->context->evalMode();
+    return curMode != modeUnspecified ? curMode : Nest_getEvalMode(node->context);
 }
 
 void Feather::Function_addParameter(Node* node, Node* parameter, bool first)

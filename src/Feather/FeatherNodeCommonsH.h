@@ -10,7 +10,6 @@ FWD_CLASS1(Nest, Modifier);
 
 namespace Feather
 {
-    using Nest::CompilationContext;
     using Nest::TypeRef;
     using Nest::SymTab;
     using Nest::Modifier;

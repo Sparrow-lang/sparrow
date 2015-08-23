@@ -219,7 +219,7 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
     // If the desired eval-mode is different from the context's mode, create a new context
     // We do this by wrapping everything inside a ChangeMode node
     Node* changeModeNode = nullptr;
-    if ( context->evalMode() != evalMode )
+    if ( Nest_getEvalMode(context) != evalMode )
     {
         changeModeNode = mkChangeMode(loc, nullptr, evalMode);
         Nest::setContext(changeModeNode, context);
@@ -288,7 +288,7 @@ bool SprFrontend::selectConversionCtor(CompilationContext* context, Node* destCl
     ASSERT(argType);
 
     // Search for the ctors in the class 
-    NodeVector decls = childrenContext(destClass)->currentSymTab()->lookupCurrent("ctor");
+    NodeVector decls = childrenContext(destClass)->currentSymTab->lookupCurrent("ctor");
 
 //     cerr << "Convert: " << argType->toString() << " -> " << Nest::toString(destClass) << " ?" << endl;
 
@@ -346,7 +346,7 @@ Callable* SprFrontend::selectCtToRtCtor(CompilationContext* context, TypeRef ctT
         return nullptr;
 
     // Search for the ctors in the class 
-    NodeVector decls = childrenContext(cls)->currentSymTab()->lookupCurrent("ctorFromCt");
+    NodeVector decls = childrenContext(cls)->currentSymTab->lookupCurrent("ctorFromCt");
 
     // Select the possible ct-to-rt constructors
     Callables candidates;

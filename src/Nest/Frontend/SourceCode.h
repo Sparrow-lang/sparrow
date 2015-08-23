@@ -2,9 +2,8 @@
 
 #include <Nest/Intermediate/NodeVector.h>
 
-FWD_CLASS1(Nest, CompilationContext);
-
 typedef struct Nest_StringRef StringRef;
+typedef struct Nest_CompilationContext CompilationContext;
 
 struct Nest_SourceCode {
     int kind;               ///< The kind of source code (parser)
@@ -17,7 +16,7 @@ typedef struct Nest_SourceCode Nest_SourceCode;
 typedef struct Nest_SourceCode SourceCode;
 
 /// Function that is capable to parse the given source code
-void Nest_parseSourceCode(SourceCode* sourceCode, Nest::CompilationContext* ctx);
+void Nest_parseSourceCode(SourceCode* sourceCode, CompilationContext* ctx);
 
 /// Function that gets a specific line from the source code
 StringRef Nest_getSourceCodeLine(const SourceCode* sourceCode, int lineNum);

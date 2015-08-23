@@ -13,8 +13,6 @@
 
 #include <fstream>
 
-using Nest::CompilationContext;
-
 namespace
 {
     string readFile(const string& filename)
@@ -84,7 +82,7 @@ namespace
         return modeRt;
     }
 
-    void parseSourceCode(SourceCode* sourceCode, Nest::CompilationContext* ctx)
+    void parseSourceCode(SourceCode* sourceCode, CompilationContext* ctx)
     {
         // Read the LLVM content
         const string& fileContent = readFile(sourceCode->url);

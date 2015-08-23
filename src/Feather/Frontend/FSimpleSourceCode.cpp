@@ -38,7 +38,7 @@ namespace
         return result;
     }
 
-    void parseSourceCode(SourceCode* sourceCode, Nest::CompilationContext* ctx)
+    void parseSourceCode(SourceCode* sourceCode, CompilationContext* ctx)
     {
         // Read the file content
         const string& fileContent = readFileContent(sourceCode->url);

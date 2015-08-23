@@ -82,8 +82,8 @@ namespace
         Node* n = ctor ? mkGlobalConstructAction(node->location, funCall) : mkGlobalDestructAction(node->location, funCall);
         Nest::setContext(n, node->context);
         Nest::semanticCheck(n);
-        ASSERT(node->context->sourceCode());
-        node->context->sourceCode()->additionalNodes.push_back(n);
+        ASSERT(node->context->sourceCode);
+        node->context->sourceCode->additionalNodes.push_back(n);
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -163,7 +163,7 @@ void SprCompilationUnit_SetContextForChildren(Node* node)
         for ( int i=0; i<(int)names.size(); ++i )
         {
             // Try to find an existing package in the current symbol table
-            NodeVector decls = node->context->currentSymTab()->lookupCurrent(names[i]);
+            NodeVector decls = node->context->currentSymTab->lookupCurrent(names[i]);
             if ( decls.size() == 1 )
             {
                 node->context = Nest::childrenContext(decls.front());
@@ -184,7 +184,7 @@ void SprCompilationUnit_SetContextForChildren(Node* node)
     // If we don't have a children context, create one
     node->childrenContext = node->context;
     //if ( !node->childrenContext )
-    //    node->childrenContext = node->context->createChildContext(node, evalMode());
+    //    node->childrenContext = Nest_mkChildContextWithSymTab(node->context, node, evalMode());
 
     // Set the context for all the children
     if ( declarations )
@@ -243,7 +243,7 @@ void Package_SetContextForChildren(Node* node)
 
     // If we don't have a children context, create one
     if ( !node->childrenContext )
-        node->childrenContext = node->context->createChildContext(node);
+        node->childrenContext = Nest_mkChildContextWithSymTab(node->context, node, modeUnspecified);
 
     // Set the context for all the children
     Nest::setContext(node->children[0], node->childrenContext);
@@ -270,7 +270,7 @@ void SprClass_SetContextForChildren(Node* node)
     
     // If we don't have a children context, create one
     if ( !node->childrenContext )
-        node->childrenContext = node->context->createChildContext(node, effectiveEvalMode(node));
+        node->childrenContext = Nest_mkChildContextWithSymTab(node->context, node, effectiveEvalMode(node));
 
     defaultFunSetContextForChildren(node);
 }
@@ -352,8 +352,8 @@ TypeRef SprClass_ComputeType(Node* node)
             resultingClass->children.insert(resultingClass->children.end(), baseClass->children.begin(), baseClass->children.end());
 
             // Copy the symbol table entries of the base to this class
-            SymTab* ourSymTab = childrenContext(node)->currentSymTab();
-            SymTab* baseSymTab = Nest::childrenContext(baseClass)->currentSymTab();
+            SymTab* ourSymTab = childrenContext(node)->currentSymTab;
+            SymTab* baseSymTab = Nest::childrenContext(baseClass)->currentSymTab;
             ourSymTab->copyEntries(baseSymTab);
         }
     }
@@ -362,7 +362,7 @@ TypeRef SprClass_ComputeType(Node* node)
     node->type = getDataType(resultingClass);
 
     // Get the fields from the current class
-    NodeVector fields = getFields(node->childrenContext->currentSymTab());
+    NodeVector fields = getFields(node->childrenContext->currentSymTab);
     resultingClass->children.insert(resultingClass->children.end(), fields.begin(), fields.end());
 
     // Check all the children
@@ -379,8 +379,8 @@ TypeRef SprClass_ComputeType(Node* node)
         if ( !isField(p) )
         {
             // Methods, generics
-            ASSERT(node->context->sourceCode());
-            node->context->sourceCode()->additionalNodes.push_back(child);
+            ASSERT(node->context->sourceCode);
+            node->context->sourceCode->additionalNodes.push_back(child);
         }
     });
 
@@ -412,7 +412,7 @@ void SprFunction_SetContextForChildren(Node* node)
 
     // If we don't have a children context, create one
     if ( !node->childrenContext )
-        node->childrenContext = node->context->createChildContext(node, effectiveEvalMode(node));
+        node->childrenContext = Nest_mkChildContextWithSymTab(node->context, node, effectiveEvalMode(node));
 
     defaultFunSetContextForChildren(node);
 }
@@ -596,8 +596,8 @@ void SprVariable_SetContextForChildren(Node* node)
 
     // Create a new child compilation context if the mode has changed; otherwise stay in the same context
     EvalMode curEvalMode = nodeEvalMode(node);
-    if ( curEvalMode != modeUnspecified && curEvalMode != node->context->evalMode() )
-        node->childrenContext = new CompilationContext(node->context, curEvalMode);
+    if ( curEvalMode != modeUnspecified && curEvalMode != Nest_getEvalMode(node->context) )
+        node->childrenContext = Nest_mkChildContext(node->context, curEvalMode);
     else
         node->childrenContext = node->context;
 
@@ -655,7 +655,7 @@ TypeRef SprVariable_ComputeType(Node* node)
     Nest::computeType(resultingVar);
 
     // If this is a CT variable in a non-ct function, make this a global variable
-    if ( varKind == varLocal && node->context->evalMode() == modeRt && isCt(t) )
+    if ( varKind == varLocal && Nest_getEvalMode(node->context) == modeRt && isCt(t) )
         varKind = varGlobal;
 
     // If this is a CT variable in a non-ct function, make this a global variable
@@ -706,8 +706,8 @@ TypeRef SprVariable_ComputeType(Node* node)
         else
         {
             // Add the variable at the top level
-            ASSERT(node->context->sourceCode());
-            node->context->sourceCode()->additionalNodes.push_back(resultingVar);
+            ASSERT(node->context->sourceCode);
+            node->context->sourceCode->additionalNodes.push_back(resultingVar);
             resVar = nullptr;
 
             // For global variables, add the ctor & dtor actions as top level actions
@@ -750,7 +750,7 @@ void SprConcept_SetContextForChildren(Node* node)
     addToSymTab(node);
 
     if ( !node->childrenContext )
-        node->childrenContext = node->context->createChildContext(node, effectiveEvalMode(node));
+        node->childrenContext = Nest_mkChildContextWithSymTab(node->context, node, effectiveEvalMode(node));
 
     defaultFunSetContextForChildren(node);
 }
@@ -814,7 +814,7 @@ TypeRef Using_ComputeType(Node* node)
         // Add references in the current symbol tab
         for ( Node* decl: decls )
         {
-            node->context->currentSymTab()->enter(Feather::getName(decl), decl);
+            node->context->currentSymTab->enter(Feather::getName(decl), decl);
         }
     }
     else

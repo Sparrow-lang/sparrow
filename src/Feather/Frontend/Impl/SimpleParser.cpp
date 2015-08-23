@@ -127,7 +127,7 @@ namespace
     }
     Node* findDefinition(int nodeKind, CompilationContext* context, const string& name, const Location& loc, const char* desc)
     {
-        return findDefinition(nodeKind, context->currentSymTab(), name, loc, desc);
+        return findDefinition(nodeKind, context->currentSymTab, name, loc, desc);
     }
 
     string readIdentifier(SimpleAstNode* srcNode, const char* errDetails)
@@ -484,7 +484,7 @@ namespace
         string fieldName = readIdentifier(srcNode->children()[2], "<field-name>");
         Node* cls = findDefinition(nkFeatherDeclClass, context, className, srcNode->children()[1]->location(), "class");
         computeType(cls);
-        Node* field = findDefinition(nkFeatherDeclVar, cls->childrenContext->currentSymTab(), fieldName, srcNode->children()[2]->location(), "field", true);
+        Node* field = findDefinition(nkFeatherDeclVar, cls->childrenContext->currentSymTab, fieldName, srcNode->children()[2]->location(), "field", true);
         Node* res = mkFieldRef(srcNode->location(), obj, field);
         setContext(res, context);
         return res;

@@ -3,13 +3,13 @@
 #include <Nest/Intermediate/TypeRef.h>
 
 FWD_STRUCT1(Nest, Node);
-FWD_CLASS1(Nest, CompilationContext);
 FWD_CLASS1(Nest, CompilerSettings);
 FWD_CLASS2(Nest,Common, DiagnosticReporter);
 FWD_CLASS2(Nest,Common, ObjectFactoryReg);
 
 typedef struct Nest_SourceCode SourceCode;
 typedef struct Nest_Backend Backend;
+typedef struct Nest_CompilationContext CompilationContext;
 
 namespace Nest
 {

@@ -18,6 +18,7 @@ SET(sourceFiles
     "Common/Alloc.c"
     "Common/Assert.h"
     "Common/Tuple.h"
+    "Common/StringRef.h"
     "Common/SaveValue.h"
     "Common/ScopeGuard.h"
     "Common/ScopeGuard.cpp"
@@ -80,9 +81,6 @@ SET(sourceFiles
     "Frontend/LocationSer.cpp"
     "Backend/Backend.h"
     "Backend/Backend.cpp"
-    "Backend/BackendFactory.h"
-    "Backend/BackendFactoryImpl.h"
-    "Backend/BackendFactoryImpl.cpp"
 )
 
 # Project settings

@@ -27,11 +27,10 @@ namespace Nest
 
         virtual Common::DiagnosticReporter& diagnosticReporter() const;
         virtual CompilationContext* rootContext() const;
-        virtual BackendFactory& backendFactory() const;
         virtual Backend& backend() const;
 
     public:
-        virtual void createBackend(const string& backendName);
+        virtual void createBackend(const char* mainFilename);
         virtual void compileFile(const string& filename);
         virtual void addSourceCodeByFilename(const SourceCode* orig, string filename);
         virtual void addSourceCodeByQid(const SourceCode* orig, vector<string> qid);
@@ -68,7 +67,6 @@ namespace Nest
         CompilerSettings settings_;
         Common::DiagnosticReporter* diagnosticReporter_;
         CompilationContext* rootContext_;
-        BackendFactory* backendFactory_;
         Backend* backend_;
 
         /// The path of the current directory

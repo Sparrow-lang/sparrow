@@ -16,13 +16,13 @@ void SparrowFrontend_initModule()
     SprFe_registerSparrowSourceCode();
 }
 
-void SparrowFrontend_onBackendSetFun(Nest::Backend* backend)
+void SparrowFrontend_onBackendSetFun(Backend* backend)
 {
     // Initialize the Type type before loading anything
     SprFrontend::initTypeType(theCompiler().rootContext());
 
     // Register the CT API functions
-    SprFrontend::registerCtApiFunctions(*backend);
+    SprFrontend::registerCtApiFunctions(backend);
 }
 
 CompilerModule* getSparrowFrontendModule()

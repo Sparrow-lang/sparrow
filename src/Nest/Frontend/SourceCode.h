@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Nest/Intermediate/NodeVector.h>
-// #include <Nest/Common/StringRef.h>
 
 FWD_CLASS1(Nest, CompilationContext);
 

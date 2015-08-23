@@ -11,7 +11,6 @@
 #include <Frontend/SourceCode.h>
 #include <Frontend/SourceCodeKindRegistrar.h>
 #include <Backend/Backend.h>
-#include <Backend/BackendFactoryImpl.h>
 
 using namespace Nest;
 using namespace std;
@@ -32,7 +31,6 @@ namespace
 
 CompilerImpl::CompilerImpl()
     : diagnosticReporter_(new Common::DiagnosticReporter)
-    , backendFactory_(new BackendFactoryImpl)
     , backend_(nullptr)
 {
     try
@@ -49,8 +47,6 @@ CompilerImpl::CompilerImpl()
 CompilerImpl::~CompilerImpl()
 {
     delete diagnosticReporter_;
-    delete backendFactory_;
-    delete backend_;
 }
 
 CompilerSettings& CompilerImpl::settings()
@@ -74,20 +70,19 @@ CompilationContext* CompilerImpl::rootContext() const
     return rootContext_;
 }
 
-BackendFactory& CompilerImpl::backendFactory() const
-{
-    return *backendFactory_;
-}
-
 Backend& CompilerImpl::backend() const
 {
     return *backend_;
 }
 
-void CompilerImpl::createBackend(const string& backendName)
+void CompilerImpl::createBackend(const char* mainFilename)
 {
-    delete backend_;
-    backend_ = backendFactory_->createBackend(backendName);
+    // Select the first available backend
+    ASSERT(Nest_getNumBackends() > 0);
+    backend_ = Nest_getBackend(0);
+
+    // Initialize the backend
+    backend_->init(backend_, mainFilename);
 
     // Also create the root context
     rootContext_ = new CompilationContext(*backend_);
@@ -163,7 +158,7 @@ void CompilerImpl::compileFile(const string& filename)
         if ( !theCompiler().settings().syntaxOnly_ )
         {
             for ( SourceCode* code: toCodeGenerate )
-                backend_->generateMachineCode(*code);
+                backend_->generateMachineCode(backend_, code);
         }
     }
     catch (...)
@@ -219,13 +214,13 @@ void CompilerImpl::queueSemanticCheck(Node* node)
 void CompilerImpl::ctProcess(Node* node)
 {
     Nest::semanticCheck(node);
-    backend_->ctProcess(node);
+    backend_->ctProcess(backend_, node);
 }
 
 Node* CompilerImpl::ctEval(Node* node)
 {
     Nest::semanticCheck(node);
-    Node* res = backend_->ctEvaluate(node);
+    Node* res = backend_->ctEvaluate(backend_, node);
     if ( res )
     {
         Nest::setContext(res, node->context);
@@ -236,11 +231,11 @@ Node* CompilerImpl::ctEval(Node* node)
 
 size_t CompilerImpl::sizeOf(TypeRef type)
 {
-    return backend_->sizeOf(type);
+    return backend_->sizeOf(backend_, type);
 }
 size_t CompilerImpl::alignmentOf(TypeRef type)
 {
-    return backend_->alignmentOf(type);
+    return backend_->alignmentOf(backend_, type);
 }
 
 

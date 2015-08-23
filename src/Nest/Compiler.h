@@ -5,12 +5,11 @@
 FWD_STRUCT1(Nest, Node);
 FWD_CLASS1(Nest, CompilationContext);
 FWD_CLASS1(Nest, CompilerSettings);
-FWD_CLASS1(Nest, Backend);
-FWD_CLASS1(Nest, BackendFactory);
 FWD_CLASS2(Nest,Common, DiagnosticReporter);
 FWD_CLASS2(Nest,Common, ObjectFactoryReg);
 
 typedef struct Nest_SourceCode SourceCode;
+typedef struct Nest_Backend Backend;
 
 namespace Nest
 {
@@ -32,16 +31,13 @@ namespace Nest
         /// The root compilation context that contains all the code compiled
         virtual CompilationContext* rootContext() const = 0;
 
-        /// The factory object used to create backend objects
-        virtual BackendFactory& backendFactory() const = 0;
-
         /// The backend object used to generate the resulting code
         virtual Backend& backend() const = 0;
 
     // Compilation flow
     public:
-        /// Creates the backend with the given name
-        virtual void createBackend(const string& backendName) = 0;
+        /// Creates the backend
+        virtual void createBackend(const char* mainFilename) = 0;
 
         /// Parse, check dependencies and the compile the given filename
         virtual void compileFile(const string& filename) = 0;

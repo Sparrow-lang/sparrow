@@ -7,7 +7,7 @@
 
 using namespace Nest;
 
-CompilationContext::CompilationContext(Nest::Backend& backend)
+CompilationContext::CompilationContext(Backend& backend)
     : parent_(nullptr)
     , backend_(backend)
     , currentSymTab_(new SymTabImpl(nullptr, nullptr))

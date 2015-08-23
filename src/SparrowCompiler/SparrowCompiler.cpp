@@ -9,7 +9,6 @@
 #include <Nest/Common/Diagnostic.h>
 #include <Nest/Common/PrintTimer.h>
 #include <Nest/Backend/Backend.h>
-#include <Nest/Backend/BackendFactory.h>
 #include <Nest/Intermediate/CompilationContext.h>
 
 #include <Feather/Feather.h>
@@ -50,14 +49,12 @@ bool ensureImplicitLib()
 
 void doCompilation(const vector<CompilerModule*>& modules)
 {
-    // Set the LLVM backend
-    theCompiler().createBackend("llvm");
-
     const auto& s = theCompiler().settings();
 
-    // Initialize the backend
     ASSERT(!s.filesToBeCompiled_.empty());
-    theCompiler().backend().init(s.filesToBeCompiled_[0]);
+
+    // Set the backend
+    theCompiler().createBackend(s.filesToBeCompiled_[0].c_str());
 
     // Tell the modules we have a backend
     for ( CompilerModule* mod : modules )
@@ -104,7 +101,7 @@ void doCompilation(const vector<CompilerModule*>& modules)
         {
             Nest::Common::PrintTimer timer(s.verbose_, "", "[%ws]\n");
             cout << "Linking..." << endl;
-        	theCompiler().backend().link(outFilename);
+        	theCompiler().backend().link(&theCompiler().backend(), outFilename.c_str());
         }
         catch (...)
         {

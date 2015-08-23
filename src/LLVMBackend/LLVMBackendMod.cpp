@@ -8,7 +8,7 @@
 void LLVMBackend_initModule()
 {
     LLVMBe_registerLLVMSourceCode();
-    LLVMB::LLVMBackend::registerSelf();
+    LLVMBe_registerLLVMBackend();
 }
 
 CompilerModule* getLLVMBackendModule()

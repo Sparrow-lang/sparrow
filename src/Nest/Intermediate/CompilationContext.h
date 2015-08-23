@@ -4,9 +4,9 @@
 
 FWD_STRUCT1(Nest, Node);
 FWD_CLASS1(Nest, SymTab);
-FWD_CLASS1(Nest, Backend);
 
 typedef struct Nest_SourceCode SourceCode;
+typedef struct Nest_Backend Backend;
 
 namespace Nest
 {

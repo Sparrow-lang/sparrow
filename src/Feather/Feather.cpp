@@ -15,10 +15,10 @@ void Feather_initModule()
     Feather_registerFSimpleSourceCode();
 }
 
-void Feather_onBackendSetFun(Nest::Backend* backend)
+void Feather_onBackendSetFun(Backend* backend)
 {
     // Register the CT API functions
-    Feather::registerCtApiFunctions(*backend);
+    Feather::registerCtApiFunctions(backend);
 }
 
 CompilerModule* getFeatherModule()

@@ -17,17 +17,17 @@ namespace LLVMB
         ~DataLayoutHelper();
 
         /// Get the size of the given type in bytes, according to the current data layout
-        size_t getSizeOf(Nest::TypeRef type);
+        size_t getSizeOf(TypeRef type);
 
         /// Get the alignment of the given type in bytes, according to the current data layout
-        size_t getAlignOf(Nest::TypeRef type);
+        size_t getAlignOf(TypeRef type);
 
     private:
         llvm::LLVMContext* llvmContext_;
         llvm::Module* llvmModule_;
 
-        unordered_map<Nest::TypeRef, size_t> sizesOfTypes_;
-        unordered_map<Nest::TypeRef, size_t> alignmentsOfTypes_;
+        unordered_map<TypeRef, size_t> sizesOfTypes_;
+        unordered_map<TypeRef, size_t> alignmentsOfTypes_;
     };
 
 }

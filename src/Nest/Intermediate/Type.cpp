@@ -41,7 +41,8 @@ namespace
     unordered_set<Type, TypeHasher> allTypes;
 }
 
-bool Nest::operator ==(const Type& lhs, const Type& rhs)
+// Compare types by content 
+bool operator ==(const Type& lhs, const Type& rhs)
 {
     bool res = lhs.typeKind == rhs.typeKind
         && lhs.mode == rhs.mode
@@ -61,19 +62,25 @@ bool Nest::operator ==(const Type& lhs, const Type& rhs)
     return res;
 }
 
-TypeRef Nest::findStockType(const Type& reference)
+
+TypeRef Nest_findStockType(const Type* reference)
 {
-    auto it = allTypes.find(reference);
+    auto it = allTypes.find(*reference);
     return it == allTypes.end() ? nullptr : &*it;
 }
 
-TypeRef Nest::insertStockType(const Type& newType)
+TypeRef Nest_insertStockType(const Type* newType)
 {
-    auto p = allTypes.insert(newType);
+    auto p = allTypes.insert(*newType);
     return &*p.first;
 }
 
-void Nest::save(const Type& obj, OutArchive& ar)
+TypeRef Nest_changeTypeMode(TypeRef type, EvalMode newMode)
+{
+    return getChangeTypeModeFun(type->typeKind)(type, newMode);
+}
+
+void save(const Type& obj, OutArchive& ar)
 {
     ar.write("typeKind", obj.typeKind);
     ar.write("mode", (char) obj.mode);
@@ -90,13 +97,7 @@ void Nest::save(const Type& obj, OutArchive& ar)
      });
 }
 
-void Nest::load(Type& obj, InArchive& ar)
+void load(Type& obj, InArchive& ar)
 {
     // TODO
-}
-
-
-TypeRef Nest::changeTypeMode(TypeRef type, EvalMode newMode)
-{
-    return getChangeTypeModeFun(type->typeKind)(type, newMode);
 }

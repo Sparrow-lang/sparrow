@@ -79,11 +79,11 @@ namespace
     }
     TypeRef changeTypeModeLValue(TypeRef type, EvalMode newMode)
     {
-        return getLValueType(changeTypeMode(baseType(type), newMode));
+        return getLValueType(Nest_changeTypeMode(baseType(type), newMode));
     }
     TypeRef changeTypeModeArray(TypeRef type, EvalMode newMode)
     {
-        return getArrayType(changeTypeMode(baseType(type), newMode), getArraySize(type));
+        return getArrayType(Nest_changeTypeMode(baseType(type), newMode), getArraySize(type));
     }
     TypeRef changeTypeModeFunction(TypeRef type, EvalMode newMode)
     {
@@ -120,9 +120,9 @@ TypeRef getVoidType(EvalMode mode)
     referenceType.referredNode  = nullptr;
     referenceType.description   = getVoidDescription(mode);
 
-    TypeRef t = findStockType(referenceType);
+    TypeRef t = Nest_findStockType(&referenceType);
     if ( !t )
-        t = insertStockType(referenceType);
+        t = Nest_insertStockType(&referenceType);
     return t;
 }
 
@@ -145,9 +145,9 @@ TypeRef getDataType(Node* classDecl, uint8_t numReferences, EvalMode mode)
     referenceType.referredNode  = classDecl;
     referenceType.description   = str(getDataTypeDescription(classDecl, numReferences, mode));
 
-    TypeRef t = findStockType(referenceType);
+    TypeRef t = Nest_findStockType(&referenceType);
     if ( !t )
-        t = insertStockType(referenceType);
+        t = Nest_insertStockType(&referenceType);
     return t;
 }
 
@@ -168,14 +168,14 @@ TypeRef getLValueType(TypeRef base)
     // Temporarily use the pointer to the given parameter
     referenceType.subTypes = &base;
 
-    TypeRef t = findStockType(referenceType);
+    TypeRef t = Nest_findStockType(&referenceType);
     if ( !t )
     {
         // Allocate now new buffer to hold the subtypes
         referenceType.subTypes = new TypeRef[1];
         referenceType.subTypes[0] = base;
 
-        t = insertStockType(referenceType);
+        t = Nest_insertStockType(&referenceType);
     }
     return t;
 }
@@ -197,14 +197,14 @@ TypeRef getArrayType(TypeRef unitType, uint32_t count)
     // Temporarily use the pointer to the given parameter
     referenceType.subTypes = &unitType;
 
-    TypeRef t = findStockType(referenceType);
+    TypeRef t = Nest_findStockType(&referenceType);
     if ( !t )
     {
         // Allocate now new buffer to hold the subtypes
         referenceType.subTypes = new TypeRef[1];
         referenceType.subTypes[0] = unitType;
 
-        t = insertStockType(referenceType);
+        t = Nest_insertStockType(&referenceType);
     }
     return t;
 }
@@ -228,14 +228,14 @@ TypeRef getFunctionType(TypeRef* resultTypeAndParams, size_t numTypes, EvalMode 
     // Temporarily use the given array pointer
     referenceType.subTypes = resultTypeAndParams;
 
-    TypeRef t = findStockType(referenceType);
+    TypeRef t = Nest_findStockType(&referenceType);
     if ( !t )
     {
         // Allocate now new buffer to hold the subtypes
         referenceType.subTypes = new TypeRef[numTypes];
         copy(resultTypeAndParams, resultTypeAndParams+numTypes, referenceType.subTypes);
 
-        t = insertStockType(referenceType);
+        t = Nest_insertStockType(&referenceType);
     }
     return t;
 }

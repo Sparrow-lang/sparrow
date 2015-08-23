@@ -6,7 +6,7 @@
 
 using namespace Feather;
 
-Nest::TypeRef Feather::getCtValueType(Nest::Node* ctVal)
+TypeRef Feather::getCtValueType(Nest::Node* ctVal)
 {
     if ( ctVal->nodeKind != nkFeatherExpCtValue )
         REP_INTERNAL(ctVal->location, "Invalid CtValue");

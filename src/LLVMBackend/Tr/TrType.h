@@ -13,7 +13,7 @@ FWD_CLASS1(llvm, LLVMContext);
 namespace LLVMB { namespace Tr
 {
     /// Translates the given type into a LLVM type
-    llvm::Type* getLLVMType(Nest::TypeRef type, Module& module);
+    llvm::Type* getLLVMType(TypeRef type, Module& module);
 
     /// Get the LLVM type for a native type
     /// If this is not a LLVM native type, it will return null

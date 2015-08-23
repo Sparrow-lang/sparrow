@@ -101,7 +101,7 @@ namespace LLVMB
         Tr::DebugInfo* debugInfo_;
 
     public:
-        unordered_map<Nest::TypeRef, llvm::Type*> translatedTypes_;
+        unordered_map<TypeRef, llvm::Type*> translatedTypes_;
     };
 
 }

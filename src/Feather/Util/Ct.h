@@ -7,7 +7,7 @@ FWD_STRUCT1(Nest, Node);
 namespace Feather
 {
     /// Getter for the value type of a CtValue node
-    Nest::TypeRef getCtValueType(Nest::Node* ctVal);
+    TypeRef getCtValueType(Nest::Node* ctVal);
 
     /// Getter for the value data of a CtValue node -- the data is encoded in a string
     const string& getCtValueDataAsString(Nest::Node* ctVal);

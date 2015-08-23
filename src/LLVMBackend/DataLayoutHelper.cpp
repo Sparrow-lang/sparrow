@@ -80,7 +80,7 @@ DataLayoutHelper::~DataLayoutHelper()
     delete llvmContext_;
 }
 
-size_t DataLayoutHelper::getSizeOf(Nest::TypeRef type)
+size_t DataLayoutHelper::getSizeOf(TypeRef type)
 {
     // Special case for "Type" type
     if ( 0 == strcmp(type->description, "Type/ct") )
@@ -100,7 +100,7 @@ size_t DataLayoutHelper::getSizeOf(Nest::TypeRef type)
     return size;
 }
 
-size_t DataLayoutHelper::getAlignOf(Nest::TypeRef type)
+size_t DataLayoutHelper::getAlignOf(TypeRef type)
 {
 #ifdef _MSC_VER
     #define ALIGNOF(x) __alignof(x)

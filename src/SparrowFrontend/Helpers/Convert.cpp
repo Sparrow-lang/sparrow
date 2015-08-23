@@ -372,7 +372,7 @@ Node* ConversionResult::apply(CompilationContext* context, Node* src) const
 }
 
 
-ConversionResult SprFrontend::canConvertType(CompilationContext* context, Nest::TypeRef srcType, Nest::TypeRef destType, ConversionFlags flags)
+ConversionResult SprFrontend::canConvertType(CompilationContext* context, TypeRef srcType, TypeRef destType, ConversionFlags flags)
 {
     return cachedCanConvertImpl(context, flags, srcType, destType);
 }

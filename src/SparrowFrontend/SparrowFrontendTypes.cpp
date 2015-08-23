@@ -58,9 +58,9 @@ TypeRef getConceptType(Node* concept, uint8_t numReferences, EvalMode mode)
     referenceType.referredNode  = concept;
     referenceType.description   = getConceptTypeDescription(concept, numReferences, mode);
 
-    TypeRef t = findStockType(referenceType);
+    TypeRef t = Nest_findStockType(&referenceType);
     if ( !t )
-        t = insertStockType(referenceType);
+        t = Nest_insertStockType(&referenceType);
     return t;
 }
 

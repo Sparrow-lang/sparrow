@@ -60,7 +60,7 @@ namespace
     }
 }
 
-Nest::TypeRef SprFrontend::commonType(CompilationContext* context, Nest::TypeRef t1, Nest::TypeRef t2)
+TypeRef SprFrontend::commonType(CompilationContext* context, TypeRef t1, TypeRef t2)
 {
     // Check if the types are the same
     if ( t1 == t2 )
@@ -112,7 +112,7 @@ Nest::TypeRef SprFrontend::commonType(CompilationContext* context, Nest::TypeRef
     return StdDef::typeVoid;
 }
 
-Nest::TypeRef SprFrontend::doDereference1(Node* arg, Node*& cvt)
+TypeRef SprFrontend::doDereference1(Node* arg, Node*& cvt)
 {
     cvt = arg;
 
@@ -249,7 +249,7 @@ Node* SprFrontend::createTypeNode(CompilationContext* context, const Location& l
     return res;
 }
 
-Nest::TypeRef SprFrontend::getAutoType(Node* typeNode, bool addRef)
+TypeRef SprFrontend::getAutoType(Node* typeNode, bool addRef)
 {
     TypeRef t = typeNode->type;
     

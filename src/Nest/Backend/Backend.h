@@ -8,7 +8,6 @@ typedef struct Nest_SourceCode SourceCode;
 typedef struct Nest_Backend Backend;
 
 using Nest::Node;
-using Nest::TypeRef;
 
 /// Function that initializes the backed
 typedef void (*FBackendInit)(Backend* backend, const char* mainFilename);

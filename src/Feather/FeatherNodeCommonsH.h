@@ -7,8 +7,3 @@
 #include "Nodes/FeatherNodes.h"
 
 typedef struct Nest_Modifier Modifier;
-
-namespace Feather
-{
-    using Nest::TypeRef;
-}

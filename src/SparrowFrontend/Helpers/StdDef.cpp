@@ -13,20 +13,20 @@ using namespace Nest;
 
 // TODO (refactoring): Remove the Void type
 
-Nest::TypeRef StdDef::typeType = nullptr;
-Nest::TypeRef StdDef::typeUninitialized = nullptr;
-Nest::TypeRef StdDef::typeVoid = nullptr;
-Nest::TypeRef StdDef::typeNull = nullptr;
-Nest::TypeRef StdDef::typeBool = nullptr;
-Nest::TypeRef StdDef::typeByte = nullptr;
-Nest::TypeRef StdDef::typeInt = nullptr;
-Nest::TypeRef StdDef::typeSizeType = nullptr;
-Nest::TypeRef StdDef::typeStringRef = nullptr;
+TypeRef StdDef::typeType = nullptr;
+TypeRef StdDef::typeUninitialized = nullptr;
+TypeRef StdDef::typeVoid = nullptr;
+TypeRef StdDef::typeNull = nullptr;
+TypeRef StdDef::typeBool = nullptr;
+TypeRef StdDef::typeByte = nullptr;
+TypeRef StdDef::typeInt = nullptr;
+TypeRef StdDef::typeSizeType = nullptr;
+TypeRef StdDef::typeStringRef = nullptr;
 
-Nest::TypeRef StdDef::typeRefType = nullptr;
-Nest::TypeRef StdDef::typeRefByte = nullptr;
-Nest::TypeRef StdDef::typeRefInt = nullptr;
-Nest::TypeRef StdDef::typeSizeTypeCt = nullptr;
+TypeRef StdDef::typeRefType = nullptr;
+TypeRef StdDef::typeRefByte = nullptr;
+TypeRef StdDef::typeRefInt = nullptr;
+TypeRef StdDef::typeSizeTypeCt = nullptr;
 
 Node* StdDef::clsType = nullptr;
 Node* StdDef::clsUninitialized = nullptr;

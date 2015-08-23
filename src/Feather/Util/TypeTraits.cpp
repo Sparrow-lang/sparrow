@@ -20,7 +20,7 @@ bool Feather::isCt(Node* node)
 {
     return isCt(node->type);
 }
-bool Feather::isCt(const vector<Nest::TypeRef>& types)
+bool Feather::isCt(const vector<TypeRef>& types)
 {
     for ( TypeRef t: types )
         if ( !isCt(t) )
@@ -87,7 +87,7 @@ TypeRef Feather::changeTypeMode(TypeRef type, EvalMode mode, const Location& loc
     if ( mode == type->mode )
         return type;
 
-    TypeRef resType = Nest::changeTypeMode(type, mode);
+    TypeRef resType = Nest_changeTypeMode(type, mode);
     if ( !resType )
         REP_INTERNAL(loc, "Don't know how to change eval mode of type %1%") % type;
 
@@ -155,12 +155,12 @@ TypeRef Feather::lvalueToRefIfPresent(TypeRef type)
     return getDataType(type->referredNode, type->numReferences, type->mode);
 }
 
-Node* Feather::classForType(Nest::TypeRef t)
+Node* Feather::classForType(TypeRef t)
 {
     return t->hasStorage ? t->referredNode : nullptr;
 }
 
-bool Feather::isSameTypeIgnoreMode(Nest::TypeRef t1, Nest::TypeRef t2)
+bool Feather::isSameTypeIgnoreMode(TypeRef t1, TypeRef t2)
 {
     ASSERT(t1);
     ASSERT(t2);
@@ -191,7 +191,7 @@ EvalMode Feather::combineMode(EvalMode mode, EvalMode baseMode, const Location& 
     }
 }
 
-Nest::TypeRef Feather::adjustMode(Nest::TypeRef srcType, CompilationContext* context, const Location& loc)
+TypeRef Feather::adjustMode(TypeRef srcType, CompilationContext* context, const Location& loc)
 {
     ASSERT(srcType);
     ASSERT(context);
@@ -199,7 +199,7 @@ Nest::TypeRef Feather::adjustMode(Nest::TypeRef srcType, CompilationContext* con
     return changeTypeMode(srcType, resMode, loc);
 }
 
-Nest::TypeRef Feather::adjustMode(Nest::TypeRef srcType, EvalMode baseMode, CompilationContext* context, const Location& loc)
+TypeRef Feather::adjustMode(TypeRef srcType, EvalMode baseMode, CompilationContext* context, const Location& loc)
 {
     ASSERT(srcType);
     ASSERT(context);

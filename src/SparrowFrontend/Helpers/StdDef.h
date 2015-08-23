@@ -6,20 +6,20 @@ namespace SprFrontend
 {
     namespace StdDef
     {
-        extern Nest::TypeRef typeType;
-        extern Nest::TypeRef typeUninitialized;
-        extern Nest::TypeRef typeVoid;
-        extern Nest::TypeRef typeNull;
-        extern Nest::TypeRef typeBool;
-        extern Nest::TypeRef typeByte;
-        extern Nest::TypeRef typeInt;
-        extern Nest::TypeRef typeSizeType;
-        extern Nest::TypeRef typeStringRef;
+        extern TypeRef typeType;
+        extern TypeRef typeUninitialized;
+        extern TypeRef typeVoid;
+        extern TypeRef typeNull;
+        extern TypeRef typeBool;
+        extern TypeRef typeByte;
+        extern TypeRef typeInt;
+        extern TypeRef typeSizeType;
+        extern TypeRef typeStringRef;
 
-        extern Nest::TypeRef typeRefType;
-        extern Nest::TypeRef typeRefByte;
-        extern Nest::TypeRef typeRefInt;
-        extern Nest::TypeRef typeSizeTypeCt;
+        extern TypeRef typeRefType;
+        extern TypeRef typeRefByte;
+        extern TypeRef typeRefInt;
+        extern TypeRef typeSizeTypeCt;
 
         extern Node* clsType;
         extern Node* clsUninitialized;

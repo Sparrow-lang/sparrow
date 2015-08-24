@@ -3,7 +3,7 @@
 #include <Tr/TrTopLevel.h>
 #include <Tr/DebugInfo.h>
 
-#include <Nest/Common/Diagnostic.h>
+#include <Nest/Common/Diagnostic.hpp>
 #include <Nest/Intermediate/Node.h>
 #include <Nest/CompilerSettings.h>
 #include <Nest/Compiler.h>

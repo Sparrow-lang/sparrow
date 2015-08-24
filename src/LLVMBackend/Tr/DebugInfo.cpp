@@ -4,7 +4,7 @@
 
 #include <Feather/Util/Decl.h>
 
-#include <Nest/Common/Diagnostic.h>
+#include <Nest/Common/Diagnostic.hpp>
 #include <Nest/Frontend/SourceCode.h>
 #include <Nest/Intermediate/Node.h>
 

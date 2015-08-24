@@ -1,34 +1,46 @@
 #pragma once
 
-#include "DiagnosticFormatter.h"
-#include "DiagnosticReporter.h"
-#include "CompilationError.h"
+#include "Assert.h"
 
-#define __REP_IMPL(type, fmt, loc, dontThrow) \
-    Nest::Common::diagnosticReporter() = Nest::Common::DiagnosticFormatter(Nest::Common:: type, fmt, (loc), (dontThrow))
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#define __REP_IMPL_NL(type, fmt, dontThrow) \
-    Nest::Common::diagnosticReporter() = Nest::Common::DiagnosticFormatter(Nest::Common:: type, fmt, (dontThrow))
+typedef struct Nest_Location Location;
 
+/// The severity type of a reported diagnostic message
+enum Nest_DiagnosticSeverity
+{
+    diagInternalError,
+    diagError,
+    diagWarning,
+    diagInfo,
+};
+typedef enum Nest_DiagnosticSeverity Nest_DiagnosticSeverity;
+typedef enum Nest_DiagnosticSeverity DiagnosticSeverity;
+
+/// Report a diagnostic of the given severity, with the given message
+void Nest_reportDiagnostic(Location loc, DiagnosticSeverity severity, const char* message);
+
+/// Report a diagnostic, version with string formatting
+void Nest_reportFmt(Location loc, DiagnosticSeverity severity, const char* fmt, ...);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #define NOLOC                           Nest_mkEmptyLocation()
 
-#define REP_INTERNAL(loc, fmt)          __REP_IMPL(diagInternalError, fmt, (loc), false)
-#define REP_ERROR(loc, fmt)             __REP_IMPL(diagError, fmt, (loc), false)
-#define REP_WARNING(loc, fmt)           __REP_IMPL(diagWarning, fmt, (loc), false)
-#define REP_INFO(loc, fmt)              __REP_IMPL(diagInfo, fmt, (loc), false)
-
-#define REP_ERROR_NOTHROW(loc, fmt)     __REP_IMPL(diagError, fmt, (loc), true)
-#define REP_ERROR_THROW(msg)            throw Nest::Common::CompilationError(Nest::Common::diagError, msg)
-
-
 #define CHECK(loc, val) \
-    if ( !!(val) ); else REP_INTERNAL(loc, "Non-zero expression expected for '%1%', file %2%, line %3%") % #val % __FILE__ % __LINE__;
+    if ( !!(val) ); else \
+        Nest_reportFmt(loc, diagInternalError, "Non-zero expression expected for '%s' (file %s, line %d)", #val, __FILE__, __LINE__)
 
-#define REQUIRE_NODE(loc, node) \
-    if ( node ) ; else \
-        REP_INTERNAL((loc), "Expected AST node (%1%)") % ( #node )
+#define EXPECT_KIND(loc, node, kind) \
+    if ( !(node) ) ; \
+        Nest_reportFmt(loc, diagInternalError, "Expected non-NULL node: '%s' (file %s, line %d)", #node, __FILE__, __LINE__); \
+    else if ( (node)->nodekind != (kind) ) \
+        Nest_reportFmt(loc, diagInternalError, "Node: '%s' of kind %s needs to be of kind %s; (file %s, line %d)", \
+            #node, Nest_getNodeKindName((node)->nodeKind), Nest_getNodeKindName(kind), __FILE__, __LINE__)
 
-#define REQUIRE_TYPE(loc, type) \
-    if ( type ) ; else \
-        REP_INTERNAL((loc), "Expected type (%1%)") % ( #type )
+

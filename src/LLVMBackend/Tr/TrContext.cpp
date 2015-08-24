@@ -4,7 +4,7 @@
 #include "Module.h"
 #include "DebugInfo.h"
 
-#include <Nest/Common/Diagnostic.h>
+#include <Nest/Common/Diagnostic.hpp>
 
 using namespace LLVMB;
 using namespace LLVMB::Tr;

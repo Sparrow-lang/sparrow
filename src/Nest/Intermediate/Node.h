@@ -3,7 +3,7 @@
 #include "NodeVector.h"
 #include <Nest/Intermediate/TypeRef.h>
 #include <Nest/Frontend/Location.h>
-#include <Nest/Common/Diagnostic.h>
+#include <Nest/Common/Diagnostic.hpp>
 
 // #include <vector>
 // #include <boost/any.hpp>

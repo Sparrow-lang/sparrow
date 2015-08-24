@@ -12,7 +12,7 @@
 #include <Feather/Util/Decl.h>
 
 #include <Nest/Intermediate/Modifier.h>
-#include <Nest/Common/Diagnostic.h>
+#include <Nest/Common/Diagnostic.hpp>
 
 using namespace SprFrontend;
 using namespace Feather;

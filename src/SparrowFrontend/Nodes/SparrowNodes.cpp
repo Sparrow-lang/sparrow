@@ -15,7 +15,7 @@
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/Util/Context.h>
 
-#include <Nest/Common/Diagnostic.h>
+#include <Nest/Common/Diagnostic.hpp>
 #include <Nest/Intermediate/NodeKindRegistrar.h>
 
 
@@ -451,7 +451,7 @@ void SprFrontend::initSparrowNodeKinds()
 
 Node* SprFrontend::mkModifiers(const Location& loc, Node* main, Node* mods)
 {
-    REQUIRE_NODE(loc, main);
+    CHECK(loc, main);
     if ( !mods )
         return main;
 

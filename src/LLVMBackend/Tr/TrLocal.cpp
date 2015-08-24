@@ -12,7 +12,7 @@
 #include <Nest/Intermediate/Node.h>
 #include <Nest/Intermediate/NodeKindRegistrar.h>
 #include <Nest/Intermediate/Type.h>
-#include <Nest/Common/Diagnostic.h>
+#include <Nest/Common/Diagnostic.hpp>
 
 #include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Nodes/Properties.h>

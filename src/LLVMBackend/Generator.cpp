@@ -1,7 +1,7 @@
 #include <StdInc.h>
 #include "Generator.h"
 
-#include <Nest/Common/Diagnostic.h>
+#include <Nest/Common/Diagnostic.hpp>
 #include <Nest/Common/PrintTimer.h>
 #include <Nest/Compiler.h>
 #include <Nest/CompilerSettings.h>

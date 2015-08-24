@@ -5,7 +5,7 @@
 #include <Nest/Intermediate/Node.h>
 #include <Nest/Intermediate/CompilationContext.h>
 #include <Nest/Intermediate/SymTab.h>
-#include <Nest/Common/Diagnostic.h>
+#include <Nest/Common/Diagnostic.hpp>
 
 using namespace Feather;
 

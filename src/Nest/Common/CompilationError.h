@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DiagnosticSeverity.h"
+#include "Diagnostic.h"
 
 #include <stdexcept>
 

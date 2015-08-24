@@ -3,7 +3,7 @@
 #include "Impl/SimpleLexer.h"
 #include "Impl/SimpleParser.h"
 
-#include <Nest/Common/Diagnostic.h>
+#include <Nest/Common/Diagnostic.hpp>
 
 #include <Nest/Common/Alloc.h>
 #include <Nest/Frontend/SourceCode.h>

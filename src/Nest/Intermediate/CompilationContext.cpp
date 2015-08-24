@@ -1,7 +1,7 @@
 #include <StdInc.h>
 #include "CompilationContext.h"
 #include "SymTab.h"
-#include <Common/Diagnostic.h>
+#include <Common/Diagnostic.hpp>
 #include <Common/Alloc.h>
 
 using namespace Nest;

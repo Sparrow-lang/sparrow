@@ -7,7 +7,7 @@
 
 #include <Nest/Intermediate/Node.h>
 #include <Nest/Intermediate/Type.h>
-#include <Nest/Common/Diagnostic.h>
+#include <Nest/Common/Diagnostic.hpp>
 #include <Nest/Compiler.h>
 #include <Nest/CompilerSettings.h>
 

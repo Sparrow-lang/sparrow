@@ -5,7 +5,7 @@
 #include <Helpers/SprTypeTraits.h>
 
 #include <Nest/Common/Alloc.h>
-#include <Nest/Common/Diagnostic.h>
+#include <Nest/Common/Diagnostic.hpp>
 #include <Nest/Frontend/SourceCode.h>
 #include <Nest/Frontend/SourceCodeKindRegistrar.h>
 

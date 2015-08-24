@@ -3,7 +3,7 @@
 #include "TrTopLevel.h"
 #include "Module.h"
 
-#include <Nest/Common/Diagnostic.h>
+#include <Nest/Common/Diagnostic.hpp>
 #include <Nest/Intermediate/TypeRef.h>
 #include <Nest/Intermediate/Type.h>
 #include <Nest/Intermediate/Node.h>

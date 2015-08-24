@@ -10,7 +10,7 @@
 #include <Util/Context.h>
 #include <Util/StringData.h>
 
-#include <Nest/Common/Diagnostic.h>
+#include <Nest/Common/Diagnostic.hpp>
 #include <Nest/Common/Alloc.h>
 #include <Nest/Intermediate/Node.h>
 #include <Nest/Intermediate/NodeKindRegistrar.h>

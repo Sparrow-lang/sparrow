@@ -1,7 +1,7 @@
 #include <StdInc.h>
 #include "CompilerInstance.h"
 #include "CompilerImpl.h"
-#include <Common/Diagnostic.h>
+#include <Common/Diagnostic.hpp>
 
 using namespace Nest;
 

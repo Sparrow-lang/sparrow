@@ -4,7 +4,7 @@
 #include "ConsoleColors.h"
 #include "StringRef.h"
 #include <Compiler.h>
-#include <Common/Diagnostic.h>
+#include <Common/Diagnostic.hpp>
 #include <Frontend/SourceCode.h>
 #include <Frontend/LocationSer.h>
 

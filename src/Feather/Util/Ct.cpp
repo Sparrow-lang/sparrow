@@ -1,7 +1,7 @@
 #include <StdInc.h>
 #include "Ct.h"
 #include <Feather/Nodes/FeatherNodes.h>
-#include <Nest/Common/Diagnostic.h>
+#include <Nest/Common/Diagnostic.hpp>
 #include <Nest/Intermediate/Node.h>
 
 using namespace Feather;

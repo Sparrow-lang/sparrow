@@ -6,7 +6,7 @@
 #include <Nest/CompilerInstance.h>
 #include <Nest/Compiler.h>
 #include <Nest/CompilerSettings.h>
-#include <Nest/Common/Diagnostic.h>
+#include <Nest/Common/Diagnostic.hpp>
 #include <Nest/Common/PrintTimer.h>
 #include <Nest/Backend/Backend.h>
 #include <Nest/Intermediate/CompilationContext.h>

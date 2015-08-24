@@ -8,7 +8,7 @@
 #include <Nest/Intermediate/Node.h>
 #include <Nest/Backend/Backend.h>
 #include <Nest/Frontend/SourceCode.h>
-#include <Nest/Common/Diagnostic.h>
+#include <Nest/Common/Diagnostic.hpp>
 
 using namespace Feather;
 using namespace Nest;
@@ -48,7 +48,7 @@ namespace
     void ctApi_report(int type, StringData message, Location* location)
     {
         Location loc = location ? *location : Location();
-        Nest::Common::diagnosticReporter().report((Nest::Common::DiagnosticSeverity) type, message.toStdString(), loc, true);
+        Nest::Common::diagnosticReporter().report((DiagnosticSeverity) type, message.toStdString(), loc, true);
     }
     void ctApi_raise()
     {

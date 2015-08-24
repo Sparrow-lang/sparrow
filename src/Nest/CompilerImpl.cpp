@@ -2,7 +2,7 @@
 #include "CompilerImpl.h"
 
 #include <Common/Alloc.h>
-#include <Common/Diagnostic.h>
+#include <Common/Diagnostic.hpp>
 #include <Common/DiagnosticReporter.h>
 #include <Common/Serialization.h>
 #include <Intermediate/Node.h>

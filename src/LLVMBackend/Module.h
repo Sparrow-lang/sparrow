@@ -7,7 +7,6 @@
 #include <string>
 #include <unordered_map>
 
-FWD_STRUCT1(Nest, Node);
 FWD_CLASS1(Feather, Decl);
 FWD_CLASS2(LLVMB,Tr, DebugInfo);
 
@@ -15,10 +14,10 @@ FWD_CLASS1(llvm, LLVMContext);
 FWD_CLASS1(llvm, Module);
 FWD_CLASS1(llvm, Function);
 
+typedef struct Nest_Node Node;
+
 namespace LLVMB
 {
-    using Nest::Node;
-
     /// Class that represents a backend module.
     /// It is responsible for the translation of an intermediate code into LLVM bitcode
     class Module

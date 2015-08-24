@@ -48,10 +48,10 @@ void SprFrontend::initTypeType(CompilationContext* ctx)
     
     clsType = mkClass(NOLOC, "Type", {});
     setShouldAddToSymTab(clsType, false);
-    setProperty(clsType, propNativeName, string("Type"));
+    Nest_setProperty(clsType, propNativeName, string("Type"));
     setEvalMode(clsType, modeCt);
-    setContext(clsType, ctx);
-    computeType(clsType);
+    Nest_setContext(clsType, ctx);
+    Nest_computeType(clsType);
     typeType = getDataType(clsType, 0, modeCt);
 }
 

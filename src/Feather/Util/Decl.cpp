@@ -8,11 +8,10 @@
 #include <Nest/Common/Diagnostic.h>
 
 using namespace Feather;
-using Nest::Node;
 
 bool Feather::isDecl(Node* node)
 {
-    switch ( explanation(node)->nodeKind - firstFeatherNodeKind )
+    switch ( Nest_explanation(node)->nodeKind - firstFeatherNodeKind )
     {
         case nkRelFeatherDeclFunction:
         case nkRelFeatherDeclClass:
@@ -27,29 +26,29 @@ bool Feather::isDeclEx(Node* node)
 {
     if ( isDecl(node) )
         return true;
-    Nest::Node*const* declPtr = Nest::getPropertyNode(node, propResultingDecl);
+    Node*const* declPtr = Nest_getPropertyNode(node, propResultingDecl);
     return declPtr != nullptr;
 }
 
 const string& Feather::getName(const Node* decl)
 {
-    return Nest::getCheckPropertyString(decl, "name");
+    return Nest_getCheckPropertyString(decl, "name");
 }
 
 bool Feather::hasName(const Node* decl)
 {
-    return Nest::hasProperty(decl, "name");
+    return Nest_hasProperty(decl, "name");
 }
 
 void Feather::setName(Node* decl, string name)
 {
-    Nest::setProperty(decl, "name", move(name));
+    Nest_setProperty(decl, "name", move(name));
 }
 
 
 EvalMode Feather::nodeEvalMode(const Node* decl)
 {
-    const int* val = Nest::getPropertyInt(decl, "evalMode");
+    const int* val = Nest_getPropertyInt(decl, "evalMode");
     return val ? (EvalMode) *val : modeUnspecified;
 }
 EvalMode Feather::effectiveEvalMode(const Node* decl)
@@ -59,7 +58,7 @@ EvalMode Feather::effectiveEvalMode(const Node* decl)
 }
 void Feather::setEvalMode(Node* decl, EvalMode val)
 {
-    Nest::setProperty(decl, "evalMode", (int) val);
+    Nest_setProperty(decl, "evalMode", (int) val);
 
     
     // Sanity check
@@ -70,19 +69,19 @@ void Feather::setEvalMode(Node* decl, EvalMode val)
 
 void Feather::addToSymTab(Node* decl)
 {
-    const int* dontAddToSymTab = Nest::getPropertyInt(decl, "dontAddToSymTab");
+    const int* dontAddToSymTab = Nest_getPropertyInt(decl, "dontAddToSymTab");
     if ( dontAddToSymTab && *dontAddToSymTab )
         return;
     
     if ( !decl->context )
-        REP_INTERNAL(decl->location, "Cannot add node %1% to sym-tab: context is not set") % Nest::nodeKindName(decl);
+        REP_INTERNAL(decl->location, "Cannot add node %1% to sym-tab: context is not set") % Nest_nodeKindName(decl);
     const string& declName = getName(decl);
     if ( declName.empty() )
-        REP_INTERNAL(decl->location, "Cannot add node %1% to sym-tab: no name set") % Nest::nodeKindName(decl);
+        REP_INTERNAL(decl->location, "Cannot add node %1% to sym-tab: no name set") % Nest_nodeKindName(decl);
     Nest_symTabEnter(decl->context->currentSymTab, declName.c_str(), decl);
 }
 
 void Feather::setShouldAddToSymTab(Node* decl, bool val)
 {
-    Nest::setProperty(decl, "dontAddToSymTab", val ? 0 : 1);
+    Nest_setProperty(decl, "dontAddToSymTab", val ? 0 : 1);
 }

@@ -17,7 +17,7 @@ namespace SprFrontend
                 if ( !n )
                     continue;
 
-                Node* nn = Nest::explanation(n);
+                Node* nn = Nest_explanation(n);
 
                 if ( nn->nodeKind == Feather::nkFeatherNodeList )
                     forEachNodeInNodeList(nn, fun);

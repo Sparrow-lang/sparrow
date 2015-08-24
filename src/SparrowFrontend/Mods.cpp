@@ -15,7 +15,7 @@ void ModStatic_beforeComputeType(Modifier*, Node* node)
     if ( node->nodeKind != nkSparrowDeclSprVariable && node->nodeKind != nkSparrowDeclSprFunction )
         REP_INTERNAL(node->location, "Static modifier can be applied only to variables and functions inside classes");
 
-    Nest::setProperty(node, propIsStatic, 1);
+    Nest_setProperty(node, propIsStatic, 1);
 }
 
 void ModCt_beforeSetContext(Modifier*, Node* node)
@@ -39,7 +39,7 @@ void ModAutoCt_beforeSetContext(Modifier*, Node* node)
 
     if ( node->nodeKind == nkSparrowDeclSprFunction )
     {
-        setProperty(node, propAutoCt, 1);
+        Nest_setProperty(node, propAutoCt, 1);
         setEvalMode(node, modeRtCt);
     }
     else
@@ -53,7 +53,7 @@ void ModCtGeneric_beforeComputeType(Modifier*, Node* node)
         REP_ERROR(node->location, "ctGeneric modifier can be applied only to functions");
 
     Feather::setEvalMode(node, modeCt);
-    Nest::setProperty(node, propCtGeneric, 1);
+    Nest_setProperty(node, propCtGeneric, 1);
 }
 
 struct _NativeMod {
@@ -64,7 +64,7 @@ struct _NativeMod {
 void ModNative_beforeComputeType(Modifier* mod, Node* node)
 {
     _NativeMod* nativeMod = (_NativeMod*) mod;
-    Nest::setProperty(node, Feather::propNativeName, nativeMod->name);
+    Nest_setProperty(node, Feather::propNativeName, nativeMod->name);
 }
 
 void ModConvert_beforeComputeType(Modifier*, Node* node)
@@ -73,7 +73,7 @@ void ModConvert_beforeComputeType(Modifier*, Node* node)
     if ( node->nodeKind != nkSparrowDeclSprFunction || Feather::getName(node) != "ctor" )
         REP_INTERNAL(node->location, "convert modifier can be applied only to constructors");
 
-    Nest::setProperty(node, propConvert, 1);
+    Nest_setProperty(node, propConvert, 1);
 }
 
 void ModNoDefault_beforeComputeType(Modifier*, Node* node)
@@ -82,7 +82,7 @@ void ModNoDefault_beforeComputeType(Modifier*, Node* node)
     if ( node->nodeKind != nkSparrowDeclSprFunction && node->nodeKind != nkSparrowDeclSprClass )
         REP_INTERNAL(node->location, "noDefault modifier can be applied only to classes or methods");
 
-    Nest::setProperty(node, propNoDefault, 1);
+    Nest_setProperty(node, propNoDefault, 1);
 }
 
 void ModInitCtor_beforeComputeType(Modifier*, Node* node)
@@ -91,7 +91,7 @@ void ModInitCtor_beforeComputeType(Modifier*, Node* node)
     if ( node->nodeKind != nkSparrowDeclSprClass )
         REP_ERROR(node->location, "initCtor modifier can be applied only to classes");
     
-    Nest::setProperty(node, propGenerateInitCtor, 1);
+    Nest_setProperty(node, propGenerateInitCtor, 1);
 }
 
 void ModMacro_beforeComputeType(Modifier*, Node* node)
@@ -100,8 +100,8 @@ void ModMacro_beforeComputeType(Modifier*, Node* node)
     if ( node->nodeKind != nkSparrowDeclSprFunction )
         REP_ERROR(node->location, "macro modifier can be applied only to functions");
     
-    Nest::setProperty(node, propMacro, 1);
-    Nest::setProperty(node, propCtGeneric, 1);
+    Nest_setProperty(node, propMacro, 1);
+    Nest_setProperty(node, propCtGeneric, 1);
 }
 
 void ModNoInline_beforeComputeType(Modifier*, Node* node)
@@ -109,7 +109,7 @@ void ModNoInline_beforeComputeType(Modifier*, Node* node)
     if ( node->nodeKind != nkSparrowDeclSprFunction )
         REP_INTERNAL(node->location, "noInline modifier can be applied only to functions");
 
-    Nest::setProperty(node, Feather::propNoInline, 1);
+    Nest_setProperty(node, Feather::propNoInline, 1);
 }
 
 

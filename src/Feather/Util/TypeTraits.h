@@ -8,13 +8,11 @@ typedef struct Nest_CompilationContext CompilationContext;
 
 namespace Feather
 {
-    using Nest::Node;
-
     /// Tests if the given type/expression is available at CT
     bool isCt(TypeRef type);
     bool isCt(Node* node);
     bool isCt(const vector<TypeRef>& types);
-    bool isCt(const Nest::NodeVector& nodes);
+    bool isCt(const NodeVector& nodes);
     
     /// Tests if the given type/expression has a "Testable" type
     bool isTestable(TypeRef type);

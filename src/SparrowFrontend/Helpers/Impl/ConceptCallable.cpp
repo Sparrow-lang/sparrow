@@ -20,7 +20,7 @@ const Location& ConceptCallable::location() const
 
 string ConceptCallable::toString() const
 {
-    return Nest::toString(concept_);
+    return Nest_toString(concept_);
 }
 
 size_t ConceptCallable::paramsCount() const
@@ -58,13 +58,13 @@ Node* ConceptCallable::generateCall(const Location& loc)
     ASSERT(argsCvt.size() == 1);
     Node* arg = argsCvt.front();
     ASSERT(arg);
-    semanticCheck(arg);
+    Nest_semanticCheck(arg);
 
     // Check if the type of the argument fulfills the concept
     bool conceptFulfilled = conceptIsFulfilled(concept_, arg->type);
     Node* result = mkCtValue(loc, StdDef::typeBool, &conceptFulfilled);
-    setContext(result, context_);
-    semanticCheck(result);
+    Nest_setContext(result, context_);
+    Nest_semanticCheck(result);
     return result;
 }
 

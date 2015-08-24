@@ -1,7 +1,4 @@
 #pragma once
 
-namespace Nest
-{
-    struct Node;
-    typedef vector<Node*> NodeVector;
-}
+typedef struct Nest_Node Node;
+typedef vector<Node*> NodeVector;

@@ -5,8 +5,6 @@
 
 #include <boost/bind.hpp>
 
-using namespace Nest;
-
 typedef unordered_multimap<string, Node*> MMap;
 typedef MMap::value_type MMapPair;
 

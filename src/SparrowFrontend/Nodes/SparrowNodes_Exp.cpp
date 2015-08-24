@@ -50,7 +50,7 @@ namespace
                         if ( !res )
                             REP_INTERNAL(loc, "Cannot add reference to base of field access");
                         baseExp = res.apply(baseExp);
-                        Nest::computeType(baseExp);
+                        Nest_computeType(baseExp);
                     }
                     Node* baseCvt = nullptr;
                     doDereference1(baseExp, baseCvt);  // ... but no more than one reference
@@ -67,7 +67,7 @@ namespace
 
             // Try to convert this to a type
             TypeRef t = nullptr;
-            Node* cls = ofKind(resDecl, nkFeatherDeclClass);
+            Node* cls = Nest_ofKind(resDecl, nkFeatherDeclClass);
             if ( cls )
                 t = getDataType(cls);
             if ( resDecl->nodeKind == nkSparrowDeclSprConcept )
@@ -83,8 +83,8 @@ namespace
 
         // If we are here, this identifier could only represent a function application
         Node* fapp = mkFunApplication(loc, mkDeclExp(loc, decls, baseExp), nullptr);
-        Nest::setContext(fapp, ctx);
-        Nest::semanticCheck(fapp);
+        Nest_setContext(fapp, ctx);
+        Nest_semanticCheck(fapp);
         return fapp;
     }
 
@@ -188,8 +188,8 @@ namespace
 
         // Make sure the class that this refers to has the type properly computed
         Node* cls = classDecl(t);
-        Node* mainNode = Nest::childrenContext(cls)->currentSymTab->node;
-        Nest::computeType(mainNode);
+        Node* mainNode = Nest_childrenContext(cls)->currentSymTab->node;
+        Nest_computeType(mainNode);
 
         // Remove l-value if we have some
         t = Feather::removeLValueIfPresent(t);
@@ -212,7 +212,7 @@ namespace
         Node* arg = arguments->children[0];
 
         // Compile the argument
-        Nest::semanticCheck(arguments);
+        Nest_semanticCheck(arguments);
 
         // Make sure we have only one argument
         TypeRef t = arg->type;
@@ -239,7 +239,7 @@ namespace
         try
         {
             Nest::theCompiler().diagnosticReporter().setSeverityLevel(Nest::Common::diagInternalError);
-            Nest::semanticCheck(arguments);
+            Nest_semanticCheck(arguments);
             isValid = !arguments->nodeError && !arguments->children[0]->nodeError;
         }
         catch (...)
@@ -267,7 +267,7 @@ namespace
         if ( res )
         {
             Node* arg = arguments->children.front();
-            Nest::semanticCheck(arg);
+            Nest_semanticCheck(arg);
 
             // The expression must be CT
             if ( !isCt(arg) )
@@ -278,8 +278,8 @@ namespace
             size_t noRefs = arg->type->numReferences;
             for ( size_t i=0; i<noRefs; ++i)
                 arg = mkMemLoad(loc, arg);
-            Nest::setContext(arg, node->context);
-            Nest::semanticCheck(arg);
+            Nest_setContext(arg, node->context);
+            Nest_semanticCheck(arg);
 
             Node* val = theCompiler().ctEval(arg);
             if ( val->nodeKind != nkFeatherExpCtValue )
@@ -311,7 +311,7 @@ namespace
             REP_ERROR(node->location, "ctEval expects 1 argument; %1% given") % arguments->children.size();
 
         Node* arg = arguments->children.front();
-        Nest::semanticCheck(arg);
+        Nest_semanticCheck(arg);
 
         // The expression must be CT
         if ( !isCt(arg) )
@@ -322,8 +322,8 @@ namespace
         size_t noRefs = arg->type->numReferences;
         for ( size_t i=0; i<noRefs; ++i)
             arg = mkMemLoad(loc, arg);
-        Nest::setContext(arg, node->context);
-        Nest::semanticCheck(arg);
+        Nest_setContext(arg, node->context);
+        Nest_semanticCheck(arg);
 
         Node* res = theCompiler().ctEval(arg);
         if ( res->nodeKind != nkFeatherExpCtValue )
@@ -396,7 +396,7 @@ namespace
         Node* argClass = nullptr;
         if ( base )
         {
-            Nest::semanticCheck(base);
+            Nest_semanticCheck(base);
             argClass = classForType(base->type);
         }
 
@@ -407,8 +407,8 @@ namespace
 
             // Step 1: Try to find an operator that match in the class of the base expression
             if ( !opPrefix.empty() )
-                CHECK_RET(trySelectOperator(opPrefix + operation, args, Nest::childrenContext(argClass), true, node->context, node->location, mode));
-            CHECK_RET(trySelectOperator(operation, args, Nest::childrenContext(argClass), true, node->context, node->location, mode));
+                CHECK_RET(trySelectOperator(opPrefix + operation, args, Nest_childrenContext(argClass), true, node->context, node->location, mode));
+            CHECK_RET(trySelectOperator(operation, args, Nest_childrenContext(argClass), true, node->context, node->location, mode));
 
             // Step 2: Try to find an operator that match in the near the class the base expression
             mode = node->context->evalMode;
@@ -431,8 +431,8 @@ namespace
         if ( isSameTypeIgnoreMode(orig->type, StdDef::typeNull) )
         {
             Node* res = mkNull(orig->location, mkTypeNode(orig->location, StdDef::typeRefByte));
-            Nest::setContext(res, orig->context);
-            Nest::computeType(res);
+            Nest_setContext(res, orig->context);
+            Nest_computeType(res);
             return res;
         }
         return orig;
@@ -457,7 +457,7 @@ namespace
         if ( arg2->nodeKind != nkSparrowExpIdentifier )
             REP_INTERNAL(arg2->location, "Expected identifier after dot; found %1%") % arg2;
 
-        return mkCompoundExp(node->location, arg1, Nest::toString(arg2));
+        return mkCompoundExp(node->location, arg1, Nest_toString(arg2));
     }
 
     Node* handleRefEq(Node* node)
@@ -465,8 +465,8 @@ namespace
         Node* arg1 = node->children[0];
         Node* arg2 = node->children[1];
 
-        Nest::semanticCheck(arg1);
-        Nest::semanticCheck(arg2);
+        Nest_semanticCheck(arg1);
+        Nest_semanticCheck(arg2);
 
         // If we have null as arguments, convert them to "RefByte"
         arg1 = checkConvertNullToRefByte(arg1);
@@ -493,8 +493,8 @@ namespace
         Node* arg1 = node->children[0];
         Node* arg2 = node->children[1];
 
-        Nest::semanticCheck(arg1);
-        Nest::semanticCheck(arg2);
+        Nest_semanticCheck(arg1);
+        Nest_semanticCheck(arg2);
 
         // If we have null as arguments, convert them to "RefByte"
         arg1 = checkConvertNullToRefByte(arg1);
@@ -521,8 +521,8 @@ namespace
         Node* arg1 = node->children[0];
         Node* arg2 = node->children[1];
 
-        Nest::semanticCheck(arg1);
-        Nest::semanticCheck(arg2);
+        Nest_semanticCheck(arg1);
+        Nest_semanticCheck(arg2);
 
         // Make sure the first argument is a reference reference
         if ( arg1->type->numReferences < 2 )
@@ -567,7 +567,7 @@ namespace
     
     const string& getOperation(Node* infixExp)
     {
-        return getCheckPropertyString(infixExp, operPropName);
+        return Nest_getCheckPropertyString(infixExp, operPropName);
     }
 
     // Visual explanation:
@@ -591,8 +591,8 @@ namespace
         node->children[1] = other;
 
         string otherOper = getOperation(other);
-        setProperty(other, operPropName, getOperation(node));
-        setProperty(node, operPropName, move(otherOper));
+        Nest_setProperty(other, operPropName, getOperation(node));
+        Nest_setProperty(node, operPropName, move(otherOper));
     }
 
     // Visual explanation:
@@ -619,8 +619,8 @@ namespace
         node->children[0] = other;
 
         string otherOper = getOperation(other);
-        setProperty(other, operPropName, getOperation(node));
-        setProperty(node, operPropName, move(otherOper));
+        Nest_setProperty(other, operPropName, getOperation(node));
+        Nest_setProperty(node, operPropName, move(otherOper));
     }
 
     int getIntValue(Node* node, const NodeVector& decls, int defaultVal)
@@ -640,11 +640,11 @@ namespace
 
         // Just one found. Evaluate its value
         Node* n = decls.front();
-        Nest::semanticCheck(n);
+        Nest_semanticCheck(n);
         if ( n->nodeKind == nkSparrowDeclUsing )
             n = n->children[0];
 
-        return getIntCtValue(Nest::explanation(n));
+        return getIntCtValue(Nest_explanation(n));
     }
 
     int getPrecedence(Node* node)
@@ -690,7 +690,7 @@ namespace
             int rankCur = getPrecedence(node);
 
             // Check right wing first
-            Node* rightOp = ofKind(node->children[1], nkSparrowExpInfixExp);
+            Node* rightOp = Nest_ofKind(node->children[1], nkSparrowExpInfixExp);
             if ( rightOp )
             {
                 int rankRight = getPrecedence(rightOp);
@@ -703,7 +703,7 @@ namespace
             }
 
 
-            Node* leftOp = ofKind(node->children[0], nkSparrowExpInfixExp);
+            Node* leftOp = Nest_ofKind(node->children[0], nkSparrowExpInfixExp);
             if ( leftOp )
             {
                 handlePrecedence(leftOp);
@@ -770,13 +770,13 @@ namespace
 
 Node* Literal_SemanticCheck(Node* node)
 {
-    const string& litType = getCheckPropertyString(node, "spr.literalType");
-    const string& data = getCheckPropertyString(node, "spr.literalData");
+    const string& litType = Nest_getCheckPropertyString(node, "spr.literalType");
+    const string& data = Nest_getCheckPropertyString(node, "spr.literalData");
 
     // Get the type of the literal by looking up the type name
     Node* ident = mkIdentifier(node->location, litType);
-    Nest::setContext(ident, node->context);
-    Nest::computeType(ident);
+    Nest_setContext(ident, node->context);
+    Nest_computeType(ident);
     TypeRef t = getType(ident);
     t = Feather::changeTypeMode(t, modeCt, node->location);
     
@@ -797,7 +797,7 @@ Node* This_SemanticCheck(Node* node)
 
 Node* Identifier_SemanticCheck(Node* node)
 {
-    const string& id = getCheckPropertyString(node, "name");
+    const string& id = Nest_getCheckPropertyString(node, "name");
 
     // Search in the current symbol table for the identifier
     NodeVector decls = Nest_symTabLookup(node->context->currentSymTab, id.c_str());
@@ -808,8 +808,8 @@ Node* Identifier_SemanticCheck(Node* node)
     bool needsThis = false;
     for ( Node* decl: decls )
     {
-        Nest::computeType(decl);
-        Node* expl = Nest::explanation(decl);
+        Nest_computeType(decl);
+        Node* expl = Nest_explanation(decl);
         if ( isField(expl) )
         {
             needsThis = true;
@@ -828,7 +828,7 @@ Node* Identifier_SemanticCheck(Node* node)
         return res;
     }
 
-    bool allowDeclExp = 0 != getCheckPropertyInt(node, propAllowDeclExp);
+    bool allowDeclExp = 0 != Nest_getCheckPropertyInt(node, propAllowDeclExp);
     Node* res = getIdentifierResult(node->context, node->location, move(decls), nullptr, allowDeclExp);
     ASSERT(res);
     return res;
@@ -837,14 +837,14 @@ Node* Identifier_SemanticCheck(Node* node)
 Node* CompoundExp_SemanticCheck(Node* node)
 {
     Node* base = node->children[0];
-    const string& id = getCheckPropertyString(node, "name");
+    const string& id = Nest_getCheckPropertyString(node, "name");
 
     // For the base expression allow it to return DeclExp
-    Nest::setProperty(base, propAllowDeclExp, 1, true);
+    Nest_setProperty(base, propAllowDeclExp, 1, true);
 
     // Compile the base expression
     // We can expect at the base node both traditional expressions and nodes yielding decl-type types
-    Nest::semanticCheck(base);
+    Nest_semanticCheck(base);
 
     // Try to get the declarations pointed by the base node
     Node* baseDataExp = nullptr;
@@ -854,8 +854,8 @@ Node* CompoundExp_SemanticCheck(Node* node)
     if ( baseDecls.empty() && base->type->hasStorage )
         baseDataExp = base;
     if ( baseDataExp )
-        Nest::computeType(baseDataExp);
-    setProperty(node, "baseDataExp", baseDataExp);
+        Nest_computeType(baseDataExp);
+    Nest_setProperty(node, "baseDataExp", baseDataExp);
 
     // Get the declarations that this node refers to
     NodeVector decls;
@@ -872,7 +872,7 @@ Node* CompoundExp_SemanticCheck(Node* node)
     {
         // If the base is an expression with a data type, treat this as a data access
         Node* classDecl = classForType(base->type);
-        Nest::computeType(classDecl);
+        Nest_computeType(classDecl);
 
         // Search for a declaration in the class 
         decls = Nest_symTabLookupCurrent(classDecl->childrenContext->currentSymTab, id.c_str());
@@ -882,7 +882,7 @@ Node* CompoundExp_SemanticCheck(Node* node)
         REP_ERROR(node->location, "No declarations found with the name '%1%' inside %2%: %3%") % id % base % base->type;
 
     
-    bool allowDeclExp = 0 != getCheckPropertyInt(node, propAllowDeclExp);
+    bool allowDeclExp = 0 != Nest_getCheckPropertyInt(node, propAllowDeclExp);
     Node* res = getIdentifierResult(node->context, node->location, move(decls), baseDataExp, allowDeclExp);
     ASSERT(res);
     return res;
@@ -899,11 +899,11 @@ Node* FunApplication_SemanticCheck(Node* node)
         REP_INTERNAL(node->location, "Don't know what function to call");
     
     // For the base expression allow it to return DeclExp
-    Nest::setProperty(base, propAllowDeclExp, 1, true);
+    Nest_setProperty(base, propAllowDeclExp, 1, true);
 
     // Compile the base expression
     // We can expect here both traditional expressions and nodes yielding decl-type types
-    Nest::semanticCheck(base);
+    Nest_semanticCheck(base);
 
     // Check for Sparrow implicit functions
     Node* ident = nullptr;
@@ -935,7 +935,7 @@ Node* FunApplication_SemanticCheck(Node* node)
 
     // Compile the arguments
     if ( arguments )
-        Nest::semanticCheck(arguments);
+        Nest_semanticCheck(arguments);
     if ( arguments && arguments->nodeError )
         REP_INTERNAL(node->location, "Args with error");
 
@@ -961,7 +961,7 @@ Node* FunApplication_SemanticCheck(Node* node)
         }
     }
 
-    string functionName = Nest::toString(base);
+    string functionName = Nest_toString(base);
     
     // Try to get the declarations pointed by the base node
     Node* thisArg = nullptr;
@@ -979,7 +979,7 @@ Node* FunApplication_SemanticCheck(Node* node)
     }
 
     // The name of function we are trying to call
-    if ( functionName == Nest::nodeKindName(base) )
+    if ( functionName == Nest_nodeKindName(base) )
         functionName = "function";
 
     // The arguments to be used, including thisArg
@@ -1082,7 +1082,7 @@ Node* OperatorCall_SemanticCheck(Node* node)
             Node* r = selectOperator(node, op1, a1, a2);
             if ( r )
             {
-                Nest::semanticCheck(r);
+                Nest_semanticCheck(r);
                 if ( op2 == "!" )
                     res = selectOperator(node, op2, r, nullptr);
                 else if ( op2 == "=" )
@@ -1168,8 +1168,8 @@ Node* LambdaFunction_SemanticCheck(Node* node)
             const Location& loc = arg->location;
 
             // Create an argument node to pass to the ctor
-            Nest::setContext(arg, node->context);
-            Nest::semanticCheck(arg);
+            Nest_setContext(arg, node->context);
+            Nest_semanticCheck(arg);
             ctorArgsNodes.push_back(arg);
 
             // Create a closure parameter
@@ -1193,24 +1193,24 @@ Node* LambdaFunction_SemanticCheck(Node* node)
     // Create the ctor used to initialize the closure class
     Node* ctorBody = mkLocalSpace(node->location, ctorStmts);
     Node* enclosingCtor = mkSprFunction(node->location, "ctor", ctorParams, nullptr, ctorBody);
-    Nest::setProperty(enclosingCtor, propNoDefault, 1);
+    Nest_setProperty(enclosingCtor, propNoDefault, 1);
     classBody->children.push_back(enclosingCtor);
 
     // Create the lambda closure
     Node* closure = mkSprClass(node->location, "$lambdaEnclosure", nullptr, nullptr, nullptr, classBody);
 
     // Add the closure as a top level node of this node
-    Nest::setContext(closure, parentContext);  // Put the enclosing class in the context of the parent function
+    Nest_setContext(closure, parentContext);  // Put the enclosing class in the context of the parent function
     ASSERT(parentContext->sourceCode);
     parentContext->sourceCode->additionalNodes.push_back(closure);
 
     // Compute the type for the enclosing class
-    Nest::computeType(closure);
-    Node* cls = Nest::explanation(closure);
+    Nest_computeType(closure);
+    Node* cls = Nest_explanation(closure);
     ASSERT(cls);
 
     // Make sure the closure class is semantically checked
-    Nest::semanticCheck(closure);
+    Nest_semanticCheck(closure);
 
     // Create a resulting object: a constructor call to our class
     Node* classId = createTypeNode(node->context, node->location, getDataType(cls));
@@ -1224,8 +1224,8 @@ Node* SprConditional_SemanticCheck(Node* node)
     Node* alt1 = node->children[1];
     Node* alt2 = node->children[2];
 
-    Nest::semanticCheck(alt1);
-    Nest::semanticCheck(alt2);
+    Nest_semanticCheck(alt1);
+    Nest_semanticCheck(alt2);
 
     TypeRef t1 = alt1->type;
     TypeRef t2 = alt2->type;
@@ -1251,7 +1251,7 @@ Node* DeclExp_SemanticCheck(Node* node)
     for ( Node* n: node->referredNodes )
     {
         if ( n )
-            Nest::computeType(n);
+            Nest_computeType(n);
     }
     node->type = Feather::getVoidType(node->context->evalMode);
     return node;    // This node should never be translated directly
@@ -1262,10 +1262,10 @@ Node* StarExp_SemanticCheck(Node* node)
     Node* base = node->children[0];
 
     // For the base expression allow it to return DeclExp
-    Nest::setProperty(base, propAllowDeclExp, 1, true);
+    Nest_setProperty(base, propAllowDeclExp, 1, true);
 
     // Get the declarations from the base expression
-    Nest::semanticCheck(base);
+    Nest_semanticCheck(base);
     Node* baseExp;
     NodeVector baseDecls = getDeclsFromNode(base, baseExp);
     if ( baseDecls.empty() )
@@ -1279,7 +1279,7 @@ Node* StarExp_SemanticCheck(Node* node)
             continue;
 
         // Get the sym tab from the base declaration
-        SymTab* baseSymTab = Nest::childrenContext(baseDecl)->currentSymTab;
+        SymTab* baseSymTab = Nest_childrenContext(baseDecl)->currentSymTab;
         if ( !baseSymTab )
             continue;
 

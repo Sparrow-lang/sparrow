@@ -4,8 +4,7 @@
 
 #include <functional>
 
-FWD_STRUCT1(Nest, Node);
-
+typedef struct Nest_Node Node;
 typedef struct Nest_SourceCode SourceCode;
 typedef struct Nest_CompilationContext CompilationContext;
 
@@ -15,7 +14,7 @@ typedef void (*FParseSourceCode)(SourceCode*, CompilationContext*);
 /// Function that gets a specific line from the source code
 typedef StringRef (*FGetSourceCodeLine)(const SourceCode*, int);
 /// Function that translates a node from CT to RT for the given source code
-typedef Nest::Node* (*FTranslateCtToRt)(const SourceCode*, Nest::Node*);
+typedef Node* (*FTranslateCtToRt)(const SourceCode*, Node*);
 
 /// Registers a new sourceCode kind
 ///

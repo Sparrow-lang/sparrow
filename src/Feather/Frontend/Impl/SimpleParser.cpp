@@ -205,7 +205,7 @@ namespace
         {
             // Search for the identifier in the current symbol tab to find a class with the same name
             Node* cls = findDefinition(nkFeatherDeclClass, context, typeNode->stringValue(), typeNode->location(), "class name");
-            computeType(cls);
+            Nest_computeType(cls);
             return getDataType(cls);
         }
     }
@@ -231,7 +231,7 @@ namespace
             checkChildrenCount(srcNode, 2, "<name>, <value>");
             string name = readString(srcNode->children()[0], "<name>");
             string value = readString(srcNode->children()[1], "<value>");
-            setProperty(node, name.c_str(), value);
+            Nest_setProperty(node, name.c_str(), value);
             return true;
         }
 
@@ -240,7 +240,7 @@ namespace
             checkChildrenCount(srcNode, 2, "<name>, <value>");
             string name = readString(srcNode->children()[0], "<name>");
             int value = readInt(srcNode->children()[1], "<value>");
-            setProperty(node, name.c_str(), value);
+            Nest_setProperty(node, name.c_str(), value);
             return true;
         }
 
@@ -249,7 +249,7 @@ namespace
             checkChildrenCount(srcNode, 2, "<name>, <value>");
             string name = readString(srcNode->children()[0], "<name>");
             int value = readInt(srcNode->children()[1], "<value>");
-            setProperty(node, name.c_str(), value);
+            Nest_setProperty(node, name.c_str(), value);
             return true;
         }
 
@@ -261,10 +261,10 @@ namespace
     Node* interpretNodeList(CompilationContext* context, SimpleAstNode* srcNode)
     {
         Node* res = mkNodeList(srcNode->location(), {});
-        setContext(res, context);
+        Nest_setContext(res, context);
         for ( auto child: srcNode->children() )
         {
-            Node* childNode = readNode(Nest::childrenContext(res), child, "<node list child>");
+            Node* childNode = readNode(Nest_childrenContext(res), child, "<node list child>");
             if ( !childNode ) continue;
             res->children.push_back(childNode);
         }
@@ -275,7 +275,7 @@ namespace
     {
         checkNoChildren(srcNode);
         Node* res = mkNop(srcNode->location());
-        setContext(res, context);
+        Nest_setContext(res, context);
         return res;
     }
 
@@ -294,7 +294,7 @@ namespace
         else
             REP_ERROR(srcNode->children()[1]->location(), "Invalid evaluation mode found: '%1%'") % modeStr;
         Node* res = mkChangeMode(srcNode->location(), exp, mode);
-        setContext(res, context);
+        Nest_setContext(res, context);
         return res;
     }
 
@@ -310,7 +310,7 @@ namespace
             code += "\n";
         }
         Node* res = mkBackendCode(srcNode->location(), code);
-        setContext(res, context);
+        Nest_setContext(res, context);
         return res;
     }
 
@@ -319,7 +319,7 @@ namespace
         checkChildrenCount(srcNode, 1, "<destruct action>");
         Node* action = readNode(context, srcNode->children()[0], "<destruct action>");
         Node* res = mkTempDestructAction(srcNode->location(), action);
-        setContext(res, context);
+        Nest_setContext(res, context);
         return res;
     }
 
@@ -328,7 +328,7 @@ namespace
         checkChildrenCount(srcNode, 1, "<destruct action>");
         Node* action = readNode(context, srcNode->children()[0], "<destruct action>");
         Node* res = mkScopeDestructAction(srcNode->location(), action);
-        setContext(res, context);
+        Nest_setContext(res, context);
         return res;
     }
 
@@ -337,7 +337,7 @@ namespace
         checkChildrenCount(srcNode, 1, "<destruct action>");
         Node* action = readNode(context, srcNode->children()[0], "<destruct action>");
         Node* res = mkGlobalDestructAction(srcNode->location(), action);
-        setContext(res, context);
+        Nest_setContext(res, context);
         return res;
     }
 
@@ -346,7 +346,7 @@ namespace
         checkChildrenCount(srcNode, 1, "<construct action>");
         Node* action = readNode(context, srcNode->children()[0], "<construct action>");
         Node* res = mkGlobalConstructAction(srcNode->location(), action);
-        setContext(res, context);
+        Nest_setContext(res, context);
         return res;
     }
 
@@ -360,7 +360,7 @@ namespace
             children.push_back(childNode);
         }
         Node* res = mkLocalSpace(srcNode->location(), children);
-        setContext(res, context);
+        Nest_setContext(res, context);
         return res;
     }
 
@@ -370,7 +370,7 @@ namespace
         TypeRef type = readType(context, srcNode->children()[0], "<type>");
         string val = readString(srcNode->children()[1], "<value>");
         Node* res = mkCtValue(srcNode->children()[1]->location(), type, val);
-        setContext(res, context);
+        Nest_setContext(res, context);
         return res;
     }
 
@@ -381,7 +381,7 @@ namespace
         string val = readString(srcNode->children()[1], "<bin-value>");
         const Location& loc = srcNode->children()[1]->location();
         Node* res = mkCtValue(loc, type, decodeBinaryValue(loc, val));
-        setContext(res, context);
+        Nest_setContext(res, context);
         return res;
     }
 
@@ -421,7 +421,7 @@ namespace
             }
         }
         Node* res = mkMemLoad(srcNode->location(), arg, alignment, isVolatile, ordering, isSingleThread);
-        setContext(res, context);
+        Nest_setContext(res, context);
         return res;
     }
 
@@ -462,7 +462,7 @@ namespace
             }
         }
         Node* res = mkMemStore(srcNode->location(), value, address, alignment, isVolatile, ordering, isSingleThread);
-        setContext(res, context);
+        Nest_setContext(res, context);
         return res;
     }
 
@@ -472,7 +472,7 @@ namespace
         string varName = readIdentifier(srcNode->children()[0], "<var-name>");
         Node* var = findDefinition(nkFeatherDeclVar, context, varName, srcNode->children()[0]->location(), "variable");
         Node* res = mkVarRef(srcNode->location(), var);
-        setContext(res, context);
+        Nest_setContext(res, context);
         return res;
     }
 
@@ -483,10 +483,10 @@ namespace
         string className = readIdentifier(srcNode->children()[1], "<class-name>");
         string fieldName = readIdentifier(srcNode->children()[2], "<field-name>");
         Node* cls = findDefinition(nkFeatherDeclClass, context, className, srcNode->children()[1]->location(), "class");
-        computeType(cls);
+        Nest_computeType(cls);
         Node* field = findDefinition(nkFeatherDeclVar, cls->childrenContext->currentSymTab, fieldName, srcNode->children()[2]->location(), "field", true);
         Node* res = mkFieldRef(srcNode->location(), obj, field);
-        setContext(res, context);
+        Nest_setContext(res, context);
         return res;
     }
 
@@ -517,7 +517,7 @@ namespace
             Node* exp = readNode(context, srcNode->children()[0], "<expression>");
             res = mkReturn(srcNode->location(), exp);
         }
-        setContext(res, context);
+        Nest_setContext(res, context);
         return res;
     }
 
@@ -530,7 +530,7 @@ namespace
         if ( srcNode->children().size() >= 3 )
             elseClause = readNode(context, srcNode->children()[2], "<else-clause>");
         Node* res = mkIf(srcNode->location(), cond, thenClause, elseClause);
-        setContext(res, context);
+        Nest_setContext(res, context);
         return res;
     }
 
@@ -543,7 +543,7 @@ namespace
         if ( srcNode->children().size() >= 3 )
             elseClause = readNode(context, srcNode->children()[2], "<else-clause>");
         Node* res = mkIf(srcNode->location(), cond, thenClause, elseClause, true);
-        setContext(res, context);
+        Nest_setContext(res, context);
         return res;
     }
 
@@ -556,7 +556,7 @@ namespace
         if ( srcNode->children().size() >= 3 )
             step = readNode(context, srcNode->children()[2], "<step>");
         Node* res = mkWhile(srcNode->location(), cond, body, step);
-        setContext(res, context);
+        Nest_setContext(res, context);
         return res;
     }
 
@@ -564,7 +564,7 @@ namespace
     {
         checkNoChildren(srcNode);
         Node* res = mkBreak(srcNode->location());
-        setContext(res, context);
+        Nest_setContext(res, context);
         return res;
     }
 
@@ -572,7 +572,7 @@ namespace
     {
         checkNoChildren(srcNode);
         Node* res = mkContinue(srcNode->location());
-        setContext(res, context);
+        Nest_setContext(res, context);
         return res;
     }
 
@@ -588,7 +588,7 @@ namespace
         }
         
         Node* res = Feather::mkVar(srcNode->location(), name, mkTypeNode(srcNode->children()[1]->location(), type), alignment);
-        setContext(res, context);
+        Nest_setContext(res, context);
         return res;
     }
 
@@ -597,7 +597,7 @@ namespace
         checkChildrenCountRange(srcNode, 1, 100, "<class-name>, [<fields>]");
         string name = readIdentifier(srcNode->children()[0], "<class-name>");
         Node* cls = mkClass(srcNode->location(), name, {});
-        setContext(cls, context);
+        Nest_setContext(cls, context);
 
         NodeVector fields;
 
@@ -609,7 +609,7 @@ namespace
                 try
                 {
                     checkChildrenCountRange(srcNode->children()[i], 2, 3, "<name>, <type>, [<alignment>]");
-                    Node* f = interpretVar(childrenContext(cls), srcNode->children()[i]);
+                    Node* f = interpretVar(Nest_childrenContext(cls), srcNode->children()[i]);
                     fields.push_back(f);
                 }
                 catch(...)
@@ -634,7 +634,7 @@ namespace
 
         // Create the function
         Node* fun = Feather::mkFunction(srcNode->location(), name, mkTypeNode(srcNode->children()[2]->location(), resultType), {}, nullptr);
-        Nest::setContext(fun, context);
+        Nest_setContext(fun, context);
 
         // Read the parameters
         if ( !testIdentifier(srcNode->children()[1], "params") )
@@ -643,14 +643,14 @@ namespace
         {
             if ( !testIdentifier(p, "var") )
                 REP_ERROR(p->location(), "Expected var(<name>, <type>, [<alignment>])");
-            Node* param = interpretVar(Nest::childrenContext(fun), p);
+            Node* param = interpretVar(Nest_childrenContext(fun), p);
             Function_addParameter(fun, param);
         }
 
         // Read the body
         if ( srcNode->children().size() >= 4 )
         {
-            Node* body = readNode(childrenContext(fun), srcNode->children()[3], "<body>");
+            Node* body = readNode(Nest_childrenContext(fun), srcNode->children()[3], "<body>");
             Function_setBody(fun, body);
         }
 
@@ -780,7 +780,7 @@ namespace
         {
             res->location = srcNode->location();
             if ( !res->context )
-                setContext(res, context);
+                Nest_setContext(res, context);
         }
         return res;
     }
@@ -872,6 +872,6 @@ Node* SimpleParser::parse(CompilationContext* context)
 Node* SimpleParser::interpret(CompilationContext* context, SimpleAstNode* srcNode)
 {
     Node* n = interpretNode(context, srcNode);
-    setContext(n, context);
+    Nest_setContext(n, context);
     return n;
 }

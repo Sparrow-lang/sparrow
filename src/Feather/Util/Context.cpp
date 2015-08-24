@@ -14,7 +14,7 @@ Node* Feather::getParentDecl(CompilationContext* context)
     SymTab* parentSymTab = context->currentSymTab;
     for ( ; parentSymTab; parentSymTab=parentSymTab->parent )
     {
-        Nest::Node* n = parentSymTab->node;
+        Node* n = parentSymTab->node;
         if ( n && isDecl(n) )
             return n;
     }
@@ -23,12 +23,12 @@ Node* Feather::getParentDecl(CompilationContext* context)
 
 Node* Feather::getParentFun(CompilationContext* context)
 {
-    return Nest::ofKind(Nest::explanation(getParentDecl(context)), nkFeatherDeclFunction);
+    return Nest_ofKind(Nest_explanation(getParentDecl(context)), nkFeatherDeclFunction);
 }
 
 Node* Feather::getParentClass(CompilationContext* context)
 {
-    return Nest::ofKind(Nest::explanation(getParentDecl(context)), nkFeatherDeclClass);
+    return Nest_ofKind(Nest_explanation(getParentDecl(context)), nkFeatherDeclClass);
 }
 
 Node* Feather::getParentLoop(CompilationContext* context)
@@ -39,7 +39,7 @@ Node* Feather::getParentLoop(CompilationContext* context)
         Node* n = parentSymTab->node;
         
         // Do we have a while node?
-        Node* expl = explanation(n);
+        Node* expl = Nest_explanation(n);
         if ( expl->nodeKind == nkFeatherStmtWhile )
             return expl;
 
@@ -54,7 +54,7 @@ CompilationContext* Feather::getSymTabContext(CompilationContext* context)
 {
     SymTab* parentSymTab = context->currentSymTab;
     Node* n = parentSymTab->node;
-    return n ? childrenContext(n) : nullptr;
+    return n ? Nest_childrenContext(n) : nullptr;
 }
 
 bool Feather::isLocal(CompilationContext* context)

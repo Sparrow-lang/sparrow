@@ -32,7 +32,7 @@ bool Feather::isCt(const NodeVector& nodes)
     for ( Node* n: nodes )
     {
         if ( !n->type )
-            Nest::computeType(n);
+            Nest_computeType(n);
         if ( !isCt(n->type) )
             return false;
     }

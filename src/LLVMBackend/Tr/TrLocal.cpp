@@ -64,7 +64,7 @@ namespace
 
     Node* CondDestrAct_SemanticCheck(Node* node)
     {
-        node->type = getCheckPropertyType(node, "resType");
+        node->type = Nest_getCheckPropertyType(node, "resType");
         return node;
     }
 
@@ -73,19 +73,19 @@ namespace
         // Make sure the node kind is registered
         if ( nkLLVMDestructActionForConditional == 0 )
         {
-            nkLLVMDestructActionForConditional = registerNodeKind("LLVMBackend.destructActionForConditional",
+            nkLLVMDestructActionForConditional = Nest_registerNodeKind("LLVMBackend.destructActionForConditional",
                 &CondDestrAct_SemanticCheck, NULL, NULL, NULL);
         }
-        Node* res = createNode(nkLLVMDestructActionForConditional);
+        Node* res = Nest_createNode(nkLLVMDestructActionForConditional);
         res->location = NOLOC;
         res->children = { mkNodeList(NOLOC, move(alt1DestructActions)), mkNodeList(NOLOC, move(alt2DestructActions)) };
-        setProperty(res, "resType", resType);
-        setProperty(res, "cond_LLVM_value", reinterpret_cast<Node*>(cond)); // store the condition llvm value as a pointer to a node
+        Nest_setProperty(res, "resType", resType);
+        Nest_setProperty(res, "cond_LLVM_value", reinterpret_cast<Node*>(cond)); // store the condition llvm value as a pointer to a node
         return res;
     }
     llvm::Value* CondDestrAct_condition(Node* node)
     {
-        return reinterpret_cast<llvm::Value*>(getCheckPropertyNode(node, "cond_LLVM_value"));
+        return reinterpret_cast<llvm::Value*>(Nest_getCheckPropertyNode(node, "cond_LLVM_value"));
     }
 
     /// Expression class that can hold a llvm value or a non-translated node.
@@ -163,8 +163,8 @@ namespace
         {
             // The destruct action is also a kind of conditional operation - reuse the condition value
             Node* destructAction = mkDestructActionForConditional(destType, condValue, move(destructActions1), move(destructActions2));
-            setContext(destructAction, compContext);
-            semanticCheck(destructAction);
+            Nest_setContext(destructAction, compContext);
+            Nest_semanticCheck(destructAction);
             context.curInstruction().addTempDestructAction(destructAction);
         }
 
@@ -205,7 +205,7 @@ namespace
 
         // Does the resulting function has a resulting parameter?
         // Depending on that, compute the position of the this argument
-        size_t thisArgPos = getPropertyNode(fun, propResultParam) ? 1 : 0;
+        size_t thisArgPos = Nest_getPropertyNode(fun, propResultParam) ? 1 : 0;
 
         ASSERT(!funCall->children.empty());
 
@@ -630,12 +630,12 @@ namespace
         CHECK(node->location, argVal);
         context.ensureInsertionPoint();
         llvm::LoadInst* val = context.builder().CreateLoad(argVal);
-        int alignment = getCheckPropertyInt(node, "alignment");
+        int alignment = Nest_getCheckPropertyInt(node, "alignment");
         if ( alignment > 0 )
             val->setAlignment(alignment);
-        val->setVolatile(0 != getCheckPropertyInt(node, "volatile"));
-        val->setOrdering(llvmOrdering((AtomicOrdering) getCheckPropertyInt(node, "atomicOrdering")));
-        val->setSynchScope(getCheckPropertyInt(node, "singleThreaded") ? llvm::SingleThread : llvm::CrossThread);
+        val->setVolatile(0 != Nest_getCheckPropertyInt(node, "volatile"));
+        val->setOrdering(llvmOrdering((AtomicOrdering) Nest_getCheckPropertyInt(node, "atomicOrdering")));
+        val->setSynchScope(Nest_getCheckPropertyInt(node, "singleThreaded") ? llvm::SingleThread : llvm::CrossThread);
         return setValue(context.module(), *node, val);
     }
 
@@ -650,12 +650,12 @@ namespace
         CHECK(node->location, address);
         context.ensureInsertionPoint();
         llvm::StoreInst* val = context.builder().CreateStore(value, address);
-        int alignment = getCheckPropertyInt(node, "alignment");
+        int alignment = Nest_getCheckPropertyInt(node, "alignment");
         if ( alignment > 0 )
             val->setAlignment(alignment);
-        val->setVolatile(0 != getCheckPropertyInt(node, "volatile"));
-        val->setOrdering(llvmOrdering((AtomicOrdering) getCheckPropertyInt(node, "atomicOrdering")));
-        val->setSynchScope(getCheckPropertyInt(node, "singleThreaded") ? llvm::SingleThread : llvm::CrossThread);
+        val->setVolatile(0 != Nest_getCheckPropertyInt(node, "volatile"));
+        val->setOrdering(llvmOrdering((AtomicOrdering) Nest_getCheckPropertyInt(node, "atomicOrdering")));
+        val->setSynchScope(Nest_getCheckPropertyInt(node, "singleThreaded") ? llvm::SingleThread : llvm::CrossThread);
         return setValue(context.module(), *node, val);
     }
 
@@ -749,7 +749,7 @@ namespace
         CHECK(node->location, funDecl);
 
         // Check for intrinsic native functions
-        const string* nativeName = getPropertyString(funDecl, propNativeName);
+        const string* nativeName = Nest_getPropertyString(funDecl, propNativeName);
         if ( nativeName && !nativeName->empty() && (*nativeName)[0] == '$' )
         {
             if ( *nativeName == "$logicalOr" )
@@ -862,8 +862,8 @@ namespace
         {
             // The destruct action is also a kind of conditional operation - reuse the condition value
             Node* destructAction = mkDestructActionForConditional(node->type, condValue, move(destructActions1), move(destructActions2));
-            setContext(destructAction, node->context);
-            semanticCheck(destructAction);
+            Nest_setContext(destructAction, node->context);
+            Nest_semanticCheck(destructAction);
             ASSERT(!context.scopesStack().empty());
             ASSERT(!context.scopesStack().back()->instructionsStack().empty());
             context.scopesStack().back()->instructionsStack().back()->addTempDestructAction(destructAction);
@@ -1066,7 +1066,7 @@ namespace
 
     llvm::Value* translateBreak(Node* node, TrContext& context)
     {
-        Node* whileNode = getCheckPropertyNode(node, "loop");
+        Node* whileNode = Nest_getCheckPropertyNode(node, "loop");
         CHECK(node->location, whileNode);
 
         // Get the instruction guard for the while instruction
@@ -1090,7 +1090,7 @@ namespace
 
     llvm::Value* translateContinue(Node* node, TrContext& context)
     {
-        Node* whileNode = getCheckPropertyNode(node, "loop");
+        Node* whileNode = Nest_getCheckPropertyNode(node, "loop");
         CHECK(node->location, whileNode);
 
         // Get the instruction guard for the while instruction
@@ -1124,7 +1124,7 @@ namespace
         // Create an 'alloca' instruction for the local variable
         llvm::Type* t = Tr::getLLVMType(node->type, context.module());
 		llvm::AllocaInst* val = context.addVariable(t, getName(node).c_str());
-        int alignment = getCheckPropertyInt(node, "alignment");
+        int alignment = Nest_getCheckPropertyInt(node, "alignment");
 		if ( alignment > 0 )
 			val->setAlignment(alignment);
 		return setValue(context.module(), *node, val);
@@ -1148,12 +1148,12 @@ namespace
 llvm::Value* Tr::translateNode(Node* node, TrContext& context)
 {
     // Make sure the node is compiled
-    Nest::semanticCheck(node);
+    Nest_semanticCheck(node);
     if ( !node->type )
         REP_INTERNAL(node->location, "No type found for node (%1%)") % node;
 
     // If this node is explained, then translate its explanation
-    Node* expl = Nest::explanation(node);
+    Node* expl = Nest_explanation(node);
     if ( node != expl )
     {
         return translateNode(expl, context);
@@ -1199,7 +1199,7 @@ llvm::Value* Tr::translateNode(Node* node, TrContext& context)
             return translateDestructActionForConditional(node, context);
         else
         {
-            REP_ERROR(node->location, "Don't know how to interpret a node of this kind (%1%)") % Nest::nodeKindName(node);
+            REP_ERROR(node->location, "Don't know how to interpret a node of this kind (%1%)") % Nest_nodeKindName(node);
             return nullptr;
         }
     }

@@ -61,7 +61,7 @@ namespace
 void Tr::translateTopLevelNode(Node* node, Module& module)
 {
     // If this node is explained, then translate its explanation
-    Node* expl = Nest::explanation(node);
+    Node* expl = Nest_explanation(node);
     if ( node != expl )
     {
         translateTopLevelNode(expl, module);
@@ -81,7 +81,7 @@ void Tr::translateTopLevelNode(Node* node, Module& module)
         case nkRelFeatherDeclFunction:             translateFunction(node, module); break;
         case nkRelFeatherDeclVar:                  translateGlobalVar(node, module); break;
         default:
-            REP_ERROR(node->location, "Don't know how to interpret a node of this kind (%1%)") % Nest::nodeKindName(node);
+            REP_ERROR(node->location, "Don't know how to interpret a node of this kind (%1%)") % Nest_nodeKindName(node);
         }
     }
 }
@@ -91,7 +91,7 @@ void Tr::translateBackendCode(Node* node, Module& module)
 {
     // Generate a new module from the given backend code
     llvm::SMDiagnostic error;
-    const string& code = Nest::getCheckPropertyString(node, propCode);
+    const string& code = Nest_getCheckPropertyString(node, propCode);
     llvm::Module* resModule = llvm::ParseAssemblyString(code.c_str(), nullptr, error, module.llvmContext());
     if ( !resModule )
     {
@@ -129,7 +129,7 @@ llvm::Type* Tr::translateClass(Node* node, Module& module)
         return *transType;
 
     // Check if this is a standard/native type
-    const string* nativeName = getPropertyString(node, propNativeName);
+    const string* nativeName = Nest_getPropertyString(node, propNativeName);
     if ( nativeName )
     {
         llvm::Type* t = getNativeLLVMType(node->location, *nativeName, module.llvmContext());
@@ -147,7 +147,7 @@ llvm::Type* Tr::translateClass(Node* node, Module& module)
         t = module.llvmModule().getTypeByName(*nativeName);    // Make sure we reuse the name
     if ( !t )
     {
-        const string* description = getPropertyString(node, propDescription);
+        const string* description = Nest_getPropertyString(node, propDescription);
         // Create a new struct type, possible with another name
         t = llvm::StructType::create(module.llvmContext(), description ? *description : getName(node));
     }
@@ -185,7 +185,7 @@ llvm::Value* Tr::translateGlobalVar(Node* node, Module& module)
 
     // Check if the variable has been declared before; if not, create it
     llvm::GlobalVariable* var = nullptr;
-    const string* nativeName = getPropertyString(node, propNativeName);
+    const string* nativeName = Nest_getPropertyString(node, propNativeName);
     if ( nativeName )
         var = module.llvmModule().getGlobalVariable(*nativeName);
     if ( !var )

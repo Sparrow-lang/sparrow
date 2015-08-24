@@ -32,7 +32,7 @@ namespace
 
     TypeRef changeTypeModeConcept(TypeRef type, EvalMode newMode)
     {
-        return getConceptType(ofKind(type->referredNode, nkSparrowDeclSprConcept), type->numReferences, newMode);
+        return getConceptType(Nest_ofKind(type->referredNode, nkSparrowDeclSprConcept), type->numReferences, newMode);
     }
 }
 
@@ -40,7 +40,7 @@ int typeKindConcept = -1;
 
 void initSparrowFrontendTypeKinds()
 {
-    typeKindConcept = registerTypeKind(&changeTypeModeConcept);
+    typeKindConcept = Nest_registerTypeKind(&changeTypeModeConcept);
 }
 
 TypeRef getConceptType(Node* concept, uint8_t numReferences, EvalMode mode)

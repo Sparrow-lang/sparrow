@@ -34,7 +34,7 @@ namespace
             res += '@';
         if ( classDecl )
         {
-            const string* description = Nest::getPropertyString(classDecl, propDescription);
+            const string* description = Nest_getPropertyString(classDecl, propDescription);
             res += description ? *description : getName(classDecl);
         }
         else
@@ -99,11 +99,11 @@ int typeKindFunction = -1;
 
 void initFeatherTypeKinds()
 {
-    typeKindVoid = registerTypeKind(&changeTypeModeVoid);
-    typeKindData = registerTypeKind(&changeTypeModeData);
-    typeKindLValue = registerTypeKind(&changeTypeModeLValue);
-    typeKindArray = registerTypeKind(&changeTypeModeArray);
-    typeKindFunction = registerTypeKind(&changeTypeModeFunction);
+    typeKindVoid = Nest_registerTypeKind(&changeTypeModeVoid);
+    typeKindData = Nest_registerTypeKind(&changeTypeModeData);
+    typeKindLValue = Nest_registerTypeKind(&changeTypeModeLValue);
+    typeKindArray = Nest_registerTypeKind(&changeTypeModeArray);
+    typeKindFunction = Nest_registerTypeKind(&changeTypeModeFunction);
 }
 
 TypeRef getVoidType(EvalMode mode)
@@ -250,7 +250,7 @@ Node* classDecl(TypeRef type)
 const string* nativeName(TypeRef type)
 {
     if ( type->referredNode && type->referredNode->nodeKind == nkFeatherDeclClass )
-        return Nest::getPropertyString(type->referredNode, propNativeName);
+        return Nest_getPropertyString(type->referredNode, propNativeName);
     return nullptr;
 }
 

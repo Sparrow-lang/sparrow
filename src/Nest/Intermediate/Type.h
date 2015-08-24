@@ -5,9 +5,10 @@
 
 #include <vector>
 
-FWD_STRUCT1(Nest, Node);
 FWD_CLASS3(Nest,Common,Ser, OutArchive);
 FWD_CLASS3(Nest,Common,Ser, InArchive);
+
+typedef struct Nest_Node Node;
 
 /// Represents a type
 struct Nest_Type {
@@ -24,7 +25,7 @@ struct Nest_Type {
     TypeRef* subTypes;
 
     /// Optional, the node that introduces this type
-    Nest::Node* referredNode;
+    Node* referredNode;
 
     /// The description of the type -- mainly used for debugging purposes
     const char* description;

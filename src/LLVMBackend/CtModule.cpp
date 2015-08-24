@@ -103,7 +103,7 @@ Node* CtModule::ctEvaluate(Node* node)
 		REP_INTERNAL(node->location, "Cannot CT evaluate node with non-storage type (type: %1%)") % node->type;
 
 
-    node = Nest::explanation(node);
+    node = Nest_explanation(node);
 	if ( node->nodeKind == nkFeatherExpCtValue )
 	{
 		return node;    // Nothing to do

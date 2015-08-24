@@ -30,7 +30,7 @@ namespace
         if ( rc != 0 )
             REP_ERROR(loc, "Cannot parse the source file");
 
-        Nest::setContext(sourceCode->mainNode, ctx);
+        Nest_setContext(sourceCode->mainNode, ctx);
     }
 
     StringRef getSourceCodeLine(const SourceCode* sourceCode, int lineNo)

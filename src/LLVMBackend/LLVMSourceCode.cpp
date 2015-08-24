@@ -90,7 +90,7 @@ namespace
         // Create a backend code with the given content
         EvalMode evalMode = specifiedCtAvailability(fileContent);
         sourceCode->mainNode = Feather::mkBackendCode(Nest_mkLocation1(sourceCode, 1, 1), fileContent, evalMode);
-        Nest::setContext(sourceCode->mainNode, ctx);
+        Nest_setContext(sourceCode->mainNode, ctx);
     }
 
     StringRef getSourceCodeLine(const SourceCode* sourceCode, int lineNo)

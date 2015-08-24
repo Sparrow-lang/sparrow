@@ -2,8 +2,7 @@
 
 #include "EvalMode.h"
 
-FWD_STRUCT1(Nest, Node);
-
+typedef struct Nest_Node Node;
 typedef struct Nest_SourceCode SourceCode;
 typedef struct Nest_Backend Backend;
 typedef struct Nest_SymTab SymTab;
@@ -32,4 +31,4 @@ CompilationContext* Nest_mkChildContext(CompilationContext* parent, EvalMode mod
 /// Create a child context from the given context
 /// Always creates a SymTab, even if the given node is NULL
 /// If 'mode' is not modeUnspecified, it will use the given mode; otherwise it will inherit the mode from the parent
-CompilationContext* Nest_mkChildContextWithSymTab(CompilationContext* parent, Nest::Node* symTabNode, EvalMode mode);
+CompilationContext* Nest_mkChildContextWithSymTab(CompilationContext* parent, Node* symTabNode, EvalMode mode);

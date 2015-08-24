@@ -45,7 +45,7 @@ using namespace Feather;
         // Check the direct parent is a class that contains the given node
         SymTab* st = node->context->currentSymTab;
         Node* parent = st ? st->node : nullptr;
-        parent = parent ? explanation(parent) : nullptr;
+        parent = parent ? Nest_explanation(parent) : nullptr;
         if ( parent && parent->nodeKind == nkFeatherDeclClass )
         {
             for ( Node* f: parent->children )
@@ -64,13 +64,13 @@ using namespace Feather;
 
     Node* TypeNode_SemanticCheck(Node* node)
     {
-        node->type = Nest::getCheckPropertyType(node, "givenType");
+        node->type = Nest_getCheckPropertyType(node, "givenType");
         return node;
     }
     const char* TypeNode_toString(const Node* node)
     {
         ostringstream os;
-        os << "type(" << getCheckPropertyType(node, "givenType") << ")";
+        os << "type(" << Nest_getCheckPropertyType(node, "givenType") << ")";
         return dupString(os.str().c_str());
     }
 
@@ -83,7 +83,7 @@ using namespace Feather;
         if ( mode != modeRt )
         {
             // CT process this node right after semantic check
-            addModifier(node, &ctProcessMod);
+            Nest_addModifier(node, &ctProcessMod);
         }
         return node;
     }
@@ -100,11 +100,11 @@ using namespace Feather;
         for ( Node* c: node->children )
         {
             if ( c )
-                Nest::computeType(c);
+                Nest_computeType(c);
         }
 
         // Get the type of the last node
-        TypeRef res = ( hasProperty(node, propResultVoid) || node->children.empty() || !node->children.back()->type ) ? getVoidType(node->context->evalMode) : node->children.back()->type;
+        TypeRef res = ( Nest_hasProperty(node, propResultVoid) || node->children.empty() || !node->children.back()->type ) ? getVoidType(node->context->evalMode) : node->children.back()->type;
         res = adjustMode(res, node->context, node->location);
         return res;
     }
@@ -116,7 +116,7 @@ using namespace Feather;
         {
             if ( c )
             {
-                Nest::semanticCheck(c);
+                Nest_semanticCheck(c);
                 hasNonCtChildren = hasNonCtChildren || !isCt(c);
             }
         }
@@ -125,7 +125,7 @@ using namespace Feather;
         if ( !node->type )
         {
             // Get the type of the last node
-            TypeRef t = ( hasProperty(node, propResultVoid) || node->children.empty() || !node->children.back()->type ) ? getVoidType(node->context->evalMode) : node->children.back()->type;
+            TypeRef t = ( Nest_hasProperty(node, propResultVoid) || node->children.empty() || !node->children.back()->type ) ? getVoidType(node->context->evalMode) : node->children.back()->type;
             t = adjustMode(t, node->context, node->location);
             node->type = t;
             checkEvalMode(node);
@@ -136,7 +136,7 @@ using namespace Feather;
     void LocalSpace_SetContextForChildren(Node* node)
     {
         node->childrenContext = Nest_mkChildContextWithSymTab(node->context, node, modeUnspecified);
-        Nest::defaultFunSetContextForChildren(node);
+        Nest_defaultFunSetContextForChildren(node);
     }
     TypeRef LocalSpace_ComputeType(Node* node)
     {
@@ -145,14 +145,14 @@ using namespace Feather;
     Node* LocalSpace_SemanticCheck(Node* node)
     {
         // Compute type first
-        computeType(node);
+        Nest_computeType(node);
 
         // Semantic check each of the children
         for ( Node* c: node->children )
         {
             try
             {
-                Nest::semanticCheck(c);
+                Nest_semanticCheck(c);
             }
             catch(...)
             {
@@ -165,7 +165,7 @@ using namespace Feather;
 
     Node* GlobalConstructAction_SemanticCheck(Node* node)
     {
-        Nest::semanticCheck(node->children[0]);
+        Nest_semanticCheck(node->children[0]);
         node->type = getVoidType(node->context->evalMode);
 
         // For CT construct actions, evaluate them asap
@@ -179,7 +179,7 @@ using namespace Feather;
 
     Node* GlobalDestructAction_SemanticCheck(Node* node)
     {
-        Nest::semanticCheck(node->children[0]);
+        Nest_semanticCheck(node->children[0]);
         node->type = getVoidType(node->context->evalMode);
 
         // We never CT evaluate global destruct actions
@@ -193,23 +193,23 @@ using namespace Feather;
     // Both for ScopeDestructAction and for TempDestructAction
     Node* ScopeTempDestructAction_SemanticCheck(Node* node)
     {
-        Nest::semanticCheck(node->children[0]);
+        Nest_semanticCheck(node->children[0]);
         node->type = getVoidType(node->context->evalMode);
         return node;
     }
 
     void ChangeMode_SetContextForChildren(Node* node)
     {
-        EvalMode curMode = (EvalMode) getCheckPropertyInt(node, propEvalMode);
+        EvalMode curMode = (EvalMode) Nest_getCheckPropertyInt(node, propEvalMode);
         EvalMode newMode = curMode != modeUnspecified ? curMode : node->context->evalMode;
         node->childrenContext = Nest_mkChildContext(node->context, newMode);
-        Nest::defaultFunSetContextForChildren(node);
+        Nest_defaultFunSetContextForChildren(node);
     }
     Node* ChangeMode_SemanticCheck(Node* node)
     {
         // Make sure we are allowed to change the mode
         EvalMode baseMode = node->context->evalMode;
-        EvalMode curMode = (EvalMode) getCheckPropertyInt(node, propEvalMode);
+        EvalMode curMode = (EvalMode) Nest_getCheckPropertyInt(node, propEvalMode);
         EvalMode newMode = curMode != modeUnspecified ? curMode : node->context->evalMode;
         if ( newMode == modeUnspecified )
             REP_INTERNAL(node->location, "Cannot change the mode to Unspecified");
@@ -221,13 +221,13 @@ using namespace Feather;
         if ( !node->children[0] )
             REP_INTERNAL(node->location, "No node specified as child to a ChangeMode node");
 
-        Nest::semanticCheck(node->children[0]);
+        Nest_semanticCheck(node->children[0]);
         return node->children[0];
     }
     const char* ChangeMode_toString(const Node* node)
     {
         ostringstream os;
-        EvalMode curMode = (EvalMode) getCheckPropertyInt(node, propEvalMode);
+        EvalMode curMode = (EvalMode) Nest_getCheckPropertyInt(node, propEvalMode);
         EvalMode newMode = curMode != modeUnspecified ? curMode : node->context->evalMode;
         os << "changeMode(" << node->children[0] << ", " << newMode << ")";
         return dupString(os.str().c_str());
@@ -239,7 +239,7 @@ using namespace Feather;
         if ( !node->childrenContext )
             node->childrenContext = Nest_mkChildContextWithSymTab(node->context, node, effectiveEvalMode(node));
 
-        Nest::defaultFunSetContextForChildren(node);
+        Nest_defaultFunSetContextForChildren(node);
         
         addToSymTab(node);
     }
@@ -250,7 +250,7 @@ using namespace Feather;
 
         // We must have a result type
         Node* resultType = node->children[0];
-        computeType(resultType);
+        Nest_computeType(resultType);
         TypeRef resType = resultType->type;
         if ( !resType )
             REP_ERROR(node->location, "No result type given to function %1%") % getName(node);
@@ -263,7 +263,7 @@ using namespace Feather;
             Node* param = *it;
             if ( !param )
                 REP_ERROR(node->location, "Invalid param");
-            computeType(param);
+            Nest_computeType(param);
         }
 
         // Set the type for this node
@@ -281,7 +281,7 @@ using namespace Feather;
     Node* Function_SemanticCheck(Node* node)
     {
         // Make sure the type is computed
-        computeType(node);
+        Nest_computeType(node);
 
         // Semantically check all the parameters
         auto it = node->children.begin()+2;
@@ -289,14 +289,14 @@ using namespace Feather;
         for ( ; it!=ite; ++it )
         {
             Node* param = *it;
-            semanticCheck(param);
+            Nest_semanticCheck(param);
         }
 
         // Semantically check the body, if we have one
         try
         {
             if ( node->children[1] )
-                semanticCheck(node->children[1]);
+                Nest_semanticCheck(node->children[1]);
 
             // TODO (function): Check that all the paths return a value
         }
@@ -313,7 +313,7 @@ using namespace Feather;
         if ( node->type )
         {
             os << '(';
-            bool hasResultParam = hasProperty(node, propResultParam);
+            bool hasResultParam = Nest_hasProperty(node, propResultParam);
             size_t startIdx = hasResultParam ? 3 : 2;
             for ( size_t i=startIdx; i<node->children.size(); ++i )
             {
@@ -332,7 +332,7 @@ using namespace Feather;
         if ( !node->childrenContext )
             node->childrenContext = Nest_mkChildContextWithSymTab(node->context, node, effectiveEvalMode(node));
 
-        Nest::defaultFunSetContextForChildren(node);
+        Nest_defaultFunSetContextForChildren(node);
         
         addToSymTab(node);
     }
@@ -346,7 +346,7 @@ using namespace Feather;
         {
             try
             {
-                Nest::computeType(field);
+                Nest_computeType(field);
             }
             catch (const exception&)
             {
@@ -357,14 +357,14 @@ using namespace Feather;
     }
     Node* Class_SemanticCheck(Node* node)
     {
-        computeType(node);
+        Nest_computeType(node);
 
         // Semantically check all the fields
         for ( Node* field: node->children )
         {
             try
             {
-                Nest::semanticCheck(field);
+                Nest_semanticCheck(field);
             }
             catch (const exception&)
             {
@@ -376,7 +376,7 @@ using namespace Feather;
 
     void Var_SetContextForChildren(Node* node)
     {
-        Nest::defaultFunSetContextForChildren(node);
+        Nest_defaultFunSetContextForChildren(node);
         addToSymTab(node);
     }
     TypeRef Var_ComputeType(Node* node)
@@ -384,20 +384,20 @@ using namespace Feather;
         // Make sure the variable has a type
         ASSERT(node->children.size() == 1);
         Node* typeNode = node->children[0];
-        computeType(typeNode);
+        Nest_computeType(typeNode);
 
         // Adjust the mode of the type
         return adjustMode(typeNode->type, node->context, node->location);
     }
     Node* Var_SemanticCheck(Node* node)
     {
-        computeType(node);
+        Nest_computeType(node);
 
         // Make sure that the type has storage
         if ( !node->type->hasStorage )
             REP_ERROR(node->location, "Variable type has no storage (%1%") % node->type;
 
-        Nest::computeType(classForType(node->type));           // Make sure the type of the class is computed
+        Nest_computeType(classForType(node->type));           // Make sure the type of the class is computed
         return node;
     }
 
@@ -405,13 +405,13 @@ using namespace Feather;
     {
         // Check the type
         if ( !node->type )
-            node->type = getCheckPropertyType(node, "valueType");
+            node->type = Nest_getCheckPropertyType(node, "valueType");
         if ( !node->type || !node->type->hasStorage || node->type->mode == modeRt )
             REP_ERROR(node->location, "Type specified for Ct Value cannot be used at compile-time");
         
         // Make sure data size matches the size reported by the type
         size_t valueSize = theCompiler().sizeOf(node->type);
-        const string& data = getCheckPropertyString(node, "valueData");
+        const string& data = Nest_getCheckPropertyString(node, "valueData");
         if ( valueSize != data.size() )
         {
             REP_ERROR(node->location, "Read value size (%1%) differs from declared size of the value (%2%) - type: %3%")
@@ -430,7 +430,7 @@ using namespace Feather;
         ostringstream os;
         os << "ctValue(" << node->type << ": ";
 
-        const string& valueDataStr = getCheckPropertyString(node, "valueData");
+        const string& valueDataStr = Nest_getCheckPropertyString(node, "valueData");
         const void* valueData = valueDataStr.c_str();
         
         const string* nativeName = node->type->hasStorage ? Feather::nativeName(node->type) : nullptr;
@@ -476,7 +476,7 @@ using namespace Feather;
     {
         ASSERT(node->children.size() == 1);
         Node* typeNode = node->children[0];
-        computeType(typeNode);
+        Nest_computeType(typeNode);
 
         // Make sure that the type is a reference
         TypeRef t = typeNode->type;
@@ -500,8 +500,8 @@ using namespace Feather;
         Node* var = node->referredNodes[0];
         ASSERT(var);
         if ( var->nodeKind != nkFeatherDeclVar )
-            REP_INTERNAL(node->location, "VarRef object needs to point to a Field (node kind: %1%)") % nodeKindName(var);
-        computeType(var);
+            REP_INTERNAL(node->location, "VarRef object needs to point to a Field (node kind: %1%)") % Nest_nodeKindName(var);
+        Nest_computeType(var);
         if ( isField(var) )
             REP_INTERNAL(node->location, "VarRef used on a field (%1%). Use FieldRef instead") % getName(var);
         if ( !var->type->hasStorage )
@@ -524,19 +524,19 @@ using namespace Feather;
         ASSERT(obj);
         ASSERT(field);
         if ( field->nodeKind != nkFeatherDeclVar )
-            REP_INTERNAL(node->location, "FieldRef object needs to point to a Field (node kind: %1%)") % nodeKindName(field);
+            REP_INTERNAL(node->location, "FieldRef object needs to point to a Field (node kind: %1%)") % Nest_nodeKindName(field);
 
         // Semantic check the object node - make sure it's a reference to a data type
-        semanticCheck(obj);
+        Nest_semanticCheck(obj);
         ASSERT(obj->type);
         if ( !obj->type || !obj->type->hasStorage || obj->type->numReferences != 1 )
             REP_ERROR(node->location, "Field access should be done on a reference to a data type (type: %1%)") % obj->type;
         Node* cls = classForType(obj->type);
         ASSERT(cls);
-        computeType(cls);
+        Nest_computeType(cls);
 
         // Compute the type of the field
-        computeType(field);
+        Nest_computeType(field);
 
         // Make sure that the type of a object is a data type that refers to a class the contains the given field
         bool fieldFound = false;
@@ -569,9 +569,9 @@ using namespace Feather;
     {
         ASSERT(node->children.size() == 1);
         Node* resType = node->children[0];
-        computeType(resType);
+        Nest_computeType(resType);
 
-        computeType(node->referredNodes[0]);
+        Nest_computeType(node->referredNodes[0]);
         node->type = adjustMode(resType->type, node->context, node->location);
         return node;
     }
@@ -587,7 +587,7 @@ using namespace Feather;
         Node* fun = node->referredNodes[0];
         
         // Make sure the function declaration is has a valid type
-        computeType(fun);
+        Nest_computeType(fun);
 
         // Check argument count
         size_t numParameters = Function_numParameters(fun);
@@ -601,7 +601,7 @@ using namespace Feather;
         for ( size_t i=0; i<node->children.size(); ++i )
         {
             // Semantically check the argument
-            Nest::semanticCheck(node->children[i]);
+            Nest_semanticCheck(node->children[i]);
             if ( !isCt(node->children[i]) )
                 allParamsAreCtAvailable = false;
 
@@ -641,7 +641,7 @@ using namespace Feather;
         node->type = Function_resultType(fun);
 
         // Handle autoCt case
-        if ( allParamsAreCtAvailable && node->type->mode == modeRtCt && hasProperty(fun, propAutoCt) )
+        if ( allParamsAreCtAvailable && node->type->mode == modeRtCt && Nest_hasProperty(fun, propAutoCt) )
         {
             node->type = changeTypeMode(node->type, modeCt, node->location);
         }
@@ -671,14 +671,14 @@ using namespace Feather;
         ASSERT(node->children[0]);
 
         // Semantic check the argument
-        Nest::semanticCheck(node->children[0]);
+        Nest_semanticCheck(node->children[0]);
 
         // Check if the type of the argument is a ref
         if ( !node->children[0]->type->hasStorage || node->children[0]->type->numReferences == 0 )
             REP_ERROR(node->location, "Cannot load from a non-reference (%1%, type: %2%)") % node->children[0] % node->children[0]->type;
 
         // Check flags
-        AtomicOrdering ordering = (AtomicOrdering) getCheckPropertyInt(node, "atomicOrdering");
+        AtomicOrdering ordering = (AtomicOrdering) Nest_getCheckPropertyInt(node, "atomicOrdering");
         if ( ordering == atomicRelease )
             REP_ERROR(node->location, "Cannot use atomic release with a load instruction");
         if ( ordering == atomicAcquireRelease )
@@ -698,8 +698,8 @@ using namespace Feather;
         ASSERT(address);
 
         // Semantic check the arguments
-        semanticCheck(value);
-        semanticCheck(address);
+        Nest_semanticCheck(value);
+        Nest_semanticCheck(address);
 
         // Check if the type of the address is a ref
         if ( !address->type->hasStorage || address->type->numReferences == 0 )
@@ -723,8 +723,8 @@ using namespace Feather;
 
     Node* Bitcast_SemanticCheck(Node* node)
     {
-        Nest::semanticCheck(node->children[0]);
-        Nest::computeType(node->children[1]);
+        Nest_semanticCheck(node->children[0]);
+        Nest_computeType(node->children[1]);
         TypeRef tDest = node->children[1]->type;
 
         // Make sure both types have storage
@@ -756,7 +756,7 @@ using namespace Feather;
     Node* Conditional_SemanticCheck(Node* node)
     {
         // Semantic check the condition
-        Nest::semanticCheck(node->children[0]);
+        Nest_semanticCheck(node->children[0]);
 
         // Check that the type of the condition is 'Testable'
         if ( !isTestable(node->children[0]) )
@@ -766,14 +766,14 @@ using namespace Feather;
         while ( node->children[0]->type && node->children[0]->type->numReferences > 0 )
         {
             node->children[0] = mkMemLoad(node->children[0]->location, node->children[0]);
-            Nest::setContext(node->children[0], childrenContext(node));
-            Nest::semanticCheck(node->children[0]);
+            Nest_setContext(node->children[0], Nest_childrenContext(node));
+            Nest_semanticCheck(node->children[0]);
         }
         // TODO (conditional): This shouldn't be performed here
 
         // Semantic check the alternatives
-        Nest::semanticCheck(node->children[1]);
-        Nest::semanticCheck(node->children[2]);
+        Nest_semanticCheck(node->children[1]);
+        Nest_semanticCheck(node->children[2]);
 
         // Make sure the types of the alternatives are equal
         if ( !isSameTypeIgnoreMode(node->children[1]->type, node->children[2]->type) )
@@ -787,11 +787,11 @@ using namespace Feather;
     {
         node->childrenContext = Nest_mkChildContextWithSymTab(node->context, node, modeUnspecified);
 
-        Nest::setContext(node->children[0], node->childrenContext);
+        Nest_setContext(node->children[0], node->childrenContext);
         if ( node->children[1] )
-            Nest::setContext(node->children[1], node->childrenContext);
+            Nest_setContext(node->children[1], node->childrenContext);
         if ( node->children[2] )
-            Nest::setContext(node->children[2], node->childrenContext);
+            Nest_setContext(node->children[2], node->childrenContext);
     }
     Node* If_SemanticCheck(Node* node)
     {
@@ -803,7 +803,7 @@ using namespace Feather;
         node->type = getVoidType(node->context->evalMode);
 
         // Semantic check the condition
-        semanticCheck(condition);
+        Nest_semanticCheck(condition);
 
         // Check that the type of the condition is 'Testable'
         if ( !isTestable(condition) )
@@ -813,8 +813,8 @@ using namespace Feather;
         while ( condition->type && condition->type->numReferences > 0 )
         {
             condition = mkMemLoad(condition->location, condition);
-            setContext(condition, childrenContext(node));
-            semanticCheck(condition);
+            Nest_setContext(condition, Nest_childrenContext(node));
+            Nest_semanticCheck(condition);
         }
         node->children[0] = condition;
         // TODO (if): Remove this dereference from here
@@ -837,9 +837,9 @@ using namespace Feather;
 
         // Semantic check the clauses
         if ( thenClause )
-            semanticCheck(thenClause);
+            Nest_semanticCheck(thenClause);
         if ( elseClause )
-            semanticCheck(elseClause);
+            Nest_semanticCheck(elseClause);
         return node;
     }
 
@@ -848,12 +848,12 @@ using namespace Feather;
         node->childrenContext = Nest_mkChildContextWithSymTab(node->context, node, modeUnspecified);
         CompilationContext* condContext = nodeEvalMode(node) == modeCt ? Nest_mkChildContext(node->context, modeCt) : node->childrenContext;
 
-        Nest::setContext(node->children[0], condContext); // condition
+        Nest_setContext(node->children[0], condContext); // condition
         if ( node->children[1] )
-            Nest::setContext(node->children[1], condContext); // step
+            Nest_setContext(node->children[1], condContext); // step
         if ( node->children[2] )
-            Nest::setContext(node->children[2], node->childrenContext); // body
-        // Nest::defaultFunSetContextForChildren(node);
+            Nest_setContext(node->children[2], node->childrenContext); // body
+        // Nest_defaultFunSetContextForChildren(node);
     }
     Node* While_SemanticCheck(Node* node)
     {
@@ -862,9 +862,9 @@ using namespace Feather;
         Node* body = node->children[2];
         
         // Semantic check the condition
-        semanticCheck(condition);
+        Nest_semanticCheck(condition);
         if ( step )
-            computeType(step);
+            Nest_computeType(step);
 
         // Check that the type of the condition is 'Testable'
         if ( !isTestable(condition) )
@@ -890,9 +890,9 @@ using namespace Feather;
                 // Put (a copy of) the body in the resulting node-list
                 if ( body )
                 {
-                    Node* curBody = cloneNode(body);
-                    setContext(curBody, node->context);
-                    semanticCheck(curBody);
+                    Node* curBody = Nest_cloneNode(body);
+                    Nest_setContext(curBody, node->context);
+                    Nest_semanticCheck(curBody);
                     result.push_back(curBody);
                 }
 
@@ -912,9 +912,9 @@ using namespace Feather;
 
         // Semantic check the body and the step
         if ( body )
-            semanticCheck(body);
+            Nest_semanticCheck(body);
         if ( step )
-            semanticCheck(step);
+            Nest_semanticCheck(step);
 
         // The resulting type is Void
         node->type = getVoidType(node->context->evalMode);
@@ -927,7 +927,7 @@ using namespace Feather;
         Node* loop = getParentLoop(node->context);
         if ( !loop )
             REP_ERROR(node->location, "Break found outside any loop");
-        setProperty(node, "loop", loop);
+        Nest_setProperty(node, "loop", loop);
 
         // The resulting type is Void
         node->type = getVoidType(node->context->evalMode);
@@ -940,7 +940,7 @@ using namespace Feather;
         Node* loop = getParentLoop(node->context);
         if ( !loop )
             REP_ERROR(node->location, "Continue found outside any loop");
-        setProperty(node, "loop", loop);
+        Nest_setProperty(node, "loop", loop);
 
         // The resulting type is Void
         node->type = getVoidType(node->context->evalMode);
@@ -951,7 +951,7 @@ using namespace Feather;
     {
         // If we have an expression argument, semantically check it
         if ( node->children[0] )
-            semanticCheck(node->children[0]);
+            Nest_semanticCheck(node->children[0]);
 
         // Get the parent function of this return
         Node* parentFun = getParentFun(node->context);
@@ -959,7 +959,7 @@ using namespace Feather;
             REP_ERROR(node->location, "Return found outside any function");
         TypeRef resultType = Function_resultType(parentFun);
         ASSERT(resultType);
-        setProperty(node, "parentFun", parentFun);
+        Nest_setProperty(node, "parentFun", parentFun);
 
         // If the return has an expression, check that has the same type as the function result type
         if ( node->children[0] )
@@ -1017,37 +1017,37 @@ int Feather::nkFeatherStmtReturn = 0;
 
 void Feather::initFeatherNodeKinds()
 {
-    nkFeatherNop = registerNodeKind("nop", &Nop_SemanticCheck);
-    nkFeatherTypeNode = registerNodeKind("typeNode", &TypeNode_SemanticCheck, NULL, NULL, &TypeNode_toString);
-    nkFeatherBackendCode = registerNodeKind("backendCode", &BackendCode_SemanticCheck, NULL, NULL, &BackendCode_toString);
-    nkFeatherNodeList = registerNodeKind("nodeList", &NodeList_SemanticCheck, &NodeList_ComputeType, NULL, NULL);
-    nkFeatherLocalSpace = registerNodeKind("localSpace", &LocalSpace_SemanticCheck, &LocalSpace_ComputeType, &LocalSpace_SetContextForChildren, NULL);
-    nkFeatherGlobalConstructAction = registerNodeKind("globalConstructAction", &GlobalConstructAction_SemanticCheck, NULL, NULL, NULL);
-    nkFeatherGlobalDestructAction = registerNodeKind("globalDestructAction", &GlobalDestructAction_SemanticCheck, NULL, NULL, NULL);
-    nkFeatherScopeDestructAction = registerNodeKind("scopelDestructAction", &ScopeTempDestructAction_SemanticCheck, NULL, NULL, NULL);
-    nkFeatherTempDestructAction = registerNodeKind("tempDestructAction", &ScopeTempDestructAction_SemanticCheck, NULL, NULL, NULL);
-    nkFeatherChangeMode = registerNodeKind("changeMode", &ChangeMode_SemanticCheck, NULL, &ChangeMode_SetContextForChildren, &ChangeMode_toString);
+    nkFeatherNop = Nest_registerNodeKind("nop", &Nop_SemanticCheck);
+    nkFeatherTypeNode = Nest_registerNodeKind("typeNode", &TypeNode_SemanticCheck, NULL, NULL, &TypeNode_toString);
+    nkFeatherBackendCode = Nest_registerNodeKind("backendCode", &BackendCode_SemanticCheck, NULL, NULL, &BackendCode_toString);
+    nkFeatherNodeList = Nest_registerNodeKind("nodeList", &NodeList_SemanticCheck, &NodeList_ComputeType, NULL, NULL);
+    nkFeatherLocalSpace = Nest_registerNodeKind("localSpace", &LocalSpace_SemanticCheck, &LocalSpace_ComputeType, &LocalSpace_SetContextForChildren, NULL);
+    nkFeatherGlobalConstructAction = Nest_registerNodeKind("globalConstructAction", &GlobalConstructAction_SemanticCheck, NULL, NULL, NULL);
+    nkFeatherGlobalDestructAction = Nest_registerNodeKind("globalDestructAction", &GlobalDestructAction_SemanticCheck, NULL, NULL, NULL);
+    nkFeatherScopeDestructAction = Nest_registerNodeKind("scopelDestructAction", &ScopeTempDestructAction_SemanticCheck, NULL, NULL, NULL);
+    nkFeatherTempDestructAction = Nest_registerNodeKind("tempDestructAction", &ScopeTempDestructAction_SemanticCheck, NULL, NULL, NULL);
+    nkFeatherChangeMode = Nest_registerNodeKind("changeMode", &ChangeMode_SemanticCheck, NULL, &ChangeMode_SetContextForChildren, &ChangeMode_toString);
 
-    nkFeatherDeclFunction = registerNodeKind("fun", &Function_SemanticCheck, &Function_ComputeType, &Function_SetContextForChildren, &Function_toString);
-    nkFeatherDeclClass = registerNodeKind("class", &Class_SemanticCheck, &Class_ComputeType, &Class_SetContextForChildren, NULL);
-    nkFeatherDeclVar = registerNodeKind("var", &Var_SemanticCheck, &Var_ComputeType, &Var_SetContextForChildren, NULL);
+    nkFeatherDeclFunction = Nest_registerNodeKind("fun", &Function_SemanticCheck, &Function_ComputeType, &Function_SetContextForChildren, &Function_toString);
+    nkFeatherDeclClass = Nest_registerNodeKind("class", &Class_SemanticCheck, &Class_ComputeType, &Class_SetContextForChildren, NULL);
+    nkFeatherDeclVar = Nest_registerNodeKind("var", &Var_SemanticCheck, &Var_ComputeType, &Var_SetContextForChildren, NULL);
 
-    nkFeatherExpCtValue = registerNodeKind("ctValue", &CtValue_SemanticCheck, NULL, NULL, &CtValue_toString);
-    nkFeatherExpNull = registerNodeKind("null", &Null_SemanticCheck, NULL, NULL, &Null_toString);
-    nkFeatherExpVarRef = registerNodeKind("varRef", &VarRef_SemanticCheck, NULL, NULL, &VarRef_toString);
-    nkFeatherExpFieldRef = registerNodeKind("fieldRef", &FieldRef_SemanticCheck, NULL, NULL, &FieldRef_toString);
-    nkFeatherExpFunRef = registerNodeKind("funRef", &FunRef_SemanticCheck, NULL, NULL, &FunRef_toString);
-    nkFeatherExpFunCall = registerNodeKind("funCall", &FunCall_SemanticCheck, NULL, NULL, &FunCall_toString);
-    nkFeatherExpMemLoad = registerNodeKind("memLoad", &MemLoad_SemanticCheck, NULL, NULL, NULL);
-    nkFeatherExpMemStore = registerNodeKind("memStore", &MemStore_SemanticCheck, NULL, NULL, NULL);
-    nkFeatherExpBitcast = registerNodeKind("bitcast", &Bitcast_SemanticCheck, NULL, NULL, &Bitcast_toString);
-    nkFeatherExpConditional = registerNodeKind("conditional", &Conditional_SemanticCheck, NULL, NULL, NULL);
+    nkFeatherExpCtValue = Nest_registerNodeKind("ctValue", &CtValue_SemanticCheck, NULL, NULL, &CtValue_toString);
+    nkFeatherExpNull = Nest_registerNodeKind("null", &Null_SemanticCheck, NULL, NULL, &Null_toString);
+    nkFeatherExpVarRef = Nest_registerNodeKind("varRef", &VarRef_SemanticCheck, NULL, NULL, &VarRef_toString);
+    nkFeatherExpFieldRef = Nest_registerNodeKind("fieldRef", &FieldRef_SemanticCheck, NULL, NULL, &FieldRef_toString);
+    nkFeatherExpFunRef = Nest_registerNodeKind("funRef", &FunRef_SemanticCheck, NULL, NULL, &FunRef_toString);
+    nkFeatherExpFunCall = Nest_registerNodeKind("funCall", &FunCall_SemanticCheck, NULL, NULL, &FunCall_toString);
+    nkFeatherExpMemLoad = Nest_registerNodeKind("memLoad", &MemLoad_SemanticCheck, NULL, NULL, NULL);
+    nkFeatherExpMemStore = Nest_registerNodeKind("memStore", &MemStore_SemanticCheck, NULL, NULL, NULL);
+    nkFeatherExpBitcast = Nest_registerNodeKind("bitcast", &Bitcast_SemanticCheck, NULL, NULL, &Bitcast_toString);
+    nkFeatherExpConditional = Nest_registerNodeKind("conditional", &Conditional_SemanticCheck, NULL, NULL, NULL);
 
-    nkFeatherStmtIf = registerNodeKind("if", &If_SemanticCheck, NULL, &If_SetContextForChildren, NULL);
-    nkFeatherStmtWhile = registerNodeKind("while", &While_SemanticCheck, NULL, &While_SetContextForChildren, NULL);
-    nkFeatherStmtBreak = registerNodeKind("break", &Break_SemanticCheck, NULL, NULL, NULL);
-    nkFeatherStmtContinue = registerNodeKind("continue", &Continue_SemanticCheck, NULL, NULL, NULL);
-    nkFeatherStmtReturn = registerNodeKind("return", &Return_SemanticCheck, NULL, NULL, NULL);
+    nkFeatherStmtIf = Nest_registerNodeKind("if", &If_SemanticCheck, NULL, &If_SetContextForChildren, NULL);
+    nkFeatherStmtWhile = Nest_registerNodeKind("while", &While_SemanticCheck, NULL, &While_SetContextForChildren, NULL);
+    nkFeatherStmtBreak = Nest_registerNodeKind("break", &Break_SemanticCheck, NULL, NULL, NULL);
+    nkFeatherStmtContinue = Nest_registerNodeKind("continue", &Continue_SemanticCheck, NULL, NULL, NULL);
+    nkFeatherStmtReturn = Nest_registerNodeKind("return", &Return_SemanticCheck, NULL, NULL, NULL);
 
     firstFeatherNodeKind = nkFeatherNop;
 }
@@ -1055,10 +1055,10 @@ void Feather::initFeatherNodeKinds()
 
 Node* Feather::mkNodeList(const Location& loc, NodeVector children, bool voidResult)
 {
-    Node* res = createNode(nkFeatherNodeList);
+    Node* res = Nest_createNode(nkFeatherNodeList);
     res->location = loc;
     if ( voidResult )
-        setProperty(res, propResultVoid, 1);
+        Nest_setProperty(res, propResultVoid, 1);
     res->children = move(children);
     return res;
 }
@@ -1068,10 +1068,10 @@ Node* Feather::addToNodeList(Node* prevList, Node* element)
     Node* res = prevList;
     if ( !res )
     {
-        res = createNode(nkFeatherNodeList);
+        res = Nest_createNode(nkFeatherNodeList);
         if ( element )
             res->location = element->location;
-        setProperty(res, propResultVoid, 1);    // voidResult == true
+        Nest_setProperty(res, propResultVoid, 1);    // voidResult == true
     }
     
     res->children.push_back(element);
@@ -1095,28 +1095,28 @@ Node* Feather::appendNodeList(Node* list, Node* newNodes)
 
 Node* Feather::mkNop(const Location& loc)
 {
-    Node* res = createNode(nkFeatherNop);
+    Node* res = Nest_createNode(nkFeatherNop);
     res->location = loc;
     return res;
 }
 Node* Feather::mkTypeNode(const Location& loc, TypeRef type)
 {
-    Node* res = createNode(nkFeatherTypeNode);
+    Node* res = Nest_createNode(nkFeatherTypeNode);
     res->location = loc;
-    setProperty(res, "givenType", type);
+    Nest_setProperty(res, "givenType", type);
     return res;
 }
 Node* Feather::mkBackendCode(const Location& loc, string code, EvalMode evalMode)
 {
-    Node* res = createNode(nkFeatherBackendCode);
+    Node* res = Nest_createNode(nkFeatherBackendCode);
     res->location = loc;
-    setProperty(res, propCode, move(code));
-    setProperty(res, propEvalMode, (int) evalMode);
+    Nest_setProperty(res, propCode, move(code));
+    Nest_setProperty(res, propEvalMode, (int) evalMode);
     return res;
 }
 Node* Feather::mkLocalSpace(const Location& loc, NodeVector children)
 {
-    Node* res = createNode(nkFeatherLocalSpace);
+    Node* res = Nest_createNode(nkFeatherLocalSpace);
     res->location = loc;
     res->children = move(children);
     return res;
@@ -1124,7 +1124,7 @@ Node* Feather::mkLocalSpace(const Location& loc, NodeVector children)
 Node* Feather::mkGlobalConstructAction(const Location& loc, Node* action)
 {
     REQUIRE_NODE(loc, action);
-    Node* res = createNode(nkFeatherGlobalConstructAction);
+    Node* res = Nest_createNode(nkFeatherGlobalConstructAction);
     res->location = loc;
     res->children = { action };
     return res;
@@ -1132,7 +1132,7 @@ Node* Feather::mkGlobalConstructAction(const Location& loc, Node* action)
 Node* Feather::mkGlobalDestructAction(const Location& loc, Node* action)
 {
     REQUIRE_NODE(loc, action);
-    Node* res = createNode(nkFeatherGlobalDestructAction);
+    Node* res = Nest_createNode(nkFeatherGlobalDestructAction);
     res->location = loc;
     res->children = { action };
     return res;
@@ -1140,7 +1140,7 @@ Node* Feather::mkGlobalDestructAction(const Location& loc, Node* action)
 Node* Feather::mkScopeDestructAction(const Location& loc, Node* action)
 {
     REQUIRE_NODE(loc, action);
-    Node* res = createNode(nkFeatherScopeDestructAction);
+    Node* res = Nest_createNode(nkFeatherScopeDestructAction);
     res->location = loc;
     res->children = { action };
     return res;
@@ -1148,7 +1148,7 @@ Node* Feather::mkScopeDestructAction(const Location& loc, Node* action)
 Node* Feather::mkTempDestructAction(const Location& loc, Node* action)
 {
     REQUIRE_NODE(loc, action);
-    Node* res = createNode(nkFeatherTempDestructAction);
+    Node* res = Nest_createNode(nkFeatherTempDestructAction);
     res->location = loc;
     res->children = { action };
     return res;
@@ -1157,17 +1157,17 @@ Node* Feather::mkTempDestructAction(const Location& loc, Node* action)
 
 Node* Feather::mkFunction(const Location& loc, string name, Node* resType, NodeVector params, Node* body, CallConvention callConv, EvalMode evalMode)
 {
-    Node* res = createNode(nkFeatherDeclFunction);
+    Node* res = Nest_createNode(nkFeatherDeclFunction);
     res->location = loc;
     res->children = move(params);
     setName(res, move(name));
-    setProperty(res, "callConvention", (int) callConv);
+    Nest_setProperty(res, "callConvention", (int) callConv);
     setEvalMode(res, evalMode);
 
     // Make sure all the nodes given as parameters have the right kind
     for ( Node* param: res->children )
     {
-        if ( explanation(param)->nodeKind != nkFeatherDeclVar )
+        if ( Nest_explanation(param)->nodeKind != nkFeatherDeclVar )
             REP_INTERNAL(param->location, "Node %1% must be a parameter") % param;
     }
 
@@ -1179,7 +1179,7 @@ Node* Feather::mkFunction(const Location& loc, string name, Node* resType, NodeV
 }
 Node* Feather::mkClass(const Location& loc, string name, NodeVector fields, EvalMode evalMode)
 {
-    Node* res = createNode(nkFeatherDeclClass);
+    Node* res = Nest_createNode(nkFeatherDeclClass);
     res->location = loc;
     res->children = move(fields);
     setName(res, move(name));
@@ -1197,11 +1197,11 @@ Node* Feather::mkClass(const Location& loc, string name, NodeVector fields, Eval
 Node* Feather::mkVar(const Location& loc, string name, Node* typeNode, size_t alignment, EvalMode evalMode)
 {
     REQUIRE_TYPE(loc, typeNode);
-    Node* res = createNode(nkFeatherDeclVar);
+    Node* res = Nest_createNode(nkFeatherDeclVar);
     res->location = loc;
     res->children = { typeNode };
     setName(res, move(name));
-    setProperty(res, "alignment", alignment);
+    Nest_setProperty(res, "alignment", alignment);
     setEvalMode(res, evalMode);
     return res;
 }
@@ -1210,16 +1210,16 @@ Node* Feather::mkVar(const Location& loc, string name, Node* typeNode, size_t al
 Node* Feather::mkCtValue(const Location& loc, TypeRef type, string data)
 {
     REQUIRE_TYPE(loc, type);
-    Node* res = createNode(nkFeatherExpCtValue);
+    Node* res = Nest_createNode(nkFeatherExpCtValue);
     res->location = loc;
-    setProperty(res, "valueType", type);
-    setProperty(res, "valueData", move(data));
+    Nest_setProperty(res, "valueType", type);
+    Nest_setProperty(res, "valueData", move(data));
     return res;
 }
 Node* Feather::mkNull(const Location& loc, Node* typeNode)
 {
     REQUIRE_NODE(loc, typeNode);
-    Node* res = createNode(nkFeatherExpNull);
+    Node* res = Nest_createNode(nkFeatherExpNull);
     res->location = loc;
     res->children = { typeNode };
     return res;
@@ -1228,8 +1228,8 @@ Node* Feather::mkVarRef(const Location& loc, Node* varDecl)
 {
     REQUIRE_NODE(loc, varDecl);
     if ( varDecl->nodeKind != nkFeatherDeclVar )
-        REP_INTERNAL(loc, "A VarRef node must be applied on a variable declaration (%1% given)") % nodeKindName(varDecl);
-    Node* res = createNode(nkFeatherExpVarRef);
+        REP_INTERNAL(loc, "A VarRef node must be applied on a variable declaration (%1% given)") % Nest_nodeKindName(varDecl);
+    Node* res = Nest_createNode(nkFeatherExpVarRef);
     res->location = loc;
     res->referredNodes = { varDecl };
     return res;
@@ -1239,8 +1239,8 @@ Node* Feather::mkFieldRef(const Location& loc, Node* obj, Node* fieldDecl)
     REQUIRE_NODE(loc, obj);
     REQUIRE_NODE(loc, fieldDecl);
     if ( fieldDecl->nodeKind != nkFeatherDeclVar )
-        REP_INTERNAL(loc, "A FieldRef node must be applied on a field declaration (%1% given)") % nodeKindName(fieldDecl);
-    Node* res = createNode(nkFeatherExpFieldRef);
+        REP_INTERNAL(loc, "A FieldRef node must be applied on a field declaration (%1% given)") % Nest_nodeKindName(fieldDecl);
+    Node* res = Nest_createNode(nkFeatherExpFieldRef);
     res->location = loc;
     res->children = { obj };
     res->referredNodes = { fieldDecl };
@@ -1251,8 +1251,8 @@ Node* Feather::mkFunRef(const Location& loc, Node* funDecl, Node* resType)
     REQUIRE_NODE(loc, funDecl);
     REQUIRE_NODE(loc, resType);
     if ( funDecl->nodeKind != nkFeatherDeclFunction )
-        REP_INTERNAL(loc, "A FunRef node must be applied on a function declaration (%1% given)") % nodeKindName(funDecl);
-    Node* res = createNode(nkFeatherExpFunRef);
+        REP_INTERNAL(loc, "A FunRef node must be applied on a function declaration (%1% given)") % Nest_nodeKindName(funDecl);
+    Node* res = Nest_createNode(nkFeatherExpFunRef);
     res->location = loc;
     res->children = { resType };
     res->referredNodes = { funDecl };
@@ -1262,8 +1262,8 @@ Node* Feather::mkFunCall(const Location& loc, Node* funDecl, NodeVector args)
 {
     REQUIRE_NODE(loc, funDecl);
     if ( funDecl->nodeKind != nkFeatherDeclFunction )
-        REP_INTERNAL(loc, "A FunCall node must be applied on a function declaration (%1% given)") % nodeKindName(funDecl);
-    Node* res = createNode(nkFeatherExpFunCall);
+        REP_INTERNAL(loc, "A FunCall node must be applied on a function declaration (%1% given)") % Nest_nodeKindName(funDecl);
+    Node* res = Nest_createNode(nkFeatherExpFunCall);
     res->location = loc;
     res->children = move(args);
     res->referredNodes = { funDecl };
@@ -1272,33 +1272,33 @@ Node* Feather::mkFunCall(const Location& loc, Node* funDecl, NodeVector args)
 Node* Feather::mkMemLoad(const Location& loc, Node* exp, size_t alignment, bool isVolatile, AtomicOrdering ordering, bool singleThreaded)
 {
     REQUIRE_NODE(loc, exp);
-    Node* res = createNode(nkFeatherExpMemLoad);
+    Node* res = Nest_createNode(nkFeatherExpMemLoad);
     res->location = loc;
     res->children = { exp };
-    setProperty(res, "alignment", alignment);
-    setProperty(res, "volatile", isVolatile ? 1 : 0);
-    setProperty(res, "atomicOrdering", (int) ordering);
-    setProperty(res, "singleThreaded", singleThreaded ? 1 : 0);
+    Nest_setProperty(res, "alignment", alignment);
+    Nest_setProperty(res, "volatile", isVolatile ? 1 : 0);
+    Nest_setProperty(res, "atomicOrdering", (int) ordering);
+    Nest_setProperty(res, "singleThreaded", singleThreaded ? 1 : 0);
     return res;
 }
 Node* Feather::mkMemStore(const Location& loc, Node* value, Node* address, size_t alignment, bool isVolatile, AtomicOrdering ordering, bool singleThreaded)
 {
     REQUIRE_NODE(loc, value);
     REQUIRE_NODE(loc, address);
-    Node* res = createNode(nkFeatherExpMemStore);
+    Node* res = Nest_createNode(nkFeatherExpMemStore);
     res->location = loc;
     res->children = { value, address };
-    setProperty(res, "alignment", alignment);
-    setProperty(res, "volatile", isVolatile ? 1 : 0);
-    setProperty(res, "atomicOrdering", (int) ordering);
-    setProperty(res, "singleThreaded", singleThreaded ? 1 : 0);
+    Nest_setProperty(res, "alignment", alignment);
+    Nest_setProperty(res, "volatile", isVolatile ? 1 : 0);
+    Nest_setProperty(res, "atomicOrdering", (int) ordering);
+    Nest_setProperty(res, "singleThreaded", singleThreaded ? 1 : 0);
     return res;
 }
 Node* Feather::mkBitcast(const Location& loc, Node* destType, Node* exp)
 {
     REQUIRE_NODE(loc, destType);
     REQUIRE_NODE(loc, exp);
-    Node* res = createNode(nkFeatherExpBitcast);
+    Node* res = Nest_createNode(nkFeatherExpBitcast);
     res->location = loc;
     res->children = { exp, destType };
     return res;
@@ -1308,17 +1308,17 @@ Node* Feather::mkConditional(const Location& loc, Node* condition, Node* alt1, N
     REQUIRE_NODE(loc, condition);
     REQUIRE_NODE(loc, alt1);
     REQUIRE_NODE(loc, alt2);
-    Node* res = createNode(nkFeatherExpConditional);
+    Node* res = Nest_createNode(nkFeatherExpConditional);
     res->location = loc;
     res->children = { condition, alt1, alt2 };
     return res;
 }
 Node* Feather::mkChangeMode(const Location& loc, Node* child, EvalMode mode)
 {
-    Node* res = createNode(nkFeatherChangeMode);
+    Node* res = Nest_createNode(nkFeatherChangeMode);
     res->location = loc;
     res->children = { child };
-    setProperty(res, propEvalMode, (int) mode);
+    Nest_setProperty(res, propEvalMode, (int) mode);
     return res;
 }
 
@@ -1326,7 +1326,7 @@ Node* Feather::mkChangeMode(const Location& loc, Node* child, EvalMode mode)
 Node* Feather::mkIf(const Location& loc, Node* condition, Node* thenClause, Node* elseClause, bool isCt)
 {
     REQUIRE_NODE(loc, condition);
-    Node* res = createNode(nkFeatherStmtIf);
+    Node* res = Nest_createNode(nkFeatherStmtIf);
     res->location = loc;
     res->children = { condition, thenClause, elseClause };
     if ( isCt )
@@ -1336,7 +1336,7 @@ Node* Feather::mkIf(const Location& loc, Node* condition, Node* thenClause, Node
 Node* Feather::mkWhile(const Location& loc, Node* condition, Node* body, Node* step, bool isCt)
 {
     REQUIRE_NODE(loc, condition);
-    Node* res = createNode(nkFeatherStmtWhile);
+    Node* res = Nest_createNode(nkFeatherStmtWhile);
     res->location = loc;
     res->children = { condition, step, body };
     if ( isCt )
@@ -1345,24 +1345,24 @@ Node* Feather::mkWhile(const Location& loc, Node* condition, Node* body, Node* s
 }
 Node* Feather::mkBreak(const Location& loc)
 {
-    Node* res = createNode(nkFeatherStmtBreak);
+    Node* res = Nest_createNode(nkFeatherStmtBreak);
     res->location = loc;
-    setProperty(res, "loop", (Node*) nullptr);
+    Nest_setProperty(res, "loop", (Node*) nullptr);
     return res;
 }
 Node* Feather::mkContinue(const Location& loc)
 {
-    Node* res = createNode(nkFeatherStmtContinue);
+    Node* res = Nest_createNode(nkFeatherStmtContinue);
     res->location = loc;
-    setProperty(res, "loop", (Node*) nullptr);
+    Nest_setProperty(res, "loop", (Node*) nullptr);
     return res;
 }
 Node* Feather::mkReturn(const Location& loc, Node* exp)
 {
-    Node* res = createNode(nkFeatherStmtReturn);
+    Node* res = Nest_createNode(nkFeatherStmtReturn);
     res->location = loc;
     res->children = { exp };
-    setProperty(res, "parentFun", (Node*) nullptr);
+    Nest_setProperty(res, "parentFun", (Node*) nullptr);
     return res;
 }
 
@@ -1370,12 +1370,12 @@ Node* Feather::mkReturn(const Location& loc, Node* exp)
 const char* Feather::BackendCode_getCode(const Node* node)
 {
     ASSERT(node->nodeKind == nkFeatherBackendCode);
-    return getCheckPropertyString(node, propCode).c_str();
+    return Nest_getCheckPropertyString(node, propCode).c_str();
 }
 EvalMode Feather::BackendCode_getEvalMode(Node* node)
 {
     ASSERT(node->nodeKind == nkFeatherBackendCode);
-    EvalMode curMode = (EvalMode) getCheckPropertyInt(node, propEvalMode);
+    EvalMode curMode = (EvalMode) Nest_getCheckPropertyInt(node, propEvalMode);
     return curMode != modeUnspecified ? curMode : node->context->evalMode;
 }
 
@@ -1386,17 +1386,17 @@ void Feather::ChangeMode_setChild(Node* node, Node* child)
     node->children[0] = child;
 
     if ( node->childrenContext )
-        Nest::setContext(child, node->childrenContext);
+        Nest_setContext(child, node->childrenContext);
 }
 EvalMode Feather::ChangeMode_getEvalMode(Node* node)
 {
-    EvalMode curMode = (EvalMode) getCheckPropertyInt(node, propEvalMode);
+    EvalMode curMode = (EvalMode) Nest_getCheckPropertyInt(node, propEvalMode);
     return curMode != modeUnspecified ? curMode : node->context->evalMode;
 }
 
 void Feather::Function_addParameter(Node* node, Node* parameter, bool first)
 {
-    if ( explanation(parameter)->nodeKind != nkFeatherDeclVar )
+    if ( Nest_explanation(parameter)->nodeKind != nkFeatherDeclVar )
         REP_INTERNAL(parameter->location, "Node %1% must be a parameter") % parameter;
 
     ASSERT(node->children.size() >= 2);
@@ -1409,7 +1409,7 @@ void Feather::Function_setResultType(Node* node, Node* resultType)
 {
     ASSERT(node->children.size() >= 2);
     node->children[0] = resultType;
-    setContext(resultType, node->childrenContext);
+    Nest_setContext(resultType, node->childrenContext);
 }
 void Feather::Function_setBody(Node* node, Node* body)
 {
@@ -1436,5 +1436,5 @@ Node* Feather::Function_body(Node* node)
 }
 CallConvention Feather::Function_callConvention(Node* node)
 {
-    return (CallConvention) getCheckPropertyInt(node, "callConvention");
+    return (CallConvention) Nest_getCheckPropertyInt(node, "callConvention");
 }

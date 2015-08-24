@@ -7,7 +7,7 @@
 
 using namespace Nest;
 
-Node* Nest::createNode(int nodeKind)
+Node* Nest_createNode(int nodeKind)
 {
     ASSERT(nodeKind >= 0);
 
@@ -24,13 +24,13 @@ Node* Nest::createNode(int nodeKind)
     return res;
 }
 
-Node* Nest::cloneNode(Node* node)
+Node* Nest_cloneNode(Node* node)
 {
     if ( !node )
         return NULL;
 
     ASSERT(node);
-    Node* res = createNode(node->nodeKind);
+    Node* res = Nest_createNode(node->nodeKind);
 
     res->location = node->location;
     res->referredNodes = node->referredNodes;
@@ -41,12 +41,12 @@ Node* Nest::cloneNode(Node* node)
     res->children.resize(size, nullptr);
     for ( size_t i=0; i<size; ++i )
     {
-        res->children[i] = cloneNode(node->children[i]);
+        res->children[i] = Nest_cloneNode(node->children[i]);
     }
     return res;
 }
 
-void Nest::initNode(Node* node, int nodeKind)
+void Nest_initNode(Node* node, int nodeKind)
 {
     node->nodeKind = nodeKind;
     node->nodeError = 0;
@@ -58,7 +58,7 @@ void Nest::initNode(Node* node, int nodeKind)
     node->type = nullptr;
     node->explanation = nullptr;
 }
-void Nest::initCopyNode(Node* node, const Node* srcNode)
+void Nest_initCopyNode(Node* node, const Node* srcNode)
 {
     node->nodeKind = srcNode->nodeKind;
     node->location = srcNode->location;
@@ -70,65 +70,65 @@ void Nest::initCopyNode(Node* node, const Node* srcNode)
     node->children.resize(size, nullptr);
     for ( size_t i=0; i<size; ++i )
     {
-        node->children[i] = cloneNode(srcNode->children[i]);
+        node->children[i] = Nest_cloneNode(srcNode->children[i]);
     }
 }
 
 
-const char* Nest::toString(const Node* node)
+const char* Nest_toString(const Node* node)
 {
-    return getToStringFun(node->nodeKind)(node);
+    return Nest_getToStringFun(node->nodeKind)(node);
 }
 
-const char* Nest::nodeKindName(const Node* node)
+const char* Nest_nodeKindName(const Node* node)
 {
-    return Nest::getNodeKindName(node->nodeKind);
+    return Nest_getNodeKindName(node->nodeKind);
 }
 
 
-void Nest::setProperty(Node* node, const char* name, int val, bool passToExpl)
+void Nest_setProperty(Node* node, const char* name, int val, bool passToExpl)
 {
     node->properties[name] = Property(propInt, PropertyValue(val), passToExpl);
 }
-void Nest::setProperty(Node* node, const char* name, string val, bool passToExpl)
+void Nest_setProperty(Node* node, const char* name, string val, bool passToExpl)
 {
     node->properties[name] = Property(propString, PropertyValue(move(val)), passToExpl);
 }
-void Nest::setProperty(Node* node, const char* name, Node* val, bool passToExpl)
+void Nest_setProperty(Node* node, const char* name, Node* val, bool passToExpl)
 {
     node->properties[name] = Property(propNode, PropertyValue(val), passToExpl);
 }
-void Nest::setProperty(Node* node, const char* name, TypeRef val, bool passToExpl)
+void Nest_setProperty(Node* node, const char* name, TypeRef val, bool passToExpl)
 {
     node->properties[name] = Property(propType, PropertyValue(val), passToExpl);
 }
 
-bool Nest::hasProperty(const Node* node, const char* name)
+bool Nest_hasProperty(const Node* node, const char* name)
 {
     return node->properties.find(name) != node->properties.end();
 }
-const int* Nest::getPropertyInt(const Node* node, const char* name)
+const int* Nest_getPropertyInt(const Node* node, const char* name)
 {
     auto it = node->properties.find(name);
     if ( it == node->properties.end() || it->second.kind_ != propInt )
         return nullptr;
     return &it->second.value_.intValue_;
 }
-const string* Nest::getPropertyString(const Node* node, const char* name)
+const string* Nest_getPropertyString(const Node* node, const char* name)
 {
     auto it = node->properties.find(name);
     if ( it == node->properties.end() || it->second.kind_ != propString )
         return nullptr;
     return it->second.value_.stringValue_;
 }
-Node*const* Nest::getPropertyNode(const Node* node, const char* name)
+Node*const* Nest_getPropertyNode(const Node* node, const char* name)
 {
     auto it = node->properties.find(name);
     if ( it == node->properties.end() || it->second.kind_ != propNode )
         return nullptr;
     return &it->second.value_.nodeValue_;
 }
-const TypeRef* Nest::getPropertyType(const Node* node, const char* name)
+const TypeRef* Nest_getPropertyType(const Node* node, const char* name)
 {
     auto it = node->properties.find(name);
     if ( it == node->properties.end() || it->second.kind_ != propType )
@@ -136,37 +136,37 @@ const TypeRef* Nest::getPropertyType(const Node* node, const char* name)
     return &it->second.value_.typeValue_;
 }
 
-int Nest::getCheckPropertyInt(const Node* node, const char* name)
+int Nest_getCheckPropertyInt(const Node* node, const char* name)
 {
-    const int* res = getPropertyInt(node, name);
+    const int* res = Nest_getPropertyInt(node, name);
     if ( !res )
-        REP_INTERNAL(node->location, "Node of kind %1% does not have integer property %2%") % nodeKindName(node) % name;
+        REP_INTERNAL(node->location, "Node of kind %1% does not have integer property %2%") % Nest_nodeKindName(node) % name;
     return *res;
 }
-const string& Nest::getCheckPropertyString(const Node* node, const char* name)
+const string& Nest_getCheckPropertyString(const Node* node, const char* name)
 {
-    const string* res = getPropertyString(node, name);
+    const string* res = Nest_getPropertyString(node, name);
     if ( !res )
-        REP_INTERNAL(node->location, "Node of kind %1% does not have string property %2%") % nodeKindName(node) % name;
+        REP_INTERNAL(node->location, "Node of kind %1% does not have string property %2%") % Nest_nodeKindName(node) % name;
     return *res;
 }
-Node* Nest::getCheckPropertyNode(const Node* node, const char* name)
+Node* Nest_getCheckPropertyNode(const Node* node, const char* name)
 {
-    Node*const* res = getPropertyNode(node, name);
+    Node*const* res = Nest_getPropertyNode(node, name);
     if ( !res )
-        REP_INTERNAL(node->location, "Node of kind %1% does not have Node property %2%") % nodeKindName(node) % name;
+        REP_INTERNAL(node->location, "Node of kind %1% does not have Node property %2%") % Nest_nodeKindName(node) % name;
     return *res;
 }
-TypeRef Nest::getCheckPropertyType(const Node* node, const char* name)
+TypeRef Nest_getCheckPropertyType(const Node* node, const char* name)
 {
-    const TypeRef* res = getPropertyType(node, name);
+    const TypeRef* res = Nest_getPropertyType(node, name);
     if ( !res )
-        REP_INTERNAL(node->location, "Node of kind %1% does not have Type property %2%") % nodeKindName(node) % name;
+        REP_INTERNAL(node->location, "Node of kind %1% does not have Type property %2%") % Nest_nodeKindName(node) % name;
     return *res;
 }
 
 
-void Nest::setContext(Node* node, CompilationContext* context)
+void Nest_setContext(Node* node, CompilationContext* context)
 {
     if ( context == node->context )
         return;
@@ -174,20 +174,20 @@ void Nest::setContext(Node* node, CompilationContext* context)
     node->context = context;
 
     if ( node->type )
-        clearCompilationState(node);
+        Nest_clearCompilationState(node);
 
     for ( Modifier* mod: node->modifiers )
         if ( mod->modifierType == modTypeBeforeSetContext )
             mod->modifierFun(mod, node);
 
-    getSetContextForChildrenFun(node->nodeKind)(node);
+    Nest_getSetContextForChildrenFun(node->nodeKind)(node);
 
     for ( Modifier* mod: node->modifiers )
         if ( mod->modifierType == modTypeAfterSetContext )
             mod->modifierFun(mod, node);
 }
 
-void Nest::computeType(Node* node)
+void Nest_computeType(Node* node)
 {
     if ( node->type )
         return;
@@ -197,7 +197,7 @@ void Nest::computeType(Node* node)
     try
     {
         if ( !node->context )
-            REP_INTERNAL(node->location, "No context associated with node (%1%)") % toString(node);
+            REP_INTERNAL(node->location, "No context associated with node (%1%)") % Nest_toString(node);
 
         // Check for recursive dependency
         if ( node->computeTypeStarted )
@@ -209,7 +209,7 @@ void Nest::computeType(Node* node)
                 mod->modifierFun(mod, node);
 
         // Actually compute the type
-        TypeRef res = getComputeTypeFun(node->nodeKind)(node);
+        TypeRef res = Nest_getComputeTypeFun(node->nodeKind)(node);
         if ( !res )
             REP_INTERNAL(node->location, "Type computed successfully, but no actual type was generated");
         node->type = res;
@@ -230,7 +230,7 @@ void Nest::computeType(Node* node)
     }
 }
 
-void Nest::semanticCheck(Node* node)
+void Nest_semanticCheck(Node* node)
 {
     if ( node->nodeSemanticallyChecked )
         return;
@@ -240,7 +240,7 @@ void Nest::semanticCheck(Node* node)
     try
     {
         if ( !node->context )
-            REP_INTERNAL(node->location, "No context associated with node (%1%)") % toString(node);
+            REP_INTERNAL(node->location, "No context associated with node (%1%)") % Nest_toString(node);
 
         // Check for recursive dependency
         if ( node->semanticCheckStarted )
@@ -252,10 +252,10 @@ void Nest::semanticCheck(Node* node)
                 mod->modifierFun(mod, node);
 
         // Actually do the semantic check
-        Node* res = getSemanticCheckFun(node->nodeKind)(node);
+        Node* res = Nest_getSemanticCheckFun(node->nodeKind)(node);
         if ( !res )
             REP_INTERNAL(node->location, "Node semantically checked, but no actual explanation was generated");
-        setExplanation(node, res);
+        Nest_setExplanation(node, res);
         if ( !node->type )
             REP_INTERNAL(node->location, "Node semantically checked, but no actual types was generated");
         node->nodeSemanticallyChecked = 1;
@@ -277,7 +277,7 @@ void Nest::semanticCheck(Node* node)
     }
 }
 
-void Nest::clearCompilationState(Node* node)
+void Nest_clearCompilationState(Node* node)
 {
     node->nodeError = 0;
     node->nodeSemanticallyChecked = 0;
@@ -290,21 +290,21 @@ void Nest::clearCompilationState(Node* node)
     for ( Node* p: node->children )
     {
         if ( p )
-            clearCompilationState(p);
+            Nest_clearCompilationState(p);
     }
 }
 
-void Nest::addModifier(Node* node, Modifier* mod)
+void Nest_addModifier(Node* node, Modifier* mod)
 {
     node->modifiers.push_back(mod);
 }
 
-CompilationContext* Nest::childrenContext(const Node* node)
+CompilationContext* Nest_childrenContext(const Node* node)
 {
     return node->childrenContext ? node->childrenContext : node->context;
 }
 
-void Nest::setExplanation(Node* node, Node* explanation)
+void Nest_setExplanation(Node* node, Node* explanation)
 {
     if ( explanation == node || explanation == node->explanation )
         return;
@@ -319,36 +319,36 @@ void Nest::setExplanation(Node* node, Node* explanation)
     // Try to semantically check the explanation
     if ( !explanation->nodeSemanticallyChecked )
     {
-        setContext(node->explanation, node->context);
-        semanticCheck(node->explanation);
+        Nest_setContext(node->explanation, node->context);
+        Nest_semanticCheck(node->explanation);
     }
     node->type = node->explanation->type;
 }
 
-Node* Nest::explanation(Node* node)
+Node* Nest_explanation(Node* node)
 {
-    return node && node->explanation && node->explanation != node ? explanation(node->explanation) : node;
+    return node && node->explanation && node->explanation != node ? Nest_explanation(node->explanation) : node;
 }
 
-Node* Nest::ofKind(Node* src, int desiredNodeKind)
+Node* Nest_ofKind(Node* src, int desiredNodeKind)
 {
     return src && src->nodeKind == desiredNodeKind ? src : nullptr;
 }
 
 
-const char* Nest::defaultFunToString(const Node* node)
+const char* Nest_defaultFunToString(const Node* node)
 {
     ostringstream os;
-    if ( node->explanation && 0 != strcmp(nodeKindName(node->explanation), "Feather.Nop") )
+    if ( node->explanation && 0 != strcmp(Nest_nodeKindName(node->explanation), "Feather.Nop") )
         os << node->explanation;
     else
     {
-        const string* name = getPropertyString(node, "name");
+        const string* name = Nest_getPropertyString(node, "name");
         if ( name )
             os << *name;
         else
         {
-            os << nodeKindName(node) << "(";
+            os << Nest_nodeKindName(node) << "(";
             for ( size_t i=0; i<node->children.size(); ++i )
             {
                 if ( i > 0 )
@@ -362,19 +362,19 @@ const char* Nest::defaultFunToString(const Node* node)
     return dupString(os.str().c_str());
 }
 
-void Nest::defaultFunSetContextForChildren(Node* node)
+void Nest_defaultFunSetContextForChildren(Node* node)
 {
-    CompilationContext* childrenCtx = childrenContext(node);
+    CompilationContext* childrenCtx = Nest_childrenContext(node);
     for ( Node* child: node->children )
     {
         if ( child )
-            setContext(child, childrenCtx);
+            Nest_setContext(child, childrenCtx);
     }
 }
 
-TypeRef Nest::defaultFunComputeType(Node* node)
+TypeRef Nest_defaultFunComputeType(Node* node)
 {
-    semanticCheck(node);
+    Nest_semanticCheck(node);
     return node->type;
 }
 

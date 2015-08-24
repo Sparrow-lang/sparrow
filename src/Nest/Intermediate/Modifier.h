@@ -1,6 +1,6 @@
 #pragma once
 
-FWD_STRUCT1(Nest, Node);
+typedef struct Nest_Node Node;
 
 enum Nest_ModifierType {
     modTypeBeforeSetContext,
@@ -15,7 +15,7 @@ typedef enum Nest_ModifierType ModifierType;
 
 typedef struct Nest_Modifier Modifier;
 
-typedef void (*FModifierFun)(Nest_Modifier* mod, Nest::Node* node);
+typedef void (*FModifierFun)(Nest_Modifier* mod, Node* node);
 
 /// Structure defining an interface for a modifier
 /// The modifier is called for all the important operations that happen to a node

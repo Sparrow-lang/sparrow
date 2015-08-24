@@ -3,8 +3,6 @@
 
 #include <boost/filesystem.hpp>
 
-using namespace Nest;
-
 namespace
 {
     string extensionFromFilename(const string& filename)

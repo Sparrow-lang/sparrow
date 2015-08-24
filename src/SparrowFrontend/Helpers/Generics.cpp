@@ -33,23 +33,23 @@ namespace
 
     Node* instantiatedDecl(Node* inst)
     {
-        return getCheckPropertyNode(inst, "instantiatedDecl");
+        return Nest_getCheckPropertyNode(inst, "instantiatedDecl");
     }
 
     void setInstantiatedDecl(Node* inst, Node* decl)
     {
-        setProperty(inst, "instantiatedDecl", decl);
+        Nest_setProperty(inst, "instantiatedDecl", decl);
         expandedInstantiation(inst)->children.push_back(decl);
     }
 
     bool instantiationIsValid(Node* inst)
     {
-        return 0 != getCheckPropertyInt(inst, "instIsValid");
+        return 0 != Nest_getCheckPropertyInt(inst, "instIsValid");
     }
 
     void setInstantiationValid(Node* inst, bool valid = true)
     {
-        setProperty(inst, "instIsValid", valid ? 1 : 0);
+        Nest_setProperty(inst, "instIsValid", valid ? 1 : 0);
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -85,14 +85,14 @@ namespace
 
                 Node* var = mkSprVariable(p->location, getName(p), t, nullptr);
                 if ( insideClass )
-                    Nest::setProperty(var, propIsStatic, 1);
+                    Nest_setProperty(var, propIsStatic, 1);
                 nodes.push_back(var);
             }
             else
             {
                 Node* var = mkSprVariable(p->location, getName(p), boundValue->type, boundValue);
                 if ( insideClass )
-                    Nest::setProperty(var, propIsStatic, 1);
+                    Nest_setProperty(var, propIsStatic, 1);
                 setEvalMode(var, modeCt);
                 nodes.push_back(var);
             }
@@ -141,8 +141,8 @@ namespace
         instantiations.push_back(inst);
 
         // Compile the newly created instantiation
-        Nest::setContext(expandedInstantiation(inst), context);
-        Nest::semanticCheck(expandedInstantiation(inst));
+        Nest_setContext(expandedInstantiation(inst), context);
+        Nest_semanticCheck(expandedInstantiation(inst));
 
         return inst;
     }
@@ -165,8 +165,8 @@ namespace
         if ( ifClause )
         {
             // Always use a clone of the original node
-            Node* cond = cloneNode(ifClause);
-            Nest::setContext(cond, Nest::childrenContext(expandedInstantiation(inst)));
+            Node* cond = Nest_cloneNode(ifClause);
+            Nest_setContext(cond, Nest_childrenContext(expandedInstantiation(inst)));
 
             // If the condition does not compile, we cannot instantiate
             bool isValid = false;
@@ -174,7 +174,7 @@ namespace
             try
             {
                 Nest::theCompiler().diagnosticReporter().setSeverityLevel(Nest::Common::diagInternalError);
-                Nest::semanticCheck(cond);
+                Nest_semanticCheck(cond);
                 isValid = !cond->nodeError
                     && Feather::isCt(cond)          // We must have a value at CT
                     && Feather::isTestable(cond);   // The value must be boolean
@@ -218,7 +218,7 @@ namespace
             Node* arg = args[i];
 
             // Evaluate the node and add the resulting CtValue as a bound argument
-            Nest::computeType(arg);
+            Nest_computeType(arg);
             if ( !Feather::isCt(arg) )
                 REP_INTERNAL(arg->location, "Argument to a class generic must be CT (type: %1%)") % arg->type;
             Node* n = theCompiler().ctEval(arg);
@@ -269,14 +269,14 @@ namespace
 
         Node* baseClasses = orig->children[1];
         Node* children = orig->children[2];
-        baseClasses = baseClasses ? Nest::cloneNode(baseClasses) : nullptr;
-        children = children ? Nest::cloneNode(children) : nullptr;
+        baseClasses = baseClasses ? Nest_cloneNode(baseClasses) : nullptr;
+        children = children ? Nest_cloneNode(children) : nullptr;
         Node* newClass = mkSprClass(loc, getName(orig), nullptr, baseClasses, nullptr, children);
 
         copyModifiersSetMode(orig, newClass, context->evalMode);
 
         //setShouldAddToSymTab(newClass, false);    // TODO (generics): Uncomment this line
-        Nest::setContext(newClass, context);
+        Nest_setContext(newClass, context);
 
 //        REP_INFO(loc, "Instantiated %1%") % description;
         return newClass;
@@ -326,16 +326,16 @@ namespace
             if ( isConceptType(param->type, isRefAuto) )
             {
                 // Create a CtValue with the type of the argument corresponding to the auto parameter
-                Nest::computeType(arg);
+                Nest_computeType(arg);
                 TypeRef t = getAutoType(arg, isRefAuto);
                 Node* typeNode = createTypeNode(context, param->location, t);
-                Nest::computeType(typeNode);
+                Nest_computeType(typeNode);
                 boundValues[i] = typeNode;
             }
             else
             {
                 // Evaluate the node and add the resulting CtValue as a bound argument
-                Nest::computeType(arg);
+                Nest_computeType(arg);
                 if ( !Feather::isCt(arg) )
                     return {};     // This argument must be CT in order to instantiate the generic
                 Node* n = theCompiler().ctEval(arg);
@@ -370,7 +370,7 @@ namespace
 
             if ( !genericParams[i] )            // If this is not a generic parameter => non-bound parameter
             {
-                nonBoundParams.push_back(cloneNode(p));
+                nonBoundParams.push_back(Nest_cloneNode(p));
             }
             else if ( isConceptType(p->type) )   // For auto-type parameters, we also create a non-bound parameter
             {
@@ -395,7 +395,7 @@ namespace
             TypeRef typeToCheck = nullptr;
             if ( !pType || isConceptType(pType) )
             {
-                Nest::computeType(args[i]);
+                Nest_computeType(args[i]);
                 typeToCheck = args[i]->type;
             }
             else
@@ -452,12 +452,12 @@ namespace
         Node* parameters = mkNodeList(loc, nonBoundParams);
         Node* returnType = origFun->children[1];
         Node* body = origFun->children[2];
-        returnType = returnType ? cloneNode(returnType) : nullptr;
-        body = body ? cloneNode(body) : nullptr;
+        returnType = returnType ? Nest_cloneNode(returnType) : nullptr;
+        body = body ? Nest_cloneNode(body) : nullptr;
         Node* newFun = mkSprFunction(loc, getName(origFun), parameters, returnType, body);
         copyModifiersSetMode(origFun, newFun, context->evalMode);
         setShouldAddToSymTab(newFun, false);
-        Nest::setContext(newFun, context);
+        Nest_setContext(newFun, context);
 
         //REP_INFO(loc, "Instantiated %1%") % newFun->toString();
         return newFun;
@@ -466,8 +466,8 @@ namespace
     Node* createCallFn(const Location& loc, CompilationContext* context, Node* inst, const NodeVector& nonBoundArgs)
     {
         ASSERT(inst->nodeKind == nkSparrowDeclSprFunction);
-        Nest::computeType(inst);
-        Node* resultingFun = explanation(inst);
+        Nest_computeType(inst);
+        Node* resultingFun = Nest_explanation(inst);
         if ( !resultingFun )
             REP_ERROR(loc, "Cannot instantiate function generic %1%") % getName(inst);
         return createFunctionCall(loc, context, resultingFun, nonBoundArgs);
@@ -482,7 +482,7 @@ bool SprFrontend::conceptIsFulfilled(Node* concept, TypeRef type)
         REP_INTERNAL(concept->location, "Invalid concept");
 
     Node* typeValue = createTypeNode(concept->context, concept->location, type);
-    Nest::semanticCheck(typeValue);
+    Nest_semanticCheck(typeValue);
 
     return nullptr != canInstantiate(instantiationsSet, {typeValue}, concept->context->evalMode);
 }
@@ -501,7 +501,7 @@ Node* SprFrontend::createGenericFun(Node* originalFun, Node* parameters, Node* i
     // If we are in a CT function, don't consider CT parameters
     bool inCtFun = effectiveEvalMode(originalFun) == modeCt;
     // For CT-generics, we consider all the parameters to be generic parameters
-    bool isCtGeneric = Nest::hasProperty(originalFun, propCtGeneric);
+    bool isCtGeneric = Nest_hasProperty(originalFun, propCtGeneric);
 
     // Check if we have some CT parameters
     ASSERT(parameters);
@@ -512,7 +512,7 @@ Node* SprFrontend::createGenericFun(Node* originalFun, Node* parameters, Node* i
     for ( size_t i=0; i<params.size(); ++i )
     {
         Node* param = params[i];
-        Nest::computeType(param);
+        Nest_computeType(param);
         ASSERT(param->type);
 
         ourParams[i] = param;
@@ -536,8 +536,8 @@ Node* SprFrontend::createGenericFun(Node* originalFun, Node* parameters, Node* i
     {
         TypeRef thisType = getDataType(thisClass, 1, effectiveEvalMode(originalFun));
         Node* thisParam = mkSprParameter(originalFun->location, "$this", thisType);
-        Nest::setContext(thisParam, Nest::childrenContext(originalFun));
-        Nest::computeType(thisParam);
+        Nest_setContext(thisParam, Nest_childrenContext(originalFun));
+        Nest_computeType(thisParam);
         ourParams.insert(ourParams.begin(), thisParam);
         genericParams.insert(genericParams.begin(), nullptr);
     }
@@ -545,7 +545,7 @@ Node* SprFrontend::createGenericFun(Node* originalFun, Node* parameters, Node* i
     // Actually create the generic
     Node* res = mkGenericFunction(originalFun, move(ourParams), move(genericParams), ifClause);
     setEvalMode(res, effectiveEvalMode(originalFun));
-    Nest::setContext(res, originalFun->context);
+    Nest_setContext(res, originalFun->context);
     return res;
 }
 
@@ -605,7 +605,7 @@ Node* SprFrontend::genericCanInstantiate(Node* node, const NodeVector& args)
             Node* originalFun = node->referredNodes[0];
             NodeVector boundValues = getGenericFunBoundValues(originalFun->context, args, genericParams(node));
 
-            EvalMode resultingEvalMode = Nest::hasProperty(originalFun, propCtGeneric)
+            EvalMode resultingEvalMode = Nest_hasProperty(originalFun, propCtGeneric)
                 ? modeCt        // If we have a CT generic, the resulting eval mode is always CT
                 : getGenericFunResultingEvalMode(originalFun->location, effectiveEvalMode(originalFun), args, genericParams(node));
 
@@ -630,16 +630,16 @@ Node* SprFrontend::genericDoInstantiate(Node* node, const Location& loc, Compila
             Node* expandedInst = expandedInstantiation(inst);
             if ( !instDecl )
             {
-                Node* originalClass = ofKind(node->referredNodes[0], nkSparrowDeclSprClass);
+                Node* originalClass = Nest_ofKind(node->referredNodes[0], nkSparrowDeclSprClass);
                 string description = getGenericClassDescription(originalClass, inst);
 
                 // Create the actual instantiation declaration
-                CompilationContext* ctx = Nest::childrenContext(expandedInst);
+                CompilationContext* ctx = Nest_childrenContext(expandedInst);
                 instDecl = createInstantiatedClass(ctx, originalClass, description);
                 if ( !instDecl )
                     REP_INTERNAL(loc, "Cannot instantiate generic");
-                Nest::setProperty(instDecl, propDescription, move(description));
-                Nest::computeType(instDecl);
+                Nest_setProperty(instDecl, propDescription, move(description));
+                Nest_computeType(instDecl);
                 theCompiler().queueSemanticCheck(instDecl);
                 setInstantiatedDecl(inst, instDecl);
 
@@ -649,7 +649,7 @@ Node* SprFrontend::genericDoInstantiate(Node* node, const Location& loc, Compila
             }
 
             // Now actually create the call object: a Type CT value
-            Node* cls = ofKind(Nest::explanation(instDecl), nkFeatherDeclClass);
+            Node* cls = Nest_ofKind(Nest_explanation(instDecl), nkFeatherDeclClass);
             ASSERT(cls);
             return createTypeNode(node->context, loc, Feather::getDataType(cls));
         }
@@ -667,11 +667,11 @@ Node* SprFrontend::genericDoInstantiate(Node* node, const Location& loc, Compila
                 NodeVector nonBoundParams = getGenericFunNonBoundParameters(inst, originalFun, node->referredNodes[1]->children, genericParams(node));
 
                 // Create the actual instantiation declaration
-                CompilationContext* ctx = Nest::childrenContext(expandedInst);
+                CompilationContext* ctx = Nest_childrenContext(expandedInst);
                 instDecl = createInstFn(ctx, originalFun, nonBoundParams);
                 if ( !instDecl )
                     REP_INTERNAL(loc, "Cannot instantiate generic");
-                Nest::computeType(instDecl);
+                Nest_computeType(instDecl);
                 theCompiler().queueSemanticCheck(instDecl);
                 setInstantiatedDecl(inst, instDecl);
 

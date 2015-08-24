@@ -3,8 +3,6 @@
 #include "SourceCodeKindRegistrar.h"
 #include "Common/Alloc.h"
 
-using namespace Nest;
-
 void Nest_parseSourceCode(SourceCode* sourceCode, CompilationContext* ctx)
 {
     ASSERT(sourceCode);
@@ -24,7 +22,7 @@ StringRef Nest_getSourceCodeLine(const SourceCode* sourceCode, int lineNum)
     return null;
 }
 
-Nest::Node* Nest_translateCtToRt(const SourceCode* sourceCode, Nest::Node* node)
+Node* Nest_translateCtToRt(const SourceCode* sourceCode, Node* node)
 {
     ASSERT(sourceCode);
     FTranslateCtToRt f = Nest_getTranslateCtToRtFun(sourceCode->kind);

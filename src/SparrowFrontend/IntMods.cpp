@@ -23,10 +23,10 @@ namespace
     /// Search in the given class for a function with a specified name, taking the given type of parameter
     bool checkForMember(Node* cls, const string& funName, Node* paramClass)
     {
-        NodeVector decls = Nest_symTabLookupCurrent(childrenContext(cls)->currentSymTab, funName.c_str());
+        NodeVector decls = Nest_symTabLookupCurrent(Nest_childrenContext(cls)->currentSymTab, funName.c_str());
         for ( Node* decl: decls )
         {
-            decl = explanation(decl);
+            decl = Nest_explanation(decl);
             if ( !decl )
                 continue;
             if ( !decl || decl->nodeKind != nkFeatherDeclFunction )
@@ -34,7 +34,7 @@ namespace
 
             // Make sure we only take in considerations operations of this class
             Node* cls2 = getParentClass(decl->context);
-            if ( cls2 != explanation(cls) )
+            if ( cls2 != Nest_explanation(cls) )
                 continue;
 
             // Check 'this' and 'other' parameters
@@ -74,7 +74,7 @@ namespace
     /// Checks if the class has a 'ctorFromCt' method
     bool checkForCtorFromCt(Node* cls)
     {
-        NodeVector decls = Nest_symTabLookupCurrent(childrenContext(cls)->currentSymTab, "ctorFromCt");
+        NodeVector decls = Nest_symTabLookupCurrent(Nest_childrenContext(cls)->currentSymTab, "ctorFromCt");
         for ( Node* n: decls )
         {
             if ( effectiveEvalMode(n) == modeRt )
@@ -123,14 +123,14 @@ namespace
             sprParams.push_back(mkSprParameter(loc, param.second, param.first));
         }
         Node* parameters = sprParams.empty() ? nullptr : mkNodeList(loc, move(sprParams));
-        Node* ret = resClass ? createTypeNode(childrenContext(parent), loc, getDataType(resClass)) : nullptr;
+        Node* ret = resClass ? createTypeNode(Nest_childrenContext(parent), loc, getDataType(resClass)) : nullptr;
         
         // Add the function
         Node* m = mkSprFunction(loc, name, parameters, ret, body);
-        Nest::setProperty(m, propNoDefault, 1);
+        Nest_setProperty(m, propNoDefault, 1);
         setEvalMode(m, mode == modeUnspecified ? effectiveEvalMode(parent) : mode);
         Class_addChild(parent, m);
-        Nest::computeType(m);
+        Nest_computeType(m);
         return m;
     }
     
@@ -145,7 +145,7 @@ namespace
     {
         Location loc = parent->location;
         loc.end = loc.start;
-        Node* cls = explanation(parent);
+        Node* cls = Nest_explanation(parent);
         cls = cls && cls->nodeKind == nkFeatherDeclClass ? cls : nullptr;
         ASSERT(cls);
 
@@ -205,7 +205,7 @@ namespace
         
         Location loc = parent->location;
         loc.end = loc.start;
-        Node* cls = explanation(parent);
+        Node* cls = Nest_explanation(parent);
         cls = cls && cls->nodeKind == nkFeatherDeclClass ? cls : nullptr;
         ASSERT(cls);
 
@@ -241,7 +241,7 @@ namespace
     {
         Location loc = parent->location;
         loc.end = loc.start;
-        Node* cls = explanation(parent);
+        Node* cls = Nest_explanation(parent);
         cls = cls && cls->nodeKind == nkFeatherDeclClass ? cls : nullptr;
         ASSERT(cls);
 
@@ -283,8 +283,8 @@ namespace
         // Check all the items in the local space
         for ( Node* n: inSpace->children )
         {
-            Nest::computeType(n);
-            n = Nest::explanation(n);
+            Nest_computeType(n);
+            n = Nest_explanation(n);
             if ( !n )
                 continue;
 
@@ -318,7 +318,7 @@ namespace
             {
                 // If we have a MemLoad, just ignore it
                 if ( thisArg->nodeKind == nkFeatherExpMemLoad )
-                    thisArg = explanation(thisArg->children[0]);
+                    thisArg = Nest_explanation(thisArg->children[0]);
 
                 if ( !thisArg || thisArg->nodeKind != nkFeatherExpVarRef
                     || getName(thisArg->referredNodes[0]) != "$this" )
@@ -330,7 +330,7 @@ namespace
             {
                 // If we have a Bitcast, just ignore it
                 if ( thisArg->nodeKind == nkFeatherExpBitcast )
-                    thisArg = explanation(thisArg->children[0]);
+                    thisArg = Nest_explanation(thisArg->children[0]);
 
                 if ( !thisArg || thisArg->nodeKind != nkFeatherExpFieldRef
                     || thisArg->referredNodes[0] != forField )
@@ -352,7 +352,7 @@ void _IntModClassMembers_afterComputeType(Modifier*, Node* node)
     if ( !cls->type )
         REP_INTERNAL(node->location, "Type was not computed for %1% when applying IntModClassMembers") % getName(node);
 
-    Node* basicClass = Nest::explanation(node);
+    Node* basicClass = Nest_explanation(node);
     basicClass = basicClass && basicClass->nodeKind == nkFeatherDeclClass ? basicClass : nullptr;
     ASSERT(basicClass);
     TypeRef paramType = getDataType(basicClass, 1);
@@ -370,7 +370,7 @@ void _IntModClassMembers_afterComputeType(Modifier*, Node* node)
         generateMethod(cls, "ctor", "ctor", paramType);
 
     // Initialization ctor
-    if ( hasProperty(cls, propGenerateInitCtor) )
+    if ( Nest_hasProperty(cls, propGenerateInitCtor) )
         generateInitCtor(cls);
     
     // CT to RT ctor
@@ -434,7 +434,7 @@ void IntModCtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
             {
                 call = mkOperatorCall(loc, fieldRef, ":=", buildNullLiteral(loc));
             }
-            Nest::setContext(call, Nest::childrenContext(body));
+            Nest_setContext(call, Nest_childrenContext(body));
             body->children.insert(body->children.begin(), call);
         }
     }
@@ -460,7 +460,7 @@ void IntModDtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
     CHECK(fun->location, cls);
 
     // Generate the dtor calls in reverse order of the fields; add them to the body of the destructor
-    CompilationContext* context = Nest::childrenContext(body);
+    CompilationContext* context = Nest_childrenContext(body);
     const Location& loc = body->location;
     for ( Node* field: boost::adaptors::reverse(cls->children) )
     {
@@ -472,9 +472,9 @@ void IntModDtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
         if ( field->type->numReferences == 0 )
         {
             Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
-            Nest::setContext(fieldRef, context);
+            Nest_setContext(fieldRef, context);
             Node* call = mkOperatorCall(loc, fieldRef, "dtor", nullptr);
-            Nest::setContext(call, context);
+            Nest_setContext(call, context);
             body->children.push_back(call);
         }
 

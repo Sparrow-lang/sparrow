@@ -6,27 +6,27 @@
 
 using namespace Feather;
 
-TypeRef Feather::getCtValueType(Nest::Node* ctVal)
+TypeRef Feather::getCtValueType(Node* ctVal)
 {
     if ( ctVal->nodeKind != nkFeatherExpCtValue )
         REP_INTERNAL(ctVal->location, "Invalid CtValue");
-    return getCheckPropertyType(ctVal, "valueType");
+    return Nest_getCheckPropertyType(ctVal, "valueType");
 }
 
 /// Getter for the value data of a CtValue node -- the data is encoded in a string
-const string& Feather::getCtValueDataAsString(Nest::Node* ctVal)
+const string& Feather::getCtValueDataAsString(Node* ctVal)
 {
     if ( ctVal->nodeKind != nkFeatherExpCtValue )
         REP_INTERNAL(ctVal->location, "Invalid CtValue");
-    return getCheckPropertyString(ctVal, "valueData");
+    return Nest_getCheckPropertyString(ctVal, "valueData");
 }
 
-bool Feather::getBoolCtValue(Nest::Node* ctVal)
+bool Feather::getBoolCtValue(Node* ctVal)
 {
     return (0 != *getCtValueData<unsigned char>(ctVal));
 }
 
-bool Feather::sameCtValue(Nest::Node* ctVal1, Nest::Node* ctVal2)
+bool Feather::sameCtValue(Node* ctVal1, Node* ctVal2)
 {
     return getCtValueType(ctVal1) == getCtValueType(ctVal2)
         && getCtValueDataAsString(ctVal1) == getCtValueDataAsString(ctVal2);

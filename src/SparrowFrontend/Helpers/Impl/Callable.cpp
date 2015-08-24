@@ -28,7 +28,7 @@ ConversionType Callable::canCall(CompilationContext* context, const Location& lo
         Node* defaultArg = this->paramDefaultVal(i);
         if ( !defaultArg )
             return convNone;        // We have a non-default parameter but we don't have an argument for that
-        semanticCheck(defaultArg);  // Make sure this is semantically checked
+        Nest_semanticCheck(defaultArg);  // Make sure this is semantically checked
 
         args_.push_back(defaultArg);
     }
@@ -100,7 +100,7 @@ Node* Callable::paramDefaultVal(size_t idx) const
 {
     Node* p = param(idx);
     ASSERT(p);
-    Node* sprParam = ofKind(p, nkSparrowDeclSprParameter);
+    Node* sprParam = Nest_ofKind(p, nkSparrowDeclSprParameter);
     return sprParam ? sprParam->children[1] : nullptr;
 }
 

@@ -22,7 +22,7 @@ const Location& GenericCallable::location() const
 string GenericCallable::toString() const
 {
     ostringstream oss;
-    oss << Nest::toString(generic_) << "(";
+    oss << Nest_toString(generic_) << "(";
     size_t count = genericParamsCount(generic_);
     for ( size_t i=0; i<count; ++i )
     {
@@ -72,6 +72,6 @@ Node* GenericCallable::generateCall(const Location& loc)
     ASSERT(inst_);
     ASSERT(context_);
     Node* res = genericDoInstantiate(generic_, loc, context_, argsWithCvt_, inst_);
-    Nest::setContext(res, context_);
+    Nest_setContext(res, context_);
     return res;
 }

@@ -3,17 +3,14 @@
 #include "TypeRef.h"
 #include "EvalMode.h"
 
-namespace Nest
-{
-    /// Type of function that changes the evaluation mode of a type
-    typedef TypeRef (*FChangeTypeMode)(TypeRef, EvalMode);
+/// Type of function that changes the evaluation mode of a type
+typedef TypeRef (*FChangeTypeMode)(TypeRef, EvalMode);
 
-    /// Registers a new type kind
-    ///
-    /// @param funChangeTypeMode    The function used to change the mode of a type
-    /// @return the ID of the new type kind
-    int registerTypeKind(FChangeTypeMode funChangeTypeMode);
+/// Registers a new type kind
+///
+/// @param funChangeTypeMode    The function used to change the mode of a type
+/// @return the ID of the new type kind
+int Nest_registerTypeKind(FChangeTypeMode funChangeTypeMode);
 
-    /// Getter for the function that can change the type mode for the given type kind
-    FChangeTypeMode getChangeTypeModeFun(int typeKind);
-}
+/// Getter for the function that can change the type mode for the given type kind
+FChangeTypeMode Nest_getChangeTypeModeFun(int typeKind);

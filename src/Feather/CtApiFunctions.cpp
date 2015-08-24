@@ -106,7 +106,7 @@ namespace
     //
     void ctApi_AstNode_clone(Node** sret, Node** thisArg)
     {
-        *sret = cloneNode(*thisArg);
+        *sret = Nest_cloneNode(*thisArg);
     }
     int ctApi_AstNode_nodeKind(Node** thisArg)
     {
@@ -114,15 +114,15 @@ namespace
     }
     void ctApi_AstNode_nodeKindName(StringData* sret, Node** thisArg)
     {
-        *sret = StringData(nodeKindName(*thisArg));
+        *sret = StringData(Nest_nodeKindName(*thisArg));
     }
     void ctApi_AstNode_toString(StringData* sret, Node** thisArg)
     {
-        *sret = StringData(toString(*thisArg));
+        *sret = StringData(Nest_toString(*thisArg));
     }
     void ctApi_AstNode_toStringExt(StringData* sret, Node** thisArg)
     {
-        *sret = StringData(toString(*thisArg));
+        *sret = StringData(Nest_toString(*thisArg));
     }
     void ctApi_AstNode_location(Location* sret, Node** thisArg)
     {
@@ -144,67 +144,67 @@ namespace
     }
     bool ctApi_AstNode_hasProperty(Node** thisArg, StringData name)
     {
-        return hasProperty(*thisArg, name.begin);
+        return Nest_hasProperty(*thisArg, name.begin);
     }
     bool ctApi_AstNode_getPropertyString(Node** thisArg, StringData name, StringData* value)
     {
-        const string* res = getPropertyString(*thisArg, name.begin);
+        const string* res = Nest_getPropertyString(*thisArg, name.begin);
         if ( res )
             *value = StringData(*res);
         return res != nullptr;
     }
     bool ctApi_AstNode_getPropertyInt(Node** thisArg, StringData name, int* value)
     {
-        const int* res = getPropertyInt(*thisArg, name.begin);
+        const int* res = Nest_getPropertyInt(*thisArg, name.begin);
         if ( res )
             *value = *res;
         return res != nullptr;
     }
     bool ctApi_AstNode_getPropertyNode(Node** thisArg, StringData name, Node** value)
     {
-        Node*const* res = getPropertyNode(*thisArg, name.begin);
+        Node*const* res = Nest_getPropertyNode(*thisArg, name.begin);
         if ( res )
             *value = *res;
         return res != nullptr;
     }
     bool ctApi_AstNode_getPropertyType(Node** thisArg, StringData name, TypeRef* value)
     {
-        const TypeRef* res = getPropertyType(*thisArg, name.begin);
+        const TypeRef* res = Nest_getPropertyType(*thisArg, name.begin);
         if ( res )
             *value = *res;
         return res != nullptr;
     }
     void ctApi_AstNode_setPropertyString(Node** thisArg, StringData name, StringData value)
     {
-        setProperty(*thisArg, name.begin, value.toStdString());
+        Nest_setProperty(*thisArg, name.begin, value.toStdString());
     }
     void ctApi_AstNode_setPropertyInt(Node** thisArg, StringData name, int value)
     {
-        setProperty(*thisArg, name.begin, value);
+        Nest_setProperty(*thisArg, name.begin, value);
     }
     void ctApi_AstNode_setPropertyNode(Node** thisArg, StringData name, Node* value)
     {
-        setProperty(*thisArg, name.begin, value);
+        Nest_setProperty(*thisArg, name.begin, value);
     }
     void ctApi_AstNode_setPropertyType(Node** thisArg, StringData name, TypeRef value)
     {
-        setProperty(*thisArg, name.begin, value);
+        Nest_setProperty(*thisArg, name.begin, value);
     }
     void ctApi_AstNode_setContext(Node** thisArg, CompilationContext* context)
     {
-        setContext(*thisArg, context);
+        Nest_setContext(*thisArg, context);
     }
     void ctApi_AstNode_computeType(Node** thisArg)
     {
-        computeType(*thisArg);
+        Nest_computeType(*thisArg);
     }
     void ctApi_AstNode_semanticCheck(Node** thisArg)
     {
-        semanticCheck(*thisArg);
+        Nest_semanticCheck(*thisArg);
     }
     void ctApi_AstNode_clearCompilationState(Node** thisArg)
     {
-        clearCompilationState(*thisArg);
+        Nest_clearCompilationState(*thisArg);
     }
     void ctApi_AstNode_context(CompilationContext** sret, Node** thisArg)
     {
@@ -228,7 +228,7 @@ namespace
     }
     void ctApi_AstNode_explanation(Node** sret, Node** thisArg)
     {
-        *sret = explanation(*thisArg);
+        *sret = Nest_explanation(*thisArg);
     }
     void ctApi_AstNode_curExplanation(Node** sret, Node** thisArg)
     {

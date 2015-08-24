@@ -77,7 +77,7 @@ TypeRef Nest_insertStockType(const Type* newType)
 
 TypeRef Nest_changeTypeMode(TypeRef type, EvalMode newMode)
 {
-    return getChangeTypeModeFun(type->typeKind)(type, newMode);
+    return Nest_getChangeTypeModeFun(type->typeKind)(type, newMode);
 }
 
 void save(const Type& obj, OutArchive& ar)

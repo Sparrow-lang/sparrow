@@ -36,7 +36,7 @@ ClassCtorCallable::ClassCtorCallable(Node* cls, Callable* baseCallable, EvalMode
 
 Callables ClassCtorCallable::getCtorCallables(Node* cls, EvalMode evalMode)
 {
-    NodeVector decls = Nest_symTabLookupCurrent(childrenContext(cls)->currentSymTab, "ctor");
+    NodeVector decls = Nest_symTabLookupCurrent(Nest_childrenContext(cls)->currentSymTab, "ctor");
 
     evalMode = combineMode(effectiveEvalMode(cls), evalMode, cls->location, false);
 
@@ -44,7 +44,7 @@ Callables ClassCtorCallable::getCtorCallables(Node* cls, EvalMode evalMode)
     res.reserve(decls.size());
     for ( Node* decl: decls )
     {
-        Node* fun = explanation(decl);
+        Node* fun = Nest_explanation(decl);
         if ( fun && fun->nodeKind == nkFeatherDeclFunction )
             res.push_back(new ClassCtorCallable(cls, new FunctionCallable(fun), evalMode));
 
@@ -98,11 +98,11 @@ ConversionType ClassCtorCallable::canCall(CompilationContext* context, const Loc
 
     // Create a temporary variable - use it as a this argument
     tmpVar_ = Feather::mkVar(loc, "tmp.v", mkTypeNode(loc, varType(cls_, evalMode_)), 0, evalMode_);
-    setContext(tmpVar_, context);
-    computeType(tmpVar_);
+    Nest_setContext(tmpVar_, context);
+    Nest_computeType(tmpVar_);
     thisArg_ = mkVarRef(loc, tmpVar_);
-    setContext(thisArg_, context);
-    computeType(thisArg_);
+    Nest_setContext(thisArg_, context);
+    Nest_computeType(thisArg_);
 
     NodeVector args2 = args;
     args2.insert(args2.begin(), thisArg_);

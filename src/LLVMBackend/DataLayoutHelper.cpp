@@ -39,7 +39,7 @@ namespace
             REP_INTERNAL(clsDecl->location, "Class %1% doesn't have type computed, while computing its size") % getName(clsDecl);
 
         // Check if this is a standard/native type
-        const string* nativeName = Nest::getPropertyString(clsDecl, propNativeName);
+        const string* nativeName = Nest_getPropertyString(clsDecl, propNativeName);
         if ( nativeName )
         {
             llvm::Type* t = Tr::getNativeLLVMType(clsDecl->location, *nativeName, llvmContext);
@@ -48,7 +48,7 @@ namespace
         }
 
         // Create the type, and set it as a property (don't add any subtypes yet to avoid endless loops)
-        const string* description = Nest::getPropertyString(clsDecl, propDescription);
+        const string* description = Nest_getPropertyString(clsDecl, propDescription);
         llvm::StructType* t = llvm::StructType::create(llvmContext, description ? *description : getName(clsDecl));
 
         // Now add the subtypes

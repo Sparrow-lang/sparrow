@@ -9,8 +9,6 @@
 
 namespace Feather
 {
-    using namespace Nest;
-
     enum FeatherNodeKinds
     {
         nkRelFeatherNop = 0,

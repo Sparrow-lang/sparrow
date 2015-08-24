@@ -60,7 +60,7 @@ bool SprFrontend::ctValsEqual(Node* v1, Node* v2)
         Node* funCall = selectOverload(context, v1->location, modeCt, move(decls), {v1, v2}, false, "");
         if ( funCall )
         {
-            Nest::semanticCheck(funCall);
+            Nest_semanticCheck(funCall);
             if ( Feather::isTestable(funCall) && Feather::isCt(funCall) )
             {
                 Node* c = theCompiler().ctEval(funCall);

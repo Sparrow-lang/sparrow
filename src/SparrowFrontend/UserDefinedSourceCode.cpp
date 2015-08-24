@@ -69,8 +69,8 @@ namespace
         // Compile the function and evaluate it
         Node* implPart = mkCompoundExp(loc, funCall, "impl");
         implPart = Feather::mkMemLoad(loc, implPart);    // Remove LValue
-        Nest::setContext(implPart, ctx);
-        Nest::semanticCheck(implPart);
+        Nest_setContext(implPart, ctx);
+        Nest_semanticCheck(implPart);
 
         sourceCode->mainNode = (Node*) getIntRefCtValue(implPart);
         if ( !sourceCode->mainNode )

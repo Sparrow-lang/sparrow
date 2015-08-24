@@ -23,7 +23,7 @@ namespace
         Node* cls = classForType(t);
         ASSERT(cls);
         
-        const string* nativeName = getPropertyString(cls, propNativeName);
+        const string* nativeName = Nest_getPropertyString(cls, propNativeName);
         if ( !nativeName || nativeName->size() <= 1 || !islower((*nativeName)[0]) )
             return false;
         
@@ -145,7 +145,7 @@ namespace
             REP_ERROR(loc, "Cannot convert %1% from CT to RT (make sure 'ctorFromRt' method exists)") % t;
 
         // Generate the call to the ctor
-        computeType(node);
+        Nest_computeType(node);
         NodeVector args(1, node);
         auto cr = call->canCall(node->context, loc, args, modeRt, true);
         ASSERT(cr);
@@ -153,8 +153,8 @@ namespace
         res = mkMemLoad(loc, res);
 
         // Sanity check
-        setContext(res, node->context);
-        computeType(res);
+        Nest_setContext(res, node->context);
+        Nest_computeType(res);
         if ( res->type != Feather::changeTypeMode(node->type, modeRt) )
             REP_INTERNAL(loc, "Cannot convert %1% from CT to RT (invalid returned type)") % t;
 
@@ -191,7 +191,7 @@ Node* SprFrontend::convertCtToRt(Node* node)
 
 TypeRef SprFrontend::getType(Node* typeNode)
 {
-    semanticCheck(typeNode);
+    Nest_semanticCheck(typeNode);
     if ( !typeNode->type )
         REP_ERROR(typeNode->location, "Invalid type name");
     
@@ -205,7 +205,7 @@ TypeRef SprFrontend::getType(Node* typeNode)
 
 TypeRef SprFrontend::tryGetTypeValue(Node* typeNode)
 {
-    semanticCheck(typeNode);
+    Nest_semanticCheck(typeNode);
     
     TypeRef t = Feather::lvalueToRefIfPresent(typeNode->type);
     
@@ -245,7 +245,7 @@ Node* SprFrontend::createTypeNode(CompilationContext* context, const Location& l
 {
     Node* res = mkCtValue(loc, StdDef::typeType, &t);
     if ( context )
-        setContext(res, context);
+        Nest_setContext(res, context);
     return res;
 }
 

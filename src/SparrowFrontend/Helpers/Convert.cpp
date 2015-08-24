@@ -44,7 +44,7 @@ namespace
     {
         return ConversionResult(combine(first.conversionType(), second.conversionType()), [=](Node* src) -> Node* {
             Node* src1 = first.apply(src);
-            setContext(src1, src->context);
+            Nest_setContext(src1, src->context);
             return second.apply(src1);
         }, first.contextDependent() || second.contextDependent());
     }
@@ -217,7 +217,7 @@ namespace
             return convNone;
 
         Node* destClass = classForType(destType);
-        Nest::computeType(destClass);
+        Nest_computeType(destClass);
 
         // Try to convert srcType to lv destClass
         if ( !selectConversionCtor(context, destClass, destType->mode, srcType, nullptr, nullptr) )
@@ -367,7 +367,7 @@ Node* ConversionResult::apply(CompilationContext* context, Node* src) const
     Node* res = convType_ != convNone && convFun_
         ? convFun_(src)
         : src;
-    setContext(res, context);
+    Nest_setContext(res, context);
     return res;
 }
 
@@ -380,7 +380,7 @@ ConversionResult SprFrontend::canConvertType(CompilationContext* context, TypeRe
 ConversionResult SprFrontend::canConvert(Node* arg, TypeRef destType, ConversionFlags flags)
 {
     ASSERT(arg);
-    computeType(arg);
+    Nest_computeType(arg);
     TypeRef srcType = arg->type;
     ASSERT(srcType);
     ASSERT(destType);

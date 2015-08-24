@@ -3,8 +3,8 @@
 #include <Nest/Intermediate/TypeRef.h>
 
 typedef struct Nest_Location Location;
+typedef struct Nest_Node Node;
 
-FWD_STRUCT1(Nest, Node)
 FWD_CLASS1(LLVMB, Module)
 
 FWD_CLASS1(llvm, Type);
@@ -20,5 +20,5 @@ namespace LLVMB { namespace Tr
     llvm::Type* getNativeLLVMType(const Location& loc, const string& nativeName, llvm::LLVMContext& llvmContext);
 
     /// Gets the LLVM type corresponding to the given function declaration
-    llvm::Type* getLLVMFunctionType(Nest::Node* funDecl, int ignoreArg, Module& module);
+    llvm::Type* getLLVMFunctionType(Node* funDecl, int ignoreArg, Module& module);
 }}

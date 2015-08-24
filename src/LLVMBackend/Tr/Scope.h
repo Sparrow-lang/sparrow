@@ -34,7 +34,7 @@ namespace LLVMB { namespace Tr
         vector<Instruction*>& instructionsStack();
 
         /// Adds an scope destruct action
-        void addScopeDestructAction(Nest::Node* destructAction);
+        void addScopeDestructAction(Node* destructAction);
 
         /// Translate the destruct actions corresponding to this node
         void outputDestructActions();
@@ -42,7 +42,7 @@ namespace LLVMB { namespace Tr
     protected:
         TrContext& context_;
         vector<Instruction*> instructionsStack_;
-        Nest::NodeVector destructActions_;
+        NodeVector destructActions_;
         Location location_;
     };
 }}

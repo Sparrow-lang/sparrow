@@ -10,7 +10,7 @@ namespace SprFrontend
     TypeRef commonType(CompilationContext* context, TypeRef t1, TypeRef t2);
     
     /// If the given argument if of type 'ref ref ... ref T', returns T and gets the conversion need to access 'ref T'
-    TypeRef doDereference1(Nest::Node* arg, Nest::Node*& cvt);
+    TypeRef doDereference1(Node* arg, Node*& cvt);
     
     /// Converts a CT-available node into a node that can be directly used at RT - usually invoked by the backend when translating to RT
     Node* convertCtToRt(Node* node);
@@ -21,11 +21,11 @@ namespace SprFrontend
     
     /// Given a node representing a 'Type' value, get its type.
     /// Returns null if cannot evaluate node
-    TypeRef tryGetTypeValue(Nest::Node* typeNode);
+    TypeRef tryGetTypeValue(Node* typeNode);
     
     /// If this is a type that represents another type, evaluate this it to get the inner type.
     /// Otherwise return the original type
-    TypeRef evalTypeIfPossible(Nest::Node* typeNode);
+    TypeRef evalTypeIfPossible(Node* typeNode);
     
     /// create a type node from the given type
     Node* createTypeNode(CompilationContext* context, const Location& loc, TypeRef t);

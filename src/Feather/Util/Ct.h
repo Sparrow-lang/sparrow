@@ -2,25 +2,25 @@
 
 #include <Nest/Intermediate/TypeRef.h>
 
-FWD_STRUCT1(Nest, Node);
+typedef struct Nest_Node Node;
 
 namespace Feather
 {
     /// Getter for the value type of a CtValue node
-    TypeRef getCtValueType(Nest::Node* ctVal);
+    TypeRef getCtValueType(Node* ctVal);
 
     /// Getter for the value data of a CtValue node -- the data is encoded in a string
-    const string& getCtValueDataAsString(Nest::Node* ctVal);
+    const string& getCtValueDataAsString(Node* ctVal);
 
     /// Getter for the value memory buffer of this value
     template <typename T>
-    T* getCtValueData(Nest::Node* ctVal)
+    T* getCtValueData(Node* ctVal)
     {
         return (T*) (void*) getCtValueDataAsString(ctVal).c_str();
     }
 
-    bool getBoolCtValue(Nest::Node* ctVal);
+    bool getBoolCtValue(Node* ctVal);
 
     /// Check if the two given CtValue objects are equal -- contains the same type and data
-    bool sameCtValue(Nest::Node* ctVal1, Nest::Node* ctVal2);
+    bool sameCtValue(Node* ctVal1, Node* ctVal2);
 }

@@ -12,14 +12,11 @@
 #pragma warning(pop)
 #endif
 
+typedef struct Nest_Node Node;
 typedef struct Nest_SourceCode SourceCode;
-
-FWD_STRUCT1(Nest, Node);
 
 namespace LLVMB { namespace Tr
 {
-    using Nest::Node;
-
     /// Helper class used to generate debug information for the translated compile unit.
     ///
     /// This is based on the functionality from the CLang compiler.
@@ -62,7 +59,7 @@ namespace LLVMB { namespace Tr
         vector<unsigned> regionCountAtFunStartStack_;
 
         /// Map from declarations to the corresponding metadata nodes
-        llvm::DenseMap<const Nest::Node*, llvm::WeakVH> regionMap_;
+        llvm::DenseMap<const Node*, llvm::WeakVH> regionMap_;
 
         /// Map containing the filename nodes - the filenames are represented by the SourceCode pointer
         llvm::DenseMap<const SourceCode*, llvm::DIFile> filenameCache_;

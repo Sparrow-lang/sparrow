@@ -3,12 +3,10 @@
 #include <Nest/Intermediate/TypeRef.h>
 #include <Nest/Intermediate/EvalMode.h>
 
-FWD_STRUCT1(Nest, Node);
+typedef struct Nest_Node Node;
 
 namespace Feather
 {
-    using namespace Nest;
-
     // The type kinds for the Feather types
     extern int typeKindVoid;
     extern int typeKindData;

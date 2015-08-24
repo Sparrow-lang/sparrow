@@ -190,7 +190,7 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
         bool reportErrors, const string& funName)
 {
     // Special case for macro calls
-    bool isMacro = decls.size() == 1 && hasProperty(decls[0], propMacro);
+    bool isMacro = decls.size() == 1 && Nest_hasProperty(decls[0], propMacro);
     if ( isMacro )
     {
         // Wrap every argument in a lift(...) call
@@ -198,14 +198,14 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
         {
             const Location& l = arg->location;
             arg = mkFunApplication(l, mkIdentifier(l, "lift"), mkNodeList(l, NodeVector(1, arg), true));
-            setContext(arg, context);
+            Nest_setContext(arg, context);
         }
     }
 
     vector<TypeRef> argsTypes(args.size(), nullptr);
     for ( size_t i=0; i<args.size(); ++i)
     {
-        semanticCheck(args[i]);
+        Nest_semanticCheck(args[i]);
         argsTypes[i] = args[i]->type;
     }
 
@@ -222,8 +222,8 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
     if ( context->evalMode != evalMode )
     {
         changeModeNode = mkChangeMode(loc, nullptr, evalMode);
-        Nest::setContext(changeModeNode, context);
-        context = Nest::childrenContext(changeModeNode);
+        Nest_setContext(changeModeNode, context);
+        context = Nest_childrenContext(changeModeNode);
     }
 
     // First, get all the candidates
@@ -232,7 +232,7 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
     candidates1.reserve(decls.size());
     for ( Node* decl: decls )
     {
-        computeType(decl);
+        Nest_computeType(decl);
         auto newCandidates = getCallables(decl, evalMode);
         candidates1.insert(candidates1.end(), newCandidates.begin(), newCandidates.end());
     }
@@ -276,7 +276,7 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
         // Wrap the function call in a Meta.astEval(...) call
         Node* funName = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "astEval");
         res = mkFunApplication(loc, funName, NodeVector(1, res));
-        setContext(res, context);
+        Nest_setContext(res, context);
     }
 
     return res;
@@ -288,19 +288,19 @@ bool SprFrontend::selectConversionCtor(CompilationContext* context, Node* destCl
     ASSERT(argType);
 
     // Search for the ctors in the class 
-    NodeVector decls = Nest_symTabLookupCurrent(childrenContext(destClass)->currentSymTab, "ctor");
+    NodeVector decls = Nest_symTabLookupCurrent(Nest_childrenContext(destClass)->currentSymTab, "ctor");
 
-//     cerr << "Convert: " << argType->toString() << " -> " << Nest::toString(destClass) << " ?" << endl;
+//     cerr << "Convert: " << argType->toString() << " -> " << Nest_toString(destClass) << " ?" << endl;
 
     // Get all the candidates
     Callables candidates;
     candidates.reserve(decls.size());
     for ( Node* decl: decls )
     {
-        if ( !hasProperty(decl, propConvert) )
+        if ( !Nest_hasProperty(decl, propConvert) )
             continue;
 
-        computeType(decl);
+        Nest_computeType(decl);
         Node* resDecl = resultingDecl(decl);
 
         Callables callables = getCallables(resDecl, destMode);
@@ -326,13 +326,13 @@ bool SprFrontend::selectConversionCtor(CompilationContext* context, Node* destCl
 //     cerr << "SUCCESS!!!" << endl;
     if ( arg && conv )
     {
-        computeType(arg);
+        Nest_computeType(arg);
         auto cr = selectedFun->canCall(context, arg->location, { arg }, destMode, true);
         (void) cr;
         ASSERT(cr);
         *conv = selectedFun->generateCall(arg->location);
-        setContext(*conv, context);
-        semanticCheck(*conv);
+        Nest_setContext(*conv, context);
+        Nest_semanticCheck(*conv);
     }
     return true;
 }
@@ -346,7 +346,7 @@ Callable* SprFrontend::selectCtToRtCtor(CompilationContext* context, TypeRef ctT
         return nullptr;
 
     // Search for the ctors in the class 
-    NodeVector decls = Nest_symTabLookupCurrent(childrenContext(cls)->currentSymTab, "ctorFromCt");
+    NodeVector decls = Nest_symTabLookupCurrent(Nest_childrenContext(cls)->currentSymTab, "ctorFromCt");
 
     // Select the possible ct-to-rt constructors
     Callables candidates;
@@ -356,7 +356,7 @@ Callable* SprFrontend::selectCtToRtCtor(CompilationContext* context, TypeRef ctT
         if ( effectiveEvalMode(decl) != modeRt )
             continue;
 
-        computeType(decl);
+        Nest_computeType(decl);
         Node* resDecl = resultingDecl(decl);
         ASSERT(effectiveEvalMode(resDecl) == modeRt);
 

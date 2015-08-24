@@ -15,7 +15,7 @@ namespace
     void checkNodeAllowed(Node* child, bool insideClass)
     {
         // Check non-declarations
-        int nodeKind = explanation(child)->nodeKind;
+        int nodeKind = Nest_explanation(child)->nodeKind;
         if (   nodeKind == nkFeatherNop
             || (!insideClass && nodeKind == nkFeatherBackendCode)
             || (!insideClass && nodeKind == nkFeatherGlobalConstructAction)
@@ -25,7 +25,7 @@ namespace
 
         if ( nodeKind == nkSparrowModifiersNode )
         {
-            if ( !explanation(child)->nodeError )
+            if ( !Nest_explanation(child)->nodeError )
                 checkNodeAllowed(child->children[0], insideClass);
             return;
         }
@@ -54,8 +54,8 @@ NodeVector SprFrontend::getDeclsFromNode(Node* n, Node*& baseExp)
     NodeVector res;
     baseExp = nullptr;
     
-    computeType(n);
-    n = explanation(n);
+    Nest_computeType(n);
+    n = Nest_explanation(n);
     ASSERT(n);
 
     // Check if the node is a DeclExp, pointing to the actual references
@@ -88,7 +88,7 @@ NodeVector SprFrontend::getDeclsFromNode(Node* n, Node*& baseExp)
 
 Node* SprFrontend::resultingDecl(Node* node)
 {
-    Node*const* res = getPropertyNode(node, propResultingDecl);
+    Node*const* res = Nest_getPropertyNode(node, propResultingDecl);
     return res ? *res : node;
 }
 
@@ -96,29 +96,29 @@ bool SprFrontend::isField(Node* node)
 {
     if ( node->nodeKind != nkFeatherDeclVar )
         return false;
-    const int* isFieldFlag = getPropertyInt(node, propIsField);
+    const int* isFieldFlag = Nest_getPropertyInt(node, propIsField);
     return isFieldFlag && *isFieldFlag;
 }
 
 
 AccessType SprFrontend::getAccessType(Node* decl)
 {
-    return (AccessType) getCheckPropertyInt(decl, "spr.accessType");
+    return (AccessType) Nest_getCheckPropertyInt(decl, "spr.accessType");
 }
 
 bool SprFrontend::hasAccessType(Node* decl)
 {
-    return hasProperty(decl, "spr.accessType");
+    return Nest_hasProperty(decl, "spr.accessType");
 }
 
 void SprFrontend::setAccessType(Node* decl, AccessType accessType)
 {
-    setProperty(decl, "spr.accessType", (int) accessType);
+    Nest_setProperty(decl, "spr.accessType", (int) accessType);
 }
 
 Node* SprFrontend::getResultParam(Node* f)
 {
-    Node*const* res = getPropertyNode(f, propResultParam);
+    Node*const* res = Nest_getPropertyNode(f, propResultParam);
     return res ? *res : nullptr;
 }
 
@@ -164,5 +164,5 @@ void SprFrontend::copyModifiersSetMode(Node* src, Node* dest, EvalMode newMode)
 bool SprFrontend::funHasThisParameters(Node* fun)
 {
     return fun && fun->nodeKind == nkSparrowDeclSprFunction
-        && hasProperty(fun, "spr.isMember") && !hasProperty(fun, propIsStatic);
+        && Nest_hasProperty(fun, "spr.isMember") && !Nest_hasProperty(fun, propIsStatic);
 }

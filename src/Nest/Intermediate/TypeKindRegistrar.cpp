@@ -15,7 +15,7 @@ namespace
     static vector<TypeFunctions> registeredTypeKinds;
 }
 
-int Nest::registerTypeKind(FChangeTypeMode funChangeTypeMode)
+int Nest_registerTypeKind(FChangeTypeMode funChangeTypeMode)
 {
     int typeKindId = registeredTypeKinds.size();
     TypeFunctions f = { funChangeTypeMode };
@@ -23,7 +23,7 @@ int Nest::registerTypeKind(FChangeTypeMode funChangeTypeMode)
     return typeKindId;
 }
 
-FChangeTypeMode Nest::getChangeTypeModeFun(int typeKind)
+FChangeTypeMode Nest_getChangeTypeModeFun(int typeKind)
 {
     ASSERT(0 <= typeKind  && typeKind < registeredTypeKinds.size());
     return registeredTypeKinds[typeKind].changeTypeMode;

@@ -2,12 +2,9 @@
 
 #include <Nest/Intermediate/TypeRef.h>
 
-FWD_STRUCT1(Nest, Node);
-
+typedef struct Nest_Node Node;
 typedef struct Nest_SourceCode SourceCode;
 typedef struct Nest_Backend Backend;
-
-using Nest::Node;
 
 /// Function that initializes the backed
 typedef void (*FBackendInit)(Backend* backend, const char* mainFilename);

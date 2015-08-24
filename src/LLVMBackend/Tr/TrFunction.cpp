@@ -69,7 +69,7 @@ namespace
 
 llvm::Function* Tr::translateFunction(Node* node, Module& module)
 {
-    Nest::computeType(node);
+    Nest_computeType(node);
 
     Nest::CompilerSettings& s = Nest::theCompiler().settings();
 
@@ -88,12 +88,12 @@ llvm::Function* Tr::translateFunction(Node* node, Module& module)
     llvm::Function* f = nullptr;
 
     // Check if this is a standard/native type
-    const string* nativeName = getPropertyString(node, propNativeName);
+    const string* nativeName = Nest_getPropertyString(node, propNativeName);
     string name = getName(node);
 //    Node* cls = getParentClass(node->context());
 //    if ( cls )
 //    {
-//        const string* clsDescription = getPropertyString(cls, propDescription);
+//        const string* clsDescription = Nest_getPropertyString(cls, propDescription);
 //        name = (clsDescription ? *clsDescription : getName(cls)) + "." + name;
 //    }
     const string& funName = nativeName ? *nativeName : name;
@@ -112,10 +112,10 @@ llvm::Function* Tr::translateFunction(Node* node, Module& module)
     else
     {
         // Make sure the function is semantically checked
-        semanticCheck(node);
+        Nest_semanticCheck(node);
 
         size_t lineDiff = node->location.end.line - node->location.start.line;
-        bool preventInline = lineDiff > s.maxCountForInline_ || hasProperty(node, propNoInline);
+        bool preventInline = lineDiff > s.maxCountForInline_ || Nest_hasProperty(node, propNoInline);
 
         // Create the LLVM function object
         llvm::Function::LinkageTypes linkage = body && !preventInline
@@ -143,7 +143,7 @@ llvm::Function* Tr::translateFunction(Node* node, Module& module)
         f->setCallingConv(translateCallingConv(Function_callConvention(node)));
 
         // If we have a result parameter, mark it as sret
-        if ( getPropertyNode(node, propResultParam) )
+        if ( Nest_getPropertyNode(node, propResultParam) )
             f->addAttribute(1, llvm::Attribute::StructRet);
 
         // Heuristic for inlining
@@ -191,11 +191,11 @@ llvm::Function* Tr::translateFunction(Node* node, Module& module)
         for ( auto argIt=f->arg_begin(); argIt!=f->arg_end(); ++argIt, ++idx )
         {
             Node* paramNode = Function_getParameter(node, idx);
-            Node* param = ofKind(explanation(paramNode), nkFeatherDeclVar);
+            Node* param = Nest_ofKind(Nest_explanation(paramNode), nkFeatherDeclVar);
             if ( !param )
                 REP_INTERNAL(paramNode->location, "Expected Var node; found %1%") % paramNode;
             llvm::AllocaInst* newVar = new llvm::AllocaInst(argIt->getType(), getName(param)+".addr", bodyBlock);
-            newVar->setAlignment(getCheckPropertyInt(param, "alignment"));
+            newVar->setAlignment(Nest_getCheckPropertyInt(param, "alignment"));
             new llvm::StoreInst(argIt, newVar, bodyBlock); // Copy the value of the parameter into it
             module.setNodeProperty(param, Module::propValue, boost::any(newVar));
             Tr::setValue(module, *param, newVar); // We point now to the new temp variable

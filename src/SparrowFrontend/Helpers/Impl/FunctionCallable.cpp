@@ -175,8 +175,8 @@ namespace
         // Get the impl part of the node
         Node* implPart = mkCompoundExp(loc, args[0], "impl");
         implPart = mkMemLoad(loc, implPart);    // Remove LValue
-        Nest::setContext(implPart, context);
-        Nest::semanticCheck(implPart);
+        Nest_setContext(implPart, context);
+        Nest_semanticCheck(implPart);
 
         // Evaluate the handle and get the resulting node
         Node* nodeHandle = (Node*) getIntRefCtValue(implPart);
@@ -209,7 +209,7 @@ namespace
     Node* handleIntrinsic(Node* fun, CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         // Check for natives
-        const string* nativeName = getPropertyString(fun, propNativeName);
+        const string* nativeName = Nest_getPropertyString(fun, propNativeName);
         if ( nativeName && !nativeName->empty() && (*nativeName)[0] == '$' )
         {
             if ( *nativeName == "$injectBackendCodeRt" )
@@ -273,7 +273,7 @@ const Location& FunctionCallable::location() const
 
 string FunctionCallable::toString() const
 {
-    return Nest::toString(fun_);
+    return Nest_toString(fun_);
 }
 
 size_t FunctionCallable::paramsCount() const
@@ -294,21 +294,21 @@ EvalMode FunctionCallable::evalMode() const
 }
 bool FunctionCallable::isAutoCt() const
 {
-    return hasProperty(fun_, propAutoCt);
+    return Nest_hasProperty(fun_, propAutoCt);
 }
 
 
 Node* FunctionCallable::generateCall(const Location& loc)
 {
     ASSERT(context_);
-    Nest::computeType(fun_);
+    Nest_computeType(fun_);
 
     auto argsCvt = argsWithConversion();
     
     Node* res = handleIntrinsic(fun_, context_, loc, argsCvt);
     if ( res )
     {
-        setContext(res, context_);
+        Nest_setContext(res, context_);
         return res;
     }
 

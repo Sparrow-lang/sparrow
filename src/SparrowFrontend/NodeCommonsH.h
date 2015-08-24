@@ -5,9 +5,3 @@
 #include <Nest/Intermediate/Node.h>
 
 #include "Nodes/SparrowNodes.h"
-
-namespace SprFrontend
-{
-    using Nest::Node;
-    using Nest::NodeVector;
-}

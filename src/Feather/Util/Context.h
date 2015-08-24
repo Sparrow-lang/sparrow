@@ -6,8 +6,6 @@ typedef struct Nest_CompilationContext CompilationContext;
 
 namespace Feather
 {
-    using Nest::Node;
-    
     Node* getParentDecl(CompilationContext* context);
     Node* getParentFun(CompilationContext* context);
     Node* getParentClass(CompilationContext* context);

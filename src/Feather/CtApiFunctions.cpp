@@ -48,7 +48,7 @@ namespace
     void ctApi_report(int type, StringData message, Location* location)
     {
         Location loc = location ? *location : Location();
-        Nest::Common::diagnosticReporter().report((DiagnosticSeverity) type, message.toStdString(), loc, true);
+        Nest_reportDiagnostic(loc, (DiagnosticSeverity) type, message.begin);
     }
     void ctApi_raise()
     {

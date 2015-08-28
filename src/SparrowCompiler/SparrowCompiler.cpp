@@ -95,7 +95,7 @@ void doCompilation(const vector<CompilerModule*>& modules)
     }
 
     // If we have no errors, start linking
-    if ( !theCompiler().diagnosticReporter().wasError() && !s.syntaxOnly_ )
+    if ( Nest_getErrorsNum() == 0 && !s.syntaxOnly_ )
     {
         try
         {

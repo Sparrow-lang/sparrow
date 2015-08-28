@@ -170,19 +170,20 @@ namespace
 
             // If the condition does not compile, we cannot instantiate
             bool isValid = false;
-            DiagnosticSeverity level = Nest::theCompiler().diagnosticReporter().severityLevel();
+            int oldVal = Nest_isReportingEnabled();
+            Nest_enableReporting(0);
             try
             {
-                Nest::theCompiler().diagnosticReporter().setSeverityLevel(diagInternalError);
                 Nest_semanticCheck(cond);
                 isValid = !cond->nodeError
                     && Feather::isCt(cond)          // We must have a value at CT
-                    && Feather::isTestable(cond);   // The value must be boolean
+                    && Feather::isTestable(cond)    // The value must be boolean
+                    && Nest_getSuppressedErrorsNum() == 0;  // No suppressed errors
             }
             catch (...)
             {
             }
-            Nest::theCompiler().diagnosticReporter().setSeverityLevel(level);
+            Nest_enableReporting(oldVal);
             if ( !isValid )
                 return nullptr;
 

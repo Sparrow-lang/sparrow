@@ -135,14 +135,14 @@ void CompilerImpl::compileFile(const string& filename)
                 toCompile_.erase(toCompile_.begin());
 //                REP_INFO(NOLOC, "Compiling %1%") % sourceCode->filename();
 
-                int errorCount = theCompiler().diagnosticReporter().errorsCount();
+                int errorCount = Nest_getErrorsNum();
 
                 // Semantic check the source code
                 queueSemanticCheck(sourceCode->mainNode);
                 semanticCheckNodes();
 
                 // Move to the next source code if we have some errors
-                if ( errorCount != theCompiler().diagnosticReporter().errorsCount() )
+                if ( errorCount != Nest_getErrorsNum() )
                     continue;
 
                 // Dump the content of the file, after it was compiled
@@ -369,7 +369,7 @@ bool CompilerImpl::handleImportFile(const ImportInfo& import)
     // Mark this file as being handled
     handledFiles_.insert(absPath);
 
-    int errorCount = theCompiler().diagnosticReporter().errorsCount();
+    int errorCount = Nest_getErrorsNum();
 
     // Create a new CompilationContext for the sourceCode
     CompilationContext* newContext = Nest_mkChildContext(rootContext_, modeUnspecified);
@@ -384,7 +384,7 @@ bool CompilerImpl::handleImportFile(const ImportInfo& import)
         dumpAst(*sourceCode, false);
 
     // Stop if we have some (parsing) errors
-    if ( errorCount != theCompiler().diagnosticReporter().errorsCount() )
+    if ( errorCount != Nest_getErrorsNum() )
         return true;
 
     // If we are not interesting only in syntax, compile the file

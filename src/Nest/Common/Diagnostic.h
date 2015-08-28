@@ -25,6 +25,19 @@ void Nest_reportDiagnostic(Location loc, DiagnosticSeverity severity, const char
 /// Report a diagnostic, version with string formatting
 void Nest_reportFmt(Location loc, DiagnosticSeverity severity, const char* fmt, ...);
 
+/// Enables/disables the error reporting
+/// If disabled, no errors, warnings or info messages will be printed out
+void Nest_enableReporting(int enable);
+
+/// Checks if error reporting is enabled
+int Nest_isReportingEnabled();
+
+/// Returns the number of errors returned so far
+int Nest_getErrorsNum();
+
+/// Returned the number of errors that were generated while error reporting was disabled
+int Nest_getSuppressedErrorsNum();
+
 
 #ifdef __cplusplus
 }

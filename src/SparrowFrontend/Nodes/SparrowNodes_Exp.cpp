@@ -235,17 +235,19 @@ namespace
 
         // Try to compile the argument
         bool isValid = false;
-        DiagnosticSeverity level = Nest::theCompiler().diagnosticReporter().severityLevel();
+        int oldVal = Nest_isReportingEnabled();
+        Nest_enableReporting(0);
         try
         {
-            Nest::theCompiler().diagnosticReporter().setSeverityLevel(diagInternalError);
             Nest_semanticCheck(arguments);
-            isValid = !arguments->nodeError && !arguments->children[0]->nodeError;
+            isValid = !arguments->nodeError
+                    && !arguments->children[0]->nodeError
+                    && Nest_getSuppressedErrorsNum() == 0;
         }
         catch (...)
         {
         }
-        Nest::theCompiler().diagnosticReporter().setSeverityLevel(level);
+        Nest_enableReporting(oldVal);
         return isValid;
     }
 

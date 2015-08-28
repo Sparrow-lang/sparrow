@@ -25,7 +25,6 @@ namespace Nest
         virtual CompilerSettings& settings();
         virtual const CompilerSettings& settings() const;
 
-        virtual Common::DiagnosticReporter& diagnosticReporter() const;
         virtual CompilationContext* rootContext() const;
         virtual Backend& backend() const;
 
@@ -65,7 +64,6 @@ namespace Nest
 
     private:
         CompilerSettings settings_;
-        Common::DiagnosticReporter* diagnosticReporter_;
         CompilationContext* rootContext_;
         Backend* backend_;
 

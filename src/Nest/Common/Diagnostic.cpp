@@ -1,10 +1,67 @@
 #include "StdInc.h"
 #include "Diagnostic.hpp"
-#include "DiagnosticReporter.h"
+#include "ConsoleColors.h"
+#include "StringRef.h"
+#include <Frontend/SourceCode.h>
+#include <Frontend/LocationSer.h>
 
 static int _reportingEnabled = 1;
 static int _numErrors = 0;
 static int _numSupppresedErrors = 0;
+
+namespace
+{
+    void doReport(const Location& loc, DiagnosticSeverity severity, const string& message)
+    {
+        // Write location: 'filename(line:col) : '
+        if ( !Nest_isLocEmpty(&loc) )
+        {
+            cerr << loc << " : ";
+        }
+
+        // Write the severity
+        switch ( severity )
+        {
+        case diagInternalError:     cerr << ConsoleColors::fgHiMagenta << "INTERNAL ERROR : "; break;
+        case diagError:             cerr << ConsoleColors::fgLoRed << "ERROR : "; break;
+        case diagWarning:           cerr << ConsoleColors::fgHiYellow << "WARNING : "; break;
+        case diagInfo:
+        default:                    break;
+        }
+
+        // Write the diagnostic text
+        cerr << ConsoleColors::stClear << ConsoleColors::stBold << message << ConsoleColors::stClear << endl;
+
+        // Try to write the source line no in which the diagnostic occurred
+        if ( !Nest_isLocEmpty(&loc) )
+        {
+            // Get the actual source line
+            StringRef sourceLine = Nest_getSourceCodeLine(loc.sourceCode, loc.start.line);
+            size_t sourceLineLen = sourceLine.end - sourceLine.begin;
+            if ( sourceLineLen > 0 )
+            {
+                char lastChar = *(sourceLine.end-1);
+            
+                // Add the source line
+                cerr << "> " << string(sourceLine.begin, sourceLine.end);
+                if ( lastChar != '\n' )
+                    cerr << "\n";
+
+                // Add the pointer to the output string
+                int count = loc.end.line == loc.start.line
+                                ? loc.end.col - loc.start.col
+                                : sourceLineLen - loc.start.col+1;
+                if ( count <= 1 )
+                    count = 1;
+                cerr << "  ";
+                cerr << string(loc.start.col-1, ' ');      // spaces used for alignment
+                cerr << ConsoleColors::fgLoRed;
+                cerr << string(count, '~');                   // arrow to underline the whole location range
+                cerr << ConsoleColors::stClear << endl;
+            }
+        }
+    }
+}
 
 void Nest_reportDiagnostic(Location loc, DiagnosticSeverity severity, const char* message)
 {
@@ -19,7 +76,12 @@ void Nest_reportDiagnostic(Location loc, DiagnosticSeverity severity, const char
     if ( severity == diagError )
         ++_numErrors;
 
-    Nest::Common::diagnosticReporter().report(severity, message, loc);
+    // Show the diagnostic
+    doReport(loc, severity, message);
+
+    // Old mechanism of throwing exceptions on errors
+    if ( severity == diagError || severity == diagInternalError )
+        throw Nest::Common::CompilationError(severity, message);
 
     if ( severity == diagInternalError )
         exit(-1);

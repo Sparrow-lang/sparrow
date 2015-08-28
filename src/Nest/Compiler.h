@@ -3,7 +3,6 @@
 #include <Nest/Intermediate/TypeRef.h>
 
 FWD_CLASS1(Nest, CompilerSettings);
-FWD_CLASS2(Nest,Common, DiagnosticReporter);
 FWD_CLASS2(Nest,Common, ObjectFactoryReg);
 
 typedef struct Nest_Node Node;
@@ -24,9 +23,6 @@ namespace Nest
         /// Getter for the compiler settings
         virtual CompilerSettings& settings() = 0;
         virtual const CompilerSettings& settings() const = 0;
-
-        /// Object to report diagnostic messages
-        virtual Common::DiagnosticReporter& diagnosticReporter() const = 0;
 
         /// The root compilation context that contains all the code compiled
         virtual CompilationContext* rootContext() const = 0;

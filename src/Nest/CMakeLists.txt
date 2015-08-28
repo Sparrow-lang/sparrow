@@ -25,8 +25,6 @@ SET(sourceFiles
     "Common/Diagnostic.h"
     "Common/Diagnostic.hpp"
     "Common/Diagnostic.cpp"
-    "Common/DiagnosticReporter.h"
-    "Common/DiagnosticReporter.cpp"
     "Common/ConsoleColors.h"
     "Common/CompilationError.h"
     "Common/CompilationError.cpp"

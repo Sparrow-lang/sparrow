@@ -3,7 +3,6 @@
 
 #include <Common/Alloc.h>
 #include <Common/Diagnostic.hpp>
-#include <Common/DiagnosticReporter.h>
 #include <Common/Serialization.h>
 #include <Intermediate/Node.h>
 #include <Intermediate/NodeSer.h>
@@ -30,8 +29,7 @@ namespace
 }
 
 CompilerImpl::CompilerImpl()
-    : diagnosticReporter_(new Common::DiagnosticReporter)
-    , backend_(nullptr)
+    : backend_(nullptr)
 {
     try
     {
@@ -46,7 +44,6 @@ CompilerImpl::CompilerImpl()
 
 CompilerImpl::~CompilerImpl()
 {
-    delete diagnosticReporter_;
 }
 
 CompilerSettings& CompilerImpl::settings()
@@ -59,11 +56,6 @@ const CompilerSettings& CompilerImpl::settings() const
     return settings_;
 }
 
-
-Common::DiagnosticReporter& CompilerImpl::diagnosticReporter() const
-{
-    return *diagnosticReporter_;
-}
 
 CompilationContext* CompilerImpl::rootContext() const
 {

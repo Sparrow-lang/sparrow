@@ -3,7 +3,8 @@
 #include "ConsoleColors.h"
 #include "StringRef.h"
 #include <Frontend/SourceCode.h>
-#include <Frontend/LocationSer.h>
+#include <Intermediate/Node.h>
+#include <Intermediate/Type.h>
 
 static int _reportingEnabled = 1;
 static int _numErrors = 0;
@@ -115,4 +116,40 @@ int Nest_getErrorsNum()
 int Nest_getSuppressedErrorsNum()
 {
     return _numSupppresedErrors;
+}
+
+
+ostream& operator << (ostream& os, const Location* loc)
+{
+    os << (loc->sourceCode ? loc->sourceCode->url : "<no-source>");
+    if ( loc->start.line == loc->end.line )
+        os << '(' << loc->start.line << ':' << loc->start.col << '-' << loc->end.col << ')';
+    else
+        os << '(' << loc->start.line << ':' << loc->start.col << " - " << loc->end.line << ':' << loc->end.col << ')';
+    return os;
+}
+ostream& operator << (ostream& os, const Location& loc)
+{
+    return os << &loc;
+}
+ostream& operator << (ostream& os, const Node* n)
+{
+    if ( n )
+        os << Nest_toString(n);
+    return os;
+}
+
+ostream& operator << (ostream& os, TypeRef t)
+{
+    if ( t )
+        os << t->description;
+    else
+        os << "<null-type>";
+    return os;
+}
+
+ostream& operator << (ostream& os, EvalMode mode)
+{
+    os << Nest_evalModeToString(mode);
+    return os;
 }

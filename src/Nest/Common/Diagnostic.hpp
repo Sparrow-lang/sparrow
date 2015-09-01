@@ -2,6 +2,7 @@
 
 #include "Diagnostic.h"
 #include "DiagnosticFormatter.h"
+#include <Nest/Intermediate/EvalMode.h>
 
 #define __REP_IMPL_RET(retVal, type, fmt, loc) \
     return mkDiagReporterWithReturnFromFormatter(retVal) = Nest::Common::DiagnosticFormatter(type, fmt, (loc))
@@ -15,6 +16,19 @@
 #define REP_INFO(loc, fmt)              __REP_IMPL(diagInfo, fmt, (loc))
 
 ;
+
+
+// Stream output operators for the most common nest types
+typedef struct Nest_Location Location;
+typedef struct Nest_Node Node;
+typedef const struct Nest_Type* TypeRef;
+
+ostream& operator << (ostream& os, const Location* loc);
+ostream& operator << (ostream& os, const Location& loc);
+ostream& operator << (ostream& os, const Node* n);
+ostream& operator << (ostream& os, TypeRef t);
+ostream& operator << (ostream& os, EvalMode mode);
+
 
 struct DiagReporterFromFormatter
 {

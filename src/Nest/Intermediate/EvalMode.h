@@ -22,12 +22,3 @@ inline const char* Nest_evalModeToString(EvalMode mode)
     default:            return "unspecified";
     }
 }
-
-#ifdef __cplusplus
-    template <typename T>
-    basic_ostream<T>& operator << (basic_ostream<T>& os, EvalMode mode)
-    {
-        os << Nest_evalModeToString(mode);
-        return os;
-    }
-#endif

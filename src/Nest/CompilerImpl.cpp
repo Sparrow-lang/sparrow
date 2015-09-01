@@ -3,9 +3,7 @@
 
 #include <Common/Alloc.h>
 #include <Common/Diagnostic.hpp>
-#include <Common/Serialization.h>
 #include <Intermediate/Node.h>
-#include <Intermediate/NodeSer.h>
 #include <Intermediate/CompilationContext.h>
 #include <Frontend/SourceCode.h>
 #include <Frontend/SourceCodeKindRegistrar.h>
@@ -19,12 +17,7 @@ namespace
 {
     void dumpAst(SourceCode& sc, bool isCompiled)
     {
-        // Note: at this stage we keep overwriting the dumps we have written so far
-        // At this point, because we process a lot of files and we are actually
-        // interested in the last file, this is a feature, not a bug.
-        string filenameBase = isCompiled ? "nodesComp" : "nodesOrig";
-        Common::saveToBinFile(sc.mainNode, (filenameBase + ".out").c_str());
-        Common::saveToJsonFile(sc.mainNode, (filenameBase + ".json").c_str());
+        // TODO: implement this
     }
 }
 

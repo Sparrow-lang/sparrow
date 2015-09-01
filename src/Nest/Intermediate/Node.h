@@ -5,12 +5,6 @@
 #include <Nest/Frontend/Location.h>
 #include <Nest/Common/Diagnostic.hpp>
 
-// #include <vector>
-// #include <boost/any.hpp>
-
-FWD_CLASS3(Nest,Common,Ser, OutArchive);
-FWD_CLASS3(Nest,Common,Ser, InArchive);
-
 typedef struct Nest_Node Node;
 typedef struct Nest_Modifier Modifier;
 typedef struct Nest_CompilationContext CompilationContext;
@@ -183,15 +177,6 @@ CompilationContext* Nest_childrenContext(const Node* node);
 
 /// Getter for the explanation of this node, if it has one; otherwise returns this node
 Node* Nest_explanation(Node* node);
-
-
-template <typename T>
-basic_ostream<T>& operator << (basic_ostream<T>& os, const Node* n)
-{
-    if ( n )
-        os << Nest_toString(n);
-    return os;
-}
 
 /// Returns 'src' if the given node is of the specified type; null otherwise
 Node* Nest_ofKind(Node* src, int desiredNodeKind);

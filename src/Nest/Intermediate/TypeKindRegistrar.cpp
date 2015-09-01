@@ -2,8 +2,6 @@
 #include "TypeKindRegistrar.h"
 #include "Type.h"
 
-using namespace Nest;
-
 namespace
 {
     struct TypeFunctions

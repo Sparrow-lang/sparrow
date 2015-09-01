@@ -5,9 +5,6 @@
 
 #include <vector>
 
-FWD_CLASS3(Nest,Common,Ser, OutArchive);
-FWD_CLASS3(Nest,Common,Ser, InArchive);
-
 typedef struct Nest_Node Node;
 
 /// Represents a type
@@ -45,17 +42,3 @@ TypeRef Nest_insertStockType(const Type* newType);
 
 /// Function that changes the mode for the given type
 TypeRef Nest_changeTypeMode(TypeRef type, EvalMode newMode);
-
-
-template <typename T>
-basic_ostream<T>& operator << (basic_ostream<T>& os, TypeRef t)
-{
-    if ( t )
-        os << t->description;
-    else
-        os << "<null-type>";
-    return os;
-}
-
-void save(const Type& obj, Nest::Common::Ser::OutArchive& ar);
-void load(Type& obj, Nest::Common::Ser::InArchive& ar);

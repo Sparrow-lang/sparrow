@@ -1,12 +1,6 @@
 #include <StdInc.h>
 #include "Type.h"
 #include "TypeKindRegistrar.h"
-#include "NodeSer.h"
-#include <Common/Ser/OutArchive.h>
-#include <Common/Ser/InArchive.h>
-
-using namespace Nest;
-using namespace Nest::Common::Ser;
 
 
 namespace
@@ -78,26 +72,4 @@ TypeRef Nest_insertStockType(const Type* newType)
 TypeRef Nest_changeTypeMode(TypeRef type, EvalMode newMode)
 {
     return Nest_getChangeTypeModeFun(type->typeKind)(type, newMode);
-}
-
-void save(const Type& obj, OutArchive& ar)
-{
-    ar.write("typeKind", obj.typeKind);
-    ar.write("mode", (char) obj.mode);
-    ar.write("numSubtypes", obj.numSubtypes);
-    ar.write("numReferences", obj.numReferences);
-    ar.write("hasStorage", obj.hasStorage);
-    ar.write("canBeUsedAtCt", obj.canBeUsedAtCt);
-    ar.write("canBeUsedAtRt", obj.canBeUsedAtRt);
-    ar.write("flags", obj.flags);
-    ar.write("referredNode", obj.referredNode);
-    ar.write("description", obj.description);
-     ar.writeArray("subTypes", obj.subTypes, obj.subTypes+obj.numSubtypes, [] (OutArchive& ar, TypeRef t) {
-         ar.write("", t);
-     });
-}
-
-void load(Type& obj, InArchive& ar)
-{
-    // TODO
 }

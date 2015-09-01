@@ -81,7 +81,7 @@ void Tr::translateTopLevelNode(Node* node, Module& module)
         case nkRelFeatherDeclFunction:             translateFunction(node, module); break;
         case nkRelFeatherDeclVar:                  translateGlobalVar(node, module); break;
         default:
-            REP_ERROR(node->location, "Don't know how to interpret a node of this kind (%1%)") % Nest_nodeKindName(node);
+            REP_INTERNAL(node->location, "Don't know how to interpret a node of this kind (%1%)") % Nest_nodeKindName(node);
         }
     }
 }
@@ -174,7 +174,7 @@ llvm::Value* Tr::translateGlobalVar(Node* node, Module& module)
         return nullptr;
 
     if ( node->nodeKind != nkFeatherDeclVar )
-        REP_ERROR(node->location, "Invalid global variable %1%") % getName(node);
+        REP_ERROR_RET(nullptr, node->location, "Invalid global variable %1%") % getName(node);
 
     // If we already translated this variable, make sure not to translate it again
     llvm::Value* val = getValue(module, *node, false);
@@ -219,7 +219,7 @@ llvm::Value* Tr::translateGlobalVar(Node* node, Module& module)
     }
     else
     {
-        REP_ERROR(node->location, "Don't know how to create zero initializer for the variable of type %1%")
+        REP_INTERNAL(node->location, "Don't know how to create zero initializer for the variable of type %1%")
             % node->type;
     }
 

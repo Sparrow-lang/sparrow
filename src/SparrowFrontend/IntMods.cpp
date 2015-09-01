@@ -130,7 +130,8 @@ namespace
         Nest_setProperty(m, propNoDefault, 1);
         setEvalMode(m, mode == modeUnspecified ? effectiveEvalMode(parent) : mode);
         Class_addChild(parent, m);
-        Nest_computeType(m);
+        if ( !Nest_computeType(m) )
+            return nullptr;
         return m;
     }
     
@@ -283,7 +284,8 @@ namespace
         // Check all the items in the local space
         for ( Node* n: inSpace->children )
         {
-            Nest_computeType(n);
+            if ( !Nest_computeType(n) )
+                continue;
             n = Nest_explanation(n);
             if ( !n )
                 continue;

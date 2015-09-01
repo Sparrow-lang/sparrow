@@ -25,7 +25,7 @@ void SprFrontend::Class_addChild(Node* cls, Node* child)
     if ( Nest_childrenContext(cls) )
         Nest_setContext(child, Nest_childrenContext(cls));
     if ( cls->type )
-        Nest_computeType(child);
+        Nest_computeType(child);    // Ignore possible errors
     if ( !cls->children[2] )
     {
         cls->children[2] = mkNodeList(cls->location, {});

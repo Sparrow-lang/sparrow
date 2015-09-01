@@ -28,7 +28,8 @@ ConversionType Callable::canCall(CompilationContext* context, const Location& lo
         Node* defaultArg = this->paramDefaultVal(i);
         if ( !defaultArg )
             return convNone;        // We have a non-default parameter but we don't have an argument for that
-        Nest_semanticCheck(defaultArg);  // Make sure this is semantically checked
+        if ( !Nest_semanticCheck(defaultArg) )  // Make sure this is semantically checked
+            return convNone;
 
         args_.push_back(defaultArg);
     }

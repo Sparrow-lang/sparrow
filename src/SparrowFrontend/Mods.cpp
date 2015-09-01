@@ -50,7 +50,10 @@ void ModCtGeneric_beforeComputeType(Modifier*, Node* node)
 {
     /// Check to apply only to classes or functions
     if ( node->nodeKind != nkSparrowDeclSprFunction )
+    {
         REP_ERROR(node->location, "ctGeneric modifier can be applied only to functions");
+        return;
+    }
 
     Feather::setEvalMode(node, modeCt);
     Nest_setProperty(node, propCtGeneric, 1);
@@ -89,7 +92,10 @@ void ModInitCtor_beforeComputeType(Modifier*, Node* node)
 {
     /// Check to apply only to classes
     if ( node->nodeKind != nkSparrowDeclSprClass )
+    {
         REP_ERROR(node->location, "initCtor modifier can be applied only to classes");
+        return;
+    }
     
     Nest_setProperty(node, propGenerateInitCtor, 1);
 }
@@ -98,7 +104,10 @@ void ModMacro_beforeComputeType(Modifier*, Node* node)
 {
     /// Check to apply only to functions
     if ( node->nodeKind != nkSparrowDeclSprFunction )
+    {
         REP_ERROR(node->location, "macro modifier can be applied only to functions");
+        return;
+    }
     
     Nest_setProperty(node, propMacro, 1);
     Nest_setProperty(node, propCtGeneric, 1);

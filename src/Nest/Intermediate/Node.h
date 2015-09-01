@@ -160,13 +160,17 @@ TypeRef Nest_getCheckPropertyType(const Node* node, const char* name);
 //
 
 /// Sets the compilation context for this node; with this we know where this node is put in the program
+/// This operation always succeeds
+/// Setting the context for the children may fail; the error needs to be handled by the user
 void Nest_setContext(Node* node, CompilationContext* context);
 
 /// Just computes the type, without performing all the semantic check actions; used for declarations
-void Nest_computeType(Node* node);
+/// Returns the type if succeeded, NULL if failure
+TypeRef Nest_computeType(Node* node);
 
 /// Performs all the semantic-check actions
-void Nest_semanticCheck(Node* node);
+/// Returns the explanation if succeeded, NULL if failure
+Node* Nest_semanticCheck(Node* node);
 
 /// Reverts the compilation state; brings the node to un-compiled state
 void Nest_clearCompilationState(Node* node);
@@ -176,11 +180,6 @@ void Nest_addModifier(Node* node, Modifier* mod);
 
 /// Returns the compilation context for the children of this node
 CompilationContext* Nest_childrenContext(const Node* node);
-
-/// Set the explanation of this node.
-/// makes sure it has the right context, compiles it, and set the type of the current node to be the type of the
-/// explanation
-void Nest_setExplanation(Node* node, Node* explanation);
 
 /// Getter for the explanation of this node, if it has one; otherwise returns this node
 Node* Nest_explanation(Node* node);

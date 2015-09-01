@@ -142,7 +142,8 @@ namespace
 
         // Compile the newly created instantiation
         Nest_setContext(expandedInstantiation(inst), context);
-        Nest_semanticCheck(expandedInstantiation(inst));
+        if ( !Nest_semanticCheck(expandedInstantiation(inst)) )
+            return nullptr;            
 
         return inst;
     }
@@ -174,10 +175,10 @@ namespace
             Nest_enableReporting(0);
             try
             {
-                Nest_semanticCheck(cond);
-                isValid = !cond->nodeError
-                    && Feather::isCt(cond)          // We must have a value at CT
-                    && Feather::isTestable(cond)    // The value must be boolean
+                Node* res = Nest_semanticCheck(cond);
+                isValid = res != nullptr
+                    && Feather::isCt(res)                   // We must have a value at CT
+                    && Feather::isTestable(res)             // The value must be boolean
                     && Nest_getSuppressedErrorsNum() == 0;  // No suppressed errors
             }
             catch (...)
@@ -219,7 +220,8 @@ namespace
             Node* arg = args[i];
 
             // Evaluate the node and add the resulting CtValue as a bound argument
-            Nest_computeType(arg);
+            if ( !Nest_computeType(arg) )
+                return {};
             if ( !Feather::isCt(arg) )
                 REP_INTERNAL(arg->location, "Argument to a class generic must be CT (type: %1%)") % arg->type;
             Node* n = theCompiler().ctEval(arg);
@@ -327,16 +329,19 @@ namespace
             if ( isConceptType(param->type, isRefAuto) )
             {
                 // Create a CtValue with the type of the argument corresponding to the auto parameter
-                Nest_computeType(arg);
+                if ( !Nest_computeType(arg) )
+                    return {};
                 TypeRef t = getAutoType(arg, isRefAuto);
                 Node* typeNode = createTypeNode(context, param->location, t);
-                Nest_computeType(typeNode);
+                if ( !Nest_computeType(typeNode) )
+                    return {};
                 boundValues[i] = typeNode;
             }
             else
             {
                 // Evaluate the node and add the resulting CtValue as a bound argument
-                Nest_computeType(arg);
+                if ( !Nest_computeType(arg) )
+                    return {};
                 if ( !Feather::isCt(arg) )
                     return {};     // This argument must be CT in order to instantiate the generic
                 Node* n = theCompiler().ctEval(arg);
@@ -396,8 +401,7 @@ namespace
             TypeRef typeToCheck = nullptr;
             if ( !pType || isConceptType(pType) )
             {
-                Nest_computeType(args[i]);
-                typeToCheck = args[i]->type;
+                typeToCheck = Nest_computeType(args[i]);
             }
             else
             {
@@ -467,10 +471,11 @@ namespace
     Node* createCallFn(const Location& loc, CompilationContext* context, Node* inst, const NodeVector& nonBoundArgs)
     {
         ASSERT(inst->nodeKind == nkSparrowDeclSprFunction);
-        Nest_computeType(inst);
+        if ( !Nest_computeType(inst) )
+            return nullptr;
         Node* resultingFun = Nest_explanation(inst);
         if ( !resultingFun )
-            REP_ERROR(loc, "Cannot instantiate function generic %1%") % getName(inst);
+            REP_ERROR_RET(nullptr, loc, "Cannot instantiate function generic %1%") % getName(inst);
         return createFunctionCall(loc, context, resultingFun, nonBoundArgs);
     }
 }
@@ -483,7 +488,8 @@ bool SprFrontend::conceptIsFulfilled(Node* concept, TypeRef type)
         REP_INTERNAL(concept->location, "Invalid concept");
 
     Node* typeValue = createTypeNode(concept->context, concept->location, type);
-    Nest_semanticCheck(typeValue);
+    if ( !Nest_semanticCheck(typeValue) )
+        return false;
 
     return nullptr != canInstantiate(instantiationsSet, {typeValue}, concept->context->evalMode);
 }
@@ -513,8 +519,8 @@ Node* SprFrontend::createGenericFun(Node* originalFun, Node* parameters, Node* i
     for ( size_t i=0; i<params.size(); ++i )
     {
         Node* param = params[i];
-        Nest_computeType(param);
-        ASSERT(param->type);
+        if ( !Nest_computeType(param) )
+            return nullptr;
 
         ourParams[i] = param;
         if ( isConceptType(param->type) )
@@ -538,7 +544,8 @@ Node* SprFrontend::createGenericFun(Node* originalFun, Node* parameters, Node* i
         TypeRef thisType = getDataType(thisClass, 1, effectiveEvalMode(originalFun));
         Node* thisParam = mkSprParameter(originalFun->location, "$this", thisType);
         Nest_setContext(thisParam, Nest_childrenContext(originalFun));
-        Nest_computeType(thisParam);
+        if ( !Nest_computeType(thisParam) )
+            return nullptr;
         ourParams.insert(ourParams.begin(), thisParam);
         genericParams.insert(genericParams.begin(), nullptr);
     }
@@ -640,7 +647,8 @@ Node* SprFrontend::genericDoInstantiate(Node* node, const Location& loc, Compila
                 if ( !instDecl )
                     REP_INTERNAL(loc, "Cannot instantiate generic");
                 Nest_setProperty(instDecl, propDescription, move(description));
-                Nest_computeType(instDecl);
+                if ( !Nest_computeType(instDecl) )
+                    return nullptr;
                 theCompiler().queueSemanticCheck(instDecl);
                 setInstantiatedDecl(inst, instDecl);
 
@@ -672,7 +680,8 @@ Node* SprFrontend::genericDoInstantiate(Node* node, const Location& loc, Compila
                 instDecl = createInstFn(ctx, originalFun, nonBoundParams);
                 if ( !instDecl )
                     REP_INTERNAL(loc, "Cannot instantiate generic");
-                Nest_computeType(instDecl);
+                if ( !Nest_computeType(instDecl) )
+                    return nullptr;
                 theCompiler().queueSemanticCheck(instDecl);
                 setInstantiatedDecl(inst, instDecl);
 

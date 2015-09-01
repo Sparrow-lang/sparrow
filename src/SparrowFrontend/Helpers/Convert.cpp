@@ -217,7 +217,8 @@ namespace
             return convNone;
 
         Node* destClass = classForType(destType);
-        Nest_computeType(destClass);
+        if ( !Nest_computeType(destClass) )
+            return convNone;
 
         // Try to convert srcType to lv destClass
         if ( !selectConversionCtor(context, destClass, destType->mode, srcType, nullptr, nullptr) )
@@ -380,9 +381,9 @@ ConversionResult SprFrontend::canConvertType(CompilationContext* context, TypeRe
 ConversionResult SprFrontend::canConvert(Node* arg, TypeRef destType, ConversionFlags flags)
 {
     ASSERT(arg);
-    Nest_computeType(arg);
-    TypeRef srcType = arg->type;
-    ASSERT(srcType);
+    TypeRef srcType = Nest_computeType(arg);
+    if ( !srcType )
+        return convNone;
     ASSERT(destType);
 
     return cachedCanConvertImpl(arg->context, flags, srcType, destType);

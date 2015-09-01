@@ -99,10 +99,12 @@ ConversionType ClassCtorCallable::canCall(CompilationContext* context, const Loc
     // Create a temporary variable - use it as a this argument
     tmpVar_ = Feather::mkVar(loc, "tmp.v", mkTypeNode(loc, varType(cls_, evalMode_)), 0, evalMode_);
     Nest_setContext(tmpVar_, context);
-    Nest_computeType(tmpVar_);
+    if ( !Nest_computeType(tmpVar_) )
+        return convNone;
     thisArg_ = mkVarRef(loc, tmpVar_);
     Nest_setContext(thisArg_, context);
-    Nest_computeType(thisArg_);
+    if ( !Nest_computeType(thisArg_) )
+        return convNone;
 
     NodeVector args2 = args;
     args2.insert(args2.begin(), thisArg_);

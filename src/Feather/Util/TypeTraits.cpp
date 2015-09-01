@@ -92,9 +92,9 @@ TypeRef Feather::changeTypeMode(TypeRef type, EvalMode mode, const Location& loc
         REP_INTERNAL(loc, "Don't know how to change eval mode of type %1%") % type;
 
     if ( mode == modeCt && resType->mode != modeCt )
-        REP_ERROR(loc, "Type '%1%' cannot be used at compile-time") % type;
+        REP_ERROR_RET(nullptr, loc, "Type '%1%' cannot be used at compile-time") % type;
     if ( mode == modeRt && resType->mode != modeRt )
-        REP_ERROR(loc, "Type '%1%' cannot be used at run-time") % type;
+        REP_ERROR_RET(nullptr, loc, "Type '%1%' cannot be used at run-time") % type;
 
     return resType;
 }

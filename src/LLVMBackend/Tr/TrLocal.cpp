@@ -164,7 +164,8 @@ namespace
             // The destruct action is also a kind of conditional operation - reuse the condition value
             Node* destructAction = mkDestructActionForConditional(destType, condValue, move(destructActions1), move(destructActions2));
             Nest_setContext(destructAction, compContext);
-            Nest_semanticCheck(destructAction);
+            if ( !Nest_semanticCheck(destructAction) )
+                return nullptr;            
             context.curInstruction().addTempDestructAction(destructAction);
         }
 
@@ -569,7 +570,7 @@ namespace
             default:
                 {
                     val = 0;
-                    REP_ERROR(node->location, "Invalid bit width (%1%) for numeric literal (%2%)")
+                    REP_INTERNAL(node->location, "Invalid bit width (%1%) for numeric literal (%2%)")
                         % width % node;
                 }
             }
@@ -617,7 +618,7 @@ namespace
         }
         else
         {
-            REP_ERROR(node->location, "Don't know how to translate ct value of type %1%")
+            REP_INTERNAL(node->location, "Don't know how to translate ct value of type %1%")
                 % node->type;
             return nullptr;
         }
@@ -863,7 +864,8 @@ namespace
             // The destruct action is also a kind of conditional operation - reuse the condition value
             Node* destructAction = mkDestructActionForConditional(node->type, condValue, move(destructActions1), move(destructActions2));
             Nest_setContext(destructAction, node->context);
-            Nest_semanticCheck(destructAction);
+            if ( !Nest_semanticCheck(destructAction) )
+                return nullptr;            
             ASSERT(!context.scopesStack().empty());
             ASSERT(!context.scopesStack().back()->instructionsStack().empty());
             context.scopesStack().back()->instructionsStack().back()->addTempDestructAction(destructAction);
@@ -1148,7 +1150,8 @@ namespace
 llvm::Value* Tr::translateNode(Node* node, TrContext& context)
 {
     // Make sure the node is compiled
-    Nest_semanticCheck(node);
+    if ( !Nest_semanticCheck(node) )
+        return nullptr;
     if ( !node->type )
         REP_INTERNAL(node->location, "No type found for node (%1%)") % node;
 
@@ -1199,7 +1202,7 @@ llvm::Value* Tr::translateNode(Node* node, TrContext& context)
             return translateDestructActionForConditional(node, context);
         else
         {
-            REP_ERROR(node->location, "Don't know how to interpret a node of this kind (%1%)") % Nest_nodeKindName(node);
+            REP_INTERNAL(node->location, "Don't know how to interpret a node of this kind (%1%)") % Nest_nodeKindName(node);
             return nullptr;
         }
     }

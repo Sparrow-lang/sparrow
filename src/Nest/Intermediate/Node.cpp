@@ -7,6 +7,43 @@
 
 using namespace Nest;
 
+void _applyModifiers(Node* node, ModifierType modType)
+{
+    for ( Modifier* mod: node->modifiers )
+        if ( mod->modifierType == modType )
+            mod->modifierFun(mod, node);
+}
+
+/// Set the explanation of this node.
+/// makes sure it has the right context, compiles it, and set the type of the current node to be the type of the
+/// explanation
+bool _setExplanation(Node* node, Node* explanation)
+{
+    if ( explanation == node->explanation )
+        return true;
+
+    node->explanation = explanation;
+
+    if ( explanation == node )
+        return true;
+
+    // Copy all the properties marked accordingly
+    for ( const auto& prop : node->properties )
+        if ( prop.second.passToExpl_ )
+            node->explanation->properties[prop.first] = prop.second;
+
+    // Try to semantically check the explanation
+    bool res = true;
+    if ( !explanation->nodeSemanticallyChecked )
+    {
+        Nest_setContext(node->explanation, node->context);
+        res = Nest_semanticCheck(node->explanation);
+    }
+    node->type = node->explanation->type;
+    return res;
+}
+
+
 Node* Nest_createNode(int nodeKind)
 {
     ASSERT(nodeKind >= 0);
@@ -176,105 +213,79 @@ void Nest_setContext(Node* node, CompilationContext* context)
     if ( node->type )
         Nest_clearCompilationState(node);
 
-    for ( Modifier* mod: node->modifiers )
-        if ( mod->modifierType == modTypeBeforeSetContext )
-            mod->modifierFun(mod, node);
+    _applyModifiers(node, modTypeBeforeSetContext);
 
     Nest_getSetContextForChildrenFun(node->nodeKind)(node);
 
-    for ( Modifier* mod: node->modifiers )
-        if ( mod->modifierType == modTypeAfterSetContext )
-            mod->modifierFun(mod, node);
+    _applyModifiers(node, modTypeAfterSetContext);
 }
 
-void Nest_computeType(Node* node)
+TypeRef Nest_computeType(Node* node)
 {
     if ( node->type )
-        return;
+        return node->type;
     if ( node->nodeError )
-        REP_ERROR_THROW("Already marked as having an error");
+        return NULL;
 
-    try
-    {
-        if ( !node->context )
-            REP_INTERNAL(node->location, "No context associated with node (%1%)") % Nest_toString(node);
+    if ( !node->context )
+        REP_INTERNAL(node->location, "No context associated with node (%1%)") % Nest_toString(node);
 
-        // Check for recursive dependency
-        if ( node->computeTypeStarted )
-            REP_ERROR(node->location, "Recursive dependency detected while computing the type of the current node");
-        node->computeTypeStarted = 1;
+    // Check for recursive dependency
+    if ( node->computeTypeStarted )
+        REP_ERROR_RET(nullptr, node->location, "Recursive dependency detected while computing the type of the current node");
+    node->computeTypeStarted = 1;
 
-        for ( Modifier* mod: node->modifiers )
-            if ( mod->modifierType == modTypeBeforeComputeType )
-                mod->modifierFun(mod, node);
+    _applyModifiers(node, modTypeBeforeComputeType);
 
-        // Actually compute the type
-        TypeRef res = Nest_getComputeTypeFun(node->nodeKind)(node);
-        if ( !res )
-            REP_INTERNAL(node->location, "Type computed successfully, but no actual type was generated");
-        node->type = res;
-
-        for ( Modifier* mod: boost::adaptors::reverse(node->modifiers) )
-            if ( mod->modifierType == modTypeAfterComputeType )
-                mod->modifierFun(mod, node);
-    }
-    catch (const Nest::Common::CompilationError&)
+    // Actually compute the type
+    node->type = Nest_getComputeTypeFun(node->nodeKind)(node);
+    if ( !node->type )
     {
         node->nodeError = 1;
-        throw;
+        return NULL;
     }
-    catch (const exception& e)
-    {
-        node->nodeError = 1;
-        REP_INTERNAL(node->location, "Exception thrown during computeType(): %1%") % e.what();
-    }
+
+    _applyModifiers(node, modTypeAfterComputeType);
+
+    return node->type;
 }
 
-void Nest_semanticCheck(Node* node)
+Node* Nest_semanticCheck(Node* node)
 {
     if ( node->nodeSemanticallyChecked )
-        return;
+        return node->explanation;
     if ( node->nodeError )
-        REP_ERROR_THROW("Already marked as having an error");
+        return NULL;
 
-    try
-    {
-        if ( !node->context )
-            REP_INTERNAL(node->location, "No context associated with node (%1%)") % Nest_toString(node);
+    if ( !node->context )
+        REP_INTERNAL(node->location, "No context associated with node (%1%)") % Nest_toString(node);
 
-        // Check for recursive dependency
-        if ( node->semanticCheckStarted )
-            REP_ERROR(node->location, "Recursive dependency detected while semantically checking the current node");
-        node->semanticCheckStarted = 1;
+    // Check for recursive dependency
+    if ( node->semanticCheckStarted )
+        REP_ERROR_RET(nullptr, node->location, "Recursive dependency detected while semantically checking the current node");
+    node->semanticCheckStarted = 1;
 
-        for ( Modifier* mod: node->modifiers )
-            if ( mod->modifierType == modTypeBeforeSemanticCheck )
-                mod->modifierFun(mod, node);
+    _applyModifiers(node, modTypeBeforeSemanticCheck);
 
-        // Actually do the semantic check
-        Node* res = Nest_getSemanticCheckFun(node->nodeKind)(node);
-        if ( !res )
-            REP_INTERNAL(node->location, "Node semantically checked, but no actual explanation was generated");
-        Nest_setExplanation(node, res);
-        if ( !node->type )
-            REP_INTERNAL(node->location, "Node semantically checked, but no actual types was generated");
-        node->nodeSemanticallyChecked = 1;
-
-        for ( Modifier* mod: boost::adaptors::reverse(node->modifiers) )
-            if ( mod->modifierType == modTypeAfterSemanticCheck )
-                mod->modifierFun(mod, node);
-    }
-    catch (const Nest::Common::CompilationError& e)
-    {
-        if ( e.what() ) {}      // Avoid warning about not using e
-        node->nodeError = 1;
-        throw;
-    }
-    catch (const exception& e)
+    // Actually do the semantic check
+    Node* res = Nest_getSemanticCheckFun(node->nodeKind)(node);
+    if ( !res )
     {
         node->nodeError = 1;
-        REP_INTERNAL(node->location, "Exception thrown during semanticCheck(): %1%") % e.what();
+        return NULL;
     }
+    if ( !_setExplanation(node, res) )
+    {
+        node->nodeError = 1;
+        return NULL;
+    }
+    if ( !node->type )
+        REP_INTERNAL(node->location, "Node semantically checked, but no actual types was generated");
+    node->nodeSemanticallyChecked = 1;
+
+    _applyModifiers(node, modTypeAfterSemanticCheck);
+
+    return node->explanation;
 }
 
 void Nest_clearCompilationState(Node* node)
@@ -304,27 +315,6 @@ CompilationContext* Nest_childrenContext(const Node* node)
     return node->childrenContext ? node->childrenContext : node->context;
 }
 
-void Nest_setExplanation(Node* node, Node* explanation)
-{
-    if ( explanation == node || explanation == node->explanation )
-        return;
-
-    node->explanation = explanation;
-
-    // Copy all the properties marked accordingly
-    for ( const auto& prop : node->properties )
-        if ( prop.second.passToExpl_ )
-            node->explanation->properties[prop.first] = prop.second;
-
-    // Try to semantically check the explanation
-    if ( !explanation->nodeSemanticallyChecked )
-    {
-        Nest_setContext(node->explanation, node->context);
-        Nest_semanticCheck(node->explanation);
-    }
-    node->type = node->explanation->type;
-}
-
 Node* Nest_explanation(Node* node)
 {
     return node && node->explanation && node->explanation != node ? Nest_explanation(node->explanation) : node;
@@ -339,7 +329,7 @@ Node* Nest_ofKind(Node* src, int desiredNodeKind)
 const char* Nest_defaultFunToString(const Node* node)
 {
     ostringstream os;
-    if ( node->explanation && 0 != strcmp(Nest_nodeKindName(node->explanation), "Feather.Nop") )
+    if ( node->explanation && node != node->explanation )
         os << node->explanation;
     else
     {

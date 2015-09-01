@@ -22,13 +22,19 @@ namespace
         // Open the filename
         ifstream f(sourceCode->url);
         if ( !f )
-            REP_ERROR(loc, "Cannot open source file");
+        {
+            REP_ERROR(loc, "Cannot open source file: %1%") % sourceCode->url;
+            sourceCode->mainNode = nullptr;
+            return;
+        }
 
         Scanner scanner(f, Parser::token::START_PROGRAM);
         Parser parser(scanner, loc, &sourceCode->mainNode);
         int rc = parser.parse();
         if ( rc != 0 )
-            REP_ERROR(loc, "Cannot parse the source file");
+        {
+            return;
+        }
 
         Nest_setContext(sourceCode->mainNode, ctx);
     }
@@ -79,6 +85,6 @@ Node* SprFe_parseSparrowExpression(Location loc, const char* code)
     Parser parser(scanner, loc, &res);
     int rc = parser.parse();
     if ( rc != 0 )
-        REP_ERROR(loc, "Cannot parse the expression code");
+        REP_ERROR_RET(nullptr, loc, "Cannot parse the expression code");
     return res;
 }

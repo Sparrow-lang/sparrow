@@ -51,7 +51,8 @@ void SprFrontend::initTypeType(CompilationContext* ctx)
     Nest_setProperty(clsType, propNativeName, string("Type"));
     setEvalMode(clsType, modeCt);
     Nest_setContext(clsType, ctx);
-    Nest_computeType(clsType);
+    if ( !Nest_computeType(clsType) )
+        REP_INTERNAL(NOLOC, "Cannot create 'Type' type");
     typeType = getDataType(clsType, 0, modeCt);
 }
 

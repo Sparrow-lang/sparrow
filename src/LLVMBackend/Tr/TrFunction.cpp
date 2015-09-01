@@ -69,7 +69,8 @@ namespace
 
 llvm::Function* Tr::translateFunction(Node* node, Module& module)
 {
-    Nest_computeType(node);
+    if ( !Nest_computeType(node) )
+        return nullptr;
 
     Nest::CompilerSettings& s = Nest::theCompiler().settings();
 
@@ -112,7 +113,8 @@ llvm::Function* Tr::translateFunction(Node* node, Module& module)
     else
     {
         // Make sure the function is semantically checked
-        Nest_semanticCheck(node);
+        if ( !Nest_semanticCheck(node) )
+            return nullptr;            
 
         size_t lineDiff = node->location.end.line - node->location.start.line;
         bool preventInline = lineDiff > s.maxCountForInline_ || Nest_hasProperty(node, propNoInline);

@@ -20,7 +20,6 @@
 using namespace Feather;
 using namespace Nest;
 
-
 namespace
 {
     unsigned char decodeDigit(char digit)
@@ -47,7 +46,7 @@ namespace
         
         // Check that the length of the value to be even
         if ( normalized.size() % 2 == 1 )
-            REP_ERROR(loc, "Invalid binary value");
+            REP_ERROR_RET(string(), loc, "Invalid binary value");
         
         // Decode the bytes
         string res;
@@ -102,18 +101,11 @@ namespace
         }
         if ( entries.size() > 1 )
         {
-            try
+            REP_ERROR(loc, "Multiple definitions found for name %1%") % name;
+            for ( Node* entry: entries )
             {
-                REP_ERROR(loc, "Multiple definitions found for name %1%") % name;
-            }
-            catch(...)
-            {
-                for ( Node* entry: entries )
-                {
-                    if ( entry )
-                        REP_INFO(entry->location, "See possible alternative");
-                }
-                throw;
+                if ( entry )
+                    REP_INFO(entry->location, "See possible alternative");
             }
             return nullptr;
         }
@@ -192,6 +184,8 @@ namespace
         {
             checkChildrenCount(typeNode, 1, "<type>");
             TypeRef baseType = readType(context, typeNode->children()[0], "<type>");
+            if ( !baseType )
+                return nullptr;
             return Feather::addRef(baseType);
         }
         // Check for 'ct'
@@ -199,13 +193,16 @@ namespace
         {
             checkChildrenCount(typeNode, 1, "<type>");
             TypeRef baseType = readType(context, typeNode->children()[0], "<type>");
+            if ( !baseType )
+                return nullptr;
             return Feather::changeTypeMode(baseType, modeCt, typeNode->location());
         }
         else
         {
             // Search for the identifier in the current symbol tab to find a class with the same name
             Node* cls = findDefinition(nkFeatherDeclClass, context, typeNode->stringValue(), typeNode->location(), "class name");
-            Nest_computeType(cls);
+            if ( !Nest_computeType(cls) )   // TODO (simplification): Directly return the result of computeType
+                return NULL;
             return getDataType(cls);
         }
     }
@@ -368,6 +365,8 @@ namespace
     {
         checkChildrenCount(srcNode, 2, "<type>, <value>");
         TypeRef type = readType(context, srcNode->children()[0], "<type>");
+        if ( !type )
+            return nullptr;
         string val = readString(srcNode->children()[1], "<value>");
         Node* res = mkCtValue(srcNode->children()[1]->location(), type, val);
         Nest_setContext(res, context);
@@ -378,6 +377,8 @@ namespace
     {
         checkChildrenCount(srcNode, 2, "<type>, <bin-value>");
         TypeRef type = readType(context, srcNode->children()[0], "<type>");
+        if ( !type )
+            return nullptr;
         string val = readString(srcNode->children()[1], "<bin-value>");
         const Location& loc = srcNode->children()[1]->location();
         Node* res = mkCtValue(loc, type, decodeBinaryValue(loc, val));
@@ -483,7 +484,8 @@ namespace
         string className = readIdentifier(srcNode->children()[1], "<class-name>");
         string fieldName = readIdentifier(srcNode->children()[2], "<field-name>");
         Node* cls = findDefinition(nkFeatherDeclClass, context, className, srcNode->children()[1]->location(), "class");
-        Nest_computeType(cls);
+        if ( !Nest_computeType(cls) )
+            return NULL;
         Node* field = findDefinition(nkFeatherDeclVar, cls->childrenContext->currentSymTab, fieldName, srcNode->children()[2]->location(), "field", true);
         Node* res = mkFieldRef(srcNode->location(), obj, field);
         Nest_setContext(res, context);
@@ -581,6 +583,8 @@ namespace
         checkChildrenCountRange(srcNode, 2, 3, "<name>, <type>, [<alignment>]");
         string name = readIdentifier(srcNode->children()[0], "<name>");
         TypeRef type = readType(context, srcNode->children()[1], "<type>");
+        if ( !type )
+            return nullptr;
         int alignment = 0;
         if ( srcNode->children().size() >= 3 )
         {
@@ -631,6 +635,8 @@ namespace
         checkChildrenCountRange(srcNode, 3, 4, "<function-name>, params(...), <result-type>, [<body>]");
         string name = readIdentifier(srcNode->children()[0], "<function-name>");
         TypeRef resultType = readType(context, srcNode->children()[2], "<result-type>");
+        if ( !resultType )
+            return nullptr;
 
         // Create the function
         Node* fun = Feather::mkFunction(srcNode->location(), name, mkTypeNode(srcNode->children()[2]->location(), resultType), {}, nullptr);
@@ -662,7 +668,7 @@ namespace
     {
         // Make sure we start with an identifier
         if ( !srcNode->isIdentifier() )
-            REP_ERROR(srcNode->location(), "Expecting identifier");
+            REP_ERROR_RET(nullptr, srcNode->location(), "Expecting identifier");
 
         // lowercase the name
         string id = srcNode->stringValue();
@@ -807,20 +813,12 @@ SimpleAstNode* SimpleParser::parseSourceNode()
     // Check for integer literals
     if ( t.tokenType() == tokenInteger )
     {
-        try
-        {
-            return SimpleAstNode::intConstant(t.location(), t.getValueAsInt());
-        }
-        catch (...)
-        {
-            REP_ERROR(t.location(), "Invalid integer constant");
-            return SimpleAstNode::intConstant(t.location(), 0);
-        }
+        return SimpleAstNode::intConstant(t.location(), t.getValueAsInt());
     }
 
     // Make sure the token is an identifier
     if ( t.tokenType() != tokenIdentifier )
-        REP_ERROR(t.location(), "Expecting identifier or string literal");
+        REP_ERROR_RET(nullptr, t.location(), "Expecting identifier or string literal");
 
     // Create the AST node
     SimpleAstNode* node = SimpleAstNode::identifier(t.location(), string(t.getValueAsIdentifier()));
@@ -839,7 +837,7 @@ SimpleAstNode* SimpleParser::parseSourceNode()
             {
                 SimpleToken comma = lexer_.consumeToken();
                 if ( comma.tokenType() != tokenComma )
-                    REP_ERROR_NOTHROW(comma.location(), "Expecting a comma");
+                    REP_ERROR(comma.location(), "Expecting a comma");
             }
             firstTime = false;
 

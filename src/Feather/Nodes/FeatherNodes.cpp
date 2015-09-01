@@ -99,12 +99,14 @@ using namespace Feather;
         // Compute the type for all the children
         for ( Node* c: node->children )
         {
-            if ( c )
-                Nest_computeType(c);
+            if ( c && !Nest_computeType(c) )
+                return NULL;
         }
 
         // Get the type of the last node
-        TypeRef res = ( Nest_hasProperty(node, propResultVoid) || node->children.empty() || !node->children.back()->type ) ? getVoidType(node->context->evalMode) : node->children.back()->type;
+        TypeRef res = ( Nest_hasProperty(node, propResultVoid) || node->children.empty() || !node->children.back()->type )
+            ? getVoidType(node->context->evalMode)
+            : node->children.back()->type;
         res = adjustMode(res, node->context, node->location);
         return res;
     }
@@ -116,7 +118,8 @@ using namespace Feather;
         {
             if ( c )
             {
-                Nest_semanticCheck(c);
+                if ( !Nest_semanticCheck(c) )
+                    return NULL;
                 hasNonCtChildren = hasNonCtChildren || !isCt(c);
             }
         }
@@ -125,7 +128,9 @@ using namespace Feather;
         if ( !node->type )
         {
             // Get the type of the last node
-            TypeRef t = ( Nest_hasProperty(node, propResultVoid) || node->children.empty() || !node->children.back()->type ) ? getVoidType(node->context->evalMode) : node->children.back()->type;
+            TypeRef t = ( Nest_hasProperty(node, propResultVoid) || node->children.empty() || !node->children.back()->type )
+                ? getVoidType(node->context->evalMode)
+                : node->children.back()->type;
             t = adjustMode(t, node->context, node->location);
             node->type = t;
             checkEvalMode(node);
@@ -150,14 +155,7 @@ using namespace Feather;
         // Semantic check each of the children
         for ( Node* c: node->children )
         {
-            try
-            {
-                Nest_semanticCheck(c);
-            }
-            catch(...)
-            {
-                // Don't pass errors upwards
-            }
+            Nest_semanticCheck(c);  // Ignore possible errors
         }
         checkEvalMode(node);
         return node;
@@ -165,7 +163,9 @@ using namespace Feather;
 
     Node* GlobalConstructAction_SemanticCheck(Node* node)
     {
-        Nest_semanticCheck(node->children[0]);
+        if ( !Nest_semanticCheck(node->children[0]) )
+            return nullptr;
+
         node->type = getVoidType(node->context->evalMode);
 
         // For CT construct actions, evaluate them asap
@@ -179,7 +179,9 @@ using namespace Feather;
 
     Node* GlobalDestructAction_SemanticCheck(Node* node)
     {
-        Nest_semanticCheck(node->children[0]);
+        if ( !Nest_semanticCheck(node->children[0]) )
+            return nullptr;
+
         node->type = getVoidType(node->context->evalMode);
 
         // We never CT evaluate global destruct actions
@@ -193,7 +195,8 @@ using namespace Feather;
     // Both for ScopeDestructAction and for TempDestructAction
     Node* ScopeTempDestructAction_SemanticCheck(Node* node)
     {
-        Nest_semanticCheck(node->children[0]);
+        if ( !Nest_semanticCheck(node->children[0]) )
+            return nullptr;
         node->type = getVoidType(node->context->evalMode);
         return node;
     }
@@ -214,15 +217,14 @@ using namespace Feather;
         if ( newMode == modeUnspecified )
             REP_INTERNAL(node->location, "Cannot change the mode to Unspecified");
         if ( newMode == modeRt && baseMode != modeRt )
-            REP_ERROR(node->location, "Cannot change mode to RT in a non-RT context (%1%)") % baseMode;
+            REP_ERROR_RET(nullptr, node->location, "Cannot change mode to RT in a non-RT context (%1%)") % baseMode;
         if ( newMode == modeRtCt && baseMode != modeRtCt )
-            REP_ERROR(node->location, "Cannot change mode to RTCT in a non-RTCT context (%1%)") % baseMode;
+            REP_ERROR_RET(nullptr, node->location, "Cannot change mode to RTCT in a non-RTCT context (%1%)") % baseMode;
 
         if ( !node->children[0] )
             REP_INTERNAL(node->location, "No node specified as child to a ChangeMode node");
 
-        Nest_semanticCheck(node->children[0]);
-        return node->children[0];
+        return Nest_semanticCheck(node->children[0]);
     }
     const char* ChangeMode_toString(const Node* node)
     {
@@ -246,64 +248,53 @@ using namespace Feather;
     TypeRef Function_ComputeType(Node* node)
     {
         if ( getName(node).empty() )
-            REP_ERROR(node->location, "No name given to function declaration");
+            REP_ERROR_RET(nullptr, node->location, "No name given to function declaration");
 
         // We must have a result type
         Node* resultType = node->children[0];
-        Nest_computeType(resultType);
-        TypeRef resType = resultType->type;
+        TypeRef resType = Nest_computeType(resultType);
         if ( !resType )
-            REP_ERROR(node->location, "No result type given to function %1%") % getName(node);
+            REP_ERROR_RET(nullptr, node->location, "No result type given to function %1%") % getName(node);
 
-        // Compute the type for all the parameters
+        vector<TypeRef> subTypes;
+        subTypes.reserve(node->children.size()-1);
+        subTypes.push_back(resType);
+
+        // Get the type for all the parameters
         auto it = node->children.begin()+2;
         auto ite = node->children.end();
         for ( ; it!=ite; ++it )
         {
             Node* param = *it;
             if ( !param )
-                REP_ERROR(node->location, "Invalid param");
-            Nest_computeType(param);
-        }
-
-        // Set the type for this node
-        vector<TypeRef> subTypes;
-        subTypes.reserve(node->children.size()-1);
-        subTypes.push_back(resType);
-        it = node->children.begin()+2;
-        for ( ; it!=ite; ++it )
-        {
-            Node* param = *it;
+                REP_ERROR_RET(nullptr, node->location, "Invalid param");
+            if ( !Nest_computeType(param) )
+                return nullptr;
             subTypes.push_back(param->type);
         }
+
         return getFunctionType(&subTypes[0], subTypes.size(), effectiveEvalMode(node));
     }
     Node* Function_SemanticCheck(Node* node)
     {
         // Make sure the type is computed
-        Nest_computeType(node);
+        if ( !Nest_computeType(node) )
+            return nullptr;
 
         // Semantically check all the parameters
         auto it = node->children.begin()+2;
         auto ite = node->children.end();
         for ( ; it!=ite; ++it )
         {
-            Node* param = *it;
-            Nest_semanticCheck(param);
+            if ( !Nest_semanticCheck(*it) )
+                return nullptr;
         }
 
         // Semantically check the body, if we have one
-        try
-        {
-            if ( node->children[1] )
-                Nest_semanticCheck(node->children[1]);
+        if ( node->children[1] )
+            Nest_semanticCheck(node->children[1]);  // Ignore possible errors
 
-            // TODO (function): Check that all the paths return a value
-        }
-        catch (const exception&)
-        {
-            // Don't propagate errors from the body
-        }
+        // TODO (function): Check that all the paths return a value
         return node;
     }
     const char* Function_toString(const Node* node)
@@ -339,37 +330,25 @@ using namespace Feather;
     TypeRef Class_ComputeType(Node* node)
     {
         if ( getName(node).empty() )
-            REP_ERROR(node->location, "No name given to class");
+            REP_ERROR_RET(nullptr, node->location, "No name given to class");
 
         // Compute the type for all the fields
         for ( Node* field: node->children )
         {
-            try
-            {
-                Nest_computeType(field);
-            }
-            catch (const exception&)
-            {
-                // Don't propagate the errors upward
-            }
+            // Ignore errors from children
+            Nest_computeType(field);
         }
         return getDataType(node, 0, effectiveEvalMode(node));
     }
     Node* Class_SemanticCheck(Node* node)
     {
-        Nest_computeType(node);
+        if ( !Nest_computeType(node) )
+            return nullptr;
 
         // Semantically check all the fields
         for ( Node* field: node->children )
         {
-            try
-            {
-                Nest_semanticCheck(field);
-            }
-            catch (const exception&)
-            {
-                // Don't propagate the errors upward
-            }
+            Nest_semanticCheck(field);  // Ignore possible errors
         }
         return node;
     }
@@ -384,18 +363,20 @@ using namespace Feather;
         // Make sure the variable has a type
         ASSERT(node->children.size() == 1);
         Node* typeNode = node->children[0];
-        Nest_computeType(typeNode);
+        if ( !Nest_computeType(typeNode) )
+            return nullptr;
 
         // Adjust the mode of the type
         return adjustMode(typeNode->type, node->context, node->location);
     }
     Node* Var_SemanticCheck(Node* node)
     {
-        Nest_computeType(node);
+        if ( !Nest_computeType(node) )
+            return nullptr;
 
         // Make sure that the type has storage
         if ( !node->type->hasStorage )
-            REP_ERROR(node->location, "Variable type has no storage (%1%") % node->type;
+            REP_ERROR_RET(nullptr, node->location, "Variable type has no storage (%1%") % node->type;
 
         Nest_computeType(classForType(node->type));           // Make sure the type of the class is computed
         return node;
@@ -407,14 +388,14 @@ using namespace Feather;
         if ( !node->type )
             node->type = Nest_getCheckPropertyType(node, "valueType");
         if ( !node->type || !node->type->hasStorage || node->type->mode == modeRt )
-            REP_ERROR(node->location, "Type specified for Ct Value cannot be used at compile-time");
+            REP_ERROR_RET(nullptr, node->location, "Type specified for Ct Value cannot be used at compile-time");
         
         // Make sure data size matches the size reported by the type
         size_t valueSize = theCompiler().sizeOf(node->type);
         const string& data = Nest_getCheckPropertyString(node, "valueData");
         if ( valueSize != data.size() )
         {
-            REP_ERROR(node->location, "Read value size (%1%) differs from declared size of the value (%2%) - type: %3%")
+            REP_ERROR_RET(nullptr, node->location, "Read value size (%1%) differs from declared size of the value (%2%) - type: %3%")
                 % data.size() % valueSize % node->type;
         }
 
@@ -476,14 +457,15 @@ using namespace Feather;
     {
         ASSERT(node->children.size() == 1);
         Node* typeNode = node->children[0];
-        Nest_computeType(typeNode);
+        TypeRef t = Nest_computeType(typeNode);
+        if ( !t )
+            return nullptr;
 
         // Make sure that the type is a reference
-        TypeRef t = typeNode->type;
         if ( !t->hasStorage )
-            REP_ERROR(node->location, "Null node should have a type with storage (cur type: %1%") % t;
+            REP_ERROR_RET(nullptr, node->location, "Null node should have a type with storage (cur type: %1%") % t;
         if ( t->numReferences == 0 )
-            REP_ERROR(node->location, "Null node should have a reference type (cur type: %1%)") % t;
+            REP_ERROR_RET(nullptr, node->location, "Null node should have a reference type (cur type: %1%)") % t;
 
         node->type = adjustMode(t, node->context, node->location);
         return node;
@@ -501,11 +483,12 @@ using namespace Feather;
         ASSERT(var);
         if ( var->nodeKind != nkFeatherDeclVar )
             REP_INTERNAL(node->location, "VarRef object needs to point to a Field (node kind: %1%)") % Nest_nodeKindName(var);
-        Nest_computeType(var);
+        if ( !Nest_computeType(var) )
+            return nullptr;
         if ( isField(var) )
             REP_INTERNAL(node->location, "VarRef used on a field (%1%). Use FieldRef instead") % getName(var);
         if ( !var->type->hasStorage )
-            REP_ERROR(node->location, "Variable type is doesn't have a storage type (type: %1%)") % var->type;
+            REP_ERROR_RET(nullptr, node->location, "Variable type is doesn't have a storage type (type: %1%)") % var->type;
         node->type = adjustMode(getLValueType(var->type), node->context, node->location);
         checkEvalMode(node, var->type->mode);
         return node;
@@ -527,16 +510,19 @@ using namespace Feather;
             REP_INTERNAL(node->location, "FieldRef object needs to point to a Field (node kind: %1%)") % Nest_nodeKindName(field);
 
         // Semantic check the object node - make sure it's a reference to a data type
-        Nest_semanticCheck(obj);
+        if ( !Nest_semanticCheck(obj) )
+            return nullptr;
         ASSERT(obj->type);
         if ( !obj->type || !obj->type->hasStorage || obj->type->numReferences != 1 )
-            REP_ERROR(node->location, "Field access should be done on a reference to a data type (type: %1%)") % obj->type;
+            REP_ERROR_RET(nullptr, node->location, "Field access should be done on a reference to a data type (type: %1%)") % obj->type;
         Node* cls = classForType(obj->type);
         ASSERT(cls);
-        Nest_computeType(cls);
+        if ( !Nest_computeType(cls) )
+            return nullptr;
 
         // Compute the type of the field
-        Nest_computeType(field);
+        if ( !Nest_computeType(field) )
+            return nullptr;
 
         // Make sure that the type of a object is a data type that refers to a class the contains the given field
         bool fieldFound = false;
@@ -549,7 +535,7 @@ using namespace Feather;
             }
         }
         if ( !fieldFound )
-            REP_ERROR(node->location, "Field '%1%' not found when accessing object") % getName(field);
+            REP_ERROR_RET(nullptr, node->location, "Field '%1%' not found when accessing object") % getName(field);
 
         // Set the correct type for this node
         ASSERT(field->type);
@@ -569,9 +555,11 @@ using namespace Feather;
     {
         ASSERT(node->children.size() == 1);
         Node* resType = node->children[0];
-        Nest_computeType(resType);
+        if ( !Nest_computeType(resType) )
+            return nullptr;
 
-        Nest_computeType(node->referredNodes[0]);
+        if ( !Nest_computeType(node->referredNodes[0]) )
+            return nullptr;
         node->type = adjustMode(resType->type, node->context, node->location);
         return node;
     }
@@ -587,12 +575,13 @@ using namespace Feather;
         Node* fun = node->referredNodes[0];
         
         // Make sure the function declaration is has a valid type
-        Nest_computeType(fun);
+        if ( !Nest_computeType(fun) )
+            return nullptr;
 
         // Check argument count
         size_t numParameters = Function_numParameters(fun);
         if ( node->children.size() != numParameters )
-            REP_ERROR(node->location, "Invalid function call: expecting %1% parameters, given %2%")
+            REP_ERROR_RET(nullptr, node->location, "Invalid function call: expecting %1% parameters, given %2%")
                 % numParameters % node->children.size();
 
         // Semantic check the arguments
@@ -601,7 +590,8 @@ using namespace Feather;
         for ( size_t i=0; i<node->children.size(); ++i )
         {
             // Semantically check the argument
-            Nest_semanticCheck(node->children[i]);
+            if ( !Nest_semanticCheck(node->children[i]) )
+                return nullptr;
             if ( !isCt(node->children[i]) )
                 allParamsAreCtAvailable = false;
 
@@ -609,7 +599,7 @@ using namespace Feather;
             TypeRef argType = node->children[i]->type;
             TypeRef paramType = Function_getParameter(fun, i)->type;
             if ( !isSameTypeIgnoreMode(argType, paramType) )
-                REP_ERROR(node->children[i]->location, "Invalid function call: argument %1% is expected to have type %2% (actual type: %3%)")
+                REP_ERROR_RET(nullptr, node->children[i]->location, "Invalid function call: argument %1% is expected to have type %2% (actual type: %3%)")
                     % (i+1) % paramType % argType;
         }
 
@@ -620,21 +610,21 @@ using namespace Feather;
         ASSERT(calledFunMode != modeUnspecified);
         if ( calledFunMode == modeCt && curMode != modeCt && !allParamsAreCtAvailable )
         {
-            REP_ERROR_NOTHROW(node->location, "Not all arguments are compile-time, when calling a compile time function");
+            REP_ERROR(node->location, "Not all arguments are compile-time, when calling a compile time function");
             REP_INFO(fun->location, "See called function");
-            REP_ERROR_THROW("Bad mode");
+            return NULL;
         }
         if ( curMode == modeRtCt && calledFunMode == modeRt )
         {
-            REP_ERROR_NOTHROW(node->location, "Cannot call RT functions from RTCT contexts");
+            REP_ERROR(node->location, "Cannot call RT functions from RTCT contexts");
             REP_INFO(fun->location, "See called function");
-            REP_ERROR_THROW("Bad mode");
+            return NULL;
         }
         if ( curMode == modeCt && calledFunMode == modeRt )
         {
-            REP_ERROR_NOTHROW(node->location, "Cannot call a RT function from a CT context");
+            REP_ERROR(node->location, "Cannot call a RT function from a CT context");
             REP_INFO(fun->location, "See called function");
-            REP_ERROR_THROW("Bad mode");
+            return NULL;
         }
 
         // Get the type from the function decl
@@ -671,18 +661,19 @@ using namespace Feather;
         ASSERT(node->children[0]);
 
         // Semantic check the argument
-        Nest_semanticCheck(node->children[0]);
+        if ( !Nest_semanticCheck(node->children[0]) )
+            return nullptr;
 
         // Check if the type of the argument is a ref
         if ( !node->children[0]->type->hasStorage || node->children[0]->type->numReferences == 0 )
-            REP_ERROR(node->location, "Cannot load from a non-reference (%1%, type: %2%)") % node->children[0] % node->children[0]->type;
+            REP_ERROR_RET(nullptr, node->location, "Cannot load from a non-reference (%1%, type: %2%)") % node->children[0] % node->children[0]->type;
 
         // Check flags
         AtomicOrdering ordering = (AtomicOrdering) Nest_getCheckPropertyInt(node, "atomicOrdering");
         if ( ordering == atomicRelease )
-            REP_ERROR(node->location, "Cannot use atomic release with a load instruction");
+            REP_ERROR_RET(nullptr, node->location, "Cannot use atomic release with a load instruction");
         if ( ordering == atomicAcquireRelease )
-            REP_ERROR(node->location, "Cannot use atomic acquire-release with a load instruction");
+            REP_ERROR_RET(nullptr, node->location, "Cannot use atomic acquire-release with a load instruction");
 
         // Remove the 'ref' from the type and get the base type
         node->type = removeRef(node->children[0]->type);
@@ -698,12 +689,12 @@ using namespace Feather;
         ASSERT(address);
 
         // Semantic check the arguments
-        Nest_semanticCheck(value);
-        Nest_semanticCheck(address);
+        if ( !Nest_semanticCheck(value) || !Nest_semanticCheck(address) )
+            return nullptr;
 
         // Check if the type of the address is a ref
         if ( !address->type->hasStorage || address->type->numReferences == 0 )
-            REP_ERROR(node->location, "The address of a memory store is not a reference, nor VarRef nor FieldRef (type: %1%)") % address->type;
+            REP_ERROR_RET(nullptr, node->location, "The address of a memory store is not a reference, nor VarRef nor FieldRef (type: %1%)") % address->type;
         TypeRef baseAddressType = removeRef(address->type);
 
         // Check the equivalence of types
@@ -712,7 +703,7 @@ using namespace Feather;
             // Try again, getting rid of l-values
             TypeRef t1 = lvalueToRefIfPresent(value->type);
             if ( !isSameTypeIgnoreMode(t1, baseAddressType) )
-                REP_ERROR(node->location, "The type of the value doesn't match the type of the address in a memory store (%1% != %2%)")
+                REP_ERROR_RET(nullptr, node->location, "The type of the value doesn't match the type of the address in a memory store (%1% != %2%)")
                     % value->type % baseAddressType;
         }
 
@@ -723,22 +714,24 @@ using namespace Feather;
 
     Node* Bitcast_SemanticCheck(Node* node)
     {
-        Nest_semanticCheck(node->children[0]);
-        Nest_computeType(node->children[1]);
-        TypeRef tDest = node->children[1]->type;
+        if ( !Nest_semanticCheck(node->children[0]) )
+            return nullptr;            
+        TypeRef tDest = Nest_computeType(node->children[1]);
+        if ( !tDest )
+            return nullptr;
 
         // Make sure both types have storage
         TypeRef srcType = node->children[0]->type;
         if ( !srcType->hasStorage )
-            REP_ERROR(node->location, "The source of a bitcast is not a type with storage (%1%)") % srcType;
+            REP_ERROR_RET(nullptr, node->location, "The source of a bitcast is not a type with storage (%1%)") % srcType;
         if ( !tDest->hasStorage )
-            REP_ERROR(node->location, "The destination type of a bitcast is not a type with storage (%1%)") % tDest;
+            REP_ERROR_RET(nullptr, node->location, "The destination type of a bitcast is not a type with storage (%1%)") % tDest;
         
         // Make sure both types are references
         if ( srcType->numReferences == 0 )
-            REP_ERROR(node->location, "The source of a bitcast is not a reference (%1%)") % srcType;
+            REP_ERROR_RET(nullptr, node->location, "The source of a bitcast is not a reference (%1%)") % srcType;
         if ( tDest->numReferences == 0 )
-            REP_ERROR(node->location, "The destination type of a bitcast is not a reference (%1%)") % tDest;
+            REP_ERROR_RET(nullptr, node->location, "The destination type of a bitcast is not a reference (%1%)") % tDest;
 
         node->type = adjustMode(tDest, node->context, node->location);
         return node;
@@ -756,28 +749,30 @@ using namespace Feather;
     Node* Conditional_SemanticCheck(Node* node)
     {
         // Semantic check the condition
-        Nest_semanticCheck(node->children[0]);
+        if ( !Nest_semanticCheck(node->children[0]) )
+            return nullptr;            
 
         // Check that the type of the condition is 'Testable'
         if ( !isTestable(node->children[0]) )
-            REP_ERROR(node->children[0]->location, "The condition of the conditional expression is not Testable");
+            REP_ERROR_RET(nullptr, node->children[0]->location, "The condition of the conditional expression is not Testable");
 
         // Dereference the condition as much as possible
         while ( node->children[0]->type && node->children[0]->type->numReferences > 0 )
         {
             node->children[0] = mkMemLoad(node->children[0]->location, node->children[0]);
             Nest_setContext(node->children[0], Nest_childrenContext(node));
-            Nest_semanticCheck(node->children[0]);
+            if ( !Nest_semanticCheck(node->children[0]) )
+                return nullptr;
         }
         // TODO (conditional): This shouldn't be performed here
 
         // Semantic check the alternatives
-        Nest_semanticCheck(node->children[1]);
-        Nest_semanticCheck(node->children[2]);
+        if ( !Nest_semanticCheck(node->children[1]) || !Nest_semanticCheck(node->children[2]) )
+            return nullptr;            
 
         // Make sure the types of the alternatives are equal
         if ( !isSameTypeIgnoreMode(node->children[1]->type, node->children[2]->type) )
-            REP_ERROR(node->location, "The types of the alternatives of a conditional must be equal (%1% != %2%)") % node->children[1]->type % node->children[2]->type;
+            REP_ERROR_RET(nullptr, node->location, "The types of the alternatives of a conditional must be equal (%1% != %2%)") % node->children[1]->type % node->children[2]->type;
 
         node->type = adjustMode(node->children[1]->type, node->children[0]->type->mode, node->context, node->location);
         return node;
@@ -803,18 +798,20 @@ using namespace Feather;
         node->type = getVoidType(node->context->evalMode);
 
         // Semantic check the condition
-        Nest_semanticCheck(condition);
+        if ( !Nest_semanticCheck(condition) )
+            return nullptr;
 
         // Check that the type of the condition is 'Testable'
         if ( !isTestable(condition) )
-            REP_ERROR(condition->location, "The condition of the if is not Testable");
+            REP_ERROR_RET(nullptr, condition->location, "The condition of the if is not Testable");
 
         // Dereference the condition as much as possible
         while ( condition->type && condition->type->numReferences > 0 )
         {
             condition = mkMemLoad(condition->location, condition);
             Nest_setContext(condition, Nest_childrenContext(node));
-            Nest_semanticCheck(condition);
+            if ( !Nest_semanticCheck(condition) )
+                return nullptr;
         }
         node->children[0] = condition;
         // TODO (if): Remove this dereference from here
@@ -822,7 +819,7 @@ using namespace Feather;
         if ( nodeEvalMode(node) == modeCt )
         {
             if ( !isCt(condition) )
-                REP_ERROR(condition->location, "The condition of the ct if should be available at compile-time (%1%)") % condition->type;
+                REP_ERROR_RET(nullptr, condition->location, "The condition of the ct if should be available at compile-time (%1%)") % condition->type;
 
             // Get the CT value from the condition, and select an active branch
             Node* c = theCompiler().ctEval(condition);
@@ -836,10 +833,10 @@ using namespace Feather;
         }
 
         // Semantic check the clauses
-        if ( thenClause )
-            Nest_semanticCheck(thenClause);
-        if ( elseClause )
-            Nest_semanticCheck(elseClause);
+        if ( thenClause && !Nest_semanticCheck(thenClause) )
+            return nullptr;            
+        if ( elseClause && !Nest_semanticCheck(elseClause) )
+            return nullptr;            
         return node;
     }
 
@@ -862,20 +859,21 @@ using namespace Feather;
         Node* body = node->children[2];
         
         // Semantic check the condition
-        Nest_semanticCheck(condition);
-        if ( step )
-            Nest_computeType(step);
+        if ( !Nest_semanticCheck(condition) )
+            return nullptr;            
+        if ( step && !Nest_computeType(step) )
+            return nullptr;
 
         // Check that the type of the condition is 'Testable'
         if ( !isTestable(condition) )
-            REP_ERROR(condition->location, "The condition of the while is not Testable");
+            REP_ERROR_RET(nullptr, condition->location, "The condition of the while is not Testable");
 
         if ( nodeEvalMode(node) == modeCt )
         {
             if ( !isCt(condition) )
-                REP_ERROR(condition->location, "The condition of the ct while should be available at compile-time (%1%)") % condition->type;
+                REP_ERROR_RET(nullptr, condition->location, "The condition of the ct while should be available at compile-time (%1%)") % condition->type;
             if ( step && !isCt(step) )
-                REP_ERROR(step->location, "The step of the ct while should be available at compile-time (%1%)") % step->type;
+                REP_ERROR_RET(nullptr, step->location, "The step of the ct while should be available at compile-time (%1%)") % step->type;
 
             // Create a node-list that will be our explanation
             NodeVector result;
@@ -892,7 +890,8 @@ using namespace Feather;
                 {
                     Node* curBody = Nest_cloneNode(body);
                     Nest_setContext(curBody, node->context);
-                    Nest_semanticCheck(curBody);
+                    if ( !Nest_semanticCheck(curBody) )
+                        return nullptr;
                     result.push_back(curBody);
                 }
 
@@ -911,10 +910,10 @@ using namespace Feather;
         }
 
         // Semantic check the body and the step
-        if ( body )
-            Nest_semanticCheck(body);
-        if ( step )
-            Nest_semanticCheck(step);
+        if ( body && !Nest_semanticCheck(body) )
+            return nullptr;            
+        if ( step && !Nest_semanticCheck(step) )
+            return nullptr;            
 
         // The resulting type is Void
         node->type = getVoidType(node->context->evalMode);
@@ -926,7 +925,7 @@ using namespace Feather;
         // Get the outer-most loop from the context
         Node* loop = getParentLoop(node->context);
         if ( !loop )
-            REP_ERROR(node->location, "Break found outside any loop");
+            REP_ERROR_RET(nullptr, node->location, "Break found outside any loop");
         Nest_setProperty(node, "loop", loop);
 
         // The resulting type is Void
@@ -939,7 +938,7 @@ using namespace Feather;
         // Get the outer-most loop from the context
         Node* loop = getParentLoop(node->context);
         if ( !loop )
-            REP_ERROR(node->location, "Continue found outside any loop");
+            REP_ERROR_RET(nullptr, node->location, "Continue found outside any loop");
         Nest_setProperty(node, "loop", loop);
 
         // The resulting type is Void
@@ -950,13 +949,13 @@ using namespace Feather;
     Node* Return_SemanticCheck(Node* node)
     {
         // If we have an expression argument, semantically check it
-        if ( node->children[0] )
-            Nest_semanticCheck(node->children[0]);
+        if ( node->children[0] && !Nest_semanticCheck(node->children[0]) )
+            return nullptr;            
 
         // Get the parent function of this return
         Node* parentFun = getParentFun(node->context);
         if ( !parentFun )
-            REP_ERROR(node->location, "Return found outside any function");
+            REP_ERROR_RET(nullptr, node->location, "Return found outside any function");
         TypeRef resultType = Function_resultType(parentFun);
         ASSERT(resultType);
         Nest_setProperty(node, "parentFun", parentFun);
@@ -965,13 +964,13 @@ using namespace Feather;
         if ( node->children[0] )
         {
             if ( !isSameTypeIgnoreMode(node->children[0]->type, resultType) )
-                REP_ERROR(node->location, "Returned expression's type is not the same as function's return type");
+                REP_ERROR_RET(nullptr, node->location, "Returned expression's type is not the same as function's return type");
         }
         else
         {
             // Make sure that the function has a void return type
             if ( resultType->typeKind != typeKindVoid )
-                REP_ERROR(node->location, "You must return something in a function that has non-Void result type");
+                REP_ERROR_RET(nullptr, node->location, "You must return something in a function that has non-Void result type");
         }
 
         // The resulting type is Void

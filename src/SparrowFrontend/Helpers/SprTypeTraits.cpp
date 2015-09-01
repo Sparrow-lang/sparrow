@@ -142,10 +142,11 @@ namespace
         // Check if we have a ct-to-rt ctor
         Callable* call = selectCtToRtCtor(node->context, t);
         if ( !call )
-            REP_ERROR(loc, "Cannot convert %1% from CT to RT (make sure 'ctorFromRt' method exists)") % t;
+            REP_ERROR_RET(nullptr, loc, "Cannot convert %1% from CT to RT (make sure 'ctorFromRt' method exists)") % t;
 
         // Generate the call to the ctor
-        Nest_computeType(node);
+        if ( !Nest_computeType(node) )
+            return nullptr;
         NodeVector args(1, node);
         auto cr = call->canCall(node->context, loc, args, modeRt, true);
         ASSERT(cr);
@@ -154,7 +155,8 @@ namespace
 
         // Sanity check
         Nest_setContext(res, node->context);
-        Nest_computeType(res);
+        if ( !Nest_computeType(res) )
+            return nullptr;
         if ( res->type != Feather::changeTypeMode(node->type, modeRt) )
             REP_INTERNAL(loc, "Cannot convert %1% from CT to RT (invalid returned type)") % t;
 
@@ -175,13 +177,13 @@ Node* SprFrontend::convertCtToRt(Node* node)
     }
 
     if ( !t->hasStorage )
-        REP_ERROR(loc, "Cannot convert a non-storage type from CT to RT (%1%)") % t;
+        REP_ERROR_RET(nullptr, loc, "Cannot convert a non-storage type from CT to RT (%1%)") % t;
 
     if ( t->typeKind != typeKindData )
-        REP_ERROR(loc, "Cannot convert from CT to RT a node of non-data type (%1%)") % t;
+        REP_ERROR_RET(nullptr, loc, "Cannot convert from CT to RT a node of non-data type (%1%)") % t;
 
     if ( t->numReferences > 0 )
-        REP_ERROR(loc, "Cannot convert references from CT to RT (%1%)") % t;
+        REP_ERROR_RET(nullptr, loc, "Cannot convert references from CT to RT (%1%)") % t;
 
     if ( isBasicNumericType(t) || Feather::changeTypeMode(t, modeRtCt) == StdDef::typeStringRef )
         return theCompiler().ctEval(node);
@@ -191,9 +193,10 @@ Node* SprFrontend::convertCtToRt(Node* node)
 
 TypeRef SprFrontend::getType(Node* typeNode)
 {
-    Nest_semanticCheck(typeNode);
+    if ( !Nest_semanticCheck(typeNode) )
+        return nullptr;
     if ( !typeNode->type )
-        REP_ERROR(typeNode->location, "Invalid type name");
+        REP_ERROR_RET(nullptr, typeNode->location, "Invalid type name");
     
     TypeRef t = tryGetTypeValue(typeNode);
     if ( t )
@@ -205,7 +208,8 @@ TypeRef SprFrontend::getType(Node* typeNode)
 
 TypeRef SprFrontend::tryGetTypeValue(Node* typeNode)
 {
-    Nest_semanticCheck(typeNode);
+    if ( !Nest_semanticCheck(typeNode) )
+        return nullptr;
     
     TypeRef t = Feather::lvalueToRefIfPresent(typeNode->type);
     
@@ -216,7 +220,7 @@ TypeRef SprFrontend::tryGetTypeValue(Node* typeNode)
         {
             TypeRef** t = getCtValueData<TypeRef*>(n);
             if ( !t || !*t || !**t )
-                REP_ERROR(typeNode->location, "No type was set for node");
+                REP_ERROR_RET(nullptr, typeNode->location, "No type was set for node");
             return **t;
         }
     }
@@ -227,7 +231,7 @@ TypeRef SprFrontend::tryGetTypeValue(Node* typeNode)
         {
             TypeRef* t = getCtValueData<TypeRef>(n);
             if ( !t || !*t )
-                REP_ERROR(typeNode->location, "No type was set for node");
+                REP_ERROR_RET(nullptr, typeNode->location, "No type was set for node");
             return *t;
         }
     }

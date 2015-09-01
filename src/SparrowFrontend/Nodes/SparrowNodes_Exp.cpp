@@ -50,7 +50,8 @@ namespace
                         if ( !res )
                             REP_INTERNAL(loc, "Cannot add reference to base of field access");
                         baseExp = res.apply(baseExp);
-                        Nest_computeType(baseExp);
+                        if ( !Nest_computeType(baseExp) )
+                            return nullptr;
                     }
                     Node* baseCvt = nullptr;
                     doDereference1(baseExp, baseCvt);  // ... but no more than one reference
@@ -84,8 +85,7 @@ namespace
         // If we are here, this identifier could only represent a function application
         Node* fapp = mkFunApplication(loc, mkDeclExp(loc, decls, baseExp), nullptr);
         Nest_setContext(fapp, ctx);
-        Nest_semanticCheck(fapp);
-        return fapp;
+        return Nest_semanticCheck(fapp);
     }
 
 
@@ -93,11 +93,14 @@ namespace
     // Helpers for FunApplication node
     //
 
-    void checkCastArguments(const Location& loc, const char* castName, const NodeVector& arguments, bool secondShouldBeRef = false)
+    bool checkCastArguments(const Location& loc, const char* castName, const NodeVector& arguments, bool secondShouldBeRef = false)
     {
         // Make sure we have only 2 arguments
         if ( arguments.size() != 2 )
+        {
             REP_ERROR(loc, "%1% expects 2 arguments; %2% given") % castName % arguments.size();
+            return false;
+        }
 
         if ( !arguments[0]->type || !arguments[1]->type )
             REP_INTERNAL(loc, "Invalid arguments");
@@ -105,14 +108,24 @@ namespace
         // Make sure the first argument is a type
         TypeRef t = getType(arguments[0]);
         if ( !t )
+        {
             REP_ERROR(arguments[0]->location, "The first argument of a %1% must be a type") % castName;
+            return false;
+        }
 
         // Make sure that the second argument has storage
         if ( !arguments[1]->type->hasStorage )
+        {
             REP_ERROR(arguments[1]->location, "The second argument of a %1% must have a storage type (we have %2%)") % castName % arguments[1]->type;
+            return false;
+        }
         
         if ( secondShouldBeRef && arguments[1]->type->numReferences == 0 )
+        {
             REP_ERROR(arguments[1]->location, "The second argument of a %1% must be a reference (we have %2%)") % castName % arguments[1]->type;
+            return false;
+        }
+        return true;
     }
 
     Node* checkStaticCast(Node* node)
@@ -120,10 +133,11 @@ namespace
         Node* arguments = node->children[1];
 
         if ( !arguments )
-            REP_ERROR(node->location, "No arguments given to cast");
+            REP_ERROR_RET(nullptr, node->location, "No arguments given to cast");
 
         // Check arguments
-        checkCastArguments(node->location, "cast", arguments->children);
+        if ( !checkCastArguments(node->location, "cast", arguments->children) )
+            return nullptr;
 
         TypeRef destType = getType(arguments->children[0]);
         TypeRef srcType = arguments->children[1]->type;
@@ -131,7 +145,7 @@ namespace
         // Check if we can cast
         ConversionResult c = canConvert(arguments->children[1], destType);
         if ( !c )
-            REP_ERROR(node->location, "Cannot cast from %1% to %2%; types are unrelated") % srcType % destType;
+            REP_ERROR_RET(nullptr, node->location, "Cannot cast from %1% to %2%; types are unrelated") % srcType % destType;
         Node* result = c.apply(arguments->children[1]);
         result->location = node->location;
 
@@ -143,17 +157,18 @@ namespace
         Node* arguments = node->children[1];
 
         if ( !arguments )
-            REP_ERROR(node->location, "No arguments given to reinterpretCast");
+            REP_ERROR_RET(nullptr, node->location, "No arguments given to reinterpretCast");
 
         // Check arguments
-        checkCastArguments(node->location, "reinterpretCast", arguments->children, true);
+        if ( !checkCastArguments(node->location, "reinterpretCast", arguments->children, true) )
+            return nullptr;
 
         TypeRef srcType = arguments->children[1]->type;
         TypeRef destType = getType(arguments->children[0]);
         ASSERT(destType);
         ASSERT(destType->hasStorage);
         if ( destType->numReferences == 0 )
-            REP_ERROR(arguments->children[0]->location, "Destination type must be a reference (currently: %1%)") % destType;
+            REP_ERROR_RET(nullptr, arguments->children[0]->location, "Destination type must be a reference (currently: %1%)") % destType;
 
         // If source is an l-value and the number of source reference is greater than the destination references, remove lvalue
         Node* arg = arguments->children[1];
@@ -169,11 +184,11 @@ namespace
         Node* arguments = node->children[1];
 
         if ( !arguments )
-            REP_ERROR(node->location, "No arguments given to sizeOf");
+            REP_ERROR_RET(nullptr, node->location, "No arguments given to sizeOf");
 
         // Make sure we have only one argument
         if ( arguments->children.size() != 1 )
-            REP_ERROR(node->location, "sizeOf expects one argument; %1% given") % arguments->children.size();
+            REP_ERROR_RET(nullptr, node->location, "sizeOf expects one argument; %1% given") % arguments->children.size();
         Node* arg = arguments->children[0];
         TypeRef t = arg->type;
         if ( !t )
@@ -183,13 +198,14 @@ namespace
         t = evalTypeIfPossible(arg);
         if ( !t->hasStorage )
         {
-            REP_ERROR(arg->location, "The argument of sizeOf must be a type or an expression with storage type (we have %1%)") % arg->type;
+            REP_ERROR_RET(nullptr, arg->location, "The argument of sizeOf must be a type or an expression with storage type (we have %1%)") % arg->type;
         }
 
         // Make sure the class that this refers to has the type properly computed
         Node* cls = classDecl(t);
         Node* mainNode = Nest_childrenContext(cls)->currentSymTab->node;
-        Nest_computeType(mainNode);
+        if ( !Nest_computeType(mainNode) )
+            return nullptr;
 
         // Remove l-value if we have some
         t = Feather::removeLValueIfPresent(t);
@@ -206,13 +222,14 @@ namespace
         Node* arguments = node->children[1];
 
         if ( !arguments )
-            REP_ERROR(node->location, "No arguments given to typeOf");
+            REP_ERROR_RET(nullptr, node->location, "No arguments given to typeOf");
         if ( arguments->children.size() != 1 )
-            REP_ERROR(node->location, "typeOf expects one argument; %1% given") % arguments->children.size();
+            REP_ERROR_RET(nullptr, node->location, "typeOf expects one argument; %1% given") % arguments->children.size();
         Node* arg = arguments->children[0];
 
         // Compile the argument
-        Nest_semanticCheck(arguments);
+        if ( !Nest_semanticCheck(arguments) )
+            return nullptr;
 
         // Make sure we have only one argument
         TypeRef t = arg->type;
@@ -227,26 +244,27 @@ namespace
     bool checkIsValidImpl(const Location& loc, Node* arguments, const char* funName = "isValid", int numArgs = 1)
     {
         if ( !arguments )
+        {
             REP_ERROR(loc, "No arguments given to %1") % funName;
+            return false;
+        }
 
         // Make sure we have only one argument
         if ( arguments->children.size() != numArgs )
+        {
             REP_ERROR(loc, "%1% expects %2% arguments; %2% given") % funName % numArgs % arguments->children.size();
+            return false;
+        }
 
         // Try to compile the argument
         bool isValid = false;
         int oldVal = Nest_isReportingEnabled();
         Nest_enableReporting(0);
-        try
-        {
-            Nest_semanticCheck(arguments);
-            isValid = !arguments->nodeError
-                    && !arguments->children[0]->nodeError
-                    && Nest_getSuppressedErrorsNum() == 0;
-        }
-        catch (...)
-        {
-        }
+        Node* res = Nest_semanticCheck(arguments);
+        isValid = res != nullptr
+                && !arguments->nodeError
+                && !arguments->children[0]->nodeError
+                && Nest_getSuppressedErrorsNum() == 0;
         Nest_enableReporting(oldVal);
         return isValid;
     }
@@ -266,30 +284,47 @@ namespace
         Node* arguments = node->children[1];
 
         bool res = checkIsValidImpl(node->location, arguments, "isValidAndTrue");
+        Node* arg = nullptr;
         if ( res )
         {
-            Node* arg = arguments->children.front();
-            Nest_semanticCheck(arg);
+            arg = arguments->children.front();
+            if ( !Nest_semanticCheck(arg) ) 
+                res = false;
+        }
 
-            // The expression must be CT
-            if ( !isCt(arg) )
-                REP_ERROR(node->location, "ctEval expects an CT argument; %1% given") % arg->type;
+        // The expression must be CT
+        if ( res && !isCt(arg) )
+        {
+            REP_ERROR(node->location, "ctEval expects an CT argument; %1% given") % arg->type;
+            res = false;
+        }
 
+        if ( res )
+        {
             // Make sure we remove all the references
             const Location& loc = arg->location;
             size_t noRefs = arg->type->numReferences;
             for ( size_t i=0; i<noRefs; ++i)
                 arg = mkMemLoad(loc, arg);
             Nest_setContext(arg, node->context);
-            Nest_semanticCheck(arg);
-
-            Node* val = theCompiler().ctEval(arg);
-            if ( val->nodeKind != nkFeatherExpCtValue )
-                REP_ERROR(arg->location, "Unknown value");
-
-            // Get the value from the CtValue object
-            res = getBoolCtValue(val);
+            if ( !Nest_semanticCheck(arg) )
+                res = false;
         }
+
+        Node* val = nullptr;
+        if ( res )
+        {
+            val = theCompiler().ctEval(arg);
+            if ( val->nodeKind != nkFeatherExpCtValue )
+            {
+                REP_ERROR(arg->location, "Unknown value");
+                res = false;
+            }
+        }
+
+        // Get the value from the CtValue object
+        if ( res )
+            res = getBoolCtValue(val);
 
         // Create a CtValue to hold the result
         return mkCtValue(node->location, StdDef::typeBool, &res);
@@ -310,14 +345,15 @@ namespace
 
         // Make sure we have one argument
         if ( arguments->children.size() != 1 )
-            REP_ERROR(node->location, "ctEval expects 1 argument; %1% given") % arguments->children.size();
+            REP_ERROR_RET(nullptr, node->location, "ctEval expects 1 argument; %1% given") % arguments->children.size();
 
         Node* arg = arguments->children.front();
-        Nest_semanticCheck(arg);
+        if ( !Nest_semanticCheck(arg) )
+            return nullptr;
 
         // The expression must be CT
         if ( !isCt(arg) )
-            REP_ERROR(node->location, "ctEval expects an CT argument; %1% given") % arg->type;
+            REP_ERROR_RET(nullptr, node->location, "ctEval expects an CT argument; %1% given") % arg->type;
 
         // Make sure we remove all the references
         const Location& loc = arg->location;
@@ -325,11 +361,12 @@ namespace
         for ( size_t i=0; i<noRefs; ++i)
             arg = mkMemLoad(loc, arg);
         Nest_setContext(arg, node->context);
-        Nest_semanticCheck(arg);
+        if ( !Nest_semanticCheck(arg) )
+            return nullptr;
 
         Node* res = theCompiler().ctEval(arg);
         if ( res->nodeKind != nkFeatherExpCtValue )
-            REP_ERROR(arg->location, "Unknown value");
+            REP_ERROR_RET(nullptr, arg->location, "Unknown value");
 
         return res;
     }
@@ -340,7 +377,7 @@ namespace
 
         // Make sure we have one argument
         if ( arguments->children.size() != 1 )
-            REP_ERROR(node->location, "lift expects 1 argument; %1% given") % arguments->children.size();
+            REP_ERROR_RET(nullptr, node->location, "lift expects 1 argument; %1% given") % arguments->children.size();
 
         Node* arg = arguments->children.front();
         // Don't semantically check the argument; let the user of the lift to decide when it's better to do so
@@ -398,7 +435,8 @@ namespace
         Node* argClass = nullptr;
         if ( base )
         {
-            Nest_semanticCheck(base);
+            if ( !Nest_semanticCheck(base) )
+                return nullptr;
             argClass = classForType(base->type);
         }
 
@@ -434,8 +472,7 @@ namespace
         {
             Node* res = mkNull(orig->location, mkTypeNode(orig->location, StdDef::typeRefByte));
             Nest_setContext(res, orig->context);
-            Nest_computeType(res);
-            return res;
+            return Nest_computeType(res) ? res : nullptr;
         }
         return orig;
     }
@@ -467,8 +504,8 @@ namespace
         Node* arg1 = node->children[0];
         Node* arg2 = node->children[1];
 
-        Nest_semanticCheck(arg1);
-        Nest_semanticCheck(arg2);
+        if ( !Nest_semanticCheck(arg1) || !Nest_semanticCheck(arg2) )
+            return nullptr;
 
         // If we have null as arguments, convert them to "RefByte"
         arg1 = checkConvertNullToRefByte(arg1);
@@ -476,9 +513,9 @@ namespace
 
         // Make sure that both the arguments are references
         if ( arg1->type->numReferences == 0 )
-            REP_ERROR(node->location, "Left operand of a reference equality operator is not a reference (%1%)") % arg1->type;
+            REP_ERROR_RET(nullptr, node->location, "Left operand of a reference equality operator is not a reference (%1%)") % arg1->type;
         if ( arg2->type->numReferences == 0 )
-            REP_ERROR(node->location, "Right operand of a reference equality operator is not a reference (%1%)") % arg2->type;
+            REP_ERROR_RET(nullptr, node->location, "Right operand of a reference equality operator is not a reference (%1%)") % arg2->type;
 
         Node* arg1Cvt = nullptr;
         Node* arg2Cvt = nullptr;
@@ -495,8 +532,8 @@ namespace
         Node* arg1 = node->children[0];
         Node* arg2 = node->children[1];
 
-        Nest_semanticCheck(arg1);
-        Nest_semanticCheck(arg2);
+        if ( !Nest_semanticCheck(arg1) || !Nest_semanticCheck(arg2) )
+            return nullptr;
 
         // If we have null as arguments, convert them to "RefByte"
         arg1 = checkConvertNullToRefByte(arg1);
@@ -504,9 +541,9 @@ namespace
 
         // Make sure that both the arguments are references
         if ( arg1->type->numReferences == 0 )
-            REP_ERROR(node->location, "Left operand of a reference equality operator is not a reference (%1%)") % arg1->type;
+            REP_ERROR_RET(nullptr, node->location, "Left operand of a reference equality operator is not a reference (%1%)") % arg1->type;
         if ( arg2->type->numReferences == 0 )
-            REP_ERROR(node->location, "Right operand of a reference equality operator is not a reference (%1%)") % arg2->type;
+            REP_ERROR_RET(nullptr, node->location, "Right operand of a reference equality operator is not a reference (%1%)") % arg2->type;
 
         Node* arg1Cvt = nullptr;
         Node* arg2Cvt = nullptr;
@@ -523,12 +560,12 @@ namespace
         Node* arg1 = node->children[0];
         Node* arg2 = node->children[1];
 
-        Nest_semanticCheck(arg1);
-        Nest_semanticCheck(arg2);
+        if ( !Nest_semanticCheck(arg1) || !Nest_semanticCheck(arg2) )
+            return nullptr;
 
         // Make sure the first argument is a reference reference
         if ( arg1->type->numReferences < 2 )
-            REP_ERROR(node->location, "Left operand of a reference assign operator is not a reference reference (%1%)") % arg1->type;
+            REP_ERROR_RET(nullptr, node->location, "Left operand of a reference assign operator is not a reference reference (%1%)") % arg1->type;
         TypeRef arg1BaseType = Feather::removeRef(arg1->type);
 
         // Check the second type to be null or a reference
@@ -536,13 +573,13 @@ namespace
         if ( !Feather::isSameTypeIgnoreMode(arg2Type, StdDef::typeNull) )
         {
             if ( arg2Type->numReferences == 0 )
-                REP_ERROR(node->location, "Right operand of a reference assign operator is not a reference (%1%)") % arg2->type;
+                REP_ERROR_RET(nullptr, node->location, "Right operand of a reference assign operator is not a reference (%1%)") % arg2->type;
         }
 
         // Check for a conversion from the second argument to the first argument
         ConversionResult c = canConvert(arg2, arg1BaseType);
         if ( !c )
-            REP_ERROR(node->location, "Cannot convert from %1% to %2%") % arg2->type % arg1BaseType;
+            REP_ERROR_RET(nullptr, node->location, "Cannot convert from %1% to %2%") % arg2->type % arg1BaseType;
         Node* cvt = c.apply(arg2);
 
         // Return a memstore operator
@@ -642,7 +679,8 @@ namespace
 
         // Just one found. Evaluate its value
         Node* n = decls.front();
-        Nest_semanticCheck(n);
+        if ( !Nest_semanticCheck(n) )
+            return defaultVal;
         if ( n->nodeKind == nkSparrowDeclUsing )
             n = n->children[0];
 
@@ -778,7 +816,8 @@ Node* Literal_SemanticCheck(Node* node)
     // Get the type of the literal by looking up the type name
     Node* ident = mkIdentifier(node->location, litType);
     Nest_setContext(ident, node->context);
-    Nest_computeType(ident);
+    if ( !Nest_computeType(ident) )
+        return nullptr;
     TypeRef t = getType(ident);
     t = Feather::changeTypeMode(t, modeCt, node->location);
     
@@ -804,13 +843,14 @@ Node* Identifier_SemanticCheck(Node* node)
     // Search in the current symbol table for the identifier
     NodeVector decls = Nest_symTabLookup(node->context->currentSymTab, id.c_str());
     if ( decls.empty() )
-        REP_ERROR(node->location, "No declarations found with the given name (%1%)") % id;
+        REP_ERROR_RET(nullptr, node->location, "No declarations found with the given name (%1%)") % id;
 
     // If at least one decl is a field or method, then transform this into a compound expression starting from 'this'
     bool needsThis = false;
     for ( Node* decl: decls )
     {
-        Nest_computeType(decl);
+        if ( !Nest_computeType(decl) )
+            continue;
         Node* expl = Nest_explanation(decl);
         if ( isField(expl) )
         {
@@ -846,7 +886,8 @@ Node* CompoundExp_SemanticCheck(Node* node)
 
     // Compile the base expression
     // We can expect at the base node both traditional expressions and nodes yielding decl-type types
-    Nest_semanticCheck(base);
+    if ( !Nest_semanticCheck(base) )
+        return nullptr;
 
     // Try to get the declarations pointed by the base node
     Node* baseDataExp = nullptr;
@@ -855,8 +896,8 @@ Node* CompoundExp_SemanticCheck(Node* node)
     // If the base has storage, retain it as the base data expression
     if ( baseDecls.empty() && base->type->hasStorage )
         baseDataExp = base;
-    if ( baseDataExp )
-        Nest_computeType(baseDataExp);
+    if ( baseDataExp && !Nest_computeType(baseDataExp) )
+        return nullptr;
     Nest_setProperty(node, "baseDataExp", baseDataExp);
 
     // Get the declarations that this node refers to
@@ -874,14 +915,15 @@ Node* CompoundExp_SemanticCheck(Node* node)
     {
         // If the base is an expression with a data type, treat this as a data access
         Node* classDecl = classForType(base->type);
-        Nest_computeType(classDecl);
+        if ( !Nest_computeType(classDecl) )
+            return nullptr;
 
         // Search for a declaration in the class 
         decls = Nest_symTabLookupCurrent(classDecl->childrenContext->currentSymTab, id.c_str());
     }
 
     if ( decls.empty() )
-        REP_ERROR(node->location, "No declarations found with the name '%1%' inside %2%: %3%") % id % base % base->type;
+        REP_ERROR_RET(nullptr, node->location, "No declarations found with the name '%1%' inside %2%: %3%") % id % base % base->type;
 
     
     bool allowDeclExp = 0 != Nest_getCheckPropertyInt(node, propAllowDeclExp);
@@ -905,7 +947,8 @@ Node* FunApplication_SemanticCheck(Node* node)
 
     // Compile the base expression
     // We can expect here both traditional expressions and nodes yielding decl-type types
-    Nest_semanticCheck(base);
+    if ( !Nest_semanticCheck(base) )
+        return nullptr;
 
     // Check for Sparrow implicit functions
     Node* ident = nullptr;
@@ -936,8 +979,8 @@ Node* FunApplication_SemanticCheck(Node* node)
     }
 
     // Compile the arguments
-    if ( arguments )
-        Nest_semanticCheck(arguments);
+    if ( arguments && !Nest_semanticCheck(arguments) )
+        return nullptr;
     if ( arguments && arguments->nodeError )
         REP_INTERNAL(node->location, "Args with error");
 
@@ -975,7 +1018,7 @@ Node* FunApplication_SemanticCheck(Node* node)
         Node* cls = classForType(base->type);
         decls = Nest_symTabLookupCurrent(cls->childrenContext->currentSymTab, "()");
         if ( decls.empty() )
-            REP_ERROR(node->location, "Class %1% has no user defined call operators") % getName(cls);
+            REP_ERROR_RET(nullptr, node->location, "Class %1% has no user defined call operators") % getName(cls);
         thisArg = base;
         functionName = "()";
     }
@@ -1084,7 +1127,8 @@ Node* OperatorCall_SemanticCheck(Node* node)
             Node* r = selectOperator(node, op1, a1, a2);
             if ( r )
             {
-                Nest_semanticCheck(r);
+                if ( !Nest_semanticCheck(r) )
+                    return nullptr;
                 if ( op2 == "!" )
                     res = selectOperator(node, op2, r, nullptr);
                 else if ( op2 == "=" )
@@ -1098,13 +1142,13 @@ Node* OperatorCall_SemanticCheck(Node* node)
     if ( !res )
     {
         if ( arg1 && arg2 )
-            REP_ERROR(node->location, "Cannot find an overload for calling operator %2% %1% %3%") % operation % argTypeStr(arg1) % argTypeStr(arg2);
+            REP_ERROR_RET(nullptr, node->location, "Cannot find an overload for calling operator %2% %1% %3%") % operation % argTypeStr(arg1) % argTypeStr(arg2);
         else if ( arg1 )
-            REP_ERROR(node->location, "Cannot find an overload for calling operator %2% %1%") % operation % argTypeStr(arg1);
+            REP_ERROR_RET(nullptr, node->location, "Cannot find an overload for calling operator %2% %1%") % operation % argTypeStr(arg1);
         else if ( arg2 )
-            REP_ERROR(node->location, "Cannot find an overload for calling operator %1% %2%") % operation % argTypeStr(arg2);
+            REP_ERROR_RET(nullptr, node->location, "Cannot find an overload for calling operator %1% %2%") % operation % argTypeStr(arg2);
         else 
-            REP_ERROR(node->location, "Cannot find an overload for calling operator %1%") % operation;
+            REP_ERROR_RET(nullptr, node->location, "Cannot find an overload for calling operator %1%") % operation;
     }
 
     return res;
@@ -1171,7 +1215,8 @@ Node* LambdaFunction_SemanticCheck(Node* node)
 
             // Create an argument node to pass to the ctor
             Nest_setContext(arg, node->context);
-            Nest_semanticCheck(arg);
+            if ( !Nest_semanticCheck(arg) )
+                return nullptr;
             ctorArgsNodes.push_back(arg);
 
             // Create a closure parameter
@@ -1207,12 +1252,14 @@ Node* LambdaFunction_SemanticCheck(Node* node)
     parentContext->sourceCode->additionalNodes.push_back(closure);
 
     // Compute the type for the enclosing class
-    Nest_computeType(closure);
+    if ( !Nest_computeType(closure) )
+        return nullptr;
     Node* cls = Nest_explanation(closure);
     ASSERT(cls);
 
     // Make sure the closure class is semantically checked
-    Nest_semanticCheck(closure);
+    if ( !Nest_semanticCheck(closure) )
+        return nullptr;
 
     // Create a resulting object: a constructor call to our class
     Node* classId = createTypeNode(node->context, node->location, getDataType(cls));
@@ -1226,8 +1273,8 @@ Node* SprConditional_SemanticCheck(Node* node)
     Node* alt1 = node->children[1];
     Node* alt2 = node->children[2];
 
-    Nest_semanticCheck(alt1);
-    Nest_semanticCheck(alt2);
+    if ( !Nest_semanticCheck(alt1) || !Nest_semanticCheck(alt2) )
+        return nullptr;
 
     TypeRef t1 = alt1->type;
     TypeRef t2 = alt2->type;
@@ -1235,7 +1282,7 @@ Node* SprConditional_SemanticCheck(Node* node)
     // Get the common type
     TypeRef resType = commonType(node->context, t1, t2);
     if ( resType == StdDef::typeVoid )
-        REP_ERROR(node->location, "Cannot deduce the result type for a conditional expression (%1%, %2%)") % t1 % t2;
+        REP_ERROR_RET(nullptr, node->location, "Cannot deduce the result type for a conditional expression (%1%, %2%)") % t1 % t2;
     
     // Convert both types to the result type
     ConversionResult c1  = canConvertType(node->context, t1, resType);
@@ -1252,8 +1299,8 @@ Node* DeclExp_SemanticCheck(Node* node)
     // Make sure we computed the type for all the referred nodes
     for ( Node* n: node->referredNodes )
     {
-        if ( n )
-            Nest_computeType(n);
+        if ( n && !Nest_computeType(n) )
+            continue;
     }
     node->type = Feather::getVoidType(node->context->evalMode);
     return node;    // This node should never be translated directly
@@ -1267,11 +1314,12 @@ Node* StarExp_SemanticCheck(Node* node)
     Nest_setProperty(base, propAllowDeclExp, 1, true);
 
     // Get the declarations from the base expression
-    Nest_semanticCheck(base);
+    if ( !Nest_semanticCheck(base) )
+        return nullptr;            
     Node* baseExp;
     NodeVector baseDecls = getDeclsFromNode(base, baseExp);
     if ( baseDecls.empty() )
-        REP_ERROR(base->location, "Invalid expression inside star expression (no referred declarations)");
+        REP_ERROR_RET(nullptr, base->location, "Invalid expression inside star expression (no referred declarations)");
 
     // Get the referred declarations
     NodeVector decls;

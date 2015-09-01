@@ -23,7 +23,7 @@ namespace
         CHECK(node->location, node->nodeKind == Feather::nkFeatherExpCtValue);
         ValueType* val = node ? getCtValueData<ValueType>(node) : nullptr;
         if ( !val )
-            REP_ERROR(node->location, "Invalid value");
+            REP_INTERNAL(node->location, "Invalid value");
         return *val;
     }
 }

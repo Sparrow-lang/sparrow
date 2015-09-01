@@ -121,8 +121,7 @@ void ModifiersNode_SetContextForChildren(Node* node)
 TypeRef ModifiersNode_ComputeType(Node* node)
 {
     Node* base = node->children[0];
-    Nest_computeType(base);
-    return base->type;
+    return Nest_computeType(base);
 }
 Node* ModifiersNode_SemanticCheck(Node* node)
 {
@@ -184,14 +183,15 @@ Node* For_SemanticCheck(Node* node)
 
     bool ctFor = nodeEvalMode(node) == modeCt;
 
-    if ( typeExpr )
-        Nest_semanticCheck(typeExpr);
-    Nest_semanticCheck(range);
+    if ( typeExpr && !Nest_semanticCheck(typeExpr) )
+        return nullptr;
+    if ( !Nest_semanticCheck(range) )
+        return nullptr;
 
     const Location& loc = range->location;
 
     if ( ctFor && !isCt(range->type) )
-        REP_ERROR(loc, "Range must be available at CT, for a CT for (range type: %1%)") % range->type;
+        REP_ERROR_RET(nullptr, loc, "Range must be available at CT, for a CT for (range type: %1%)") % range->type;
 
     // Expand the for statement of the form
     //      for ( <name>: <type> = <range> ) action;
@@ -256,7 +256,7 @@ Node* SprReturn_SemanticCheck(Node* node)
     // Get the parent function of this return
     Node* parentFun = getParentFun(node->context);
     if ( !parentFun )
-        REP_ERROR(node->location, "Return found outside any function");
+        REP_ERROR_RET(nullptr, node->location, "Return found outside any function");
 
     // Compute the result type of the function
     TypeRef resType = nullptr;
@@ -276,7 +276,8 @@ Node* SprReturn_SemanticCheck(Node* node)
     ConversionResult cvt = convNone;
     if ( exp )
     {
-        Nest_semanticCheck(exp);
+        if ( !Nest_semanticCheck(exp) )
+            return nullptr;
         if ( !resType->hasStorage && exp->type == resType )
         {
             return mkNodeList(node->location, { exp, mkReturn(node->location) });
@@ -286,12 +287,12 @@ Node* SprReturn_SemanticCheck(Node* node)
             cvt = canConvert(exp, resType);
         }
         if ( !cvt )
-            REP_ERROR(exp->location, "Cannot convert return expression (%1%) to %2%") % exp->type % resType;
+            REP_ERROR_RET(nullptr, exp->location, "Cannot convert return expression (%1%) to %2%") % exp->type % resType;
     }
     else
     {
         if ( Function_resultType(parentFun)->typeKind != typeKindVoid )
-            REP_ERROR(node->location, "You must return something in a function that has non-Void result type");
+            REP_ERROR_RET(nullptr, node->location, "You must return something in a function that has non-Void result type");
     }
 
     // Build the explanation of this node
@@ -303,7 +304,7 @@ Node* SprReturn_SemanticCheck(Node* node)
         Nest_setContext(thisArg, node->context);
         Node* action = createCtorCall(l, node->context, thisArg, exp);
         if ( !action )
-            REP_ERROR(exp->location, "Cannot construct return type object %1% from %2%") % exp->type % resType;
+            REP_ERROR_RET(nullptr, exp->location, "Cannot construct return type object %1% from %2%") % exp->type % resType;
 
         return mkNodeList(node->location, { action, mkReturn(node->location, nullptr)});
     }
@@ -590,9 +591,10 @@ Node* SprFrontend::mkGenericClass(Node* originalClass, Node* parameters, Node* i
     // Semantic check the arguments
     for ( Node* param: parameters->children )
     {
-        Nest_semanticCheck(param);
+        if ( !Nest_semanticCheck(param) )
+            return nullptr;
         if ( isConceptType(param->type) )
-            REP_ERROR(param->location, "Cannot use auto or concept parameters for class generics");
+            REP_ERROR_RET(nullptr, param->location, "Cannot use auto or concept parameters for class generics");
     }
     return res;
 }
@@ -677,7 +679,7 @@ Node* SprFrontend::mkInfixOp(const Location& loc, string op, Node* arg1, Node* a
     res->location = loc;
     res->children = { arg1, arg2 };
     if ( op.empty() )
-        REP_ERROR(res->location, "Operation name must have at least one character");
+        REP_ERROR_RET(nullptr, res->location, "Operation name must have at least one character");
     Nest_setProperty(res, "spr.operation", move(op));
     return res;
 }
@@ -722,7 +724,7 @@ Node* SprFrontend::mkDeclExp(const Location& loc, NodeVector decls, Node* baseEx
 Node* SprFrontend::mkStarExp(const Location& loc, Node* base, const string& operName)
 {
     if ( operName != "*" )
-        REP_ERROR(loc, "Expected '*' in expression; found '%1%'") % operName;
+        REP_ERROR_RET(nullptr, loc, "Expected '*' in expression; found '%1%'") % operName;
     Node* res = Nest_createNode(nkSparrowExpStarExp);
     res->location = loc;
     res->children = { base };

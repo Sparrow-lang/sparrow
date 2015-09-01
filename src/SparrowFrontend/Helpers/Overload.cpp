@@ -169,7 +169,7 @@ namespace
     void doReportErrors(const Location& loc, const NodeVector& decls, const Callables& candidates,
         const vector<TypeRef>& argsTypes, const string& funName)
     {
-        REP_ERROR_NOTHROW(loc, "No matching overload found for calling %1%") % nameWithAguments(funName, argsTypes);
+        REP_ERROR(loc, "No matching overload found for calling %1%") % nameWithAguments(funName, argsTypes);
         for ( Callable* cand: candidates )
         {
             REP_INFO(cand->location(), "See possible candidate: %1%") % cand->toString();
@@ -181,7 +181,6 @@ namespace
                 REP_INFO(decl->location, "See possible candidate: %1%") % decl;
             }
         }
-        REP_ERROR_THROW("NoOverloadFound");
     }
 }
 
@@ -205,7 +204,8 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
     vector<TypeRef> argsTypes(args.size(), nullptr);
     for ( size_t i=0; i<args.size(); ++i)
     {
-        Nest_semanticCheck(args[i]);
+        if ( !Nest_semanticCheck(args[i]) )
+            return nullptr;
         argsTypes[i] = args[i]->type;
     }
 
@@ -232,7 +232,8 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
     candidates1.reserve(decls.size());
     for ( Node* decl: decls )
     {
-        Nest_computeType(decl);
+        if ( !Nest_computeType(decl) )
+            continue;
         auto newCandidates = getCallables(decl, evalMode);
         candidates1.insert(candidates1.end(), newCandidates.begin(), newCandidates.end());
     }
@@ -300,7 +301,8 @@ bool SprFrontend::selectConversionCtor(CompilationContext* context, Node* destCl
         if ( !Nest_hasProperty(decl, propConvert) )
             continue;
 
-        Nest_computeType(decl);
+        if ( !Nest_computeType(decl) )
+            continue;
         Node* resDecl = resultingDecl(decl);
 
         Callables callables = getCallables(resDecl, destMode);
@@ -326,7 +328,8 @@ bool SprFrontend::selectConversionCtor(CompilationContext* context, Node* destCl
 //     cerr << "SUCCESS!!!" << endl;
     if ( arg && conv )
     {
-        Nest_computeType(arg);
+        if ( !Nest_computeType(arg) )
+            return false;
         auto cr = selectedFun->canCall(context, arg->location, { arg }, destMode, true);
         (void) cr;
         ASSERT(cr);
@@ -356,7 +359,8 @@ Callable* SprFrontend::selectCtToRtCtor(CompilationContext* context, TypeRef ctT
         if ( effectiveEvalMode(decl) != modeRt )
             continue;
 
-        Nest_computeType(decl);
+        if ( !Nest_computeType(decl) )
+            continue;
         Node* resDecl = resultingDecl(decl);
         ASSERT(effectiveEvalMode(resDecl) == modeRt);
 

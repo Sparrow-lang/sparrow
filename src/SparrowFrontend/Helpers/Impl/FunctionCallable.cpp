@@ -117,7 +117,7 @@ namespace
         t = removeLValueIfPresent(t);
         t = changeTypeMode(t, modeCt, loc);
         if ( t->mode != modeCt )
-            REP_ERROR(loc, "Type %1% cannot be used at compile-time") % t;
+            REP_ERROR_RET(nullptr, loc, "Type %1% cannot be used at compile-time") % t;
         
         return createTypeNode(context, loc, t);
     }
@@ -129,7 +129,7 @@ namespace
         t = removeLValueIfPresent(t);
         t = changeTypeMode(t, modeRt, loc);
         if ( t->mode != modeRt )
-            REP_ERROR(loc, "Type %1% cannot be used at run-time") % t;
+            REP_ERROR_RET(nullptr, loc, "Type %1% cannot be used at run-time") % t;
         
         return createTypeNode(context, loc, t);
     }
@@ -152,7 +152,7 @@ namespace
         int size = getSizeTypeCtValue(args[0]);
         
         if ( size > numeric_limits<size_t>::max() )
-            REP_ERROR(loc, "Size of static buffer is too large");
+            REP_ERROR_RET(nullptr, loc, "Size of static buffer is too large");
         
         TypeRef arrType = getArrayType(StdDef::typeByte, (size_t) size);
         return createTypeNode(context, loc, arrType);
@@ -176,7 +176,8 @@ namespace
         Node* implPart = mkCompoundExp(loc, args[0], "impl");
         implPart = mkMemLoad(loc, implPart);    // Remove LValue
         Nest_setContext(implPart, context);
-        Nest_semanticCheck(implPart);
+        if ( !Nest_semanticCheck(implPart) )
+            return nullptr;
 
         // Evaluate the handle and get the resulting node
         Node* nodeHandle = (Node*) getIntRefCtValue(implPart);
@@ -301,7 +302,8 @@ bool FunctionCallable::isAutoCt() const
 Node* FunctionCallable::generateCall(const Location& loc)
 {
     ASSERT(context_);
-    Nest_computeType(fun_);
+    if ( !Nest_computeType(fun_) )
+        return nullptr;
 
     auto argsCvt = argsWithConversion();
     

@@ -69,10 +69,7 @@ void Nest_reportDiagnostic(Location loc, DiagnosticSeverity severity, const char
     if ( severity != diagInternalError && !_reportingEnabled )
     {
         if ( severity == diagError )
-        {
             ++_numSupppresedErrors;
-            throw Nest::Common::CompilationError(severity, message);
-        }
         return;
     }
 
@@ -81,10 +78,6 @@ void Nest_reportDiagnostic(Location loc, DiagnosticSeverity severity, const char
 
     // Show the diagnostic
     doReport(loc, severity, message);
-
-    // Old mechanism of throwing exceptions on errors
-    if ( severity == diagError )
-        throw Nest::Common::CompilationError(severity, message);
 
     if ( severity == diagInternalError )
         exit(-1);

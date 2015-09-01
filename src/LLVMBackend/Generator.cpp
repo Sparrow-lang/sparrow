@@ -55,7 +55,7 @@ namespace
         string errMsg;
         int res = llvm::sys::ExecuteAndWait(args[0], &cstrArgs[0], 0, 0, 0, 0, &errMsg);
         if ( res != 0 )
-            REP_ERROR(NOLOC, "Cannot run command: %1%") % errMsg;
+            REP_INTERNAL(NOLOC, "Cannot run command: %1%") % errMsg;
     }
 
     /// Write the given LLVM module, as a bitcode to disk
@@ -64,7 +64,7 @@ namespace
         string errorInfo;
         unique_ptr<tool_output_file> outFile(new tool_output_file(outputFilename.c_str(), errorInfo, sys::fs::OpenFlags::F_None));
         if ( !errorInfo.empty() )
-            REP_ERROR(NOLOC, "Cannot generate bitcode file (%1%); reason: %2%") % outputFilename % errorInfo;
+            REP_INTERNAL(NOLOC, "Cannot generate bitcode file (%1%); reason: %2%") % outputFilename % errorInfo;
 
         llvm::WriteBitcodeToFile(&module, outFile->os());
 
@@ -77,7 +77,7 @@ namespace
         string errorInfo;
         unique_ptr<tool_output_file> outFile(new tool_output_file(outputFilename.c_str(), errorInfo, sys::fs::OpenFlags::F_None));
         if ( !outFile || !errorInfo.empty() )
-            REP_ERROR(NOLOC, "Cannot generate LLVM assembly file (%1%); reason: %2%") % outputFilename % errorInfo;
+            REP_INTERNAL(NOLOC, "Cannot generate LLVM assembly file (%1%); reason: %2%") % outputFilename % errorInfo;
 
         outFile->os() << module;
 
@@ -175,7 +175,7 @@ void LLVMB::link(const vector<llvm::Module*>& inputs, const string& outFilename)
     string err;
     raw_string_ostream errStream(err);
     if ( verifyModule(*compositeModule, &errStream) )
-        REP_ERROR(NOLOC, "LLVM Verification failed for generated program: %1%") % err;
+        REP_INTERNAL(NOLOC, "LLVM Verification failed for generated program: %1%") % err;
 
     // Write the bitcode file -- this will typically be removed after generating the output files
     string bcFile = outFilename + ".bc";
@@ -232,7 +232,7 @@ void LLVMB::link(const vector<llvm::Module*>& inputs, const string& outFilename)
     // Try to find GCC and call it to generate native code out of the assembly (or C)
     string gcc = sys::FindProgramByName("gcc");
     if ( gcc.empty() )
-        REP_ERROR(NOLOC, "Failed to find gcc");
+        REP_INTERNAL(NOLOC, "Failed to find gcc");
 
     generateNativeObjGCC(outFilename, objFile.c_str(), gcc);
 }

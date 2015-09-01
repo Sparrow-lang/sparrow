@@ -58,13 +58,13 @@ Node* ConceptCallable::generateCall(const Location& loc)
     ASSERT(argsCvt.size() == 1);
     Node* arg = argsCvt.front();
     ASSERT(arg);
-    Nest_semanticCheck(arg);
+    if ( !Nest_semanticCheck(arg) )
+        return nullptr;
 
     // Check if the type of the argument fulfills the concept
     bool conceptFulfilled = conceptIsFulfilled(concept_, arg->type);
     Node* result = mkCtValue(loc, StdDef::typeBool, &conceptFulfilled);
     Nest_setContext(result, context_);
-    Nest_semanticCheck(result);
-    return result;
+    return Nest_semanticCheck(result);
 }
 

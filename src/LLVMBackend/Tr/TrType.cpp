@@ -90,7 +90,7 @@ llvm::Type* Tr::getLLVMType(TypeRef type, Module& module)
         llvmType = transformFunctionType(type, -1, module);
     else
     {
-        REP_ERROR(NOLOC, "Don't know how to translate type '%1%'") % type;
+        REP_INTERNAL(NOLOC, "Don't know how to translate type '%1%'") % type;
         return nullptr;
     }
 

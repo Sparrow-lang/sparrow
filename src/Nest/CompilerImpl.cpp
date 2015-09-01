@@ -204,20 +204,21 @@ void CompilerImpl::queueSemanticCheck(Node* node)
 
 void CompilerImpl::ctProcess(Node* node)
 {
-    Nest_semanticCheck(node);
-    backend_->ctProcess(backend_, node);
+    node = Nest_semanticCheck(node);
+    if ( node )
+        backend_->ctProcess(backend_, node);
 }
 
 Node* CompilerImpl::ctEval(Node* node)
 {
-    Nest_semanticCheck(node);
+    node = Nest_semanticCheck(node);
+    if ( !node )
+        return nullptr;
     Node* res = backend_->ctEvaluate(backend_, node);
-    if ( res )
-    {
-        Nest_setContext(res, node->context);
-        Nest_semanticCheck(res);
-    }
-    return res;
+    if ( !res )
+        return nullptr;
+    Nest_setContext(res, node->context);
+    return Nest_semanticCheck(res);
 }
 
 size_t CompilerImpl::sizeOf(TypeRef type)
@@ -238,7 +239,7 @@ void CompilerImpl::semanticCheckNodes()
         toSemanticCheck_.erase(toSemanticCheck_.begin());
 
         if ( n )
-            Nest_semanticCheck(n);
+            Nest_semanticCheck(n);  // Ignore possible failures
     }
 }
 

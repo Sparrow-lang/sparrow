@@ -223,7 +223,7 @@ const char* SimpleLexer::consumeString()
         // Check for EOF
         if ( *source_ == 0 )
         {
-            REP_ERROR(curLocation(), "End-of-file reached inside string literal");
+            REP_ERROR_RET(nullptr, curLocation(), "End-of-file reached inside string literal");
         }
 
         // Move to the next character

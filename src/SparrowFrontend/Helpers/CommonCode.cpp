@@ -26,7 +26,8 @@ Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* conte
 
     // Get the class from 'thisArg'
     Node* thisArg = args[0];
-    Nest_computeType(thisArg);
+    if ( !Nest_computeType(thisArg) )
+        return nullptr;
     Node* cls = classForType(thisArg->type);
     CHECK(loc, cls);
 
@@ -35,7 +36,8 @@ Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* conte
     if ( args.size() == 2 && !theCompiler().settings().noRVO_ && !isCt(thisArg) )
     {
         Node* arg = args[1];
-        Nest_computeType(arg);
+        if ( ! Nest_computeType(arg) )
+            return nullptr;
         arg = Nest_explanation(arg);
         if ( classForType(arg->type) == cls )
         {
@@ -90,7 +92,8 @@ Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* conte
 Node* SprFrontend::createDtorCall(const Location& loc, CompilationContext* context, Node* thisArg)
 {
     // Get the class from 'thisArg'
-    Nest_computeType(thisArg);
+    if ( !Nest_computeType(thisArg) )
+        return nullptr;
     Node* cls = classForType(thisArg->type);
     CHECK(loc, cls);
 
@@ -103,10 +106,10 @@ Node* SprFrontend::createDtorCall(const Location& loc, CompilationContext* conte
 
     // Sanity checks
     if ( decls.size() > 1 )
-        REP_ERROR(loc, "Multiple destructors found for class %1%") % getName(cls);
+        REP_ERROR_RET(nullptr, loc, "Multiple destructors found for class %1%") % getName(cls);
     Node* dtor = Nest_explanation(decls.front());
     if ( !dtor || dtor->nodeKind != nkFeatherDeclFunction )
-        REP_ERROR(decls.front()->location, "Invalid destructor found for class %1%") % getName(cls);
+        REP_ERROR_RET(nullptr, decls.front()->location, "Invalid destructor found for class %1%") % getName(cls);
     if ( Function_numParameters(dtor) != 1 )
         REP_INTERNAL(decls.front()->location, "Invalid destructor found for class %1%; it has %2% parameters") % getName(cls) % Function_numParameters(dtor);
 
@@ -127,7 +130,8 @@ Node* SprFrontend::createDtorCall(const Location& loc, CompilationContext* conte
 Node* SprFrontend::createFunctionCall(const Location& loc, CompilationContext* context, Node* fun, NodeVector args)
 {
     ASSERT(context);
-    Nest_computeType(fun);
+    if ( !Nest_computeType(fun) )
+        return nullptr;
 
     // Set the arguments to the function call.
     // If we have a result param, create a temporary variable for it, and call the function with it; then we return the
@@ -171,7 +175,8 @@ Node* SprFrontend::createFunctionCall(const Location& loc, CompilationContext* c
     }
 
     Nest_setContext(res, context);
-    Nest_computeType(res);
+    if ( !Nest_computeType(res) )
+        return nullptr;
 
     // CT sanity check
     //checkEvalMode(funCall, effectiveEvalMode(fun));
@@ -185,7 +190,8 @@ Node* SprFrontend::createTempVarConstruct(const Location& loc, CompilationContex
     Node* funCall = constructAction;
     CHECK(loc, !funCall->children.empty());
     Node* thisArg = funCall->children[0];
-    Nest_computeType(thisArg);
+    if ( !Nest_computeType(thisArg) )
+        return nullptr;
 
     // Create a temp destruct action with the call of the destructor
     Node* destructAction = nullptr;
@@ -201,7 +207,8 @@ Node* SprFrontend::createTempVarConstruct(const Location& loc, CompilationContex
 
     Node* res = mkNodeList(loc, { var, constructAction, destructAction, result });
     Nest_setContext(res, context);
-    Nest_computeType(res);
+    if ( !Nest_computeType(res) )
+        return nullptr;
     Nest_setProperty(res, propTempVarContstruction, constructAction);
 
     // CT sanity checks
@@ -223,7 +230,7 @@ Node* SprFrontend::createFunPtr(Node* funNode)
 
     // Make sure we refer only to one decl
     if ( decls.size() == 0 )
-        REP_ERROR(loc, "No function found: %1%") % funNode;
+        REP_ERROR_RET(nullptr, loc, "No function found: %1%") % funNode;
 
 
     // Basic case: is this a plain function?
@@ -246,7 +253,8 @@ Node* SprFrontend::createFunPtr(Node* funNode)
         string className = "FunctionPtr";
         Node* classCall = mkFunApplication(loc, mkIdentifier(loc, className), mkNodeList(loc, parameters));
         Nest_setContext(classCall, ctx);
-        Nest_computeType(classCall);
+        if ( !Nest_computeType(classCall) )
+            return nullptr;
 
         // Get the actual class object from the instantiation
         TypeRef t = getType(classCall);

@@ -54,7 +54,8 @@ NodeVector SprFrontend::getDeclsFromNode(Node* n, Node*& baseExp)
     NodeVector res;
     baseExp = nullptr;
     
-    Nest_computeType(n);
+    if ( !Nest_computeType(n) )
+        return {};        
     n = Nest_explanation(n);
     ASSERT(n);
 

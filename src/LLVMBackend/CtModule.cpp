@@ -45,7 +45,7 @@ CtModule::CtModule(const string& name)
 		.create();
 
 	if ( !llvmExecutionEngine_ )
-        REP_ERROR(NOLOC, "Failed to construct LLVM ExecutionEngine: %1%") % errStr;
+        REP_INTERNAL(NOLOC, "Failed to construct LLVM ExecutionEngine: %1%") % errStr;
 }
 
 CtModule::~CtModule()
@@ -181,6 +181,7 @@ Node* CtModule::ctEvaluateExpression(Node* node)
     if ( llvm::verifyFunction(*f) )
     {
         REP_ERROR(node->location, "Error constructing CT evaluation function");
+        f->dump();
         return nullptr;
     }
 

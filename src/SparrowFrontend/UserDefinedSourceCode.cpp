@@ -26,7 +26,10 @@ namespace
         // Open the filename
         ifstream f(sourceCode->url);
         if ( !f )
+        {
             REP_ERROR(loc, "Cannot open source file");
+            return;
+        }
 
         // Get the content of the file
         ostringstream oss;
@@ -70,7 +73,8 @@ namespace
         Node* implPart = mkCompoundExp(loc, funCall, "impl");
         implPart = Feather::mkMemLoad(loc, implPart);    // Remove LValue
         Nest_setContext(implPart, ctx);
-        Nest_semanticCheck(implPart);
+        if ( !Nest_semanticCheck(implPart) )
+            REP_INTERNAL(loc, "Invalid parsing function %1%, (used to parse %2%)") % funName % sourceCode->url;
 
         sourceCode->mainNode = (Node*) getIntRefCtValue(implPart);
         if ( !sourceCode->mainNode )

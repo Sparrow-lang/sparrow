@@ -31,10 +31,10 @@ namespace
         }
 
         if ( !type->hasStorage )
-            REP_ERROR(NOLOC, "Cannot compute size of a type which has no storage: %1%") % type;
+            REP_ERROR_RET(nullptr, NOLOC, "Cannot compute size of a type which has no storage: %1%") % type;
 
         Node* clsDecl = type->referredNode;
-        ASSERT(clsDecl && clsDecl->nodeKind == Feather::nkFeatherDeclClass);
+        CHECK(NOLOC, clsDecl && clsDecl->nodeKind == Feather::nkFeatherDeclClass);
         if ( !clsDecl->type )
             REP_INTERNAL(clsDecl->location, "Class %1% doesn't have type computed, while computing its size") % getName(clsDecl);
 

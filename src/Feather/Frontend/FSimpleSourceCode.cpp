@@ -24,7 +24,7 @@ namespace
         string line;
         ifstream f(filename.c_str());
         if ( !f.is_open() )
-            REP_ERROR(NOLOC, "Cannot open input file '%1%'") % filename;
+            REP_ERROR_RET(string(), NOLOC, "Cannot open input file '%1%'") % filename;
         while ( f.good() )
         {
             getline(f, line);

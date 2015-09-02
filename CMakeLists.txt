@@ -118,7 +118,7 @@ ELSEIF(APPLE)
     ADD_DEFINITIONS( -Wno-c++11-extensions )    # ... except C++11 extensions warnings
     ADD_DEFINITIONS( -Wno-deprecated )          # ... and except deprecated functions
     ADD_DEFINITIONS( -Wno-undefined-bool-conversion ) # ... and except undefined bool conversions
-ELSE()
+    ADD_DEFINITIONS( -Wno-typedef-redefinition )   # redefinition of typedef '...' is a C11 feature
     ADD_DEFINITIONS( -Wno-deprecated )
     SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=gnu++0x" )
 ENDIF()

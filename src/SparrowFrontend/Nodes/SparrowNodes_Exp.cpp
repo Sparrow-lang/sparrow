@@ -27,12 +27,12 @@ namespace
     // Helpers for Identifier and CompoundExp nodes
     //
 
-    Node* getIdentifierResult(CompilationContext* ctx, const Location& loc, const NodeVector& decls, Node* baseExp, bool allowDeclExp)
+    Node* getIdentifierResult(CompilationContext* ctx, const Location& loc, NodeRange decls, Node* baseExp, bool allowDeclExp)
     {
         // If this points to one declaration only, try to use that declaration
-        if ( decls.size() == 1 )
+        if ( Nest_nodeRangeSize(decls) == 1 )
         {
-            Node* resDecl = resultingDecl(decls[0]);
+            Node* resDecl = resultingDecl(at(decls, 0));
             ASSERT(resDecl);
             
             // Check if we can refer to a variable
@@ -80,10 +80,10 @@ namespace
 
         // Add the referenced declarations as a property to our result
         if ( allowDeclExp )
-            return mkDeclExp(loc, decls, baseExp);
+            return mkDeclExp(loc, toVec(decls), baseExp);
 
         // If we are here, this identifier could only represent a function application
-        Node* fapp = mkFunApplication(loc, mkDeclExp(loc, decls, baseExp), nullptr);
+        Node* fapp = mkFunApplication(loc, mkDeclExp(loc, toVec(decls), baseExp), nullptr);
         Nest_setContext(fapp, ctx);
         return Nest_semanticCheck(fapp);
     }
@@ -400,11 +400,13 @@ namespace
         CompilationContext* callContext, const Location& callLocation, EvalMode mode)
     {
         SymTab* sTab = searchContext->currentSymTab;
-        NodeVector decls = searchOnlyGivenContext ? Nest_symTabLookupCurrent(sTab, operation.c_str()) : Nest_symTabLookup(sTab, operation.c_str());
-        if ( !decls.empty() )
-            return selectOverload(callContext, callLocation, mode, move(decls), args, false, operation);
+        NodeArray decls = searchOnlyGivenContext ? Nest_symTabLookupCurrent(sTab, operation.c_str()) : Nest_symTabLookup(sTab, operation.c_str());
+        Node* res = nullptr;
+        if ( Nest_nodeArraySize(decls) > 0 )
+            res = selectOverload(callContext, callLocation, mode, all(decls), args, false, operation);
+        Nest_freeNodeArray(decls);
 
-        return nullptr;
+        return res;
     }
 
     #define CHECK_RET(expr) \
@@ -665,14 +667,15 @@ namespace
         Nest_setProperty(node, operPropName, move(otherOper));
     }
 
-    int getIntValue(Node* node, const NodeVector& decls, int defaultVal)
+    int getIntValue(Node* node, NodeRange decls, int defaultVal)
     {
         // If no declarations found, return the default value
-        if ( decls.empty() )
+        auto numDecls = Nest_nodeRangeSize(decls);
+        if ( numDecls == 0 )
             return defaultVal;
 
         // If more than one declarations found, issue a warning
-        if ( decls.size() > 1 )
+        if ( numDecls > 1 )
         {
             REP_WARNING(node->location, "Multiple precedence declarations found for '%1%'") % getOperation(node);
             for ( Node* decl: decls )
@@ -681,7 +684,7 @@ namespace
         }
 
         // Just one found. Evaluate its value
-        Node* n = decls.front();
+        Node* n = at(decls, 0);
         if ( !Nest_semanticCheck(n) )
             return defaultVal;
         if ( n->nodeKind == nkSparrowDeclUsing )
@@ -701,12 +704,16 @@ namespace
         string defaultPrecedenceName = "oper_precedence_default";
 
         // Perform a name lookup for the actual precedence name
-        int res = getIntValue(node, Nest_symTabLookup(node->context->currentSymTab, precedenceName.c_str()), -1);
+        NodeArray decls = Nest_symTabLookup(node->context->currentSymTab, precedenceName.c_str());
+        int res = getIntValue(node, all(decls), -1);
+        Nest_freeNodeArray(decls);
         if ( res > 0 )
             return res;
 
         // Search the default precedence name
-        res = getIntValue(node, Nest_symTabLookup(node->context->currentSymTab, defaultPrecedenceName.c_str()), -1);
+        decls = Nest_symTabLookup(node->context->currentSymTab, defaultPrecedenceName.c_str());
+        res = getIntValue(node, all(decls), -1);
+        Nest_freeNodeArray(decls);
         if ( res > 0 )
             return res;
 
@@ -718,7 +725,9 @@ namespace
         string assocName = "oper_assoc_" + getOperation(node);
 
         // Perform a name lookup for the actual associativity name
-        int res = getIntValue(node, Nest_symTabLookup(node->context->currentSymTab, assocName.c_str()), 1);
+        NodeArray decls = Nest_symTabLookup(node->context->currentSymTab, assocName.c_str());
+        int res = getIntValue(node, all(decls), 1);
+        Nest_freeNodeArray(decls);
         return res < 0;
     }
 
@@ -844,8 +853,8 @@ Node* Identifier_SemanticCheck(Node* node)
     const string& id = Nest_getCheckPropertyString(node, "name");
 
     // Search in the current symbol table for the identifier
-    NodeVector decls = Nest_symTabLookup(node->context->currentSymTab, id.c_str());
-    if ( decls.empty() )
+    NodeArray decls = Nest_symTabLookup(node->context->currentSymTab, id.c_str());
+    if ( Nest_nodeArraySize(decls) == 0 )
         REP_ERROR_RET(nullptr, node->location, "No declarations found with the given name (%1%)") % id;
 
     // If at least one decl is a field or method, then transform this into a compound expression starting from 'this'
@@ -874,7 +883,8 @@ Node* Identifier_SemanticCheck(Node* node)
     }
 
     bool allowDeclExp = 0 != Nest_getCheckPropertyInt(node, propAllowDeclExp);
-    Node* res = getIdentifierResult(node->context, node->location, move(decls), nullptr, allowDeclExp);
+    Node* res = getIdentifierResult(node->context, node->location, all(decls), nullptr, allowDeclExp);
+    Nest_freeNodeArray(decls);
     ASSERT(res);
     return res;
 }
@@ -910,8 +920,9 @@ Node* CompoundExp_SemanticCheck(Node* node)
         // Get the referred declarations; search for our id inside the symbol table of the declarations of the base
         for ( Node* baseDecl: baseDecls )
         {
-            NodeVector declsCur = Nest_symTabLookupCurrent(baseDecl->childrenContext->currentSymTab, id.c_str());
-            decls.insert(decls.end(), declsCur.begin(), declsCur.end());
+            NodeArray declsCur = Nest_symTabLookupCurrent(baseDecl->childrenContext->currentSymTab, id.c_str());
+            decls.insert(decls.end(), declsCur.beginPtr, declsCur.endPtr);
+            Nest_freeNodeArray(declsCur);
         }
     }
     else if ( base->type->hasStorage )
@@ -922,7 +933,7 @@ Node* CompoundExp_SemanticCheck(Node* node)
             return nullptr;
 
         // Search for a declaration in the class 
-        decls = Nest_symTabLookupCurrent(classDecl->childrenContext->currentSymTab, id.c_str());
+        decls = toVec(Nest_symTabLookupCurrent(classDecl->childrenContext->currentSymTab, id.c_str()));
     }
 
     if ( decls.empty() )
@@ -930,7 +941,7 @@ Node* CompoundExp_SemanticCheck(Node* node)
 
     
     bool allowDeclExp = 0 != Nest_getCheckPropertyInt(node, propAllowDeclExp);
-    Node* res = getIdentifierResult(node->context, node->location, move(decls), baseDataExp, allowDeclExp);
+    Node* res = getIdentifierResult(node->context, node->location, all(decls), baseDataExp, allowDeclExp);
     ASSERT(res);
     return res;
 }
@@ -1019,7 +1030,7 @@ Node* FunApplication_SemanticCheck(Node* node)
     if ( base->type->hasStorage && decls.empty() )
     {
         Node* cls = classForType(base->type);
-        decls = Nest_symTabLookupCurrent(cls->childrenContext->currentSymTab, "()");
+        decls = toVec(Nest_symTabLookupCurrent(cls->childrenContext->currentSymTab, "()"));
         if ( decls.empty() )
             REP_ERROR_RET(nullptr, node->location, "Class %1% has no user defined call operators") % getName(cls);
         thisArg = base;
@@ -1041,7 +1052,7 @@ Node* FunApplication_SemanticCheck(Node* node)
     EvalMode mode = node->context->evalMode;
     if ( thisArg )
         mode = combineMode(thisArg->type->mode, mode, node->location, false);
-    Node* res = selectOverload(node->context, node->location, mode, move(decls), args, true, functionName);
+    Node* res = selectOverload(node->context, node->location, mode, all(decls), args, true, functionName);
 
     return res;
 }
@@ -1339,7 +1350,7 @@ Node* StarExp_SemanticCheck(Node* node)
         // Get all the symbols from the symbol table
 
         // Search in the symbol table of the base for the identifier
-        decls = Nest_symTabAllEntries(baseSymTab);
+        decls = toVec(Nest_symTabAllEntries(baseSymTab));
     }
 
     if ( decls.empty() )

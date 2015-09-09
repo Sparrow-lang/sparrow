@@ -23,6 +23,11 @@ NodeArray Nest_allocNodeArray(unsigned int capacity) {
     return res;
 }
 
+void Nest_freeNodeArray(NodeArray arr) {
+    // TODO (memory): if this was the last thing allocated, clean it up
+}
+
+
 void Nest_reserveNodeArray(NodeArray* arr, unsigned int capacity) {
     if ( capacity > Nest_nodeArrayCapacity(*arr) ) {
         // Allocate a new array

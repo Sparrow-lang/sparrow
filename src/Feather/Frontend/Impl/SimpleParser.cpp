@@ -93,13 +93,14 @@ namespace
     Node* findDefinition(int nodeKind, SymTab* symTab, const string& name, const Location& loc, const char* desc, bool onlyCurrent = false)
     {
         ASSERT(symTab);
-        const auto& entries = onlyCurrent ? Nest_symTabLookupCurrent(symTab, name.c_str()) : Nest_symTabLookup(symTab, name.c_str());
-        if ( entries.empty() )
+        NodeArray entries = onlyCurrent ? Nest_symTabLookupCurrent(symTab, name.c_str()) : Nest_symTabLookup(symTab, name.c_str());
+        auto numEntries = Nest_nodeArraySize(entries);
+        if ( numEntries == 0 )
         {
             REP_ERROR(loc, "Cannot find %1%") % name;
             return nullptr;
         }
-        if ( entries.size() > 1 )
+        if ( numEntries > 1 )
         {
             REP_ERROR(loc, "Multiple definitions found for name %1%") % name;
             for ( Node* entry: entries )
@@ -107,9 +108,11 @@ namespace
                 if ( entry )
                     REP_INFO(entry->location, "See possible alternative");
             }
+            Nest_freeNodeArray(entries);
             return nullptr;
         }
-        Node* res = entries.front();
+        Node* res = at(entries, 0);
+        Nest_freeNodeArray(entries);
         if ( res->nodeKind != nodeKind  )
         {
             REP_ERROR(loc, "Identifier %1% doesn't denote a %2% (we have %3%)") % name % desc % res;

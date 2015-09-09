@@ -36,12 +36,12 @@ ClassCtorCallable::ClassCtorCallable(Node* cls, Callable* baseCallable, EvalMode
 
 Callables ClassCtorCallable::getCtorCallables(Node* cls, EvalMode evalMode)
 {
-    NodeVector decls = Nest_symTabLookupCurrent(Nest_childrenContext(cls)->currentSymTab, "ctor");
+    NodeArray decls = Nest_symTabLookupCurrent(Nest_childrenContext(cls)->currentSymTab, "ctor");
 
     evalMode = combineMode(effectiveEvalMode(cls), evalMode, cls->location, false);
 
     Callables res;
-    res.reserve(decls.size());
+    res.reserve(Nest_nodeArraySize(decls));
     for ( Node* decl: decls )
     {
         Node* fun = Nest_explanation(decl);
@@ -52,6 +52,7 @@ Callables ClassCtorCallable::getCtorCallables(Node* cls, EvalMode evalMode)
         if ( isGeneric(resDecl) )
             res.push_back(new ClassCtorCallable(cls, new GenericCallable(resDecl), evalMode));
     }
+    Nest_freeNodeArray(decls);
     return res;
 }
 

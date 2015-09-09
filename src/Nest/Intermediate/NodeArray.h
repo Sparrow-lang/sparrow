@@ -16,6 +16,7 @@ typedef struct Nest_NodeArray NodeArray;
 
 
 NodeArray Nest_allocNodeArray(unsigned int capacity);
+void Nest_freeNodeArray(NodeArray arr);
 void Nest_reserveNodeArray(NodeArray* arr, unsigned int capacity);
 void Nest_resizeNodeArray(NodeArray* arr, unsigned int size);
 

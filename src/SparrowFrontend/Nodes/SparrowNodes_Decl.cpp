@@ -166,10 +166,12 @@ void SprCompilationUnit_SetContextForChildren(Node* node)
         for ( int i=0; i<(int)names.size(); ++i )
         {
             // Try to find an existing package in the current symbol table
-            NodeVector decls = Nest_symTabLookupCurrent(node->context->currentSymTab, names[i].c_str());
-            if ( decls.size() == 1 )
+            NodeArray decls = Nest_symTabLookupCurrent(node->context->currentSymTab, names[i].c_str());
+            Node* firstDecl = Nest_nodeArraySize(decls) == 1 ? at(decls, 0) : nullptr;
+            Nest_freeNodeArray(decls);
+            if ( firstDecl )
             {
-                node->context = Nest_childrenContext(decls.front());
+                node->context = Nest_childrenContext(firstDecl);
                 continue;
             }
 

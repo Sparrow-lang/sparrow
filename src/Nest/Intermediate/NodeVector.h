@@ -14,4 +14,7 @@ inline NodeRange all(NodeVector& nodes) {
 inline NodeVector toVec(NodeArray nodes) {
     return NodeVector(nodes.beginPtr, nodes.endPtr);
 }
+inline NodeVector toVec(NodeRange nodes) {
+    return NodeVector(nodes.beginPtr, nodes.endPtr);
+}
 

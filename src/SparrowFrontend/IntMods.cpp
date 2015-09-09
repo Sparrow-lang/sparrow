@@ -23,7 +23,7 @@ namespace
     /// Search in the given class for a function with a specified name, taking the given type of parameter
     bool checkForMember(Node* cls, const string& funName, Node* paramClass)
     {
-        NodeVector decls = Nest_symTabLookupCurrent(Nest_childrenContext(cls)->currentSymTab, funName.c_str());
+        NodeArray decls = Nest_symTabLookupCurrent(Nest_childrenContext(cls)->currentSymTab, funName.c_str());
         for ( Node* decl: decls )
         {
             decl = Nest_explanation(decl);
@@ -59,27 +59,38 @@ namespace
                 if ( paramType->hasStorage )
                 {
                     if ( classForType(paramType) == paramClass )
+                    {
+                        Nest_freeNodeArray(decls);
                         return true;
+                    }
                 }
             }
             else
             {
                 if ( numParams == 1+thisParamIdx )
+                {
+                    Nest_freeNodeArray(decls);
                     return true;
+                }
             }
         }
+        Nest_freeNodeArray(decls);
         return false;
     }
 
     /// Checks if the class has a 'ctorFromCt' method
     bool checkForCtorFromCt(Node* cls)
     {
-        NodeVector decls = Nest_symTabLookupCurrent(Nest_childrenContext(cls)->currentSymTab, "ctorFromCt");
+        NodeArray decls = Nest_symTabLookupCurrent(Nest_childrenContext(cls)->currentSymTab, "ctorFromCt");
         for ( Node* n: decls )
         {
             if ( effectiveEvalMode(n) == modeRt )
+            {
+                Nest_freeNodeArray(decls);
                 return true;
+            }
         }
+        Nest_freeNodeArray(decls);
         return false;
     }
 

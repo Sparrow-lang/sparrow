@@ -74,14 +74,16 @@ Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* conte
     }
 
     // Search for the ctors in the class
-    NodeVector decls = Nest_symTabLookupCurrent(cls->childrenContext->currentSymTab, "ctor");
+    NodeArray decls = Nest_symTabLookupCurrent(cls->childrenContext->currentSymTab, "ctor");
 
     // If no declarations found, just don't initialize the object
-    if ( decls.empty() )
+    if ( Nest_nodeArraySize(decls) == 0 )
         return nullptr;
 
     // Do the overloading procedure to select the right ctor
-    return selectOverload(context, loc, thisArg->type->mode, move(decls), args, true, "ctor");
+    Node* res = selectOverload(context, loc, thisArg->type->mode, all(decls), args, true, "ctor");
+    Nest_freeNodeArray(decls);
+    return res;
 }
 
 Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* context, Node* thisArg, Node* initArg)
@@ -102,20 +104,22 @@ Node* SprFrontend::createDtorCall(const Location& loc, CompilationContext* conte
     CHECK(loc, cls);
 
     // Search for the dtor in the class 
-    NodeVector decls = Nest_symTabLookupCurrent(cls->childrenContext->currentSymTab, "dtor");
+    NodeArray decls = Nest_symTabLookupCurrent(cls->childrenContext->currentSymTab, "dtor");
 
     // If no destructor found, don't call anything
-    if ( decls.empty() )
+    auto numDecls = Nest_nodeArraySize(decls);
+    if ( numDecls == 0 )
         return nullptr;
 
     // Sanity checks
-    if ( decls.size() > 1 )
+    if ( numDecls > 1 )
         REP_ERROR_RET(nullptr, loc, "Multiple destructors found for class %1%") % getName(cls);
-    Node* dtor = Nest_explanation(decls.front());
+    Node* dtor = Nest_explanation(at(decls, 0));
+    Nest_freeNodeArray(decls);
     if ( !dtor || dtor->nodeKind != nkFeatherDeclFunction )
-        REP_ERROR_RET(nullptr, decls.front()->location, "Invalid destructor found for class %1%") % getName(cls);
+        REP_ERROR_RET(nullptr, at(decls, 0)->location, "Invalid destructor found for class %1%") % getName(cls);
     if ( Function_numParameters(dtor) != 1 )
-        REP_INTERNAL(decls.front()->location, "Invalid destructor found for class %1%; it has %2% parameters") % getName(cls) % Function_numParameters(dtor);
+        REP_INTERNAL(dtor->location, "Invalid destructor found for class %1%; it has %2% parameters") % getName(cls) % Function_numParameters(dtor);
 
     // Check this parameter
     TypeRef thisParamType = Function_getParameter(dtor, 0)->type;

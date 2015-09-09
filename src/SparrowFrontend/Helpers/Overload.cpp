@@ -166,7 +166,7 @@ namespace
         return oss.str();
     }
 
-    void doReportErrors(const Location& loc, const NodeVector& decls, const Callables& candidates,
+    void doReportErrors(const Location& loc, NodeRange decls, const Callables& candidates,
         const vector<TypeRef>& argsTypes, const string& funName)
     {
         REP_ERROR(loc, "No matching overload found for calling %1%") % nameWithAguments(funName, argsTypes);
@@ -185,11 +185,14 @@ namespace
 }
 
 Node* SprFrontend::selectOverload(CompilationContext* context, const Location& loc, EvalMode evalMode,
-        NodeVector decls, NodeVector args,
+        NodeRange decls, NodeVector args,
         bool reportErrors, const string& funName)
 {
+    auto numDecls = Nest_nodeRangeSize(decls);
+    Node* firstDecl = numDecls > 0 ? at(decls, 0) : nullptr;
+
     // Special case for macro calls
-    bool isMacro = decls.size() == 1 && Nest_hasProperty(decls[0], propMacro);
+    bool isMacro = firstDecl && Nest_hasProperty(firstDecl, propMacro);
     if ( isMacro )
     {
         // Wrap every argument in a lift(...) call
@@ -209,7 +212,7 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
         argsTypes[i] = args[i]->type;
     }
 
-    if ( decls.empty() )
+    if ( numDecls == 0 )
     {
         if ( reportErrors )
             doReportErrors(loc, decls, Callables(), argsTypes, funName);
@@ -229,7 +232,7 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
     // First, get all the candidates
     Callables candidates1;
     auto guard1 = Nest::Common::makeGuard([&]()-> void { destroyCallables(candidates1); });
-    candidates1.reserve(decls.size());
+    candidates1.reserve(numDecls);
     for ( Node* decl: decls )
     {
         if ( !Nest_computeType(decl) )
@@ -289,13 +292,13 @@ bool SprFrontend::selectConversionCtor(CompilationContext* context, Node* destCl
     ASSERT(argType);
 
     // Search for the ctors in the class 
-    NodeVector decls = Nest_symTabLookupCurrent(Nest_childrenContext(destClass)->currentSymTab, "ctor");
+    NodeArray decls = Nest_symTabLookupCurrent(Nest_childrenContext(destClass)->currentSymTab, "ctor");
 
 //     cerr << "Convert: " << argType->toString() << " -> " << Nest_toString(destClass) << " ?" << endl;
 
     // Get all the candidates
     Callables candidates;
-    candidates.reserve(decls.size());
+    candidates.reserve(Nest_nodeArraySize(decls));
     for ( Node* decl: decls )
     {
         if ( !Nest_hasProperty(decl, propConvert) )
@@ -311,6 +314,7 @@ bool SprFrontend::selectConversionCtor(CompilationContext* context, Node* destCl
             candidates.push_back(new ClassCtorCallable(destClass, c, destMode));
         }
     }
+    Nest_freeNodeArray(decls);
     if ( candidates.empty() )
         return false;
 
@@ -349,11 +353,11 @@ Callable* SprFrontend::selectCtToRtCtor(CompilationContext* context, TypeRef ctT
         return nullptr;
 
     // Search for the ctors in the class 
-    NodeVector decls = Nest_symTabLookupCurrent(Nest_childrenContext(cls)->currentSymTab, "ctorFromCt");
+    NodeArray decls = Nest_symTabLookupCurrent(Nest_childrenContext(cls)->currentSymTab, "ctorFromCt");
 
     // Select the possible ct-to-rt constructors
     Callables candidates;
-    candidates.reserve(decls.size());
+    candidates.reserve(Nest_nodeArraySize(decls));
     for ( Node* decl: decls )
     {
         if ( effectiveEvalMode(decl) != modeRt )
@@ -380,6 +384,7 @@ Callable* SprFrontend::selectCtToRtCtor(CompilationContext* context, TypeRef ctT
             candidates.push_back(new ClassCtorCallable(cls, c, modeRt));
         }
     }
+    Nest_freeNodeArray(decls);
     if ( candidates.empty() )
         return nullptr;
 

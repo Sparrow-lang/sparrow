@@ -14,6 +14,11 @@ struct _SymTabImpl {
     MMap copiedEntries;
 };
 
+template<class ITERATOR>
+ITERATOR begin( std::pair<ITERATOR,ITERATOR> &range ) { return range.first; }
+
+template<class ITERATOR>
+ITERATOR end( std::pair<ITERATOR,ITERATOR> &range ) { return range.second; }
 
 SymTab* Nest_mkSymTab(SymTab* parent, Node* node)
 {
@@ -63,40 +68,39 @@ void Nest_symTabCopyEntries(SymTab* symTab, SymTab* otherSymTab)
 
 }
 
-NodeVector Nest_symTabAllEntries(SymTab* symTab)
+NodeArray Nest_symTabAllEntries(SymTab* symTab)
 {
     _SymTabImpl* st = (_SymTabImpl*) symTab;
 
-    NodeVector result;
-    result.reserve(st->entries.size() + st->copiedEntries.size());
-    transform(st->entries.begin(), st->entries.end(), back_inserter(result),
-        boost::bind(&unordered_multimap<string, Node*>::value_type::second, _1) );
-    transform(st->copiedEntries.begin(), st->copiedEntries.end(), back_inserter(result),
-        boost::bind(&unordered_multimap<string, Node*>::value_type::second, _1) );
+    NodeArray result = Nest_allocNodeArray(st->entries.size() + st->copiedEntries.size());
+    for ( auto entry: st->entries )
+        Nest_appendNodeToArray(&result, entry.second);
+    for ( auto entry: st->copiedEntries )
+        Nest_appendNodeToArray(&result, entry.second);
     return result;
 }
 
-NodeVector Nest_symTabLookupCurrent(SymTab* symTab, const char* name)
+NodeArray Nest_symTabLookupCurrent(SymTab* symTab, const char* name)
 {
     _SymTabImpl* st = (_SymTabImpl*) symTab;
 
     auto range = st->entries.equal_range(name);
-    NodeVector result;
-    transform(range.first, range.second, back_inserter(result),
-        boost::bind(&unordered_multimap<string, Node*>::value_type::second, _1) );
-    if ( result.empty() )
+    NodeArray result = Nest_allocNodeArray(distance(range.first, range.second));
+    for ( auto entry: range )
+        Nest_appendNodeToArray(&result, entry.second);
+    if ( Nest_nodeArraySize(result) == 0 )
     {
         auto range = st->copiedEntries.equal_range(name);
-        transform(range.first, range.second, back_inserter(result),
-            boost::bind(&unordered_multimap<string, Node*>::value_type::second, _1) );
+        for ( auto entry: range )
+            Nest_appendNodeToArray(&result, entry.second);
     }
     return result;
 }
 
-NodeVector Nest_symTabLookup(SymTab* symTab, const char* name)
+NodeArray Nest_symTabLookup(SymTab* symTab, const char* name)
 {
     _SymTabImpl* st = (_SymTabImpl*) symTab;
 
-    NodeVector res = Nest_symTabLookupCurrent(symTab, name);
-    return !res.empty() || !st->base.parent ? res : Nest_symTabLookup(st->base.parent, name);
+    NodeArray res = Nest_symTabLookupCurrent(symTab, name);
+    return Nest_nodeArraySize(res) > 0 || !st->base.parent ? res : Nest_symTabLookup(st->base.parent, name);
 }

@@ -227,13 +227,12 @@ void Feather::checkEvalMode(Node* src, EvalMode referencedEvalMode)
         REP_INTERNAL(src->location, "RT node required; found: %1%") % nodeEvalMode;
 
     // If the node has direct children, check them
-    const NodeVector& children = src->children;
-    if ( !children.empty() )
+    if ( Nest_nodeArraySize(src->children) != 0 )
     {
         // If we have a CT eval mode, then all the children must be CT
         if ( nodeEvalMode == modeCt )
         {
-            for ( Node* child: children )
+            for ( Node* child: src->children )
             {
                 if ( !child || !child->type )
                     continue;
@@ -249,7 +248,7 @@ void Feather::checkEvalMode(Node* src, EvalMode referencedEvalMode)
         // If we have a RT-CT eval mode, then no children must be RT
         if ( nodeEvalMode == modeRtCt )
         {
-            for ( Node* child: children )
+            for ( Node* child: src->children )
             {
                 if ( !child || !child->type )
                     continue;

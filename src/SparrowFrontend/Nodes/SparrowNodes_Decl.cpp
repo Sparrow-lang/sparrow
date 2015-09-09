@@ -67,11 +67,11 @@ namespace
     
     void handleStaticCtorDtor(Node* node, bool ctor)
     {
-        ASSERT(node->children.size() == 4);
-        Node* parameters = node->children[0];
+        ASSERT(Nest_nodeArraySize(node->children) == 4);
+        Node* parameters = at(node->children, 0);
 
         // Make sure we don't have any parameters
-        if ( parameters && !parameters->children.empty() )
+        if ( parameters && Nest_nodeArraySize(parameters->children) != 0 )
         {
             REP_ERROR(node->location, "Static constructors and destructors cannot have parameters");
             return;
@@ -148,10 +148,10 @@ namespace
 
 void SprCompilationUnit_SetContextForChildren(Node* node)
 {
-    ASSERT(node->children.size() == 3);
-    Node* packageName = node->children[0];
-    Node* imports = node->children[1];
-    Node* declarations = node->children[2];
+    ASSERT(Nest_nodeArraySize(node->children) == 3);
+    Node* packageName = at(node->children, 0);
+    Node* imports = at(node->children, 1);
+    Node* declarations = at(node->children, 2);
     if ( packageName )
         Nest_setContext(packageName, node->context);
 
@@ -178,7 +178,7 @@ void SprCompilationUnit_SetContextForChildren(Node* node)
             {
                 Node* pk = mkSprPackage(packageName->location, move(names[j]), declarations);
                 declarations = Feather::mkNodeList(packageName->location, {pk}, true);
-                node->children[2] = declarations;
+                at(node->children, 2) = declarations;
             }
             break;
         }
@@ -217,8 +217,8 @@ void SprCompilationUnit_SetContextForChildren(Node* node)
 }
 TypeRef SprCompilationUnit_ComputeType(Node* node)
 {
-    ASSERT(node->children.size() == 3);
-    Node* declarations = node->children[2];
+    ASSERT(Nest_nodeArraySize(node->children) == 3);
+    Node* declarations = at(node->children, 2);
 
     // Compute the type for the children
     if ( declarations )
@@ -234,8 +234,8 @@ Node* SprCompilationUnit_SemanticCheck(Node* node)
     if ( !Nest_computeType(node) )
         return nullptr;
 
-    ASSERT(node->children.size() == 3);
-    Node* declarations = node->children[2];
+    ASSERT(Nest_nodeArraySize(node->children) == 3);
+    Node* declarations = at(node->children, 2);
 
     return declarations ? declarations : Feather::mkNop(node->location);
 }
@@ -249,15 +249,15 @@ void Package_SetContextForChildren(Node* node)
         node->childrenContext = Nest_mkChildContextWithSymTab(node->context, node, modeUnspecified);
 
     // Set the context for all the children
-    Nest_setContext(node->children[0], node->childrenContext);
+    Nest_setContext(at(node->children, 0), node->childrenContext);
 }
 TypeRef Package_ComputeType(Node* node)
 {
     // Compute the type for the children
-    if ( !Nest_computeType(node->children[0]) )
+    if ( !Nest_computeType(at(node->children, 0)) )
         return nullptr;
-    node->explanation = node->children[0];
-    checkForAllowedNamespaceChildren(node->children[0]);
+    node->explanation = at(node->children, 0);
+    checkForAllowedNamespaceChildren(at(node->children, 0));
 
     return Feather::getVoidType(modeCt);
 }
@@ -265,7 +265,7 @@ Node* Package_SemanticCheck(Node* node)
 {
     if ( !Nest_computeType(node) )
         return nullptr;
-    return Nest_semanticCheck(node->children[0]);
+    return Nest_semanticCheck(at(node->children, 0));
 }
 
 void SprClass_SetContextForChildren(Node* node)
@@ -280,14 +280,14 @@ void SprClass_SetContextForChildren(Node* node)
 }
 TypeRef SprClass_ComputeType(Node* node)
 {
-    ASSERT(node->children.size() == 4);
-    Node* parameters = node->children[0];
-    Node* baseClasses = node->children[1];
-    Node* children = node->children[2];
-    Node* ifClause = node->children[3];
+    ASSERT(Nest_nodeArraySize(node->children) == 4);
+    Node* parameters = at(node->children, 0);
+    Node* baseClasses = at(node->children, 1);
+    Node* children = at(node->children, 2);
+    Node* ifClause = at(node->children, 3);
 
     // Is this a generic?
-    if ( parameters && !parameters->children.empty() )
+    if ( parameters && Nest_nodeArraySize(parameters->children) != 0 )
     {
         Node* generic = mkGenericClass(node, parameters, ifClause);
         Nest_setProperty(node, propResultingDecl, generic);
@@ -355,7 +355,7 @@ TypeRef SprClass_ComputeType(Node* node)
                 continue;
 
             // Add the fields of the base class to the resulting basic class
-            resultingClass->children.insert(resultingClass->children.end(), baseClass->children.begin(), baseClass->children.end());
+            Nest_appendNodesToArray(&resultingClass->children, all(baseClass->children));
 
             // Copy the symbol table entries of the base to this class
             SymTab* ourSymTab = Nest_childrenContext(node)->currentSymTab;
@@ -369,7 +369,7 @@ TypeRef SprClass_ComputeType(Node* node)
 
     // Get the fields from the current class
     NodeVector fields = getFields(node->childrenContext->currentSymTab);
-    resultingClass->children.insert(resultingClass->children.end(), fields.begin(), fields.end());
+    Nest_appendNodesToArray(&resultingClass->children, all(fields));
 
     // Check all the children
     if ( children )
@@ -407,8 +407,8 @@ Node* SprClass_SemanticCheck(Node* node)
         return node->explanation; // This should be a generic; there is nothing else to do here
 
     // Semantic check all the children
-    ASSERT(node->children.size() == 4);
-    Node* children = node->children[2];
+    ASSERT(Nest_nodeArraySize(node->children) == 4);
+    Node* children = at(node->children, 2);
     if ( children )
         Nest_semanticCheck(children);   // Ignore possible failures
     return node->explanation;
@@ -427,11 +427,11 @@ void SprFunction_SetContextForChildren(Node* node)
 }
 TypeRef SprFunction_ComputeType(Node* node)
 {
-    ASSERT(node->children.size() == 4);
-    Node* parameters = node->children[0];
-    Node* returnType = node->children[1];
-    Node* body = node->children[2];
-    Node* ifClause = node->children[3];
+    ASSERT(Nest_nodeArraySize(node->children) == 4);
+    Node* parameters = at(node->children, 0);
+    Node* returnType = at(node->children, 1);
+    Node* body = at(node->children, 2);
+    Node* ifClause = at(node->children, 3);
 
     bool isStatic = Nest_hasProperty(node, propIsStatic);
 
@@ -574,8 +574,8 @@ void SprParameter_SetContextForChildren(Node* node)
 }
 TypeRef SprParameter_ComputeType(Node* node)
 {
-    ASSERT(node->children.size() == 2);
-    Node* typeNode = node->children[0];
+    ASSERT(Nest_nodeArraySize(node->children) == 2);
+    Node* typeNode = at(node->children, 0);
 
     const TypeRef* givenType = Nest_getPropertyType(node, "spr.givenType");
     TypeRef t = givenType ? *givenType : getType(typeNode);
@@ -597,7 +597,7 @@ Node* SprParameter_SemanticCheck(Node* node)
     if ( !Nest_semanticCheck(node->explanation) )
         return nullptr;
 
-    Node* init = node->children[1];
+    Node* init = at(node->children, 1);
     if ( init && !Nest_semanticCheck(init) )
         return nullptr;
     return node->explanation;
@@ -619,9 +619,9 @@ void SprVariable_SetContextForChildren(Node* node)
 }
 TypeRef SprVariable_ComputeType(Node* node)
 {
-    ASSERT(node->children.size() == 2);
-    Node* typeNode = node->children[0];
-    Node* init = node->children[1];
+    ASSERT(Nest_nodeArraySize(node->children) == 2);
+    Node* typeNode = at(node->children, 0);
+    Node* init = at(node->children, 1);
 
     bool isStatic = Nest_hasProperty(node, propIsStatic);
 
@@ -776,10 +776,10 @@ void SprConcept_SetContextForChildren(Node* node)
 
 Node* SprConcept_SemanticCheck(Node* node)
 {
-    ASSERT(node->children.size() == 3);
-    Node* baseConcept = node->children[0];
-    Node* ifClause = node->children[1];
-    Node*& instantiationsSet = node->children[2];
+    ASSERT(Nest_nodeArraySize(node->children) == 3);
+    Node* baseConcept = at(node->children, 0);
+    Node* ifClause = at(node->children, 1);
+    Node*& instantiationsSet = at(node->children, 2);
     const string& paramName = Nest_getCheckPropertyString(node, "spr.paramName");
 
     // Compile the base concept node; make sure it's ct
@@ -817,8 +817,8 @@ void Using_SetContextForChildren(Node* node)
 }
 TypeRef Using_ComputeType(Node* node)
 {
-    ASSERT(node->children.size() == 1);
-    Node* usingNode = node->children[0];
+    ASSERT(Nest_nodeArraySize(node->children) == 1);
+    Node* usingNode = at(node->children, 0);
     const string* alias = Nest_getPropertyString(node, "name");
 
     // Compile the using name

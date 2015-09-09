@@ -263,7 +263,7 @@ namespace
         {
             Node* childNode = readNode(Nest_childrenContext(res), child, "<node list child>");
             if ( !childNode ) continue;
-            res->children.push_back(childNode);
+            Nest_appendNodeToArray(&res->children, childNode);
         }
         return res;
     }
@@ -626,7 +626,7 @@ namespace
 
             REP_ERROR(srcNode->children()[i]->location(), "Invalid identifier in class (%1%)") % ident;
         }
-        cls->children.insert(cls->children.end(), fields.begin(), fields.end());
+        Nest_appendNodesToArray(&cls->children, all(fields));
         return cls;
     }
 

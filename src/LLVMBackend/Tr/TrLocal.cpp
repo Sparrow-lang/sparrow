@@ -78,7 +78,7 @@ namespace
         }
         Node* res = Nest_createNode(nkLLVMDestructActionForConditional);
         res->location = NOLOC;
-        res->children = { mkNodeList(NOLOC, move(alt1DestructActions)), mkNodeList(NOLOC, move(alt2DestructActions)) };
+        Nest_nodeSetChildren(res, fromIniList({ mkNodeList(NOLOC, move(alt1DestructActions)), mkNodeList(NOLOC, move(alt2DestructActions)) }));
         Nest_setProperty(res, "resType", resType);
         Nest_setProperty(res, "cond_LLVM_value", reinterpret_cast<Node*>(cond)); // store the condition llvm value as a pointer to a node
         return res;
@@ -178,11 +178,11 @@ namespace
 
     llvm::Value* handleLogicalOr(Node* funCall, TrContext& context)
     {
-        if ( funCall->children.size() != 2 )
+        if ( Nest_nodeArraySize(funCall->children) != 2 )
             REP_INTERNAL(funCall->location, "Logical or must have exact 2 arguments");
 
-        Node* arg1 = funCall->children[0];
-        Node* arg2 = funCall->children[1];
+        Node* arg1 = at(funCall->children, 0);
+        Node* arg2 = at(funCall->children, 1);
         llvm::Value* trueConst = llvm::ConstantInt::getTrue(context.llvmContext());
         llvm::Value* res = generateConditionalCode(arg1->type, arg1->context, arg1, Exp(trueConst), Exp(arg2), context);
         return setValue(context.module(), *funCall, res);
@@ -190,11 +190,11 @@ namespace
 
     llvm::Value* handleLogicalAnd(Node* funCall, TrContext& context)
     {
-        if ( funCall->children.size() != 2 )
+        if ( Nest_nodeArraySize(funCall->children) != 2 )
             REP_INTERNAL(funCall->location, "Logical and must have exact 2 arguments");
 
-        Node* arg1 = funCall->children[0];
-        Node* arg2 = funCall->children[1];
+        Node* arg1 = at(funCall->children, 0);
+        Node* arg2 = at(funCall->children, 1);
         llvm::Value* falseConst = llvm::ConstantInt::getFalse(context.llvmContext());
         llvm::Value* res = generateConditionalCode(arg1->type, arg1->context, arg1, Exp(arg2), Exp(falseConst), context);
         return setValue(context.module(), *funCall, res);
@@ -202,17 +202,17 @@ namespace
 
     llvm::Value* handleFunPtr(Node* funCall, TrContext& context)
     {
-        Node* fun = funCall->referredNodes[0];
+        Node* fun = at(funCall->referredNodes, 0);
 
         // Does the resulting function has a resulting parameter?
         // Depending on that, compute the position of the this argument
         size_t thisArgPos = Nest_getPropertyNode(fun, propResultParam) ? 1 : 0;
 
-        ASSERT(!funCall->children.empty());
+        ASSERT(Nest_nodeArraySize(funCall->children) > 0);
 
         // Get the values for all the arguments
         vector<llvm::Value*> args;
-        args.reserve(funCall->children.size());
+        args.reserve(Nest_nodeArraySize(funCall->children));
         for ( auto arg: funCall->children )
         {
             llvm::Value* v = translateNode(arg, context);
@@ -244,7 +244,7 @@ namespace
     llvm::Value* handleNativeFunCall(const string& native, Node* funCall, TrContext& context)
     {
 #define B()                     context.builder()
-#define ARG(argNum)             translateNode(args[argNum], context)
+#define ARG(argNum)             translateNode(at(args, argNum), context)
 #define Ti(numBits)             llvm::IntegerType::get(context.llvmContext(), numBits)
 #define Tf()                    llvm::Type::getFloatTy(context.llvmContext())
 #define Td()                    llvm::Type::getDoubleTy(context.llvmContext())
@@ -253,8 +253,8 @@ namespace
 #define CONSTd(val)             llvm::ConstantFP::get(llvm::Type::getDoubleTy(context.llvmContext()), val)
 
 
-        const NodeVector& args = funCall->children;
-        if ( args.size() == 1 )
+        NodeRange args = all(funCall->children);
+        if ( Nest_nodeRangeSize(args) == 1 )
         {
             if ( native == "_zero_init_1" )
                 return B().CreateStore(CONSTi(1, 0), ARG(0));
@@ -289,7 +289,7 @@ namespace
             else if ( native == "_Bool_opNeg" )
                 return B().CreateXor(CONSTi(1, 1), ARG(0));
         }
-        else if ( args.size() == 2 )
+        else if ( Nest_nodeRangeSize(args) == 2 )
         {
             if ( native == "_ass_1_1" || native == "_ass_8_8" || native == "_ass_16_16"
                 || native == "_ass_32_32" || native == "_ass_64_64"
@@ -459,14 +459,16 @@ namespace
     llvm::Value* translateTempDestructAction(Node* node, TrContext& context)
     {
         // Add the action to the temp destruct actions in the context
-        context.curInstruction().addTempDestructAction(node->children[0]);
+        Node* act = at(node->children, 0);
+        context.curInstruction().addTempDestructAction(act);
         return nullptr;
     }
 
     llvm::Value* translateScopeDestructAction(Node* node, TrContext& context)
     {
         // Add the action to the scope destruct actions in the context
-        context.curScope().addScopeDestructAction(node->children[0]);
+        Node* act = at(node->children, 0);
+        context.curScope().addScopeDestructAction(act);
         return nullptr;
     }
 
@@ -627,7 +629,8 @@ namespace
     llvm::Value* translateMemLoad(Node* node, TrContext& context)
     {
         // Create a 'load' instruction
-        llvm::Value* argVal = translateNodeCheck(node->children[0], context);
+        Node* exp = at(node->children, 0);
+        llvm::Value* argVal = translateNodeCheck(exp, context);
         CHECK(node->location, argVal);
         context.ensureInsertionPoint();
         llvm::LoadInst* val = context.builder().CreateLoad(argVal);
@@ -645,9 +648,11 @@ namespace
         context.ensureInsertionPoint();
 
         // Create a 'store' instruction
-        llvm::Value* value = translateNode(node->children[0], context);
+        Node* valueNode = at(node->children, 0);
+        Node* addressNode = at(node->children, 1);
+        llvm::Value* value = translateNode(valueNode, context);
         CHECK(node->location, value);
-        llvm::Value* address = translateNode(node->children[1], context);
+        llvm::Value* address = translateNode(addressNode, context);
         CHECK(node->location, address);
         context.ensureInsertionPoint();
         llvm::StoreInst* val = context.builder().CreateStore(value, address);
@@ -663,7 +668,7 @@ namespace
     llvm::Value* translateVarRef(Node* node, TrContext& context)
     {
         // Simply take the value from the referenced variable
-        Node* variable = node->referredNodes[0];
+        Node* variable = at(node->referredNodes, 0);
         CHECK(node->location, variable);
         llvm::Value* varVal = nullptr;
         llvm::Value** val = context.module().getNodePropertyValue<llvm::Value*>(variable, Module::propValue);
@@ -693,8 +698,8 @@ namespace
     llvm::Value* translateFieldRef(Node* node, TrContext& context)
     {
         // Make sure the object is translated
-        Node* object = node->children[0];
-        Node* field = node->referredNodes[0];
+        Node* object = at(node->children, 0);
+        Node* field = at(node->referredNodes, 0);
         CHECK(node->location, object);
         llvm::Value* objVal = translateNode(object, context);
         CHECK(node->location, objVal);
@@ -710,7 +715,7 @@ namespace
                 break;
             ++idx;
         }
-        if ( idx == clsDecl->children.size() )
+        if ( idx == Nest_nodeArraySize(clsDecl->children) )
             REP_INTERNAL(node->location, "Cannot find field '%1%' in class '%2%'")
                 % getName(field) % getName(clsDecl);
 
@@ -726,7 +731,7 @@ namespace
     llvm::Value* translateFunRef(Node* node, TrContext& context)
     {
         // Make sure the function is translated; get a function pointer value
-        Node* funDecl = node->referredNodes[0];
+        Node* funDecl = at(node->referredNodes, 0);
         llvm::Function* func = translateFunction(funDecl, context.module());
         CHECK(node->location, func);
 
@@ -746,7 +751,7 @@ namespace
 
     llvm::Value* translateFunCall(Node* node, TrContext& context)
     {
-        Node* funDecl = node->referredNodes[0];
+        Node* funDecl = at(node->referredNodes, 0);
         CHECK(node->location, funDecl);
 
         // Check for intrinsic native functions
@@ -775,7 +780,7 @@ namespace
 
         // Get the values for all the arguments
         vector<llvm::Value*> args;
-        args.reserve(node->children.size());
+        args.reserve(Nest_nodeArraySize(node->children));
         for ( auto arg: node->children )
         {
             llvm::Value* v = translateNode(arg, context);
@@ -795,16 +800,18 @@ namespace
 
     llvm::Value* translateBitcast(Node* node, TrContext& context)
     {
-        llvm::Value* exp = translateNode(node->children[0], context);
+        Node* expNode = at(node->children, 0);
+        Node* destTypeNode = at(node->children, 1);
+        llvm::Value* exp = translateNode(expNode, context);
         CHECK(node->location, exp);
-        llvm::Type* destType = Tr::getLLVMType(node->children[1]->type, context.module());
+        llvm::Type* destType = Tr::getLLVMType(destTypeNode->type, context.module());
         if ( exp->getType() == destType )
             return setValue(context.module(), *node, exp);
 
         // Create a 'bitcast' instruction
         llvm::Value* val;
-        ASSERT(node->children[1]->type->numReferences > 0 );
-        ASSERT(node->children[0]->type->numReferences > 0 );
+        ASSERT(destTypeNode->type->numReferences > 0 );
+        ASSERT(expNode->type->numReferences > 0 );
         context.ensureInsertionPoint();
         val = context.builder().CreateBitCast(exp, destType);
         return setValue(context.module(), *node, val);
@@ -812,14 +819,18 @@ namespace
 
     llvm::Value* translateConditional(Node* node, TrContext& context)
     {
+        Node* cond = at(node->children, 0);
+        Node* alt1 = at(node->children, 1);
+        Node* alt2 = at(node->children, 2);
+
         // Create the different blocks
         llvm::BasicBlock* alt1Block = llvm::BasicBlock::Create(context.llvmContext(), "cond_alt1", context.parentFun());
         llvm::BasicBlock* alt2Block = llvm::BasicBlock::Create(context.llvmContext(), "cond_alt2", context.parentFun());
         llvm::BasicBlock* afterBlock = llvm::BasicBlock::Create(context.llvmContext(), "cond_end", context.parentFun());
 
         // Translate the condition expression
-        llvm::Value* condValue = translateNode(node->children[0], context);
-        CHECK(node->children[0]->location, condValue);
+        llvm::Value* condValue = translateNode(cond, context);
+        CHECK(cond->location, condValue);
         context.ensureInsertionPoint();
         context.builder().CreateCondBr(condValue, alt1Block, alt2Block);
 
@@ -833,7 +844,7 @@ namespace
 
             // Translate the first alternative
             context.setInsertionPoint(alt1Block);
-            val1 = translateNode(node->children[1], context);
+            val1 = translateNode(alt1, context);
             context.ensureInsertionPoint();
             context.builder().CreateBr(afterBlock);
 
@@ -844,7 +855,7 @@ namespace
 
             // Translate the second alternative
             context.setInsertionPoint(alt2Block);
-            val2 = translateNode(node->children[2], context);
+            val2 = translateNode(alt2, context);
             context.ensureInsertionPoint();
             context.builder().CreateBr(afterBlock);
 
@@ -876,6 +887,9 @@ namespace
 
     llvm::Value* translateDestructActionForConditional(Node* node, TrContext& context)
     {
+        Node* alt1Actions = at(node->children, 0);
+        Node* alt2Actions = at(node->children, 1);
+
         // Create the different blocks
         llvm::BasicBlock* alt1Block = llvm::BasicBlock::Create(context.llvmContext(), "cond_destruct_alt1", context.parentFun());
         llvm::BasicBlock* alt2Block = llvm::BasicBlock::Create(context.llvmContext(), "cond_destruct_alt2", context.parentFun());
@@ -887,8 +901,10 @@ namespace
 
         // Alternative 1 destruct actions
         context.setInsertionPoint(alt1Block);
-        for ( Node* n: boost::adaptors::reverse(node->children[0]->children) )
+        unsigned size1 = Nest_nodeArraySize(alt1Actions->children);
+        for ( int i=size1-1; i>=0; --i )
         {
+            Node* n = at(alt1Actions->children, i);
             translateNode(n, context);
         }
         context.ensureInsertionPoint();
@@ -896,8 +912,10 @@ namespace
 
         // Alternative 2 destruct actions
         context.setInsertionPoint(alt2Block);
-        for ( Node* n: boost::adaptors::reverse(node->children[1]->children) )
+        unsigned size2 = Nest_nodeArraySize(alt2Actions->children);
+        for ( int i=size2-1; i>=0; --i )
         {
+            Node* n = at(alt2Actions->children, i);
             translateNode(n, context);
         }
         context.ensureInsertionPoint();
@@ -924,7 +942,7 @@ namespace
     llvm::Value* translateReturn(Node* node, TrContext& context)
     {
         llvm::Value* retVal = nullptr;
-        Node* expression = node->children[0];
+        Node* expression = at(node->children, 0);
         if ( expression )
         {
             retVal = translateNode(expression, context);
@@ -950,9 +968,9 @@ namespace
 
     llvm::Value* translateIf(Node* node, TrContext& context)
     {
-        Node* condition = node->children[0];
-        Node* thenClause = node->children[1];
-        Node* elseClause = node->children[2];
+        Node* condition = at(node->children, 0);
+        Node* thenClause = at(node->children, 1);
+        Node* elseClause = at(node->children, 2);
 
         // Create the different blocks
         llvm::BasicBlock* ifBlock = llvm::BasicBlock::Create(context.llvmContext(), "if_block", context.parentFun());
@@ -1009,9 +1027,9 @@ namespace
 
     llvm::Value* translateWhile(Node* node, TrContext& context)
     {
-        Node* condition = node->children[0];
-        Node* step = node->children[1];
-        Node* body = node->children[2];
+        Node* condition = at(node->children, 0);
+        Node* step = at(node->children, 1);
+        Node* body = at(node->children, 2);
 
         // Create a new scope for the while instruction
         Scope scopeGuard(context, node->location);

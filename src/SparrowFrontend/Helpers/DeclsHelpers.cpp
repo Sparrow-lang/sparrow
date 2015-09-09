@@ -26,7 +26,7 @@ namespace
         if ( nodeKind == nkSparrowModifiersNode )
         {
             if ( !Nest_explanation(child)->nodeError )
-                checkNodeAllowed(child->children[0], insideClass);
+                checkNodeAllowed(at(child->children, 0), insideClass);
             return;
         }
 
@@ -62,8 +62,8 @@ NodeVector SprFrontend::getDeclsFromNode(Node* n, Node*& baseExp)
     // Check if the node is a DeclExp, pointing to the actual references
     if ( n->nodeKind == nkSparrowExpDeclExp )
     {
-        baseExp = n->referredNodes[0];
-        res = NodeVector(n->referredNodes.begin()+1, n->referredNodes.end());
+        baseExp = at(n->referredNodes, 0);
+        res = NodeVector(n->referredNodes.beginPtr+1, n->referredNodes.endPtr);
         return res;
     }
     

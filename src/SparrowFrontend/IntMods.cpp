@@ -104,9 +104,9 @@ namespace
     {
         Node* call = mkOperatorCall(dest->location, operand1, op, operand2);
         if ( !reverse )
-            dest->children.push_back(call);
+            Nest_appendNodeToArray(&dest->children, call);
         else
-            dest->children.insert(dest->children.begin(), call);
+            Nest_insertNodeIntoArray(&dest->children, 0, call);
     }
 
     // Add a method with the given body and given atguments to the parent class
@@ -269,7 +269,7 @@ namespace
             exp = buildBoolLiteral(loc, true);
 
         Node* body = mkLocalSpace(loc, {});
-        body->children.push_back(mkReturnStmt(loc, exp));
+        Nest_appendNodeToArray(&body->children, mkReturnStmt(loc, exp));
         addMethod(parent, "==", body, getDataType(cls, 1), StdDef::clsBool);
     }
 
@@ -301,16 +301,16 @@ namespace
             // We consider function calls for our checks
             if ( n->nodeKind != nkFeatherExpFunCall )
                 continue;
-            if ( getName(n->referredNodes[0]) != "ctor" )
+            if ( getName(at(n->referredNodes, 0)) != "ctor" )
                 continue;
-            if ( n->children.empty() )
+            if ( Nest_nodeArraySize(n->children) == 0 )
                 continue;
-            Node* thisArg = n->children[0];
+            Node* thisArg = at(n->children, 0);
 
             // If a class is given, check that the call is made to a function of that class
             if ( ofClass )
             {
-                Node* parentCls = getParentClass(n->referredNodes[0]->context);
+                Node* parentCls = getParentClass(at(n->referredNodes, 0)->context);
                 if ( parentCls != ofClass )
                     continue;
             }
@@ -320,10 +320,10 @@ namespace
             {
                 // If we have a MemLoad, just ignore it
                 if ( thisArg->nodeKind == nkFeatherExpMemLoad )
-                    thisArg = Nest_explanation(thisArg->children[0]);
+                    thisArg = Nest_explanation(at(thisArg->children, 0));
 
                 if ( !thisArg || thisArg->nodeKind != nkFeatherExpVarRef
-                    || getName(thisArg->referredNodes[0]) != "$this" )
+                    || getName(at(thisArg->referredNodes, 0)) != "$this" )
                     continue;
             }
 
@@ -332,10 +332,10 @@ namespace
             {
                 // If we have a Bitcast, just ignore it
                 if ( thisArg->nodeKind == nkFeatherExpBitcast )
-                    thisArg = Nest_explanation(thisArg->children[0]);
+                    thisArg = Nest_explanation(at(thisArg->children, 0));
 
                 if ( !thisArg || thisArg->nodeKind != nkFeatherExpFieldRef
-                    || thisArg->referredNodes[0] != forField )
+                    || at(thisArg->referredNodes, 0) != forField )
                     continue;
             }
 
@@ -401,7 +401,7 @@ void IntModCtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
         REP_INTERNAL(fun->location, "IntModCtorMembers cannot be applied to static constructors");
 
     // If we have a body, make sure it's a local space
-    Node* body = fun->children[2];
+    Node* body = at(fun->children, 2);
     if ( !body )
         return; // nothing to do
     if ( body->nodeKind != nkFeatherLocalSpace )
@@ -417,8 +417,10 @@ void IntModCtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
 
     // Generate the ctor calls in the order of the fields; add them to the body of the constructor
     const Location& loc = body->location;
-    for ( Node* field: boost::adaptors::reverse(cls->children) )
+    for ( int i = Nest_nodeArraySize(cls->children)-1; i>=0; --i )
     {
+        Node* field = at(cls->children, i);
+        
         // Make sure we initialize only fields of the current class
         Node* cls2 = getParentClass(field->context);
         if ( cls2 != cls )
@@ -437,7 +439,7 @@ void IntModCtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
                 call = mkOperatorCall(loc, fieldRef, ":=", buildNullLiteral(loc));
             }
             Nest_setContext(call, Nest_childrenContext(body));
-            body->children.insert(body->children.begin(), call);
+            Nest_insertNodeIntoArray(&body->children, 0, call);
         }
     }
 }
@@ -451,7 +453,7 @@ void IntModDtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
         REP_INTERNAL(fun->location, "IntModDtorMembers cannot be applied to static destructors");
 
     // If we have a body, make sure it's a local space
-    Node* body = fun->children[2];
+    Node* body = at(fun->children, 2);
     if ( !body )
         return; // nothing to do
     if ( body->nodeKind != nkFeatherLocalSpace )
@@ -464,8 +466,10 @@ void IntModDtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
     // Generate the dtor calls in reverse order of the fields; add them to the body of the destructor
     CompilationContext* context = Nest_childrenContext(body);
     const Location& loc = body->location;
-    for ( Node* field: boost::adaptors::reverse(cls->children) )
+    for ( int i = Nest_nodeArraySize(cls->children)-1; i>=0; --i )
     {
+        Node* field = at(cls->children, i);
+
         // Make sure we destruct only fields of the current class
         Node* cls2 = getParentClass(field->context);
         if ( cls2 != cls )
@@ -477,7 +481,7 @@ void IntModDtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
             Nest_setContext(fieldRef, context);
             Node* call = mkOperatorCall(loc, fieldRef, "dtor", nullptr);
             Nest_setContext(call, context);
-            body->children.push_back(call);
+            Nest_appendNodeToArray(&body->children, call);
         }
 
     }

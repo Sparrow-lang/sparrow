@@ -26,11 +26,12 @@ void SprFrontend::Class_addChild(Node* cls, Node* child)
         Nest_setContext(child, Nest_childrenContext(cls));
     if ( cls->type )
         Nest_computeType(child);    // Ignore possible errors
-    if ( !cls->children[2] )
+    Node*& members = at(cls->children, 2);
+    if ( !members )
     {
-        cls->children[2] = mkNodeList(cls->location, {});
+        members = mkNodeList(cls->location, {});
         if ( Nest_childrenContext(cls) )
-            Nest_setContext(cls->children[2], Nest_childrenContext(cls));
+            Nest_setContext(members, Nest_childrenContext(cls));
     }
-    cls->children[2]->children.push_back(child);
+    Nest_appendNodeToArray(&members->children, child);
 }

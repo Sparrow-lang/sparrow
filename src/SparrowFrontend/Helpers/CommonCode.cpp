@@ -46,10 +46,11 @@ Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* conte
             if ( tempVarConstruction && tempVarConstruction->nodeKind == nkFeatherExpFunCall )
             {
                 Node* fnCall = tempVarConstruction;
-                ASSERT(fnCall->children.size() >= 1);
+                ASSERT(Nest_nodeArraySize(fnCall->children) >= 1);
+                Node* fun = at(fnCall->referredNodes, 0);
 
                 // This argument - make sure it's of the required type
-                Node* thisParam = Function_getParameter(fnCall->referredNodes[0], 0);
+                Node* thisParam = Function_getParameter(fun, 0);
                 TypeRef thisParamType = thisParam->type;
                 ConversionResult cvt = canConvert(thisArg, thisParamType);
                 if ( !cvt )
@@ -58,11 +59,14 @@ Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* conte
 
                 // Create a new call based on the original temp var construction call, but changing the this argument
                 NodeVector args;
-                args.reserve(fnCall->children.size()+1);
+                size_t size = Nest_nodeArraySize(fnCall->children);
+                args.reserve(size);
                 args.push_back(thisArg1);
-                for ( size_t i=1; i<fnCall->children.size(); ++i )
-                    args.push_back(fnCall->children[i]);
-                Node* newCall = mkFunCall(loc, fnCall->referredNodes[0], move(args));
+                NodeRange r = Nest_nodeChildren(fnCall);
+                r.beginPtr++;
+                for ( Node* child: r )
+                    args.push_back(child);
+                Node* newCall = mkFunCall(loc, fun, move(args));
                 Nest_setContext(newCall, context);
                 return newCall;
             }
@@ -188,8 +192,8 @@ Node* SprFrontend::createTempVarConstruct(const Location& loc, CompilationContex
 {
     CHECK(loc, constructAction->nodeKind == nkFeatherExpFunCall);
     Node* funCall = constructAction;
-    CHECK(loc, !funCall->children.empty());
-    Node* thisArg = funCall->children[0];
+    CHECK(loc, Nest_nodeArraySize(funCall->children) != 0);
+    Node* thisArg = at(funCall->children, 0);
     if ( !Nest_computeType(thisArg) )
         return nullptr;
 

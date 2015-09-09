@@ -7,13 +7,15 @@ extern "C" {
 typedef struct Nest_Node Node;
 
 struct Nest_NodeRange {
-    Node** begin;
-    Node** end;
+    Node** beginPtr;
+    Node** endPtr;
 };
 typedef struct Nest_NodeRange Nest_NodeRange;
 typedef struct Nest_NodeRange NodeRange;
 
 unsigned int Nest_nodeRangeSize(NodeRange nodes);
+
+NodeRange Nest_NodeRagenFromCArray(Node** nodes, unsigned int count);
 
 #ifdef __cplusplus
 }

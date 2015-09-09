@@ -1,6 +1,6 @@
 #pragma once
 
-#include "NodeVector.h"
+#include <Nest/Intermediate/NodeArray.h>
 #include <Nest/Intermediate/TypeRef.h>
 #include <Nest/Frontend/Location.h>
 #include <Nest/Common/Diagnostic.hpp>
@@ -75,10 +75,10 @@ struct Nest_Node
     Location location;
 
     /// The children of this node
-    NodeVector children;
+    NodeArray children;
 
     /// The nodes referred by this node
-    NodeVector referredNodes;
+    NodeArray referredNodes;
     
     /// The properties of the node
     PropertyMap properties;
@@ -125,7 +125,29 @@ const char* Nest_toString(const Node* node);
 /// Getter for the name of the node kind for the given node
 const char* Nest_nodeKindName(const Node* node);
 
+/// Getter for the children of a node
+NodeRange Nest_nodeChildren(Node* node);
 
+/// Getter for the particular child node at a particular index of the given node,
+Node* Nest_getNodeChild(Node* node, unsigned int index);
+
+/// Getter for the list of nodes referred by a node
+NodeRange Nest_nodeReferredNodes(Node* node);
+
+/// Getter for the particular referred node at a particular index of the given node,
+Node* Nest_getReferredNode(Node* node, unsigned int index);
+
+/// Sets the children of the given node
+void Nest_nodeSetChildren(Node* node, NodeRange children);
+
+/// Adds a new node as a child to the given node
+void Nest_nodeAddChild(Node* node, Node* child);
+
+/// Adds a node range as children to the given node
+void Nest_nodeAddChildren(Node* node, NodeRange children);
+
+/// Sets the referred nodes of the given node
+void Nest_nodeSetReferredNodes(Node* node, NodeRange nodes);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -180,6 +202,7 @@ Node* Nest_explanation(Node* node);
 
 /// Returns 'src' if the given node is of the specified type; null otherwise
 Node* Nest_ofKind(Node* src, int desiredNodeKind);
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Default implementation for node-specific functions

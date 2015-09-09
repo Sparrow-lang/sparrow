@@ -130,17 +130,20 @@ namespace
     }
     void ctApi_AstNode_children(Node** thisArg, Node*** retBegin, Node*** retEnd)
     {
-        *retBegin = &*(*thisArg)->children.begin();
-        *retEnd = &*(*thisArg)->children.end();
+        NodeRange r = Nest_nodeChildren(*thisArg);
+        *retBegin = r.beginPtr;
+        *retEnd = r.endPtr;
     }
     void ctApi_AstNode_getChild(Node** sret, Node** thisArg, int n)
     {
-        *sret = (*thisArg)->children[n];
+        NodeRange r = Nest_nodeChildren(*thisArg);
+        *sret = r.beginPtr[n];
     }
     void ctApi_AstNode_referredNodes(Node** thisArg, Node*** retBegin, Node*** retEnd)
     {
-        *retBegin = &*(*thisArg)->referredNodes.begin();
-        *retEnd = &*(*thisArg)->referredNodes.end();
+        NodeRange r = Nest_nodeReferredNodes(*thisArg);
+        *retBegin = r.beginPtr;
+        *retEnd = r.endPtr;
     }
     bool ctApi_AstNode_hasProperty(Node** thisArg, StringData name)
     {

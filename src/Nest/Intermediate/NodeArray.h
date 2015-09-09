@@ -7,9 +7,9 @@ extern "C" {
 #endif
 
 struct Nest_NodeArray {
-    Node** begin;
-    Node** end;
-    Node** endOfStore;
+    Node** beginPtr;
+    Node** endPtr;
+    Node** endOfStorePtr;
 };
 typedef struct Nest_NodeArray Nest_NodeArray;
 typedef struct Nest_NodeArray NodeArray;

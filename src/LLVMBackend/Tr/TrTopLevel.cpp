@@ -43,14 +43,16 @@ namespace
 
     void translateGlobalDestructAction(Node* node, Module& module)
     {
-        llvm::Function* fun = makeFunThatCalls(node->children[0], module, "__global_dtor");
+        Node* act = at(node->children, 0);
+        llvm::Function* fun = makeFunThatCalls(act, module, "__global_dtor");
         if ( fun )
             module.addGlobalDtor(fun);
     }
 
     void translateGlobalConstructAction(Node* node, Module& module)
     {
-        llvm::Function* fun = makeFunThatCalls(node->children[0], module, "__global_ctor");
+        Node* act = at(node->children, 0);
+        llvm::Function* fun = makeFunThatCalls(act, module, "__global_ctor");
         if ( fun )
             module.addGlobalCtor(fun);
     }
@@ -155,7 +157,7 @@ llvm::Type* Tr::translateClass(Node* node, Module& module)
 
     // Now add the subtypes
     vector<llvm::Type*> fieldTypes;
-    fieldTypes.reserve(node->children.size());
+    fieldTypes.reserve(Nest_nodeArraySize(node->children));
     for ( auto field: node->children )
     {
         fieldTypes.push_back(getLLVMType(field->type, module));

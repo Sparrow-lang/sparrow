@@ -1,6 +1,7 @@
 #include <StdInc.h>
 #include "Node.h"
 #include "NodeKindRegistrar.h"
+#include "NodeUtils.hpp"
 #include "Modifier.h"
 #include <Compiler.h>
 #include <Common/Alloc.h>
@@ -74,11 +75,11 @@ Node* Nest_cloneNode(Node* node)
     res->properties = node->properties;
 
     // Clone each node in the children vector
-    size_t size = node->children.size();
-    res->children.resize(size, nullptr);
+    unsigned size = Nest_nodeArraySize(node->children);
+    Nest_resizeNodeArray(&res->children, size);
     for ( size_t i=0; i<size; ++i )
     {
-        res->children[i] = Nest_cloneNode(node->children[i]);
+        at(res->children, i) = Nest_cloneNode(at(node->children, i));
     }
     return res;
 }
@@ -103,11 +104,11 @@ void Nest_initCopyNode(Node* node, const Node* srcNode)
     node->properties = srcNode->properties;
 
     // Clone each node in the children vector
-    size_t size = srcNode->children.size();
-    node->children.resize(size, nullptr);
+    unsigned size = Nest_nodeArraySize(srcNode->children);
+    Nest_resizeNodeArray(&node->children, size);
     for ( size_t i=0; i<size; ++i )
     {
-        node->children[i] = Nest_cloneNode(srcNode->children[i]);
+        at(node->children, i) = Nest_cloneNode(at(srcNode->children, i));
     }
 }
 
@@ -121,6 +122,50 @@ const char* Nest_nodeKindName(const Node* node)
 {
     return Nest_getNodeKindName(node->nodeKind);
 }
+
+NodeRange Nest_nodeChildren(Node* node) {
+    return all(node->children);
+}
+
+Node* Nest_getNodeChild(Node* node, unsigned int index) {
+    NodeRange children = Nest_nodeChildren(node);
+    ASSERT(index < Nest_nodeRangeSize(children));
+    return children.beginPtr[index];
+}
+
+NodeRange Nest_nodeReferredNodes(Node* node) {
+    return all(node->referredNodes);
+}
+
+Node* Nest_getReferredNode(Node* node, unsigned int index) {
+    NodeRange refNodes = Nest_nodeReferredNodes(node);
+    ASSERT(index < Nest_nodeRangeSize(refNodes));
+    return refNodes.beginPtr[index];
+}
+
+void Nest_nodeSetChildren(Node* node, NodeRange children) {
+    unsigned size = Nest_nodeRangeSize(children);
+    Nest_resizeNodeArray(&node->children, size);
+    for ( unsigned i=0; i<size; ++i )
+        at(node->children, i) = at(children, i);
+}
+
+void Nest_nodeAddChild(Node* node, Node* child) {
+    Nest_appendNodeToArray(&node->children, child);
+}
+
+void Nest_nodeAddChildren(Node* node, NodeRange children) {
+    Nest_appendNodesToArray(&node->children, children);
+}
+
+void Nest_nodeSetReferredNodes(Node* node, NodeRange nodes) {
+    unsigned size = Nest_nodeRangeSize(nodes);
+    Nest_resizeNodeArray(&node->referredNodes, size);
+    for ( unsigned i=0; i<size; ++i )
+        at(node->referredNodes, i) = at(nodes, i);
+}
+
+
 
 
 void Nest_setProperty(Node* node, const char* name, int val, bool passToExpl)
@@ -339,11 +384,11 @@ const char* Nest_defaultFunToString(const Node* node)
         else
         {
             os << Nest_nodeKindName(node) << "(";
-            for ( size_t i=0; i<node->children.size(); ++i )
+            for ( size_t i=0; i<Nest_nodeArraySize(node->children); ++i )
             {
                 if ( i > 0 )
                     os << ", ";
-                os << node->children[i];
+                os << at(node->children, i);
             }
 
             os << ")";

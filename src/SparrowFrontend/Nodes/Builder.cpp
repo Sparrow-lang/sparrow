@@ -141,7 +141,7 @@ Node* SprFrontend::buildExpressionStmt(const Location& /*loc*/, Node* exp)
 
 Node* SprFrontend::buildBlockStmt(const Location& loc, Node* statements)
 {
-    return Feather::mkLocalSpace(loc, statements ? statements->children : NodeVector());
+    return Feather::mkLocalSpace(loc, statements ? toVec(statements->children) : NodeVector());
 }
 
 Node* SprFrontend::buildIfStmt(const Location& loc, Node* cond, Node* thenClause, Node* elseClause)

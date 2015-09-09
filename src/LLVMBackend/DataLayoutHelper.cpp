@@ -53,7 +53,7 @@ namespace
 
         // Now add the subtypes
         vector<llvm::Type*> fieldTypes;
-        fieldTypes.reserve(clsDecl->children.size());
+        fieldTypes.reserve(Nest_nodeArraySize(clsDecl->children));
         for ( auto field: clsDecl->children )
         {
             fieldTypes.push_back(getLLVMTypeForSize(field->type, llvmContext));

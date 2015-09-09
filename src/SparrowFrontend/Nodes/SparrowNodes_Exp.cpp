@@ -64,7 +64,7 @@ namespace
             
             // If this is a using, get its value
             if ( resDecl->nodeKind == nkSparrowDeclUsing )
-                return resDecl->children[0];
+                return at(resDecl->children, 0);
 
             // Try to convert this to a type
             TypeRef t = nullptr;
@@ -93,36 +93,39 @@ namespace
     // Helpers for FunApplication node
     //
 
-    bool checkCastArguments(const Location& loc, const char* castName, const NodeVector& arguments, bool secondShouldBeRef = false)
+    bool checkCastArguments(const Location& loc, const char* castName, NodeRange arguments, bool secondShouldBeRef = false)
     {
         // Make sure we have only 2 arguments
-        if ( arguments.size() != 2 )
+        auto numArgs = Nest_nodeRangeSize(arguments);
+        if ( numArgs != 2 )
         {
-            REP_ERROR(loc, "%1% expects 2 arguments; %2% given") % castName % arguments.size();
+            REP_ERROR(loc, "%1% expects 2 arguments; %2% given") % castName % numArgs;
             return false;
         }
+        Node* arg1 = at(arguments, 0);
+        Node* arg2 = at(arguments, 1);
 
-        if ( !arguments[0]->type || !arguments[1]->type )
+        if ( !arg1->type || !arg2->type )
             REP_INTERNAL(loc, "Invalid arguments");
 
         // Make sure the first argument is a type
-        TypeRef t = getType(arguments[0]);
+        TypeRef t = getType(arg1);
         if ( !t )
         {
-            REP_ERROR(arguments[0]->location, "The first argument of a %1% must be a type") % castName;
+            REP_ERROR(arg1->location, "The first argument of a %1% must be a type") % castName;
             return false;
         }
 
         // Make sure that the second argument has storage
-        if ( !arguments[1]->type->hasStorage )
+        if ( !arg2->type->hasStorage )
         {
-            REP_ERROR(arguments[1]->location, "The second argument of a %1% must have a storage type (we have %2%)") % castName % arguments[1]->type;
+            REP_ERROR(arg2->location, "The second argument of a %1% must have a storage type (we have %2%)") % castName % arg2->type;
             return false;
         }
         
-        if ( secondShouldBeRef && arguments[1]->type->numReferences == 0 )
+        if ( secondShouldBeRef && arg2->type->numReferences == 0 )
         {
-            REP_ERROR(arguments[1]->location, "The second argument of a %1% must be a reference (we have %2%)") % castName % arguments[1]->type;
+            REP_ERROR(arg2->location, "The second argument of a %1% must be a reference (we have %2%)") % castName % arg2->type;
             return false;
         }
         return true;
@@ -130,23 +133,23 @@ namespace
 
     Node* checkStaticCast(Node* node)
     {
-        Node* arguments = node->children[1];
+        Node* arguments = at(node->children, 1);
 
         if ( !arguments )
             REP_ERROR_RET(nullptr, node->location, "No arguments given to cast");
 
         // Check arguments
-        if ( !checkCastArguments(node->location, "cast", arguments->children) )
+        if ( !checkCastArguments(node->location, "cast", all(arguments->children)) )
             return nullptr;
 
-        TypeRef destType = getType(arguments->children[0]);
-        TypeRef srcType = arguments->children[1]->type;
+        TypeRef destType = getType(at(arguments->children, 0));
+        TypeRef srcType = at(arguments->children, 1)->type;
 
         // Check if we can cast
-        ConversionResult c = canConvert(arguments->children[1], destType);
+        ConversionResult c = canConvert(at(arguments->children, 1), destType);
         if ( !c )
             REP_ERROR_RET(nullptr, node->location, "Cannot cast from %1% to %2%; types are unrelated") % srcType % destType;
-        Node* result = c.apply(arguments->children[1]);
+        Node* result = c.apply(at(arguments->children, 1));
         result->location = node->location;
 
         return result;
@@ -154,42 +157,42 @@ namespace
 
     Node* checkReinterpretCast(Node* node)
     {
-        Node* arguments = node->children[1];
+        Node* arguments = at(node->children, 1);
 
         if ( !arguments )
             REP_ERROR_RET(nullptr, node->location, "No arguments given to reinterpretCast");
 
         // Check arguments
-        if ( !checkCastArguments(node->location, "reinterpretCast", arguments->children, true) )
+        if ( !checkCastArguments(node->location, "reinterpretCast", all(arguments->children), true) )
             return nullptr;
 
-        TypeRef srcType = arguments->children[1]->type;
-        TypeRef destType = getType(arguments->children[0]);
+        TypeRef srcType = at(arguments->children, 1)->type;
+        TypeRef destType = getType(at(arguments->children, 0));
         ASSERT(destType);
         ASSERT(destType->hasStorage);
         if ( destType->numReferences == 0 )
-            REP_ERROR_RET(nullptr, arguments->children[0]->location, "Destination type must be a reference (currently: %1%)") % destType;
+            REP_ERROR_RET(nullptr, at(arguments->children, 0)->location, "Destination type must be a reference (currently: %1%)") % destType;
 
         // If source is an l-value and the number of source reference is greater than the destination references, remove lvalue
-        Node* arg = arguments->children[1];
+        Node* arg = at(arguments->children, 1);
         if ( srcType->numReferences > destType->numReferences && srcType->typeKind == typeKindLValue )
             arg = mkMemLoad(arg->location, arg);
 
         // Generate a bitcast operation out of this node
-        return mkBitcast(node->location, mkTypeNode(arguments->children[0]->location, destType), arg);
+        return mkBitcast(node->location, mkTypeNode(at(arguments->children, 0)->location, destType), arg);
     }
 
     Node* checkSizeOf(Node* node)
     {
-        Node* arguments = node->children[1];
+        Node* arguments = at(node->children, 1);
 
         if ( !arguments )
             REP_ERROR_RET(nullptr, node->location, "No arguments given to sizeOf");
 
         // Make sure we have only one argument
-        if ( arguments->children.size() != 1 )
-            REP_ERROR_RET(nullptr, node->location, "sizeOf expects one argument; %1% given") % arguments->children.size();
-        Node* arg = arguments->children[0];
+        if ( Nest_nodeArraySize(arguments->children) != 1 )
+            REP_ERROR_RET(nullptr, node->location, "sizeOf expects one argument; %1% given") % Nest_nodeArraySize(arguments->children);
+        Node* arg = at(arguments->children, 0);
         TypeRef t = arg->type;
         if ( !t )
             REP_INTERNAL(node->location, "Invalid argument");
@@ -219,13 +222,13 @@ namespace
 
     Node* checkTypeOf(Node* node)
     {
-        Node* arguments = node->children[1];
+        Node* arguments = at(node->children, 1);
 
         if ( !arguments )
             REP_ERROR_RET(nullptr, node->location, "No arguments given to typeOf");
-        if ( arguments->children.size() != 1 )
-            REP_ERROR_RET(nullptr, node->location, "typeOf expects one argument; %1% given") % arguments->children.size();
-        Node* arg = arguments->children[0];
+        if ( Nest_nodeArraySize(arguments->children) != 1 )
+            REP_ERROR_RET(nullptr, node->location, "typeOf expects one argument; %1% given") % Nest_nodeArraySize(arguments->children);
+        Node* arg = at(arguments->children, 0);
 
         // Compile the argument
         if ( !Nest_semanticCheck(arguments) )
@@ -250,9 +253,9 @@ namespace
         }
 
         // Make sure we have only one argument
-        if ( arguments->children.size() != numArgs )
+        if ( Nest_nodeArraySize(arguments->children) != numArgs )
         {
-            REP_ERROR(loc, "%1% expects %2% arguments; %2% given") % funName % numArgs % arguments->children.size();
+            REP_ERROR(loc, "%1% expects %2% arguments; %2% given") % funName % numArgs % Nest_nodeArraySize(arguments->children);
             return false;
         }
 
@@ -263,7 +266,7 @@ namespace
         Node* res = Nest_semanticCheck(arguments);
         isValid = res != nullptr
                 && !arguments->nodeError
-                && !arguments->children[0]->nodeError
+                && !at(arguments->children, 0)->nodeError
                 && Nest_getSuppressedErrorsNum() == 0;
         Nest_enableReporting(oldVal);
         return isValid;
@@ -271,7 +274,7 @@ namespace
 
     Node* checkIsValid(Node* node)
     {
-        Node* arguments = node->children[1];
+        Node* arguments = at(node->children, 1);
 
         bool isValid = checkIsValidImpl(node->location, arguments, "isValid");
 
@@ -281,13 +284,13 @@ namespace
 
     Node* checkIsValidAndTrue(Node* node)
     {
-        Node* arguments = node->children[1];
+        Node* arguments = at(node->children, 1);
 
         bool res = checkIsValidImpl(node->location, arguments, "isValidAndTrue");
         Node* arg = nullptr;
         if ( res )
         {
-            arg = arguments->children.front();
+            arg = at(arguments->children, 0);
             if ( !Nest_semanticCheck(arg) ) 
                 res = false;
         }
@@ -332,22 +335,22 @@ namespace
 
     Node* checkValueIfValid(Node* node)
     {
-        Node* arguments = node->children[1];
+        Node* arguments = at(node->children, 1);
 
         bool isValid = checkIsValidImpl(node->location, arguments, "valueIfValid", 2);
 
-        return isValid ? arguments->children[0] : arguments->children[1];
+        return isValid ? at(arguments->children, 0) : at(arguments->children, 1);
     }
 
     Node* checkCtEval(Node* node)
     {
-        Node* arguments = node->children[1];
+        Node* arguments = at(node->children, 1);
 
         // Make sure we have one argument
-        if ( arguments->children.size() != 1 )
-            REP_ERROR_RET(nullptr, node->location, "ctEval expects 1 argument; %1% given") % arguments->children.size();
+        if ( Nest_nodeArraySize(arguments->children) != 1 )
+            REP_ERROR_RET(nullptr, node->location, "ctEval expects 1 argument; %1% given") % Nest_nodeArraySize(arguments->children);
 
-        Node* arg = arguments->children.front();
+        Node* arg = at(arguments->children, 0);
         if ( !Nest_semanticCheck(arg) )
             return nullptr;
 
@@ -373,13 +376,13 @@ namespace
 
     Node* checkLift(Node* node)
     {
-        Node* arguments = node->children[1];
+        Node* arguments = at(node->children, 1);
 
         // Make sure we have one argument
-        if ( arguments->children.size() != 1 )
-            REP_ERROR_RET(nullptr, node->location, "lift expects 1 argument; %1% given") % arguments->children.size();
+        if ( Nest_nodeArraySize(arguments->children) != 1 )
+            REP_ERROR_RET(nullptr, node->location, "lift expects 1 argument; %1% given") % Nest_nodeArraySize(arguments->children);
 
-        Node* arg = arguments->children.front();
+        Node* arg = at(arguments->children, 0);
         // Don't semantically check the argument; let the user of the lift to decide when it's better to do so
 
         // Create a construct of an AST node
@@ -479,8 +482,8 @@ namespace
 
     Node* handleFApp(Node* node)
     {
-        Node* arg1 = node->children[0];
-        Node* arg2 = node->children[1];
+        Node* arg1 = at(node->children, 0);
+        Node* arg2 = at(node->children, 1);
 
         if ( arg2 && arg2->nodeKind != nkFeatherNodeList )
             REP_INTERNAL(arg2->location, "Expected node list for function application; found %1%") % arg2;
@@ -490,8 +493,8 @@ namespace
 
     Node* handleDotExpr(Node* node)
     {
-        Node* arg1 = node->children[0];
-        Node* arg2 = node->children[1];
+        Node* arg1 = at(node->children, 0);
+        Node* arg2 = at(node->children, 1);
 
         if ( arg2->nodeKind != nkSparrowExpIdentifier )
             REP_INTERNAL(arg2->location, "Expected identifier after dot; found %1%") % arg2;
@@ -501,8 +504,8 @@ namespace
 
     Node* handleRefEq(Node* node)
     {
-        Node* arg1 = node->children[0];
-        Node* arg2 = node->children[1];
+        Node* arg1 = at(node->children, 0);
+        Node* arg2 = at(node->children, 1);
 
         if ( !Nest_semanticCheck(arg1) || !Nest_semanticCheck(arg2) )
             return nullptr;
@@ -529,8 +532,8 @@ namespace
 
     Node* handleRefNe(Node* node)
     {
-        Node* arg1 = node->children[0];
-        Node* arg2 = node->children[1];
+        Node* arg1 = at(node->children, 0);
+        Node* arg2 = at(node->children, 1);
 
         if ( !Nest_semanticCheck(arg1) || !Nest_semanticCheck(arg2) )
             return nullptr;
@@ -557,8 +560,8 @@ namespace
 
     Node* handleRefAssign(Node* node)
     {
-        Node* arg1 = node->children[0];
-        Node* arg2 = node->children[1];
+        Node* arg1 = at(node->children, 0);
+        Node* arg2 = at(node->children, 1);
 
         if ( !Nest_semanticCheck(arg1) || !Nest_semanticCheck(arg2) )
             return nullptr;
@@ -588,7 +591,7 @@ namespace
 
     Node* handleFunPtr(Node* node)
     {
-        Node* funNode = node->children[1];
+        Node* funNode = at(node->children, 1);
 
         return createFunPtr(funNode);
     }
@@ -621,13 +624,13 @@ namespace
     // The left argument of this will become the right argument of this
     void swapLeft(Node* node)
     {
-        Node* other = node->children[0];
+        Node* other = at(node->children, 0);
         ASSERT(other->nodeKind == nkSparrowExpInfixExp);
 
-        node->children[0] = other->children[0];
-        other->children[0] = other->children[1];
-        other->children[1] = node->children[1];
-        node->children[1] = other;
+        at(node->children, 0) = at(other->children, 0);
+        at(other->children, 0) = at(other->children, 1);
+        at(other->children, 1) = at(node->children, 1);
+        at(node->children, 1) = other;
 
         string otherOper = getOperation(other);
         Nest_setProperty(other, operPropName, getOperation(node));
@@ -649,13 +652,13 @@ namespace
     //       it cannot be applied if 'Y' is a unary operator that contains a null 'M'
     void swapRight(Node* node)
     {
-        Node* other = node->children[1];
+        Node* other = at(node->children, 1);
         ASSERT(other->nodeKind == nkSparrowExpInfixExp);
 
-        node->children[1] = other->children[1];
-        other->children[1] = other->children[0];
-        other->children[0] = node->children[0];
-        node->children[0] = other;
+        at(node->children, 1) = at(other->children, 1);
+        at(other->children, 1) = at(other->children, 0);
+        at(other->children, 0) = at(node->children, 0);
+        at(node->children, 0) = other;
 
         string otherOper = getOperation(other);
         Nest_setProperty(other, operPropName, getOperation(node));
@@ -682,14 +685,14 @@ namespace
         if ( !Nest_semanticCheck(n) )
             return defaultVal;
         if ( n->nodeKind == nkSparrowDeclUsing )
-            n = n->children[0];
+            n = at(n->children, 0);
 
         return getIntCtValue(Nest_explanation(n));
     }
 
     int getPrecedence(Node* node)
     {
-        Node* arg1 = node->children[0];
+        Node* arg1 = at(node->children, 0);
 
         // For prefix operator, search with a special name
         string oper = arg1 ? getOperation(node) : "__pre__";
@@ -730,12 +733,12 @@ namespace
             int rankCur = getPrecedence(node);
 
             // Check right wing first
-            Node* rightOp = Nest_ofKind(node->children[1], nkSparrowExpInfixExp);
+            Node* rightOp = Nest_ofKind(at(node->children, 1), nkSparrowExpInfixExp);
             if ( rightOp )
             {
                 int rankRight = getPrecedence(rightOp);
                 // We never swap right if on the right we have a prefix operator (no 1st arg)
-                if ( rankRight <= rankCur && rightOp->children[0] )
+                if ( rankRight <= rankCur && at(rightOp->children, 0) )
                 {
                     swapRight(node);
                     continue;
@@ -743,7 +746,7 @@ namespace
             }
 
 
-            Node* leftOp = Nest_ofKind(node->children[0], nkSparrowExpInfixExp);
+            Node* leftOp = Nest_ofKind(at(node->children, 0), nkSparrowExpInfixExp);
             if ( leftOp )
             {
                 handlePrecedence(leftOp);
@@ -777,13 +780,13 @@ namespace
         {
             for ( ;/*ever*/; )
             {
-                Node* arg2 = node->children[1];
+                Node* arg2 = at(node->children, 1);
                 if ( !arg2 || arg2->nodeKind != nkSparrowExpInfixExp )
                     break;
 
                 handleAssociativity(arg2);
                 // We never swap right if on the right we have a prefix operator (no 1st arg)
-                if ( arg2 && curOp == getOperation(arg2) && arg2->children[0] )
+                if ( arg2 && curOp == getOperation(arg2) && at(arg2->children, 0) )
                     swapRight(node);
                 else
                     break;
@@ -793,7 +796,7 @@ namespace
         {
             for ( ;/*ever*/; )
             {
-                Node* arg1 = node->children[0];
+                Node* arg1 = at(node->children, 0);
                 if ( !arg1 || arg1->nodeKind != nkSparrowExpInfixExp )
                     break;
 
@@ -878,7 +881,7 @@ Node* Identifier_SemanticCheck(Node* node)
 
 Node* CompoundExp_SemanticCheck(Node* node)
 {
-    Node* base = node->children[0];
+    Node* base = at(node->children, 0);
     const string& id = Nest_getCheckPropertyString(node, "name");
 
     // For the base expression allow it to return DeclExp
@@ -934,10 +937,10 @@ Node* CompoundExp_SemanticCheck(Node* node)
 
 Node* FunApplication_SemanticCheck(Node* node)
 {
-    ASSERT(node->children.size() == 2);
-    ASSERT(!node->children[1] || node->children[1]->nodeKind == nkFeatherNodeList);
-    Node* base = node->children[0];
-    Node* arguments = node->children[1];
+    ASSERT(Nest_nodeArraySize(node->children) == 2);
+    ASSERT(!at(node->children, 1) || at(node->children, 1)->nodeKind == nkFeatherNodeList);
+    Node* base = at(node->children, 0);
+    Node* arguments = at(node->children, 1);
 
     if ( !base )
         REP_INTERNAL(node->location, "Don't know what function to call");
@@ -1032,7 +1035,7 @@ Node* FunApplication_SemanticCheck(Node* node)
     if ( thisArg )
         args.push_back(thisArg);
     if ( arguments )
-        args.insert(args.end(), arguments->children.begin(), arguments->children.end());
+        args.insert(args.end(), arguments->children.beginPtr, arguments->children.endPtr);
 
     // Check the right overload based on the type of the arguments
     EvalMode mode = node->context->evalMode;
@@ -1045,9 +1048,9 @@ Node* FunApplication_SemanticCheck(Node* node)
 
 Node* OperatorCall_SemanticCheck(Node* node)
 {
-    ASSERT(node->children.size() == 2);
-    Node* arg1 = node->children[0];
-    Node* arg2 = node->children[1];
+    ASSERT(Nest_nodeArraySize(node->children) == 2);
+    Node* arg1 = at(node->children, 0);
+    Node* arg2 = at(node->children, 1);
     const string& operation = getOperation(node);
 
     if ( arg1 && arg2 )
@@ -1156,9 +1159,9 @@ Node* OperatorCall_SemanticCheck(Node* node)
 
 Node* InfixExp_SemanticCheck(Node* node)
 {
-    ASSERT(node->children.size() == 2);
-    Node* arg1 = node->children[0];
-    Node* arg2 = node->children[1];
+    ASSERT(Nest_nodeArraySize(node->children) == 2);
+    Node* arg1 = at(node->children, 0);
+    Node* arg2 = at(node->children, 1);
 
     // This is constructed in such way that left most operations are applied first.
     // This way, we have a tree that has a lot of children on the left side and one children on the right side
@@ -1168,19 +1171,19 @@ Node* InfixExp_SemanticCheck(Node* node)
     handlePrecedence(node);
     handleAssociativity(node);
 
-    arg1 = node->children[0];
-    arg2 = node->children[1];
+    arg1 = at(node->children, 0);
+    arg2 = at(node->children, 1);
 
     return mkOperatorCall(node->location, arg1, getOperation(node), arg2);
 }
 
 Node* LambdaFunction_SemanticCheck(Node* node)
 {
-    ASSERT(node->referredNodes.size() == 4);
-    Node* parameters = node->referredNodes[0];
-    Node* returnType = node->referredNodes[1];
-    Node* body = node->referredNodes[2];
-    Node* closureParams = node->referredNodes[3];
+    ASSERT(Nest_nodeArraySize(node->referredNodes) == 4);
+    Node* parameters = at(node->referredNodes, 0);
+    Node* returnType = at(node->referredNodes, 1);
+    Node* body = at(node->referredNodes, 2);
+    Node* closureParams = at(node->referredNodes, 3);
 
     Node* parentFun = getParentFun(node->context);
     CompilationContext* parentContext = parentFun ? parentFun->context : node->context;
@@ -1192,10 +1195,10 @@ Node* LambdaFunction_SemanticCheck(Node* node)
     Node* classBody = mkNodeList(node->location, {});
 
     // The actual enclosed function
-    classBody->children.push_back(mkSprFunction(node->location, "()", parameters, returnType, body));
+    Nest_appendNodeToArray(&classBody->children, mkSprFunction(node->location, "()", parameters, returnType, body));
 
     // Add a private default ctor
-    classBody->children.push_back(mkSprFunction(node->location, "ctor", nullptr, nullptr, mkLocalSpace(node->location, {}), nullptr, privateAccess));
+    Nest_appendNodeToArray(&classBody->children, mkSprFunction(node->location, "ctor", nullptr, nullptr, mkLocalSpace(node->location, {}), nullptr, privateAccess));
 
     // For each closure variable, create:
     // - a member variable in the class
@@ -1224,7 +1227,7 @@ Node* LambdaFunction_SemanticCheck(Node* node)
             ctorParamsNodes.push_back(mkSprParameter(loc, varName, varType));
 
             // Create a similar variable in the enclosing class - must have the same name
-            classBody->children.push_back(mkSprVariable(loc, varName, varType, nullptr, privateAccess));
+            Nest_appendNodeToArray(&classBody->children, mkSprVariable(loc, varName, varType, nullptr, privateAccess));
 
             // Create an initialization for the variable
             Node* fieldRef = mkCompoundExp(loc, mkThisExp(loc), varName);
@@ -1241,7 +1244,7 @@ Node* LambdaFunction_SemanticCheck(Node* node)
     Node* ctorBody = mkLocalSpace(node->location, ctorStmts);
     Node* enclosingCtor = mkSprFunction(node->location, "ctor", ctorParams, nullptr, ctorBody);
     Nest_setProperty(enclosingCtor, propNoDefault, 1);
-    classBody->children.push_back(enclosingCtor);
+    Nest_appendNodeToArray(&classBody->children, enclosingCtor);
 
     // Create the lambda closure
     Node* closure = mkSprClass(node->location, "$lambdaEnclosure", nullptr, nullptr, nullptr, classBody);
@@ -1268,10 +1271,10 @@ Node* LambdaFunction_SemanticCheck(Node* node)
 
 Node* SprConditional_SemanticCheck(Node* node)
 {
-    ASSERT(node->children.size() == 3);
-    Node* cond = node->children[0];
-    Node* alt1 = node->children[1];
-    Node* alt2 = node->children[2];
+    ASSERT(Nest_nodeArraySize(node->children) == 3);
+    Node* cond = at(node->children, 0);
+    Node* alt1 = at(node->children, 1);
+    Node* alt2 = at(node->children, 2);
 
     if ( !Nest_semanticCheck(alt1) || !Nest_semanticCheck(alt2) )
         return nullptr;
@@ -1308,7 +1311,7 @@ Node* DeclExp_SemanticCheck(Node* node)
 
 Node* StarExp_SemanticCheck(Node* node)
 {
-    Node* base = node->children[0];
+    Node* base = at(node->children, 0);
 
     // For the base expression allow it to return DeclExp
     Nest_setProperty(base, propAllowDeclExp, 1, true);

@@ -84,7 +84,7 @@ namespace
         if ( Nest_semanticCheck(n) )
         {
             ASSERT(node->context->sourceCode);
-            node->context->sourceCode->additionalNodes.push_back(n);            
+            Nest_appendNodeToArray(&node->context->sourceCode->additionalNodes, n);
         }
     }
 
@@ -386,7 +386,7 @@ TypeRef SprClass_ComputeType(Node* node)
         {
             // Methods, generics
             ASSERT(node->context->sourceCode);
-            node->context->sourceCode->additionalNodes.push_back(child);
+            Nest_appendNodeToArray(&node->context->sourceCode->additionalNodes, child);
         }
     });
 
@@ -724,7 +724,7 @@ TypeRef SprVariable_ComputeType(Node* node)
         {
             // Add the variable at the top level
             ASSERT(node->context->sourceCode);
-            node->context->sourceCode->additionalNodes.push_back(resultingVar);
+            Nest_appendNodeToArray(&node->context->sourceCode->additionalNodes, resultingVar);
             resVar = nullptr;
 
             // For global variables, add the ctor & dtor actions as top level actions

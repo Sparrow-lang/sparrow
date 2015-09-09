@@ -7,6 +7,7 @@
 #include "Tr/DebugInfo.h"
 
 #include <Nest/Intermediate/Node.h>
+#include <Nest/Intermediate/NodeUtils.hpp>
 #include <Nest/Frontend/SourceCode.h>
 #include <Nest/Backend/Backend.h>
 #include <Nest/Compiler.h>
@@ -70,7 +71,7 @@ void _llvmBeGenerateMachineCode(Backend* backend, const SourceCode* code)
     _llvmBackend.rtModule->generate(rootNode);
 
     // Translate the additional nodes
-    for ( Node* n: code->additionalNodes )
+    for ( Node* n: all(code->additionalNodes) )
     {
         _llvmBackend.rtModule->generate(n);
     }

@@ -669,7 +669,7 @@ Node* SprFrontend::genericDoInstantiate(Node* node, const Location& loc, Compila
 
                 // Add the instantiated class as an additional node to the callee source code
                 ASSERT(context->sourceCode);
-                context->sourceCode->additionalNodes.push_back(expandedInst);
+                Nest_appendNodeToArray(&context->sourceCode->additionalNodes, expandedInst);
             }
 
             // Now actually create the call object: a Type CT value

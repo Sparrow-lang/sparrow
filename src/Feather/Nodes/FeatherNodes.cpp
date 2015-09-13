@@ -31,7 +31,7 @@ using namespace Feather;
 
     void CtProcessMod_afterSemanticCheck(Modifier* mod, Node* node)
     {
-        theCompiler().ctProcess(node);
+        Nest_ctProcess(node);
     }
     Modifier ctProcessMod = { modTypeAfterSemanticCheck, &CtProcessMod_afterSemanticCheck };
 
@@ -174,7 +174,7 @@ using namespace Feather;
         // For CT construct actions, evaluate them asap
         if ( isCt(act) )
         {
-            theCompiler().ctEval(act);
+            Nest_ctEval(act);
             return mkNop(node->location);
         }
         return node;
@@ -400,7 +400,7 @@ using namespace Feather;
             REP_ERROR_RET(nullptr, node->location, "Type specified for Ct Value cannot be used at compile-time");
         
         // Make sure data size matches the size reported by the type
-        size_t valueSize = theCompiler().sizeOf(node->type);
+        size_t valueSize = Nest_sizeOf(node->type);
         const string& data = Nest_getCheckPropertyString(node, "valueData");
         if ( valueSize != data.size() )
         {
@@ -850,7 +850,7 @@ using namespace Feather;
                 REP_ERROR_RET(nullptr, condition->location, "The condition of the ct if should be available at compile-time (%1%)") % condition->type;
 
             // Get the CT value from the condition, and select an active branch
-            Node* c = theCompiler().ctEval(condition);
+            Node* c = Nest_ctEval(condition);
             Node* selectedBranch = getBoolCtValue(c) ? thenClause : elseClause;
 
             // Expand only the selected branch
@@ -914,7 +914,7 @@ using namespace Feather;
             while ( true )
             {
                 // CT-evaluate the condition; if the condition evaluates to false, exit the while
-                if ( !getBoolCtValue(theCompiler().ctEval(condition)) )
+                if ( !getBoolCtValue(Nest_ctEval(condition)) )
                     break;
 
                 // Put (a copy of) the body in the resulting node-list
@@ -930,7 +930,7 @@ using namespace Feather;
                 // If we have a step, make sure to evaluate it
                 if ( step )
                 {
-                    theCompiler().ctEval(step);    // We don't need the actual result
+                    Nest_ctEval(step);    // We don't need the actual result
                 }
 
                 // Unfortunately, we don't treat 'break' and 'continue' instructions inside the ct while instructions

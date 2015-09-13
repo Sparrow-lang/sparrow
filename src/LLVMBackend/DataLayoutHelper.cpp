@@ -68,7 +68,7 @@ DataLayoutHelper::DataLayoutHelper()
     : llvmContext_(new llvm::LLVMContext())
 	, llvmModule_(new llvm::Module("Module for computing data layout", *llvmContext_))
 {
-    Nest::CompilerSettings& s = Nest::theCompiler().settings();
+    CompilerSettings& s = *Nest_compilerSettings();
 
     llvmModule_->setDataLayout(s.dataLayout_);
     llvmModule_->setTargetTriple(s.targetTriple_);

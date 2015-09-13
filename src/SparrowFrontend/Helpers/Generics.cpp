@@ -189,7 +189,7 @@ namespace
                 return nullptr;
 
             // Evaluate the if clause condition and check the result
-            if ( !SprFrontend::getBoolCtValue(theCompiler().ctEval(cond)) )
+            if ( !SprFrontend::getBoolCtValue(Nest_ctEval(cond)) )
                 return nullptr;
         }
 
@@ -224,7 +224,7 @@ namespace
                 return {};
             if ( !Feather::isCt(arg) )
                 REP_INTERNAL(arg->location, "Argument to a class generic must be CT (type: %1%)") % arg->type;
-            Node* n = theCompiler().ctEval(arg);
+            Node* n = Nest_ctEval(arg);
             if ( !n || n->nodeKind != nkFeatherExpCtValue )
                 REP_INTERNAL(arg->location, "Invalid argument %1% when instantiating generic") % (i+1);
             boundValues.push_back(n);
@@ -347,7 +347,7 @@ namespace
                     return {};
                 if ( !Feather::isCt(arg) )
                     return {};     // This argument must be CT in order to instantiate the generic
-                Node* n = theCompiler().ctEval(arg);
+                Node* n = Nest_ctEval(arg);
                 if ( !n || n->nodeKind != nkFeatherExpCtValue )
                     REP_INTERNAL(arg->location, "Invalid argument %1% when instantiating generic") % (i+1);
                 boundValues[i] = n;
@@ -664,7 +664,7 @@ Node* SprFrontend::genericDoInstantiate(Node* node, const Location& loc, Compila
                 Nest_setProperty(instDecl, propDescription, move(description));
                 if ( !Nest_computeType(instDecl) )
                     return nullptr;
-                theCompiler().queueSemanticCheck(instDecl);
+                Nest_queueSemanticCheck(instDecl);
                 setInstantiatedDecl(inst, instDecl);
 
                 // Add the instantiated class as an additional node to the callee source code
@@ -698,7 +698,7 @@ Node* SprFrontend::genericDoInstantiate(Node* node, const Location& loc, Compila
                     REP_INTERNAL(loc, "Cannot instantiate generic");
                 if ( !Nest_computeType(instDecl) )
                     return nullptr;
-                theCompiler().queueSemanticCheck(instDecl);
+                Nest_queueSemanticCheck(instDecl);
                 setInstantiatedDecl(inst, instDecl);
 
             }

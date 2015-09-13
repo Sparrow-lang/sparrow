@@ -14,7 +14,7 @@ Module::Module(const string& name)
 	, llvmModule_(new llvm::Module(name, *llvmContext_))
     , debugInfo_(nullptr)
 {
-    Nest::CompilerSettings& s = Nest::theCompiler().settings();
+    CompilerSettings& s = *Nest_compilerSettings();
 
     llvmModule_->setDataLayout(s.dataLayout_);
     llvmModule_->setTargetTriple(s.targetTriple_);

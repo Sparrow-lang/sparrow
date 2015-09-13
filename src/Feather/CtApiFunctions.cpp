@@ -20,7 +20,7 @@ namespace
     //
     void ctApi_SourceCode_fromFilename(const SourceCode** sret, StringData filename)
     {
-        *sret = theCompiler().getSourceCodeForFilename(filename.toStdString());
+        *sret = Nest_getSourceCodeForFilename(filename.toStdString());
     }
     void ctApi_SourceCode_filename(StringData* sret, SourceCode** thisArg)
     {

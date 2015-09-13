@@ -18,7 +18,7 @@ using namespace Feather;
 RtModule::RtModule(const string& name, const string& filename)
     : Module(name)
 {
-    const Nest::CompilerSettings& s = Nest::theCompiler().settings();
+    const CompilerSettings& s = *Nest_compilerSettings();
     if ( s.generateDebugInfo_ )
         debugInfo_ = new DebugInfo(*llvmModule_, filename);
 }

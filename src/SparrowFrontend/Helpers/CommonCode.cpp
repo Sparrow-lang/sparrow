@@ -33,7 +33,7 @@ Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* conte
 
     // Check if we can apply RVO, or pseudo-RVO
     // Whenever we try to construct an object from another temporary object, try to bypass the temporary object creation
-    if ( args.size() == 2 && !theCompiler().settings().noRVO_ && !isCt(thisArg) )
+    if ( args.size() == 2 && !Nest_compilerSettings()->noRVO_ && !isCt(thisArg) )
     {
         Node* arg = args[1];
         if ( ! Nest_computeType(arg) )

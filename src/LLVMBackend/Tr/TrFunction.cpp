@@ -72,7 +72,7 @@ llvm::Function* Tr::translateFunction(Node* node, Module& module)
     if ( !Nest_computeType(node) )
         return nullptr;
 
-    Nest::CompilerSettings& s = Nest::theCompiler().settings();
+    CompilerSettings& s = *Nest_compilerSettings();
 
     // Check for ct/non-ct compatibility
     if ( !module.canUse(node) )

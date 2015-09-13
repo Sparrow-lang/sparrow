@@ -30,18 +30,3 @@ Node* Nest_translateCtToRt(const SourceCode* sourceCode, Node* node)
         return f(sourceCode, node);
     return node;
 }
-
-
-// DynSourceCode::DynSourceCode(const string& filename)
-//     : sourceCode_{ -1, dupString(filename.c_str()), nullptr, NodeVector(), nullptr }
-// {
-// }
-
-// DynSourceCode::~DynSourceCode()
-// {
-// }
-
-// Node* DynSourceCode::translateCtToRt(Node* node) const
-// {
-//     return node;
-// }

@@ -81,7 +81,7 @@ void _llvmBeGenerateMachineCode(Backend* backend, const SourceCode* code)
 
 void _llvmBeLink(Backend* backend, const char* outFilename)
 {
-    Nest::CompilerSettings& s = Nest::theCompiler().settings();
+    CompilerSettings& s = *Nest_compilerSettings();
 
     ASSERT(_llvmBackend.rtModule);
 

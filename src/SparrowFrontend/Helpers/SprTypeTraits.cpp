@@ -172,7 +172,7 @@ Node* SprFrontend::convertCtToRt(Node* node)
 
     if ( t->typeKind == typeKindVoid )
     {
-        theCompiler().ctEval(node);
+        Nest_ctEval(node);
         return Feather::mkNop(loc);
     }
 
@@ -186,7 +186,7 @@ Node* SprFrontend::convertCtToRt(Node* node)
         REP_ERROR_RET(nullptr, loc, "Cannot convert references from CT to RT (%1%)") % t;
 
     if ( isBasicNumericType(t) || Feather::changeTypeMode(t, modeRtCt) == StdDef::typeStringRef )
-        return theCompiler().ctEval(node);
+        return Nest_ctEval(node);
     else
         return checkDataTypeConversion(node);
 }
@@ -215,7 +215,7 @@ TypeRef SprFrontend::tryGetTypeValue(Node* typeNode)
     
     if ( t == StdDef::typeRefType )
     {
-        Node* n = theCompiler().ctEval(typeNode);
+        Node* n = Nest_ctEval(typeNode);
         if ( n->nodeKind == nkFeatherExpCtValue )
         {
             TypeRef** t = getCtValueData<TypeRef*>(n);
@@ -226,7 +226,7 @@ TypeRef SprFrontend::tryGetTypeValue(Node* typeNode)
     }
     else if ( t == StdDef::typeType )
     {
-        Node* n = theCompiler().ctEval(typeNode);
+        Node* n = Nest_ctEval(typeNode);
         if ( n->nodeKind == nkFeatherExpCtValue )
         {
             TypeRef* t = getCtValueData<TypeRef>(n);

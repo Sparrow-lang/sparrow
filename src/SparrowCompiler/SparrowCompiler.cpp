@@ -3,7 +3,6 @@
 
 #include <Nest/Nest.h>
 #include <Nest/CompilerModule.h>
-#include <Nest/CompilerInstance.h>
 #include <Nest/Compiler.h>
 #include <Nest/CompilerSettings.h>
 #include <Nest/Common/Diagnostic.hpp>
@@ -24,7 +23,7 @@ namespace fs = boost::filesystem;
 
 bool tryImplicitLibPath(const char* relPath)
 {
-    auto& s = theCompiler().settings();
+    auto& s = *Nest_compilerSettings();
 
     fs::path p(s.executableDir_ + relPath);
     if ( !exists(p) )
@@ -38,7 +37,7 @@ bool tryImplicitLibPath(const char* relPath)
 bool ensureImplicitLib()
 {
     // Only if we don't have an implicit lib set
-    const auto& s = theCompiler().settings();
+    const auto& s = *Nest_compilerSettings();
     if ( s.implicitLibFilePath_ != "auto" )
         return true;
 
@@ -49,18 +48,18 @@ bool ensureImplicitLib()
 
 void doCompilation(const vector<CompilerModule*>& modules)
 {
-    const auto& s = theCompiler().settings();
+    const auto& s = *Nest_compilerSettings();
 
     ASSERT(!s.filesToBeCompiled_.empty());
 
     // Set the backend
-    theCompiler().createBackend(s.filesToBeCompiled_[0].c_str());
+    Nest_createBackend(s.filesToBeCompiled_[0].c_str());
 
     // Tell the modules we have a backend
     for ( CompilerModule* mod : modules )
     {
         if ( mod->onBackendSetFun )
-            mod->onBackendSetFun(&theCompiler().backend());
+            mod->onBackendSetFun(Nest_getCurBackend());
     }
 
     // Compute the output filename
@@ -80,7 +79,7 @@ void doCompilation(const vector<CompilerModule*>& modules)
 
         // Process the implicit definitions file
         if ( !s.implicitLibFilePath_.empty() )
-            theCompiler().compileFile(s.implicitLibFilePath_);
+            Nest_compileFile(s.implicitLibFilePath_);
     }
 
 
@@ -89,7 +88,7 @@ void doCompilation(const vector<CompilerModule*>& modules)
     {
         Nest::Common::PrintTimer timer(s.verbose_, "", "   [%ws]\n");
         cout << filename;
-        theCompiler().compileFile(filename);
+        Nest_compileFile(filename);
         if ( !s.verbose_ )
             cout << endl;
     }
@@ -101,7 +100,7 @@ void doCompilation(const vector<CompilerModule*>& modules)
         {
             Nest::Common::PrintTimer timer(s.verbose_, "", "[%ws]\n");
             cout << "Linking..." << endl;
-        	theCompiler().backend().link(&theCompiler().backend(), outFilename.c_str());
+        	Nest_getCurBackend()->link(Nest_getCurBackend(), outFilename.c_str());
         }
         catch (...)
         {
@@ -125,65 +124,59 @@ int main(int argc,char* argv[])
 
     boost::timer::auto_cpu_timer timer(3, "\nTime elapsed: %ws\n\n");
 
-    CompilerInstance::instance().reset();
-
+    try
     {
-        try
-        {
-            initSettingsWithArgs(argc, argv);
-        }
-        catch(exception& ex)
-        {
-            cout << "Cannot read command line arguments: " << ex.what() << endl;
-            cout << "Try executing 'SparrowCompiler --help' for help on command line parameters" << endl;
-            return -1;
-        }
-        const auto& s = theCompiler().settings();
+        initSettingsWithArgs(argc, argv);
+    }
+    catch(exception& ex)
+    {
+        cout << "Cannot read command line arguments: " << ex.what() << endl;
+        cout << "Try executing 'SparrowCompiler --help' for help on command line parameters" << endl;
+        return -1;
+    }
+    const auto& s = *Nest_compilerSettings();
 
-        if ( s.printVersion_ )
-        {
-            return 1;
-        }
-
-        if ( s.filesToBeCompiled_.empty() )
-        {
-            cout << "No input file was given!" << endl;
-            cout << "Try executing 'SparrowCompiler --help' for help on command line parameters" << endl;
-            return 1;
-        }
-
-        // Make sure we have a valid path the Sparrow implicit lib
-        if ( !ensureImplicitLib() )
-        {
-            cout << "Sparrow implicit lib not found" << endl;
-            return 1;
-        }
-
-        // Initialize the modules
-        vector<CompilerModule*> modules = gatherModules();
-        for ( CompilerModule* mod : modules )
-        {
-            if ( mod->initFun )
-                mod->initFun();
-        }
-
-        try
-        {
-            doCompilation(modules);
-        }
-        catch (...)
-        {
-        }
-
-        // Destroy the modules
-        for ( CompilerModule* mod : modules )
-        {
-            if ( mod->destroyFun )
-                mod->destroyFun();
-        }
+    if ( s.printVersion_ )
+    {
+        return 1;
     }
 
-    CompilerInstance::instance().destroy();
+    if ( s.filesToBeCompiled_.empty() )
+    {
+        cout << "No input file was given!" << endl;
+        cout << "Try executing 'SparrowCompiler --help' for help on command line parameters" << endl;
+        return 1;
+    }
+
+    // Make sure we have a valid path the Sparrow implicit lib
+    if ( !ensureImplicitLib() )
+    {
+        cout << "Sparrow implicit lib not found" << endl;
+        return 1;
+    }
+
+    // Initialize the modules
+    vector<CompilerModule*> modules = gatherModules();
+    for ( CompilerModule* mod : modules )
+    {
+        if ( mod->initFun )
+            mod->initFun();
+    }
+
+    try
+    {
+        doCompilation(modules);
+    }
+    catch (...)
+    {
+    }
+
+    // Destroy the modules
+    for ( CompilerModule* mod : modules )
+    {
+        if ( mod->destroyFun )
+            mod->destroyFun();
+    }
 
     return 0;
 }

@@ -16,7 +16,7 @@ namespace
     template <typename ValueType>
     ValueType evalValue(Node* node, TypeRef expectedExpType)
     {
-        node = theCompiler().ctEval(node);
+        node = Nest_ctEval(node);
         TypeRef t = removeLValueIfPresent(node->type);
         if ( !isSameTypeIgnoreMode(t, expectedExpType) )
             REP_INTERNAL(node->location, "Invalid value; found expression of type %1%, expected %2%") % node->type % expectedExpType;
@@ -64,7 +64,7 @@ bool SprFrontend::ctValsEqual(Node* v1, Node* v2)
             Nest_semanticCheck(funCall);
             if ( Feather::isTestable(funCall) && Feather::isCt(funCall) )
             {
-                Node* c = theCompiler().ctEval(funCall);
+                Node* c = Nest_ctEval(funCall);
                 return SprFrontend::getBoolCtValue(c);
             }
         }

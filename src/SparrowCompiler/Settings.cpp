@@ -20,7 +20,7 @@ namespace po = boost::program_options;
 
 void initSettingsWithArgs(int argc, char** argv)
 {
-    Nest::CompilerSettings& s = Nest::theCompiler().settings();
+    CompilerSettings& s = *Nest_compilerSettings();
 
     s.programName_ = argv[0];
     s.executableDir_ = boost::filesystem::system_complete(argv[0]).parent_path().string();

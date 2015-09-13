@@ -214,7 +214,7 @@ namespace
         t = Feather::removeLValueIfPresent(t);
 
         // Get the size of the type of the argument
-        uint64_t size = theCompiler().sizeOf(t);
+        uint64_t size = Nest_sizeOf(t);
 
         // Create a CtValue to hold the size
         return mkCtValue(node->location, StdDef::typeSizeType, &size);
@@ -317,7 +317,7 @@ namespace
         Node* val = nullptr;
         if ( res )
         {
-            val = theCompiler().ctEval(arg);
+            val = Nest_ctEval(arg);
             if ( val->nodeKind != nkFeatherExpCtValue )
             {
                 REP_ERROR(arg->location, "Unknown value");
@@ -367,7 +367,7 @@ namespace
         if ( !Nest_semanticCheck(arg) )
             return nullptr;
 
-        Node* res = theCompiler().ctEval(arg);
+        Node* res = Nest_ctEval(arg);
         if ( res->nodeKind != nkFeatherExpCtValue )
             REP_ERROR_RET(nullptr, arg->location, "Unknown value");
 

@@ -206,13 +206,13 @@ void SprCompilationUnit_SetContextForChildren(Node* node)
             Node* lit = Nest_ofKind(i, nkSparrowExpLiteral);
             if ( lit && Literal_isString(lit) )
             {
-                Nest::theCompiler().addSourceCodeByFilename(sourceCode, Literal_getData(lit));
+                Nest_addSourceCodeByFilename(sourceCode, Literal_getData(lit));
             }
             else
             {
                 vector<string> qid;
                 interpretQualifiedId(i, qid);
-                Nest::theCompiler().addSourceCodeByQid(sourceCode, qid);
+                Nest_addSourceCodeByQid(sourceCode, qid);
             }
         }
     }

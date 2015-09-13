@@ -19,7 +19,7 @@ void SparrowFrontend_initModule()
 void SparrowFrontend_onBackendSetFun(Backend* backend)
 {
     // Initialize the Type type before loading anything
-    SprFrontend::initTypeType(theCompiler().rootContext());
+    SprFrontend::initTypeType(Nest_getRootContext());
 
     // Register the CT API functions
     SprFrontend::registerCtApiFunctions(backend);

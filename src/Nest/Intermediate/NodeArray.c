@@ -95,6 +95,14 @@ void Nest_insertNodesIntoArray(NodeArray* arr, unsigned int index, NodeRange nod
     arr->endPtr += numNewNodes;
 }
 
+void Nest_eraseNodeFromArray(NodeArray* arr, unsigned int index) {
+    unsigned int curSize = Nest_nodeArraySize(*arr);
+    ASSERT(index <= curSize);
+    memmove(arr->beginPtr+index, arr->beginPtr+index+1, sizeof(Node*)*(curSize-index-1));
+    arr->endPtr--;
+}
+
+
 NodeRange Nest_getNodeRangeFromArray(NodeArray arr) {
     NodeRange res = { arr.beginPtr, arr.endPtr };
     return res;

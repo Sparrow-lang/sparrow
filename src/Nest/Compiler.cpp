@@ -4,7 +4,8 @@
 #include "Common/Alloc.h"
 #include "Common/Diagnostic.hpp"
 #include "Intermediate/Node.h"
-#include "Intermediate/NodeVector.h"
+#include "Intermediate/NodeArray.h"
+#include "Intermediate/NodeUtils.hpp"
 #include "Intermediate/CompilationContext.h"
 #include "Frontend/SourceCode.h"
 #include "Frontend/SourceCodeKindRegistrar.h"
@@ -53,7 +54,7 @@ vector<SourceCode*> _toCompile;
 unordered_map<const SourceCode*, vector<ImportInfo> > _unhandledImports;
 
 /// List of nodes to be semantically checked
-NodeVector _toSemanticCheck;
+NodeArray _toSemanticCheck;
 
 
 void _dumpAst(SourceCode& sc, bool isCompiled)
@@ -63,10 +64,10 @@ void _dumpAst(SourceCode& sc, bool isCompiled)
 
 void _semanticCheckNodes()
 {
-    while ( !_toSemanticCheck.empty() )
+    while ( Nest_nodeArraySize(_toSemanticCheck) > 0  )
     {
-        Node* n = _toSemanticCheck.front();
-        _toSemanticCheck.erase(_toSemanticCheck.begin());
+        Node* n = at(_toSemanticCheck, 0);
+        Nest_eraseNodeFromArray(&_toSemanticCheck, 0);
 
         if ( n )
             Nest_semanticCheck(n);  // Ignore possible failures
@@ -378,7 +379,7 @@ const SourceCode* Nest_getSourceCodeForFilename(const string& filename)
 
 void Nest_queueSemanticCheck(Node* node)
 {
-    _toSemanticCheck.push_back(node);
+    Nest_appendNodeToArray(&_toSemanticCheck, node);
 }
 
 void Nest_ctProcess(Node* node)

@@ -26,6 +26,8 @@ void Nest_appendNodesToArray(NodeArray* arr, NodeRange nodes);
 void Nest_insertNodeIntoArray(NodeArray* arr, unsigned int index, Node* node);
 void Nest_insertNodesIntoArray(NodeArray* arr, unsigned int index, NodeRange nodes);
 
+void Nest_eraseNodeFromArray(NodeArray* arr, unsigned int index);
+
 NodeRange Nest_getNodeRangeFromArray(NodeArray arr);
 
 unsigned int Nest_nodeArraySize(NodeArray arr);

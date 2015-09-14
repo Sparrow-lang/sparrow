@@ -908,7 +908,7 @@ using namespace Feather;
                 REP_ERROR_RET(nullptr, step->location, "The step of the ct while should be available at compile-time (%1%)") % step->type;
 
             // Create a node-list that will be our explanation
-            NodeArray result;
+            NodeArray result = Nest_allocNodeArray(0);
 
             // Do the while
             while ( true )

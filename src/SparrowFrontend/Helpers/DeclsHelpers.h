@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Nest/Intermediate/NodeVector.h>
+
 namespace SprFrontend
 {
     /// Get the declarations that the given node might refer to

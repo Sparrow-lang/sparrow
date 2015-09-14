@@ -352,7 +352,7 @@ namespace
 
     Node* interpretLocalSpace(CompilationContext* context, SimpleAstNode* srcNode)
     {
-        NodeArray children;
+        NodeArray children = Nest_allocNodeArray(0);
         for ( auto child: srcNode->children() )
         {
             Node* childNode = readNode(context, child, "<local space item>");
@@ -501,7 +501,7 @@ namespace
         checkChildrenCountRange(srcNode, 1, 100, "<function-name>, [<arguments>]");
         string funName = readIdentifier(srcNode->children()[0], "<function-name>");
         Node* funDecl = findDefinition(nkFeatherDeclFunction, context, funName, srcNode->children()[0]->location(), "function");
-        NodeArray args;
+        NodeArray args = Nest_allocNodeArray(0);
         for ( size_t i=1; i<srcNode->children().size(); ++i )
         {
             Nest_appendNodeToArray(&args, readNode(context, srcNode->children()[i], "<argument>"));
@@ -609,7 +609,7 @@ namespace
         Node* cls = mkClass(srcNode->location(), name, {});
         Nest_setContext(cls, context);
 
-        NodeArray fields;
+        NodeArray fields = Nest_allocNodeArray(0);
 
         for ( size_t i=1; i<srcNode->children().size(); ++i )
         {

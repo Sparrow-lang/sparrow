@@ -147,8 +147,7 @@ namespace
         // Generate the call to the ctor
         if ( !Nest_computeType(node) )
             return nullptr;
-        NodeVector args(1, node);
-        auto cr = call->canCall(node->context, loc, args, modeRt, true);
+        auto cr = call->canCall(node->context, loc, fromIniList({node}), modeRt, true);
         ASSERT(cr);
         Node* res = call->generateCall(loc);
         res = mkMemLoad(loc, res);

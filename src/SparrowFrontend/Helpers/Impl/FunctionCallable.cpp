@@ -194,7 +194,7 @@ namespace
         int* scHandle = reinterpret_cast<int*>(sc);
         Node* base = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "SourceCode");
         Node* arg = mkCtValue(loc, StdDef::typeRefInt, &scHandle);
-        return mkFunApplication(loc, base, NodeVector(1, arg));
+        return mkFunApplication(loc, base, fromIniList({arg}));
     }
 
     Node* impl_Meta_CompilationContext_current(CompilationContext* context, const Location& loc, const NodeVector& args)
@@ -204,7 +204,7 @@ namespace
         int* ctxHandle = reinterpret_cast<int*>(context);
         Node* base = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "CompilationContext");
         Node* arg = mkCtValue(loc, StdDef::typeRefInt, &ctxHandle);
-        return mkFunApplication(loc, base, NodeVector(1, arg));
+        return mkFunApplication(loc, base, fromIniList({arg}));
     }
 
     Node* handleIntrinsic(Node* fun, CompilationContext* context, const Location& loc, const NodeVector& args)
@@ -314,6 +314,6 @@ Node* FunctionCallable::generateCall(const Location& loc)
         return res;
     }
 
-    return createFunctionCall(loc, context_, fun_, argsCvt);
+    return createFunctionCall(loc, context_, fun_, all(argsCvt));
 }
 

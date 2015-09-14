@@ -21,7 +21,7 @@ namespace SprFrontend
         virtual bool isAutoCt() const;
 
         virtual ConversionType canCall(CompilationContext* context, const Location& loc, const vector<TypeRef>& argTypes, EvalMode evalMode, bool noCustomCvt = false);
-        virtual ConversionType canCall(CompilationContext* context, const Location& loc, const NodeVector& args, EvalMode evalMode, bool noCustomCvt = false);
+        virtual ConversionType canCall(CompilationContext* context, const Location& loc, NodeRange args, EvalMode evalMode, bool noCustomCvt = false);
         virtual Node* generateCall(const Location& loc);
 
     private:

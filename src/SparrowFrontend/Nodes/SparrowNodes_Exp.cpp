@@ -80,10 +80,10 @@ namespace
 
         // Add the referenced declarations as a property to our result
         if ( allowDeclExp )
-            return mkDeclExp(loc, toVec(decls), baseExp);
+            return mkDeclExp(loc, decls, baseExp);
 
         // If we are here, this identifier could only represent a function application
-        Node* fapp = mkFunApplication(loc, mkDeclExp(loc, toVec(decls), baseExp), nullptr);
+        Node* fapp = mkFunApplication(loc, mkDeclExp(loc, decls, baseExp), nullptr);
         Nest_setContext(fapp, ctx);
         return Nest_semanticCheck(fapp);
     }
@@ -389,14 +389,14 @@ namespace
         int* nodeHandle = (int*) arg;
         Node* base = mkCompoundExp(node->location, mkIdentifier(node->location, "Meta"), "AstNode");
         Node* arg1 = mkCtValue(node->location, StdDef::typeRefInt, &nodeHandle);
-        return  mkFunApplication(node->location, base, NodeVector(1, arg1)) ;
+        return  mkFunApplication(node->location, base, fromIniList({arg1})) ;
     }
 
     ////////////////////////////////////////////////////////////////////////////
     // Helpers for OperatorCall node
     //
 
-    Node* trySelectOperator(const string& operation, const NodeVector& args, CompilationContext* searchContext, bool searchOnlyGivenContext,
+    Node* trySelectOperator(const string& operation, NodeRange args, CompilationContext* searchContext, bool searchOnlyGivenContext,
         CompilationContext* callContext, const Location& callLocation, EvalMode mode)
     {
         SymTab* sTab = searchContext->currentSymTab;
@@ -417,11 +417,12 @@ namespace
 
     Node* selectOperator(Node* node, const string& operation, Node* arg1, Node* arg2)
     {
-        NodeVector args;
-        if ( arg1 )
-            args.push_back(arg1);
-        if ( arg2 )
-            args.push_back(arg2);
+        Node* argsSrc[] = { arg1, arg2, nullptr };
+        NodeRange args = { argsSrc, argsSrc+2 };
+        if ( !arg1 )
+            args.beginPtr++;
+        if ( !arg2 )
+            args.endPtr--;
 
         // If this is an unary operator, try using the operation prefix
         string opPrefix;
@@ -1052,7 +1053,7 @@ Node* FunApplication_SemanticCheck(Node* node)
     EvalMode mode = node->context->evalMode;
     if ( thisArg )
         mode = combineMode(thisArg->type->mode, mode, node->location, false);
-    Node* res = selectOverload(node->context, node->location, mode, all(decls), args, true, functionName);
+    Node* res = selectOverload(node->context, node->location, mode, all(decls), all(args), true, functionName);
 
     return res;
 }
@@ -1357,5 +1358,5 @@ Node* StarExp_SemanticCheck(Node* node)
         REP_ERROR(node->location, "No declarations found with the star expression");
     
     // This expands to a declaration expression
-    return mkDeclExp(node->location, move(decls));
+    return mkDeclExp(node->location, all(decls));
 }

@@ -17,13 +17,13 @@ TypeRef Callable::paramType(size_t idx) const
     return p->type;
 }
 
-ConversionType Callable::canCall(CompilationContext* context, const Location& loc, const NodeVector& args, EvalMode evalMode, bool noCustomCvt)
+ConversionType Callable::canCall(CompilationContext* context, const Location& loc, NodeRange args, EvalMode evalMode, bool noCustomCvt)
 {
     // Copy the list of arguments; add default values if arguments are missing
     size_t paramsCount = this->paramsCount();
-    args_ = args;
+    args_ = toVec(args);
     args_.reserve(paramsCount);
-    for ( size_t i=args.size(); i<paramsCount; ++i )
+    for ( size_t i=Nest_nodeRangeSize(args); i<paramsCount; ++i )
     {
         Node* defaultArg = this->paramDefaultVal(i);
         if ( !defaultArg )

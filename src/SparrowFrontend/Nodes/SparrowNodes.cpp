@@ -582,7 +582,7 @@ Node* SprFrontend::mkGenericClass(Node* originalClass, Node* parameters, Node* i
 {
     Node* res = Nest_createNode(nkSparrowDeclGenericClass);
     res->location = originalClass->location;
-    Nest_nodeSetChildren(res, fromIniList({ mkInstantiationsSet(originalClass, toVec(parameters->children), ifClause) }));
+    Nest_nodeSetChildren(res, fromIniList({ mkInstantiationsSet(originalClass, all(parameters->children), ifClause) }));
     Nest_nodeSetReferredNodes(res, fromIniList({ originalClass }));
     setName(res, getName(originalClass));
     setAccessType(res, publicAccess);
@@ -599,12 +599,12 @@ Node* SprFrontend::mkGenericClass(Node* originalClass, Node* parameters, Node* i
     return res;
 }
 
-Node* SprFrontend::mkGenericFunction(Node* originalFun, NodeVector params, NodeVector genericParams, Node* ifClause, Node* thisClass)
+Node* SprFrontend::mkGenericFunction(Node* originalFun, NodeRange params, NodeRange genericParams, Node* ifClause, Node* thisClass)
 {
     Node* res = Nest_createNode(nkSparrowDeclGenericFunction);
     res->location = originalFun->location;
     Nest_nodeSetChildren(res, fromIniList({ mkInstantiationsSet(originalFun, move(genericParams), ifClause) }));
-    Nest_nodeSetReferredNodes(res, fromIniList({ originalFun, mkNodeList(res->location, all(params)) }));
+    Nest_nodeSetReferredNodes(res, fromIniList({ originalFun, mkNodeList(res->location, params) }));
     setName(res, getName(originalFun));
     setAccessType(res, publicAccess);
     setEvalMode(res, effectiveEvalMode(originalFun));
@@ -656,11 +656,11 @@ Node* SprFrontend::mkFunApplication(const Location& loc, Node* base, Node* argum
         at(res->children, 1) = mkNodeList(loc, {});
     return res;
 }
-Node* SprFrontend::mkFunApplication(const Location& loc, Node* base, NodeVector arguments)
+Node* SprFrontend::mkFunApplication(const Location& loc, Node* base, NodeRange arguments)
 {
     Node* res = Nest_createNode(nkSparrowExpFunApplication);
     res->location = loc;
-    Nest_nodeSetChildren(res, fromIniList({ base, mkNodeList(loc, all(arguments)) }));
+    Nest_nodeSetChildren(res, fromIniList({ base, mkNodeList(loc, arguments) }));
     return res;
 }
 
@@ -711,13 +711,13 @@ Node* SprFrontend::mkConditionalExp(const Location& loc, Node* cond, Node* alt1,
     return res;
 }
 
-Node* SprFrontend::mkDeclExp(const Location& loc, NodeVector decls, Node* baseExp)
+Node* SprFrontend::mkDeclExp(const Location& loc, NodeRange decls, Node* baseExp)
 {
     Node* res = Nest_createNode(nkSparrowExpDeclExp);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({ }));
     Nest_appendNodeToArray(&res->referredNodes, baseExp);
-    Nest_appendNodesToArray(&res->referredNodes, all(decls));
+    Nest_appendNodesToArray(&res->referredNodes, decls);
     return res;
 }
 
@@ -749,23 +749,23 @@ Node* SprFrontend::mkReturnStmt(const Location& loc, Node* exp)
     return res;
 }
 
-Node* SprFrontend::mkInstantiation(const Location& loc, NodeVector boundValues, NodeVector boundVars)
+Node* SprFrontend::mkInstantiation(const Location& loc, NodeRange boundValues, NodeRange boundVars)
 {
     Node* res = Nest_createNode(nkSparrowInnerInstantiation);
     res->location = loc;
-    Nest_nodeSetChildren(res, fromIniList({ Feather::mkNodeList(loc, all(boundVars)) }));
-    Nest_appendNodesToArray(&res->referredNodes, all(boundValues));
+    Nest_nodeSetChildren(res, fromIniList({ Feather::mkNodeList(loc, boundVars) }));
+    Nest_appendNodesToArray(&res->referredNodes, boundValues);
     Nest_setProperty(res, "instIsValid", 0);
     Nest_setProperty(res, "instantiatedDecl", (Node*) nullptr);
     return res;
 }
 
-Node* SprFrontend::mkInstantiationsSet(Node* parentNode, NodeVector params, Node* ifClause)
+Node* SprFrontend::mkInstantiationsSet(Node* parentNode, NodeRange params, Node* ifClause)
 {
     Location loc = parentNode->location;
     Node* res = Nest_createNode(nkSparrowInnerInstantiationsSet);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({ ifClause, Feather::mkNodeList(loc, {}) }));
-    Nest_nodeSetReferredNodes(res, fromIniList({ parentNode, mkNodeList(loc, all(params)) }));
+    Nest_nodeSetReferredNodes(res, fromIniList({ parentNode, mkNodeList(loc, params) }));
     return res;
 }

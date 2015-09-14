@@ -27,3 +27,10 @@ inline Node*& at(NodeRange r, unsigned int idx) {
 inline Node*& at(NodeArray arr, unsigned int idx) {
     return arr.beginPtr[idx];
 }
+
+inline unsigned int size(NodeRange r) {
+    return Nest_nodeRangeSize(r);
+}
+inline unsigned int size(NodeArray arr) {
+    return Nest_nodeArraySize(arr);
+}

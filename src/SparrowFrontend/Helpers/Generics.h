@@ -12,6 +12,6 @@ namespace SprFrontend
     bool isGeneric(const Node* node);
     size_t genericParamsCount(const Node* node);
     Node* genericParam(const Node* node, size_t idx);
-    Node* genericCanInstantiate(Node* node, const NodeVector& args);
-    Node* genericDoInstantiate(Node* node, const Location& loc, CompilationContext* context, const NodeVector& args, Node* instantiation);
+    Node* genericCanInstantiate(Node* node, NodeRange args);
+    Node* genericDoInstantiate(Node* node, const Location& loc, CompilationContext* context, NodeRange args, Node* instantiation);
 }

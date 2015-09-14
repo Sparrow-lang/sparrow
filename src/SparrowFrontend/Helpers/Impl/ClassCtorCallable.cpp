@@ -93,7 +93,7 @@ ConversionType ClassCtorCallable::canCall(CompilationContext* context, const Loc
     return baseCallable_->canCall(context, loc, argTypes2, evalMode, noCustomCvt);
 }
 
-ConversionType ClassCtorCallable::canCall(CompilationContext* context, const Location& loc, const NodeVector& args, EvalMode evalMode, bool noCustomCvt)
+ConversionType ClassCtorCallable::canCall(CompilationContext* context, const Location& loc, NodeRange args, EvalMode evalMode, bool noCustomCvt)
 {
     context_ = context;
 
@@ -107,9 +107,9 @@ ConversionType ClassCtorCallable::canCall(CompilationContext* context, const Loc
     if ( !Nest_computeType(thisArg_) )
         return convNone;
 
-    NodeVector args2 = args;
+    NodeVector args2 = toVec(args);
     args2.insert(args2.begin(), thisArg_);
-    return baseCallable_->canCall(context, loc, args2, evalMode, noCustomCvt);
+    return baseCallable_->canCall(context, loc, all(args2), evalMode, noCustomCvt);
 }
 
 

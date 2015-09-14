@@ -1,6 +1,8 @@
 #include <StdInc.h>
 #include "SparrowNodesAccessors.h"
 
+#include <Nest/Intermediate/NodeUtils.hpp>
+
 using namespace SprFrontend;
 using namespace Feather;
 using namespace Nest;

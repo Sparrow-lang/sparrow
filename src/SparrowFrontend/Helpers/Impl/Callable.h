@@ -4,7 +4,7 @@
 
 #include <Helpers/Convert.h>
 
-#include <vector>
+#include <Nest/Intermediate/NodeVector.h>
 
 namespace SprFrontend
 {
@@ -34,7 +34,7 @@ namespace SprFrontend
 
         /// Checks if we can call this with the given arguments
         /// This method can cache some information needed by the 'generateCall'
-        virtual ConversionType canCall(CompilationContext* context, const Location& loc, const NodeVector& args, EvalMode evalMode, bool noCustomCvt = false);
+        virtual ConversionType canCall(CompilationContext* context, const Location& loc, NodeRange args, EvalMode evalMode, bool noCustomCvt = false);
 
         /// Same as above, but makes the check only on type, and not on the actual argument; doesn't cache any args_
         virtual ConversionType canCall(CompilationContext* context, const Location& loc, const vector<TypeRef>& argTypes, EvalMode evalMode, bool noCustomCvt = false);

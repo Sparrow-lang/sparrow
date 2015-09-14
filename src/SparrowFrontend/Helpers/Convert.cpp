@@ -235,7 +235,7 @@ namespace
 
         ConversionResult res = ConversionResult(convCustom, [=](Node* src) -> Node* {
             Node* refToClass = createTypeNode(src->context, src->location, getDataType(destClass));
-            return mkChangeMode(src->location, mkFunApplication(src->location, refToClass, NodeVector(1, src)), destMode);
+            return mkChangeMode(src->location, mkFunApplication(src->location, refToClass, fromIniList({src})), destMode);
         }, contextDependent);
         return combine(res, cachedCanConvertImpl(context, flags | flagDontCallConversionCtor, resType, destType));
     }

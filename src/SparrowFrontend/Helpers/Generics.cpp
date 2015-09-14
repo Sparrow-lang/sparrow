@@ -66,7 +66,7 @@ namespace
     /// created for each instantiated and put in the node-list of the instantiation (the expanded instantiation node).
     /// Note that for auto-parameters we will create RT variables; the only thing we can do with them is to use their type
     /// In the expanded instantiation we need to add the actual instantiated declaration - in other place, not here
-    NodeVector getBoundVariables(const Location& loc, const NodeVector& boundValues, NodeRange params, bool insideClass)
+    NodeVector getBoundVariables(const Location& loc, NodeRange boundValues, NodeRange params, bool insideClass)
     {
         // Create a variable for each bound parameter - put everything in a node list
         NodeVector nodes;
@@ -74,7 +74,7 @@ namespace
         size_t idx = 0;
         for ( Node* p: params )
         {
-            Node* boundValue = boundValues[idx++];
+            Node* boundValue = at(boundValues, idx++);
             if ( !p )
                 continue;
             ASSERT(boundValue);
@@ -101,21 +101,22 @@ namespace
         return nodes;
     }
 
-    Node* searchInstantiation(Node* instSet, const NodeVector& values)
+    Node* searchInstantiation(Node* instSet, NodeRange values)
     {
         for ( Node* inst: at(instSet->children, 1)->children )
         {
             const auto& boundValues = inst->referredNodes;
-            if ( Nest_nodeArraySize(boundValues) != values.size() )
+            if ( size(boundValues) != size(values) )
                 continue;
 
             bool argsMatch = true;
-            for ( size_t i=0; i<values.size(); ++i )
+            for ( size_t i=0; i<size(values); ++i )
             {
                 Node* boundVal = at(boundValues, i);
                 if ( !boundVal )
                     continue;
-                if ( !values[i] || !ctValsEqual(values[i], boundVal) )
+                Node* val = at(values, i);
+                if ( !val || !ctValsEqual(val, boundVal) )
                 {
                     argsMatch = false;
                     break;
@@ -127,7 +128,7 @@ namespace
         return nullptr;
     }
 
-    Node* createNewInstantiation(Node* instSet, const NodeVector& values, EvalMode evalMode)
+    Node* createNewInstantiation(Node* instSet, NodeRange values, EvalMode evalMode)
     {
         // Create a new context, but at the same level as the context of the parent node
         Node* parentNode = at(instSet->referredNodes, 0);
@@ -136,7 +137,7 @@ namespace
 
         // Create the instantiation
         auto boundVars = getBoundVariables(instSet->location, values, getInstantiationsSetParameters(instSet), insideClass);
-        Node* inst = mkInstantiation(instSet->location, values, move(boundVars));
+        Node* inst = mkInstantiation(instSet->location, values, all(boundVars));
         NodeArray& instantiations = at(instSet->children, 1)->children;
         Nest_appendNodeToArray(&instantiations, inst);
 
@@ -148,7 +149,7 @@ namespace
         return inst;
     }
 
-    Node* canInstantiate(Node* instSet, const NodeVector& values, EvalMode evalMode)
+    Node* canInstantiate(Node* instSet, NodeRange values, EvalMode evalMode)
     {
         // Try to find an existing instantiation
         Node* inst = searchInstantiation(instSet, values);
@@ -210,14 +211,14 @@ namespace
 
     /// Get the bound arguments corresponding to the arguments passed to the generic
     /// We return here the CT values of these arguments; we use their value to check for duplicate instantiations
-    NodeVector getGenericClassBoundValues(const NodeVector& args)
+    NodeVector getGenericClassBoundValues(NodeRange args)
     {
         NodeVector boundValues;
-        boundValues.reserve(args.size());
+        boundValues.reserve(size(args));
 
-        for ( size_t i=0; i<args.size(); ++i )
+        for ( size_t i=0; i<size(args); ++i )
         {
-            Node* arg = args[i];
+            Node* arg = at(args, i);
 
             // Evaluate the node and add the resulting CtValue as a bound argument
             if ( !Nest_computeType(arg) )
@@ -232,7 +233,7 @@ namespace
         return boundValues;
     }
 
-    EvalMode getGenericClassResultingEvalMode(const Location& loc, EvalMode mainEvalMode, const NodeVector& boundValues)
+    EvalMode getGenericClassResultingEvalMode(const Location& loc, EvalMode mainEvalMode, NodeRange boundValues)
     {
         bool hasRtOnlyArgs = false;
         bool hasCtOnlyArgs = false;
@@ -313,17 +314,17 @@ namespace
 
     /// Get the bound arguments corresponding to the CT or Auto parameters of the generic
     /// We return here the CT values of these arguments; we use their value to check for duplicate instantiations
-    NodeVector getGenericFunBoundValues(CompilationContext* context, const NodeVector& args, NodeRange genericParams)
+    NodeVector getGenericFunBoundValues(CompilationContext* context, NodeRange args, NodeRange genericParams)
     {
         NodeVector boundValues;
-        boundValues.resize(args.size(), nullptr);
+        boundValues.resize(size(args), nullptr);
 
         // There are two types of bound arguments:
         //  - parameters with CT types
         //  - auto parameters - in this case we retain the type of the argument as a bound value
-        for ( size_t i=0; i<args.size(); ++i )
+        for ( size_t i=0; i<size(args); ++i )
         {
-            Node* arg = args[i];
+            Node* arg = at(args, i);
             Node* param = at(genericParams, i);
             if ( !param )
                 continue;
@@ -392,14 +393,15 @@ namespace
 
 
     /// Get the eval mode for the resulting function; check the eval mode of the original function, of the non-bound arguments, and of the types
-    EvalMode getGenericFunResultingEvalMode(const Location& loc, EvalMode mainEvalMode, const NodeVector& args, NodeRange genericParams)
+    EvalMode getGenericFunResultingEvalMode(const Location& loc, EvalMode mainEvalMode, NodeRange args, NodeRange genericParams)
     {
         bool hasRtOnlyArgs = false;
         bool hasCtOnlyArgs = false;
         auto numGenericParams = Nest_nodeRangeSize(genericParams);
-        ASSERT(args.size() == numGenericParams);
+        ASSERT(size(args) == numGenericParams);
         for ( size_t i=0; i<numGenericParams; ++i)
         {
+            Node* arg = at(args, i);
             // Test auto and non-bound arguments
             // Also test the type given to the 'Type' parameters (i.e., we need to know if Vector(t) can be rtct based on the mode of t)
             Node* genParam = at(genericParams, i);
@@ -407,12 +409,12 @@ namespace
             TypeRef typeToCheck = nullptr;
             if ( !pType || isConceptType(pType) )
             {
-                typeToCheck = Nest_computeType(args[i]);
+                typeToCheck = Nest_computeType(arg);
             }
             else
             {
                 // Is the argument a Type?
-                typeToCheck = tryGetTypeValue(args[i]);
+                typeToCheck = tryGetTypeValue(arg);
             }
             if ( typeToCheck )
             {
@@ -439,16 +441,16 @@ namespace
     /// From the list of arguments passed at generic instantiation, filter only the ones corresponding to the non-bound
     /// parameters, the ones that are passed to the actual instantiation.
     /// Note that this also returns the arguments corresponding to the auto parameters
-    NodeVector getGenericFunNonBoundArgs(const NodeVector& args, NodeRange genericParams)
+    NodeVector getGenericFunNonBoundArgs(NodeRange args, NodeRange genericParams)
     {
         NodeVector nonBoundArgs;
-        nonBoundArgs.reserve(args.size());
-        for ( size_t i=0; i<args.size(); ++i )
+        nonBoundArgs.reserve(size(args));
+        for ( size_t i=0; i<size(args); ++i )
         {
             Node* param = at(genericParams, i);
             if ( !param || isConceptType(param->type) )     // Get non-generic and also parameters
             {
-                nonBoundArgs.push_back(args[i]);
+                nonBoundArgs.push_back(at(args, i));
             }
         }
         return nonBoundArgs;
@@ -474,7 +476,7 @@ namespace
         return newFun;
     }
 
-    Node* createCallFn(const Location& loc, CompilationContext* context, Node* inst, const NodeVector& nonBoundArgs)
+    Node* createCallFn(const Location& loc, CompilationContext* context, Node* inst, NodeRange nonBoundArgs)
     {
         ASSERT(inst->nodeKind == nkSparrowDeclSprFunction);
         if ( !Nest_computeType(inst) )
@@ -497,7 +499,7 @@ bool SprFrontend::conceptIsFulfilled(Node* concept, TypeRef type)
     if ( !Nest_semanticCheck(typeValue) )
         return false;
 
-    return nullptr != canInstantiate(instantiationsSet, {typeValue}, concept->context->evalMode);
+    return nullptr != canInstantiate(instantiationsSet, fromIniList({typeValue}), concept->context->evalMode);
 }
 
 TypeRef SprFrontend::baseConceptType(Node* concept)
@@ -558,7 +560,7 @@ Node* SprFrontend::createGenericFun(Node* originalFun, Node* parameters, Node* i
     }
 
     // Actually create the generic
-    Node* res = mkGenericFunction(originalFun, move(ourParams), move(genericParams), ifClause);
+    Node* res = mkGenericFunction(originalFun, all(ourParams), all(genericParams), ifClause);
     setEvalMode(res, effectiveEvalMode(originalFun));
     Nest_setContext(res, originalFun->context);
     return res;
@@ -611,7 +613,7 @@ Node* SprFrontend::genericParam(const Node* node, size_t idx)
     }
 }
 
-Node* SprFrontend::genericCanInstantiate(Node* node, const NodeVector& args)
+Node* SprFrontend::genericCanInstantiate(Node* node, NodeRange args)
 {
     switch ( node->nodeKind - firstSparrowNodeKind )
     {
@@ -619,9 +621,9 @@ Node* SprFrontend::genericCanInstantiate(Node* node, const NodeVector& args)
         {
             NodeVector boundValues = getGenericClassBoundValues(args);
             Node* originalClass = at(node->referredNodes, 0);
-            EvalMode resultingEvalMode = getGenericClassResultingEvalMode(originalClass->location, effectiveEvalMode(originalClass), boundValues);
+            EvalMode resultingEvalMode = getGenericClassResultingEvalMode(originalClass->location, effectiveEvalMode(originalClass), all(boundValues));
             Node* instantiationsSet = at(node->children, 0);
-            return canInstantiate(instantiationsSet, boundValues, resultingEvalMode);
+            return canInstantiate(instantiationsSet, all(boundValues), resultingEvalMode);
         }
         case nkRelSparrowDeclGenericFunction:
         {
@@ -633,14 +635,14 @@ Node* SprFrontend::genericCanInstantiate(Node* node, const NodeVector& args)
                 : getGenericFunResultingEvalMode(originalFun->location, effectiveEvalMode(originalFun), args, genericParams(node));
 
             Node* instantiationsSet = at(node->children, 0);
-            return canInstantiate(instantiationsSet, boundValues, resultingEvalMode);
+            return canInstantiate(instantiationsSet, all(boundValues), resultingEvalMode);
         }
         default:
             REP_INTERNAL(node->location, "Node is not a generic: %1%") % node;
             return nullptr;
     }
 }
-Node* SprFrontend::genericDoInstantiate(Node* node, const Location& loc, CompilationContext* context, const NodeVector& args, Node* inst)
+Node* SprFrontend::genericDoInstantiate(Node* node, const Location& loc, CompilationContext* context, NodeRange args, Node* inst)
 {
     switch ( node->nodeKind - firstSparrowNodeKind )
     {
@@ -705,7 +707,7 @@ Node* SprFrontend::genericDoInstantiate(Node* node, const Location& loc, Compila
 
             // Now actually create the call object
             NodeVector nonBoundArgs = getGenericFunNonBoundArgs(args, genericParams(node));
-            Node* res = createCallFn(loc, context, instDecl, nonBoundArgs);
+            Node* res = createCallFn(loc, context, instDecl, all(nonBoundArgs));
             if ( !res )
                 REP_INTERNAL(loc, "Cannot create code that calls generic");
             return res;

@@ -53,7 +53,7 @@ bool GenericCallable::isAutoCt() const
     return false;
 }
 
-ConversionType GenericCallable::canCall(CompilationContext* context, const Location& loc, const NodeVector& args, EvalMode evalMode, bool noCustomCvt)
+ConversionType GenericCallable::canCall(CompilationContext* context, const Location& loc, NodeRange args, EvalMode evalMode, bool noCustomCvt)
 {
     // Call the base first
     ConversionType res = Callable::canCall(context, loc, args, evalMode, noCustomCvt);
@@ -63,7 +63,7 @@ ConversionType GenericCallable::canCall(CompilationContext* context, const Locat
     // Check if we can instantiate the generic with the given arguments (with conversions applied)
     argsWithCvt_ = argsWithConversion();
     ASSERT(!inst_);
-    inst_ = genericCanInstantiate(generic_, argsWithCvt_);
+    inst_ = genericCanInstantiate(generic_, all(argsWithCvt_));
     return inst_ ? res : convNone;
 }
 
@@ -71,7 +71,7 @@ Node* GenericCallable::generateCall(const Location& loc)
 {
     ASSERT(inst_);
     ASSERT(context_);
-    Node* res = genericDoInstantiate(generic_, loc, context_, argsWithCvt_, inst_);
+    Node* res = genericDoInstantiate(generic_, loc, context_, all(argsWithCvt_), inst_);
     Nest_setContext(res, context_);
     return res;
 }

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Nest/Intermediate/EvalMode.h>
-#include <Nest/Intermediate/NodeVector.h>
 #include <SparrowFrontend/Nodes/Decls/AccessType.h>
 
 namespace SprFrontend
@@ -97,24 +96,24 @@ namespace SprFrontend
     Node* mkSprAutoParameter(const Location& loc, string name);
 
     Node* mkGenericClass(Node* originalClass, Node* parameters, Node* ifClause);
-    Node* mkGenericFunction(Node* originalFun, NodeVector params, NodeVector genericParams, Node* ifClause, Node* thisClass = nullptr);
+    Node* mkGenericFunction(Node* originalFun, NodeRange params, NodeRange genericParams, Node* ifClause, Node* thisClass = nullptr);
 
     Node* mkLiteral(const Location& loc, string litType, string data);
     Node* mkThisExp(const Location& loc);
     Node* mkIdentifier(const Location& loc, string id);
     Node* mkCompoundExp(const Location& loc, Node* base, string id);
     Node* mkFunApplication(const Location& loc, Node* base, Node* arguments);
-    Node* mkFunApplication(const Location& loc, Node* base, NodeVector arguments);
+    Node* mkFunApplication(const Location& loc, Node* base, NodeRange arguments);
     Node* mkOperatorCall(const Location& loc, Node* arg1, string op, Node* arg2);
     Node* mkInfixOp(const Location& loc, string op, Node* arg1, Node* arg2);
     Node* mkLambdaExp(const Location& loc, Node* parameters, Node* returnType, Node* body, Node* bodyExp, Node* closureParams);
     Node* mkConditionalExp(const Location& loc, Node* cond, Node* alt1, Node* alt2);
-    Node* mkDeclExp(const Location& loc, NodeVector decls, Node* baseExp = nullptr);
+    Node* mkDeclExp(const Location& loc, NodeRange decls, Node* baseExp = nullptr);
     Node* mkStarExp(const Location& loc, Node* base, const string& operName);
 
     Node* mkForStmt(const Location& loc, string name, Node* type, Node* range, Node* action);
     Node* mkReturnStmt(const Location& loc, Node* exp);
 
-    Node* mkInstantiation(const Location& loc, NodeVector boundValues, NodeVector boundVars);
-    Node* mkInstantiationsSet(Node* parentNode, NodeVector params, Node* ifClause);
+    Node* mkInstantiation(const Location& loc, NodeRange boundValues, NodeRange boundVars);
+    Node* mkInstantiationsSet(Node* parentNode, NodeRange params, Node* ifClause);
 }

@@ -46,14 +46,14 @@ namespace
         int* scHandle = reinterpret_cast<int*>(sourceCode);
         Node* scBase = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "SourceCode");
         Node* scArg = Feather::mkCtValue(loc, StdDef::typeRefInt, &scHandle);
-        Node* scNode = mkFunApplication(loc, scBase, NodeVector(1, scArg));
+        Node* scNode = mkFunApplication(loc, scBase, fromIniList({scArg}));
         Node* locBase = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "Location");
-        Node* locNode = mkFunApplication(loc, locBase, NodeVector(1, scNode));
+        Node* locNode = mkFunApplication(loc, locBase, fromIniList({scNode}));
 
         int* ctxHandle = reinterpret_cast<int*>(ctx);
         Node* ctxBase = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "CompilationContext");
         Node* ctxArg = Feather::mkCtValue(loc, StdDef::typeRefInt, &ctxHandle);
-        Node* ctxNode = mkFunApplication(loc, ctxBase, NodeVector(1, ctxArg));
+        Node* ctxNode = mkFunApplication(loc, ctxBase, fromIniList({ctxArg}));
 
         // The function name is encoded as extraInfo when registering the source code
         const char* funName = Nest_getSourceCodeExtraInfo(sourceCode->kind);
@@ -67,7 +67,7 @@ namespace
             else
                 funBase = mkCompoundExp(loc, funBase, move(partName));
         }
-        Node* funCall = mkFunApplication(loc, funBase, {codeNode, locNode, ctxNode});
+        Node* funCall = mkFunApplication(loc, funBase, fromIniList({codeNode, locNode, ctxNode}));
 
         // Compile the function and evaluate it
         Node* implPart = mkCompoundExp(loc, funCall, "impl");

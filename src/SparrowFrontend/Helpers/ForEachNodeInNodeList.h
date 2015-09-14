@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Nest/Intermediate/NodeUtils.hpp>
+
 namespace SprFrontend
 {
     /// Iterates recursively over all the nodes in the given node list, calling the given 'fun' function

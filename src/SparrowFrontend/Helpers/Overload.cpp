@@ -59,7 +59,7 @@ namespace
     /// Filter candidates by checking the arguments against each candidate
     /// Retain only the candidates with the highest conversion
     /// Accepts either the argument nodes, or their type
-    Callables filterCandidates(CompilationContext* context, const Location& loc, const Callables& candidates, const NodeVector* args, const vector<TypeRef>* argTypes, EvalMode evalMode, bool noCustomCvt = false)
+    Callables filterCandidates(CompilationContext* context, const Location& loc, const Callables& candidates, NodeRange* args, const vector<TypeRef>* argTypes, EvalMode evalMode, bool noCustomCvt = false)
     {
         Callables res;
         ConversionType bestConv = convNone;
@@ -185,7 +185,7 @@ namespace
 }
 
 Node* SprFrontend::selectOverload(CompilationContext* context, const Location& loc, EvalMode evalMode,
-        NodeRange decls, NodeVector args,
+        NodeRange decls, NodeRange args,
         bool reportErrors, const string& funName)
 {
     auto numDecls = Nest_nodeRangeSize(decls);
@@ -204,12 +204,14 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
         }
     }
 
-    vector<TypeRef> argsTypes(args.size(), nullptr);
-    for ( size_t i=0; i<args.size(); ++i)
+    auto numArgs = Nest_nodeRangeSize(args);
+    vector<TypeRef> argsTypes(numArgs, nullptr);
+    for ( size_t i=0; i<numArgs; ++i)
     {
-        if ( !Nest_semanticCheck(args[i]) )
+        Node* arg = at(args, i);
+        if ( !Nest_semanticCheck(arg) )
             return nullptr;
-        argsTypes[i] = args[i]->type;
+        argsTypes[i] = arg->type;
     }
 
     if ( numDecls == 0 )
@@ -279,7 +281,7 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
     {
         // Wrap the function call in a Meta.astEval(...) call
         Node* funName = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "astEval");
-        res = mkFunApplication(loc, funName, NodeVector(1, res));
+        res = mkFunApplication(loc, funName, fromIniList({res}));
         Nest_setContext(res, context);
     }
 
@@ -334,7 +336,7 @@ bool SprFrontend::selectConversionCtor(CompilationContext* context, Node* destCl
     {
         if ( !Nest_computeType(arg) )
             return false;
-        auto cr = selectedFun->canCall(context, arg->location, { arg }, destMode, true);
+        auto cr = selectedFun->canCall(context, arg->location, fromIniList({ arg }), destMode, true);
         (void) cr;
         ASSERT(cr);
         *conv = selectedFun->generateCall(arg->location);

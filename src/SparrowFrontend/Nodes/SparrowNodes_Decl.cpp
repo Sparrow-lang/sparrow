@@ -801,7 +801,7 @@ Node* SprConcept_SemanticCheck(Node* node)
         return nullptr;
 
     delete instantiationsSet;
-    instantiationsSet = mkInstantiationsSet(node, { (Node*) param }, ifClause);
+    instantiationsSet = mkInstantiationsSet(node, fromIniList({ param }), ifClause);
     return Feather::mkNop(node->location);
 }
 

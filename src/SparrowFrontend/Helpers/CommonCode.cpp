@@ -19,13 +19,14 @@ using namespace SprFrontend;
 using namespace Feather;
 using namespace Nest;
 
-Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* context, NodeVector args)
+Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* context, NodeRange args)
 {
-    if ( args.empty() )
+    auto numArgs = Nest_nodeRangeSize(args);
+    if ( numArgs == 0 )
         REP_INTERNAL(loc, "At least 'this' argument must be given when creating a ctor call");
 
     // Get the class from 'thisArg'
-    Node* thisArg = args[0];
+    Node* thisArg = at(args, 0);
     if ( !Nest_computeType(thisArg) )
         return nullptr;
     Node* cls = classForType(thisArg->type);
@@ -33,9 +34,9 @@ Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* conte
 
     // Check if we can apply RVO, or pseudo-RVO
     // Whenever we try to construct an object from another temporary object, try to bypass the temporary object creation
-    if ( args.size() == 2 && !Nest_compilerSettings()->noRVO_ && !isCt(thisArg) )
+    if ( numArgs == 2 && !Nest_compilerSettings()->noRVO_ && !isCt(thisArg) )
     {
-        Node* arg = args[1];
+        Node* arg = at(args, 1);
         if ( ! Nest_computeType(arg) )
             return nullptr;
         arg = Nest_explanation(arg);
@@ -92,7 +93,7 @@ Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* conte
     args.push_back(thisArg);
     if ( initArg )
         args.push_back(initArg);
-    return createCtorCall(loc, context, args);
+    return createCtorCall(loc, context, all(args));
 }
 
 Node* SprFrontend::createDtorCall(const Location& loc, CompilationContext* context, Node* thisArg)
@@ -135,7 +136,7 @@ Node* SprFrontend::createDtorCall(const Location& loc, CompilationContext* conte
     return funCall;
 }
 
-Node* SprFrontend::createFunctionCall(const Location& loc, CompilationContext* context, Node* fun, NodeVector args)
+Node* SprFrontend::createFunctionCall(const Location& loc, CompilationContext* context, Node* fun, NodeRange args)
 {
     ASSERT(context);
     if ( !Nest_computeType(fun) )
@@ -154,7 +155,7 @@ Node* SprFrontend::createFunctionCall(const Location& loc, CompilationContext* c
         EvalMode funEvalMode = effectiveEvalMode(fun);
         if ( funEvalMode == modeCt && !isCt(resTypeRef) )
             resTypeRef = changeTypeMode(resTypeRef, modeCt, resultParam->location);
-        if ( funEvalMode == modeRtCt && Nest_hasProperty(fun, propAutoCt) && !isCt(resTypeRef) && isCt(all(args)) )
+        if ( funEvalMode == modeRtCt && Nest_hasProperty(fun, propAutoCt) && !isCt(resTypeRef) && isCt(args) )
             resTypeRef = changeTypeMode(resTypeRef, modeCt, resultParam->location);
 
         // Create a temporary variable for the result
@@ -164,7 +165,7 @@ Node* SprFrontend::createFunctionCall(const Location& loc, CompilationContext* c
         Nest_setContext(tmpVarRef, context);
 
         // Add a new argument with the temporary variable
-        NodeVector args1 = args;
+        NodeVector args1 = toVec(args);
         Node* arg = mkBitcast(tmpVarRef->location, mkTypeNode(loc, resTypeRef), tmpVarRef);
         Nest_setContext(arg, context);
         args1.insert(args1.begin(), arg);
@@ -178,7 +179,7 @@ Node* SprFrontend::createFunctionCall(const Location& loc, CompilationContext* c
     }
     else
     {
-        Node* funCall = mkFunCall(loc, fun, all(args));
+        Node* funCall = mkFunCall(loc, fun, args);
         res = funCall;
     }
 

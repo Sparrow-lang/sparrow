@@ -13,9 +13,9 @@ struct Nest_NodeRange {
 typedef struct Nest_NodeRange Nest_NodeRange;
 typedef struct Nest_NodeRange NodeRange;
 
-unsigned int Nest_nodeRangeSize(NodeRange nodes);
+unsigned Nest_nodeRangeSize(NodeRange nodes);
 
-NodeRange Nest_NodeRagenFromCArray(Node** nodes, unsigned int count);
+NodeRange Nest_NodeRagenFromCArray(Node** nodes, unsigned count);
 
 #ifdef __cplusplus
 }

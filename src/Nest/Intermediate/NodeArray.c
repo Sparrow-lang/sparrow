@@ -1,105 +1,68 @@
 #include "NodeArray.h"
-#include "Common/Alloc.h"
+#include "Common/PtrArray.h"
 #include "Common/Assert.h"
 
 #include <memory.h>
 
-void _growNodeArray(NodeArray* arr, unsigned int minCapacity) {
-    unsigned int capacity = Nest_nodeArrayCapacity(*arr);
-    if ( capacity == 0 )
-        capacity = 8;   // initial capacity
-    while ( capacity < minCapacity )
-        capacity += (capacity+1)/2;     // growth factor: 1.5
-    Nest_reserveNodeArray(arr, capacity);
+NodeArray _fromPtrArray(PtrArray arr) {
+    NodeArray res = { (Node**) arr.beginPtr, (Node**) arr.endPtr, (Node**) arr.endOfStorePtr };
+    return res;
 }
-
-NodeArray Nest_allocNodeArray(unsigned int capacity) {
-    NodeArray res = { 0, 0, 0 };
-    if ( capacity > 0 ) {
-        res.beginPtr = alloc(capacity* sizeof(Node*), allocGeneral);
-        res.endPtr = res.beginPtr;
-        res.endOfStorePtr = res.beginPtr + capacity;
-    }
+PtrArray _toPtrArray(NodeArray arr) {
+    PtrArray res = { (void**) arr.beginPtr, (void**) arr.endPtr, (void**) arr.endOfStorePtr };
     return res;
 }
 
+NodeArray Nest_allocNodeArray(unsigned capacity) {
+    return _fromPtrArray(NestUtils_allocPtrArray(capacity));
+}
+
 void Nest_freeNodeArray(NodeArray arr) {
-    // TODO (memory): if this was the last thing allocated, clean it up
+    NestUtils_freePtrArray(_toPtrArray(arr));
 }
 
 
-void Nest_reserveNodeArray(NodeArray* arr, unsigned int capacity) {
-    if ( capacity > Nest_nodeArrayCapacity(*arr) ) {
-        // Allocate a new array
-        NodeArray newArr = Nest_allocNodeArray(capacity);
-
-        // Copy the elements to the new array
-        unsigned size = Nest_nodeArraySize(*arr);
-        memcpy(newArr.beginPtr, arr->beginPtr, size*sizeof(Node*));
-        newArr.endPtr = newArr.beginPtr + size;
-
-        // Change the pointers in the given array
-        *arr = newArr;
-    }
+void Nest_reserveNodeArray(NodeArray* arr, unsigned capacity) {
+    PtrArray arr2 = _toPtrArray(*arr);
+    NestUtils_reservePtrArray(&arr2, capacity);
+    *arr = _fromPtrArray(arr2);
 }
 
-void Nest_resizeNodeArray(NodeArray* arr, unsigned int size) {
-    unsigned int curSize = Nest_nodeArraySize(*arr);
-    if ( size < curSize ) {
-        // Simply change the end pointer
-        arr->endPtr = arr->beginPtr + size;
-    }
-    else if ( size > curSize ) {
-        // Make sure we have enough elements
-        _growNodeArray(arr, size);
-
-        // Then change the size
-        arr->endPtr = arr->beginPtr + size;
-    }
+void Nest_resizeNodeArray(NodeArray* arr, unsigned size) {
+    PtrArray arr2 = _toPtrArray(*arr);
+    NestUtils_resizePtrArray(&arr2, size);
+    *arr = _fromPtrArray(arr2);
 }
 
 void Nest_appendNodeToArray(NodeArray* arr, Node* node) {
-    unsigned int curSize = Nest_nodeArraySize(*arr);
-    _growNodeArray(arr, curSize+1);
-    arr->beginPtr[curSize] = node;
-    arr->endPtr++;
+    PtrArray arr2 = _toPtrArray(*arr);
+    NestUtils_appendObjectToPtrArray(&arr2, node);
+    *arr = _fromPtrArray(arr2);
 }
 
 void Nest_appendNodesToArray(NodeArray* arr, NodeRange nodes) {
-    unsigned int numNewNodes = Nest_nodeRangeSize(nodes);
-    unsigned int curSize = Nest_nodeArraySize(*arr);
-    _growNodeArray(arr, curSize+numNewNodes);
-    for ( unsigned int i=0; i<numNewNodes; ++i ) {    
-        arr->beginPtr[curSize+i] = nodes.beginPtr[i];
-    }
-    arr->endPtr += numNewNodes;
+    PtrArray arr2 = _toPtrArray(*arr);
+    PtrRange objects = { (void**) nodes.beginPtr, (void**) nodes.endPtr };
+    NestUtils_appendObjectsToPtrArray(&arr2, objects);
+    *arr = _fromPtrArray(arr2);
 }
 
-void Nest_insertNodeIntoArray(NodeArray* arr, unsigned int index, Node* node) {
-    unsigned int curSize = Nest_nodeArraySize(*arr);
-    ASSERT(index <= curSize);
-    _growNodeArray(arr, curSize+1);
-    memmove(arr->beginPtr+index+1, arr->beginPtr+index, sizeof(Node*)*(curSize-index));
-    arr->beginPtr[index] = node;
-    arr->endPtr++;
+void Nest_insertNodeIntoArray(NodeArray* arr, unsigned index, Node* node) {
+    PtrArray arr2 = _toPtrArray(*arr);
+    NestUtils_insertObjectIntoPtrArray(&arr2, index, node);
+    *arr = _fromPtrArray(arr2);
 }
-void Nest_insertNodesIntoArray(NodeArray* arr, unsigned int index, NodeRange nodes) {
-    unsigned int numNewNodes = Nest_nodeRangeSize(nodes);
-    unsigned int curSize = Nest_nodeArraySize(*arr);
-    ASSERT(index <= curSize);
-    _growNodeArray(arr, curSize+numNewNodes);
-    memmove(arr->beginPtr+index+numNewNodes, arr->beginPtr+index, sizeof(Node*)*(curSize-index));
-    for ( unsigned int i=0; i<numNewNodes; ++i ) {    
-        arr->beginPtr[index+i] = nodes.beginPtr[i];
-    }
-    arr->endPtr += numNewNodes;
+void Nest_insertNodesIntoArray(NodeArray* arr, unsigned index, NodeRange nodes) {
+    PtrArray arr2 = _toPtrArray(*arr);
+    PtrRange objects = { (void**) nodes.beginPtr, (void**) nodes.endPtr };
+    NestUtils_insertObjectsIntoPtrArray(&arr2, index, objects);
+    *arr = _fromPtrArray(arr2);
 }
 
-void Nest_eraseNodeFromArray(NodeArray* arr, unsigned int index) {
-    unsigned int curSize = Nest_nodeArraySize(*arr);
-    ASSERT(index <= curSize);
-    memmove(arr->beginPtr+index, arr->beginPtr+index+1, sizeof(Node*)*(curSize-index-1));
-    arr->endPtr--;
+void Nest_eraseNodeFromArray(NodeArray* arr, unsigned index) {
+    PtrArray arr2 = _toPtrArray(*arr);
+    NestUtils_eraseFromPtrArray(&arr2, index);
+    *arr = _fromPtrArray(arr2);
 }
 
 
@@ -108,10 +71,10 @@ NodeRange Nest_getNodeRangeFromArray(NodeArray arr) {
     return res;
 }
 
-unsigned int Nest_nodeArraySize(NodeArray arr) {
+unsigned Nest_nodeArraySize(NodeArray arr) {
     return arr.endPtr - arr.beginPtr;
 }
-unsigned int Nest_nodeArrayCapacity(NodeArray arr) {
+unsigned Nest_nodeArrayCapacity(NodeArray arr) {
     return arr.endOfStorePtr - arr.beginPtr;
 }
 

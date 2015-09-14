@@ -5,8 +5,6 @@
 
 namespace SprFrontend
 {
-    using namespace Nest;
-
     enum SparrowNodeKinds
     {
         nkRelSparrowModifiersNode = 0,

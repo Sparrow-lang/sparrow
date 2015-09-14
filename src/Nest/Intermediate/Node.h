@@ -3,7 +3,6 @@
 #include <Nest/Intermediate/NodeArray.h>
 #include <Nest/Intermediate/TypeRef.h>
 #include <Nest/Frontend/Location.h>
-#include <Nest/Common/Diagnostic.hpp>
 
 typedef struct Nest_Node Node;
 typedef struct Nest_Modifier Modifier;

@@ -10,6 +10,7 @@
 
 #include <Nest/Intermediate/Node.h>
 #include <Nest/Intermediate/Type.h>
+#include <Nest/Common/Diagnostic.hpp>
 
 #ifdef _MSC_VER
 #pragma warning(push,1)
@@ -26,7 +27,6 @@
 
 using namespace LLVMB;
 using namespace LLVMB::Tr;
-using namespace Nest;
 using namespace Feather;
 
 CtModule::CtModule(const string& name)

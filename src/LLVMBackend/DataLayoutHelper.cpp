@@ -12,9 +12,9 @@
 #include <Nest/Intermediate/Type.h>
 #include <Nest/CompilerSettings.h>
 #include <Nest/Compiler.h>
+#include <Nest/Common/Diagnostic.hpp>
 
 using namespace LLVMB;
-using namespace Nest;
 using namespace Feather;
 
 namespace

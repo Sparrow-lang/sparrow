@@ -5,8 +5,7 @@
 #include "Modifier.h"
 #include <Compiler.h>
 #include <Common/Alloc.h>
-
-using namespace Nest;
+#include <Common/Diagnostic.hpp>
 
 void _applyModifiers(Node* node, ModifierType modType)
 {

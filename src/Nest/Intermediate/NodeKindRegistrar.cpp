@@ -2,8 +2,6 @@
 #include "NodeKindRegistrar.h"
 #include "Node.h"
 
-using namespace Nest;
-
 namespace
 {
     struct NodeKindDescription

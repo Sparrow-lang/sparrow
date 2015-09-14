@@ -529,7 +529,7 @@ namespace
         arg1Cvt = mkBitcast(node->location, mkTypeNode(node->location, StdDef::typeRefByte), arg1Cvt);
         arg2Cvt = mkBitcast(node->location, mkTypeNode(node->location, StdDef::typeRefByte), arg2Cvt);
 
-        return mkFunCall(node->location, StdDef::opRefEq, {arg1Cvt, arg2Cvt});
+        return mkFunCall(node->location, StdDef::opRefEq, fromIniList({arg1Cvt, arg2Cvt}));
     }
 
     Node* handleRefNe(Node* node)
@@ -557,7 +557,7 @@ namespace
         arg1Cvt = mkBitcast(node->location, mkTypeNode(node->location, StdDef::typeRefByte), arg1Cvt);
         arg2Cvt = mkBitcast(node->location, mkTypeNode(node->location, StdDef::typeRefByte), arg2Cvt);
 
-        return mkFunCall(node->location, StdDef::opRefNe, {arg1Cvt, arg2Cvt});
+        return mkFunCall(node->location, StdDef::opRefNe, fromIniList({arg1Cvt, arg2Cvt}));
     }
 
     Node* handleRefAssign(Node* node)
@@ -1247,12 +1247,12 @@ Node* LambdaFunction_SemanticCheck(Node* node)
             Node* initCall = mkOperatorCall(loc, fieldRef, op, paramRef);
             ctorStmts.push_back(initCall);
         }
-        ctorArgs = mkNodeList(node->location, move(ctorArgsNodes));
-        ctorParams = mkNodeList(node->location, move(ctorParamsNodes));
+        ctorArgs = mkNodeList(node->location, all(ctorArgsNodes));
+        ctorParams = mkNodeList(node->location, all(ctorParamsNodes));
     }
 
     // Create the ctor used to initialize the closure class
-    Node* ctorBody = mkLocalSpace(node->location, ctorStmts);
+    Node* ctorBody = mkLocalSpace(node->location, all(ctorStmts));
     Node* enclosingCtor = mkSprFunction(node->location, "ctor", ctorParams, nullptr, ctorBody);
     Nest_setProperty(enclosingCtor, propNoDefault, 1);
     Nest_appendNodeToArray(&classBody->children, enclosingCtor);

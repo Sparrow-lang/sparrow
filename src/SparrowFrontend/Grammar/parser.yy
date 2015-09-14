@@ -250,7 +250,7 @@ IdentifierListNode
     : IdentifierListNode COMMA IDENTIFIER
         { $$ = Feather::addToNodeList($1, mkIdentifier(@3, *$3)); }
     | IDENTIFIER
-        { $$ = Feather::mkNodeList(@$, { mkIdentifier(@$, *$1) }); }
+        { $$ = Feather::mkNodeList(@$, fromIniList({ mkIdentifier(@$, *$1) })); }
     ;
 
 ModifierSpec

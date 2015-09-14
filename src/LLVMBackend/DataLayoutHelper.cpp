@@ -8,6 +8,7 @@
 #include <Feather/FeatherTypes.h>
 
 #include <Nest/Intermediate/Node.h>
+#include <Nest/Intermediate/NodeUtils.hpp>
 #include <Nest/Intermediate/Type.h>
 #include <Nest/CompilerSettings.h>
 #include <Nest/Compiler.h>

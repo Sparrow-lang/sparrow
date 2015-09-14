@@ -199,7 +199,7 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
         for ( auto& arg: args )
         {
             const Location& l = arg->location;
-            arg = mkFunApplication(l, mkIdentifier(l, "lift"), mkNodeList(l, NodeVector(1, arg), true));
+            arg = mkFunApplication(l, mkIdentifier(l, "lift"), mkNodeList(l, fromIniList({ arg }), true));
             Nest_setContext(arg, context);
         }
     }

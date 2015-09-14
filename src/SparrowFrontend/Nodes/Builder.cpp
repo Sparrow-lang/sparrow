@@ -36,7 +36,7 @@ Node* SprFrontend::buildVariables(const Location& loc, const vector<string>& nam
     {
         nodes.push_back(mkModifiers(loc, mkSprVariable(loc, name, typeNode, init, accessType), mods));
     }
-    return Feather::mkNodeList(loc, nodes, true);
+    return Feather::mkNodeList(loc, all(nodes), true);
 }
 
 Node* SprFrontend::buildParameters(const Location& loc, const vector<string>& names, Node* typeNode, Node* init, Node* mods)
@@ -47,22 +47,22 @@ Node* SprFrontend::buildParameters(const Location& loc, const vector<string>& na
     {
         nodes.push_back(mkModifiers(loc, mkSprParameter(loc, name, typeNode, init), mods));
     }
-    return Feather::mkNodeList(loc, nodes, true);
+    return Feather::mkNodeList(loc, all(nodes), true);
 }
 
 Node* SprFrontend::buildAutoParameter(const Location& loc, const string& name, Node* mods)
 {
     Node* typeNode = mkIdentifier(loc, "AnyType");
     Node* param = mkModifiers(loc, mkSprParameter(loc, name, typeNode, nullptr), mods);
-    return Feather::mkNodeList(loc, {param}, true);
+    return Feather::mkNodeList(loc, fromIniList({param}), true);
 }
 
 Node* SprFrontend::buildSprFunctionExp(const Location& loc, string name, Node* parameters, Node* returnType, Node* bodyExp, Node* ifClause, AccessType accessType)
 {
     const Location& loc2 = bodyExp->location;
-    Node* body = buildBlockStmt(loc2, Feather::mkNodeList(loc2, { mkReturnStmt(loc2, bodyExp) }));
+    Node* body = buildBlockStmt(loc2, Feather::mkNodeList(loc2, fromIniList({ mkReturnStmt(loc2, bodyExp) })));
     if ( !returnType )
-        returnType = mkFunApplication(loc2, mkIdentifier(loc2, "typeOf"), Feather::mkNodeList(loc2, { bodyExp }));
+        returnType = mkFunApplication(loc2, mkIdentifier(loc2, "typeOf"), Feather::mkNodeList(loc2, fromIniList({ bodyExp })));
 
     return mkSprFunction(loc, move(name), parameters, returnType, body, ifClause, accessType);
 }
@@ -80,7 +80,7 @@ Node* SprFrontend::buildPrefixOp(const Location& loc, string op, Node* base)
 
 Node* SprFrontend::buildParenthesisExp(const Location& loc, Node* exp)
 {
-    return Feather::mkNodeList(loc, {exp}, false);
+    return Feather::mkNodeList(loc, fromIniList({exp}), false);
 }
 
 Node* SprFrontend::buildIntLiteral(const Location& loc, int value)
@@ -141,7 +141,7 @@ Node* SprFrontend::buildExpressionStmt(const Location& /*loc*/, Node* exp)
 
 Node* SprFrontend::buildBlockStmt(const Location& loc, Node* statements)
 {
-    return Feather::mkLocalSpace(loc, statements ? toVec(statements->children) : NodeVector());
+    return Feather::mkLocalSpace(loc, statements ? all(statements->children) : fromIniList({}));
 }
 
 Node* SprFrontend::buildIfStmt(const Location& loc, Node* cond, Node* thenClause, Node* elseClause)

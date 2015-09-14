@@ -205,7 +205,7 @@ namespace
             Node* varRef = mkVarRef(src->location, var);
             Node* store = mkMemStore(src->location, src, varRef);
             Node* cast = mkBitcast(src->location, mkTypeNode(src->location, baseDataType), varRef);
-            return mkNodeList(src->location, {var, store, cast});
+            return mkNodeList(src->location, fromIniList({var, store, cast}));
         });
         return combine(res, cachedCanConvertImpl(context, flags | flagDontAddReference, baseDataType, destType));
     }

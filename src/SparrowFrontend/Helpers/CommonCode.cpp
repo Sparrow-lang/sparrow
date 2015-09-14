@@ -66,7 +66,7 @@ Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* conte
                 r.beginPtr++;
                 for ( Node* child: r )
                     args.push_back(child);
-                Node* newCall = mkFunCall(loc, fun, move(args));
+                Node* newCall = mkFunCall(loc, fun, all(args));
                 Nest_setContext(newCall, context);
                 return newCall;
             }
@@ -130,7 +130,7 @@ Node* SprFrontend::createDtorCall(const Location& loc, CompilationContext* conte
         REP_INTERNAL(loc, "Invalid this argument when calling dtor");
     Node* argWithConversion = c.apply(thisArg);
 
-    Node* funCall = mkFunCall(loc, dtor, NodeVector(1, argWithConversion));
+    Node* funCall = mkFunCall(loc, dtor, fromIniList({ argWithConversion }));
     Nest_setContext(funCall, context);
     return funCall;
 }
@@ -154,7 +154,7 @@ Node* SprFrontend::createFunctionCall(const Location& loc, CompilationContext* c
         EvalMode funEvalMode = effectiveEvalMode(fun);
         if ( funEvalMode == modeCt && !isCt(resTypeRef) )
             resTypeRef = changeTypeMode(resTypeRef, modeCt, resultParam->location);
-        if ( funEvalMode == modeRtCt && Nest_hasProperty(fun, propAutoCt) && !isCt(resTypeRef) && isCt(args) )
+        if ( funEvalMode == modeRtCt && Nest_hasProperty(fun, propAutoCt) && !isCt(resTypeRef) && isCt(all(args)) )
             resTypeRef = changeTypeMode(resTypeRef, modeCt, resultParam->location);
 
         // Create a temporary variable for the result
@@ -168,7 +168,7 @@ Node* SprFrontend::createFunctionCall(const Location& loc, CompilationContext* c
         Node* arg = mkBitcast(tmpVarRef->location, mkTypeNode(loc, resTypeRef), tmpVarRef);
         Nest_setContext(arg, context);
         args1.insert(args1.begin(), arg);
-        Node* funCall = mkFunCall(loc, fun, args1);
+        Node* funCall = mkFunCall(loc, fun, all(args1));
 
         res = createTempVarConstruct(loc, context, funCall, tmpVar);
 
@@ -178,7 +178,7 @@ Node* SprFrontend::createFunctionCall(const Location& loc, CompilationContext* c
     }
     else
     {
-        Node* funCall = mkFunCall(loc, fun, args);
+        Node* funCall = mkFunCall(loc, fun, all(args));
         res = funCall;
     }
 
@@ -213,7 +213,7 @@ Node* SprFrontend::createTempVarConstruct(const Location& loc, CompilationContex
     // The result of the expressions
     Node* result = mkVarRef(loc, var);   // Return a var-ref to the temporary object
 
-    Node* res = mkNodeList(loc, { var, constructAction, destructAction, result });
+    Node* res = mkNodeList(loc, fromIniList({ var, constructAction, destructAction, result }));
     Nest_setContext(res, context);
     if ( !Nest_computeType(res) )
         return nullptr;
@@ -259,7 +259,7 @@ Node* SprFrontend::createFunPtr(Node* funNode)
             parameters.push_back(createTypeNode(ctx, loc, Function_getParameter(fun, i)->type));
         }
         string className = "FunctionPtr";
-        Node* classCall = mkFunApplication(loc, mkIdentifier(loc, className), mkNodeList(loc, parameters));
+        Node* classCall = mkFunApplication(loc, mkIdentifier(loc, className), mkNodeList(loc, all(parameters)));
         Nest_setContext(classCall, ctx);
         if ( !Nest_computeType(classCall) )
             return nullptr;
@@ -293,8 +293,8 @@ Node* SprFrontend::createFunPtr(Node* funNode)
             args[i] = mkIdentifier(loc, name);
         }
 
-        Node* parameters = mkNodeList(loc, paramIds);
-        Node* bodyExp = mkFunApplication(loc, funNode, mkNodeList(loc, args));
+        Node* parameters = mkNodeList(loc, all(paramIds));
+        Node* bodyExp = mkFunApplication(loc, funNode, mkNodeList(loc, all(args)));
 
         Node* res = mkLambdaExp(loc, parameters, nullptr, nullptr, bodyExp, nullptr);
         return res;

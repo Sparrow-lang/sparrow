@@ -352,14 +352,15 @@ namespace
 
     Node* interpretLocalSpace(CompilationContext* context, SimpleAstNode* srcNode)
     {
-        NodeVector children;
+        NodeArray children;
         for ( auto child: srcNode->children() )
         {
             Node* childNode = readNode(context, child, "<local space item>");
             if ( !childNode ) continue;
-            children.push_back(childNode);
+            Nest_appendNodeToArray(&children, childNode);
         }
-        Node* res = mkLocalSpace(srcNode->location(), children);
+        Node* res = mkLocalSpace(srcNode->location(), all(children));
+        Nest_freeNodeArray(children);
         Nest_setContext(res, context);
         return res;
     }
@@ -500,13 +501,15 @@ namespace
         checkChildrenCountRange(srcNode, 1, 100, "<function-name>, [<arguments>]");
         string funName = readIdentifier(srcNode->children()[0], "<function-name>");
         Node* funDecl = findDefinition(nkFeatherDeclFunction, context, funName, srcNode->children()[0]->location(), "function");
-        NodeVector args;
+        NodeArray args;
         for ( size_t i=1; i<srcNode->children().size(); ++i )
         {
-            args.push_back(readNode(context, srcNode->children()[i], "<argument>"));
+            Nest_appendNodeToArray(&args, readNode(context, srcNode->children()[i], "<argument>"));
         }
         
-        return mkFunCall(srcNode->location(), funDecl, args);
+        Node* res = mkFunCall(srcNode->location(), funDecl, all(args));
+        Nest_freeNodeArray(args);
+        return res;
     }
 
     Node* interpretReturn(CompilationContext* context, SimpleAstNode* srcNode)
@@ -606,7 +609,7 @@ namespace
         Node* cls = mkClass(srcNode->location(), name, {});
         Nest_setContext(cls, context);
 
-        NodeVector fields;
+        NodeArray fields;
 
         for ( size_t i=1; i<srcNode->children().size(); ++i )
         {
@@ -617,7 +620,7 @@ namespace
                 {
                     checkChildrenCountRange(srcNode->children()[i], 2, 3, "<name>, <type>, [<alignment>]");
                     Node* f = interpretVar(Nest_childrenContext(cls), srcNode->children()[i]);
-                    fields.push_back(f);
+                    Nest_appendNodeToArray(&fields, f);
                 }
                 catch(...)
                 {
@@ -630,6 +633,7 @@ namespace
             REP_ERROR(srcNode->children()[i]->location(), "Invalid identifier in class (%1%)") % ident;
         }
         Nest_appendNodesToArray(&cls->children, all(fields));
+        Nest_freeNodeArray(fields);
         return cls;
     }
 

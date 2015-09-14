@@ -235,12 +235,12 @@ Node* For_SemanticCheck(Node* node)
         if ( ctFor )
             setEvalMode(iterVar, modeCt);
 
-        whileBody = mkLocalSpace(action->location, { iterVar, action });
+        whileBody = mkLocalSpace(action->location, fromIniList({ iterVar, action }));
     }
 
     Node* whileStmt = mkWhile(loc, whileCond, whileBody, whileStep, ctFor);
     
-    return mkLocalSpace(node->location, { rangeVar, whileStmt });
+    return mkLocalSpace(node->location, fromIniList({ rangeVar, whileStmt }));
 }
 
 
@@ -280,7 +280,7 @@ Node* SprReturn_SemanticCheck(Node* node)
             return nullptr;
         if ( !resType->hasStorage && exp->type == resType )
         {
-            return mkNodeList(node->location, { exp, mkReturn(node->location) });
+            return mkNodeList(node->location, fromIniList({ exp, mkReturn(node->location) }));
         }
         else
         {
@@ -306,7 +306,7 @@ Node* SprReturn_SemanticCheck(Node* node)
         if ( !action )
             REP_ERROR_RET(nullptr, exp->location, "Cannot construct return type object %1% from %2%") % exp->type % resType;
 
-        return mkNodeList(node->location, { action, mkReturn(node->location, nullptr)});
+        return mkNodeList(node->location, fromIniList({ action, mkReturn(node->location, nullptr)}));
     }
     else
     {
@@ -604,7 +604,7 @@ Node* SprFrontend::mkGenericFunction(Node* originalFun, NodeVector params, NodeV
     Node* res = Nest_createNode(nkSparrowDeclGenericFunction);
     res->location = originalFun->location;
     Nest_nodeSetChildren(res, fromIniList({ mkInstantiationsSet(originalFun, move(genericParams), ifClause) }));
-    Nest_nodeSetReferredNodes(res, fromIniList({ originalFun, mkNodeList(res->location, move(params)) }));
+    Nest_nodeSetReferredNodes(res, fromIniList({ originalFun, mkNodeList(res->location, all(params)) }));
     setName(res, getName(originalFun));
     setAccessType(res, publicAccess);
     setEvalMode(res, effectiveEvalMode(originalFun));
@@ -660,7 +660,7 @@ Node* SprFrontend::mkFunApplication(const Location& loc, Node* base, NodeVector 
 {
     Node* res = Nest_createNode(nkSparrowExpFunApplication);
     res->location = loc;
-    Nest_nodeSetChildren(res, fromIniList({ base, mkNodeList(loc, move(arguments)) }));
+    Nest_nodeSetChildren(res, fromIniList({ base, mkNodeList(loc, all(arguments)) }));
     return res;
 }
 
@@ -690,9 +690,9 @@ Node* SprFrontend::mkLambdaExp(const Location& loc, Node* parameters, Node* retu
     {
         ASSERT(!body);
         const Location& loc = bodyExp->location;
-        body = Feather::mkLocalSpace(loc, { mkReturnStmt(loc, bodyExp) });
+        body = Feather::mkLocalSpace(loc, fromIniList({ mkReturnStmt(loc, bodyExp) }));
         if ( !returnType )
-            returnType = mkFunApplication(loc, mkIdentifier(loc, "typeOf"), Feather::mkNodeList(loc, { bodyExp }));
+            returnType = mkFunApplication(loc, mkIdentifier(loc, "typeOf"), Feather::mkNodeList(loc, fromIniList({ bodyExp })));
     }
     Node* res = Nest_createNode(nkSparrowExpLambdaFunction);
     res->location = loc;
@@ -753,7 +753,7 @@ Node* SprFrontend::mkInstantiation(const Location& loc, NodeVector boundValues, 
 {
     Node* res = Nest_createNode(nkSparrowInnerInstantiation);
     res->location = loc;
-    Nest_nodeSetChildren(res, fromIniList({ Feather::mkNodeList(loc, move(boundVars)) }));
+    Nest_nodeSetChildren(res, fromIniList({ Feather::mkNodeList(loc, all(boundVars)) }));
     Nest_appendNodesToArray(&res->referredNodes, all(boundValues));
     Nest_setProperty(res, "instIsValid", 0);
     Nest_setProperty(res, "instantiatedDecl", (Node*) nullptr);
@@ -766,6 +766,6 @@ Node* SprFrontend::mkInstantiationsSet(Node* parentNode, NodeVector params, Node
     Node* res = Nest_createNode(nkSparrowInnerInstantiationsSet);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({ ifClause, Feather::mkNodeList(loc, {}) }));
-    Nest_nodeSetReferredNodes(res, fromIniList({ parentNode, mkNodeList(loc, move(params)) }));
+    Nest_nodeSetReferredNodes(res, fromIniList({ parentNode, mkNodeList(loc, all(params)) }));
     return res;
 }

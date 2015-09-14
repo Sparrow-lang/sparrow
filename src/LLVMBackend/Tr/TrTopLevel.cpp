@@ -6,6 +6,7 @@
 #include "Module.h"
 
 #include <Nest/Intermediate/Node.h>
+#include <Nest/Intermediate/NodeUtils.hpp>
 #include <Nest/Intermediate/Type.h>
 #include <Nest/Common/Diagnostic.hpp>
 #include <Nest/Compiler.h>

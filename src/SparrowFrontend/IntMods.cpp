@@ -133,7 +133,7 @@ namespace
         {
             sprParams.push_back(mkSprParameter(loc, param.second, param.first));
         }
-        Node* parameters = sprParams.empty() ? nullptr : mkNodeList(loc, move(sprParams));
+        Node* parameters = sprParams.empty() ? nullptr : mkNodeList(loc, all(sprParams));
         Node* ret = resClass ? createTypeNode(Nest_childrenContext(parent), loc, getDataType(resClass)) : nullptr;
         
         // Add the function

@@ -27,7 +27,7 @@ bool Feather::isCt(const vector<TypeRef>& types)
             return false;
     return true;
 }
-bool Feather::isCt(const NodeVector& nodes)
+bool Feather::isCt(NodeRange nodes)
 {
     for ( Node* n: nodes )
     {

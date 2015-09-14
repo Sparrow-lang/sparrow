@@ -454,7 +454,7 @@ namespace
         return nonBoundArgs;
     }
 
-    Node* createInstFn(CompilationContext* context, Node* origFun, const NodeVector& nonBoundParams)
+    Node* createInstFn(CompilationContext* context, Node* origFun, NodeRange nonBoundParams)
     {
         const Location& loc = origFun->location;
 
@@ -693,7 +693,7 @@ Node* SprFrontend::genericDoInstantiate(Node* node, const Location& loc, Compila
 
                 // Create the actual instantiation declaration
                 CompilationContext* ctx = Nest_childrenContext(expandedInst);
-                instDecl = createInstFn(ctx, originalFun, nonBoundParams);
+                instDecl = createInstFn(ctx, originalFun, all(nonBoundParams));
                 if ( !instDecl )
                     REP_INTERNAL(loc, "Cannot instantiate generic");
                 if ( !Nest_computeType(instDecl) )

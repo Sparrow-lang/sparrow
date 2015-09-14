@@ -243,7 +243,8 @@ namespace
     //
     void ctApi_Feather_mkNodeList(Node** sret, Location* loc, Node** childrenBegin, Node** childrenEnd, bool voidResult)
     {
-        *sret = mkNodeList(*loc, NodeVector(childrenBegin, childrenEnd), voidResult);
+        NodeRange r = { childrenBegin, childrenEnd };
+        *sret = mkNodeList(*loc, r, voidResult);
     }
     void ctApi_Feather_addToNodeList(Node** sret, Node* prevList, Node* element)
     {
@@ -268,7 +269,8 @@ namespace
     }
     void ctApi_Feather_mkLocalSpace(Node** sret, Location* loc, Node** childrenBegin, Node** childrenEnd)
     {
-        *sret = mkLocalSpace(*loc, NodeVector(childrenBegin, childrenEnd));
+        NodeRange r = { childrenBegin, childrenEnd };
+        *sret = mkLocalSpace(*loc, r);
     }
     void ctApi_Feather_mkGlobalConstructAction(Node** sret, Location* loc, Node* action)
     {
@@ -289,11 +291,13 @@ namespace
 
     void ctApi_Feather_mkFunction(Node** sret, Location* loc, StringData name, Node* resType, Node** paramsBegin, Node** paramsEnd, Node* body, int evalMode)
     {
-        *sret = mkFunction(*loc, name.toStdString(), resType, NodeVector(paramsBegin, paramsEnd), body);
+        NodeRange r = { paramsBegin, paramsEnd };
+        *sret = mkFunction(*loc, name.toStdString(), resType, r, body);
     }
     void ctApi_Feather_mkClass(Node** sret, Location* loc, StringData name, Node** fieldsBegin, Node** fieldsEnd, int evalMode)
     {
-        *sret = mkClass(*loc, name.toStdString(), NodeVector(fieldsBegin, fieldsEnd));
+        NodeRange r = { fieldsBegin, fieldsEnd };
+        *sret = mkClass(*loc, name.toStdString(), r);
     }
     void ctApi_Feather_mkVar(Node** sret, Location* loc, StringData name, Node* type, int evalMode)
     {
@@ -322,7 +326,8 @@ namespace
     }
     void ctApi_Feather_mkFunCall(Node** sret, Location* loc, Node* funDecl, Node** argsBegin, Node** argsEnd)
     {
-        *sret = mkFunCall(*loc, funDecl, NodeVector(argsBegin, argsEnd));
+        NodeRange r = { argsBegin, argsEnd };
+        *sret = mkFunCall(*loc, funDecl, r);
     }
     void ctApi_Feather_mkMemLoad(Node** sret, Location* loc, Node* exp)
     {

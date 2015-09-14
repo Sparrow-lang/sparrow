@@ -68,7 +68,7 @@ namespace
         return node;
     }
 
-    Node* mkDestructActionForConditional(TypeRef resType, llvm::Value* cond, NodeVector alt1DestructActions, NodeVector alt2DestructActions)
+    Node* mkDestructActionForConditional(TypeRef resType, llvm::Value* cond, NodeRange alt1DestructActions, NodeRange alt2DestructActions)
     {
         // Make sure the node kind is registered
         if ( nkLLVMDestructActionForConditional == 0 )
@@ -162,7 +162,7 @@ namespace
         if ( !destructActions1.empty() || !destructActions2.empty() )
         {
             // The destruct action is also a kind of conditional operation - reuse the condition value
-            Node* destructAction = mkDestructActionForConditional(destType, condValue, move(destructActions1), move(destructActions2));
+            Node* destructAction = mkDestructActionForConditional(destType, condValue, all(destructActions1), all(destructActions2));
             Nest_setContext(destructAction, compContext);
             if ( !Nest_semanticCheck(destructAction) )
                 return nullptr;            
@@ -873,7 +873,7 @@ namespace
         if ( !destructActions1.empty() || !destructActions2.empty() )
         {
             // The destruct action is also a kind of conditional operation - reuse the condition value
-            Node* destructAction = mkDestructActionForConditional(node->type, condValue, move(destructActions1), move(destructActions2));
+            Node* destructAction = mkDestructActionForConditional(node->type, condValue, all(destructActions1), all(destructActions2));
             Nest_setContext(destructAction, node->context);
             if ( !Nest_semanticCheck(destructAction) )
                 return nullptr;            

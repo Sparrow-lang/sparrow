@@ -179,7 +179,7 @@ void SprCompilationUnit_SetContextForChildren(Node* node)
             for ( int j=(int)names.size()-1; j>=i; --j )
             {
                 Node* pk = mkSprPackage(packageName->location, move(names[j]), declarations);
-                declarations = Feather::mkNodeList(packageName->location, {pk}, true);
+                declarations = Feather::mkNodeList(packageName->location, fromIniList({pk}), true);
                 at(node->children, 2) = declarations;
             }
             break;
@@ -735,7 +735,7 @@ TypeRef SprVariable_ComputeType(Node* node)
             if ( dtorCall )
                 dtorCall = mkGlobalDestructAction(node->location, dtorCall);
         }
-        expl = mkNodeList(node->location, { resVar, ctorCall, dtorCall, mkNop(node->location) });
+        expl = mkNodeList(node->location, fromIniList({ resVar, ctorCall, dtorCall, mkNop(node->location) }));
     }
 
     ASSERT(expl);

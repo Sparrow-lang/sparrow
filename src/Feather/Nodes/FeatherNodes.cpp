@@ -908,7 +908,7 @@ using namespace Feather;
                 REP_ERROR_RET(nullptr, step->location, "The step of the ct while should be available at compile-time (%1%)") % step->type;
 
             // Create a node-list that will be our explanation
-            NodeVector result;
+            NodeArray result;
 
             // Do the while
             while ( true )
@@ -924,7 +924,7 @@ using namespace Feather;
                     Nest_setContext(curBody, node->context);
                     if ( !Nest_semanticCheck(curBody) )
                         return nullptr;
-                    result.push_back(curBody);
+                    Nest_appendNodeToArray(&result, curBody);
                 }
 
                 // If we have a step, make sure to evaluate it
@@ -935,10 +935,12 @@ using namespace Feather;
 
                 // Unfortunately, we don't treat 'break' and 'continue' instructions inside the ct while instructions
             }
-            result.push_back(mkNop(node->location)); // Make sure our resulting type is Void
+            Nest_appendNodeToArray(&result, mkNop(node->location)); // Make sure our resulting type is Void
 
             // Set the explanation and exit
-            return mkNodeList(node->location, move(result));
+            Node* res = mkNodeList(node->location, all(result));
+            Nest_freeNodeArray(result);
+            return res;
         }
 
         // Semantic check the body and the step
@@ -1086,13 +1088,13 @@ void Feather::initFeatherNodeKinds()
 }
 
 
-Node* Feather::mkNodeList(const Location& loc, NodeVector children, bool voidResult)
+Node* Feather::mkNodeList(const Location& loc, NodeRange children, bool voidResult)
 {
     Node* res = Nest_createNode(nkFeatherNodeList);
     res->location = loc;
     if ( voidResult )
         Nest_setProperty(res, propResultVoid, 1);
-    Nest_nodeSetChildren(res, all(children));
+    Nest_nodeSetChildren(res, children);
     return res;
 }
 Node* Feather::addToNodeList(Node* prevList, Node* element)
@@ -1146,11 +1148,11 @@ Node* Feather::mkBackendCode(const Location& loc, string code, EvalMode evalMode
     Nest_setProperty(res, propEvalMode, (int) evalMode);
     return res;
 }
-Node* Feather::mkLocalSpace(const Location& loc, NodeVector children)
+Node* Feather::mkLocalSpace(const Location& loc, NodeRange children)
 {
     Node* res = Nest_createNode(nkFeatherLocalSpace);
     res->location = loc;
-    Nest_nodeSetChildren(res, all(children));
+    Nest_nodeSetChildren(res, children);
     return res;
 }
 Node* Feather::mkGlobalConstructAction(const Location& loc, Node* action)
@@ -1187,13 +1189,13 @@ Node* Feather::mkTempDestructAction(const Location& loc, Node* action)
 }
 
 
-Node* Feather::mkFunction(const Location& loc, string name, Node* resType, NodeVector params, Node* body, CallConvention callConv, EvalMode evalMode)
+Node* Feather::mkFunction(const Location& loc, string name, Node* resType, NodeRange params, Node* body, CallConvention callConv, EvalMode evalMode)
 {
     Node* res = Nest_createNode(nkFeatherDeclFunction);
     res->location = loc;
     Nest_nodeAddChild(res, resType);
     Nest_nodeAddChild(res, body);
-    Nest_nodeAddChildren(res, all(params));
+    Nest_nodeAddChildren(res, params);
     setName(res, move(name));
     Nest_setProperty(res, "callConvention", (int) callConv);
     setEvalMode(res, evalMode);
@@ -1207,11 +1209,11 @@ Node* Feather::mkFunction(const Location& loc, string name, Node* resType, NodeV
 
     return res;
 }
-Node* Feather::mkClass(const Location& loc, string name, NodeVector fields, EvalMode evalMode)
+Node* Feather::mkClass(const Location& loc, string name, NodeRange fields, EvalMode evalMode)
 {
     Node* res = Nest_createNode(nkFeatherDeclClass);
     res->location = loc;
-    Nest_nodeSetChildren(res, all(fields));
+    Nest_nodeSetChildren(res, fields);
     setName(res, move(name));
     setEvalMode(res, evalMode);
 
@@ -1288,14 +1290,14 @@ Node* Feather::mkFunRef(const Location& loc, Node* funDecl, Node* resType)
     Nest_nodeSetReferredNodes(res, fromIniList({ funDecl }));
     return res;
 }
-Node* Feather::mkFunCall(const Location& loc, Node* funDecl, NodeVector args)
+Node* Feather::mkFunCall(const Location& loc, Node* funDecl, NodeRange args)
 {
     REQUIRE_NODE(loc, funDecl);
     if ( funDecl->nodeKind != nkFeatherDeclFunction )
         REP_INTERNAL(loc, "A FunCall node must be applied on a function declaration (%1% given)") % Nest_nodeKindName(funDecl);
     Node* res = Nest_createNode(nkFeatherExpFunCall);
     res->location = loc;
-    Nest_nodeSetChildren(res, all(args));
+    Nest_nodeSetChildren(res, args);
     Nest_nodeSetReferredNodes(res, fromIniList({ funDecl }));
     return res;
 }

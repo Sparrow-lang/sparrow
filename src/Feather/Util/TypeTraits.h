@@ -12,7 +12,7 @@ namespace Feather
     bool isCt(TypeRef type);
     bool isCt(Node* node);
     bool isCt(const vector<TypeRef>& types);
-    bool isCt(const NodeVector& nodes);
+    bool isCt(NodeRange nodes);
     
     /// Tests if the given type/expression has a "Testable" type
     bool isTestable(TypeRef type);

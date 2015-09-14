@@ -2,7 +2,7 @@
 
 #include <Nest/Intermediate/EvalMode.h>
 #include <Nest/Intermediate/TypeRef.h>
-#include <Nest/Intermediate/NodeVector.h>
+#include <Nest/Intermediate/NodeRange.h>
 #include <Nest/Frontend/Location.h>
 #include <Feather/Nodes/Exp/AtomicOrdering.h>
 #include <Feather/Nodes/Decls/CallConvention.h>
@@ -83,22 +83,22 @@ namespace Feather
     /// Called to initialize the Feather node kinds
     void initFeatherNodeKinds();
 
-    Node* mkNodeList(const Location& loc, NodeVector children, bool voidResult = false);
+    Node* mkNodeList(const Location& loc, NodeRange children, bool voidResult = false);
     Node* addToNodeList(Node* prevList, Node* element);
     Node* appendNodeList(Node* list, Node* newNodes);
 
     Node* mkNop(const Location& loc);
     Node* mkTypeNode(const Location& loc, TypeRef type);
     Node* mkBackendCode(const Location& loc, string code, EvalMode evalMode = modeRt);
-    Node* mkLocalSpace(const Location& loc, NodeVector children);
+    Node* mkLocalSpace(const Location& loc, NodeRange children);
     Node* mkGlobalConstructAction(const Location& loc, Node* action);
     Node* mkGlobalDestructAction(const Location& loc, Node* action);
     Node* mkScopeDestructAction(const Location& loc, Node* action);
     Node* mkTempDestructAction(const Location& loc, Node* action);
     Node* mkChangeMode(const Location& loc, Node* child, EvalMode mode);
     
-    Node* mkFunction(const Location& loc, string name, Node* resType, NodeVector params, Node* body, CallConvention callConv = ccC, EvalMode evalMode = modeUnspecified);
-    Node* mkClass(const Location& loc, string name, NodeVector fields, EvalMode evalMode = modeUnspecified);
+    Node* mkFunction(const Location& loc, string name, Node* resType, NodeRange params, Node* body, CallConvention callConv = ccC, EvalMode evalMode = modeUnspecified);
+    Node* mkClass(const Location& loc, string name, NodeRange fields, EvalMode evalMode = modeUnspecified);
     Node* mkVar(const Location& loc, string name, Node* type, size_t alignment = 0, EvalMode evalMode = modeUnspecified);
     
     Node* mkCtValue(const Location& loc, TypeRef typeNode, string data);
@@ -106,7 +106,7 @@ namespace Feather
     Node* mkVarRef(const Location& loc, Node* varDecl);
     Node* mkFieldRef(const Location& loc, Node* obj, Node* fieldDecl);
     Node* mkFunRef(const Location& loc, Node* funDecl, Node* resType);
-    Node* mkFunCall(const Location& loc, Node* funDecl, NodeVector args);
+    Node* mkFunCall(const Location& loc, Node* funDecl, NodeRange args);
     Node* mkMemLoad(const Location& loc, Node* exp, size_t alignment = 0, bool isVolatile = false, AtomicOrdering ordering = atomicNone, bool singleThreaded = false);
     Node* mkMemStore(const Location& loc, Node* value, Node* address, size_t alignment = 0, bool isVolatile = false, AtomicOrdering ordering = atomicNone, bool singleThreaded = false);
     Node* mkBitcast(const Location& loc, Node* destType, Node* exp);

@@ -231,7 +231,7 @@ namespace
             checkChildrenCount(srcNode, 2, "<name>, <value>");
             string name = readString(srcNode->children()[0], "<name>");
             string value = readString(srcNode->children()[1], "<value>");
-            Nest_setProperty(node, name.c_str(), value);
+            Nest_setProperty(node, name.c_str(), fromString(value));
             return true;
         }
 
@@ -309,7 +309,7 @@ namespace
             code += c;
             code += "\n";
         }
-        Node* res = mkBackendCode(srcNode->location(), code);
+        Node* res = mkBackendCode(srcNode->location(), fromString(code));
         Nest_setContext(res, context);
         return res;
     }
@@ -372,7 +372,7 @@ namespace
         if ( !type )
             return nullptr;
         string val = readString(srcNode->children()[1], "<value>");
-        Node* res = mkCtValue(srcNode->children()[1]->location(), type, val);
+        Node* res = mkCtValue(srcNode->children()[1]->location(), type, fromString(val));
         Nest_setContext(res, context);
         return res;
     }
@@ -385,7 +385,7 @@ namespace
             return nullptr;
         string val = readString(srcNode->children()[1], "<bin-value>");
         const Location& loc = srcNode->children()[1]->location();
-        Node* res = mkCtValue(loc, type, decodeBinaryValue(loc, val));
+        Node* res = mkCtValue(loc, type, fromString(decodeBinaryValue(loc, val)));
         Nest_setContext(res, context);
         return res;
     }
@@ -597,7 +597,7 @@ namespace
             alignment = readInt(srcNode->children()[2], "<alignment>");
         }
         
-        Node* res = Feather::mkVar(srcNode->location(), name, mkTypeNode(srcNode->children()[1]->location(), type), alignment);
+        Node* res = Feather::mkVar(srcNode->location(), fromString(name), mkTypeNode(srcNode->children()[1]->location(), type), alignment);
         Nest_setContext(res, context);
         return res;
     }
@@ -606,7 +606,7 @@ namespace
     {
         checkChildrenCountRange(srcNode, 1, 100, "<class-name>, [<fields>]");
         string name = readIdentifier(srcNode->children()[0], "<class-name>");
-        Node* cls = mkClass(srcNode->location(), name, {});
+        Node* cls = mkClass(srcNode->location(), fromString(name), {});
         Nest_setContext(cls, context);
 
         NodeArray fields = Nest_allocNodeArray(0);
@@ -646,7 +646,7 @@ namespace
             return nullptr;
 
         // Create the function
-        Node* fun = Feather::mkFunction(srcNode->location(), name, mkTypeNode(srcNode->children()[2]->location(), resultType), {}, nullptr);
+        Node* fun = Feather::mkFunction(srcNode->location(), fromString(name), mkTypeNode(srcNode->children()[2]->location(), resultType), {}, nullptr);
         Nest_setContext(fun, context);
 
         // Read the parameters

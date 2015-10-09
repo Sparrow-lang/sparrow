@@ -44,7 +44,7 @@ bool Feather::isTestable(TypeRef type)
     // If not Testable, check at least that is some kind of boolean
     if ( !type || !type->hasStorage )
         return false;
-    const string* nativeName = Feather::nativeName(type);
+    const StringRef* nativeName = Feather::nativeName(type);
     return nativeName && (*nativeName == "i1" || *nativeName == "u1");
 }
 
@@ -57,7 +57,7 @@ bool Feather::isInteger(TypeRef type)
 {
     if ( !type || type->typeKind != typeKindData )
         return false;
-    const string* nativeName = Feather::nativeName(type);
+    const StringRef* nativeName = Feather::nativeName(type);
     return nativeName && (*nativeName == "i32" || *nativeName == "u32");
 }
 
@@ -70,7 +70,7 @@ bool Feather::isBasicNumericType(TypeRef type)
 {
     if ( !type || !type->hasStorage )
         return false;
-    const string* nativeName = Feather::nativeName(type);
+    const StringRef* nativeName = Feather::nativeName(type);
     return nativeName && (
         *nativeName == "i1" || *nativeName == "u1" || 
         *nativeName == "i8" || *nativeName == "u8" || 

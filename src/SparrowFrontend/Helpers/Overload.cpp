@@ -151,10 +151,10 @@ namespace
         return nullptr;
     }
 
-    string nameWithAguments(const string funName, const vector<TypeRef>& argsTypes)
+    string nameWithAguments(StringRef funName, const vector<TypeRef>& argsTypes)
     {
         ostringstream oss;
-        oss << funName;
+        oss << funName.begin;
         oss << "(";
         for ( size_t i=0; i<argsTypes.size(); ++i )
         {
@@ -167,7 +167,7 @@ namespace
     }
 
     void doReportErrors(const Location& loc, NodeRange decls, const Callables& candidates,
-        const vector<TypeRef>& argsTypes, const string& funName)
+        const vector<TypeRef>& argsTypes, StringRef funName)
     {
         REP_ERROR(loc, "No matching overload found for calling %1%") % nameWithAguments(funName, argsTypes);
         for ( Callable* cand: candidates )
@@ -186,7 +186,7 @@ namespace
 
 Node* SprFrontend::selectOverload(CompilationContext* context, const Location& loc, EvalMode evalMode,
         NodeRange decls, NodeRange args,
-        bool reportErrors, const string& funName)
+        bool reportErrors, StringRef funName)
 {
     auto numDecls = Nest_nodeRangeSize(decls);
     Node* firstDecl = numDecls > 0 ? at(decls, 0) : nullptr;
@@ -199,7 +199,7 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
         for ( auto& arg: args )
         {
             const Location& l = arg->location;
-            arg = mkFunApplication(l, mkIdentifier(l, "lift"), mkNodeList(l, fromIniList({ arg }), true));
+            arg = mkFunApplication(l, mkIdentifier(l, fromCStr("lift")), mkNodeList(l, fromIniList({ arg }), true));
             Nest_setContext(arg, context);
         }
     }
@@ -280,7 +280,7 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
     if ( isMacro )
     {
         // Wrap the function call in a Meta.astEval(...) call
-        Node* funName = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "astEval");
+        Node* funName = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("Meta")), fromCStr("astEval"));
         res = mkFunApplication(loc, funName, fromIniList({res}));
         Nest_setContext(res, context);
     }

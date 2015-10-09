@@ -34,8 +34,9 @@ namespace
             res += '@';
         if ( classDecl )
         {
-            const string* description = Nest_getPropertyString(classDecl, propDescription);
-            res += description ? *description : getName(classDecl);
+            const StringRef* description = Nest_getPropertyString(classDecl, propDescription);
+            StringRef desc = description ? *description : getName(classDecl);
+            res += string(desc.begin, desc.end);
         }
         else
             res += "<no class>";
@@ -247,7 +248,7 @@ Node* classDecl(TypeRef type)
     return type->referredNode;
 }
 
-const string* nativeName(TypeRef type)
+const StringRef* nativeName(TypeRef type)
 {
     if ( type->referredNode && type->referredNode->nodeKind == nkFeatherDeclClass )
         return Nest_getPropertyString(type->referredNode, propNativeName);

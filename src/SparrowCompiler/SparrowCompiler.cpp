@@ -7,6 +7,7 @@
 #include <Nest/CompilerSettings.h>
 #include <Nest/Common/Diagnostic.hpp>
 #include <Nest/Common/PrintTimer.h>
+#include <Nest/Common/StringRef.hpp>
 #include <Nest/Backend/Backend.h>
 #include <Nest/Intermediate/CompilationContext.h>
 
@@ -79,7 +80,7 @@ void doCompilation(const vector<CompilerModule*>& modules)
 
         // Process the implicit definitions file
         if ( !s.implicitLibFilePath_.empty() )
-            Nest_compileFile(s.implicitLibFilePath_);
+            Nest_compileFile(fromString(s.implicitLibFilePath_));
     }
 
 
@@ -88,7 +89,7 @@ void doCompilation(const vector<CompilerModule*>& modules)
     {
         Nest::Common::PrintTimer timer(s.verbose_, "", "   [%ws]\n");
         cout << filename;
-        Nest_compileFile(filename);
+        Nest_compileFile(fromString(filename));
         if ( !s.verbose_ )
             cout << endl;
     }

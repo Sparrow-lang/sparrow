@@ -120,6 +120,7 @@ ELSEIF(APPLE)
     ADD_DEFINITIONS( -Wno-undefined-bool-conversion ) # ... and except undefined bool conversions
     ADD_DEFINITIONS( -Wno-typedef-redefinition )   # redefinition of typedef '...' is a C11 feature
     ADD_DEFINITIONS( -Wno-deprecated )
+    ADD_DEFINITIONS( -Wno-unused-local-typedef ) # unused typedef 'cons_element' (inside boost headers)
     SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=gnu++0x" )
 ENDIF()
 

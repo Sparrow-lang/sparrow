@@ -201,7 +201,7 @@ namespace
         TypeRef baseDataType = addRef(srcType);
 
         ConversionResult res(convImplicit, [=](Node* src) -> Node* {
-            Node* var = Feather::mkVar(src->location, "$tmpForRef", mkTypeNode(src->location, srcType));
+            Node* var = Feather::mkVar(src->location, fromCStr("$tmpForRef"), mkTypeNode(src->location, srcType));
             Node* varRef = mkVarRef(src->location, var);
             Node* store = mkMemStore(src->location, src, varRef);
             Node* cast = mkBitcast(src->location, mkTypeNode(src->location, baseDataType), varRef);

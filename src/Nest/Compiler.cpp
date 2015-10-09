@@ -3,6 +3,7 @@
 #include "CompilerSettings.h"
 #include "Common/Alloc.h"
 #include "Common/Diagnostic.hpp"
+#include "Common/StringRef.hpp"
 #include "Intermediate/Node.h"
 #include "Intermediate/NodeArray.h"
 #include "Intermediate/NodeUtils.hpp"
@@ -23,11 +24,11 @@ struct ImportInfo
     boost::filesystem::path filename_;
     vector<string> qid_;
 
-    ImportInfo(const SourceCode* orig, string filename)
-        : originSourceCode_(orig), filename_(move(filename))
+    ImportInfo(const SourceCode* orig, StringRef filename)
+        : originSourceCode_(orig), filename_(filename.begin)
     {}
 
-    ImportInfo(const SourceCode* orig, string filename, vector<string> qid)
+    ImportInfo(const SourceCode* orig, StringRef filename, vector<string> qid)
         : originSourceCode_(orig), filename_(), qid_(move(qid))
     {}
 };
@@ -269,9 +270,9 @@ void Nest_createBackend(const char* mainFilename)
     _rootContext = Nest_mkRootContext(_backend, modeRt);
 }
 
-void Nest_compileFile(const string& filename)
+void Nest_compileFile(StringRef filename)
 {
-    if ( filename.empty() || filename[0] == '\r' || filename[0] == '\n' )
+    if ( size(filename) == 0 || filename.begin[0] == '\r' || filename.begin[0] == '\n' )
         return;
 
     if ( !_backend )
@@ -338,9 +339,9 @@ void Nest_compileFile(const string& filename)
     }
 }
 
-void Nest_addSourceCodeByFilename(const SourceCode* orig, string filename)
+void Nest_addSourceCodeByFilename(const SourceCode* orig, StringRef filename)
 {
-    _handleImport(ImportInfo(orig, move(filename)));
+    _handleImport(ImportInfo(orig, filename));
 }
 
 void Nest_addSourceCodeByQid(const SourceCode* orig, vector<string> qid)
@@ -361,9 +362,9 @@ void Nest_addSourceCodeByQid(const SourceCode* orig, vector<string> qid)
     }
 
     if ( qid.back().empty() )
-        _handleImport(ImportInfo(orig, move(filename), move(qid)));      // Star notation
+        _handleImport(ImportInfo(orig, fromString(filename), move(qid)));      // Star notation
     else
-        _handleImport(ImportInfo(orig, filename + ".spr"));
+        _handleImport(ImportInfo(orig, fromString(filename + ".spr")));
 }
 
 const SourceCode* Nest_getSourceCodeForFilename(const string& filename)

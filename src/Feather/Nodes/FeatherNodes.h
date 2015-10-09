@@ -4,6 +4,7 @@
 #include <Nest/Intermediate/TypeRef.h>
 #include <Nest/Intermediate/NodeRange.h>
 #include <Nest/Frontend/Location.h>
+#include <Nest/Common/StringRef.h>
 #include <Feather/Nodes/Exp/AtomicOrdering.h>
 #include <Feather/Nodes/Decls/CallConvention.h>
 
@@ -89,7 +90,7 @@ namespace Feather
 
     Node* mkNop(const Location& loc);
     Node* mkTypeNode(const Location& loc, TypeRef type);
-    Node* mkBackendCode(const Location& loc, string code, EvalMode evalMode = modeRt);
+    Node* mkBackendCode(const Location& loc, StringRef code, EvalMode evalMode = modeRt);
     Node* mkLocalSpace(const Location& loc, NodeRange children);
     Node* mkGlobalConstructAction(const Location& loc, Node* action);
     Node* mkGlobalDestructAction(const Location& loc, Node* action);
@@ -97,11 +98,11 @@ namespace Feather
     Node* mkTempDestructAction(const Location& loc, Node* action);
     Node* mkChangeMode(const Location& loc, Node* child, EvalMode mode);
     
-    Node* mkFunction(const Location& loc, string name, Node* resType, NodeRange params, Node* body, CallConvention callConv = ccC, EvalMode evalMode = modeUnspecified);
-    Node* mkClass(const Location& loc, string name, NodeRange fields, EvalMode evalMode = modeUnspecified);
-    Node* mkVar(const Location& loc, string name, Node* type, size_t alignment = 0, EvalMode evalMode = modeUnspecified);
+    Node* mkFunction(const Location& loc, StringRef name, Node* resType, NodeRange params, Node* body, CallConvention callConv = ccC, EvalMode evalMode = modeUnspecified);
+    Node* mkClass(const Location& loc, StringRef name, NodeRange fields, EvalMode evalMode = modeUnspecified);
+    Node* mkVar(const Location& loc, StringRef name, Node* type, size_t alignment = 0, EvalMode evalMode = modeUnspecified);
     
-    Node* mkCtValue(const Location& loc, TypeRef typeNode, string data);
+    Node* mkCtValue(const Location& loc, TypeRef typeNode, StringRef data);
     Node* mkNull(const Location& loc, Node* typeNode);
     Node* mkVarRef(const Location& loc, Node* varDecl);
     Node* mkFieldRef(const Location& loc, Node* obj, Node* fieldDecl);
@@ -122,11 +123,11 @@ namespace Feather
     Node* mkCtValue(const Location& loc, TypeRef type, T* dataVal)
     {
         const char* p = reinterpret_cast<const char*>(dataVal);
-        string dataStr(p, p+sizeof(*dataVal));
-        return mkCtValue(loc, type, move(dataStr));
+        StringRef dataStr = {p, p+sizeof(*dataVal)};
+        return mkCtValue(loc, type, dataStr);
     }
 
-    const char* BackendCode_getCode(const Node* node);
+    StringRef BackendCode_getCode(const Node* node);
     EvalMode BackendCode_getEvalMode(Node* node);
 
     void ChangeMode_setChild(Node* node, Node* child);

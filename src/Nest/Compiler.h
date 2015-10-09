@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Nest/Intermediate/TypeRef.h>
+#include <Nest/Common/StringRef.h>
 
 typedef struct Nest_CompilerSettings CompilerSettings;
 typedef struct Nest_Node Node;
@@ -29,10 +30,10 @@ Backend* Nest_getCurBackend();
 void Nest_createBackend(const char* mainFilename);
 
 /// Parse, check dependencies and the compile the given filename
-void Nest_compileFile(const string& filename);
+void Nest_compileFile(StringRef filename);
 
 /// Add a source code to be compiled, given the filename
-void Nest_addSourceCodeByFilename(const SourceCode* orig, string filename);
+void Nest_addSourceCodeByFilename(const SourceCode* orig, StringRef filename);
 
 /// Add a source code to be compiled, given a qualified ID to the source code
 void Nest_addSourceCodeByQid(const SourceCode* orig, vector<string> qid);

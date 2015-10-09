@@ -151,9 +151,11 @@ namespace
     }
     bool ctApi_AstNode_getPropertyString(Node** thisArg, StringData name, StringData* value)
     {
-        const string* res = Nest_getPropertyString(*thisArg, name.begin);
-        if ( res )
-            *value = StringData(*res);
+        const StringRef* res = Nest_getPropertyString(*thisArg, name.begin);
+        if ( res ) {
+            value->begin = res->begin;
+            value->end = res->end;
+        }
         return res != nullptr;
     }
     bool ctApi_AstNode_getPropertyInt(Node** thisArg, StringData name, int* value)
@@ -179,7 +181,8 @@ namespace
     }
     void ctApi_AstNode_setPropertyString(Node** thisArg, StringData name, StringData value)
     {
-        Nest_setProperty(*thisArg, name.begin, value.toStdString());
+        StringRef val = { value.begin, value.end };
+        Nest_setProperty(*thisArg, name.begin, val);
     }
     void ctApi_AstNode_setPropertyInt(Node** thisArg, StringData name, int value)
     {
@@ -263,9 +266,9 @@ namespace
     {
         *sret = mkTypeNode(*loc, type);
     }
-    void ctApi_Feather_mkBackendCode(Node** sret, Location* loc, StringData code, int evalMode)
+    void ctApi_Feather_mkBackendCode(Node** sret, Location* loc, StringRef code, int evalMode)
     {
-        *sret = mkBackendCode(*loc, code.toStdString(), (EvalMode) evalMode);
+        *sret = mkBackendCode(*loc, code, (EvalMode) evalMode);
     }
     void ctApi_Feather_mkLocalSpace(Node** sret, Location* loc, Node** childrenBegin, Node** childrenEnd)
     {
@@ -289,24 +292,24 @@ namespace
         *sret = mkTempDestructAction(*loc, action);
     }
 
-    void ctApi_Feather_mkFunction(Node** sret, Location* loc, StringData name, Node* resType, Node** paramsBegin, Node** paramsEnd, Node* body, int evalMode)
+    void ctApi_Feather_mkFunction(Node** sret, Location* loc, StringRef name, Node* resType, Node** paramsBegin, Node** paramsEnd, Node* body, int evalMode)
     {
         NodeRange r = { paramsBegin, paramsEnd };
-        *sret = mkFunction(*loc, name.toStdString(), resType, r, body);
+        *sret = mkFunction(*loc, name, resType, r, body);
     }
-    void ctApi_Feather_mkClass(Node** sret, Location* loc, StringData name, Node** fieldsBegin, Node** fieldsEnd, int evalMode)
+    void ctApi_Feather_mkClass(Node** sret, Location* loc, StringRef name, Node** fieldsBegin, Node** fieldsEnd, int evalMode)
     {
         NodeRange r = { fieldsBegin, fieldsEnd };
-        *sret = mkClass(*loc, name.toStdString(), r);
+        *sret = mkClass(*loc, name, r);
     }
-    void ctApi_Feather_mkVar(Node** sret, Location* loc, StringData name, Node* type, int evalMode)
+    void ctApi_Feather_mkVar(Node** sret, Location* loc, StringRef name, Node* type, int evalMode)
     {
-        *sret = mkVar(*loc, name.toStdString(), type, 0, (EvalMode) evalMode);
+        *sret = mkVar(*loc, name, type, 0, (EvalMode) evalMode);
     }
 
-    void ctApi_Feather_mkCtValue(Node** sret, Location* loc, TypeRef type, StringData data)
+    void ctApi_Feather_mkCtValue(Node** sret, Location* loc, TypeRef type, StringRef data)
     {
-        *sret = mkCtValue(*loc, type, data.toStdString());
+        *sret = mkCtValue(*loc, type, data);
     }
     void ctApi_Feather_mkNull(Node** sret, Location* loc, Node* typeNode)
     {

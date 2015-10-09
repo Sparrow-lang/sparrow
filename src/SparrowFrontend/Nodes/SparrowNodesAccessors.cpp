@@ -10,11 +10,11 @@ using namespace Nest;
 
 bool SprFrontend::Literal_isString(Node* node)
 {
-    const string& type = Nest_getCheckPropertyString(node, "spr.literalType"); 
+    StringRef type = Nest_getCheckPropertyString(node, "spr.literalType"); 
     return type == "StringRef";
 }
 
-string SprFrontend::Literal_getData(Node* node)
+StringRef SprFrontend::Literal_getData(Node* node)
 {
     ASSERT(node->nodeKind == nkSparrowExpLiteral);
     return Nest_getCheckPropertyString(node, "spr.literalData");

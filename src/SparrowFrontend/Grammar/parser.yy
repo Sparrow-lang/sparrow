@@ -226,18 +226,18 @@ IdentifierOrOperatorNoEq
 
 QualifiedName
 	: QualifiedName DOT IDENTIFIER
-        { $$ = mkCompoundExp(@$, $1, *$3); }
+        { $$ = mkCompoundExp(@$, $1, fromString(*$3)); }
 	| IDENTIFIER
-        { $$ = mkIdentifier(@$, *$1); }
+        { $$ = mkIdentifier(@$, fromString(*$1)); }
 	;
 
 QualifiedNameStar
 	: QualifiedNameStar DOT IDENTIFIER
-        { $$ = mkCompoundExp(@$, $1, *$3); }
+        { $$ = mkCompoundExp(@$, $1, fromString(*$3)); }
 	| QualifiedNameStar DOT OPERATOR    // Assume STAR here
-        { $$ = mkStarExp(@$, $1, *$3); }
+        { $$ = mkStarExp(@$, $1, fromString(*$3)); }
 	| IDENTIFIER
-        { $$ = mkIdentifier(@$, *$1); }
+        { $$ = mkIdentifier(@$, fromString(*$1)); }
 	;
 
 IdentifierList
@@ -249,9 +249,9 @@ IdentifierList
 
 IdentifierListNode
     : IdentifierListNode COMMA IDENTIFIER
-        { $$ = Feather::addToNodeList($1, mkIdentifier(@3, *$3)); }
+        { $$ = Feather::addToNodeList($1, mkIdentifier(@3, fromString(*$3))); }
     | IDENTIFIER
-        { $$ = Feather::mkNodeList(@$, fromIniList({ mkIdentifier(@$, *$1) })); }
+        { $$ = Feather::mkNodeList(@$, fromIniList({ mkIdentifier(@$, fromString(*$1)) })); }
     ;
 
 ModifierSpec
@@ -303,7 +303,7 @@ ImportDeclaration
 	: IMPORT QualifiedNameStar SEMICOLON
         { $$ = $2; }
 	| IMPORT STRING_LITERAL SEMICOLON
-        { $$ = buildStringLiteral(@$, static_cast<string&>(*$<stringVal>2)); }
+        { $$ = buildStringLiteral(@$, fromString(*$<stringVal>2)); }
 	;
 
 DeclarationsOpt
@@ -358,9 +358,9 @@ AccessSpec
 
 UsingDeclaration
 	: AccessSpec USING ModifierSpec QualifiedNameStar SEMICOLON
-        { $$ = mkModifiers(@$, mkSprUsing(@$, "", $4, $1), $3); }
+        { $$ = mkModifiers(@$, mkSprUsing(@$, fromCStr(""), $4, $1), $3); }
 	| AccessSpec USING ModifierSpec IDENTIFIER EQUAL Expr SEMICOLON
-        { $$ = mkModifiers(@$, mkSprUsing(@$, *$4, $6, $1), $3); }
+        { $$ = mkModifiers(@$, mkSprUsing(@$, fromString(*$4), $6, $1), $3); }
 	;
 
 //FriendDeclaration
@@ -370,7 +370,7 @@ UsingDeclaration
 
 PackageDeclaration
 	: AccessSpec PACKAGE ModifierSpec IDENTIFIER LCURLY DeclarationsOpt RCURLY
-        { $$ = mkModifiers(@$, mkSprPackage(@$, *$4, $6, $1), $3); }
+        { $$ = mkModifiers(@$, mkSprPackage(@$, fromString(*$4), $6, $1), $3); }
 	;
 
 VarDeclaration                        
@@ -384,21 +384,21 @@ VarDeclaration
 
 ClassDeclaration
 	: AccessSpec CLASS ModifierSpec IDENTIFIER FormalsOpt COLON ExprListOpt IfClause LCURLY DeclarationsOpt RCURLY
-        { $$ = mkModifiers(@$, mkSprClass(@$, *$4, $5, $7, $8, $10, $1), $3); }
+        { $$ = mkModifiers(@$, mkSprClass(@$, fromString(*$4), $5, $7, $8, $10, $1), $3); }
 	| AccessSpec CLASS ModifierSpec IDENTIFIER FormalsOpt IfClause LCURLY DeclarationsOpt RCURLY
-        { $$ = mkModifiers(@$, mkSprClass(@$, *$4, $5, NULL, $6, $8, $1), $3); }
+        { $$ = mkModifiers(@$, mkSprClass(@$, fromString(*$4), $5, NULL, $6, $8, $1), $3); }
 	;
 
 ConceptDeclaration
 	: AccessSpec CONCEPT ModifierSpec IDENTIFIER LPAREN IDENTIFIER FunRetType RPAREN IfClause SEMICOLON
-        { $$ = mkModifiers(@$, mkSprConcept(@$, *$4, *$6, $7, $9, $1), $3); }
+        { $$ = mkModifiers(@$, mkSprConcept(@$, fromString(*$4), fromString(*$6), $7, $9, $1), $3); }
 	;
 
 FunDeclaration
 	: AccessSpec FUN ModifierSpec FunOrOperName FormalsOpt FunRetType IfClause FunctionBody
-        { $$ = mkModifiers(@$, mkSprFunction(@$, *$4, $5, $6, $8, $7, $1), $3); }
+        { $$ = mkModifiers(@$, mkSprFunction(@$, fromString(*$4), $5, $6, $8, $7, $1), $3); }
 	| AccessSpec FUN ModifierSpec FunOrOperName FormalsOpt FunRetType EQUAL Expr IfClause SEMICOLON
-        { $$ = mkModifiers(@$, buildSprFunctionExp(@$, *$4, $5, $6, $8, $9, $1), $3); }
+        { $$ = mkModifiers(@$, buildSprFunctionExp(@$, fromString(*$4), $5, $6, $8, $9, $1), $3); }
 	;
 
 FunRetType
@@ -424,7 +424,7 @@ FormalsOpt
     : LPAREN Formals RPAREN
         { $$ = $2; }
     | IdentifierList
-        { $$ = buildParameters(@$, *$1, mkIdentifier(@$, "AnyType"), NULL, NULL); delete $1; }
+        { $$ = buildParameters(@$, *$1, mkIdentifier(@$, fromCStr("AnyType")), NULL, NULL); delete $1; }
     | LPAREN RPAREN
         { $$ = NULL; }
     | /*nothing*/
@@ -487,55 +487,55 @@ PostfixExpr
     : InfixExpr
         { $$ = $1; }
     | InfixExpr IdentifierOrOperator
-        { $$ = buildPostfixOp(@$, *$2, $1); }
+        { $$ = buildPostfixOp(@$, fromString(*$2), $1); }
     ;
 
 PostfixExprNoEq
     : InfixExprNoEq
         { $$ = $1; }
     | InfixExprNoEq IdentifierOrOperatorNoEq
-        { $$ = buildPostfixOp(@$, *$2, $1); }
+        { $$ = buildPostfixOp(@$, fromString(*$2), $1); }
     ;
 
 InfixExpr
     : PrefixExpr
         { $$ = $1; }
     | InfixExpr IdentifierOrOperator PrefixExpr
-        { $$ = mkInfixOp(@$, *$2, $1, $3); }
+        { $$ = mkInfixOp(@$, fromString(*$2), $1, $3); }
     ;
 
 InfixExprNoEq
     : PrefixExprNoEq
         { $$ = $1; }
     | InfixExprNoEq IdentifierOrOperatorNoEq PrefixExprNoEq
-        { $$ = mkInfixOp(@$, *$2, $1, $3); }
+        { $$ = mkInfixOp(@$, fromString(*$2), $1, $3); }
     ;
 
 PrefixExpr
     : SimpleExpr
         { $$ = $1; }
     | Operator PrefixExpr
-        { $$ = buildPrefixOp(@$, *$1, $2); }
+        { $$ = buildPrefixOp(@$, fromString(*$1), $2); }
     | BACKSQUOTE IDENTIFIER BACKSQUOTE PrefixExpr
-        { $$ = buildPrefixOp(@$, *$2, $4); }
+        { $$ = buildPrefixOp(@$, fromString(*$2), $4); }
     ;
 
 PrefixExprNoEq
     : SimpleExprNoEq
         { $$ = $1; }
     | OperatorNoEq PrefixExpr
-        { $$ = buildPrefixOp(@$, *$1, $2); }
+        { $$ = buildPrefixOp(@$, fromString(*$1), $2); }
     | BACKSQUOTE IDENTIFIER BACKSQUOTE PrefixExprNoEq
-        { $$ = buildPrefixOp(@$, *$2, $4); }
+        { $$ = buildPrefixOp(@$, fromString(*$2), $4); }
     ;
 
 SimpleExpr
 	: SimpleExpr LPAREN ExprListOpt RPAREN
-        { $$ = mkInfixOp(@$, "__fapp__", $1, $3); }
+        { $$ = mkInfixOp(@$, fromCStr("__fapp__"), $1, $3); }
     | SimpleExpr DOT IdentifierOrOperator
-        { $$ = mkInfixOp(@$, "__dot__", $1, mkIdentifier(@3, *$3)); }
+        { $$ = mkInfixOp(@$, fromCStr("__dot__"), $1, mkIdentifier(@3, fromString(*$3))); }
     | SimpleExpr DOT LPAREN RPAREN
-        { $$ = mkInfixOp(@$, "__dot__", $1, mkIdentifier(@3, "()")); }
+        { $$ = mkInfixOp(@$, fromCStr("__dot__"), $1, mkIdentifier(@3, fromCStr("()"))); }
     | SimpleExpr LBRACKET Modifiers RBRACKET
         { $$ = mkModifiers(@$, $1, $3); }
     | LambdaExpr
@@ -543,7 +543,7 @@ SimpleExpr
 	| LPAREN Expr RPAREN
         { $$ = buildParenthesisExp(@$, $2); }
 	| IDENTIFIER
-        { $$ = mkIdentifier(@$, *$1); }
+        { $$ = mkIdentifier(@$, fromString(*$1)); }
 	| THIS
         { $$ = mkThisExp(@$); }
 	| NULLCT
@@ -567,14 +567,14 @@ SimpleExpr
 	| CHAR_LITERAL
         { $$ = buildCharLiteral(@$, static_cast<char>($<charVal>1)); }
 	| STRING_LITERAL
-        { $$ = buildStringLiteral(@$, static_cast<string&>(*$<stringVal>1)); }
+        { $$ = buildStringLiteral(@$, fromString(*$<stringVal>1)); }
 	;
 
 SimpleExprNoEq
 	: SimpleExprNoEq LPAREN ExprListOpt RPAREN
-        { $$ = mkInfixOp(@$, "__fapp__", $1, $3); }
+        { $$ = mkInfixOp(@$, fromCStr("__fapp__"), $1, $3); }
     | SimpleExprNoEq DOT IdentifierOrOperatorNoEq
-        { $$ = mkInfixOp(@$, "__dot__", $1, mkIdentifier(@3, *$3)); }
+        { $$ = mkInfixOp(@$, fromCStr("__dot__"), $1, mkIdentifier(@3, fromString(*$3))); }
     | SimpleExprNoEq LBRACKET Modifiers RBRACKET
         { $$ = mkModifiers(@$, $1, $3); }
     | LambdaExpr
@@ -582,7 +582,7 @@ SimpleExprNoEq
 	| LPAREN Expr RPAREN
         { $$ = buildParenthesisExp(@$, $2); }
 	| IDENTIFIER
-        { $$ = mkIdentifier(@$, *$1); }
+        { $$ = mkIdentifier(@$, fromString(*$1)); }
 	| THIS
         { $$ = mkThisExp(@$); }
 	| NULLCT
@@ -606,7 +606,7 @@ SimpleExprNoEq
 	| CHAR_LITERAL
         { $$ = buildCharLiteral(@$, static_cast<char>($<charVal>1)); }
 	| STRING_LITERAL
-        { $$ = buildStringLiteral(@$, static_cast<string&>(*$<stringVal>1)); }
+        { $$ = buildStringLiteral(@$, fromString(*$<stringVal>1)); }
 	;
 
 LambdaExpr
@@ -688,9 +688,9 @@ IfStmt
 
 ForStmt
 	: FOR ModifierSpec LPAREN IDENTIFIER COLON ExprNoEq EQUAL Expr RPAREN Statement
-        { $$ = mkModifiers(@$, mkForStmt(@$, *$4, $6, $8, $10), $2); }
+        { $$ = mkModifiers(@$, mkForStmt(@$, fromString(*$4), $6, $8, $10), $2); }
 	| FOR ModifierSpec LPAREN IDENTIFIER EQUAL Expr RPAREN Statement
-        { $$ = mkModifiers(@$, mkForStmt(@$, *$4, NULL, $6, $8), $2); }
+        { $$ = mkModifiers(@$, mkForStmt(@$, fromString(*$4), NULL, $6, $8), $2); }
 	;
 
 WhileStmt

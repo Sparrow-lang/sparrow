@@ -89,15 +89,15 @@ llvm::Function* Tr::translateFunction(Node* node, Module& module)
     llvm::Function* f = nullptr;
 
     // Check if this is a standard/native type
-    const string* nativeName = Nest_getPropertyString(node, propNativeName);
-    string name = getName(node);
+    const StringRef* nativeName = Nest_getPropertyString(node, propNativeName);
+    StringRef name = getName(node);
 //    Node* cls = getParentClass(node->context());
 //    if ( cls )
 //    {
 //        const string* clsDescription = Nest_getPropertyString(cls, propDescription);
 //        name = (clsDescription ? *clsDescription : getName(cls)) + "." + name;
 //    }
-    const string& funName = nativeName ? *nativeName : name;
+    StringRef funName = nativeName ? *nativeName : name;
 
     // Debugging
 //     if ( module.isCt() )
@@ -107,7 +107,7 @@ llvm::Function* Tr::translateFunction(Node* node, Module& module)
     Node* body = Function_body(node);
     if ( nativeName && !body )
     {
-        f =  (llvm::Function*) module.llvmModule().getOrInsertFunction(*nativeName, funType);
+        f =  (llvm::Function*) module.llvmModule().getOrInsertFunction(nativeName->begin, funType);
         //f->dump();
     }
     else
@@ -123,13 +123,13 @@ llvm::Function* Tr::translateFunction(Node* node, Module& module)
         llvm::Function::LinkageTypes linkage = body && !preventInline
             ? llvm::Function::PrivateLinkage
             : llvm::Function::ExternalLinkage;
-        f = llvm::Function::Create(funType, linkage, funName, &module.llvmModule());
+        f = llvm::Function::Create(funType, linkage, funName.begin, &module.llvmModule());
 
         // Do we have a name conflict?
-        if ( f->getName() != funName )
+        if ( f->getName() != llvm::StringRef(funName.begin) )
         {
             // Check the old function
-            llvm::Function* oldFun = module.llvmModule().getFunction(funName);
+            llvm::Function* oldFun = module.llvmModule().getFunction(funName.begin);
             if ( oldFun && !module.isFunctionDefined(oldFun) )
             {
                 // The old function is not defined by this module, but still lives in the current LLVM module; it must be
@@ -182,7 +182,7 @@ llvm::Function* Tr::translateFunction(Node* node, Module& module)
         size_t idx = 0;
         for ( auto argIt=f->arg_begin(); argIt!=f->arg_end(); ++argIt, ++idx )
         {
-            argIt->setName(getName(Function_getParameter(node, idx)));
+            argIt->setName(toString(getName(Function_getParameter(node, idx))));
         }
 
         // Create the block in which we insert the code
@@ -196,7 +196,7 @@ llvm::Function* Tr::translateFunction(Node* node, Module& module)
             Node* param = Nest_ofKind(Nest_explanation(paramNode), nkFeatherDeclVar);
             if ( !param )
                 REP_INTERNAL(paramNode->location, "Expected Var node; found %1%") % paramNode;
-            llvm::AllocaInst* newVar = new llvm::AllocaInst(argIt->getType(), getName(param)+".addr", bodyBlock);
+            llvm::AllocaInst* newVar = new llvm::AllocaInst(argIt->getType(), toString(getName(param))+".addr", bodyBlock);
             newVar->setAlignment(Nest_getCheckPropertyInt(param, "alignment"));
             new llvm::StoreInst(argIt, newVar, bodyBlock); // Copy the value of the parameter into it
             module.setNodeProperty(param, Module::propValue, boost::any(newVar));

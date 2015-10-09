@@ -387,7 +387,7 @@ namespace
 
         // Create a construct of an AST node
         int* nodeHandle = (int*) arg;
-        Node* base = mkCompoundExp(node->location, mkIdentifier(node->location, "Meta"), "AstNode");
+        Node* base = mkCompoundExp(node->location, mkIdentifier(node->location, fromCStr("Meta")), fromCStr("AstNode"));
         Node* arg1 = mkCtValue(node->location, StdDef::typeRefInt, &nodeHandle);
         return  mkFunApplication(node->location, base, fromIniList({arg1})) ;
     }
@@ -396,11 +396,11 @@ namespace
     // Helpers for OperatorCall node
     //
 
-    Node* trySelectOperator(const string& operation, NodeRange args, CompilationContext* searchContext, bool searchOnlyGivenContext,
+    Node* trySelectOperator(StringRef operation, NodeRange args, CompilationContext* searchContext, bool searchOnlyGivenContext,
         CompilationContext* callContext, const Location& callLocation, EvalMode mode)
     {
         SymTab* sTab = searchContext->currentSymTab;
-        NodeArray decls = searchOnlyGivenContext ? Nest_symTabLookupCurrent(sTab, operation.c_str()) : Nest_symTabLookup(sTab, operation.c_str());
+        NodeArray decls = searchOnlyGivenContext ? Nest_symTabLookupCurrent(sTab, operation.begin) : Nest_symTabLookup(sTab, operation.begin);
         Node* res = nullptr;
         if ( Nest_nodeArraySize(decls) > 0 )
             res = selectOverload(callContext, callLocation, mode, all(decls), args, false, operation);
@@ -415,7 +415,7 @@ namespace
             if ( ret ) return ret; \
         }
 
-    Node* selectOperator(Node* node, const string& operation, Node* arg1, Node* arg2)
+    Node* selectOperator(Node* node, StringRef operation, Node* arg1, Node* arg2)
     {
         Node* argsSrc[] = { arg1, arg2, nullptr };
         NodeRange args = { argsSrc, argsSrc+2 };
@@ -453,20 +453,20 @@ namespace
 
             // Step 1: Try to find an operator that match in the class of the base expression
             if ( !opPrefix.empty() )
-                CHECK_RET(trySelectOperator(opPrefix + operation, args, Nest_childrenContext(argClass), true, node->context, node->location, mode));
+                CHECK_RET(trySelectOperator(fromString(opPrefix + operation.begin), args, Nest_childrenContext(argClass), true, node->context, node->location, mode));
             CHECK_RET(trySelectOperator(operation, args, Nest_childrenContext(argClass), true, node->context, node->location, mode));
 
             // Step 2: Try to find an operator that match in the near the class the base expression
             mode = node->context->evalMode;
             if ( !opPrefix.empty() )
-                CHECK_RET(trySelectOperator(opPrefix + operation, args, argClass->context, true, node->context, node->location, mode));
+                CHECK_RET(trySelectOperator(fromString(opPrefix + operation.begin), args, argClass->context, true, node->context, node->location, mode));
             CHECK_RET(trySelectOperator(operation, args, argClass->context, true, node->context, node->location, mode));
         }
 
         // Step 3: General search from the current context
         mode = node->context->evalMode;
         if ( !opPrefix.empty() )
-            CHECK_RET(trySelectOperator(opPrefix + operation, args, node->context, false, node->context, node->location, mode));
+            CHECK_RET(trySelectOperator(fromString(opPrefix + operation.begin), args, node->context, false, node->context, node->location, mode));
         CHECK_RET(trySelectOperator(operation, args, node->context, false, node->context, node->location, mode));
 
         return nullptr;
@@ -502,7 +502,7 @@ namespace
         if ( arg2->nodeKind != nkSparrowExpIdentifier )
             REP_INTERNAL(arg2->location, "Expected identifier after dot; found %1%") % arg2;
 
-        return mkCompoundExp(node->location, arg1, Nest_toString(arg2));
+        return mkCompoundExp(node->location, arg1, fromString(Nest_toString(arg2)));
     }
 
     Node* handleRefEq(Node* node)
@@ -610,7 +610,7 @@ namespace
 
     static const char* operPropName = "spr.operation";
     
-    const string& getOperation(Node* infixExp)
+    StringRef getOperation(Node* infixExp)
     {
         return Nest_getCheckPropertyString(infixExp, operPropName);
     }
@@ -635,9 +635,9 @@ namespace
         at(other->children, 1) = at(node->children, 1);
         at(node->children, 1) = other;
 
-        string otherOper = getOperation(other);
+        StringRef otherOper = getOperation(other);
         Nest_setProperty(other, operPropName, getOperation(node));
-        Nest_setProperty(node, operPropName, move(otherOper));
+        Nest_setProperty(node, operPropName, otherOper);
     }
 
     // Visual explanation:
@@ -663,9 +663,9 @@ namespace
         at(other->children, 0) = at(node->children, 0);
         at(node->children, 0) = other;
 
-        string otherOper = getOperation(other);
+        StringRef otherOper = getOperation(other);
         Nest_setProperty(other, operPropName, getOperation(node));
-        Nest_setProperty(node, operPropName, move(otherOper));
+        Nest_setProperty(node, operPropName, otherOper);
     }
 
     int getIntValue(Node* node, NodeRange decls, int defaultVal)
@@ -699,9 +699,9 @@ namespace
         Node* arg1 = at(node->children, 0);
 
         // For prefix operator, search with a special name
-        string oper = arg1 ? getOperation(node) : "__pre__";
+        StringRef oper = arg1 ? getOperation(node) : fromCStr("__pre__");
 
-        string precedenceName = "oper_precedence_" + oper;
+        string precedenceName = "oper_precedence_" + toString(oper);
         string defaultPrecedenceName = "oper_precedence_default";
 
         // Perform a name lookup for the actual precedence name
@@ -723,7 +723,7 @@ namespace
 
     bool isRightAssociativity(Node* node)
     {
-        string assocName = "oper_assoc_" + getOperation(node);
+        string assocName = "oper_assoc_" + toString(getOperation(node));
 
         // Perform a name lookup for the actual associativity name
         NodeArray decls = Nest_symTabLookup(node->context->currentSymTab, assocName.c_str());
@@ -784,7 +784,7 @@ namespace
 
         ASSERT(node && node->nodeKind == nkSparrowExpInfixExp);
 
-        const string& curOp = getOperation(node);
+        StringRef curOp = getOperation(node);
         bool isRightAssoc = isRightAssociativity(node);
         if ( !isRightAssoc )
         {
@@ -823,8 +823,8 @@ namespace
 
 Node* Literal_SemanticCheck(Node* node)
 {
-    const string& litType = Nest_getCheckPropertyString(node, "spr.literalType");
-    const string& data = Nest_getCheckPropertyString(node, "spr.literalData");
+    StringRef litType = Nest_getCheckPropertyString(node, "spr.literalType");
+    StringRef data = Nest_getCheckPropertyString(node, "spr.literalData");
 
     // Get the type of the literal by looking up the type name
     Node* ident = mkIdentifier(node->location, litType);
@@ -837,8 +837,7 @@ Node* Literal_SemanticCheck(Node* node)
     if ( litType == "StringRef" )
     {
         // Create the explanation
-        Feather::StringData s = Feather::StringData::copyStdString(data);
-        return Feather::mkCtValue(node->location, t, &s);
+        return Feather::mkCtValue(node->location, t, &data);
     }
     else
         return Feather::mkCtValue(node->location, t, data);
@@ -846,15 +845,15 @@ Node* Literal_SemanticCheck(Node* node)
 
 Node* This_SemanticCheck(Node* node)
 {
-    return mkIdentifier(node->location, "$this");
+    return mkIdentifier(node->location, fromCStr("$this"));
 }
 
 Node* Identifier_SemanticCheck(Node* node)
 {
-    const string& id = Nest_getCheckPropertyString(node, "name");
+    StringRef id = Nest_getCheckPropertyString(node, "name");
 
     // Search in the current symbol table for the identifier
-    NodeArray decls = Nest_symTabLookup(node->context->currentSymTab, id.c_str());
+    NodeArray decls = Nest_symTabLookup(node->context->currentSymTab, id.begin);
     if ( Nest_nodeArraySize(decls) == 0 )
         REP_ERROR_RET(nullptr, node->location, "No declarations found with the given name (%1%)") % id;
 
@@ -893,7 +892,7 @@ Node* Identifier_SemanticCheck(Node* node)
 Node* CompoundExp_SemanticCheck(Node* node)
 {
     Node* base = at(node->children, 0);
-    const string& id = Nest_getCheckPropertyString(node, "name");
+    StringRef id = Nest_getCheckPropertyString(node, "name");
 
     // For the base expression allow it to return DeclExp
     Nest_setProperty(base, propAllowDeclExp, 1, true);
@@ -921,7 +920,7 @@ Node* CompoundExp_SemanticCheck(Node* node)
         // Get the referred declarations; search for our id inside the symbol table of the declarations of the base
         for ( Node* baseDecl: baseDecls )
         {
-            NodeArray declsCur = Nest_symTabLookupCurrent(baseDecl->childrenContext->currentSymTab, id.c_str());
+            NodeArray declsCur = Nest_symTabLookupCurrent(baseDecl->childrenContext->currentSymTab, id.begin);
             decls.insert(decls.end(), declsCur.beginPtr, declsCur.endPtr);
             Nest_freeNodeArray(declsCur);
         }
@@ -934,7 +933,7 @@ Node* CompoundExp_SemanticCheck(Node* node)
             return nullptr;
 
         // Search for a declaration in the class 
-        decls = toVec(Nest_symTabLookupCurrent(classDecl->childrenContext->currentSymTab, id.c_str()));
+        decls = toVec(Nest_symTabLookupCurrent(classDecl->childrenContext->currentSymTab, id.begin));
     }
 
     if ( decls.empty() )
@@ -970,7 +969,7 @@ Node* FunApplication_SemanticCheck(Node* node)
     if ( base->nodeKind == nkSparrowExpIdentifier )
     {
         ident = base;
-        const string& id = getName(ident);
+        StringRef id = getName(ident);
         if ( id == "isValid" )
         {
             return checkIsValid(node);
@@ -1002,7 +1001,7 @@ Node* FunApplication_SemanticCheck(Node* node)
     // Check for Sparrow implicit functions
     if ( ident )
     {
-        const string& id = getName(ident);
+        StringRef id = getName(ident);
         if ( id == "cast" )
         {
             return checkStaticCast(node);
@@ -1053,7 +1052,7 @@ Node* FunApplication_SemanticCheck(Node* node)
     EvalMode mode = node->context->evalMode;
     if ( thisArg )
         mode = combineMode(thisArg->type->mode, mode, node->location, false);
-    Node* res = selectOverload(node->context, node->location, mode, all(decls), all(args), true, functionName);
+    Node* res = selectOverload(node->context, node->location, mode, all(decls), all(args), true, fromString(functionName));
 
     return res;
 }
@@ -1063,7 +1062,7 @@ Node* OperatorCall_SemanticCheck(Node* node)
     ASSERT(Nest_nodeArraySize(node->children) == 2);
     Node* arg1 = at(node->children, 0);
     Node* arg2 = at(node->children, 1);
-    const string& operation = getOperation(node);
+    StringRef operation = getOperation(node);
 
     if ( arg1 && arg2 )
     {
@@ -1128,26 +1127,27 @@ Node* OperatorCall_SemanticCheck(Node* node)
         }
 
         // Check for <op>= operators
-        else if ( operation.size() >= 2 && operation[operation.size()-1] == '=' )
+        else if ( size(operation) >= 2 && operation.begin[size(operation)-1] == '=' )
         {
-            string baseOperation = operation.substr(0, operation.size()-1);
+            StringRef baseOperation = operation;
+            baseOperation.end--;
 
             // Transform 'a <op>= b' into 'a = a <op> b'
-            op1 = operation.substr(0, operation.size()-1);
+            op1 = toString(baseOperation);
             op2 = "=";
         }
 
         if ( !op1.empty() )
         {
-            Node* r = selectOperator(node, op1, a1, a2);
+            Node* r = selectOperator(node, fromString(op1), a1, a2);
             if ( r )
             {
                 if ( !Nest_semanticCheck(r) )
                     return nullptr;
                 if ( op2 == "!" )
-                    res = selectOperator(node, op2, r, nullptr);
+                    res = selectOperator(node, fromString(op2), r, nullptr);
                 else if ( op2 == "=" )
-                    res = selectOperator(node, op2, a1, r);
+                    res = selectOperator(node, fromString(op2), a1, r);
                 else if ( op2.empty() )
                     res = r;
             }
@@ -1207,10 +1207,10 @@ Node* LambdaFunction_SemanticCheck(Node* node)
     Node* classBody = mkNodeList(node->location, {});
 
     // The actual enclosed function
-    Nest_appendNodeToArray(&classBody->children, mkSprFunction(node->location, "()", parameters, returnType, body));
+    Nest_appendNodeToArray(&classBody->children, mkSprFunction(node->location, fromCStr("()"), parameters, returnType, body));
 
     // Add a private default ctor
-    Nest_appendNodeToArray(&classBody->children, mkSprFunction(node->location, "ctor", nullptr, nullptr, mkLocalSpace(node->location, {}), nullptr, privateAccess));
+    Nest_appendNodeToArray(&classBody->children, mkSprFunction(node->location, fromCStr("ctor"), nullptr, nullptr, mkLocalSpace(node->location, {}), nullptr, privateAccess));
 
     // For each closure variable, create:
     // - a member variable in the class
@@ -1225,7 +1225,7 @@ Node* LambdaFunction_SemanticCheck(Node* node)
         {
             if ( !arg || arg->nodeKind != nkSparrowExpIdentifier )
                 REP_INTERNAL(arg->location, "The closure parameter must be identifier");
-            const string& varName = getName(arg);
+            StringRef varName = getName(arg);
             const Location& loc = arg->location;
 
             // Create an argument node to pass to the ctor
@@ -1245,7 +1245,7 @@ Node* LambdaFunction_SemanticCheck(Node* node)
             Node* fieldRef = mkCompoundExp(loc, mkThisExp(loc), varName);
             Node* paramRef = mkIdentifier(loc, varName);
             const char* op = (varType->numReferences == 0) ? "ctor" : ":=";
-            Node* initCall = mkOperatorCall(loc, fieldRef, op, paramRef);
+            Node* initCall = mkOperatorCall(loc, fieldRef, fromCStr(op), paramRef);
             ctorStmts.push_back(initCall);
         }
         ctorArgs = mkNodeList(node->location, all(ctorArgsNodes));
@@ -1254,12 +1254,12 @@ Node* LambdaFunction_SemanticCheck(Node* node)
 
     // Create the ctor used to initialize the closure class
     Node* ctorBody = mkLocalSpace(node->location, all(ctorStmts));
-    Node* enclosingCtor = mkSprFunction(node->location, "ctor", ctorParams, nullptr, ctorBody);
+    Node* enclosingCtor = mkSprFunction(node->location, fromCStr("ctor"), ctorParams, nullptr, ctorBody);
     Nest_setProperty(enclosingCtor, propNoDefault, 1);
     Nest_appendNodeToArray(&classBody->children, enclosingCtor);
 
     // Create the lambda closure
-    Node* closure = mkSprClass(node->location, "$lambdaEnclosure", nullptr, nullptr, nullptr, classBody);
+    Node* closure = mkSprClass(node->location, fromCStr("$lambdaEnclosure"), nullptr, nullptr, nullptr, classBody);
 
     // Add the closure as a top level node of this node
     Nest_setContext(closure, parentContext);  // Put the enclosing class in the context of the parent function

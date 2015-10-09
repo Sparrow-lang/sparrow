@@ -61,7 +61,7 @@ void ModCtGeneric_beforeComputeType(Modifier*, Node* node)
 
 struct _NativeMod {
     Modifier base;
-    const char* name;
+    StringRef name;
 };
 
 void ModNative_beforeComputeType(Modifier* mod, Node* node)
@@ -179,10 +179,10 @@ Modifier* SprFe_getNoInlineMod()
     return &_noInlineMod;
 }
 
-Modifier* SprFe_getNativeMod(const char* name)
+Modifier* SprFe_getNativeMod(StringRef name)
 {
     _NativeMod* res = (_NativeMod*) alloc(sizeof(_NativeMod), allocGeneral);
-    res->name = dupString(name);
+    res->name = dup(name);
     res->base.modifierType = modTypeBeforeComputeType;
     res->base.modifierFun = &ModNative_beforeComputeType;
     return (Modifier*) res;

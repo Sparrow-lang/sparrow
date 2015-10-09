@@ -289,7 +289,7 @@ namespace
     string getGenericClassDescription(Node* cls, Node* inst)
     {
         ostringstream oss;
-        oss << getName(cls) << "[";
+        oss << toString(getName(cls)) << "[";
         auto boundValues = instantiationBoundValues(inst);
         bool first = true;
         for ( Node* bv: boundValues )
@@ -551,7 +551,7 @@ Node* SprFrontend::createGenericFun(Node* originalFun, Node* parameters, Node* i
     if ( thisClass )
     {
         TypeRef thisType = getDataType(thisClass, 1, effectiveEvalMode(originalFun));
-        Node* thisParam = mkSprParameter(originalFun->location, "$this", thisType);
+        Node* thisParam = mkSprParameter(originalFun->location, fromCStr("$this"), thisType);
         Nest_setContext(thisParam, Nest_childrenContext(originalFun));
         if ( !Nest_computeType(thisParam) )
             return nullptr;
@@ -663,7 +663,7 @@ Node* SprFrontend::genericDoInstantiate(Node* node, const Location& loc, Compila
                 instDecl = createInstantiatedClass(ctx, originalClass, description);
                 if ( !instDecl )
                     REP_INTERNAL(loc, "Cannot instantiate generic");
-                Nest_setProperty(instDecl, propDescription, move(description));
+                Nest_setProperty(instDecl, propDescription, fromString(description));
                 if ( !Nest_computeType(instDecl) )
                     return nullptr;
                 Nest_queueSemanticCheck(instDecl);

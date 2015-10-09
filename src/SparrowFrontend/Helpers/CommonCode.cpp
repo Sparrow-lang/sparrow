@@ -82,7 +82,7 @@ Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* conte
         return nullptr;
 
     // Do the overloading procedure to select the right ctor
-    Node* res = selectOverload(context, loc, thisArg->type->mode, all(decls), args, true, "ctor");
+    Node* res = selectOverload(context, loc, thisArg->type->mode, all(decls), args, true, fromCStr("ctor"));
     Nest_freeNodeArray(decls);
     return res;
 }
@@ -159,7 +159,7 @@ Node* SprFrontend::createFunctionCall(const Location& loc, CompilationContext* c
             resTypeRef = changeTypeMode(resTypeRef, modeCt, resultParam->location);
 
         // Create a temporary variable for the result
-        Node* tmpVar = Feather::mkVar(loc, "$tmpC", mkTypeNode(loc, removeRef(resTypeRef)));
+        Node* tmpVar = Feather::mkVar(loc, fromCStr("$tmpC"), mkTypeNode(loc, removeRef(resTypeRef)));
         Nest_setContext(tmpVar, context);
         tmpVarRef = mkVarRef(loc, tmpVar);
         Nest_setContext(tmpVarRef, context);
@@ -259,8 +259,7 @@ Node* SprFrontend::createFunPtr(Node* funNode)
         {
             parameters.push_back(createTypeNode(ctx, loc, Function_getParameter(fun, i)->type));
         }
-        string className = "FunctionPtr";
-        Node* classCall = mkFunApplication(loc, mkIdentifier(loc, className), mkNodeList(loc, all(parameters)));
+        Node* classCall = mkFunApplication(loc, mkIdentifier(loc, fromCStr("FunctionPtr")), mkNodeList(loc, all(parameters)));
         Nest_setContext(classCall, ctx);
         if ( !Nest_computeType(classCall) )
             return nullptr;
@@ -283,15 +282,15 @@ Node* SprFrontend::createFunPtr(Node* funNode)
     {
         size_t numParams = genericParamsCount(resDecl);
 
-        Node* paramsType = mkIdentifier(loc, "AnyType");
+        Node* paramsType = mkIdentifier(loc, fromCStr("AnyType"));
 
         NodeVector paramIds(numParams, nullptr);
         NodeVector args(numParams, nullptr);
         for ( size_t i=0; i<numParams; ++i )
         {
             string name = "p" + boost::lexical_cast<string>(i);
-            paramIds[i] = mkSprParameter(loc, name, paramsType, nullptr);
-            args[i] = mkIdentifier(loc, name);
+            paramIds[i] = mkSprParameter(loc, fromString(name), paramsType, nullptr);
+            args[i] = mkIdentifier(loc, fromString(name));
         }
 
         Node* parameters = mkNodeList(loc, all(paramIds));

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Nest/Intermediate/TypeRef.h>
+#include <Nest/Common/StringRef.h>
 
 typedef struct Nest_Node Node;
 
@@ -10,13 +11,13 @@ namespace Feather
     TypeRef getCtValueType(Node* ctVal);
 
     /// Getter for the value data of a CtValue node -- the data is encoded in a string
-    const string& getCtValueDataAsString(Node* ctVal);
+    StringRef getCtValueDataAsString(Node* ctVal);
 
     /// Getter for the value memory buffer of this value
     template <typename T>
     T* getCtValueData(Node* ctVal)
     {
-        return (T*) (void*) getCtValueDataAsString(ctVal).c_str();
+        return (T*) (void*) getCtValueDataAsString(ctVal).begin;
     }
 
     bool getBoolCtValue(Node* ctVal);

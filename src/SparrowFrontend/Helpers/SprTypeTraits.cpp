@@ -23,8 +23,8 @@ namespace
         Node* cls = classForType(t);
         ASSERT(cls);
         
-        const string* nativeName = Nest_getPropertyString(cls, propNativeName);
-        if ( !nativeName || nativeName->size() <= 1 || !islower((*nativeName)[0]) )
+        const StringRef* nativeName = Nest_getPropertyString(cls, propNativeName);
+        if ( !nativeName || size(*nativeName) <= 1 || !islower(nativeName->begin[0]) )
             return false;
         
         if ( *nativeName == "double" )
@@ -41,12 +41,12 @@ namespace
             isFloating = true;
             return true;
         }
-        else if ( nativeName->size() > 1 && ((*nativeName)[0] == 'i' || (*nativeName)[0] == 'u') )
+        else if ( size(*nativeName) > 1 && (nativeName->begin[0] == 'i' || nativeName->begin[0] == 'u') )
         {
             try
             {
-                numBits = boost::lexical_cast<int>(nativeName->substr(1));
-                isUnsigned = (*nativeName)[0] == 'u';
+                numBits = boost::lexical_cast<int>(nativeName->begin+1);
+                isUnsigned = nativeName->begin[0] == 'u';
                 isFloating = false;
                 return true;
             }

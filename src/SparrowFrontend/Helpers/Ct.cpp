@@ -57,7 +57,7 @@ bool SprFrontend::ctValsEqual(Node* v1, Node* v2)
     NodeArray decls = Nest_symTabLookup(context->currentSymTab, "==");
     if ( Nest_nodeArraySize(decls) > 0 )
     {
-        Node* funCall = selectOverload(context, v1->location, modeCt, all(decls), fromIniList({v1, v2}), false, "");
+        Node* funCall = selectOverload(context, v1->location, modeCt, all(decls), fromIniList({v1, v2}), false, fromCStr(""));
         Nest_freeNodeArray(decls);
         if ( funCall )
         {
@@ -74,9 +74,9 @@ bool SprFrontend::ctValsEqual(Node* v1, Node* v2)
     return sameCtValue(v1, v2);
 }
 
-const char* SprFrontend::getStringCtValue(Node* val)
+StringRef SprFrontend::getStringCtValue(Node* val)
 {
-    return evalValue<const char*>(val, StdDef::typeStringRef);
+    return evalValue<StringRef>(val, StdDef::typeStringRef);
 }
 bool SprFrontend::getBoolCtValue(Node* val)
 {

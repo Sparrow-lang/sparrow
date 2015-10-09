@@ -171,9 +171,9 @@ void Nest_setProperty(Node* node, const char* name, int val, bool passToExpl)
 {
     node->properties[name] = Property(propInt, PropertyValue(val), passToExpl);
 }
-void Nest_setProperty(Node* node, const char* name, string val, bool passToExpl)
+void Nest_setProperty(Node* node, const char* name, StringRef val, bool passToExpl)
 {
-    node->properties[name] = Property(propString, PropertyValue(move(val)), passToExpl);
+    node->properties[name] = Property(propString, PropertyValue(val), passToExpl);
 }
 void Nest_setProperty(Node* node, const char* name, Node* val, bool passToExpl)
 {
@@ -195,12 +195,12 @@ const int* Nest_getPropertyInt(const Node* node, const char* name)
         return nullptr;
     return &it->second.value_.intValue_;
 }
-const string* Nest_getPropertyString(const Node* node, const char* name)
+const StringRef* Nest_getPropertyString(const Node* node, const char* name)
 {
     auto it = node->properties.find(name);
     if ( it == node->properties.end() || it->second.kind_ != propString )
         return nullptr;
-    return it->second.value_.stringValue_;
+    return &it->second.value_.stringValue_;
 }
 Node*const* Nest_getPropertyNode(const Node* node, const char* name)
 {
@@ -224,9 +224,9 @@ int Nest_getCheckPropertyInt(const Node* node, const char* name)
         REP_INTERNAL(node->location, "Node of kind %1% does not have integer property %2%") % Nest_nodeKindName(node) % name;
     return *res;
 }
-const string& Nest_getCheckPropertyString(const Node* node, const char* name)
+StringRef Nest_getCheckPropertyString(const Node* node, const char* name)
 {
-    const string* res = Nest_getPropertyString(node, name);
+    const StringRef* res = Nest_getPropertyString(node, name);
     if ( !res )
         REP_INTERNAL(node->location, "Node of kind %1% does not have string property %2%") % Nest_nodeKindName(node) % name;
     return *res;
@@ -377,9 +377,9 @@ const char* Nest_defaultFunToString(const Node* node)
         os << node->explanation;
     else
     {
-        const string* name = Nest_getPropertyString(node, "name");
+        const StringRef* name = Nest_getPropertyString(node, "name");
         if ( name )
-            os << *name;
+            os << name->begin;
         else
         {
             os << Nest_nodeKindName(node) << "(";

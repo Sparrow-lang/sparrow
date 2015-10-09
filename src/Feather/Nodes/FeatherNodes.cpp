@@ -90,7 +90,7 @@ using namespace Feather;
     const char* BackendCode_toString(const Node* node)
     {
         ostringstream os;
-        os << "backendCode(" << BackendCode_getCode(node) << ")";
+        os << "backendCode(" << BackendCode_getCode(node).begin << ")";
         return dupString(os.str().c_str());
     }
 
@@ -255,7 +255,7 @@ using namespace Feather;
     }
     TypeRef Function_ComputeType(Node* node)
     {
-        if ( getName(node).empty() )
+        if ( size(getName(node)) == 0 )
             REP_ERROR_RET(nullptr, node->location, "No name given to function declaration");
 
         // We must have a result type
@@ -309,7 +309,7 @@ using namespace Feather;
     const char* Function_toString(const Node* node)
     {
         ostringstream os;
-        os << getName(node);
+        os << toString(getName(node));
         if ( node->type )
         {
             os << '(';
@@ -338,7 +338,7 @@ using namespace Feather;
     }
     TypeRef Class_ComputeType(Node* node)
     {
-        if ( getName(node).empty() )
+        if ( size(getName(node)) == 0 )
             REP_ERROR_RET(nullptr, node->location, "No name given to class");
 
         // Compute the type for all the fields
@@ -401,11 +401,11 @@ using namespace Feather;
         
         // Make sure data size matches the size reported by the type
         size_t valueSize = Nest_sizeOf(node->type);
-        const string& data = Nest_getCheckPropertyString(node, "valueData");
-        if ( valueSize != data.size() )
+        StringRef data = Nest_getCheckPropertyString(node, "valueData");
+        if ( valueSize != size(data) )
         {
             REP_ERROR_RET(nullptr, node->location, "Read value size (%1%) differs from declared size of the value (%2%) - type: %3%")
-                % data.size() % valueSize % node->type;
+                % size(data) % valueSize % node->type;
         }
 
         node->type = Feather::changeTypeMode(node->type, modeCt, node->location);
@@ -420,10 +420,10 @@ using namespace Feather;
         ostringstream os;
         os << "ctValue(" << node->type << ": ";
 
-        const string& valueDataStr = Nest_getCheckPropertyString(node, "valueData");
-        const void* valueData = valueDataStr.c_str();
+        StringRef valueDataStr = Nest_getCheckPropertyString(node, "valueData");
+        const void* valueData = valueDataStr.begin;
         
-        const string* nativeName = node->type->hasStorage ? Feather::nativeName(node->type) : nullptr;
+        const StringRef* nativeName = node->type->hasStorage ? Feather::nativeName(node->type) : nullptr;
         if ( 0 == strcmp(node->type->description, "Type/ct") )
         {
             TypeRef t = *((TypeRef*) valueData);
@@ -454,10 +454,10 @@ using namespace Feather;
                 os << "'" << s.toStdString() << "'";
             }
             else
-                os << "'" << valueDataStr << "'";
+                os << "'" << toString(valueDataStr) << "'";
         }
         else
-            os << "'" << valueDataStr << "'";
+            os << "'" << toString(valueDataStr) << "'";
         os << ")";
         return dupString(os.str().c_str());
     }
@@ -506,7 +506,7 @@ using namespace Feather;
     {
         Node* var = at(node->referredNodes, 0);
         ostringstream os;
-        os << "varRef(" << getName(var) << ")";
+        os << "varRef(" << toString(getName(var)) << ")";
         return dupString(os.str().c_str());
     }
 
@@ -661,7 +661,7 @@ using namespace Feather;
     const char* FunCall_toString(const Node* node)
     {
         ostringstream os;
-        os << "funCall-" << getName(at(node->referredNodes, 0)) << "(";
+        os << "funCall-" << toString(getName(at(node->referredNodes, 0))) << "(";
         for ( size_t i=0; i<Nest_nodeArraySize(node->children); ++i )
         {
             if ( i != 0 )
@@ -1140,11 +1140,11 @@ Node* Feather::mkTypeNode(const Location& loc, TypeRef type)
     Nest_setProperty(res, "givenType", type);
     return res;
 }
-Node* Feather::mkBackendCode(const Location& loc, string code, EvalMode evalMode)
+Node* Feather::mkBackendCode(const Location& loc, StringRef code, EvalMode evalMode)
 {
     Node* res = Nest_createNode(nkFeatherBackendCode);
     res->location = loc;
-    Nest_setProperty(res, propCode, move(code));
+    Nest_setProperty(res, propCode, code);
     Nest_setProperty(res, propEvalMode, (int) evalMode);
     return res;
 }
@@ -1189,7 +1189,7 @@ Node* Feather::mkTempDestructAction(const Location& loc, Node* action)
 }
 
 
-Node* Feather::mkFunction(const Location& loc, string name, Node* resType, NodeRange params, Node* body, CallConvention callConv, EvalMode evalMode)
+Node* Feather::mkFunction(const Location& loc, StringRef name, Node* resType, NodeRange params, Node* body, CallConvention callConv, EvalMode evalMode)
 {
     Node* res = Nest_createNode(nkFeatherDeclFunction);
     res->location = loc;
@@ -1209,7 +1209,7 @@ Node* Feather::mkFunction(const Location& loc, string name, Node* resType, NodeR
 
     return res;
 }
-Node* Feather::mkClass(const Location& loc, string name, NodeRange fields, EvalMode evalMode)
+Node* Feather::mkClass(const Location& loc, StringRef name, NodeRange fields, EvalMode evalMode)
 {
     Node* res = Nest_createNode(nkFeatherDeclClass);
     res->location = loc;
@@ -1226,7 +1226,7 @@ Node* Feather::mkClass(const Location& loc, string name, NodeRange fields, EvalM
 
     return res;
 }
-Node* Feather::mkVar(const Location& loc, string name, Node* typeNode, size_t alignment, EvalMode evalMode)
+Node* Feather::mkVar(const Location& loc, StringRef name, Node* typeNode, size_t alignment, EvalMode evalMode)
 {
     REQUIRE_TYPE(loc, typeNode);
     Node* res = Nest_createNode(nkFeatherDeclVar);
@@ -1239,7 +1239,7 @@ Node* Feather::mkVar(const Location& loc, string name, Node* typeNode, size_t al
 }
 
 
-Node* Feather::mkCtValue(const Location& loc, TypeRef type, string data)
+Node* Feather::mkCtValue(const Location& loc, TypeRef type, StringRef data)
 {
     REQUIRE_TYPE(loc, type);
     Node* res = Nest_createNode(nkFeatherExpCtValue);
@@ -1399,10 +1399,10 @@ Node* Feather::mkReturn(const Location& loc, Node* exp)
 }
 
 
-const char* Feather::BackendCode_getCode(const Node* node)
+StringRef Feather::BackendCode_getCode(const Node* node)
 {
     ASSERT(node->nodeKind == nkFeatherBackendCode);
-    return Nest_getCheckPropertyString(node, propCode).c_str();
+    return Nest_getCheckPropertyString(node, propCode);
 }
 EvalMode Feather::BackendCode_getEvalMode(Node* node)
 {

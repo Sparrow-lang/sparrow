@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Nest/Intermediate/TypeRef.h>
+#include <Nest/Common/StringRef.h>
 
 typedef struct Nest_Location Location;
 typedef struct Nest_Node Node;
@@ -17,7 +18,7 @@ namespace LLVMB { namespace Tr
 
     /// Get the LLVM type for a native type
     /// If this is not a LLVM native type, it will return null
-    llvm::Type* getNativeLLVMType(const Location& loc, const string& nativeName, llvm::LLVMContext& llvmContext);
+    llvm::Type* getNativeLLVMType(const Location& loc, StringRef nativeName, llvm::LLVMContext& llvmContext);
 
     /// Gets the LLVM type corresponding to the given function declaration
     llvm::Type* getLLVMFunctionType(Node* funDecl, int ignoreArg, Module& module);

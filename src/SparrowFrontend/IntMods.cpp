@@ -113,7 +113,7 @@ namespace
     // Add to a local space an operator call
     void addOperatorCall(Node* dest, bool reverse, Node* operand1, const string& op, Node* operand2)
     {
-        Node* call = mkOperatorCall(dest->location, operand1, op, operand2);
+        Node* call = mkOperatorCall(dest->location, operand1, fromString(op), operand2);
         if ( !reverse )
             Nest_appendNodeToArray(&dest->children, call);
         else
@@ -131,13 +131,13 @@ namespace
         sprParams.reserve(params.size());
         for ( auto param: params )
         {
-            sprParams.push_back(mkSprParameter(loc, param.second, param.first));
+            sprParams.push_back(mkSprParameter(loc, fromString(param.second), param.first));
         }
         Node* parameters = sprParams.empty() ? nullptr : mkNodeList(loc, all(sprParams));
         Node* ret = resClass ? createTypeNode(Nest_childrenContext(parent), loc, getDataType(resClass)) : nullptr;
         
         // Add the function
-        Node* m = mkSprFunction(loc, name, parameters, ret, body);
+        Node* m = mkSprFunction(loc, fromString(name), parameters, ret, body);
         Nest_setProperty(m, propNoDefault, 1);
         setEvalMode(m, mode == modeUnspecified ? effectiveEvalMode(parent) : mode);
         Class_addChild(parent, m);
@@ -164,7 +164,7 @@ namespace
         Node* otherRef = nullptr;
         if ( otherParam )
         {
-            otherRef = mkIdentifier(loc, "other");
+            otherRef = mkIdentifier(loc, fromCStr("other"));
             if ( otherParam->numReferences > 0 )
                 otherRef = mkMemLoad(loc, otherRef);
         }
@@ -233,9 +233,9 @@ namespace
             TypeRef t = field->type;
             
             // Add a parameter for the base
-            string paramName = "f"+getName(field);
+            string paramName = "f"+toString(getName(field));
             params.push_back({t, paramName});
-            Node* paramId = mkIdentifier(loc, move(paramName));
+            Node* paramId = mkIdentifier(loc, fromString(paramName));
             if ( t->numReferences > 0 )
                 paramId = mkMemLoad(loc, paramId);
             
@@ -267,14 +267,14 @@ namespace
                 continue;
 
             Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
-            Node* otherFieldRef = mkFieldRef(loc, mkMemLoad(loc, mkIdentifier(loc, "other")), field);
+            Node* otherFieldRef = mkFieldRef(loc, mkMemLoad(loc, mkIdentifier(loc, fromCStr("other"))), field);
 
             const char* op = (field->type->numReferences == 0) ? "==" : "===";
-            Node* curExp = mkOperatorCall(loc, fieldRef, op, otherFieldRef);
+            Node* curExp = mkOperatorCall(loc, fieldRef, fromCStr(op), otherFieldRef);
             if ( !exp )
                 exp = curExp;
             else
-                exp = mkOperatorCall(loc, exp, "&&", curExp);
+                exp = mkOperatorCall(loc, exp, fromCStr("&&"), curExp);
         }
         if ( !exp )
             exp = buildBoolLiteral(loc, true);
@@ -443,11 +443,11 @@ void IntModCtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
             Node* call = nullptr;
             if ( field->type->numReferences == 0 )
             {
-                call = mkOperatorCall(loc, fieldRef, "ctor", nullptr);
+                call = mkOperatorCall(loc, fieldRef, fromCStr("ctor"), nullptr);
             }
             else
             {
-                call = mkOperatorCall(loc, fieldRef, ":=", buildNullLiteral(loc));
+                call = mkOperatorCall(loc, fieldRef, fromCStr(":="), buildNullLiteral(loc));
             }
             Nest_setContext(call, Nest_childrenContext(body));
             Nest_insertNodeIntoArray(&body->children, 0, call);
@@ -490,7 +490,7 @@ void IntModDtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
         {
             Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
             Nest_setContext(fieldRef, context);
-            Node* call = mkOperatorCall(loc, fieldRef, "dtor", nullptr);
+            Node* call = mkOperatorCall(loc, fieldRef, fromCStr("dtor"), nullptr);
             Nest_setContext(call, context);
             Nest_appendNodeToArray(&body->children, call);
         }

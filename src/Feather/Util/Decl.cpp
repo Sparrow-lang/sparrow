@@ -30,7 +30,7 @@ bool Feather::isDeclEx(Node* node)
     return declPtr != nullptr;
 }
 
-const string& Feather::getName(const Node* decl)
+StringRef Feather::getName(const Node* decl)
 {
     return Nest_getCheckPropertyString(decl, "name");
 }
@@ -40,9 +40,9 @@ bool Feather::hasName(const Node* decl)
     return Nest_hasProperty(decl, "name");
 }
 
-void Feather::setName(Node* decl, string name)
+void Feather::setName(Node* decl, StringRef name)
 {
-    Nest_setProperty(decl, "name", move(name));
+    Nest_setProperty(decl, "name", name);
 }
 
 
@@ -75,10 +75,10 @@ void Feather::addToSymTab(Node* decl)
     
     if ( !decl->context )
         REP_INTERNAL(decl->location, "Cannot add node %1% to sym-tab: context is not set") % Nest_nodeKindName(decl);
-    const string& declName = getName(decl);
-    if ( declName.empty() )
+    StringRef declName = getName(decl);
+    if ( size(declName) == 0 )
         REP_INTERNAL(decl->location, "Cannot add node %1% to sym-tab: no name set") % Nest_nodeKindName(decl);
-    Nest_symTabEnter(decl->context->currentSymTab, declName.c_str(), decl);
+    Nest_symTabEnter(decl->context->currentSymTab, declName.begin, decl);
 }
 
 void Feather::setShouldAddToSymTab(Node* decl, bool val)

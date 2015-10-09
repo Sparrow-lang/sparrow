@@ -3,6 +3,7 @@
 #include <Nest/Intermediate/NodeArray.h>
 #include <Nest/Intermediate/TypeRef.h>
 #include <Nest/Frontend/Location.h>
+#include <Nest/Common/StringRef.hpp>
 
 typedef struct Nest_Node Node;
 typedef struct Nest_Modifier Modifier;
@@ -20,7 +21,7 @@ typedef enum Nest_PropertyKind PropertyKind;
 union Nest_PropertyValue
 {
     int intValue_;
-    string* stringValue_;
+    StringRef stringValue_;
     Node* nodeValue_;
     TypeRef typeValue_;
 
@@ -32,9 +33,9 @@ union Nest_PropertyValue
     {
         intValue_ = val;
     }
-    explicit Nest_PropertyValue(string val)
+    explicit Nest_PropertyValue(StringRef val)
     {
-        stringValue_ = new string(move(val));
+        stringValue_ = dup(val);
     }
     explicit Nest_PropertyValue(Node* val)
     {
@@ -154,18 +155,18 @@ void Nest_nodeSetReferredNodes(Node* node, NodeRange nodes);
 //
 
 void Nest_setProperty(Node* node, const char* name, int val, bool passToExpl = false);
-void Nest_setProperty(Node* node, const char* name, string val, bool passToExpl = false);
+void Nest_setProperty(Node* node, const char* name, StringRef val, bool passToExpl = false);
 void Nest_setProperty(Node* node, const char* name, Node* val, bool passToExpl = false);
 void Nest_setProperty(Node* node, const char* name, TypeRef val, bool passToExpl = false);
 
 bool Nest_hasProperty(const Node* node, const char* name);
 const int* Nest_getPropertyInt(const Node* node, const char* name);
-const string* Nest_getPropertyString(const Node* node, const char* name);
+const StringRef* Nest_getPropertyString(const Node* node, const char* name);
 Node*const* Nest_getPropertyNode(const Node* node, const char* name);
 const TypeRef* Nest_getPropertyType(const Node* node, const char* name);
 
 int Nest_getCheckPropertyInt(const Node* node, const char* name);
-const string& Nest_getCheckPropertyString(const Node* node, const char* name);
+StringRef Nest_getCheckPropertyString(const Node* node, const char* name);
 Node* Nest_getCheckPropertyNode(const Node* node, const char* name);
 TypeRef Nest_getCheckPropertyType(const Node* node, const char* name);
 

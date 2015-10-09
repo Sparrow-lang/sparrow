@@ -94,8 +94,8 @@ void Tr::translateBackendCode(Node* node, Module& module)
 {
     // Generate a new module from the given backend code
     llvm::SMDiagnostic error;
-    const string& code = Nest_getCheckPropertyString(node, propCode);
-    llvm::Module* resModule = llvm::ParseAssemblyString(code.c_str(), nullptr, error, module.llvmContext());
+    StringRef code = Nest_getCheckPropertyString(node, propCode);
+    llvm::Module* resModule = llvm::ParseAssemblyString(code.begin, nullptr, error, module.llvmContext());
     if ( !resModule )
     {
         Location loc = node->location;
@@ -132,7 +132,7 @@ llvm::Type* Tr::translateClass(Node* node, Module& module)
         return *transType;
 
     // Check if this is a standard/native type
-    const string* nativeName = Nest_getPropertyString(node, propNativeName);
+    const StringRef* nativeName = Nest_getPropertyString(node, propNativeName);
     if ( nativeName )
     {
         llvm::Type* t = getNativeLLVMType(node->location, *nativeName, module.llvmContext());
@@ -147,12 +147,13 @@ llvm::Type* Tr::translateClass(Node* node, Module& module)
     // Get or create the type, and set it as a property (don't add any subtypes yet to avoid endless loops)
     llvm::StructType* t = nullptr;
     if ( nativeName )
-        t = module.llvmModule().getTypeByName(*nativeName);    // Make sure we reuse the name
+        t = module.llvmModule().getTypeByName(nativeName->begin);    // Make sure we reuse the name
     if ( !t )
     {
-        const string* description = Nest_getPropertyString(node, propDescription);
+        const StringRef* description = Nest_getPropertyString(node, propDescription);
+        StringRef desc = description ? *description : getName(node);
         // Create a new struct type, possible with another name
-        t = llvm::StructType::create(module.llvmContext(), description ? *description : getName(node));
+        t = llvm::StructType::create(module.llvmContext(), desc.begin);
     }
     module.setNodeProperty(node, Module::propTransType, boost::any(static_cast<llvm::Type*>(t)));
 
@@ -188,9 +189,9 @@ llvm::Value* Tr::translateGlobalVar(Node* node, Module& module)
 
     // Check if the variable has been declared before; if not, create it
     llvm::GlobalVariable* var = nullptr;
-    const string* nativeName = Nest_getPropertyString(node, propNativeName);
+    const StringRef* nativeName = Nest_getPropertyString(node, propNativeName);
     if ( nativeName )
-        var = module.llvmModule().getGlobalVariable(*nativeName);
+        var = module.llvmModule().getGlobalVariable(nativeName->begin);
     if ( !var )
     {
         var = new llvm::GlobalVariable(
@@ -199,7 +200,7 @@ llvm::Value* Tr::translateGlobalVar(Node* node, Module& module)
             false, // isConstant
             llvm::GlobalValue::ExternalLinkage, // linkage
             0, // initializer - specified below
-            getName(node)
+            getName(node).begin
             );
     }
 

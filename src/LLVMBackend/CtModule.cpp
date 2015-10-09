@@ -190,10 +190,10 @@ Node* CtModule::ctEvaluateExpression(Node* node)
 	    // Create a memory space where to put the result
         llvm::Type* llvmType = Tr::getLLVMType(node->type, *this);
         size_t size = llvmModule_->getDataLayout()->getTypeAllocSize(llvmType);
-	    string dataBuffer(size, (char) 0);
+        StringRef dataBuffer = allocStringRef(size);
 
 	    vector<llvm::GenericValue> args(1);
-	    args[0] = llvm::GenericValue(&dataBuffer[0]);
+	    args[0] = llvm::GenericValue((void*) dataBuffer.begin);
 	    llvmExecutionEngine_->runFunction(f, args);
         llvmExecutionEngine_->freeMachineCodeForFunction(f);
 

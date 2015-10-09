@@ -178,7 +178,7 @@ void SprCompilationUnit_SetContextForChildren(Node* node)
             // We didn't find the package part. From now on create new namespaces
             for ( int j=(int)names.size()-1; j>=i; --j )
             {
-                Node* pk = mkSprPackage(packageName->location, move(names[j]), declarations);
+                Node* pk = mkSprPackage(packageName->location, fromString(names[j]), declarations);
                 declarations = Feather::mkNodeList(packageName->location, fromIniList({pk}), true);
                 at(node->children, 2) = declarations;
             }
@@ -309,7 +309,7 @@ TypeRef SprClass_ComputeType(Node* node)
     Node* resultingClass = nullptr;
 
     // Special case for Type class; re-use the existing StdDef class
-    const string* nativeName = Nest_getPropertyString(node, propNativeName);
+    const StringRef* nativeName = Nest_getPropertyString(node, propNativeName);
     if ( nativeName && *nativeName == "Type" )
     {
         resultingClass = StdDef::clsType;
@@ -325,7 +325,7 @@ TypeRef SprClass_ComputeType(Node* node)
     {
         Nest_setProperty(resultingClass, Feather::propNativeName, *nativeName);
     }
-    const string* description = Nest_getPropertyString(node, propDescription);
+    const StringRef* description = Nest_getPropertyString(node, propDescription);
     if ( description )
     {
         Nest_setProperty(resultingClass, propDescription, *description);
@@ -463,7 +463,7 @@ TypeRef SprFunction_ComputeType(Node* node)
     if ( ifClause )
         REP_ERROR_RET(nullptr, node->location, "If clauses must be applied only to generics; this is not a generic function");
 
-    const string& funName = getName(node);
+    StringRef funName = getName(node);
 
     // Special modifier for ctors & dtors
     if ( isMember && !isStatic && !Nest_hasProperty(node, propNoDefault) )
@@ -481,7 +481,7 @@ TypeRef SprFunction_ComputeType(Node* node)
     setShouldAddToSymTab(resultingFun, false);
 
     // Copy the "native" and the "autoCt" properties
-    const string* nativeName = Nest_getPropertyString(node, propNativeName);
+    const StringRef* nativeName = Nest_getPropertyString(node, propNativeName);
     if ( nativeName )
         Nest_setProperty(resultingFun, Feather::propNativeName, *nativeName);
     if ( Nest_hasProperty(node, propAutoCt) )
@@ -502,7 +502,7 @@ TypeRef SprFunction_ComputeType(Node* node)
     if ( isMember && !isStatic )
     {
         TypeRef thisType = getDataType(parentClass, 1, thisEvalMode);
-        Node* thisParam = Feather::mkVar(node->location, "$this", mkTypeNode(node->location, thisType));
+        Node* thisParam = Feather::mkVar(node->location, fromCStr("$this"), mkTypeNode(node->location, thisType));
         Nest_setContext(thisParam, node->childrenContext);
         Function_addParameter(resultingFun, thisParam);
     }
@@ -527,7 +527,7 @@ TypeRef SprFunction_ComputeType(Node* node)
     // If the parameter is a non-reference class, not basic numeric, add result parameter; otherwise, normal result
     if ( resType->hasStorage && resType->numReferences == 0 && !isBasicNumericType(resType) )
     {
-        Node* resParam = Feather::mkVar(returnType->location, "_result", mkTypeNode(returnType->location, addRef(resType)));
+        Node* resParam = Feather::mkVar(returnType->location, fromCStr("_result"), mkTypeNode(returnType->location, addRef(resType)));
         Nest_setContext(resParam, node->childrenContext);
         Function_addParameter(resultingFun, resParam, true);
         Nest_setProperty(resultingFun, propResultParam, resParam);
@@ -558,7 +558,7 @@ Node* SprFunction_SemanticCheck(Node* node)
     // Check for static ctors & dtors
     if ( resultingFun && (!Nest_hasProperty(node, propIsMember) || Nest_hasProperty(node, propIsStatic)) )
     {
-        const string& funName = getName(node);
+        StringRef funName = getName(node);
         
         if ( funName == "ctor" )
             handleStaticCtorDtor(node, true);
@@ -702,7 +702,7 @@ TypeRef SprVariable_ComputeType(Node* node)
         else if ( init )   // Reference initialization
         {
             // Create an assignment operator
-            ctorCall = mkOperatorCall(node->location, varRef, ":=", init);
+            ctorCall = mkOperatorCall(node->location, varRef, fromCStr(":="), init);
         }
     }
 
@@ -782,7 +782,7 @@ Node* SprConcept_SemanticCheck(Node* node)
     Node* baseConcept = at(node->children, 0);
     Node* ifClause = at(node->children, 1);
     Node*& instantiationsSet = at(node->children, 2);
-    const string& paramName = Nest_getCheckPropertyString(node, "spr.paramName");
+    StringRef paramName = Nest_getCheckPropertyString(node, "spr.paramName");
 
     // Compile the base concept node; make sure it's ct
     if ( baseConcept )
@@ -821,13 +821,13 @@ TypeRef Using_ComputeType(Node* node)
 {
     ASSERT(Nest_nodeArraySize(node->children) == 1);
     Node* usingNode = at(node->children, 0);
-    const string* alias = Nest_getPropertyString(node, "name");
+    const StringRef* alias = Nest_getPropertyString(node, "name");
 
     // Compile the using name
     if ( !Nest_semanticCheck(usingNode) )
         return nullptr;            
 
-    if ( !alias || alias->empty() )
+    if ( !alias || size(*alias) == 0 )
     {
         // Make sure that this node refers to one or more declaration
         Node* baseExp;
@@ -838,7 +838,7 @@ TypeRef Using_ComputeType(Node* node)
         // Add references in the current symbol tab
         for ( Node* decl: decls )
         {
-            Nest_symTabEnter(node->context->currentSymTab, Feather::getName(decl).c_str(), decl);
+            Nest_symTabEnter(node->context->currentSymTab, Feather::getName(decl).begin, decl);
         }
     }
     else

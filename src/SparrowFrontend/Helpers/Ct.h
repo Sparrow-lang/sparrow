@@ -10,7 +10,7 @@ namespace SprFrontend
     /// Given two compile-time values, checks if they are equal (by using the '==' operator)
     bool ctValsEqual(Node* v1, Node* v2);
 
-    const char* getStringCtValue(Node* val);
+    StringRef getStringCtValue(Node* val);
     bool getBoolCtValue(Node* val);
     int getIntCtValue(Node* val);
     int* getIntRefCtValue(Node* val);

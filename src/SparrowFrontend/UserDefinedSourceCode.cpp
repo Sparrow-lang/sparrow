@@ -41,17 +41,17 @@ namespace
 
         // Create a node that invokes the given function with the content of the file
         // funName(code: StringRef, location: Meta.Location, context: Meta.CompilationContext): Meta.AstNode
-        Node* codeNode = buildStringLiteral(loc, oss.str());
+        Node* codeNode = buildStringLiteral(loc, fromString(oss.str()));
 
         int* scHandle = reinterpret_cast<int*>(sourceCode);
-        Node* scBase = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "SourceCode");
+        Node* scBase = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("Meta")), fromCStr("SourceCode"));
         Node* scArg = Feather::mkCtValue(loc, StdDef::typeRefInt, &scHandle);
         Node* scNode = mkFunApplication(loc, scBase, fromIniList({scArg}));
-        Node* locBase = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "Location");
+        Node* locBase = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("Meta")), fromCStr("Location"));
         Node* locNode = mkFunApplication(loc, locBase, fromIniList({scNode}));
 
         int* ctxHandle = reinterpret_cast<int*>(ctx);
-        Node* ctxBase = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "CompilationContext");
+        Node* ctxBase = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("Meta")), fromCStr("CompilationContext"));
         Node* ctxArg = Feather::mkCtValue(loc, StdDef::typeRefInt, &ctxHandle);
         Node* ctxNode = mkFunApplication(loc, ctxBase, fromIniList({ctxArg}));
 
@@ -63,14 +63,14 @@ namespace
         for ( string& partName: funNameParts )
         {
             if ( !funBase )
-                funBase = mkIdentifier(loc, move(partName));
+                funBase = mkIdentifier(loc, fromString(partName));
             else
-                funBase = mkCompoundExp(loc, funBase, move(partName));
+                funBase = mkCompoundExp(loc, funBase, fromString(partName));
         }
         Node* funCall = mkFunApplication(loc, funBase, fromIniList({codeNode, locNode, ctxNode}));
 
         // Compile the function and evaluate it
-        Node* implPart = mkCompoundExp(loc, funCall, "impl");
+        Node* implPart = mkCompoundExp(loc, funCall, fromCStr("impl"));
         implPart = Feather::mkMemLoad(loc, implPart);    // Remove LValue
         Nest_setContext(implPart, ctx);
         if ( !Nest_semanticCheck(implPart) )

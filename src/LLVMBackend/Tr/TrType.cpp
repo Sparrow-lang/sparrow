@@ -97,9 +97,9 @@ llvm::Type* Tr::getLLVMType(TypeRef type, Module& module)
     return llvmType;
 }
 
-llvm::Type* Tr::getNativeLLVMType(const Location& loc, const string& nativeName, llvm::LLVMContext& llvmContext)
+llvm::Type* Tr::getNativeLLVMType(const Location& loc, StringRef nativeName, llvm::LLVMContext& llvmContext)
 {
-    if ( nativeName.size() > 1 && islower(nativeName[0]) )
+    if ( size(nativeName) > 1 && islower(nativeName.begin[0]) )
     {
         llvm::Type* t = nullptr;
 
@@ -107,11 +107,11 @@ llvm::Type* Tr::getNativeLLVMType(const Location& loc, const string& nativeName,
             t = llvm::Type::getDoubleTy(llvmContext);
         else if ( nativeName == "float" )
             t = llvm::Type::getFloatTy(llvmContext);
-        else if ( nativeName.size() > 1 && (nativeName[0] == 'i' || nativeName[0] == 'u') )
+        else if ( size(nativeName) > 1 && (nativeName.begin[0] == 'i' || nativeName.begin[0] == 'u') )
         {
             try
             {
-                int noBits = boost::lexical_cast<int>(nativeName.substr(1));
+                int noBits = boost::lexical_cast<int>(nativeName.begin+1);
                 t = llvm::IntegerType::get(llvmContext, noBits);
             }
             catch (...)

@@ -14,11 +14,11 @@ namespace SprFrontend
 
     Node* buildVariables(const Location& loc, const vector<string>& names, Node* typeNode, Node* init, Node* mods, AccessType accessType);
     Node* buildParameters(const Location& loc, const vector<string>& names, Node* typeNode, Node* init, Node* mods);
-    Node* buildAutoParameter(const Location& loc, const string& name, Node* mods);
-    Node* buildSprFunctionExp(const Location& loc, string name, Node* parameters, Node* returnType, Node* bodyExp, Node* ifClause = nullptr, AccessType accessType = publicAccess);
+    Node* buildAutoParameter(const Location& loc, StringRef name, Node* mods);
+    Node* buildSprFunctionExp(const Location& loc, StringRef name, Node* parameters, Node* returnType, Node* bodyExp, Node* ifClause = nullptr, AccessType accessType = publicAccess);
 
-    Node* buildPostfixOp(const Location& loc, string op, Node* base);
-    Node* buildPrefixOp(const Location& loc, string op, Node* base);
+    Node* buildPostfixOp(const Location& loc, StringRef op, Node* base);
+    Node* buildPrefixOp(const Location& loc, StringRef op, Node* base);
     Node* buildParenthesisExp(const Location& loc, Node* exp);
     Node* buildIntLiteral(const Location& loc, int value);
     Node* buildUIntLiteral(const Location& loc, unsigned int value);
@@ -27,7 +27,7 @@ namespace SprFrontend
     Node* buildFloatLiteral(const Location& loc, float value);
     Node* buildDoubleLiteral(const Location& loc, double value);
     Node* buildCharLiteral(const Location& loc, char value);
-    Node* buildStringLiteral(const Location& loc, string value);
+    Node* buildStringLiteral(const Location& loc, StringRef value);
     Node* buildNullLiteral(const Location& loc);
     Node* buildBoolLiteral(const Location& loc, bool value);
 

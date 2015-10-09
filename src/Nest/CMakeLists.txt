@@ -19,6 +19,8 @@ SET(sourceFiles
     "Common/Assert.h"
     "Common/Tuple.h"
     "Common/StringRef.h"
+    "Common/StringRef.hpp"
+    "Common/StringRef.cpp"
     "Common/SaveValue.h"
     "Common/ScopeGuard.h"
     "Common/ScopeGuard.cpp"

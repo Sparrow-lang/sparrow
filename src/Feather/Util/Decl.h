@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Nest/Intermediate/EvalMode.h>
+#include <Nest/Common/StringRef.h>
 
 namespace Feather
 {
@@ -11,13 +12,13 @@ namespace Feather
     
     /// Get the name of the given declaration
     /// Throws if the name was not set for the node
-    const string& getName(const Node* decl);
+    StringRef getName(const Node* decl);
 
     /// Indicates if the node has associated a name with it
     bool hasName(const Node* decl);
 
     /// Setter for the name of a declaration
-    void setName(Node* decl, string name);
+    void setName(Node* decl, StringRef name);
     
     /// Getter for the evaluation mode set in the given declaration (non-ct, ct, auto-ct)
     EvalMode nodeEvalMode(const Node* decl);

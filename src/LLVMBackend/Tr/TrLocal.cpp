@@ -241,7 +241,7 @@ namespace
         return setValue(context.module(), *funCall, val);
     }
 
-    llvm::Value* handleNativeFunCall(const string& native, Node* funCall, TrContext& context)
+    llvm::Value* handleNativeFunCall(StringRef native, Node* funCall, TrContext& context)
     {
 #define B()                     context.builder()
 #define ARG(argNum)             translateNode(at(args, argNum), context)
@@ -547,7 +547,7 @@ namespace
             TypeRef tt = node->type;
             if ( tt->typeKind == typeKindData )
             {
-                const string* nativeName = Feather::nativeName(tt);
+                const StringRef* nativeName = Feather::nativeName(tt);
                 if ( nativeName && *nativeName == "StringRef" )
                 {
                     StringData data = *getCtValueData<StringData>(node);
@@ -755,8 +755,8 @@ namespace
         CHECK(node->location, funDecl);
 
         // Check for intrinsic native functions
-        const string* nativeName = Nest_getPropertyString(funDecl, propNativeName);
-        if ( nativeName && !nativeName->empty() && (*nativeName)[0] == '$' )
+        const StringRef* nativeName = Nest_getPropertyString(funDecl, propNativeName);
+        if ( nativeName && size(*nativeName)>0 && nativeName->begin[0] == '$' )
         {
             if ( *nativeName == "$logicalOr" )
                 return handleLogicalOr(node, context);
@@ -765,7 +765,7 @@ namespace
             if ( *nativeName == "$funptr" )
                 return handleFunPtr(node, context);
         }
-        if ( nativeName && !nativeName->empty() && (*nativeName)[0] == '_' )
+        if ( nativeName && size(*nativeName)>0 && nativeName->begin[0] == '_' )
         {
             context.ensureInsertionPoint();
             auto res = handleNativeFunCall(*nativeName, node, context);
@@ -1143,7 +1143,7 @@ namespace
 
         // Create an 'alloca' instruction for the local variable
         llvm::Type* t = Tr::getLLVMType(node->type, context.module());
-		llvm::AllocaInst* val = context.addVariable(t, getName(node).c_str());
+		llvm::AllocaInst* val = context.addVariable(t, getName(node).begin);
         int alignment = Nest_getCheckPropertyInt(node, "alignment");
 		if ( alignment > 0 )
 			val->setAlignment(alignment);

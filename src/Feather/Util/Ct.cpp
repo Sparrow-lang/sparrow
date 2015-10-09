@@ -14,7 +14,7 @@ TypeRef Feather::getCtValueType(Node* ctVal)
 }
 
 /// Getter for the value data of a CtValue node -- the data is encoded in a string
-const string& Feather::getCtValueDataAsString(Node* ctVal)
+StringRef Feather::getCtValueDataAsString(Node* ctVal)
 {
     if ( ctVal->nodeKind != nkFeatherExpCtValue )
         REP_INTERNAL(ctVal->location, "Invalid CtValue");

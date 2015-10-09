@@ -5,7 +5,6 @@
 
 #include <Nodes/SparrowNodes.h>
 #include <Nodes/Builder.h>
-#include <Feather/Util/StringData.h>
 
 #include <Nest/Backend/Backend.h>
 
@@ -24,76 +23,76 @@ namespace
     {
         *sret = mkSprCompilationUnit(*loc, package, imports, declarations);
     }
-    void ctApi_Sparrow_mkSprUsing(Node** sret, Location* loc, StringData alias, Node* usingNode)
+    void ctApi_Sparrow_mkSprUsing(Node** sret, Location* loc, StringRef alias, Node* usingNode)
     {
-        *sret = mkSprUsing(*loc, alias.toStdString(), usingNode);
+        *sret = mkSprUsing(*loc, alias, usingNode);
     }
-    void ctApi_Sparrow_mkSprPackage(Node** sret, Location* loc, StringData name, Node* children)
+    void ctApi_Sparrow_mkSprPackage(Node** sret, Location* loc, StringRef name, Node* children)
     {
-        *sret = mkSprPackage(*loc, name.toStdString(), children);
+        *sret = mkSprPackage(*loc, name, children);
     }
-    void ctApi_Sparrow_mkSprVariable(Node** sret, Location* loc, StringData name, Node* typeNode, Node* init)
+    void ctApi_Sparrow_mkSprVariable(Node** sret, Location* loc, StringRef name, Node* typeNode, Node* init)
     {
-        *sret = mkSprVariable(*loc, name.toStdString(), typeNode, init);
+        *sret = mkSprVariable(*loc, name, typeNode, init);
     }
-    void ctApi_Sparrow_mkSprClass(Node** sret, Location* loc, StringData name, Node* parameters, Node* baseClasses, Node* ifClause, Node* children)
+    void ctApi_Sparrow_mkSprClass(Node** sret, Location* loc, StringRef name, Node* parameters, Node* baseClasses, Node* ifClause, Node* children)
     {
-        *sret = mkSprClass(*loc, name.toStdString(), parameters, baseClasses, ifClause, children);
-    }
-
-    void ctApi_Sparrow_mkSprConcept(Node** sret, Location* loc, StringData name, Node* baseConcept, StringData paramName, Node* ifClause)
-    {
-        *sret = mkSprConcept(*loc, name.toStdString(), paramName.toStdString(), baseConcept, ifClause);
+        *sret = mkSprClass(*loc, name, parameters, baseClasses, ifClause, children);
     }
 
-    void ctApi_Sparrow_mkSprFunction(Node** sret, Location* loc, StringData name, Node* parameters, Node* returnType, Node* body, Node* ifClause)
+    void ctApi_Sparrow_mkSprConcept(Node** sret, Location* loc, StringRef name, Node* baseConcept, StringRef paramName, Node* ifClause)
     {
-        *sret = mkSprFunction(*loc, name.toStdString(), parameters, returnType, body);
-    }
-    void ctApi_Sparrow_mkSprFunctionExp(Node** sret, Location* loc, StringData name, Node* parameters, Node* returnType, Node* bodyExp, Node* ifClause)
-    {
-        *sret = buildSprFunctionExp(*loc, name.toStdString(), parameters, returnType, bodyExp);
-    }
-    void ctApi_Sparrow_mkSprParameter(Node** sret, Location* loc, StringData name, Node* typeNode, Node* init)
-    {
-        *sret = mkSprParameter(*loc, name.toStdString(), typeNode);
-    }
-    void ctApi_Sparrow_mkSprAutoParameter(Node** sret, Location* loc, StringData name)
-    {
-        *sret = mkSprAutoParameter(*loc, name.toStdString());
+        *sret = mkSprConcept(*loc, name, paramName, baseConcept, ifClause);
     }
 
-    void ctApi_Sparrow_mkIdentifier(Node** sret, Location* loc, StringData id)
+    void ctApi_Sparrow_mkSprFunction(Node** sret, Location* loc, StringRef name, Node* parameters, Node* returnType, Node* body, Node* ifClause)
     {
-        *sret = mkIdentifier(*loc, id.toStdString());
+        *sret = mkSprFunction(*loc, name, parameters, returnType, body);
     }
-    void ctApi_Sparrow_mkCompoundExp(Node** sret, Location* loc, Node* base, StringData id)
+    void ctApi_Sparrow_mkSprFunctionExp(Node** sret, Location* loc, StringRef name, Node* parameters, Node* returnType, Node* bodyExp, Node* ifClause)
     {
-        *sret = mkCompoundExp(*loc, base, id.toStdString());
+        *sret = buildSprFunctionExp(*loc, name, parameters, returnType, bodyExp);
     }
-    void ctApi_Sparrow_mkStarExp(Node** sret, Location* loc, Node* base, StringData operName)
+    void ctApi_Sparrow_mkSprParameter(Node** sret, Location* loc, StringRef name, Node* typeNode, Node* init)
     {
-        *sret = mkStarExp(*loc, base, operName.toStdString());
+        *sret = mkSprParameter(*loc, name, typeNode);
     }
-    void ctApi_Sparrow_mkPostfixOp(Node** sret, Location* loc, StringData op, Node* base)
+    void ctApi_Sparrow_mkSprAutoParameter(Node** sret, Location* loc, StringRef name)
     {
-        *sret = buildPostfixOp(*loc, op.toStdString(), base);
+        *sret = mkSprAutoParameter(*loc, name);
     }
-    void ctApi_Sparrow_mkInfixOp(Node** sret, Location* loc, StringData op, Node* arg1, Node* arg2)
+
+    void ctApi_Sparrow_mkIdentifier(Node** sret, Location* loc, StringRef id)
     {
-        *sret = mkInfixOp(*loc, op.toStdString(), arg1, arg2);
+        *sret = mkIdentifier(*loc, id);
     }
-    void ctApi_Sparrow_mkPrefixOp(Node** sret, Location* loc, StringData op, Node* base)
+    void ctApi_Sparrow_mkCompoundExp(Node** sret, Location* loc, Node* base, StringRef id)
     {
-        *sret = buildPrefixOp(*loc, op.toStdString(), base);
+        *sret = mkCompoundExp(*loc, base, id);
+    }
+    void ctApi_Sparrow_mkStarExp(Node** sret, Location* loc, Node* base, StringRef operName)
+    {
+        *sret = mkStarExp(*loc, base, operName);
+    }
+    void ctApi_Sparrow_mkPostfixOp(Node** sret, Location* loc, StringRef op, Node* base)
+    {
+        *sret = buildPostfixOp(*loc, op, base);
+    }
+    void ctApi_Sparrow_mkInfixOp(Node** sret, Location* loc, StringRef op, Node* arg1, Node* arg2)
+    {
+        *sret = mkInfixOp(*loc, op, arg1, arg2);
+    }
+    void ctApi_Sparrow_mkPrefixOp(Node** sret, Location* loc, StringRef op, Node* base)
+    {
+        *sret = buildPrefixOp(*loc, op, base);
     }
     void ctApi_Sparrow_mkFunApplication(Node** sret, Location* loc, Node* base, Node* arguments)
     {
         *sret = mkFunApplication(*loc, base, arguments);
     }
-    void ctApi_Sparrow_mkOperatorCall(Node** sret, Location* loc, Node* arg1, StringData op, Node* arg2)
+    void ctApi_Sparrow_mkOperatorCall(Node** sret, Location* loc, Node* arg1, StringRef op, Node* arg2)
     {
-        *sret = mkOperatorCall(*loc, arg1, op.toStdString(), arg2);
+        *sret = mkOperatorCall(*loc, arg1, op, arg2);
     }
 
     void ctApi_Sparrow_mkConditionalExp(Node** sret, Location* loc, Node* cond, Node* alt1, Node* alt2)
@@ -136,9 +135,9 @@ namespace
     {
         *sret = buildCharLiteral(*loc, value);
     }
-    void ctApi_Sparrow_mkStringLiteral(Node** sret, Location* loc, StringData value)
+    void ctApi_Sparrow_mkStringLiteral(Node** sret, Location* loc, StringRef value)
     {
-        *sret = buildStringLiteral(*loc, value.toStdString());
+        *sret = buildStringLiteral(*loc, value);
     }
     void ctApi_Sparrow_mkNullLiteral(Node** sret, Location* loc)
     {
@@ -161,9 +160,9 @@ namespace
     {
         *sret = buildBlockStmt(*loc, statements);
     }
-    void ctApi_Sparrow_mkForStmt(Node** sret, Location* loc, StringData name, Node* type, Node* range, Node* action)
+    void ctApi_Sparrow_mkForStmt(Node** sret, Location* loc, StringRef name, Node* type, Node* range, Node* action)
     {
-        *sret = mkForStmt(*loc, name.toStdString(), type, range, action);
+        *sret = mkForStmt(*loc, name, type, range, action);
     }
     void ctApi_Sparrow_mkReturnStmt(Node** sret, Location* loc, Node* exp)
     {
@@ -173,12 +172,12 @@ namespace
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Compiler
     //
-    bool ctApi_Compiler_registerFrontendFun(StringData ext, StringData funName)
+    bool ctApi_Compiler_registerFrontendFun(StringRef ext, StringRef funName)
     {
         int kind = SprFe_registerUserDefinedSourceCode(ext.begin, funName.begin);
         return kind >= 0;
     }
-    void ctApi_Compiler_parseSprExpression(Node** sret, Location* loc, StringData exp)
+    void ctApi_Compiler_parseSprExpression(Node** sret, Location* loc, StringRef exp)
     {
         *sret = SprFe_parseSparrowExpression(*loc, exp.begin);
     }

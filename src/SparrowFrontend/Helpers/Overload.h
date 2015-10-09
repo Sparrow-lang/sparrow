@@ -12,7 +12,7 @@ namespace SprFrontend
     /// The given decls should be a list of Function objects
     Node* selectOverload(CompilationContext* context, const Location& loc, EvalMode evalMode,
         NodeRange decls, NodeRange args,
-        bool reportErrors, const string& funName);
+        bool reportErrors, StringRef funName);
 
     /// Try to search for a conversion constructor of the given class that can take the given argument
     bool selectConversionCtor(CompilationContext* context, Node* destClass, EvalMode destMode,

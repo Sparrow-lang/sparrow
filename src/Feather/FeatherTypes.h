@@ -2,6 +2,7 @@
 
 #include <Nest/Intermediate/TypeRef.h>
 #include <Nest/Intermediate/EvalMode.h>
+#include <Nest/Common/StringRef.h>
 
 typedef struct Nest_Node Node;
 
@@ -43,7 +44,7 @@ namespace Feather
 
     /// If the class associated with the given type has an associated name this will return it; otherwise it returns nullptr
     /// Works for only for storage types (data, l-value, array)
-    const string* nativeName(TypeRef type);
+    const StringRef* nativeName(TypeRef type);
 
     /// The number of references applied
     /// Works for only for storage types (data, l-value, array)

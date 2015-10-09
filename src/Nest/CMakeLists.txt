@@ -34,6 +34,8 @@ SET(sourceFiles
     "Intermediate/NodeVector.h"
     "Intermediate/Node.h"
     "Intermediate/Node.cpp"
+    "Intermediate/NodeProperties.h"
+    "Intermediate/NodeProperties.c"
     "Intermediate/NodeRange.h"
     "Intermediate/NodeRange.c"
     "Intermediate/NodeArray.h"

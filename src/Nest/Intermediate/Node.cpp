@@ -7,6 +7,38 @@
 #include <Common/Alloc.h>
 #include <Common/Diagnostic.hpp>
 
+NodeProperty* _findProperty(NodeProperties properties, StringRef name) {
+    NodeProperty* p = properties.begin;
+    for ( ; p!=properties.end; ++p )
+        if ( p->name == name )
+            return p;
+    return NULL;
+}
+
+void _setProperty(NodeProperties* properties, NodeProperty prop) {
+    // Try to see if a property with the same name already exists
+    NodeProperty* p = _findProperty(*properties, prop.name);
+    if ( p ) {
+        *p = prop;
+    }
+    else {
+        Nest_addProperty(properties, prop);
+    }
+}
+
+NodeProperties _cloneProperties(NodeProperties src) {
+    unsigned size = src.end - src.begin;
+    NodeProperties res = { NULL, NULL, NULL };
+    res.begin = (NodeProperty*) malloc(size*sizeof(NodeProperty));
+    res.end = res.begin+size;
+    res.endOfStore = res.end;
+    NodeProperty* s = src.begin;
+    NodeProperty* d = res.begin;
+    for ( ; s!=src.end; ++s, ++d )
+        *d = *s;
+    return res;
+}
+
 void _applyModifiers(Node* node, ModifierType modType)
 {
     for ( Modifier* mod: node->modifiers )
@@ -28,9 +60,10 @@ bool _setExplanation(Node* node, Node* explanation)
         return true;
 
     // Copy all the properties marked accordingly
-    for ( const auto& prop : node->properties )
-        if ( prop.second.passToExpl_ )
-            node->explanation->properties[prop.first] = prop.second;
+    NodeProperty* p = node->properties.begin;
+    for ( ; p!=node->properties.end; ++p )
+        if ( p->passToExpl )
+            _setProperty(&node->explanation->properties, *p);
 
     // Try to semantically check the explanation
     bool res = true;
@@ -71,7 +104,7 @@ Node* Nest_cloneNode(Node* node)
 
     res->location = node->location;
     res->referredNodes = node->referredNodes;
-    res->properties = node->properties;
+    res->properties = _cloneProperties(node->properties);
 
     // Clone each node in the children vector
     unsigned size = Nest_nodeArraySize(node->children);
@@ -100,7 +133,7 @@ void Nest_initCopyNode(Node* node, const Node* srcNode)
     node->nodeKind = srcNode->nodeKind;
     node->location = srcNode->location;
     node->referredNodes = srcNode->referredNodes;
-    node->properties = srcNode->properties;
+    node->properties = _cloneProperties(node->properties);
 
     // Clone each node in the children vector
     unsigned size = Nest_nodeArraySize(srcNode->children);
@@ -169,52 +202,60 @@ void Nest_nodeSetReferredNodes(Node* node, NodeRange nodes) {
 
 void Nest_setProperty(Node* node, const char* name, int val, bool passToExpl)
 {
-    node->properties[name] = Property(propInt, PropertyValue(val), passToExpl);
+    NodeProperty prop = { fromCStr(name), propInt, passToExpl, {0} };
+    prop.value.intValue = val;
+    Nest_addProperty(&node->properties, prop);
 }
 void Nest_setProperty(Node* node, const char* name, StringRef val, bool passToExpl)
 {
-    node->properties[name] = Property(propString, PropertyValue(val), passToExpl);
+    NodeProperty prop = { fromCStr(name), propInt, passToExpl, {0} };
+    prop.value.stringValue = val;
+    Nest_addProperty(&node->properties, prop);
 }
 void Nest_setProperty(Node* node, const char* name, Node* val, bool passToExpl)
 {
-    node->properties[name] = Property(propNode, PropertyValue(val), passToExpl);
+    NodeProperty prop = { fromCStr(name), propInt, passToExpl, {0} };
+    prop.value.nodeValue = val;
+    Nest_addProperty(&node->properties, prop);
 }
 void Nest_setProperty(Node* node, const char* name, TypeRef val, bool passToExpl)
 {
-    node->properties[name] = Property(propType, PropertyValue(val), passToExpl);
+    NodeProperty prop = { fromCStr(name), propInt, passToExpl, {0} };
+    prop.value.typeValue = val;
+    Nest_addProperty(&node->properties, prop);
 }
 
 bool Nest_hasProperty(const Node* node, const char* name)
 {
-    return node->properties.find(name) != node->properties.end();
+    return NULL != _findProperty(node->properties, fromCStr(name));
 }
 const int* Nest_getPropertyInt(const Node* node, const char* name)
 {
-    auto it = node->properties.find(name);
-    if ( it == node->properties.end() || it->second.kind_ != propInt )
+    NodeProperty* p = _findProperty(node->properties, fromCStr(name));
+    if ( !p || p->kind != propInt )
         return nullptr;
-    return &it->second.value_.intValue_;
+    return &p->value.intValue;
 }
 const StringRef* Nest_getPropertyString(const Node* node, const char* name)
 {
-    auto it = node->properties.find(name);
-    if ( it == node->properties.end() || it->second.kind_ != propString )
+    NodeProperty* p = _findProperty(node->properties, fromCStr(name));
+    if ( !p || p->kind != propString )
         return nullptr;
-    return &it->second.value_.stringValue_;
+    return &p->value.stringValue;
 }
 Node*const* Nest_getPropertyNode(const Node* node, const char* name)
 {
-    auto it = node->properties.find(name);
-    if ( it == node->properties.end() || it->second.kind_ != propNode )
+    NodeProperty* p = _findProperty(node->properties, fromCStr(name));
+    if ( !p || p->kind != propNode )
         return nullptr;
-    return &it->second.value_.nodeValue_;
+    return &p->value.nodeValue;
 }
 const TypeRef* Nest_getPropertyType(const Node* node, const char* name)
 {
-    auto it = node->properties.find(name);
-    if ( it == node->properties.end() || it->second.kind_ != propType )
+    NodeProperty* p = _findProperty(node->properties, fromCStr(name));
+    if ( !p || p->kind != propType )
         return nullptr;
-    return &it->second.value_.typeValue_;
+    return &p->value.typeValue;
 }
 
 int Nest_getCheckPropertyInt(const Node* node, const char* name)

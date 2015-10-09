@@ -1,6 +1,7 @@
 #pragma once
 
 #include "StringRef.h"
+#include <string>
 
 StringRef allocStringRef(unsigned size);
 

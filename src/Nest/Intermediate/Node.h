@@ -2,64 +2,13 @@
 
 #include <Nest/Intermediate/NodeArray.h>
 #include <Nest/Intermediate/TypeRef.h>
+#include <Nest/Intermediate/NodeProperties.h>
 #include <Nest/Frontend/Location.h>
 #include <Nest/Common/StringRef.hpp>
 
 typedef struct Nest_Node Node;
 typedef struct Nest_Modifier Modifier;
 typedef struct Nest_CompilationContext CompilationContext;
-
-enum Nest_PropertyKind
-{
-    propInt,
-    propString,
-    propNode,
-    propType,
-};
-typedef enum Nest_PropertyKind PropertyKind;
-
-union Nest_PropertyValue
-{
-    int intValue_;
-    StringRef stringValue_;
-    Node* nodeValue_;
-    TypeRef typeValue_;
-
-    Nest_PropertyValue()
-    {
-        intValue_ = 0;
-    }
-    explicit Nest_PropertyValue(int val)
-    {
-        intValue_ = val;
-    }
-    explicit Nest_PropertyValue(StringRef val)
-    {
-        stringValue_ = dup(val);
-    }
-    explicit Nest_PropertyValue(Node* val)
-    {
-        nodeValue_ = val;
-    }
-    explicit Nest_PropertyValue(TypeRef val)
-    {
-        typeValue_ = val;
-    }
-};
-typedef union Nest_PropertyValue PropertyValue;
-
-struct Nest_Property
-{
-    PropertyKind kind_: 16;
-    bool passToExpl_: 1;
-    PropertyValue value_;
-
-    Nest_Property() : kind_(propInt), passToExpl_(false), value_(0) {}
-    Nest_Property(PropertyKind kind, PropertyValue value, bool passToExpl = false) : kind_(kind), passToExpl_(passToExpl), value_(value) {}
-};
-typedef struct Nest_Property Property;
-typedef unordered_map<string, Property> PropertyMap;
-typedef PropertyMap::value_type PropertyVal;
 
 /// Structure representing an AST node
 struct Nest_Node
@@ -81,7 +30,7 @@ struct Nest_Node
     NodeArray referredNodes;
     
     /// The properties of the node
-    PropertyMap properties;
+    NodeProperties properties;
 
     /// The context of this node
     CompilationContext* context;

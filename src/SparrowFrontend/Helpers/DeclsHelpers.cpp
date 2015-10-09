@@ -4,6 +4,7 @@
 #include "ForEachNodeInNodeList.h"
 #include <NodeCommonsCpp.h>
 #include <SparrowFrontendTypes.h>
+#include <Nest/Common/PtrArray.h>
 #include <Mods.h>
 
 using namespace SprFrontend;
@@ -137,25 +138,26 @@ void SprFrontend::checkForAllowedNamespaceChildren(Node* children, bool insideCl
 
 void SprFrontend::copyModifiersSetMode(Node* src, Node* dest, EvalMode newMode)
 {
-    dest->modifiers.reserve(src->modifiers.size());
-    for ( Modifier* mod: src->modifiers )
+    NestUtils_reservePtrArray((PtrArray*) &dest->modifiers, src->modifiers.endPtr - src->modifiers.beginPtr);
+    Modifier** p = src->modifiers.beginPtr;
+    for ( ; p!=src->modifiers.endPtr; ++p )
     {
         // TODO (rtct): This is not ok; we should find another way
-        if ( !SprFe_isEvalModeMod(mod) )
-            dest->modifiers.push_back(mod);
+        if ( !SprFe_isEvalModeMod(*p) )
+            Nest_addModifier(dest, *p);
     }
 
     // Make sure we preserve the evaluation mode of the class, after instantiation
     switch ( newMode )
     {
         case modeRt:
-            dest->modifiers.push_back(SprFe_getRtMod());
+            Nest_addModifier(dest, SprFe_getRtMod());
             break;
         case modeCt:
-            dest->modifiers.push_back(SprFe_getCtMod());
+            Nest_addModifier(dest, SprFe_getCtMod());
             break;
         case modeRtCt:
-            dest->modifiers.push_back(SprFe_getRtCtMod());
+            Nest_addModifier(dest, SprFe_getRtCtMod());
             break;
         default:
             break;

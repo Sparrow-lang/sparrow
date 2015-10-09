@@ -11,6 +11,7 @@
 #include <Nest/Intermediate/Node.h>
 #include <Nest/Intermediate/Type.h>
 #include <Nest/Common/Diagnostic.hpp>
+#include <Nest/Common/StringRef.hpp>
 
 #ifdef _MSC_VER
 #pragma warning(push,1)

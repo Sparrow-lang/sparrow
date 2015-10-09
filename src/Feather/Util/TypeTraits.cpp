@@ -7,6 +7,7 @@
 #include <Nest/Intermediate/Node.h>
 #include <Nest/Intermediate/CompilationContext.h>
 #include <Nest/Common/Diagnostic.hpp>
+#include <Nest/Common/StringRef.hpp>
 
 using namespace Feather;
 using namespace Nest;

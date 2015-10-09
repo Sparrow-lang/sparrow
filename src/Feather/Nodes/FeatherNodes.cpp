@@ -12,6 +12,7 @@
 
 #include <Nest/Common/Diagnostic.hpp>
 #include <Nest/Common/Alloc.h>
+#include <Nest/Common/StringRef.hpp>
 #include <Nest/Intermediate/Node.h>
 #include <Nest/Intermediate/NodeKindRegistrar.h>
 #include <Nest/Intermediate/Modifier.h>
@@ -397,8 +398,8 @@ using namespace Feather;
         if ( !node->type )
             node->type = Nest_getCheckPropertyType(node, "valueType");
         if ( !node->type || !node->type->hasStorage || node->type->mode == modeRt )
-            REP_ERROR_RET(nullptr, node->location, "Type specified for Ct Value cannot be used at compile-time");
-        
+            REP_ERROR_RET(nullptr, node->location, "Type specified for Ct Value cannot be used at compile-time (%1%)") % node->type;
+
         // Make sure data size matches the size reported by the type
         size_t valueSize = Nest_sizeOf(node->type);
         StringRef data = Nest_getCheckPropertyString(node, "valueData");

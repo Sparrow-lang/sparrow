@@ -6,6 +6,7 @@
 #include <Nest/Intermediate/CompilationContext.h>
 #include <Nest/Intermediate/SymTab.h>
 #include <Nest/Common/Diagnostic.hpp>
+#include <Nest/Common/StringRef.hpp>
 
 using namespace Feather;
 

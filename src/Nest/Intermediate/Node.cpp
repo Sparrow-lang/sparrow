@@ -6,6 +6,8 @@
 #include <Compiler.h>
 #include <Common/Alloc.h>
 #include <Common/Diagnostic.hpp>
+#include <Common/StringRef.hpp>
+#include <Common/PtrArray.h>
 
 NodeProperty* _findProperty(NodeProperties properties, StringRef name) {
     NodeProperty* p = properties.begin;
@@ -41,9 +43,11 @@ NodeProperties _cloneProperties(NodeProperties src) {
 
 void _applyModifiers(Node* node, ModifierType modType)
 {
-    for ( Modifier* mod: node->modifiers )
-        if ( mod->modifierType == modType )
-            mod->modifierFun(mod, node);
+    Modifier** mod = node->modifiers.beginPtr;
+    for ( ; mod != node->modifiers.endPtr; ++mod ) {
+        if ( (*mod)->modifierType == modType )
+            (*mod)->modifierFun(*mod, node);
+    }
 }
 
 /// Set the explanation of this node.
@@ -202,27 +206,27 @@ void Nest_nodeSetReferredNodes(Node* node, NodeRange nodes) {
 
 void Nest_setProperty(Node* node, const char* name, int val, bool passToExpl)
 {
-    NodeProperty prop = { fromCStr(name), propInt, passToExpl, {0} };
+    NodeProperty prop = { dupCStr(name), propInt, passToExpl, {0} };
     prop.value.intValue = val;
-    Nest_addProperty(&node->properties, prop);
+    _setProperty(&node->properties, prop);
 }
 void Nest_setProperty(Node* node, const char* name, StringRef val, bool passToExpl)
 {
-    NodeProperty prop = { fromCStr(name), propInt, passToExpl, {0} };
-    prop.value.stringValue = val;
-    Nest_addProperty(&node->properties, prop);
+    NodeProperty prop = { dupCStr(name), propString, passToExpl, {0} };
+    prop.value.stringValue = dup(val);
+    _setProperty(&node->properties, prop);
 }
 void Nest_setProperty(Node* node, const char* name, Node* val, bool passToExpl)
 {
-    NodeProperty prop = { fromCStr(name), propInt, passToExpl, {0} };
+    NodeProperty prop = { dupCStr(name), propNode, passToExpl, {0} };
     prop.value.nodeValue = val;
-    Nest_addProperty(&node->properties, prop);
+    _setProperty(&node->properties, prop);
 }
 void Nest_setProperty(Node* node, const char* name, TypeRef val, bool passToExpl)
 {
-    NodeProperty prop = { fromCStr(name), propInt, passToExpl, {0} };
+    NodeProperty prop = { dupCStr(name), propType, passToExpl, {0} };
     prop.value.typeValue = val;
-    Nest_addProperty(&node->properties, prop);
+    _setProperty(&node->properties, prop);
 }
 
 bool Nest_hasProperty(const Node* node, const char* name)
@@ -381,7 +385,7 @@ void Nest_clearCompilationState(Node* node)
     node->semanticCheckStarted = 0;
     node->explanation = nullptr;
     node->type = nullptr;
-    node->modifiers.clear();
+    node->modifiers.endPtr = node->modifiers.beginPtr;
 
     for ( Node* p: node->children )
     {
@@ -392,7 +396,7 @@ void Nest_clearCompilationState(Node* node)
 
 void Nest_addModifier(Node* node, Modifier* mod)
 {
-    node->modifiers.push_back(mod);
+    NestUtils_appendObjectToPtrArray((PtrArray*) &node->modifiers, mod);
 }
 
 CompilationContext* Nest_childrenContext(const Node* node)

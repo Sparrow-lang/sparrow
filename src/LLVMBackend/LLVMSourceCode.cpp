@@ -5,6 +5,7 @@
 
 #include <Nest/Common/Alloc.h>
 #include <Nest/Common/Diagnostic.hpp>
+#include <Nest/Common/StringRef.hpp>
 #include <Nest/Intermediate/EvalMode.h>
 #include <Nest/Intermediate/Node.h>
 

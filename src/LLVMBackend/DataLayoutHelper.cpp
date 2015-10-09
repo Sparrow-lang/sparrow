@@ -13,6 +13,7 @@
 #include <Nest/CompilerSettings.h>
 #include <Nest/Compiler.h>
 #include <Nest/Common/Diagnostic.hpp>
+#include <Nest/Common/StringRef.hpp>
 
 using namespace LLVMB;
 using namespace Feather;

@@ -3,6 +3,7 @@
 #include "NodeCommonsH.h"
 
 #include <Nest/Common/Diagnostic.hpp>
+#include <Nest/Common/StringRef.hpp>
 #include <Nest/Intermediate/CompilationContext.h>
 #include <Nest/Intermediate/Type.h>
 #include <Nest/Intermediate/SymTab.h>

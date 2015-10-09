@@ -44,6 +44,7 @@
 #include <Feather/Nodes/FeatherNodes.h>
 
 #include <Nest/Common/Diagnostic.hpp>
+#include <Nest/Common/StringRef.hpp>
 #include <Nest/Intermediate/Node.h>
 #include <Nest/Intermediate/NodeUtils.hpp>
 

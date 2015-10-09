@@ -1,10 +1,11 @@
 #pragma once
 
 #include <Nest/Intermediate/NodeArray.h>
+#include <Nest/Intermediate/Modifier.h>
 #include <Nest/Intermediate/TypeRef.h>
 #include <Nest/Intermediate/NodeProperties.h>
 #include <Nest/Frontend/Location.h>
-#include <Nest/Common/StringRef.hpp>
+#include <Nest/Common/StringRef.h>
 
 typedef struct Nest_Node Node;
 typedef struct Nest_Modifier Modifier;
@@ -46,7 +47,7 @@ struct Nest_Node
     Node* explanation;
 
     /// The modifiers used to adjust the compilation process of this node
-    vector<Modifier*> modifiers;
+    ModifiersArray modifiers;
 };
 
 typedef struct Nest_Node Nest_Node;

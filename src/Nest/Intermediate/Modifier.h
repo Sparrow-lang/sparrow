@@ -25,3 +25,11 @@ struct Nest_Modifier {
     FModifierFun modifierFun;
 };
 typedef struct Nest_Modifier Nest_Modifier;
+
+struct Nest_ModifiersArray {
+    Modifier** beginPtr;
+    Modifier** endPtr;
+    Modifier** endOfStorePtr;
+};
+typedef struct Nest_ModifiersArray Nest_ModifiersArray;
+typedef struct Nest_ModifiersArray ModifiersArray;

@@ -104,12 +104,17 @@ void Nest_nodeSetReferredNodes(Node* node, NodeRange nodes);
 // Node properties
 //
 
-void Nest_setProperty(Node* node, const char* name, int val, bool passToExpl = false);
-void Nest_setProperty(Node* node, const char* name, StringRef val, bool passToExpl = false);
-void Nest_setProperty(Node* node, const char* name, Node* val, bool passToExpl = false);
-void Nest_setProperty(Node* node, const char* name, TypeRef val, bool passToExpl = false);
+void Nest_setPropertyInt(Node* node, const char* name, int val);
+void Nest_setPropertyString(Node* node, const char* name, StringRef val);
+void Nest_setPropertyNode(Node* node, const char* name, Node* val);
+void Nest_setPropertyType(Node* node, const char* name, TypeRef val);
 
-bool Nest_hasProperty(const Node* node, const char* name);
+void Nest_setPropertyExplInt(Node* node, const char* name, int val);
+void Nest_setPropertyExplString(Node* node, const char* name, StringRef val);
+void Nest_setPropertyExplNode(Node* node, const char* name, Node* val);
+void Nest_setPropertyExplType(Node* node, const char* name, TypeRef val);
+
+int Nest_hasProperty(const Node* node, const char* name);
 const int* Nest_getPropertyInt(const Node* node, const char* name);
 const StringRef* Nest_getPropertyString(const Node* node, const char* name);
 Node*const* Nest_getPropertyNode(const Node* node, const char* name);

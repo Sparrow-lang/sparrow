@@ -218,7 +218,7 @@ Node* SprFrontend::createTempVarConstruct(const Location& loc, CompilationContex
     Nest_setContext(res, context);
     if ( !Nest_computeType(res) )
         return nullptr;
-    Nest_setProperty(res, propTempVarContstruction, constructAction);
+    Nest_setPropertyNode(res, propTempVarContstruction, constructAction);
 
     // CT sanity checks
     checkEvalMode(res, var->type->mode);
@@ -232,7 +232,7 @@ Node* SprFrontend::createFunPtr(Node* funNode)
     const Location& loc = funNode->location;
 
     // Allow the funNode to return DeclExp
-    Nest_setProperty(funNode, propAllowDeclExp, 1, true);
+    Nest_setPropertyExplInt(funNode, propAllowDeclExp, 1);
 
     Node* baseExp = nullptr;
     NodeVector decls = getDeclsFromNode(funNode, baseExp);

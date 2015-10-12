@@ -38,7 +38,7 @@ namespace
 
     void setInstantiatedDecl(Node* inst, Node* decl)
     {
-        Nest_setProperty(inst, "instantiatedDecl", decl);
+        Nest_setPropertyNode(inst, "instantiatedDecl", decl);
         Nest_appendNodeToArray(&expandedInstantiation(inst)->children, decl);
     }
 
@@ -49,7 +49,7 @@ namespace
 
     void setInstantiationValid(Node* inst, bool valid = true)
     {
-        Nest_setProperty(inst, "instIsValid", valid ? 1 : 0);
+        Nest_setPropertyInt(inst, "instIsValid", valid ? 1 : 0);
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -85,14 +85,14 @@ namespace
 
                 Node* var = mkSprVariable(p->location, getName(p), t, nullptr);
                 if ( insideClass )
-                    Nest_setProperty(var, propIsStatic, 1);
+                    Nest_setPropertyInt(var, propIsStatic, 1);
                 nodes.push_back(var);
             }
             else
             {
                 Node* var = mkSprVariable(p->location, getName(p), boundValue->type, boundValue);
                 if ( insideClass )
-                    Nest_setProperty(var, propIsStatic, 1);
+                    Nest_setPropertyInt(var, propIsStatic, 1);
                 setEvalMode(var, modeCt);
                 nodes.push_back(var);
             }
@@ -663,7 +663,7 @@ Node* SprFrontend::genericDoInstantiate(Node* node, const Location& loc, Compila
                 instDecl = createInstantiatedClass(ctx, originalClass, description);
                 if ( !instDecl )
                     REP_INTERNAL(loc, "Cannot instantiate generic");
-                Nest_setProperty(instDecl, propDescription, fromString(description));
+                Nest_setPropertyString(instDecl, propDescription, fromString(description));
                 if ( !Nest_computeType(instDecl) )
                     return nullptr;
                 Nest_queueSemanticCheck(instDecl);

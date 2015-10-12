@@ -80,8 +80,8 @@ namespace
         Node* res = Nest_createNode(nkLLVMDestructActionForConditional);
         res->location = NOLOC;
         Nest_nodeSetChildren(res, fromIniList({ mkNodeList(NOLOC, move(alt1DestructActions)), mkNodeList(NOLOC, move(alt2DestructActions)) }));
-        Nest_setProperty(res, "resType", resType);
-        Nest_setProperty(res, "cond_LLVM_value", reinterpret_cast<Node*>(cond)); // store the condition llvm value as a pointer to a node
+        Nest_setPropertyType(res, "resType", resType);
+        Nest_setPropertyNode(res, "cond_LLVM_value", reinterpret_cast<Node*>(cond)); // store the condition llvm value as a pointer to a node
         return res;
     }
     llvm::Value* CondDestrAct_condition(Node* node)

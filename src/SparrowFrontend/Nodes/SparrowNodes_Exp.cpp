@@ -636,8 +636,8 @@ namespace
         at(node->children, 1) = other;
 
         StringRef otherOper = getOperation(other);
-        Nest_setProperty(other, operPropName, getOperation(node));
-        Nest_setProperty(node, operPropName, otherOper);
+        Nest_setPropertyString(other, operPropName, getOperation(node));
+        Nest_setPropertyString(node, operPropName, otherOper);
     }
 
     // Visual explanation:
@@ -664,8 +664,8 @@ namespace
         at(node->children, 0) = other;
 
         StringRef otherOper = getOperation(other);
-        Nest_setProperty(other, operPropName, getOperation(node));
-        Nest_setProperty(node, operPropName, otherOper);
+        Nest_setPropertyString(other, operPropName, getOperation(node));
+        Nest_setPropertyString(node, operPropName, otherOper);
     }
 
     int getIntValue(Node* node, NodeRange decls, int defaultVal)
@@ -895,7 +895,7 @@ Node* CompoundExp_SemanticCheck(Node* node)
     StringRef id = Nest_getCheckPropertyString(node, "name");
 
     // For the base expression allow it to return DeclExp
-    Nest_setProperty(base, propAllowDeclExp, 1, true);
+    Nest_setPropertyExplInt(base, propAllowDeclExp, 1);
 
     // Compile the base expression
     // We can expect at the base node both traditional expressions and nodes yielding decl-type types
@@ -911,7 +911,7 @@ Node* CompoundExp_SemanticCheck(Node* node)
         baseDataExp = base;
     if ( baseDataExp && !Nest_computeType(baseDataExp) )
         return nullptr;
-    Nest_setProperty(node, "baseDataExp", baseDataExp);
+    Nest_setPropertyNode(node, "baseDataExp", baseDataExp);
 
     // Get the declarations that this node refers to
     NodeVector decls;
@@ -957,7 +957,7 @@ Node* FunApplication_SemanticCheck(Node* node)
         REP_INTERNAL(node->location, "Don't know what function to call");
     
     // For the base expression allow it to return DeclExp
-    Nest_setProperty(base, propAllowDeclExp, 1, true);
+    Nest_setPropertyExplInt(base, propAllowDeclExp, 1);
 
     // Compile the base expression
     // We can expect here both traditional expressions and nodes yielding decl-type types
@@ -1255,7 +1255,7 @@ Node* LambdaFunction_SemanticCheck(Node* node)
     // Create the ctor used to initialize the closure class
     Node* ctorBody = mkLocalSpace(node->location, all(ctorStmts));
     Node* enclosingCtor = mkSprFunction(node->location, fromCStr("ctor"), ctorParams, nullptr, ctorBody);
-    Nest_setProperty(enclosingCtor, propNoDefault, 1);
+    Nest_setPropertyInt(enclosingCtor, propNoDefault, 1);
     Nest_appendNodeToArray(&classBody->children, enclosingCtor);
 
     // Create the lambda closure
@@ -1326,7 +1326,7 @@ Node* StarExp_SemanticCheck(Node* node)
     Node* base = at(node->children, 0);
 
     // For the base expression allow it to return DeclExp
-    Nest_setProperty(base, propAllowDeclExp, 1, true);
+    Nest_setPropertyExplInt(base, propAllowDeclExp, 1);
 
     // Get the declarations from the base expression
     if ( !Nest_semanticCheck(base) )

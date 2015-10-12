@@ -115,7 +115,7 @@ bool SprFrontend::hasAccessType(Node* decl)
 
 void SprFrontend::setAccessType(Node* decl, AccessType accessType)
 {
-    Nest_setProperty(decl, "spr.accessType", (int) accessType);
+    Nest_setPropertyInt(decl, "spr.accessType", accessType);
 }
 
 Node* SprFrontend::getResultParam(Node* f)

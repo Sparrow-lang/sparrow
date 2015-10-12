@@ -43,7 +43,7 @@ bool Feather::hasName(const Node* decl)
 
 void Feather::setName(Node* decl, StringRef name)
 {
-    Nest_setProperty(decl, "name", name);
+    Nest_setPropertyString(decl, "name", name);
 }
 
 
@@ -59,7 +59,7 @@ EvalMode Feather::effectiveEvalMode(const Node* decl)
 }
 void Feather::setEvalMode(Node* decl, EvalMode val)
 {
-    Nest_setProperty(decl, "evalMode", (int) val);
+    Nest_setPropertyInt(decl, "evalMode", val);
 
     
     // Sanity check
@@ -84,5 +84,5 @@ void Feather::addToSymTab(Node* decl)
 
 void Feather::setShouldAddToSymTab(Node* decl, bool val)
 {
-    Nest_setProperty(decl, "dontAddToSymTab", val ? 0 : 1);
+    Nest_setPropertyInt(decl, "dontAddToSymTab", val ? 0 : 1);
 }

@@ -292,7 +292,7 @@ TypeRef SprClass_ComputeType(Node* node)
     if ( parameters && Nest_nodeArraySize(parameters->children) != 0 )
     {
         Node* generic = mkGenericClass(node, parameters, ifClause);
-        Nest_setProperty(node, propResultingDecl, generic);
+        Nest_setPropertyNode(node, propResultingDecl, generic);
         Nest_setContext(generic, node->context);
         if ( !Nest_semanticCheck(generic) )
             return nullptr;
@@ -323,18 +323,18 @@ TypeRef SprClass_ComputeType(Node* node)
     // Copy the "native" and "description" properties to the resulting class
     if ( nativeName )
     {
-        Nest_setProperty(resultingClass, Feather::propNativeName, *nativeName);
+        Nest_setPropertyString(resultingClass, Feather::propNativeName, *nativeName);
     }
     const StringRef* description = Nest_getPropertyString(node, propDescription);
     if ( description )
     {
-        Nest_setProperty(resultingClass, propDescription, *description);
+        Nest_setPropertyString(resultingClass, propDescription, *description);
     }
 
     setEvalMode(resultingClass, nodeEvalMode(node));
     resultingClass->childrenContext = node->childrenContext;
     Nest_setContext(resultingClass, node->context);
-    Nest_setProperty(node, propResultingDecl, resultingClass);
+    Nest_setPropertyNode(node, propResultingDecl, resultingClass);
 
     node->explanation = resultingClass;
 
@@ -443,7 +443,7 @@ TypeRef SprFunction_ComputeType(Node* node)
     if ( !isMember && isStatic )
         REP_ERROR_RET(nullptr, node->location, "Only functions inside classes can be static");
     if ( isMember )
-        Nest_setProperty(node, propIsMember, 1);
+        Nest_setPropertyInt(node, propIsMember, 1);
 
     // Is this a generic?
     if ( parameters )
@@ -456,7 +456,7 @@ TypeRef SprFunction_ComputeType(Node* node)
             node->explanation = generic;
             if ( !Nest_computeType(node->explanation) )
                 return nullptr;
-            Nest_setProperty(node, propResultingDecl, generic);
+            Nest_setPropertyNode(node, propResultingDecl, generic);
             return node->explanation->type;
         }
     }
@@ -483,16 +483,16 @@ TypeRef SprFunction_ComputeType(Node* node)
     // Copy the "native" and the "autoCt" properties
     const StringRef* nativeName = Nest_getPropertyString(node, propNativeName);
     if ( nativeName )
-        Nest_setProperty(resultingFun, Feather::propNativeName, *nativeName);
+        Nest_setPropertyString(resultingFun, Feather::propNativeName, *nativeName);
     if ( Nest_hasProperty(node, propAutoCt) )
-        Nest_setProperty(resultingFun, propAutoCt, 1);
+        Nest_setPropertyInt(resultingFun, propAutoCt, 1);
     if ( Nest_hasProperty(node, propNoInline) )
-        Nest_setProperty(resultingFun, propNoInline, 1);
+        Nest_setPropertyInt(resultingFun, propNoInline, 1);
 
     setEvalMode(resultingFun, thisEvalMode);
     resultingFun->childrenContext = node->childrenContext;
     Nest_setContext(resultingFun, node->context);
-    Nest_setProperty(node, propResultingDecl, resultingFun);
+    Nest_setPropertyNode(node, propResultingDecl, resultingFun);
 
     // Compute the types of the parameters first
     if ( parameters && !Nest_computeType(parameters) )
@@ -530,7 +530,7 @@ TypeRef SprFunction_ComputeType(Node* node)
         Node* resParam = Feather::mkVar(returnType->location, fromCStr("_result"), mkTypeNode(returnType->location, addRef(resType)));
         Nest_setContext(resParam, node->childrenContext);
         Function_addParameter(resultingFun, resParam, true);
-        Nest_setProperty(resultingFun, propResultParam, resParam);
+        Nest_setPropertyNode(resultingFun, propResultParam, resParam);
         Function_setResultType(resultingFun, mkTypeNode(returnType->location, getVoidType(thisEvalMode)));
     }
     else
@@ -587,7 +587,7 @@ TypeRef SprParameter_ComputeType(Node* node)
     Nest_setContext(resultingParam, node->context);
     if ( !Nest_computeType(resultingParam) )
         return nullptr;
-    Nest_setProperty(node, Feather::propResultingDecl, resultingParam);
+    Nest_setPropertyNode(node, Feather::propResultingDecl, resultingParam);
     node->explanation = resultingParam;
     return resultingParam->type;
 }
@@ -662,11 +662,11 @@ TypeRef SprVariable_ComputeType(Node* node)
     Node* resultingVar = mkVar(node->location, getName(node), mkTypeNode(node->location, t));
     setEvalMode(resultingVar, effectiveEvalMode(node));
     setShouldAddToSymTab(resultingVar, false);
-    Nest_setProperty(node, propResultingDecl, resultingVar);
+    Nest_setPropertyNode(node, propResultingDecl, resultingVar);
 
     if ( varKind == varField )
     {
-        Nest_setProperty(resultingVar, propIsField, 1);
+        Nest_setPropertyInt(resultingVar, propIsField, 1);
     }
 
     Nest_setContext(resultingVar, node->childrenContext);
@@ -745,7 +745,7 @@ TypeRef SprVariable_ComputeType(Node* node)
         return nullptr;
     node->explanation = expl;
 
-    Nest_setProperty(node, "spr.resultingVar", resultingVar);
+    Nest_setPropertyNode(node, "spr.resultingVar", resultingVar);
 
     // TODO (var): field initialization
     if ( init && varKind == varField )

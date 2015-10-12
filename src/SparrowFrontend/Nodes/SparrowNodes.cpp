@@ -510,7 +510,7 @@ Node* SprFrontend::mkSprVariable(const Location& loc, StringRef name, TypeRef ty
     Nest_nodeSetChildren(res, fromIniList({ nullptr, init }));
     setName(res, name);
     setAccessType(res, accessType);
-    Nest_setProperty(res, "spr.givenType", type);
+    Nest_setPropertyType(res, "spr.givenType", type);
     return res;
 }
 
@@ -534,7 +534,7 @@ Node* SprFrontend::mkSprConcept(const Location& loc, StringRef name, StringRef p
     Nest_nodeSetChildren(res, fromIniList({ baseConcept, ifClause, nullptr }));
     setName(res, name);
     setAccessType(res, accessType);
-    Nest_setProperty(res, "spr.paramName", paramName);
+    Nest_setPropertyString(res, "spr.paramName", paramName);
     return res;
 }
 
@@ -564,7 +564,7 @@ Node* SprFrontend::mkSprParameter(const Location& loc, StringRef name, TypeRef t
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({ nullptr, init }));
     Feather::setName(res, name);
-    Nest_setProperty(res, "spr.givenType", type);
+    Nest_setPropertyType(res, "spr.givenType", type);
     return res;
 }
 
@@ -615,8 +615,8 @@ Node* SprFrontend::mkLiteral(const Location& loc, StringRef litType, StringRef d
 {
     Node* res = Nest_createNode(nkSparrowExpLiteral);
     res->location = loc;
-    Nest_setProperty(res, "spr.literalType", litType);
-    Nest_setProperty(res, "spr.literalData", data);
+    Nest_setPropertyString(res, "spr.literalType", litType);
+    Nest_setPropertyString(res, "spr.literalData", data);
     return res;
 }
 
@@ -631,8 +631,8 @@ Node* SprFrontend::mkIdentifier(const Location& loc, StringRef id)
 {
     Node* res = Nest_createNode(nkSparrowExpIdentifier);
     res->location = loc;
-    Nest_setProperty(res, "name", id);
-    Nest_setProperty(res, propAllowDeclExp, 0);
+    Nest_setPropertyString(res, "name", id);
+    Nest_setPropertyInt(res, propAllowDeclExp, 0);
     return res;
 }
 
@@ -641,8 +641,8 @@ Node* SprFrontend::mkCompoundExp(const Location& loc, Node* base, StringRef id)
     Node* res = Nest_createNode(nkSparrowExpCompoundExp);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({ base }));
-    Nest_setProperty(res, "name", id);
-    Nest_setProperty(res, propAllowDeclExp, 0);
+    Nest_setPropertyString(res, "name", id);
+    Nest_setPropertyInt(res, propAllowDeclExp, 0);
     return res;
 }
 
@@ -669,7 +669,7 @@ Node* SprFrontend::mkOperatorCall(const Location& loc, Node* arg1, StringRef op,
     Node* res = Nest_createNode(nkSparrowExpOperatorCall);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({ arg1, arg2 }));
-    Nest_setProperty(res, "spr.operation", op);
+    Nest_setPropertyString(res, "spr.operation", op);
     return res;
 }
 
@@ -680,7 +680,7 @@ Node* SprFrontend::mkInfixOp(const Location& loc, StringRef op, Node* arg1, Node
     Nest_nodeSetChildren(res, fromIniList({ arg1, arg2 }));
     if ( size(op) == 0 )
         REP_ERROR_RET(nullptr, res->location, "Operation name must have at least one character");
-    Nest_setProperty(res, "spr.operation", op);
+    Nest_setPropertyString(res, "spr.operation", op);
     return res;
 }
 
@@ -755,8 +755,8 @@ Node* SprFrontend::mkInstantiation(const Location& loc, NodeRange boundValues, N
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({ Feather::mkNodeList(loc, boundVars) }));
     Nest_appendNodesToArray(&res->referredNodes, boundValues);
-    Nest_setProperty(res, "instIsValid", 0);
-    Nest_setProperty(res, "instantiatedDecl", (Node*) nullptr);
+    Nest_setPropertyInt(res, "instIsValid", 0);
+    Nest_setPropertyNode(res, "instantiatedDecl", nullptr);
     return res;
 }
 

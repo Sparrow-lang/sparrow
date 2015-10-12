@@ -204,32 +204,57 @@ void Nest_nodeSetReferredNodes(Node* node, NodeRange nodes) {
 
 
 
-void Nest_setProperty(Node* node, const char* name, int val, bool passToExpl)
+void Nest_setPropertyInt(Node* node, const char* name, int val)
 {
-    NodeProperty prop = { dupCStr(name), propInt, passToExpl, {0} };
+    NodeProperty prop = { dupCStr(name), propInt, 0, {0} };
     prop.value.intValue = val;
     _setProperty(&node->properties, prop);
 }
-void Nest_setProperty(Node* node, const char* name, StringRef val, bool passToExpl)
+void Nest_setPropertyString(Node* node, const char* name, StringRef val)
 {
-    NodeProperty prop = { dupCStr(name), propString, passToExpl, {0} };
+    NodeProperty prop = { dupCStr(name), propString, 0, {0} };
     prop.value.stringValue = dup(val);
     _setProperty(&node->properties, prop);
 }
-void Nest_setProperty(Node* node, const char* name, Node* val, bool passToExpl)
+void Nest_setPropertyNode(Node* node, const char* name, Node* val)
 {
-    NodeProperty prop = { dupCStr(name), propNode, passToExpl, {0} };
+    NodeProperty prop = { dupCStr(name), propNode, 0, {0} };
     prop.value.nodeValue = val;
     _setProperty(&node->properties, prop);
 }
-void Nest_setProperty(Node* node, const char* name, TypeRef val, bool passToExpl)
+void Nest_setPropertyType(Node* node, const char* name, TypeRef val)
 {
-    NodeProperty prop = { dupCStr(name), propType, passToExpl, {0} };
+    NodeProperty prop = { dupCStr(name), propType, 0, {0} };
     prop.value.typeValue = val;
     _setProperty(&node->properties, prop);
 }
 
-bool Nest_hasProperty(const Node* node, const char* name)
+void Nest_setPropertyExplInt(Node* node, const char* name, int val)
+{
+    NodeProperty prop = { dupCStr(name), propInt, 1, {0} };
+    prop.value.intValue = val;
+    _setProperty(&node->properties, prop);
+}
+void Nest_setPropertyExplString(Node* node, const char* name, StringRef val)
+{
+    NodeProperty prop = { dupCStr(name), propString, 1, {0} };
+    prop.value.stringValue = dup(val);
+    _setProperty(&node->properties, prop);
+}
+void Nest_setPropertyExplNode(Node* node, const char* name, Node* val)
+{
+    NodeProperty prop = { dupCStr(name), propNode, 1, {0} };
+    prop.value.nodeValue = val;
+    _setProperty(&node->properties, prop);
+}
+void Nest_setPropertyExplType(Node* node, const char* name, TypeRef val)
+{
+    NodeProperty prop = { dupCStr(name), propType, 1, {0} };
+    prop.value.typeValue = val;
+    _setProperty(&node->properties, prop);
+}
+
+int Nest_hasProperty(const Node* node, const char* name)
 {
     return NULL != _findProperty(node->properties, fromCStr(name));
 }

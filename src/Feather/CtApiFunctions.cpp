@@ -182,19 +182,19 @@ namespace
     void ctApi_AstNode_setPropertyString(Node** thisArg, StringData name, StringData value)
     {
         StringRef val = { value.begin, value.end };
-        Nest_setProperty(*thisArg, name.begin, val);
+        Nest_setPropertyString(*thisArg, name.begin, val);
     }
     void ctApi_AstNode_setPropertyInt(Node** thisArg, StringData name, int value)
     {
-        Nest_setProperty(*thisArg, name.begin, value);
+        Nest_setPropertyInt(*thisArg, name.begin, value);
     }
     void ctApi_AstNode_setPropertyNode(Node** thisArg, StringData name, Node* value)
     {
-        Nest_setProperty(*thisArg, name.begin, value);
+        Nest_setPropertyNode(*thisArg, name.begin, value);
     }
     void ctApi_AstNode_setPropertyType(Node** thisArg, StringData name, TypeRef value)
     {
-        Nest_setProperty(*thisArg, name.begin, value);
+        Nest_setPropertyType(*thisArg, name.begin, value);
     }
     void ctApi_AstNode_setContext(Node** thisArg, CompilationContext* context)
     {

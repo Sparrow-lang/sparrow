@@ -14,6 +14,7 @@ typedef enum Nest_ModifierType Nest_ModifierType;
 typedef enum Nest_ModifierType ModifierType;
 
 typedef struct Nest_Modifier Modifier;
+typedef struct Nest_Modifier Nest_Modifier;
 
 typedef void (*FModifierFun)(Nest_Modifier* mod, Node* node);
 
@@ -24,7 +25,6 @@ struct Nest_Modifier {
     ModifierType modifierType;
     FModifierFun modifierFun;
 };
-typedef struct Nest_Modifier Nest_Modifier;
 
 struct Nest_ModifiersArray {
     Modifier** beginPtr;

@@ -232,7 +232,7 @@ namespace
             checkChildrenCount(srcNode, 2, "<name>, <value>");
             string name = readString(srcNode->children()[0], "<name>");
             string value = readString(srcNode->children()[1], "<value>");
-            Nest_setProperty(node, name.c_str(), fromString(value));
+            Nest_setPropertyString(node, name.c_str(), fromString(value));
             return true;
         }
 
@@ -241,7 +241,7 @@ namespace
             checkChildrenCount(srcNode, 2, "<name>, <value>");
             string name = readString(srcNode->children()[0], "<name>");
             int value = readInt(srcNode->children()[1], "<value>");
-            Nest_setProperty(node, name.c_str(), value);
+            Nest_setPropertyInt(node, name.c_str(), value);
             return true;
         }
 
@@ -250,7 +250,7 @@ namespace
             checkChildrenCount(srcNode, 2, "<name>, <value>");
             string name = readString(srcNode->children()[0], "<name>");
             int value = readInt(srcNode->children()[1], "<value>");
-            Nest_setProperty(node, name.c_str(), value);
+            Nest_setPropertyInt(node, name.c_str(), value);
             return true;
         }
 

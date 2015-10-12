@@ -138,7 +138,7 @@ namespace
         
         // Add the function
         Node* m = mkSprFunction(loc, fromString(name), parameters, ret, body);
-        Nest_setProperty(m, propNoDefault, 1);
+        Nest_setPropertyInt(m, propNoDefault, 1);
         setEvalMode(m, mode == modeUnspecified ? effectiveEvalMode(parent) : mode);
         Class_addChild(parent, m);
         if ( !Nest_computeType(m) )

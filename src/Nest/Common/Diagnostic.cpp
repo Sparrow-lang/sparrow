@@ -1,6 +1,6 @@
-#include "StdInc.h"
+#include "StdInc.hpp"
 #include "Diagnostic.hpp"
-#include "ConsoleColors.h"
+#include "ConsoleColors.hpp"
 #include "StringRef.h"
 #include <Frontend/SourceCode.h>
 #include <Intermediate/Node.h>

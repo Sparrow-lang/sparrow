@@ -9,7 +9,7 @@ One can create modules to implement "any kind" of functionality into the
 compiler. Of course, one would like to interact with other modules, so typically
 a module interacts with the Nest module.
 */
-struct CompilerModule
+struct Nest_CompilerModule
 {
     // Module description
     const char* name;
@@ -27,3 +27,5 @@ struct CompilerModule
     // Function called when the Backend was set
     void (*onBackendSetFun)(Backend*);
 };
+typedef struct Nest_CompilerModule Nest_CompilerModule;
+typedef struct Nest_CompilerModule CompilerModule;

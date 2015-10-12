@@ -11,7 +11,7 @@
 #include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Util/TypeTraits.h>
 
-#include <Nest/Common/Tuple.h>
+#include <Nest/Common/Tuple.hpp>
 
 using namespace SprFrontend;
 using namespace Feather;

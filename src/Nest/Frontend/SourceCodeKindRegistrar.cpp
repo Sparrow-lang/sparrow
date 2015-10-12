@@ -1,4 +1,4 @@
-#include <StdInc.h>
+#include <StdInc.hpp>
 #include "SourceCodeKindRegistrar.h"
 
 #include <boost/filesystem.hpp>

@@ -1,5 +1,5 @@
-#include <StdInc.h>
-#include "DiagnosticFormatter.h"
+#include <StdInc.hpp>
+#include "DiagnosticFormatter.hpp"
 
 using namespace Nest;
 using namespace Nest::Common;

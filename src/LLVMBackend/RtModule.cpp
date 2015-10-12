@@ -5,8 +5,8 @@
 
 #include <Nest/Common/Diagnostic.hpp>
 #include <Nest/Intermediate/Node.h>
-#include <Nest/CompilerSettings.h>
-#include <Nest/Compiler.h>
+#include <Nest/CompilerSettings.hpp>
+#include <Nest/Compiler.hpp>
 #include <Nest/Frontend/SourceCode.h>
 
 

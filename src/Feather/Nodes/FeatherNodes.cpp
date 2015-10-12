@@ -1053,7 +1053,7 @@ int Feather::nkFeatherStmtReturn = 0;
 
 void Feather::initFeatherNodeKinds()
 {
-    nkFeatherNop = Nest_registerNodeKind("nop", &Nop_SemanticCheck);
+    nkFeatherNop = Nest_registerNodeKind("nop", &Nop_SemanticCheck, NULL, NULL, NULL);
     nkFeatherTypeNode = Nest_registerNodeKind("typeNode", &TypeNode_SemanticCheck, NULL, NULL, &TypeNode_toString);
     nkFeatherBackendCode = Nest_registerNodeKind("backendCode", &BackendCode_SemanticCheck, NULL, NULL, &BackendCode_toString);
     nkFeatherNodeList = Nest_registerNodeKind("nodeList", &NodeList_SemanticCheck, &NodeList_ComputeType, NULL, NULL);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Nest/Intermediate/NodeVector.h>
+#include <Nest/Intermediate/NodeVector.hpp>
 
 FWD_CLASS2(LLVMB,Tr, Scope);
 FWD_CLASS2(LLVMB,Tr, TrContext);

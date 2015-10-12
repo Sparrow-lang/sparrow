@@ -3,7 +3,7 @@
 #include <NodeCommonsCpp.h>
 
 #include <Feather/Nodes/FeatherNodes.h>
-#include <Nest/Intermediate/NodeVector.h>
+#include <Nest/Intermediate/NodeVector.hpp>
 
 
 using namespace SprFrontend;

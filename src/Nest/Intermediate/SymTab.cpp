@@ -1,4 +1,4 @@
-#include <StdInc.h>
+#include <StdInc.hpp>
 #include "SymTab.h"
 
 #include "Common/Alloc.h"

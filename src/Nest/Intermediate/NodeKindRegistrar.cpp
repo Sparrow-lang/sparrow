@@ -1,4 +1,4 @@
-#include <StdInc.h>
+#include <StdInc.hpp>
 #include "NodeKindRegistrar.h"
 #include "Node.h"
 

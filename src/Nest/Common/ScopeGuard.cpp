@@ -1,5 +1,5 @@
-#include <StdInc.h>
-#include "ScopeGuard.h"
+#include <StdInc.hpp>
+#include "ScopeGuard.hpp"
 
 using namespace Nest::Common;
 

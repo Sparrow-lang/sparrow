@@ -1,6 +1,6 @@
-#include <StdInc.h>
-#include "Compiler.h"
-#include "CompilerSettings.h"
+#include <StdInc.hpp>
+#include "Compiler.hpp"
+#include "CompilerSettings.hpp"
 #include "Common/Alloc.h"
 #include "Common/Diagnostic.hpp"
 #include "Common/StringRef.hpp"

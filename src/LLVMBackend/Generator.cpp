@@ -2,9 +2,9 @@
 #include "Generator.h"
 
 #include <Nest/Common/Diagnostic.hpp>
-#include <Nest/Common/PrintTimer.h>
-#include <Nest/Compiler.h>
-#include <Nest/CompilerSettings.h>
+#include <Nest/Common/PrintTimer.hpp>
+#include <Nest/Compiler.hpp>
+#include <Nest/CompilerSettings.hpp>
 
 #include <boost/filesystem/path.hpp>
 

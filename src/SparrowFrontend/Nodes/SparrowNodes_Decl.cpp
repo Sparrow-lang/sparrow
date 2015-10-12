@@ -17,6 +17,7 @@
 #include <Feather/Util/Context.h>
 
 #include <Nest/Frontend/SourceCode.h>
+#include <Nest/Intermediate/NodeVector.hpp>
 
 using namespace SprFrontend;
 using namespace Feather;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Nest/Intermediate/NodeVector.h>
+#include <Nest/Intermediate/NodeVector.hpp>
 #include <Nest/Intermediate/TypeRef.h>
 #include <Nest/Intermediate/EvalMode.h>
 

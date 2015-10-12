@@ -3,8 +3,8 @@
 #include <Tr/TrTopLevel.h>
 
 #include <Feather/Util/Decl.h>
-#include <Nest/CompilerSettings.h>
-#include <Nest/Compiler.h>
+#include <Nest/CompilerSettings.hpp>
+#include <Nest/Compiler.hpp>
 
 using namespace LLVMB;
 

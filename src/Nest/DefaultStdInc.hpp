@@ -23,7 +23,7 @@
 #include <boost/unordered_map.hpp>
 #include <boost/range/adaptor/reversed.hpp>
 
-#include "Common/Fwd.h"
+#include "Common/Fwd.hpp"
 #include "Common/Assert.h"
 
 // we are pretty fond of STL

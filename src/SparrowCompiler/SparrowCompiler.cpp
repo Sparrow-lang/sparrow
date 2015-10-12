@@ -3,10 +3,10 @@
 
 #include <Nest/Nest.h>
 #include <Nest/CompilerModule.h>
-#include <Nest/Compiler.h>
-#include <Nest/CompilerSettings.h>
+#include <Nest/Compiler.hpp>
+#include <Nest/CompilerSettings.hpp>
 #include <Nest/Common/Diagnostic.hpp>
-#include <Nest/Common/PrintTimer.h>
+#include <Nest/Common/PrintTimer.hpp>
 #include <Nest/Common/StringRef.hpp>
 #include <Nest/Backend/Backend.h>
 #include <Nest/Intermediate/CompilationContext.h>

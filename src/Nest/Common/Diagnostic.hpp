@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Diagnostic.h"
-#include "DiagnosticFormatter.h"
+#include "DiagnosticFormatter.hpp"
 #include <Nest/Intermediate/EvalMode.h>
 
 #define __REP_IMPL_RET(retVal, type, fmt, loc) \

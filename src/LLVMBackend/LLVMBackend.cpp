@@ -10,8 +10,8 @@
 #include <Nest/Intermediate/NodeUtils.hpp>
 #include <Nest/Frontend/SourceCode.h>
 #include <Nest/Backend/Backend.h>
-#include <Nest/Compiler.h>
-#include <Nest/CompilerSettings.h>
+#include <Nest/Compiler.hpp>
+#include <Nest/CompilerSettings.hpp>
 
 #include <boost/bind.hpp>
 

@@ -18,9 +18,9 @@ typedef Node* (*FSemanticCheck)(Node* node);
 /// @return the ID of the new node kind
 int Nest_registerNodeKind(const char* name,
                      FSemanticCheck funSemanticCheck,
-                     FComputeType funComputeType = NULL,
-                     FSetContextForChildren funSetContextForChildren = NULL,
-                     FToString funToString = NULL);
+                     FComputeType funComputeType,
+                     FSetContextForChildren funSetContextForChildren,
+                     FToString funToString);
 
 const char* Nest_getNodeKindName(int nodeKind);
 FSemanticCheck Nest_getSemanticCheckFun(int nodeKind);

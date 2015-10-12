@@ -1,4 +1,4 @@
-#include <StdInc.h>
+#include <StdInc.hpp>
 #include "CompilationContext.h"
 #include "SymTab.h"
 #include <Common/Diagnostic.hpp>

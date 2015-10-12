@@ -2,8 +2,6 @@
 
 #include <Nest/Common/StringRef.h>
 
-#include <functional>
-
 typedef struct Nest_Node Node;
 typedef struct Nest_SourceCode SourceCode;
 typedef struct Nest_CompilationContext CompilationContext;
@@ -24,8 +22,8 @@ int Nest_registerSourceCodeKind(
         const char* description,
         const char* extraInfo,
         FParseSourceCode funParseSourceCode,
-        FGetSourceCodeLine funGetSourceCodeLine = NULL,
-        FTranslateCtToRt funTranslateCtToRt = NULL);
+        FGetSourceCodeLine funGetSourceCodeLine,
+        FTranslateCtToRt funTranslateCtToRt);
 
 const char* Nest_getSourceCodeExtension(int sourceCodeKind);
 const char* Nest_getSourceCodeDescription(int sourceCodeKind);

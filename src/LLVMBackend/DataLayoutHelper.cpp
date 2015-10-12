@@ -10,8 +10,8 @@
 #include <Nest/Intermediate/Node.h>
 #include <Nest/Intermediate/NodeUtils.hpp>
 #include <Nest/Intermediate/Type.h>
-#include <Nest/CompilerSettings.h>
-#include <Nest/Compiler.h>
+#include <Nest/CompilerSettings.hpp>
+#include <Nest/Compiler.hpp>
 #include <Nest/Common/Diagnostic.hpp>
 #include <Nest/Common/StringRef.hpp>
 

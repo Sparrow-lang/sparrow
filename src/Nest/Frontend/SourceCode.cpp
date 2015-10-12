@@ -1,4 +1,4 @@
-#include <StdInc.h>
+#include <StdInc.hpp>
 #include "SourceCode.h"
 #include "SourceCodeKindRegistrar.h"
 #include "Common/Alloc.h"

@@ -3,8 +3,6 @@
 #include "TypeRef.h"
 #include "EvalMode.h"
 
-#include <vector>
-
 typedef struct Nest_Node Node;
 
 /// Represents a type

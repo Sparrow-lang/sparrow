@@ -11,7 +11,7 @@
 
 #include <Feather/Util/Decl.h>
 
-#include <Nest/Common/ScopeGuard.h>
+#include <Nest/Common/ScopeGuard.hpp>
 
 using namespace SprFrontend;
 using namespace Feather;

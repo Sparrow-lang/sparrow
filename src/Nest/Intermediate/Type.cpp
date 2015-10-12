@@ -1,4 +1,4 @@
-#include <StdInc.h>
+#include <StdInc.hpp>
 #include "Type.h"
 #include "TypeKindRegistrar.h"
 

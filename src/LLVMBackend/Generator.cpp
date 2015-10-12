@@ -3,7 +3,7 @@
 
 #include <Nest/Common/Diagnostic.hpp>
 #include <Nest/Common/PrintTimer.hpp>
-#include <Nest/Compiler.hpp>
+#include <Nest/Compiler.h>
 #include <Nest/CompilerSettings.hpp>
 
 #include <boost/filesystem/path.hpp>

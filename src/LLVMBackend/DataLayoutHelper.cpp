@@ -11,7 +11,7 @@
 #include <Nest/Intermediate/NodeUtils.hpp>
 #include <Nest/Intermediate/Type.h>
 #include <Nest/CompilerSettings.hpp>
-#include <Nest/Compiler.hpp>
+#include <Nest/Compiler.h>
 #include <Nest/Common/Diagnostic.hpp>
 #include <Nest/Common/StringRef.hpp>
 

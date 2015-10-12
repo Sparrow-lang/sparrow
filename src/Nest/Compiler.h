@@ -35,11 +35,11 @@ void Nest_compileFile(StringRef filename);
 /// Add a source code to be compiled, given the filename
 void Nest_addSourceCodeByFilename(const SourceCode* orig, StringRef filename);
 
-/// Add a source code to be compiled, given a qualified ID to the source code
-void Nest_addSourceCodeByQid(const SourceCode* orig, vector<string> qid);
+/// Add all source code found in the given directory
+void Nest_addSourceCodeFromDir(const SourceCode* orig, StringRef dirName);
 
 /// Get the SourceCode corresponding to the given filename
-const SourceCode* Nest_getSourceCodeForFilename(const string& filename);
+const SourceCode* Nest_getSourceCodeForFilename(StringRef filename);
 
 /// Add the given node to be queued for semantic check
 void Nest_queueSemanticCheck(Node* node);
@@ -51,10 +51,10 @@ void Nest_ctProcess(Node* node);
 Node* Nest_ctEval(Node* node);
 
 /// Get the size of the given type
-size_t Nest_sizeOf(TypeRef type);
+unsigned Nest_sizeOf(TypeRef type);
 
 /// Get the alignment of the given type
-size_t Nest_alignmentOf(TypeRef type);
+unsigned Nest_alignmentOf(TypeRef type);
 
 
 #ifdef __cplusplus

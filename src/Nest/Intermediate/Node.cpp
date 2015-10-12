@@ -3,7 +3,7 @@
 #include "NodeKindRegistrar.h"
 #include "NodeUtils.hpp"
 #include "Modifier.h"
-#include <Compiler.hpp>
+#include <Compiler.h>
 #include <Common/Alloc.h>
 #include <Common/Diagnostic.hpp>
 #include <Common/StringRef.hpp>

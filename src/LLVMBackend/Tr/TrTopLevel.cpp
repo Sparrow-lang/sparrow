@@ -10,7 +10,7 @@
 #include <Nest/Intermediate/Type.h>
 #include <Nest/Common/Diagnostic.hpp>
 #include <Nest/Common/StringRef.hpp>
-#include <Nest/Compiler.hpp>
+#include <Nest/Compiler.h>
 #include <Nest/CompilerSettings.hpp>
 
 #include <Feather/Nodes/FeatherNodes.h>

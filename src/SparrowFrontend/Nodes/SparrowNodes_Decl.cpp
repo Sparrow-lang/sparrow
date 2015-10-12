@@ -213,7 +213,27 @@ void SprCompilationUnit_SetContextForChildren(Node* node)
             {
                 vector<string> qid;
                 interpretQualifiedId(i, qid);
-                Nest_addSourceCodeByQid(sourceCode, qid);
+
+                if ( qid.empty() )
+                    REP_INTERNAL(NOLOC, "Nothing to import");
+
+                // Transform qid into filename/dirname
+                string filename;
+                for ( const string& part: qid )
+                {
+                    if ( part.empty() )
+                        continue;
+
+                    if ( !filename.empty() )
+                        filename += "/";
+                    filename += part;
+                }
+                bool isDir = qid.back().empty();
+
+                if ( isDir )
+                    Nest_addSourceCodeFromDir(sourceCode, fromString(filename));
+                else
+                    Nest_addSourceCodeByFilename(sourceCode, fromString(filename + ".spr"));
             }
         }
     }

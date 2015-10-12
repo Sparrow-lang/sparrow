@@ -1,7 +1,7 @@
 #include <StdInc.h>
 #include "Settings.h"
 
-#include <Nest/Compiler.hpp>
+#include <Nest/Compiler.h>
 #include <Nest/CompilerSettings.hpp>
 
 #ifdef _MSC_VER

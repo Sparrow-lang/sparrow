@@ -1,5 +1,5 @@
 #include <StdInc.hpp>
-#include "Compiler.hpp"
+#include "Compiler.h"
 #include "CompilerSettings.hpp"
 #include "Common/Alloc.h"
 #include "Common/Diagnostic.hpp"
@@ -22,14 +22,14 @@ struct ImportInfo
 {
     const SourceCode* originSourceCode_;
     boost::filesystem::path filename_;
-    vector<string> qid_;
+    bool importDir_;
 
     ImportInfo(const SourceCode* orig, StringRef filename)
         : originSourceCode_(orig), filename_(filename.begin)
     {}
 
-    ImportInfo(const SourceCode* orig, StringRef filename, vector<string> qid)
-        : originSourceCode_(orig), filename_(), qid_(move(qid))
+    ImportInfo(const SourceCode* orig, StringRef filename, bool importDir)
+        : originSourceCode_(orig), filename_(), importDir_(importDir)
     {}
 };
 
@@ -122,13 +122,6 @@ bool _handleImportFile(const ImportInfo& import)
     // If we are not interesting only in syntax, compile the file
     if ( !_settings.syntaxOnly_ )
     {
-        // If we have an import that contains a namespace part, make sure that is the same as the package
-        if ( import.qid_.size() > 1 )
-        {
-            // TODO (import): Implement this
-            //checkQidAgainstUnit(sourceCode, qid);
-        }
-
         // We need to compile this source code
         _toCompile.push_back(sourceCode);
     }
@@ -150,7 +143,6 @@ void _handleDirectory(const ImportInfo& import)
             {
                 ImportInfo importSub = import;
                 importSub.filename_ = it->path();
-                importSub.qid_.push_back(dirName);
                 _handleDirectory(importSub);
             }
         }
@@ -158,7 +150,6 @@ void _handleDirectory(const ImportInfo& import)
         {
             ImportInfo importSub = import;
             importSub.filename_ = it->path();
-            importSub.qid_.push_back(it->path().filename().string());
             _handleImportFile(importSub);
         }
     }
@@ -174,7 +165,7 @@ bool _checkFileDir(const ImportInfo& import)
     if ( is_directory(import.filename_) )
     {
         // If we are not looking for a directly, return false to try another path
-        if ( import.qid_.empty() || !import.qid_.back().empty() )
+        if ( !import.importDir_ )
             return false;
 
         _handleDirectory(import);
@@ -344,32 +335,14 @@ void Nest_addSourceCodeByFilename(const SourceCode* orig, StringRef filename)
     _handleImport(ImportInfo(orig, filename));
 }
 
-void Nest_addSourceCodeByQid(const SourceCode* orig, vector<string> qid)
+void Nest_addSourceCodeFromDir(const SourceCode* orig, StringRef dirName)
 {
-    if ( qid.empty() )
-        REP_INTERNAL(NOLOC, "Nothing to import");
-
-    // Convert qid into a filename
-    string filename;
-    for ( const string& part: qid )
-    {
-        if ( part.empty() )
-            continue;
-
-        if ( !filename.empty() )
-            filename += "/";
-        filename += part;
-    }
-
-    if ( qid.back().empty() )
-        _handleImport(ImportInfo(orig, fromString(filename), move(qid)));      // Star notation
-    else
-        _handleImport(ImportInfo(orig, fromString(filename + ".spr")));
+    _handleImport(ImportInfo(orig, dirName, true));
 }
 
-const SourceCode* Nest_getSourceCodeForFilename(const string& filename)
+const SourceCode* Nest_getSourceCodeForFilename(StringRef filename)
 {
-    path filepath = filename;
+    path filepath = toString(filename);
     for ( auto p: _sourceCodes )
     {
         if ( p.second == filepath )
@@ -402,11 +375,11 @@ Node* Nest_ctEval(Node* node)
     return Nest_semanticCheck(res);
 }
 
-size_t Nest_sizeOf(TypeRef type)
+unsigned Nest_sizeOf(TypeRef type)
 {
     return _backend->sizeOf(_backend, type);
 }
-size_t Nest_alignmentOf(TypeRef type)
+unsigned Nest_alignmentOf(TypeRef type)
 {
     return _backend->alignmentOf(_backend, type);
 }

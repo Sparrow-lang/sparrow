@@ -3,7 +3,7 @@
 
 #include <Nest/Nest.h>
 #include <Nest/CompilerModule.h>
-#include <Nest/Compiler.hpp>
+#include <Nest/Compiler.h>
 #include <Nest/CompilerSettings.hpp>
 #include <Nest/Common/Diagnostic.hpp>
 #include <Nest/Common/PrintTimer.hpp>

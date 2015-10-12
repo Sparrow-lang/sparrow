@@ -4,7 +4,7 @@
 
 #include <Feather/Util/Decl.h>
 #include <Nest/CompilerSettings.hpp>
-#include <Nest/Compiler.hpp>
+#include <Nest/Compiler.h>
 
 using namespace LLVMB;
 

@@ -2,7 +2,7 @@
 
 #include <Nest/DefaultStdInc.hpp>
 
-#include <Nest/Compiler.hpp>
+#include <Nest/Compiler.h>
 #include <Nest/Frontend/Location.h>
 #include <Nest/Intermediate/Type.h>
 

@@ -11,8 +11,6 @@
 
 #include <Feather/Util/Decl.h>
 
-#include <Nest/Common/ScopeGuard.hpp>
-
 using namespace SprFrontend;
 using namespace Feather;
 using namespace Nest;
@@ -233,7 +231,6 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
 
     // First, get all the candidates
     Callables candidates1;
-    auto guard1 = Nest::Common::makeGuard([&]()-> void { destroyCallables(candidates1); });
     candidates1.reserve(numDecls);
     for ( Node* decl: decls )
     {
@@ -246,16 +243,17 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
     {
         if ( reportErrors )
             doReportErrors(loc, decls, Callables(), argsTypes, funName);
+        destroyCallables(candidates1);
         return nullptr;
     }
 
     // Check the candidates to be able to be called with the given arguments
     Callables candidates = filterCandidates(context, loc, candidates1, &args, nullptr, evalMode);
-    auto guard = Nest::Common::makeGuard([&]()-> void { destroyCallables(candidates1); });
     if ( candidates.empty() )
     {
         if ( reportErrors )
             doReportErrors(loc, decls, candidates1, argsTypes, funName);
+        destroyCallables(candidates1);
         return nullptr;
     }
 
@@ -265,6 +263,7 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
     {
         if ( reportErrors )
             doReportErrors(loc, decls, candidates, argsTypes, funName);
+        destroyCallables(candidates1);
         return nullptr;
     }
 
@@ -285,6 +284,7 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
         Nest_setContext(res, context);
     }
 
+    destroyCallables(candidates1);
     return res;
 }
 

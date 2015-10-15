@@ -1,7 +1,7 @@
 #include <StdInc.h>
 #include "SimpleLexer.h"
 
-#include <Nest/Common/Diagnostic.hpp>
+#include "Nest/Utils/Diagnostic.hpp"
 
 using namespace Feather;
 using namespace Nest::Common;

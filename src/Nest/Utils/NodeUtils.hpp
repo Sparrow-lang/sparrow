@@ -1,7 +1,7 @@
 #pragma once
 
-#include "NodeArray.h"
-#include "NodeRange.h"
+#include "Nest/Api/NodeArray.h"
+#include "Nest/Api/NodeRange.h"
 
 inline NodeRange all(NodeArray nodes) {
     NodeRange res = { nodes.beginPtr, nodes.endPtr };

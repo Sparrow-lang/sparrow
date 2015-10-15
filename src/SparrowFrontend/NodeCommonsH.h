@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Nest/Intermediate/SymTab.h>
-#include <Nest/Intermediate/Type.h>
-#include <Nest/Intermediate/Node.h>
+#include "Nest/Api/SymTab.h"
+#include "Nest/Api/Type.h"
+#include "Nest/Api/Node.h"
 
 #include "Nodes/SparrowNodes.h"

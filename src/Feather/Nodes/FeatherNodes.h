@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Nest/Intermediate/EvalMode.h>
-#include <Nest/Intermediate/TypeRef.h>
-#include <Nest/Intermediate/NodeRange.h>
-#include <Nest/Frontend/Location.h>
-#include <Nest/Common/StringRef.h>
+#include "Nest/Api/EvalMode.h"
+#include "Nest/Api/TypeRef.h"
+#include "Nest/Api/NodeRange.h"
+#include "Nest/Api/Location.h"
+#include "Nest/Utils/StringRef.h"
 #include <Feather/Nodes/Exp/AtomicOrdering.h>
 #include <Feather/Nodes/Decls/CallConvention.h>
 

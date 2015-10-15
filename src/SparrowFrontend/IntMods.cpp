@@ -11,8 +11,8 @@
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/Util/Decl.h>
 
-#include <Nest/Intermediate/Modifier.h>
-#include <Nest/Common/Diagnostic.hpp>
+#include "Nest/Api/Modifier.h"
+#include "Nest/Utils/Diagnostic.hpp"
 
 using namespace SprFrontend;
 using namespace Feather;

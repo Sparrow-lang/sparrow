@@ -15,7 +15,7 @@
 #include <Feather/Util/Decl.h>
 #include <Feather/Util/Context.h>
 
-#include <Nest/Frontend/SourceCode.h>
+#include "Nest/Api/SourceCode.h"
 
 using namespace SprFrontend;
 using namespace Feather;

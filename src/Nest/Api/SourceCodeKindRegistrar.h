@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Nest/Common/StringRef.h>
+#include "Nest/Utils/StringRef.h"
 
 typedef struct Nest_Node Node;
 typedef struct Nest_SourceCode SourceCode;

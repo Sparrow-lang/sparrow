@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Nest/Intermediate/TypeRef.h>
-#include <Nest/Common/StringRef.h>
+#include "Nest/Api/TypeRef.h"
+#include "Nest/Utils/StringRef.h"
 
 typedef struct Nest_Node Node;
 

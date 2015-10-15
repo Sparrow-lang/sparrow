@@ -4,7 +4,7 @@
 
 #include <Helpers/Convert.h>
 
-#include <Nest/Intermediate/NodeVector.hpp>
+#include "Nest/Utils/NodeVector.hpp"
 
 namespace SprFrontend
 {

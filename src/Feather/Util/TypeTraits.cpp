@@ -4,10 +4,10 @@
 #include <Feather/Util/Decl.h>
 #include <Feather/FeatherTypes.h>
 
-#include <Nest/Intermediate/Node.h>
-#include <Nest/Intermediate/CompilationContext.h>
-#include <Nest/Common/Diagnostic.hpp>
-#include <Nest/Common/StringRef.hpp>
+#include "Nest/Api/Node.h"
+#include "Nest/Api/CompilationContext.h"
+#include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/StringRef.hpp"
 
 using namespace Feather;
 using namespace Nest;

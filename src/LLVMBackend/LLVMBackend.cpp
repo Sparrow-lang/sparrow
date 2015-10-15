@@ -6,12 +6,12 @@
 #include "DataLayoutHelper.h"
 #include "Tr/DebugInfo.h"
 
-#include <Nest/Intermediate/Node.h>
-#include <Nest/Intermediate/NodeUtils.hpp>
-#include <Nest/Frontend/SourceCode.h>
-#include <Nest/Backend/Backend.h>
-#include <Nest/Compiler.h>
-#include <Nest/CompilerSettings.hpp>
+#include "Nest/Api/Node.h"
+#include "Nest/Utils/NodeUtils.hpp"
+#include "Nest/Api/SourceCode.h"
+#include "Nest/Api/Backend.h"
+#include "Nest/Api/Compiler.h"
+#include "Nest/Utils/CompilerSettings.hpp"
 
 #include <boost/bind.hpp>
 

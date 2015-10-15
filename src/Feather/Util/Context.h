@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Nest/Intermediate/EvalMode.h>
+#include "Nest/Api/EvalMode.h"
 
 typedef struct Nest_CompilationContext CompilationContext;
 

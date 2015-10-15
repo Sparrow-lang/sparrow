@@ -1,8 +1,8 @@
-#include <StdInc.hpp>
+#include "Nest/Internal/StdInc.hpp"
 #include "CompilationContext.h"
 #include "SymTab.h"
-#include <Common/Diagnostic.hpp>
-#include <Common/Alloc.h>
+#include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/Alloc.h"
 
 using namespace Nest;
 

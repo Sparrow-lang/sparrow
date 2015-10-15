@@ -3,7 +3,7 @@
 #include "LLVMSourceCode.h"
 #include "LLVMBackend.h"
 
-#include <Nest/CompilerModule.h>
+#include "Nest/Api/CompilerModule.h"
 
 void LLVMBackend_initModule()
 {

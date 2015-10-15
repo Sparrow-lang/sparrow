@@ -3,11 +3,11 @@
 #include <Tr/TrTopLevel.h>
 #include <Tr/DebugInfo.h>
 
-#include <Nest/Common/Diagnostic.hpp>
-#include <Nest/Intermediate/Node.h>
-#include <Nest/CompilerSettings.hpp>
-#include <Nest/Compiler.h>
-#include <Nest/Frontend/SourceCode.h>
+#include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Api/Node.h"
+#include "Nest/Utils/CompilerSettings.hpp"
+#include "Nest/Api/Compiler.h"
+#include "Nest/Api/SourceCode.h"
 
 
 using namespace LLVMB;

@@ -1,10 +1,10 @@
-#include "StdInc.hpp"
+#include "Nest/Internal/StdInc.hpp"
 #include "Diagnostic.hpp"
 #include "ConsoleColors.hpp"
 #include "StringRef.h"
-#include <Frontend/SourceCode.h>
-#include <Intermediate/Node.h>
-#include <Intermediate/Type.h>
+#include "Nest/Api/SourceCode.h"
+#include "Nest/Api/Node.h"
+#include "Nest/Api/Type.h"
 
 static int _reportingEnabled = 1;
 static int _numErrors = 0;

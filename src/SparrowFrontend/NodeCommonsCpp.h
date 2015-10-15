@@ -2,11 +2,11 @@
 
 #include "NodeCommonsH.h"
 
-#include <Nest/Common/Diagnostic.hpp>
-#include <Nest/Common/StringRef.hpp>
-#include <Nest/Intermediate/CompilationContext.h>
-#include <Nest/Intermediate/Type.h>
-#include <Nest/Intermediate/SymTab.h>
+#include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Api/CompilationContext.h"
+#include "Nest/Api/Type.h"
+#include "Nest/Api/SymTab.h"
 
 #include <SparrowFrontend/Nodes/SprProperties.h>
 #include <SparrowFrontend/Nodes/SparrowNodes.h>

@@ -3,9 +3,9 @@
 
 #include <Feather/Util/Decl.h>
 
-#include <Nest/Common/Alloc.h>
-#include <Nest/Common/Diagnostic.hpp>
-#include <Nest/Intermediate/Modifier.h>
+#include "Nest/Utils/Alloc.h"
+#include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Api/Modifier.h"
 
 using namespace SprFrontend;
 

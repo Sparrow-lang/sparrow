@@ -4,9 +4,9 @@
 #include "Nodes/FeatherNodes.h"
 #include "Util/Decl.h"
 
-#include <Nest/Intermediate/TypeKindRegistrar.h>
-#include <Nest/Intermediate/Node.h>
-#include <Nest/Common/Alloc.h>
+#include "Nest/Api/TypeKindRegistrar.h"
+#include "Nest/Api/Node.h"
+#include "Nest/Utils/Alloc.h"
 
 namespace Feather
 {

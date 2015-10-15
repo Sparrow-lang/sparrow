@@ -1,7 +1,7 @@
-#include <StdInc.hpp>
+#include "Nest/Internal/StdInc.hpp"
 #include "SymTab.h"
 
-#include "Common/Alloc.h"
+#include "Nest/Utils/Alloc.h"
 
 #include <boost/bind.hpp>
 

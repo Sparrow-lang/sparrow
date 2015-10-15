@@ -23,8 +23,8 @@
 #include <boost/unordered_map.hpp>
 #include <boost/range/adaptor/reversed.hpp>
 
-#include "Common/Fwd.hpp"
-#include "Common/Assert.h"
+#include "Nest/Utils/Fwd.hpp"
+#include "Nest/Utils/Assert.h"
 
 // we are pretty fond of STL
 using namespace std;

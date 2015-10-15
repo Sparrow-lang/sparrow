@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Nest/Intermediate/SymTab.h>
-#include <Nest/Intermediate/Type.h>
-#include <Nest/Intermediate/EvalMode.h>
+#include "Nest/Api/SymTab.h"
+#include "Nest/Api/Type.h"
+#include "Nest/Api/EvalMode.h"
 
 #include "Nodes/FeatherNodes.h"
 

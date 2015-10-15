@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Nest/Intermediate/TypeRef.h>
+#include "Nest/Api/TypeRef.h"
 
 namespace SprFrontend
 {

@@ -1,9 +1,9 @@
 #include <StdInc.h>
 #include "Ct.h"
 #include <Feather/Nodes/FeatherNodes.h>
-#include <Nest/Common/Diagnostic.hpp>
-#include <Nest/Common/StringRef.hpp>
-#include <Nest/Intermediate/Node.h>
+#include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Api/Node.h"
 
 using namespace Feather;
 

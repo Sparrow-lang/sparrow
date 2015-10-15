@@ -9,11 +9,11 @@
 #include <Feather/Util/Decl.h>
 #include <Feather/FeatherTypes.h>
 
-#include <Nest/Common/Diagnostic.hpp>
-#include <Nest/Common/StringRef.hpp>
-#include <Nest/Intermediate/Node.h>
-#include <Nest/Intermediate/SymTab.h>
-#include <Nest/Intermediate/CompilationContext.h>
+#include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Api/Node.h"
+#include "Nest/Api/SymTab.h"
+#include "Nest/Api/CompilationContext.h"
 
 #include <boost/algorithm/string/case_conv.hpp>
 

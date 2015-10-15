@@ -2,7 +2,7 @@
 
 #include "SimpleTokenType.h"
 
-#include <Nest/Frontend/Location.h>
+#include "Nest/Api/Location.h"
 
 #include <boost/algorithm/string/replace.hpp>
 

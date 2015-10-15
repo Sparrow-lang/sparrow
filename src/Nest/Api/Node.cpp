@@ -1,13 +1,13 @@
-#include <StdInc.hpp>
+#include "Nest/Internal/StdInc.hpp"
 #include "Node.h"
 #include "NodeKindRegistrar.h"
-#include "NodeUtils.hpp"
+#include "Nest/Utils/NodeUtils.hpp"
 #include "Modifier.h"
-#include <Compiler.h>
-#include <Common/Alloc.h>
-#include <Common/Diagnostic.hpp>
-#include <Common/StringRef.hpp>
-#include <Common/PtrArray.h>
+#include "Nest/Api/Compiler.h"
+#include "Nest/Utils/Alloc.h"
+#include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Utils/PtrArray.h"
 
 NodeProperty* _findProperty(NodeProperties properties, StringRef name) {
     NodeProperty* p = properties.begin;

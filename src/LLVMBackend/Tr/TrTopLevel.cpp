@@ -5,13 +5,13 @@
 #include "TrLocal.h"
 #include "Module.h"
 
-#include <Nest/Intermediate/Node.h>
-#include <Nest/Intermediate/NodeUtils.hpp>
-#include <Nest/Intermediate/Type.h>
-#include <Nest/Common/Diagnostic.hpp>
-#include <Nest/Common/StringRef.hpp>
-#include <Nest/Compiler.h>
-#include <Nest/CompilerSettings.hpp>
+#include "Nest/Api/Node.h"
+#include "Nest/Utils/NodeUtils.hpp"
+#include "Nest/Api/Type.h"
+#include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Api/Compiler.h"
+#include "Nest/Utils/CompilerSettings.hpp"
 
 #include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Nodes/Properties.h>

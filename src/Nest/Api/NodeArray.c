@@ -1,6 +1,6 @@
 #include "NodeArray.h"
-#include "Common/PtrArray.h"
-#include "Common/Assert.h"
+#include "Nest/Utils/PtrArray.h"
+#include "Nest/Utils/Assert.h"
 
 #include <memory.h>
 

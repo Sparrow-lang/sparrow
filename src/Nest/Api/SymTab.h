@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Nest/Intermediate/NodeArray.h>
+#include "Nest/Api/NodeArray.h"
 
 /// Structure describing a symbol table, with multiple entries
 /// Note that the entries will be allocated after this structure.

@@ -3,11 +3,11 @@
 #include "TrTopLevel.h"
 #include "Module.h"
 
-#include <Nest/Common/Diagnostic.hpp>
-#include <Nest/Common/StringRef.hpp>
-#include <Nest/Intermediate/TypeRef.h>
-#include <Nest/Intermediate/Type.h>
-#include <Nest/Intermediate/Node.h>
+#include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Api/TypeRef.h"
+#include "Nest/Api/Type.h"
+#include "Nest/Api/Node.h"
 
 #include <Feather/FeatherTypes.h>
 

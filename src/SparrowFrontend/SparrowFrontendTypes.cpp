@@ -2,8 +2,8 @@
 #include "SparrowFrontendTypes.h"
 #include <Feather/Util/Decl.h>
 
-#include <Nest/Intermediate/TypeKindRegistrar.h>
-#include <Nest/Common/Alloc.h>
+#include "Nest/Api/TypeKindRegistrar.h"
+#include "Nest/Utils/Alloc.h"
 
 namespace SprFrontend
 {

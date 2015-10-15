@@ -15,8 +15,8 @@
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/Util/Context.h>
 
-#include <Nest/Common/Diagnostic.hpp>
-#include <Nest/Intermediate/NodeKindRegistrar.h>
+#include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Api/NodeKindRegistrar.h"
 
 
 using namespace SprFrontend;

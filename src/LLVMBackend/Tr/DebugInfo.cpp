@@ -4,10 +4,10 @@
 
 #include <Feather/Util/Decl.h>
 
-#include <Nest/Common/Diagnostic.hpp>
-#include <Nest/Common/StringRef.hpp>
-#include <Nest/Frontend/SourceCode.h>
-#include <Nest/Intermediate/Node.h>
+#include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Api/SourceCode.h"
+#include "Nest/Api/Node.h"
 
 #include <boost/filesystem.hpp>
 

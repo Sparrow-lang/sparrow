@@ -2,7 +2,7 @@
 #include "QualifiedId.h"
 
 #include <Feather/Util/Decl.h>
-#include <Nest/Intermediate/NodeUtils.hpp>
+#include "Nest/Utils/NodeUtils.hpp"
 
 using namespace Feather;
 

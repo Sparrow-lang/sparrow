@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Nest/Intermediate/TypeRef.h>
-#include <Nest/Intermediate/EvalMode.h>
-#include <Nest/Common/StringRef.h>
+#include "Nest/Api/TypeRef.h"
+#include "Nest/Api/EvalMode.h"
+#include "Nest/Utils/StringRef.h"
 
 typedef struct Nest_Node Node;
 

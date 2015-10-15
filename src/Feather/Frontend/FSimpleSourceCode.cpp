@@ -3,11 +3,11 @@
 #include "Impl/SimpleLexer.h"
 #include "Impl/SimpleParser.h"
 
-#include <Nest/Common/Diagnostic.hpp>
+#include "Nest/Utils/Diagnostic.hpp"
 
-#include <Nest/Common/Alloc.h>
-#include <Nest/Frontend/SourceCode.h>
-#include <Nest/Frontend/SourceCodeKindRegistrar.h>
+#include "Nest/Utils/Alloc.h"
+#include "Nest/Api/SourceCode.h"
+#include "Nest/Api/SourceCodeKindRegistrar.h"
 
 #include <fstream>
 

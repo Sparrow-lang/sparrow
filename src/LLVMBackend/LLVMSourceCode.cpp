@@ -3,14 +3,14 @@
 
 #include <Feather/Nodes/FeatherNodes.h>
 
-#include <Nest/Common/Alloc.h>
-#include <Nest/Common/Diagnostic.hpp>
-#include <Nest/Common/StringRef.hpp>
-#include <Nest/Intermediate/EvalMode.h>
-#include <Nest/Intermediate/Node.h>
+#include "Nest/Utils/Alloc.h"
+#include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Api/EvalMode.h"
+#include "Nest/Api/Node.h"
 
-#include <Nest/Frontend/SourceCode.h>
-#include <Nest/Frontend/SourceCodeKindRegistrar.h>
+#include "Nest/Api/SourceCode.h"
+#include "Nest/Api/SourceCodeKindRegistrar.h"
 
 #include <fstream>
 

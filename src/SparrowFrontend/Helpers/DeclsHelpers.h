@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Nest/Intermediate/NodeVector.hpp>
+#include "Nest/Utils/NodeVector.hpp"
 
 namespace SprFrontend
 {

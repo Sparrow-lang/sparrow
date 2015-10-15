@@ -7,10 +7,10 @@
 #include <Nodes/Builder.h>
 #include <Feather/Nodes/FeatherNodes.h>
 
-#include <Nest/Common/Alloc.h>
-#include <Nest/Common/Diagnostic.hpp>
-#include <Nest/Frontend/SourceCode.h>
-#include <Nest/Frontend/SourceCodeKindRegistrar.h>
+#include "Nest/Utils/Alloc.h"
+#include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Api/SourceCode.h"
+#include "Nest/Api/SourceCodeKindRegistrar.h"
 
 #include <fstream>
 #include <boost/algorithm/string.hpp>

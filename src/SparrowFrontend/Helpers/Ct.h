@@ -1,7 +1,7 @@
 #pragma once
 
 #include <NodeCommonsH.h>
-#include <Nest/Intermediate/EvalMode.h>
+#include "Nest/Api/EvalMode.h"
 
 #include <vector>
 

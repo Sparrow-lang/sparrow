@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Nest/Frontend/Location.h>
+#include "Nest/Api/Location.h"
 
 #include "LlvmBuilder.h"
 

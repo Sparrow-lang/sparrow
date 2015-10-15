@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Nest/Intermediate/NodeVector.hpp>
-#include <Nest/Intermediate/TypeRef.h>
-#include <Nest/Intermediate/EvalMode.h>
+#include "Nest/Utils/NodeVector.hpp"
+#include "Nest/Api/TypeRef.h"
+#include "Nest/Api/EvalMode.h"
 
 typedef struct Nest_CompilationContext CompilationContext;
 

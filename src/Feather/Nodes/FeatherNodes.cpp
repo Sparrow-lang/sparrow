@@ -10,12 +10,12 @@
 #include <Util/Context.h>
 #include <Util/StringData.h>
 
-#include <Nest/Common/Diagnostic.hpp>
-#include <Nest/Common/Alloc.h>
-#include <Nest/Common/StringRef.hpp>
-#include <Nest/Intermediate/Node.h>
-#include <Nest/Intermediate/NodeKindRegistrar.h>
-#include <Nest/Intermediate/Modifier.h>
+#include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/Alloc.h"
+#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Api/Node.h"
+#include "Nest/Api/NodeKindRegistrar.h"
+#include "Nest/Api/Modifier.h"
 
 
 using namespace Feather;

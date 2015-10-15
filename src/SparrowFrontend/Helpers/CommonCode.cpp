@@ -13,7 +13,7 @@
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/Util/Decl.h>
 
-#include <Nest/CompilerSettings.hpp>
+#include "Nest/Utils/CompilerSettings.hpp"
 
 using namespace SprFrontend;
 using namespace Feather;

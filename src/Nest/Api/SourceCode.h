@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Nest/Intermediate/NodeArray.h>
+#include "Nest/Api/NodeArray.h"
 
 typedef struct Nest_StringRef StringRef;
 typedef struct Nest_CompilationContext CompilationContext;

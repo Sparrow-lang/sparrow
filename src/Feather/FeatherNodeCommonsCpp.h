@@ -4,11 +4,11 @@
 #include "Nodes/Properties.h"
 #include "FeatherTypes.h"
 
-#include <Nest/Common/Diagnostic.hpp>
-#include <Nest/Intermediate/CompilationContext.h>
-#include <Nest/Intermediate/Type.h>
-#include <Nest/Intermediate/SymTab.h>
-#include <Nest/Intermediate/Modifier.h>
+#include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Api/CompilationContext.h"
+#include "Nest/Api/Type.h"
+#include "Nest/Api/SymTab.h"
+#include "Nest/Api/Modifier.h"
 
 namespace Feather { };
 

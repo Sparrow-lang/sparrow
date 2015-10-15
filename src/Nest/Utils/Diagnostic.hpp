@@ -2,7 +2,7 @@
 
 #include "Diagnostic.h"
 #include "DiagnosticFormatter.hpp"
-#include <Nest/Intermediate/EvalMode.h>
+#include "Nest/Api/EvalMode.h"
 
 #define __REP_IMPL_RET(retVal, type, fmt, loc) \
     return mkDiagReporterWithReturnFromFormatter(retVal) = Nest::Common::DiagnosticFormatter(type, fmt, (loc))

@@ -6,7 +6,7 @@
 %code requires
 {
     #include <StdInc.h>
-    #include <Nest/Frontend/Location.h>
+    #include "Nest/Api/Location.h"
 
     #include <Nodes/Decls/AccessType.h>
 
@@ -43,10 +43,10 @@
 #include <Nodes/SparrowNodes.h>
 #include <Feather/Nodes/FeatherNodes.h>
 
-#include <Nest/Common/Diagnostic.hpp>
-#include <Nest/Common/StringRef.hpp>
-#include <Nest/Intermediate/Node.h>
-#include <Nest/Intermediate/NodeUtils.hpp>
+#include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Api/Node.h"
+#include "Nest/Utils/NodeUtils.hpp"
 
 #include <Grammar/Scanner.h>
 

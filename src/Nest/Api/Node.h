@@ -1,11 +1,11 @@
 #pragma once
 
-#include <Nest/Intermediate/NodeArray.h>
-#include <Nest/Intermediate/Modifier.h>
-#include <Nest/Intermediate/TypeRef.h>
-#include <Nest/Intermediate/NodeProperties.h>
-#include <Nest/Frontend/Location.h>
-#include <Nest/Common/StringRef.h>
+#include "Nest/Api/NodeArray.h"
+#include "Nest/Api/Modifier.h"
+#include "Nest/Api/TypeRef.h"
+#include "Nest/Api/NodeProperties.h"
+#include "Nest/Api/Location.h"
+#include "Nest/Utils/StringRef.h"
 
 typedef struct Nest_Node Node;
 typedef struct Nest_Modifier Modifier;

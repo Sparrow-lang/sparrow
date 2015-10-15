@@ -1,8 +1,8 @@
 #include <StdInc.h>
 #include "Settings.h"
 
-#include <Nest/Compiler.h>
-#include <Nest/CompilerSettings.hpp>
+#include "Nest/Api/Compiler.h"
+#include "Nest/Utils/CompilerSettings.hpp"
 
 #ifdef _MSC_VER
 #pragma warning(disable: 4512)

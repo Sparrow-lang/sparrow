@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Nest/Frontend/Location.h>
-#include <Nest/Intermediate/NodeVector.hpp>
+#include "Nest/Api/Location.h"
+#include "Nest/Utils/NodeVector.hpp"
 
 FWD_CLASS2(LLVMB,Tr, TrContext);
 FWD_CLASS2(LLVMB,Tr, Instruction);

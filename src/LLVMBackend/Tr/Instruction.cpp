@@ -4,7 +4,7 @@
 #include "TrContext.h"
 #include "TrLocal.h"
 
-#include <Nest/Common/Diagnostic.hpp>
+#include "Nest/Utils/Diagnostic.hpp"
 
 using namespace LLVMB;
 using namespace LLVMB::Tr;

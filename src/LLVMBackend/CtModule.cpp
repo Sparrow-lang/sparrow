@@ -8,10 +8,10 @@
 #include <Feather/Util/TypeTraits.h>
 #include <Feather/FeatherTypes.h>
 
-#include <Nest/Intermediate/Node.h>
-#include <Nest/Intermediate/Type.h>
-#include <Nest/Common/Diagnostic.hpp>
-#include <Nest/Common/StringRef.hpp>
+#include "Nest/Api/Node.h"
+#include "Nest/Api/Type.h"
+#include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/StringRef.hpp"
 
 #ifdef _MSC_VER
 #pragma warning(push,1)

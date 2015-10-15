@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Nest/Intermediate/TypeRef.h>
+#include "Nest/Api/TypeRef.h"
 
 #include <boost/function.hpp>
 #include <boost/any.hpp>

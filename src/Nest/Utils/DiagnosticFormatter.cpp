@@ -1,4 +1,4 @@
-#include <StdInc.hpp>
+#include "Nest/Internal/StdInc.hpp"
 #include "DiagnosticFormatter.hpp"
 
 using namespace Nest;

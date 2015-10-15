@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Nest/DefaultStdInc.hpp>
+#include "Nest/Utils/DefaultStdInc.hpp"
 
-#include <Nest/Compiler.h>
-#include <Nest/Frontend/Location.h>
-#include <Nest/Intermediate/Type.h>
+#include "Nest/Api/Compiler.h"
+#include "Nest/Api/Location.h"
+#include "Nest/Api/Type.h"
 
 // To speed up the compilation of the nodes
 #include "NodeCommonsCpp.h"

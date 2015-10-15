@@ -3,9 +3,9 @@
 #include "Decl.h"
 #include <Nodes/Properties.h>
 #include <Nodes/FeatherNodes.h>
-#include <Nest/Intermediate/Node.h>
-#include <Nest/Intermediate/CompilationContext.h>
-#include <Nest/Intermediate/SymTab.h>
+#include "Nest/Api/Node.h"
+#include "Nest/Api/CompilationContext.h"
+#include "Nest/Api/SymTab.h"
 
 using namespace Feather;
 

@@ -5,10 +5,10 @@
 #include <Util/StringData.h>
 #include <Util/Context.h>
 
-#include <Nest/Intermediate/Node.h>
-#include <Nest/Backend/Backend.h>
-#include <Nest/Frontend/SourceCode.h>
-#include <Nest/Common/Diagnostic.hpp>
+#include "Nest/Api/Node.h"
+#include "Nest/Api/Backend.h"
+#include "Nest/Api/SourceCode.h"
+#include "Nest/Utils/Diagnostic.hpp"
 
 using namespace Feather;
 using namespace Nest;

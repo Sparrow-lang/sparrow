@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Diagnostic.h"
-#include <Nest/Frontend/Location.h>
+#include "Nest/Api/Location.h"
 
 namespace Nest { namespace Common
 {

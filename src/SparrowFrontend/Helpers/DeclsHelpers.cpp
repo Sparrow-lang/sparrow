@@ -4,7 +4,7 @@
 #include "ForEachNodeInNodeList.h"
 #include <NodeCommonsCpp.h>
 #include <SparrowFrontendTypes.h>
-#include <Nest/Common/PtrArray.h>
+#include "Nest/Utils/PtrArray.h"
 #include <Mods.h>
 
 using namespace SprFrontend;

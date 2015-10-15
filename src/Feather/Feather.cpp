@@ -6,7 +6,7 @@
 #include "Frontend/FSimpleSourceCode.h"
 #include "CtApiFunctions.h"
 
-#include <Nest/CompilerModule.h>
+#include "Nest/Api/CompilerModule.h"
 
 void Feather_initModule()
 {

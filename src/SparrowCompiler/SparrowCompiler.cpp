@@ -1,15 +1,15 @@
 #include <StdInc.h>
 #include <Settings.h>
 
-#include <Nest/Nest.h>
-#include <Nest/CompilerModule.h>
-#include <Nest/Compiler.h>
-#include <Nest/CompilerSettings.hpp>
-#include <Nest/Common/Diagnostic.hpp>
-#include <Nest/Common/PrintTimer.hpp>
-#include <Nest/Common/StringRef.hpp>
-#include <Nest/Backend/Backend.h>
-#include <Nest/Intermediate/CompilationContext.h>
+#include "Nest/Api/Nest.h"
+#include "Nest/Api/CompilerModule.h"
+#include "Nest/Api/Compiler.h"
+#include "Nest/Utils/CompilerSettings.hpp"
+#include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/PrintTimer.hpp"
+#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Api/Backend.h"
+#include "Nest/Api/CompilationContext.h"
 
 #include <Feather/Feather.h>
 #include <LLVMBackend/LLVMBackendMod.h>

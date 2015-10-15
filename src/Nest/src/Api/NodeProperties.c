@@ -1,4 +1,4 @@
-#include "NodeProperties.h"
+#include "Nest/Api/NodeProperties.h"
 
 #include <stdlib.h>
 

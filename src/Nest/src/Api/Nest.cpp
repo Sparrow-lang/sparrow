@@ -1,6 +1,6 @@
-#include "Nest/Internal/StdInc.hpp"
-#include "Nest.h"
-#include "CompilerModule.h"
+#include "Nest/src/StdInc.hpp"
+#include "Nest/Api/Nest.h"
+#include "Nest/Api/CompilerModule.h"
 
 void Nest_initModule()
 {

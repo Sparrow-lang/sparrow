@@ -1,5 +1,5 @@
-#include "Nest/Internal/StdInc.hpp"
-#include "Compiler.h"
+#include "Nest/src/StdInc.hpp"
+#include "Nest/Api/Compiler.h"
 #include "Nest/Utils/CompilerSettings.hpp"
 #include "Nest/Utils/Alloc.h"
 #include "Nest/Utils/Diagnostic.hpp"

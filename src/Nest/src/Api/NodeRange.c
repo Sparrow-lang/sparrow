@@ -1,4 +1,4 @@
-#include "NodeRange.h"
+#include "Nest/Api/NodeRange.h"
 
 unsigned Nest_nodeRangeSize(NodeRange nodes) {
     return nodes.endPtr - nodes.beginPtr;

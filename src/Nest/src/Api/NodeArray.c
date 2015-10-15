@@ -1,4 +1,4 @@
-#include "NodeArray.h"
+#include "Nest/Api/NodeArray.h"
 #include "Nest/Utils/PtrArray.h"
 #include "Nest/Utils/Assert.h"
 

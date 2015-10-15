@@ -1,5 +1,5 @@
-#include "Nest/Internal/StdInc.hpp"
-#include "SourceCodeKindRegistrar.h"
+#include "Nest/src/StdInc.hpp"
+#include "Nest/Api/SourceCodeKindRegistrar.h"
 
 #include <boost/filesystem.hpp>
 

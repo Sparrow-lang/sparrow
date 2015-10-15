@@ -1,5 +1,5 @@
-#include "Nest/Internal/StdInc.hpp"
-#include "SymTab.h"
+#include "Nest/src/StdInc.hpp"
+#include "Nest/Api/SymTab.h"
 
 #include "Nest/Utils/Alloc.h"
 

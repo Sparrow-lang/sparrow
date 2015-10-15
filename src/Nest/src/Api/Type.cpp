@@ -1,6 +1,6 @@
-#include "Nest/Internal/StdInc.hpp"
-#include "Type.h"
-#include "TypeKindRegistrar.h"
+#include "Nest/src/StdInc.hpp"
+#include "Nest/Api/Type.h"
+#include "Nest/Api/TypeKindRegistrar.h"
 
 
 namespace

@@ -1,6 +1,6 @@
-#include "Nest/Internal/StdInc.hpp"
-#include "SourceCode.h"
-#include "SourceCodeKindRegistrar.h"
+#include "Nest/src/StdInc.hpp"
+#include "Nest/Api/SourceCode.h"
+#include "Nest/Api/SourceCodeKindRegistrar.h"
 #include "Nest/Utils/Alloc.h"
 
 void Nest_parseSourceCode(SourceCode* sourceCode, CompilationContext* ctx)

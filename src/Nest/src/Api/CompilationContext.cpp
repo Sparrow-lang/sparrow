@@ -1,6 +1,6 @@
-#include "Nest/Internal/StdInc.hpp"
-#include "CompilationContext.h"
-#include "SymTab.h"
+#include "Nest/src/StdInc.hpp"
+#include "Nest/Api/CompilationContext.h"
+#include "Nest/Api/SymTab.h"
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/Alloc.h"
 

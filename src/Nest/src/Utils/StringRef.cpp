@@ -1,7 +1,7 @@
 
-#include "Nest/Internal/StdInc.hpp"
-#include "StringRef.hpp"
-#include "Alloc.h"
+#include "Nest/src/StdInc.hpp"
+#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Utils/Alloc.h"
 
 StringRef allocStringRef(unsigned size) {
     StringRef res = { 0, 0 };

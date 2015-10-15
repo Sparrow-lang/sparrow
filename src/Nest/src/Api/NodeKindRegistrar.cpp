@@ -1,6 +1,6 @@
-#include "Nest/Internal/StdInc.hpp"
-#include "NodeKindRegistrar.h"
-#include "Node.h"
+#include "Nest/src/StdInc.hpp"
+#include "Nest/Api/NodeKindRegistrar.h"
+#include "Nest/Api/Node.h"
 
 namespace
 {

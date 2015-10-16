@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Nest/Api/TypeRef.h"
-#include "Nest/Utils/StringRef.h"
+#include "Nest/Api/StringRef.h"
 
 #ifdef __cplusplus
 extern "C" {

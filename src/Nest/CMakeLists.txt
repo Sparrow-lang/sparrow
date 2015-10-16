@@ -16,6 +16,7 @@ SET(sourceFiles
     "Api/NodeRange.h"
     "Api/SourceCode.h"
     "Api/SourceCodeKindRegistrar.h"
+    "Api/StringRef.h"
     "Api/SymTab.h"
     "Api/Type.h"
     "Api/TypeKindRegistrar.h"
@@ -37,7 +38,6 @@ SET(sourceFiles
     "Utils/PrintTimer.hpp"
     "Utils/PtrArray.h"
     "Utils/PtrRange.h"
-    "Utils/StringRef.h"
     "Utils/StringRef.hpp"
     "Utils/Tuple.hpp"
 

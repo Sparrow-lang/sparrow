@@ -1,7 +1,7 @@
 #include "Nest/src/StdInc.hpp"
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/ConsoleColors.hpp"
-#include "Nest/Utils/StringRef.h"
+#include "Nest/Api/StringRef.h"
 #include "Nest/Utils/NodeUtils.h"
 #include "Nest/Api/SourceCode.h"
 #include "Nest/Api/Type.h"

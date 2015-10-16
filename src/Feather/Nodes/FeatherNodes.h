@@ -4,7 +4,7 @@
 #include "Nest/Api/TypeRef.h"
 #include "Nest/Api/NodeRange.h"
 #include "Nest/Api/Location.h"
-#include "Nest/Utils/StringRef.h"
+#include "Nest/Api/StringRef.h"
 #include <Feather/Nodes/Exp/AtomicOrdering.h>
 #include <Feather/Nodes/Decls/CallConvention.h>
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Nest/Api/EvalMode.h"
-#include "Nest/Utils/StringRef.h"
+#include "Nest/Api/StringRef.h"
 
 namespace Feather
 {

@@ -5,7 +5,7 @@
 #include "Nest/Api/TypeRef.h"
 #include "Nest/Api/NodeProperties.h"
 #include "Nest/Api/Location.h"
-#include "Nest/Utils/StringRef.h"
+#include "Nest/Api/StringRef.h"
 
 typedef struct Nest_Node Node;
 typedef struct Nest_Modifier Modifier;

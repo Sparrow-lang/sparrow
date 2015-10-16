@@ -1,4 +1,3 @@
-#include "Nest/src/StdInc.hpp"
 #include "Nest/Api/Nest.h"
 #include "Nest/Api/CompilerModule.h"
 
@@ -7,9 +6,7 @@ void Nest_initModule()
     // Any Nest initialization goes here
 }
 
-CompilerModule* getNestModule()
-{
-    CompilerModule* nestModule = new CompilerModule {
+static CompilerModule theNestModule = {
         "Nest",
         "The core of the compiler; defines the main services of the compiler, and the interactions between different components",
         "LucTeo",
@@ -17,8 +14,11 @@ CompilerModule* getNestModule()
         1,
         0,
         &Nest_initModule,
-        NULL,
-        NULL
+        0,
+        0
     };
-    return nestModule;
+
+CompilerModule* getNestModule()
+{
+    return &theNestModule;
 }

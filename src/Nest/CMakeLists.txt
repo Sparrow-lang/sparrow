@@ -46,7 +46,7 @@ SET(sourceFiles
     "src/Api/Backend.c"
     "src/Api/CompilationContext.c"
     "src/Api/Compiler.cpp"
-    "src/Api/Nest.cpp"
+    "src/Api/Nest.c"
     "src/Api/Node.cpp"
     "src/Api/NodeKindRegistrar.cpp"
     "src/Api/NodeProperties.c"

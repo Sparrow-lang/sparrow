@@ -50,7 +50,7 @@ SET(sourceFiles
     "src/Api/Node.cpp"
     "src/Api/NodeKindRegistrar.c"
     "src/Api/NodeProperties.c"
-    "src/Api/SourceCode.cpp"
+    "src/Api/SourceCode.c"
     "src/Api/SourceCodeKindRegistrar.c"
     "src/Api/SymTab.cpp"
     "src/Api/Type.cpp"

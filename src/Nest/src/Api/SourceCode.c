@@ -1,7 +1,7 @@
-#include "Nest/src/StdInc.hpp"
 #include "Nest/Api/SourceCode.h"
 #include "Nest/Api/SourceCodeKindRegistrar.h"
 #include "Nest/Utils/Alloc.h"
+#include "Nest/Utils/Assert.h"
 
 void Nest_parseSourceCode(SourceCode* sourceCode, CompilationContext* ctx)
 {
@@ -18,7 +18,7 @@ StringRef Nest_getSourceCodeLine(const SourceCode* sourceCode, int lineNum)
     if ( f )
         return f(sourceCode, lineNum);
 
-    StringRef null = { NULL, NULL };
+    StringRef null = { 0, 0 };
     return null;
 }
 

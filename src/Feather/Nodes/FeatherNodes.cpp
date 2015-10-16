@@ -13,6 +13,7 @@
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/Alloc.h"
 #include "Nest/Utils/StringRef.hpp"
+#include "Nest/Utils/NodeUtils.h"
 #include "Nest/Api/Node.h"
 #include "Nest/Api/NodeKindRegistrar.h"
 #include "Nest/Api/Modifier.h"

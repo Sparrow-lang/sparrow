@@ -23,7 +23,7 @@ namespace Nest { namespace Common
 
 
         DiagnosticSeverity severity() const { return severity_; }
-        string message() const { return fmt_.str(); }
+        std::string message() const { return fmt_.str(); }
         const Location& location() const { return location_; }
         bool dontThrow() const { return dontThrow_; }
 

@@ -3,7 +3,7 @@
 #include <Feather/Nodes/FeatherNodes.h>
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/StringRef.hpp"
-#include "Nest/Api/Node.h"
+#include "Nest/Utils/NodeUtils.h"
 
 using namespace Feather;
 

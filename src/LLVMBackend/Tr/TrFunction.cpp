@@ -12,11 +12,11 @@
 #include <Feather/Util/Decl.h>
 #include <Feather/Util/Context.h>
 
-#include "Nest/Api/Node.h"
 #include "Nest/Api/Type.h"
+#include "Nest/Api/Compiler.h"
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/StringRef.hpp"
-#include "Nest/Api/Compiler.h"
+#include "Nest/Utils/NodeUtils.h"
 #include "Nest/Utils/CompilerSettings.hpp"
 
 using namespace LLVMB;

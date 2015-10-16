@@ -12,6 +12,7 @@
 #include "Nest/Api/Type.h"
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/StringRef.hpp"
+#include "Nest/Utils/NodeUtils.h"
 
 #ifdef _MSC_VER
 #pragma warning(push,1)

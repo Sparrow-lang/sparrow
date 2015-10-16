@@ -6,6 +6,7 @@
 
 #include "Nest/Api/TypeKindRegistrar.h"
 #include "Nest/Api/Node.h"
+#include "Nest/Utils/NodeUtils.h"
 #include "Nest/Utils/Alloc.h"
 
 namespace Feather

@@ -9,6 +9,7 @@
 #include "Nest/Api/Backend.h"
 #include "Nest/Api/SourceCode.h"
 #include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/NodeUtils.h"
 
 using namespace Feather;
 using namespace Nest;

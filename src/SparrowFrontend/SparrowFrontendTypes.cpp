@@ -3,6 +3,7 @@
 #include <Feather/Util/Decl.h>
 
 #include "Nest/Api/TypeKindRegistrar.h"
+#include "Nest/Utils/NodeUtils.h"
 #include "Nest/Utils/Alloc.h"
 
 namespace SprFrontend

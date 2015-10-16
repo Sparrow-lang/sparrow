@@ -1,11 +1,9 @@
-#include "Nest/Api/Location.h"
+#include "Nest/Utils/LocationUtils.h"
 #include "Nest/Utils/Assert.h"
-
-#include <stdlib.h>
 
 Location Nest_mkEmptyLocation()
 {
-    Location loc = { NULL, {1, 1}, {1, 1} };
+    Location loc = { 0, {1, 1}, {1, 1} };
     return loc;
 }
 Location Nest_mkLocation(const SourceCode* sourceCode, unsigned int startLineNo, unsigned int startColNo, unsigned int endLineNo, unsigned int endColNo)
@@ -21,7 +19,7 @@ Location Nest_mkLocation1(const SourceCode* sourceCode, unsigned int lineNo, uns
 
 int Nest_isLocEmpty(const Location* loc)
 {
-    return loc->sourceCode == NULL;
+    return loc->sourceCode == 0;
 }
 
 int Nest_compareLocations(const Location* loc1, const Location* loc2)

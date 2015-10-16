@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Assert.h"
+#include "Nest/Utils/Assert.h"
+#include "Nest/Utils/LocationUtils.h"
 
 #ifdef __cplusplus
 extern "C" {

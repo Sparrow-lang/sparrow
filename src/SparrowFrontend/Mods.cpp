@@ -5,7 +5,7 @@
 
 #include "Nest/Utils/Alloc.h"
 #include "Nest/Utils/Diagnostic.hpp"
-#include "Nest/Api/Modifier.h"
+#include "Nest/Utils/NodeUtils.h"
 
 using namespace SprFrontend;
 

@@ -6,6 +6,7 @@
 #include "Nest/Api/Node.h"
 #include "Nest/Api/CompilationContext.h"
 #include "Nest/Api/SymTab.h"
+#include "Nest/Utils/NodeUtils.h"
 
 using namespace Feather;
 

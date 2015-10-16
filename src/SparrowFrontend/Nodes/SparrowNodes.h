@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Nest/Api/EvalMode.h"
+#include "Nest/Api/NodeRange.h"
 #include <SparrowFrontend/Nodes/Decls/AccessType.h>
 
 namespace SprFrontend

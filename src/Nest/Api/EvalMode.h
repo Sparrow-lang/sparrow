@@ -11,14 +11,3 @@ enum Nest_EvalMode
 
 typedef enum Nest_EvalMode Nest_EvalMode;
 typedef enum Nest_EvalMode EvalMode;
-
-inline const char* Nest_evalModeToString(EvalMode mode)
-{
-    switch ( mode )
-    {
-    case modeRt:        return "rt";
-    case modeCt:        return "ct";
-    case modeRtCt:      return "rtct";
-    default:            return "unspecified";
-    }
-}

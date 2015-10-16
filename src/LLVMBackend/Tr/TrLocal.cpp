@@ -9,11 +9,11 @@
 #include "DebugInfo.h"
 #include "Module.h"
 
-#include "Nest/Api/Node.h"
 #include "Nest/Api/NodeKindRegistrar.h"
 #include "Nest/Api/Type.h"
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/StringRef.hpp"
+#include "Nest/Utils/NodeUtils.h"
 
 #include <Feather/Nodes/FeatherNodes.h>
 #include <Feather/Nodes/Properties.h>

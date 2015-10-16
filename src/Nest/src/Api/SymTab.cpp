@@ -2,6 +2,7 @@
 #include "Nest/Api/SymTab.h"
 
 #include "Nest/Utils/Alloc.h"
+#include "Nest/Utils/NodeUtils.h"
 
 #include <boost/bind.hpp>
 

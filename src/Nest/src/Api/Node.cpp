@@ -1,32 +1,9 @@
 #include "Nest/src/StdInc.hpp"
 #include "Nest/Api/Node.h"
 #include "Nest/Api/NodeKindRegistrar.h"
-#include "Nest/Api/Modifier.h"
-#include "Nest/Api/Compiler.h"
 #include "Nest/Utils/NodeUtils.hpp"
 #include "Nest/Utils/Alloc.h"
 #include "Nest/Utils/Diagnostic.hpp"
-#include "Nest/Utils/StringRef.hpp"
-#include "Nest/Utils/PtrArray.h"
-
-NodeProperty* _findProperty(NodeProperties properties, StringRef name) {
-    NodeProperty* p = properties.begin;
-    for ( ; p!=properties.end; ++p )
-        if ( p->name == name )
-            return p;
-    return NULL;
-}
-
-void _setProperty(NodeProperties* properties, NodeProperty prop) {
-    // Try to see if a property with the same name already exists
-    NodeProperty* p = _findProperty(*properties, prop.name);
-    if ( p ) {
-        *p = prop;
-    }
-    else {
-        Nest_addProperty(properties, prop);
-    }
-}
 
 NodeProperties _cloneProperties(NodeProperties src) {
     unsigned size = src.end - src.begin;
@@ -67,7 +44,7 @@ bool _setExplanation(Node* node, Node* explanation)
     NodeProperty* p = node->properties.begin;
     for ( ; p!=node->properties.end; ++p )
         if ( p->passToExpl )
-            _setProperty(&node->explanation->properties, *p);
+            Nest_setProperty(node->explanation, *p);
 
     // Try to semantically check the explanation
     bool res = true;
@@ -119,203 +96,6 @@ Node* Nest_cloneNode(Node* node)
     }
     return res;
 }
-
-void Nest_initNode(Node* node, int nodeKind)
-{
-    node->nodeKind = nodeKind;
-    node->nodeError = 0;
-    node->nodeSemanticallyChecked = 0;
-    node->computeTypeStarted = 0;
-    node->semanticCheckStarted = 0;
-    node->context = nullptr;
-    node->childrenContext = nullptr;
-    node->type = nullptr;
-    node->explanation = nullptr;
-}
-void Nest_initCopyNode(Node* node, const Node* srcNode)
-{
-    node->nodeKind = srcNode->nodeKind;
-    node->location = srcNode->location;
-    node->referredNodes = srcNode->referredNodes;
-    node->properties = _cloneProperties(node->properties);
-
-    // Clone each node in the children vector
-    unsigned size = Nest_nodeArraySize(srcNode->children);
-    Nest_resizeNodeArray(&node->children, size);
-    for ( size_t i=0; i<size; ++i )
-    {
-        at(node->children, i) = Nest_cloneNode(at(srcNode->children, i));
-    }
-}
-
-
-const char* Nest_toString(const Node* node)
-{
-    return Nest_getToStringFun(node->nodeKind)(node);
-}
-
-const char* Nest_nodeKindName(const Node* node)
-{
-    return Nest_getNodeKindName(node->nodeKind);
-}
-
-NodeRange Nest_nodeChildren(Node* node) {
-    return all(node->children);
-}
-
-Node* Nest_getNodeChild(Node* node, unsigned int index) {
-    NodeRange children = Nest_nodeChildren(node);
-    ASSERT(index < Nest_nodeRangeSize(children));
-    return children.beginPtr[index];
-}
-
-NodeRange Nest_nodeReferredNodes(Node* node) {
-    return all(node->referredNodes);
-}
-
-Node* Nest_getReferredNode(Node* node, unsigned int index) {
-    NodeRange refNodes = Nest_nodeReferredNodes(node);
-    ASSERT(index < Nest_nodeRangeSize(refNodes));
-    return refNodes.beginPtr[index];
-}
-
-void Nest_nodeSetChildren(Node* node, NodeRange children) {
-    unsigned size = Nest_nodeRangeSize(children);
-    Nest_resizeNodeArray(&node->children, size);
-    for ( unsigned i=0; i<size; ++i )
-        at(node->children, i) = at(children, i);
-}
-
-void Nest_nodeAddChild(Node* node, Node* child) {
-    Nest_appendNodeToArray(&node->children, child);
-}
-
-void Nest_nodeAddChildren(Node* node, NodeRange children) {
-    Nest_appendNodesToArray(&node->children, children);
-}
-
-void Nest_nodeSetReferredNodes(Node* node, NodeRange nodes) {
-    unsigned size = Nest_nodeRangeSize(nodes);
-    Nest_resizeNodeArray(&node->referredNodes, size);
-    for ( unsigned i=0; i<size; ++i )
-        at(node->referredNodes, i) = at(nodes, i);
-}
-
-
-
-
-void Nest_setPropertyInt(Node* node, const char* name, int val)
-{
-    NodeProperty prop = { dupCStr(name), propInt, 0, {0} };
-    prop.value.intValue = val;
-    _setProperty(&node->properties, prop);
-}
-void Nest_setPropertyString(Node* node, const char* name, StringRef val)
-{
-    NodeProperty prop = { dupCStr(name), propString, 0, {0} };
-    prop.value.stringValue = dup(val);
-    _setProperty(&node->properties, prop);
-}
-void Nest_setPropertyNode(Node* node, const char* name, Node* val)
-{
-    NodeProperty prop = { dupCStr(name), propNode, 0, {0} };
-    prop.value.nodeValue = val;
-    _setProperty(&node->properties, prop);
-}
-void Nest_setPropertyType(Node* node, const char* name, TypeRef val)
-{
-    NodeProperty prop = { dupCStr(name), propType, 0, {0} };
-    prop.value.typeValue = val;
-    _setProperty(&node->properties, prop);
-}
-
-void Nest_setPropertyExplInt(Node* node, const char* name, int val)
-{
-    NodeProperty prop = { dupCStr(name), propInt, 1, {0} };
-    prop.value.intValue = val;
-    _setProperty(&node->properties, prop);
-}
-void Nest_setPropertyExplString(Node* node, const char* name, StringRef val)
-{
-    NodeProperty prop = { dupCStr(name), propString, 1, {0} };
-    prop.value.stringValue = dup(val);
-    _setProperty(&node->properties, prop);
-}
-void Nest_setPropertyExplNode(Node* node, const char* name, Node* val)
-{
-    NodeProperty prop = { dupCStr(name), propNode, 1, {0} };
-    prop.value.nodeValue = val;
-    _setProperty(&node->properties, prop);
-}
-void Nest_setPropertyExplType(Node* node, const char* name, TypeRef val)
-{
-    NodeProperty prop = { dupCStr(name), propType, 1, {0} };
-    prop.value.typeValue = val;
-    _setProperty(&node->properties, prop);
-}
-
-int Nest_hasProperty(const Node* node, const char* name)
-{
-    return NULL != _findProperty(node->properties, fromCStr(name));
-}
-const int* Nest_getPropertyInt(const Node* node, const char* name)
-{
-    NodeProperty* p = _findProperty(node->properties, fromCStr(name));
-    if ( !p || p->kind != propInt )
-        return nullptr;
-    return &p->value.intValue;
-}
-const StringRef* Nest_getPropertyString(const Node* node, const char* name)
-{
-    NodeProperty* p = _findProperty(node->properties, fromCStr(name));
-    if ( !p || p->kind != propString )
-        return nullptr;
-    return &p->value.stringValue;
-}
-Node*const* Nest_getPropertyNode(const Node* node, const char* name)
-{
-    NodeProperty* p = _findProperty(node->properties, fromCStr(name));
-    if ( !p || p->kind != propNode )
-        return nullptr;
-    return &p->value.nodeValue;
-}
-const TypeRef* Nest_getPropertyType(const Node* node, const char* name)
-{
-    NodeProperty* p = _findProperty(node->properties, fromCStr(name));
-    if ( !p || p->kind != propType )
-        return nullptr;
-    return &p->value.typeValue;
-}
-
-int Nest_getCheckPropertyInt(const Node* node, const char* name)
-{
-    const int* res = Nest_getPropertyInt(node, name);
-    if ( !res )
-        REP_INTERNAL(node->location, "Node of kind %1% does not have integer property %2%") % Nest_nodeKindName(node) % name;
-    return *res;
-}
-StringRef Nest_getCheckPropertyString(const Node* node, const char* name)
-{
-    const StringRef* res = Nest_getPropertyString(node, name);
-    if ( !res )
-        REP_INTERNAL(node->location, "Node of kind %1% does not have string property %2%") % Nest_nodeKindName(node) % name;
-    return *res;
-}
-Node* Nest_getCheckPropertyNode(const Node* node, const char* name)
-{
-    Node*const* res = Nest_getPropertyNode(node, name);
-    if ( !res )
-        REP_INTERNAL(node->location, "Node of kind %1% does not have Node property %2%") % Nest_nodeKindName(node) % name;
-    return *res;
-}
-TypeRef Nest_getCheckPropertyType(const Node* node, const char* name)
-{
-    const TypeRef* res = Nest_getPropertyType(node, name);
-    if ( !res )
-        REP_INTERNAL(node->location, "Node of kind %1% does not have Type property %2%") % Nest_nodeKindName(node) % name;
-    return *res;
-}
-
 
 void Nest_setContext(Node* node, CompilationContext* context)
 {
@@ -418,27 +198,6 @@ void Nest_clearCompilationState(Node* node)
             Nest_clearCompilationState(p);
     }
 }
-
-void Nest_addModifier(Node* node, Modifier* mod)
-{
-    NestUtils_appendObjectToPtrArray((PtrArray*) &node->modifiers, mod);
-}
-
-CompilationContext* Nest_childrenContext(const Node* node)
-{
-    return node->childrenContext ? node->childrenContext : node->context;
-}
-
-Node* Nest_explanation(Node* node)
-{
-    return node && node->explanation && node->explanation != node ? Nest_explanation(node->explanation) : node;
-}
-
-Node* Nest_ofKind(Node* src, int desiredNodeKind)
-{
-    return src && src->nodeKind == desiredNodeKind ? src : nullptr;
-}
-
 
 const char* Nest_defaultFunToString(const Node* node)
 {

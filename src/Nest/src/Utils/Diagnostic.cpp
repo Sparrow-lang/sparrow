@@ -2,8 +2,8 @@
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/ConsoleColors.hpp"
 #include "Nest/Utils/StringRef.h"
+#include "Nest/Utils/NodeUtils.h"
 #include "Nest/Api/SourceCode.h"
-#include "Nest/Api/Node.h"
 #include "Nest/Api/Type.h"
 
 static int _reportingEnabled = 1;
@@ -60,6 +60,17 @@ namespace
                 cerr << string(count, '~');                   // arrow to underline the whole location range
                 cerr << ConsoleColors::stClear << endl;
             }
+        }
+    }
+
+    inline const char* _evalModeToString(EvalMode mode)
+    {
+        switch ( mode )
+        {
+        case modeRt:        return "rt";
+        case modeCt:        return "ct";
+        case modeRtCt:      return "rtct";
+        default:            return "unspecified";
         }
     }
 }
@@ -150,6 +161,6 @@ ostream& operator << (ostream& os, TypeRef t)
 
 ostream& operator << (ostream& os, EvalMode mode)
 {
-    os << Nest_evalModeToString(mode);
+    os << _evalModeToString(mode);
     return os;
 }

@@ -14,6 +14,7 @@
 #include "Nest/Api/Compiler.h"
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/StringRef.hpp"
+#include "Nest/Utils/NodeUtils.h"
 
 using namespace LLVMB;
 using namespace Feather;

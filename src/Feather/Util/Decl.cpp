@@ -2,11 +2,11 @@
 #include "Decl.h"
 #include <Nodes/FeatherNodes.h>
 #include <Nodes/Properties.h>
-#include "Nest/Api/Node.h"
 #include "Nest/Api/CompilationContext.h"
 #include "Nest/Api/SymTab.h"
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/StringRef.hpp"
+#include "Nest/Utils/NodeUtils.h"
 
 using namespace Feather;
 

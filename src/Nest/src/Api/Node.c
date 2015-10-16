@@ -1,13 +1,26 @@
-#include "Nest/src/StdInc.hpp"
 #include "Nest/Api/Node.h"
 #include "Nest/Api/NodeKindRegistrar.h"
-#include "Nest/Utils/NodeUtils.hpp"
+#include "Nest/Utils/NodeUtils.h"
 #include "Nest/Utils/Alloc.h"
-#include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/Assert.h"
+#include "Nest/Utils/Diagnostic.h"
+
+#include <stdlib.h>
+#include <string.h>
+
+unsigned _myMinU(unsigned a, unsigned b) { return a<b ? a : b; }
+unsigned _myMaxU(unsigned a, unsigned b) { return b<a ? a : b; }
+
+char* _appendStr(char* dest, char* endOfStore, const char* src)
+{
+    unsigned toCopy = _myMinU(strlen(src), endOfStore-dest);
+    memcpy(dest, src, toCopy);
+    return dest + toCopy;
+}
 
 NodeProperties _cloneProperties(NodeProperties src) {
     unsigned size = src.end - src.begin;
-    NodeProperties res = { NULL, NULL, NULL };
+    NodeProperties res = { 0, 0, 0 };
     res.begin = (NodeProperty*) malloc(size*sizeof(NodeProperty));
     res.end = res.begin+size;
     res.endOfStore = res.end;
@@ -30,15 +43,15 @@ void _applyModifiers(Node* node, ModifierType modType)
 /// Set the explanation of this node.
 /// makes sure it has the right context, compiles it, and set the type of the current node to be the type of the
 /// explanation
-bool _setExplanation(Node* node, Node* explanation)
+int _setExplanation(Node* node, Node* explanation)
 {
     if ( explanation == node->explanation )
-        return true;
+        return 1;
 
     node->explanation = explanation;
 
     if ( explanation == node )
-        return true;
+        return 1;
 
     // Copy all the properties marked accordingly
     NodeProperty* p = node->properties.begin;
@@ -47,7 +60,7 @@ bool _setExplanation(Node* node, Node* explanation)
             Nest_setProperty(node->explanation, *p);
 
     // Try to semantically check the explanation
-    bool res = true;
+    int res = 1;
     if ( !explanation->nodeSemanticallyChecked )
     {
         Nest_setContext(node->explanation, node->context);
@@ -68,17 +81,17 @@ Node* Nest_createNode(int nodeKind)
     res->nodeSemanticallyChecked = 0;
     res->computeTypeStarted = 0;
     res->semanticCheckStarted = 0;
-    res->context = nullptr;
-    res->childrenContext = nullptr;
-    res->type = nullptr;
-    res->explanation = nullptr;
+    res->context = 0;
+    res->childrenContext = 0;
+    res->type = 0;
+    res->explanation = 0;
     return res;
 }
 
 Node* Nest_cloneNode(Node* node)
 {
     if ( !node )
-        return NULL;
+        return 0;
 
     ASSERT(node);
     Node* res = Nest_createNode(node->nodeKind);
@@ -92,7 +105,7 @@ Node* Nest_cloneNode(Node* node)
     Nest_resizeNodeArray(&res->children, size);
     for ( size_t i=0; i<size; ++i )
     {
-        at(res->children, i) = Nest_cloneNode(at(node->children, i));
+        res->children.beginPtr[i] = Nest_cloneNode(node->children.beginPtr[i]);
     }
     return res;
 }
@@ -119,14 +132,16 @@ TypeRef Nest_computeType(Node* node)
     if ( node->type )
         return node->type;
     if ( node->nodeError )
-        return NULL;
+        return 0;
 
     if ( !node->context )
-        REP_INTERNAL(node->location, "No context associated with node (%1%)") % Nest_toString(node);
+        Nest_reportFmt(node->location, diagInternalError, "No context associated with node %s", Nest_toString(node));
 
     // Check for recursive dependency
-    if ( node->computeTypeStarted )
-        REP_ERROR_RET(nullptr, node->location, "Recursive dependency detected while computing the type of the current node");
+    if ( node->computeTypeStarted ) {
+        Nest_reportDiagnostic(node->location, diagError, "Recursive dependency detected while computing the type of the current node");
+        return 0;
+    }
     node->computeTypeStarted = 1;
 
     _applyModifiers(node, modTypeBeforeComputeType);
@@ -136,7 +151,7 @@ TypeRef Nest_computeType(Node* node)
     if ( !node->type )
     {
         node->nodeError = 1;
-        return NULL;
+        return 0;
     }
 
     _applyModifiers(node, modTypeAfterComputeType);
@@ -149,14 +164,16 @@ Node* Nest_semanticCheck(Node* node)
     if ( node->nodeSemanticallyChecked )
         return node->explanation;
     if ( node->nodeError )
-        return NULL;
+        return 0;
 
     if ( !node->context )
-        REP_INTERNAL(node->location, "No context associated with node (%1%)") % Nest_toString(node);
+        Nest_reportFmt(node->location, diagInternalError, "No context associated with node %s", Nest_toString(node));
 
     // Check for recursive dependency
-    if ( node->semanticCheckStarted )
-        REP_ERROR_RET(nullptr, node->location, "Recursive dependency detected while semantically checking the current node");
+    if ( node->semanticCheckStarted ) {
+        Nest_reportDiagnostic(node->location, diagError, "Recursive dependency detected while semantically checking the current node");
+        return 0;
+    }
     node->semanticCheckStarted = 1;
 
     _applyModifiers(node, modTypeBeforeSemanticCheck);
@@ -166,15 +183,15 @@ Node* Nest_semanticCheck(Node* node)
     if ( !res )
     {
         node->nodeError = 1;
-        return NULL;
+        return 0;
     }
     if ( !_setExplanation(node, res) )
     {
         node->nodeError = 1;
-        return NULL;
+        return 0;
     }
     if ( !node->type )
-        REP_INTERNAL(node->location, "Node semantically checked, but no actual types was generated");
+        Nest_reportDiagnostic(node->location, diagInternalError, "Node semantically checked, but no actual types was generated");
     node->nodeSemanticallyChecked = 1;
 
     _applyModifiers(node, modTypeAfterSemanticCheck);
@@ -188,12 +205,13 @@ void Nest_clearCompilationState(Node* node)
     node->nodeSemanticallyChecked = 0;
     node->computeTypeStarted = 0;
     node->semanticCheckStarted = 0;
-    node->explanation = nullptr;
-    node->type = nullptr;
+    node->explanation = 0;
+    node->type = 0;
     node->modifiers.endPtr = node->modifiers.beginPtr;
 
-    for ( Node* p: node->children )
+    for ( Node** pp=node->children.beginPtr; pp!=node->children.endPtr; ++pp )
     {
+        Node* p = *pp;
         if ( p )
             Nest_clearCompilationState(p);
     }
@@ -201,35 +219,38 @@ void Nest_clearCompilationState(Node* node)
 
 const char* Nest_defaultFunToString(const Node* node)
 {
-    ostringstream os;
     if ( node->explanation && node != node->explanation )
-        os << node->explanation;
-    else
-    {
-        const StringRef* name = Nest_getPropertyString(node, "name");
-        if ( name )
-            os << name->begin;
-        else
-        {
-            os << Nest_nodeKindName(node) << "(";
-            for ( size_t i=0; i<Nest_nodeArraySize(node->children); ++i )
-            {
-                if ( i > 0 )
-                    os << ", ";
-                os << at(node->children, i);
-            }
+        return Nest_toString(node->explanation);
 
-            os << ")";
-        }
+    const StringRef* name = Nest_getPropertyString(node, "name");
+    if ( name )
+        return name->begin;
+
+    const static unsigned maxSize = 1024;
+    char* res = startString(maxSize+1);
+    char* end = res;
+    char* endOfStore = res + maxSize;
+    end = _appendStr(end, endOfStore, Nest_nodeKindName(node));
+    end = _appendStr(end, endOfStore, "(");
+    for ( size_t i=0; i<Nest_nodeArraySize(node->children); ++i )
+    {
+        if ( i > 0 )
+            end = _appendStr(end, endOfStore, ", ");
+        Node* n = node->children.beginPtr[i];
+        if ( n )
+            end = _appendStr(end, endOfStore, Nest_toString(n));
     }
-    return dupString(os.str().c_str());
+    end = _appendStr(end, endOfStore, ")");
+    endString(end-res+1);
+    return res;
 }
 
 void Nest_defaultFunSetContextForChildren(Node* node)
 {
     CompilationContext* childrenCtx = Nest_childrenContext(node);
-    for ( Node* child: node->children )
+    for ( Node** pp=node->children.beginPtr; pp!=node->children.endPtr; ++pp )
     {
+        Node* child = *pp;
         if ( child )
             Nest_setContext(child, childrenCtx);
     }

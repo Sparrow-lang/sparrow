@@ -3,6 +3,10 @@
 #include "Nest/Api/Node.h"
 #include "Nest/Api/NodeRange.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // General Node operations
 //
@@ -113,3 +117,6 @@ unsigned Nest_nodeRangeSize(NodeRange nodes);
 
 NodeRange Nest_NodeRagenFromCArray(Node** nodes, unsigned count);
 
+#ifdef __cplusplus
+}
+#endif

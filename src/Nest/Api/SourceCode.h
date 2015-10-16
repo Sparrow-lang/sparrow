@@ -1,6 +1,11 @@
 #pragma once
 
 #include "Nest/Api/NodeArray.h"
+#include "Nest/Api/StringRef.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct Nest_StringRef StringRef;
 typedef struct Nest_CompilationContext CompilationContext;
@@ -24,3 +29,7 @@ StringRef Nest_getSourceCodeLine(const SourceCode* sourceCode, int lineNum);
 
 /// Function that translates a node from CT to RT for the given source code
 Node* Nest_translateCtToRt(const SourceCode* sourceCode, Node* node);
+
+#ifdef __cplusplus
+}
+#endif

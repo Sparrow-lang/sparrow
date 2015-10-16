@@ -2,6 +2,10 @@
 
 #include "Nest/Api/TypeRef.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct Nest_Node Node;
 typedef struct Nest_SourceCode SourceCode;
 typedef struct Nest_Backend Backend;
@@ -54,3 +58,7 @@ int Nest_getNumBackends();
 
 /// Get the backend with the specified index
 Backend* Nest_getBackend(int idx);
+
+#ifdef __cplusplus
+}
+#endif

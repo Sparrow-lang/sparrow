@@ -2,6 +2,10 @@
 
 #include "Nest/Api/NodeArray.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// Structure describing a symbol table, with multiple entries
 /// Note that the entries will be allocated after this structure.
 struct Nest_SymTab {
@@ -35,3 +39,8 @@ NodeArray Nest_symTabLookupCurrent(SymTab* symTab, const char* name);
 /// If no matching symbol is found in the current symbol table, this will recursively try in the parent tables.
 /// Note that more than one symbols can be registered in the table with the same name
 NodeArray Nest_symTabLookup(SymTab* symTab, const char* name);
+
+#ifdef __cplusplus
+}
+#endif
+

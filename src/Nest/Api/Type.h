@@ -3,6 +3,10 @@
 #include "TypeRef.h"
 #include "EvalMode.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct Nest_Node Node;
 
 /// Represents a type
@@ -40,3 +44,7 @@ TypeRef Nest_insertStockType(const Type* newType);
 
 /// Function that changes the mode for the given type
 TypeRef Nest_changeTypeMode(TypeRef type, EvalMode newMode);
+
+#ifdef __cplusplus
+}
+#endif

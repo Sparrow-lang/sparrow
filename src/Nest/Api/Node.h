@@ -7,6 +7,10 @@
 #include "Nest/Api/Location.h"
 #include "Nest/Api/StringRef.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct Nest_Node Node;
 typedef struct Nest_Modifier Modifier;
 typedef struct Nest_CompilationContext CompilationContext;
@@ -99,3 +103,7 @@ void Nest_defaultFunSetContextForChildren(Node* node);
 
 /// Computes the type of the node - calls semantic check to compute the type
 TypeRef Nest_defaultFunComputeType(Node* node);
+
+#ifdef __cplusplus
+}
+#endif

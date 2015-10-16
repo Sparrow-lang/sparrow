@@ -2,6 +2,10 @@
 
 #include "EvalMode.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct Nest_Node Node;
 typedef struct Nest_SourceCode SourceCode;
 typedef struct Nest_Backend Backend;
@@ -32,3 +36,7 @@ CompilationContext* Nest_mkChildContext(CompilationContext* parent, EvalMode mod
 /// Always creates a SymTab, even if the given node is NULL
 /// If 'mode' is not modeUnspecified, it will use the given mode; otherwise it will inherit the mode from the parent
 CompilationContext* Nest_mkChildContextWithSymTab(CompilationContext* parent, Node* symTabNode, EvalMode mode);
+
+#ifdef __cplusplus
+}
+#endif

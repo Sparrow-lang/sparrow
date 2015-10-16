@@ -1,19 +1,16 @@
-#include "Nest/src/StdInc.hpp"
 #include "Nest/Api/CompilationContext.h"
 #include "Nest/Api/SymTab.h"
-#include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/Diagnostic.h"
 #include "Nest/Utils/Alloc.h"
-
-using namespace Nest;
 
 CompilationContext* Nest_mkRootContext(Backend* backend, EvalMode mode)
 {
     CompilationContext* ctx = (CompilationContext*) alloc(sizeof(CompilationContext), allocGeneral);
-    ctx->parent = NULL;
+    ctx->parent = 0;
     ctx->backend = backend;
-    ctx->currentSymTab = Nest_mkSymTab(NULL, NULL);
+    ctx->currentSymTab = Nest_mkSymTab(0, 0);
     ctx->evalMode = mode;
-    ctx->sourceCode = NULL;
+    ctx->sourceCode = 0;
     return ctx;
 }
 
@@ -28,9 +25,9 @@ CompilationContext* Nest_mkChildContext(CompilationContext* parent, EvalMode mod
 
     // TODO (rtct): Handle this
 //     if ( parent->evalMode == modeCt && mode != modeCt )
-//         REP_ERROR(NOLOC, "Cannot create non-CT context inside of a CT context");
+//         Nest_reportDiagnostic(NOLOC, diagError, "Cannot create non-CT context inside of a CT context");
     if ( parent->evalMode == modeRtCt && mode == modeRt )
-        REP_ERROR(NOLOC, "Cannot create RT context inside of a RTCT context");
+        Nest_reportDiagnostic(NOLOC, diagError, "Cannot create RT context inside of a RTCT context");
 
     return ctx;
 }

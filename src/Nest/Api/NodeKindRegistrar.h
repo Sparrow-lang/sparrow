@@ -2,6 +2,10 @@
 
 #include "TypeRef.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct Nest_Node Node;
 
 /// Function that gets a string description for the given node
@@ -27,3 +31,7 @@ FSemanticCheck Nest_getSemanticCheckFun(int nodeKind);
 FComputeType Nest_getComputeTypeFun(int nodeKind);
 FSetContextForChildren Nest_getSetContextForChildrenFun(int nodeKind);
 FToString Nest_getToStringFun(int nodeKind);
+
+#ifdef __cplusplus
+}
+#endif

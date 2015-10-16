@@ -2,6 +2,10 @@
 
 #include "Nest/Api/StringRef.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct Nest_Node Node;
 typedef struct Nest_SourceCode SourceCode;
 typedef struct Nest_CompilationContext CompilationContext;
@@ -39,3 +43,5 @@ int Nest_getSourceCodeKindForExtension(const char* extension);
 /// Find the source code kind for the given filename
 /// Returns a negative value if no source code kind can be found
 int Nest_getSourceCodeKindForFilename(const char* filename);
+
+}

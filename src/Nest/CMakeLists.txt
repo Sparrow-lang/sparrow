@@ -44,7 +44,7 @@ SET(sourceFiles
     "src/StdInc.cpp"
     "src/StdInc.hpp"
     "src/Api/Backend.c"
-    "src/Api/CompilationContext.cpp"
+    "src/Api/CompilationContext.c"
     "src/Api/Compiler.cpp"
     "src/Api/Nest.cpp"
     "src/Api/Node.cpp"

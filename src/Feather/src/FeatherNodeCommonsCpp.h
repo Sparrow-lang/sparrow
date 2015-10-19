@@ -1,8 +1,8 @@
 #pragma once
 
 #include "FeatherNodeCommonsH.h"
-#include "Nodes/Properties.h"
-#include "FeatherTypes.h"
+#include "Feather/Utils/Properties.h"
+#include "Feather/Api/FeatherTypes.h"
 
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Api/CompilationContext.h"

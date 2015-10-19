@@ -6,9 +6,9 @@
 #include <SparrowFrontendTypes.h>
 #include <NodeCommonsCpp.h>
 
-#include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Util/Decl.h>
-#include <Feather/Util/Ct.h>
+#include "Feather/Api/FeatherNodes.h"
+#include "Feather/Utils/Decl.h"
+#include "Feather/Utils/Ct.h"
 
 
 using namespace SprFrontend;

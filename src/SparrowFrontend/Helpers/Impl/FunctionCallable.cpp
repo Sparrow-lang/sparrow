@@ -6,8 +6,8 @@
 #include <Helpers/Ct.h>
 #include <Helpers/StdDef.h>
 #include <Nodes/Builder.h>
-#include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Util/Decl.h>
+#include "Feather/Api/FeatherNodes.h"
+#include "Feather/Utils/Decl.h"
 
 using namespace SprFrontend;
 using namespace Feather;

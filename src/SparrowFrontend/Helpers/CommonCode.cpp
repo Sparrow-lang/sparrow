@@ -9,9 +9,9 @@
 #include "Generics.h"
 #include <NodeCommonsCpp.h>
 
-#include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Util/TypeTraits.h>
-#include <Feather/Util/Decl.h>
+#include "Feather/Api/FeatherNodes.h"
+#include "Feather/Utils/TypeTraits.h"
+#include "Feather/Utils/Decl.h"
 
 #include "Nest/Utils/CompilerSettings.hpp"
 

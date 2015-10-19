@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Feather/Nodes/Decls/CallConvention.h>
+#include "Feather/src/CallConvention.h"
 
 FWD_CLASS1(LLVMB, Module)
 

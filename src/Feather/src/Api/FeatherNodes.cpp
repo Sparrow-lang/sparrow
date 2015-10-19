@@ -1,14 +1,14 @@
-#include <StdInc.h>
-#include "FeatherNodes.h"
-#include "FeatherNodeCommonsCpp.h"
+#include "Feather/src/StdInc.h"
+#include "Api/FeatherNodes.h"
+#include "Feather/src/FeatherNodeCommonsCpp.h"
 
-#include <Feather/FeatherTypes.h>
+#include "Feather/Api/FeatherTypes.h"
 
-#include <Util/Decl.h>
-#include <Util/TypeTraits.h>
-#include <Util/Ct.h>
-#include <Util/Context.h>
-#include <Util/StringData.h>
+#include "Feather/Utils/Decl.h"
+#include "Feather/Utils/TypeTraits.h"
+#include "Feather/Utils/Ct.h"
+#include "Feather/Utils/Context.h"
+#include "Feather/Utils/StringData.h"
 
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/Alloc.h"

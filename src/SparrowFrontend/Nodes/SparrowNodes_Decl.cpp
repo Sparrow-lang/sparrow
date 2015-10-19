@@ -13,8 +13,8 @@
 #include <Helpers/QualifiedId.h>
 #include <Helpers/ForEachNodeInNodeList.h>
 
-#include <Feather/Util/Decl.h>
-#include <Feather/Util/Context.h>
+#include "Feather/Utils/Decl.h"
+#include "Feather/Utils/Context.h"
 
 #include "Nest/Api/SourceCode.h"
 #include "Nest/Utils/NodeVector.hpp"

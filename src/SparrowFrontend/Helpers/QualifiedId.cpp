@@ -1,7 +1,7 @@
 #include <StdInc.h>
 #include "QualifiedId.h"
 
-#include <Feather/Util/Decl.h>
+#include "Feather/Utils/Decl.h"
 #include "Nest/Utils/NodeUtils.hpp"
 
 using namespace Feather;

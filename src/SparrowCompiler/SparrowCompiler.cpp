@@ -11,7 +11,7 @@
 #include "Nest/Api/Backend.h"
 #include "Nest/Api/CompilationContext.h"
 
-#include <Feather/Feather.h>
+#include "Feather/Api/Feather.h"
 #include <LLVMBackend/LLVMBackendMod.h>
 #include <SparrowFrontend/SparrowFrontend.h>
 

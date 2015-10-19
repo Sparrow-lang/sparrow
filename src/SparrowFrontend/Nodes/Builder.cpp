@@ -2,7 +2,7 @@
 #include "Builder.h"
 #include <NodeCommonsCpp.h>
 
-#include <Feather/Nodes/FeatherNodes.h>
+#include "Feather/Api/FeatherNodes.h"
 #include "Nest/Utils/NodeVector.hpp"
 
 

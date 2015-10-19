@@ -7,10 +7,10 @@
 #include "Module.h"
 #include "Tr/DebugInfo.h"
 
-#include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Nodes/Properties.h>
-#include <Feather/Util/Decl.h>
-#include <Feather/Util/Context.h>
+#include "Feather/Api/FeatherNodes.h"
+#include "Feather/Utils/Properties.h"
+#include "Feather/Utils/Decl.h"
+#include "Feather/Utils/Context.h"
 
 #include "Nest/Api/Type.h"
 #include "Nest/Api/Compiler.h"

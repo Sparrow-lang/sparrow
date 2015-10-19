@@ -1,6 +1,6 @@
-#include <StdInc.h>
-#include "Ct.h"
-#include <Feather/Nodes/FeatherNodes.h>
+#include "Feather/src/StdInc.h"
+#include "Feather/Utils/Ct.h"
+#include "Feather/Api/FeatherNodes.h"
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/StringRef.hpp"
 #include "Nest/Utils/NodeUtils.h"

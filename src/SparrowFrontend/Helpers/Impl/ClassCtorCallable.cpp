@@ -5,9 +5,9 @@
 #include <Helpers/DeclsHelpers.h>
 #include <Helpers/CommonCode.h>
 #include <Helpers/Generics.h>
-#include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Util/TypeTraits.h>
-#include <Feather/Util/Decl.h>
+#include "Feather/Api/FeatherNodes.h"
+#include "Feather/Utils/TypeTraits.h"
+#include "Feather/Utils/Decl.h"
 
 using namespace SprFrontend;
 using namespace Feather;

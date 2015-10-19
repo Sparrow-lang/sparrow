@@ -4,9 +4,9 @@
 #include <Tr/TrFunction.h>
 #include <Tr/TrType.h>
 
-#include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Util/TypeTraits.h>
-#include <Feather/FeatherTypes.h>
+#include "Feather/Api/FeatherNodes.h"
+#include "Feather/Utils/TypeTraits.h"
+#include "Feather/Api/FeatherTypes.h"
 
 #include "Nest/Api/Node.h"
 #include "Nest/Api/Type.h"

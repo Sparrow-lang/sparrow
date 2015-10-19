@@ -1,10 +1,9 @@
-#include <StdInc.h>
-#include "Feather.h"
+#include "Feather/src/StdInc.h"
+#include "Feather/Api/Feather.h"
 
-#include "FeatherTypes.h"
-#include "Nodes/FeatherNodes.h"
-#include "Frontend/FSimpleSourceCode.h"
-#include "CtApiFunctions.h"
+#include "Feather/Api/FeatherTypes.h"
+#include "Feather/Api/FeatherNodes.h"
+#include "Feather/src/CtApiFunctions.h"
 
 #include "Nest/Api/CompilerModule.h"
 
@@ -12,7 +11,6 @@ void Feather_initModule()
 {
     Feather::initFeatherTypeKinds();
     Feather::initFeatherNodeKinds();
-    Feather_registerFSimpleSourceCode();
 }
 
 void Feather_onBackendSetFun(Backend* backend)

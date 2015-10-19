@@ -136,14 +136,6 @@ Simple/Primality.spr:                   Simple problems - Primality test
 Simple/Factorization.spr:               Simple problems - Integer factorization
 Simple/SecantMethod.spr:                Simple problems - Secant method solver
 Simple/Ackermann.spr:                   Simple problems - Ackermann function
-LLVM/Simple.fsimple:                    LLVM backend - simple nodes
-LLVM/Nodes.fsimple:                     LLVM backend - all kinds of nodes
-LLVM/Function.fsimple:                  LLVM backend - function test
-LLVM/ClassAndVar.fsimple:               LLVM backend - class & variables
-LLVM/ClassSize.fsimple:                 LLVM backend - class size (and initialization)
-LLVM/Statements.fsimple:                LLVM backend - statements
-LLVM/DestructActions.fsimple:           LLVM backend - destruct actions
-LLVM/Termination.fsimple:               LLVM backend - termination instruction for branches
 Frontend/Smoke.spr:                     Frontend - grammar smoke test
 Frontend/Declarations.spr:              Frontend - some declarations
 Frontend/Expressions.spr:               Frontend - some expressions

@@ -3,7 +3,7 @@
 #include <Helpers/Convert.h>
 #include <Helpers/Generics.h>
 
-#include <Feather/Util/Decl.h>
+#include "Feather/Utils/Decl.h"
 
 using namespace SprFrontend;
 

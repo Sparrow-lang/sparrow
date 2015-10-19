@@ -9,7 +9,7 @@
 #include "Nest/Api/Type.h"
 #include "Nest/Api/Node.h"
 
-#include <Feather/FeatherTypes.h>
+#include "Feather/Api/FeatherTypes.h"
 
 #include <boost/bind.hpp>
 #include <algorithm>

@@ -1,6 +1,6 @@
 #include <StdInc.h>
 #include "SparrowFrontendTypes.h"
-#include <Feather/Util/Decl.h>
+#include "Feather/Utils/Decl.h"
 
 #include "Nest/Api/TypeKindRegistrar.h"
 #include "Nest/Utils/NodeUtils.h"

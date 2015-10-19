@@ -13,9 +13,9 @@
 #include "Nest/Api/Compiler.h"
 #include "Nest/Utils/CompilerSettings.hpp"
 
-#include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Nodes/Properties.h>
-#include <Feather/Util/Decl.h>
+#include "Feather/Api/FeatherNodes.h"
+#include "Feather/Utils/Properties.h"
+#include "Feather/Utils/Decl.h"
 
 #ifdef _MSC_VER
 #pragma warning(push,1)

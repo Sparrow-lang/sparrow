@@ -1,7 +1,7 @@
-#include <StdInc.h>
-#include "Decl.h"
-#include <Nodes/FeatherNodes.h>
-#include <Nodes/Properties.h>
+#include "Feather/src/StdInc.h"
+#include "Feather/Utils/Decl.h"
+#include "Feather/Api/FeatherNodes.h"
+#include "Feather/Utils/Properties.h"
 #include "Nest/Api/CompilationContext.h"
 #include "Nest/Api/SymTab.h"
 #include "Nest/Utils/Diagnostic.hpp"

@@ -6,10 +6,10 @@
 #include <Helpers/SprTypeTraits.h>
 #include <Helpers/DeclsHelpers.h>
 #include <Helpers/StdDef.h>
-#include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Util/Context.h>
-#include <Feather/Util/TypeTraits.h>
-#include <Feather/Util/Decl.h>
+#include "Feather/Api/FeatherNodes.h"
+#include "Feather/Utils/Context.h"
+#include "Feather/Utils/TypeTraits.h"
+#include "Feather/Utils/Decl.h"
 
 #include "Nest/Api/Modifier.h"
 #include "Nest/Utils/Diagnostic.hpp"

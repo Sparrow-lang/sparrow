@@ -2,7 +2,7 @@
 #include "Module.h"
 #include <Tr/TrTopLevel.h>
 
-#include <Feather/Util/Decl.h>
+#include "Feather/Utils/Decl.h"
 #include "Nest/Utils/CompilerSettings.hpp"
 #include "Nest/Api/Compiler.h"
 

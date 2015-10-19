@@ -1,8 +1,8 @@
-#include <StdInc.h>
-#include "Context.h"
-#include "Decl.h"
-#include <Nodes/Properties.h>
-#include <Nodes/FeatherNodes.h>
+#include "Feather/src/StdInc.h"
+#include "Feather/Utils/Context.h"
+#include "Feather/Utils/Decl.h"
+#include <Feather/Utils/Properties.h>
+#include "Feather/Api/FeatherNodes.h"
 #include "Nest/Api/Node.h"
 #include "Nest/Api/CompilationContext.h"
 #include "Nest/Api/SymTab.h"

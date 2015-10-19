@@ -1,7 +1,7 @@
 #include <StdInc.h>
 #include "LLVMSourceCode.h"
 
-#include <Feather/Nodes/FeatherNodes.h>
+#include "Feather/Api/FeatherNodes.h"
 
 #include "Nest/Utils/Alloc.h"
 #include "Nest/Utils/Diagnostic.hpp"

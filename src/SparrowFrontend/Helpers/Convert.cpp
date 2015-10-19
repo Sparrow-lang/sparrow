@@ -8,8 +8,8 @@
 #include <SparrowFrontendTypes.h>
 #include <Helpers/Generics.h>
 
-#include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Util/TypeTraits.h>
+#include "Feather/Api/FeatherNodes.h"
+#include "Feather/Utils/TypeTraits.h"
 
 #include "Nest/Utils/Tuple.hpp"
 

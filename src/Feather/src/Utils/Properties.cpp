@@ -1,5 +1,5 @@
-#include <StdInc.h>
-#include "Properties.h"
+#include "Feather/src/StdInc.h"
+#include "Feather/Utils/Properties.h"
 
 const char* Feather::propNativeName = "nativeName";
 const char* Feather::propDescription = "description";

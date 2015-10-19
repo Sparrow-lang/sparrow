@@ -1,8 +1,8 @@
-#include <StdInc.h>
-#include "FeatherTypes.h"
-#include "Nodes/Properties.h"
-#include "Nodes/FeatherNodes.h"
-#include "Util/Decl.h"
+#include "Feather/src/StdInc.h"
+#include "Feather/Api/FeatherTypes.h"
+#include "Feather/Utils/Properties.h"
+#include "Feather/Api/FeatherNodes.h"
+#include "Feather/Utils/Decl.h"
 
 #include "Nest/Api/TypeKindRegistrar.h"
 #include "Nest/Api/Node.h"

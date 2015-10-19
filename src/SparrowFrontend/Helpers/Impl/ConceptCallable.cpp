@@ -3,7 +3,7 @@
 #include <Helpers/StdDef.h>
 #include <SparrowFrontendTypes.h>
 #include <Helpers/Generics.h>
-#include <Feather/Nodes/FeatherNodes.h>
+#include "Feather/Api/FeatherNodes.h"
 
 using namespace SprFrontend;
 using namespace Feather;

@@ -41,7 +41,7 @@
 
 #include <Nodes/Builder.h>
 #include <Nodes/SparrowNodes.h>
-#include <Feather/Nodes/FeatherNodes.h>
+#include "Feather/Api/FeatherNodes.h"
 
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/StringRef.hpp"

@@ -10,10 +10,10 @@
 #include <Helpers/CommonCode.h>
 
 
-#include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Util/Decl.h>
-#include <Feather/Util/TypeTraits.h>
-#include <Feather/Util/Context.h>
+#include "Feather/Api/FeatherNodes.h"
+#include "Feather/Utils/Decl.h"
+#include "Feather/Utils/TypeTraits.h"
+#include "Feather/Utils/Context.h"
 
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Api/NodeKindRegistrar.h"

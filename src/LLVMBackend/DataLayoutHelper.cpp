@@ -2,10 +2,10 @@
 #include "DataLayoutHelper.h"
 #include <Tr/TrType.h>
 
-#include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Nodes/Properties.h>
-#include <Feather/Util/Decl.h>
-#include <Feather/FeatherTypes.h>
+#include "Feather/Api/FeatherNodes.h"
+#include "Feather/Utils/Properties.h"
+#include "Feather/Utils/Decl.h"
+#include "Feather/Api/FeatherTypes.h"
 
 #include "Nest/Api/Node.h"
 #include "Nest/Utils/NodeUtils.hpp"

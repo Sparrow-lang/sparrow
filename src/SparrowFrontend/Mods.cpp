@@ -1,7 +1,7 @@
 #include <StdInc.h>
 #include "Mods.h"
 
-#include <Feather/Util/Decl.h>
+#include "Feather/Utils/Decl.h"
 
 #include "Nest/Utils/Alloc.h"
 #include "Nest/Utils/Diagnostic.hpp"

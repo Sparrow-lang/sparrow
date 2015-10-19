@@ -5,8 +5,8 @@
 #include "Nest/Api/NodeRange.h"
 #include "Nest/Api/Location.h"
 #include "Nest/Api/StringRef.h"
-#include <Feather/Nodes/Exp/AtomicOrdering.h>
-#include <Feather/Nodes/Decls/CallConvention.h>
+#include "Feather/src/AtomicOrdering.h"
+#include "Feather/src/CallConvention.h"
 
 namespace Feather
 {

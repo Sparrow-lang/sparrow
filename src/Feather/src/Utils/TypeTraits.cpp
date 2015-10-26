@@ -1,8 +1,11 @@
 #include "Feather/src/StdInc.h"
 #include "Feather/Utils/TypeTraits.h"
 
+#include "Feather/Api/Feather.h"
+#include "Feather/Utils/FeatherTypeKinds.h"
+#include "Feather/Utils/FeatherNodeKinds.h"
+#include "Feather/Utils/Properties.h"
 #include "Feather/Utils/Decl.h"
-#include "Feather/Api/FeatherTypes.h"
 
 #include "Nest/Api/Node.h"
 #include "Nest/Api/CompilationContext.h"
@@ -45,7 +48,7 @@ bool Feather::isTestable(TypeRef type)
     // If not Testable, check at least that is some kind of boolean
     if ( !type || !type->hasStorage )
         return false;
-    const StringRef* nativeName = Feather::nativeName(type);
+    const StringRef* nativeName = Feather_nativeName(type);
     return nativeName && (*nativeName == "i1" || *nativeName == "u1");
 }
 
@@ -58,7 +61,7 @@ bool Feather::isInteger(TypeRef type)
 {
     if ( !type || type->typeKind != typeKindData )
         return false;
-    const StringRef* nativeName = Feather::nativeName(type);
+    const StringRef* nativeName = Feather_nativeName(type);
     return nativeName && (*nativeName == "i32" || *nativeName == "u32");
 }
 
@@ -71,7 +74,7 @@ bool Feather::isBasicNumericType(TypeRef type)
 {
     if ( !type || !type->hasStorage )
         return false;
-    const StringRef* nativeName = Feather::nativeName(type);
+    const StringRef* nativeName = Feather_nativeName(type);
     return nativeName && (
         *nativeName == "i1" || *nativeName == "u1" || 
         *nativeName == "i8" || *nativeName == "u8" || 
@@ -105,7 +108,7 @@ TypeRef Feather::addRef(TypeRef type)
     ASSERT(type);
     if ( !type->hasStorage )
         REP_INTERNAL(Location(), "Invalid type given when adding reference (%1%)") % type;
-    return getDataType(type->referredNode, type->numReferences+1, type->mode);
+    return Feather_getDataType(type->referredNode, type->numReferences+1, type->mode);
 }
 
 TypeRef Feather::removeRef(TypeRef type)
@@ -113,7 +116,7 @@ TypeRef Feather::removeRef(TypeRef type)
     ASSERT(type);
     if ( !type->hasStorage || type->numReferences < 1 )
         REP_INTERNAL(Location(), "Invalid type given when removing reference (%1%)") % type;
-    return getDataType(type->referredNode, type->numReferences-1, type->mode);
+    return Feather_getDataType(type->referredNode, type->numReferences-1, type->mode);
 }
 
 TypeRef Feather::removeAllRef(TypeRef type)
@@ -121,7 +124,7 @@ TypeRef Feather::removeAllRef(TypeRef type)
     ASSERT(type);
     if ( !type->hasStorage )
         REP_INTERNAL(Location(), "Invalid type given when removing reference (%1%)") % type;
-    return getDataType(type->referredNode, 0, type->mode);
+    return Feather_getDataType(type->referredNode, 0, type->mode);
 }
 
 TypeRef Feather::removeLValue(TypeRef type)
@@ -129,7 +132,7 @@ TypeRef Feather::removeLValue(TypeRef type)
     ASSERT(type);
     if ( type->typeKind != typeKindLValue )
         REP_INTERNAL(Location(), "Expected l-value type; got %1%") % type;
-    return getDataType(type->referredNode, type->numReferences-1, type->mode);
+    return Feather_getDataType(type->referredNode, type->numReferences-1, type->mode);
 }
 
 TypeRef Feather::removeLValueIfPresent(TypeRef type)
@@ -137,7 +140,7 @@ TypeRef Feather::removeLValueIfPresent(TypeRef type)
     ASSERT(type);
     if ( type->typeKind != typeKindLValue )
         return type;
-    return getDataType(type->referredNode, type->numReferences-1, type->mode);
+    return Feather_getDataType(type->referredNode, type->numReferences-1, type->mode);
 }
 
 TypeRef Feather::lvalueToRef(TypeRef type)
@@ -145,7 +148,7 @@ TypeRef Feather::lvalueToRef(TypeRef type)
     ASSERT(type);
     if ( type->typeKind != typeKindLValue )
         REP_INTERNAL(Location(), "Expected l-value type; got %1%") % type;
-    return getDataType(type->referredNode, type->numReferences, type->mode);
+    return Feather_getDataType(type->referredNode, type->numReferences, type->mode);
 }
 
 TypeRef Feather::lvalueToRefIfPresent(TypeRef type)
@@ -153,7 +156,7 @@ TypeRef Feather::lvalueToRefIfPresent(TypeRef type)
     ASSERT(type);
     if ( type->typeKind != typeKindLValue )
         return type;
-    return getDataType(type->referredNode, type->numReferences, type->mode);
+    return Feather_getDataType(type->referredNode, type->numReferences, type->mode);
 }
 
 Node* Feather::classForType(TypeRef t)
@@ -263,4 +266,59 @@ void Feather::checkEvalMode(Node* src, EvalMode referencedEvalMode)
             }
         }
     }
+}
+
+Node* Feather_classDecl(TypeRef type)
+{
+    ASSERT(type && type->hasStorage);
+    return type->referredNode;
+}
+
+const StringRef* Feather_nativeName(TypeRef type)
+{
+    if ( type->referredNode && type->referredNode->nodeKind == nkFeatherDeclClass )
+        return Nest_getPropertyString(type->referredNode, propNativeName);
+    return nullptr;
+}
+
+int Feather_numReferences(TypeRef type)
+{
+    ASSERT(type && type->hasStorage);
+    return type->numReferences;
+}
+
+TypeRef Feather_baseType(TypeRef type)
+{
+    ASSERT(type && (type->typeKind == typeKindLValue || type->typeKind == typeKindArray) && type->numSubtypes == 1);
+    return type->subTypes[0];
+}
+
+int Feather_getArraySize(TypeRef type)
+{
+    ASSERT(type && type->typeKind == typeKindArray);
+    return type->flags;
+}
+
+size_t Feather_numFunParameters(TypeRef type)
+{
+    ASSERT(type && type->typeKind == typeKindFunction);
+    return type->numSubtypes-1;
+}
+
+TypeRef Feather_getFunParameter(TypeRef type, size_t idx)
+{
+    ASSERT(type && type->typeKind == typeKindFunction);
+    return type->subTypes[idx+1];
+}
+
+vector<TypeRef> Feather_getFunParameters(TypeRef type)
+{
+    ASSERT(type && type->typeKind == typeKindFunction);
+    return vector<TypeRef>(type->subTypes+1, type->subTypes+type->numSubtypes);
+}
+
+TypeRef Feather_getFunResultType(TypeRef type)
+{
+    ASSERT(type && type->typeKind == typeKindFunction);
+    return type->subTypes[0];
 }

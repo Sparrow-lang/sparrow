@@ -15,14 +15,16 @@
 #include "Nest/Utils/StringRef.hpp"
 #include "Nest/Utils/NodeUtils.h"
 
-#include "Feather/Api/FeatherNodes.h"
+#include "Feather/Api/Feather.h"
 #include "Feather/Utils/Properties.h"
 #include "Feather/Utils/TypeTraits.h"
 #include "Feather/Utils/Context.h"
 #include "Feather/Utils/Decl.h"
 #include "Feather/Utils/Ct.h"
 #include "Feather/Utils/StringData.h"
-#include "Feather/Api/FeatherTypes.h"
+#include "Feather/Utils/NodeUtils.h"
+#include "Feather/Utils/FeatherTypeKinds.h"
+#include "Feather/Utils/FeatherNodeKinds.h"
 
 using namespace LLVMB;
 using namespace LLVMB::Tr;
@@ -79,7 +81,7 @@ namespace
         }
         Node* res = Nest_createNode(nkLLVMDestructActionForConditional);
         res->location = NOLOC;
-        Nest_nodeSetChildren(res, fromIniList({ mkNodeList(NOLOC, move(alt1DestructActions)), mkNodeList(NOLOC, move(alt2DestructActions)) }));
+        Nest_nodeSetChildren(res, fromIniList({ Feather_mkNodeList(NOLOC, move(alt1DestructActions)), Feather_mkNodeList(NOLOC, move(alt2DestructActions)) }));
         Nest_setPropertyType(res, "resType", resType);
         Nest_setPropertyNode(res, "cond_LLVM_value", reinterpret_cast<Node*>(cond)); // store the condition llvm value as a pointer to a node
         return res;
@@ -238,7 +240,7 @@ namespace
 
         // Create a call instruction to the pointer to function
         llvm::CallInst* val = context.builder().CreateCall(ptrToFun, args, "");
-        val->setCallingConv(Tr::translateCallingConv(Function_callConvention(fun)));
+        val->setCallingConv(Tr::translateCallingConv(Feather_Function_callConvention(fun)));
         return setValue(context.module(), *funCall, val);
     }
 
@@ -548,7 +550,7 @@ namespace
             TypeRef tt = node->type;
             if ( tt->typeKind == typeKindData )
             {
-                const StringRef* nativeName = Feather::nativeName(tt);
+                const StringRef* nativeName = Feather_nativeName(tt);
                 if ( nativeName && *nativeName == "StringRef" )
                 {
                     StringData data = *getCtValueData<StringData>(node);
@@ -792,7 +794,7 @@ namespace
         // Create a 'call' instruction
         context.ensureInsertionPoint();
         llvm::CallInst* val = context.builder().CreateCall(func, args, "");;
-        val->setCallingConv(Tr::translateCallingConv(Function_callConvention(funDecl)));
+        val->setCallingConv(Tr::translateCallingConv(Feather_Function_callConvention(funDecl)));
         if ( res )
             return context.builder().CreateLoad(res);
         else
@@ -1193,7 +1195,7 @@ llvm::Value* Tr::translateNode(Node* node, TrContext& context)
     if ( context.module().debugInfo() )
         context.module().debugInfo()->emitLocation(context.builder(), node->location);
 
-    switch ( node->nodeKind - firstFeatherNodeKind )
+    switch ( node->nodeKind - Feather_getFirstFeatherNodeKind() )
     {
     case nkRelFeatherNodeList:                         return translateNodeList(node, context);
     case nkRelFeatherLocalSpace:                       return translateLocalSpace(node, context);

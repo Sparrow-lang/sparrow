@@ -1,7 +1,9 @@
 #include "Feather/src/StdInc.h"
-#include "Feather/Api/FeatherTypes.h"
+#include "Feather/src/Api/Feather_Types.h"
+#include "Feather/Api/Feather.h"
+#include "Feather/Utils/TypeTraits.h"
+#include "Feather/Utils/FeatherNodeKinds.h"
 #include "Feather/Utils/Properties.h"
-#include "Feather/Api/FeatherNodes.h"
 #include "Feather/Utils/Decl.h"
 
 #include "Nest/Api/TypeKindRegistrar.h"
@@ -9,8 +11,7 @@
 #include "Nest/Utils/NodeUtils.h"
 #include "Nest/Utils/Alloc.h"
 
-namespace Feather
-{
+using namespace Feather;
 
 namespace
 {
@@ -57,7 +58,7 @@ namespace
         oss << unitType->description << " A(" << count << ")";
         return oss.str();
     }
-    string getFunctionTypeDescription(TypeRef* resultTypeAndParams, size_t numTypes, EvalMode mode)
+    string Feather_getFunctionTypeDescription(TypeRef* resultTypeAndParams, size_t numTypes, EvalMode mode)
     {
         ostringstream oss;
         oss << "F(";
@@ -73,23 +74,23 @@ namespace
 
     TypeRef changeTypeModeVoid(TypeRef type, EvalMode newMode)
     {
-        return getVoidType(newMode);
+        return Feather_getVoidType(newMode);
     }
     TypeRef changeTypeModeData(TypeRef type, EvalMode newMode)
     {
-        return getDataType(type->referredNode, type->numReferences, newMode);
+        return Feather_getDataType(type->referredNode, type->numReferences, newMode);
     }
     TypeRef changeTypeModeLValue(TypeRef type, EvalMode newMode)
     {
-        return getLValueType(Nest_changeTypeMode(baseType(type), newMode));
+        return Feather_getLValueType(Nest_changeTypeMode(Feather_baseType(type), newMode));
     }
     TypeRef changeTypeModeArray(TypeRef type, EvalMode newMode)
     {
-        return getArrayType(Nest_changeTypeMode(baseType(type), newMode), getArraySize(type));
+        return Feather_getArrayType(Nest_changeTypeMode(Feather_baseType(type), newMode), Feather_getArraySize(type));
     }
     TypeRef changeTypeModeFunction(TypeRef type, EvalMode newMode)
     {
-        return getFunctionType(type->subTypes, type->numSubtypes, newMode);
+        return Feather_getFunctionType(type->subTypes, type->numSubtypes, newMode);
     }
 }
 
@@ -108,7 +109,7 @@ void initFeatherTypeKinds()
     typeKindFunction = Nest_registerTypeKind(&changeTypeModeFunction);
 }
 
-TypeRef getVoidType(EvalMode mode)
+TypeRef Feather_getVoidType(EvalMode mode)
 {
     Type referenceType;
     referenceType.typeKind      = typeKindVoid;
@@ -128,7 +129,7 @@ TypeRef getVoidType(EvalMode mode)
     return t;
 }
 
-TypeRef getDataType(Node* classDecl, uint8_t numReferences, EvalMode mode)
+TypeRef Feather_getDataType(Node* classDecl, uint8_t numReferences, EvalMode mode)
 {
     ASSERT(classDecl->nodeKind == nkFeatherDeclClass );
     EvalMode classMode = classDecl ? effectiveEvalMode(classDecl) : mode;
@@ -153,7 +154,7 @@ TypeRef getDataType(Node* classDecl, uint8_t numReferences, EvalMode mode)
     return t;
 }
 
-TypeRef getLValueType(TypeRef base)
+TypeRef Feather_getLValueType(TypeRef base)
 {
     Type referenceType;
     referenceType.typeKind      = typeKindLValue;
@@ -182,7 +183,7 @@ TypeRef getLValueType(TypeRef base)
     return t;
 }
 
-TypeRef getArrayType(TypeRef unitType, uint32_t count)
+TypeRef Feather_getArrayType(TypeRef unitType, uint32_t count)
 {
     Type referenceType;
     referenceType.typeKind      = typeKindArray;
@@ -211,7 +212,7 @@ TypeRef getArrayType(TypeRef unitType, uint32_t count)
     return t;
 }
 
-TypeRef getFunctionType(TypeRef* resultTypeAndParams, size_t numTypes, EvalMode mode)
+TypeRef Feather_getFunctionType(TypeRef* resultTypeAndParams, size_t numTypes, EvalMode mode)
 {
     ASSERT(numTypes >= 1);  // At least result type
 
@@ -225,7 +226,7 @@ TypeRef getFunctionType(TypeRef* resultTypeAndParams, size_t numTypes, EvalMode 
     referenceType.canBeUsedAtRt = 1;
     referenceType.flags         = 0;
     referenceType.referredNode  = nullptr;
-    referenceType.description   = str(getFunctionTypeDescription(resultTypeAndParams, numTypes, mode));
+    referenceType.description   = str(Feather_getFunctionTypeDescription(resultTypeAndParams, numTypes, mode));
 
     // Temporarily use the given array pointer
     referenceType.subTypes = resultTypeAndParams;
@@ -240,62 +241,4 @@ TypeRef getFunctionType(TypeRef* resultTypeAndParams, size_t numTypes, EvalMode 
         t = Nest_insertStockType(&referenceType);
     }
     return t;
-}
-
-
-Node* classDecl(TypeRef type)
-{
-    ASSERT(type && type->hasStorage);
-    return type->referredNode;
-}
-
-const StringRef* nativeName(TypeRef type)
-{
-    if ( type->referredNode && type->referredNode->nodeKind == nkFeatherDeclClass )
-        return Nest_getPropertyString(type->referredNode, propNativeName);
-    return nullptr;
-}
-
-int numReferences(TypeRef type)
-{
-    ASSERT(type && type->hasStorage);
-    return type->numReferences;
-}
-
-TypeRef baseType(TypeRef type)
-{
-    ASSERT(type && (type->typeKind == typeKindLValue || type->typeKind == typeKindArray) && type->numSubtypes == 1);
-    return type->subTypes[0];
-}
-
-int getArraySize(TypeRef type)
-{
-    ASSERT(type && type->typeKind == typeKindArray);
-    return type->flags;
-}
-
-size_t numFunParameters(TypeRef type)
-{
-    ASSERT(type && type->typeKind == typeKindFunction);
-    return type->numSubtypes-1;
-}
-
-TypeRef getFunParameter(TypeRef type, size_t idx)
-{
-    ASSERT(type && type->typeKind == typeKindFunction);
-    return type->subTypes[idx+1];
-}
-
-vector<TypeRef> getFunParameters(TypeRef type)
-{
-    ASSERT(type && type->typeKind == typeKindFunction);
-    return vector<TypeRef>(type->subTypes+1, type->subTypes+type->numSubtypes);
-}
-
-TypeRef getFunResultType(TypeRef type)
-{
-    ASSERT(type && type->typeKind == typeKindFunction);
-    return type->subTypes[0];
-}
-
 }

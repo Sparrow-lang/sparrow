@@ -2,8 +2,6 @@
 # The source files
 SET(sourceFiles
     "Api/Feather.h"
-    "Api/FeatherNodes.h"
-    "Api/FeatherTypes.h"
 
     "Utils/Context.h"
     "Utils/Ct.h"
@@ -11,9 +9,8 @@ SET(sourceFiles
     "Utils/Properties.h"
     "Utils/StringData.h"
     "Utils/TypeTraits.h"
+    "Utils/NodeUtils.h"
 
-    "src/AtomicOrdering.h"
-    "src/CallConvention.h"
     "src/CtApiFunctions.h"
     "src/CtApiFunctions.cpp"
     "src/FeatherNodeCommonsCpp.h"
@@ -21,8 +18,10 @@ SET(sourceFiles
     "src/StdInc.cpp"
     "src/StdInc.h"
     "src/Api/Feather.cpp"
-    "src/Api/FeatherNodes.cpp"
-    "src/Api/FeatherTypes.cpp"
+    "src/Api/Feather_Nodes.cpp"
+    "src/Api/Feather_Nodes.h"
+    "src/Api/Feather_Types.cpp"
+    "src/Api/Feather_Types.h"
     "src/Utils/Context.cpp"
     "src/Utils/Ct.cpp"
     "src/Utils/Decl.cpp"

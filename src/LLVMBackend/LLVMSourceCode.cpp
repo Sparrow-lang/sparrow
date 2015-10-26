@@ -1,7 +1,7 @@
 #include <StdInc.h>
 #include "LLVMSourceCode.h"
 
-#include "Feather/Api/FeatherNodes.h"
+#include "Feather/Api/Feather.h"
 
 #include "Nest/Utils/Alloc.h"
 #include "Nest/Utils/Diagnostic.hpp"
@@ -93,7 +93,7 @@ namespace
 
         // Create a backend code with the given content
         EvalMode evalMode = specifiedCtAvailability(fileContent);
-        sourceCode->mainNode = Feather::mkBackendCode(Nest_mkLocation1(sourceCode, 1, 1), fromString(fileContent), evalMode);
+        sourceCode->mainNode = Feather_mkBackendCode(Nest_mkLocation1(sourceCode, 1, 1), fromString(fileContent), evalMode);
         Nest_setContext(sourceCode->mainNode, ctx);
     }
 

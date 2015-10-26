@@ -113,7 +113,7 @@ vector<CompilerModule*> gatherModules()
 {
     vector<CompilerModule*> res;
     res.emplace_back(getNestModule());
-    res.emplace_back(getFeatherModule());
+    res.emplace_back(Feather_getModule());
     res.emplace_back(getLLVMBackendModule());
     res.emplace_back(getSparrowFrontendModule());
     return res;

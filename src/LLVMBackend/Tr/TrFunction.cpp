@@ -7,10 +7,12 @@
 #include "Module.h"
 #include "Tr/DebugInfo.h"
 
-#include "Feather/Api/FeatherNodes.h"
+#include "Feather/Api/Feather.h"
 #include "Feather/Utils/Properties.h"
 #include "Feather/Utils/Decl.h"
 #include "Feather/Utils/Context.h"
+#include "Feather/Utils/FeatherNodeKinds.h"
+#include "Feather/Utils/NodeUtils.h"
 
 #include "Nest/Api/Type.h"
 #include "Nest/Api/Compiler.h"
@@ -105,7 +107,7 @@ llvm::Function* Tr::translateFunction(Node* node, Module& module)
 //         REP_INFO(node->location, "Preparing to translate function %1%") % node;
 
     // If we have a native external body, just create the declaration
-    Node* body = Function_body(node);
+    Node* body = Feather_Function_body(node);
     if ( nativeName && !body )
     {
         f =  (llvm::Function*) module.llvmModule().getOrInsertFunction(nativeName->begin, funType);
@@ -143,7 +145,7 @@ llvm::Function* Tr::translateFunction(Node* node, Module& module)
         }
 
         // Set the calling convention
-        f->setCallingConv(translateCallingConv(Function_callConvention(node)));
+        f->setCallingConv(translateCallingConv(Feather_Function_callConvention(node)));
 
         // If we have a result parameter, mark it as sret
         if ( Nest_getPropertyNode(node, propResultParam) )
@@ -179,11 +181,11 @@ llvm::Function* Tr::translateFunction(Node* node, Module& module)
         module.addDefinedFunction(f);
 
         // Set the names for the parameters
-        ASSERT(f->arg_size() == Function_numParameters(node));
+        ASSERT(f->arg_size() == Feather_Function_numParameters(node));
         size_t idx = 0;
         for ( auto argIt=f->arg_begin(); argIt!=f->arg_end(); ++argIt, ++idx )
         {
-            argIt->setName(toString(getName(Function_getParameter(node, idx))));
+            argIt->setName(toString(getName(Feather_Function_getParameter(node, idx))));
         }
 
         // Create the block in which we insert the code
@@ -193,7 +195,7 @@ llvm::Function* Tr::translateFunction(Node* node, Module& module)
         idx = 0;
         for ( auto argIt=f->arg_begin(); argIt!=f->arg_end(); ++argIt, ++idx )
         {
-            Node* paramNode = Function_getParameter(node, idx);
+            Node* paramNode = Feather_Function_getParameter(node, idx);
             Node* param = Nest_ofKind(Nest_explanation(paramNode), nkFeatherDeclVar);
             if ( !param )
                 REP_INTERNAL(paramNode->location, "Expected Var node; found %1%") % paramNode;

@@ -75,7 +75,7 @@ NodeVector SprFrontend::getDeclsFromNode(Node* n, Node*& baseExp)
         // If we have a Type as base, try a constructor/concept call
         if ( t->hasStorage )
         {
-            res.push_back(classDecl(t));
+            res.push_back(Feather_classDecl(t));
         }
         else if ( t->typeKind == typeKindConcept )
         {

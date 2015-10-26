@@ -4,9 +4,10 @@
 #include <Tr/TrFunction.h>
 #include <Tr/TrType.h>
 
-#include "Feather/Api/FeatherNodes.h"
+#include "Feather/Api/Feather.h"
 #include "Feather/Utils/TypeTraits.h"
-#include "Feather/Api/FeatherTypes.h"
+#include "Feather/Utils/FeatherNodeKinds.h"
+#include "Feather/Utils/FeatherTypeKinds.h"
 
 #include "Nest/Api/Node.h"
 #include "Nest/Api/Type.h"
@@ -76,7 +77,7 @@ void CtModule::ctProcess(Node* node)
 	if ( node->type->mode == modeRt )
 		REP_INTERNAL(node->location, "Cannot CT process this node: it has no meaning at compile-time");
 
-    switch ( node->nodeKind - firstFeatherNodeKind )
+    switch ( node->nodeKind - Feather_getFirstFeatherNodeKind() )
     {
     case nkRelFeatherExpCtValue:   return;
     case nkRelFeatherDeclVar:      ctProcessVariable(node); break;
@@ -203,7 +204,7 @@ Node* CtModule::ctEvaluateExpression(Node* node)
         TypeRef t = node->type;
         if ( !Feather::isCt(t) )
 	        t = Feather::changeTypeMode(t, modeCt, node->location);
-	    return mkCtValue(node->location, t, dataBuffer);
+	    return Feather_mkCtValue(node->location, t, dataBuffer);
     }
     else
     {
@@ -212,6 +213,6 @@ Node* CtModule::ctEvaluateExpression(Node* node)
         llvmExecutionEngine_->freeMachineCodeForFunction(f);
 
 	    // Create a Nop operation for return
-        return mkNop(node->location);
+        return Feather_mkNop(node->location);
     }
 }

@@ -10,8 +10,10 @@
 
 #include <SparrowFrontend/Nodes/SprProperties.h>
 #include <SparrowFrontend/Nodes/SparrowNodes.h>
-#include "Feather/Api/FeatherNodes.h"
-#include "Feather/Api/FeatherTypes.h"
+#include "Feather/Api/Feather.h"
+#include "Feather/Utils/FeatherNodeKinds.h"
+#include "Feather/Utils/FeatherTypeKinds.h"
+#include "Feather/Utils/NodeUtils.h"
 
 namespace SprFrontend { };
 

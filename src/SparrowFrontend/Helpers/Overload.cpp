@@ -10,6 +10,7 @@
 #include <NodeCommonsCpp.h>
 
 #include "Feather/Utils/Decl.h"
+#include "Feather/Utils/TypeTraits.h"
 
 using namespace SprFrontend;
 using namespace Feather;
@@ -197,7 +198,7 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
         for ( auto& arg: args )
         {
             const Location& l = arg->location;
-            arg = mkFunApplication(l, mkIdentifier(l, fromCStr("lift")), mkNodeList(l, fromIniList({ arg }), true));
+            arg = mkFunApplication(l, mkIdentifier(l, fromCStr("lift")), Feather_mkNodeList(l, fromIniList({ arg }), true));
             Nest_setContext(arg, context);
         }
     }
@@ -224,7 +225,7 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
     Node* changeModeNode = nullptr;
     if ( context->evalMode != evalMode )
     {
-        changeModeNode = mkChangeMode(loc, nullptr, evalMode);
+        changeModeNode = Feather_mkChangeMode(loc, nullptr, evalMode);
         Nest_setContext(changeModeNode, context);
         context = Nest_childrenContext(changeModeNode);
     }
@@ -271,7 +272,7 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
     ASSERT(res->context);
     if ( changeModeNode )
     {
-        ChangeMode_setChild(changeModeNode, res);
+        Feather_ChangeMode_setChild(changeModeNode, res);
         res = changeModeNode;
     }
 
@@ -350,7 +351,7 @@ Callable* SprFrontend::selectCtToRtCtor(CompilationContext* context, TypeRef ctT
 {
     if ( ctType->mode != modeCt || !ctType->hasStorage )
         return nullptr;
-    Node* cls = Feather::classDecl(ctType);
+    Node* cls = Feather_classDecl(ctType);
     if ( effectiveEvalMode(cls) != modeRtCt )
         return nullptr;
 

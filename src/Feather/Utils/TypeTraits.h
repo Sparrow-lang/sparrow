@@ -4,6 +4,8 @@
 #include "Nest/Api/TypeRef.h"
 #include "Nest/Api/EvalMode.h"
 
+#include <vector>
+
 typedef struct Nest_CompilationContext CompilationContext;
 
 namespace Feather
@@ -63,3 +65,41 @@ namespace Feather
     /// Check if the given node has the eval-mode correctly set
     void checkEvalMode(Node* src, EvalMode referencedEvalMode = modeRtCt);
 }
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+/// Getter for the class that introduces this data type - can be null
+/// Works for only for storage types (data, l-value, array)
+Node* Feather_classDecl(TypeRef type);
+
+/// If the class associated with the given type has an associated name this will return it; otherwise it returns nullptr
+/// Works for only for storage types (data, l-value, array)
+const StringRef* Feather_nativeName(TypeRef type);
+
+/// The number of references applied
+/// Works for only for storage types (data, l-value, array)
+int Feather_numReferences(TypeRef type);
+
+/// Returns the base type of this type
+/// Works for l-value and array types
+TypeRef Feather_baseType(TypeRef type);
+
+/// Getter for the number of units in the buffer type
+/// Works only for array types
+int Feather_getArraySize(TypeRef type);
+
+size_t Feather_numFunParameters(TypeRef type);
+TypeRef Feather_getFunParameter(TypeRef type, size_t idx);
+// vector<TypeRef> Feather_getFunParameters(TypeRef type);
+TypeRef Feather_getFunResultType(TypeRef type);
+
+
+#ifdef __cplusplus
+}
+#endif
+
+

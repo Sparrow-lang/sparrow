@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Feather/src/CallConvention.h"
+#include "Feather/Api/Feather.h"
 
 FWD_CLASS1(LLVMB, Module)
 
@@ -17,5 +17,5 @@ namespace LLVMB { namespace Tr
     llvm::Function* makeFunThatCalls(Node* node, Module& module, const char* funName, bool expectsResult = false);
 
     /// Translate a function calling conversion; used for function calls
-    llvm::CallingConv::ID translateCallingConv(Feather::CallConvention conv);
+    llvm::CallingConv::ID translateCallingConv(CallConvention conv);
 }}

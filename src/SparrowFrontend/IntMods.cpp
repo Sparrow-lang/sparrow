@@ -6,7 +6,7 @@
 #include <Helpers/SprTypeTraits.h>
 #include <Helpers/DeclsHelpers.h>
 #include <Helpers/StdDef.h>
-#include "Feather/Api/FeatherNodes.h"
+#include "Feather/Api/Feather.h"
 #include "Feather/Utils/Context.h"
 #include "Feather/Utils/TypeTraits.h"
 #include "Feather/Utils/Decl.h"
@@ -45,17 +45,17 @@ namespace
                 ++thisParamIdx;
                 ++otherParamIdx;
             }
-            size_t numParams = Function_numParameters(decl);
+            size_t numParams = Feather_Function_numParameters(decl);
             if ( numParams < 1+thisParamIdx )
                 continue;
-            if ( getName(Function_getParameter(decl, thisParamIdx)) != "$this" )
+            if ( getName(Feather_Function_getParameter(decl, thisParamIdx)) != "$this" )
                 continue;
 
             if ( paramClass )
             {
                 if ( numParams != 1+otherParamIdx )
                     continue;
-                TypeRef paramType = Function_getParameter(decl, otherParamIdx)->type;
+                TypeRef paramType = Feather_Function_getParameter(decl, otherParamIdx)->type;
                 if ( paramType->hasStorage )
                 {
                     if ( classForType(paramType) == paramClass )
@@ -133,8 +133,8 @@ namespace
         {
             sprParams.push_back(mkSprParameter(loc, fromString(param.second), param.first));
         }
-        Node* parameters = sprParams.empty() ? nullptr : mkNodeList(loc, all(sprParams));
-        Node* ret = resClass ? createTypeNode(Nest_childrenContext(parent), loc, getDataType(resClass)) : nullptr;
+        Node* parameters = sprParams.empty() ? nullptr : Feather_mkNodeList(loc, all(sprParams));
+        Node* ret = resClass ? createTypeNode(Nest_childrenContext(parent), loc, Feather_getDataType(resClass, 0, modeRtCt)) : nullptr;
         
         // Add the function
         Node* m = mkSprFunction(loc, fromString(name), parameters, ret, body);
@@ -166,11 +166,11 @@ namespace
         {
             otherRef = mkIdentifier(loc, fromCStr("other"));
             if ( otherParam->numReferences > 0 )
-                otherRef = mkMemLoad(loc, otherRef);
+                otherRef = Feather_mkMemLoad(loc, otherRef);
         }
 
         // Construct the body
-        Node* body = mkLocalSpace(loc, {});
+        Node* body = Feather_mkLocalSpace(loc, {});
         for ( Node* field: cls->children )
         {
             // Take in account only fields of the current class
@@ -178,8 +178,8 @@ namespace
             if ( cls2 != cls )
                 continue;
 
-            Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
-            Node* otherFieldRef = otherParam ? mkFieldRef(loc, otherRef, field) : nullptr;
+            Node* fieldRef = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, mkThisExp(loc)), field);
+            Node* otherFieldRef = otherParam ? Feather_mkFieldRef(loc, otherRef, field) : nullptr;
 
             string oper = op;
             if ( field->type->numReferences > 0 )
@@ -205,7 +205,7 @@ namespace
         Location loc = parent->location;
         loc.end = loc.start;
 
-        Node* body = mkLocalSpace(loc, {});
+        Node* body = Feather_mkLocalSpace(loc, {});
         addMethod(parent, "ctor", body, StdDef::typeUninitialized);
     }
 
@@ -222,7 +222,7 @@ namespace
         ASSERT(cls);
 
         // Construct the body
-        Node* body = mkLocalSpace(loc, {});
+        Node* body = Feather_mkLocalSpace(loc, {});
         for ( Node* field: cls->children )
         {
             // Take in account only fields of the current class
@@ -237,9 +237,9 @@ namespace
             params.push_back({t, paramName});
             Node* paramId = mkIdentifier(loc, fromString(paramName));
             if ( t->numReferences > 0 )
-                paramId = mkMemLoad(loc, paramId);
+                paramId = Feather_mkMemLoad(loc, paramId);
             
-            Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
+            Node* fieldRef = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, mkThisExp(loc)), field);
             
             string oper = t->numReferences > 0 ? ":=" : "ctor";
             addOperatorCall(body, false, fieldRef, oper, paramId);
@@ -266,8 +266,8 @@ namespace
             if ( cls2 != cls )
                 continue;
 
-            Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
-            Node* otherFieldRef = mkFieldRef(loc, mkMemLoad(loc, mkIdentifier(loc, fromCStr("other"))), field);
+            Node* fieldRef = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, mkThisExp(loc)), field);
+            Node* otherFieldRef = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, mkIdentifier(loc, fromCStr("other"))), field);
 
             const char* op = (field->type->numReferences == 0) ? "==" : "===";
             Node* curExp = mkOperatorCall(loc, fieldRef, fromCStr(op), otherFieldRef);
@@ -279,9 +279,9 @@ namespace
         if ( !exp )
             exp = buildBoolLiteral(loc, true);
 
-        Node* body = mkLocalSpace(loc, {});
+        Node* body = Feather_mkLocalSpace(loc, {});
         Nest_appendNodeToArray(&body->children, mkReturnStmt(loc, exp));
-        addMethod(parent, "==", body, getDataType(cls, 1), StdDef::clsBool);
+        addMethod(parent, "==", body, Feather_getDataType(cls, 1, modeUnspecified), StdDef::clsBool);
     }
 
     /// Search the given body for a constructor with the given properties.
@@ -368,7 +368,7 @@ void _IntModClassMembers_afterComputeType(Modifier*, Node* node)
     Node* basicClass = Nest_explanation(node);
     basicClass = basicClass && basicClass->nodeKind == nkFeatherDeclClass ? basicClass : nullptr;
     ASSERT(basicClass);
-    TypeRef paramType = getDataType(basicClass, 1);
+    TypeRef paramType = Feather_getDataType(basicClass, 1, modeRtCt);
 
     // Default ctor
     if ( !checkForMember(cls, "ctor", nullptr) )
@@ -388,7 +388,7 @@ void _IntModClassMembers_afterComputeType(Modifier*, Node* node)
     
     // CT to RT ctor
     if ( !checkForCtorFromCt(cls) && !hasReferences(basicClass) )
-        generateMethod(cls, "ctorFromCt", "ctor", changeTypeMode(getDataType(basicClass, 0), modeCt, node->location), false, modeRt);
+        generateMethod(cls, "ctorFromCt", "ctor", changeTypeMode(Feather_getDataType(basicClass, 0, modeRtCt), modeCt, node->location), false, modeRt);
 
     // Dtor
     if ( !checkForMember(cls, "dtor", nullptr) )
@@ -439,7 +439,7 @@ void IntModCtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
 
         if ( !hasCtorCall(body, nullptr, false, field) )
         {
-            Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
+            Node* fieldRef = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, mkThisExp(loc)), field);
             Node* call = nullptr;
             if ( field->type->numReferences == 0 )
             {
@@ -488,7 +488,7 @@ void IntModDtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
 
         if ( field->type->numReferences == 0 )
         {
-            Node* fieldRef = mkFieldRef(loc, mkMemLoad(loc, mkThisExp(loc)), field);
+            Node* fieldRef = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, mkThisExp(loc)), field);
             Nest_setContext(fieldRef, context);
             Node* call = mkOperatorCall(loc, fieldRef, fromCStr("dtor"), nullptr);
             Nest_setContext(call, context);

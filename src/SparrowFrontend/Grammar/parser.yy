@@ -41,7 +41,8 @@
 
 #include <Nodes/Builder.h>
 #include <Nodes/SparrowNodes.h>
-#include "Feather/Api/FeatherNodes.h"
+
+#include "Feather/Api/Feather.h"
 
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/StringRef.hpp"
@@ -250,9 +251,9 @@ IdentifierList
 
 IdentifierListNode
     : IdentifierListNode COMMA IDENTIFIER
-        { $$ = Feather::addToNodeList($1, mkIdentifier(@3, fromString(*$3))); }
+        { $$ = Feather_addToNodeList($1, mkIdentifier(@3, fromString(*$3))); }
     | IDENTIFIER
-        { $$ = Feather::mkNodeList(@$, fromIniList({ mkIdentifier(@$, fromString(*$1)) })); }
+        { $$ = Feather_mkNodeList(@$, fromIniList({ mkIdentifier(@$, fromString(*$1)) })); }
     ;
 
 ModifierSpec
@@ -264,9 +265,9 @@ ModifierSpec
 
 Modifiers
 	: Modifiers COMMA Expr
-        { $$ = Feather::addToNodeList($1, $3); }
+        { $$ = Feather_addToNodeList($1, $3); }
 	| Expr
-        { $$ = Feather::addToNodeList(NULL, $1); }
+        { $$ = Feather_addToNodeList(NULL, $1); }
 	;
 
 
@@ -295,9 +296,9 @@ ImportDeclarationsOpt
 
 ImportDeclarations
 	: ImportDeclarations ImportDeclaration
-        { $$ = Feather::addToNodeList($1, $2); }
+        { $$ = Feather_addToNodeList($1, $2); }
 	| ImportDeclaration
-        { $$ = Feather::addToNodeList(NULL, $1); }
+        { $$ = Feather_addToNodeList(NULL, $1); }
 	;
 
 ImportDeclaration
@@ -315,9 +316,9 @@ DeclarationsOpt
 
 Declarations
 	: Declarations Declaration
-        { $$ = Feather::addToNodeList($1, $2); }
+        { $$ = Feather_addToNodeList($1, $2); }
 	| Declaration
-        { $$ = Feather::addToNodeList(NULL, $1); }
+        { $$ = Feather_addToNodeList(NULL, $1); }
 	;
 
 Declaration
@@ -434,7 +435,7 @@ FormalsOpt
 
 Formals
 	: Formals COMMA Formal
-        { $$ = Feather::appendNodeList($1, $3); }
+        { $$ = Feather_appendNodeList($1, $3); }
 	| Formal
         { $$ = $1; }
 	;
@@ -468,9 +469,9 @@ ExprListOpt
 
 ExprList
 	: ExprList COMMA Expr
-        { $$ = Feather::addToNodeList($1, $3); }
+        { $$ = Feather_addToNodeList($1, $3); }
 	| Expr
-        { $$ = Feather::addToNodeList(NULL, $1); }
+        { $$ = Feather_addToNodeList(NULL, $1); }
 	;
 
 Expr
@@ -633,7 +634,7 @@ LambdaClosureParams
 
 Statements
     : Statements Statement
-        { $$ = Feather::addToNodeList($1, $2); }
+        { $$ = Feather_addToNodeList($1, $2); }
     | /*nothing*/
         { $$ = NULL; }
     ;
@@ -732,7 +733,7 @@ ReturnStmt
 //
 //Catches
 //	: Catches CatchBlock
-//        { $$ = Feather::addToNodeList($1, $2); }
+//        { $$ = Feather_addToNodeList($1, $2); }
 //    | /*nothing*/
 //        { $$ = NULL; }
 //	;

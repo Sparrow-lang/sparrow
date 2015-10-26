@@ -13,7 +13,7 @@ namespace SprFrontend
     {
         if ( nodeList )
         {
-            ASSERT( nodeList->nodeKind == Feather::nkFeatherNodeList );
+            ASSERT( nodeList->nodeKind == nkFeatherNodeList );
             for ( Node* n: nodeList->children )
             {
                 if ( !n )
@@ -21,7 +21,7 @@ namespace SprFrontend
 
                 Node* nn = Nest_explanation(n);
 
-                if ( nn->nodeKind == Feather::nkFeatherNodeList )
+                if ( nn->nodeKind == nkFeatherNodeList )
                     forEachNodeInNodeList(nn, fun);
                 else
                     fun(n);

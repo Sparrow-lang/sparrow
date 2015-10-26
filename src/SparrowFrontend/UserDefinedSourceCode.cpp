@@ -5,7 +5,7 @@
 #include <Helpers/Ct.h>
 
 #include <Nodes/Builder.h>
-#include "Feather/Api/FeatherNodes.h"
+#include "Feather/Api/Feather.h"
 
 #include "Nest/Utils/Alloc.h"
 #include "Nest/Utils/Diagnostic.hpp"
@@ -45,14 +45,14 @@ namespace
 
         int* scHandle = reinterpret_cast<int*>(sourceCode);
         Node* scBase = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("Meta")), fromCStr("SourceCode"));
-        Node* scArg = Feather::mkCtValue(loc, StdDef::typeRefInt, &scHandle);
+        Node* scArg = Feather_mkCtValueT(loc, StdDef::typeRefInt, &scHandle);
         Node* scNode = mkFunApplication(loc, scBase, fromIniList({scArg}));
         Node* locBase = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("Meta")), fromCStr("Location"));
         Node* locNode = mkFunApplication(loc, locBase, fromIniList({scNode}));
 
         int* ctxHandle = reinterpret_cast<int*>(ctx);
         Node* ctxBase = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("Meta")), fromCStr("CompilationContext"));
-        Node* ctxArg = Feather::mkCtValue(loc, StdDef::typeRefInt, &ctxHandle);
+        Node* ctxArg = Feather_mkCtValueT(loc, StdDef::typeRefInt, &ctxHandle);
         Node* ctxNode = mkFunApplication(loc, ctxBase, fromIniList({ctxArg}));
 
         // The function name is encoded as extraInfo when registering the source code
@@ -71,7 +71,7 @@ namespace
 
         // Compile the function and evaluate it
         Node* implPart = mkCompoundExp(loc, funCall, fromCStr("impl"));
-        implPart = Feather::mkMemLoad(loc, implPart);    // Remove LValue
+        implPart = Feather_mkMemLoad(loc, implPart);    // Remove LValue
         Nest_setContext(implPart, ctx);
         if ( !Nest_semanticCheck(implPart) )
             REP_INTERNAL(loc, "Invalid parsing function %1%, (used to parse %2%)") % funName % sourceCode->url;

@@ -3,7 +3,7 @@
 #include <Helpers/StdDef.h>
 #include <SparrowFrontendTypes.h>
 #include <Helpers/Generics.h>
-#include "Feather/Api/FeatherNodes.h"
+#include "Feather/Api/Feather.h"
 
 using namespace SprFrontend;
 using namespace Feather;
@@ -63,7 +63,7 @@ Node* ConceptCallable::generateCall(const Location& loc)
 
     // Check if the type of the argument fulfills the concept
     bool conceptFulfilled = conceptIsFulfilled(concept_, arg->type);
-    Node* result = mkCtValue(loc, StdDef::typeBool, &conceptFulfilled);
+    Node* result = Feather_mkCtValueT(loc, StdDef::typeBool, &conceptFulfilled);
     Nest_setContext(result, context_);
     return Nest_semanticCheck(result);
 }

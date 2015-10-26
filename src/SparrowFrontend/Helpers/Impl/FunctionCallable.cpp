@@ -6,7 +6,7 @@
 #include <Helpers/Ct.h>
 #include <Helpers/StdDef.h>
 #include <Nodes/Builder.h>
-#include "Feather/Api/FeatherNodes.h"
+#include "Feather/Api/Feather.h"
 #include "Feather/Utils/Decl.h"
 
 using namespace SprFrontend;
@@ -18,7 +18,7 @@ namespace
     {
         CHECK(loc, args.size() == 1);
         StringRef val = getStringCtValue(args[0]);
-        return Feather::mkBackendCode(loc, val, mode);
+        return Feather_mkBackendCode(loc, val, mode);
     }
     
     Node* impl_typeDescription(CompilationContext* context, const Location& loc, const NodeVector& args)
@@ -154,7 +154,7 @@ namespace
         if ( size > numeric_limits<size_t>::max() )
             REP_ERROR_RET(nullptr, loc, "Size of static buffer is too large");
         
-        TypeRef arrType = getArrayType(StdDef::typeByte, (size_t) size);
+        TypeRef arrType = Feather_getArrayType(StdDef::typeByte, (size_t) size);
         return createTypeNode(context, loc, arrType);
     }
     
@@ -174,7 +174,7 @@ namespace
 
         // Get the impl part of the node
         Node* implPart = mkCompoundExp(loc, args[0], fromCStr("impl"));
-        implPart = mkMemLoad(loc, implPart);    // Remove LValue
+        implPart = Feather_mkMemLoad(loc, implPart);    // Remove LValue
         Nest_setContext(implPart, context);
         if ( !Nest_semanticCheck(implPart) )
             return nullptr;
@@ -193,7 +193,7 @@ namespace
         SourceCode* sc = context->sourceCode;
         int* scHandle = reinterpret_cast<int*>(sc);
         Node* base = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("Meta")), fromCStr("SourceCode"));
-        Node* arg = mkCtValue(loc, StdDef::typeRefInt, &scHandle);
+        Node* arg = Feather_mkCtValueT(loc, StdDef::typeRefInt, &scHandle);
         return mkFunApplication(loc, base, fromIniList({arg}));
     }
 
@@ -203,7 +203,7 @@ namespace
 
         int* ctxHandle = reinterpret_cast<int*>(context);
         Node* base = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("Meta")), fromCStr("CompilationContext"));
-        Node* arg = mkCtValue(loc, StdDef::typeRefInt, &ctxHandle);
+        Node* arg = Feather_mkCtValueT(loc, StdDef::typeRefInt, &ctxHandle);
         return mkFunApplication(loc, base, fromIniList({arg}));
     }
 
@@ -280,13 +280,13 @@ string FunctionCallable::toString() const
 size_t FunctionCallable::paramsCount() const
 {
     int offset = hasResultParam_ ? 1 : 0;
-    return Function_numParameters(fun_) - offset;
+    return Feather_Function_numParameters(fun_) - offset;
 }
 
 Node* FunctionCallable::param(size_t idx) const
 {
     int offset = hasResultParam_ ? 1 : 0;
-    return Function_getParameter(fun_, idx+offset);
+    return Feather_Function_getParameter(fun_, idx+offset);
 }
 
 EvalMode FunctionCallable::evalMode() const

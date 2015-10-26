@@ -31,7 +31,7 @@ void SprFrontend::Class_addChild(Node* cls, Node* child)
     Node*& members = at(cls->children, 2);
     if ( !members )
     {
-        members = mkNodeList(cls->location, {});
+        members = Feather_mkNodeList(cls->location, {});
         if ( Nest_childrenContext(cls) )
             Nest_setContext(members, Nest_childrenContext(cls));
     }

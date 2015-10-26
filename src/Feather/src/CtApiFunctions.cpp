@@ -1,7 +1,7 @@
 #include "Feather/src/StdInc.h"
 #include "CtApiFunctions.h"
 
-#include "Feather/Api/FeatherNodes.h"
+#include "Feather/Api/Feather.h"
 #include "Feather/Utils/StringData.h"
 #include "Feather/Utils/Context.h"
 
@@ -249,127 +249,127 @@ namespace
     void ctApi_Feather_mkNodeList(Node** sret, Location* loc, Node** childrenBegin, Node** childrenEnd, bool voidResult)
     {
         NodeRange r = { childrenBegin, childrenEnd };
-        *sret = mkNodeList(*loc, r, voidResult);
+        *sret = Feather_mkNodeList(*loc, r, voidResult);
     }
     void ctApi_Feather_addToNodeList(Node** sret, Node* prevList, Node* element)
     {
-        *sret =  addToNodeList(prevList, element);
+        *sret =  Feather_addToNodeList(prevList, element);
     }
     void ctApi_Feather_appendNodeList(Node** sret, Node* list, Node* newNodes)
     {
-        *sret = appendNodeList(list, newNodes);
+        *sret = Feather_appendNodeList(list, newNodes);
     }
 
     void ctApi_Feather_mkNop(Node** sret, Location* loc)
     {
-        *sret = mkNop(*loc);
+        *sret = Feather_mkNop(*loc);
     }
     void ctApi_Feather_mkTypeNode(Node** sret, Location* loc, TypeRef type)
     {
-        *sret = mkTypeNode(*loc, type);
+        *sret = Feather_mkTypeNode(*loc, type);
     }
     void ctApi_Feather_mkBackendCode(Node** sret, Location* loc, StringRef code, int evalMode)
     {
-        *sret = mkBackendCode(*loc, code, (EvalMode) evalMode);
+        *sret = Feather_mkBackendCode(*loc, code, (EvalMode) evalMode);
     }
     void ctApi_Feather_mkLocalSpace(Node** sret, Location* loc, Node** childrenBegin, Node** childrenEnd)
     {
         NodeRange r = { childrenBegin, childrenEnd };
-        *sret = mkLocalSpace(*loc, r);
+        *sret = Feather_mkLocalSpace(*loc, r);
     }
     void ctApi_Feather_mkGlobalConstructAction(Node** sret, Location* loc, Node* action)
     {
-        *sret = mkGlobalConstructAction(*loc, action);
+        *sret = Feather_mkGlobalConstructAction(*loc, action);
     }
     void ctApi_Feather_mkGlobalDestructAction(Node** sret, Location* loc, Node* action)
     {
-        *sret = mkGlobalDestructAction(*loc, action);
+        *sret = Feather_mkGlobalDestructAction(*loc, action);
     }
     void ctApi_Feather_mkScopeDestructAction(Node** sret, Location* loc, Node* action)
     {
-        *sret = mkScopeDestructAction(*loc, action);
+        *sret = Feather_mkScopeDestructAction(*loc, action);
     }
     void ctApi_Feather_mkTempDestructAction(Node** sret, Location* loc, Node* action)
     {
-        *sret = mkTempDestructAction(*loc, action);
+        *sret = Feather_mkTempDestructAction(*loc, action);
     }
 
     void ctApi_Feather_mkFunction(Node** sret, Location* loc, StringRef name, Node* resType, Node** paramsBegin, Node** paramsEnd, Node* body, int evalMode)
     {
         NodeRange r = { paramsBegin, paramsEnd };
-        *sret = mkFunction(*loc, name, resType, r, body);
+        *sret = Feather_mkFunction(*loc, name, resType, r, body);
     }
     void ctApi_Feather_mkClass(Node** sret, Location* loc, StringRef name, Node** fieldsBegin, Node** fieldsEnd, int evalMode)
     {
         NodeRange r = { fieldsBegin, fieldsEnd };
-        *sret = mkClass(*loc, name, r);
+        *sret = Feather_mkClass(*loc, name, r);
     }
     void ctApi_Feather_mkVar(Node** sret, Location* loc, StringRef name, Node* type, int evalMode)
     {
-        *sret = mkVar(*loc, name, type, 0, (EvalMode) evalMode);
+        *sret = Feather_mkVar(*loc, name, type, 0, (EvalMode) evalMode);
     }
 
     void ctApi_Feather_mkCtValue(Node** sret, Location* loc, TypeRef type, StringRef data)
     {
-        *sret = mkCtValue(*loc, type, data);
+        *sret = Feather_mkCtValue(*loc, type, data);
     }
     void ctApi_Feather_mkNull(Node** sret, Location* loc, Node* typeNode)
     {
-        *sret = mkNull(*loc, typeNode);
+        *sret = Feather_mkNull(*loc, typeNode);
     }
     void ctApi_Feather_mkVarRef(Node** sret, Location* loc, Node* varDecl)
     {
-        *sret = mkVarRef(*loc, varDecl);
+        *sret = Feather_mkVarRef(*loc, varDecl);
     }
     void ctApi_Feather_mkFieldRef(Node** sret, Location* loc, Node* obj, Node* fieldDecl)
     {
-        *sret = mkFieldRef(*loc, obj, fieldDecl);
+        *sret = Feather_mkFieldRef(*loc, obj, fieldDecl);
     }
     void ctApi_Feather_mkFunRef(Node** sret, Location* loc, Node* funDecl, Node* resType)
     {
-        *sret = mkFunRef(*loc, funDecl, resType);
+        *sret = Feather_mkFunRef(*loc, funDecl, resType);
     }
     void ctApi_Feather_mkFunCall(Node** sret, Location* loc, Node* funDecl, Node** argsBegin, Node** argsEnd)
     {
         NodeRange r = { argsBegin, argsEnd };
-        *sret = mkFunCall(*loc, funDecl, r);
+        *sret = Feather_mkFunCall(*loc, funDecl, r);
     }
     void ctApi_Feather_mkMemLoad(Node** sret, Location* loc, Node* exp)
     {
-        *sret = mkMemLoad(*loc, exp);
+        *sret = Feather_mkMemLoad(*loc, exp);
     }
     void ctApi_Feather_mkMemStore(Node** sret, Location* loc, Node* value, Node* address)
     {
-        *sret = mkMemStore(*loc, value, address);
+        *sret = Feather_mkMemStore(*loc, value, address);
     }
     void ctApi_Feather_mkBitcast(Node** sret, Location* loc, Node* destType, Node* exp)
     {
-        *sret = mkBitcast(*loc, destType, exp);
+        *sret = Feather_mkBitcast(*loc, destType, exp);
     }
     void ctApi_Feather_mkConditional(Node** sret, Location* loc, Node* condition, Node* alt1, Node* alt2)
     {
-        *sret = mkConditional(*loc, condition, alt1, alt2);
+        *sret = Feather_mkConditional(*loc, condition, alt1, alt2);
     }
 
     void ctApi_Feather_mkIf(Node** sret, Location* loc, Node* condition, Node* thenClause, Node* elseClause, bool isCt)
     {
-        *sret = mkIf(*loc, condition, thenClause, elseClause, isCt);
+        *sret = Feather_mkIf(*loc, condition, thenClause, elseClause, isCt);
     }
     void ctApi_Feather_mkWhile(Node** sret, Location* loc, Node* condition, Node* body, Node* step, bool isCt)
     {
-        *sret = mkWhile(*loc, condition, body, step, isCt);
+        *sret = Feather_mkWhile(*loc, condition, body, step, isCt);
     }
     void ctApi_Feather_mkBreak(Node** sret, Location* loc)
     {
-        *sret = mkBreak(*loc);
+        *sret = Feather_mkBreak(*loc);
     }
     void ctApi_Feather_mkContinue(Node** sret, Location* loc)
     {
-        *sret = mkContinue(*loc);
+        *sret = Feather_mkContinue(*loc);
     }
     void ctApi_Feather_mkReturn(Node** sret, Location* loc, Node* exp)
     {
-        *sret = mkReturn(*loc, exp);
+        *sret = Feather_mkReturn(*loc, exp);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

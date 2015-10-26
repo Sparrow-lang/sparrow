@@ -97,7 +97,7 @@ namespace
                 nodes.push_back(var);
             }
         }
-        nodes.push_back(mkNop(loc));    // Make sure the resulting type is Void
+        nodes.push_back(Feather_mkNop(loc));    // Make sure the resulting type is Void
         return nodes;
     }
 
@@ -462,7 +462,7 @@ namespace
 
         //REP_INFO(loc, "Instantiating %1% with %2% params") % getName(origFun) % nonBoundParams.size();
 
-        Node* parameters = mkNodeList(loc, nonBoundParams);
+        Node* parameters = Feather_mkNodeList(loc, nonBoundParams);
         Node* returnType = at(origFun->children, 1);
         Node* body = at(origFun->children, 2);
         returnType = returnType ? Nest_cloneNode(returnType) : nullptr;
@@ -550,7 +550,7 @@ Node* SprFrontend::createGenericFun(Node* originalFun, Node* parameters, Node* i
     // If a 'this' class is passed, add an extra parameter for this
     if ( thisClass )
     {
-        TypeRef thisType = getDataType(thisClass, 1, effectiveEvalMode(originalFun));
+        TypeRef thisType = Feather_getDataType(thisClass, 1, effectiveEvalMode(originalFun));
         Node* thisParam = mkSprParameter(originalFun->location, fromCStr("$this"), thisType);
         Nest_setContext(thisParam, Nest_childrenContext(originalFun));
         if ( !Nest_computeType(thisParam) )
@@ -677,7 +677,7 @@ Node* SprFrontend::genericDoInstantiate(Node* node, const Location& loc, Compila
             // Now actually create the call object: a Type CT value
             Node* cls = Nest_ofKind(Nest_explanation(instDecl), nkFeatherDeclClass);
             ASSERT(cls);
-            return createTypeNode(node->context, loc, Feather::getDataType(cls));
+            return createTypeNode(node->context, loc, Feather_getDataType(cls, 0, modeRtCt));
         }
         case nkRelSparrowDeclGenericFunction:
         {

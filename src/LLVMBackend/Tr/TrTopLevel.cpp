@@ -13,9 +13,10 @@
 #include "Nest/Api/Compiler.h"
 #include "Nest/Utils/CompilerSettings.hpp"
 
-#include "Feather/Api/FeatherNodes.h"
+#include "Feather/Api/Feather.h"
 #include "Feather/Utils/Properties.h"
 #include "Feather/Utils/Decl.h"
+#include "Feather/Utils/FeatherNodeKinds.h"
 
 #ifdef _MSC_VER
 #pragma warning(push,1)
@@ -74,7 +75,7 @@ void Tr::translateTopLevelNode(Node* node, Module& module)
     {
         // Depending on the type of the node, do a specific translation
 
-        switch ( node->nodeKind - firstFeatherNodeKind )
+        switch ( node->nodeKind - Feather_getFirstFeatherNodeKind() )
         {
         case nkRelFeatherNop:                      break;
         case nkRelFeatherNodeList:                 translateNodeList(node, module); break;

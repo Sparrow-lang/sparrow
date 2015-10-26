@@ -57,9 +57,9 @@ namespace
                     doDereference1(baseExp, baseCvt);  // ... but no more than one reference
                     baseExp = baseCvt;
                     
-                    return mkFieldRef(loc, baseExp, resDecl);
+                    return Feather_mkFieldRef(loc, baseExp, resDecl);
                 }
-                return mkVarRef(loc, resDecl);
+                return Feather_mkVarRef(loc, resDecl);
             }
             
             // If this is a using, get its value
@@ -70,7 +70,7 @@ namespace
             TypeRef t = nullptr;
             Node* cls = Nest_ofKind(resDecl, nkFeatherDeclClass);
             if ( cls )
-                t = getDataType(cls);
+                t = Feather_getDataType(cls, 0, modeRtCt);
             if ( resDecl->nodeKind == nkSparrowDeclSprConcept )
                 t = getConceptType(resDecl);
             if ( t )
@@ -176,10 +176,10 @@ namespace
         // If source is an l-value and the number of source reference is greater than the destination references, remove lvalue
         Node* arg = at(arguments->children, 1);
         if ( srcType->numReferences > destType->numReferences && srcType->typeKind == typeKindLValue )
-            arg = mkMemLoad(arg->location, arg);
+            arg = Feather_mkMemLoad(arg->location, arg);
 
         // Generate a bitcast operation out of this node
-        return mkBitcast(node->location, mkTypeNode(at(arguments->children, 0)->location, destType), arg);
+        return Feather_mkBitcast(node->location, Feather_mkTypeNode(at(arguments->children, 0)->location, destType), arg);
     }
 
     Node* checkSizeOf(Node* node)
@@ -205,7 +205,7 @@ namespace
         }
 
         // Make sure the class that this refers to has the type properly computed
-        Node* cls = classDecl(t);
+        Node* cls = Feather_classDecl(t);
         Node* mainNode = Nest_childrenContext(cls)->currentSymTab->node;
         if ( !Nest_computeType(mainNode) )
             return nullptr;
@@ -217,7 +217,7 @@ namespace
         uint64_t size = Nest_sizeOf(t);
 
         // Create a CtValue to hold the size
-        return mkCtValue(node->location, StdDef::typeSizeType, &size);
+        return Feather_mkCtValueT(node->location, StdDef::typeSizeType, &size);
     }
 
     Node* checkTypeOf(Node* node)
@@ -279,7 +279,7 @@ namespace
         bool isValid = checkIsValidImpl(node->location, arguments, "isValid");
 
         // Create a CtValue to hold the result
-        return mkCtValue(node->location, StdDef::typeBool, &isValid);
+        return Feather_mkCtValueT(node->location, StdDef::typeBool, &isValid);
     }
 
     Node* checkIsValidAndTrue(Node* node)
@@ -308,7 +308,7 @@ namespace
             const Location& loc = arg->location;
             size_t noRefs = arg->type->numReferences;
             for ( size_t i=0; i<noRefs; ++i)
-                arg = mkMemLoad(loc, arg);
+                arg = Feather_mkMemLoad(loc, arg);
             Nest_setContext(arg, node->context);
             if ( !Nest_semanticCheck(arg) )
                 res = false;
@@ -330,7 +330,7 @@ namespace
             res = getBoolCtValue(val);
 
         // Create a CtValue to hold the result
-        return mkCtValue(node->location, StdDef::typeBool, &res);
+        return Feather_mkCtValueT(node->location, StdDef::typeBool, &res);
     }
 
     Node* checkValueIfValid(Node* node)
@@ -362,7 +362,7 @@ namespace
         const Location& loc = arg->location;
         size_t noRefs = arg->type->numReferences;
         for ( size_t i=0; i<noRefs; ++i)
-            arg = mkMemLoad(loc, arg);
+            arg = Feather_mkMemLoad(loc, arg);
         Nest_setContext(arg, node->context);
         if ( !Nest_semanticCheck(arg) )
             return nullptr;
@@ -388,7 +388,7 @@ namespace
         // Create a construct of an AST node
         int* nodeHandle = (int*) arg;
         Node* base = mkCompoundExp(node->location, mkIdentifier(node->location, fromCStr("Meta")), fromCStr("AstNode"));
-        Node* arg1 = mkCtValue(node->location, StdDef::typeRefInt, &nodeHandle);
+        Node* arg1 = Feather_mkCtValueT(node->location, StdDef::typeRefInt, &nodeHandle);
         return  mkFunApplication(node->location, base, fromIniList({arg1})) ;
     }
 
@@ -476,7 +476,7 @@ namespace
     {
         if ( isSameTypeIgnoreMode(orig->type, StdDef::typeNull) )
         {
-            Node* res = mkNull(orig->location, mkTypeNode(orig->location, StdDef::typeRefByte));
+            Node* res = Feather_mkNull(orig->location, Feather_mkTypeNode(orig->location, StdDef::typeRefByte));
             Nest_setContext(res, orig->context);
             return Nest_computeType(res) ? res : nullptr;
         }
@@ -527,10 +527,10 @@ namespace
         Node* arg2Cvt = nullptr;
         doDereference1(arg1, arg1Cvt);             // Dereference until the last reference
         doDereference1(arg2, arg2Cvt);
-        arg1Cvt = mkBitcast(node->location, mkTypeNode(node->location, StdDef::typeRefByte), arg1Cvt);
-        arg2Cvt = mkBitcast(node->location, mkTypeNode(node->location, StdDef::typeRefByte), arg2Cvt);
+        arg1Cvt = Feather_mkBitcast(node->location, Feather_mkTypeNode(node->location, StdDef::typeRefByte), arg1Cvt);
+        arg2Cvt = Feather_mkBitcast(node->location, Feather_mkTypeNode(node->location, StdDef::typeRefByte), arg2Cvt);
 
-        return mkFunCall(node->location, StdDef::opRefEq, fromIniList({arg1Cvt, arg2Cvt}));
+        return Feather_mkFunCall(node->location, StdDef::opRefEq, fromIniList({arg1Cvt, arg2Cvt}));
     }
 
     Node* handleRefNe(Node* node)
@@ -555,10 +555,10 @@ namespace
         Node* arg2Cvt = nullptr;
         doDereference1(arg1, arg1Cvt);             // Dereference until the last reference
         doDereference1(arg2, arg2Cvt);
-        arg1Cvt = mkBitcast(node->location, mkTypeNode(node->location, StdDef::typeRefByte), arg1Cvt);
-        arg2Cvt = mkBitcast(node->location, mkTypeNode(node->location, StdDef::typeRefByte), arg2Cvt);
+        arg1Cvt = Feather_mkBitcast(node->location, Feather_mkTypeNode(node->location, StdDef::typeRefByte), arg1Cvt);
+        arg2Cvt = Feather_mkBitcast(node->location, Feather_mkTypeNode(node->location, StdDef::typeRefByte), arg2Cvt);
 
-        return mkFunCall(node->location, StdDef::opRefNe, fromIniList({arg1Cvt, arg2Cvt}));
+        return Feather_mkFunCall(node->location, StdDef::opRefNe, fromIniList({arg1Cvt, arg2Cvt}));
     }
 
     Node* handleRefAssign(Node* node)
@@ -589,7 +589,7 @@ namespace
         Node* cvt = c.apply(arg2);
 
         // Return a memstore operator
-        return mkMemStore(node->location, cvt, arg1);
+        return Feather_mkMemStore(node->location, cvt, arg1);
     }
 
     Node* handleFunPtr(Node* node)
@@ -837,10 +837,10 @@ Node* Literal_SemanticCheck(Node* node)
     if ( litType == "StringRef" )
     {
         // Create the explanation
-        return Feather::mkCtValue(node->location, t, &data);
+        return Feather_mkCtValueT(node->location, t, &data);
     }
     else
-        return Feather::mkCtValue(node->location, t, data);
+        return Feather_mkCtValue(node->location, t, data);
 }
 
 Node* This_SemanticCheck(Node* node)
@@ -1204,13 +1204,13 @@ Node* LambdaFunction_SemanticCheck(Node* node)
     Node* ctorParams = nullptr;
 
     // Create the enclosing class body node list
-    Node* classBody = mkNodeList(node->location, {});
+    Node* classBody = Feather_mkNodeList(node->location, {});
 
     // The actual enclosed function
     Nest_appendNodeToArray(&classBody->children, mkSprFunction(node->location, fromCStr("()"), parameters, returnType, body));
 
     // Add a private default ctor
-    Nest_appendNodeToArray(&classBody->children, mkSprFunction(node->location, fromCStr("ctor"), nullptr, nullptr, mkLocalSpace(node->location, {}), nullptr, privateAccess));
+    Nest_appendNodeToArray(&classBody->children, mkSprFunction(node->location, fromCStr("ctor"), nullptr, nullptr, Feather_mkLocalSpace(node->location, {}), nullptr, privateAccess));
 
     // For each closure variable, create:
     // - a member variable in the class
@@ -1248,12 +1248,12 @@ Node* LambdaFunction_SemanticCheck(Node* node)
             Node* initCall = mkOperatorCall(loc, fieldRef, fromCStr(op), paramRef);
             ctorStmts.push_back(initCall);
         }
-        ctorArgs = mkNodeList(node->location, all(ctorArgsNodes));
-        ctorParams = mkNodeList(node->location, all(ctorParamsNodes));
+        ctorArgs = Feather_mkNodeList(node->location, all(ctorArgsNodes));
+        ctorParams = Feather_mkNodeList(node->location, all(ctorParamsNodes));
     }
 
     // Create the ctor used to initialize the closure class
-    Node* ctorBody = mkLocalSpace(node->location, all(ctorStmts));
+    Node* ctorBody = Feather_mkLocalSpace(node->location, all(ctorStmts));
     Node* enclosingCtor = mkSprFunction(node->location, fromCStr("ctor"), ctorParams, nullptr, ctorBody);
     Nest_setPropertyInt(enclosingCtor, propNoDefault, 1);
     Nest_appendNodeToArray(&classBody->children, enclosingCtor);
@@ -1277,7 +1277,7 @@ Node* LambdaFunction_SemanticCheck(Node* node)
         return nullptr;
 
     // Create a resulting object: a constructor call to our class
-    Node* classId = createTypeNode(node->context, node->location, getDataType(cls));
+    Node* classId = createTypeNode(node->context, node->location, Feather_getDataType(cls, 0, modeRtCt));
     return mkFunApplication(node->location, classId, ctorArgs);
 }
 
@@ -1306,7 +1306,7 @@ Node* SprConditional_SemanticCheck(Node* node)
     alt1 = c1.apply(node->context, alt1);
     alt2 = c2.apply(node->context, alt2);
 
-    return Feather::mkConditional(node->location, cond, alt1, alt2);
+    return Feather_mkConditional(node->location, cond, alt1, alt2);
 }
 
 Node* DeclExp_SemanticCheck(Node* node)
@@ -1317,7 +1317,7 @@ Node* DeclExp_SemanticCheck(Node* node)
         if ( n && !Nest_computeType(n) )
             continue;
     }
-    node->type = Feather::getVoidType(node->context->evalMode);
+    node->type = Feather_getVoidType(node->context->evalMode);
     return node;    // This node should never be translated directly
 }
 

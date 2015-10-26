@@ -20,7 +20,7 @@ namespace
         TypeRef t = removeLValueIfPresent(node->type);
         if ( !isSameTypeIgnoreMode(t, expectedExpType) )
             REP_INTERNAL(node->location, "Invalid value; found expression of type %1%, expected %2%") % node->type % expectedExpType;
-        CHECK(node->location, node->nodeKind == Feather::nkFeatherExpCtValue);
+        CHECK(node->location, node->nodeKind == nkFeatherExpCtValue);
         ValueType* val = node ? getCtValueData<ValueType>(node) : nullptr;
         if ( !val )
             REP_INTERNAL(node->location, "Invalid value");

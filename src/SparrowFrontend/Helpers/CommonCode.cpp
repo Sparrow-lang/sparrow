@@ -9,7 +9,7 @@
 #include "Generics.h"
 #include <NodeCommonsCpp.h>
 
-#include "Feather/Api/FeatherNodes.h"
+#include "Feather/Api/Feather.h"
 #include "Feather/Utils/TypeTraits.h"
 #include "Feather/Utils/Decl.h"
 
@@ -51,7 +51,7 @@ Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* conte
                 Node* fun = at(fnCall->referredNodes, 0);
 
                 // This argument - make sure it's of the required type
-                Node* thisParam = Function_getParameter(fun, 0);
+                Node* thisParam = Feather_Function_getParameter(fun, 0);
                 TypeRef thisParamType = thisParam->type;
                 ConversionResult cvt = canConvert(thisArg, thisParamType);
                 if ( !cvt )
@@ -67,7 +67,7 @@ Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* conte
                 r.beginPtr++;
                 for ( Node* child: r )
                     args.push_back(child);
-                Node* newCall = mkFunCall(loc, fun, all(args));
+                Node* newCall = Feather_mkFunCall(loc, fun, all(args));
                 Nest_setContext(newCall, context);
                 return newCall;
             }
@@ -119,11 +119,11 @@ Node* SprFrontend::createDtorCall(const Location& loc, CompilationContext* conte
     Nest_freeNodeArray(decls);
     if ( !dtor || dtor->nodeKind != nkFeatherDeclFunction )
         REP_ERROR_RET(nullptr, at(decls, 0)->location, "Invalid destructor found for class %1%") % getName(cls);
-    if ( Function_numParameters(dtor) != 1 )
-        REP_INTERNAL(dtor->location, "Invalid destructor found for class %1%; it has %2% parameters") % getName(cls) % Function_numParameters(dtor);
+    if ( Feather_Function_numParameters(dtor) != 1 )
+        REP_INTERNAL(dtor->location, "Invalid destructor found for class %1%; it has %2% parameters") % getName(cls) % Feather_Function_numParameters(dtor);
 
     // Check this parameter
-    TypeRef thisParamType = Function_getParameter(dtor, 0)->type;
+    TypeRef thisParamType = Feather_Function_getParameter(dtor, 0)->type;
     if ( Feather::isCt(thisArg) )
         thisParamType = Feather::changeTypeMode(thisParamType, modeCt, thisArg->location);
     ConversionResult c = canConvert(thisArg, thisParamType);
@@ -131,7 +131,7 @@ Node* SprFrontend::createDtorCall(const Location& loc, CompilationContext* conte
         REP_INTERNAL(loc, "Invalid this argument when calling dtor");
     Node* argWithConversion = c.apply(thisArg);
 
-    Node* funCall = mkFunCall(loc, dtor, fromIniList({ argWithConversion }));
+    Node* funCall = Feather_mkFunCall(loc, dtor, fromIniList({ argWithConversion }));
     Nest_setContext(funCall, context);
     return funCall;
 }
@@ -159,27 +159,27 @@ Node* SprFrontend::createFunctionCall(const Location& loc, CompilationContext* c
             resTypeRef = changeTypeMode(resTypeRef, modeCt, resultParam->location);
 
         // Create a temporary variable for the result
-        Node* tmpVar = Feather::mkVar(loc, fromCStr("$tmpC"), mkTypeNode(loc, removeRef(resTypeRef)));
+        Node* tmpVar = Feather_mkVar(loc, fromCStr("$tmpC"), Feather_mkTypeNode(loc, removeRef(resTypeRef)));
         Nest_setContext(tmpVar, context);
-        tmpVarRef = mkVarRef(loc, tmpVar);
+        tmpVarRef = Feather_mkVarRef(loc, tmpVar);
         Nest_setContext(tmpVarRef, context);
 
         // Add a new argument with the temporary variable
         NodeVector args1 = toVec(args);
-        Node* arg = mkBitcast(tmpVarRef->location, mkTypeNode(loc, resTypeRef), tmpVarRef);
+        Node* arg = Feather_mkBitcast(tmpVarRef->location, Feather_mkTypeNode(loc, resTypeRef), tmpVarRef);
         Nest_setContext(arg, context);
         args1.insert(args1.begin(), arg);
-        Node* funCall = mkFunCall(loc, fun, all(args1));
+        Node* funCall = Feather_mkFunCall(loc, fun, all(args1));
 
         res = createTempVarConstruct(loc, context, funCall, tmpVar);
 
         // TODO: Check why we cannot return a reference when the result is a type
         if ( resTypeRef == StdDef::typeRefType )
-            res = mkMemLoad(loc, res);
+            res = Feather_mkMemLoad(loc, res);
     }
     else
     {
-        Node* funCall = mkFunCall(loc, fun, args);
+        Node* funCall = Feather_mkFunCall(loc, fun, args);
         res = funCall;
     }
 
@@ -208,13 +208,13 @@ Node* SprFrontend::createTempVarConstruct(const Location& loc, CompilationContex
     {
         Node* dtorCall = createDtorCall(loc, context, thisArg);
         if ( dtorCall )
-            destructAction = mkTempDestructAction(loc, dtorCall);
+            destructAction = Feather_mkTempDestructAction(loc, dtorCall);
     }
 
     // The result of the expressions
-    Node* result = mkVarRef(loc, var);   // Return a var-ref to the temporary object
+    Node* result = Feather_mkVarRef(loc, var);   // Return a var-ref to the temporary object
 
-    Node* res = mkNodeList(loc, fromIniList({ var, constructAction, destructAction, result }));
+    Node* res = Feather_mkNodeList(loc, fromIniList({ var, constructAction, destructAction, result }));
     Nest_setContext(res, context);
     if ( !Nest_computeType(res) )
         return nullptr;
@@ -252,14 +252,14 @@ Node* SprFrontend::createFunPtr(Node* funNode)
 
         // Try to instantiate the corresponding FunctionPtr class
         NodeVector parameters;
-        parameters.reserve(1+Function_numParameters(fun));
-        TypeRef resType = resParam ? removeRef(resParam->type) : Function_resultType(fun);
+        parameters.reserve(1+Feather_Function_numParameters(fun));
+        TypeRef resType = resParam ? removeRef(resParam->type) : Feather_Function_resultType(fun);
         parameters.push_back(createTypeNode(ctx, loc, resType));
-        for ( size_t i = resParam ? 1 : 0; i<Function_numParameters(fun); ++i )
+        for ( size_t i = resParam ? 1 : 0; i<Feather_Function_numParameters(fun); ++i )
         {
-            parameters.push_back(createTypeNode(ctx, loc, Function_getParameter(fun, i)->type));
+            parameters.push_back(createTypeNode(ctx, loc, Feather_Function_getParameter(fun, i)->type));
         }
-        Node* classCall = mkFunApplication(loc, mkIdentifier(loc, fromCStr("FunctionPtr")), mkNodeList(loc, all(parameters)));
+        Node* classCall = mkFunApplication(loc, mkIdentifier(loc, fromCStr("FunctionPtr")), Feather_mkNodeList(loc, all(parameters)));
         Nest_setContext(classCall, ctx);
         if ( !Nest_computeType(classCall) )
             return nullptr;
@@ -269,7 +269,7 @@ Node* SprFrontend::createFunPtr(Node* funNode)
 
         // If the class is valid, we have a conversion
         if ( t )
-            return mkFunRef(loc, fun, mkTypeNode(loc, t));
+            return Feather_mkFunRef(loc, fun, Feather_mkTypeNode(loc, t));
         
         REP_ERROR(loc, "Invalid function: %1%") % funNode;
         return nullptr;
@@ -293,8 +293,8 @@ Node* SprFrontend::createFunPtr(Node* funNode)
             args[i] = mkIdentifier(loc, fromString(name));
         }
 
-        Node* parameters = mkNodeList(loc, all(paramIds));
-        Node* bodyExp = mkFunApplication(loc, funNode, mkNodeList(loc, all(args)));
+        Node* parameters = Feather_mkNodeList(loc, all(paramIds));
+        Node* bodyExp = mkFunApplication(loc, funNode, Feather_mkNodeList(loc, all(args)));
 
         Node* res = mkLambdaExp(loc, parameters, nullptr, nullptr, bodyExp, nullptr);
         return res;

@@ -79,8 +79,8 @@ namespace
         }
 
         // Add a global construct / destruct action call to this
-        Node* funCall = mkFunCall(node->location, node->explanation, {});
-        Node* n = ctor ? mkGlobalConstructAction(node->location, funCall) : mkGlobalDestructAction(node->location, funCall);
+        Node* funCall = Feather_mkFunCall(node->location, node->explanation, {});
+        Node* n = ctor ? Feather_mkGlobalConstructAction(node->location, funCall) : Feather_mkGlobalDestructAction(node->location, funCall);
         Nest_setContext(n, node->context);
         if ( Nest_semanticCheck(n) )
         {
@@ -180,7 +180,7 @@ void SprCompilationUnit_SetContextForChildren(Node* node)
             for ( int j=(int)names.size()-1; j>=i; --j )
             {
                 Node* pk = mkSprPackage(packageName->location, fromString(names[j]), declarations);
-                declarations = Feather::mkNodeList(packageName->location, fromIniList({pk}), true);
+                declarations = Feather_mkNodeList(packageName->location, fromIniList({pk}), true);
                 at(node->children, 2) = declarations;
             }
             break;
@@ -250,7 +250,7 @@ TypeRef SprCompilationUnit_ComputeType(Node* node)
             checkForAllowedNamespaceChildren(declarations);
     }
 
-    return Feather::getVoidType(modeCt);
+    return Feather_getVoidType(modeCt);
 }
 Node* SprCompilationUnit_SemanticCheck(Node* node)
 {
@@ -260,7 +260,7 @@ Node* SprCompilationUnit_SemanticCheck(Node* node)
     ASSERT(Nest_nodeArraySize(node->children) == 3);
     Node* declarations = at(node->children, 2);
 
-    return declarations ? declarations : Feather::mkNop(node->location);
+    return declarations ? declarations : Feather_mkNop(node->location);
 }
 
 void Package_SetContextForChildren(Node* node)
@@ -282,7 +282,7 @@ TypeRef Package_ComputeType(Node* node)
     node->explanation = at(node->children, 0);
     checkForAllowedNamespaceChildren(at(node->children, 0));
 
-    return Feather::getVoidType(modeCt);
+    return Feather_getVoidType(modeCt);
 }
 Node* Package_SemanticCheck(Node* node)
 {
@@ -338,7 +338,7 @@ TypeRef SprClass_ComputeType(Node* node)
 
     // Create the resulting Feather.Class object
     if ( !resultingClass )
-        resultingClass = Feather::mkClass(node->location, getName(node), {});
+        resultingClass = Feather_mkClass(node->location, getName(node), {});
     setShouldAddToSymTab(resultingClass, false);
 
     // Copy the "native" and "description" properties to the resulting class
@@ -388,7 +388,7 @@ TypeRef SprClass_ComputeType(Node* node)
     }
 
     // We now have a type - from now on we can safely compute the types of the children
-    node->type = getDataType(resultingClass);
+    node->type = Feather_getDataType(resultingClass, 0, modeRtCt);
 
     // Get the fields from the current class
     NodeVector fields = getFields(node->childrenContext->currentSymTab);
@@ -498,7 +498,7 @@ TypeRef SprFunction_ComputeType(Node* node)
     EvalMode thisEvalMode = effectiveEvalMode(node);
 
     // Create the resulting function object
-    Node* resultingFun = mkFunction(node->location, funName, nullptr, {}, body);
+    Node* resultingFun = Feather_mkFunction(node->location, funName, nullptr, {}, body);
     setShouldAddToSymTab(resultingFun, false);
 
     // Copy the "native" and the "autoCt" properties
@@ -522,10 +522,10 @@ TypeRef SprFunction_ComputeType(Node* node)
     // If this is a non-static member function, add this as a parameter
     if ( isMember && !isStatic )
     {
-        TypeRef thisType = getDataType(parentClass, 1, thisEvalMode);
-        Node* thisParam = Feather::mkVar(node->location, fromCStr("$this"), mkTypeNode(node->location, thisType));
+        TypeRef thisType = Feather_getDataType(parentClass, 1, thisEvalMode);
+        Node* thisParam = Feather_mkVar(node->location, fromCStr("$this"), Feather_mkTypeNode(node->location, thisType));
         Nest_setContext(thisParam, node->childrenContext);
-        Function_addParameter(resultingFun, thisParam);
+        Feather_Function_addParameter(resultingFun, thisParam);
     }
 
     // Add the actual specified parameters
@@ -536,26 +536,26 @@ TypeRef SprFunction_ComputeType(Node* node)
             if ( !n )
                 REP_ERROR_RET(nullptr, n->location, "Invalid node as parameter");
 
-            Function_addParameter(resultingFun, n);
+            Feather_Function_addParameter(resultingFun, n);
         }
     }
 
     // Compute the type of the return type node
     // We do this after the parameters, as the computation of the result might require access to the parameters
-    TypeRef resType = returnType ? getType(returnType) : getVoidType(thisEvalMode);
+    TypeRef resType = returnType ? getType(returnType) : Feather_getVoidType(thisEvalMode);
     resType = adjustMode(resType, thisEvalMode, node->childrenContext, node->location);
 
     // If the parameter is a non-reference class, not basic numeric, add result parameter; otherwise, normal result
     if ( resType->hasStorage && resType->numReferences == 0 && !isBasicNumericType(resType) )
     {
-        Node* resParam = Feather::mkVar(returnType->location, fromCStr("_result"), mkTypeNode(returnType->location, addRef(resType)));
+        Node* resParam = Feather_mkVar(returnType->location, fromCStr("_result"), Feather_mkTypeNode(returnType->location, addRef(resType)));
         Nest_setContext(resParam, node->childrenContext);
-        Function_addParameter(resultingFun, resParam, true);
+        Feather_Function_addParameter(resultingFun, resParam, true);
         Nest_setPropertyNode(resultingFun, propResultParam, resParam);
-        Function_setResultType(resultingFun, mkTypeNode(returnType->location, getVoidType(thisEvalMode)));
+        Feather_Function_setResultType(resultingFun, Feather_mkTypeNode(returnType->location, Feather_getVoidType(thisEvalMode)));
     }
     else
-        Function_setResultType(resultingFun, mkTypeNode(node->location, resType));
+        Feather_Function_setResultType(resultingFun, Feather_mkTypeNode(node->location, resType));
 
     // TODO (explanation): explanation should be the result of semantic check
     node->explanation = resultingFun;
@@ -603,7 +603,7 @@ TypeRef SprParameter_ComputeType(Node* node)
     const TypeRef* givenType = Nest_getPropertyType(node, "spr.givenType");
     TypeRef t = givenType ? *givenType : getType(typeNode);
 
-    Node* resultingParam = Feather::mkVar(node->location, Feather::getName(node), Feather::mkTypeNode(node->location, t), 0, Feather::effectiveEvalMode(node));
+    Node* resultingParam = Feather_mkVar(node->location, Feather::getName(node), Feather_mkTypeNode(node->location, t), 0, Feather::effectiveEvalMode(node));
     Feather::setShouldAddToSymTab(resultingParam, false);
     Nest_setContext(resultingParam, node->context);
     if ( !Nest_computeType(resultingParam) )
@@ -680,7 +680,7 @@ TypeRef SprVariable_ComputeType(Node* node)
         setEvalMode(node, modeCt);
 
     // Create the resulting var
-    Node* resultingVar = mkVar(node->location, getName(node), mkTypeNode(node->location, t));
+    Node* resultingVar = Feather_mkVar(node->location, getName(node), Feather_mkTypeNode(node->location, t));
     setEvalMode(resultingVar, effectiveEvalMode(node));
     setShouldAddToSymTab(resultingVar, false);
     Nest_setPropertyNode(node, propResultingDecl, resultingVar);
@@ -710,7 +710,7 @@ TypeRef SprVariable_ComputeType(Node* node)
     {
         ASSERT(resultingVar->type);
 
-        varRef = mkVarRef(node->location, resultingVar);
+        varRef = Feather_mkVarRef(node->location, resultingVar);
         Nest_setContext(varRef, node->childrenContext);
 
         if ( !isRef )
@@ -741,7 +741,7 @@ TypeRef SprVariable_ComputeType(Node* node)
         if ( varKind == varLocal )
         {
             // For local variables, add the ctor & dtor actions in the node list, and make this as explanation
-            dtorCall = dtorCall ? mkScopeDestructAction(node->location, dtorCall) : nullptr;
+            dtorCall = dtorCall ? Feather_mkScopeDestructAction(node->location, dtorCall) : nullptr;
         }
         else
         {
@@ -752,11 +752,11 @@ TypeRef SprVariable_ComputeType(Node* node)
 
             // For global variables, add the ctor & dtor actions as top level actions
             if ( ctorCall )
-                ctorCall = mkGlobalConstructAction(node->location, ctorCall);
+                ctorCall = Feather_mkGlobalConstructAction(node->location, ctorCall);
             if ( dtorCall )
-                dtorCall = mkGlobalDestructAction(node->location, dtorCall);
+                dtorCall = Feather_mkGlobalDestructAction(node->location, dtorCall);
         }
-        expl = mkNodeList(node->location, fromIniList({ resVar, ctorCall, dtorCall, mkNop(node->location) }));
+        expl = Feather_mkNodeList(node->location, fromIniList({ resVar, ctorCall, dtorCall, Feather_mkNop(node->location) }));
     }
 
     ASSERT(expl);
@@ -823,12 +823,12 @@ Node* SprConcept_SemanticCheck(Node* node)
 
     delete instantiationsSet;
     instantiationsSet = mkInstantiationsSet(node, fromIniList({ param }), ifClause);
-    return Feather::mkNop(node->location);
+    return Feather_mkNop(node->location);
 }
 
 Node* Generic_SemanticCheck(Node* node)
 {
-    return mkNop(node->location);
+    return Feather_mkNop(node->location);
 }
 
 void Using_SetContextForChildren(Node* node)
@@ -867,7 +867,7 @@ TypeRef Using_ComputeType(Node* node)
         // We added this node to the current sym tab, as we set shouldAddToSymTab_ to true
     }
 
-    node->explanation = Feather::mkNop(node->location);
+    node->explanation = Feather_mkNop(node->location);
     Nest_setContext(node->explanation, node->context);
     if ( !Nest_semanticCheck(node->explanation) )
         return nullptr;

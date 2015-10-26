@@ -9,7 +9,9 @@
 #include "Nest/Api/Type.h"
 #include "Nest/Api/Node.h"
 
-#include "Feather/Api/FeatherTypes.h"
+#include "Feather/Api/Feather.h"
+#include "Feather/Utils/FeatherTypeKinds.h"
+#include "Feather/Utils/TypeTraits.h"
 
 #include <boost/bind.hpp>
 #include <algorithm>
@@ -29,7 +31,7 @@ namespace
     llvm::Type* transformDataType(TypeRef type, Module& module)
     {
         // Call the translation method for the class declaration
-        auto cls = classDecl(type);
+        auto cls = Feather_classDecl(type);
         ASSERT(cls);
         llvm::Type* t = Tr::translateClass(cls, module);
         for ( size_t i=0; i<type->numReferences; ++i )
@@ -39,26 +41,26 @@ namespace
 
     llvm::Type* transformLValueType(TypeRef type, Module& module)
     {
-        llvm::Type* t = llvm::PointerType::get(getLLVMType(baseType(type), module), 0);
+        llvm::Type* t = llvm::PointerType::get(getLLVMType(Feather_baseType(type), module), 0);
         return t;
     }
 
     llvm::Type* transformArrayType(TypeRef type, Module& module)
     {
-        llvm::Type* t = llvm::ArrayType::get(getLLVMType(baseType(type), module), getArraySize(type));
+        llvm::Type* t = llvm::ArrayType::get(getLLVMType(Feather_baseType(type), module), Feather_getArraySize(type));
         return t;
     }
 
     llvm::Type* transformFunctionType(TypeRef type, int ignoreArg, Module& module)
     {
         vector<llvm::Type*> llvmParamTypes;
-        llvmParamTypes.reserve(numFunParameters(type)+1);
-        llvm::Type* resultType = Tr::getLLVMType(getFunResultType(type), module);
-        for ( size_t i=0; i<numFunParameters(type); ++i )
+        llvmParamTypes.reserve(Feather_numFunParameters(type)+1);
+        llvm::Type* resultType = Tr::getLLVMType(Feather_getFunResultType(type), module);
+        for ( size_t i=0; i<Feather_numFunParameters(type); ++i )
         {
             if ( int(i) == ignoreArg )
                 continue;
-            TypeRef t = getFunParameter(type, i);
+            TypeRef t = Feather_getFunParameter(type, i);
             llvmParamTypes.push_back(Tr::getLLVMType(t, module));
         }
         return llvm::FunctionType::get(resultType, llvmParamTypes, false);

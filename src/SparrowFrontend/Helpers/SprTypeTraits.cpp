@@ -6,7 +6,7 @@
 #include <SparrowFrontendTypes.h>
 #include <NodeCommonsCpp.h>
 
-#include "Feather/Api/FeatherNodes.h"
+#include "Feather/Api/Feather.h"
 #include "Feather/Utils/Decl.h"
 #include "Feather/Utils/Ct.h"
 
@@ -124,9 +124,9 @@ TypeRef SprFrontend::doDereference1(Node* arg, Node*& cvt)
     // If we have N references apply N-1 dereferencing operations
     for ( size_t i=1; i<t->numReferences; ++i )
     {
-        cvt = mkMemLoad(arg->location, cvt);
+        cvt = Feather_mkMemLoad(arg->location, cvt);
     }
-    return getDataType(t->referredNode, 0, t->mode);  // Zero references
+    return Feather_getDataType(t->referredNode, 0, t->mode);  // Zero references
 }
 
 namespace
@@ -150,7 +150,7 @@ namespace
         auto cr = call->canCall(node->context, loc, fromIniList({node}), modeRt, true);
         ASSERT(cr);
         Node* res = call->generateCall(loc);
-        res = mkMemLoad(loc, res);
+        res = Feather_mkMemLoad(loc, res);
 
         // Sanity check
         Nest_setContext(res, node->context);
@@ -172,7 +172,7 @@ Node* SprFrontend::convertCtToRt(Node* node)
     if ( t->typeKind == typeKindVoid )
     {
         Nest_ctEval(node);
-        return Feather::mkNop(loc);
+        return Feather_mkNop(loc);
     }
 
     if ( !t->hasStorage )
@@ -246,7 +246,7 @@ TypeRef SprFrontend::evalTypeIfPossible(Node* typeNode)
 
 Node* SprFrontend::createTypeNode(CompilationContext* context, const Location& loc, TypeRef t)
 {
-    Node* res = mkCtValue(loc, StdDef::typeType, &t);
+    Node* res = Feather_mkCtValueT(loc, StdDef::typeType, &t);
     if ( context )
         Nest_setContext(res, context);
     return res;
@@ -262,7 +262,7 @@ TypeRef SprFrontend::getAutoType(Node* typeNode, bool addRef)
     
     // Remove l-value if we have one
     if ( t->typeKind == typeKindLValue )
-        t = baseType(t);
+        t = Feather_baseType(t);
     
     // Dereference
     t = Feather::removeAllRef(t);
@@ -294,10 +294,10 @@ TypeRef SprFrontend::changeRefCount(TypeRef type, int numRef, const Location& lo
     
     // If we have a LValue type, remove it
     while ( type->typeKind == typeKindLValue )
-        type = baseType(type);
+        type = Feather_baseType(type);
 
     if ( type->typeKind == typeKindData )
-        type = getDataType(type->referredNode, numRef, type->mode);
+        type = Feather_getDataType(type->referredNode, numRef, type->mode);
     else if ( type->typeKind == typeKindConcept )
         type = getConceptType(conceptOfType(type), numRef, type->mode);
     else

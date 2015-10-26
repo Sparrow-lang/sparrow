@@ -2,10 +2,12 @@
 #include "DataLayoutHelper.h"
 #include <Tr/TrType.h>
 
-#include "Feather/Api/FeatherNodes.h"
+#include "Feather/Api/Feather.h"
 #include "Feather/Utils/Properties.h"
 #include "Feather/Utils/Decl.h"
-#include "Feather/Api/FeatherTypes.h"
+#include "Feather/Utils/FeatherNodeKinds.h"
+#include "Feather/Utils/FeatherTypeKinds.h"
+#include "Feather/Utils/TypeTraits.h"
 
 #include "Nest/Api/Node.h"
 #include "Nest/Utils/NodeUtils.hpp"
@@ -30,14 +32,14 @@ namespace
         // Check array types
         if ( type->typeKind == typeKindArray )
         {
-            return llvm::ArrayType::get(getLLVMTypeForSize(baseType(type), llvmContext), getArraySize(type));
+            return llvm::ArrayType::get(getLLVMTypeForSize(Feather_baseType(type), llvmContext), Feather_getArraySize(type));
         }
 
         if ( !type->hasStorage )
             REP_ERROR_RET(nullptr, NOLOC, "Cannot compute size of a type which has no storage: %1%") % type;
 
         Node* clsDecl = type->referredNode;
-        CHECK(NOLOC, clsDecl && clsDecl->nodeKind == Feather::nkFeatherDeclClass);
+        CHECK(NOLOC, clsDecl && clsDecl->nodeKind == nkFeatherDeclClass);
         if ( !clsDecl->type )
             REP_INTERNAL(clsDecl->location, "Class %1% doesn't have type computed, while computing its size") % getName(clsDecl);
 

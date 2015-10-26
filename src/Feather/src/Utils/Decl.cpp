@@ -1,7 +1,9 @@
 #include "Feather/src/StdInc.h"
 #include "Feather/Utils/Decl.h"
-#include "Feather/Api/FeatherNodes.h"
+
+#include "Feather/Api/Feather.h"
 #include "Feather/Utils/Properties.h"
+
 #include "Nest/Api/CompilationContext.h"
 #include "Nest/Api/SymTab.h"
 #include "Nest/Utils/Diagnostic.hpp"
@@ -12,7 +14,7 @@ using namespace Feather;
 
 bool Feather::isDecl(Node* node)
 {
-    switch ( Nest_explanation(node)->nodeKind - firstFeatherNodeKind )
+    switch ( Nest_explanation(node)->nodeKind - Feather_getFirstFeatherNodeKind() )
     {
         case nkRelFeatherDeclFunction:
         case nkRelFeatherDeclClass:

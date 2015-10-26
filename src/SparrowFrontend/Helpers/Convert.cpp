@@ -8,7 +8,7 @@
 #include <SparrowFrontendTypes.h>
 #include <Helpers/Generics.h>
 
-#include "Feather/Api/FeatherNodes.h"
+#include "Feather/Api/Feather.h"
 #include "Feather/Utils/TypeTraits.h"
 
 #include "Nest/Utils/Tuple.hpp"
@@ -91,7 +91,7 @@ namespace
                 srcTypeNew = Feather::removeLValueIfPresent(srcTypeNew);
 
                 res = ConversionResult(convDirect, [=](Node* src) -> Node* {
-                    return mkMemLoad(src->location, src);
+                    return Feather_mkMemLoad(src->location, src);
                 });
             }
             if ( srcTypeNew->numReferences > 0 )
@@ -150,7 +150,7 @@ namespace
 
             // First check conversion without reference
             ConversionResult res1 = ConversionResult(convDirect, [=](Node* src) -> Node* {
-                return mkMemLoad(src->location, src);
+                return Feather_mkMemLoad(src->location, src);
             });
             ConversionResult c1 = combine(res1, cachedCanConvertImpl(context, flags | flagDontAddReference, t1, destType));
             if ( c1 )
@@ -158,7 +158,7 @@ namespace
 
             // Now try to convert to reference
             ConversionResult res2 = ConversionResult(convImplicit, [=](Node* src) -> Node* {
-                return mkBitcast(src->location, mkTypeNode(src->location, t2), src);
+                return Feather_mkBitcast(src->location, Feather_mkTypeNode(src->location, t2), src);
             });
             return combine(res2, cachedCanConvertImpl(context, flags, t2, destType));
         }
@@ -174,7 +174,7 @@ namespace
             return convNone;
 
         return ConversionResult(convImplicit, [=](Node* src) -> Node* {
-            return mkNull(src->location, mkTypeNode(src->location, destType));
+            return Feather_mkNull(src->location, Feather_mkTypeNode(src->location, destType));
         });
     }
 
@@ -187,7 +187,7 @@ namespace
         TypeRef t = removeRef(srcType);
 
         ConversionResult res = ConversionResult(convImplicit, [=](Node* src) -> Node* {
-            return mkMemLoad(src->location, src);
+            return Feather_mkMemLoad(src->location, src);
         });
         return combine(res, cachedCanConvertImpl(context, flags | flagDontAddReference, t, destType));
     }
@@ -201,11 +201,11 @@ namespace
         TypeRef baseDataType = addRef(srcType);
 
         ConversionResult res(convImplicit, [=](Node* src) -> Node* {
-            Node* var = Feather::mkVar(src->location, fromCStr("$tmpForRef"), mkTypeNode(src->location, srcType));
-            Node* varRef = mkVarRef(src->location, var);
-            Node* store = mkMemStore(src->location, src, varRef);
-            Node* cast = mkBitcast(src->location, mkTypeNode(src->location, baseDataType), varRef);
-            return mkNodeList(src->location, fromIniList({var, store, cast}));
+            Node* var = Feather_mkVar(src->location, fromCStr("$tmpForRef"), Feather_mkTypeNode(src->location, srcType));
+            Node* varRef = Feather_mkVarRef(src->location, var);
+            Node* store = Feather_mkMemStore(src->location, src, varRef);
+            Node* cast = Feather_mkBitcast(src->location, Feather_mkTypeNode(src->location, baseDataType), varRef);
+            return Feather_mkNodeList(src->location, fromIniList({var, store, cast}));
         });
         return combine(res, cachedCanConvertImpl(context, flags | flagDontAddReference, baseDataType, destType));
     }
@@ -229,13 +229,13 @@ namespace
         if ( destMode == modeRtCt )
             destMode = srcType->mode;
         t = Feather::changeTypeMode(t, destMode);
-        TypeRef resType = getLValueType(t);
+        TypeRef resType = Feather_getLValueType(t);
 
         bool contextDependent = false;  // TODO (convert): This should be context dependent for private ctors
 
         ConversionResult res = ConversionResult(convCustom, [=](Node* src) -> Node* {
-            Node* refToClass = createTypeNode(src->context, src->location, getDataType(destClass));
-            return mkChangeMode(src->location, mkFunApplication(src->location, refToClass, fromIniList({src})), destMode);
+            Node* refToClass = createTypeNode(src->context, src->location, Feather_getDataType(destClass, 0, modeRtCt));
+            return Feather_mkChangeMode(src->location, mkFunApplication(src->location, refToClass, fromIniList({src})), destMode);
         }, contextDependent);
         return combine(res, cachedCanConvertImpl(context, flags | flagDontCallConversionCtor, resType, destType));
     }

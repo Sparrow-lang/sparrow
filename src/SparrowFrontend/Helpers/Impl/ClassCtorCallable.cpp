@@ -5,7 +5,7 @@
 #include <Helpers/DeclsHelpers.h>
 #include <Helpers/CommonCode.h>
 #include <Helpers/Generics.h>
-#include "Feather/Api/FeatherNodes.h"
+#include "Feather/Api/Feather.h"
 #include "Feather/Utils/TypeTraits.h"
 #include "Feather/Utils/Decl.h"
 
@@ -86,7 +86,7 @@ bool ClassCtorCallable::isAutoCt() const
 
 ConversionType ClassCtorCallable::canCall(CompilationContext* context, const Location& loc, const vector<TypeRef>& argTypes, EvalMode evalMode, bool noCustomCvt)
 {
-    TypeRef t = getLValueType(varType(cls_, evalMode_));
+    TypeRef t = Feather_getLValueType(varType(cls_, evalMode_));
 
     vector<TypeRef> argTypes2 = argTypes;
     argTypes2.insert(argTypes2.begin(), t);
@@ -98,11 +98,11 @@ ConversionType ClassCtorCallable::canCall(CompilationContext* context, const Loc
     context_ = context;
 
     // Create a temporary variable - use it as a this argument
-    tmpVar_ = Feather::mkVar(loc, fromCStr("tmp.v"), mkTypeNode(loc, varType(cls_, evalMode_)), 0, evalMode_);
+    tmpVar_ = Feather_mkVar(loc, fromCStr("tmp.v"), Feather_mkTypeNode(loc, varType(cls_, evalMode_)), 0, evalMode_);
     Nest_setContext(tmpVar_, context);
     if ( !Nest_computeType(tmpVar_) )
         return convNone;
-    thisArg_ = mkVarRef(loc, tmpVar_);
+    thisArg_ = Feather_mkVarRef(loc, tmpVar_);
     Nest_setContext(thisArg_, context);
     if ( !Nest_computeType(thisArg_) )
         return convNone;

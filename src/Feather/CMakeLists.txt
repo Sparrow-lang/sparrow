@@ -17,7 +17,7 @@ SET(sourceFiles
     "src/FeatherNodeCommonsH.h"
     "src/StdInc.cpp"
     "src/StdInc.h"
-    "src/Api/Feather.cpp"
+    "src/Api/Feather.c"
     "src/Api/Feather_Nodes.cpp"
     "src/Api/Feather_Nodes.h"
     "src/Api/Feather_Types.cpp"

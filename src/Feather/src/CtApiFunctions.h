@@ -1,8 +1,13 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct Nest_Backend Backend;
 
-namespace Feather
-{
-    void registerCtApiFunctions(Backend* backend);
+void Feather_registerCtApiFunctions(Backend* backend);
+
+#ifdef __cplusplus
 }
+#endif

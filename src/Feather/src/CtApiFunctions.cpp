@@ -397,7 +397,7 @@ namespace
     }
 }
 
-void Feather::registerCtApiFunctions(Backend* backend)
+void Feather_registerCtApiFunctions(Backend* backend)
 {
     backend->ctApiRegisterFun(backend, "$Meta.SourceCode.fromFilename",       (void*) &ctApi_SourceCode_fromFilename);
     backend->ctApiRegisterFun(backend, "$Meta.SourceCode.filename",           (void*) &ctApi_SourceCode_filename);

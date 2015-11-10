@@ -2,7 +2,7 @@
 #include "DebugInfo.h"
 #include "TrContext.h"
 
-#include "Feather/Utils/Decl.h"
+#include "Feather/Utils/FeatherUtils.hpp"
 
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/StringRef.hpp"

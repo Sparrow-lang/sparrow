@@ -11,9 +11,7 @@
 
 
 #include "Feather/Api/Feather.h"
-#include "Feather/Utils/Decl.h"
-#include "Feather/Utils/TypeTraits.h"
-#include "Feather/Utils/Context.h"
+#include "Feather/Utils/FeatherUtils.hpp"
 
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Api/NodeKindRegistrar.h"
@@ -256,7 +254,7 @@ Node* SprReturn_SemanticCheck(Node* node)
     Node* exp = at(node->children, 0);
 
     // Get the parent function of this return
-    Node* parentFun = getParentFun(node->context);
+    Node* parentFun = Feather_getParentFun(node->context);
     if ( !parentFun )
         REP_ERROR_RET(nullptr, node->location, "Return found outside any function");
 

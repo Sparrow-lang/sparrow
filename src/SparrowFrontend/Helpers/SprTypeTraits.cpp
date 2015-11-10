@@ -7,8 +7,7 @@
 #include <NodeCommonsCpp.h>
 
 #include "Feather/Api/Feather.h"
-#include "Feather/Utils/Decl.h"
-#include "Feather/Utils/Ct.h"
+#include "Feather/Utils/FeatherUtils.hpp"
 
 
 using namespace SprFrontend;

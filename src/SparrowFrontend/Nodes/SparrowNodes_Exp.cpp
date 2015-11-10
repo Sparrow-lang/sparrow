@@ -11,8 +11,7 @@
 #include <Helpers/Convert.h>
 #include <Helpers/Overload.h>
 
-#include "Feather/Utils/Decl.h"
-#include "Feather/Utils/Context.h"
+#include "Feather/Utils/FeatherUtils.hpp"
 
 #include "Nest/Api/SourceCode.h"
 
@@ -326,7 +325,7 @@ namespace
 
         // Get the value from the CtValue object
         if ( res )
-            res = getBoolCtValue(val);
+            res = SprFrontend::getBoolCtValue(val);
 
         // Create a CtValue to hold the result
         return Feather_mkCtValueT(node->location, StdDef::typeBool, &res);
@@ -1196,7 +1195,7 @@ Node* LambdaFunction_SemanticCheck(Node* node)
     Node* body = at(node->referredNodes, 2);
     Node* closureParams = at(node->referredNodes, 3);
 
-    Node* parentFun = getParentFun(node->context);
+    Node* parentFun = Feather_getParentFun(node->context);
     CompilationContext* parentContext = parentFun ? parentFun->context : node->context;
 
     Node* ctorArgs = nullptr;

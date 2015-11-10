@@ -1,10 +1,7 @@
 #include "Feather/src/StdInc.h"
 #include "Feather/src/Api/Feather_Types.h"
 #include "Feather/Api/Feather.h"
-#include "Feather/Utils/TypeTraits.h"
-#include "Feather/Utils/FeatherNodeKinds.h"
-#include "Feather/Utils/Properties.h"
-#include "Feather/Utils/Decl.h"
+#include "Feather/Utils/FeatherUtils.hpp"
 
 #include "Nest/Api/TypeKindRegistrar.h"
 #include "Nest/Api/Node.h"

@@ -7,8 +7,7 @@
 #include <Helpers/CommonCode.h>
 #include <Helpers/Ct.h>
 
-#include "Feather/Utils/Decl.h"
-#include "Feather/Utils/Context.h"
+#include "Feather/Utils/FeatherUtils.hpp"
 
 #include "Nest/Api/SourceCode.h"
 
@@ -133,7 +132,7 @@ namespace
         // Create a new context, but at the same level as the context of the parent node
         Node* parentNode = at(instSet->referredNodes, 0);
         CompilationContext* context = Nest_mkChildContextWithSymTab(parentNode->context, nullptr, evalMode);
-        bool insideClass = nullptr != getParentClass(context);
+        bool insideClass = nullptr != Feather_getParentClass(context);
 
         // Create the instantiation
         auto boundVars = getBoundVariables(instSet->location, values, getInstantiationsSetParameters(instSet), insideClass);

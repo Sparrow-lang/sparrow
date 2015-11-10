@@ -16,14 +16,7 @@
 #include "Nest/Utils/NodeUtils.h"
 
 #include "Feather/Api/Feather.h"
-#include "Feather/Utils/Properties.h"
-#include "Feather/Utils/TypeTraits.h"
-#include "Feather/Utils/Context.h"
-#include "Feather/Utils/Decl.h"
-#include "Feather/Utils/Ct.h"
-#include "Feather/Utils/NodeUtils.h"
-#include "Feather/Utils/FeatherTypeKinds.h"
-#include "Feather/Utils/FeatherNodeKinds.h"
+#include "Feather/Utils/FeatherUtils.hpp"
 
 using namespace LLVMB;
 using namespace LLVMB::Tr;

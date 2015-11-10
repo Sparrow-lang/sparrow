@@ -13,8 +13,7 @@
 #include <Helpers/QualifiedId.h>
 #include <Helpers/ForEachNodeInNodeList.h>
 
-#include "Feather/Utils/Decl.h"
-#include "Feather/Utils/Context.h"
+#include "Feather/Utils/FeatherUtils.hpp"
 
 #include "Nest/Api/SourceCode.h"
 #include "Nest/Utils/NodeVector.hpp"
@@ -344,7 +343,7 @@ TypeRef SprClass_ComputeType(Node* node)
     // Copy the "native" and "description" properties to the resulting class
     if ( nativeName )
     {
-        Nest_setPropertyString(resultingClass, Feather::propNativeName, *nativeName);
+        Nest_setPropertyString(resultingClass, propNativeName, *nativeName);
     }
     const StringRef* description = Nest_getPropertyString(node, propDescription);
     if ( description )
@@ -459,7 +458,7 @@ TypeRef SprFunction_ComputeType(Node* node)
     bool isStatic = Nest_hasProperty(node, propIsStatic);
 
     // Check if this is a member function
-    Node* parentClass = Feather::getParentClass(node->context);
+    Node* parentClass = Feather_getParentClass(node->context);
     bool isMember = nullptr != parentClass;
     if ( !isMember && isStatic )
         REP_ERROR_RET(nullptr, node->location, "Only functions inside classes can be static");
@@ -504,7 +503,7 @@ TypeRef SprFunction_ComputeType(Node* node)
     // Copy the "native" and the "autoCt" properties
     const StringRef* nativeName = Nest_getPropertyString(node, propNativeName);
     if ( nativeName )
-        Nest_setPropertyString(resultingFun, Feather::propNativeName, *nativeName);
+        Nest_setPropertyString(resultingFun, propNativeName, *nativeName);
     if ( Nest_hasProperty(node, propAutoCt) )
         Nest_setPropertyInt(resultingFun, propAutoCt, 1);
     if ( Nest_hasProperty(node, propNoInline) )
@@ -609,7 +608,7 @@ TypeRef SprParameter_ComputeType(Node* node)
     Nest_setContext(resultingParam, node->context);
     if ( !Nest_computeType(resultingParam) )
         return nullptr;
-    Nest_setPropertyNode(node, Feather::propResultingDecl, resultingParam);
+    Nest_setPropertyNode(node, propResultingDecl, resultingParam);
     node->explanation = resultingParam;
     return resultingParam->type;
 }
@@ -651,12 +650,12 @@ TypeRef SprVariable_ComputeType(Node* node)
 
     // Check the kind of the variable (local, global, field)
     VarKind varKind = varLocal;
-    Node* parentFun = Feather::getParentFun(node->context);
+    Node* parentFun = Feather_getParentFun(node->context);
     Node* parentClass = nullptr;
     if ( !parentFun )
     {
         // Check if this is a member function
-        parentClass = Feather::getParentClass(node->context);
+        parentClass = Feather_getParentClass(node->context);
         if ( parentClass )
         {
             varKind = isStatic ? varGlobal : varField;

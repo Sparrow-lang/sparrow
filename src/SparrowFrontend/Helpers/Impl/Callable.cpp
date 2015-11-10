@@ -1,6 +1,6 @@
 #include <StdInc.h>
 #include "Callable.h"
-#include "Feather/Utils/TypeTraits.h"
+#include "Feather/Utils/FeatherUtils.hpp"
 
 using namespace SprFrontend;
 using namespace Nest;

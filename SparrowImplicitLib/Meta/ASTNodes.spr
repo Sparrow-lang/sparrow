@@ -226,15 +226,6 @@ package SprFrontend
     fun[ct, native("$Meta.Sparrow.mkReturnStmt")] mkReturnStmt(loc: @Location, exp: AstNode): AstNode;
 }
 
-package Util
-{
-    fun[ct, native("$Meta.Util.getParentDecl")] getParentDecl(ctx: CompilationContext): AstNode;
-    fun[ct, native("$Meta.Util.getParentFun")] getParentFun(ctx: CompilationContext): AstNode;
-    fun[ct, native("$Meta.Util.getParentClass")] getParentClass(ctx: CompilationContext): AstNode;
-    fun[ct, native("$Meta.Util.getParentLoop")] getParentLoop(ctx: CompilationContext): AstNode;
-    fun[ct, native("$Meta.Util.getSymTabContext")] getSymTabContext(ctx: CompilationContext): CompilationContext;
-}
-
 package Compiler
 {
     fun[ct, native("$Meta.Compiler.registerFrontendFun")] registerFrontendFun(ext, funName: StringRef): Bool;

@@ -9,7 +9,7 @@
 #include <Helpers/Generics.h>
 
 #include "Feather/Api/Feather.h"
-#include "Feather/Utils/TypeTraits.h"
+#include "Feather/Utils/FeatherUtils.hpp"
 
 #include "Nest/Utils/Tuple.hpp"
 

@@ -9,8 +9,7 @@
 #include <Helpers/Generics.h>
 #include <NodeCommonsCpp.h>
 
-#include "Feather/Utils/Decl.h"
-#include "Feather/Utils/TypeTraits.h"
+#include "Feather/Utils/FeatherUtils.hpp"
 
 using namespace SprFrontend;
 using namespace Feather;

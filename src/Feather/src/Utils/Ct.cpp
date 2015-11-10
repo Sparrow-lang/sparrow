@@ -1,8 +1,7 @@
 #include "Feather/src/StdInc.h"
-#include "Feather/Utils/Ct.h"
+#include "Feather/Utils/FeatherUtils.hpp"
 
 #include "Feather/Api/Feather.h"
-#include "Feather/Utils/FeatherNodeKinds.h"
 
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/StringRef.hpp"

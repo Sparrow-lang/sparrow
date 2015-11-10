@@ -2,7 +2,7 @@
 
 #include <NodeCommonsH.h>
 
-#include "Feather/Utils/TypeTraits.h"
+#include "Feather/Utils/FeatherUtils.hpp"
 
 namespace SprFrontend
 {

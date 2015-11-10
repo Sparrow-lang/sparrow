@@ -4,7 +4,7 @@
 #include <Helpers/DeclsHelpers.h>
 
 #include "Feather/Api/Feather.h"
-#include "Feather/Utils/Decl.h"
+#include "Feather/Utils/FeatherUtils.hpp"
 
 using namespace SprFrontend;
 using namespace SprFrontend::StdDef;

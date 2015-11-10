@@ -8,11 +8,7 @@
 #include "Tr/DebugInfo.h"
 
 #include "Feather/Api/Feather.h"
-#include "Feather/Utils/Properties.h"
-#include "Feather/Utils/Decl.h"
-#include "Feather/Utils/Context.h"
-#include "Feather/Utils/FeatherNodeKinds.h"
-#include "Feather/Utils/NodeUtils.h"
+#include "Feather/Utils/FeatherUtils.hpp"
 
 #include "Nest/Api/Type.h"
 #include "Nest/Api/Compiler.h"
@@ -94,7 +90,7 @@ llvm::Function* Tr::translateFunction(Node* node, Module& module)
     // Check if this is a standard/native type
     const StringRef* nativeName = Nest_getPropertyString(node, propNativeName);
     StringRef name = getName(node);
-//    Node* cls = getParentClass(node->context());
+//    Node* cls = Feather_getParentClass(node->context());
 //    if ( cls )
 //    {
 //        const string* clsDescription = Nest_getPropertyString(cls, propDescription);

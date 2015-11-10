@@ -1,7 +1,7 @@
 #include <StdInc.h>
 #include "Mods.h"
 
-#include "Feather/Utils/Decl.h"
+#include "Feather/Utils/FeatherUtils.hpp"
 
 #include "Nest/Utils/Alloc.h"
 #include "Nest/Utils/Diagnostic.hpp"
@@ -67,7 +67,7 @@ struct _NativeMod {
 void ModNative_beforeComputeType(Modifier* mod, Node* node)
 {
     _NativeMod* nativeMod = (_NativeMod*) mod;
-    Nest_setPropertyString(node, Feather::propNativeName, nativeMod->name);
+    Nest_setPropertyString(node, propNativeName, nativeMod->name);
 }
 
 void ModConvert_beforeComputeType(Modifier*, Node* node)
@@ -118,7 +118,7 @@ void ModNoInline_beforeComputeType(Modifier*, Node* node)
     if ( node->nodeKind != nkSparrowDeclSprFunction )
         REP_INTERNAL(node->location, "noInline modifier can be applied only to functions");
 
-    Nest_setPropertyInt(node, Feather::propNoInline, 1);
+    Nest_setPropertyInt(node, propNoInline, 1);
 }
 
 

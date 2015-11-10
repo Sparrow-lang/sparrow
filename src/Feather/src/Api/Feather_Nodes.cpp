@@ -4,18 +4,13 @@
 
 #include "Feather/Api/Feather.h"
 
-#include "Feather/Utils/FeatherNodeKinds.h"
-#include "Feather/Utils/FeatherTypeKinds.h"
-#include "Feather/Utils/NodeUtils.h"
-#include "Feather/Utils/Decl.h"
-#include "Feather/Utils/TypeTraits.h"
-#include "Feather/Utils/Ct.h"
-#include "Feather/Utils/Context.h"
+#include "Feather/Utils/FeatherUtils.hpp"
 
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/Alloc.h"
 #include "Nest/Utils/StringRef.hpp"
 #include "Nest/Utils/NodeUtils.h"
+#include "Nest/Utils/NodeUtils.hpp"
 #include "Nest/Api/Node.h"
 #include "Nest/Api/NodeKindRegistrar.h"
 #include "Nest/Api/Modifier.h"
@@ -318,8 +313,8 @@ using namespace Feather;
         {
             os << '(';
             bool hasResultParam = Nest_hasProperty(node, propResultParam);
-            size_t startIdx = hasResultParam ? 3 : 2;
-            for ( size_t i=startIdx; i<Nest_nodeArraySize(node->children); ++i )
+            unsigned startIdx = hasResultParam ? 3 : 2;
+            for ( unsigned i=startIdx; i<Nest_nodeArraySize(node->children); ++i )
             {
                 if ( i > startIdx )
                     os << ", ";
@@ -404,7 +399,7 @@ using namespace Feather;
             REP_ERROR_RET(nullptr, node->location, "Type specified for Ct Value cannot be used at compile-time (%1%)") % node->type;
 
         // Make sure data size matches the size reported by the type
-        size_t valueSize = Nest_sizeOf(node->type);
+        unsigned valueSize = Nest_sizeOf(node->type);
         StringRef data = Nest_getCheckPropertyString(node, "valueData");
         if ( valueSize != size(data) )
         {
@@ -597,7 +592,7 @@ using namespace Feather;
             return nullptr;
 
         // Check argument count
-        size_t numParameters = Feather_Function_numParameters(fun);
+        unsigned numParameters = Feather_Function_numParameters(fun);
         if ( Nest_nodeArraySize(node->children) != numParameters )
             REP_ERROR_RET(nullptr, node->location, "Invalid function call: expecting %1% parameters, given %2%")
                 % numParameters % Nest_nodeArraySize(node->children);
@@ -605,7 +600,7 @@ using namespace Feather;
         // Semantic check the arguments
         // Also check that their type matches the corresponding type from the function decl
         bool allParamsAreCtAvailable = true;
-        for ( size_t i=0; i<Nest_nodeArraySize(node->children); ++i )
+        for ( unsigned i=0; i<Nest_nodeArraySize(node->children); ++i )
         {
             Node* arg = at(node->children, i);
 
@@ -666,7 +661,7 @@ using namespace Feather;
     {
         ostringstream os;
         os << "funCall-" << toString(getName(at(node->referredNodes, 0))) << "(";
-        for ( size_t i=0; i<Nest_nodeArraySize(node->children); ++i )
+        for ( unsigned i=0; i<Nest_nodeArraySize(node->children); ++i )
         {
             if ( i != 0 )
                 os << ", ";
@@ -961,7 +956,7 @@ using namespace Feather;
     Node* Break_SemanticCheck(Node* node)
     {
         // Get the outer-most loop from the context
-        Node* loop = getParentLoop(node->context);
+        Node* loop = Feather_getParentLoop(node->context);
         if ( !loop )
             REP_ERROR_RET(nullptr, node->location, "Break found outside any loop");
         Nest_setPropertyNode(node, "loop", loop);
@@ -974,7 +969,7 @@ using namespace Feather;
     Node* Continue_SemanticCheck(Node* node)
     {
         // Get the outer-most loop from the context
-        Node* loop = getParentLoop(node->context);
+        Node* loop = Feather_getParentLoop(node->context);
         if ( !loop )
             REP_ERROR_RET(nullptr, node->location, "Continue found outside any loop");
         Nest_setPropertyNode(node, "loop", loop);
@@ -993,7 +988,7 @@ using namespace Feather;
             return nullptr;            
 
         // Get the parent function of this return
-        Node* parentFun = getParentFun(node->context);
+        Node* parentFun = Feather_getParentFun(node->context);
         if ( !parentFun )
             REP_ERROR_RET(nullptr, node->location, "Return found outside any function");
         TypeRef resultType = Feather_Function_resultType(parentFun);
@@ -1453,11 +1448,11 @@ void Feather_Function_setBody(Node* node, Node* body)
 {
     at(node->children, 1) = body;
 }
-size_t Feather_Function_numParameters(Node* node)
+unsigned Feather_Function_numParameters(Node* node)
 {
     return Nest_nodeArraySize(node->children)-2;
 }
-Node* Feather_Function_getParameter(Node* node, size_t idx)
+Node* Feather_Function_getParameter(Node* node, unsigned idx)
 {
     return at(node->children, idx+2);
 }

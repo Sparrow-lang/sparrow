@@ -6,8 +6,7 @@
 #include <Helpers/CommonCode.h>
 #include <Helpers/Generics.h>
 #include "Feather/Api/Feather.h"
-#include "Feather/Utils/TypeTraits.h"
-#include "Feather/Utils/Decl.h"
+#include "Feather/Utils/FeatherUtils.hpp"
 
 using namespace SprFrontend;
 using namespace Feather;

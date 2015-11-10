@@ -7,9 +7,7 @@
 #include <Helpers/DeclsHelpers.h>
 #include <Helpers/StdDef.h>
 #include "Feather/Api/Feather.h"
-#include "Feather/Utils/Context.h"
-#include "Feather/Utils/TypeTraits.h"
-#include "Feather/Utils/Decl.h"
+#include "Feather/Utils/FeatherUtils.hpp"
 
 #include "Nest/Api/Modifier.h"
 #include "Nest/Utils/Diagnostic.hpp"
@@ -33,7 +31,7 @@ namespace
                 continue;
 
             // Make sure we only take in considerations operations of this class
-            Node* cls2 = getParentClass(decl->context);
+            Node* cls2 = Feather_getParentClass(decl->context);
             if ( cls2 != Nest_explanation(cls) )
                 continue;
 
@@ -100,7 +98,7 @@ namespace
         for ( Node* field: cls->children )
         {
             // Take in account only fields of the current class
-            Node* cls2 = getParentClass(field->context);
+            Node* cls2 = Feather_getParentClass(field->context);
             if ( cls2 != cls )
                 continue;
 
@@ -174,7 +172,7 @@ namespace
         for ( Node* field: cls->children )
         {
             // Take in account only fields of the current class
-            Node* cls2 = getParentClass(field->context);
+            Node* cls2 = Feather_getParentClass(field->context);
             if ( cls2 != cls )
                 continue;
 
@@ -226,7 +224,7 @@ namespace
         for ( Node* field: cls->children )
         {
             // Take in account only fields of the current class
-            Node* cls2 = getParentClass(field->context);
+            Node* cls2 = Feather_getParentClass(field->context);
             if ( cls2 != cls )
                 continue;
             
@@ -262,7 +260,7 @@ namespace
         for ( Node* field: cls->children )
         {
             // Take in account only fields of the current class
-            Node* cls2 = getParentClass(field->context);
+            Node* cls2 = Feather_getParentClass(field->context);
             if ( cls2 != cls )
                 continue;
 
@@ -321,7 +319,7 @@ namespace
             // If a class is given, check that the call is made to a function of that class
             if ( ofClass )
             {
-                Node* parentCls = getParentClass(at(n->referredNodes, 0)->context);
+                Node* parentCls = Feather_getParentClass(at(n->referredNodes, 0)->context);
                 if ( parentCls != ofClass )
                     continue;
             }
@@ -419,7 +417,7 @@ void IntModCtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
         REP_INTERNAL(fun->location, "Constructor body is not a local space (needed by IntModCtorMembers)");
 
     // Get the class
-    Node* cls = getParentClass(fun->context);
+    Node* cls = Feather_getParentClass(fun->context);
     CHECK(fun->location, cls);
 
     // If we are calling other constructor of this class, don't add any initialization
@@ -433,7 +431,7 @@ void IntModCtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
         Node* field = at(cls->children, i);
         
         // Make sure we initialize only fields of the current class
-        Node* cls2 = getParentClass(field->context);
+        Node* cls2 = Feather_getParentClass(field->context);
         if ( cls2 != cls )
             continue;
 
@@ -471,7 +469,7 @@ void IntModDtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
         REP_INTERNAL(fun->location, "Destructor body is not a local space (needed by IntModDtorMembers)");
 
     // Get the class
-    Node* cls = getParentClass(fun->context);
+    Node* cls = Feather_getParentClass(fun->context);
     CHECK(fun->location, cls);
 
     // Generate the dtor calls in reverse order of the fields; add them to the body of the destructor
@@ -482,7 +480,7 @@ void IntModDtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
         Node* field = at(cls->children, i);
 
         // Make sure we destruct only fields of the current class
-        Node* cls2 = getParentClass(field->context);
+        Node* cls2 = Feather_getParentClass(field->context);
         if ( cls2 != cls )
             continue;
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Feather/Utils/Properties.h"
+#include "Feather/Utils/FeatherUtils.h"
 
 namespace SprFrontend
 {

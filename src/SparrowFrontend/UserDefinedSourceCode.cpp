@@ -9,6 +9,7 @@
 
 #include "Nest/Utils/Alloc.h"
 #include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/NodeUtils.hpp"
 #include "Nest/Api/SourceCode.h"
 #include "Nest/Api/SourceCodeKindRegistrar.h"
 

@@ -3,12 +3,8 @@
 SET(sourceFiles
     "Api/Feather.h"
 
-    "Utils/Context.h"
-    "Utils/Ct.h"
-    "Utils/Decl.h"
-    "Utils/Properties.h"
-    "Utils/TypeTraits.h"
-    "Utils/NodeUtils.h"
+    "Utils/FeatherUtils.h"
+    "Utils/FeatherUtils.hpp"
 
     "src/CtApiFunctions.h"
     "src/CtApiFunctions.cpp"

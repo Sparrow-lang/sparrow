@@ -10,8 +10,7 @@
 #include "Nest/Api/Node.h"
 
 #include "Feather/Api/Feather.h"
-#include "Feather/Utils/FeatherTypeKinds.h"
-#include "Feather/Utils/TypeTraits.h"
+#include "Feather/Utils/FeatherUtils.hpp"
 
 #include <boost/bind.hpp>
 #include <algorithm>

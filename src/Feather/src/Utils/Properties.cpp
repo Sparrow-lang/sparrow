@@ -1,11 +1,11 @@
 #include "Feather/src/StdInc.h"
-#include "Feather/Utils/Properties.h"
+#include "Feather/Utils/FeatherUtils.h"
 
-const char* Feather::propNativeName = "nativeName";
-const char* Feather::propDescription = "description";
-const char* Feather::propResultParam = "resultParam";
-const char* Feather::propAutoCt = "autoCt";
-const char* Feather::propCode = "code";
-const char* Feather::propEvalMode = "evalMode";
-const char* Feather::propResultingDecl = "resultingDecl";
-const char* Feather::propNoInline = "noInline";
+const char* propNativeName = "nativeName";
+const char* propDescription = "description";
+const char* propResultParam = "resultParam";
+const char* propAutoCt = "autoCt";
+const char* propCode = "code";
+const char* propEvalMode = "evalMode";
+const char* propResultingDecl = "resultingDecl";
+const char* propNoInline = "noInline";

@@ -2,8 +2,7 @@
 #include "CtApiFunctions.h"
 
 #include "Feather/Api/Feather.h"
-#include "Feather/Utils/Context.h"
-#include "Feather/Utils/Decl.h"
+#include "Feather/Utils/FeatherUtils.hpp"
 
 #include "Nest/Api/Node.h"
 #include "Nest/Api/Backend.h"
@@ -377,30 +376,6 @@ namespace
     {
         *sret = Feather_mkReturn(*loc, exp);
     }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Util
-    //
-    void ctApi_Util_getParentDecl(Node** sret, CompilationContext* context)
-    {
-        *sret = getParentDecl(context);
-    }
-    void ctApi_Util_getParentFun(Node** sret, CompilationContext* context)
-    {
-        *sret = getParentFun(context);
-    }
-    void ctApi_Util_getParentClass(Node** sret, CompilationContext* context)
-    {
-        *sret = getParentClass(context);
-    }
-    void ctApi_Util_getParentLoop(Node** sret, CompilationContext* context)
-    {
-        *sret = getParentLoop(context);
-    }
-    void ctApi_Util_getSymTabContext(CompilationContext** sret, CompilationContext* context)
-    {
-        *sret = getSymTabContext(context);
-    }
 }
 
 void Feather_registerCtApiFunctions(Backend* backend)
@@ -483,10 +458,4 @@ void Feather_registerCtApiFunctions(Backend* backend)
     backend->ctApiRegisterFun(backend, "$Meta.Feather.mkBreak",                   (void*) &ctApi_Feather_mkBreak);
     backend->ctApiRegisterFun(backend, "$Meta.Feather.mkContinue",                (void*) &ctApi_Feather_mkContinue);
     backend->ctApiRegisterFun(backend, "$Meta.Feather.mkReturn",                  (void*) &ctApi_Feather_mkReturn);
-
-    backend->ctApiRegisterFun(backend, "$Meta.Util.getParentDecl",                (void*) &ctApi_Util_getParentDecl);
-    backend->ctApiRegisterFun(backend, "$Meta.Util.getParentFun",                 (void*) &ctApi_Util_getParentFun);
-    backend->ctApiRegisterFun(backend, "$Meta.Util.getParentClass",               (void*) &ctApi_Util_getParentClass);
-    backend->ctApiRegisterFun(backend, "$Meta.Util.getParentLoop",                (void*) &ctApi_Util_getParentLoop);
-    backend->ctApiRegisterFun(backend, "$Meta.Util.getSymTabContext",             (void*) &ctApi_Util_getSymTabContext);
 }

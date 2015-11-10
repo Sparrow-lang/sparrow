@@ -5,8 +5,9 @@
 #include "StdDef.h"
 #include <NodeCommonsCpp.h>
 
-#include "Feather/Utils/TypeTraits.h"
-#include "Feather/Utils/Ct.h"
+#include "Feather/Utils/FeatherUtils.hpp"
+
+#include "Nest/Utils/NodeUtils.hpp"
 
 using namespace Feather;
 using namespace Nest;

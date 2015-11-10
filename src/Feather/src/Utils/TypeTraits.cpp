@@ -1,16 +1,13 @@
 #include "Feather/src/StdInc.h"
-#include "Feather/Utils/TypeTraits.h"
+#include "Feather/Utils/FeatherUtils.hpp"
 
 #include "Feather/Api/Feather.h"
-#include "Feather/Utils/FeatherTypeKinds.h"
-#include "Feather/Utils/FeatherNodeKinds.h"
-#include "Feather/Utils/Properties.h"
-#include "Feather/Utils/Decl.h"
 
 #include "Nest/Api/Node.h"
 #include "Nest/Api/CompilationContext.h"
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/StringRef.hpp"
+#include "Nest/Utils/NodeUtils.hpp"
 
 using namespace Feather;
 using namespace Nest;
@@ -299,13 +296,13 @@ int Feather_getArraySize(TypeRef type)
     return type->flags;
 }
 
-size_t Feather_numFunParameters(TypeRef type)
+unsigned Feather_numFunParameters(TypeRef type)
 {
     ASSERT(type && type->typeKind == typeKindFunction);
     return type->numSubtypes-1;
 }
 
-TypeRef Feather_getFunParameter(TypeRef type, size_t idx)
+TypeRef Feather_getFunParameter(TypeRef type, unsigned idx)
 {
     ASSERT(type && type->typeKind == typeKindFunction);
     return type->subTypes[idx+1];

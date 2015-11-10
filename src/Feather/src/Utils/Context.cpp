@@ -1,10 +1,7 @@
 #include "Feather/src/StdInc.h"
-#include "Feather/Utils/Context.h"
+#include "Feather/Utils/FeatherUtils.hpp"
 
 #include "Feather/Api/Feather.h"
-#include "Feather/Utils/Decl.h"
-#include "Feather/Utils/FeatherNodeKinds.h"
-#include "Feather/Utils/Properties.h"
 #include "Nest/Api/Node.h"
 #include "Nest/Api/CompilationContext.h"
 #include "Nest/Api/SymTab.h"
@@ -12,7 +9,7 @@
 
 using namespace Feather;
 
-Node* Feather::getParentDecl(CompilationContext* context)
+Node* _getParentDecl(CompilationContext* context)
 {
     SymTab* parentSymTab = context->currentSymTab;
     for ( ; parentSymTab; parentSymTab=parentSymTab->parent )
@@ -24,17 +21,17 @@ Node* Feather::getParentDecl(CompilationContext* context)
     return nullptr;
 }
 
-Node* Feather::getParentFun(CompilationContext* context)
+Node* Feather_getParentFun(CompilationContext* context)
 {
-    return Nest_ofKind(Nest_explanation(getParentDecl(context)), nkFeatherDeclFunction);
+    return Nest_ofKind(Nest_explanation(_getParentDecl(context)), nkFeatherDeclFunction);
 }
 
-Node* Feather::getParentClass(CompilationContext* context)
+Node* Feather_getParentClass(CompilationContext* context)
 {
-    return Nest_ofKind(Nest_explanation(getParentDecl(context)), nkFeatherDeclClass);
+    return Nest_ofKind(Nest_explanation(_getParentDecl(context)), nkFeatherDeclClass);
 }
 
-Node* Feather::getParentLoop(CompilationContext* context)
+Node* Feather_getParentLoop(CompilationContext* context)
 {
     SymTab* parentSymTab = context->currentSymTab;
     for ( ; parentSymTab; parentSymTab=parentSymTab->parent )
@@ -51,21 +48,4 @@ Node* Feather::getParentLoop(CompilationContext* context)
             return nullptr;
     }
     return nullptr;
-}
-
-CompilationContext* Feather::getSymTabContext(CompilationContext* context)
-{
-    SymTab* parentSymTab = context->currentSymTab;
-    Node* n = parentSymTab->node;
-    return n ? Nest_childrenContext(n) : nullptr;
-}
-
-bool Feather::isLocal(CompilationContext* context)
-{
-    return nullptr != getParentFun(context);
-}
-
-bool Feather::isClassMember(CompilationContext* context)
-{
-    return nullptr != getParentClass(context);
 }

@@ -1096,12 +1096,18 @@ int Feather_getFirstFeatherNodeKind() {
     return _firstFeatherNodeKind;
 }
 
-Node* Feather_mkNodeList(const Location& loc, NodeRange children, bool voidResult)
+Node* Feather_mkNodeList(Location loc, NodeRange children)
 {
     Node* res = Nest_createNode(nkFeatherNodeList);
     res->location = loc;
-    if ( voidResult )
-        Nest_setPropertyInt(res, propResultVoid, 1);
+    Nest_nodeSetChildren(res, children);
+    return res;
+}
+Node* Feather_mkNodeListVoid(Location loc, NodeRange children)
+{
+    Node* res = Nest_createNode(nkFeatherNodeList);
+    res->location = loc;
+    Nest_setPropertyInt(res, propResultVoid, 1);
     Nest_nodeSetChildren(res, children);
     return res;
 }
@@ -1135,20 +1141,20 @@ Node* Feather_appendNodeList(Node* list, Node* newNodes)
 }
 
 
-Node* Feather_mkNop(const Location& loc)
+Node* Feather_mkNop(Location loc)
 {
     Node* res = Nest_createNode(nkFeatherNop);
     res->location = loc;
     return res;
 }
-Node* Feather_mkTypeNode(const Location& loc, TypeRef type)
+Node* Feather_mkTypeNode(Location loc, TypeRef type)
 {
     Node* res = Nest_createNode(nkFeatherTypeNode);
     res->location = loc;
     Nest_setPropertyType(res, "givenType", type);
     return res;
 }
-Node* Feather_mkBackendCode(const Location& loc, StringRef code, EvalMode evalMode)
+Node* Feather_mkBackendCode(Location loc, StringRef code, EvalMode evalMode)
 {
     Node* res = Nest_createNode(nkFeatherBackendCode);
     res->location = loc;
@@ -1156,14 +1162,14 @@ Node* Feather_mkBackendCode(const Location& loc, StringRef code, EvalMode evalMo
     Nest_setPropertyInt(res, propEvalMode, (int) evalMode);
     return res;
 }
-Node* Feather_mkLocalSpace(const Location& loc, NodeRange children)
+Node* Feather_mkLocalSpace(Location loc, NodeRange children)
 {
     Node* res = Nest_createNode(nkFeatherLocalSpace);
     res->location = loc;
     Nest_nodeSetChildren(res, children);
     return res;
 }
-Node* Feather_mkGlobalConstructAction(const Location& loc, Node* action)
+Node* Feather_mkGlobalConstructAction(Location loc, Node* action)
 {
     REQUIRE_NODE(loc, action);
     Node* res = Nest_createNode(nkFeatherGlobalConstructAction);
@@ -1171,7 +1177,7 @@ Node* Feather_mkGlobalConstructAction(const Location& loc, Node* action)
     Nest_nodeSetChildren(res, fromIniList({ action }));
     return res;
 }
-Node* Feather_mkGlobalDestructAction(const Location& loc, Node* action)
+Node* Feather_mkGlobalDestructAction(Location loc, Node* action)
 {
     REQUIRE_NODE(loc, action);
     Node* res = Nest_createNode(nkFeatherGlobalDestructAction);
@@ -1179,7 +1185,7 @@ Node* Feather_mkGlobalDestructAction(const Location& loc, Node* action)
     Nest_nodeSetChildren(res, fromIniList({ action }));
     return res;
 }
-Node* Feather_mkScopeDestructAction(const Location& loc, Node* action)
+Node* Feather_mkScopeDestructAction(Location loc, Node* action)
 {
     REQUIRE_NODE(loc, action);
     Node* res = Nest_createNode(nkFeatherScopeDestructAction);
@@ -1187,7 +1193,7 @@ Node* Feather_mkScopeDestructAction(const Location& loc, Node* action)
     Nest_nodeSetChildren(res, fromIniList({ action }));
     return res;
 }
-Node* Feather_mkTempDestructAction(const Location& loc, Node* action)
+Node* Feather_mkTempDestructAction(Location loc, Node* action)
 {
     REQUIRE_NODE(loc, action);
     Node* res = Nest_createNode(nkFeatherTempDestructAction);
@@ -1197,7 +1203,7 @@ Node* Feather_mkTempDestructAction(const Location& loc, Node* action)
 }
 
 
-Node* Feather_mkFunction(const Location& loc, StringRef name, Node* resType, NodeRange params, Node* body, CallConvention callConv, EvalMode evalMode)
+Node* Feather_mkFunction(Location loc, StringRef name, Node* resType, NodeRange params, Node* body)
 {
     Node* res = Nest_createNode(nkFeatherDeclFunction);
     res->location = loc;
@@ -1205,8 +1211,8 @@ Node* Feather_mkFunction(const Location& loc, StringRef name, Node* resType, Nod
     Nest_nodeAddChild(res, body);
     Nest_nodeAddChildren(res, params);
     setName(res, move(name));
-    Nest_setPropertyInt(res, "callConvention", (int) callConv);
-    setEvalMode(res, evalMode);
+    Nest_setPropertyInt(res, "callConvention", (int) ccC);
+    setEvalMode(res, modeUnspecified);
 
     // Make sure all the nodes given as parameters have the right kind
     for ( Node* param: params )
@@ -1217,13 +1223,13 @@ Node* Feather_mkFunction(const Location& loc, StringRef name, Node* resType, Nod
 
     return res;
 }
-Node* Feather_mkClass(const Location& loc, StringRef name, NodeRange fields, EvalMode evalMode)
+Node* Feather_mkClass(Location loc, StringRef name, NodeRange fields)
 {
     Node* res = Nest_createNode(nkFeatherDeclClass);
     res->location = loc;
     Nest_nodeSetChildren(res, fields);
     setName(res, move(name));
-    setEvalMode(res, evalMode);
+    setEvalMode(res, modeUnspecified);
 
     // Make sure all the nodes given as parameters have the right kind
     for ( Node* field: fields )
@@ -1234,20 +1240,20 @@ Node* Feather_mkClass(const Location& loc, StringRef name, NodeRange fields, Eva
 
     return res;
 }
-Node* Feather_mkVar(const Location& loc, StringRef name, Node* typeNode, size_t alignment, EvalMode evalMode)
+Node* Feather_mkVar(Location loc, StringRef name, Node* typeNode)
 {
     REQUIRE_TYPE(loc, typeNode);
     Node* res = Nest_createNode(nkFeatherDeclVar);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({ typeNode }));
     setName(res, move(name));
-    Nest_setPropertyInt(res, "alignment", alignment);
-    setEvalMode(res, evalMode);
+    Nest_setPropertyInt(res, "alignment", 0);
+    setEvalMode(res, modeUnspecified);
     return res;
 }
 
 
-Node* Feather_mkCtValue(const Location& loc, TypeRef type, StringRef data)
+Node* Feather_mkCtValue(Location loc, TypeRef type, StringRef data)
 {
     REQUIRE_TYPE(loc, type);
     Node* res = Nest_createNode(nkFeatherExpCtValue);
@@ -1256,7 +1262,7 @@ Node* Feather_mkCtValue(const Location& loc, TypeRef type, StringRef data)
     Nest_setPropertyString(res, "valueData", data);
     return res;
 }
-Node* Feather_mkNull(const Location& loc, Node* typeNode)
+Node* Feather_mkNull(Location loc, Node* typeNode)
 {
     REQUIRE_NODE(loc, typeNode);
     Node* res = Nest_createNode(nkFeatherExpNull);
@@ -1264,7 +1270,7 @@ Node* Feather_mkNull(const Location& loc, Node* typeNode)
     Nest_nodeSetChildren(res, fromIniList({ typeNode }));
     return res;
 }
-Node* Feather_mkVarRef(const Location& loc, Node* varDecl)
+Node* Feather_mkVarRef(Location loc, Node* varDecl)
 {
     REQUIRE_NODE(loc, varDecl);
     if ( varDecl->nodeKind != nkFeatherDeclVar )
@@ -1274,7 +1280,7 @@ Node* Feather_mkVarRef(const Location& loc, Node* varDecl)
     Nest_nodeSetReferredNodes(res, fromIniList({ varDecl }));
     return res;
 }
-Node* Feather_mkFieldRef(const Location& loc, Node* obj, Node* fieldDecl)
+Node* Feather_mkFieldRef(Location loc, Node* obj, Node* fieldDecl)
 {
     REQUIRE_NODE(loc, obj);
     REQUIRE_NODE(loc, fieldDecl);
@@ -1286,7 +1292,7 @@ Node* Feather_mkFieldRef(const Location& loc, Node* obj, Node* fieldDecl)
     Nest_nodeSetReferredNodes(res, fromIniList({ fieldDecl }));
     return res;
 }
-Node* Feather_mkFunRef(const Location& loc, Node* funDecl, Node* resType)
+Node* Feather_mkFunRef(Location loc, Node* funDecl, Node* resType)
 {
     REQUIRE_NODE(loc, funDecl);
     REQUIRE_NODE(loc, resType);
@@ -1298,7 +1304,7 @@ Node* Feather_mkFunRef(const Location& loc, Node* funDecl, Node* resType)
     Nest_nodeSetReferredNodes(res, fromIniList({ funDecl }));
     return res;
 }
-Node* Feather_mkFunCall(const Location& loc, Node* funDecl, NodeRange args)
+Node* Feather_mkFunCall(Location loc, Node* funDecl, NodeRange args)
 {
     REQUIRE_NODE(loc, funDecl);
     if ( funDecl->nodeKind != nkFeatherDeclFunction )
@@ -1309,32 +1315,32 @@ Node* Feather_mkFunCall(const Location& loc, Node* funDecl, NodeRange args)
     Nest_nodeSetReferredNodes(res, fromIniList({ funDecl }));
     return res;
 }
-Node* Feather_mkMemLoad(const Location& loc, Node* exp, size_t alignment, bool isVolatile, AtomicOrdering ordering, bool singleThreaded)
+Node* Feather_mkMemLoad(Location loc, Node* exp)
 {
     REQUIRE_NODE(loc, exp);
     Node* res = Nest_createNode(nkFeatherExpMemLoad);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({ exp }));
-    Nest_setPropertyInt(res, "alignment", alignment);
-    Nest_setPropertyInt(res, "volatile", isVolatile ? 1 : 0);
-    Nest_setPropertyInt(res, "atomicOrdering", (int) ordering);
-    Nest_setPropertyInt(res, "singleThreaded", singleThreaded ? 1 : 0);
+    Nest_setPropertyInt(res, "alignment", 0);
+    Nest_setPropertyInt(res, "volatile", 0);
+    Nest_setPropertyInt(res, "atomicOrdering", (int) atomicNone);
+    Nest_setPropertyInt(res, "singleThreaded", 0);
     return res;
 }
-Node* Feather_mkMemStore(const Location& loc, Node* value, Node* address, size_t alignment, bool isVolatile, AtomicOrdering ordering, bool singleThreaded)
+Node* Feather_mkMemStore(Location loc, Node* value, Node* address)
 {
     REQUIRE_NODE(loc, value);
     REQUIRE_NODE(loc, address);
     Node* res = Nest_createNode(nkFeatherExpMemStore);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({ value, address }));
-    Nest_setPropertyInt(res, "alignment", alignment);
-    Nest_setPropertyInt(res, "volatile", isVolatile ? 1 : 0);
-    Nest_setPropertyInt(res, "atomicOrdering", (int) ordering);
-    Nest_setPropertyInt(res, "singleThreaded", singleThreaded ? 1 : 0);
+    Nest_setPropertyInt(res, "alignment", 0);
+    Nest_setPropertyInt(res, "volatile", 0);
+    Nest_setPropertyInt(res, "atomicOrdering", (int) atomicNone);
+    Nest_setPropertyInt(res, "singleThreaded", 0);
     return res;
 }
-Node* Feather_mkBitcast(const Location& loc, Node* destType, Node* exp)
+Node* Feather_mkBitcast(Location loc, Node* destType, Node* exp)
 {
     REQUIRE_NODE(loc, destType);
     REQUIRE_NODE(loc, exp);
@@ -1343,7 +1349,7 @@ Node* Feather_mkBitcast(const Location& loc, Node* destType, Node* exp)
     Nest_nodeSetChildren(res, fromIniList({ exp, destType }));
     return res;
 }
-Node* Feather_mkConditional(const Location& loc, Node* condition, Node* alt1, Node* alt2)
+Node* Feather_mkConditional(Location loc, Node* condition, Node* alt1, Node* alt2)
 {
     REQUIRE_NODE(loc, condition);
     REQUIRE_NODE(loc, alt1);
@@ -1353,7 +1359,7 @@ Node* Feather_mkConditional(const Location& loc, Node* condition, Node* alt1, No
     Nest_nodeSetChildren(res, fromIniList({ condition, alt1, alt2 }));
     return res;
 }
-Node* Feather_mkChangeMode(const Location& loc, Node* child, EvalMode mode)
+Node* Feather_mkChangeMode(Location loc, Node* child, EvalMode mode)
 {
     Node* res = Nest_createNode(nkFeatherChangeMode);
     res->location = loc;
@@ -1363,41 +1369,37 @@ Node* Feather_mkChangeMode(const Location& loc, Node* child, EvalMode mode)
 }
 
 
-Node* Feather_mkIf(const Location& loc, Node* condition, Node* thenClause, Node* elseClause, bool isCt)
+Node* Feather_mkIf(Location loc, Node* condition, Node* thenClause, Node* elseClause)
 {
     REQUIRE_NODE(loc, condition);
     Node* res = Nest_createNode(nkFeatherStmtIf);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({ condition, thenClause, elseClause }));
-    if ( isCt )
-        setEvalMode(res, modeCt);
     return res;
 }
-Node* Feather_mkWhile(const Location& loc, Node* condition, Node* body, Node* step, bool isCt)
+Node* Feather_mkWhile(Location loc, Node* condition, Node* body, Node* step)
 {
     REQUIRE_NODE(loc, condition);
     Node* res = Nest_createNode(nkFeatherStmtWhile);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({ condition, step, body }));
-    if ( isCt )
-        setEvalMode(res, modeCt);
     return res;
 }
-Node* Feather_mkBreak(const Location& loc)
+Node* Feather_mkBreak(Location loc)
 {
     Node* res = Nest_createNode(nkFeatherStmtBreak);
     res->location = loc;
     Nest_setPropertyNode(res, "loop", nullptr);
     return res;
 }
-Node* Feather_mkContinue(const Location& loc)
+Node* Feather_mkContinue(Location loc)
 {
     Node* res = Nest_createNode(nkFeatherStmtContinue);
     res->location = loc;
     Nest_setPropertyNode(res, "loop", nullptr);
     return res;
 }
-Node* Feather_mkReturn(const Location& loc, Node* exp)
+Node* Feather_mkReturn(Location loc, Node* exp)
 {
     Node* res = Nest_createNode(nkFeatherStmtReturn);
     res->location = loc;

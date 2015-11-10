@@ -238,7 +238,9 @@ Node* For_SemanticCheck(Node* node)
         whileBody = Feather_mkLocalSpace(action->location, fromIniList({ iterVar, action }));
     }
 
-    Node* whileStmt = Feather_mkWhile(loc, whileCond, whileBody, whileStep, ctFor);
+    Node* whileStmt = Feather_mkWhile(loc, whileCond, whileBody, whileStep);
+    if ( ctFor )
+        setEvalMode(whileStmt, modeCt);
     
     return Feather_mkLocalSpace(node->location, fromIniList({ rangeVar, whileStmt }));
 }
@@ -280,7 +282,7 @@ Node* SprReturn_SemanticCheck(Node* node)
             return nullptr;
         if ( !resType->hasStorage && exp->type == resType )
         {
-            return Feather_mkNodeList(node->location, fromIniList({ exp, Feather_mkReturn(node->location) }));
+            return Feather_mkNodeList(node->location, fromIniList({ exp, Feather_mkReturn(node->location, nullptr) }));
         }
         else
         {

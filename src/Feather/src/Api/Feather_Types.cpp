@@ -29,10 +29,10 @@ namespace
         default:        return "Void";
         }
     }
-    string getDataTypeDescription(Node* classDecl, uint8_t numReferences, EvalMode mode)
+    string getDataTypeDescription(Node* classDecl, unsigned numReferences, EvalMode mode)
     {
         string res;
-        for ( uint8_t i=0; i<numReferences; ++i )
+        for ( unsigned i=0; i<numReferences; ++i )
             res += '@';
         if ( classDecl )
         {
@@ -52,17 +52,17 @@ namespace
     {
         return string(base->description) + " lv";
     }
-    string getArrayTypeDescription(TypeRef unitType, uint32_t count)
+    string getArrayTypeDescription(TypeRef unitType, unsigned count)
     {
         ostringstream oss;
         oss << unitType->description << " A(" << count << ")";
         return oss.str();
     }
-    string Feather_getFunctionTypeDescription(TypeRef* resultTypeAndParams, size_t numTypes, EvalMode mode)
+    string Feather_getFunctionTypeDescription(TypeRef* resultTypeAndParams, unsigned numTypes, EvalMode mode)
     {
         ostringstream oss;
         oss << "F(";
-        for ( size_t i=1; i<numTypes; ++i )
+        for ( unsigned i=1; i<numTypes; ++i )
         {
             if ( i > 1 )
                 oss << ",";
@@ -129,7 +129,7 @@ TypeRef Feather_getVoidType(EvalMode mode)
     return t;
 }
 
-TypeRef Feather_getDataType(Node* classDecl, uint8_t numReferences, EvalMode mode)
+TypeRef Feather_getDataType(Node* classDecl, unsigned numReferences, EvalMode mode)
 {
     ASSERT(classDecl->nodeKind == nkFeatherDeclClass );
     EvalMode classMode = classDecl ? effectiveEvalMode(classDecl) : mode;
@@ -183,7 +183,7 @@ TypeRef Feather_getLValueType(TypeRef base)
     return t;
 }
 
-TypeRef Feather_getArrayType(TypeRef unitType, uint32_t count)
+TypeRef Feather_getArrayType(TypeRef unitType, unsigned count)
 {
     Type referenceType;
     referenceType.typeKind      = typeKindArray;
@@ -212,7 +212,7 @@ TypeRef Feather_getArrayType(TypeRef unitType, uint32_t count)
     return t;
 }
 
-TypeRef Feather_getFunctionType(TypeRef* resultTypeAndParams, size_t numTypes, EvalMode mode)
+TypeRef Feather_getFunctionType(TypeRef* resultTypeAndParams, unsigned numTypes, EvalMode mode)
 {
     ASSERT(numTypes >= 1);  // At least result type
 

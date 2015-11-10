@@ -78,7 +78,7 @@ namespace
     {
         CHECK(loc, args.size() == 2);
         TypeRef t = getType(args[0]);
-        int numRef = getIntCtValue(args[1]);
+        int numRef = max(0, getIntCtValue(args[1]));
         
         TypeRef res = changeRefCount(t, numRef, loc);
         

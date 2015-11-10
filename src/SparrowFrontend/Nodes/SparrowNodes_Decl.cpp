@@ -180,7 +180,7 @@ void SprCompilationUnit_SetContextForChildren(Node* node)
             for ( int j=(int)names.size()-1; j>=i; --j )
             {
                 Node* pk = mkSprPackage(packageName->location, fromString(names[j]), declarations);
-                declarations = Feather_mkNodeList(packageName->location, fromIniList({pk}), true);
+                declarations = Feather_mkNodeListVoid(packageName->location, fromIniList({pk}));
                 at(node->children, 2) = declarations;
             }
             break;
@@ -603,7 +603,8 @@ TypeRef SprParameter_ComputeType(Node* node)
     const TypeRef* givenType = Nest_getPropertyType(node, "spr.givenType");
     TypeRef t = givenType ? *givenType : getType(typeNode);
 
-    Node* resultingParam = Feather_mkVar(node->location, Feather::getName(node), Feather_mkTypeNode(node->location, t), 0, Feather::effectiveEvalMode(node));
+    Node* resultingParam = Feather_mkVar(node->location, Feather::getName(node), Feather_mkTypeNode(node->location, t));
+    setEvalMode(resultingParam, Feather::effectiveEvalMode(node));
     Feather::setShouldAddToSymTab(resultingParam, false);
     Nest_setContext(resultingParam, node->context);
     if ( !Nest_computeType(resultingParam) )

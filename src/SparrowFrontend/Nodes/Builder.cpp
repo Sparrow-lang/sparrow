@@ -38,7 +38,7 @@ Node* SprFrontend::buildVariables(const Location& loc, const vector<string>& nam
     {
         nodes.push_back(mkModifiers(loc, mkSprVariable(loc, fromString(name), typeNode, init, accessType), mods));
     }
-    return Feather_mkNodeList(loc, all(nodes), true);
+    return Feather_mkNodeListVoid(loc, all(nodes));
 }
 
 Node* SprFrontend::buildParameters(const Location& loc, const vector<string>& names, Node* typeNode, Node* init, Node* mods)
@@ -49,14 +49,14 @@ Node* SprFrontend::buildParameters(const Location& loc, const vector<string>& na
     {
         nodes.push_back(mkModifiers(loc, mkSprParameter(loc, fromString(name), typeNode, init), mods));
     }
-    return Feather_mkNodeList(loc, all(nodes), true);
+    return Feather_mkNodeListVoid(loc, all(nodes));
 }
 
 Node* SprFrontend::buildAutoParameter(const Location& loc, StringRef name, Node* mods)
 {
     Node* typeNode = mkIdentifier(loc, fromCStr("AnyType"));
     Node* param = mkModifiers(loc, mkSprParameter(loc, name, typeNode, nullptr), mods);
-    return Feather_mkNodeList(loc, fromIniList({param}), true);
+    return Feather_mkNodeListVoid(loc, fromIniList({param}));
 }
 
 Node* SprFrontend::buildSprFunctionExp(const Location& loc, StringRef name, Node* parameters, Node* returnType, Node* bodyExp, Node* ifClause, AccessType accessType)
@@ -82,7 +82,7 @@ Node* SprFrontend::buildPrefixOp(const Location& loc, StringRef op, Node* base)
 
 Node* SprFrontend::buildParenthesisExp(const Location& loc, Node* exp)
 {
-    return Feather_mkNodeList(loc, fromIniList({exp}), false);
+    return Feather_mkNodeList(loc, fromIniList({exp}));
 }
 
 Node* SprFrontend::buildIntLiteral(const Location& loc, int value)

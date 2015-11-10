@@ -4,6 +4,7 @@
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/StringData.h"
 #include "Feather/Utils/Context.h"
+#include "Feather/Utils/Decl.h"
 
 #include "Nest/Api/Node.h"
 #include "Nest/Api/Backend.h"
@@ -249,7 +250,10 @@ namespace
     void ctApi_Feather_mkNodeList(Node** sret, Location* loc, Node** childrenBegin, Node** childrenEnd, bool voidResult)
     {
         NodeRange r = { childrenBegin, childrenEnd };
-        *sret = Feather_mkNodeList(*loc, r, voidResult);
+        if ( voidResult )
+            *sret = Feather_mkNodeListVoid(*loc, r);
+        else
+            *sret = Feather_mkNodeList(*loc, r);
     }
     void ctApi_Feather_addToNodeList(Node** sret, Node* prevList, Node* element)
     {
@@ -306,7 +310,8 @@ namespace
     }
     void ctApi_Feather_mkVar(Node** sret, Location* loc, StringRef name, Node* type, int evalMode)
     {
-        *sret = Feather_mkVar(*loc, name, type, 0, (EvalMode) evalMode);
+        *sret = Feather_mkVar(*loc, name, type);
+        setEvalMode(*sret, (EvalMode) evalMode);
     }
 
     void ctApi_Feather_mkCtValue(Node** sret, Location* loc, TypeRef type, StringRef data)
@@ -353,11 +358,15 @@ namespace
 
     void ctApi_Feather_mkIf(Node** sret, Location* loc, Node* condition, Node* thenClause, Node* elseClause, bool isCt)
     {
-        *sret = Feather_mkIf(*loc, condition, thenClause, elseClause, isCt);
+        *sret = Feather_mkIf(*loc, condition, thenClause, elseClause);
+        if ( isCt )
+            setEvalMode(*sret, modeCt);
     }
     void ctApi_Feather_mkWhile(Node** sret, Location* loc, Node* condition, Node* body, Node* step, bool isCt)
     {
-        *sret = Feather_mkWhile(*loc, condition, body, step, isCt);
+        *sret = Feather_mkWhile(*loc, condition, body, step);
+        if ( isCt )
+            setEvalMode(*sret, modeCt);
     }
     void ctApi_Feather_mkBreak(Node** sret, Location* loc)
     {

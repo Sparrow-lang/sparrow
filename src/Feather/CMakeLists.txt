@@ -7,7 +7,6 @@ SET(sourceFiles
     "Utils/Ct.h"
     "Utils/Decl.h"
     "Utils/Properties.h"
-    "Utils/StringData.h"
     "Utils/TypeTraits.h"
     "Utils/NodeUtils.h"
 

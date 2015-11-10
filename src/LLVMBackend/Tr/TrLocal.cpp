@@ -21,7 +21,6 @@
 #include "Feather/Utils/Context.h"
 #include "Feather/Utils/Decl.h"
 #include "Feather/Utils/Ct.h"
-#include "Feather/Utils/StringData.h"
 #include "Feather/Utils/NodeUtils.h"
 #include "Feather/Utils/FeatherTypeKinds.h"
 #include "Feather/Utils/FeatherNodeKinds.h"
@@ -553,7 +552,7 @@ namespace
                 const StringRef* nativeName = Feather_nativeName(tt);
                 if ( nativeName && *nativeName == "StringRef" )
                 {
-                    StringData data = *getCtValueData<StringData>(node);
+                    StringRef data = *getCtValueData<StringRef>(node);
                     return translateDataTypeConstant(t, data.begin, data.end, context);
                 }
             }

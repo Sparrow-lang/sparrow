@@ -11,7 +11,6 @@
 #include <Helpers/Convert.h>
 #include <Helpers/Overload.h>
 
-#include "Feather/Utils/StringData.h"
 #include "Feather/Utils/Decl.h"
 #include "Feather/Utils/Context.h"
 

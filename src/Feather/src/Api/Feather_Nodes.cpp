@@ -11,7 +11,6 @@
 #include "Feather/Utils/TypeTraits.h"
 #include "Feather/Utils/Ct.h"
 #include "Feather/Utils/Context.h"
-#include "Feather/Utils/StringData.h"
 
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/Alloc.h"
@@ -455,8 +454,8 @@ using namespace Feather;
                 os << *((const unsigned long long*) valueData);
             else if (  *nativeName == "StringRef" )
             {
-                const StringData& s = *((const StringData*) valueData);
-                os << "'" << s.toStdString() << "'";
+                const StringRef* s = (const StringRef*) valueData;
+                os << "'" << toString(*s) << "'";
             }
             else
                 os << "'" << toString(valueDataStr) << "'";

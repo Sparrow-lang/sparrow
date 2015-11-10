@@ -2,7 +2,6 @@
 #include "CtApiFunctions.h"
 
 #include "Feather/Api/Feather.h"
-#include "Feather/Utils/StringData.h"
 #include "Feather/Utils/Context.h"
 #include "Feather/Utils/Decl.h"
 
@@ -11,6 +10,7 @@
 #include "Nest/Api/SourceCode.h"
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/NodeUtils.h"
+#include "Nest/Utils/StringRef.hpp"
 
 using namespace Feather;
 using namespace Nest;
@@ -20,17 +20,16 @@ namespace
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Diagnostic
     //
-    void ctApi_SourceCode_fromFilename(const SourceCode** sret, StringData filename)
+    void ctApi_SourceCode_fromFilename(const SourceCode** sret, StringRef filename)
     {
-        StringRef fn = { filename.begin, filename.end };
-        *sret = Nest_getSourceCodeForFilename(fn);
+        *sret = Nest_getSourceCodeForFilename(filename);
     }
-    void ctApi_SourceCode_filename(StringData* sret, SourceCode** thisArg)
+    void ctApi_SourceCode_filename(StringRef* sret, SourceCode** thisArg)
     {
-        *sret = StringData((*thisArg)->url);
+        *sret = fromCStr((*thisArg)->url);
     }
 
-    void ctApi_Location_getCorrespondingCode(StringData* sret, Location* thisArg)
+    void ctApi_Location_getCorrespondingCode(StringRef* sret, Location* thisArg)
     {
         const SourceCode* sourceCode = (const SourceCode*) thisArg->sourceCode;
         string code;
@@ -45,10 +44,10 @@ namespace
             lineStr.begin += thisArg->start.col-1;
             lineStr.end = lineStr.begin + count;
         }
-        *sret = StringData(lineStr);
+        *sret = lineStr;
     }
 
-    void ctApi_report(int type, StringData message, Location* location)
+    void ctApi_report(int type, StringRef message, Location* location)
     {
         Location loc = location ? *location : Location();
         Nest_reportDiagnostic(loc, (DiagnosticSeverity) type, message.begin);
@@ -79,9 +78,9 @@ namespace
     {
         return (*thisArg)->typeKind;
     }
-    void ctApi_AstType_toString(StringData* sret, TypeRef* thisArg)
+    void ctApi_AstType_toString(StringRef* sret, TypeRef* thisArg)
     {
-        *sret = StringData(*new string((*thisArg)->description));
+        *sret = dupCStr((*thisArg)->description);
     }
     bool ctApi_AstType_hasStorage(TypeRef* thisArg)
     {
@@ -115,17 +114,17 @@ namespace
     {
         return (*thisArg)->nodeKind;
     }
-    void ctApi_AstNode_nodeKindName(StringData* sret, Node** thisArg)
+    void ctApi_AstNode_nodeKindName(StringRef* sret, Node** thisArg)
     {
-        *sret = StringData(Nest_nodeKindName(*thisArg));
+        *sret = fromCStr(Nest_nodeKindName(*thisArg));
     }
-    void ctApi_AstNode_toString(StringData* sret, Node** thisArg)
+    void ctApi_AstNode_toString(StringRef* sret, Node** thisArg)
     {
-        *sret = StringData(Nest_toString(*thisArg));
+        *sret = fromCStr(Nest_toString(*thisArg));
     }
-    void ctApi_AstNode_toStringExt(StringData* sret, Node** thisArg)
+    void ctApi_AstNode_toStringExt(StringRef* sret, Node** thisArg)
     {
-        *sret = StringData(Nest_toString(*thisArg));
+        *sret = fromCStr(Nest_toString(*thisArg));
     }
     void ctApi_AstNode_location(Location* sret, Node** thisArg)
     {
@@ -148,54 +147,52 @@ namespace
         *retBegin = r.beginPtr;
         *retEnd = r.endPtr;
     }
-    bool ctApi_AstNode_hasProperty(Node** thisArg, StringData name)
+    bool ctApi_AstNode_hasProperty(Node** thisArg, StringRef name)
     {
         return Nest_hasProperty(*thisArg, name.begin);
     }
-    bool ctApi_AstNode_getPropertyString(Node** thisArg, StringData name, StringData* value)
+    bool ctApi_AstNode_getPropertyString(Node** thisArg, StringRef name, StringRef* value)
     {
         const StringRef* res = Nest_getPropertyString(*thisArg, name.begin);
         if ( res ) {
-            value->begin = res->begin;
-            value->end = res->end;
+            *value = *res;
         }
         return res != nullptr;
     }
-    bool ctApi_AstNode_getPropertyInt(Node** thisArg, StringData name, int* value)
+    bool ctApi_AstNode_getPropertyInt(Node** thisArg, StringRef name, int* value)
     {
         const int* res = Nest_getPropertyInt(*thisArg, name.begin);
         if ( res )
             *value = *res;
         return res != nullptr;
     }
-    bool ctApi_AstNode_getPropertyNode(Node** thisArg, StringData name, Node** value)
+    bool ctApi_AstNode_getPropertyNode(Node** thisArg, StringRef name, Node** value)
     {
         Node*const* res = Nest_getPropertyNode(*thisArg, name.begin);
         if ( res )
             *value = *res;
         return res != nullptr;
     }
-    bool ctApi_AstNode_getPropertyType(Node** thisArg, StringData name, TypeRef* value)
+    bool ctApi_AstNode_getPropertyType(Node** thisArg, StringRef name, TypeRef* value)
     {
         const TypeRef* res = Nest_getPropertyType(*thisArg, name.begin);
         if ( res )
             *value = *res;
         return res != nullptr;
     }
-    void ctApi_AstNode_setPropertyString(Node** thisArg, StringData name, StringData value)
+    void ctApi_AstNode_setPropertyString(Node** thisArg, StringRef name, StringRef value)
     {
-        StringRef val = { value.begin, value.end };
-        Nest_setPropertyString(*thisArg, name.begin, val);
+        Nest_setPropertyString(*thisArg, name.begin, value);
     }
-    void ctApi_AstNode_setPropertyInt(Node** thisArg, StringData name, int value)
+    void ctApi_AstNode_setPropertyInt(Node** thisArg, StringRef name, int value)
     {
         Nest_setPropertyInt(*thisArg, name.begin, value);
     }
-    void ctApi_AstNode_setPropertyNode(Node** thisArg, StringData name, Node* value)
+    void ctApi_AstNode_setPropertyNode(Node** thisArg, StringRef name, Node* value)
     {
         Nest_setPropertyNode(*thisArg, name.begin, value);
     }
-    void ctApi_AstNode_setPropertyType(Node** thisArg, StringData name, TypeRef value)
+    void ctApi_AstNode_setPropertyType(Node** thisArg, StringRef name, TypeRef value)
     {
         Nest_setPropertyType(*thisArg, name.begin, value);
     }

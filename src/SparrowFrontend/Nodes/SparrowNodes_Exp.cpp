@@ -16,7 +16,6 @@
 #include "Nest/Api/SourceCode.h"
 
 using namespace SprFrontend;
-using namespace Feather;
 using namespace Nest;
 
 namespace
@@ -44,7 +43,7 @@ namespace
                     // Make sure the base is a reference
                     if ( baseExp->type->numReferences == 0 )
                     {
-                        ConversionResult res = canConvert(baseExp, addRef(baseExp->type));
+                        ConversionResult res = canConvert(baseExp, Feather_addRef(baseExp->type));
                         if ( !res )
                             REP_INTERNAL(loc, "Cannot add reference to base of field access");
                         baseExp = res.apply(baseExp);
@@ -209,7 +208,7 @@ namespace
             return nullptr;
 
         // Remove l-value if we have some
-        t = Feather::removeLValueIfPresent(t);
+        t = Feather_removeLValueIfPresent(t);
 
         // Get the size of the type of the argument
         uint64_t size = Nest_sizeOf(t);
@@ -236,7 +235,7 @@ namespace
         TypeRef t = arg->type;
         if ( !t )
             REP_INTERNAL(node->location, "Invalid argument");
-        t = Feather::removeLValueIfPresent(t);
+        t = Feather_removeLValueIfPresent(t);
 
         // Create a CtValue to hold the type
         return createTypeNode(node->context, arg->location, t);
@@ -294,7 +293,7 @@ namespace
         }
 
         // The expression must be CT
-        if ( res && !isCt(arg) )
+        if ( res && !Feather_isCt(arg) )
         {
             REP_ERROR(node->location, "ctEval expects an CT argument; %1% given") % arg->type;
             res = false;
@@ -353,7 +352,7 @@ namespace
             return nullptr;
 
         // The expression must be CT
-        if ( !isCt(arg) )
+        if ( !Feather_isCt(arg) )
             REP_ERROR_RET(nullptr, node->location, "ctEval expects an CT argument; %1% given") % arg->type;
 
         // Make sure we remove all the references
@@ -441,7 +440,7 @@ namespace
         {
             if ( !Nest_semanticCheck(base) )
                 return nullptr;
-            argClass = classForType(base->type);
+            argClass = Feather_classForType(base->type);
         }
 
         EvalMode mode;
@@ -472,7 +471,7 @@ namespace
 
     Node* checkConvertNullToRefByte(Node* orig)
     {
-        if ( isSameTypeIgnoreMode(orig->type, StdDef::typeNull) )
+        if ( Feather_isSameTypeIgnoreMode(orig->type, StdDef::typeNull) )
         {
             Node* res = Feather_mkNull(orig->location, Feather_mkTypeNode(orig->location, StdDef::typeRefByte));
             Nest_setContext(res, orig->context);
@@ -570,11 +569,11 @@ namespace
         // Make sure the first argument is a reference reference
         if ( arg1->type->numReferences < 2 )
             REP_ERROR_RET(nullptr, node->location, "Left operand of a reference assign operator is not a reference reference (%1%)") % arg1->type;
-        TypeRef arg1BaseType = Feather::removeRef(arg1->type);
+        TypeRef arg1BaseType = Feather_removeRef(arg1->type);
 
         // Check the second type to be null or a reference
         TypeRef arg2Type = arg2->type;
-        if ( !Feather::isSameTypeIgnoreMode(arg2Type, StdDef::typeNull) )
+        if ( !Feather_isSameTypeIgnoreMode(arg2Type, StdDef::typeNull) )
         {
             if ( arg2Type->numReferences == 0 )
                 REP_ERROR_RET(nullptr, node->location, "Right operand of a reference assign operator is not a reference (%1%)") % arg2->type;
@@ -830,7 +829,7 @@ Node* Literal_SemanticCheck(Node* node)
     if ( !Nest_computeType(ident) )
         return nullptr;
     TypeRef t = getType(ident);
-    t = Feather::changeTypeMode(t, modeCt, node->location);
+    t = Feather_checkChangeTypeMode(t, modeCt, node->location);
     
     if ( litType == "StringRef" )
     {
@@ -926,7 +925,7 @@ Node* CompoundExp_SemanticCheck(Node* node)
     else if ( base->type->hasStorage )
     {
         // If the base is an expression with a data type, treat this as a data access
-        Node* classDecl = classForType(base->type);
+        Node* classDecl = Feather_classForType(base->type);
         if ( !Nest_computeType(classDecl) )
             return nullptr;
 
@@ -967,7 +966,7 @@ Node* FunApplication_SemanticCheck(Node* node)
     if ( base->nodeKind == nkSparrowExpIdentifier )
     {
         ident = base;
-        StringRef id = getName(ident);
+        StringRef id = Feather_getName(ident);
         if ( id == "isValid" )
         {
             return checkIsValid(node);
@@ -999,7 +998,7 @@ Node* FunApplication_SemanticCheck(Node* node)
     // Check for Sparrow implicit functions
     if ( ident )
     {
-        StringRef id = getName(ident);
+        StringRef id = Feather_getName(ident);
         if ( id == "cast" )
         {
             return checkStaticCast(node);
@@ -1027,10 +1026,10 @@ Node* FunApplication_SemanticCheck(Node* node)
     // If we didn't find any declarations, try the operator call
     if ( base->type->hasStorage && decls.empty() )
     {
-        Node* cls = classForType(base->type);
+        Node* cls = Feather_classForType(base->type);
         decls = toVec(Nest_symTabLookupCurrent(cls->childrenContext->currentSymTab, "()"));
         if ( decls.empty() )
-            REP_ERROR_RET(nullptr, node->location, "Class %1% has no user defined call operators") % getName(cls);
+            REP_ERROR_RET(nullptr, node->location, "Class %1% has no user defined call operators") % Feather_getName(cls);
         thisArg = base;
         functionName = "()";
     }
@@ -1049,7 +1048,7 @@ Node* FunApplication_SemanticCheck(Node* node)
     // Check the right overload based on the type of the arguments
     EvalMode mode = node->context->evalMode;
     if ( thisArg )
-        mode = combineMode(thisArg->type->mode, mode, node->location, false);
+        mode = Feather_combineMode(thisArg->type->mode, mode, node->location);
     Node* res = selectOverload(node->context, node->location, mode, all(decls), all(args), true, fromString(functionName));
 
     return res;
@@ -1223,7 +1222,7 @@ Node* LambdaFunction_SemanticCheck(Node* node)
         {
             if ( !arg || arg->nodeKind != nkSparrowExpIdentifier )
                 REP_INTERNAL(arg->location, "The closure parameter must be identifier");
-            StringRef varName = getName(arg);
+            StringRef varName = Feather_getName(arg);
             const Location& loc = arg->location;
 
             // Create an argument node to pass to the ctor
@@ -1233,7 +1232,7 @@ Node* LambdaFunction_SemanticCheck(Node* node)
             ctorArgsNodes.push_back(arg);
 
             // Create a closure parameter
-            TypeRef varType = removeLValueIfPresent(arg->type);
+            TypeRef varType = Feather_removeLValueIfPresent(arg->type);
             ctorParamsNodes.push_back(mkSprParameter(loc, varName, varType));
 
             // Create a similar variable in the enclosing class - must have the same name

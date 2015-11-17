@@ -83,7 +83,7 @@ ConversionType Callable::canCall(CompilationContext* context, const Location& /*
 
         // If we are looking at a CT callable, make sure the parameters are in CT
         if ( paramType->hasStorage && useCt )
-            paramType = Feather::changeTypeMode(paramType, modeCt);
+            paramType = Feather_checkChangeTypeMode(paramType, modeCt, NOLOC);
 
         ConversionFlags flags = noCustomCvt ? flagDontCallConversionCtor : flagsDefault;
         conversions_[i] = canConvertType(context, argType, paramType, flags);

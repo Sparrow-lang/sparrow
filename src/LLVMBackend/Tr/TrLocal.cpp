@@ -545,7 +545,7 @@ namespace
                 const StringRef* nativeName = Feather_nativeName(tt);
                 if ( nativeName && *nativeName == "StringRef" )
                 {
-                    StringRef data = *getCtValueData<StringRef>(node);
+                    StringRef data = *Feather_getCtValueData<StringRef>(node);
                     return translateDataTypeConstant(t, data.begin, data.end, context);
                 }
             }
@@ -559,11 +559,11 @@ namespace
 
             switch ( width )
             {
-            case 1:     val = 0 != (*getCtValueData<unsigned char>(node)); break;
-            case 8:     val = *getCtValueData<unsigned char>(node); break;
-            case 16:    val = *getCtValueData<unsigned short>(node); break;
-            case 32:    val = *getCtValueData<unsigned int>(node); break;
-            case 64:    val = *getCtValueData<uint64_t>(node); break;
+            case 1:     val = 0 != (*Feather_getCtValueData<unsigned char>(node)); break;
+            case 8:     val = *Feather_getCtValueData<unsigned char>(node); break;
+            case 16:    val = *Feather_getCtValueData<unsigned short>(node); break;
+            case 32:    val = *Feather_getCtValueData<unsigned int>(node); break;
+            case 64:    val = *Feather_getCtValueData<uint64_t>(node); break;
             default:
                 {
                     val = 0;
@@ -576,15 +576,15 @@ namespace
         }
         else if ( t->isFloatTy() )
         {
-            return setValue(context.module(), *node, llvm::ConstantFP::get(t, *getCtValueData<float>(node)));
+            return setValue(context.module(), *node, llvm::ConstantFP::get(t, *Feather_getCtValueData<float>(node)));
         }
         else if ( t->isDoubleTy() )
         {
-            return setValue(context.module(), *node, llvm::ConstantFP::get(t, *getCtValueData<double>(node)));
+            return setValue(context.module(), *node, llvm::ConstantFP::get(t, *Feather_getCtValueData<double>(node)));
         }
         else if ( t->isPointerTy() )
         {
-            uint64_t val = *getCtValueData<uint64_t>(node);
+            uint64_t val = *Feather_getCtValueData<uint64_t>(node);
             llvm::Value* intVal = llvm::ConstantInt::get(llvm::IntegerType::get(context.llvmContext(), 64), val);
             return new llvm::IntToPtrInst(intVal, t, "", context.insertionPoint());
         }
@@ -601,7 +601,7 @@ namespace
             llvm::Type* ptr = llvm::PointerType::getUnqual(t);
 
             // Create an array constant
-            const uint8_t* valBegin = getCtValueData<uint8_t>(node);
+            const uint8_t* valBegin = Feather_getCtValueData<uint8_t>(node);
             llvm::Value* constArrVal = llvm::ConstantDataArray::get(context.llvmContext(), llvm::ArrayRef<uint8_t>(valBegin, size));
 
             // Create an array value and initialize it with our array constant
@@ -676,15 +676,15 @@ namespace
             // If we are here, we are trying to reference a variable that wasn't declared yet.
             // This can only happen for global variables that were not yet translated
             if ( variable->nodeKind != nkFeatherDeclVar )
-                REP_INTERNAL(variable->location, "Cannot find variable %1%") % getName(variable);
+                REP_INTERNAL(variable->location, "Cannot find variable %1%") % Feather_getName(variable);
 
             varVal = Tr::translateGlobalVar(variable, context.module());
             if ( !varVal )
             {
-                if ( effectiveEvalMode(variable) == modeCt && !context.module().isCt() )
-                    REP_INTERNAL(node->location, "Trying to reference a compile-time variable %1% from run-time") % getName(variable);
+                if ( Feather_effectiveEvalMode(variable) == modeCt && !context.module().isCt() )
+                    REP_INTERNAL(node->location, "Trying to reference a compile-time variable %1% from run-time") % Feather_getName(variable);
                 else
-                    REP_INTERNAL(node->location, "Cannot find variable %1% in the current module") % getName(variable);
+                    REP_INTERNAL(node->location, "Cannot find variable %1% in the current module") % Feather_getName(variable);
             }
         }
         return setValue(context.module(), *node, varVal);
@@ -702,7 +702,7 @@ namespace
         // Compute the index of the field
         uint64_t idx = 0;
         ASSERT(object->type);
-        Node* clsDecl = classForType(object->type);
+        Node* clsDecl = Feather_classForType(object->type);
         CHECK(node->location, clsDecl);
         for ( auto f: clsDecl->children )
         {
@@ -712,7 +712,7 @@ namespace
         }
         if ( idx == Nest_nodeArraySize(clsDecl->children) )
             REP_INTERNAL(node->location, "Cannot find field '%1%' in class '%2%'")
-                % getName(field) % getName(clsDecl);
+                % Feather_getName(field) % Feather_getName(clsDecl);
 
         // Create a 'getelementptr' instruction
         vector<llvm::Value*> indices;
@@ -1138,7 +1138,7 @@ namespace
 
         // Create an 'alloca' instruction for the local variable
         llvm::Type* t = Tr::getLLVMType(node->type, context.module());
-		llvm::AllocaInst* val = context.addVariable(t, getName(node).begin);
+		llvm::AllocaInst* val = context.addVariable(t, Feather_getName(node).begin);
         int alignment = Nest_getCheckPropertyInt(node, "alignment");
 		if ( alignment > 0 )
 			val->setAlignment(alignment);
@@ -1176,7 +1176,7 @@ llvm::Value* Tr::translateNode(Node* node, TrContext& context)
     }
 
     // Check if the node is CT available and we are in RT mode. If so, translate the node into RT
-    if ( !context.module().isCt() && Feather::isCt(node) )
+    if ( !context.module().isCt() && Feather_isCt(node) )
     {
         node = convertCtToRt(node, context);
     }

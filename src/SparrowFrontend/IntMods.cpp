@@ -13,7 +13,6 @@
 #include "Nest/Utils/Diagnostic.hpp"
 
 using namespace SprFrontend;
-using namespace Feather;
 using namespace std;
 
 namespace
@@ -46,7 +45,7 @@ namespace
             size_t numParams = Feather_Function_numParameters(decl);
             if ( numParams < 1+thisParamIdx )
                 continue;
-            if ( getName(Feather_Function_getParameter(decl, thisParamIdx)) != "$this" )
+            if ( Feather_getName(Feather_Function_getParameter(decl, thisParamIdx)) != "$this" )
                 continue;
 
             if ( paramClass )
@@ -56,7 +55,7 @@ namespace
                 TypeRef paramType = Feather_Function_getParameter(decl, otherParamIdx)->type;
                 if ( paramType->hasStorage )
                 {
-                    if ( classForType(paramType) == paramClass )
+                    if ( Feather_classForType(paramType) == paramClass )
                     {
                         Nest_freeNodeArray(decls);
                         return true;
@@ -82,7 +81,7 @@ namespace
         NodeArray decls = Nest_symTabLookupCurrent(Nest_childrenContext(cls)->currentSymTab, "ctorFromCt");
         for ( Node* n: decls )
         {
-            if ( effectiveEvalMode(n) == modeRt )
+            if ( Feather_effectiveEvalMode(n) == modeRt )
             {
                 Nest_freeNodeArray(decls);
                 return true;
@@ -137,7 +136,7 @@ namespace
         // Add the function
         Node* m = mkSprFunction(loc, fromString(name), parameters, ret, body);
         Nest_setPropertyInt(m, propNoDefault, 1);
-        setEvalMode(m, mode == modeUnspecified ? effectiveEvalMode(parent) : mode);
+        Feather_setEvalMode(m, mode == modeUnspecified ? Feather_effectiveEvalMode(parent) : mode);
         Class_addChild(parent, m);
         if ( !Nest_computeType(m) )
             return nullptr;
@@ -231,7 +230,7 @@ namespace
             TypeRef t = field->type;
             
             // Add a parameter for the base
-            string paramName = "f"+toString(getName(field));
+            string paramName = "f"+toString(Feather_getName(field));
             params.push_back({t, paramName});
             Node* paramId = mkIdentifier(loc, fromString(paramName));
             if ( t->numReferences > 0 )
@@ -310,7 +309,7 @@ namespace
             // We consider function calls for our checks
             if ( n->nodeKind != nkFeatherExpFunCall )
                 continue;
-            if ( getName(at(n->referredNodes, 0)) != "ctor" )
+            if ( Feather_getName(at(n->referredNodes, 0)) != "ctor" )
                 continue;
             if ( Nest_nodeArraySize(n->children) == 0 )
                 continue;
@@ -332,7 +331,7 @@ namespace
                     thisArg = Nest_explanation(at(thisArg->children, 0));
 
                 if ( !thisArg || thisArg->nodeKind != nkFeatherExpVarRef
-                    || getName(at(thisArg->referredNodes, 0)) != "$this" )
+                    || Feather_getName(at(thisArg->referredNodes, 0)) != "$this" )
                     continue;
             }
 
@@ -361,7 +360,7 @@ void _IntModClassMembers_afterComputeType(Modifier*, Node* node)
         REP_INTERNAL(node->location, "IntModClassMembers modifier can be applied only to classes");
     Node* cls = node;
     if ( !cls->type )
-        REP_INTERNAL(node->location, "Type was not computed for %1% when applying IntModClassMembers") % getName(node);
+        REP_INTERNAL(node->location, "Type was not computed for %1% when applying IntModClassMembers") % Feather_getName(node);
 
     Node* basicClass = Nest_explanation(node);
     basicClass = basicClass && basicClass->nodeKind == nkFeatherDeclClass ? basicClass : nullptr;
@@ -386,7 +385,7 @@ void _IntModClassMembers_afterComputeType(Modifier*, Node* node)
     
     // CT to RT ctor
     if ( !checkForCtorFromCt(cls) && !hasReferences(basicClass) )
-        generateMethod(cls, "ctorFromCt", "ctor", changeTypeMode(Feather_getDataType(basicClass, 0, modeRtCt), modeCt, node->location), false, modeRt);
+        generateMethod(cls, "ctorFromCt", "ctor", Feather_checkChangeTypeMode(Feather_getDataType(basicClass, 0, modeRtCt), modeCt, node->location), false, modeRt);
 
     // Dtor
     if ( !checkForMember(cls, "dtor", nullptr) )
@@ -404,7 +403,7 @@ void _IntModClassMembers_afterComputeType(Modifier*, Node* node)
 void IntModCtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
 {
     /// Check to apply only to non-static constructors
-    if ( fun->nodeKind != nkSparrowDeclSprFunction || getName(fun) != "ctor" )
+    if ( fun->nodeKind != nkSparrowDeclSprFunction || Feather_getName(fun) != "ctor" )
         REP_INTERNAL(fun->location, "IntModCtorMembers modifier can be applied only to constructors");
     if ( !funHasThisParameters(fun) )
         REP_INTERNAL(fun->location, "IntModCtorMembers cannot be applied to static constructors");
@@ -456,7 +455,7 @@ void IntModCtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
 void IntModDtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
 {
     /// Check to apply only to non-static destructors
-    if ( fun->nodeKind != nkSparrowDeclSprFunction || getName(fun) != "dtor" )
+    if ( fun->nodeKind != nkSparrowDeclSprFunction || Feather_getName(fun) != "dtor" )
         REP_INTERNAL(fun->location, "IntModDtorMembers modifier can be applied only to destructors");
     if ( !funHasThisParameters(fun) )
         REP_INTERNAL(fun->location, "IntModDtorMembers cannot be applied to static destructors");

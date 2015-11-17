@@ -4,7 +4,7 @@
 
 struct _TypeFunctions
 {
-    FChangeTypeMode changeTypeMode;
+    FChangeTypeMode Feather_checkChangeTypeMode;
 };
 
 /// The registered type kinds
@@ -23,5 +23,5 @@ int Nest_registerTypeKind(FChangeTypeMode funChangeTypeMode)
 FChangeTypeMode Nest_getChangeTypeModeFun(int typeKind)
 {
     ASSERT(0 <= typeKind  && typeKind < _numTypeKinds);
-    return _allTypeKinds[typeKind].changeTypeMode;
+    return _allTypeKinds[typeKind].Feather_checkChangeTypeMode;
 }

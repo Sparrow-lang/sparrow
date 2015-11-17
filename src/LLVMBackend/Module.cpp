@@ -29,7 +29,7 @@ Module::~Module()
 
 bool Module::canUse(Node* decl) const
 {
-    EvalMode mode = Feather::effectiveEvalMode(decl);
+    EvalMode mode = Feather_effectiveEvalMode(decl);
     ASSERT(mode != modeUnspecified);
     if ( mode == modeRt && isCt() )
         return false;

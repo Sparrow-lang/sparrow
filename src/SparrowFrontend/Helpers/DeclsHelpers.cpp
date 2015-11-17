@@ -8,7 +8,6 @@
 #include <Mods.h>
 
 using namespace SprFrontend;
-using namespace Feather;
 using namespace Nest;
 
 namespace

@@ -9,7 +9,6 @@
 #include "Feather/Utils/FeatherUtils.hpp"
 
 using namespace SprFrontend;
-using namespace Feather;
 using namespace Nest;
 
 namespace
@@ -19,7 +18,7 @@ namespace
         // Get the type of the temporary variable
         TypeRef t = cls->type;
         if ( mode != modeRtCt )
-            t = changeTypeMode(t, mode, cls->location);
+            t = Feather_checkChangeTypeMode(t, mode, cls->location);
         return t;
     }
 }
@@ -37,7 +36,7 @@ Callables ClassCtorCallable::getCtorCallables(Node* cls, EvalMode evalMode)
 {
     NodeArray decls = Nest_symTabLookupCurrent(Nest_childrenContext(cls)->currentSymTab, "ctor");
 
-    evalMode = combineMode(effectiveEvalMode(cls), evalMode, cls->location, false);
+    evalMode = Feather_combineMode(Feather_effectiveEvalMode(cls), evalMode, cls->location);
 
     Callables res;
     res.reserve(Nest_nodeArraySize(decls));
@@ -98,7 +97,7 @@ ConversionType ClassCtorCallable::canCall(CompilationContext* context, const Loc
 
     // Create a temporary variable - use it as a this argument
     tmpVar_ = Feather_mkVar(loc, fromCStr("tmp.v"), Feather_mkTypeNode(loc, varType(cls_, evalMode_)));
-    setEvalMode(tmpVar_, evalMode_);
+    Feather_setEvalMode(tmpVar_, evalMode_);
     Nest_setContext(tmpVar_, context);
     if ( !Nest_computeType(tmpVar_) )
         return convNone;

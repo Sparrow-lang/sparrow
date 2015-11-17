@@ -9,7 +9,6 @@
 #include "Nest/Api/Backend.h"
 
 using namespace SprFrontend;
-using namespace Feather;
 using namespace Nest;
 
 namespace

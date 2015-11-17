@@ -12,7 +12,6 @@
 #include "Nest/Api/SourceCode.h"
 
 using namespace SprFrontend;
-using namespace Feather;
 using namespace Nest;
 
 namespace
@@ -82,17 +81,17 @@ namespace
             {
                 TypeRef t = getType(boundValue);
 
-                Node* var = mkSprVariable(p->location, getName(p), t, nullptr);
+                Node* var = mkSprVariable(p->location, Feather_getName(p), t, nullptr);
                 if ( insideClass )
                     Nest_setPropertyInt(var, propIsStatic, 1);
                 nodes.push_back(var);
             }
             else
             {
-                Node* var = mkSprVariable(p->location, getName(p), boundValue->type, boundValue);
+                Node* var = mkSprVariable(p->location, Feather_getName(p), boundValue->type, boundValue);
                 if ( insideClass )
                     Nest_setPropertyInt(var, propIsStatic, 1);
-                setEvalMode(var, modeCt);
+                Feather_setEvalMode(var, modeCt);
                 nodes.push_back(var);
             }
         }
@@ -177,8 +176,8 @@ namespace
             {
                 Node* res = Nest_semanticCheck(cond);
                 isValid = res != nullptr
-                    && Feather::isCt(res)                   // We must have a value at CT
-                    && Feather::isTestable(res)             // The value must be boolean
+                    && Feather_isCt(res)                   // We must have a value at CT
+                    && Feather_isTestable(res)             // The value must be boolean
                     && Nest_getSuppressedErrorsNum() == 0;  // No suppressed errors
             }
             catch (...)
@@ -222,7 +221,7 @@ namespace
             // Evaluate the node and add the resulting CtValue as a bound argument
             if ( !Nest_computeType(arg) )
                 return {};
-            if ( !Feather::isCt(arg) )
+            if ( !Feather_isCt(arg) )
                 REP_INTERNAL(arg->location, "Argument to a class generic must be CT (type: %1%)") % arg->type;
             Node* n = Nest_ctEval(arg);
             if ( !n || n->nodeKind != nkFeatherExpCtValue )
@@ -274,11 +273,11 @@ namespace
         Node* children = at(orig->children, 2);
         baseClasses = baseClasses ? Nest_cloneNode(baseClasses) : nullptr;
         children = children ? Nest_cloneNode(children) : nullptr;
-        Node* newClass = mkSprClass(loc, getName(orig), nullptr, baseClasses, nullptr, children);
+        Node* newClass = mkSprClass(loc, Feather_getName(orig), nullptr, baseClasses, nullptr, children);
 
         copyModifiersSetMode(orig, newClass, context->evalMode);
 
-        //setShouldAddToSymTab(newClass, false);    // TODO (generics): Uncomment this line
+        //Feather_setShouldAddToSymTab(newClass, 0);    // TODO (generics): Uncomment this line
         Nest_setContext(newClass, context);
 
 //        REP_INFO(loc, "Instantiated %1%") % description;
@@ -288,7 +287,7 @@ namespace
     string getGenericClassDescription(Node* cls, Node* inst)
     {
         ostringstream oss;
-        oss << toString(getName(cls)) << "[";
+        oss << toString(Feather_getName(cls)) << "[";
         auto boundValues = instantiationBoundValues(inst);
         bool first = true;
         for ( Node* bv: boundValues )
@@ -345,7 +344,7 @@ namespace
                 // Evaluate the node and add the resulting CtValue as a bound argument
                 if ( !Nest_computeType(arg) )
                     return {};
-                if ( !Feather::isCt(arg) )
+                if ( !Feather_isCt(arg) )
                     return {};     // This argument must be CT in order to instantiate the generic
                 Node* n = Nest_ctEval(arg);
                 if ( !n || n->nodeKind != nkFeatherExpCtValue )
@@ -384,7 +383,7 @@ namespace
             }
             else if ( isConceptType(p->type) )   // For auto-type parameters, we also create a non-bound parameter
             {
-                nonBoundParams.push_back(mkSprParameter(p->location, getName(p), boundValue));
+                nonBoundParams.push_back(mkSprParameter(p->location, Feather_getName(p), boundValue));
             }
         }
         return nonBoundParams;
@@ -459,16 +458,16 @@ namespace
     {
         const Location& loc = origFun->location;
 
-        //REP_INFO(loc, "Instantiating %1% with %2% params") % getName(origFun) % nonBoundParams.size();
+        //REP_INFO(loc, "Instantiating %1% with %2% params") % Feather_getName(origFun) % nonBoundParams.size();
 
         Node* parameters = Feather_mkNodeList(loc, nonBoundParams);
         Node* returnType = at(origFun->children, 1);
         Node* body = at(origFun->children, 2);
         returnType = returnType ? Nest_cloneNode(returnType) : nullptr;
         body = body ? Nest_cloneNode(body) : nullptr;
-        Node* newFun = mkSprFunction(loc, getName(origFun), parameters, returnType, body);
+        Node* newFun = mkSprFunction(loc, Feather_getName(origFun), parameters, returnType, body);
         copyModifiersSetMode(origFun, newFun, context->evalMode);
-        setShouldAddToSymTab(newFun, false);
+        Feather_setShouldAddToSymTab(newFun, 0);
         Nest_setContext(newFun, context);
 
         //REP_INFO(loc, "Instantiated %1%") % newFun->toString();
@@ -482,7 +481,7 @@ namespace
             return nullptr;
         Node* resultingFun = Nest_explanation(inst);
         if ( !resultingFun )
-            REP_ERROR_RET(nullptr, loc, "Cannot instantiate function generic %1%") % getName(inst);
+            REP_ERROR_RET(nullptr, loc, "Cannot instantiate function generic %1%") % Feather_getName(inst);
         return createFunctionCall(loc, context, resultingFun, nonBoundArgs);
     }
 }
@@ -506,14 +505,14 @@ TypeRef SprFrontend::baseConceptType(Node* concept)
     Node* baseConcept = at(concept->children, 0);
 
     TypeRef res = baseConcept ? getType(baseConcept) : getConceptType();
-    res = adjustMode(res, concept->context, concept->location);
+    res = Feather_adjustMode(res, concept->context, concept->location);
     return res;
 }
 
 Node* SprFrontend::createGenericFun(Node* originalFun, Node* parameters, Node* ifClause, Node* thisClass)
 {
     // If we are in a CT function, don't consider CT parameters
-    bool inCtFun = effectiveEvalMode(originalFun) == modeCt;
+    bool inCtFun = Feather_effectiveEvalMode(originalFun) == modeCt;
     // For CT-generics, we consider all the parameters to be generic parameters
     bool isCtGeneric = Nest_hasProperty(originalFun, propCtGeneric);
 
@@ -536,7 +535,7 @@ Node* SprFrontend::createGenericFun(Node* originalFun, Node* parameters, Node* i
             genericParams[i] = param;
             hasGenericParams = true;
         }
-        if ( (!inCtFun || isCtGeneric) && isCt(param) )
+        if ( (!inCtFun || isCtGeneric) && Feather_isCt(param) )
         {
             genericParams[i] = param;
             hasGenericParams = true;
@@ -549,7 +548,7 @@ Node* SprFrontend::createGenericFun(Node* originalFun, Node* parameters, Node* i
     // If a 'this' class is passed, add an extra parameter for this
     if ( thisClass )
     {
-        TypeRef thisType = Feather_getDataType(thisClass, 1, effectiveEvalMode(originalFun));
+        TypeRef thisType = Feather_getDataType(thisClass, 1, Feather_effectiveEvalMode(originalFun));
         Node* thisParam = mkSprParameter(originalFun->location, fromCStr("$this"), thisType);
         Nest_setContext(thisParam, Nest_childrenContext(originalFun));
         if ( !Nest_computeType(thisParam) )
@@ -560,7 +559,7 @@ Node* SprFrontend::createGenericFun(Node* originalFun, Node* parameters, Node* i
 
     // Actually create the generic
     Node* res = mkGenericFunction(originalFun, all(ourParams), all(genericParams), ifClause);
-    setEvalMode(res, effectiveEvalMode(originalFun));
+    Feather_setEvalMode(res, Feather_effectiveEvalMode(originalFun));
     Nest_setContext(res, originalFun->context);
     return res;
 }
@@ -620,7 +619,7 @@ Node* SprFrontend::genericCanInstantiate(Node* node, NodeRange args)
         {
             NodeVector boundValues = getGenericClassBoundValues(args);
             Node* originalClass = at(node->referredNodes, 0);
-            EvalMode resultingEvalMode = getGenericClassResultingEvalMode(originalClass->location, effectiveEvalMode(originalClass), all(boundValues));
+            EvalMode resultingEvalMode = getGenericClassResultingEvalMode(originalClass->location, Feather_effectiveEvalMode(originalClass), all(boundValues));
             Node* instantiationsSet = at(node->children, 0);
             return canInstantiate(instantiationsSet, all(boundValues), resultingEvalMode);
         }
@@ -631,7 +630,7 @@ Node* SprFrontend::genericCanInstantiate(Node* node, NodeRange args)
 
             EvalMode resultingEvalMode = Nest_hasProperty(originalFun, propCtGeneric)
                 ? modeCt        // If we have a CT generic, the resulting eval mode is always CT
-                : getGenericFunResultingEvalMode(originalFun->location, effectiveEvalMode(originalFun), args, genericParams(node));
+                : getGenericFunResultingEvalMode(originalFun->location, Feather_effectiveEvalMode(originalFun), args, genericParams(node));
 
             Node* instantiationsSet = at(node->children, 0);
             return canInstantiate(instantiationsSet, all(boundValues), resultingEvalMode);

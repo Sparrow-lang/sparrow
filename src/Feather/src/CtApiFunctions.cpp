@@ -11,7 +11,6 @@
 #include "Nest/Utils/NodeUtils.h"
 #include "Nest/Utils/StringRef.hpp"
 
-using namespace Feather;
 using namespace Nest;
 
 namespace
@@ -307,7 +306,7 @@ namespace
     void ctApi_Feather_mkVar(Node** sret, Location* loc, StringRef name, Node* type, int evalMode)
     {
         *sret = Feather_mkVar(*loc, name, type);
-        setEvalMode(*sret, (EvalMode) evalMode);
+        Feather_setEvalMode(*sret, (EvalMode) evalMode);
     }
 
     void ctApi_Feather_mkCtValue(Node** sret, Location* loc, TypeRef type, StringRef data)
@@ -356,13 +355,13 @@ namespace
     {
         *sret = Feather_mkIf(*loc, condition, thenClause, elseClause);
         if ( isCt )
-            setEvalMode(*sret, modeCt);
+            Feather_setEvalMode(*sret, modeCt);
     }
     void ctApi_Feather_mkWhile(Node** sret, Location* loc, Node* condition, Node* body, Node* step, bool isCt)
     {
         *sret = Feather_mkWhile(*loc, condition, body, step);
         if ( isCt )
-            setEvalMode(*sret, modeCt);
+            Feather_setEvalMode(*sret, modeCt);
     }
     void ctApi_Feather_mkBreak(Node** sret, Location* loc)
     {

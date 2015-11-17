@@ -17,11 +17,8 @@ SET(sourceFiles
     "src/Api/Feather_Nodes.h"
     "src/Api/Feather_Types.cpp"
     "src/Api/Feather_Types.h"
-    "src/Utils/Context.cpp"
-    "src/Utils/Ct.cpp"
-    "src/Utils/Decl.cpp"
-    "src/Utils/Properties.cpp"
-    "src/Utils/TypeTraits.cpp"
+    "src/Utils/FeatherUtils.c"
+    "src/Utils/FeatherUtils.cpp"
 )
 
 # Project settings

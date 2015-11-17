@@ -4,7 +4,6 @@
 #include "Nest/Utils/NodeUtils.hpp"
 
 using namespace SprFrontend;
-using namespace Feather;
 using namespace Nest;
 
 

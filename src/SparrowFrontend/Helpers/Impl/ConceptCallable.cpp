@@ -6,7 +6,6 @@
 #include "Feather/Api/Feather.h"
 
 using namespace SprFrontend;
-using namespace Feather;
 
 ConceptCallable::ConceptCallable(Node* concept)
     : concept_(concept)

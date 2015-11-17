@@ -151,7 +151,7 @@ llvm::Type* Tr::translateClass(Node* node, Module& module)
     if ( !t )
     {
         const StringRef* description = Nest_getPropertyString(node, propDescription);
-        StringRef desc = description ? *description : getName(node);
+        StringRef desc = description ? *description : Feather_getName(node);
         // Create a new struct type, possible with another name
         t = llvm::StructType::create(module.llvmContext(), desc.begin);
     }
@@ -178,7 +178,7 @@ llvm::Value* Tr::translateGlobalVar(Node* node, Module& module)
         return nullptr;
 
     if ( node->nodeKind != nkFeatherDeclVar )
-        REP_ERROR_RET(nullptr, node->location, "Invalid global variable %1%") % getName(node);
+        REP_ERROR_RET(nullptr, node->location, "Invalid global variable %1%") % Feather_getName(node);
 
     // If we already translated this variable, make sure not to translate it again
     llvm::Value* val = getValue(module, *node, false);
@@ -200,7 +200,7 @@ llvm::Value* Tr::translateGlobalVar(Node* node, Module& module)
             false, // isConstant
             llvm::GlobalValue::ExternalLinkage, // linkage
             0, // initializer - specified below
-            getName(node).begin
+            Feather_getName(node).begin
             );
     }
 

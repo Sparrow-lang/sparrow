@@ -4,20 +4,18 @@
 #include "Feather/Utils/FeatherUtils.hpp"
 #include "Nest/Utils/NodeUtils.hpp"
 
-using namespace Feather;
-
 void SprFrontend::interpretQualifiedId(Node* n, vector<string>& res)
 {
     ASSERT(n);
     if ( n->nodeKind == nkSparrowExpIdentifier )
     {
-        res.emplace_back(toString(getName(n)));
+        res.emplace_back(toString(Feather_getName(n)));
     }
     else if ( n->nodeKind == nkSparrowExpCompoundExp )
     {
         Node* base = at(n->children, 0);
         interpretQualifiedId(base, res);
-        res.emplace_back(toString(getName(n)));
+        res.emplace_back(toString(Feather_getName(n)));
     }
     else if ( n->nodeKind == nkSparrowExpStarExp )
     {

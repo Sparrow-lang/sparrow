@@ -97,7 +97,7 @@ Node* CtModule::ctEvaluate(Node* node)
 	}
 
 	// Make sure the type of the node can be used at compile time
-	if ( !Feather::isCt(node) )
+	if ( !Feather_isCt(node) )
 		REP_INTERNAL(node->location, "Cannot CT evaluate this node: it has no meaning at compile-time");
 
     if ( !node->type->hasStorage && node->type->typeKind != typeKindVoid )
@@ -200,8 +200,8 @@ Node* CtModule::ctEvaluateExpression(Node* node)
 
         // Create a CtValue containing the data resulted from expression evaluation
         TypeRef t = node->type;
-        if ( !Feather::isCt(t) )
-	        t = Feather::changeTypeMode(t, modeCt, node->location);
+        if ( t->mode != modeCt )
+	        t = Feather_checkChangeTypeMode(t, modeCt, node->location);
 	    return Feather_mkCtValue(node->location, t, dataBuffer);
     }
     else

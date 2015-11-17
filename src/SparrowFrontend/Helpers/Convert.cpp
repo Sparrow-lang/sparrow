@@ -14,7 +14,6 @@
 #include "Nest/Utils/Tuple.hpp"
 
 using namespace SprFrontend;
-using namespace Feather;
 
 ConversionType SprFrontend::combine(ConversionType lhs, ConversionType rhs)
 {
@@ -72,7 +71,7 @@ namespace
         if ( srcMode == destMode || destMode == modeCt )
             return convNone;
 
-        TypeRef srcTypeNew = Feather::changeTypeMode(srcType, destMode);
+        TypeRef srcTypeNew = Feather_checkChangeTypeMode(srcType, destMode, NOLOC);
         if ( srcTypeNew == srcType )
             return convNone;
 
@@ -88,7 +87,7 @@ namespace
             {
                 if ( srcTypeNew->numReferences > 1 )
                     return convNone;
-                srcTypeNew = Feather::removeLValueIfPresent(srcTypeNew);
+                srcTypeNew = Feather_removeLValueIfPresent(srcTypeNew);
 
                 res = ConversionResult(convDirect, [=](Node* src) -> Node* {
                     return Feather_mkMemLoad(src->location, src);
@@ -140,13 +139,13 @@ namespace
     }
     
 
-    // direct: lv(T) -> U, if T-> U or addRef(T) -> U (take best alternative)
+    // direct: lv(T) -> U, if T-> U or Feather_addRef(T) -> U (take best alternative)
     ConversionResult checkLValueToNormal(CompilationContext* context, int flags, TypeRef srcType, TypeRef destType)
     {
         if ( srcType->typeKind == typeKindLValue && destType->typeKind != typeKindLValue )
         {
-            TypeRef t2 = Feather::lvalueToRef(srcType);
-            TypeRef t1 = Feather::removeRef(t2);
+            TypeRef t2 = Feather_lvalueToRef(srcType);
+            TypeRef t1 = Feather_removeRef(t2);
 
             // First check conversion without reference
             ConversionResult res1 = ConversionResult(convDirect, [=](Node* src) -> Node* {
@@ -169,7 +168,7 @@ namespace
     ConversionResult checkNullToReference(CompilationContext* /*context*/, int /*flags*/, TypeRef srcType, TypeRef destType)
     {
         if ( !StdDef::typeNull
-            || !Feather::isSameTypeIgnoreMode(srcType, StdDef::typeNull)
+            || !Feather_isSameTypeIgnoreMode(srcType, StdDef::typeNull)
             || !destType->hasStorage || destType->numReferences == 0 )
             return convNone;
 
@@ -184,7 +183,7 @@ namespace
         if ( srcType->typeKind != typeKindData || srcType->numReferences == 0 )
             return convNone;
 
-        TypeRef t = removeRef(srcType);
+        TypeRef t = Feather_removeRef(srcType);
 
         ConversionResult res = ConversionResult(convImplicit, [=](Node* src) -> Node* {
             return Feather_mkMemLoad(src->location, src);
@@ -198,7 +197,7 @@ namespace
         if ( srcType->typeKind != typeKindData || srcType->numReferences > 0 )
             return convNone;
 
-        TypeRef baseDataType = addRef(srcType);
+        TypeRef baseDataType = Feather_addRef(srcType);
 
         ConversionResult res(convImplicit, [=](Node* src) -> Node* {
             Node* var = Feather_mkVar(src->location, fromCStr("$tmpForRef"), Feather_mkTypeNode(src->location, srcType));
@@ -216,7 +215,7 @@ namespace
         if ( !destType->hasStorage )
             return convNone;
 
-        Node* destClass = classForType(destType);
+        Node* destClass = Feather_classForType(destType);
         if ( !Nest_computeType(destClass) )
             return convNone;
 
@@ -228,7 +227,7 @@ namespace
         EvalMode destMode = t->mode;
         if ( destMode == modeRtCt )
             destMode = srcType->mode;
-        t = Feather::changeTypeMode(t, destMode);
+        t = Feather_checkChangeTypeMode(t, destMode, NOLOC);
         TypeRef resType = Feather_getLValueType(t);
 
         bool contextDependent = false;  // TODO (convert): This should be context dependent for private ctors

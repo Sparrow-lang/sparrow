@@ -15,7 +15,6 @@
 #include "Nest/Utils/NodeUtils.h"
 
 using namespace LLVMB;
-using namespace Feather;
 
 namespace
 {
@@ -37,7 +36,7 @@ namespace
         Node* clsDecl = type->referredNode;
         CHECK(NOLOC, clsDecl && clsDecl->nodeKind == nkFeatherDeclClass);
         if ( !clsDecl->type )
-            REP_INTERNAL(clsDecl->location, "Class %1% doesn't have type computed, while computing its size") % getName(clsDecl);
+            REP_INTERNAL(clsDecl->location, "Class %1% doesn't have type computed, while computing its size") % Feather_getName(clsDecl);
 
         // Check if this is a standard/native type
         const StringRef* nativeName = Nest_getPropertyString(clsDecl, propNativeName);
@@ -50,7 +49,7 @@ namespace
 
         // Create the type, and set it as a property (don't add any subtypes yet to avoid endless loops)
         const StringRef* description = Nest_getPropertyString(clsDecl, propDescription);
-        StringRef desc = description ? *description : getName(clsDecl);
+        StringRef desc = description ? *description : Feather_getName(clsDecl);
         llvm::StringRef descLLVM(desc.begin, size(desc));
         llvm::StructType* t = llvm::StructType::create(llvmContext, descLLVM);
 

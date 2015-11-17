@@ -20,27 +20,25 @@ void ModStatic_beforeComputeType(Modifier*, Node* node)
 
 void ModCt_beforeSetContext(Modifier*, Node* node)
 {
-    Feather::setEvalMode(node, modeCt);
+    Feather_setEvalMode(node, modeCt);
 }
 
 void ModRt_beforeSetContext(Modifier*, Node* node)
 {
-    Feather::setEvalMode(node, modeRt);
+    Feather_setEvalMode(node, modeRt);
 }
 
 void ModRtCt_beforeSetContext(Modifier*, Node* node)
 {
-    Feather::setEvalMode(node, modeRtCt);
+    Feather_setEvalMode(node, modeRtCt);
 }
 
 void ModAutoCt_beforeSetContext(Modifier*, Node* node)
 {
-    using namespace Feather;
-
     if ( node->nodeKind == nkSparrowDeclSprFunction )
     {
         Nest_setPropertyInt(node, propAutoCt, 1);
-        setEvalMode(node, modeRtCt);
+        Feather_setEvalMode(node, modeRtCt);
     }
     else
         REP_INTERNAL(node->location, "'autoCt' modifier can be applied only to functions");
@@ -55,7 +53,7 @@ void ModCtGeneric_beforeComputeType(Modifier*, Node* node)
         return;
     }
 
-    Feather::setEvalMode(node, modeCt);
+    Feather_setEvalMode(node, modeCt);
     Nest_setPropertyInt(node, propCtGeneric, 1);
 }
 
@@ -73,7 +71,7 @@ void ModNative_beforeComputeType(Modifier* mod, Node* node)
 void ModConvert_beforeComputeType(Modifier*, Node* node)
 {
     /// Check to apply only to constructors
-    if ( node->nodeKind != nkSparrowDeclSprFunction || Feather::getName(node) != "ctor" )
+    if ( node->nodeKind != nkSparrowDeclSprFunction || Feather_getName(node) != "ctor" )
         REP_INTERNAL(node->location, "convert modifier can be applied only to constructors");
 
     Nest_setPropertyInt(node, propConvert, 1);

@@ -84,7 +84,7 @@ void DebugInfo::emitFunctionStart(LlvmBuilder& builder, Node* fun, llvm::Functio
     // Debug info for function declaration
 
     llvm::DISubprogram diSubprogram;
-    StringRef name = Feather::getName(fun);
+    StringRef name = Feather_getName(fun);
     llvm::StringRef nameLLVM(name.begin, size(name));
     diSubprogram = diBuilder_.createFunction(
         fileDesc,                   // function scope

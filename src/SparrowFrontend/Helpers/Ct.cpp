@@ -9,7 +9,6 @@
 
 #include "Nest/Utils/NodeUtils.hpp"
 
-using namespace Feather;
 using namespace Nest;
 
 namespace
@@ -18,11 +17,11 @@ namespace
     ValueType evalValue(Node* node, TypeRef expectedExpType)
     {
         node = Nest_ctEval(node);
-        TypeRef t = removeLValueIfPresent(node->type);
-        if ( !isSameTypeIgnoreMode(t, expectedExpType) )
+        TypeRef t = Feather_removeLValueIfPresent(node->type);
+        if ( !Feather_isSameTypeIgnoreMode(t, expectedExpType) )
             REP_INTERNAL(node->location, "Invalid value; found expression of type %1%, expected %2%") % node->type % expectedExpType;
         CHECK(node->location, node->nodeKind == nkFeatherExpCtValue);
-        ValueType* val = node ? getCtValueData<ValueType>(node) : nullptr;
+        ValueType* val = node ? Feather_getCtValueData<ValueType>(node) : nullptr;
         if ( !val )
             REP_INTERNAL(node->location, "Invalid value");
         return *val;
@@ -63,7 +62,7 @@ bool SprFrontend::ctValsEqual(Node* v1, Node* v2)
         if ( funCall )
         {
             Nest_semanticCheck(funCall);
-            if ( Feather::isTestable(funCall) && Feather::isCt(funCall) )
+            if ( Feather_isTestable(funCall) && Feather_isCt(funCall) )
             {
                 Node* c = Nest_ctEval(funCall);
                 return SprFrontend::getBoolCtValue(c);
@@ -72,7 +71,12 @@ bool SprFrontend::ctValsEqual(Node* v1, Node* v2)
     }
 
     // Just compare the values
-    return sameCtValue(v1, v2);
+    if ( v1->nodeKind != nkFeatherExpCtValue )
+        REP_INTERNAL(v1->location, "Invalid CtValue");
+    if ( v1->nodeKind != nkFeatherExpCtValue )
+        REP_INTERNAL(v2->location, "Invalid CtValue");
+    return Nest_getCheckPropertyType(v1, "valueType") == Nest_getCheckPropertyType(v2, "valueType")
+        && Nest_getCheckPropertyString(v1, "valueData") == Nest_getCheckPropertyString(v2, "valueData");
 }
 
 StringRef SprFrontend::getStringCtValue(Node* val)

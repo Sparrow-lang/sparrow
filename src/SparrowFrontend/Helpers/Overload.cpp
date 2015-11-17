@@ -12,7 +12,6 @@
 #include "Feather/Utils/FeatherUtils.hpp"
 
 using namespace SprFrontend;
-using namespace Feather;
 using namespace Nest;
 
 namespace
@@ -351,7 +350,7 @@ Callable* SprFrontend::selectCtToRtCtor(CompilationContext* context, TypeRef ctT
     if ( ctType->mode != modeCt || !ctType->hasStorage )
         return nullptr;
     Node* cls = Feather_classDecl(ctType);
-    if ( effectiveEvalMode(cls) != modeRtCt )
+    if ( Feather_effectiveEvalMode(cls) != modeRtCt )
         return nullptr;
 
     // Search for the ctors in the class 
@@ -362,13 +361,13 @@ Callable* SprFrontend::selectCtToRtCtor(CompilationContext* context, TypeRef ctT
     candidates.reserve(Nest_nodeArraySize(decls));
     for ( Node* decl: decls )
     {
-        if ( effectiveEvalMode(decl) != modeRt )
+        if ( Feather_effectiveEvalMode(decl) != modeRt )
             continue;
 
         if ( !Nest_computeType(decl) )
             continue;
         Node* resDecl = resultingDecl(decl);
-        ASSERT(effectiveEvalMode(resDecl) == modeRt);
+        ASSERT(Feather_effectiveEvalMode(resDecl) == modeRt);
 
         Callables callables = getCallables(resDecl, modeRt);
         for ( Callable* c: callables )

@@ -10,7 +10,6 @@
 #include "Feather/Utils/FeatherUtils.hpp"
 
 using namespace SprFrontend;
-using namespace Feather;
 
 namespace
 {
@@ -69,7 +68,7 @@ namespace
         TypeRef t = getType(args[0]);
         int mode = getIntCtValue(args[1]);
         
-        TypeRef res = changeTypeMode(t, (EvalMode) mode, loc);
+        TypeRef res = Feather_checkChangeTypeMode(t, (EvalMode) mode, loc);
         
         return createTypeNode(context, loc, res);
     }
@@ -91,10 +90,10 @@ namespace
         TypeRef t1 = getType(args[0]);
         TypeRef t2 = getType(args[1]);
         
-        t1 = removeLValueIfPresent(t1);
-        t2 = removeLValueIfPresent(t2);
+        t1 = Feather_removeLValueIfPresent(t1);
+        t2 = Feather_removeLValueIfPresent(t2);
         
-        bool equals = isSameTypeIgnoreMode(t1, t2);
+        bool equals = Feather_isSameTypeIgnoreMode(t1, t2);
         
         // Build a CT value of type bool
         return buildBoolLiteral(loc, equals);
@@ -105,7 +104,7 @@ namespace
         CHECK(loc, args.size() == 1);
         TypeRef t = getType(args[0]);
         
-        t = removeLValueIfPresent(t);
+        t = Feather_removeLValueIfPresent(t);
         t = changeRefCount(t, t->numReferences+1, loc);
         return createTypeNode(context, loc, t);
     }
@@ -114,8 +113,8 @@ namespace
     {
         TypeRef t = getType(args[0]);
         
-        t = removeLValueIfPresent(t);
-        t = changeTypeMode(t, modeCt, loc);
+        t = Feather_removeLValueIfPresent(t);
+        t = Feather_checkChangeTypeMode(t, modeCt, loc);
         if ( t->mode != modeCt )
             REP_ERROR_RET(nullptr, loc, "Type %1% cannot be used at compile-time") % t;
         
@@ -126,8 +125,8 @@ namespace
     {
         TypeRef t = getType(args[0]);
         
-        t = removeLValueIfPresent(t);
-        t = changeTypeMode(t, modeRt, loc);
+        t = Feather_removeLValueIfPresent(t);
+        t = Feather_checkChangeTypeMode(t, modeRt, loc);
         if ( t->mode != modeRt )
             REP_ERROR_RET(nullptr, loc, "Type %1% cannot be used at run-time") % t;
         
@@ -291,7 +290,7 @@ Node* FunctionCallable::param(size_t idx) const
 
 EvalMode FunctionCallable::evalMode() const
 {
-    return effectiveEvalMode(fun_);
+    return Feather_effectiveEvalMode(fun_);
 }
 bool FunctionCallable::isAutoCt() const
 {

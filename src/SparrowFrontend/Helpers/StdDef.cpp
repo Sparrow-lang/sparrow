@@ -8,7 +8,6 @@
 
 using namespace SprFrontend;
 using namespace SprFrontend::StdDef;
-using namespace Feather;
 using namespace Nest;
 
 // TODO (refactoring): Remove the Void type
@@ -47,9 +46,9 @@ void SprFrontend::initTypeType(CompilationContext* ctx)
         return;
     
     clsType = Feather_mkClass(NOLOC, fromCStr("Type"), {});
-    setShouldAddToSymTab(clsType, false);
+    Feather_setShouldAddToSymTab(clsType, 0);
     Nest_setPropertyString(clsType, propNativeName, fromCStr("Type"));
-    setEvalMode(clsType, modeCt);
+    Feather_setEvalMode(clsType, modeCt);
     Nest_setContext(clsType, ctx);
     if ( !Nest_computeType(clsType) )
         REP_INTERNAL(NOLOC, "Cannot create 'Type' type");
@@ -63,41 +62,43 @@ void SprFrontend::checkStdClass(Node* cls)
 
     ASSERT(cls->nodeKind == nkFeatherDeclClass);
 
-    if ( getName(cls) == "Void" )
+    StringRef clsName = Feather_getName(cls);
+
+    if ( clsName == "Void" )
         StdDef::typeVoid = Feather_getDataType(cls, 0, modeRtCt);
-    else if ( getName(cls) == "Null" )
+    else if ( clsName == "Null" )
         StdDef::typeNull = Feather_getDataType(cls, 0, modeRtCt);
-    else if ( getName(cls) == "Bool" )
+    else if ( clsName == "Bool" )
     {
         StdDef::clsBool = cls;
         StdDef::typeBool = Feather_getDataType(cls, 0, modeRtCt);
     }
-    else if ( getName(cls) == "Byte" )
+    else if ( clsName == "Byte" )
     {
         StdDef::typeByte = Feather_getDataType(cls, 0, modeRtCt);
         StdDef::typeRefByte = Feather_getDataType(cls, 1, modeRtCt);
     }
-    else if ( getName(cls) == "Int" )
+    else if ( clsName == "Int" )
     {
         StdDef::typeInt = Feather_getDataType(cls, 0, modeRtCt);
         StdDef::typeRefInt = Feather_getDataType(cls, 1, modeRtCt);
     }
-    else if ( getName(cls) == "SizeType" )
+    else if ( clsName == "SizeType" )
     {
         StdDef::typeSizeType = Feather_getDataType(cls, 0, modeRtCt);
         StdDef::typeSizeTypeCt = Feather_getDataType(cls, 0, modeCt);
     }
-    else if ( getName(cls) == "Uninitialized" )
+    else if ( clsName == "Uninitialized" )
     {
         StdDef::clsUninitialized = cls;
         StdDef::typeUninitialized = Feather_getDataType(cls, 0, modeRtCt);
     }
-    else if ( getName(cls) == "Type" )
+    else if ( clsName == "Type" )
     {
         StdDef::typeType = Feather_getDataType(cls, 0, modeRtCt);
         StdDef::typeRefType = Feather_getDataType(cls, 1, modeRtCt);
     }
-    else if ( getName(cls) == "StringRef" )
+    else if ( clsName == "StringRef" )
         StdDef::typeStringRef = Feather_getDataType(cls, 0, modeRtCt);
 
     classesFound = StdDef::typeVoid != nullptr
@@ -121,9 +122,10 @@ void SprFrontend::checkStdFunction(Node* fun)
     Node* f = resultingDecl(fun);
     ASSERT(f && f->nodeKind == nkFeatherDeclFunction);
 
-    if ( getName(fun) == "_opRefEQ" )
+    StringRef funName = Feather_getName(fun);
+    if ( funName == "_opRefEQ" )
         StdDef::opRefEq = f;
-    if ( getName(fun) == "_opRefNE" )
+    if ( funName == "_opRefNE" )
         StdDef::opRefNe = f;
 
     functionsFound = StdDef::opRefEq != nullptr && StdDef::opRefNe != nullptr;

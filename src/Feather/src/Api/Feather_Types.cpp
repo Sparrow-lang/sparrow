@@ -8,8 +8,6 @@
 #include "Nest/Utils/NodeUtils.h"
 #include "Nest/Utils/Alloc.h"
 
-using namespace Feather;
-
 namespace
 {
     const char* str(const string& s)
@@ -34,7 +32,7 @@ namespace
         if ( classDecl )
         {
             const StringRef* description = Nest_getPropertyString(classDecl, propDescription);
-            StringRef desc = description ? *description : getName(classDecl);
+            StringRef desc = description ? *description : Feather_getName(classDecl);
             res += string(desc.begin, desc.end);
         }
         else
@@ -129,7 +127,7 @@ TypeRef Feather_getVoidType(EvalMode mode)
 TypeRef Feather_getDataType(Node* classDecl, unsigned numReferences, EvalMode mode)
 {
     ASSERT(classDecl->nodeKind == nkFeatherDeclClass );
-    EvalMode classMode = classDecl ? effectiveEvalMode(classDecl) : mode;
+    EvalMode classMode = classDecl ? Feather_effectiveEvalMode(classDecl) : mode;
     if ( mode == modeRtCt && classDecl )
         mode = classMode;
 

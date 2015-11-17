@@ -15,7 +15,6 @@
 #include "Nest/Utils/CompilerSettings.hpp"
 
 using namespace SprFrontend;
-using namespace Feather;
 using namespace Nest;
 
 Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* context, NodeRange args)
@@ -28,18 +27,18 @@ Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* conte
     Node* thisArg = at(args, 0);
     if ( !Nest_computeType(thisArg) )
         return nullptr;
-    Node* cls = classForType(thisArg->type);
+    Node* cls = Feather_classForType(thisArg->type);
     CHECK(loc, cls);
 
     // Check if we can apply RVO, or pseudo-RVO
     // Whenever we try to construct an object from another temporary object, try to bypass the temporary object creation
-    if ( numArgs == 2 && !Nest_compilerSettings()->noRVO_ && !isCt(thisArg) )
+    if ( numArgs == 2 && !Nest_compilerSettings()->noRVO_ && !Feather_isCt(thisArg) )
     {
         Node* arg = at(args, 1);
         if ( ! Nest_computeType(arg) )
             return nullptr;
         arg = Nest_explanation(arg);
-        if ( classForType(arg->type) == cls )
+        if ( Feather_classForType(arg->type) == cls )
         {
             Node*const* tempVarConstruction1 = Nest_getPropertyNode(arg, propTempVarContstruction);
             Node* tempVarConstruction = tempVarConstruction1 ? *tempVarConstruction1 : nullptr;
@@ -100,7 +99,7 @@ Node* SprFrontend::createDtorCall(const Location& loc, CompilationContext* conte
     // Get the class from 'thisArg'
     if ( !Nest_computeType(thisArg) )
         return nullptr;
-    Node* cls = classForType(thisArg->type);
+    Node* cls = Feather_classForType(thisArg->type);
     CHECK(loc, cls);
 
     // Search for the dtor in the class 
@@ -113,18 +112,18 @@ Node* SprFrontend::createDtorCall(const Location& loc, CompilationContext* conte
 
     // Sanity checks
     if ( numDecls > 1 )
-        REP_ERROR_RET(nullptr, loc, "Multiple destructors found for class %1%") % getName(cls);
+        REP_ERROR_RET(nullptr, loc, "Multiple destructors found for class %1%") % Feather_getName(cls);
     Node* dtor = Nest_explanation(at(decls, 0));
     Nest_freeNodeArray(decls);
     if ( !dtor || dtor->nodeKind != nkFeatherDeclFunction )
-        REP_ERROR_RET(nullptr, at(decls, 0)->location, "Invalid destructor found for class %1%") % getName(cls);
+        REP_ERROR_RET(nullptr, at(decls, 0)->location, "Invalid destructor found for class %1%") % Feather_getName(cls);
     if ( Feather_Function_numParameters(dtor) != 1 )
-        REP_INTERNAL(dtor->location, "Invalid destructor found for class %1%; it has %2% parameters") % getName(cls) % Feather_Function_numParameters(dtor);
+        REP_INTERNAL(dtor->location, "Invalid destructor found for class %1%; it has %2% parameters") % Feather_getName(cls) % Feather_Function_numParameters(dtor);
 
     // Check this parameter
     TypeRef thisParamType = Feather_Function_getParameter(dtor, 0)->type;
-    if ( Feather::isCt(thisArg) )
-        thisParamType = Feather::changeTypeMode(thisParamType, modeCt, thisArg->location);
+    if ( Feather_isCt(thisArg) )
+        thisParamType = Feather_checkChangeTypeMode(thisParamType, modeCt, thisArg->location);
     ConversionResult c = canConvert(thisArg, thisParamType);
     if ( !c )
         REP_INTERNAL(loc, "Invalid this argument when calling dtor");
@@ -133,6 +132,18 @@ Node* SprFrontend::createDtorCall(const Location& loc, CompilationContext* conte
     Node* funCall = Feather_mkFunCall(loc, dtor, fromIniList({ argWithConversion }));
     Nest_setContext(funCall, context);
     return funCall;
+}
+
+bool _areNodesCt(NodeRange nodes)
+{
+    for ( Node* n: nodes )
+    {
+        if ( !n->type )
+            Nest_computeType(n);
+        if ( n->type->mode != modeCt )
+            return false;
+    }
+    return true;
 }
 
 Node* SprFrontend::createFunctionCall(const Location& loc, CompilationContext* context, Node* fun, NodeRange args)
@@ -151,14 +162,14 @@ Node* SprFrontend::createFunctionCall(const Location& loc, CompilationContext* c
     {
         // Get the resulting type; check for CT-ness
         TypeRef resTypeRef = resultParam->type;
-        EvalMode funEvalMode = effectiveEvalMode(fun);
-        if ( funEvalMode == modeCt && !isCt(resTypeRef) )
-            resTypeRef = changeTypeMode(resTypeRef, modeCt, resultParam->location);
-        if ( funEvalMode == modeRtCt && Nest_hasProperty(fun, propAutoCt) && !isCt(resTypeRef) && isCt(args) )
-            resTypeRef = changeTypeMode(resTypeRef, modeCt, resultParam->location);
+        EvalMode funEvalMode = Feather_effectiveEvalMode(fun);
+        if ( funEvalMode == modeCt && resTypeRef->mode != modeCt )
+            resTypeRef = Feather_checkChangeTypeMode(resTypeRef, modeCt, resultParam->location);
+        if ( funEvalMode == modeRtCt && Nest_hasProperty(fun, propAutoCt) && resTypeRef->mode != modeCt && _areNodesCt(args) )
+            resTypeRef = Feather_checkChangeTypeMode(resTypeRef, modeCt, resultParam->location);
 
         // Create a temporary variable for the result
-        Node* tmpVar = Feather_mkVar(loc, fromCStr("$tmpC"), Feather_mkTypeNode(loc, removeRef(resTypeRef)));
+        Node* tmpVar = Feather_mkVar(loc, fromCStr("$tmpC"), Feather_mkTypeNode(loc, Feather_removeRef(resTypeRef)));
         Nest_setContext(tmpVar, context);
         tmpVarRef = Feather_mkVarRef(loc, tmpVar);
         Nest_setContext(tmpVarRef, context);
@@ -187,7 +198,7 @@ Node* SprFrontend::createFunctionCall(const Location& loc, CompilationContext* c
         return nullptr;
 
     // CT sanity check
-    //checkEvalMode(funCall, effectiveEvalMode(fun));
+    //Feather_checkEvalMode(funCall, Feather_effectiveEvalMode(fun));
 
     return res;
 }
@@ -203,7 +214,7 @@ Node* SprFrontend::createTempVarConstruct(const Location& loc, CompilationContex
 
     // Create a temp destruct action with the call of the destructor
     Node* destructAction = nullptr;
-    if ( !isCt(thisArg) )
+    if ( !Feather_isCt(thisArg) )
     {
         Node* dtorCall = createDtorCall(loc, context, thisArg);
         if ( dtorCall )
@@ -220,7 +231,7 @@ Node* SprFrontend::createTempVarConstruct(const Location& loc, CompilationContex
     Nest_setPropertyNode(res, propTempVarContstruction, constructAction);
 
     // CT sanity checks
-    checkEvalMode(res, var->type->mode);
+    Feather_checkEvalMode(res, var->type->mode);
 
     return res;
 }
@@ -252,7 +263,7 @@ Node* SprFrontend::createFunPtr(Node* funNode)
         // Try to instantiate the corresponding FunctionPtr class
         NodeVector parameters;
         parameters.reserve(1+Feather_Function_numParameters(fun));
-        TypeRef resType = resParam ? removeRef(resParam->type) : Feather_Function_resultType(fun);
+        TypeRef resType = resParam ? Feather_removeRef(resParam->type) : Feather_Function_resultType(fun);
         parameters.push_back(createTypeNode(ctx, loc, resType));
         for ( size_t i = resParam ? 1 : 0; i<Feather_Function_numParameters(fun); ++i )
         {

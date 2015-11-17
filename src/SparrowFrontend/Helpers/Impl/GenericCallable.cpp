@@ -46,7 +46,7 @@ Node* GenericCallable::param(size_t idx) const
 
 EvalMode GenericCallable::evalMode() const
 {
-    return Feather::effectiveEvalMode(generic_);
+    return Feather_effectiveEvalMode(generic_);
 }
 bool GenericCallable::isAutoCt() const
 {

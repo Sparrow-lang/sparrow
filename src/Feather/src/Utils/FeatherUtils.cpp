@@ -2,45 +2,33 @@
 #include "Feather/Utils/FeatherUtils.hpp"
 
 #include "Feather/Api/Feather.h"
-
 #include "Nest/Api/Node.h"
 #include "Nest/Api/CompilationContext.h"
-#include "Nest/Utils/Diagnostic.hpp"
-#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Api/SymTab.h"
 #include "Nest/Utils/NodeUtils.hpp"
+#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Utils/Diagnostic.hpp"
 
-using namespace Feather;
-using namespace Nest;
-
-bool Feather::isCt(TypeRef type)
+/// Tests if the given node is a declaration (a node that will expand to a Feather declaration)
+bool _isDecl(Node* node)
 {
-    return type && type->mode == modeCt;
-}
-
-bool Feather::isCt(Node* node)
-{
-    return isCt(node->type);
-}
-bool Feather::isCt(const vector<TypeRef>& types)
-{
-    for ( TypeRef t: types )
-        if ( !isCt(t) )
-            return false;
-    return true;
-}
-bool Feather::isCt(NodeRange nodes)
-{
-    for ( Node* n: nodes )
+    switch ( Nest_explanation(node)->nodeKind - Feather_getFirstFeatherNodeKind() )
     {
-        if ( !n->type )
-            Nest_computeType(n);
-        if ( !isCt(n->type) )
+        case nkRelFeatherDeclFunction:
+        case nkRelFeatherDeclClass:
+        case nkRelFeatherDeclVar:
+            return true;
+        default:
             return false;
     }
-    return true;
 }
 
-bool Feather::isTestable(TypeRef type)
+int Feather_isCt(Node* node)
+{
+    return node->type && node->type->mode == modeCt;
+}
+
+int _isTestable(TypeRef type)
 {
     // If not Testable, check at least that is some kind of boolean
     if ( !type || !type->hasStorage )
@@ -49,25 +37,12 @@ bool Feather::isTestable(TypeRef type)
     return nativeName && (*nativeName == "i1" || *nativeName == "u1");
 }
 
-bool Feather::isTestable(Node* node)
+int Feather_isTestable(Node* node)
 {
-    return isTestable(node->type);
+    return _isTestable(node->type);
 }
 
-bool Feather::isInteger(TypeRef type)
-{
-    if ( !type || type->typeKind != typeKindData )
-        return false;
-    const StringRef* nativeName = Feather_nativeName(type);
-    return nativeName && (*nativeName == "i32" || *nativeName == "u32");
-}
-
-bool Feather::isInteger(Node* node)
-{
-    return isInteger(node->type);
-}
-
-bool Feather::isBasicNumericType(TypeRef type)
+int Feather_isBasicNumericType(TypeRef type)
 {
     if ( !type || !type->hasStorage )
         return false;
@@ -82,7 +57,7 @@ bool Feather::isBasicNumericType(TypeRef type)
         );
 }
 
-TypeRef Feather::changeTypeMode(TypeRef type, EvalMode mode, const Location& loc)
+TypeRef Feather_checkChangeTypeMode(TypeRef type, EvalMode mode, Location loc)
 {
     ASSERT(type);
     if ( mode == type->mode )
@@ -100,7 +75,7 @@ TypeRef Feather::changeTypeMode(TypeRef type, EvalMode mode, const Location& loc
     return resType;
 }
 
-TypeRef Feather::addRef(TypeRef type)
+TypeRef Feather_addRef(TypeRef type)
 {
     ASSERT(type);
     if ( !type->hasStorage )
@@ -108,7 +83,7 @@ TypeRef Feather::addRef(TypeRef type)
     return Feather_getDataType(type->referredNode, type->numReferences+1, type->mode);
 }
 
-TypeRef Feather::removeRef(TypeRef type)
+TypeRef Feather_removeRef(TypeRef type)
 {
     ASSERT(type);
     if ( !type->hasStorage || type->numReferences < 1 )
@@ -116,7 +91,7 @@ TypeRef Feather::removeRef(TypeRef type)
     return Feather_getDataType(type->referredNode, type->numReferences-1, type->mode);
 }
 
-TypeRef Feather::removeAllRef(TypeRef type)
+TypeRef Feather_removeAllRef(TypeRef type)
 {
     ASSERT(type);
     if ( !type->hasStorage )
@@ -124,7 +99,7 @@ TypeRef Feather::removeAllRef(TypeRef type)
     return Feather_getDataType(type->referredNode, 0, type->mode);
 }
 
-TypeRef Feather::removeLValue(TypeRef type)
+TypeRef Feather_removeLValue(TypeRef type)
 {
     ASSERT(type);
     if ( type->typeKind != typeKindLValue )
@@ -132,7 +107,7 @@ TypeRef Feather::removeLValue(TypeRef type)
     return Feather_getDataType(type->referredNode, type->numReferences-1, type->mode);
 }
 
-TypeRef Feather::removeLValueIfPresent(TypeRef type)
+TypeRef Feather_removeLValueIfPresent(TypeRef type)
 {
     ASSERT(type);
     if ( type->typeKind != typeKindLValue )
@@ -140,7 +115,7 @@ TypeRef Feather::removeLValueIfPresent(TypeRef type)
     return Feather_getDataType(type->referredNode, type->numReferences-1, type->mode);
 }
 
-TypeRef Feather::lvalueToRef(TypeRef type)
+TypeRef Feather_lvalueToRef(TypeRef type)
 {
     ASSERT(type);
     if ( type->typeKind != typeKindLValue )
@@ -148,7 +123,7 @@ TypeRef Feather::lvalueToRef(TypeRef type)
     return Feather_getDataType(type->referredNode, type->numReferences, type->mode);
 }
 
-TypeRef Feather::lvalueToRefIfPresent(TypeRef type)
+TypeRef Feather_lvalueToRefIfPresent(TypeRef type)
 {
     ASSERT(type);
     if ( type->typeKind != typeKindLValue )
@@ -156,12 +131,12 @@ TypeRef Feather::lvalueToRefIfPresent(TypeRef type)
     return Feather_getDataType(type->referredNode, type->numReferences, type->mode);
 }
 
-Node* Feather::classForType(TypeRef t)
+Node* Feather_classForType(TypeRef t)
 {
     return t->hasStorage ? t->referredNode : nullptr;
 }
 
-bool Feather::isSameTypeIgnoreMode(TypeRef t1, TypeRef t2)
+int Feather_isSameTypeIgnoreMode(TypeRef t1, TypeRef t2)
 {
     ASSERT(t1);
     ASSERT(t2);
@@ -169,19 +144,16 @@ bool Feather::isSameTypeIgnoreMode(TypeRef t1, TypeRef t2)
         return true;
     if ( t1->typeKind != t2->typeKind || t1->mode == t2->mode )
         return false;
-    TypeRef t = Feather::changeTypeMode(t1, t2->mode);
+    TypeRef t = Feather_checkChangeTypeMode(t1, t2->mode, NOLOC);
     return t == t2;
 }
 
-EvalMode Feather::combineMode(EvalMode mode, EvalMode baseMode, const Location& loc, bool forceBase)
+EvalMode Feather_combineMode(EvalMode mode, EvalMode baseMode, Location loc)
 {
     switch ( baseMode )
     {
     case modeRt:
-        if ( forceBase )
-            return modeRt;
-        else
-            return mode == modeRtCt ? modeRt : mode;
+        return mode == modeRtCt ? modeRt : mode;
     case modeCt:
         if ( mode == modeRt )
             REP_ERROR(loc, "Cannot use the RT mode inside of a CT context");
@@ -192,24 +164,40 @@ EvalMode Feather::combineMode(EvalMode mode, EvalMode baseMode, const Location& 
     }
 }
 
-TypeRef Feather::adjustMode(TypeRef srcType, CompilationContext* context, const Location& loc)
+EvalMode Feather_combineModeForceBase(EvalMode mode, EvalMode baseMode, Location loc)
+{
+    switch ( baseMode )
+    {
+    case modeRt:
+        return modeRt;
+    case modeCt:
+        if ( mode == modeRt )
+            REP_ERROR(loc, "Cannot use the RT mode inside of a CT context");
+        return modeCt;
+    case modeRtCt:
+    default:
+        return mode;
+    }
+}
+
+TypeRef Feather_adjustMode(TypeRef srcType, CompilationContext* context, Location loc)
 {
     ASSERT(srcType);
     ASSERT(context);
-    EvalMode resMode = combineMode(srcType->mode, context->evalMode, loc);
-    return changeTypeMode(srcType, resMode, loc);
+    EvalMode resMode = Feather_combineMode(srcType->mode, context->evalMode, loc);
+    return Feather_checkChangeTypeMode(srcType, resMode, loc);
 }
 
-TypeRef Feather::adjustMode(TypeRef srcType, EvalMode baseMode, CompilationContext* context, const Location& loc)
+TypeRef Feather_adjustModeBase(TypeRef srcType, EvalMode baseMode, CompilationContext* context, Location loc)
 {
     ASSERT(srcType);
     ASSERT(context);
-    baseMode = combineMode(baseMode, context->evalMode, loc);
-    EvalMode resMode = combineMode(srcType->mode, baseMode, loc, true);
-    return changeTypeMode(srcType, resMode, loc);
+    baseMode = Feather_combineMode(baseMode, context->evalMode, loc);
+    EvalMode resMode = Feather_combineModeForceBase(srcType->mode, baseMode, loc);
+    return Feather_checkChangeTypeMode(srcType, resMode, loc);
 }
 
-void Feather::checkEvalMode(Node* src, EvalMode referencedEvalMode)
+void Feather_checkEvalMode(Node* src, EvalMode referencedEvalMode)
 {
     ASSERT(src && src->type);
     EvalMode nodeEvalMode = src->type->mode;
@@ -239,7 +227,7 @@ void Feather::checkEvalMode(Node* src, EvalMode referencedEvalMode)
                     continue;
 
                 // Ignore declarations
-                if ( isDecl(child) )
+                if ( _isDecl(child) )
                     continue;
 
                 if ( child->type->mode != modeCt )
@@ -255,7 +243,7 @@ void Feather::checkEvalMode(Node* src, EvalMode referencedEvalMode)
                     continue;
 
                 // Ignore declarations
-                if ( isDecl(child) )
+                if ( _isDecl(child) )
                     continue;
 
                 if ( child->type && child->type->mode == modeRt )
@@ -265,57 +253,3 @@ void Feather::checkEvalMode(Node* src, EvalMode referencedEvalMode)
     }
 }
 
-Node* Feather_classDecl(TypeRef type)
-{
-    ASSERT(type && type->hasStorage);
-    return type->referredNode;
-}
-
-const StringRef* Feather_nativeName(TypeRef type)
-{
-    if ( type->referredNode && type->referredNode->nodeKind == nkFeatherDeclClass )
-        return Nest_getPropertyString(type->referredNode, propNativeName);
-    return nullptr;
-}
-
-int Feather_numReferences(TypeRef type)
-{
-    ASSERT(type && type->hasStorage);
-    return type->numReferences;
-}
-
-TypeRef Feather_baseType(TypeRef type)
-{
-    ASSERT(type && (type->typeKind == typeKindLValue || type->typeKind == typeKindArray) && type->numSubtypes == 1);
-    return type->subTypes[0];
-}
-
-int Feather_getArraySize(TypeRef type)
-{
-    ASSERT(type && type->typeKind == typeKindArray);
-    return type->flags;
-}
-
-unsigned Feather_numFunParameters(TypeRef type)
-{
-    ASSERT(type && type->typeKind == typeKindFunction);
-    return type->numSubtypes-1;
-}
-
-TypeRef Feather_getFunParameter(TypeRef type, unsigned idx)
-{
-    ASSERT(type && type->typeKind == typeKindFunction);
-    return type->subTypes[idx+1];
-}
-
-vector<TypeRef> Feather_getFunParameters(TypeRef type)
-{
-    ASSERT(type && type->typeKind == typeKindFunction);
-    return vector<TypeRef>(type->subTypes+1, type->subTypes+type->numSubtypes);
-}
-
-TypeRef Feather_getFunResultType(TypeRef type)
-{
-    ASSERT(type && type->typeKind == typeKindFunction);
-    return type->subTypes[0];
-}

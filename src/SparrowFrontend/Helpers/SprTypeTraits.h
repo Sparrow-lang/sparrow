@@ -32,7 +32,7 @@ namespace SprFrontend
     
     
     /// Gets the type to be used when auto is found for a node; removes l-values, but tries to preserve references
-    TypeRef getAutoType(Node* typeNode, bool addRef = false);
+    TypeRef getAutoType(Node* typeNode, bool Feather_addRef = false);
     
     /// Tests if this an concept or concept-ref type
     bool isConceptType(TypeRef t);

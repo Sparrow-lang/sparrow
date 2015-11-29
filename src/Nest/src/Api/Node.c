@@ -226,20 +226,35 @@ const char* Nest_defaultFunToString(const Node* node)
     if ( name )
         return name->begin;
 
+    // First get the strings to be used
+    // These may reserve string buffers on their own
+    const char* nodeKindName = Nest_nodeKindName(node);
+    static const size_t maxChildToReport = 10;
+    const char* childStrings[maxChildToReport] = { 0 };
+    size_t numChildToReport = _myMinU(maxChildToReport, Nest_nodeArraySize(node->children));
+    for ( size_t i=0; i<numChildToReport; ++i )
+    {
+        Node* n = node->children.beginPtr[i];
+        childStrings[i] = n ? Nest_toString(n) : "<null>";
+    }
+
+    // Now build the string for this
     const static unsigned maxSize = 1024;
     char* res = startString(maxSize+1);
     char* end = res;
     char* endOfStore = res + maxSize;
-    end = _appendStr(end, endOfStore, Nest_nodeKindName(node));
+    end = _appendStr(end, endOfStore, nodeKindName);
     end = _appendStr(end, endOfStore, "(");
-    for ( size_t i=0; i<Nest_nodeArraySize(node->children); ++i )
+    for ( size_t i=0; i<numChildToReport; ++i )
     {
         if ( i > 0 )
             end = _appendStr(end, endOfStore, ", ");
         Node* n = node->children.beginPtr[i];
         if ( n )
-            end = _appendStr(end, endOfStore, Nest_toString(n));
+            end = _appendStr(end, endOfStore, childStrings[i]);
     }
+    if ( numChildToReport < Nest_nodeArraySize(node->children) )
+        end = _appendStr(end, endOfStore, ", ...");
     end = _appendStr(end, endOfStore, ")");
     endString(end-res+1);
     return res;

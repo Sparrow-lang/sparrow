@@ -133,7 +133,7 @@ Newline         [\n]
  /* code to place at the beginning of yylex() */
 %{
     // reset location
-    yylloc->start = yylloc->start;
+    yylloc->start = yylloc->end;
 
     // Fake a start token, if we received one
     if ( startToken_ != Parser::token::END )
@@ -145,7 +145,7 @@ Newline         [\n]
 %}
 
 {Whitespace}+ {
-    yylloc->start = yylloc->start;
+    yylloc->start = yylloc->end;
 }
 
 {Newline} {
@@ -174,10 +174,10 @@ Newline         [\n]
         }
     }
 done:
-    yylloc->start = yylloc->start;
+    yylloc->start = yylloc->end;
 }
 
-{SingleComment}     { yylloc->start = yylloc->start; }
+{SingleComment}     { yylloc->start = yylloc->end; }
 
 
  /* Symbols */
@@ -539,7 +539,7 @@ octal_done1:
         yylval->stringVal->push_back(c);
     }
 done2:
-    yylloc->start = yylloc->start;
+    yylloc->start = yylloc->end;
     
     return token::STRING_LITERAL;
 }

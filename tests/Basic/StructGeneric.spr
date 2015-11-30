@@ -1,0 +1,55 @@
+//!! -t "SparrowImplicitLib.spr" --dump-assembly
+package Test;
+
+concept AnyType(x);
+
+fun writeLnBool(val: Bool) {
+    if ( val )
+        writeLn("true");
+    else
+        writeLn("false");
+}
+
+class Pair(t: Type) { var first, second: t; }
+
+// Proper constructor, taking both the generic and the non-generic parameters
+fun Pair(t: Type, first, second: AnyType): Pair(t) {
+    var res: Pair(t) = Uninitialized();
+    construct(res.first, first);
+    construct(res.second, second);
+    return res;
+}
+
+// Generic parameter is deduced from a non-generic parameter
+fun Pair(first, second: AnyType): Pair(typeOf(first)) {
+    var res: Pair(typeOf(first)) = Uninitialized();
+    construct(res.first, first);
+    construct(res.second, second);
+    return res;
+}
+
+fun[native("test")] test(n: Int)
+{
+    var pi = Pair(Int, 1, 2);
+    writeLn(pi.first);
+    writeLn(pi.second);
+    writeLn("---");
+    var pd = Pair(Double, 1.1, 2.2);
+    writeLn(pd.first);
+    writeLn(pd.second);
+    writeLn("---");
+    var pb = Pair(false, true);
+    writeLnBool(pb.first);
+    writeLnBool(pb.second);
+}
+
+/*<<<Running()
+1
+2
+---
+1.1
+2.2
+---
+false
+true
+>>>*/

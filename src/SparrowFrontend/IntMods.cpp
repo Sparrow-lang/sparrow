@@ -202,9 +202,10 @@ namespace
         for ( Node* field: cls->children )
         {
             // Take in account only fields of the current class
-            Node* cls2 = Feather_getParentClass(field->context);
-            if ( cls2 != cls )
-                continue;
+//            Node* cls2 = Feather_getParentClass(field->context);
+//            if ( cls2 != cls )
+//                continue;
+            // TODO: Remove this completely
 
             Node* fieldRef = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, mkThisExp(loc)), field);
             Node* otherFieldRef = otherParam ? Feather_mkFieldRef(loc, otherRef, field) : nullptr;

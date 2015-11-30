@@ -202,6 +202,7 @@ done:
 "class"         { return token::CLASS; }
 "concept"       { return token::CONCEPT; }
 "continue"      { return token::CONTINUE; }
+"datatype"      { return token::DATATYPE; }
 "fun"           { return token::FUN; }
 "if"            { return token::IF; }
 "else"          { return token::ELSE; }

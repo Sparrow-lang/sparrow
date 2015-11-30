@@ -6,10 +6,30 @@ concept AnyType(x);
 class Book { var author, name, isbn: StringRef; }
 class CollectionBook { var book: Book; var col: StringRef; }
 
+//datatype Book2 = StringRef * StringRef;
+datatype Book3 { author, name, isbn: StringRef}
+datatype Book4 = Book;
+
 fun Book(author, name, isbn: StringRef): Book {
     var res: Book = Uninitialized();
     construct(res.author, StringRef(author));
     construct(res.name, name);
+    res.isbn construct isbn;
+    return res;
+}
+
+fun Book3(author, name, isbn: StringRef): Book3 {
+    var res: Book3 = Uninitialized();
+    res.author construct author;
+    res.name construct name;
+    res.isbn construct isbn;
+    return res;
+}
+
+fun Book4(author, name, isbn: StringRef): Book4 {
+    var res: Book4 = Uninitialized();
+    res.author construct author;
+    res.name construct name;
     res.isbn construct isbn;
     return res;
 }
@@ -46,6 +66,12 @@ fun[native("test")] test(n: Int)
     writeLn(cb2.book.name);
     writeLn(cb2.book.isbn);
     writeLn(cb2.col);
+
+    writeLn("---");
+    var b3 = Book3("LucTeo", "Nice datastructs in Sparrow", "ISBN");
+    var b4 = Book4("LucTeo", "Nicer datastructs in Sparrow", "ISBN");
+    writeLn(b3.name);
+    writeLn(b4.name);
 }
 
 /*<<<Running()
@@ -62,4 +88,7 @@ LucTeo
 More wonders of Sparrow
 ISBN
 Sparrow
+---
+Nice datastructs in Sparrow
+Nicer datastructs in Sparrow
 >>>*/

@@ -12,6 +12,9 @@ fun writeLnBool(val: Bool) {
 
 class Pair(t: Type) { var first, second: t; }
 
+datatype Pair2(t:Type) { first, second: t }
+datatype Pair3(t:Type) = Pair(t);
+
 // Proper constructor, taking both the generic and the non-generic parameters
 fun Pair(t: Type, first, second: AnyType): Pair(t) {
     var res: Pair(t) = Uninitialized();
@@ -28,6 +31,20 @@ fun Pair(first, second: AnyType): Pair(typeOf(first)) {
     return res;
 }
 
+fun Pair2(first, second: AnyType): Pair2(typeOf(first)) {
+    var res: Pair2(typeOf(first)) = Uninitialized();
+    res.first construct first;
+    res.second construct second;
+    return res;
+}
+
+fun Pair3(first, second: AnyType): Pair3(typeOf(first)) {
+    var res: Pair3(typeOf(first)) = Uninitialized();
+    res.first construct first;
+    res.second construct second;
+    return res;
+}
+
 fun[native("test")] test(n: Int)
 {
     var pi = Pair(Int, 1, 2);
@@ -41,6 +58,12 @@ fun[native("test")] test(n: Int)
     var pb = Pair(false, true);
     writeLnBool(pb.first);
     writeLnBool(pb.second);
+
+    writeLn("---");
+    var p2 = Pair2(1, 2);
+    var p3 = Pair3(3, 4);
+    writeLn(p2.second);
+    writeLn(p3.second);
 }
 
 /*<<<Running()
@@ -52,4 +75,7 @@ fun[native("test")] test(n: Int)
 ---
 false
 true
+---
+2
+4
 >>>*/

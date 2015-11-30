@@ -116,6 +116,7 @@ using namespace std;
 // Keywords
 %token BREAK
 %token CATCH CLASS CONCEPT CONTINUE
+%token DATATYPE
 %nonassoc THEN_CLAUSE
 %nonassoc ELSE
 %token FALSE FINALLY FOR FRIEND FUN
@@ -389,6 +390,10 @@ ClassDeclaration
         { $$ = mkModifiers(@$, mkSprClass(@$, fromString(*$4), $5, $7, $8, $10, $1), $3); }
 	| AccessSpec CLASS ModifierSpec IDENTIFIER FormalsOpt IfClause LCURLY DeclarationsOpt RCURLY
         { $$ = mkModifiers(@$, mkSprClass(@$, fromString(*$4), $5, NULL, $6, $8, $1), $3); }
+    | AccessSpec DATATYPE ModifierSpec IDENTIFIER FormalsOpt IfClause LCURLY Formals RCURLY
+        { $$ = mkModifiers(@$, mkSprClass(@$, fromString(*$4), $5, NULL, $6, $8, $1), $3); }
+    | AccessSpec DATATYPE ModifierSpec IDENTIFIER FormalsOpt EQUAL Expr IfClause SEMICOLON
+        { $$ = mkModifiers(@$, mkSprClass(@$, fromString(*$4), $5, Feather_addToNodeList(NULL, $7), $8, NULL, $1), $3); }
 	;
 
 ConceptDeclaration

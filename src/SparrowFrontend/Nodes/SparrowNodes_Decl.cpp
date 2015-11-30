@@ -376,8 +376,23 @@ TypeRef SprClass_ComputeType(Node* node)
             if ( !Nest_computeType(baseClass) )
                 continue;
 
+            if ( !children ) {
+                children = Feather_mkNodeList(node->location, NodeRange());
+                Nest_setContext(children, node->childrenContext);
+            }
+
             // Add the fields of the base class to the resulting basic class
-            Nest_appendNodesToArray(&resultingClass->children, all(baseClass->children));
+            for ( Node* n: baseClass->children )
+            {
+                if ( n )
+                {
+                    n = Nest_cloneNode(n);
+                    Nest_setContext(n, node->childrenContext);
+                    Nest_appendNodeToArray(&children->children, n);                    
+                }
+            }
+
+            // TODO: Base classes: simplify this
 
             // Copy the symbol table entries of the base to this class
             SymTab* ourSymTab = Nest_childrenContext(node)->currentSymTab;

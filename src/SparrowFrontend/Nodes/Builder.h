@@ -12,7 +12,7 @@ namespace SprFrontend
 
     vector<string>* buildStringList(vector<string>* prevList, string element);
 
-    Node* buildVariables(const Location& loc, const vector<string>& names, Node* typeNode, Node* init, Node* mods, AccessType accessType);
+    Node* buildVariables(const Location& loc, const vector<string>& names, Node* typeNode, Node* init, Node* mods, AccessType accessType = publicAccess);
     Node* buildParameters(const Location& loc, const vector<string>& names, Node* typeNode, Node* init, Node* mods);
     Node* buildAutoParameter(const Location& loc, StringRef name, Node* mods);
     Node* buildSprFunctionExp(const Location& loc, StringRef name, Node* parameters, Node* returnType, Node* bodyExp, Node* ifClause = nullptr, AccessType accessType = publicAccess);

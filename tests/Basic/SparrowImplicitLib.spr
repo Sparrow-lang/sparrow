@@ -1373,6 +1373,7 @@ fun reinterpretCast();
 fun[ct] sizeOf(): SizeType;
 fun[ct] typeOf(): Type;
 fun[ct] isValid(): Bool;
+fun construct();
 
 fun[ct, native("$convertsTo")] convertsTo(src, dest: Type): Bool;
 fun[ct, native("$staticBuffer")] static_buffer(n: SizeType): Type;

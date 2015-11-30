@@ -3,35 +3,30 @@ package Test;
 
 concept AnyType(x);
 
-fun construct(dest: @AnyType);
-fun construct(dest: @AnyType, a1: AnyType);
-fun construct(dest: @AnyType, a1, a2: AnyType);
-fun construct(dest: @AnyType, a1, a2, a3: AnyType);
-fun construct(dest: @AnyType, a1, a2, a3, a4: AnyType);
-
 class Book { var author, name, isbn: StringRef; }
-//class CollectionBook { var book: Book; var col: StringRef; }
+class CollectionBook { var book: Book; var col: StringRef; }
 
 fun Book(author, name, isbn: StringRef): Book {
-    var res: Book;
-    //construct(res.author, author);
-    //construct(res.name, name);
-    //construct(res.isbn, isbn);
-    res.author = author;
-    res.name = name;
-    res.isbn = isbn;
+    var res: Book = Uninitialized();
+    construct(res.author, StringRef(author));
+    construct(res.name, name);
+    res.isbn construct isbn;
     return res;
 }
 
-//fun CollectionBook(author, name, isbn, collection: StringRef): Book {
-//    var res: CollectionBook;
-//    //construct(res.book, author, name, isbn);
-//    //construct(res.book, Book(author, name, isbn));
-//    //construct(res.col, collection);
-//    res.book = Book(authro, name, isbn);
-//    res.col = collection;
-//    return res;
-//}
+fun CollectionBook(book: Book, collection: StringRef): CollectionBook {
+    var res: CollectionBook = Uninitialized();
+    res.book construct book;
+    res.col construct collection;
+    return res;
+}
+
+fun CollectionBook(author, name, isbn, collection: StringRef): CollectionBook {
+    var res: CollectionBook = Uninitialized();
+    res.book construct Book(author, name, isbn);
+    res.col construct collection;
+    return res;
+}
 
 fun[native("test")] test(n: Int)
 {
@@ -39,10 +34,32 @@ fun[native("test")] test(n: Int)
     writeLn(b.author);
     writeLn(b.name);
     writeLn(b.isbn);
+    writeLn("---");
+    var cb1 = CollectionBook(b, "Sparrow");
+    writeLn(cb1.book.author);
+    writeLn(cb1.book.name);
+    writeLn(cb1.book.isbn);
+    writeLn(cb1.col);
+    writeLn("---");
+    var cb2 = CollectionBook("LucTeo", "More wonders of Sparrow", "ISBN", "Sparrow");
+    writeLn(cb2.book.author);
+    writeLn(cb2.book.name);
+    writeLn(cb2.book.isbn);
+    writeLn(cb2.col);
 }
 
 /*<<<Running()
 LucTeo
 The wonders of Sparrow
 ISBN
+---
+LucTeo
+The wonders of Sparrow
+ISBN
+Sparrow
+---
+LucTeo
+More wonders of Sparrow
+ISBN
+Sparrow
 >>>*/

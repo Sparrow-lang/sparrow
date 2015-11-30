@@ -403,6 +403,15 @@ namespace
         return  mkFunApplication(node->location, base, fromIniList({arg1})) ;
     }
 
+    Node* checkConstruct(Node* node, NodeRange args)
+    {
+        // Make sure we have more than one argument
+        if ( size(args) == 0 )
+            REP_ERROR_RET(nullptr, node->location, "construct expects at least 1 argument");
+
+        return createCtorCall(node->location, node->context, args);
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     // Helpers for OperatorCall node
     //
@@ -1036,6 +1045,10 @@ Node* FunApplication_SemanticCheck(Node* node)
         {
             return checkCtEval(node);
         }
+        else if ( id == "construct" )
+        {
+            return checkConstruct(node, all(arguments->children));
+        }
     }
 
     string functionName = Nest_toString(base);
@@ -1108,6 +1121,10 @@ Node* OperatorCall_SemanticCheck(Node* node)
     if ( arg2 && !arg1 && operation == "\\" )
     {
         return handleFunPtr(node); // TODO: this should ideally be defined in std lib
+    }
+    if ( operation == "construct" )
+    {
+        return checkConstruct(node, all(node->children));
     }
 
     // Search for the operator

@@ -190,6 +190,7 @@ Node* SprFrontend::convertCtToRt(Node* node)
 
 TypeRef SprFrontend::getType(Node* typeNode)
 {
+    Nest_setPropertyExplInt(typeNode, propAllowDeclExp, 1);
     if ( !Nest_semanticCheck(typeNode) )
         return nullptr;
     if ( !typeNode->type )
@@ -205,6 +206,7 @@ TypeRef SprFrontend::getType(Node* typeNode)
 
 TypeRef SprFrontend::tryGetTypeValue(Node* typeNode)
 {
+    Nest_setPropertyExplInt(typeNode, propAllowDeclExp, 1);
     if ( !Nest_semanticCheck(typeNode) )
         return nullptr;
 

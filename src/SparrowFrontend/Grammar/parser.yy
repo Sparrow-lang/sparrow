@@ -386,9 +386,7 @@ VarDeclaration
 	;
 
 ClassDeclaration
-	: AccessSpec CLASS ModifierSpec IDENTIFIER FormalsOpt COLON ExprListOpt IfClause LCURLY DeclarationsOpt RCURLY
-        { $$ = mkModifiers(@$, mkSprClass(@$, fromString(*$4), $5, $7, $8, $10, $1), $3); }
-	| AccessSpec CLASS ModifierSpec IDENTIFIER FormalsOpt IfClause LCURLY DeclarationsOpt RCURLY
+	: AccessSpec CLASS ModifierSpec IDENTIFIER FormalsOpt IfClause LCURLY DeclarationsOpt RCURLY
         { $$ = mkModifiers(@$, mkSprClass(@$, fromString(*$4), $5, NULL, $6, $8, $1), $3); }
     | AccessSpec DATATYPE ModifierSpec IDENTIFIER FormalsOpt IfClause LCURLY Formals RCURLY
         { $$ = mkModifiers(@$, mkSprClass(@$, fromString(*$4), $5, NULL, $6, $8, $1), $3); }

@@ -131,17 +131,12 @@ TypeRef Nest_computeType(Node* node)
 {
     if ( node->type )
         return node->type;
-    if ( node->nodeError )
+    if ( node->nodeError || node->computeTypeStarted )
         return 0;
 
     if ( !node->context )
         Nest_reportFmt(node->location, diagInternalError, "No context associated with node %s", Nest_toString(node));
 
-    // Check for recursive dependency
-    if ( node->computeTypeStarted ) {
-        Nest_reportDiagnostic(node->location, diagError, "Recursive dependency detected while computing the type of the current node");
-        return 0;
-    }
     node->computeTypeStarted = 1;
 
     _applyModifiers(node, modTypeBeforeComputeType);
@@ -244,6 +239,22 @@ const char* Nest_defaultFunToString(const Node* node)
     char* end = res;
     char* endOfStore = res + maxSize;
     end = _appendStr(end, endOfStore, nodeKindName);
+
+    // Write all the string attributes
+    if ( node->properties.begin != node->properties.end ) {
+        end = _appendStr(end, endOfStore, "[");
+        NodeProperty* p = node->properties.begin;
+        for ( ; p != node->properties.end; ++p ) {
+            if ( p->kind == propString ) {
+                end = _appendStr(end, endOfStore, p->name.begin);
+                end = _appendStr(end, endOfStore, "=");
+                end = _appendStr(end, endOfStore, p->value.stringValue.begin);
+            }
+        }
+        end = _appendStr(end, endOfStore, "]");        
+    }
+
+    // Write the children
     end = _appendStr(end, endOfStore, "(");
     for ( size_t i=0; i<numChildToReport; ++i )
     {

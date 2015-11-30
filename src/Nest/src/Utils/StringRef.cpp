@@ -52,6 +52,7 @@ StringRef dup(StringRef str) {
 }
 
 unsigned size(StringRef str) {
+    ASSERT(str.end >= str.begin);
     return str.end - str.begin;
 }
 

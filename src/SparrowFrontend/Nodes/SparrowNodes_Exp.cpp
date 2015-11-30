@@ -24,6 +24,20 @@ namespace
     // Helpers for Identifier and CompoundExp nodes
     //
 
+    void removeNodesWithNoType(NodeArray& nodes) {
+        Node**dest = nodes.beginPtr;
+        Node**src = nodes.beginPtr;
+        while ( src != nodes.endPtr ) {
+            if ( !Nest_computeType(*src) ) {
+                ++src;
+            }
+            else {
+                *dest++ = *src++;
+            }
+        }
+        nodes.endPtr = dest;
+    }
+
     Node* getIdentifierResult(CompilationContext* ctx, const Location& loc, NodeRange decls, Node* baseExp, bool allowDeclExp)
     {
         // If this points to one declaration only, try to use that declaration
@@ -854,12 +868,14 @@ Node* Identifier_SemanticCheck(Node* node)
     if ( Nest_nodeArraySize(decls) == 0 )
         REP_ERROR_RET(nullptr, node->location, "No declarations found with the given name (%1%)") % id;
 
+    // Filter out the decls with no type
+    removeNodesWithNoType(decls);
+
     // If at least one decl is a field or method, then transform this into a compound expression starting from 'this'
     bool needsThis = false;
     for ( Node* decl: decls )
     {
-        if ( !Nest_computeType(decl) )
-            continue;
+        ASSERT(decl->type);
         Node* expl = Nest_explanation(decl);
         if ( isField(expl) )
         {
@@ -932,6 +948,11 @@ Node* CompoundExp_SemanticCheck(Node* node)
         // Search for a declaration in the class 
         decls = toVec(Nest_symTabLookupCurrent(classDecl->childrenContext->currentSymTab, id.begin));
     }
+
+    // Filter out the decls with no type
+    decls.erase(remove_if(decls.begin(), decls.end(), [](Node* decl)->bool {
+        return !Nest_computeType(decl);
+    }), decls.end());
 
     if ( decls.empty() )
         REP_ERROR_RET(nullptr, node->location, "No declarations found with the name '%1%' inside %2%: %3%") % id % base % base->type;

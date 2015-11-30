@@ -107,6 +107,7 @@ namespace
         // If a type node was given, take the type from it
         if ( typeNode )
         {
+            Nest_setPropertyExplInt(typeNode, propAllowDeclExp, 1);
             t = getType(typeNode);
             if ( !t )
                 return nullptr;

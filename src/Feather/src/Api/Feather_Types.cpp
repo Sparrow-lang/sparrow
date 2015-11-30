@@ -61,9 +61,9 @@ namespace
         {
             if ( i > 1 )
                 oss << ",";
-            oss << resultTypeAndParams[i];
+            oss << resultTypeAndParams[i]->description;
         }
-        oss << "): " << resultTypeAndParams[0];
+        oss << "): " << resultTypeAndParams[0]->description;
         return oss.str();
     }
 

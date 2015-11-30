@@ -1078,12 +1078,23 @@ class[rtct, noDefault, native("StringRef")] StringRef
     {
         return reinterpretCast(@Char, ptrAdd(begin, i));
     }
+
+    fun == (other: StringRef): Bool
+    {
+        var s = size();
+        if ( s != other.size() ) return false;
+        var i: SizeType = 0;
+        while ( i<s ; i+=1 )
+            if ( getChar(i) != other.getChar(i) ) return false;
+        return true;
+    }
 }
 
 fun[autoCt] = (dest: @StringRef, src: StringRef): @StringRef
 {
     dest.begin := src.begin;
     dest.end := src.end;
+    return dest;
 }
 
 fun + (x,y: StringRef): StringRef

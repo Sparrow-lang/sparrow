@@ -1,0 +1,48 @@
+//!! -t "SparrowImplicitLib.spr" --dump-assembly
+package Test;
+
+concept AnyType(x);
+
+fun construct(dest: @AnyType);
+fun construct(dest: @AnyType, a1: AnyType);
+fun construct(dest: @AnyType, a1, a2: AnyType);
+fun construct(dest: @AnyType, a1, a2, a3: AnyType);
+fun construct(dest: @AnyType, a1, a2, a3, a4: AnyType);
+
+class Book { var author, name, isbn: StringRef; }
+//class CollectionBook { var book: Book; var col: StringRef; }
+
+fun Book(author, name, isbn: StringRef): Book {
+    var res: Book;
+    //construct(res.author, author);
+    //construct(res.name, name);
+    //construct(res.isbn, isbn);
+    res.author = author;
+    res.name = name;
+    res.isbn = isbn;
+    return res;
+}
+
+//fun CollectionBook(author, name, isbn, collection: StringRef): Book {
+//    var res: CollectionBook;
+//    //construct(res.book, author, name, isbn);
+//    //construct(res.book, Book(author, name, isbn));
+//    //construct(res.col, collection);
+//    res.book = Book(authro, name, isbn);
+//    res.col = collection;
+//    return res;
+//}
+
+fun[native("test")] test(n: Int)
+{
+    var b = Book("LucTeo", "The wonders of Sparrow", "ISBN");
+    writeLn(b.author);
+    writeLn(b.name);
+    writeLn(b.isbn);
+}
+
+/*<<<Running()
+LucTeo
+The wonders of Sparrow
+ISBN
+>>>*/

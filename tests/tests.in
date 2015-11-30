@@ -84,6 +84,7 @@ Basic2/CustomOperators.spr:             Basic features 2 - Custom operators
 Basic/LLVMCode.llvm:                    Basic features - Code from llvm file
 Basic/Basic.spr:                        Basic features - A small Sparrow code
 Basic/DataStruct.spr:                   Basic features - Data structure
+Basic/Struct.spr:                       Basic features - New data structure
 Basic/FunErr.spr:                       Basic features - Function errors
 Basic/FunErr2.spr:                      Basic features - Function errors (more)
 Basic/StaticFun.spr:                    Basic features - Static functions

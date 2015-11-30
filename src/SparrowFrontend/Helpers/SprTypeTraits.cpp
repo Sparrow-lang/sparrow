@@ -207,6 +207,24 @@ TypeRef SprFrontend::tryGetTypeValue(Node* typeNode)
 {
     if ( !Nest_semanticCheck(typeNode) )
         return nullptr;
+
+    // If this is a DeclExp, try to look at the declaration types
+    Node* expl = Nest_explanation(typeNode);
+    if ( expl->nodeKind == nkSparrowExpDeclExp )
+    {
+        TypeRef res = nullptr;
+        NodeRange decls = { expl->referredNodes.beginPtr+1, expl->referredNodes.endPtr };
+        for ( Node* decl: decls )
+        {
+            TypeRef t = decl->nodeKind == nkSparrowDeclSprClass ? decl->type : nullptr;
+            if ( t ) {
+                if ( res )
+                    return nullptr; // multiple class decls; not a clear type
+                res = t;
+            }
+        }
+        return res;
+    }
     
     TypeRef t = Feather_lvalueToRefIfPresent(typeNode->type);
     

@@ -31,8 +31,8 @@ namespace
     {
         const SourceCode* sourceCode = (const SourceCode*) thisArg->sourceCode;
         string code;
-        StringRef lineStr;
-        if ( sourceCode )
+        StringRef lineStr = { 0, 0 };
+        if ( sourceCode && !(thisArg->start.line == thisArg->end.line && thisArg->start.col > thisArg->end.col) )
         {
             lineStr = Nest_getSourceCodeLine(sourceCode, thisArg->start.line);
             size_t len = lineStr.end - lineStr.begin;

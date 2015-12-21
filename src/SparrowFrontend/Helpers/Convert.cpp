@@ -5,20 +5,15 @@
 #include "StdDef.h"
 #include "Impl/Callable.h"
 #include <NodeCommonsCpp.h>
-#include <Nodes/Decls/SprConcept.h>
-#include <Type/ConceptType.h>
+#include <SparrowFrontendTypes.h>
+#include <Helpers/Generics.h>
 
-#include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Nodes/ChangeMode.h>
-#include <Feather/Nodes/Decls/Class.h>
-#include <Feather/Type/DataType.h>
-#include <Feather/Type/LValueType.h>
-#include <Feather/Util/TypeTraits.h>
+#include "Feather/Api/Feather.h"
+#include "Feather/Utils/FeatherUtils.hpp"
 
-#include <Nest/Common/Tuple.h>
+#include "Nest/Utils/Tuple.hpp"
 
 using namespace SprFrontend;
-using namespace Feather;
 
 ConversionType SprFrontend::combine(ConversionType lhs, ConversionType rhs)
 {
@@ -42,13 +37,13 @@ ConversionType SprFrontend::bestConv(ConversionType lhs, ConversionType rhs)
 
 namespace
 {
-    ConversionResult cachedCanConvertImpl(CompilationContext* context, int flags, Type* srcType, Type* destType);
+    ConversionResult cachedCanConvertImpl(CompilationContext* context, int flags, TypeRef srcType, TypeRef destType);
 
     ConversionResult combine(const ConversionResult& first, const ConversionResult& second)
     {
         return ConversionResult(combine(first.conversionType(), second.conversionType()), [=](Node* src) -> Node* {
             Node* src1 = first.apply(src);
-            src1->setContext(src->context());
+            Nest_setContext(src1, src->context);
             return second.apply(src1);
         }, first.contextDependent() || second.contextDependent());
     }
@@ -58,25 +53,25 @@ namespace
     //
 
     // direct: T -> T
-    ConversionResult checkSameType(CompilationContext* /*context*/, int /*flags*/, Type* srcType, Type* destType)
+    ConversionResult checkSameType(CompilationContext* /*context*/, int /*flags*/, TypeRef srcType, TypeRef destType)
     {
         return srcType == destType ? convDirect : convNone;
     }
 
     // direct: T/X -> U/Y, if X!=Y and Y!=ct and (T==ct => noRef(T)==0) and hasMeaning(T/Y) and T/Y -> U/Y
-    ConversionResult checkChangeMode(CompilationContext* context, int flags, Type* srcType, Type* destType)
+    ConversionResult checkChangeMode(CompilationContext* context, int flags, TypeRef srcType, TypeRef destType)
     {
-        if ( !srcType->hasStorage() )
+        if ( !srcType->hasStorage )
             return convNone;
 
-        EvalMode srcMode = srcType->mode();
-        EvalMode destMode = destType->mode();
+        EvalMode srcMode = srcType->mode;
+        EvalMode destMode = destType->mode;
 
         // Don't do anything if the modes are the same; can't convert from non-CT to CT
         if ( srcMode == destMode || destMode == modeCt )
             return convNone;
 
-        Type* srcTypeNew = Feather::changeTypeMode(srcType, destMode);
+        TypeRef srcTypeNew = Feather_checkChangeTypeMode(srcType, destMode, NOLOC);
         if ( srcTypeNew == srcType )
             return convNone;
 
@@ -84,21 +79,21 @@ namespace
         if ( srcMode == modeCt )
         {
             // If we are converting away from CT, make sure we are allowed to do this
-            if ( !srcType->canBeUsedAtRt() )
+            if ( !srcType->canBeUsedAtRt )
                 return convNone;
 
             // Cannot convert references from CT to RT; still we allow l-value conversions
-            if ( srcTypeNew->typeId() == Type::typeLValue )
+            if ( srcTypeNew->typeKind == typeKindLValue )
             {
-                if ( srcTypeNew->noReferences() > 1 )
+                if ( srcTypeNew->numReferences > 1 )
                     return convNone;
-                srcTypeNew = Feather::removeLValueIfPresent(srcTypeNew);
+                srcTypeNew = Feather_removeLValueIfPresent(srcTypeNew);
 
                 res = ConversionResult(convDirect, [=](Node* src) -> Node* {
-                    return mkMemLoad(src->location(), src);
+                    return Feather_mkMemLoad(src->location, src);
                 });
             }
-            if ( srcTypeNew->noReferences() > 0 )
+            if ( srcTypeNew->numReferences > 0 )
                 return convNone;
         }
 
@@ -106,20 +101,20 @@ namespace
     }
     
     /// concept: #C@N -> Concept@N
-    ConversionResult checkConvertToAuto(CompilationContext* /*context*/, int /*flags*/, Type* srcType, Type* destType)
+    ConversionResult checkConvertToAuto(CompilationContext* /*context*/, int /*flags*/, TypeRef srcType, TypeRef destType)
     {
-        if ( destType->typeId() != Type::typeConcept )
+        if ( destType->typeKind != typeKindConcept )
             return convNone;
-        if ( srcType->typeId() == Type::typeConcept || !srcType->hasStorage() )
+        if ( srcType->typeKind == typeKindConcept || !srcType->hasStorage )
             return convNone;
 
-        if ( srcType->typeId() != Type::typeLValue && srcType->noReferences() == destType->noReferences() )
+        if ( srcType->typeKind != typeKindLValue && srcType->numReferences == destType->numReferences )
         {
-            SprConcept* concept = static_cast<ConceptType*>(destType)->concept();
+            Node* concept = conceptOfType(destType);
 
             // If we have a concept, check if the type fulfills the concept
             if ( concept )
-                return concept->isFulfilled(srcType) ? convConcept : convNone;
+                return conceptIsFulfilled(concept, srcType) ? convConcept : convNone;
             else
                 return convConcept;
         }
@@ -128,33 +123,33 @@ namespace
     }
 
     /// concept: Concept1@N -> Concept2@N
-    ConversionResult checkConceptToConcept(CompilationContext* context, int flags, Type* srcType, Type* destType)
+    ConversionResult checkConceptToConcept(CompilationContext* context, int flags, TypeRef srcType, TypeRef destType)
     {
-        if ( srcType->typeId() != Type::typeConcept || destType->typeId() != Type::typeConcept
-            || srcType->noReferences() != destType->noReferences() )
+        if ( srcType->typeKind != typeKindConcept || destType->typeKind != typeKindConcept
+            || srcType->numReferences != destType->numReferences )
             return convNone;
 
-        SprConcept* srcConcept = static_cast<ConceptType*>(srcType)->concept();
+        Node* srcConcept = conceptOfType(srcType);
         if ( !srcConcept )
             return convNone;
 
         // If we have a concept, check if the type fulfills the concept
-        Type* srcBaseConceptType = srcConcept->baseConceptType();
+        TypeRef srcBaseConceptType = baseConceptType(srcConcept);
         return cachedCanConvertImpl(context, flags, srcBaseConceptType, destType);
     }
     
 
-    // direct: lv(T) -> U, if T-> U or addRef(T) -> U (take best alternative)
-    ConversionResult checkLValueToNormal(CompilationContext* context, int flags, Type* srcType, Type* destType)
+    // direct: lv(T) -> U, if T-> U or Feather_addRef(T) -> U (take best alternative)
+    ConversionResult checkLValueToNormal(CompilationContext* context, int flags, TypeRef srcType, TypeRef destType)
     {
-        if ( srcType->typeId() == Type::typeLValue && destType->typeId() != Type::typeLValue )
+        if ( srcType->typeKind == typeKindLValue && destType->typeKind != typeKindLValue )
         {
-            Type* t2 = Feather::lvalueToRef(srcType);
-            Type* t1 = Feather::removeRef(t2);
+            TypeRef t2 = Feather_lvalueToRef(srcType);
+            TypeRef t1 = Feather_removeRef(t2);
 
             // First check conversion without reference
             ConversionResult res1 = ConversionResult(convDirect, [=](Node* src) -> Node* {
-                return mkMemLoad(src->location(), src);
+                return Feather_mkMemLoad(src->location, src);
             });
             ConversionResult c1 = combine(res1, cachedCanConvertImpl(context, flags | flagDontAddReference, t1, destType));
             if ( c1 )
@@ -162,7 +157,7 @@ namespace
 
             // Now try to convert to reference
             ConversionResult res2 = ConversionResult(convImplicit, [=](Node* src) -> Node* {
-                return mkBitcast(src->location(), mkTypeNode(src->location(), t2), src);
+                return Feather_mkBitcast(src->location, Feather_mkTypeNode(src->location, t2), src);
             });
             return combine(res2, cachedCanConvertImpl(context, flags, t2, destType));
         }
@@ -170,81 +165,82 @@ namespace
     }
 
     // implicit: #Null -> U, if isRef(U) and isStorage(U)
-    ConversionResult checkNullToReference(CompilationContext* /*context*/, int /*flags*/, Type* srcType, Type* destType)
+    ConversionResult checkNullToReference(CompilationContext* /*context*/, int /*flags*/, TypeRef srcType, TypeRef destType)
     {
         if ( !StdDef::typeNull
-            || !Feather::isSameTypeIgnoreMode(srcType, StdDef::typeNull)
-            || !destType->hasStorage() || destType->noReferences() == 0 )
+            || !Feather_isSameTypeIgnoreMode(srcType, StdDef::typeNull)
+            || !destType->hasStorage || destType->numReferences == 0 )
             return convNone;
 
         return ConversionResult(convImplicit, [=](Node* src) -> Node* {
-            return mkNull(src->location(), mkTypeNode(src->location(), destType));
+            return Feather_mkNull(src->location, Feather_mkTypeNode(src->location, destType));
         });
     }
 
     // implicit: #C@N -> U, if #C@(N-1) -> U
-    ConversionResult checkDereference(CompilationContext* context, int flags, Type* srcType, Type* destType)
+    ConversionResult checkDereference(CompilationContext* context, int flags, TypeRef srcType, TypeRef destType)
     {
-        if ( srcType->typeId() != Type::typeData || srcType->noReferences() == 0 )
+        if ( srcType->typeKind != typeKindData || srcType->numReferences == 0 )
             return convNone;
 
-        Type* t = removeRef(srcType);
+        TypeRef t = Feather_removeRef(srcType);
 
         ConversionResult res = ConversionResult(convImplicit, [=](Node* src) -> Node* {
-            return mkMemLoad(src->location(), src);
+            return Feather_mkMemLoad(src->location, src);
         });
         return combine(res, cachedCanConvertImpl(context, flags | flagDontAddReference, t, destType));
     }
     
     // implicit:  #C@0 -> U, if #C@1 -> U
-    ConversionResult checkAddReference(CompilationContext* context, int flags, Type* srcType, Type* destType)
+    ConversionResult checkAddReference(CompilationContext* context, int flags, TypeRef srcType, TypeRef destType)
     {
-        if ( srcType->typeId() != Type::typeData || srcType->noReferences() > 0 )
+        if ( srcType->typeKind != typeKindData || srcType->numReferences > 0 )
             return convNone;
 
-        StorageType* baseDataType = static_cast<StorageType*>(addRef(srcType));
+        TypeRef baseDataType = Feather_addRef(srcType);
 
         ConversionResult res(convImplicit, [=](Node* src) -> Node* {
-            Node* var = Feather::mkVar(src->location(), "$tmpForRef", mkTypeNode(src->location(), srcType));
-            Node* varRef = mkVarRef(src->location(), var);
-            Node* store = mkMemStore(src->location(), src, varRef);
-            Node* cast = mkBitcast(src->location(), mkTypeNode(src->location(), baseDataType), varRef);
-            return mkNodeList(src->location(), {var, store, cast});
+            Node* var = Feather_mkVar(src->location, fromCStr("$tmpForRef"), Feather_mkTypeNode(src->location, srcType));
+            Node* varRef = Feather_mkVarRef(src->location, var);
+            Node* store = Feather_mkMemStore(src->location, src, varRef);
+            Node* cast = Feather_mkBitcast(src->location, Feather_mkTypeNode(src->location, baseDataType), varRef);
+            return Feather_mkNodeList(src->location, fromIniList({var, store, cast}));
         });
         return combine(res, cachedCanConvertImpl(context, flags | flagDontAddReference, baseDataType, destType));
     }
     
     // T => U, if U has a conversion ctor for T
-    ConversionResult checkConversionCtor(CompilationContext* context, int flags, Type* srcType, Type* destType)
+    ConversionResult checkConversionCtor(CompilationContext* context, int flags, TypeRef srcType, TypeRef destType)
     {
-        if ( !destType->hasStorage() )
+        if ( !destType->hasStorage )
             return convNone;
 
-        Class* destClass = classForType(destType);
-        destClass->computeType();
+        Node* destClass = Feather_classForType(destType);
+        if ( !Nest_computeType(destClass) )
+            return convNone;
 
         // Try to convert srcType to lv destClass
-        if ( !selectConversionCtor(context, destClass, destType->mode(), srcType, nullptr, nullptr) )
+        if ( !selectConversionCtor(context, destClass, destType->mode, srcType, nullptr, nullptr) )
             return convNone;
 
-        Type* t = destClass->type();
-        EvalMode destMode = t->mode();
+        TypeRef t = destClass->type;
+        EvalMode destMode = t->mode;
         if ( destMode == modeRtCt )
-            destMode = srcType->mode();
-        t = changeTypeMode(t, destMode);
-        Type* resType = LValueType::get(t);
+            destMode = srcType->mode;
+        t = Feather_checkChangeTypeMode(t, destMode, NOLOC);
+        TypeRef resType = Feather_getLValueType(t);
 
         bool contextDependent = false;  // TODO (convert): This should be context dependent for private ctors
 
         ConversionResult res = ConversionResult(convCustom, [=](Node* src) -> Node* {
-            Node* refToClass = createTypeNode(src->context(), src->location(), DataType::get(destClass));
-            return new ChangeMode(src->location(), destMode, mkFunApplication(src->location(), refToClass, {src}));
+            Node* refToClass = createTypeNode(src->context, src->location, Feather_getDataType(destClass, 0, modeRtCt));
+            return Feather_mkChangeMode(src->location, mkFunApplication(src->location, refToClass, fromIniList({src})), destMode);
         }, contextDependent);
         return combine(res, cachedCanConvertImpl(context, flags | flagDontCallConversionCtor, resType, destType));
     }
 
     // The main canConvert method
-    ConversionResult canConvertImpl(CompilationContext* context, int flags, Type* srcType, Type* destType)
+    ConversionResult canConvertImpl(CompilationContext* context, int flags, TypeRef srcType, TypeRef destType)
     {
         ASSERT(srcType);
         ASSERT(destType);
@@ -317,9 +313,9 @@ namespace
     }
 
     // Method that checks for available conversions; use a cache for speeding up search
-    ConversionResult cachedCanConvertImpl(CompilationContext* context, int flags, Type* srcType, Type* destType)
+    ConversionResult cachedCanConvertImpl(CompilationContext* context, int flags, TypeRef srcType, TypeRef destType)
     {
-        typedef Tuple3<Type*, Type*, int> KeyType;
+        typedef Tuple3<TypeRef, TypeRef, int> KeyType;
         static unordered_map<KeyType, ConversionResult> convMap;
 
         // Try to find the conversion in the map
@@ -371,25 +367,23 @@ Node* ConversionResult::apply(CompilationContext* context, Node* src) const
     Node* res = convType_ != convNone && convFun_
         ? convFun_(src)
         : src;
-    res->setContext(context);
+    Nest_setContext(res, context);
     return res;
 }
 
 
-ConversionResult SprFrontend::canConvertType(CompilationContext* context, Nest::Type* srcType, Nest::Type* destType, ConversionFlags flags)
+ConversionResult SprFrontend::canConvertType(CompilationContext* context, TypeRef srcType, TypeRef destType, ConversionFlags flags)
 {
     return cachedCanConvertImpl(context, flags, srcType, destType);
 }
 
-ConversionResult SprFrontend::canConvert(Node* arg, Type* destType, ConversionFlags flags)
+ConversionResult SprFrontend::canConvert(Node* arg, TypeRef destType, ConversionFlags flags)
 {
-    ENTER_TIMER_DESC(Nest::theCompiler().timingSystem(), "type.convert", "Type conversion checking");
-
     ASSERT(arg);
-    arg->computeType();
-    Type* srcType = arg->type();
-    ASSERT(srcType);
+    TypeRef srcType = Nest_computeType(arg);
+    if ( !srcType )
+        return convNone;
     ASSERT(destType);
 
-    return cachedCanConvertImpl(arg->context(), flags, srcType, destType);
+    return cachedCanConvertImpl(arg->context, flags, srcType, destType);
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Feather/Nodes/Properties.h>
+#include "Feather/Utils/FeatherUtils.h"
 
 namespace SprFrontend
 {
@@ -12,5 +12,5 @@ namespace SprFrontend
     extern const char* propMacro;
     extern const char* propIsField;
     extern const char* propIsStatic;
-    extern const char* propRefDecls;
+    extern const char* propAllowDeclExp;
 }

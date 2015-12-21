@@ -6,35 +6,30 @@
 %code requires
 {
     #include <StdInc.h>
-    #include <Nest/Frontend/Location.h>
+    #include "Nest/Api/Location.h"
 
     #include <Nodes/Decls/AccessType.h>
 
-    namespace Nest
-    {
-        class Node;
-    }
-    namespace Feather
-    {
-        class NodeList;
-    }
+    typedef struct Nest_Node Node;
+
     namespace SprFrontend
     {
         class Scanner;
     }
 
-    using Nest::Location;
-
     // Define the macro that is used to advance the current location to the end of the N-th location in the stack
     #define YYLLOC_DEFAULT(curLoc, rhs, N) \
         if ( N > 0 ) \
         { \
-            curLoc.copyStart(YYRHSLOC(rhs, 1)); \
-            curLoc.copyEnd(YYRHSLOC(rhs, N)); \
+            (curLoc).sourceCode = YYRHSLOC(rhs, 1).sourceCode; \
+            (curLoc).start = YYRHSLOC(rhs, 1).start; \
+            (curLoc).end = YYRHSLOC(rhs, N).end; \
         } \
         else \
         { \
-            curLoc.setAsEndOf(YYRHSLOC(rhs, 0)); \
+            (curLoc).sourceCode = YYRHSLOC(rhs, 0).sourceCode; \
+            (curLoc).start = YYRHSLOC(rhs, 0).end; \
+            (curLoc).end = YYRHSLOC(rhs, 0).end; \
         }
 }
 
@@ -46,17 +41,18 @@
 
 #include <Nodes/Builder.h>
 #include <Nodes/SparrowNodes.h>
-#include <Feather/Nodes/FeatherNodes.h>
 
-#include <Nest/Common/Diagnostic.h>
-#include <Nest/Intermediate/Node.h>
+#include "Feather/Api/Feather.h"
+
+#include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Api/Node.h"
+#include "Nest/Utils/NodeUtils.hpp"
 
 #include <Grammar/Scanner.h>
 
 using namespace SprFrontend;
 using namespace Nest;
-
-using Feather::NodeList;
 
 using namespace std;
 
@@ -65,7 +61,8 @@ using namespace std;
 #endif
 
     // Used for empty rules to move the location to the start of the next token
-    #define NEXT_LOC        yylhs.location.setAsStartOf(yyla.location)
+    #define NEXT_LOC \
+        { yylhs.location.sourceCode = yyla.location.sourceCode; yylhs.location.start = yyla.location.start; yylhs.location.end = yyla.location.start; }
 }
 
 /*********************************************************************************************************************
@@ -82,14 +79,14 @@ using namespace std;
 %skeleton "lalr1.cc"                    // use newer C++ skeleton file
 %name-prefix "SprFrontend"              // namespace to enclose parser in
 %define "parser_class_name" {Parser}    // set the parser's class identifier
-%define api.location.type {Nest::Location} // the type that holds a location
+%define api.location.type {Location}    // the type that holds a location
 
 %start Start                            // the start rule
 
 // The parameters to be passed to the grammar - also stored in the Parser class
 %parse-param { SprFrontend::Scanner& scanner }
-%parse-param { Nest::Location startLocation }
-%parse-param { Nest::Node** resultNode }
+%parse-param { Location startLocation }
+%parse-param { Node** resultNode }
 
 %initial-action         // Actions to be performed when start parsing
 {
@@ -108,8 +105,7 @@ using namespace std;
     char                charVal;
     string*             stringVal;
     vector<string>*     stringList;
-    Nest::Node*         node;
-    Feather::NodeList*  nodeList;
+    Node*         node;
     AccessType          accessType;
 }
 
@@ -120,6 +116,7 @@ using namespace std;
 // Keywords
 %token BREAK
 %token CATCH CLASS CONCEPT CONTINUE
+%token DATATYPE
 %nonassoc THEN_CLAUSE
 %nonassoc ELSE
 %token FALSE FINALLY FOR FRIEND FUN
@@ -156,13 +153,13 @@ using namespace std;
 %type <stringVal>   Operator OperatorNoEq IdentifierOrOperator IdentifierOrOperatorNoEq
 %type <node>        QualifiedName QualifiedNameStar
 %type <stringList>  IdentifierList
-%type <nodeList>    IdentifierListNode Modifiers ModifierSpec
+%type <node>       IdentifierListNode Modifiers ModifierSpec
 
 %destructor { delete $$; } Operator OperatorNoEq IdentifierOrOperator IdentifierOrOperatorNoEq
 
 %type <node>        Start ProgramFile PackageTopDeclaration ImportDeclaration
-%type <nodeList>    ImportDeclarationsOpt ImportDeclarations
-%type <nodeList>    DeclarationsOpt Declarations FormalsOpt Formals Formal
+%type <node>        ImportDeclarationsOpt ImportDeclarations
+%type <node>        DeclarationsOpt Declarations FormalsOpt Formals Formal
 %type <node>        Declaration InFunctionDeclaration PackageDeclaration ClassDeclaration ConceptDeclaration VarDeclaration FunDeclaration UsingDeclaration
 //FriendDeclaration
 %type <node>        IfClause FunRetType FunctionBody
@@ -174,11 +171,11 @@ using namespace std;
 %type <node>        Expr PostfixExpr InfixExpr PrefixExpr SimpleExpr
 %type <node>        ExprNoEq PostfixExprNoEq InfixExprNoEq PrefixExprNoEq SimpleExprNoEq
 %type <node>        LambdaExpr
-%type <nodeList>    ExprList ExprListOpt LambdaClosureParams
+%type <node>        ExprList ExprListOpt LambdaClosureParams
 
 %type <node>        Statement EmptyStmt ExpressionStmt BlockStmt BreakStmt ContinueStmt IfStmt ForStmt ReturnStmt WhileStmt
 //ThrowStmt TryStmt CatchBlock FinallyBlock
-%type <nodeList>    Statements
+%type <node>        Statements
 //Catches
 
 
@@ -232,18 +229,18 @@ IdentifierOrOperatorNoEq
 
 QualifiedName
 	: QualifiedName DOT IDENTIFIER
-        { $$ = mkCompoundExp(@$, $1, *$3); }
+        { $$ = mkCompoundExp(@$, $1, fromString(*$3)); }
 	| IDENTIFIER
-        { $$ = mkIdentifier(@$, *$1); }
+        { $$ = mkIdentifier(@$, fromString(*$1)); }
 	;
 
 QualifiedNameStar
 	: QualifiedNameStar DOT IDENTIFIER
-        { $$ = mkCompoundExp(@$, $1, *$3); }
+        { $$ = mkCompoundExp(@$, $1, fromString(*$3)); }
 	| QualifiedNameStar DOT OPERATOR    // Assume STAR here
-        { $$ = mkStarExp(@$, $1, *$3); }
+        { $$ = mkStarExp(@$, $1, fromString(*$3)); }
 	| IDENTIFIER
-        { $$ = mkIdentifier(@$, *$1); }
+        { $$ = mkIdentifier(@$, fromString(*$1)); }
 	;
 
 IdentifierList
@@ -255,9 +252,9 @@ IdentifierList
 
 IdentifierListNode
     : IdentifierListNode COMMA IDENTIFIER
-        { $$ = Feather::addToNodeList($1, mkIdentifier(@3, *$3)); }
+        { $$ = Feather_addToNodeList($1, mkIdentifier(@3, fromString(*$3))); }
     | IDENTIFIER
-        { $$ = Feather::mkNodeList(@$, { mkIdentifier(@$, *$1)}); }
+        { $$ = Feather_mkNodeList(@$, fromIniList({ mkIdentifier(@$, fromString(*$1)) })); }
     ;
 
 ModifierSpec
@@ -269,9 +266,9 @@ ModifierSpec
 
 Modifiers
 	: Modifiers COMMA Expr
-        { $$ = Feather::addToNodeList($1, $3); }
+        { $$ = Feather_addToNodeList($1, $3); }
 	| Expr
-        { $$ = Feather::addToNodeList(NULL, $1); }
+        { $$ = Feather_addToNodeList(NULL, $1); }
 	;
 
 
@@ -300,16 +297,16 @@ ImportDeclarationsOpt
 
 ImportDeclarations
 	: ImportDeclarations ImportDeclaration
-        { $$ = Feather::addToNodeList($1, $2); }
+        { $$ = Feather_addToNodeList($1, $2); }
 	| ImportDeclaration
-        { $$ = Feather::addToNodeList(NULL, $1); }
+        { $$ = Feather_addToNodeList(NULL, $1); }
 	;
 
 ImportDeclaration
 	: IMPORT QualifiedNameStar SEMICOLON
         { $$ = $2; }
 	| IMPORT STRING_LITERAL SEMICOLON
-        { $$ = mkStringLiteral(@$, static_cast<string&>(*$<stringVal>2)); }
+        { $$ = buildStringLiteral(@$, fromString(*$<stringVal>2)); }
 	;
 
 DeclarationsOpt
@@ -320,9 +317,9 @@ DeclarationsOpt
 
 Declarations
 	: Declarations Declaration
-        { $$ = Feather::addToNodeList($1, $2); }
+        { $$ = Feather_addToNodeList($1, $2); }
 	| Declaration
-        { $$ = Feather::addToNodeList(NULL, $1); }
+        { $$ = Feather_addToNodeList(NULL, $1); }
 	;
 
 Declaration
@@ -364,9 +361,9 @@ AccessSpec
 
 UsingDeclaration
 	: AccessSpec USING ModifierSpec QualifiedNameStar SEMICOLON
-        { $$ = mkModifiers(@$, mkSprUsing(@$, "", $4, $1), $3); }
+        { $$ = mkModifiers(@$, mkSprUsing(@$, fromCStr(""), $4, $1), $3); }
 	| AccessSpec USING ModifierSpec IDENTIFIER EQUAL Expr SEMICOLON
-        { $$ = mkModifiers(@$, mkSprUsing(@$, *$4, $6, $1), $3); }
+        { $$ = mkModifiers(@$, mkSprUsing(@$, fromString(*$4), $6, $1), $3); }
 	;
 
 //FriendDeclaration
@@ -376,7 +373,7 @@ UsingDeclaration
 
 PackageDeclaration
 	: AccessSpec PACKAGE ModifierSpec IDENTIFIER LCURLY DeclarationsOpt RCURLY
-        { $$ = mkModifiers(@$, mkSprPackage(@$, *$4, $6, $1), $3); }
+        { $$ = mkModifiers(@$, mkSprPackage(@$, fromString(*$4), $6, $1), $3); }
 	;
 
 VarDeclaration                        
@@ -389,22 +386,24 @@ VarDeclaration
 	;
 
 ClassDeclaration
-	: AccessSpec CLASS ModifierSpec IDENTIFIER FormalsOpt COLON ExprListOpt IfClause LCURLY DeclarationsOpt RCURLY
-        { $$ = mkModifiers(@$, mkSprClass(@$, *$4, $5, $7, $8, $10, $1), $3); }
-	| AccessSpec CLASS ModifierSpec IDENTIFIER FormalsOpt IfClause LCURLY DeclarationsOpt RCURLY
-        { $$ = mkModifiers(@$, mkSprClass(@$, *$4, $5, NULL, $6, $8, $1), $3); }
+	: AccessSpec CLASS ModifierSpec IDENTIFIER FormalsOpt IfClause LCURLY DeclarationsOpt RCURLY
+        { $$ = mkModifiers(@$, mkSprClass(@$, fromString(*$4), $5, NULL, $6, $8, $1), $3); }
+    | AccessSpec DATATYPE ModifierSpec IDENTIFIER FormalsOpt IfClause LCURLY Formals RCURLY
+        { $$ = mkModifiers(@$, mkSprClass(@$, fromString(*$4), $5, NULL, $6, $8, $1), $3); }
+    | AccessSpec DATATYPE ModifierSpec IDENTIFIER FormalsOpt EQUAL Expr IfClause SEMICOLON
+        { $$ = mkModifiers(@$, mkSprClass(@$, fromString(*$4), $5, Feather_addToNodeList(NULL, $7), $8, NULL, $1), $3); }
 	;
 
 ConceptDeclaration
 	: AccessSpec CONCEPT ModifierSpec IDENTIFIER LPAREN IDENTIFIER FunRetType RPAREN IfClause SEMICOLON
-        { $$ = mkModifiers(@$, mkSprConcept(@$, *$4, *$6, $7, $9, $1), $3); }
+        { $$ = mkModifiers(@$, mkSprConcept(@$, fromString(*$4), fromString(*$6), $7, $9, $1), $3); }
 	;
 
 FunDeclaration
 	: AccessSpec FUN ModifierSpec FunOrOperName FormalsOpt FunRetType IfClause FunctionBody
-        { $$ = mkModifiers(@$, mkSprFunction(@$, *$4, $5, $6, $8, $7, $1), $3); }
+        { $$ = mkModifiers(@$, mkSprFunction(@$, fromString(*$4), $5, $6, $8, $7, $1), $3); }
 	| AccessSpec FUN ModifierSpec FunOrOperName FormalsOpt FunRetType EQUAL Expr IfClause SEMICOLON
-        { $$ = mkModifiers(@$, mkSprFunctionExp(@$, *$4, $5, $6, $8, $9, $1), $3); }
+        { $$ = mkModifiers(@$, buildSprFunctionExp(@$, fromString(*$4), $5, $6, $8, $9, $1), $3); }
 	;
 
 FunRetType
@@ -430,7 +429,7 @@ FormalsOpt
     : LPAREN Formals RPAREN
         { $$ = $2; }
     | IdentifierList
-        { $$ = buildParameters(@$, *$1, mkIdentifier(@$, "AnyType"), NULL, NULL); delete $1; }
+        { $$ = buildParameters(@$, *$1, mkIdentifier(@$, fromCStr("AnyType")), NULL, NULL); delete $1; }
     | LPAREN RPAREN
         { $$ = NULL; }
     | /*nothing*/
@@ -439,7 +438,7 @@ FormalsOpt
 
 Formals
 	: Formals COMMA Formal
-        { $$ = appendNodeList($1, $3); }
+        { $$ = Feather_appendNodeList($1, $3); }
 	| Formal
         { $$ = $1; }
 	;
@@ -473,9 +472,9 @@ ExprListOpt
 
 ExprList
 	: ExprList COMMA Expr
-        { $$ = Feather::addToNodeList($1, $3); }
+        { $$ = Feather_addToNodeList($1, $3); }
 	| Expr
-        { $$ = Feather::addToNodeList(NULL, $1); }
+        { $$ = Feather_addToNodeList(NULL, $1); }
 	;
 
 Expr
@@ -493,126 +492,126 @@ PostfixExpr
     : InfixExpr
         { $$ = $1; }
     | InfixExpr IdentifierOrOperator
-        { $$ = mkPostfixOp(@$, *$2, $1); }
+        { $$ = buildPostfixOp(@$, fromString(*$2), $1); }
     ;
 
 PostfixExprNoEq
     : InfixExprNoEq
         { $$ = $1; }
     | InfixExprNoEq IdentifierOrOperatorNoEq
-        { $$ = mkPostfixOp(@$, *$2, $1); }
+        { $$ = buildPostfixOp(@$, fromString(*$2), $1); }
     ;
 
 InfixExpr
     : PrefixExpr
         { $$ = $1; }
     | InfixExpr IdentifierOrOperator PrefixExpr
-        { $$ = mkInfixOp(@$, *$2, $1, $3); }
+        { $$ = mkInfixOp(@$, fromString(*$2), $1, $3); }
     ;
 
 InfixExprNoEq
     : PrefixExprNoEq
         { $$ = $1; }
     | InfixExprNoEq IdentifierOrOperatorNoEq PrefixExprNoEq
-        { $$ = mkInfixOp(@$, *$2, $1, $3); }
+        { $$ = mkInfixOp(@$, fromString(*$2), $1, $3); }
     ;
 
 PrefixExpr
     : SimpleExpr
         { $$ = $1; }
     | Operator PrefixExpr
-        { $$ = mkPrefixOp(@$, *$1, $2); }
+        { $$ = buildPrefixOp(@$, fromString(*$1), $2); }
     | BACKSQUOTE IDENTIFIER BACKSQUOTE PrefixExpr
-        { $$ = mkPrefixOp(@$, *$2, $4); }
+        { $$ = buildPrefixOp(@$, fromString(*$2), $4); }
     ;
 
 PrefixExprNoEq
     : SimpleExprNoEq
         { $$ = $1; }
     | OperatorNoEq PrefixExpr
-        { $$ = mkPrefixOp(@$, *$1, $2); }
+        { $$ = buildPrefixOp(@$, fromString(*$1), $2); }
     | BACKSQUOTE IDENTIFIER BACKSQUOTE PrefixExprNoEq
-        { $$ = mkPrefixOp(@$, *$2, $4); }
+        { $$ = buildPrefixOp(@$, fromString(*$2), $4); }
     ;
 
 SimpleExpr
 	: SimpleExpr LPAREN ExprListOpt RPAREN
-        { $$ = mkInfixOp(@$, "__fapp__", $1, $3); }
+        { $$ = mkInfixOp(@$, fromCStr("__fapp__"), $1, $3); }
     | SimpleExpr DOT IdentifierOrOperator
-        { $$ = mkInfixOp(@$, "__dot__", $1, mkIdentifier(@3, *$3)); }
+        { $$ = mkInfixOp(@$, fromCStr("__dot__"), $1, mkIdentifier(@3, fromString(*$3))); }
     | SimpleExpr DOT LPAREN RPAREN
-        { $$ = mkInfixOp(@$, "__dot__", $1, mkIdentifier(@3, "()")); }
+        { $$ = mkInfixOp(@$, fromCStr("__dot__"), $1, mkIdentifier(@3, fromCStr("()"))); }
     | SimpleExpr LBRACKET Modifiers RBRACKET
         { $$ = mkModifiers(@$, $1, $3); }
     | LambdaExpr
         { $$ = $1; }
 	| LPAREN Expr RPAREN
-        { $$ = mkParenthesisExp(@$, $2); }
+        { $$ = buildParenthesisExp(@$, $2); }
 	| IDENTIFIER
-        { $$ = mkIdentifier(@$, *$1); }
+        { $$ = mkIdentifier(@$, fromString(*$1)); }
 	| THIS
         { $$ = mkThisExp(@$); }
 	| NULLCT
-        { $$ = mkNullLiteral(@$); }
+        { $$ = buildNullLiteral(@$); }
 	| TRUE
-        { $$ = mkBoolLiteral(@$, true); }
+        { $$ = buildBoolLiteral(@$, true); }
 	| FALSE
-        { $$ = mkBoolLiteral(@$, false); }
+        { $$ = buildBoolLiteral(@$, false); }
 	| INT_LITERAL
-        { $$ = mkIntLiteral(@$, static_cast<int>($<integerVal>1)); }
+        { $$ = buildIntLiteral(@$, static_cast<int>($<integerVal>1)); }
 	| LONG_LITERAL
-        { $$ = mkLongLiteral(@$, static_cast<long>($<integerVal>1)); }
+        { $$ = buildLongLiteral(@$, static_cast<long>($<integerVal>1)); }
 	| UINT_LITERAL
-        { $$ = mkUIntLiteral(@$, static_cast<unsigned>($<integerVal>1)); }
+        { $$ = buildUIntLiteral(@$, static_cast<unsigned>($<integerVal>1)); }
 	| ULONG_LITERAL
-        { $$ = mkULongLiteral(@$, static_cast<unsigned long>($<integerVal>1)); }
+        { $$ = buildULongLiteral(@$, static_cast<unsigned long>($<integerVal>1)); }
 	| FLOAT_LITERAL
-        { $$ = mkFloatLiteral(@$, static_cast<float>($<floatingVal>1)); }
+        { $$ = buildFloatLiteral(@$, static_cast<float>($<floatingVal>1)); }
 	| DOUBLE_LITERAL
-        { $$ = mkDoubleLiteral(@$, static_cast<double>($<floatingVal>1)); }
+        { $$ = buildDoubleLiteral(@$, static_cast<double>($<floatingVal>1)); }
 	| CHAR_LITERAL
-        { $$ = mkCharLiteral(@$, static_cast<char>($<charVal>1)); }
+        { $$ = buildCharLiteral(@$, static_cast<char>($<charVal>1)); }
 	| STRING_LITERAL
-        { $$ = mkStringLiteral(@$, static_cast<string&>(*$<stringVal>1)); }
+        { $$ = buildStringLiteral(@$, fromString(*$<stringVal>1)); }
 	;
 
 SimpleExprNoEq
 	: SimpleExprNoEq LPAREN ExprListOpt RPAREN
-        { $$ = mkInfixOp(@$, "__fapp__", $1, $3); }
+        { $$ = mkInfixOp(@$, fromCStr("__fapp__"), $1, $3); }
     | SimpleExprNoEq DOT IdentifierOrOperatorNoEq
-        { $$ = mkInfixOp(@$, "__dot__", $1, mkIdentifier(@3, *$3)); }
+        { $$ = mkInfixOp(@$, fromCStr("__dot__"), $1, mkIdentifier(@3, fromString(*$3))); }
     | SimpleExprNoEq LBRACKET Modifiers RBRACKET
         { $$ = mkModifiers(@$, $1, $3); }
     | LambdaExpr
         { $$ = $1; }
 	| LPAREN Expr RPAREN
-        { $$ = mkParenthesisExp(@$, $2); }
+        { $$ = buildParenthesisExp(@$, $2); }
 	| IDENTIFIER
-        { $$ = mkIdentifier(@$, *$1); }
+        { $$ = mkIdentifier(@$, fromString(*$1)); }
 	| THIS
         { $$ = mkThisExp(@$); }
 	| NULLCT
-        { $$ = mkNullLiteral(@$); }
+        { $$ = buildNullLiteral(@$); }
 	| TRUE
-        { $$ = mkBoolLiteral(@$, true); }
+        { $$ = buildBoolLiteral(@$, true); }
 	| FALSE
-        { $$ = mkBoolLiteral(@$, false); }
+        { $$ = buildBoolLiteral(@$, false); }
 	| INT_LITERAL
-        { $$ = mkIntLiteral(@$, static_cast<int>($<integerVal>1)); }
+        { $$ = buildIntLiteral(@$, static_cast<int>($<integerVal>1)); }
 	| LONG_LITERAL
-        { $$ = mkLongLiteral(@$, static_cast<long>($<integerVal>1)); }
+        { $$ = buildLongLiteral(@$, static_cast<long>($<integerVal>1)); }
 	| UINT_LITERAL
-        { $$ = mkUIntLiteral(@$, static_cast<unsigned>($<integerVal>1)); }
+        { $$ = buildUIntLiteral(@$, static_cast<unsigned>($<integerVal>1)); }
 	| ULONG_LITERAL
-        { $$ = mkULongLiteral(@$, static_cast<unsigned long>($<integerVal>1)); }
+        { $$ = buildULongLiteral(@$, static_cast<unsigned long>($<integerVal>1)); }
 	| FLOAT_LITERAL
-        { $$ = mkFloatLiteral(@$, static_cast<float>($<floatingVal>1)); }
+        { $$ = buildFloatLiteral(@$, static_cast<float>($<floatingVal>1)); }
 	| DOUBLE_LITERAL
-        { $$ = mkDoubleLiteral(@$, static_cast<double>($<floatingVal>1)); }
+        { $$ = buildDoubleLiteral(@$, static_cast<double>($<floatingVal>1)); }
 	| CHAR_LITERAL
-        { $$ = mkCharLiteral(@$, static_cast<char>($<charVal>1)); }
+        { $$ = buildCharLiteral(@$, static_cast<char>($<charVal>1)); }
 	| STRING_LITERAL
-        { $$ = mkStringLiteral(@$, static_cast<string&>(*$<stringVal>1)); }
+        { $$ = buildStringLiteral(@$, fromString(*$<stringVal>1)); }
 	;
 
 LambdaExpr
@@ -638,7 +637,7 @@ LambdaClosureParams
 
 Statements
     : Statements Statement
-        { $$ = Feather::addToNodeList($1, $2); }
+        { $$ = Feather_addToNodeList($1, $2); }
     | /*nothing*/
         { $$ = NULL; }
     ;
@@ -677,45 +676,45 @@ EmptyStmt
 
 ExpressionStmt
 	: Expr SEMICOLON
-        { $$ = mkExpressionStmt(@$, $1); }
+        { $$ = buildExpressionStmt(@$, $1); }
 	;
 
 BlockStmt
     : LCURLY Statements RCURLY
-        { $$ = mkBlockStmt(@$, $2); }
+        { $$ = buildBlockStmt(@$, $2); }
     ;
 
 IfStmt
 	: IF ModifierSpec LPAREN Expr RPAREN Statement ELSE Statement
-        { $$ = mkModifiers(@$, mkIfStmt(@$, $4, $6, $8), $2); }
+        { $$ = mkModifiers(@$, buildIfStmt(@$, $4, $6, $8), $2); }
 	| IF ModifierSpec LPAREN Expr RPAREN Statement %prec THEN_CLAUSE
-        { $$ = mkModifiers(@$, mkIfStmt(@$, $4, $6, NULL), $2); }
+        { $$ = mkModifiers(@$, buildIfStmt(@$, $4, $6, NULL), $2); }
 	;
 
 ForStmt
 	: FOR ModifierSpec LPAREN IDENTIFIER COLON ExprNoEq EQUAL Expr RPAREN Statement
-        { $$ = mkModifiers(@$, mkForStmt(@$, *$4, $6, $8, $10), $2); }
+        { $$ = mkModifiers(@$, mkForStmt(@$, fromString(*$4), $6, $8, $10), $2); }
 	| FOR ModifierSpec LPAREN IDENTIFIER EQUAL Expr RPAREN Statement
-        { $$ = mkModifiers(@$, mkForStmt(@$, *$4, NULL, $6, $8), $2); }
+        { $$ = mkModifiers(@$, mkForStmt(@$, fromString(*$4), NULL, $6, $8), $2); }
 	;
 
 WhileStmt
 	: WHILE ModifierSpec LPAREN Expr RPAREN Statement
-        { $$ = mkModifiers(@$, mkWhileStmt(@$, $4, NULL, $6), $2); }
+        { $$ = mkModifiers(@$, buildWhileStmt(@$, $4, NULL, $6), $2); }
 	| WHILE ModifierSpec LPAREN Expr SEMICOLON Statement RPAREN Statement
-        { $$ = mkModifiers(@$, mkWhileStmt(@$, $4, $6, $8), $2); }
+        { $$ = mkModifiers(@$, buildWhileStmt(@$, $4, $6, $8), $2); }
 	| WHILE ModifierSpec LPAREN Expr SEMICOLON Expr RPAREN Statement
-        { $$ = mkModifiers(@$, mkWhileStmt(@$, $4, $6, $8), $2); }
+        { $$ = mkModifiers(@$, buildWhileStmt(@$, $4, $6, $8), $2); }
 	;
 
 BreakStmt
 	: BREAK SEMICOLON
-        { $$ = mkBreakStmt(@$); }
+        { $$ = buildBreakStmt(@$); }
 	;
 
 ContinueStmt
 	: CONTINUE SEMICOLON
-        { $$ = mkContinueStmt(@$); }
+        { $$ = buildContinueStmt(@$); }
 	;
 
 ReturnStmt
@@ -737,7 +736,7 @@ ReturnStmt
 //
 //Catches
 //	: Catches CatchBlock
-//        { $$ = Feather::addToNodeList($1, $2); }
+//        { $$ = Feather_addToNodeList($1, $2); }
 //    | /*nothing*/
 //        { $$ = NULL; }
 //	;

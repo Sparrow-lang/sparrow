@@ -6,19 +6,12 @@
 #include "Impl/ClassCtorCallable.h"
 #include "Impl/ConceptCallable.h"
 #include <Helpers/DeclsHelpers.h>
+#include <Helpers/Generics.h>
 #include <NodeCommonsCpp.h>
-#include <Nodes/Decls/SprConcept.h>
 
-#include <Feather/Nodes/ChangeMode.h>
-#include <Feather/Nodes/Decls/Function.h>
-#include <Feather/Nodes/Decls/Class.h>
-#include <Feather/Type/DataType.h>
-#include <Feather/Util/Decl.h>
-
-#include <Nest/Common/ScopeGuard.h>
+#include "Feather/Utils/FeatherUtils.hpp"
 
 using namespace SprFrontend;
-using namespace Feather;
 using namespace Nest;
 
 namespace
@@ -31,31 +24,28 @@ namespace
         Node* resDecl = resultingDecl(decl);
 
         // Is this a normal function call?
-        Function* fun = resDecl->as<Function>();
-        if ( fun )
+        if ( resDecl && resDecl->nodeKind == nkFeatherDeclFunction )
         {
-            res.push_back(new FunctionCallable(fun));
+            res.push_back(new FunctionCallable(resDecl));
             return res;
         }
 
         // Is this a generic?
-        Generic* generic = dynamic_cast<Generic*>(resDecl);
-        if ( generic )
+        if ( isGeneric(resDecl) )
         {
-            res.push_back(new GenericCallable(generic));
+            res.push_back(new GenericCallable(resDecl));
             return res;
         }
 
         // Is this a concept?
-        SprConcept* concept = dynamic_cast<SprConcept*>(resDecl);
-        if ( concept )
+        if ( resDecl->nodeKind == nkSparrowDeclSprConcept )
         {
-            res.push_back(new ConceptCallable(concept));
+            res.push_back(new ConceptCallable(resDecl));
             return res;
         }
 
         // Is this a temporary object creation?
-        Class* cls = resDecl->as<Class>();
+        Node* cls = resDecl && resDecl->nodeKind == nkFeatherDeclClass ? resDecl : nullptr;
         if ( cls )
             return ClassCtorCallable::getCtorCallables(cls, evalMode);
 
@@ -66,7 +56,7 @@ namespace
     /// Filter candidates by checking the arguments against each candidate
     /// Retain only the candidates with the highest conversion
     /// Accepts either the argument nodes, or their type
-    Callables filterCandidates(CompilationContext* context, const Location& loc, const Callables& candidates, const NodeVector* args, const vector<Type*>* argTypes, EvalMode evalMode, bool noCustomCvt = false)
+    Callables filterCandidates(CompilationContext* context, const Location& loc, const Callables& candidates, NodeRange* args, const vector<TypeRef>* argTypes, EvalMode evalMode, bool noCustomCvt = false)
     {
         Callables res;
         ConversionType bestConv = convNone;
@@ -100,8 +90,8 @@ namespace
         bool secondIsMoreSpecialized = false;
         for ( size_t i=0; i<paramsCount; ++i )
         {
-            Type* t1 = f1->paramType(i);
-            Type* t2 = f2->paramType(i);
+            TypeRef t1 = f1->paramType(i);
+            TypeRef t2 = f2->paramType(i);
 
             // Ignore parameters of same type
             if ( t1 == t2 )
@@ -158,25 +148,25 @@ namespace
         return nullptr;
     }
 
-    string nameWithAguments(const string funName, const vector<Type*>& argsTypes)
+    string nameWithAguments(StringRef funName, const vector<TypeRef>& argsTypes)
     {
         ostringstream oss;
-        oss << funName;
+        oss << funName.begin;
         oss << "(";
         for ( size_t i=0; i<argsTypes.size(); ++i )
         {
             if ( i>0 )
                 oss << ", ";
-            oss << argsTypes[i]->toString();
+            oss << argsTypes[i];
         }
         oss << ")";
         return oss.str();
     }
 
-    void doReportErrors(const Location& loc, const NodeVector& decls, const Callables& candidates,
-        const vector<Type*>& argsTypes, const string& funName)
+    void doReportErrors(const Location& loc, NodeRange decls, const Callables& candidates,
+        const vector<TypeRef>& argsTypes, StringRef funName)
     {
-        REP_ERROR_NOTHROW(loc, "No matching overload found for calling %1%") % nameWithAguments(funName, argsTypes);
+        REP_ERROR(loc, "No matching overload found for calling %1%") % nameWithAguments(funName, argsTypes);
         for ( Callable* cand: candidates )
         {
             REP_INFO(cand->location(), "See possible candidate: %1%") % cand->toString();
@@ -185,40 +175,43 @@ namespace
         {
             for ( Node* decl: decls )
             {
-                REP_INFO(decl->location(), "See possible candidate: %1%") % decl->toString();
+                REP_INFO(decl->location, "See possible candidate: %1%") % decl;
             }
         }
-        REP_ERROR_THROW("NoOverloadFound");
     }
 }
 
-Node* SprFrontend::selectOverload(CompilationContext* context, const Location& loc, Nest::EvalMode evalMode,
-        NodeVector decls, NodeVector args,
-        bool reportErrors, const string& funName)
+Node* SprFrontend::selectOverload(CompilationContext* context, const Location& loc, EvalMode evalMode,
+        NodeRange decls, NodeRange args,
+        bool reportErrors, StringRef funName)
 {
-    ENTER_TIMER_DESC(Nest::theCompiler().timingSystem(), "others.overload", "Overloading selection");
+    auto numDecls = Nest_nodeRangeSize(decls);
+    Node* firstDecl = numDecls > 0 ? at(decls, 0) : nullptr;
 
     // Special case for macro calls
-    bool isMacro = decls.size() == 1 && decls[0]->hasProperty(propMacro);
+    bool isMacro = firstDecl && Nest_hasProperty(firstDecl, propMacro);
     if ( isMacro )
     {
         // Wrap every argument in a lift(...) call
         for ( auto& arg: args )
         {
-            const Location& l = arg->location();
-            arg = mkFunApplication(l, mkIdentifier(l, "lift"), mkNodeList(l, {arg}, true));
-            arg->setContext(context);
+            const Location& l = arg->location;
+            arg = mkFunApplication(l, mkIdentifier(l, fromCStr("lift")), Feather_mkNodeListVoid(l, fromIniList({ arg })));
+            Nest_setContext(arg, context);
         }
     }
 
-    vector<Type*> argsTypes(args.size(), nullptr);
-    for ( size_t i=0; i<args.size(); ++i)
+    auto numArgs = Nest_nodeRangeSize(args);
+    vector<TypeRef> argsTypes(numArgs, nullptr);
+    for ( size_t i=0; i<numArgs; ++i)
     {
-        args[i]->semanticCheck();
-        argsTypes[i] = args[i]->type();
+        Node* arg = at(args, i);
+        if ( !Nest_semanticCheck(arg) )
+            return nullptr;
+        argsTypes[i] = arg->type;
     }
 
-    if ( decls.empty() )
+    if ( numDecls == 0 )
     {
         if ( reportErrors )
             doReportErrors(loc, decls, Callables(), argsTypes, funName);
@@ -227,21 +220,21 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
 
     // If the desired eval-mode is different from the context's mode, create a new context
     // We do this by wrapping everything inside a ChangeMode node
-    ChangeMode* changeModeNode = nullptr;
-    if ( context->evalMode() != evalMode )
+    Node* changeModeNode = nullptr;
+    if ( context->evalMode != evalMode )
     {
-        changeModeNode = new ChangeMode(loc, evalMode);
-        changeModeNode->setContext(context);
-        context = changeModeNode->childrenContext();
+        changeModeNode = Feather_mkChangeMode(loc, nullptr, evalMode);
+        Nest_setContext(changeModeNode, context);
+        context = Nest_childrenContext(changeModeNode);
     }
 
     // First, get all the candidates
     Callables candidates1;
-    auto guard1 = Nest::Common::makeGuard([&]()-> void { destroyCallables(candidates1); });
-    candidates1.reserve(decls.size());
+    candidates1.reserve(numDecls);
     for ( Node* decl: decls )
     {
-        decl->computeType();
+        if ( !Nest_computeType(decl) )
+            continue;
         auto newCandidates = getCallables(decl, evalMode);
         candidates1.insert(candidates1.end(), newCandidates.begin(), newCandidates.end());
     }
@@ -249,16 +242,17 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
     {
         if ( reportErrors )
             doReportErrors(loc, decls, Callables(), argsTypes, funName);
+        destroyCallables(candidates1);
         return nullptr;
     }
 
     // Check the candidates to be able to be called with the given arguments
     Callables candidates = filterCandidates(context, loc, candidates1, &args, nullptr, evalMode);
-    auto guard = Nest::Common::makeGuard([&]()-> void { destroyCallables(candidates1); });
     if ( candidates.empty() )
     {
         if ( reportErrors )
             doReportErrors(loc, decls, candidates1, argsTypes, funName);
+        destroyCallables(candidates1);
         return nullptr;
     }
 
@@ -268,14 +262,15 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
     {
         if ( reportErrors )
             doReportErrors(loc, decls, candidates, argsTypes, funName);
+        destroyCallables(candidates1);
         return nullptr;
     }
 
     Node* res = selectedFun->generateCall(loc);
-    ASSERT(res->context());
+    ASSERT(res->context);
     if ( changeModeNode )
     {
-        changeModeNode->setChild(res);
+        Feather_ChangeMode_setChild(changeModeNode, res);
         res = changeModeNode;
     }
 
@@ -283,35 +278,35 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
     if ( isMacro )
     {
         // Wrap the function call in a Meta.astEval(...) call
-        Node* funName = mkCompoundExp(loc, mkIdentifier(loc, "Meta"), "astEval");
-        res = mkFunApplication(loc, funName, { res });
-        res->setContext(context);
+        Node* funName = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("Meta")), fromCStr("astEval"));
+        res = mkFunApplication(loc, funName, fromIniList({res}));
+        Nest_setContext(res, context);
     }
 
+    destroyCallables(candidates1);
     return res;
 }
 
-bool SprFrontend::selectConversionCtor(CompilationContext* context, Class* destClass, EvalMode destMode,
-        Type* argType, Node* arg, Node** conv)
+bool SprFrontend::selectConversionCtor(CompilationContext* context, Node* destClass, EvalMode destMode,
+        TypeRef argType, Node* arg, Node** conv)
 {
-    ENTER_TIMER_DESC(Nest::theCompiler().timingSystem(), "others.selCvtCtor", "Selecting conversion ctor");
-
     ASSERT(argType);
 
     // Search for the ctors in the class 
-    NodeVector decls = destClass->childrenContext()->currentSymTab()->lookupCurrent("ctor");
+    NodeArray decls = Nest_symTabLookupCurrent(Nest_childrenContext(destClass)->currentSymTab, "ctor");
 
-//     cerr << "Convert: " << argType->toString() << " -> " << destClass->toString() << " ?" << endl;
+//     cerr << "Convert: " << argType->toString() << " -> " << Nest_toString(destClass) << " ?" << endl;
 
     // Get all the candidates
     Callables candidates;
-    candidates.reserve(decls.size());
+    candidates.reserve(Nest_nodeArraySize(decls));
     for ( Node* decl: decls )
     {
-        if ( !decl->hasProperty(propConvert) )
+        if ( !Nest_hasProperty(decl, propConvert) )
             continue;
 
-        decl->computeType();
+        if ( !Nest_computeType(decl) )
+            continue;
         Node* resDecl = resultingDecl(decl);
 
         Callables callables = getCallables(resDecl, destMode);
@@ -320,12 +315,13 @@ bool SprFrontend::selectConversionCtor(CompilationContext* context, Class* destC
             candidates.push_back(new ClassCtorCallable(destClass, c, destMode));
         }
     }
+    Nest_freeNodeArray(decls);
     if ( candidates.empty() )
         return false;
 
     // Check the candidates to be able to be called with the given arguments
-    vector<Type*> argTypes(1, argType);
-    candidates = filterCandidates(context, arg ? arg->location() : Location(), candidates, nullptr, &argTypes, destMode, true);
+    vector<TypeRef> argTypes(1, argType);
+    candidates = filterCandidates(context, arg ? arg->location : Location(), candidates, nullptr, &argTypes, destMode, true);
     if ( candidates.empty() )
         return false;
 
@@ -337,41 +333,41 @@ bool SprFrontend::selectConversionCtor(CompilationContext* context, Class* destC
 //     cerr << "SUCCESS!!!" << endl;
     if ( arg && conv )
     {
-        arg->computeType();
-        auto cr = selectedFun->canCall(context, arg->location(), { arg }, destMode, true);
+        if ( !Nest_computeType(arg) )
+            return false;
+        auto cr = selectedFun->canCall(context, arg->location, fromIniList({ arg }), destMode, true);
         (void) cr;
         ASSERT(cr);
-        *conv = selectedFun->generateCall(arg->location());
-        (*conv)->setContext(context);
-        (*conv)->semanticCheck();
+        *conv = selectedFun->generateCall(arg->location);
+        Nest_setContext(*conv, context);
+        Nest_semanticCheck(*conv);
     }
     return true;
 }
 
-Callable* SprFrontend::selectCtToRtCtor(CompilationContext* context, Type* ctType)
+Callable* SprFrontend::selectCtToRtCtor(CompilationContext* context, TypeRef ctType)
 {
-    ENTER_TIMER_DESC(Nest::theCompiler().timingSystem(), "others.selCtRtCtor", "Selecting ct-to-rt ctor");
-
-    if ( ctType->mode() != modeCt || !ctType->hasStorage() )
+    if ( ctType->mode != modeCt || !ctType->hasStorage )
         return nullptr;
-    Class* cls = static_cast<StorageType*>(ctType)->classDecl();
-    if ( effectiveEvalMode(cls) != modeRtCt )
+    Node* cls = Feather_classDecl(ctType);
+    if ( Feather_effectiveEvalMode(cls) != modeRtCt )
         return nullptr;
 
     // Search for the ctors in the class 
-    NodeVector decls = cls->childrenContext()->currentSymTab()->lookupCurrent("ctorFromCt");
+    NodeArray decls = Nest_symTabLookupCurrent(Nest_childrenContext(cls)->currentSymTab, "ctorFromCt");
 
     // Select the possible ct-to-rt constructors
     Callables candidates;
-    candidates.reserve(decls.size());
+    candidates.reserve(Nest_nodeArraySize(decls));
     for ( Node* decl: decls )
     {
-        if ( effectiveEvalMode(decl) != modeRt )
+        if ( Feather_effectiveEvalMode(decl) != modeRt )
             continue;
 
-        decl->computeType();
+        if ( !Nest_computeType(decl) )
+            continue;
         Node* resDecl = resultingDecl(decl);
-        ASSERT(effectiveEvalMode(resDecl) == modeRt);
+        ASSERT(Feather_effectiveEvalMode(resDecl) == modeRt);
 
         Callables callables = getCallables(resDecl, modeRt);
         for ( Callable* c: callables )
@@ -379,8 +375,8 @@ Callable* SprFrontend::selectCtToRtCtor(CompilationContext* context, Type* ctTyp
             // We expect two parameters (this + arg); the second one should be ct
             if ( c->paramsCount() != 2 )
                 continue;
-            Type* t = c->paramType(1);
-            if ( t->mode() != modeCt )
+            TypeRef t = c->paramType(1);
+            if ( t->mode != modeCt )
                 continue;
 
             ASSERT(c->evalMode() == modeRt);
@@ -389,11 +385,12 @@ Callable* SprFrontend::selectCtToRtCtor(CompilationContext* context, Type* ctTyp
             candidates.push_back(new ClassCtorCallable(cls, c, modeRt));
         }
     }
+    Nest_freeNodeArray(decls);
     if ( candidates.empty() )
         return nullptr;
 
     // Check the candidates to be able to be called with the given arguments
-    vector<Type*> argTypes(1, ctType);
+    vector<TypeRef> argTypes(1, ctType);
     candidates = filterCandidates(context, Location(), candidates, nullptr, &argTypes, modeRt, true);
     if ( candidates.empty() )
         return nullptr;

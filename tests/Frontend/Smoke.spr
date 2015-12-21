@@ -8,7 +8,7 @@ package A
 {
     package B
     {
-        class C: A
+        class C
         {
             var a: Int;
             var[static] b: Bool;

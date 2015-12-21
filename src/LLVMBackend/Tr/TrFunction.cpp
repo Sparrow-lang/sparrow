@@ -7,17 +7,15 @@
 #include "Module.h"
 #include "Tr/DebugInfo.h"
 
-#include <Feather/Nodes/Properties.h>
-#include <Feather/Nodes/Decls/Function.h>
-#include <Feather/Nodes/Decls/Class.h>
-#include <Feather/Nodes/Decls/Var.h>
-#include <Feather/Util/Decl.h>
-#include <Feather/Util/Context.h>
+#include "Feather/Api/Feather.h"
+#include "Feather/Utils/FeatherUtils.hpp"
 
-#include <Nest/Intermediate/Type.h>
-#include <Nest/Common/Diagnostic.h>
-#include <Nest/Compiler.h>
-#include <Nest/CompilerSettings.h>
+#include "Nest/Api/Type.h"
+#include "Nest/Api/Compiler.h"
+#include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Utils/NodeUtils.h"
+#include "Nest/Utils/CompilerSettings.hpp"
 
 using namespace LLVMB;
 using namespace LLVMB::Tr;
@@ -28,7 +26,7 @@ namespace
 {
     /// Called to translate the function body
     /// If 'addressToStoreResult' is given, we add a mem-store to the result of 'node' in the given address
-    void translateFunctionBody(Module& module, Nest::Node* node, llvm::BasicBlock& insertionPoint, llvm::IRBuilder<>& llvmBuilder, llvm::Value* addressToStoreResult = nullptr)
+    void translateFunctionBody(Module& module, Node* node, llvm::BasicBlock& insertionPoint, llvm::IRBuilder<>& llvmBuilder, llvm::Value* addressToStoreResult = nullptr)
     {
         // Create a context for the body of the function
         TrContext trContext(module, &insertionPoint, llvmBuilder);
@@ -38,7 +36,7 @@ namespace
             llvm::Value* value = nullptr;
             try
             {
-                Scope scopeGuard(trContext, node->location());
+                Scope scopeGuard(trContext, node->location);
 	            value = translateNode(node, trContext);
             }
             catch (...)
@@ -49,7 +47,7 @@ namespace
             if ( addressToStoreResult )
             {
                 if ( !value )
-                    REP_INTERNAL(node->location(), "Cannot CT evaluate node: %1%") % node;
+                    REP_INTERNAL(node->location, "Cannot CT evaluate node: %1%") % node;
 
                 // Create a 'store' instruction
                 new llvm::StoreInst(value, addressToStoreResult, trContext.insertionPoint());
@@ -68,11 +66,12 @@ namespace
 }
 
 
-llvm::Function* Tr::translateFunction(Feather::Function* node, Module& module)
+llvm::Function* Tr::translateFunction(Node* node, Module& module)
 {
-    node->computeType();
+    if ( !Nest_computeType(node) )
+        return nullptr;
 
-    Nest::CompilerSettings& s = Nest::theCompiler().settings();
+    CompilerSettings& s = *Nest_compilerSettings();
 
     // Check for ct/non-ct compatibility
     if ( !module.canUse(node) )
@@ -84,50 +83,52 @@ llvm::Function* Tr::translateFunction(Feather::Function* node, Module& module)
         return *funDecl;
 
     // First, translate the prototype
-    llvm::FunctionType* funType = static_cast<llvm::FunctionType*>(getLLVMType(node->type(), module));
+    llvm::FunctionType* funType = static_cast<llvm::FunctionType*>(getLLVMType(node->type, module));
 
     llvm::Function* f = nullptr;
 
     // Check if this is a standard/native type
-    const string* nativeName = node->getPropertyString(propNativeName);
-    string name = getName(node);
-//    Feather::Class* cls = getParentClass(node->context());
+    const StringRef* nativeName = Nest_getPropertyString(node, propNativeName);
+    StringRef name = Feather_getName(node);
+//    Node* cls = Feather_getParentClass(node->context());
 //    if ( cls )
 //    {
-//        const string* clsDescription = cls->getPropertyString(propDescription);
-//        name = (clsDescription ? *clsDescription : getName(cls)) + "." + name;
+//        const string* clsDescription = Nest_getPropertyString(cls, propDescription);
+//        name = (clsDescription ? *clsDescription : Feather_getName(cls)) + "." + name;
 //    }
-    const string& funName = nativeName ? *nativeName : name;
+    StringRef funName = nativeName ? *nativeName : name;
 
     // Debugging
-//     if ( module.isCt() )
-//         REP_INFO(node->location(), "Preparing to translate function %1%") % node;
+//     if ( module.Feather_isCt() )
+//         REP_INFO(node->location, "Preparing to translate function %1%") % node;
 
     // If we have a native external body, just create the declaration
-    if ( nativeName && !node->body() )
+    Node* body = Feather_Function_body(node);
+    if ( nativeName && !body )
     {
-        f =  (llvm::Function*) module.llvmModule().getOrInsertFunction(*nativeName, funType);
+        f =  (llvm::Function*) module.llvmModule().getOrInsertFunction(nativeName->begin, funType);
         //f->dump();
     }
     else
     {
         // Make sure the function is semantically checked
-        node->semanticCheck();
+        if ( !Nest_semanticCheck(node) )
+            return nullptr;            
 
-        size_t lineDiff = node->location().endLineNo() - node->location().startLineNo();
-        bool preventInline = lineDiff > s.maxCountForInline_ || node->hasProperty(propNoInline);
+        size_t lineDiff = node->location.end.line - node->location.start.line;
+        bool preventInline = lineDiff > s.maxCountForInline_ || Nest_hasProperty(node, propNoInline);
 
         // Create the LLVM function object
-        llvm::Function::LinkageTypes linkage = node->body() && !preventInline
+        llvm::Function::LinkageTypes linkage = body && !preventInline
             ? llvm::Function::PrivateLinkage
             : llvm::Function::ExternalLinkage;
-        f = llvm::Function::Create(funType, linkage, funName, &module.llvmModule());
+        f = llvm::Function::Create(funType, linkage, funName.begin, &module.llvmModule());
 
         // Do we have a name conflict?
-        if ( f->getName() != funName )
+        if ( f->getName() != llvm::StringRef(funName.begin) )
         {
             // Check the old function
-            llvm::Function* oldFun = module.llvmModule().getFunction(funName);
+            llvm::Function* oldFun = module.llvmModule().getFunction(funName.begin);
             if ( oldFun && !module.isFunctionDefined(oldFun) )
             {
                 // The old function is not defined by this module, but still lives in the current LLVM module; it must be
@@ -140,14 +141,14 @@ llvm::Function* Tr::translateFunction(Feather::Function* node, Module& module)
         }
 
         // Set the calling convention
-        f->setCallingConv(translateCallingConv(node->callConvention()));
+        f->setCallingConv(translateCallingConv(Feather_Function_callConvention(node)));
 
         // If we have a result parameter, mark it as sret
-        if ( node->getPropertyNode(propResultParam) )
+        if ( Nest_getPropertyNode(node, propResultParam) )
             f->addAttribute(1, llvm::Attribute::StructRet);
 
         // Heuristic for inlining
-        if ( node->body() )
+        if ( body )
         {
             if ( preventInline )
                 f->addFnAttr(llvm::Attribute::NoInline);
@@ -170,17 +171,17 @@ llvm::Function* Tr::translateFunction(Feather::Function* node, Module& module)
     if ( module.debugInfo() )
         module.debugInfo()->emitFunctionStart(llvmBuilder, node, f);
 
-    if ( node->body() )
+    if ( body )
     {
         /// Mark this llvm function as added by this module
         module.addDefinedFunction(f);
 
         // Set the names for the parameters
-        ASSERT(f->arg_size() == node->numParameters());
+        ASSERT(f->arg_size() == Feather_Function_numParameters(node));
         size_t idx = 0;
         for ( auto argIt=f->arg_begin(); argIt!=f->arg_end(); ++argIt, ++idx )
         {
-            argIt->setName(getName(node->getParameter(idx)));
+            argIt->setName(toString(Feather_getName(Feather_Function_getParameter(node, idx))));
         }
 
         // Create the block in which we insert the code
@@ -190,44 +191,44 @@ llvm::Function* Tr::translateFunction(Feather::Function* node, Module& module)
         idx = 0;
         for ( auto argIt=f->arg_begin(); argIt!=f->arg_end(); ++argIt, ++idx )
         {
-            Node* paramNode = node->getParameter(idx);
-            Var* param = paramNode->explanation()->as<Var>();
+            Node* paramNode = Feather_Function_getParameter(node, idx);
+            Node* param = Nest_ofKind(Nest_explanation(paramNode), nkFeatherDeclVar);
             if ( !param )
-                REP_INTERNAL(paramNode->location(), "Expected Var node; found %1%") % paramNode;
-            llvm::AllocaInst* newVar = new llvm::AllocaInst(argIt->getType(), getName(param)+".addr", bodyBlock);
-            newVar->setAlignment(param->alignment());
+                REP_INTERNAL(paramNode->location, "Expected Var node; found %1%") % paramNode;
+            llvm::AllocaInst* newVar = new llvm::AllocaInst(argIt->getType(), toString(Feather_getName(param))+".addr", bodyBlock);
+            newVar->setAlignment(Nest_getCheckPropertyInt(param, "alignment"));
             new llvm::StoreInst(argIt, newVar, bodyBlock); // Copy the value of the parameter into it
             module.setNodeProperty(param, Module::propValue, boost::any(newVar));
             Tr::setValue(module, *param, newVar); // We point now to the new temp variable
         }
 
         // Translate the body
-        translateFunctionBody(module, node->body(), *bodyBlock, llvmBuilder);
+        translateFunctionBody(module, body, *bodyBlock, llvmBuilder);
     }
 
     // If we are emitting debug information, emit function end
     if ( module.debugInfo() )
-        module.debugInfo()->emitFunctionEnd(llvmBuilder, node->location());
+        module.debugInfo()->emitFunctionEnd(llvmBuilder, node->location);
 
     // Debugging
-//     if ( module.isCt() )
-//     if ( getName(node) == "test5" )
+//     if ( module.Feather_isCt() )
+//     if ( Feather_getName(node) == "test5" )
 //         f->dump();
-        //REP_INFO(node->location(), "CT process fun: %1%") % node;
+        //REP_INFO(node->location, "CT process fun: %1%") % node;
 
     return f;
 }
 
-llvm::Function* Tr::makeFunThatCalls(Nest::Node* node, Module& module, const char* funName, bool expectsResult)
+llvm::Function* Tr::makeFunThatCalls(Node* node, Module& module, const char* funName, bool expectsResult)
 {
 	// Create the function type
 	vector<llvm::Type*> llvmParamTypes;
     if ( expectsResult )
     {
-        ASSERT(node->type()->hasStorage());
+        ASSERT(node->type->hasStorage);
 
 	    // Get the type of the expression, to be used with llvm code
-	    llvm::Type* t = getLLVMType(node->type(), module);
+	    llvm::Type* t = getLLVMType(node->type, module);
 	    llvm::Type* pt = llvm::PointerType::get(t, 0);
 
         llvmParamTypes.reserve(1);
@@ -246,8 +247,8 @@ llvm::Function* Tr::makeFunThatCalls(Nest::Node* node, Module& module, const cha
     llvm::BasicBlock* bodyBlock = llvm::BasicBlock::Create(module.llvmContext(), "", f, 0);
 
     // Debugging
-//     if ( module.isCt() )
-//         REP_INFO(node->location(), "Trying to generate: %1%") % (string) f->getName();
+//     if ( module.Feather_isCt() )
+//         REP_INFO(node->location, "Trying to generate: %1%") % (string) f->getName();
 
     // Add the action as the body of the function
     llvm::IRBuilder<> llvmBuilder(module.llvmContext());
@@ -255,9 +256,9 @@ llvm::Function* Tr::makeFunThatCalls(Nest::Node* node, Module& module, const cha
     translateFunctionBody(module, node, *bodyBlock, llvmBuilder, addressToStoreResult);
 
     // Debugging
-//     if ( module.isCt() )
+//     if ( module.Feather_isCt() )
 //         f->dump();
-        //REP_INFO(node->location(), "CT process fun: %1%") % node;
+        //REP_INFO(node->location, "CT process fun: %1%") % node;
 
     return f;
 }

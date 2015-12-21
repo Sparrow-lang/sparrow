@@ -84,6 +84,8 @@ Basic2/CustomOperators.spr:             Basic features 2 - Custom operators
 Basic/LLVMCode.llvm:                    Basic features - Code from llvm file
 Basic/Basic.spr:                        Basic features - A small Sparrow code
 Basic/DataStruct.spr:                   Basic features - Data structure
+Basic/Struct.spr:                       Basic features - New data structure
+Basic/StructGeneric.spr:                Basic features - New data structure, with generics
 Basic/FunErr.spr:                       Basic features - Function errors
 Basic/FunErr2.spr:                      Basic features - Function errors (more)
 Basic/StaticFun.spr:                    Basic features - Static functions
@@ -136,14 +138,6 @@ Simple/Primality.spr:                   Simple problems - Primality test
 Simple/Factorization.spr:               Simple problems - Integer factorization
 Simple/SecantMethod.spr:                Simple problems - Secant method solver
 Simple/Ackermann.spr:                   Simple problems - Ackermann function
-LLVM/Simple.fsimple:                    LLVM backend - simple nodes
-LLVM/Nodes.fsimple:                     LLVM backend - all kinds of nodes
-LLVM/Function.fsimple:                  LLVM backend - function test
-LLVM/ClassAndVar.fsimple:               LLVM backend - class & variables
-LLVM/ClassSize.fsimple:                 LLVM backend - class size (and initialization)
-LLVM/Statements.fsimple:                LLVM backend - statements
-LLVM/DestructActions.fsimple:           LLVM backend - destruct actions
-LLVM/Termination.fsimple:               LLVM backend - termination instruction for branches
 Frontend/Smoke.spr:                     Frontend - grammar smoke test
 Frontend/Declarations.spr:              Frontend - some declarations
 Frontend/Expressions.spr:               Frontend - some expressions

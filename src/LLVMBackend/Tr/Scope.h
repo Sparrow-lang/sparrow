@@ -1,9 +1,8 @@
 #pragma once
 
-#include <Nest/Frontend/Location.h>
-#include <Nest/Intermediate/NodeVector.h>
+#include "Nest/Api/Location.h"
+#include "Nest/Utils/NodeVector.hpp"
 
-FWD_CLASS1(Nest, Node);
 FWD_CLASS2(LLVMB,Tr, TrContext);
 FWD_CLASS2(LLVMB,Tr, Instruction);
 
@@ -23,7 +22,7 @@ namespace LLVMB { namespace Tr
     class Scope
     {
     public:
-        Scope(TrContext& context, const Nest::Location& loc);
+        Scope(TrContext& context, const Location& loc);
         ~Scope();
 
         /// Returns the parent context of this scope
@@ -35,7 +34,7 @@ namespace LLVMB { namespace Tr
         vector<Instruction*>& instructionsStack();
 
         /// Adds an scope destruct action
-        void addScopeDestructAction(Nest::Node* destructAction);
+        void addScopeDestructAction(Node* destructAction);
 
         /// Translate the destruct actions corresponding to this node
         void outputDestructActions();
@@ -43,7 +42,7 @@ namespace LLVMB { namespace Tr
     protected:
         TrContext& context_;
         vector<Instruction*> instructionsStack_;
-        Nest::NodeVector destructActions_;
-        Nest::Location location_;
+        NodeVector destructActions_;
+        Location location_;
     };
 }}

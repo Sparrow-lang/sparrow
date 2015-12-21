@@ -2,11 +2,12 @@
 #include "DebugInfo.h"
 #include "TrContext.h"
 
-#include <Feather/Nodes/Decls/Function.h>
-#include <Feather/Util/Decl.h>
+#include "Feather/Utils/FeatherUtils.hpp"
 
-#include <Nest/Common/Diagnostic.h>
-#include <Nest/Frontend/SourceCode.h>
+#include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Api/SourceCode.h"
+#include "Nest/Api/Node.h"
 
 #include <boost/filesystem.hpp>
 
@@ -25,8 +26,8 @@ namespace
 
     llvm::DebugLoc getDebugLoc(const Location& loc, llvm::MDNode* scope, bool takeStart = true)
     {
-        size_t line = takeStart ? loc.startLineNo() : loc.endLineNo();
-        size_t col = takeStart ? loc.startColNo() : loc.endColNo();
+        size_t line = takeStart ? loc.start.line : loc.end.line;
+        size_t col = takeStart ? loc.start.col : loc.end.col;
         return llvm::DebugLoc::get(line, col, scope);
     }
 }
@@ -54,7 +55,7 @@ void DebugInfo::emitLocation(LlvmBuilder& builder, const Location& loc, bool tak
 {
     // Update our current location
     setLocation(loc);
-    if ( curLoc_.empty() || curLoc_ == prevLoc_ )
+    if ( Nest_isLocEmpty(&curLoc_) || 0 == Nest_compareLocations(&curLoc_, &prevLoc_) )
         return;
 
     prevLoc_ = curLoc_;
@@ -65,13 +66,13 @@ void DebugInfo::emitLocation(LlvmBuilder& builder, const Location& loc, bool tak
         builder.SetCurrentDebugLocation(getDebugLoc(curLoc_, scope, takeStart));
 }
 
-void DebugInfo::emitFunctionStart(LlvmBuilder& builder, Feather::Function* fun, llvm::Function* llvmFun)
+void DebugInfo::emitFunctionStart(LlvmBuilder& builder, Node* fun, llvm::Function* llvmFun)
 {
     regionCountAtFunStartStack_.push_back(lexicalBlockStack_.size());
 
-    const Location& loc = fun->location();
+    const Location& loc = fun->location;
 
-    llvm::DIFile file = getOrCreateFile(fun->location());
+    llvm::DIFile file = getOrCreateFile(fun->location);
     llvm::DIDescriptor fileDesc(file);
 
     // For now, just create an empty function declaration
@@ -83,16 +84,18 @@ void DebugInfo::emitFunctionStart(LlvmBuilder& builder, Feather::Function* fun, 
     // Debug info for function declaration
 
     llvm::DISubprogram diSubprogram;
+    StringRef name = Feather_getName(fun);
+    llvm::StringRef nameLLVM(name.begin, size(name));
     diSubprogram = diBuilder_.createFunction(
         fileDesc,                   // function scope
-        Feather::getName(fun),      // function name
+        nameLLVM,                   // function name
         llvmFun->getName(),         // mangled function name (link name)
         file,                       // file where this is defined
-        loc.startLineNo(),          // line number
+        loc.start.line,             // line number
         diFunType,                  // function type
         true,                       // true if this function is not externally visible
         true,                       // is a function definition
-        loc.startLineNo(),          // the beginning of the scope this starts
+        loc.start.line,             // the beginning of the scope this starts
         0,                          // flags
         false,                      // is optimized
         llvmFun,                    // llvm::Function pointer
@@ -103,7 +106,7 @@ void DebugInfo::emitFunctionStart(LlvmBuilder& builder, Feather::Function* fun, 
 
     // Push function on region stack.
     lexicalBlockStack_.push_back((llvm::MDNode*) diSubprogram);
-    regionMap_[(Feather::Decl*)fun] = llvm::WeakVH(diSubprogram);
+    regionMap_[fun] = llvm::WeakVH(diSubprogram);
 }
 
 void DebugInfo::emitFunctionEnd(LlvmBuilder& builder, const Location& loc)
@@ -130,8 +133,8 @@ void DebugInfo::emitLexicalBlockStart(LlvmBuilder& builder, const Location& loc)
     llvm::DIDescriptor desc = diBuilder_.createLexicalBlock(
         scope,                      // the scope of this lexical block
         getOrCreateFile(loc),       // the file of this lexical block
-        loc.startLineNo(),          // the start line number of this lexical block
-        loc.startColNo(),           // the start column number of the lexical block
+        loc.start.line,            // the start line number of this lexical block
+        loc.start.col,             // the start column number of the lexical block
         0);                         // DRAWF path discriminator
     llvm::MDNode* node = desc;
     lexicalBlockStack_.push_back(node);
@@ -174,13 +177,13 @@ void DebugInfo::createCompileUnit(const string& mainFilename)
 void DebugInfo::setLocation(const Location& loc)
 {
     // If the new location isn't valid return.
-    if ( loc.empty() )
+    if ( Nest_isLocEmpty(&loc) )
         return;
 
     curLoc_ = loc;
 
     // If we changed the files in the middle of a lexical scope, create a new lexical scope
-    if ( !curLoc_.empty() && prevLoc_.empty() && curLoc_.sourceCode() != prevLoc_.sourceCode() && !lexicalBlockStack_.empty() )
+    if ( !Nest_isLocEmpty(&curLoc_) && Nest_isLocEmpty(&prevLoc_) && curLoc_.sourceCode != prevLoc_.sourceCode && !lexicalBlockStack_.empty() )
     {
         llvm::MDNode* lexicalBlock = lexicalBlockStack_.back();
         llvm::DIScope scope = llvm::DIScope(lexicalBlock);
@@ -205,11 +208,11 @@ void DebugInfo::setLocation(const Location& loc)
 llvm::DIFile DebugInfo::getOrCreateFile(const Location& loc)
 {
     // If the location is not valid, then return the main file
-    if ( loc.empty() )
+    if ( Nest_isLocEmpty(&loc) )
         return diBuilder_.createFile(compileUnit_.getFilename(), compileUnit_.getDirectory());
 
     // Check the cache first
-    auto it = filenameCache_.find(loc.sourceCode());
+    auto it = filenameCache_.find(loc.sourceCode);
     if ( it != filenameCache_.end() )
     {
         llvm::Value* val = it->second;
@@ -218,8 +221,8 @@ llvm::DIFile DebugInfo::getOrCreateFile(const Location& loc)
     }
 
     // Create the file, and cache it
-    auto p = splitFilename(loc.sourceCode()->filename());
+    auto p = splitFilename(loc.sourceCode->url);
     llvm::DIFile file = diBuilder_.createFile(p.second, p.first);
-    filenameCache_.insert(make_pair(loc.sourceCode(), file));
+    filenameCache_.insert(make_pair(loc.sourceCode, file));
     return file;
 }

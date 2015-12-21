@@ -4,7 +4,7 @@
 #include "TrContext.h"
 #include "TrLocal.h"
 
-#include <Nest/Common/Diagnostic.h>
+#include "Nest/Utils/Diagnostic.hpp"
 
 using namespace LLVMB;
 using namespace LLVMB::Tr;
@@ -46,9 +46,9 @@ void Instruction::outputDestructActions()
     }
 }
 
-Nest::NodeVector Instruction::stealDestructActions()
+NodeVector Instruction::stealDestructActions()
 {
-    Nest::NodeVector res;
+    NodeVector res;
     res.swap(destructActions_);
     return res;
 }

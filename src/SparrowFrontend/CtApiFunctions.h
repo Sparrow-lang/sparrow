@@ -1,8 +1,8 @@
 #pragma once
 
-FWD_CLASS1(Nest, Backend);
+typedef struct Nest_Backend Backend;
 
 namespace SprFrontend
 {
-    void registerCtApiFunctions(Nest::Backend& backend);
+    void registerCtApiFunctions(Backend* backend);
 }

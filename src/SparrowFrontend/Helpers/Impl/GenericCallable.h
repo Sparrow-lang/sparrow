@@ -2,17 +2,15 @@
 
 #include "Callable.h"
 
-#include <Nodes/Decls/Generic.h>
-
 namespace SprFrontend
 {
-    using SprFrontend::Generic;
-
+    class Instantiation;
+    
     /// A generic callable object
     class GenericCallable : public Callable
     {
     public:
-        GenericCallable(Generic* generic);
+        GenericCallable(Node* generic);
 
         virtual const Location& location() const;
         virtual string toString() const;
@@ -21,12 +19,12 @@ namespace SprFrontend
         virtual EvalMode evalMode() const;
         virtual bool isAutoCt() const;
 
-        virtual ConversionType canCall(CompilationContext* context, const Location& loc, const NodeVector& args, EvalMode evalMode, bool noCustomCvt = false);
+        virtual ConversionType canCall(CompilationContext* context, const Location& loc, NodeRange args, EvalMode evalMode, bool noCustomCvt = false);
         virtual Node* generateCall(const Location& loc);
 
     private:
-        Generic* generic_;
-        Instantiation* inst_;
+        Node* generic_;
+        Node* inst_;
         
         NodeVector argsWithCvt_;
     };

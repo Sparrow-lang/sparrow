@@ -1,7 +1,6 @@
 #include <StdInc.h>
 #include "Callable.h"
-#include <Nodes/Decls/SprParameter.h>
-#include <Feather/Util/TypeTraits.h>
+#include "Feather/Utils/FeatherUtils.hpp"
 
 using namespace SprFrontend;
 using namespace Nest;
@@ -11,33 +10,34 @@ Callable::Callable()
 {
 }
 
-Type* Callable::paramType(size_t idx) const
+TypeRef Callable::paramType(size_t idx) const
 {
     Node* p = param(idx);
     ASSERT(p);
-    return p->type();
+    return p->type;
 }
 
-ConversionType Callable::canCall(CompilationContext* context, const Location& loc, const NodeVector& args, EvalMode evalMode, bool noCustomCvt)
+ConversionType Callable::canCall(CompilationContext* context, const Location& loc, NodeRange args, EvalMode evalMode, bool noCustomCvt)
 {
     // Copy the list of arguments; add default values if arguments are missing
     size_t paramsCount = this->paramsCount();
-    args_ = args;
+    args_ = toVec(args);
     args_.reserve(paramsCount);
-    for ( size_t i=args.size(); i<paramsCount; ++i )
+    for ( size_t i=Nest_nodeRangeSize(args); i<paramsCount; ++i )
     {
         Node* defaultArg = this->paramDefaultVal(i);
         if ( !defaultArg )
-            return convNone;    // We have a non-default parameter but we don't have an argument for that
-        defaultArg->semanticCheck();    // Make sure this is semantically checked
+            return convNone;        // We have a non-default parameter but we don't have an argument for that
+        if ( !Nest_semanticCheck(defaultArg) )  // Make sure this is semantically checked
+            return convNone;
 
         args_.push_back(defaultArg);
     }
 
     // Do the checks on types
-    vector<Type*> argTypes(args_.size(), nullptr);
+    vector<TypeRef> argTypes(args_.size(), nullptr);
     for ( size_t i=0; i<args_.size(); ++i)
-        argTypes[i] = args_[i]->type();
+        argTypes[i] = args_[i]->type;
     ConversionType res = canCall(context, loc, argTypes, evalMode, noCustomCvt);
     if ( !res )
         return convNone;
@@ -45,7 +45,7 @@ ConversionType Callable::canCall(CompilationContext* context, const Location& lo
     return res;
 }
 
-ConversionType Callable::canCall(CompilationContext* context, const Location& /*loc*/, const vector<Type*>& argTypes, EvalMode evalMode, bool noCustomCvt)
+ConversionType Callable::canCall(CompilationContext* context, const Location& /*loc*/, const vector<TypeRef>& argTypes, EvalMode evalMode, bool noCustomCvt)
 {
     // Check argument count
     size_t paramsCount = this->paramsCount();
@@ -61,9 +61,9 @@ ConversionType Callable::canCall(CompilationContext* context, const Location& /*
     {
         // In autoCt mode, if all the arguments are CT, make a CT call
         useCt = true;
-        for ( Type* t: argTypes )
+        for ( TypeRef t: argTypes )
         {
-            if ( t->mode() != modeCt )
+            if ( t->mode != modeCt )
             {
                 useCt = false;
                 break;
@@ -76,14 +76,14 @@ ConversionType Callable::canCall(CompilationContext* context, const Location& /*
     ConversionType res = convDirect;
     for ( size_t i=0; i<paramsCount; ++i )
     {
-        Type* argType = argTypes[i];
+        TypeRef argType = argTypes[i];
         ASSERT(argType);
-        Type* paramType = this->paramType(i);
+        TypeRef paramType = this->paramType(i);
         ASSERT(paramType);
 
         // If we are looking at a CT callable, make sure the parameters are in CT
-        if ( paramType->hasStorage() && useCt )
-            paramType = Feather::changeTypeMode(paramType, modeCt);
+        if ( paramType->hasStorage && useCt )
+            paramType = Feather_checkChangeTypeMode(paramType, modeCt, NOLOC);
 
         ConversionFlags flags = noCustomCvt ? flagDontCallConversionCtor : flagsDefault;
         conversions_[i] = canConvertType(context, argType, paramType, flags);
@@ -101,15 +101,15 @@ Node* Callable::paramDefaultVal(size_t idx) const
 {
     Node* p = param(idx);
     ASSERT(p);
-    SprParameter* sprParam = p->as<SprParameter>();
-    return sprParam ? sprParam->initValue() : nullptr;
+    Node* sprParam = Nest_ofKind(p, nkSparrowDeclSprParameter);
+    return sprParam ? at(sprParam->children, 1) : nullptr;
 }
 
 NodeVector Callable::argsWithConversion()
 {
     NodeVector res(args_.size(), nullptr);
     for ( size_t i=0; i<args_.size(); ++i )
-        res[i] = conversions_[i].apply(args_[i]->context(), args_[i]);
+        res[i] = conversions_[i].apply(args_[i]->context, args_[i]);
     return res;
 }
 

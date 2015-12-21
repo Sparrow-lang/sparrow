@@ -2,9 +2,10 @@
 #include "Module.h"
 #include <Tr/TrTopLevel.h>
 
-#include <Feather/Util/Decl.h>
-#include <Nest/CompilerSettings.h>
-#include <Nest/Compiler.h>
+#include "Feather/Utils/FeatherUtils.hpp"
+
+#include "Nest/Utils/CompilerSettings.hpp"
+#include "Nest/Api/Compiler.h"
 
 using namespace LLVMB;
 
@@ -14,7 +15,7 @@ Module::Module(const string& name)
 	, llvmModule_(new llvm::Module(name, *llvmContext_))
     , debugInfo_(nullptr)
 {
-    Nest::CompilerSettings& s = Nest::theCompiler().settings();
+    CompilerSettings& s = *Nest_compilerSettings();
 
     llvmModule_->setDataLayout(s.dataLayout_);
     llvmModule_->setTargetTriple(s.targetTriple_);
@@ -28,11 +29,11 @@ Module::~Module()
 
 bool Module::canUse(Node* decl) const
 {
-    Nest::EvalMode mode = Feather::effectiveEvalMode(decl);
-    ASSERT(mode != Nest::modeUnspecified);
-    if ( mode == Nest::modeRt && isCt() )
+    EvalMode mode = Feather_effectiveEvalMode(decl);
+    ASSERT(mode != modeUnspecified);
+    if ( mode == modeRt && isCt() )
         return false;
-    else if ( mode == Nest::modeCt && !isCt() )
+    else if ( mode == modeCt && !isCt() )
         return false;
     else
         return true;

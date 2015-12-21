@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Nest/Frontend/Location.h>
+#include "Nest/Api/Location.h"
 
 #include "LlvmBuilder.h"
 
@@ -12,15 +12,11 @@
 #pragma warning(pop)
 #endif
 
-FWD_CLASS1(Nest, Node);
-FWD_CLASS1(Nest, SourceCode);
-FWD_CLASS1(Feather, Decl);
-FWD_CLASS1(Feather, Function);
+typedef struct Nest_Node Node;
+typedef struct Nest_SourceCode SourceCode;
 
 namespace LLVMB { namespace Tr
 {
-    using Nest::Location;
-
     /// Helper class used to generate debug information for the translated compile unit.
     ///
     /// This is based on the functionality from the CLang compiler.
@@ -35,7 +31,7 @@ namespace LLVMB { namespace Tr
 
         void emitLocation(LlvmBuilder& builder, const Location& loc, bool takeStart = true);
 
-        void emitFunctionStart(LlvmBuilder& builder, Feather::Function* fun, llvm::Function* llvmFun);
+        void emitFunctionStart(LlvmBuilder& builder, Node* fun, llvm::Function* llvmFun);
         void emitFunctionEnd(LlvmBuilder& builder, const Location& loc);
 
         void emitLexicalBlockStart(LlvmBuilder& builder, const Location& loc);
@@ -63,10 +59,10 @@ namespace LLVMB { namespace Tr
         vector<unsigned> regionCountAtFunStartStack_;
 
         /// Map from declarations to the corresponding metadata nodes
-        llvm::DenseMap<const Feather::Decl*, llvm::WeakVH> regionMap_;
+        llvm::DenseMap<const Node*, llvm::WeakVH> regionMap_;
 
         /// Map containing the filename nodes - the filenames are represented by the SourceCode pointer
-        llvm::DenseMap<const Nest::SourceCode*, llvm::DIFile> filenameCache_;
+        llvm::DenseMap<const SourceCode*, llvm::DIFile> filenameCache_;
 
         /// The current location for which we set debug information
         Location curLoc_;

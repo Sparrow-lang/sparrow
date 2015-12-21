@@ -5,79 +5,83 @@
 #include "StdDef.h"
 #include <NodeCommonsCpp.h>
 
-#include <Feather/Nodes/Exp/CtValue.h>
-#include <Feather/Util/TypeTraits.h>
-#include <Feather/Util/Ct.h>
+#include "Feather/Utils/FeatherUtils.hpp"
 
-using namespace Feather;
+#include "Nest/Utils/NodeUtils.hpp"
+
 using namespace Nest;
 
 namespace
 {
     template <typename ValueType>
-    ValueType evalValue(Node* node, Type* expectedExpType)
+    ValueType evalValue(Node* node, TypeRef expectedExpType)
     {
-        node = theCompiler().ctEval(node);
-        Type* t = removeLValueIfPresent(node->type());
-        if ( !isSameTypeIgnoreMode(t, expectedExpType) )
-            REP_INTERNAL(node->location(), "Invalid value; found expression of type %1%, expected %2%") % node->type() % expectedExpType;
-        CtValue* valNode = node->as<CtValue>();
-        CHECK(node->location(), valNode);
-        ValueType* val = valNode ? valNode->value<ValueType>() : nullptr;
+        node = Nest_ctEval(node);
+        TypeRef t = Feather_removeLValueIfPresent(node->type);
+        if ( !Feather_isSameTypeIgnoreMode(t, expectedExpType) )
+            REP_INTERNAL(node->location, "Invalid value; found expression of type %1%, expected %2%") % node->type % expectedExpType;
+        CHECK(node->location, node->nodeKind == nkFeatherExpCtValue);
+        ValueType* val = node ? Feather_getCtValueData<ValueType>(node) : nullptr;
         if ( !val )
-            REP_ERROR(node->location(), "Invalid value");
+            REP_INTERNAL(node->location, "Invalid value");
         return *val;
     }
 }
 
 bool SprFrontend::ctValsEqual(Node* v1, Node* v2)
 {
-    if ( v1->nodeKind() != nkFeatherExpCtValue )
-        REP_INTERNAL(v1->location(), "CtValue required when comparing CT value equality");
-    if ( v2->nodeKind() != nkFeatherExpCtValue )
-        REP_INTERNAL(v1->location(), "CtValue required when comparing CT value equality");
+    if ( v1->nodeKind != nkFeatherExpCtValue )
+        REP_INTERNAL(v1->location, "CtValue required when comparing CT value equality");
+    if ( v2->nodeKind != nkFeatherExpCtValue )
+        REP_INTERNAL(v1->location, "CtValue required when comparing CT value equality");
 
-    CompilationContext* context = v1->context();
+    CompilationContext* context = v1->context;
 
-    ASSERT(v1->type());
-    ASSERT(v2->type());
+    ASSERT(v1->type);
+    ASSERT(v2->type);
 
-    if ( v1->type() != v2->type() )
+    if ( v1->type != v2->type )
         return false;
 
     // Check if we are comparing type values
-    Type* t1 = tryGetTypeValue(v1);
+    TypeRef t1 = tryGetTypeValue(v1);
     if ( t1 )
     {
-        Type* t2 = tryGetTypeValue(v2);
+        TypeRef t2 = tryGetTypeValue(v2);
         if ( t2 )
             return t1 == t2;
     }
 
     // Check if we can call the '==' operator
     // If we can call it, then actually call it and return the result
-    NodeVector decls = context->currentSymTab()->lookup("==");
-    if ( !decls.empty() )
+    NodeArray decls = Nest_symTabLookup(context->currentSymTab, "==");
+    if ( Nest_nodeArraySize(decls) > 0 )
     {
-        Node* funCall = selectOverload(context, v1->location(), modeCt, move(decls), {v1, v2}, false, "");
+        Node* funCall = selectOverload(context, v1->location, modeCt, all(decls), fromIniList({v1, v2}), false, fromCStr(""));
+        Nest_freeNodeArray(decls);
         if ( funCall )
         {
-            funCall->semanticCheck();
-            if ( Feather::isTestable(funCall) && Feather::isCt(funCall) )
+            Nest_semanticCheck(funCall);
+            if ( Feather_isTestable(funCall) && Feather_isCt(funCall) )
             {
-                Node* c = theCompiler().ctEval(funCall);
-                return getBoolCtValue(c);
+                Node* c = Nest_ctEval(funCall);
+                return SprFrontend::getBoolCtValue(c);
             }
         }
     }
 
     // Just compare the values
-    return *static_cast<CtValue*>(v1) == *static_cast<CtValue*>(v2);
+    if ( v1->nodeKind != nkFeatherExpCtValue )
+        REP_INTERNAL(v1->location, "Invalid CtValue");
+    if ( v1->nodeKind != nkFeatherExpCtValue )
+        REP_INTERNAL(v2->location, "Invalid CtValue");
+    return Nest_getCheckPropertyType(v1, "valueType") == Nest_getCheckPropertyType(v2, "valueType")
+        && Nest_getCheckPropertyString(v1, "valueData") == Nest_getCheckPropertyString(v2, "valueData");
 }
 
-const char* SprFrontend::getStringCtValue(Node* val)
+StringRef SprFrontend::getStringCtValue(Node* val)
 {
-    return evalValue<const char*>(val, StdDef::typeStringRef);
+    return evalValue<StringRef>(val, StdDef::typeStringRef);
 }
 bool SprFrontend::getBoolCtValue(Node* val)
 {

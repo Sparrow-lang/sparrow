@@ -8,4 +8,4 @@ const char* SprFrontend::propGenerateInitCtor = "spr.generateInitCtor";
 const char* SprFrontend::propMacro = "spr.macro";
 const char* SprFrontend::propIsField = "spr.isField";
 const char* SprFrontend::propIsStatic = "spr.isStatic";
-const char* SprFrontend::propRefDecls = "spr.refDecls";
+const char* SprFrontend::propAllowDeclExp = "spr.allowDeclExp";

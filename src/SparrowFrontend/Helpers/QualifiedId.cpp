@@ -1,29 +1,28 @@
 #include <StdInc.h>
 #include "QualifiedId.h"
 
-#include <Feather/Util/Decl.h>
-
-using namespace Feather;
+#include "Feather/Utils/FeatherUtils.hpp"
+#include "Nest/Utils/NodeUtils.hpp"
 
 void SprFrontend::interpretQualifiedId(Node* n, vector<string>& res)
 {
     ASSERT(n);
-    if ( n->nodeKind() == nkSparrowExpIdentifier )
+    if ( n->nodeKind == nkSparrowExpIdentifier )
     {
-        res.emplace_back(getName(n));
+        res.emplace_back(toString(Feather_getName(n)));
     }
-    else if ( n->nodeKind() == nkSparrowExpCompoundExp )
+    else if ( n->nodeKind == nkSparrowExpCompoundExp )
     {
-        Node* base = n->children()[0];
+        Node* base = at(n->children, 0);
         interpretQualifiedId(base, res);
-        res.emplace_back(getName(n));
+        res.emplace_back(toString(Feather_getName(n)));
     }
-    else if ( n->nodeKind() == nkSparrowExpStarExp )
+    else if ( n->nodeKind == nkSparrowExpStarExp )
     {
-        Node* base = n->children()[0];
+        Node* base = at(n->children, 0);
         interpretQualifiedId(base, res);
         res.emplace_back(string());
     }
     else
-        REP_INTERNAL(n->location(), "Don't know how to interpret node of type %1% in qualified id") % n->nodeKindName();
+        REP_INTERNAL(n->location, "Don't know how to interpret node %1% in qualified id") % n;
 }

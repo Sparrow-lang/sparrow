@@ -50,7 +50,7 @@ typedef SprFrontend::Parser::token_type token_type;
 /* The following paragraph suffices to track locations accurately. Each time
  * yylex is invoked, the begin position is moved onto the end position. */
 %{
-#define YY_USER_ACTION  yylloc->addColumns(yyleng);
+#define YY_USER_ACTION  yylloc->end.col += yyleng;
 %}
 
 /*
@@ -133,7 +133,7 @@ Newline         [\n]
  /* code to place at the beginning of yylex() */
 %{
     // reset location
-    yylloc->step();
+    yylloc->start = yylloc->end;
 
     // Fake a start token, if we received one
     if ( startToken_ != Parser::token::END )
@@ -145,11 +145,11 @@ Newline         [\n]
 %}
 
 {Whitespace}+ {
-    yylloc->step();
+    yylloc->start = yylloc->end;
 }
 
 {Newline} {
-    yylloc->addLines(1); yylloc->step();
+    ++yylloc->end.line; yylloc->end.col = 1; yylloc->start = yylloc->end;
 }
 
 "/*"[^\*\n]* {
@@ -160,7 +160,7 @@ Newline         [\n]
         switch ( c )
         {
         case '\n':
-            yylloc->addLines(1);
+            ++yylloc->end.line; yylloc->end.col = 1;
             break;
 
         case '*':
@@ -174,10 +174,10 @@ Newline         [\n]
         }
     }
 done:
-    yylloc->step();
+    yylloc->start = yylloc->end;
 }
 
-{SingleComment}     { yylloc->step(); }
+{SingleComment}     { yylloc->start = yylloc->end; }
 
 
  /* Symbols */
@@ -202,6 +202,7 @@ done:
 "class"         { return token::CLASS; }
 "concept"       { return token::CONCEPT; }
 "continue"      { return token::CONTINUE; }
+"datatype"      { return token::DATATYPE; }
 "fun"           { return token::FUN; }
 "if"            { return token::IF; }
 "else"          { return token::ELSE; }
@@ -504,7 +505,7 @@ octal_done1:
         else
         {
             if (*p == '\n')
-                yylloc->addLines(1);
+                ++yylloc->end.line; yylloc->end.col = 1;
             yylval->stringVal->push_back(*p);
         }
         ++p;
@@ -524,7 +525,7 @@ octal_done1:
         switch ( c )
         {
         case '\n':
-            yylloc->addLines(1);
+            ++yylloc->end.line; yylloc->end.col = 1;
             break;
             
         case '}':
@@ -539,7 +540,7 @@ octal_done1:
         yylval->stringVal->push_back(c);
     }
 done2:
-    yylloc->step();
+    yylloc->start = yylloc->end;
     
     return token::STRING_LITERAL;
 }

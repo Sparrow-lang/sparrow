@@ -3,11 +3,11 @@
 #include <Tr/TrTopLevel.h>
 #include <Tr/DebugInfo.h>
 
-#include <Nest/Common/Diagnostic.h>
-#include <Nest/CompilerSettings.h>
-#include <Nest/Compiler.h>
-#include <Nest/Intermediate/Node.h>
-#include <Nest/Frontend/SourceCode.h>
+#include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Api/Node.h"
+#include "Nest/Utils/CompilerSettings.hpp"
+#include "Nest/Api/Compiler.h"
+#include "Nest/Api/SourceCode.h"
 
 
 using namespace LLVMB;
@@ -18,7 +18,7 @@ using namespace Feather;
 RtModule::RtModule(const string& name, const string& filename)
     : Module(name)
 {
-    const Nest::CompilerSettings& s = Nest::theCompiler().settings();
+    const CompilerSettings& s = *Nest_compilerSettings();
     if ( s.generateDebugInfo_ )
         debugInfo_ = new DebugInfo(*llvmModule_, filename);
 }
@@ -30,7 +30,7 @@ RtModule::~RtModule()
 
 void RtModule::generate(Node* rootNode)
 {
-    if ( !rootNode || !rootNode->isSemanticallyChecked() )
+    if ( !rootNode || !rootNode->nodeSemanticallyChecked )
         REP_INTERNAL(NOLOC, "The root node to be processed by the LLVM backend is not semantically checked");
 
     // Translate the root node as a top level node

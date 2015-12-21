@@ -4,30 +4,26 @@
 #include "GenericCallable.h"
 #include <Helpers/DeclsHelpers.h>
 #include <Helpers/CommonCode.h>
-#include <Feather/Nodes/FeatherNodes.h>
-#include <Feather/Nodes/Decls/Class.h>
-#include <Feather/Nodes/Decls/Function.h>
-#include <Feather/Type/LValueType.h>
-#include <Feather/Util/TypeTraits.h>
-#include <Feather/Util/Decl.h>
+#include <Helpers/Generics.h>
+#include "Feather/Api/Feather.h"
+#include "Feather/Utils/FeatherUtils.hpp"
 
 using namespace SprFrontend;
-using namespace Feather;
 using namespace Nest;
 
 namespace
 {
-    Type* varType(Class* cls, EvalMode mode)
+    TypeRef varType(Node* cls, EvalMode mode)
     {
         // Get the type of the temporary variable
-        Type* t = cls->type();
+        TypeRef t = cls->type;
         if ( mode != modeRtCt )
-            t = changeTypeMode(t, mode, cls->location());
+            t = Feather_checkChangeTypeMode(t, mode, cls->location);
         return t;
     }
 }
 
-ClassCtorCallable::ClassCtorCallable(Class* cls, Callable* baseCallable, EvalMode evalMode)
+ClassCtorCallable::ClassCtorCallable(Node* cls, Callable* baseCallable, EvalMode evalMode)
     : cls_(cls)
     , baseCallable_(baseCallable)
     , evalMode_(evalMode)
@@ -36,25 +32,25 @@ ClassCtorCallable::ClassCtorCallable(Class* cls, Callable* baseCallable, EvalMod
 {
 }
 
-Callables ClassCtorCallable::getCtorCallables(Class* cls, EvalMode evalMode)
+Callables ClassCtorCallable::getCtorCallables(Node* cls, EvalMode evalMode)
 {
-    NodeVector decls = cls->childrenContext()->currentSymTab()->lookupCurrent("ctor");
+    NodeArray decls = Nest_symTabLookupCurrent(Nest_childrenContext(cls)->currentSymTab, "ctor");
 
-    evalMode = combineMode(effectiveEvalMode(cls), evalMode, cls->location(), false);
+    evalMode = Feather_combineMode(Feather_effectiveEvalMode(cls), evalMode, cls->location);
 
     Callables res;
-    res.reserve(decls.size());
+    res.reserve(Nest_nodeArraySize(decls));
     for ( Node* decl: decls )
     {
-        Function* fun = decl->explanation()->as<Function>();
-        if ( fun )
+        Node* fun = Nest_explanation(decl);
+        if ( fun && fun->nodeKind == nkFeatherDeclFunction )
             res.push_back(new ClassCtorCallable(cls, new FunctionCallable(fun), evalMode));
 
         Node* resDecl = resultingDecl(decl);
-        Generic* generic = dynamic_cast<Generic*>(resDecl);
-        if ( generic)
-            res.push_back(new ClassCtorCallable(cls, new GenericCallable(generic), evalMode));
+        if ( isGeneric(resDecl) )
+            res.push_back(new ClassCtorCallable(cls, new GenericCallable(resDecl), evalMode));
     }
+    Nest_freeNodeArray(decls);
     return res;
 }
 
@@ -86,30 +82,33 @@ bool ClassCtorCallable::isAutoCt() const
     return baseCallable_->isAutoCt();
 }
 
-ConversionType ClassCtorCallable::canCall(CompilationContext* context, const Location& loc, const vector<Type*>& argTypes, EvalMode evalMode, bool noCustomCvt)
+ConversionType ClassCtorCallable::canCall(CompilationContext* context, const Location& loc, const vector<TypeRef>& argTypes, EvalMode evalMode, bool noCustomCvt)
 {
-    Type* t = LValueType::get(varType(cls_, evalMode_));
+    TypeRef t = Feather_getLValueType(varType(cls_, evalMode_));
 
-    vector<Type*> argTypes2 = argTypes;
+    vector<TypeRef> argTypes2 = argTypes;
     argTypes2.insert(argTypes2.begin(), t);
     return baseCallable_->canCall(context, loc, argTypes2, evalMode, noCustomCvt);
 }
 
-ConversionType ClassCtorCallable::canCall(CompilationContext* context, const Location& loc, const NodeVector& args, EvalMode evalMode, bool noCustomCvt)
+ConversionType ClassCtorCallable::canCall(CompilationContext* context, const Location& loc, NodeRange args, EvalMode evalMode, bool noCustomCvt)
 {
     context_ = context;
 
     // Create a temporary variable - use it as a this argument
-    tmpVar_ = Feather::mkVar(loc, "tmp.v", mkTypeNode(loc, varType(cls_, evalMode_)), 0, evalMode_);
-    tmpVar_->setContext(context);
-    tmpVar_->computeType();
-    thisArg_ = mkVarRef(loc, tmpVar_);
-    thisArg_->setContext(context);
-    thisArg_->computeType();
+    tmpVar_ = Feather_mkVar(loc, fromCStr("tmp.v"), Feather_mkTypeNode(loc, varType(cls_, evalMode_)));
+    Feather_setEvalMode(tmpVar_, evalMode_);
+    Nest_setContext(tmpVar_, context);
+    if ( !Nest_computeType(tmpVar_) )
+        return convNone;
+    thisArg_ = Feather_mkVarRef(loc, tmpVar_);
+    Nest_setContext(thisArg_, context);
+    if ( !Nest_computeType(thisArg_) )
+        return convNone;
 
-    NodeVector args2 = args;
+    NodeVector args2 = toVec(args);
     args2.insert(args2.begin(), thisArg_);
-    return baseCallable_->canCall(context, loc, args2, evalMode, noCustomCvt);
+    return baseCallable_->canCall(context, loc, all(args2), evalMode, noCustomCvt);
 }
 
 

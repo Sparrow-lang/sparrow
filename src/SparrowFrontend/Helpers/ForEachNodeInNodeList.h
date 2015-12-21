@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Feather/Nodes/NodeList.h>
+#include "Nest/Utils/NodeUtils.hpp"
 
 namespace SprFrontend
 {
@@ -9,20 +9,20 @@ namespace SprFrontend
     /// If a NodeList node is found as a child of the given node list, this will recursively call itself to gather the
     /// children from that node list too. The given function is not called for node-list nodes.
     template <typename F>
-    inline void forEachNodeInNodeList(Feather::NodeList* nodeList, F fun)
+    inline void forEachNodeInNodeList(Node* nodeList, F fun)
     {
         if ( nodeList )
         {
-            for ( Node* n: nodeList->children() )
+            ASSERT( nodeList->nodeKind == nkFeatherNodeList );
+            for ( Node* n: nodeList->children )
             {
                 if ( !n )
                     continue;
 
-                Node* nn = n->explanation();
-                NodeList* nl = nn->as<NodeList>();
+                Node* nn = Nest_explanation(n);
 
-                if ( nl )
-                    forEachNodeInNodeList(nl, fun);
+                if ( nn->nodeKind == nkFeatherNodeList )
+                    forEachNodeInNodeList(nn, fun);
                 else
                     fun(n);
             }

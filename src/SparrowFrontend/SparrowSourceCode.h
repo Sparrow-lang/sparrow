@@ -1,22 +1,10 @@
 #pragma once
 
-#include <Nest/Frontend/SourceCode.h>
+/// The kind of the Sparrow source code
+extern int SprFe_kindSparrowSourceCode;
 
-namespace SprFrontend
-{
-    /// A Sparrow source code; this class knows how to parse a Sparrow source code
-    class SparrowSourceCode : public Nest::SourceCode
-    {
-    public:
-        SparrowSourceCode(const string& filename);
-        virtual ~SparrowSourceCode();
+/// Register the Sparrow source code
+void SprFe_registerSparrowSourceCode();
 
-        virtual void parse(Nest::CompilationContext* context);
-        virtual string getSourceCodeLine(int lineNo) const;
-        virtual boost::function<Nest::Node*(Nest::Node*)> ctToRtTranslator() const;
-
-        Nest::Node* parseExpression(Nest::Location loc, const string& code) const;
-
-        static void registerSelf();
-    };
-}
+/// Parses a Sparrow expression
+Node* SprFe_parseSparrowExpression(Location loc, const char* code);

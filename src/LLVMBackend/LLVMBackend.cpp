@@ -3,114 +3,135 @@
 #include "Generator.h"
 #include "RtModule.h"
 #include "CtModule.h"
+#include "DataLayoutHelper.h"
 #include "Tr/DebugInfo.h"
 
-#include <Nest/Intermediate/Node.h>
-#include <Nest/Frontend/SourceCode.h>
-#include <Nest/Backend/BackendFactory.h>
-#include <Nest/Compiler.h>
-#include <Nest/CompilerSettings.h>
+#include "Nest/Api/Node.h"
+#include "Nest/Utils/NodeUtils.hpp"
+#include "Nest/Api/SourceCode.h"
+#include "Nest/Api/Backend.h"
+#include "Nest/Api/Compiler.h"
+#include "Nest/Utils/CompilerSettings.hpp"
 
-#include <boost/lambda/construct.hpp>
+#include <boost/bind.hpp>
 
 using namespace LLVMB;
-using namespace Nest;
 
-LLVMBackend::LLVMBackend()
-	: ctModule_(nullptr)
-    , rtModule_(nullptr)
+/// The structure representing a LLVM backend
+struct LLVMBackend {
+    Backend baseData;
+    Tr::RtModule* rtModule;
+    Tr::CtModule* ctModule;
+    DataLayoutHelper* dataLayoutHelper;
+};
+
+void _llvmBeInit(Backend* backend, const char* mainFilename);
+void _llvmBeGenerateMachineCode(Backend* backend, const SourceCode* code);
+void _llvmBeLink(Backend* backend, const char* outFilename);
+void _llvmBeCtProcess(Backend* backend, Node* node);
+Node* _llvmBeCtEvaluate(Backend* backend, Node* node);
+unsigned int _llvmBeSizeOf(Backend* backend, TypeRef type);
+unsigned int _llvmBeAlignmentOf(Backend* backend, TypeRef type);
+void _llvmBeCtApiRegisterFun(Backend* backend, const char* name, void* funPtr);
+
+struct LLVMBackend _llvmBackend = {
+    { "llvm", "backend that uses LLVM to generate code",
+        &_llvmBeInit,
+        &_llvmBeGenerateMachineCode,
+        &_llvmBeLink,
+        &_llvmBeCtProcess,
+        &_llvmBeCtEvaluate,
+        &_llvmBeSizeOf,
+        &_llvmBeAlignmentOf,
+        &_llvmBeCtApiRegisterFun
+    },
+    NULL,
+    NULL,
+    NULL
+};
+
+void _llvmBeInit(Backend* backend, const char* mainFilename)
 {
+    _llvmBackend.rtModule = new Tr::RtModule("LLVM backend module Runtime", mainFilename);
+    _llvmBackend.ctModule = new Tr::CtModule("LLVM backend module CT");
+    _llvmBackend.dataLayoutHelper = new DataLayoutHelper();
 }
 
-LLVMBackend::~LLVMBackend()
+void _llvmBeGenerateMachineCode(Backend* backend, const SourceCode* code)
 {
-	delete rtModule_;
-	delete ctModule_;
-}
+    ASSERT(_llvmBackend.rtModule);
 
-void LLVMBackend::init(const string& mainFilename)
-{
-    rtModule_ = new Tr::RtModule("LLVM backend module Runtime", mainFilename);
-    ctModule_ = new Tr::CtModule("LLVM backend module CT");
-}
-
-void LLVMBackend::generateMachineCode(Nest::SourceCode& code)
-{
-    ASSERT(rtModule_);
-
-    rtModule_->setCtToRtTranslator(code.ctToRtTranslator());
+    _llvmBackend.rtModule->setCtToRtTranslator(boost::bind(&Nest_translateCtToRt, code, _1));
 
     // Translate the root node
-    Node* rootNode = code.iCode();
+    Node* rootNode = code->mainNode;
     ASSERT(rootNode);
-    ASSERT(rootNode->type());
-    ASSERT(rootNode->isSemanticallyChecked());
-    rtModule_->generate(rootNode);
+    ASSERT(rootNode->type);
+    ASSERT(rootNode->nodeSemanticallyChecked);
+    _llvmBackend.rtModule->generate(rootNode);
 
     // Translate the additional nodes
-    for ( Node* n: code.additionalNodes() )
+    for ( Node* n: all(code->additionalNodes) )
     {
-        rtModule_->generate(n);
+        _llvmBackend.rtModule->generate(n);
     }
 
-
-    rtModule_->setCtToRtTranslator(boost::function<Node*(Node*)>());
+    _llvmBackend.rtModule->setCtToRtTranslator(LLVMB::Module::NodeFun());
 }
 
-void LLVMBackend::link(const string& outFilename)
+void _llvmBeLink(Backend* backend, const char* outFilename)
 {
-    Nest::CompilerSettings& s = Nest::theCompiler().settings();
+    CompilerSettings& s = *Nest_compilerSettings();
 
-    ASSERT(rtModule_);
+    ASSERT(_llvmBackend.rtModule);
 
     // Generate code for the the global ctors and dtors
-    rtModule_->generateGlobalCtorDtor();
+    _llvmBackend.rtModule->generateGlobalCtorDtor();
 
     // If we are emitting debug information, finalize it
-    if ( rtModule_->debugInfo() )
-        rtModule_->debugInfo()->finalize();
+    if ( _llvmBackend.rtModule->debugInfo() )
+        _llvmBackend.rtModule->debugInfo()->finalize();
 
 
     // Generate a dump for the RT module - just for debugging
     if ( s.dumpAssembly_ )
-        generateAssembly(rtModule_->llvmModule(), outFilename + ".one.llvm");
+        generateAssembly(_llvmBackend.rtModule->llvmModule(), string(outFilename) + ".one.llvm");
 
     // Generate a dump for the CT module - just for debugging
     if ( s.dumpCtAssembly_ )
-        generateAssembly(ctModule_->llvmModule(), outFilename + ".ct.llvm");
+        generateAssembly(_llvmBackend.ctModule->llvmModule(), string(outFilename) + ".ct.llvm");
 
     // Do the linking for the RT module
     vector<llvm::Module*> modules;
-    modules.push_back(&rtModule_->llvmModule());
+    modules.push_back(&_llvmBackend.rtModule->llvmModule());
     LLVMB::link(modules, outFilename);
 }
 
-void LLVMBackend::ctProcess(Node* node)
+void _llvmBeCtProcess(Backend* backend, Node* node)
 {
-    ctModule_->ctProcess(node);
+    _llvmBackend.ctModule->ctProcess(node);
 }
 
-Node* LLVMBackend::ctEvaluate(Node* node)
+Node* _llvmBeCtEvaluate(Backend* backend, Node* node)
 {
-    return ctModule_->ctEvaluate(node);
+    return _llvmBackend.ctModule->ctEvaluate(node);
 }
 
-size_t LLVMBackend::sizeOf(Type* type)
+unsigned int _llvmBeSizeOf(Backend* backend, TypeRef type)
 {
-    return dataLayoutHelper_.getSizeOf(type);
+    return _llvmBackend.dataLayoutHelper->getSizeOf(type);
 }
-size_t LLVMBackend::alignmentOf(Type* type)
+unsigned int _llvmBeAlignmentOf(Backend* backend, TypeRef type)
 {
-    return dataLayoutHelper_.getAlignOf(type);
-}
-
-void LLVMBackend::ctApiRegisterFun(const char* name, void* funPtr)
-{
-    return ctModule_->ctApiRegisterFun(name, funPtr);
+    return _llvmBackend.dataLayoutHelper->getAlignOf(type);
 }
 
-void LLVMBackend::registerSelf()
+void _llvmBeCtApiRegisterFun(Backend* backend, const char* name, void* funPtr)
 {
-    Nest::theCompiler().backendFactory().registerBackend("llvm",
-        boost::lambda::new_ptr<LLVMBackend>());
+    return _llvmBackend.ctModule->ctApiRegisterFun(name, funPtr);
 }
+
+int LLVMBe_registerLLVMBackend() {
+    return Nest_registerBackend((Backend*) &_llvmBackend);
+}
+

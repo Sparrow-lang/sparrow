@@ -1,8 +1,11 @@
 #pragma once
 
-FWD_CLASS1(Nest, Type)
-FWD_CLASS1(Nest, Location)
-FWD_CLASS1(Feather, Function)
+#include "Nest/Api/TypeRef.h"
+#include "Nest/Api/StringRef.h"
+
+typedef struct Nest_Location Location;
+typedef struct Nest_Node Node;
+
 FWD_CLASS1(LLVMB, Module)
 
 FWD_CLASS1(llvm, Type);
@@ -11,12 +14,12 @@ FWD_CLASS1(llvm, LLVMContext);
 namespace LLVMB { namespace Tr
 {
     /// Translates the given type into a LLVM type
-    llvm::Type* getLLVMType(Nest::Type* type, Module& module);
+    llvm::Type* getLLVMType(TypeRef type, Module& module);
 
     /// Get the LLVM type for a native type
     /// If this is not a LLVM native type, it will return null
-    llvm::Type* getNativeLLVMType(const Nest::Location& loc, const string& nativeName, llvm::LLVMContext& llvmContext);
+    llvm::Type* getNativeLLVMType(const Location& loc, StringRef nativeName, llvm::LLVMContext& llvmContext);
 
     /// Gets the LLVM type corresponding to the given function declaration
-    llvm::Type* getLLVMFunctionType(Feather::Function* funDecl, int ignoreArg, Module& module);
+    llvm::Type* getLLVMFunctionType(Node* funDecl, int ignoreArg, Module& module);
 }}

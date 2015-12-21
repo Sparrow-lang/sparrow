@@ -1,26 +1,25 @@
 #include <StdInc.h>
 #include "ConceptCallable.h"
 #include <Helpers/StdDef.h>
-#include <Nodes/Decls/SprConcept.h>
-#include <Type/ConceptType.h>
-#include <Feather/Nodes/FeatherNodes.h>
+#include <SparrowFrontendTypes.h>
+#include <Helpers/Generics.h>
+#include "Feather/Api/Feather.h"
 
 using namespace SprFrontend;
-using namespace Feather;
 
-ConceptCallable::ConceptCallable(SprConcept* concept)
+ConceptCallable::ConceptCallable(Node* concept)
     : concept_(concept)
 {
 }
 
 const Location& ConceptCallable::location() const
 {
-    return concept_->location();
+    return concept_->location;
 }
 
 string ConceptCallable::toString() const
 {
-    return concept_->toString();
+    return Nest_toString(concept_);
 }
 
 size_t ConceptCallable::paramsCount() const
@@ -34,9 +33,9 @@ Node* ConceptCallable::param(size_t /*idx*/) const
     return nullptr;
 }
 
-Type* ConceptCallable::paramType(size_t /*idx*/) const
+TypeRef ConceptCallable::paramType(size_t /*idx*/) const
 {
-    return ConceptType::get();
+    return getConceptType();
 }
 
 EvalMode ConceptCallable::evalMode() const
@@ -58,13 +57,13 @@ Node* ConceptCallable::generateCall(const Location& loc)
     ASSERT(argsCvt.size() == 1);
     Node* arg = argsCvt.front();
     ASSERT(arg);
-    arg->semanticCheck();
+    if ( !Nest_semanticCheck(arg) )
+        return nullptr;
 
     // Check if the type of the argument fulfills the concept
-    bool conceptFulfilled = concept_->isFulfilled(arg->type());
-    Node* result = mkCtValue(loc, StdDef::typeBool, &conceptFulfilled);
-    result->setContext(context_);
-    result->semanticCheck();
-    return result;
+    bool conceptFulfilled = conceptIsFulfilled(concept_, arg->type);
+    Node* result = Feather_mkCtValueT(loc, StdDef::typeBool, &conceptFulfilled);
+    Nest_setContext(result, context_);
+    return Nest_semanticCheck(result);
 }
 

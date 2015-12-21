@@ -3,18 +3,11 @@
 #include "SprTypeTraits.h"
 #include "ForEachNodeInNodeList.h"
 #include <NodeCommonsCpp.h>
-#include <Nodes/ModifiersNode.h>
-#include <Nodes/Exp/DeclExp.h>
-#include <Type/ConceptType.h>
-#include <Mods/ModRt.h>
-#include <Mods/ModCt.h>
-#include <Mods/ModRtCt.h>
-
-#include <Feather/Nodes/Decls/Class.h>
-#include <Feather/Type/StorageType.h>
+#include <SparrowFrontendTypes.h>
+#include "Nest/Utils/PtrArray.h"
+#include <Mods.h>
 
 using namespace SprFrontend;
-using namespace Feather;
 using namespace Nest;
 
 namespace
@@ -22,7 +15,7 @@ namespace
     void checkNodeAllowed(Node* child, bool insideClass)
     {
         // Check non-declarations
-        int nodeKind = child->explanation()->nodeKind();
+        int nodeKind = Nest_explanation(child)->nodeKind;
         if (   nodeKind == nkFeatherNop
             || (!insideClass && nodeKind == nkFeatherBackendCode)
             || (!insideClass && nodeKind == nkFeatherGlobalConstructAction)
@@ -32,14 +25,14 @@ namespace
 
         if ( nodeKind == nkSparrowModifiersNode )
         {
-            if ( !child->explanation()->hasError() )
-                checkNodeAllowed(static_cast<ModifiersNode*>(child)->base(), insideClass);
+            if ( !Nest_explanation(child)->nodeError )
+                checkNodeAllowed(at(child->children, 0), insideClass);
             return;
         }
 
         if ( nodeKind == nkFeatherNodeList )
         {
-            SprFrontend::checkForAllowedNamespaceChildren(dynamic_cast<NodeList*>(child), insideClass);
+            SprFrontend::checkForAllowedNamespaceChildren(child, insideClass);
             return;
         }
 
@@ -52,7 +45,7 @@ namespace
             )
             return;
 
-        REP_ERROR(child->location(), "Invalid node found (%1%)") % child->toString();
+        REP_ERROR(child->location, "Invalid node found: %1%") % child;
     }
 }
 
@@ -61,33 +54,31 @@ NodeVector SprFrontend::getDeclsFromNode(Node* n, Node*& baseExp)
     NodeVector res;
     baseExp = nullptr;
     
-    n->computeType();
-    n = n->explanation();
+    if ( !Nest_computeType(n) )
+        return {};        
+    n = Nest_explanation(n);
     ASSERT(n);
 
-    // The node may contain a DeclExp, pointing to the actual references
-    Node*const* declExpPtr = n->getPropertyNode(propRefDecls);
-    DeclExp* declExp = declExpPtr ? static_cast<DeclExp*>(*declExpPtr) : nullptr;
-
-    if ( declExp )
+    // Check if the node is a DeclExp, pointing to the actual references
+    if ( n->nodeKind == nkSparrowExpDeclExp )
     {
-        baseExp = declExp->baseExp();
-        res = declExp->decls();
+        baseExp = at(n->referredNodes, 0);
+        res = NodeVector(n->referredNodes.beginPtr+1, n->referredNodes.endPtr);
         return res;
     }
     
     // If the node represents a type, try to get the declaration associated with the type
-    Type* t = tryGetTypeValue(n);
+    TypeRef t = tryGetTypeValue(n);
     if ( t )
     {
         // If we have a Type as base, try a constructor/concept call
-        if ( t->hasStorage() )
+        if ( t->hasStorage )
         {
-            res.push_back(static_cast<StorageType*>(t)->classDecl());
+            res.push_back(Feather_classDecl(t));
         }
-        else if ( t->typeId() == Type::typeConcept )
+        else if ( t->typeKind == typeKindConcept )
         {
-            res.push_back((Node*) static_cast<ConceptType*>(t)->concept());
+            res.push_back(conceptOfType(t));
         }
         else
             t = nullptr;
@@ -98,73 +89,82 @@ NodeVector SprFrontend::getDeclsFromNode(Node* n, Node*& baseExp)
 
 Node* SprFrontend::resultingDecl(Node* node)
 {
-    Node*const* res = node->getPropertyNode(propResultingDecl);
+    Node*const* res = Nest_getPropertyNode(node, propResultingDecl);
     return res ? *res : node;
 }
 
 bool SprFrontend::isField(Node* node)
 {
-    if ( node->nodeKind() != nkFeatherDeclVar )
+    if ( node->nodeKind != nkFeatherDeclVar )
         return false;
-    const int* isFieldFlag = node->getPropertyInt(propIsField);
+    const int* isFieldFlag = Nest_getPropertyInt(node, propIsField);
     return isFieldFlag && *isFieldFlag;
 }
 
 
 AccessType SprFrontend::getAccessType(Node* decl)
 {
-    return (AccessType) decl->getCheckPropertyInt("spr.accessType");
+    return (AccessType) Nest_getCheckPropertyInt(decl, "spr.accessType");
 }
 
 bool SprFrontend::hasAccessType(Node* decl)
 {
-    return decl->hasProperty("spr.accessType");
+    return Nest_hasProperty(decl, "spr.accessType");
 }
 
 void SprFrontend::setAccessType(Node* decl, AccessType accessType)
 {
-    decl->setProperty("spr.accessType", (int) accessType);
+    Nest_setPropertyInt(decl, "spr.accessType", accessType);
 }
 
 Node* SprFrontend::getResultParam(Node* f)
 {
-    Node*const* res = f->getPropertyNode(propResultParam);
+    Node*const* res = Nest_getPropertyNode(f, propResultParam);
     return res ? *res : nullptr;
 }
 
-void SprFrontend::checkForAllowedNamespaceChildren(NodeList* children, bool insideClass)
+void SprFrontend::checkForAllowedNamespaceChildren(Node* children, bool insideClass)
 {
-    if ( children )
+    if ( children && children->nodeKind == nkFeatherNodeList )
     {
-        for ( Node* child: children->children() )
+        for ( Node* child: children->children )
         {
-            checkNodeAllowed(child, insideClass);
+            if ( child )
+                checkNodeAllowed(child, insideClass);
         }
     }
 }
 
 void SprFrontend::copyModifiersSetMode(Node* src, Node* dest, EvalMode newMode)
 {
-    dest->modifiers().reserve(src->modifiers().size());
-    for ( Modifier* mod: src->modifiers() )
+    NestUtils_reservePtrArray((PtrArray*) &dest->modifiers, src->modifiers.endPtr - src->modifiers.beginPtr);
+    Modifier** p = src->modifiers.beginPtr;
+    for ( ; p!=src->modifiers.endPtr; ++p )
     {
-        if ( !dynamic_cast<ModRt*>(mod) && !dynamic_cast<ModCt*>(mod) && !dynamic_cast<ModRtCt*>(mod) )
-            dest->modifiers().push_back(mod);
+        // TODO (rtct): This is not ok; we should find another way
+        if ( !SprFe_isEvalModeMod(*p) )
+            Nest_addModifier(dest, *p);
     }
 
     // Make sure we preserve the evaluation mode of the class, after instantiation
     switch ( newMode )
     {
-        case Nest::modeRt:
-            dest->modifiers().push_back(new ModRt);
+        case modeRt:
+            Nest_addModifier(dest, SprFe_getRtMod());
             break;
-        case Nest::modeCt:
-            dest->modifiers().push_back(new ModCt);
+        case modeCt:
+            Nest_addModifier(dest, SprFe_getCtMod());
             break;
-        case Nest::modeRtCt:
-            dest->modifiers().push_back(new ModRtCt);
+        case modeRtCt:
+            Nest_addModifier(dest, SprFe_getRtCtMod());
             break;
         default:
             break;
     }
+}
+
+bool SprFrontend::funHasThisParameters(Node* fun)
+{
+    return fun && fun->nodeKind == nkSparrowDeclSprFunction
+        && Nest_hasProperty(fun, "spr.isMember") && !Nest_hasProperty(fun, propIsStatic);
 }

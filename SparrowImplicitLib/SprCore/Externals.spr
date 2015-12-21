@@ -1,6 +1,7 @@
 
 fun cast();
 fun reinterpretCast();
+fun construct();
 fun[ct] sizeOf(): SizeType;
 fun[ct] typeOf(): Type;
 fun[ct] isValid(): Bool;

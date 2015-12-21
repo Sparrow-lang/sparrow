@@ -18,7 +18,7 @@ fun myName(x,y: Int) = x+y;
 fun[native("test")] test(n: Int)
 {
     var y: myName = 5;      // ERROR
-    writeLn(y.x);
+    writeLn(y.x);           // ERROR
     var myName = 7;
     writeLn(myName);
     writeLn(myName());      // ERROR

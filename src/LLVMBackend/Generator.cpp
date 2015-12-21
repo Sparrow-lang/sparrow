@@ -1,10 +1,10 @@
 #include <StdInc.h>
 #include "Generator.h"
 
-#include <Nest/Common/Diagnostic.h>
-#include <Nest/Common/PrintTimer.h>
-#include <Nest/Compiler.h>
-#include <Nest/CompilerSettings.h>
+#include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/PrintTimer.hpp"
+#include "Nest/Api/Compiler.h"
+#include "Nest/Utils/CompilerSettings.hpp"
 
 #include <boost/filesystem/path.hpp>
 
@@ -36,7 +36,7 @@ namespace
     {
         ASSERT(args.size() > 0);
 
-        const auto& s = Nest::theCompiler().settings();
+        const auto& s = *Nest_compilerSettings();
 
         Nest::Common::PrintTimer timer(s.verbose_, "", "   [%ws]\n");
 
@@ -55,7 +55,7 @@ namespace
         string errMsg;
         int res = llvm::sys::ExecuteAndWait(args[0], &cstrArgs[0], 0, 0, 0, 0, &errMsg);
         if ( res != 0 )
-            REP_ERROR(NOLOC, "Cannot run command: %1%") % errMsg;
+            REP_INTERNAL(NOLOC, "Cannot run command: %1%") % errMsg;
     }
 
     /// Write the given LLVM module, as a bitcode to disk
@@ -64,7 +64,7 @@ namespace
         string errorInfo;
         unique_ptr<tool_output_file> outFile(new tool_output_file(outputFilename.c_str(), errorInfo, sys::fs::OpenFlags::F_None));
         if ( !errorInfo.empty() )
-            REP_ERROR(NOLOC, "Cannot generate bitcode file (%1%); reason: %2%") % outputFilename % errorInfo;
+            REP_INTERNAL(NOLOC, "Cannot generate bitcode file (%1%); reason: %2%") % outputFilename % errorInfo;
 
         llvm::WriteBitcodeToFile(&module, outFile->os());
 
@@ -77,7 +77,7 @@ namespace
         string errorInfo;
         unique_ptr<tool_output_file> outFile(new tool_output_file(outputFilename.c_str(), errorInfo, sys::fs::OpenFlags::F_None));
         if ( !outFile || !errorInfo.empty() )
-            REP_ERROR(NOLOC, "Cannot generate LLVM assembly file (%1%); reason: %2%") % outputFilename % errorInfo;
+            REP_INTERNAL(NOLOC, "Cannot generate LLVM assembly file (%1%); reason: %2%") % outputFilename % errorInfo;
 
         outFile->os() << module;
 
@@ -87,7 +87,7 @@ namespace
     /// Generate optimized code from the given bitcode
     void generateOptimizedCode(const string& outputFilename, const string& inputFilename, const string& opt)
     {
-        Nest::CompilerSettings& s = Nest::theCompiler().settings();
+        CompilerSettings& s = *Nest_compilerSettings();
 
         vector<string> args = { opt, "-std-compile-opts", "-std-link-opts", "-O" + boost::lexical_cast<string>(s.optimizationLevel_) };
         args.insert(args.end(), s.optimizerArgs_.begin(), s.optimizerArgs_.end());
@@ -99,7 +99,7 @@ namespace
     /// Generate machine native assembly from the given bitcode file
     void generateMachineAssembly(const string& outputFilename, const string& inputFilename, const string& llc)
     {
-        Nest::CompilerSettings& s = Nest::theCompiler().settings();
+        CompilerSettings& s = *Nest_compilerSettings();
 
         vector<string> args = { llc, "--filetype=obj" };
         if ( s.generateDebugInfo_ )
@@ -117,7 +117,7 @@ namespace
     // Given a bitcode file, generate a native object file
     void generateNativeObjGCC(const string& outputFilename, const string& inputFilename, const string& gcc)
     {
-        Nest::CompilerSettings& s = Nest::theCompiler().settings();
+        CompilerSettings& s = *Nest_compilerSettings();
 
         // Run GCC to assemble and link the program into native code.
         //
@@ -157,7 +157,7 @@ void LLVMB::generateAssembly(const llvm::Module& module, const string& outFilena
 
 void LLVMB::link(const vector<llvm::Module*>& inputs, const string& outFilename)
 {
-    Nest::CompilerSettings& s = Nest::theCompiler().settings();
+    CompilerSettings& s = *Nest_compilerSettings();
 
     // Link all the input modules to a single module
     // we desotry all the modules in this process
@@ -175,7 +175,7 @@ void LLVMB::link(const vector<llvm::Module*>& inputs, const string& outFilename)
     string err;
     raw_string_ostream errStream(err);
     if ( verifyModule(*compositeModule, &errStream) )
-        REP_ERROR(NOLOC, "LLVM Verification failed for generated program: %1%") % err;
+        REP_INTERNAL(NOLOC, "LLVM Verification failed for generated program: %1%") % err;
 
     // Write the bitcode file -- this will typically be removed after generating the output files
     string bcFile = outFilename + ".bc";
@@ -232,7 +232,7 @@ void LLVMB::link(const vector<llvm::Module*>& inputs, const string& outFilename)
     // Try to find GCC and call it to generate native code out of the assembly (or C)
     string gcc = sys::FindProgramByName("gcc");
     if ( gcc.empty() )
-        REP_ERROR(NOLOC, "Failed to find gcc");
+        REP_INTERNAL(NOLOC, "Failed to find gcc");
 
     generateNativeObjGCC(outFilename, objFile.c_str(), gcc);
 }

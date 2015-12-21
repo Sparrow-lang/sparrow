@@ -5,22 +5,16 @@
 #include "TrLocal.h"
 #include "Module.h"
 
-#include <Nest/Intermediate/Node.h>
-#include <Nest/Intermediate/Type.h>
-#include <Nest/Common/Diagnostic.h>
-#include <Nest/Compiler.h>
-#include <Nest/CompilerSettings.h>
+#include "Nest/Api/Node.h"
+#include "Nest/Utils/NodeUtils.hpp"
+#include "Nest/Api/Type.h"
+#include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Api/Compiler.h"
+#include "Nest/Utils/CompilerSettings.hpp"
 
-#include <Feather/Nodes/Properties.h>
-#include <Feather/Nodes/NodeList.h>
-#include <Feather/Nodes/BackendCode.h>
-#include <Feather/Nodes/Nop.h>
-#include <Feather/Nodes/GlobalDestructAction.h>
-#include <Feather/Nodes/GlobalConstructAction.h>
-#include <Feather/Nodes/Decls/Class.h>
-#include <Feather/Nodes/Decls/Function.h>
-#include <Feather/Nodes/Decls/Var.h>
-#include <Feather/Util/Decl.h>
+#include "Feather/Api/Feather.h"
+#include "Feather/Utils/FeatherUtils.hpp"
 
 #ifdef _MSC_VER
 #pragma warning(push,1)
@@ -39,25 +33,27 @@ using namespace Feather;
 
 namespace
 {
-    void translateNodeList(Feather::NodeList* node, Module& module)
+    void translateNodeList(Node* node, Module& module)
     {
-        for ( Node* child: node->children() )
+        for ( Node* child: node->children )
         {
-            if ( child)
+            if ( child )
                 translateTopLevelNode(child, module);
         }
     }
 
-    void translate(GlobalDestructAction& node, Module& module)
+    void translateGlobalDestructAction(Node* node, Module& module)
     {
-        llvm::Function* fun = makeFunThatCalls(node.destructAction(), module, "__global_dtor");
+        Node* act = at(node->children, 0);
+        llvm::Function* fun = makeFunThatCalls(act, module, "__global_dtor");
         if ( fun )
             module.addGlobalDtor(fun);
     }
 
-    void translate(GlobalConstructAction& node, Module& module)
+    void translateGlobalConstructAction(Node* node, Module& module)
     {
-        llvm::Function* fun = makeFunThatCalls(node.constructAction(), module, "__global_ctor");
+        Node* act = at(node->children, 0);
+        llvm::Function* fun = makeFunThatCalls(act, module, "__global_ctor");
         if ( fun )
             module.addGlobalCtor(fun);
     }
@@ -65,44 +61,46 @@ namespace
 
 
 
-void Tr::translateTopLevelNode(Nest::Node* node, Module& module)
+void Tr::translateTopLevelNode(Node* node, Module& module)
 {
     // If this node is explained, then translate its explanation
-    if ( node->isExplained() )
+    Node* expl = Nest_explanation(node);
+    if ( node != expl )
     {
-        translateTopLevelNode(node->curExplanation(), module);
+        translateTopLevelNode(expl, module);
     }
     else
     {
         // Depending on the type of the node, do a specific translation
 
-        switch ( node->nodeKind() )
+        switch ( node->nodeKind - Feather_getFirstFeatherNodeKind() )
         {
-        case nkFeatherNop:                      break;
-        case nkFeatherNodeList:                 translateNodeList(static_cast<NodeList*>(node), module); break;
-        case nkFeatherBackendCode:              translateBackendCode(static_cast<BackendCode*>(node), module); break;
-        case nkFeatherGlobalDestructAction:     translate(static_cast<GlobalDestructAction&>(*node), module); break;
-        case nkFeatherGlobalConstructAction:    translate(static_cast<GlobalConstructAction&>(*node), module); break;
-        case nkFeatherDeclClass:                translateClass(static_cast<Class*>(node), module); break;
-        case nkFeatherDeclFunction:             translateFunction(static_cast<Function*>(node), module); break;
-        case nkFeatherDeclVar:                  translateGlobalVar(static_cast<Var*>(node), module); break;
+        case nkRelFeatherNop:                      break;
+        case nkRelFeatherNodeList:                 translateNodeList(node, module); break;
+        case nkRelFeatherBackendCode:              translateBackendCode(node, module); break;
+        case nkRelFeatherGlobalDestructAction:     translateGlobalDestructAction(node, module); break;
+        case nkRelFeatherGlobalConstructAction:    translateGlobalConstructAction(node, module); break;
+        case nkRelFeatherDeclClass:                translateClass(node, module); break;
+        case nkRelFeatherDeclFunction:             translateFunction(node, module); break;
+        case nkRelFeatherDeclVar:                  translateGlobalVar(node, module); break;
         default:
-            REP_ERROR(node->location(), "Don't know how to interpret a node of this kind (%1%)") % node->nodeKindName();
+            REP_INTERNAL(node->location, "Don't know how to interpret a node of this kind (%1%)") % Nest_nodeKindName(node);
         }
     }
 }
 
 
-void Tr::translateBackendCode(Feather::BackendCode* node, Module& module)
+void Tr::translateBackendCode(Node* node, Module& module)
 {
     // Generate a new module from the given backend code
     llvm::SMDiagnostic error;
-    llvm::Module* resModule = llvm::ParseAssemblyString(node->code().c_str(), nullptr, error, module.llvmContext());
+    StringRef code = Nest_getCheckPropertyString(node, propCode);
+    llvm::Module* resModule = llvm::ParseAssemblyString(code.begin, nullptr, error, module.llvmContext());
     if ( !resModule )
     {
-        Location loc = node->location();
-        if ( loc.startLineNo() == 1 && loc.startColNo() == 1 )
-            loc = Location(*node->location().sourceCode(), error.getLineNo(), error.getColumnNo());
+        Location loc = node->location;
+        if ( loc.start.line == 1 && loc.start.col == 1 )
+            loc = Nest_mkLocation1(node->location.sourceCode, error.getLineNo(), error.getColumnNo());
         REP_ERROR(loc, "Cannot parse backend code node: %1% (line: %2%)") % string(error.getMessage()) % error.getLineNo();
     }
 
@@ -114,16 +112,16 @@ void Tr::translateBackendCode(Feather::BackendCode* node, Module& module)
     string errMsg;
     llvm::Linker::LinkModules(&module.llvmModule(), resModule, llvm::Linker::DestroySource, &errMsg);
     if ( !errMsg.empty() )
-        REP_ERROR(node->location(), "Cannot merge backend code node into main LLVM module: %1%") % errMsg;
+        REP_ERROR(node->location, "Cannot merge backend code node into main LLVM module: %1%") % errMsg;
 }
 
-llvm::Type* Tr::translateClass(Feather::Class* node, Module& module)
+llvm::Type* Tr::translateClass(Node* node, Module& module)
 {
     // Check for ct/non-ct compatibility
     if ( !module.canUse(node) )
         return nullptr;
 
-    if ( !node->type() || 0 == strcmp(node->type()->description_, "BasicBlock") )
+    if ( !node->type || 0 == strcmp(node->type->description, "BasicBlock") )
     {
         ASSERT(true);
     }
@@ -134,10 +132,10 @@ llvm::Type* Tr::translateClass(Feather::Class* node, Module& module)
         return *transType;
 
     // Check if this is a standard/native type
-    const string* nativeName = node->getPropertyString(propNativeName);
+    const StringRef* nativeName = Nest_getPropertyString(node, propNativeName);
     if ( nativeName )
     {
-        llvm::Type* t = getNativeLLVMType(node->location(), *nativeName, module.llvmContext());
+        llvm::Type* t = getNativeLLVMType(node->location, *nativeName, module.llvmContext());
         if ( t )
         {
             // Set the translation type for this item
@@ -149,22 +147,22 @@ llvm::Type* Tr::translateClass(Feather::Class* node, Module& module)
     // Get or create the type, and set it as a property (don't add any subtypes yet to avoid endless loops)
     llvm::StructType* t = nullptr;
     if ( nativeName )
-        t = module.llvmModule().getTypeByName(*nativeName);    // Make sure we reuse the name
+        t = module.llvmModule().getTypeByName(nativeName->begin);    // Make sure we reuse the name
     if ( !t )
     {
-        const string* description = node->getPropertyString(propDescription);
+        const StringRef* description = Nest_getPropertyString(node, propDescription);
+        StringRef desc = description ? *description : Feather_getName(node);
         // Create a new struct type, possible with another name
-        t = llvm::StructType::create(module.llvmContext(), description ? *description : getName(node));
+        t = llvm::StructType::create(module.llvmContext(), desc.begin);
     }
     module.setNodeProperty(node, Module::propTransType, boost::any(static_cast<llvm::Type*>(t)));
 
     // Now add the subtypes
     vector<llvm::Type*> fieldTypes;
-    fieldTypes.reserve(node->fields().size());
-    for ( auto f: node->fields() )
+    fieldTypes.reserve(Nest_nodeArraySize(node->children));
+    for ( auto field: node->children )
     {
-        Var* field = (Var*) f;
-        fieldTypes.push_back(getLLVMType(field->type(), module));
+        fieldTypes.push_back(getLLVMType(field->type, module));
     }
     if ( t->isOpaque() )
     {
@@ -173,27 +171,27 @@ llvm::Type* Tr::translateClass(Feather::Class* node, Module& module)
     return t;
 }
 
-llvm::Value* Tr::translateGlobalVar(Feather::Var* node, Module& module)
+llvm::Value* Tr::translateGlobalVar(Node* node, Module& module)
 {
     // Check for ct/non-ct compatibility
     if ( !module.canUse(node) )
         return nullptr;
 
-    if ( node->nodeKind() != nkFeatherDeclVar )
-        REP_ERROR(node->location(), "Invalid global variable %1%") % getName(node);
+    if ( node->nodeKind != nkFeatherDeclVar )
+        REP_ERROR_RET(nullptr, node->location, "Invalid global variable %1%") % Feather_getName(node);
 
     // If we already translated this variable, make sure not to translate it again
     llvm::Value* val = getValue(module, *node, false);
     if ( val )
         return val;
 
-    llvm::Type* t = getLLVMType(node->type(), module);
+    llvm::Type* t = getLLVMType(node->type, module);
 
     // Check if the variable has been declared before; if not, create it
     llvm::GlobalVariable* var = nullptr;
-    const string* nativeName = node->getPropertyString(propNativeName);
+    const StringRef* nativeName = Nest_getPropertyString(node, propNativeName);
     if ( nativeName )
-        var = module.llvmModule().getGlobalVariable(*nativeName);
+        var = module.llvmModule().getGlobalVariable(nativeName->begin);
     if ( !var )
     {
         var = new llvm::GlobalVariable(
@@ -202,7 +200,7 @@ llvm::Value* Tr::translateGlobalVar(Feather::Var* node, Module& module)
             false, // isConstant
             llvm::GlobalValue::ExternalLinkage, // linkage
             0, // initializer - specified below
-            getName(node)
+            Feather_getName(node).begin
             );
     }
 
@@ -225,8 +223,8 @@ llvm::Value* Tr::translateGlobalVar(Feather::Var* node, Module& module)
     }
     else
     {
-        REP_ERROR(node->location(), "Don't know how to create zero initializer for the variable of type %1%")
-            % node->type()->toString();
+        REP_INTERNAL(node->location, "Don't know how to create zero initializer for the variable of type %1%")
+            % node->type;
     }
 
     // Set the value for the variable

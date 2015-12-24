@@ -1,0 +1,54 @@
+package Par;
+
+import SL.Ptr;
+
+package Impl
+{
+    using OS_WIN = 0;
+    using OS_UNIX = 0;
+    using OS_MAC = 1;
+
+    using _SC_NPROCESSORS_ONLN = 58;
+
+    fun[native("sysconf")] sysconf(name: Int): Long;
+}
+
+//datatype NativeThreadId = Byte Ptr;  // Opaque type
+//datatype NativeThreadHandle = Byte Ptr;  // Opaque type
+
+class[initCtor] NativeThreadId
+{
+    var impl: Byte Ptr;
+}
+
+class[initCtor] NativeThreadHandle
+{
+    var impl: Byte Ptr;
+}
+
+fun >>(id: NativeThreadId, os: @OutStream)
+{
+    if ( id.impl.isSet )
+        os << mkStreamRefWrapper(id.impl.get);
+    else
+        os << "null";
+}
+
+fun >>(h: NativeThreadHandle, os: @OutStream)
+{
+    if ( h.impl.isSet )
+        os << mkStreamRefWrapper(h.impl.get);
+    else
+        os << "null";
+}
+
+using InvalidThreadHandle = NativeThreadHandle();
+
+
+//! Get the number of available logical CPU cores for our process
+//! This dictates how much parallelism we have to be exploit
+fun getAvailableCoresNum(): UInt {
+    var maxProcs: Long = Impl.sysconf(Impl._SC_NPROCESSORS_ONLN);
+    return ife(maxProcs<1, UInt(1), UInt(maxProcs));
+    // TODO: also consider process affinity
+}

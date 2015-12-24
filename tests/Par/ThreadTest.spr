@@ -1,0 +1,51 @@
+import Par.Thread;
+import SL.Ranges;
+
+fun sprMain
+{
+    if ( programArgs.size() < 2 )
+        return;
+    var n = programArgs(1) asInt;
+
+    if      ( n == 1 ) test1();
+    else if ( n == 2 ) test2();
+}
+
+class[initCtor] TwiddleThumbs {
+    private var message: String;
+    private var count: Int;
+
+    fun ()() {
+        for ( i = 0..count ) {
+            var ss: StringOutputStream;
+            ss << message << ": i=" << i << endl;
+            cout << ss.result;
+            Par.sleep(10);
+        }
+    }
+}
+
+fun test1
+{
+    //cout << Par.getAvailableCoresNum() << endl;
+    if ( Par.getAvailableCoresNum() >= 2 )
+        cout << "ok" << endl;
+}
+/*<<<Num avaiable cores(1)
+ok
+>>>*/
+
+fun test2
+{
+    cout << "Before creating threads" << endl;
+    var t1 = Par.Thread(TwiddleThumbs("worker 1", 10));
+    var t2 = Par.Thread(TwiddleThumbs("worker 2", 10));
+    Par.sleep(50);
+    cout << "After creating the threads" << endl;
+    t1 join;
+    t2 join;
+    cout << "Done" << endl;
+}
+/*<<<Create some worker threads(2)
+>>>*/
+

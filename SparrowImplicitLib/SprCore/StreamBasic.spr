@@ -8,9 +8,9 @@ concept OutStream(x)
     ;
 
 // If we define an ">>" operator in the type itself, make sure we can support the standard "<<" notation
-fun[rtct] << (s: @OutStream, x: @AnyType): typeOf(s) if isValid(x.>>(s))
+fun[rtct] << (s: @OutStream, x: @AnyType): typeOf(s) if isValid(x >> s)
 {
-    x.>>(s);
+    x >> s;
     return s;
 }
 

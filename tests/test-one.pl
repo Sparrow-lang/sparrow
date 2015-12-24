@@ -24,6 +24,11 @@ sub handleTestFailure
         print "\n>>> KNOWN-PROBLEM: $msg\n";
         $summary .= "K";
     }
+    elsif ( !$showKnownProblemsAsErrors && ($test =~ /.*IGNORE.*/) )
+    {
+        print "\n>>> IGNORE: $msg\n";
+        $summary .= "I";
+    }
     else
     {
         print "\n>>> FAILURE: $msg\n";

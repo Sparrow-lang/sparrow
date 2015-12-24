@@ -1,5 +1,7 @@
 import Par.Thread;
+import Par.Atomic;
 import SL.Ranges;
+import SL.Vector;
 
 fun sprMain
 {
@@ -9,17 +11,35 @@ fun sprMain
 
     if      ( n == 1 ) test1();
     else if ( n == 2 ) test2();
+    else if ( n == 3 ) test3();
+    else if ( n == 4 ) test4();
 }
 
-class[initCtor] TwiddleThumbs {
+var gCounter: Par.AtomicWord = 0;
+
+class TwiddleThumbs {
     private var message: String;
     private var count: Int;
+    private var doPrint: Bool;
+    var lastCounter: @Int;
+
+    fun ctor(message: StringRef, count: Int, lastCounter: @Int, doPrint: Bool = false) {
+        this.message construct message;
+        this.count construct count;
+        this.lastCounter := lastCounter;
+        this.doPrint construct doPrint;
+    }
 
     fun ()() {
         for ( i = 0..count ) {
-            var ss: StringOutputStream;
-            ss << message << ": i=" << i << endl;
-            cout << ss.result;
+            var cnt: Int = gCounter++;
+            if ( i == count-1 )
+                lastCounter = cnt;
+            if ( doPrint ) {
+                var ss: StringOutputStream;
+                ss << message << ": i=" << i << "; cnt=" << cnt << endl;
+                cout << ss.result;
+            }
             Par.sleep(10);
         }
     }
@@ -27,25 +47,55 @@ class[initCtor] TwiddleThumbs {
 
 fun test1
 {
-    //cout << Par.getAvailableCoresNum() << endl;
-    if ( Par.getAvailableCoresNum() >= 2 )
-        cout << "ok" << endl;
+    cout << Par.getAvailableCoresNum() << endl;
 }
-/*<<<Num avaiable cores(1)
-ok
+/*<<<Number of available cores - print IGNORE (1)
+8
 >>>*/
 
 fun test2
 {
+    if ( Par.getAvailableCoresNum() >= 2 )
+        cout << "ok" << endl;
+}
+/*<<<Number of available cores-test (2)
+ok
+>>>*/
+
+fun test3
+{
     cout << "Before creating threads" << endl;
-    var t1 = Par.Thread(TwiddleThumbs("worker 1", 10));
-    var t2 = Par.Thread(TwiddleThumbs("worker 2", 10));
+    var count = 10;
+    var cnt1, cnt2: Int;
+    var t1 = Par.Thread(TwiddleThumbs("worker 1", count, cnt1, true));
+    var t2 = Par.Thread(TwiddleThumbs("worker 2", count, cnt2, true));
     Par.sleep(50);
     cout << "After creating the threads" << endl;
     t1 join;
     t2 join;
     cout << "Done" << endl;
 }
-/*<<<Create some worker threads(2)
+/*<<<Create some worker threads - print IGNORE (3)
+>>>*/
+
+fun test4
+{
+    var count = 10;
+    var cnt1, cnt2: Int;
+    var t1 = Par.Thread(TwiddleThumbs("worker 1", count, cnt1));
+    var t2 = Par.Thread(TwiddleThumbs("worker 2", count, cnt2));
+    Par.sleep(50);
+    t1 join;
+    t2 join;
+
+    // Make sure that the threads interleave execution
+    // If we interleave, a counter will go beyond 'count'
+    if ( cnt1 <= count ) cout << "fail" << endl;
+    if ( cnt2 <= count ) cout << "fail" << endl;
+
+    cout << "ok" << endl;
+}
+/*<<<Create some worker threads (4)
+ok
 >>>*/
 

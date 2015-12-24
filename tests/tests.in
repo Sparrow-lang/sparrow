@@ -23,6 +23,8 @@ BenchmarkGame/meteor.spr:               Benchmark game - meteor
 BenchmarkGame/fasta.spr:                Benchmark game - fasta
 BenchmarkGame/fastaredux.spr:           Benchmark game - fastaredux
 
+Par/ThreadTest.spr:                     Parallel - thread test
+
 PerfTests/Hash/TestHashPerf.spr:        Performance tests - hash
 PerfTests/ForPerf/spr_for.spr:          Performance tests - for
 PerfTests/FibRanges/fib_op.spr:         Performance tests - Fib ranges

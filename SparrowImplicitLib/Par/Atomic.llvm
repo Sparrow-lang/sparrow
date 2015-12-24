@@ -1,0 +1,25 @@
+;rtct
+
+define i32 @_AtomicWord_load(i32* %atomic) {
+    %1 = load atomic i32* %atomic seq_cst, align 4
+    ret i32 %1
+}
+
+define void @_AtomicWord_store(i32* %atomic, i32 %val) {
+    store atomic i32 %val, i32* %atomic seq_cst, align 4
+    ret void
+}
+
+define i32 @_AtomicWord_fetchAndStore(i32* %atomic, i32 %val) {
+    %old = atomicrmw xchg i32* %atomic, i32 %val seq_cst
+    ret i32 %old
+}
+define i1 @_AtomicWord_compareAndSwap(i32* %atomic, i32 %val, i32 %comparand) {
+    %val_success = cmpxchg i32* %atomic, i32 %comparand, i32 %val seq_cst monotonic
+    %success = extractvalue { i32, i1 } %val_success, 1
+    ret i1 %success
+}
+define i32 @_AtomicWord_fetchAndAdd(i32* %atomic, i32 %val) {
+    %old = atomicrmw add i32* %atomic, i32 %val seq_cst    
+    ret i32 %old
+}

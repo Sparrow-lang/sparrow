@@ -42,6 +42,11 @@ sub handleTestFailure
         print 'K';
         return 1;
     }
+    elsif ( !$showKnownProblemsAsErrors && ($test =~ /.*IGNORE.*/) )
+    {
+        print 'I';
+        return 1;
+    }
     else
     {
         print LOG_FILE "[ FAIL ] - $msg\n";

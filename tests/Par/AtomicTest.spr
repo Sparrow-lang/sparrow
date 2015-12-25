@@ -4,36 +4,14 @@ import Par.Atomic;
 import SL.Ranges;
 import SL.Vector;
 import OS;
+import Test;
 
 using Par.*;
+using Test.*;
 
 fun[native("rand")] rand(): Int;
 fun[native("srand")] srand(seed: UInt);
 fun[native("time")] time(timer: @Int): Int;
-
-fun assertTrue(val: Bool, message: StringRef = "") {
-    if ( !val ) {
-        cout << "Assertion failure" << endl;
-        if ( !message.isEmpty )
-            cout << "    message: " << message << endl;
-        cout << flush;
-        OS.exit(-1);
-    }
-}
-
-fun assertEq(val, expectedVal: AnyType, message: StringRef = "")
-    if isValid(val != expectedVal) 
-{
-    if ( !(val == expectedVal) ) {
-        cout << "Assertion failure: values don't match" << endl;
-        cout << "    given value: " << val << endl;
-        cout << "    expected value: " << expectedVal << endl;
-        if ( !message.isEmpty )
-            cout << "    message: " << message << endl;
-        cout << flush;
-        OS.exit(-1);
-    }
-}
 
 class UserDefined
 {

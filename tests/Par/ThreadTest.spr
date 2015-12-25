@@ -1,7 +1,10 @@
+//! ! --dump-assembly
 import Par.Thread;
 import Par.Atomic;
 import SL.Ranges;
 import SL.Vector;
+
+using Par.*;
 
 fun sprMain
 {
@@ -15,7 +18,10 @@ fun sprMain
     else if ( n == 4 ) test4();
 }
 
-var gCounter: Par.AtomicWord = 0;
+var gCounter: Par.Atomic(Int) = 0;
+
+var p1: Par.Atomic(@Int);
+var p2: Par.Atomic(Int Ptr);
 
 class TwiddleThumbs {
     private var message: String;
@@ -36,9 +42,7 @@ class TwiddleThumbs {
             if ( i == count-1 )
                 lastCounter = cnt;
             if ( doPrint ) {
-                var ss: StringOutputStream;
-                ss << message << ": i=" << i << "; cnt=" << cnt << endl;
-                cout << ss.result;
+                cout << message << ": i=" << i << "; cnt=" << cnt << endl;
             }
             Par.sleep(10);
         }
@@ -94,6 +98,10 @@ fun test4
     if ( cnt2 <= count ) cout << "fail" << endl;
 
     cout << "ok" << endl;
+
+    //p1 store cnt1;
+    var pp: Int Ptr;
+    p2 store pp;
 }
 /*<<<Create some worker threads (4)
 ok

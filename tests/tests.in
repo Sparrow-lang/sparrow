@@ -24,6 +24,7 @@ BenchmarkGame/fasta.spr:                Benchmark game - fasta
 BenchmarkGame/fastaredux.spr:           Benchmark game - fastaredux
 
 Par/ThreadTest.spr:                     Parallel - thread test
+Par/AtomicTest.spr:                     Parallel - atomics test
 
 PerfTests/Hash/TestHashPerf.spr:        Performance tests - hash
 PerfTests/ForPerf/spr_for.spr:          Performance tests - for

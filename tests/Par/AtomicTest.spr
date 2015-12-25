@@ -1,0 +1,212 @@
+//! ! --dump-assembly
+import Par.Thread;
+import Par.Atomic;
+import SL.Ranges;
+import SL.Vector;
+import OS;
+
+using Par.*;
+
+fun[native("rand")] rand(): Int;
+fun[native("srand")] srand(seed: UInt);
+fun[native("time")] time(timer: @Int): Int;
+
+fun assertTrue(val: Bool, message: StringRef = "") {
+    if ( !val ) {
+        cout << "Assertion failure" << endl;
+        if ( !message.isEmpty )
+            cout << "    message: " << message << endl;
+        cout << flush;
+        OS.exit(-1);
+    }
+}
+
+fun assertEq(val, expectedVal: AnyType, message: StringRef = "")
+    if isValid(val != expectedVal) 
+{
+    if ( !(val == expectedVal) ) {
+        cout << "Assertion failure: values don't match" << endl;
+        cout << "    given value: " << val << endl;
+        cout << "    expected value: " << expectedVal << endl;
+        if ( !message.isEmpty )
+            cout << "    message: " << message << endl;
+        cout << flush;
+        OS.exit(-1);
+    }
+}
+
+class UserDefined
+{
+    var lo, hi: Short;
+
+    fun ctor(val: Int) {
+        lo = Short(val % 0xffff);
+        hi = Short(val / 0xffff);
+    }
+    fun >> (os: OutStream) {
+        os << "(" << hi << "," << lo << ")";
+    }
+}
+
+fun testOneLoad(t: Type, val: AnyType) {
+    var atomic: t Atomic = val;
+    assertEq(atomic load, val);
+}
+fun testLoadNumeric(t: Type, count: Int) {
+    for ( i=0..count ) {
+        var val: t = rand();
+        testOneLoad(t, val);
+    }
+}
+fun testLoadPtr(t: Type, count: Int) {
+    for ( i=0..count ) {
+        var val: t = rand();
+        var p: t Ptr = new(t, val);
+        testOneLoad(t Ptr, p);
+        p release;
+    }
+}
+
+fun testOneStore(atomic: AnyType, val: AnyType) {
+    atomic store val;
+    assertEq(atomic load, val);
+}
+fun testStoreNumeric(t: Type, count: Int) {
+    var atomic: t Atomic;
+    for ( i=0..count ) {
+        var val: t = rand();
+        testOneStore(atomic, val);
+    }
+}
+fun testStorePtr(t: Type, count: Int) {
+    var atomic: (t Ptr) Atomic;
+    for ( i=0..count ) {
+        var val: t = rand();
+        var p: t Ptr = new(t, val);
+        testOneStore(atomic, p);
+        p release;
+    }
+}
+
+fun testOneFetchAndStore(atomic: AnyType, val1, val2: AnyType) {
+    atomic store val1;
+    assertEq(atomic load, val1);
+    var x = atomic fetchAndStore val2;
+    assertEq(atomic load, val2);
+    assertEq(x, val1);
+}
+fun testFetchAndStoreNumeric(t: Type, count: Int) {
+    var atomic: t Atomic;
+    for ( i=0..count ) {
+        var val1: t = rand();
+        var val2: t = rand();
+        testOneFetchAndStore(atomic, val1, val2);
+    }
+}
+fun testFetchAndStorePtr(t: Type, count: Int) {
+    var atomic: (t Ptr) Atomic;
+    for ( i=0..count ) {
+        var val1: t = rand();
+        var val2: t = rand();
+        var p1: t Ptr = new(t, val1);
+        var p2: t Ptr = new(t, val2);
+        testOneFetchAndStore(atomic, p1, p2);
+        p2 release;
+        p1 release;
+    }
+}
+
+fun testOneFetchAndAdd(atomic: AnyType, val, add: AnyType) {
+    atomic store val;
+    assertEq(atomic load, val);
+    var x = atomic fetchAndAdd add;
+    assertEq(atomic load, val+add);
+    assertEq(x, val);
+}
+fun testFetchAndAddNumeric(t: Type, count: Int) {
+    var atomic: t Atomic;
+    for ( i=0..count ) {
+        var val: t = rand();
+        var add: t = rand();
+        testOneFetchAndAdd(atomic, val, add);
+    }
+}
+
+fun testOneCompareAndSwap(atomic: AnyType, val1, val2: AnyType) {
+    if ( val1 == val2 )
+        return;
+    atomic store val1;
+    assertEq(atomic load, val1);
+    var x1 = compareAndSwap(atomic, val2, val2);
+    assertEq(atomic load, val1, "CAS shouldn't change the value");
+    assertTrue(!x1, "CAS should return false if not changing the value");
+    var x2 = compareAndSwap(atomic, val2, val1);
+    assertEq(atomic load, val2, "CAS should change the value");
+    assertTrue(x2, "CAS should return true when value is changed");
+}
+fun testCompareAndSwapNumeric(t: Type, count: Int) {
+    var atomic: t Atomic;
+    for ( i=0..count ) {
+        var val1: t = rand();
+        var val2: t = rand();
+        testOneCompareAndSwap(atomic, val1, val2);
+    }
+}
+fun testCompareAndSwapPtr(t: Type, count: Int) {
+    var atomic: (t Ptr) Atomic;
+    for ( i=0..count ) {
+        var val1: t = rand();
+        var val2: t = rand();
+        var p1: t Ptr = new(t, val1);
+        var p2: t Ptr = new(t, val2);
+        testOneCompareAndSwap(atomic, p1, p2);
+        p2 release;
+        p1 release;
+    }
+}
+
+fun testAll(t: Type, count: Int) {
+    testLoadNumeric(t, count);
+    testLoadPtr(t, count);
+
+    testStoreNumeric(t, count);
+    testStorePtr(t, count);
+
+    testFetchAndStoreNumeric(t, count);
+    testFetchAndStorePtr(t, count);
+
+    testCompareAndSwapNumeric(t, count);
+    testCompareAndSwapPtr(t, count);
+
+    if[ct] ( Integer(#$t) )
+        testFetchAndAddNumeric(t, count);
+}
+
+fun testAll(count: Int) {
+    testAll(Int, count);
+    testAll(UInt, count);
+    testAll(Byte, count);
+    testAll(UShort, count);
+    testAll(SizeType, count);
+    testAll(Float, count);
+    testAll(UserDefined, count);
+}
+
+fun sprMain
+{
+    if ( programArgs.size() < 2 )
+        return;
+    var n = programArgs(1) asInt;
+
+    // Initialize random number generator
+    srand(time(null));
+
+    // Run all the tests
+    testAll(n);
+}
+/*<<<Test small (10)
+>>>*/
+
+/*<<<Test large (10000)
+>>>*/
+

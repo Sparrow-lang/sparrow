@@ -1,6 +1,7 @@
 //! ! --dump-assembly
 import Par.Thread;
 import Par.Atomic;
+import Par.Locks;
 import SL.Ranges;
 import SL.Vector;
 

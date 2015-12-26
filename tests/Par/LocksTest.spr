@@ -1,0 +1,103 @@
+//! ! --dump-assembly
+import Par.Thread;
+import Par.Atomic;
+import Par.Locks;
+import Test;
+
+using Par.*;
+using Test.*;
+
+var numUsers: Int Atomic = 0;
+var numLocks: Int Atomic = 0;
+
+var normalMutex: Par.Mutex;
+
+fun doCoreJob(waitTime: Int) {
+    ++numUsers;
+    Test.assertEq(numUsers load, 1, "numUsers should be 1");
+    ++numLocks;
+    Par.sleep(waitTime);
+    --numUsers;
+}
+
+fun doProtectedJob(mutex: @Lockable, useTryLock: Bool = false) {
+    if ( !useTryLock ) {
+        var lock: ScopedLock(typeOf(mutex)) = mutex;
+        doCoreJob(1);
+    } else {
+        var lock: ScopedTryLock(typeOf(mutex)) = mutex;
+        if ( lock.isLocked ) {
+            doCoreJob(3);
+        }
+    }
+}
+
+class[initCtor] Worker {
+    private var amountOfWork: Int;
+    private var useTryLock: Bool;
+
+    fun ()() {
+        for ( i = 0..amountOfWork ) {
+            doProtectedJob(normalMutex, useTryLock);
+        }
+        if ( !useTryLock )
+            Test.assertGe(numLocks load, amountOfWork, "numLocks should be greater or equal to the amount of work");
+    }
+}
+
+class WorkManager {
+    private var amountOfWork, numWorkers, numTryWorkers: Int;
+    private var threads: (Par.Thread Ptr) Vector;
+
+    fun ctor(amountOfWork, numWorkers, numTryWorkers: Int) {
+        this.amountOfWork ctor amountOfWork;
+        this.numWorkers ctor numWorkers;
+        this.numTryWorkers ctor numTryWorkers;
+        for ( i=0..numWorkers ) {
+            var p: Par.Thread Ptr = new(Par.Thread, Worker(amountOfWork, false));
+            threads.pushBack(p);
+        }
+        for ( i=0..numTryWorkers ) {
+            var p: Par.Thread Ptr = new(Par.Thread, Worker(amountOfWork, true));
+            threads.pushBack(p);
+        }
+    }
+
+    fun dtor {
+        for ( t = threads.all ) {
+            t.get join;
+            t.release;
+        }
+        Test.assertGe(numLocks load, amountOfWork*numWorkers, "numLocks should be greater equal to what normals workers did");
+        Test.assertLe(numLocks load, amountOfWork*(numWorkers+numTryWorkers), "numLocks should be less or equal to the total work");
+    }
+}
+
+fun sprMain
+{
+    if ( programArgs.size() < 4 )
+        return;
+    var amountOfWork = programArgs(1) asInt;
+    var numWorkers = programArgs(2) asInt;
+    var numTryWorkers = programArgs(3) asInt;
+
+    var work = WorkManager(amountOfWork, numWorkers, numTryWorkers);
+}
+
+/*<<<Start one worker (20 1 0)
+>>>*/
+
+/*<<<Start 2 workers (20 2 0)
+>>>*/
+
+/*<<<Start 5 workers (20 5 0)
+>>>*/
+
+/*<<<Start 1 try-worker (20 0 1)
+>>>*/
+
+/*<<<Start 5 try-workers (20 0 5)
+>>>*/
+
+/*<<<Start 5 normal and 5 try-workers (20 5 5)
+>>>*/

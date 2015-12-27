@@ -72,10 +72,11 @@ fun load(x: @NonStdAtomicType): x.ValueType
 //! Stores a value inside the given atomic
 fun[native("_Atomic_store32")] store(x: @AtomicInt, newVal: Int);
 fun[native("_Atomic_store64")] store(x: @AtomicLong, newVal: Long);
-//fun store(x: @NonStdAtomicType, newVal: AnyType)
-//    = x.fromUnderlying(x.baseAtomic store x.toUnderlying(newVal));
 fun store(x: @NonStdAtomicType, newVal: AnyType)
     { x.baseAtomic store x.toUnderlying(newVal); }
+
+//! Stores a value inside the given atomic, using the assignment operator
+fun =(x: @AtomicType, val: AnyType) = store(x, val);
 
 //! Fetches the current value of an atomic, and stores a new value in the atomic
 fun[native("_Atomic_fetchAndStore32")] fetchAndStore(x: @AtomicInt, newVal: Int): Int;

@@ -1,5 +1,7 @@
 package Test;
 
+import OS;
+
 fun[rtct] assertTrue(val: Bool, message: StringRef = "") {
     if ( !val ) {
         cout << "Assertion failure" << endl;

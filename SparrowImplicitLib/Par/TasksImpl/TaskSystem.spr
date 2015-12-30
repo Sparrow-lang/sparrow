@@ -1,26 +1,43 @@
 package Par.TasksImpl;
 
+import InternalWorkerThread;
+import Par.Thread;
+import SL.Ptr;
+import SL.Vector;
 import Assert;
 
 class TaskSystem {
     fun ctor {
-        //this.scheduler ctor createScheduler;
     }
 
     fun dtor {
-
     }
 
-    //private var globalQueue: WorkPile;
-    //private var workers: IntrusiveList(Worker);
-    //private var scheduler: IScheduler Ptr;
+    var globalQueue: TaskQueue;
+    var workers: (Worker Ptr) Vector;
+
+    private var threads: (Par.Thread Ptr) Vector;
 }
 
 var globalTaskSystem: TaskSystem Ptr;
 
-fun initTaskSystem(numWorkers: Int = 0) {
+fun initTaskSystem(numWorkers: UInt = 0) {
+    // Create the task system object
     assert(globalTaskSystem isNull);
     globalTaskSystem = new(TaskSystem);
+
+    // Create the required threads
+    if ( numWorkers == 0 )
+        numWorkers = getAvailableCoresNum();
+    for ( i=0..numWorkers ) {
+        var worker = globalTaskSystem.get() createWorker;
+        var p: Par.Thread Ptr = new(Par.Thread, InternalWorkerThread(worker, i));
+        globalTaskSystem.get().threads.pushBack(p);
+
+        // Just to keep the console clean
+        // TODO: remove this
+        Par.sleep(10);
+    }
 }
 
 fun getInitTaskSystem: TaskSystem Ptr {
@@ -28,4 +45,10 @@ fun getInitTaskSystem: TaskSystem Ptr {
     if ( globalTaskSystem isNull )
         initTaskSystem;
     return globalTaskSystem;
+}
+
+fun createWorker(ts: TaskSystem Ptr): Worker Ptr {
+    var p: Worker Ptr = new(Worker, ts.get());
+    ts.get().workers.pushBack(p);
+    return p;
 }

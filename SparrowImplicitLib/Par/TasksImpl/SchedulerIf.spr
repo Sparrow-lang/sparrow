@@ -19,4 +19,4 @@ fun enqueue(task: @TaskPrefix) {
     schedEnqueue(task);
 }
 
-fun localWorker(): Worker Ptr  = Par.TasksImpl.localWorker();
+fun localWorker(): Byte Ptr = reinterpretPtr(Byte, Par.TasksImpl.localWorker());

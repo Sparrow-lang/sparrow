@@ -25,7 +25,8 @@ var tlsWorker: Tls(@Worker);
 fun localWorker: Worker Ptr {
     var worker: Worker Ptr = tlsWorker get;
     if ( worker isNull ) {
-        worker = new(Worker, getInitTaskSystem get);
+        worker = (getInitTaskSystem createWorker);
+        //worker = new(Worker, getInitTaskSystem get);
         tlsWorker = worker.get();
     }
     return worker;

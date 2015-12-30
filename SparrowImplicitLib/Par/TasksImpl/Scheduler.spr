@@ -15,16 +15,17 @@ fun schedSpawn(task: TaskPtr) {
     task.get() assertValid;
 
     // Push the task at the front of the local work queue
-    task.get().worker.get().work pushFront task.get();
+    (task.get() worker).work pushFront task.get();
 }
 fun schedWaitForAll(parent: TaskPtr, child: TaskPtr) {
     var curDepth = parent.get().depth;
     if[ct] ( isValidAndTrue(traceCalls) )
         cout << Depth(curDepth) << "schedWaitForAll(" << parent.get() << ", " << child.get() << ")" << endl;
-    child.get() assertValid;
+    if ( child isSet )
+        child.get() assertValid;
     parent.get() assertValid;
 
-    doWait(child, parent);
+    schedDoWait(child, parent);
 }
 fun schedSpawnRootAndWait(task: TaskPtr) {
     if[ct] ( isValidAndTrue(traceCalls) )
@@ -45,15 +46,16 @@ fun schedEnqueue(task: TaskPtr) {
 ///////////////////////////////////////////////////////////////////////////////
 // Task execution logic
 
-fun doWait(toExecute, waitingTask: TaskPtr) {
-    var worker: @Worker = waitingTask.get().worker.get();
+fun schedDoWait(toExecute, waitingTask: TaskPtr) {
+    var worker: @Worker = waitingTask.get() worker;
 
     var curDepth = waitingTask.get().depth;
     if[ct] ( isValidAndTrue(traceCalls) )
         cout << Depth(curDepth) << "executing from queue: " << TasksPrinter(toExecute, worker.work) << endl;
 
     // TODO
-    worker.work pushFront toExecute.get();
+    if ( toExecute isSet )
+        worker.work pushFront toExecute.get();
 
     /* extract policy:
         - if given a task, execute it

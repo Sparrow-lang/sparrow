@@ -21,6 +21,20 @@ concept TaskType(x)
         || isValidAndTrue(typeOf(x.prefix) == Par.TaskPrefix) )
     ;
 
+//! An empty task; can be used for synchronization
+class EmptyTask { var prefix: TaskPrefix; }
+
+fun execute(task: @EmptyTask) {}
+
+fun >>(t: EmptyTask, os: @OutStream) {
+    os << "EmptyTask";
+}
+
+fun description(task: @EmptyTask): String  = "EmptyTask";
+
+
+
+
 fun getPrefix(t: @TaskType): @Par.TaskPrefix = t prefix if isValid(t prefix);
 fun getPrefix(t: @TaskType): @Par.TaskPrefix = t.prefix if isValid(t.prefix) && !isValid(t prefix);
 

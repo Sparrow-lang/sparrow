@@ -3,6 +3,9 @@
 import Par.Tasks;
 import Test;
 
+using debugMode = true;
+
+
 fun serialFib(n: Long): Long {
     return ife(n<2, n, serialFib(n-1)+serialFib(n-2));
 }

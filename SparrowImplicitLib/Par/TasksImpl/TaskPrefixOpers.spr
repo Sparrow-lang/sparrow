@@ -12,6 +12,8 @@ fun addRefCount(task: @TaskPrefix, count: Int) { task.refCount += count; }
 fun incrementRefCount(task: @TaskPrefix) { task.refCount++; }
 fun decrementRefCount(task: @TaskPrefix) { task.refCount--; }
 
+fun worker(task: @TaskPrefix): @Worker = reinterpretCast(@Worker, task.worker.get());
+
 fun assertValid(task: @TaskPrefix) {
     if[ct] ( isValidAndTrue(debugMode) ) {
         using ExecuteFnType = FunctionPtr(Null rt, @TaskPrefix);

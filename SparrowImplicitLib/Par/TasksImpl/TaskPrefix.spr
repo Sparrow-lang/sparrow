@@ -16,7 +16,8 @@ class TaskPrefix {
     private var refCount: Int Atomic;
 
     //! The worker that this task belongs to
-    private var worker: Worker Ptr;
+    //! Use casts to avoid direct dependency
+    private var worker: Byte Ptr;
 
     //! Used for chaining the tasks in the task queue
     private var prev: TaskPrefix Ptr;

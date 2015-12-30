@@ -13,9 +13,9 @@ import Par.Locks;
 //! The methods are synchronized to protect 2 threads popping elements.
 class TaskQueue {
     //! Points to the first element in the queue
-    private var first: TaskPtr;
+    private var first: TaskPrefix Ptr;
     //! Points to the last valid element in the queue
-    private var last: TaskPtr;
+    private var last: TaskPrefix Ptr;
 
     //! Mutex used to protect the extraction of tasks from both ends
     private var mutex: Mutex;
@@ -75,4 +75,20 @@ fun popBack(q: @TaskQueue): TaskPtr {
         q.last = res.get().prev;
 
     return res;
+}
+
+
+class[initCtor] TasksPrinter {
+    var first: TaskPtr;
+    var list: @TaskQueue;
+}
+
+fun >> (tasks: @TasksPrinter, os: @OutStream) {
+    if ( tasks.first isSet )
+        os << pr(tasks.first) << " + ";
+    var p: TaskPtr = tasks.list.first;
+    while ( p isSet ) {
+        os << pr(p) << ' ';
+        p = p.get().next;
+    }
 }

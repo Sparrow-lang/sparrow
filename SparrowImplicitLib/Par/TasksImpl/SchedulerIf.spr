@@ -1,6 +1,7 @@
 package Par.TasksImpl.SchedulerIf;
 
 import Scheduler;
+import Worker;
 
 fun spawn(task: @TaskPrefix) {
     schedSpawn(task);
@@ -17,3 +18,5 @@ fun waitForAll(curTask: @TaskPrefix) {
 fun enqueue(task: @TaskPrefix) {
     schedEnqueue(task);
 }
+
+fun localWorker(): Worker Ptr  = Par.TasksImpl.localWorker();

@@ -5,6 +5,9 @@ import TaskPrefix;
 
 using traceCalls = true;
 
+fun pr(t: @TaskPrefix) = TaskPrinter(t);
+fun pr(t: TaskPtr) = TaskPrinter(t);
+
 class TaskPrinter {
     private var task: @TaskPrefix;
 
@@ -20,8 +23,15 @@ fun >>(t: TaskPrinter, os: @OutStream) {
     if ( t.task === null )
         os << "<null>";
     else
-        os << '<' << mkStreamRefWrapper(t.task) << ", " << (t.task refCount) << "," << (t.task.depth) << '>';
+        os << '<' << mkStreamRefWrapper(t.task) << ", " << (t.task.depth) << '>';
 }
 
-fun pr(t: @TaskPrefix) = TaskPrinter(t);
-fun pr(t: TaskPtr) = TaskPrinter(t);
+
+class[initCtor] Depth {
+    var depth: Int;
+}
+
+fun >> (d: Depth, os: @OutStream) {
+    if ( d.depth > 0 )
+        os << String(d.depth*2, '.');
+}

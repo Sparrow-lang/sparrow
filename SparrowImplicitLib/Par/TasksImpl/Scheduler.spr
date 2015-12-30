@@ -8,29 +8,28 @@ import Par.Tls;
 ///////////////////////////////////////////////////////////////////////////////
 // Main scheduler interface
 
-fun schedSpawn(first: TaskPtr) {
-    var curDepth = first.get().depth-1;
+fun schedSpawn(task: TaskPtr) {
+    var curDepth = task.get().depth-1;
     if[ct] ( isValidAndTrue(traceCalls) )
-        cout << Depth(curDepth) << "schedSpawn(" << pr(first) << ")" << endl;
-    Internal.assertTaskValid(first.get());
+        cout << Depth(curDepth) << "schedSpawn(" << pr(task) << ")" << endl;
+    task.get() assertValid;
 
     // Push the task at the front of the local work queue
-    var worker = localWorker();
-    worker.get().work pushFront first.get();
+    task.get().worker.get().work pushFront task.get();
 }
 fun schedWaitForAll(parent: TaskPtr, child: TaskPtr) {
     var curDepth = parent.get().depth;
     if[ct] ( isValidAndTrue(traceCalls) )
         cout << Depth(curDepth) << "schedWaitForAll(" << pr(parent) << ", " << pr(child) << ")" << endl;
-    Internal.assertTaskValid(child.get());
-    Internal.assertTaskValid(parent.get());
+    child.get() assertValid;
+    parent.get() assertValid;
 
     doWait(child, parent);
 }
 fun schedSpawnRootAndWait(task: TaskPtr) {
     if[ct] ( isValidAndTrue(traceCalls) )
         cout << "schedSpawnRootAndWait(" << pr(task) << ")" << endl;
-    Internal.assertTaskValid(task.get());
+    task.get() assertValid;
 
     // Execute the root task
     executeTask(task.get());
@@ -39,7 +38,7 @@ fun schedEnqueue(task: TaskPtr) {
     var curDepth = task.get().depth-1;
     if[ct] ( isValidAndTrue(traceCalls) )
         cout << Depth(curDepth) << "schedEnqueue(" << pr(task) << ")" << endl;
-    Internal.assertTaskValid(task.get());
+    task.get() assertValid;
 }
 
 
@@ -47,7 +46,7 @@ fun schedEnqueue(task: TaskPtr) {
 // Task execution logic
 
 fun doWait(toExecute, waitingTask: TaskPtr) {
-    var worker: @Worker = localWorker().get();
+    var worker: @Worker = waitingTask.get().worker.get();
 
     var curDepth = waitingTask.get().depth;
     if[ct] ( isValidAndTrue(traceCalls) )
@@ -110,32 +109,4 @@ fun executeTask(task: @TaskPrefix) {
         //tallyCompletionOfPredecesor(parent, null);
         parent decrementRefCount;
     }
-}
-
-
-///////////////////////////////////////////////////////////////////////////////
-// Helpers
-
-class[initCtor] TasksPrinter {
-    var first: TaskPtr;
-    var list: @TaskQueue;
-}
-
-fun >> (tasks: @TasksPrinter, os: @OutStream) {
-    if ( tasks.first isSet )
-        os << pr(tasks.first) << " + ";
-    var p: TaskPtr = tasks.list.first;
-    while ( p isSet ) {
-        os << pr(p) << ' ';
-        p = p.get().next;
-    }
-}
-
-class[initCtor] Depth {
-    var depth: Int;
-}
-
-fun >> (d: Depth, os: @OutStream) {
-    if ( d.depth > 0 )
-        os << String(d.depth*2, '.');
 }

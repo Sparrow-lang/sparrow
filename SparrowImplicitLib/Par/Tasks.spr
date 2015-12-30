@@ -119,12 +119,14 @@ package Impl {
 
     fun initAsRoot(task: @TaskType) {
         initExecuteFn(task);
+        getPrefix(task).worker = TasksImpl.SchedulerIf.localWorker();
     }
 
     fun initAsChildOf(task, parent: @TaskType) {
         initExecuteFn(task);
         getPrefix(task).parent = getPrefix(parent);
         getPrefix(task).depth = 1+getPrefix(parent).depth;
+        getPrefix(task).worker = getPrefix(parent).worker;
     }
 
     fun doSpawn(curTask, childTask: @TaskType) {

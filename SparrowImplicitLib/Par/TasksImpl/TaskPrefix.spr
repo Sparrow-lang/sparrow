@@ -6,19 +6,23 @@ import SL.Ptr;
 using TaskPtr = TaskPrefix Ptr;
 
 class TaskPrefix {
+    //! The function to be called to execute the task (along with its 'this' offset)
     private var executeFn: FunctionPtr(Null rt, @TaskPrefix);
     private var taskOffset: DiffType;
 
-    //private var scheduler: @IScheduler;
-    //private var context: TaskContext Ptr;
-    //private var nextOffloaded: TaskPtr;
+    //! The parent task of this task; null for root tasks
     private var parent: TaskPrefix Ptr;
+    //! The number of children + waits for this task
     private var refCount: Int Atomic;
-    //private var state: UByte; // TODO
-    //private var extraState:  UByte; // TODO
+
+    //! The worker that this task belongs to
+    private var worker: Worker Ptr;
+
+    //! Used for chaining the tasks in the task queue
     private var prev: TaskPrefix Ptr;
     private var next: TaskPrefix Ptr;
 
+    //! Used for debugging
     private var depth: Int;
 }
 

@@ -23,6 +23,17 @@ class TaskPrefix {
     private var next: TaskPrefix Ptr;
 
     //! Used for debugging
+    private var desc: String;
     private var depth: Int;
 }
 
+fun >>(t: @TaskPrefix, os: @OutStream) {
+    if ( t === null )
+        os << "<null>";
+    else {
+        os << '<' << mkStreamRefWrapper(t) << ", " << (t.depth) << '>';
+        if ( !(t.desc isEmpty) ) {
+            os << '(' << t.desc << ')';
+        }
+    }
+}

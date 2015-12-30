@@ -111,29 +111,40 @@ package Impl {
         fun[static] getExecuteFn: FunctionPtr(Null rt, @TaskPrefix) = \doExecute;
     }
 
-    fun initExecuteFn(obj: @TaskType) {
+    //! Initializes the fields required for a task
+    fun initTaskBasic(obj: @TaskType) {
+        // Init the execute function
         var prefix: @TaskPrefix = getPrefix(obj);
         prefix.taskOffset = ptrDiff(reinterpretCast(@Byte, obj), reinterpretCast(@Byte, prefix));
         prefix.executeFn = ExecuteHelper(typeOf(obj)).getExecuteFn();
+
+        // Get its description (if it has one)
+        if[ct] ( isValidAndTrue(typeOf(obj description) == String) ) {
+            prefix.desc = (obj description);
+        }
     }
 
+    //! Initializes a root task
     fun initAsRoot(task: @TaskType) {
-        initExecuteFn(task);
+        initTaskBasic(task);
         getPrefix(task).worker = TasksImpl.SchedulerIf.localWorker();
     }
 
+    //! Initializes a child task
     fun initAsChildOf(task, parent: @TaskType) {
-        initExecuteFn(task);
+        initTaskBasic(task);
         getPrefix(task).parent = getPrefix(parent);
         getPrefix(task).depth = 1+getPrefix(parent).depth;
         getPrefix(task).worker = getPrefix(parent).worker;
     }
 
+    //! Initialize a child task and spawn it
     fun doSpawn(curTask, childTask: @TaskType) {
         initAsChildOf(childTask, curTask);
         TasksImpl.SchedulerIf.spawn(getPrefix(childTask));
     }
 
+    //! Initialize a child task, then spawn it and wait
     fun doSpawnAndWait(curTask, childTask: @TaskType) {
         initAsChildOf(childTask, curTask);
         TasksImpl.SchedulerIf.spawnAndWaitForAll(getPrefix(curTask), getPrefix(childTask));

@@ -11,7 +11,7 @@ import Par.Tls;
 fun schedSpawn(task: TaskPtr) {
     var curDepth = task.get().depth-1;
     if[ct] ( isValidAndTrue(traceCalls) )
-        cout << Depth(curDepth) << "schedSpawn(" << pr(task) << ")" << endl;
+        cout << Depth(curDepth) << "schedSpawn(" << task.get() << ")" << endl;
     task.get() assertValid;
 
     // Push the task at the front of the local work queue
@@ -20,7 +20,7 @@ fun schedSpawn(task: TaskPtr) {
 fun schedWaitForAll(parent: TaskPtr, child: TaskPtr) {
     var curDepth = parent.get().depth;
     if[ct] ( isValidAndTrue(traceCalls) )
-        cout << Depth(curDepth) << "schedWaitForAll(" << pr(parent) << ", " << pr(child) << ")" << endl;
+        cout << Depth(curDepth) << "schedWaitForAll(" << parent.get() << ", " << child.get() << ")" << endl;
     child.get() assertValid;
     parent.get() assertValid;
 
@@ -28,7 +28,7 @@ fun schedWaitForAll(parent: TaskPtr, child: TaskPtr) {
 }
 fun schedSpawnRootAndWait(task: TaskPtr) {
     if[ct] ( isValidAndTrue(traceCalls) )
-        cout << "schedSpawnRootAndWait(" << pr(task) << ")" << endl;
+        cout << "schedSpawnRootAndWait(" << task.get() << ")" << endl;
     task.get() assertValid;
 
     // Execute the root task
@@ -37,7 +37,7 @@ fun schedSpawnRootAndWait(task: TaskPtr) {
 fun schedEnqueue(task: TaskPtr) {
     var curDepth = task.get().depth-1;
     if[ct] ( isValidAndTrue(traceCalls) )
-        cout << Depth(curDepth) << "schedEnqueue(" << pr(task) << ")" << endl;
+        cout << Depth(curDepth) << "schedEnqueue(" << task.get() << ")" << endl;
     task.get() assertValid;
 }
 
@@ -74,7 +74,7 @@ fun doWait(toExecute, waitingTask: TaskPtr) {
         // Check if we executed all the children for our waiting task
         if ( (waitingTask.get() refCount) == 1 ) {
             if[ct] ( isValidAndTrue(traceCalls) )
-                cout << Depth(curDepth) << "task " << pr(waitingTask) << " can continue" << endl;
+                cout << Depth(curDepth) << "task " << waitingTask.get() << " can continue" << endl;
             waitingTask.get() setRefCount 0;
             break;
         }
@@ -100,7 +100,7 @@ fun executeTask(task: @TaskPrefix) {
 
     // Execute the task
     if[ct] ( isValidAndTrue(traceCalls) )
-        cout << Depth(curDepth) << "executing task " << pr(task) << endl;
+        cout << Depth(curDepth) << "executing task " << task << endl;
     task.executeFn(task);
 
     var parent: @TaskPrefix = task.parent.get();

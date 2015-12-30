@@ -25,6 +25,12 @@ class FibTask {
     }
 }
 
+fun description(task: @FibTask): String {
+    var res: String = "Fib ";
+    res += intToString(Int(task.n));
+    return res;
+}
+
 fun execute(task: @FibTask) {
     cout << "executing FibTask(" << task.n << ")" << endl;
     if ( task.n<cutoff )

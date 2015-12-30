@@ -85,10 +85,10 @@ class[initCtor] TasksPrinter {
 
 fun >> (tasks: @TasksPrinter, os: @OutStream) {
     if ( tasks.first isSet )
-        os << pr(tasks.first) << " + ";
+        os << tasks.first.get() << " + ";
     var p: TaskPtr = tasks.list.first;
     while ( p isSet ) {
-        os << pr(p) << ' ';
+        os << p.get() << ' ';
         p = p.get().next;
     }
 }

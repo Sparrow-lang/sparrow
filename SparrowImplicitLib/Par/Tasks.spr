@@ -1,0 +1,139 @@
+package Par;
+
+import TasksImpl.TaskPrefix;
+import TasksImpl.Debug;
+import TasksImpl.SchedulerIf;
+
+//! Clients should know about TaskPrefix class
+using TasksImpl.TaskPrefix;
+
+
+//! A concept describing a task that can be spawned
+//!
+//! A task must have two things:
+//!     - an 'execute' method (that returns nothing)
+//!     - a way of obtaining the task prefix from it
+//!         - either as an 'prefix' method
+//!         - or as a 'prefix' field <-- this is the easiest
+concept TaskType(x)
+    if isValid(x execute)
+    && ( isValidAndTrue(typeOf(x prefix) == @Par.TaskPrefix)
+        || isValidAndTrue(typeOf(x.prefix) == Par.TaskPrefix) )
+    ;
+
+fun getPrefix(t: @TaskType): @Par.TaskPrefix = t prefix if isValid(t prefix);
+fun getPrefix(t: @TaskType): @Par.TaskPrefix = t.prefix if isValid(t.prefix) && !isValid(t prefix);
+
+
+fun spawnRootAndWait(task: @TaskType) {
+    if[ct] ( isValidAndTrue(TasksImpl.traceCalls) && isValid(cout << task) )
+        cout << "spawnRootAndWait(" << task << ")" << endl;
+
+    Impl.initAsRoot(task);
+
+    TasksImpl.SchedulerIf.spawnRootAndWait(getPrefix(task));
+}
+
+fun spawn(curTask, childTask: @TaskType) {
+    getPrefix(curTask) addRefCount 1;
+    Impl.doSpawn(curTask, childTask);
+}
+
+fun wait(curTask: @TaskType) {
+    getPrefix(curTask) addRefCount 1;
+    TasksImpl.SchedulerIf.waitForAll(getPrefix(curTask));
+}
+
+fun spawnAndWait(curTask, t1: @TaskType) {
+    getPrefix(curTask) addRefCount 2;
+    Impl.doSpawnAndWait(curTask, t1);
+}
+fun spawnAndWait(curTask, t1, t2: @TaskType) {
+    getPrefix(curTask) addRefCount 3;
+    Impl.doSpawn(curTask, t2);
+    Impl.doSpawnAndWait(curTask, t1);
+}
+fun spawnAndWait(curTask, t1, t2, t3: @TaskType) {
+    getPrefix(curTask) addRefCount 4;
+    Impl.doSpawn(curTask, t3);
+    Impl.doSpawn(curTask, t2);
+    Impl.doSpawnAndWait(curTask, t1);
+}
+fun spawnAndWait(curTask, t1, t2, t3, t4: @TaskType) {
+    getPrefix(curTask) addRefCount 5;
+    Impl.doSpawn(curTask, t4);
+    Impl.doSpawn(curTask, t3);
+    Impl.doSpawn(curTask, t2);
+    Impl.doSpawnAndWait(curTask, t1);
+}
+fun spawnAndWait(curTask, t1, t2, t3, t4, t5: @TaskType) {
+    getPrefix(curTask) addRefCount 6;
+    Impl.doSpawn(curTask, t5);
+    Impl.doSpawn(curTask, t4);
+    Impl.doSpawn(curTask, t3);
+    Impl.doSpawn(curTask, t2);
+    Impl.doSpawnAndWait(curTask, t1);
+}
+fun spawnAndWait(curTask, t1, t2, t3, t4, t5, t6: @TaskType) {
+    getPrefix(curTask) addRefCount 7;
+    Impl.doSpawn(curTask, t6);
+    Impl.doSpawn(curTask, t5);
+    Impl.doSpawn(curTask, t4);
+    Impl.doSpawn(curTask, t3);
+    Impl.doSpawn(curTask, t2);
+    Impl.doSpawnAndWait(curTask, t1);
+}
+fun spawnAndWait(curTask, t1, t2, t3, t4, t5, t6, t7: @TaskType) {
+    getPrefix(curTask) addRefCount 8;
+    Impl.doSpawn(curTask, t7);
+    Impl.doSpawn(curTask, t6);
+    Impl.doSpawn(curTask, t5);
+    Impl.doSpawn(curTask, t4);
+    Impl.doSpawn(curTask, t3);
+    Impl.doSpawn(curTask, t2);
+    Impl.doSpawnAndWait(curTask, t1);
+}
+
+fun enqueue(task: @TaskType) {
+    Impl.initAsRoot(task);
+    TasksImpl.SchedulerIf.enqueue(getPrefix(task));
+}
+
+package Impl {
+    class ExecuteHelper(T: Type) {
+        fun[static] doExecute(prefix: @TaskPrefix): Null {
+            var objP: @Byte = ptrAdd(reinterpretCast(@Byte, prefix), prefix.taskOffset);
+            var obj: @T = reinterpretCast(@T, objP);
+            obj execute;
+            return Null();
+        }
+
+        fun[static] getExecuteFn: FunctionPtr(Null rt, @TaskPrefix) = \doExecute;
+    }
+
+    fun initExecuteFn(obj: @TaskType) {
+        var prefix: @TaskPrefix = getPrefix(obj);
+        prefix.taskOffset = ptrDiff(reinterpretCast(@Byte, obj), reinterpretCast(@Byte, prefix));
+        prefix.executeFn = ExecuteHelper(typeOf(obj)).getExecuteFn();
+    }
+
+    fun initAsRoot(task: @TaskType) {
+        initExecuteFn(task);
+    }
+
+    fun initAsChildOf(task, parent: @TaskType) {
+        initExecuteFn(task);
+        getPrefix(task).parent = getPrefix(parent);
+        getPrefix(task).depth = 1+getPrefix(parent).depth;
+    }
+
+    fun doSpawn(curTask, childTask: @TaskType) {
+        initAsChildOf(childTask, curTask);
+        TasksImpl.SchedulerIf.spawn(getPrefix(childTask));
+    }
+
+    fun doSpawnAndWait(curTask, childTask: @TaskType) {
+        initAsChildOf(childTask, curTask);
+        TasksImpl.SchedulerIf.spawnAndWaitForAll(getPrefix(curTask), getPrefix(childTask));
+    }
+}

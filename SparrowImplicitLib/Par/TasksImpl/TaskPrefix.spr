@@ -1,0 +1,24 @@
+package Par.TasksImpl;
+
+import Par.Atomic;
+import SL.Ptr;
+
+using TaskPtr = TaskPrefix Ptr;
+
+class TaskPrefix {
+    private var executeFn: FunctionPtr(Null rt, @TaskPrefix);
+    private var taskOffset: DiffType;
+
+    //private var scheduler: @IScheduler;
+    //private var context: TaskContext Ptr;
+    //private var nextOffloaded: TaskPtr;
+    private var parent: TaskPrefix Ptr;
+    private var refCount: Int Atomic;
+    //private var state: UByte; // TODO
+    //private var extraState:  UByte; // TODO
+    private var prev: TaskPrefix Ptr;
+    private var next: TaskPrefix Ptr;
+
+    private var depth: Int;
+}
+

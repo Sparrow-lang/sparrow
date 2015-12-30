@@ -1,0 +1,31 @@
+package Par.TasksImpl;
+
+import Assert;
+
+class TaskSystem {
+    fun ctor {
+        //this.scheduler ctor createScheduler;
+    }
+
+    fun dtor {
+
+    }
+
+    //private var globalQueue: WorkPile;
+    //private var workers: IntrusiveList(Worker);
+    //private var scheduler: IScheduler Ptr;
+}
+
+var globalTaskSystem: TaskSystem Ptr;
+
+fun initTaskSystem(numWorkers: Int = 0) {
+    assert(globalTaskSystem isNull);
+    globalTaskSystem = new(TaskSystem);
+}
+
+fun getInitTaskSystem: TaskSystem Ptr {
+    // TODO: Make sure this is initialized only once
+    if ( globalTaskSystem isNull )
+        initTaskSystem;
+    return globalTaskSystem;
+}

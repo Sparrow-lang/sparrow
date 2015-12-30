@@ -18,18 +18,13 @@ class Tls(T: Type) if TypeOp.isRef(T) {
     fun =(other: @Tls) {
         tls setValue (other.tls getValue);
     }
-    fun =(val: @T) {
+    fun =(val: T) {
         tls setValue reinterpretCast(@Byte, val);
     }
 
 
     fun get: T {
-        var r: T = reinterpretCast(T, tls getValue);
-        if ( r === null ) {
-            r = new(-@T);
-            this = r;
-        }
-        return r;
+        return reinterpretCast(T, tls getValue);
     }
 
     private fun[static] destructPtr(p: @Byte): Null {

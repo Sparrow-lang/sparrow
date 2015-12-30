@@ -1,0 +1,32 @@
+package Par.TasksImpl;
+
+import Debug;
+import TaskSystem;
+import TaskQueue;
+import Par.Tls;
+
+
+class Worker {
+    var taskSystem: @TaskSystem;
+    var work: TaskQueue;
+    var next: Worker Ptr;   // the next worker in the system
+
+    fun ctor(taskSystem: @TaskSystem) {
+        this.taskSystem := taskSystem;
+    }
+
+    fun dtor {
+    }
+
+}
+
+var tlsWorker: Tls(@Worker);
+
+fun localWorker: Worker Ptr {
+    var worker: Worker Ptr = tlsWorker get;
+    if ( worker isNull ) {
+        worker = new(Worker, getInitTaskSystem get);
+        tlsWorker = worker.get();
+    }
+    return worker;
+}

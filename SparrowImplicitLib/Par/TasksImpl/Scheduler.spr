@@ -1,0 +1,141 @@
+package Par.TasksImpl;
+
+import TaskPrefixOpers;
+import Worker;
+import Debug;
+import Par.Tls;
+
+///////////////////////////////////////////////////////////////////////////////
+// Main scheduler interface
+
+fun schedSpawn(first: TaskPtr) {
+    var curDepth = first.get().depth-1;
+    if[ct] ( isValidAndTrue(traceCalls) )
+        cout << Depth(curDepth) << "schedSpawn(" << pr(first) << ")" << endl;
+    Internal.assertTaskValid(first.get());
+
+    // Push the task at the front of the local work queue
+    var worker = localWorker();
+    worker.get().work pushFront first.get();
+}
+fun schedWaitForAll(parent: TaskPtr, child: TaskPtr) {
+    var curDepth = parent.get().depth;
+    if[ct] ( isValidAndTrue(traceCalls) )
+        cout << Depth(curDepth) << "schedWaitForAll(" << pr(parent) << ", " << pr(child) << ")" << endl;
+    Internal.assertTaskValid(child.get());
+    Internal.assertTaskValid(parent.get());
+
+    doWait(child, parent);
+}
+fun schedSpawnRootAndWait(task: TaskPtr) {
+    if[ct] ( isValidAndTrue(traceCalls) )
+        cout << "schedSpawnRootAndWait(" << pr(task) << ")" << endl;
+    Internal.assertTaskValid(task.get());
+
+    // Execute the root task
+    executeTask(task.get());
+}
+fun schedEnqueue(task: TaskPtr) {
+    var curDepth = task.get().depth-1;
+    if[ct] ( isValidAndTrue(traceCalls) )
+        cout << Depth(curDepth) << "schedEnqueue(" << pr(task) << ")" << endl;
+    Internal.assertTaskValid(task.get());
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Task execution logic
+
+fun doWait(toExecute, waitingTask: TaskPtr) {
+    var worker: @Worker = localWorker().get();
+
+    var curDepth = waitingTask.get().depth;
+    if[ct] ( isValidAndTrue(traceCalls) )
+        cout << Depth(curDepth) << "executing from queue: " << TasksPrinter(toExecute, worker.work) << endl;
+
+    // TODO
+    worker.work pushFront toExecute.get();
+
+    /* extract policy:
+        - if given a task, execute it
+        - extract tasks from the local queue (until our waitingTask is met)
+        - extract tasks from the shared queue
+        - steal tasks from other local queues
+    */
+
+    // Extract and execute from the queue
+    while ( !(worker.work empty) ) {
+        // Extract the top of the queue
+        var t: TaskPtr = worker.work popFront;
+        var task: @TaskPrefix = t.get();
+
+        // Execute this task
+        executeTask(task);
+
+        // Check if we executed all the children for our waiting task
+        if ( (waitingTask.get() refCount) == 1 ) {
+            if[ct] ( isValidAndTrue(traceCalls) )
+                cout << Depth(curDepth) << "task " << pr(waitingTask) << " can continue" << endl;
+            waitingTask.get() setRefCount 0;
+            break;
+        }
+    }
+    if[ct] ( isValidAndTrue(traceCalls) )
+        cout << Depth(curDepth) << "remaining queue: " << TasksPrinter(TaskPtr(), worker.work) << endl;
+}
+
+// TODO
+var myInnermostRunningTask: @TaskPrefix = null;
+
+fun executeTask(task: @TaskPrefix) {
+    var curDepth = task.depth-1;
+
+    // TODO: what is this?
+    //myInnermostRunningTask := task;
+
+
+    // TODO: check cancellation
+    if ( false ) {
+        return;
+    }
+
+    // Execute the task
+    if[ct] ( isValidAndTrue(traceCalls) )
+        cout << Depth(curDepth) << "executing task " << pr(task) << endl;
+    task.executeFn(task);
+
+    var parent: @TaskPrefix = task.parent.get();
+    if ( parent !== null ) {
+        // TODO
+        //tallyCompletionOfPredecesor(parent, null);
+        parent decrementRefCount;
+    }
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Helpers
+
+class[initCtor] TasksPrinter {
+    var first: TaskPtr;
+    var list: @TaskQueue;
+}
+
+fun >> (tasks: @TasksPrinter, os: @OutStream) {
+    if ( tasks.first isSet )
+        os << pr(tasks.first) << " + ";
+    var p: TaskPtr = tasks.list.first;
+    while ( p isSet ) {
+        os << pr(p) << ' ';
+        p = p.get().next;
+    }
+}
+
+class[initCtor] Depth {
+    var depth: Int;
+}
+
+fun >> (d: Depth, os: @OutStream) {
+    if ( d.depth > 0 )
+        os << String(d.depth*2, '.');
+}

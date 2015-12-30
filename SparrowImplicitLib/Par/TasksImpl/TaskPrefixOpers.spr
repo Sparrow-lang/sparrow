@@ -1,0 +1,64 @@
+package Par.TasksImpl;
+
+import TaskPrefix;
+import BitOper;
+import Assert;
+
+//fun getCurrentTask: @TaskPrefix {
+//    return null; // TODO
+//}
+
+//// TaskPrefix properties
+
+//fun parent(task: @TaskPrefix): TaskPrefix Ptr = task.parent;
+//fun setParent(task: @TaskPrefix, parent: TaskPtr) { task.parent = parent; }
+
+//fun context(task: @TaskPrefix): TaskContext Ptr = task.context;
+//fun isStolen(task: @TaskPrefix): Bool = (task.extraState !&! 0x80) != 0;
+
+//fun state(task: @TaskPrefix): UByte = task.state;
+fun refCount(task: @TaskPrefix): Int = task.refCount load;
+
+
+// Reference counting (of the children)
+
+fun setRefCount(task: @TaskPrefix, count: Int) { task.refCount = count; }
+fun addRefCount(task: @TaskPrefix, count: Int) { task.refCount += count; }
+fun incrementRefCount(task: @TaskPrefix) { task.refCount++; }
+fun decrementRefCount(task: @TaskPrefix) { task.refCount--; }
+
+//// Priorities and cancellation
+
+//fun setPriority(task: @TaskPrefix, p: Priority);
+//fun priority(task: @TaskPrefix): Priority;
+
+//fun cancel(task: @TaskPrefix);
+//fun isCancelled(task: @TaskPrefix): Bool;
+
+
+
+// TODO: task_list?
+
+// TODO: EmptyTask
+
+package Internal {
+    using TASK_STATE_EXECUTING = 0;
+    using TASK_STATE_REEXECUTE = 1;
+    using TASK_STATE_READY = 2;
+    using TASK_STATE_ALLOCATED = 3;
+    using TASK_STATE_FREED = 4;
+    using TASK_STATE_RECYCLE = 5;
+    using TASK_STATE_TOENQUEUE = 6;
+
+    using ExecuteFnType = FunctionPtr(@TaskPrefix, @TaskPrefix);
+
+    if[ct] ( isValidAndTrue(debugMode) )
+        fun assertTaskValid(task: @TaskPrefix) {
+            assert(task !== null);
+            //assert(task.scheduler !== null);
+            assert(task.executeFn != ExecuteFnType());
+            // TODO
+        }
+    else
+        fun assertTaskValid(task: TaskPrefix Ptr) {}
+}

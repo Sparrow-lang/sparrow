@@ -1,0 +1,27 @@
+package Par.TasksImpl;
+
+import Meta.ASTNodes;
+import TaskPrefix;
+
+using traceCalls = true;
+
+class TaskPrinter {
+    private var task: @TaskPrefix;
+
+    fun ctor(t: @TaskPrefix) {
+        this.task := t;
+    }
+    fun ctor(t: TaskPtr) {
+        this.task := t.get();
+    }
+}
+
+fun >>(t: TaskPrinter, os: @OutStream) {
+    if ( t.task === null )
+        os << "<null>";
+    else
+        os << '<' << mkStreamRefWrapper(t.task) << ", " << (t.task refCount) << "," << (t.task.depth) << '>';
+}
+
+fun pr(t: @TaskPrefix) = TaskPrinter(t);
+fun pr(t: TaskPtr) = TaskPrinter(t);

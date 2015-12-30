@@ -1,0 +1,19 @@
+package Par.TasksImpl.SchedulerIf;
+
+import Scheduler;
+
+fun spawn(task: @TaskPrefix) {
+    schedSpawn(task);
+}
+fun spawnAndWaitForAll(curTask, child: @TaskPrefix) {
+    schedWaitForAll(curTask, child);
+}
+fun spawnRootAndWait(root: @TaskPrefix) {
+    schedSpawnRootAndWait(root);
+}
+fun waitForAll(curTask: @TaskPrefix) {
+    schedWaitForAll(curTask, null);
+}
+fun enqueue(task: @TaskPrefix) {
+    schedEnqueue(task);
+}

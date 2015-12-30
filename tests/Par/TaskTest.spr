@@ -1,0 +1,77 @@
+//!!
+// -g -O1 --dump-assembly
+import Par.Tasks;
+import Test;
+
+fun serialFib(n: Long): Long {
+    return ife(n<2, n, serialFib(n-1)+serialFib(n-2));
+}
+using cutoff = 2;
+
+class FibTask {
+    var dummy: Int;
+    var prefix: Par.TaskPrefix;
+    var n: Long;
+    var result: @Long;
+
+    fun ctor(n: Long, result: @Long) {
+        this.n ctor n;
+        this.result := result;
+        //cout << "FibTask(" << n << ").ctor - " << mkStreamRefWrapper(prefix) << endl;
+    }
+
+    fun dtor {
+        //cout << "FibTask(" << n << ").dtor - " << mkStreamRefWrapper(prefix) << endl;
+    }
+}
+
+fun execute(task: @FibTask) {
+    cout << "executing FibTask(" << task.n << ")" << endl;
+    if ( task.n<cutoff )
+        task.result = serialFib(task.n);
+    else {
+        // Create the children tasks
+        var x, y: Long;
+        //var t1: @FibTask = new(FibTask, task.n-1, x);
+        //var t2: @FibTask = new(FibTask, task.n-2, y);
+        var t1 = FibTask(task.n-1, x);
+        var t2 = FibTask(task.n-2, y);
+
+        Par.spawnAndWait(task, t1, t2);
+
+        // Do the sum
+        task.result = x + y;
+    }
+    cout << "fib(" << task.n << ")=" << task.result << endl;
+
+    // Possibility:
+    //Par.setContinuation(contTask);
+}
+
+fun >>(t: FibTask, os: @OutStream) {
+    os << "FibTask(" << t.n << ")";
+}
+
+//fun prefix(task: @FibTask): @Par.TaskPrefix = task.prefix;
+
+fun parFib(n: Long): Long {
+    var res: Long;
+    var rootTask: Par.TaskType = FibTask(n, res);
+    Par.spawnRootAndWait(rootTask);
+    return res;
+}
+
+fun sprMain
+{
+    if ( programArgs.size() < 2 )
+        return;
+    var n = programArgs(1) asInt;
+
+    cout << parFib(n) << endl;
+}
+/*<<<Test small (5)
+>>>*/
+
+/*<<<Test large (7)
+>>>*/
+

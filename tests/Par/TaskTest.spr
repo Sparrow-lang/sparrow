@@ -12,7 +12,6 @@ fun serialFib(n: Long): Long {
 using cutoff = 2;
 
 class FibTask {
-    var dummy: Int;
     var prefix: Par.TaskPrefix;
     var n: Long;
     var result: @Long;
@@ -35,7 +34,7 @@ fun description(task: @FibTask): String {
 }
 
 fun execute(task: @FibTask) {
-    cout << "executing FibTask(" << task.n << ")" << endl;
+    //cout << "executing FibTask(" << task.n << ")" << endl;
     if ( task.n<cutoff )
         task.result = serialFib(task.n);
     else {
@@ -51,7 +50,7 @@ fun execute(task: @FibTask) {
         // Do the sum
         task.result = x + y;
     }
-    cout << "fib(" << task.n << ")=" << task.result << endl;
+    //cout << "fib(" << task.n << ")=" << task.result << endl;
 
     // Possibility:
     //Par.setContinuation(contTask);
@@ -76,11 +75,14 @@ fun sprMain
         return;
     var n = programArgs(1) asInt;
 
-    cout << parFib(n) << endl;
+    var res = parFib(n);
+    cout << "Final result: fib(" << n << ")=" << res << endl;
 }
 /*<<<Test small (5)
+Final result: fib(5)=5
 >>>*/
 
-/*<<<Test large (7)
+/*<<<Test large (32)
+Final result: fib(32)=2178309
 >>>*/
 

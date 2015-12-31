@@ -9,36 +9,55 @@ import Par.Tls;
 // Main scheduler interface
 
 fun schedSpawn(task: TaskPtr) {
-    var curDepth = task.get().depth-1;
+    var worker: @Worker = task.get() worker;
+
     if[ct] ( isValidAndTrue(traceCalls) )
-        cout << Depth(curDepth) << "schedSpawn(" << task.get() << ")" << endl;
+        Tracer(worker) << "schedSpawn(" << task.get() << ")" << endl;
     task.get() assertValid;
 
     // Push the task at the front of the local work queue
-    (task.get() worker).work pushFront task.get();
+    worker.work pushFront task.get();
 }
 fun schedWaitForAll(parent: TaskPtr, child: TaskPtr) {
-    var curDepth = parent.get().depth;
+    var worker: @Worker = parent.get() worker;
+
     if[ct] ( isValidAndTrue(traceCalls) )
-        cout << Depth(curDepth) << "schedWaitForAll(" << parent.get() << ", " << child.get() << ")" << endl;
+        Tracer(worker) << "schedWaitForAll(" << parent.get() << ", " << child.get() << ")" << endl;
     if ( child isSet )
         child.get() assertValid;
     parent.get() assertValid;
 
-    schedDoWait(child, parent);
+    // Ensure the right depth is set in the worker
+    var oldDepth = worker.curDepth;
+    worker.curDepth = parent.get().depth;
+
+    schedDoWait(worker, child, parent);
+
+    // Restore the old depth
+    worker.curDepth = oldDepth;
 }
 fun schedSpawnRootAndWait(task: TaskPtr) {
+    var worker: @Worker = task.get() worker;
+
     if[ct] ( isValidAndTrue(traceCalls) )
-        cout << "schedSpawnRootAndWait(" << task.get() << ")" << endl;
+        Tracer(worker) << "schedSpawnRootAndWait(" << task.get() << ")" << endl;
     task.get() assertValid;
+
+    // Ensure the right depth is set in the worker
+    var oldDepth = worker.curDepth;
+    worker.curDepth = 0;
 
     // Execute the root task
     executeTask(task.get());
+
+    // Restore the old depth
+    worker.curDepth = oldDepth;
 }
 fun schedEnqueue(task: TaskPtr) {
-    var curDepth = task.get().depth-1;
+    var worker: @Worker = task.get() worker;
+
     if[ct] ( isValidAndTrue(traceCalls) )
-        cout << Depth(curDepth) << "schedEnqueue(" << task.get() << ")" << endl;
+        Tracer(worker) << "schedEnqueue(" << task.get() << ")" << endl;
     task.get() assertValid;
 }
 
@@ -46,50 +65,84 @@ fun schedEnqueue(task: TaskPtr) {
 ///////////////////////////////////////////////////////////////////////////////
 // Task execution logic
 
-fun schedDoWait(toExecute, waitingTask: TaskPtr) {
-    var worker: @Worker = waitingTask.get() worker;
-
-    var curDepth = waitingTask.get().depth;
+fun schedDoWait(worker: @Worker, toExecute, waitingTask: TaskPtr) {
     if[ct] ( isValidAndTrue(traceCalls) )
-        cout << Depth(curDepth) << "executing from queue: " << TasksPrinter(toExecute, worker.work) << endl;
+        Tracer(worker)<< "work: " << TasksPrinter(toExecute, worker.work) << endl;
 
-    // TODO
-    if ( toExecute isSet )
-        worker.work pushFront toExecute.get();
-
-    /* extract policy:
+    /* execution policy:
         - if given a task, execute it
-        - extract tasks from the local queue (until our waitingTask is met)
-        - extract tasks from the shared queue
-        - steal tasks from other local queues
+        - extract tasks from the local queue (from front)
+        - extract tasks from the shared queue (from back)
+        - steal tasks from other local queues (from back)
+
+        - stop when our waitingTask refCount reaches 1.
     */
 
-    // Extract and execute from the queue
-    while ( !(worker.work empty) ) {
-        // Extract the top of the queue
-        var t: TaskPtr = worker.work popFront;
-        var task: @TaskPrefix = t.get();
+    while ( true ) {
+        // If we don't have something to execute,
+        // extract something from our local queue
+        if ( toExecute isNull ) {
+            // Get item from the front: most recent
+            toExecute = (worker.work popFront);
+        }
 
-        // Execute this task
-        executeTask(task);
+        // Try stealing something from global queue
+        if ( toExecute isNull ) {
+            // Get item from the back: FIFO style
+            toExecute = (worker.taskSystem.globalQueue popBack);
+            if[ct] ( isValidAndTrue(traceCalls) )
+                if ( toExecute isSet )
+                    Tracer(worker)<< "Found task in global queue\n";
+        }
+        
+        // Steal work from other queues
+        if ( toExecute isNull ) {
+            // Get a queue from another worker; chose it randomly
+            //cout << "~";
+            var otherQueue: @TaskQueue = (worker.taskSystem getRandomTaskQueue);
+            // Get item from the back: try to take as much work as possible
+            toExecute = (otherQueue popBack);
+            if ( toExecute isSet ) {
+                // Change the worker for the stolen task
+                toExecute.get().worker = reinterpretCast(@Byte, worker);
+
+                if[ct] ( isValidAndTrue(traceCalls) )
+                    Tracer(worker)<< "************************* Task stolen: " << toExecute.get() << "\n\n\n";
+            }
+
+        }
+
+        // Try to execute what we've selected
+        if ( toExecute isSet ) {
+            toExecute.get() executeTask;
+        }
 
         // Check if we executed all the children for our waiting task
-        if ( (waitingTask.get() refCount) == 1 ) {
-            if[ct] ( isValidAndTrue(traceCalls) )
-                cout << Depth(curDepth) << "task " << waitingTask.get() << " can continue" << endl;
+        // This is our terminating condition
+        if ( (waitingTask isSet) && (waitingTask.get() refCount) == 1 ) {
             waitingTask.get() setRefCount 0;
             break;
         }
+
+        if ( toExecute isNull ) {
+            // Nothing to execute
+            // TODO: block until we can steal something
+            //cout << "~";
+            Par.sleep(0);
+        }
+        toExecute.reset;
     }
+
+    // Trace remaining work
     if[ct] ( isValidAndTrue(traceCalls) )
-        cout << Depth(curDepth) << "remaining queue: " << TasksPrinter(TaskPtr(), worker.work) << endl;
+        Tracer(worker) << "task " << waitingTask.get() << " can continue; remaining work: " << TasksPrinter(TaskPtr(), worker.work) << endl;
 }
 
 // TODO
 var myInnermostRunningTask: @TaskPrefix = null;
 
 fun executeTask(task: @TaskPrefix) {
-    var curDepth = task.depth-1;
+    var worker: @Worker = task worker;
 
     // TODO: what is this?
     //myInnermostRunningTask := task;
@@ -102,7 +155,7 @@ fun executeTask(task: @TaskPrefix) {
 
     // Execute the task
     if[ct] ( isValidAndTrue(traceCalls) )
-        cout << Depth(curDepth) << "executing task " << task << endl;
+        Tracer(worker) << "executing task " << task << endl;
     task.executeFn(task);
 
     var parent: @TaskPrefix = task.parent.get();

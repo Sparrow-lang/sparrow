@@ -45,7 +45,9 @@ class[rtct] FlushHelperClass
 class[rtct] StreamRefWrapperHelperClass
 {
     var ptr: @Byte;
-    // TODO: define the >> operator here, instead of inside the stream
+}
+fun[rtct] >>(p: StreamRefWrapperHelperClass, os: @OutStream) {
+    Impl.writeRef(p.ptr);
 }
 
 fun[rtct] mkStreamRefWrapper(x: @AnyType): StreamRefWrapperHelperClass

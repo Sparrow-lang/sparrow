@@ -32,9 +32,9 @@ fun >>(t: @TaskPrefix, os: @OutStream) {
     if ( t === null )
         os << "<null>";
     else {
-        os << '<' << mkStreamRefWrapper(t) << ", " << (t.depth) << '>';
         if ( !(t.desc isEmpty) ) {
-            os << '(' << t.desc << ')';
+            os << '"' << t.desc << '"';
         }
+        os << '<' << mkStreamRefWrapper(t) << ", " << (t.depth) << '>';
     }
 }

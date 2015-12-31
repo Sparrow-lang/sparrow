@@ -29,14 +29,15 @@ fun initTaskSystem(numWorkers: UInt = 0) {
     // Create the required threads
     if ( numWorkers == 0 )
         numWorkers = getAvailableCoresNum();
+    numWorkers = 7;
     for ( i=0..numWorkers ) {
         var worker = globalTaskSystem.get() createWorker;
-        var p: Par.Thread Ptr = new(Par.Thread, InternalWorkerThread(worker, i));
+        var p: Par.Thread Ptr = new(Par.Thread, InternalWorkerThread(worker));
         globalTaskSystem.get().threads.pushBack(p);
 
         // Just to keep the console clean
         // TODO: remove this
-        Par.sleep(10);
+        Par.sleep(1);
     }
 }
 
@@ -48,7 +49,17 @@ fun getInitTaskSystem: TaskSystem Ptr {
 }
 
 fun createWorker(ts: TaskSystem Ptr): Worker Ptr {
-    var p: Worker Ptr = new(Worker, ts.get());
+    var id: Int = ts.get().workers size;
+    var p: Worker Ptr = new(Worker, ts.get(), id);
     ts.get().workers.pushBack(p);
     return p;
+}
+
+// TODO: make it random
+var cnt: Int = 0;
+
+fun getRandomTaskQueue(ts: @TaskSystem): @TaskQueue {
+    // TODO: make the selection truly random
+    var worker: Worker Ptr = ts.workers(++cnt % (ts.workers size));
+    return worker.get().work;
 }

@@ -8,7 +8,6 @@ class[rtct] ConsoleOutputStream
     fun <<<(x: Char)                            { Impl.write(x); }
     fun <<<(x: Bool)                            { if ( x ) this <<< "true"; else this <<< "false"; }
     fun <<<(x: StringRef)                       { Impl.writeCString(reinterpretCast(@Char, x.begin)); }
-    fun <<<(x: StreamRefWrapperHelperClass)     { Impl.writeRef(x.ptr); }
 
     // This stream supports flush
     fun flush                                   { Impl.flushOutput(); }

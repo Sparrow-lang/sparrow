@@ -28,17 +28,22 @@ fun empty(q: @TaskQueue): Bool {
 
 fun size(q: @TaskQueue): SizeType {
     var lock: ScopedLock(Mutex) = q.mutex;
+    return q uncheckedSize;
+}
+
+fun uncheckedSize(q: @TaskQueue): SizeType {
     var count: SizeType = 0;
     var p: TaskPtr = q.first;
     while ( p isSet ) {
         ++count;
         p = p.get().next;
     }
-    return count;
+    return count;    
 }
 
 fun pushFront(q: @TaskQueue, task: TaskPtr) {
     var lock: ScopedLock(Mutex) = q.mutex;
+
     // don't care what prev is
     task.get().next = q.first;
     if ( q.first isSet ) {
@@ -47,6 +52,10 @@ fun pushFront(q: @TaskQueue, task: TaskPtr) {
         q.last = task;
     }
     q.first = task;
+ 
+    assert(q.first isSet);
+    assert(q.last isSet);
+    assert(q.last.get().next isNull);
 }
 fun popFront(q: @TaskQueue): TaskPtr {
     var lock: ScopedLock(Mutex) = q.mutex;
@@ -58,6 +67,9 @@ fun popFront(q: @TaskQueue): TaskPtr {
     q.first = res.get().next;
     if ( q.first isNull )
         q.last.reset;
+
+    if ( q.last isSet )
+        assert(q.last.get().next isNull);
 
     return res;
 }
@@ -71,8 +83,13 @@ fun popBack(q: @TaskQueue): TaskPtr {
     if ( q.first == q.last ) {
         q.first.reset;
         q.last.reset;
-    } else
+    } else {
         q.last = res.get().prev;
+        q.last.get().next.reset;
+    }
+
+    if ( q.last isSet )
+        assert(q.last.get().next isNull);
 
     return res;
 }

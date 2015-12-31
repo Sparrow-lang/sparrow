@@ -5,25 +5,25 @@ import SL.NewDelete;
 import Assert;
 
 //! Datatype describing a thread ID
-datatype ThreadId = NativeThreadId;
-fun ThreadId(id: NativeThreadId): ThreadId {
-    var res: ThreadId = Uninitialized();
-    reinterpretCast(@NativeThreadId, res) = id;
-    return res;
+class ThreadId {
+    var id: ULong;
+
+    fun ctor(id: ULong) {
+        this.id ctor id;
+    }
+    fun ctor(h: NativeThreadHandle) {
+        this.id ctor;
+        Impl.pthread_threadid_np(h, id);
+    }
 }
-fun ThreadId(id: NativeThreadHandle): ThreadId {
-    var res: ThreadId = Uninitialized();
-    reinterpretCast(@NativeThreadHandle, res) = id;
-    return res;
-}
-fun >>(id: ThreadId, os: @OutStream)
+fun >>(tid: @ThreadId, os: @OutStream)
 {
-    os << reinterpretCast(@NativeThreadHandle, id);
+    os << tid.id;
 }
 
 
 
-//datatype Thread = ThreadId;
+//datatype Thread = NativeThreadHandle;
 class Thread
 {
     private var handle: NativeThreadHandle;
@@ -42,13 +42,14 @@ class Thread
     private fun ctor(other: @Thread);
     private fun =(other: @Thread);
 
-    fun >>(os: @OutStream)
-    {
-        if ( handle != NativeThreadHandle() )
-            os << "Thread(" << handle << ")";
-        else
-            os << "Thread(null)";
-    }
+}
+
+fun >>(t: @Thread, os: @OutStream)
+{
+    if ( handle != NativeThreadHandle() )
+        os << "Thread(" << handle << ")";
+    else
+        os << "Thread(null)";
 }
 
 //! Swap the content of two Thread objects
@@ -86,7 +87,13 @@ fun getNativeHandle(t: Thread): NativeThreadHandle = t.handle;
 
 
 //! Get the current thread id
-fun curThreadId: ThreadId = ThreadId(Impl.pthread_self());
+fun curThreadId: ThreadId = ThreadId(NativeThreadHandle());
+//fun curThreadId: ThreadId = ThreadId(Impl.pthread_self());
+//fun curThreadId: ThreadId {
+//    var tid: ULong = 0;
+//    Impl.pthread_threadid_np(NativeThreadHandle(), tid);
+//    return ThreadId(tid);
+//}
 
 //! Tries to suspend the current thread to let other threads execute
 fun yield = Impl.sched_yield();
@@ -128,6 +135,8 @@ package Impl {
     fun[native("pthread_join")] pthread_join(handle: NativeThreadHandle, valPtr: @ @Byte): Int;
     fun[native("pthread_detach")] pthread_detach(handle: NativeThreadHandle): Int;
     fun[native("pthread_self")] pthread_self: NativeThreadHandle;
+    
+    fun[native("pthread_threadid_np")] pthread_threadid_np(t: NativeThreadHandle, res: @ULong): Int;
 
     fun[native("sched_yield")] sched_yield;
     fun[native("nanosleep")] nanosleep(req, rem: @TimeSpec): Int;

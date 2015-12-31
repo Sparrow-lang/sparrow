@@ -9,10 +9,13 @@ import Par.Tls;
 class Worker {
     var taskSystem: @TaskSystem;
     var work: TaskQueue;
-    var next: Worker Ptr;   // the next worker in the system
+    var workerId: Int;
+    var curDepth: Int;
 
-    fun ctor(taskSystem: @TaskSystem) {
+    fun ctor(taskSystem: @TaskSystem, workerId: Int) {
         this.taskSystem := taskSystem;
+        this.workerId = workerId;
+        this.curDepth = 0;
     }
 
     fun dtor {
@@ -26,7 +29,6 @@ fun localWorker: Worker Ptr {
     var worker: Worker Ptr = tlsWorker get;
     if ( worker isNull ) {
         worker = (getInitTaskSystem createWorker);
-        //worker = new(Worker, getInitTaskSystem get);
         tlsWorker = worker.get();
     }
     return worker;

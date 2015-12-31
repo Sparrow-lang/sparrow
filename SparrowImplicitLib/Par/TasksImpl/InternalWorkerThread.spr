@@ -4,14 +4,8 @@ import SL.Ptr;
 
 class[initCtor] InternalWorkerThread {
     private var worker: Worker Ptr;
-    private var id: UInt;
 
     fun ()() {
-        cout << "Starting worker thread: " << id << endl;
-
-        // Create a dummy task, pretend we have one child, and start waiting
-        var neverEndingTask: EmptyTask;
-        neverEndingTask.prefix incrementRefCount;
-        Par.spawnRootAndWait(neverEndingTask);
+        schedDoWait(worker.get(), TaskPtr(), TaskPtr());
     }
 }

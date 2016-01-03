@@ -15,6 +15,7 @@ class IdleCounter {
 fun goIdle(c: @IdleCounter) { c.cnt++; }
 fun wakeUp(c: @IdleCounter) { c.cnt--; }
 fun hasIdle(c: @IdleCounter) = (c.cnt load) > 0;
+fun numIdleWorkers(c: @IdleCounter) = c.cnt load;
 
 
 //! A worker class describes a thread that is doing some work on our task system

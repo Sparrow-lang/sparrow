@@ -82,7 +82,7 @@ fun schedDoWait(worker: @Worker, toExecute, waitingTask: TaskPtr) {
     if[ct] ( isValidAndTrue(traceCalls) )
         Tracer(worker)<< "work: " << TasksPrinter(toExecute, worker.work) << endl;
 
-    using maxRetriesBeforeGoingIdle = 3;
+    using maxRetriesBeforeGoingIdle = 1;
     var numRetries = maxRetriesBeforeGoingIdle;
 
     /* execution policy:
@@ -113,19 +113,24 @@ fun schedDoWait(worker: @Worker, toExecute, waitingTask: TaskPtr) {
         
         // Steal work from other queues
         if ( toExecute isNull ) {
-            // Get a queue from another worker; chose it randomly
-            //cout << "~";
-            var otherQueue: @TaskQueue = (worker.taskSystem getRandomTaskQueue);
-            // Get item from the back: try to take as much work as possible
-            toExecute = (otherQueue popBack);
-            if ( toExecute isSet ) {
-                // Change the worker for the stolen task
-                toExecute.get().worker = reinterpretCast(@Byte, worker);
+            // Try different queues until we find one we can steal from
+            var numStealAttempts = 2*(worker.taskSystem numAvailableWorkers);
+            for ( i = 1..numStealAttempts ) {
+                // Get a queue from another worker; chose it randomly
+                var otherQueue: @TaskQueue = (worker.taskSystem getRandomTaskQueue);
+                // Get item from the back: try to take as much work as possible
+                toExecute = (otherQueue popBack);
+                if ( toExecute isSet ) {
+                    // Change the worker for the stolen task
+                    toExecute.get().worker = reinterpretCast(@Byte, worker);
 
-                if[ct] ( isValidAndTrue(traceCalls) )
-                    Tracer(worker)<< "************************* Task stolen: " << toExecute.get() << "\n\n\n";
+                    if[ct] ( isValidAndTrue(traceCalls) )
+                        Tracer(worker)<< "************************* Task stolen: " << toExecute.get() << "\n\n\n";
+
+                    // Stop trying to steal
+                    break;
+                }
             }
-
         }
 
         // Try to execute what we've selected

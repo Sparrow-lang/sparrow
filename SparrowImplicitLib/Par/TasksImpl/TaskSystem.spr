@@ -13,10 +13,16 @@ class TaskSystem {
     fun dtor {
     }
 
+    //! The global queue of tasks
     var globalQueue: TaskQueue;
+
+    //! All the workers in the system
     var workers: (Worker Ptr) Vector;
 
+    //! The internal threads that are doing all the work
     private var threads: (Par.Thread Ptr) Vector;
+    //! Object that counts the number of threads that are idle
+    var idleCounter: IdleCounter;
 }
 
 var globalTaskSystem: TaskSystem Ptr;
@@ -29,15 +35,12 @@ fun initTaskSystem(numWorkers: UInt = 0) {
     // Create the required threads
     if ( numWorkers == 0 )
         numWorkers = getAvailableCoresNum();
-    numWorkers = 7;
+    //numWorkers = 1;
+    var ts: @TaskSystem = globalTaskSystem.get();
     for ( i=0..numWorkers ) {
-        var worker = globalTaskSystem.get() createWorker;
+        var worker = ts createWorker;
         var p: Par.Thread Ptr = new(Par.Thread, InternalWorkerThread(worker));
-        globalTaskSystem.get().threads.pushBack(p);
-
-        // Just to keep the console clean
-        // TODO: remove this
-        Par.sleep(1);
+        ts.threads.pushBack(p);
     }
 }
 
@@ -50,7 +53,7 @@ fun getInitTaskSystem: TaskSystem Ptr {
 
 fun createWorker(ts: TaskSystem Ptr): Worker Ptr {
     var id: Int = ts.get().workers size;
-    var p: Worker Ptr = new(Worker, ts.get(), id);
+    var p: Worker Ptr = new(Worker, ts.get(), id, ts.get().idleCounter);
     ts.get().workers.pushBack(p);
     return p;
 }
@@ -62,4 +65,15 @@ fun getRandomTaskQueue(ts: @TaskSystem): @TaskQueue {
     // TODO: make the selection truly random
     var worker: Worker Ptr = ts.workers(++cnt % (ts.workers size));
     return worker.get().work;
+}
+
+fun onTaskAvailable(ts: @TaskSystem) {
+    // Do something only if we have at least one idle worker
+    if ( ts.idleCounter hasIdle ) {
+        for ( w: Worker Ptr = ts.workers.all ) {
+            // If we can wake up one worker, exit
+            if ( w.get() tryWakeUp )
+                return;
+        }
+    }
 }

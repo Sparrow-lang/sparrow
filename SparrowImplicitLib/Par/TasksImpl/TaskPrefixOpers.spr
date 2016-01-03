@@ -9,10 +9,12 @@ fun refCount(task: @TaskPrefix): Int = task.refCount load;
 
 fun setRefCount(task: @TaskPrefix, count: Int) { task.refCount = count; }
 fun addRefCount(task: @TaskPrefix, count: Int) { task.refCount += count; }
-fun incrementRefCount(task: @TaskPrefix) { task.refCount++; }
-fun decrementRefCount(task: @TaskPrefix) { task.refCount--; }
+fun incrementRefCount(task: @TaskPrefix) = ++task.refCount;
+fun decrementRefCount(task: @TaskPrefix) = --task.refCount;
 
 fun worker(task: @TaskPrefix): @Worker = reinterpretCast(@Worker, task.worker.get());
+fun waitingWorker(task: @TaskPrefix): @Worker = reinterpretCast(@Worker, task.waitingWorker.get());
+fun setWaitingWorker(task: @TaskPrefix, w: @Worker) { task.waitingWorker = reinterpretCast(@Byte, w); }
 
 fun assertValid(task: @TaskPrefix) {
     if[ct] ( isValidAndTrue(debugMode) ) {

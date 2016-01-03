@@ -19,6 +19,10 @@ class TaskPrefix {
     //! Use casts to avoid direct dependency
     private var worker: Byte Ptr;
 
+    //! The worker that waits for this task to finish
+    //! Use casts to avoid direct dependency
+    private var waitingWorker: Byte Ptr;
+
     //! Used for chaining the tasks in the task queue
     private var prev: TaskPrefix Ptr;
     private var next: TaskPrefix Ptr;

@@ -15,6 +15,9 @@ fun schedSpawn(task: TaskPtr) {
         Tracer(worker) << "schedSpawn(" << task.get() << ")" << endl;
     task.get() assertValid;
 
+    // Announce new work in the task system
+    worker.taskSystem onTaskAvailable;
+
     // Push the task at the front of the local work queue
     worker.work pushFront task.get();
 }
@@ -30,6 +33,8 @@ fun schedWaitForAll(parent: TaskPtr, child: TaskPtr) {
     // Ensure the right depth is set in the worker
     var oldDepth = worker.curDepth;
     worker.curDepth = parent.get().depth;
+
+    parent.get() setWaitingWorker worker;
 
     schedDoWait(worker, child, parent);
 
@@ -47,6 +52,8 @@ fun schedSpawnRootAndWait(task: TaskPtr) {
     var oldDepth = worker.curDepth;
     worker.curDepth = 0;
 
+    task.get() setWaitingWorker worker;
+
     // Execute the root task
     executeTask(task.get());
 
@@ -59,6 +66,12 @@ fun schedEnqueue(task: TaskPtr) {
     if[ct] ( isValidAndTrue(traceCalls) )
         Tracer(worker) << "schedEnqueue(" << task.get() << ")" << endl;
     task.get() assertValid;
+
+    // Announce new work in the task system
+    worker.taskSystem onTaskAvailable;
+
+    // Enqueue the task
+    worker.taskSystem.globalQueue pushFront task.get();
 }
 
 
@@ -68,6 +81,9 @@ fun schedEnqueue(task: TaskPtr) {
 fun schedDoWait(worker: @Worker, toExecute, waitingTask: TaskPtr) {
     if[ct] ( isValidAndTrue(traceCalls) )
         Tracer(worker)<< "work: " << TasksPrinter(toExecute, worker.work) << endl;
+
+    using maxRetriesBeforeGoingIdle = 3;
+    var numRetries = maxRetriesBeforeGoingIdle;
 
     /* execution policy:
         - if given a task, execute it
@@ -115,6 +131,7 @@ fun schedDoWait(worker: @Worker, toExecute, waitingTask: TaskPtr) {
         // Try to execute what we've selected
         if ( toExecute isSet ) {
             toExecute.get() executeTask;
+            numRetries = maxRetriesBeforeGoingIdle;
         }
 
         // Check if we executed all the children for our waiting task
@@ -126,11 +143,19 @@ fun schedDoWait(worker: @Worker, toExecute, waitingTask: TaskPtr) {
 
         if ( toExecute isNull ) {
             // Nothing to execute
-            // TODO: block until we can steal something
-            //cout << "~";
-            Par.sleep(0);
+            if ( numRetries == 0 ) {
+                worker goIdle;
+                numRetries = maxRetriesBeforeGoingIdle;
+            }
+            else {
+                // Try several times to steal tasks
+                // Going to sleep is more expensive
+                Par.sleep(0);
+            }
+        } else {
+            toExecute.reset;
+            --numRetries;            
         }
-        toExecute.reset;
     }
 
     // Trace remaining work
@@ -138,15 +163,8 @@ fun schedDoWait(worker: @Worker, toExecute, waitingTask: TaskPtr) {
         Tracer(worker) << "task " << waitingTask.get() << " can continue; remaining work: " << TasksPrinter(TaskPtr(), worker.work) << endl;
 }
 
-// TODO
-var myInnermostRunningTask: @TaskPrefix = null;
-
 fun executeTask(task: @TaskPrefix) {
     var worker: @Worker = task worker;
-
-    // TODO: what is this?
-    //myInnermostRunningTask := task;
-
 
     // TODO: check cancellation
     if ( false ) {
@@ -160,8 +178,14 @@ fun executeTask(task: @TaskPrefix) {
 
     var parent: @TaskPrefix = task.parent.get();
     if ( parent !== null ) {
-        // TODO
-        //tallyCompletionOfPredecesor(parent, null);
-        parent decrementRefCount;
+        var cnt = parent decrementRefCount;
+
+        // If the reference count reaches zero, make sure the parent task is awake
+        if ( cnt == 0 ) {
+            var ww: @Worker = parent waitingWorker;
+            if ( ww != worker && ww !== null ) {
+                ww tryWakeUp;
+            }
+        }
     }
 }

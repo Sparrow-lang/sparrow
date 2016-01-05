@@ -21,6 +21,7 @@ fun schedSpawn(task: TaskPtr) {
     // Push the task at the front of the local work queue
     worker.work pushFront task.get();
 }
+
 fun schedWaitForAll(parent: TaskPtr, child: TaskPtr) {
     var worker: @Worker = parent.get() worker;
 
@@ -41,6 +42,7 @@ fun schedWaitForAll(parent: TaskPtr, child: TaskPtr) {
     // Restore the old depth
     worker.curDepth = oldDepth;
 }
+
 fun schedSpawnRootAndWait(task: TaskPtr) {
     var worker: @Worker = task.get() worker;
 
@@ -52,14 +54,22 @@ fun schedSpawnRootAndWait(task: TaskPtr) {
     var oldDepth = worker.curDepth;
     worker.curDepth = 0;
 
-    task.get() setWaitingWorker worker;
+    // Create a dummy task to wait for
+    var waitingTask: EmptyTask;
+    Impl.initAsRoot(waitingTask);
+    waitingTask.prefix setRefCount 2;
+    task.get().parent = TaskPtr(waitingTask.prefix);
 
-    // Execute the root task
-    executeTask(task.get());
+    // This is the task we are waiting for
+    waitingTask.prefix setWaitingWorker worker;
+
+    // Execute the root task and wait for it
+    schedDoWait(worker, task, TaskPtr(waitingTask.prefix));
 
     // Restore the old depth
     worker.curDepth = oldDepth;
 }
+
 fun schedEnqueue(task: TaskPtr) {
     var worker: @Worker = task.get() worker;
 
@@ -79,14 +89,13 @@ fun schedEnqueue(task: TaskPtr) {
 // Task execution logic
 
 fun schedDoWait(worker: @Worker, toExecute, waitingTask: TaskPtr) {
-    if[ct] ( isValidAndTrue(traceCalls) )
-        Tracer(worker)<< "work: " << TasksPrinter(toExecute, worker.work) << endl;
 
     using maxRetriesBeforeGoingIdle = 1;
     var numRetries = maxRetriesBeforeGoingIdle;
 
     /* execution policy:
         - if given a task, execute it
+        - if the last executing task has a continuation, execute it
         - extract tasks from the local queue (from front)
         - extract tasks from the shared queue (from back)
         - steal tasks from other local queues (from back)
@@ -94,7 +103,15 @@ fun schedDoWait(worker: @Worker, toExecute, waitingTask: TaskPtr) {
         - stop when our waitingTask refCount reaches 1.
     */
 
+    var nextToExecute: TaskPtr = toExecute;
     while ( true ) {
+        if[ct] ( isValidAndTrue(traceCalls) )
+            Tracer(worker)<< "work: " << TasksPrinter(toExecute, worker.work) << endl;
+
+        // If we have a continuation, execute it
+        toExecute = nextToExecute;
+        nextToExecute reset;
+
         // If we don't have something to execute,
         // extract something from our local queue
         if ( toExecute isNull ) {
@@ -135,15 +152,25 @@ fun schedDoWait(worker: @Worker, toExecute, waitingTask: TaskPtr) {
 
         // Try to execute what we've selected
         if ( toExecute isSet ) {
-            toExecute.get() executeTask;
+            nextToExecute = (toExecute.get() executeTask);
             numRetries = maxRetriesBeforeGoingIdle;
         }
 
         // Check if we executed all the children for our waiting task
         // This is our terminating condition
-        if ( (waitingTask isSet) && (waitingTask.get() refCount) == 1 ) {
-            waitingTask.get() setRefCount 0;
-            break;
+        if ( (waitingTask isSet) ) {
+            // If the task has a continuation, make sure we wait on it
+            while ( waitingTask.get().cont isSet ) {
+                waitingTask = waitingTask.get().cont;
+                // Account for the wait of the continuation
+                waitingTask.get() incrementRefCount;
+            }
+
+            // Check if we executed all its children
+            if ( (waitingTask.get() refCount) == 1 ) {
+                waitingTask.get() setRefCount 0;
+                break;
+            }
         }
 
         if ( toExecute isNull ) {
@@ -158,7 +185,6 @@ fun schedDoWait(worker: @Worker, toExecute, waitingTask: TaskPtr) {
                 Par.sleep(0);
             }
         } else {
-            toExecute.reset;
             --numRetries;            
         }
     }
@@ -168,7 +194,7 @@ fun schedDoWait(worker: @Worker, toExecute, waitingTask: TaskPtr) {
         Tracer(worker) << "task " << waitingTask.get() << " can continue; remaining work: " << TasksPrinter(TaskPtr(), worker.work) << endl;
 }
 
-fun executeTask(task: @TaskPrefix) {
+fun executeTask(task: @TaskPrefix): TaskPtr {
     var worker: @Worker = task worker;
 
     // TODO: check cancellation
@@ -178,19 +204,35 @@ fun executeTask(task: @TaskPrefix) {
 
     // Execute the task
     if[ct] ( isValidAndTrue(traceCalls) )
-        Tracer(worker) << "executing task " << task << endl;
+        Tracer(worker) << "executing task " << task << "; parent=" << task.parent.get() << endl;
     task.executeFn(task);
 
-    var parent: @TaskPrefix = task.parent.get();
-    if ( parent !== null ) {
-        var cnt = parent decrementRefCount;
+    // Now check if we can execute the parent
 
-        // If the reference count reaches zero, make sure the parent task is awake
-        if ( cnt == 0 ) {
-            var ww: @Worker = parent waitingWorker;
-            if ( ww != worker && ww !== null ) {
-                ww tryWakeUp;
-            }
+    // If the continuation is set, we shouldn't have a parent
+    if ( task.cont isSet )
+        assert(task.parent isNull);
+
+    // If no parent set, just return
+    if ( task.parent isNull )
+        return TaskPtr();
+
+    // Decrement the ref count in the parent, as a result of the cur execution
+    var cnt = task.parent.get() decrementRefCount;
+
+    // Did we finished executing every child of the parent?
+    if ( cnt == 0 ) {
+        // If we are waiting on the parent task, make sure it's waiting worker is awake
+        var ww: @Worker = task.parent.get() waitingWorker;
+        if ( ww !== worker && ww !== null ) {
+            ww tryWakeUp;
         }
+
+        // Enqueue the parent task for execution
+        if[ct] ( isValidAndTrue(traceCalls) )
+            Tracer(worker) << "Can continue with the parent task: " << task.parent.get() << endl;
+        return task.parent;
     }
+
+    return TaskPtr();
 }

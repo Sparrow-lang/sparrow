@@ -113,7 +113,7 @@ fun pre_++(x: @AtomicInteger): x.ValueType = (x fetchAndIncrement)+1;
 fun post_++(x: @AtomicInteger): x.ValueType = (x fetchAndIncrement);
 
 //! Decrement the atomic value; returns the new value
-fun pre_--(x: @AtomicInteger): x.ValueType = (x fetchAndDecrement)+1;
+fun pre_--(x: @AtomicInteger): x.ValueType = (x fetchAndDecrement)-1;
 //! Decrement the atomic value; returns the old value
 fun post_--(x: @AtomicInteger): x.ValueType = (x fetchAndDecrement);
 

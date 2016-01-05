@@ -27,6 +27,7 @@ Par/ThreadTest.spr:                     Parallel - thread test
 Par/AtomicTest.spr:                     Parallel - atomics test
 Par/LocksTest.spr:                      Parallel - locks test
 Par/SemaphoreTest.spr:                  Parallel - semaphore test
+Par/TaskTest.spr:                       Parallel - Fibonacci tasks test
 
 PerfTests/Hash/TestHashPerf.spr:        Performance tests - hash
 PerfTests/ForPerf/spr_for.spr:          Performance tests - for

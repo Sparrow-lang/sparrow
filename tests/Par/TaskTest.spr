@@ -7,11 +7,11 @@ using debugMode = true;
 
 //using useDescriptions = true;
 
+using cutoff = 30;
 
 fun serialFib(n: Long): Long {
     return ife(n<2, n, serialFib(n-1)+serialFib(n-2));
 }
-using cutoff = 2;
 
 package StackSpawnStyle {
     class FibTask {
@@ -84,6 +84,9 @@ package DynSpawnStyle {
             var t2: @FibTask = new(FibTask, task.n-2, y);
 
             Par.spawnAndWait(task, t1, t2);
+
+            delete(t2);
+            delete(t1);
 
             // Do the sum
             task.result = x + y;
@@ -163,20 +166,53 @@ fun sprMain
 {
     if ( programArgs.size() < 2 )
         return;
-    var n = programArgs(1) asInt;
+    var style = programArgs(1) asInt;
+    var n = programArgs(2) asInt;
 
     var res: Long;
 
-    res = StackSpawnStyle.parFib(n);
-    //res = DynSpawnStyle.parFib(n);
-    //res = ContStyle.parFib(n);
+    if ( style == 0 )
+        res = serialFib(n);
+    else if ( style == 1 )
+        res = StackSpawnStyle.parFib(n);
+    else if ( style == 2 )
+        res = DynSpawnStyle.parFib(n);
+    else if ( style == 3 )
+        res = ContStyle.parFib(n);
+
     cout << "Final result: fib(" << n << ")=" << res << endl;
 }
-/*<<<Test small (5)
-Final result: fib(5)=5
+
+/*<<<Serial fib (0 30)
+Final result: fib(30)=832040
 >>>*/
 
-/*<<<Test large (32)
-Final result: fib(32)=2178309
+/*<<<Spawn on stack (1 30)
+Final result: fib(30)=832040
+>>>*/
+
+/*<<<Spawn dynamic (2 30)
+Final result: fib(30)=832040
+>>>*/
+
+/*<<<Continuation style (3 30)
+Final result: fib(30)=832040
+>>>*/
+
+
+/*-<<<Serial fib - big (0 30)
+Final result: fib(30)=832040
+>>>*/
+
+/*-<<<Spawn on stack - big (1 47)
+Final result: fib(47)=2971215073
+>>>*/
+
+/*-<<<Spawn dynamic - big (2 47)
+Final result: fib(47)=2971215073
+>>>*/
+
+/*-<<<Continuation style - big (3 47)
+Final result: fib(47)=2971215073
 >>>*/
 

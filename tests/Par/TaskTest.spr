@@ -7,7 +7,8 @@ using debugMode = true;
 
 //using useDescriptions = true;
 
-using cutoff = 30;
+using cutoff = 16;
+//using cutoff = 30;
 
 fun serialFib(n: Long): Long {
     return ife(n<2, n, serialFib(n-1)+serialFib(n-2));

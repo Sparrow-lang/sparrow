@@ -1,0 +1,37 @@
+//! ! -O3
+// -g -O1 --dump-assembly
+import Par.Tasks;
+import Par.ParFor;
+import Test;
+
+using Par.*;
+
+var counter: Int Atomic;
+var outOfOrderCount: Int Atomic;
+
+fun foo(x: Int) {
+    var curIdx = counter++;
+    if ( curIdx != x )
+        outOfOrderCount++;
+    Par.sleep(0);
+}
+
+fun sprMain
+{
+    if ( programArgs.size() < 2 )
+        return;
+    var n = programArgs(1) asInt;
+
+    0..n parFor \foo;
+
+    //cout << "Num out of order: " << (outOfOrderCount load) << endl;
+    Test.assertGt(outOfOrderCount load, 0);
+    Test.assertLe(outOfOrderCount load, n);
+}
+
+/*<<<Mid range (100)
+>>>*/
+
+/*<<<Big range (1000)
+>>>*/
+

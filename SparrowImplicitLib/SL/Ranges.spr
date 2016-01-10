@@ -108,6 +108,8 @@ fun retro(range: BidirRange) = RetroRange(typeOf(range))(range);
 
 fun[rtct] take(range: Range, count: SizeType) = TakeRange(typeOf(range))(range, count);
 
+fun skip(range: Range, count: SizeType): typeOf(range) { advance(range, count); return range; }
+
 fun takeWhile(range: Range, pred: AnyType) = TakeWhileRange(typeOf(range), typeOf(pred))(range, pred);
 fun takeWhile(range: Range, pred: AnyType, count: SizeType) = take(takeWhile(range, pred), count);
 

@@ -1,0 +1,50 @@
+;rtct
+
+define i32 @_Atomic_load32(i32* %atomic) {
+    %1 = load atomic i32* %atomic seq_cst, align 4
+    ret i32 %1
+}
+
+define void @_Atomic_store32(i32* %atomic, i32 %val) {
+    store atomic i32 %val, i32* %atomic seq_cst, align 4
+    ret void
+}
+
+define i32 @_Atomic_fetchAndStore32(i32* %atomic, i32 %val) {
+    %old = atomicrmw xchg i32* %atomic, i32 %val seq_cst
+    ret i32 %old
+}
+define i1 @_Atomic_compareAndSwap32(i32* %atomic, i32 %val, i32 %comparand) {
+    %val_success = cmpxchg i32* %atomic, i32 %comparand, i32 %val seq_cst monotonic
+    %success = extractvalue { i32, i1 } %val_success, 1
+    ret i1 %success
+}
+define i32 @_Atomic_fetchAndAdd32(i32* %atomic, i32 %val) {
+    %old = atomicrmw add i32* %atomic, i32 %val seq_cst    
+    ret i32 %old
+}
+
+
+define i64 @_Atomic_load64(i64* %atomic) {
+    %1 = load atomic i64* %atomic seq_cst, align 8
+    ret i64 %1
+}
+
+define void @_Atomic_store64(i64* %atomic, i64 %val) {
+    store atomic i64 %val, i64* %atomic seq_cst, align 8
+    ret void
+}
+
+define i64 @_Atomic_fetchAndStore64(i64* %atomic, i64 %val) {
+    %old = atomicrmw xchg i64* %atomic, i64 %val seq_cst
+    ret i64 %old
+}
+define i1 @_Atomic_compareAndSwap64(i64* %atomic, i64 %val, i64 %comparand) {
+    %val_success = cmpxchg i64* %atomic, i64 %comparand, i64 %val seq_cst monotonic
+    %success = extractvalue { i64, i1 } %val_success, 1
+    ret i1 %success
+}
+define i64 @_Atomic_fetchAndAdd64(i64* %atomic, i64 %val) {
+    %old = atomicrmw add i64* %atomic, i64 %val seq_cst    
+    ret i64 %old
+}

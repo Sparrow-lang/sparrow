@@ -1,0 +1,219 @@
+//!! -O3
+// -g -O1 --dump-assembly
+import Par.Tasks;
+import Test;
+
+using debugMode = true;
+
+//using useDescriptions = true;
+
+using cutoff = 16;
+//using cutoff = 30;
+
+fun serialFib(n: Long): Long {
+    return ife(n<2, n, serialFib(n-1)+serialFib(n-2));
+}
+
+package StackSpawnStyle {
+    class FibTask {
+        var prefix: Par.TaskPrefix;
+        var n: Long;
+        var result: @Long;
+
+        fun ctor(n: Long, result: @Long) {
+            this.n ctor n;
+            this.result := result;
+        }
+    }
+
+    if[ct] ( isValidAndTrue(useDescriptions) )
+    fun description(task: @FibTask): String {
+        var res: String = "Fib ";
+        res += intToString(Int(task.n));
+        return res;
+    }
+
+    fun execute(task: @FibTask) {
+        if ( task.n < cutoff )
+            task.result = serialFib(task.n);
+        else {
+            // Create the children tasks
+            var x, y: Long;
+            var t1 = FibTask(task.n-1, x);
+            var t2 = FibTask(task.n-2, y);
+
+            Par.spawnAndWait(task, t1, t2);
+
+            // Do the sum
+            task.result = x + y;
+        }
+    }
+
+    fun parFib(n: Long): Long {
+        var res: Long;
+        Par.spawnRootAndWait(FibTask(n, res));
+        return res;
+    }
+}
+
+package DynSpawnStyle {
+    class FibTask {
+        var prefix: Par.TaskPrefix;
+        var n: Long;
+        var result: @Long;
+
+        fun ctor(n: Long, result: @Long) {
+            this.n ctor n;
+            this.result := result;
+        }
+    }
+
+    if[ct] ( isValidAndTrue(useDescriptions) )
+    fun description(task: @FibTask): String {
+        var res: String = "Fib ";
+        res += intToString(Int(task.n));
+        return res;
+    }
+
+    fun execute(task: @FibTask) {
+        if ( task.n < cutoff )
+            task.result = serialFib(task.n);
+        else {
+            // Create the children tasks
+            var x, y: Long;
+            var t1: @FibTask = new(FibTask, task.n-1, x);
+            var t2: @FibTask = new(FibTask, task.n-2, y);
+
+            Par.spawnAndWait(task, t1, t2);
+
+            delete(t2);
+            delete(t1);
+
+            // Do the sum
+            task.result = x + y;
+        }
+    }
+
+    fun parFib(n: Long): Long {
+        var res: Long;
+        Par.spawnRootAndWait(FibTask(n, res));
+        return res;
+    }
+}
+
+package ContStyle {
+    class FibTask {
+        var prefix: Par.TaskPrefix;
+        var n: Long;
+        var result: @Long;
+
+        fun ctor(n: Long, result: @Long) {
+            this.n ctor n;
+            this.result := result;
+        }
+    }
+
+    if[ct] ( isValidAndTrue(useDescriptions) )
+    fun description(task: @FibTask): String {
+        var res: String = "Fib ";
+        res += intToString(Int(task.n));
+        return res;
+    }
+
+    fun execute(task: @FibTask) {
+        if ( task.n < cutoff )
+            task.result = serialFib(task.n);
+        else {
+            var cont: @FibContTask = new(FibContTask, task.n, task.result);
+            Par.setContinuation(task, cont);
+
+            var t1: @FibTask = new(FibTask, task.n-1, cont.s1);
+            var t2: @FibTask = new(FibTask, task.n-2, cont.s2);
+            Par.spawn(cont, t1, t2);
+        }
+    }
+
+    class FibContTask {
+        var prefix: Par.TaskPrefix;
+        var n: Long;
+        var s1, s2: Long;
+        var result: @Long;
+
+        fun ctor(n, result: @Long) {
+            this.n ctor n;
+            this.result := result;
+        }
+    }
+
+    if[ct] ( isValidAndTrue(useDescriptions) )
+    fun description(task: @FibContTask): String {
+        var res: String = "Cont ";
+        res += intToString(Int(task.n));
+        return res;
+    }
+
+    fun execute(task: @FibContTask) {
+        task.result = task.s1 + task.s2;
+    }
+
+    fun parFib(n: Long): Long {
+        var res: Long;
+        Par.spawnRootAndWait(FibTask(n, res));
+        return res;
+    }
+}
+
+fun sprMain
+{
+    if ( programArgs.size() < 2 )
+        return;
+    var style = programArgs(1) asInt;
+    var n = programArgs(2) asInt;
+
+    var res: Long;
+
+    if ( style == 0 )
+        res = serialFib(n);
+    else if ( style == 1 )
+        res = StackSpawnStyle.parFib(n);
+    else if ( style == 2 )
+        res = DynSpawnStyle.parFib(n);
+    else if ( style == 3 )
+        res = ContStyle.parFib(n);
+
+    cout << "Final result: fib(" << n << ")=" << res << endl;
+}
+
+/*<<<Serial fib (0 30)
+Final result: fib(30)=832040
+>>>*/
+
+/*<<<Spawn on stack (1 30)
+Final result: fib(30)=832040
+>>>*/
+
+/*<<<Spawn dynamic (2 30)
+Final result: fib(30)=832040
+>>>*/
+
+/*<<<Continuation style (3 30)
+Final result: fib(30)=832040
+>>>*/
+
+
+/*-<<<Serial fib - big (0 30)
+Final result: fib(30)=832040
+>>>*/
+
+/*-<<<Spawn on stack - big (1 47)
+Final result: fib(47)=2971215073
+>>>*/
+
+/*-<<<Spawn dynamic - big (2 47)
+Final result: fib(47)=2971215073
+>>>*/
+
+/*-<<<Continuation style - big (3 47)
+Final result: fib(47)=2971215073
+>>>*/
+

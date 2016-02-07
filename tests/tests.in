@@ -1,3 +1,4 @@
+StdLib/CheckTest.spr:                   Std.Check
 StdLib/AlgorithmsTest1.spr:             Std.Algorithms - 1. Utility
 StdLib/AlgorithmsTest2.spr:             Std.Algorithms - 2. Non-modifying
 StdLib/AlgorithmsTest3.spr:             Std.Algorithms - 3. Modifying

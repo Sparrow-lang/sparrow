@@ -1,0 +1,111 @@
+package Check;
+
+import OS;
+import SL.Map;
+
+//! A property that can be checked
+concept Property(x)
+    if typeOf(x.ValueType) == Type
+    && typeOf(x holdsFor valueOfType(x.ValueType)) == Bool
+    ;
+
+//! Configuration options for our check function
+class[initCtor] CheckConfig {
+    var numTests, maxAttempts: UInt;
+    var isVerbose: Bool;
+    fun ctor { numTests = 100; maxAttempts = 5*numTests; isVerbose = false; }
+}
+
+
+//! Checks if a given property is satisfied.
+//!
+//! Generates a number of different values of the desired type, and makes sure 
+//! that the property holds for all of them. The values are generated randomly.
+//!
+//! \param[in] prop     The property to be tested
+//! \param[in] msg      Message to be displayed when checking this property
+//! \param[in] config   The configuration options to be used when checking the property
+fun check(prop: @Property, msg: StringRef = "", config: CheckConfig = CheckConfig()): Bool {
+    cout << "* Checking " << msg << endl;
+
+    var classes: Map(String, UInt);
+    var numTrivial = 0;
+    var attemptNo = 0;
+    var n = 0;
+    while ( attemptNo < config.maxAttempts && n < config.numTests ) {
+        // Generate an input value
+        var sizeHint: UInt = n/2 + 3;
+        private var val: prop.ValueType = _generateInput(prop, sizeHint);
+
+        // Check if the input is valid
+        var accepted = true;
+        if[ct] ( isValid( prop accepts val) )
+            accepted = prop accepts val;
+
+        if ( accepted ) {
+            // Check its class
+            if[ct] ( isValid(prop isTrivial val) )
+                if ( prop isTrivial val )
+                    ++numTrivial;
+            if[ct] ( isValid(prop classify val) )
+                ++classes(prop classify val);
+
+            // If verbose, print the test
+            if ( config.isVerbose )
+                cout << "Test " << n << ":\n" << val << endl;
+
+            // Actually check if the property is passed
+            if ( !(prop holdsFor val) ) {
+                cout << "Falsifiable after " << (n+1) << " tests, for input:\n" << val << endl;
+                return false;
+            }
+
+            ++n;
+        }
+        ++attemptNo;
+    }
+
+    // Print summary results
+    if ( n < config.numTests )
+        cout << "Arguments exhausted after ";
+    else
+        cout << "OK, passed ";
+    cout << n << " tests";
+    if ( numTrivial > 0 )
+        cout << " (" << numTrivial*100/n << "% trivial)";
+    cout << "." << endl;
+
+    // Print distribution of classes
+    classes.remove("");
+    if ( !classes.isEmpty ) {
+        for ( c = classes.keys ) {
+            var percent = classes(c)*100/n;
+            cout << percent << "% : " << c << endl;
+        }
+        // TODO: sort the classes before displaying them
+    }
+
+    return true;
+}
+
+private fun _generateInput(prop: @Property, sizeHint: UInt): prop.ValueType {
+    if[ct] ( isValid(prop generateInput sizeHint))
+        return prop generateInput sizeHint;
+    else
+        return generate(prop.ValueType, sizeHint);
+}
+
+fun generate(t: Type, sizeHint: UInt): t if Integer(#$t) {
+    var h: Int = sizeHint;
+    return t(CheckImpl.randBetween(-h, h));
+}
+
+package CheckImpl {
+    fun[rtct, native("rand")] rand(): UInt;
+
+    fun randBetween(min, max: Int): Int {
+        using RAND_MAX = 0x7fffffff;
+        var offset: Int = Int(Double(rand()) / RAND_MAX * Double(max - min + 1));
+        return min + offset;
+    }
+}

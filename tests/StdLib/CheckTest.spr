@@ -1,0 +1,43 @@
+//!!
+package Test;
+
+import Check.Check;
+
+using Check.*;
+
+using enableChecks = true;
+
+class TestProperty { using ValueType = Int; }
+
+fun holdsFor(p: TestProperty, x: Int) = x+2 == 2+x /*+ x/10*/;
+
+class FalseProperty { using ValueType = Int; }
+
+fun holdsFor(p: FalseProperty, x: Int) = x+2 == x;
+fun generateInput(p: FalseProperty, sizeHint: UInt): Int = sizeHint;
+
+//fun accepts(p: Property, x: Int) = x >= 0;
+//fun isTrivial(p: Property, x: Int) = 0 <= x && x <= 3;
+//fun classify(p: Property, x: Int): String {
+//    if ( x < 0 ) x = -x;
+//    if ( x < 10 ) return "<10";
+//    if ( x < 20 ) return "<20";
+//    if ( x < 30 ) return "<30";
+//    return "big";
+//}
+
+
+fun sprMain {
+    TestProperty() check "that we have something running";
+    FalseProperty() check "that we can report failures";
+    //var c: CheckConfig;
+    //c.isVerbose = true;
+    //check(TestProperty(), "that we have something running", c);
+}
+/*<<<Running()
+* Checking that we have something running
+OK, passed 100 tests.
+* Checking that we can report failures
+Falsifiable after 1 tests, for input:
+3
+>>>*/

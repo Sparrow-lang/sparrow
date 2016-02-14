@@ -11,6 +11,7 @@
 
 #include "Nest/Api/NodeKindRegistrar.h"
 #include "Nest/Api/Type.h"
+#include "Nest/Api/SourceCode.h"
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/StringRef.hpp"
 #include "Nest/Utils/NodeUtils.h"
@@ -414,7 +415,25 @@ namespace
 #undef CONSTf
 #undef CONSTd
     }
-    
+
+#define emitLocationInfo(name, loc, context) /*nothing*/
+//    void emitLocationInfo(const char* name, Location loc, TrContext& context)
+//    {
+//        context.ensureInsertionPoint();
+//
+//        StringRef sourceLine = Nest_getSourceCodeLine(loc.sourceCode, loc.start.line);
+//        ostringstream ss;
+//        ss << name << ": " << sourceLine;
+//
+//        // Create a the data array constant
+//        llvm::Value* bytesVal = llvm::ConstantDataArray::getString(context.llvmContext(), llvm::StringRef(ss.str()));
+//
+//        // Allocate a temporary variable to hold it
+//        llvm::Value* constTmpVar = context.addVariable(bytesVal->getType(), "location-info");
+//        context.builder().CreateStore(bytesVal, constTmpVar);
+//    }
+
+
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Common nodes
@@ -433,11 +452,15 @@ namespace
 
     llvm::Value* translateLocalSpace(Node* node, TrContext& context)
     {
+        emitLocationInfo("space ", node->location, context);
+
         Scope scopeGuard(context, node->location);
 
         // Translate all the instructions in the local space
         for ( Node* child: node->children )
         {
+            emitLocationInfo("instr", child->location, context);
+
             Instruction instrGuard(context);
             translateNode(child, context);
         }
@@ -936,6 +959,8 @@ namespace
 
     llvm::Value* translateReturn(Node* node, TrContext& context)
     {
+        emitLocationInfo("return", node->location, context);
+
         llvm::Value* retVal = nullptr;
         Node* expression = at(node->children, 0);
         if ( expression )
@@ -963,6 +988,8 @@ namespace
 
     llvm::Value* translateIf(Node* node, TrContext& context)
     {
+        emitLocationInfo("if", node->location, context);
+
         Node* condition = at(node->children, 0);
         Node* thenClause = at(node->children, 1);
         Node* elseClause = at(node->children, 2);
@@ -995,6 +1022,8 @@ namespace
                 ASSERT(thenBlock);
                 context.setInsertionPoint(thenBlock);
                 {
+                    emitLocationInfo("if-then", thenClause->location, context);
+
                     Instruction instrGuard(context);
                     translateNode(thenClause, context);
                 }
@@ -1008,6 +1037,8 @@ namespace
                 ASSERT(elseBlock);
                 context.setInsertionPoint(elseBlock);
                 {
+                    emitLocationInfo("if-else", elseClause->location, context);
+
                     Instruction instrGuard(context);
                     translateNode(elseClause, context);
                 }
@@ -1022,6 +1053,8 @@ namespace
 
     llvm::Value* translateWhile(Node* node, TrContext& context)
     {
+        emitLocationInfo("while", node->location, context);
+
         Node* condition = at(node->children, 0);
         Node* step = at(node->children, 1);
         Node* body = at(node->children, 2);
@@ -1058,6 +1091,8 @@ namespace
             context.setInsertionPoint(whileBody);
             if ( body )
             {
+                emitLocationInfo("while-body", body->location, context);
+
                 Instruction instrGuard(context);
                 translateNode(body, context);
             }
@@ -1066,6 +1101,8 @@ namespace
             context.setInsertionPoint(whileStep);
             if ( step )
             {
+                emitLocationInfo("while-step", step->location, context);
+
                 Instruction instrGuard(context);
                 translateNode(step, context);
             }
@@ -1081,6 +1118,8 @@ namespace
 
     llvm::Value* translateBreak(Node* node, TrContext& context)
     {
+        emitLocationInfo("break", node->location, context);
+
         Node* whileNode = Nest_getCheckPropertyNode(node, "loop");
         CHECK(node->location, whileNode);
 
@@ -1105,6 +1144,8 @@ namespace
 
     llvm::Value* translateContinue(Node* node, TrContext& context)
     {
+        emitLocationInfo("continue", node->location, context);
+
         Node* whileNode = Nest_getCheckPropertyNode(node, "loop");
         CHECK(node->location, whileNode);
 

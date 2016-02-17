@@ -2,12 +2,33 @@ package Check;
 
 import OS;
 import SL.Map;
+import SL.Function;
+import SL.Ranges;
 
-//! A property that can be checked
-concept Property(x)
-    if typeOf(x.ValueType) == Type
-    && typeOf(x holdsFor valueOfType(x.ValueType)) == Bool
-    ;
+//! An object that is able to generate values of the given type, possibly in a random fashion
+class Gen(t: Type) {
+    using ValueType = t;
+
+    fun ctor {}
+    fun[convert] ctor(generator: @AnyType) {
+        this.generator ctor generator;
+    }
+
+    fun isValid: Bool = generator isSet;
+
+    fun ()(sizeHint: UInt): t = generator(sizeHint);
+
+    private var generator: Function(t, UInt);
+}
+
+//! Arbitrary prototype
+//fun arbitrary(t: Type): t Gen;
+
+//! Arbitrary definition for the integer types
+fun arbitrary(t: Type): t Gen if Integer(#$t) {
+    return (t Gen)(\CheckImpl.NumericGen(t).gen);
+}
+
 
 //! Configuration options for our check function
 class[initCtor] CheckConfig {
@@ -16,61 +37,73 @@ class[initCtor] CheckConfig {
     fun ctor { numTests = 100; maxAttempts = 5*numTests; isVerbose = false; }
 }
 
+//! A value to be tested
+//! Along with the actual value we also hold whether the value is trivial and its
+//! classifier
+class TestableValue(t: Type)
+{
+    using ValueType = t;
 
-//! Checks if a given property is satisfied.
+    var value: t;
+    var isTrivial: Bool;
+    var classifier: String;
+
+    fun ctor(value: @t) {
+        this.value ctor value;
+        this.isTrivial ctor false;
+        this.classifier ctor "";
+    }
+}
+
+//! Concept that matches all TestableValues instances
+concept TestableValuesRange(x)
+    if Range(x)
+    && isValid(x.RetType.ValueType)
+    && x.RetType == TestableValue(x.RetType.ValueType)
+    ;
+
+//! Function that checks a range of testable values against a predicate
 //!
-//! Generates a number of different values of the desired type, and makes sure 
-//! that the property holds for all of them. The values are generated randomly.
-//!
-//! \param[in] prop     The property to be tested
-//! \param[in] msg      Message to be displayed when checking this property
-//! \param[in] config   The configuration options to be used when checking the property
-fun check(prop: @Property, msg: StringRef = "", config: CheckConfig = CheckConfig()): Bool {
+//! This will extract values from the input range and applies the predicate on
+//! them. Makes sure that the predicate holds for all these values. Reports the
+//! statistics of running the tests.
+fun check(values: TestableValuesRange, pred: @AnyType): Bool
+        = check(values, pred, "")
+    if !isValid(pred._1);
+fun check(values: TestableValuesRange, predMsg: @AnyType): Bool
+        = check(values, predMsg._1, predMsg._2)
+    if isValid(predMsg._1);
+fun check(values: TestableValuesRange, pred: @AnyType, msg: StringRef, config: CheckConfig = CheckConfig()): Bool {
     cout << "* Checking " << msg << endl;
-
     var classes: Map(String, UInt);
+
     var numTrivial = 0;
-    var attemptNo = 0;
     var n = 0;
-    while ( attemptNo < config.maxAttempts && n < config.numTests ) {
-        // Generate an input value
-        var sizeHint: UInt = n/2 + 3;
-        private var val: prop.ValueType = _generateInput(prop, sizeHint);
+    for ( val = values ) {
+        var testRes = pred(val.value);
 
-        // Check if the input is valid
-        var accepted = true;
-        if[ct] ( isValid( prop accepts val) )
-            accepted = prop accepts val;
+        // Check the value's class
+        if ( val.isTrivial )
+            ++numTrivial;
+        if ( val.classifier != "" )
+            ++classes(val.classifier);
 
-        if ( accepted ) {
-            // Check its class
-            if[ct] ( isValid(prop isTrivial val) )
-                if ( prop isTrivial val )
-                    ++numTrivial;
-            if[ct] ( isValid(prop classify val) )
-                ++classes(prop classify val);
+        // If verbose, print the test
+        if ( config.isVerbose )
+            cout << "Test " << n << ":\n" << val.value << endl;
 
-            // If verbose, print the test
-            if ( config.isVerbose )
-                cout << "Test " << n << ":\n" << val << endl;
-
-            // Actually check if the property is passed
-            if ( !(prop holdsFor val) ) {
-                cout << "Falsifiable after " << (n+1) << " tests, for input:\n" << val << endl;
-                return false;
-            }
-
-            ++n;
+        // Check if the property holds for the value
+        if ( !pred(val.value) ) {
+            cout << "Falsifiable after " << (n+1) << " tests, for input:\n" << val.value << endl;
+            return false;
         }
-        ++attemptNo;
+
+        if ( ++n >= config.numTests )
+            break;
     }
 
     // Print summary results
-    if ( n < config.numTests )
-        cout << "Arguments exhausted after ";
-    else
-        cout << "OK, passed ";
-    cout << n << " tests";
+    cout << "OK, passed " << n << " tests";
     if ( numTrivial > 0 )
         cout << " (" << numTrivial*100/n << "% trivial)";
     cout << "." << endl;
@@ -88,24 +121,130 @@ fun check(prop: @Property, msg: StringRef = "", config: CheckConfig = CheckConfi
     return true;
 }
 
-private fun _generateInput(prop: @Property, sizeHint: UInt): prop.ValueType {
-    if[ct] ( isValid(prop generateInput sizeHint))
-        return prop generateInput sizeHint;
-    else
-        return generate(prop.ValueType, sizeHint);
-}
+//! Function that generates arbitrary values of the given type
+fun forAll(t: Type) = CheckImpl.ForAllGenerator(t)(t arbitrary);
+//! Function that generates testable values from the given range
+fun forAll(r: Range) = CheckImpl.ForAllRangeGenerator(typeOf(r))(r);
 
-fun generate(t: Type, sizeHint: UInt): t if Integer(#$t) {
-    var h: Int = sizeHint;
-    return t(CheckImpl.randBetween(-h, h));
+//! Filter functionality - filters the testable values against the given predicate
+fun forWhich(r: TestableValuesRange, pred: @AnyType) = CheckImpl.ForWhichRange(typeOf(r), typeOf(pred))(r, pred);
+
+//! Sets the triviality of the testable values according to the result of the predicate
+fun withTrivials(r: TestableValuesRange, pred: @AnyType) = CheckImpl.TrivialsRange(typeOf(r), typeOf(pred))(r, pred);
+//! Sets the classifier of the testable values according to the result of the predicate
+fun withClassifier(r: TestableValuesRange, pred: @AnyType) = CheckImpl.ClassifierRange(typeOf(r), typeOf(pred))(r, pred);
+
+
+fun randBetween(min, max: Int): Int {
+    using RAND_MAX = 0x7fffffff;
+    var offset: Int = Int(Double(CheckImpl.rand()) / RAND_MAX * Double(max - min + 1));
+    return min + offset;
 }
 
 package CheckImpl {
     fun[rtct, native("rand")] rand(): UInt;
 
-    fun randBetween(min, max: Int): Int {
-        using RAND_MAX = 0x7fffffff;
-        var offset: Int = Int(Double(rand()) / RAND_MAX * Double(max - min + 1));
-        return min + offset;
+    class NumericGen(t: Type) if UnsignedInteger(#$t)
+    {
+        fun[static] gen(sizeHint: UInt) = t(randBetween(0, sizeHint));
+    }
+
+    class NumericGen(t: Type) if SignedInteger(#$t)
+    {
+        fun[static] gen(sizeHint: UInt): t {
+            var h: Int = sizeHint;
+            return t(randBetween(-h, h));
+        }
+    }
+
+    class ForAllGenerator(t: Type) {
+        using RetType = TestableValue(t);
+
+        private var gen: Gen(t);
+        private var count: UInt;
+
+        fun ctor(gen: @Gen(t)) {
+            this.gen ctor gen;
+            this.count = 0;
+        }
+
+        fun isEmpty                     = !gen.isValid;
+        fun front: RetType              = RetType(gen(count));
+        fun popFront                    { ++count; }
+    }
+
+    class[initCtor] ForAllRangeGenerator(rangeType: Type) {
+        using RetType = TestableValue(rangeType.RetType);
+
+        private var range: rangeType;
+
+        fun isEmpty                     = range.isEmpty;
+        fun front: RetType              = RetType(range.front);
+        fun popFront                    { range.popFront; }
+    }
+
+    class ForWhichRange(rangeType, predType: Type) if typeOf((#$predType)((#$rangeType front).value)) == Bool
+    {
+        private var range: rangeType; 
+        private var pred: predType;
+        private var lastVal: RetType;
+
+        using RetType = -@rangeType.RetType;
+
+        fun ctor(range: rangeType, pred: predType)
+        {
+            this.range ctor range;
+            this.pred ctor pred;
+            this.lastVal ctor;
+            popUntilValid;
+        }
+
+        fun isEmpty                     = range.isEmpty();
+        fun front: RetType              = lastVal;
+        fun popFront                    { range.popFront(); popUntilValid; }
+
+        private fun popUntilValid
+        {
+            while ( !range.isEmpty )
+            {
+                lastVal = range.front();
+                if ( pred(lastVal.value) )
+                    break;
+                range.popFront();
+            }
+        }
+    }
+
+    class[initCtor] TrivialsRange(rangeType, predType: Type) if typeOf((#$predType)((#$rangeType front).value)) == Bool
+    {
+        using RetType = -@rangeType.RetType;
+
+        private var range: rangeType;
+        private var pred: predType;
+
+        fun isEmpty                     = range.isEmpty();
+        fun popFront                    { range.popFront(); }
+        fun front: RetType {
+            var res = range.front;
+            res.isTrivial = pred(res.value);
+            return res;
+        }
+    }
+
+
+    class[initCtor] ClassifierRange(rangeType, predType: Type) if typeOf((#$predType)((#$rangeType front).value)) == String
+    {
+        using RetType = -@rangeType.RetType;
+
+        private var range: rangeType; 
+        private var pred: predType;
+
+        fun isEmpty                     = range.isEmpty();
+        fun popFront                    { range.popFront(); }
+        fun front: RetType {
+            var res = range.front;
+            res.classifier = pred(res.value);
+            return res;
+        }
     }
 }

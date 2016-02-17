@@ -297,6 +297,18 @@ class[rtct] Vector(valueType: Type)
             pushBack(v);
     }
 
+    fun >>(os: @OutStream) if isValid(os << #$ValueType)
+    {
+        dumpThis("");
+        os << "Vec(";
+        for ( i = 0..size ) {
+            if ( i > 0 )
+                os << ", ";
+            os << at(i);
+        }
+        os << ')';
+    }
+
     private fun dumpThis(prefix: StringRef)
     {
         cout << prefix << "dumping " << TypeOp.description(Vector) << ": " << mkStreamRefWrapper(this) << endl;

@@ -7,37 +7,48 @@ using Check.*;
 
 using enableChecks = true;
 
-class TestProperty { using ValueType = Int; }
+fun check_associativity(x: Int) = x+2 == 2+x;
 
-fun holdsFor(p: TestProperty, x: Int) = x+2 == 2+x /*+ x/10*/;
+fun check_IntIdentity(x: Int) = (x+0) == x && (0+x) == x;
 
-class FalseProperty { using ValueType = Int; }
+fun classifier(x: Int): String {
+    if ( x < 10 )   return "<10";
+    if ( x < 20 )   return "<20";
+    if ( x < 30 )   return "<30";
+    return ">=30";
+}
 
-fun holdsFor(p: FalseProperty, x: Int) = x+2 == x;
-fun generateInput(p: FalseProperty, sizeHint: UInt): Int = sizeHint;
-
-//fun accepts(p: Property, x: Int) = x >= 0;
-//fun isTrivial(p: Property, x: Int) = 0 <= x && x <= 3;
-//fun classify(p: Property, x: Int): String {
-//    if ( x < 0 ) x = -x;
-//    if ( x < 10 ) return "<10";
-//    if ( x < 20 ) return "<20";
-//    if ( x < 30 ) return "<30";
-//    return "big";
-//}
-
+fun isTrivial(x: Int) = x<5;
 
 fun sprMain {
-    TestProperty() check "that we have something running";
-    FalseProperty() check "that we can report failures";
-    //var c: CheckConfig;
-    //c.isVerbose = true;
-    //check(TestProperty(), "that we have something running", c);
+    forAll(Int) check (fun x = true) ~ "that we have something running";
+
+    forAll(Int) check \check_associativity ~ "Int associativity";
+
+    forAll(0..10) check (fun x = x < 5) ~ "than we can report failures";
+
+    forAll(Int) check (fun x = (x+0) == x && (0+x) == x) ~ "that Int has 0 as identity";
+
+    forAll(Int) forWhich (fun x = x>0) take 10 check \check_IntIdentity ~ "that positive Ints have 0 as identity";
+
+    forAll(Int) withClassifier \classifier withTrivials \isTrivial check (fun x = true) ~ "with classifier";
 }
 /*<<<Running()
 * Checking that we have something running
 OK, passed 100 tests.
-* Checking that we can report failures
-Falsifiable after 1 tests, for input:
-3
+* Checking Int associativity
+OK, passed 100 tests.
+* Checking than we can report failures
+Falsifiable after 6 tests, for input:
+5
+* Checking that Int has 0 as identity
+OK, passed 100 tests.
+* Checking that positive Ints have 0 as identity
+OK, passed 10 tests.
+* Checking with classifier
+OK, passed 100 tests (63% trivial).
+16% : >=30
+9% : <30
+7% : <20
+68% : <10
 >>>*/

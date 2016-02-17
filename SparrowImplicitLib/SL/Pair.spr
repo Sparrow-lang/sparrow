@@ -66,3 +66,4 @@ class[rtct] PairSecond(pairType: Type)
 fun[ctGeneric] *(t1, t2: Type): Type = Pair(t1, t2);
 fun ~(a,b: AnyType) = mkPair(a,b);
 
+using oper_precedence_~     = oper_precedence_*;

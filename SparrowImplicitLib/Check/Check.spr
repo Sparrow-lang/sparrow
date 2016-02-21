@@ -86,8 +86,6 @@ fun check(values: TestableValuesRange, pred: @AnyType, msg: StringRef, config: C
     var numTrivial = 0;
     var n = 0;
     for ( val = values ) {
-        var testRes = pred(val.value);
-
         // Check the value's class
         if ( val.isTrivial )
             ++numTrivial;
@@ -158,7 +156,7 @@ fun elements(r: Range): r.RetType Gen = CheckImpl.ElementsGen(typeOf(r))(r).gen;
 fun oneOf(gens: Range): gens.RetType if GenType(#$gens.RetType) {
     if ( gens.isEmpty ) return gens.RetType();
     var count = (gens rangeSize);
-    gens advance randBetween(0, Int(count-1));
+    gens advance randBetween(0, count);
     return gens.front;
 }
 
@@ -174,7 +172,7 @@ fun frequency(gens: Range): gens.RetType.SecondType if FreqGenType(#$gens.RetTyp
     if ( sum == 0 ) return gens.RetType();
 
     // Select a random number in the total sum of frequencies
-    var toSelect = randBetween(0, sum-1);
+    var toSelect = randBetween(0, sum);
     // Select the right generator from the distribution
     var curAcc = 0;
     for ( fg = gens ) {
@@ -186,10 +184,11 @@ fun frequency(gens: Range): gens.RetType.SecondType if FreqGenType(#$gens.RetTyp
 }
 
 
-fun randBetween(min, max: Int): Int {
+fun randBetween(min, max: Integer): commonType(typeOf(min), typeOf(max)) {
+    using T = commonType(typeOf(min), typeOf(max));
     using RAND_MAX = 0x7fffffff;
-    var offset: Int = Int(Double(CheckImpl.rand()) / RAND_MAX * Double(max - min + 1));
-    return min + offset;
+    var offset: T = T(Double(CheckImpl.rand()) / RAND_MAX * Double(max - min));
+    return T(min) + offset;
 }
 
 package CheckImpl {
@@ -197,14 +196,14 @@ package CheckImpl {
 
     class NumericGen(t: Type) if UnsignedInteger(#$t)
     {
-        fun[static] gen(sizeHint: UInt) = t(randBetween(0, 5 + sizeHint));
+        fun[static] gen(sizeHint: UInt) = t(randBetween(0, 6 + sizeHint));
     }
 
     class NumericGen(t: Type) if SignedInteger(#$t)
     {
         fun[static] gen(sizeHint: UInt): t {
             var h: Int = sizeHint + 3;
-            return t(randBetween(-h, h));
+            return t(randBetween(-h, h+1));
         }
     }
 
@@ -313,7 +312,7 @@ package CheckImpl {
 
         fun ()(sizeHint: UInt): ElementType {
             var r = range;
-            r advance randBetween(0, Int(count-1));
+            r advance randBetween(0, Int(count));
             return r.front;
         }
 

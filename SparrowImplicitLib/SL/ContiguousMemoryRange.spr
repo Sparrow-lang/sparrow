@@ -30,5 +30,16 @@ class[rtct] ContiguousMemoryRange(valueType: Type)
     fun frontPtr                = begin;
     fun backPtr                 = end;
 
+    fun >>(os: @OutStream) if isValid(os << #$valueType)
+    {
+        os << "MemRange(";
+        for ( i = 0..size ) {
+            if ( i > 0 )
+                os << ", ";
+            os << this(i);
+        }
+        os << ')';
+    }
+
     private var begin, end: PtrType;
 }

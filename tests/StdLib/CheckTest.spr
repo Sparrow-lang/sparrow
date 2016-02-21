@@ -21,11 +21,18 @@ fun classifier(x: Int): String {
 fun isTrivial(x: Int) = x<5;
 
 fun sprMain {
+    if ( programArgs.size() < 2 )
+        return;
+    var n = programArgs(1) asInt;
+
+    if      ( n == 1 ) testOk();
+    else if ( n == 2 ) testFailure();
+}
+
+fun testOk {
     forAll(Int) check (fun x = true) ~ "that we have something running";
 
     forAll(Int) check \check_associativity ~ "Int associativity";
-
-    forAll(0..10) check (fun x = x < 5) ~ "than we can report failures";
 
     forAll(Int) check (fun x = (x+0) == x && (0+x) == x) ~ "that Int has 0 as identity";
 
@@ -44,28 +51,16 @@ fun sprMain {
     var g5 = frequency(values(1 ~ g1, 6 ~ g2, 2 ~ g3));
     forAll(g5) check (fun x = 10<=x && x<50 && x % 10 < 5) ~ "that frequency works";
 }
-/*<<<Running()
-* Checking that we have something running
-OK, passed 100 tests.
-* Checking Int associativity
-OK, passed 100 tests.
+
+//<<<Check non-failure cases (1)
+
+
+fun testFailure {
+    forAll(0..10) check (fun x = x < 5) ~ "than we can report failures";
+}
+
+/*<<<Report failures (2)
 * Checking than we can report failures
-Falsifiable after 6 tests, for input:
+FAILURE: Falsifiable after 6 tests, for input:
 5
-* Checking that Int has 0 as identity
-OK, passed 100 tests.
-* Checking that positive Ints have 0 as identity
-OK, passed 10 tests.
-* Checking with classifier
-OK, passed 99 tests (4% trivial).
-70% : >=30
-10% : <30
-10% : <20
-9% : <10
-* Checking that elements works
-OK, passed 100 tests.
-* Checking that oneOf works
-OK, passed 100 tests.
-* Checking that frequency works
-OK, passed 100 tests.
 >>>*/

@@ -217,63 +217,7 @@ fun sprMain
         }) ~ "vector's equality comparison";
 }
 
-/*<<<Use tests (1)
-* Checking that a vector can be empty
-OK, passed 3 tests.
-* Checking that size is syncrhonized with isEmpty
-OK, passed 100 tests.
-* Checking vector's range constructor
-OK, passed 100 tests.
-* Checking vector's copy constructor
-OK, passed 100 tests.
-* Checking vector's sized constructor
-OK, passed 100 tests.
-* Checking that capacity is always greater or equal to size
-OK, passed 100 tests.
-* Checking that we have zero capacity of empty vectors
-OK, passed 3 tests.
-* Checking that at function yields the same as call operator
-OK, passed 100 tests.
-* Checking vector's front
-OK, passed 100 tests.
-* Checking vector's back
-OK, passed 100 tests.
-* Checking vector's returning range
-OK, passed 100 tests.
-* Checking vector's subrange
-OK, passed 100 tests.
-* Checking vector's insertBefore with a value
-OK, passed 100 tests.
-* Checking vector's insertBefore with a range
-OK, passed 100 tests.
-* Checking vector's insertAfter with a value
-OK, passed 100 tests.
-* Checking vector's insertAfter with a range
-OK, passed 100 tests.
-* Checking vector's pushBack
-OK, passed 100 tests.
-* Checking vector's pushBack operator
-OK, passed 100 tests.
-* Checking vector's pushBack operator with multiple values
-OK, passed 100 tests.
-* Checking vector's popBack
-OK, passed 100 tests.
-* Checking vector's remove of ranges
-OK, passed 100 tests.
-* Checking vector's remove of an index
-OK, passed 100 tests.
-* Checking vector's resize shrink
-OK, passed 100 tests.
-* Checking vector's resize grow
-OK, passed 100 tests.
-* Checking that we can clear a vector
-OK, passed 100 tests.
-* Checking assignment operator for vector
-OK, passed 100 tests.
-* Checking vector's equality comparison
-OK, passed 100 tests.
->>>*/
-
+//<<< Vector checks
 
 
 using Vec = Vector(Int);

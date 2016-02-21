@@ -98,7 +98,7 @@ fun check(values: TestableValuesRange, pred: @AnyType, msg: StringRef, config: C
 
         // Check if the property holds for the value
         if ( !pred(val.value) ) {
-            cout << "Falsifiable after " << (n+1) << " tests, for input:\n" << val.value << endl;
+            cout << "FAILURE: Falsifiable after " << (n+1) << " tests, for input:\n" << val.value << endl;
             return false;
         }
 

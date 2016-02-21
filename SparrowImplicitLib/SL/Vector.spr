@@ -299,7 +299,6 @@ class[rtct] Vector(valueType: Type)
 
     fun >>(os: @OutStream) if isValid(os << #$ValueType)
     {
-        dumpThis("");
         os << "Vec(";
         for ( i = 0..size ) {
             if ( i > 0 )

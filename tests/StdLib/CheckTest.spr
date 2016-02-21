@@ -31,7 +31,18 @@ fun sprMain {
 
     forAll(Int) forWhich (fun x = x>0) take 10 check \check_IntIdentity ~ "that positive Ints have 0 as identity";
 
-    forAll(Int) withClassifier \classifier withTrivials \isTrivial check (fun x = true) ~ "with classifier";
+    forAll(1..100) withClassifier \classifier withTrivials \isTrivial check (fun x = true) ~ "with classifier";
+
+    forAll(elements(10..20)) check (fun x = 10<=x && x<20) ~ "that elements works";
+   
+    var g1 = elements(10..15);
+    var g2 = elements(20..25);
+    var g3 = elements(30..35);
+    var g4 = oneOf(values(g1, g2, g3));
+    forAll(g4) check (fun x = 10<=x && x<50 && x % 10 < 5) ~ "that oneOf works";
+
+    var g5 = frequency(values(1 ~ g1, 6 ~ g2, 2 ~ g3));
+    forAll(g5) check (fun x = 10<=x && x<50 && x % 10 < 5) ~ "that frequency works";
 }
 /*<<<Running()
 * Checking that we have something running
@@ -46,9 +57,15 @@ OK, passed 100 tests.
 * Checking that positive Ints have 0 as identity
 OK, passed 10 tests.
 * Checking with classifier
-OK, passed 100 tests (63% trivial).
-16% : >=30
-9% : <30
-7% : <20
-68% : <10
+OK, passed 99 tests (4% trivial).
+70% : >=30
+10% : <30
+10% : <20
+9% : <10
+* Checking that elements works
+OK, passed 100 tests.
+* Checking that oneOf works
+OK, passed 100 tests.
+* Checking that frequency works
+OK, passed 100 tests.
 >>>*/

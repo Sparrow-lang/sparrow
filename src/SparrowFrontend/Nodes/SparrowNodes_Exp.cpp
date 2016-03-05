@@ -1051,11 +1051,14 @@ Node* FunApplication_SemanticCheck(Node* node)
         }
     }
 
-    string functionName = Nest_toString(base);
-    
     // Try to get the declarations pointed by the base node
     Node* thisArg = nullptr;
     NodeVector decls = getDeclsFromNode(base, thisArg);
+
+    string functionName;
+    if ( !decls.empty() )
+        functionName = toString(Feather_getName(decls.front()));
+    else functionName = Nest_toString(base);
 
     // If we didn't find any declarations, try the operator call
     if ( base->type->hasStorage && decls.empty() )

@@ -22,7 +22,7 @@ const Location& GenericCallable::location() const
 string GenericCallable::toString() const
 {
     ostringstream oss;
-    oss << Nest_toString(generic_) << "(";
+    oss << Feather_getName(generic_) << "(";
     size_t count = genericParamsCount(generic_);
     for ( size_t i=0; i<count; ++i )
     {

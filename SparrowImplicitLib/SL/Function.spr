@@ -24,10 +24,7 @@ package Impl
             using FtorType = -@typeOf(ftor);
             using WrappedFtorType = FtorWrapper(FtorType);
             this.obj := WrappedFtorType(ftor).clone();
-            if[ct] ( isValid(ftor.call) )
-                reinterpretCast(@typeOf(\ftor.call), this.callFn) = \ftor.call;
-            else
-                reinterpretCast(@typeOf(\ftor.()), this.callFn) = \ftor.();
+            reinterpretCast(@typeOf(\ftor.()), this.callFn) = \ftor.();
             reinterpretCast(@typeOf(\WrappedFtorType.clone), this.cloneFn) = \WrappedFtorType.clone;
             reinterpretCast(@typeOf(\ftor.dtor), this.destructFn) = \ftor.dtor;
         }

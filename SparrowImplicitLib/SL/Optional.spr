@@ -68,3 +68,7 @@ class Optional(valueType: Type)
     private var value: ValueType;
     private var constructed: Bool;
 }
+
+fun some(x: @AnyType): -@typeOf(x) Optional = (-@typeOf(x) Optional)(x);
+fun none(t: Type) = (t Optional)();
+

@@ -170,10 +170,16 @@ sub getSourceFileRunTests
     
     open(F, $filename) || die("Can't open '$filename': $!\n");
     my $content = join('', <F>);
-    while ( $content =~ /\/\*<<<(.*?)\((.*?)\)(\r\n?|\n)((.|\r\n?|\n)*?)>>>\*\//g )
+    while ( $content =~ /\/\*<<<(.*?)(\((.*?)\))?(\r\n?|\n)((.|\r\n?|\n)*?)>>>\*\//g )
     {
-        #print "Test name: '$1'; params: '$2'; content: '$4'\n";
-        my @arr = ($1, $2, $4);
+        # print "Test name: '$1'; params: '$3'; content: '$5'\n";
+        my @arr = ($1, $3, $5, 1);
+        push(@runTests, \@arr);
+    }
+    while ( $content =~ /\/\/<<<(.*?)(\((.*?)\))?(\r\n?|\n)/g )
+    {
+        # print "CHECK Test name: '$1'; params: '$3'; content: '$5'\n";
+        my @arr = ($1, $3, $5, 0);
         push(@runTests, \@arr);
     }
     close(F);
@@ -299,9 +305,12 @@ sub compileFileRunTests
         my $name = $tst->[0];
         my $params = $tst->[1];
         my $expectedResult = $tst->[2];
+        my $matchContent = $tst->[3];
         
-        print LOG_FILE "\n------ Running test: $name($params)\n";
-        print LOG_FILE "Expected result:\n$expectedResult.\n";
+        if ( $matchContent ) {
+            print LOG_FILE "\n------ Running test: $name($params)\n";
+            print LOG_FILE "Expected result:\n$expectedResult.\n";            
+        }
         
         # Run the test
         my $toRun = $progToRun;
@@ -319,11 +328,21 @@ sub compileFileRunTests
         }
         print LOG_FILE "$res.\n";
         
-        if ( !compareStringsNormalized($res, $expectedResult) )
-        {
-            $skipError = handleTestFailure($name, "Different running output");
-            $hasRunErrors = 1 unless $skipError;
-            next;
+        if ( $matchContent ) {
+            if ( !compareStringsNormalized($res, $expectedResult) )
+            {
+                $skipError = handleTestFailure($name, "Different running output");
+                $hasRunErrors = 1 unless $skipError;
+                next;
+            }            
+        }
+        else {
+            if ( $res =~ /FAILURE/g )
+            {
+                $skipError = handleTestFailure($name, "General test failure");
+                $hasRunErrors = 1 unless $skipError;
+                next;
+            }
         }
         
         handleTestSuccess($name);

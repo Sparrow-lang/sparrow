@@ -6,6 +6,8 @@ import Test;
 
 using Par.*;
 
+using Par.parFor;
+
 var counter: Int Atomic;
 var outOfOrderCount: Int Atomic;
 

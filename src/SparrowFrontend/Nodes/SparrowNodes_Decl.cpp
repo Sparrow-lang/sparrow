@@ -860,6 +860,7 @@ TypeRef Using_ComputeType(Node* node)
     const StringRef* alias = Nest_getPropertyString(node, "name");
 
     // Compile the using name
+    Nest_setPropertyExplInt(usingNode, propAllowDeclExp, 1);
     if ( !Nest_semanticCheck(usingNode) )
         return nullptr;            
 

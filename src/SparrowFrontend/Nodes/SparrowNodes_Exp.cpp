@@ -429,6 +429,17 @@ namespace
         return res;
     }
 
+    //! Returns the compilation context sorounding the given class
+    //! If the context is not introduced by a node, move up to the first context introduced by a node
+    //! Case treated: If the class is introduced by a generic, it will search the context of the generic
+    CompilationContext* classContext(Node* cls)
+    {
+        CompilationContext* res = cls->context;
+        while ( res && !res->currentSymTab->node )
+            res = res->parent;
+        return res ? res : cls->context;
+    }
+
     #define CHECK_RET(expr) \
         { \
             Node* ret = expr; \
@@ -479,8 +490,8 @@ namespace
             // Step 2: Try to find an operator that match in the near the class the base expression
             mode = node->context->evalMode;
             if ( !opPrefix.empty() )
-                CHECK_RET(trySelectOperator(fromString(opPrefix + operation.begin), args, argClass->context, true, node->context, node->location, mode));
-            CHECK_RET(trySelectOperator(operation, args, argClass->context, true, node->context, node->location, mode));
+                CHECK_RET(trySelectOperator(fromString(opPrefix + operation.begin), args, classContext(argClass), true, node->context, node->location, mode));
+            CHECK_RET(trySelectOperator(operation, args, classContext(argClass), true, node->context, node->location, mode));
         }
 
         // Step 3: General search from the current context

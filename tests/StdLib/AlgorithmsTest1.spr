@@ -5,7 +5,7 @@ import SL.Algorithms;
 import SL.ContiguousMemoryRange;
 import SL.RawPtr; // !!!
 import SL.List;
-import SL.Pair;
+import SL.Tuple;
 
 fun sprMain
 {
@@ -184,16 +184,16 @@ fun test9()
 {
     var x = 10;
     var nr = createRangeAscending(5);
-    var pair = makePair(x, nr);
+    var pair = x ~ nr;
 
-    cout << pair.first << endl;
-    printRange(pair.second);
+    cout << pair._1 << endl;
+    printRange(pair._2);
 
-    var pair2 = makePair(20, makePair(50, "bla"));
+    var pair2 = 20 ~ (50 ~ "bla");
 
-    cout << pair2.first << endl;
-    cout << pair2.second.first << endl;
-    cout << pair2.second.second << endl;
+    cout << pair2._1 << endl;
+    cout << pair2._2._1 << endl;
+    cout << pair2._2._2 << endl;
 }
 /*<<<Pair making(9)
 10

@@ -427,7 +427,7 @@ fun test14()
 
     for ( p = zr )
     {
-        cout << p.first << ' ' << p.second << '\n';
+        cout << p._1 << ' ' << p._2 << '\n';
     }
 }
 /*<<<Zipping(14)

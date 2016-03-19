@@ -15,7 +15,7 @@ StdLib/ArrayTest.spr:                   Std.Array
 StdLib/StaticArrayTest.spr:             Std.StaticArray
 StdLib/PtrTest.spr:                     Smart Pointers
 StdLib/ContiguousMemoryRangeTest.spr:   Std.ContiguousMemoryRange
-StdLib/PairTest.spr:                    Std.Pair
+StdLib/TupleTest.spr:                   Std.Tuple
 StdLib/StringOperators.spr:             Std.String
 
 BenchmarkGame/nbody.spr:                Benchmark game - nbody

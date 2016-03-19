@@ -6,7 +6,7 @@ class Map(keyType, dataType: Type, traitsType: Type = DefaultTypeTraits)
     using KeyType = keyType;
     using DataType = dataType;
     using TraitsType = traitsType;
-    using ValueType = Pair(KeyType, DataType);
+    using ValueType = Tuple(KeyType, DataType);
     private using ImplTable = HashTable(keyType, ValueType, PairFirst(ValueType), TraitsType);
     using RangeType = ImplTable.RangeType;
 
@@ -50,7 +50,7 @@ class Map(keyType, dataType: Type, traitsType: Type = DefaultTypeTraits)
             var data: DataType;
             r = hashTable.insert(ValueType(key, data));
         }
-        return r.front().second;
+        return r.front()._2;
     }
 
     fun clear()                                 { hashTable.clear(); }

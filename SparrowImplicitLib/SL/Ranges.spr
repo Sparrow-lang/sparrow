@@ -1,6 +1,6 @@
 import ContiguousMemoryRange;
 import Math;
-import Pair;
+import Tuple;
 import StaticArray;
 import SprCore.NumericLimits;
 

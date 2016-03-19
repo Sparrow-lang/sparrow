@@ -64,7 +64,7 @@ fun test1
     printType(typeOf(x));
     printType(typeOf(xr));
     printType(typeOf(xrr));
-    printType(Pair(Int, Double));
+    printType(Tuple(Int, Double));
     printType(Vector(Int));
     printType(typeOf(1 ... 10));
     printType(Number);
@@ -85,7 +85,7 @@ storage     rtct  y  y  0    Double/rtct
 storage     rt    y  y  0    Double
 storage     rt    y  y  1    @Double
 storage     rt    y  y  2    @@Double
-storage     rtct  y  y  0    Pair[Int/rtct, Double/rtct]/rtct
+storage     rtct  y  y  0    Tuple[Int/rtct, Double/rtct]/rtct
 storage     rtct  y  y  0    Vector[Int/rtct]/rtct
 storage     rt    y  y  0    NumericRangeInc[Int/rtct]
 no storage  rtct  y  y  0    #Number/rtct

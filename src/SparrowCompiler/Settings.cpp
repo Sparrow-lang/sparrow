@@ -30,6 +30,7 @@ void initSettingsWithArgs(int argc, char** argv)
     generic.add_options()
         ("version", "print version string")
         ("verbose,v", "Show commands to run and use verbose output")
+        ("noColors", "Disable colors in the output")
         ("help,h", "produce help message")
         ;
 
@@ -89,6 +90,7 @@ void initSettingsWithArgs(int argc, char** argv)
 
     s.printVersion_ = vm.count("version") > 0;
     s.verbose_ = vm.count("verbose") > 0;
+    s.noColors_ = vm.count("noColors") > 0;
     s.syntaxOnly_ = vm.count("syntax-only") > 0;
     s.simpleLinking_ = vm.count("simple-linking") > 0;
     s.linkAsLibrary_ = vm.count("link-as-library") > 0;

@@ -14,6 +14,8 @@ namespace
 {
     void doReport(const Location& loc, DiagnosticSeverity severity, const string& message)
     {
+        cerr << endl;
+        
         // Write location: 'filename(line:col) : '
         if ( !Nest_isLocEmpty(&loc) )
         {

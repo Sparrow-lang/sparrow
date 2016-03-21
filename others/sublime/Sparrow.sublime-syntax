@@ -1,0 +1,398 @@
+%YAML 1.2
+---
+name: Sparrow
+file_extensions: [spr]
+scope: source.sparrow
+
+contexts:
+  main:
+    - include: comments
+    - include: string_escaped_char
+    - include: strings
+    - include: std-lib-names
+    - include: helpers
+    - include: syntax-formats
+    - include: decls
+    - include: basic-elements
+
+  decls:
+    # Class
+    - match: |-
+        (?x)^\s*
+        \b(class|datatype)\b\s*
+        (?:(\[.*\])?\s*) # modifier
+        (\w+)\s* # identifier
+      captures:
+        1: storage.type.structure.sparrow
+        2: storage.modifier.sparrow
+        3: entity.name.type.class.sparrow
+      push:
+        - meta_scope: meta.class.sparrow
+        - match: '(?<=(\}|\;))'
+          pop: true
+        - include: $top_level_main
+    # Concept
+    - match: |-
+        (?x)^\s*
+        \b(concept)\b\s*
+        (?:(\[.*\])?\s*) # modifier
+        (\w+)\s* # identifier
+      captures:
+        1: storage.type.structure.sparrow
+        2: storage.modifier.sparrow
+        3: entity.name.type.concept.sparrow
+      push:
+        - meta_scope: meta.concept.sparrow
+        - match: '(?<=\;)'
+          pop: true
+        - include: $top_level_main
+    # Function
+    - match: |-
+        (?x)^\s*
+        (?:\b(private|protected|public)\b\s*)* # access modifier
+        \b(fun)\b\s*
+        (?:(\[.*\])?\s*) # modifier
+        ([^\s\:\(]+)\s* # identifier
+      captures:
+        1: storage.modifier.access-control.sparrow
+        2: storage.type.structure.sparrow
+        3: storage.modifier.sparrow
+        4: entity.name.function.sparrow
+    # Variable
+    - match: |-
+        (?x)^\s*
+        \b(var)\b\s*
+        (?:(\[.*\])?\s*) # modifier
+        (\w+)\s* # identifier
+      captures:
+        1: storage.type.structure.sparrow
+        2: storage.modifier.sparrow
+        3: entity.name.variable.sparrow
+    # Package
+    - match: |-
+        (?x)^\s*
+        \b(package)\b\s*
+        (?:(\[.*\])?\s*) # modifier
+        (\w+)\s* # identifier
+      captures:
+        1: keyword.control.module.sparrow
+        2: storage.modifier.sparrow
+        3: entity.name.type.package.sparrow
+      push:
+        - meta_scope: meta.package.sparrow
+        - match: '(?<=\})'
+          pop: true
+        - include: $top_level_main
+
+    # Parameter-like types
+    - match: (\:)\s*([\!\@\#\$\%\^\&amp;\*\/\~\-\+\=\.\&lt;&gt;]*)\b(\w+)\b
+      captures:
+        1: keyword.operator.sparrow
+        2: keyword.operator.sparrow
+        3: variable.parameter.sparrow
+
+    # Blocks (class, functions, etc)
+    - match: '\{'
+      push:
+        - meta_scope: meta.block.sparrow
+        - match: '\}'
+          pop: true
+        - match: \)
+          scope: invalid.illegal.stray-bracket-end
+          pop: true
+        - include: $top_level_main
+
+  basic-elements:
+    # Keywords
+    - match: \b(private|protected|public)\b
+      scope: storage.modifier.access-control.sparrow
+    - match: \b(datatype|class|concept|fun|var|package)\b
+      scope: storage.type.structure.sparrow
+    - match: \b(Type|Null|Uninitialized|Bool|Byte|UByte|Short|UShort|Int|UInt|Long|ULong|SizeType|DiffType|Float|Double|Char|StringRef|String)\b
+      scope: storage.type.sparrow
+    - match: \b(try|catch|finally|throw)\b
+      scope: keyword.control.exception.sparrow
+    - match: \b(if|else)\b
+      scope: keyword.control.conditional.sparrow
+    - match: \b(break|continue)\b
+      scope: keyword.control.branch.sparrow
+    - match: \b(while|for)\b
+      scope: keyword.control.repeat.sparrow
+    - match: \b(return)\b
+      scope: keyword.control.statement.sparrow
+    - match: \b(import)\b
+      scope: keyword.control.import.sparrow
+    - match: \b(using|package|friend)\b
+      scope: keyword.control.other.sparrow
+    - match: \b(true|false)\b
+      scope: constant.language.boolean.sparrow
+    - match: \b(null)\b
+      scope: constant.language.null.sparrow
+    - match: \b(this)\b
+      scope: variable.language.sparrow
+
+    # Numeric constants
+    - match: |-
+        (?x)
+        (
+          (\b0(x|X)[0-9a-fA-F](_[0-9a-fA-F]+)*)            # 0x0, 0X0, 0x000_000
+          |
+          (
+            (\b[0-9]+(_[0-9]+)*\.?([0-9]+_[0-9]+)?[0-9]*)  # 0.0, 0_0.0, 0.0_0
+            |
+            (\.[0-9]+(_[0-9]+)*)                           # .0, .0_0
+          )((e|E)(\+|-)?[0-9]+)?                           # 0e+5
+        )
+        ([LlFfUuDd]|UL|ul)?                                # 0l, 0U, 0Lu, 0UL
+        \b
+      scope: constant.numeric.sparrow
+
+    # Operators
+    - match: ([\!\@\#\$\%\^\&\*\/\~\-\+\=\.\<\>\:]+)
+      scope: keyword.operator.sparrow
+
+    # Modifiers
+    - match: (?:(\[.*\])?\s*)
+      scope: storage.modifier.sparrow
+
+  # Comments
+  comments:
+    - include: scope:text.html.javadoc
+    - match: /\*
+      captures:
+        0: punctuation.definition.comment.sparrow
+      push:
+        - meta_scope: comment.block.sparrow
+        - match: \*/
+          captures:
+            0: punctuation.definition.comment.sparrow
+          pop: true
+    - match: (//).*$\n?
+      scope: comment.line.double-slash.sparrow
+      captures:
+        1: punctuation.definition.comment.sparrow
+
+  # Strings
+  string_escaped_char:
+    - match: '\\(\\|[abefnprtv''"?]|[0-3]\d{,2}|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8}|&\w+;)'
+      scope: constant.character.escape.sparrow
+    - match: \\.
+      scope: invalid.illegal.unknown-escape.sparrow
+  strings:
+    - match: '"'
+      captures:
+        0: punctuation.definition.string.begin.sparrow
+      push:
+        - meta_scope: string.quoted.double.sparrow
+        - match: '"'
+          captures:
+            0: punctuation.definition.string.end.sparrow
+          pop: true
+        - include: string_escaped_char
+    - match: '<{'
+      captures:
+        0: punctuation.definition.string.begin.sparrow
+      push:
+        - meta_scope: string.quoted.double.raw.sparrow
+        - match: '}>'
+          captures:
+            0: punctuation.definition.string.end.sparrow
+          pop: true
+    - match: "`"
+      captures:
+        0: punctuation.definition.string.begin.sparrow
+      push:
+        - meta_scope: string.quoted.double.raw.backtick.sparrow
+        - match: ((?<=`)(`)|`)
+          captures:
+            1: punctuation.definition.string.end.sparrow
+            2: meta.empty-string.double.sparrow
+          pop: true
+    - match: "'"
+      captures:
+        0: punctuation.definition.string.begin.sparrow
+      push:
+        - meta_scope: string.quoted.single.sparrow
+        - match: "'"
+          captures:
+            0: punctuation.definition.string.end.sparrow
+          pop: true
+        - include: string_escaped_char
+
+  # Predefined types and functions
+  std-lib-names:
+    - match: \b(Void|Type|Null|Uninitialized|Bool|Byte|UByte|Short|UShort|Int|UInt|Long|ULong|SizeType|DiffType|Float|Double|Char|StringRef|String)\b
+      scope: support.type.built-ins.classes.sparrow
+    - match: \b(cast|reinterpretCast|construct|sizeOf|typeOf|isValid|isValidAndTrue|valueIfValid|ctEval|lift)\b
+      scope: support.function.sparrow
+
+  helpers:
+    # Parenthesis helper
+    - match: \(
+      push: helpers-parens
+    - match: \)
+      scope: invalid.illegal.stray-bracket-end
+    - match: \}
+      scope: invalid.illegal.stray-bracket-end
+  helpers-parens:
+    - match: \)
+      pop: true
+    - match: \}
+      scope: invalid.illegal.stray-bracket-end
+      pop: true
+    # - match: \;
+    #   scope: invalid.illegal.stray-bracket-end
+    #   pop: true
+    - include: main
+
+  syntax-formats:
+    # list the main alternative formats
+    - match: \#constant\#
+      scope: constant
+    - match: \#constant_numeric\#
+      scope: constant.numeric
+    - match: \#constant_character\#
+      scope: constant.character
+    - match: \#constant_escape\#
+      scope: constant.escape
+    - match: \#constant_language\#
+      scope: constant.language
+    - match: \#constant_other\#
+      scope: constant.other
+    - match: \#entity\#
+      scope: entity
+    - match: \#entity_name\#
+      scope: entity.name
+    - match: \#entity_name_function\#
+      scope: entity.name.function
+    - match: \#entity_name_type\#
+      scope: entity.name.type
+    - match: \#entity_name_tag\#
+      scope: entity.name.tag
+    - match: \#entity_name_section\#
+      scope: entity.name.section
+    - match: \#entity_other\#
+      scope: entity.other
+    - match: \#entity_other_inherited-class\#
+      scope: entity.other.inherited-class
+    - match: \#entity_other_attribute-name\#
+      scope: entity.other.attribute-name
+    - match: \#invalid\#
+      scope: invalid
+    - match: \#invalid_illegal\#
+      scope: invalid.illegal
+    - match: \#invalid_deprecated\#
+      scope: invalid.deprecated
+    - match: \#keyword\#
+      scope: keyword
+    - match: \#keyword_control\#
+      scope: keyword.control
+    - match: \#keyword_operator\#
+      scope: keyword.operator
+    - match: \#keyword_other\#
+      scope: keyword.other
+    - match: \#markup\#
+      scope: markup
+    - match: \#markup_underline\#
+      scope: markup.underline
+    - match: \#markup_underline_link\#
+      scope: markup.underline.link
+    - match: \#markup_bold\#
+      scope: markup.bold
+    - match: \#markup_heading\#
+      scope: markup.heading
+    - match: \#markup_italic\#
+      scope: markup.italic
+    - match: \#markup_list\#
+      scope: markup.list
+    - match: \#markup_list_numbered\#
+      scope: markup.list.numbered
+    - match: \#markup_list_unnumbered\#
+      scope: markup.list.unnumbered
+    - match: \#markup_quote\#
+      scope: markup.quote
+    - match: \#markup_raw\#
+      scope: markup.raw
+    - match: \#markup_other\#
+      scope: markup.other
+    - match: \#meta\#
+      scope: meta
+    - match: \#storage\#
+      scope: storage
+    - match: \#storage_type\#
+      scope: storage.type
+    - match: \#storage_modifier\#
+      scope: storage.modifier
+    - match: \#support\#
+      scope: support
+    - match: \#support_function\#
+      scope: support.function
+    - match: \#support_class\#
+      scope: support.class
+    - match: \#support_type\#
+      scope: support.type
+    - match: \#support_constant\#
+      scope: support.constant
+    - match: \#support_variable\#
+      scope: support.variable
+    - match: \#support_other\#
+      scope: support.other
+    - match: \#variable\#
+      scope: variable
+    - match: \#variable_parameter\#
+      scope: variable.parameter
+    - match: \#variable_language\#
+      scope: variable.language
+    - match: \#variable_other\#
+      scope: variable.other
+
+# #constant#
+# #constant_numeric#
+# #constant_character#
+# #constant_escape#
+# #constant_language#
+# #constant_other#
+# #entity#
+# #entity_name#
+# #entity_name_function#
+# #entity_name_type#
+# #entity_name_tag#
+# #entity_name_section#
+# #entity_other#
+# #entity_other_inherited-class#
+# #entity_other_attribute-name#
+# #invalid#
+# #invalid_illegal#
+# #invalid_deprecated#
+# #keyword#
+# #keyword_control#
+# #keyword_operator#
+# #keyword_other#
+# #markup#
+# #markup_underline#
+# #markup_underline_link#
+# #markup_bold#
+# #markup_heading#
+# #markup_italic#
+# #markup_list#
+# #markup_list_numbered#
+# #markup_list_unnumbered#
+# #markup_quote#
+# #markup_raw#
+# #markup_other#
+# #meta#
+# #storage#
+# #storage_type#
+# #storage_modifier#
+# #support#
+# #support_function#
+# #support_class#
+# #support_type#
+# #support_constant#
+# #support_variable#
+# #support_other#
+# #variable#
+# #variable_parameter#
+# #variable_language#
+# #variable_other#
+

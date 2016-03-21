@@ -1,0 +1,489 @@
+// SYNTAX TEST "Sparrow.sublime-syntax"
+
+package Test;
+// ^ meta.package keyword.control.module
+//      ^^^^ entity.name
+
+import SL.Vector;
+// ^ keyword.control.import
+
+/**
+* // ^ comment.block.documentation
+*    @brief Some brief description
+* // ^^^^^^ keyword.other.documentation
+*/
+
+class Book { var author, name, isbn: StringRef; }
+// ^ storage.type.structure
+//    ^^^^ entity.name
+//          ^ meta.class meta.block
+//           ^^^ storage.type.structure
+//                                   ^^^^^^^^^ variable.parameter
+datatype Book3 { author, name, isbn: StringRef }
+// ^ storage.type.structure
+//       ^^^^^ entity.name
+//                                   ^^^^^^^^^ variable.parameter
+datatype Book4 = Book;
+// ^ storage.type.structure
+//       ^^^^^ entity.name
+
+class[rtct, initCtor] Tuple(t1, t2: Type) {
+// ^ storage.type.structure
+//   ^^^^^^^^^^^^^^^^ storage.modifier
+//                    ^^^^^ entity.name
+    using arity = 2;
+//  ^^^^^ keyword.control
+// <- meta.class
+// <- meta.class meta.block
+    var _1: t1;
+    var _2: t2;
+
+    fun[convert] ctor(other: TupleType) if other.arity == 2 {
+        this._1 ctor other._1;
+        this._2 ctor other._2;
+    }
+}
+
+class FwdDefined;
+// ^ storage.type.structure
+//    ^^^^^^^^^^ entity.name
+//              ^ source.sparrow
+
+concept HasF1(x) if isValid(x.f1());
+// ^ storage.type.structure
+//      ^^^^^ entity.name
+
+concept Range(x)
+// ^ storage.type.structure
+//      ^^^^^ entity.name
+    if typeOf(x.RetType) == Type
+    && typeOf(x.isEmpty()) == Bool
+    && typeOf(x.front()) == x.RetType
+    && isValid(x.popFront())
+    ;
+
+fun f0_1()          { writeLn("f0_1"); }
+//^ storage.type.structure
+//  ^^^^ entity.name
+fun f0_2            { writeLn("f0_2"); }
+//^ storage.type.structure
+//  ^^^^ entity.name
+fun f0_3            = writeLn("f0_3");              // Returns Void
+//^ storage.type.structure
+//  ^^^^ entity.name
+fun f0_4            = printAndReturn("f0_4", 0);    // Returns Int
+//^ storage.type.structure
+//  ^^^^ entity.name
+fun f0_8: Int       = printAndReturn("f0_8", 1);
+//^ storage.type.structure
+//  ^^^^ entity.name
+
+fun f1_1(n: Int)        { writeLn("f1_1"); }
+//^ storage.type.structure
+//  ^^^^ entity.name
+fun f1_2(n: Int)        = writeLn("f1_2");             // Returns Void
+//^ storage.type.structure
+//  ^^^^ entity.name
+fun f1_3(n: Int)        = printAndReturn("f1_3", n);   // Returns Int
+//^ storage.type.structure
+//  ^^^^ entity.name
+fun f1_4 n              { writeLn("f1_4"); }
+//^ storage.type.structure
+//  ^^^^ entity.name
+fun f1_5 n              = writeLn("f1_5");
+//^ storage.type.structure
+//  ^^^^ entity.name
+fun f1_6 n              = printAndReturn("f1_6", n);   // Returns Int
+//^ storage.type.structure
+//  ^^^^ entity.name
+fun f1_9(n: Int): Int   = printAndReturn("f1_9", n);
+//^ storage.type.structure
+//  ^^^^ entity.name
+fun f1_12 n: Int        = printAndReturn("f1_12", n);
+//^ storage.type.structure
+//  ^^^^^ entity.name
+
+fun f3_1(a, b, c: Int)      = printAndReturn("f3_1", a+b+c);
+//^ storage.type.structure
+//  ^^^^ entity.name
+
+var a = 10;
+//^ storage.type.structure
+//  ^ entity.name.variable
+
+fun f3_2 a, b, c            = printAndReturn("f3_2", a+b+c);
+//^ storage.type.structure
+//  ^^^^ entity.name
+
+fun f3_2 a, b, c            = printAndReturn("f3_2", a+b+c);
+//^ storage.type.structure
+//  ^^^^ entity.name
+fun f3_3(a, b, c: Int): Int = printAndReturn("f3_4", a+b+c);
+//^ storage.type.structure
+//  ^^^^ entity.name
+fun f3_4 a, b, c: Int       = printAndReturn("f3_5", a+b+c);
+//^ storage.type.structure
+//  ^^^^ entity.name
+
+fun[native("test")] test(n: Int): Int
+//^ storage.type.structure
+// ^^^^^^^^^^^^^^^^ storage.modifier
+//                  ^^^^ entity.name
+{
+// <- meta.block
+    return n+2;
+}
+
+
+fun[static] ctor()
+//^ storage.type.structure
+// ^^^^^^^^ storage.modifier
+//          ^^^^ entity.name
+{
+}
+
+fun[static] ctor
+//^ storage.type.structure
+// ^^^^^^^^ storage.modifier
+//          ^^^^ entity.name
+{
+}
+
+fun >> = 10;
+//^ storage.type.structure
+//  ^^ entity.name
+fun >>(a: Int) = 10;
+//^ storage.type.structure
+//  ^^ entity.name
+
+
+package A {
+// ^ meta.package keyword.control.module
+//      ^ entity.name
+//        ^^^^ meta.block.sparrow
+    package B {
+    // ^ meta.package keyword.control.module
+    //      ^ entity.name
+        var c: Int;
+//      ^^^ storage.type.structure
+//          ^ entity.name.variable
+
+        friend Book;
+//      ^^^^^^ keyword.control
+
+        fun inner { }
+//      ^^^ storage.type.structure
+//          ^^^^^ meta.block entity.name
+    }
+}
+
+class SomeVars { var a, b, c, d: Int; }
+//             ^^^^^^^^^^^^^^^^^^^^^^^^ meta.block.sparrow
+
+fun testOper {
+    var x = 24;
+    cout << (x) << endl;
+//  ^^^^ meta.block
+//       ^^ keyword.operator
+    cout << (+++x) << endl;
+//           ^^^ keyword.operator
+    cout << (x+++) << endl;
+//            ^^^ keyword.operator
+    cout << (x ** y) << endl;
+//             ^^ keyword.operator
+    cout << (`inc` x) << endl;
+//           ^^^^ string.quoted.double.raw.backtick
+}
+
+fun testStrings {
+    "abcd";
+    // ^ string.quoted.double
+     'a';
+    //^ string.quoted.single
+    <{un-escaped string}>;
+    // ^ string.quoted.double.raw
+}
+
+fun testControl {
+    if ( a ) b; else c;
+//  ^^ keyword.control.conditional
+//              ^^^^ keyword.control.conditional
+
+    for ( n = 1..10 ) {
+//  ^^^ keyword.control.repeat
+//          ^ keyword.operator
+//             ^^ keyword.operator
+        break;
+//      ^^^^^ keyword.control.branch
+        continue;
+//      ^^^^^^^^ keyword.control.branch
+    }
+
+    if[ct] ( true ) ;
+//  ^^ keyword.control.conditional
+//    ^^^^ storage.modifier.sparrow
+
+    for[ct] ( n = 1..10 ) cout << n << endl;
+//  ^^^ keyword.control.repeat
+//     ^^^^ storage.modifier.sparrow
+
+    while ( false ) ;
+//  ^^^^^ keyword.control.repeat
+
+    while ( false; ++i ) ;
+//  ^^^^^ keyword.control.repeat
+
+    return;
+//  ^^^^^^ keyword.control.statement
+}
+
+fun testLitarals {
+    true;
+//  ^^^^ constant.language.boolean
+    false;
+//  ^^^^^ constant.language.boolean
+    null;
+//  ^^^^ constant.language.null
+
+    10; 10L; 10u;
+//  ^^ constant.numeric
+//      ^^^ constant.numeric
+//           ^^^ constant.numeric
+    10.0; 10.0f; .1; .1f; 3.f;
+//  ^^^^ constant.numeric
+//        ^^^^ constant.numeric
+//               ^^ constant.numeric
+//                   ^^^ constant.numeric
+//                        ^^^ constant.numeric
+     0xfade;
+//   ^^^^^^ constant.numeric
+
+    10_000; 0xdead_fade_f00d; .0_0
+//  ^^^^^^ constant.numeric
+//          ^^^^^^^^^^^^^^^^ constant.numeric
+//                            ^^^^ constant.numeric
+
+}
+
+class ClassWithMethods {
+    fun ctor {
+        this.a = 10;
+//      ^^^^ variable.language
+    }
+    var a: Int;
+
+    private var b: Int;
+//  ^^^^^^^ storage.modifier.access-control
+}
+
+fun testStdNames {
+    Type; Null; Uninitialized; Bool;
+//  ^^^^ support.type
+//        ^^^^ support.type
+//              ^^^^^^^^^^^^^ support.type
+//                             ^^^^ support.type
+
+    Byte; UByte; Short; UShort; Int; UInt; Long; ULong; SizeType; DiffType; Float; Double;
+//  ^^^^ support.type
+//        ^^^^^ support.type
+//               ^^^^^ support.type
+//                      ^^^^^^ support.type
+//                              ^^^ support.type
+//                                   ^^^^ support.type
+//                                         ^^^^ support.type
+//                                               ^^^^^ support.type
+//                                                      ^^^^^^ support.type
+//                                                                ^^^^^^^^ support.type
+//                                                                          ^^^^^ support.type
+//                                                                                 ^^^^^^ support.type
+
+    Char; StringRef; String;
+//  ^^^^ support.type
+//        ^^^^^^^^^ support.type
+//                   ^^^^^^ support.type
+
+    cast(Short, 10);
+//  ^^^^ support.function
+    reinterpretCast(@Short, a);
+//  ^^^^^^^^^^^^^^^ support.function
+}
+
+fun testLambdas {
+    cout << doCall( (fun (n: Int) = fact(n)), 5) << endl;
+    cout << doCall( (fun (n: Int): Int { return fact(n);}), 5) << endl;
+    cout << doCall( (fun (n: AnyType) = fact(n)), 5) << endl;
+    cout << doCall( (fun n = fact(n)), 5) << endl;
+    cout << doCall( (fun n = n*n), 5) << endl;
+
+    var x = 10;
+    var y = 11;
+    var z = 12;
+    cout << doCall( (fun.{x} n = n*n + x), 5) << endl;
+    cout << doCall( (fun.{x, y, z} n = n*n + x+y+z), 5) << endl;
+    cout << doCall( (fun.{x,y,z} n = n*n), 5) << endl;
+
+    cout << doCall(\fact, 5) << endl;
+}
+
+
+fun sprMain()
+//    ^ entity.name.function
+{
+// <- meta.block
+
+    struct specs
+    {
+        int count, allocated;
+    }
+
+    specs argspecs(char[][] args)
+    specs* s = new specs;
+     s.count = args.length;
+     s.allocated = typeof(args).sizeof;
+    return *s;
+
+    char[] argcmsg  = "argc = %d";
+    char[] allocmsg = "allocated = %d";
+    writefln(argcmsg ~ ", " ~ allocmsg,
+         argspecs(args).count,argspecs(args).allocated);
+}
+// ^ source.sparrow
+
+class CmdLin
+{
+// <- meta.class meta.block
+
+    public fun ctor(argc: Int, argv: @ @Char)
+//  ^^^^^^ storage.modifier.access-control
+//         ^^^ storage.type.structure
+//             ^^^^ entity.name
+    {
+        _argc = argc + 1;
+        _argv = argv;
+    }
+
+    fun dtor()
+    //  ^^^^ entity.name
+    {
+    }
+
+    fun argnum: Int
+    {
+        class Foo {}
+//      ^^^^^ storage.type.structure
+//            ^^^ entity.name
+        package Inner {
+//      ^^^^^^^ meta.package keyword.control.module
+//              ^^^^^ entity.name
+            class Bar { }
+//          ^^^^^ storage.type.structure
+//                ^^^ entity.name
+        }
+        return _argc;
+    }
+
+    var _argc: Int;
+    var _argv: @ @Char;
+}
+ // <- - meta.class
+
+// The following are helpers to be able to see the coloring of different tags
+
+#constant#
+// ^ constant
+#constant_numeric#
+// ^ constant.numeric
+#constant_character#
+// ^ constant.character
+#constant_escape#
+// ^ constant.escape
+#constant_language#
+// ^ constant.language
+#constant_other#
+// ^ constant.other
+#entity#
+// ^ entity
+#entity_name#
+// ^ entity.name
+#entity_name_function#
+// ^ entity.name.function
+#entity_name_type#
+// ^ entity.name.type
+#entity_name_tag#
+// ^ entity.name.tag
+#entity_name_section#
+// ^ entity.name.section
+#entity_other#
+// ^ entity.other
+#entity_other_inherited-class#
+// ^ entity.other.inherited-class
+#entity_other_attribute-name#
+// ^ entity.other.attribute-name
+#invalid#
+// ^ invalid
+#invalid_illegal#
+// ^ invalid.illegal
+#invalid_deprecated#
+// ^ invalid.deprecated
+#keyword#
+// ^ keyword
+#keyword_control#
+// ^ keyword.control
+#keyword_operator#
+// ^ keyword.operator
+#keyword_other#
+// ^ keyword.other
+#markup#
+// ^ markup
+#markup_underline#
+// ^ markup.underline
+#markup_underline_link#
+// ^ markup.underline.link
+#markup_bold#
+// ^ markup.bold
+#markup_heading#
+// ^ markup.heading
+#markup_italic#
+// ^ markup.italic
+#markup_list#
+// ^ markup.list
+#markup_list_numbered#
+// ^ markup.list.numbered
+#markup_list_unnumbered#
+// ^ markup.list.unnumbered
+#markup_quote#
+// ^ markup.quote
+#markup_raw#
+// ^ markup.raw
+#markup_other#
+// ^ markup.other
+#meta#
+// ^ meta
+#storage#
+// ^ storage
+#storage_type#
+// ^ storage.type
+#storage_modifier#
+// ^ storage.modifier
+#support#
+// ^ support
+#support_function#
+// ^ support.function
+#support_class#
+// ^ support.class
+#support_type#
+// ^ support.type
+#support_constant#
+// ^ support.constant
+#support_variable#
+// ^ support.variable
+#support_other#
+// ^ support.other
+#variable#
+// ^ variable
+#variable_parameter#
+// ^ variable.parameter
+#variable_language#
+// ^ variable.language
+#variable_other#
+// ^ variable.other

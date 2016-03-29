@@ -391,7 +391,7 @@ ClassDeclaration
     | AccessSpec DATATYPE ModifierSpec IDENTIFIER FormalsOpt IfClause LCURLY Formals RCURLY
         { $$ = mkModifiers(@$, mkSprClass(@$, fromString(*$4), $5, NULL, $6, $8, $1), $3); }
     | AccessSpec DATATYPE ModifierSpec IDENTIFIER FormalsOpt EQUAL Expr IfClause SEMICOLON
-        { $$ = mkModifiers(@$, mkSprClass(@$, fromString(*$4), $5, Feather_addToNodeList(NULL, $7), $8, NULL, $1), $3); }
+        { $$ = mkModifiers(@$, mkSprClass(@$, fromString(*$4), $5, $7, $8, NULL, $1), $3); }
 	;
 
 ConceptDeclaration

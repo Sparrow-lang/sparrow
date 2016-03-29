@@ -302,11 +302,10 @@ void SprClass_SetContextForChildren(Node* node)
 }
 TypeRef SprClass_ComputeType(Node* node)
 {
-    ASSERT(Nest_nodeArraySize(node->children) == 4);
+    ASSERT(Nest_nodeArraySize(node->children) == 3);
     Node* parameters = at(node->children, 0);
-    Node* baseClasses = at(node->children, 1);
-    Node* children = at(node->children, 2);
-    Node* ifClause = at(node->children, 3);
+    Node* children = at(node->children, 1);
+    Node* ifClause = at(node->children, 2);
 
     // Is this a generic?
     if ( parameters && Nest_nodeArraySize(parameters->children) != 0 )
@@ -361,46 +360,6 @@ TypeRef SprClass_ComputeType(Node* node)
     // Check for Std classes
     checkStdClass(resultingClass);
     
-    // First check all the base classes
-    if ( baseClasses )
-    {
-        for ( auto& bcName: baseClasses->children )
-        {
-            // Make sure the type refers to a class
-            TypeRef bcType = getType(bcName);
-            if ( !bcType || !bcType->hasStorage )
-                REP_ERROR_RET(nullptr, node->location, "Invalid base class");
-            Node* baseClass = Feather_classForType(bcType);
-            
-            // Compute the type of the base class
-            if ( !Nest_computeType(baseClass) )
-                continue;
-
-            if ( !children ) {
-                children = Feather_mkNodeList(node->location, NodeRange());
-                Nest_setContext(children, node->childrenContext);
-            }
-
-            // Add the fields of the base class to the resulting basic class
-            for ( Node* n: baseClass->children )
-            {
-                if ( n )
-                {
-                    n = Nest_cloneNode(n);
-                    Nest_setContext(n, node->childrenContext);
-                    Nest_appendNodeToArray(&children->children, n);                    
-                }
-            }
-
-            // TODO: Base classes: simplify this
-
-            // Copy the symbol table entries of the base to this class
-            SymTab* ourSymTab = Nest_childrenContext(node)->currentSymTab;
-            SymTab* baseSymTab = Nest_childrenContext(baseClass)->currentSymTab;
-            Nest_symTabCopyEntries(ourSymTab, baseSymTab);
-        }
-    }
-
     // We now have a type - from now on we can safely compute the types of the children
     node->type = Feather_getDataType(resultingClass, 0, modeRtCt);
 
@@ -444,8 +403,8 @@ Node* SprClass_SemanticCheck(Node* node)
         return node->explanation; // This should be a generic; there is nothing else to do here
 
     // Semantic check all the children
-    ASSERT(Nest_nodeArraySize(node->children) == 4);
-    Node* children = at(node->children, 2);
+    ASSERT(Nest_nodeArraySize(node->children) == 3);
+    Node* children = at(node->children, 1);
     if ( children )
         Nest_semanticCheck(children);   // Ignore possible failures
     return node->explanation;

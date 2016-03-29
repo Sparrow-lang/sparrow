@@ -85,7 +85,7 @@ namespace SprFrontend
     Node* mkSprPackage(const Location& loc, StringRef name, Node* children, AccessType accessType = publicAccess);
     Node* mkSprVariable(const Location& loc, StringRef name, Node* typeNode, Node* init, AccessType accessType = publicAccess);
     Node* mkSprVariable(const Location& loc, StringRef name, TypeRef type, Node* init, AccessType accessType = publicAccess);
-    Node* mkSprClass(const Location& loc, StringRef name, Node* parameters, Node* baseClasses, Node* ifClause, Node* children, AccessType accessType = publicAccess);
+    Node* mkSprClass(const Location& loc, StringRef name, Node* parameters, Node* underlyingData, Node* ifClause, Node* children, AccessType accessType = publicAccess);
 
     Node* mkSprConcept(const Location& loc, StringRef name, StringRef paramName, Node* baseConcept, Node* ifClause, AccessType accessType = publicAccess);
 

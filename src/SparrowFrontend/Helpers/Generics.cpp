@@ -269,11 +269,9 @@ namespace
     {
         const Location& loc = orig->location;
 
-        Node* baseClasses = at(orig->children, 1);
-        Node* children = at(orig->children, 2);
-        baseClasses = baseClasses ? Nest_cloneNode(baseClasses) : nullptr;
+        Node* children = at(orig->children, 1);
         children = children ? Nest_cloneNode(children) : nullptr;
-        Node* newClass = mkSprClass(loc, Feather_getName(orig), nullptr, baseClasses, nullptr, children);
+        Node* newClass = mkSprClass(loc, Feather_getName(orig), nullptr, nullptr, nullptr, children);
 
         copyModifiersSetMode(orig, newClass, context->evalMode);
 

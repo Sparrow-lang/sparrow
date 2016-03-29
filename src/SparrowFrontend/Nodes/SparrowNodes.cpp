@@ -513,13 +513,18 @@ Node* SprFrontend::mkSprVariable(const Location& loc, StringRef name, TypeRef ty
     return res;
 }
 
-Node* SprFrontend::mkSprClass(const Location& loc, StringRef name, Node* parameters, Node* baseClasses, Node* ifClause, Node* children, AccessType accessType)
+Node* SprFrontend::mkSprClass(const Location& loc, StringRef name, Node* parameters, Node* underlyingData, Node* ifClause, Node* children, AccessType accessType)
 {
     Node* res = Nest_createNode(nkSparrowDeclSprClass);
     res->location = loc;
-    Nest_nodeSetChildren(res, fromIniList({ parameters, baseClasses, children, ifClause }));
+    if ( underlyingData ) {
+        ASSERT( !children );
+        Node* innerVar = mkSprVariable(loc, fromCStr("_data"), underlyingData, nullptr);
+        children = Feather_addToNodeList(children, innerVar);
+        Nest_setPropertyInt(res, propGenerateInitCtor, 1);
+    }
+    Nest_nodeSetChildren(res, fromIniList({ parameters, children, ifClause }));
     ASSERT( !parameters || parameters->nodeKind == nkFeatherNodeList );
-    ASSERT( !baseClasses || baseClasses->nodeKind == nkFeatherNodeList );
     ASSERT( !children || children->nodeKind == nkFeatherNodeList );
     Feather_setName(res, name);
     setAccessType(res, accessType);

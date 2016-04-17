@@ -665,9 +665,10 @@ Node* SprFrontend::genericDoInstantiate(Node* node, const Location& loc, Compila
                 Nest_queueSemanticCheck(instDecl);
                 setInstantiatedDecl(inst, instDecl);
 
-                // Add the instantiated class as an additional node to the callee source code
-                ASSERT(context->sourceCode);
-                Nest_appendNodeToArray(&context->sourceCode->additionalNodes, expandedInst);
+                // Add the instantiated class as an additional node to the generic node
+                Nest_appendNodeToArray(&node->additionalNodes, expandedInst);
+                if ( node->explanation && node->explanation != node )
+                    Nest_appendNodeToArray(&node->explanation->additionalNodes, expandedInst);
             }
 
             // Now actually create the call object: a Type CT value

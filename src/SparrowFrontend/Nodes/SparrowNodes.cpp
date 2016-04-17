@@ -592,6 +592,8 @@ Node* SprFrontend::mkGenericClass(Node* originalClass, Node* parameters, Node* i
     setAccessType(res, publicAccess);
     Feather_setEvalMode(res, Feather_effectiveEvalMode(originalClass));
 
+    Nest_appendNodeToArray(&res->additionalNodes, originalClass);
+
     // Semantic check the arguments
     for ( Node* param: parameters->children )
     {

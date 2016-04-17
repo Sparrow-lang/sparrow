@@ -82,8 +82,7 @@ namespace
         Nest_setContext(n, node->context);
         if ( Nest_semanticCheck(n) )
         {
-            ASSERT(node->context->sourceCode);
-            Nest_appendNodeToArray(&node->context->sourceCode->additionalNodes, n);
+            Nest_appendNodeToArray(&node->additionalNodes, n);
         }
     }
 
@@ -378,11 +377,10 @@ TypeRef SprClass_ComputeType(Node* node)
     forEachNodeInNodeList(children, [&] (Node* child) -> void
     {
         Node* p = Nest_explanation(child);
-        if ( !isField(p) )
+        if ( !isField(p) || Nest_hasProperty(node, propIsStatic) )
         {
             // Methods, generics
-            ASSERT(node->context->sourceCode);
-            Nest_appendNodeToArray(&node->context->sourceCode->additionalNodes, child);
+            Nest_appendNodeToArray(&node->additionalNodes, child);
         }
     });
 
@@ -719,18 +717,21 @@ TypeRef SprVariable_ComputeType(Node* node)
         }
         else
         {
-            // Add the variable at the top level
-            ASSERT(node->context->sourceCode);
-            Nest_appendNodeToArray(&node->context->sourceCode->additionalNodes, resultingVar);
-            resVar = nullptr;
-
-            // For global variables, add the ctor & dtor actions as top level actions
-            if ( ctorCall )
+            // For global variables, wrap ctor & dtor nodes in global ctor/dtor actions
+            if ( ctorCall ) 
                 ctorCall = Feather_mkGlobalConstructAction(node->location, ctorCall);
             if ( dtorCall )
                 dtorCall = Feather_mkGlobalDestructAction(node->location, dtorCall);
+
+            // This is a global var: don't include it into the function scope
+            resVar = nullptr;
         }
         expl = Feather_mkNodeList(node->location, fromIniList({ resVar, ctorCall, dtorCall, Feather_mkNop(node->location) }));
+
+        // If the variable was not added to the result, add it as an additional
+        // (top-level) node to the result
+        if ( !resVar )
+            Nest_appendNodeToArray(&expl->additionalNodes, resultingVar);
     }
 
     ASSERT(expl);
@@ -802,7 +803,13 @@ Node* SprConcept_SemanticCheck(Node* node)
 
 Node* Generic_SemanticCheck(Node* node)
 {
-    return Feather_mkNop(node->location);
+    Node* res = Feather_mkNop(node->location);
+
+    // Copy all the additional nodes
+    for ( Node* n: all(node->additionalNodes) )
+        Nest_appendNodeToArray(&node->additionalNodes, n);
+
+    return res;
 }
 
 void Using_SetContextForChildren(Node* node)

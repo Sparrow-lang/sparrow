@@ -175,8 +175,7 @@ namespace
         if ( !Nest_computeType(f) )
             return nullptr;
         Nest_queueSemanticCheck(f);
-        ASSERT(ctx->sourceCode);
-        Nest_appendNodeToArray(&ctx->sourceCode->additionalNodes, f);
+        Nest_appendNodeToArray(&parent->additionalNodes, f);
         return f;
     }
     

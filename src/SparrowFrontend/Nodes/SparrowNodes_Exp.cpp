@@ -1312,8 +1312,7 @@ Node* LambdaFunction_SemanticCheck(Node* node)
 
     // Add the closure as a top level node of this node
     Nest_setContext(closure, parentContext);  // Put the enclosing class in the context of the parent function
-    ASSERT(parentContext->sourceCode);
-    Nest_appendNodeToArray(&parentContext->sourceCode->additionalNodes, closure);
+    Nest_appendNodeToArray(&node->additionalNodes, closure);
 
     // Compute the type for the enclosing class
     if ( !Nest_computeType(closure) )

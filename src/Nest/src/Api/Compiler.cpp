@@ -57,10 +57,15 @@ unordered_map<const SourceCode*, vector<ImportInfo> > _unhandledImports;
 /// List of nodes to be semantically checked
 NodeArray _toSemanticCheck;
 
+vector<FSourceCodeCallback> _sourceCodeCreatedCallbacks;
+vector<FSourceCodeCallback> _sourceCodeParsedCallbacks;
+vector<FSourceCodeCallback> _sourceCodeCompiledCallbacks;
 
-void _dumpAst(SourceCode& sc, bool isCompiled)
-{
-    // TODO: implement this
+void _executeCUCallbacks(const vector<FSourceCodeCallback>& callbacks, SourceCode* sc) {
+    for ( auto cb: callbacks ) {
+        if ( cb )
+            (*cb)(sc);
+    }
 }
 
 void _semanticCheckNodes()
@@ -98,6 +103,9 @@ bool _handleImportFile(const ImportInfo& import)
     sourceCode->url = url;
     _sourceCodes.insert(make_pair(sourceCode, absPath));
 
+    // Notify the listeners that a new source code was created
+    _executeCUCallbacks(_sourceCodeCreatedCallbacks, sourceCode);
+
     // Mark this file as being handled
     _handledFiles.insert(absPath);
 
@@ -111,9 +119,8 @@ bool _handleImportFile(const ImportInfo& import)
 //    REP_INFO(NOLOC, "Parsing: %1%") % import.filename_.string();
     Nest_parseSourceCode(sourceCode, newContext);
 
-    // Dump the content of the file, before compiling it
-    if ( _settings.dumpAST_ )
-        _dumpAst(*sourceCode, false);
+    // Notify the listeners that a new source code was parsed
+    _executeCUCallbacks(_sourceCodeParsedCallbacks, sourceCode);
 
     // Stop if we have some (parsing) errors
     if ( errorCount != Nest_getErrorsNum() )
@@ -284,7 +291,7 @@ void Nest_compileFile(StringRef filename)
         // Pop a source code to compile it
         SourceCode* sourceCode = _toCompile.front();
 
-        // If this source code has some unhandled includes, handle them now
+        // If this source code has some unhanded includes, handle them now
         auto it = _unhandledImports.find(sourceCode);
         if ( it != _unhandledImports.end() )
         {
@@ -311,14 +318,13 @@ void Nest_compileFile(StringRef filename)
         Nest_queueSemanticCheck(sourceCode->mainNode);
         _semanticCheckNodes();
 
+        // Notify the listeners that the source code was compiled
+        _executeCUCallbacks(_sourceCodeCompiledCallbacks, sourceCode);
+
         // Move to the next source code if we have some errors
         if ( errorCount != Nest_getErrorsNum() )
             continue;
 
-        // Dump the content of the file, after it was compiled
-        if ( _settings.dumpAST_ )
-            _dumpAst(*sourceCode, true);
-        
         toCodeGenerate.push_back(sourceCode);
     }
 
@@ -382,4 +388,17 @@ unsigned Nest_sizeOf(TypeRef type)
 unsigned Nest_alignmentOf(TypeRef type)
 {
     return _backend->alignmentOf(_backend, type);
+}
+
+void Nest_registerSourceCodeCreatedCallback(FSourceCodeCallback callback)
+{
+    _sourceCodeCreatedCallbacks.push_back(callback);
+}
+void Nest_registerSourceCodeParsedCallback(FSourceCodeCallback callback)
+{
+    _sourceCodeParsedCallbacks.push_back(callback);
+}
+void Nest_registerSourceCodeCompiledCallback(FSourceCodeCallback callback)
+{
+    _sourceCodeCompiledCallbacks.push_back(callback);
 }

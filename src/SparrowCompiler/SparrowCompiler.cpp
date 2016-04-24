@@ -1,5 +1,6 @@
 #include <StdInc.h>
 #include <Settings.h>
+#include "AstDump.h"
 
 #include "Nest/Api/Nest.h"
 #include "Nest/Api/CompilerModule.h"
@@ -10,6 +11,7 @@
 #include "Nest/Utils/StringRef.hpp"
 #include "Nest/Api/Backend.h"
 #include "Nest/Api/CompilationContext.h"
+#include "Nest/Api/SourceCode.h"
 
 #include "Feather/Api/Feather.h"
 #include <LLVMBackend/LLVMBackendMod.h>
@@ -21,6 +23,21 @@
 using namespace Nest;
 
 namespace fs = boost::filesystem;
+
+void _onSourceCodeCreated(SourceCode* sourceCode)
+{
+    // Nothing to do for now
+}
+void _onSourceCodeParsed(SourceCode* sourceCode)
+{
+    if ( Nest_compilerSettings()->dumpAST_ )
+        dumpAstNode(sourceCode->mainNode, "nodesOrig.json");
+}
+void _onSourceCodeCompiled(SourceCode* sourceCode)
+{
+    if ( Nest_compilerSettings()->dumpAST_ )
+        dumpAstNode(sourceCode->mainNode, "nodesComp.json");
+}
 
 bool tryImplicitLibPath(const char* relPath)
 {
@@ -163,6 +180,11 @@ int main(int argc,char* argv[])
         if ( mod->initFun )
             mod->initFun();
     }
+
+    // Set our source code callbacks
+    Nest_registerSourceCodeCreatedCallback(&_onSourceCodeCreated);
+    Nest_registerSourceCodeParsedCallback(&_onSourceCodeParsed);
+    Nest_registerSourceCodeCompiledCallback(&_onSourceCodeCompiled);
 
     try
     {

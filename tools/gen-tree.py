@@ -3,7 +3,7 @@
 """
 Description: Tool for transforming JSON dumps from Sparrow Compiler into Graphviz dot diagrams
 
-Copyright (c) 2015, Lucian Radu Teodorescu
+Copyright (c) 2016, Lucian Radu Teodorescu
 """
 
 import os, subprocess, sys, json, argparse, cgi
@@ -13,6 +13,7 @@ nodes = {}
 types = {}
 nodesToExpand = []  # Node to expand: (node-ref, level, expand)
 nodesExpanded = {}
+nodesToShow = []    # Nodes to be shown, but which are not expanded
 
 totalChildLinks = 0
 totalRefLinks = 0
@@ -55,10 +56,17 @@ def getFileContents(filename):
         return f.read().rstrip()
 
 def getNodePropString(nodeObj, key):
-    for prop in nodeObj['properties']:
-        if prop['name'] == key:
-            return prop['val']
+    if nodeObj.get('properties'):
+        for prop in nodeObj['properties']:
+            if prop['name'] == key:
+                return prop['val']
     return ''
+
+def getTypeName(nodeObj):
+    desc = ''
+    if nodeObj.get('type') and nodeObj['type'].get('desc'):
+        desc = nodeObj['type']['desc']
+    return desc
 
 def getNodeName(nodeKind, nodeObj):
     idx = nodeKind.rfind('.')
@@ -66,27 +74,36 @@ def getNodeName(nodeKind, nodeObj):
     name = getNodePropString(nodeObj, 'name')
     if name == '':
         name = getNodePropString(nodeObj, 'spr.operation')
+    if name == '' and nodeKind == 'typeNode':
+        name = getTypeName(nodeObj)
     return res if name == '' else res + ': ' + name
 
 def interpretPtr(ptr):
-    pType = ptr['p']
     ref = None
     obj = None
-    if pType != 0:
+    if ptr.get('ref'):
         ref = ptr['ref']
-    if pType == 1:
+    if ptr.get('obj'):
         obj = ptr['obj']
     return ref, obj
 
 def handleType(type):
-    ref, obj = interpretPtr(type)
-    if obj:
-        global types
-        types[ref] = obj
+    ref = None
+    desc = None
+    if type.get('ref'):
+        ref = type['ref']
+    if type.get('desc'):
+        desc = type['desc']
+    types[ref] = desc
 
 def printType(outFile, typeObj):
-    name = typeObj['description']
-    print >>outFile, 't_%s [label="Type: %s"]' % (ref, name)
+    ref = ''
+    desc = ''
+    if type.get('ref'):
+        ref = type['ref']
+    if type.get('desc'):
+        desc = type['desc']
+    print >>outFile, 't_%s [label="Type: %s"]' % (ref, desc)
 
 def handleNode(node):
     global totalChildLinks
@@ -98,23 +115,28 @@ def handleNode(node):
         global nodes
         nodes[ref] = obj
 
-        for child in obj['children']:
-            if handleNode(child):
-                totalChildLinks += 1
-        for child in obj['referredNodes']:
-            if handleNode(child):
-                totalRefLinks += 1
-        handleType(obj['type'])
-        if handleNode(obj['explanation']):
-            totalExplLinks += 1
+        if obj.get('children'):
+            for child in obj['children']:
+                if handleNode(child):
+                    totalChildLinks += 1
+        if obj.get('referredNodes'):
+            for child in obj['referredNodes']:
+                if handleNode(child):
+                    totalRefLinks += 1
+        if obj.get('type'):
+            handleType(obj['type'])
+        if obj.get('explanation'):
+            if handleNode(obj['explanation']):
+                totalExplLinks += 1
 
         # Also walk the properties; look for nodes
-        for prop in obj['properties']:
-            if prop['kind'] == 2:
-                if handleNode(prop['val']):
-                    totalPropLinks += 1
-            if prop['kind'] == 3:
-                handleType(prop['val'])
+        if obj.get('properties'):
+            for prop in obj['properties']:
+                if prop['kind'] == 2:
+                    if handleNode(prop['val']):
+                        totalPropLinks += 1
+                if prop['kind'] == 3:
+                    handleType(prop['val'])
         return True
     return False
 
@@ -127,6 +149,8 @@ def printLinks(outFile, srcRef, destRefs, style):
 
 def printNode(outFile, ref, level, expand):
     global nodesToExpand
+    global nodesExpanded
+    global nodesToShow
     global nodes
     global expandedChildLinks
     global expandedRefLinks
@@ -138,7 +162,7 @@ def printNode(outFile, ref, level, expand):
     nodesExpanded[ref] = 1
 
     nodeObj = nodes[ref]
-    name = getNodeName(nodeObj['kindName'], nodeObj)
+    name = getNodeName(nodeObj['kind'], nodeObj)
     if args.showNodeIds:
         print >>outFile, 'n_%s [label=<<FONT POINT-SIZE="10">%s</FONT><BR/>%s >]' % (ref, ref, cgi.escape(name).encode('ascii', 'xmlcharrefreplace'))
     else:
@@ -149,42 +173,46 @@ def printNode(outFile, ref, level, expand):
 
     # Print links to the children nodes
     childRefs = []
-    for child in nodeObj['children']:
-        childRef, childObj = interpretPtr(child)
-        if childRef and expandedChildLinks < args.maxChildNodes:
-            nodesToExpand.append((childRef, level+1, True))
-            childRefs.append(childRef)
-            expandedChildLinks += 1
-    printLinks(outFile, ref, childRefs, '')
+    if nodeObj.get('children'):
+        for child in nodeObj['children']:
+            childRef, childObj = interpretPtr(child)
+            if childRef and expandedChildLinks < args.maxChildNodes:
+                nodesToExpand.append((childRef, level+1))
+                childRefs.append(childRef)
+                expandedChildLinks += 1
+        printLinks(outFile, ref, childRefs, '')
 
     # Print links to the referred nodes
     childRefs = []
-    for child in nodeObj['referredNodes']:
-        childRef, childObj = interpretPtr(child)
-        if childRef and expandedRefLinks < args.maxReferredNodes:
-            nodesToExpand.append((childRef, level+1, False))
-            childRefs.append(childRef)
-            expandedRefLinks += 1
-    printLinks(outFile, ref, childRefs, '[style="dashed", constraint=false]')
+    if nodeObj.get('referredNodes'):
+        for child in nodeObj['referredNodes']:
+            childRef, childObj = interpretPtr(child)
+            if childRef and expandedRefLinks < args.maxReferredNodes:
+                nodesToShow.append((childRef, level+1))
+                childRefs.append(childRef)
+                expandedRefLinks += 1
+        printLinks(outFile, ref, childRefs, '[style="dashed"]')
 
     # Print links to the nodes in the properties
     childRefs = []
-    for prop in nodeObj['properties']:
-        if prop['kind'] == 2:
-            otherNode = prop['val']
-            childRef, childObj = interpretPtr(otherNode)
-            if childRef and expandedPropLinks < args.maxPropNodes:
-                nodesToExpand.append((childRef, level+1, False))
-                childRefs.append(childRef)
-                expandedPropLinks += 1
-    printLinks(outFile, ref, childRefs, '[style="dotted", constraint=false]')
+    if nodeObj.get('properties'):
+        for prop in nodeObj['properties']:
+            if prop['kind'] == 2:
+                otherNode = prop['val']
+                childRef, childObj = interpretPtr(otherNode)
+                if childRef and expandedPropLinks < args.maxPropNodes:
+                    nodesToShow.append((childRef, level+1))
+                    childRefs.append(childRef)
+                    expandedPropLinks += 1
+        printLinks(outFile, ref, childRefs, '[style="dotted"]')
 
     # Print connections with the explanation
-    explanationRef, explanationObj = interpretPtr(nodeObj['explanation'])
-    if explanationRef and expandedExplLinks < args.maxExplNodes:
-        nodesToExpand.append((explanationRef, level+1, True))
-        print >>outFile, 'n_%s -> n_%s [style=bold, arrowhead=vee, arrowtail=inv, dir=both]' % (ref, explanationRef)
-        expandedExplLinks += 1
+    if nodeObj.get('explanation'):
+        explanationRef, explanationObj = interpretPtr(nodeObj['explanation'])
+        if explanationRef and expandedExplLinks < args.maxExplNodes:
+            nodesToExpand.append((explanationRef, level+1))
+            print >>outFile, 'n_%s -> n_%s [style=bold, arrowhead=vee, arrowtail=inv, dir=both]' % (ref, explanationRef)
+            expandedExplLinks += 1
 
 
 def printAsTree(outFile, jsonData):
@@ -209,18 +237,23 @@ def printAsTree(outFile, jsonData):
         if ref:
             nodesToExpand.append((ref, 1, True))
 
-    # Now do the printing of all the relevant nodes
+    # Now expand all the relevant nodes
     numExpanded = 0
     while len(nodesToExpand) > 0 and numExpanded < args.maxNodes:
         firstNode = nodesToExpand.pop()
-        printNode(outFile, firstNode[0], firstNode[1], firstNode[2])
+        printNode(outFile, firstNode[0], firstNode[1], True)
         numExpanded += 1
+
+    # If we have some additional nodes to show, show them, but don't expand them
+    while len(nodesToShow) > 0:
+        firstNode = nodesToShow.pop()
+        printNode(outFile, firstNode[0], firstNode[1], False)
 
     print >>outFile, '}'
 
 
 def main():
-    print 'gen-tree, copyright (c) 2015 Lucian Radu Teodorescu'
+    print 'gen-tree, copyright (c) 2016 Lucian Radu Teodorescu'
     print ''
 
     parseArgs()

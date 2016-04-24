@@ -6,6 +6,8 @@ SET(sourceFiles
     "SparrowCompiler.cpp"
     "Settings.h"
     "Settings.cpp"
+    "AstDump.h"
+    "AstDump.cpp"
 )
 
 # Project settings

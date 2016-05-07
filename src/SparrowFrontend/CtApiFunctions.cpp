@@ -7,6 +7,7 @@
 #include <Nodes/Builder.h>
 
 #include "Nest/Api/Backend.h"
+#include "Nest/Api/SourceCode.h"
 
 using namespace SprFrontend;
 using namespace Nest;
@@ -34,9 +35,9 @@ namespace
     {
         *sret = mkSprVariable(*loc, name, typeNode, init);
     }
-    void ctApi_Sparrow_mkSprClass(Node** sret, Location* loc, StringRef name, Node* parameters, Node* baseClasses, Node* ifClause, Node* children)
+    void ctApi_Sparrow_mkSprClass(Node** sret, Location* loc, StringRef name, Node* parameters, Node* baseClasses, Node* ifClause, Node* children, int accessType)
     {
-        *sret = mkSprClass(*loc, name, parameters, baseClasses, ifClause, children);
+        *sret = mkSprClass(*loc, name, parameters, baseClasses, ifClause, children, (AccessType) accessType);
     }
 
     void ctApi_Sparrow_mkSprConcept(Node** sret, Location* loc, StringRef name, Node* baseConcept, StringRef paramName, Node* ifClause)
@@ -44,13 +45,13 @@ namespace
         *sret = mkSprConcept(*loc, name, paramName, baseConcept, ifClause);
     }
 
-    void ctApi_Sparrow_mkSprFunction(Node** sret, Location* loc, StringRef name, Node* parameters, Node* returnType, Node* body, Node* ifClause)
+    void ctApi_Sparrow_mkSprFunction(Node** sret, Location* loc, StringRef name, Node* parameters, Node* returnType, Node* body, Node* ifClause, int accessType)
     {
-        *sret = mkSprFunction(*loc, name, parameters, returnType, body);
+        *sret = mkSprFunction(*loc, name, parameters, returnType, body, nullptr, (AccessType) accessType);
     }
-    void ctApi_Sparrow_mkSprFunctionExp(Node** sret, Location* loc, StringRef name, Node* parameters, Node* returnType, Node* bodyExp, Node* ifClause)
+    void ctApi_Sparrow_mkSprFunctionExp(Node** sret, Location* loc, StringRef name, Node* parameters, Node* returnType, Node* bodyExp, Node* ifClause, int accessType)
     {
-        *sret = buildSprFunctionExp(*loc, name, parameters, returnType, bodyExp);
+        *sret = buildSprFunctionExp(*loc, name, parameters, returnType, bodyExp, nullptr, (AccessType) accessType);
     }
     void ctApi_Sparrow_mkSprParameter(Node** sret, Location* loc, StringRef name, Node* typeNode, Node* init)
     {

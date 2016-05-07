@@ -1,36 +1,36 @@
 import StreamBasic;
 
-var[rtct] cout: ConsoleOutputStream;
+public var[rtct] cout: ConsoleOutputStream;
 
-class[rtct] ConsoleOutputStream
+public class[rtct] ConsoleOutputStream
 {
-    fun <<<(x: Number)                          { Impl.write(x); }
-    fun <<<(x: Char)                            { Impl.write(x); }
-    fun <<<(x: Bool)                            { if ( x ) this <<< "true"; else this <<< "false"; }
-    fun <<<(x: StringRef)                       { Impl.writeCString(reinterpretCast(@Char, x.begin)); }
+    public fun <<<(x: Number)                          { Impl.write(x); }
+    public fun <<<(x: Char)                            { Impl.write(x); }
+    public fun <<<(x: Bool)                            { if ( x ) this <<< "true"; else this <<< "false"; }
+    public fun <<<(x: StringRef)                       { Impl.writeCString(reinterpretCast(@Char, x.begin)); }
 
     // This stream supports flush
-    fun flush                                   { Impl.flushOutput(); }
+    public fun flush                                   { Impl.flushOutput(); }
 }
 
-package Impl
+public package Impl
 {
-    fun[rtct, native("writeByte")] write(x: Byte);
-    fun[rtct, native("writeByte")] write(x: UByte);
-    fun[rtct, native("writeShort")] write(x: Short);
-    fun[rtct, native("writeShort")] write(x: UShort);
-    fun[rtct, native("writeInt")] write(x: Int);
-    fun[rtct, native("writeUInt")] write(x: UInt);
-    fun[rtct, native("writeLong")] write(x: Long);
-    fun[rtct, native("writeULong")] write(x: ULong);
-    fun[rtct, native("writeDouble")] write(x: Double);
-    fun[rtct, native("writeChar")] write(x: Char);
-    fun[rtct, native("writeULong")] write(x: SizeType);
-    fun[rtct, native("writeLong")] write(x: DiffType);
+    public fun[rtct, native("writeByte")] write(x: Byte);
+    public fun[rtct, native("writeByte")] write(x: UByte);
+    public fun[rtct, native("writeShort")] write(x: Short);
+    public fun[rtct, native("writeShort")] write(x: UShort);
+    public fun[rtct, native("writeInt")] write(x: Int);
+    public fun[rtct, native("writeUInt")] write(x: UInt);
+    public fun[rtct, native("writeLong")] write(x: Long);
+    public fun[rtct, native("writeULong")] write(x: ULong);
+    public fun[rtct, native("writeDouble")] write(x: Double);
+    public fun[rtct, native("writeChar")] write(x: Char);
+    public fun[rtct, native("writeULong")] write(x: SizeType);
+    public fun[rtct, native("writeLong")] write(x: DiffType);
 
-    fun[rtct, native("writeStringImpl")] writeCString(x: @Char);
+    public fun[rtct, native("writeStringImpl")] writeCString(x: @Char);
 
-    fun[rtct, native("writePointer")] writeRef(x: @Byte);
-    fun[rtct, native("flushOutput")] flushOutput;
+    public fun[rtct, native("writePointer")] writeRef(x: @Byte);
+    public fun[rtct, native("flushOutput")] flushOutput;
 }
 

@@ -3,16 +3,16 @@ import Ranges;
 import BitOper;
 import String;
 
-class[rtct] DefaultHashFunction(type: Type)
+public class[rtct] DefaultHashFunction(type: Type)
 {
-    fun ()(arg: @type) = defaultHash(arg);
+    public fun ()(arg: @type) = defaultHash(arg);
 }
 
-fun[rtct] defaultHash(arg: Char)        = HashImpl.doHash(Byte(arg), HashImpl.seed);
-//fun[rtct] defaultHash(arg: Integer)     = HashImpl.doHash(arg, HashImpl.seed);
-fun[rtct] defaultHash(arg: Integer)     = SizeType(arg);
-fun[rtct] defaultHash(arg: StringRef)   = HashImpl.doHash(arg, HashImpl.seed);
-fun[rtct] defaultHash(arg: @String)     = HashImpl.doHash(arg.asStringRef(), HashImpl.seed);
+public fun[rtct] defaultHash(arg: Char)        = HashImpl.doHash(Byte(arg), HashImpl.seed);
+//public fun[rtct] defaultHash(arg: Integer)     = HashImpl.doHash(arg, HashImpl.seed);
+public fun[rtct] defaultHash(arg: Integer)     = SizeType(arg);
+public fun[rtct] defaultHash(arg: StringRef)   = HashImpl.doHash(arg, HashImpl.seed);
+public fun[rtct] defaultHash(arg: @String)     = HashImpl.doHash(arg.asStringRef(), HashImpl.seed);
 
 package HashImpl
 {

@@ -1,21 +1,21 @@
 
-fun cast();
-fun reinterpretCast();
-fun construct();
-fun[ct] sizeOf(): SizeType;
-fun[ct] typeOf(): Type;
-fun[ct] isValid(): Bool;
-fun[ct] isValidAndTrue(): Bool;
-fun[ct] valueIfValid(): Bool;
-fun[ct] ctEval();
-fun[ct, native("$injectBackendCodeRt")] injectBackendCodeRt(code: StringRef);
-fun[ct, native("$injectBackendCodeCt")] injectBackendCodeCt(code: StringRef);
-fun[ct, native("$injectBackendCodeRtCt")] injectBackendCodeRtCt(code: StringRef);
+public fun cast();
+public fun reinterpretCast();
+public fun construct();
+public fun[ct] sizeOf(): SizeType;
+public fun[ct] typeOf(): Type;
+public fun[ct] isValid(): Bool;
+public fun[ct] isValidAndTrue(): Bool;
+public fun[ct] valueIfValid(): Bool;
+public fun[ct] ctEval();
+public fun[ct, native("$injectBackendCodeRt")] injectBackendCodeRt(code: StringRef);
+public fun[ct, native("$injectBackendCodeCt")] injectBackendCodeCt(code: StringRef);
+public fun[ct, native("$injectBackendCodeRtCt")] injectBackendCodeRtCt(code: StringRef);
 
 
-fun[autoCt, native("_opRefEQ")] _opRefEQ(x,y: @Byte): Bool;
-fun[autoCt, native("_opRefNE")] _opRefNE(x,y: @Byte): Bool;
-fun[autoCt, native("isNullRef")] isNullRef(x: @Byte): Bool;
+public fun[autoCt, native("_opRefEQ")] _opRefEQ(x,y: @Byte): Bool;
+public fun[autoCt, native("_opRefNE")] _opRefNE(x,y: @Byte): Bool;
+public fun[autoCt, native("isNullRef")] isNullRef(x: @Byte): Bool;
 
 /// Given any Sparrow node as parameter, this will transform it into an AST node
-fun[ct, native("$Meta.lift")] lift();
+public fun[ct, native("$Meta.lift")] lift();

@@ -1,40 +1,40 @@
-using oper_precedence_default   = 100;
+public using oper_precedence_default   = 100;
 
-using oper_precedence___dot__   = 10000;
-using oper_precedence___fapp__  = 10000;
-using oper_precedence___pre__   = 990;
+public using oper_precedence___dot__   = 10000;
+public using oper_precedence___fapp__  = 10000;
+public using oper_precedence___pre__   = 990;
 
-using oper_precedence_=     = 50;
-using oper_precedence_:=    = 50;
-using oper_precedence_+=    = 50;
-using oper_precedence_-=    = 50;
-using oper_precedence_*=    = 50;
-using oper_precedence_/=    = 50;
-using oper_precedence_%=    = 50;
+public using oper_precedence_=     = 50;
+public using oper_precedence_:=    = 50;
+public using oper_precedence_+=    = 50;
+public using oper_precedence_-=    = 50;
+public using oper_precedence_*=    = 50;
+public using oper_precedence_/=    = 50;
+public using oper_precedence_%=    = 50;
 
-using oper_precedence_||    = 200;
-using oper_precedence_^^    = 220;
-using oper_precedence_&&    = 240;
+public using oper_precedence_||    = 200;
+public using oper_precedence_^^    = 220;
+public using oper_precedence_&&    = 240;
 
-using oper_precedence_<     = 300;
-using oper_precedence_>     = 300;
-using oper_precedence_<=    = 300;
-using oper_precedence_>=    = 300;
+public using oper_precedence_<     = 300;
+public using oper_precedence_>     = 300;
+public using oper_precedence_<=    = 300;
+public using oper_precedence_>=    = 300;
 
-using oper_precedence_==    = 400;
-using oper_precedence_!=    = 400;
-using oper_precedence_===   = 400;
-using oper_precedence_!==   = 400;
+public using oper_precedence_==    = 400;
+public using oper_precedence_!=    = 400;
+public using oper_precedence_===   = 400;
+public using oper_precedence_!==   = 400;
 
-using oper_precedence_+     = 500;
-using oper_precedence_-     = 500;
-using oper_precedence_*     = 550;
-using oper_precedence_/     = 550;
-using oper_precedence_%     = 550;
+public using oper_precedence_+     = 500;
+public using oper_precedence_-     = 500;
+public using oper_precedence_*     = 550;
+public using oper_precedence_/     = 550;
+public using oper_precedence_%     = 550;
 
-using oper_precedence_<<    = 50;
-using oper_precedence_<<<   = 50;
-using oper_precedence_>>    = 50;
+public using oper_precedence_<<    = 50;
+public using oper_precedence_<<<   = 50;
+public using oper_precedence_>>    = 50;
 
-using oper_assoc_=          = -1;
-using oper_assoc_:=         = -1;
+public using oper_assoc_=          = -1;
+public using oper_assoc_:=         = -1;

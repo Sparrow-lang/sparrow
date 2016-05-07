@@ -1,40 +1,40 @@
 import Externals;
 
 /// String class that DOES NOT have ownership of the characters; it simply refers to another string
-class[rtct, native("StringRef")] StringRef
+public class[rtct, native("StringRef")] StringRef
 {
-    var begin: @Byte;
-    var end: @Byte;
+    public var begin: @Byte;
+    public var end: @Byte;
 
-    fun ctor(size: SizeType)
+    public fun ctor(size: SizeType)
     {
         begin := malloc(size + 1);
         end := ptrAdd(begin, size);
         end = Byte(0);
     }
-    fun ctor(other: StringRef)
+    public fun ctor(other: StringRef)
     {
         begin := other.begin;
         end := other.end;
     }
-    fun ctor(begin, end: @Byte)
+    public fun ctor(begin, end: @Byte)
     {
         this.begin := begin;
         this.end := end;
     }
-    fun dtor {}
+    public fun dtor {}
 
-    fun size: SizeType = ptrDiff(end, begin);
-    fun isEmpty: Bool = begin == end;
+    public fun size: SizeType = ptrDiff(end, begin);
+    public fun isEmpty: Bool = begin == end;
 
-    fun at(index: SizeType): Char   = reinterpretCast(@Char, ptrAdd(begin, index));
-    fun ()(index: SizeType): Char   = reinterpretCast(@Char, ptrAdd(begin, index));
-    fun front: Char                 = reinterpretCast(@Char, begin);
-    fun back: Char                  = reinterpretCast(@Char, ptrAdd(end, -1));
+    public fun at(index: SizeType): Char   = reinterpretCast(@Char, ptrAdd(begin, index));
+    public fun ()(index: SizeType): Char   = reinterpretCast(@Char, ptrAdd(begin, index));
+    public fun front: Char                 = reinterpretCast(@Char, begin);
+    public fun back: Char                  = reinterpretCast(@Char, ptrAdd(end, -1));
 
-    fun cStr(): @Char = reinterpretCast(@Char, begin);
+    public fun cStr(): @Char = reinterpretCast(@Char, begin);
 
-    fun[autoCt, static, native("_String_fromCString")] fromCString(s: @Char): StringRef
+    public fun[autoCt, static, native("_String_fromCString")] fromCString(s: @Char): StringRef
     {
         var len = cStringLen(s);
         var res: StringRef;
@@ -53,7 +53,7 @@ class[rtct, native("StringRef")] StringRef
         return len;
     }
     
-    fun = (src: StringRef): @StringRef
+    public fun = (src: StringRef): @StringRef
     {
         begin := src.begin;
         end := src.end;
@@ -61,7 +61,7 @@ class[rtct, native("StringRef")] StringRef
         return this;
     }
 
-    fun == (other: StringRef): Bool
+    public fun == (other: StringRef): Bool
     {
         var s = size();
         if ( s != other.size() ) return false;
@@ -74,7 +74,7 @@ class[rtct, native("StringRef")] StringRef
     }
 }
 
-fun[autoCt] + (x,y: StringRef): StringRef
+public fun[autoCt] + (x,y: StringRef): StringRef
 {
     var sz1 = x.size();
     var sz2 = y.size();
@@ -84,7 +84,7 @@ fun[autoCt] + (x,y: StringRef): StringRef
     return res;
 }
 
-fun[autoCt] + (x: StringRef, y: Char): StringRef
+public fun[autoCt] + (x: StringRef, y: Char): StringRef
 {
     var sz1 = x.size();
     var sz2 = 1;

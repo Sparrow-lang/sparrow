@@ -102,19 +102,62 @@ bool SprFrontend::isField(Node* node)
 }
 
 
+bool SprFrontend::canAccessNode(Node* decl, Node* fromNode)
+{
+    ASSERT(decl);
+    ASSERT(fromNode);
+
+    // Check if the two nodes have the same compilation unit
+    // If yes, then we can access the node
+    if ( decl->location.sourceCode && decl->location.sourceCode == fromNode->location.sourceCode )
+        return true;
+
+    // Otherwise we can only access the node if it's public
+    return isPublic(decl);
+}
+
+bool SprFrontend::canAccessNode(Node* decl, SourceCode* fromSourceCode)
+{
+    ASSERT(decl);
+    ASSERT(fromSourceCode);
+
+    // Check if the two nodes have the same compilation unit
+    // If yes, then we can access the node
+    if ( decl->location.sourceCode && decl->location.sourceCode == fromSourceCode )
+        return true;
+
+    // Otherwise we can only access the node if it's public
+    return isPublic(decl);
+}
+
+bool SprFrontend::isPublic(Node* decl)
+{
+    return getAccessType(decl) == publicAccess;
+}
+
 AccessType SprFrontend::getAccessType(Node* decl)
 {
-    return (AccessType) Nest_getCheckPropertyInt(decl, "spr.accessType");
+    const int* res = Nest_getPropertyInt(decl, "spr.accessType");
+    return res && *res != int(unspecifiedAccess) ? AccessType(*res) : unspecifiedAccess;
 }
 
 bool SprFrontend::hasAccessType(Node* decl)
 {
-    return Nest_hasProperty(decl, "spr.accessType");
+    const int* res = Nest_getPropertyInt(decl, "spr.accessType");
+    return res && *res != int(unspecifiedAccess);
 }
 
 void SprFrontend::setAccessType(Node* decl, AccessType accessType)
 {
-    Nest_setPropertyInt(decl, "spr.accessType", accessType);
+    if ( accessType != unspecifiedAccess )
+        Nest_setPropertyInt(decl, "spr.accessType", accessType);
+}
+
+void SprFrontend::copyAccessType(Node* destDecl, Node* srcDecl)
+{
+    const int* res = Nest_getPropertyInt(srcDecl, "spr.accessType");
+    if ( res )
+        Nest_setPropertyInt(destDecl, "spr.accessType", *res);
 }
 
 Node* SprFrontend::getResultParam(Node* f)

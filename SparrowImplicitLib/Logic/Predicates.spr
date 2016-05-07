@@ -5,36 +5,36 @@ import SL.Function;
 import Assert;
 
 /// Concept describing the type of a predicate: anything that can be called and evaluates to Bool
-concept PredicateType(x)
+public concept PredicateType(x)
     if typeOf(x()) == Bool;
 
 /// Basic implementation of a predicate with type erasure
 /// We store the actual predicate function as a Function object that takes no parameters and returns Bool
 /// Provides implicit conversion from any predicate
-class Predicate
+public class Predicate
 {
-    using arity = 0;
+    public using arity = 0;
 
-    fun[convert] ctor(pred: @PredicateType)
+    public fun[convert] ctor(pred: @PredicateType)
     {
         predObj ctor pred;
     }
-    fun isNull = predObj.isNull();
-    fun isSet = predObj.isSet();
+    public fun isNull = predObj.isNull();
+    public fun isSet = predObj.isSet();
 
-    fun (): Bool = predObj();
+    public fun (): Bool = predObj();
 
-    fun >>(os: @OutStream) { os << "Pred-"<<predObj; }
+    public fun >>(os: @OutStream) { os << "Pred-"<<predObj; }
     var predObj: Function(Bool);
 }
 
 
 /// Logic equality: equality test + inference
-fun eq(l, r: @AnyType) = Impl.mkEq(mkValOrRef(l), mkValOrRef(r));
-fun /=/(l, r: @AnyType) = Impl.mkEq(mkValOrRef(l), mkValOrRef(r));
+public fun eq(l, r: @AnyType) = Impl.mkEq(mkValOrRef(l), mkValOrRef(r));
+public fun /=/(l, r: @AnyType) = Impl.mkEq(mkValOrRef(l), mkValOrRef(r));
 
 // Assignment: used for native functions instead of unification
-fun =/(out: @AnyType, in: AnyType): Bool if -@typeOf(out) == -@typeOf(in)
+public fun =/(out: @AnyType, in: AnyType): Bool if -@typeOf(out) == -@typeOf(in)
 {
     out = in;
     return true;
@@ -46,23 +46,23 @@ setOperPrecedence("=/", getOperPrecedence("==") + 1);
 
 
 /// Logic Disjunction
-fun[rtct] ||(l, r: @PredicateType) = OrRelation(-@typeOf(l), -@typeOf(r))(l, r);
+public fun[rtct] ||(l, r: @PredicateType) = OrRelation(-@typeOf(l), -@typeOf(r))(l, r);
 
 /// Logic Conjunction
-fun[rtct] &&(l, r: @PredicateType) = AndRelation(-@typeOf(l), -@typeOf(r))(l, r);
+public fun[rtct] &&(l, r: @PredicateType) = AndRelation(-@typeOf(l), -@typeOf(r))(l, r);
 
 /// Relation that always returns false
-fun mkFalse = LFalse();
+public fun mkFalse = LFalse();
 /// Relation that always returns true
-fun mkTrue = LTrue();
+public fun mkTrue = LTrue();
 
 
-class UnifyLR(leftType, rightType: Type) if ValWrapper(#$leftType) && ValWrapper(#$rightType)
+public class UnifyLR(leftType, rightType: Type) if ValWrapper(#$leftType) && ValWrapper(#$rightType)
 {
-    using ValueType = Bool;
-    using ValuePassType = Bool;
+    public using ValueType = Bool;
+    public using ValuePassType = Bool;
 
-    fun ctor(l: @leftType, r: @rightType)
+    public fun ctor(l: @leftType, r: @rightType)
     {
         this.leftVal ctor l;
         this.rightVal ctor r;
@@ -71,7 +71,7 @@ class UnifyLR(leftType, rightType: Type) if ValWrapper(#$leftType) && ValWrapper
             cout << "UnifyLR.ctor: " << this << "\n";
     }
 
-    fun ctor(other: @UnifyLR)
+    public fun ctor(other: @UnifyLR)
     {
         this.leftVal ctor other.leftVal;
         this.rightVal ctor other.rightVal;
@@ -80,13 +80,13 @@ class UnifyLR(leftType, rightType: Type) if ValWrapper(#$leftType) && ValWrapper
             cout << "UnifyLR.copy ctor: " << this << "\n";
     }
 
-    fun dtor
+    public fun dtor
     {
         if[ct] ( isValid(logicDebug) )
             cout << "UnifyLR.dtor: " << this << "\n";
     }
 
-    fun (): Bool
+    public fun (): Bool
     {
         //cout << "UnifyLR.(): ltype=" << TypeOp.description(leftType) << ", rtype=" << TypeOp.description(rightType) << "\n" << flush;
         if[ct] ( isValid(logicDebug) )
@@ -160,7 +160,7 @@ class UnifyLR(leftType, rightType: Type) if ValWrapper(#$leftType) && ValWrapper
         }
     }
 
-    fun >>(os: @OutStream)
+    public fun >>(os: @OutStream)
     {
         os << "UnifyLR(left=" << leftVal << ", right=" << rightVal << ", " << coEntryPt << ")" << flush;
     }
@@ -170,12 +170,12 @@ class UnifyLR(leftType, rightType: Type) if ValWrapper(#$leftType) && ValWrapper
     private var rightVal: rightType;
 }
 
-class[rtct] OrRelation(leftPredicateType, rightPredicateType: Type)
+public class[rtct] OrRelation(leftPredicateType, rightPredicateType: Type)
 {
-    using ValueType = Bool;
-    using ValuePassType = Bool;
+    public using ValueType = Bool;
+    public using ValuePassType = Bool;
 
-    fun ctor(l: @leftPredicateType, r: @rightPredicateType)
+    public fun ctor(l: @leftPredicateType, r: @rightPredicateType)
     {
         this.left ctor l;
         this.right ctor r;
@@ -184,13 +184,13 @@ class[rtct] OrRelation(leftPredicateType, rightPredicateType: Type)
             cout << "OrRelation.ctor: " << this << "\n";
     }
 
-    fun dtor
+    public fun dtor
     {
         if[ct] ( isValid(logicDebug) )
             cout << "OrRelation.dtor: " << this << "\n";
     }
 
-    fun (): Bool
+    public fun (): Bool
     {
         if[ct] ( isValid(logicDebug) )
             cout << "OrRelation.(): " << this << "\n";
@@ -222,7 +222,7 @@ class[rtct] OrRelation(leftPredicateType, rightPredicateType: Type)
         return false;
     }
 
-    fun >>(os: @OutStream)
+    public fun >>(os: @OutStream)
     {
         os << "OrRelation(left=" << left << ", right=" << right << ", " << coEntryPt << ")" << flush;
     }
@@ -232,12 +232,12 @@ class[rtct] OrRelation(leftPredicateType, rightPredicateType: Type)
     private var right: rightPredicateType;
 }
 
-class[rtct] AndRelation(leftPredicateType, rightPredicateType: Type)
+public class[rtct] AndRelation(leftPredicateType, rightPredicateType: Type)
 {
-    using ValueType = Bool;
-    using ValuePassType = Bool;
+    public using ValueType = Bool;
+    public using ValuePassType = Bool;
 
-    fun ctor(l: leftPredicateType, r: rightPredicateType)
+    public fun ctor(l: leftPredicateType, r: rightPredicateType)
     {
         this.left ctor l;
         this.right ctor r;
@@ -247,7 +247,7 @@ class[rtct] AndRelation(leftPredicateType, rightPredicateType: Type)
             cout << "AndRelation.ctor: " << this << "\n";
     }
 
-    fun (): Bool
+    public fun (): Bool
     {
         if[ct] ( isValid(logicDebug) )
             cout << "AndRelation.(): " << this << "\n";
@@ -276,7 +276,7 @@ class[rtct] AndRelation(leftPredicateType, rightPredicateType: Type)
         return false;
     }
 
-    fun >>(os: @OutStream)
+    public fun >>(os: @OutStream)
     {
         os << "AndRelation(left=" << left << ", right=" << right << ", " << coEntryPt << ")" << flush;
     }
@@ -286,21 +286,21 @@ class[rtct] AndRelation(leftPredicateType, rightPredicateType: Type)
     private var right, rightBegin: rightPredicateType;
 }
 
-class LFalse
+public class LFalse
 {
-    fun () = false;
+    public fun () = false;
 
-    fun >>(os: @OutStream)
+    public fun >>(os: @OutStream)
     {
         os << "LFalse" << flush;
     }
 }
 
-class LTrue
+public class LTrue
 {
-    fun () = true;
+    public fun () = true;
 
-    fun >>(os: @OutStream)
+    public fun >>(os: @OutStream)
     {
         os << "LTrue" << flush;
     }
@@ -308,6 +308,6 @@ class LTrue
 
 package Impl
 {
-    fun mkEq(l, r: @ValWrapper) = UnifyLR(-@typeOf(l), -@typeOf(r))(l, r);
+    public fun mkEq(l, r: @ValWrapper) = UnifyLR(-@typeOf(l), -@typeOf(r))(l, r);
 }
 

@@ -2,16 +2,16 @@ package Time;
 
 import SprCore.NumericOper;
 
-fun[rtct, native("clock")] clock(): Int;
+public fun[rtct, native("clock")] clock(): Int;
 
-class[rtct] Timer
+public class[rtct] Timer
 {
-    fun ctor() { startTime = clock(); }
-    fun ctor(other: Timer) { startTime = other.startTime; }
+    public fun ctor() { startTime = clock(); }
+    public fun ctor(other: Timer) { startTime = other.startTime; }
 
-    fun elapsed = Double(clock() - startTime) / 1000.0;
+    public fun elapsed = Double(clock() - startTime) / 1000.0;
 
-    fun restart { startTime = clock(); }
+    public fun restart { startTime = clock(); }
 
     private var startTime: Int;
 }

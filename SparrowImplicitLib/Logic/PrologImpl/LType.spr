@@ -1,34 +1,34 @@
 import Nodes;
 import BitOper;
 
-class[ct] LType
+public class[ct] LType
 {
-    using atom = 1;
-    using number = 2;
-    //using input = 4;
-    //using output = 8;
-    using initialVal = atom !|! number;// !|! input !|! output;
+    public using atom = 1;
+    public using number = 2;
+    //public using input = 4;
+    //public using output = 8;
+    public using initialVal = atom !|! number;// !|! input !|! output;
 
     private var bits: Int;
 
-    fun ctor
+    public fun ctor
     {
         bits ctor initialVal;
     }
 
-    fun isValid: Bool       = (testBit(atom) || testBit(number));// && (testBit(input) || testBit(output));
+    public fun isValid: Bool       = (testBit(atom) || testBit(number));// && (testBit(input) || testBit(output));
 
-    fun isAtom: Bool        = testBit(atom);
-    fun isNumber: Bool      = testBit(number);
-    fun isAtomOnly: Bool    = testBit(atom) && !testBit(number);
-    fun isNumberOnly: Bool  = testBit(number) && !testBit(atom);
+    public fun isAtom: Bool        = testBit(atom);
+    public fun isNumber: Bool      = testBit(number);
+    public fun isAtomOnly: Bool    = testBit(atom) && !testBit(number);
+    public fun isNumberOnly: Bool  = testBit(number) && !testBit(atom);
 
 
-    fun setAtomOnly: Bool   = setAlternativeBits(atom, number);
-    fun setNumberOnly: Bool = setAlternativeBits(number, atom);
+    public fun setAtomOnly: Bool   = setAlternativeBits(atom, number);
+    public fun setNumberOnly: Bool = setAlternativeBits(number, atom);
 
-    //fun setInputOnly: Bool  = setAlternativeBits(input, output);
-    //fun setOutputOnly: Bool = setAlternativeBits(output, input);
+    //public fun setInputOnly: Bool  = setAlternativeBits(input, output);
+    //public fun setOutputOnly: Bool = setAlternativeBits(output, input);
 
     private fun testBit(b: Int): Bool = ((bits !&! b) != 0);
 
@@ -43,38 +43,38 @@ class[ct] LType
 }
 
 /// Structure indicating of set of expressions that share the same type
-class[ct] LTypeSet
+public class[ct] LTypeSet
 {
     var type: LType;                    ///< The type of all the expressions in this set
     var expList: Vector(ExpressionPtr); ///< The list of all the expressions in this set, that share the same type
     var idx: Int;                       ///< The index of this type set
 
-    fun ctor(idx: Int, type: LType)
+    public fun ctor(idx: Int, type: LType)
     {
         this.type ctor type;
         this.expList ctor;
         this.idx ctor idx;
     }
 
-    fun addExpression(exp: @ExpressionPtr)
+    public fun addExpression(exp: @ExpressionPtr)
     {
         expList.pushBack(exp);
         exp.get().typeSetIdx = idx;
     }
 
-    fun setAtomOnly(loc: @Location)
+    public fun setAtomOnly(loc: @Location)
     {
         if ( !type.setAtomOnly() )
             reportTypeError(loc);
     }
 
-    fun setNumberOnly(loc: @Location)
+    public fun setNumberOnly(loc: @Location)
     {
         if ( !type.setNumberOnly() )
             reportTypeError(loc);
     }
 
-    fun mergeWith(other: @LTypeSet, mergeLocation: @Location)
+    public fun mergeWith(other: @LTypeSet, mergeLocation: @Location)
     {
         if ( this === other )
             return;
@@ -108,7 +108,7 @@ class[ct] LTypeSet
         //cout << " => " << this << endl << flush;
     }
 
-    fun >>(os: @OutStream)
+    public fun >>(os: @OutStream)
     {
         os << '{' << idx << "} ";
         if ( type.isAtomOnly() )

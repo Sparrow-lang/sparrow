@@ -1,19 +1,19 @@
 import Token;
 import ErrorReporter;
 
-class[rtct] Lexer(sourceType, errorReporterType: Type) if CharRange(#$sourceType)
+public class[rtct] Lexer(sourceType, errorReporterType: Type) if CharRange(#$sourceType)
 {
-    using TokenType = Token;
-    using RetType = TokenType;
+    public using TokenType = Token;
+    public using RetType = TokenType;
 
-    fun ctor(source: @sourceType, errorReporter: @errorReporterType)
+    public fun ctor(source: @sourceType, errorReporter: @errorReporterType)
     {
         var startLoc: Location;
         startLoc.setOne();
         this.ctor(source, errorReporter, startLoc);
     }
 
-    fun ctor(source: @sourceType, errorReporter: @errorReporterType, startLoc: Location)
+    public fun ctor(source: @sourceType, errorReporter: @errorReporterType, startLoc: Location)
     {
         this.source ctor source;
         this.errorReporter ctor errorReporter;
@@ -26,13 +26,13 @@ class[rtct] Lexer(sourceType, errorReporterType: Type) if CharRange(#$sourceType
         this.curToken = getNextToken();
     }
 
-    fun isEmpty             = source.isEmpty();
-    fun front               = curToken;
-    fun ()                  = curToken;
+    public fun isEmpty             = source.isEmpty();
+    public fun front               = curToken;
+    public fun ()                  = curToken;
 
-    fun popFront            { curToken = getNextToken(); }
-    fun pre_++ : RetType    { popFront(); return curToken; }
-    fun post_++ : RetType   { var res = curToken; popFront(); return res; }
+    public fun popFront            { curToken = getNextToken(); }
+    public fun pre_++ : RetType    { popFront(); return curToken; }
+    public fun post_++ : RetType   { var res = curToken; popFront(); return res; }
 
     private fun getNextToken: Token
     {
@@ -212,5 +212,5 @@ class[rtct] Lexer(sourceType, errorReporterType: Type) if CharRange(#$sourceType
     private var curLocation: Location;
 }
 
-fun[rtct] mkLexer(source: @CharRange, errorReporter: @AnyType) = Lexer(-@typeOf(source), -@typeOf(errorReporter))(source, errorReporter);
-fun[rtct] mkLexer(source: @CharRange, errorReporter: @AnyType, startLoc: Location) = Lexer(-@typeOf(source), -@typeOf(errorReporter))(source, errorReporter, startLoc);
+public fun[rtct] mkLexer(source: @CharRange, errorReporter: @AnyType) = Lexer(-@typeOf(source), -@typeOf(errorReporter))(source, errorReporter);
+public fun[rtct] mkLexer(source: @CharRange, errorReporter: @AnyType, startLoc: Location) = Lexer(-@typeOf(source), -@typeOf(errorReporter))(source, errorReporter, startLoc);

@@ -589,7 +589,7 @@ Node* SprFrontend::mkGenericClass(Node* originalClass, Node* parameters, Node* i
     Nest_nodeSetChildren(res, fromIniList({ mkInstantiationsSet(originalClass, all(parameters->children), ifClause) }));
     Nest_nodeSetReferredNodes(res, fromIniList({ originalClass }));
     Feather_setName(res, Feather_getName(originalClass));
-    setAccessType(res, publicAccess);
+    copyAccessType(res, originalClass);
     Feather_setEvalMode(res, Feather_effectiveEvalMode(originalClass));
 
     Nest_appendNodeToArray(&res->additionalNodes, originalClass);
@@ -612,7 +612,7 @@ Node* SprFrontend::mkGenericFunction(Node* originalFun, NodeRange params, NodeRa
     Nest_nodeSetChildren(res, fromIniList({ mkInstantiationsSet(originalFun, move(genericParams), ifClause) }));
     Nest_nodeSetReferredNodes(res, fromIniList({ originalFun, Feather_mkNodeList(res->location, params) }));
     Feather_setName(res, Feather_getName(originalFun));
-    setAccessType(res, publicAccess);
+    copyAccessType(res, originalFun);
     Feather_setEvalMode(res, Feather_effectiveEvalMode(originalFun));
     return res;
 }

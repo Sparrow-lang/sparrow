@@ -56,8 +56,7 @@ typedef SprFrontend::Parser::token_type token_type;
 /*
 Symbols:
  - groupping: {} [] ()
- - separators: : ; , . ` (note that : and . can be inside an operator)
- - special operators: = ?
+ - separators: = : ; , . ` (note that =, : and . can be inside operators)
 
 Keywords
  
@@ -209,12 +208,10 @@ done:
 "false"         { return token::FALSE; }
 "finally"       { return token::FINALLY; }
 "for"           { return token::FOR; }
-"friend"        { return token::FRIEND; }
 "import"        { return token::IMPORT; }
 "null"          { return token::NULLCT; }
 "package"       { return token::PACKAGE; }
 "private"       { return token::PRIVATE; }
-"protected"     { return token::PROTECTED; }
 "public"        { return token::PUBLIC; }
 "return"        { return token::RETURN; }
 "this"          { return token::THIS; }

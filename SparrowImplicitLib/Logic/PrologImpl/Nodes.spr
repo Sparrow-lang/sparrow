@@ -2,31 +2,31 @@ import Token;
 import SL.Vector;
 import SL.SharedPtr;
 
-using PrologProgramPtr = SharedPtr(PrologProgram);
-using PredicateClausePtr = SharedPtr(PredicateClause);
-using ConditionPtr = SharedPtr(Condition);
-using ExpressionPtr = SharedPtr(Expression);
+public using PrologProgramPtr = SharedPtr(PrologProgram);
+public using PredicateClausePtr = SharedPtr(PredicateClause);
+public using ConditionPtr = SharedPtr(Condition);
+public using ExpressionPtr = SharedPtr(Expression);
 
-class[ct] PrologProgram
+public class[ct] PrologProgram
 {
-    var predicates: Vector(PredicateClausePtr);
-    var loc: Location;
+    public var predicates: Vector(PredicateClausePtr);
+    public var loc: Location;
 
-    fun >>(os: @OutStream)
+    public fun >>(os: @OutStream)
     {
         for ( p = predicates.all() )
             os << p << endl;
     }
 }
 
-class[ct] PredicateClause
+public class[ct] PredicateClause
 {
-    var name: String;
-    var args: Vector(ExpressionPtr);
-    var conditions: Vector(ConditionPtr);
-    var loc: Location;
+    public var name: String;
+    public var args: Vector(ExpressionPtr);
+    public var conditions: Vector(ConditionPtr);
+    public var loc: Location;
 
-    fun >>(os: @OutStream)
+    public fun >>(os: @OutStream)
     {
         os << name << "(";
         for ( i = 0..args.size() )
@@ -46,14 +46,14 @@ class[ct] PredicateClause
     }
 }
 
-class[ct] Condition
+public class[ct] Condition
 {
-    var kind: Int;
-    var loc: Location;
-    var args: Vector(SharedPtr(Expression));
-    var predName: String;
+    public var kind: Int;
+    public var loc: Location;
+    public var args: Vector(SharedPtr(Expression));
+    public var predName: String;
 
-    fun ctor(loc: @Location, predName: @String, args: @Vector(SharedPtr(Expression)))
+    public fun ctor(loc: @Location, predName: @String, args: @Vector(SharedPtr(Expression)))
     {
         this.kind ctor ckPredCall;
         this.loc ctor loc;
@@ -61,7 +61,7 @@ class[ct] Condition
         this.args ctor args;
     }
 
-    fun ctor(loc: @Location, isLeft, isRight: @SharedPtr(Expression))
+    public fun ctor(loc: @Location, isLeft, isRight: @SharedPtr(Expression))
     {
         this.kind ctor ckIsExpr;
         this.loc ctor loc;
@@ -72,7 +72,7 @@ class[ct] Condition
         this.args.pushBack(isRight);
     }
 
-    fun >>(os: @OutStream)
+    public fun >>(os: @OutStream)
     {
         if ( kind == ckPredCall )
         {
@@ -90,16 +90,16 @@ class[ct] Condition
     }
 }
 
-class[ct] Expression
+public class[ct] Expression
 {
-    var kind: Int;
-    var loc: Location;
-    var data: String;
-    var left, right: SharedPtr(Expression);
-    var typeSetIdx: Int;
-    var paramIdx: Int;
+    public var kind: Int;
+    public var loc: Location;
+    public var data: String;
+    public var left, right: SharedPtr(Expression);
+    public var typeSetIdx: Int;
+    public var paramIdx: Int;
 
-    fun ctor(kind: Int, loc: @Location)
+    public fun ctor(kind: Int, loc: @Location)
     {
         this.kind ctor kind;
         this.loc ctor loc;
@@ -110,7 +110,7 @@ class[ct] Expression
         this.paramIdx ctor -1;
     }
 
-    fun ctor(kind: Int, loc: @Location, data: @String)
+    public fun ctor(kind: Int, loc: @Location, data: @String)
     {
         this.kind ctor kind;
         this.loc ctor loc;
@@ -121,7 +121,7 @@ class[ct] Expression
         this.paramIdx ctor -1;
     }
 
-    fun ctor(kind: Int, loc: @Location, left, right: @SharedPtr(Expression))
+    public fun ctor(kind: Int, loc: @Location, left, right: @SharedPtr(Expression))
     {
         this.kind ctor kind;
         this.loc ctor loc;
@@ -132,7 +132,7 @@ class[ct] Expression
         this.paramIdx ctor -1;
     }
 
-    fun >>(os: @OutStream)
+    public fun >>(os: @OutStream)
     {
         if ( kind == ekAtom )
             os << data;
@@ -155,27 +155,27 @@ class[ct] Expression
     }
 }
 
-using ekAtom = 0;
-using ekNumber = 1;
-using ekVar = 2;
-using ekAntiQuote = 3;
-using ekOpPlus = 4;
-using ekOpMinus = 5;
-using ekOpMul = 6;
-using ekOpDiv = 7;
+public using ekAtom = 0;
+public using ekNumber = 1;
+public using ekVar = 2;
+public using ekAntiQuote = 3;
+public using ekOpPlus = 4;
+public using ekOpMinus = 5;
+public using ekOpMul = 6;
+public using ekOpDiv = 7;
 
-using ckPredCall = 8;
-using ckIsExpr = 9;
+public using ckPredCall = 8;
+public using ckIsExpr = 9;
 
-fun[ct] mkAtom(loc: @Location, atom: @String): ExpressionPtr = ExpressionPtr.create(ekAtom, loc, atom);
-fun[ct] mkNumber(loc: @Location, data: @String): ExpressionPtr = ExpressionPtr.create(ekNumber, loc, data);
-fun[ct] mkVar(loc: @Location, varName: @String): ExpressionPtr = ExpressionPtr.create(ekVar, loc, varName);
-fun[ct] mkAntiQuote(loc: @Location, aq: @String): ExpressionPtr = ExpressionPtr.create(ekAntiQuote, loc, aq);
+public fun[ct] mkAtom(loc: @Location, atom: @String): ExpressionPtr = ExpressionPtr.create(ekAtom, loc, atom);
+public fun[ct] mkNumber(loc: @Location, data: @String): ExpressionPtr = ExpressionPtr.create(ekNumber, loc, data);
+public fun[ct] mkVar(loc: @Location, varName: @String): ExpressionPtr = ExpressionPtr.create(ekVar, loc, varName);
+public fun[ct] mkAntiQuote(loc: @Location, aq: @String): ExpressionPtr = ExpressionPtr.create(ekAntiQuote, loc, aq);
 
-fun[ct] mkOpPlus(loc: @Location, l, r: @ExpressionPtr): ExpressionPtr = ExpressionPtr.create(ekOpPlus, loc, l, r);
-fun[ct] mkOpMinus(loc: @Location, l, r: @ExpressionPtr): ExpressionPtr = ExpressionPtr.create(ekOpMinus, loc, l, r);
-fun[ct] mkOpMul(loc: @Location, l, r: @ExpressionPtr): ExpressionPtr = ExpressionPtr.create(ekOpMul, loc, l, r);
-fun[ct] mkOpDiv(loc: @Location, l, r: @ExpressionPtr): ExpressionPtr = ExpressionPtr.create(ekOpDiv, loc, l, r);
+public fun[ct] mkOpPlus(loc: @Location, l, r: @ExpressionPtr): ExpressionPtr = ExpressionPtr.create(ekOpPlus, loc, l, r);
+public fun[ct] mkOpMinus(loc: @Location, l, r: @ExpressionPtr): ExpressionPtr = ExpressionPtr.create(ekOpMinus, loc, l, r);
+public fun[ct] mkOpMul(loc: @Location, l, r: @ExpressionPtr): ExpressionPtr = ExpressionPtr.create(ekOpMul, loc, l, r);
+public fun[ct] mkOpDiv(loc: @Location, l, r: @ExpressionPtr): ExpressionPtr = ExpressionPtr.create(ekOpDiv, loc, l, r);
 
-fun[ct] mkPredCall(loc: @Location, predName: @String, args: @Vector(ExpressionPtr)): ConditionPtr = ConditionPtr.create(loc, predName, args);
-fun[ct] mkIsExpr(loc: @Location, l, r: @ExpressionPtr): ConditionPtr = ConditionPtr.create(loc, l, r);
+public fun[ct] mkPredCall(loc: @Location, predName: @String, args: @Vector(ExpressionPtr)): ConditionPtr = ConditionPtr.create(loc, predName, args);
+public fun[ct] mkIsExpr(loc: @Location, l, r: @ExpressionPtr): ConditionPtr = ConditionPtr.create(loc, l, r);

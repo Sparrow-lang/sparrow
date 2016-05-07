@@ -272,6 +272,7 @@ namespace
         Node* children = at(orig->children, 1);
         children = children ? Nest_cloneNode(children) : nullptr;
         Node* newClass = mkSprClass(loc, Feather_getName(orig), nullptr, nullptr, nullptr, children);
+        copyAccessType(newClass, orig);
 
         copyModifiersSetMode(orig, newClass, context->evalMode);
 
@@ -465,6 +466,7 @@ namespace
         body = body ? Nest_cloneNode(body) : nullptr;
         Node* newFun = mkSprFunction(loc, Feather_getName(origFun), parameters, returnType, body);
         copyModifiersSetMode(origFun, newFun, context->evalMode);
+        copyAccessType(newFun, origFun);
         Feather_setShouldAddToSymTab(newFun, 0);
         Nest_setContext(newFun, context);
 

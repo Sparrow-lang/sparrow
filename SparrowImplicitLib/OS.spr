@@ -2,49 +2,49 @@ package OS;
 
 import SL.String;
 
-fun[rtct, native("exit")] exit(code: Int);
+public fun[rtct, native("exit")] exit(code: Int);
 
-fun[rtct] systemCall(cmd: StringRef): Int
+public fun[rtct] systemCall(cmd: StringRef): Int
 {
     return OsImpl.system(cmd.cStr());
 }
 
-class[rtct] File
+public class[rtct] File
 {
-    fun ctor
+    public fun ctor
     {
         handle := null;
     }
 
-    fun ctor(handle: @Byte)
+    public fun ctor(handle: @Byte)
     {
         this.handle := handle;
     }
 
-    fun dtor
+    public fun dtor
     {
         close();
     }
 
-    fun[static] open(filename, mode: StringRef): File
+    public fun[static] open(filename, mode: StringRef): File
     {
         return File(OsImpl.fopen(filename.cStr(), mode.cStr()));
     }
 
-    fun close
+    public fun close
     {
         if ( isOpen() )
             OsImpl.fclose(handle);
         handle := null;
     }
 
-    fun flush       = ife(isOpen(), OsImpl.fflush(handle), -1);
+    public fun flush       = ife(isOpen(), OsImpl.fflush(handle), -1);
 
-    fun isOpen      = handle !== null;
-    fun isEof       = 0 != OsImpl.feof(handle);
+    public fun isOpen      = handle !== null;
+    public fun isEof       = 0 != OsImpl.feof(handle);
 
-    fun readChar: Char = Char(OsImpl.fgetc(handle));
-    fun readLine: String
+    public fun readChar: Char = Char(OsImpl.fgetc(handle));
+    public fun readLine: String
     {
         var res: String = 256;
         var cstr: @Char = OsImpl.fgets(res(0), 256, handle);

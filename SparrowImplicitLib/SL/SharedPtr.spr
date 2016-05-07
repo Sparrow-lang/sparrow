@@ -1,16 +1,16 @@
 import NewDelete;
 
-class[rtct] SharedPtr(type: Type)
+public class[rtct] SharedPtr(type: Type)
 {
-    using ValueType = type;
+    public using ValueType = type;
 
-    fun ctor
+    public fun ctor
     {
         ref := null;
         count := null;
     }
 
-    fun[convert] ctor(value: @ValueType)
+    public fun[convert] ctor(value: @ValueType)
     {
         if ( value === null )
         {
@@ -25,7 +25,7 @@ class[rtct] SharedPtr(type: Type)
         }
     }
 
-    fun ctor(other: @SharedPtr)
+    public fun ctor(other: @SharedPtr)
     {
         ref := other.ref;
         count := other.count;
@@ -33,7 +33,7 @@ class[rtct] SharedPtr(type: Type)
             ++count;
     }
 
-    fun dtor
+    public fun dtor
     {
         if ( count !== null && --count == 0 )
         {
@@ -42,7 +42,7 @@ class[rtct] SharedPtr(type: Type)
         }
     }
 
-    fun[static] create: SharedPtr
+    public fun[static] create: SharedPtr
     {
         var res: SharedPtr;
         var d: @AllocData = new(AllocData);
@@ -50,7 +50,7 @@ class[rtct] SharedPtr(type: Type)
         res.count := d.count;
         return res;
     }
-    fun[static] create(arg1: @AnyType): SharedPtr if isValid((#$ValueType).ctor(arg1))
+    public fun[static] create(arg1: @AnyType): SharedPtr if isValid((#$ValueType).ctor(arg1))
     {
         var res: SharedPtr;
         var d: @AllocData = new(AllocData, arg1);
@@ -58,7 +58,7 @@ class[rtct] SharedPtr(type: Type)
         res.count := d.count;
         return res;
     }
-    fun[static] create(arg1, arg2: @AnyType): SharedPtr if isValid((#$ValueType).ctor(arg1, arg2))
+    public fun[static] create(arg1, arg2: @AnyType): SharedPtr if isValid((#$ValueType).ctor(arg1, arg2))
     {
         var res: SharedPtr;
         var d: @AllocData = new(AllocData, arg1, arg2);
@@ -66,7 +66,7 @@ class[rtct] SharedPtr(type: Type)
         res.count := d.count;
         return res;
     }
-    fun[static] create(arg1, arg2, arg3: @AnyType): SharedPtr if isValid((#$ValueType).ctor(arg1, arg2, arg3))
+    public fun[static] create(arg1, arg2, arg3: @AnyType): SharedPtr if isValid((#$ValueType).ctor(arg1, arg2, arg3))
     {
         var res: SharedPtr;
         var d: @AllocData = new(AllocData, arg1, arg2, arg3);
@@ -74,7 +74,7 @@ class[rtct] SharedPtr(type: Type)
         res.count := d.count;
         return res;
     }
-    fun[static] create(arg1, arg2, arg3, arg4: @AnyType): SharedPtr if isValid((#$ValueType).ctor(arg1, arg2, arg3, arg4))
+    public fun[static] create(arg1, arg2, arg3, arg4: @AnyType): SharedPtr if isValid((#$ValueType).ctor(arg1, arg2, arg3, arg4))
     {
         var res: SharedPtr;
         var d: @AllocData = new(AllocData, arg1, arg2, arg3, arg4);
@@ -83,23 +83,23 @@ class[rtct] SharedPtr(type: Type)
         return res;
     }
 
-    fun =(other: @SharedPtr)                            { SharedPtr(other).swap(this); }
-    fun =(value: @ValueType)                            { reset(value); }
-    fun =(value: AnyType) if isValid(ValueType(value))  { reset(value); }
+    public fun =(other: @SharedPtr)                            { SharedPtr(other).swap(this); }
+    public fun =(value: @ValueType)                            { reset(value); }
+    public fun =(value: AnyType) if isValid(ValueType(value))  { reset(value); }
 
-    fun get: @ValueType                                 = ref;
+    public fun get: @ValueType                                 = ref;
 
-    fun isUnique                                        = count !== null && count == 1;
-    fun useCount: UInt                                  = ife(count !== null, UInt(count), UInt(0));
+    public fun isUnique                                        = count !== null && count == 1;
+    public fun useCount: UInt                                  = ife(count !== null, UInt(count), UInt(0));
 
-    fun isNull                                          = ref === null;
-    fun isSet                                           = ref !== null;
+    public fun isNull                                          = ref === null;
+    public fun isSet                                           = ref !== null;
     
-    fun reset                                           { SharedPtr().swap(this); }
-    fun reset(value: @ValueType)                        { SharedPtr(value).swap(this); }
-    fun release                                         { reset(); }
+    public fun reset                                           { SharedPtr().swap(this); }
+    public fun reset(value: @ValueType)                        { SharedPtr(value).swap(this); }
+    public fun release                                         { reset(); }
 
-    fun swap(other: @SharedPtr)
+    public fun swap(other: @SharedPtr)
     {
         var tmpr: @ValueType = other.ref;
         other.ref := ref;
@@ -110,9 +110,9 @@ class[rtct] SharedPtr(type: Type)
         count := tmpc;
     }
 
-    fun ==(other: @SharedPtr)                           = ref === other.ref && count === other.count;
+    public fun ==(other: @SharedPtr)                           = ref === other.ref && count === other.count;
 
-    fun >>(os: @OutStream) if isValid(os << #$ValueType)
+    public fun >>(os: @OutStream) if isValid(os << #$ValueType)
     {
         if ( count !== null )
             os << "SharedPtr(" << ref << ", " << count << ")";

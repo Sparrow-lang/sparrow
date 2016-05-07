@@ -2,45 +2,45 @@ import Location;
 import SL.String;
 import CharType;
 
-using tkEof = -1;
-using tkWhitespace = 0;
-using tkLParen = 1;
-using tkRParen = 2;
-using tkLBracket = 3;
-using tkRBracket = 4;
-using tkDot = 5;
-using tkComma = 6;
-using tkClause = 7;
-using tkVar = 8;
-using tkAtom = 9;
-using tkNumber = 10;
-using tkAntiQuote = 11;
-using tkIs = 12;
-using tkOpPlus = 13;
-using tkOpMinus = 14;
-using tkOpMul = 15;
-using tkOpDiv = 16;
+public using tkEof = -1;
+public using tkWhitespace = 0;
+public using tkLParen = 1;
+public using tkRParen = 2;
+public using tkLBracket = 3;
+public using tkRBracket = 4;
+public using tkDot = 5;
+public using tkComma = 6;
+public using tkClause = 7;
+public using tkVar = 8;
+public using tkAtom = 9;
+public using tkNumber = 10;
+public using tkAntiQuote = 11;
+public using tkIs = 12;
+public using tkOpPlus = 13;
+public using tkOpMinus = 14;
+public using tkOpMul = 15;
+public using tkOpDiv = 16;
 
-class[rtct] Token
+public class[rtct] Token
 {
-    var loc: Location;
-    var type: Int;
-    var data: String;
+    public var loc: Location;
+    public var type: Int;
+    public var data: String;
 
-    fun ctor(loc: @Location, type: Int)
+    public fun ctor(loc: @Location, type: Int)
     {
         this.loc ctor loc;
         this.type ctor type;
         this.data ctor;
     }
-    fun ctor(loc: @Location, type: Int, data: @String)
+    public fun ctor(loc: @Location, type: Int, data: @String)
     {
         this.loc ctor loc;
         this.type ctor type;
         this.data ctor data;
     }
 
-    fun >>(os: @OutStream)
+    public fun >>(os: @OutStream)
     {
         if ( type == tkEof )
             os << "<eof>";
@@ -73,7 +73,7 @@ class[rtct] Token
     }
 }
 
-fun[rtct] tokenTypeToString(type: Int): String
+public fun[rtct] tokenTypeToString(type: Int): String
 {
     if ( type == tkEof )
         return "EOF";

@@ -1,19 +1,19 @@
 import Array;
 
-class List(valueType: Type)
+public class List(valueType: Type)
 {
-    using ValueType = valueType;
-    using RangeType = ListRange;
-    using RetType = @valueType;
+    public using ValueType = valueType;
+    public using RangeType = ListRange;
+    public using RetType = @valueType;
 
-    fun ctor()
+    public fun ctor()
     {
         listSize = 0;
         head.prev = headNode();
         head.next = headNode();
     }
 
-    fun ctor(other: @List)
+    public fun ctor(other: @List)
     {
         listSize = 0;
         head.prev = headNode();
@@ -22,7 +22,7 @@ class List(valueType: Type)
             pushBack(v);
     }
 
-    fun ctor(range: Range)
+    public fun ctor(range: Range)
     {
         listSize = 0;
         head.prev = headNode();
@@ -31,7 +31,7 @@ class List(valueType: Type)
             pushBack(v);
     }
 
-    fun dtor
+    public fun dtor
     {
         var p = head.next;
         var hn = headNode();
@@ -46,22 +46,22 @@ class List(valueType: Type)
         }
     }
 
-    fun size: SizeType          = listSize;
-    fun isEmpty                 = listSize == 0;
+    public fun size: SizeType          = listSize;
+    public fun isEmpty                 = listSize == 0;
 
-    fun front: RetType          = head.next.value().data;
-    fun back: RetType           = head.prev.value().data;
+    public fun front: RetType          = head.next.value().data;
+    public fun back: RetType           = head.prev.value().data;
 
-    fun all: RangeType          = RangeType(head.next, headNode());
+    public fun all: RangeType          = RangeType(head.next, headNode());
 
-    fun assign(range: Range)
+    public fun assign(range: Range)
     {
         clear();
         for ( v = range )
             pushBack(v);
     }
 
-    fun swap(other: @List)
+    public fun swap(other: @List)
     {
         head.prev.swap(other.head.prev);
         head.next.swap(other.head.next);
@@ -92,7 +92,7 @@ class List(valueType: Type)
         }
     }
 
-    fun insertBefore(value: @ValueType, pos: RangeType)
+    public fun insertBefore(value: @ValueType, pos: RangeType)
     {
         var tmp = NodeTypePtr.alloc(1);
 
@@ -104,13 +104,13 @@ class List(valueType: Type)
         ++listSize;
     }
 
-    fun insertBefore(range: Range, pos: RangeType)
+    public fun insertBefore(range: Range, pos: RangeType)
     {
         for ( v = range )
             insertBefore(v, pos);
     }
 
-    fun insertAfter(value: @ValueType, pos: RangeType)
+    public fun insertAfter(value: @ValueType, pos: RangeType)
     {
         var tmp = NodeTypePtr.alloc(1);
 
@@ -122,13 +122,13 @@ class List(valueType: Type)
         ++listSize;
     }
 
-    fun insertAfter(range: Range, pos: RangeType)
+    public fun insertAfter(range: Range, pos: RangeType)
     {
         for ( v = range )
             insertAfter(v, pos);
     }
 
-    fun pushFront(value: @ValueType)
+    public fun pushFront(value: @ValueType)
     {
         var tmp = NodeTypePtr.alloc(1);
 
@@ -140,7 +140,7 @@ class List(valueType: Type)
         ++listSize;
     }
 
-    fun popFront
+    public fun popFront
     {
         var right = head.next.value().next;
 
@@ -151,7 +151,7 @@ class List(valueType: Type)
         listSize = listSize - 1;
     }
 
-    fun pushBack(value: @ValueType)
+    public fun pushBack(value: @ValueType)
     {
         var tmp = NodeTypePtr.alloc(1);
 
@@ -162,9 +162,9 @@ class List(valueType: Type)
         head.prev = tmp;
         ++listSize;
     }
-    fun +=(value: @ValueType) { pushBack(value); }
+    public fun +=(value: @ValueType) { pushBack(value); }
 
-    fun popBack
+    public fun popBack
     {
         var left = head.prev.value().prev;
 
@@ -175,7 +175,7 @@ class List(valueType: Type)
         listSize = listSize - 1;
     }
 
-    fun remove(value: @ValueType)
+    public fun remove(value: @ValueType)
     {
         var p = head.next;
         var hn = headNode();
@@ -196,7 +196,7 @@ class List(valueType: Type)
         }
     }
 
-    fun removeIf(pred: AnyType)
+    public fun removeIf(pred: AnyType)
     {
         var p = head.next;
         var hn = headNode();
@@ -217,7 +217,7 @@ class List(valueType: Type)
         }
     }
 
-    fun remove(range: RangeType)
+    public fun remove(range: RangeType)
     {
         var left = range.begin.value().prev;
 
@@ -234,7 +234,7 @@ class List(valueType: Type)
         range.end.value().prev = left;
     }
 
-    fun resize(n: SizeType)
+    public fun resize(n: SizeType)
     {
         if ( n == listSize )
             return;
@@ -268,7 +268,7 @@ class List(valueType: Type)
         }
     }
 
-    fun clear
+    public fun clear
     {
         if ( listSize == 0 )
             return;
@@ -289,7 +289,7 @@ class List(valueType: Type)
         listSize = 0;
     }
 
-    fun unique
+    public fun unique
     {
         if ( listSize <= 1 )
             return;
@@ -319,7 +319,7 @@ class List(valueType: Type)
         }
     }
 
-    fun unique(pred: AnyType)
+    public fun unique(pred: AnyType)
     {
         if ( listSize <= 1 )
             return;
@@ -349,7 +349,7 @@ class List(valueType: Type)
         }
     }
 
-    fun spliceBefore(pos: RangeType, other: @List)
+    public fun spliceBefore(pos: RangeType, other: @List)
     {
         if ( !other.isEmpty() )
         {
@@ -359,7 +359,7 @@ class List(valueType: Type)
         }
     }
 
-    fun spliceBefore(pos: RangeType, other: @List, range: RangeType)
+    public fun spliceBefore(pos: RangeType, other: @List, range: RangeType)
     {
         if ( !range.isEmpty() )
         {
@@ -381,7 +381,7 @@ class List(valueType: Type)
         }
     }
 
-    fun spliceAfter(pos: RangeType, other: @List)
+    public fun spliceAfter(pos: RangeType, other: @List)
     {
         if ( !other.isEmpty() )
         {
@@ -391,7 +391,7 @@ class List(valueType: Type)
         }
     }
 
-    fun spliceAfter(pos: RangeType, other: @List, range: RangeType)
+    public fun spliceAfter(pos: RangeType, other: @List, range: RangeType)
     {
         if ( !range.isEmpty() )
         {
@@ -413,7 +413,7 @@ class List(valueType: Type)
         }
     }
 
-    // fun sort()
+    // public fun sort()
     // {
         // if ( listSize < 2 )
             // return;
@@ -448,7 +448,7 @@ class List(valueType: Type)
         // swap(counter(fill - 1));
     // }
 
-    fun sort(pred: AnyType)
+    public fun sort(pred: AnyType)
     {
         if ( listSize < 2 )
             return;
@@ -483,7 +483,7 @@ class List(valueType: Type)
         swap(counter(fill - 1));
     }
 
-    // fun merge(other: @List)
+    // public fun merge(other: @List)
     // {
         // var r1 = all();
         // var r2 = other.all();
@@ -506,7 +506,7 @@ class List(valueType: Type)
         // other.listSize = 0;
     // }
 
-    fun merge(other: @List, pred: AnyType)
+    public fun merge(other: @List, pred: AnyType)
     {
         var r1 = all();
         var r2 = other.all();
@@ -529,7 +529,7 @@ class List(valueType: Type)
         other.listSize = 0;
     }
 
-    fun reverse()
+    public fun reverse()
     {
         if ( listSize < 2 )
             return;
@@ -552,13 +552,13 @@ class List(valueType: Type)
         head.next = tmp;
     }
 
-    fun =(other: @List)
+    public fun =(other: @List)
     {
         var tmp = other;
         swap(tmp);
     }
 
-    fun ==(other: @List): Bool
+    public fun ==(other: @List): Bool
     {
         if ( listSize != other.listSize )
             return false;
@@ -609,21 +609,21 @@ class List(valueType: Type)
         var data: ValueType;
     }
 
-    class[initCtor] ListRange
+    public class[initCtor] ListRange
     {
         using RetType = @ValueType;
 
-        fun isEmpty         = begin == end;
+        public fun isEmpty         = begin == end;
 
-        fun front: RetType  = begin.value().data;
-        fun back: RetType   = end.value().prev.value().data;
+        public fun front: RetType  = begin.value().data;
+        public fun back: RetType   = end.value().prev.value().data;
 
-        fun popFront        { begin = begin.value().next; }
-        fun popBack         { end = end.value().prev; }
+        public fun popFront        { begin = begin.value().next; }
+        public fun popBack         { end = end.value().prev; }
 
         private var begin, end: NodeTypePtr;
 
-        fun >>(os: @OutStream) if isValid(os << #$ValueType)
+        public fun >>(os: @OutStream) if isValid(os << #$ValueType)
         {
             var first = true;
             var p = begin;

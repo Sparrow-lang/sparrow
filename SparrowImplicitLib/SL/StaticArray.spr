@@ -2,30 +2,30 @@ import ContiguousMemoryRange;
 import RawPtr;
 import Ranges;
 
-class[rtct] StaticArray(valueType: Type, arraySize: SizeType)
+public class[rtct] StaticArray(valueType: Type, arraySize: SizeType)
 {
-    using ValueType = valueType;
-    using RangeType = ContiguousMemoryRange(valueType);
+    public using ValueType = valueType;
+    public using RangeType = ContiguousMemoryRange(valueType);
     
-    fun ctor()
+    public fun ctor()
     {
         for ( v: @ValueType = all() )
             v.ctor();
     }
 
-    fun ctor(other: @StaticArray)
+    public fun ctor(other: @StaticArray)
     {
         for ( i = 0..arrSize )
             at(i).ctor(other.at(i));
     }
 
-    fun ctor(value: @ValueType)
+    public fun ctor(value: @ValueType)
     {
         for ( v: @ValueType = all() )
             v.ctor(value);
     }
 
-    fun ctor(range: Range)
+    public fun ctor(range: Range)
     {
         for ( v: @ValueType = all() )
         {
@@ -39,20 +39,20 @@ class[rtct] StaticArray(valueType: Type, arraySize: SizeType)
         }
     }
     if[ct] ( arraySize == 2 )
-    fun ctor(v0,v1: @ValueType)
+    public fun ctor(v0,v1: @ValueType)
     {
         at(0) ctor v0;
         at(1) ctor v1;
     }
     if[ct] ( arraySize == 3 )
-    fun ctor(v0,v1,v2: @ValueType)
+    public fun ctor(v0,v1,v2: @ValueType)
     {
         at(0) ctor v0;
         at(1) ctor v1;
         at(2) ctor v2;
     }
     if[ct] ( arraySize == 4 )
-    fun ctor(v0,v1,v2,v3: @ValueType)
+    public fun ctor(v0,v1,v2,v3: @ValueType)
     {
         at(0) ctor v0;
         at(1) ctor v1;
@@ -60,7 +60,7 @@ class[rtct] StaticArray(valueType: Type, arraySize: SizeType)
         at(3) ctor v3;
     }
     if[ct] ( arraySize == 5 )
-    fun ctor(v0,v1,v2,v3,v4: @ValueType)
+    public fun ctor(v0,v1,v2,v3,v4: @ValueType)
     {
         at(0) ctor v0;
         at(1) ctor v1;
@@ -69,7 +69,7 @@ class[rtct] StaticArray(valueType: Type, arraySize: SizeType)
         at(4) ctor v4;
     }
     if[ct] ( arraySize == 6 )
-    fun ctor(v0,v1,v2,v3,v4,v5: @ValueType)
+    public fun ctor(v0,v1,v2,v3,v4,v5: @ValueType)
     {
         at(0) ctor v0;
         at(1) ctor v1;
@@ -79,7 +79,7 @@ class[rtct] StaticArray(valueType: Type, arraySize: SizeType)
         at(5) ctor v5;
     }
     if[ct] ( arraySize == 7 )
-    fun ctor(v0,v1,v2,v3,v4,v5,v6: @ValueType)
+    public fun ctor(v0,v1,v2,v3,v4,v5,v6: @ValueType)
     {
         at(0) ctor v0;
         at(1) ctor v1;
@@ -90,7 +90,7 @@ class[rtct] StaticArray(valueType: Type, arraySize: SizeType)
         at(6) ctor v6;
     }
     if[ct] ( arraySize == 8 )
-    fun ctor(v0,v1,v2,v3,v4,v5,v6,v7: @ValueType)
+    public fun ctor(v0,v1,v2,v3,v4,v5,v6,v7: @ValueType)
     {
         at(0) ctor v0;
         at(1) ctor v1;
@@ -102,7 +102,7 @@ class[rtct] StaticArray(valueType: Type, arraySize: SizeType)
         at(7) ctor v7;
     }
     if[ct] ( arraySize == 9 )
-    fun ctor(v0,v1,v2,v3,v4,v5,v6,v7,v8: @ValueType)
+    public fun ctor(v0,v1,v2,v3,v4,v5,v6,v7,v8: @ValueType)
     {
         at(0) ctor v0;
         at(1) ctor v1;
@@ -115,7 +115,7 @@ class[rtct] StaticArray(valueType: Type, arraySize: SizeType)
         at(8) ctor v8;
     }
     if[ct] ( arraySize == 10 )
-    fun ctor(v0,v1,v2,v3,v4,v5,v6,v7,v8,v9: @ValueType)
+    public fun ctor(v0,v1,v2,v3,v4,v5,v6,v7,v8,v9: @ValueType)
     {
         at(0) ctor v0;
         at(1) ctor v1;
@@ -129,23 +129,23 @@ class[rtct] StaticArray(valueType: Type, arraySize: SizeType)
         at(9) ctor v9;
     }
 
-    fun dtor
+    public fun dtor
     {
         for ( v: @ValueType = all() )
             v.dtor();
     }
 
-    fun size(): SizeType
+    public fun size(): SizeType
     {
         return arrSize;
     }
 
-    fun isEmpty(): Bool
+    public fun isEmpty(): Bool
     {
         return arrSize == 0;
     }
 
-    fun assign(range: RangeType)
+    public fun assign(range: RangeType)
     {
         for ( v: @ValueType = all() )
         {
@@ -159,7 +159,7 @@ class[rtct] StaticArray(valueType: Type, arraySize: SizeType)
         }
     }
 
-    fun swap(other: @StaticArray)
+    public fun swap(other: @StaticArray)
     {
         for ( i = 0..arrSize )        
         {
@@ -169,22 +169,22 @@ class[rtct] StaticArray(valueType: Type, arraySize: SizeType)
         }
     }
 
-    fun at(index: SizeType): @ValueType = asPtr().advance(DiffType(index)).value();
-    fun ()(index: SizeType): @ValueType = asPtr().advance(DiffType(index)).value();
+    public fun at(index: SizeType): @ValueType = asPtr().advance(DiffType(index)).value();
+    public fun ()(index: SizeType): @ValueType = asPtr().advance(DiffType(index)).value();
 
-    fun all = RangeType(asPtr(), asPtr().advance(DiffType(arrSize)));
+    public fun all = RangeType(asPtr(), asPtr().advance(DiffType(arrSize)));
 
-    fun subrange(index: SizeType, num: SizeType)
+    public fun subrange(index: SizeType, num: SizeType)
         = RangeType(asPtr().advance(DiffType(index)), asPtr().advance(DiffType(index + num)));
 
-    fun =(other: @StaticArray): @StaticArray
+    public fun =(other: @StaticArray): @StaticArray
     {
         for ( i = 0..arrSize )
             this(i) = other(i);
         return this;
     }
 
-    fun ==(other: @StaticArray): Bool
+    public fun ==(other: @StaticArray): Bool
     {
         for ( i = 0..arrSize )
             if ( this(i) != other(i) )
@@ -199,23 +199,23 @@ class[rtct] StaticArray(valueType: Type, arraySize: SizeType)
     private var[static, ct] arrSize = arraySize;    
 }
 
-fun mkValues(v0,v1: AnyType) = StaticArray(typeOf(v0), 2)(v0,v1);
-fun mkValues(v0,v1,v2: AnyType) = StaticArray(typeOf(v0), 3)(v0,v1,v2);
-fun mkValues(v0,v1,v2,v3: AnyType) = StaticArray(typeOf(v0), 4)(v0,v1,v2,v3);
-fun mkValues(v0,v1,v2,v3,v4: AnyType) = StaticArray(typeOf(v0), 5)(v0,v1,v2,v3,v4);
-fun mkValues(v0,v1,v2,v3,v4,v5: AnyType) = StaticArray(typeOf(v0), 6)(v0,v1,v2,v3,v4,v5);
-fun mkValues(v0,v1,v2,v3,v4,v5,v6: AnyType) = StaticArray(typeOf(v0), 7)(v0,v1,v2,v3,v4,v5,v6);
-fun mkValues(v0,v1,v2,v3,v4,v5,v6,v7: AnyType) = StaticArray(typeOf(v0), 8)(v0,v1,v2,v3,v4,v5,v6,v7);
-fun mkValues(v0,v1,v2,v3,v4,v5,v6,v7,v8: AnyType) = StaticArray(typeOf(v0), 9)(v0,v1,v2,v3,v4,v5,v6,v7,v8);
-fun mkValues(v0,v1,v2,v3,v4,v5,v6,v7,v8,v9: AnyType) = StaticArray(typeOf(v0), 10)(v0,v1,v2,v3,v4,v5,v6,v7,v8,v9);
+public fun mkValues(v0,v1: AnyType) = StaticArray(typeOf(v0), 2)(v0,v1);
+public fun mkValues(v0,v1,v2: AnyType) = StaticArray(typeOf(v0), 3)(v0,v1,v2);
+public fun mkValues(v0,v1,v2,v3: AnyType) = StaticArray(typeOf(v0), 4)(v0,v1,v2,v3);
+public fun mkValues(v0,v1,v2,v3,v4: AnyType) = StaticArray(typeOf(v0), 5)(v0,v1,v2,v3,v4);
+public fun mkValues(v0,v1,v2,v3,v4,v5: AnyType) = StaticArray(typeOf(v0), 6)(v0,v1,v2,v3,v4,v5);
+public fun mkValues(v0,v1,v2,v3,v4,v5,v6: AnyType) = StaticArray(typeOf(v0), 7)(v0,v1,v2,v3,v4,v5,v6);
+public fun mkValues(v0,v1,v2,v3,v4,v5,v6,v7: AnyType) = StaticArray(typeOf(v0), 8)(v0,v1,v2,v3,v4,v5,v6,v7);
+public fun mkValues(v0,v1,v2,v3,v4,v5,v6,v7,v8: AnyType) = StaticArray(typeOf(v0), 9)(v0,v1,v2,v3,v4,v5,v6,v7,v8);
+public fun mkValues(v0,v1,v2,v3,v4,v5,v6,v7,v8,v9: AnyType) = StaticArray(typeOf(v0), 10)(v0,v1,v2,v3,v4,v5,v6,v7,v8,v9);
 
 
-fun[ctGeneric] StaticArray2d(baseType: Type, d1, d2: SizeType ct)
+public fun[ctGeneric] StaticArray2d(baseType: Type, d1, d2: SizeType ct)
     = StaticArray(StaticArray(baseType, d2), d1);
 
-fun[ctGeneric] StaticArray3d(baseType: Type, d1, d2, d3: SizeType ct)
+public fun[ctGeneric] StaticArray3d(baseType: Type, d1, d2, d3: SizeType ct)
     = StaticArray(StaticArray(StaticArray(baseType, d3), d2), d1);
 
-fun[ctGeneric] StaticArray4d(baseType: Type, d1, d2, d3, d4: SizeType ct)
+public fun[ctGeneric] StaticArray4d(baseType: Type, d1, d2, d3, d4: SizeType ct)
     = StaticArray(StaticArray(StaticArray(StaticArray(baseType, d4), d3), d2), d1);
 

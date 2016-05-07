@@ -41,11 +41,20 @@ namespace
 
     ConversionResult combine(const ConversionResult& first, const ConversionResult& second)
     {
+        const SourceCode* sc = nullptr;
+        if ( first.sourceCode() ) {
+            sc = first.sourceCode();
+            if ( second.sourceCode() && second.sourceCode() != sc )
+                return convNone;
+        }
+        else
+            sc = second.sourceCode();
+
         return ConversionResult(combine(first.conversionType(), second.conversionType()), [=](Node* src) -> Node* {
             Node* src1 = first.apply(src);
             Nest_setContext(src1, src->context);
             return second.apply(src1);
-        }, first.contextDependent() || second.contextDependent());
+        }, sc);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -223,6 +232,16 @@ namespace
         if ( !selectConversionCtor(context, destClass, destType->mode, srcType, nullptr, nullptr) )
             return convNone;
 
+        // Check access
+        if ( !canAccessNode(destClass, context->sourceCode) )
+            return convNone;
+
+        // If the class is not public, store the current source code for this conversion
+        // This conversion is not ok in all contexts
+        SourceCode* sourceCode = nullptr;
+        if ( !isPublic(destClass) )
+            sourceCode = context->sourceCode;
+
         TypeRef t = destClass->type;
         EvalMode destMode = t->mode;
         if ( destMode == modeRtCt )
@@ -230,12 +249,10 @@ namespace
         t = Feather_checkChangeTypeMode(t, destMode, NOLOC);
         TypeRef resType = Feather_getLValueType(t);
 
-        bool contextDependent = false;  // TODO (convert): This should be context dependent for private ctors
-
         ConversionResult res = ConversionResult(convCustom, [=](Node* src) -> Node* {
             Node* refToClass = createTypeNode(src->context, src->location, Feather_getDataType(destClass, 0, modeRtCt));
             return Feather_mkChangeMode(src->location, mkFunApplication(src->location, refToClass, fromIniList({src})), destMode);
-        }, contextDependent);
+        }, sourceCode);
         return combine(res, cachedCanConvertImpl(context, flags | flagDontCallConversionCtor, resType, destType));
     }
 
@@ -315,12 +332,17 @@ namespace
     // Method that checks for available conversions; use a cache for speeding up search
     ConversionResult cachedCanConvertImpl(CompilationContext* context, int flags, TypeRef srcType, TypeRef destType)
     {
-        typedef Tuple3<TypeRef, TypeRef, int> KeyType;
+        typedef Tuple4<TypeRef, TypeRef, int, const SourceCode*> KeyType;
         static unordered_map<KeyType, ConversionResult> convMap;
 
-        // Try to find the conversion in the map
-        KeyType key(srcType, destType, flags);
+        // Try to find the conversion in the map -- first, try without a source code
+        KeyType key(srcType, destType, flags, nullptr);
         auto it = convMap.find(key);
+        if ( it != convMap.end() )
+            return it->second;
+        // Now try with a source code
+        key = KeyType(srcType, destType, flags, context->sourceCode);
+        it = convMap.find(key);
         if ( it != convMap.end() )
             return it->second;
 
@@ -341,17 +363,17 @@ namespace
 //         cerr << "\n";
 
         // Put the result in the cache, if not context dependent
-        if ( !res.contextDependent() )
-            convMap.insert(make_pair(key, res));
+        key._4 = res.sourceCode();
+        convMap.insert(make_pair(key, res));
 
         return res;
     }
 }
 
-ConversionResult::ConversionResult(ConversionType convType, const ConversionFun& fun, bool contextDependent)
+ConversionResult::ConversionResult(ConversionType convType, const ConversionFun& fun, const SourceCode* sourceCode)
     : convType_(convType)
     , convFun_(fun)
-    , contextDependent_(contextDependent)
+    , sourceCode_(sourceCode)
 {
 }
 

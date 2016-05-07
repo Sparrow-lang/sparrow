@@ -4,96 +4,96 @@ import Config;
 import SL.StaticArray;
 
 //! Concept the is satisfied for the "mutexes" that can be locked and unlocked
-concept Lockable(x)
+public concept Lockable(x)
     if isValid(x lock)
     && isValid(x unlock)
     ;
 
 //! Special Lockable, that also supports the "trylock" operation
-concept TryLockable(x)
+public concept TryLockable(x)
     if Lockable(x)
     && isValid(x tryLock)
     ;
 
 //! Class used to take the lock for the duration of a scope
 //! Can be used with any lockable object
-class ScopedLock(T: Type) if Lockable(#$T) {
-    using LockType = T;
+public class ScopedLock(T: Type) if Lockable(#$T) {
+    public using LockType = T;
 
     private var theLock: @LockType;
 
-    fun ctor(theLock: @LockType) {
+    public fun ctor(theLock: @LockType) {
         this.theLock := theLock;
         theLock lock;
     }
 
-    fun dtor {
+    public fun dtor {
         theLock unlock;
     }
 }
 
 //! Class used to try to take the lock for the duration of a scope
 //! To test if the lock was taken, use the 'isLocked' function
-class ScopedTryLock(T: Type) if TryLockable(#$T) {
-    using LockType = T;
+public class ScopedTryLock(T: Type) if TryLockable(#$T) {
+    public using LockType = T;
 
     private var theLock: @LockType;
     private var lockSucceeded: Bool;
 
-    fun ctor(theLock: @LockType) {
+    public fun ctor(theLock: @LockType) {
         this.theLock := theLock;
         this.lockSucceeded  = (theLock tryLock);
     }
 
-    fun isLocked = lockSucceeded;
+    public fun isLocked = lockSucceeded;
 
-    fun dtor {
+    public fun dtor {
         if ( lockSucceeded )
             theLock unlock;
     }
 }
 
 //! A simple and fast mutual-exclusion lockable
-class Mutex {
+public class Mutex {
     var handle: Impl.PThreadMutex;
 
-    fun ctor {
+    public fun ctor {
         handle.sig = Impl.PTHREAD_MUTEX_SIG_INIT;
     }
 
-    fun dtor {
+    public fun dtor {
         Impl.pthread_mutex_destroy(handle);
     }
 }
 
-fun >> (m: @Mutex, os: @OutStream) {
+public fun >> (m: @Mutex, os: @OutStream) {
     cout << "Mutex(" << mkStreamRefWrapper(m) << ", " << m.handle.sig << ")";
 }
 
 //! A mutual-exclusion lockable that is able to support recursive locking
-class RecMutex {
+public class RecMutex {
     var handle: Impl.PThreadMutex;
 
-    fun ctor {
+    public fun ctor {
         handle.sig = Impl.PTHREAD_RECURSIVE_MUTEX_SIG_INIT;
     }
 
-    fun dtor {
+    public fun dtor {
         Impl.pthread_mutex_destroy(handle);
     }
 }
 
 //! Locks a lockable; if the lockable is already locked this call blocks until it's unblocked by the other party
-fun lock(mutex: @Mutex) { var res = Impl.pthread_mutex_lock(mutex.handle); /*assert(res == 0);*/ }
-fun lock(mutex: @RecMutex) { var res = Impl.pthread_mutex_lock(mutex.handle); /*assert(res == 0);*/ }
+public fun lock(mutex: @Mutex) { var res = Impl.pthread_mutex_lock(mutex.handle); /*assert(res == 0);*/ }
+public fun lock(mutex: @RecMutex) { var res = Impl.pthread_mutex_lock(mutex.handle); /*assert(res == 0);*/ }
 
 //! Attempts to lock a lockable; if already locked, returns false without locking anything
-fun tryLock(mutex: @Mutex): Bool { var res = Impl.pthread_mutex_trylock(mutex.handle); return res == 0; }
-fun tryLock(mutex: @RecMutex): Bool { var res = Impl.pthread_mutex_trylock(mutex.handle); return res == 0; }
+public fun tryLock(mutex: @Mutex): Bool { var res = Impl.pthread_mutex_trylock(mutex.handle); return res == 0; }
+public fun tryLock(mutex: @RecMutex): Bool { var res = Impl.pthread_mutex_trylock(mutex.handle); return res == 0; }
 
 //! Unlocks a lockable that was previously locked by a call to 'lock'
-fun unlock(mutex: @Mutex) { var res = Impl.pthread_mutex_unlock(mutex.handle); /*assert(res == 0);*/ }
-fun unlock(mutex: @RecMutex) { var res = Impl.pthread_mutex_unlock(mutex.handle); /*assert(res == 0);*/ }
+public fun unlock(mutex: @Mutex) { var res = Impl.pthread_mutex_unlock(mutex.handle); /*assert(res == 0);*/ }
+public fun unlock(mutex: @RecMutex) { var res = Impl.pthread_mutex_unlock(mutex.handle); /*assert(res == 0);*/ }
 
 package Impl {
     using PTHREAD_MUTEX_SIZE = 56;

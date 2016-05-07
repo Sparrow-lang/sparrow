@@ -3,20 +3,20 @@ package Par.TasksImpl.SchedulerIf;
 import Scheduler;
 import Worker;
 
-fun spawn(task: @TaskPrefix) {
+public fun spawn(task: @TaskPrefix) {
     schedSpawn(task);
 }
-fun spawnAndWaitForAll(curTask, child: @TaskPrefix) {
+public fun spawnAndWaitForAll(curTask, child: @TaskPrefix) {
     schedWaitForAll(curTask, child);
 }
-fun spawnRootAndWait(root: @TaskPrefix) {
+public fun spawnRootAndWait(root: @TaskPrefix) {
     schedSpawnRootAndWait(root);
 }
-fun waitForAll(curTask: @TaskPrefix) {
+public fun waitForAll(curTask: @TaskPrefix) {
     schedWaitForAll(curTask, null);
 }
-fun enqueue(task: @TaskPrefix) {
+public fun enqueue(task: @TaskPrefix) {
     schedEnqueue(task);
 }
 
-fun localWorker(): Byte Ptr = reinterpretPtr(Byte, Par.TasksImpl.localWorker());
+public fun localWorker(): Byte Ptr = reinterpretPtr(Byte, Par.TasksImpl.localWorker());

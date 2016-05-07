@@ -1,127 +1,127 @@
-class FunctionPtr(resT: Type)
+public class FunctionPtr(resT: Type)
 {
-    using arity = 0;
-    fun () (): resT = call();
+    public using arity = 0;
+    public fun () (): resT = call();
     private fun[native("$funptr")] call(): resT;
     private var funPtr: @Byte;
 }
 
-class FunctionPtr(resT, T1: Type)
+public class FunctionPtr(resT, T1: Type)
 {
-    using arity = 1;
-    fun () (p1: T1): resT = call(p1);
+    public using arity = 1;
+    public fun () (p1: T1): resT = call(p1);
     private fun[native("$funptr")] call(p1: T1): resT;
     private var funPtr: @Byte;
 }
 
-class FunctionPtr(resT, T1, T2: Type)
+public class FunctionPtr(resT, T1, T2: Type)
 {
-    using arity = 2;
-    fun () (p1: T1, p2: T2): resT = call(p1, p2);
+    public using arity = 2;
+    public fun () (p1: T1, p2: T2): resT = call(p1, p2);
     private fun[native("$funptr")] call (p1: T1, p2: T2): resT;
     private var funPtr: @Byte;
 }
 
-class FunctionPtr(resT, T1, T2, T3: Type)
+public class FunctionPtr(resT, T1, T2, T3: Type)
 {
-    using arity = 3;
-    fun () (p1: T1, p2: T2, p3: T3): resT = call(p1, p2, p3);
+    public using arity = 3;
+    public fun () (p1: T1, p2: T2, p3: T3): resT = call(p1, p2, p3);
     private fun[native("$funptr")] call (p1: T1, p2: T2, p3: T3): resT;
     private var funPtr: @Byte;
 }
 
-class FunctionPtr(resT, T1, T2, T3, T4: Type)
+public class FunctionPtr(resT, T1, T2, T3, T4: Type)
 {
-    using arity = 4;
-    fun () (p1: T1, p2: T2, p3: T3, p4: T4): resT = call(p1, p2, p3, p4);
+    public using arity = 4;
+    public fun () (p1: T1, p2: T2, p3: T3, p4: T4): resT = call(p1, p2, p3, p4);
     private fun[native("$funptr")] call (p1: T1, p2: T2, p3: T3, p4: T4): resT;
     private var funPtr: @Byte;
 }
 
-class FunctionPtr(resT, T1, T2, T3, T4, T5: Type)
+public class FunctionPtr(resT, T1, T2, T3, T4, T5: Type)
 {
-    using arity = 5;
-    fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): resT = call(p1, p2, p3, p4, p5);
+    public using arity = 5;
+    public fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): resT = call(p1, p2, p3, p4, p5);
     private fun[native("$funptr")] call (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): resT;
     private var funPtr: @Byte;
 }
 
-class FunctionPtr(resT, T1, T2, T3, T4, T5, T6: Type)
+public class FunctionPtr(resT, T1, T2, T3, T4, T5, T6: Type)
 {
-    using arity = 6;
-    fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): resT = call(p1, p2, p3, p4, p5, p6);
+    public using arity = 6;
+    public fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): resT = call(p1, p2, p3, p4, p5, p6);
     private fun[native("$funptr")] call (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): resT;
     private var funPtr: @Byte;
 }
 
-class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7: Type)
+public class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7: Type)
 {
-    using arity = 7;
-    fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): resT = call(p1, p2, p3, p4, p5, p6, p7);
+    public using arity = 7;
+    public fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): resT = call(p1, p2, p3, p4, p5, p6, p7);
     private fun[native("$funptr")] call (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): resT;
     private var funPtr: @Byte;
 }
 
-class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8: Type)
+public class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8: Type)
 {
-    using arity = 8;
-    fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8): resT = call(p1, p2, p3, p4, p5, p6, p7, p8);
+    public using arity = 8;
+    public fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8): resT = call(p1, p2, p3, p4, p5, p6, p7, p8);
     private fun[native("$funptr")] call (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8): resT;
     private var funPtr: @Byte;
 }
 
-class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9: Type)
+public class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9: Type)
 {
-    using arity = 9;
-    fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9): resT = call(p1, p2, p3, p4, p5, p6, p7, p8, p9);
+    public using arity = 9;
+    public fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9): resT = call(p1, p2, p3, p4, p5, p6, p7, p8, p9);
     private fun[native("$funptr")] call (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9): resT;
     private var funPtr: @Byte;
 }
 
-class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10: Type)
+public class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10: Type)
 {
-    using arity = 10;
-    fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10): resT = call(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10);
+    public using arity = 10;
+    public fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10): resT = call(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10);
     private fun[native("$funptr")] call (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10): resT;
     private var funPtr: @Byte;
 }
 
-class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11: Type)
+public class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11: Type)
 {
-    using arity = 11;
-    fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10, p11: T11): resT = call(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11);
+    public using arity = 11;
+    public fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10, p11: T11): resT = call(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11);
     private fun[native("$funptr")] call (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10, p11: T11): resT;
     private var funPtr: @Byte;
 }
 
-class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12: Type)
+public class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12: Type)
 {
-    using arity = 12;
-    fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10, p11: T11, p12: T12): resT = call(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
+    public using arity = 12;
+    public fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10, p11: T11, p12: T12): resT = call(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
     private fun[native("$funptr")] call (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10, p11: T11, p12: T12): resT;
     private var funPtr: @Byte;
 }
 
-class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13: Type)
+public class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13: Type)
 {
-    using arity = 13;
-    fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10, p11: T11, p12: T12, p13: T13): resT = call(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13);
+    public using arity = 13;
+    public fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10, p11: T11, p12: T12, p13: T13): resT = call(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13);
     private fun[native("$funptr")] call (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10, p11: T11, p12: T12, p13: T13): resT;
     private var funPtr: @Byte;
 }
 
-class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14: Type)
+public class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14: Type)
 {
-    using arity = 14;
-    fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10, p11: T11, p12: T12, p13: T13, p14: T14): resT = call(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14);
+    public using arity = 14;
+    public fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10, p11: T11, p12: T12, p13: T13, p14: T14): resT = call(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14);
     private fun[native("$funptr")] call (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10, p11: T11, p12: T12, p13: T13, p14: T14): resT;
     private var funPtr: @Byte;
 }
 
-class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15: Type)
+public class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15: Type)
 {
-    using arity = 15;
-    fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10, p11: T11, p12: T12, p13: T13, p14: T14, p15: T15): resT = call(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15);
+    public using arity = 15;
+    public fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10, p11: T11, p12: T12, p13: T13, p14: T14, p15: T15): resT = call(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15);
     private fun[native("$funptr")] call (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10, p11: T11, p12: T12, p13: T13, p14: T14, p15: T15): resT;
     private var funPtr: @Byte;
 }

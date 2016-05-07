@@ -6,11 +6,11 @@ import SL.Ptr;
 import SL.Vector;
 import Assert;
 
-class TaskSystem {
-    fun ctor {
+public class TaskSystem {
+    public fun ctor {
     }
 
-    fun dtor {
+    public fun dtor {
     }
 
     //! The global queue of tasks
@@ -27,7 +27,7 @@ class TaskSystem {
 
 var globalTaskSystem: TaskSystem Ptr;
 
-fun initTaskSystem(numWorkers: UInt = 0) {
+public fun initTaskSystem(numWorkers: UInt = 0) {
     // Create the task system object
     assert(globalTaskSystem isNull);
     globalTaskSystem = new(TaskSystem);
@@ -44,14 +44,14 @@ fun initTaskSystem(numWorkers: UInt = 0) {
     }
 }
 
-fun getInitTaskSystem: TaskSystem Ptr {
+public fun getInitTaskSystem: TaskSystem Ptr {
     // TODO: Make sure this is initialized only once
     if ( globalTaskSystem isNull )
         initTaskSystem;
     return globalTaskSystem;
 }
 
-fun createWorker(ts: TaskSystem Ptr): Worker Ptr {
+public fun createWorker(ts: TaskSystem Ptr): Worker Ptr {
     var id: Int = ts.get().workers size;
     var p: Worker Ptr = new(Worker, ts.get(), id, ts.get().idleCounter);
     ts.get().workers.pushBack(p);
@@ -61,13 +61,13 @@ fun createWorker(ts: TaskSystem Ptr): Worker Ptr {
 // TODO: make it random
 var cnt: Int = 0;
 
-fun getRandomTaskQueue(ts: @TaskSystem): @TaskQueue {
+public fun getRandomTaskQueue(ts: @TaskSystem): @TaskQueue {
     // TODO: make the selection truly random
     var worker: Worker Ptr = ts.workers(++cnt % (ts.workers size));
     return worker.get().work;
 }
 
-fun onTaskAvailable(ts: @TaskSystem) {
+public fun onTaskAvailable(ts: @TaskSystem) {
     // Do something only if we have at least one idle worker
     if ( ts.idleCounter hasIdle ) {
         for ( w: Worker Ptr = ts.workers.all ) {
@@ -79,4 +79,4 @@ fun onTaskAvailable(ts: @TaskSystem) {
 }
 
 //! Get the number of currently available workers
-fun numAvailableWorkers(ts: @TaskSystem) = (ts.workers size) - (ts.idleCounter numIdleWorkers);
+public fun numAvailableWorkers(ts: @TaskSystem) = (ts.workers size) - (ts.idleCounter numIdleWorkers);

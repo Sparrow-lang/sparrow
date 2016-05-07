@@ -1,179 +1,179 @@
-class[rtct, initCtor] Tuple(t1, t2: Type) {
-    using arity = 2;
-    var _1: t1;
-    var _2: t2;
+public class[rtct, initCtor] Tuple(t1, t2: Type) {
+    public using arity = 2;
+    public var _1: t1;
+    public var _2: t2;
 
-    fun[convert] ctor(other: TupleType) if other.arity == 2 {
+    public fun[convert] ctor(other: TupleType) if other.arity == 2 {
         this._1 ctor other._1;
         this._2 ctor other._2;
     }
 }
 
-class[rtct, initCtor] Tuple(t1, t2, t3: Type) {
-    using arity = 3;
-    var _1: t1;
-    var _2: t2;
-    var _3: t3;
+public class[rtct, initCtor] Tuple(t1, t2, t3: Type) {
+    public using arity = 3;
+    public var _1: t1;
+    public var _2: t2;
+    public var _3: t3;
 }
 
-class[rtct, initCtor] Tuple(t1, t2, t3, t4: Type) {
-    using arity = 4;
-    var _1: t1;
-    var _2: t2;
-    var _3: t3;
-    var _4: t4;
+public class[rtct, initCtor] Tuple(t1, t2, t3, t4: Type) {
+    public using arity = 4;
+    public var _1: t1;
+    public var _2: t2;
+    public var _3: t3;
+    public var _4: t4;
 }
 
-class[rtct, initCtor] Tuple(t1, t2, t3, t4, t5: Type) {
-    using arity = 5;
-    var _1: t1;
-    var _2: t2;
-    var _3: t3;
-    var _4: t4;
-    var _5: t5;
+public class[rtct, initCtor] Tuple(t1, t2, t3, t4, t5: Type) {
+    public using arity = 5;
+    public var _1: t1;
+    public var _2: t2;
+    public var _3: t3;
+    public var _4: t4;
+    public var _5: t5;
 }
 
-class[rtct, initCtor] Tuple(t1, t2, t3, t4, t5, t6: Type) {
-    using arity = 6;
-    var _1: t1;
-    var _2: t2;
-    var _3: t3;
-    var _4: t4;
-    var _5: t5;
-    var _6: t6;
+public class[rtct, initCtor] Tuple(t1, t2, t3, t4, t5, t6: Type) {
+    public using arity = 6;
+    public var _1: t1;
+    public var _2: t2;
+    public var _3: t3;
+    public var _4: t4;
+    public var _5: t5;
+    public var _6: t6;
 }
 
-class[rtct, initCtor] Tuple(t1, t2, t3, t4, t5, t6, t7: Type) {
-    using arity = 7;
-    var _1: t1;
-    var _2: t2;
-    var _3: t3;
-    var _4: t4;
-    var _5: t5;
-    var _6: t6;
-    var _7: t7;
+public class[rtct, initCtor] Tuple(t1, t2, t3, t4, t5, t6, t7: Type) {
+    public using arity = 7;
+    public var _1: t1;
+    public var _2: t2;
+    public var _3: t3;
+    public var _4: t4;
+    public var _5: t5;
+    public var _6: t6;
+    public var _7: t7;
 }
 
-class[rtct, initCtor] Tuple(t1, t2, t3, t4, t5, t6, t7, t8: Type) {
-    using arity = 8;
-    var _1: t1;
-    var _2: t2;
-    var _3: t3;
-    var _4: t4;
-    var _5: t5;
-    var _6: t6;
-    var _7: t7;
-    var _8: t8;
+public class[rtct, initCtor] Tuple(t1, t2, t3, t4, t5, t6, t7, t8: Type) {
+    public using arity = 8;
+    public var _1: t1;
+    public var _2: t2;
+    public var _3: t3;
+    public var _4: t4;
+    public var _5: t5;
+    public var _6: t6;
+    public var _7: t7;
+    public var _8: t8;
 }
 
-class[rtct, initCtor] Tuple(t1, t2, t3, t4, t5, t6, t7, t8, t9: Type) {
-    using arity = 9;
-    var _1: t1;
-    var _2: t2;
-    var _3: t3;
-    var _4: t4;
-    var _5: t5;
-    var _6: t6;
-    var _7: t7;
-    var _8: t8;
-    var _9: t9;
+public class[rtct, initCtor] Tuple(t1, t2, t3, t4, t5, t6, t7, t8, t9: Type) {
+    public using arity = 9;
+    public var _1: t1;
+    public var _2: t2;
+    public var _3: t3;
+    public var _4: t4;
+    public var _5: t5;
+    public var _6: t6;
+    public var _7: t7;
+    public var _8: t8;
+    public var _9: t9;
 }
 
-class[rtct, initCtor] Tuple(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10: Type) {
-    using arity = 10;
-    var _1: t1;
-    var _2: t2;
-    var _3: t3;
-    var _4: t4;
-    var _5: t5;
-    var _6: t6;
-    var _7: t7;
-    var _8: t8;
-    var _9: t9;
-    var _10: t10;
+public class[rtct, initCtor] Tuple(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10: Type) {
+    public using arity = 10;
+    public var _1: t1;
+    public var _2: t2;
+    public var _3: t3;
+    public var _4: t4;
+    public var _5: t5;
+    public var _6: t6;
+    public var _7: t7;
+    public var _8: t8;
+    public var _9: t9;
+    public var _10: t10;
 }
 
-concept TupleType(x)
+public concept TupleType(x)
     if typeOf(x.arity) == Int
     && isValid(x._1)
     && isValid(x._2)
     ;
 
-fun[rtct] mkTuple(v1,v2: AnyType) = Tuple(typeOf(v1), typeOf(v2))(v1,v2);
-fun[rtct] mkTuple(v1,v2,v3: AnyType) = Tuple(typeOf(v1), typeOf(v2), typeOf(v3))(v1,v2,v3);
-fun[rtct] mkTuple(v1,v2,v3,v4: AnyType) = Tuple(typeOf(v1), typeOf(v2), typeOf(v3), typeOf(v4))(v1,v2,v3,v4);
-fun[rtct] mkTuple(v1,v2,v3,v4,v5: AnyType) = Tuple(typeOf(v1), typeOf(v2), typeOf(v3), typeOf(v4), typeOf(v5))(v1,v2,v3,v4,v5);
-fun[rtct] mkTuple(v1,v2,v3,v4,v5,v6: AnyType) = Tuple(typeOf(v1), typeOf(v2), typeOf(v3), typeOf(v4), typeOf(v5), typeOf(v6))(v1,v2,v3,v4,v5,v6);
-fun[rtct] mkTuple(v1,v2,v3,v4,v5,v6,v7: AnyType) = Tuple(typeOf(v1), typeOf(v2), typeOf(v3), typeOf(v4), typeOf(v5), typeOf(v6), typeOf(v7))(v1,v2,v3,v4,v5,v6,v7);
-fun[rtct] mkTuple(v1,v2,v3,v4,v5,v6,v7,v8: AnyType) = Tuple(typeOf(v1), typeOf(v2), typeOf(v3), typeOf(v4), typeOf(v5), typeOf(v6), typeOf(v7), typeOf(v8))(v1,v2,v3,v4,v5,v6,v7,v8);
-fun[rtct] mkTuple(v1,v2,v3,v4,v5,v6,v7,v8,v9: AnyType) = Tuple(typeOf(v1), typeOf(v2), typeOf(v3), typeOf(v4), typeOf(v5), typeOf(v6), typeOf(v7), typeOf(v8), typeOf(v9))(v1,v2,v3,v4,v5,v6,v7,v8,v9);
-fun[rtct] mkTuple(v1,v2,v3,v4,v5,v6,v7,v8,v9,v10: AnyType) = Tuple(typeOf(v1), typeOf(v2), typeOf(v3), typeOf(v4), typeOf(v5), typeOf(v6), typeOf(v7), typeOf(v8), typeOf(v9), typeOf(v10))(v1,v2,v3,v4,v5,v6,v7,v8,v9,v10);
+public fun[rtct] mkTuple(v1,v2: AnyType) = Tuple(typeOf(v1), typeOf(v2))(v1,v2);
+public fun[rtct] mkTuple(v1,v2,v3: AnyType) = Tuple(typeOf(v1), typeOf(v2), typeOf(v3))(v1,v2,v3);
+public fun[rtct] mkTuple(v1,v2,v3,v4: AnyType) = Tuple(typeOf(v1), typeOf(v2), typeOf(v3), typeOf(v4))(v1,v2,v3,v4);
+public fun[rtct] mkTuple(v1,v2,v3,v4,v5: AnyType) = Tuple(typeOf(v1), typeOf(v2), typeOf(v3), typeOf(v4), typeOf(v5))(v1,v2,v3,v4,v5);
+public fun[rtct] mkTuple(v1,v2,v3,v4,v5,v6: AnyType) = Tuple(typeOf(v1), typeOf(v2), typeOf(v3), typeOf(v4), typeOf(v5), typeOf(v6))(v1,v2,v3,v4,v5,v6);
+public fun[rtct] mkTuple(v1,v2,v3,v4,v5,v6,v7: AnyType) = Tuple(typeOf(v1), typeOf(v2), typeOf(v3), typeOf(v4), typeOf(v5), typeOf(v6), typeOf(v7))(v1,v2,v3,v4,v5,v6,v7);
+public fun[rtct] mkTuple(v1,v2,v3,v4,v5,v6,v7,v8: AnyType) = Tuple(typeOf(v1), typeOf(v2), typeOf(v3), typeOf(v4), typeOf(v5), typeOf(v6), typeOf(v7), typeOf(v8))(v1,v2,v3,v4,v5,v6,v7,v8);
+public fun[rtct] mkTuple(v1,v2,v3,v4,v5,v6,v7,v8,v9: AnyType) = Tuple(typeOf(v1), typeOf(v2), typeOf(v3), typeOf(v4), typeOf(v5), typeOf(v6), typeOf(v7), typeOf(v8), typeOf(v9))(v1,v2,v3,v4,v5,v6,v7,v8,v9);
+public fun[rtct] mkTuple(v1,v2,v3,v4,v5,v6,v7,v8,v9,v10: AnyType) = Tuple(typeOf(v1), typeOf(v2), typeOf(v3), typeOf(v4), typeOf(v5), typeOf(v6), typeOf(v7), typeOf(v8), typeOf(v9), typeOf(v10))(v1,v2,v3,v4,v5,v6,v7,v8,v9,v10);
 
-fun[rtct] ~(v1,v2: AnyType) = mkTuple(v1,v2) if !TupleType(v1);
-fun[rtct] ~(t,ex: AnyType) = mkTuple(t._1, t._2, ex) if TupleType(t) && t.arity == 2;
-fun[rtct] ~(t,ex: AnyType) = mkTuple(t._1, t._2, t._3, ex) if TupleType(t) && t.arity == 3;
-fun[rtct] ~(t,ex: AnyType) = mkTuple(t._1, t._2, t._3, t._4, ex) if TupleType(t) && t.arity == 4;
-fun[rtct] ~(t,ex: AnyType) = mkTuple(t._1, t._2, t._3, t._4, t._5, ex) if TupleType(t) && t.arity == 5;
-fun[rtct] ~(t,ex: AnyType) = mkTuple(t._1, t._2, t._3, t._4, t._5, t._6, ex) if TupleType(t) && t.arity == 6;
-fun[rtct] ~(t,ex: AnyType) = mkTuple(t._1, t._2, t._3, t._4, t._5, t._6, t._7, ex) if TupleType(t) && t.arity == 7;
-fun[rtct] ~(t,ex: AnyType) = mkTuple(t._1, t._2, t._3, t._4, t._5, t._6, t._7, t._8, ex) if TupleType(t) && t.arity == 8;
-fun[rtct] ~(t,ex: AnyType) = mkTuple(t._1, t._2, t._3, t._4, t._5, t._6, t._7, t._8, t._9, ex) if TupleType(t) && t.arity == 9;
+public fun[rtct] ~(v1,v2: AnyType) = mkTuple(v1,v2) if !TupleType(v1);
+public fun[rtct] ~(t,ex: AnyType) = mkTuple(t._1, t._2, ex) if TupleType(t) && t.arity == 2;
+public fun[rtct] ~(t,ex: AnyType) = mkTuple(t._1, t._2, t._3, ex) if TupleType(t) && t.arity == 3;
+public fun[rtct] ~(t,ex: AnyType) = mkTuple(t._1, t._2, t._3, t._4, ex) if TupleType(t) && t.arity == 4;
+public fun[rtct] ~(t,ex: AnyType) = mkTuple(t._1, t._2, t._3, t._4, t._5, ex) if TupleType(t) && t.arity == 5;
+public fun[rtct] ~(t,ex: AnyType) = mkTuple(t._1, t._2, t._3, t._4, t._5, t._6, ex) if TupleType(t) && t.arity == 6;
+public fun[rtct] ~(t,ex: AnyType) = mkTuple(t._1, t._2, t._3, t._4, t._5, t._6, t._7, ex) if TupleType(t) && t.arity == 7;
+public fun[rtct] ~(t,ex: AnyType) = mkTuple(t._1, t._2, t._3, t._4, t._5, t._6, t._7, t._8, ex) if TupleType(t) && t.arity == 8;
+public fun[rtct] ~(t,ex: AnyType) = mkTuple(t._1, t._2, t._3, t._4, t._5, t._6, t._7, t._8, t._9, ex) if TupleType(t) && t.arity == 9;
 
-using oper_precedence_~     = oper_precedence_*;
+public using oper_precedence_~     = oper_precedence_*;
 
-fun[ctGeneric] *(t1,t2: Type): Type = Tuple(t1, t2) ;//if !TupleType(#$t1);
-//fun[ctGeneric] *(tt,tex: Type): Type = Tuple(typeOf(tt._1), typeOf(tt._2), tex) if TupleType(#$tt) && tt.arity == 2;
+public fun[ctGeneric] *(t1,t2: Type): Type = Tuple(t1, t2) ;//if !TupleType(#$t1);
+//public fun[ctGeneric] *(tt,tex: Type): Type = Tuple(typeOf(tt._1), typeOf(tt._2), tex) if TupleType(#$tt) && tt.arity == 2;
 
 
-fun[rtct] first(t: @TupleType) = t._1;
-fun[rtct] second(t: @TupleType) = t._2;
+public fun[rtct] first(t: @TupleType) = t._1;
+public fun[rtct] second(t: @TupleType) = t._2;
 
-fun[rtct] tail(t: @TupleType) = mkTuple(t._2, t._3) if t.arity == 3;
-fun[rtct] tail(t: @TupleType) = mkTuple(t._2, t._3, t._4) if t.arity == 4;
-fun[rtct] tail(t: @TupleType) = mkTuple(t._2, t._3, t._4, t._5) if t.arity == 5;
-fun[rtct] tail(t: @TupleType) = mkTuple(t._2, t._3, t._4, t._5, t._6) if t.arity == 6;
-fun[rtct] tail(t: @TupleType) = mkTuple(t._2, t._3, t._4, t._5, t._6, t._7) if t.arity == 7;
-fun[rtct] tail(t: @TupleType) = mkTuple(t._2, t._3, t._4, t._5, t._6, t._7, t._8) if t.arity == 8;
-fun[rtct] tail(t: @TupleType) = mkTuple(t._2, t._3, t._4, t._5, t._6, t._7, t._8, t._9) if t.arity == 9;
-fun[rtct] tail(t: @TupleType) = mkTuple(t._2, t._3, t._4, t._5, t._6, t._7, t._8, t._9, t._10) if t.arity == 10;
+public fun[rtct] tail(t: @TupleType) = mkTuple(t._2, t._3) if t.arity == 3;
+public fun[rtct] tail(t: @TupleType) = mkTuple(t._2, t._3, t._4) if t.arity == 4;
+public fun[rtct] tail(t: @TupleType) = mkTuple(t._2, t._3, t._4, t._5) if t.arity == 5;
+public fun[rtct] tail(t: @TupleType) = mkTuple(t._2, t._3, t._4, t._5, t._6) if t.arity == 6;
+public fun[rtct] tail(t: @TupleType) = mkTuple(t._2, t._3, t._4, t._5, t._6, t._7) if t.arity == 7;
+public fun[rtct] tail(t: @TupleType) = mkTuple(t._2, t._3, t._4, t._5, t._6, t._7, t._8) if t.arity == 8;
+public fun[rtct] tail(t: @TupleType) = mkTuple(t._2, t._3, t._4, t._5, t._6, t._7, t._8, t._9) if t.arity == 9;
+public fun[rtct] tail(t: @TupleType) = mkTuple(t._2, t._3, t._4, t._5, t._6, t._7, t._8, t._9, t._10) if t.arity == 10;
 
-fun[rtct] <(lhs, rhs: TupleType) if typeOf(lhs) == typeOf(rhs) && lhs.arity == 2 {
+public fun[rtct] <(lhs, rhs: TupleType) if typeOf(lhs) == typeOf(rhs) && lhs.arity == 2 {
     if ( lhs._1 < rhs._1 )      return true;
     else if ( rhs._1 < lhs._1 ) return false;
     else if ( lhs._2 < rhs._2 ) return true;
     return false;
 }
-fun[rtct] <(lhs, rhs: TupleType) if typeOf(lhs) == typeOf(rhs) && lhs.arity > 2 {
+public fun[rtct] <(lhs, rhs: TupleType) if typeOf(lhs) == typeOf(rhs) && lhs.arity > 2 {
     if ( lhs._1 < rhs._1 )      return true;
     else if ( rhs._1 < lhs._1 ) return false;
     return tail(lhs) < tail(rhs);
 }
 
-fun[rtct] >>(t: @TupleType, os: @OutStream) {
+public fun[rtct] >>(t: @TupleType, os: @OutStream) {
     os << '(' << t._1;
     TupleImpl.dumpTail(t, os);
     os << ')';
 }
 
-class[rtct] MakePair(firstType: Type, secondType: Type)
+public class[rtct] MakePair(firstType: Type, secondType: Type)
 {
-    fun ()(fst: firstType, snd: secondType): Tuple(firstType, secondType)
+    public fun ()(fst: firstType, snd: secondType): Tuple(firstType, secondType)
     {
         return Tuple(firstType, secondType)(fst, snd);
     }
 }
 
-class[rtct] PairFirst(pairType: Type)
+public class[rtct] PairFirst(pairType: Type)
 {
-    fun ()(pair: @pairType): @typeOf(pair._1)
+    public fun ()(pair: @pairType): @typeOf(pair._1)
     {
         return pair._1;
     }
 }
 
-class[rtct] PairSecond(pairType: Type)
+public class[rtct] PairSecond(pairType: Type)
 {
-    fun ()(pair: @pairType): @typeOf(pair._2)
+    public fun ()(pair: @pairType): @typeOf(pair._2)
     {
         return pair._2;
     }

@@ -1,6 +1,6 @@
 import IR;
 
-fun[ct] dumpProlog(os: @OutStream, sps: @SparrowPrologSystem)
+public fun[ct] dumpProlog(os: @OutStream, sps: @SparrowPrologSystem)
 {
     Impl.dumpPrologSystem(os, sps);
     os << flush;

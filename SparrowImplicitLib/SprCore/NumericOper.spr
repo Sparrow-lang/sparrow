@@ -1,13 +1,13 @@
 import StdTypes;
 
-concept SmallInteger(x)
+public concept SmallInteger(x)
     if typeOf(x) == Byte
     || typeOf(x) == UByte
     || typeOf(x) == Short
     || typeOf(x) == UShort
      ;
 
-concept BigInteger(x)
+public concept BigInteger(x)
     if typeOf(x) == Int
     || typeOf(x) == UInt
     || typeOf(x) == Long
@@ -16,7 +16,7 @@ concept BigInteger(x)
     || typeOf(x) == DiffType
      ;
 
-concept SignedInteger(x)
+public concept SignedInteger(x)
     if typeOf(x) == Byte
     || typeOf(x) == Short
     || typeOf(x) == Int
@@ -24,7 +24,7 @@ concept SignedInteger(x)
     || typeOf(x) == DiffType
      ;
 
-concept UnsignedInteger(x)
+public concept UnsignedInteger(x)
     if typeOf(x) == UByte
     || typeOf(x) == UShort
     || typeOf(x) == UInt
@@ -32,16 +32,16 @@ concept UnsignedInteger(x)
     || typeOf(x) == SizeType
      ;
 
-concept Integer(x)
+public concept Integer(x)
     if SmallInteger(x)
     || BigInteger(x);
 
-concept FloatingPointNumber(x)
+public concept FloatingPointNumber(x)
     if typeOf(x) == Float
     || typeOf(x) == Double
      ;
 
-concept Number(x)
+public concept Number(x)
     if Integer(x)
     || FloatingPointNumber(x);
 
@@ -193,38 +193,38 @@ package NumOpImpl
     fun[autoCt, native("_Double_opDiv")] opDiv (x, y: Double): Double;
 }
 
-fun[autoCt] == (x, y: Number)   = NumOpImpl.opEq(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
-fun[autoCt] != (x, y: Number)   = NumOpImpl.opNe(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
-fun[autoCt] < (x, y: Number)    = NumOpImpl.opLt(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
-fun[autoCt] > (x, y: Number)    = NumOpImpl.opGt(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
-fun[autoCt] <= (x, y: Number)   = NumOpImpl.opLe(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
-fun[autoCt] >= (x, y: Number)   = NumOpImpl.opGe(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
-fun[autoCt] + (x, y: Number)    = NumOpImpl.opPlus(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
-fun[autoCt] - (x, y: Number)    = NumOpImpl.opMinus(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
-fun[autoCt] * (x, y: Number)    = NumOpImpl.opMul(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
-fun[autoCt] / (x, y: Number)    = NumOpImpl.opDiv(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
-fun[autoCt] % (x, y: Integer)   = NumOpImpl.opMod(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
+public fun[autoCt] == (x, y: Number)   = NumOpImpl.opEq(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
+public fun[autoCt] != (x, y: Number)   = NumOpImpl.opNe(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
+public fun[autoCt] < (x, y: Number)    = NumOpImpl.opLt(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
+public fun[autoCt] > (x, y: Number)    = NumOpImpl.opGt(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
+public fun[autoCt] <= (x, y: Number)   = NumOpImpl.opLe(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
+public fun[autoCt] >= (x, y: Number)   = NumOpImpl.opGe(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
+public fun[autoCt] + (x, y: Number)    = NumOpImpl.opPlus(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
+public fun[autoCt] - (x, y: Number)    = NumOpImpl.opMinus(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
+public fun[autoCt] * (x, y: Number)    = NumOpImpl.opMul(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
+public fun[autoCt] / (x, y: Number)    = NumOpImpl.opDiv(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
+public fun[autoCt] % (x, y: Integer)   = NumOpImpl.opMod(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
 
 
 // Unary +
-fun[autoCt, native("_Byte_opPlus1")] + (x: Byte): Byte;
-fun[autoCt, native("_UByte_opPlus1")] + (x: UByte): UByte;
-fun[autoCt, native("_Short_opPlus1")] + (x: Short): Short;
-fun[autoCt, native("_UShort_opPlus1")] + (x: UShort): UShort;
-fun[autoCt, native("_Int_opPlus1")] + (x: Int): Int;
-fun[autoCt, native("_UInt_opPlus1")] + (x: UInt): UInt;
-fun[autoCt, native("_Long_opPlus1")] + (x: Long): Long;
-fun[autoCt, native("_ULong_opPlus1")] + (x: ULong): ULong;
-fun[autoCt, native("_SizeType_opPlus1")] + (x: SizeType): SizeType;
-fun[autoCt, native("_DiffType_opPlus1")] + (x: DiffType): DiffType;
-fun[autoCt, native("_Float_opPlus1")] + (x: Float): Float;
-fun[autoCt, native("_Double_opPlus1")] + (x: Double): Double;
+public fun[autoCt, native("_Byte_opPlus1")] + (x: Byte): Byte;
+public fun[autoCt, native("_UByte_opPlus1")] + (x: UByte): UByte;
+public fun[autoCt, native("_Short_opPlus1")] + (x: Short): Short;
+public fun[autoCt, native("_UShort_opPlus1")] + (x: UShort): UShort;
+public fun[autoCt, native("_Int_opPlus1")] + (x: Int): Int;
+public fun[autoCt, native("_UInt_opPlus1")] + (x: UInt): UInt;
+public fun[autoCt, native("_Long_opPlus1")] + (x: Long): Long;
+public fun[autoCt, native("_ULong_opPlus1")] + (x: ULong): ULong;
+public fun[autoCt, native("_SizeType_opPlus1")] + (x: SizeType): SizeType;
+public fun[autoCt, native("_DiffType_opPlus1")] + (x: DiffType): DiffType;
+public fun[autoCt, native("_Float_opPlus1")] + (x: Float): Float;
+public fun[autoCt, native("_Double_opPlus1")] + (x: Double): Double;
 
 // Unary - (only for signed types)
-fun[autoCt, native("_Byte_opMinus1")] - (x: Byte): Byte;
-fun[autoCt, native("_Short_opMinus1")] - (x: Short): Short;
-fun[autoCt, native("_Int_opMinus1")] - (x: Int): Int;
-fun[autoCt, native("_Long_opMinus1")] - (x: Long): Long;
-fun[autoCt, native("_DiffType_opMinus1")] - (x: DiffType): DiffType;
-fun[autoCt, native("_Float_opMinus1")] - (x: Float): Float;
-fun[autoCt, native("_Double_opMinus1")] - (x: Double): Double;
+public fun[autoCt, native("_Byte_opMinus1")] - (x: Byte): Byte;
+public fun[autoCt, native("_Short_opMinus1")] - (x: Short): Short;
+public fun[autoCt, native("_Int_opMinus1")] - (x: Int): Int;
+public fun[autoCt, native("_Long_opMinus1")] - (x: Long): Long;
+public fun[autoCt, native("_DiffType_opMinus1")] - (x: DiffType): DiffType;
+public fun[autoCt, native("_Float_opMinus1")] - (x: Float): Float;
+public fun[autoCt, native("_Double_opMinus1")] - (x: Double): Double;

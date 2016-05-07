@@ -24,11 +24,11 @@ namespace
     // Helpers for Identifier and CompoundExp nodes
     //
 
-    void removeNodesWithNoType(NodeArray& nodes) {
+    void removeUnusableDecls(NodeArray& nodes, Node* accessedFrom) {
         Node**dest = nodes.beginPtr;
         Node**src = nodes.beginPtr;
         while ( src != nodes.endPtr ) {
-            if ( !Nest_computeType(*src) ) {
+            if ( !Nest_computeType(*src) || !canAccessNode(*src, accessedFrom) ) {
                 ++src;
             }
             else {
@@ -888,8 +888,23 @@ Node* Identifier_SemanticCheck(Node* node)
     if ( Nest_nodeArraySize(decls) == 0 )
         REP_ERROR_RET(nullptr, node->location, "No declarations found with the given name (%1%)") % id;
 
-    // Filter out the decls with no type
-    removeNodesWithNoType(decls);
+    // Filter out the decls with no type, and the ones that cannot be accessed
+    // from this node
+    removeUnusableDecls(decls, node);
+
+    if ( size(decls) == 0 ) {
+        REP_ERROR(node->location, "No declarations found with the given name (%1%)") % id;
+
+        // Print the removed declarations
+        NodeArray decls1 = Nest_symTabLookup(node->context->currentSymTab, id.begin);
+        for ( Node* n: decls1 ) {
+            if ( n )
+                REP_INFO(n->location, "See inaccessible declaration");
+        }
+        Nest_freeNodeArray(decls1);
+        Nest_freeNodeArray(decls);
+        return NULL;
+    }
 
     // If at least one decl is a field or method, then transform this into a compound expression starting from 'this'
     bool needsThis = false;

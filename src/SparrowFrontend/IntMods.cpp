@@ -137,6 +137,7 @@ namespace
         // Add the function
         Node* m = mkSprFunction(loc, fromString(name), parameters, ret, body);
         Nest_setPropertyInt(m, propNoDefault, 1);
+        copyAccessType(m, parent);
         Feather_setEvalMode(m, mode == modeUnspecified ? Feather_effectiveEvalMode(parent) : mode);
         Class_addChild(parent, m);
         if ( !Nest_computeType(m) )
@@ -170,6 +171,7 @@ namespace
         // Add the function in the context of the parent
         Node* f = mkSprFunction(loc, fromString(name), parameters, ret, body);
         Nest_setPropertyInt(f, propNoDefault, 1);
+        copyAccessType(f, parent);
         Feather_setEvalMode(f, mode == modeUnspecified ? Feather_effectiveEvalMode(parent) : mode);
         Nest_setContext(f, ctx);
         if ( !Nest_computeType(f) )

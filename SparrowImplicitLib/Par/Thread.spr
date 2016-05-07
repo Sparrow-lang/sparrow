@@ -5,35 +5,35 @@ import SL.NewDelete;
 import Assert;
 
 //! Datatype describing a thread ID
-class ThreadId {
+public class ThreadId {
     var id: ULong;
 
-    fun ctor(id: ULong) {
+    public fun ctor(id: ULong) {
         this.id ctor id;
     }
-    fun ctor(h: NativeThreadHandle) {
+    public fun ctor(h: NativeThreadHandle) {
         this.id ctor;
         Impl.pthread_threadid_np(h, id);
     }
 }
-fun >>(tid: @ThreadId, os: @OutStream)
+public fun >>(tid: @ThreadId, os: @OutStream)
 {
     os << tid.id;
 }
 
 
 
-class Thread
+public class Thread
 {
     private var handle: NativeThreadHandle;
 
     //! Construct the Thread with a functor
     //! The functor can have state, not just executing code
-    fun ctor(f: AnyType) if isValid(f()) {
+    public fun ctor(f: AnyType) if isValid(f()) {
         handle = Impl.startThread(f);
     }
     //! Destructor. Detatch the thread if joinable
-    fun dtor {
+    public fun dtor {
         if ( this isJoinable ) this detach;
     }
 
@@ -43,7 +43,7 @@ class Thread
 
 }
 
-fun >>(t: @Thread, os: @OutStream)
+public fun >>(t: @Thread, os: @OutStream)
 {
     if ( handle != NativeThreadHandle() )
         os << "Thread(" << handle << ")";
@@ -52,16 +52,16 @@ fun >>(t: @Thread, os: @OutStream)
 }
 
 //! Swap the content of two Thread objects
-//fun swap(lhs, rhs: @Thread) {
+//public fun swap(lhs, rhs: @Thread) {
 //    var tmp = lhs.handle swap rhs.handle;
 //}
 
 //! Test if the thread is joinable (e.g., still active);
-fun isJoinable(t: Thread) = t.handle != NativeThreadHandle();
+public fun isJoinable(t: Thread) = t.handle != NativeThreadHandle();
 
 //! Wait for the thread to finish
 //! This shouldn't be called from the same thread
-fun join(t: @Thread) {
+public fun join(t: @Thread) {
     assert(t isJoinable);
     assert((t getId) !== curThreadId);
     var res = Impl.pthread_join(t.handle, null);
@@ -71,7 +71,7 @@ fun join(t: @Thread) {
 
 //! Detaches the given thread object from the actual thread of execution
 //! The actual thread may continue to execute after this call
-fun detach(t: @Thread) {
+public fun detach(t: @Thread) {
     assert(t isJoinable);
     var res = Impl.pthread_detach(t.handle);
     assert(res == 0);
@@ -79,20 +79,20 @@ fun detach(t: @Thread) {
 }
 
 //! Get the ID of the given thread
-fun getId(t: Thread): ThreadId = ThreadId(t.handle);
+public fun getId(t: Thread): ThreadId = ThreadId(t.handle);
 
 //! Get the native handle of the given thread
-fun getNativeHandle(t: Thread): NativeThreadHandle = t.handle;
+public fun getNativeHandle(t: Thread): NativeThreadHandle = t.handle;
 
 
 //! Get the current thread id
-fun curThreadId: ThreadId = ThreadId(NativeThreadHandle());
+public fun curThreadId: ThreadId = ThreadId(NativeThreadHandle());
 
 //! Tries to suspend the current thread to let other threads execute
-fun yield = Impl.sched_yield();
+public fun yield = Impl.sched_yield();
 
 //! Sleep the given amount of milliseconds
-fun sleep(durMs: UInt) {
+public fun sleep(durMs: UInt) {
     var req = Impl.TimeSpec(durMs/1000, (durMs%1000)*1000000);
     var rem = Impl.TimeSpec(0, 0);
     Impl.nanosleep(req, rem);

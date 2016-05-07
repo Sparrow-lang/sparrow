@@ -50,6 +50,7 @@ void SprFrontend::initTypeType(CompilationContext* ctx)
     Nest_setPropertyString(clsType, propNativeName, fromCStr("Type"));
     Feather_setEvalMode(clsType, modeCt);
     Nest_setContext(clsType, ctx);
+    setAccessType(clsType, publicAccess);
     if ( !Nest_computeType(clsType) )
         REP_INTERNAL(NOLOC, "Cannot create 'Type' type");
     typeType = Feather_getDataType(clsType, 0, modeCt);

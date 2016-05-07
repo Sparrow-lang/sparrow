@@ -1,62 +1,62 @@
-class[rtct] RawPtr(valueType: Type)
+public class[rtct] RawPtr(valueType: Type)
 {
-    using ValueType = valueType;
+    public using ValueType = valueType;
 
-    fun[static] fromRef(ptr: @ValueType): RawPtr
+    public fun[static] fromRef(ptr: @ValueType): RawPtr
     {
         var res: RawPtr;
         res.ptr := ptr;
         return res;
     }
 
-    fun[static] fromBytePtr(ptr: @Byte): RawPtr
+    public fun[static] fromBytePtr(ptr: @Byte): RawPtr
     {
         var res: RawPtr;
         res.ptr := reinterpretCast(@ValueType, ptr);
         return res;
     }
 
-    fun[static] alloc(num: SizeType): RawPtr
+    public fun[static] alloc(num: SizeType): RawPtr
     {
         var res: RawPtr;
         res.ptr := reinterpretCast(@ValueType, malloc(num * sizeOf(ValueType)));
         return res;
     }
 
-    fun value: @ValueType               = ptr;
-    fun advance: RawPtr                 = RawPtr.fromBytePtr(ptrAdd(bytePtr(), sizeOf(ValueType)));
-    fun advance(n: DiffType): RawPtr    = RawPtr.fromBytePtr(ptrAdd(bytePtr(), n * DiffType(sizeOf(ValueType))));
-    fun diff(other: RawPtr): DiffType   = DiffType(ptrDiff(bytePtr(), other.bytePtr()) / DiffType(sizeOf(ValueType)));
+    public fun value: @ValueType               = ptr;
+    public fun advance: RawPtr                 = RawPtr.fromBytePtr(ptrAdd(bytePtr(), sizeOf(ValueType)));
+    public fun advance(n: DiffType): RawPtr    = RawPtr.fromBytePtr(ptrAdd(bytePtr(), n * DiffType(sizeOf(ValueType))));
+    public fun diff(other: RawPtr): DiffType   = DiffType(ptrDiff(bytePtr(), other.bytePtr()) / DiffType(sizeOf(ValueType)));
 
-    fun isNull: Bool            = ptr === null;
-    fun isSet                   = ptr !== null;
+    public fun isNull: Bool            = ptr === null;
+    public fun isSet                   = ptr !== null;
 
-    fun bytePtr: @Byte          = reinterpretCast(@Byte, ptr);
+    public fun bytePtr: @Byte          = reinterpretCast(@Byte, ptr);
 
-    fun reallocPtr(n: SizeType)
+    public fun reallocPtr(n: SizeType)
     {
         ptr := reinterpretCast(@ValueType, realloc(bytePtr(), n * sizeOf(ValueType)));
     }
 
-    fun freePtr
+    public fun freePtr
     {
         if ( isSet() )
             free(bytePtr());
     }
 
-    fun swap(other: @RawPtr)
+    public fun swap(other: @RawPtr)
     {
         var t: @ValueType = ptr;
         ptr := other.ptr;
         other.ptr := t;
     }
     
-    fun =(other: RawPtr)        { ptr := other.ptr; }
+    public fun =(other: RawPtr)        { ptr := other.ptr; }
     
-    fun ==(other: RawPtr)       = ptr === other.ptr;
-    fun < (other: RawPtr)       = ptrDiff(this.bytePtr(), other.bytePtr()) < DiffType(0);
+    public fun ==(other: RawPtr)       = ptr === other.ptr;
+    public fun < (other: RawPtr)       = ptrDiff(this.bytePtr(), other.bytePtr()) < DiffType(0);
 
-    fun >>(os: @OutStream)
+    public fun >>(os: @OutStream)
     {
         os << "RawPtr(" << mkStreamRefWrapper(bytePtr()) << ")";
     }

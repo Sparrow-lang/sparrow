@@ -11,7 +11,7 @@ import Par.Locks;
 //!
 //! We use an intrinsic double-linked list to store the queue.
 //! The methods are synchronized to protect 2 threads popping elements.
-class TaskQueue {
+public class TaskQueue {
     //! Points to the first element in the queue
     private var first: TaskPrefix Ptr;
     //! Points to the last valid element in the queue
@@ -21,17 +21,17 @@ class TaskQueue {
     private var mutex: Mutex;
 }
 
-fun empty(q: @TaskQueue): Bool {
+public fun empty(q: @TaskQueue): Bool {
     var lock: ScopedLock(Mutex) = q.mutex;
     return q.first isNull;
 }
 
-fun size(q: @TaskQueue): SizeType {
+public fun size(q: @TaskQueue): SizeType {
     var lock: ScopedLock(Mutex) = q.mutex;
     return q uncheckedSize;
 }
 
-fun uncheckedSize(q: @TaskQueue): SizeType {
+public fun uncheckedSize(q: @TaskQueue): SizeType {
     var count: SizeType = 0;
     var p: TaskPtr = q.first;
     while ( p isSet ) {
@@ -41,7 +41,7 @@ fun uncheckedSize(q: @TaskQueue): SizeType {
     return count;    
 }
 
-fun pushFront(q: @TaskQueue, task: TaskPtr) {
+public fun pushFront(q: @TaskQueue, task: TaskPtr) {
     var lock: ScopedLock(Mutex) = q.mutex;
 
     // don't care what prev is
@@ -57,7 +57,7 @@ fun pushFront(q: @TaskQueue, task: TaskPtr) {
     assert(q.last isSet);
     assert(q.last.get().next isNull);
 }
-fun popFront(q: @TaskQueue): TaskPtr {
+public fun popFront(q: @TaskQueue): TaskPtr {
     var lock: ScopedLock(Mutex) = q.mutex;
 
     if ( q.first isNull )
@@ -73,7 +73,7 @@ fun popFront(q: @TaskQueue): TaskPtr {
 
     return res;
 }
-fun popBack(q: @TaskQueue): TaskPtr {
+public fun popBack(q: @TaskQueue): TaskPtr {
     var lock: ScopedLock(Mutex) = q.mutex;
 
     if ( q.last isNull )
@@ -95,12 +95,12 @@ fun popBack(q: @TaskQueue): TaskPtr {
 }
 
 
-class[initCtor] TasksPrinter {
+public class[initCtor] TasksPrinter {
     var first: TaskPtr;
     var list: @TaskQueue;
 }
 
-fun >> (tasks: @TasksPrinter, os: @OutStream) {
+public fun >> (tasks: @TasksPrinter, os: @OutStream) {
     if ( tasks.first isSet )
         os << tasks.first.get() << " + ";
     var p: TaskPtr = tasks.list.first;

@@ -2,16 +2,16 @@ import ContiguousMemoryRange;
 import RawPtr;
 import Ranges;
 
-fun[rtct] mkVector(range: Range) = Vector(-@ range.RetType)(range);
+public fun[rtct] mkVector(range: Range) = Vector(-@ range.RetType)(range);
 
-class[rtct] Vector(valueType: Type)
+public class[rtct] Vector(valueType: Type)
 {
-    using ValueType = valueType;
-    using ValuePassType = !@valueType;
+    public using ValueType = valueType;
+    public using ValuePassType = !@valueType;
 
-    using RangeType = ContiguousMemoryRange(valueType);
+    public using RangeType = ContiguousMemoryRange(valueType);
 
-    fun ctor(other: @Vector)
+    public fun ctor(other: @Vector)
     {
         var size = other.size();
 
@@ -30,7 +30,7 @@ class[rtct] Vector(valueType: Type)
         }
     }
 
-    fun ctor(size: SizeType)
+    public fun ctor(size: SizeType)
     {
         // Allocate the buffer
         begin = RawPtr(ValueType).alloc(size);
@@ -43,7 +43,7 @@ class[rtct] Vector(valueType: Type)
             p.value().ctor();
     }
 
-    fun ctor(range: Range) if !RandomAccessRange(range)
+    public fun ctor(range: Range) if !RandomAccessRange(range)
     {
         begin.ctor();
         end.ctor();
@@ -52,7 +52,7 @@ class[rtct] Vector(valueType: Type)
             pushBack(v);
     }
 
-    fun ctor(range: RandomAccessRange)
+    public fun ctor(range: RandomAccessRange)
     {
         begin.ctor();
         end.ctor();
@@ -62,7 +62,7 @@ class[rtct] Vector(valueType: Type)
             pushBack(v);
     }
 
-    fun[rt] ctorFromCt(src: Vector ct)
+    public fun[rt] ctorFromCt(src: Vector ct)
     {
         this.ctor();
         this.reserve(ctEval(src.size()));
@@ -70,7 +70,7 @@ class[rtct] Vector(valueType: Type)
             this.pushBack(el);
     }
 
-    fun swap(other: @Vector)
+    public fun swap(other: @Vector)
     {
         var tmp = begin;
 
@@ -84,7 +84,7 @@ class[rtct] Vector(valueType: Type)
         other.endOfStore = tmp;
     }
 
-    fun dtor
+    public fun dtor
     {
         var p = begin;
 
@@ -93,11 +93,11 @@ class[rtct] Vector(valueType: Type)
         begin.freePtr();
     }
 
-    fun size: SizeType = end.diff(begin);
-    fun isEmpty = begin == end;
-    fun capacity: SizeType = endOfStore.diff(begin);
+    public fun size: SizeType = end.diff(begin);
+    public fun isEmpty = begin == end;
+    public fun capacity: SizeType = endOfStore.diff(begin);
 
-    fun reserve(n: SizeType)
+    public fun reserve(n: SizeType)
     {
         var curCapacity = capacity();
 
@@ -117,14 +117,14 @@ class[rtct] Vector(valueType: Type)
         endOfStore = begin.advance(n);
     }
 
-    fun at(index: SizeType)    = begin.advance(index).value();
-    fun ()(index: SizeType)    = begin.advance(index).value();
-    fun front                   = begin.value();
-    fun back                    = end.advance(-1).value();
-    fun all                     = RangeType(begin, end);
-    fun subrange(index: SizeType, num: SizeType): RangeType = RangeType(begin.advance(index), begin.advance(index + num));
+    public fun at(index: SizeType)    = begin.advance(index).value();
+    public fun ()(index: SizeType)    = begin.advance(index).value();
+    public fun front                   = begin.value();
+    public fun back                    = end.advance(-1).value();
+    public fun all                     = RangeType(begin, end);
+    public fun subrange(index: SizeType, num: SizeType): RangeType = RangeType(begin.advance(index), begin.advance(index + num));
 
-    fun insertBefore(value: ValuePassType, pos: RangeType)
+    public fun insertBefore(value: ValuePassType, pos: RangeType)
     {
         var posCount = pos.frontPtr().diff(begin);
 
@@ -142,7 +142,7 @@ class[rtct] Vector(valueType: Type)
         end = end.advance();
     }
 
-    fun insertBefore(range: Range, pos: RangeType)
+    public fun insertBefore(range: Range, pos: RangeType)
     {
         var n = range.size();
         var index = pos.frontPtr().diff(begin);
@@ -167,17 +167,17 @@ class[rtct] Vector(valueType: Type)
         end = end.advance(n);
     }
 
-    fun insertAfter(value: ValuePassType, pos: RangeType)
+    public fun insertAfter(value: ValuePassType, pos: RangeType)
     {
         insertBefore(value, RangeType(pos.backPtr(), end));
     }
 
-    fun insertAfter(range: Range, pos: RangeType)
+    public fun insertAfter(range: Range, pos: RangeType)
     {
         insertBefore(range, RangeType(pos.backPtr(), end));
     }
 
-    fun pushBack(value: ValuePassType)
+    public fun pushBack(value: ValuePassType)
     {
         if ( end == endOfStore )
         {
@@ -190,15 +190,15 @@ class[rtct] Vector(valueType: Type)
         end.value().ctor(value);
         end = end.advance();
     }
-    fun +=(value: ValuePassType) { pushBack(value); }
+    public fun +=(value: ValuePassType) { pushBack(value); }
 
-    fun popBack()
+    public fun popBack()
     {
         end = end.advance(-1);
         end.value().dtor();
     }
 
-    fun remove(range: RangeType)
+    public fun remove(range: RangeType)
     {
         var rBegin = range.frontPtr();
         var rEnd = range.backPtr();
@@ -218,7 +218,7 @@ class[rtct] Vector(valueType: Type)
         end = rBegin;
     }
 
-    fun remove(index: SizeType)
+    public fun remove(index: SizeType)
     {
         var r = all();
 
@@ -227,7 +227,7 @@ class[rtct] Vector(valueType: Type)
         remove(r);
     }
 
-    fun resize(n: SizeType)
+    public fun resize(n: SizeType)
     {
         var oldSize = size();
 
@@ -258,12 +258,12 @@ class[rtct] Vector(valueType: Type)
         }
     }
 
-    fun clear()
+    public fun clear()
     {
         remove(RangeType(begin, end));
     }
 
-    fun =(other: @Vector): @Vector
+    public fun =(other: @Vector): @Vector
     {
         var tmp = other;
 
@@ -272,7 +272,7 @@ class[rtct] Vector(valueType: Type)
         return this;
     }
 
-    fun ==(other: @Vector): Bool
+    public fun ==(other: @Vector): Bool
     {
         if ( size() != other.size() )
             return false;
@@ -288,16 +288,16 @@ class[rtct] Vector(valueType: Type)
         return true;
     }
 
-    fun !=(other: @Vector): Bool = !(this == other);
+    public fun !=(other: @Vector): Bool = !(this == other);
 
-    fun assign(range: Range)
+    public fun assign(range: Range)
     {
         clear();
         for ( v = range )
             pushBack(v);
     }
 
-    fun >>(os: @OutStream) if isValid(os << #$ValueType)
+    public fun >>(os: @OutStream) if isValid(os << #$ValueType)
     {
         os << "Vec(";
         for ( i = 0..size ) {

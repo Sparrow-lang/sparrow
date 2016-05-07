@@ -177,7 +177,7 @@ void SprCompilationUnit_SetContextForChildren(Node* node)
             // We didn't find the package part. From now on create new namespaces
             for ( int j=(int)names.size()-1; j>=i; --j )
             {
-                Node* pk = mkSprPackage(packageName->location, fromString(names[j]), declarations);
+                Node* pk = mkSprPackage(packageName->location, fromString(names[j]), declarations, publicAccess);
                 declarations = Feather_mkNodeListVoid(packageName->location, fromIniList({pk}));
                 at(node->children, 2) = declarations;
             }
@@ -334,8 +334,10 @@ TypeRef SprClass_ComputeType(Node* node)
     }
 
     // Create the resulting Feather.Class object
-    if ( !resultingClass )
+    if ( !resultingClass ) {
         resultingClass = Feather_mkClass(node->location, Feather_getName(node), {});
+        copyAccessType(resultingClass, node);
+    }
     Feather_setShouldAddToSymTab(resultingClass, 0);
 
     // Copy the "native" and "description" properties to the resulting class
@@ -471,6 +473,7 @@ TypeRef SprFunction_ComputeType(Node* node)
     // Create the resulting function object
     Node* resultingFun = Feather_mkFunction(node->location, funName, nullptr, {}, body);
     Feather_setShouldAddToSymTab(resultingFun, 0);
+    copyAccessType(resultingFun, node);
 
     // Copy the "native" and the "autoCt" properties
     const StringRef* nativeName = Nest_getPropertyString(node, propNativeName);

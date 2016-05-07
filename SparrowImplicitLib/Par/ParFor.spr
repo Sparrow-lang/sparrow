@@ -4,16 +4,16 @@ import Par.Tasks;
 import SL.Ranges;
 import BitOper;
 
-concept Partitioner(x)
+public concept Partitioner(x)
     if isValid(x.RangeType)
     && isValid(x.partStart())
     && isValid(x.partition(valueOfType(x.RangeType), 0))
     ;
 
-fun parFor(r: Range, f: AnyType) if isValid(f(r.front()))
+public fun parFor(r: Range, f: AnyType) if isValid(f(r.front()))
     { parFor(r, f, DefaultPartitioner(typeOf(r))()); }
 
-fun parFor(r: Range, f: AnyType, part: @Partitioner)
+public fun parFor(r: Range, f: AnyType, part: @Partitioner)
     if isValid(f(r.front()))
 {
     // Tell the partitioner that we are starting work
@@ -25,11 +25,11 @@ fun parFor(r: Range, f: AnyType, part: @Partitioner)
 }
 
 class DefaultPartitioner(rangeType: Type) {
-    using RangeType = BoundedRange(rangeType);
+    public using RangeType = BoundedRange(rangeType);
 
     private var maxDepth: Int;
 
-    fun partStart {
+    public fun partStart {
         var p: Int = Par.getAvailableCoresNum;
         var depth = 1;
         while ( 2 !<<! depth < p )
@@ -38,7 +38,7 @@ class DefaultPartitioner(rangeType: Type) {
         maxDepth = 1 + depth;
     }
 
-    fun partition(r: Range, depth: Int) : RangeType * RangeType
+    public fun partition(r: Range, depth: Int) : RangeType * RangeType
     {
         var splitIdx = 0;
         var sz: Int = r rangeSize;
@@ -56,22 +56,22 @@ class BoundedRange(baseRangeType: Type) {
     private var baseRange: baseRangeType;
     private var count: SizeType;
 
-    using RetType = baseRangeType.RetType;
+    public using RetType = baseRangeType.RetType;
 
-    fun ctor(r: @baseRangeType) {
+    public fun ctor(r: @baseRangeType) {
         baseRange ctor r;
         count = (baseRange rangeSize);
     }
 
-    fun ctor(r: @BoundedRange, nSkip, nTake: SizeType) {
+    public fun ctor(r: @BoundedRange, nSkip, nTake: SizeType) {
         baseRange ctor r.baseRange;
         baseRange advance nSkip;
         count ctor nTake;
     }
 
-    fun isEmpty                     = count == 0 || baseRange.isEmpty();
-    fun front: RetType              = baseRange.front();
-    fun popFront                    { baseRange.popFront(); --count; }
+    public fun isEmpty                     = count == 0 || baseRange.isEmpty();
+    public fun front: RetType              = baseRange.front();
+    public fun popFront                    { baseRange.popFront(); --count; }
 }
 
 package Impl {
@@ -114,8 +114,8 @@ package Impl {
         }
     }
 
-    fun ParForTask(r: Range, f: AnyType, part: @Partitioner, depth: Int)
+    public fun ParForTask(r: Range, f: AnyType, part: @Partitioner, depth: Int)
         = ParForTask(typeOf(r), typeOf(f), -@typeOf(part))(r, f, part, depth);
-    fun allocParForTask(r: Range, f: AnyType, part: @Partitioner, depth: Int)
+    public fun allocParForTask(r: Range, f: AnyType, part: @Partitioner, depth: Int)
         = new(ParForTask(typeOf(r), typeOf(f), -@typeOf(part)), r, f, part, depth);
 }

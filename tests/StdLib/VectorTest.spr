@@ -228,7 +228,7 @@ fun arbitrary(t: Type): Vec Gen if t == Vec {
 }
 
 fun arbitrary(t: Type): TestRange Gen if t == TestRange {
-    return (Vec Gen)(\generateTestRange);
+    return (TestRange Gen)(\generateTestRange);
 }
 
 //! Generate an arbitrary vector
@@ -273,7 +273,7 @@ class SubrangeTestData {
 }
 
 fun arbitrary(t: Type): SubrangeTestData Gen if t == SubrangeTestData {
-    return (Vec Gen)((fun (sizeHint: UInt): SubrangeTestData {
+    return (SubrangeTestData Gen)((fun (sizeHint: UInt): SubrangeTestData {
         var res: SubrangeTestData;
         res.vec = generateVec(sizeHint);
         res.count = randBetween(0, res.vec.size);
@@ -295,7 +295,7 @@ class InsertValueTestData {
 }
 
 fun arbitrary(t: Type): InsertValueTestData Gen if t == InsertValueTestData {
-    return (Vec Gen)((fun (sizeHint: UInt): InsertValueTestData {
+    return (InsertValueTestData Gen)((fun (sizeHint: UInt): InsertValueTestData {
         var res: InsertValueTestData;
         res.vec = generateVec(sizeHint);
         res.idx = randBetween(0, res.vec.size);
@@ -316,7 +316,7 @@ class InsertRangeTestData {
 }
 
 fun arbitrary(t: Type): InsertRangeTestData Gen if t == InsertRangeTestData {
-    return (Vec Gen)((fun (sizeHint: UInt): InsertRangeTestData {
+    return (InsertRangeTestData Gen)((fun (sizeHint: UInt): InsertRangeTestData {
         var res: InsertRangeTestData;
         res.vec = generateVec(sizeHint);
         res.idx = randBetween(0, res.vec.size);

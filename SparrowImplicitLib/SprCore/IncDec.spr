@@ -1,51 +1,51 @@
-//fun[autoCt] pre_++(n: @Integer): @typeOf(n) { n+=1; return n; }
-//fun[autoCt] pre_--(n: @Integer): @typeOf(n) { n-=1; return n; }
+//public fun[autoCt] pre_++(n: @Integer): @typeOf(n) { n+=1; return n; }
+//public fun[autoCt] pre_--(n: @Integer): @typeOf(n) { n-=1; return n; }
 
-//fun[autoCt] post_++(n: @Integer): typeOf(n) { var old = n; n+=1; return old; }
-//fun[autoCt] post_--(n: @Integer): typeOf(n) { var old = n; n-=1; return old; }
+//public fun[autoCt] post_++(n: @Integer): typeOf(n) { var old = n; n+=1; return old; }
+//public fun[autoCt] post_--(n: @Integer): typeOf(n) { var old = n; n-=1; return old; }
 
-fun[autoCt] pre_++(n: @Byte): Byte { n+=Byte(1); return n; }
-fun[autoCt] pre_++(n: @UByte): UByte { n+=UByte(1); return n; }
-fun[autoCt] pre_++(n: @Short): Short { n+=Short(1); return n; }
-fun[autoCt] pre_++(n: @UShort): UShort { n+=UShort(1); return n; }
-fun[autoCt] pre_++(n: @Int): Int { n+=1; return n; }
-fun[autoCt] pre_++(n: @UInt): UInt { n+=UInt(1); return n; }
-fun[autoCt] pre_++(n: @Long): Long { n+=Long(1); return n; }
-fun[autoCt] pre_++(n: @ULong): ULong { n+=ULong(1); return n; }
-fun[autoCt] pre_++(n: @SizeType): SizeType { n+=SizeType(1); return n; }
-fun[autoCt] pre_++(n: @DiffType): DiffType { n+=DiffType(1); return n; }
+public fun[autoCt] pre_++(n: @Byte): Byte { n+=Byte(1); return n; }
+public fun[autoCt] pre_++(n: @UByte): UByte { n+=UByte(1); return n; }
+public fun[autoCt] pre_++(n: @Short): Short { n+=Short(1); return n; }
+public fun[autoCt] pre_++(n: @UShort): UShort { n+=UShort(1); return n; }
+public fun[autoCt] pre_++(n: @Int): Int { n+=1; return n; }
+public fun[autoCt] pre_++(n: @UInt): UInt { n+=UInt(1); return n; }
+public fun[autoCt] pre_++(n: @Long): Long { n+=Long(1); return n; }
+public fun[autoCt] pre_++(n: @ULong): ULong { n+=ULong(1); return n; }
+public fun[autoCt] pre_++(n: @SizeType): SizeType { n+=SizeType(1); return n; }
+public fun[autoCt] pre_++(n: @DiffType): DiffType { n+=DiffType(1); return n; }
 
-fun[autoCt] pre_--(n: @Byte): Byte { n-=Byte(1); return n; }
-fun[autoCt] pre_--(n: @UByte): UByte { n-=UByte(1); return n; }
-fun[autoCt] pre_--(n: @Short): Short { n-=Short(1); return n; }
-fun[autoCt] pre_--(n: @UShort): UShort { n-=UShort(1); return n; }
-fun[autoCt] pre_--(n: @Int): Int { n-=1; return n; }
-fun[autoCt] pre_--(n: @UInt): UInt { n-=UInt(1); return n; }
-fun[autoCt] pre_--(n: @Long): Long { n-=Long(1); return n; }
-fun[autoCt] pre_--(n: @ULong): ULong { n-=ULong(1); return n; }
-fun[autoCt] pre_--(n: @SizeType): SizeType { n-=SizeType(1); return n; }
-fun[autoCt] pre_--(n: @DiffType): DiffType { n-=DiffType(1); return n; }
+public fun[autoCt] pre_--(n: @Byte): Byte { n-=Byte(1); return n; }
+public fun[autoCt] pre_--(n: @UByte): UByte { n-=UByte(1); return n; }
+public fun[autoCt] pre_--(n: @Short): Short { n-=Short(1); return n; }
+public fun[autoCt] pre_--(n: @UShort): UShort { n-=UShort(1); return n; }
+public fun[autoCt] pre_--(n: @Int): Int { n-=1; return n; }
+public fun[autoCt] pre_--(n: @UInt): UInt { n-=UInt(1); return n; }
+public fun[autoCt] pre_--(n: @Long): Long { n-=Long(1); return n; }
+public fun[autoCt] pre_--(n: @ULong): ULong { n-=ULong(1); return n; }
+public fun[autoCt] pre_--(n: @SizeType): SizeType { n-=SizeType(1); return n; }
+public fun[autoCt] pre_--(n: @DiffType): DiffType { n-=DiffType(1); return n; }
 
-fun[autoCt] post_++(n: @Byte): Byte { var old = n; n+=Byte(1); return old; }
-fun[autoCt] post_++(n: @UByte): UByte { var old = n; n+=UByte(1); return old; }
-fun[autoCt] post_++(n: @Short): Short { var old = n; n+=Short(1); return old; }
-fun[autoCt] post_++(n: @UShort): UShort { var old = n; n+=UShort(1); return old; }
-fun[autoCt] post_++(n: @Int): Int { var old = n; n+=1; return old; }
-fun[autoCt] post_++(n: @UInt): UInt { var old = n; n+=UInt(1); return old; }
-fun[autoCt] post_++(n: @Long): Long { var old = n; n+=Long(1); return old; }
-fun[autoCt] post_++(n: @ULong): ULong { var old = n; n+=ULong(1); return old; }
-fun[autoCt] post_++(n: @SizeType): SizeType { var old = n; n+=SizeType(1); return old; }
-fun[autoCt] post_++(n: @DiffType): DiffType { var old = n; n+=DiffType(1); return old; }
+public fun[autoCt] post_++(n: @Byte): Byte { var old = n; n+=Byte(1); return old; }
+public fun[autoCt] post_++(n: @UByte): UByte { var old = n; n+=UByte(1); return old; }
+public fun[autoCt] post_++(n: @Short): Short { var old = n; n+=Short(1); return old; }
+public fun[autoCt] post_++(n: @UShort): UShort { var old = n; n+=UShort(1); return old; }
+public fun[autoCt] post_++(n: @Int): Int { var old = n; n+=1; return old; }
+public fun[autoCt] post_++(n: @UInt): UInt { var old = n; n+=UInt(1); return old; }
+public fun[autoCt] post_++(n: @Long): Long { var old = n; n+=Long(1); return old; }
+public fun[autoCt] post_++(n: @ULong): ULong { var old = n; n+=ULong(1); return old; }
+public fun[autoCt] post_++(n: @SizeType): SizeType { var old = n; n+=SizeType(1); return old; }
+public fun[autoCt] post_++(n: @DiffType): DiffType { var old = n; n+=DiffType(1); return old; }
 
-fun[autoCt] post_--(n: @Byte): Byte { var old = n; n-=Byte(1); return old; }
-fun[autoCt] post_--(n: @UByte): UByte { var old = n; n-=UByte(1); return old; }
-fun[autoCt] post_--(n: @Short): Short { var old = n; n-=Short(1); return old; }
-fun[autoCt] post_--(n: @UShort): UShort { var old = n; n-=UShort(1); return old; }
-fun[autoCt] post_--(n: @Int): Int { var old = n; n-=1; return old; }
-fun[autoCt] post_--(n: @UInt): UInt { var old = n; n-=UInt(1); return old; }
-fun[autoCt] post_--(n: @Long): Long { var old = n; n-=Long(1); return old; }
-fun[autoCt] post_--(n: @ULong): ULong { var old = n; n-=ULong(1); return old; }
-fun[autoCt] post_--(n: @SizeType): SizeType { var old = n; n-=SizeType(1); return old; }
-fun[autoCt] post_--(n: @DiffType): DiffType { var old = n; n-=DiffType(1); return old; }
+public fun[autoCt] post_--(n: @Byte): Byte { var old = n; n-=Byte(1); return old; }
+public fun[autoCt] post_--(n: @UByte): UByte { var old = n; n-=UByte(1); return old; }
+public fun[autoCt] post_--(n: @Short): Short { var old = n; n-=Short(1); return old; }
+public fun[autoCt] post_--(n: @UShort): UShort { var old = n; n-=UShort(1); return old; }
+public fun[autoCt] post_--(n: @Int): Int { var old = n; n-=1; return old; }
+public fun[autoCt] post_--(n: @UInt): UInt { var old = n; n-=UInt(1); return old; }
+public fun[autoCt] post_--(n: @Long): Long { var old = n; n-=Long(1); return old; }
+public fun[autoCt] post_--(n: @ULong): ULong { var old = n; n-=ULong(1); return old; }
+public fun[autoCt] post_--(n: @SizeType): SizeType { var old = n; n-=SizeType(1); return old; }
+public fun[autoCt] post_--(n: @DiffType): DiffType { var old = n; n-=DiffType(1); return old; }
 
 

@@ -2,11 +2,11 @@ import Ranges;
 import Math;
 
 
-fun sqr n = n*n;
+public fun sqr n = n*n;
 
-fun sum(r: Range) = foldLeft(r, (fun x,y = x+y), r.RetType(0));
+public fun sum(r: Range) = foldLeft(r, (fun x,y = x+y), r.RetType(0));
 
-fun mean(r: Range): Double if Number(r.front())
+public fun mean(r: Range): Double if Number(r.front())
 {
     var sum: r.RetType = 0;
     var count = 0;
@@ -18,4 +18,4 @@ fun mean(r: Range): Double if Number(r.front())
     return Double(sum) / Double(count);
 }
 
-fun rootMeanSquare r = Math.sqrt(mean(r map \sqr));
+public fun rootMeanSquare r = Math.sqrt(mean(r map \sqr));

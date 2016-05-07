@@ -1,26 +1,26 @@
 import Array;
 import BitOper;
 
-class[rtct] Bitset
+public class[rtct] Bitset
 {
-    fun ctor(noBits: SizeType)
+    public fun ctor(noBits: SizeType)
     {
         bits.ctor(1 + (noBits-1)/8, UByte(0));
     }
 
-    fun setBit(n: SizeType)
+    public fun setBit(n: SizeType)
     {
         bits.at(n/8) = bits.at(n/8) !|! (UByte(1) !<<! UByte(n%8));
     }
 
-    fun clearBit(n: SizeType)
+    public fun clearBit(n: SizeType)
     {
         bits.at(n/8) = bits.at(n/8) !&! !~!(UByte(1) !<<! UByte(n%8));
     }
 
-    fun testBit(n: SizeType) = UByte(0) != (bits.at(n/8) !&! (UByte(1) !<<! UByte(n%8)));
+    public fun testBit(n: SizeType) = UByte(0) != (bits.at(n/8) !&! (UByte(1) !<<! UByte(n%8)));
 
-    fun clear
+    public fun clear
     {
         memset(bits.begin.bytePtr(), UByte(0), bits.size());
     }

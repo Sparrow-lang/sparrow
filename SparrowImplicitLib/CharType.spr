@@ -1,15 +1,15 @@
-fun[rtct] isAlnum(c: Char) = 0 != Impl.isalnum(Int(c));
-fun[rtct] isAlpha(c: Char) = 0 != Impl.isalpha(Int(c));
-fun[rtct] isBlank(c: Char) = 0 != Impl.isblank(Int(c));
-fun[rtct] isCntrl(c: Char) = 0 != Impl.iscntrl(Int(c));
-fun[rtct] isDigit(c: Char) = 0 != Impl.isdigit(Int(c));
-fun[rtct] isGraph(c: Char) = 0 != Impl.isgraph(Int(c));
-fun[rtct] isLower(c: Char) = 0 != Impl.islower(Int(c));
-fun[rtct] isPrint(c: Char) = 0 != Impl.isprint(Int(c));
-fun[rtct] isPunct(c: Char) = 0 != Impl.ispunct(Int(c));
-fun[rtct] isSpace(c: Char) = 0 != Impl.isspace(Int(c));
-fun[rtct] isUpper(c: Char) = 0 != Impl.isupper(Int(c));
-fun[rtct] isXdigit(c: Char) = 0 != Impl.isxdigit(Int(c));
+public fun[rtct] isAlnum(c: Char) = 0 != Impl.isalnum(Int(c));
+public fun[rtct] isAlpha(c: Char) = 0 != Impl.isalpha(Int(c));
+public fun[rtct] isBlank(c: Char) = 0 != Impl.isblank(Int(c));
+public fun[rtct] isCntrl(c: Char) = 0 != Impl.iscntrl(Int(c));
+public fun[rtct] isDigit(c: Char) = 0 != Impl.isdigit(Int(c));
+public fun[rtct] isGraph(c: Char) = 0 != Impl.isgraph(Int(c));
+public fun[rtct] isLower(c: Char) = 0 != Impl.islower(Int(c));
+public fun[rtct] isPrint(c: Char) = 0 != Impl.isprint(Int(c));
+public fun[rtct] isPunct(c: Char) = 0 != Impl.ispunct(Int(c));
+public fun[rtct] isSpace(c: Char) = 0 != Impl.isspace(Int(c));
+public fun[rtct] isUpper(c: Char) = 0 != Impl.isupper(Int(c));
+public fun[rtct] isXdigit(c: Char) = 0 != Impl.isxdigit(Int(c));
 
 package Impl
 {

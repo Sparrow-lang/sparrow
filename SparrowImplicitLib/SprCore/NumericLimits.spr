@@ -1,42 +1,42 @@
-class[rtct] NumericLimits(t: Type) if t == Byte
+public class[rtct] NumericLimits(t: Type) if t == Byte
 {
     using maxValue = Byte(0x7f);
     using minValue = Byte(0x80);
 }
-class[rtct] NumericLimits(t: Type) if t == UByte
+public class[rtct] NumericLimits(t: Type) if t == UByte
 {
     using maxValue = UByte(0xff);
     using minValue = UByte(0x00);
 }
 
-class[rtct] NumericLimits(t: Type) if t == Short
+public class[rtct] NumericLimits(t: Type) if t == Short
 {
     using maxValue = Short(0x7fff);
     using minValue = Short(0x8000);
 }
-class[rtct] NumericLimits(t: Type) if t == UShort
+public class[rtct] NumericLimits(t: Type) if t == UShort
 {
     using maxValue = UShort(0xfff);
     using minValue = UShort(0x000);
 }
 
-class[rtct] NumericLimits(t: Type) if t == Int
+public class[rtct] NumericLimits(t: Type) if t == Int
 {
     using maxValue = Int(0x7fffffff);
     using minValue = Int(0x80000000);
 }
-class[rtct] NumericLimits(t: Type) if t == UInt
+public class[rtct] NumericLimits(t: Type) if t == UInt
 {
     using maxValue = UInt(0xffffffff);
     using minValue = UInt(0x00000000);
 }
 
-class[rtct] NumericLimits(t: Type) if t == Long
+public class[rtct] NumericLimits(t: Type) if t == Long
 {
     using maxValue = Long(0x7fffffffffffffffL);
     using minValue = Long(0x8000000000000000L);
 }
-class[rtct] NumericLimits(t: Type) if t == ULong
+public class[rtct] NumericLimits(t: Type) if t == ULong
 {
     using maxValue = ULong(0xffffffffffffffffL);
     using minValue = ULong(0x0000000000000000L);

@@ -1,9 +1,9 @@
 import NewDelete;
 import Meta.ASTNodes;
 
-concept Nullable(x)
+public concept Nullable(x)
     if typeOf(x.isSet()) == Bool
     && typeOf(x.isNull()) == Bool
     ;
 
-fun ! (obj: @Nullable): Bool = obj.isNull();
+public fun ! (obj: @Nullable): Bool = obj.isNull();

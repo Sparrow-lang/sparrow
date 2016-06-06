@@ -5,34 +5,34 @@ import TaskPrefix;
 
 //using traceCalls = true;
 
-public using TraceLockType = Par.Mutex;
+using TraceLockType = Par.Mutex;
 
 var traceMutex: TraceLockType;
 
 //! Helper class that does the trace while holding a mutex
 //! Prevents the output to be messed up
-public class Tracer {
-    public fun ctor {
+class Tracer {
+    fun ctor {
         traceMutex lock;
     }
 
-    public fun ctor(worker: @Worker) {
+    fun ctor(worker: @Worker) {
         traceMutex lock;
         cout << worker.workerId << ": " << Depth(worker.curDepth);
     }
 
-    public fun dtor {
+    fun dtor {
         traceMutex unlock;
     }
 
-    public fun <<<(x: @AnyType)       { cout << x; }
+    fun <<<(x: @AnyType)       { cout << x; }
 }
 
-public class[initCtor] Depth {
+class[initCtor] Depth {
     var depth: Int;
 }
 
-public fun >> (d: Depth, os: @OutStream) {
+fun >> (d: Depth, os: @OutStream) {
     if ( d.depth > 0 )
         os << String(d.depth*2, ' ');
 }

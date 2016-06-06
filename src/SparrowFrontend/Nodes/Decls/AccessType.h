@@ -18,6 +18,6 @@ namespace SprFrontend
 
     inline string accessTypeToString(AccessType accessType)
     {
-        return accessType == publicAccess ? "public" : "private";
+        return accessType == privateAccess ? "private" : "public";
     }
 }

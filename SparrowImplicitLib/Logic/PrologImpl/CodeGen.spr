@@ -1,7 +1,7 @@
 import Nodes;
 import Location;
 
-public fun[ct] genProlog(sps: @SparrowPrologSystem): Meta.AstNode = Impl.genPrologSystem(sps);
+fun[ct] genProlog(sps: @SparrowPrologSystem): Meta.AstNode = Impl.genPrologSystem(sps);
 
 package Impl
 {
@@ -78,7 +78,7 @@ package Impl
         var funName = pred.name;
         if ( genNative )
             funName += "_native";
-        var res = mkSprFunction(locPred, funName.asStringRef(), paramsNode, returnType, body, nullNode, publicAccess);
+        var res = mkSprFunction(locPred, funName.asStringRef(), paramsNode, returnType, body, nullNode);
         resNodes.pushBack(res);
 
         if ( genNative )
@@ -284,7 +284,7 @@ package Impl
         addToNodeList(children, genWrapperClassCallOper(pred));
 
         var clsName = pred.name + "_pred_wrapper";
-        return mkSprClass(loc, clsName.asStringRef(), nullNode, nullNode, nullNode, children, publicAccess);
+        return mkSprClass(loc, clsName.asStringRef(), nullNode, nullNode, nullNode, children);
     }
 
     fun[ct] genWrapperClassVars(pred: @SparrowPredicate, classChildren: @AstNode)
@@ -318,7 +318,7 @@ package Impl
 
         // Finally create the function node
         var paramsNode = genParameters(pred, false);
-        return mkSprFunction(loc, "ctor", paramsNode, nullNode, body, nullNode, publicAccess);
+        return mkSprFunction(loc, "ctor", paramsNode, nullNode, body, nullNode);
     }
     fun[ct] genWrapperClassCallOper(pred: @SparrowPredicate): AstNode
     {
@@ -391,7 +391,7 @@ package Impl
         // Finally create the function node
         var body = mkLocalSpace(loc, bodyNodes.begin.value(), bodyNodes.end.value());
         var returnType = mkIdentifier(loc, "Bool");
-        return mkSprFunction(loc, "()", nullNode, returnType, body, nullNode, publicAccess);
+        return mkSprFunction(loc, "()", nullNode, returnType, body, nullNode);
     }
     fun[ct] genWrapperPredicate(pred: @SparrowPredicate): AstNode
     {
@@ -412,6 +412,6 @@ package Impl
         // Finally create the function node
         var paramsNode = genParameters(pred, false);
         var returnType = mkCompoundExp(loc, mkIdentifier(loc, "Logic"), "Predicate");
-        return mkSprFunctionExp(loc, pred.name.asStringRef(), paramsNode, returnType, bodyExp, nullNode, publicAccess);
+        return mkSprFunctionExp(loc, pred.name.asStringRef(), paramsNode, returnType, bodyExp, nullNode);
     }
 }

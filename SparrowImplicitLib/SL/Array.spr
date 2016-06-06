@@ -2,12 +2,19 @@ import ContiguousMemoryRange;
 import RawPtr;
 import Algorithms;
 
-public class[rtct] Array(valueType: Type)
-{
-    public var[static] ValueType = valueType;
-    public var[static] RangeType = ContiguousMemoryRange(valueType);
+// !!!
+concept RangeTmp(x)
+    if typeOf(x.isEmpty()) == Bool
+    && isValid(x.front())
+    && isValid(x.popFront())
+    ;
 
-    public fun ctor(other: @Array)
+class[rtct] Array(valueType: Type)
+{
+    var[static] ValueType = valueType;
+    var[static] RangeType = ContiguousMemoryRange(valueType);
+
+    fun ctor(other: @Array)
     {
         var size = other.size();
 
@@ -25,7 +32,7 @@ public class[rtct] Array(valueType: Type)
         }
     }
 
-    public fun ctor(size: SizeType)
+    fun ctor(size: SizeType)
     {
         begin = RawPtr(ValueType).alloc(size);
         end = begin.advance(DiffType(size));
@@ -36,7 +43,7 @@ public class[rtct] Array(valueType: Type)
             p.value().ctor();
     }
 
-    public fun ctor(size: SizeType, value: @ValueType)
+    fun ctor(size: SizeType, value: @ValueType)
     {
         begin = RawPtr(ValueType).alloc(size);
         end = begin.advance(DiffType(size));
@@ -47,7 +54,7 @@ public class[rtct] Array(valueType: Type)
             p.value().ctor(value);
     }
 
-    public fun ctor(range: Range) if typeOf(range) != Array
+    fun ctor(range: RangeTmp) if typeOf(range) != Array
     {
         if ( !range.isEmpty() )
         {
@@ -66,7 +73,7 @@ public class[rtct] Array(valueType: Type)
         }
     }
 
-    public fun[rt] ctorFromCt(src: Array ct)
+    fun[rt] ctorFromCt(src: Array ct)
     {
         var[ct] size = src size;
         this ctor size;
@@ -74,7 +81,7 @@ public class[rtct] Array(valueType: Type)
             at(i) = src(i);
     }
 
-    public fun dtor
+    fun dtor
     {
         if ( isEmpty() )
             return;
@@ -86,17 +93,17 @@ public class[rtct] Array(valueType: Type)
         begin.freePtr();
     }
 
-    public fun size(): SizeType
+    fun size(): SizeType
     {
         return end.diff(begin);
     }
 
-    public fun isEmpty(): Bool
+    fun isEmpty(): Bool
     {
         return begin == end;
     }
 
-    public fun assign(range: RangeType)
+    fun assign(range: RangeType)
     {
         var r = all();
 
@@ -115,7 +122,7 @@ public class[rtct] Array(valueType: Type)
         }
     }
 
-    public fun swap(other: @Array)
+    fun swap(other: @Array)
     {
         var tmp = begin;
 
@@ -126,26 +133,26 @@ public class[rtct] Array(valueType: Type)
         other.end = tmp;
     }
 
-    public fun at(index: SizeType): @ValueType
+    fun at(index: SizeType): @ValueType
     {
         return begin.advance(DiffType(index)).value();
     }
-    public fun ()(index: SizeType): @ValueType
+    fun ()(index: SizeType): @ValueType
     {
         return begin.advance(DiffType(index)).value();
     }
 
-    public fun all(): RangeType
+    fun all(): RangeType
     {
         return RangeType(begin, end);
     }
 
-    public fun subrange(index: SizeType, num: SizeType): RangeType
+    fun subrange(index: SizeType, num: SizeType): RangeType
     {
         return RangeType(begin.advance(DiffType(index)), begin.advance(DiffType(index + num)));
     }
 
-    public fun =(other: @Array): @Array
+    fun =(other: @Array): @Array
     {
         var tmp = other;
 
@@ -154,7 +161,7 @@ public class[rtct] Array(valueType: Type)
         return this;
     }
 
-    public fun ==(other: @Array): Bool
+    fun ==(other: @Array): Bool
     {
         if ( size() != other.size() )
             return false;
@@ -174,12 +181,12 @@ public class[rtct] Array(valueType: Type)
         return true;
     }
 
-    public fun !=(other: @Array): Bool
+    fun !=(other: @Array): Bool
     {
         return !(this == other);
     }
 
-    public fun >>(os: @OutStream) if isValid(os << #$ValueType)
+    fun >>(os: @OutStream) if isValid(os << #$ValueType)
     {
         var first = true;
         for ( el = all )

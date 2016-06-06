@@ -2,27 +2,27 @@ package Meta;
 
 import Meta.Location;
 
-public using modeUnspecified = 0;
-public using modeRt = 1;
-public using modeCt = 2;
-public using modeRtCt = 3;
+using modeUnspecified = 0;
+using modeRt = 1;
+using modeCt = 2;
+using modeRtCt = 3;
 
 /// Taking an AST node, this will evaluate the node and produce the corresponding 
-public fun[ct, native("$Meta.astEval")] astEval(node: AstNode): AstNode;
+fun[ct, native("$Meta.astEval")] astEval(node: AstNode): AstNode;
 
 /// Given any Sparrow node as parameter, this will transform it into an AST node
-//public fun[ct, native("$Meta.lift")] lift(): AstNode;
+//fun[ct, native("$Meta.lift")] lift(): AstNode;
 
 
 
-public class[ct] CompilationContext
+class[ct] CompilationContext
 {
-    public fun[static, native("$Meta.CompilationContext.current")] current(): CompilationContext;
+    fun[static, native("$Meta.CompilationContext.current")] current(): CompilationContext;
 
-    public fun[native("$Meta.CompilationContext.evalMode")] evalMode: Int;
-    public fun[native("$Meta.CompilationContext.sourceCode")] sourceCode: SourceCode;
+    fun[native("$Meta.CompilationContext.evalMode")] evalMode: Int;
+    fun[native("$Meta.CompilationContext.sourceCode")] sourceCode: SourceCode;
 
-    public fun ctor
+    fun ctor
     {
         impl := null;
     }
@@ -33,72 +33,72 @@ public class[ct] CompilationContext
     private var impl: @Int;
 }
 
-public class[ct] AstType
+class[ct] AstType
 {
-    public fun[native("$Meta.AstType.typeKind")] typeKind: Int;
-    public fun[native("$Meta.AstType.toString")] toString: StringRef;
+    fun[native("$Meta.AstType.typeKind")] typeKind: Int;
+    fun[native("$Meta.AstType.toString")] toString: StringRef;
 
-    public fun[native("$Meta.AstType.hasStorage")] hasStorage: Bool;
-    public fun[native("$Meta.AstType.numReferences")] numReferences: Int;
-    public fun[native("$Meta.AstType.mode")] mode: Int;
-    public fun[native("$Meta.AstType.canBeUsedAtCt")] canBeUsedAtCt: Bool;
-    public fun[native("$Meta.AstType.canBeUsedAtRt")] canBeUsedAtRt: Bool;
+    fun[native("$Meta.AstType.hasStorage")] hasStorage: Bool;
+    fun[native("$Meta.AstType.numReferences")] numReferences: Int;
+    fun[native("$Meta.AstType.mode")] mode: Int;
+    fun[native("$Meta.AstType.canBeUsedAtCt")] canBeUsedAtCt: Bool;
+    fun[native("$Meta.AstType.canBeUsedAtRt")] canBeUsedAtRt: Bool;
 
-    public fun ctor
+    fun ctor
     {
         impl := null;
     }
     private var impl: @Int;
 }
 
-public class[ct] AstNode
+class[ct] AstNode
 {
-    public fun isNull: Bool = impl === null;
-    public fun isSet: Bool = impl !== null;
+    fun isNull: Bool = impl === null;
+    fun isSet: Bool = impl !== null;
 
-    public fun[native("$Meta.AstNode.clone")] clone: AstNode;
-    public fun[native("$Meta.AstNode.nodeKind")] nodeKind: Int;
-    public fun[native("$Meta.AstNode.nodeKindName")] nodeKindName: StringRef;
-    public fun[native("$Meta.AstNode.toString")] toString: StringRef;
-    public fun[native("$Meta.AstNode.toStringExt")] toStringExt: StringRef;
+    fun[native("$Meta.AstNode.clone")] clone: AstNode;
+    fun[native("$Meta.AstNode.nodeKind")] nodeKind: Int;
+    fun[native("$Meta.AstNode.nodeKindName")] nodeKindName: StringRef;
+    fun[native("$Meta.AstNode.toString")] toString: StringRef;
+    fun[native("$Meta.AstNode.toStringExt")] toStringExt: StringRef;
 
     // Node properties
 
-    public fun[native("$Meta.AstNode.location")] location: Location;
+    fun[native("$Meta.AstNode.location")] location: Location;
 
     if[ct] ( isValid(Vector(AstNode)) )
-        public fun[native("$Meta.AstNode.children")] children: Vector(AstNode);    // TODO: fix this
-    public fun[native("$Meta.AstNode.getChild")] getChild(n: Int): AstNode;
+        fun[native("$Meta.AstNode.children")] children: Vector(AstNode);    // TODO: fix this
+    fun[native("$Meta.AstNode.getChild")] getChild(n: Int): AstNode;
     if[ct] ( isValid(Vector(AstNode)) )
-        public fun[native("$Meta.AstNode.referredNodes")] referredNodes: Vector(AstNode);
+        fun[native("$Meta.AstNode.referredNodes")] referredNodes: Vector(AstNode);
 
-    public fun[native("$Meta.AstNode.hasProperty")] hasProperty(name: StringRef): Bool;
-    public fun[native("$Meta.AstNode.getPropertyString")] getPropertyString(name: StringRef, value: @StringRef): Bool;
-    public fun[native("$Meta.AstNode.getPropertyInt")] getPropertyInt(name: StringRef, value: @Int): Bool;
-    public fun[native("$Meta.AstNode.getPropertyNode")] getPropertyNode(name: StringRef, value: @AstNode): Bool;
-    public fun[native("$Meta.AstNode.getPropertyType")] getPropertyType(name: StringRef, value: @AstType): Bool;
-    public fun[native("$Meta.AstNode.setProperty")] setProperty(name: StringRef, value: StringRef);
-    public fun[native("$Meta.AstNode.setProperty")] setProperty(name: StringRef, value: Int);
-    public fun[native("$Meta.AstNode.setProperty")] setProperty(name: StringRef, value: AstNode);
-    public fun[native("$Meta.AstNode.setProperty")] setProperty(name: StringRef, value: AstType);
+    fun[native("$Meta.AstNode.hasProperty")] hasProperty(name: StringRef): Bool;
+    fun[native("$Meta.AstNode.getPropertyString")] getPropertyString(name: StringRef, value: @StringRef): Bool;
+    fun[native("$Meta.AstNode.getPropertyInt")] getPropertyInt(name: StringRef, value: @Int): Bool;
+    fun[native("$Meta.AstNode.getPropertyNode")] getPropertyNode(name: StringRef, value: @AstNode): Bool;
+    fun[native("$Meta.AstNode.getPropertyType")] getPropertyType(name: StringRef, value: @AstType): Bool;
+    fun[native("$Meta.AstNode.setProperty")] setProperty(name: StringRef, value: StringRef);
+    fun[native("$Meta.AstNode.setProperty")] setProperty(name: StringRef, value: Int);
+    fun[native("$Meta.AstNode.setProperty")] setProperty(name: StringRef, value: AstNode);
+    fun[native("$Meta.AstNode.setProperty")] setProperty(name: StringRef, value: AstType);
 
     // Compilation processes
 
-    public fun[native("$Meta.AstNode.setContext")] setContext(context: CompilationContext);
-    public fun[native("$Meta.AstNode.computeType")] computeType;
-    public fun[native("$Meta.AstNode.semanticCheck")] semanticCheck;
-    public fun[native("$Meta.AstNode.clearCompilationState")] clearCompilationState;
+    fun[native("$Meta.AstNode.setContext")] setContext(context: CompilationContext);
+    fun[native("$Meta.AstNode.computeType")] computeType;
+    fun[native("$Meta.AstNode.semanticCheck")] semanticCheck;
+    fun[native("$Meta.AstNode.clearCompilationState")] clearCompilationState;
 
-    public fun[native("$Meta.AstNode.context")] context: CompilationContext;
+    fun[native("$Meta.AstNode.context")] context: CompilationContext;
 
-    public fun[native("$Meta.AstNode.hasError")] hasError: Bool;
-    public fun[native("$Meta.AstNode.isSemanticallyChecked")] isSemanticallyChecked: Bool;
+    fun[native("$Meta.AstNode.hasError")] hasError: Bool;
+    fun[native("$Meta.AstNode.isSemanticallyChecked")] isSemanticallyChecked: Bool;
 
-    public fun[native("$Meta.AstNode.type")] type: AstType;
+    fun[native("$Meta.AstNode.type")] type: AstType;
 
-    public fun[native("$Meta.AstNode.isExplained")] isExplained: Bool;
-    public fun[native("$Meta.AstNode.explanation")] explanation: AstNode;
-    public fun[native("$Meta.AstNode.curExplanation")] curExplanation: AstNode;
+    fun[native("$Meta.AstNode.isExplained")] isExplained: Bool;
+    fun[native("$Meta.AstNode.explanation")] explanation: AstNode;
+    fun[native("$Meta.AstNode.curExplanation")] curExplanation: AstNode;
 
     // Private stuff
 
@@ -113,57 +113,57 @@ public class[ct] AstNode
     private var impl: @Int;
 }
 
-public package Feather
+package Feather
 {
     // TODO: AST interface is not consistent
-    public fun[ct] mkNodeList(loc: @Location): AstNode = Impl.mkNodeList(loc, null, null, false);
-    public fun[ct] mkNodeList(loc: @Location, voidResult: Bool): AstNode = Impl.mkNodeList(loc, null, null, voidResult);
-    public fun[ct] mkNodeList(loc: @Location, childrenBegin, childrenEnd: @AstNode) = Impl.mkNodeList(loc, childrenBegin, childrenEnd, false);
-    public fun[ct] mkNodeList(loc: @Location, childrenBegin, childrenEnd: @AstNode, voidResult: Bool) = Impl.mkNodeList(loc, childrenBegin, childrenEnd, voidResult);
+    fun[ct] mkNodeList(loc: @Location): AstNode = Impl.mkNodeList(loc, null, null, false);
+    fun[ct] mkNodeList(loc: @Location, voidResult: Bool): AstNode = Impl.mkNodeList(loc, null, null, voidResult);
+    fun[ct] mkNodeList(loc: @Location, childrenBegin, childrenEnd: @AstNode) = Impl.mkNodeList(loc, childrenBegin, childrenEnd, false);
+    fun[ct] mkNodeList(loc: @Location, childrenBegin, childrenEnd: @AstNode, voidResult: Bool) = Impl.mkNodeList(loc, childrenBegin, childrenEnd, voidResult);
     if[ct] ( isValid(Vector(AstNode)) )
-        public fun[ct] mkNodeList(loc: @Location, children: @Vector(AstNode)): AstNode = Impl.mkNodeList(loc, children.begin.value(), children.end.value(), false);
+        fun[ct] mkNodeList(loc: @Location, children: @Vector(AstNode)): AstNode = Impl.mkNodeList(loc, children.begin.value(), children.end.value(), false);
     if[ct] ( isValid(Vector(AstNode)) )
-        public fun[ct] mkNodeList(loc: @Location, children: @Vector(AstNode), voidResult: Bool): AstNode = Impl.mkNodeList(loc, children.begin.value(), children.end.value(), voidResult);
-    public fun[ct, native("$Meta.Feather.addToNodeList")] addToNodeList(list, newNode: AstNode): AstNode;
-    public fun[ct, native("$Meta.Feather.appendNodeList")] appendNodeList(main, newList: AstNode): AstNode;
+        fun[ct] mkNodeList(loc: @Location, children: @Vector(AstNode), voidResult: Bool): AstNode = Impl.mkNodeList(loc, children.begin.value(), children.end.value(), voidResult);
+    fun[ct, native("$Meta.Feather.addToNodeList")] addToNodeList(list, newNode: AstNode): AstNode;
+    fun[ct, native("$Meta.Feather.appendNodeList")] appendNodeList(main, newList: AstNode): AstNode;
 
-    public fun[ct, native("$Meta.Feather.mkNop")] mkNop(loc: Location): AstNode;
-    public fun[ct, native("$Meta.Feather.mkTypeNode")] mkTypeNode(loc: @Location, type: AstType): AstNode;
-    public fun[ct, native("$Meta.Feather.mkBackendCode")] mkBackendCode(loc: @Location, code: StringRef, mode: Int): AstNode;
-    public fun[ct, native("$Meta.Feather.mkLocalSpace")] mkLocalSpace(loc: @Location, childrenBegin, childrenEnd: @AstNode): AstNode;
+    fun[ct, native("$Meta.Feather.mkNop")] mkNop(loc: Location): AstNode;
+    fun[ct, native("$Meta.Feather.mkTypeNode")] mkTypeNode(loc: @Location, type: AstType): AstNode;
+    fun[ct, native("$Meta.Feather.mkBackendCode")] mkBackendCode(loc: @Location, code: StringRef, mode: Int): AstNode;
+    fun[ct, native("$Meta.Feather.mkLocalSpace")] mkLocalSpace(loc: @Location, childrenBegin, childrenEnd: @AstNode): AstNode;
     //if[ct] ( isValid(Vector(AstNode)) )
-    //    public fun[ct] mkLocalSpace(loc: @Location, children: @Vector(AstNode)): AstNode = Impl.mkLocalSpace(loc, children.begin.value(), children.end.value());
-    public fun[ct, native("$Meta.Feather.mkGlobalConstructAction")] mkGlobalConstructAction(loc: @Location, action: AstNode): AstNode;
-    public fun[ct, native("$Meta.Feather.mkGlobalDestructAction")] mkGlobalDestructAction(loc: @Location, action: AstNode): AstNode;
-    public fun[ct, native("$Meta.Feather.mkScopeDestructAction")] mkScopeDestructAction(loc: @Location, action: AstNode): AstNode;
-    public fun[ct, native("$Meta.Feather.mkTempDestructAction")] mkTempDestructAction(loc: @Location, action: AstNode): AstNode;
+    //    fun[ct] mkLocalSpace(loc: @Location, children: @Vector(AstNode)): AstNode = Impl.mkLocalSpace(loc, children.begin.value(), children.end.value());
+    fun[ct, native("$Meta.Feather.mkGlobalConstructAction")] mkGlobalConstructAction(loc: @Location, action: AstNode): AstNode;
+    fun[ct, native("$Meta.Feather.mkGlobalDestructAction")] mkGlobalDestructAction(loc: @Location, action: AstNode): AstNode;
+    fun[ct, native("$Meta.Feather.mkScopeDestructAction")] mkScopeDestructAction(loc: @Location, action: AstNode): AstNode;
+    fun[ct, native("$Meta.Feather.mkTempDestructAction")] mkTempDestructAction(loc: @Location, action: AstNode): AstNode;
 
     if[ct] ( isValid(Vector(AstNode)) )
-        public fun[ct] mkFunction(loc: @Location, name: StringRef, resType: AstNode, params: @Vector(AstNode), body: AstNode, mode: Int): AstNode = Impl.mkFunction(loc, name, resType, params.begin.value(), params.end.value(), body, mode);
+        fun[ct] mkFunction(loc: @Location, name: StringRef, resType: AstNode, params: @Vector(AstNode), body: AstNode, mode: Int): AstNode = Impl.mkFunction(loc, name, resType, params.begin.value(), params.end.value(), body, mode);
     if[ct] ( isValid(Vector(AstNode)) )
-        public fun[ct] mkClass(loc: @Location, name: StringRef, fields: @Vector(AstNode), mode: Int): AstNode = Impl.mkClass(loc, name, fields.begin.value(), fields.end.value(), mode);
+        fun[ct] mkClass(loc: @Location, name: StringRef, fields: @Vector(AstNode), mode: Int): AstNode = Impl.mkClass(loc, name, fields.begin.value(), fields.end.value(), mode);
     if[ct] ( isValid(Vector(AstNode)) )
-        public fun[ct, native("$Meta.Feather.mkVar")] mkVar(loc: @Location, name: StringRef, type: AstNode, mode: Int): AstNode;
+        fun[ct, native("$Meta.Feather.mkVar")] mkVar(loc: @Location, name: StringRef, type: AstNode, mode: Int): AstNode;
 
-    public fun[ct, native("$Meta.Feather.mkCtValue")] mkCtValue(loc: @Location, type: AstType, data: StringRef): AstNode;
-    public fun[ct, native("$Meta.Feather.mkNull")] mkNull(loc: @Location, typeNode: AstNode): AstNode;
-    public fun[ct, native("$Meta.Feather.mkVarRef")] mkVarRef(loc: @Location, varDecl: AstNode): AstNode;
-    public fun[ct, native("$Meta.Feather.mkFieldRef")] mkFieldRef(loc: @Location, obj, fieldDecl: AstNode): AstNode;
-    public fun[ct, native("$Meta.Feather.mkFunRef")] mkFunRef(loc: @Location, funDecl: AstNode, resType: AstNode): AstNode;
+    fun[ct, native("$Meta.Feather.mkCtValue")] mkCtValue(loc: @Location, type: AstType, data: StringRef): AstNode;
+    fun[ct, native("$Meta.Feather.mkNull")] mkNull(loc: @Location, typeNode: AstNode): AstNode;
+    fun[ct, native("$Meta.Feather.mkVarRef")] mkVarRef(loc: @Location, varDecl: AstNode): AstNode;
+    fun[ct, native("$Meta.Feather.mkFieldRef")] mkFieldRef(loc: @Location, obj, fieldDecl: AstNode): AstNode;
+    fun[ct, native("$Meta.Feather.mkFunRef")] mkFunRef(loc: @Location, funDecl: AstNode, resType: AstNode): AstNode;
     if[ct] ( isValid(Vector(AstNode)) )
-        public fun[ct] mkFunCall(loc: @Location, funDecl: AstNode, args: @Vector(AstNode)): AstNode = Impl.mkFunCall(loc, funDecl, args.begin.value(), args.end.value());
-    public fun[ct, native("$Meta.Feather.mkMemLoad")] mkMemLoad(loc: @Location, exp: AstNode): AstNode;
-    public fun[ct, native("$Meta.Feather.mkMemStore")] mkMemStore(loc: @Location, value, address: AstNode): AstNode;
-    public fun[ct, native("$Meta.Feather.mkBitcast")] mkBitcast(loc: @Location, destType: AstNode, node: AstNode): AstNode;
-    public fun[ct, native("$Meta.Feather.mkConditional")] mkConditional(loc: @Location, condition, alt1, alt2: AstNode): AstNode;
+        fun[ct] mkFunCall(loc: @Location, funDecl: AstNode, args: @Vector(AstNode)): AstNode = Impl.mkFunCall(loc, funDecl, args.begin.value(), args.end.value());
+    fun[ct, native("$Meta.Feather.mkMemLoad")] mkMemLoad(loc: @Location, exp: AstNode): AstNode;
+    fun[ct, native("$Meta.Feather.mkMemStore")] mkMemStore(loc: @Location, value, address: AstNode): AstNode;
+    fun[ct, native("$Meta.Feather.mkBitcast")] mkBitcast(loc: @Location, destType: AstNode, node: AstNode): AstNode;
+    fun[ct, native("$Meta.Feather.mkConditional")] mkConditional(loc: @Location, condition, alt1, alt2: AstNode): AstNode;
 
-    public fun[ct, native("$Meta.Feather.mkIf")] mkIf(loc: @Location, condition, thenClause, elseClause: AstNode, isCt: Bool = false): AstNode;
-    public fun[ct, native("$Meta.Feather.mkWhile")] mkWhile(loc: @Location, condition, body, step: AstNode): AstNode;
-    public fun[ct, native("$Meta.Feather.mkWhile")] mkWhile(loc: @Location, condition, body, step: AstNode, isCt: Bool): AstNode;
-    public fun[ct, native("$Meta.Feather.mkBreak")] mkBreak(loc: Location): AstNode;
-    public fun[ct, native("$Meta.Feather.mkContinue")] mkContinue(loc: Location): AstNode;
-    public fun[ct, native("$Meta.Feather.mkReturn")] mkReturn(loc: Location): AstNode;
-    public fun[ct, native("$Meta.Feather.mkReturn")] mkReturn(loc: @Location, exp: AstNode): AstNode;
+    fun[ct, native("$Meta.Feather.mkIf")] mkIf(loc: @Location, condition, thenClause, elseClause: AstNode, isCt: Bool = false): AstNode;
+    fun[ct, native("$Meta.Feather.mkWhile")] mkWhile(loc: @Location, condition, body, step: AstNode): AstNode;
+    fun[ct, native("$Meta.Feather.mkWhile")] mkWhile(loc: @Location, condition, body, step: AstNode, isCt: Bool): AstNode;
+    fun[ct, native("$Meta.Feather.mkBreak")] mkBreak(loc: Location): AstNode;
+    fun[ct, native("$Meta.Feather.mkContinue")] mkContinue(loc: Location): AstNode;
+    fun[ct, native("$Meta.Feather.mkReturn")] mkReturn(loc: Location): AstNode;
+    fun[ct, native("$Meta.Feather.mkReturn")] mkReturn(loc: @Location, exp: AstNode): AstNode;
 
     package Impl
     {
@@ -175,130 +175,126 @@ public package Feather
     }
 }
 
-public package SprFrontend
+package SprFrontend
 {
-    public using publicAccess = 0;
-    public using privateAccess = 1;
-    public using unspecifiedAccess = 2;
+    fun[ct, native("$Meta.Sparrow.mkModifiers")] mkModifiers(loc: @Location, main, mods: AstNode): AstNode;
 
-    public fun[ct, native("$Meta.Sparrow.mkModifiers")] mkModifiers(loc: @Location, main, mods: AstNode): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkSprCompilationUnit")] mkSprCompilationUnit(loc: @Location, packageName, imports, declarations: AstNode): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkSprUsing")] mkSprUsing(loc: @Location, alias: StringRef, usingNode: AstNode): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkSprPackage")] mkSprPackage(loc: @Location, name: StringRef, children: AstNode): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkSprVariable")] mkSprVariable(loc: @Location, name: StringRef, typeNode, init: AstNode): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkSprClass")] mkSprClass(loc: @Location, name: StringRef, parameters, baseClasses, ifClause, children: AstNode): AstNode;
 
-    public fun[ct, native("$Meta.Sparrow.mkSprCompilationUnit")] mkSprCompilationUnit(loc: @Location, packageName, imports, declarations: AstNode): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkSprUsing")] mkSprUsing(loc: @Location, alias: StringRef, usingNode: AstNode): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkSprPackage")] mkSprPackage(loc: @Location, name: StringRef, children: AstNode): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkSprVariable")] mkSprVariable(loc: @Location, name: StringRef, typeNode, init: AstNode): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkSprClass")] mkSprClass(loc: @Location, name: StringRef, parameters, baseClasses, ifClause, children: AstNode, accessType: Int = unspecifiedAccess): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkSprConcept")] mkSprConcept(loc: @Location, name: StringRef, paramName: StringRef, baseConcept, ifClause: AstNode): AstNode;
 
-    public fun[ct, native("$Meta.Sparrow.mkSprConcept")] mkSprConcept(loc: @Location, name: StringRef, paramName: StringRef, baseConcept, ifClause: AstNode): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkSprFunction")] mkSprFunction(loc: @Location, name: StringRef, parmeters, returnType, body, ifClause: AstNode): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkSprFunctionExp")] mkSprFunctionExp(loc: @Location, name: StringRef, parameters, returnType, bodyExp, ifClause: AstNode): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkSprParameter")] mkSprParameter(loc: @Location, name: StringRef, typeNode, init: AstNode): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkSprAutoParameter")] mkSprAutoParameter(loc: @Location, name: StringRef): AstNode;
 
-    public fun[ct, native("$Meta.Sparrow.mkSprFunction")] mkSprFunction(loc: @Location, name: StringRef, parmeters, returnType, body, ifClause: AstNode, accessType: Int = unspecifiedAccess): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkSprFunctionExp")] mkSprFunctionExp(loc: @Location, name: StringRef, parameters, returnType, bodyExp, ifClause: AstNode, accessType: Int = unspecifiedAccess): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkSprParameter")] mkSprParameter(loc: @Location, name: StringRef, typeNode, init: AstNode): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkSprAutoParameter")] mkSprAutoParameter(loc: @Location, name: StringRef): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkIdentifier")] mkIdentifier(loc: @Location, id: StringRef): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkCompoundExp")] mkCompoundExp(loc: @Location, base: AstNode, id: StringRef): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkStarExp")] mkStarExp(loc: @Location, base: AstNode, operName: StringRef): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkPostfixOp")] mkPostfixOp(loc: @Location, op: StringRef, base: AstNode): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkInfixOp")] mkInfixOp(loc: @Location, op: StringRef, arg1, arg2: AstNode): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkPrefixOp")] mkPrefixOp(loc: @Location, op: StringRef, base: AstNode): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkFunApplication")] mkFunApplication(loc: @Location, base, arguments: AstNode): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkOperatorCall")] mkOperatorCall(loc: @Location, arg1: AstNode, op: StringRef, arg2: AstNode): AstNode;
 
-    public fun[ct, native("$Meta.Sparrow.mkIdentifier")] mkIdentifier(loc: @Location, id: StringRef): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkCompoundExp")] mkCompoundExp(loc: @Location, base: AstNode, id: StringRef): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkStarExp")] mkStarExp(loc: @Location, base: AstNode, operName: StringRef): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkPostfixOp")] mkPostfixOp(loc: @Location, op: StringRef, base: AstNode): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkInfixOp")] mkInfixOp(loc: @Location, op: StringRef, arg1, arg2: AstNode): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkPrefixOp")] mkPrefixOp(loc: @Location, op: StringRef, base: AstNode): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkFunApplication")] mkFunApplication(loc: @Location, base, arguments: AstNode): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkOperatorCall")] mkOperatorCall(loc: @Location, arg1: AstNode, op: StringRef, arg2: AstNode): AstNode;
-
-    public fun[ct, native("$Meta.Sparrow.mkConditionalExp")] mkConditionalExp(loc: @Location, cond, alt1, alt2: AstNode): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkThisExp")] mkThisExp(loc: @Location): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkParenthesisExp")] mkParenthesisExp(loc: @Location, exp: AstNode): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkIntLiteral")] mkIntLiteral(loc: @Location, value: Int): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkUIntLiteral")] mkUIntLiteral(loc: @Location, value: UInt): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkLongLiteral")] mkLongLiteral(loc: @Location, value: Long): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkULongLiteral")] mkULongLiteral(loc: @Location, value: ULong): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkFloatLiteral")] mkFloatLiteral(loc: @Location, value: Float): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkDoubleLiteral")] mkDoubleLiteral(loc: @Location, value: Double): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkCharLiteral")] mkCharLiteral(loc: @Location, value: Char): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkStringLiteral")] mkStringLiteral(loc: @Location, value: StringRef): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkNullLiteral")] mkNullLiteral(loc: Location): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkBoolLiteral")] mkBoolLiteral(loc: @Location, value: Bool): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkLambdaExp")] mkLambdaExp(loc: @Location, parameters, returnType, body, bodyExp, closureParams: AstNode): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkConditionalExp")] mkConditionalExp(loc: @Location, cond, alt1, alt2: AstNode): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkThisExp")] mkThisExp(loc: Location): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkParenthesisExp")] mkParenthesisExp(loc: @Location, exp: AstNode): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkIntLiteral")] mkIntLiteral(loc: @Location, value: Int): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkUIntLiteral")] mkUIntLiteral(loc: @Location, value: UInt): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkLongLiteral")] mkLongLiteral(loc: @Location, value: Long): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkULongLiteral")] mkULongLiteral(loc: @Location, value: ULong): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkFloatLiteral")] mkFloatLiteral(loc: @Location, value: Float): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkDoubleLiteral")] mkDoubleLiteral(loc: @Location, value: Double): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkCharLiteral")] mkCharLiteral(loc: @Location, value: Char): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkStringLiteral")] mkStringLiteral(loc: @Location, value: StringRef): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkNullLiteral")] mkNullLiteral(loc: Location): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkBoolLiteral")] mkBoolLiteral(loc: @Location, value: Bool): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkLambdaExp")] mkLambdaExp(loc: @Location, parameters, returnType, body, bodyExp, closureParams: AstNode): AstNode;
     
-    public fun[ct, native("$Meta.Sparrow.mkExpressionStmt")] mkExpressionStmt(loc: @Location, exp: AstNode): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkBlockStmt")] mkBlockStmt(loc: @Location, statements: AstNode): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkIfStmt")] mkIfStmt(loc: @Location, cond, thenClause, elseClause: AstNode): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkForStmt")] mkForStmt(loc: @Location, name: StringRef, type, range, action: AstNode): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkWhileStmt")] mkWhileStmt(loc: @Location, cond, step, action: AstNode): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkBreakStmt")] mkBreakStmt(loc: Location): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkContinueStmt")] mkContinueStmt(loc: Location): AstNode;
-    public fun[ct, native("$Meta.Sparrow.mkReturnStmt")] mkReturnStmt(loc: @Location, exp: AstNode): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkExpressionStmt")] mkExpressionStmt(loc: @Location, exp: AstNode): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkBlockStmt")] mkBlockStmt(loc: @Location, statements: AstNode): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkIfStmt")] mkIfStmt(loc: @Location, cond, thenClause, elseClause: AstNode): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkForStmt")] mkForStmt(loc: @Location, name: StringRef, type, range, action: AstNode): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkWhileStmt")] mkWhileStmt(loc: @Location, cond, step, action: AstNode): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkBreakStmt")] mkBreakStmt(loc: Location): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkContinueStmt")] mkContinueStmt(loc: Location): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkReturnStmt")] mkReturnStmt(loc: @Location, exp: AstNode): AstNode;
 }
 
-public package Compiler
+package Compiler
 {
-    public fun[ct, native("$Meta.Compiler.registerFrontendFun")] registerFrontendFun(ext, funName: StringRef): Bool;
-    public fun[ct, native("$Meta.Compiler.parseSprExpression")] parseSprExpression(loc: @Location, exp: StringRef): AstNode;
+    fun[ct, native("$Meta.Compiler.registerFrontendFun")] registerFrontendFun(ext, funName: StringRef): Bool;
+    fun[ct, native("$Meta.Compiler.parseSprExpression")] parseSprExpression(loc: @Location, exp: StringRef): AstNode;
 }
 
-public package Kinds
+package Kinds
 {
-    public var[ct] iotaVar = 0;
-    public fun[ct] iotaReset { iotaVar = 0; }
-    public fun[ct] iota = iotaVar++;
+    var[ct] iotaVar = 0;
+    fun[ct] iotaReset { iotaVar = 0; }
+    fun[ct] iota = iotaVar++;
 
-    public using nkFeatherNop = ctEval(iota);
-    public using nkFeatherTypeNode = ctEval(iota);
-    public using nkFeatherBackendCode = ctEval(iota);
-    public using nkFeatherNodeList = ctEval(iota);
-    public using nkFeatherLocalSpace = ctEval(iota);
-    public using nkFeatherGlobalConstructAction = ctEval(iota);
-    public using nkFeatherGlobalDestructAction = ctEval(iota);
-    public using nkFeatherScopeDestructAction = ctEval(iota);
-    public using nkFeatherTempDestructAction = ctEval(iota);
+    using nkFeatherNop = ctEval(iota);
+    using nkFeatherTypeNode = ctEval(iota);
+    using nkFeatherBackendCode = ctEval(iota);
+    using nkFeatherNodeList = ctEval(iota);
+    using nkFeatherLocalSpace = ctEval(iota);
+    using nkFeatherGlobalConstructAction = ctEval(iota);
+    using nkFeatherGlobalDestructAction = ctEval(iota);
+    using nkFeatherScopeDestructAction = ctEval(iota);
+    using nkFeatherTempDestructAction = ctEval(iota);
     
-    public using nkFeatherDeclFunction = ctEval(iota);
-    public using nkFeatherDeclClass = ctEval(iota);
-    public using nkFeatherDeclVar = ctEval(iota);
+    using nkFeatherDeclFunction = ctEval(iota);
+    using nkFeatherDeclClass = ctEval(iota);
+    using nkFeatherDeclVar = ctEval(iota);
     
-    public using nkFeatherExpCtValue = ctEval(iota);
-    public using nkFeatherExpNull = ctEval(iota);
-    public using nkFeatherExpVarRef = ctEval(iota);
-    public using nkFeatherExpFieldRef = ctEval(iota);
-    public using nkFeatherExpFunRef = ctEval(iota);
-    public using nkFeatherExpFunCall = ctEval(iota);
-    public using nkFeatherExpMemLoad = ctEval(iota);
-    public using nkFeatherExpMemStore = ctEval(iota);
-    public using nkFeatherExpBitcast = ctEval(iota);
-    public using nkFeatherExpConditional = ctEval(iota);
-    public using nkFeatherExpChangeMode = ctEval(iota);
+    using nkFeatherExpCtValue = ctEval(iota);
+    using nkFeatherExpNull = ctEval(iota);
+    using nkFeatherExpVarRef = ctEval(iota);
+    using nkFeatherExpFieldRef = ctEval(iota);
+    using nkFeatherExpFunRef = ctEval(iota);
+    using nkFeatherExpFunCall = ctEval(iota);
+    using nkFeatherExpMemLoad = ctEval(iota);
+    using nkFeatherExpMemStore = ctEval(iota);
+    using nkFeatherExpBitcast = ctEval(iota);
+    using nkFeatherExpConditional = ctEval(iota);
+    using nkFeatherExpChangeMode = ctEval(iota);
     
-    public using nkFeatherStmtIf = ctEval(iota);
-    public using nkFeatherStmtWhile = ctEval(iota);
-    public using nkFeatherStmtBreak = ctEval(iota);
-    public using nkFeatherStmtContinue = ctEval(iota);
-    public using nkFeatherStmtReturn = ctEval(iota);
+    using nkFeatherStmtIf = ctEval(iota);
+    using nkFeatherStmtWhile = ctEval(iota);
+    using nkFeatherStmtBreak = ctEval(iota);
+    using nkFeatherStmtContinue = ctEval(iota);
+    using nkFeatherStmtReturn = ctEval(iota);
 
-    public using nkSparrowModifiersNode = ctEval(iota);
+    using nkSparrowModifiersNode = ctEval(iota);
     
-    public using nkSparrowDeclSprCompilationUnit = ctEval(iota);
-    public using nkSparrowDeclPackage = ctEval(iota);
-    public using nkSparrowDeclSprClass = ctEval(iota);
-    public using nkSparrowDeclSprFunction = ctEval(iota);
-    public using nkSparrowDeclSprParameter = ctEval(iota);
-    public using nkSparrowDeclSprVariable = ctEval(iota);
-    public using nkSparrowDeclSprConcept = ctEval(iota);
-    public using nkSparrowDeclGenericClass = ctEval(iota);
-    public using nkSparrowDeclGenericFunction = ctEval(iota);
-    public using nkSparrowDeclUsing = ctEval(iota);
+    using nkSparrowDeclSprCompilationUnit = ctEval(iota);
+    using nkSparrowDeclPackage = ctEval(iota);
+    using nkSparrowDeclSprClass = ctEval(iota);
+    using nkSparrowDeclSprFunction = ctEval(iota);
+    using nkSparrowDeclSprParameter = ctEval(iota);
+    using nkSparrowDeclSprVariable = ctEval(iota);
+    using nkSparrowDeclSprConcept = ctEval(iota);
+    using nkSparrowDeclGenericClass = ctEval(iota);
+    using nkSparrowDeclGenericFunction = ctEval(iota);
+    using nkSparrowDeclUsing = ctEval(iota);
     
-    public using nkSparrowExpLiteral = ctEval(iota);
-    public using nkSparrowExpThis = ctEval(iota);
-    public using nkSparrowExpIdentifier = ctEval(iota);
-    public using nkSparrowExpCompoundExp = ctEval(iota);
-    public using nkSparrowExpFunApplication = ctEval(iota);
-    public using nkSparrowExpOperatorCall = ctEval(iota);
-    public using nkSparrowExpInfixExp = ctEval(iota);
-    public using nkSparrowExpLambdaFunction = ctEval(iota);
-    public using nkSparrowExpSprConditional = ctEval(iota);
-    public using nkSparrowExpDeclExp = ctEval(iota);
-    public using nkSparrowExpStarExp = ctEval(iota);
+    using nkSparrowExpLiteral = ctEval(iota);
+    using nkSparrowExpThis = ctEval(iota);
+    using nkSparrowExpIdentifier = ctEval(iota);
+    using nkSparrowExpCompoundExp = ctEval(iota);
+    using nkSparrowExpFunApplication = ctEval(iota);
+    using nkSparrowExpOperatorCall = ctEval(iota);
+    using nkSparrowExpInfixExp = ctEval(iota);
+    using nkSparrowExpLambdaFunction = ctEval(iota);
+    using nkSparrowExpSprConditional = ctEval(iota);
+    using nkSparrowExpDeclExp = ctEval(iota);
+    using nkSparrowExpStarExp = ctEval(iota);
     
-    public using nkSparrowStmtFor = ctEval(iota);
-    public using nkSparrowStmtSprReturn = ctEval(iota);
+    using nkSparrowStmtFor = ctEval(iota);
+    using nkSparrowStmtSprReturn = ctEval(iota);
 }

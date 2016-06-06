@@ -2,14 +2,14 @@ import Token;
 import Nodes;
 import LType;
 
-public using allowNativeCodeGen = true;
+using allowNativeCodeGen = true;
 
-public class[ct] SparrowPrologSystem
+class[ct] SparrowPrologSystem
 {
-    public var predicates: Vector(SparrowPredicate);
-    public var loc: LLocation;
+    var predicates: Vector(SparrowPredicate);
+    var loc: LLocation;
 
-    public fun ctor(program: @PrologProgramPtr)
+    fun ctor(program: @PrologProgramPtr)
     {
         this.predicates ctor;
         this.loc ctor program.get().loc;
@@ -33,26 +33,26 @@ public class[ct] SparrowPrologSystem
         }
     }
 
-    public fun semanticCheck
+    fun semanticCheck
     {
         for ( pred: @SparrowPredicate = predicates.all() )
             pred.semanticCheck();
     }
 }
 
-public class[ct] Parameter
+class[ct] Parameter
 {
-    public var expr: ExpressionPtr;
-    public var isRead, isInput, isOutput: Bool;
+    var expr: ExpressionPtr;
+    var isRead, isInput, isOutput: Bool;
 
-    public fun ctor
+    fun ctor
     {
         expr ctor;
         isRead ctor false;
         isInput ctor false;
         isOutput ctor false;
     }
-    public fun ctor(e: ExpressionPtr)
+    fun ctor(e: ExpressionPtr)
     {
         expr ctor e;
         isRead ctor false;
@@ -61,18 +61,18 @@ public class[ct] Parameter
     }
 }
 
-public class[ct] SparrowPredicate
+class[ct] SparrowPredicate
 {
-    public var name: String;
-    public var arity: UInt;
-    public var firstClause: PredicateClausePtr;
-    public var paramVars: Vector(Parameter);
-    public var localVars: Vector(ExpressionPtr);
-    public var clauses: Vector(PredicateClausePtr);
-    public var typeSets: Vector(LTypeSet);
-    public var canBeNative: Bool;
+    var name: String;
+    var arity: UInt;
+    var firstClause: PredicateClausePtr;
+    var paramVars: Vector(Parameter);
+    var localVars: Vector(ExpressionPtr);
+    var clauses: Vector(PredicateClausePtr);
+    var typeSets: Vector(LTypeSet);
+    var canBeNative: Bool;
 
-    public fun ctor(firstClause: @PredicateClausePtr)
+    fun ctor(firstClause: @PredicateClausePtr)
     {
         this.name ctor firstClause.get().name;
         this.arity ctor UInt(firstClause.get().args.size());
@@ -87,13 +87,13 @@ public class[ct] SparrowPredicate
         paramVars.resize(arity);
     }
 
-    public fun addClause(clause: @PredicateClausePtr)
+    fun addClause(clause: @PredicateClausePtr)
     {
         assert(clause.get().args.size() == arity);
         clauses.pushBack(clause);
     }
 
-    public fun semanticCheck
+    fun semanticCheck
     {
         // Update the variables from all the clauses
         // Compute the types of the expressions and variables

@@ -17,7 +17,7 @@ import Meta.ASTNodes;
 import Assert;
 import Time;
 
-public fun[macro] compileProlog(sourceString: Meta.AstNode): Meta.AstNode
+fun[macro] compileProlog(sourceString: Meta.AstNode): Meta.AstNode
 {
     cout << Meta.Kinds.iota << endl;
     cout << Meta.Kinds.nkSparrowExpLiteral << endl;
@@ -33,7 +33,7 @@ public fun[macro] compileProlog(sourceString: Meta.AstNode): Meta.AstNode
     }
 }
 
-public fun[ct] handlePrologCode(code: @String, location: Meta.Location, context: Meta.CompilationContext): Meta.AstNode
+fun[ct] handlePrologCode(code: @String, location: Meta.Location, context: Meta.CompilationContext): Meta.AstNode
 {
     //cout << "(" << location.startLineNo << ":" << location.startColNo << " - " << location.endLineNo << ":" << location.endColNo << ')' << endl << flush;
     var t: Time.Timer;
@@ -49,7 +49,7 @@ public fun[ct] handlePrologCode(code: @String, location: Meta.Location, context:
     return res;
 }
 
-public fun[ct] prologToString(source: @String): String
+fun[ct] prologToString(source: @String): String
 {
     var errorReporter = mkConsoleErrorReporter(source.all());
     var lexer = mkLexer(source.all(), errorReporter);

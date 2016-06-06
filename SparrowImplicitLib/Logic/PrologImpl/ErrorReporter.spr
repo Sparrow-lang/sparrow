@@ -1,14 +1,14 @@
 import CharRange;
 import Token;
 
-public class[rtct] ConsoleErrorReporter(sourceType: Type) if CharRange(#$sourceType)
+class[rtct] ConsoleErrorReporter(sourceType: Type) if CharRange(#$sourceType)
 {
-    public fun ctor(source: @sourceType)
+    fun ctor(source: @sourceType)
     {
         this.source ctor source;
     }
 
-    public fun raiseError(loc: Location, message: StringRef)
+    fun raiseError(loc: Location, message: StringRef)
     {
         cout << message << flush;
         printLocation(cout, loc);
@@ -54,11 +54,11 @@ public class[rtct] ConsoleErrorReporter(sourceType: Type) if CharRange(#$sourceT
 
     private var source: sourceType;
 }
-public fun[rtct] mkConsoleErrorReporter(source: @CharRange) = ConsoleErrorReporter(-@typeOf(source))(source);
+fun[rtct] mkConsoleErrorReporter(source: @CharRange) = ConsoleErrorReporter(-@typeOf(source))(source);
 
-public class[ct] CompilerErrorReporter
+class[ct] CompilerErrorReporter
 {
-    public fun raiseError(loc: Location, message: StringRef)
+    fun raiseError(loc: Location, message: StringRef)
     {
         Meta.report(message, loc.asMetaLocation());
     }

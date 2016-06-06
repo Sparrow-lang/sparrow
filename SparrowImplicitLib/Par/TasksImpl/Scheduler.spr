@@ -8,7 +8,7 @@ import Par.Tls;
 ///////////////////////////////////////////////////////////////////////////////
 // Main scheduler interface
 
-public fun schedSpawn(task: TaskPtr) {
+fun schedSpawn(task: TaskPtr) {
     var worker: @Worker = task.get() worker;
 
     if[ct] ( isValidAndTrue(traceCalls) )
@@ -22,7 +22,7 @@ public fun schedSpawn(task: TaskPtr) {
     worker.work pushFront task.get();
 }
 
-public fun schedWaitForAll(parent: TaskPtr, child: TaskPtr) {
+fun schedWaitForAll(parent: TaskPtr, child: TaskPtr) {
     var worker: @Worker = parent.get() worker;
 
     if[ct] ( isValidAndTrue(traceCalls) )
@@ -43,7 +43,7 @@ public fun schedWaitForAll(parent: TaskPtr, child: TaskPtr) {
     worker.curDepth = oldDepth;
 }
 
-public fun schedSpawnRootAndWait(task: TaskPtr) {
+fun schedSpawnRootAndWait(task: TaskPtr) {
     var worker: @Worker = task.get() worker;
 
     if[ct] ( isValidAndTrue(traceCalls) )
@@ -70,7 +70,7 @@ public fun schedSpawnRootAndWait(task: TaskPtr) {
     worker.curDepth = oldDepth;
 }
 
-public fun schedEnqueue(task: TaskPtr) {
+fun schedEnqueue(task: TaskPtr) {
     var worker: @Worker = task.get() worker;
 
     if[ct] ( isValidAndTrue(traceCalls) )
@@ -88,7 +88,7 @@ public fun schedEnqueue(task: TaskPtr) {
 ///////////////////////////////////////////////////////////////////////////////
 // Task execution logic
 
-public fun schedDoWait(worker: @Worker, toExecute, waitingTask: TaskPtr) {
+fun schedDoWait(worker: @Worker, toExecute, waitingTask: TaskPtr) {
 
     using maxRetriesBeforeGoingIdle = 1;
     var numRetries = maxRetriesBeforeGoingIdle;
@@ -194,7 +194,7 @@ public fun schedDoWait(worker: @Worker, toExecute, waitingTask: TaskPtr) {
         Tracer(worker) << "task " << waitingTask.get() << " can continue; remaining work: " << TasksPrinter(TaskPtr(), worker.work) << endl;
 }
 
-public fun executeTask(task: @TaskPrefix): TaskPtr {
+fun executeTask(task: @TaskPrefix): TaskPtr {
     var worker: @Worker = task worker;
 
     // TODO: check cancellation

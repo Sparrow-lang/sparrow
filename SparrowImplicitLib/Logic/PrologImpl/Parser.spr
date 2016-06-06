@@ -2,20 +2,20 @@ import Token;
 import Nodes;
 import ErrorReporter;
 
-public concept TokenRange(x)
+concept TokenRange(x)
     if Range(x)
     && -@(x.RetType) == Token
     ;
 
-public class[ct] Parser(lexerType, errorReporterType: Type) if TokenRange(#$lexerType)
+class[ct] Parser(lexerType, errorReporterType: Type) if TokenRange(#$lexerType)
 {
-    public fun ctor(lexer: @lexerType, errorReporter: @errorReporterType)
+    fun ctor(lexer: @lexerType, errorReporter: @errorReporterType)
     {
         this.lexer ctor lexer;
         this.errorReporter ctor errorReporter;
     }
 
-    public fun parse: PrologProgramPtr
+    fun parse: PrologProgramPtr
     {
         var resptr = PrologProgramPtr.create();
         var res: @PrologProgram = resptr.get();
@@ -305,4 +305,4 @@ public class[ct] Parser(lexerType, errorReporterType: Type) if TokenRange(#$lexe
     private var lexer: lexerType;
     private var errorReporter: errorReporterType;
 }
-public fun[ct] mkParser(lexer: @TokenRange, errorReporter: @AnyType) = Parser(-@typeOf(lexer), -@typeOf(errorReporter))(lexer, errorReporter);
+fun[ct] mkParser(lexer: @TokenRange, errorReporter: @AnyType) = Parser(-@typeOf(lexer), -@typeOf(errorReporter))(lexer, errorReporter);

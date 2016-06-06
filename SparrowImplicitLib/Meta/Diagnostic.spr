@@ -4,23 +4,23 @@ import Meta.Location;
 import SL.Vector;
 import SL.String;
 
-public using diagInternal = 0;
-public using diagError = 1;
-public using diagWarning = 2;
-public using diagInfo = 3;
+using diagInternal = 0;
+using diagError = 1;
+using diagWarning = 2;
+using diagInfo = 3;
 
-public class[ct] Diagnostic
+class[ct] Diagnostic
 {
-    public var message: StringRef;
-    public var location: Location;
-    public var type: Int;
+    var message: StringRef;
+    var location: Location;
+    var type: Int;
 
-    public fun ctor
+    fun ctor
     {
         this.ctor("", Location(), 1);
     }
 
-    public fun ctor(message: StringRef, location: Location, type: Int)
+    fun ctor(message: StringRef, location: Location, type: Int)
     {
         this.message ctor message;
         this.location ctor location;
@@ -28,7 +28,7 @@ public class[ct] Diagnostic
     }
 }
 
-public fun[ct] report(diags: Vector(Diagnostic))
+fun[ct] report(diags: Vector(Diagnostic))
 {
     var withErrors = false;
     for ( d: @Diagnostic = diags.all() )
@@ -39,18 +39,18 @@ public fun[ct] report(diags: Vector(Diagnostic))
     if ( withErrors )
         Impl.raise();
 }
-public fun[ct] report(diag: Diagnostic)
+fun[ct] report(diag: Diagnostic)
 {
     Impl.report(diag.type, diag.message, diag.location);
     if ( diag.type == diagInternal || diag.type == diagError )
         Impl.raise();
 }
-public fun[ct] report(msg: StringRef)
+fun[ct] report(msg: StringRef)
 {
     Impl.report(diagError, msg, null);
     Impl.raise();
 }
-public fun[ct] report(msg: StringRef, loc: Location)
+fun[ct] report(msg: StringRef, loc: Location)
 {
     Impl.report(diagError, msg, loc);
     Impl.raise();

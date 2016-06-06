@@ -1,10 +1,10 @@
 import DefaultHashFunction;
 
-public class[rtct] DefaultTypeTraits
+class[rtct] DefaultTypeTraits
 {
-    public fun equal(l, r: @AnyType) = l == r;
-    public fun less(l, r: @AnyType) = l < r;
-    public fun hash(val: @AnyType): SizeType
+    fun equal(l, r: @AnyType) = l == r;
+    fun less(l, r: @AnyType) = l < r;
+    fun hash(val: @AnyType): SizeType
     {
         if[ct] ( isValid(SizeType(val hash)) )
             return val hash;

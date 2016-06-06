@@ -6,24 +6,24 @@ import Assert;
 //! A class that can hold some data into a thread-local storage
 //! The size of the data must be less or equal to the size of a reference
 //! For references, we would delete the pointer when the thread exits
-public class Tls(T: Type) if TypeOp.isRef(T) {
+class Tls(T: Type) if TypeOp.isRef(T) {
     private var tls: Impl.TlsCommon;    
 
-    public using ValueType = T;
+    using ValueType = T;
 
-    public fun ctor {
+    fun ctor {
         tls.ctor(\destructPtr);
     }
 
-    public fun =(other: @Tls) {
+    fun =(other: @Tls) {
         tls setValue (other.tls getValue);
     }
-    public fun =(val: T) {
+    fun =(val: T) {
         tls setValue reinterpretCast(@Byte, val);
     }
 
 
-    public fun get: T {
+    fun get: T {
         return reinterpretCast(T, tls getValue);
     }
 
@@ -32,19 +32,19 @@ public class Tls(T: Type) if TypeOp.isRef(T) {
         return Null();
     }
 }
-public class Tls(T: Type) if !TypeOp.isRef(T) && sizeOf(T) <= sizeOf(@Byte) {
+class Tls(T: Type) if !TypeOp.isRef(T) && sizeOf(T) <= sizeOf(@Byte) {
     private var tls: Impl.TlsCommon;    
 
-    public using ValueType = T;
+    using ValueType = T;
 
-    public fun =(other: @Tls) {
+    fun =(other: @Tls) {
         tls setValue (other.tls getValue);
     }
-    public fun =(val: T) {
+    fun =(val: T) {
         tls setValue reinterpretCast(@ @Byte, val);
     }
 
-    public fun get: T {
+    fun get: T {
         return reinterpretCast(@ @T, tls getValue);
     }
 }

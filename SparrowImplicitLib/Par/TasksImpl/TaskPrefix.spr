@@ -3,9 +3,9 @@ package Par.TasksImpl;
 import Par.Atomic;
 import SL.Ptr;
 
-public using TaskPtr = TaskPrefix Ptr;
+using TaskPtr = TaskPrefix Ptr;
 
-public class TaskPrefix {
+class TaskPrefix {
     //! The function to be called to execute the task (along with its 'this' offset)
     private var executeFn: FunctionPtr(Null rt, @TaskPrefix);
     private var taskOffset: DiffType;
@@ -34,7 +34,7 @@ public class TaskPrefix {
     private var depth: Int;
 }
 
-public fun >>(t: @TaskPrefix, os: @OutStream) {
+fun >>(t: @TaskPrefix, os: @OutStream) {
     if ( t === null )
         os << "<null>";
     else {

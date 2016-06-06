@@ -1,50 +1,50 @@
 import Tuple;
 import Ranges;
 
-public concept Swappable(x) if isValid(x.swap(x));
+concept Swappable(x) if isValid(x.swap(x));
 
-public fun max(value1: @AnyType, value2: @AnyType): typeOf(value1)
+fun max(value1: @AnyType, value2: @AnyType): typeOf(value1)
 {
     if ( value1 < value2 )
         return value2;
     return value1;
 }
 
-public fun min(value1: @AnyType, value2: @AnyType): typeOf(value1)
+fun min(value1: @AnyType, value2: @AnyType): typeOf(value1)
 {
     if ( value2 < value1 )
         return value2;
     return value1;
 }
 
-public fun max(value1: @AnyType, value2: @AnyType, pred: AnyType): typeOf(value1)
+fun max(value1: @AnyType, value2: @AnyType, pred: AnyType): typeOf(value1)
 {
     if ( pred(value1, value2) )
         return value2;
     return value1;
 }
 
-public fun min(value1: @AnyType, value2: @AnyType, pred: AnyType): typeOf(value1)
+fun min(value1: @AnyType, value2: @AnyType, pred: AnyType): typeOf(value1)
 {
     if ( pred(value2, value1) )
         return value2;
     return value1;
 }
 
-public fun[autoCt] swap(a, b: @AnyType) if typeOf(a) == typeOf(b)
+fun[autoCt] swap(a, b: @AnyType) if typeOf(a) == typeOf(b)
 {
     var tmp = a;
     a = b;
     b = tmp;
 }
-public fun[autoCt] swap(a, b: @Swappable) if typeOf(a) == typeOf(b)
+fun[autoCt] swap(a, b: @Swappable) if typeOf(a) == typeOf(b)
 {
     a.swap(b);
 }
 
-public fun[autoCt] swapTL(a, b: @AnyType) { swap(a, b); }
+fun[autoCt] swapTL(a, b: @AnyType) { swap(a, b); }
 
-public fun[rtct] find(range: AnyType, value: @AnyType): typeOf(range)
+fun[rtct] find(range: AnyType, value: @AnyType): typeOf(range)
 {
     while ( !range.isEmpty() && !(range.front() == value) )
         range.popFront();
@@ -53,7 +53,7 @@ public fun[rtct] find(range: AnyType, value: @AnyType): typeOf(range)
 }
 
 // TODO (LucTeo): Check why the previous function doesn't work well in RTCT mode
-public fun[rtct] find2(range: AnyType, value: AnyType): typeOf(range)
+fun[rtct] find2(range: AnyType, value: AnyType): typeOf(range)
 {
     while ( !range.isEmpty() && !(range.front() == value) )
         range.popFront();
@@ -61,20 +61,20 @@ public fun[rtct] find2(range: AnyType, value: AnyType): typeOf(range)
     return range;
 }
 
-public fun[rtct] findIf(r: Range, pred: AnyType): typeOf(r) if typeOf(pred(*r)) == Bool
+fun[rtct] findIf(r: Range, pred: AnyType): typeOf(r) if typeOf(pred(*r)) == Bool
 {
     while ( !!r && !pred(*r) )
         ++r;
     return r;
 }
-//public fun[rtct] findIf(r: Range, pred: AnyType): typeOf(r) if typeOf(pred(r.front())) == Bool
+//fun[rtct] findIf(r: Range, pred: AnyType): typeOf(r) if typeOf(pred(r.front())) == Bool
 //{
 //    while ( !r.isEmpty() && !pred(r.front()) )
 //        r.popFront();
 //    return r;
 //}
 
-public fun findFirstOf(range1, range2: Range): typeOf(range1)
+fun findFirstOf(range1, range2: Range): typeOf(range1)
 {
     while ( !range1.isEmpty() ; range1.popFront() )
         for ( val = range2 )
@@ -84,7 +84,7 @@ public fun findFirstOf(range1, range2: Range): typeOf(range1)
     return range1;
 }
 
-public fun findFirstOfIf(range1, range2: Range, pred: AnyType): typeOf(range1)
+fun findFirstOfIf(range1, range2: Range, pred: AnyType): typeOf(range1)
 {
     while ( !range1.isEmpty() ; range1.popFront() )
         for ( val = range2 )
@@ -94,7 +94,7 @@ public fun findFirstOfIf(range1, range2: Range, pred: AnyType): typeOf(range1)
     return range1;
 }
 
-public fun count(range: AnyType, value: @AnyType): SizeType
+fun count(range: AnyType, value: @AnyType): SizeType
 {
     var n: SizeType = 0;
     for ( v = range )
@@ -103,7 +103,7 @@ public fun count(range: AnyType, value: @AnyType): SizeType
     return n;
 }
 
-public fun countIf(range: AnyType, pred: AnyType): SizeType
+fun countIf(range: AnyType, pred: AnyType): SizeType
 {
     var n: SizeType = 0;
     for ( v = range )
@@ -112,7 +112,7 @@ public fun countIf(range: AnyType, pred: AnyType): SizeType
     return n;
 }
 
-public fun equal(range1: AnyType, range2: AnyType): Bool
+fun equal(range1: AnyType, range2: AnyType): Bool
 {
     while ( !range1.isEmpty() && !range2.isEmpty() && range1.front() == range2.front() )
     {
@@ -126,7 +126,7 @@ public fun equal(range1: AnyType, range2: AnyType): Bool
         return false;
 }
 
-public fun equalIf(range1: AnyType, range2: AnyType, pred: AnyType): Bool
+fun equalIf(range1: AnyType, range2: AnyType, pred: AnyType): Bool
 {
     while ( !range1.isEmpty() && !range2.isEmpty() && pred(range1.front(), range2.front()) )
     {
@@ -140,7 +140,7 @@ public fun equalIf(range1: AnyType, range2: AnyType, pred: AnyType): Bool
         return false;
 }
 
-public fun findRange(range1: AnyType, range2: AnyType): typeOf(range1)
+fun findRange(range1: AnyType, range2: AnyType): typeOf(range1)
 {
     if ( range1.isEmpty() || range2.isEmpty() )
         return range1;
@@ -172,7 +172,7 @@ public fun findRange(range1: AnyType, range2: AnyType): typeOf(range1)
     return range1;
 }
 
-public fun findRangeIf(range1: AnyType, range2: AnyType, pred: AnyType): typeOf(range1)
+fun findRangeIf(range1: AnyType, range2: AnyType, pred: AnyType): typeOf(range1)
 {
     if ( range1.isEmpty() || range2.isEmpty() )
         return range1;
@@ -197,7 +197,7 @@ public fun findRangeIf(range1: AnyType, range2: AnyType, pred: AnyType): typeOf(
     return range1;
 }
 
-public fun indexOfRange(range1: AnyType, range2: AnyType): SizeType
+fun indexOfRange(range1: AnyType, range2: AnyType): SizeType
 {
     if ( range1.isEmpty() || range2.isEmpty() )
         return SizeType(DiffType(-1));
@@ -232,7 +232,7 @@ public fun indexOfRange(range1: AnyType, range2: AnyType): SizeType
     return SizeType(DiffType(-1));
 }
 
-public fun minElement(range: Range): typeOf(range)
+fun minElement(range: Range): typeOf(range)
 {
     if ( range.isEmpty() )
         return range;
@@ -247,7 +247,7 @@ public fun minElement(range: Range): typeOf(range)
     return res;
 }
 
-public fun minElementIf(range: Range, pred: AnyType): typeOf(range)
+fun minElementIf(range: Range, pred: AnyType): typeOf(range)
 {
     if ( range.isEmpty() )
         return range;
@@ -262,7 +262,7 @@ public fun minElementIf(range: Range, pred: AnyType): typeOf(range)
     return res;
 }
 
-public fun maxElement(range: Range): typeOf(range)
+fun maxElement(range: Range): typeOf(range)
 {
     if ( range.isEmpty() )
         return range;
@@ -277,7 +277,7 @@ public fun maxElement(range: Range): typeOf(range)
     return res;
 }
 
-public fun maxElementIf(range: Range, pred: AnyType): typeOf(range)
+fun maxElementIf(range: Range, pred: AnyType): typeOf(range)
 {
     if ( range.isEmpty() )
         return range;
@@ -292,7 +292,7 @@ public fun maxElementIf(range: Range, pred: AnyType): typeOf(range)
     return res;
 }
 
-public fun[rtct] minMaxElement(range: Range): Tuple(typeOf(range), typeOf(range))
+fun[rtct] minMaxElement(range: Range): Tuple(typeOf(range), typeOf(range))
 {
     if ( range.isEmpty() )
         return range ~ range;
@@ -313,7 +313,7 @@ public fun[rtct] minMaxElement(range: Range): Tuple(typeOf(range), typeOf(range)
     return minRes ~ maxRes;
 }
 
-public fun[rtct] minMaxElementIf(range: Range, pred: AnyType): Tuple(typeOf(range), typeOf(range))
+fun[rtct] minMaxElementIf(range: Range, pred: AnyType): Tuple(typeOf(range), typeOf(range))
 {
     if ( range.isEmpty() )
         return range ~ range;
@@ -334,7 +334,7 @@ public fun[rtct] minMaxElementIf(range: Range, pred: AnyType): Tuple(typeOf(rang
     return minRes ~ maxRes;
 }
 
-public fun compare(range1: AnyType, range2: AnyType): Bool
+fun compare(range1: AnyType, range2: AnyType): Bool
 {
     while ( !range1.isEmpty() && !range2.isEmpty() )
     {
@@ -350,7 +350,7 @@ public fun compare(range1: AnyType, range2: AnyType): Bool
     return true;
 }
 
-public fun compare(range1: AnyType, range2: AnyType, pred: AnyType): Bool
+fun compare(range1: AnyType, range2: AnyType, pred: AnyType): Bool
 {
     while ( !range1.isEmpty() && !range2.isEmpty() )
     {
@@ -366,7 +366,7 @@ public fun compare(range1: AnyType, range2: AnyType, pred: AnyType): Bool
     return true;
 }
 
-public fun isSorted(range: AnyType): Bool
+fun isSorted(range: AnyType): Bool
 {
     if ( range.isEmpty() )
         return true;
@@ -386,7 +386,7 @@ public fun isSorted(range: AnyType): Bool
     return true;
 }
 
-public fun isSorted(range: AnyType, pred: AnyType): Bool
+fun isSorted(range: AnyType, pred: AnyType): Bool
 {
     if ( range.isEmpty() )
         return true;
@@ -406,7 +406,7 @@ public fun isSorted(range: AnyType, pred: AnyType): Bool
     return true;
 }
 
-public fun[rtct] indexOf(range: Range, value: @AnyType): SizeType
+fun[rtct] indexOf(range: Range, value: @AnyType): SizeType
 {
     var n: SizeType = 0;
 
@@ -420,7 +420,7 @@ public fun[rtct] indexOf(range: Range, value: @AnyType): SizeType
     return SizeType(DiffType(-1));
 }
 
-public fun[rtct] indexOfIf(range: Range, pred: AnyType): SizeType
+fun[rtct] indexOfIf(range: Range, pred: AnyType): SizeType
 {
     var n: SizeType = 0;
 
@@ -434,7 +434,7 @@ public fun[rtct] indexOfIf(range: Range, pred: AnyType): SizeType
     return SizeType(DiffType(-1));
 }
 
-public fun foldLeft(range: AnyType, function: AnyType, seed: @AnyType): -@typeOf(seed)
+fun foldLeft(range: AnyType, function: AnyType, seed: @AnyType): -@typeOf(seed)
 {
     var t = seed;
     for ( v = range )
@@ -442,7 +442,7 @@ public fun foldLeft(range: AnyType, function: AnyType, seed: @AnyType): -@typeOf
     return t;
 }
 
-public fun foldRight(range: AnyType, function: AnyType, seed: @AnyType): -@typeOf(seed)
+fun foldRight(range: AnyType, function: AnyType, seed: @AnyType): -@typeOf(seed)
 {
     var t = seed;
 
@@ -452,8 +452,8 @@ public fun foldRight(range: AnyType, function: AnyType, seed: @AnyType): -@typeO
     return t;
 }
 
-//public fun[rtct] copy(r1, r2: Range): typeOf(r2) if isValid(*r2 = *r1)
-public fun[rtct] copy(r1, r2: Range): typeOf(r2) if isValid(r2.front() = r1.front())
+//fun[rtct] copy(r1, r2: Range): typeOf(r2) if isValid(*r2 = *r1)
+fun[rtct] copy(r1, r2: Range): typeOf(r2) if isValid(r2.front() = r1.front())
 {
     while ( (!!r1) && (!!r2) )
     {
@@ -463,7 +463,7 @@ public fun[rtct] copy(r1, r2: Range): typeOf(r2) if isValid(r2.front() = r1.fron
     }
     return r2;
 }
-//public fun[rtct] copy(range1: AnyType, range2: AnyType): typeOf(range2)
+//fun[rtct] copy(range1: AnyType, range2: AnyType): typeOf(range2)
 //{
 //    while ( !range1.isEmpty() && !range2.isEmpty() )
 //    {
@@ -475,21 +475,21 @@ public fun[rtct] copy(r1, r2: Range): typeOf(r2) if isValid(r2.front() = r1.fron
 //    return range2;
 //}
 
-public fun replace(range: Range, oldValue: @AnyType, newValue: @AnyType) //if TypeOp.isRef(typeOf(range.RetType))
+fun replace(range: Range, oldValue: @AnyType, newValue: @AnyType) //if TypeOp.isRef(typeOf(range.RetType))
 {
     for ( v = range )
         if ( v == oldValue )
             v = newValue;
 }
 
-public fun replaceIf(range: Range, pred: AnyType, newValue: @AnyType) //if TypeOp.isRef(typeOf(range.RetType))
+fun replaceIf(range: Range, pred: AnyType, newValue: @AnyType) //if TypeOp.isRef(typeOf(range.RetType))
 {
     for ( v = range )
         if ( pred(v) )
             v = newValue;
 }
 
-public fun reverse(range: AnyType)
+fun reverse(range: AnyType)
 {
     while ( true )
     {
@@ -511,7 +511,7 @@ public fun reverse(range: AnyType)
     }
 }
 
-public fun[rtct] merge(range1: AnyType, range2: AnyType, range3: AnyType): typeOf(range3)
+fun[rtct] merge(range1: AnyType, range2: AnyType, range3: AnyType): typeOf(range3)
 {
     while ( !range1.isEmpty() && !range2.isEmpty() )
     {
@@ -531,7 +531,7 @@ public fun[rtct] merge(range1: AnyType, range2: AnyType, range3: AnyType): typeO
     return copy(range2, copy(range1, range3));
 }
 
-public fun[rtct] merge(range1: AnyType, range2: AnyType, range3: AnyType, pred: AnyType): typeOf(range3)
+fun[rtct] merge(range1: AnyType, range2: AnyType, range3: AnyType, pred: AnyType): typeOf(range3)
 {
     while ( !range1.isEmpty() && !range2.isEmpty() )
     {
@@ -551,13 +551,13 @@ public fun[rtct] merge(range1: AnyType, range2: AnyType, range3: AnyType, pred: 
     return copy(range2, copy(range1, range3));
 }
 
-public fun[rtct] sort(range: AnyType)
+fun[rtct] sort(range: AnyType)
 {
     if ( !range.isEmpty() )
         quickSort(range, 0, rangeSize(range) - 1);
 }
 
-public fun[rtct] mergeSort(range: AnyType)
+fun[rtct] mergeSort(range: AnyType)
 {
     if ( range.size() <= 1 )
         return;
@@ -576,13 +576,13 @@ public fun[rtct] mergeSort(range: AnyType)
     copy(tmp.all(), range);
 }
 
-public fun[rtct] sort(range: AnyType, pred: AnyType)
+fun[rtct] sort(range: AnyType, pred: AnyType)
 {
     if ( !range.isEmpty() )
         quickSort(range, 0, rangeSize(range) - 1, pred);
 }
 
-public fun[rtct] quickSort(range: AnyType, m: SizeType, n: SizeType)
+fun[rtct] quickSort(range: AnyType, m: SizeType, n: SizeType)
 {
     if ( m >= n || n == SizeType(DiffType(-1)) )
         return;
@@ -609,7 +609,7 @@ public fun[rtct] quickSort(range: AnyType, m: SizeType, n: SizeType)
     quickSort(range, j + 1, n);
 }
 
-public fun[rtct] quickSort(range: AnyType, m: SizeType, n: SizeType, pred: AnyType)
+fun[rtct] quickSort(range: AnyType, m: SizeType, n: SizeType, pred: AnyType)
 {
     if ( m >= n || n == SizeType(DiffType(-1)) )
         return;
@@ -636,7 +636,7 @@ public fun[rtct] quickSort(range: AnyType, m: SizeType, n: SizeType, pred: AnyTy
     quickSort(range, j + 1, n, pred);
 }
 
-public fun[rtct] mergeSort(range: AnyType, pred: AnyType)
+fun[rtct] mergeSort(range: AnyType, pred: AnyType)
 {
     if ( range.size() <= 1 )
         return;
@@ -655,7 +655,7 @@ public fun[rtct] mergeSort(range: AnyType, pred: AnyType)
     copy(tmp.all(), range);
 }
 
-public fun binarySearch(range: AnyType, value: AnyType): Bool
+fun binarySearch(range: AnyType, value: AnyType): Bool
 {
     while ( !range.isEmpty() )
     {
@@ -674,7 +674,7 @@ public fun binarySearch(range: AnyType, value: AnyType): Bool
     return false;
 }
 
-public fun binarySearch(range: AnyType, value: AnyType, pred: AnyType): Bool
+fun binarySearch(range: AnyType, value: AnyType, pred: AnyType): Bool
 {
     while ( !range.isEmpty() )
     {

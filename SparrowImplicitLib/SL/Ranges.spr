@@ -4,56 +4,56 @@ import Tuple;
 import StaticArray;
 import SprCore.NumericLimits;
 
-public concept Range(x)
+concept Range(x)
     if typeOf(x.RetType) == Type
     && typeOf(x.isEmpty()) == Bool
     && typeOf(x.front()) == x.RetType
     && isValid(x.popFront())
     ;
 
-public concept BidirRange(x: Range)
+concept BidirRange(x: Range)
     if typeOf(x.back()) == x.RetType
     && isValid(x.popBack())
     ;
 
-public concept RandomAccessRange(x: BidirRange)
+concept RandomAccessRange(x: BidirRange)
     if typeOf(x.size()) == SizeType
     && typeOf(x(0)) == x.RetType
     ;
 
 
 // Pre and post ++/-- operators on Ranges
-public fun[rtct] pre_++(r: @Range): r.RetType
+fun[rtct] pre_++(r: @Range): r.RetType
 {
     r.popFront();
     return r.front();
 }
-public fun[rtct] post_++(r: @Range): r.RetType
+fun[rtct] post_++(r: @Range): r.RetType
 {
     var res = r.front();
     r.popFront();
     return res;
 }
-public fun[rtct] pre_--(r: @BidirRange): r.RetType
+fun[rtct] pre_--(r: @BidirRange): r.RetType
 {
     r.popBack();
     return r.back();
 }
-public fun[rtct] post_--(r: @BidirRange): r.RetType
+fun[rtct] post_--(r: @BidirRange): r.RetType
 {
     var res = r.back();
     r.popBack();
     return res;
 }
-public fun[rtct] pre_!(r: @Range) = r.isEmpty();
-public fun[rtct] pre_!!(r: @Range) = !r.isEmpty();
-public fun[rtct] pre_*(r: @Range): r.RetType = r.front();
+fun[rtct] pre_!(r: @Range) = r.isEmpty();
+fun[rtct] pre_!!(r: @Range) = !r.isEmpty();
+fun[rtct] pre_*(r: @Range): r.RetType = r.front();
 
 // Call operator on range == range.front()
-//public fun post_()(r: @Range) = r.front();
+//fun post_()(r: @Range) = r.front();
 
 
-public fun[rtct] rangeSize(range: Range): SizeType
+fun[rtct] rangeSize(range: Range): SizeType
 {
     var n: SizeType = 0;
     while ( !range.isEmpty(); range.popFront() )
@@ -61,31 +61,31 @@ public fun[rtct] rangeSize(range: Range): SizeType
     return n;
 }
 
-public fun[rtct] rangeSize(range: RandomAccessRange): SizeType
+fun[rtct] rangeSize(range: RandomAccessRange): SizeType
 {
     return range.size();
 }
 
 
-public fun advance(range: @Range, n: SizeType)
+fun advance(range: @Range, n: SizeType)
 {
     while ( n > 0 ; n -= 1 )
         range.popFront();
 }
 
-public fun advanceIf(range: @Range, pred: AnyType)
+fun advanceIf(range: @Range, pred: AnyType)
 {
     while ( !range.isEmpty() && pred(range.front()) )
         range.popFront();
 }
 
-public fun retract(range: @BidirRange, n: SizeType)
+fun retract(range: @BidirRange, n: SizeType)
 {
     while ( n > 0 ; n -= 1 )
         range.popBack();
 }
 
-public fun retractIf(range: @BidirRange, pred: AnyType)
+fun retractIf(range: @BidirRange, pred: AnyType)
 {
     while ( !range.isEmpty() && pred(range.back) )
         range.popBack();
@@ -93,94 +93,94 @@ public fun retractIf(range: @BidirRange, pred: AnyType)
 
 
 
-public fun numericRange(start, end, step: Number) = NumericRangeWithStep(commonType(typeOf(start), typeOf(end)))(start, end, step);
-public fun numericRange(start, end: Number) = NumericRangeInc(commonType(typeOf(start), typeOf(end)))(start, end);
+fun numericRange(start, end, step: Number) = NumericRangeWithStep(commonType(typeOf(start), typeOf(end)))(start, end, step);
+fun numericRange(start, end: Number) = NumericRangeInc(commonType(typeOf(start), typeOf(end)))(start, end);
 
-public fun[rtct] ..(start, end: Number) = NumericRangeInc(commonType(typeOf(start), typeOf(end)))(start, end);
-public fun[rtct] ...(start, end: Number) = NumericRangeInc(commonType(typeOf(start), typeOf(end)))(start, end, true);
-public fun[rtct] post_..(start: Number) = NumericRangeInc(typeOf(start))(start, NumericLimits(typeOf(start)).maxValue);
+fun[rtct] ..(start, end: Number) = NumericRangeInc(commonType(typeOf(start), typeOf(end)))(start, end);
+fun[rtct] ...(start, end: Number) = NumericRangeInc(commonType(typeOf(start), typeOf(end)))(start, end, true);
+fun[rtct] post_..(start: Number) = NumericRangeInc(typeOf(start))(start, NumericLimits(typeOf(start)).maxValue);
 
 // TODO (LucTeo): Make concepts out of generics
-public fun[rtct] ../(range: Range, step: Number) = NumericRangeWithStep(range.RetType)(range, step);
+fun[rtct] ../(range: Range, step: Number) = NumericRangeWithStep(range.RetType)(range, step);
 
 
-public fun retro(range: BidirRange) = RetroRange(typeOf(range))(range);
+fun retro(range: BidirRange) = RetroRange(typeOf(range))(range);
 
-public fun[rtct] take(range: Range, count: SizeType) = TakeRange(typeOf(range))(range, count);
+fun[rtct] take(range: Range, count: SizeType) = TakeRange(typeOf(range))(range, count);
 
-public fun skip(range: Range, count: SizeType): typeOf(range) { advance(range, count); return range; }
+fun skip(range: Range, count: SizeType): typeOf(range) { advance(range, count); return range; }
 
-public fun takeWhile(range: Range, pred: AnyType) = TakeWhileRange(typeOf(range), typeOf(pred))(range, pred);
-public fun takeWhile(range: Range, pred: AnyType, count: SizeType) = take(takeWhile(range, pred), count);
+fun takeWhile(range: Range, pred: AnyType) = TakeWhileRange(typeOf(range), typeOf(pred))(range, pred);
+fun takeWhile(range: Range, pred: AnyType, count: SizeType) = take(takeWhile(range, pred), count);
 
-public fun takeUntil(range: Range, pred: AnyType) = TakeUntilRange(typeOf(range), typeOf(pred))(range, pred);
-public fun takeUntil(range: Range, pred: AnyType, count: SizeType) = take(takeUntil(range, pred), count);
+fun takeUntil(range: Range, pred: AnyType) = TakeUntilRange(typeOf(range), typeOf(pred))(range, pred);
+fun takeUntil(range: Range, pred: AnyType, count: SizeType) = take(takeUntil(range, pred), count);
 
-public fun filter(range: Range, pred: AnyType) = FilteredRange(typeOf(range), typeOf(pred))(range, pred);
+fun filter(range: Range, pred: AnyType) = FilteredRange(typeOf(range), typeOf(pred))(range, pred);
 
-public fun[rtct] transform(range: Range, function: AnyType) = TransformedRange(typeOf(range), typeOf(function))(range, function);
-public fun map(range: Range, function: AnyType) = TransformedRange(typeOf(range), typeOf(function))(range, function);
+fun[rtct] transform(range: Range, function: AnyType) = TransformedRange(typeOf(range), typeOf(function))(range, function);
+fun map(range: Range, function: AnyType) = TransformedRange(typeOf(range), typeOf(function))(range, function);
 
-public fun repeat(value: AnyType) = RepeatRange(typeOf(value))(value);
-public fun repeat(value: AnyType, count: SizeType) = take(repeat(value), count);
+fun repeat(value: AnyType) = RepeatRange(typeOf(value))(value);
+fun repeat(value: AnyType, count: SizeType) = take(repeat(value), count);
 
-public fun chain(range1, range2: Range) = ChainRange(typeOf(range1), typeOf(range2))(range1, range2);
-public fun ++(range1, range2: Range) = ChainRange(typeOf(range1), typeOf(range2))(range1, range2);
+fun chain(range1, range2: Range) = ChainRange(typeOf(range1), typeOf(range2))(range1, range2);
+fun ++(range1, range2: Range) = ChainRange(typeOf(range1), typeOf(range2))(range1, range2);
 
-public fun stride(range: Range, strideStep: SizeType) = StridedRange(typeOf(range))(range, strideStep);
+fun stride(range: Range, strideStep: SizeType) = StridedRange(typeOf(range))(range, strideStep);
 
-public fun radial(range: Range, index: SizeType) = RadialRange(typeOf(range))(range, index);
+fun radial(range: Range, index: SizeType) = RadialRange(typeOf(range))(range, index);
 
-public fun cycle(range: Range) = CyclicRange(typeOf(range))(range);
-public fun cycle(range: Range, count: SizeType) = CyclicCountedRange(typeOf(range))(range, count);
+fun cycle(range: Range) = CyclicRange(typeOf(range))(range);
+fun cycle(range: Range, count: SizeType) = CyclicCountedRange(typeOf(range))(range, count);
 
-public fun generate(function: AnyType) = GeneratedRange(typeOf(function))(function);
-public fun generate(function: AnyType, count: SizeType) = take(generate(function), count);
+fun generate(function: AnyType) = GeneratedRange(typeOf(function))(function);
+fun generate(function: AnyType, count: SizeType) = take(generate(function), count);
 
-public fun generate1(start: AnyType, function: AnyType) = Generated1Range(typeOf(start), typeOf(function))(start, function);
-public fun generate1(start: AnyType, function: AnyType, count: SizeType) = take(generate1(start, function), count);
+fun generate1(start: AnyType, function: AnyType) = Generated1Range(typeOf(start), typeOf(function))(start, function);
+fun generate1(start: AnyType, function: AnyType, count: SizeType) = take(generate1(start, function), count);
 
-public fun zip(range1, range2: Range, function: AnyType) = ZippedRange(typeOf(range1), typeOf(range2), typeOf(function))(range1, range2, function);
-public fun zip(range1, range2: Range) = zip(range1, range2, MakePair(-@typeOf(range1.front()), -@typeOf(range2.front()))());
+fun zip(range1, range2: Range, function: AnyType) = ZippedRange(typeOf(range1), typeOf(range2), typeOf(function))(range1, range2, function);
+fun zip(range1, range2: Range) = zip(range1, range2, MakePair(-@typeOf(range1.front()), -@typeOf(range2.front()))());
 
-public fun scanLeft(acc: AnyType, range: Range, function: AnyType) = ScanLeftRange(typeOf(acc), typeOf(range), typeOf(function))(acc, range, function);
+fun scanLeft(acc: AnyType, range: Range, function: AnyType) = ScanLeftRange(typeOf(acc), typeOf(range), typeOf(function))(acc, range, function);
 
 
-public class[rtct] NumericRangeInc(valueType: Type) if Number(#$valueType)
+class[rtct] NumericRangeInc(valueType: Type) if Number(#$valueType)
 {
     private var begin, end: valueType;
     private var closed: Bool;
     private using step = valueType(1);
 
-    public using RetType = valueType;
+    using RetType = valueType;
 
-    public fun ctor(start, end: valueType)
+    fun ctor(start, end: valueType)
     {
         this.begin ctor start;
         this.end ctor end;
         this.closed ctor false;
     }
 
-    public fun ctor(start, end: valueType, closed: Bool)
+    fun ctor(start, end: valueType, closed: Bool)
     {
         this.begin ctor start;
         this.end ctor end;
         this.closed ctor closed;
     }
 
-    public fun isEmpty                     = ife(closed, begin > end, begin >= end);
-    public fun front: RetType              = begin;
-    public fun popFront                    { begin += step; }
+    fun isEmpty                     = ife(closed, begin > end, begin >= end);
+    fun front: RetType              = begin;
+    fun popFront                    { begin += step; }
 
-    public fun back: RetType               = begin + cvt(size()-1);
-    public fun popBack                     { end -= step; }
+    fun back: RetType               = begin + cvt(size()-1);
+    fun popBack                     { end -= step; }
 
-    public fun size: SizeType              = ife(closed, end-begin+1, end-begin);
+    fun size: SizeType              = ife(closed, end-begin+1, end-begin);
     
-    public fun popFront(n: SizeType)       { begin += cvt(n); }
-    public fun popBack(n: SizeType)        { end -= cvt(n); }
+    fun popFront(n: SizeType)       { begin += cvt(n); }
+    fun popBack(n: SizeType)        { end -= cvt(n); }
 
-    public fun ()(n: SizeType): RetType    = begin + cvt(n);
+    fun ()(n: SizeType): RetType    = begin + cvt(n);
 
     private fun cvt(n: AnyType): valueType
     {
@@ -189,14 +189,14 @@ public class[rtct] NumericRangeInc(valueType: Type) if Number(#$valueType)
     }
 }
 
-public class[rtct] NumericRangeWithStep(valueType: Type) if Number(#$valueType)
+class[rtct] NumericRangeWithStep(valueType: Type) if Number(#$valueType)
 {
     private var begin, end, step: valueType;
     private var closed: Bool;
 
-    public using RetType = valueType;
+    using RetType = valueType;
 
-    public fun ctor(other: @NumericRangeInc(valueType))
+    fun ctor(other: @NumericRangeInc(valueType))
     {
         this.begin ctor other.begin;
         this.end ctor other.end;
@@ -207,7 +207,7 @@ public class[rtct] NumericRangeWithStep(valueType: Type) if Number(#$valueType)
             step = valueType(-1);
     }
 
-    public fun ctor(other: @NumericRangeInc(valueType), step: valueType)
+    fun ctor(other: @NumericRangeInc(valueType), step: valueType)
     {
         this.begin ctor other.begin;
         this.end ctor other.end;
@@ -215,7 +215,7 @@ public class[rtct] NumericRangeWithStep(valueType: Type) if Number(#$valueType)
         this.step ctor step;
     }
 
-    public fun ctor(start, end: valueType)
+    fun ctor(start, end: valueType)
     {
         this.begin ctor start;
         this.end ctor end;
@@ -226,7 +226,7 @@ public class[rtct] NumericRangeWithStep(valueType: Type) if Number(#$valueType)
             step = valueType(-1);
     }
 
-    public fun ctor(start, end: valueType, closed: Bool)
+    fun ctor(start, end: valueType, closed: Bool)
     {
         this.begin ctor start;
         this.end ctor end;
@@ -237,7 +237,7 @@ public class[rtct] NumericRangeWithStep(valueType: Type) if Number(#$valueType)
             step = valueType(-1);
     }
 
-    public fun ctor(start, end, step: valueType)
+    fun ctor(start, end, step: valueType)
     {
         this.begin ctor start;
         this.end ctor end;
@@ -245,25 +245,25 @@ public class[rtct] NumericRangeWithStep(valueType: Type) if Number(#$valueType)
         this.closed ctor false;
     }
 
-    public fun isEmpty: Bool
+    fun isEmpty: Bool
     {
         if ( closed )
             return ife(step < 0, begin < end, begin > end);
         else
             return ife(step < 0, begin <= end, begin >= end);
     }
-    public fun front: RetType              = begin;
-    public fun popFront                    { begin += step; }
+    fun front: RetType              = begin;
+    fun popFront                    { begin += step; }
 
-    public fun back: RetType               = begin + cvt(size()-1)*step;
-    public fun popBack                     { end -= step; }
+    fun back: RetType               = begin + cvt(size()-1)*step;
+    fun popBack                     { end -= step; }
 
-    public fun size: SizeType              = SizeType(Math.floor(ife(closed, end-begin, end-begin+step)/step));
+    fun size: SizeType              = SizeType(Math.floor(ife(closed, end-begin, end-begin+step)/step));
     
-    public fun popFront(n: SizeType)       { begin += cvt(n*step); }
-    public fun popBack(n: SizeType)        { end -= cvt(n*step); }
+    fun popFront(n: SizeType)       { begin += cvt(n*step); }
+    fun popBack(n: SizeType)        { end -= cvt(n*step); }
 
-    public fun ()(n: SizeType): RetType    = begin + cvt(n*step);
+    fun ()(n: SizeType): RetType    = begin + cvt(n*step);
 
     private fun diff = end-begin;
 
@@ -274,62 +274,62 @@ public class[rtct] NumericRangeWithStep(valueType: Type) if Number(#$valueType)
     }
 }
 
-public class[initCtor] RetroRange(rangeType: Type) if BidirRange(#$rangeType)
+class[initCtor] RetroRange(rangeType: Type) if BidirRange(#$rangeType)
 {    
     private var range: rangeType;    
 
-    public using RetType = rangeType.RetType;
+    using RetType = rangeType.RetType;
 
-    public fun isEmpty                     = range.isEmpty();
-    public fun front: RetType              = range.back();
-    public fun popFront                    { range.popBack(); }
+    fun isEmpty                     = range.isEmpty();
+    fun front: RetType              = range.back();
+    fun popFront                    { range.popBack(); }
 
-    public fun back: RetType               = range.front();
-    public fun popBack                     { range.popFront(); }
+    fun back: RetType               = range.front();
+    fun popBack                     { range.popFront(); }
 }
 
-public class[rtct, initCtor] TakeRange(rangeType: Type) if Range(#$rangeType)
+class[rtct, initCtor] TakeRange(rangeType: Type) if Range(#$rangeType)
 {
     private var range: rangeType;
     private var count: SizeType;
 
-    public using RetType = rangeType.RetType;
+    using RetType = rangeType.RetType;
 
     fun isEmpty                     = count == 0 || range.isEmpty();
     fun front: RetType              = range.front();
     fun popFront                    { range.popFront(); --count; }
 }
 
-public class[initCtor] TakeWhileRange(rangeType: Type, predType: Type) if Range(#$rangeType)
+class[initCtor] TakeWhileRange(rangeType: Type, predType: Type) if Range(#$rangeType)
 {
     private var range: rangeType;
     private var pred: predType;
 
-    public using RetType = rangeType.RetType;
+    using RetType = rangeType.RetType;
 
-    public fun isEmpty                     = range.isEmpty() || !pred(range.front());
-    public fun front: RetType              = range.front();
-    public fun popFront                    { range.popFront(); }
+    fun isEmpty                     = range.isEmpty() || !pred(range.front());
+    fun front: RetType              = range.front();
+    fun popFront                    { range.popFront(); }
 }
 
-public class[initCtor] TakeUntilRange(rangeType: Type, predType: Type) if Range(#$rangeType)
+class[initCtor] TakeUntilRange(rangeType: Type, predType: Type) if Range(#$rangeType)
 {
     private var range: rangeType;
     private var pred: predType;
     private var shouldStop: Bool;
 
-    public using RetType = rangeType.RetType;
+    using RetType = rangeType.RetType;
 
-    public fun ctor(range: rangeType, pred: predType)
+    fun ctor(range: rangeType, pred: predType)
     {
         this.range ctor range;
         this.pred ctor pred;
         shouldStop = false;
     }
 
-    public fun isEmpty                     = range.isEmpty() || shouldStop;
-    public fun front: RetType              = range.front();
-    public fun popFront
+    fun isEmpty                     = range.isEmpty() || shouldStop;
+    fun front: RetType              = range.front();
+    fun popFront
     {
         var lastVal = range.front();
         range.popFront();
@@ -337,15 +337,15 @@ public class[initCtor] TakeUntilRange(rangeType: Type, predType: Type) if Range(
     }
 }
 
-public class FilteredRange(rangeType, predType: Type) if Range(#$rangeType) && typeOf((#$predType)(#$rangeType front)) == Bool
+class FilteredRange(rangeType, predType: Type) if Range(#$rangeType) && typeOf((#$predType)(#$rangeType front)) == Bool
 {
     private var range: rangeType; 
     private var pred: predType;
     private var lastVal: RetType;
 
-    public using RetType = -@rangeType.RetType;
+    using RetType = -@rangeType.RetType;
     
-    public fun ctor(range: rangeType, pred: predType)
+    fun ctor(range: rangeType, pred: predType)
     {
         this.range ctor range;
         this.pred ctor pred;
@@ -353,9 +353,9 @@ public class FilteredRange(rangeType, predType: Type) if Range(#$rangeType) && t
         popUntilValid;
     }
 
-    public fun isEmpty                     = range.isEmpty();
-    public fun front: RetType              = lastVal;
-    public fun popFront                    { range.popFront(); popUntilValid; }
+    fun isEmpty                     = range.isEmpty();
+    fun front: RetType              = lastVal;
+    fun popFront                    { range.popFront(); popUntilValid; }
 
     private fun popUntilValid
     {
@@ -369,16 +369,16 @@ public class FilteredRange(rangeType, predType: Type) if Range(#$rangeType) && t
     }
 }
 
-public class[rtct] TransformedRange(rangeType, funType: Type) if Range(#$rangeType) && isValid((#$funType)(#$rangeType front))
+class[rtct] TransformedRange(rangeType, funType: Type) if Range(#$rangeType) && isValid((#$funType)(#$rangeType front))
 {
     private var range: rangeType;
     private var function: funType;
     private var curVal: RetType;
     private var hasValue: Bool;
 
-    public using RetType = -@typeOf((#$funType)(#$rangeType front));
+    using RetType = -@typeOf((#$funType)(#$rangeType front));
 
-    public fun ctor(range: rangeType, function: funType)
+    fun ctor(range: rangeType, function: funType)
     {
         this.range ctor range;
         this.function ctor function;
@@ -386,8 +386,8 @@ public class[rtct] TransformedRange(rangeType, funType: Type) if Range(#$rangeTy
         this.hasValue ctor false;
     }
 
-    public fun isEmpty                     = range.isEmpty();
-    public fun front: RetType
+    fun isEmpty                     = range.isEmpty();
+    fun front: RetType
     {
         if ( !hasValue )
         {
@@ -396,30 +396,30 @@ public class[rtct] TransformedRange(rangeType, funType: Type) if Range(#$rangeTy
         }
         return curVal;
     }
-    public fun popFront                    { range.popFront(); hasValue = false; }
+    fun popFront                    { range.popFront(); hasValue = false; }
 }
 
-public class[initCtor] RepeatRange(valueType: Type)
+class[initCtor] RepeatRange(valueType: Type)
 {    
     private var value: valueType;   
 
-    public using RetType = valueType;
+    using RetType = valueType;
 
-    public fun isEmpty                     = false;
-    public fun front: RetType              = value;
-    public fun popFront                    {}
+    fun isEmpty                     = false;
+    fun front: RetType              = value;
+    fun popFront                    {}
 }
 
-public class[initCtor] ChainRange(rangeType1: Type, rangeType2: Type) if Range(#$rangeType1) && Range(#$rangeType2)
+class[initCtor] ChainRange(rangeType1: Type, rangeType2: Type) if Range(#$rangeType1) && Range(#$rangeType2)
 {
     private var range1: rangeType1;
     private var range2: rangeType2;
 
-    public using RetType = commonType(rangeType1.RetType, rangeType2.RetType);
+    using RetType = commonType(rangeType1.RetType, rangeType2.RetType);
 
-    public fun isEmpty                 = range1.isEmpty() && range2.isEmpty();
-    public fun front: RetType          = ife(range1.isEmpty(), range2.front(), range1.front());
-    public fun popFront
+    fun isEmpty                 = range1.isEmpty() && range2.isEmpty();
+    fun front: RetType          = ife(range1.isEmpty(), range2.front(), range1.front());
+    fun popFront
     {
         if ( range1.isEmpty() )
             range2.popFront();
@@ -428,16 +428,16 @@ public class[initCtor] ChainRange(rangeType1: Type, rangeType2: Type) if Range(#
     }
 }
 
-public class[initCtor] StridedRange(rangeType: Type) if Range(#$rangeType)
+class[initCtor] StridedRange(rangeType: Type) if Range(#$rangeType)
 {
     private var range: rangeType;
     private var strideStep: SizeType;
 
-    public using RetType = rangeType.RetType;
+    using RetType = rangeType.RetType;
 
-    public fun isEmpty                     = range.isEmpty();
-    public fun front: RetType              = range.front();
-    public fun popFront
+    fun isEmpty                     = range.isEmpty();
+    fun front: RetType              = range.front();
+    fun popFront
     {
         var s = strideStep;
 
@@ -449,15 +449,15 @@ public class[initCtor] StridedRange(rangeType: Type) if Range(#$rangeType)
     }
 }
 
-public class RadialRange(rangeType: Type) if RandomAccessRange(#$rangeType)
+class RadialRange(rangeType: Type) if RandomAccessRange(#$rangeType)
 {
     private var range: rangeType;   
     private var index, count: SizeType;
     private var step, sign: DiffType; 
 
-    public using RetType = rangeType.RetType;
+    using RetType = rangeType.RetType;
     
-    public fun ctor(range: rangeType, index: SizeType)
+    fun ctor(range: rangeType, index: SizeType)
     {
         this.range ctor range;
         this.index ctor index;
@@ -466,9 +466,9 @@ public class RadialRange(rangeType: Type) if RandomAccessRange(#$rangeType)
         this.count ctor 0;
     }
         
-    public fun isEmpty                     = range.isEmpty() || count == range.size();
-    public fun front: RetType              = range(index);
-    public fun popFront
+    fun isEmpty                     = range.isEmpty() || count == range.size();
+    fun front: RetType              = range(index);
+    fun popFront
     {
         index = index + step * sign;
         step = step + 1;
@@ -483,21 +483,21 @@ public class RadialRange(rangeType: Type) if RandomAccessRange(#$rangeType)
     }
 }
 
-public class CyclicRange(rangeType: Type) if Range(#$rangeType)
+class CyclicRange(rangeType: Type) if Range(#$rangeType)
 {   
     private var range, base: rangeType;
 
-    public using RetType = rangeType.RetType;
+    using RetType = rangeType.RetType;
         
-    public fun ctor(range: rangeType)
+    fun ctor(range: rangeType)
     {
         this.range ctor range;
         this.base ctor range;
     }
     
-    public fun isEmpty                     = false;
-    public fun front: RetType              = range.front();
-    public fun popFront
+    fun isEmpty                     = false;
+    fun front: RetType              = range.front();
+    fun popFront
     {
         range.popFront();
         if ( range.isEmpty() )
@@ -505,23 +505,23 @@ public class CyclicRange(rangeType: Type) if Range(#$rangeType)
     }
 }
 
-public class CyclicCountedRange(rangeType: Type) if Range(#$rangeType)
+class CyclicCountedRange(rangeType: Type) if Range(#$rangeType)
 {
     private var range, base: rangeType;   
     private var count: SizeType;    
 
-    public using RetType = rangeType.RetType;
+    using RetType = rangeType.RetType;
 
-    public fun ctor(range: rangeType, count: SizeType)
+    fun ctor(range: rangeType, count: SizeType)
     {
         this.range ctor range;
         this.count ctor count;
         this.base ctor range;
     }
         
-    public fun isEmpty                     = count == 0;
-    public fun front: RetType              = range.front();
-    public fun popFront
+    fun isEmpty                     = count == 0;
+    fun front: RetType              = range.front();
+    fun popFront
     {
         range.popFront();
         if ( range.isEmpty() )
@@ -535,65 +535,65 @@ public class CyclicCountedRange(rangeType: Type) if Range(#$rangeType)
     }
 }
 
-public class GeneratedRange(functionType: Type)
+class GeneratedRange(functionType: Type)
 {
     private var function: functionType; 
     private var current: RetType; 
 
-    public using RetType = typeOf((#$functionType)());
+    using RetType = typeOf((#$functionType)());
     
-    public fun ctor(function: functionType)
+    fun ctor(function: functionType)
     {
         this.function ctor function;
         this.current ctor this.function();
     }
         
-    public fun isEmpty                     = false;
-    public fun front: RetType              = current;
-    public fun popFront                    { current = function(); }
+    fun isEmpty                     = false;
+    fun front: RetType              = current;
+    fun popFront                    { current = function(); }
 }
 
-public class Generated1Range(elType, functionType: Type) //if isValid(elType(#$functionType)(#$elType))
+class Generated1Range(elType, functionType: Type) //if isValid(elType(#$functionType)(#$elType))
 {
     private var function: functionType; 
     private var current: RetType; 
 
-    public using RetType = elType;
+    using RetType = elType;
     
-    public fun ctor(initialValue: RetType, function: functionType)
+    fun ctor(initialValue: RetType, function: functionType)
     {
         this.function ctor function;
         this.current ctor initialValue;
     }
         
-    public fun isEmpty                     = false;
-    public fun front: RetType              = current;
-    public fun popFront                    { current = function(current); }
+    fun isEmpty                     = false;
+    fun front: RetType              = current;
+    fun popFront                    { current = function(current); }
 }
 
-public class[initCtor] ZippedRange(rangeType1, rangeType2: Type, functionType: Type) if Range(#$rangeType1) &&  Range(#$rangeType2)
+class[initCtor] ZippedRange(rangeType1, rangeType2: Type, functionType: Type) if Range(#$rangeType1) &&  Range(#$rangeType2)
 {
     private var range1: rangeType1; 
     private var range2: rangeType2;
     private var function: functionType; 
 
-    public using RetType = typeOf((#$functionType)(#$rangeType1 front, #$rangeType2 front));
+    using RetType = typeOf((#$functionType)(#$rangeType1 front, #$rangeType2 front));
     
-    public fun isEmpty                     = range1.isEmpty() || range2.isEmpty();
-    public fun front: RetType              = function(range1.front(), range2.front());
-    public fun popFront                    { range1.popFront(); range2.popFront(); }
+    fun isEmpty                     = range1.isEmpty() || range2.isEmpty();
+    fun front: RetType              = function(range1.front(), range2.front());
+    fun popFront                    { range1.popFront(); range2.popFront(); }
 }
 
-public class ScanLeftRange(accType, rangeType: Type, functionType: Type) if Range(#$rangeType)
+class ScanLeftRange(accType, rangeType: Type, functionType: Type) if Range(#$rangeType)
 {
     private var acc: accType;
     private var range: rangeType; 
     private var function: functionType; 
     private var valComputed: Bool;
 
-    public using RetType = accType;
+    using RetType = accType;
 
-    public fun ctor(acc: accType, range: rangeType, function: functionType)
+    fun ctor(acc: accType, range: rangeType, function: functionType)
     {
         this.acc ctor acc;
         this.range ctor range;
@@ -601,9 +601,9 @@ public class ScanLeftRange(accType, rangeType: Type, functionType: Type) if Rang
         this.valComputed ctor false;
     }
     
-    public fun isEmpty         = range.isEmpty();
-    public fun popFront        { range.popFront(); valComputed=false; }
-    public fun front: RetType
+    fun isEmpty         = range.isEmpty();
+    fun popFront        { range.popFront(); valComputed=false; }
+    fun front: RetType
     {
         if ( !valComputed )
             acc = function(acc, range.front());
@@ -612,37 +612,37 @@ public class ScanLeftRange(accType, rangeType: Type, functionType: Type) if Rang
     }
 }
 
-public class ValuesRange(contType: Type) if isValid((#$contType)(1))
+class ValuesRange(contType: Type) if isValid((#$contType)(1))
 {
     private var values: contType;
     private var idx: SizeType;
 
-    public fun ctor(values: @contType)
+    fun ctor(values: @contType)
     {
         this.values ctor values;
         idx = 0;
     }
 
-    public fun ctor(other: @ValuesRange)
+    fun ctor(other: @ValuesRange)
     {
         this.values ctor other.values;
         this.idx ctor other.idx;
     }
 
-    public using RetType       = contType.ValueType;
-    public fun isEmpty         = idx >= values.size;
-    public fun popFront        { ++idx; }
-    public fun front: RetType  = values(idx);
+    using RetType       = contType.ValueType;
+    fun isEmpty         = idx >= values.size;
+    fun popFront        { ++idx; }
+    fun front: RetType  = values(idx);
 }
-public fun mkValuesRange(cont: AnyType) = ValuesRange(typeOf(cont))(cont);
+fun mkValuesRange(cont: AnyType) = ValuesRange(typeOf(cont))(cont);
 
 
-public fun values(v0,v1: AnyType) = mkValuesRange(mkValues(v0,v1));
-public fun values(v0,v1,v2: AnyType) = mkValuesRange(mkValues(v0,v1,v2));
-public fun values(v0,v1,v2,v3: AnyType) = mkValuesRange(mkValues(v0,v1,v2,v3));
-public fun values(v0,v1,v2,v3,v4: AnyType) = mkValuesRange(mkValues(v0,v1,v2,v3,v4));
-public fun values(v0,v1,v2,v3,v4,v5: AnyType) = mkValuesRange(mkValues(v0,v1,v2,v3,v4,v5));
-public fun values(v0,v1,v2,v3,v4,v5,v6: AnyType) = mkValuesRange(mkValues(v0,v1,v2,v3,v4,v5,v6));
-public fun values(v0,v1,v2,v3,v4,v5,v6,v7: AnyType) = mkValuesRange(mkValues(v0,v1,v2,v3,v4,v5,v6,v7));
-public fun values(v0,v1,v2,v3,v4,v5,v6,v7,v8: AnyType) = mkValuesRange(mkValues(v0,v1,v2,v3,v4,v5,v6,v7,v8));
-public fun values(v0,v1,v2,v3,v4,v5,v6,v7,v8,v9: AnyType) = mkValuesRange(mkValues(v0,v1,v2,v3,v4,v5,v6,v7,v8,v9));
+fun values(v0,v1: AnyType) = mkValuesRange(mkValues(v0,v1));
+fun values(v0,v1,v2: AnyType) = mkValuesRange(mkValues(v0,v1,v2));
+fun values(v0,v1,v2,v3: AnyType) = mkValuesRange(mkValues(v0,v1,v2,v3));
+fun values(v0,v1,v2,v3,v4: AnyType) = mkValuesRange(mkValues(v0,v1,v2,v3,v4));
+fun values(v0,v1,v2,v3,v4,v5: AnyType) = mkValuesRange(mkValues(v0,v1,v2,v3,v4,v5));
+fun values(v0,v1,v2,v3,v4,v5,v6: AnyType) = mkValuesRange(mkValues(v0,v1,v2,v3,v4,v5,v6));
+fun values(v0,v1,v2,v3,v4,v5,v6,v7: AnyType) = mkValuesRange(mkValues(v0,v1,v2,v3,v4,v5,v6,v7));
+fun values(v0,v1,v2,v3,v4,v5,v6,v7,v8: AnyType) = mkValuesRange(mkValues(v0,v1,v2,v3,v4,v5,v6,v7,v8));
+fun values(v0,v1,v2,v3,v4,v5,v6,v7,v8,v9: AnyType) = mkValuesRange(mkValues(v0,v1,v2,v3,v4,v5,v6,v7,v8,v9));

@@ -1,14 +1,14 @@
 
-public fun[native("malloc"), rtct] malloc(size: SizeType): @Byte;
-public fun[native("calloc"), rtct] calloc(size, count: SizeType): @Byte;
-public fun[native("realloc"), autoCt] realloc(p: @Byte, size: SizeType): @Byte;
-public fun[native("free"), autoCt] free(p: @Byte);
-public fun[native("ptrAdd"), autoCt] ptrAdd(p: @Byte, n: SizeType): @Byte;
-public fun[native("ptrSub"), autoCt] ptrSub(p: @Byte, n: SizeType): @Byte;
-public fun[native("ptrDiff"), autoCt] ptrDiff(p1, p2: @Byte): DiffType;
-public fun[native("_spr_memcpy"), autoCt] memcpy(dest, src: @Byte, size: SizeType);
-public fun[native("_spr_memmove"), autoCt] memmove(dest, src: @Byte, size: SizeType);
-public fun[native("_spr_memset"), autoCt] memset(dest: @Byte, val: Byte, count: SizeType);
-public fun[native("strcmp"), autoCt] strcmp(lhs, rhs: @Byte): Int;
-public fun[native("system")] systemNative(x: @Char);
-public fun[native("sleep")] sleep(x: Int);
+fun[native("malloc"), rtct] malloc(size: SizeType): @Byte;
+fun[native("calloc"), rtct] calloc(size, count: SizeType): @Byte;
+fun[native("realloc"), autoCt] realloc(p: @Byte, size: SizeType): @Byte;
+fun[native("free"), autoCt] free(p: @Byte);
+fun[native("ptrAdd"), autoCt] ptrAdd(p: @Byte, n: SizeType): @Byte;
+fun[native("ptrSub"), autoCt] ptrSub(p: @Byte, n: SizeType): @Byte;
+fun[native("ptrDiff"), autoCt] ptrDiff(p1, p2: @Byte): DiffType;
+fun[native("_spr_memcpy"), autoCt] memcpy(dest, src: @Byte, size: SizeType);
+fun[native("_spr_memmove"), autoCt] memmove(dest, src: @Byte, size: SizeType);
+fun[native("_spr_memset"), autoCt] memset(dest: @Byte, val: Byte, count: SizeType);
+fun[native("strcmp"), autoCt] strcmp(lhs, rhs: @Byte): Int;
+fun[native("system")] systemNative(x: @Char);
+fun[native("sleep")] sleep(x: Int);

@@ -3,23 +3,23 @@ package Logic;
 import Predicates;
 import SL.Bind;
 
-public fun rec(pred: @AnyType)
+fun rec(pred: @AnyType)
     = Impl.mkRecurse(mkBindAll(pred))
     if isValid(pred());
-public fun rec(pred, a1: @AnyType)
+fun rec(pred, a1: @AnyType)
     = Impl.mkRecurse(mkBindAll(pred, mkLRef(a1)))
     if isValid(pred(a1));
-public fun rec(pred, a1, a2: @AnyType)
+fun rec(pred, a1, a2: @AnyType)
     //= Impl.mkRecurse(mkBindAll(pred, mkLRef(a1), mkLRef(a2)))
     = Impl.mkRecurse(mkBindAll(pred, a1, mkLRef(a2)))
     if isValid(pred(a1, a2));
-public fun rec(pred, a1, a2, a3: @AnyType)
+fun rec(pred, a1, a2, a3: @AnyType)
     = Impl.mkRecurse(mkBindAll(pred, mkLRef(a1), mkLRef(a2), mkLRef(a3)))
     if isValid(pred(a1, a2, a3));
-public fun rec(pred, a1, a2, a3, a4: @AnyType)
+fun rec(pred, a1, a2, a3, a4: @AnyType)
     = Impl.mkRecurse(mkBindAll(pred, mkLRef(a1), mkLRef(a2), mkLRef(a3), mkLRef(a4)))
     if isValid(pred(a1, a2, a3, a4));
-public fun rec(pred, a1, a2, a3, a4, a5: @AnyType)
+fun rec(pred, a1, a2, a3, a4, a5: @AnyType)
     = Impl.mkRecurse(mkBindAll(pred, mkLRef(a1), mkLRef(a2), mkLRef(a3), mkLRef(a4), mkLRef(a5)))
     if isValid(pred(a1, a2, a3, a4, a5));
 
@@ -29,9 +29,9 @@ package Impl
 }
 
 
-public class Recurse(predGeneratorType: Type)
+class Recurse(predGeneratorType: Type)
 {
-    public fun ctor(predGenerator: @predGeneratorType)
+    fun ctor(predGenerator: @predGeneratorType)
     {
         this.relation ctor;
         this.predGenerator ctor predGenerator;
@@ -39,7 +39,7 @@ public class Recurse(predGeneratorType: Type)
             cout << "Recurse.ctor: " << this << "\n";
     }
 
-    public fun (): Bool
+    fun (): Bool
     {
         if ( relation.isNull() )
             relation = predGenerator();
@@ -48,7 +48,7 @@ public class Recurse(predGeneratorType: Type)
         return relation();
     }
 
-    public fun >>(os: @OutStream)
+    fun >>(os: @OutStream)
     {
         os << "Recurse(this=" << mkStreamRefWrapper(this)
            << ", fun=" << relation;

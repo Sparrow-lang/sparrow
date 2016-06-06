@@ -2,7 +2,7 @@ package Test;
 
 import OS;
 
-public fun[rtct] assertTrue(val: Bool, message: StringRef = "") {
+fun[rtct] assertTrue(val: Bool, message: StringRef = "") {
     if ( !val ) {
         cout << "Assertion failure" << endl;
         if ( !message.isEmpty )
@@ -12,7 +12,7 @@ public fun[rtct] assertTrue(val: Bool, message: StringRef = "") {
     }
 }
 
-public fun[rtct] assertEq(val, expectedVal: AnyType, message: StringRef = "")
+fun[rtct] assertEq(val, expectedVal: AnyType, message: StringRef = "")
     if isValid(val == expectedVal) 
 {
     if ( !(val == expectedVal) ) {
@@ -26,7 +26,7 @@ public fun[rtct] assertEq(val, expectedVal: AnyType, message: StringRef = "")
     }
 }
 
-public fun[rtct] assertNe(val1, val2: AnyType, message: StringRef = "")
+fun[rtct] assertNe(val1, val2: AnyType, message: StringRef = "")
     if isValid(val1 == val2) 
 {
     if ( val1 == val2 ) {
@@ -40,7 +40,7 @@ public fun[rtct] assertNe(val1, val2: AnyType, message: StringRef = "")
     }
 }
 
-public fun[rtct] assertLt(val1, val2: AnyType, message: StringRef = "")
+fun[rtct] assertLt(val1, val2: AnyType, message: StringRef = "")
     if isValid(val1 < val2) 
 {
     if ( !(val1 < val2) ) {
@@ -54,7 +54,7 @@ public fun[rtct] assertLt(val1, val2: AnyType, message: StringRef = "")
     }
 }
 
-public fun[rtct] assertLe(val1, val2: AnyType, message: StringRef = "")
+fun[rtct] assertLe(val1, val2: AnyType, message: StringRef = "")
     if isValid(val1 <= val2) 
 {
     if ( !(val1 <= val2) ) {
@@ -68,7 +68,7 @@ public fun[rtct] assertLe(val1, val2: AnyType, message: StringRef = "")
     }
 }
 
-public fun[rtct] assertGt(val1, val2: AnyType, message: StringRef = "")
+fun[rtct] assertGt(val1, val2: AnyType, message: StringRef = "")
     if isValid(val1 > val2) 
 {
     if ( !(val1 > val2) ) {
@@ -82,7 +82,7 @@ public fun[rtct] assertGt(val1, val2: AnyType, message: StringRef = "")
     }
 }
 
-public fun[rtct] assertGe(val1, val2: AnyType, message: StringRef = "")
+fun[rtct] assertGe(val1, val2: AnyType, message: StringRef = "")
     if isValid(val1 >= val2) 
 {
     if ( !(val1 >= val2) ) {

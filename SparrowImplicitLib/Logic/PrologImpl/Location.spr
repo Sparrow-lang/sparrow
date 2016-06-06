@@ -1,14 +1,14 @@
-public using LLocation = Location;
+using LLocation = Location;
 
-public class[rtct] Location
+class[rtct] Location
 {
-    public var sourceCodePlaceholder: @Int;
-    public var startLineNo: UInt;
-    public var startColNo: UInt;
-    public var endLineNo: UInt;
-    public var endColNo: UInt;
+    var sourceCodePlaceholder: @Int;
+    var startLineNo: UInt;
+    var startColNo: UInt;
+    var endLineNo: UInt;
+    var endColNo: UInt;
 
-    public fun ctor
+    fun ctor
     {
         sourceCodePlaceholder := null;
         startLineNo ctor 0;
@@ -17,7 +17,7 @@ public class[rtct] Location
         endColNo ctor 0;
     }
 
-    public fun ctor(startLineNo, endLineNo, startColNo, endColNo: UInt)
+    fun ctor(startLineNo, endLineNo, startColNo, endColNo: UInt)
     {
         this.sourceCodePlaceholder := null;
         this.startLineNo ctor startLineNo;
@@ -26,7 +26,7 @@ public class[rtct] Location
         this.endColNo ctor endColNo;
     }
 
-    public fun[ct, convert] ctor(loc: Meta.Location)
+    fun[ct, convert] ctor(loc: Meta.Location)
     {
         this.sourceCodePlaceholder := loc.sourceCode.impl;
         this.startLineNo ctor loc.startLineNo;
@@ -35,7 +35,7 @@ public class[rtct] Location
         this.endColNo ctor loc.endColNo;
     }
 
-    public fun[ct] asMetaLocation: Meta.Location
+    fun[ct] asMetaLocation: Meta.Location
     {
         var res: Meta.Location;
         res.sourceCode.impl := sourceCodePlaceholder;
@@ -47,7 +47,7 @@ public class[rtct] Location
     }
 
     /// Set the location to (1,1,1,1), the first character in a stream
-    public fun setOne
+    fun setOne
     {
         startLineNo = 1;
         startColNo = 1;
@@ -56,41 +56,41 @@ public class[rtct] Location
     }
 
     /// Make the start position to be the same as the end position
-    public fun stepOver
+    fun stepOver
     {
         startLineNo = endLineNo;
         startColNo = endColNo;
     }
 
     /// Add the given number of columns to the end position; start position remains unchanged
-    public fun addColumns(count: UInt)
+    fun addColumns(count: UInt)
     {
         endColNo += count;
     }
 
     /// Add the given number of lines to the end position; start position remains unchanged
-    public fun addLines(count: UInt)
+    fun addLines(count: UInt)
     {
         endLineNo += count;
         endColNo = 1;
     }
 
     /// Set the start position of this location to the start position of the given location; the end position remains unchanged
-    public fun copyStart(other: @Location)
+    fun copyStart(other: @Location)
     {
         startLineNo = other.startLineNo;
         startColNo = other.startColNo;
     }
 
     /// Set the end position of this location to the end position of the given location; the start position remains unchanged
-    public fun copyEnd(other: @Location)
+    fun copyEnd(other: @Location)
     {
         endLineNo = other.endLineNo;
         endColNo = other.endColNo;
     }
 
     /// Set this location with both start and end to equal the start of the given location
-    public fun setAsStartOf(other: @Location)
+    fun setAsStartOf(other: @Location)
     {
         startLineNo = other.startLineNo;
         startColNo = other.startColNo;
@@ -99,7 +99,7 @@ public class[rtct] Location
     }
 
     /// Set this location with both start and end to equal the end of the given location
-    public fun setAsEndOf(other: @Location)
+    fun setAsEndOf(other: @Location)
     {
         startLineNo = other.endLineNo;
         startColNo = other.endColNo;

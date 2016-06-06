@@ -1,36 +1,36 @@
 import RawPtr;
 
-public class[rtct] ContiguousMemoryRange(valueType: Type)
+class[rtct] ContiguousMemoryRange(valueType: Type)
 {
-    public using PtrType = RawPtr(valueType);
-    public using RetType = @valueType;
+    using PtrType = RawPtr(valueType);
+    using RetType = @valueType;
 
-    public fun ctor(begin, end: PtrType)
+    fun ctor(begin, end: PtrType)
     {
         this.begin ctor begin;
         this.end ctor end;
     }
 
-    public fun isEmpty                 = end.diff(begin) <= 0;
-    public fun size: SizeType          = end.diff(begin);
+    fun isEmpty                 = end.diff(begin) <= 0;
+    fun size: SizeType          = end.diff(begin);
 
-    public fun front: RetType          = begin.value();
-    public fun back: RetType           = end.advance(-1).value();
-    public fun () : RetType            = begin.value();
-    public fun ()(n: SizeType): RetType = begin.advance(DiffType(n)).value();
+    fun front: RetType          = begin.value();
+    fun back: RetType           = end.advance(-1).value();
+    fun () : RetType            = begin.value();
+    fun ()(n: SizeType): RetType = begin.advance(DiffType(n)).value();
 
-    public fun popFront                { begin = begin.advance(); }
-    public fun popBack                 { end = end.advance(-1); }
-    public fun popFront(n: SizeType)   { begin = begin.advance(DiffType(n)); }
-    public fun popBack(n: SizeType)    { end = end.advance(-DiffType(n)); }
+    fun popFront                { begin = begin.advance(); }
+    fun popBack                 { end = end.advance(-1); }
+    fun popFront(n: SizeType)   { begin = begin.advance(DiffType(n)); }
+    fun popBack(n: SizeType)    { end = end.advance(-DiffType(n)); }
 
-    public fun pre_++ : RetType         { popFront(); return front(); }
-    public fun post_++ : RetType        { var res: RetType = front(); popFront(); return res; }
+    fun pre_++ : RetType         { popFront(); return front(); }
+    fun post_++ : RetType        { var res: RetType = front(); popFront(); return res; }
 
-    public fun frontPtr                = begin;
-    public fun backPtr                 = end;
+    fun frontPtr                = begin;
+    fun backPtr                 = end;
 
-    public fun >>(os: @OutStream) if isValid(os << #$valueType)
+    fun >>(os: @OutStream) if isValid(os << #$valueType)
     {
         os << "MemRange(";
         for ( i = 0..size ) {

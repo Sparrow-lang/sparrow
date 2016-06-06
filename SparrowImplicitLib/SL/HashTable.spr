@@ -4,18 +4,18 @@ import Algorithms;
 import DefaultHashFunction;
 import Ptr;
 
-public class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
+class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
 {
-    public using KeyType = keyType;
-    public using ValueType = valueType;
-    public using ValueToKeyType = valueToKeyType;
+    using KeyType = keyType;
+    using ValueType = valueType;
+    using ValueToKeyType = valueToKeyType;
 
-    public fun ctor()
+    fun ctor()
     {
         this.ctor(0, traitsType());
     }
 
-    public fun ctor(n: SizeType, traits: traitsType)
+    fun ctor(n: SizeType, traits: traitsType)
     {
         buckets.ctor();
         this.traits ctor traits;
@@ -25,7 +25,7 @@ public class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
             reserve(n);
     }
 
-    public fun ctor(range: Range, n: SizeType, traits: traitsType)
+    fun ctor(range: Range, n: SizeType, traits: traitsType)
     {
         buckets.ctor();
         this.traits ctor traits;
@@ -36,7 +36,7 @@ public class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
             insertPlain(v);
     }
 
-    public fun ctor(other: @HashTable)
+    fun ctor(other: @HashTable)
     {
         buckets ctor other.buckets.size();
         traits ctor other.traits;
@@ -47,12 +47,12 @@ public class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
             insertPlain(v);
     }
 
-    public fun dtor
+    fun dtor
     {
         deleteElements();
     }
 
-    public fun swap(other: @HashTable)
+    fun swap(other: @HashTable)
     {
         buckets.swap(other.buckets);
         swapTL(guard, other.guard);
@@ -66,15 +66,15 @@ public class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
             other.buckets(other.guard.next.get().hash % other.buckets.size()) = other.guardNode();
     }
 
-    public fun traits          = tr;
+    fun traits          = tr;
 
-    public fun isEmpty         = (numElements == 0);
-    public fun size            = numElements;
-    public fun bucketCount     = buckets.size();
+    fun isEmpty         = (numElements == 0);
+    fun size            = numElements;
+    fun bucketCount     = buckets.size();
 
-    public fun all             = RangeType(guard.next, NodePtr());
+    fun all             = RangeType(guard.next, NodePtr());
 
-    public fun reserve(n: SizeType)
+    fun reserve(n: SizeType)
     {
         // Resize only when we are big enough to re-hash
         if ( n <= buckets.size() * Impl.loadFactor )
@@ -105,13 +105,13 @@ public class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
         }
     }
 
-    public fun insert(value: @ValueType): RangeType
+    fun insert(value: @ValueType): RangeType
     {
         reserve(numElements + 1);
         return insertPlain(value);
     }
 
-    public fun insert(range: Range)
+    fun insert(range: Range)
     {
         reserve(numElements + rangeSize(range));
         var counter = 0;
@@ -119,7 +119,7 @@ public class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
             insertPlain(v);
     }
 
-    public fun remove(key: @KeyType)
+    fun remove(key: @KeyType)
     {
         if ( isEmpty() )
             return;
@@ -132,7 +132,7 @@ public class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
         removeNode(prev, node);
     }
 
-    public fun remove(range: RangeType)
+    fun remove(range: RangeType)
     {
         if ( range.isEmpty() )
             return;
@@ -149,22 +149,22 @@ public class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
         }
     }
 
-    public fun contains(key: @KeyType): Bool = findNode(key).isSet();
-    public fun count(key: @KeyType): SizeType = ife(findNode(key).isSet(), 1, 0);
+    fun contains(key: @KeyType): Bool = findNode(key).isSet();
+    fun count(key: @KeyType): SizeType = ife(findNode(key).isSet(), 1, 0);
 
-    public fun equalRange(key: @KeyType): RangeType
+    fun equalRange(key: @KeyType): RangeType
     {
         var p = findNode(key);
         return ife(p.isSet(), RangeType(p, p.get().next), RangeType());
     }
 
-    public fun find(key: @KeyType): RangeType
+    fun find(key: @KeyType): RangeType
     {
         var p = findNode(key);
         return ife(p.isSet(), RangeType(p, NodePtr()), RangeType());
     }
 
-    public fun clear()
+    fun clear()
     {
         buckets.dtor();
         buckets.ctor();
@@ -172,14 +172,14 @@ public class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
         deleteElements();
     }
 
-    public fun =(other: @HashTable): @HashTable
+    fun =(other: @HashTable): @HashTable
     {
         var tmp: HashTable = other;
         this.swap(tmp);
         return this;
     }
 
-    public fun ==(other: @HashTable): Bool
+    fun ==(other: @HashTable): Bool
     {
         if ( !(traits == other.traits && numElements == other.size()) )
             return false;
@@ -193,7 +193,7 @@ public class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
         return true;
     }
 
-    public fun >> (os: @OutStream)
+    fun >> (os: @OutStream)
     {
         os << "HashTable, first=" << mkStreamRefWrapper(guard.next.get()) << ", size=" << numElements << endl;
 
@@ -396,21 +396,21 @@ public class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
         guard.next = NodePtr();
     }
 
-    public class RangeType
+    class RangeType
     {
-        public using RetType = @ValueType;
+        using RetType = @ValueType;
 
         private var startElem, endElem: NodePtr;
 
-        public fun ctor(start, end: NodePtr)
+        fun ctor(start, end: NodePtr)
         {
             startElem ctor start;
             endElem ctor end;
         }
 
-        public fun isEmpty             = startElem == endElem;
-        public fun front: RetType      = startElem.get().data;
-        public fun popFront            { startElem = startElem.get().next; }
+        fun isEmpty             = startElem == endElem;
+        fun front: RetType      = startElem.get().data;
+        fun popFront            { startElem = startElem.get().next; }
     }
 }
 

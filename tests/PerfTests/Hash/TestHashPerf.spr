@@ -16,7 +16,7 @@ class Obj
     fun >> (os: @OutStream) { os << "Obj(" << value << ")"; }
 }
 
-// TODO: Move this to SL
+// TODO (now): Move this to SL
 class Equal(type: Type) {
     fun () (x,y: type): Bool = x == y;
 }

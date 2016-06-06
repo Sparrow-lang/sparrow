@@ -1,21 +1,21 @@
 import "StdTypesImpl.llvm";
 
 
-public class[native("Type"), noDefault, ct] Type
+class[native("Type"), noDefault, ct] Type
 {
     fun[native("_Type_ctor")] ctor;
     fun[native("_Type_copy_ctor")] ctor(other: Type);
     //fun dtor {}
 }
 
-public class[noDefault, rtct] Uninitialized
+class[noDefault, rtct] Uninitialized
 {
     fun ctor() {}
     fun ctor(other: Uninitialized) {}
     fun dtor {}
 }
 
-public class[rtct, noDefault, native("Null")] Null
+class[rtct, noDefault, native("Null")] Null
 {
     fun ctor() {}
     fun ctor(other: Uninitialized) {}

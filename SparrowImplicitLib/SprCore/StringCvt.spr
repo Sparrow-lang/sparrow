@@ -1,7 +1,7 @@
 
-public fun[rtct] asInt(src: StringRef)       = StringCvtImpl.atoi(src.cStr());
-public fun[rtct] asLong(src: StringRef)      = StringCvtImpl.atoll(src.cStr());
-public fun[rtct] asDouble(src: StringRef)    = StringCvtImpl.atof(src.cStr());
+fun[rtct] asInt(src: StringRef)       = StringCvtImpl.atoi(src.cStr());
+fun[rtct] asLong(src: StringRef)      = StringCvtImpl.atoll(src.cStr());
+fun[rtct] asDouble(src: StringRef)    = StringCvtImpl.atof(src.cStr());
 
 package StringCvtImpl
 {

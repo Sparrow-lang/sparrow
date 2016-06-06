@@ -1,18 +1,18 @@
 package Meta;
 
-public class[ct] SourceCode
+class[ct] SourceCode
 {
     /// Returns the source code object corresponding to the location of the function call
-    public fun[static, native("$Meta.SourceCode.current")] current: SourceCode;
+    fun[static, native("$Meta.SourceCode.current")] current: SourceCode;
 
     /// Returns a location from the given filename
-    public fun[static, native("$Meta.SourceCode.fromFilename")] fromFilename(filename: StringRef): SourceCode;
+    fun[static, native("$Meta.SourceCode.fromFilename")] fromFilename(filename: StringRef): SourceCode;
 
-    public fun[native("$Meta.SourceCode.filename")] filename: StringRef;
+    fun[native("$Meta.SourceCode.filename")] filename: StringRef;
 
-    public fun isValid = impl !== null;
+    fun isValid = impl !== null;
 
-    public fun ctor
+    fun ctor
     {
         impl := null;
     }
@@ -23,15 +23,15 @@ public class[ct] SourceCode
     private var impl: @Int;    
 }
 
-public class[ct] Location
+class[ct] Location
 {
-    public var sourceCode: SourceCode;
-    public var startLineNo: UInt;
-    public var startColNo: UInt;
-    public var endLineNo: UInt;
-    public var endColNo: UInt;
+    var sourceCode: SourceCode;
+    var startLineNo: UInt;
+    var startColNo: UInt;
+    var endLineNo: UInt;
+    var endColNo: UInt;
 
-    public fun ctor
+    fun ctor
     {
         sourceCode ctor;
         startLineNo ctor 0;
@@ -40,7 +40,7 @@ public class[ct] Location
         endColNo ctor 0;
     }
 
-    public fun ctor(sourceCode: SourceCode)
+    fun ctor(sourceCode: SourceCode)
     {
         this.sourceCode ctor sourceCode;
         startLineNo ctor 1;
@@ -49,7 +49,7 @@ public class[ct] Location
         endColNo ctor 1;
     }
 
-    public fun ctor(sourceCode: SourceCode, startLineNo, endLineNo, startColNo, endColNo: UInt)
+    fun ctor(sourceCode: SourceCode, startLineNo, endLineNo, startColNo, endColNo: UInt)
     {
         this.sourceCode ctor sourceCode;
         this.startLineNo ctor startLineNo;
@@ -59,6 +59,6 @@ public class[ct] Location
     }
 
     /// Gets the code corresponding to the current location
-    public fun[native("$Meta.Location.getCorrespondingCode")] getCorrespondingCode: StringRef;
+    fun[native("$Meta.Location.getCorrespondingCode")] getCorrespondingCode: StringRef;
 }
 

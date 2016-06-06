@@ -1,7 +1,7 @@
 import StdTypes0;
 import StringRef;
 
-public class[native("i1"), noDefault, rtct] Bool
+class[native("i1"), noDefault, rtct] Bool
 {
     fun ctor(other: Uninitialized) {}
     fun[native("_zero_init_1")] ctor();
@@ -11,7 +11,7 @@ public class[native("i1"), noDefault, rtct] Bool
     fun[autoCt, native("_ass_1_1")] = (y: Bool): Bool;
 }
 
-public class[native("i8"), noDefault, rtct] Byte
+class[native("i8"), noDefault, rtct] Byte
 {
     fun ctor(other: Uninitialized) {}
     fun[native("_zero_init_8")] ctor();
@@ -33,7 +33,7 @@ public class[native("i8"), noDefault, rtct] Byte
     fun[native("_ass_8_8")] = (y: Byte);
 }
 
-public class[native("u8"), noDefault, rtct] UByte
+class[native("u8"), noDefault, rtct] UByte
 {
     fun ctor(other: Uninitialized) {}
     fun[native("_zero_init_8")] ctor();
@@ -54,7 +54,7 @@ public class[native("u8"), noDefault, rtct] UByte
     fun[native("_ass_8_8")] = (y: UByte);
 }
 
-public class[native("i16"), noDefault, rtct] Short
+class[native("i16"), noDefault, rtct] Short
 {
     fun ctor(other: Uninitialized) {}
     fun[native("_zero_init_16")] ctor();
@@ -75,7 +75,7 @@ public class[native("i16"), noDefault, rtct] Short
     fun[native("_ass_16_16")] = (y: Short);
 }
 
-public class[native("u16"), noDefault, rtct] UShort
+class[native("u16"), noDefault, rtct] UShort
 {
     fun ctor(other: Uninitialized) {}
     fun[native("_zero_init_16")] ctor();
@@ -96,7 +96,7 @@ public class[native("u16"), noDefault, rtct] UShort
     fun[native("_ass_16_16")] = (y: UShort);
 }
 
-public class[native("i32"), noDefault, rtct] Int
+class[native("i32"), noDefault, rtct] Int
 {
     fun ctor(other: Uninitialized) {}
     fun[native("_zero_init_32")] ctor();
@@ -119,7 +119,7 @@ public class[native("i32"), noDefault, rtct] Int
     fun[native("_ass_32_32")] = (y: Int);
 }
 
-public class[native("u32"), noDefault, rtct] UInt
+class[native("u32"), noDefault, rtct] UInt
 {
     fun ctor(other: Uninitialized) {}
     fun[native("_zero_init_32")] ctor();
@@ -140,7 +140,7 @@ public class[native("u32"), noDefault, rtct] UInt
     fun[native("_ass_32_32")] = (y: UInt);
 }
 
-public class[native("i64"), noDefault, rtct] Long
+class[native("i64"), noDefault, rtct] Long
 {
     fun ctor(other: Uninitialized) {}
     fun[native("_zero_init_64")] ctor();
@@ -161,7 +161,7 @@ public class[native("i64"), noDefault, rtct] Long
     fun[native("_ass_64_64")] = (y: Long);
 }
 
-public class[native("u64"), noDefault, rtct] ULong
+class[native("u64"), noDefault, rtct] ULong
 {
     fun ctor(other: Uninitialized) {}
     fun[native("_zero_init_64")] ctor();
@@ -182,7 +182,7 @@ public class[native("u64"), noDefault, rtct] ULong
     fun[native("_ass_64_64")] = (y: ULong);
 }
 
-public class[native("u64"), noDefault, rtct] SizeType
+class[native("u64"), noDefault, rtct] SizeType
 {
     fun ctor(other: Uninitialized) {}
     fun[native("_zero_init_64")] ctor();
@@ -205,7 +205,7 @@ public class[native("u64"), noDefault, rtct] SizeType
 
 //var NullPos = SizeType(DiffType(-1));
 
-public class[native("i64"), noDefault, rtct] DiffType
+class[native("i64"), noDefault, rtct] DiffType
 {
     fun ctor(other: Uninitialized) {}
     fun[native("_zero_init_64")] ctor();
@@ -226,7 +226,7 @@ public class[native("i64"), noDefault, rtct] DiffType
     fun[native("_ass_64_64")] = (y: DiffType);
 }
 
-public class[native("float"), noDefault, rtct] Float
+class[native("float"), noDefault, rtct] Float
 {
     fun ctor(other: Uninitialized) {}
     fun[native("_zero_init_f")] ctor();
@@ -247,7 +247,7 @@ public class[native("float"), noDefault, rtct] Float
     fun[native("_ass_f_f")] = (y: Float);
 }
 
-public class[native("double"), noDefault, rtct] Double
+class[native("double"), noDefault, rtct] Double
 {
     fun ctor(other: Uninitialized) {}
     fun[native("_zero_init_d")] ctor();
@@ -268,7 +268,7 @@ public class[native("double"), noDefault, rtct] Double
     fun[native("_ass_d_d")] = (y: Double);
 }
 
-public class[native("i8"), noDefault, rtct] Char
+class[native("i8"), noDefault, rtct] Char
 {
     fun ctor(other: Uninitialized) {}
     fun[native("_zero_init_8")] ctor();

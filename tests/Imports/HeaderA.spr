@@ -1,3 +1,3 @@
 package Test;
 
-public var a = Int(1);
+var a = Int(1);

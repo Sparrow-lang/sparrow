@@ -1,51 +1,51 @@
 import SortedTable;
 
-public class SortedMap(keyType, dataType, lessType, compareType: Type)
+class SortedMap(keyType, dataType, lessType, compareType: Type)
 {
-    public using KeyType = keyType;
-    public using DataType = dataType;
-    public using LessType = lessType;
-    public using CompareType = compareType;
-    public using ValueType = Tuple(KeyType, DataType);
+    using KeyType = keyType;
+    using DataType = dataType;
+    using LessType = lessType;
+    using CompareType = compareType;
+    using ValueType = Tuple(KeyType, DataType);
     private using ImplTable = SortedTable(keyType, ValueType, PairFirst(ValueType), lessType, compareType);
-    public using RangeType = ImplTable.RangeType;
+    using RangeType = ImplTable.RangeType;
 
     private var sortedTable: ImplTable;
 
-    public fun ctor(n: SizeType)                                       { sortedTable.ctor(n, LessType(), CompareType()); }
-    public fun ctor(n: SizeType, less: LessType)                       { sortedTable.ctor(n, less, CompareType()); }
-    public fun ctor(n: SizeType, less: LessType, comp: CompareType)    { sortedTable.ctor(n, less, comp); }
-    public fun ctor(range: Range)                                      { sortedTable.ctor(range, 0, LessType(), CompareType()); }
-    public fun ctor(range: Range, n: SizeType)                         { sortedTable.ctor(range, n, LessType(), CompareType()); }
-    public fun ctor(range: Range, n: SizeType, less: LessType)         { sortedTable.ctor(range, n, less, CompareType()); }
-    public fun ctor(range: Range, n: SizeType, less: LessType, comp: CompareType)  { sortedTable.ctor(range, n, less, comp); }
-    public fun ctor(other: @SortedMap)                                 { this.sortedTable ctor other.sortedTable; }
+    fun ctor(n: SizeType)                                       { sortedTable.ctor(n, LessType(), CompareType()); }
+    fun ctor(n: SizeType, less: LessType)                       { sortedTable.ctor(n, less, CompareType()); }
+    fun ctor(n: SizeType, less: LessType, comp: CompareType)    { sortedTable.ctor(n, less, comp); }
+    fun ctor(range: Range)                                      { sortedTable.ctor(range, 0, LessType(), CompareType()); }
+    fun ctor(range: Range, n: SizeType)                         { sortedTable.ctor(range, n, LessType(), CompareType()); }
+    fun ctor(range: Range, n: SizeType, less: LessType)         { sortedTable.ctor(range, n, less, CompareType()); }
+    fun ctor(range: Range, n: SizeType, less: LessType, comp: CompareType)  { sortedTable.ctor(range, n, less, comp); }
+    fun ctor(other: @SortedMap)                                 { this.sortedTable ctor other.sortedTable; }
 
-    public fun lessFunction                            = sortedTable.less;
-    public fun comparator                              = sortedTable.comp;
+    fun lessFunction                            = sortedTable.less;
+    fun comparator                              = sortedTable.comp;
 
-    public fun size                                    = sortedTable.size();
-    public fun isEmpty                                 = sortedTable.isEmpty();
-    public fun capacity                                = sortedTable.table.capacity();
-    public fun reserve(n: SizeType)                    { sortedTable.reserve(n); }
+    fun size                                    = sortedTable.size();
+    fun isEmpty                                 = sortedTable.isEmpty();
+    fun capacity                                = sortedTable.table.capacity();
+    fun reserve(n: SizeType)                    { sortedTable.reserve(n); }
 
-    public fun all                                     = sortedTable.all();
-    public fun keys                                    = transform(all(), PairFirst(ValueType)());
-    public fun values                                  = transform(all(), PairSecond(ValueType)());
+    fun all                                     = sortedTable.all();
+    fun keys                                    = transform(all(), PairFirst(ValueType)());
+    fun values                                  = transform(all(), PairSecond(ValueType)());
 
-    public fun insert(key: @KeyType, data: @DataType)  = sortedTable.insert(ValueType(key, data));
-    public fun insert(value: @ValueType)               = sortedTable.insert(value);
-    public fun insert(range: Range)                    { sortedTable.insert(range); }
-    public fun remove(key: @KeyType)                   { sortedTable.remove(key); }
-    public fun remove(range: RangeType)                { sortedTable.remove(range); }
+    fun insert(key: @KeyType, data: @DataType)  = sortedTable.insert(ValueType(key, data));
+    fun insert(value: @ValueType)               = sortedTable.insert(value);
+    fun insert(range: Range)                    { sortedTable.insert(range); }
+    fun remove(key: @KeyType)                   { sortedTable.remove(key); }
+    fun remove(range: RangeType)                { sortedTable.remove(range); }
 
-    public fun contains(key: @KeyType)                 = sortedTable.contains(key);
-    public fun count(key: @KeyType)                    = sortedTable.count(key);
-    public fun equalRange(key: @KeyType)               = sortedTable.equalRange(key);
-    public fun find(key: @KeyType)                     = sortedTable.find(key);
+    fun contains(key: @KeyType)                 = sortedTable.contains(key);
+    fun count(key: @KeyType)                    = sortedTable.count(key);
+    fun equalRange(key: @KeyType)               = sortedTable.equalRange(key);
+    fun find(key: @KeyType)                     = sortedTable.find(key);
 
-    public fun ()(key: @KeyType): @DataType            = at(key);
-    public fun at(key: @KeyType): @DataType
+    fun ()(key: @KeyType): @DataType            = at(key);
+    fun at(key: @KeyType): @DataType
     {
         var r = sortedTable.lowerBound(key);
         if ( r.isEmpty() || !sortedTable.comp(key, r.front()._1) )
@@ -56,7 +56,7 @@ public class SortedMap(keyType, dataType, lessType, compareType: Type)
         return r.front()._2;
     }
 
-    public fun clear()                                 { sortedTable.clear(); }
+    fun clear()                                 { sortedTable.clear(); }
 
-    public fun swap(other: @SortedMap)                 { this.sortedTable swap other.sortedTable; }
+    fun swap(other: @SortedMap)                 { this.sortedTable swap other.sortedTable; }
 }

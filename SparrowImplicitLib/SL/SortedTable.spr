@@ -4,21 +4,21 @@ import Vector;
 import Algorithms;
 import DefaultHashFunction;
 
-public class SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: Type)
+class SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: Type)
 {
-    public using KeyType = keyType;
-    public using ValueType = valueType;
-    public using ValueToKeyType = valueToKeyType;
-    public using LessType = lessType;
-    public using CompareType = compareType;
-    public using RangeType = Vector(valueType).RangeType;
+    using KeyType = keyType;
+    using ValueType = valueType;
+    using ValueToKeyType = valueToKeyType;
+    using LessType = lessType;
+    using CompareType = compareType;
+    using RangeType = Vector(valueType).RangeType;
 
-    public fun ctor()
+    fun ctor()
     {
         this.ctor(0, LessType(), CompareType());
     }
 
-    public fun ctor(n: SizeType, less: LessType, comp: CompareType)
+    fun ctor(n: SizeType, less: LessType, comp: CompareType)
     {
         table.ctor();
         this.valToKey ctor valToKey;
@@ -28,7 +28,7 @@ public class SortedTable(keyType, valueType, valueToKeyType, lessType, compareTy
             reserve(n);
     }
 
-    public fun ctor(range: AnyType, n: SizeType, less: LessType, comp: CompareType)
+    fun ctor(range: AnyType, n: SizeType, less: LessType, comp: CompareType)
     {
         table.ctor();
         if ( n > 0 )
@@ -45,14 +45,14 @@ public class SortedTable(keyType, valueType, valueToKeyType, lessType, compareTy
             insert(v);
     }
 
-    public fun ctor(other: @SortedTable)
+    fun ctor(other: @SortedTable)
     {
         table ctor other.table;
         less ctor other.less;
         comp ctor other.comp;
     }
 
-    public fun swap(other: @SortedTable)
+    fun swap(other: @SortedTable)
     {
         table.swap(other.table);
 
@@ -69,17 +69,17 @@ public class SortedTable(keyType, valueType, valueToKeyType, lessType, compareTy
         other.comp = tmpc;
     }
 
-    public fun lessFunction    = less;
-    public fun comparator      = comp;
+    fun lessFunction    = less;
+    fun comparator      = comp;
 
-    public fun isEmpty         = table.isEmpty();
-    public fun size            = table.size();
+    fun isEmpty         = table.isEmpty();
+    fun size            = table.size();
 
-    public fun all             = table.all();
+    fun all             = table.all();
 
-    public fun reserve(n: SizeType)    { table.reserve(n); }
+    fun reserve(n: SizeType)    { table.reserve(n); }
 
-    public fun insert(value: @ValueType): RangeType
+    fun insert(value: @ValueType): RangeType
     {
         var r = lowerBound(valToKey(value));
         var idx = table.size() - r.size();
@@ -90,7 +90,7 @@ public class SortedTable(keyType, valueType, valueToKeyType, lessType, compareTy
         return res;
     }
 
-    public fun insert(range: Range)
+    fun insert(range: Range)
     {
         table.reserve(table.size() + rangeSize(range));
         for ( v = range )
@@ -101,7 +101,7 @@ public class SortedTable(keyType, valueType, valueToKeyType, lessType, compareTy
         }
     }
 
-    public fun remove(key: @KeyType)
+    fun remove(key: @KeyType)
     {
         if ( isEmpty() )
             return;
@@ -114,16 +114,16 @@ public class SortedTable(keyType, valueType, valueToKeyType, lessType, compareTy
         }
     }
 
-    public fun remove(range: RangeType)
+    fun remove(range: RangeType)
     {
         if ( !range.isEmpty() )
             table.remove(range);
     }
 
-    public fun contains(key: @KeyType): Bool  = !find(key).isEmpty();
-    public fun count(key: @KeyType): SizeType = ife(find(key).isEmpty(), 0, 1);
+    fun contains(key: @KeyType): Bool  = !find(key).isEmpty();
+    fun count(key: @KeyType): SizeType = ife(find(key).isEmpty(), 0, 1);
 
-    public fun lowerBound(key: @KeyType): RangeType
+    fun lowerBound(key: @KeyType): RangeType
     {
         var first: SizeType = 0;
         var len = table.size();
@@ -144,7 +144,7 @@ public class SortedTable(keyType, valueType, valueToKeyType, lessType, compareTy
         return r;
     }
 
-    public fun upperBound(key: @KeyType): RangeType
+    fun upperBound(key: @KeyType): RangeType
     {
         var first: SizeType = 0;
         var len = table.size();
@@ -165,7 +165,7 @@ public class SortedTable(keyType, valueType, valueToKeyType, lessType, compareTy
         return r;
     }
 
-    public fun equalRange(key: @KeyType): RangeType
+    fun equalRange(key: @KeyType): RangeType
     {
         var r = find(key);
         if ( !r.isEmpty() )
@@ -174,7 +174,7 @@ public class SortedTable(keyType, valueType, valueToKeyType, lessType, compareTy
             return RangeType();
     }
 
-    public fun find(key: @KeyType): RangeType
+    fun find(key: @KeyType): RangeType
     {
         var r = lowerBound(key);
         if ( !r.isEmpty() && comp(key, valToKey(r.front())) )
@@ -183,12 +183,12 @@ public class SortedTable(keyType, valueType, valueToKeyType, lessType, compareTy
             return RangeType();
     }
 
-    public fun clear()
+    fun clear()
     {
         table.clear();
     }
 
-    public fun =(other: @SortedTable): @SortedTable
+    fun =(other: @SortedTable): @SortedTable
     {
         table = other.table;
         valToKey = other.valToKey;
@@ -199,12 +199,12 @@ public class SortedTable(keyType, valueType, valueToKeyType, lessType, compareTy
         return this;
     }
 
-    public fun ==(other: @SortedTable): Bool
+    fun ==(other: @SortedTable): Bool
     {
         return valToKey == other.valToKey && less == other.less && comp == other.comp && table == other.table;
     }
 
-    public fun !=(other: @SortedTable): Bool = !(this == other);
+    fun !=(other: @SortedTable): Bool = !(this == other);
 
     private var table: Vector(ValueType);
     private var valToKey: ValueToKeyType;
@@ -212,8 +212,8 @@ public class SortedTable(keyType, valueType, valueToKeyType, lessType, compareTy
     private var comp: CompareType;
 }
 
-public class[rtct] Less(type: Type) if isValid(#$type < #$type)
+class[rtct] Less(type: Type) if isValid(#$type < #$type)
 {
-    public fun ()(l, r: @type) = l < r;
+    fun ()(l, r: @type) = l < r;
 }
 

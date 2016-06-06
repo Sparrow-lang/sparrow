@@ -132,7 +132,7 @@ bool SprFrontend::canAccessNode(Node* decl, SourceCode* fromSourceCode)
 
 bool SprFrontend::isPublic(Node* decl)
 {
-    return getAccessType(decl) == publicAccess;
+    return getAccessType(decl) != privateAccess;
 }
 
 AccessType SprFrontend::getAccessType(Node* decl)

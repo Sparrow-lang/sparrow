@@ -6,11 +6,11 @@ import SL.Ptr;
 import SL.Vector;
 import Assert;
 
-public class TaskSystem {
-    public fun ctor {
+class TaskSystem {
+    fun ctor {
     }
 
-    public fun dtor {
+    fun dtor {
     }
 
     //! The global queue of tasks
@@ -27,7 +27,7 @@ public class TaskSystem {
 
 var globalTaskSystem: TaskSystem Ptr;
 
-public fun initTaskSystem(numWorkers: UInt = 0) {
+fun initTaskSystem(numWorkers: UInt = 0) {
     // Create the task system object
     assert(globalTaskSystem isNull);
     globalTaskSystem = new(TaskSystem);
@@ -44,14 +44,14 @@ public fun initTaskSystem(numWorkers: UInt = 0) {
     }
 }
 
-public fun getInitTaskSystem: TaskSystem Ptr {
+fun getInitTaskSystem: TaskSystem Ptr {
     // TODO: Make sure this is initialized only once
     if ( globalTaskSystem isNull )
         initTaskSystem;
     return globalTaskSystem;
 }
 
-public fun createWorker(ts: TaskSystem Ptr): Worker Ptr {
+fun createWorker(ts: TaskSystem Ptr): Worker Ptr {
     var id: Int = ts.get().workers size;
     var p: Worker Ptr = new(Worker, ts.get(), id, ts.get().idleCounter);
     ts.get().workers.pushBack(p);
@@ -61,13 +61,13 @@ public fun createWorker(ts: TaskSystem Ptr): Worker Ptr {
 // TODO: make it random
 var cnt: Int = 0;
 
-public fun getRandomTaskQueue(ts: @TaskSystem): @TaskQueue {
+fun getRandomTaskQueue(ts: @TaskSystem): @TaskQueue {
     // TODO: make the selection truly random
     var worker: Worker Ptr = ts.workers(++cnt % (ts.workers size));
     return worker.get().work;
 }
 
-public fun onTaskAvailable(ts: @TaskSystem) {
+fun onTaskAvailable(ts: @TaskSystem) {
     // Do something only if we have at least one idle worker
     if ( ts.idleCounter hasIdle ) {
         for ( w: Worker Ptr = ts.workers.all ) {
@@ -79,4 +79,4 @@ public fun onTaskAvailable(ts: @TaskSystem) {
 }
 
 //! Get the number of currently available workers
-public fun numAvailableWorkers(ts: @TaskSystem) = (ts.workers size) - (ts.idleCounter numIdleWorkers);
+fun numAvailableWorkers(ts: @TaskSystem) = (ts.workers size) - (ts.idleCounter numIdleWorkers);

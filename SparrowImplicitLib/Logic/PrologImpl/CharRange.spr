@@ -1,4 +1,4 @@
-public concept CharRange(x)
+concept CharRange(x)
     if Range(x)
     //&& -@(x.RetType) == Char
     ;

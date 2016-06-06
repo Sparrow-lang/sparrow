@@ -5,7 +5,7 @@ import TasksImpl.Debug;
 import TasksImpl.SchedulerIf;
 
 //! Clients should know about TaskPrefix class
-public using TasksImpl.TaskPrefix;
+using TasksImpl.TaskPrefix;
 
 
 //! A concept describing a task that can be spawned
@@ -15,17 +15,17 @@ public using TasksImpl.TaskPrefix;
 //!     - a way of obtaining the task prefix from it
 //!         - either as an 'prefix' method
 //!         - or as a 'prefix' field <-- this is the easiest
-public concept TaskType(x)
+concept TaskType(x)
     if isValid(x execute)
     && ( isValidAndTrue(typeOf(x prefix) == @Par.TaskPrefix)
         || isValidAndTrue(typeOf(x.prefix) == Par.TaskPrefix) )
     ;
 
-public fun getPrefix(t: @TaskType): @Par.TaskPrefix = t prefix if isValid(t prefix);
-public fun getPrefix(t: @TaskType): @Par.TaskPrefix = t.prefix if isValid(t.prefix) && !isValid(t prefix);
+fun getPrefix(t: @TaskType): @Par.TaskPrefix = t prefix if isValid(t prefix);
+fun getPrefix(t: @TaskType): @Par.TaskPrefix = t.prefix if isValid(t.prefix) && !isValid(t prefix);
 
 
-public fun spawnRootAndWait(task: @TaskType) {
+fun spawnRootAndWait(task: @TaskType) {
     if[ct] ( isValidAndTrue(TasksImpl.traceCalls) && isValid(cout << task) )
         cout << "spawnRootAndWait(" << task << ")" << endl;
 
@@ -34,29 +34,29 @@ public fun spawnRootAndWait(task: @TaskType) {
     TasksImpl.SchedulerIf.spawnRootAndWait(getPrefix(task));
 }
 
-public fun spawn(curTask, childTask: @TaskType) {
+fun spawn(curTask, childTask: @TaskType) {
     getPrefix(curTask) addRefCount 1;
     Impl.doSpawn(curTask, childTask);
 }
-public fun spawn(curTask, t1, t2: @TaskType) {
+fun spawn(curTask, t1, t2: @TaskType) {
     getPrefix(curTask) addRefCount 2;
     Impl.doSpawn(curTask, t2);
     Impl.doSpawn(curTask, t1);
 }
-public fun spawn(curTask, t1, t2, t3: @TaskType) {
+fun spawn(curTask, t1, t2, t3: @TaskType) {
     getPrefix(curTask) addRefCount 3;
     Impl.doSpawn(curTask, t3);
     Impl.doSpawn(curTask, t2);
     Impl.doSpawn(curTask, t1);
 }
-public fun spawn(curTask, t1, t2, t3, t4: @TaskType) {
+fun spawn(curTask, t1, t2, t3, t4: @TaskType) {
     getPrefix(curTask) addRefCount 4;
     Impl.doSpawn(curTask, t4);
     Impl.doSpawn(curTask, t3);
     Impl.doSpawn(curTask, t2);
     Impl.doSpawn(curTask, t1);
 }
-public fun spawn(curTask, t1, t2, t3, t4, t5: @TaskType) {
+fun spawn(curTask, t1, t2, t3, t4, t5: @TaskType) {
     getPrefix(curTask) addRefCount 5;
     Impl.doSpawn(curTask, t5);
     Impl.doSpawn(curTask, t4);
@@ -64,7 +64,7 @@ public fun spawn(curTask, t1, t2, t3, t4, t5: @TaskType) {
     Impl.doSpawn(curTask, t2);
     Impl.doSpawn(curTask, t1);
 }
-public fun spawn(curTask, t1, t2, t3, t4, t5, t6: @TaskType) {
+fun spawn(curTask, t1, t2, t3, t4, t5, t6: @TaskType) {
     getPrefix(curTask) addRefCount 6;
     Impl.doSpawn(curTask, t6);
     Impl.doSpawn(curTask, t5);
@@ -73,7 +73,7 @@ public fun spawn(curTask, t1, t2, t3, t4, t5, t6: @TaskType) {
     Impl.doSpawn(curTask, t2);
     Impl.doSpawn(curTask, t1);
 }
-public fun spawn(curTask, t1, t2, t3, t4, t5, t6, t7: @TaskType) {
+fun spawn(curTask, t1, t2, t3, t4, t5, t6, t7: @TaskType) {
     getPrefix(curTask) addRefCount 7;
     Impl.doSpawn(curTask, t7);
     Impl.doSpawn(curTask, t6);
@@ -84,34 +84,34 @@ public fun spawn(curTask, t1, t2, t3, t4, t5, t6, t7: @TaskType) {
     Impl.doSpawn(curTask, t1);
 }
 
-public fun wait(curTask: @TaskType) {
+fun wait(curTask: @TaskType) {
     getPrefix(curTask) addRefCount 1;
     TasksImpl.SchedulerIf.waitForAll(getPrefix(curTask));
 }
 
-public fun spawnAndWait(curTask, t1: @TaskType) {
+fun spawnAndWait(curTask, t1: @TaskType) {
     getPrefix(curTask) addRefCount 2;
     Impl.doSpawnAndWait(curTask, t1);
 }
-public fun spawnAndWait(curTask, t1, t2: @TaskType) {
+fun spawnAndWait(curTask, t1, t2: @TaskType) {
     getPrefix(curTask) addRefCount 3;
     Impl.doSpawn(curTask, t2);
     Impl.doSpawnAndWait(curTask, t1);
 }
-public fun spawnAndWait(curTask, t1, t2, t3: @TaskType) {
+fun spawnAndWait(curTask, t1, t2, t3: @TaskType) {
     getPrefix(curTask) addRefCount 4;
     Impl.doSpawn(curTask, t3);
     Impl.doSpawn(curTask, t2);
     Impl.doSpawnAndWait(curTask, t1);
 }
-public fun spawnAndWait(curTask, t1, t2, t3, t4: @TaskType) {
+fun spawnAndWait(curTask, t1, t2, t3, t4: @TaskType) {
     getPrefix(curTask) addRefCount 5;
     Impl.doSpawn(curTask, t4);
     Impl.doSpawn(curTask, t3);
     Impl.doSpawn(curTask, t2);
     Impl.doSpawnAndWait(curTask, t1);
 }
-public fun spawnAndWait(curTask, t1, t2, t3, t4, t5: @TaskType) {
+fun spawnAndWait(curTask, t1, t2, t3, t4, t5: @TaskType) {
     getPrefix(curTask) addRefCount 6;
     Impl.doSpawn(curTask, t5);
     Impl.doSpawn(curTask, t4);
@@ -119,7 +119,7 @@ public fun spawnAndWait(curTask, t1, t2, t3, t4, t5: @TaskType) {
     Impl.doSpawn(curTask, t2);
     Impl.doSpawnAndWait(curTask, t1);
 }
-public fun spawnAndWait(curTask, t1, t2, t3, t4, t5, t6: @TaskType) {
+fun spawnAndWait(curTask, t1, t2, t3, t4, t5, t6: @TaskType) {
     getPrefix(curTask) addRefCount 7;
     Impl.doSpawn(curTask, t6);
     Impl.doSpawn(curTask, t5);
@@ -128,7 +128,7 @@ public fun spawnAndWait(curTask, t1, t2, t3, t4, t5, t6: @TaskType) {
     Impl.doSpawn(curTask, t2);
     Impl.doSpawnAndWait(curTask, t1);
 }
-public fun spawnAndWait(curTask, t1, t2, t3, t4, t5, t6, t7: @TaskType) {
+fun spawnAndWait(curTask, t1, t2, t3, t4, t5, t6, t7: @TaskType) {
     getPrefix(curTask) addRefCount 8;
     Impl.doSpawn(curTask, t7);
     Impl.doSpawn(curTask, t6);
@@ -139,7 +139,7 @@ public fun spawnAndWait(curTask, t1, t2, t3, t4, t5, t6, t7: @TaskType) {
     Impl.doSpawnAndWait(curTask, t1);
 }
 
-public fun setContinuation(curTask, cont: @TaskType) {
+fun setContinuation(curTask, cont: @TaskType) {
     Impl.initTaskBasic(cont);
 
     // The continuation has the same parent, depth & worker as the current task
@@ -155,27 +155,27 @@ public fun setContinuation(curTask, cont: @TaskType) {
     getPrefix(curTask).cont = getPrefix(cont);
 }
 
-public fun enqueue(task: @TaskType) {
+fun enqueue(task: @TaskType) {
     Impl.initAsRoot(task);
     TasksImpl.SchedulerIf.enqueue(getPrefix(task));
 }
 
 
 //! An empty task; can be used for synchronization
-public class EmptyTask {
+class EmptyTask {
     var prefix: TaskPrefix;
 }
 
-public fun execute(task: @EmptyTask) {}
+fun execute(task: @EmptyTask) {}
 
-public fun >>(t: EmptyTask, os: @OutStream) {
+fun >>(t: EmptyTask, os: @OutStream) {
     os << "EmptyTask";
 }
 
-public fun description(task: @EmptyTask): String  = "EmptyTask";
+fun description(task: @EmptyTask): String  = "EmptyTask";
 
 
-public package Impl {
+package Impl {
     class ExecuteHelper(T: Type) {
         fun[static] doExecute(prefix: @TaskPrefix): Null {
             var objP: @Byte = ptrAdd(reinterpretCast(@Byte, prefix), prefix.taskOffset);

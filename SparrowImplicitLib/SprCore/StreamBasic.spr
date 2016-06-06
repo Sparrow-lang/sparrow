@@ -1,5 +1,5 @@
 // An output stream must accept the basic types
-public concept OutStream(x)
+concept OutStream(x)
     if isValid(x.<<<(1))
     //&& isValid(x.<<<(1L))
     && isValid(x.<<<(1.0))
@@ -8,7 +8,7 @@ public concept OutStream(x)
     ;
 
 // If we define an ">>" operator in the type itself, make sure we can support the standard "<<" notation
-public fun[rtct] << (s: @OutStream, x: @AnyType): typeOf(s) if isValid(x >> s)
+fun[rtct] << (s: @OutStream, x: @AnyType): typeOf(s) if isValid(x >> s)
 {
     x >> s;
     return s;
@@ -16,41 +16,41 @@ public fun[rtct] << (s: @OutStream, x: @AnyType): typeOf(s) if isValid(x >> s)
 
 // If no ">>" operator is defined in the class, then try to place the input element in the stream
 // The stream class must define an "<<<" operator for this element
-public fun[rtct] << (s: @OutStream, x: @AnyType): typeOf(s) if !isValid(x.>>(s)) && isValid(s.<<<(x))
+fun[rtct] << (s: @OutStream, x: @AnyType): typeOf(s) if !isValid(x.>>(s)) && isValid(s.<<<(x))
 {
     s.<<<(x);
     return s;
 }
 
 
-public var[rtct] endl: EndLineHelperClass;
-public var[rtct] flush: FlushHelperClass;
+var[rtct] endl: EndLineHelperClass;
+var[rtct] flush: FlushHelperClass;
 
-public class[rtct] EndLineHelperClass
+class[rtct] EndLineHelperClass
 {
-    public fun >>(os: @OutStream)
+    fun >>(os: @OutStream)
     {
         os << '\n';
     }    
 }
-public class[rtct] FlushHelperClass
+class[rtct] FlushHelperClass
 {
-    public fun >>(os: @OutStream)
+    fun >>(os: @OutStream)
     {
         if[ct] ( isValid(os.flush()) )
             os.flush();
     }
 }
 
-public class[rtct] StreamRefWrapperHelperClass
+class[rtct] StreamRefWrapperHelperClass
 {
-    public var ptr: @Byte;
+    var ptr: @Byte;
 }
-public fun[rtct] >>(p: StreamRefWrapperHelperClass, os: @OutStream) {
+fun[rtct] >>(p: StreamRefWrapperHelperClass, os: @OutStream) {
     Impl.writeRef(p.ptr);
 }
 
-public fun[rtct] mkStreamRefWrapper(x: @AnyType): StreamRefWrapperHelperClass
+fun[rtct] mkStreamRefWrapper(x: @AnyType): StreamRefWrapperHelperClass
 {
     var res: StreamRefWrapperHelperClass;
     res.ptr := reinterpretCast(@Byte, x);

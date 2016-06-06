@@ -6,14 +6,14 @@ import SL.SharedPtr;
 import SL.String;
 import PrecedenceUtils;
 
-public concept ValWrapper(x)
+concept ValWrapper(x)
     if isValid(x.ValueType)
     //&& isValid(x.isSet())
     //&& isValid(x.get())
     //&& isValid(x())
     ;
 
-public concept LRefType(x)
+concept LRefType(x)
     if ValWrapper(x)
     && isValid(x.isLogicalRef)
     && isValid(x.reset())
@@ -21,15 +21,15 @@ public concept LRefType(x)
     ;
 
 
-//public using logicDebug = 1;
-//public using logicRefDebug = 1;
+//using logicDebug = 1;
+//using logicRefDebug = 1;
 
 
 // A logical reference that contains strings
-public using LStr = LRef(String);
+using LStr = LRef(String);
 
 // A logical reference that contains integers
-public using LInt = LRef(Int);
+using LInt = LRef(Int);
 
 
 /// A logical reference
@@ -39,48 +39,48 @@ public using LInt = LRef(Int);
 /// reference, it's immediately visible in all the other references sharing the same value. This is particularly useful
 /// in logical inference process, when we repeatedly assign values to variables and expect the values to be propagated
 /// in all the places the variable appears.
-public class LRef(valueType: Type)
+class LRef(valueType: Type)
 {
-    public using ValueType = valueType;
-    public using ValuePassType = !@valueType;
-    public using isLogicalRef = 1;
+    using ValueType = valueType;
+    using ValuePassType = !@valueType;
+    using isLogicalRef = 1;
 
-    public fun ctor
+    fun ctor
     {
         pptr ctor Optional(valueType)();
         if[ct] ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "ctor: " << this << "\n";
     }
 
-    public fun[convert] ctor(value: @ValueType)
+    fun[convert] ctor(value: @ValueType)
     {
         pptr ctor Optional(valueType)(value);
         if[ct] ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "value ctor: " << this << "\n";
     }
 
-    public fun[convert] ctor(value: @AnyType) if isValid(ValueType(value))
+    fun[convert] ctor(value: @AnyType) if isValid(ValueType(value))
     {
         pptr ctor Optional(valueType)(value);
         if[ct] ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "value ctor: " << this << "\n";
     }
 
-    public fun ctor(other: @LRef)
+    fun ctor(other: @LRef)
     {
         pptr ctor other.pptr;
         if[ct] ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "copy ctor: " << this << "\n";
     }
 
-    public fun dtor
+    fun dtor
     {
         if[ct] ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "dtor: " << this << "\n";
     }
 
 
-    public fun =(other: @LRef)
+    fun =(other: @LRef)
     {
         if ( other.isSet() )
             reset(other.get());
@@ -89,13 +89,13 @@ public class LRef(valueType: Type)
         if[ct] ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "LRef.=" << this << "\n";
     }
-    public fun =(value: @ValueType)
+    fun =(value: @ValueType)
     {
         pptr.get().reset(value);
         if[ct] ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "LRef.=" << this << "\n";
     }
-    public fun =(value: AnyType) if isValid(ValueType(value))
+    fun =(value: AnyType) if isValid(ValueType(value))
     {
         pptr.get().reset(value);
         if[ct] ( isValid(logicDebug) && isValid(logicRefDebug) )
@@ -103,9 +103,9 @@ public class LRef(valueType: Type)
     }
 
 
-    public fun get: @ValueType         = pptr.get().get();
+    fun get: @ValueType         = pptr.get().get();
 
-    public fun reset
+    fun reset
     {
         // Reset the value shared by the shared pointer
         pptr.get().reset();
@@ -113,7 +113,7 @@ public class LRef(valueType: Type)
             cout << "LRef.reset " << this << "\n";
     }
 
-    public fun reset(value: @ValueType)
+    fun reset(value: @ValueType)
     {
         // Reset the value shared by the shared pointer
         pptr.get().reset(value);
@@ -121,20 +121,20 @@ public class LRef(valueType: Type)
             cout << "LRef.reset " << this << "\n";
     }
 
-    public fun isUnique                = pptr.isUnique();
-    public fun useCount: UInt          = pptr.useCount();
+    fun isUnique                = pptr.isUnique();
+    fun useCount: UInt          = pptr.useCount();
 
-    public fun isNull                  = pptr.get().isNull();
-    public fun isSet                   = pptr.get().isSet();
+    fun isNull                  = pptr.get().isNull();
+    fun isSet                   = pptr.get().isSet();
 
-    //public fun (): Bool                = true;
+    //fun (): Bool                = true;
     
-    public fun swap(other: @LRef)
+    fun swap(other: @LRef)
     {
         pptr.swap(other.pptr);
     }
 
-    public fun >>(os: @OutStream)
+    fun >>(os: @OutStream)
     {
         os << "LRef(" << mkStreamRefWrapper(pptr.get()) << ", " << useCount() << ", " << flush;
         if ( isSet() )
@@ -146,19 +146,19 @@ public class LRef(valueType: Type)
     private var pptr: SharedPtr(Optional(ValueType));
 }
 
-public fun mkLRef(x: @LRefType) = x;
-public fun mkLRef(x: @StringRef) = LRef(String)(x);
-public fun mkLRef(x: @AnyType): LRef(-@typeOf(x)) = x if !LRefType(x);
+fun mkLRef(x: @LRefType) = x;
+fun mkLRef(x: @StringRef) = LRef(String)(x);
+fun mkLRef(x: @AnyType): LRef(-@typeOf(x)) = x if !LRefType(x);
 
-public fun mkValOrRef(x: @LRefType) = x;
-public fun mkValOrRef(x: @ValWrapper) = x if !LRefType(typeOf(x));
-public fun mkValOrRef(x: @StringRef) = Optional(String)(x);
-public fun mkValOrRef(x: @AnyType) = Optional(-@typeOf(x))(x) if !ValWrapper(x);
+fun mkValOrRef(x: @LRefType) = x;
+fun mkValOrRef(x: @ValWrapper) = x if !LRefType(typeOf(x));
+fun mkValOrRef(x: @StringRef) = Optional(String)(x);
+fun mkValOrRef(x: @AnyType) = Optional(-@typeOf(x))(x) if !ValWrapper(x);
 
-public fun /+/ (l, r: @AnyType) = Impl.mkPlusOp(mkValOrRef(l), mkValOrRef(r));
-public fun /-/ (l, r: @AnyType) = Impl.mkMinusOp(mkValOrRef(l), mkValOrRef(r));
-public fun |*| (l, r: @AnyType) = Impl.mkMulOp(mkValOrRef(l), mkValOrRef(r));
-public fun |/| (l, r: @AnyType) = Impl.mkDivOp(mkValOrRef(l), mkValOrRef(r));
+fun /+/ (l, r: @AnyType) = Impl.mkPlusOp(mkValOrRef(l), mkValOrRef(r));
+fun /-/ (l, r: @AnyType) = Impl.mkMinusOp(mkValOrRef(l), mkValOrRef(r));
+fun |*| (l, r: @AnyType) = Impl.mkMulOp(mkValOrRef(l), mkValOrRef(r));
+fun |/| (l, r: @AnyType) = Impl.mkDivOp(mkValOrRef(l), mkValOrRef(r));
 
 setOperPrecedence("/+/", getOperPrecedence("+") + 1);
 setOperPrecedence("/-/", getOperPrecedence("-") + 1);

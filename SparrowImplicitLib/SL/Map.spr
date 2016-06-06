@@ -1,48 +1,48 @@
 import HashTable;
 import TypeTraits;
 
-public class Map(keyType, dataType: Type, traitsType: Type = DefaultTypeTraits)
+class Map(keyType, dataType: Type, traitsType: Type = DefaultTypeTraits)
 {
-    public using KeyType = keyType;
-    public using DataType = dataType;
-    public using TraitsType = traitsType;
-    public using ValueType = Tuple(KeyType, DataType);
+    using KeyType = keyType;
+    using DataType = dataType;
+    using TraitsType = traitsType;
+    using ValueType = Tuple(KeyType, DataType);
     private using ImplTable = HashTable(keyType, ValueType, PairFirst(ValueType), TraitsType);
-    public using RangeType = ImplTable.RangeType;
+    using RangeType = ImplTable.RangeType;
 
     private var hashTable: ImplTable;
 
-    public fun ctor(n: SizeType)                                       { hashTable.ctor(n, TraitsType()); }
-    public fun ctor(n: SizeType, traits: traitsType)                   { hashTable.ctor(n, traits); }
-    public fun ctor(range: Range)                                      { hashTable.ctor(range, 0, TraitsType()); }
-    public fun ctor(range: Range, n: SizeType)                         { hashTable.ctor(range, n, HashType(), CompareType()); }
-    public fun ctor(range: Range, n: SizeType, traits: traitsType)     { hashTable.ctor(range, n, traits); }
-    public fun ctor(other: @Map)                                       { this.hashTable ctor other.hashTable; }
+    fun ctor(n: SizeType)                                       { hashTable.ctor(n, TraitsType()); }
+    fun ctor(n: SizeType, traits: traitsType)                   { hashTable.ctor(n, traits); }
+    fun ctor(range: Range)                                      { hashTable.ctor(range, 0, TraitsType()); }
+    fun ctor(range: Range, n: SizeType)                         { hashTable.ctor(range, n, HashType(), CompareType()); }
+    fun ctor(range: Range, n: SizeType, traits: traitsType)     { hashTable.ctor(range, n, traits); }
+    fun ctor(other: @Map)                                       { this.hashTable ctor other.hashTable; }
 
-    public fun traits                                  = hashTable.traits;
+    fun traits                                  = hashTable.traits;
 
-    public fun size                                    = hashTable.numElements;
-    public fun isEmpty                                 = (hashTable.numElements == 0);
-    public fun bucketCount                             = hashTable.buckets.size();
-    public fun reserve(n: SizeType)                    { hashTable.reserve(n); }
+    fun size                                    = hashTable.numElements;
+    fun isEmpty                                 = (hashTable.numElements == 0);
+    fun bucketCount                             = hashTable.buckets.size();
+    fun reserve(n: SizeType)                    { hashTable.reserve(n); }
 
-    public fun all                                     = hashTable.all();
-    public fun keys                                    = transform(all(), PairFirst(ValueType)());
-    public fun values                                  = transform(all(), PairSecond(ValueType)());
+    fun all                                     = hashTable.all();
+    fun keys                                    = transform(all(), PairFirst(ValueType)());
+    fun values                                  = transform(all(), PairSecond(ValueType)());
 
-    public fun insert(key: @KeyType, data: @DataType)  = hashTable.insert(ValueType(key, data));
-    public fun insert(value: @ValueType)               = hashTable.insert(value);
-    public fun insert(range: Range)                    { hashTable.insert(range); }
-    public fun remove(key: @KeyType)                   { hashTable.remove(key); }
-    public fun remove(range: RangeType)                { hashTable.remove(range); }
+    fun insert(key: @KeyType, data: @DataType)  = hashTable.insert(ValueType(key, data));
+    fun insert(value: @ValueType)               = hashTable.insert(value);
+    fun insert(range: Range)                    { hashTable.insert(range); }
+    fun remove(key: @KeyType)                   { hashTable.remove(key); }
+    fun remove(range: RangeType)                { hashTable.remove(range); }
 
-    public fun contains(key: @KeyType)                 = hashTable.contains(key);
-    public fun count(key: @KeyType)                    = hashTable.count(key);
-    public fun equalRange(key: @KeyType)               = hashTable.equalRange(key);
-    public fun find(key: @KeyType)                     = hashTable.find(key);
+    fun contains(key: @KeyType)                 = hashTable.contains(key);
+    fun count(key: @KeyType)                    = hashTable.count(key);
+    fun equalRange(key: @KeyType)               = hashTable.equalRange(key);
+    fun find(key: @KeyType)                     = hashTable.find(key);
 
-    public fun ()(key: @KeyType): @DataType            = at(key);
-    public fun at(key: @KeyType): @DataType
+    fun ()(key: @KeyType): @DataType            = at(key);
+    fun at(key: @KeyType): @DataType
     {
         var r = find(key);
         if ( r.isEmpty() )
@@ -53,9 +53,9 @@ public class Map(keyType, dataType: Type, traitsType: Type = DefaultTypeTraits)
         return r.front()._2;
     }
 
-    public fun clear()                                 { hashTable.clear(); }
+    fun clear()                                 { hashTable.clear(); }
 
-    public fun swap(other: @Map)                       { this.hashTable swap other.hashTable; }
+    fun swap(other: @Map)                       { this.hashTable swap other.hashTable; }
 
-    public fun >> (os: @OutStream)                     { hashTable.>>(os); }
+    fun >> (os: @OutStream)                     { hashTable.>>(os); }
 }

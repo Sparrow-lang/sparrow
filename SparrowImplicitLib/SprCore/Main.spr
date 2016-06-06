@@ -2,24 +2,24 @@ import StringRef;
 import SL.RawPtr;
 
 /// Range type that returns StringRef objects referring to program arguments
-public class MainParameters
+class MainParameters
 {
-    public using RetType = StringRef;
+    using RetType = StringRef;
 
-    public fun isEmpty                     = begin != end;
-    public fun size: SizeType              = end.diff(begin);
+    fun isEmpty                     = begin != end;
+    fun size: SizeType              = end.diff(begin);
 
-    public fun front: RetType              = StringRef.fromCString(begin.value().value());
-    public fun back: RetType               = StringRef.fromCString(end.advance(-1).value().value());
-    public fun () : RetType                = StringRef.fromCString(begin.value().value());
-    public fun ()(n: SizeType): RetType    = StringRef.fromCString(begin.advance(DiffType(n)).value().value());
+    fun front: RetType              = StringRef.fromCString(begin.value().value());
+    fun back: RetType               = StringRef.fromCString(end.advance(-1).value().value());
+    fun () : RetType                = StringRef.fromCString(begin.value().value());
+    fun ()(n: SizeType): RetType    = StringRef.fromCString(begin.advance(DiffType(n)).value().value());
 
-    public fun popFront                    { begin = begin.advance(); }
-    public fun popBack                     { end = end.advance(-1); }
-    public fun popFront(n: SizeType)       { begin = begin.advance(DiffType(n)); }
-    public fun popBack(n: SizeType)        { end = end.advance(-DiffType(n)); }
+    fun popFront                    { begin = begin.advance(); }
+    fun popBack                     { end = end.advance(-1); }
+    fun popFront(n: SizeType)       { begin = begin.advance(DiffType(n)); }
+    fun popBack(n: SizeType)        { end = end.advance(-DiffType(n)); }
 
-    public fun ctor(argc: Int, argv: @ @Char)
+    fun ctor(argc: Int, argv: @ @Char)
     {
         this.begin = PtrType.fromBytePtr(reinterpretCast(@Byte, argv));
         this.end = this.begin.advance(argc);
@@ -29,12 +29,12 @@ public class MainParameters
     private var begin, end: PtrType;
 }
 
-public var programArgs: MainParameters;
+var programArgs: MainParameters;
 
 // To be defined by the application:
-public fun sprMain();
+fun sprMain();
 
-public fun[native("main"), noInline] main(argc: Int, args: @ @Char): Int
+fun[native("main"), noInline] main(argc: Int, args: @ @Char): Int
 {
     programArgs.ctor(argc, args);
     sprMain();

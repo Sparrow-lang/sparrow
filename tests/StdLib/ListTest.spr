@@ -1,6 +1,4 @@
 //!!
-package Test;
-
 import SL.List;
 import SL.ContiguousMemoryRange;
 import SL.RawPtr;

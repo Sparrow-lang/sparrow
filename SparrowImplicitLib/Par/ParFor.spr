@@ -1,4 +1,4 @@
-package Par;
+module Par.ParFor;
 
 import Par.Tasks;
 import SL.Ranges;

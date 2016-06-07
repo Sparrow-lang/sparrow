@@ -1,5 +1,4 @@
 //!!
-package Test;
 
 import SL.Ranges;
 import SL.Vector;

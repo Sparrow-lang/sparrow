@@ -1,4 +1,4 @@
-package Par.TasksImpl.SchedulerIf;
+module Par.TasksImpl.SchedulerIf.schedulerif;
 
 import Scheduler;
 import Worker;

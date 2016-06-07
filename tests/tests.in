@@ -87,7 +87,6 @@ Basic2/ConceptSpecialization.spr:       Basic features 2 - Concept specializatio
 Basic2/Swappable.spr:                   Basic features 2 - Swappable
 Basic2/Regular.spr:                     Basic features 2 - Regular concept
 Basic2/Axioms.spr:                      Basic features 2 - Axioms
-Basic2/CustomOperators.spr:             Basic features 2 - Custom operators
 
 Basic/LLVMCode.llvm:                    Basic features - Code from llvm file
 Basic/Basic.spr:                        Basic features - A small Sparrow code

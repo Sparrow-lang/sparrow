@@ -1,6 +1,4 @@
 //!!
-package Test;
-
 import SL.Function;
 import SL.String;
 import Assert;

@@ -1,5 +1,4 @@
 //! ! -O2 --dump-assembly --dump-opt-assembly -g
-package PerfTest;
 
 import SL.Map;
 import SL.SortedMap;

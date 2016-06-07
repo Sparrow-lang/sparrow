@@ -1,7 +1,7 @@
 //!!
-package Test;
 
 import Meta.Diagnostic;
+
 
 fun sprMain // ERROR - introduced by the last Meta.report
 {

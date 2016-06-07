@@ -1,4 +1,4 @@
-package Par;
+module Par.Atomic;
 
 import Config;
 import "Atomic.llvm";

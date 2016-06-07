@@ -1,4 +1,4 @@
-package Par.TasksImpl;
+module Par.TasksImpl.Worker;
 
 import Debug;
 import TaskSystem;

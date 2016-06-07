@@ -1,4 +1,4 @@
-package Par;
+module Par.Locks;
 
 import Config;
 import SL.StaticArray;

@@ -19,9 +19,9 @@ namespace
         *sret = mkModifiers(*loc, main, mods);
     }
 
-    void ctApi_Sparrow_mkSprCompilationUnit(Node** sret, Location* loc, Node* package, Node* imports, Node* declarations)
+    void ctApi_Sparrow_mkModule(Node** sret, Location* loc, Node* moduleName, Node* imports, Node* declarations)
     {
-        *sret = mkSprCompilationUnit(*loc, package, imports, declarations);
+        *sret = mkModule(*loc, moduleName, imports, declarations);
     }
     void ctApi_Sparrow_mkSprUsing(Node** sret, Location* loc, StringRef alias, Node* usingNode)
     {
@@ -187,7 +187,7 @@ void SprFrontend::registerCtApiFunctions(Backend* backend)
 {
     backend->ctApiRegisterFun(backend, "$Meta.Sparrow.mkModifiers",           (void*) &ctApi_Sparrow_mkModifiers);
 
-    backend->ctApiRegisterFun(backend, "$Meta.Sparrow.mkSprCompilationUnit",  (void*) &ctApi_Sparrow_mkSprCompilationUnit);
+    backend->ctApiRegisterFun(backend, "$Meta.Sparrow.mkModule",              (void*) &ctApi_Sparrow_mkModule);
     backend->ctApiRegisterFun(backend, "$Meta.Sparrow.mkSprUsing",            (void*) &ctApi_Sparrow_mkSprUsing);
     backend->ctApiRegisterFun(backend, "$Meta.Sparrow.mkSprPackage",          (void*) &ctApi_Sparrow_mkSprPackage);
     backend->ctApiRegisterFun(backend, "$Meta.Sparrow.mkSprVariable",         (void*) &ctApi_Sparrow_mkSprVariable);

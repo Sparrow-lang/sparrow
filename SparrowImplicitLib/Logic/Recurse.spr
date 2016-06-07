@@ -1,4 +1,4 @@
-package Logic;
+module Logic.Recurse;
 
 import Predicates;
 import SL.Bind;

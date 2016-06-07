@@ -1,5 +1,3 @@
-package Test;
-
 import SL.SortedMap;
 import SL.Ranges;
 import SL.Tuple;

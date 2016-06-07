@@ -1,5 +1,3 @@
-package Test;
-
 import SL.Map;
 import SL.DefaultHashFunction;
 import SL.Ranges;

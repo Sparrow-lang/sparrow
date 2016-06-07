@@ -1,4 +1,4 @@
-package Logic;
+module Logic.Prolog;
 
 import LRef;
 import Predicates;

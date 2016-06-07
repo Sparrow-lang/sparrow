@@ -1,6 +1,4 @@
 //!! -t "../Basic/SparrowImplicitLib.spr"
-package Test;
-
 fun ackermann(m, n: Int): Int
 {
     if ( m == 0 )

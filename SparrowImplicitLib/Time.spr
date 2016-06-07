@@ -1,4 +1,4 @@
-package Time;
+module Time.Time;
 
 import SprCore.NumericOper;
 

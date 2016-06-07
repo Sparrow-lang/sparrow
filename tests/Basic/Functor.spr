@@ -1,6 +1,4 @@
 //!! -t "SparrowImplicitLib.spr"
-package Test;
-
 
 class Test
 {

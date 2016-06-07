@@ -1,7 +1,5 @@
 //!!
 //--keep-intermediate-files --dump-assembly --dump-ct-assembly
-package Test;
-
 import SL.Ranges;
 import SL.Algorithms;
 import SL.ContiguousMemoryRange;

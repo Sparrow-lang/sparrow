@@ -1,6 +1,4 @@
 //!! -t "../Basic/SparrowImplicitLib.spr"
-package Test;
-
 fun gcdDivision(a: Int, b: Int): Int
 {
     var t: Int;

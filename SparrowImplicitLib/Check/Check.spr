@@ -1,4 +1,4 @@
-package Check;
+module Check.Check;
 
 import OS;
 import SL.Map;

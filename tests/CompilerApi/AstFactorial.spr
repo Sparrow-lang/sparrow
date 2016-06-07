@@ -1,5 +1,4 @@
 //!! --dump-ct-assembly
-package Test;
 
 import Meta.Diagnostic;
 import Meta.ASTNodes;

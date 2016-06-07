@@ -1,39 +1,41 @@
-package Test;
 
 import BitOper;
 import Math;
 
-fun[rtct] **(base, exp: Float) = Math.pow(base, exp);
-
-setOperPrecedence("**", getOperPrecedence("*") + 1);
-setOperRightAssociativity("**");
-
-setOperPrecedence("-", 1000);
-
-fun sprMain
+package Pred
 {
-    cout << oper_precedence_+ << endl;
-    cout << oper_precedence_- << endl;
-    cout << getOperPrecedence("=") << endl;
-    cout << getOperPrecedence("+") << endl;
-    cout << getOperPrecedence("-") << endl;
-    cout << getOperPrecedence("-=-=-=-=-") << endl;
-    cout << getOperPrecedence("!<<!") << endl;
-    cout << getOperPrecedence("!>>!") << endl;
-    cout << getOperPrecedence("!&!") << endl;
-    cout << getOperPrecedence("!^!") << endl;
-    cout << getOperPrecedence("!|!") << endl;
+    fun[rtct] **(base, exp: Float) = Math.pow(base, exp);
 
-    cout << "------" << endl;
-    cout << 1+3*2**2*3+1 << endl;
+    setOperPrecedence("**", getOperPrecedence("*") + 1);
+    setOperRightAssociativity("**");
 
-    cout << "------" << endl;
-    cout << 2*3-1 << endl;  // minus takes precedence over multiplication
+    setOperPrecedence("-", 1000);
 
-    cout << (3-) << endl;
+    fun sprMain
+    {
+        cout << oper_precedence_+ << endl;
+        cout << oper_precedence_- << endl;
+        cout << getOperPrecedence("=") << endl;
+        cout << getOperPrecedence("+") << endl;
+        cout << getOperPrecedence("-") << endl;
+        cout << getOperPrecedence("-=-=-=-=-") << endl;
+        cout << getOperPrecedence("!<<!") << endl;
+        cout << getOperPrecedence("!>>!") << endl;
+        cout << getOperPrecedence("!&!") << endl;
+        cout << getOperPrecedence("!^!") << endl;
+        cout << getOperPrecedence("!|!") << endl;
 
-    cout << "------" << endl;
-    cout << 4 ** 3 ** 2 << endl;
+        cout << "------" << endl;
+        cout << 1+3*2**2*3+1 << endl;
+
+        cout << "------" << endl;
+        cout << 2*3-1 << endl;  // minus takes precedence over multiplication
+
+        cout << (3-) << endl;
+
+        cout << "------" << endl;
+        cout << 4 ** 3 ** 2 << endl;
+    }
 }
 
 /*<<<Running()

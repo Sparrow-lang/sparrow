@@ -1,4 +1,4 @@
-package Par.TasksImpl;
+module Par.TasksImpl.Debug;
 
 import Meta.ASTNodes;
 import TaskPrefix;

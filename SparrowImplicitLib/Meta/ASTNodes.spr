@@ -1,4 +1,4 @@
-package Meta;
+module Meta.ASTNodes;
 
 import Meta.Location;
 
@@ -179,7 +179,7 @@ package SprFrontend
 {
     fun[ct, native("$Meta.Sparrow.mkModifiers")] mkModifiers(loc: @Location, main, mods: AstNode): AstNode;
 
-    fun[ct, native("$Meta.Sparrow.mkSprCompilationUnit")] mkSprCompilationUnit(loc: @Location, packageName, imports, declarations: AstNode): AstNode;
+    fun[ct, native("$Meta.Sparrow.mkModule")] mkModule(loc: @Location, moduleName, imports, declarations: AstNode): AstNode;
     fun[ct, native("$Meta.Sparrow.mkSprUsing")] mkSprUsing(loc: @Location, alias: StringRef, usingNode: AstNode): AstNode;
     fun[ct, native("$Meta.Sparrow.mkSprPackage")] mkSprPackage(loc: @Location, name: StringRef, children: AstNode): AstNode;
     fun[ct, native("$Meta.Sparrow.mkSprVariable")] mkSprVariable(loc: @Location, name: StringRef, typeNode, init: AstNode): AstNode;
@@ -272,7 +272,7 @@ package Kinds
 
     using nkSparrowModifiersNode = ctEval(iota);
     
-    using nkSparrowDeclSprCompilationUnit = ctEval(iota);
+    using nkSparrowDeclModule = ctEval(iota);
     using nkSparrowDeclPackage = ctEval(iota);
     using nkSparrowDeclSprClass = ctEval(iota);
     using nkSparrowDeclSprFunction = ctEval(iota);

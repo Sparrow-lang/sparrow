@@ -1,5 +1,4 @@
-//!! -t "SparrowImplicitLib.spr" --dump-assembly
-package Test;
+//!! -t "SparrowImplicitLib.spr"
 
 fun factorial(n: Int): Int
 {

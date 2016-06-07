@@ -1,6 +1,4 @@
 //!!
-package Test;
-
 import Logic.PrologFrontend;
 
 using Logic.*;

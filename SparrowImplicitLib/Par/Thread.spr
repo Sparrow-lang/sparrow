@@ -1,4 +1,4 @@
-package Par;
+module Par.Thread;
 
 import Config;
 import SL.NewDelete;

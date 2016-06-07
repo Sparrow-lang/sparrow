@@ -1,4 +1,4 @@
-package Par.TasksImpl;
+module Par.TasksImpl.TaskPrefixOpers;
 
 import TaskPrefix;
 import Assert;

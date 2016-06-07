@@ -1,5 +1,4 @@
 //!! -t ../Basic/SparrowImplicitLib.spr
-package Test;
 
 class MyVector(t: Type)
 {

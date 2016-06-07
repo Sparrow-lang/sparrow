@@ -1,4 +1,4 @@
-package Math;
+module Math.math;
 
 import SprCore.NumericOper;
 

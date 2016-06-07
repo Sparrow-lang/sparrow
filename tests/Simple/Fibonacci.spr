@@ -1,6 +1,4 @@
 //!! -t "../Basic/SparrowImplicitLib.spr"
-package Test;
-
 fun fibonacciRecursive(n: Int): Int
 {
     if ( n == 0 || n == 1 )

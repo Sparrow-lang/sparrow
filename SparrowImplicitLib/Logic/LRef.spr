@@ -1,4 +1,4 @@
-package Logic;
+module Logic.LRef;
 
 import SprCore.StreamBasic;
 import SL.Optional;

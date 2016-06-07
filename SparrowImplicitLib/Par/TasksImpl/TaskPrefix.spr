@@ -1,4 +1,4 @@
-package Par.TasksImpl;
+module Par.TasksImpl.TaskPrefix;
 
 import Par.Atomic;
 import SL.Ptr;

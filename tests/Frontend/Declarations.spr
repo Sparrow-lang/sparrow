@@ -1,6 +1,4 @@
-package Test;
-
-import Nothing.*;
+import Nothing;
 
 using Nothing.*;
 

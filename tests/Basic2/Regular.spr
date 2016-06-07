@@ -1,5 +1,4 @@
 //!!
-package Test;
 
 concept Regular(x)
     if isValid(x.ctor())        // Default construction

@@ -77,7 +77,7 @@ using namespace std;
 %no-lines                               // Don't use #line directives
 //%debug                                  // add debug output code to generated parser. To be dsabled for release versions.
 %error-verbose                          // verbose error messages
-%expect 1                               // Expect that many shift-reduce warnings
+%expect 0                               // Expect that many shift-reduce warnings
 %locations                              // keep track of the current position within the input
 %defines                                // write out a header file containing the token defines
 %skeleton "lalr1.cc"                    // use newer C++ skeleton file
@@ -125,6 +125,7 @@ using namespace std;
 %nonassoc ELSE
 %token FALSE FINALLY FOR FUN
 %token IF IMPORT
+%token MODULE
 %token NULLCT
 %token PACKAGE PRIVATE PUBLIC
 %token RETURN
@@ -161,10 +162,10 @@ using namespace std;
 
 %destructor { delete $$; } Operator OperatorNoEq IdentifierOrOperator IdentifierOrOperatorNoEq
 
-%type <node>        Start ProgramFile PackageTopDeclaration ImportDeclaration
-%type <node>        ImportDeclarationsOpt ImportDeclarations
-%type <node>        DeclarationsOpt Declarations FormalsOpt Formals Formal
-%type <node>        Declaration InFunctionDeclaration PackageDeclaration ClassDeclaration ConceptDeclaration VarDeclaration FunDeclaration UsingDeclaration
+%type <node>        Start Module ModuleName
+%type <node>        ImportLinesOpt ImportLines ImportLine ImportNames ImportName
+%type <node>        TopLevelStmtsOpt TopLevelStmts FormalsOpt Formals Formal
+%type <node>        TopLevelStmt InFunctionDeclaration PackageDeclaration ClassDeclaration ConceptDeclaration VarDeclaration FunDeclaration UsingDeclaration
 %type <node>        IfClause FunRetType FunctionBody
 %type <accessType>  AccessSpec
 %type <stringVal>   FunOrOperName
@@ -194,7 +195,7 @@ using namespace std;
 %%
 
 Start
-    : START_PROGRAM ProgramFile
+    : START_PROGRAM Module
         { $$ = *resultNode = $2; }
     | START_EXPRESSION Expr
         { $$ = *resultNode = $2; }
@@ -279,53 +280,66 @@ Modifiers
 // Program and declarations
 //
 
-ProgramFile
-    : PackageTopDeclaration ImportDeclarationsOpt DeclarationsOpt END
-        { $$ = mkSprCompilationUnit(@$, $1, $2, $3); }
+Module
+    : ModuleName ImportLinesOpt TopLevelStmtsOpt END
+        { $$ = mkModule(@$, $1, $2, $3); }
     ;
 
-PackageTopDeclaration
-    : PACKAGE QualifiedName SEMICOLON       // WARNING: Shift-reduce conflict here
+ModuleName
+    : MODULE QualifiedName SEMICOLON
         { $$ = $2; }
     | /*nothing*/
         { $$ = NULL; }
     ;
 
-ImportDeclarationsOpt
-    : ImportDeclarations
+ImportLinesOpt
+    : ImportLines
         { $$ = $1; }
     | /*nothing*/
         { $$ = NULL; }
     ;
 
-ImportDeclarations
-    : ImportDeclarations ImportDeclaration
-        { $$ = Feather_addToNodeList($1, $2); }
-    | ImportDeclaration
-        { $$ = Feather_addToNodeList(NULL, $1); }
+ImportLines
+    : ImportLines ImportLine
+        { $$ = Feather_appendNodeList($1, $2); }
+    | ImportLine
+        { $$ = Feather_appendNodeList(NULL, $1); }
     ;
 
-ImportDeclaration
-    : IMPORT QualifiedNameStar SEMICOLON
+ImportLine
+    : IMPORT ImportNames SEMICOLON
         { $$ = $2; }
-    | IMPORT STRING_LITERAL SEMICOLON
-        { $$ = buildStringLiteral(@$, fromString(*$<stringVal>2)); }
+        /* TODO: Handle access specifier */
     ;
 
-DeclarationsOpt
-    : Declarations
+ImportNames
+    : ImportNames COMMA ImportName
+        { $$ = Feather_addToNodeList($1, $3); }
+    | ImportName
+        { $$ = Feather_addToNodeList(NULL, $1); }
+    ;
+
+ImportName
+    : QualifiedName
+        { $$ = $1; }
+    | STRING_LITERAL
+        { $$ = buildStringLiteral(@$, fromString(*$<stringVal>1)); }
+    ;
+
+TopLevelStmtsOpt
+    : TopLevelStmts
         { $$ = $1; }
     | /*nothing*/
         { $$ = NULL; }
 
-Declarations
-    : Declarations Declaration
+TopLevelStmts
+    : TopLevelStmts TopLevelStmt
         { $$ = Feather_addToNodeList($1, $2); }
-    | Declaration
+    | TopLevelStmt
         { $$ = Feather_addToNodeList(NULL, $1); }
     ;
 
-Declaration
+TopLevelStmt
     : InFunctionDeclaration
         { $$ = $1; }
     | IfStmt
@@ -366,7 +380,7 @@ UsingDeclaration
     ;
 
 PackageDeclaration
-    : AccessSpec PACKAGE ModifierSpec IDENTIFIER LCURLY DeclarationsOpt RCURLY
+    : AccessSpec PACKAGE ModifierSpec IDENTIFIER LCURLY TopLevelStmtsOpt RCURLY
         { $$ = mkModifiers(@$, mkSprPackage(@$, fromString(*$4), $6, $1), $3); }
     ;
 
@@ -380,7 +394,7 @@ VarDeclaration
     ;
 
 ClassDeclaration
-    : AccessSpec CLASS ModifierSpec IDENTIFIER FormalsOpt IfClause LCURLY DeclarationsOpt RCURLY
+    : AccessSpec CLASS ModifierSpec IDENTIFIER FormalsOpt IfClause LCURLY TopLevelStmtsOpt RCURLY
         { $$ = mkModifiers(@$, mkSprClass(@$, fromString(*$4), $5, NULL, $6, $8, $1), $3); }
     | AccessSpec DATATYPE ModifierSpec IDENTIFIER FormalsOpt IfClause LCURLY Formals RCURLY
         { $$ = mkModifiers(@$, mkSprClass(@$, fromString(*$4), $5, NULL, $6, $8, $1), $3); }

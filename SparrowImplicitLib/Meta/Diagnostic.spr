@@ -1,4 +1,4 @@
-package Meta;
+module Meta.Diagnostic;
 
 import Meta.Location;
 import SL.Vector;

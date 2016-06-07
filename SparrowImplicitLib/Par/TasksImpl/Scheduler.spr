@@ -1,4 +1,4 @@
-package Par.TasksImpl;
+module Par.TasksImpl.Scheduler;
 
 import TaskPrefixOpers;
 import Worker;

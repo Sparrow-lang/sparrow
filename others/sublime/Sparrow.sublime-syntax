@@ -49,7 +49,7 @@ contexts:
     # Function
     - match: |-
         (?x)^\s*
-        (?:\b(private|protected|public)\b\s*)* # access modifier
+        (?:\b(private|public)\b\s*)* # access modifier
         \b(fun)\b\s*
         (?:(\[.*\])?\s*) # modifier
         ([^\s\:\(]+)\s* # identifier
@@ -104,8 +104,12 @@ contexts:
 
   basic-elements:
     # Keywords
-    - match: \b(private|protected|public)\b
+    - match: \b(private|public)\b
       scope: storage.modifier.access-control.sparrow
+    - match: \b(module)\b
+      scope: keyword.structure.module.sparrow
+    - match: \b(import)\b
+      scope: keyword.structure.import.sparrow
     - match: \b(datatype|class|concept|fun|var|package)\b
       scope: storage.type.structure.sparrow
     - match: \b(Type|Null|Uninitialized|Bool|Byte|UByte|Short|UShort|Int|UInt|Long|ULong|SizeType|DiffType|Float|Double|Char|StringRef|String)\b
@@ -120,8 +124,6 @@ contexts:
       scope: keyword.control.repeat.sparrow
     - match: \b(return)\b
       scope: keyword.control.statement.sparrow
-    - match: \b(import)\b
-      scope: keyword.control.import.sparrow
     - match: \b(using|package|friend)\b
       scope: keyword.control.other.sparrow
     - match: \b(true|false)\b

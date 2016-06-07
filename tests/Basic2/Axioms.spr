@@ -1,5 +1,4 @@
 //!!
-package Test;
 
 concept Ordered(x)
     if typeOf(x < x) == Bool   // Main ordering operator

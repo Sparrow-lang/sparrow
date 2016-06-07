@@ -1,4 +1,4 @@
-package Meta;
+module Meta.Location;
 
 class[ct] SourceCode
 {

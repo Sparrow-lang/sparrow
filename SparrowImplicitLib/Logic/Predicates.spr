@@ -1,4 +1,4 @@
-package Logic;
+module Logic.Predicates;
 
 import LRef;
 import SL.Function;

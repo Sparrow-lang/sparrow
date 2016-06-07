@@ -1,4 +1,4 @@
-package OS;
+module OS.os;
 
 import SL.String;
 

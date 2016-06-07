@@ -1,6 +1,4 @@
 //!!
-package Test;
-
 import Check.Check;
 
 using Check.*;

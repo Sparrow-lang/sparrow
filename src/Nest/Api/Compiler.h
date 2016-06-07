@@ -30,13 +30,10 @@ Backend* Nest_getCurBackend();
 void Nest_createBackend(const char* mainFilename);
 
 /// Parse, check dependencies and the compile the given filename
-void Nest_compileFile(StringRef filename);
+SourceCode* Nest_compileFile(StringRef filename);
 
 /// Add a source code to be compiled, given the filename
-void Nest_addSourceCodeByFilename(const SourceCode* orig, StringRef filename);
-
-/// Add all source code found in the given directory
-void Nest_addSourceCodeFromDir(const SourceCode* orig, StringRef dirName);
+SourceCode* Nest_addSourceCodeByFilename(const SourceCode* orig, StringRef filename);
 
 /// Get the SourceCode corresponding to the given filename
 const SourceCode* Nest_getSourceCodeForFilename(StringRef filename);

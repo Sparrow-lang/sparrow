@@ -1,4 +1,4 @@
-package Par.TasksImpl;
+module Par.TasksImpl.TaskSystem;
 
 import InternalWorkerThread;
 import Par.Thread;

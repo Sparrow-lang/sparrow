@@ -1,5 +1,3 @@
-package Test;
-
 import SL.SortedSet;
 import SL.Ranges;
 import SL.List;

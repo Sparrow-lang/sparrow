@@ -1,6 +1,4 @@
 //!! 
-package Test;
-
 import SL.Tuple;
 import Check.Check;
 

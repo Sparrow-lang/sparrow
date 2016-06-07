@@ -1,6 +1,4 @@
 //!!
-package Test;
-
 import SL.Ranges;
 import SL.Algorithms;
 import SL.ContiguousMemoryRange;

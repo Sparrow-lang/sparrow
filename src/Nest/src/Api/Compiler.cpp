@@ -22,14 +22,9 @@ struct ImportInfo
 {
     const SourceCode* originSourceCode_;
     boost::filesystem::path filename_;
-    bool importDir_;
 
     ImportInfo(const SourceCode* orig, StringRef filename)
         : originSourceCode_(orig), filename_(filename.begin)
-    {}
-
-    ImportInfo(const SourceCode* orig, StringRef filename, bool importDir)
-        : originSourceCode_(orig), filename_(), importDir_(importDir)
     {}
 };
 
@@ -45,7 +40,7 @@ boost::filesystem::path _curPath;
 unordered_map<const SourceCode*, boost::filesystem::path> _sourceCodes;
 
 /// The files that were handled before
-unordered_set<string> _handledFiles;
+unordered_map<string, SourceCode*> _handledFiles;
 
 /// List of source codes to compile
 vector<SourceCode*> _toCompile;
@@ -80,15 +75,20 @@ void _semanticCheckNodes()
     }
 }
 
-bool _handleImportFile(const ImportInfo& import)
+pair<bool, SourceCode*> _handleImportFile(const ImportInfo& import)
 {
     // Get the absolute path
     string absPath;
     absPath = system_complete(import.filename_).string();
 
     // Check if this file was handled before
-    if ( _handledFiles.find(absPath) != _handledFiles.end() )
-        return true;
+    auto it = _handledFiles.find(absPath);
+    if ( it != _handledFiles.end() )
+        return make_pair(true, it->second);
+
+    // Check if the file exists - if the file does not exist, exit and try another path
+    if ( !is_regular_file(absPath) )
+        return make_pair(false, nullptr);
 
     // Try to create a source code for the input file
     const char* url = dupString(import.filename_.string().c_str());
@@ -96,7 +96,7 @@ bool _handleImportFile(const ImportInfo& import)
     if ( scKind < 0 )
     {
         _unhandledImports[import.originSourceCode_].push_back(import);
-        return false;
+        return make_pair(true, nullptr);
     }
     SourceCode* sourceCode = (SourceCode*) alloc(sizeof(SourceCode), allocGeneral);
     sourceCode->kind = scKind;
@@ -107,7 +107,7 @@ bool _handleImportFile(const ImportInfo& import)
     _executeCUCallbacks(_sourceCodeCreatedCallbacks, sourceCode);
 
     // Mark this file as being handled
-    _handledFiles.insert(absPath);
+    _handledFiles[absPath] = sourceCode;
 
     int errorCount = Nest_getErrorsNum();
 
@@ -124,7 +124,7 @@ bool _handleImportFile(const ImportInfo& import)
 
     // Stop if we have some (parsing) errors
     if ( errorCount != Nest_getErrorsNum() )
-        return true;
+        return make_pair(true, sourceCode);
 
     // If we are not interesting only in syntax, compile the file
     if ( !_settings.syntaxOnly_ )
@@ -133,66 +133,21 @@ bool _handleImportFile(const ImportInfo& import)
         _toCompile.push_back(sourceCode);
     }
     
-    return true;
+    return make_pair(true, sourceCode);
 }
 
-void _handleDirectory(const ImportInfo& import)
+SourceCode* _handleImport(const ImportInfo& import)
 {
-    directory_iterator ite;
-    for ( directory_iterator it(import.filename_); it != ite; ++it )
-    {
-        // Recursively call this function for subdirectories
-        if ( is_directory(it->status()) )
-        {
-            // Ignore directories that start with '.'
-            const string& dirName = it->path().filename().string();
-            if ( !dirName.empty() && dirName[0] != '.' )
-            {
-                ImportInfo importSub = import;
-                importSub.filename_ = it->path();
-                _handleDirectory(importSub);
-            }
-        }
-        else if ( it->path().extension().string() == ".spr" )
-        {
-            ImportInfo importSub = import;
-            importSub.filename_ = it->path();
-            _handleImportFile(importSub);
-        }
-    }
-}
+    pair<bool, SourceCode*> res;
 
-bool _checkFileDir(const ImportInfo& import)
-{
-    // Check if the file/directory exists - if the file does not exist, exit and try another path
-    if ( !exists(import.filename_) )
-        return false;
-
-    // If we have a directory, with a star, load all the files from the directory
-    if ( is_directory(import.filename_) )
-    {
-        // If we are not looking for a directly, return false to try another path
-        if ( !import.importDir_ )
-            return false;
-
-        _handleDirectory(import);
-        return true;
-    }
-
-    // Regular file
-    _handleImportFile(import);
-    return true;
-}
-
-void _handleImport(const ImportInfo& import)
-{
     // Check if the filename path is absolute
     path p = import.filename_;
     if ( p.is_complete() )
     {
-        if ( !_checkFileDir(import) )
+        res = _handleImportFile(import);
+        if ( !res.first )
             REP_ERROR(NOLOC, "Cannot find input file: %1%") % import.filename_.string();
-        return;
+        return res.second;
     }
 
     // Try to use the original source code as base for the relative filename
@@ -203,8 +158,9 @@ void _handleImport(const ImportInfo& import)
         {
             ImportInfo importRel = import;
             importRel.filename_ = it->second.parent_path() / p;
-            if ( _checkFileDir(importRel) )
-                return;
+            res = _handleImportFile(importRel);
+            if ( res.first )
+                return res.second;
         }
     }
 
@@ -213,17 +169,19 @@ void _handleImport(const ImportInfo& import)
     {
         ImportInfo importRel = import;
         importRel.filename_ = path(importPath) / p;
-        if ( _checkFileDir(importRel) )
-            return;
+        res = _handleImportFile(importRel);
+        if ( res.first )
+            return res.second;
     }
 
     // Test to see if the file is relative to the current path
     ImportInfo importRel = import;
     importRel.filename_ = _curPath / p;
-    if ( _checkFileDir(importRel) )
-        return;
+    res = _handleImportFile(importRel);
 
-    REP_ERROR(NOLOC, "Cannot find input file: %1%") % import.filename_.string();
+    if ( !res.first )
+        REP_ERROR(NOLOC, "Cannot find input file: %1%") % import.filename_.string();
+    return res.second;
 }
 
 
@@ -268,19 +226,19 @@ void Nest_createBackend(const char* mainFilename)
     _rootContext = Nest_mkRootContext(_backend, modeRt);
 }
 
-void Nest_compileFile(StringRef filename)
+SourceCode* Nest_compileFile(StringRef filename)
 {
     if ( size(filename) == 0 || filename.begin[0] == '\r' || filename.begin[0] == '\n' )
-        return;
+        return nullptr;
 
     if ( !_backend )
         REP_INTERNAL(NOLOC, "No backend set");
 
     // Parse the source code
-    Nest_addSourceCodeByFilename(nullptr, filename);
+    SourceCode* sc = Nest_addSourceCodeByFilename(nullptr, filename);
 
     if ( _settings.syntaxOnly_ )
-        return;
+        return sc;
 
     vector<SourceCode*> toCodeGenerate;
 
@@ -301,7 +259,8 @@ void Nest_compileFile(StringRef filename)
                 // Handle all the imports
                 for ( ImportInfo& ii: imports )
                 {
-                    if ( !_handleImportFile(ii) )
+                    auto res = _handleImportFile(ii);
+                    if ( !res.first )
                         REP_ERROR(NOLOC, "Don't know how to interpret file %1%") % ii.filename_;
                 }
                 it->second.clear();
@@ -334,16 +293,13 @@ void Nest_compileFile(StringRef filename)
         for ( SourceCode* code: toCodeGenerate )
             _backend->generateMachineCode(_backend, code);
     }
+
+    return sc;
 }
 
-void Nest_addSourceCodeByFilename(const SourceCode* orig, StringRef filename)
+SourceCode* Nest_addSourceCodeByFilename(const SourceCode* orig, StringRef filename)
 {
-    _handleImport(ImportInfo(orig, filename));
-}
-
-void Nest_addSourceCodeFromDir(const SourceCode* orig, StringRef dirName)
-{
-    _handleImport(ImportInfo(orig, dirName, true));
+    return _handleImport(ImportInfo(orig, filename));
 }
 
 const SourceCode* Nest_getSourceCodeForFilename(StringRef filename)

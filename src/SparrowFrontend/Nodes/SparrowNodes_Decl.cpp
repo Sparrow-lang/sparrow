@@ -145,27 +145,46 @@ namespace
     }
 }
 
-void SprCompilationUnit_SetContextForChildren(Node* node)
+void Module_SetContextForChildren(Node* node)
 {
     ASSERT(Nest_nodeArraySize(node->children) == 3);
-    Node* packageName = at(node->children, 0);
+    Node* moduleName = at(node->children, 0);
     Node* imports = at(node->children, 1);
     Node* declarations = at(node->children, 2);
-    if ( packageName )
-        Nest_setContext(packageName, node->context);
+    if ( moduleName )
+        Nest_setContext(moduleName, node->context);
 
-    // Handle package name - create namespaces for it
-    if ( packageName )
+    // If we don't have a module name, infer it from the name of the file
+    if ( !moduleName )
+    {
+        ASSERT(node->location.sourceCode);
+        ASSERT(node->location.sourceCode->url);
+        const char* url = node->location.sourceCode->url;
+        // Remove the path part
+        const char* p = strrchr(url, '/');
+        if ( !p )
+            p = strrchr(url, '\\');
+        if ( p )
+            url = p+1;
+        // Remove the extension part
+        p = strchr(url, '.');
+        // Create an identifier with the given name to serve as module name
+        StringRef id = { url, p ? p : url + strlen(url) };
+        moduleName = mkIdentifier(node->location, id);
+    }
+
+    // Handle module name - create namespaces for it
+    if ( moduleName )
     {
         // Get the parts of the package name
-        vector<string> names;
-        interpretQualifiedId(packageName, names);
-        ASSERT(!names.empty() && !names.back().empty());
+        vector<pair<string, Node*>> names;
+        interpretQualifiedId(moduleName, names);
+        ASSERT(!names.empty() && !names.back().first.empty());
 
-        for ( int i=0; i<(int)names.size(); ++i )
+        for ( int i=0; i<(int)names.size()-1; ++i )
         {
             // Try to find an existing package in the current symbol table
-            NodeArray decls = Nest_symTabLookupCurrent(node->context->currentSymTab, names[i].c_str());
+            NodeArray decls = Nest_symTabLookupCurrent(node->context->currentSymTab, names[i].first.c_str());
             Node* firstDecl = Nest_nodeArraySize(decls) == 1 ? at(decls, 0) : nullptr;
             Nest_freeNodeArray(decls);
             if ( firstDecl )
@@ -175,10 +194,10 @@ void SprCompilationUnit_SetContextForChildren(Node* node)
             }
 
             // We didn't find the package part. From now on create new namespaces
-            for ( int j=(int)names.size()-1; j>=i; --j )
+            for ( int j=(int)names.size()-2; j>=i; --j )
             {
-                Node* pk = mkSprPackage(packageName->location, fromString(names[j]), declarations, publicAccess);
-                declarations = Feather_mkNodeListVoid(packageName->location, fromIniList({pk}));
+                Node* pk = mkSprPackage(moduleName->location, fromString(names[j].first), declarations, publicAccess);
+                declarations = Feather_mkNodeListVoid(moduleName->location, fromIniList({pk}));
                 at(node->children, 2) = declarations;
             }
             break;
@@ -209,7 +228,7 @@ void SprCompilationUnit_SetContextForChildren(Node* node)
             }
             else
             {
-                vector<string> qid;
+                vector<pair<string, Node*>> qid;
                 interpretQualifiedId(i, qid);
 
                 if ( qid.empty() )
@@ -217,26 +236,18 @@ void SprCompilationUnit_SetContextForChildren(Node* node)
 
                 // Transform qid into filename/dirname
                 string filename;
-                for ( const string& part: qid )
+                for ( const auto& part: qid )
                 {
-                    if ( part.empty() )
-                        continue;
-
                     if ( !filename.empty() )
                         filename += "/";
-                    filename += part;
+                    filename += part.first;
                 }
-                bool isDir = qid.back().empty();
-
-                if ( isDir )
-                    Nest_addSourceCodeFromDir(sourceCode, fromString(filename));
-                else
-                    Nest_addSourceCodeByFilename(sourceCode, fromString(filename + ".spr"));
+                Nest_addSourceCodeByFilename(sourceCode, fromString(filename + ".spr"));
             }
         }
     }
 }
-TypeRef SprCompilationUnit_ComputeType(Node* node)
+TypeRef Module_ComputeType(Node* node)
 {
     ASSERT(Nest_nodeArraySize(node->children) == 3);
     Node* declarations = at(node->children, 2);
@@ -250,7 +261,7 @@ TypeRef SprCompilationUnit_ComputeType(Node* node)
 
     return Feather_getVoidType(modeCt);
 }
-Node* SprCompilationUnit_SemanticCheck(Node* node)
+Node* Module_SemanticCheck(Node* node)
 {
     if ( !Nest_computeType(node) )
         return nullptr;

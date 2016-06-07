@@ -1,5 +1,4 @@
 //!!
-package Test;
 
 concept Swappable(x) if isValid(x.swap(x));
 

@@ -1,4 +1,4 @@
-package Par;
+module Par.Tasks;
 
 import TasksImpl.TaskPrefix;
 import TasksImpl.Debug;

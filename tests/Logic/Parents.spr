@@ -1,6 +1,4 @@
 //!!
-package Test;
-
 import Logic.Predicates;
 import Logic.Recurse;
 import Assert;

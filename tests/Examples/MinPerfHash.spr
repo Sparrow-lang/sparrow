@@ -1,14 +1,14 @@
 //!!
 //-O3 --dump-assembly
 
-import SL.Vector;
-import SL.Array;
-import SL.StaticArray;
-import SL.Algorithms;
-import SL.Bitset;
-import SL.String;
-import SL.Ranges;
-import OS;
+import std.vector;
+import std.array;
+import std.staticArray;
+import std.algorithms;
+import std.bitset;
+import std.string;
+import std.ranges;
+import os;
 
 // The type of test to execute:
 // - 0 = RT test
@@ -129,7 +129,7 @@ class[rtct] MinPerfHash
                 if ( d > 1000*numValues )
                 {
                     cout << "WARNING: Cannot find displacement! Do you have duplicates?\n";
-                    OS.exit(-1);
+                    os.exit(-1);
                 }
             }
             // This is guaranteed to finish quickly
@@ -187,7 +187,7 @@ class[rtct] MinPerfHash
         if ( bucketKeys.size() != displacements.size() )
         {
             cout << "FAILURE: bucket size mismatch\n";
-            OS.exit(-1);
+            os.exit(-1);
         }
         cout << prefix << "size="<<bucketKeys.size()<<", =(\n";
         for ( i=0..bucketKeys.size() )
@@ -262,7 +262,7 @@ fun[rtct] readFileLines(filename: StringRef, maxLines: UInt): Vector(String)
 {
     var lines: Vector(String);
 
-    var f = OS.File.open(filename, "r");
+    var f = os.File.open(filename, "r");
     if ( !f.isOpen() )
     {
         cout << "Cannot open file: " << filename << "\n";

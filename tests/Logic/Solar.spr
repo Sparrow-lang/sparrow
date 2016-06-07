@@ -1,8 +1,8 @@
 //!!
-import Logic.Predicates;
-import Assert;
+import logic.predicates;
+import assert;
 
-using Logic.*;
+using logic.*;
 
 fun orbits(a, b: @LStr)
      = a /=/ "Mercury"  && b /=/ "Sun"

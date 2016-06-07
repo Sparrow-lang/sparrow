@@ -1,22 +1,22 @@
 //! ! --dump-assembly
-import Par.Thread;
-import Par.Atomic;
-import Par.Locks;
-import Test;
+import par.thread;
+import par.atomic;
+import par.locks;
+import test;
 
-using Par.*;
-using Test.*;
+using par.*;
+using test.*;
 
 var numUsers: Int Atomic = 0;
 var numLocks: Int Atomic = 0;
 
-var normalMutex: Par.Mutex;
+var normalMutex: par.Mutex;
 
 fun doCoreJob(waitTime: Int) {
     ++numUsers;
-    Test.assertEq(numUsers load, 1, "numUsers should be 1");
+    test.assertEq(numUsers load, 1, "numUsers should be 1");
     ++numLocks;
-    Par.sleep(waitTime);
+    par.sleep(waitTime);
     --numUsers;
 }
 
@@ -41,24 +41,24 @@ class[initCtor] Worker {
             doProtectedJob(normalMutex, useTryLock);
         }
         if ( !useTryLock )
-            Test.assertGe(numLocks load, amountOfWork, "numLocks should be greater or equal to the amount of work");
+            test.assertGe(numLocks load, amountOfWork, "numLocks should be greater or equal to the amount of work");
     }
 }
 
 class WorkManager {
     private var amountOfWork, numWorkers, numTryWorkers: Int;
-    private var threads: (Par.Thread Ptr) Vector;
+    private var threads: (par.Thread Ptr) Vector;
 
     fun ctor(amountOfWork, numWorkers, numTryWorkers: Int) {
         this.amountOfWork ctor amountOfWork;
         this.numWorkers ctor numWorkers;
         this.numTryWorkers ctor numTryWorkers;
         for ( i=0..numWorkers ) {
-            var p: Par.Thread Ptr = new(Par.Thread, Worker(amountOfWork, false));
+            var p: par.Thread Ptr = new(par.Thread, Worker(amountOfWork, false));
             threads.pushBack(p);
         }
         for ( i=0..numTryWorkers ) {
-            var p: Par.Thread Ptr = new(Par.Thread, Worker(amountOfWork, true));
+            var p: par.Thread Ptr = new(par.Thread, Worker(amountOfWork, true));
             threads.pushBack(p);
         }
     }
@@ -68,8 +68,8 @@ class WorkManager {
             t.get join;
             t.release;
         }
-        Test.assertGe(numLocks load, amountOfWork*numWorkers, "numLocks should be greater equal to what normals workers did");
-        Test.assertLe(numLocks load, amountOfWork*(numWorkers+numTryWorkers), "numLocks should be less or equal to the total work");
+        test.assertGe(numLocks load, amountOfWork*numWorkers, "numLocks should be greater equal to what normals workers did");
+        test.assertLe(numLocks load, amountOfWork*(numWorkers+numTryWorkers), "numLocks should be less or equal to the total work");
     }
 }
 

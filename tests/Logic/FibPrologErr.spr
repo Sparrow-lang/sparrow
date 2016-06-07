@@ -1,8 +1,8 @@
 //!!
-import Logic.PrologFrontend;
+import logic.prologFrontend;
 //import "FibonacciErr.pl";
 
-using Logic.*;
+using logic.*;
 
 compileProlog("
     fib(0,0).

@@ -75,20 +75,46 @@ void _semanticCheckNodes()
     }
 }
 
+/// Check if a file with the exact name exists.
+/// Makes sure the comparison of the filename is case sensitive
+bool _fileExists(const path& f) {
+    // First check if the the file exists
+    if ( !is_regular_file(f) )
+        return false;
+
+    // Now we need to compare the filename case insensitive
+
+    // Get the parent directory
+    auto parentDir = f.parent_path();
+    if ( parentDir.empty() )
+        parentDir = current_path();
+
+    // Check if the file entry in the parent directory matches our filename
+    auto filename = f.filename();
+    auto dirIt = directory_iterator(parentDir);
+    for ( ; dirIt != directory_iterator(); ++dirIt ) {
+        if ( dirIt->path().filename() == filename )
+            return true;
+    }
+
+    return false;
+}
+
 pair<bool, SourceCode*> _handleImportFile(const ImportInfo& import)
 {
+    // Check if the file exists - if the file does not exist, exit and try another path
+    if ( !_fileExists(import.filename_) ) {
+        return make_pair(false, nullptr);
+    }
+
     // Get the absolute path
     string absPath;
-    absPath = system_complete(import.filename_).string();
+    absPath = canonical(import.filename_).string();
 
     // Check if this file was handled before
     auto it = _handledFiles.find(absPath);
     if ( it != _handledFiles.end() )
         return make_pair(true, it->second);
-
-    // Check if the file exists - if the file does not exist, exit and try another path
-    if ( !is_regular_file(absPath) )
-        return make_pair(false, nullptr);
 
     // Try to create a source code for the input file
     const char* url = dupString(import.filename_.string().c_str());

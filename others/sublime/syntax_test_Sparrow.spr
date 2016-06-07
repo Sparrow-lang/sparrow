@@ -3,10 +3,10 @@
 module Test;
 // ^ keyword.structure.module
 
-import SL.Vector;
+import std.vector;
 //^^^^ keyword.structure.import
 
-import SL.Map, SL.Set;
+import std.map, std.set;
 //^^^^ keyword.structure.import
 
 public import std.ranges(map, filter);

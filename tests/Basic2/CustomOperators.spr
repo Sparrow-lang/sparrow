@@ -1,10 +1,10 @@
 
-import BitOper;
-import Math;
+import bitOper;
+import math;
 
 package Pred
 {
-    fun[rtct] **(base, exp: Float) = Math.pow(base, exp);
+    fun[rtct] **(base, exp: Float) = math.pow(base, exp);
 
     setOperPrecedence("**", getOperPrecedence("*") + 1);
     setOperRightAssociativity("**");

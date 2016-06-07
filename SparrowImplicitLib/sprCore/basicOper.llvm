@@ -1,0 +1,43 @@
+; flags: rtct
+
+%Type = type { i8* }
+
+declare i32 @atoi(i8*) nounwind readonly
+declare i32 @printf(i8*, ...)
+declare void @test(i32)
+declare double @llvm.pow.f64(double,double)
+declare i8* @malloc(i64) nounwind
+declare i8* @calloc(i64, i64) nounwind
+declare i8* @realloc(i8*, i64) nounwind
+declare void @free(i8*) nounwind
+declare i32 @system(i8*) nounwind
+declare void @sleep(i32) nounwind readonly
+
+define i1 @isNullRef(i8* %x) alwaysinline
+{
+  %1 = icmp eq i8* %x, null
+  ret i1 %1
+}
+define i1 @_opRefEQ(i8* %x, i8* %y) alwaysinline
+{
+  %1 = icmp eq i8* %x, %y
+  ret i1 %1
+}
+define i1 @_opRefNE(i8* %x, i8* %y) alwaysinline
+{
+  %1 = icmp ne i8* %x, %y
+  ret i1 %1
+}
+
+
+define void @_Type_ctor(i8** %$this)
+{
+  store i8* null, i8** %$this
+  ret void
+}
+
+define void @_Type_copy_ctor(i8** %$this, i8* %other)
+{
+  store i8* %other, i8** %$this
+  ret void
+}

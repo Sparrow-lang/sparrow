@@ -1,6 +1,6 @@
 //!! -O2
 
-import SL.Ranges;
+import std.ranges;
 
 fun[noInline] testAccumulate(n: UInt): ULong
 {

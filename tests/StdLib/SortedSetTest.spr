@@ -1,6 +1,6 @@
-import SL.SortedSet;
-import SL.Ranges;
-import SL.List;
+import std.sortedSet;
+import std.ranges;
+import std.list;
 
 fun sprMain
 {

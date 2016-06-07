@@ -1,6 +1,6 @@
 //!!
 
-import SL.Vector;
+import std.vector;
 
 
 class[ct] TestCt

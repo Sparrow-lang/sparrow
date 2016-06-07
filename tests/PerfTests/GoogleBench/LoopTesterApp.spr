@@ -1,9 +1,9 @@
 // !! -O2 --dump-assembly --dump-opt-assembly
-import SL.Vector;
-import SL.List;
-import SL.Map;
-import SL.Set;
-import SL.Utils;
+import std.vector;
+import std.list;
+import std.map;
+import std.set;
+import std.utils;
 
 // BasicBlockEdge only maintains two pointers to BasicBlocks.
 //

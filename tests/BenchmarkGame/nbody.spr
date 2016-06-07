@@ -1,8 +1,8 @@
 //!! -O2
 
-import SL.Ranges;
-import SL.StaticArray;
-import Math;
+import std.ranges;
+import std.staticArray;
+import math;
 
 // TODO: Move this to Math
 using PI = 3.141592653589793;
@@ -15,7 +15,7 @@ class Vec
 
     fun ctor(x, y, z: Double) { this.x = x; this.y = y; this.z = z; }
 
-    fun len: Double = Math.sqrt(this*this);
+    fun len: Double = math.sqrt(this*this);
 
     fun + (other: Vec) = Vec(x+other.x, y+other.y, z+other.z);
     fun - (other: Vec) = Vec(x-other.x, y-other.y, z-other.z);

@@ -1,5 +1,5 @@
 //!!
-import Logic.PrologFrontend;
+import logic.prologFrontend;
 import "Solar.pl";
 
 fun sprMain

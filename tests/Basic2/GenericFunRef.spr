@@ -1,6 +1,6 @@
 //!!
 
-import SL.Ranges;
+import std.ranges;
 
 fun <<(os: @OutStream, r: Range): typeOf(os)
 {

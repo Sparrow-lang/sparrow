@@ -398,7 +398,7 @@ namespace
 
         // Create a construct of an AST node
         int* nodeHandle = (int*) arg;
-        Node* base = mkCompoundExp(node->location, mkIdentifier(node->location, fromCStr("Meta")), fromCStr("AstNode"));
+        Node* base = mkCompoundExp(node->location, mkIdentifier(node->location, fromCStr("meta")), fromCStr("AstNode"));
         Node* arg1 = Feather_mkCtValueT(node->location, StdDef::typeRefInt, &nodeHandle);
         return  mkFunApplication(node->location, base, fromIniList({arg1})) ;
     }

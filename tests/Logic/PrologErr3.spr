@@ -1,7 +1,7 @@
 //!!
-import Logic.Prolog;
+import logic.prolog;
 
-using Logic.*;
+using logic.*;
 
 compileProlog("
     orbits(mercury, sun).

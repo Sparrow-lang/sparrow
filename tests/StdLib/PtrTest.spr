@@ -1,7 +1,7 @@
-import SL.Ptr;
-import SL.Vector;
-import SL.SharedPtr;
-import SL.ScopedPtr;
+import std.ptr;
+import std.vector;
+import std.sharedPtr;
+import std.scopedPtr;
 
 class MyObj
 {

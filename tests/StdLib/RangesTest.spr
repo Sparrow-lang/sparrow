@@ -1,7 +1,7 @@
-import SL.Vector;
-import SL.List;
-import SL.ContiguousMemoryRange;
-import SL.Algorithms;
+import std.vector;
+import std.list;
+import std.contiguousMemoryRange;
+import std.algorithms;
 
 fun sprMain
 {

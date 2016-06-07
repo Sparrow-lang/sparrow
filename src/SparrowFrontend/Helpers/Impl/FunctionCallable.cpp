@@ -191,7 +191,7 @@ namespace
 
         SourceCode* sc = context->sourceCode;
         int* scHandle = reinterpret_cast<int*>(sc);
-        Node* base = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("Meta")), fromCStr("SourceCode"));
+        Node* base = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("meta")), fromCStr("SourceCode"));
         Node* arg = Feather_mkCtValueT(loc, StdDef::typeRefInt, &scHandle);
         return mkFunApplication(loc, base, fromIniList({arg}));
     }
@@ -201,7 +201,7 @@ namespace
         CHECK(loc, args.size() == 0);
 
         int* ctxHandle = reinterpret_cast<int*>(context);
-        Node* base = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("Meta")), fromCStr("CompilationContext"));
+        Node* base = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("meta")), fromCStr("CompilationContext"));
         Node* arg = Feather_mkCtValueT(loc, StdDef::typeRefInt, &ctxHandle);
         return mkFunApplication(loc, base, fromIniList({arg}));
     }
@@ -248,11 +248,11 @@ namespace
                 return impl_staticBuffer(context, loc, args);
             if ( *nativeName == "$commonType" )
                 return impl_commonType(context, loc, args);
-            if ( *nativeName == "$Meta.astEval" )
+            if ( *nativeName == "$meta.astEval" )
                 return impl_Meta_astEval(context, loc, args);
-            if ( *nativeName == "$Meta.SourceCode.current" )
+            if ( *nativeName == "$meta.SourceCode.current" )
                 return impl_Meta_SourceCode_current(context, loc, args);
-            if ( *nativeName == "$Meta.CompilationContext.current" )
+            if ( *nativeName == "$meta.CompilationContext.current" )
                 return impl_Meta_CompilationContext_current(context, loc, args);
         }
 

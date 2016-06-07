@@ -1,25 +1,25 @@
-import "SprCore/BasicOper.llvm";
+import "sprCore/basicOper.llvm";
 
-import SprCore.Precedence;
-import SprCore.StdTypes0;
-import SprCore.StdTypes;
-import SprCore.NumericOper;
+import sprCore.precedence;
+import sprCore.stdTypes0;
+import sprCore.stdTypes;
+import sprCore.numericOper;
 
-import SprCore.Externals;
+import sprCore.externals;
 
-import SprCore.Basic;
-import SprCore.StringRef;
-import SprCore.Conditional;
-import SprCore.TypeHelpers;
-import SprCore.FunctionPtr;
+import sprCore.basic;
+import sprCore.stringRef;
+import sprCore.conditional;
+import sprCore.typeHelpers;
+import sprCore.functionPtr;
 
-import SprCore.IncDec;
-import SprCore.ConsoleIO;
-import SprCore.Main;
-import SprCore.StringCvt;
+import sprCore.incDec;
+import sprCore.consoleIO;
+import sprCore.main;
+import sprCore.stringCvt;
 
-import "SprCore/BasicImpl.llvm";
+import "sprCore/basicImpl.llvm";
 
 
 // TODO: Check why we need this
-import "BitOper.llvm";
+import "bitOper.llvm";

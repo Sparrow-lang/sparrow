@@ -349,8 +349,8 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
 
     if ( isMacro )
     {
-        // Wrap the function call in a Meta.astEval(...) call
-        Node* funName = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("Meta")), fromCStr("astEval"));
+        // Wrap the function call in a meta.astEval(...) call
+        Node* funName = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("meta")), fromCStr("astEval"));
         res = mkFunApplication(loc, funName, fromIniList({res}));
         Nest_setContext(res, context);
     }

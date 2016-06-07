@@ -1,7 +1,7 @@
 //!!
-import SL.Array;
-import SL.ContiguousMemoryRange;
-import SL.RawPtr; // !!!
+import std.array;
+import std.contiguousMemoryRange;
+import std.rawPtr; // !!!
 
 fun sprMain
 {

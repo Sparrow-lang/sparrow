@@ -1,8 +1,8 @@
 //!!
 
-import SL.Vector;
-import SL.String;
-import SL.Algorithms;
+import std.vector;
+import std.string;
+import std.algorithms;
 
 using TypeOp.*;
 

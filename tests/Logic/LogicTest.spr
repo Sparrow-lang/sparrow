@@ -1,8 +1,8 @@
 //!!
-import Logic.Predicates;
-import Assert;
+import logic.predicates;
+import assert;
 
-using Logic.*;
+using logic.*;
 
 fun male(x: @LStr) = x /=/ "castor" || x /=/ "zeus";
 
@@ -60,7 +60,7 @@ fun test2
         else
         {
             cout << "Invalid male found!" << endl << flush;
-            OS.exit(1);
+            os.exit(1);
         }
     }
 }

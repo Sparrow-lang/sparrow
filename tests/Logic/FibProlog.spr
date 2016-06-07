@@ -1,8 +1,8 @@
 //!!
-import Logic.PrologFrontend;
+import logic.prologFrontend;
 import "Fibonacci.pl";
 
-using Logic.*;
+using logic.*;
 
 
 fun sprMain

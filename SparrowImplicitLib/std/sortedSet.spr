@@ -1,0 +1,56 @@
+import sortedTable;
+
+class SortedSet(keyType, lessType, compareType: Type)
+{
+    using KeyType = keyType;
+    using ValueType = keyType;
+    using LessType = lessType;
+    using CompareType = compareType;
+    private using ImplTable = SortedTable(keyType, ValueType, Impl.Identity(keyType), lessType, compareType);
+    using RangeType = ImplTable.RangeType;
+
+    private var sortedTable: ImplTable;
+
+    fun ctor(n: SizeType)                                       { sortedTable.ctor(n, LessType(), CompareType()); }
+    fun ctor(n: SizeType, less: LessType)                       { sortedTable.ctor(n, less, CompareType()); }
+    fun ctor(n: SizeType, less: LessType, comp: CompareType)    { sortedTable.ctor(n, less, comp); }
+    fun ctor(range: Range)                                      { sortedTable.ctor(range, 0, LessType(), CompareType()); }
+    fun ctor(range: Range, n: SizeType)                         { sortedTable.ctor(range, n, LessType(), CompareType()); }
+    fun ctor(range: Range, n: SizeType, less: LessType)         { sortedTable.ctor(range, n, less, CompareType()); }
+    fun ctor(range: Range, n: SizeType, less: LessType, comp: CompareType)  { sortedTable.ctor(range, n, less, comp); }
+    fun ctor(other: @SortedSet)                                 { this.sortedTable ctor other.sortedTable; }
+
+    fun lessFunction                            = sortedTable.less;
+    fun comparator                              = sortedTable.comp;
+
+    fun size                                    = sortedTable.size();
+    fun isEmpty                                 = sortedTable.isEmpty();
+    fun capacity                                = sortedTable.table.capacity();
+    fun reserve(n: SizeType)                    { sortedTable.reserve(n); }
+
+    fun all                                     = sortedTable.all();
+
+    fun insert(value: @ValueType)               = sortedTable.insert(value);
+    fun insert(range: Range)                    { sortedTable.insert(range); }
+    fun remove(key: @KeyType)                   { sortedTable.remove(key); }
+    fun remove(range: RangeType)                { sortedTable.remove(range); }
+
+    fun contains(key: @KeyType)                 = sortedTable.contains(key);
+    fun count(key: @KeyType)                    = sortedTable.count(key);
+    fun equalRange(key: @KeyType)               = sortedTable.equalRange(key);
+    fun lowerBound(key: @KeyType)               = sortedTable.lowerBound(key);
+    fun upperBound(key: @KeyType)               = sortedTable.upperBound(key);
+    fun find(key: @KeyType)                     = sortedTable.find(key);
+
+    fun clear()                                 { sortedTable.clear(); }
+
+    fun swap(other: @SortedSet)                 { this.sortedTable swap other.sortedTable; }
+}
+
+package Impl
+{
+    class Identity(type: Type)
+    {
+        fun () (val: type): type = val;
+    }
+}

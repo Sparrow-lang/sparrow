@@ -1,5 +1,5 @@
-import StdTypes0;
-import StringRef;
+import stdTypes0;
+import stringRef;
 
 class[native("i1"), noDefault, rtct] Bool
 {

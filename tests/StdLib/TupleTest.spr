@@ -1,8 +1,8 @@
 //!! 
-import SL.Tuple;
-import Check.Check;
+import std.tuple;
+import check;
 
-using Check.*;
+using check.*;
 
 class[initCtor] MyObj1 {
     var x: Int;

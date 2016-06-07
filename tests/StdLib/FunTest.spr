@@ -1,7 +1,7 @@
 //!!
-import SL.Function;
-import SL.String;
-import Assert;
+import std.function;
+import std.string;
+import assert;
 
 fun stdFunInt(n: Int): Int
 {

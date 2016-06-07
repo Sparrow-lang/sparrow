@@ -1,7 +1,7 @@
-import SL.Set;
-import SL.DefaultHashFunction;
-import SL.Ranges;
-import SL.List;
+import std.set;
+import std.defaultHashFunction;
+import std.ranges;
+import std.list;
 
 fun sprMain
 {

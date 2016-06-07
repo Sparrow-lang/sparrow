@@ -1,8 +1,8 @@
-import SL.SortedMap;
-import SL.Ranges;
-import SL.Tuple;
-import SL.List;
-import SL.Algorithms;
+import std.sortedMap;
+import std.ranges;
+import std.tuple;
+import std.list;
+import std.algorithms;
 
 fun sprMain
 {

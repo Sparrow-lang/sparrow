@@ -1,9 +1,9 @@
 //!!
-import Logic.Predicates;
-import Logic.Recurse;
-import Assert;
+import logic.predicates;
+import logic.recurse;
+import assert;
 
-using Logic.*;
+using logic.*;
 
 fun children(child, parent: @LStr)
      = child /=/ "Sam"    && parent /=/ "Mary"

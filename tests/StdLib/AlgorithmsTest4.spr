@@ -1,10 +1,10 @@
 //!!
 //--keep-intermediate-files --dump-assembly --dump-ct-assembly
-import SL.Algorithms;
-import SL.Vector;
-import SL.List;
-import SL.Array;
-import SL.Ranges;
+import std.algorithms;
+import std.vector;
+import std.list;
+import std.array;
+import std.ranges;
 
 fun sprMain
 {

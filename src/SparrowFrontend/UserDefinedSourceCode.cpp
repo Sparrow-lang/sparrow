@@ -41,18 +41,18 @@ namespace
         }
 
         // Create a node that invokes the given function with the content of the file
-        // funName(code: StringRef, location: Meta.Location, context: Meta.CompilationContext): Meta.AstNode
+        // funName(code: StringRef, location: meta.Location, context: meta.CompilationContext): meta.AstNode
         Node* codeNode = buildStringLiteral(loc, fromString(oss.str()));
 
         int* scHandle = reinterpret_cast<int*>(sourceCode);
-        Node* scBase = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("Meta")), fromCStr("SourceCode"));
+        Node* scBase = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("meta")), fromCStr("SourceCode"));
         Node* scArg = Feather_mkCtValueT(loc, StdDef::typeRefInt, &scHandle);
         Node* scNode = mkFunApplication(loc, scBase, fromIniList({scArg}));
-        Node* locBase = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("Meta")), fromCStr("Location"));
+        Node* locBase = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("meta")), fromCStr("Location"));
         Node* locNode = mkFunApplication(loc, locBase, fromIniList({scNode}));
 
         int* ctxHandle = reinterpret_cast<int*>(ctx);
-        Node* ctxBase = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("Meta")), fromCStr("CompilationContext"));
+        Node* ctxBase = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("meta")), fromCStr("CompilationContext"));
         Node* ctxArg = Feather_mkCtValueT(loc, StdDef::typeRefInt, &ctxHandle);
         Node* ctxNode = mkFunApplication(loc, ctxBase, fromIniList({ctxArg}));
 

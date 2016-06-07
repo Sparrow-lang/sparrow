@@ -1,5 +1,5 @@
 
-import SL.Algorithms;
+import std.algorithms;
 
 fun f(a: Int, b: Int)
 {

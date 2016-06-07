@@ -1,7 +1,7 @@
 //!!
-import Check.Check;
+import check;
 
-using Check.*;
+using check.*;
 
 using enableChecks = true;
 

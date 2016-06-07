@@ -1,0 +1,63 @@
+import newDelete;
+import meta.astNodes;
+
+class[rtct] Ptr(type: Type)
+{
+    using ValueType = type;
+    
+    fun ctor                    = ptr := null;
+    fun ctor(other: Ptr)        = ptr := other.ptr;
+    fun[convert] ctor(ref: @ValueType)   = ptr := ref;
+
+    fun get: @ValueType         = ptr;
+    fun isNull                  = ptr === null;
+    fun isSet                   = ptr !== null;
+    
+    fun reset                   = ptr := null;
+    fun reset(ref: @ValueType)  = ptr := ref;
+    fun release                 { delete(ptr); }
+    
+    fun swap(other: @Ptr)
+    {
+        var t: @ValueType = ptr;
+        ptr := other.ptr;
+        other.ptr := t;
+    }
+    
+    fun =(other: Ptr)           = ptr := other.ptr;
+    fun =(ref: @ValueType)      = ptr := ref;
+    
+    fun ==(other: Ptr)          = ptr === other.ptr;
+    fun < (other: Ptr)          = ptrDiff(reinterpretCast(@Byte, this.ptr), reinterpretCast(@Byte, other.ptr)) < DiffType(0);
+
+    fun >>(os: @OutStream) if isValid(os << #$ValueType)
+    {
+        if ( ptr !== null )
+            os << "Ptr(" << ptr << ")";
+        else
+            os << "Ptr(null)";
+        os << flush;
+    }
+
+    private var ptr: @ValueType;
+}
+
+fun[rtct] reinterpretPtr(t: Type, ptr: AnyType): Ptr(t) //if isValid(p.isNull()) && isValid(p.get())
+{
+    return Ptr(t)(reinterpretCast(@t, ptr.get()));
+}
+
+
+fun[rtct, macro] ->(base, id: meta.AstNode): meta.AstNode
+{
+    using meta.*;
+    using meta.SprFrontend.*;
+    using meta.Feather.*;
+
+    // Expand to: <base>.get().<id>
+    var loc = base.location();
+    var dotGet = mkInfixOp(loc, "__dot__", base, mkIdentifier(loc, "get"));
+    var getCall = mkInfixOp(loc, "__fapp__", dotGet, mkNodeList(loc));
+    return mkInfixOp(loc, "__dot__", getCall, id);
+}
+using oper_precedence_-> = oper_precedence___dot__;

@@ -33,7 +33,7 @@ class  MyObj
     {
     }
     
-    fun bla(x: Int, t: Std.Meta.Type)
+    fun bla(x: Int, t: Std.meta.Type)
     {
         dew.cda;
     }

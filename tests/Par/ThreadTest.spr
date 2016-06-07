@@ -1,11 +1,11 @@
 //! ! --dump-assembly
-import Par.Thread;
-import Par.Atomic;
-import Par.Locks;
-import SL.Ranges;
-import SL.Vector;
+import par.thread;
+import par.atomic;
+import par.locks;
+import std.ranges;
+import std.vector;
 
-using Par.*;
+using par.*;
 
 fun sprMain
 {
@@ -19,10 +19,10 @@ fun sprMain
     else if ( n == 4 ) test4();
 }
 
-var gCounter: Par.Atomic(Int) = 0;
+var gCounter: par.Atomic(Int) = 0;
 
-var p1: Par.Atomic(@Int);
-var p2: Par.Atomic(Int Ptr);
+var p1: par.Atomic(@Int);
+var p2: par.Atomic(Int Ptr);
 
 class TwiddleThumbs {
     private var message: String;
@@ -45,14 +45,14 @@ class TwiddleThumbs {
             if ( doPrint ) {
                 cout << message << ": i=" << i << "; cnt=" << cnt << endl;
             }
-            Par.sleep(10);
+            par.sleep(10);
         }
     }
 }
 
 fun test1
 {
-    cout << Par.getAvailableCoresNum() << endl;
+    cout << par.getAvailableCoresNum() << endl;
 }
 /*<<<Number of available cores - print IGNORE (1)
 8
@@ -60,7 +60,7 @@ fun test1
 
 fun test2
 {
-    if ( Par.getAvailableCoresNum() >= 2 )
+    if ( par.getAvailableCoresNum() >= 2 )
         cout << "ok" << endl;
 }
 /*<<<Number of available cores-test (2)
@@ -72,9 +72,9 @@ fun test3
     cout << "Before creating threads" << endl;
     var count = 10;
     var cnt1, cnt2: Int;
-    var t1 = Par.Thread(TwiddleThumbs("worker 1", count, cnt1, true));
-    var t2 = Par.Thread(TwiddleThumbs("worker 2", count, cnt2, true));
-    Par.sleep(50);
+    var t1 = par.Thread(TwiddleThumbs("worker 1", count, cnt1, true));
+    var t2 = par.Thread(TwiddleThumbs("worker 2", count, cnt2, true));
+    par.sleep(50);
     cout << "After creating the threads" << endl;
     t1 join;
     t2 join;
@@ -87,9 +87,9 @@ fun test4
 {
     var count = 10;
     var cnt1, cnt2: Int;
-    var t1 = Par.Thread(TwiddleThumbs("worker 1", count, cnt1));
-    var t2 = Par.Thread(TwiddleThumbs("worker 2", count, cnt2));
-    Par.sleep(50);
+    var t1 = par.Thread(TwiddleThumbs("worker 1", count, cnt1));
+    var t2 = par.Thread(TwiddleThumbs("worker 2", count, cnt2));
+    par.sleep(50);
     t1 join;
     t2 join;
 

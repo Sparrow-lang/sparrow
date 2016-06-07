@@ -1,9 +1,9 @@
-import SL.Map;
-import SL.DefaultHashFunction;
-import SL.Ranges;
-import SL.Tuple;
-import SL.List;
-import SL.Algorithms;
+import std.map;
+import std.defaultHashFunction;
+import std.ranges;
+import std.tuple;
+import std.list;
+import std.algorithms;
 
 class IntWrapper
 {

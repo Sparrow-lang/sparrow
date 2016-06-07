@@ -1,10 +1,10 @@
 //!! 
-import SL.Vector;
-import SL.ContiguousMemoryRange;
-import SL.RawPtr;
-import Check.Check;
+import std.vector;
+import std.contiguousMemoryRange;
+import std.rawPtr;
+import check;
 
-using Check.*;
+using check.*;
 
 fun sprMain
 {

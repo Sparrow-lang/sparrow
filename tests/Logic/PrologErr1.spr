@@ -1,7 +1,7 @@
 //!!
-import Logic.Prolog;
+import logic.prolog;
 
-Logic.compileProlog("
+logic.compileProlog("
     orbits(mercury, sun).
     orbits(venus, sun).
     orbits(earth, sun).

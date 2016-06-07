@@ -1,10 +1,10 @@
 //!!
-import Logic.Prolog;
+import logic.prolog;
 
 using sunVar = "sun";
 fun getSun: String { cout << "<getSun() called>"; return "sun"; }
 
-Logic.compileProlog("
+logic.compileProlog("
     orbits(mercury, sun).
     orbits(venus, sun).
     orbits(earth, sun).

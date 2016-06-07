@@ -1,7 +1,7 @@
 //!! -O2
 
-import SL.Array;
-import SL.Algorithms;
+import std.array;
+import std.algorithms;
 
 fun fannkuch(n: Int): Int
 {

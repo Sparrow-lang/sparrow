@@ -1,0 +1,145 @@
+;rtct
+
+define i8 @_bit_neg_8(i8 %n) alwaysinline
+{
+    %1 = xor i8 %n, 0
+    ret i8 %1
+}
+define i8 @_bit_shl_8(i8 %n, i8 %k) alwaysinline
+{
+    %1 = shl i8 %n, %k
+    ret i8 %1
+}
+define i8 @_bit_lshr_8(i8 %n, i8 %k) alwaysinline
+{
+    %1 = lshr i8 %n, %k
+    ret i8 %1
+}
+define i8 @_bit_ashr_8(i8 %n, i8 %k) alwaysinline
+{
+    %1 = ashr i8 %n, %k
+    ret i8 %1
+}
+define i8 @_bit_xor_8(i8 %n1, i8 %n2) alwaysinline
+{
+    %1 = xor i8 %n1, %n2
+    ret i8 %1
+}
+define i8 @_bit_or_8(i8 %n1, i8 %n2) alwaysinline
+{
+    %1 = or i8 %n1, %n2
+    ret i8 %1
+}
+define i8 @_bit_and_8(i8 %n1, i8 %n2) alwaysinline
+{
+    %1 = and i8 %n1, %n2
+    ret i8 %1
+}
+
+define i16 @_bit_neg_16(i16 %n) alwaysinline
+{
+    %1 = xor i16 %n, 0
+    ret i16 %1
+}
+define i16 @_bit_shl_16(i16 %n, i16 %k) alwaysinline
+{
+    %1 = shl i16 %n, %k
+    ret i16 %1
+}
+define i16 @_bit_lshr_16(i16 %n, i16 %k) alwaysinline
+{
+    %1 = lshr i16 %n, %k
+    ret i16 %1
+}
+define i16 @_bit_ashr_16(i16 %n, i16 %k) alwaysinline
+{
+    %1 = ashr i16 %n, %k
+    ret i16 %1
+}
+define i16 @_bit_xor_16(i16 %n1, i16 %n2) alwaysinline
+{
+    %1 = xor i16 %n1, %n2
+    ret i16 %1
+}
+define i16 @_bit_or_16(i16 %n1, i16 %n2) alwaysinline
+{
+    %1 = or i16 %n1, %n2
+    ret i16 %1
+}
+define i16 @_bit_and_16(i16 %n1, i16 %n2) alwaysinline
+{
+    %1 = and i16 %n1, %n2
+    ret i16 %1
+}
+
+define i32 @_bit_neg_32(i32 %n) alwaysinline
+{
+    %1 = xor i32 %n, 0
+    ret i32 %1
+}
+define i32 @_bit_shl_32(i32 %n, i32 %k) alwaysinline
+{
+    %1 = shl i32 %n, %k
+    ret i32 %1
+}
+define i32 @_bit_lshr_32(i32 %n, i32 %k) alwaysinline
+{
+    %1 = lshr i32 %n, %k
+    ret i32 %1
+}
+define i32 @_bit_ashr_32(i32 %n, i32 %k) alwaysinline
+{
+    %1 = ashr i32 %n, %k
+    ret i32 %1
+}
+define i32 @_bit_xor_32(i32 %n1, i32 %n2) alwaysinline
+{
+    %1 = xor i32 %n1, %n2
+    ret i32 %1
+}
+define i32 @_bit_or_32(i32 %n1, i32 %n2) alwaysinline
+{
+    %1 = or i32 %n1, %n2
+    ret i32 %1
+}
+define i32 @_bit_and_32(i32 %n1, i32 %n2) alwaysinline
+{
+    %1 = and i32 %n1, %n2
+    ret i32 %1
+}
+
+define i64 @_bit_neg_64(i64 %n) alwaysinline
+{
+    %1 = xor i64 %n, 0
+    ret i64 %1
+}
+define i64 @_bit_shl_64(i64 %n, i64 %k) alwaysinline
+{
+    %1 = shl i64 %n, %k
+    ret i64 %1
+}
+define i64 @_bit_lshr_64(i64 %n, i64 %k) alwaysinline
+{
+    %1 = lshr i64 %n, %k
+    ret i64 %1
+}
+define i64 @_bit_ashr_64(i64 %n, i64 %k) alwaysinline
+{
+    %1 = ashr i64 %n, %k
+    ret i64 %1
+}
+define i64 @_bit_xor_64(i64 %n1, i64 %n2) alwaysinline
+{
+    %1 = xor i64 %n1, %n2
+    ret i64 %1
+}
+define i64 @_bit_or_64(i64 %n1, i64 %n2) alwaysinline
+{
+    %1 = or i64 %n1, %n2
+    ret i64 %1
+}
+define i64 @_bit_and_64(i64 %n1, i64 %n2) alwaysinline
+{
+    %1 = and i64 %n1, %n2
+    ret i64 %1
+}

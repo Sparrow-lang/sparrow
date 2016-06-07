@@ -1,13 +1,13 @@
 //! ! --dump-assembly
-import Par.Thread;
-import Par.Tls;
-import Test;
+import par.thread;
+import par.tls;
+import test;
 
-using Par.*;
-using Test.*;
+using par.*;
+using test.*;
 
-var intTls: Par.Tls(Int);
-var ptrTls: Par.Tls(@Int);
+var intTls: par.Tls(Int);
+var ptrTls: par.Tls(@Int);
 
 class[initCtor] IntWorker {
     private var val1, val2: Int;
@@ -35,7 +35,7 @@ class[initCtor] PtrWorker {
 
 class WorkManager {
     private var numThreads: Int;
-    private var threads: (Par.Thread Ptr) Vector;
+    private var threads: (par.Thread Ptr) Vector;
 
     fun ctor(numThreads: Int) {
         this.numThreads ctor numThreads;
@@ -46,12 +46,12 @@ class WorkManager {
         var pi2: @Int = i2;
 
         for ( i=0..numThreads ) {
-            var p: Par.Thread Ptr = new(Par.Thread, IntWorker(i1, i2));
+            var p: par.Thread Ptr = new(par.Thread, IntWorker(i1, i2));
             threads.pushBack(p);
         }
 
         for ( i=0..numThreads ) {
-            var p: Par.Thread Ptr = new(Par.Thread, PtrWorker(pi1, pi2));
+            var p: par.Thread Ptr = new(par.Thread, PtrWorker(pi1, pi2));
             threads.pushBack(p);
         }
     }

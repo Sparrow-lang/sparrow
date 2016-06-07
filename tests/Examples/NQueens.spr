@@ -1,10 +1,10 @@
 //!!
 
-import SL.Array;
-import SL.Vector;
-import SL.String;
-import Math;
-import OS;
+import std.array;
+import std.vector;
+import std.string;
+import math;
+import os;
 
 /*settings-here*/
 //using runAtCt = false;
@@ -21,7 +21,7 @@ fun[rtct] testQueens(placements: @PlacementType, k, y: Int): Bool
 {
     for ( i = 0..k )
     {
-        if ( y == placements(i) || k-i == Math.abs(y-placements(i)) )
+        if ( y == placements(i) || k-i == math.abs(y-placements(i)) )
             return false;
     }
     return true;
@@ -86,9 +86,9 @@ fun[autoCt] writeAsciiArt(solutions: @SolutionsType)
     // lines 2N+1..3N   the characters to be displayed for a queen on white square
     // lines 3N+1..4N   the characters to be displayed for a queen on black square
     var lines = readFileLines("queen-art.txt");
-    if ( lines.isEmpty() ) OS.exit(-1);
+    if ( lines.isEmpty() ) os.exit(-1);
     var n = asInt(lines(0).asStringRef());
-    if ( lines.size() < 1+4*n ) OS.exit(-1);
+    if ( lines.size() < 1+4*n ) os.exit(-1);
 
     cout << "We have " << solutions.size() << " solutions\n";
 
@@ -117,7 +117,7 @@ fun[rtct] readFileLines(filename: StringRef): Vector(String)
 {
     var lines: Vector(String);
 
-    var f = OS.File.open(filename, "r");
+    var f = os.File.open(filename, "r");
     if ( !f.isOpen() )
     {
         cout << "Cannot open file: " << filename << "\n";

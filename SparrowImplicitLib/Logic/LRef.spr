@@ -1,10 +1,10 @@
-module Logic.LRef;
+module logic.lRef;
 
-import SprCore.StreamBasic;
-import SL.Optional;
-import SL.SharedPtr;
-import SL.String;
-import PrecedenceUtils;
+import sprCore.streamBasic;
+import std.optional;
+import std.sharedPtr;
+import std.string;
+import precedenceUtils;
 
 concept ValWrapper(x)
     if isValid(x.ValueType)

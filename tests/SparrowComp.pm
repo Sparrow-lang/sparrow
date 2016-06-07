@@ -250,17 +250,19 @@ sub compileFileRunTests
     unlink("$dir/$outputFile.ct.llvm");
     
     # Perform the compilation
+    my $cmd = "cd $dir && \"$sparrowCompiler\" $filename -o $dir/$outputFile $compFlags";
+    print LOG_FILE "Command: $cmd\n";
     print LOG_FILE "\n\n";
     print LOG_FILE "\n------ Compilation\n";
     my $compOutput = "";
     if ( $consolePrint and not (@expectedErrors) )
     {
-        system("cd $dir && \"$sparrowCompiler\" $filename -o $dir/$outputFile $compFlags");
+        system("$cmd");
         # Warning: We are not obtaining the compiler output - we do this to preserve the coloring of the output
     }
     else
     {
-        $compOutput = `cd $dir && "$sparrowCompiler" $filename -o $dir/$outputFile $compFlags 2>&1`;
+        $compOutput = `$cmd 2>&1`;
         print LOG_FILE $compOutput;
         $compOutput = removeColors($compOutput);
     }

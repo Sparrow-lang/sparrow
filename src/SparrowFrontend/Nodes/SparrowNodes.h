@@ -11,6 +11,7 @@ namespace SprFrontend
         nkRelSparrowModifiersNode = 0,
         
         nkRelSparrowDeclModule,
+        nkRelSparrowDeclImportName,
         nkRelSparrowDeclPackage,
         nkRelSparrowDeclSprClass,
         nkRelSparrowDeclSprFunction,
@@ -47,6 +48,7 @@ namespace SprFrontend
     extern int nkSparrowModifiersNode;
     
     extern int nkSparrowDeclModule;
+    extern int nkSparrowDeclImportName;
     extern int nkSparrowDeclPackage;
     extern int nkSparrowDeclSprClass;
     extern int nkSparrowDeclSprFunction;
@@ -81,6 +83,7 @@ namespace SprFrontend
     Node* mkModifiers(const Location& loc, Node* main, Node* mods);
 
     Node* mkModule(const Location& loc, Node* moduleName, Node* imports, Node* declarations);
+    Node* mkImportName(const Location& loc, Node* moduleName, Node* importedDeclNames);
     Node* mkSprUsing(const Location& loc, StringRef alias, Node* usingNode, AccessType accessType = unspecifiedAccess);
     Node* mkSprPackage(const Location& loc, StringRef name, Node* children, AccessType accessType = unspecifiedAccess);
     Node* mkSprVariable(const Location& loc, StringRef name, Node* typeNode, Node* init, AccessType accessType = unspecifiedAccess);

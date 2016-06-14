@@ -221,6 +221,12 @@ void Module_SetContextForChildren(Node* node)
         const SourceCode* sourceCode = node->location.sourceCode;
         for ( Node* i: imports->children )
         {
+            if ( i->nodeKind != nkSparrowDeclImportName )
+                Nest_reportFmt(i->location, diagInternalError, "Expected spr.importName node; found %s", Nest_nodeKindName(i));
+
+            // Node* declNames = at(children, 1);
+            i = at(i->children, 0);           // get the base identifier/literal
+
             Node* lit = Nest_ofKind(i, nkSparrowExpLiteral);
             if ( lit && Literal_isString(lit) )
             {
@@ -270,6 +276,15 @@ Node* Module_SemanticCheck(Node* node)
     Node* declarations = at(node->children, 2);
 
     return declarations ? declarations : Feather_mkNop(node->location);
+}
+
+TypeRef ImportName_ComputeType(Node* node)
+{
+    return Feather_getVoidType(modeCt);
+}
+Node* ImportName_SemanticCheck(Node* node)
+{
+    return Feather_mkNop(node->location);
 }
 
 void Package_SetContextForChildren(Node* node)

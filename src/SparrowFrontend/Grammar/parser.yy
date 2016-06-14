@@ -151,12 +151,12 @@ using namespace std;
 %type <stringVal>   Operator OperatorNoEq IdentifierOrOperator IdentifierOrOperatorNoEq
 %type <node>        QualifiedName QualifiedNameStar
 %type <stringList>  IdentifierList
-%type <node>        IdentifierListNode Modifiers ModifierSpec
+%type <node>        IdentifierListNode IdOrOperListNode Modifiers ModifierSpec
 
 %destructor { delete $$; } Operator OperatorNoEq IdentifierOrOperator IdentifierOrOperatorNoEq
 
 %type <node>        Start Module ModuleName
-%type <node>        ImportLinesOpt ImportLines ImportLine ImportNames ImportName
+%type <node>        ImportLinesOpt ImportLines ImportLine ImportNames ImportName ImportDeclNamesOpt
 %type <node>        TopLevelStmtsOpt TopLevelStmts FormalsOpt Formals Formal
 %type <node>        TopLevelStmt InFunctionDeclaration PackageDeclaration ClassDeclaration ConceptDeclaration VarDeclaration FunDeclaration UsingDeclaration
 %type <node>        IfClause FunRetType FunctionBody
@@ -254,6 +254,13 @@ IdentifierListNode
         { $$ = Feather_mkNodeList(@$, fromIniList({ mkIdentifier(@$, fromString(*$1)) })); }
     ;
 
+IdOrOperListNode
+    : IdOrOperListNode COMMA IdentifierOrOperator
+        { $$ = Feather_addToNodeList($1, mkIdentifier(@3, fromString(*$3))); }
+    | IdentifierOrOperator
+        { $$ = Feather_addToNodeList(NULL, mkIdentifier(@1, fromString(*$1))); }
+    ;
+
 ModifierSpec
     : LBRACKET Modifiers RBRACKET
         { $$ = $2; }
@@ -312,10 +319,19 @@ ImportNames
     ;
 
 ImportName
-    : QualifiedName
-        { $$ = $1; }
-    | STRING_LITERAL
-        { $$ = buildStringLiteral(@$, fromString(*$<stringVal>1)); }
+    : QualifiedName ImportDeclNamesOpt
+        { $$ = mkImportName(@$, $1, $2); }
+    | STRING_LITERAL ImportDeclNamesOpt
+        { $$ = mkImportName(@$, buildStringLiteral(@$, fromString(*$<stringVal>1)), $2); }
+    ;
+
+ImportDeclNamesOpt
+    : /*nothing*/
+        { $$ = NULL; }
+    | LPAREN RPAREN
+        { $$ = NULL; }
+    | LPAREN IdOrOperListNode RPAREN
+        { $$ = $2; }
     ;
 
 TopLevelStmtsOpt

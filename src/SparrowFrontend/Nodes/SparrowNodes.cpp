@@ -324,6 +324,9 @@ void Module_SetContextForChildren(Node* node);
 TypeRef Module_ComputeType(Node* node);
 Node* Module_SemanticCheck(Node* node);
 
+TypeRef ImportName_ComputeType(Node* node);
+Node* ImportName_SemanticCheck(Node* node);
+
 void Package_SetContextForChildren(Node* node);
 TypeRef Package_ComputeType(Node* node);
 Node* Package_SemanticCheck(Node* node);
@@ -380,6 +383,7 @@ int SprFrontend::firstSparrowNodeKind = 0;
 int SprFrontend::nkSparrowModifiersNode = 0;
 
 int SprFrontend::nkSparrowDeclModule = 0;
+int SprFrontend::nkSparrowDeclImportName = 0;
 int SprFrontend::nkSparrowDeclPackage = 0;
 int SprFrontend::nkSparrowDeclSprClass = 0;
 int SprFrontend::nkSparrowDeclSprFunction = 0;
@@ -417,6 +421,7 @@ void SprFrontend::initSparrowNodeKinds()
     nkSparrowModifiersNode =            Nest_registerNodeKind("spr.modifiers", &ModifiersNode_SemanticCheck, &ModifiersNode_ComputeType, &ModifiersNode_SetContextForChildren, NULL);
 
     nkSparrowDeclModule =               Nest_registerNodeKind("spr.module", &Module_SemanticCheck, &Module_ComputeType, &Module_SetContextForChildren, NULL);
+    nkSparrowDeclImportName =           Nest_registerNodeKind("spr.importName", &ImportName_SemanticCheck, &ImportName_ComputeType, NULL, NULL);
     nkSparrowDeclPackage =              Nest_registerNodeKind("spr.package", &Package_SemanticCheck, &Package_ComputeType, &Package_SetContextForChildren, NULL);
     nkSparrowDeclSprClass =             Nest_registerNodeKind("spr.sprClass", &SprClass_SemanticCheck, &SprClass_ComputeType, &SprClass_SetContextForChildren, NULL);
     nkSparrowDeclSprFunction =          Nest_registerNodeKind("spr.sprFunction", &SprFunction_SemanticCheck, &SprFunction_ComputeType, &SprFunction_SetContextForChildren, NULL);
@@ -468,6 +473,15 @@ Node* SprFrontend::mkModule(const Location& loc, Node* moduleName, Node* imports
     Nest_nodeSetChildren(res, fromIniList({ moduleName, imports, declarations }));
     ASSERT( !imports || imports->nodeKind == nkFeatherNodeList );
     ASSERT( !declarations || declarations->nodeKind == nkFeatherNodeList );
+    return res;
+}
+
+Node* SprFrontend::mkImportName(const Location& loc, Node* moduleName, Node* importedDeclNames)
+{
+    Node* res = Nest_createNode(nkSparrowDeclImportName);
+    res->location = loc;
+    Nest_nodeSetChildren(res, fromIniList({ moduleName, importedDeclNames }));
+    ASSERT( !importedDeclNames || importedDeclNames->nodeKind == nkFeatherNodeList );
     return res;
 }
 

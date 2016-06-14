@@ -273,6 +273,7 @@ package Kinds
     using nkSparrowModifiersNode = ctEval(iota);
     
     using nkSparrowDeclModule = ctEval(iota);
+    using nkSparrowDeclImportName = ctEval(iota);
     using nkSparrowDeclPackage = ctEval(iota);
     using nkSparrowDeclSprClass = ctEval(iota);
     using nkSparrowDeclSprFunction = ctEval(iota);

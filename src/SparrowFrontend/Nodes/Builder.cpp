@@ -1,5 +1,6 @@
 #include <StdInc.h>
 #include "Builder.h"
+#include "Helpers/DeclsHelpers.h"
 #include <NodeCommonsCpp.h>
 
 #include "Feather/Api/Feather.h"
@@ -28,6 +29,14 @@ LocStringVec* SprFrontend::buildStringList(LocStringVec* prevList, LocString ele
 
     prevList->emplace_back(move(element));
     return prevList;
+}
+
+Node* SprFrontend::setAccessForNodesInList(Node* nodeList, AccessType access)
+{
+    ASSERT( nodeList && nodeList->nodeKind == nkFeatherNodeList );
+    for ( auto node: nodeList->children )
+        setAccessType(node, access);
+    return nodeList;
 }
 
 Node* SprFrontend::buildVariables(const Location& loc, const LocStringVec& names, Node* typeNode, Node* init, Node* mods, AccessType accessType)

@@ -75,7 +75,7 @@ using namespace std;
 
 %require "3.0"                          // Require bison 3.0 or later
 %no-lines                               // Don't use #line directives
-//%debug                                  // add debug output code to generated parser. To be dsabled for release versions.
+//%debug                                  // add debug output code to generated parser. To be disabled for release versions.
 %error-verbose                          // verbose error messages
 %expect 0                               // Expect that many shift-reduce warnings
 %locations                              // keep track of the current position within the input
@@ -118,21 +118,14 @@ using namespace std;
 %token START_PROGRAM START_EXPRESSION
 
 // Keywords
-%token BREAK
-%token CATCH CLASS CONCEPT CONTINUE
-%token DATATYPE
+%nonassoc IMPORTS_END
+%nonassoc PRIVATE PUBLIC
+%token MODULE IMPORT
+%token CLASS CONCEPT DATATYPE FUN PACKAGE USING VAR
+%token BREAK CATCH CONTINUE FINALLY FOR IF RETURN THROW TRY WHILE
+%token FALSE NULLCT THIS TRUE
 %nonassoc THEN_CLAUSE
 %nonassoc ELSE
-%token FALSE FINALLY FOR FUN
-%token IF IMPORT
-%token MODULE
-%token NULLCT
-%token PACKAGE PRIVATE PUBLIC
-%token RETURN
-%token THIS THROW TRUE TRY
-%token USING
-%token VAR
-%token WHILE
 
 // Parentheses, delimiters, special operators
 %token LCURLY RCURLY LBRACKET RBRACKET LPAREN RPAREN
@@ -293,9 +286,9 @@ ModuleName
     ;
 
 ImportLinesOpt
-    : ImportLines
+    : ImportLines %prec IMPORTS_END 
         { $$ = $1; }
-    | /*nothing*/
+    | /*nothing*/ %prec IMPORTS_END
         { $$ = NULL; }
     ;
 
@@ -307,9 +300,8 @@ ImportLines
     ;
 
 ImportLine
-    : IMPORT ImportNames SEMICOLON
-        { $$ = $2; }
-        /* TODO: Handle access specifier */
+    : AccessSpec IMPORT ImportNames SEMICOLON
+        { $$ = setAccessForNodesInList($3, $1); }
     ;
 
 ImportNames

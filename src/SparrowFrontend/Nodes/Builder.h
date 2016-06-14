@@ -15,6 +15,8 @@ namespace SprFrontend
 
     LocStringVec* buildStringList(LocStringVec* prevList, LocString element);
 
+    Node* setAccessForNodesInList(Node* nodeList, AccessType access);
+
     Node* buildVariables(const Location& loc, const LocStringVec& names, Node* typeNode, Node* init, Node* mods, AccessType accessType = unspecifiedAccess);
     Node* buildParameters(const Location& loc, const LocStringVec& names, Node* typeNode, Node* init, Node* mods);
     Node* buildAutoParameter(const Location& loc, StringRef name, Node* mods);

@@ -1,25 +1,25 @@
-import "sprCore/basicOper.llvm";
+public import "sprCore/basicOper.llvm";
 
-import sprCore.precedence;
-import sprCore.stdTypes0;
-import sprCore.stdTypes;
-import sprCore.numericOper;
+public import sprCore.precedence;
+public import sprCore.stdTypes0;
+public import sprCore.stdTypes;
+public import sprCore.numericOper;
 
-import sprCore.externals;
+public import sprCore.externals;
 
-import sprCore.basic;
-import sprCore.stringRef;
-import sprCore.conditional;
-import sprCore.typeHelpers;
-import sprCore.functionPtr;
+public import sprCore.basic;
+public import sprCore.stringRef;
+public import sprCore.conditional;
+public import sprCore.typeHelpers;
+public import sprCore.functionPtr;
 
-import sprCore.incDec;
-import sprCore.consoleIO;
-import sprCore.main;
-import sprCore.stringCvt;
+public import sprCore.incDec;
+public import sprCore.consoleIO;
+public import sprCore.main;
+public import sprCore.stringCvt;
 
-import "sprCore/basicImpl.llvm";
+public import "sprCore/basicImpl.llvm";
 
 
 // TODO: Check why we need this
-import "bitOper.llvm";
+public import "bitOper.llvm";

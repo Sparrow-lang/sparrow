@@ -101,11 +101,14 @@ using namespace Feather;
 
     TypeRef NodeList_ComputeType(Node* node)
     {
+        if ( Nest_hasProperty(node, propResultVoid) )
+            node->type = Feather_getVoidType(node->context->evalMode);
+
         // Compute the type for all the children
         for ( Node* c: node->children )
         {
             if ( c && !Nest_computeType(c) )
-                return NULL;
+                continue;
         }
 
         // Get the type of the last node

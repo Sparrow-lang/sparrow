@@ -34,14 +34,20 @@ namespace SprFrontend
 
         /// Checks if we can call this with the given arguments
         /// This method can cache some information needed by the 'generateCall'
-        virtual ConversionType canCall(CompilationContext* context, const Location& loc, NodeRange args, EvalMode evalMode, bool noCustomCvt = false);
+        virtual ConversionType canCall(CompilationContext* context, const Location& loc, NodeRange args, EvalMode evalMode, bool noCustomCvt = false, bool reportErrors = false);
 
         /// Same as above, but makes the check only on type, and not on the actual argument; doesn't cache any args_
-        virtual ConversionType canCall(CompilationContext* context, const Location& loc, const vector<TypeRef>& argTypes, EvalMode evalMode, bool noCustomCvt = false);
+        virtual ConversionType canCall(CompilationContext* context, const Location& loc, const vector<TypeRef>& argTypes, EvalMode evalMode, bool noCustomCvt = false, bool reportErrors = false);
 
         /// Generates the node that actually calls this callable
         /// This must be called only if 'canCall' method returned a success conversion type
         virtual Node* generateCall(const Location& loc) = 0;
+
+        /// Returns true if the callable is valid, and considered for selection
+        bool isValid() const { return valid_; }
+
+        /// Called to mark this callable as not viable for selection
+        void markInvalid() { valid_ = false; }
 
     protected:
         Callable();
@@ -61,10 +67,21 @@ namespace SprFrontend
 
         /// The conversions needed for each argument; computed by 'canCall'
         vector<ConversionResult> conversions_;
+
+        /// True if the callable is valid
+        bool valid_;
     };
 
     typedef vector<Callable*> Callables;
 
     /// Destroys the given list of callables
     void destroyCallables(Callables& callables);
+
+    /// Helper class that destroys a list of callables at the end of the scope
+    class CallablesDestroyer {
+        Callables& callables_;
+    public:
+        CallablesDestroyer(Callables& callables) : callables_(callables) {}
+        ~CallablesDestroyer() { destroyCallables(callables_); }
+    };
 }

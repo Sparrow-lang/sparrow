@@ -214,12 +214,12 @@ void Nest_clearCompilationState(Node* node)
 
 const char* Nest_defaultFunToString(const Node* node)
 {
-    if ( node->explanation && node != node->explanation )
-        return Nest_toString(node->explanation);
-
     const StringRef* name = Nest_getPropertyString(node, "name");
     if ( name )
         return name->begin;
+
+    if ( node->explanation && node != node->explanation )
+        return Nest_toString(node->explanation);
 
     // First get the strings to be used
     // These may reserve string buffers on their own

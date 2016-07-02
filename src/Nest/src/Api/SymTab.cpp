@@ -105,3 +105,71 @@ NodeArray Nest_symTabLookup(SymTab* symTab, const char* name)
     NodeArray res = Nest_symTabLookupCurrent(symTab, name);
     return Nest_nodeArraySize(res) > 0 || !st->base.parent ? res : Nest_symTabLookup(st->base.parent, name);
 }
+
+namespace {
+    void dumpSortedEntries(MMap& entriesMap) {
+        if ( entriesMap.empty() )
+            return;
+        // Gather all the entries
+        vector<string> entries;
+        entries.reserve(entriesMap.size());
+        for ( auto entry: entriesMap )
+            entries.push_back(entry.first);
+        // Sort them
+        sort(entries.begin(), entries.end());
+        // Print them in groups, avoiding duplicates
+        int numEntries = 0;
+        int startIdx = 0;
+        for ( int i=0; i<entries.size(); ++i ) {
+            if ( entries[startIdx] != entries[i] ) {
+                // Print the last entry
+                if ( numEntries > 1 )
+                    printf("    %s (%d times)\n", entries[startIdx].c_str(), numEntries);
+                else
+                    printf("    %s\n", entries[startIdx].c_str());
+                // update the state vars
+                numEntries = 1;
+                startIdx = i;
+            } else {
+                ++numEntries;
+            }
+        }
+        // Print the last entry
+        if ( numEntries > 1 )
+            printf("    %s (%d times)\n", entries[startIdx].c_str(), numEntries);
+        else
+            printf("    %s\n", entries[startIdx].c_str());
+    }
+}
+
+void Nest_dumpSymTabs(SymTab* symTab)
+{
+    int level = 0;
+    for ( ; symTab; symTab = symTab->parent ) {
+        const StringRef* nameProp = nullptr;
+        if ( symTab->node )
+            nameProp = Nest_getPropertyString(symTab->node, "name");
+        const char* defName = nameProp ? nameProp->begin : "?";
+        printf("===== Symbol table level %d - %s\n", level++, defName);
+
+        _SymTabImpl* st = (_SymTabImpl*) symTab;
+        dumpSortedEntries(st->entries);
+        if ( !st->copiedEntries.empty() ) {
+            printf("    + copied entries:\n");
+            dumpSortedEntries(st->copiedEntries);
+        }
+    }
+}
+
+void Nest_dumpSymTabHierarchy(SymTab* symTab)
+{
+    printf("Symbol table hierarchy:");
+    for ( ; symTab; symTab = symTab->parent ) {
+        const StringRef* nameProp = nullptr;
+        if ( symTab->node )
+            nameProp = Nest_getPropertyString(symTab->node, "name");
+        const char* defName = nameProp ? nameProp->begin : "?";
+        printf(" %s", defName);
+    }
+    printf("\n");
+}

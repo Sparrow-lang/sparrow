@@ -7,6 +7,9 @@ package Test;
 import SL.Vector;
 // ^ keyword.control.import
 
+public import std.ranges(map, filter);
+//     ^^^^^^ keyword.structure.import
+
 /**
 * // ^ comment.block.documentation
 *    @brief Some brief description

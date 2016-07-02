@@ -501,8 +501,10 @@ octal_done1:
         }
         else
         {
-            if (*p == '\n')
-                ++yylloc->end.line; yylloc->end.col = 1;
+            if (*p == '\n') {
+                ++yylloc->end.line;
+                yylloc->end.col = 1;
+            }
             yylval->stringVal->push_back(*p);
         }
         ++p;

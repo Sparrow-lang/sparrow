@@ -120,8 +120,13 @@ void doCompilation(const vector<CompilerModule*>& modules)
             cout << "Linking..." << endl;
         	Nest_getCurBackend()->link(Nest_getCurBackend(), outFilename.c_str());
         }
+        catch (const exception& e)
+        {
+            REP_INTERNAL(NOLOC, "Exception caught: '%1%'") % e.what();
+        }
         catch (...)
         {
+            REP_INTERNAL(NOLOC, "Unknown exception caught");
         }
     }
 };
@@ -190,8 +195,13 @@ int main(int argc,char* argv[])
     {
         doCompilation(modules);
     }
+    catch (const exception& e)
+    {
+        REP_INTERNAL(NOLOC, "Exception caught: '%1%'") % e.what();
+    }
     catch (...)
     {
+        REP_INTERNAL(NOLOC, "Unknown exception caught");
     }
 
     // Destroy the modules

@@ -16,8 +16,17 @@ namespace SprFrontend
         unspecifiedAccess
     };
 
-    inline string accessTypeToString(AccessType accessType)
+    inline const char* accessTypeToString(AccessType accessType)
     {
-        return accessType == privateAccess ? "private" : "public";
+        switch(accessType)
+        {
+        case publicAccess:
+            return "public";
+        case privateAccess:
+            return "private";
+        case unspecifiedAccess:
+        default:
+            return "unspecified";
+        }
     }
 }

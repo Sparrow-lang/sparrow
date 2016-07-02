@@ -69,6 +69,6 @@ fun[native("test")] test(n: Int)
 
 package Inner {
     fun f();
-    //fun[static] g();    // E RROR
+    fun[static] g();    // ERROR
 }
 

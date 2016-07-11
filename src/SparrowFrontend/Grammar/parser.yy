@@ -361,7 +361,7 @@ AccessSpec
     | PUBLIC
         { $$ = publicAccess; }
     | /*nothing*/
-        { $$ = publicAccess; NEXT_LOC; }
+        { $$ = unspecifiedAccess; NEXT_LOC; }
     ;
 
 UsingDeclaration

@@ -21,12 +21,12 @@ class SortedMap(keyType, dataType, lessType, compareType: Type)
     fun ctor(range: Range, n: SizeType, less: LessType, comp: CompareType)  { sortedTable.ctor(range, n, less, comp); }
     fun ctor(other: @SortedMap)                                 { this.sortedTable ctor other.sortedTable; }
 
-    fun lessFunction                            = sortedTable.less;
-    fun comparator                              = sortedTable.comp;
+    fun lessFunction                            = sortedTable.lessFunction;
+    fun comparator                              = sortedTable.comparator;
 
     fun size                                    = sortedTable.size();
     fun isEmpty                                 = sortedTable.isEmpty();
-    fun capacity                                = sortedTable.table.capacity();
+    fun capacity                                = sortedTable.capacity;
     fun reserve(n: SizeType)                    { sortedTable.reserve(n); }
 
     fun all                                     = sortedTable.all();
@@ -48,7 +48,7 @@ class SortedMap(keyType, dataType, lessType, compareType: Type)
     fun at(key: @KeyType): @DataType
     {
         var r = sortedTable.lowerBound(key);
-        if ( r.isEmpty() || !sortedTable.comp(key, r.front()._1) )
+        if ( r.isEmpty() || !sortedTable.comparator()(key, r.front()._1) )
         {
             var data: DataType;
             r = sortedTable.insert(ValueType(key, data));

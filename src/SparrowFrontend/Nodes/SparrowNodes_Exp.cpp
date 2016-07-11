@@ -24,22 +24,10 @@ namespace
     // Helpers for Identifier and CompoundExp nodes
     //
 
-    void removeUnusableDecls(NodeArray& nodes, Node* accessedFrom) {
-        Node**dest = nodes.beginPtr;
-        Node**src = nodes.beginPtr;
-        while ( src != nodes.endPtr ) {
-            if ( !Nest_computeType(*src) || !canAccessNode(*src, accessedFrom) ) {
-                ++src;
-            }
-            else {
-                *dest++ = *src++;
-            }
-        }
-        nodes.endPtr = dest;
-    }
-
-    Node* getIdentifierResult(CompilationContext* ctx, const Location& loc, NodeRange decls, Node* baseExp, bool allowDeclExp)
+    Node* getIdentifierResult(Node* node, NodeRange decls, Node* baseExp, bool allowDeclExp)
     {
+        const Location& loc = node->location;
+
         // If this points to one declaration only, try to use that declaration
         if ( Nest_nodeRangeSize(decls) == 1 )
         {
@@ -72,21 +60,19 @@ namespace
                 }
                 return Feather_mkVarRef(loc, resDecl);
             }
-            
+
             // If this is a using, get its value
             if ( resDecl->nodeKind == nkSparrowDeclUsing )
                 return at(resDecl->children, 0);
 
             // Try to convert this to a type
             TypeRef t = nullptr;
-            Node* cls = Nest_ofKind(resDecl, nkFeatherDeclClass);
-            if ( cls )
-                t = Feather_getDataType(cls, 0, modeRtCt);
+            if ( resDecl->nodeKind == nkFeatherDeclClass )
+                t = Feather_getDataType(resDecl, 0, modeRtCt);
             if ( resDecl->nodeKind == nkSparrowDeclSprConcept )
                 t = getConceptType(resDecl);
             if ( t )
-                return createTypeNode(ctx, loc, t);
-
+                return createTypeNode(node->context, loc, t);
         }
 
         // Add the referenced declarations as a property to our result
@@ -95,7 +81,7 @@ namespace
 
         // If we are here, this identifier could only represent a function application
         Node* fapp = mkFunApplication(loc, mkDeclExp(loc, decls, baseExp), nullptr);
-        Nest_setContext(fapp, ctx);
+        Nest_setContext(fapp, node->context);
         return Nest_semanticCheck(fapp);
     }
 
@@ -740,10 +726,13 @@ namespace
         Nest_setPropertyString(node, operPropName, otherOper);
     }
 
-    int getIntValue(Node* node, NodeRange decls, int defaultVal)
+    int getIntValue(Node* node, NodeRange declsOrig, int defaultVal)
     {
+        // Expand all the declarations
+        NodeArray decls = expandDecls(declsOrig, node);
+        
         // If no declarations found, return the default value
-        auto numDecls = Nest_nodeRangeSize(decls);
+        auto numDecls = size(decls);
         if ( numDecls == 0 )
             return defaultVal;
 
@@ -754,11 +743,12 @@ namespace
             for ( Node* decl: decls )
                 if ( decl )
                     REP_INFO(decl->location, "See alternative");
+            REP_INFO(at(decls, 0)->location, "Using the first alternative");
         }
 
         // Just one found. Evaluate its value
         Node* n = at(decls, 0);
-        if ( !Nest_semanticCheck(n) )
+        if ( !n || !Nest_semanticCheck(n) )
             return defaultVal;
         if ( n->nodeKind == nkSparrowDeclUsing )
             n = at(n->children, 0);
@@ -930,30 +920,32 @@ Node* Identifier_SemanticCheck(Node* node)
     StringRef id = Nest_getCheckPropertyString(node, "name");
 
     // Search in the current symbol table for the identifier
-    NodeArray decls = Nest_symTabLookup(node->context->currentSymTab, id.begin);
-    if ( Nest_nodeArraySize(decls) == 0 )
+    NodeArray declsOrig = Nest_symTabLookup(node->context->currentSymTab, id.begin);
+    if ( Nest_nodeArraySize(declsOrig) == 0 )
         REP_ERROR_RET(nullptr, node->location, "No declarations found with the given name (%1%)") % id;
 
-    // Filter out the decls with no type, and the ones that cannot be accessed
-    // from this node
-    removeUnusableDecls(decls, node);
+    // At this point, 'declsOrig' may contain using nodes that will point to other decls
+    // Walk over our decls and try to get to the final referred decls
+    // Also filter our nodes that cannot be access or without a proper type
+    NodeArray decls = expandDecls(all(declsOrig), node);
 
     if ( size(decls) == 0 ) {
         REP_ERROR(node->location, "No declarations found with the given name (%1%)") % id;
 
         // Print the removed declarations
-        NodeArray decls1 = Nest_symTabLookup(node->context->currentSymTab, id.begin);
-        for ( Node* n: decls1 ) {
+        for ( Node* n: declsOrig ) {
             if ( n && n->type )
                 REP_INFO(n->location, "See inaccessible declaration");
             else if ( n && n->nodeError )
                 REP_INFO(n->location, "See declaration with error");
             else if ( n && !n->type )
                 REP_INFO(n->location, "See declaration without a type");
+            else
+                REP_INFO(n->location, "See invalid declaration");
         }
-        Nest_freeNodeArray(decls1);
+        Nest_freeNodeArray(declsOrig);
         Nest_freeNodeArray(decls);
-        return NULL;
+        return nullptr;
     }
 
     // If at least one decl is a field or method, then transform this into a compound expression starting from 'this'
@@ -981,8 +973,9 @@ Node* Identifier_SemanticCheck(Node* node)
     }
 
     bool allowDeclExp = 0 != Nest_getCheckPropertyInt(node, propAllowDeclExp);
-    Node* res = getIdentifierResult(node->context, node->location, all(decls), nullptr, allowDeclExp);
+    Node* res = getIdentifierResult(node, all(decls), nullptr, allowDeclExp);
     Nest_freeNodeArray(decls);
+    Nest_freeNodeArray(declsOrig);
     ASSERT(res);
     return res;
 }
@@ -1012,14 +1005,19 @@ Node* CompoundExp_SemanticCheck(Node* node)
     Nest_setPropertyNode(node, "baseDataExp", baseDataExp);
 
     // Get the declarations that this node refers to
-    NodeVector decls;
+    NodeArray declsOrig;
     if ( !baseDecls.empty() )
     {
         // Get the referred declarations; search for our id inside the symbol table of the declarations of the base
-        for ( Node* baseDecl: baseDecls )
-        {
+
+        // Get the decls from the first base decl
+        declsOrig = Nest_symTabLookupCurrent(baseDecls[0]->childrenContext->currentSymTab, id.begin);
+
+        // And now from the rest of base decls
+        for ( size_t i=1; i<baseDecls.size(); i++ ) {
+            Node* baseDecl = baseDecls[i];
             NodeArray declsCur = Nest_symTabLookupCurrent(baseDecl->childrenContext->currentSymTab, id.begin);
-            decls.insert(decls.end(), declsCur.beginPtr, declsCur.endPtr);
+            Nest_appendNodesToArray(&declsOrig, all(declsCur));
             Nest_freeNodeArray(declsCur);
         }
     }
@@ -1031,20 +1029,35 @@ Node* CompoundExp_SemanticCheck(Node* node)
             return nullptr;
 
         // Search for a declaration in the class 
-        decls = toVec(Nest_symTabLookupCurrent(classDecl->childrenContext->currentSymTab, id.begin));
+        declsOrig = Nest_symTabLookupCurrent(classDecl->childrenContext->currentSymTab, id.begin);
     }
 
-    // Filter out the decls with no type
-    decls.erase(remove_if(decls.begin(), decls.end(), [](Node* decl)->bool {
-        return !Nest_computeType(decl);
-    }), decls.end());
+    // At this point, 'declsOrig' may contain using nodes that will point to other decls
+    // Walk over our decls and try to get to the final referred decls
+    // Also filter our nodes that cannot be access or without a proper type
+    NodeArray decls = expandDecls(all(declsOrig), node);
 
-    if ( decls.empty() )
-        REP_ERROR_RET(nullptr, node->location, "No declarations found with the name '%1%' inside %2%: %3%") % id % base % base->type;
+    if ( size(decls) == 0 ) {
+        REP_ERROR(node->location, "No declarations found with the name '%1%' inside %2%: %3%") % id % base % base->type;
 
-    
+        // Print the removed declarations
+        for ( Node* n: declsOrig ) {
+            if ( n && n->type )
+                REP_INFO(n->location, "See inaccessible declaration");
+            else if ( n && n->nodeError )
+                REP_INFO(n->location, "See declaration with error");
+            else if ( n && !n->type )
+                REP_INFO(n->location, "See declaration without a type");
+            else
+                REP_INFO(n->location, "See invalid declaration");
+        }
+        Nest_freeNodeArray(declsOrig);
+        Nest_freeNodeArray(decls);
+        return nullptr;
+    }
+
     bool allowDeclExp = 0 != Nest_getCheckPropertyInt(node, propAllowDeclExp);
-    Node* res = getIdentifierResult(node->context, node->location, all(decls), baseDataExp, allowDeclExp);
+    Node* res = getIdentifierResult(node, all(decls), baseDataExp, allowDeclExp);
     ASSERT(res);
     return res;
 }

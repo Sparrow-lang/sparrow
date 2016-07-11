@@ -102,7 +102,7 @@ class[ct] AstNode
 
     // Private stuff
 
-    private fun ctor
+    /*private*/ fun ctor
     {
         impl := null;
     }
@@ -110,7 +110,7 @@ class[ct] AstNode
     {
         this.impl := impl;
     }
-    private var impl: @Int;
+    var impl: @Int;
 }
 
 package Feather

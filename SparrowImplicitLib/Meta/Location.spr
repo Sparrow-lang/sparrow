@@ -20,7 +20,7 @@ class[ct] SourceCode
     {
         this.impl := impl;
     }
-    private var impl: @Int;    
+    /*private*/ var impl: @Int;    
 }
 
 class[ct] Location

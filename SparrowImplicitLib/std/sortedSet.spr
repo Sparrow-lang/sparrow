@@ -20,12 +20,12 @@ class SortedSet(keyType, lessType, compareType: Type)
     fun ctor(range: Range, n: SizeType, less: LessType, comp: CompareType)  { sortedTable.ctor(range, n, less, comp); }
     fun ctor(other: @SortedSet)                                 { this.sortedTable ctor other.sortedTable; }
 
-    fun lessFunction                            = sortedTable.less;
-    fun comparator                              = sortedTable.comp;
+    fun lessFunction                            = sortedTable.lessFunction;
+    fun comparator                              = sortedTable.comparator;
 
     fun size                                    = sortedTable.size();
     fun isEmpty                                 = sortedTable.isEmpty();
-    fun capacity                                = sortedTable.table.capacity();
+    fun capacity                                = sortedTable.capacity;
     fun reserve(n: SizeType)                    { sortedTable.reserve(n); }
 
     fun all                                     = sortedTable.all();

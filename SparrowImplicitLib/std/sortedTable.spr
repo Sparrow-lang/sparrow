@@ -74,6 +74,7 @@ class SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: Typ
 
     fun isEmpty         = table.isEmpty();
     fun size            = table.size();
+    fun capacity        = table.capacity();
 
     fun all             = table.all();
 

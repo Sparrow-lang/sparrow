@@ -228,7 +228,7 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
     using NodePtr = Ptr(Node);
     using BucketsType = Array(NodePtr);
 
-    private class[initCtor] Node
+    /*private*/ class[initCtor] Node
     {
         var next: Ptr(Node);
         var hash: SizeType;
@@ -240,7 +240,7 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
         }
     }
 
-    private class[initCtor] GuardNode
+    /*private*/ class[initCtor] GuardNode
     {
         var next: Ptr(Node);
     }

@@ -21,7 +21,7 @@ package Impl
             genPredicate(p, resNodes);
         //for ( n = resNodes.all() )
         //    cout << ">> " << n.toStringExt() << endl;
-        return mkNodeList(l, resNodes.begin.value(), resNodes.end.value());
+        return mkNodeList(l, resNodes(0), resNodes(resNodes.size));
     }
 
     fun[ct] genPredicate(pred: @SparrowPredicate, resNodes: @Vector(AstNode))
@@ -74,7 +74,7 @@ package Impl
         bodyNodes.pushBack(mkReturnStmt(locPred, logicNode));
 
         // Finally create the function node
-        var body = mkLocalSpace(locPred, bodyNodes.begin.value(), bodyNodes.end.value());
+        var body = mkLocalSpace(locPred, bodyNodes(0), bodyNodes(bodyNodes.size));
         var funName = pred.name;
         if ( genNative )
             funName += "_native";
@@ -314,7 +314,7 @@ package Impl
             var right = mkIdentifier(locParam, paramName.asStringRef());
             bodyNodes.pushBack(mkInfixOp(locParam, "ctor", left, right));
         }
-        var body = mkLocalSpace(loc, bodyNodes.begin.value(), bodyNodes.end.value());
+        var body = mkLocalSpace(loc, bodyNodes(0), bodyNodes(bodyNodes.size));
 
         // Finally create the function node
         var paramsNode = genParameters(pred, false);
@@ -389,7 +389,7 @@ package Impl
         bodyNodes.pushBack(mkReturnStmt(loc, nativeFunCall));
 
         // Finally create the function node
-        var body = mkLocalSpace(loc, bodyNodes.begin.value(), bodyNodes.end.value());
+        var body = mkLocalSpace(loc, bodyNodes(0), bodyNodes(bodyNodes.size));
         var returnType = mkIdentifier(loc, "Bool");
         return mkSprFunction(loc, "()", nullNode, returnType, body, nullNode);
     }

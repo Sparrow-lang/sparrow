@@ -43,7 +43,7 @@ class[rtct, native("StringRef")] StringRef
         return res;
     }
 
-    private fun[static] cStringLen(s: @Char): SizeType
+    fun[static] cStringLen(s: @Char): SizeType
     {
         var p: @Byte;
         p := reinterpretCast(@Byte, s);

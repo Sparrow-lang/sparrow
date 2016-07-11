@@ -8,6 +8,12 @@ namespace SprFrontend
     /// If the given node contains a "base expression" returns it in the last parameter
     NodeVector getDeclsFromNode(Node* n, Node*& baseExp);
 
+    /// Get the resulting decls out of the given decls.
+    /// 
+    /// A decl can be a using that points to other decls. Make sure we get the
+    /// target decls.
+    NodeArray expandDecls(NodeRange decls, Node* seenFrom);
+
     /// Get the resulting declaration from the given node
     Node* resultingDecl(Node* node);
     

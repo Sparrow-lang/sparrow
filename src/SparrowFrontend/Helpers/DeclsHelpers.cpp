@@ -39,13 +39,35 @@ namespace
         // Check declarations
         if ( nodeKind == nkFeatherDeclClass
             || nodeKind == nkFeatherDeclFunction
+            || nodeKind == nkFeatherDeclVar
+            || nodeKind == nkSparrowDeclModule
+            || nodeKind == nkSparrowDeclPackage
+            || nodeKind == nkSparrowDeclSprClass
+            || nodeKind == nkSparrowDeclSprFunction
+            || nodeKind == nkSparrowDeclSprParameter
+            || nodeKind == nkSparrowDeclSprVariable
+            || nodeKind == nkSparrowDeclSprConcept
             || nodeKind == nkSparrowDeclGenericClass
             || nodeKind == nkSparrowDeclGenericFunction
-            || nodeKind == nkFeatherDeclVar
+            || nodeKind == nkSparrowDeclUsing
             )
             return;
 
         REP_ERROR(child->location, "Invalid node found: %1%") % child;
+    }
+
+    /// Removes all the null nodes from the given array.
+    /// Reduces the size of the array
+    void removeNullNodes(NodeArray& nodes) {
+        Node**dest = nodes.beginPtr;
+        Node**src = nodes.beginPtr;
+        while ( src != nodes.endPtr ) {
+            if ( !*src )
+                ++src;
+            else
+                *dest++ = *src++;
+        }
+        nodes.endPtr = dest;
     }
 }
 
@@ -85,6 +107,75 @@ NodeVector SprFrontend::getDeclsFromNode(Node* n, Node*& baseExp)
     }
     
     return res;
+}
+
+NodeArray SprFrontend::expandDecls(NodeRange decls, Node* seenFrom) {
+    // First, copy the decls as they are in the resulting array
+    NodeArray resDecls = Nest_allocNodeArray(size(decls));
+    Nest_appendNodesToArray(&resDecls, decls);
+
+    // Iterate over the resulting decls, trying to follow the decls to their
+    // final form.
+    // Search for patterns 'using(declExp(d))', and replace them with 'd'
+    // Mark invalid decls with null
+    for ( size_t i=0; i<size(resDecls); i++ ) {
+
+    run_loop_again:
+        Node*& decl = at(resDecls, i);
+
+        // Clear any decl that is not accessible
+        if ( seenFrom && !canAccessNode(decl, seenFrom) ) {
+            at(resDecls, i) = nullptr;
+            continue;
+        }
+
+        // Make sure we can compute the type
+        if ( !Nest_computeType(decl) ) {
+            decl = nullptr;
+            continue;
+        }
+
+        // Already resolved using?
+        if ( decl->nodeKind == nkSparrowDeclUsing )
+            decl = resultingDecl(decl);
+
+        // Make sure we have a valid type for the decl
+        if ( !Nest_computeType(decl) )
+            decl = nullptr;
+
+        // Check for 'using(declExp(d))''
+        if ( decl->nodeKind == nkSparrowDeclUsing ) {
+            Node* ref = at(decl->children, 0);
+            ref = Nest_explanation(ref);
+            if ( ref->nodeKind == nkSparrowExpDeclExp ) {
+                // A declExp node always has a place for 'baseExp'
+                ASSERT(size(ref->referredNodes) >= 2);
+
+                // Put the first decl in the place of the current one
+                decl = at(ref->referredNodes, 1);
+
+                // If this refers to more than 1 decl, put the rest of the
+                // decls in our queue
+                if ( size(ref->referredNodes) > 2 ) {
+                    NodeRange restDecls = all(ref->referredNodes);
+                    restDecls.beginPtr += 2;
+                    Nest_appendNodesToArray(&resDecls, restDecls);
+                }
+
+                // Make sure we run again for the newly replaced decl
+                goto run_loop_again;
+            }
+        }
+    }
+
+    // Make sure the declarations are unique
+    sort(resDecls.beginPtr, resDecls.endPtr);
+    resDecls.endPtr = unique(resDecls.beginPtr, resDecls.endPtr);
+
+    // Remove the declarations filtered above
+    removeNullNodes(resDecls);
+
+    return resDecls;
 }
 
 Node* SprFrontend::resultingDecl(Node* node)

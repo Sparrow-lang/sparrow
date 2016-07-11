@@ -285,13 +285,16 @@ void Package_SetContextForChildren(Node* node)
 }
 TypeRef Package_ComputeType(Node* node)
 {
+    // This can be computed without checking the children
+    node->type = Feather_getVoidType(modeCt);
+
     // Compute the type for the children
     if ( !Nest_computeType(at(node->children, 0)) )
         return nullptr;
     node->explanation = at(node->children, 0);
     checkForAllowedNamespaceChildren(at(node->children, 0));
 
-    return Feather_getVoidType(modeCt);
+    return node->type;
 }
 Node* Package_SemanticCheck(Node* node)
 {
@@ -828,7 +831,8 @@ Node* Generic_SemanticCheck(Node* node)
 
 void Using_SetContextForChildren(Node* node)
 {
-    if ( Nest_hasProperty(node, "name") )
+    bool hasAlias = Nest_hasProperty(node, "name");
+    if ( hasAlias )
         Feather_addToSymTab(node);
 
     Nest_defaultFunSetContextForChildren(node);
@@ -860,7 +864,16 @@ TypeRef Using_ComputeType(Node* node)
     }
     else
     {
-        // We added this node to the current sym tab, as we set shouldAddToSymTab_ to true
+        // We already added this node to the current sym tab, as we set
+        // shouldAddToSymTab_ to true.
+
+        // If this points to another decl (and only one), set the resulting decl
+        // for this node.
+        if ( usingNode->nodeKind == nkSparrowExpDeclExp && size(usingNode->referredNodes) == 2 ) {
+            // at position 0 we find 'baseExp'
+            Node* decl = at(usingNode->referredNodes, 1);
+            Nest_setPropertyNode(node, propResultingDecl, decl);
+        }
     }
 
     node->explanation = Feather_mkNop(node->location);

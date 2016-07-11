@@ -53,30 +53,37 @@ namespace
     /// Returns an empty list if the declaration is not callable
     void getCallables(NodeRange decls, EvalMode evalMode, Callables& res)
     {
-        for ( Node* decl : decls ) {
-            if ( !Nest_computeType(decl) )
-                continue;
+        NodeArray declsEx = expandDecls(decls, nullptr);
 
-            decl = resultingDecl(decl);
+        for ( Node* decl: declsEx ) {            
+            Node* node = decl;
 
-            // Is this a normal function call?
-            if ( decl && decl->nodeKind == nkFeatherDeclFunction )
-                res.push_back(new FunctionCallable(decl));
+            // If we have a resolved decl, get the callable for it
+            if ( node ) {
+                if ( !Nest_computeType(node) )
+                    continue;
 
-            // Is this a generic?
-            else if ( isGeneric(decl) )
-                res.push_back(new GenericCallable(decl));
+                Node* decl = resultingDecl(node);
 
-            // Is this a concept?
-            else if ( decl->nodeKind == nkSparrowDeclSprConcept )
-                res.push_back(new ConceptCallable(decl));
+                // Is this a normal function call?
+                if ( decl && decl->nodeKind == nkFeatherDeclFunction )
+                    res.push_back(new FunctionCallable(decl));
 
-            // Is this a temporary object creation?
-            else {
-                Node* cls = decl && decl->nodeKind == nkFeatherDeclClass ? decl : nullptr;
-                if ( cls ) {
-                    auto r1 = ClassCtorCallable::getCtorCallables(cls, evalMode);
-                    res.insert(res.end(), r1.begin(), r1.end());
+                // Is this a generic?
+                else if ( isGeneric(decl) )
+                    res.push_back(new GenericCallable(decl));
+
+                // Is this a concept?
+                else if ( decl->nodeKind == nkSparrowDeclSprConcept )
+                    res.push_back(new ConceptCallable(decl));
+
+                // Is this a temporary object creation?
+                else {
+                    Node* cls = decl && decl->nodeKind == nkFeatherDeclClass ? decl : nullptr;
+                    if ( cls ) {
+                        auto r1 = ClassCtorCallable::getCtorCallables(cls, evalMode);
+                        res.insert(res.end(), r1.begin(), r1.end());
+                    }
                 }
             }
         }

@@ -95,6 +95,11 @@ NodeArray Nest_symTabLookupCurrent(SymTab* symTab, const char* name)
         for ( auto entry: range )
             Nest_appendNodeToArray(&result, entry.second);
     }
+
+    // Remove duplicate entries
+    sort(result.beginPtr, result.endPtr);
+    result.endPtr = unique(result.beginPtr, result.endPtr);
+
     return result;
 }
 

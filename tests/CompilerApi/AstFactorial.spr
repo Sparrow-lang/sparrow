@@ -49,7 +49,7 @@ fun[ct] addFactorialFun(context: CompilationContext, funName: StringRef): Bool
     var recCall = mkFunApplication(loc, mkIdentifier(loc, funName), recFunArgs);
     var ifElse = mkReturnStmt(loc, mkInfixOp(loc, "*", mkIdentifier(loc, "n"), recCall));
     var bodyVec = mkNodeVector(mkIf(loc, ifCond, ifThen, ifElse));
-    var body = mkLocalSpace(loc, bodyVec.begin.value(), bodyVec.end.value());
+    var body = mkLocalSpace(loc, bodyVec(0), bodyVec(bodyVec.size));
     var factFun = mkSprFunction(loc, funName, factParams, factReturnType, body, nullNode);
     factFun.setContext(context);
     factFun.semanticCheck();

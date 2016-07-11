@@ -21,9 +21,9 @@ class Map(keyType, dataType: Type, traitsType: Type = DefaultTypeTraits)
 
     fun traits                                  = hashTable.traits;
 
-    fun size                                    = hashTable.numElements;
-    fun isEmpty                                 = (hashTable.numElements == 0);
-    fun bucketCount                             = hashTable.buckets.size();
+    fun size                                    = hashTable.size;
+    fun isEmpty                                 = (hashTable.size == 0);
+    fun bucketCount                             = hashTable.bucketCount;
     fun reserve(n: SizeType)                    { hashTable.reserve(n); }
 
     fun all                                     = hashTable.all();

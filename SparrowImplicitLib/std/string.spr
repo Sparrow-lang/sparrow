@@ -352,7 +352,7 @@ fun[rtct] ulongToString(x: ULong): String
 
 class[rtct] StringOutputStream
 {
-    private var result: String;
+    /*private*/ var result: String;
 
     fun <<<(s: @String)       { result.append(s.all()); }
     fun <<<(s: @StringRef)    { result.append(ContiguousMemoryRange(Char)(RawPtr(Char).fromBytePtr(s.begin), RawPtr(Char).fromBytePtr(s.end))); }

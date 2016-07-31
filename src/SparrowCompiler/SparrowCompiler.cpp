@@ -24,19 +24,37 @@ using namespace Nest;
 
 namespace fs = boost::filesystem;
 
+void _dumpAstForSourceCode(SourceCode* sourceCode, const char* fileSuffix) {
+    auto& s = *Nest_compilerSettings();
+    if ( s.dumpAST_.empty() || !strstr(sourceCode->url, s.dumpAST_.c_str()) )
+        return;
+
+    const char* end = strrchr(sourceCode->url, '.');
+    if ( !end )
+        end = sourceCode->url + strlen(sourceCode->url);
+    string filename(sourceCode->url, end);
+    filename += fileSuffix;
+    filename += ".json";
+
+    dumpAstNode(sourceCode->mainNode, filename.c_str());
+}
+
 void _onSourceCodeCreated(SourceCode* sourceCode)
 {
     // Nothing to do for now
 }
 void _onSourceCodeParsed(SourceCode* sourceCode)
 {
-    if ( Nest_compilerSettings()->dumpAST_ )
-        dumpAstNode(sourceCode->mainNode, "nodesOrig.json");
+    _dumpAstForSourceCode(sourceCode, "_orig");
 }
 void _onSourceCodeCompiled(SourceCode* sourceCode)
 {
-    if ( Nest_compilerSettings()->dumpAST_ )
-        dumpAstNode(sourceCode->mainNode, "nodesComp.json");
+    _dumpAstForSourceCode(sourceCode, "_comp");
+}
+
+void _onSourceCodeCodeGen(SourceCode* sourceCode)
+{
+    _dumpAstForSourceCode(sourceCode, "_gen");
 }
 
 bool tryImplicitLibPath(const char* relPath)
@@ -192,6 +210,7 @@ int main(int argc,char* argv[])
     Nest_registerSourceCodeCreatedCallback(&_onSourceCodeCreated);
     Nest_registerSourceCodeParsedCallback(&_onSourceCodeParsed);
     Nest_registerSourceCodeCompiledCallback(&_onSourceCodeCompiled);
+    Nest_registerSourceCodeCodeGenCallback(&_onSourceCodeCodeGen);
 
     try
     {

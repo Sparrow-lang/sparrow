@@ -62,6 +62,7 @@ typedef void (*FSourceCodeCallback)(SourceCode* sc);
 void Nest_registerSourceCodeCreatedCallback(FSourceCodeCallback callback);
 void Nest_registerSourceCodeParsedCallback(FSourceCodeCallback callback);
 void Nest_registerSourceCodeCompiledCallback(FSourceCodeCallback callback);
+void Nest_registerSourceCodeCodeGenCallback(FSourceCodeCallback callback);
 
 
 #ifdef __cplusplus

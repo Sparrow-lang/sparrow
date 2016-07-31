@@ -289,9 +289,9 @@ class DotGeneration:
         name = node.name
         style = ''
         if self.args.showNodeIds:
-            style = 'label=<<FONT POINT-SIZE="10">%s</FONT><BR/>%s >' % (ref, cgi.escape(name).encode('ascii', 'xmlcharrefreplace'))
+            style = 'label=<<FONT POINT-SIZE="10">%s</FONT><BR/>%s >' % (ref, self._escape(name))
         else:
-            style = 'label="%s"' % name
+            style = 'label="%s"' % self._escape(name)
         if node.isDefinition:
             style += ' fillcolor=lemonchiffon'
         print >>self.out, 'n_%s [%s]' % (ref, style)
@@ -329,9 +329,14 @@ class DotGeneration:
             if node.explanation:
                 self._printLink(ref, node.explanation.ref, '', styleExpl)
 
+    def _escape(self, name):
+        res = cgi.escape(name).encode('ascii', 'xmlcharrefreplace')
+        res = res.replace('\\', '\\\\')
+        return res
+
     def _printLink(self, srcRef, destRef, name, style):
         if name != '':
-            print >>self.out, 'n_%s -> n_%s [label="%s"] %s' % (srcRef, destRef, name, style)
+            print >>self.out, 'n_%s -> n_%s [label="%s"] %s' % (srcRef, destRef, self._escape(name), style)
         else:
             print >>self.out, 'n_%s -> n_%s %s' % (srcRef, destRef, style)
 

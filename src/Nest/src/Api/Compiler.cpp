@@ -55,6 +55,7 @@ NodeArray _toSemanticCheck;
 vector<FSourceCodeCallback> _sourceCodeCreatedCallbacks;
 vector<FSourceCodeCallback> _sourceCodeParsedCallbacks;
 vector<FSourceCodeCallback> _sourceCodeCompiledCallbacks;
+vector<FSourceCodeCallback> _sourceCodeCodeGenCallbacks;
 
 void _executeCUCallbacks(const vector<FSourceCodeCallback>& callbacks, SourceCode* sc) {
     for ( auto cb: callbacks ) {
@@ -316,8 +317,12 @@ SourceCode* Nest_compileFile(StringRef filename)
     // Do the code generation in backend
     if ( !_settings.syntaxOnly_ )
     {
-        for ( SourceCode* code: toCodeGenerate )
+        for ( SourceCode* code: toCodeGenerate ) {
             _backend->generateMachineCode(_backend, code);
+
+            // Notify the listeners that we've generated code for the source code
+            _executeCUCallbacks(_sourceCodeCodeGenCallbacks, code);
+        }
     }
 
     return sc;
@@ -383,4 +388,8 @@ void Nest_registerSourceCodeParsedCallback(FSourceCodeCallback callback)
 void Nest_registerSourceCodeCompiledCallback(FSourceCodeCallback callback)
 {
     _sourceCodeCompiledCallbacks.push_back(callback);
+}
+void Nest_registerSourceCodeCodeGenCallback(FSourceCodeCallback callback)
+{
+    _sourceCodeCodeGenCallbacks.push_back(callback);
 }

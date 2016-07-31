@@ -26,7 +26,7 @@ public:
         , dumpAssembly_(false)
         , dumpCtAssembly_(false)
         , dumpOptAssembly_(false)
-        , dumpAST_(false)
+        , dumpAST_()
         , keepIntermediateFiles_(false)
     {}
 
@@ -136,8 +136,10 @@ public:
     /// If true we will dump LLVM assembly for the optimized module
     bool dumpOptAssembly_;
 
-    /// If true we will dump the AST corresponding to the given source code, and to the compiled code
-    bool dumpAST_;
+    /// If given, the AST will be dumped for original source code and compiled code
+    /// This specifies a filter to be applied to the list of source codes that the compiler
+    /// will compile
+    string dumpAST_;
 
     /// Set this to true if you don't want to delete the intermediate files used during generation
     bool keepIntermediateFiles_;

@@ -40,11 +40,10 @@ import company.sysA.subSysA1.myModule2;
 ```ebnf
 SourceFile      ::= [Module] {ImportLine} {TopLevel}
 Module          ::= 'module' QualifiedId ';'
-ImportLine      ::= [AccessSpec] 'import' [Mods] ImportName {',' ImportName} ';'
-ImportName      ::= [[Id] '=' ] (QualifiedIdStar | String) ['(' {ImportDecl} ')']
+ImportLine      ::= [AccessSpec] 'import' ImportName {',' ImportName} ';'
+ImportName      ::= [[Id] '=' ] (QualifiedId | String) ['(' {ImportDecl} ')']
 ImportDecl      ::= [Id '=' ] (Id)
 QualifiedId     ::= Id {'.' Id}
-QualifiedIdStar ::= QualifiedId ['.' '*']
 ```
 
 ## Modules semantics

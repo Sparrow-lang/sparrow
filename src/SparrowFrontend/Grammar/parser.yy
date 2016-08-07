@@ -156,7 +156,7 @@ using namespace std;
 %destructor { delete $$; } Operator OperatorNoEq IdentifierOrOperator IdentifierOrOperatorNoEq
 
 %type <node>        Start Module ModuleName
-%type <node>        ImportLinesOpt ImportLines ImportLine ImportNames ImportName ImportDeclNamesOpt
+%type <node>        ImportLinesOpt ImportLines ImportLine ImportNames ImportName QidOrString ImportDeclNamesOpt
 %type <node>        TopLevelStmtsOpt TopLevelStmts FormalsOpt Formals Formal
 %type <node>        TopLevelStmt InFunctionDeclaration PackageDeclaration ClassDeclaration ConceptDeclaration VarDeclaration FunDeclaration UsingDeclaration
 %type <node>        IfClause FunRetType FunctionBody
@@ -319,10 +319,19 @@ ImportNames
     ;
 
 ImportName
-    : QualifiedName ImportDeclNamesOpt
+    : QidOrString ImportDeclNamesOpt
         { $$ = mkImportName(@$, $1, $2); }
-    | STRING_LITERAL ImportDeclNamesOpt
-        { $$ = mkImportName(@$, buildStringLiteral(@$, fromString(*$<stringVal>1)), $2); }
+    | EQUAL QidOrString ImportDeclNamesOpt
+        { $$ = mkImportName(@$, $2, $3, true); }
+    | IDENTIFIER EQUAL QidOrString ImportDeclNamesOpt
+        { $$ = mkImportName(@$, $3, $4, true, fromString(*$1)); }
+    ;
+
+QidOrString
+    : QualifiedName
+        { $$ = $1; }
+    | STRING_LITERAL
+        { $$ = buildStringLiteral(@$, fromString(*$<stringVal>1)); }
     ;
 
 ImportDeclNamesOpt

@@ -476,7 +476,7 @@ Node* SprFrontend::mkModule(const Location& loc, Node* moduleName, Node* imports
     return res;
 }
 
-Node* SprFrontend::mkImportName(const Location& loc, Node* moduleName, Node* importedDeclNames)
+Node* SprFrontend::mkImportName(const Location& loc, Node* moduleName, Node* importedDeclNames, bool equals, StringRef alias)
 {
     Node* res = Nest_createNode(nkSparrowDeclImportName);
     res->location = loc;

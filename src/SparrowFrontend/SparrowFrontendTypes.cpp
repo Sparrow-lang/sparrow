@@ -14,6 +14,8 @@ namespace
     const char* getConceptTypeDescription(Node* concept, uint8_t numReferences, EvalMode mode)
     {
         ostringstream os;
+        for ( uint8_t i=0; i<numReferences; ++i )
+            os << '@';
         if ( concept )
         {
             os << '#' << toString(Feather_getName(concept));
@@ -22,8 +24,6 @@ namespace
         {
             os << "AnyType";
         }
-        for ( uint8_t i=0; i<numReferences; ++i )
-            os << '@';
         if ( mode == modeCt )
             os << "/ct";
         if ( mode == modeRtCt )

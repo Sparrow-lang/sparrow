@@ -2,7 +2,7 @@ package Test;
 
 import SL.SortedMap;
 import SL.Ranges;
-import SL.Pair;
+import SL.Tuple;
 import SL.List;
 import SL.Algorithms;
 
@@ -34,42 +34,42 @@ fun sprMain
     else if ( n == 20 ) test20();
 }
 
-fun makeList(): List(Pair(Int, Int))
+fun makeList(): List(Int*Int)
 {
-    var li = List(Pair(Int, Int))();
+    var li = List(Int*Int)();
 
-    li.pushBack(Pair(Int, Int)(3, 10));
-    li.pushBack(Pair(Int, Int)(145, 42));
-    li.pushBack(Pair(Int, Int)(834, 32));
-    li.pushBack(Pair(Int, Int)(8, 43));
-    li.pushBack(Pair(Int, Int)(73, 4));
-    li.pushBack(Pair(Int, Int)(73, 3));
-    li.pushBack(Pair(Int, Int)(101, 5));
-    li.pushBack(Pair(Int, Int)(4, 312));
-    li.pushBack(Pair(Int, Int)(43, 128));
-    li.pushBack(Pair(Int, Int)(4, 1));
-    li.pushBack(Pair(Int, Int)(106, 32));
-    li.pushBack(Pair(Int, Int)(3, 3));
-    li.pushBack(Pair(Int, Int)(5, 34));
-    li.pushBack(Pair(Int, Int)(53, 54));
-    li.pushBack(Pair(Int, Int)(62, 3));
+    li.pushBack(3 ~ 10);
+    li.pushBack(145 ~ 42);
+    li.pushBack(834 ~ 32);
+    li.pushBack(8 ~ 43);
+    li.pushBack(73 ~ 4);
+    li.pushBack(73 ~ 3);
+    li.pushBack(101 ~ 5);
+    li.pushBack(4 ~ 312);
+    li.pushBack(43 ~ 128);
+    li.pushBack(4 ~ 1);
+    li.pushBack(106 ~ 32);
+    li.pushBack(3 ~ 3);
+    li.pushBack(5 ~ 34);
+    li.pushBack(53 ~ 54);
+    li.pushBack(62 ~ 3);
 
     return li;
 }
 
-fun printPair(p: Pair(Int, Int))
+fun printPair(p: Int*Int)
 {
-    cout << p.first;
+    cout << p._1;
     cout << "-";
-    cout << p.second;
+    cout << p._2;
 }
 
 fun printRange(nr: AnyType)
 {
-    var v: Vector(Pair(Int, Int)) = nr;
+    var v: Vector(Int*Int) = nr;
 
     var r = v.all();
-    sort(r, (fun (l,r: AnyType) = l.first < r.first));
+    sort(r, (fun (l,r: AnyType) = l._1 < r._1));
     while ( !r.isEmpty() )
     {
         printPair(r.front());
@@ -236,7 +236,7 @@ fun test8()
 
     // while ( i < 5 )
     // {
-        // sm.insert(makePair(i, i * i));
+        // sm.insert(i ~ (i * i));
         // i = i + 1;
     // }
     // printRange(sm.all());

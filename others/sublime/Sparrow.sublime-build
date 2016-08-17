@@ -1,0 +1,6 @@
+{
+    "cmd": ["/Users/lucteo/work/sparrow/.out/Release/SparrowCompiler", "--simple-linking", "--noColors", "${file}"],
+    "working_dir": "${file_path}",
+	"file_regex": "^(.*?)\\(([0-9]+)\\:([0-9]+)\\s*\\-\\s*[0-9]+(:[0-9]+)?\\) : (.*)$",
+	"selector": "source.sparrow"
+}

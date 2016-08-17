@@ -688,13 +688,8 @@ namespace
         // Simply take the value from the referenced variable
         Node* variable = at(node->referredNodes, 0);
         CHECK(node->location, variable);
-        llvm::Value* varVal = nullptr;
-        llvm::Value** val = context.module().getNodePropertyValue<llvm::Value*>(variable, Module::propValue);
-        if ( val )
-        {
-            varVal = *val;
-        }
-        else
+        llvm::Value* varVal = getValue(context.module(), *variable, false);
+        if ( !varVal )
         {
             // If we are here, we are trying to reference a variable that wasn't declared yet.
             // This can only happen for global variables that were not yet translated
@@ -1209,6 +1204,12 @@ llvm::Value* Tr::translateNode(Node* node, TrContext& context)
     if ( !node->type )
         REP_INTERNAL(node->location, "No type found for node (%1%)") % node;
 
+    // Translate the additional nodes for this node
+    for ( Node* n: all(node->additionalNodes) )
+    {
+        translateTopLevelNode(n, context.module());
+    }
+
     // If this node is explained, then translate its explanation
     Node* expl = Nest_explanation(node);
     if ( node != expl )
@@ -1256,7 +1257,7 @@ llvm::Value* Tr::translateNode(Node* node, TrContext& context)
             return translateDestructActionForConditional(node, context);
         else
         {
-            REP_INTERNAL(node->location, "Don't know how to interpret a node of this kind (%1%)") % Nest_nodeKindName(node);
+            REP_INTERNAL(node->location, "Don't know how to translate (locally) a node of this kind (%1%)") % Nest_nodeKindName(node);
             return nullptr;
         }
     }

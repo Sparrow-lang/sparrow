@@ -513,13 +513,18 @@ Node* SprFrontend::mkSprVariable(const Location& loc, StringRef name, TypeRef ty
     return res;
 }
 
-Node* SprFrontend::mkSprClass(const Location& loc, StringRef name, Node* parameters, Node* baseClasses, Node* ifClause, Node* children, AccessType accessType)
+Node* SprFrontend::mkSprClass(const Location& loc, StringRef name, Node* parameters, Node* underlyingData, Node* ifClause, Node* children, AccessType accessType)
 {
     Node* res = Nest_createNode(nkSparrowDeclSprClass);
     res->location = loc;
-    Nest_nodeSetChildren(res, fromIniList({ parameters, baseClasses, children, ifClause }));
+    if ( underlyingData ) {
+        ASSERT( !children );
+        Node* innerVar = mkSprVariable(loc, fromCStr("_data"), underlyingData, nullptr);
+        children = Feather_addToNodeList(children, innerVar);
+        Nest_setPropertyInt(res, propGenerateInitCtor, 1);
+    }
+    Nest_nodeSetChildren(res, fromIniList({ parameters, children, ifClause }));
     ASSERT( !parameters || parameters->nodeKind == nkFeatherNodeList );
-    ASSERT( !baseClasses || baseClasses->nodeKind == nkFeatherNodeList );
     ASSERT( !children || children->nodeKind == nkFeatherNodeList );
     Feather_setName(res, name);
     setAccessType(res, accessType);
@@ -584,8 +589,10 @@ Node* SprFrontend::mkGenericClass(Node* originalClass, Node* parameters, Node* i
     Nest_nodeSetChildren(res, fromIniList({ mkInstantiationsSet(originalClass, all(parameters->children), ifClause) }));
     Nest_nodeSetReferredNodes(res, fromIniList({ originalClass }));
     Feather_setName(res, Feather_getName(originalClass));
-    setAccessType(res, publicAccess);
+    copyAccessType(res, originalClass);
     Feather_setEvalMode(res, Feather_effectiveEvalMode(originalClass));
+
+    Nest_appendNodeToArray(&res->additionalNodes, originalClass);
 
     // Semantic check the arguments
     for ( Node* param: parameters->children )
@@ -605,7 +612,7 @@ Node* SprFrontend::mkGenericFunction(Node* originalFun, NodeRange params, NodeRa
     Nest_nodeSetChildren(res, fromIniList({ mkInstantiationsSet(originalFun, move(genericParams), ifClause) }));
     Nest_nodeSetReferredNodes(res, fromIniList({ originalFun, Feather_mkNodeList(res->location, params) }));
     Feather_setName(res, Feather_getName(originalFun));
-    setAccessType(res, publicAccess);
+    copyAccessType(res, originalFun);
     Feather_setEvalMode(res, Feather_effectiveEvalMode(originalFun));
     return res;
 }

@@ -4,22 +4,13 @@ import SL.Ptr;
 
 package Impl
 {
-    using OS_WIN = 0;
-    using OS_UNIX = 0;
-    using OS_MAC = 1;
-
     using _SC_NPROCESSORS_ONLN = 58;
 
     fun[native("sysconf")] sysconf(name: Int): Long;
 }
 
-//datatype NativeThreadId = Byte Ptr;  // Opaque type
-//datatype NativeThreadHandle = Byte Ptr;  // Opaque type
+datatype NativeThreadHandle = Byte Ptr;  // Opaque type
 
-class[initCtor] NativeThreadHandle
-{
-    var impl: Byte Ptr;
-}
 
 fun >>(h: NativeThreadHandle, os: @OutStream)
 {

@@ -2,6 +2,9 @@
 
 #pragma once
 
+#include <Nest/Api/Compiler.h>
+#include <Nest/Utils/CompilerSettings.hpp>
+
 #include <iostream>
 #include <iomanip>
 #ifdef _WIN32
@@ -25,6 +28,10 @@ namespace ConsoleColors
         BgColor(unsigned short color) : color_(color) {}
         unsigned short color_;
     };
+
+    bool isDisabled() {
+        return Nest_compilerSettings()->noColors_;
+    }
 
 #ifdef _WIN32
     static const State stClear      ( 0 );
@@ -165,6 +172,9 @@ namespace ConsoleColors
 
     inline ostream& clr( ostream& os )
     {
+        if ( isDisabled() )
+            return os;
+
         os.flush();
         console.Clear();
         return os;
@@ -172,6 +182,9 @@ namespace ConsoleColors
     
     inline ostream& operator << ( ostream& os, State s )
     {
+        if ( isDisabled() )
+            return os;
+
         os.flush();
         console.SetState(s);
         return os;
@@ -179,6 +192,9 @@ namespace ConsoleColors
     
     inline ostream& operator << ( ostream& os, FgColor c )
     {
+        if ( isDisabled() )
+            return os;
+
         os.flush();
         console.SetFgColor(c);
         return os;
@@ -186,6 +202,9 @@ namespace ConsoleColors
     
     inline ostream& operator << ( ostream& os, BgColor c )
     {
+        if ( isDisabled() )
+            return os;
+
         os.flush();
         console.SetBgColor(c);
         return os;
@@ -194,6 +213,9 @@ namespace ConsoleColors
 #elif defined(__APPLE__) || defined(__linux__)
     inline ostream& clr( ostream& os )
     {
+        if ( isDisabled() )
+            return os;
+
         os.flush();
         os << char(27) << "[0m";
         return os;
@@ -201,6 +223,9 @@ namespace ConsoleColors
     
     inline ostream& operator << ( ostream& os, State s )
     {
+        if ( isDisabled() )
+            return os;
+
         os.flush();
         os << char(27) << "[" << s.code_ << "m";
         return os;
@@ -208,6 +233,9 @@ namespace ConsoleColors
     
     inline ostream& operator << ( ostream& os, FgColor c )
     {
+        if ( isDisabled() )
+            return os;
+
         os.flush();
         int attr = c.color_ >> 8;
         int col = c.color_ & 0xff;
@@ -217,6 +245,9 @@ namespace ConsoleColors
     
     inline ostream& operator << ( ostream& os, BgColor c )
     {
+        if ( isDisabled() )
+            return os;
+
         os.flush();
         int attr = c.color_ >> 8;
         int col = c.color_ & 0xff;
@@ -226,25 +257,21 @@ namespace ConsoleColors
 #else
     inline ostream& clr( ostream& os )
     {
-        os.flush();
         return os;
     };
     
     inline ostream& operator << ( ostream& os, State s )
     {
-        os.flush();
         return os;
     }
     
     inline ostream& operator << ( ostream& os, FgColor c )
     {
-        os.flush();
         return os;
     }
     
     inline ostream& operator << ( ostream& os, BgColor c )
     {
-        os.flush();
         return os;
     }
 #endif

@@ -1,4 +1,4 @@
-import Pair;
+import Tuple;
 import Ranges;
 
 concept Swappable(x) if isValid(x.swap(x));
@@ -43,8 +43,6 @@ fun[autoCt] swap(a, b: @Swappable) if typeOf(a) == typeOf(b)
 }
 
 fun[autoCt] swapTL(a, b: @AnyType) { swap(a, b); }
-
-fun makePair(value1, value2: @AnyType) = Pair(-@typeOf(value1), -@typeOf(value2))(value1, value2);
 
 fun[rtct] find(range: AnyType, value: @AnyType): typeOf(range)
 {
@@ -294,10 +292,10 @@ fun maxElementIf(range: Range, pred: AnyType): typeOf(range)
     return res;
 }
 
-fun minMaxElement(range: Range): Pair(typeOf(range), typeOf(range))
+fun[rtct] minMaxElement(range: Range): Tuple(typeOf(range), typeOf(range))
 {
     if ( range.isEmpty() )
-        return Pair(typeOf(range), typeOf(range))(range, range);
+        return range ~ range;
 
     var minRes = range;
     var maxRes = range;
@@ -312,13 +310,13 @@ fun minMaxElement(range: Range): Pair(typeOf(range), typeOf(range))
         range.popFront();
     }
 
-    return Pair(typeOf(range), typeOf(range))(minRes, maxRes);
+    return minRes ~ maxRes;
 }
 
-fun minMaxElementIf(range: Range, pred: AnyType): Pair(typeOf(range), typeOf(range))
+fun[rtct] minMaxElementIf(range: Range, pred: AnyType): Tuple(typeOf(range), typeOf(range))
 {
     if ( range.isEmpty() )
-        return Pair(typeOf(range), typeOf(range))(range, range);
+        return range ~ range;
 
     var minRes = range;
     var maxRes = range;
@@ -333,7 +331,7 @@ fun minMaxElementIf(range: Range, pred: AnyType): Pair(typeOf(range), typeOf(ran
         range.popFront();
     }
 
-    return Pair(typeOf(range), typeOf(range))(minRes, maxRes);
+    return minRes ~ maxRes;
 }
 
 fun compare(range1: AnyType, range2: AnyType): Bool

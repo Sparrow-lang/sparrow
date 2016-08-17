@@ -34,6 +34,9 @@ struct Nest_Node
     /// The nodes referred by this node
     NodeArray referredNodes;
     
+    /// Additional top-level nodes generated for this node
+    NodeArray additionalNodes;
+
     /// The properties of the node
     NodeProperties properties;
 

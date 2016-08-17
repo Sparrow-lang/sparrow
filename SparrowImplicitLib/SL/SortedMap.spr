@@ -6,7 +6,7 @@ class SortedMap(keyType, dataType, lessType, compareType: Type)
     using DataType = dataType;
     using LessType = lessType;
     using CompareType = compareType;
-    using ValueType = Pair(KeyType, DataType);
+    using ValueType = Tuple(KeyType, DataType);
     private using ImplTable = SortedTable(keyType, ValueType, PairFirst(ValueType), lessType, compareType);
     using RangeType = ImplTable.RangeType;
 
@@ -48,12 +48,12 @@ class SortedMap(keyType, dataType, lessType, compareType: Type)
     fun at(key: @KeyType): @DataType
     {
         var r = sortedTable.lowerBound(key);
-        if ( r.isEmpty() || !sortedTable.comp(key, r.front().first) )
+        if ( r.isEmpty() || !sortedTable.comp(key, r.front()._1) )
         {
             var data: DataType;
             r = sortedTable.insert(ValueType(key, data));
         }
-        return r.front().second;
+        return r.front()._2;
     }
 
     fun clear()                                 { sortedTable.clear(); }

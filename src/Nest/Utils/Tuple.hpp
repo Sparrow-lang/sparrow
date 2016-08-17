@@ -40,7 +40,7 @@ struct Tuple4
     T3 _3;
     T4 _4;
 
-    Tuple4(T1 p1, T2 p2, T3 p3, T4 p4) : _1(p1), _2(p2), _3(p4), _4(p4) {}
+    Tuple4(T1 p1, T2 p2, T3 p3, T4 p4) : _1(p1), _2(p2), _3(p3), _4(p4) {}
 
     bool operator <(const Tuple4& other) const
     {

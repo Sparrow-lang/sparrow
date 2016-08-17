@@ -22,7 +22,7 @@ const Location& GenericCallable::location() const
 string GenericCallable::toString() const
 {
     ostringstream oss;
-    oss << Nest_toString(generic_) << "(";
+    oss << Feather_getName(generic_) << "(";
     size_t count = genericParamsCount(generic_);
     for ( size_t i=0; i<count; ++i )
     {
@@ -53,10 +53,10 @@ bool GenericCallable::isAutoCt() const
     return false;
 }
 
-ConversionType GenericCallable::canCall(CompilationContext* context, const Location& loc, NodeRange args, EvalMode evalMode, bool noCustomCvt)
+ConversionType GenericCallable::canCall(CompilationContext* context, const Location& loc, NodeRange args, EvalMode evalMode, bool noCustomCvt, bool reportErrors)
 {
     // Call the base first
-    ConversionType res = Callable::canCall(context, loc, args, evalMode, noCustomCvt);
+    ConversionType res = Callable::canCall(context, loc, args, evalMode, noCustomCvt, reportErrors);
     if ( !res )
         return convNone;
 
@@ -64,6 +64,9 @@ ConversionType GenericCallable::canCall(CompilationContext* context, const Locat
     argsWithCvt_ = argsWithConversion();
     ASSERT(!inst_);
     inst_ = genericCanInstantiate(generic_, all(argsWithCvt_));
+    if ( !inst_ && reportErrors ) {
+        REP_INFO(NOLOC, "Cannot instantiate generic");
+    }
     return inst_ ? res : convNone;
 }
 

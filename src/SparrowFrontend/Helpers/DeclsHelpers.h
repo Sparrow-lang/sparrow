@@ -15,8 +15,17 @@ namespace SprFrontend
     bool isField(Node* node);
 
 
+    /// Checks if we can access 'node' from 'fromNode'
+    bool canAccessNode(Node* decl, Node* fromNode);
+    /// Checks if we can access 'node' from the given source code
+    bool canAccessNode(Node* decl, SourceCode* fromSourceCode);
+
+    /// Check if the given node can be accessed from everywhere
+    bool isPublic(Node* decl);
+
+
     /// Getter for the access type of the given node
-    /// Throws if the node doesn't have an associated access type
+    /// Returns the default access if the node doesn't have an explicit access type
     AccessType getAccessType(Node* decl);
 
     /// Tests if the given node has an access type set
@@ -24,6 +33,9 @@ namespace SprFrontend
 
     /// Set the access type for a node
     void setAccessType(Node* decl, AccessType accessType);
+
+    /// Copy the access type from one declaration to the other
+    void copyAccessType(Node* destDecl, Node* srcDecl);
     
     
     /// Gets the result parameter of a function, if it has one

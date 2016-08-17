@@ -2,7 +2,7 @@
 // -O3 --dump-assembly --simple-linking
 
 import SL.String;
-import SL.Pair;
+import SL.Tuple;
 import SL.Vector;
 import SL.Array;
 import SL.StaticArray;
@@ -39,7 +39,7 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
 /// Cheesy parser, return static buffer
 fun[rtct] re2post(re: StringRef): String
 {
-    var paren: StaticArray(Pair(Int, Int), 100);
+    var paren: StaticArray(Int*Int, 100);
 
     var parenIdx = 0;
     var nAlt = 0;
@@ -67,7 +67,7 @@ fun[rtct] re2post(re: StringRef): String
                 //cout << "Parenthesis index is above 100\n";
                 return String();
             }
-            paren(parenIdx++) = Pair(Int, Int)(nAlt, nAtom);
+            paren(parenIdx++) = (Int*Int)(nAlt, nAtom);
             nAlt = 0;
             nAtom = 0;
         }
@@ -94,8 +94,8 @@ fun[rtct] re2post(re: StringRef): String
             while ( nAlt > 0 ; --nAlt )
                 buf(dstIdx++) = '|';
             --parenIdx;
-            nAlt = paren(parenIdx).first;
-            nAtom = paren(parenIdx).second;
+            nAlt = paren(parenIdx)._1;
+            nAtom = paren(parenIdx)._2;
             ++nAtom;
         }
         else if ( ch == '*' || ch == '+' || ch == '?' )

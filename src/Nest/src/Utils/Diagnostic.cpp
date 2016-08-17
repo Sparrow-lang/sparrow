@@ -14,6 +14,8 @@ namespace
 {
     void doReport(const Location& loc, DiagnosticSeverity severity, const string& message)
     {
+        cerr << endl;
+        
         // Write location: 'filename(line:col) : '
         if ( !Nest_isLocEmpty(&loc) )
         {
@@ -55,9 +57,9 @@ namespace
                 if ( count <= 1 )
                     count = 1;
                 cerr << "  ";
-                cerr << string(loc.start.col-1, ' ');      // spaces used for alignment
-                cerr << ConsoleColors::fgLoRed;
-                cerr << string(count, '~');                   // arrow to underline the whole location range
+                cerr << string(loc.start.col-1, ' ');       // spaces used for alignment
+                cerr << ConsoleColors::fgHiGreen;
+                cerr << string(count, '\'');                // underline the whole location range
                 cerr << ConsoleColors::stClear << endl;
             }
         }

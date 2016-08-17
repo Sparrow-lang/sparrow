@@ -57,6 +57,16 @@ unsigned Nest_sizeOf(TypeRef type);
 unsigned Nest_alignmentOf(TypeRef type);
 
 
+
+// Callbacks
+
+typedef void (*FSourceCodeCallback)(SourceCode* sc);
+
+void Nest_registerSourceCodeCreatedCallback(FSourceCodeCallback callback);
+void Nest_registerSourceCodeParsedCallback(FSourceCodeCallback callback);
+void Nest_registerSourceCodeCompiledCallback(FSourceCodeCallback callback);
+
+
 #ifdef __cplusplus
 }
 #endif

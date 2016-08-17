@@ -23,7 +23,6 @@ fun >>(tid: @ThreadId, os: @OutStream)
 
 
 
-//datatype Thread = NativeThreadHandle;
 class Thread
 {
     private var handle: NativeThreadHandle;
@@ -88,12 +87,6 @@ fun getNativeHandle(t: Thread): NativeThreadHandle = t.handle;
 
 //! Get the current thread id
 fun curThreadId: ThreadId = ThreadId(NativeThreadHandle());
-//fun curThreadId: ThreadId = ThreadId(Impl.pthread_self());
-//fun curThreadId: ThreadId {
-//    var tid: ULong = 0;
-//    Impl.pthread_threadid_np(NativeThreadHandle(), tid);
-//    return ThreadId(tid);
-//}
 
 //! Tries to suspend the current thread to let other threads execute
 fun yield = Impl.sched_yield();

@@ -10,6 +10,7 @@ public:
     Nest_CompilerSettings()
         : printVersion_(false)
         , verbose_(false)
+        , noColors_(false)
         , implicitLibFilePath_("auto")
         , tabSize_(4)
         , syntaxOnly_(false)
@@ -46,6 +47,9 @@ public:
 
     /// Show commands to run and use verbose output
     bool verbose_;
+
+    /// True if we shouldn't use colors when displaying error messages
+    bool noColors_;
 
     /// The output file name
     string output_;

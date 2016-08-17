@@ -10,9 +10,6 @@ import SL.StaticArray;
 import SL.Algorithms;
 import BitOper;
 
-fun[ctGeneric] *(t1, t2: Type): Type = Pair(t1, t2);
-fun ~(a,b: AnyType) = mkPair(a,b);
-
 using nPieces = 10;
 using nPositions = 50;
 using nRotations = 12;

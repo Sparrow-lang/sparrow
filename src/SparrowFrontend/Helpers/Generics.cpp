@@ -269,11 +269,10 @@ namespace
     {
         const Location& loc = orig->location;
 
-        Node* baseClasses = at(orig->children, 1);
-        Node* children = at(orig->children, 2);
-        baseClasses = baseClasses ? Nest_cloneNode(baseClasses) : nullptr;
+        Node* children = at(orig->children, 1);
         children = children ? Nest_cloneNode(children) : nullptr;
-        Node* newClass = mkSprClass(loc, Feather_getName(orig), nullptr, baseClasses, nullptr, children);
+        Node* newClass = mkSprClass(loc, Feather_getName(orig), nullptr, nullptr, nullptr, children);
+        copyAccessType(newClass, orig);
 
         copyModifiersSetMode(orig, newClass, context->evalMode);
 
@@ -467,6 +466,7 @@ namespace
         body = body ? Nest_cloneNode(body) : nullptr;
         Node* newFun = mkSprFunction(loc, Feather_getName(origFun), parameters, returnType, body);
         copyModifiersSetMode(origFun, newFun, context->evalMode);
+        copyAccessType(newFun, origFun);
         Feather_setShouldAddToSymTab(newFun, 0);
         Nest_setContext(newFun, context);
 
@@ -667,9 +667,10 @@ Node* SprFrontend::genericDoInstantiate(Node* node, const Location& loc, Compila
                 Nest_queueSemanticCheck(instDecl);
                 setInstantiatedDecl(inst, instDecl);
 
-                // Add the instantiated class as an additional node to the callee source code
-                ASSERT(context->sourceCode);
-                Nest_appendNodeToArray(&context->sourceCode->additionalNodes, expandedInst);
+                // Add the instantiated class as an additional node to the generic node
+                Nest_appendNodeToArray(&node->additionalNodes, expandedInst);
+                if ( node->explanation && node->explanation != node )
+                    Nest_appendNodeToArray(&node->explanation->additionalNodes, expandedInst);
             }
 
             // Now actually create the call object: a Type CT value

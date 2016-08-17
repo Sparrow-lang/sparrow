@@ -12,16 +12,16 @@ fun f(x: Double)
     cout << "f x " << x << endl;
 }
 
-fun f(p: Pair(Int, Int))
+fun f(p: Int*Int)
 {
-    cout << "f p " << p.first << " " << p.second << endl;
+    cout << "f p " << p._1 << " " << p._2 << endl;
 }
 
 fun sprMain
 {
     f(2, 3);
     f(2.0);
-    f(makePair(3, 4));
+    f(3 ~ 4);
 }
 /*<<<Running()
 f a b 2 3

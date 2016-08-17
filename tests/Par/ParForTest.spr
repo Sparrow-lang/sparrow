@@ -4,7 +4,8 @@ import Par.Tasks;
 import Par.ParFor;
 import Test;
 
-using Par.*;
+using Par.parFor;
+using Par.Atomic;
 
 var counter: Int Atomic;
 var outOfOrderCount: Int Atomic;

@@ -7,6 +7,7 @@ using namespace Nest;
 
 Callable::Callable()
     : context_(nullptr)
+    , valid_(true)
 {
 }
 
@@ -17,7 +18,7 @@ TypeRef Callable::paramType(size_t idx) const
     return p->type;
 }
 
-ConversionType Callable::canCall(CompilationContext* context, const Location& loc, NodeRange args, EvalMode evalMode, bool noCustomCvt)
+ConversionType Callable::canCall(CompilationContext* context, const Location& loc, NodeRange args, EvalMode evalMode, bool noCustomCvt, bool reportErrors)
 {
     // Copy the list of arguments; add default values if arguments are missing
     size_t paramsCount = this->paramsCount();
@@ -38,24 +39,30 @@ ConversionType Callable::canCall(CompilationContext* context, const Location& lo
     vector<TypeRef> argTypes(args_.size(), nullptr);
     for ( size_t i=0; i<args_.size(); ++i)
         argTypes[i] = args_[i]->type;
-    ConversionType res = canCall(context, loc, argTypes, evalMode, noCustomCvt);
+    ConversionType res = canCall(context, loc, argTypes, evalMode, noCustomCvt, reportErrors);
     if ( !res )
         return convNone;
 
     return res;
 }
 
-ConversionType Callable::canCall(CompilationContext* context, const Location& /*loc*/, const vector<TypeRef>& argTypes, EvalMode evalMode, bool noCustomCvt)
+ConversionType Callable::canCall(CompilationContext* context, const Location& /*loc*/, const vector<TypeRef>& argTypes, EvalMode evalMode, bool noCustomCvt, bool reportErrors)
 {
     // Check argument count
     size_t paramsCount = this->paramsCount();
-    if ( paramsCount != argTypes.size() )
+    if ( paramsCount != argTypes.size() ) {
+        if ( reportErrors )
+            REP_INFO(NOLOC, "Different number of parameters; args=%1%, params=%2%") % argTypes.size() % paramsCount;
         return convNone;
+    }
 
     // Check evaluation mode
     EvalMode thisEvalMode = this->evalMode();
-    if ( thisEvalMode == modeRt && (evalMode == modeCt || evalMode == modeRtCt) )
+    if ( thisEvalMode == modeRt && (evalMode == modeCt || evalMode == modeRtCt) ) {
+        if ( reportErrors )
+            REP_INFO(NOLOC, "Cannot call RT only functions in CT and RTCT contexts");
         return convNone;    // Don't call RT-only functions in CT and RTCT contexts
+    }
     bool useCt = thisEvalMode == modeCt || evalMode == modeCt;
     if ( thisEvalMode == modeRtCt && isAutoCt() )
     {
@@ -87,8 +94,11 @@ ConversionType Callable::canCall(CompilationContext* context, const Location& /*
 
         ConversionFlags flags = noCustomCvt ? flagDontCallConversionCtor : flagsDefault;
         conversions_[i] = canConvertType(context, argType, paramType, flags);
-        if ( !conversions_[i] )
+        if ( !conversions_[i] ) {
+            if ( reportErrors )
+                REP_INFO(NOLOC, "Cannot convert argument %1% from %2% to %3%") % i % argType % paramType;
             return convNone;
+        }
         else if ( conversions_[i].conversionType() < res )
             res = conversions_[i].conversionType();
     }

@@ -81,15 +81,15 @@ namespace SprFrontend
     Node* mkModifiers(const Location& loc, Node* main, Node* mods);
 
     Node* mkSprCompilationUnit(const Location& loc, Node* package, Node* imports, Node* declarations);
-    Node* mkSprUsing(const Location& loc, StringRef alias, Node* usingNode, AccessType accessType = publicAccess);
-    Node* mkSprPackage(const Location& loc, StringRef name, Node* children, AccessType accessType = publicAccess);
-    Node* mkSprVariable(const Location& loc, StringRef name, Node* typeNode, Node* init, AccessType accessType = publicAccess);
-    Node* mkSprVariable(const Location& loc, StringRef name, TypeRef type, Node* init, AccessType accessType = publicAccess);
-    Node* mkSprClass(const Location& loc, StringRef name, Node* parameters, Node* baseClasses, Node* ifClause, Node* children, AccessType accessType = publicAccess);
+    Node* mkSprUsing(const Location& loc, StringRef alias, Node* usingNode, AccessType accessType = unspecifiedAccess);
+    Node* mkSprPackage(const Location& loc, StringRef name, Node* children, AccessType accessType = unspecifiedAccess);
+    Node* mkSprVariable(const Location& loc, StringRef name, Node* typeNode, Node* init, AccessType accessType = unspecifiedAccess);
+    Node* mkSprVariable(const Location& loc, StringRef name, TypeRef type, Node* init, AccessType accessType = unspecifiedAccess);
+    Node* mkSprClass(const Location& loc, StringRef name, Node* parameters, Node* underlyingData, Node* ifClause, Node* children, AccessType accessType = unspecifiedAccess);
 
-    Node* mkSprConcept(const Location& loc, StringRef name, StringRef paramName, Node* baseConcept, Node* ifClause, AccessType accessType = publicAccess);
+    Node* mkSprConcept(const Location& loc, StringRef name, StringRef paramName, Node* baseConcept, Node* ifClause, AccessType accessType = unspecifiedAccess);
 
-    Node* mkSprFunction(const Location& loc, StringRef name, Node* parameters, Node* returnType, Node* body, Node* ifClause = nullptr, AccessType accessType = publicAccess);
+    Node* mkSprFunction(const Location& loc, StringRef name, Node* parameters, Node* returnType, Node* body, Node* ifClause = nullptr, AccessType accessType = unspecifiedAccess);
     Node* mkSprParameter(const Location& loc, StringRef name, Node* typeNode, Node* init = nullptr);
     Node* mkSprParameter(const Location& loc, StringRef name, TypeRef type, Node* init = nullptr);
     Node* mkSprAutoParameter(const Location& loc, StringRef name);

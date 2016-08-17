@@ -24,11 +24,11 @@ namespace
     // Helpers for Identifier and CompoundExp nodes
     //
 
-    void removeNodesWithNoType(NodeArray& nodes) {
+    void removeUnusableDecls(NodeArray& nodes, Node* accessedFrom) {
         Node**dest = nodes.beginPtr;
         Node**src = nodes.beginPtr;
         while ( src != nodes.endPtr ) {
-            if ( !Nest_computeType(*src) ) {
+            if ( !Nest_computeType(*src) || !canAccessNode(*src, accessedFrom) ) {
                 ++src;
             }
             else {
@@ -416,26 +416,32 @@ namespace
     // Helpers for OperatorCall node
     //
 
-    Node* trySelectOperator(StringRef operation, NodeRange args, CompilationContext* searchContext, bool searchOnlyGivenContext,
-        CompilationContext* callContext, const Location& callLocation, EvalMode mode)
+    //! Returns the compilation context surrounding the given class
+    //! If the context is not introduced by a node, move up to the first context introduced by a node
+    //! Case treated: If the class is introduced by a generic, it will search the context of the generic
+    CompilationContext* classContext(Node* cls)
     {
-        SymTab* sTab = searchContext->currentSymTab;
-        NodeArray decls = searchOnlyGivenContext ? Nest_symTabLookupCurrent(sTab, operation.begin) : Nest_symTabLookup(sTab, operation.begin);
-        Node* res = nullptr;
-        if ( Nest_nodeArraySize(decls) > 0 )
-            res = selectOverload(callContext, callLocation, mode, all(decls), args, false, operation);
-        Nest_freeNodeArray(decls);
-
-        return res;
+        CompilationContext* res = cls->context;
+        while ( res && !res->currentSymTab->node )
+            res = res->parent;
+        return res ? res : cls->context;
     }
 
-    #define CHECK_RET(expr) \
-        { \
-            Node* ret = expr; \
-            if ( ret ) return ret; \
-        }
-
-    Node* selectOperator(Node* node, StringRef operation, Node* arg1, Node* arg2)
+    /**
+     * Tries to select an operator call for the given operation and operands.
+     *
+     * Returns the result of the overloading process.
+     * If no definition is found, or if the overloading fails, we return null.
+     *
+     * @param node         The node containing this operator call
+     * @param operation    The name of the operation that needs to be called
+     * @param arg1         The left argument (can be NULL)
+     * @param arg2         The right argument (can be NULL)
+     * @param reportErrors True if we need to report the errors
+     *
+     * @return The call core required for the selected operation
+     */
+    Node* selectOperator(Node* node, StringRef operation, Node* arg1, Node* arg2, bool reportErrors)
     {
         Node* argsSrc[] = { arg1, arg2, nullptr };
         NodeRange args = { argsSrc, argsSrc+2 };
@@ -466,28 +472,73 @@ namespace
             argClass = Feather_classForType(base->type);
         }
 
+        // Gather the search places and parameters
+        
+        //! Structure defining the parameters for a search attempt
+        struct SearchAttempt {
+            StringRef operation;                //!< The operation name to look for
+            CompilationContext* searchContext;  //!< The search context
+            bool canSearchUp;                   //!< Whether to search up from the given context
+            EvalMode mode;                      //!< The evaluation mode to be used
+        };
+
+        //! Defines the places we have to search for
+        SearchAttempt searches[6];
+        int numSearches = 0;
+
         EvalMode mode;
+        CompilationContext* ctx;
+        StringRef opWithPrefix = fromString(opPrefix + operation.begin);
+
         if ( argClass )
         {
-            mode = base->type->mode;
-
             // Step 1: Try to find an operator that match in the class of the base expression
-            if ( !opPrefix.empty() )
-                CHECK_RET(trySelectOperator(fromString(opPrefix + operation.begin), args, Nest_childrenContext(argClass), true, node->context, node->location, mode));
-            CHECK_RET(trySelectOperator(operation, args, Nest_childrenContext(argClass), true, node->context, node->location, mode));
+            mode = base->type->mode;
+            ctx = Nest_childrenContext(argClass);
+            if ( !opPrefix.empty() ) {
+                searches[numSearches++] = SearchAttempt{ opWithPrefix, ctx, false, mode };
+            }
+            searches[numSearches++] = SearchAttempt{ operation, ctx, false, mode };
 
             // Step 2: Try to find an operator that match in the near the class the base expression
             mode = node->context->evalMode;
-            if ( !opPrefix.empty() )
-                CHECK_RET(trySelectOperator(fromString(opPrefix + operation.begin), args, argClass->context, true, node->context, node->location, mode));
-            CHECK_RET(trySelectOperator(operation, args, argClass->context, true, node->context, node->location, mode));
+            ctx = classContext(argClass);
+            if ( !opPrefix.empty() ) {
+                searches[numSearches++] = SearchAttempt{ opWithPrefix, ctx, false, mode };
+            }
+            searches[numSearches++] = SearchAttempt{ operation, ctx, false, mode };
         }
 
         // Step 3: General search from the current context
         mode = node->context->evalMode;
-        if ( !opPrefix.empty() )
-            CHECK_RET(trySelectOperator(fromString(opPrefix + operation.begin), args, node->context, false, node->context, node->location, mode));
-        CHECK_RET(trySelectOperator(operation, args, node->context, false, node->context, node->location, mode));
+        ctx = node->context;
+        if ( !opPrefix.empty() ) {
+            searches[numSearches++] = SearchAttempt{ opWithPrefix, ctx, true, mode };
+        }
+        searches[numSearches++] = SearchAttempt{ operation, ctx, true, mode };
+
+        // Now actually perform the searches
+        OverloadReporting errReporting = reportErrors ? OverloadReporting::noTopLevel : OverloadReporting::none;
+        for ( int i=0; i<numSearches; ++i ) {
+            SearchAttempt& s = searches[i];
+
+            // Search for decls in the given context
+            SymTab* sTab = s.searchContext->currentSymTab;
+            NodeArray decls = s.canSearchUp
+                                ? Nest_symTabLookup(sTab, s.operation.begin)
+                                : Nest_symTabLookupCurrent(sTab, s.operation.begin);
+
+            // Do we have any results? If yes, run the overloading mechanism
+            Node* result = nullptr;
+            if ( Nest_nodeArraySize(decls) > 0 )
+                result = selectOverload(node->context, node->location, s.mode, all(decls), args, errReporting, s.operation);
+
+            // Remove the declarations array
+            Nest_freeNodeArray(decls);
+
+            if ( result )
+                return result;
+        }
 
         return nullptr;
     }
@@ -710,8 +761,13 @@ namespace
             return defaultVal;
         if ( n->nodeKind == nkSparrowDeclUsing )
             n = at(n->children, 0);
+        if ( !n )
+            return defaultVal;
 
-        return getIntCtValue(Nest_explanation(n));
+        if ( n->type->mode != modeCt )
+            REP_INTERNAL(node->location, "Cannot get compile-time integer value from node '%1%'") % Nest_toStringEx(n);
+
+        return getIntCtValue(n);
     }
 
     int getPrecedence(Node* node)
@@ -877,8 +933,27 @@ Node* Identifier_SemanticCheck(Node* node)
     if ( Nest_nodeArraySize(decls) == 0 )
         REP_ERROR_RET(nullptr, node->location, "No declarations found with the given name (%1%)") % id;
 
-    // Filter out the decls with no type
-    removeNodesWithNoType(decls);
+    // Filter out the decls with no type, and the ones that cannot be accessed
+    // from this node
+    removeUnusableDecls(decls, node);
+
+    if ( size(decls) == 0 ) {
+        REP_ERROR(node->location, "No declarations found with the given name (%1%)") % id;
+
+        // Print the removed declarations
+        NodeArray decls1 = Nest_symTabLookup(node->context->currentSymTab, id.begin);
+        for ( Node* n: decls1 ) {
+            if ( n && n->type )
+                REP_INFO(n->location, "See inaccessible declaration");
+            else if ( n && n->nodeError )
+                REP_INFO(n->location, "See declaration with error");
+            else if ( n && !n->type )
+                REP_INFO(n->location, "See declaration without a type");
+        }
+        Nest_freeNodeArray(decls1);
+        Nest_freeNodeArray(decls);
+        return NULL;
+    }
 
     // If at least one decl is a field or method, then transform this into a compound expression starting from 'this'
     bool needsThis = false;
@@ -1051,11 +1126,14 @@ Node* FunApplication_SemanticCheck(Node* node)
         }
     }
 
-    string functionName = Nest_toString(base);
-    
     // Try to get the declarations pointed by the base node
     Node* thisArg = nullptr;
     NodeVector decls = getDeclsFromNode(base, thisArg);
+
+    string functionName;
+    if ( !decls.empty() )
+        functionName = toString(Feather_getName(decls.front()));
+    else functionName = Nest_toString(base);
 
     // If we didn't find any declarations, try the operator call
     if ( base->type->hasStorage && decls.empty() )
@@ -1083,7 +1161,7 @@ Node* FunApplication_SemanticCheck(Node* node)
     EvalMode mode = node->context->evalMode;
     if ( thisArg )
         mode = Feather_combineMode(thisArg->type->mode, mode, node->location);
-    Node* res = selectOverload(node->context, node->location, mode, all(decls), all(args), true, fromString(functionName));
+    Node* res = selectOverload(node->context, node->location, mode, all(decls), all(args), OverloadReporting::full, fromString(functionName));
 
     return res;
 }
@@ -1128,7 +1206,7 @@ Node* OperatorCall_SemanticCheck(Node* node)
     }
 
     // Search for the operator
-    Node* res = selectOperator(node, operation, arg1, arg2);
+    Node* res = selectOperator(node, operation, arg1, arg2, false);
 
     // If nothing found try fall-back.
     if ( !res && arg1 && arg2 )
@@ -1174,15 +1252,15 @@ Node* OperatorCall_SemanticCheck(Node* node)
 
         if ( !op1.empty() )
         {
-            Node* r = selectOperator(node, fromString(op1), a1, a2);
+            Node* r = selectOperator(node, fromString(op1), a1, a2, false);
             if ( r )
             {
                 if ( !Nest_semanticCheck(r) )
                     return nullptr;
                 if ( op2 == "!" )
-                    res = selectOperator(node, fromString(op2), r, nullptr);
+                    res = selectOperator(node, fromString(op2), r, nullptr, false);
                 else if ( op2 == "=" )
-                    res = selectOperator(node, fromString(op2), a1, r);
+                    res = selectOperator(node, fromString(op2), a1, r, false);
                 else if ( op2.empty() )
                     res = r;
             }
@@ -1192,13 +1270,18 @@ Node* OperatorCall_SemanticCheck(Node* node)
     if ( !res )
     {
         if ( arg1 && arg2 )
-            REP_ERROR_RET(nullptr, node->location, "Cannot find an overload for calling operator %2% %1% %3%") % operation % argTypeStr(arg1) % argTypeStr(arg2);
+            REP_ERROR(node->location, "Cannot find an overload for calling operator %2% %1% %3%") % operation % argTypeStr(arg1) % argTypeStr(arg2);
         else if ( arg1 )
-            REP_ERROR_RET(nullptr, node->location, "Cannot find an overload for calling operator %2% %1%") % operation % argTypeStr(arg1);
+            REP_ERROR(node->location, "Cannot find an overload for calling operator %2% %1%") % operation % argTypeStr(arg1);
         else if ( arg2 )
-            REP_ERROR_RET(nullptr, node->location, "Cannot find an overload for calling operator %1% %2%") % operation % argTypeStr(arg2);
+            REP_ERROR(node->location, "Cannot find an overload for calling operator %1% %2%") % operation % argTypeStr(arg2);
         else 
-            REP_ERROR_RET(nullptr, node->location, "Cannot find an overload for calling operator %1%") % operation;
+            REP_ERROR(node->location, "Cannot find an overload for calling operator %1%") % operation;
+
+        // Try now once more to select the operator, now with errors turned on
+        selectOperator(node, operation, arg1, arg2, true);
+
+        return nullptr;
     }
 
     return res;
@@ -1298,8 +1381,7 @@ Node* LambdaFunction_SemanticCheck(Node* node)
 
     // Add the closure as a top level node of this node
     Nest_setContext(closure, parentContext);  // Put the enclosing class in the context of the parent function
-    ASSERT(parentContext->sourceCode);
-    Nest_appendNodeToArray(&parentContext->sourceCode->additionalNodes, closure);
+    Nest_appendNodeToArray(&node->additionalNodes, closure);
 
     // Compute the type for the enclosing class
     if ( !Nest_computeType(closure) )

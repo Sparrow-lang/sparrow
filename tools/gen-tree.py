@@ -3,29 +3,12 @@
 """
 Description: Tool for transforming JSON dumps from Sparrow Compiler into Graphviz dot diagrams
 
-Copyright (c) 2015, Lucian Radu Teodorescu
+Copyright (c) 2016, Lucian Radu Teodorescu
 """
 
 import os, subprocess, sys, json, argparse, cgi
-# from collections import defaultdict
 
-nodes = {}
-types = {}
-nodesToExpand = []  # Node to expand: (node-ref, level, expand)
-nodesExpanded = {}
-
-totalChildLinks = 0
-totalRefLinks = 0
-totalPropLinks = 0
-totalExplLinks = 0
-expandedChildLinks = 0
-expandedRefLinks = 0
-expandedPropLinks = 0
-expandedExplLinks = 0
-
-args = None
 def parseArgs():
-    global args
     parser = argparse.ArgumentParser(description='Generates dot trees from Sparrow json dumps')
     parser.add_argument('jsonFile', metavar='jsonFile', type=str,
                        help='the .json file to process')
@@ -37,208 +20,339 @@ def parseArgs():
                        help='the node we should start expanding from')
     parser.add_argument('--maxNodes', metavar='N', type=int, default=10000,
                        help='max number of nodes to process (default: 10000)')
-    parser.add_argument('--maxLevels', metavar='N', type=int, default=20,
-                       help='max levels to expand (default: 20)')
-    parser.add_argument('--maxChildNodes', metavar='N', type=int, default=999999,
-                       help='max children nodes links to expand (default: all)')
-    parser.add_argument('--maxReferredNodes', metavar='N', type=int, default=0,
-                       help='max referred nodes links to expand (default: 0)')
-    parser.add_argument('--maxPropNodes', metavar='N', type=int, default=0,
-                       help='max properties nodes links to expand (default: 0)')
-    parser.add_argument('--maxExplNodes', metavar='N', type=int, default=999999,
-                       help='max explanation nodes links to expand (default: all)')
-    args = parser.parse_args()
+    parser.add_argument('--maxLevels', metavar='N', type=int, default=30,
+                       help='max levels to expand (default: 30)')
+    parser.add_argument('--showReferredNodes', metavar='B', type=bool, default=False,
+                       help='whether should show referred nodes (default: False)')
+    parser.add_argument('--showPropNodes', metavar='B', type=bool, default=False,
+                       help='whether should show properties node links (default: False)')
+    parser.add_argument('--showExplanation', metavar='B', type=bool, default=True,
+                       help='whether should show explanation node links (default: True)')
+    return parser.parse_args()
 
+class AstData:
+    """ Class that represents the data read from the .json file; holds all the nodes and all the types """
+    def __init__(self):
+        self.nodes = {}
+        self.types = {}
 
-def getFileContents(filename):
-    with open(filename) as f:
-        return f.read().rstrip()
+def readNodePtr(astData, jsonNodePtr):
+    """Reads a node pointer json node"""
+    ref = jsonNodePtr['ref'] if jsonNodePtr.get('ref') else None
+    obj = jsonNodePtr['obj'] if jsonNodePtr.get('obj') else None
 
-def getNodePropString(nodeObj, key):
-    for prop in nodeObj['properties']:
-        if prop['name'] == key:
-            return prop['val']
-    return ''
+    if not ref:
+        return None
 
-def getNodeName(nodeKind, nodeObj):
-    idx = nodeKind.rfind('.')
-    res = nodeKind[idx+1:]
-    name = getNodePropString(nodeObj, 'name')
-    if name == '':
-        name = getNodePropString(nodeObj, 'spr.operation')
-    return res if name == '' else res + ': ' + name
+    # If we already have the node object for this, return it
+    if ref in astData.nodes.keys():
+        return astData.nodes[ref]
 
-def interpretPtr(ptr):
-    pType = ptr['p']
-    ref = None
-    obj = None
-    if pType != 0:
-        ref = ptr['ref']
-    if pType == 1:
-        obj = ptr['obj']
-    return ref, obj
+    if not obj:
+        return None
 
-def handleType(type):
-    ref, obj = interpretPtr(type)
-    if obj:
-        global types
-        types[ref] = obj
+    # Read the node
+    node = Node(ref, obj, astData)
+    astData.nodes[ref] = node
+    return node
 
-def printType(outFile, typeObj):
-    name = typeObj['description']
-    print >>outFile, 't_%s [label="Type: %s"]' % (ref, name)
+class Type:
+    """Class that holds the type information"""
 
-def handleNode(node):
-    global totalChildLinks
-    global totalRefLinks
-    global totalPropLinks
-    global totalExplLinks
-    ref, obj = interpretPtr(node)
-    if obj:
-        global nodes
-        nodes[ref] = obj
+    def __init__(self, astData, jsonType):
+        self.ref = jsonType['ref'] if jsonType.get('ref') else None
+        self.desc = jsonType['desc'] if jsonType.get('desc') else None
 
-        for child in obj['children']:
-            if handleNode(child):
-                totalChildLinks += 1
-        for child in obj['referredNodes']:
-            if handleNode(child):
-                totalRefLinks += 1
-        handleType(obj['type'])
-        if handleNode(obj['explanation']):
-            totalExplLinks += 1
+        astData.types[self.ref] = self
+
+class Node:
+    """Class that holds the info corresponding to a node"""
+
+    def __init__(self, ref, jsonNode, astData):
+        self.ref = ref
+        self.kind = ''
+        self.name = ''
+        self.isDefinition = False
+        self.children = []
+        self.referredNodes = []
+        self.explanation = []
+        self.properties = {}
+        self._parseJsonNode(jsonNode, astData)
+
+    def _parseJsonNode(self, jsonNode, astData):
+        if jsonNode.get('children'):
+            for child in jsonNode['children']:
+                n = readNodePtr(astData, child)
+                if n:
+                    self.children.append(n)
+        if jsonNode.get('referredNodes'):
+            for child in jsonNode['referredNodes']:
+                n = readNodePtr(astData, child)
+                if n:
+                    self.referredNodes.append(n)
+        if jsonNode.get('type'):
+            self.type = Type(astData, jsonNode['type'])
+        if jsonNode.get('explanation'):
+            self.explanation = readNodePtr(astData, jsonNode['explanation'])
 
         # Also walk the properties; look for nodes
-        for prop in obj['properties']:
-            if prop['kind'] == 2:
-                if handleNode(prop['val']):
-                    totalPropLinks += 1
-            if prop['kind'] == 3:
-                handleType(prop['val'])
-        return True
-    return False
+        if jsonNode.get('properties'):
+            for prop in jsonNode['properties']:
+                val = prop['val']
+                kind = prop['kind']
+                if kind == 2:
+                    val = readNodePtr(astData, val)
+                if kind == 3:
+                    val = Type(astData, val)
+                if val:
+                    self.properties[prop['name']] = val
 
-def printLinks(outFile, srcRef, destRefs, style):
-    if len(destRefs) > 0:
-        print >>outFile, 'n_%s -> {' % srcRef,
-        for r in destRefs:
-            print >>outFile, 'n_%s' % r,
-        print >>outFile, '}', style
+        self.kind = jsonNode['kind']
+        self.name = self._getName()
+        self.isDefinition = self._isDefinition()
 
-def printNode(outFile, ref, level, expand):
-    global nodesToExpand
-    global nodes
-    global expandedChildLinks
-    global expandedRefLinks
-    global expandedPropLinks
-    global expandedExplLinks
+    def _getName(self):
+        idx = self.kind.rfind('.')
+        res = self.kind[idx+1:]
+        name = self._getPropertyString('name')
+        if name == '':
+            name = self._getPropertyString('spr.operation')
+        if name == '' and self.kind == 'typeNode':
+            name = self.type.desc if self.type else ''
+        return res if name == '' else res + ': ' + name
 
-    if ref in nodesExpanded:
-        return
-    nodesExpanded[ref] = 1
+    def _getPropertyString(self, name):
+        if name in self.properties.keys():
+            return self.properties[name]
+        return ''
 
-    nodeObj = nodes[ref]
-    name = getNodeName(nodeObj['kindName'], nodeObj)
-    if args.showNodeIds:
-        print >>outFile, 'n_%s [label=<<FONT POINT-SIZE="10">%s</FONT><BR/>%s >]' % (ref, ref, cgi.escape(name).encode('ascii', 'xmlcharrefreplace'))
-    else:
-        print >>outFile, 'n_%s [label="%s"]' % (ref, name)
+    def _isDefinition(self):
+        return self.kind == 'spr.sprCompilationUnit' \
+            or self.kind == 'spr.package' \
+            or self.kind == 'spr.sprFunction' \
+            or self.kind == 'spr.sprParameter' \
+            or self.kind == 'fun' \
+            or self.kind == 'var'
 
-    if not expand or level > args.maxLevels:
-        return
+class LinkType:
+    """ The type of a link """
+    children = 1
+    referred = 2
+    prop = 3
+    explanation = 4
 
-    # Print links to the children nodes
-    childRefs = []
-    for child in nodeObj['children']:
-        childRef, childObj = interpretPtr(child)
-        if childRef and expandedChildLinks < args.maxChildNodes:
-            nodesToExpand.append((childRef, level+1, True))
-            childRefs.append(childRef)
-            expandedChildLinks += 1
-    printLinks(outFile, ref, childRefs, '')
+class Filter:
+    """ Class that helps us filter what nodes we want to process during an AST traversal """
 
-    # Print links to the referred nodes
-    childRefs = []
-    for child in nodeObj['referredNodes']:
-        childRef, childObj = interpretPtr(child)
-        if childRef and expandedRefLinks < args.maxReferredNodes:
-            nodesToExpand.append((childRef, level+1, False))
-            childRefs.append(childRef)
-            expandedRefLinks += 1
-    printLinks(outFile, ref, childRefs, '[style="dashed", constraint=false]')
+    def __init__(self, args = None, showReferredNodes = True, showPropNodes = True, showExplanation = True):
+        if args:
+            self.maxNodes = args.maxNodes
+            self.maxLevels = args.maxLevels
+            self.showReferredNodes = args.showReferredNodes and showReferredNodes
+            self.showPropNodes = args.showPropNodes and showPropNodes
+            self.showExplanation = args.showExplanation and showExplanation
+        else:
+            self.maxNodes = 999999
+            self.maxLevels = 999999
+            self.showReferredNodes = showReferredNodes
+            self.showPropNodes = showPropNodes
+            self.showExplanation = showExplanation
+        self.numNodes = 0
 
-    # Print links to the nodes in the properties
-    childRefs = []
-    for prop in nodeObj['properties']:
-        if prop['kind'] == 2:
-            otherNode = prop['val']
-            childRef, childObj = interpretPtr(otherNode)
-            if childRef and expandedPropLinks < args.maxPropNodes:
-                nodesToExpand.append((childRef, level+1, False))
-                childRefs.append(childRef)
-                expandedPropLinks += 1
-    printLinks(outFile, ref, childRefs, '[style="dotted", constraint=false]')
+    def onTraversalStart(self):
+        """ Called when the traversal starts """
+        self.numNodes = 0
+    def onNodeAdded(self):
+        """ Called when a node is actually traversed """
+        self.numNodes += 1
 
-    # Print connections with the explanation
-    explanationRef, explanationObj = interpretPtr(nodeObj['explanation'])
-    if explanationRef and expandedExplLinks < args.maxExplNodes:
-        nodesToExpand.append((explanationRef, level+1, True))
-        print >>outFile, 'n_%s -> n_%s [style=bold, arrowhead=vee, arrowtail=inv, dir=both]' % (ref, explanationRef)
-        expandedExplLinks += 1
+    def canAddNewNode(self):
+        """ Called to check if we can add a new node """
+        return self.numNodes < self.maxNodes
 
+    def canAddNode(self, level, linkType):
+        """ Called to check if we can add a node of the given level and link type """
+        return self.numNodes < self.maxNodes \
+            and level < self.maxLevels \
+            and ((linkType == LinkType.children) \
+                or (linkType == LinkType.referred and self.showReferredNodes) \
+                or (linkType == LinkType.prop and self.showPropNodes) \
+                or (linkType == LinkType.explanation and self.showExplanation))
 
-def printAsTree(outFile, jsonData):
-    print >>outFile, """digraph tree
-    {
-        nodesep=0.5;   
+class AstTraversal:
+    """ Class that defines a traversal over the AST """
+    def __init__(self, filter):
+        self.filter = filter
+        self._traversed = {}
+        self._toTraverse = {}
 
-        charset="latin1";
-        rankdir=LR;
-        fixedsize=true;
-        node [style="rounded,filled", width=0, height=0, shape=box, fillcolor="#E5E5E5", concentrate=true]
+    def traverse(self, node, fun):
+        self._traversed = {}
+        self._toTraverse = [ (node, 0) ]
+        self.filter.onTraversalStart()
+        while len(self._toTraverse) > 0 and self.filter.canAddNewNode():
+            nodeLevel = self._toTraverse.pop()
+            self._visitNode(nodeLevel[0], nodeLevel[1], fun)
 
-    """
-    # Handle all the nodes, without printing anything
-    handleNode(jsonData)
+    def _visitNode(self, node, level, fun):
+        if node in self._traversed.keys():
+            return
 
-    # The start node for expansion
-    if args.startNode:
-        nodesToExpand.append((args.startNode, 1, True))
-    else:
-        ref, obj = interpretPtr(jsonData)
-        if ref:
-            nodesToExpand.append((ref, 1, True))
+        # Apply the traverse function
+        fun(node)
+        self._traversed[node] = True
+        self.filter.onNodeAdded()
 
-    # Now do the printing of all the relevant nodes
-    numExpanded = 0
-    while len(nodesToExpand) > 0 and numExpanded < args.maxNodes:
-        firstNode = nodesToExpand.pop()
-        printNode(outFile, firstNode[0], firstNode[1], firstNode[2])
-        numExpanded += 1
+        for n in node.children:
+            self._addNewNodeToTraverse(n, level+1, LinkType.children)
+        for n in node.referredNodes:
+            self._addNewNodeToTraverse(n, 0, LinkType.referred)
+        for kv in node.properties.items():
+            k = kv[0]
+            v = kv[1]
+            if isinstance(v, Node):
+                self._addNewNodeToTraverse(v, 0, LinkType.prop)
+        self._addNewNodeToTraverse(node.explanation, level+1, LinkType.explanation)
 
-    print >>outFile, '}'
+    def _addNewNodeToTraverse(self, node, level, linkType):
+        if node and node not in self._traversed.keys() and self.filter.canAddNode(level, linkType):
+            self._toTraverse.append((node, level))
+        
 
+class DotGeneration:
+    """ Class that generates the dot file corresponding to the given AST """
+    def __init__(self, out, args):
+        self.out = out
+        self.args = args
+        self.backboneNodes = {} # Children nodes + explanations
+        self.visibleNodes = {} # directly reachable + 1 level of other visible nodes
 
+    def generateDot(self, rootNode):
+        print >>self.out, """digraph tree
+        {
+            nodesep=0.5;
+            charset="latin1";
+            rankdir=LR;
+            fixedsize=true;
+            node [style="rounded,filled", width=0, height=0, shape=box, fillcolor="#E5E5E5", concentrate=true]
+
+        """
+
+        def _addToDict(dict, n):
+            dict[n] = True
+
+        # Gather the nodes that are directly reachable by a children/expl traversal
+        self.backboneNodes = {}
+        trav = AstTraversal(Filter(self.args, False, False))
+        trav.traverse(rootNode, (lambda n: _addToDict(self.backboneNodes, n)))
+
+        # Gather the nodes that should be visible
+        # Expand max one level out of the directly reachable nodes
+        self.visible = {}
+        f = Filter(self.args)
+        f.maxLevels = 1
+        trav = AstTraversal(f)
+        for n in self.backboneNodes:
+            trav.traverse(n, (lambda n: _addToDict(self.visible, n)))
+        
+        # Check if we have directly reachable nodes that are not visible
+        for n in self.backboneNodes.keys():
+            if n not in self.visible:
+                print 'Node %s (%s) is reachable, but not visible!' % (n.name, n.ref)
+
+        # Print all the visible nodes
+        for n in self.visible.keys():
+            self._printNode(n)
+
+        print >>self.out, '}'
+
+    def _printNode(self, node):
+        # Print the node
+        ref = node.ref
+        name = node.name
+        style = ''
+        if self.args.showNodeIds:
+            style = 'label=<<FONT POINT-SIZE="10">%s</FONT><BR/>%s >' % (ref, cgi.escape(name).encode('ascii', 'xmlcharrefreplace'))
+        else:
+            style = 'label="%s"' % name
+        if node.isDefinition:
+            style += ' fillcolor=lemonchiffon'
+        print >>self.out, 'n_%s [%s]' % (ref, style)
+
+        styleChild = ''
+        styleRefMain = '[style=dashed, constraint=false, minlen=1]' # Back/forth references
+        styleRefAux = '[style=dashed]' # Aux nodes are drawn based on constraints
+        stylePropMain = '[style=dotted]'
+        stylePropAux = '[style=dotted, constraint=false, minlen=1]'
+        styleExpl = '[style=bold, arrowhead=vee, arrowtail=inv, dir=both]'
+
+        # Print links to the children nodes
+        dest = [n for n in node.children if n in self.visible]
+        self._printLinks(ref, dest, styleChild)
+
+        # Print links to the referred nodes
+        if self.args.showReferredNodes: 
+            dest = [n for n in node.referredNodes if n in self.visible]
+            mainRefs = [n for n in dest if n in self.backboneNodes]
+            auxRefs = [n for n in dest if n not in self.backboneNodes]
+            self._printLinks(ref, mainRefs, styleRefMain)
+            self._printLinks(ref, auxRefs, styleRefAux)
+
+        # Print links to the nodes in the properties
+        if self.args.showPropNodes: 
+            for kv in node.properties.items():
+                k = kv[0]
+                v = kv[1]
+                if isinstance(v, Node) and v in self.visible:
+                    style = stylePropAux if v in self.backboneNodes else stylePropMain
+                    self._printLink(ref, v.ref, k, style)
+
+        # Print connections with the explanation
+        if self.args.showExplanation: 
+            if node.explanation:
+                self._printLink(ref, node.explanation.ref, '', styleExpl)
+
+    def _printLink(self, srcRef, destRef, name, style):
+        if name != '':
+            print >>self.out, 'n_%s -> n_%s [label="%s"] %s' % (srcRef, destRef, name, style)
+        else:
+            print >>self.out, 'n_%s -> n_%s %s' % (srcRef, destRef, style)
+
+    def _printLinks(self, srcRef, destNodes, style):
+        if len(destNodes) > 0:
+            print >>self.out, 'n_%s -> {' % srcRef,
+            for d in destNodes:
+                print >>self.out, 'n_%s' % d.ref,
+            print >>self.out, '}', style
+
+    
 def main():
-    print 'gen-tree, copyright (c) 2015 Lucian Radu Teodorescu'
+    print 'gen-tree, copyright (c) 2016 Lucian Radu Teodorescu'
     print ''
 
-    parseArgs()
+    args = parseArgs()
 
-    jsonContent = getFileContents(args.jsonFile)
+    jsonContent = ''
+    with open(args.jsonFile) as f:
+        jsonContent = f.read().rstrip()
     jsonData = json.loads(jsonContent)
     # print jsonData
 
-    outFilename = args.jsonFile + '.dot'
-    with open(outFilename, 'w') as outFile:
-        printAsTree(outFile, jsonData)
+    # Read the nodes from the Json
+    astData = AstData()
+    rootNode = readNodePtr(astData, jsonData)
 
-    print 'Nodes: %d' % len(nodes)
-    print 'Types: %d' % len(types)
-    print 'Links child: %d/%d' % (expandedChildLinks, totalChildLinks)
-    print 'Links ref: %d/%d' % (expandedRefLinks, totalRefLinks)
-    print 'Links prop: %d/%d' % (expandedPropLinks, totalPropLinks)
-    print 'Links expl: %d/%d' % (expandedExplLinks, totalExplLinks)
+    # Generate the .dot file
+    outFilename = args.jsonFile + '.dot'
+    dot = None
+    with open(outFilename, 'w') as outFile:
+        dot = DotGeneration(outFile, args)
+        dot.generateDot(rootNode)
+
+    print 'Nodes: %d' % len(astData.nodes)
+    print 'Types: %d' % len(astData.types)
+    print 'Backbone nodes: %d' % len(dot.backboneNodes)
+    print 'Visible nodes: %d' % len(dot.visible)
 
     if args.open:
         # Create .pdf out of the .dot file

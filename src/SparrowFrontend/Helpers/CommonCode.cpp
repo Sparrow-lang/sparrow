@@ -80,7 +80,7 @@ Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* conte
         return nullptr;
 
     // Do the overloading procedure to select the right ctor
-    Node* res = selectOverload(context, loc, thisArg->type->mode, all(decls), args, true, fromCStr("ctor"));
+    Node* res = selectOverload(context, loc, thisArg->type->mode, all(decls), args, OverloadReporting::full, fromCStr("ctor"));
     Nest_freeNodeArray(decls);
     return res;
 }

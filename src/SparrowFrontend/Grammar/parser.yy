@@ -119,10 +119,10 @@ using namespace std;
 %token DATATYPE
 %nonassoc THEN_CLAUSE
 %nonassoc ELSE
-%token FALSE FINALLY FOR FRIEND FUN
+%token FALSE FINALLY FOR FUN
 %token IF IMPORT
 %token NULLCT
-%token PACKAGE PRIVATE PROTECTED PUBLIC
+%token PACKAGE PRIVATE PUBLIC
 %token RETURN
 %token THIS THROW TRUE TRY
 %token USING
@@ -161,7 +161,6 @@ using namespace std;
 %type <node>        ImportDeclarationsOpt ImportDeclarations
 %type <node>        DeclarationsOpt Declarations FormalsOpt Formals Formal
 %type <node>        Declaration InFunctionDeclaration PackageDeclaration ClassDeclaration ConceptDeclaration VarDeclaration FunDeclaration UsingDeclaration
-//FriendDeclaration
 %type <node>        IfClause FunRetType FunctionBody
 %type <accessType>  AccessSpec
 %type <stringVal>   FunOrOperName
@@ -228,20 +227,20 @@ IdentifierOrOperatorNoEq
     ;
 
 QualifiedName
-	: QualifiedName DOT IDENTIFIER
+    : QualifiedName DOT IDENTIFIER
         { $$ = mkCompoundExp(@$, $1, fromString(*$3)); }
-	| IDENTIFIER
+    | IDENTIFIER
         { $$ = mkIdentifier(@$, fromString(*$1)); }
-	;
+    ;
 
 QualifiedNameStar
-	: QualifiedNameStar DOT IDENTIFIER
+    : QualifiedNameStar DOT IDENTIFIER
         { $$ = mkCompoundExp(@$, $1, fromString(*$3)); }
-	| QualifiedNameStar DOT OPERATOR    // Assume STAR here
+    | QualifiedNameStar DOT OPERATOR    // Assume STAR here
         { $$ = mkStarExp(@$, $1, fromString(*$3)); }
-	| IDENTIFIER
+    | IDENTIFIER
         { $$ = mkIdentifier(@$, fromString(*$1)); }
-	;
+    ;
 
 IdentifierList
     : IdentifierList COMMA IDENTIFIER
@@ -258,18 +257,18 @@ IdentifierListNode
     ;
 
 ModifierSpec
-	: LBRACKET Modifiers RBRACKET
+    : LBRACKET Modifiers RBRACKET
         { $$ = $2; }
     | /*nothing*/
         { $$ = NULL; }
-	;
+    ;
 
 Modifiers
-	: Modifiers COMMA Expr
+    : Modifiers COMMA Expr
         { $$ = Feather_addToNodeList($1, $3); }
-	| Expr
+    | Expr
         { $$ = Feather_addToNodeList(NULL, $1); }
-	;
+    ;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -277,16 +276,16 @@ Modifiers
 //
 
 ProgramFile
-	: PackageTopDeclaration ImportDeclarationsOpt DeclarationsOpt END
+    : PackageTopDeclaration ImportDeclarationsOpt DeclarationsOpt END
         { $$ = mkSprCompilationUnit(@$, $1, $2, $3); }
-	;
+    ;
 
 PackageTopDeclaration
-	: PACKAGE QualifiedName SEMICOLON       // WARNING: Shift-reduce conflict here
+    : PACKAGE QualifiedName SEMICOLON       // WARNING: Shift-reduce conflict here
         { $$ = $2; }
     | /*nothing*/
         { $$ = NULL; }
-	;
+    ;
 
 ImportDeclarationsOpt
     : ImportDeclarations
@@ -296,18 +295,18 @@ ImportDeclarationsOpt
     ;
 
 ImportDeclarations
-	: ImportDeclarations ImportDeclaration
+    : ImportDeclarations ImportDeclaration
         { $$ = Feather_addToNodeList($1, $2); }
-	| ImportDeclaration
+    | ImportDeclaration
         { $$ = Feather_addToNodeList(NULL, $1); }
-	;
+    ;
 
 ImportDeclaration
-	: IMPORT QualifiedNameStar SEMICOLON
+    : IMPORT QualifiedNameStar SEMICOLON
         { $$ = $2; }
-	| IMPORT STRING_LITERAL SEMICOLON
+    | IMPORT STRING_LITERAL SEMICOLON
         { $$ = buildStringLiteral(@$, fromString(*$<stringVal>2)); }
-	;
+    ;
 
 DeclarationsOpt
     : Declarations
@@ -316,95 +315,86 @@ DeclarationsOpt
         { $$ = NULL; }
 
 Declarations
-	: Declarations Declaration
+    : Declarations Declaration
         { $$ = Feather_addToNodeList($1, $2); }
-	| Declaration
+    | Declaration
         { $$ = Feather_addToNodeList(NULL, $1); }
-	;
+    ;
 
 Declaration
     : InFunctionDeclaration
         { $$ = $1; }
-//	| FriendDeclaration
-//        { $$ = $1; }
-	| IfStmt
-		{ $$ = $1; }
-	| Expr SEMICOLON
-		{ $$ = $1; }
- 	;
+    | IfStmt
+        { $$ = $1; }
+    | Expr SEMICOLON
+        { $$ = $1; }
+    ;
 
 InFunctionDeclaration
-	: UsingDeclaration
+    : UsingDeclaration
         { $$ = $1; }
-	| PackageDeclaration
+    | PackageDeclaration
         { $$ = $1; }
-	| ClassDeclaration
+    | ClassDeclaration
         { $$ = $1; }
-	| ConceptDeclaration
+    | ConceptDeclaration
         { $$ = $1; }
-	| VarDeclaration
+    | VarDeclaration
         { $$ = $1; }
-	| FunDeclaration
+    | FunDeclaration
         { $$ = $1; }
- 	;
+    ;
 
 AccessSpec
-	: PRIVATE
+    : PRIVATE
         { $$ = privateAccess; }
-	| PROTECTED
-        { $$ = protectedAccess; }
-	| PUBLIC
+    | PUBLIC
         { $$ = publicAccess; }
-	| /*nothing*/
+    | /*nothing*/
         { $$ = publicAccess; NEXT_LOC; }
-	;
+    ;
 
 UsingDeclaration
-	: AccessSpec USING ModifierSpec QualifiedNameStar SEMICOLON
+    : AccessSpec USING ModifierSpec QualifiedNameStar SEMICOLON
         { $$ = mkModifiers(@$, mkSprUsing(@$, fromCStr(""), $4, $1), $3); }
-	| AccessSpec USING ModifierSpec IDENTIFIER EQUAL Expr SEMICOLON
+    | AccessSpec USING ModifierSpec IDENTIFIER EQUAL Expr SEMICOLON
         { $$ = mkModifiers(@$, mkSprUsing(@$, fromString(*$4), $6, $1), $3); }
-	;
-
-//FriendDeclaration
-//	: FRIEND ModifierSpec QualifiedName SEMICOLON
-//        { $$ = mkModifiers(@$, mkFriend(@$, $3), $2); }
-//	;
+    ;
 
 PackageDeclaration
-	: AccessSpec PACKAGE ModifierSpec IDENTIFIER LCURLY DeclarationsOpt RCURLY
+    : AccessSpec PACKAGE ModifierSpec IDENTIFIER LCURLY DeclarationsOpt RCURLY
         { $$ = mkModifiers(@$, mkSprPackage(@$, fromString(*$4), $6, $1), $3); }
-	;
+    ;
 
 VarDeclaration                        
-	: AccessSpec VAR ModifierSpec IdentifierList COLON ExprNoEq EQUAL Expr SEMICOLON    // var[...] a,b,c : Int = 3;
+    : AccessSpec VAR ModifierSpec IdentifierList COLON ExprNoEq EQUAL Expr SEMICOLON    // var[...] a,b,c : Int = 3;
         { $$ = buildVariables(@$, *$4, $6, $8, $3, $1); delete $4; }
-	| AccessSpec VAR ModifierSpec IdentifierList COLON ExprNoEq SEMICOLON               // var[...] a,b,c : Int;
+    | AccessSpec VAR ModifierSpec IdentifierList COLON ExprNoEq SEMICOLON               // var[...] a,b,c : Int;
         { $$ = buildVariables(@$, *$4, $6, NULL, $3, $1); delete $4; }
-	| AccessSpec VAR ModifierSpec IdentifierList EQUAL Expr SEMICOLON                   // var[...] a,b,c = 3;
+    | AccessSpec VAR ModifierSpec IdentifierList EQUAL Expr SEMICOLON                   // var[...] a,b,c = 3;
         { $$ = buildVariables(@$, *$4, NULL, $6, $3, $1); delete $4; }
-	;
+    ;
 
 ClassDeclaration
-	: AccessSpec CLASS ModifierSpec IDENTIFIER FormalsOpt IfClause LCURLY DeclarationsOpt RCURLY
+    : AccessSpec CLASS ModifierSpec IDENTIFIER FormalsOpt IfClause LCURLY DeclarationsOpt RCURLY
         { $$ = mkModifiers(@$, mkSprClass(@$, fromString(*$4), $5, NULL, $6, $8, $1), $3); }
     | AccessSpec DATATYPE ModifierSpec IDENTIFIER FormalsOpt IfClause LCURLY Formals RCURLY
         { $$ = mkModifiers(@$, mkSprClass(@$, fromString(*$4), $5, NULL, $6, $8, $1), $3); }
     | AccessSpec DATATYPE ModifierSpec IDENTIFIER FormalsOpt EQUAL Expr IfClause SEMICOLON
-        { $$ = mkModifiers(@$, mkSprClass(@$, fromString(*$4), $5, Feather_addToNodeList(NULL, $7), $8, NULL, $1), $3); }
-	;
+        { $$ = mkModifiers(@$, mkSprClass(@$, fromString(*$4), $5, $7, $8, NULL, $1), $3); }
+    ;
 
 ConceptDeclaration
-	: AccessSpec CONCEPT ModifierSpec IDENTIFIER LPAREN IDENTIFIER FunRetType RPAREN IfClause SEMICOLON
+    : AccessSpec CONCEPT ModifierSpec IDENTIFIER LPAREN IDENTIFIER FunRetType RPAREN IfClause SEMICOLON
         { $$ = mkModifiers(@$, mkSprConcept(@$, fromString(*$4), fromString(*$6), $7, $9, $1), $3); }
-	;
+    ;
 
 FunDeclaration
-	: AccessSpec FUN ModifierSpec FunOrOperName FormalsOpt FunRetType IfClause FunctionBody
+    : AccessSpec FUN ModifierSpec FunOrOperName FormalsOpt FunRetType IfClause FunctionBody
         { $$ = mkModifiers(@$, mkSprFunction(@$, fromString(*$4), $5, $6, $8, $7, $1), $3); }
-	| AccessSpec FUN ModifierSpec FunOrOperName FormalsOpt FunRetType EQUAL Expr IfClause SEMICOLON
+    | AccessSpec FUN ModifierSpec FunOrOperName FormalsOpt FunRetType EQUAL Expr IfClause SEMICOLON
         { $$ = mkModifiers(@$, buildSprFunctionExp(@$, fromString(*$4), $5, $6, $8, $9, $1), $3); }
-	;
+    ;
 
 FunRetType
     : COLON ExprNoEq
@@ -414,16 +404,16 @@ FunRetType
     ;
 
 FunOrOperName
-	: IdentifierOrOperator  { $$ = $1; }
-	| LPAREN RPAREN         { $$ = new string("()"); }
-	;
+    : IdentifierOrOperator  { $$ = $1; }
+    | LPAREN RPAREN         { $$ = new string("()"); }
+    ;
 
 FunctionBody
-	: BlockStmt
+    : BlockStmt
         { $$ = $1; }
     | SEMICOLON
         { $$ = NULL; }
-	;
+    ;
 
 FormalsOpt
     : LPAREN Formals RPAREN
@@ -437,18 +427,18 @@ FormalsOpt
     ;
 
 Formals
-	: Formals COMMA Formal
+    : Formals COMMA Formal
         { $$ = Feather_appendNodeList($1, $3); }
-	| Formal
+    | Formal
         { $$ = $1; }
-	;
+    ;
 
 Formal
-	: IdentifierList COLON ExprNoEq EQUAL Expr
+    : IdentifierList COLON ExprNoEq EQUAL Expr
         { $$ = buildParameters(@$, *$1, $3, $5, NULL); delete $1; }
-	| IdentifierList COLON ExprNoEq
+    | IdentifierList COLON ExprNoEq
         { $$ = buildParameters(@$, *$1, $3, NULL, NULL); delete $1; }
-	;
+    ;
 
 IfClause
     : IF Expr
@@ -471,11 +461,11 @@ ExprListOpt
     ;
 
 ExprList
-	: ExprList COMMA Expr
+    : ExprList COMMA Expr
         { $$ = Feather_addToNodeList($1, $3); }
-	| Expr
+    | Expr
         { $$ = Feather_addToNodeList(NULL, $1); }
-	;
+    ;
 
 Expr
     : PostfixExpr
@@ -535,7 +525,7 @@ PrefixExprNoEq
     ;
 
 SimpleExpr
-	: SimpleExpr LPAREN ExprListOpt RPAREN
+    : SimpleExpr LPAREN ExprListOpt RPAREN
         { $$ = mkInfixOp(@$, fromCStr("__fapp__"), $1, $3); }
     | SimpleExpr DOT IdentifierOrOperator
         { $$ = mkInfixOp(@$, fromCStr("__dot__"), $1, mkIdentifier(@3, fromString(*$3))); }
@@ -545,38 +535,38 @@ SimpleExpr
         { $$ = mkModifiers(@$, $1, $3); }
     | LambdaExpr
         { $$ = $1; }
-	| LPAREN Expr RPAREN
+    | LPAREN Expr RPAREN
         { $$ = buildParenthesisExp(@$, $2); }
-	| IDENTIFIER
+    | IDENTIFIER
         { $$ = mkIdentifier(@$, fromString(*$1)); }
-	| THIS
+    | THIS
         { $$ = mkThisExp(@$); }
-	| NULLCT
+    | NULLCT
         { $$ = buildNullLiteral(@$); }
-	| TRUE
+    | TRUE
         { $$ = buildBoolLiteral(@$, true); }
-	| FALSE
+    | FALSE
         { $$ = buildBoolLiteral(@$, false); }
-	| INT_LITERAL
+    | INT_LITERAL
         { $$ = buildIntLiteral(@$, static_cast<int>($<integerVal>1)); }
-	| LONG_LITERAL
+    | LONG_LITERAL
         { $$ = buildLongLiteral(@$, static_cast<long>($<integerVal>1)); }
-	| UINT_LITERAL
+    | UINT_LITERAL
         { $$ = buildUIntLiteral(@$, static_cast<unsigned>($<integerVal>1)); }
-	| ULONG_LITERAL
+    | ULONG_LITERAL
         { $$ = buildULongLiteral(@$, static_cast<unsigned long>($<integerVal>1)); }
-	| FLOAT_LITERAL
+    | FLOAT_LITERAL
         { $$ = buildFloatLiteral(@$, static_cast<float>($<floatingVal>1)); }
-	| DOUBLE_LITERAL
+    | DOUBLE_LITERAL
         { $$ = buildDoubleLiteral(@$, static_cast<double>($<floatingVal>1)); }
-	| CHAR_LITERAL
+    | CHAR_LITERAL
         { $$ = buildCharLiteral(@$, static_cast<char>($<charVal>1)); }
-	| STRING_LITERAL
+    | STRING_LITERAL
         { $$ = buildStringLiteral(@$, fromString(*$<stringVal>1)); }
-	;
+    ;
 
 SimpleExprNoEq
-	: SimpleExprNoEq LPAREN ExprListOpt RPAREN
+    : SimpleExprNoEq LPAREN ExprListOpt RPAREN
         { $$ = mkInfixOp(@$, fromCStr("__fapp__"), $1, $3); }
     | SimpleExprNoEq DOT IdentifierOrOperatorNoEq
         { $$ = mkInfixOp(@$, fromCStr("__dot__"), $1, mkIdentifier(@3, fromString(*$3))); }
@@ -584,35 +574,35 @@ SimpleExprNoEq
         { $$ = mkModifiers(@$, $1, $3); }
     | LambdaExpr
         { $$ = $1; }
-	| LPAREN Expr RPAREN
+    | LPAREN Expr RPAREN
         { $$ = buildParenthesisExp(@$, $2); }
-	| IDENTIFIER
+    | IDENTIFIER
         { $$ = mkIdentifier(@$, fromString(*$1)); }
-	| THIS
+    | THIS
         { $$ = mkThisExp(@$); }
-	| NULLCT
+    | NULLCT
         { $$ = buildNullLiteral(@$); }
-	| TRUE
+    | TRUE
         { $$ = buildBoolLiteral(@$, true); }
-	| FALSE
+    | FALSE
         { $$ = buildBoolLiteral(@$, false); }
-	| INT_LITERAL
+    | INT_LITERAL
         { $$ = buildIntLiteral(@$, static_cast<int>($<integerVal>1)); }
-	| LONG_LITERAL
+    | LONG_LITERAL
         { $$ = buildLongLiteral(@$, static_cast<long>($<integerVal>1)); }
-	| UINT_LITERAL
+    | UINT_LITERAL
         { $$ = buildUIntLiteral(@$, static_cast<unsigned>($<integerVal>1)); }
-	| ULONG_LITERAL
+    | ULONG_LITERAL
         { $$ = buildULongLiteral(@$, static_cast<unsigned long>($<integerVal>1)); }
-	| FLOAT_LITERAL
+    | FLOAT_LITERAL
         { $$ = buildFloatLiteral(@$, static_cast<float>($<floatingVal>1)); }
-	| DOUBLE_LITERAL
+    | DOUBLE_LITERAL
         { $$ = buildDoubleLiteral(@$, static_cast<double>($<floatingVal>1)); }
-	| CHAR_LITERAL
+    | CHAR_LITERAL
         { $$ = buildCharLiteral(@$, static_cast<char>($<charVal>1)); }
-	| STRING_LITERAL
+    | STRING_LITERAL
         { $$ = buildStringLiteral(@$, fromString(*$<stringVal>1)); }
-	;
+    ;
 
 LambdaExpr
     :   LPAREN FUN LambdaClosureParams FormalsOpt FunRetType FunctionBody RPAREN
@@ -643,41 +633,41 @@ Statements
     ;
 
 Statement
-	: EmptyStmt
+    : EmptyStmt
         { $$ = $1; }
-	| ExpressionStmt
+    | ExpressionStmt
         { $$ = $1; }
-	| BlockStmt
+    | BlockStmt
         { $$ = $1; }
-	| IfStmt
+    | IfStmt
         { $$ = $1; }
     | ForStmt
         { $$ = $1; }
-	| WhileStmt
+    | WhileStmt
         { $$ = $1; }
-	| BreakStmt
+    | BreakStmt
         { $$ = $1; }
-	| ContinueStmt
+    | ContinueStmt
         { $$ = $1; }
-	| ReturnStmt
+    | ReturnStmt
         { $$ = $1; }
-//	| ThrowStmt
+//  | ThrowStmt
 //        { $$ = $1; }
-//	| TryStmt
+//  | TryStmt
 //        { $$ = $1; }
     | InFunctionDeclaration
         { $$ = $1; }
     ;
 
 EmptyStmt
-	: SEMICOLON
+    : SEMICOLON
         { $$ = NULL; }
-	;
+    ;
 
 ExpressionStmt
-	: Expr SEMICOLON
+    : Expr SEMICOLON
         { $$ = buildExpressionStmt(@$, $1); }
-	;
+    ;
 
 BlockStmt
     : LCURLY Statements RCURLY
@@ -685,73 +675,73 @@ BlockStmt
     ;
 
 IfStmt
-	: IF ModifierSpec LPAREN Expr RPAREN Statement ELSE Statement
+    : IF ModifierSpec LPAREN Expr RPAREN Statement ELSE Statement
         { $$ = mkModifiers(@$, buildIfStmt(@$, $4, $6, $8), $2); }
-	| IF ModifierSpec LPAREN Expr RPAREN Statement %prec THEN_CLAUSE
+    | IF ModifierSpec LPAREN Expr RPAREN Statement %prec THEN_CLAUSE
         { $$ = mkModifiers(@$, buildIfStmt(@$, $4, $6, NULL), $2); }
-	;
+    ;
 
 ForStmt
-	: FOR ModifierSpec LPAREN IDENTIFIER COLON ExprNoEq EQUAL Expr RPAREN Statement
+    : FOR ModifierSpec LPAREN IDENTIFIER COLON ExprNoEq EQUAL Expr RPAREN Statement
         { $$ = mkModifiers(@$, mkForStmt(@$, fromString(*$4), $6, $8, $10), $2); }
-	| FOR ModifierSpec LPAREN IDENTIFIER EQUAL Expr RPAREN Statement
+    | FOR ModifierSpec LPAREN IDENTIFIER EQUAL Expr RPAREN Statement
         { $$ = mkModifiers(@$, mkForStmt(@$, fromString(*$4), NULL, $6, $8), $2); }
-	;
+    ;
 
 WhileStmt
-	: WHILE ModifierSpec LPAREN Expr RPAREN Statement
+    : WHILE ModifierSpec LPAREN Expr RPAREN Statement
         { $$ = mkModifiers(@$, buildWhileStmt(@$, $4, NULL, $6), $2); }
-	| WHILE ModifierSpec LPAREN Expr SEMICOLON Statement RPAREN Statement
+    | WHILE ModifierSpec LPAREN Expr SEMICOLON Statement RPAREN Statement
         { $$ = mkModifiers(@$, buildWhileStmt(@$, $4, $6, $8), $2); }
-	| WHILE ModifierSpec LPAREN Expr SEMICOLON Expr RPAREN Statement
+    | WHILE ModifierSpec LPAREN Expr SEMICOLON Expr RPAREN Statement
         { $$ = mkModifiers(@$, buildWhileStmt(@$, $4, $6, $8), $2); }
-	;
+    ;
 
 BreakStmt
-	: BREAK SEMICOLON
+    : BREAK SEMICOLON
         { $$ = buildBreakStmt(@$); }
-	;
+    ;
 
 ContinueStmt
-	: CONTINUE SEMICOLON
+    : CONTINUE SEMICOLON
         { $$ = buildContinueStmt(@$); }
-	;
+    ;
 
 ReturnStmt
-	: RETURN SEMICOLON
+    : RETURN SEMICOLON
         { $$ = mkReturnStmt(@$, NULL); }
-	| RETURN Expr SEMICOLON
+    | RETURN Expr SEMICOLON
         { $$ = mkReturnStmt(@$, $2); }
-	;
+    ;
 
 //ThrowStmt
-//	: THROW Expr SEMICOLON
+//  : THROW Expr SEMICOLON
 //        { $$ = mkThrowStmt(@$, $2); }
-//	;
+//  ;
 //
 //TryStmt
-//	: TRY BlockStmt Catches FinallyBlock
+//  : TRY BlockStmt Catches FinallyBlock
 //        { $$ = mkTryStmt(@$, $2, $3, $4); }
-//	;
+//  ;
 //
 //Catches
-//	: Catches CatchBlock
+//  : Catches CatchBlock
 //        { $$ = Feather_addToNodeList($1, $2); }
 //    | /*nothing*/
 //        { $$ = NULL; }
-//	;
+//  ;
 //
 //CatchBlock
-//	: CATCH Formal BlockStmt
+//  : CATCH Formal BlockStmt
 //        { $$ = mkCatchBlock(@$, $2, $3); }
-//	;
+//  ;
 //
 //FinallyBlock
-//	: FINALLY BlockStmt
+//  : FINALLY BlockStmt
 //        { $$ = mkFinallyBlock(@$, $2); }
 //    | /*nothing*/
 //        { $$ = NULL; }
-//	;
+//  ;
 
 
 /*********************************************************************************************************************

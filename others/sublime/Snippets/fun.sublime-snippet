@@ -1,0 +1,11 @@
+<snippet>
+    <content><![CDATA[/**
+ * @brief $2
+ */
+fun ${1:name} {
+	${3}
+}]]></content>
+    <tabTrigger>fun</tabTrigger>
+    <scope>source.sparrow</scope>
+    <description>fun … { … }</description>
+</snippet>

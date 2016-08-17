@@ -57,7 +57,7 @@ bool SprFrontend::ctValsEqual(Node* v1, Node* v2)
     NodeArray decls = Nest_symTabLookup(context->currentSymTab, "==");
     if ( Nest_nodeArraySize(decls) > 0 )
     {
-        Node* funCall = selectOverload(context, v1->location, modeCt, all(decls), fromIniList({v1, v2}), false, fromCStr(""));
+        Node* funCall = selectOverload(context, v1->location, modeCt, all(decls), fromIniList({v1, v2}), OverloadReporting::none, fromCStr(""));
         Nest_freeNodeArray(decls);
         if ( funCall )
         {

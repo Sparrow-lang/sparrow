@@ -40,6 +40,13 @@ NodeArray Nest_symTabLookupCurrent(SymTab* symTab, const char* name);
 /// Note that more than one symbols can be registered in the table with the same name
 NodeArray Nest_symTabLookup(SymTab* symTab, const char* name);
 
+/// Writes to console the content of the current symbol table and of all the
+/// parent symbol tables
+void Nest_dumpSymTabs(SymTab* symTab);
+
+/// Writes to console the hierarchy of the given symbol table
+void Nest_dumpSymTabHierarchy(SymTab* symTab);
+
 #ifdef __cplusplus
 }
 #endif

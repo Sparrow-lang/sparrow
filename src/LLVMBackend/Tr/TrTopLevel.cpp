@@ -63,6 +63,12 @@ namespace
 
 void Tr::translateTopLevelNode(Node* node, Module& module)
 {
+    // Translate the additional nodes for this node
+    for ( Node* n: all(node->additionalNodes) )
+    {
+        translateTopLevelNode(n, module);
+    }
+
     // If this node is explained, then translate its explanation
     Node* expl = Nest_explanation(node);
     if ( node != expl )
@@ -84,7 +90,7 @@ void Tr::translateTopLevelNode(Node* node, Module& module)
         case nkRelFeatherDeclFunction:             translateFunction(node, module); break;
         case nkRelFeatherDeclVar:                  translateGlobalVar(node, module); break;
         default:
-            REP_INTERNAL(node->location, "Don't know how to interpret a node of this kind (%1%)") % Nest_nodeKindName(node);
+            REP_INTERNAL(node->location, "Don't know how to translate at top-level a node of this kind (%1%)") % Nest_nodeKindName(node);
         }
     }
 }

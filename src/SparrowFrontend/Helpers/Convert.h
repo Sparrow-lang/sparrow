@@ -25,14 +25,15 @@ namespace SprFrontend
 
     /// Class that holds the result of a conversion: both the type of the conversion and the transformation that needs
     /// to be applied in order to make the conversion
+    /// If the conversion only works from a particular source code, also store the source code
     class ConversionResult
     {
     public:
-        ConversionResult(ConversionType convType, const ConversionFun& fun = ConversionFun(), bool contextDependent = false);
+        ConversionResult(ConversionType convType, const ConversionFun& fun = ConversionFun(), const SourceCode* sourceCode = nullptr);
 
         ConversionType conversionType() const { return convType_; }
         ConversionFun conversionFun() const { return convFun_; }
-        bool contextDependent() const { return contextDependent_; }
+        const SourceCode* sourceCode() const { return sourceCode_; }
 
         Node* apply(Node* src) const;
         Node* apply(CompilationContext* context, Node* src) const;
@@ -48,7 +49,7 @@ namespace SprFrontend
     private:
         ConversionType convType_;
         ConversionFun convFun_;
-        bool contextDependent_;
+        const SourceCode* sourceCode_;
     };
 
     /// Flags used when checking the conversion to alter the scope of the conversion

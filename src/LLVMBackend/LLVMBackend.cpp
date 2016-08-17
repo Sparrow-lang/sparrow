@@ -70,12 +70,6 @@ void _llvmBeGenerateMachineCode(Backend* backend, const SourceCode* code)
     ASSERT(rootNode->nodeSemanticallyChecked);
     _llvmBackend.rtModule->generate(rootNode);
 
-    // Translate the additional nodes
-    for ( Node* n: all(code->additionalNodes) )
-    {
-        _llvmBackend.rtModule->generate(n);
-    }
-
     _llvmBackend.rtModule->setCtToRtTranslator(LLVMB::Module::NodeFun());
 }
 

@@ -82,8 +82,7 @@ namespace
         Nest_setContext(n, node->context);
         if ( Nest_semanticCheck(n) )
         {
-            ASSERT(node->context->sourceCode);
-            Nest_appendNodeToArray(&node->context->sourceCode->additionalNodes, n);
+            Nest_appendNodeToArray(&node->additionalNodes, n);
         }
     }
 
@@ -178,7 +177,7 @@ void SprCompilationUnit_SetContextForChildren(Node* node)
             // We didn't find the package part. From now on create new namespaces
             for ( int j=(int)names.size()-1; j>=i; --j )
             {
-                Node* pk = mkSprPackage(packageName->location, fromString(names[j]), declarations);
+                Node* pk = mkSprPackage(packageName->location, fromString(names[j]), declarations, publicAccess);
                 declarations = Feather_mkNodeListVoid(packageName->location, fromIniList({pk}));
                 at(node->children, 2) = declarations;
             }
@@ -302,11 +301,10 @@ void SprClass_SetContextForChildren(Node* node)
 }
 TypeRef SprClass_ComputeType(Node* node)
 {
-    ASSERT(Nest_nodeArraySize(node->children) == 4);
+    ASSERT(Nest_nodeArraySize(node->children) == 3);
     Node* parameters = at(node->children, 0);
-    Node* baseClasses = at(node->children, 1);
-    Node* children = at(node->children, 2);
-    Node* ifClause = at(node->children, 3);
+    Node* children = at(node->children, 1);
+    Node* ifClause = at(node->children, 2);
 
     // Is this a generic?
     if ( parameters && Nest_nodeArraySize(parameters->children) != 0 )
@@ -336,8 +334,10 @@ TypeRef SprClass_ComputeType(Node* node)
     }
 
     // Create the resulting Feather.Class object
-    if ( !resultingClass )
+    if ( !resultingClass ) {
         resultingClass = Feather_mkClass(node->location, Feather_getName(node), {});
+        copyAccessType(resultingClass, node);
+    }
     Feather_setShouldAddToSymTab(resultingClass, 0);
 
     // Copy the "native" and "description" properties to the resulting class
@@ -361,46 +361,6 @@ TypeRef SprClass_ComputeType(Node* node)
     // Check for Std classes
     checkStdClass(resultingClass);
     
-    // First check all the base classes
-    if ( baseClasses )
-    {
-        for ( auto& bcName: baseClasses->children )
-        {
-            // Make sure the type refers to a class
-            TypeRef bcType = getType(bcName);
-            if ( !bcType || !bcType->hasStorage )
-                REP_ERROR_RET(nullptr, node->location, "Invalid base class");
-            Node* baseClass = Feather_classForType(bcType);
-            
-            // Compute the type of the base class
-            if ( !Nest_computeType(baseClass) )
-                continue;
-
-            if ( !children ) {
-                children = Feather_mkNodeList(node->location, NodeRange());
-                Nest_setContext(children, node->childrenContext);
-            }
-
-            // Add the fields of the base class to the resulting basic class
-            for ( Node* n: baseClass->children )
-            {
-                if ( n )
-                {
-                    n = Nest_cloneNode(n);
-                    Nest_setContext(n, node->childrenContext);
-                    Nest_appendNodeToArray(&children->children, n);                    
-                }
-            }
-
-            // TODO: Base classes: simplify this
-
-            // Copy the symbol table entries of the base to this class
-            SymTab* ourSymTab = Nest_childrenContext(node)->currentSymTab;
-            SymTab* baseSymTab = Nest_childrenContext(baseClass)->currentSymTab;
-            Nest_symTabCopyEntries(ourSymTab, baseSymTab);
-        }
-    }
-
     // We now have a type - from now on we can safely compute the types of the children
     node->type = Feather_getDataType(resultingClass, 0, modeRtCt);
 
@@ -419,11 +379,10 @@ TypeRef SprClass_ComputeType(Node* node)
     forEachNodeInNodeList(children, [&] (Node* child) -> void
     {
         Node* p = Nest_explanation(child);
-        if ( !isField(p) )
+        if ( !isField(p) || Nest_hasProperty(node, propIsStatic) )
         {
             // Methods, generics
-            ASSERT(node->context->sourceCode);
-            Nest_appendNodeToArray(&node->context->sourceCode->additionalNodes, child);
+            Nest_appendNodeToArray(&node->additionalNodes, child);
         }
     });
 
@@ -444,8 +403,8 @@ Node* SprClass_SemanticCheck(Node* node)
         return node->explanation; // This should be a generic; there is nothing else to do here
 
     // Semantic check all the children
-    ASSERT(Nest_nodeArraySize(node->children) == 4);
-    Node* children = at(node->children, 2);
+    ASSERT(Nest_nodeArraySize(node->children) == 3);
+    Node* children = at(node->children, 1);
     if ( children )
         Nest_semanticCheck(children);   // Ignore possible failures
     return node->explanation;
@@ -514,6 +473,7 @@ TypeRef SprFunction_ComputeType(Node* node)
     // Create the resulting function object
     Node* resultingFun = Feather_mkFunction(node->location, funName, nullptr, {}, body);
     Feather_setShouldAddToSymTab(resultingFun, 0);
+    copyAccessType(resultingFun, node);
 
     // Copy the "native" and the "autoCt" properties
     const StringRef* nativeName = Nest_getPropertyString(node, propNativeName);
@@ -760,18 +720,21 @@ TypeRef SprVariable_ComputeType(Node* node)
         }
         else
         {
-            // Add the variable at the top level
-            ASSERT(node->context->sourceCode);
-            Nest_appendNodeToArray(&node->context->sourceCode->additionalNodes, resultingVar);
-            resVar = nullptr;
-
-            // For global variables, add the ctor & dtor actions as top level actions
-            if ( ctorCall )
+            // For global variables, wrap ctor & dtor nodes in global ctor/dtor actions
+            if ( ctorCall ) 
                 ctorCall = Feather_mkGlobalConstructAction(node->location, ctorCall);
             if ( dtorCall )
                 dtorCall = Feather_mkGlobalDestructAction(node->location, dtorCall);
+
+            // This is a global var: don't include it into the function scope
+            resVar = nullptr;
         }
         expl = Feather_mkNodeList(node->location, fromIniList({ resVar, ctorCall, dtorCall, Feather_mkNop(node->location) }));
+
+        // If the variable was not added to the result, add it as an additional
+        // (top-level) node to the result
+        if ( !resVar )
+            Nest_appendNodeToArray(&expl->additionalNodes, resultingVar);
     }
 
     ASSERT(expl);
@@ -843,7 +806,13 @@ Node* SprConcept_SemanticCheck(Node* node)
 
 Node* Generic_SemanticCheck(Node* node)
 {
-    return Feather_mkNop(node->location);
+    Node* res = Feather_mkNop(node->location);
+
+    // Copy all the additional nodes
+    for ( Node* n: all(node->additionalNodes) )
+        Nest_appendNodeToArray(&node->additionalNodes, n);
+
+    return res;
 }
 
 void Using_SetContextForChildren(Node* node)
@@ -860,6 +829,7 @@ TypeRef Using_ComputeType(Node* node)
     const StringRef* alias = Nest_getPropertyString(node, "name");
 
     // Compile the using name
+    Nest_setPropertyExplInt(usingNode, propAllowDeclExp, 1);
     if ( !Nest_semanticCheck(usingNode) )
         return nullptr;            
 

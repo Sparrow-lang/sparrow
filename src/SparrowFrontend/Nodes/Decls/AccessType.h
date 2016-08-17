@@ -6,25 +6,27 @@ namespace SprFrontend
     /**
      * \brief   The type of access for definitions
      *
-     * When no access type is given for a declaration, the public access is assumed.
+     * When no access type is given for a declaration, the private access is assumed.
      */
     enum AccessType
     {
         publicAccess,
         privateAccess,
-        protectedAccess,
+
+        unspecifiedAccess
     };
 
-    inline string accessTypeToString(AccessType accessType)
+    inline const char* accessTypeToString(AccessType accessType)
     {
-        switch (accessType)
+        switch(accessType)
         {
+        case publicAccess:
+            return "public";
         case privateAccess:
             return "private";
-        case protectedAccess:
-            return "protected";
+        case unspecifiedAccess:
         default:
-            return "public";
+            return "unspecified";
         }
     }
 }

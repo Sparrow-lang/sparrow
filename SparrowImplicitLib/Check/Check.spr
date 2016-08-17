@@ -161,8 +161,8 @@ fun oneOf(gens: Range): gens.RetType if GenType(#$gens.RetType) {
 }
 
 //! Same as oneOf, but for each generator we also have its frequency
-fun frequency(gens: Range): gens.RetType.SecondType if FreqGenType(#$gens.RetType) {
-    if ( gens.isEmpty ) return gens.RetType.SecondType();
+fun frequency(gens: Range): typeOf((#$gens.RetType)._2) if FreqGenType(#$gens.RetType) {
+    if ( gens.isEmpty ) return typeOf((#$gens.RetType)._2)();
 
     // Compute the sum of frequencies
     var sum = 0;
@@ -180,7 +180,7 @@ fun frequency(gens: Range): gens.RetType.SecondType if FreqGenType(#$gens.RetTyp
             return fg._2;
         curAcc += fg._1;
     }
-    return gens.RetType.SecondType();
+    return typeOf((#$gens.RetType)._2)();
 }
 
 

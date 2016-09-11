@@ -765,7 +765,7 @@ namespace
             return defaultVal;
 
         if ( n->type->mode != modeCt )
-            REP_INTERNAL(node->location, "Cannot get compile-time integer value from node '%1%'") % Nest_toStringEx(n);
+            REP_INTERNAL(node->location, "Cannot get compile-time integer value from node '%1%'") % Nest_toString(n);
 
         return getIntCtValue(n);
     }

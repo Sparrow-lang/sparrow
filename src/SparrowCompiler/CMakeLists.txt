@@ -19,62 +19,45 @@ ADD_SOURCES_TO_GROUPS(sourceFiles)
 LINK_DIRECTORIES(${LIBRARY_OUTPUT_PATH})
 ADD_EXECUTABLE( SparrowCompiler ${sourceFiles} )
 TARGET_LINK_LIBRARIES(SparrowCompiler Nest Feather LLVMBackend SparrowFrontend)
+llvm_map_components_to_libnames(LLVM_LIBS
+    support core irreader codegen linker
+    ipo vectorize objcarcopts
+    mc jit mcjit interpreter executionengine
+    x86info x86desc x86codegen x86asmparser x86disassembler
+    bitreader bitwriter
+)
+message(STATUS "LLVM libraries: ${LLVM_LIBS}")
 TARGET_LINK_LIBRARIES(SparrowCompiler ${LLVM_LIBS})
-IF(APPLE)
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVM-3.5)
-    TARGET_LINK_LIBRARIES(SparrowCompiler boost_timer)
-ELSE()
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVMCore)
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVMJIT)
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVMAsmParser)
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVMBitWriter)
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVMipo)
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVMLinker)
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVMX86Info)
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVMX86Desc)
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVMX86CodeGen)
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVMExecutionEngine)
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVMVectorize)
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVMX86Desc)
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVMX86Info)
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVMObject)
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVMBitReader)
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVMX86AsmPrinter)
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVMAsmPrinter)
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVMMCParser)
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVMSelectionDAG)
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVMCodeGen)
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVMScalarOpts)
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVMInstCombine)
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVMTransformUtils)
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVMipa)
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVMAnalysis)
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVMTarget)
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVMCore)
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVMMC)
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVMX86Utils)
-    TARGET_LINK_LIBRARIES(SparrowCompiler LLVMSupport)
-
-ENDIF()
-
+TARGET_LINK_LIBRARIES(SparrowCompiler boost_timer)
+TARGET_LINK_LIBRARIES(SparrowCompiler boost_chrono)
 
 # Copy llvm binaries in the output directory
-# If the binary dir depends on configuration, take Release
-STRING(REPLACE "$(Configuration)" "Release" llvmBinDirRel ${LLVM_BIN_DIR})
-FILE(GLOB llvmBinaries "${llvmBinDirRel}/*")
-
+# Also add install targets
+FILE(GLOB llvmBinaries "${CONAN_BIN_DIRS_LLVM}/*")
 foreach(llvmFile ${llvmBinaries})
     get_filename_component(fileName ${llvmFile} NAME)
     add_custom_command(TARGET SparrowCompiler POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${llvmFile}"
             "$<TARGET_FILE_DIR:SparrowCompiler>/llvm/${fileName}")
+    install(FILES "${llvmFile}" DESTINATION "bin/llvm" PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
+                    WORLD_EXECUTE WORLD_READ)
 endforeach()
 
-# Copy the LLVM dynamic library
-IF(APPLE)
-    add_custom_command(TARGET SparrowCompiler POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${LLVM_LIB_DIR}/libLLVM-3.5.dylib"
-            "$<TARGET_FILE_DIR:SparrowCompiler>/lib/libLLVM-3.5.dylib")
-ENDIF()
+
+# Copy the LLVM dynamic libraries
+# Also add install targets
+if(APPLE)
+    foreach(llvmLib ${LLVM_LIBS})
+        add_custom_command(TARGET SparrowCompiler POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.dylib"
+                "$<TARGET_FILE_DIR:SparrowCompiler>/")
+    install(FILES "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.dylib" DESTINATION lib)
+    endforeach()
+endif()
+
+# Install targets for the executable and the implicit lib
+install(TARGETS SparrowCompiler DESTINATION bin)
+install(DIRECTORY ../../SparrowImplicitLib DESTINATION include FILES_MATCHING PATTERN *.spr)
+install(DIRECTORY ../../SparrowImplicitLib DESTINATION include FILES_MATCHING PATTERN *.llvm)

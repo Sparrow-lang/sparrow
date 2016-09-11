@@ -145,7 +145,7 @@ llvm::Type* Tr::translateClass(Node* node, Module& module)
         if ( t )
         {
             // Set the translation type for this item
-            module.setNodeProperty(node, Module::propTransType, boost::any(t));
+            module.setNodeProperty(node, Module::propTransType, t);
             return t;
         }
     }
@@ -161,7 +161,7 @@ llvm::Type* Tr::translateClass(Node* node, Module& module)
         // Create a new struct type, possible with another name
         t = llvm::StructType::create(module.llvmContext(), desc.begin);
     }
-    module.setNodeProperty(node, Module::propTransType, boost::any(static_cast<llvm::Type*>(t)));
+    module.setNodeProperty(node, Module::propTransType, t);
 
     // Now add the subtypes
     vector<llvm::Type*> fieldTypes;

@@ -61,7 +61,9 @@ bool ensureImplicitLib()
 
     return tryImplicitLibPath("/SparrowImplicitLib")
         || tryImplicitLibPath("/../SparrowImplicitLib")
-        || tryImplicitLibPath("/../../SparrowImplicitLib");
+        || tryImplicitLibPath("/../include/SparrowImplicitLib")
+        || tryImplicitLibPath("/../../SparrowImplicitLib")
+        || tryImplicitLibPath("/../../include/SparrowImplicitLib");
 }
 
 void doCompilation(const vector<CompilerModule*>& modules)

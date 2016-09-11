@@ -50,13 +50,13 @@ void Module::addDefinedFunction(llvm::Function* fun)
     definedFunctions_.insert(fun);
 }
 
-boost::any* Module::getNodePropertyPtr(Node* node, NodePropertyType type)
+void** Module::getNodePropertyPtr(Node* node, NodePropertyType type)
 {
     auto it = nodeProperties_.find(PropKey(node, type));
     return it == nodeProperties_.end() ? nullptr : &it->second;
 }
 
-void Module::setNodeProperty(Node* node, NodePropertyType type, const boost::any& value)
+void Module::setNodeProperty(Node* node, NodePropertyType type, void* value)
 {
     nodeProperties_[PropKey(node, type)] = value;
 }

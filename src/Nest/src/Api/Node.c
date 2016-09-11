@@ -64,7 +64,7 @@ int _setExplanation(Node* node, Node* explanation)
     if ( !explanation->nodeSemanticallyChecked )
     {
         Nest_setContext(node->explanation, node->context);
-        res = Nest_semanticCheck(node->explanation);
+        res = NULL != Nest_semanticCheck(node->explanation);
     }
     node->type = node->explanation->type;
     return res;

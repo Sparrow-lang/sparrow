@@ -18,7 +18,7 @@ ADD_SOURCES_TO_GROUPS(sourceFiles)
 
 LINK_DIRECTORIES(${LIBRARY_OUTPUT_PATH})
 ADD_EXECUTABLE( SparrowCompiler ${sourceFiles} )
-TARGET_LINK_LIBRARIES(SparrowCompiler Nest Feather LLVMBackend SparrowFrontend)
+TARGET_LINK_LIBRARIES(SparrowCompiler SparrowFrontend LLVMBackend Feather Nest)
 llvm_map_components_to_libnames(LLVM_LIBS
     support core irreader codegen linker
     ipo vectorize objcarcopts

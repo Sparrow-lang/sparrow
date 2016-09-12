@@ -2,7 +2,7 @@
 #include "Nest/Utils/Assert.h"
 
 static const int _maxBackends = 100;
-Backend* _allBackends[_maxBackends];
+Backend* _allBackends[100];
 unsigned int _numBackends = 0;
 
 int Nest_registerBackend(Backend* backend)

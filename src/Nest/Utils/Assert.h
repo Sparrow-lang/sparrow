@@ -13,7 +13,7 @@
         #define VERIFY ASSERT
     #endif
 #else
-    #define ASSERT(expr) if (1) ((void)0); else (!!(expr))
+    #define ASSERT(expr) if (1) ((void)0); else ((void)0)
     #define VERIFY(expr) (expr)
 #endif
 

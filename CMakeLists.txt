@@ -1,6 +1,6 @@
 # Top-Level CMakeLists.txt
 
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 2.8.11)
 
 # Project information
 project( SparrowCompiler )
@@ -62,12 +62,16 @@ else()
     add_definitions( -D__STDC_LIMIT_MACROS=1 )
     set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=gnu++0x" )
     add_definitions( -Wall )                    # All warnings...
-    add_definitions( -Wno-c++11-extensions )    # ... except C++11 extensions warnings
+    # add_definitions( -Wno-c++11-extensions )    # ... except C++11 extensions warnings
     add_definitions( -Wno-deprecated )          # ... and except deprecated functions
-    add_definitions( -Wno-undefined-bool-conversion ) # ... and except undefined bool conversions
-    add_definitions( -Wno-typedef-redefinition )   # redefinition of typedef '...' is a C11 feature
+    # add_definitions( -Wno-undefined-bool-conversion ) # ... and except undefined bool conversions
+    # add_definitions( -Wno-typedef-redefinition )   # redefinition of typedef '...' is a C11 feature
     add_definitions( -Wno-deprecated )
-    add_definitions( -Wno-unused-local-typedef ) # unused typedef 'cons_element' (inside boost headers)
+    # add_definitions( -Wno-unused-local-typedef ) # unused typedef 'cons_element' (inside boost headers)
+endif()
+
+if(CMAKE_COMPILER_IS_GNUCXX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
 endif()
 
 # Add our macros

@@ -102,8 +102,9 @@ Node* Nest_cloneNode(Node* node)
 
     // Clone each node in the children vector
     unsigned size = Nest_nodeArraySize(node->children);
+    unsigned i;
     Nest_resizeNodeArray(&res->children, size);
-    for ( size_t i=0; i<size; ++i )
+    for ( i=0; i<size; ++i )
     {
         res->children.beginPtr[i] = Nest_cloneNode(node->children.beginPtr[i]);
     }
@@ -204,7 +205,8 @@ void Nest_clearCompilationState(Node* node)
     node->type = 0;
     node->modifiers.endPtr = node->modifiers.beginPtr;
 
-    for ( Node** pp=node->children.beginPtr; pp!=node->children.endPtr; ++pp )
+    Node** pp;
+    for ( pp=node->children.beginPtr; pp!=node->children.endPtr; ++pp )
     {
         Node* p = *pp;
         if ( p )
@@ -225,9 +227,10 @@ const char* Nest_defaultFunToString(const Node* node)
     // These may reserve string buffers on their own
     const char* nodeKindName = Nest_nodeKindName(node);
     static const size_t maxChildToReport = 10;
-    const char* childStrings[maxChildToReport] = { 0 };
-    size_t numChildToReport = _myMinU(maxChildToReport, Nest_nodeArraySize(node->children));
-    for ( size_t i=0; i<numChildToReport; ++i )
+    const char* childStrings[10] = { 0 };
+    unsigned i;
+    unsigned numChildToReport = _myMinU(maxChildToReport, Nest_nodeArraySize(node->children));
+    for ( i=0; i<numChildToReport; ++i )
     {
         Node* n = node->children.beginPtr[i];
         childStrings[i] = n ? Nest_toString(n) : "<null>";
@@ -256,7 +259,7 @@ const char* Nest_defaultFunToString(const Node* node)
 
     // Write the children
     end = _appendStr(end, endOfStore, "(");
-    for ( size_t i=0; i<numChildToReport; ++i )
+    for ( i=0; i<numChildToReport; ++i )
     {
         if ( i > 0 )
             end = _appendStr(end, endOfStore, ", ");
@@ -274,7 +277,8 @@ const char* Nest_defaultFunToString(const Node* node)
 void Nest_defaultFunSetContextForChildren(Node* node)
 {
     CompilationContext* childrenCtx = Nest_childrenContext(node);
-    for ( Node** pp=node->children.beginPtr; pp!=node->children.endPtr; ++pp )
+    Node** pp;
+    for ( pp=node->children.beginPtr; pp!=node->children.endPtr; ++pp )
     {
         Node* child = *pp;
         if ( child )

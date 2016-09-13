@@ -51,8 +51,8 @@ sub hasArgument
 # Get the path of the executable (Debug, Release, ...) based on which is newer
 sub findExecutablePath
 {
-    my @modes = ('', 'Release', 'MinSizeRel', 'RelWithDebInfo', 'Debug');
-    my @basePaths = ('/usr/local/bin', '$curDir/../build/bin');
+    my @modes = ('', '/Release', '/MinSizeRel', '/RelWithDebInfo', '/Debug');
+    my @basePaths = ('/usr/local/bin', "$curDir/../build/bin");
     my $bestPath = $basePath[0]."Release";
     my $bestTime = 10000;
     foreach my $base(@basePaths)

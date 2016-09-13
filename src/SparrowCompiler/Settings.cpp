@@ -144,6 +144,14 @@ void initSettingsWithArgs(int argc, char** argv)
 
     s.programName_ = argv[0];
     s.executableDir_ = boost::filesystem::system_complete(getExecutablePath(argv[0])).parent_path().string();
+
+    // Default data layout & target triple
+    s.dataLayout_ = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-f32:32:32-f64:64:64-v64:64:64-v128:128:128-a0:0:64-s0:64:64-f80:128:128-n8:16:32:64";
+#if (BOOST_OS_MACOS)
+    s.targetTriple_ = "x86_64-apple-macosx10.9.0";
+#else
+    s.targetTriple_ = "x86_64-linux-gnu";
+#endif
     
     // Declare a group of options that will be allowed only on command line
     po::options_description generic("Generic options");
@@ -169,6 +177,8 @@ void initSettingsWithArgs(int argc, char** argv)
         ("fno-rvo", "disable RVO and pseudo-RVO")
         ("optimization,O", po::value<int>(&s.optimizationLevel_)->default_value(0), "the optimization level (0=disabled,1,2,3)")
         ("max-count-for-inline", po::value<int>(&s.maxCountForInline_)->default_value(30), "max number of lines for inlining")
+        ("data-layout", po::value<string>(&s.dataLayout_), "the data layout")
+        ("target-triple", po::value<string>(&s.targetTriple_), "the target machine triple")
         ("libraries-path,L", po::value<vector<string> >(&s.libPaths_), "import path to search for libraries")
         ("frameworks-path,F", po::value<vector<string> >(&s.frameworkPaths_), "import path to search for frameworks")
         ("libraries,l", po::value<vector<string> >(&s.libraries_), "library to link with the output")

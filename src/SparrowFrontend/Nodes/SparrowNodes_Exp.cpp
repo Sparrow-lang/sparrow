@@ -488,7 +488,8 @@ namespace
 
         EvalMode mode;
         CompilationContext* ctx;
-        StringRef opWithPrefix = fromString(opPrefix + operation.begin);
+        opPrefix += toString(operation);
+        StringRef opWithPrefix = fromString(opPrefix);
 
         if ( argClass )
         {

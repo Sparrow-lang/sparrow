@@ -26,6 +26,12 @@ llvm_map_components_to_libnames(LLVM_LIBS
     x86info x86desc x86codegen x86asmparser x86disassembler
     bitreader bitwriter
 )
+llvm_map_components_to_libnames(LLVM_EXTRA_LIBS
+    asmparser asmprinter mcparser ipa analysis object transformutils
+    scalaropts selectiondag target instcombine instrumentation runtimedyld
+    x86asmprinter x86utils
+)
+
 message(STATUS "LLVM libraries: ${LLVM_LIBS}")
 TARGET_LINK_LIBRARIES(SparrowCompiler ${LLVM_LIBS})
 TARGET_LINK_LIBRARIES(SparrowCompiler boost_timer)
@@ -53,7 +59,22 @@ if(APPLE)
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.dylib"
                 "$<TARGET_FILE_DIR:SparrowCompiler>/")
-    install(FILES "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.dylib" DESTINATION lib)
+        install(FILES "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.dylib" DESTINATION lib)
+    endforeach()
+elseif(UNIX)
+    foreach(llvmLib ${LLVM_LIBS})
+        add_custom_command(TARGET SparrowCompiler POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.so"
+                "$<TARGET_FILE_DIR:SparrowCompiler>/lib/lib${llvmLib}.so")
+        install(FILES "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.so" DESTINATION lib)
+    endforeach()
+    foreach(llvmLib ${LLVM_EXTRA_LIBS})
+        add_custom_command(TARGET SparrowCompiler POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.so"
+                "$<TARGET_FILE_DIR:SparrowCompiler>/lib/lib${llvmLib}.so")
+        install(FILES "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.so" DESTINATION lib)
     endforeach()
 endif()
 

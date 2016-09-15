@@ -54,15 +54,16 @@ sub findExecutablePath
     my @modes = ('', '/Release', '/MinSizeRel', '/RelWithDebInfo', '/Debug');
     my @basePaths = ('/usr/local/bin', "$curDir/../build/bin");
     my $bestPath = $basePath[0]."Release";
-    my $bestTime = 10000;
+    my $bestTime = 0;
     foreach my $base(@basePaths)
     {
         foreach my $mode(@modes)
         {
             my $curPath = $base.$mode;
             next unless -d $curPath;
+            next unless -f $curPath."/SparrowCompiler";
             my $curTime = -M $curPath;
-            next unless $curTime < $bestTime;
+            next if $bestTime > 0 and $curTime > $bestTime;
 
             $bestPath = $curPath;
             $bestTime = $curTime;

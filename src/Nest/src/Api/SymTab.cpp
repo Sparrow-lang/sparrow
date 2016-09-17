@@ -120,7 +120,7 @@ namespace {
         // Print them in groups, avoiding duplicates
         int numEntries = 0;
         int startIdx = 0;
-        for ( int i=0; i<entries.size(); ++i ) {
+        for ( int i=0; i<int(entries.size()); ++i ) {
             if ( entries[startIdx] != entries[i] ) {
                 // Print the last entry
                 if ( numEntries > 1 )

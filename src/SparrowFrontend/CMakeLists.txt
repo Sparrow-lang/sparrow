@@ -5,7 +5,6 @@ find_package(BISON)
 BISON_TARGET(SparrowParser Grammar/parser.yy ${CMAKE_CURRENT_BINARY_DIR}/parser.yy.cpp VERBOSE ${CMAKE_CURRENT_BINARY_DIR}/parser.yy.output)
 FLEX_TARGET(SparrowScanner Grammar/scanner.ll ${CMAKE_CURRENT_BINARY_DIR}/scanner.ll.cpp)
 ADD_FLEX_BISON_DEPENDENCY(SparrowScanner SparrowParser)
-message(STATUS "Flex include: ${FLEX_INCLUDE_DIR}")
 include_directories(${FLEX_INCLUDE_DIR})
 
 # The source files

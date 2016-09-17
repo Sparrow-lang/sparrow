@@ -1066,9 +1066,9 @@ namespace
 
         // Store the step & the end labels (blocks) in the object
         ASSERT(!context.scopesStack().empty());
-        context.module().setNodeProperty(node, Module::propWhileInstr, boost::any(&scopeGuard));
-        context.module().setNodeProperty(node, Module::propWhileStepLabel, boost::any(whileStep));
-        context.module().setNodeProperty(node, Module::propWhileEndLabel, boost::any(whileEnd));
+        context.module().setNodeProperty(node, Module::propWhileInstr, &scopeGuard);
+        context.module().setNodeProperty(node, Module::propWhileStepLabel, whileStep);
+        context.module().setNodeProperty(node, Module::propWhileEndLabel, whileEnd);
 
         // Jump in the while block
         {
@@ -1265,7 +1265,7 @@ llvm::Value* Tr::translateNode(Node* node, TrContext& context)
 
 llvm::Value* Tr::setValue(Module& module, Node& node, llvm::Value* val)
 {
-    module.setNodeProperty(&node, Module::propValue, boost::any(val));
+    module.setNodeProperty(&node, Module::propValue, val);
     return val;
 }
 

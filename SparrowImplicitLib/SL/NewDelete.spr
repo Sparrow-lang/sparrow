@@ -35,7 +35,7 @@ fun[rtct] new(t: Type, arg1, arg2, arg3, arg4: @AnyType): @t if isValid((#$t).ct
     return res;
 }
 
-fun[rtct] delete(obj: @AnyType)
+fun[rtct] delete(obj: @AnyType) if !isValid(obj.release())
 {
     if ( obj !== null )
     {

@@ -3,7 +3,6 @@
 #include "Nest/Api/TypeRef.h"
 
 #include <boost/function.hpp>
-#include <boost/any.hpp>
 #include <string>
 #include <unordered_map>
 
@@ -69,16 +68,15 @@ namespace LLVMB
         void addDefinedFunction(llvm::Function* fun);
 
         /// Getters/setter for node properties
-        boost::any* getNodePropertyPtr(Node* node, NodePropertyType type);
-        void setNodeProperty(Node* node, NodePropertyType type, const boost::any& value);
+        void** getNodePropertyPtr(Node* node, NodePropertyType type);
+        void setNodeProperty(Node* node, NodePropertyType type, void* value);
 
     // Helpers
     public:
         template <typename T>
         T* getNodePropertyValue(Node* node, NodePropertyType type)
         {
-            boost::any* anyVal = getNodePropertyPtr(node, type);
-            return !anyVal || anyVal->empty() ? nullptr : boost::any_cast<T>(anyVal);
+            return reinterpret_cast<T*>(getNodePropertyPtr(node, type));
         }
 
     protected:
@@ -93,7 +91,7 @@ namespace LLVMB
 
         llvm::LLVMContext* llvmContext_;
         llvm::Module* llvmModule_;
-        unordered_map<PropKey, boost::any, PropKeyHash> nodeProperties_;
+        unordered_map<PropKey, void*, PropKeyHash> nodeProperties_;
         unordered_set<llvm::Function*> definedFunctions_;
 
         /// If set, it represents the object that is used to generate debug information for this module

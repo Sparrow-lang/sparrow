@@ -23,7 +23,7 @@ package HashImpl
     {
         var hash = start;
         for ( i = 0..key.size() )
-            hash = (hash !^! Byte(key(i))) * 0x01000193;
+            hash = (hash !^! SizeType(Byte(key(i)))) * 0x01000193;
         return hash;
     }
     fun[rtct] doHash(value, start: SizeType): SizeType

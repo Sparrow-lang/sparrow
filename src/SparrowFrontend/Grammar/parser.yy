@@ -11,6 +11,10 @@
     #include <Nodes/Decls/AccessType.h>
 
     typedef struct Nest_Node Node;
+    typedef struct Nest_Location Location;
+
+    typedef pair<Location, string> LocString;
+    typedef vector<LocString> LocStringVec;
 
     namespace SprFrontend
     {
@@ -104,8 +108,8 @@ using namespace std;
     double              floatingVal;
     char                charVal;
     string*             stringVal;
-    vector<string>*     stringList;
-    Node*         node;
+    vector<LocString>*  stringList;
+    Node*               node;
     AccessType          accessType;
 }
 
@@ -153,7 +157,7 @@ using namespace std;
 %type <stringVal>   Operator OperatorNoEq IdentifierOrOperator IdentifierOrOperatorNoEq
 %type <node>        QualifiedName QualifiedNameStar
 %type <stringList>  IdentifierList
-%type <node>       IdentifierListNode Modifiers ModifierSpec
+%type <node>        IdentifierListNode Modifiers ModifierSpec
 
 %destructor { delete $$; } Operator OperatorNoEq IdentifierOrOperator IdentifierOrOperatorNoEq
 
@@ -244,9 +248,9 @@ QualifiedNameStar
 
 IdentifierList
     : IdentifierList COMMA IDENTIFIER
-        { $$ = buildStringList($1, *$3); }
+        { $$ = buildStringList($1, LocString(@3, *$3)); }
     | IDENTIFIER
-        { $$ = buildStringList(NULL, *$1); }
+        { $$ = buildStringList(NULL, LocString(@1, *$1)); }
     ;
 
 IdentifierListNode

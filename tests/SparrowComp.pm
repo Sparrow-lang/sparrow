@@ -15,10 +15,9 @@ else
 }
 chomp($curDir);
 our $executablePath = findExecutablePath();
-#print "Executable path: $executablePath\n";
-our $sparrowCompiler = "$executablePath/SparrowCompiler.exe";
-our $lliProgram = "$executablePath/llvm/lli.exe";
-our $outExt = "exe";
+our $sparrowCompiler = "$executablePath/SparrowCompiler";
+our $lliProgram = "$executablePath/llvm/lli";
+our $outExt = "out";
 our $compilerParams = "-v";
 our $useSimpleLinkinigBelowNRunTests = 1;       # Pass here a large number to always use simple linking, -1 to disable simple linking
 our $debugOutput = hasArgument('--debug');
@@ -26,12 +25,11 @@ our $captureTime = hasArgument('--time');
 
 
 
-if ( $osname eq 'darwin' )
+if ( $osname eq 'MSWin32' )
 {
-    $outExt = "out";
-    $sparrowCompiler = $executablePath . '/SparrowCompiler';
-    $lliProgram = $executablePath . '/llvm/lli';
-    local $ENV{PATH} = "$ENV{PATH}:/Users/lucteo/MyWork/Sparrow_SVN/trunk/sc2/dev/.out/Debug/llvm";
+    $outExt = "exe";
+    $sparrowCompiler = $sparrowCompiler . '.exe';
+    $lliProgram = $lliProgram . '.exe'
 }
 
 sub hasArgument
@@ -53,21 +51,27 @@ sub hasArgument
 # Get the path of the executable (Debug, Release, ...) based on which is newer
 sub findExecutablePath
 {
-    my $basePath = "../.out/";
-    my @modes = ('Release', 'MinSizeRel', 'RelWithDebInfo', 'Debug');
-    my $bestPath = $basePath."Release";
-    my $bestTime = 10000;
-    foreach my $mode(@modes)
+    my @modes = ('', '/Release', '/MinSizeRel', '/RelWithDebInfo', '/Debug');
+    my @basePaths = ('/usr/local/bin', "$curDir/../build/bin");
+    my $bestPath = $basePath[0]."Release";
+    my $bestTime = 0;
+    foreach my $base(@basePaths)
     {
-        my $curPath = $basePath.$mode;
-        next unless -d $curPath;
-        my $curTime = -M $curPath;
-        next unless $curTime < $bestTime;
+        foreach my $mode(@modes)
+        {
+            my $curPath = $base.$mode;
+            next unless -d $curPath;
+            next unless -f $curPath."/SparrowCompiler";
+            my $curTime = -M $curPath;
+            next if $bestTime > 0 and $curTime > $bestTime;
 
-        $bestPath = $curPath;
-        $bestTime = $curTime;
+            $bestPath = $curPath;
+            $bestTime = $curTime;
+        }
+        
     }
-    return "$curDir/$bestPath";
+    # print "Executable path: $bestPath\n";
+    return $bestPath;
 }
 
 # Removes the spaces at the begin and end of the string given as parameter

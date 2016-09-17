@@ -27,7 +27,7 @@ struct _SourceCodeKindDescription
 
 /// The registered SourceCode kinds
 static const int _maxSourceCodeKinds = 100;
-struct _SourceCodeKindDescription _allSourceCodeKinds[_maxSourceCodeKinds];
+struct _SourceCodeKindDescription _allSourceCodeKinds[100];
 unsigned int _numSourceCodeKinds = 0;
 
 int Nest_registerSourceCodeKind(
@@ -82,7 +82,8 @@ FTranslateCtToRt Nest_getTranslateCtToRtFun(int sourceCodeKind)
 
 int Nest_getSourceCodeKindForExtension(const char* extension)
 {
-    for ( int i=0; i<_numSourceCodeKinds; ++i )
+    int i;
+    for ( i=0; i<_numSourceCodeKinds; ++i )
     {
         if ( 0 == strcmp(extension, _allSourceCodeKinds[i].extension) )
             return i;

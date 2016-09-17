@@ -21,33 +21,33 @@ namespace
 }
 
 
-vector<string>* SprFrontend::buildStringList(vector<string>* prevList, string element)
+LocStringVec* SprFrontend::buildStringList(LocStringVec* prevList, LocString element)
 {
     if ( !prevList )
-        prevList = new vector<string>;
+        prevList = new LocStringVec;
 
     prevList->emplace_back(move(element));
     return prevList;
 }
 
-Node* SprFrontend::buildVariables(const Location& loc, const vector<string>& names, Node* typeNode, Node* init, Node* mods, AccessType accessType)
+Node* SprFrontend::buildVariables(const Location& loc, const LocStringVec& names, Node* typeNode, Node* init, Node* mods, AccessType accessType)
 {
     NodeVector nodes;
     nodes.reserve(names.size());
-    for ( const string& name: names )
+    for ( const auto& name: names )
     {
-        nodes.push_back(mkModifiers(loc, mkSprVariable(loc, fromString(name), typeNode, init, accessType), mods));
+        nodes.push_back(mkModifiers(name.first, mkSprVariable(name.first, fromString(name.second), typeNode, init, accessType), mods));
     }
     return Feather_mkNodeListVoid(loc, all(nodes));
 }
 
-Node* SprFrontend::buildParameters(const Location& loc, const vector<string>& names, Node* typeNode, Node* init, Node* mods)
+Node* SprFrontend::buildParameters(const Location& loc, const LocStringVec& names, Node* typeNode, Node* init, Node* mods)
 {
     NodeVector nodes;
     nodes.reserve(names.size());
-    for ( const string& name: names )
+    for ( const auto& name: names )
     {
-        nodes.push_back(mkModifiers(loc, mkSprParameter(loc, fromString(name), typeNode, init), mods));
+        nodes.push_back(mkModifiers(name.first, mkSprParameter(name.first, fromString(name.second), typeNode, init), mods));
     }
     return Feather_mkNodeListVoid(loc, all(nodes));
 }

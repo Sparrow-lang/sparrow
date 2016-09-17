@@ -162,7 +162,7 @@ llvm::Function* Tr::translateFunction(Node* node, Module& module)
         f->addFnAttr(llvm::Attribute::NoUnwind);
 
         // Set the function value as a property of the node
-        module.setNodeProperty(node, Module::propFunDecl, boost::any(f));
+        module.setNodeProperty(node, Module::propFunDecl, f);
     }
     ASSERT(f);
 
@@ -198,7 +198,7 @@ llvm::Function* Tr::translateFunction(Node* node, Module& module)
             llvm::AllocaInst* newVar = new llvm::AllocaInst(argIt->getType(), toString(Feather_getName(param))+".addr", bodyBlock);
             newVar->setAlignment(Nest_getCheckPropertyInt(param, "alignment"));
             new llvm::StoreInst(argIt, newVar, bodyBlock); // Copy the value of the parameter into it
-            module.setNodeProperty(param, Module::propValue, boost::any(newVar));
+            module.setNodeProperty(param, Module::propValue, newVar);
             Tr::setValue(module, *param, newVar); // We point now to the new temp variable
         }
 

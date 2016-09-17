@@ -8,12 +8,15 @@
 
 namespace SprFrontend
 {
+    typedef pair<Location, string> LocString;
+    typedef vector<LocString> LocStringVec;
+
     Node* addModifiers(Node* mods, Node* main);
 
-    vector<string>* buildStringList(vector<string>* prevList, string element);
+    LocStringVec* buildStringList(LocStringVec* prevList, LocString element);
 
-    Node* buildVariables(const Location& loc, const vector<string>& names, Node* typeNode, Node* init, Node* mods, AccessType accessType = unspecifiedAccess);
-    Node* buildParameters(const Location& loc, const vector<string>& names, Node* typeNode, Node* init, Node* mods);
+    Node* buildVariables(const Location& loc, const LocStringVec& names, Node* typeNode, Node* init, Node* mods, AccessType accessType = unspecifiedAccess);
+    Node* buildParameters(const Location& loc, const LocStringVec& names, Node* typeNode, Node* init, Node* mods);
     Node* buildAutoParameter(const Location& loc, StringRef name, Node* mods);
     Node* buildSprFunctionExp(const Location& loc, StringRef name, Node* parameters, Node* returnType, Node* bodyExp, Node* ifClause = nullptr, AccessType accessType = unspecifiedAccess);
 

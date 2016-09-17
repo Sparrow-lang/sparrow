@@ -6,6 +6,8 @@
 #include "Nest/Api/SourceCode.h"
 #include "Nest/Api/Type.h"
 
+#include <stdarg.h>
+
 static int _reportingEnabled = 1;
 static int _numErrors = 0;
 static int _numSupppresedErrors = 0;

@@ -1,0 +1,45 @@
+os: linux
+language: python
+sudo: required
+services:
+  - docker
+env:
+  global:
+    - CONAN_UPLOAD: 1
+    - CONAN_REFERENCE: "Sparrow/0.9.3"
+    - CONAN_USERNAME: "lucteo"
+    - CONAN_CHANNEL: "ci"
+    - CONAN_TOTAL_PAGES: 2
+
+  matrix:
+    - CONAN_GCC_VERSIONS=4.8 CONAN_CURRENT_PAGE=1 CONAN_USE_DOCKER=1
+    - CONAN_GCC_VERSIONS=4.8 CONAN_CURRENT_PAGE=2 CONAN_USE_DOCKER=1
+    - CONAN_GCC_VERSIONS=4.9 CONAN_CURRENT_PAGE=1 CONAN_USE_DOCKER=1
+    - CONAN_GCC_VERSIONS=4.9 CONAN_CURRENT_PAGE=2 CONAN_USE_DOCKER=1
+    - CONAN_GCC_VERSIONS=5.2 CONAN_CURRENT_PAGE=1 CONAN_USE_DOCKER=1
+    - CONAN_GCC_VERSIONS=5.2 CONAN_CURRENT_PAGE=2 CONAN_USE_DOCKER=1
+    - CONAN_GCC_VERSIONS=5.3 CONAN_CURRENT_PAGE=1 CONAN_USE_DOCKER=1
+    - CONAN_GCC_VERSIONS=5.3 CONAN_CURRENT_PAGE=2 CONAN_USE_DOCKER=1
+matrix:
+   include:
+       - os: osx 
+         osx_image: xcode7.3 # apple-clang 7.3
+         language: generic
+         env: CONAN_CURRENT_PAGE=1
+       - os: osx 
+         osx_image: xcode7.3 # apple-clang 7.3
+         language: generic
+         env: CONAN_CURRENT_PAGE=2
+       - os: osx
+         osx_image: xcode6.4 # apple-clang 6.1
+         language: generic
+         env: CONAN_CURRENT_PAGE=1
+       - os: osx 
+         osx_image: xcode6.4 # apple-clang 6.1
+         language: generic
+         env: CONAN_CURRENT_PAGE=2
+
+install:
+  - ./.travis/install.sh
+script:
+  - ./.travis/run.sh

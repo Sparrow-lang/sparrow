@@ -25,7 +25,7 @@ namespace
 
     struct TypeHasher
     {
-        size_t operator()(const Type& type)
+        size_t operator()(const Type& type) const noexcept
         {
             return getContentHash(&type);
         }

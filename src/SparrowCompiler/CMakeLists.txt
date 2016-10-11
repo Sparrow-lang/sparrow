@@ -34,8 +34,7 @@ llvm_map_components_to_libnames(LLVM_EXTRA_LIBS
 
 message(STATUS "LLVM libraries: ${LLVM_LIBS}")
 TARGET_LINK_LIBRARIES(SparrowCompiler ${LLVM_LIBS})
-TARGET_LINK_LIBRARIES(SparrowCompiler boost_timer)
-TARGET_LINK_LIBRARIES(SparrowCompiler boost_chrono)
+TARGET_LINK_LIBRARIES(SparrowCompiler boost_timer boost_chrono boost_program_options)
 
 # Copy llvm binaries in the output directory
 # Also add install targets

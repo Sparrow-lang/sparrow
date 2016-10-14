@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Sparrow-lang/sparrow.svg?branch=master)](https://travis-ci.org/Sparrow-lang/sparrow)
+
 # The Sparrow programming language
 
 Welcome to the repository of the Sparrow compiler, the reference compiler for the Sparrow programming language.

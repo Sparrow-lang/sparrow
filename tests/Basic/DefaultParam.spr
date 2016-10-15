@@ -2,7 +2,7 @@
 
 concept AnyType(x) if true;
 
-fun add(x: Int, y: Int = 1) = x+y;
+fun myadd(x: Int, y: Int = 1) = x+y;
 
 
 class Foo
@@ -56,8 +56,8 @@ fun[native("test")] test(n: Int)
     var foo = Foo(7);
 
     // Functions with default args
-    writeLn(add(2,3));
-    writeLn(add(2));
+    writeLn(myadd(2,3));
+    writeLn(myadd(2));
     writeLn(foo.incWith(2));
     writeLn(foo.incWith());
     //writeLn(foo.plus); // TODO

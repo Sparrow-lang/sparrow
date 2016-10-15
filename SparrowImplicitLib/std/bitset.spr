@@ -22,7 +22,7 @@ class[rtct] Bitset
 
     fun clear
     {
-        memset(reinterpretCast(@Byte, bits(0)), UByte(0), bits.size());
+        memset(reinterpretCast(@Byte, bits(0)), Byte(0), bits.size());
     }
 
     private var bits: Array(UByte);

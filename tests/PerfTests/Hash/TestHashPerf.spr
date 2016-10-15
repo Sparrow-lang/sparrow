@@ -23,7 +23,7 @@ class Equal(type: Type) {
 
 using ObjPtr = Ptr(Obj);
 using TestHashMap = Map(UInt, ObjPtr);
-using TestSortedMap = SortedMap(UInt, ObjPtr, Less(Int), Equal(Int));
+using TestSortedMap = SortedMap(UInt, ObjPtr, Less(UInt), Equal(UInt));
 
 var objects: Array(Obj);
 var insertKeys: Array(UInt);

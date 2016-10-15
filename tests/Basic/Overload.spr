@@ -76,12 +76,12 @@ fun[native("test")] test(n: Int)
 
     //f3(a,10);
     f3(b,10);
-    f3(c,10);       // TODO: should be ambiguous here
+    //f3(c,10);
     writeLn("---");
 
     f3(a,Short(1));
     //f3(b,Short(1));
-    f3(c,Short(1));
+    //f3(c,Short(1));
 }
 
 /*<<<Running()
@@ -114,8 +114,6 @@ f2(Int, Int)
 f2(AnyType, AnyType)
 ---
 f3(Int, Int)
-f3(Double@, Double@)
 ---
 f3(AnyType, AnyType)
-f3(Double@, Double@)
 >>>*/

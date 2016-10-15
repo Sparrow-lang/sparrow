@@ -208,9 +208,9 @@ namespace
             if ( !candidates[i]->isValid() )
                 continue;
             bool isMostSpecialized = true;
-            for ( size_t j=i+1; j<candidates.size(); ++j )
+            for ( size_t j=0; j<candidates.size(); ++j )
             {
-                if ( !candidates[j]->isValid() )
+                if ( j ==i || !candidates[j]->isValid() )
                     continue;
                 int res = moreSpecialized(context, candidates[i], candidates[j], noCustomCvt);
                 // if res < 0, the current function is more specialized than the other function

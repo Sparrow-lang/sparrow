@@ -150,8 +150,7 @@ fun mkLRef(x: @LRefType) = x;
 fun mkLRef(x: @StringRef) = LRef(String)(x);
 fun mkLRef(x: @AnyType): LRef(-@typeOf(x)) = x if !LRefType(x);
 
-fun mkValOrRef(x: @LRefType) = x;
-fun mkValOrRef(x: @ValWrapper) = x if !LRefType(typeOf(x));
+fun mkValOrRef(x: @ValWrapper) = x;
 fun mkValOrRef(x: @StringRef) = Optional(String)(x);
 fun mkValOrRef(x: @AnyType) = Optional(-@typeOf(x))(x) if !ValWrapper(x);
 

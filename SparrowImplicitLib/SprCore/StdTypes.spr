@@ -17,7 +17,7 @@ class[native("i8"), noDefault, rtct] Byte
     fun[native("_zero_init_8")] ctor();
     fun[native("_ass_8_8")] ctor(src: Byte);
     fun[native("_ass_8_8")] ctor(src: Char);
-    fun[native("_ass_8_8"), convert] ctor(src: UByte);
+    fun[native("_ass_8_8")] ctor(src: UByte);
     fun[native("_ass_8_16")] ctor(src: Short);
     fun[native("_ass_8_16")] ctor(src: UShort);
     fun[native("_ass_8_32")] ctor(src: Int);
@@ -61,7 +61,7 @@ class[native("i16"), noDefault, rtct] Short
     fun[native("_ass_16_8s"), convert] ctor(src: Byte);
     fun[native("_ass_16_8z"), convert] ctor(src: UByte);
     fun[native("_ass_16_16")] ctor(src: Short);
-    fun[native("_ass_16_16"), convert] ctor(src: UShort);
+    fun[native("_ass_16_16")] ctor(src: UShort);
     fun[native("_ass_16_32")] ctor(src: Int);
     fun[native("_ass_16_32")] ctor(src: UInt);
     fun[native("_ass_16_64")] ctor(src: Long);
@@ -105,7 +105,7 @@ class[native("i32"), noDefault, rtct] Int
     fun[native("_ass_32_16s"), convert] ctor(src: Short);
     fun[native("_ass_32_16z"), convert] ctor(src: UShort);
     fun[native("_ass_32_32")] ctor(src: Int);
-    fun[native("_ass_32_32"), convert] ctor(src: UInt);
+    fun[native("_ass_32_32")] ctor(src: UInt);
     fun[native("_ass_32_64")] ctor(src: Long);
     fun[native("_ass_32_64")] ctor(src: ULong);
     fun[native("_ass_32_64")] ctor(src: SizeType);
@@ -151,7 +151,7 @@ class[native("i64"), noDefault, rtct] Long
     fun[native("_ass_64_32s"), convert] ctor(src: Int);
     fun[native("_ass_64_32z"), convert] ctor(src: UInt);
     fun[native("_ass_64_64")] ctor(src: Long);
-    fun[native("_ass_64_64"), convert] ctor(src: ULong);
+    fun[native("_ass_64_64")] ctor(src: ULong);
     fun[native("_ass_64_64"), convert] ctor(src: SizeType);
     fun[native("_ass_64_64"), convert] ctor(src: DiffType);
     fun[native("_ass_i64_f")] ctor(src: Float);
@@ -192,8 +192,8 @@ class[native("u64"), noDefault, rtct] SizeType
     fun[native("_ass_64_16z"), convert] ctor(src: UShort);
     fun[native("_ass_64_32z"), convert] ctor(src: Int);
     fun[native("_ass_64_32z"), convert] ctor(src: UInt);
-    fun[native("_ass_64_64"), convert] ctor(src: Long);
-    fun[native("_ass_64_64"), convert] ctor(src: ULong);
+    fun[native("_ass_64_64")] ctor(src: Long);
+    fun[native("_ass_64_64")] ctor(src: ULong);
     fun[native("_ass_64_64")] ctor(src: SizeType);
     fun[native("_ass_64_64"), convert] ctor(src: DiffType);
     fun[native("_ass_u64_f")] ctor(src: Float);
@@ -215,9 +215,9 @@ class[native("i64"), noDefault, rtct] DiffType
     fun[native("_ass_64_16z"), convert] ctor(src: UShort);
     fun[native("_ass_64_32s"), convert] ctor(src: Int);
     fun[native("_ass_64_32z"), convert] ctor(src: UInt);
-    fun[native("_ass_64_64"), convert] ctor(src: Long);
-    fun[native("_ass_64_64"), convert] ctor(src: ULong);
-    fun[native("_ass_64_64"), convert] ctor(src: SizeType);
+    fun[native("_ass_64_64")] ctor(src: Long);
+    fun[native("_ass_64_64")] ctor(src: ULong);
+    fun[native("_ass_64_64")] ctor(src: SizeType);
     fun[native("_ass_64_64")] ctor(src: DiffType);
     fun[native("_ass_i64_f")] ctor(src: Float);
     fun[native("_ass_i64_d")] ctor(src: Double);

@@ -31,7 +31,7 @@ fun min(value1: @AnyType, value2: @AnyType, pred: AnyType): typeOf(value1)
     return value1;
 }
 
-fun[autoCt] swap(a, b: @AnyType) if typeOf(a) == typeOf(b)
+fun[autoCt] swap(a, b: @AnyType) if typeOf(a) == typeOf(b) && !Swappable(a)
 {
     var tmp = a;
     a = b;

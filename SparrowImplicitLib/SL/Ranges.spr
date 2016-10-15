@@ -175,7 +175,7 @@ class[rtct] NumericRangeInc(valueType: Type) if Number(#$valueType)
     fun back: RetType               = begin + cvt(size()-1);
     fun popBack                     { end -= step; }
 
-    fun size: SizeType              = ife(closed, end-begin+1, end-begin);
+    fun size: SizeType              = SizeType(ife(closed, valueType(end-begin+1), end-begin));
     
     fun popFront(n: SizeType)       { begin += cvt(n); }
     fun popBack(n: SizeType)        { end -= cvt(n); }

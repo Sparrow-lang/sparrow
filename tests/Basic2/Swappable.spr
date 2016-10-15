@@ -3,7 +3,7 @@ package Test;
 
 concept Swappable(x) if isValid(x.swap(x));
 
-fun[autoCt] swap(a, b: @AnyType) if typeOf(a) == typeOf(b)
+fun[autoCt] swap(a, b: @AnyType) if typeOf(a) == typeOf(b) && !Swappable(a)
 {
     cout << "Simple swap called" << endl;
     var tmp = a;

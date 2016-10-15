@@ -922,7 +922,7 @@ class[native("i32"), noDefault, rtct] Int
 
 class[native("u32"), noDefault, rtct] UInt
 {
-    fun ctor() { this = 0; }
+    fun ctor() { this = UInt(0); }
     fun ctor(other: Uninitialized) {}
     fun[native("_ass_32_8z"), convert] ctor(src: Byte);
     fun[native("_ass_32_8z"), convert] ctor(src: UByte);
@@ -940,7 +940,7 @@ class[native("u32"), noDefault, rtct] UInt
 
 class[native("i64"), noDefault, rtct] Long
 {
-    fun ctor() { this = 0; }
+    fun ctor() { this = Long(0); }
     fun ctor(other: Uninitialized) {}
     fun[native("_ass_64_8s"), convert] ctor(src: Byte);
     fun[native("_ass_64_8z"), convert] ctor(src: UByte);
@@ -958,7 +958,7 @@ class[native("i64"), noDefault, rtct] Long
 
 class[native("u64"), noDefault, rtct] ULong
 {
-    fun ctor() { this = 0; }
+    fun ctor() { this = ULong(0); }
     fun ctor(other: Uninitialized) {}
     fun[native("_ass_64_8z"), convert] ctor(src: Byte);
     fun[native("_ass_64_8z"), convert] ctor(src: UByte);
@@ -1029,7 +1029,7 @@ class[native("i8"), noDefault, rtct] Char
 
 class[native("u64"), noDefault, rtct] SizeType
 {
-    fun ctor() { this = 0; }
+    fun ctor() { this = SizeType(0); }
     fun ctor(other: Uninitialized) {}
     fun[native("_ass_64_8z"), convert] ctor(src: Byte);
     fun[native("_ass_64_8z"), convert] ctor(src: UByte);
@@ -1084,7 +1084,7 @@ class[rtct, noDefault, native("StringRef")] StringRef
         var s = size();
         if ( s != other.size() ) return false;
         var i: SizeType = 0;
-        while ( i<s ; i+=1 )
+        while ( i<s ; i+=SizeType(1) )
             if ( getChar(i) != other.getChar(i) ) return false;
         return true;
     }

@@ -169,7 +169,7 @@ fun frequency(gens: Range): typeOf((#$gens.RetType)._2) if FreqGenType(#$gens.Re
     for ( fg = gens ) {
         sum += fg._1;
     }
-    if ( sum == 0 ) return gens.RetType();
+    if ( sum == 0 ) return typeOf((#$gens.RetType)._2)();
 
     // Select a random number in the total sum of frequencies
     var toSelect = randBetween(0, sum);

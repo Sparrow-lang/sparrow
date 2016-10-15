@@ -142,8 +142,10 @@ namespace
         if ( !srcConcept )
             return convNone;
 
+
         // If we have a concept, check if the type fulfills the concept
         TypeRef srcBaseConceptType = baseConceptType(srcConcept);
+        srcBaseConceptType = Feather_checkChangeTypeMode(srcBaseConceptType, srcType->mode, srcConcept->location);
         return cachedCanConvertImpl(context, flags, srcBaseConceptType, destType);
     }
     

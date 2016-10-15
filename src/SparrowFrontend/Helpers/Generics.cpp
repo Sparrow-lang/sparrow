@@ -505,7 +505,6 @@ TypeRef SprFrontend::baseConceptType(Node* concept)
     Node* baseConcept = at(concept->children, 0);
 
     TypeRef res = baseConcept ? getType(baseConcept) : getConceptType();
-    res = Feather_adjustMode(res, concept->context, concept->location);
     return res;
 }
 

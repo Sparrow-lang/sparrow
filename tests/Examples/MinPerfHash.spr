@@ -474,7 +474,7 @@ fun[rtct] getMonths: Vector(String)
 fun sprMain
 {
     var testNum = 1;
-    var keysCount: UInt = -1;
+    var keysCount: Int = -1;
     var testRepCount  = 1;
     var totalRepCount = 1;
     if ( programArgs.size() > 1 )  testNum = asInt(programArgs(1));

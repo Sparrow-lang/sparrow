@@ -1,3 +1,0 @@
-import prolog;
-
-var[ct] dummy1 = meta.Compiler.registerFrontendFun(".pl", "logic.handlePrologCode");

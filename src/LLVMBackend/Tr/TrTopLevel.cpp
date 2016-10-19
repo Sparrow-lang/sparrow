@@ -69,6 +69,9 @@ void Tr::translateTopLevelNode(Node* node, Module& module)
         translateTopLevelNode(n, module);
     }
 
+    if ( !node->nodeSemanticallyChecked )
+        REP_INTERNAL(node->location, "Node not semantically checked and yet it reached backend for translation");
+
     // If this node is explained, then translate its explanation
     Node* expl = Nest_explanation(node);
     if ( node != expl )

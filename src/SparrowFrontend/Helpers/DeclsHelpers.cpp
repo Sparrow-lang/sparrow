@@ -88,6 +88,12 @@ NodeVector SprFrontend::getDeclsFromNode(Node* n, Node*& baseExp)
         res = NodeVector(n->referredNodes.beginPtr+1, n->referredNodes.endPtr);
         return res;
     }
+
+    // Check if this is a ModuleRef; if so, get the inner most package
+    if ( n->nodeKind == nkSparrowExpModuleRef ) {
+        res = { Nest_getCheckPropertyNode(n, propResultingDecl) };
+        return res;
+    }
     
     // If the node represents a type, try to get the declaration associated with the type
     TypeRef t = tryGetTypeValue(n);

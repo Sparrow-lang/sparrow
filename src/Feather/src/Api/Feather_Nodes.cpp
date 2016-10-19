@@ -40,7 +40,7 @@ using namespace Feather;
     {
         if ( node->nodeKind != nkFeatherDeclVar )
             return false;
-        
+
         // Check the direct parent is a class that contains the given node
         SymTab* st = node->context->currentSymTab;
         Node* parent = st ? st->node : nullptr;
@@ -258,7 +258,7 @@ using namespace Feather;
             node->childrenContext = Nest_mkChildContextWithSymTab(node->context, node, Feather_effectiveEvalMode(node));
 
         Nest_defaultFunSetContextForChildren(node);
-        
+
         Feather_addToSymTab(node);
     }
     TypeRef Function_ComputeType(Node* node)
@@ -341,7 +341,7 @@ using namespace Feather;
             node->childrenContext = Nest_mkChildContextWithSymTab(node->context, node, Feather_effectiveEvalMode(node));
 
         Nest_defaultFunSetContextForChildren(node);
-        
+
         Feather_addToSymTab(node);
     }
     TypeRef Class_ComputeType(Node* node)
@@ -430,7 +430,7 @@ using namespace Feather;
 
         StringRef valueDataStr = Nest_getCheckPropertyString(node, "valueData");
         const void* valueData = valueDataStr.begin;
-        
+
         const StringRef* nativeName = node->type->hasStorage ? Feather_nativeName(node->type) : nullptr;
         if ( 0 == strcmp(node->type->description, "Type/ct") )
         {
@@ -595,7 +595,7 @@ using namespace Feather;
     Node* FunCall_SemanticCheck(Node* node)
     {
         Node* fun = at(node->referredNodes, 0);
-        
+
         // Make sure the function declaration is has a valid type
         if ( !Nest_computeType(fun) )
             return nullptr;
@@ -741,7 +741,7 @@ using namespace Feather;
         Node* exp = at(node->children, 0);
         Node* resType = at(node->children, 1);
         if ( !Nest_semanticCheck(exp) )
-            return nullptr;            
+            return nullptr;
         TypeRef tDest = Nest_computeType(resType);
         if ( !tDest )
             return nullptr;
@@ -752,7 +752,7 @@ using namespace Feather;
             REP_ERROR_RET(nullptr, node->location, "The source of a bitcast is not a type with storage (%1%)") % srcType;
         if ( !tDest->hasStorage )
             REP_ERROR_RET(nullptr, node->location, "The destination type of a bitcast is not a type with storage (%1%)") % tDest;
-        
+
         // Make sure both types are references
         if ( srcType->numReferences == 0 )
             REP_ERROR_RET(nullptr, node->location, "The source of a bitcast is not a reference (%1%)") % srcType;
@@ -782,7 +782,7 @@ using namespace Feather;
 
         // Semantic check the condition
         if ( !Nest_semanticCheck(cond) )
-            return nullptr;            
+            return nullptr;
 
         // Check that the type of the condition is 'Testable'
         if ( !Feather_isTestable(cond) )
@@ -800,7 +800,7 @@ using namespace Feather;
 
         // Semantic check the alternatives
         if ( !Nest_semanticCheck(alt1) || !Nest_semanticCheck(alt2) )
-            return nullptr;            
+            return nullptr;
 
         // Make sure the types of the alternatives are equal
         if ( !Feather_isSameTypeIgnoreMode(alt1->type, alt2->type) )
@@ -870,9 +870,9 @@ using namespace Feather;
 
         // Semantic check the clauses
         if ( thenClause && !Nest_semanticCheck(thenClause) )
-            return nullptr;            
+            return nullptr;
         if ( elseClause && !Nest_semanticCheck(elseClause) )
-            return nullptr;            
+            return nullptr;
         return node;
     }
 
@@ -897,10 +897,10 @@ using namespace Feather;
         Node* condition = at(node->children, 0);
         Node* step = at(node->children, 1);
         Node* body = at(node->children, 2);
-        
+
         // Semantic check the condition
         if ( !Nest_semanticCheck(condition) )
-            return nullptr;            
+            return nullptr;
         if ( step && !Nest_computeType(step) )
             return nullptr;
 
@@ -953,9 +953,9 @@ using namespace Feather;
 
         // Semantic check the body and the step
         if ( body && !Nest_semanticCheck(body) )
-            return nullptr;            
+            return nullptr;
         if ( step && !Nest_semanticCheck(step) )
-            return nullptr;            
+            return nullptr;
 
         // The resulting type is Void
         node->type = Feather_getVoidType(node->context->evalMode);
@@ -994,7 +994,7 @@ using namespace Feather;
 
         // If we have an expression argument, semantically check it
         if ( exp && !Nest_semanticCheck(exp) )
-            return nullptr;            
+            return nullptr;
 
         // Get the parent function of this return
         Node* parentFun = Feather_getParentFun(node->context);
@@ -1125,7 +1125,7 @@ Node* Feather_addToNodeList(Node* prevList, Node* element)
             res->location = element->location;
         Nest_setPropertyInt(res, propResultVoid, 1);    // voidResult == true
     }
-    
+
     Nest_nodeAddChild(res, element);
     return res;
 }
@@ -1135,7 +1135,7 @@ Node* Feather_appendNodeList(Node* list, Node* newNodes)
         return newNodes;
     if ( !newNodes )
         return list;
-    
+
     ASSERT(list->nodeKind == nkFeatherNodeList);
     ASSERT(newNodes->nodeKind == nkFeatherNodeList);
     Node* res = list;

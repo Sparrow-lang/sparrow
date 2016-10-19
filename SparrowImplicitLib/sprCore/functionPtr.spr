@@ -1,3 +1,5 @@
+import = basicDecls(Type, Byte, Int);
+
 class FunctionPtr(resT: Type)
 {
     using arity = 0;

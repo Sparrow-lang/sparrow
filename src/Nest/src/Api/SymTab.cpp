@@ -13,6 +13,7 @@ struct _SymTabImpl {
     SymTab base;
     MMap entries;
     MMap copiedEntries;
+    vector<Node*> toCheckNodes;
 };
 
 template<class ITERATOR>
@@ -20,6 +21,23 @@ ITERATOR begin( std::pair<ITERATOR,ITERATOR> &range ) { return range.first; }
 
 template<class ITERATOR>
 ITERATOR end( std::pair<ITERATOR,ITERATOR> &range ) { return range.second; }
+
+namespace {
+    void checkNodes(_SymTabImpl* st) {
+        if ( st->toCheckNodes.empty() )
+            return;
+
+        // Get all the nodes that we need to check
+        vector<Node*> nodesToCheck;
+        nodesToCheck.swap(st->toCheckNodes);
+
+        // One by one, compute their type
+        // Here we may add additional symbols to this symbol table
+        for ( Node* n : nodesToCheck ) {
+            Nest_computeType(n);
+        }
+    }
+}
 
 SymTab* Nest_mkSymTab(SymTab* parent, Node* node)
 {
@@ -39,6 +57,12 @@ void Nest_symTabEnter(SymTab* symTab, const char* name, Node* node)
     st->entries.insert(MMapPair(name, node));
     // Remove all the copied entries with the same name
     st->copiedEntries.erase(name);
+}
+
+void Nest_symTabAddToCheckNode(SymTab* symTab, Node* node)
+{
+    _SymTabImpl* st = (_SymTabImpl*) symTab;
+    st->toCheckNodes.push_back(node);
 }
 
 void Nest_symTabCopyEntries(SymTab* symTab, SymTab* otherSymTab)
@@ -73,6 +97,9 @@ NodeArray Nest_symTabAllEntries(SymTab* symTab)
 {
     _SymTabImpl* st = (_SymTabImpl*) symTab;
 
+    // Make sure to check all the required nodes for this symtab
+    checkNodes(st);
+
     NodeArray result = Nest_allocNodeArray(st->entries.size() + st->copiedEntries.size());
     for ( auto entry: st->entries )
         Nest_appendNodeToArray(&result, entry.second);
@@ -84,6 +111,9 @@ NodeArray Nest_symTabAllEntries(SymTab* symTab)
 NodeArray Nest_symTabLookupCurrent(SymTab* symTab, const char* name)
 {
     _SymTabImpl* st = (_SymTabImpl*) symTab;
+
+    // Make sure to check all the required nodes for this symtab
+    checkNodes(st);
 
     auto range = st->entries.equal_range(name);
     NodeArray result = Nest_allocNodeArray(distance(range.first, range.second));
@@ -107,12 +137,27 @@ NodeArray Nest_symTabLookup(SymTab* symTab, const char* name)
 {
     _SymTabImpl* st = (_SymTabImpl*) symTab;
 
+    // Make sure to check all the required nodes for this symtab
+    checkNodes(st);
+
     NodeArray res = Nest_symTabLookupCurrent(symTab, name);
     return Nest_nodeArraySize(res) > 0 || !st->base.parent ? res : Nest_symTabLookup(st->base.parent, name);
 }
 
 namespace {
-    void dumpSortedEntries(MMap& entriesMap) {
+    void dumpEntry(const char* name, int numEntries, bool isFirst, bool singleLine) {
+        if ( singleLine && !isFirst )
+            printf(", ");
+        if ( !singleLine )
+            printf("    ");
+        if ( numEntries > 1 )
+            printf("%s (%d times)", name, numEntries);
+        else
+            printf("%s", name);
+        if ( !singleLine )
+            printf("\n");
+    }
+    void dumpSortedEntries(MMap& entriesMap, bool singleLine = false) {
         if ( entriesMap.empty() )
             return;
         // Gather all the entries
@@ -128,10 +173,7 @@ namespace {
         for ( int i=0; i<int(entries.size()); ++i ) {
             if ( entries[startIdx] != entries[i] ) {
                 // Print the last entry
-                if ( numEntries > 1 )
-                    printf("    %s (%d times)\n", entries[startIdx].c_str(), numEntries);
-                else
-                    printf("    %s\n", entries[startIdx].c_str());
+                dumpEntry(entries[startIdx].c_str(), numEntries, startIdx==0, singleLine);
                 // update the state vars
                 numEntries = 1;
                 startIdx = i;
@@ -140,10 +182,7 @@ namespace {
             }
         }
         // Print the last entry
-        if ( numEntries > 1 )
-            printf("    %s (%d times)\n", entries[startIdx].c_str(), numEntries);
-        else
-            printf("    %s\n", entries[startIdx].c_str());
+        dumpEntry(entries[startIdx].c_str(), numEntries, startIdx==0, singleLine);
     }
 }
 
@@ -163,6 +202,16 @@ void Nest_dumpSymTabs(SymTab* symTab)
             printf("    + copied entries:\n");
             dumpSortedEntries(st->copiedEntries);
         }
+    }
+}
+
+void Nest_dumpSymTabNames(SymTab* symTab)
+{
+    _SymTabImpl* st = (_SymTabImpl*) symTab;
+    dumpSortedEntries(st->entries, true);
+    if ( !st->copiedEntries.empty() ) {
+        printf(" + ");
+        dumpSortedEntries(st->copiedEntries, true);
     }
 }
 

@@ -24,6 +24,9 @@ using namespace Nest;
 
 namespace fs = boost::filesystem;
 
+extern SourceCode* g_implicitLibSC;
+
+
 void _dumpAstForSourceCode(SourceCode* sourceCode, const char* fileSuffix) {
     auto& s = *Nest_compilerSettings();
     if ( s.dumpAST_.empty() || !strstr(sourceCode->url, s.dumpAST_.c_str()) )
@@ -116,8 +119,9 @@ void doCompilation(const vector<CompilerModule*>& modules)
         Nest::Common::PrintTimer timer(s.verbose_, "<implicit lib>", "   [%ws]\n");
 
         // Process the implicit definitions file
+        g_implicitLibSC = nullptr;
         if ( !s.implicitLibFilePath_.empty() )
-            Nest_compileFile(fromString(s.implicitLibFilePath_));
+            g_implicitLibSC = Nest_compileFile(fromString(s.implicitLibFilePath_));
     }
 
 

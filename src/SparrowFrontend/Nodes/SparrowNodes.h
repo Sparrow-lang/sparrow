@@ -9,7 +9,7 @@ namespace SprFrontend
     enum SparrowNodeKinds
     {
         nkRelSparrowModifiersNode = 0,
-        
+
         nkRelSparrowDeclModule,
         nkRelSparrowDeclImportName,
         nkRelSparrowDeclPackage,
@@ -33,10 +33,11 @@ namespace SprFrontend
         nkRelSparrowExpSprConditional,
         nkRelSparrowExpDeclExp,
         nkRelSparrowExpStarExp,
-        
+        nkRelSparrowExpModuleRef,
+
         nkRelSparrowStmtFor,
         nkRelSparrowStmtSprReturn,
-        
+
         nkRelSparrowInnerInstantiation,
         nkRelSparrowInnerInstantiationsSet,
     };
@@ -46,7 +47,7 @@ namespace SprFrontend
 
     // The IDs for all the Sparrow node kinds
     extern int nkSparrowModifiersNode;
-    
+
     extern int nkSparrowDeclModule;
     extern int nkSparrowDeclImportName;
     extern int nkSparrowDeclPackage;
@@ -70,10 +71,11 @@ namespace SprFrontend
     extern int nkSparrowExpSprConditional;
     extern int nkSparrowExpDeclExp;
     extern int nkSparrowExpStarExp;
-    
+    extern int nkSparrowExpModuleRef;
+
     extern int nkSparrowStmtFor;
     extern int nkSparrowStmtSprReturn;
-    
+
     extern int nkSparrowInnerInstantiation;
     extern int nkSparrowInnerInstantiationsSet;
 
@@ -112,6 +114,7 @@ namespace SprFrontend
     Node* mkConditionalExp(const Location& loc, Node* cond, Node* alt1, Node* alt2);
     Node* mkDeclExp(const Location& loc, NodeRange decls, Node* baseExp = nullptr);
     Node* mkStarExp(const Location& loc, Node* base, StringRef operName);
+    Node* mkModuleRef(const Location& loc, Node* module);
 
     Node* mkForStmt(const Location& loc, StringRef name, Node* type, Node* range, Node* action);
     Node* mkReturnStmt(const Location& loc, Node* exp);

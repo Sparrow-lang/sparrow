@@ -1,6 +1,0 @@
-import meta.astNodes;
-
-fun[ct, macro] ife(cond, alt1, alt2: meta.AstNode): meta.AstNode
-{
-    return meta.SprFrontend.mkConditionalExp(cond.location(), cond, alt1, alt2);
-}

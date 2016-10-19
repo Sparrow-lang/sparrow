@@ -1,6 +1,4 @@
-module math.math;
-
-import sprCore.numericOper;
+module math;
 
 fun[native("llvm.sqrt.f32"), rtct] sqrt(x: Float): Float;
 fun[native("llvm.sin.f32"), rtct] sin(x: Float): Float;

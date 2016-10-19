@@ -117,6 +117,9 @@ Node* Feather_getParentLoop(CompilationContext* context);
 /// Throws if the name was not set for the node
 StringRef Feather_getName(const Node* decl);
 
+/// Tests if the given node has a node set
+int Feather_hasName(const Node* decl);
+
 /// Setter for the name of a declaration
 void Feather_setName(Node* decl, StringRef name);
 

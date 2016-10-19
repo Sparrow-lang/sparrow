@@ -1,3 +1,4 @@
+import = basicDecls(StringRef, Char, Int, Long, Double, typeOf);
 
 fun[rtct] asInt(src: StringRef)       = StringCvtImpl.atoi(src.cStr());
 fun[rtct] asLong(src: StringRef)      = StringCvtImpl.atoll(src.cStr());

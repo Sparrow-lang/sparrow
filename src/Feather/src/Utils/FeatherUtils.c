@@ -126,6 +126,11 @@ StringRef Feather_getName(const Node* decl)
     return Nest_getCheckPropertyString(decl, "name");
 }
 
+int Feather_hasName(const Node* decl)
+{
+    return Nest_hasProperty(decl, "name");
+}
+
 void Feather_setName(Node* decl, StringRef name)
 {
     Nest_setPropertyString(decl, "name", name);

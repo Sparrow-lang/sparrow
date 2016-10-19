@@ -33,7 +33,7 @@ namespace
         {
             Node* resDecl = resultingDecl(at(decls, 0));
             ASSERT(resDecl);
-            
+
             // Check if we can refer to a variable
             if ( resDecl->nodeKind == nkFeatherDeclVar )
             {
@@ -55,7 +55,7 @@ namespace
                     Node* baseCvt = nullptr;
                     doDereference1(baseExp, baseCvt);  // ... but no more than one reference
                     baseExp = baseCvt;
-                    
+
                     return Feather_mkFieldRef(loc, baseExp, resDecl);
                 }
                 return Feather_mkVarRef(loc, resDecl);
@@ -119,7 +119,7 @@ namespace
             REP_ERROR(arg2->location, "The second argument of a %1% must have a storage type (we have %2%)") % castName % arg2->type;
             return false;
         }
-        
+
         if ( secondShouldBeRef && arg2->type->numReferences == 0 )
         {
             REP_ERROR(arg2->location, "The second argument of a %1% must be a reference (we have %2%)") % castName % arg2->type;
@@ -288,7 +288,7 @@ namespace
         if ( res )
         {
             arg = at(arguments->children, 0);
-            if ( !Nest_semanticCheck(arg) ) 
+            if ( !Nest_semanticCheck(arg) )
                 res = false;
         }
 
@@ -389,6 +389,20 @@ namespace
         return  mkFunApplication(node->location, base, fromIniList({arg1})) ;
     }
 
+    Node* checkIfe(Node* node)
+    {
+        Node* arguments = at(node->children, 1);
+
+        // Make sure we have three arguments
+        if ( Nest_nodeArraySize(arguments->children) != 3 )
+            REP_ERROR_RET(nullptr, node->location, "ife expects 3 arguments; %1% given") % Nest_nodeArraySize(arguments->children);
+
+        Node* cond = at(arguments->children, 0);
+        Node* arg1 = at(arguments->children, 1);
+        Node* arg2 = at(arguments->children, 2);
+        return mkConditionalExp(node->location, cond, arg1, arg2);
+    }
+
     Node* checkConstruct(Node* node, NodeRange args)
     {
         // Make sure we have more than one argument
@@ -459,7 +473,7 @@ namespace
         }
 
         // Gather the search places and parameters
-        
+
         //! Structure defining the parameters for a search attempt
         struct SearchAttempt {
             StringRef operation;                //!< The operation name to look for
@@ -667,7 +681,7 @@ namespace
     //
 
     static const char* operPropName = "spr.operation";
-    
+
     StringRef getOperation(Node* infixExp)
     {
         return Nest_getCheckPropertyString(infixExp, operPropName);
@@ -704,7 +718,7 @@ namespace
     //    / \                  / \
     //   L   Y           =>   X   R
     //      / \              / \
-    //     M   R            L   M    
+    //     M   R            L   M
     //
     // We must keep the this pointer in the same position, but we must switch the arguments & operations
     // The right argument of this will become the left argument of this
@@ -730,7 +744,7 @@ namespace
     {
         // Expand all the declarations
         NodeArray decls = expandDecls(declsOrig, node);
-        
+
         // If no declarations found, return the default value
         auto numDecls = size(decls);
         if ( numDecls == 0 )
@@ -900,7 +914,7 @@ Node* Literal_SemanticCheck(Node* node)
         return nullptr;
     TypeRef t = getType(ident);
     t = Feather_checkChangeTypeMode(t, modeCt, node->location);
-    
+
     if ( litType == "StringRef" )
     {
         // Create the explanation
@@ -996,7 +1010,7 @@ Node* CompoundExp_SemanticCheck(Node* node)
     // Try to get the declarations pointed by the base node
     Node* baseDataExp = nullptr;
     NodeVector baseDecls = getDeclsFromNode(base, baseDataExp);
-    
+
     // If the base has storage, retain it as the base data expression
     if ( baseDecls.empty() && base->type->hasStorage )
         baseDataExp = base;
@@ -1028,7 +1042,7 @@ Node* CompoundExp_SemanticCheck(Node* node)
         if ( !Nest_computeType(classDecl) )
             return nullptr;
 
-        // Search for a declaration in the class 
+        // Search for a declaration in the class
         declsOrig = Nest_symTabLookupCurrent(classDecl->childrenContext->currentSymTab, id.begin);
     }
 
@@ -1038,7 +1052,23 @@ Node* CompoundExp_SemanticCheck(Node* node)
     NodeArray decls = expandDecls(all(declsOrig), node);
 
     if ( size(decls) == 0 ) {
-        REP_ERROR(node->location, "No declarations found with the name '%1%' inside %2%: %3%") % id % base % base->type;
+        // Get the string describing where we are searching
+        ostringstream oss;
+        if ( baseDecls.empty() ) {
+            oss << base << ": " << base->type;
+        }
+        else if ( baseDecls.size() == 1 ) {
+            oss << Feather_getName(baseDecls[0]).begin;
+        }
+        else {
+            oss << "decls(";
+            for ( int i=0; i<baseDecls.size(); ++i  ) {
+                if ( i>0 ) oss << ", ";
+                oss << Feather_getName(baseDecls[i]).begin;
+            }
+            oss << ")";
+        }
+        REP_ERROR(node->location, "No declarations found with the name '%1%' inside %2%") % id % oss.str();
 
         // Print the removed declarations
         for ( Node* n: declsOrig ) {
@@ -1071,7 +1101,7 @@ Node* FunApplication_SemanticCheck(Node* node)
 
     if ( !base )
         REP_INTERNAL(node->location, "Don't know what function to call");
-    
+
     // For the base expression allow it to return DeclExp
     Nest_setPropertyExplInt(base, propAllowDeclExp, 1);
 
@@ -1105,6 +1135,10 @@ Node* FunApplication_SemanticCheck(Node* node)
         else if ( id == "lift" )
         {
             return checkLift(node);
+        }
+        else if ( id == "ife" )
+        {
+            return checkIfe(node);
         }
     }
 
@@ -1289,7 +1323,7 @@ Node* OperatorCall_SemanticCheck(Node* node)
             REP_ERROR(node->location, "Cannot find an overload for calling operator %2% %1%") % operation % argTypeStr(arg1);
         else if ( arg2 )
             REP_ERROR(node->location, "Cannot find an overload for calling operator %1% %2%") % operation % argTypeStr(arg2);
-        else 
+        else
             REP_ERROR(node->location, "Cannot find an overload for calling operator %1%") % operation;
 
         // Try now once more to select the operator, now with errors turned on
@@ -1430,7 +1464,7 @@ Node* SprConditional_SemanticCheck(Node* node)
     TypeRef resType = commonType(node->context, t1, t2);
     if ( resType == StdDef::typeVoid )
         REP_ERROR_RET(nullptr, node->location, "Cannot deduce the result type for a conditional expression (%1%, %2%)") % t1 % t2;
-    
+
     // Convert both types to the result type
     ConversionResult c1  = canConvertType(node->context, t1, resType);
     ConversionResult c2  = canConvertType(node->context, t2, resType);
@@ -1462,7 +1496,7 @@ Node* StarExp_SemanticCheck(Node* node)
 
     // Get the declarations from the base expression
     if ( !Nest_semanticCheck(base) )
-        return nullptr;            
+        return nullptr;
     Node* baseExp;
     NodeVector baseDecls = getDeclsFromNode(base, baseExp);
     if ( baseDecls.empty() )
@@ -1488,7 +1522,20 @@ Node* StarExp_SemanticCheck(Node* node)
 
     if ( decls.empty() )
         REP_ERROR(node->location, "No declarations found with the star expression");
-    
+
     // This expands to a declaration expression
     return mkDeclExp(node->location, all(decls));
 }
+
+Node* ModuleRef_SemanticCheck(Node* node)
+{
+    Node* module = at(node->referredNodes, 0);
+    if ( module->nodeKind != nkSparrowDeclModule )
+        REP_INTERNAL(node->location, "Cannot create a ModuleRef node for a node that is not a Sparrow module");
+    Node* innerMostPackage = Nest_getCheckPropertyNode(module, propResultingDecl);
+    Nest_setPropertyNode(node, propResultingDecl, innerMostPackage);
+
+    node->type = Feather_getVoidType(node->context->evalMode);
+    return node;    // This node should never be translated directly
+}
+

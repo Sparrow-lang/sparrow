@@ -1,6 +1,5 @@
 #include <StdInc.h>
 #include "SparrowNodes.h"
-#include "SparrowNodesAccessors.h"
 #include "IntMods.h"
 #include <SparrowFrontendTypes.h>
 
@@ -10,13 +9,7 @@
 #include <Helpers/Generics.h>
 #include <Helpers/StdDef.h>
 #include <Helpers/Convert.h>
-#include <Helpers/QualifiedId.h>
 #include <Helpers/ForEachNodeInNodeList.h>
-
-#include "Feather/Utils/FeatherUtils.hpp"
-
-#include "Nest/Api/SourceCode.h"
-#include "Nest/Utils/NodeVector.hpp"
 
 using namespace SprFrontend;
 using namespace Nest;
@@ -63,7 +56,7 @@ namespace
     //
 
     static const char* propIsMember = "spr.isMember";
-    
+
     void handleStaticCtorDtor(Node* node, bool ctor)
     {
         ASSERT(Nest_nodeArraySize(node->children) == 4);
@@ -134,7 +127,7 @@ namespace
                 if ( t && !canConvert(init, t) )
                     REP_ERROR_RET(nullptr, init->location, "Initializer of the variable (%1%) cannot be converted to variable type (%2%)")
                     % init->type % t;
-                
+
                 t = getAutoType(init, isRefAuto);
             }
         }
@@ -143,139 +136,7 @@ namespace
         t = Feather_adjustMode(t, ctx, loc);
         return t;
     }
-}
 
-void Module_SetContextForChildren(Node* node)
-{
-    ASSERT(Nest_nodeArraySize(node->children) == 3);
-    Node* moduleName = at(node->children, 0);
-    Node* imports = at(node->children, 1);
-    Node* declarations = at(node->children, 2);
-    if ( moduleName )
-        Nest_setContext(moduleName, node->context);
-
-    // If we don't have a module name, infer it from the name of the file
-    if ( !moduleName )
-    {
-        ASSERT(node->location.sourceCode);
-        ASSERT(node->location.sourceCode->url);
-        const char* url = node->location.sourceCode->url;
-        // Remove the path part
-        const char* p = strrchr(url, '/');
-        if ( !p )
-            p = strrchr(url, '\\');
-        if ( p )
-            url = p+1;
-        // Remove the extension part
-        p = strchr(url, '.');
-        // Create an identifier with the given name to serve as module name
-        StringRef id = { url, p ? p : url + strlen(url) };
-        moduleName = mkIdentifier(node->location, id);
-    }
-
-    // Handle module name - create namespaces for it
-    if ( moduleName )
-    {
-        // Get the parts of the package name
-        vector<pair<string, Node*>> names;
-        interpretQualifiedId(moduleName, names);
-        ASSERT(!names.empty() && !names.back().first.empty());
-
-        for ( int i=0; i<(int)names.size()-1; ++i )
-        {
-            // Try to find an existing package in the current symbol table
-            NodeArray decls = Nest_symTabLookupCurrent(node->context->currentSymTab, names[i].first.c_str());
-            Node* firstDecl = Nest_nodeArraySize(decls) == 1 ? at(decls, 0) : nullptr;
-            Nest_freeNodeArray(decls);
-            if ( firstDecl )
-            {
-                node->context = Nest_childrenContext(firstDecl);
-                continue;
-            }
-
-            // We didn't find the package part. From now on create new namespaces
-            for ( int j=(int)names.size()-2; j>=i; --j )
-            {
-                Node* pk = mkSprPackage(moduleName->location, fromString(names[j].first), declarations, publicAccess);
-                declarations = Feather_mkNodeListVoid(moduleName->location, fromIniList({pk}));
-                at(node->children, 2) = declarations;
-            }
-            break;
-        }
-    }
-
-    // If we don't have a children context, create one
-    node->childrenContext = node->context;
-    //if ( !node->childrenContext )
-    //    node->childrenContext = Nest_mkChildContextWithSymTab(node->context, node, evalMode());
-
-    // Set the context for all the children
-    if ( declarations )
-        Nest_setContext(declarations, node->childrenContext);
-    if ( imports )
-        Nest_setContext(imports, node->childrenContext);
-
-    // Handle imports
-    if ( imports )
-    {
-        const SourceCode* sourceCode = node->location.sourceCode;
-        for ( Node* i: imports->children )
-        {
-            if ( i->nodeKind != nkSparrowDeclImportName )
-                Nest_reportFmt(i->location, diagInternalError, "Expected spr.importName node; found %s", Nest_nodeKindName(i));
-
-            // Node* declNames = at(children, 1);
-            i = at(i->children, 0);           // get the base identifier/literal
-
-            Node* lit = Nest_ofKind(i, nkSparrowExpLiteral);
-            if ( lit && Literal_isString(lit) )
-            {
-                Nest_addSourceCodeByFilename(sourceCode, Literal_getData(lit));
-            }
-            else
-            {
-                vector<pair<string, Node*>> qid;
-                interpretQualifiedId(i, qid);
-
-                if ( qid.empty() )
-                    REP_INTERNAL(NOLOC, "Nothing to import");
-
-                // Transform qid into filename/dirname
-                string filename;
-                for ( const auto& part: qid )
-                {
-                    if ( !filename.empty() )
-                        filename += "/";
-                    filename += part.first;
-                }
-                Nest_addSourceCodeByFilename(sourceCode, fromString(filename + ".spr"));
-            }
-        }
-    }
-}
-TypeRef Module_ComputeType(Node* node)
-{
-    ASSERT(Nest_nodeArraySize(node->children) == 3);
-    Node* declarations = at(node->children, 2);
-
-    // Compute the type for the children
-    if ( declarations )
-    {
-        if ( Nest_computeType(declarations) )
-            checkForAllowedNamespaceChildren(declarations);
-    }
-
-    return Feather_getVoidType(modeCt);
-}
-Node* Module_SemanticCheck(Node* node)
-{
-    if ( !Nest_computeType(node) )
-        return nullptr;
-
-    ASSERT(Nest_nodeArraySize(node->children) == 3);
-    Node* declarations = at(node->children, 2);
-
-    return declarations ? declarations : Feather_mkNop(node->location);
 }
 
 TypeRef ImportName_ComputeType(Node* node)
@@ -321,7 +182,7 @@ Node* Package_SemanticCheck(Node* node)
 void SprClass_SetContextForChildren(Node* node)
 {
     Feather_addToSymTab(node);
-    
+
     // If we don't have a children context, create one
     if ( !node->childrenContext )
         node->childrenContext = Nest_mkChildContextWithSymTab(node->context, node, Feather_effectiveEvalMode(node));
@@ -352,7 +213,7 @@ TypeRef SprClass_ComputeType(Node* node)
     // Default class members
     if ( !Nest_hasProperty(node, propNoDefault) )
         Nest_addModifier(node, SprFe_getClassMembersIntMod());
-    
+
     Node* resultingClass = nullptr;
 
     // Special case for Type class; re-use the existing StdDef class
@@ -389,7 +250,7 @@ TypeRef SprClass_ComputeType(Node* node)
 
     // Check for Std classes
     checkStdClass(resultingClass);
-    
+
     // We now have a type - from now on we can safely compute the types of the children
     node->type = Feather_getDataType(resultingClass, 0, modeRtCt);
 
@@ -583,7 +444,7 @@ Node* SprFunction_SemanticCheck(Node* node)
     if ( resultingFun && (!Nest_hasProperty(node, propIsMember) || Nest_hasProperty(node, propIsStatic)) )
     {
         StringRef funName = Feather_getName(node);
-        
+
         if ( funName == "ctor" )
             handleStaticCtorDtor(node, true);
         if ( funName == "dtor" )
@@ -750,7 +611,7 @@ TypeRef SprVariable_ComputeType(Node* node)
         else
         {
             // For global variables, wrap ctor & dtor nodes in global ctor/dtor actions
-            if ( ctorCall ) 
+            if ( ctorCall )
                 ctorCall = Feather_mkGlobalConstructAction(node->location, ctorCall);
             if ( dtorCall )
                 dtorCall = Feather_mkGlobalDestructAction(node->location, dtorCall);
@@ -789,7 +650,7 @@ Node* SprVariable_SemanticCheck(Node* node)
     // Semantically check the resulting variable and explanation
     Node* resultingVar = Nest_getCheckPropertyNode(node, "spr.resultingVar");
     if ( !Nest_semanticCheck(resultingVar) )
-        return nullptr;            
+        return nullptr;
     return Nest_semanticCheck(node->explanation);
 }
 
@@ -816,7 +677,7 @@ Node* SprConcept_SemanticCheck(Node* node)
     if ( baseConcept )
     {
         if ( !Nest_semanticCheck(baseConcept) )
-            return nullptr;            
+            return nullptr;
         if ( !Feather_isCt(baseConcept) )
             REP_ERROR_RET(nullptr, baseConcept->location, "Base concept type needs to be compile-time (type=%1%)") % baseConcept->type;
     }
@@ -828,7 +689,6 @@ Node* SprConcept_SemanticCheck(Node* node)
     if ( !Nest_computeType(param))        // But not semanticCheck, as it will complain of instantiating a var of type auto
         return nullptr;
 
-    delete instantiationsSet;
     instantiationsSet = mkInstantiationsSet(node, fromIniList({ param }), ifClause);
     return Feather_mkNop(node->location);
 }
@@ -849,6 +709,8 @@ void Using_SetContextForChildren(Node* node)
     bool hasAlias = Nest_hasProperty(node, "name");
     if ( hasAlias )
         Feather_addToSymTab(node);
+    else
+        Nest_symTabAddToCheckNode(node->context->currentSymTab, node);
 
     Nest_defaultFunSetContextForChildren(node);
 }
@@ -861,7 +723,7 @@ TypeRef Using_ComputeType(Node* node)
     // Compile the using name
     Nest_setPropertyExplInt(usingNode, propAllowDeclExp, 1);
     if ( !Nest_semanticCheck(usingNode) )
-        return nullptr;            
+        return nullptr;
 
     if ( !alias || size(*alias) == 0 )
     {

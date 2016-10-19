@@ -23,6 +23,11 @@ SymTab* Nest_mkSymTab(SymTab* parent, Node* node);
 /// Create and enter a new entry into the symbol table
 void Nest_symTabEnter(SymTab* symTab, const char* name, Node* node);
 
+/// Add a node to the symtab to be checked whenever we want to search symbols in
+/// this symbol table. At the point of adding the node, we don't know yet what
+/// symbols the node would generate to the symbol table
+void Nest_symTabAddToCheckNode(SymTab* symTab, Node* node);
+
 /// Copies the entries from the given tab to the current tab
 /// If this symbol table already contains the given symbols, this will not add them anymore. However, if this
 /// table contains some copied entries, this will add new entries with the same name
@@ -43,6 +48,8 @@ NodeArray Nest_symTabLookup(SymTab* symTab, const char* name);
 /// Writes to console the content of the current symbol table and of all the
 /// parent symbol tables
 void Nest_dumpSymTabs(SymTab* symTab);
+/// Writes to console the names in the current symtab (one a signle line)
+void Nest_dumpSymTabNames(SymTab* symTab);
 
 /// Writes to console the hierarchy of the given symbol table
 void Nest_dumpSymTabHierarchy(SymTab* symTab);

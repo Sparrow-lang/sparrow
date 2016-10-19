@@ -1,3 +1,5 @@
+import = sprCore.basicDecls(AnyType, Number, Char, Bool, StringRef, Byte, Int, Double, Null, isValid, &&, !, oper_precedence___fapp__, oper_precedence___dot__, typeOf, reinterpretCast);
+
 // An output stream must accept the basic types
 concept OutStream(x)
     if isValid(x.<<<(1))
@@ -31,7 +33,7 @@ class[rtct] EndLineHelperClass
     fun >>(os: @OutStream)
     {
         os << '\n';
-    }    
+    }
 }
 class[rtct] FlushHelperClass
 {
@@ -57,3 +59,7 @@ fun[rtct] mkStreamRefWrapper(x: @AnyType): StreamRefWrapperHelperClass
     return res;
 }
 
+package Impl
+{
+    fun[rtct, native("writePointer")] writeRef(x: @Byte);
+}

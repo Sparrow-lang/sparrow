@@ -25,7 +25,7 @@ Any contribution is welcome. You can implement new language features, new librar
 Sparrow is still in development. You can take the latest version of the code, compile it and have fun.
 
 ## Getting started
-See [Getting started](https://github.com/Sparrow-lang/sparrow/wiki/Getting-started:-compiling-the-compiler) wiki page.
+See [Wiki page](https://github.com/Sparrow-lang/sparrow/wiki).
 
 ## License
 

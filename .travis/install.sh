@@ -20,7 +20,9 @@ if [[ "$(uname -s)" == 'Darwin' ]]; then
 fi
 
 if [[ "$(uname -s)" == 'Linux' ]]; then
-    export LD_LIBRARY_PATH=/usr/local/lib
+    # Add /usr/local/lib to LD_LIBRARY_PATH
+    echo "/usr/local/lib" >> /etc/ld.so.conf
+    ldconfig
 fi
 
 pip install conan_package_tools # It install conan too

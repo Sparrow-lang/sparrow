@@ -225,6 +225,10 @@ class SummaryReporter:
                 print('Result: %d failures of %d => success rate = %.2f%%' % ( self._numFailedTests, self._numTests, percent))
                 print()
 
+        # If we have some failed tests, exist with an error code
+        if self._numFailedTests > 0:
+            sys.exit(self._numFailedTests)
+
     def _recordFailure(self, runTest):
         if self._curTestOk:
             self._numFailedTests += 1

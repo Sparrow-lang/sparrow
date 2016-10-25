@@ -10,8 +10,6 @@ if [[ "$(uname -s)" == 'Darwin' ]]; then
     pyenv activate conan
 fi
 
-echo "---------- Building ----------"
-
 cd build
 conan install .. --build=missing
 cmake ..
@@ -20,5 +18,5 @@ sudo cmake --build . -- install
 
 echo "---------- Testing ----------"
 
-cd tests
+cd ../tests
 python test.py

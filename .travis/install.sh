@@ -21,7 +21,7 @@ fi
 
 if [[ "$(uname -s)" == 'Linux' ]]; then
     # Add /usr/local/lib to LD_LIBRARY_PATH
-    sudo echo "/usr/local/lib" >> /etc/ld.so.conf
+    sudo echo "/usr/local/lib" > /etc/ld.so.conf/usr_local.conf
     sudo ldconfig
 fi
 

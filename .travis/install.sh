@@ -21,8 +21,8 @@ fi
 
 if [[ "$(uname -s)" == 'Linux' ]]; then
     # Add /usr/local/lib to LD_LIBRARY_PATH
-    echo "/usr/local/lib" >> /etc/ld.so.conf
-    ldconfig
+    sudo echo "/usr/local/lib" >> /etc/ld.so.conf
+    sudo ldconfig
 fi
 
 pip install conan_package_tools # It install conan too

@@ -19,4 +19,5 @@ sudo cmake --build . -- install
 echo "---------- Testing ----------"
 
 cd ../tests
+python test.py Basic/BasicVector.spr
 python test.py

@@ -10,6 +10,7 @@ env:
     - CONAN_USERNAME: "lucteo"
     - CONAN_CHANNEL: "ci"
     - CONAN_TOTAL_PAGES: 2
+    - LD_LIBRARY_PATH: $LD_LIBRARY_PATH:/usr/local/lib
 
   matrix:
     - CONAN_GCC_VERSIONS=4.8 CONAN_CURRENT_PAGE=1 CONAN_USE_DOCKER=1

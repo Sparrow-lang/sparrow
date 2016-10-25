@@ -19,11 +19,5 @@ if [[ "$(uname -s)" == 'Darwin' ]]; then
     pyenv activate conan
 fi
 
-if [[ "$(uname -s)" == 'Linux' ]]; then
-    # Add /usr/local/lib to LD_LIBRARY_PATH
-    sudo echo "/usr/local/lib" > /etc/ld.so.conf/usr_local.conf
-    sudo ldconfig
-fi
-
 pip install conan_package_tools # It install conan too
 conan user

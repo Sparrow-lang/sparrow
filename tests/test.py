@@ -447,7 +447,6 @@ def main():
         doTestFile(t, reporter, args, compilerLookup)
 
     numErrors = reporter.onFinish()
-    print(numErrors)
     if args.returnError:
         sys.exit(numErrors)
 

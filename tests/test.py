@@ -225,9 +225,7 @@ class SummaryReporter:
                 print('Result: %d failures of %d => success rate = %.2f%%' % ( self._numFailedTests, self._numTests, percent))
                 print()
 
-        # If we have some failed tests, exist with an error code
-        if self._numFailedTests > 0:
-            sys.exit(self._numFailedTests)
+        return self._numFailedTests
 
     def _recordFailure(self, runTest):
         if self._curTestOk:
@@ -242,12 +240,15 @@ class DetailedReporter:
     ''' Detailed reporter of all the actions performed '''
 
     _curTestSummary = ''
+    _curTestHasErrors = False
+    _numErrors = 0
 
     def requireCaptureCompilerOutput(self):
         return True
 
     def onStartFile(self, filename, testName):
         self._curTestSummary = ''
+        self._curTestHasErrors = False
         pass
 
     def onStartCompiling(self, cmd):
@@ -268,6 +269,7 @@ class DetailedReporter:
         elif not compilationOk:
             print('ERROR: output not found\n')
             self._curTestSummary += 'E'
+            self._curTestHasErrors = True
         else:
             print()
             print('>>> OK')
@@ -288,15 +290,18 @@ class DetailedReporter:
             print('>>> OK')
         else:
             print('ERROR: output does not match!')
+            self._curTestHasErrors = True
         self._curTestSummary += getCharCodeForTestRun(testName, runOk)
 
     def onEndFile(self, filename, testName):
         print()
         print('Summary: ' + self._curTestSummary)
         print()
+        if self._curTestHasErrors:
+            self._numErrors += 1
 
     def onFinish(self):
-        pass
+        return self._numErrors
 
 
 def doTestFile(testFilePair, reporter, args, compilerLookup):
@@ -418,6 +423,8 @@ def main():
         help='Path to the SparrowCompiler program, or auto')
     parser.add_argument('--lliProg', action='store', default='auto', metavar='P',
         help='Path to the lli program, or auto')
+    parser.add_argument('--returnError', action='store_true',
+        help='If errors, return a non-zero error code')
     args = parser.parse_args()
 
     compilerLookup = CompilerLookup(args.compilerProg, args.lliProg)
@@ -439,7 +446,10 @@ def main():
     for t in tests:
         doTestFile(t, reporter, args, compilerLookup)
 
-    reporter.onFinish()
+    numErrors = reporter.onFinish()
+    print(numErrors)
+    if args.returnError:
+        sys.exit(numErrors)
 
 if __name__ == "__main__":
     main()

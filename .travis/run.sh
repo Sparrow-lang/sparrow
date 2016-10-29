@@ -14,7 +14,7 @@ cd build
 conan install .. --build=missing
 cmake ..
 cmake --build .
-sudo cmake --build . -- install
+cmake --build . -- install
 
 echo "---------- Testing ----------"
 

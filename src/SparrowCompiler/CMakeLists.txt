@@ -44,9 +44,9 @@ foreach(llvmFile ${llvmBinaries})
     add_custom_command(TARGET SparrowCompiler POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${llvmFile}"
-            "$<TARGET_FILE_DIR:SparrowCompiler>/llvm/${fileName}")
-    install(FILES "${llvmFile}" DESTINATION "bin/llvm" PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
-                    WORLD_EXECUTE WORLD_READ)
+            "$<TARGET_FILE_DIR:SparrowCompiler>/spr-${fileName}")
+    install(FILES "${llvmFile}" DESTINATION bin RENAME "spr-${fileName}"
+        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ)
 endforeach()
 
 

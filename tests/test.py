@@ -32,15 +32,8 @@ class CompilerLookup:
             self.lli = self._lliArg
             return self.lli
         else:
-            # Try to detect the lli program, based on SparrowCompiler path
-            scPath =  distutils.spawn.find_executable('SparrowCompiler')
-            self.lli = None
-            if scPath:
-                path, file = os.path.split(scPath)
-                self.lli = path + '/llvm/lli'
-            if not self.lli:
-                print('ERROR: Cannot find the lli program; please specify it as argument')
-                sys.exit(1)
+            # Try to detect the lli program
+            self.lli = distutils.spawn.find_executable('spr-lli')
             return self.lli
 
 def getTestFiles(toRun, testsFile):

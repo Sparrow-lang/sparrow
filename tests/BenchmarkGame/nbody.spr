@@ -157,7 +157,7 @@ fun sprMain
 -0.169096567
 >>>*/
 
-/*<<<n bodies run (5000000)
+/*<<<n bodies run KNOWN-PROBLEM(5000000)
 -0.169075164
 -0.169083134
 >>>*/

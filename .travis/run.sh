@@ -21,8 +21,7 @@ echo "---------- Testing ----------"
 cd ../tests
 id
 ls -lsa /usr/local/bin/llvm/
-ls -lsa StdLib/
+ls -lsa /usr/local/bin/
 /usr/local/bin/llvm/llc --filetype=obj --help
 python test.py StdLib/RangesTest.spr
-/usr/local/bin/llvm/llc --filetype=obj StdLib/RangesTest.out.bc -o StdLib/RangesTest.out.o
 python test.py

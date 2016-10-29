@@ -143,8 +143,8 @@ namespace
             args.push_back(str);
         }
         args.insert(args.end(), s.linkerArgs_.begin(), s.linkerArgs_.end());
-        args.push_back("-lm");  // link against the math library
         args.insert(args.end(), { inputFilename, "-o", outputFilename });
+        args.push_back("-lm");  // link against the math library
         runCmd(args);
     }
 }

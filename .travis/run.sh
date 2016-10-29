@@ -19,5 +19,7 @@ sudo cmake --build . -- install
 echo "---------- Testing ----------"
 
 cd ../tests
+ls -lsa /usr/local/bin/llvm/
+ls -lsa .
 python test.py StdLib/RangesTest.spr
 python test.py

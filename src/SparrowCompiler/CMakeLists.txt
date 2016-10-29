@@ -60,6 +60,13 @@ if(APPLE)
                 "$<TARGET_FILE_DIR:SparrowCompiler>/")
         install(FILES "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.dylib" DESTINATION lib)
     endforeach()
+    foreach(llvmLib ${LLVM_EXTRA_LIBS})
+        add_custom_command(TARGET SparrowCompiler POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.dylib"
+                "$<TARGET_FILE_DIR:SparrowCompiler>/")
+        install(FILES "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.dylib" DESTINATION lib)
+    endforeach()
 elseif(UNIX)
     foreach(llvmLib ${LLVM_LIBS})
         add_custom_command(TARGET SparrowCompiler POST_BUILD

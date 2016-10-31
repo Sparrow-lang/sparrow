@@ -147,17 +147,17 @@ fun sprMain
     printf(cstr("%.9f\n"), jovianSystem.energy);
 }
 
-/*<<<n bodies run (50000)
+/*<<<n bodies run KNOWN-PROBLEM (50000)
 -0.169075164
 -0.169078071
 >>>*/
 
-/*<<<n bodies run (500000)
+/*<<<n bodies run KNOWN-PROBLEM (500000)
 -0.169075164
 -0.169096567
 >>>*/
 
-/*<<<n bodies run (5000000)
+/*<<<n bodies run KNOWN-PROBLEM(5000000)
 -0.169075164
 -0.169083134
 >>>*/

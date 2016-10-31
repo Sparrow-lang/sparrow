@@ -44,9 +44,9 @@ foreach(llvmFile ${llvmBinaries})
     add_custom_command(TARGET SparrowCompiler POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${llvmFile}"
-            "$<TARGET_FILE_DIR:SparrowCompiler>/llvm/${fileName}")
-    install(FILES "${llvmFile}" DESTINATION "bin/llvm" PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
-                    WORLD_EXECUTE WORLD_READ)
+            "$<TARGET_FILE_DIR:SparrowCompiler>/spr-${fileName}")
+    install(FILES "${llvmFile}" DESTINATION bin RENAME "spr-${fileName}"
+        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ)
 endforeach()
 
 
@@ -54,6 +54,13 @@ endforeach()
 # Also add install targets
 if(APPLE)
     foreach(llvmLib ${LLVM_LIBS})
+        add_custom_command(TARGET SparrowCompiler POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.dylib"
+                "$<TARGET_FILE_DIR:SparrowCompiler>/")
+        install(FILES "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.dylib" DESTINATION lib)
+    endforeach()
+    foreach(llvmLib ${LLVM_EXTRA_LIBS})
         add_custom_command(TARGET SparrowCompiler POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.dylib"

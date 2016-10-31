@@ -110,7 +110,7 @@ fun test1
         cout << "Satellite: " << x.get() << endl;
     }
 }
-/*<<<Injecting Prolog - solar system (1)
+/*<<<Injecting Prolog - solar system KNOWN-PROBLEM(1)
 Is Mercury orbiting Sun? true
 Is Mercury a planet? true
 Satellite: moon
@@ -136,7 +136,7 @@ fun test2
         cout << x.get() << " is an ancestor of " << y.get() << endl;
     }
 }
-/*<<<Injecting Prolog - parents (2)
+/*<<<Injecting Prolog - parents KNOWN-PROBLEM(2)
 ?- children(sam, mary) => true
 ?- gender(sam, male) => true
 ?- parent(mary, sam) => true

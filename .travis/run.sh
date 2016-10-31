@@ -15,3 +15,9 @@ conan install .. --build=missing
 cmake ..
 cmake --build .
 sudo cmake --build . -- install
+
+echo "---------- Testing ----------"
+
+cd ../tests
+python test.py StdLib/RangesTest.spr --returnError
+python test.py --returnError

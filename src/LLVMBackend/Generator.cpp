@@ -143,8 +143,8 @@ namespace
             args.push_back(str);
         }
         args.insert(args.end(), s.linkerArgs_.begin(), s.linkerArgs_.end());
-        args.push_back("-lm");  // link against the math library
         args.insert(args.end(), { inputFilename, "-o", outputFilename });
+        args.push_back("-lm");  // link against the math library
         runCmd(args);
     }
 }
@@ -190,9 +190,9 @@ void LLVMB::link(const vector<llvm::Module*>& inputs, const string& outFilename)
         return;
     }
 
-    string opt = s.executableDir_ + "/llvm/opt";
-    string llc = s.executableDir_ + "/llvm/llc";
-    string dis = s.executableDir_ + "/llvm/llvm-dis";
+    string opt = s.executableDir_ + "/spr-opt";
+    string llc = s.executableDir_ + "/spr-llc";
+    string dis = s.executableDir_ + "/spr-llvm-dis";
 #if defined(_WIN32) || defined(__CYGWIN__)
     opt += ".exe";
     llc += ".exe";

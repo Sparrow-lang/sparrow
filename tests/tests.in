@@ -24,12 +24,12 @@ BenchmarkGame/meteor.spr:               Benchmark game - meteor
 BenchmarkGame/fasta.spr:                Benchmark game - fasta
 BenchmarkGame/fastaredux.spr:           Benchmark game - fastaredux
 
-// Par/ThreadTest.spr:                     Parallel - thread test
-// Par/AtomicTest.spr:                     Parallel - atomics test
-// Par/LocksTest.spr:                      Parallel - locks test
-// Par/SemaphoreTest.spr:                  Parallel - semaphore test
-// Par/TaskTest.spr:                       Parallel - Fibonacci tasks test
-// Par/ParForTest.spr:                     Parallel - Basic parallel for test
+# Par/ThreadTest.spr:                     Parallel - thread test
+# Par/AtomicTest.spr:                     Parallel - atomics test
+# Par/LocksTest.spr:                      Parallel - locks test
+# Par/SemaphoreTest.spr:                  Parallel - semaphore test
+# Par/TaskTest.spr:                       Parallel - Fibonacci tasks test
+# Par/ParForTest.spr:                     Parallel - Basic parallel for test
 
 PerfTests/Hash/TestHashPerf.spr:        Performance tests - hash
 PerfTests/ForPerf/spr_for.spr:          Performance tests - for
@@ -46,11 +46,11 @@ Bugs/ParenInGeneric.spr:                Bugs - parenthesis in generics
 Bugs/TwiceFor.spr:                      Bugs - for shouldn't change the range
 Bugs/NullConstant.spr:                  Bugs - null constant compatible with references
 Bugs/SpecializationOnCt.spr:            Bugs - specialization on CT vs RT
-//Bugs/Overload.spr:                      Bugs - overload resolution fails
+# Bugs/Overload.spr:                      Bugs - overload resolution fails
 Bugs/StaticGlobal.spr:                  Bugs - static vars, global vars, static ctor
 Bugs/VectorOfCtClass.spr:               Bugs - vectors of CT-only classes
 
-//AlgoProblems/P1_Collatz.spr:            Algo problems - P1. Collatz sequences
+# AlgoProblems/P1_Collatz.spr:            Algo problems - P1. Collatz sequences
 Examples/Power.spr:                     Examples: Powers
 Examples/Regex.spr:                     Examples: Regex
 Examples/MinPerfHash.spr:               Examples: Minimal Perfect Hashing
@@ -99,7 +99,7 @@ Basic/StaticFun.spr:                    Basic features - Static functions
 Basic/NonStaticFun.spr:                 Basic features - Non static functions
 Basic/Compound.spr:                     Basic features - Compound expressions
 Basic/SameName.spr:                     Basic features - Class, function, var with same name
-//Basic/Inheritance.spr:                  Basic features - Inheritance
+# Basic/Inheritance.spr:                  Basic features - Inheritance
 Basic/CtFun.spr:                        Basic features - CT functions
 Basic/CtFactorial.spr:                  Basic features - CT factorial
 Basic/CtIf.spr:                         Basic features - CT if
@@ -110,8 +110,8 @@ Basic/CtorDtor.spr:                     Basic features - Object constructors & d
 Basic/StaticCtorDtor.spr:               Basic features - Static constructors & destructors
 Basic/ObjectCopy.spr:                   Basic features - Object copying
 Basic/ObjectCopyRVO.spr:                Basic features - Object copying + Return Value Optimization
-//Basic/CastErr.spr:                      Basic features - Casts with errors
-//Basic/Cast.spr:                         Basic features - Casts
+# Basic/CastErr.spr:                      Basic features - Casts with errors
+# Basic/Cast.spr:                         Basic features - Casts
 Basic/SizeOf.spr:                       Basic features - SizeOf
 Basic/Functor.spr:                      Basic features - Functors
 Basic/TypeVar.spr:                      Basic features - Type variables
@@ -129,7 +129,7 @@ Basic/FunExp.spr:                       Basic features - Expression functions
 Basic/FunSyntax.spr:                    Basic features - Function syntax
 Basic/DefaultParam.spr:                 Basic features - Default parameters
 Basic/Concepts.spr:                     Basic features - Concepts
-//Basic/IsA.spr:                          Basic features - isa and convertsTo relationships
+# Basic/IsA.spr:                          Basic features - isa and convertsTo relationships
 Basic/CtToRt.spr:                       Basic features - CT to RT for basic types
 Basic/CtToRtErr.spr:                    Basic features - CT to RT for basic types - errors
 Basic/CtToRtComplex.spr:                Basic features - CT to RT for complex types
@@ -153,4 +153,3 @@ Frontend/Identifiers.spr:               Frontend - identifiers
 Frontend/Operators.spr:                 Frontend - operators
 Frontend/PrefixPostfix.spr:             Frontend - prefix & postfix operators
 Frontend/StringAndDsl.spr:              Frontend - string and DSL
-/**/

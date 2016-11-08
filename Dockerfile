@@ -29,7 +29,7 @@ RUN ldconfig
 
 # Test the build
 WORKDIR /sparrow_tests
-RUN perl test-all.pl
+RUN python test.py
 
 # Remove temporary files
 RUN rm -rf /sparrow

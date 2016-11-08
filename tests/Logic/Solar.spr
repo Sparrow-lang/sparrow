@@ -64,7 +64,7 @@ fun test2
         cout << "Planet: " << x.get() << endl;
     }
 }
-/*<<<All planets (2)
+/*<<<All planets KNOWN-PROBLEM(2)
 Planet: Mercury
 Planet: Venus
 Planet: Earth
@@ -81,7 +81,7 @@ fun test3
         cout << "Satellite: " << x.get() << endl;
     }
 }
-/*<<<All satellites (3)
+/*<<<All satellites KNOWN-PROBLEM(3)
 Satellite: Moon
 Satellite: Phobos
 Satellite: Deimos

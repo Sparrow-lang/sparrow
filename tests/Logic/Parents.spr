@@ -95,7 +95,7 @@ fun test2
         cout << "Male: " << x.get() << endl;
     }
 }
-/*<<< All males(2)
+/*<<< All males KNOWN-PROBLEM(2)
 Male: Frank
 Male: Sam
 Male: Gary
@@ -111,7 +111,7 @@ fun test3
         cout << "Female: " << x.get() << endl;
     }
 }
-/*<<< All females(3)
+/*<<< All females KNOWN-PROBLEM(3)
 Female: Mary
 Female: Denise
 >>>*/
@@ -146,7 +146,7 @@ fun test5
         cout << x.get() << " is the father of " << y.get() << endl;
     }
 }
-/*<<< All fathers(5)
+/*<<< All fathers KNOWN-PROBLEM(5)
 Frank is the father of Sam
 Frank is the father of Denise
 Gary is the father of Frank
@@ -163,7 +163,7 @@ fun test6
         cout << x.get() << " is the mother of " << y.get() << endl;
     }
 }
-/*<<< All mothers(6)
+/*<<< All mothers KNOWN-PROBLEM(6)
 Mary is the mother of Sam
 Mary is the mother of Denise
 >>>*/

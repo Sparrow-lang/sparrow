@@ -9,32 +9,47 @@ class CompilerLookup:
     ''' Helper class that resolves the paths needed to run the compiler '''
 
     def __init__(self, compilerArg, lliArg):
-        self.compiler = ''
-        self.lli = ''
-        self._compilerArg = compilerArg
-        self._lliArg = lliArg
+        self.compiler = self._findCompiler(compilerArg)
+        self.lli = self._findLli(lliArg, self.compiler)
 
     def getCompiler(self):
-        if self.compiler:
-            return self.compiler
-        elif self._compilerArg != 'auto':
-            self.compiler = self._compilerArg
-            return self.compiler
-        else:
-            # Try to detect the compiler
-            self.compiler = distutils.spawn.find_executable('SparrowCompiler')
-            return self.compiler
+        return self.compiler
 
     def getLli(self):
-        if self.lli:
-            return self.lli
-        elif self._lliArg != 'auto':
-            self.lli = self._lliArg
-            return self.lli
-        else:
-            # Try to detect the lli program
-            self.lli = distutils.spawn.find_executable('spr-lli')
-            return self.lli
+        return self.lli
+
+    def _findCompiler(self, compilerArg):
+        # If compiler is manually specified, use that one
+        if compilerArg != 'auto':
+            return os.path.abspath(compilerArg)
+
+        # Try different alternatives; pick the most recent one
+        alt = [
+            '../build/bin/SparrowCompiler',         # In the case we are running from the 'tests' directory
+            distutils.spawn.find_executable('SparrowCompiler')  # Search globally
+        ]
+
+        # filter out files that do not exist
+        alt = [f for f in alt if os.path.isfile(f)]
+
+        # Make sure we have at least one entry
+        if len(alt) == 0:
+            return ''
+
+        # Get the one that has the latest modification date
+        alt.sort(key=lambda f: os.path.getmtime(f), reverse=True)
+
+        # Return the absolute path of it
+        return os.path.abspath(alt[0]);
+
+    def _findLli(self, lliArg, compiler):
+        # If lli is manually specified, use that one
+        if lliArg != 'auto':
+            return os.path.abspath(lliArg)
+
+        # else, use the lli near the compiler
+        return os.path.dirname(compiler) + '/spr-lli'
+
 
 def getTestFiles(toRun, testsFile):
     ''' Gets the list of test files to be run.
@@ -47,7 +62,7 @@ def getTestFiles(toRun, testsFile):
         return [(toRun, toRun)]
     else:
         # Otherwise try to read the tests from the given test file
-        # Keep only the tests that match our filter 
+        # Keep only the tests that match our filter
         res = []
 
         for line in open(testsFile):
@@ -97,7 +112,7 @@ class SourceFileInfo:
         lineIdx = 0
         for line in self.content:
             line = line.strip()
-            lineIdx +=1 
+            lineIdx +=1
 
             for m in re.finditer(r'ERROR', line):
                 self.errorMarkers.append(lineIdx)
@@ -237,7 +252,7 @@ class DetailedReporter:
     _numErrors = 0
 
     def requireCaptureCompilerOutput(self):
-        return True
+        return False
 
     def onStartFile(self, filename, testName):
         self._curTestSummary = ''
@@ -353,6 +368,7 @@ def doTestFile(testFilePair, reporter, args, compilerLookup):
         reporter.onCompilerOutput(compilerOutput)
     else:
         retCode = os.system(cmd)
+        compilerOutput = ''
 
 
     # Check the errors & execution status

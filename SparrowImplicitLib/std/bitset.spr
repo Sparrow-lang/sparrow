@@ -1,4 +1,6 @@
-import array;
+module std.bitset;
+
+import array(Array);
 import bitOper;
 
 class[rtct] Bitset

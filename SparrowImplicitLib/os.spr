@@ -1,6 +1,6 @@
-module os.os;
+module os;
 
-import std.string;
+import std.string(String);
 
 fun[rtct, native("exit")] exit(code: Int);
 

@@ -139,7 +139,7 @@ pair<bool, SourceCode*> _handleImportFile(const ImportInfo& import)
     int errorCount = Nest_getErrorsNum();
 
     // Create a new CompilationContext for the sourceCode
-    CompilationContext* newContext = Nest_mkChildContext(_rootContext, modeUnspecified);
+    CompilationContext* newContext = Nest_mkChildContextWithSymTab(_rootContext, NULL, modeUnspecified);
     newContext->sourceCode = sourceCode;
 
     // Do the parsing
@@ -159,7 +159,7 @@ pair<bool, SourceCode*> _handleImportFile(const ImportInfo& import)
         // We need to compile this source code
         _toCompile.push_back(sourceCode);
     }
-    
+
     return make_pair(true, sourceCode);
 }
 

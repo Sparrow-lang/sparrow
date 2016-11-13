@@ -1,6 +1,6 @@
 module par.tasksImpl.taskQueue;
 
-import taskPrefix;
+import taskPrefix(TaskPrefix, TaskPtr);
 import par.locks;
 
 //! Holds a queue of tasks
@@ -38,7 +38,7 @@ fun uncheckedSize(q: @TaskQueue): SizeType {
         ++count;
         p = p.get().next;
     }
-    return count;    
+    return count;
 }
 
 fun pushFront(q: @TaskQueue, task: TaskPtr) {
@@ -52,10 +52,10 @@ fun pushFront(q: @TaskQueue, task: TaskPtr) {
         q.last = task;
     }
     q.first = task;
- 
-    assert(q.first isSet);
-    assert(q.last isSet);
-    assert(q.last.get().next isNull);
+
+    //assert(q.first isSet);
+    //assert(q.last isSet);
+    //assert(q.last.get().next isNull);
 }
 fun popFront(q: @TaskQueue): TaskPtr {
     var lock: ScopedLock(Mutex) = q.mutex;
@@ -69,7 +69,7 @@ fun popFront(q: @TaskQueue): TaskPtr {
         q.last.reset;
 
     if ( q.last isSet )
-        assert(q.last.get().next isNull);
+        //assert(q.last.get().next isNull);
 
     return res;
 }
@@ -89,7 +89,7 @@ fun popBack(q: @TaskQueue): TaskPtr {
     }
 
     if ( q.last isSet )
-        assert(q.last.get().next isNull);
+        //assert(q.last.get().next isNull);
 
     return res;
 }

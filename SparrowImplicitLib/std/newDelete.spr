@@ -1,4 +1,4 @@
-import ranges;
+module std.newDelete;
 
 fun[rtct] new(t: Type): @t
 {

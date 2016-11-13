@@ -10,11 +10,12 @@ class Semaphore {
 
     fun ctor(startValue: UInt = 0) {
         handle ctor;
-        var res = Impl.semaphore_create(Impl.mach_task_self(), handle, Impl.SYNC_POLICY_FIFO, startValue);
+        var res = Impl.semaphore_create(Impl.mach_task_self(), handle, Impl.SYNC_POLICY_FIFO, Int(startValue));
     }
 
     fun dtor {
-        verify(0 == Impl.semaphore_destroy(Impl.mach_task_self(), handle));
+        //verify(0 == Impl.semaphore_destroy(Impl.mach_task_self(), handle));
+        Impl.semaphore_destroy(Impl.mach_task_self(), handle);
     }
 }
 

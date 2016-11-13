@@ -1,3 +1,5 @@
+module std.bind;
+
 fun mkBindAll(ftor, a1: @AnyType)
     = BindAll(-@typeOf(ftor), -@typeOf(a1))(ftor, a1)
     if isValid(ftor(a1));

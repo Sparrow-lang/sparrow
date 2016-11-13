@@ -1,4 +1,4 @@
-import = basicDecls(Char, Byte, Int, SizeType, DiffType, StringRef, Null, typeOf, reinterpretCast, sizeOf, ptrAdd, ptrSub, ptrDiff, *);
+import basicDecls(Char, Byte, Int, SizeType, DiffType, StringRef, Null, typeOf, reinterpretCast, sizeOf, ptrAdd, ptrSub, ptrDiff, *);
 
 /// Range type that returns StringRef objects referring to program arguments
 class MainParameters

@@ -11,11 +11,11 @@ import prologImpl.ir;
 import prologImpl.sprCodeDump;
 import prologImpl.codeGen;
 
-import meta.diagnostic;
-import meta.astNodes;
+import meta = meta.diagnostic;
+import meta = meta.astNodes;
 
 import assert;
-import time;
+import time = time;
 
 fun[macro] compileProlog(sourceString: meta.AstNode): meta.AstNode
 {

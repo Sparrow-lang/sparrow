@@ -1,8 +1,8 @@
 import std.map;
-import std.defaultHashFunction;
 import std.ranges;
 import std.tuple;
 import std.list;
+import std.vector;
 import std.algorithms;
 
 class IntWrapper

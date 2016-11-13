@@ -1,28 +1,11 @@
 module par.tasks;
 
-import tasksImpl.taskPrefix;
+public import tasksImpl.taskType(TaskType, TaskPrefix, getPrefix);
+public import tasksImpl.emptyTask(EmptyTask, execute, >>, description);
+import Impl = tasksImpl.tasksMain(initTaskBasic, initAsRoot, initAsChildOf, doSpawn, doSpawnAndWait);
+import tp = tasksImpl.taskPrefix;
 import tasksImpl.debug;
-import tasksImpl.schedulerIf;
-
-//! Clients should know about TaskPrefix class
-using tasksImpl.TaskPrefix;
-
-
-//! A concept describing a task that can be spawned
-//!
-//! A task must have two things:
-//!     - an 'execute' method (that returns nothing)
-//!     - a way of obtaining the task prefix from it
-//!         - either as an 'prefix' method
-//!         - or as a 'prefix' field <-- this is the easiest
-concept TaskType(x)
-    if isValid(x execute)
-    && ( isValidAndTrue(typeOf(x prefix) == @par.TaskPrefix)
-        || isValidAndTrue(typeOf(x.prefix) == par.TaskPrefix) )
-    ;
-
-fun getPrefix(t: @TaskType): @par.TaskPrefix = t prefix if isValid(t prefix);
-fun getPrefix(t: @TaskType): @par.TaskPrefix = t.prefix if isValid(t.prefix) && !isValid(t prefix);
+import schedulerIf = tasksImpl.schedulerIf;
 
 
 fun spawnRootAndWait(task: @TaskType) {
@@ -31,7 +14,7 @@ fun spawnRootAndWait(task: @TaskType) {
 
     Impl.initAsRoot(task);
 
-    tasksImpl.schedulerIf.spawnRootAndWait(getPrefix(task));
+    schedulerIf.spawnRootAndWait(getPrefix(task));
 }
 
 fun spawn(curTask, childTask: @TaskType) {
@@ -86,7 +69,7 @@ fun spawn(curTask, t1, t2, t3, t4, t5, t6, t7: @TaskType) {
 
 fun wait(curTask: @TaskType) {
     getPrefix(curTask) addRefCount 1;
-    tasksImpl.schedulerIf.waitForAll(getPrefix(curTask));
+    schedulerIf.waitForAll(getPrefix(curTask));
 }
 
 fun spawnAndWait(curTask, t1: @TaskType) {
@@ -151,78 +134,11 @@ fun setContinuation(curTask, cont: @TaskType) {
     getPrefix(curTask).parent reset;
 
     // Chain the continuation to the current task
-    assert(getPrefix(curTask).cont isNull);
+    //assert(getPrefix(curTask).cont isNull);
     getPrefix(curTask).cont = getPrefix(cont);
 }
 
 fun enqueue(task: @TaskType) {
     Impl.initAsRoot(task);
-    tasksImpl.schedulerIf.enqueue(getPrefix(task));
-}
-
-
-//! An empty task; can be used for synchronization
-class EmptyTask {
-    var prefix: TaskPrefix;
-}
-
-fun execute(task: @EmptyTask) {}
-
-fun >>(t: EmptyTask, os: @OutStream) {
-    os << "EmptyTask";
-}
-
-fun description(task: @EmptyTask): String  = "EmptyTask";
-
-
-package Impl {
-    class ExecuteHelper(T: Type) {
-        fun[static] doExecute(prefix: @TaskPrefix): Null {
-            var objP: @Byte = ptrAdd(reinterpretCast(@Byte, prefix), prefix.taskOffset);
-            var obj: @T = reinterpretCast(@T, objP);
-            obj execute;
-            return Null();
-        }
-
-        fun[static] getExecuteFn: FunctionPtr(Null rt, @TaskPrefix) = \doExecute;
-    }
-
-    //! Initializes the fields required for a task
-    fun initTaskBasic(obj: @TaskType) {
-        // Init the execute function
-        var prefix: @TaskPrefix = getPrefix(obj);
-        prefix.taskOffset = ptrDiff(reinterpretCast(@Byte, obj), reinterpretCast(@Byte, prefix));
-        prefix.executeFn = ExecuteHelper(typeOf(obj)).getExecuteFn();
-
-        // Get its description (if it has one)
-        if[ct] ( isValidAndTrue(typeOf(obj description) == String) ) {
-            prefix.desc = (obj description);
-        }
-    }
-
-    //! Initializes a root task
-    fun initAsRoot(task: @TaskType) {
-        initTaskBasic(task);
-        getPrefix(task).worker = tasksImpl.schedulerIf.localWorker();
-    }
-
-    //! Initializes a child task
-    fun initAsChildOf(task, parent: @TaskType) {
-        initTaskBasic(task);
-        getPrefix(task).parent = getPrefix(parent);
-        getPrefix(task).depth = 1+getPrefix(parent).depth;
-        getPrefix(task).worker = getPrefix(parent).worker;
-    }
-
-    //! Initialize a child task and spawn it
-    fun doSpawn(curTask, childTask: @TaskType) {
-        initAsChildOf(childTask, curTask);
-        tasksImpl.schedulerIf.spawn(getPrefix(childTask));
-    }
-
-    //! Initialize a child task, then spawn it and wait
-    fun doSpawnAndWait(curTask, childTask: @TaskType) {
-        initAsChildOf(childTask, curTask);
-        tasksImpl.schedulerIf.spawnAndWaitForAll(getPrefix(curTask), getPrefix(childTask));
-    }
+    schedulerIf.enqueue(getPrefix(task));
 }

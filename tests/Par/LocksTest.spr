@@ -2,21 +2,19 @@
 import par.thread;
 import par.atomic;
 import par.locks;
-import test;
-
-using par.*;
-using test.*;
+import std.vector;
+import test = test;
 
 var numUsers: Int Atomic = 0;
 var numLocks: Int Atomic = 0;
 
-var normalMutex: par.Mutex;
+var normalMutex: Mutex;
 
 fun doCoreJob(waitTime: Int) {
     ++numUsers;
     test.assertEq(numUsers load, 1, "numUsers should be 1");
     ++numLocks;
-    par.sleep(waitTime);
+    sleep(waitTime);
     --numUsers;
 }
 
@@ -47,18 +45,18 @@ class[initCtor] Worker {
 
 class WorkManager {
     private var amountOfWork, numWorkers, numTryWorkers: Int;
-    private var threads: (par.Thread Ptr) Vector;
+    private var threads: (Thread Ptr) Vector;
 
     fun ctor(amountOfWork, numWorkers, numTryWorkers: Int) {
         this.amountOfWork ctor amountOfWork;
         this.numWorkers ctor numWorkers;
         this.numTryWorkers ctor numTryWorkers;
         for ( i=0..numWorkers ) {
-            var p: par.Thread Ptr = new(par.Thread, Worker(amountOfWork, false));
+            var p: Thread Ptr = new(Thread, Worker(amountOfWork, false));
             threads.pushBack(p);
         }
         for ( i=0..numTryWorkers ) {
-            var p: par.Thread Ptr = new(par.Thread, Worker(amountOfWork, true));
+            var p: Thread Ptr = new(Thread, Worker(amountOfWork, true));
             threads.pushBack(p);
         }
     }

@@ -1,5 +1,8 @@
 import nodes;
 import location;
+import ir;
+import meta = meta.astNodes(AstNode, Feather, SprFrontend, Compiler);
+import meta = meta.location(Location);
 
 fun[ct] genProlog(sps: @SparrowPrologSystem): meta.AstNode = Impl.genPrologSystem(sps);
 
@@ -32,7 +35,7 @@ package Impl
 
         // Generate nodes for parameters and return type
         var paramsNode = genParameters(pred, genNative);
-        var returnType = 
+        var returnType =
             ife(genNative
             , mkIdentifier(locPred, "Bool")
             , mkCompoundExp(locPred, mkIdentifier(locPred, "logic"), "Predicate"));

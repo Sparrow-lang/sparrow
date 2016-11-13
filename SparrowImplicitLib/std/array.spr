@@ -1,6 +1,8 @@
-import contiguousMemoryRange;
-import rawPtr;
-import algorithms;
+module std.array;
+
+import contiguousMemoryRange(ContiguousMemoryRange);
+import rawPtr(RawPtr);
+import ranges(rangeSize, ..);
 
 // !!!
 concept RangeTmp(x)

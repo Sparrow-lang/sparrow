@@ -1,4 +1,8 @@
-import sortedTable;
+module std.sortedPtr;
+
+import sortedTable(SortedTable);
+import tuple(Tuple, PairFirst, PairSecond);
+import ranges(transform);
 
 class SortedMap(keyType, dataType, lessType, compareType: Type)
 {

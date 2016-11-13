@@ -4,9 +4,8 @@ import meta.diagnostic;
 import meta.astNodes;
 import std.ranges;
 
-using meta.*;
-using meta.Feather.*;
-using meta.SprFrontend.*;
+using Feather.*;
+using SprFrontend.*;
 
 fun[ct] mkNodeVector(p1: AstNode): Vector(AstNode)
 {
@@ -37,7 +36,7 @@ var[ct] nullNode: AstNode;
 
 fun[ct] addFactorialFun(context: CompilationContext, funName: StringRef): Bool
 {
-    var loc = meta.Location(meta.SourceCode.current(), 39, 39, 1, 79);
+    var loc = Location(SourceCode.current(), 39, 39, 1, 79);
 
     var factParams = mkNodeList(loc, true);
     addToNodeList(factParams, mkSprParameter(loc, "n", mkIdentifier(loc, "Int"), nullNode));
@@ -58,7 +57,7 @@ fun[ct] addFactorialFun(context: CompilationContext, funName: StringRef): Bool
 
 fun[ct] addFactorialFun2(context: CompilationContext, funName: StringRef): Bool
 {
-    var loc = meta.Location(meta.SourceCode.current(), 39, 39, 1, 79);
+    var loc = Location(SourceCode.current(), 39, 39, 1, 79);
 
     var factParams = mkNodeList(loc, true);
     addToNodeList(factParams, mkSprParameter(loc, "n", mkIdentifier(loc, "Int"), nullNode));

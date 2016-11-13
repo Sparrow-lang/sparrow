@@ -1,12 +1,14 @@
-import contiguousMemoryRange;
-import rawPtr;
+module std.staticArray;
+
+import contiguousMemoryRange(ContiguousMemoryRange);
+import rawPtr(RawPtr);
 import ranges;
 
 class[rtct] StaticArray(valueType: Type, arraySize: SizeType)
 {
     using ValueType = valueType;
     using RangeType = ContiguousMemoryRange(valueType);
-    
+
     fun ctor()
     {
         for ( v: @ValueType = all() )
@@ -161,7 +163,7 @@ class[rtct] StaticArray(valueType: Type, arraySize: SizeType)
 
     fun swap(other: @StaticArray)
     {
-        for ( i = 0..arrSize )        
+        for ( i = 0..arrSize )
         {
             var tmp = this(i);
             this(i) = other(i);
@@ -195,8 +197,8 @@ class[rtct] StaticArray(valueType: Type, arraySize: SizeType)
     private fun asPtr = RawPtr(ValueType).fromBytePtr(buf);
 
     private var buf: static_buffer(arrSize * sizeOf(ValueType));
-    
-    private var[static, ct] arrSize = arraySize;    
+
+    private var[static, ct] arrSize = arraySize;
 }
 
 fun mkValues(v0,v1: AnyType) = StaticArray(typeOf(v0), 2)(v0,v1);

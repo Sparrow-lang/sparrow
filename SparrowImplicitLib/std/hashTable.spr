@@ -1,8 +1,11 @@
-import array;
-import staticArray;
-import algorithms;
-import defaultHashFunction;
-import ptr;
+module std.hashTable;
+
+import staticArray(StaticArray);
+import array(Array);
+import ptr(Ptr, reinterpretPtr);
+import ranges(rangeSize);
+import algorithms(swapTL, max);
+import newDelete(new);
 
 class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
 {

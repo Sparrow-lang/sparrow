@@ -1,4 +1,6 @@
-import newDelete;
+module std.sharedPtr;
+
+import newDelete(new, delete);
 
 class[rtct] SharedPtr(type: Type)
 {
@@ -94,7 +96,7 @@ class[rtct] SharedPtr(type: Type)
 
     fun isNull                                          = ref === null;
     fun isSet                                           = ref !== null;
-    
+
     fun reset                                           { SharedPtr().swap(this); }
     fun reset(value: @ValueType)                        { SharedPtr(value).swap(this); }
     fun release                                         { reset(); }

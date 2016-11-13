@@ -1,10 +1,12 @@
-//!! 
-import std.vector;
-import std.contiguousMemoryRange;
-import std.rawPtr;
+//!!
+import std.vector(Vector);
+import std.contiguousMemoryRange(ContiguousMemoryRange);
+import std.rawPtr(RawPtr);
+import std.ranges(.., rangeSize, repeat, skip, take);
+import std.algorithms(equal);
+import std.tuple(~);
 import check;
 
-using check.*;
 
 fun sprMain
 {

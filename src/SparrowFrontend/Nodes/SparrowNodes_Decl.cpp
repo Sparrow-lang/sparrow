@@ -399,6 +399,8 @@ TypeRef SprFunction_ComputeType(Node* node)
         {
             if ( !n )
                 REP_ERROR_RET(nullptr, n->location, "Invalid node as parameter");
+            if ( n->nodeError )
+                return nullptr;
 
             Feather_Function_addParameter(resultingFun, n);
         }
@@ -466,6 +468,8 @@ TypeRef SprParameter_ComputeType(Node* node)
 
     const TypeRef* givenType = Nest_getPropertyType(node, "spr.givenType");
     TypeRef t = givenType ? *givenType : getType(typeNode);
+    if ( !t )
+        return nullptr;
 
     Node* resultingParam = Feather_mkVar(node->location, Feather_getName(node), Feather_mkTypeNode(node->location, t));
     Feather_setEvalMode(resultingParam, Feather_effectiveEvalMode(node));

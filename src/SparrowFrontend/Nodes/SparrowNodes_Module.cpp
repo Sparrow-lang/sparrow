@@ -2,6 +2,7 @@
 #include "SparrowNodes.h"
 #include "SparrowNodesAccessors.h"
 
+#include <SprDebug.h>
 #include <Helpers/DeclsHelpers.h>
 #include <Helpers/QualifiedId.h>
 
@@ -133,12 +134,13 @@ namespace
      * If qid is empty, then this will return the node-list in which all the packages are placed
      *
      * @param qid           The list of names for the packages
+     * @param loc           The location to be used for creating the packages
      * @param accessType    The access type to be used for creating the packages
      * @param packages      The list of existing packages to be used/updated
      *
      * @return The content node (node-list) of the inner most package created/reused
      */
-    Node* createReusePackages(const QidVec& qid,
+    Node* createReusePackages(const QidVec& qid, Location loc,
             AccessType accessType, Packages& packages) {
 
         // Start searching from the first package
@@ -146,7 +148,7 @@ namespace
 
         // Create or reuse package top-down
         for ( const auto& id : qid ) {
-            pkgContent = findOrCreatePackage(packages, pkgContent, id.first, id.second, accessType);
+            pkgContent = findOrCreatePackage(packages, pkgContent, id.first, loc, accessType);
         }
 
         return pkgContent;
@@ -222,6 +224,7 @@ namespace
         }
 
         // Get the QID used to refer the module
+        equals = true;     // TODO(modules): Change this
         QidVec refQid;
         if ( equals ) {
             // The given alias is the QID used to access the imported module
@@ -258,7 +261,7 @@ namespace
         }
 
         // Create the required packages
-        Node* pkgContent = createReusePackages(refQid, accessType, packages);
+        Node* pkgContent = createReusePackages(refQid, importLoc, accessType, packages);
 
         // The using(s) that we need to add
         if ( declNames ) {
@@ -278,7 +281,7 @@ namespace
                 Feather_addToNodeList(pkgContent, mkSprUsing(id->location, name, cid, accessType));
 
             }
-        } else if ( refQid.size() > 0 ) {
+        } else if ( !equals ) {
             // For something like:
             //      import foo.bar;
             // we create something like:

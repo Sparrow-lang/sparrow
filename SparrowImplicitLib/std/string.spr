@@ -1,8 +1,8 @@
-import sprCore.stringRef;
-import vector;  // For Range definition
-import contiguousMemoryRange;
-import rawPtr;
-import algorithms;
+module std.string;
+
+import contiguousMemoryRange(ContiguousMemoryRange);
+import ranges(rangeSize);
+import rawPtr(RawPtr);
 
 // TODO: Make sure that we have the same performance for Strings that we would have for basic char arrays
 // TODO: Can we implement this in terms of Vector?

@@ -3,6 +3,7 @@
 import std.vector;
 import std.string;
 import std.algorithms;
+import std.tuple;
 
 using TypeOp.*;
 
@@ -42,9 +43,9 @@ fun printType(t: Type)
 {
     cout << ife(hasStorage(t), "storage     ", "no storage  ")
          << getMode(mode(t)).asStringRef()
-         << ife(canBeUsedAtCt(t), "y  ", "n  ") 
-         << ife(canBeUsedAtRt(t), "y  ", "n  ") 
-         << numRef(t) << "    " 
+         << ife(canBeUsedAtCt(t), "y  ", "n  ")
+         << ife(canBeUsedAtRt(t), "y  ", "n  ")
+         << numRef(t) << "    "
          << description(t) << endl;
 
 }

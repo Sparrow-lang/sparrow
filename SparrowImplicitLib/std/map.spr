@@ -1,5 +1,9 @@
-import hashTable;
-import typeTraits;
+module std.map;
+
+import hashTable(HashTable);
+import typeTraits(DefaultTypeTraits);
+import tuple(Tuple, PairFirst, PairSecond);
+import ranges(transform);
 
 class Map(keyType, dataType: Type, traitsType: Type = DefaultTypeTraits)
 {

@@ -1,3 +1,5 @@
+module std.rawPtr;
+
 class[rtct] RawPtr(valueType: Type)
 {
     using ValueType = valueType;
@@ -51,9 +53,9 @@ class[rtct] RawPtr(valueType: Type)
         ptr := other.ptr;
         other.ptr := t;
     }
-    
+
     fun =(other: RawPtr)        { ptr := other.ptr; }
-    
+
     fun ==(other: RawPtr)       = ptr === other.ptr;
     fun < (other: RawPtr)       = ptrDiff(this.bytePtr(), other.bytePtr()) < DiffType(0);
 

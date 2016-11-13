@@ -3,7 +3,8 @@ import std.vector;
 import std.list;
 import std.map;
 import std.set;
-import std.utils;
+import std.utils, std.ranges, std.algorithms;
+import std.ptr, std.newDelete;
 
 // BasicBlockEdge only maintains two pointers to BasicBlocks.
 //

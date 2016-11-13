@@ -1,5 +1,7 @@
-import hashTable;
-import typeTraits;
+module std.set;
+
+import hashTable(HashTable);
+import typeTraits(DefaultTypeTraits);
 
 class Set(keyType: Type, traitsType: Type = DefaultTypeTraits)
 {

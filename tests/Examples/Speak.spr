@@ -1,4 +1,4 @@
-import os;
+import os = os;
 
 var[ct] hello  = "Hello, world!";
 var[ct] name   = "I am the Sparrow compiler!";

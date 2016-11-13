@@ -1,5 +1,6 @@
-import newDelete;
-import sharedPtr;
+module std.function;
+
+import newDelete(new, delete);
 
 package Impl
 {

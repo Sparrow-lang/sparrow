@@ -1,9 +1,9 @@
 module par.tasksImpl.worker;
 
-import debug;
-import taskSystem;
-import taskQueue;
-import par.tls;
+//import debug(Tracer);
+import taskSystem(TaskSystem, getInitTaskSystem, createWorker);
+import taskQueue(TaskQueue);
+import par.tls, par.semaphore, par.atomic;
 import par.semaphore;
 import par.atomic;
 
@@ -45,6 +45,8 @@ class Worker {
     }
 
 }
+
+using WorkerPtr = Worker Ptr;
 
 private var tlsWorker: Tls(@Worker);
 

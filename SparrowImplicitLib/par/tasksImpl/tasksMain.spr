@@ -1,0 +1,55 @@
+module par.tasksImpl.tasksMain;
+
+import taskType(TaskType, getPrefix);
+import schedulerIf = schedulerIf(localWorker, spawn, spawnAndWaitForAll);
+import taskPrefix(TaskPrefix);
+
+class ExecuteHelper(T: Type) {
+    fun[static] doExecute(prefix: @TaskPrefix): Null {
+        var objP: @Byte = ptrAdd(reinterpretCast(@Byte, prefix), prefix.taskOffset);
+        var obj: @T = reinterpretCast(@T, objP);
+        obj execute;
+        return Null();
+    }
+
+    fun[static] getExecuteFn: FunctionPtr(Null rt, @TaskPrefix) = \doExecute;
+}
+
+//! Initializes the fields required for a task
+fun initTaskBasic(obj: @TaskType) {
+    // Init the execute function
+    var prefix: @TaskPrefix = getPrefix(obj);
+    prefix.taskOffset = ptrDiff(reinterpretCast(@Byte, obj), reinterpretCast(@Byte, prefix));
+    prefix.executeFn = ExecuteHelper(typeOf(obj)).getExecuteFn();
+
+    // Get its description (if it has one)
+    if[ct] ( isValidAndTrue(typeOf(obj description) == String) ) {
+        prefix.desc = (obj description);
+    }
+}
+
+//! Initializes a root task
+fun initAsRoot(task: @TaskType) {
+    initTaskBasic(task);
+    getPrefix(task).worker = schedulerIf.localWorker();
+}
+
+//! Initializes a child task
+fun initAsChildOf(task, parent: @TaskType) {
+    initTaskBasic(task);
+    getPrefix(task).parent = getPrefix(parent);
+    getPrefix(task).depth = 1+getPrefix(parent).depth;
+    getPrefix(task).worker = getPrefix(parent).worker;
+}
+
+//! Initialize a child task and spawn it
+fun doSpawn(curTask, childTask: @TaskType) {
+    initAsChildOf(childTask, curTask);
+    schedulerIf.spawn(getPrefix(childTask));
+}
+
+//! Initialize a child task, then spawn it and wait
+fun doSpawnAndWait(curTask, childTask: @TaskType) {
+    initAsChildOf(childTask, curTask);
+    schedulerIf.spawnAndWaitForAll(getPrefix(curTask), getPrefix(childTask));
+}

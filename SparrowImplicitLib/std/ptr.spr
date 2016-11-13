@@ -1,10 +1,12 @@
-import newDelete;
-import meta.astNodes;
+module std.ptr;
+
+public import meta.astNodes(AstNode, astEval, SprFrontend, Feather);
+import newDelete(delete);
 
 class[rtct] Ptr(type: Type)
 {
     using ValueType = type;
-    
+
     fun ctor                    = ptr := null;
     fun ctor(other: Ptr)        = ptr := other.ptr;
     fun[convert] ctor(ref: @ValueType)   = ptr := ref;
@@ -12,21 +14,21 @@ class[rtct] Ptr(type: Type)
     fun get: @ValueType         = ptr;
     fun isNull                  = ptr === null;
     fun isSet                   = ptr !== null;
-    
+
     fun reset                   = ptr := null;
     fun reset(ref: @ValueType)  = ptr := ref;
     fun release                 { delete(ptr); }
-    
+
     fun swap(other: @Ptr)
     {
         var t: @ValueType = ptr;
         ptr := other.ptr;
         other.ptr := t;
     }
-    
+
     fun =(other: Ptr)           = ptr := other.ptr;
     fun =(ref: @ValueType)      = ptr := ref;
-    
+
     fun ==(other: Ptr)          = ptr === other.ptr;
     fun < (other: Ptr)          = ptrDiff(reinterpretCast(@Byte, this.ptr), reinterpretCast(@Byte, other.ptr)) < DiffType(0);
 
@@ -48,11 +50,10 @@ fun[rtct] reinterpretPtr(t: Type, ptr: AnyType): Ptr(t) //if isValid(p.isNull())
 }
 
 
-fun[rtct, macro] ->(base, id: meta.AstNode): meta.AstNode
+fun[rtct, macro] ->(base, id: AstNode): AstNode
 {
-    using meta.*;
-    using meta.SprFrontend.*;
-    using meta.Feather.*;
+    using SprFrontend.*;
+    using Feather.*;
 
     // Expand to: <base>.get().<id>
     var loc = base.location();

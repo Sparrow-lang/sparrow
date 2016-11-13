@@ -1,4 +1,4 @@
-import = basicDecls(Type, Byte, Int);
+import basicDecls(Type, Byte, Int, Null);
 
 class FunctionPtr(resT: Type)
 {

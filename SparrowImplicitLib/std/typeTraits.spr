@@ -1,4 +1,6 @@
-import defaultHashFunction;
+module std.typeTraits;
+
+import defaultHashFunction(defaultHash);
 
 class[rtct] DefaultTypeTraits
 {

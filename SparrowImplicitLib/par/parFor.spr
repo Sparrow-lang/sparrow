@@ -1,7 +1,8 @@
 module par.parFor;
 
-import par.tasks;
-import std.ranges;
+import config;
+import tasks = par.tasks;
+import std.ranges, std.tuple, std.newDelete;
 import bitOper;
 
 concept Partitioner(x)
@@ -21,7 +22,7 @@ fun parFor(r: Range, f: AnyType, part: @Partitioner)
 
     // Create a root task and wait until it's executed
     var range: part.RangeType = r;
-    par.spawnRootAndWait(Impl.ParForTask(range, f, part, 0));
+    tasks.spawnRootAndWait(Impl.ParForTask(range, f, part, 0));
 }
 
 class DefaultPartitioner(rangeType: Type) {
@@ -30,7 +31,7 @@ class DefaultPartitioner(rangeType: Type) {
     private var maxDepth: Int;
 
     fun partStart {
-        var p: Int = par.getAvailableCoresNum;
+        var p: Int = getAvailableCoresNum;
         var depth = 1;
         while ( 2 !<<! depth < p )
             ++depth;
@@ -76,7 +77,7 @@ class BoundedRange(baseRangeType: Type) {
 
 package Impl {
     class ParForTask(rangeType, funcType, partType: Type) {
-        var prefix: par.TaskPrefix;
+        var prefix: tasks.TaskPrefix;
         var range: rangeType;
         var func: funcType;
         var part: @partType;
@@ -90,7 +91,7 @@ package Impl {
             this.part := part;
             this.depth ctor depth;
         }
-        
+
         fun execute {
             // Check if we need to split the range
             var split = part.partition(range, depth);
@@ -100,11 +101,11 @@ package Impl {
 
             if ( splitValid ) {
                 // Create two new tasks for the splits
-                var cont: @EmptyTask = new(EmptyTask);
-                par.setContinuation(this, cont);
+                var cont: @tasks.EmptyTask = new(tasks.EmptyTask);
+                tasks.setContinuation(this, cont);
                 var t1: @ParForTask = allocParForTask(split._1, func, part, depth+1);
                 var t2: @ParForTask = allocParForTask(split._2, func, part, depth+1);
-                par.spawn(cont, t1, t2);
+                tasks.spawn(cont, t1, t2);
             } else {
                 // No more splitting; execute the function serially
                 for ( val: rangeType.RetType = range ) {

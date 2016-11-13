@@ -15,7 +15,7 @@ fun fannkuch(n: Int): Int
         (1...r) copy count.subrange(0, r);
         for ( i = 0..n )
             perm(i) = perm1(i);
-        
+
         // Count flips and update max and checksum
         var f = 0;
         var k = perm(0);

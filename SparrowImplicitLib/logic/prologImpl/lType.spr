@@ -1,5 +1,6 @@
 import nodes;
 import bitOper;
+import metadiag = meta.diagnostic;
 
 class[ct] LType
 {
@@ -126,9 +127,9 @@ class[ct] LTypeSet
 
     private fun reportTypeError(loc: @Location)
     {
-        var diags: Vector(meta.Diagnostic);
+        var diags: Vector(metadiag.Diagnostic);
         var l = loc.asMetaLocation();
-        diags.pushBack(meta.Diagnostic("Type mismatch: cannot combine atom with number", l, meta.diagError));
+        diags.pushBack(metadiag.Diagnostic("Type mismatch: cannot combine atom with number", l, metadiag.diagError));
 
         //writeLoc(loc);
         //cout << "ERROR: Type mismatch: cannot combine atom with number" << endl;
@@ -137,7 +138,7 @@ class[ct] LTypeSet
         if ( atomExp isSet )
         {
             var lAtom = atomExp.get().loc.asMetaLocation();
-            diags.pushBack(meta.Diagnostic("See also atom expression:", lAtom, meta.diagInfo));
+            diags.pushBack(metadiag.Diagnostic("See also atom expression:", lAtom, metadiag.diagInfo));
 
             //writeLoc(atomExp.get().loc);
             //cout << "See atom expression" << endl;
@@ -147,13 +148,13 @@ class[ct] LTypeSet
         if ( numExp isSet )
         {
             var lNum = numExp.get().loc.asMetaLocation();
-            diags.pushBack(meta.Diagnostic("See also number expression:", lNum, meta.diagInfo));
+            diags.pushBack(metadiag.Diagnostic("See also number expression:", lNum, metadiag.diagInfo));
 
             //writeLoc(numExp.get().loc);
             //cout << "See numeric expression" << endl;
         }
 
-        meta.report(diags);
+        metadiag.report(diags);
 
         //os.exit(-1);
     }

@@ -1,9 +1,8 @@
 //!!
-import logic.prolog;
+import logic = logic.prolog;
+import meta.astNodes(AstNode, astEval);
 
-using logic.*;
-
-compileProlog("
+logic.compileProlog("
     orbits(mercury, sun).
     orbits(venus, sun).
     orbits(earth, sun).
@@ -13,13 +12,13 @@ compileProlog("
     orbits(deimos, mars).
 
     planet(P) :- orbits(P, sun).
- 
+
     satellite(S) :- orbits(S, P), planet(P).
 ");
 
 fun test1
 {
-    var x: LStr;
+    var x: logic.LStr;
     var pred = satellite(x);
     var pred = satellite(x,x);  // ERROR
 }

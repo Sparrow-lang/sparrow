@@ -1,4 +1,6 @@
-import tuple;
+module std.algorithms;
+
+import tuple(Tuple, ~);
 import ranges;
 
 concept Swappable(x) if isValid(x.swap(x));

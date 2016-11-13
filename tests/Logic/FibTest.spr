@@ -1,8 +1,6 @@
 //!!
 import logic.prologFrontend;
 
-using logic.*;
-
 fun fib(p_1: @LInt, p_2: @LInt): Predicate
 {
     var l2_X2: LInt;

@@ -1,15 +1,8 @@
-import contiguousMemoryRange;
-import math;
-import tuple;
-import staticArray;
-import sprCore.numericLimits;
+module std.ranges;
 
-concept Range(x)
-    if typeOf(x.RetType) == Type
-    && typeOf(x.isEmpty()) == Bool
-    && typeOf(x.front()) == x.RetType
-    && isValid(x.popFront())
-    ;
+import math = math(floor);
+import tuple(MakePair);
+import staticArray(mkValues);
 
 concept BidirRange(x: Range)
     if typeOf(x.back()) == x.RetType
@@ -176,7 +169,7 @@ class[rtct] NumericRangeInc(valueType: Type) if Number(#$valueType)
     fun popBack                     { end -= step; }
 
     fun size: SizeType              = SizeType(ife(closed, valueType(end-begin+1), end-begin));
-    
+
     fun popFront(n: SizeType)       { begin += cvt(n); }
     fun popBack(n: SizeType)        { end -= cvt(n); }
 
@@ -259,7 +252,7 @@ class[rtct] NumericRangeWithStep(valueType: Type) if Number(#$valueType)
     fun popBack                     { end -= step; }
 
     fun size: SizeType              = SizeType(math.floor(ife(closed, end-begin, end-begin+step)/step));
-    
+
     fun popFront(n: SizeType)       { begin += cvt(n*step); }
     fun popBack(n: SizeType)        { end -= cvt(n*step); }
 
@@ -275,8 +268,8 @@ class[rtct] NumericRangeWithStep(valueType: Type) if Number(#$valueType)
 }
 
 class[initCtor] RetroRange(rangeType: Type) if BidirRange(#$rangeType)
-{    
-    private var range: rangeType;    
+{
+    private var range: rangeType;
 
     using RetType = rangeType.RetType;
 
@@ -339,12 +332,12 @@ class[initCtor] TakeUntilRange(rangeType: Type, predType: Type) if Range(#$range
 
 class FilteredRange(rangeType, predType: Type) if Range(#$rangeType) && typeOf((#$predType)(#$rangeType front)) == Bool
 {
-    private var range: rangeType; 
+    private var range: rangeType;
     private var pred: predType;
     private var lastVal: RetType;
 
     using RetType = -@rangeType.RetType;
-    
+
     fun ctor(range: rangeType, pred: predType)
     {
         this.range ctor range;
@@ -400,8 +393,8 @@ class[rtct] TransformedRange(rangeType, funType: Type) if Range(#$rangeType) && 
 }
 
 class[initCtor] RepeatRange(valueType: Type)
-{    
-    private var value: valueType;   
+{
+    private var value: valueType;
 
     using RetType = valueType;
 
@@ -451,12 +444,12 @@ class[initCtor] StridedRange(rangeType: Type) if Range(#$rangeType)
 
 class RadialRange(rangeType: Type) if RandomAccessRange(#$rangeType)
 {
-    private var range: rangeType;   
+    private var range: rangeType;
     private var index, count: SizeType;
-    private var step, sign: DiffType; 
+    private var step, sign: DiffType;
 
     using RetType = rangeType.RetType;
-    
+
     fun ctor(range: rangeType, index: SizeType)
     {
         this.range ctor range;
@@ -465,7 +458,7 @@ class RadialRange(rangeType: Type) if RandomAccessRange(#$rangeType)
         this.sign ctor 1;
         this.count ctor 0;
     }
-        
+
     fun isEmpty                     = range.isEmpty() || count == range.size();
     fun front: RetType              = range(index);
     fun popFront
@@ -478,23 +471,23 @@ class RadialRange(rangeType: Type) if RandomAccessRange(#$rangeType)
         {
             index = index + step * sign;
             step = step + 1;
-            sign = -sign;       
+            sign = -sign;
         }
     }
 }
 
 class CyclicRange(rangeType: Type) if Range(#$rangeType)
-{   
+{
     private var range, base: rangeType;
 
     using RetType = rangeType.RetType;
-        
+
     fun ctor(range: rangeType)
     {
         this.range ctor range;
         this.base ctor range;
     }
-    
+
     fun isEmpty                     = false;
     fun front: RetType              = range.front();
     fun popFront
@@ -507,8 +500,8 @@ class CyclicRange(rangeType: Type) if Range(#$rangeType)
 
 class CyclicCountedRange(rangeType: Type) if Range(#$rangeType)
 {
-    private var range, base: rangeType;   
-    private var count: SizeType;    
+    private var range, base: rangeType;
+    private var count: SizeType;
 
     using RetType = rangeType.RetType;
 
@@ -518,7 +511,7 @@ class CyclicCountedRange(rangeType: Type) if Range(#$rangeType)
         this.count ctor count;
         this.base ctor range;
     }
-        
+
     fun isEmpty                     = count == 0;
     fun front: RetType              = range.front();
     fun popFront
@@ -537,17 +530,17 @@ class CyclicCountedRange(rangeType: Type) if Range(#$rangeType)
 
 class GeneratedRange(functionType: Type)
 {
-    private var function: functionType; 
-    private var current: RetType; 
+    private var function: functionType;
+    private var current: RetType;
 
     using RetType = typeOf((#$functionType)());
-    
+
     fun ctor(function: functionType)
     {
         this.function ctor function;
         this.current ctor this.function();
     }
-        
+
     fun isEmpty                     = false;
     fun front: RetType              = current;
     fun popFront                    { current = function(); }
@@ -555,17 +548,17 @@ class GeneratedRange(functionType: Type)
 
 class Generated1Range(elType, functionType: Type) //if isValid(elType(#$functionType)(#$elType))
 {
-    private var function: functionType; 
-    private var current: RetType; 
+    private var function: functionType;
+    private var current: RetType;
 
     using RetType = elType;
-    
+
     fun ctor(initialValue: RetType, function: functionType)
     {
         this.function ctor function;
         this.current ctor initialValue;
     }
-        
+
     fun isEmpty                     = false;
     fun front: RetType              = current;
     fun popFront                    { current = function(current); }
@@ -573,12 +566,12 @@ class Generated1Range(elType, functionType: Type) //if isValid(elType(#$function
 
 class[initCtor] ZippedRange(rangeType1, rangeType2: Type, functionType: Type) if Range(#$rangeType1) &&  Range(#$rangeType2)
 {
-    private var range1: rangeType1; 
+    private var range1: rangeType1;
     private var range2: rangeType2;
-    private var function: functionType; 
+    private var function: functionType;
 
     using RetType = typeOf((#$functionType)(#$rangeType1 front, #$rangeType2 front));
-    
+
     fun isEmpty                     = range1.isEmpty() || range2.isEmpty();
     fun front: RetType              = function(range1.front(), range2.front());
     fun popFront                    { range1.popFront(); range2.popFront(); }
@@ -587,8 +580,8 @@ class[initCtor] ZippedRange(rangeType1, rangeType2: Type, functionType: Type) if
 class ScanLeftRange(accType, rangeType: Type, functionType: Type) if Range(#$rangeType)
 {
     private var acc: accType;
-    private var range: rangeType; 
-    private var function: functionType; 
+    private var range: rangeType;
+    private var function: functionType;
     private var valComputed: Bool;
 
     using RetType = accType;
@@ -600,7 +593,7 @@ class ScanLeftRange(accType, rangeType: Type, functionType: Type) if Range(#$ran
         this.function ctor function;
         this.valComputed ctor false;
     }
-    
+
     fun isEmpty         = range.isEmpty();
     fun popFront        { range.popFront(); valComputed=false; }
     fun front: RetType

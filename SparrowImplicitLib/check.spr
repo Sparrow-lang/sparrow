@@ -1,9 +1,8 @@
-module check.check;
+module check;
 
-import os;
-import std.map;
-import std.function;
-import std.ranges;
+import std.string(String);
+import std.map(Map);
+import std.function(Function);
 
 //! An object that is able to generate values of the given type, possibly in a random fashion
 class Gen(t: Type) {
@@ -235,7 +234,7 @@ package CheckImpl {
 
     class ForWhichRange(rangeType, predType: Type) if typeOf((#$predType)((#$rangeType front).value)) == Bool
     {
-        private var range: rangeType; 
+        private var range: rangeType;
         private var pred: predType;
         private var lastVal: RetType;
 
@@ -286,7 +285,7 @@ package CheckImpl {
     {
         using RetType = -@rangeType.RetType;
 
-        private var range: rangeType; 
+        private var range: rangeType;
         private var pred: predType;
 
         fun isEmpty                     = range.isEmpty();

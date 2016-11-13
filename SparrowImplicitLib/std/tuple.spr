@@ -1,3 +1,5 @@
+module std.tuple;
+
 class[rtct, initCtor] Tuple(t1, t2: Type) {
     using arity = 2;
     var _1: t1;

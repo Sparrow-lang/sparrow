@@ -1,5 +1,7 @@
 //!!
-import logic.prolog;
+import logic = logic.prolog;
+import meta.astNodes;
+import std.string;
 
 using sunVar = "sun";
 fun getSun: String { cout << "<getSun() called>"; return "sun"; }

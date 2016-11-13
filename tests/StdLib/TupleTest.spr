@@ -1,8 +1,7 @@
-//!! 
+//!!
 import std.tuple;
+import std.ranges;
 import check;
-
-using check.*;
 
 class[initCtor] MyObj1 {
     var x: Int;

@@ -3,8 +3,9 @@
 import std.array;
 import std.vector;
 import std.string;
-import math;
-import os;
+import std.ranges;
+import math = math;
+import os = os;
 
 /*settings-here*/
 //using runAtCt = false;
@@ -139,7 +140,7 @@ fun[rtct] readFileLines(filename: StringRef): Vector(String)
 fun[rt] toRt(sols: SolutionsType ct): SolutionsType
 {
     var solsRt = sols;
-    return solsRt; 
+    return solsRt;
 }
 
 fun[rt] toRt1(sols: SolutionsType ct): SolutionsType

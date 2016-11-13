@@ -1,8 +1,7 @@
-import array;
-import staticArray;
-import vector;
-import algorithms;
-import defaultHashFunction;
+module std.sortedTable;
+
+import vector(Vector);
+import ranges(rangeSize);
 
 class SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: Type)
 {

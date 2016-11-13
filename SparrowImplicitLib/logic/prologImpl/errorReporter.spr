@@ -1,5 +1,8 @@
 import charRange;
 import token;
+import std.algorithms;
+import metadiag = meta.diagnostic;
+import os = os;
 
 class[rtct] ConsoleErrorReporter(sourceType: Type) if CharRange(#$sourceType)
 {
@@ -60,6 +63,6 @@ class[ct] CompilerErrorReporter
 {
     fun raiseError(loc: Location, message: StringRef)
     {
-        meta.report(message, loc.asMetaLocation());
+        metadiag.report(message, loc.asMetaLocation());
     }
 }

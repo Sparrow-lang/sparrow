@@ -1,8 +1,8 @@
 //!!
 import logic.predicates;
-import assert;
+//import assert;
+import os = os;
 
-using logic.*;
 
 fun male(x: @LStr) = x /=/ "castor" || x /=/ "zeus";
 
@@ -75,7 +75,7 @@ fun test3
     var pred = female(x);
     while ( pred() )
     {
-        assert(x.isSet());
+        //assert(x.isSet());
         cout << "Found female: " << x.get() << endl << flush;
     }
 
@@ -91,7 +91,7 @@ fun test4
     var pred = person(x);
     while ( pred() )
     {
-        assert(x.isSet());
+        //assert(x.isSet());
         cout << "Found person: " << x.get() << endl << flush;
     }
 
@@ -110,9 +110,9 @@ fun test5
     var pred = parents(father, mother, child);
     while ( pred() )
     {
-        assert(father.isSet());
-        assert(mother.isSet());
-        assert(child.isSet());
+        //assert(father.isSet());
+        //assert(mother.isSet());
+        //assert(child.isSet());
         cout << "Parent relation: (" << father.get() << " + " << mother.get() << ") = " << child.get() << endl << flush;
     }
 

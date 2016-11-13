@@ -1,9 +1,14 @@
 module par.tasksImpl.scheduler;
 
-import taskPrefixOpers;
-import worker;
-import debug;
+import tasksMain(initAsRoot);
+import taskType(TaskType);
+import taskPrefix(TaskPtr, TaskPrefix);
+import emptyTask(EmptyTask, execute);
+import worker(Worker);
+import taskQueue(TaskQueue);
+//import debug;
 import par.tls;
+import std.ranges(..);
 
 ///////////////////////////////////////////////////////////////////////////////
 // Main scheduler interface
@@ -56,7 +61,7 @@ fun schedSpawnRootAndWait(task: TaskPtr) {
 
     // Create a dummy task to wait for
     var waitingTask: EmptyTask;
-    Impl.initAsRoot(waitingTask);
+    initAsRoot(waitingTask);
     waitingTask.prefix setRefCount 2;
     task.get().parent = TaskPtr(waitingTask.prefix);
 
@@ -127,7 +132,7 @@ fun schedDoWait(worker: @Worker, toExecute, waitingTask: TaskPtr) {
                 if ( toExecute isSet )
                     Tracer(worker)<< "Found task in global queue\n";
         }
-        
+
         // Steal work from other queues
         if ( toExecute isNull ) {
             // Try different queues until we find one we can steal from
@@ -182,10 +187,10 @@ fun schedDoWait(worker: @Worker, toExecute, waitingTask: TaskPtr) {
             else {
                 // Try several times to steal tasks
                 // Going to sleep is more expensive
-                par.sleep(0);
+                sleep(0);
             }
         } else {
-            --numRetries;            
+            --numRetries;
         }
     }
 
@@ -211,7 +216,7 @@ fun executeTask(task: @TaskPrefix): TaskPtr {
 
     // If the continuation is set, we shouldn't have a parent
     if ( task.cont isSet )
-        assert(task.parent isNull);
+        //assert(task.parent isNull);
 
     // If no parent set, just return
     if ( task.parent isNull )

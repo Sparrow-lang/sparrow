@@ -1,7 +1,7 @@
 //!!
 import std.staticArray;
 import std.contiguousMemoryRange;
-import std.rawPtr; // !!!
+import std.rawPtr;
 
 fun sprMain
 {

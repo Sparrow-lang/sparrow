@@ -2,6 +2,8 @@ import std.set;
 import std.defaultHashFunction;
 import std.ranges;
 import std.list;
+import std.vector;
+import std.algorithms;
 
 fun sprMain
 {

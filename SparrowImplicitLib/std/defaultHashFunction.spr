@@ -1,7 +1,8 @@
-import algorithms;
+module std.defaultHashFunction;
+
 import ranges;
 import bitOper;
-import string;
+import string(String);
 
 class[rtct] DefaultHashFunction(type: Type)
 {

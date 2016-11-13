@@ -1,5 +1,4 @@
-import newDelete;
-import meta.astNodes;
+module std.utils;
 
 concept Nullable(x)
     if typeOf(x.isSet()) == Bool

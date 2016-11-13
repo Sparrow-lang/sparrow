@@ -2,7 +2,7 @@
 
 import std.array;
 import std.vector;
-import math;
+import math = math;
 
 var[ct] PlacementType = Array(Int);
 var[ct] SolutionsType = Vector(PlacementType);

@@ -1,9 +1,10 @@
 //!!
 import std.algorithms;
-import std.contiguousMemoryRange;
-import std.rawPtr; // !!!
-import std.list;
-import std.tuple;
+import std.contiguousMemoryRange(ContiguousMemoryRange);
+import std.rawPtr(RawPtr);
+import std.list(List);
+import std.ranges;
+import std.tuple(~);
 
 fun sprMain
 {

@@ -1,9 +1,7 @@
 //!!
 import logic.predicates;
 import logic.recurse;
-import assert;
-
-using logic.*;
+//import assert;
 
 fun children(child, parent: @LStr)
      = child /=/ "Sam"    && parent /=/ "Mary"
@@ -57,8 +55,8 @@ fun test1
     var pred = children(x, y);
     while ( pred() )
     {
-        assert(x.isSet());
-        assert(y.isSet());
+        //assert(x.isSet());
+        //assert(y.isSet());
         cout << x.get() << " is a child of " << y.get() << endl;
     }
     cout << "---\n";
@@ -66,8 +64,8 @@ fun test1
     var pred2 = gender(x2, y2);
     while ( pred2() )
     {
-        assert(x2.isSet());
-        assert(y2.isSet());
+        //assert(x2.isSet());
+        //assert(y2.isSet());
         cout << x2.get() << " is " << y2.get() << endl;
     }
 }
@@ -91,7 +89,7 @@ fun test2
     var pred = male(x);
     while ( pred() )
     {
-        assert(x.isSet());
+        //assert(x.isSet());
         cout << "Male: " << x.get() << endl;
     }
 }
@@ -107,7 +105,7 @@ fun test3
     var pred = female(x);
     while ( pred() )
     {
-        assert(x.isSet());
+        //assert(x.isSet());
         cout << "Female: " << x.get() << endl;
     }
 }
@@ -122,8 +120,8 @@ fun test4
     var pred = parent(x, y);
     while ( pred() )
     {
-        assert(x.isSet());
-        assert(y.isSet());
+        //assert(x.isSet());
+        //assert(y.isSet());
         cout << x.get() << " is a parent of " << y.get() << endl;
     }
 }
@@ -141,8 +139,8 @@ fun test5
     var pred = father(x, y);
     while ( pred() )
     {
-        assert(x.isSet());
-        assert(y.isSet());
+        //assert(x.isSet());
+        //assert(y.isSet());
         cout << x.get() << " is the father of " << y.get() << endl;
     }
 }
@@ -158,8 +156,8 @@ fun test6
     var pred = mother(x, y);
     while ( pred() )
     {
-        assert(x.isSet());
-        assert(y.isSet());
+        //assert(x.isSet());
+        //assert(y.isSet());
         cout << x.get() << " is the mother of " << y.get() << endl;
     }
 }
@@ -174,8 +172,8 @@ fun test7
     var pred = ancestor(x, y);
     while ( pred() )
     {
-        assert(x.isSet());
-        assert(y.isSet());
+        //assert(x.isSet());
+        //assert(y.isSet());
         cout << x.get() << " is an ancestor of " << y.get() << endl;
     }
 }

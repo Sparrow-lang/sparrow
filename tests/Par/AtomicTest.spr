@@ -6,9 +6,6 @@ import std.vector;
 import os;
 import test;
 
-using par.*;
-using test.*;
-
 fun[native("rand")] rand(): Int;
 fun[native("srand")] srand(seed: UInt);
 fun[native("time")] time(timer: @Int): Int;

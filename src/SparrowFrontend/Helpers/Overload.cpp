@@ -55,7 +55,7 @@ namespace
     {
         NodeArray declsEx = expandDecls(decls, nullptr);
 
-        for ( Node* decl: declsEx ) {            
+        for ( Node* decl: declsEx ) {
             Node* node = decl;
 
             // If we have a resolved decl, get the callable for it
@@ -356,9 +356,8 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
 
     if ( isMacro )
     {
-        // Wrap the function call in a meta.astEval(...) call
-        Node* qid = mkIdentifier(loc, fromCStr("meta"));
-        qid = mkCompoundExp(loc, qid, fromCStr("astEval"));
+        // Wrap the function call in a astEval(...) call
+        Node* qid = mkIdentifier(loc, fromCStr("astEval"));
         res = mkFunApplication(loc, qid, fromIniList({res}));
         Nest_setContext(res, context);
     }
@@ -371,7 +370,7 @@ bool SprFrontend::selectConversionCtor(CompilationContext* context, Node* destCl
 {
     ASSERT(argType);
 
-    // Search for the ctors in the class 
+    // Search for the ctors in the class
     NodeArray decls = Nest_symTabLookupCurrent(Nest_childrenContext(destClass)->currentSymTab, "ctor");
 
 //     cerr << "Convert: " << argType->toString() << " -> " << Nest_toString(destClass) << " ?" << endl;
@@ -431,7 +430,7 @@ Callable* SprFrontend::selectCtToRtCtor(CompilationContext* context, TypeRef ctT
     if ( Feather_effectiveEvalMode(cls) != modeRtCt )
         return nullptr;
 
-    // Search for the ctors in the class 
+    // Search for the ctors in the class
     NodeArray decls = Nest_symTabLookupCurrent(Nest_childrenContext(cls)->currentSymTab, "ctorFromCt");
 
     // Select the possible ct-to-rt constructors

@@ -128,7 +128,7 @@ class LRef(valueType: Type)
     fun isSet                   = pptr.get().isSet();
 
     //fun (): Bool                = true;
-    
+
     fun swap(other: @LRef)
     {
         pptr.swap(other.pptr);

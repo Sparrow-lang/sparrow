@@ -8,7 +8,7 @@ import std.algorithms;
 import std.bitset;
 import std.string;
 import std.ranges;
-import os;
+import os = os;
 
 // The type of test to execute:
 // - 0 = RT test

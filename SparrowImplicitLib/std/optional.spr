@@ -1,9 +1,11 @@
+module std.optional;
+
 /// A container that may or may not store a value.
 /// One can check whether the value is defined or not, and can access the value
 class Optional(valueType: Type)
 {
     using ValueType = valueType;
-    
+
     fun[noDefault] ctor
     {
         constructed ctor false;
@@ -29,7 +31,7 @@ class Optional(valueType: Type)
     fun isSet                                       = constructed;
     fun get: @ValueType                             = value;
     fun getOrElse(default: @ValueType): @ValueType  = ife(constructed, cast(@ValueType, value), default);
-    
+
     fun reset
     {
         if ( constructed )
@@ -43,17 +45,17 @@ class Optional(valueType: Type)
         value ctor val;
         constructed = true;
     }
-    
+
     fun swap(other: @Optional)
     {
         var tmp = this;
         this = other;
         other = this;
     }
-    
+
     fun =(other: @Optional)     { if ( other.constructed ) reset(other.value); else reset(); }
     fun =(val: @ValueType)      { reset(val); }
-    
+
     fun ==(other: Optional)     = constructed == other.constructed && (!constructed || value == other.value);
 
     fun >>(os: @OutStream) if isValid(os << #$ValueType)

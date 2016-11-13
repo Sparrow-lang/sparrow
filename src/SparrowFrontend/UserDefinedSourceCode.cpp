@@ -45,14 +45,14 @@ namespace
         Node* codeNode = buildStringLiteral(loc, fromString(oss.str()));
 
         int* scHandle = reinterpret_cast<int*>(sourceCode);
-        Node* scBase = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("meta")), fromCStr("SourceCode"));
+        Node* scBase = mkIdentifier(loc, fromCStr("SourceCode"));
         Node* scArg = Feather_mkCtValueT(loc, StdDef::typeRefInt, &scHandle);
         Node* scNode = mkFunApplication(loc, scBase, fromIniList({scArg}));
-        Node* locBase = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("meta")), fromCStr("Location"));
+        Node* locBase = mkIdentifier(loc, fromCStr("Location"));
         Node* locNode = mkFunApplication(loc, locBase, fromIniList({scNode}));
 
         int* ctxHandle = reinterpret_cast<int*>(ctx);
-        Node* ctxBase = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("meta")), fromCStr("CompilationContext"));
+        Node* ctxBase = mkIdentifier(loc, fromCStr("CompilationContext"));
         Node* ctxArg = Feather_mkCtValueT(loc, StdDef::typeRefInt, &ctxHandle);
         Node* ctxNode = mkFunApplication(loc, ctxBase, fromIniList({ctxArg}));
 

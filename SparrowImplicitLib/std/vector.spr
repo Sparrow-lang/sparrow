@@ -1,6 +1,8 @@
-import contiguousMemoryRange;
-import rawPtr;
-import ranges;
+module std.vector;
+
+import contiguousMemoryRange(ContiguousMemoryRange);
+import rawPtr(RawPtr);
+import ranges(RandomAccessRange, ..);
 
 fun[rtct] mkVector(range: Range) = Vector(-@ range.RetType)(range);
 

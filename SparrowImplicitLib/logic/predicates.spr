@@ -1,8 +1,7 @@
 module logic.predicates;
 
-import lRef;
+public import lRef;
 import std.function;
-import assert;
 
 /// Concept describing the type of a predicate: anything that can be called and evaluates to Bool
 concept PredicateType(x)

@@ -1,4 +1,6 @@
-import sortedTable;
+module std.sortedSet;
+
+import sortedTable(SortedTable);
 
 class SortedSet(keyType, lessType, compareType: Type)
 {

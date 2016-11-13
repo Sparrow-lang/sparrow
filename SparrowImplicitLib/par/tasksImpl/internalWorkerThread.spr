@@ -1,5 +1,8 @@
 module par.tasksImpl.internalWorkerThread;
 
+import worker(Worker, setLocalWorker);
+import taskPrefix(TaskPtr);
+import scheduler(schedDoWait);
 import std.ptr;
 
 //! Class that represents an internal worker thread

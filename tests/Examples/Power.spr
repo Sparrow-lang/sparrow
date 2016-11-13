@@ -1,6 +1,6 @@
 //!!
 
-import math;
+import math = math;
 
 fun pow(x: Double, n: Int ct): Double
 {

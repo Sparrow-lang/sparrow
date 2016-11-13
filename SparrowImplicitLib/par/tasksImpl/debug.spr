@@ -1,11 +1,13 @@
 module par.tasksImpl.debug;
 
+import worker(Worker);
+import par.locks;
 import meta.astNodes;
-import taskPrefix;
+import std.string;
 
 //using traceCalls = true;
 
-using TraceLockType = par.Mutex;
+using TraceLockType = Mutex;
 
 var traceMutex: TraceLockType;
 

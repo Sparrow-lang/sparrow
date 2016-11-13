@@ -1,4 +1,4 @@
-import = sprCore.basicDecls(AnyType, Number, Char, Bool, StringRef, Byte, Int, Double, Null, isValid, &&, !, oper_precedence___fapp__, oper_precedence___dot__, typeOf, reinterpretCast);
+import sprCore.basicDecls(AnyType, Number, Char, Bool, StringRef, Byte, Int, Double, Null, isValid, &&, !, oper_precedence___fapp__, oper_precedence___dot__, typeOf, reinterpretCast);
 
 // An output stream must accept the basic types
 concept OutStream(x)

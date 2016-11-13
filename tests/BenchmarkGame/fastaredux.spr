@@ -3,6 +3,7 @@
 import std.array;
 import std.algorithms;
 import std.string;
+import std.tuple;
 
 fun write(r: Range, length: Int) if isValid(Char(r.front))
 {

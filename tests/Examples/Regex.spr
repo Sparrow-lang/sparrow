@@ -9,9 +9,9 @@ import std.staticArray;
 import std.ranges;
 import std.algorithms;
 import std.bitset;
-import std.ptr;
-import time;
-import precedenceUtils;
+import std.ptr, std.rawPtr;
+import time = time;
+import precedenceUtils(getOperPrecedence, setOperPrecedence);
 
 // The type of test to execute:
 // - 0 = AnyType test
@@ -722,7 +722,7 @@ fun testCtVsRtPerf(ctRe: StringRef ct, str: StringRef, repCount: Int)
 
 
     cnt = 0;
-    var timerRt: time.Timer;    
+    var timerRt: time.Timer;
     testRt(rtRe, 1, repCount, testStrings.all());
     var tRt = timerRt.elapsed();
     cout << "Run-time:\t" << rtRe << "\t\t" << str << "\t\t" << repCount << "\t\t" << cnt << "\t\t" << tRt << endl;

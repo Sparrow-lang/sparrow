@@ -1,10 +1,11 @@
 module par.tasksImpl.taskSystem;
 
-import internalWorkerThread;
+import internalWorkerThread(InternalWorkerThread);
+import worker(Worker, WorkerPtr, IdleCounter);
+import taskQueue(TaskQueue);
 import par.thread;
-import std.ptr;
-import std.vector;
-import assert;
+import std.ptr, std.vector;
+//import assert;
 
 class TaskSystem {
     fun ctor {
@@ -17,10 +18,10 @@ class TaskSystem {
     var globalQueue: TaskQueue;
 
     //! All the workers in the system
-    var workers: (Worker Ptr) Vector;
+    var workers: WorkerPtr Vector;
 
     //! The internal threads that are doing all the work
-    private var threads: (par.Thread Ptr) Vector;
+    private var threads: (Thread Ptr) Vector;
     //! Object that counts the number of threads that are idle
     var idleCounter: IdleCounter;
 }
@@ -29,7 +30,7 @@ var globalTaskSystem: TaskSystem Ptr;
 
 fun initTaskSystem(numWorkers: UInt = 0) {
     // Create the task system object
-    assert(globalTaskSystem isNull);
+    //assert(globalTaskSystem isNull);
     globalTaskSystem = new(TaskSystem);
 
     // Create the required threads
@@ -39,7 +40,7 @@ fun initTaskSystem(numWorkers: UInt = 0) {
     var ts: @TaskSystem = globalTaskSystem.get();
     for ( i=0..numWorkers ) {
         var worker = ts createWorker;
-        var p: par.Thread Ptr = new(par.Thread, InternalWorkerThread(worker));
+        var p: Thread Ptr = new(Thread, InternalWorkerThread(worker));
         ts.threads.pushBack(p);
     }
 }
@@ -79,4 +80,4 @@ fun onTaskAvailable(ts: @TaskSystem) {
 }
 
 //! Get the number of currently available workers
-fun numAvailableWorkers(ts: @TaskSystem) = (ts.workers size) - (ts.idleCounter numIdleWorkers);
+fun numAvailableWorkers(ts: @TaskSystem): SizeType = (ts.workers size) - (ts.idleCounter numIdleWorkers);

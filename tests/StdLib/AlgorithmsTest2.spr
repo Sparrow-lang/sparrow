@@ -1,10 +1,9 @@
 //!!
 import std.ranges;
 import std.algorithms;
-import std.contiguousMemoryRange;
-import std.rawPtr; // !!!
-import std.list;
-import std.tuple;
+import std.contiguousMemoryRange(ContiguousMemoryRange);
+import std.rawPtr(RawPtr);
+import std.list(List);
 
 fun sprMain
 {
@@ -502,7 +501,7 @@ fun test22()
 fun test23()
 {
     var li = makeList();
-    var lr = li.all();   
+    var lr = li.all();
 
     cout << foldLeft(lr, Minus(), 0) << endl;
     cout << foldRight(lr, Minus(), 0) << endl;

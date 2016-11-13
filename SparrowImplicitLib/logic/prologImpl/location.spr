@@ -1,4 +1,4 @@
-import meta.location;
+import metaloc = meta.location;
 
 using LLocation = Location;
 
@@ -28,7 +28,7 @@ class[rtct] Location
         this.endColNo ctor endColNo;
     }
 
-    fun[ct, convert] ctor(loc: meta.Location)
+    fun[ct, convert] ctor(loc: metaloc.Location)
     {
         this.sourceCodePlaceholder := loc.sourceCode.impl;
         this.startLineNo ctor loc.startLineNo;
@@ -37,9 +37,9 @@ class[rtct] Location
         this.endColNo ctor loc.endColNo;
     }
 
-    fun[ct] asMetaLocation: meta.Location
+    fun[ct] asMetaLocation: metaloc.Location
     {
-        var res: meta.Location;
+        var res: metaloc.Location;
         res.sourceCode.impl := sourceCodePlaceholder;
         res.startLineNo = startLineNo;
         res.endLineNo = endLineNo;

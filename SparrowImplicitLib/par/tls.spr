@@ -2,12 +2,13 @@ module par.tls;
 
 import config;
 import assert;
+import std.newDelete;
 
 //! A class that can hold some data into a thread-local storage
 //! The size of the data must be less or equal to the size of a reference
 //! For references, we would delete the pointer when the thread exits
 class Tls(T: Type) if TypeOp.isRef(T) {
-    private var tls: Impl.TlsCommon;    
+    private var tls: Impl.TlsCommon;
 
     using ValueType = T;
 
@@ -33,7 +34,7 @@ class Tls(T: Type) if TypeOp.isRef(T) {
     }
 }
 class Tls(T: Type) if !TypeOp.isRef(T) && sizeOf(T) <= sizeOf(@Byte) {
-    private var tls: Impl.TlsCommon;    
+    private var tls: Impl.TlsCommon;
 
     using ValueType = T;
 

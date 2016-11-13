@@ -1,5 +1,7 @@
-import ranges;
-import math;
+module std.rMath;
+
+import math(sqrt);
+import algorithms(foldLeft);
 
 
 fun sqr n = n*n;
@@ -18,4 +20,4 @@ fun mean(r: Range): Double if Number(r.front())
     return Double(sum) / Double(count);
 }
 
-fun rootMeanSquare r = math.sqrt(mean(r map \sqr));
+fun rootMeanSquare r = sqrt(mean(r map \sqr));

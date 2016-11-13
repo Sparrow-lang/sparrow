@@ -2,10 +2,9 @@
 // -g -O1 --dump-assembly
 import par.tasks;
 import par.parFor;
+import par.atomic;
 import test;
 
-using par.parFor;
-using par.Atomic;
 
 var counter: Int Atomic;
 var outOfOrderCount: Int Atomic;
@@ -14,7 +13,7 @@ fun foo(x: Int) {
     var curIdx = counter++;
     if ( curIdx != x )
         outOfOrderCount++;
-    par.sleep(0);
+    sleep(0);
 }
 
 fun sprMain
@@ -26,8 +25,8 @@ fun sprMain
     0..n parFor \foo;
 
     //cout << "Num out of order: " << (outOfOrderCount load) << endl;
-    test.assertGt(outOfOrderCount load, 0);
-    test.assertLe(outOfOrderCount load, n);
+    assertGt(outOfOrderCount load, 0);
+    assertLe(outOfOrderCount load, n);
 }
 
 /*<<<Mid range (100)

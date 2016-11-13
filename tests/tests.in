@@ -16,7 +16,8 @@ StdLib/StaticArrayTest.spr:             Std.StaticArray
 StdLib/PtrTest.spr:                     Smart Pointers
 StdLib/ContiguousMemoryRangeTest.spr:   Std.ContiguousMemoryRange
 StdLib/TupleTest.spr:                   Std.Tuple
-StdLib/StringOperators.spr:             Std.String
+StdLib/StringOperators.spr:             Std.String (StringRef not String)
+StdLib/FunTest.spr:                     Std.Function
 
 BenchmarkGame/nbody.spr:                Benchmark game - nbody
 BenchmarkGame/fannkuchredux.spr:        Benchmark game - fannkuchredux
@@ -25,6 +26,7 @@ BenchmarkGame/fasta.spr:                Benchmark game - fasta
 BenchmarkGame/fastaredux.spr:           Benchmark game - fastaredux
 
 # Par/ThreadTest.spr:                     Parallel - thread test
+# Par/TlsTest.spr:                        Parallel - TLS test
 # Par/AtomicTest.spr:                     Parallel - atomics test
 # Par/LocksTest.spr:                      Parallel - locks test
 # Par/SemaphoreTest.spr:                  Parallel - semaphore test

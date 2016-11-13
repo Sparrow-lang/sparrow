@@ -2,7 +2,6 @@
 import std.list;
 import std.contiguousMemoryRange;
 import std.rawPtr;
-// import Array; // !!!
 
 fun sprMain
 {

@@ -2,8 +2,12 @@
 
 import std.map;
 import std.sortedMap;
-import time;
-import os;
+import std.sortedTable;
+import std.staticArray;
+import std.array;
+import std.ptr;
+import time = time;
+import os = os;
 
 using payloadSize = 16;
 

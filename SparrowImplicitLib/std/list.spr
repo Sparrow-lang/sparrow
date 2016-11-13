@@ -1,4 +1,7 @@
-import array;
+module std.list;
+
+import rawPtr(RawPtr);
+import array(Array);
 
 class List(valueType: Type)
 {

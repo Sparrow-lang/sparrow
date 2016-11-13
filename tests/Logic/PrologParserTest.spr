@@ -1,9 +1,8 @@
 //!!
-import logic.prolog;
+import logic = logic.prolog;
+import meta.astNodes(AstNode, astEval);
 
-using logic.*;
-
-compileProlog("
+logic.compileProlog("
     orbits(mercury, sun).
     orbits(venus, sun).
     orbits(earth, sun).
@@ -13,11 +12,11 @@ compileProlog("
     orbits(deimos, mars).
 
     planet(P) :- orbits(P, sun).
- 
+
     satellite(S) :- orbits(S, P), planet(P).
 ");
 
-compileProlog("
+logic.compileProlog("
     children(sam, mary).
     children(denise, mary).
     children(sam, frank).
@@ -52,7 +51,7 @@ var[ct] solarProlog = <{
     orbits(deimos, mars).
 
     planet(P) :- orbits(P, sun).
- 
+
     satellite(S) :- orbits(S, P), planet(P).
 }>;
 
@@ -100,11 +99,11 @@ fun test1
     cout << "Is Mercury orbiting Sun? " << orbits("mercury", "sun")() << endl;
     cout << "Is Mercury a planet? " << planet("mercury")() << endl;
 
-    var x: LStr;
+    var x: logic.LStr;
     var pred = satellite(x);
     while ( pred() )
     {
-        assert(x.isSet());
+        //assert(x.isSet());
         cout << "Satellite: " << x.get() << endl;
     }
 }
@@ -125,12 +124,12 @@ fun test2
     cout << "?- mother(mary, sam) => " << mother("mary", "sam")() << endl;
     cout << "?- ancestor(garry, sam) => " << ancestor("garry", "sam")() << endl;
 
-    var x, y: LStr;
+    var x, y: logic.LStr;
     var pred = ancestor(x, y);
     while ( pred() )
     {
-        assert(x.isSet());
-        assert(y.isSet());
+        //assert(x.isSet());
+        //assert(y.isSet());
         cout << x.get() << " is an ancestor of " << y.get() << endl;
     }
 }

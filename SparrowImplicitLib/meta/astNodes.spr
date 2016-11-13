@@ -1,13 +1,13 @@
 module meta.astNodes;
 
-import meta.location;
+import meta.location(Location, SourceCode);
 
 using modeUnspecified = 0;
 using modeRt = 1;
 using modeCt = 2;
 using modeRtCt = 3;
 
-/// Taking an AST node, this will evaluate the node and produce the corresponding 
+/// Taking an AST node, this will evaluate the node and produce the corresponding
 fun[ct, native("$meta.astEval")] astEval(node: AstNode): AstNode;
 
 /// Given any Sparrow node as parameter, this will transform it into an AST node
@@ -215,7 +215,7 @@ package SprFrontend
     fun[ct, native("$meta.Sparrow.mkNullLiteral")] mkNullLiteral(loc: Location): AstNode;
     fun[ct, native("$meta.Sparrow.mkBoolLiteral")] mkBoolLiteral(loc: @Location, value: Bool): AstNode;
     fun[ct, native("$meta.Sparrow.mkLambdaExp")] mkLambdaExp(loc: @Location, parameters, returnType, body, bodyExp, closureParams: AstNode): AstNode;
-    
+
     fun[ct, native("$meta.Sparrow.mkExpressionStmt")] mkExpressionStmt(loc: @Location, exp: AstNode): AstNode;
     fun[ct, native("$meta.Sparrow.mkBlockStmt")] mkBlockStmt(loc: @Location, statements: AstNode): AstNode;
     fun[ct, native("$meta.Sparrow.mkIfStmt")] mkIfStmt(loc: @Location, cond, thenClause, elseClause: AstNode): AstNode;
@@ -247,11 +247,11 @@ package Kinds
     using nkFeatherGlobalDestructAction = ctEval(iota);
     using nkFeatherScopeDestructAction = ctEval(iota);
     using nkFeatherTempDestructAction = ctEval(iota);
-    
+
     using nkFeatherDeclFunction = ctEval(iota);
     using nkFeatherDeclClass = ctEval(iota);
     using nkFeatherDeclVar = ctEval(iota);
-    
+
     using nkFeatherExpCtValue = ctEval(iota);
     using nkFeatherExpNull = ctEval(iota);
     using nkFeatherExpVarRef = ctEval(iota);
@@ -263,7 +263,7 @@ package Kinds
     using nkFeatherExpBitcast = ctEval(iota);
     using nkFeatherExpConditional = ctEval(iota);
     using nkFeatherExpChangeMode = ctEval(iota);
-    
+
     using nkFeatherStmtIf = ctEval(iota);
     using nkFeatherStmtWhile = ctEval(iota);
     using nkFeatherStmtBreak = ctEval(iota);
@@ -271,7 +271,7 @@ package Kinds
     using nkFeatherStmtReturn = ctEval(iota);
 
     using nkSparrowModifiersNode = ctEval(iota);
-    
+
     using nkSparrowDeclModule = ctEval(iota);
     using nkSparrowDeclImportName = ctEval(iota);
     using nkSparrowDeclPackage = ctEval(iota);
@@ -283,7 +283,7 @@ package Kinds
     using nkSparrowDeclGenericClass = ctEval(iota);
     using nkSparrowDeclGenericFunction = ctEval(iota);
     using nkSparrowDeclUsing = ctEval(iota);
-    
+
     using nkSparrowExpLiteral = ctEval(iota);
     using nkSparrowExpThis = ctEval(iota);
     using nkSparrowExpIdentifier = ctEval(iota);
@@ -295,7 +295,7 @@ package Kinds
     using nkSparrowExpSprConditional = ctEval(iota);
     using nkSparrowExpDeclExp = ctEval(iota);
     using nkSparrowExpStarExp = ctEval(iota);
-    
+
     using nkSparrowStmtFor = ctEval(iota);
     using nkSparrowStmtSprReturn = ctEval(iota);
 }

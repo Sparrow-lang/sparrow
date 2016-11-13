@@ -1,6 +1,9 @@
 import token;
 import nodes;
 import lType;
+import std.algorithms;
+import assert;
+import metadiag = meta.diagnostic;
 
 using allowNativeCodeGen = true;
 
@@ -191,9 +194,9 @@ class[ct] SparrowPredicate
         {
             typeSet.setNumberOnly(expr.loc);
             if ( expr.left isNull )
-                meta.report("Invalid binary expression: no left part", expr.loc.asMetaLocation());
+                metadiag.report("Invalid binary expression: no left part", expr.loc.asMetaLocation());
             if ( expr.right isNull )
-                meta.report("Invalid binary expression: no right part", expr.loc.asMetaLocation());
+                metadiag.report("Invalid binary expression: no right part", expr.loc.asMetaLocation());
 
             checkExpr(clause, clauseIdx, expr.left);
             checkExpr(clause, clauseIdx, expr.right);
@@ -303,7 +306,7 @@ class[ct] SparrowPredicate
                 return;
             }
         }
-    }    
+    }
 
     private fun isValue(expr: @Expression): Bool
     {

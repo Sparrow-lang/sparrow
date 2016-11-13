@@ -1,6 +1,4 @@
-module time.time;
-
-import sprCore.numericOper;
+module time;
 
 fun[rtct, native("clock")] clock(): Int;
 

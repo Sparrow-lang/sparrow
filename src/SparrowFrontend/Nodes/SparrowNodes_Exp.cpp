@@ -384,7 +384,7 @@ namespace
 
         // Create a construct of an AST node
         int* nodeHandle = (int*) arg;
-        Node* base = mkCompoundExp(node->location, mkIdentifier(node->location, fromCStr("meta")), fromCStr("AstNode"));
+        Node* base = mkIdentifier(node->location, fromCStr("AstNode"));
         Node* arg1 = Feather_mkCtValueT(node->location, StdDef::typeRefInt, &nodeHandle);
         return  mkFunApplication(node->location, base, fromIniList({arg1})) ;
     }
@@ -1069,6 +1069,10 @@ Node* CompoundExp_SemanticCheck(Node* node)
             oss << ")";
         }
         REP_ERROR(node->location, "No declarations found with the name '%1%' inside %2%") % id % oss.str();
+
+        if ( size(declsOrig) == 0 )
+            for ( Node* n: baseDecls )
+                REP_INFO(n->location, "See searched declaration");
 
         // Print the removed declarations
         for ( Node* n: declsOrig ) {

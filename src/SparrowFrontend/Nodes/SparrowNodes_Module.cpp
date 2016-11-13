@@ -60,8 +60,7 @@ namespace
         for ( int i = int(qid.size())-1; i>=0; i-- ) {
             const auto& id = qid[i];
 
-            NodeRange children = pkg ? fromIniList({ pkg }) : fromIniList({});
-            Node* pkgContent = Feather_mkNodeListVoid(id.second, children);
+            Node* pkgContent = Feather_mkNodeListVoid(id.second, pkg ? fromIniList({ pkg }) : fromIniList({}));
             pkg = mkSprPackage(id.second, id.first, pkgContent, accessType);
 
             if ( !innerPackage )

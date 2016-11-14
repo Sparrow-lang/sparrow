@@ -19,9 +19,9 @@ namespace
         *sret = mkModifiers(*loc, main, mods);
     }
 
-    void ctApi_Sparrow_mkModule(Node** sret, Location* loc, Node* moduleName, Node* imports, Node* declarations)
+    void ctApi_Sparrow_mkModule(Node** sret, Location* loc, Node* moduleName, Node* declarations)
     {
-        *sret = mkModule(*loc, moduleName, imports, declarations);
+        *sret = mkModule(*loc, moduleName, declarations);
     }
     void ctApi_Sparrow_mkSprUsing(Node** sret, Location* loc, StringRef alias, Node* usingNode)
     {

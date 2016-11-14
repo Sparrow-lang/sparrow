@@ -1534,10 +1534,10 @@ Node* StarExp_SemanticCheck(Node* node)
 Node* ModuleRef_SemanticCheck(Node* node)
 {
     Node* module = at(node->referredNodes, 0);
-    if ( module->nodeKind != nkSparrowDeclModule )
-        REP_INTERNAL(node->location, "Cannot create a ModuleRef node for a node that is not a Sparrow module");
-    Node* innerMostPackage = Nest_getCheckPropertyNode(module, propResultingDecl);
-    Nest_setPropertyNode(node, propResultingDecl, innerMostPackage);
+    if ( module->nodeKind == nkSparrowDeclModule ) {
+        Node* innerMostPackage = Nest_getCheckPropertyNode(module, propResultingDecl);
+        Nest_setPropertyNode(node, propResultingDecl, innerMostPackage);
+    }
 
     node->type = Feather_getVoidType(node->context->evalMode);
     return node;    // This node should never be translated directly

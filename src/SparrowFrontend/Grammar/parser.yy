@@ -118,9 +118,8 @@ using namespace std;
 %token START_PROGRAM START_EXPRESSION
 
 // Keywords
-%nonassoc IMPORTS_END
-%nonassoc PRIVATE PUBLIC
 %token MODULE IMPORT
+%token PRIVATE PUBLIC
 %token CLASS CONCEPT DATATYPE FUN PACKAGE USING VAR
 %token BREAK CATCH CONTINUE FINALLY FOR IF RETURN THROW TRY WHILE
 %token FALSE NULLCT THIS TRUE
@@ -156,7 +155,7 @@ using namespace std;
 %destructor { delete $$; } Operator OperatorNoEq IdentifierOrOperator IdentifierOrOperatorNoEq
 
 %type <node>        Start Module ModuleName
-%type <node>        ImportLinesOpt ImportLines ImportLine ImportNames ImportName QidOrString ImportDeclNamesOpt
+%type <node>        ImportLine ImportNames ImportName QidOrString ImportDeclNamesOpt
 %type <node>        TopLevelStmtsOpt TopLevelStmts FormalsOpt Formals Formal
 %type <node>        TopLevelStmt InFunctionDeclaration PackageDeclaration ClassDeclaration ConceptDeclaration VarDeclaration FunDeclaration UsingDeclaration
 %type <node>        IfClause FunRetType FunctionBody
@@ -281,8 +280,8 @@ Modifiers
 //
 
 Module
-    : ModuleName ImportLinesOpt TopLevelStmtsOpt END
-        { $$ = mkModule(@$, $1, $2, $3); }
+    : ModuleName TopLevelStmtsOpt END
+        { $$ = mkModule(@$, $1, $2); }
     ;
 
 ModuleName
@@ -290,20 +289,6 @@ ModuleName
         { $$ = $2; }
     | /*nothing*/
         { $$ = NULL; }
-    ;
-
-ImportLinesOpt
-    : ImportLines %prec IMPORTS_END 
-        { $$ = $1; }
-    | /*nothing*/ %prec IMPORTS_END
-        { $$ = NULL; }
-    ;
-
-ImportLines
-    : ImportLines ImportLine
-        { $$ = Feather_appendNodeList($1, $2); }
-    | ImportLine
-        { $$ = Feather_appendNodeList(NULL, $1); }
     ;
 
 ImportLine
@@ -359,6 +344,8 @@ TopLevelStmts
 TopLevelStmt
     : InFunctionDeclaration
         { $$ = $1; }
+    | ImportLine
+        { $$ = $1; }
     | IfStmt
         { $$ = $1; }
     | Expr SEMICOLON
@@ -401,7 +388,7 @@ PackageDeclaration
         { $$ = mkModifiers(@$, mkSprPackage(@$, fromString(*$4), $6, $1), $3); }
     ;
 
-VarDeclaration                        
+VarDeclaration
     : AccessSpec VAR ModifierSpec IdentifierList COLON ExprNoEq EQUAL Expr SEMICOLON    // var[...] a,b,c : Int = 3;
         { $$ = buildVariables(@$, *$4, $6, $8, $3, $1); delete $4; }
     | AccessSpec VAR ModifierSpec IdentifierList COLON ExprNoEq SEMICOLON               // var[...] a,b,c : Int;

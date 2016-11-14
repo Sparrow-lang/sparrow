@@ -245,7 +245,7 @@ package Impl
 
     fun[ct] generateNodeForSparrowExp(loc: meta.Location, exp: @String): AstNode
     {
-        return Compiler.parseSprExpression(loc, exp.asStringRef());
+        return meta.Compiler.parseSprExpression(loc, exp.asStringRef());
         //var sz = exp.size();
         //if ( sz == 0 )
         //    return mkNop(loc);

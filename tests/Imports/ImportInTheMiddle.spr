@@ -1,0 +1,33 @@
+//!! -t "../Basic/SparrowImplicitLib.spr"
+
+package Foo1 {
+    fun test1 {
+        Foo2.a = 1;
+        Foo2.b = 2;
+        Foo2.c = 3;
+        Foo2.d = 4;
+    }
+}
+
+package Foo2 {
+    import HeaderD;
+    import HeaderC;
+    import HeaderB;
+    import HeaderA;
+}
+
+fun[native("test")] test(n: Int)
+{
+    Foo1.test1;
+    writeLn(Foo2.a);
+    writeLn(Foo2.b);
+    writeLn(Foo2.c);
+    writeLn(Foo2.d);
+}
+
+/*<<<Running
+1
+2
+3
+4
+>>>*/

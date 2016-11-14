@@ -75,9 +75,9 @@ NodeVector SprFrontend::getDeclsFromNode(Node* n, Node*& baseExp)
 {
     NodeVector res;
     baseExp = nullptr;
-    
+
     if ( !Nest_computeType(n) )
-        return {};        
+        return {};
     n = Nest_explanation(n);
     ASSERT(n);
 
@@ -89,12 +89,13 @@ NodeVector SprFrontend::getDeclsFromNode(Node* n, Node*& baseExp)
         return res;
     }
 
-    // Check if this is a ModuleRef; if so, get the inner most package
+    // Check if this is a ModuleRef; if so, get the it's referred content (inner most package)
     if ( n->nodeKind == nkSparrowExpModuleRef ) {
-        res = { Nest_getCheckPropertyNode(n, propResultingDecl) };
+        if ( Nest_hasProperty(n, propResultingDecl) )
+            res = { Nest_getCheckPropertyNode(n, propResultingDecl) };
         return res;
     }
-    
+
     // If the node represents a type, try to get the declaration associated with the type
     TypeRef t = tryGetTypeValue(n);
     if ( t )
@@ -111,7 +112,7 @@ NodeVector SprFrontend::getDeclsFromNode(Node* n, Node*& baseExp)
         else
             t = nullptr;
     }
-    
+
     return res;
 }
 

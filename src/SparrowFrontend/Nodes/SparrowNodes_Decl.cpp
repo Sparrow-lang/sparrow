@@ -139,15 +139,6 @@ namespace
 
 }
 
-TypeRef ImportName_ComputeType(Node* node)
-{
-    return Feather_getVoidType(modeCt);
-}
-Node* ImportName_SemanticCheck(Node* node)
-{
-    return Feather_mkNop(node->location);
-}
-
 void Package_SetContextForChildren(Node* node)
 {
     Feather_addToSymTab(node);

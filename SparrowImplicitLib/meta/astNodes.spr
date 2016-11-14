@@ -179,7 +179,7 @@ package SprFrontend
 {
     fun[ct, native("$meta.Sparrow.mkModifiers")] mkModifiers(loc: @Location, main, mods: AstNode): AstNode;
 
-    fun[ct, native("$meta.Sparrow.mkModule")] mkModule(loc: @Location, moduleName, imports, declarations: AstNode): AstNode;
+    fun[ct, native("$meta.Sparrow.mkModule")] mkModule(loc: @Location, moduleName, declarations: AstNode): AstNode;
     fun[ct, native("$meta.Sparrow.mkSprUsing")] mkSprUsing(loc: @Location, alias: StringRef, usingNode: AstNode): AstNode;
     fun[ct, native("$meta.Sparrow.mkSprPackage")] mkSprPackage(loc: @Location, name: StringRef, children: AstNode): AstNode;
     fun[ct, native("$meta.Sparrow.mkSprVariable")] mkSprVariable(loc: @Location, name: StringRef, typeNode, init: AstNode): AstNode;

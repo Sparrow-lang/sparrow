@@ -84,7 +84,7 @@ namespace SprFrontend
 
     Node* mkModifiers(const Location& loc, Node* main, Node* mods);
 
-    Node* mkModule(const Location& loc, Node* moduleName, Node* imports, Node* declarations);
+    Node* mkModule(const Location& loc, Node* moduleName, Node* declarations);
     Node* mkImportName(const Location& loc, Node* moduleName, Node* importedDeclNames, bool equals = false, StringRef alias = {0});
     Node* mkSprUsing(const Location& loc, StringRef alias, Node* usingNode, AccessType accessType = unspecifiedAccess);
     Node* mkSprPackage(const Location& loc, StringRef name, Node* children, AccessType accessType = unspecifiedAccess);

@@ -142,6 +142,7 @@ Imports/ImportComplex2.spr:             Import a complex hierarchy of files, ano
 Imports/ImportDirect.spr:               Import directly a file, by name
 Imports/ImportRelativeFile.spr:         Import directly a file, with relative path
 Imports/SelectiveImport.spr:            Selective import
+Imports/ImportInTheMiddle.spr:          Import in the middle of the file
 Simple/GCD.spr:                         Simple problems - Greatest common divisor
 Simple/Fibonacci.spr:                   Simple problems - Fibonacci numbers
 Simple/Primality.spr:                   Simple problems - Primality test

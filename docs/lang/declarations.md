@@ -96,11 +96,11 @@ TODO
 
 ## Access specifiers
 
-Declarations in Sparrow can have only two access specifiers: `public` and `private`. If an access specifier is not explicitly mentioned, the `private` specifier is assumed.
+Declarations in Sparrow can have only two access specifiers: `public` and `private`. If an access specifier is not explicitly mentioned, the `public` specifier is assumed.
 
 A public declaration means that everybody can access and use that declaration.
 
-A private declarations means that only code from the same module can use that declarations. Code that imports the module cannot use the declaration.
+A private declarations means that only code from the **same module** can use that declarations. Code that imports the module cannot use the declaration.
 
 Example:
 ```
@@ -115,4 +115,29 @@ module B;
 A.f()   // ERROR
 A.g()   // ERROR
 A.h()   // ok, 3
+```
+
+> Note: Private declarations of one package can be seen from another package in the same module. This rule simplifies *friedship* relations between entities that are closely related. See the following example:
+
+```
+module goodFamily;
+package mom {
+    fun publicAttitude {...}
+    private fun secrets {...}
+}
+package dad {
+    fun publicAttitude {...}
+    private fun secrets {...}
+}
+package child {
+    fun schoolBehaviour {...}
+    private fun secrets {...}
+}
+
+fun discussion {
+    // No secrets between the members of the module
+    mom.secrets;
+    dad.secrets;
+    child.secrets;
+}
 ```

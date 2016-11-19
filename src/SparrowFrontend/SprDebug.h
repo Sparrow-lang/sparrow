@@ -1,6 +1,10 @@
 #pragma once
 
-#include "Nest/Api/NodeRange.h"
+#include "Nest/Api/Node.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * Used to easily test if we are at a given location
@@ -18,27 +22,21 @@
  *
  * @return True if the given location matches the parameters
  */
-bool atLocation(Location loc, const char* filename, int startLine = 0, int startCol = 0, int endLine = 0, int endCol = 0);
+int atLocation(Location loc, const char* filename, int startLine, int startCol, int endLine, int endCol);
 
 
-/**
- * Print a start of a scope
- *
- * This will print the job name and the 'url' as parameter and then starts a scope
- * The following debug prints will be indented accordingly.
- * The scope will be ended with printEnd()
- *
- * @param job          Name of the job to start (optional, can be NULL)
- * @param url          Some information about what job we are printing
- * @param continueLine If true, don't assume we are the start of the line, and
- *                     don't add any spaces
- */
-void printStart(const char* job, const char* url, bool continueLine = false);
+/// Starts a scope, with an open curly
+void printStart();
 /// Closes a scope started by printStart()
 void printEnd();
+/// Print the spaces corresponding to the current indent level
+void printSpaces();
 
-/// Print the given expression node
-void printExpNode(Node* node, bool printUnknown = true);
+/// Print the given node to the console, in a pretty fashion
+void printNode(const Node* node);
 
-/// Print the given node structure (assuming top-level node is given)
-void printNodeStructure(Node* node, bool continueLine = false);
+
+#ifdef __cplusplus
+}
+#endif
+

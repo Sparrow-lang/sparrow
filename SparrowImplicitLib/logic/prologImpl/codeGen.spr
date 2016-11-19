@@ -8,7 +8,8 @@ fun[ct] genProlog(sps: @SparrowPrologSystem): meta.AstNode = Impl.genPrologSyste
 
 package Impl
 {
-    using meta.*;
+    using meta.AstNode;
+    using meta.Location;
     using meta.Feather.*;
     using meta.SprFrontend.*;
 
@@ -19,11 +20,19 @@ package Impl
     {
         var l = sps.loc.asMetaLocation();
         var resNodes: Vector(AstNode);
-        resNodes.reserve(3 * sps.predicates.size());
+        resNodes.reserve(3 * sps.predicates.size() + 3);
+
+        // Add the import nodes
+        resNodes += mkImportName(l, mkStringLiteral(l, "logic/lRef.spr"), nullNode, "");
+        resNodes += mkImportName(l, mkStringLiteral(l, "logic/predicates.spr"), nullNode, "");
+        resNodes += mkImportName(l, mkStringLiteral(l, "logic/recurse.spr"), nullNode, "");
+
+        // Generate code for the predicates
         for ( p: @SparrowPredicate = sps.predicates.all() )
             genPredicate(p, resNodes);
         //for ( n = resNodes.all() )
         //    cout << ">> " << n.toStringExt() << endl;
+
         return mkNodeList(l, resNodes(0), resNodes(resNodes.size));
     }
 
@@ -38,11 +47,9 @@ package Impl
         var returnType =
             ife(genNative
             , mkIdentifier(locPred, "Bool")
-            , mkCompoundExp(locPred, mkIdentifier(locPred, "logic"), "Predicate"));
+            , mkIdentifier(locPred, "Predicate"));
 
-        // Add a using logic.* to the body
         var bodyNodes: Vector(AstNode);
-        bodyNodes.pushBack(mkSprUsing(locPred, "", mkStarExp(locPred, mkIdentifier(locPred, "logic"), "*")));
 
         // Add local variables to body nodes
         for ( lv: @ExpressionPtr = pred.localVars.all() )
@@ -81,7 +88,7 @@ package Impl
         var funName = pred.name;
         if ( genNative )
             funName += "_native";
-        var res = mkSprFunction(locPred, funName.asStringRef(), paramsNode, returnType, body, nullNode);
+        var res = mkSprFunction(locPred, funName.asStringRef(), paramsNode, returnType, body, nullNode, 0);
         resNodes.pushBack(res);
 
         if ( genNative )
@@ -137,7 +144,7 @@ package Impl
                 var argValue = genExpr(pred, arg.get());
 
                 var idx = arg.get().paramIdx;
-                assert(idx >= 0);
+                //assert(idx >= 0);
                 var param: @Parameter = pred.paramVars(idx);
                 var oper: String;
                 if ( genNative && param.isInput )
@@ -203,7 +210,7 @@ package Impl
             if ( genNative )
                 funName = mkIdentifier(loc, predCall.predName.asStringRef() + "_native");
             else
-                funName = mkCompoundExp(loc, mkIdentifier(loc, "logic"), "rec");
+                funName = mkIdentifier(loc, "rec");
         }
         else
             funName = mkIdentifier(loc, predCall.predName.asStringRef());
@@ -239,7 +246,7 @@ package Impl
             return mkInfixOp(loc, ife(genNative, "*", "|*|"), genExpr(pred, expr.left.get()), genExpr(pred, expr.right.get()));
         if ( expr.kind == ekOpDiv )
             return mkInfixOp(loc, ife(genNative, "/", "|/|"), genExpr(pred, expr.left.get()), genExpr(pred, expr.right.get()));
-        assert("Invalid expression kind while generating code" != "");
+        //assert("Invalid expression kind while generating code" != "");
         return nullNode;
     }
 
@@ -259,7 +266,7 @@ package Impl
 
     fun[ct] getTypeName(pred: @SparrowPredicate, expr: @Expression, addRef: Bool, genNative: Bool): AstNode
     {
-        assert(expr.typeSetIdx >= 0);
+        //assert(expr.typeSetIdx >= 0);
         var typeSet: @LTypeSet = pred.typeSets(expr.typeSetIdx);
         var str: StringRef;
         if ( typeSet.type.isNumberOnly() )
@@ -268,7 +275,7 @@ package Impl
             str = ife(genNative, "String", "LStr");
         var loc = expr.loc.asMetaLocation();
         //cout << "TypeName: " << str << " for " << expr << " with type=" << typeSet.type.bits << endl << flush;
-        var res = ife(genNative, mkIdentifier(loc, str), mkCompoundExp(loc, mkIdentifier(loc, "logic"), str));
+        var res = ife(genNative, mkIdentifier(loc, str), mkIdentifier(loc, str));
         if ( addRef )
             res = mkPrefixOp(loc, "@", res);
         return res;
@@ -414,7 +421,7 @@ package Impl
 
         // Finally create the function node
         var paramsNode = genParameters(pred, false);
-        var returnType = mkCompoundExp(loc, mkIdentifier(loc, "logic"), "Predicate");
+        var returnType = mkIdentifier(loc, "Predicate");
         return mkSprFunctionExp(loc, pred.name.asStringRef(), paramsNode, returnType, bodyExp, nullNode);
     }
 }

@@ -133,7 +133,7 @@ namespace
         }
         Node* parameters = sprParams.empty() ? nullptr : Feather_mkNodeList(loc, all(sprParams));
         Node* ret = resClass ? createTypeNode(Nest_childrenContext(parent), loc, Feather_getDataType(resClass, 0, modeRtCt)) : nullptr;
-        
+
         // Add the function
         Node* m = mkSprFunction(loc, fromString(name), parameters, ret, body);
         Nest_setPropertyInt(m, propNoDefault, 1);
@@ -144,13 +144,13 @@ namespace
             return nullptr;
         return m;
     }
-    
+
     // Add a method with the given body to the parent class
     Node* addMethod(Node* parent, const string& name, Node* body, TypeRef otherParam, Node* resClass = nullptr, EvalMode mode = modeUnspecified)
     {
         return addMethod(parent, name, body, otherParam ? vector<pair<TypeRef, string>>({ {otherParam, string("other")} }) : vector<pair<TypeRef, string>>({}), resClass, mode);
     }
-    
+
     // Add an associated function with the given body and given arguments, near the parent class
     Node* addAssociatedFun(Node* parent, const string& name, Node* body, vector<pair<TypeRef, string>> params, Node* resClass = nullptr, EvalMode mode = modeUnspecified)
     {
@@ -167,7 +167,7 @@ namespace
         }
         Node* parameters = sprParams.empty() ? nullptr : Feather_mkNodeList(loc, all(sprParams));
         Node* ret = resClass ? createTypeNode(ctx, loc, Feather_getDataType(resClass, 0, modeRtCt)) : nullptr;
-        
+
         // Add the function in the context of the parent
         Node* f = mkSprFunction(loc, fromString(name), parameters, ret, body);
         Nest_setPropertyInt(f, propNoDefault, 1);
@@ -180,7 +180,7 @@ namespace
         Nest_appendNodeToArray(&parent->additionalNodes, f);
         return f;
     }
-    
+
     /// Generate a typical method with the given name, by calling 'op' for the base classes and fields
     void generateMethod(Node* parent, const string& name, const string& op, TypeRef otherParam, bool reverse = false, EvalMode mode = modeUnspecified)
     {
@@ -294,12 +294,12 @@ namespace
         addMethod(parent, "ctor", body, StdDef::typeUninitialized);
     }
 
-    
+
     /// Generate an init ctor, that initializes all the members with data received as arguments
     void generateInitCtor(Node* parent)
     {
         vector<pair<TypeRef, string>> params;
-        
+
         Location loc = parent->location;
         loc.end = loc.start;
         Node* cls = Nest_explanation(parent);
@@ -314,22 +314,22 @@ namespace
             Node* cls2 = Feather_getParentClass(field->context);
             if ( cls2 != cls )
                 continue;
-            
+
             TypeRef t = field->type;
-            
+
             // Add a parameter for the base
             string paramName = "f"+toString(Feather_getName(field));
             params.push_back({t, paramName});
             Node* paramId = mkIdentifier(loc, fromString(paramName));
             if ( t->numReferences > 0 )
                 paramId = Feather_mkMemLoad(loc, paramId);
-            
+
             Node* fieldRef = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, mkThisExp(loc)), field);
-            
+
             string oper = t->numReferences > 0 ? ":=" : "ctor";
             addOperatorCall(body, false, fieldRef, oper, paramId);
         }
-        
+
         addMethod(parent, "ctor", body, params);
     }
 
@@ -472,7 +472,7 @@ void _IntModClassMembers_afterComputeType(Modifier*, Node* node)
     // Initialization ctor
     if ( Nest_hasProperty(cls, propGenerateInitCtor) )
         generateInitCtor(cls);
-    
+
     // CT to RT ctor
     if ( !checkForCtorFromCt(cls) && !hasReferences(basicClass) )
         generateMethod(cls, "ctorFromCt", "ctor", Feather_checkChangeTypeMode(Feather_getDataType(basicClass, 0, modeRtCt), modeCt, node->location), false, modeRt);
@@ -480,7 +480,7 @@ void _IntModClassMembers_afterComputeType(Modifier*, Node* node)
     // Dtor
     if ( !checkForMember(cls, "dtor", nullptr) ) {
         generateMethod(cls, "dtor", "dtor", nullptr, true);
-        generateAssociatedFun(cls, "destruct", "dtor", nullptr);
+        // generateAssociatedFun(cls, "destruct", "dtor", nullptr);
     }
 
     // Assignment operator
@@ -520,7 +520,7 @@ void IntModCtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
     for ( int i = Nest_nodeArraySize(cls->children)-1; i>=0; --i )
     {
         Node* field = at(cls->children, i);
-        
+
         // Make sure we initialize only fields of the current class
         Node* cls2 = Feather_getParentClass(field->context);
         if ( cls2 != cls )

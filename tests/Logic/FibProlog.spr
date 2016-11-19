@@ -2,9 +2,6 @@
 import logic.prologFrontend;
 import "Fibonacci.pl";
 
-using logic.*;
-
-
 fun sprMain
 {
     if ( programArgs.size() < 2 )

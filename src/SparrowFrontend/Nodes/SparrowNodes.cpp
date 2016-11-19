@@ -325,6 +325,7 @@ Node* Module_SemanticCheck(Node* node);
 
 void ImportName_SetContextForChildren(Node* node);
 Node* ImportName_SemanticCheck(Node* node);
+const char* ImportName_toString(const Node* node);
 
 void Package_SetContextForChildren(Node* node);
 TypeRef Package_ComputeType(Node* node);
@@ -422,7 +423,7 @@ void SprFrontend::initSparrowNodeKinds()
     nkSparrowModifiersNode =            Nest_registerNodeKind("spr.modifiers", &ModifiersNode_SemanticCheck, &ModifiersNode_ComputeType, &ModifiersNode_SetContextForChildren, NULL);
 
     nkSparrowDeclModule =               Nest_registerNodeKind("spr.module", &Module_SemanticCheck, nullptr, &Module_SetContextForChildren, NULL);
-    nkSparrowDeclImportName =           Nest_registerNodeKind("spr.importName", &ImportName_SemanticCheck, nullptr, &ImportName_SetContextForChildren, NULL);
+    nkSparrowDeclImportName =           Nest_registerNodeKind("spr.importName", &ImportName_SemanticCheck, nullptr, &ImportName_SetContextForChildren, &ImportName_toString);
     nkSparrowDeclPackage =              Nest_registerNodeKind("spr.package", &Package_SemanticCheck, &Package_ComputeType, &Package_SetContextForChildren, NULL);
     nkSparrowDeclSprClass =             Nest_registerNodeKind("spr.sprClass", &SprClass_SemanticCheck, &SprClass_ComputeType, &SprClass_SetContextForChildren, NULL);
     nkSparrowDeclSprFunction =          Nest_registerNodeKind("spr.sprFunction", &SprFunction_SemanticCheck, &SprFunction_ComputeType, &SprFunction_SetContextForChildren, NULL);

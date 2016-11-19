@@ -39,8 +39,10 @@ fun =/(out: @AnyType, in: AnyType): Bool if -@typeOf(out) == -@typeOf(in)
     return true;
 }
 
-setOperPrecedence("/=/", getOperPrecedence("==") + 1);
-setOperPrecedence("=/", getOperPrecedence("==") + 1);
+using oper_precedence_/=/ = oper_precedence_== + 1;
+using oper_precedence_=/ = oper_precedence_== + 1;
+//setOperPrecedence("/=/", getOperPrecedence("==") + 1);
+//setOperPrecedence("=/", getOperPrecedence("==") + 1);
 
 
 

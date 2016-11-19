@@ -130,7 +130,7 @@ package Impl
                 os << "p_" << (i+1);
 
                 var idx = arg.get().paramIdx;
-                assert(idx >= 0);
+                //assert(idx >= 0);
                 var param: @Parameter = pred.paramVars(idx);
                 if ( genNative && param.isInput )
                     os << " == ";
@@ -239,7 +239,7 @@ package Impl
             return;
         }
 
-        assert(expr.typeSetIdx >= 0);
+        //assert(expr.typeSetIdx >= 0);
         var typeSet: @LTypeSet = pred.typeSets(expr.typeSetIdx);
         if ( typeSet.type.isNumberOnly() )
             dumpIntegerType(os, genNative);

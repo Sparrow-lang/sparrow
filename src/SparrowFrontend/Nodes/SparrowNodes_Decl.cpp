@@ -130,6 +130,8 @@ namespace
 
                 t = getAutoType(init, isRefAuto);
             }
+            else
+                return nullptr;
         }
 
         // Make sure we have the right mode for our context
@@ -148,7 +150,9 @@ void Package_SetContextForChildren(Node* node)
         node->childrenContext = Nest_mkChildContextWithSymTab(node->context, node, modeUnspecified);
 
     // Set the context for all the children
-    Nest_setContext(at(node->children, 0), node->childrenContext);
+    Node* content = at(node->children, 0);
+    if ( content )
+        Nest_setContext(content, node->childrenContext);
 }
 TypeRef Package_ComputeType(Node* node)
 {
@@ -156,10 +160,12 @@ TypeRef Package_ComputeType(Node* node)
     node->type = Feather_getVoidType(modeCt);
 
     // Compute the type for the children
-    if ( !Nest_computeType(at(node->children, 0)) )
+    Node* content = at(node->children, 0);
+    if ( content && !Nest_computeType(content) )
         return nullptr;
-    node->explanation = at(node->children, 0);
-    checkForAllowedNamespaceChildren(at(node->children, 0));
+    node->explanation = content;
+    if ( content )
+        checkForAllowedNamespaceChildren(content);
 
     return node->type;
 }
@@ -725,8 +731,8 @@ TypeRef Using_ComputeType(Node* node)
         // Make sure that this node refers to one or more declaration
         Node* baseExp;
         NodeVector decls = getDeclsFromNode(usingNode, baseExp);
-        if ( decls.empty() )
-            REP_ERROR(usingNode->location, "Invalid using name - no declarations can be found");
+        if ( decls.empty() && !Nest_hasProperty(node, propNoWarnIfNoDeclFound) )
+            REP_WARNING(usingNode->location, "No declarations can be found for using");
 
         // Add references in the current symbol tab
         for ( Node* decl: decls )

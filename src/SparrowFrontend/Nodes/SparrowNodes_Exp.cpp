@@ -2,6 +2,7 @@
 #include "SparrowNodes.h"
 
 #include <SparrowFrontendTypes.h>
+#include <SprDebug.h>
 
 #include <Helpers/CommonCode.h>
 #include <Helpers/SprTypeTraits.h>
@@ -1521,11 +1522,21 @@ Node* StarExp_SemanticCheck(Node* node)
         // Get all the symbols from the symbol table
 
         // Search in the symbol table of the base for the identifier
-        decls = toVec(Nest_symTabAllEntries(baseSymTab));
+        auto newEntries = toVec(Nest_symTabAllEntries(baseSymTab));
+        decls.insert(decls.begin(), newEntries.begin(), newEntries.end());
     }
 
-    if ( decls.empty() )
-        REP_ERROR(node->location, "No declarations found with the star expression");
+    // Make sure the declarations are unique
+    sort(decls.begin(), decls.end());
+    decls.erase(unique(decls.begin(), decls.end()), decls.end());
+
+    // Remove all the inaccessible entries
+    for ( Node*& decl : decls ) {
+        if ( !canAccessNode(decl, node) )
+            decl = nullptr;
+    }
+    auto it = remove_if(decls.begin(), decls.end(), [](Node* d) { return d==nullptr; });
+    decls.erase(it, decls.end());
 
     // This expands to a declaration expression
     return mkDeclExp(node->location, all(decls));
@@ -1534,9 +1545,15 @@ Node* StarExp_SemanticCheck(Node* node)
 Node* ModuleRef_SemanticCheck(Node* node)
 {
     Node* module = at(node->referredNodes, 0);
+
     if ( module->nodeKind == nkSparrowDeclModule ) {
+        // If we are referring a Sparrow module, point to the inner most package
         Node* innerMostPackage = Nest_getCheckPropertyNode(module, propResultingDecl);
         Nest_setPropertyNode(node, propResultingDecl, innerMostPackage);
+    }
+    else {
+        // Point to the main node; assume it's a package or something
+        Nest_setPropertyNode(node, propResultingDecl, module);
     }
 
     node->type = Feather_getVoidType(node->context->evalMode);

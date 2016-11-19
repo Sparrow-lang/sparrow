@@ -1,5 +1,6 @@
 import "sprCore/stdTypesImpl.llvm";
 import "sprCore/basicImpl.llvm";
+import "bitOper.llvm";
 
 public import sprCore.basicDecls;
 

@@ -8,6 +8,7 @@
 
 #include "Nest/Api/SourceCode.h"
 #include "Nest/Utils/NodeUtils.hpp"
+#include "Nest/Utils/Alloc.h"
 
 using namespace SprFrontend;
 using namespace Nest;
@@ -15,10 +16,7 @@ using namespace Nest;
 SourceCode* g_implicitLibSC = nullptr;
 
 /// Given a module node, infer the the module name from the source code URL
-StringRef inferModuleName(Node* node) {
-    ASSERT(node->location.sourceCode);
-    ASSERT(node->location.sourceCode->url);
-    const char* url = node->location.sourceCode->url;
+StringRef inferModuleName(const char* url) {
     // Remove the path part
     const char* p = strrchr(url, '/');
     if ( !p )
@@ -97,7 +95,9 @@ namespace
             interpretQualifiedId(moduleName, moduleNameQid);
         } else {
             modLoc = Nest_mkLocation1(node->location.sourceCode, 1, 1);
-            StringRef name = inferModuleName(node);
+            ASSERT(node->location.sourceCode);
+            ASSERT(node->location.sourceCode->url);
+            StringRef name = inferModuleName(node->location.sourceCode->url);
             moduleNameQid.emplace_back(make_pair(name, modLoc));
         }
         if ( moduleNameQid.empty() || size(moduleNameQid.back().first) == 0 )
@@ -120,6 +120,9 @@ namespace
             ASSERT(refImpContent);
             Node* starExp = mkStarExp(importLoc, refImpContent, fromCStr("*"));
             Node* iiCode = mkSprUsing(importLoc, StringRef({0,0}), starExp, privateAccess);
+
+            // Don't warn if we don't find anything
+            Nest_setPropertyInt(iiCode, propNoWarnIfNoDeclFound, 1);
 
             Feather_addToNodeList(innerContent, iiCode);
         }
@@ -146,6 +149,9 @@ namespace
             if ( !Literal_isString(moduleName) )
                 REP_INTERNAL(moduleName->location, "Invalid import name found %1%") % Nest_toStringEx(moduleName);
             importedSc = Nest_addSourceCodeByFilename(curSourceCode, Literal_getData(moduleName));
+            if ( !importedSc ) {
+                REP_ERROR(moduleName->location, "Cannot import %1%") % Literal_getData(moduleName);
+            }
         }
         else
         {
@@ -153,7 +159,7 @@ namespace
             interpretQualifiedId(moduleName, qid);
 
             if ( qid.empty() )
-                REP_INTERNAL(moduleName->location, "Nothing to import");
+                REP_ERROR(moduleName->location, "Nothing to import");
 
             // Transform qid into filename/dirname
             string filename;
@@ -164,9 +170,9 @@ namespace
                 filename += toString(part.first);
             }
             importedSc = Nest_addSourceCodeByFilename(curSourceCode, fromString(filename + ".spr"));
+            if ( !importedSc )
+                REP_ERROR(moduleName->location, "Cannot import %1%") % (filename + ".spr");
         }
-        if ( !importedSc )
-            REP_INTERNAL(moduleName->location, "Cannot import %1%") % moduleName;
         return importedSc;
     }
 }
@@ -198,11 +204,21 @@ void ImportName_SetContextForChildren(Node* node)
 
     Node* moduleName = at(node->children, 0);
 
-    // Add the new source code to the compiler
-    SourceCode* importedSc = addImportedSourceCode(node->location.sourceCode, moduleName);
+    // If we loading the implicit library, keep the include order strict
+    // We want includes to be processed asap, to be able to load the LLVM code
+    // for the CT backend.
+    if ( !g_implicitLibSC ) {
+        // Add the new source code to the compiler
+        SourceCode* importedSc = addImportedSourceCode(node->location.sourceCode, moduleName);
+        if ( !importedSc ) {
+            node->nodeError = 1;
+            return;
+        }
 
-    // Remember the main node of the imported SC
-    Nest_setPropertyNode(node, "importedScMainNode", importedSc->mainNode);
+        // Remember the main node of the imported SC
+        Nest_setPropertyNode(node, "importedScMainNode", importedSc->mainNode);
+    }
+
 
     // Make sure this node is compiled whenever we search the symbol table of the current contenxt
     Nest_symTabAddToCheckNode(node->context->currentSymTab, node);
@@ -220,15 +236,23 @@ Node* ImportName_SemanticCheck(Node* node)
     if ( accessType == unspecifiedAccess )
         accessType = privateAccess;
 
-    Node* importedScMainNode = Nest_getCheckPropertyNode(node, "importedScMainNode");
+    // Get the main node of the imported source code
+    Node* importedScMainNode = nullptr;
+    if ( Nest_hasProperty(node, "importedScMainNode") ) {
+        // Source code was already added; get its main node
+        importedScMainNode = Nest_getCheckPropertyNode(node, "importedScMainNode");
+    }
+    else {
+        // Add the new source code to the compiler
+        SourceCode* importedSc = addImportedSourceCode(node->location.sourceCode, moduleName);
+        if ( !importedSc )
+            return nullptr;
+        importedScMainNode = importedSc->mainNode;
+    }
 
     Location importLoc = moduleName->location;
 
     // Reference to the content of the module we are importing
-    if ( importedScMainNode->nodeKind != nkSparrowDeclModule ) {
-        // Nothing to add for this kind of imported module
-        return Feather_mkNop(node->location);
-    }
     Node* refImpContent = mkModuleRef(importLoc, importedScMainNode);
 
     // By default imports are private
@@ -265,6 +289,9 @@ Node* ImportName_SemanticCheck(Node* node)
         //      using <moduleRef>.*;
         Node* starExp = mkStarExp(importLoc, refImpContent, fromCStr("*"));
         content = mkSprUsing(importLoc, StringRef({0,0}), starExp, accessType);
+
+        // Don't warn if we don't find anything
+        Nest_setPropertyInt(content, propNoWarnIfNoDeclFound, 1);
     }
 
     // If we have an alias, create a package for it
@@ -273,5 +300,19 @@ Node* ImportName_SemanticCheck(Node* node)
     }
 
     return content;
+}
+
+const char* ImportName_toString(const Node* node) {
+    Node* moduleName = at(node->children, 0);
+    Node* declNames = at(node->children, 1);
+    StringRef alias = Feather_hasName(node) ? Feather_getName(node) : StringRef({0, 0});
+
+    ostringstream os;
+    os << "ImportName(" << moduleName << ", " << declNames;
+    if ( size(alias) > 0 )
+        os << ", \"" << alias.begin << "\"";
+    os << ")";
+    return dupString(os.str().c_str());
+
 }
 

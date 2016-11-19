@@ -1,5 +1,4 @@
 //!!
-package Test;
 
 fun fact(n: Int): Int
 {

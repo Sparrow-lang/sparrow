@@ -1,10 +1,7 @@
 //!!
-package Test;
+import logic.predicates;
+//import assert;
 
-import Logic.Predicates;
-import Assert;
-
-using Logic.*;
 
 fun orbits(a, b: @LStr)
      = a /=/ "Mercury"  && b /=/ "Sun"
@@ -41,8 +38,8 @@ fun test1
     var pred = orbits(x, y);
     while ( pred() )
     {
-        assert(x.isSet());
-        assert(y.isSet());
+        //assert(x.isSet());
+        //assert(y.isSet());
         cout << x.get() << " orbits " << y.get() << endl;
     }
 }
@@ -62,7 +59,7 @@ fun test2
     var pred = planet(x);
     while ( pred() )
     {
-        assert(x.isSet());
+        //assert(x.isSet());
         cout << "Planet: " << x.get() << endl;
     }
 }
@@ -79,7 +76,7 @@ fun test3
     var pred = satellite(x);
     while ( pred() )
     {
-        assert(x.isSet());
+        //assert(x.isSet());
         cout << "Satellite: " << x.get() << endl;
     }
 }

@@ -1,6 +1,6 @@
 //!! -O2
 
-import SL.Algorithms;
+import std.algorithms;
 
 fun fib(n: UInt): UInt {
     var a: UInt = 0;

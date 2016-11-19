@@ -19,68 +19,68 @@ namespace
         StringRef val = getStringCtValue(args[0]);
         return Feather_mkBackendCode(loc, val, mode);
     }
-    
+
     Node* impl_typeDescription(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 1);
         TypeRef t = getType(args[0]);
         return buildStringLiteral(loc, fromCStr(t->description));
     }
-    
+
     Node* impl_typeHasStorage(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 1);
         TypeRef t = getType(args[0]);
         return buildBoolLiteral(loc, t->hasStorage);
     }
-    
+
     Node* impl_typeMode(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 1);
         TypeRef t = getType(args[0]);
         return buildIntLiteral(loc, t->mode);
     }
-    
+
     Node* impl_typeCanBeUsedAtCt(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 1);
         TypeRef t = getType(args[0]);
         return buildBoolLiteral(loc, t->canBeUsedAtCt);
     }
-    
+
     Node* impl_typeCanBeUsedAtRt(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 1);
         TypeRef t = getType(args[0]);
         return buildBoolLiteral(loc, t->canBeUsedAtRt);
     }
-    
+
     Node* impl_typeNumRef(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 1);
         TypeRef t = getType(args[0]);
         return buildIntLiteral(loc, t->numReferences);
     }
-    
+
     Node* impl_typeChangeMode(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 2);
         TypeRef t = getType(args[0]);
         int mode = getIntCtValue(args[1]);
-        
+
         TypeRef res = Feather_checkChangeTypeMode(t, (EvalMode) mode, loc);
-        
+
         return createTypeNode(context, loc, res);
     }
-    
+
     Node* impl_typeChangeRefCount(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 2);
         TypeRef t = getType(args[0]);
         int numRef = max(0, getIntCtValue(args[1]));
-        
+
         TypeRef res = changeRefCount(t, numRef, loc);
-        
+
         return createTypeNode(context, loc, res);
     }
 
@@ -89,80 +89,80 @@ namespace
         CHECK(loc, args.size() == 2);
         TypeRef t1 = getType(args[0]);
         TypeRef t2 = getType(args[1]);
-        
+
         t1 = Feather_removeLValueIfPresent(t1);
         t2 = Feather_removeLValueIfPresent(t2);
-        
+
         bool equals = Feather_isSameTypeIgnoreMode(t1, t2);
-        
+
         // Build a CT value of type bool
         return buildBoolLiteral(loc, equals);
     }
-    
+
     Node* impl_typeAddRef(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 1);
         TypeRef t = getType(args[0]);
-        
+
         t = Feather_removeLValueIfPresent(t);
         t = changeRefCount(t, t->numReferences+1, loc);
         return createTypeNode(context, loc, t);
     }
-    
+
     Node* impl_ct(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         TypeRef t = getType(args[0]);
-        
+
         t = Feather_removeLValueIfPresent(t);
         t = Feather_checkChangeTypeMode(t, modeCt, loc);
         if ( t->mode != modeCt )
             REP_ERROR_RET(nullptr, loc, "Type %1% cannot be used at compile-time") % t;
-        
+
         return createTypeNode(context, loc, t);
     }
-    
+
     Node* impl_rt(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         TypeRef t = getType(args[0]);
-        
+
         t = Feather_removeLValueIfPresent(t);
         t = Feather_checkChangeTypeMode(t, modeRt, loc);
         if ( t->mode != modeRt )
             REP_ERROR_RET(nullptr, loc, "Type %1% cannot be used at run-time") % t;
-        
+
         return createTypeNode(context, loc, t);
     }
-    
+
     Node* impl_convertsTo(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 2);
         TypeRef t1 = getType(args[0]);
         TypeRef t2 = getType(args[1]);
-        
+
         bool result = !!(canConvertType(context, t1, t2));
 
         return buildBoolLiteral(loc, result);
     }
-    
+
     Node* impl_staticBuffer(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 1);
 
         int size = getSizeTypeCtValue(args[0]);
-        
+
         if ( size > numeric_limits<size_t>::max() )
             REP_ERROR_RET(nullptr, loc, "Size of static buffer is too large");
-        
+
         TypeRef arrType = Feather_getArrayType(StdDef::typeByte, (size_t) size);
         return createTypeNode(context, loc, arrType);
     }
-    
+
     Node* impl_commonType(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 2);
         TypeRef t1 = getType(args[0]);
         TypeRef t2 = getType(args[1]);
-        
+
         TypeRef resType = commonType(context, t1, t2);
         return createTypeNode(context, loc, resType);
     }
@@ -184,14 +184,14 @@ namespace
             REP_INTERNAL(loc, "Node passed to astEval is invalid");
         return nodeHandle;
     }
-    
+
     Node* impl_Meta_SourceCode_current(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 0);
 
         SourceCode* sc = context->sourceCode;
         int* scHandle = reinterpret_cast<int*>(sc);
-        Node* base = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("Meta")), fromCStr("SourceCode"));
+        Node* base = mkIdentifier(loc, fromCStr("SourceCode"));
         Node* arg = Feather_mkCtValueT(loc, StdDef::typeRefInt, &scHandle);
         return mkFunApplication(loc, base, fromIniList({arg}));
     }
@@ -201,7 +201,7 @@ namespace
         CHECK(loc, args.size() == 0);
 
         int* ctxHandle = reinterpret_cast<int*>(context);
-        Node* base = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("Meta")), fromCStr("CompilationContext"));
+        Node* base = mkIdentifier(loc, fromCStr("CompilationContext"));
         Node* arg = Feather_mkCtValueT(loc, StdDef::typeRefInt, &ctxHandle);
         return mkFunApplication(loc, base, fromIniList({arg}));
     }
@@ -248,11 +248,11 @@ namespace
                 return impl_staticBuffer(context, loc, args);
             if ( *nativeName == "$commonType" )
                 return impl_commonType(context, loc, args);
-            if ( *nativeName == "$Meta.astEval" )
+            if ( *nativeName == "$meta.astEval" )
                 return impl_Meta_astEval(context, loc, args);
-            if ( *nativeName == "$Meta.SourceCode.current" )
+            if ( *nativeName == "$meta.SourceCode.current" )
                 return impl_Meta_SourceCode_current(context, loc, args);
-            if ( *nativeName == "$Meta.CompilationContext.current" )
+            if ( *nativeName == "$meta.CompilationContext.current" )
                 return impl_Meta_CompilationContext_current(context, loc, args);
         }
 
@@ -305,7 +305,7 @@ Node* FunctionCallable::generateCall(const Location& loc)
         return nullptr;
 
     auto argsCvt = argsWithConversion();
-    
+
     Node* res = handleIntrinsic(fun_, context_, loc, argsCvt);
     if ( res )
     {

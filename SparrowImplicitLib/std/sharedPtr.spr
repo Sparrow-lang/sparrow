@@ -1,0 +1,164 @@
+module std.sharedPtr;
+
+import newDelete(new, delete);
+
+class[rtct] SharedPtr(type: Type)
+{
+    using ValueType = type;
+
+    fun ctor
+    {
+        ref := null;
+        count := null;
+    }
+
+    fun[convert] ctor(value: @ValueType)
+    {
+        if ( value === null )
+        {
+            this.ref := null;
+            this.count := null;
+        }
+        else
+        {
+            var d: @AllocData = new(AllocData, value);
+            this.ref := d.data;
+            this.count := d.count;
+        }
+    }
+
+    fun ctor(other: @SharedPtr)
+    {
+        ref := other.ref;
+        count := other.count;
+        if ( count !== null )
+            ++count;
+    }
+
+    fun dtor
+    {
+        if ( count !== null && --count == 0 )
+        {
+            ref.dtor();
+            delete(count);
+        }
+    }
+
+    fun[static] create: SharedPtr
+    {
+        var res: SharedPtr;
+        var d: @AllocData = new(AllocData);
+        res.ref := d.data;
+        res.count := d.count;
+        return res;
+    }
+    fun[static] create(arg1: @AnyType): SharedPtr if isValid((#$ValueType).ctor(arg1))
+    {
+        var res: SharedPtr;
+        var d: @AllocData = new(AllocData, arg1);
+        res.ref := d.data;
+        res.count := d.count;
+        return res;
+    }
+    fun[static] create(arg1, arg2: @AnyType): SharedPtr if isValid((#$ValueType).ctor(arg1, arg2))
+    {
+        var res: SharedPtr;
+        var d: @AllocData = new(AllocData, arg1, arg2);
+        res.ref := d.data;
+        res.count := d.count;
+        return res;
+    }
+    fun[static] create(arg1, arg2, arg3: @AnyType): SharedPtr if isValid((#$ValueType).ctor(arg1, arg2, arg3))
+    {
+        var res: SharedPtr;
+        var d: @AllocData = new(AllocData, arg1, arg2, arg3);
+        res.ref := d.data;
+        res.count := d.count;
+        return res;
+    }
+    fun[static] create(arg1, arg2, arg3, arg4: @AnyType): SharedPtr if isValid((#$ValueType).ctor(arg1, arg2, arg3, arg4))
+    {
+        var res: SharedPtr;
+        var d: @AllocData = new(AllocData, arg1, arg2, arg3, arg4);
+        res.ref := d.data;
+        res.count := d.count;
+        return res;
+    }
+
+    fun =(other: @SharedPtr)                            { SharedPtr(other).swap(this); }
+    fun =(value: @ValueType)                            { reset(value); }
+    fun =(value: AnyType) if isValid(ValueType(value))  { reset(value); }
+
+    fun get: @ValueType                                 = ref;
+
+    fun isUnique                                        = count !== null && count == 1;
+    fun useCount: UInt                                  = ife(count !== null, UInt(count), UInt(0));
+
+    fun isNull                                          = ref === null;
+    fun isSet                                           = ref !== null;
+
+    fun reset                                           { SharedPtr().swap(this); }
+    fun reset(value: @ValueType)                        { SharedPtr(value).swap(this); }
+    fun release                                         { reset(); }
+
+    fun swap(other: @SharedPtr)
+    {
+        var tmpr: @ValueType = other.ref;
+        other.ref := ref;
+        ref := tmpr;
+
+        var tmpc: @UInt = other.count;
+        other.count := count;
+        count := tmpc;
+    }
+
+    fun ==(other: @SharedPtr)                           = ref === other.ref && count === other.count;
+
+    fun >>(os: @OutStream) if isValid(os << #$ValueType)
+    {
+        if ( count !== null )
+            os << "SharedPtr(" << ref << ", " << count << ")";
+        else
+            os << "SharedPtr(null)";
+        os << flush;
+    }
+
+    private var ref: @ValueType;
+    private var count: @UInt;
+
+    private class AllocData
+    {
+        var count: UInt;
+        var data: type;
+
+        fun ctor
+        {
+            count ctor 1;
+            data ctor;
+        }
+
+        fun ctor(arg1: @AnyType)
+        {
+            count ctor 1;
+            data ctor arg1;
+        }
+
+        fun ctor(arg1, arg2: @AnyType)
+        {
+            count ctor 1;
+            data.ctor(arg1, arg2);
+        }
+
+        fun ctor(arg1, arg2, arg3: @AnyType)
+        {
+            count ctor 1;
+            data.ctor(arg1, arg2, arg3);
+        }
+
+        fun ctor(arg1, arg2, arg3, arg4: @AnyType)
+        {
+            count ctor 1;
+            data.ctor(arg1, arg2, arg3, arg4);
+        }
+    }
+}

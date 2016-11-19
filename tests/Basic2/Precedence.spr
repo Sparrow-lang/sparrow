@@ -1,5 +1,4 @@
 //!!
-package Test;
 
 fun writeLnBool(b: Bool)
 {

@@ -1,6 +1,4 @@
 //!! -t "../Basic/SparrowImplicitLib.spr"
-package Test;
-
 fun factor(n: Int)
 {
     if ( n < 1 )

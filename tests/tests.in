@@ -16,7 +16,8 @@ StdLib/StaticArrayTest.spr:             Std.StaticArray
 StdLib/PtrTest.spr:                     Smart Pointers
 StdLib/ContiguousMemoryRangeTest.spr:   Std.ContiguousMemoryRange
 StdLib/TupleTest.spr:                   Std.Tuple
-StdLib/StringOperators.spr:             Std.String
+StdLib/StringOperators.spr:             Std.String (StringRef not String)
+StdLib/FunTest.spr:                     Std.Function
 
 BenchmarkGame/nbody.spr:                Benchmark game - nbody
 BenchmarkGame/fannkuchredux.spr:        Benchmark game - fannkuchredux
@@ -25,6 +26,7 @@ BenchmarkGame/fasta.spr:                Benchmark game - fasta
 BenchmarkGame/fastaredux.spr:           Benchmark game - fastaredux
 
 # Par/ThreadTest.spr:                     Parallel - thread test
+# Par/TlsTest.spr:                        Parallel - TLS test
 # Par/AtomicTest.spr:                     Parallel - atomics test
 # Par/LocksTest.spr:                      Parallel - locks test
 # Par/SemaphoreTest.spr:                  Parallel - semaphore test
@@ -87,7 +89,6 @@ Basic2/ConceptSpecialization.spr:       Basic features 2 - Concept specializatio
 Basic2/Swappable.spr:                   Basic features 2 - Swappable
 Basic2/Regular.spr:                     Basic features 2 - Regular concept
 Basic2/Axioms.spr:                      Basic features 2 - Axioms
-Basic2/CustomOperators.spr:             Basic features 2 - Custom operators
 
 Basic/LLVMCode.llvm:                    Basic features - Code from llvm file
 Basic/Basic.spr:                        Basic features - A small Sparrow code
@@ -140,6 +141,8 @@ Imports/ImportComplex.spr:              Import a complex hierarchy of files, som
 Imports/ImportComplex2.spr:             Import a complex hierarchy of files, another case
 Imports/ImportDirect.spr:               Import directly a file, by name
 Imports/ImportRelativeFile.spr:         Import directly a file, with relative path
+Imports/SelectiveImport.spr:            Selective import
+Imports/ImportInTheMiddle.spr:          Import in the middle of the file
 Simple/GCD.spr:                         Simple problems - Greatest common divisor
 Simple/Fibonacci.spr:                   Simple problems - Fibonacci numbers
 Simple/Primality.spr:                   Simple problems - Primality test

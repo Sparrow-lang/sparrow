@@ -1,0 +1,24 @@
+module par.tasksImpl.schedulerIf.schedulerif;
+
+import taskPrefix(TaskPrefix);
+import sched = scheduler(schedSpawn, schedWaitForAll, schedSpawnRootAndWait, schedWaitForAll, schedEnqueue);
+import worker = worker(localWorker);
+import std.ptr;
+
+fun spawn(task: @TaskPrefix) {
+    sched.schedSpawn(task);
+}
+fun spawnAndWaitForAll(curTask, child: @TaskPrefix) {
+    sched.schedWaitForAll(curTask, child);
+}
+fun spawnRootAndWait(root: @TaskPrefix) {
+    sched.schedSpawnRootAndWait(root);
+}
+fun waitForAll(curTask: @TaskPrefix) {
+    sched.schedWaitForAll(curTask, null);
+}
+fun enqueue(task: @TaskPrefix) {
+    sched.schedEnqueue(task);
+}
+
+fun localWorker(): Byte Ptr = reinterpretPtr(Byte, worker.localWorker());

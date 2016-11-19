@@ -1,7 +1,8 @@
 //!! -O3
 // -g -O1 --dump-assembly
-import Par.Tasks;
-import Test;
+import par.tasks;
+import test;
+import std.newDelete;
 
 using debugMode = true;
 
@@ -16,7 +17,7 @@ fun serialFib(n: Long): Long {
 
 package StackSpawnStyle {
     class FibTask {
-        var prefix: Par.TaskPrefix;
+        var prefix: TaskPrefix;
         var n: Long;
         var result: @Long;
 
@@ -42,7 +43,7 @@ package StackSpawnStyle {
             var t1 = FibTask(task.n-1, x);
             var t2 = FibTask(task.n-2, y);
 
-            Par.spawnAndWait(task, t1, t2);
+            spawnAndWait(task, t1, t2);
 
             // Do the sum
             task.result = x + y;
@@ -51,14 +52,14 @@ package StackSpawnStyle {
 
     fun parFib(n: Long): Long {
         var res: Long;
-        Par.spawnRootAndWait(FibTask(n, res));
+        spawnRootAndWait(FibTask(n, res));
         return res;
     }
 }
 
 package DynSpawnStyle {
     class FibTask {
-        var prefix: Par.TaskPrefix;
+        var prefix: TaskPrefix;
         var n: Long;
         var result: @Long;
 
@@ -84,7 +85,7 @@ package DynSpawnStyle {
             var t1: @FibTask = new(FibTask, task.n-1, x);
             var t2: @FibTask = new(FibTask, task.n-2, y);
 
-            Par.spawnAndWait(task, t1, t2);
+            spawnAndWait(task, t1, t2);
 
             delete(t2);
             delete(t1);
@@ -96,14 +97,14 @@ package DynSpawnStyle {
 
     fun parFib(n: Long): Long {
         var res: Long;
-        Par.spawnRootAndWait(FibTask(n, res));
+        spawnRootAndWait(FibTask(n, res));
         return res;
     }
 }
 
 package ContStyle {
     class FibTask {
-        var prefix: Par.TaskPrefix;
+        var prefix: TaskPrefix;
         var n: Long;
         var result: @Long;
 
@@ -125,16 +126,16 @@ package ContStyle {
             task.result = serialFib(task.n);
         else {
             var cont: @FibContTask = new(FibContTask, task.n, task.result);
-            Par.setContinuation(task, cont);
+            setContinuation(task, cont);
 
             var t1: @FibTask = new(FibTask, task.n-1, cont.s1);
             var t2: @FibTask = new(FibTask, task.n-2, cont.s2);
-            Par.spawn(cont, t1, t2);
+            spawn(cont, t1, t2);
         }
     }
 
     class FibContTask {
-        var prefix: Par.TaskPrefix;
+        var prefix: TaskPrefix;
         var n: Long;
         var s1, s2: Long;
         var result: @Long;
@@ -158,7 +159,7 @@ package ContStyle {
 
     fun parFib(n: Long): Long {
         var res: Long;
-        Par.spawnRootAndWait(FibTask(n, res));
+        spawnRootAndWait(FibTask(n, res));
         return res;
     }
 }

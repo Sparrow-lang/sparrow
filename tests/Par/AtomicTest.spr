@@ -1,13 +1,10 @@
 //! ! --dump-assembly
-import Par.Thread;
-import Par.Atomic;
-import SL.Ranges;
-import SL.Vector;
-import OS;
-import Test;
-
-using Par.*;
-using Test.*;
+import par.thread;
+import par.atomic;
+import std.ranges;
+import std.vector;
+import os;
+import test;
 
 fun[native("rand")] rand(): Int;
 fun[native("srand")] srand(seed: UInt);

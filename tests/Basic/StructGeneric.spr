@@ -1,5 +1,4 @@
 //!! -t "SparrowImplicitLib.spr" --dump-assembly
-package Test;
 
 concept AnyType(x);
 

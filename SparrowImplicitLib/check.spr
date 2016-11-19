@@ -1,0 +1,320 @@
+module check;
+
+import std.string(String);
+import std.map(Map);
+import std.function(Function);
+
+//! An object that is able to generate values of the given type, possibly in a random fashion
+class Gen(t: Type) {
+    using ValueType = t;
+
+    fun ctor {}
+    fun[convert] ctor(generator: @AnyType) {
+        this.generator ctor generator;
+    }
+
+    fun isValid: Bool = generator isSet;
+
+    fun ()(sizeHint: UInt): t = generator(sizeHint);
+
+    private var generator: Function(t, UInt);
+}
+
+concept GenType(x)
+    if typeOf(x.ValueType) == Type
+    && typeOf(x.isValid()) == Bool
+    && typeOf(x(0)) == x.ValueType
+    ;
+
+//! Arbitrary prototype
+//fun arbitrary(t: Type): t Gen;
+
+//! Arbitrary definition for the integer types
+fun arbitrary(t: Type): t Gen if Integer(#$t) {
+    return (t Gen)(\CheckImpl.NumericGen(t).gen);
+}
+
+
+//! Configuration options for our check function
+class[initCtor] CheckConfig {
+    var numTests, maxAttempts: UInt;
+    var isVerbose: Bool;
+    fun ctor { numTests = 100; maxAttempts = 5*numTests; isVerbose = false; }
+}
+
+//! A value to be tested
+//! Along with the actual value we also hold whether the value is trivial and its
+//! classifier
+class TestableValue(t: Type)
+{
+    using ValueType = t;
+
+    var value: t;
+    var isTrivial: Bool;
+    var classifier: String;
+
+    fun ctor(value: @t) {
+        this.value ctor value;
+        this.isTrivial ctor false;
+        this.classifier ctor "";
+    }
+}
+
+//! Concept that matches all TestableValues instances
+concept TestableValuesRange(x)
+    if Range(x)
+    && isValid(x.RetType.ValueType)
+    && x.RetType == TestableValue(x.RetType.ValueType)
+    ;
+
+//! Function that checks a range of testable values against a predicate
+//!
+//! This will extract values from the input range and applies the predicate on
+//! them. Makes sure that the predicate holds for all these values. Reports the
+//! statistics of running the tests.
+fun check(values: TestableValuesRange, pred: @AnyType): Bool
+        = check(values, pred, "")
+    if !isValid(pred._1);
+fun check(values: TestableValuesRange, predMsg: @AnyType): Bool
+        = check(values, predMsg._1, predMsg._2)
+    if isValid(predMsg._1);
+fun check(values: TestableValuesRange, pred: @AnyType, msg: StringRef, config: CheckConfig = CheckConfig()): Bool {
+    cout << "* Checking " << msg << endl;
+    var classes: Map(String, UInt);
+
+    var numTrivial = 0;
+    var n = 0;
+    for ( val = values ) {
+        // Check the value's class
+        if ( val.isTrivial )
+            ++numTrivial;
+        if ( val.classifier != "" )
+            ++classes(val.classifier);
+
+        // If verbose, print the test
+        if ( config.isVerbose )
+            cout << "Test " << n << ":\n" << val.value << endl;
+
+        // Check if the property holds for the value
+        if ( !pred(val.value) ) {
+            cout << "FAILURE: Falsifiable after " << (n+1) << " tests, for input:\n" << val.value << endl;
+            return false;
+        }
+
+        if ( ++n >= config.numTests )
+            break;
+    }
+
+    // Print summary results
+    cout << "OK, passed " << n << " tests";
+    if ( numTrivial > 0 )
+        cout << " (" << numTrivial*100/n << "% trivial)";
+    cout << "." << endl;
+
+    // Print distribution of classes
+    classes.remove("");
+    if ( !classes.isEmpty ) {
+        for ( c = classes.keys ) {
+            var percent = classes(c)*100/n;
+            cout << percent << "% : " << c << endl;
+        }
+        // TODO: sort the classes before displaying them
+    }
+
+    return true;
+}
+
+//! Function that generates arbitrary testable values of the given type
+fun forAll(t: Type) = CheckImpl.ForAllGenerator(t)(t arbitrary);
+//! Function that generates arbitrary testable values from the given generator
+fun forAll(gen: GenType) = CheckImpl.ForAllGenerator(gen.ValueType)(gen);
+//! Function that generates testable values from the given range
+fun forAll(r: Range) = CheckImpl.ForAllRangeGenerator(typeOf(r))(r);
+
+//! Filter functionality - filters the testable values against the given predicate
+fun forWhich(r: TestableValuesRange, pred: @AnyType) = CheckImpl.ForWhichRange(typeOf(r), typeOf(pred))(r, pred);
+
+//! Sets the triviality of the testable values according to the result of the predicate
+fun withTrivials(r: TestableValuesRange, pred: @AnyType) = CheckImpl.TrivialsRange(typeOf(r), typeOf(pred))(r, pred);
+//! Sets the classifier of the testable values according to the result of the predicate
+fun withClassifier(r: TestableValuesRange, pred: @AnyType) = CheckImpl.ClassifierRange(typeOf(r), typeOf(pred))(r, pred);
+
+////////////////////////////////////////////////////////////////////////////////
+// Combinators
+//
+
+concept FreqGenType(x)
+    if Integer(x._1)
+    && GenType(x._2)
+    ;
+
+//! Returns a generator that generates elements from the range
+fun elements(r: Range): r.RetType Gen = CheckImpl.ElementsGen(typeOf(r))(r).gen;
+
+//! Given a set of generators, this will randomly chose one of them
+fun oneOf(gens: Range): gens.RetType if GenType(#$gens.RetType) {
+    if ( gens.isEmpty ) return gens.RetType();
+    var count = (gens rangeSize);
+    gens advance randBetween(0, count);
+    return gens.front;
+}
+
+//! Same as oneOf, but for each generator we also have its frequency
+fun frequency(gens: Range): typeOf((#$gens.RetType)._2) if FreqGenType(#$gens.RetType) {
+    if ( gens.isEmpty ) return typeOf((#$gens.RetType)._2)();
+
+    // Compute the sum of frequencies
+    var sum = 0;
+    for ( fg = gens ) {
+        sum += fg._1;
+    }
+    if ( sum == 0 ) return typeOf((#$gens.RetType)._2)();
+
+    // Select a random number in the total sum of frequencies
+    var toSelect = randBetween(0, sum);
+    // Select the right generator from the distribution
+    var curAcc = 0;
+    for ( fg = gens ) {
+        if ( curAcc <= toSelect && toSelect < curAcc + fg._1 )
+            return fg._2;
+        curAcc += fg._1;
+    }
+    return typeOf((#$gens.RetType)._2)();
+}
+
+
+fun randBetween(min, max: Integer): commonType(typeOf(min), typeOf(max)) {
+    using T = commonType(typeOf(min), typeOf(max));
+    using RAND_MAX = 0x7fffffff;
+    var offset: T = T(Double(CheckImpl.rand()) / RAND_MAX * Double(max - min));
+    return T(min) + offset;
+}
+
+package CheckImpl {
+    fun[rtct, native("rand")] rand(): UInt;
+
+    class NumericGen(t: Type) if UnsignedInteger(#$t)
+    {
+        fun[static] gen(sizeHint: UInt) = t(randBetween(0, 6 + sizeHint));
+    }
+
+    class NumericGen(t: Type) if SignedInteger(#$t)
+    {
+        fun[static] gen(sizeHint: UInt): t {
+            var h: Int = sizeHint + 3;
+            return t(randBetween(-h, h+1));
+        }
+    }
+
+    class ForAllGenerator(t: Type) {
+        using RetType = TestableValue(t);
+
+        private var gen: Gen(t);
+        private var count: UInt;
+
+        fun ctor(gen: @Gen(t)) {
+            this.gen ctor gen;
+            this.count = 0;
+        }
+
+        fun isEmpty                     = !gen.isValid;
+        fun front: RetType              = RetType(gen(count));
+        fun popFront                    { ++count; }
+    }
+
+    class[initCtor] ForAllRangeGenerator(rangeType: Type) {
+        using RetType = TestableValue(rangeType.RetType);
+
+        private var range: rangeType;
+
+        fun isEmpty                     = range.isEmpty;
+        fun front: RetType              = RetType(range.front);
+        fun popFront                    { range.popFront; }
+    }
+
+    class ForWhichRange(rangeType, predType: Type) if typeOf((#$predType)((#$rangeType front).value)) == Bool
+    {
+        private var range: rangeType;
+        private var pred: predType;
+        private var lastVal: RetType;
+
+        using RetType = -@rangeType.RetType;
+
+        fun ctor(range: rangeType, pred: predType)
+        {
+            this.range ctor range;
+            this.pred ctor pred;
+            this.lastVal ctor;
+            popUntilValid;
+        }
+
+        fun isEmpty                     = range.isEmpty();
+        fun front: RetType              = lastVal;
+        fun popFront                    { range.popFront(); popUntilValid; }
+
+        private fun popUntilValid
+        {
+            while ( !range.isEmpty )
+            {
+                lastVal = range.front();
+                if ( pred(lastVal.value) )
+                    break;
+                range.popFront();
+            }
+        }
+    }
+
+    class[initCtor] TrivialsRange(rangeType, predType: Type) if typeOf((#$predType)((#$rangeType front).value)) == Bool
+    {
+        using RetType = -@rangeType.RetType;
+
+        private var range: rangeType;
+        private var pred: predType;
+
+        fun isEmpty                     = range.isEmpty();
+        fun popFront                    { range.popFront(); }
+        fun front: RetType {
+            var res = range.front;
+            res.isTrivial = pred(res.value);
+            return res;
+        }
+    }
+
+
+    class[initCtor] ClassifierRange(rangeType, predType: Type) if typeOf((#$predType)((#$rangeType front).value)) == String
+    {
+        using RetType = -@rangeType.RetType;
+
+        private var range: rangeType;
+        private var pred: predType;
+
+        fun isEmpty                     = range.isEmpty();
+        fun popFront                    { range.popFront(); }
+        fun front: RetType {
+            var res = range.front;
+            res.classifier = pred(res.value);
+            return res;
+        }
+    }
+
+    class ElementsGen(rangeType: Type)
+    {
+        using ElementType = -@rangeType.RetType;
+
+        private var range: rangeType;
+        private var count: SizeType;
+
+        fun ctor(range: rangeType) {
+            this.range ctor range;
+            this.count ctor (range rangeSize);
+        }
+
+        fun ()(sizeHint: UInt): ElementType {
+            var r = range;
+            r advance randBetween(0, Int(count));
+            return r.front;
+        }
+
+        fun gen: Gen(ElementType) = ife(count>0, this, Gen(ElementType)());
+    }
+}

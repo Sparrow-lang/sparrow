@@ -1,4 +1,4 @@
-import OS;
+import os = os;
 
 var[ct] hello  = "Hello, world!";
 var[ct] name   = "I am the Sparrow compiler!";
@@ -13,7 +13,7 @@ fun[ct] getMessage = hello+" "+name+" "+smart+" "+canDo+" "+exampl+" "+more+" "+
 fun[ct] say(message: StringRef)
 {
     cout << endl << message << endl;
-    OS.systemCall("say \"" + message + "\"");
+    os.systemCall("say \"" + message + "\"");
 }
 
 fun[ct] ctor

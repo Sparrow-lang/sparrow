@@ -16,8 +16,17 @@ typedef struct
     bool firstAttribute;
     bool oneLine;
 
+    const SourceCode* sourceCodeFilter;
+
     std::unordered_set<void*> writtenPointers;
 } JsonContext;
+
+bool _satisfiesFilter(JsonContext* ctx, Node* node) {
+    Location loc = node->location;
+    if ( loc.sourceCode != ctx->sourceCodeFilter )
+        return false;
+    return true;
+}
 
 void _writeSpaces(JsonContext* ctx) {
     static const int indentSize = 2;
@@ -72,7 +81,8 @@ void _writeStringL(JsonContext* ctx, const char* name, const char* val, size_t s
     // Check if the string contains some 'strange' characters
     bool hasStrangeCharacters = false;
     for ( int i=0; i<size; ++i ) {
-        if ( !isprint(val[i]) ) {
+        char ch = val[i];
+        if ( !isprint(ch) || ch == '\\' || ch == '\"' ) {
             hasStrangeCharacters = true;
             break;
         }
@@ -178,26 +188,6 @@ void _writeNodeData(JsonContext* ctx, Node* node) {
     _endObject(ctx);
     ctx->oneLine = false;
 
-    // Write its children
-    if ( size(node->children) > 0 ) {
-        _startArray(ctx, "children");
-        for ( Node* n: node->children ) {
-            ctx->insideArray = true;
-            _writeNode(ctx, "", n);
-        }
-        _endArray(ctx);        
-    }
-
-    // Write the referred nodes
-    if ( size(node->referredNodes) > 0 ) {
-        _startArray(ctx, "referredNodes");
-        for ( Node* n: node->referredNodes ) {
-            ctx->insideArray = true;
-            _writeNode(ctx, "", n);
-        }
-        _endArray(ctx);
-    }
-
     // Write the properties
     if ( node->properties.end != node->properties.begin ) {
         _startArray(ctx, "properties");
@@ -236,6 +226,26 @@ void _writeNodeData(JsonContext* ctx, Node* node) {
     if ( node->type )
         _writeType(ctx, "type", node->type);
 
+    // Write its children
+    if ( size(node->children) > 0 ) {
+        _startArray(ctx, "children");
+        for ( Node* n: node->children ) {
+            ctx->insideArray = true;
+            _writeNode(ctx, "", n);
+        }
+        _endArray(ctx);        
+    }
+
+    // Write the referred nodes
+    if ( size(node->referredNodes) > 0 ) {
+        _startArray(ctx, "referredNodes");
+        for ( Node* n: node->referredNodes ) {
+            ctx->insideArray = true;
+            _writeNode(ctx, "", n);
+        }
+        _endArray(ctx);
+    }
+
     // Write the explanation of the node
     if ( node->explanation && node->explanation != node )
         _writeNode(ctx, "explanation", node->explanation);
@@ -244,8 +254,8 @@ void _writeNodeData(JsonContext* ctx, Node* node) {
 void _writeNode(JsonContext* ctx, const char* name, Node* node) {
     _startObject(ctx, name);
 
-    if ( !node ) {
-        // Null pointer
+    if ( !node || !_satisfiesFilter(ctx, node) ) {
+        // Null pointer (or not satisfies the filter)
         ctx->oneLine = true;
         _writeNumber(ctx, "ref", 0);
     }
@@ -273,6 +283,9 @@ void _writeNode(JsonContext* ctx, const char* name, Node* node) {
 }
 
 void dumpAstNode(Node* node, const char* filename) {
+    ASSERT(node);
+
+    cout << "Dumping AST nodes to: " << filename << endl;
     FILE* f = fopen(filename, "w");
     if ( !f ) {
         Nest_reportFmt(node->location, diagWarning, "Cannot open %s to dump AST node", filename);
@@ -282,6 +295,8 @@ void dumpAstNode(Node* node, const char* filename) {
     JsonContext ctx = { f, 0 };
     ctx.firstAttribute = true;
     ctx.insideArray = true;
+    ctx.sourceCodeFilter = node->location.sourceCode;
+
     _writeNode(&ctx, "", node);
 
     fclose(f);

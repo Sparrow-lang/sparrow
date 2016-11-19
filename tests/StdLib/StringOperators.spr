@@ -1,9 +1,4 @@
 //!!
-package Test;
-
-import SL.Vector;
-import SL.ContiguousMemoryRange;
-import SL.RawPtr;
 
 fun sprMain
 {
@@ -12,7 +7,7 @@ fun sprMain
     cout << string1 << endl; // first string
 
     var string2: StringRef = "second string";
-    
+
     string1 = string2;
     cout << string1 << endl; // second string
 

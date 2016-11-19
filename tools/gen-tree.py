@@ -9,7 +9,11 @@ Copyright (c) 2016, Lucian Radu Teodorescu
 import os, subprocess, sys, json, argparse, cgi
 
 def parseArgs():
+    def str2bool(v):
+      return v.lower() in ("yes", "true", "t", "1")
+
     parser = argparse.ArgumentParser(description='Generates dot trees from Sparrow json dumps')
+    parser.register('type','bool',str2bool)
     parser.add_argument('jsonFile', metavar='jsonFile', type=str,
                        help='the .json file to process')
     parser.add_argument('--open', action='store_true',
@@ -22,12 +26,14 @@ def parseArgs():
                        help='max number of nodes to process (default: 10000)')
     parser.add_argument('--maxLevels', metavar='N', type=int, default=30,
                        help='max levels to expand (default: 30)')
-    parser.add_argument('--showReferredNodes', metavar='B', type=bool, default=False,
+    parser.add_argument('--showReferredNodes', metavar='B', type='bool', default=False,
                        help='whether should show referred nodes (default: False)')
-    parser.add_argument('--showPropNodes', metavar='B', type=bool, default=False,
+    parser.add_argument('--showPropNodes', metavar='B', type='bool', default=False,
                        help='whether should show properties node links (default: False)')
-    parser.add_argument('--showExplanation', metavar='B', type=bool, default=True,
+    parser.add_argument('--showExplanation', metavar='B', type='bool', default=True,
                        help='whether should show explanation node links (default: True)')
+    parser.add_argument('--expandClassAndFun', metavar='B', type='bool', default=True,
+                       help='whether to expand class and function nodes (default: True)')
     return parser.parse_args()
 
 class AstData:
@@ -129,6 +135,8 @@ class Node:
     def _isDefinition(self):
         return self.kind == 'spr.sprCompilationUnit' \
             or self.kind == 'spr.package' \
+            or self.kind == 'spr.using' \
+            or self.kind == 'spr.sprClass' \
             or self.kind == 'spr.sprFunction' \
             or self.kind == 'spr.sprParameter' \
             or self.kind == 'fun' \
@@ -144,19 +152,21 @@ class LinkType:
 class Filter:
     """ Class that helps us filter what nodes we want to process during an AST traversal """
 
-    def __init__(self, args = None, showReferredNodes = True, showPropNodes = True, showExplanation = True):
+    def __init__(self, args = None, showReferredNodes = True, showPropNodes = True, showExplanation = True, expandClassAndFun = True):
         if args:
             self.maxNodes = args.maxNodes
             self.maxLevels = args.maxLevels
             self.showReferredNodes = args.showReferredNodes and showReferredNodes
             self.showPropNodes = args.showPropNodes and showPropNodes
             self.showExplanation = args.showExplanation and showExplanation
+            self.expandClassAndFun = args.expandClassAndFun and expandClassAndFun
         else:
             self.maxNodes = 999999
             self.maxLevels = 999999
             self.showReferredNodes = showReferredNodes
             self.showPropNodes = showPropNodes
             self.showExplanation = showExplanation
+            self.expandClassAndFun = expandClassAndFun
         self.numNodes = 0
 
     def onTraversalStart(self):
@@ -178,6 +188,10 @@ class Filter:
                 or (linkType == LinkType.referred and self.showReferredNodes) \
                 or (linkType == LinkType.prop and self.showPropNodes) \
                 or (linkType == LinkType.explanation and self.showExplanation))
+
+    def canExpandNode(self, node):
+        classAndFun = ['spr.sprClass', 'spr.sprFunction', 'sprClass', 'sprFunction', 'Class', 'Function' ]
+        return self.expandClassAndFun or (not node.kind in classAndFun)
 
 class AstTraversal:
     """ Class that defines a traversal over the AST """
@@ -202,6 +216,9 @@ class AstTraversal:
         fun(node)
         self._traversed[node] = True
         self.filter.onNodeAdded()
+
+        if not self.filter.canExpandNode(node):
+            return
 
         for n in node.children:
             self._addNewNodeToTraverse(n, level+1, LinkType.children)
@@ -272,9 +289,9 @@ class DotGeneration:
         name = node.name
         style = ''
         if self.args.showNodeIds:
-            style = 'label=<<FONT POINT-SIZE="10">%s</FONT><BR/>%s >' % (ref, cgi.escape(name).encode('ascii', 'xmlcharrefreplace'))
+            style = 'label=<<FONT POINT-SIZE="10">%s</FONT><BR/>%s >' % (ref, self._escape(name))
         else:
-            style = 'label="%s"' % name
+            style = 'label="%s"' % self._escape(name)
         if node.isDefinition:
             style += ' fillcolor=lemonchiffon'
         print >>self.out, 'n_%s [%s]' % (ref, style)
@@ -312,9 +329,14 @@ class DotGeneration:
             if node.explanation:
                 self._printLink(ref, node.explanation.ref, '', styleExpl)
 
+    def _escape(self, name):
+        res = cgi.escape(name).encode('ascii', 'xmlcharrefreplace')
+        res = res.replace('\\', '\\\\')
+        return res
+
     def _printLink(self, srcRef, destRef, name, style):
         if name != '':
-            print >>self.out, 'n_%s -> n_%s [label="%s"] %s' % (srcRef, destRef, name, style)
+            print >>self.out, 'n_%s -> n_%s [label="%s"] %s' % (srcRef, destRef, self._escape(name), style)
         else:
             print >>self.out, 'n_%s -> n_%s %s' % (srcRef, destRef, style)
 

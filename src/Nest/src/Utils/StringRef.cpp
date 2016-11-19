@@ -25,7 +25,7 @@ StringRef fromString(const string& str) {
 }
 
 string toString(StringRef str) {
-    return string(str.begin, str.end);
+    return str.begin ? string(str.begin, str.end) : string();
 }
 
 StringRef dupCStr(const char* str) {

@@ -1,10 +1,13 @@
 //! ! -O2 --dump-assembly --dump-opt-assembly -g
-package PerfTest;
 
-import SL.Map;
-import SL.SortedMap;
-import Time;
-import OS;
+import std.map;
+import std.sortedMap;
+import std.sortedTable;
+import std.staticArray;
+import std.array;
+import std.ptr;
+import time = time;
+import os = os;
 
 using payloadSize = 16;
 
@@ -16,7 +19,7 @@ class Obj
     fun >> (os: @OutStream) { os << "Obj(" << value << ")"; }
 }
 
-// TODO (now): Move this to SL
+// TODO: Move this to Std ???
 class Equal(type: Type) {
     fun () (x,y: type): Bool = x == y;
 }
@@ -53,7 +56,7 @@ fun testChange(bag: @AnyType, n: Int)
         if ( r.isEmpty() )
         {
             cout << "FAIL: Cannot find element " << key << " in map!" << endl;
-            OS.exit(-1);
+            os.exit(-1);
             return;
         }
 
@@ -152,7 +155,7 @@ class TestTimer
 
     var desc: StringRef;
     var n: UInt;
-    var timerImpl: Time.Timer;
+    var timerImpl: time.Timer;
 }
 
 fun sprMain

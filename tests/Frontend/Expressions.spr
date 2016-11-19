@@ -1,4 +1,4 @@
-package GoogleBench;
+module GoogleBench;
 
 import Std.Ptr;
 import BasicBlock;

@@ -1,7 +1,9 @@
-import SL.Vector;
-import SL.List;
-import SL.ContiguousMemoryRange;
-import SL.Algorithms;
+import std.ranges;
+import std.vector(Vector);
+import std.list(List);
+import std.contiguousMemoryRange(ContiguousMemoryRange);
+import std.rawPtr(RawPtr);
+import std.algorithms;
 
 fun sprMain
 {
@@ -63,7 +65,7 @@ class Minus
 
 class Square
 {
-    fun ctor() { }    
+    fun ctor() { }
     fun ()(x: AnyType) = x * x;
 }
 
@@ -77,14 +79,14 @@ class Fact
 {
     private var res: Int;
     private var k: Int;
-    
-    fun ctor() { res = 1; k = 0; }  
-    
+
+    fun ctor() { res = 1; k = 0; }
+
     fun ()(): Int
     {
         ++k;
         res *= k;
-        
+
         return res;
     }
 }
@@ -444,24 +446,24 @@ fun test15()
     printRange(r);
 
     while ( !r.isEmpty() )
-        cout << (r++) << ' ';
+        cout << ' ' << (r++);
     cout << endl;
 
     r = 1...10;
     while ( ! !r )        // call isEmpty() by pre_! operator
-        cout << (r++) << ' ';
+        cout << ' ' << (r++);
     cout << endl;
 
     r = 1...10;
     while ( !r.isEmpty() && r.front() != 10 )
-        cout << (++r) << ' ';
+        cout << ' ' << (++r);
     cout << endl;
 }
 /*<<<Pre and post ++ operators (15)
 1 2 3 4 5 6 7 8 9 10
-1 2 3 4 5 6 7 8 9 10 
-1 2 3 4 5 6 7 8 9 10 
-2 3 4 5 6 7 8 9 10 
+ 1 2 3 4 5 6 7 8 9 10
+ 1 2 3 4 5 6 7 8 9 10
+ 2 3 4 5 6 7 8 9 10
 >>>*/
 
 fun test16()
@@ -470,18 +472,18 @@ fun test16()
     printRange(r);
 
     while ( !r.isEmpty() )
-        cout << (r--) << ' ';
+        cout << ' ' << (r--);
     cout << endl;
 
     r = 1...10;
     while ( !r.isEmpty() && r.back() != 1 )
-        cout << (--r) << ' ';
+        cout << ' ' << (--r);
     cout << endl;
 }
 /*<<<Pre and post -- operators (16)
 1 2 3 4 5 6 7 8 9 10
-10 9 8 7 6 5 4 3 2 1 
-9 8 7 6 5 4 3 2 1 
+ 10 9 8 7 6 5 4 3 2 1
+ 9 8 7 6 5 4 3 2 1
 >>>*/
 
 fun test17()

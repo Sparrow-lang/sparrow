@@ -1,9 +1,7 @@
 //!!
-package Test;
-
-import SL.Array;
-import SL.ContiguousMemoryRange;
-import SL.RawPtr; // !!!
+import std.array(Array);
+import std.contiguousMemoryRange(ContiguousMemoryRange);
+import std.rawPtr(RawPtr);
 
 fun sprMain
 {

@@ -1,5 +1,4 @@
 //!! -t "SparrowImplicitLib.spr"
-package Test;
 
 var[ct] t: Type = Int;
 var[ct] u: Type;

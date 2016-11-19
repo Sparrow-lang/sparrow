@@ -1,0 +1,463 @@
+module std.hashTable;
+
+import staticArray(StaticArray);
+import array(Array);
+import ptr(Ptr, reinterpretPtr);
+import ranges(rangeSize);
+import algorithms(swapTL, max);
+import newDelete(new);
+
+class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
+{
+    using KeyType = keyType;
+    using ValueType = valueType;
+    using ValueToKeyType = valueToKeyType;
+
+    fun ctor()
+    {
+        this.ctor(0, traitsType());
+    }
+
+    fun ctor(n: SizeType, traits: traitsType)
+    {
+        buckets.ctor();
+        this.traits ctor traits;
+        guard ctor;
+        numElements = 0;
+        if ( n > 0)
+            reserve(n);
+    }
+
+    fun ctor(range: Range, n: SizeType, traits: traitsType)
+    {
+        buckets.ctor();
+        this.traits ctor traits;
+        guard ctor;
+        numElements = 0;
+        reserve(max(n, rangeSize(range)));
+        for ( v = range )
+            insertPlain(v);
+    }
+
+    fun ctor(other: @HashTable)
+    {
+        buckets ctor other.buckets.size();
+        traits ctor other.traits;
+        numElements ctor 0;
+        guard ctor;
+
+        for ( v = other.all() )
+            insertPlain(v);
+    }
+
+    fun dtor
+    {
+        deleteElements();
+    }
+
+    fun swap(other: @HashTable)
+    {
+        buckets.swap(other.buckets);
+        swapTL(guard, other.guard);
+        swapTL(traits, other.traits);
+        swapTL(numElements, other.numElements);
+
+        // Update the buckets pointing to the guard node
+        if ( numElements > 0 && !buckets.isEmpty() )
+            buckets(guard.next.get().hash % buckets.size()) = guardNode();
+        if ( other.numElements > 0 && !other.buckets.isEmpty() )
+            other.buckets(other.guard.next.get().hash % other.buckets.size()) = other.guardNode();
+    }
+
+    fun traits          = tr;
+
+    fun isEmpty         = (numElements == 0);
+    fun size            = numElements;
+    fun bucketCount     = buckets.size();
+
+    fun all             = RangeType(guard.next, NodePtr());
+
+    fun reserve(n: SizeType)
+    {
+        // Resize only when we are big enough to re-hash
+        if ( n <= buckets.size() * Impl.loadFactor )
+            return;
+        if ( buckets.size() == 0 && n <= Impl.numElementsForBuckets )
+            return;
+
+        // Determine the number of buckets
+        var i = 0;
+        while ( Impl.bucketCounts(i) < n )
+            ++i;
+        var numBuckets = Impl.bucketCounts(i);
+        if ( numBuckets <= buckets.size() )
+            return;
+
+        // Re-create the buckets array
+        buckets.dtor();
+        buckets.ctor(numBuckets);
+
+        // Recompute the proper buckets for our elements
+        var p = guard.next;
+        guard.next.reset();
+        var next: NodePtr;
+        while ( p.isSet() ; p = next )
+        {
+            next = p.get().next;
+            insertNode(p);
+        }
+    }
+
+    fun insert(value: @ValueType): RangeType
+    {
+        reserve(numElements + 1);
+        return insertPlain(value);
+    }
+
+    fun insert(range: Range)
+    {
+        reserve(numElements + rangeSize(range));
+        var counter = 0;
+        for ( v = range )
+            insertPlain(v);
+    }
+
+    fun remove(key: @KeyType)
+    {
+        if ( isEmpty() )
+            return;
+
+        var node = findNode(key);
+        if ( node.isNull() )
+            return;
+
+        var prev = findPrev(node);
+        removeNode(prev, node);
+    }
+
+    fun remove(range: RangeType)
+    {
+        if ( range.isEmpty() )
+            return;
+
+        // Determine the element before the first element from the given range
+        var prev = findPrev(range.startElem);
+
+        var p = range.startElem;
+        while ( p != range.endElem )
+        {
+            var next = p.get().next;
+            removeNode(prev, p);
+            p = next;
+        }
+    }
+
+    fun contains(key: @KeyType): Bool = findNode(key).isSet();
+    fun count(key: @KeyType): SizeType = ife(findNode(key).isSet(), 1, 0);
+
+    fun equalRange(key: @KeyType): RangeType
+    {
+        var p = findNode(key);
+        return ife(p.isSet(), RangeType(p, p.get().next), RangeType());
+    }
+
+    fun find(key: @KeyType): RangeType
+    {
+        var p = findNode(key);
+        return ife(p.isSet(), RangeType(p, NodePtr()), RangeType());
+    }
+
+    fun clear()
+    {
+        buckets.dtor();
+        buckets.ctor();
+        numElements = 0;
+        deleteElements();
+    }
+
+    fun =(other: @HashTable): @HashTable
+    {
+        var tmp: HashTable = other;
+        this.swap(tmp);
+        return this;
+    }
+
+    fun ==(other: @HashTable): Bool
+    {
+        if ( !(traits == other.traits && numElements == other.size()) )
+            return false;
+
+        for ( v = all() )
+        {
+            if ( !other.contains(valToKey(v)) )
+                return false;
+        }
+
+        return true;
+    }
+
+    fun >> (os: @OutStream)
+    {
+        os << "HashTable, first=" << mkStreamRefWrapper(guard.next.get()) << ", size=" << numElements << endl;
+
+        if ( isEmpty() )
+            return;
+        var numBuckets = buckets.size();
+        var prev = guardNode();
+        var p = prev.get().next;
+        var prevBi = numBuckets+1;
+        while ( p.isSet() ; p = p.get().next )
+        {
+            var bi = ife(numBuckets > 0, p.get().hash % numBuckets, 0);
+            if ( prev == guardNode() )
+            {
+                os << bi << ": <guard> | ";
+                prevBi = bi;
+            }
+            else if ( bi != prevBi )
+            {
+                os << endl << bi << ": " << prevBi << '-' << prev.get() << " | ";
+                prevBi = bi;
+            }
+            else
+                os << ' ' << prevBi << '-' << prev.get();
+            prev = p;
+            //os << '(' << p.get() << ')';
+        }
+        os << ' ' << prevBi << '-' << prev.get();
+        os << endl;
+    }
+
+    using NodePtr = Ptr(Node);
+    using BucketsType = Array(NodePtr);
+
+    /*private*/ class[initCtor] Node
+    {
+        var next: Ptr(Node);
+        var hash: SizeType;
+        var data: ValueType;
+
+        fun >> (os: @OutStream)
+        {
+            os << data << " <" << mkStreamRefWrapper(this) << '>';
+        }
+    }
+
+    /*private*/ class[initCtor] GuardNode
+    {
+        var next: Ptr(Node);
+    }
+
+    private var buckets: BucketsType;
+    private var guard: GuardNode;
+    private var numElements: SizeType;
+    private var valToKey: ValueToKeyType;
+    private var tr: traitsType;
+
+    private fun guardNode: NodePtr = reinterpretPtr(Node, Ptr(GuardNode)(guard));
+
+    private fun findNode(key: @KeyType): NodePtr
+    {
+        return findNodeImpl(tr.hash(key), key);
+    }
+
+    private fun findNodeImpl(hashVal: SizeType, key: @KeyType): NodePtr
+    {
+        if ( numElements == 0 )
+            return NodePtr();
+
+        var numBuckets = buckets.size();
+        if ( numBuckets > 0 )
+        {
+            var bi = hashVal % numBuckets;
+
+            var p: NodePtr = buckets(bi);
+            if ( p.isNull() )
+                return NodePtr();
+            // the first element belongs to the previous bucket, skip one element
+            var next = p.get().next;
+            while ( next.isSet() && (next.get().hash % numBuckets == bi) )
+            {
+                if ( tr.equal(key, valToKey(next.get().data)) )
+                    return next;
+                p = next;
+                next = p.get().next;
+            }
+        }
+        else
+        {
+            var p: NodePtr = guard.next;
+            while ( p.isSet() )
+            {
+                if ( tr.equal(key, valToKey(p.get().data)) )
+                    return p;
+                p = p.get().next;
+            }
+        }
+        return NodePtr();
+    }
+
+    private fun findPrev(node: NodePtr): NodePtr
+    {
+        var numBuckets = buckets.size();
+        var p: NodePtr = ife(numBuckets==0, guardNode(), buckets(node.get().hash % numBuckets));
+        while ( p.get().next != node )
+            p = p.get().next;
+        return p;
+    }
+
+    private fun insertPlain(value: @ValueType): RangeType
+    {
+        var key = valToKey(value);
+        var h = tr.hash(key);
+
+        // Insert only if the element is not found in the hash
+        var node = findNodeImpl(h, key);
+        if ( node.isNull() )
+        {
+            node = new(Node, NodePtr(), h, value);
+            ++numElements;
+            insertNode(node);
+        }
+        return RangeType(node, NodePtr());
+    }
+
+    private fun insertNode(node: NodePtr)
+    {
+        var numBuckets = buckets.size();
+        if ( numBuckets == 0 )
+        {
+            // If we have no buckets, put this node in front
+            node.get().next = guard.next;
+            guard.next = node;
+        }
+        else
+        {
+            // If there is no element in the bucket, put this in the bucket, and chain the element at the beginning of the global list
+            // Otherwise, put this after the first element in the bucket
+            var bi = node.get().hash % numBuckets;
+            if ( buckets(bi).isNull() )
+            {
+                node.get().next = guard.next;
+                guard.next = node;
+                buckets(bi) = guardNode();
+                // fix the bucket of the old start
+                if ( node.get().next.isSet() )
+                    buckets(node.get().next.get().hash % numBuckets) = node;
+            }
+            else
+            {
+                node.get().next = buckets(bi).get().next;
+                buckets(bi).get().next = node;
+            }
+        }
+    }
+
+    private fun removeNode(prev, node: NodePtr)
+    {
+        var numBuckets = buckets.size();
+        if ( numBuckets == 0 )
+        {
+            prev.get().next = node.get().next;
+        }
+        else
+        {
+            var bi = node.get().hash % numBuckets;
+            var next = node.get().next;
+
+            // If this is the only proper node for this bucket, clear the bucket
+            if ( prev == guardNode() || bi != (prev.get().hash % numBuckets) ) // this is second
+            {
+                if ( next.isNull() || bi != (next.get().hash % numBuckets) ) // next is not in this bucket
+                    buckets(bi).reset();
+            }
+
+            // If the next node is in another bucket, update the first node from that bucket
+            if ( next.isSet() )
+            {
+                var nextBi = next.get().hash % numBuckets;
+                if ( bi != nextBi )
+                    buckets(nextBi) = prev;
+            }
+
+            // Now remove the node
+            prev.get().next = next;
+            node.release();
+            --numElements;
+        }
+    }
+
+    private fun deleteElements
+    {
+        var p = guard.next;
+        var next: NodePtr;
+        while ( p.isSet() ; p = next )
+        {
+            next = p.get().next;
+            p.release();
+        }
+        guard.next = NodePtr();
+    }
+
+    class RangeType
+    {
+        using RetType = @ValueType;
+
+        private var startElem, endElem: NodePtr;
+
+        fun ctor(start, end: NodePtr)
+        {
+            startElem ctor start;
+            endElem ctor end;
+        }
+
+        fun isEmpty             = startElem == endElem;
+        fun front: RetType      = startElem.get().data;
+        fun popFront            { startElem = startElem.get().next; }
+    }
+}
+
+package Impl
+{
+    var bucketCounts: StaticArray(SizeType, 31);
+
+    using loadFactor = 1;
+    using numElementsForBuckets = 10;
+
+    fun ctor
+    {
+        var i = 0;
+        //bucketCounts(i++) = 2;
+        //bucketCounts(i++) = 5;
+        //bucketCounts(i++) = 11;
+        bucketCounts(i++) = 23;
+        bucketCounts(i++) = 53;
+        bucketCounts(i++) = 97;
+        bucketCounts(i++) = 193;
+        bucketCounts(i++) = 389;
+        bucketCounts(i++) = 769;
+        bucketCounts(i++) = 1543;
+        bucketCounts(i++) = 3079;
+        bucketCounts(i++) = 6151;
+        bucketCounts(i++) = 12289;
+        bucketCounts(i++) = 24593;
+        bucketCounts(i++) = 49157;
+        bucketCounts(i++) = 98317;
+        bucketCounts(i++) = 196613;
+        bucketCounts(i++) = 393241;
+        bucketCounts(i++) = 786433;
+        bucketCounts(i++) = 1572869;
+        bucketCounts(i++) = 3145739;
+        bucketCounts(i++) = 6291469;
+        bucketCounts(i++) = 12582917;
+        bucketCounts(i++) = 25165843;
+        bucketCounts(i++) = 50331653;
+        bucketCounts(i++) = 100663319;
+        bucketCounts(i++) = 201326611;
+        bucketCounts(i++) = 402653189;
+        bucketCounts(i++) = 805306457;
+        bucketCounts(i++) = 1610612741;
+        bucketCounts(i++) = 3221225473;
+        bucketCounts(i++) = 4294967291;
+    }
+}

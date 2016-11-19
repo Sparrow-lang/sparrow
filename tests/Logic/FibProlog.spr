@@ -1,11 +1,6 @@
 //!!
-package Test;
-
-import Logic.PrologFrontend;
+import logic.prologFrontend;
 import "Fibonacci.pl";
-
-using Logic.*;
-
 
 fun sprMain
 {

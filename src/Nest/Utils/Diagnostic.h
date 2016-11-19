@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Nest/Api/NodeKindRegistrar.h"
 #include "Nest/Utils/Assert.h"
 #include "Nest/Utils/LocationUtils.h"
 
@@ -51,9 +52,9 @@ int Nest_getSuppressedErrorsNum();
         Nest_reportFmt(loc, diagInternalError, "Non-zero expression expected for '%s' (file %s, line %d)", #val, __FILE__, __LINE__)
 
 #define EXPECT_KIND(loc, node, kind) \
-    if ( !(node) ) ; \
+    if ( !(node) ) \
         Nest_reportFmt(loc, diagInternalError, "Expected non-NULL node: '%s' (file %s, line %d)", #node, __FILE__, __LINE__); \
-    else if ( (node)->nodekind != (kind) ) \
+    else if ( (node)->nodeKind != (kind) ) \
         Nest_reportFmt(loc, diagInternalError, "Node: '%s' of kind %s needs to be of kind %s; (file %s, line %d)", \
             #node, Nest_getNodeKindName((node)->nodeKind), Nest_getNodeKindName(kind), __FILE__, __LINE__)
 

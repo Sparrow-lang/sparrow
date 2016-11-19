@@ -32,6 +32,21 @@ const char* Nest_toString(const Node* node)
     return Nest_getToStringFun(node->nodeKind)(node);
 }
 
+const char* Nest_toStringEx(const Node* node)
+{
+    ostringstream ss;
+    ss << Nest_toString(node);
+    if ( node->type )
+        ss << ": " << node->type;
+    ss << '(';
+    ss << Nest_getNodeKindName(node->nodeKind);
+    if ( node->explanation && node->explanation != node )
+        ss << " -> " << Nest_getNodeKindName(node->explanation->nodeKind);
+    ss << ')';
+    return strdup(ss.str().c_str());
+}
+
+
 const char* Nest_nodeKindName(const Node* node)
 {
     return Nest_getNodeKindName(node->nodeKind);

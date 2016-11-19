@@ -1,0 +1,50 @@
+module par.semaphore;
+
+import config;
+
+//! Allows a limited numbers of threads to simultaneously "acquire" a resource
+//! before releasing it.
+//! Compared to the mutex, we can release the semaphore without acquiring it
+class Semaphore {
+    private var handle: Impl.SemaphoreT;
+
+    fun ctor(startValue: UInt = 0) {
+        handle ctor;
+        var res = Impl.semaphore_create(Impl.mach_task_self(), handle, Impl.SYNC_POLICY_FIFO, Int(startValue));
+    }
+
+    fun dtor {
+        //verify(0 == Impl.semaphore_destroy(Impl.mach_task_self(), handle));
+        Impl.semaphore_destroy(Impl.mach_task_self(), handle);
+    }
+}
+
+//! Increments the counter of the semaphore
+fun release(s: @Semaphore) {
+    Impl.semaphore_signal(s.handle);
+}
+
+//! Decrements the semaphore counter
+//! If the counter reaches zero, the call blocks until somebody calls 'release'
+fun acquire(s: @Semaphore) {
+    while ( 0 != Impl.semaphore_wait(s.handle) ) /*keep trying*/;
+}
+
+package Impl {
+    using TaskT = Int;
+    using SemaphoreT = Int;
+    using SYNC_POLICY_FIFO = 0;
+
+    fun[native("mach_task_self")] mach_task_self(): TaskT;
+    fun[native("semaphore_create")] semaphore_create(task: TaskT, s: @SemaphoreT, policy, value: Int): Int;
+    fun[native("semaphore_destroy")] semaphore_destroy(task: TaskT, s: SemaphoreT): Int;
+    fun[native("semaphore_signal")] semaphore_signal(s: SemaphoreT): Int;
+    fun[native("semaphore_wait")] semaphore_wait(s: SemaphoreT): Int;
+
+    //using SemType = Int;
+
+    //fun[native("sem_init")] sem_init(s: @SemType, pshared: Int, value: UInt): Int;
+    //fun[native("sem_destroy")] sem_destroy(s: @SemType): Int;
+    //fun[native("sem_wait")] sem_wait(s: @SemType): Int;
+    //fun[native("sem_post")] sem_post(s: @SemType): Int;
+}

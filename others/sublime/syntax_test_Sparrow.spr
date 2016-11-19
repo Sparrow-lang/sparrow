@@ -1,11 +1,13 @@
 // SYNTAX TEST "Sparrow.sublime-syntax"
 
-package Test;
-// ^ meta.package keyword.control.module
-//      ^^^^ entity.name
+module Test;
+// ^ keyword.structure.module
 
-import SL.Vector;
-// ^ keyword.control.import
+import std.vector;
+//^^^^ keyword.structure.import
+
+import std.map, std.set;
+//^^^^ keyword.structure.import
 
 public import std.ranges(map, filter);
 //     ^^^^^^ keyword.structure.import

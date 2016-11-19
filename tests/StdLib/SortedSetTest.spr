@@ -1,8 +1,8 @@
-package Test;
-
-import SL.SortedSet;
-import SL.Ranges;
-import SL.List;
+import std.sortedSet;
+import std.sortedTable(Less);
+import std.ranges;
+import std.list;
+import std.vector;
 
 fun sprMain
 {

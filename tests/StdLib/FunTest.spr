@@ -1,9 +1,11 @@
 //!!
-package Test;
+import std.function(Function);
+import std.string(String);
 
-import SL.Function;
-import SL.String;
-import Assert;
+fun assert(cond: Bool) {
+    if ( !cond )
+        cout << "Assertion failed!!!" << endl;
+}
 
 fun stdFunInt(n: Int): Int
 {
@@ -81,11 +83,11 @@ fun sprMain
 
 fun test1
 {
-    var f0 = stdFunInt;
+    var f0 = \stdFunInt;
     var r0 = f0(10);
     cout << " => " << r0 << endl;
 
-    var f1 = stdFun;
+    var f1 = \stdFun;
     var r1 = f1("Hello, world!");
     cout << " => " << r1 << endl;
 }
@@ -96,11 +98,11 @@ stdFun(Hello, world!) called => stdFun
 
 fun test2
 {
-    var f0: Function(Int, Int) = stdFunInt;
+    var f0: Function(Int, Int) = \stdFunInt;
     var r0 = f0(10);
     cout << " => " << r0 << endl;
 
-    var f1: Function(String, String) = stdFun;
+    var f1: Function(String, String) = \stdFun;
     var r1 = f1("Hello, world!");
     cout << " => " << r1 << endl;
 }
@@ -140,7 +142,7 @@ fun test5
     cout << " => " << r1 << endl;
 
     var f2 = f1;
-    var r2 = f2("Hello, to you too!");  
+    var r2 = f2("Hello, to you too!");
     cout << " => " << r2 << endl;
 }
 /*<<< Copying functors (5)
@@ -156,7 +158,7 @@ fun test6
 
     var f2: Function(String, String);
     f2 = f1;
-    var r2 = f2("Hello, to you too!");  
+    var r2 = f2("Hello, to you too!");
     cout << " => " << r2 << endl;
 }
 /*<<< Functor assignment (6)
@@ -176,7 +178,7 @@ fun test7
     assert(!f2.isSet());
     assert(f2.isNull());
     f2 = f1;
-    var r2 = f2("Hello, to you too!");  
+    var r2 = f2("Hello, to you too!");
     cout << " => " << r2 << endl;
     assert(f2.isSet());
     assert(!f2.isNull());

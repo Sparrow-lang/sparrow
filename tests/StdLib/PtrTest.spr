@@ -1,7 +1,6 @@
-import SL.Ptr;
-import SL.Vector;
-import SL.SharedPtr;
-import SL.ScopedPtr;
+import std.ptr, std.sharedPtr, std.scopedPtr;
+import std.newDelete;
+import std.vector;
 
 class MyObj
 {
@@ -187,7 +186,7 @@ fun test4()
     p.reset();
     if ( !isNullRef(reinterpretCast(@Byte, p.get())) || !p.isNull() )
         cout << "test failed" << endl;
-    obj := newObj(42);        
+    obj := newObj(42);
     p.reset(obj);
     cout << p.get().x << endl;
     p.get().x += 1;

@@ -1,8 +1,8 @@
 //!! -O2
 
-import SL.Algorithms;
-import SL.Ranges;
-import SL.RMath;
+import std.algorithms;
+import std.ranges;
+import std.rMath;
 
 fun nextCollatz n = ife(n%2==0, n/2, n*3+1);
 fun collatzSeq(n: ULong) = generate1(n, \nextCollatz) takeUntil (fun n = n==1);

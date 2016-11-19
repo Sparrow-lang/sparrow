@@ -1,8 +1,8 @@
 //!!
 
-import SL.Array;
-import SL.Vector;
-import Math;
+import std.array;
+import std.vector;
+import math = math;
 
 var[ct] PlacementType = Array(Int);
 var[ct] SolutionsType = Vector(PlacementType);
@@ -11,7 +11,7 @@ fun[rtct] testQueens(placements: @PlacementType, k, y: Int): Bool
 {
     for ( i = 0..k )
     {
-        if ( y == placements(i) || Math.abs(k-i) == Math.abs(y-placements(i)) )
+        if ( y == placements(i) || math.abs(k-i) == math.abs(y-placements(i)) )
             return false;
     }
     return true;

@@ -1,6 +1,4 @@
 //!! -t "../Basic/SparrowImplicitLib.spr"
-package Test;
-
 fun assert(b: Bool)
 {
     if ( !b )

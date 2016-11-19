@@ -6,9 +6,9 @@
  * After C implementation of Christian Vosteen
  */
 
-import SL.StaticArray;
-import SL.Algorithms;
-import BitOper;
+import std.staticArray;
+import std.algorithms;
+import bitOper;
 
 using nPieces = 10;
 using nPositions = 50;

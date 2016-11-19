@@ -1,9 +1,8 @@
 //!!
-package Test;
+import logic = logic.prolog;
+import meta.astNodes(AstNode, astEval);
 
-import Logic.Prolog;
-
-Logic.compileProlog("
+logic.compileProlog("
     orbits(mercury, sun).
     orbits(venus, sun).
     orbits(earth, sun).
@@ -13,7 +12,7 @@ Logic.compileProlog("
     orbits(deimos, mars).
 
     planet(P) :- orbits(P, sun).#           // ERROR
- 
+
     satellite(S) :- orbits(S, P), planet(P).
 ");
 

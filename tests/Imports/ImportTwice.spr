@@ -1,8 +1,8 @@
 //!! -t "../Basic/SparrowImplicitLib.spr"
-package Test;
+import HeaderA;
+import HeaderA;
 
-import HeaderA;
-import HeaderA;
+import HeaderA, HeaderB, HeaderA;
 
 fun[native("test")] test(n: Int)
 {

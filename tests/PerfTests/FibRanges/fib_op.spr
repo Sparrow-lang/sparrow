@@ -1,7 +1,8 @@
 //!! -O2
 
-import SL.Algorithms;
-import SL.RMath;
+import std.algorithms;
+import std.rMath;
+import std.tuple;
 
 fun fib(n: UInt): UInt {
     var p: UInt*UInt = 0 ~ 1;   // Last 2 entries

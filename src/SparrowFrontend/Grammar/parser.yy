@@ -75,9 +75,9 @@ using namespace std;
 
 %require "3.0"                          // Require bison 3.0 or later
 %no-lines                               // Don't use #line directives
-//%debug                                  // add debug output code to generated parser. To be dsabled for release versions.
+//%debug                                  // add debug output code to generated parser. To be disabled for release versions.
 %error-verbose                          // verbose error messages
-%expect 1                               // Expect that many shift-reduce warnings
+%expect 0                               // Expect that many shift-reduce warnings
 %locations                              // keep track of the current position within the input
 %defines                                // write out a header file containing the token defines
 %skeleton "lalr1.cc"                    // use newer C++ skeleton file
@@ -118,20 +118,13 @@ using namespace std;
 %token START_PROGRAM START_EXPRESSION
 
 // Keywords
-%token BREAK
-%token CATCH CLASS CONCEPT CONTINUE
-%token DATATYPE
+%token MODULE IMPORT
+%token PRIVATE PUBLIC
+%token CLASS CONCEPT DATATYPE FUN PACKAGE USING VAR
+%token BREAK CATCH CONTINUE FINALLY FOR IF RETURN THROW TRY WHILE
+%token FALSE NULLCT THIS TRUE
 %nonassoc THEN_CLAUSE
 %nonassoc ELSE
-%token FALSE FINALLY FOR FUN
-%token IF IMPORT
-%token NULLCT
-%token PACKAGE PRIVATE PUBLIC
-%token RETURN
-%token THIS THROW TRUE TRY
-%token USING
-%token VAR
-%token WHILE
 
 // Parentheses, delimiters, special operators
 %token LCURLY RCURLY LBRACKET RBRACKET LPAREN RPAREN
@@ -157,14 +150,14 @@ using namespace std;
 %type <stringVal>   Operator OperatorNoEq IdentifierOrOperator IdentifierOrOperatorNoEq
 %type <node>        QualifiedName QualifiedNameStar
 %type <stringList>  IdentifierList
-%type <node>        IdentifierListNode Modifiers ModifierSpec
+%type <node>        IdentifierListNode IdOrOperListNode Modifiers ModifierSpec
 
 %destructor { delete $$; } Operator OperatorNoEq IdentifierOrOperator IdentifierOrOperatorNoEq
 
-%type <node>        Start ProgramFile PackageTopDeclaration ImportDeclaration
-%type <node>        ImportDeclarationsOpt ImportDeclarations
-%type <node>        DeclarationsOpt Declarations FormalsOpt Formals Formal
-%type <node>        Declaration InFunctionDeclaration PackageDeclaration ClassDeclaration ConceptDeclaration VarDeclaration FunDeclaration UsingDeclaration
+%type <node>        Start Module ModuleName
+%type <node>        ImportLine ImportNames ImportName QidOrString ImportDeclNamesOpt
+%type <node>        TopLevelStmtsOpt TopLevelStmts FormalsOpt Formals Formal
+%type <node>        TopLevelStmt InFunctionDeclaration PackageDeclaration ClassDeclaration ConceptDeclaration VarDeclaration FunDeclaration UsingDeclaration
 %type <node>        IfClause FunRetType FunctionBody
 %type <accessType>  AccessSpec
 %type <stringVal>   FunOrOperName
@@ -194,7 +187,7 @@ using namespace std;
 %%
 
 Start
-    : START_PROGRAM ProgramFile
+    : START_PROGRAM Module
         { $$ = *resultNode = $2; }
     | START_EXPRESSION Expr
         { $$ = *resultNode = $2; }
@@ -260,6 +253,13 @@ IdentifierListNode
         { $$ = Feather_mkNodeList(@$, fromIniList({ mkIdentifier(@$, fromString(*$1)) })); }
     ;
 
+IdOrOperListNode
+    : IdOrOperListNode COMMA IdentifierOrOperator
+        { $$ = Feather_addToNodeList($1, mkIdentifier(@3, fromString(*$3))); }
+    | IdentifierOrOperator
+        { $$ = Feather_addToNodeList(NULL, mkIdentifier(@1, fromString(*$1))); }
+    ;
+
 ModifierSpec
     : LBRACKET Modifiers RBRACKET
         { $$ = $2; }
@@ -279,54 +279,72 @@ Modifiers
 // Program and declarations
 //
 
-ProgramFile
-    : PackageTopDeclaration ImportDeclarationsOpt DeclarationsOpt END
-        { $$ = mkSprCompilationUnit(@$, $1, $2, $3); }
+Module
+    : ModuleName TopLevelStmtsOpt END
+        { $$ = mkModule(@$, $1, $2); }
     ;
 
-PackageTopDeclaration
-    : PACKAGE QualifiedName SEMICOLON       // WARNING: Shift-reduce conflict here
+ModuleName
+    : MODULE QualifiedName SEMICOLON
         { $$ = $2; }
     | /*nothing*/
         { $$ = NULL; }
     ;
 
-ImportDeclarationsOpt
-    : ImportDeclarations
-        { $$ = $1; }
-    | /*nothing*/
-        { $$ = NULL; }
+ImportLine
+    : AccessSpec IMPORT ImportNames SEMICOLON
+        { $$ = setAccessForNodesInList($3, $1); }
     ;
 
-ImportDeclarations
-    : ImportDeclarations ImportDeclaration
-        { $$ = Feather_addToNodeList($1, $2); }
-    | ImportDeclaration
+ImportNames
+    : ImportNames COMMA ImportName
+        { $$ = Feather_addToNodeList($1, $3); }
+    | ImportName
         { $$ = Feather_addToNodeList(NULL, $1); }
     ;
 
-ImportDeclaration
-    : IMPORT QualifiedNameStar SEMICOLON
+ImportName
+    : QidOrString ImportDeclNamesOpt
+        { $$ = mkImportName(@$, $1, $2); }
+    | EQUAL QidOrString ImportDeclNamesOpt
+        { $$ = mkImportName(@$, $2, $3, true); }
+    | IDENTIFIER EQUAL QidOrString ImportDeclNamesOpt
+        { $$ = mkImportName(@$, $3, $4, true, fromString(*$1)); }
+    ;
+
+QidOrString
+    : QualifiedName
+        { $$ = $1; }
+    | STRING_LITERAL
+        { $$ = buildStringLiteral(@$, fromString(*$<stringVal>1)); }
+    ;
+
+ImportDeclNamesOpt
+    : /*nothing*/
+        { $$ = NULL; }
+    | LPAREN RPAREN
+        { $$ = NULL; }
+    | LPAREN IdOrOperListNode RPAREN
         { $$ = $2; }
-    | IMPORT STRING_LITERAL SEMICOLON
-        { $$ = buildStringLiteral(@$, fromString(*$<stringVal>2)); }
     ;
 
-DeclarationsOpt
-    : Declarations
+TopLevelStmtsOpt
+    : TopLevelStmts
         { $$ = $1; }
     | /*nothing*/
         { $$ = NULL; }
 
-Declarations
-    : Declarations Declaration
+TopLevelStmts
+    : TopLevelStmts TopLevelStmt
         { $$ = Feather_addToNodeList($1, $2); }
-    | Declaration
+    | TopLevelStmt
         { $$ = Feather_addToNodeList(NULL, $1); }
     ;
 
-Declaration
+TopLevelStmt
     : InFunctionDeclaration
+        { $$ = $1; }
+    | ImportLine
         { $$ = $1; }
     | IfStmt
         { $$ = $1; }
@@ -355,7 +373,7 @@ AccessSpec
     | PUBLIC
         { $$ = publicAccess; }
     | /*nothing*/
-        { $$ = publicAccess; NEXT_LOC; }
+        { $$ = unspecifiedAccess; NEXT_LOC; }
     ;
 
 UsingDeclaration
@@ -366,11 +384,11 @@ UsingDeclaration
     ;
 
 PackageDeclaration
-    : AccessSpec PACKAGE ModifierSpec IDENTIFIER LCURLY DeclarationsOpt RCURLY
+    : AccessSpec PACKAGE ModifierSpec IDENTIFIER LCURLY TopLevelStmtsOpt RCURLY
         { $$ = mkModifiers(@$, mkSprPackage(@$, fromString(*$4), $6, $1), $3); }
     ;
 
-VarDeclaration                        
+VarDeclaration
     : AccessSpec VAR ModifierSpec IdentifierList COLON ExprNoEq EQUAL Expr SEMICOLON    // var[...] a,b,c : Int = 3;
         { $$ = buildVariables(@$, *$4, $6, $8, $3, $1); delete $4; }
     | AccessSpec VAR ModifierSpec IdentifierList COLON ExprNoEq SEMICOLON               // var[...] a,b,c : Int;
@@ -380,7 +398,7 @@ VarDeclaration
     ;
 
 ClassDeclaration
-    : AccessSpec CLASS ModifierSpec IDENTIFIER FormalsOpt IfClause LCURLY DeclarationsOpt RCURLY
+    : AccessSpec CLASS ModifierSpec IDENTIFIER FormalsOpt IfClause LCURLY TopLevelStmtsOpt RCURLY
         { $$ = mkModifiers(@$, mkSprClass(@$, fromString(*$4), $5, NULL, $6, $8, $1), $3); }
     | AccessSpec DATATYPE ModifierSpec IDENTIFIER FormalsOpt IfClause LCURLY Formals RCURLY
         { $$ = mkModifiers(@$, mkSprClass(@$, fromString(*$4), $5, NULL, $6, $8, $1), $3); }

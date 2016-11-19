@@ -1,8 +1,7 @@
 //!!
-package Test;
 
-import SL.Ranges;
-import SL.Vector;
+import std.ranges;
+import std.vector;
 
 fun test1()
 {

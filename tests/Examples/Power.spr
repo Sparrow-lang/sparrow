@@ -1,7 +1,6 @@
 //!!
-package Test;
 
-import Math;
+import math = math;
 
 fun pow(x: Double, n: Int ct): Double
 {
@@ -25,7 +24,7 @@ fun pow(x: Double, n: Int): Double
 
 fun pow(x: Double, n: Double): Double
 {
-    return Math.pow(x, n);
+    return math.pow(x, n);
 }
 
 fun sprMain

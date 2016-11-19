@@ -1,6 +1,4 @@
 //!! -t "../Basic/SparrowImplicitLib.spr"
-package Test;
-
 import "../Imports/HeaderA.spr";
 
 fun[native("test")] test(n: Int)

@@ -209,6 +209,7 @@ done:
 "finally"       { return token::FINALLY; }
 "for"           { return token::FOR; }
 "import"        { return token::IMPORT; }
+"module"        { return token::MODULE; }
 "null"          { return token::NULLCT; }
 "package"       { return token::PACKAGE; }
 "private"       { return token::PRIVATE; }

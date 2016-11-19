@@ -1,0 +1,86 @@
+import "bitOper.llvm";
+//import precedenceUtils;
+
+//using bitOperPrecedence = getOperPrecedence("*") + 100;
+using bitOperPrecedence = oper_precedence_* + 100;
+
+//setOperPrecedence("!|!", bitOperPrecedence);
+//setOperPrecedence("!^!", bitOperPrecedence+10);
+//setOperPrecedence("!&!", bitOperPrecedence+20);
+//setOperPrecedence("!<<!", bitOperPrecedence+30);
+//setOperPrecedence("!>>!", bitOperPrecedence+30);
+using oper_precedence_!|! = bitOperPrecedence;
+using oper_precedence_!^! = bitOperPrecedence+10;
+using oper_precedence_!&! = bitOperPrecedence+20;
+using oper_precedence_!<<! = bitOperPrecedence+30;
+using oper_precedence_!>>! = bitOperPrecedence+30;
+
+fun[autoCt, native("_bit_neg_8")] pre_!~!(n: Byte): Byte;
+fun[autoCt, native("_bit_shl_8")] !<<!(n, k: Byte): Byte;
+fun[autoCt, native("_bit_ashr_8")] !>>!(n, k: Byte): Byte;
+fun[autoCt, native("_bit_xor_8")] !^!(n1, n2: Byte): Byte;
+fun[autoCt, native("_bit_or_8")] !|!(n1, n2: Byte): Byte;
+fun[autoCt, native("_bit_and_8")] !&!(n1, n2: Byte): Byte;
+
+fun[autoCt, native("_bit_neg_8")] pre_!~!(n: UByte): UByte;
+fun[autoCt, native("_bit_shl_8")] !<<!(n, k: UByte): UByte;
+fun[autoCt, native("_bit_lshr_8")] !>>!(n, k: UByte): UByte;
+fun[autoCt, native("_bit_xor_8")] !^!(n1, n2: UByte): UByte;
+fun[autoCt, native("_bit_or_8")] !|!(n1, n2: UByte): UByte;
+fun[autoCt, native("_bit_and_8")] !&!(n1, n2: UByte): UByte;
+
+fun[autoCt, native("_bit_neg_16")] pre_!~!(n: Short): Short;
+fun[autoCt, native("_bit_shl_16")] !<<!(n, k: Short): Short;
+fun[autoCt, native("_bit_ashr_16")] !>>!(n, k: Short): Short;
+fun[autoCt, native("_bit_xor_16")] !^!(n1, n2: Short): Short;
+fun[autoCt, native("_bit_or_16")] !|!(n1, n2: Short): Short;
+fun[autoCt, native("_bit_and_16")] !&!(n1, n2: Short): Short;
+
+fun[autoCt, native("_bit_neg_16")] pre_!~!(n: UShort): UShort;
+fun[autoCt, native("_bit_shl_16")] !<<!(n, k: UShort): UShort;
+fun[autoCt, native("_bit_lshr_16")] !>>!(n, k: UShort): UShort;
+fun[autoCt, native("_bit_xor_16")] !^!(n1, n2: UShort): UShort;
+fun[autoCt, native("_bit_or_16")] !|!(n1, n2: UShort): UShort;
+fun[autoCt, native("_bit_and_16")] !&!(n1, n2: UShort): UShort;
+
+fun[autoCt, native("_bit_neg_32")] pre_!~!(n: Int): Int;
+fun[autoCt, native("_bit_shl_32")] !<<!(n, k: Int): Int;
+fun[autoCt, native("_bit_ashr_32")] !>>!(n, k: Int): Int;
+fun[autoCt, native("_bit_xor_32")] !^!(n1, n2: Int): Int;
+fun[autoCt, native("_bit_or_32")] !|!(n1, n2: Int): Int;
+fun[autoCt, native("_bit_and_32")] !&!(n1, n2: Int): Int;
+
+fun[autoCt, native("_bit_neg_32")] pre_!~!(n: UInt): UInt;
+fun[autoCt, native("_bit_shl_32")] !<<!(n, k: UInt): UInt;
+fun[autoCt, native("_bit_lshr_32")] !>>!(n, k: UInt): UInt;
+fun[autoCt, native("_bit_xor_32")] !^!(n1, n2: UInt): UInt;
+fun[autoCt, native("_bit_or_32")] !|!(n1, n2: UInt): UInt;
+fun[autoCt, native("_bit_and_32")] !&!(n1, n2: UInt): UInt;
+
+fun[autoCt, native("_bit_neg_64")] pre_!~!(n: Long): Long;
+fun[autoCt, native("_bit_shl_64")] !<<!(n, k: Long): Long;
+fun[autoCt, native("_bit_ashr_64")] !>>!(n, k: Long): Long;
+fun[autoCt, native("_bit_xor_64")] !^!(n1, n2: Long): Long;
+fun[autoCt, native("_bit_or_64")] !|!(n1, n2: Long): Long;
+fun[autoCt, native("_bit_and_64")] !&!(n1, n2: Long): Long;
+
+fun[autoCt, native("_bit_neg_64")] pre_!~!(n: ULong): ULong;
+fun[autoCt, native("_bit_shl_64")] !<<!(n, k: ULong): ULong;
+fun[autoCt, native("_bit_lshr_64")] !>>!(n, k: ULong): ULong;
+fun[autoCt, native("_bit_xor_64")] !^!(n1, n2: ULong): ULong;
+fun[autoCt, native("_bit_or_64")] !|!(n1, n2: ULong): ULong;
+fun[autoCt, native("_bit_and_64")] !&!(n1, n2: ULong): ULong;
+
+fun[autoCt, native("_bit_neg_64")] pre_!~!(n: SizeType): SizeType;
+fun[autoCt, native("_bit_shl_64")] !<<!(n, k: SizeType): SizeType;
+fun[autoCt, native("_bit_ashr_64")] !>>!(n, k: SizeType): SizeType;
+fun[autoCt, native("_bit_xor_64")] !^!(n1, n2: SizeType): SizeType;
+fun[autoCt, native("_bit_or_64")] !|!(n1, n2: SizeType): SizeType;
+fun[autoCt, native("_bit_and_64")] !&!(n1, n2: SizeType): SizeType;
+
+fun[autoCt, native("_bit_neg_64")] pre_!~!(n: DiffType): DiffType;
+fun[autoCt, native("_bit_shl_64")] !<<!(n, k: DiffType): DiffType;
+fun[autoCt, native("_bit_lshr_64")] !>>!(n, k: DiffType): DiffType;
+fun[autoCt, native("_bit_xor_64")] !^!(n1, n2: DiffType): DiffType;
+fun[autoCt, native("_bit_or_64")] !|!(n1, n2: DiffType): DiffType;
+fun[autoCt, native("_bit_and_64")] !&!(n1, n2: DiffType): DiffType;

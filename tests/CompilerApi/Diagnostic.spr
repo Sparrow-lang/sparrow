@@ -1,22 +1,22 @@
 //!!
-package Test;
 
-import Meta.Diagnostic;
+import meta.diagnostic;
 
-fun sprMain // ERROR - introduced by the last Meta.report
+
+fun sprMain // ERROR - introduced by the last meta.report
 {
-    var[ct] loc = Meta.Location(Meta.SourceCode.current(), 6, 6, 5, 12);
+    var[ct] loc = Location(SourceCode.current(), 6, 6, 5, 12);
 
-    var[ct] diag1 = Meta.Diagnostic("Some information", loc, Meta.diagInfo);
-    Meta.report(diag1);
+    var[ct] diag1 = Diagnostic("Some information", loc, diagInfo);
+    report(diag1);
 
-    var[ct] diag2 = Meta.Diagnostic("Some warning", loc, Meta.diagWarning);
-    Meta.report(diag2);
+    var[ct] diag2 = Diagnostic("Some warning", loc, diagWarning);
+    report(diag2);
 
-    Meta.report("Error at the beginning of the function", loc);
+    report("Error at the beginning of the function", loc);
 
-    var[ct] sc = Meta.SourceCode.current();
-    var[ct] sc2 = Meta.SourceCode.fromFilename("/Users/lucteo/work/sparrow/dev/AutoTests/CompilerApi/Diagnostic.spr");
+    var[ct] sc = SourceCode.current();
+    var[ct] sc2 = SourceCode.fromFilename("/Users/lucteo/work/sparrow/dev/AutoTests/CompilerApi/Diagnostic.spr");
 
     cout << sc.filename() << endl;
     cout << sc2.filename() << endl;

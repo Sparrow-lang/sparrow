@@ -1,8 +1,6 @@
 //!! -t "SparrowImplicitLib.spr"
 //--keep-intermediate-files --dump-assembly --dump-ct-assembly
 
-package Test;
-
 concept AnyType(x); // Always true
 
 fun assert(condition: Bool)

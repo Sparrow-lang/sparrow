@@ -1,10 +1,7 @@
-//!! 
-package Test;
-
-import SL.Tuple;
-import Check.Check;
-
-using Check.*;
+//!!
+import std.tuple;
+import std.ranges;
+import check;
 
 class[initCtor] MyObj1 {
     var x: Int;

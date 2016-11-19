@@ -1,10 +1,8 @@
 //!!
-package Test;
+import assert;
+import meta.astNodes;
 
-import Assert;
-import Meta.ASTNodes;
-
-using Meta.*;
+using meta.*;
 
 fun sprMain
 {

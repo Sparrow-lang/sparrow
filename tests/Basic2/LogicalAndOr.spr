@@ -1,7 +1,6 @@
 //!!
-package Test;
 
-import SL.Ranges;
+import std.ranges;
 
 fun getT: Bool
 {

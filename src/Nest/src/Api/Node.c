@@ -217,7 +217,7 @@ void Nest_clearCompilationState(Node* node)
 const char* Nest_defaultFunToString(const Node* node)
 {
     const StringRef* name = Nest_getPropertyString(node, "name");
-    if ( name )
+    if ( name && name->begin )
         return name->begin;
 
     if ( node->explanation && node != node->explanation )
@@ -251,7 +251,8 @@ const char* Nest_defaultFunToString(const Node* node)
             if ( p->kind == propString ) {
                 end = _appendStr(end, endOfStore, p->name.begin);
                 end = _appendStr(end, endOfStore, "=");
-                end = _appendStr(end, endOfStore, p->value.stringValue.begin);
+                if ( p->value.stringValue.begin )
+                    end = _appendStr(end, endOfStore, p->value.stringValue.begin);
             }
         }
         end = _appendStr(end, endOfStore, "]");        

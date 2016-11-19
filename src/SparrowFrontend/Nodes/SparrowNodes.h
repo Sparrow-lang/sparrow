@@ -9,8 +9,9 @@ namespace SprFrontend
     enum SparrowNodeKinds
     {
         nkRelSparrowModifiersNode = 0,
-        
-        nkRelSparrowDeclSprCompilationUnit,
+
+        nkRelSparrowDeclModule,
+        nkRelSparrowDeclImportName,
         nkRelSparrowDeclPackage,
         nkRelSparrowDeclSprClass,
         nkRelSparrowDeclSprFunction,
@@ -32,10 +33,11 @@ namespace SprFrontend
         nkRelSparrowExpSprConditional,
         nkRelSparrowExpDeclExp,
         nkRelSparrowExpStarExp,
-        
+        nkRelSparrowExpModuleRef,
+
         nkRelSparrowStmtFor,
         nkRelSparrowStmtSprReturn,
-        
+
         nkRelSparrowInnerInstantiation,
         nkRelSparrowInnerInstantiationsSet,
     };
@@ -45,8 +47,9 @@ namespace SprFrontend
 
     // The IDs for all the Sparrow node kinds
     extern int nkSparrowModifiersNode;
-    
-    extern int nkSparrowDeclSprCompilationUnit;
+
+    extern int nkSparrowDeclModule;
+    extern int nkSparrowDeclImportName;
     extern int nkSparrowDeclPackage;
     extern int nkSparrowDeclSprClass;
     extern int nkSparrowDeclSprFunction;
@@ -68,10 +71,11 @@ namespace SprFrontend
     extern int nkSparrowExpSprConditional;
     extern int nkSparrowExpDeclExp;
     extern int nkSparrowExpStarExp;
-    
+    extern int nkSparrowExpModuleRef;
+
     extern int nkSparrowStmtFor;
     extern int nkSparrowStmtSprReturn;
-    
+
     extern int nkSparrowInnerInstantiation;
     extern int nkSparrowInnerInstantiationsSet;
 
@@ -80,7 +84,8 @@ namespace SprFrontend
 
     Node* mkModifiers(const Location& loc, Node* main, Node* mods);
 
-    Node* mkSprCompilationUnit(const Location& loc, Node* package, Node* imports, Node* declarations);
+    Node* mkModule(const Location& loc, Node* moduleName, Node* declarations);
+    Node* mkImportName(const Location& loc, Node* moduleName, Node* importedDeclNames, bool equals = false, StringRef alias = {0});
     Node* mkSprUsing(const Location& loc, StringRef alias, Node* usingNode, AccessType accessType = unspecifiedAccess);
     Node* mkSprPackage(const Location& loc, StringRef name, Node* children, AccessType accessType = unspecifiedAccess);
     Node* mkSprVariable(const Location& loc, StringRef name, Node* typeNode, Node* init, AccessType accessType = unspecifiedAccess);
@@ -109,6 +114,7 @@ namespace SprFrontend
     Node* mkConditionalExp(const Location& loc, Node* cond, Node* alt1, Node* alt2);
     Node* mkDeclExp(const Location& loc, NodeRange decls, Node* baseExp = nullptr);
     Node* mkStarExp(const Location& loc, Node* base, StringRef operName);
+    Node* mkModuleRef(const Location& loc, Node* module);
 
     Node* mkForStmt(const Location& loc, StringRef name, Node* type, Node* range, Node* action);
     Node* mkReturnStmt(const Location& loc, Node* exp);

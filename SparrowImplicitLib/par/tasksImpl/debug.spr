@@ -1,0 +1,40 @@
+module par.tasksImpl.debug;
+
+import worker(Worker);
+import par.locks;
+import meta.astNodes;
+import std.string;
+
+//using traceCalls = true;
+
+using TraceLockType = Mutex;
+
+var traceMutex: TraceLockType;
+
+//! Helper class that does the trace while holding a mutex
+//! Prevents the output to be messed up
+class Tracer {
+    fun ctor {
+        traceMutex lock;
+    }
+
+    fun ctor(worker: @Worker) {
+        traceMutex lock;
+        cout << worker.workerId << ": " << Depth(worker.curDepth);
+    }
+
+    fun dtor {
+        traceMutex unlock;
+    }
+
+    fun <<<(x: @AnyType)       { cout << x; }
+}
+
+class[initCtor] Depth {
+    var depth: Int;
+}
+
+fun >> (d: Depth, os: @OutStream) {
+    if ( d.depth > 0 )
+        os << String(d.depth*2, ' ');
+}

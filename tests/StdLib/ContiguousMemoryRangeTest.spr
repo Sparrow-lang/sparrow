@@ -1,8 +1,6 @@
 //!!
-package Test;
-
-import SL.ContiguousMemoryRange;
-import SL.RawPtr;
+import std.contiguousMemoryRange(ContiguousMemoryRange);
+import std.rawPtr(RawPtr);
 
 fun sprMain
 {
@@ -33,9 +31,9 @@ fun createRange(size: SizeType): ContiguousMemoryRange(MyObj)
     var ptr = RawPtr(MyObj).alloc(size);
     var ptrEnd = ptr.advance(DiffType(size));
     var p = ptr;
-    
+
     while ( (p != ptrEnd) ; p = p.advance(); )
-        p.value().ctor();   
+        p.value().ctor();
 
     return ContiguousMemoryRange(MyObj)(ptr, ptrEnd);
 }
@@ -49,7 +47,7 @@ fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
     while ( i < size ; i = i + 1; )
     {
         var o: @AnyType = ptr.advance(i).value();
-        
+
         o.x = i;
     }
 
@@ -75,7 +73,7 @@ false
 fun test2()
 {
     var r = ContiguousMemoryRange(MyObj)(createRangeAscending(5));
-    
+
     cout << r.isEmpty() << endl;
     cout << r.size() << endl;
     cout << r.front().x << endl;
@@ -91,7 +89,7 @@ false
 fun test3()
 {
     var r = ContiguousMemoryRange(MyObj)(createRangeAscending(5));
-    
+
     while ( !r.isEmpty() ; r.popFront(); )
         cout << r.front().x << endl;
 }
@@ -106,7 +104,7 @@ fun test3()
 fun test4()
 {
     var r = ContiguousMemoryRange(MyObj)(createRangeAscending(5));
-    
+
     cout << r.front().x << endl;
     cout << r.back().x << endl;
     cout << r(0).x << endl;
@@ -130,7 +128,7 @@ fun test5()
     var size = 1000;
     var r = ContiguousMemoryRange(MyObj)(createRangeAscending(size));
     var i = 0;
-    
+
     while ( i < size ; i = i + 1; )
     {
         if ( r(i).x != i )
@@ -191,7 +189,7 @@ fun test7()
 {
     var i = 0;
     var r = ContiguousMemoryRange(MyObj)(createRangeAscending(20));
-    
+
     while ( !r.isEmpty() ; r.popFront(3); )
         cout << r.front().x << endl;
 }

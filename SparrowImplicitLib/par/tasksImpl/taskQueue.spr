@@ -1,0 +1,111 @@
+module par.tasksImpl.taskQueue;
+
+import taskPrefix(TaskPrefix, TaskPtr);
+import par.locks;
+
+//! Holds a queue of tasks
+//!
+//! Local worker will add elements at the front of the queue and also removes
+//! elements from its front
+//! Other workers can steal work from the back of the queue.
+//!
+//! We use an intrinsic double-linked list to store the queue.
+//! The methods are synchronized to protect 2 threads popping elements.
+class TaskQueue {
+    //! Points to the first element in the queue
+    private var first: TaskPrefix Ptr;
+    //! Points to the last valid element in the queue
+    private var last: TaskPrefix Ptr;
+
+    //! Mutex used to protect the extraction of tasks from both ends
+    private var mutex: Mutex;
+}
+
+fun empty(q: @TaskQueue): Bool {
+    var lock: ScopedLock(Mutex) = q.mutex;
+    return q.first isNull;
+}
+
+fun size(q: @TaskQueue): SizeType {
+    var lock: ScopedLock(Mutex) = q.mutex;
+    return q uncheckedSize;
+}
+
+fun uncheckedSize(q: @TaskQueue): SizeType {
+    var count: SizeType = 0;
+    var p: TaskPtr = q.first;
+    while ( p isSet ) {
+        ++count;
+        p = p.get().next;
+    }
+    return count;
+}
+
+fun pushFront(q: @TaskQueue, task: TaskPtr) {
+    var lock: ScopedLock(Mutex) = q.mutex;
+
+    // don't care what prev is
+    task.get().next = q.first;
+    if ( q.first isSet ) {
+        q.first.get().prev = task;
+    } else {
+        q.last = task;
+    }
+    q.first = task;
+
+    //assert(q.first isSet);
+    //assert(q.last isSet);
+    //assert(q.last.get().next isNull);
+}
+fun popFront(q: @TaskQueue): TaskPtr {
+    var lock: ScopedLock(Mutex) = q.mutex;
+
+    if ( q.first isNull )
+        return TaskPtr();
+
+    var res = q.first;
+    q.first = res.get().next;
+    if ( q.first isNull )
+        q.last.reset;
+
+    if ( q.last isSet )
+        //assert(q.last.get().next isNull);
+
+    return res;
+}
+fun popBack(q: @TaskQueue): TaskPtr {
+    var lock: ScopedLock(Mutex) = q.mutex;
+
+    if ( q.last isNull )
+        return TaskPtr();
+
+    var res = q.last;
+    if ( q.first == q.last ) {
+        q.first.reset;
+        q.last.reset;
+    } else {
+        q.last = res.get().prev;
+        q.last.get().next.reset;
+    }
+
+    if ( q.last isSet )
+        //assert(q.last.get().next isNull);
+
+    return res;
+}
+
+
+class[initCtor] TasksPrinter {
+    var first: TaskPtr;
+    var list: @TaskQueue;
+}
+
+fun >> (tasks: @TasksPrinter, os: @OutStream) {
+    if ( tasks.first isSet )
+        os << tasks.first.get() << " + ";
+    var p: TaskPtr = tasks.list.first;
+    while ( p isSet ) {
+        os << p.get() << ' ';
+        p = p.get().next;
+    }
+}

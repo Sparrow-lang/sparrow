@@ -1,17 +1,17 @@
 //!!
 // -O3 --dump-assembly --simple-linking
 
-import SL.String;
-import SL.Tuple;
-import SL.Vector;
-import SL.Array;
-import SL.StaticArray;
-import SL.Ranges;
-import SL.Algorithms;
-import SL.Bitset;
-import SL.Ptr;
-import Time;
-import PrecedenceUtils;
+import std.string;
+import std.tuple;
+import std.vector;
+import std.array;
+import std.staticArray;
+import std.ranges;
+import std.algorithms;
+import std.bitset;
+import std.ptr, std.rawPtr;
+import time = time;
+import precedenceUtils(getOperPrecedence, setOperPrecedence);
 
 // The type of test to execute:
 // - 0 = AnyType test
@@ -655,7 +655,7 @@ fun testReCt(re: StringRef ct, str: StringRef)
 fun timedTest(re, str: String, k, repCount: Int)
 {
     var matchCount = 0;
-    var timer: Time.Timer;
+    var timer: time.Timer;
     for ( i = 0..repCount )
     {
         if ( regexMatch(re.asStringRef(), str.asStringRef()) )
@@ -715,14 +715,14 @@ fun testCtVsRtPerf(ctRe: StringRef ct, str: StringRef, repCount: Int)
     testStrings.pushBack(str);
 
     var cnt = 0;
-    var timerCt: Time.Timer;
+    var timerCt: time.Timer;
     testCt(ctRe, 1, repCount, testStrings.all());
     var tCt = timerCt.elapsed();
     cout << "Compile-time:\t" << ctRe << "\t\t" << str << "\t\t" << repCount << "\t\t" << cnt << "\t\t" << tCt << endl;
 
 
     cnt = 0;
-    var timerRt: Time.Timer;    
+    var timerRt: time.Timer;
     testRt(rtRe, 1, repCount, testStrings.all());
     var tRt = timerRt.elapsed();
     cout << "Run-time:\t" << rtRe << "\t\t" << str << "\t\t" << repCount << "\t\t" << cnt << "\t\t" << tRt << endl;

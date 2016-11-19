@@ -33,3 +33,13 @@ inline unsigned int size(NodeRange r) {
 inline unsigned int size(NodeArray arr) {
     return Nest_nodeArraySize(arr);
 }
+
+//! Class that destructs a node array on its destructor.
+//! A scoped action for deleting the array
+class NodeArrayDestroyer
+{
+    NodeArray& arr;
+public:
+    NodeArrayDestroyer(NodeArray& a) : arr(a) {}
+    ~NodeArrayDestroyer() { Nest_freeNodeArray(arr); }
+};

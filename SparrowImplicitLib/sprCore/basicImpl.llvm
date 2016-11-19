@@ -1,0 +1,165 @@
+; flags: rtct
+
+%Type = type { i8* }
+
+declare i32 @printf(i8*, ...)
+declare i32 @sprintf(i8*, i8*, ...) nounwind
+declare void @llvm.memcpy.p0i8.p0i8.i64(i8* nocapture, i8* nocapture, i64, i32, i1) nounwind
+declare void @llvm.memmove.p0i8.p0i8.i64(i8* nocapture, i8* nocapture, i64, i32, i1) nounwind
+declare void @llvm.memset.p0i8.i64(i8* nocapture, i8, i64, i32, i1) nounwind
+
+%struct._IO_FILE = type opaque
+declare i32 @fflush(%struct._IO_FILE*) nounwind
+
+%StringRef = type opaque
+
+@.fmtInt = private unnamed_addr constant [3 x i8] c"%d\00", align 1
+@.fmtUInt = private unnamed_addr constant [3 x i8] c"%u\00", align 1
+@.fmtLong = private unnamed_addr constant [5 x i8] c"%lld\00", align 1
+@.fmtULong = private unnamed_addr constant [5 x i8] c"%llu\00", align 1
+@.fmtChar = private unnamed_addr constant [3 x i8] c"%c\00", align 1
+@.fmtDouble = private unnamed_addr constant [3 x i8] c"%g\00", align 1
+@.fmtString = private unnamed_addr constant [3 x i8] c"%s\00", align 1
+@.fmtPointer = private unnamed_addr constant [3 x i8] c"%p\00", align 1
+
+define i1 @isNullRef(i8* %x) alwaysinline
+{
+    %1 = icmp eq i8* %x, null
+    ret i1 %1
+}
+define i1 @_opRefEQ(i8* %x, i8* %y) alwaysinline
+{
+    %1 = icmp eq i8* %x, %y
+    ret i1 %1
+}
+define i1 @_opRefNE(i8* %x, i8* %y) alwaysinline
+{
+    %1 = icmp ne i8* %x, %y
+    ret i1 %1
+}
+
+
+define void @_Type_ctor(i8** %$this)
+{
+    store i8* null, i8** %$this
+    ret void
+}
+
+define void @_Type_copy_ctor(i8** %$this, i8* %other)
+{
+    store i8* %other, i8** %$this
+    ret void
+}
+
+define i8* @ptrAdd(i8* %p, i64 %n) alwaysinline
+{
+    %1 = getelementptr i8* %p, i64 %n
+    ret i8* %1
+}
+
+define i8* @ptrSub(i8* %p, i64 %n) alwaysinline
+{
+    %1 = sub i64 0, %n
+    %2 = getelementptr i8* %p, i64 %1
+    ret i8* %2
+}
+
+define i64 @ptrDiff(i8* %p1, i8* %p2) alwaysinline
+{
+    %1 = ptrtoint i8* %p1 to i64
+    %2 = ptrtoint i8* %p2 to i64
+    %3 = sub i64 %1, %2
+    ret i64 %3
+}
+
+define void @_spr_memcpy(i8* %dest, i8* %src, i64 %size) alwaysinline
+{
+    call void @llvm.memcpy.p0i8.p0i8.i64(i8* %dest, i8* %src, i64 %size, i32 1, i1 false)
+    ret void
+}
+
+define void @_spr_memmove(i8* %dest, i8* %src, i64 %size) alwaysinline
+{
+    call void @llvm.memmove.p0i8.p0i8.i64(i8* %dest, i8* %src, i64 %size, i32 1, i1 false)
+    ret void
+}
+
+define void @_spr_memset(i8* %dest, i8 %value, i64 %size) alwaysinline
+{
+    call void @llvm.memset.p0i8.i64(i8* %dest, i8 %value, i64 %size, i32 1, i1 false)
+    ret void
+}
+
+
+
+define void @flushOutput() alwaysinline
+{
+    call i32 @fflush(%struct._IO_FILE* null)
+    ret void
+}
+
+
+
+define void @writeByte(i8 %val) alwaysinline {
+    %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.fmtInt, i32 0, i32 0), i8 %val)
+    ret void
+}
+
+define void @writeShort(i16 %val) alwaysinline {
+    %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.fmtInt, i32 0, i32 0), i16 %val)
+    ret void
+}
+
+define void @writeInt(i32 %val) alwaysinline {
+    %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.fmtInt, i32 0, i32 0), i32 %val)
+    ret void
+}
+
+define void @writeUInt(i32 %val) alwaysinline {
+    %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.fmtUInt, i32 0, i32 0), i32 %val)
+    ret void
+}
+
+define void @writeLong(i64 %val) alwaysinline {
+    %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([5 x i8]* @.fmtLong, i32 0, i32 0), i64 %val)
+    ret void
+}
+
+define void @writeULong(i64 %val) alwaysinline {
+    %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([5 x i8]* @.fmtULong, i32 0, i32 0), i64 %val)
+    ret void
+}
+
+define void @writeDouble(double %val) alwaysinline {
+    %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.fmtDouble, i32 0, i32 0), double %val)
+    ret void
+}
+
+define void @writeChar(i8 %val) alwaysinline {
+    %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.fmtChar, i32 0, i32 0), i8 %val)
+    ret void
+}
+
+define void @writeStringImpl(i8* %val) alwaysinline {
+    %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.fmtString, i32 0, i32 0), i8* %val)
+    ret void
+}
+
+define void @writePointer(i8* %val) alwaysinline {
+    %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.fmtPointer, i32 0, i32 0), i8* %val)
+    ret void
+}
+
+
+define void @_Int_to_CString(i32 %val, i8* %buffer) alwaysinline
+{
+    call i32 (i8*, i8*, ...)* @sprintf(i8* %buffer, i8* getelementptr inbounds ([3 x i8]* @.fmtInt, i32 0, i32 0), i32 %val) nounwind
+    ret void
+}
+
+define void @_ULong_to_CString(i64 %val, i8* %buffer) alwaysinline
+{
+    call i32 (i8*, i8*, ...)* @sprintf(i8* %buffer, i8* getelementptr inbounds ([5 x i8]* @.fmtULong, i32 0, i32 0), i64 %val) nounwind
+    ret void
+}
+

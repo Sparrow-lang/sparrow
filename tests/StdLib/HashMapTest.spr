@@ -1,11 +1,9 @@
-package Test;
-
-import SL.Map;
-import SL.DefaultHashFunction;
-import SL.Ranges;
-import SL.Tuple;
-import SL.List;
-import SL.Algorithms;
+import std.map;
+import std.ranges;
+import std.tuple;
+import std.list;
+import std.vector;
+import std.algorithms;
 
 class IntWrapper
 {

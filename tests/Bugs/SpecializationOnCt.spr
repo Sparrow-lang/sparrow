@@ -1,6 +1,5 @@
-package Test;
 
-import SL.Algorithms;
+import std.algorithms;
 
 fun f(x: Int)
 {

@@ -1,0 +1,219 @@
+module std.sortedTable;
+
+import vector(Vector);
+import ranges(rangeSize);
+
+class SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: Type)
+{
+    using KeyType = keyType;
+    using ValueType = valueType;
+    using ValueToKeyType = valueToKeyType;
+    using LessType = lessType;
+    using CompareType = compareType;
+    using RangeType = Vector(valueType).RangeType;
+
+    fun ctor()
+    {
+        this.ctor(0, LessType(), CompareType());
+    }
+
+    fun ctor(n: SizeType, less: LessType, comp: CompareType)
+    {
+        table.ctor();
+        this.valToKey ctor valToKey;
+        this.less ctor less;
+        this.comp ctor comp;
+        if ( n > 0)
+            reserve(n);
+    }
+
+    fun ctor(range: AnyType, n: SizeType, less: LessType, comp: CompareType)
+    {
+        table.ctor();
+        if ( n > 0 )
+            table.reserve(n);
+        else
+            table.reserve(rangeSize(range));
+        this.valToKey ctor valToKey;
+        this.less ctor less;
+        this.comp ctor comp;
+
+        //table.assign(range);
+        //sort(table.all(), less);
+        for ( v = range )
+            insert(v);
+    }
+
+    fun ctor(other: @SortedTable)
+    {
+        table ctor other.table;
+        less ctor other.less;
+        comp ctor other.comp;
+    }
+
+    fun swap(other: @SortedTable)
+    {
+        table.swap(other.table);
+
+        var tmpv = valToKey;
+        valToKey = other.valToKey;
+        other.valToKey = tmpv;
+
+        var tmpl = less;
+        less = other.less;
+        other.less = tmpl;
+
+        var tmpc = comp;
+        comp = other.comp;
+        other.comp = tmpc;
+    }
+
+    fun lessFunction    = less;
+    fun comparator      = comp;
+
+    fun isEmpty         = table.isEmpty();
+    fun size            = table.size();
+    fun capacity        = table.capacity();
+
+    fun all             = table.all();
+
+    fun reserve(n: SizeType)    { table.reserve(n); }
+
+    fun insert(value: @ValueType): RangeType
+    {
+        var r = lowerBound(valToKey(value));
+        var idx = table.size() - r.size();
+        if ( r.isEmpty() || !comp(valToKey(value), valToKey(r.front())) )
+            table.insertBefore(value, r);
+        var res = table.all();
+        res.popFront(idx);
+        return res;
+    }
+
+    fun insert(range: Range)
+    {
+        table.reserve(table.size() + rangeSize(range));
+        for ( v = range )
+        {
+            var r = lowerBound(valToKey(v));
+            if ( r.isEmpty() || !comp(valToKey(v), valToKey(r.front())) )
+                table.insertBefore(v, r);
+        }
+    }
+
+    fun remove(key: @KeyType)
+    {
+        if ( isEmpty() )
+            return;
+
+        var r = find(key);
+        if ( !r.isEmpty() )
+        {
+            var idx = r.frontPtr().diff(table.all().frontPtr());
+            table.remove(idx);
+        }
+    }
+
+    fun remove(range: RangeType)
+    {
+        if ( !range.isEmpty() )
+            table.remove(range);
+    }
+
+    fun contains(key: @KeyType): Bool  = !find(key).isEmpty();
+    fun count(key: @KeyType): SizeType = ife(find(key).isEmpty(), 0, 1);
+
+    fun lowerBound(key: @KeyType): RangeType
+    {
+        var first: SizeType = 0;
+        var len = table.size();
+        while ( len > 0 )
+        {
+            var l2 = len / 2;
+            var el: @ValueType = table(first + l2);
+            if ( less(valToKey(el), key) )
+            {
+                first += l2+1;
+                len -= l2+1;
+            }
+            else
+                len = l2;
+        }
+        var r = table.all();
+        r.popFront(first);
+        return r;
+    }
+
+    fun upperBound(key: @KeyType): RangeType
+    {
+        var first: SizeType = 0;
+        var len = table.size();
+        while ( len > 0 )
+        {
+            var l2 = len / 2;
+            var el: @ValueType = table(first + l2);
+            if ( less(key, valToKey(el)) )
+                len = l2;
+            else
+            {
+                first += l2+1;
+                len -= l2+1;
+            }
+        }
+        var r = table.all();
+        r.popFront(first);
+        return r;
+    }
+
+    fun equalRange(key: @KeyType): RangeType
+    {
+        var r = find(key);
+        if ( !r.isEmpty() )
+            return RangeType(r.frontPtr(), r.frontPtr().advance(1));
+        else
+            return RangeType();
+    }
+
+    fun find(key: @KeyType): RangeType
+    {
+        var r = lowerBound(key);
+        if ( !r.isEmpty() && comp(key, valToKey(r.front())) )
+            return r;
+        else
+            return RangeType();
+    }
+
+    fun clear()
+    {
+        table.clear();
+    }
+
+    fun =(other: @SortedTable): @SortedTable
+    {
+        table = other.table;
+        valToKey = other.valToKey;
+        comp = other.comp;
+        less = other.less;
+        valToKey = other.valToKey;
+
+        return this;
+    }
+
+    fun ==(other: @SortedTable): Bool
+    {
+        return valToKey == other.valToKey && less == other.less && comp == other.comp && table == other.table;
+    }
+
+    fun !=(other: @SortedTable): Bool = !(this == other);
+
+    private var table: Vector(ValueType);
+    private var valToKey: ValueToKeyType;
+    private var less: LessType;
+    private var comp: CompareType;
+}
+
+class[rtct] Less(type: Type) if isValid(#$type < #$type)
+{
+    fun ()(l, r: @type) = l < r;
+}
+

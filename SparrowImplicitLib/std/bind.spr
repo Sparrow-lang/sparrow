@@ -1,0 +1,123 @@
+module std.bind;
+
+fun mkBindAll(ftor, a1: @AnyType)
+    = BindAll(-@typeOf(ftor), -@typeOf(a1))(ftor, a1)
+    if isValid(ftor(a1));
+fun mkBindAll(ftor, a1, a2: @AnyType)
+    = BindAll(-@typeOf(ftor), -@typeOf(a1), -@typeOf(a2))(ftor, a1, a2)
+    if isValid(ftor(a1, a2));
+fun mkBindAll(ftor, a1, a2, a3: @AnyType)
+    = BindAll(-@typeOf(ftor), -@typeOf(a1), -@typeOf(a2), -@typeOf(a3))(ftor, a1, a2, a3)
+    if isValid(ftor(a1, a2, a3));
+fun mkBindAll(ftor, a1, a2, a3, a4: @AnyType)
+    = BindAll(-@typeOf(ftor), -@typeOf(a1), -@typeOf(a2), -@typeOf(a3), -@typeOf(a4))(ftor, a1, a2, a3, a4)
+    if isValid(ftor(a1, a2, a3, a4));
+fun mkBindAll(ftor, a1, a2, a3, a4, a5: @AnyType)
+    = BindAll(-@typeOf(ftor), -@typeOf(a1), -@typeOf(a2), -@typeOf(a3), -@typeOf(a4), -@typeOf(a5))(ftor, a1, a2, a3, a4, a5)
+    if isValid(ftor(a1, a2, a3, a4, a5));
+
+class BindAll(ftorType, T1: Type)
+{
+    using arity = 0;
+    fun ctor(ftor: ftorType, a1: @T1)
+    {
+        this.ftor ctor ftor;
+        this.a1 ctor a1;
+    }
+
+    fun () = ftor(a1);
+
+    fun >>(os: @OutStream) { os << "BindAll(" << a1 << ")"; }
+
+    var ftor: ftorType;
+    var a1: T1;
+}
+
+class BindAll(ftorType, T1, T2: Type)
+{
+    using arity = 0;
+    fun ctor(ftor: ftorType, a1: @T1, a2: @T2)
+    {
+        this.ftor ctor ftor;
+        this.a1 ctor a1;
+        this.a2 ctor a2;
+    }
+
+    fun () = ftor(a1, a2);
+
+    fun >>(os: @OutStream) { os << "BindAll(" << a1 << ", " << a2 << ")"; }
+
+    var ftor: ftorType;
+    var a1: T1;
+    var a2: T2;
+}
+
+class BindAll(ftorType, T1, T2, T3: Type)
+{
+    using arity = 0;
+    fun ctor(ftor: ftorType, a1: @T1, a2: @T2, a3: @T3)
+    {
+        this.ftor ctor ftor;
+        this.a1 ctor a1;
+        this.a2 ctor a2;
+        this.a3 ctor a3;
+    }
+
+    fun () = ftor(a1, a2, a3);
+
+    fun >>(os: @OutStream) { os << "BindAll(" << a1 << ", " << a2 << ", " << a3 << ")"; }
+
+    var ftor: ftorType;
+    var a1: T1;
+    var a2: T2;
+    var a3: T3;
+}
+
+class BindAll(ftorType, T1, T2, T3, T4: Type)
+{
+    using arity = 0;
+    fun ctor(ftor: ftorType, a1: @T1, a2: @T2, a3: @T3, a4: @T4)
+    {
+        this.ftor ctor ftor;
+        this.a1 ctor a1;
+        this.a2 ctor a2;
+        this.a3 ctor a3;
+        this.a4 ctor a4;
+    }
+
+    fun () = ftor(a1, a2, a3, a4);
+
+    fun >>(os: @OutStream) { os << "BindAll(" << a1 << ", " << a2 << ", " << a3 << ", " << a4 << ")"; }
+
+    var ftor: ftorType;
+    var a1: T1;
+    var a2: T2;
+    var a3: T3;
+    var a4: T4;
+}
+
+class BindAll(ftorType, T1, T2, T3, T4, T5: Type)
+{
+    using arity = 0;
+    fun ctor(ftor: ftorType, a1: @T1, a2: @T2, a3: @T3, a4: @T4, a5: @T5)
+    {
+        this.ftor ctor ftor;
+        this.a1 ctor a1;
+        this.a2 ctor a2;
+        this.a3 ctor a3;
+        this.a4 ctor a4;
+        this.a5 ctor a5;
+    }
+
+    fun () = ftor(a1, a2, a3, a4, a5);
+
+    fun >>(os: @OutStream) { os << "BindAll(" << a1 << ", " << a2 << ", " << a3 << ", " << a4 << ", " << a5 << ")"; }
+
+    var ftor: ftorType;
+    var a1: T1;
+    var a2: T2;
+    var a3: T3;
+    var a4: T4;
+    var a5: T5;
+}
+

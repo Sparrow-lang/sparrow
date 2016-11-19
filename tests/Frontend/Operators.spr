@@ -1,4 +1,3 @@
-package Test;
 
 fun pow(x,y: Double) = 1;
 fun **(x,y: Double) = 2;

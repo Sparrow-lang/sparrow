@@ -1,9 +1,5 @@
 //!!
-package Test;
-
-import Logic.PrologFrontend;
-
-using Logic.*;
+import logic.prologFrontend;
 
 fun fib(p_1: @LInt, p_2: @LInt): Predicate
 {

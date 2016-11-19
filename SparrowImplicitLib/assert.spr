@@ -1,0 +1,61 @@
+import os = os;
+public import meta.astNodes(AstNode, SprFrontend, Feather, astEval);
+
+//using debugMode = true;
+
+
+if[ct] ( isValidAndTrue(debugMode) )
+fun[rtct, macro] assert(cond: AstNode): AstNode
+{
+    using SprFrontend.*;
+    using Feather.*;
+
+    var loc = cond.location();
+    var filename = loc.sourceCode.filename();
+    var lineNum = loc.startLineNo;
+    var args = mkNodeList(loc);
+    addToNodeList(args, mkStringLiteral(loc, loc.getCorrespondingCode()));
+    addToNodeList(args, mkStringLiteral(loc, filename));
+    addToNodeList(args, mkIntLiteral(loc, lineNum));
+    var failureCall = mkFunApplication(loc, mkIdentifier(loc, "assertionFailure"), args);
+    return mkIf(loc, mkPrefixOp(loc, "!", mkParenthesisExp(loc, cond)), failureCall, AstNode());
+}
+else
+fun[rtct, macro] assert(cond: AstNode): AstNode
+{
+    return Feather.mkNop(cond.location());
+}
+
+if[ct] ( isValidAndTrue(debugMode) )
+fun[rtct, macro] verify(cond: AstNode): AstNode
+{
+    using SprFrontend.*;
+    using Feather.*;
+
+    var loc = cond.location();
+    var filename = loc.sourceCode.filename();
+    var lineNum = loc.startLineNo;
+    var args = mkNodeList(loc);
+    addToNodeList(args, mkStringLiteral(loc, loc.getCorrespondingCode()));
+    addToNodeList(args, mkStringLiteral(loc, filename));
+    addToNodeList(args, mkIntLiteral(loc, lineNum));
+    var failureCall = mkFunApplication(loc, mkIdentifier(loc, "assertionFailure"), args);
+    return mkIf(loc, mkPrefixOp(loc, "!", mkParenthesisExp(loc, cond)), failureCall, AstNode());
+}
+else
+fun[rtct, macro] verify(cond: AstNode): AstNode
+{
+    return cond;
+}
+
+fun[rtct] assertionFailure(message: StringRef, filename: StringRef, lineNum: UInt)
+{
+    cout << "Assertion failure: " << message << endl;
+    if ( !filename.isEmpty() )
+    {
+        cout << "at " << filename << " line " << lineNum;
+    }
+    cout << flush << endl;
+    os.exit(-1);
+}
+

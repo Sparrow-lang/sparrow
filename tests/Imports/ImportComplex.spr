@@ -1,6 +1,4 @@
 //!! -t "../Basic/SparrowImplicitLib.spr"
-package Test;
-
 import HeaderA;
 import HeaderB;
 import HeaderC;
@@ -8,9 +6,17 @@ import HeaderD;
 
 fun[native("test")] test(n: Int)
 {
+    writeLn(a);
+    writeLn(b);
+    writeLn(c);
+    writeLn(d);
     writeLn("Ok");
 }
 
 /*<<<Running
+1
+2
+3
+4
 Ok
 >>>*/

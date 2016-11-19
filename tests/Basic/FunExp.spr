@@ -1,9 +1,8 @@
 //!! -t "SparrowImplicitLib.spr"
-package Test;
 
 concept AnyType(x); // Always true
 
-fun add(x,y: Int) = x+y;
+fun myadd(x,y: Int) = x+y;
 fun next(x: AnyType) = x+1;
 
 fun one: Int { return 1; }
@@ -28,7 +27,7 @@ class Test1
 
 fun[native("test")] test(n: Int)
 {
-    writeLn(add(1,2));
+    writeLn(myadd(1,2));
     writeLn(next(5));
     writeLn(one());
     writeLn(two());

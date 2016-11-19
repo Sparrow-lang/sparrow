@@ -1,4 +1,3 @@
-//package Test;
 
 fun[ct, native("$injectBackendCodeRt")] injectBackendCodeRt(code: StringRef);
 fun[ct, native("$injectBackendCodeCt")] injectBackendCodeCt(code: StringRef);

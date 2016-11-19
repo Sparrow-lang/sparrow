@@ -1,0 +1,21 @@
+module par.tasksImpl.taskType;
+
+public import taskPrefix(TaskPrefix);
+
+//! A concept describing a task that can be spawned
+//!
+//! A task must have two things:
+//!     - an 'execute' method (that returns nothing)
+//!     - a way of obtaining the task prefix from it
+//!         - either as an 'prefix' method
+//!         - or as a 'prefix' field <-- this is the easiest
+concept TaskType(x)
+    if isValid(x execute)
+    && ( isValidAndTrue(typeOf(x prefix) == @TaskPrefix)
+        || isValidAndTrue(typeOf(x.prefix) == TaskPrefix) )
+    ;
+
+fun getPrefix(t: @TaskType): @TaskPrefix = t prefix if isValid(t prefix);
+fun getPrefix(t: @TaskType): @TaskPrefix = t.prefix if isValid(t.prefix) && !isValid(t prefix);
+
+

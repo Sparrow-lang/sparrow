@@ -1,0 +1,38 @@
+public import meta.astNodes(AstNode, Feather, SprFrontend, astEval);
+
+fun[ct, macro] setOperPrecedence(oper, value: AstNode): AstNode
+{
+    using SprFrontend.*;
+
+    var loc = oper.location();
+    var loc2 = value.location();
+    var operName = astEval(oper);
+    var precValue: Int = astEval(value);
+
+    return mkSprUsing(loc, "oper_precedence_" + operName, mkIntLiteral(loc2, precValue));
+}
+
+fun[ct, macro] getOperPrecedence(oper: AstNode): AstNode
+{
+    using Feather.*;
+    using SprFrontend.*;
+
+    var loc = oper.location();
+    var operName = astEval(oper);
+    var args = mkNodeList(loc);
+    addToNodeList(args, mkIdentifier(loc, "oper_precedence_" + operName));
+    addToNodeList(args, mkIdentifier(loc, "oper_precedence_default"));
+    return mkFunApplication(loc, mkIdentifier(loc, "valueIfValid"), args);
+}
+
+
+fun[ct, macro] setOperRightAssociativity(oper: AstNode): AstNode
+{
+    using SprFrontend.*;
+
+    var loc = oper.location();
+    var operName = astEval(oper);
+
+    return mkSprUsing(loc, "oper_assoc_" + operName, mkIntLiteral(loc, -1));
+}
+

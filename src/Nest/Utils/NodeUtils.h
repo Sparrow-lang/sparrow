@@ -14,6 +14,9 @@ extern "C" {
 /// Returns a string description out of the given node
 const char* Nest_toString(const Node* node);
 
+/// Returns a more detailed string description out of the given node
+const char* Nest_toStringEx(const Node* node);
+
 /// Getter for the name of the node kind for the given node
 const char* Nest_nodeKindName(const Node* node);
 

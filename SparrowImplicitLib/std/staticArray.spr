@@ -1,0 +1,223 @@
+module std.staticArray;
+
+import contiguousMemoryRange(ContiguousMemoryRange);
+import rawPtr(RawPtr);
+import ranges;
+
+class[rtct] StaticArray(valueType: Type, arraySize: SizeType)
+{
+    using ValueType = valueType;
+    using RangeType = ContiguousMemoryRange(valueType);
+
+    fun ctor()
+    {
+        for ( v: @ValueType = all() )
+            v.ctor();
+    }
+
+    fun ctor(other: @StaticArray)
+    {
+        for ( i = 0..arrSize )
+            at(i).ctor(other.at(i));
+    }
+
+    fun ctor(value: @ValueType)
+    {
+        for ( v: @ValueType = all() )
+            v.ctor(value);
+    }
+
+    fun ctor(range: Range)
+    {
+        for ( v: @ValueType = all() )
+        {
+            if ( !range.isEmpty() )
+            {
+                v.ctor(range.front());
+                range.popFront();
+            }
+            else
+                v.ctor();
+        }
+    }
+    if[ct] ( arraySize == 2 )
+    fun ctor(v0,v1: @ValueType)
+    {
+        at(0) ctor v0;
+        at(1) ctor v1;
+    }
+    if[ct] ( arraySize == 3 )
+    fun ctor(v0,v1,v2: @ValueType)
+    {
+        at(0) ctor v0;
+        at(1) ctor v1;
+        at(2) ctor v2;
+    }
+    if[ct] ( arraySize == 4 )
+    fun ctor(v0,v1,v2,v3: @ValueType)
+    {
+        at(0) ctor v0;
+        at(1) ctor v1;
+        at(2) ctor v2;
+        at(3) ctor v3;
+    }
+    if[ct] ( arraySize == 5 )
+    fun ctor(v0,v1,v2,v3,v4: @ValueType)
+    {
+        at(0) ctor v0;
+        at(1) ctor v1;
+        at(2) ctor v2;
+        at(3) ctor v3;
+        at(4) ctor v4;
+    }
+    if[ct] ( arraySize == 6 )
+    fun ctor(v0,v1,v2,v3,v4,v5: @ValueType)
+    {
+        at(0) ctor v0;
+        at(1) ctor v1;
+        at(2) ctor v2;
+        at(3) ctor v3;
+        at(4) ctor v4;
+        at(5) ctor v5;
+    }
+    if[ct] ( arraySize == 7 )
+    fun ctor(v0,v1,v2,v3,v4,v5,v6: @ValueType)
+    {
+        at(0) ctor v0;
+        at(1) ctor v1;
+        at(2) ctor v2;
+        at(3) ctor v3;
+        at(4) ctor v4;
+        at(5) ctor v5;
+        at(6) ctor v6;
+    }
+    if[ct] ( arraySize == 8 )
+    fun ctor(v0,v1,v2,v3,v4,v5,v6,v7: @ValueType)
+    {
+        at(0) ctor v0;
+        at(1) ctor v1;
+        at(2) ctor v2;
+        at(3) ctor v3;
+        at(4) ctor v4;
+        at(5) ctor v5;
+        at(6) ctor v6;
+        at(7) ctor v7;
+    }
+    if[ct] ( arraySize == 9 )
+    fun ctor(v0,v1,v2,v3,v4,v5,v6,v7,v8: @ValueType)
+    {
+        at(0) ctor v0;
+        at(1) ctor v1;
+        at(2) ctor v2;
+        at(3) ctor v3;
+        at(4) ctor v4;
+        at(5) ctor v5;
+        at(6) ctor v6;
+        at(7) ctor v7;
+        at(8) ctor v8;
+    }
+    if[ct] ( arraySize == 10 )
+    fun ctor(v0,v1,v2,v3,v4,v5,v6,v7,v8,v9: @ValueType)
+    {
+        at(0) ctor v0;
+        at(1) ctor v1;
+        at(2) ctor v2;
+        at(3) ctor v3;
+        at(4) ctor v4;
+        at(5) ctor v5;
+        at(6) ctor v6;
+        at(7) ctor v7;
+        at(8) ctor v8;
+        at(9) ctor v9;
+    }
+
+    fun dtor
+    {
+        for ( v: @ValueType = all() )
+            v.dtor();
+    }
+
+    fun size(): SizeType
+    {
+        return arrSize;
+    }
+
+    fun isEmpty(): Bool
+    {
+        return arrSize == 0;
+    }
+
+    fun assign(range: RangeType)
+    {
+        for ( v: @ValueType = all() )
+        {
+            if ( !range.isEmpty() )
+            {
+                v = range.front();
+                range.popFront();
+            }
+            else
+                return;
+        }
+    }
+
+    fun swap(other: @StaticArray)
+    {
+        for ( i = 0..arrSize )
+        {
+            var tmp = this(i);
+            this(i) = other(i);
+            other(i) = tmp;
+        }
+    }
+
+    fun at(index: SizeType): @ValueType = asPtr().advance(DiffType(index)).value();
+    fun ()(index: SizeType): @ValueType = asPtr().advance(DiffType(index)).value();
+
+    fun all = RangeType(asPtr(), asPtr().advance(DiffType(arrSize)));
+
+    fun subrange(index: SizeType, num: SizeType)
+        = RangeType(asPtr().advance(DiffType(index)), asPtr().advance(DiffType(index + num)));
+
+    fun =(other: @StaticArray): @StaticArray
+    {
+        for ( i = 0..arrSize )
+            this(i) = other(i);
+        return this;
+    }
+
+    fun ==(other: @StaticArray): Bool
+    {
+        for ( i = 0..arrSize )
+            if ( this(i) != other(i) )
+                return false;
+        return true;
+    }
+
+    private fun asPtr = RawPtr(ValueType).fromBytePtr(buf);
+
+    private var buf: static_buffer(arrSize * sizeOf(ValueType));
+
+    private var[static, ct] arrSize = arraySize;
+}
+
+fun mkValues(v0,v1: AnyType) = StaticArray(typeOf(v0), 2)(v0,v1);
+fun mkValues(v0,v1,v2: AnyType) = StaticArray(typeOf(v0), 3)(v0,v1,v2);
+fun mkValues(v0,v1,v2,v3: AnyType) = StaticArray(typeOf(v0), 4)(v0,v1,v2,v3);
+fun mkValues(v0,v1,v2,v3,v4: AnyType) = StaticArray(typeOf(v0), 5)(v0,v1,v2,v3,v4);
+fun mkValues(v0,v1,v2,v3,v4,v5: AnyType) = StaticArray(typeOf(v0), 6)(v0,v1,v2,v3,v4,v5);
+fun mkValues(v0,v1,v2,v3,v4,v5,v6: AnyType) = StaticArray(typeOf(v0), 7)(v0,v1,v2,v3,v4,v5,v6);
+fun mkValues(v0,v1,v2,v3,v4,v5,v6,v7: AnyType) = StaticArray(typeOf(v0), 8)(v0,v1,v2,v3,v4,v5,v6,v7);
+fun mkValues(v0,v1,v2,v3,v4,v5,v6,v7,v8: AnyType) = StaticArray(typeOf(v0), 9)(v0,v1,v2,v3,v4,v5,v6,v7,v8);
+fun mkValues(v0,v1,v2,v3,v4,v5,v6,v7,v8,v9: AnyType) = StaticArray(typeOf(v0), 10)(v0,v1,v2,v3,v4,v5,v6,v7,v8,v9);
+
+
+fun[ctGeneric] StaticArray2d(baseType: Type, d1, d2: SizeType ct)
+    = StaticArray(StaticArray(baseType, d2), d1);
+
+fun[ctGeneric] StaticArray3d(baseType: Type, d1, d2, d3: SizeType ct)
+    = StaticArray(StaticArray(StaticArray(baseType, d3), d2), d1);
+
+fun[ctGeneric] StaticArray4d(baseType: Type, d1, d2, d3, d4: SizeType ct)
+    = StaticArray(StaticArray(StaticArray(StaticArray(baseType, d4), d3), d2), d1);
+

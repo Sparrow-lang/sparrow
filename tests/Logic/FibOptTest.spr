@@ -1,9 +1,6 @@
 //!!
-package Test;
+import logic.prologFrontend;
 
-import Logic.PrologFrontend;
-
-using Logic.*;
 
 fun fib_native(p_1: Int, p_2: @Int): Bool
 {

@@ -1,0 +1,63 @@
+module meta.diagnostic;
+
+import meta.location;
+import std.vector;
+import std.string;
+
+using diagInternal = 0;
+using diagError = 1;
+using diagWarning = 2;
+using diagInfo = 3;
+
+class[ct] Diagnostic
+{
+    var message: StringRef;
+    var location: Location;
+    var type: Int;
+
+    fun ctor
+    {
+        this.ctor("", Location(), 1);
+    }
+
+    fun ctor(message: StringRef, location: Location, type: Int)
+    {
+        this.message ctor message;
+        this.location ctor location;
+        this.type ctor type;
+    }
+}
+
+fun[ct] report(diags: Vector(Diagnostic))
+{
+    var withErrors = false;
+    for ( d: @Diagnostic = diags.all() )
+    {
+        Impl.report(d.type, d.message, d.location);
+        withErrors = withErrors || d.type == diagInternal || d.type == diagError;
+    }
+    if ( withErrors )
+        Impl.raise();
+}
+fun[ct] report(diag: Diagnostic)
+{
+    Impl.report(diag.type, diag.message, diag.location);
+    if ( diag.type == diagInternal || diag.type == diagError )
+        Impl.raise();
+}
+fun[ct] report(msg: StringRef)
+{
+    Impl.report(diagError, msg, null);
+    Impl.raise();
+}
+fun[ct] report(msg: StringRef, loc: Location)
+{
+    Impl.report(diagError, msg, loc);
+    Impl.raise();
+}
+
+package Impl
+{
+    fun[ct, native("$meta.report")] report(type: Int, message: StringRef, location: @Location);
+    fun[ct, native("$meta.raise")] raise();
+}

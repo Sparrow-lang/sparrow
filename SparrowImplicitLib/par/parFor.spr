@@ -1,0 +1,122 @@
+module par.parFor;
+
+import config;
+import tasks = par.tasks;
+import std.ranges, std.tuple, std.newDelete;
+import bitOper;
+
+concept Partitioner(x)
+    if isValid(x.RangeType)
+    && isValid(x.partStart())
+    && isValid(x.partition(valueOfType(x.RangeType), 0))
+    ;
+
+fun parFor(r: Range, f: AnyType) if isValid(f(r.front()))
+    { parFor(r, f, DefaultPartitioner(typeOf(r))()); }
+
+fun parFor(r: Range, f: AnyType, part: @Partitioner)
+    if isValid(f(r.front()))
+{
+    // Tell the partitioner that we are starting work
+    part partStart;
+
+    // Create a root task and wait until it's executed
+    var range: part.RangeType = r;
+    tasks.spawnRootAndWait(Impl.ParForTask(range, f, part, 0));
+}
+
+class DefaultPartitioner(rangeType: Type) {
+    using RangeType = BoundedRange(rangeType);
+
+    private var maxDepth: Int;
+
+    fun partStart {
+        var p: Int = getAvailableCoresNum;
+        var depth = 1;
+        while ( 2 !<<! depth < p )
+            ++depth;
+
+        maxDepth = 1 + depth;
+    }
+
+    fun partition(r: Range, depth: Int) : RangeType * RangeType
+    {
+        var splitIdx = 0;
+        var sz: Int = r rangeSize;
+        if ( depth <= maxDepth ) {
+            splitIdx = (sz+1) / 2;  // split in half
+        }
+        var r1 = RangeType(r, 0, splitIdx);
+        var r2 = RangeType(r, splitIdx, sz-splitIdx);
+
+        return r1 ~ r2;
+    }
+}
+
+class BoundedRange(baseRangeType: Type) {
+    private var baseRange: baseRangeType;
+    private var count: SizeType;
+
+    using RetType = baseRangeType.RetType;
+
+    fun ctor(r: @baseRangeType) {
+        baseRange ctor r;
+        count = (baseRange rangeSize);
+    }
+
+    fun ctor(r: @BoundedRange, nSkip, nTake: SizeType) {
+        baseRange ctor r.baseRange;
+        baseRange advance nSkip;
+        count ctor nTake;
+    }
+
+    fun isEmpty                     = count == 0 || baseRange.isEmpty();
+    fun front: RetType              = baseRange.front();
+    fun popFront                    { baseRange.popFront(); --count; }
+}
+
+package Impl {
+    class ParForTask(rangeType, funcType, partType: Type) {
+        var prefix: tasks.TaskPrefix;
+        var range: rangeType;
+        var func: funcType;
+        var part: @partType;
+        var depth: Int;
+
+        using RangeType = rangeType;
+
+        fun ctor(r: rangeType, f: funcType, part: @partType, depth: Int) {
+            this.range ctor r;
+            this.func ctor f;
+            this.part := part;
+            this.depth ctor depth;
+        }
+
+        fun execute {
+            // Check if we need to split the range
+            var split = part.partition(range, depth);
+
+            // Do we have a split?
+            var splitValid = !(split._1 isEmpty) && !(split._2 isEmpty);
+
+            if ( splitValid ) {
+                // Create two new tasks for the splits
+                var cont: @tasks.EmptyTask = new(tasks.EmptyTask);
+                tasks.setContinuation(this, cont);
+                var t1: @ParForTask = allocParForTask(split._1, func, part, depth+1);
+                var t2: @ParForTask = allocParForTask(split._2, func, part, depth+1);
+                tasks.spawn(cont, t1, t2);
+            } else {
+                // No more splitting; execute the function serially
+                for ( val: rangeType.RetType = range ) {
+                    func(val);
+                }
+            }
+        }
+    }
+
+    fun ParForTask(r: Range, f: AnyType, part: @Partitioner, depth: Int)
+        = ParForTask(typeOf(r), typeOf(f), -@typeOf(part))(r, f, part, depth);
+    fun allocParForTask(r: Range, f: AnyType, part: @Partitioner, depth: Int)
+        = new(ParForTask(typeOf(r), typeOf(f), -@typeOf(part)), r, f, part, depth);
+}

@@ -1,13 +1,11 @@
 //!! --dump-ct-assembly
-package Test;
 
-import Meta.Diagnostic;
-import Meta.ASTNodes;
-import SL.Ranges;
+import meta.diagnostic;
+import meta.astNodes;
+import std.ranges;
 
-using Meta.*;
-using Meta.Feather.*;
-using Meta.SprFrontend.*;
+using Feather.*;
+using SprFrontend.*;
 
 fun[ct] mkNodeVector(p1: AstNode): Vector(AstNode)
 {
@@ -38,7 +36,7 @@ var[ct] nullNode: AstNode;
 
 fun[ct] addFactorialFun(context: CompilationContext, funName: StringRef): Bool
 {
-    var loc = Meta.Location(Meta.SourceCode.current(), 39, 39, 1, 79);
+    var loc = Location(SourceCode.current(), 39, 39, 1, 79);
 
     var factParams = mkNodeList(loc, true);
     addToNodeList(factParams, mkSprParameter(loc, "n", mkIdentifier(loc, "Int"), nullNode));
@@ -50,7 +48,7 @@ fun[ct] addFactorialFun(context: CompilationContext, funName: StringRef): Bool
     var recCall = mkFunApplication(loc, mkIdentifier(loc, funName), recFunArgs);
     var ifElse = mkReturnStmt(loc, mkInfixOp(loc, "*", mkIdentifier(loc, "n"), recCall));
     var bodyVec = mkNodeVector(mkIf(loc, ifCond, ifThen, ifElse));
-    var body = mkLocalSpace(loc, bodyVec.begin.value(), bodyVec.end.value());
+    var body = mkLocalSpace(loc, bodyVec(0), bodyVec(bodyVec.size));
     var factFun = mkSprFunction(loc, funName, factParams, factReturnType, body, nullNode);
     factFun.setContext(context);
     factFun.semanticCheck();
@@ -59,7 +57,7 @@ fun[ct] addFactorialFun(context: CompilationContext, funName: StringRef): Bool
 
 fun[ct] addFactorialFun2(context: CompilationContext, funName: StringRef): Bool
 {
-    var loc = Meta.Location(Meta.SourceCode.current(), 39, 39, 1, 79);
+    var loc = Location(SourceCode.current(), 39, 39, 1, 79);
 
     var factParams = mkNodeList(loc, true);
     addToNodeList(factParams, mkSprParameter(loc, "n", mkIdentifier(loc, "Int"), nullNode));

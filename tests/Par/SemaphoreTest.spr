@@ -1,49 +1,49 @@
 //! ! --dump-assembly
-import Par.Thread;
-import Par.Atomic;
-import Par.Semaphore;
-import Test;
+import par.thread;
+import par.atomic;
+import par.semaphore;
+import test;
 
-using Par.*;
-using Test.*;
+using par.*;
+using test.*;
 
 var numResources: Int;
 var numUsers: Int Atomic = 0;
 var numExecutions: Int Atomic = 0;
 
-fun doJob(sem: @Par.Semaphore, waitTime: Int) {
+fun doJob(sem: @par.Semaphore, waitTime: Int) {
     sem acquire;
     ++numUsers;
     //cout << (numUsers load) << ' ';
-    Test.assertLe(numUsers load, numResources, "numUsers should be less or equal to the number of resources");
+    test.assertLe(numUsers load, numResources, "numUsers should be less or equal to the number of resources");
     ++numExecutions;
-    Par.sleep(waitTime);
+    par.sleep(waitTime);
     --numUsers;
     sem release;
 }
 
 class[initCtor] Worker {
-    private var sem: @Par.Semaphore;
+    private var sem: @par.Semaphore;
     private var amountOfWork: Int;
 
     fun ()() {
         for ( i = 0..amountOfWork ) {
             doJob(sem, i % 5 + 1);
         }
-        Test.assertGe(numExecutions load, amountOfWork, "all our job should be executed");
+        test.assertGe(numExecutions load, amountOfWork, "all our job should be executed");
     }
 }
 
 class WorkManager {
-    private var sem: @Par.Semaphore;
+    private var sem: @par.Semaphore;
     private var amountOfWork, numWorkers: Int;
-    private var threads: (Par.Thread Ptr) Vector;
+    private var threads: (par.Thread Ptr) Vector;
 
-    fun ctor(sem: @Par.Semaphore, amountOfWork, numWorkers: Int) {
+    fun ctor(sem: @par.Semaphore, amountOfWork, numWorkers: Int) {
         this.amountOfWork ctor amountOfWork;
         this.numWorkers ctor numWorkers;
         for ( i=0..numWorkers ) {
-            var p: Par.Thread Ptr = new(Par.Thread, Worker(sem, amountOfWork));
+            var p: par.Thread Ptr = new(par.Thread, Worker(sem, amountOfWork));
             threads.pushBack(p);
         }
     }
@@ -53,7 +53,7 @@ class WorkManager {
             t.get join;
             t.release;
         }
-        Test.assertEq(numExecutions load, amountOfWork*numWorkers, "numExecutions should be equal to the total amount of work");
+        test.assertEq(numExecutions load, amountOfWork*numWorkers, "numExecutions should be equal to the total amount of work");
     }
 }
 
@@ -66,7 +66,7 @@ fun sprMain
     var numWorkers = programArgs(3) asInt;
 
     // Initialize the semaphore
-    var sem: Par.Semaphore = numResources;
+    var sem: par.Semaphore = numResources;
 
     // Do the work
     var work = WorkManager(sem, amountOfWork, numWorkers);

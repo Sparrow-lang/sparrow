@@ -1,8 +1,7 @@
 //!!
-package Test;
 
-//import Meta.Diagnostic;
-import Meta.ASTNodes;
+//import meta.diagnostic;
+import meta.astNodes;
 
 fun sprMain
 {

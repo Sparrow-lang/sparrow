@@ -1,8 +1,8 @@
 //!! -O2
 
-import SL.Ranges;
-import SL.StaticArray;
-import Math;
+import std.ranges;
+import std.staticArray;
+import math = math;
 
 // TODO: Move this to Math
 using PI = 3.141592653589793;
@@ -15,7 +15,7 @@ class Vec
 
     fun ctor(x, y, z: Double) { this.x = x; this.y = y; this.z = z; }
 
-    fun len: Double = Math.sqrt(this*this);
+    fun len: Double = math.sqrt(this*this);
 
     fun + (other: Vec) = Vec(x+other.x, y+other.y, z+other.z);
     fun - (other: Vec) = Vec(x-other.x, y-other.y, z-other.z);
@@ -48,7 +48,7 @@ class NBodySystem
         for ( i = 0..numBodies )
         {
             e += 0.5 * bodies(i).mass * bodies(i).speedSq;
-            
+
             for ( j = (i+1)..numBodies )
             {
                 var distance = (bodies(i).p - bodies(j).p) len;

@@ -53,30 +53,37 @@ namespace
     /// Returns an empty list if the declaration is not callable
     void getCallables(NodeRange decls, EvalMode evalMode, Callables& res)
     {
-        for ( Node* decl : decls ) {
-            if ( !Nest_computeType(decl) )
-                continue;
+        NodeArray declsEx = expandDecls(decls, nullptr);
 
-            decl = resultingDecl(decl);
+        for ( Node* decl: declsEx ) {
+            Node* node = decl;
 
-            // Is this a normal function call?
-            if ( decl && decl->nodeKind == nkFeatherDeclFunction )
-                res.push_back(new FunctionCallable(decl));
+            // If we have a resolved decl, get the callable for it
+            if ( node ) {
+                if ( !Nest_computeType(node) )
+                    continue;
 
-            // Is this a generic?
-            else if ( isGeneric(decl) )
-                res.push_back(new GenericCallable(decl));
+                Node* decl = resultingDecl(node);
 
-            // Is this a concept?
-            else if ( decl->nodeKind == nkSparrowDeclSprConcept )
-                res.push_back(new ConceptCallable(decl));
+                // Is this a normal function call?
+                if ( decl && decl->nodeKind == nkFeatherDeclFunction )
+                    res.push_back(new FunctionCallable(decl));
 
-            // Is this a temporary object creation?
-            else {
-                Node* cls = decl && decl->nodeKind == nkFeatherDeclClass ? decl : nullptr;
-                if ( cls ) {
-                    auto r1 = ClassCtorCallable::getCtorCallables(cls, evalMode);
-                    res.insert(res.end(), r1.begin(), r1.end());
+                // Is this a generic?
+                else if ( isGeneric(decl) )
+                    res.push_back(new GenericCallable(decl));
+
+                // Is this a concept?
+                else if ( decl->nodeKind == nkSparrowDeclSprConcept )
+                    res.push_back(new ConceptCallable(decl));
+
+                // Is this a temporary object creation?
+                else {
+                    Node* cls = decl && decl->nodeKind == nkFeatherDeclClass ? decl : nullptr;
+                    if ( cls ) {
+                        auto r1 = ClassCtorCallable::getCtorCallables(cls, evalMode);
+                        res.insert(res.end(), r1.begin(), r1.end());
+                    }
                 }
             }
         }
@@ -349,9 +356,9 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
 
     if ( isMacro )
     {
-        // Wrap the function call in a Meta.astEval(...) call
-        Node* funName = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("Meta")), fromCStr("astEval"));
-        res = mkFunApplication(loc, funName, fromIniList({res}));
+        // Wrap the function call in a astEval(...) call
+        Node* qid = mkIdentifier(loc, fromCStr("astEval"));
+        res = mkFunApplication(loc, qid, fromIniList({res}));
         Nest_setContext(res, context);
     }
 
@@ -363,7 +370,7 @@ bool SprFrontend::selectConversionCtor(CompilationContext* context, Node* destCl
 {
     ASSERT(argType);
 
-    // Search for the ctors in the class 
+    // Search for the ctors in the class
     NodeArray decls = Nest_symTabLookupCurrent(Nest_childrenContext(destClass)->currentSymTab, "ctor");
 
 //     cerr << "Convert: " << argType->toString() << " -> " << Nest_toString(destClass) << " ?" << endl;
@@ -423,7 +430,7 @@ Callable* SprFrontend::selectCtToRtCtor(CompilationContext* context, TypeRef ctT
     if ( Feather_effectiveEvalMode(cls) != modeRtCt )
         return nullptr;
 
-    // Search for the ctors in the class 
+    // Search for the ctors in the class
     NodeArray decls = Nest_symTabLookupCurrent(Nest_childrenContext(cls)->currentSymTab, "ctorFromCt");
 
     // Select the possible ct-to-rt constructors

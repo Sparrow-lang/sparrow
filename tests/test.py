@@ -114,6 +114,10 @@ class SourceFileInfo:
             line = line.strip()
             lineIdx +=1
 
+            # Ignore all the lines with 'IGNORE-ERROR'
+            if 'IGNORE-ERROR' in line:
+                continue
+
             for m in re.finditer(r'ERROR', line):
                 self.errorMarkers.append(lineIdx)
 
@@ -198,7 +202,7 @@ class SummaryReporter:
 
     def beforeTestRun(self, testName, args, expectedOutput, cmd):
         pass
-    def afterTestRun(self, testName, actualOutput, runOk):
+    def afterTestRun(self, testName, actualOutput, expectedOutput, runOk):
         ch = getCharCodeForTestRun(testName, runOk)
         print(ch, end='')
         if ch == 'E':
@@ -291,13 +295,16 @@ class DetailedReporter:
             print(expectedOutput + '.')
         print('Running: \'%s\':' % cmd)
 
-    def afterTestRun(self, testName, actualOutput, runOk):
+    def afterTestRun(self, testName, actualOutput, expectedOutput, runOk):
         print(actualOutput + '.')
         if runOk:
             print()
             print('>>> OK')
         else:
-            print('ERROR: output does not match!')
+            if expectedOutput:
+                print('ERROR: output does not match!')
+            else:
+                print('ERROR: output contains errors!')
             self._curTestHasErrors = True
         self._curTestSummary += getCharCodeForTestRun(testName, runOk)
 
@@ -399,8 +406,11 @@ def doTestFile(testFilePair, reporter, args, compilerLookup):
                 p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
                 actualOutput = p.communicate()[0]
 
-                runOk = expectedOutput == None or actualOutput == expectedOutput
-                reporter.afterTestRun(testName, actualOutput, runOk)
+                if expectedOutput:
+                    runOk = actualOutput == expectedOutput
+                else:
+                    runOk = not('FAILURE' in actualOutput or 'ERROR' in actualOutput)
+                reporter.afterTestRun(testName, actualOutput, expectedOutput, runOk)
             else:
                 os.system(cmd)
 

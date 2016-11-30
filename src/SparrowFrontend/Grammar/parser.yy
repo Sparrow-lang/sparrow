@@ -156,7 +156,7 @@ using namespace std;
 
 %type <node>        Start Module ModuleName
 %type <node>        ImportLine ImportNames ImportName QidOrString ImportDeclNamesOpt
-%type <node>        TopLevelStmtsOpt TopLevelStmts FormalsOpt Formals Formal
+%type <node>        TopLevelStmtsOpt TopLevelStmts FormalsOpt Formals Formal VarFormals VarFormal
 %type <node>        TopLevelStmt InFunctionDeclaration PackageDeclaration ClassDeclaration ConceptDeclaration VarDeclaration FunDeclaration UsingDeclaration
 %type <node>        IfClause FunRetType FunctionBody
 %type <accessType>  AccessSpec
@@ -400,7 +400,7 @@ VarDeclaration
 ClassDeclaration
     : AccessSpec CLASS ModifierSpec IDENTIFIER FormalsOpt IfClause LCURLY TopLevelStmtsOpt RCURLY
         { $$ = mkModifiers(@$, mkSprClass(@$, fromString(*$4), $5, NULL, $6, $8, $1), $3); }
-    | AccessSpec DATATYPE ModifierSpec IDENTIFIER FormalsOpt IfClause LCURLY Formals RCURLY
+    | AccessSpec DATATYPE ModifierSpec IDENTIFIER FormalsOpt IfClause LCURLY VarFormals RCURLY
         { $$ = mkModifiers(@$, mkSprClass(@$, fromString(*$4), $5, NULL, $6, $8, $1), $3); }
     | AccessSpec DATATYPE ModifierSpec IDENTIFIER FormalsOpt EQUAL Expr IfClause SEMICOLON
         { $$ = mkModifiers(@$, mkSprClass(@$, fromString(*$4), $5, $7, $8, NULL, $1), $3); }
@@ -460,6 +460,20 @@ Formal
         { $$ = buildParameters(@$, *$1, $3, $5, NULL); delete $1; }
     | IdentifierList COLON ExprNoEq
         { $$ = buildParameters(@$, *$1, $3, NULL, NULL); delete $1; }
+    ;
+
+VarFormals
+    : VarFormals COMMA VarFormal
+        { $$ = Feather_appendNodeList($1, $3); }
+    | VarFormal
+        { $$ = $1; }
+    ;
+
+VarFormal
+    : IdentifierList COLON ExprNoEq EQUAL Expr
+        { $$ = buildVariables(@$, *$1, $3, $5, NULL); delete $1; }
+    | IdentifierList COLON ExprNoEq
+        { $$ = buildVariables(@$, *$1, $3, NULL, NULL); delete $1; }
     ;
 
 IfClause

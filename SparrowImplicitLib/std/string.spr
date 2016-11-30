@@ -362,6 +362,43 @@ class[rtct] StringOutputStream
     fun <<<(x: Double)        { result.append(ulongToString(ULong(x)).all()); } // Not properly supported
 }
 
+fun toString() = String();
+fun toString(a1: AnyType): String {
+    var s: StringOutputStream;
+    s << a1;
+    return s.result;
+}
+fun toString(a1, a2: AnyType): String {
+    var s: StringOutputStream;
+    s << a1 << a2;
+    return s.result;
+}
+fun toString(a1, a2, a3: AnyType): String {
+    var s: StringOutputStream;
+    s << a1 << a2 << a3;
+    return s.result;
+}
+fun toString(a1, a2, a3, a4: AnyType): String {
+    var s: StringOutputStream;
+    s << a1 << a2 << a3 << a4;
+    return s.result;
+}
+fun toString(a1, a2, a3, a4, a5: AnyType): String {
+    var s: StringOutputStream;
+    s << a1 << a2 << a3 << a4 << a5;
+    return s.result;
+}
+fun toString(a1, a2, a3, a4, a5, a6: AnyType): String {
+    var s: StringOutputStream;
+    s << a1 << a2 << a3 << a4 << a5 << a6;
+    return s.result;
+}
+fun toString(a1, a2, a3, a4, a5, a6, a7: AnyType): String {
+    var s: StringOutputStream;
+    s << a1 << a2 << a3 << a4 << a5 << a6 << a7;
+    return s.result;
+}
+
 package StringImpl
 {
     fun[rtct, native("_Int_to_CString")] intToCString(x: Int, buffer: @Char);

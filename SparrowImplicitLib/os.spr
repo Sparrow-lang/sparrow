@@ -21,12 +21,27 @@ class[rtct] File
         this.handle := handle;
     }
 
+    fun ctor(filename: StringRef, mode: StringRef = "r")
+    {
+        this.handle := OsImpl.fopen(filename.cStr(), mode.cStr());
+    }
+
+    // Move ctor and assignment operator
+    fun ctor(other: @File) {
+        this.handle := other.handle;
+        other.handle := null;
+    }
+    fun =(other: @File) {
+        this.handle := other.handle;
+        other.handle := null;
+    }
+
     fun dtor
     {
         close();
     }
 
-    fun[static] open(filename, mode: StringRef): File
+    fun[static] open(filename: StringRef, mode: StringRef = "r"): File
     {
         return File(OsImpl.fopen(filename.cStr(), mode.cStr()));
     }
@@ -55,10 +70,40 @@ class[rtct] File
         return res;
     }
 
+    fun all = FileRange(this);
+
     private var handle: @Byte;
 }
 
-package OsImpl
+class[rtct] FileRange {
+    using RetType = Char;
+
+    private var file: @File;
+    private var isEmpty: Bool;
+    private var cur: Char;
+
+    fun ctor(file: @File) {
+        this.file := file;
+        isEmpty = true;
+        cur ctor;
+        if ( !file.isEof ) {
+            cur = file.readChar;
+            isEmpty = false;
+        }
+    }
+}
+
+fun[rtct] isEmpty(s: @FileRange) = s.isEmpty;
+fun[rtct] front(s: @FileRange)   = s.cur;
+fun[rtct] popFront(s: @FileRange) {
+    // Try reading a char; we don't know yet about eof, we need to check it afterwards
+    s.cur = s.file.readChar;
+    if ( s.file.isEof )
+        s.isEmpty = true;
+}
+
+
+private package OsImpl
 {
     fun[rtct, native("system")] system(x: @Char): Int;
 

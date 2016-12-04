@@ -12,18 +12,12 @@ fi
 
 cd build
 conan install .. --build=missing
-cmake .. -DCMAKE_VERBOSE_MAKEFILE=ON
-cmake --build . -- SparrowFrontend
-echo "---------- scannerIf.o symbols ----------"
-nm ../src/SparrowFrontend/Grammar/scannerIf.o
-echo "---------- SparrowFrontend symbols ----------"
-nm lib/libSparrowFrontend.a
-echo "---------- continue building ----------"
+cmake ..
 cmake --build .
-# sudo cmake --build . -- install
+sudo cmake --build . -- install
 
-# echo "---------- Testing ----------"
+echo "---------- Testing ----------"
 
-# cd ../tests
-# python test.py StdLib/RangesTest.spr --returnError
-# python test.py --returnError
+cd ../tests
+python test.py StdLib/RangesTest.spr --returnError
+python test.py --returnError

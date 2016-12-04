@@ -1,9 +1,9 @@
-//!! -t "SparrowImplicitLib.spr"
+//!! -t "SparrowImplicitLib.spr" -fno-main
 
 class Base
 {
     var a: Int;
-    
+
     fun m1()
     {
         writeLnInt(11);
@@ -12,7 +12,7 @@ class Base
     {
         writeLnInt(12);
     }
-    
+
     fun[static, rt] sm()
     {
         writeLnInt(13);
@@ -23,7 +23,7 @@ class Test: Base
 {
     var x: Int;
     var y: Int;
-    
+
     fun print()
     {
         writeLnInt(x);

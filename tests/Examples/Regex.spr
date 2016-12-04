@@ -1,5 +1,5 @@
 //!!
-// -O3 --dump-assembly --simple-linking
+// -O3 -dump-assembly
 
 import std.string;
 import std.tuple;

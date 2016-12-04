@@ -346,9 +346,12 @@ def doTestFile(testFilePair, reporter, args, compilerLookup):
     _removeFileIfExists('%s/%s' % (path, outputFile))
     _removeFileIfExists('%s/%s.bc' % (path, outputFile))
     _removeFileIfExists('%s/%s.o' % (path, outputFile))
+    _removeFileIfExists('%s/%s.ll' % (path, outputFile))
     _removeFileIfExists('%s/%s.one.bc' % (path, outputFile))
     _removeFileIfExists('%s/%s.one.llvm' % (path, outputFile))
+    _removeFileIfExists('%s/%s.one.ll' % (path, outputFile))
     _removeFileIfExists('%s/%s.ct.llvm' % (path, outputFile))
+    _removeFileIfExists('%s/%s.ct.ll' % (path, outputFile))
 
     # Should we capture the output?
     captureOutput = (not args.debug and fileInfo.errorMarkers) or reporter.requireCaptureCompilerOutput()
@@ -358,9 +361,9 @@ def doTestFile(testFilePair, reporter, args, compilerLookup):
     # changeDirPrefix = ''
     compilerArgs = ' ' + args.compilerArgs + ' ' + fileInfo.extraArgs
     if useSimpleLinking:
-        compilerArgs += ' --simple-linking'
+        compilerArgs += ' -S'
     if captureOutput:
-        compilerArgs += ' --noColors'
+        compilerArgs += ' -fno-colors'
     cmd = changeDirPrefix + compilerLookup.getCompiler() + ' ' + file + ' -o ' + outputFile + compilerArgs
 
     # Actually run the compiler

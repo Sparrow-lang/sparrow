@@ -1,4 +1,4 @@
-// !! -O2 --dump-assembly --dump-opt-assembly
+//!! -O2
 import std.vector;
 import std.list;
 import std.map;
@@ -583,6 +583,7 @@ fun sprMain {
     cout << endl << "Found " << numLoops << " loops (including artificial root node)(" << sum << ')' << endl;
     cout << lsg;
 }
+//<<<Running(1)
 /*<<<Running(2)
 Welcome to LoopTesterApp, Sparrow edition
 Constructing cfg...

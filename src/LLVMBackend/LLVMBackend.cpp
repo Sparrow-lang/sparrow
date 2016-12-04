@@ -71,6 +71,18 @@ void _llvmBeGenerateMachineCode(Backend* backend, const SourceCode* code)
     _llvmBackend.rtModule->generate(rootNode);
 
     _llvmBackend.rtModule->setCtToRtTranslator(LLVMB::Module::NodeFun());
+
+    // TODO (modules): Add missing parts here
+    //
+    // This is called for every source-code that we compile.
+    // However, as we don't have proper module linkage, we cannot generate code
+    // here for every module. Therefore, we move the activities that we need to
+    // do here in the linker part.
+    //
+    // Activities to be performed here:
+    //      - add global ctors/dtors
+    //      - verify LLVM module
+    //      - assemble (generate .o file)
 }
 
 void _llvmBeLink(Backend* backend, const char* outFilename)
@@ -89,11 +101,11 @@ void _llvmBeLink(Backend* backend, const char* outFilename)
 
     // Generate a dump for the RT module - just for debugging
     if ( s.dumpAssembly_ )
-        generateAssembly(_llvmBackend.rtModule->llvmModule(), string(outFilename) + ".one.llvm");
+        generateAssembly(_llvmBackend.rtModule->llvmModule(), outFilename, ".ll");
 
     // Generate a dump for the CT module - just for debugging
     if ( s.dumpCtAssembly_ )
-        generateAssembly(_llvmBackend.ctModule->llvmModule(), string(outFilename) + ".ct.llvm");
+        generateAssembly(_llvmBackend.ctModule->llvmModule(), outFilename, ".ct.ll");
 
     // Do the linking for the RT module
     vector<llvm::Module*> modules;

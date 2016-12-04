@@ -11,18 +11,15 @@ public:
         : printVersion_(false)
         , verbose_(false)
         , noColors_(false)
-        , implicitLibFilePath_("auto")
-        , tabSize_(4)
         , syntaxOnly_(false)
-        , simpleLinking_(false)
-        , linkAsLibrary_(false)
-        , releaseMode_(false)
+        , compileAndAssembleOnly_(false)
+        , compileOnly_(false)
+        , implicitLibFilePath_("auto")
+        , useMain_(true)
         , generateDebugInfo_(false)
-        , optimizationLevel_(0)
-        , noRVO_(false)
         , maxCountForInline_(30)
-        , dataLayout_()
-        , targetTriple_()
+        , optimizationLevel_("0")
+        , noRVO_(false)
         , dumpAssembly_(false)
         , dumpCtAssembly_(false)
         , dumpOptAssembly_(false)
@@ -40,7 +37,7 @@ public:
 ///}
 
 
-/// General compiler settings
+/// Generic options
 ///{
     /// If true, the compiler should print the current version and exit
     bool printVersion_;
@@ -50,52 +47,63 @@ public:
 
     /// True if we shouldn't use colors when displaying error messages
     bool noColors_;
+///}
 
-    /// The output file name
-    string output_;
+
+/// Driver options
+///{
 
     /// The files that need to be compiled
     vector<string> filesToBeCompiled_;
 
+    /// The output file name
+    string output_;
+
+    /// If true compile only syntax, including type checking
+    bool syntaxOnly_;
+
+    /// Compile & assemble only; no linking
+    bool compileAndAssembleOnly_;
+
+    /// Compile only
+    bool compileOnly_;
+
+    /// List of arguments to be passed to the assembler
+    vector<string> assemblerArgs_;
+
+    /// List of arguments to be passed to the optimizer
+    vector<string> optimizerArgs_;
+
+    /// List of arguments to be passed to the linker
+    vector<string> linkerArgs_;
+
+///}
+
+/// Directory options
+///{
     /// Import paths for Sparrow files
     vector<string> importPaths_;
 
+    /// List of paths where we can find libraries that we are linking with
+    vector<string> libPaths_;
+
+    /// List of paths where we can find frameworks that we are linking with
+    vector<string> frameworkPaths_;
+///}
+
+/// Sparrow specific options
+///{
     /// The location of the file that needs to be loaded as implicit lib (containing standard types)
     string implicitLibFilePath_;
+
+    /// True if we need to include the entry point functionality into the final program
+    bool useMain_;
 ///}
 
-/// Frontend specific settings
+/// Code generation options
 ///{
-    // The size of a tab character in spaces
-    int tabSize_;
-///}
-
-/// Backend specific settings
-///{
-    /// If true compile only syntax
-    bool syntaxOnly_;
-
-    /// If this is true, we will produce a simple .bc file as output, without optimization
-    bool simpleLinking_;
-
-    /// True if we should link as a library, instead of an executable
-    bool linkAsLibrary_;
-
-    /// True if we are building a release configuration for our program
-    bool releaseMode_;
-
     /// True if we should generate debug information
     bool generateDebugInfo_;
-
-    /// The optimization level to be applied to the generated code (0=no optimizations,1,2,3)
-    int optimizationLevel_;
-
-    /// If this is set, we disable ReturnValueOptimization (and pseudo-RVO)
-    bool noRVO_;
-
-    /// The maximum number of lines to be considered for inline; after this number of lines, the functions will not
-    /// be inlined
-    int maxCountForInline_;
 
     /// The LLVM data layout that we are using
     string dataLayout_;
@@ -103,29 +111,27 @@ public:
     /// The target triple to be used
     string targetTriple_;
 
-    /// List of paths where we can find libraries that we are linking with
-    vector<string> libPaths_;
+    /// The maximum number of lines to be considered for inline; after this number of lines, the functions will not
+    /// be inlined
+    int maxCountForInline_;
 
-    /// List of paths where we can find frameworks that we are linking with
-    vector<string> frameworkPaths_;
+    /// The optimization level to be applied to the generated code (0=no optimizations,1,2,3, 's', 'fast')
+    string optimizationLevel_;
 
+    /// If this is set, we disable ReturnValueOptimization (and pseudo-RVO)
+    bool noRVO_;
+///}
+
+/// Linker options
+///{
     /// List of libraries to link with
     vector<string> libraries_;
 
     /// List of frameworks to link with
     vector<string> frameworks_;
-
-    /// List of arguments to be passed to the optimizer
-    vector<string> optimizerArgs_;
-
-    /// List of arguments to be passed to the code generator
-    vector<string> generatorArgs_;
-
-    /// List of arguments to be passed to the linker
-    vector<string> linkerArgs_;
 ///}
 
-/// Debugging
+/// Debugging options
 ///{
     /// If true we will dump LLVM assembly for each input file, and for the output file
     bool dumpAssembly_;

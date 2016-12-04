@@ -1,4 +1,4 @@
-//! ! --dump-assembly
+//! ! -dump-assembly
 import par.thread;
 import par.atomic;
 import par.locks;

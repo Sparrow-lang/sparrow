@@ -1,4 +1,4 @@
-//!! -t "../Basic/SparrowImplicitLib.spr"
+//!! -t "../Basic/SparrowImplicitLib.spr" -fno-main
 fun abs(x: Double): Double
 {
     if ( x < 0.0 )

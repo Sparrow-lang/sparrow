@@ -1,4 +1,4 @@
-//!! -r --optimization=2
+//!! -O2
 import std.vector;
 import std.ranges;
 import std.algorithms;

@@ -1,5 +1,5 @@
 //!!
-//-O3 --dump-assembly
+//-O3 -dump-assembly
 
 import std.vector;
 import std.array;

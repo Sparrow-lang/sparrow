@@ -1,4 +1,4 @@
-//!! -t "SparrowImplicitLib.spr"
+//!! -t "SparrowImplicitLib.spr" -fno-main
 
 concept AnyType(x); // Always true
 
@@ -54,21 +54,21 @@ fun[native("test")] test(n: Int)
     writeLn(sizeOf('a'));
     writeLn(sizeOf(10));
     writeLn(sizeOf(3.14));
-    
+
     writeLn(sizeOf(a));
     writeLn(sizeOf(b));
     writeLn(sizeOf(c));
-    
+
     writeLn(sizeOf(ra));
     writeLn(sizeOf(rb));
     writeLn(sizeOf(rc));
- 
+
     writeLn("---");
 
     if ( 0!=typeNumRef(typeOf('a'))   ) writeLn("ref"); else writeLn("non-ref");
     if ( 0!=typeNumRef(typeOf(10))    ) writeLn("ref"); else writeLn("non-ref");
     if ( 0!=typeNumRef(typeOf(3.14))  ) writeLn("ref"); else writeLn("non-ref");
- 
+
     if ( 0!=typeNumRef(typeOf(a)) ) writeLn("ref"); else writeLn("non-ref");
     if ( 0!=typeNumRef(typeOf(b)) ) writeLn("ref"); else writeLn("non-ref");
     if ( 0!=typeNumRef(typeOf(c)) ) writeLn("ref"); else writeLn("non-ref");
@@ -78,7 +78,7 @@ fun[native("test")] test(n: Int)
     if ( 0!=typeNumRef(typeOf(rc)) ) writeLn("ref"); else writeLn("non-ref");
 
     writeLn("---");
-    
+
     testRef('a');
     testRef(10);
     testRef(3.14);
@@ -92,7 +92,7 @@ fun[native("test")] test(n: Int)
     testRef(rc);
 
     writeLn("---");
-    
+
     typeTest('a');
     typeTest(10);
     typeTest(3.14);

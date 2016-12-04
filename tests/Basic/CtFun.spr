@@ -1,4 +1,4 @@
-//!! -t "SparrowImplicitLib.spr"
+//!! -t "SparrowImplicitLib.spr" -fno-main
 
 fun[rt] pow1(x: Double, n: Int): Double
 {
@@ -70,7 +70,7 @@ fun[native("test")] test(n: Int)
     //ctTest(pow1(4.0, 4));
     ctTest(pow2(4.0, 4));
     ctTest(pow3(4.0, 4));
-    
+
     writeLnInt(TestClass.ctMethod(10));
 }
 

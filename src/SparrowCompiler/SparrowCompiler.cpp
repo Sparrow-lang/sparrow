@@ -89,7 +89,7 @@ bool ensureImplicitLib()
 
 void doCompilation(const vector<CompilerModule*>& modules)
 {
-    const auto& s = *Nest_compilerSettings();
+    auto& s = *Nest_compilerSettings();
 
     ASSERT(!s.filesToBeCompiled_.empty());
 
@@ -102,17 +102,6 @@ void doCompilation(const vector<CompilerModule*>& modules)
         if ( mod->onBackendSetFun )
             mod->onBackendSetFun(Nest_getCurBackend());
     }
-
-    // Compute the output filename
-    string extension = ".out";
-#if defined(_WIN32) || defined(__CYGWIN__)
-    extension = ".exe";
-#endif
-    string outFilename;
-    if ( !s.filesToBeCompiled_.empty() )
-        outFilename = boost::filesystem::path(s.filesToBeCompiled_[0]).replace_extension(extension).string();
-    else
-        outFilename = "a" + extension;
 
     // Phase 1: Implicit lib
     {
@@ -129,10 +118,17 @@ void doCompilation(const vector<CompilerModule*>& modules)
     for ( const auto& filename: s.filesToBeCompiled_  )
     {
         Nest::Common::PrintTimer timer(s.verbose_, "", "   [%ws]\n");
-        cout << filename;
+        if ( s.verbose_ )
+            cout << filename;
         Nest_compileFile(fromString(filename));
-        if ( !s.verbose_ )
-            cout << endl;
+    }
+
+    // Also process the file that implements 'main' entry-point functionality
+    if ( s.useMain_ ) {
+        Nest::Common::PrintTimer timer(s.verbose_, "", "   [%ws]\n");
+        if ( s.verbose_ )
+            cout << "mainImpl.spr";
+        Nest_compileFile(fromCStr("sprCore/mainImpl.spr"));
     }
 
     // If we have no errors, start linking
@@ -141,8 +137,9 @@ void doCompilation(const vector<CompilerModule*>& modules)
         try
         {
             Nest::Common::PrintTimer timer(s.verbose_, "", "[%ws]\n");
-            cout << "Linking..." << endl;
-        	Nest_getCurBackend()->link(Nest_getCurBackend(), outFilename.c_str());
+            if ( s.verbose_ )
+                cout << "Linking..." << endl;
+        	Nest_getCurBackend()->link(Nest_getCurBackend(), s.output_.c_str());
         }
         catch (const exception& e)
         {
@@ -167,31 +164,17 @@ vector<CompilerModule*> gatherModules()
 
 int main(int argc,char* argv[])
 {
-    cout << "Sparrow Compiler v0.9.3, (c) 2015 Lucian Radu Teodorescu" << endl << endl;
+    boost::timer::cpu_timer timer;
+    timer.start();
 
-    boost::timer::auto_cpu_timer timer(3, "\nTime elapsed: %ws\n\n");
-
-    try
-    {
-        initSettingsWithArgs(argc, argv);
-    }
-    catch(exception& ex)
-    {
-        cout << "Cannot read command line arguments: " << ex.what() << endl;
-        cout << "Try executing 'SparrowCompiler --help' for help on command line parameters" << endl;
+    if ( !initSettingsWithArgs(argc, argv) )
         return -1;
-    }
+
     const auto& s = *Nest_compilerSettings();
 
     if ( s.printVersion_ )
     {
-        return 1;
-    }
-
-    if ( s.filesToBeCompiled_.empty() )
-    {
-        cout << "No input file was given!" << endl;
-        cout << "Try executing 'SparrowCompiler --help' for help on command line parameters" << endl;
+        cout << "Sparrow Compiler v0.9.3, (c) 2015 Lucian Radu Teodorescu" << endl << endl;
         return 1;
     }
 
@@ -234,6 +217,11 @@ int main(int argc,char* argv[])
     {
         if ( mod->destroyFun )
             mod->destroyFun();
+    }
+
+    if ( s.verbose_ ) {
+        timer.stop();
+        cout << timer.format(3, "\nTime elapsed: %ws\n\n");
     }
 
     return 0;

@@ -1,4 +1,4 @@
-//!! -O2
+// !! -O2
 
 import std.algorithms;
 

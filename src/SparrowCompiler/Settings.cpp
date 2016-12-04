@@ -13,6 +13,8 @@
 #include <boost/filesystem.hpp>
 
 #include <fstream>
+#include <unordered_set>
+#include <unordered_map>
 
 using namespace std;
 
@@ -30,7 +32,7 @@ string getExecutablePathFallback(const char* argv0)
         boost::filesystem::canonical(
             argv0, boost::filesystem::current_path(), ec));
     return p.make_preferred().string();
-}    
+}
 
 #if (BOOST_OS_CYGWIN || BOOST_OS_WINDOWS)
 
@@ -137,8 +139,248 @@ string getExecutablePath(const char* argv0)
 
 #endif // }
 
+/// Class that knows how to handle an option
+class OptionHandler {
+    /// Enum defining the possible action types
+    enum ActionType {
+        doNothing = 0,  //!< Do nothing
+        storeTrue,      //!< Store true in the given bool variable (no arg expected)
+        storeFalse,     //!< Store false in the given bool variable (no arg expected)
+        storeInt,       //!< Store the given arg in the given int variable
+        storeString,    //!< Store the given arg in the given string variable
+        appendString,   //!< Add the given arg to the given list of string
+    };
 
-void initSettingsWithArgs(int argc, char** argv)
+    /// The type of action to perform when parsing the option
+    ActionType actionType_;
+
+    /// The value given to the constructor that should be changed
+    union {
+        bool* boolVal;
+        int* intVal;
+        string* stringVal;
+        vector<string>* stringListVal;
+    } val_;
+
+public:
+    OptionHandler() : actionType_(doNothing) {
+        val_.boolVal = nullptr;
+    }
+
+    OptionHandler(bool& res, bool store = true) : actionType_(store ? storeTrue : storeFalse) {
+        val_.boolVal = &res;
+    }
+
+    OptionHandler(int& res) : actionType_(storeInt) {
+        val_.intVal = &res;
+    }
+
+    OptionHandler(string& res) : actionType_(storeString) {
+        val_.stringVal = &res;
+    }
+
+    OptionHandler(vector<string>& res) : actionType_(appendString) {
+        val_.stringListVal = &res;
+    }
+
+    /// Called when an option is encountered, passing the value of the option
+    void onOption(const char* arg) {
+        switch ( actionType_ ) {
+        case storeTrue:
+            *val_.boolVal = true;
+            break;
+        case storeFalse:
+            *val_.boolVal = false;
+            break;
+        case storeInt:
+            *val_.intVal = boost::lexical_cast<int>(arg);
+            break;
+        case storeString:
+            *val_.stringVal = arg;
+            break;
+        case appendString:
+            val_.stringListVal->emplace_back(arg);
+            break;
+        case doNothing:
+        default:
+            break;
+        }
+    }
+};
+
+
+/// Structure that describes an entry in the options list
+struct OptionEntry {
+    const char* tag;
+    const char* argName;    // NULL=no arg, starts with space => next arg, otherwise concat
+    OptionHandler handler;
+    const char* helpMessage;
+};
+
+/// Structure describing the parsed arguments
+struct ParsedArgs {
+    /// All the positional parameters, that are not options
+    std::vector<string> positionalParams;
+    /// All the flags we have (without arguments)
+    unordered_set<string> flags;
+    /// All the options with all their arguments
+    unordered_map<string, std::vector<string> > optionsWithArgs;
+};
+
+/// Tests if the given flag is set in the parsed arguments
+bool hasFlag(const ParsedArgs& args, const char* flag) {
+    return args.flags.end() != args.flags.find(flag);
+}
+
+/// Try to retrieve the value of the option with the given tag.
+/// If the option is not specified, the resulting variable isn't changed
+void tryRetrieveOptionValue(const ParsedArgs& args, const char* optionTag, string& res) {
+    auto it = args.optionsWithArgs.find(optionTag);
+    if ( it != args.optionsWithArgs.end() ) {
+        const auto& values = it->second;
+        if ( !values.empty() )
+            res = values.back();    // Used the last value given
+    }
+}
+
+void tryRetrieveOptionValue(const ParsedArgs& args, const char* optionTag, int& res) {
+    auto it = args.optionsWithArgs.find(optionTag);
+    if ( it != args.optionsWithArgs.end() ) {
+        const auto& values = it->second;
+        if ( !values.empty() ) {
+            res = boost::lexical_cast<int>(values.back());
+        }
+    }
+}
+
+/// Gets all the values passed as option arguments for the given tag
+vector<string> getArgValues(const ParsedArgs& args, const char* optionTag) {
+    auto it = args.optionsWithArgs.find(optionTag);
+    if ( it != args.optionsWithArgs.end())
+        return it->second;
+    else
+        return {};
+}
+
+/// Parse the arguments according to the given option entries
+ParsedArgs parseArgs(int argc, char** argv, OptionEntry* optionsMap, int numOptions, bool& hasErrors) {
+    ParsedArgs res;
+
+    for ( int i=1; i<argc; i++ ) {
+        const char* arg = argv[i];
+
+        int len = strlen(arg);
+        if ( len > 0 && arg[0] == '-' ) {
+            // Option arg
+            bool handled = false;
+
+            // Go over all our option entries, see if anyone matches
+            for ( int k=0; k<numOptions; k++ ) {
+                OptionEntry& entry = optionsMap[k];
+                if ( !entry.tag ) continue;
+
+                if ( entry.argName && entry.argName[0] != ' ' ) {
+                    // Option argument is concatenated
+                    int tagLen = strlen(entry.tag);
+                    if ( tagLen < len ) {
+                        const char* p = strstr(arg, entry.tag);
+                        if ( p == arg ) {
+                            // We have a match
+                            p += tagLen;    // The actual option argument
+                            res.optionsWithArgs[entry.tag].emplace_back(p);
+                            entry.handler.onOption(p);
+                            handled = true;
+                            break;
+                        }
+                    }
+                }
+                else {
+                    // We need a full match
+                    if ( 0 == strcmp(arg, entry.tag) ) {
+                        if ( entry.argName ) {
+                            // Next arg is the argument of this option
+                            if ( i+1 == argc ) {
+                                cout << "Missing argument for option '" << arg << "'" << endl;
+                                hasErrors = true;
+                                handled = true;
+                                break;
+                            }
+                            const char* optArg = argv[++i];
+                            res.optionsWithArgs[entry.tag].emplace_back(optArg);
+                            entry.handler.onOption(optArg);
+                            handled = true;
+                            break;
+                        }
+                        else {
+                            // No option argument
+                            res.flags.insert(entry.tag);
+                            entry.handler.onOption("");
+                            handled = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if ( !handled ) {
+                cout << "Invalid argument '" << arg << "'" << endl;
+                hasErrors = true;
+            }
+        }
+        else {
+            // Positional arg
+            res.positionalParams.emplace_back(arg);
+        }
+    }
+
+    return res;
+}
+
+/// Print help message according with the given option entries
+void printHelp(OptionEntry* optionsMap, int numOptions) {
+    CompilerSettings& s = *Nest_compilerSettings();
+    cout << "USAGE: " << s.programName_ << " [options] <inputs>" << endl;
+
+    static const int leftSize = 30;
+    int written = 0;
+    for ( int i=0; i<numOptions; ++i ) {
+        OptionEntry& entry = optionsMap[i];
+
+        if ( !entry.tag ) {
+            cout << endl;
+            cout << entry.helpMessage << ":" << endl;
+            written = 0;
+        }
+        else
+        {
+            if ( written > 0 ) {
+                cout << ' ';
+                written++;
+            }
+            if ( entry.tag ) {
+                cout << entry.tag;
+                written += strlen(entry.tag);
+            }
+            if ( entry.argName ) {
+                cout << entry.argName;
+                written += strlen(entry.argName);
+            }
+            if ( entry.helpMessage ) {
+                // Align the help message
+                if ( written >= leftSize ) {
+                    cout << endl;
+                    written = 0;
+                }
+                for ( int i=0; i<leftSize-written; ++i )
+                    cout << ' ';
+
+                cout << entry.helpMessage << endl;
+                written = 0;
+            }
+        }
+    }
+}
+
+bool initSettingsWithArgs(int argc, char** argv)
 {
     CompilerSettings& s = *Nest_compilerSettings();
 
@@ -152,92 +394,120 @@ void initSettingsWithArgs(int argc, char** argv)
 #else
     s.targetTriple_ = "x86_64-linux-gnu";
 #endif
-    
-    // Declare a group of options that will be allowed only on command line
-    po::options_description generic("Generic options");
-    generic.add_options()
-        ("version", "print version string")
-        ("verbose,v", "Show commands to run and use verbose output")
-        ("noColors", "Disable colors in the output")
-        ("help,h", "produce help message")
-        ;
 
-    // Declare a group of options that will be allowed both on command line and in config file
-    po::options_description config("Configuration");
-    config.add_options()
-        ("output,o", po::value<string>(&s.output_), "the executable output file name")
-        ("import-path,i", po::value<vector<string> >(&s.importPaths_), "import path to search for Sparrow files")
-        ("implicit-file,t", po::value<string>(&s.implicitLibFilePath_), "the path to the file containing implicit definitions")
-        ("tab-size", po::value<int>(&s.tabSize_)->default_value(4), "number of spaces equivalent with a tab character")
-        ("syntax-only", "check only the syntax")
-        ("simple-linking,s", "link as a plain bitcode file, without optimization")
-        ("link-as-library", "link as library")
-        ("release,r", "enable release-mode compilation")
-        ("debug-info,g", "generate debug info")
-        ("fno-rvo", "disable RVO and pseudo-RVO")
-        ("optimization,O", po::value<int>(&s.optimizationLevel_)->default_value(0), "the optimization level (0=disabled,1,2,3)")
-        ("max-count-for-inline", po::value<int>(&s.maxCountForInline_)->default_value(30), "max number of lines for inlining")
-        ("data-layout", po::value<string>(&s.dataLayout_), "the data layout")
-        ("target-triple", po::value<string>(&s.targetTriple_), "the target machine triple")
-        ("libraries-path,L", po::value<vector<string> >(&s.libPaths_), "import path to search for libraries")
-        ("frameworks-path,F", po::value<vector<string> >(&s.frameworkPaths_), "import path to search for frameworks")
-        ("libraries,l", po::value<vector<string> >(&s.libraries_), "library to link with the output")
-        ("frameworks", po::value<vector<string> >(&s.frameworks_), "framework to link with the output")
-        ("XOptimizer", po::value<vector<string> >(&s.optimizerArgs_), "argument to be passed to the optimizer")
-        ("XGenerator", po::value<vector<string> >(&s.generatorArgs_), "argument to be passed to the generator")
-        ("XLinker", po::value<vector<string> >(&s.linkerArgs_), "argument to be passed to the linker")
-        ("dump-assembly", "dump LLVM assembly for the compilation units")
-        ("dump-ct-assembly", "dump LLVM assembly for the CT module")
-        ("dump-opt-assembly", "dump LLVM assembly for the optimized module")
-        ("dump-ast", po::value<string>(&s.dumpAST_), "dump AST for the files matching the given filter")
-        ("keep-intermediate-files", "keep intermediate files generating during compilation")
-        ;
+    bool showHelp = false;
 
-    // Hidden options, will be allowed both on command line and in config file, but will not be shown to the user.
-    po::options_description hidden("Hidden options");
-    hidden.add_options()
-        ("input-file", po::value<vector<string> >(&s.filesToBeCompiled_), "input file")
-        ;
+    OptionEntry optionsMap[] = {
+        { NULL,                     NULL, {}, "Generic options" },
+        { "-h",                     NULL, showHelp, NULL },
+        { "-help",                  NULL, showHelp, "produce this help message" },
+        { "-version",               NULL, s.printVersion_, "just print the version string" },
+        { "-v",                     NULL, s.verbose_, "show commands to run and use verbose output" },
+        { "-fno-colors",            NULL, s.noColors_, "disable colors in the output" },
 
-    po::options_description cmdline_options;
-    cmdline_options.add(generic).add(config).add(hidden);
-
-    po::options_description config_file_options;
-    config_file_options.add(config).add(hidden);
-
-    po::options_description visible("Allowed options");
-    visible.add(generic).add(config);
+        { NULL,                     NULL, {}, "Driver options" },
+        { "-o",                     " <file>", s.output_, "the executable output file name" },
+        { "-fsyntax-only",          NULL, s.syntaxOnly_, "check only the syntax, including type checking" },
+        { "-c",                     NULL, s.compileAndAssembleOnly_, "compile and assemble, don't link; generates object files" },
+        { "-S",                     NULL, s.compileOnly_, "compile only; generates assembly file (.bc)" },
+        { "-Xassembler",            " <arg>", s.assemblerArgs_, "argument to be passed to the assembler" },
+        { "-XOptimizer",            " <arg>", s.optimizerArgs_, "argument to be passed to the optimizer" },
+        { "-XLinker",               " <arg>", s.linkerArgs_, "argument to be passed to the linker" },
 
 
-    po::positional_options_description p;
-    p.add("input-file", -1);
+        { NULL,                     NULL, {}, "Directory options" },
+        { "-I",                     "<dir>", s.importPaths_, "import path to search for Sparrow files" },
+        { "-L",                     "<dir>", s.libPaths_, "import path to search for libraries" },
+        { "-F",                     "<dir>", s.frameworkPaths_, "import path to search for frameworks" },
 
-    po::variables_map vm;
-    po::store(po::command_line_parser(argc, argv).options(cmdline_options).positional(p).run(), vm);
-    ifstream f("SparrowC.cfg");
-    po::store(po::parse_config_file(f, config_file_options), vm);
-    po::notify(vm);
+        { NULL,                     NULL, {}, "Sparrow specific options" },
+        { "-t",                     " <file>", s.implicitLibFilePath_, NULL },
+        { "-implicit-file",         " <file>", s.implicitLibFilePath_, "the path to the file containing implicit definitions" },
+        { "-fmain",                 NULL, {s.useMain_, true}, "include entry point functionality" },
+        { "-fno-main",              NULL, {s.useMain_, false}, "don't include entry point functionality" },
 
-    s.printVersion_ = vm.count("version") > 0;
-    s.verbose_ = vm.count("verbose") > 0;
-    s.noColors_ = vm.count("noColors") > 0;
-    s.syntaxOnly_ = vm.count("syntax-only") > 0;
-    s.simpleLinking_ = vm.count("simple-linking") > 0;
-    s.linkAsLibrary_ = vm.count("link-as-library") > 0;
-    s.releaseMode_ = vm.count("release") > 0;
-    s.generateDebugInfo_ = vm.count("debug-info") > 0;
-    s.noRVO_ = vm.count("fno-rvo") > 0;
-    s.dumpAssembly_ = vm.count("dump-assembly") > 0;
-    s.dumpCtAssembly_ = vm.count("dump-ct-assembly") > 0;
-    s.dumpOptAssembly_ = vm.count("dump-opt-assembly") > 0;
-    s.keepIntermediateFiles_ = vm.count("keep-intermediate-files") > 0;
+        { NULL,                     NULL, {}, "Code generation options" },
+        { "-g",                     NULL, s.generateDebugInfo_, "generate debug info" },
+        { "-data-layout",           " <arg>", s.dataLayout_, "the data layout" },
+        { "-target-triple",         " <arg>", s.targetTriple_, "the target machine triple" },
+        { "-max-count-for-inline",  " <n>", s.maxCountForInline_, "max number of lines for inlining" },
+        { "-O0",                    NULL, {}, "no optimizations (default)" },
+        { "-O1",                    NULL, {}, "light optimizations" },
+        { "-O2",                    NULL, {}, "enable most optimizations" },
+        { "-O3",                    NULL, {}, "also enable optimizations that take longer or generate larger code" },
+        { "-Os",                    NULL, {}, "optimize for code size" },
+        { "-Ofast",                 NULL, {}, "optimize for fast code; enable aggresive optimizations" },
+        { "-fno-rvo",               NULL, s.noRVO_, "disable RVO and pseudo-RVO" },
+
+        { NULL,                     NULL, {}, "Linker options" },
+        { "-l",                     " <file>", s.libraries_, "library to link with the output" },
+        { "-framework",             " <file>", s.frameworks_, "framework to link with the output" },
+
+        { NULL,                     NULL, {}, "Debugging options" },
+        { "-dump-assembly",         NULL, s.dumpAssembly_, "dump LLVM assembly for the compilation units" },
+        { "-dump-ct-assembly",      NULL, s.dumpCtAssembly_, "dump LLVM assembly for the CT module" },
+        { "-dump-opt-assembly",     NULL, s.dumpOptAssembly_, "dump LLVM assembly for the optimized module" },
+        { "-dump-ast",              " <filter>", s.dumpAST_, "dump AST for the files matching the given filter" },
+        { "-keep-intermediate-files", NULL, s.keepIntermediateFiles_, "keep intermediate files generating during compilation" },
+    };
+    static const int numOptions = sizeof(optionsMap)/sizeof(optionsMap[0]);
+
+    bool hasErrors = false;
+    ParsedArgs args = parseArgs(argc, argv, optionsMap, numOptions, hasErrors);
+
+    s.filesToBeCompiled_ = args.positionalParams;
 
 #ifdef _WIN32
     s.keepIntermediateFiles_ = true;    // For some strange reason, we need this for Windows builds
 #endif
 
-    if ( vm.count("help") )
-    {
-        cout << visible << "\n";
+    if ( hasFlag(args, "-O1") )
+        s.optimizationLevel_ = "1";
+    if ( hasFlag(args, "-O2") )
+        s.optimizationLevel_ = "2";
+    if ( hasFlag(args, "-O3") )
+        s.optimizationLevel_ = "3";
+    if ( hasFlag(args, "-Os") )
+        s.optimizationLevel_ = "s";
+    if ( hasFlag(args, "-Ofast") )
+        s.optimizationLevel_ = "fast";
+
+    // Compute the output filename, if one is not given
+    if ( s.output_.empty() ) {
+        string extension = ".out";
+    #if defined(_WIN32) || defined(__CYGWIN__)
+        extension = ".exe";
+    #endif
+
+        if ( s.compileAndAssembleOnly_ )
+            extension = ".o";
+        else  if ( s.compileOnly_ )
+            extension = ".bc";
+
+        if ( !s.filesToBeCompiled_.empty() )
+            s.output_ = boost::filesystem::path(s.filesToBeCompiled_[0]).replace_extension(extension).string();
+        else
+            s.output_ = "a" + extension;
     }
+
+    if ( hasFlag(args, "-h") || hasFlag(args, "-help") )
+    {
+        printHelp(optionsMap, numOptions);
+        cout << endl;
+        return false;
+    }
+
+    if ( s.filesToBeCompiled_.empty() ) {
+        cout << "No input file was given!" << endl;
+        hasErrors = true;
+    }
+
+    if ( hasErrors ) {
+        cout << endl;
+        cout << "Run '" << s.programName_ << " -help' for the list of available options" << endl;
+        cout << endl;
+        return false;
+    }
+
+    return true;
 }

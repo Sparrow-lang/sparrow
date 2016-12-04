@@ -1,4 +1,4 @@
 #pragma once
 
 
-void initSettingsWithArgs(int argc, char** argv);
+bool initSettingsWithArgs(int argc, char** argv);

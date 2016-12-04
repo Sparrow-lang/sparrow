@@ -1,4 +1,4 @@
-//!! -t "SparrowImplicitLib.spr"
+//!! -t "SparrowImplicitLib.spr" -fno-main
 
 concept AnyType(x); // Always true
 
@@ -29,7 +29,7 @@ fun f2(x: @AnyType)
 fun[native("test")] test(n: Int)
 {
     var a: Int = 5;
-    
+
     f1(a);
     writeLn(a);
     f2(a);

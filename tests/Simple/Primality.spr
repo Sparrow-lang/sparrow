@@ -1,4 +1,4 @@
-//!! -t "../Basic/SparrowImplicitLib.spr"
+//!! -t "../Basic/SparrowImplicitLib.spr" -fno-main
 fun assert(b: Bool)
 {
     if ( !b )
@@ -53,7 +53,7 @@ fun[native("test")] test(n: Int)
     assert(isPrime(15485863));
     fassert(isPrime(4972331));
 
-    write('O'); writeLn('K');    
+    write('O'); writeLn('K');
 }
 
 /*<<<Running()

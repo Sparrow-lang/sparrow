@@ -1,4 +1,4 @@
-//!! -t "SparrowImplicitLib.spr"
+//!! -t "SparrowImplicitLib.spr" -fno-main
 
 fun assert(b: Bool)
 {
@@ -183,7 +183,7 @@ fun[native("test")] test(n: Int)
     assert(5>=3);
     assert(3>=3);
     fassert(3>=5);
-    
+
     assert(2.0+2.0 == 4.0);
     assert(3.0+3.0 == 6.0);
     assert(3.0*3.0 == 9.0);
@@ -202,31 +202,31 @@ fun[native("test")] test(n: Int)
     assert(5.0>=3.0);
     assert(3.0>=3.0);
     fassert(3.0>=5.0);
-    
+
     write('-'); write('-'); writeLn('-');
     var doi,trei,t: MyInt;
     doi.x = 2;
     trei.x = 3;
-    
+
     t = doi+doi;
     writeLn(t.x);
     t += doi;
     writeLn(t.x);
     t *= trei;
     writeLn(t.x);
-    
+
     assert(doi < trei);
     assert(doi <= trei);
     assert(doi <= doi);
     assert(trei > doi);
     assert(trei >= doi);
     assert(trei >= trei);
-    
+
     assert(doi === doi);
     fassert(doi === trei);
     fassert(doi !== doi);
     assert(doi !== trei);
-    
+
     var r1, r2: MyInt@;
     r1 := doi;
     r2 := r1;
@@ -236,32 +236,32 @@ fun[native("test")] test(n: Int)
     r2 := trei;
     assert(r1 !== r2);
 
-    
+
     {
         write('='); write('='); writeLn('=');
         var doi,trei,t: MyInt2;
         doi.x = 2;
         trei.x = 3;
-        
+
         t = doi+doi;
         writeLn(t.x);
         t += doi;
         writeLn(t.x);
         t *= trei;
         writeLn(t.x);
-        
+
         assert(doi < trei);
         assert(doi <= trei);
         assert(doi <= doi);
         assert(trei > doi);
         assert(trei >= doi);
         assert(trei >= trei);
-        
+
         assert(doi === doi);
         fassert(doi === trei);
         fassert(doi !== doi);
         assert(doi !== trei);
-        
+
         var r1, r2: MyInt2@;
         r1 := doi;
         r2 := r1;

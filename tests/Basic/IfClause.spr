@@ -1,4 +1,4 @@
-//!! -t "SparrowImplicitLib.spr"
+//!! -t "SparrowImplicitLib.spr" -fno-main
 
 concept AnyType(x); // Always true
 
@@ -170,34 +170,34 @@ fun[native("test")] test(n: Int)
     var b: Pair(Double, Double);
     var c: Pair(Int, Pair(Int, Int));
     var d: Pair(Pair(Double, Double), Pair(Double, Double));
-    
+
     f(1);
     f(3.14);
     f(a);
     f(b);
     f(c);
     f(d);
-    
+
     separ();
-    
+
     tst(1);
     tst(3.14);
     tst(a);
     tst(b);
     tst(c);
     tst(d);
-    
+
     separ();
-    
+
     tst2(1);
     tst2(3.14);
     tst2(a);
     tst2(b);
     tst2(c);
     tst2(d);
-    
+
     separ();
-    
+
     tst3(1);
     tst3(3.14);
     tst3(a);

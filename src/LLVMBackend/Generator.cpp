@@ -30,6 +30,24 @@ using namespace llvm::sys;
 
 namespace
 {
+    /// Replace the extension of 'origFilename' with the given extension.
+    /// If the result is the output filename, it will add some characters to make it different
+    string replaceExtension(const string& outputFilename, string origFilename, const string& extension) {
+        string res;
+        boost::filesystem::path f = origFilename;
+        while ( true ) {
+            f.replace_extension(extension);
+            res = f.string();
+
+            // If we obtained a file that is different form the output file, return it
+            if ( res != outputFilename )
+                return res;
+
+            // Add a one to the filename stem to get a different result
+            f = f.stem();
+            f += "1";
+        }
+    }
     /// Run the command with the given arguments
     /// The command should be the first in the list of arguments
     void runCmd(const vector<string>& args)
@@ -83,13 +101,13 @@ namespace
 
         outFile->keep();
     }
-    
+
     /// Generate optimized code from the given bitcode
     void generateOptimizedCode(const string& outputFilename, const string& inputFilename, const string& opt)
     {
         CompilerSettings& s = *Nest_compilerSettings();
 
-        vector<string> args = { opt, "-std-compile-opts", "-std-link-opts", "-O" + boost::lexical_cast<string>(s.optimizationLevel_) };
+        vector<string> args = { opt, "-std-compile-opts", "-std-link-opts", "-O" + s.optimizationLevel_ };
         args.insert(args.end(), s.optimizerArgs_.begin(), s.optimizerArgs_.end());
         args.insert(args.end(), { inputFilename, "-o", outputFilename });
         runCmd(args);
@@ -109,7 +127,7 @@ namespace
         //args.push_back("i386-pc-mingw32");
         args.push_back("--march=x86-64");
 #endif
-        args.insert(args.end(), s.generatorArgs_.begin(), s.generatorArgs_.end());
+        args.insert(args.end(), s.assemblerArgs_.begin(), s.assemblerArgs_.end());
         args.insert(args.end(), { inputFilename, "-o", outputFilename });
         runCmd(args);
     }
@@ -151,14 +169,21 @@ namespace
 
 
 
-void LLVMB::generateAssembly(const llvm::Module& module, const string& outFilename)
+void LLVMB::generateAssembly(const llvm::Module& module, const string& outFilename, const string& ext)
 {
-    writeAssemblyFile(module, outFilename);
+    string filename = replaceExtension(outFilename, outFilename, ext);
+    writeAssemblyFile(module, filename);
 }
 
 void LLVMB::link(const vector<llvm::Module*>& inputs, const string& outFilename)
 {
     CompilerSettings& s = *Nest_compilerSettings();
+
+    // TODO (modules): Fix this
+    //
+    // Some of the activities performed here should be performed per source code.
+    // However, we don't have proper module linkage. Therefore, we combine all
+    // the sourcecodes into one big module, and perform those operations here
 
     // Link all the input modules to a single module
     // we desotry all the modules in this process
@@ -178,17 +203,14 @@ void LLVMB::link(const vector<llvm::Module*>& inputs, const string& outFilename)
     if ( verifyModule(*compositeModule, &errStream) )
         REP_INTERNAL(NOLOC, "LLVM Verification failed for generated program: %1%") % err;
 
+    bool shouldOptimize = !s.optimizerArgs_.empty() || s.optimizationLevel_ != "0";
+
     // Write the bitcode file -- this will typically be removed after generating the output files
-    string bcFile = outFilename + ".bc";
+    string bcFile = s.compileOnly_ && !shouldOptimize
+                    ? outFilename
+                    : replaceExtension(outFilename, outFilename, ".bc");
     llvm::FileRemover bcRemover(bcFile.c_str(), !s.keepIntermediateFiles_);
     writeBitcodeFile(*compositeModule, bcFile);
-
-    // If we have a simple linking, then the resuling bitcode is our output
-    if ( s.simpleLinking_ )
-    {
-        bcRemover.releaseFile();
-        return;
-    }
 
     string opt = s.executableDir_ + "/spr-opt";
     string llc = s.executableDir_ + "/spr-llc";
@@ -201,16 +223,19 @@ void LLVMB::link(const vector<llvm::Module*>& inputs, const string& outFilename)
 
 
     // Optimize the module by calling the llvm optimizer, if we have some optimizer args
-    if ( !s.optimizerArgs_.empty() || s.optimizationLevel_ > 0 )
+    if ( shouldOptimize )
     {
-        string optFile = outFilename + ".opt.bc";
+        string optFile = s.compileOnly_
+                        ? outFilename
+                        : replaceExtension(outFilename, outFilename, ".opt.bc");
         generateOptimizedCode(optFile, bcFile, opt);
 
         // Dump assembly if required
         if ( s.dumpOptAssembly_ )
         {
             // Disassembly the optimized file
-            runCmd({ dis, optFile, "-o", outFilename + ".opt.llvm" });
+            string optAsm = replaceExtension(outFilename, outFilename, ".opt.ll");
+            runCmd({ dis, optFile, "-o", optAsm });
         }
 
         // Our source .bc file has changed; delete the prev file and continue from this one
@@ -218,17 +243,29 @@ void LLVMB::link(const vector<llvm::Module*>& inputs, const string& outFilename)
         bcRemover.setFile(bcFile, !s.keepIntermediateFiles_);
     }
 
-    // If we are linking as a library, stop here
-    if ( s.linkAsLibrary_ )
+    // Compile-only?
+    if ( s.compileOnly_ )
     {
         bcRemover.releaseFile();
         return;
     }
 
-    // Generate assembly/obj file
-    string objFile = outFilename + ".o";
+    // Assemble (generate obj file)
+    string objFile = s.compileAndAssembleOnly_
+                    ? outFilename
+                    : replaceExtension(outFilename, outFilename, ".o");
     FileRemover objFileRemover(objFile, !s.keepIntermediateFiles_);
     generateMachineAssembly(objFile, bcFile, llc);
+
+    // Compile and assemble only?
+    if ( s.compileAndAssembleOnly_ )
+    {
+        objFileRemover.releaseFile();
+        return;
+    }
+
+    // TODO (modules):
+    // Our link process has become just the transformation from obj file to executable.
 
     // Try to find GCC and call it to generate native code out of the assembly (or C)
     string gcc = sys::FindProgramByName("gcc");

@@ -1,0 +1,633 @@
+module sparrowc.spr.grammar.scanner;
+
+import parserDefs;
+import charType;
+import std.ranges;
+import std.vector;
+
+import os = os;
+
+// TODO (generics): Be able to generate a concept from a generic
+// TODO (convert): Allow to test a range without an operator e.g., '!!'
+
+
+/// Concept for modeling the source data for the scanner
+/// It's basically a range of characters
+concept CharRange(x: Range)
+    if -@(x.RetType) == Char
+    ;
+
+/// Concept for objects that can report errors produced by scanner
+concept ErrorReporter(x: AnyType)
+    if isValid(x.reportError(Location(), String()))
+    ;
+
+
+/// Helper class that provides lookup functionality over a CharRange
+///
+/// This will hold an internal buffer of chars
+/// When reading from the input stream, we always go through this buffer
+private class RangeWithLookahead(sourceType: Type) if CharRange(#$sourceType) {
+    using RetType = Char;
+    using IsRangeWithLookahead = true;
+
+    var source: sourceType;
+    var buffer: Vector(Char);
+
+    fun ctor(src: sourceType) {
+        this.source = src;
+        this.buffer ctor;
+        this.buffer reserve 10;
+
+        // Always have at least one element in the buffer
+        if ( !!source )
+            buffer += (source++);
+    }
+}
+private concept OurRangeWithLookahead(t) if t.IsRangeWithLookahead;
+
+private fun isEmpty(s: @OurRangeWithLookahead): Bool = s.buffer isEmpty;
+private fun front(s: @OurRangeWithLookahead): Char = s.buffer front;
+private fun popFront(s: @OurRangeWithLookahead) {
+    s.buffer remove 0;
+    // Add a new element in the buffer if the buffer is empty
+    if ( (s.buffer isEmpty) && !!s.source )
+        s.buffer += (s.source++);
+}
+
+private fun peek(s: @OurRangeWithLookahead, n: UInt): Char {
+    // If not enough elements in the buffer, add them now
+    while ( n >= s.buffer.size && !!s.source )
+        s.buffer += (s.source++);
+    if ( n < s.buffer.size )
+        return s.buffer(n);
+    else
+        return Char(0); // not enough elements in the source
+}
+private fun hasLessThan(s: @OurRangeWithLookahead, n: UInt): Bool {
+    // Try to fill the buffer with the amount of elements
+    while ( n >= s.buffer.size && !!s.source )
+        s.buffer += (s.source++);
+    // Check if we have enough elements in the buffer
+    return n >= s.buffer.size;
+}
+
+
+/// Helper class used to sync the location with the source range
+///
+/// This also exposes a CharRange functionality, but it also modifiers an external
+/// location when iterating over the chars
+private class[initCtor] LocationSyncCharRange(sourceType: Type) if CharRange(#$sourceType) {
+    using RetType = Char;
+    using IsLocationSyncCharRange = true;
+
+    var source: sourceType;
+    var location: @Location;
+}
+private concept OurLocationSyncCharRange(t) if t.IsLocationSyncCharRange;
+
+private fun isEmpty(s: @OurLocationSyncCharRange) = s.source isEmpty;
+private fun front(s: @OurLocationSyncCharRange)   = s.source front;
+private fun popFront(s: @OurLocationSyncCharRange) {
+    if ( *s.source == '\n' )
+        s.location addLines 1;
+    else
+        s.location addColumns 1;
+    s.source popFront;
+}
+
+
+/// Our main scanner
+///
+/// This behaves just like a range transformation. Given the source range, this
+/// will represent a range of tokens extracted from the source characters.
+///
+class SparrowScanner(sourceType, errorReporterType: Type)
+        if CharRange(#$sourceType) && ErrorReporter(#$errorReporterType) {
+    using RetType = Token;
+    using IsSparrowScanner = true;
+
+    fun ctor(source: sourceType, errorReporter: errorReporterType, iniLocation: @Location) {
+        this.curLocation ctor iniLocation;
+        this.src.ctor(RangeWithLookahead(sourceType)(source), curLocation);
+        this.curToken ctor;
+        this.tokenIsComputed ctor false;
+        this.atEnd ctor false;
+    }
+
+    /// Location that we use to keep track of the source chars
+    private var curLocation: Location;
+    /// The source stream of chars (and locations) we are going to use
+    private var src: LocationSyncCharRange(RangeWithLookahead(sourceType));
+    /// The current token we look at. We will reuse this object for all the
+    /// tokens that we parse from the source stream
+    private var curToken: Token;
+    /// Indicates if 'curToken' is computed or not
+    private var tokenIsComputed: Bool;
+    /// Indicates if 'curToken' is computed or not
+    private var atEnd: Bool;
+    /// Object used to report errors
+    private var errorReporter: errorReporterType;
+}
+/// Concept that matches SparrowScanner above
+private concept OurScanner(t) if t.IsSparrowScanner;
+
+fun isEmpty(s: @OurScanner) = s.atEnd;
+fun front(s: @OurScanner): Token {
+    if ( !s.tokenIsComputed ) {
+        s.tokenIsComputed = true;
+        s popFront;
+    }
+    return s.curToken;
+}
+fun popFront(s: @OurScanner) {
+    s.curToken.type = (s nextToken);
+    s.curToken.loc = s.src.location;
+    s.atEnd = (s.curToken.type == tkEND);
+}
+
+private fun reportError(s: @OurScanner, msg: @String) {
+    s.errorReporter.reportError(s.src.location, msg);
+}
+
+/// Peeks at the next char; we assume that at least the cur char is valid
+/// Returns Char(0) if no next char is available
+private fun peekChar(s: @OurScanner): Char {
+    return s.src.source peek 1;
+}
+
+private fun peekChar(s: @OurScanner, n: UInt): Char {
+    return s.src.source peek n;
+}
+
+/// Check if the source to has less than the given number of characters
+private fun hasLessThan(s: @OurScanner, n: UInt): Bool {
+    return s.src.source hasLessThan n;
+}
+
+/// Advances the input stream while the predicate matches
+/// Captures every character that matches
+private fun advanceAndCapture(s: @OurScanner, pred: AnyType) {
+    while ( !!s.src && pred(*s.src); s.src popFront ) {
+        s.curToken.data += *s.src;
+    }
+}
+
+/// Advances and captures 1 char
+private fun advanceAndCapture1(s: @OurScanner) {
+    s.curToken.data += *s.src;
+    s.src popFront;
+}
+
+/// Same as above, but do not capture '_'; we advance past it
+private fun advanceAndCaptureDigit(s: @OurScanner, pred: AnyType) {
+    while ( !!s.src && (pred(*s.src) || *s.src == '_'); s.src popFront ) {
+        if ( *s.src != '_')
+            s.curToken.data += *s.src;
+    }
+}
+
+/// Computes the next token, for the current characters in the source stream.
+/// Stores the token in s.curToken
+private fun nextToken(s: @OurScanner): TokenType {
+    var loc: @Location = s.src.location;
+
+    while ( true ) {
+        // The current location starts where the last one ended
+        loc stepOver;
+        s.curToken.data clear;
+
+        // First check if the source is empty; if so, return an EOF token
+        if ( s.src isEmpty )
+            return tkEND;
+
+        // Get the first character in the source
+        var ch = *s.src;
+        var ch2 = s peekChar;
+
+        // Check for whitespace -- drop all the whitespace
+        if ( isSpace(ch) ) {
+            s.src advanceIf \isSpace;
+            continue;
+        }
+
+        // Check for line comments -- drop everything until the end of line (including eol)
+        if ( ch == '/' && ch2 == '/' ) {
+            s.src popFront;
+            s.src advanceIf (fun c = c!='\n');
+            if ( !!s.src ) s.src popFront;
+            continue;
+        }
+
+        // Check for multi-line comments -- drop them
+        if ( ch == '/' && ch2 == '*' ) {
+            s.src advance 2;
+            var c1 = 'a';
+            var c2 = 'a';
+            while ( !!s.src && (c1 != '*' || c2 != '/') ) {
+                c1 = c2;
+                c2 = ++s.src;
+            }
+            if ( !s.src ) {
+                s reportError "End of file found inside comment";
+                return tkEND;
+            }
+            s.src popFront;    // move past '/'
+            continue;
+        }
+
+        // Character & strings
+        if ( ch == '\'' ) return parseCharacter(s);
+        if ( ch == '"' ) return parseString(s);
+        if ( ch == '<' && ch2 == '{' ) return parseStringNE(s);
+
+        // Symbols
+        if ( ch == '{' )    { s.src popFront; return tkLCURLY; }
+        if ( ch == '{' )    { s.src popFront; return tkLCURLY; }
+        if ( ch == '}' )    { s.src popFront; return tkRCURLY; }
+        if ( ch == '[' )    { s.src popFront; return tkLBRACKET; }
+        if ( ch == ']' )    { s.src popFront; return tkRBRACKET; }
+        if ( ch == '(' )    { s.src popFront; return tkLPAREN; }
+        if ( ch == ')' )    { s.src popFront; return tkRPAREN; }
+        if ( ch == ';' )    { s.src popFront; return tkSEMICOLON; }
+        if ( ch == ',' )    { s.src popFront; return tkCOMMA; }
+        if ( ch == '`' )    { s.src popFront; return tkBACKSQUOTE; }
+
+        // These two symbols can also be part of operators
+        if ( ch == ':' && !isOpChar(s peekChar) )   { s.src popFront; return tkCOLON; }
+        if ( ch == '=' && !isOpChar(s peekChar) )   { s.src popFront; return tkEQUAL; }
+
+        // Is this an operator?
+        // If this is just a lonely dot, it will do nothing
+        if ( isOpCharDot(ch) ) {
+            if ( parseOperator(s) )
+                return tkOPERATOR;
+        }
+
+        // Check for dot -- dot followed by a digit is a floating point constant
+        if ( ch == '.' && !isDigit(ch2) ) { s.src popFront; return tkDOT; }
+
+        // Identifiers
+        if ( isAlpha(ch) || ch == '_' ) return parseIdentifer(s);
+
+        // Numeric literals
+        if ( isDigit(ch) || ch == '.' ) return parseNumeric(s);
+
+        s reportError toString("Invalid character found: '", ch, "'", Int(ch));
+        s.src popFront;
+        return tkEND;
+
+    }
+}
+
+private fun isOpChar(c: Char): Bool {
+    return c == '~' || c == '!' || c == '@' || c == '#' || c == '$' || c == '%'
+        || c == '^' || c == '&' || c == '-' || c == '+' || c == '=' || c == '|'
+        || c == '\\' || c == ':' || c == '<' || c == '>' || c == '?' || c == '/'
+        || c == '*';
+}
+private fun isOpCharDot(c: Char) = c == '.' || isOpChar(c);
+
+private fun isOctalDigit(c: Char) = '0' <= c && c <= '7';
+private fun isBinDigit(c: Char) = c == '0' || c == '1';
+
+private fun[native("tolower")] tolower(c: Int): Int;
+private fun toLower(c: Char) = Char(tolower(Int(c)));
+
+/// Parse an operator
+/// We know that the first char is an operator char or dot
+///
+/// Returns true if this is actually an operator.
+/// If it is, this will capture all the chars in the symbol.
+/// If it's not, this will not consume the input
+///
+/// If this is called to parse just a '.' without any follow-up operator chars,
+/// this will return false
+private fun parseOperator(s: @OurScanner): Bool {
+    var ch = *s.src;
+
+    // Operators
+    if ( isOpChar(ch) ) {
+        s advanceAndCapture \isOpCharDot;
+        return true;
+    }
+    // If a dot is found in the first position, at least one other dot needs to be in the operators string
+    // We need to look-ahead for the whole operator for this
+    if ( ch == '.' ) {
+        var i = 1;
+        var c = s peekChar i;
+        while ( isOpChar(c) )
+            c = (s peekChar ++i);
+        var hasOtherDot = c == '.';
+        if ( hasOtherDot ) {
+            s advanceAndCapture \isOpCharDot;
+            return true;
+        }
+    }
+
+    // this is not an operator
+    return false;
+}
+
+/// Parse an identifier; we know that we start with a letter or underscore
+/// Also checked for reserved keywords
+private fun parseIdentifer(s: @OurScanner): TokenType {
+    // Match the following:
+    //      Identifier      {IdLetters} | {IdLettersOp}
+    //      IdLetters       ({Letter} | '_') ({Letter} | '_' | {Digit})*
+    //      IdLettersOp     {IdLetters}\_{Operator}
+    // try to find an underscore; after underscore we can accept only operator chars
+    // before underscore accept only alpha
+
+    // Capture all the characters possible for the identifier
+    var allowSymbolChars = false;
+    s.curToken.data += *s.src;
+    s.src popFront;    // Skip the first char, we know it matches
+    var firstDot = true;
+    while ( !!s.src; s.src popFront ) {
+        var ch = *s.src;
+
+        // Check for characters allowed in the identifier
+        // At this point we only accept alpha-numeric and underscore
+        if ( !isAlpha(ch) && ch != '_' && !isDigit(ch) )
+            break;
+
+        s.curToken.data += ch;
+
+        // At underscores we may start accepting symbol characters
+        // If that's the case, we need to have symbol until the end
+        if ( ch == '_' && isOpCharDot(s peekChar) ) {
+            s.src popFront;
+            if ( parseOperator(s) )
+                return tkIDENTIFIER;
+        }
+
+    }
+
+    var data: @StringRef = s.curToken.data.asStringRef;
+
+    // Check for reserved words
+         if ( data == "break" )     return tkBREAK;
+    else if ( data == "catch" )     return tkCATCH;
+    else if ( data == "class" )     return tkCLASS;
+    else if ( data == "concept" )   return tkCONCEPT;
+    else if ( data == "continue" )  return tkCONTINUE;
+    else if ( data == "datatype" )  return tkDATATYPE;
+    else if ( data == "fun" )       return tkFUN;
+    else if ( data == "if" )        return tkIF;
+    else if ( data == "else" )      return tkELSE;
+    else if ( data == "false" )     return tkFALSE;
+    else if ( data == "finally" )   return tkFINALLY;
+    else if ( data == "for" )       return tkFOR;
+    else if ( data == "import" )    return tkIMPORT;
+    else if ( data == "module" )    return tkMODULE;
+    else if ( data == "null" )      return tkNULLCT;
+    else if ( data == "package" )   return tkPACKAGE;
+    else if ( data == "private" )   return tkPRIVATE;
+    else if ( data == "public" )    return tkPUBLIC;
+    else if ( data == "return" )    return tkRETURN;
+    else if ( data == "this" )      return tkTHIS;
+    else if ( data == "throw" )     return tkTHROW;
+    else if ( data == "true" )      return tkTRUE;
+    else if ( data == "try" )       return tkTRY;
+    else if ( data == "using" )     return tkUSING;
+    else if ( data == "var" )       return tkVAR;
+    else if ( data == "while" )     return tkWHILE;
+    else
+        return tkIDENTIFIER;
+}
+
+/// Parse a numeric constant (decimal, octal, hex, binary, floating)
+private fun parseNumeric(s: @OurScanner): TokenType {
+    var isLong = false;
+    var isUnsigned = false;
+    var isFloating = false;
+    var type = 0;   // 0=decimal, 1=hex, 2=binary, 3=octal, 4=floating
+
+    var ch = *s.src;
+    var ch2 = toLower(s peekChar);
+    var ch3 = toLower(s peekChar 2);
+
+    // Do the main parsing of all the digits (until the decimal part)
+    if ( ch == '0' && ch2 == 'x' ) {
+        s.src advance 2;
+        s.curToken.intData = consumeDigits(s.src, 16, s.curToken.data);
+    }
+    else if ( ch == '0' && ch2 == 'b' ) {
+        s.src advance 2;
+        s.curToken.intData = consumeDigits(s.src, 2, s.curToken.data);
+    }
+    else if ( ch == '0' && ch2 == 'o' ) {
+        s.src advance 1;
+        s.curToken.intData = consumeDigits(s.src, 8, s.curToken.data);
+    }
+    else {
+        // At this point we assume we are not parsing a floating point number
+        // Consume digits as much as possible
+        s.curToken.intData = consumeDigits(s.src, 10, s.curToken.data);
+
+        // We are now at the first non-digit; we can check for floating numbers
+        if ( !!s.src ) {
+            ch = toLower(*s.src);
+
+            // If we started as a decimal, and encountered a fractional or an exponential part,
+            // or a float suffix, make this a float
+            if ( (ch == '.' && !isOpCharDot(s peekChar)) || ch == 'e' || ch == 'f' || ch == 'd' ) {
+                isFloating = true;
+
+                // Do we have fractional part?
+                if ( ch == '.' ) {
+                    s advanceAndCapture1;   // past the dot
+                    s advanceAndCaptureDigit \isDigit;
+                }
+
+                // consume exponential part, if any
+                if ( !!s.src ) {
+                    ch = toLower(*s.src);
+                    if ( ch == 'e' ) {
+                        s advanceAndCapture1;
+                        s advanceAndCaptureDigit \isDigit;
+                    }
+                }
+
+                // Suffix for floats -- don't capture these
+                if ( !!s.src ) {
+                    isLong = true;  // by default double
+                    ch = toLower(*s.src);
+                    if ( ch == 'f' ) {
+                        isLong = false;
+                        s.src popFront;
+                    }
+                    else if ( ch == 'd' ) {
+                        s.src popFront;
+                    }
+                }
+            }
+        }
+    }
+
+    // Check if the number has enough digits
+    if ( s.curToken.data isEmpty ) {
+        s reportError "Invalid numeric literal";
+        return tkEND;
+    }
+
+    // Suffix for integers
+    if ( !isFloating ) {
+        if ( !!s.src && toLower(*s.src) == 'u' ) {
+            isUnsigned = true;
+            s.src popFront;
+        }
+        if ( !!s.src && toLower(*s.src) == 'l' ) {
+            isLong = true;
+            s.src popFront;
+        }
+    }
+
+    // Compute the value and return the token type
+    if ( isFloating ) {
+        s.curToken.data += Char(0);
+        s.curToken.floatData = (s.curToken.data.asStringRef asDouble);
+        return ife(isLong, tkDOUBLE_LITERAL, tkFLOAT_LITERAL);
+    }
+
+    if ( isUnsigned )
+        return ife(isLong, tkULONG_LITERAL, tkUINT_LITERAL);
+    else
+        return ife(isLong, tkLONG_LITERAL, tkINT_LITERAL);
+}
+
+private fun getDigitVal(c: Char) = (Int(c) - Int('0'));
+private fun getXdigitVal(c: Char) = ife(isDigit(c), Int(c) - Int('0'), 10 + Int(toLower(c)) - Int('a'));
+
+private fun consumeDigits(r: @Range, base: ULong, capture: @String): ULong {
+    var res: ULong = 0;
+    if ( base == 16 ) {
+        while ( !!r && (isXdigit(*r) || *r == '_'); r popFront ) {
+            if ( *r != '_') {
+                capture += *r;
+                res *= base;
+                res += getXdigitVal(*r);
+            }
+        }
+    }
+    else {
+        while ( !!r && (isXdigit(*r) || *r == '_'); r popFront ) {
+            if ( *r != '_') {
+                capture += *r;
+                res *= base;
+                res += getDigitVal(*r);
+            }
+        }
+    }
+    return res;
+}
+
+private fun parseCharacter(s: @OurScanner): TokenType {
+    s.src popFront;
+    if ( s hasLessThan 2 ) {
+        s reportError "End of file found inside character literal";
+        return tkEND;
+    }
+
+    // Get the character literal
+    var ch = *s.src;
+    if ( ch == '\'' ) {
+        s reportError "Invalid character literal";
+        s.curToken.data += '?';
+        return tkCHAR_LITERAL;
+    }
+    else if ( !checkEscapeChar(s) )
+        s advanceAndCapture1;
+
+    // Now expect closing quote
+    if ( !s.src ) {
+        s reportError "End of file found inside character literal";
+        return tkEND;
+    }
+    if ( *s.src != '\'' ) {
+        s reportError "Character literal too large";
+    }
+    s.src popFront;
+
+    return tkCHAR_LITERAL;
+}
+
+private fun checkEscapeChar(s: @OurScanner): Bool {
+    var ch = *s.src;
+    if ( ch == '\\' ) {
+        ch = ++s.src;
+        if ( ch == 'r' )
+            s.curToken.data += '\r';
+        else if ( ch == 'n' )
+            s.curToken.data += '\n';
+        else if ( ch == 'b' )
+            s.curToken.data += '\b';
+        else if ( ch == 'f' )
+            s.curToken.data += '\f';
+        else if ( ch == 't' )
+            s.curToken.data += '\t';
+        else if ( ch == '\\' )
+            s.curToken.data += '\\';
+        else if ( ch == '\'' )
+            s.curToken.data += '\'';
+        else if ( ch == '\"' )
+            s.curToken.data += '\"';
+        else if ( ch == 'x' || ch == 'X' ) {
+            if ( s hasLessThan 2 ) {
+                s reportError "Not enough digits for character code";
+                return true;
+            }
+            var charVal: Int = 16*getXdigitVal(++s.src);
+            charVal += getXdigitVal(++s.src);
+            s.curToken.data += Char(charVal);
+        }
+        else {
+            // Just use the next character
+            s.curToken.data += ++s.src;
+        }
+        s.src popFront; // Advance past the escape sequence
+        return true;
+    }
+    return false;
+}
+
+private fun parseString(s: @OurScanner): TokenType {
+    s.src popFront;
+    if ( s hasLessThan 1 ) {
+        s reportError "End of file found inside string literal";
+        return tkEND;
+    }
+
+    // Get all the characters from the string
+    while ( !!s.src && *s.src != '"' ) {
+        if ( !checkEscapeChar(s) )
+            s advanceAndCapture1;
+    }
+
+    // Now expect closing quote
+    // We shouldn't be at the end of the scope
+    if ( !s.src ) {
+        s reportError "End of file found inside string literal";
+        return tkEND;
+    }
+    s.src popFront;
+
+    return tkSTRING_LITERAL;
+}
+
+private fun parseStringNE(s: @OurScanner): TokenType {
+    s.src advance 2;
+
+    // Get all the characters from the string
+    while ( !!s.src && !(*s.src == '}' && (s peekChar) == '>') ) {
+        s advanceAndCapture1;
+    }
+
+    if ( !s.src ) {
+        s reportError "End of file found inside string literal";
+        return tkEND;
+    }
+    s.src advance 2;
+    return tkSTRING_LITERAL;
+}

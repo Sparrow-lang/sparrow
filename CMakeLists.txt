@@ -8,6 +8,10 @@ set( ${PROJECT_NAME}_MAJOR_VERSION  0 )
 set( ${PROJECT_NAME}_MINOR_VERSION  9 )
 set( ${PROJECT_NAME}_PATCH_LEVEL    3 )
 
+# User passed compilation options
+option(BOOSTSTRAP_SPARROW "Use system-wide SparrowCompiler to compile Sparrow files needed for the compiler" OFF)
+message(STATUS "BOOSTSTRAP_SPARROW: ${BOOSTSTRAP_SPARROW}")
+
 # Where to output the results of the compilation
 SET(OutDir ${CMAKE_CURRENT_SOURCE_DIR}/.out)
 SET(EXECUTABLE_OUTPUT_PATH ${OutDir})
@@ -39,13 +43,10 @@ include_directories( "${LLVM_INCLUDE_DIRS}" )
 link_directories(${LLVM_LIBRARY_DIRS})
 message(STATUS "LLVM include dirs: ${LLVM_INCLUDE_DIRS}")
 
-# Find flex & bison
+# Find bison
 set(Old_CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH})
 set(CMAKE_PREFIX_PATH ${CONAN_BISON_ROOT} ${CONAN_FLEX_ROOT} ${CMAKE_PREFIX_PATH})
 find_package(BISON)
-find_package(FLEX)
-message(STATUS "Flex executable: ${FLEX_EXECUTABLE}")
-message(STATUS "Flex include: ${FLEX_INCLUDE_DIR}")
 set(CMAKE_PREFIX_PATH ${Old_CMAKE_PREFIX_PATH})
 
 # Project options

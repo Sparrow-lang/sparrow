@@ -1,11 +1,7 @@
 
-# Add the flex & bison rules
-find_package(FLEX)
+# Add the bison rule
 find_package(BISON)
-BISON_TARGET(SparrowParser Grammar/parser.yy ${CMAKE_CURRENT_BINARY_DIR}/parser.yy.cpp VERBOSE ${CMAKE_CURRENT_BINARY_DIR}/parser.yy.output)
-FLEX_TARGET(SparrowScanner Grammar/scanner.ll ${CMAKE_CURRENT_BINARY_DIR}/scanner.ll.cpp)
-ADD_FLEX_BISON_DEPENDENCY(SparrowScanner SparrowParser)
-include_directories(${FLEX_INCLUDE_DIR})
+BISON_TARGET(SparrowParser Grammar/parser.yy ${CMAKE_CURRENT_BINARY_DIR}/parser.yy.cpp)
 
 # The source files
 SET(sourceFiles
@@ -29,7 +25,10 @@ SET(sourceFiles
     "IntMods.cpp"
     "SprDebug.cpp"
     "Grammar/parser.yy"
-    "Grammar/scanner.ll"
+    "Grammar/parserDefs.spr"
+    "Grammar/scanner.spr"
+    "Grammar/scannerIf.spr"
+    "Grammar/scannerIf.ll"
     "Grammar/Scanner.h"
     "Grammar/Scanner.cpp"
     "Nodes/SparrowNodes.h"
@@ -75,18 +74,40 @@ SET(sourceFiles
     "Helpers/Impl/ConceptCallable.cpp"
 )
 
+if(BOOSTSTRAP_SPARROW)
+    message(STATUS "Using SparrowCompiler to generate the scanner object")
+    SPARROW_TARGET(SparrowScanner
+        Grammar/scannerIf.spr
+        ${CMAKE_CURRENT_SOURCE_DIR}/Grammar/scannerIf.o
+        COMPILE_FLAGS "-dump-assembly -fno-colors -fno-main -c"
+        DEPENDS Grammar/scanner.spr Grammar/parserDefs.spr
+    )
+else()
+    message(STATUS "Using LLVM to generate the scanner object")
+    LLVMASM_TARGET(SparrowScanner
+        Grammar/scannerIf.ll
+        ${CMAKE_CURRENT_SOURCE_DIR}/Grammar/scannerIf.o
+    )
+endif()
 
 
 # Project settings
 INCLUDE_DIRECTORIES( "." )
 INCLUDE_DIRECTORIES( ".." )
 INCLUDE_DIRECTORIES( "${CMAKE_CURRENT_BINARY_DIR}" )
-INCLUDE_DIRECTORIES( "${FLEX_INCLUDE_DIRS}" )
 ADD_DEFINITIONS( "-DINSIDE_SPARROWFRONTEND" )
 ADD_MSVC_PRECOMPILED_HEADER("StdInc.h" "StdInc.cpp" sourceFiles)
 ADD_SOURCES_TO_GROUPS(sourceFiles)
-SOURCE_GROUP("Grammar" FILES ${CMAKE_CURRENT_BINARY_DIR}/parser.yy.hpp ${CMAKE_CURRENT_BINARY_DIR}/parser.yy.cpp ${CMAKE_CURRENT_BINARY_DIR}/scanner.ll.cpp)
+SOURCE_GROUP("Grammar"
+    FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/parser.yy.hpp
+    ${CMAKE_CURRENT_BINARY_DIR}/parser.yy.cpp
+)
 
-ADD_LIBRARY( SparrowFrontend ${sourceFiles} ${BISON_SparrowParser_OUTPUTS} ${FLEX_SparrowScanner_OUTPUTS} )
+ADD_LIBRARY( SparrowFrontend
+    ${sourceFiles}
+    ${BISON_SparrowParser_OUTPUTS}
+    ${SparrowScanner_OUTPUTS}
+)
 TARGET_LINK_LIBRARIES(SparrowFrontend ${REQ_LLVM_LIBRARIES})
 TARGET_LINK_LIBRARIES(SparrowFrontend ${Boost_FILESYSTEM_LIBRARY} ${Boost_PROGRAM_OPTIONS_LIBRARY} ${Boost_SYSTEM_LIBRARY})

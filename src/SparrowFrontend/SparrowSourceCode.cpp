@@ -19,16 +19,7 @@ namespace
     {
         Location loc = Nest_mkLocation1(sourceCode, 1, 1);
 
-        // Open the filename
-        ifstream f(sourceCode->url);
-        if ( !f )
-        {
-            REP_ERROR(loc, "Cannot open source file: %1%") % sourceCode->url;
-            sourceCode->mainNode = nullptr;
-            return;
-        }
-
-        Scanner scanner(f, Parser::token::START_PROGRAM);
+        Scanner scanner(loc, Parser::token::START_PROGRAM);
         Parser parser(scanner, loc, &sourceCode->mainNode);
         int rc = parser.parse();
         if ( rc != 0 )
@@ -79,9 +70,9 @@ Node* SprFe_parseSparrowExpression(Location loc, const char* code)
     // Only use the start part of the location
     loc.end = loc.start;
 
-    istringstream f(code);
-    Scanner scanner(f, Parser::token::START_EXPRESSION);
-    Node* res;
+    StringRef toParse = { code, code + strlen(code) };
+    Scanner scanner(loc, toParse, Parser::token::START_EXPRESSION);
+    Node* res = nullptr;
     Parser parser(scanner, loc, &res);
     int rc = parser.parse();
     if ( rc != 0 )

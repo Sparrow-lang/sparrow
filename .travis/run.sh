@@ -13,7 +13,7 @@ fi
 cd build
 conan install .. --build=missing
 cmake ..
-cmake --build .
+cmake --build . VERBOSE=1
 sudo cmake --build . -- install
 
 echo "---------- Testing ----------"

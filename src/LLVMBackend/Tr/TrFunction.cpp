@@ -113,9 +113,9 @@ llvm::Function* Tr::translateFunction(Node* node, Module& module)
     {
         // Make sure the function is semantically checked
         if ( !Nest_semanticCheck(node) )
-            return nullptr;            
+            return nullptr;
 
-        size_t lineDiff = node->location.end.line - node->location.start.line;
+        int lineDiff = node->location.end.line - node->location.start.line;
         bool preventInline = lineDiff > s.maxCountForInline_ || Nest_hasProperty(node, propNoInline);
 
         // Create the LLVM function object

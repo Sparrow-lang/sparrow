@@ -1,6 +1,5 @@
 ; ModuleID = 'LLVM backend module Runtime'
 target datalayout = "e-i64:64-f80:128-n8:16:32:64"
-target triple = "x86_64-apple-macosx10.9.0"
 
 %EndLineHelperClass = type {}
 %FlushHelperClass = type {}

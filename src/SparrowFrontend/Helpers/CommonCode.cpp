@@ -102,7 +102,7 @@ Node* SprFrontend::createDtorCall(const Location& loc, CompilationContext* conte
     Node* cls = Feather_classForType(thisArg->type);
     CHECK(loc, cls);
 
-    // Search for the dtor in the class 
+    // Search for the dtor in the class
     NodeArray decls = Nest_symTabLookupCurrent(cls->childrenContext->currentSymTab, "dtor");
 
     // If no destructor found, don't call anything
@@ -280,7 +280,7 @@ Node* SprFrontend::createFunPtr(Node* funNode)
         // If the class is valid, we have a conversion
         if ( t )
             return Feather_mkFunRef(loc, fun, Feather_mkTypeNode(loc, t));
-        
+
         REP_ERROR(loc, "Invalid function: %1%") % funNode;
         return nullptr;
     }

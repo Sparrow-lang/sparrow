@@ -14,6 +14,7 @@ const char* propCode = "code";
 const char* propEvalMode = "evalMode";
 const char* propResultingDecl = "resultingDecl";
 const char* propNoInline = "noInline";
+const char* propEmptyBody = "emptyBody";
 
 /// Tests if the given node is a declaration (a node that will expand to a Feather declaration)
 int _isDecl(Node* node)
@@ -108,7 +109,7 @@ Node* Feather_getParentLoop(CompilationContext* context)
     for ( ; parentSymTab; parentSymTab=parentSymTab->parent )
     {
         Node* n = parentSymTab->node;
-        
+
         // Do we have a while node?
         Node* expl = Nest_explanation(n);
         if ( expl->nodeKind == nkFeatherStmtWhile )
@@ -151,7 +152,7 @@ void Feather_setEvalMode(Node* decl, EvalMode val)
 {
     Nest_setPropertyInt(decl, "evalMode", val);
 
-    
+
     // Sanity check
 //    EvalMode curMode = declEvalMode(this);
 //    if ( data_.childrenContext && curMode != modeUnspecified && data_.childrenContext->evalMode() != curMode )
@@ -163,7 +164,7 @@ void Feather_addToSymTab(Node* decl)
     const int* dontAddToSymTab = Nest_getPropertyInt(decl, "dontAddToSymTab");
     if ( dontAddToSymTab && *dontAddToSymTab )
         return;
-    
+
     if ( !decl->context )
         Nest_reportFmt(decl->location, diagInternalError, "Cannot add node %s to sym-tab: context is not set", Nest_nodeKindName(decl));
     StringRef declName = Feather_getName(decl);

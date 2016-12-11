@@ -251,6 +251,56 @@ using namespace Feather;
         return dupString(os.str().c_str());
     }
 
+    /// Checks if the given node has some possible instructions
+    /// Does not need to be 100% accurate, can be conservative
+    bool canHaveInstructions(Node* node) {
+        if ( !node )
+            return false;
+        switch ( node->nodeKind - Feather_getFirstFeatherNodeKind() ) {
+            case nkRelFeatherNodeList:
+            case nkRelFeatherLocalSpace:
+                for ( Node* n: node->children ) {
+                    n = Nest_explanation(n);
+                    if ( canHaveInstructions(n) )
+                        return true;
+                }
+                return false;
+            case nkRelFeatherExpFunCall:
+            {
+                Node* fun = at(node->referredNodes, 0);
+                if ( !Nest_hasProperty(fun, propEmptyBody) )
+                    return true;
+                // Check the args for side-effects
+                for ( Node* arg: node->children ) {
+                    arg = Nest_explanation(arg);
+                    if ( canHaveInstructions(arg) )
+                        return true;
+                }
+                return false;
+            }
+            // These can have side effects if the first child has side effects
+            case nkRelFeatherExpBitcast:
+            case nkRelFeatherExpMemLoad:
+            case nkRelFeatherExpFieldRef:
+            {
+                Node* exp = at(node->children, 0);
+                exp = Nest_explanation(exp);
+                return canHaveInstructions(exp);
+            }
+
+            // These cannot have side effects
+            case nkRelFeatherNop:
+            case nkRelFeatherExpCtValue:
+            case nkRelFeatherExpNull:
+            case nkRelFeatherExpFunRef:
+            case nkRelFeatherExpVarRef:
+                return false;
+
+            default:
+                return true;
+        }
+    }
+
     void Function_SetContextForChildren(Node* node)
     {
         // If we don't have a children context, create one
@@ -310,6 +360,15 @@ using namespace Feather;
         Node* body = at(node->children, 1);
         if ( body )
             Nest_semanticCheck(body);  // Ignore possible errors
+
+        // Do we have some valid instructions in the body?
+        // Could we mark this function as having an empty body?
+        Node* resultType = at(node->children, 0);
+        bool noRetValue = !resultType || !resultType->type->hasStorage;
+        bool couldInline = !Nest_hasProperty(node, propNativeName) || !Nest_hasProperty(node, propNoInline);
+        if ( noRetValue && couldInline && body && !canHaveInstructions(body) ) {
+            Nest_setPropertyInt(node, propEmptyBody, 1);
+        }
 
         // TODO (function): Check that all the paths return a value
         return node;
@@ -662,6 +721,12 @@ using namespace Feather;
 
         // Make sure we yield a type with the right mode
         node->type = Feather_adjustMode(node->type, node->context, node->location);
+
+        // Check if this node can have some meaningful instructions generated for it
+        bool noRetValue = !node->type->hasStorage;
+        if ( noRetValue && !canHaveInstructions(node) ) {
+            Nest_setPropertyInt(node, propEmptyBody, 1);
+        }
 
         Feather_checkEvalMode(node, calledFunMode);
         return node;

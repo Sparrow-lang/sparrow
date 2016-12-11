@@ -23,7 +23,7 @@ fun[rtct] pre_++(r: @Range): r.RetType
 }
 fun[rtct] post_++(r: @Range): r.RetType
 {
-    var res = r front;
+    var res: r.RetType = r front;
     r popFront;
     return res;
 }
@@ -34,7 +34,7 @@ fun[rtct] pre_--(r: @BidirRange): r.RetType
 }
 fun[rtct] post_--(r: @BidirRange): r.RetType
 {
-    var res = r back;
+    var res: r.RetType = r back;
     r popBack;
     return res;
 }

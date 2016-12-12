@@ -14,163 +14,163 @@ using namespace Nest;
 
 namespace
 {
-    void ctApi_Sparrow_mkModifiers(Node** sret, Location* loc, Node* main, Node* mods)
+    Node* ctApi_Sparrow_mkModifiers(Location* loc, Node* main, Node* mods)
     {
-        *sret = mkModifiers(*loc, main, mods);
+        return mkModifiers(*loc, main, mods);
     }
 
-    void ctApi_Sparrow_mkModule(Node** sret, Location* loc, Node* moduleName, Node* declarations)
+    Node* ctApi_Sparrow_mkModule(Location* loc, Node* moduleName, Node* declarations)
     {
-        *sret = mkModule(*loc, moduleName, declarations);
+        return mkModule(*loc, moduleName, declarations);
     }
-    void ctApi_Sparrow_mkImportName(Node** sret, Location* loc, Node* moduleName, Node* importedDeclNames, StringRef alias)
+    Node* ctApi_Sparrow_mkImportName(Location* loc, Node* moduleName, Node* importedDeclNames, StringRef alias)
     {
-        *sret = mkImportName(*loc, moduleName, importedDeclNames, true, alias);
+        return mkImportName(*loc, moduleName, importedDeclNames, true, alias);
     }
-    void ctApi_Sparrow_mkSprUsing(Node** sret, Location* loc, StringRef alias, Node* usingNode)
+    Node* ctApi_Sparrow_mkSprUsing(Location* loc, StringRef alias, Node* usingNode)
     {
-        *sret = mkSprUsing(*loc, alias, usingNode);
+        return mkSprUsing(*loc, alias, usingNode);
     }
-    void ctApi_Sparrow_mkSprPackage(Node** sret, Location* loc, StringRef name, Node* children)
+    Node* ctApi_Sparrow_mkSprPackage(Location* loc, StringRef name, Node* children)
     {
-        *sret = mkSprPackage(*loc, name, children);
+        return mkSprPackage(*loc, name, children);
     }
-    void ctApi_Sparrow_mkSprVariable(Node** sret, Location* loc, StringRef name, Node* typeNode, Node* init)
+    Node* ctApi_Sparrow_mkSprVariable(Location* loc, StringRef name, Node* typeNode, Node* init)
     {
-        *sret = mkSprVariable(*loc, name, typeNode, init);
+        return mkSprVariable(*loc, name, typeNode, init);
     }
-    void ctApi_Sparrow_mkSprClass(Node** sret, Location* loc, StringRef name, Node* parameters, Node* baseClasses, Node* ifClause, Node* children, int accessType)
+    Node* ctApi_Sparrow_mkSprClass(Location* loc, StringRef name, Node* parameters, Node* baseClasses, Node* ifClause, Node* children, int accessType)
     {
-        *sret = mkSprClass(*loc, name, parameters, baseClasses, ifClause, children, (AccessType) accessType);
-    }
-
-    void ctApi_Sparrow_mkSprConcept(Node** sret, Location* loc, StringRef name, Node* baseConcept, StringRef paramName, Node* ifClause)
-    {
-        *sret = mkSprConcept(*loc, name, paramName, baseConcept, ifClause);
+        return mkSprClass(*loc, name, parameters, baseClasses, ifClause, children, (AccessType) accessType);
     }
 
-    void ctApi_Sparrow_mkSprFunction(Node** sret, Location* loc, StringRef name, Node* parameters, Node* returnType, Node* body, Node* ifClause, int accessType)
+    Node* ctApi_Sparrow_mkSprConcept(Location* loc, StringRef name, Node* baseConcept, StringRef paramName, Node* ifClause)
     {
-        *sret = mkSprFunction(*loc, name, parameters, returnType, body, nullptr, (AccessType) accessType);
-    }
-    void ctApi_Sparrow_mkSprFunctionExp(Node** sret, Location* loc, StringRef name, Node* parameters, Node* returnType, Node* bodyExp, Node* ifClause, int accessType)
-    {
-        *sret = buildSprFunctionExp(*loc, name, parameters, returnType, bodyExp, nullptr, (AccessType) accessType);
-    }
-    void ctApi_Sparrow_mkSprParameter(Node** sret, Location* loc, StringRef name, Node* typeNode, Node* init)
-    {
-        *sret = mkSprParameter(*loc, name, typeNode);
-    }
-    void ctApi_Sparrow_mkSprAutoParameter(Node** sret, Location* loc, StringRef name)
-    {
-        *sret = mkSprAutoParameter(*loc, name);
+        return mkSprConcept(*loc, name, paramName, baseConcept, ifClause);
     }
 
-    void ctApi_Sparrow_mkIdentifier(Node** sret, Location* loc, StringRef id)
+    Node* ctApi_Sparrow_mkSprFunction(Location* loc, StringRef name, Node* parameters, Node* returnType, Node* body, Node* ifClause, int accessType)
     {
-        *sret = mkIdentifier(*loc, id);
+        return mkSprFunction(*loc, name, parameters, returnType, body, nullptr, (AccessType) accessType);
     }
-    void ctApi_Sparrow_mkCompoundExp(Node** sret, Location* loc, Node* base, StringRef id)
+    Node* ctApi_Sparrow_mkSprFunctionExp(Location* loc, StringRef name, Node* parameters, Node* returnType, Node* bodyExp, Node* ifClause, int accessType)
     {
-        *sret = mkCompoundExp(*loc, base, id);
+        return buildSprFunctionExp(*loc, name, parameters, returnType, bodyExp, nullptr, (AccessType) accessType);
     }
-    void ctApi_Sparrow_mkStarExp(Node** sret, Location* loc, Node* base, StringRef operName)
+    Node* ctApi_Sparrow_mkSprParameter(Location* loc, StringRef name, Node* typeNode, Node* init)
     {
-        *sret = mkStarExp(*loc, base, operName);
+        return mkSprParameter(*loc, name, typeNode);
     }
-    void ctApi_Sparrow_mkPostfixOp(Node** sret, Location* loc, StringRef op, Node* base)
+    Node* ctApi_Sparrow_mkSprAutoParameter(Location* loc, StringRef name)
     {
-        *sret = buildPostfixOp(*loc, op, base);
-    }
-    void ctApi_Sparrow_mkInfixOp(Node** sret, Location* loc, StringRef op, Node* arg1, Node* arg2)
-    {
-        *sret = mkInfixOp(*loc, op, arg1, arg2);
-    }
-    void ctApi_Sparrow_mkPrefixOp(Node** sret, Location* loc, StringRef op, Node* base)
-    {
-        *sret = buildPrefixOp(*loc, op, base);
-    }
-    void ctApi_Sparrow_mkFunApplication(Node** sret, Location* loc, Node* base, Node* arguments)
-    {
-        *sret = mkFunApplication(*loc, base, arguments);
-    }
-    void ctApi_Sparrow_mkOperatorCall(Node** sret, Location* loc, Node* arg1, StringRef op, Node* arg2)
-    {
-        *sret = mkOperatorCall(*loc, arg1, op, arg2);
+        return mkSprAutoParameter(*loc, name);
     }
 
-    void ctApi_Sparrow_mkConditionalExp(Node** sret, Location* loc, Node* cond, Node* alt1, Node* alt2)
+    Node* ctApi_Sparrow_mkIdentifier(Location* loc, StringRef id)
     {
-        *sret = mkConditionalExp(*loc, cond, alt1, alt2);
+        return mkIdentifier(*loc, id);
     }
-    void ctApi_Sparrow_mkThisExp(Node** sret, Location* loc)
+    Node* ctApi_Sparrow_mkCompoundExp(Location* loc, Node* base, StringRef id)
     {
-        *sret = mkThisExp(*loc);
+        return mkCompoundExp(*loc, base, id);
     }
-    void ctApi_Sparrow_mkParenthesisExp(Node** sret, Location* loc, Node* exp)
+    Node* ctApi_Sparrow_mkStarExp(Location* loc, Node* base, StringRef operName)
     {
-        *sret = buildParenthesisExp(*loc, exp);
+        return mkStarExp(*loc, base, operName);
     }
-    void ctApi_Sparrow_mkIntLiteral(Node** sret, Location* loc, int value)
+    Node* ctApi_Sparrow_mkPostfixOp(Location* loc, StringRef op, Node* base)
     {
-        *sret = buildIntLiteral(*loc, value);
+        return buildPostfixOp(*loc, op, base);
     }
-    void ctApi_Sparrow_mkUIntLiteral(Node** sret, Location* loc, unsigned int value)
+    Node* ctApi_Sparrow_mkInfixOp(Location* loc, StringRef op, Node* arg1, Node* arg2)
     {
-        *sret = buildUIntLiteral(*loc, value);
+        return mkInfixOp(*loc, op, arg1, arg2);
     }
-    void ctApi_Sparrow_mkLongLiteral(Node** sret, Location* loc, long value)
+    Node* ctApi_Sparrow_mkPrefixOp(Location* loc, StringRef op, Node* base)
     {
-        *sret = buildLongLiteral(*loc, value);
+        return buildPrefixOp(*loc, op, base);
     }
-    void ctApi_Sparrow_mkULongLiteral(Node** sret, Location* loc, unsigned long value)
+    Node* ctApi_Sparrow_mkFunApplication(Location* loc, Node* base, Node* arguments)
     {
-        *sret = buildULongLiteral(*loc, value);
+        return mkFunApplication(*loc, base, arguments);
     }
-    void ctApi_Sparrow_mkFloatLiteral(Node** sret, Location* loc, float value)
+    Node* ctApi_Sparrow_mkOperatorCall(Location* loc, Node* arg1, StringRef op, Node* arg2)
     {
-        *sret = buildFloatLiteral(*loc, value);
-    }
-    void ctApi_Sparrow_mkDoubleLiteral(Node** sret, Location* loc, double value)
-    {
-        *sret = buildDoubleLiteral(*loc, value);
-    }
-    void ctApi_Sparrow_mkCharLiteral(Node** sret, Location* loc, char value)
-    {
-        *sret = buildCharLiteral(*loc, value);
-    }
-    void ctApi_Sparrow_mkStringLiteral(Node** sret, Location* loc, StringRef value)
-    {
-        *sret = buildStringLiteral(*loc, value);
-    }
-    void ctApi_Sparrow_mkNullLiteral(Node** sret, Location* loc)
-    {
-        *sret = buildNullLiteral(*loc);
-    }
-    void ctApi_Sparrow_mkBoolLiteral(Node** sret, Location* loc, bool value)
-    {
-        *sret = buildBoolLiteral(*loc, value);
-    }
-    void ctApi_Sparrow_mkLambdaExp(Node** sret, Location* loc, Node* parameters, Node* returnType, Node* body, Node* bodyExp, Node* closureParams)
-    {
-        *sret = mkLambdaExp(*loc, parameters, returnType, body, bodyExp, closureParams);
+        return mkOperatorCall(*loc, arg1, op, arg2);
     }
 
-    void ctApi_Sparrow_mkExpressionStmt(Node** sret, Location* loc, Node* exp)
+    Node* ctApi_Sparrow_mkConditionalExp(Location* loc, Node* cond, Node* alt1, Node* alt2)
     {
-        *sret = buildExpressionStmt(*loc, exp);
+        return mkConditionalExp(*loc, cond, alt1, alt2);
     }
-    void ctApi_Sparrow_mkBlockStmt(Node** sret, Location* loc, Node* statements)
+    Node* ctApi_Sparrow_mkThisExp(Location* loc)
     {
-        *sret = buildBlockStmt(*loc, statements);
+        return mkThisExp(*loc);
     }
-    void ctApi_Sparrow_mkForStmt(Node** sret, Location* loc, StringRef name, Node* type, Node* range, Node* action)
+    Node* ctApi_Sparrow_mkParenthesisExp(Location* loc, Node* exp)
     {
-        *sret = mkForStmt(*loc, name, type, range, action);
+        return buildParenthesisExp(*loc, exp);
     }
-    void ctApi_Sparrow_mkReturnStmt(Node** sret, Location* loc, Node* exp)
+    Node* ctApi_Sparrow_mkIntLiteral(Location* loc, int value)
     {
-        *sret = mkReturnStmt(*loc, exp);
+        return buildIntLiteral(*loc, value);
+    }
+    Node* ctApi_Sparrow_mkUIntLiteral(Location* loc, unsigned int value)
+    {
+        return buildUIntLiteral(*loc, value);
+    }
+    Node* ctApi_Sparrow_mkLongLiteral(Location* loc, long value)
+    {
+        return buildLongLiteral(*loc, value);
+    }
+    Node* ctApi_Sparrow_mkULongLiteral(Location* loc, unsigned long value)
+    {
+        return buildULongLiteral(*loc, value);
+    }
+    Node* ctApi_Sparrow_mkFloatLiteral(Location* loc, float value)
+    {
+        return buildFloatLiteral(*loc, value);
+    }
+    Node* ctApi_Sparrow_mkDoubleLiteral(Location* loc, double value)
+    {
+        return buildDoubleLiteral(*loc, value);
+    }
+    Node* ctApi_Sparrow_mkCharLiteral(Location* loc, char value)
+    {
+        return buildCharLiteral(*loc, value);
+    }
+    Node* ctApi_Sparrow_mkStringLiteral(Location* loc, StringRef value)
+    {
+        return buildStringLiteral(*loc, value);
+    }
+    Node* ctApi_Sparrow_mkNullLiteral(Location* loc)
+    {
+        return buildNullLiteral(*loc);
+    }
+    Node* ctApi_Sparrow_mkBoolLiteral(Location* loc, bool value)
+    {
+        return buildBoolLiteral(*loc, value);
+    }
+    Node* ctApi_Sparrow_mkLambdaExp(Location* loc, Node* parameters, Node* returnType, Node* body, Node* bodyExp, Node* closureParams)
+    {
+        return mkLambdaExp(*loc, parameters, returnType, body, bodyExp, closureParams);
+    }
+
+    Node* ctApi_Sparrow_mkExpressionStmt(Location* loc, Node* exp)
+    {
+        return buildExpressionStmt(*loc, exp);
+    }
+    Node* ctApi_Sparrow_mkBlockStmt(Location* loc, Node* statements)
+    {
+        return buildBlockStmt(*loc, statements);
+    }
+    Node* ctApi_Sparrow_mkForStmt(Location* loc, StringRef name, Node* type, Node* range, Node* action)
+    {
+        return mkForStmt(*loc, name, type, range, action);
+    }
+    Node* ctApi_Sparrow_mkReturnStmt(Location* loc, Node* exp)
+    {
+        return mkReturnStmt(*loc, exp);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -181,9 +181,9 @@ namespace
         int kind = SprFe_registerUserDefinedSourceCode(ext.begin, funName.begin);
         return kind >= 0;
     }
-    void ctApi_Compiler_parseSprExpression(Node** sret, Location* loc, StringRef exp)
+    Node* ctApi_Compiler_parseSprExpression(Location* loc, StringRef exp)
     {
-        *sret = SprFe_parseSparrowExpression(*loc, exp.begin);
+        return SprFe_parseSparrowExpression(*loc, exp.begin);
     }
 }
 

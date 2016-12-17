@@ -18,10 +18,12 @@ using namespace std;
 
 namespace
 {
-    pair<string, string> splitFilename(const string& fullFilename)
+    pair<string, string> splitFilename(const char* path)
     {
-        boost::filesystem::path p(fullFilename);
-        return make_pair(p.parent_path().string(), p.filename().string());
+        auto absPath = boost::filesystem::canonical(path);
+        auto filename = absPath.filename().string();
+        auto dir = absPath.parent_path().string();
+        return make_pair(dir, filename);
     }
 
     llvm::DebugLoc getDebugLoc(const Location& loc, llvm::MDNode* scope, bool takeStart = true)
@@ -157,7 +159,7 @@ void DebugInfo::emitLexicalBlockEnd(LlvmBuilder& builder, const Location& loc)
 
 void DebugInfo::createCompileUnit(const string& mainFilename)
 {
-    auto p = splitFilename(mainFilename);
+    auto p = splitFilename(mainFilename.c_str());
 
     // Create new compile unit
     compileUnit_ = diBuilder_.createCompileUnit(

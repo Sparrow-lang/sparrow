@@ -120,7 +120,7 @@ llvm::Function* Tr::translateFunction(Node* node, Module& module)
 
         // Create the LLVM function object
         llvm::Function::LinkageTypes linkage = body && !preventInline
-            ? llvm::Function::PrivateLinkage
+            ? llvm::Function::InternalLinkage
             : llvm::Function::ExternalLinkage;
         f = llvm::Function::Create(funType, linkage, funName.begin, &module.llvmModule());
 

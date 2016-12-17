@@ -120,8 +120,6 @@ namespace
         CompilerSettings& s = *Nest_compilerSettings();
 
         vector<string> args = { llc, "--filetype=obj" };
-        if ( s.generateDebugInfo_ )
-            args.emplace_back("-dwarf-version=3");
 #ifdef _WIN32
         //args.push_back("-mtriple");
         //args.push_back("i386-pc-mingw32");

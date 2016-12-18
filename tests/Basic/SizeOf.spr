@@ -1,9 +1,9 @@
-//!! -t "SparrowImplicitLib.spr"
+//!! -t "SparrowImplicitLib.spr" -fno-main
 
 class MyVector(t: Type)
 {
     var start, end: t;
-    
+
     fun print()
     {
         write(start);
@@ -39,7 +39,7 @@ fun[native("test")] test(n: Int)
     writeLn(sizeOf(ULong@));
     writeLn(sizeOf(Float@));
     writeLn(sizeOf(Double@));
-    
+
     writeLn('-');
 
 

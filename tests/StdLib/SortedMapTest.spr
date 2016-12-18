@@ -2,7 +2,7 @@ import std.sortedMap;
 import std.sortedTable(Less);
 import std.ranges;
 import std.tuple;
-import std.list, =std.vector;
+import std.list, std.vector;
 import std.algorithms;
 
 fun sprMain

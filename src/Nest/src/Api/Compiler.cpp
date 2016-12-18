@@ -153,12 +153,8 @@ pair<bool, SourceCode*> _handleImportFile(const ImportInfo& import)
     if ( errorCount != Nest_getErrorsNum() )
         return make_pair(true, sourceCode);
 
-    // If we are not interesting only in syntax, compile the file
-    if ( !_settings.syntaxOnly_ )
-    {
-        // We need to compile this source code
-        _toCompile.push_back(sourceCode);
-    }
+    // We need to compile this source code
+    _toCompile.push_back(sourceCode);
 
     return make_pair(true, sourceCode);
 }
@@ -263,9 +259,6 @@ SourceCode* Nest_compileFile(StringRef filename)
 
     // Parse the source code
     SourceCode* sc = Nest_addSourceCodeByFilename(nullptr, filename);
-
-    if ( _settings.syntaxOnly_ )
-        return sc;
 
     vector<SourceCode*> toCodeGenerate;
 

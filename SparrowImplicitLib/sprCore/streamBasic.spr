@@ -59,7 +59,7 @@ fun[rtct] mkStreamRefWrapper(x: @AnyType): StreamRefWrapperHelperClass
     return res;
 }
 
-package Impl
+private package Impl
 {
     fun[rtct, native("writePointer")] writeRef(x: @Byte);
 }

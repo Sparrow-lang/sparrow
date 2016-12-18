@@ -1,4 +1,4 @@
-//!! -t "SparrowImplicitLib.spr"
+//!! -t "SparrowImplicitLib.spr" -fno-main
 
 concept AnyType(x) if true;
 
@@ -30,7 +30,7 @@ fun printType(t: Type)
         write("Double");
     else if ( t == Char )
         write("Char");
-}   
+}
 
 class TypePrinter(t1: Type, t2: Type = Int)
 {
@@ -42,7 +42,7 @@ class TypePrinter(t1: Type, t2: Type = Int)
         printType(t2);
         writeLn("");
     }
-    
+
 }
 
 class Bar(t: Type = Int)

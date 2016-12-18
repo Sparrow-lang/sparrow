@@ -1,10 +1,10 @@
-//!! -t "SparrowImplicitLib.spr"
+//!! -t "SparrowImplicitLib.spr" -fno-main
 
 class Test
 {
     var x: Int;
     var y: Int;
-    
+
     fun[static, rt] f()
     {
         writeLnInt(1);

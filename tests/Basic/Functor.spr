@@ -1,4 +1,4 @@
-//!! -t "SparrowImplicitLib.spr"
+//!! -t "SparrowImplicitLib.spr" -fno-main
 
 class Test
 {

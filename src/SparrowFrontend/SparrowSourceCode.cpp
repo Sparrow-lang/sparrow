@@ -1,7 +1,6 @@
 #include <StdInc.h>
 #include "SparrowSourceCode.h"
-#include "Grammar/Scanner.h"
-#include <parser.yy.hpp>
+#include "Grammar/Parser.h"
 #include <Helpers/SprTypeTraits.h>
 
 #include "Nest/Utils/Alloc.h"
@@ -19,24 +18,11 @@ namespace
     {
         Location loc = Nest_mkLocation1(sourceCode, 1, 1);
 
-        // Open the filename
-        ifstream f(sourceCode->url);
-        if ( !f )
-        {
-            REP_ERROR(loc, "Cannot open source file: %1%") % sourceCode->url;
-            sourceCode->mainNode = nullptr;
-            return;
-        }
+        Parser parser(loc);
+        sourceCode->mainNode = parser.parseModule();
 
-        Scanner scanner(f, Parser::token::START_PROGRAM);
-        Parser parser(scanner, loc, &sourceCode->mainNode);
-        int rc = parser.parse();
-        if ( rc != 0 )
-        {
-            return;
-        }
-
-        Nest_setContext(sourceCode->mainNode, ctx);
+        if ( sourceCode->mainNode )
+            Nest_setContext(sourceCode->mainNode, ctx);
     }
 
     StringRef getSourceCodeLine(const SourceCode* sourceCode, int lineNo)
@@ -79,12 +65,11 @@ Node* SprFe_parseSparrowExpression(Location loc, const char* code)
     // Only use the start part of the location
     loc.end = loc.start;
 
-    istringstream f(code);
-    Scanner scanner(f, Parser::token::START_EXPRESSION);
-    Node* res;
-    Parser parser(scanner, loc, &res);
-    int rc = parser.parse();
-    if ( rc != 0 )
-        REP_ERROR_RET(nullptr, loc, "Cannot parse the expression code");
+    StringRef toParse = { code, code + strlen(code) };
+
+    Parser parser(loc, toParse);
+    Node* res = parser.parseExpression();
+    if ( !res )
+        REP_ERROR(loc, "Cannot parse the expression code");
     return res;
 }

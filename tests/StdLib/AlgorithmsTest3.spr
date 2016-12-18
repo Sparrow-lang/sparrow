@@ -1,5 +1,5 @@
 //!!
-//--keep-intermediate-files --dump-assembly --dump-ct-assembly
+//-keep-intermediate-files -dump-assembly -dump-ct-assembly
 import std.ranges;
 import std.algorithms;
 import std.contiguousMemoryRange(ContiguousMemoryRange);

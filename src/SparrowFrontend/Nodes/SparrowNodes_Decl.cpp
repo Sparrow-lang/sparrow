@@ -1,6 +1,7 @@
 #include <StdInc.h>
 #include "SparrowNodes.h"
 #include "IntMods.h"
+#include "SprDebug.h"
 #include <SparrowFrontendTypes.h>
 
 #include <Helpers/CommonCode.h>
@@ -406,10 +407,14 @@ TypeRef SprFunction_ComputeType(Node* node)
     // Compute the type of the return type node
     // We do this after the parameters, as the computation of the result might require access to the parameters
     TypeRef resType = returnType ? getType(returnType) : Feather_getVoidType(thisEvalMode);
+    if ( !resType )
+        REP_INTERNAL(node->location, "Cannot compute the function resulting type");
     resType = Feather_adjustModeBase(resType, thisEvalMode, node->childrenContext, node->location);
 
-    // If the parameter is a non-reference class, not basic numeric, add result parameter; otherwise, normal result
-    if ( resType->hasStorage && resType->numReferences == 0 && !Feather_isBasicNumericType(resType) )
+    // If the result is a non-reference class, not basic numeric, and our function is not native, add result parameter;
+    // otherwise, normal result
+    bool nativeAbi = nativeName && *nativeName != "$funptr";
+    if ( !nativeAbi && resType->hasStorage && resType->numReferences == 0 && !Feather_isBasicNumericType(resType) )
     {
         Node* resParam = Feather_mkVar(returnType->location, fromCStr("_result"), Feather_mkTypeNode(returnType->location, Feather_addRef(resType)));
         Nest_setContext(resParam, node->childrenContext);

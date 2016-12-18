@@ -709,6 +709,8 @@ fun[autoCt] post_--(n: @DiffType): DiffType { var old = n; n-=DiffType(1); retur
 /// String class that DOES NOT have ownership of the characters; it simply refers to another string
 class[rtct, native("StringRef")] StringRef
 {
+    using RetType = @Char;
+
     var begin: @Byte;
     var end: @Byte;
 
@@ -730,13 +732,19 @@ class[rtct, native("StringRef")] StringRef
     }
     fun dtor {}
 
-    fun size: SizeType = ptrDiff(end, begin);
-    fun isEmpty: Bool = begin == end;
+    fun isEmpty                     = ptrDiff(end, begin) == 0;
+    fun size: SizeType              = ptrDiff(end, begin);
 
-    fun at(index: SizeType): Char   = reinterpretCast(@Char, ptrAdd(begin, index));
-    fun ()(index: SizeType): Char   = reinterpretCast(@Char, ptrAdd(begin, index));
-    fun front: Char                 = reinterpretCast(@Char, begin);
-    fun back: Char                  = reinterpretCast(@Char, ptrAdd(end, -1));
+    fun front: @Char                = reinterpretCast(@Char, begin);
+    fun back: @Char                 = reinterpretCast(@Char, ptrAdd(end, -1));
+    fun () : @Char                  = reinterpretCast(@Char, begin);
+    fun ()(index: SizeType): @Char  = reinterpretCast(@Char, ptrAdd(begin, index));
+    fun at(index: SizeType): @Char  = reinterpretCast(@Char, ptrAdd(begin, index));
+
+    fun popFront                { begin := ptrAdd(begin, 1); }
+    fun popBack                 { end := ptrAdd(end, -1); }
+    fun popFront(n: SizeType)   { begin := ptrAdd(begin, n); }
+    fun popBack(n: SizeType)    { end := ptrAdd(end, -DiffType(n)); }
 
     fun cStr(): @Char = reinterpretCast(@Char, begin);
 
@@ -901,7 +909,7 @@ fun[native("sleep")] sleep(x: Int);
 
 concept Range(x)
     if typeOf(x.RetType) == Type
-    && typeOf(x.isEmpty()) == Bool
-    && typeOf(x.front()) == x.RetType
-    && isValid(x.popFront())
+    && typeOf(x isEmpty) == Bool
+    && typeOf(x front) == x.RetType
+    && isValid(x popFront)
     ;

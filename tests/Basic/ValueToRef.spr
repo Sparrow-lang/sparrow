@@ -1,4 +1,4 @@
-//!! -t "SparrowImplicitLib.spr"
+//!! -t "SparrowImplicitLib.spr" -fno-main
 
 class MyVal
 {
@@ -42,7 +42,7 @@ fun[native("test")] test(n: Int)
     v.print();
     v.next().print();
     v.print();
- 
+
     writeLn("---");
 
     getValue(100).print();

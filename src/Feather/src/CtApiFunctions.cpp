@@ -18,16 +18,16 @@ namespace
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Diagnostic
     //
-    void ctApi_SourceCode_fromFilename(const SourceCode** sret, StringRef filename)
+    const SourceCode* ctApi_SourceCode_fromFilename(StringRef filename)
     {
-        *sret = Nest_getSourceCodeForFilename(filename);
+        return Nest_getSourceCodeForFilename(filename);
     }
-    void ctApi_SourceCode_filename(StringRef* sret, SourceCode** thisArg)
+    StringRef ctApi_SourceCode_filename(SourceCode** thisArg)
     {
-        *sret = fromCStr((*thisArg)->url);
+        return fromCStr((*thisArg)->url);
     }
 
-    void ctApi_Location_getCorrespondingCode(StringRef* sret, Location* thisArg)
+    StringRef ctApi_Location_getCorrespondingCode(Location* thisArg)
     {
         const SourceCode* sourceCode = (const SourceCode*) thisArg->sourceCode;
         string code;
@@ -42,7 +42,7 @@ namespace
             lineStr.begin += thisArg->start.col-1;
             lineStr.end = lineStr.begin + count;
         }
-        *sret = lineStr;
+        return lineStr;
     }
 
     void ctApi_report(int type, StringRef message, Location* location)
@@ -64,9 +64,9 @@ namespace
         return (*thisArg)->evalMode;
     }
 
-    void ctApi_CompilationContext_sourceCode(SourceCode** sret, CompilationContext** thisArg)
+    SourceCode* ctApi_CompilationContext_sourceCode(CompilationContext** thisArg)
     {
-        *sret = (*thisArg)->sourceCode;
+        return (*thisArg)->sourceCode;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -76,9 +76,9 @@ namespace
     {
         return (*thisArg)->typeKind;
     }
-    void ctApi_AstType_toString(StringRef* sret, TypeRef* thisArg)
+    StringRef ctApi_AstType_toString(TypeRef* thisArg)
     {
-        *sret = dupCStr((*thisArg)->description);
+        return dupCStr((*thisArg)->description);
     }
     bool ctApi_AstType_hasStorage(TypeRef* thisArg)
     {
@@ -104,29 +104,29 @@ namespace
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // AstNode
     //
-    void ctApi_AstNode_clone(Node** sret, Node** thisArg)
+    Node* ctApi_AstNode_clone(Node** thisArg)
     {
-        *sret = Nest_cloneNode(*thisArg);
+        return Nest_cloneNode(*thisArg);
     }
     int ctApi_AstNode_nodeKind(Node** thisArg)
     {
         return (*thisArg)->nodeKind;
     }
-    void ctApi_AstNode_nodeKindName(StringRef* sret, Node** thisArg)
+    StringRef ctApi_AstNode_nodeKindName(Node** thisArg)
     {
-        *sret = fromCStr(Nest_nodeKindName(*thisArg));
+        return fromCStr(Nest_nodeKindName(*thisArg));
     }
-    void ctApi_AstNode_toString(StringRef* sret, Node** thisArg)
+    StringRef ctApi_AstNode_toString(Node** thisArg)
     {
-        *sret = fromCStr(Nest_toString(*thisArg));
+        return fromCStr(Nest_toString(*thisArg));
     }
-    void ctApi_AstNode_toStringExt(StringRef* sret, Node** thisArg)
+    StringRef ctApi_AstNode_toStringExt(Node** thisArg)
     {
-        *sret = fromCStr(Nest_toString(*thisArg));
+        return fromCStr(Nest_toString(*thisArg));
     }
-    void ctApi_AstNode_location(Location* sret, Node** thisArg)
+    Location ctApi_AstNode_location(Node** thisArg)
     {
-        *sret = (*thisArg)->location;
+        return (*thisArg)->location;
     }
     void ctApi_AstNode_children(Node** thisArg, Node*** retBegin, Node*** retEnd)
     {
@@ -134,10 +134,10 @@ namespace
         *retBegin = r.beginPtr;
         *retEnd = r.endPtr;
     }
-    void ctApi_AstNode_getChild(Node** sret, Node** thisArg, int n)
+    Node* ctApi_AstNode_getChild(Node** thisArg, int n)
     {
         NodeRange r = Nest_nodeChildren(*thisArg);
-        *sret = r.beginPtr[n];
+        return r.beginPtr[n];
     }
     void ctApi_AstNode_referredNodes(Node** thisArg, Node*** retBegin, Node*** retEnd)
     {
@@ -210,9 +210,9 @@ namespace
     {
         Nest_clearCompilationState(*thisArg);
     }
-    void ctApi_AstNode_context(CompilationContext** sret, Node** thisArg)
+    CompilationContext* ctApi_AstNode_context(Node** thisArg)
     {
-        *sret = (*thisArg)->context;
+        return (*thisArg)->context;
     }
     bool ctApi_AstNode_hasError(Node** thisArg)
     {
@@ -222,158 +222,161 @@ namespace
     {
         return (*thisArg)->nodeSemanticallyChecked != 0;
     }
-    void ctApi_AstNode_type(TypeRef* sret, Node** thisArg)
+    TypeRef ctApi_AstNode_type(Node** thisArg)
     {
-        *sret = (*thisArg)->type;
+        return (*thisArg)->type;
     }
     bool ctApi_AstNode_isExplained(Node** thisArg)
     {
         return (*thisArg)->explanation != NULL;
     }
-    void ctApi_AstNode_explanation(Node** sret, Node** thisArg)
+    Node* ctApi_AstNode_explanation(Node** thisArg)
     {
-        *sret = Nest_explanation(*thisArg);
+        return Nest_explanation(*thisArg);
     }
-    void ctApi_AstNode_curExplanation(Node** sret, Node** thisArg)
+    Node* ctApi_AstNode_curExplanation(Node** thisArg)
     {
-        *sret = (*thisArg)->explanation;
+        return (*thisArg)->explanation;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Feather nodes creation functions
     //
-    void ctApi_Feather_mkNodeList(Node** sret, Location* loc, Node** childrenBegin, Node** childrenEnd, bool voidResult)
+    Node* ctApi_Feather_mkNodeList(Location* loc, Node** childrenBegin, Node** childrenEnd, bool voidResult)
     {
         NodeRange r = { childrenBegin, childrenEnd };
         if ( voidResult )
-            *sret = Feather_mkNodeListVoid(*loc, r);
+            return Feather_mkNodeListVoid(*loc, r);
         else
-            *sret = Feather_mkNodeList(*loc, r);
+            return Feather_mkNodeList(*loc, r);
     }
-    void ctApi_Feather_addToNodeList(Node** sret, Node* prevList, Node* element)
+    Node* ctApi_Feather_addToNodeList(Node* prevList, Node* element)
     {
-        *sret =  Feather_addToNodeList(prevList, element);
+        return  Feather_addToNodeList(prevList, element);
     }
-    void ctApi_Feather_appendNodeList(Node** sret, Node* list, Node* newNodes)
+    Node* ctApi_Feather_appendNodeList(Node* list, Node* newNodes)
     {
-        *sret = Feather_appendNodeList(list, newNodes);
+        return Feather_appendNodeList(list, newNodes);
     }
 
-    void ctApi_Feather_mkNop(Node** sret, Location* loc)
+    Node* ctApi_Feather_mkNop(Location* loc)
     {
-        *sret = Feather_mkNop(*loc);
+        return Feather_mkNop(*loc);
     }
-    void ctApi_Feather_mkTypeNode(Node** sret, Location* loc, TypeRef type)
+    Node* ctApi_Feather_mkTypeNode(Location* loc, TypeRef type)
     {
-        *sret = Feather_mkTypeNode(*loc, type);
+        return Feather_mkTypeNode(*loc, type);
     }
-    void ctApi_Feather_mkBackendCode(Node** sret, Location* loc, StringRef code, int evalMode)
+    Node* ctApi_Feather_mkBackendCode(Location* loc, StringRef code, int evalMode)
     {
-        *sret = Feather_mkBackendCode(*loc, code, (EvalMode) evalMode);
+        return Feather_mkBackendCode(*loc, code, (EvalMode) evalMode);
     }
-    void ctApi_Feather_mkLocalSpace(Node** sret, Location* loc, Node** childrenBegin, Node** childrenEnd)
+    Node* ctApi_Feather_mkLocalSpace(Location* loc, Node** childrenBegin, Node** childrenEnd)
     {
         NodeRange r = { childrenBegin, childrenEnd };
-        *sret = Feather_mkLocalSpace(*loc, r);
+        return Feather_mkLocalSpace(*loc, r);
     }
-    void ctApi_Feather_mkGlobalConstructAction(Node** sret, Location* loc, Node* action)
+    Node* ctApi_Feather_mkGlobalConstructAction(Location* loc, Node* action)
     {
-        *sret = Feather_mkGlobalConstructAction(*loc, action);
+        return Feather_mkGlobalConstructAction(*loc, action);
     }
-    void ctApi_Feather_mkGlobalDestructAction(Node** sret, Location* loc, Node* action)
+    Node* ctApi_Feather_mkGlobalDestructAction(Location* loc, Node* action)
     {
-        *sret = Feather_mkGlobalDestructAction(*loc, action);
+        return Feather_mkGlobalDestructAction(*loc, action);
     }
-    void ctApi_Feather_mkScopeDestructAction(Node** sret, Location* loc, Node* action)
+    Node* ctApi_Feather_mkScopeDestructAction(Location* loc, Node* action)
     {
-        *sret = Feather_mkScopeDestructAction(*loc, action);
+        return Feather_mkScopeDestructAction(*loc, action);
     }
-    void ctApi_Feather_mkTempDestructAction(Node** sret, Location* loc, Node* action)
+    Node* ctApi_Feather_mkTempDestructAction(Location* loc, Node* action)
     {
-        *sret = Feather_mkTempDestructAction(*loc, action);
+        return Feather_mkTempDestructAction(*loc, action);
     }
 
-    void ctApi_Feather_mkFunction(Node** sret, Location* loc, StringRef name, Node* resType, Node** paramsBegin, Node** paramsEnd, Node* body, int evalMode)
+    Node* ctApi_Feather_mkFunction(Location* loc, StringRef name, Node* resType, Node** paramsBegin, Node** paramsEnd, Node* body, int evalMode)
     {
         NodeRange r = { paramsBegin, paramsEnd };
-        *sret = Feather_mkFunction(*loc, name, resType, r, body);
+        return Feather_mkFunction(*loc, name, resType, r, body);
     }
-    void ctApi_Feather_mkClass(Node** sret, Location* loc, StringRef name, Node** fieldsBegin, Node** fieldsEnd, int evalMode)
+    Node* ctApi_Feather_mkClass(Location* loc, StringRef name, Node** fieldsBegin, Node** fieldsEnd, int evalMode)
     {
         NodeRange r = { fieldsBegin, fieldsEnd };
-        *sret = Feather_mkClass(*loc, name, r);
+        return Feather_mkClass(*loc, name, r);
     }
-    void ctApi_Feather_mkVar(Node** sret, Location* loc, StringRef name, Node* type, int evalMode)
+    Node* ctApi_Feather_mkVar(Location* loc, StringRef name, Node* type, int evalMode)
     {
-        *sret = Feather_mkVar(*loc, name, type);
-        Feather_setEvalMode(*sret, (EvalMode) evalMode);
+        Node* res = Feather_mkVar(*loc, name, type);
+        Feather_setEvalMode(res, (EvalMode) evalMode);
+        return res;
     }
 
-    void ctApi_Feather_mkCtValue(Node** sret, Location* loc, TypeRef type, StringRef data)
+    Node* ctApi_Feather_mkCtValue(Location* loc, TypeRef type, StringRef data)
     {
-        *sret = Feather_mkCtValue(*loc, type, data);
+        return Feather_mkCtValue(*loc, type, data);
     }
-    void ctApi_Feather_mkNull(Node** sret, Location* loc, Node* typeNode)
+    Node* ctApi_Feather_mkNull(Location* loc, Node* typeNode)
     {
-        *sret = Feather_mkNull(*loc, typeNode);
+        return Feather_mkNull(*loc, typeNode);
     }
-    void ctApi_Feather_mkVarRef(Node** sret, Location* loc, Node* varDecl)
+    Node* ctApi_Feather_mkVarRef(Location* loc, Node* varDecl)
     {
-        *sret = Feather_mkVarRef(*loc, varDecl);
+        return Feather_mkVarRef(*loc, varDecl);
     }
-    void ctApi_Feather_mkFieldRef(Node** sret, Location* loc, Node* obj, Node* fieldDecl)
+    Node* ctApi_Feather_mkFieldRef(Location* loc, Node* obj, Node* fieldDecl)
     {
-        *sret = Feather_mkFieldRef(*loc, obj, fieldDecl);
+        return Feather_mkFieldRef(*loc, obj, fieldDecl);
     }
-    void ctApi_Feather_mkFunRef(Node** sret, Location* loc, Node* funDecl, Node* resType)
+    Node* ctApi_Feather_mkFunRef(Location* loc, Node* funDecl, Node* resType)
     {
-        *sret = Feather_mkFunRef(*loc, funDecl, resType);
+        return Feather_mkFunRef(*loc, funDecl, resType);
     }
-    void ctApi_Feather_mkFunCall(Node** sret, Location* loc, Node* funDecl, Node** argsBegin, Node** argsEnd)
+    Node* ctApi_Feather_mkFunCall(Location* loc, Node* funDecl, Node** argsBegin, Node** argsEnd)
     {
         NodeRange r = { argsBegin, argsEnd };
-        *sret = Feather_mkFunCall(*loc, funDecl, r);
+        return Feather_mkFunCall(*loc, funDecl, r);
     }
-    void ctApi_Feather_mkMemLoad(Node** sret, Location* loc, Node* exp)
+    Node* ctApi_Feather_mkMemLoad(Location* loc, Node* exp)
     {
-        *sret = Feather_mkMemLoad(*loc, exp);
+        return Feather_mkMemLoad(*loc, exp);
     }
-    void ctApi_Feather_mkMemStore(Node** sret, Location* loc, Node* value, Node* address)
+    Node* ctApi_Feather_mkMemStore(Location* loc, Node* value, Node* address)
     {
-        *sret = Feather_mkMemStore(*loc, value, address);
+        return Feather_mkMemStore(*loc, value, address);
     }
-    void ctApi_Feather_mkBitcast(Node** sret, Location* loc, Node* destType, Node* exp)
+    Node* ctApi_Feather_mkBitcast(Location* loc, Node* destType, Node* exp)
     {
-        *sret = Feather_mkBitcast(*loc, destType, exp);
+        return Feather_mkBitcast(*loc, destType, exp);
     }
-    void ctApi_Feather_mkConditional(Node** sret, Location* loc, Node* condition, Node* alt1, Node* alt2)
+    Node* ctApi_Feather_mkConditional(Location* loc, Node* condition, Node* alt1, Node* alt2)
     {
-        *sret = Feather_mkConditional(*loc, condition, alt1, alt2);
+        return Feather_mkConditional(*loc, condition, alt1, alt2);
     }
 
-    void ctApi_Feather_mkIf(Node** sret, Location* loc, Node* condition, Node* thenClause, Node* elseClause, bool isCt)
+    Node* ctApi_Feather_mkIf(Location* loc, Node* condition, Node* thenClause, Node* elseClause, bool isCt)
     {
-        *sret = Feather_mkIf(*loc, condition, thenClause, elseClause);
+        Node* res = Feather_mkIf(*loc, condition, thenClause, elseClause);
         if ( isCt )
-            Feather_setEvalMode(*sret, modeCt);
+            Feather_setEvalMode(res, modeCt);
+        return res;
     }
-    void ctApi_Feather_mkWhile(Node** sret, Location* loc, Node* condition, Node* body, Node* step, bool isCt)
+    Node* ctApi_Feather_mkWhile(Location* loc, Node* condition, Node* body, Node* step, bool isCt)
     {
-        *sret = Feather_mkWhile(*loc, condition, body, step);
+        Node* res = Feather_mkWhile(*loc, condition, body, step);
         if ( isCt )
-            Feather_setEvalMode(*sret, modeCt);
+            Feather_setEvalMode(res, modeCt);
+        return res;
     }
-    void ctApi_Feather_mkBreak(Node** sret, Location* loc)
+    Node* ctApi_Feather_mkBreak(Location* loc)
     {
-        *sret = Feather_mkBreak(*loc);
+        return Feather_mkBreak(*loc);
     }
-    void ctApi_Feather_mkContinue(Node** sret, Location* loc)
+    Node* ctApi_Feather_mkContinue(Location* loc)
     {
-        *sret = Feather_mkContinue(*loc);
+        return Feather_mkContinue(*loc);
     }
-    void ctApi_Feather_mkReturn(Node** sret, Location* loc, Node* exp)
+    Node* ctApi_Feather_mkReturn(Location* loc, Node* exp)
     {
-        *sret = Feather_mkReturn(*loc, exp);
+        return Feather_mkReturn(*loc, exp);
     }
 }
 

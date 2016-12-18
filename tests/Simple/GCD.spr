@@ -1,4 +1,4 @@
-//!! -t "../Basic/SparrowImplicitLib.spr"
+//!! -t "../Basic/SparrowImplicitLib.spr" -fno-main
 fun gcdDivision(a: Int, b: Int): Int
 {
     var t: Int;

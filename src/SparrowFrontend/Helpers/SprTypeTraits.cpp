@@ -20,11 +20,11 @@ namespace
             return false;
         Node* cls = Feather_classForType(t);
         ASSERT(cls);
-        
+
         const StringRef* nativeName = Nest_getPropertyString(cls, propNativeName);
         if ( !nativeName || size(*nativeName) <= 1 || !islower(nativeName->begin[0]) )
             return false;
-        
+
         if ( *nativeName == "double" )
         {
             numBits = 64;
@@ -54,7 +54,7 @@ namespace
             }
         }
         return false;
-        
+
     }
 }
 
@@ -63,7 +63,7 @@ TypeRef SprFrontend::commonType(CompilationContext* context, TypeRef t1, TypeRef
     // Check if the types are the same
     if ( t1 == t2 )
         return t1;
-    
+
     // Check for numerics
     int numBits1, numBits2;
     bool isUnsigned1, isUnsigned2;
@@ -76,24 +76,24 @@ TypeRef SprFrontend::commonType(CompilationContext* context, TypeRef t1, TypeRef
             return t1;
         if ( !isFloating1 && isFloating2 )
             return t2;
-        
+
         // If the values are too small, return Int
         if ( numBits1 < 32 && numBits2 < 32 )
             return StdDef::typeInt;
-        
+
         // Prefer the bigger type to the small type
         if ( numBits1 > numBits2 )
             return t1;
         if ( numBits1 < numBits2 )
             return t2;
-        
+
         // Prefer unsigned, if the types have the same type
         if ( numBits1 == numBits2 && isUnsigned1 && !isUnsigned2 )
             return t1;
         if ( numBits1 == numBits2 && !isUnsigned1 && isUnsigned2 )
             return t2;
     }
-    
+
     // If there is one conversion from one type to another (and not vice-versa) take the less specialized type
     ConversionFlags flags = flagDontAddReference;
     ConversionResult c1 = canConvertType(context, t1, t2, flags);
@@ -106,7 +106,7 @@ TypeRef SprFrontend::commonType(CompilationContext* context, TypeRef t1, TypeRef
     {
         return t1;
     }
-    
+
     return StdDef::typeVoid;
 }
 
@@ -147,6 +147,7 @@ namespace
             return nullptr;
         auto cr = call->canCall(node->context, loc, fromIniList({node}), modeRt, true);
         ASSERT(cr);
+        (void) cr; // avoid warning for unused cr
         Node* res = call->generateCall(loc);
         res = Feather_mkMemLoad(loc, res);
 
@@ -195,11 +196,11 @@ TypeRef SprFrontend::getType(Node* typeNode)
         return nullptr;
     if ( !typeNode->type )
         REP_ERROR_RET(nullptr, typeNode->location, "Invalid type name");
-    
+
     TypeRef t = tryGetTypeValue(typeNode);
     if ( t )
         return t;
-    
+
     REP_ERROR(typeNode->location, "Invalid type name (%1%)") % typeNode->type;
     return nullptr;
 }
@@ -227,9 +228,9 @@ TypeRef SprFrontend::tryGetTypeValue(Node* typeNode)
         }
         return res;
     }
-    
+
     TypeRef t = Feather_lvalueToRefIfPresent(typeNode->type);
-    
+
     if ( t == StdDef::typeRefType )
     {
         Node* n = Nest_ctEval(typeNode);
@@ -252,7 +253,7 @@ TypeRef SprFrontend::tryGetTypeValue(Node* typeNode)
             return *t;
         }
     }
-    
+
     return nullptr;
 }
 
@@ -273,18 +274,18 @@ Node* SprFrontend::createTypeNode(CompilationContext* context, const Location& l
 TypeRef SprFrontend::getAutoType(Node* typeNode, bool addRef)
 {
     TypeRef t = typeNode->type;
-    
+
     // Nothing to do for function types
     if ( t->typeKind == typeKindFunction )
         return t;
-    
+
     // Remove l-value if we have one
     if ( t->typeKind == typeKindLValue )
         t = Feather_baseType(t);
-    
+
     // Dereference
     t = Feather_removeAllRef(t);
-    
+
     if ( addRef )
         t = Feather_addRef(t);
     t = Feather_checkChangeTypeMode(t, modeRtCt, typeNode->location);
@@ -309,7 +310,7 @@ bool SprFrontend::isConceptType(TypeRef t, bool& isRefAuto)
 TypeRef SprFrontend::changeRefCount(TypeRef type, int numRef, const Location& loc)
 {
     ASSERT(type);
-    
+
     // If we have a LValue type, remove it
     while ( type->typeKind == typeKindLValue )
         type = Feather_baseType(type);

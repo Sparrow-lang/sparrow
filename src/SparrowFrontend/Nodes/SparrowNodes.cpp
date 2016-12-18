@@ -195,9 +195,9 @@ Node* For_SemanticCheck(Node* node)
     //
     // into:
     //      var $rangeVar: Range = <range>;
-    //      while ( ! $rangeVar.isEmpty() ; $rangeVar.popFront() )
+    //      while ( ! ($rangeVar isEmpty) ; $rangeVar popFront )
     //      {
-    //          var <name>: <type> = $rangeVar.front();
+    //          var <name>: <type> = $rangeVar front;
     //          action;
     //      }
     //
@@ -210,12 +210,11 @@ Node* For_SemanticCheck(Node* node)
     Node* rangeVarRef = mkIdentifier(loc, fromCStr("$rangeVar"));
 
     // while condition
-    Node* base1 = mkCompoundExp(loc, rangeVarRef, fromCStr("isEmpty"));
-    Node* whileCond = mkOperatorCall(loc, nullptr, fromCStr("!"), mkFunApplication(loc, base1, nullptr));
+    Node* base1 = mkOperatorCall(loc, rangeVarRef, fromCStr("isEmpty"), nullptr);
+    Node* whileCond = mkOperatorCall(loc, nullptr, fromCStr("!"), base1);
 
     // while step
-    Node* base2 = mkCompoundExp(loc, rangeVarRef, fromCStr("popFront"));
-    Node* whileStep = mkFunApplication(loc, base2, nullptr);
+    Node* whileStep = mkOperatorCall(loc, rangeVarRef, fromCStr("popFront"), nullptr);
 
     // while body
     Node* whileBody = nullptr;
@@ -225,8 +224,7 @@ Node* For_SemanticCheck(Node* node)
             typeExpr = mkCompoundExp(loc, rangeVarRef, fromCStr("RetType"));
 
         // the iteration variable
-        Node* base3 = mkCompoundExp(loc, rangeVarRef, fromCStr("front"));
-        Node* init = mkFunApplication(loc, base3, nullptr);
+        Node* init = mkOperatorCall(loc, rangeVarRef, fromCStr("front"), nullptr);
 
         Node* iterVar = mkSprVariable(node->location, Feather_getName(node), typeExpr, init);
         if ( ctFor )

@@ -1,4 +1,4 @@
-//!! -t "../Basic/SparrowImplicitLib.spr"
+//!! -t "../Basic/SparrowImplicitLib.spr" -fno-main
 fun fibonacciRecursive(n: Int): Int
 {
     if ( n == 0 || n == 1 )
@@ -12,11 +12,11 @@ fun fibonacciIterative(n: Int): Int
     if ( n == 0 || n == 1 )
         return 1;
 
-    var a, b, i, t: Int;    
+    var a, b, i, t: Int;
     a = 1;
     b = 1;
     i = 2;
-    
+
     while ( i <= n ; i = i + 1; )
     {
         t = a + b;

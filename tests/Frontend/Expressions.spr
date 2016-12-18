@@ -18,7 +18,7 @@ class SimpleLoop
 {
     var[static] BasicBlockSet = Set(Ptr(BasicBlock), BBPtrHashFunction, Functors.Equal(Ptr(BasicBlock)));
     var[static] LoopSet = Set(Ptr(SimpleLoop), SLPtrHashFunction, Functors.Equal(Ptr(SimpleLoop)));
-    
+
     fun ctor(counter: UInt)
     {
         parent.ctor(null);
@@ -29,28 +29,28 @@ class SimpleLoop
         children.ctor();
         this.counter.ctor(counter);
     }
-    
+
     fun addNode(bb: Ptr(BasicBlock))
     {
         basicBlocks.insert(bb);
     }
-    
+
     fun addChildLoop(loop: Ptr(SimpleLoop))
     {
         children.insert(loop);
     }
-    
+
     fun dump()
     {
         Std.stdOut.writeLn("loop-" + counter.toString() + ", nest: " + nestingLevel.toString() + ", depth: " + depthLevel.toString());
     }
-    
+
     fun setParent(parent: Ptr(SimpleLoop))
     {
         this.parent = parent;
         this.parent.get().addChildLoop(this);
     }
-    
+
     fun setNestingLevel(level: UInt)
     {
         nestingLevel = level;
@@ -79,40 +79,40 @@ public class SLPtrHashFunction
 }
 
 
- 
- var a = 0;
-  
- 
 
-public class[autoct] Pair
+ var a = 0;
+
+
+
+public class[autoCt] Pair
 {
 
 	public var[static] FirstType = firstType;
 
 
 	public var[static] SecondType = secondType;
-	
- 
+
+
 	public var first: FirstType;
-	
+
 
 	public var second: SecondType;
-	
 
- 
+
+
     public fun ctor()
     {
         this.first.ctor();
         this.second.ctor();
     }
-	
+
 
 	public fun ctor(first: FirstType@, second: SecondType@)
 	{
         this.first.ctor(first);
         this.second.ctor(second);
 	}
-	
+
 
 	public fun ctor(other: Std.Pair)
 	{
@@ -120,21 +120,21 @@ public class[autoct] Pair
         this.second.ctor(other.second);
         "abc\t\77\xab\n";
 	}
-		
+
 
 	public fun swap(other: Std.Pair)
 	{
 		var tmp1 = FirstType(first);
 		var tmp2 = SecondType(second);
-		
+
 		first = other.first;
 		other.first = tmp1;
 		second = other.second;
 		other.second = tmp2;
-        
+
         'a';
         '\n';
-        '\123';
+        '\t';
         '\x4A';
 	}
 
@@ -143,9 +143,9 @@ public class[autoct] Pair
 	{
 		first = other.first;
 		second = other.second;
-		
+
 		return this;
-        
+
         1;
         2u;
         3l;
@@ -159,7 +159,7 @@ public class[autoct] Pair
         .5f;
         2E-2d;
 	}
-	
+
 
 }
 

@@ -1,4 +1,4 @@
-//!! -t "SparrowImplicitLib.spr"
+//!! -t "SparrowImplicitLib.spr" -fno-main
 
 var[ct] t: Type = Int;
 var[ct] u: Type;
@@ -32,7 +32,7 @@ fun[native("test")] test(n: Int)
     writeLn(x);
     writeLn(y);
     writeLn(z);
-    
+
     writeLn(c1);
     writeLn(id(c1));
     writeLn(id(id(id(id(c1)))));

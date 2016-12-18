@@ -75,10 +75,10 @@ int atLocation(Location loc, const char* filename, int startLine, int startCol, 
     }
 
     // Check the line & cols
-    return (startLine == 0 || startLine == loc.start.line)
-        && (startCol == 0 || startCol == loc.start.col)
-        && (endLine == 0 || endLine == loc.end.line)
-        && (endCol == 0 || endCol == loc.end.col)
+    return (startLine == 0 || startLine == int(loc.start.line))
+        && (startCol == 0 || startCol == int(loc.start.col))
+        && (endLine == 0 || endLine == int(loc.end.line))
+        && (endCol == 0 || endCol == int(loc.end.col))
         ;
 }
 
@@ -142,7 +142,7 @@ void printNodeImpl(const Node* node, int mode) {
             if ( mode == 2 ) {
                 // Print it as an expression
                 printf("(");
-                for ( int i=0; i<size(node->children); i++ ) {
+                for ( unsigned i=0; i<size(node->children); i++ ) {
                     if ( i>0 ) printf(", ");
                     printNodeImpl(at(node->children, i), mode);
                 }

@@ -15,7 +15,7 @@ fun write(r: Range, length: Int) if isValid(Char(r.front))
         for ( i = 0..len )
             line(i) = (r++);
         if ( len < lineLength )
-            line(len) = Char(0);
+            line.resize(len);
         cout << line << "\n";
     }
 }

@@ -148,7 +148,7 @@ namespace
     {
         CHECK(loc, args.size() == 1);
 
-        int size = getSizeTypeCtValue(args[0]);
+        size_t size = getSizeTypeCtValue(args[0]);
 
         if ( size > numeric_limits<size_t>::max() )
             REP_ERROR_RET(nullptr, loc, "Size of static buffer is too large");

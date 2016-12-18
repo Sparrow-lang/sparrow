@@ -251,7 +251,7 @@ namespace
         }
 
         // Make sure we have only one argument
-        if ( Nest_nodeArraySize(arguments->children) != numArgs )
+        if ( (int) Nest_nodeArraySize(arguments->children) != numArgs )
         {
             REP_ERROR(loc, "%1% expects %2% arguments; %2% given") % funName % numArgs % Nest_nodeArraySize(arguments->children);
             return false;
@@ -689,12 +689,12 @@ namespace
     }
 
     // Visual explanation:
-    //
-    //     X     <- this        Y     <- keep this pointing here
-    //    / \                  / \
-    //   Y   R           =>   L   X
-    //  / \                      / \
-    // L   M                    M   R
+    //                                                              *
+    //     X     <- this        Y     <- keep this pointing here    *
+    //    / \                  / \                                  *
+    //   Y   R           =>   L   X                                 *
+    //  / \                      / \                                *
+    // L   M                    M   R                               *
     //
     // We must keep the this pointer in the same position, but we must switch the arguments & operations
     // The left argument of this will become the right argument of this
@@ -714,13 +714,13 @@ namespace
     }
 
     // Visual explanation:
-    //
-    //     X     <- this        Y     <- keep this pointing here
-    //    / \                  / \
-    //   L   Y           =>   X   R
-    //      / \              / \
-    //     M   R            L   M
-    //
+    //                                                              *
+    //     X     <- this        Y     <- keep this pointing here    *
+    //    / \                  / \                                  *
+    //   L   Y           =>   X   R                                 *
+    //      / \              / \                                    *
+    //     M   R            L   M                                   *
+    //                                                              *
     // We must keep the this pointer in the same position, but we must switch the arguments & operations
     // The right argument of this will become the left argument of this
     //
@@ -1063,7 +1063,7 @@ Node* CompoundExp_SemanticCheck(Node* node)
         }
         else {
             oss << "decls(";
-            for ( int i=0; i<baseDecls.size(); ++i  ) {
+            for ( unsigned i=0; i<baseDecls.size(); ++i  ) {
                 if ( i>0 ) oss << ", ";
                 oss << Feather_getName(baseDecls[i]).begin;
             }
@@ -1545,6 +1545,8 @@ Node* StarExp_SemanticCheck(Node* node)
 Node* ModuleRef_SemanticCheck(Node* node)
 {
     Node* module = at(node->referredNodes, 0);
+    if ( !module )
+        return nullptr;
 
     if ( module->nodeKind == nkSparrowDeclModule ) {
         // If we are referring a Sparrow module, point to the inner most package

@@ -1,4 +1,4 @@
-//!! -t "../Basic/SparrowImplicitLib.spr"
+//!! -t "../Basic/SparrowImplicitLib.spr" -fno-main
 
 package Foo1 {
     fun test1 {

@@ -1,4 +1,4 @@
-//!! -t "SparrowImplicitLib.spr" --dump-assembly
+//!! -t "SparrowImplicitLib.spr" -fno-main
 
 concept AnyType(x);
 

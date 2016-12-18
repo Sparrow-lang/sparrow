@@ -1,4 +1,4 @@
-//!! -t "../Basic/SparrowImplicitLib.spr"
+//!! -t "../Basic/SparrowImplicitLib.spr" -fno-main
 import HeaderA;
 import HeaderB;
 import HeaderC;

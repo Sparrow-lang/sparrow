@@ -64,7 +64,7 @@ void _writePrefix(JsonContext* ctx, const char* prefix) {
         fputs("\"", ctx->f);
         fputs(prefix, ctx->f);
         fputs("\": ", ctx->f);
-    }    
+    }
 }
 
 void _writeNumber(JsonContext* ctx, const char* name, long long val)
@@ -80,7 +80,7 @@ void _writeFloatingNumber(JsonContext* ctx, const char* name, double val)
 void _writeStringL(JsonContext* ctx, const char* name, const char* val, size_t size) {
     // Check if the string contains some 'strange' characters
     bool hasStrangeCharacters = false;
-    for ( int i=0; i<size; ++i ) {
+    for ( size_t i=0; i<size; ++i ) {
         char ch = val[i];
         if ( !isprint(ch) || ch == '\\' || ch == '\"' ) {
             hasStrangeCharacters = true;
@@ -93,7 +93,7 @@ void _writeStringL(JsonContext* ctx, const char* name, const char* val, size_t s
     if ( !hasStrangeCharacters )
         fputs(val, ctx->f);
     else {
-        for ( int i=0; i<size; ++i ) {
+        for ( size_t i=0; i<size; ++i ) {
             unsigned char ch = val[i];
             if ( ch == '\\' )
                 fputs("\\\\", ctx->f);
@@ -136,7 +136,7 @@ void _endObject(JsonContext* ctx) {
     }
     fputc('}', ctx->f);
 
-    ctx->firstAttribute = false;    
+    ctx->firstAttribute = false;
 }
 
 void _startArray(JsonContext* ctx, const char* name)
@@ -155,7 +155,7 @@ void _endArray(JsonContext* ctx)
     _writeSpaces(ctx);
     fputc(']', ctx->f);
     ctx->firstAttribute = false;
-    ctx->insideArray = false;    
+    ctx->insideArray = false;
 }
 
 void _writeType(JsonContext* ctx, const char* name, TypeRef t) {
@@ -233,7 +233,7 @@ void _writeNodeData(JsonContext* ctx, Node* node) {
             ctx->insideArray = true;
             _writeNode(ctx, "", n);
         }
-        _endArray(ctx);        
+        _endArray(ctx);
     }
 
     // Write the referred nodes

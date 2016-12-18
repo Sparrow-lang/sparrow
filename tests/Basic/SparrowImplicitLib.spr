@@ -89,7 +89,7 @@ define i8* @ptrAdd(i8* %p, i64 %n)
 
 define i8* @ptrSub(i8* %p, i64 %n)
 {
-    %1 = sub i64 0, %n 
+    %1 = sub i64 0, %n
     %2 = getelementptr i8* %p, i64 %1
     ret i8* %2
 }
@@ -826,7 +826,7 @@ class[native("i1"), noDefault, rtct] Bool
     fun ctor() { this = false; }
     fun ctor(other: Uninitialized) {}
     fun ctor(other: Bool) { this = other; }
-    fun dtor {} 
+    fun dtor {}
 }
 
 class[native("i8"), noDefault, rtct] Byte
@@ -862,7 +862,7 @@ class[native("u8"), noDefault, rtct] UByte
     fun[native("_ass_8_64")] ctor(src: SizeType);
     fun[native("_ass_u8_f")] ctor(src: Float);
     fun[native("_ass_u8_d")] ctor(src: Double);
-    fun dtor {} 
+    fun dtor {}
 }
 
 class[native("i16"), noDefault, rtct] Short

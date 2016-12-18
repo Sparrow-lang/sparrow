@@ -1,0 +1,301 @@
+import parserIf, parser;
+import parserDefs;
+import scanner;
+
+import os;
+import std.ranges;
+import std.vector;
+import std.newDelete;
+
+private var nullNodeImpl: NodeImpl;
+
+class NodeImpl {
+    var kind: String;
+    var loc: Location;
+    var name: String;
+    var children: Vector(Node);
+
+    fun ctor() { this.kind ctor "<null>"; }
+    fun ctor(l: Location, kind: StringRef) {
+        this.kind ctor kind;
+        this.loc ctor l;
+        // cout << "Parsed: " << kind << endl;
+    }
+    fun ctor(l: Location, kind: StringRef, r: Range) {
+        this.kind ctor kind;
+        this.loc ctor l;
+        children ctor r;
+        // cout << "Parsed: " << kind << endl;
+    }
+    fun ctor(l: Location, kind: StringRef, r: Range, name: StringRef) {
+        this.kind ctor kind;
+        this.loc ctor l;
+        this.name ctor name;
+        children ctor r;
+        // cout << "Parsed: " << kind << endl;
+    }
+}
+
+fun toImpl(n: Node): @NodeImpl = ife(n._data._data !== null, reinterpretCast(@NodeImpl, n._data._data), nullNodeImpl);
+fun toNode(impl: @NodeImpl)    = Node(UntypedPtr(reinterpretCast(@Byte, impl)));
+
+fun >> (n: @NodeImpl, os: @OutStream) {
+    os << n.kind;
+    if ( !(n.children isEmpty) ) {
+        os << "(";
+        var first = true;
+        for ( c = n.children.all ) {
+            if ( first ) first = false;
+            else os << ", ";
+            os << (c toImpl);
+        }
+        os << ")";
+    }
+    // os << "/(" << n.loc << ")";
+}
+
+fun createNode(l: Location, kind: StringRef): Node = new(NodeImpl, l, kind) toNode;
+fun createNode(l: Location, kind: StringRef, children: Range): Node = new(NodeImpl, l, kind, children) toNode;
+fun createNode(l: Location, kind: StringRef, children: Range, name: StringRef): Node = new(NodeImpl, l, kind, children, name) toNode;
+
+fun[native("comp_parser_reportError")] reportErrorExternal(loc: Location, msg: StringRef) {
+    cout << loc << " ERROR: " << msg << endl;   // IGNORE-ERROR for test.py
+}
+
+fun[native("comp_parser_addToNodeList")] addToNodeList(nl, newNode: Node): Node {
+    if ( nl isSet ) {
+        if ( newNode isSet )
+            (nl toImpl).children += newNode;
+    }
+    else if ( newNode isSet ) {
+        nl = createNode((newNode toImpl).loc, "nodeList", repeat(newNode, 1));
+    }
+    return nl;
+}
+
+fun[native("comp_parser_mkModifiers")] mkModifiers(loc: @Location, main, mods: Node)
+    = ife(mods isSet, createNode(loc, "modifiers", values(main, mods)), main);
+fun[native("comp_parser_mkModule")] mkModule(loc: @Location, moduleName, decls: Node)
+    = createNode(loc, "module", values(moduleName, decls));
+fun[native("comp_parser_mkImportName")] mkImportName(loc: @Location, alias: StringRef, toImport, decls: Node, accessSpec: Int)
+    = createNode(loc, "importName", values(toImport, decls), alias);
+fun[native("comp_parser_mkUsing")] mkUsing(loc: @Location, alias: StringRef, usingNode: Node, accessSpec: Int)
+    = createNode(loc, "using", repeat(usingNode, 1), alias);
+fun[native("comp_parser_mkPackage")] mkPackage(loc: @Location, name: StringRef, children: Node, accessSpec: Int)
+    = createNode(loc, "package", repeat(children, 1), name);
+fun[native("comp_parser_mkClass")] mkClass(loc: @Location, name: StringRef, params, underlyingData, ifClause, children: Node, accessSpec: Int)
+    = createNode(loc, "class", values(params, underlyingData, ifClause, children), name);
+fun[native("comp_parser_mkConcept")] mkConcept(loc: @Location, name, paramName: StringRef, baseConcept, ifClause: Node, accessSpec: Int)
+    = createNode(loc, "concept", values(baseConcept, ifClause), name);
+fun[native("comp_parser_mkVar")] mkVar(loc: @Location, name: StringRef, typeNode, init: Node, accessSpec: Int)
+    = createNode(loc, "var", values(typeNode, init), name);
+fun[native("comp_parser_mkParameter")] mkParameter(loc: @Location, name: StringRef, typeNode, init: Node)
+    = createNode(loc, "param", values(typeNode, init), name);
+fun[native("comp_parser_mkFun")] mkFun(loc: @Location, name: StringRef, formals, retType, body, bodyExp, ifClause: Node, accessSpec: Int)
+    = createNode(loc, "fun", values(formals, retType, body, bodyExp, ifClause), name);
+
+fun[native("comp_parser_mkParenthesisExpr")] mkParenthesisExpr(expr: Node)
+    = createNode((expr toImpl).loc, "paren", repeat(expr, 1));
+fun[native("comp_parser_mkPostfixOp")] mkPostfixOp(loc: @Location, base: Node, op: StringRef)
+    = createNode(loc, "postfix", values(base, createNode(loc, op)));
+fun[native("comp_parser_mkInfixOp")] mkInfixOp(loc: @Location, lhs: Node, op: StringRef, rhs: Node)
+    = createNode(loc, "infix", values(lhs, createNode(loc, op), rhs));
+fun[native("comp_parser_mkPrefixOp")] mkPrefixOp(loc: @Location, op: StringRef, base: Node)
+    = createNode(loc, "prefix", values(createNode(loc, op), base));
+fun[native("comp_parser_mkIdentifier")] mkIdentifier(loc: @Location, id: StringRef)
+    = createNode(loc, id);
+fun[native("comp_parser_mkCompoundExpr")] mkCompoundExpr(loc: @Location, base: Node, id: StringRef)
+    = createNode(loc, "compoundExpr", values(base, createNode(loc, id)));
+fun[native("comp_parser_mkStarExpr")] mkStarExpr(loc: @Location, base: Node, id: StringRef)
+    = createNode(loc, "starExpr", values(base, createNode(loc, id)));
+fun[native("comp_parser_mkDotExpr")] mkDotExpr(loc: @Location, base: Node, id: StringRef)
+    = createNode(loc, "dotExpr", values(base, createNode(loc, id)));
+fun[native("comp_parser_mkFunAppExpr")] mkFunAppExpr(loc: @Location, base, args: Node)
+    = createNode(loc, "funApp", values(base, args));
+fun[native("comp_parser_mkLambdaExpr")] mkLambdaExpr(loc: @Location, closureParams, formals, retType, body, bodyExpr: Node)
+    = createNode(loc, "lambda", values(closureParams, formals, retType, body, bodyExpr));
+fun[native("comp_parser_mkThisExpr")] mkThisExpr(loc: @Location)
+    = createNode(loc, "this");
+fun[native("comp_parser_mkNullLiteral")] mkNullLiteral(loc: @Location)
+    = createNode(loc, "null");
+fun[native("comp_parser_mkBoolLiteral")] mkBoolLiteral(loc: @Location, val: Bool)
+    = createNode(loc, "boolLit");
+fun[native("comp_parser_mkIntLiteral")] mkIntLiteral(loc: @Location, val: Int)
+    = createNode(loc, "intLit");
+fun[native("comp_parser_mkUIntLiteral")] mkUIntLiteral(loc: @Location, val: UInt)
+    = createNode(loc, "uintLit");
+fun[native("comp_parser_mkLongLiteral")] mkLongLiteral(loc: @Location, val: Long)
+    = createNode(loc, "longLit");
+fun[native("comp_parser_mkULongLiteral")] mkULongLiteral(loc: @Location, val: ULong)
+    = createNode(loc, "ulongLit");
+fun[native("comp_parser_mkFloatLiteral")] mkFloatLiteral(loc: @Location, val: Float)
+    = createNode(loc, "floatLit");
+fun[native("comp_parser_mkDoubleLiteral")] mkDoubleLiteral(loc: @Location, val: Double)
+    = createNode(loc, "doubleLit");
+fun[native("comp_parser_mkCharLiteral")] mkCharLiteral(loc: @Location, val: Char)
+    = createNode(loc, "charLit");
+fun[native("comp_parser_mkStringLiteral")] mkStringLiteral(loc: @Location, data: StringRef)
+    = createNode(loc, "stringLit");
+
+fun[native("comp_parser_mkBlockStmt")] mkBlockStmt(loc: @Location, stmts: Node)
+    = createNode(loc, "block", repeat(stmts, 1));
+fun[native("comp_parser_mkIfStmt")] mkIfStmt(loc: @Location, expr, thenClause, elseClause: Node)
+    = createNode(loc, "if", values(expr, thenClause, elseClause));
+fun[native("comp_parser_mkForStmt")] mkForStmt(loc: @Location, id: StringRef, typeNode, range, action: Node)
+    = createNode(loc, "for", values(createNode(loc, id), typeNode, range, action));
+fun[native("comp_parser_mkWhileStmt")] mkWhileStmt(loc: @Location, expr, stepAction, body: Node)
+    = createNode(loc, "while", values(expr, stepAction, body));
+fun[native("comp_parser_mkBreakStmt")] mkBreakStmt(loc: @Location)
+    = createNode(loc, "break");
+fun[native("comp_parser_mkContinueStmt")] mkContinueStmt(loc: @Location)
+    = createNode(loc, "continue");
+fun[native("comp_parser_mkReturnStmt")] mkReturnStmt(loc: @Location, expr: Node)
+    = createNode(loc, "return", repeat(expr, 1));
+
+
+fun sprMain
+{
+    if ( programArgs.size() < 2 )
+        return;
+    var n = programArgs(1) asInt;
+
+    if      ( n == 0 ) doScan(programArgs(2), "");
+    if      ( n == 1 ) doParse(programArgs(2), "");
+    else if ( n == 2 ) test2();
+    else if ( n == 3 ) test3();
+    else if ( n == 4 ) test4();
+    else if ( n == 5 ) test5();
+    else if ( n == 6 ) test6();
+    else if ( n == 7 ) test7();
+}
+
+fun doScan(filename, code: StringRef) {
+    var loc = mkLocation();
+    var parser: @ParserContext = createScanner(filename, code, loc);
+
+    var token: Token;
+    while ( true ) {
+        nextToken(parser, token);
+        cout << token.type._data << " - '" << token.data << "' - " << token.loc << endl;
+        if ( token.type == tkEND )
+            break;
+    }
+
+    parser destroyParser;
+}
+
+fun doParse(filename, code: StringRef) {
+    var loc = mkLocation();
+    var parser: @ParserContext = createParser(filename, code, loc);
+
+    var rootNode = parser parseModule;
+    cout << (rootNode toImpl) << endl;
+
+    parser destroyParser;
+}
+
+fun test2 {
+    doScan("", "1 2 3 4 5 0xff, 0b101, 0777, 0789, .123 0.123 1.123 12.34e2f 123_456 1_2.3_4");
+}
+/*<<<Scan: numbers test(2)
+44 - '1' - 1:1-1:2 @0x0
+44 - '2' - 1:3-1:4 @0x0
+44 - '3' - 1:5-1:6 @0x0
+44 - '4' - 1:7-1:8 @0x0
+44 - '5' - 1:9-1:10 @0x0
+44 - 'ff' - 1:11-1:15 @0x0
+36 - '' - 1:15-1:16 @0x0
+44 - '101' - 1:17-1:22 @0x0
+36 - '' - 1:22-1:23 @0x0
+44 - '0777' - 1:24-1:28 @0x0
+36 - '' - 1:28-1:29 @0x0
+44 - '0789' - 1:30-1:34 @0x0
+36 - '' - 1:34-1:35 @0x0
+49 - '.123' - 1:36-1:40 @0x0
+49 - '0.123' - 1:41-1:46 @0x0
+49 - '1.123' - 1:47-1:52 @0x0
+48 - '12.34e2' - 1:53-1:61 @0x0
+44 - '123456' - 1:62-1:69 @0x0
+48 - '12.34' - 1:70-1:77 @0x0
+0 - '' - 1:77-1:77 @0x0
+>>>*/
+
+fun test3 {
+    doScan("", "a b c d e if then else abc_def _1 _a a1 a@#$ a.b.c ab.bc.cd abc.*");
+}
+/*<<<Scan: ids test(3)
+40 - 'a' - 1:1-1:2 @0x0
+40 - 'b' - 1:3-1:4 @0x0
+40 - 'c' - 1:5-1:6 @0x0
+40 - 'd' - 1:7-1:8 @0x0
+40 - 'e' - 1:9-1:10 @0x0
+17 - 'if' - 1:11-1:13 @0x0
+40 - 'then' - 1:14-1:18 @0x0
+27 - 'else' - 1:19-1:23 @0x0
+40 - 'abc_def' - 1:24-1:31 @0x0
+40 - '_1' - 1:32-1:34 @0x0
+40 - '_a' - 1:35-1:37 @0x0
+40 - 'a1' - 1:38-1:40 @0x0
+40 - 'a' - 1:41-1:42 @0x0
+41 - '@#$' - 1:42-1:45 @0x0
+40 - 'a' - 1:46-1:47 @0x0
+37 - '' - 1:47-1:48 @0x0
+40 - 'b' - 1:48-1:49 @0x0
+37 - '' - 1:49-1:50 @0x0
+40 - 'c' - 1:50-1:51 @0x0
+40 - 'ab' - 1:52-1:54 @0x0
+37 - '' - 1:54-1:55 @0x0
+40 - 'bc' - 1:55-1:57 @0x0
+37 - '' - 1:57-1:58 @0x0
+40 - 'cd' - 1:58-1:60 @0x0
+40 - 'abc' - 1:61-1:64 @0x0
+37 - '' - 1:64-1:65 @0x0
+41 - '*' - 1:65-1:66 @0x0
+0 - '' - 1:66-1:66 @0x0
+>>>*/
+
+fun test4 {
+    doScan("", ". .. ... !!! .* # !@#$%^&*-+=");
+}
+/*<<<Scan: operators test(4)
+37 - '' - 1:1-1:2 @0x0
+41 - '..' - 1:3-1:5 @0x0
+41 - '...' - 1:6-1:9 @0x0
+41 - '!!!' - 1:10-1:13 @0x0
+37 - '' - 1:14-1:15 @0x0
+41 - '*' - 1:15-1:16 @0x0
+41 - '#' - 1:17-1:18 @0x0
+41 - '!@#$%^&*-+=' - 1:19-1:30 @0x0
+0 - '' - 1:30-1:30 @0x0
+>>>*/
+
+fun test5 {
+    doScan("", "\"abcd\" 'a' <{abc\\nop}>");
+}
+/*<<<Scan: strings test(5)
+43 - 'abcd' - 1:1-1:7 @0x0
+42 - 'a' - 1:8-1:11 @0x0
+43 - 'abc\nop' - 1:12-1:23 @0x0
+0 - '' - 1:23-1:23 @0x0
+>>>*/
+
+// <<<File scanning test(0 ~/work/sparrow/SparrowImplicitLib/std/ranges.spr)
+// <<<File scanning test(0 ~/work/sparrow/SparrowImplicitLib/std/vector.spr)
+
+fun test6 {
+    doParse("", "module a.b.c.d;");
+}
+/*<<<Parse: module name only(6)
+module(compoundExpr(compoundExpr(compoundExpr(a, b), c), d), <null>)
+>>>*/
+
+fun test7 {
+    doParse("", "import x.y.z, k, l(a,b,c);");
+}
+/*<<<Parse: just an import(7)
+module(<null>, nodeList(nodeList(importName(compoundExpr(compoundExpr(x, y), z), <null>), importName(k, <null>), importName(l, nodeList(a, b, c)))))
+>>>*/
+
+//<<<File parsing test(1 ~/work/sparrow/SparrowImplicitLib/std/ranges.spr)
+//<<<File parsing test(1 ~/work/sparrow/SparrowImplicitLib/std/vector.spr)
+//<<<File parsing test(1 ~/work/sparrow/SparrowImplicitLib/sprCore/basicDecls.spr)

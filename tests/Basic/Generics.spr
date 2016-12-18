@@ -1,4 +1,4 @@
-//!! -t "SparrowImplicitLib.spr"
+//!! -t "SparrowImplicitLib.spr" -fno-main
 
 concept AnyType(x); // Always true
 
@@ -24,7 +24,7 @@ fun f2(t: Type)
 class MyVector(t: Type)
 {
     var start, end: t;
-    
+
     fun print()
     {
         write(start);
@@ -33,7 +33,7 @@ class MyVector(t: Type)
         write(' ');
         writeLn(end);
     }
-    
+
     var[static] glob: t;
 }
 
@@ -49,26 +49,26 @@ fun[native("test")] test(n: Int)
     f2(Int);
     f2(Double);
     f2(Byte);
-    
+
     if ( Int == Double )
         writeLn('F');
     if ( Int == Int )
         write('O'); writeLn('K');
-    
+
     var v1: MyVector(Int);
     v1.start = 4;
     v1.end = 5;
     v1.print();
     v1.glob = 100;
     writeLn(MyVector(Int).glob);
-    
+
     var v2: MyVector(Double);
     v2.start = 10.0;
     v2.end = 15.2;
     v2.print();
     v2.glob = 3.14;
     writeLn(MyVector(Double).glob);
-    
+
     writeLn('-');
     writeLn(valSize(10));
     writeLn(valSize(3.14));

@@ -1,4 +1,4 @@
-import basicDecls(Number, Char, Bool, StringRef, Byte, UByte, Short, UShort, Int, UInt, Long, ULong, SizeType, DiffType, Double);
+import basicDecls(Number, Char, Bool, StringRef, Byte, UByte, Short, UShort, Int, UInt, Long, ULong, SizeType, DiffType, Double, Range);
 
 var[rtct] cout: ConsoleOutputStream;
 
@@ -7,13 +7,13 @@ class[rtct] ConsoleOutputStream
     fun <<<(x: Number)                          { Impl.write(x); }
     fun <<<(x: Char)                            { Impl.write(x); }
     fun <<<(x: Bool)                            { if ( x ) this <<< "true"; else this <<< "false"; }
-    fun <<<(x: StringRef)                       { Impl.writeCString(x.begin); }
+    fun <<<(x: StringRef)                       { for ( c = x ) Impl.write(c); }
 
     // This stream supports flush
     fun flush                                   { Impl.flushOutput(); }
 }
 
-package Impl
+private package Impl
 {
     fun[rtct, native("writeByte")] write(x: Byte);
     fun[rtct, native("writeByte")] write(x: UByte);
@@ -27,8 +27,6 @@ package Impl
     fun[rtct, native("writeChar")] write(x: Char);
     fun[rtct, native("writeULong")] write(x: SizeType);
     fun[rtct, native("writeLong")] write(x: DiffType);
-
-    fun[rtct, native("writeStringImpl")] writeCString(x: @Byte);
 
     fun[rtct, native("flushOutput")] flushOutput;
 }

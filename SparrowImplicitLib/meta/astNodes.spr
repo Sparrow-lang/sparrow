@@ -165,7 +165,7 @@ package Feather
     fun[ct, native("$meta.Feather.mkReturn")] mkReturn(loc: Location): AstNode;
     fun[ct, native("$meta.Feather.mkReturn")] mkReturn(loc: @Location, exp: AstNode): AstNode;
 
-    package Impl
+    private package Impl
     {
         fun[ct, native("$meta.Feather.mkNodeList")] mkNodeList(loc: @Location, childrenBegin, childrenEnd: @AstNode, voidResult: Bool): AstNode;
         fun[ct, native("$meta.Feather.mkLocalSpace")] mkLocalSpace(loc: @Location, childrenBegin, childrenEnd: @AstNode): AstNode;
@@ -184,12 +184,12 @@ package SprFrontend
     fun[ct, native("$meta.Sparrow.mkSprUsing")] mkSprUsing(loc: @Location, alias: StringRef, usingNode: AstNode): AstNode;
     fun[ct, native("$meta.Sparrow.mkSprPackage")] mkSprPackage(loc: @Location, name: StringRef, children: AstNode): AstNode;
     fun[ct, native("$meta.Sparrow.mkSprVariable")] mkSprVariable(loc: @Location, name: StringRef, typeNode, init: AstNode): AstNode;
-    fun[ct, native("$meta.Sparrow.mkSprClass")] mkSprClass(loc: @Location, name: StringRef, parameters, baseClasses, ifClause, children: AstNode, accessType: Int = 2): AstNode;
+    fun[ct, native("$meta.Sparrow.mkSprClass")] mkSprClass(loc: @Location, name: StringRef, parameters, baseClasses, ifClause, children: AstNode, accessType: Int = 0): AstNode;
 
     fun[ct, native("$meta.Sparrow.mkSprConcept")] mkSprConcept(loc: @Location, name: StringRef, paramName: StringRef, baseConcept, ifClause: AstNode): AstNode;
 
-    fun[ct, native("$meta.Sparrow.mkSprFunction")] mkSprFunction(loc: @Location, name: StringRef, parmeters, returnType, body, ifClause: AstNode, accessType: Int = 2): AstNode;
-    fun[ct, native("$meta.Sparrow.mkSprFunctionExp")] mkSprFunctionExp(loc: @Location, name: StringRef, parameters, returnType, bodyExp, ifClause: AstNode, accessType: Int = 2): AstNode;
+    fun[ct, native("$meta.Sparrow.mkSprFunction")] mkSprFunction(loc: @Location, name: StringRef, parmeters, returnType, body, ifClause: AstNode, accessType: Int = 0): AstNode;
+    fun[ct, native("$meta.Sparrow.mkSprFunctionExp")] mkSprFunctionExp(loc: @Location, name: StringRef, parameters, returnType, bodyExp, ifClause: AstNode, accessType: Int = 0): AstNode;
     fun[ct, native("$meta.Sparrow.mkSprParameter")] mkSprParameter(loc: @Location, name: StringRef, typeNode, init: AstNode): AstNode;
     fun[ct, native("$meta.Sparrow.mkSprAutoParameter")] mkSprAutoParameter(loc: @Location, name: StringRef): AstNode;
 

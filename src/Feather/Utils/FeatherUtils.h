@@ -59,6 +59,7 @@ extern const char* propCode;
 extern const char* propEvalMode;
 extern const char* propResultingDecl;
 extern const char* propNoInline;
+extern const char* propEmptyBody;   ///< Node will not generate meaningful instructions
 
 
 
@@ -125,7 +126,7 @@ void Feather_setName(Node* decl, StringRef name);
 
 /// Getter for the evaluation mode set in the given declaration (non-ct, ct, auto-ct)
 EvalMode Feather_nodeEvalMode(const Node* decl);
-    
+
 /// Getter for the evaluation mode set in the given declaration (non-ct, ct, auto-ct)
 /// If the given declaration doesn't have an evaluation mode, the evaluation mode of the context is used
 EvalMode Feather_effectiveEvalMode(const Node* decl);

@@ -18,70 +18,70 @@ concept RandomAccessRange(x: BidirRange)
 // Pre and post ++/-- operators on Ranges
 fun[rtct] pre_++(r: @Range): r.RetType
 {
-    r.popFront();
-    return r.front();
+    r popFront;
+    return r front;
 }
 fun[rtct] post_++(r: @Range): r.RetType
 {
-    var res = r.front();
-    r.popFront();
+    var res: r.RetType = r front;
+    r popFront;
     return res;
 }
 fun[rtct] pre_--(r: @BidirRange): r.RetType
 {
-    r.popBack();
-    return r.back();
+    r popBack;
+    return r back;
 }
 fun[rtct] post_--(r: @BidirRange): r.RetType
 {
-    var res = r.back();
-    r.popBack();
+    var res: r.RetType = r back;
+    r popBack;
     return res;
 }
-fun[rtct] pre_!(r: @Range) = r.isEmpty();
-fun[rtct] pre_!!(r: @Range) = !r.isEmpty();
-fun[rtct] pre_*(r: @Range): r.RetType = r.front();
+fun[rtct] pre_!(r: @Range) = r isEmpty;
+fun[rtct] pre_!!(r: @Range) = !(r isEmpty);
+fun[rtct] pre_*(r: @Range): r.RetType = r front;
 
-// Call operator on range == range.front()
-//fun post_()(r: @Range) = r.front();
+// Call operator on range == (range front)
+//fun post_()(r: @Range) = r front;
 
 
 fun[rtct] rangeSize(range: Range): SizeType
 {
     var n: SizeType = 0;
-    while ( !range.isEmpty(); range.popFront() )
+    while ( !(range isEmpty) ; range popFront )
         ++n;
     return n;
 }
 
 fun[rtct] rangeSize(range: RandomAccessRange): SizeType
 {
-    return range.size();
+    return range size;
 }
 
 
 fun advance(range: @Range, n: SizeType)
 {
     while ( n > 0 ; n -= 1 )
-        range.popFront();
+        range popFront;
 }
 
 fun advanceIf(range: @Range, pred: AnyType)
 {
-    while ( !range.isEmpty() && pred(range.front()) )
-        range.popFront();
+    while ( !(range isEmpty) && pred(range front) )
+        range popFront;
 }
 
 fun retract(range: @BidirRange, n: SizeType)
 {
     while ( n > 0 ; n -= 1 )
-        range.popBack();
+        range popBack;
 }
 
 fun retractIf(range: @BidirRange, pred: AnyType)
 {
-    while ( !range.isEmpty() && pred(range.back) )
-        range.popBack();
+    while ( !(range isEmpty) && pred(range back) )
+        range popBack;
 }
 
 
@@ -273,12 +273,12 @@ class[initCtor] RetroRange(rangeType: Type) if BidirRange(#$rangeType)
 
     using RetType = rangeType.RetType;
 
-    fun isEmpty                     = range.isEmpty();
-    fun front: RetType              = range.back();
-    fun popFront                    { range.popBack(); }
+    fun isEmpty                     = range isEmpty;
+    fun front: RetType              = range back;
+    fun popFront                    { range popBack; }
 
-    fun back: RetType               = range.front();
-    fun popBack                     { range.popFront(); }
+    fun back: RetType               = range front;
+    fun popBack                     { range popFront; }
 }
 
 class[rtct, initCtor] TakeRange(rangeType: Type) if Range(#$rangeType)
@@ -288,9 +288,9 @@ class[rtct, initCtor] TakeRange(rangeType: Type) if Range(#$rangeType)
 
     using RetType = rangeType.RetType;
 
-    fun isEmpty                     = count == 0 || range.isEmpty();
-    fun front: RetType              = range.front();
-    fun popFront                    { range.popFront(); --count; }
+    fun isEmpty                     = count == 0 || (range isEmpty);
+    fun front: RetType              = range front;
+    fun popFront                    { range popFront; --count; }
 }
 
 class[initCtor] TakeWhileRange(rangeType: Type, predType: Type) if Range(#$rangeType)
@@ -300,9 +300,9 @@ class[initCtor] TakeWhileRange(rangeType: Type, predType: Type) if Range(#$range
 
     using RetType = rangeType.RetType;
 
-    fun isEmpty                     = range.isEmpty() || !pred(range.front());
-    fun front: RetType              = range.front();
-    fun popFront                    { range.popFront(); }
+    fun isEmpty                     = (range isEmpty) || !pred(range front);
+    fun front: RetType              = range front;
+    fun popFront                    { range popFront; }
 }
 
 class[initCtor] TakeUntilRange(rangeType: Type, predType: Type) if Range(#$rangeType)
@@ -320,12 +320,12 @@ class[initCtor] TakeUntilRange(rangeType: Type, predType: Type) if Range(#$range
         shouldStop = false;
     }
 
-    fun isEmpty                     = range.isEmpty() || shouldStop;
-    fun front: RetType              = range.front();
+    fun isEmpty                     = (range isEmpty) || shouldStop;
+    fun front: RetType              = range front;
     fun popFront
     {
-        var lastVal = range.front();
-        range.popFront();
+        var lastVal = range front;
+        range popFront;
         shouldStop = pred(lastVal);
     }
 }
@@ -346,18 +346,18 @@ class FilteredRange(rangeType, predType: Type) if Range(#$rangeType) && typeOf((
         popUntilValid;
     }
 
-    fun isEmpty                     = range.isEmpty();
+    fun isEmpty                     = range isEmpty;
     fun front: RetType              = lastVal;
-    fun popFront                    { range.popFront(); popUntilValid; }
+    fun popFront                    { range popFront; popUntilValid; }
 
     private fun popUntilValid
     {
-        while ( !range.isEmpty )
+        while ( !(range isEmpty) )
         {
-            lastVal = range.front();
+            lastVal = (range front);
             if ( pred(lastVal) )
                 break;
-            range.popFront();
+            range popFront;
         }
     }
 }
@@ -379,17 +379,17 @@ class[rtct] TransformedRange(rangeType, funType: Type) if Range(#$rangeType) && 
         this.hasValue ctor false;
     }
 
-    fun isEmpty                     = range.isEmpty();
+    fun isEmpty                     = range isEmpty;
     fun front: RetType
     {
         if ( !hasValue )
         {
-            curVal = function(range.front());
+            curVal = function(range front);
             hasValue = true;
         }
         return curVal;
     }
-    fun popFront                    { range.popFront(); hasValue = false; }
+    fun popFront                    { range popFront; hasValue = false; }
 }
 
 class[initCtor] RepeatRange(valueType: Type)
@@ -428,16 +428,16 @@ class[initCtor] StridedRange(rangeType: Type) if Range(#$rangeType)
 
     using RetType = rangeType.RetType;
 
-    fun isEmpty                     = range.isEmpty();
-    fun front: RetType              = range.front();
+    fun isEmpty                     = range isEmpty;
+    fun front: RetType              = range front;
     fun popFront
     {
         var s = strideStep;
 
-        while ( !range.isEmpty() && s > 0 )
+        while ( !(range isEmpty) && s > 0 )
         {
             s = s - 1;
-            range.popFront();
+            range popFront;
         }
     }
 }
@@ -459,7 +459,7 @@ class RadialRange(rangeType: Type) if RandomAccessRange(#$rangeType)
         this.count ctor 0;
     }
 
-    fun isEmpty                     = range.isEmpty() || count == range.size();
+    fun isEmpty                     = (range isEmpty) || count == (range size);
     fun front: RetType              = range(index);
     fun popFront
     {
@@ -467,7 +467,7 @@ class RadialRange(rangeType: Type) if RandomAccessRange(#$rangeType)
         step = step + 1;
         sign = -sign;
         count = count + 1;
-        while ( (index < 0 || index >= range.size()) && count < range.size() )
+        while ( (index < 0 || index >= (range size)) && count < (range size) )
         {
             index = index + step * sign;
             step = step + 1;
@@ -489,11 +489,11 @@ class CyclicRange(rangeType: Type) if Range(#$rangeType)
     }
 
     fun isEmpty                     = false;
-    fun front: RetType              = range.front();
+    fun front: RetType              = range front;
     fun popFront
     {
-        range.popFront();
-        if ( range.isEmpty() )
+        range popFront;
+        if ( range isEmpty )
             range = base;
     }
 }
@@ -513,11 +513,11 @@ class CyclicCountedRange(rangeType: Type) if Range(#$rangeType)
     }
 
     fun isEmpty                     = count == 0;
-    fun front: RetType              = range.front();
+    fun front: RetType              = range front;
     fun popFront
     {
-        range.popFront();
-        if ( range.isEmpty() )
+        range popFront;
+        if ( range isEmpty )
         {
             if ( count > 0 )
             {
@@ -594,12 +594,12 @@ class ScanLeftRange(accType, rangeType: Type, functionType: Type) if Range(#$ran
         this.valComputed ctor false;
     }
 
-    fun isEmpty         = range.isEmpty();
-    fun popFront        { range.popFront(); valComputed=false; }
+    fun isEmpty         = range isEmpty;
+    fun popFront        { range popFront; valComputed=false; }
     fun front: RetType
     {
         if ( !valComputed )
-            acc = function(acc, range.front());
+            acc = function(acc, range front);
         valComputed=true;
         return acc;
     }

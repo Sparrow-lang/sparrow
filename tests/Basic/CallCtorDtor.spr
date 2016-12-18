@@ -1,4 +1,4 @@
-//!! -t "SparrowImplicitLib.spr" --fno-rvo
+//!! -t "SparrowImplicitLib.spr" -fno-main -fno-rvo
 
 class MyObj
 {

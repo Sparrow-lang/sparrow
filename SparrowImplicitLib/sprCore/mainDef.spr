@@ -18,7 +18,7 @@ class MainParameters
     fun popFront(n: SizeType)       { begin = (begin + n); }
     fun popBack(n: SizeType)        { end = (end - n); }
 
-    private fun ctor(argc: Int, argv: @ @Char)
+    fun ctor(argc: Int, argv: @ @Char)
     {
         this.begin = (Impl.fromArgvPtr(argv));
         this.end = (this.begin + argc);
@@ -46,9 +46,4 @@ var programArgs: MainParameters;
 // To be defined by the application:
 fun sprMain();
 
-fun[native("main"), noInline] main(argc: Int, args: @ @Char): Int
-{
-    programArgs.ctor(argc, args);
-    sprMain();
-    return 0;
-}
+// The "main" function will be declared in 'mainImpl.spr'

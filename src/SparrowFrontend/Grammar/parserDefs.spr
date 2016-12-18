@@ -1,0 +1,22 @@
+module sparrowc.spr.grammar.parserDefs;
+
+import untypedPtr;
+import node;
+import std.tuple, std.string, std.vector;
+
+/// Enum values to be used for access specification
+using unspecifiedAccess = 0;
+using publicAccess = 1;
+using privateAccess = 2;
+
+/// Concept for objects that can report errors produced by scanner
+concept ErrorReporter(x: AnyType)
+    if isValid(x.reportError(Location(), String()))
+    ;
+
+/// A string (representing an identifier) and the corresponding location
+datatype LocString = Location*String;
+
+/// Vector of LocString objects
+using LocStringVec = LocString Vector;
+

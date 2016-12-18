@@ -1,5 +1,5 @@
 //! ! -O3
-// -g -O1 --dump-assembly
+// -g -O1 -dump-assembly
 import par.tasks;
 import par.parFor;
 import par.atomic;

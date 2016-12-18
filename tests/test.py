@@ -114,6 +114,10 @@ class SourceFileInfo:
             line = line.strip()
             lineIdx +=1
 
+            # Ignore all the lines with 'IGNORE-ERROR'
+            if 'IGNORE-ERROR' in line:
+                continue
+
             for m in re.finditer(r'ERROR', line):
                 self.errorMarkers.append(lineIdx)
 
@@ -198,7 +202,7 @@ class SummaryReporter:
 
     def beforeTestRun(self, testName, args, expectedOutput, cmd):
         pass
-    def afterTestRun(self, testName, actualOutput, runOk):
+    def afterTestRun(self, testName, actualOutput, expectedOutput, runOk):
         ch = getCharCodeForTestRun(testName, runOk)
         print(ch, end='')
         if ch == 'E':
@@ -291,13 +295,16 @@ class DetailedReporter:
             print(expectedOutput + '.')
         print('Running: \'%s\':' % cmd)
 
-    def afterTestRun(self, testName, actualOutput, runOk):
+    def afterTestRun(self, testName, actualOutput, expectedOutput, runOk):
         print(actualOutput + '.')
         if runOk:
             print()
             print('>>> OK')
         else:
-            print('ERROR: output does not match!')
+            if expectedOutput:
+                print('ERROR: output does not match!')
+            else:
+                print('ERROR: output contains errors!')
             self._curTestHasErrors = True
         self._curTestSummary += getCharCodeForTestRun(testName, runOk)
 
@@ -339,9 +346,12 @@ def doTestFile(testFilePair, reporter, args, compilerLookup):
     _removeFileIfExists('%s/%s' % (path, outputFile))
     _removeFileIfExists('%s/%s.bc' % (path, outputFile))
     _removeFileIfExists('%s/%s.o' % (path, outputFile))
+    _removeFileIfExists('%s/%s.ll' % (path, outputFile))
     _removeFileIfExists('%s/%s.one.bc' % (path, outputFile))
     _removeFileIfExists('%s/%s.one.llvm' % (path, outputFile))
+    _removeFileIfExists('%s/%s.one.ll' % (path, outputFile))
     _removeFileIfExists('%s/%s.ct.llvm' % (path, outputFile))
+    _removeFileIfExists('%s/%s.ct.ll' % (path, outputFile))
 
     # Should we capture the output?
     captureOutput = (not args.debug and fileInfo.errorMarkers) or reporter.requireCaptureCompilerOutput()
@@ -351,9 +361,9 @@ def doTestFile(testFilePair, reporter, args, compilerLookup):
     # changeDirPrefix = ''
     compilerArgs = ' ' + args.compilerArgs + ' ' + fileInfo.extraArgs
     if useSimpleLinking:
-        compilerArgs += ' --simple-linking'
+        compilerArgs += ' -S'
     if captureOutput:
-        compilerArgs += ' --noColors'
+        compilerArgs += ' -fno-colors'
     cmd = changeDirPrefix + compilerLookup.getCompiler() + ' ' + file + ' -o ' + outputFile + compilerArgs
 
     # Actually run the compiler
@@ -399,8 +409,11 @@ def doTestFile(testFilePair, reporter, args, compilerLookup):
                 p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
                 actualOutput = p.communicate()[0]
 
-                runOk = expectedOutput == None or actualOutput == expectedOutput
-                reporter.afterTestRun(testName, actualOutput, runOk)
+                if expectedOutput:
+                    runOk = actualOutput == expectedOutput
+                else:
+                    runOk = not('FAILURE' in actualOutput or 'ERROR' in actualOutput)
+                reporter.afterTestRun(testName, actualOutput, expectedOutput, runOk)
             else:
                 os.system(cmd)
 

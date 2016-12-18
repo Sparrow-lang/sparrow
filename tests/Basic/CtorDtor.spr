@@ -1,4 +1,4 @@
-//!! -t "SparrowImplicitLib.spr" --fno-rvo
+//!! -t "SparrowImplicitLib.spr" -fno-main -fno-rvo
 
 class MyType
 {
@@ -21,7 +21,7 @@ class MyType
     {
         write('d'); write('t'); write('o'); write('r'); write('-'); writeLn(x);
     }
-    
+
     var x: Int;
 }
 

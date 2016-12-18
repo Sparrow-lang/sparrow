@@ -1,4 +1,4 @@
-//!! --dump-ct-assembly
+// !! -dump-ct-assembly
 
 import meta.diagnostic;
 import meta.astNodes;

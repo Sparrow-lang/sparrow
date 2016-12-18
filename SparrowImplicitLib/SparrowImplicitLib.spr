@@ -8,5 +8,5 @@ public import sprCore.functionPtr;
 
 public import sprCore.streamBasic;
 public import sprCore.consoleIO;
-public import sprCore.main;
+public import sprCore.mainDef;
 public import sprCore.stringCvt;

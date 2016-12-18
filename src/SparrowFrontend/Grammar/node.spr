@@ -1,0 +1,10 @@
+module sparrowc.spr.grammar.node;
+
+import untypedPtr;
+import location;
+
+/// A node in the compiler, expressing the root of an AST
+datatype Node = UntypedPtr;
+
+fun isSet(n: Node): Bool = n._data._data !== null;
+fun isNull(n: Node): Bool = n._data._data === null;

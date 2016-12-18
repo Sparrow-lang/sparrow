@@ -19,7 +19,6 @@ declare i32 @fflush(%struct._IO_FILE*) nounwind
 @.fmtULong = private unnamed_addr constant [5 x i8] c"%llu\00", align 1
 @.fmtChar = private unnamed_addr constant [3 x i8] c"%c\00", align 1
 @.fmtDouble = private unnamed_addr constant [3 x i8] c"%g\00", align 1
-@.fmtString = private unnamed_addr constant [3 x i8] c"%s\00", align 1
 @.fmtPointer = private unnamed_addr constant [3 x i8] c"%p\00", align 1
 
 define i1 @isNullRef(i8* %x) alwaysinline
@@ -137,11 +136,6 @@ define void @writeDouble(double %val) alwaysinline {
 
 define void @writeChar(i8 %val) alwaysinline {
     %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.fmtChar, i32 0, i32 0), i8 %val)
-    ret void
-}
-
-define void @writeStringImpl(i8* %val) alwaysinline {
-    %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.fmtString, i32 0, i32 0), i8* %val)
     ret void
 }
 

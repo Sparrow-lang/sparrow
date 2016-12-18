@@ -1,7 +1,6 @@
 #include <StdInc.h>
 #include "SparrowSourceCode.h"
-#include "Grammar/Scanner.h"
-#include <parser.yy.hpp>
+#include "Grammar/Parser.h"
 #include <Helpers/SprTypeTraits.h>
 
 #include "Nest/Utils/Alloc.h"
@@ -19,15 +18,11 @@ namespace
     {
         Location loc = Nest_mkLocation1(sourceCode, 1, 1);
 
-        Scanner scanner(loc, Parser::token::START_PROGRAM);
-        Parser parser(scanner, loc, &sourceCode->mainNode);
-        int rc = parser.parse();
-        if ( rc != 0 )
-        {
-            return;
-        }
+        Parser parser(loc);
+        sourceCode->mainNode = parser.parseModule();
 
-        Nest_setContext(sourceCode->mainNode, ctx);
+        if ( sourceCode->mainNode )
+            Nest_setContext(sourceCode->mainNode, ctx);
     }
 
     StringRef getSourceCodeLine(const SourceCode* sourceCode, int lineNo)
@@ -71,11 +66,10 @@ Node* SprFe_parseSparrowExpression(Location loc, const char* code)
     loc.end = loc.start;
 
     StringRef toParse = { code, code + strlen(code) };
-    Scanner scanner(loc, toParse, Parser::token::START_EXPRESSION);
-    Node* res = nullptr;
-    Parser parser(scanner, loc, &res);
-    int rc = parser.parse();
-    if ( rc != 0 )
-        REP_ERROR_RET(nullptr, loc, "Cannot parse the expression code");
+
+    Parser parser(loc, toParse);
+    Node* res = parser.parseExpression();
+    if ( !res )
+        REP_ERROR(loc, "Cannot parse the expression code");
     return res;
 }

@@ -1,8 +1,4 @@
 
-# Add the bison rule
-find_package(BISON)
-BISON_TARGET(SparrowParser Grammar/parser.yy ${CMAKE_CURRENT_BINARY_DIR}/parser.yy.cpp)
-
 # The source files
 SET(sourceFiles
     "StdInc.h"
@@ -24,13 +20,18 @@ SET(sourceFiles
     "IntMods.h"
     "IntMods.cpp"
     "SprDebug.cpp"
-    "Grammar/parser.yy"
+    "Grammar/ext.spr"
+    "Grammar/location.spr"
+    "Grammar/node.spr"
+    "Grammar/parser.spr"
     "Grammar/parserDefs.spr"
+    "Grammar/parserIf.spr"
+    "Grammar/parserIf.ll"
     "Grammar/scanner.spr"
-    "Grammar/scannerIf.spr"
-    "Grammar/scannerIf.ll"
-    "Grammar/Scanner.h"
-    "Grammar/Scanner.cpp"
+    "Grammar/token.spr"
+    "Grammar/untypedPtr.spr"
+    "Grammar/Parser.h"
+    "Grammar/Parser.cpp"
     "Nodes/SparrowNodes.h"
     "Nodes/SparrowNodes.cpp"
     "Nodes/SparrowNodes_Exp.cpp"
@@ -75,18 +76,25 @@ SET(sourceFiles
 )
 
 if(BOOSTSTRAP_SPARROW)
-    message(STATUS "Using SparrowCompiler to generate the scanner object")
-    SPARROW_TARGET(SparrowScanner
-        Grammar/scannerIf.spr
-        ${CMAKE_CURRENT_SOURCE_DIR}/Grammar/scannerIf.o
+    message(STATUS "Using SparrowCompiler to generate the parser object")
+    SPARROW_TARGET(SparrowParser
+        Grammar/parserIf.spr
+        ${CMAKE_CURRENT_SOURCE_DIR}/Grammar/parserIf.o
         COMPILE_FLAGS "-dump-assembly -fno-colors -fno-main -c"
-        DEPENDS Grammar/scanner.spr Grammar/parserDefs.spr
+        DEPENDS Grammar/parser.spr
+                Grammar/parserDefs.spr
+                Grammar/ext.spr
+                Grammar/location.spr
+                Grammar/node.spr
+                Grammar/scanner.spr
+                Grammar/token.spr
+                Grammar/untypedPtr.spr
     )
 else()
-    message(STATUS "Using LLVM to generate the scanner object")
-    LLVMASM_TARGET(SparrowScanner
-        Grammar/scannerIf.ll
-        ${CMAKE_CURRENT_SOURCE_DIR}/Grammar/scannerIf.o
+    message(STATUS "Using LLVM to generate the parser object")
+    LLVMASM_TARGET(SparrowParser
+        Grammar/parserIf.ll
+        ${CMAKE_CURRENT_SOURCE_DIR}/Grammar/parserIf.o
     )
 endif()
 
@@ -106,8 +114,7 @@ SOURCE_GROUP("Grammar"
 
 ADD_LIBRARY( SparrowFrontend
     ${sourceFiles}
-    ${BISON_SparrowParser_OUTPUTS}
-    ${SparrowScanner_OUTPUTS}
+    ${SparrowParser_OUTPUTS}
 )
 TARGET_LINK_LIBRARIES(SparrowFrontend ${REQ_LLVM_LIBRARIES})
 TARGET_LINK_LIBRARIES(SparrowFrontend ${Boost_FILESYSTEM_LIBRARY} ${Boost_PROGRAM_OPTIONS_LIBRARY} ${Boost_SYSTEM_LIBRARY})

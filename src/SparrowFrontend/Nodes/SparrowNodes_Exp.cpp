@@ -1545,6 +1545,8 @@ Node* StarExp_SemanticCheck(Node* node)
 Node* ModuleRef_SemanticCheck(Node* node)
 {
     Node* module = at(node->referredNodes, 0);
+    if ( !module )
+        return nullptr;
 
     if ( module->nodeKind == nkSparrowDeclModule ) {
         // If we are referring a Sparrow module, point to the inner most package

@@ -43,12 +43,6 @@ include_directories( "${LLVM_INCLUDE_DIRS}" )
 link_directories(${LLVM_LIBRARY_DIRS})
 message(STATUS "LLVM include dirs: ${LLVM_INCLUDE_DIRS}")
 
-# Find bison
-set(Old_CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH})
-set(CMAKE_PREFIX_PATH ${CONAN_BISON_ROOT} ${CONAN_FLEX_ROOT} ${CMAKE_PREFIX_PATH})
-find_package(BISON)
-set(CMAKE_PREFIX_PATH ${Old_CMAKE_PREFIX_PATH})
-
 # Project options
 if( NOT CMAKE_BUILD_TYPE )      # set default cmake build type to RelWithDebInfo (None Debug Release RelWithDebInfo MinSizeRel)
     set( CMAKE_BUILD_TYPE "RelWithDebInfo" )

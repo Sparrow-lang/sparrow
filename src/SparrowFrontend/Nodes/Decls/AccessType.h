@@ -10,10 +10,9 @@ namespace SprFrontend
      */
     enum AccessType
     {
+        unspecifiedAccess = 0,
         publicAccess,
         privateAccess,
-
-        unspecifiedAccess
     };
 
     inline const char* accessTypeToString(AccessType accessType)

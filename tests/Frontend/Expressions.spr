@@ -84,7 +84,7 @@ public class SLPtrHashFunction
 
 
 
-public class[autoct] Pair
+public class[autoCt] Pair
 {
 
 	public var[static] FirstType = firstType;

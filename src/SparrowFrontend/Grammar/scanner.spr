@@ -1,9 +1,7 @@
 module sparrowc.spr.grammar.scanner;
 
-import parserDefs;
-import charType;
-import std.ranges;
-import std.vector;
+import parserDefs, rangeWithLookahead, token;
+import charType, std.ranges, std.vector;
 
 import os = os;
 
@@ -16,62 +14,6 @@ import os = os;
 concept CharRange(x: Range)
     if -@(x.RetType) == Char
     ;
-
-/// Concept for objects that can report errors produced by scanner
-concept ErrorReporter(x: AnyType)
-    if isValid(x.reportError(Location(), String()))
-    ;
-
-
-/// Helper class that provides lookup functionality over a CharRange
-///
-/// This will hold an internal buffer of chars
-/// When reading from the input stream, we always go through this buffer
-private class RangeWithLookahead(sourceType: Type) if CharRange(#$sourceType) {
-    using RetType = Char;
-    using IsRangeWithLookahead = true;
-
-    var source: sourceType;
-    var buffer: Vector(Char);
-
-    fun ctor(src: sourceType) {
-        this.source = src;
-        this.buffer ctor;
-        this.buffer reserve 10;
-
-        // Always have at least one element in the buffer
-        if ( !!source )
-            buffer += (source++);
-    }
-}
-private concept OurRangeWithLookahead(t) if t.IsRangeWithLookahead;
-
-private fun isEmpty(s: @OurRangeWithLookahead): Bool = s.buffer isEmpty;
-private fun front(s: @OurRangeWithLookahead): Char = s.buffer front;
-private fun popFront(s: @OurRangeWithLookahead) {
-    s.buffer remove 0;
-    // Add a new element in the buffer if the buffer is empty
-    if ( (s.buffer isEmpty) && !!s.source )
-        s.buffer += (s.source++);
-}
-
-private fun peek(s: @OurRangeWithLookahead, n: UInt): Char {
-    // If not enough elements in the buffer, add them now
-    while ( n >= s.buffer.size && !!s.source )
-        s.buffer += (s.source++);
-    if ( n < s.buffer.size )
-        return s.buffer(n);
-    else
-        return Char(0); // not enough elements in the source
-}
-private fun hasLessThan(s: @OurRangeWithLookahead, n: UInt): Bool {
-    // Try to fill the buffer with the amount of elements
-    while ( n >= s.buffer.size && !!s.source )
-        s.buffer += (s.source++);
-    // Check if we have enough elements in the buffer
-    return n >= s.buffer.size;
-}
-
 
 /// Helper class used to sync the location with the source range
 ///
@@ -141,9 +83,14 @@ fun front(s: @OurScanner): Token {
     return s.curToken;
 }
 fun popFront(s: @OurScanner) {
-    s.curToken.type = (s nextToken);
-    s.curToken.loc = s.src.location;
-    s.atEnd = (s.curToken.type == tkEND);
+    if ( (s.src isEmpty) && s.curToken.type == tkEND ) {
+        s.atEnd = true;
+    }
+    else {
+        s.curToken.type = (s nextToken);
+        s.curToken.loc = s.src.location;
+        // cout << s.curToken.loc << ": token: " << s.curToken.type._data << " - '" << s.curToken.data << "'" << endl;
+    }
 }
 
 private fun reportError(s: @OurScanner, msg: @String) {
@@ -273,7 +220,7 @@ private fun nextToken(s: @OurScanner): TokenType {
         // Numeric literals
         if ( isDigit(ch) || ch == '.' ) return parseNumeric(s);
 
-        s reportError toString("Invalid character found: '", ch, "'", Int(ch));
+        s reportError toString("Invalid character found: '", ch, "' (", Int(ch), ')');
         s.src popFront;
         return tkEND;
 
@@ -488,6 +435,7 @@ private fun parseNumeric(s: @OurScanner): TokenType {
     if ( isFloating ) {
         s.curToken.data += Char(0);
         s.curToken.floatData = (s.curToken.data.asStringRef asDouble);
+        s.curToken.data popBack;
         return ife(isLong, tkDOUBLE_LITERAL, tkFLOAT_LITERAL);
     }
 

@@ -1,150 +1,22 @@
-module sparrowc.spr.grammar.scanner;
+module sparrowc.spr.grammar.parserDefs;
 
-import std.tuple;
-import std.string;
+import untypedPtr;
+import node;
+import std.tuple, std.string, std.vector;
 
-datatype UntypedPtr = @Byte;
+/// Enum values to be used for access specification
+using unspecifiedAccess = 0;
+using publicAccess = 1;
+using privateAccess = 2;
 
-/// A line + column pair, indicating a position in a file
-datatype LineCol { line, col: UInt }
-
-/// Type describing a source code; for now we just use an untyped Ptr
-datatype SourceCode = UntypedPtr;
-
-datatype Location { sourceCode: SourceCode, start, end: LineCol }
-
-// TODO (functional): Make it possible to define ctors & dtors outside the class
-//fun ctor(l: @Location) {
-//    setOne(l);
-//}
-
-fun mkLocation: Location {
-    var res: Location;
-    setOne(res);
-    return res;
-}
-fun mkLocation(sourceCode: SourceCode): Location {
-    var res: Location;
-    res.sourceCode = sourceCode;
-    setOne(res);
-    return res;
-}
-
-/// Set the location to (1,1,1,1), the first character in a stream
-fun setOne(l: @Location) {
-    l.start.line = 1;
-    l.start.col = 1;
-    l.end.line = 1;
-    l.end.col = 1;
-}
-
-/// Make the start position to be the same as the end position
-fun stepOver(l: @Location) {
-    l.start = l.end;
-}
-
-/// Add the given number of columns to the end position; start position remains unchanged
-fun addColumns(l: @Location, count: UInt) {
-    l.end.col += count;
-}
-
-/// Add the given number of lines to the end position; start position remains unchanged
-fun addLines(l: @Location, count: UInt) {
-    l.end.line += count;
-    l.end.col = 1;
-}
-
-/// Set the start position of this location to the start position of the given location; the end position remains unchanged
-fun copyStart(l, other: @Location) {
-    l.start = other.start;
-}
-
-/// Set the end position of this location to the end position of the given location; the start position remains unchanged
-fun copyEnd(l, other: @Location) {
-    l.end = other.end;
-}
-
-/// Set this location with both start and end to equal the start of the given location
-fun setAsStartOf(l, other: @Location) {
-    l.start = other.start;
-    l.end = other.start;
-}
-
-/// Set this location with both start and end to equal the end of the given location
-fun setAsEndOf(l, other: @Location) {
-    l.start = other.end;
-    l.end = other.end;
-}
-
-fun >>(l: @Location, os: @OutStream)
-{
-    os  << l.start.line << ':' << l.start.col << '-'
-        << l.end.line << ':' << l.end.col
-        << " @" << mkStreamRefWrapper(l.sourceCode._data._data)
-        ;
-}
-
-datatype TokenType = Int;
-
-
-// TODO list all the tokens types as an enum values
-using tkEND = TokenType(0);
-using tkSTART_PROGRAM = TokenType(258);
-using tkSTART_EXPRESSION = TokenType(259);
-using tkMODULE = TokenType(260);
-using tkIMPORT = TokenType(261);
-using tkPRIVATE = TokenType(262);
-using tkPUBLIC = TokenType(263);
-using tkCLASS = TokenType(264);
-using tkCONCEPT = TokenType(265);
-using tkDATATYPE = TokenType(266);
-using tkFUN = TokenType(267);
-using tkPACKAGE = TokenType(268);
-using tkUSING = TokenType(269);
-using tkVAR = TokenType(270);
-using tkBREAK = TokenType(271);
-using tkCATCH = TokenType(272);
-using tkCONTINUE = TokenType(273);
-using tkFINALLY = TokenType(274);
-using tkFOR = TokenType(275);
-using tkIF = TokenType(276);
-using tkRETURN = TokenType(277);
-using tkTHROW = TokenType(278);
-using tkTRY = TokenType(279);
-using tkWHILE = TokenType(280);
-using tkFALSE = TokenType(281);
-using tkNULLCT = TokenType(282);
-using tkTHIS = TokenType(283);
-using tkTRUE = TokenType(284);
-using tkTHEN_CLAUSE = TokenType(285);
-using tkELSE = TokenType(286);
-using tkLCURLY = TokenType(287);
-using tkRCURLY = TokenType(288);
-using tkLBRACKET = TokenType(289);
-using tkRBRACKET = TokenType(290);
-using tkLPAREN = TokenType(291);
-using tkRPAREN = TokenType(292);
-using tkCOLON = TokenType(293);
-using tkSEMICOLON = TokenType(294);
-using tkCOMMA = TokenType(295);
-using tkDOT = TokenType(296);
-using tkBACKSQUOTE = TokenType(297);
-using tkEQUAL = TokenType(298);
-using tkIDENTIFIER = TokenType(299);
-using tkOPERATOR = TokenType(300);
-using tkCHAR_LITERAL = TokenType(301);
-using tkSTRING_LITERAL = TokenType(302);
-using tkINT_LITERAL = TokenType(303);
-using tkLONG_LITERAL = TokenType(304);
-using tkUINT_LITERAL = TokenType(305);
-using tkULONG_LITERAL = TokenType(306);
-using tkFLOAT_LITERAL = TokenType(307);
-using tkDOUBLE_LITERAL = TokenType(308);
-
-datatype Token { loc: Location, type: TokenType, data: String, intData: ULong, floatData: Double }
-
-/// Concept modeling the output of the scanner
-/// It's basically a range of tokens
-concept TokenRange(x: Range)
-    if -@(x.RetType) == Token
+/// Concept for objects that can report errors produced by scanner
+concept ErrorReporter(x: AnyType)
+    if isValid(x.reportError(Location(), String()))
     ;
+
+/// A string (representing an identifier) and the corresponding location
+datatype LocString = Location*String;
+
+/// Vector of LocString objects
+using LocStringVec = LocString Vector;
+

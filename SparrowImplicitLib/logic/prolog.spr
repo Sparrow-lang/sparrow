@@ -22,19 +22,18 @@ using meta.SourceCode;
 using meta.Location;
 using meta.CompilationContext;
 
-fun[macro] compileProlog(sourceString: meta.AstNode): meta.AstNode
+fun[macro] compileProlog(sourceString: CompilerAstNode): CompilerAstNode
 {
-    cout << meta.Kinds.iota << endl;
-    cout << meta.Kinds.nkSparrowExpLiteral << endl;
-    if[ct] ( sourceString.nodeKind() != meta.Kinds.nkSparrowExpLiteral )
-        meta.report("compileProlog should take a string literal as argument", sourceString.location());
+    var sourceStr: meta.AstNode = sourceString;
+    if[ct] ( meta.AstNode(sourceString).nodeKind() != meta.Kinds.nkSparrowExpLiteral )
+        meta.report("compileProlog should take a string literal as argument", sourceStr.location());
     else
     {
-        sourceString.semanticCheck();
-        var loc = sourceString.location();
-        var ctx = sourceString.context();
-        var str: String = meta.astEval(sourceString.clone());
-        return handlePrologCode(str, loc, ctx);
+        sourceStr.semanticCheck();
+        var loc = sourceStr.location();
+        var ctx = sourceStr.context();
+        var str: String = astEval(meta.AstNode(sourceString).clone().asCompilerAstNode);
+        return handlePrologCode(str, loc, ctx).asCompilerAstNode();
     }
 }
 

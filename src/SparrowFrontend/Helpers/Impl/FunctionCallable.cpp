@@ -172,14 +172,14 @@ namespace
         CHECK(loc, args.size() == 1);
 
         // Get the impl part of the node
-        Node* implPart = mkCompoundExp(loc, args[0], fromCStr("impl"));
+        Node* implPart = mkCompoundExp(loc, args[0], fromCStr("_data"));
         implPart = Feather_mkMemLoad(loc, implPart);    // Remove LValue
         Nest_setContext(implPart, context);
         if ( !Nest_semanticCheck(implPart) )
             return nullptr;
 
         // Evaluate the handle and get the resulting node
-        Node* nodeHandle = (Node*) getIntRefCtValue(implPart);
+        Node* nodeHandle = (Node*) getByteRefCtValue(implPart);
         if ( !nodeHandle )
             REP_INTERNAL(loc, "Node passed to astEval is invalid");
         return nodeHandle;

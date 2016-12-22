@@ -50,15 +50,15 @@ fun[rtct] reinterpretPtr(t: Type, ptr: AnyType): Ptr(t) //if isValid(p.isNull())
 }
 
 
-fun[rtct, macro] ->(base, id: AstNode): AstNode
+fun[rtct, macro] ->(base, id: CompilerAstNode): CompilerAstNode
 {
     using SprFrontend.*;
     using Feather.*;
 
     // Expand to: <base>.get().<id>
-    var loc = base.location();
-    var dotGet = mkInfixOp(loc, "__dot__", base, mkIdentifier(loc, "get"));
+    var loc = AstNode(base).location();
+    var dotGet = mkInfixOp(loc, "__dot__", AstNode(base), mkIdentifier(loc, "get"));
     var getCall = mkInfixOp(loc, "__fapp__", dotGet, mkNodeList(loc));
-    return mkInfixOp(loc, "__dot__", getCall, id);
+    return mkInfixOp(loc, "__dot__", getCall, AstNode(id)).asCompilerAstNode;
 }
 using oper_precedence_-> = oper_precedence___dot__;

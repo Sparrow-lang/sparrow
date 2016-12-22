@@ -13,6 +13,6 @@ namespace SprFrontend
     StringRef getStringCtValue(Node* val);
     bool getBoolCtValue(Node* val);
     int getIntCtValue(Node* val);
-    int* getIntRefCtValue(Node* val);
+    char* getByteRefCtValue(Node* val);
     size_t getSizeTypeCtValue(Node* val);
 }

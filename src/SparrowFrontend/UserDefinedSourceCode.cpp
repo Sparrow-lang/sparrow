@@ -130,13 +130,13 @@ namespace
         Node* funCall = mkFunApplication(loc, toCall, fromIniList({codeNode, locNode, ctxNode}));
 
         // Compile the function and evaluate it
-        Node* implPart = mkCompoundExp(loc, funCall, fromCStr("impl"));
+        Node* implPart = mkCompoundExp(loc, funCall, fromCStr("_data"));
         implPart = Feather_mkMemLoad(loc, implPart);    // Remove LValue
         Nest_setContext(implPart, ctx);
         if ( !Nest_semanticCheck(implPart) )
             REP_INTERNAL(loc, "Invalid parsing function '%1%', (used to parse %2%)") % funInfo % sourceCode->url;
 
-        Feather_addToNodeList(content, (Node*) getIntRefCtValue(implPart));
+        Feather_addToNodeList(content, (Node*) getByteRefCtValue(implPart));
 
         Nest_semanticCheck(moduleContent);
         sourceCode->mainNode = moduleContent;

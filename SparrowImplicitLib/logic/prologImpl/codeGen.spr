@@ -144,7 +144,7 @@ package Impl
                 var argValue = genExpr(pred, arg.get());
 
                 var idx = arg.get().paramIdx;
-                //assert(idx >= 0);
+                assert(idx >= 0);
                 var param: @Parameter = pred.paramVars(idx);
                 var oper: String;
                 if ( genNative && param.isInput )
@@ -246,7 +246,7 @@ package Impl
             return mkInfixOp(loc, ife(genNative, "*", "|*|"), genExpr(pred, expr.left.get()), genExpr(pred, expr.right.get()));
         if ( expr.kind == ekOpDiv )
             return mkInfixOp(loc, ife(genNative, "/", "|/|"), genExpr(pred, expr.left.get()), genExpr(pred, expr.right.get()));
-        //assert("Invalid expression kind while generating code" != "");
+        assert("Invalid expression kind while generating code" != "");
         return nullNode;
     }
 
@@ -266,7 +266,7 @@ package Impl
 
     fun[ct] getTypeName(pred: @SparrowPredicate, expr: @Expression, addRef: Bool, genNative: Bool): AstNode
     {
-        //assert(expr.typeSetIdx >= 0);
+        assert(expr.typeSetIdx >= 0);
         var typeSet: @LTypeSet = pred.typeSets(expr.typeSetIdx);
         var str: StringRef;
         if ( typeSet.type.isNumberOnly() )

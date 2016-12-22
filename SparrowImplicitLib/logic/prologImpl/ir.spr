@@ -2,7 +2,7 @@ import token;
 import nodes;
 import lType;
 import std.algorithms;
-//import assert;
+import assert;
 import metadiag = meta.diagnostic;
 
 using allowNativeCodeGen = true;
@@ -92,7 +92,7 @@ class[ct] SparrowPredicate
 
     fun addClause(clause: @PredicateClausePtr)
     {
-        //assert(clause.get().args.size() == arity);
+        assert(clause.get().args.size() == arity);
         clauses.pushBack(clause);
     }
 
@@ -271,7 +271,7 @@ class[ct] SparrowPredicate
                     }
 
                     // Input parameters cannot be part in 'is' conditions
-                    //assert(left.kind == ekVar);
+                    assert(left.kind == ekVar);
                     if ( left.paramIdx >= 0 )
                     {
                         var param: @Parameter = paramVars(left.paramIdx);

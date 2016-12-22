@@ -62,7 +62,7 @@ fun[ct] addFactorialFun2(context: CompilationContext, funName: StringRef): Bool
     var factParams = mkNodeList(loc, true);
     addToNodeList(factParams, mkSprParameter(loc, "n", mkIdentifier(loc, "Int"), nullNode));
     var factReturnType = mkIdentifier(loc, "Int");
-    var body = mkReturnStmt(loc, lift( ife(n==0, 1, n*fact2(n-1))) );
+    var body = mkReturnStmt(loc, astLift( ife(n==0, 1, n*fact2(n-1))) );
     var factFun = mkSprFunction(loc, funName, factParams, factReturnType, body, nullNode);
     factFun.setContext(context);
     factFun.semanticCheck();

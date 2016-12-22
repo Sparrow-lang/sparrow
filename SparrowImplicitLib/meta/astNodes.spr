@@ -7,14 +7,6 @@ using modeRt = 1;
 using modeCt = 2;
 using modeRtCt = 3;
 
-/// Taking an AST node, this will evaluate the node and produce the corresponding
-fun[ct, native("$meta.astEval")] astEval(node: AstNode): AstNode;
-
-/// Given any Sparrow node as parameter, this will transform it into an AST node
-//fun[ct, native("$meta.lift")] lift(): AstNode;
-
-
-
 class[ct] CompilationContext
 {
     fun[static, native("$meta.CompilationContext.current")] current(): CompilationContext;
@@ -53,8 +45,14 @@ class[ct] AstType
 
 class[ct] AstNode
 {
-    fun isNull: Bool = impl === null;
-    fun isSet: Bool = impl !== null;
+    fun isNull: Bool = _data === null;
+    fun isSet: Bool = _data !== null;
+
+    fun asCompilerAstNode: CompilerAstNode = CompilerAstNode(_data);
+
+    fun[convert] ctor(node: CompilerAstNode) {
+        _data := node._data;
+    }
 
     fun[native("$meta.AstNode.clone")] clone: AstNode;
     fun[native("$meta.AstNode.nodeKind")] nodeKind: Int;
@@ -104,13 +102,12 @@ class[ct] AstNode
 
     /*private*/ fun ctor
     {
-        impl := null;
+        _data := null;
     }
-    private fun ctor(impl: @Int)
-    {
-        this.impl := impl;
+    private fun ctor(data: @Byte) {
+        this._data := data;
     }
-    var impl: @Int;
+    var _data: @Byte;
 }
 
 package Feather

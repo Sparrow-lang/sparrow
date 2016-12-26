@@ -1,6 +1,5 @@
 //!!
 import logic.prologFrontend;
-import meta.astNodes;
 //import "FibonacciErr.pl";
 
 compileProlog("

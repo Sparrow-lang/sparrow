@@ -1,0 +1,4 @@
+public import compilerCore;
+
+fun[ct, native("$meta.Compiler.registerFrontendFun")] registerFrontendFun(ext, funName: StringRef): Bool;
+fun[ct, native("$meta.Compiler.parseSprExpression")] parseSprExpression(loc: @Location, exp: StringRef): AstNode;

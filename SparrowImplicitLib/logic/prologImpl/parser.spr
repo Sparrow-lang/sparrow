@@ -28,7 +28,7 @@ class[ct] Parser(lexerType, errorReporterType: Type) if TokenRange(#$lexerType)
         if ( !res.predicates.isEmpty() )
         {
             res.loc = res.predicates.front().get().loc;
-            res.loc.copyEnd(res.predicates.back().get().loc);
+            res.loc copyEnd res.predicates.back().get().loc;
         }
 
         return resptr;
@@ -71,7 +71,7 @@ class[ct] Parser(lexerType, errorReporterType: Type) if TokenRange(#$lexerType)
         expectToken(tok, tkDot);
 
         // Update the end part of the location
-        res.loc.copyEnd(tok.loc);
+        res.loc copyEnd tok.loc;
         return resptr;
     }
 
@@ -154,7 +154,7 @@ class[ct] Parser(lexerType, errorReporterType: Type) if TokenRange(#$lexerType)
         expectToken(tok, tkRParen);
 
         // Update the end part of the location
-        loc.copyEnd(tok.loc);
+        loc copyEnd tok.loc;
         return mkPredCall(loc, name, args);
     }
 
@@ -193,7 +193,7 @@ class[ct] Parser(lexerType, errorReporterType: Type) if TokenRange(#$lexerType)
         var exp = parseExpression();
 
         // Update the end part of the location
-        loc.copyEnd(tok.loc);
+        loc copyEnd tok.loc;
         return mkIsExpr(loc, varName, exp);
     }
 
@@ -212,13 +212,13 @@ class[ct] Parser(lexerType, errorReporterType: Type) if TokenRange(#$lexerType)
             var tok = lexer();
             if ( tok.type != tkOpMul && tok.type != tkOpDiv )
                 return left;
-            
+
             // Yes, there is still a right part, so parse it
             ++lexer;
             var right = parsePlusMinusExpression();
 
             // Combine the left and right into one single expression
-            loc.copyEnd(right.get().loc);
+            loc copyEnd right.get().loc;
             if ( tok.type == tkOpMul )
                 left = mkOpMul(loc, left, right);
             else
@@ -239,13 +239,13 @@ class[ct] Parser(lexerType, errorReporterType: Type) if TokenRange(#$lexerType)
             var tok = lexer();
             if ( tok.type != tkOpPlus && tok.type != tkOpMinus )
                 return left;
-            
+
             // Yes, there is still a right part, so parse it
             ++lexer;
             var right = parseSimpleExpression();
 
             // Combine the left and right into one single expression
-            loc.copyEnd(right.get().loc);
+            loc copyEnd right.get().loc;
             if ( tok.type == tkOpPlus )
                 left = mkOpPlus(loc, left, right);
             else

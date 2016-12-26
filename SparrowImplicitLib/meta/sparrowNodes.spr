@@ -1,0 +1,50 @@
+public import compilerCore;
+
+fun[ct, native("$meta.Sparrow.mkModifiers")] mkModifiers(loc: @Location, main, mods: AstNode): AstNode;
+
+fun[ct, native("$meta.Sparrow.mkModule")] mkModule(loc: @Location, moduleName, declarations: AstNode): AstNode;
+fun[ct, native("$meta.Sparrow.mkImportName")] mkImportName(loc: @Location, moduleName, importedDeclNames: AstNode, alias: StringRef): AstNode;
+fun[ct, native("$meta.Sparrow.mkSprUsing")] mkSprUsing(loc: @Location, alias: StringRef, usingNode: AstNode): AstNode;
+fun[ct, native("$meta.Sparrow.mkSprPackage")] mkSprPackage(loc: @Location, name: StringRef, children: AstNode): AstNode;
+fun[ct, native("$meta.Sparrow.mkSprVariable")] mkSprVariable(loc: @Location, name: StringRef, typeNode, init: AstNode): AstNode;
+fun[ct, native("$meta.Sparrow.mkSprClass")] mkSprClass(loc: @Location, name: StringRef, parameters, baseClasses, ifClause, children: AstNode, accessType: Int = 0): AstNode;
+
+fun[ct, native("$meta.Sparrow.mkSprConcept")] mkSprConcept(loc: @Location, name: StringRef, paramName: StringRef, baseConcept, ifClause: AstNode): AstNode;
+
+fun[ct, native("$meta.Sparrow.mkSprFunction")] mkSprFunction(loc: @Location, name: StringRef, parmeters, returnType, body, ifClause: AstNode, accessType: Int = 0): AstNode;
+fun[ct, native("$meta.Sparrow.mkSprFunctionExp")] mkSprFunctionExp(loc: @Location, name: StringRef, parameters, returnType, bodyExp, ifClause: AstNode, accessType: Int = 0): AstNode;
+fun[ct, native("$meta.Sparrow.mkSprParameter")] mkSprParameter(loc: @Location, name: StringRef, typeNode, init: AstNode): AstNode;
+fun[ct, native("$meta.Sparrow.mkSprAutoParameter")] mkSprAutoParameter(loc: @Location, name: StringRef): AstNode;
+
+fun[ct, native("$meta.Sparrow.mkIdentifier")] mkIdentifier(loc: @Location, id: StringRef): AstNode;
+fun[ct, native("$meta.Sparrow.mkCompoundExp")] mkCompoundExp(loc: @Location, base: AstNode, id: StringRef): AstNode;
+fun[ct, native("$meta.Sparrow.mkStarExp")] mkStarExp(loc: @Location, base: AstNode, operName: StringRef): AstNode;
+fun[ct, native("$meta.Sparrow.mkPostfixOp")] mkPostfixOp(loc: @Location, op: StringRef, base: AstNode): AstNode;
+fun[ct, native("$meta.Sparrow.mkInfixOp")] mkInfixOp(loc: @Location, op: StringRef, arg1, arg2: AstNode): AstNode;
+fun[ct, native("$meta.Sparrow.mkPrefixOp")] mkPrefixOp(loc: @Location, op: StringRef, base: AstNode): AstNode;
+fun[ct, native("$meta.Sparrow.mkFunApplication")] mkFunApplication(loc: @Location, base, arguments: AstNode): AstNode;
+fun[ct, native("$meta.Sparrow.mkOperatorCall")] mkOperatorCall(loc: @Location, arg1: AstNode, op: StringRef, arg2: AstNode): AstNode;
+
+fun[ct, native("$meta.Sparrow.mkConditionalExp")] mkConditionalExp(loc: @Location, cond, alt1, alt2: AstNode): AstNode;
+fun[ct, native("$meta.Sparrow.mkThisExp")] mkThisExp(loc: Location): AstNode;
+fun[ct, native("$meta.Sparrow.mkParenthesisExp")] mkParenthesisExp(loc: @Location, exp: AstNode): AstNode;
+fun[ct, native("$meta.Sparrow.mkIntLiteral")] mkIntLiteral(loc: @Location, value: Int): AstNode;
+fun[ct, native("$meta.Sparrow.mkUIntLiteral")] mkUIntLiteral(loc: @Location, value: UInt): AstNode;
+fun[ct, native("$meta.Sparrow.mkLongLiteral")] mkLongLiteral(loc: @Location, value: Long): AstNode;
+fun[ct, native("$meta.Sparrow.mkULongLiteral")] mkULongLiteral(loc: @Location, value: ULong): AstNode;
+fun[ct, native("$meta.Sparrow.mkFloatLiteral")] mkFloatLiteral(loc: @Location, value: Float): AstNode;
+fun[ct, native("$meta.Sparrow.mkDoubleLiteral")] mkDoubleLiteral(loc: @Location, value: Double): AstNode;
+fun[ct, native("$meta.Sparrow.mkCharLiteral")] mkCharLiteral(loc: @Location, value: Char): AstNode;
+fun[ct, native("$meta.Sparrow.mkStringLiteral")] mkStringLiteral(loc: @Location, value: StringRef): AstNode;
+fun[ct, native("$meta.Sparrow.mkNullLiteral")] mkNullLiteral(loc: Location): AstNode;
+fun[ct, native("$meta.Sparrow.mkBoolLiteral")] mkBoolLiteral(loc: @Location, value: Bool): AstNode;
+fun[ct, native("$meta.Sparrow.mkLambdaExp")] mkLambdaExp(loc: @Location, parameters, returnType, body, bodyExp, closureParams: AstNode): AstNode;
+
+fun[ct, native("$meta.Sparrow.mkExpressionStmt")] mkExpressionStmt(loc: @Location, exp: AstNode): AstNode;
+fun[ct, native("$meta.Sparrow.mkBlockStmt")] mkBlockStmt(loc: @Location, statements: AstNode): AstNode;
+fun[ct, native("$meta.Sparrow.mkIfStmt")] mkIfStmt(loc: @Location, cond, thenClause, elseClause: AstNode): AstNode;
+fun[ct, native("$meta.Sparrow.mkForStmt")] mkForStmt(loc: @Location, name: StringRef, type, range, action: AstNode): AstNode;
+fun[ct, native("$meta.Sparrow.mkWhileStmt")] mkWhileStmt(loc: @Location, cond, step, action: AstNode): AstNode;
+fun[ct, native("$meta.Sparrow.mkBreakStmt")] mkBreakStmt(loc: Location): AstNode;
+fun[ct, native("$meta.Sparrow.mkContinueStmt")] mkContinueStmt(loc: Location): AstNode;
+fun[ct, native("$meta.Sparrow.mkReturnStmt")] mkReturnStmt(loc: @Location, exp: AstNode): AstNode;

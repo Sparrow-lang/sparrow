@@ -255,7 +255,7 @@ const char* Nest_defaultFunToString(const Node* node)
                     end = _appendStr(end, endOfStore, p->value.stringValue.begin);
             }
         }
-        end = _appendStr(end, endOfStore, "]");        
+        end = _appendStr(end, endOfStore, "]");
     }
 
     // Write the children

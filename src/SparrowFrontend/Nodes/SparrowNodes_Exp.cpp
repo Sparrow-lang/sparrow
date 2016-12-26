@@ -1,5 +1,6 @@
 #include <StdInc.h>
 #include "SparrowNodes.h"
+#include "Builder.h"
 
 #include <SparrowFrontendTypes.h>
 #include <SprDebug.h>
@@ -383,11 +384,8 @@ namespace
         Node* arg = at(arguments->children, 0);
         // Don't semantically check the argument; let the user of the lift to decide when it's better to do so
 
-        // Create a construct of an AST node
-        char* nodeHandle = (char*) arg;
-        Node* base = mkIdentifier(node->location, fromCStr("CompilerAstNode"));
-        Node* arg1 = Feather_mkCtValueT(node->location, StdDef::typeRefByte, &nodeHandle);
-        return mkFunApplication(node->location, base, fromIniList({arg1})) ;
+        // Create an AST node literal
+        return buildLiteral(node->location, fromCStr("CompilerAstNode"), arg);
     }
 
     Node* checkIfe(Node* node)

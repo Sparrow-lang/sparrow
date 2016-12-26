@@ -1,25 +1,25 @@
 //!!
 
-import meta.diagnostic;
+import meta.compilerCore;
 
 
 fun sprMain // ERROR - introduced by the last meta.report
 {
-    var[ct] loc = Location(SourceCode.current(), 6, 6, 5, 12);
+    var[ct] loc = mkLocation(currentSourceCode, mkLineCol(6, 5), mkLineCol(6, 12));
 
-    var[ct] diag1 = Diagnostic("Some information", loc, diagInfo);
+    var[ct] diag1 = mkDiagnostic(diagInfo, loc, "Some information");
     report(diag1);
 
-    var[ct] diag2 = Diagnostic("Some warning", loc, diagWarning);
+    var[ct] diag2 = mkDiagnostic(diagWarning, loc, "Some warning");
     report(diag2);
 
-    report("Error at the beginning of the function", loc);
+    report(diagError, loc, "Error at the beginning of the function");
 
-    var[ct] sc = SourceCode.current();
-    var[ct] sc2 = SourceCode.fromFilename("/Users/lucteo/work/sparrow/dev/AutoTests/CompilerApi/Diagnostic.spr");
+    var[ct] sc = currentSourceCode;
+    var[ct] sc2 = sourceCodeFromFilename("/Users/lucteo/work/sparrow/dev/tests/CompilerApi/Diagnostic.spr");
 
-    cout << sc.filename() << endl;
-    cout << sc2.filename() << endl;
+    cout << (sc filename) << endl;
+    // cout << (sc2 filename) << endl;
 
     if ( sc == sc2 )
         cout << "equal\n";

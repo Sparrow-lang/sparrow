@@ -35,6 +35,7 @@ namespace SprFrontend
     Node* buildStringLiteral(const Location& loc, StringRef value);
     Node* buildNullLiteral(const Location& loc);
     Node* buildBoolLiteral(const Location& loc, bool value);
+    Node* buildLiteral(const Location& loc, StringRef litType, void* value);
 
     Node* buildExpressionStmt(const Location& loc, Node* exp);
     Node* buildBlockStmt(const Location& loc, Node* statements);

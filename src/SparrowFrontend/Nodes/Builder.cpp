@@ -143,6 +143,10 @@ Node* SprFrontend::buildBoolLiteral(const Location& loc, bool value)
 {
     return mkLiteral(loc, fromCStr("Bool"), toStrData(value));
 }
+Node* SprFrontend::buildLiteral(const Location& loc, StringRef litType, void* value)
+{
+    return mkLiteral(loc, litType, toStrData(value));
+}
 
 
 Node* SprFrontend::buildExpressionStmt(const Location& /*loc*/, Node* exp)

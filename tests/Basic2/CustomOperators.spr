@@ -2,7 +2,6 @@
 import bitOper;
 import math = math;
 import precedenceUtils(setOperPrecedence, getOperPrecedence, setOperRightAssociativity);
-import meta.astNodes(AstNode, astEval);
 
 package Pred
 {

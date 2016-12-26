@@ -189,21 +189,14 @@ namespace
     {
         CHECK(loc, args.size() == 0);
 
-        SourceCode* sc = context->sourceCode;
-        int* scHandle = reinterpret_cast<int*>(sc);
-        Node* base = mkIdentifier(loc, fromCStr("SourceCode"));
-        Node* arg = Feather_mkCtValueT(loc, StdDef::typeRefInt, &scHandle);
-        return mkFunApplication(loc, base, fromIniList({arg}));
+        return buildLiteral(loc, fromCStr("SourceCode"), context->sourceCode);
     }
 
     Node* impl_Meta_CompilationContext_current(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 0);
 
-        int* ctxHandle = reinterpret_cast<int*>(context);
-        Node* base = mkIdentifier(loc, fromCStr("CompilationContext"));
-        Node* arg = Feather_mkCtValueT(loc, StdDef::typeRefInt, &ctxHandle);
-        return mkFunApplication(loc, base, fromIniList({arg}));
+        return buildLiteral(loc, fromCStr("CompilationContext"), context);
     }
 
     Node* handleIntrinsic(Node* fun, CompilationContext* context, const Location& loc, const NodeVector& args)

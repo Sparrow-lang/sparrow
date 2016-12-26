@@ -11,29 +11,23 @@ import prologImpl.ir;
 import prologImpl.sprCodeDump;
 import prologImpl.codeGen;
 
-import meta = meta.diagnostic;
-import meta = meta.astNodes;
+import meta = meta.nodeKinds;
 
 import assert;
 import time = time;
 
-// Make some of the meta definitions public, as we need them for importing prolog code
-using meta.SourceCode;
-using meta.Location;
-using meta.CompilationContext;
-
 fun[macro] compileProlog(sourceString: CompilerAstNode): CompilerAstNode
 {
     var sourceStr: meta.AstNode = sourceString;
-    if[ct] ( meta.AstNode(sourceString).nodeKind() != meta.Kinds.nkSparrowExpLiteral )
-        meta.report("compileProlog should take a string literal as argument", sourceStr.location());
+    if[ct] ( (sourceString nodeKind) != meta.nkSparrowExpLiteral )
+        meta.report("compileProlog should take a string literal as argument", (sourceStr location));
     else
     {
-        sourceStr.semanticCheck();
-        var loc = sourceStr.location();
-        var ctx = sourceStr.context();
-        var str: String = astEval(meta.AstNode(sourceString).clone().asCompilerAstNode);
-        return handlePrologCode(str, loc, ctx).asCompilerAstNode();
+        sourceStr semanticCheck;
+        var loc = sourceStr location;
+        var ctx = sourceStr context;
+        var str: String = astEval(sourceString clone);
+        return handlePrologCode(str, loc, ctx);
     }
 }
 
@@ -48,7 +42,7 @@ fun[ct] handlePrologCode(code: @String, location: meta.Location, context: meta.C
     sps.semanticCheck();
     //dumpProlog(cout, sps);
     var res = genProlog(sps);
-    res.setContext(context);
+    res setContext context;
     cout << "Elapsed: " << t.elapsed() << endl << flush;
     return res;
 }

@@ -3,7 +3,7 @@ import nodes;
 import lType;
 import std.algorithms;
 import assert;
-import metadiag = meta.diagnostic;
+import meta = meta.compilerCore;
 
 using allowNativeCodeGen = true;
 
@@ -194,9 +194,9 @@ class[ct] SparrowPredicate
         {
             typeSet.setNumberOnly(expr.loc);
             if ( expr.left isNull )
-                metadiag.report("Invalid binary expression: no left part", expr.loc.asMetaLocation());
+                meta.report(meta.diagError, expr.loc, "Invalid binary expression: no left part");
             if ( expr.right isNull )
-                metadiag.report("Invalid binary expression: no right part", expr.loc.asMetaLocation());
+                meta.report(meta.diagError, expr.loc, "Invalid binary expression: no right part");
 
             checkExpr(clause, clauseIdx, expr.left);
             checkExpr(clause, clauseIdx, expr.right);

@@ -1,64 +1,119 @@
 module meta.location;
 
-class[ct] SourceCode
-{
-    /// Returns the source code object corresponding to the location of the function call
-    fun[static, native("$meta.SourceCode.current")] current: SourceCode;
+/// A line + column pair, indicating a position in a file
+datatype[rtct] LineCol { line, col: UInt }
 
-    /// Returns a location from the given filename
-    fun[static, native("$meta.SourceCode.fromFilename")] fromFilename(filename: StringRef): SourceCode;
+/// Type describing a source code; for now we just use an untyped Ptr
+datatype[rtct] SourceCode = @Byte;
 
-    fun[native("$meta.SourceCode.filename")] filename: StringRef;
+fun[rtct] >>(s: @SourceCode, os: @OutStream) { os << mkStreamRefWrapper(s._data); }
 
-    fun isValid = impl !== null;
 
-    fun ctor
-    {
-        impl := null;
-    }
-    private fun ctor(impl: @Int)
-    {
-        this.impl := impl;
-    }
-    /*private*/ var impl: @Int;    
+/// Type that holds the location information: a source code and a range of chars into it
+datatype[rtct] Location { sourceCode: SourceCode, start, end: LineCol }
+
+// TODO (functional): Make it possible to define ctors & dtors outside the class
+//fun ctor(l: @Location) {
+//    setOne(l);
+//}
+
+fun[rtct] mkLineCol(line, col: UInt): LineCol {
+    var res: LineCol;
+    res.line = line;
+    res.col = col;
+    return res;
 }
 
-class[ct] Location
-{
-    var sourceCode: SourceCode;
-    var startLineNo: UInt;
-    var startColNo: UInt;
-    var endLineNo: UInt;
-    var endColNo: UInt;
-
-    fun ctor
-    {
-        sourceCode ctor;
-        startLineNo ctor 0;
-        startColNo ctor 0;
-        endLineNo ctor 0;
-        endColNo ctor 0;
-    }
-
-    fun ctor(sourceCode: SourceCode)
-    {
-        this.sourceCode ctor sourceCode;
-        startLineNo ctor 1;
-        startColNo ctor 1;
-        endLineNo ctor 1;
-        endColNo ctor 1;
-    }
-
-    fun ctor(sourceCode: SourceCode, startLineNo, endLineNo, startColNo, endColNo: UInt)
-    {
-        this.sourceCode ctor sourceCode;
-        this.startLineNo ctor startLineNo;
-        this.startColNo ctor startColNo;
-        this.endLineNo ctor endLineNo;
-        this.endColNo ctor endColNo;
-    }
-
-    /// Gets the code corresponding to the current location
-    fun[native("$meta.Location.getCorrespondingCode")] getCorrespondingCode: StringRef;
+fun[rtct] mkLocation: Location {
+    var res: Location;
+    setOne(res);
+    return res;
 }
+fun[autoCt] mkLocation(sourceCode: SourceCode): Location {
+    var res: Location;
+    res.sourceCode = sourceCode;
+    setOne(res);
+    return res;
+}
+fun[autoCt] mkLocation(sourceCode: SourceCode, start, end: LineCol): Location {
+    var res: Location;
+    res.sourceCode = sourceCode;
+    res.start = start;
+    res.end = end;
+    return res;
+}
+
+
+/// Set the location to (1,1,1,1), the first character in a stream
+fun[rtct] setOne(l: @Location) {
+    l.start.line = 1;
+    l.start.col = 1;
+    l.end.line = 1;
+    l.end.col = 1;
+}
+
+/// Make the start position to be the same as the end position
+fun[rtct] stepOver(l: @Location) {
+    l.start = l.end;
+}
+
+/// Add the given number of columns to the end position; start position remains unchanged
+fun[rtct] addColumns(l: @Location, count: UInt) {
+    l.end.col += count;
+}
+
+/// Add the given number of lines to the end position; start position remains unchanged
+fun[rtct] addLines(l: @Location, count: UInt) {
+    l.end.line += count;
+    l.end.col = 1;
+}
+
+/// Set the start position of this location to the start position of the given location; the end position remains unchanged
+fun[rtct] copyStart(l, other: @Location) {
+    l.start = other.start;
+}
+
+/// Set the end position of this location to the end position of the given location; the start position remains unchanged
+fun[rtct] copyEnd(l, other: @Location) {
+    l.end = other.end;
+}
+
+/// Set this location with both start and end to equal the start of the given location
+fun[rtct] setAsStartOf(l, other: @Location) {
+    l.start = other.start;
+    l.end = other.start;
+}
+
+/// Set this location with both start and end to equal the end of the given location
+fun[rtct] setAsEndOf(l, other: @Location) {
+    l.start = other.end;
+    l.end = other.end;
+}
+
+/// Computes a location that spans between the two given location
+fun[rtct] span(start, end: @Location): Location {
+    var res = start;
+    res copyEnd end;
+    return res;
+}
+
+fun[rtct] >>(l: @Location, os: @OutStream)
+{
+    os  << l.start.line << ':' << l.start.col << '-'
+        << l.end.line << ':' << l.end.col
+        << " @" << mkStreamRefWrapper(l.sourceCode._data._data)
+        ;
+}
+
+// Source code & location functions exposed by the compiler
+
+/// Get the source code of the caller
+fun[ct, native("$meta.SourceCode.current")] currentSourceCode: SourceCode;
+/// Given a filename, get the source code corresponding to it (if any)
+fun[ct, native("$meta.SourceCode.fromFilename")] sourceCodeFromFilename(filename: StringRef): SourceCode;
+/// Get the filename of a source code
+fun[ct, native("$meta.SourceCode.filename")] filename(sc: SourceCode): StringRef;
+
+/// Get the code string corresponding to the given location
+fun[ct, native("$meta.Location.getCorrespondingCode")] getCorrespondingCode(l: @Location): StringRef;
 

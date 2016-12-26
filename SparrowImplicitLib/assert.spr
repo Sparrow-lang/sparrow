@@ -1,47 +1,41 @@
 import os = os;
-import meta.astNodes(AstNode, SprFrontend, Feather, astEval);
+import meta.featherNodes, meta.sparrowNodes;
 
 // using debugMode = true;
 
 fun[rtct, macro] assert(cond: CompilerAstNode): CompilerAstNode
 {
-    using SprFrontend.*;
-    using Feather.*;
-
     var cond2: AstNode = cond;
     if ( !isValidAndTrue(debugMode) )
-        return Feather.mkNop(cond2.location()).asCompilerAstNode;
+        return mkNop(cond2 location);
 
-    var loc = cond2.location();
-    var filename = loc.sourceCode.filename();
-    var lineNum: Int = loc.startLineNo;
+    var loc = cond2 location;
+    var filename = loc.sourceCode filename;
+    var lineNum: Int = loc.start.line;
     var args = mkNodeList(loc);
-    addToNodeList(args, mkStringLiteral(loc, loc.getCorrespondingCode()));
+    addToNodeList(args, mkStringLiteral(loc, loc getCorrespondingCode));
     addToNodeList(args, mkStringLiteral(loc, filename));
     addToNodeList(args, mkIntLiteral(loc, lineNum));
     var failureCall = mkFunApplication(loc, mkIdentifier(loc, "assertionFailure"), args);
     var res = mkIf(loc, mkPrefixOp(loc, "!", mkParenthesisExp(loc, cond2)), failureCall, AstNode());
-    return res.asCompilerAstNode;
+    return res;
 }
 
 fun[rtct, macro] verify(cond: CompilerAstNode): CompilerAstNode
 {
-    using SprFrontend.*;
-    using Feather.*;
-
     if ( !isValidAndTrue(debugMode) )
         return cond;
 
     var cond2: AstNode = cond;
-    var loc = cond2.location();
-    var filename = loc.sourceCode.filename();
-    var lineNum: Int = loc.startLineNo;
+    var loc = cond2 location;
+    var filename = loc.sourceCode filename;
+    var lineNum: Int = loc.start.line;
     var args = mkNodeList(loc);
-    addToNodeList(args, mkStringLiteral(loc, loc.getCorrespondingCode()));
+    addToNodeList(args, mkStringLiteral(loc, loc getCorrespondingCode));
     addToNodeList(args, mkStringLiteral(loc, filename));
     addToNodeList(args, mkIntLiteral(loc, lineNum));
     var failureCall = mkFunApplication(loc, mkIdentifier(loc, "assertionFailure"), args);
-    return mkIf(loc, mkPrefixOp(loc, "!", mkParenthesisExp(loc, cond2)), failureCall, AstNode()).asCompilerAstNode;
+    return mkIf(loc, mkPrefixOp(loc, "!", mkParenthesisExp(loc, cond2)), failureCall, AstNode());
 }
 
 fun[rtct] assertionFailure(message: StringRef, filename: StringRef, lineNum: UInt)

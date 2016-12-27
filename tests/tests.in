@@ -136,6 +136,8 @@ Basic/CtToRt.spr:                       Basic features - CT to RT for basic type
 Basic/CtToRtErr.spr:                    Basic features - CT to RT for basic types - errors
 Basic/CtToRtComplex.spr:                Basic features - CT to RT for complex types
 Basic/ImplicitFunCall.spr:              Basic features - Implicit function call, without parenthesis
+Basic/CompDefines.spr:                  Basic features - Compiler defines
+
 Imports/ImportTwice.spr:                Import twice the same file
 Imports/ImportComplex.spr:              Import a complex hierarchy of files, some of them twice
 Imports/ImportComplex2.spr:             Import a complex hierarchy of files, another case
@@ -143,12 +145,14 @@ Imports/ImportDirect.spr:               Import directly a file, by name
 Imports/ImportRelativeFile.spr:         Import directly a file, with relative path
 Imports/SelectiveImport.spr:            Selective import
 Imports/ImportInTheMiddle.spr:          Import in the middle of the file
+
 Simple/GCD.spr:                         Simple problems - Greatest common divisor
 Simple/Fibonacci.spr:                   Simple problems - Fibonacci numbers
 Simple/Primality.spr:                   Simple problems - Primality test
 Simple/Factorization.spr:               Simple problems - Integer factorization
 Simple/SecantMethod.spr:                Simple problems - Secant method solver
 Simple/Ackermann.spr:                   Simple problems - Ackermann function
+
 Frontend/Smoke.spr:                     Frontend - grammar smoke test
 Frontend/Declarations.spr:              Frontend - some declarations
 Frontend/Expressions.spr:               Frontend - some expressions

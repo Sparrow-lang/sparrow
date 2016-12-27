@@ -428,6 +428,7 @@ bool initSettingsWithArgs(int argc, char** argv)
         { "-fno-main",              NULL, {s.useMain_, false}, "don't include entry point functionality" },
 
         { NULL,                     NULL, {}, "Code generation options" },
+        { "-D",                     " <name>[=<value>]", s.defines_, "add a compiler define, visible in the program" },
         { "-g",                     NULL, s.generateDebugInfo_, "generate debug info" },
         { "-data-layout",           " <arg>", s.dataLayout_, "the data layout" },
         { "-target-triple",         " <arg>", s.targetTriple_, "the target machine triple" },

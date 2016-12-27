@@ -172,12 +172,6 @@ int main(int argc,char* argv[])
 
     const auto& s = *Nest_compilerSettings();
 
-    if ( s.printVersion_ )
-    {
-        cout << "Sparrow Compiler v0.9.3, (c) 2015 Lucian Radu Teodorescu" << endl << endl;
-        return 1;
-    }
-
     // Make sure we have a valid path the Sparrow implicit lib
     if ( !ensureImplicitLib() )
     {

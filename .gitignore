@@ -16,3 +16,5 @@ tests/BenchmarkGame/others
 tests/*/*.json
 tests/*/*.json.dot
 tests/*/*.json.pdf
+SparrowImplicitLib/std/compilerInfo.spr
+src/SparrowCompiler/VersionInfo.h

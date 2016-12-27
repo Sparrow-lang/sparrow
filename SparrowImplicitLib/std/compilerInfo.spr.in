@@ -1,0 +1,8 @@
+using platformName          = "${CMAKE_SYSTEM_NAME}";
+using platformVersion       = "${CMAKE_SYSTEM_VERSION}";
+
+using compilerName          = "SparrowCompiler";
+using compilerVersion       = "${SparrowCompiler_BUILD_VERSION}";
+using compilerVersionMajor  = ${SparrowCompiler_MAJOR_VERSION};
+using compilerVersionMinor  = ${SparrowCompiler_MINOR_VERSION};
+using compilerBuildDate     = "${SparrowCompiler_BUILD_DATE}";

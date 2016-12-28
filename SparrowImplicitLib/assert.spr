@@ -1,12 +1,21 @@
-import os = os;
 import meta.featherNodes, meta.sparrowNodes;
 
-// using debugMode = true;
-
-fun[rtct, macro] assert(cond: CompilerAstNode): CompilerAstNode
+/**
+ * Helper used to check a pre-/post- condition in debug environment
+ *
+ * This will check if the given expression is false, and if so, will generate
+ * an error message and continue. This will only happen if DEBUG is defined and
+ * true. Otherwise, it will expand to nothing.
+ *
+ * If DEBUG is not set, this will not evaluate the expression.
+ *
+ * @param cond      The condition we need to test
+ * @param message   Optional message to be displayed if the check fails
+ */
+fun[rtct, macro] assert(cond: CompilerAstNode, message: CompilerAstNode = CompilerAstNode()): CompilerAstNode
 {
     var cond2: AstNode = cond;
-    if ( !isValidAndTrue(debugMode) )
+    if ( !isValidAndTrue(DEBUG) )
         return mkNop(cond2 location);
 
     var loc = cond2 location;
@@ -16,14 +25,25 @@ fun[rtct, macro] assert(cond: CompilerAstNode): CompilerAstNode
     addToNodeList(args, mkStringLiteral(loc, loc getCorrespondingCode));
     addToNodeList(args, mkStringLiteral(loc, filename));
     addToNodeList(args, mkIntLiteral(loc, lineNum));
+    if ( message isSet )
+        addToNodeList(args, message);
     var failureCall = mkFunApplication(loc, mkIdentifier(loc, "assertionFailure"), args);
     var res = mkIf(loc, mkPrefixOp(loc, "!", mkParenthesisExp(loc, cond2)), failureCall, AstNode());
     return res;
 }
 
-fun[rtct, macro] verify(cond: CompilerAstNode): CompilerAstNode
+/**
+ * Helper used to check a pre-/post- condition in debug environment
+ *
+ * This is similar to assert, but it will evaluate the expression even if DEBUG
+ * is not set. If DEBUG is not set, will will not check the expression.
+ *
+ * @param cond      The condition we need to test
+ * @param message   Optional message to be displayed if the check fails
+ */
+fun[rtct, macro] verify(cond: CompilerAstNode, message: CompilerAstNode = CompilerAstNode()): CompilerAstNode
 {
-    if ( !isValidAndTrue(debugMode) )
+    if ( !isValidAndTrue(DEBUG) )
         return cond;
 
     var cond2: AstNode = cond;
@@ -34,18 +54,21 @@ fun[rtct, macro] verify(cond: CompilerAstNode): CompilerAstNode
     addToNodeList(args, mkStringLiteral(loc, loc getCorrespondingCode));
     addToNodeList(args, mkStringLiteral(loc, filename));
     addToNodeList(args, mkIntLiteral(loc, lineNum));
+    if ( message isSet )
+        addToNodeList(args, message);
     var failureCall = mkFunApplication(loc, mkIdentifier(loc, "assertionFailure"), args);
     return mkIf(loc, mkPrefixOp(loc, "!", mkParenthesisExp(loc, cond2)), failureCall, AstNode());
 }
 
-fun[rtct] assertionFailure(message: StringRef, filename: StringRef, lineNum: UInt)
+/// Function called when an assert fails
+fun[rtct] assertionFailure(expr: StringRef, filename: StringRef, lineNum: UInt, message: StringRef = "")
 {
-    cout << "Assertion failure: " << message << endl;
     if ( !filename.isEmpty() )
-    {
-        cout << "at " << filename << " line " << lineNum;
-    }
-    cout << flush << endl;
-    os.exit(-1);
+        cout << filename << '(' << lineNum << "): ";
+    cout << "assertion failure: check " << expr << " has failed";
+    if ( !(message isEmpty) )
+        cout << ": " << message;
+    cout << endl << flush;
 }
+
 

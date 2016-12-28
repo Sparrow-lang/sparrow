@@ -4,8 +4,6 @@ import par.tasks;
 import test;
 import std.newDelete;
 
-using debugMode = true;
-
 //using useDescriptions = true;
 
 using cutoff = 16;

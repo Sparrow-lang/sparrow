@@ -18,6 +18,7 @@ StdLib/ContiguousMemoryRangeTest.spr:   Std.ContiguousMemoryRange
 StdLib/TupleTest.spr:                   Std.Tuple
 StdLib/StringOperators.spr:             Std.String (StringRef not String)
 StdLib/FunTest.spr:                     Std.Function
+StdLib/AssertTest.spr:                  Assert
 
 BenchmarkGame/nbody.spr:                Benchmark game - nbody
 BenchmarkGame/fannkuchredux.spr:        Benchmark game - fannkuchredux

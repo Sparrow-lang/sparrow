@@ -1,7 +1,5 @@
-//!!
+//!! -D DEBUG
 import assert;
-
-using meta.*;
 
 fun sprMain
 {
@@ -29,12 +27,18 @@ fun printerFalse: Bool
 fun test1
 {
     assert(true);
-    //assert(false);
+    assert(false);
     assert(printerTrue());
-    //assert(printerFalse());
+    assert(printerTrue(), "this needs to be true");
+    assert(printerFalse());
     assert(2 == 1+1);
-    //assert(2 != 1+1);
+    assert(2 != 1+1, "intentional error");
 }
 /*<<<All asserts are ok (1)
+AssertTest.spr(30): assertion failure: check false has failed
 Inside printerTrue
+Inside printerTrue
+Inside printerFalse
+AssertTest.spr(33): assertion failure: check printerFalse() has failed
+AssertTest.spr(35): assertion failure: check 2 != 1+1 has failed: intentional error
 >>>*/

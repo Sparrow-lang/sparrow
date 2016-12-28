@@ -21,7 +21,6 @@ SET(sourceFiles
     "IntMods.cpp"
     "SprDebug.cpp"
     "Grammar/ext.spr"
-    "Grammar/location.spr"
     "Grammar/node.spr"
     "Grammar/parser.spr"
     "Grammar/parserDefs.spr"
@@ -29,7 +28,6 @@ SET(sourceFiles
     "Grammar/parserIf.ll"
     "Grammar/scanner.spr"
     "Grammar/token.spr"
-    "Grammar/untypedPtr.spr"
     "Grammar/Parser.h"
     "Grammar/Parser.cpp"
     "Nodes/SparrowNodes.h"
@@ -84,11 +82,9 @@ if(BOOSTSTRAP_SPARROW)
         DEPENDS Grammar/parser.spr
                 Grammar/parserDefs.spr
                 Grammar/ext.spr
-                Grammar/location.spr
                 Grammar/node.spr
                 Grammar/scanner.spr
                 Grammar/token.spr
-                Grammar/untypedPtr.spr
     )
 else()
     message(STATUS "Using LLVM to generate the parser object")

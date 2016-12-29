@@ -97,11 +97,22 @@ fun[rtct] span(start, end: @Location): Location {
     return res;
 }
 
+/// Compare locations based on start pos then on end pos
+fun[rtct] <(lhs, rhs: @Location): Bool {
+    if ( lhs.start.line < rhs.start.line ) return true;
+    if ( lhs.start.line > rhs.start.line ) return false;
+    if ( lhs.start.col < rhs.start.col ) return true;
+    if ( lhs.start.col > rhs.start.col ) return false;
+    if ( lhs.end.line < rhs.end.line ) return true;
+    if ( lhs.end.line > rhs.end.line ) return false;
+    return lhs.end.col < rhs.end.col;
+}
+
 fun[rtct] >>(l: @Location, os: @OutStream)
 {
     os  << l.start.line << ':' << l.start.col << '-'
         << l.end.line << ':' << l.end.col
-        << " @" << mkStreamRefWrapper(l.sourceCode._data._data)
+        << " @" << l.sourceCode
         ;
 }
 

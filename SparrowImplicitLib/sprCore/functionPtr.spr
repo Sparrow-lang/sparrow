@@ -1,6 +1,6 @@
 import basicDecls(Type, Byte, Int, Null);
 
-class FunctionPtr(resT: Type)
+class[rtct] FunctionPtr(resT: Type)
 {
     using arity = 0;
     fun () (): resT = call();
@@ -8,7 +8,7 @@ class FunctionPtr(resT: Type)
     private var funPtr: @Byte;
 }
 
-class FunctionPtr(resT, T1: Type)
+class[rtct] FunctionPtr(resT, T1: Type)
 {
     using arity = 1;
     fun () (p1: T1): resT = call(p1);
@@ -16,7 +16,7 @@ class FunctionPtr(resT, T1: Type)
     private var funPtr: @Byte;
 }
 
-class FunctionPtr(resT, T1, T2: Type)
+class[rtct] FunctionPtr(resT, T1, T2: Type)
 {
     using arity = 2;
     fun () (p1: T1, p2: T2): resT = call(p1, p2);
@@ -24,7 +24,7 @@ class FunctionPtr(resT, T1, T2: Type)
     private var funPtr: @Byte;
 }
 
-class FunctionPtr(resT, T1, T2, T3: Type)
+class[rtct] FunctionPtr(resT, T1, T2, T3: Type)
 {
     using arity = 3;
     fun () (p1: T1, p2: T2, p3: T3): resT = call(p1, p2, p3);
@@ -32,7 +32,7 @@ class FunctionPtr(resT, T1, T2, T3: Type)
     private var funPtr: @Byte;
 }
 
-class FunctionPtr(resT, T1, T2, T3, T4: Type)
+class[rtct] FunctionPtr(resT, T1, T2, T3, T4: Type)
 {
     using arity = 4;
     fun () (p1: T1, p2: T2, p3: T3, p4: T4): resT = call(p1, p2, p3, p4);
@@ -40,7 +40,7 @@ class FunctionPtr(resT, T1, T2, T3, T4: Type)
     private var funPtr: @Byte;
 }
 
-class FunctionPtr(resT, T1, T2, T3, T4, T5: Type)
+class[rtct] FunctionPtr(resT, T1, T2, T3, T4, T5: Type)
 {
     using arity = 5;
     fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): resT = call(p1, p2, p3, p4, p5);
@@ -48,7 +48,7 @@ class FunctionPtr(resT, T1, T2, T3, T4, T5: Type)
     private var funPtr: @Byte;
 }
 
-class FunctionPtr(resT, T1, T2, T3, T4, T5, T6: Type)
+class[rtct] FunctionPtr(resT, T1, T2, T3, T4, T5, T6: Type)
 {
     using arity = 6;
     fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): resT = call(p1, p2, p3, p4, p5, p6);
@@ -56,7 +56,7 @@ class FunctionPtr(resT, T1, T2, T3, T4, T5, T6: Type)
     private var funPtr: @Byte;
 }
 
-class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7: Type)
+class[rtct] FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7: Type)
 {
     using arity = 7;
     fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): resT = call(p1, p2, p3, p4, p5, p6, p7);
@@ -64,7 +64,7 @@ class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7: Type)
     private var funPtr: @Byte;
 }
 
-class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8: Type)
+class[rtct] FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8: Type)
 {
     using arity = 8;
     fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8): resT = call(p1, p2, p3, p4, p5, p6, p7, p8);
@@ -72,7 +72,7 @@ class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8: Type)
     private var funPtr: @Byte;
 }
 
-class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9: Type)
+class[rtct] FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9: Type)
 {
     using arity = 9;
     fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9): resT = call(p1, p2, p3, p4, p5, p6, p7, p8, p9);
@@ -80,7 +80,7 @@ class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9: Type)
     private var funPtr: @Byte;
 }
 
-class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10: Type)
+class[rtct] FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10: Type)
 {
     using arity = 10;
     fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10): resT = call(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10);
@@ -88,7 +88,7 @@ class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10: Type)
     private var funPtr: @Byte;
 }
 
-class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11: Type)
+class[rtct] FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11: Type)
 {
     using arity = 11;
     fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10, p11: T11): resT = call(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11);
@@ -96,7 +96,7 @@ class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11: Type)
     private var funPtr: @Byte;
 }
 
-class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12: Type)
+class[rtct] FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12: Type)
 {
     using arity = 12;
     fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10, p11: T11, p12: T12): resT = call(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
@@ -104,7 +104,7 @@ class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12: Type)
     private var funPtr: @Byte;
 }
 
-class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13: Type)
+class[rtct] FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13: Type)
 {
     using arity = 13;
     fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10, p11: T11, p12: T12, p13: T13): resT = call(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13);
@@ -112,7 +112,7 @@ class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13: 
     private var funPtr: @Byte;
 }
 
-class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14: Type)
+class[rtct] FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14: Type)
 {
     using arity = 14;
     fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10, p11: T11, p12: T12, p13: T13, p14: T14): resT = call(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14);
@@ -120,7 +120,7 @@ class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, 
     private var funPtr: @Byte;
 }
 
-class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15: Type)
+class[rtct] FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15: Type)
 {
     using arity = 15;
     fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10, p11: T11, p12: T12, p13: T13, p14: T14, p15: T15): resT = call(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15);

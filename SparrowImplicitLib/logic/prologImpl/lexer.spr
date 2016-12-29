@@ -203,7 +203,8 @@ class[rtct] Lexer(sourceType, errorReporterType: Type) if CharRange(#$sourceType
             curLocation addLines 1;
         else
             curLocation addColumns 1;
-        return ++source;
+        source popFront;
+        return source front;
     }
 
     private var source: sourceType;

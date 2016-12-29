@@ -9,7 +9,7 @@ echo "TRAVIS_COMMIT: $TRAVIS_COMMIT"
 
 # Create a tag only for master builds (excluding tag-triggered builds)
 if [ "$TRAVIS_BRANCH" == "master" ] && [ -z "$TRAVIS_TAG" ]; then
-    export GIT_BUILDNUM=$(git rev-list --merges --count $TRAVIS_COMMIT)
+    export GIT_BUILDNUM=$(git rev-list --first-parent --count $TRAVIS_COMMIT)
     export GIT_TAG=v$MAJOR_VER.$MINOR_VER.$GIT_BUILDNUM
     echo "Applying tag $GIT_TAG"
     git tag $GIT_TAG -a -m "Release of version $GIT_TAG"

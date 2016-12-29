@@ -25,6 +25,7 @@ using namespace Nest;
 namespace fs = boost::filesystem;
 
 extern SourceCode* g_implicitLibSC;
+extern SourceCode* g_compilerArgsSC;
 
 
 void _dumpAstForSourceCode(SourceCode* sourceCode, const char* fileSuffix) {
@@ -87,6 +88,39 @@ bool ensureImplicitLib()
         || tryImplicitLibPath("/../../include/SparrowImplicitLib");
 }
 
+/// Handle compiler arg defines
+///
+/// We create a temporary file in which we put the arg defines as usings.
+/// For the defines that don't have a value, we assign 'true'.
+void _handleArgDefines(const vector<string>& defines, const char* filename) {
+
+    // Create the temporary filename
+    string tempFilename = fs::unique_path().native() + "-" + filename;
+    fs::path tempPath = fs::temp_directory_path() / tempFilename;
+    ofstream f(tempPath.native().c_str(), ofstream::out);
+    if ( !f.is_open() ) {
+        REP_INTERNAL(NOLOC, "Cannot create temporary file %1%") % tempPath;
+        return;
+    }
+
+    // Add its content
+    for ( const auto& def: defines ) {
+        const char* suffix = "";
+        if ( def.find('=') == string::npos ) {
+            // If no value is given, assume it's 'true'
+            suffix = " = true";
+        }
+        f << "using " << def << suffix << ";" << endl;
+    }
+    f.close();
+
+    // Compile the generated file
+    g_compilerArgsSC = Nest_compileFile(fromString(tempPath.native()));
+
+    // Make sure we remove the file at the end
+    fs::remove(tempPath);
+}
+
 void doCompilation(const vector<CompilerModule*>& modules)
 {
     auto& s = *Nest_compilerSettings();
@@ -105,12 +139,21 @@ void doCompilation(const vector<CompilerModule*>& modules)
 
     // Phase 1: Implicit lib
     {
-        Nest::Common::PrintTimer timer(s.verbose_, "<implicit lib>", "   [%ws]\n");
+        Nest::Common::PrintTimer timer(s.verbose_, s.implicitLibFilePath_.c_str(), "   [%ws]\n");
 
         // Process the implicit definitions file
         g_implicitLibSC = nullptr;
         if ( !s.implicitLibFilePath_.empty() )
             g_implicitLibSC = Nest_compileFile(fromString(s.implicitLibFilePath_));
+    }
+
+    // If we have some compiler defines, put them into a Sparrow source code
+    if ( !s.defines_.empty() )
+    {
+        const char* filename = "argsDefines.spr";
+        Nest::Common::PrintTimer timer(s.verbose_, filename, "   [%ws]\n");
+
+        _handleArgDefines(s.defines_, filename);
     }
 
 
@@ -171,12 +214,6 @@ int main(int argc,char* argv[])
         return -1;
 
     const auto& s = *Nest_compilerSettings();
-
-    if ( s.printVersion_ )
-    {
-        cout << "Sparrow Compiler v0.9.3, (c) 2015 Lucian Radu Teodorescu" << endl << endl;
-        return 1;
-    }
 
     // Make sure we have a valid path the Sparrow implicit lib
     if ( !ensureImplicitLib() )

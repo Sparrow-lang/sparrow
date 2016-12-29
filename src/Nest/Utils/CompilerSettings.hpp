@@ -102,6 +102,9 @@ public:
 
 /// Code generation options
 ///{
+    /// The compiler defines passed as arguments
+    vector<string> defines_;
+
     /// True if we should generate debug information
     bool generateDebugInfo_;
 

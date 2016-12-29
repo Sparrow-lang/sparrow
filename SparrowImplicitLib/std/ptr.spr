@@ -1,6 +1,6 @@
 module std.ptr;
 
-public import meta.astNodes(AstNode, astEval, SprFrontend, Feather);
+import meta.sparrowNodes, meta.featherNodes;
 import newDelete(delete);
 
 class[rtct] Ptr(type: Type)
@@ -50,14 +50,11 @@ fun[rtct] reinterpretPtr(t: Type, ptr: AnyType): Ptr(t) //if isValid(p.isNull())
 }
 
 
-fun[rtct, macro] ->(base, id: AstNode): AstNode
+fun[rtct, macro] ->(base, id: CompilerAstNode): CompilerAstNode
 {
-    using SprFrontend.*;
-    using Feather.*;
-
     // Expand to: <base>.get().<id>
-    var loc = base.location();
-    var dotGet = mkInfixOp(loc, "__dot__", base, mkIdentifier(loc, "get"));
+    var loc = base location;
+    var dotGet = mkInfixOp(loc, "__dot__", AstNode(base), mkIdentifier(loc, "get"));
     var getCall = mkInfixOp(loc, "__fapp__", dotGet, mkNodeList(loc));
     return mkInfixOp(loc, "__dot__", getCall, id);
 }

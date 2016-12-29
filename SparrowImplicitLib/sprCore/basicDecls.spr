@@ -827,12 +827,17 @@ fun[ct, native("$injectBackendCodeCt")] injectBackendCodeCt(code: StringRef);
 fun[ct, native("$injectBackendCodeRtCt")] injectBackendCodeRtCt(code: StringRef);
 
 
+/// Type used to represent an untyped pointer
+datatype[rtct] UntypedPtr = @Byte;
+
 fun[autoCt, native("_opRefEQ")] _opRefEQ(x,y: @Byte): Bool;
 fun[autoCt, native("_opRefNE")] _opRefNE(x,y: @Byte): Bool;
 fun[autoCt, native("isNullRef")] isNullRef(x: @Byte): Bool;
 
-/// Given any Sparrow node as parameter, this will transform it into an AST node
-fun[ct, native("$meta.lift")] lift();
+fun[autoCt, native("_opRefEQ")] _opRefEQ(x,y: UntypedPtr): Bool;
+fun[autoCt, native("_opRefNE")] _opRefNE(x,y: UntypedPtr): Bool;
+fun[autoCt, native("isNullRef")] isNullRef(x: UntypedPtr): Bool;
+
 /// This implements the ternary operator from other languages: cond ? alt1 : alt2
 fun[ct, native("$meta.ife")] ife();
 
@@ -895,6 +900,9 @@ fun[native("free"), autoCt] free(p: @Byte);
 fun[native("ptrAdd"), autoCt] ptrAdd(p: @Byte, n: SizeType): @Byte;
 fun[native("ptrSub"), autoCt] ptrSub(p: @Byte, n: SizeType): @Byte;
 fun[native("ptrDiff"), autoCt] ptrDiff(p1, p2: @Byte): DiffType;
+fun[native("ptrAdd"), autoCt] ptrAdd(p: UntypedPtr, n: SizeType): UntypedPtr;
+fun[native("ptrSub"), autoCt] ptrSub(p: UntypedPtr, n: SizeType): UntypedPtr;
+fun[native("ptrDiff"), autoCt] ptrDiff(p1, p2: UntypedPtr): DiffType;
 fun[native("_spr_memcpy"), autoCt] memcpy(dest, src: @Byte, size: SizeType);
 fun[native("_spr_memmove"), autoCt] memmove(dest, src: @Byte, size: SizeType);
 fun[native("_spr_memset"), autoCt] memset(dest: @Byte, val: Byte, count: SizeType);

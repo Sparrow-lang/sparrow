@@ -1,7 +1,8 @@
 /// External functions used in the Sparrow parser & scanner
 module sparrowc.spr.grammar.ext;
 
-import node, location;
+import node;
+import meta.location;
 
 // All the functions here are defined in the compiler
 

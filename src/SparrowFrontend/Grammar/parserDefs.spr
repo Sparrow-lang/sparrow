@@ -1,7 +1,7 @@
 module sparrowc.spr.grammar.parserDefs;
 
-import untypedPtr;
 import node;
+import meta.location;
 import std.tuple, std.string, std.vector;
 
 /// Enum values to be used for access specification

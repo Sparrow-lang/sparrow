@@ -4,9 +4,47 @@ cmake_minimum_required(VERSION 3.0.0)
 
 # Project information
 project( SparrowCompiler )
-set( ${PROJECT_NAME}_MAJOR_VERSION  0 )
-set( ${PROJECT_NAME}_MINOR_VERSION  9 )
-set( ${PROJECT_NAME}_PATCH_LEVEL    3 )
+
+# Get compiler version
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.git)
+    find_package(Git)
+    if(GIT_FOUND)
+        execute_process(
+            COMMAND ${GIT_EXECUTABLE} describe --long --tags --dirty --always
+            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+            OUTPUT_VARIABLE "SparrowCompiler_BUILD_VERSION"
+            ERROR_QUIET
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
+    else()
+        set(SparrowCompiler_BUILD_VERSION 0)
+    endif()
+endif()
+string(REGEX REPLACE
+    "v([0-9]+)\\.([0-9]+).*"
+    "\\1"
+    SparrowCompiler_MAJOR_VERSION ${SparrowCompiler_BUILD_VERSION})
+string(REGEX REPLACE
+    "v([0-9]+)\\.([0-9]+).*"
+    "\\2"
+    SparrowCompiler_MINOR_VERSION ${SparrowCompiler_BUILD_VERSION})
+string(TIMESTAMP SparrowCompiler_BUILD_DATE "%Y-%m-%d")
+string(TIMESTAMP SparrowCompiler_BUILD_YEAR "%Y")
+
+# Print configuration
+message(STATUS "System       : ${CMAKE_SYSTEM}")
+message(STATUS "System name  : ${CMAKE_SYSTEM_NAME}")
+message(STATUS "System ver   : ${CMAKE_SYSTEM_VERSION}")
+message(STATUS "Compiler ver : ${SparrowCompiler_BUILD_VERSION}")
+message(STATUS "  major ver  : ${SparrowCompiler_MAJOR_VERSION}")
+message(STATUS "  minor ver  : ${SparrowCompiler_MINOR_VERSION}")
+message(STATUS "Build date   : ${SparrowCompiler_BUILD_DATE}")
+message(STATUS "Build year   : ${SparrowCompiler_BUILD_YEAR}")
+message(STATUS)
+
+# Configure required files
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/SparrowImplicitLib/std/compilerInfo.spr.in ${CMAKE_CURRENT_SOURCE_DIR}/SparrowImplicitLib/std/compilerInfo.spr)
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/src/SparrowCompiler/VersionInfo.h.in ${CMAKE_CURRENT_SOURCE_DIR}/src/SparrowCompiler/VersionInfo.h)
+
 
 # User passed compilation options
 option(BOOSTSTRAP_SPARROW "Use system-wide SparrowCompiler to compile Sparrow files needed for the compiler" OFF)

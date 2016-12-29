@@ -94,17 +94,11 @@ namespace
         // funName(code: StringRef, location: meta.Location, context: meta.CompilationContext): meta.AstNode
         Node* codeNode = buildStringLiteral(loc, fromString(oss.str()));
 
-        int* scHandle = reinterpret_cast<int*>(sourceCode);
-        Node* scBase = mkIdentifier(loc, fromCStr("SourceCode"));
-        Node* scArg = Feather_mkCtValueT(loc, StdDef::typeRefInt, &scHandle);
-        Node* scNode = mkFunApplication(loc, scBase, fromIniList({scArg}));
-        Node* locBase = mkIdentifier(loc, fromCStr("Location"));
+        Node* scNode = buildLiteral(loc, fromCStr("SourceCode"), sourceCode);
+        Node* locBase = mkIdentifier(loc, fromCStr("mkLocation"));
         Node* locNode = mkFunApplication(loc, locBase, fromIniList({scNode}));
 
-        int* ctxHandle = reinterpret_cast<int*>(ctx);
-        Node* ctxBase = mkIdentifier(loc, fromCStr("CompilationContext"));
-        Node* ctxArg = Feather_mkCtValueT(loc, StdDef::typeRefInt, &ctxHandle);
-        Node* ctxNode = mkFunApplication(loc, ctxBase, fromIniList({ctxArg}));
+        Node* ctxNode = buildLiteral(loc, fromCStr("CompilationContext"), ctx);
 
 
         // Parse the extraInfo to find out the import and the function to call
@@ -130,13 +124,13 @@ namespace
         Node* funCall = mkFunApplication(loc, toCall, fromIniList({codeNode, locNode, ctxNode}));
 
         // Compile the function and evaluate it
-        Node* implPart = mkCompoundExp(loc, funCall, fromCStr("impl"));
+        Node* implPart = mkCompoundExp(loc, funCall, fromCStr("_data"));
         implPart = Feather_mkMemLoad(loc, implPart);    // Remove LValue
         Nest_setContext(implPart, ctx);
         if ( !Nest_semanticCheck(implPart) )
             REP_INTERNAL(loc, "Invalid parsing function '%1%', (used to parse %2%)") % funInfo % sourceCode->url;
 
-        Feather_addToNodeList(content, (Node*) getIntRefCtValue(implPart));
+        Feather_addToNodeList(content, (Node*) getByteRefCtValue(implPart));
 
         Nest_semanticCheck(moduleContent);
         sourceCode->mainNode = moduleContent;

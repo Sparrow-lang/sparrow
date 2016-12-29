@@ -1,6 +1,7 @@
 module sparrowc.spr.grammar.parser;
 
-import parserDefs, node, location, token, ext, rangeWithLookahead;
+import parserDefs, node, token, ext, rangeWithLookahead;
+import meta.location;
 
 /// Our main parser
 ///

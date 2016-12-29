@@ -1,6 +1,6 @@
 module sparrowc.spr.grammar.token;
 
-import location;
+import meta.location;
 import std.string;
 
 /// A token type; identifies the type of the token

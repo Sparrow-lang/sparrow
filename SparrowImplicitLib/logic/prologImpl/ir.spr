@@ -2,8 +2,8 @@ import token;
 import nodes;
 import lType;
 import std.algorithms;
-//import assert;
-import metadiag = meta.diagnostic;
+import assert;
+import meta = meta.compilerCore;
 
 using allowNativeCodeGen = true;
 
@@ -92,7 +92,7 @@ class[ct] SparrowPredicate
 
     fun addClause(clause: @PredicateClausePtr)
     {
-        //assert(clause.get().args.size() == arity);
+        assert(clause.get().args.size() == arity);
         clauses.pushBack(clause);
     }
 
@@ -194,9 +194,9 @@ class[ct] SparrowPredicate
         {
             typeSet.setNumberOnly(expr.loc);
             if ( expr.left isNull )
-                metadiag.report("Invalid binary expression: no left part", expr.loc.asMetaLocation());
+                meta.report(meta.diagError, expr.loc, "Invalid binary expression: no left part");
             if ( expr.right isNull )
-                metadiag.report("Invalid binary expression: no right part", expr.loc.asMetaLocation());
+                meta.report(meta.diagError, expr.loc, "Invalid binary expression: no right part");
 
             checkExpr(clause, clauseIdx, expr.left);
             checkExpr(clause, clauseIdx, expr.right);
@@ -271,7 +271,7 @@ class[ct] SparrowPredicate
                     }
 
                     // Input parameters cannot be part in 'is' conditions
-                    //assert(left.kind == ekVar);
+                    assert(left.kind == ekVar);
                     if ( left.paramIdx >= 0 )
                     {
                         var param: @Parameter = paramVars(left.paramIdx);

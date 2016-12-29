@@ -13,7 +13,7 @@ class[rtct] String
 {
     using ValueType = Char;
     using ValuePassType = Char;
-    using RangeType = ContiguousMemoryRange(Char);
+    using RangeType = StringRef;
 
     fun ctor
     {
@@ -89,9 +89,9 @@ class[rtct] String
     fun ()(index: SizeType)     = begin.advance(DiffType(index)).value();
     fun front                   = begin.value();
     fun back                    = end.advance(-1).value();
-    fun all                     = RangeType(begin, end);
+    fun all                     = RangeType(begin.bytePtr, end.bytePtr);
     fun subrange(index: SizeType, num: SizeType): RangeType
-                                = RangeType(begin.advance(DiffType(index)), begin.advance(DiffType(index + num)));
+                                = RangeType(begin.advance(DiffType(index)).bytePtr, begin.advance(DiffType(index + num)).bytePtr);
 
     fun pushBack(value: Char)
     {
@@ -166,12 +166,12 @@ class[rtct] String
 
     fun clear()
     {
-        remove(RangeType(begin, end));
+        remove(RangeType(begin.bytePtr, end.bytePtr));
     }
 
     fun insertBefore(value: ValuePassType, pos: RangeType)
     {
-        var posCount = pos.frontPtr().diff(begin);
+        var posCount = frontPtr(pos).diff(begin);
 
         reserve(size() + 1);
 
@@ -190,7 +190,7 @@ class[rtct] String
     fun insertBefore(range: Range, pos: RangeType)
     {
         var n = range.size();
-        var index = pos.frontPtr().diff(begin);
+        var index = frontPtr(pos).diff(begin);
 
         reserve(size() + n);
 
@@ -214,27 +214,27 @@ class[rtct] String
 
     fun insertAfter(value: ValuePassType, pos: RangeType)
     {
-        insertBefore(value, RangeType(pos.backPtr(), end));
+        insertBefore(value, RangeType(backPtr(pos).bytePtr, end.bytePtr));
     }
 
     fun insertAfter(range: Range, pos: RangeType)
     {
-        insertBefore(range, RangeType(pos.backPtr(), end));
+        insertBefore(range, RangeType(backPtr(pos).bytePtr, end.bytePtr));
     }
 
     fun append(range: Range)
     {
-        insertBefore(range, RangeType(end, end));
+        insertBefore(range, RangeType(end.bytePtr, end.bytePtr));
     }
     fun append(value: ValuePassType)
     {
-        insertBefore(value, RangeType(end, end));
+        insertBefore(value, RangeType(end.bytePtr, end.bytePtr));
     }
 
     fun remove(range: RangeType)
     {
         var rSize = range.size();
-        var rBegin = range.frontPtr();
+        var rBegin = frontPtr(range);
         var rEnd = rBegin.advance(DiffType(rSize));
 
         while ( rEnd != end )
@@ -292,6 +292,9 @@ class[rtct] String
     {
         os << asStringRef();
     }
+
+    private fun[static] frontPtr(s: StringRef) = PtrType.fromBytePtr(s.begin);
+    private fun[static] backPtr(s: StringRef) = PtrType.fromBytePtr(s.end);
 
     private var[ct,static] initialCapacity: SizeType = 16;
     private var[ct,static] growthFactor = 1.5;

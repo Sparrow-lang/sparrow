@@ -58,7 +58,7 @@ fun waitingWorker(task: @TaskPrefix): @Worker = reinterpretCast(@Worker, task.wa
 fun setWaitingWorker(task: @TaskPrefix, w: @Worker) { task.waitingWorker = reinterpretCast(@Byte, w); }
 
 fun assertValid(task: @TaskPrefix) {
-    if[ct] ( isValidAndTrue(debugMode) ) {
+    if[ct] ( isValidAndTrue(DEBUG) ) {
         using ExecuteFnType = FunctionPtr(Null rt, @TaskPrefix);
 
         assert(task !== null);

@@ -1,0 +1,10 @@
+#define PLATFORM_NAME           "${CMAKE_SYSTEM_NAME}"
+#define PLATFORM_VERSION        "${CMAKE_SYSTEM_VERSION}"
+
+#define COMPILER_NAME           "SparrowCompiler"
+#define COMPILER_VERSION        "${SparrowCompiler_BUILD_VERSION}"
+#define COMPILER_VERSIONMAJOR   ${SparrowCompiler_MAJOR_VERSION}
+#define COMPILER_VERSIONMINOR   ${SparrowCompiler_MINOR_VERSION}
+
+#define COMPILER_BUILD_DATE     "${SparrowCompiler_BUILD_DATE}"
+#define COMPILER_BUILD_YEAR     ${SparrowCompiler_BUILD_YEAR}

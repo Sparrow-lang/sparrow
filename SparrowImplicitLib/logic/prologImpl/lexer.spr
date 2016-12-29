@@ -9,7 +9,7 @@ class[rtct] Lexer(sourceType, errorReporterType: Type) if CharRange(#$sourceType
     fun ctor(source: @sourceType, errorReporter: @errorReporterType)
     {
         var startLoc: Location;
-        startLoc.setOne();
+        startLoc setOne;
         this.ctor(source, errorReporter, startLoc);
     }
 
@@ -20,7 +20,7 @@ class[rtct] Lexer(sourceType, errorReporterType: Type) if CharRange(#$sourceType
         this.curToken ctor;
         this.curLocation ctor startLoc;
 
-        curLocation.setAsStartOf(curLocation);
+        curLocation setAsStartOf curLocation;
 
         // Read the first token
         this.curToken = getNextToken();
@@ -37,7 +37,7 @@ class[rtct] Lexer(sourceType, errorReporterType: Type) if CharRange(#$sourceType
     private fun getNextToken: Token
     {
         // The current location starts where the last one ended
-        curLocation.stepOver();
+        curLocation stepOver;
 
         // First check if the source is empty; if so, return an EOF token
         if ( source.isEmpty() )
@@ -168,7 +168,7 @@ class[rtct] Lexer(sourceType, errorReporterType: Type) if CharRange(#$sourceType
             var res: String;
             var braces = 1;
             ch = advanceSource();
-            curLocation.stepOver();
+            curLocation stepOver;
             while ( !source.isEmpty() )
             {
                 if ( source.isEmpty() )
@@ -192,7 +192,7 @@ class[rtct] Lexer(sourceType, errorReporterType: Type) if CharRange(#$sourceType
         }
         else
         {
-            curLocation.stepOver();
+            curLocation stepOver;
             return consumeIdentifier();
         }
     }
@@ -200,10 +200,11 @@ class[rtct] Lexer(sourceType, errorReporterType: Type) if CharRange(#$sourceType
     private fun advanceSource: Char
     {
         if ( source() == '\n' )
-            curLocation.addLines(1);
+            curLocation addLines 1;
         else
-            curLocation.addColumns(1);
-        return ++source;
+            curLocation addColumns 1;
+        source popFront;
+        return source front;
     }
 
     private var source: sourceType;

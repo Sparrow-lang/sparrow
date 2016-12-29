@@ -1,6 +1,6 @@
 import nodes;
 import bitOper;
-import metadiag = meta.diagnostic;
+import meta = meta.compilerCore;
 
 class[ct] LType
 {
@@ -127,36 +127,24 @@ class[ct] LTypeSet
 
     private fun reportTypeError(loc: @Location)
     {
-        var diags: Vector(metadiag.Diagnostic);
-        var l = loc.asMetaLocation();
-        diags.pushBack(metadiag.Diagnostic("Type mismatch: cannot combine atom with number", l, metadiag.diagError));
-
-        //writeLoc(loc);
-        //cout << "ERROR: Type mismatch: cannot combine atom with number" << endl;
+        var l = loc;
+        meta.report(meta.diagError, l, "Type mismatch: cannot combine atom with number");
 
         var atomExp = findAtomExp();
         if ( atomExp isSet )
         {
-            var lAtom = atomExp.get().loc.asMetaLocation();
-            diags.pushBack(metadiag.Diagnostic("See also atom expression:", lAtom, metadiag.diagInfo));
-
-            //writeLoc(atomExp.get().loc);
-            //cout << "See atom expression" << endl;
+            var lAtom = atomExp.get().loc;
+            meta.report(meta.diagInfo, lAtom, "See also atom expression");
         }
 
         var numExp = findNumberExp();
         if ( numExp isSet )
         {
-            var lNum = numExp.get().loc.asMetaLocation();
-            diags.pushBack(metadiag.Diagnostic("See also number expression:", lNum, metadiag.diagInfo));
-
-            //writeLoc(numExp.get().loc);
-            //cout << "See numeric expression" << endl;
+            var lNum = numExp.get().loc;
+            meta.report(meta.diagInfo, lNum, "See also number expression");
         }
 
-        metadiag.report(diags);
-
-        //os.exit(-1);
+        meta.raise;
     }
 
     private fun findNumberExp: ExpressionPtr
@@ -183,6 +171,6 @@ class[ct] LTypeSet
 
     private fun writeLoc(loc: @Location)
     {
-        cout << '(' << loc.startLineNo << ':' << loc.startColNo << " - " << loc.endLineNo << ':' << loc.endColNo << "): ";
+        cout << '(' << loc.start.line << ':' << loc.start.col << " - " << loc.end.line << ':' << loc.end.col << "): ";
     }
 }

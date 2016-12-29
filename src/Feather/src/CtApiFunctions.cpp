@@ -16,19 +16,15 @@ using namespace Nest;
 namespace
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Diagnostic
+    // Location, SourceCode, diagnostic
     //
-    const SourceCode* ctApi_SourceCode_fromFilename(StringRef filename)
-    {
+    const SourceCode* ctApi_SourceCode_fromFilename(StringRef filename) {
         return Nest_getSourceCodeForFilename(filename);
     }
-    StringRef ctApi_SourceCode_filename(SourceCode** thisArg)
-    {
-        return fromCStr((*thisArg)->url);
+    StringRef ctApi_SourceCode_filename(SourceCode* thisArg) {
+        return fromCStr(thisArg->url);
     }
-
-    StringRef ctApi_Location_getCorrespondingCode(Location* thisArg)
-    {
+    StringRef ctApi_Location_getCorrespondingCode(Location* thisArg) {
         const SourceCode* sourceCode = (const SourceCode*) thisArg->sourceCode;
         string code;
         StringRef lineStr = { 0, 0 };
@@ -45,13 +41,11 @@ namespace
         return lineStr;
     }
 
-    void ctApi_report(int type, StringRef message, Location* location)
-    {
+    void ctApi_report(int type, Location* location, StringRef message) {
         Location loc = location ? *location : Location();
-        Nest_reportDiagnostic(loc, (DiagnosticSeverity) type, message.begin);
+        Nest_reportDiagnostic(loc, (DiagnosticSeverity) type, toString(message).c_str());
     }
-    void ctApi_raise()
-    {
+    void ctApi_raise() {
         REP_INFO(NOLOC, "CT API invoked raise. Exiting...");
         exit(0);
     }
@@ -59,323 +53,246 @@ namespace
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // CompilationContext
     //
-    int ctApi_CompilationContext_evalMode(CompilationContext** thisArg)
-    {
-        return (*thisArg)->evalMode;
+    int ctApi_CompilationContext_evalMode(CompilationContext* thisArg) {
+        return thisArg->evalMode;
     }
-
-    SourceCode* ctApi_CompilationContext_sourceCode(CompilationContext** thisArg)
-    {
-        return (*thisArg)->sourceCode;
+    SourceCode* ctApi_CompilationContext_sourceCode(CompilationContext* thisArg) {
+        return thisArg->sourceCode;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // AstType
     //
-    int ctApi_AstType_typeKind(TypeRef* thisArg)
-    {
-        return (*thisArg)->typeKind;
+    int ctApi_AstType_typeKind(TypeRef thisArg) {
+        return thisArg->typeKind;
     }
-    StringRef ctApi_AstType_toString(TypeRef* thisArg)
-    {
-        return dupCStr((*thisArg)->description);
+    StringRef ctApi_AstType_toString(TypeRef thisArg) {
+        return dupCStr(thisArg->description);
     }
-    bool ctApi_AstType_hasStorage(TypeRef* thisArg)
-    {
-        return (*thisArg)->hasStorage;
+    bool ctApi_AstType_hasStorage(TypeRef thisArg) {
+        return thisArg->hasStorage;
     }
-    int ctApi_AstType_numReferences(TypeRef* thisArg)
-    {
-        return (*thisArg)->numReferences;
+    int ctApi_AstType_numReferences(TypeRef thisArg) {
+        return thisArg->numReferences;
     }
-    int ctApi_AstType_mode(TypeRef* thisArg)
-    {
-        return (*thisArg)->mode;
+    int ctApi_AstType_mode(TypeRef thisArg) {
+        return thisArg->mode;
     }
-    bool ctApi_AstType_canBeUsedAtCt(TypeRef* thisArg)
-    {
-        return (*thisArg)->canBeUsedAtCt;
+    bool ctApi_AstType_canBeUsedAtCt(TypeRef thisArg) {
+        return thisArg->canBeUsedAtCt;
     }
-    bool ctApi_AstType_canBeUsedAtRt(TypeRef* thisArg)
-    {
-        return (*thisArg)->canBeUsedAtRt;
+    bool ctApi_AstType_canBeUsedAtRt(TypeRef thisArg) {
+        return thisArg->canBeUsedAtRt;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // AstNode
     //
-    Node* ctApi_AstNode_clone(Node** thisArg)
-    {
-        return Nest_cloneNode(*thisArg);
+    Node* ctApi_AstNode_clone(Node* thisArg) {
+        return Nest_cloneNode(thisArg);
     }
-    int ctApi_AstNode_nodeKind(Node** thisArg)
-    {
-        return (*thisArg)->nodeKind;
+    int ctApi_AstNode_nodeKind(Node* thisArg) {
+        return thisArg->nodeKind;
     }
-    StringRef ctApi_AstNode_nodeKindName(Node** thisArg)
-    {
-        return fromCStr(Nest_nodeKindName(*thisArg));
+    StringRef ctApi_AstNode_nodeKindName(Node* thisArg) {
+        return fromCStr(Nest_nodeKindName(thisArg));
     }
-    StringRef ctApi_AstNode_toString(Node** thisArg)
-    {
-        return fromCStr(Nest_toString(*thisArg));
+    StringRef ctApi_AstNode_toString(Node* thisArg) {
+        return fromCStr(Nest_toString(thisArg));
     }
-    StringRef ctApi_AstNode_toStringExt(Node** thisArg)
-    {
-        return fromCStr(Nest_toString(*thisArg));
+    StringRef ctApi_AstNode_toStringExt(Node* thisArg) {
+        return fromCStr(Nest_toString(thisArg));
     }
-    Location ctApi_AstNode_location(Node** thisArg)
-    {
-        return (*thisArg)->location;
+    Location ctApi_AstNode_location(Node* thisArg) {
+        return thisArg->location;
     }
-    void ctApi_AstNode_children(Node** thisArg, Node*** retBegin, Node*** retEnd)
-    {
-        NodeRange r = Nest_nodeChildren(*thisArg);
-        *retBegin = r.beginPtr;
-        *retEnd = r.endPtr;
+    NodeRange ctApi_AstNode_children(Node* thisArg) {
+        return Nest_nodeChildren(thisArg);
     }
-    Node* ctApi_AstNode_getChild(Node** thisArg, int n)
-    {
-        NodeRange r = Nest_nodeChildren(*thisArg);
+    Node* ctApi_AstNode_getChild(Node* thisArg, int n) {
+        NodeRange r = Nest_nodeChildren(thisArg);
         return r.beginPtr[n];
     }
-    void ctApi_AstNode_referredNodes(Node** thisArg, Node*** retBegin, Node*** retEnd)
-    {
-        NodeRange r = Nest_nodeReferredNodes(*thisArg);
-        *retBegin = r.beginPtr;
-        *retEnd = r.endPtr;
+    NodeRange ctApi_AstNode_referredNodes(Node* thisArg, Node*** retBegin, Node*** retEnd) {
+        return Nest_nodeReferredNodes(thisArg);
     }
-    bool ctApi_AstNode_hasProperty(Node** thisArg, StringRef name)
-    {
-        return Nest_hasProperty(*thisArg, name.begin);
+    bool ctApi_AstNode_hasProperty(Node* thisArg, StringRef name) {
+        return Nest_hasProperty(thisArg, name.begin);
     }
-    bool ctApi_AstNode_getPropertyString(Node** thisArg, StringRef name, StringRef* value)
-    {
-        const StringRef* res = Nest_getPropertyString(*thisArg, name.begin);
+    bool ctApi_AstNode_getPropertyString(Node* thisArg, StringRef name, StringRef* value) {
+        const StringRef* res = Nest_getPropertyString(thisArg, name.begin);
         if ( res ) {
             *value = *res;
         }
         return res != nullptr;
     }
-    bool ctApi_AstNode_getPropertyInt(Node** thisArg, StringRef name, int* value)
-    {
-        const int* res = Nest_getPropertyInt(*thisArg, name.begin);
+    bool ctApi_AstNode_getPropertyInt(Node* thisArg, StringRef name, int* value) {
+        const int* res = Nest_getPropertyInt(thisArg, name.begin);
         if ( res )
             *value = *res;
         return res != nullptr;
     }
-    bool ctApi_AstNode_getPropertyNode(Node** thisArg, StringRef name, Node** value)
-    {
-        Node*const* res = Nest_getPropertyNode(*thisArg, name.begin);
+    bool ctApi_AstNode_getPropertyNode(Node* thisArg, StringRef name, Node** value) {
+        Node*const* res = Nest_getPropertyNode(thisArg, name.begin);
         if ( res )
             *value = *res;
         return res != nullptr;
     }
-    bool ctApi_AstNode_getPropertyType(Node** thisArg, StringRef name, TypeRef* value)
-    {
-        const TypeRef* res = Nest_getPropertyType(*thisArg, name.begin);
+    bool ctApi_AstNode_getPropertyType(Node* thisArg, StringRef name, TypeRef* value) {
+        const TypeRef* res = Nest_getPropertyType(thisArg, name.begin);
         if ( res )
             *value = *res;
         return res != nullptr;
     }
-    void ctApi_AstNode_setPropertyString(Node** thisArg, StringRef name, StringRef value)
-    {
-        Nest_setPropertyString(*thisArg, name.begin, value);
+    void ctApi_AstNode_setPropertyString(Node* thisArg, StringRef name, StringRef value) {
+        Nest_setPropertyString(thisArg, name.begin, value);
     }
-    void ctApi_AstNode_setPropertyInt(Node** thisArg, StringRef name, int value)
-    {
-        Nest_setPropertyInt(*thisArg, name.begin, value);
+    void ctApi_AstNode_setPropertyInt(Node* thisArg, StringRef name, int value) {
+        Nest_setPropertyInt(thisArg, name.begin, value);
     }
-    void ctApi_AstNode_setPropertyNode(Node** thisArg, StringRef name, Node* value)
-    {
-        Nest_setPropertyNode(*thisArg, name.begin, value);
+    void ctApi_AstNode_setPropertyNode(Node* thisArg, StringRef name, Node* value) {
+        Nest_setPropertyNode(thisArg, name.begin, value);
     }
-    void ctApi_AstNode_setPropertyType(Node** thisArg, StringRef name, TypeRef value)
-    {
-        Nest_setPropertyType(*thisArg, name.begin, value);
+    void ctApi_AstNode_setPropertyType(Node* thisArg, StringRef name, TypeRef value) {
+        Nest_setPropertyType(thisArg, name.begin, value);
     }
-    void ctApi_AstNode_setContext(Node** thisArg, CompilationContext* context)
-    {
-        Nest_setContext(*thisArg, context);
+    void ctApi_AstNode_setContext(Node* thisArg, CompilationContext* context) {
+        Nest_setContext(thisArg, context);
     }
-    void ctApi_AstNode_computeType(Node** thisArg)
-    {
-        Nest_computeType(*thisArg);
+    void ctApi_AstNode_computeType(Node* thisArg) {
+        Nest_computeType(thisArg);
     }
-    void ctApi_AstNode_semanticCheck(Node** thisArg)
-    {
-        Nest_semanticCheck(*thisArg);
+    void ctApi_AstNode_semanticCheck(Node* thisArg) {
+        Nest_semanticCheck(thisArg);
     }
-    void ctApi_AstNode_clearCompilationState(Node** thisArg)
-    {
-        Nest_clearCompilationState(*thisArg);
+    void ctApi_AstNode_clearCompilationState(Node* thisArg) {
+        Nest_clearCompilationState(thisArg);
     }
-    CompilationContext* ctApi_AstNode_context(Node** thisArg)
-    {
-        return (*thisArg)->context;
+    CompilationContext* ctApi_AstNode_context(Node* thisArg) {
+        return thisArg->context;
     }
-    bool ctApi_AstNode_hasError(Node** thisArg)
-    {
-        return (*thisArg)->nodeError != 0;
+    bool ctApi_AstNode_hasError(Node* thisArg) {
+        return thisArg->nodeError != 0;
     }
-    bool ctApi_AstNode_isSemanticallyChecked(Node** thisArg)
-    {
-        return (*thisArg)->nodeSemanticallyChecked != 0;
+    bool ctApi_AstNode_isSemanticallyChecked(Node* thisArg) {
+        return thisArg->nodeSemanticallyChecked != 0;
     }
-    TypeRef ctApi_AstNode_type(Node** thisArg)
-    {
-        return (*thisArg)->type;
+    TypeRef ctApi_AstNode_type(Node* thisArg) {
+        return thisArg->type;
     }
-    bool ctApi_AstNode_isExplained(Node** thisArg)
-    {
-        return (*thisArg)->explanation != NULL;
+    bool ctApi_AstNode_isExplained(Node* thisArg) {
+        return thisArg->explanation != NULL;
     }
-    Node* ctApi_AstNode_explanation(Node** thisArg)
-    {
-        return Nest_explanation(*thisArg);
+    Node* ctApi_AstNode_explanation(Node* thisArg) {
+        return Nest_explanation(thisArg);
     }
-    Node* ctApi_AstNode_curExplanation(Node** thisArg)
-    {
-        return (*thisArg)->explanation;
+    Node* ctApi_AstNode_curExplanation(Node* thisArg) {
+        return thisArg->explanation;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Feather nodes creation functions
     //
-    Node* ctApi_Feather_mkNodeList(Location* loc, Node** childrenBegin, Node** childrenEnd, bool voidResult)
-    {
-        NodeRange r = { childrenBegin, childrenEnd };
+    Node* ctApi_Feather_mkNodeList(Location* loc, NodeRange children, bool voidResult) {
         if ( voidResult )
-            return Feather_mkNodeListVoid(*loc, r);
+            return Feather_mkNodeListVoid(*loc, children);
         else
-            return Feather_mkNodeList(*loc, r);
+            return Feather_mkNodeList(*loc, children);
     }
-    Node* ctApi_Feather_addToNodeList(Node* prevList, Node* element)
-    {
+    Node* ctApi_Feather_addToNodeList(Node* prevList, Node* element) {
         return  Feather_addToNodeList(prevList, element);
     }
-    Node* ctApi_Feather_appendNodeList(Node* list, Node* newNodes)
-    {
+    Node* ctApi_Feather_appendNodeList(Node* list, Node* newNodes) {
         return Feather_appendNodeList(list, newNodes);
     }
 
-    Node* ctApi_Feather_mkNop(Location* loc)
-    {
+    Node* ctApi_Feather_mkNop(Location* loc) {
         return Feather_mkNop(*loc);
     }
-    Node* ctApi_Feather_mkTypeNode(Location* loc, TypeRef type)
-    {
+    Node* ctApi_Feather_mkTypeNode(Location* loc, TypeRef type) {
         return Feather_mkTypeNode(*loc, type);
     }
-    Node* ctApi_Feather_mkBackendCode(Location* loc, StringRef code, int evalMode)
-    {
+    Node* ctApi_Feather_mkBackendCode(Location* loc, StringRef code, int evalMode) {
         return Feather_mkBackendCode(*loc, code, (EvalMode) evalMode);
     }
-    Node* ctApi_Feather_mkLocalSpace(Location* loc, Node** childrenBegin, Node** childrenEnd)
-    {
-        NodeRange r = { childrenBegin, childrenEnd };
-        return Feather_mkLocalSpace(*loc, r);
+    Node* ctApi_Feather_mkLocalSpace(Location* loc, NodeRange children) {
+        return Feather_mkLocalSpace(*loc, children);
     }
-    Node* ctApi_Feather_mkGlobalConstructAction(Location* loc, Node* action)
-    {
+    Node* ctApi_Feather_mkGlobalConstructAction(Location* loc, Node* action) {
         return Feather_mkGlobalConstructAction(*loc, action);
     }
-    Node* ctApi_Feather_mkGlobalDestructAction(Location* loc, Node* action)
-    {
+    Node* ctApi_Feather_mkGlobalDestructAction(Location* loc, Node* action) {
         return Feather_mkGlobalDestructAction(*loc, action);
     }
-    Node* ctApi_Feather_mkScopeDestructAction(Location* loc, Node* action)
-    {
+    Node* ctApi_Feather_mkScopeDestructAction(Location* loc, Node* action) {
         return Feather_mkScopeDestructAction(*loc, action);
     }
-    Node* ctApi_Feather_mkTempDestructAction(Location* loc, Node* action)
-    {
+    Node* ctApi_Feather_mkTempDestructAction(Location* loc, Node* action) {
         return Feather_mkTempDestructAction(*loc, action);
     }
 
-    Node* ctApi_Feather_mkFunction(Location* loc, StringRef name, Node* resType, Node** paramsBegin, Node** paramsEnd, Node* body, int evalMode)
-    {
-        NodeRange r = { paramsBegin, paramsEnd };
-        return Feather_mkFunction(*loc, name, resType, r, body);
+    Node* ctApi_Feather_mkFunction(Location* loc, StringRef name, Node* resType, NodeRange params, Node* body, int evalMode) {
+        return Feather_mkFunction(*loc, name, resType, params, body);
     }
-    Node* ctApi_Feather_mkClass(Location* loc, StringRef name, Node** fieldsBegin, Node** fieldsEnd, int evalMode)
-    {
-        NodeRange r = { fieldsBegin, fieldsEnd };
-        return Feather_mkClass(*loc, name, r);
+    Node* ctApi_Feather_mkClass(Location* loc, StringRef name, NodeRange fields, int evalMode) {
+        return Feather_mkClass(*loc, name, fields);
     }
-    Node* ctApi_Feather_mkVar(Location* loc, StringRef name, Node* type, int evalMode)
-    {
+    Node* ctApi_Feather_mkVar(Location* loc, StringRef name, Node* type, int evalMode) {
         Node* res = Feather_mkVar(*loc, name, type);
         Feather_setEvalMode(res, (EvalMode) evalMode);
         return res;
     }
 
-    Node* ctApi_Feather_mkCtValue(Location* loc, TypeRef type, StringRef data)
-    {
+    Node* ctApi_Feather_mkCtValue(Location* loc, TypeRef type, StringRef data) {
         return Feather_mkCtValue(*loc, type, data);
     }
-    Node* ctApi_Feather_mkNull(Location* loc, Node* typeNode)
-    {
+    Node* ctApi_Feather_mkNull(Location* loc, Node* typeNode) {
         return Feather_mkNull(*loc, typeNode);
     }
-    Node* ctApi_Feather_mkVarRef(Location* loc, Node* varDecl)
-    {
+    Node* ctApi_Feather_mkVarRef(Location* loc, Node* varDecl) {
         return Feather_mkVarRef(*loc, varDecl);
     }
-    Node* ctApi_Feather_mkFieldRef(Location* loc, Node* obj, Node* fieldDecl)
-    {
+    Node* ctApi_Feather_mkFieldRef(Location* loc, Node* obj, Node* fieldDecl) {
         return Feather_mkFieldRef(*loc, obj, fieldDecl);
     }
-    Node* ctApi_Feather_mkFunRef(Location* loc, Node* funDecl, Node* resType)
-    {
+    Node* ctApi_Feather_mkFunRef(Location* loc, Node* funDecl, Node* resType) {
         return Feather_mkFunRef(*loc, funDecl, resType);
     }
-    Node* ctApi_Feather_mkFunCall(Location* loc, Node* funDecl, Node** argsBegin, Node** argsEnd)
-    {
-        NodeRange r = { argsBegin, argsEnd };
-        return Feather_mkFunCall(*loc, funDecl, r);
+    Node* ctApi_Feather_mkFunCall(Location* loc, Node* funDecl, NodeRange args) {
+        return Feather_mkFunCall(*loc, funDecl, args);
     }
-    Node* ctApi_Feather_mkMemLoad(Location* loc, Node* exp)
-    {
+    Node* ctApi_Feather_mkMemLoad(Location* loc, Node* exp) {
         return Feather_mkMemLoad(*loc, exp);
     }
-    Node* ctApi_Feather_mkMemStore(Location* loc, Node* value, Node* address)
-    {
+    Node* ctApi_Feather_mkMemStore(Location* loc, Node* value, Node* address) {
         return Feather_mkMemStore(*loc, value, address);
     }
-    Node* ctApi_Feather_mkBitcast(Location* loc, Node* destType, Node* exp)
-    {
+    Node* ctApi_Feather_mkBitcast(Location* loc, Node* destType, Node* exp) {
         return Feather_mkBitcast(*loc, destType, exp);
     }
-    Node* ctApi_Feather_mkConditional(Location* loc, Node* condition, Node* alt1, Node* alt2)
-    {
+    Node* ctApi_Feather_mkConditional(Location* loc, Node* condition, Node* alt1, Node* alt2) {
         return Feather_mkConditional(*loc, condition, alt1, alt2);
     }
 
-    Node* ctApi_Feather_mkIf(Location* loc, Node* condition, Node* thenClause, Node* elseClause, bool isCt)
-    {
+    Node* ctApi_Feather_mkIf(Location* loc, Node* condition, Node* thenClause, Node* elseClause, bool isCt) {
         Node* res = Feather_mkIf(*loc, condition, thenClause, elseClause);
         if ( isCt )
             Feather_setEvalMode(res, modeCt);
         return res;
     }
-    Node* ctApi_Feather_mkWhile(Location* loc, Node* condition, Node* body, Node* step, bool isCt)
-    {
+    Node* ctApi_Feather_mkWhile(Location* loc, Node* condition, Node* body, Node* step, bool isCt) {
         Node* res = Feather_mkWhile(*loc, condition, body, step);
         if ( isCt )
             Feather_setEvalMode(res, modeCt);
         return res;
     }
-    Node* ctApi_Feather_mkBreak(Location* loc)
-    {
+    Node* ctApi_Feather_mkBreak(Location* loc) {
         return Feather_mkBreak(*loc);
     }
-    Node* ctApi_Feather_mkContinue(Location* loc)
-    {
+    Node* ctApi_Feather_mkContinue(Location* loc) {
         return Feather_mkContinue(*loc);
     }
-    Node* ctApi_Feather_mkReturn(Location* loc, Node* exp)
-    {
+    Node* ctApi_Feather_mkReturn(Location* loc, Node* exp) {
         return Feather_mkReturn(*loc, exp);
     }
 }

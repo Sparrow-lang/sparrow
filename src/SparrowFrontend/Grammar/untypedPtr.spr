@@ -1,5 +1,0 @@
-module sparrowc.spr.grammar.untypedPtr;
-
-datatype UntypedPtr = @Byte;
-
-fun >>(s: @UntypedPtr, os: @OutStream) { os << mkStreamRefWrapper(s._data); }

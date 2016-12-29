@@ -1,23 +1,18 @@
-public import meta.astNodes(AstNode, Feather, SprFrontend, astEval);
+import meta.featherNodes, meta.sparrowNodes;
 
-fun[ct, macro] setOperPrecedence(oper, value: AstNode): AstNode
+fun[ct, macro] setOperPrecedence(oper, value: CompilerAstNode): CompilerAstNode
 {
-    using SprFrontend.*;
-
-    var loc = oper.location();
-    var loc2 = value.location();
+    var loc = oper location;
+    var loc2 = value location;
     var operName = astEval(oper);
     var precValue: Int = astEval(value);
 
     return mkSprUsing(loc, "oper_precedence_" + operName, mkIntLiteral(loc2, precValue));
 }
 
-fun[ct, macro] getOperPrecedence(oper: AstNode): AstNode
+fun[ct, macro] getOperPrecedence(oper: CompilerAstNode): CompilerAstNode
 {
-    using Feather.*;
-    using SprFrontend.*;
-
-    var loc = oper.location();
+    var loc = oper location;
     var operName = astEval(oper);
     var args = mkNodeList(loc);
     addToNodeList(args, mkIdentifier(loc, "oper_precedence_" + operName));
@@ -26,11 +21,9 @@ fun[ct, macro] getOperPrecedence(oper: AstNode): AstNode
 }
 
 
-fun[ct, macro] setOperRightAssociativity(oper: AstNode): AstNode
+fun[ct, macro] setOperRightAssociativity(oper: CompilerAstNode): CompilerAstNode
 {
-    using SprFrontend.*;
-
-    var loc = oper.location();
+    var loc = oper location;
     var operName = astEval(oper);
 
     return mkSprUsing(loc, "oper_assoc_" + operName, mkIntLiteral(loc, -1));

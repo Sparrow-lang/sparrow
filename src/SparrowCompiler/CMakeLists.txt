@@ -8,6 +8,8 @@ SET(sourceFiles
     "Settings.cpp"
     "AstDump.h"
     "AstDump.cpp"
+    "VersionInfo.h.in"
+    "VersionInfo.h"
 )
 
 # Project settings

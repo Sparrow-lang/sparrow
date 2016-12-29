@@ -10,3 +10,4 @@ public import sprCore.streamBasic;
 public import sprCore.consoleIO;
 public import sprCore.mainDef;
 public import sprCore.stringCvt;
+public import sprCore.basicMeta;

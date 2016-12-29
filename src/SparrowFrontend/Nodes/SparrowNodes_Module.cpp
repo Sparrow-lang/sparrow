@@ -14,6 +14,7 @@ using namespace SprFrontend;
 using namespace Nest;
 
 SourceCode* g_implicitLibSC = nullptr;
+SourceCode* g_compilerArgsSC = nullptr;
 
 /// Given a module node, infer the the module name from the source code URL
 StringRef inferModuleName(const char* url) {
@@ -69,6 +70,29 @@ namespace
     }
 
     /**
+     * Create an implicit import the to given source code
+     *
+     * This will actually create just a using node pointing to the content of
+     * the main node of the source code to import
+     *
+     * @param importLoc The location of the generated code
+     * @param toImport  The source code to import
+     *
+     * @return Node that performs the import
+     */
+    Node* createImplicitImport(Location importLoc, SourceCode* toImport) {
+        // Add an using to the content of the imported source code
+        Node* refImpContent = mkModuleRef(importLoc, toImport->mainNode);
+        ASSERT(refImpContent);
+        Node* starExp = mkStarExp(importLoc, refImpContent, fromCStr("*"));
+        Node* iCode = mkSprUsing(importLoc, StringRef({0,0}), starExp, privateAccess);
+
+        // Don't warn if we don't find anything
+        Nest_setPropertyInt(iCode, propNoWarnIfNoDeclFound, 1);
+        return iCode;
+    }
+
+    /**
      * Given a module node, this will generate the appropriate code for it
      *
      * It will first create the top-level packages corresponding to the module
@@ -114,17 +138,14 @@ namespace
 
         // Add implicit import, if needed
         if ( g_implicitLibSC ) {
-            // Add an using to the content of the implicit lib
-            Location importLoc = node->location;
-            Node* refImpContent = mkModuleRef(importLoc, g_implicitLibSC->mainNode);
-            ASSERT(refImpContent);
-            Node* starExp = mkStarExp(importLoc, refImpContent, fromCStr("*"));
-            Node* iiCode = mkSprUsing(importLoc, StringRef({0,0}), starExp, privateAccess);
+            Node* iCode = createImplicitImport(node->location, g_implicitLibSC);
+            Feather_addToNodeList(innerContent, iCode);
+        }
 
-            // Don't warn if we don't find anything
-            Nest_setPropertyInt(iiCode, propNoWarnIfNoDeclFound, 1);
-
-            Feather_addToNodeList(innerContent, iiCode);
+        // Add compiler defines import, if needed
+        if ( g_compilerArgsSC ) {
+            Node* iCode = createImplicitImport(node->location, g_compilerArgsSC);
+            Feather_addToNodeList(innerContent, iCode);
         }
 
         // Add the declarations to the inner content

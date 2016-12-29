@@ -1,6 +1,5 @@
 //!!
 import logic = logic.prolog;
-import meta.astNodes(AstNode, astEval);
 
 logic.compileProlog("
     orbits(mercury, sun).

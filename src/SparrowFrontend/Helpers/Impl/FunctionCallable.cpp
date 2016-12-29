@@ -172,14 +172,14 @@ namespace
         CHECK(loc, args.size() == 1);
 
         // Get the impl part of the node
-        Node* implPart = mkCompoundExp(loc, args[0], fromCStr("impl"));
+        Node* implPart = mkCompoundExp(loc, args[0], fromCStr("_data"));
         implPart = Feather_mkMemLoad(loc, implPart);    // Remove LValue
         Nest_setContext(implPart, context);
         if ( !Nest_semanticCheck(implPart) )
             return nullptr;
 
         // Evaluate the handle and get the resulting node
-        Node* nodeHandle = (Node*) getIntRefCtValue(implPart);
+        Node* nodeHandle = (Node*) getByteRefCtValue(implPart);
         if ( !nodeHandle )
             REP_INTERNAL(loc, "Node passed to astEval is invalid");
         return nodeHandle;
@@ -189,21 +189,14 @@ namespace
     {
         CHECK(loc, args.size() == 0);
 
-        SourceCode* sc = context->sourceCode;
-        int* scHandle = reinterpret_cast<int*>(sc);
-        Node* base = mkIdentifier(loc, fromCStr("SourceCode"));
-        Node* arg = Feather_mkCtValueT(loc, StdDef::typeRefInt, &scHandle);
-        return mkFunApplication(loc, base, fromIniList({arg}));
+        return buildLiteral(loc, fromCStr("SourceCode"), context->sourceCode);
     }
 
     Node* impl_Meta_CompilationContext_current(CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         CHECK(loc, args.size() == 0);
 
-        int* ctxHandle = reinterpret_cast<int*>(context);
-        Node* base = mkIdentifier(loc, fromCStr("CompilationContext"));
-        Node* arg = Feather_mkCtValueT(loc, StdDef::typeRefInt, &ctxHandle);
-        return mkFunApplication(loc, base, fromIniList({arg}));
+        return buildLiteral(loc, fromCStr("CompilationContext"), context);
     }
 
     Node* handleIntrinsic(Node* fun, CompilationContext* context, const Location& loc, const NodeVector& args)

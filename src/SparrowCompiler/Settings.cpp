@@ -1,5 +1,6 @@
 #include <StdInc.h>
 #include "Settings.h"
+#include "VersionInfo.h"
 
 #include "Nest/Api/Compiler.h"
 #include "Nest/Utils/CompilerSettings.hpp"
@@ -427,6 +428,7 @@ bool initSettingsWithArgs(int argc, char** argv)
         { "-fno-main",              NULL, {s.useMain_, false}, "don't include entry point functionality" },
 
         { NULL,                     NULL, {}, "Code generation options" },
+        { "-D",                     " <name>[=<value>]", s.defines_, "add a compiler define, visible in the program" },
         { "-g",                     NULL, s.generateDebugInfo_, "generate debug info" },
         { "-data-layout",           " <arg>", s.dataLayout_, "the data layout" },
         { "-target-triple",         " <arg>", s.targetTriple_, "the target machine triple" },
@@ -497,7 +499,14 @@ bool initSettingsWithArgs(int argc, char** argv)
         return false;
     }
 
-    if ( s.filesToBeCompiled_.empty() ) {
+    if ( s.printVersion_ || s.verbose_ )
+    {
+        cout << "Sparrow Compiler " << COMPILER_VERSION << ", (c) " << COMPILER_BUILD_YEAR << " Lucian Radu Teodorescu" << endl << endl;
+        if ( s.printVersion_ )
+            return false;
+    }
+
+    if ( s.filesToBeCompiled_.empty() && !s.printVersion_ ) {
         cout << "No input file was given!" << endl;
         hasErrors = true;
     }

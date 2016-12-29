@@ -1,0 +1,15 @@
+//!! -t "SparrowImplicitLib.spr" -fno-main -D DEBUG -D "VAL=2+2"
+
+fun[native("test")] test(n: Int)
+{
+    if ( DEBUG )
+        writeLn("debug mode");
+    else
+        writeLn("release mode");
+    writeLnInt(VAL);
+}
+
+/*<<<Running()
+debug mode
+4
+>>>*/

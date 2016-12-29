@@ -1,5 +1,6 @@
 #include <StdInc.h>
 #include "SparrowNodes.h"
+#include "Builder.h"
 
 #include <SparrowFrontendTypes.h>
 #include <SprDebug.h>
@@ -372,22 +373,19 @@ namespace
         return res;
     }
 
-    Node* checkLift(Node* node)
+    Node* checkAstLift(Node* node)
     {
         Node* arguments = at(node->children, 1);
 
         // Make sure we have one argument
         if ( Nest_nodeArraySize(arguments->children) != 1 )
-            REP_ERROR_RET(nullptr, node->location, "lift expects 1 argument; %1% given") % Nest_nodeArraySize(arguments->children);
+            REP_ERROR_RET(nullptr, node->location, "astLift expects 1 argument; %1% given") % Nest_nodeArraySize(arguments->children);
 
         Node* arg = at(arguments->children, 0);
         // Don't semantically check the argument; let the user of the lift to decide when it's better to do so
 
-        // Create a construct of an AST node
-        int* nodeHandle = (int*) arg;
-        Node* base = mkIdentifier(node->location, fromCStr("AstNode"));
-        Node* arg1 = Feather_mkCtValueT(node->location, StdDef::typeRefInt, &nodeHandle);
-        return  mkFunApplication(node->location, base, fromIniList({arg1})) ;
+        // Create an AST node literal
+        return buildLiteral(node->location, fromCStr("CompilerAstNode"), arg);
     }
 
     Node* checkIfe(Node* node)
@@ -1137,9 +1135,9 @@ Node* FunApplication_SemanticCheck(Node* node)
         {
             return checkTypeOf(node);
         }
-        else if ( id == "lift" )
+        else if ( id == "astLift" )
         {
-            return checkLift(node);
+            return checkAstLift(node);
         }
         else if ( id == "ife" )
         {

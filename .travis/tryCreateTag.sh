@@ -3,9 +3,9 @@
 export MAJOR_VER=0
 export MINOR_VER=10
 
-export GIT_BRANCH=$(git symbolic-ref HEAD --short)
+export GIT_BRANCH=$(git symbolic-ref $TRAVIS_COMMIT --short)
 if [ "$GIT_BRANCH" == "master" ] && [ -z "$TRAVIS_TAG" ]; then
-    export GIT_BUILDNUM=$(git rev-list --merges --count HEAD)
+    export GIT_BUILDNUM=$(git rev-list --merges --count $TRAVIS_COMMIT)
     export GIT_TAG=v$MAJOR_VER.$MINOR_VER.$GIT_BUILDNUM
     echo "Applying tag $GIT_TAG"
     git tag $GIT_TAG -a -m "Release of version $GIT_TAG"

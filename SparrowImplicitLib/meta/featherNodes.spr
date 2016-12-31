@@ -1,4 +1,4 @@
-public import compilerCore;
+import[public] compilerCore;
 
 fun[ct, native("$meta.Feather.mkNodeList")] mkNodeList(loc: @Location, nodes: AstNodeRange = AstNodeRange(), voidResult: Bool = false): AstNode;
 fun[ct, native("$meta.Feather.addToNodeList")] addToNodeList(list, newNode: AstNode): AstNode;

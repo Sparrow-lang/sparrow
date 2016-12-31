@@ -58,9 +58,9 @@ fun makeList(): List(Int*Int)
 
 fun printPair(p: Int*Int)
 {
-    cout << p._1;
+    cout << p.v1;
     cout << "-";
-    cout << p._2;
+    cout << p.v2;
 }
 
 fun printRange(nr: AnyType)
@@ -68,7 +68,7 @@ fun printRange(nr: AnyType)
     var v: Vector(Int*Int) = nr;
 
     var r = v.all();
-    sort(r, (fun (l,r: AnyType) = l._1 < r._1));
+    sort(r, (fun (l,r: AnyType) = l.v1 < r.v1));
     while ( !r.isEmpty() )
     {
         printPair(r.front());

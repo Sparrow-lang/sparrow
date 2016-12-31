@@ -55,6 +55,8 @@ class SparrowScanner(sourceType, errorReporterType: Type)
         this.curToken ctor;
         this.tokenIsComputed ctor false;
         this.atEnd ctor false;
+        this.lastLineStart.line = 1;
+        this.lastLineStart.col = 1;
     }
 
     /// Location that we use to keep track of the source chars
@@ -70,6 +72,9 @@ class SparrowScanner(sourceType, errorReporterType: Type)
     private var atEnd: Bool;
     /// Object used to report errors
     private var errorReporter: errorReporterType;
+    /// The start of the last processed line, ignoring initial whitespace
+    /// Used for determining indentation
+    private var lastLineStart: LineCol;
 }
 /// Concept that matches SparrowScanner above
 private concept OurScanner(t) if t.IsSparrowScanner;
@@ -139,6 +144,18 @@ private fun advanceAndCaptureDigit(s: @OurScanner, pred: AnyType) {
 private fun nextToken(s: @OurScanner): TokenType {
     var loc: @Location = s.src.location;
 
+
+    // Check for a shebang line, and, if found, ignore it
+    if ( loc.start.line == 1 && loc.start.col == 1 ) {
+        var ch = *s.src;
+        var ch2 = s peekChar;
+        if ( ch == '#' && ch2 == '!') {
+            s.src popFront;
+            s.src advanceIf (fun c = c!='\n');
+            if ( !!s.src ) s.src popFront;
+        }
+    }
+
     while ( true ) {
         // The current location starts where the last one ended
         loc stepOver;
@@ -154,8 +171,25 @@ private fun nextToken(s: @OurScanner): TokenType {
 
         // Check for whitespace -- drop all the whitespace
         if ( isSpace(ch) ) {
-            s.src advanceIf \isSpace;
+            s.src advanceIf \isSpace;   // At this point, keep compatibility with the old scanner
             continue;
+        }
+        // if ( ch == ' ' ) {
+        //     s.src advanceIf (fun c = c==' ');
+        //     continue;
+        // }
+
+        // Check for tabs -- forbidden
+        if ( ch == '\t' ) {
+            s reportError toString("Tabs are not valid characters");
+            s.src advanceIf (fun c = c=='\t');
+            continue;
+        }
+
+        // Check for new lines
+        if ( ch == '\n' ) {
+            s.src popFront;
+            return tkEOL;
         }
 
         // Check for line comments -- drop everything until the end of line (including eol)
@@ -180,8 +214,30 @@ private fun nextToken(s: @OurScanner): TokenType {
                 return tkEND;
             }
             s.src popFront;    // move past '/'
+            // Update the last line number, but not the column
+            s.lastLineStart.line = s.src.location.end.line;
             continue;
         }
+
+        // Backslash followed by a new-line collapses
+        if ( ch == '\\' && ch2 == '\n' ) {
+            s.src advance 2;
+            // Update the last line number, but not the column
+            s.lastLineStart.line = s.src.location.end.line;
+            continue;
+        }
+
+        // From now on, everything we find needs to be a non-whitespace
+
+        // Check for line indents/dedents
+        // if ( loc.start.line != s.lastLineStart.line ) {
+        //     var lastCol = s.lastLineStart.col;
+        //     s.lastLineStart = loc.start;
+        //     if ( loc.start.col > lastCol )
+        //         return tkINDENT;
+        //     if ( loc.start.col < lastCol )
+        //         return tkDEDENT;
+        // }
 
         // Character & strings
         if ( ch == '\'' ) return parseCharacter(s);
@@ -330,8 +386,6 @@ private fun parseIdentifer(s: @OurScanner): TokenType {
     else if ( data == "module" )    return tkMODULE;
     else if ( data == "null" )      return tkNULLCT;
     else if ( data == "package" )   return tkPACKAGE;
-    else if ( data == "private" )   return tkPRIVATE;
-    else if ( data == "public" )    return tkPUBLIC;
     else if ( data == "return" )    return tkRETURN;
     else if ( data == "this" )      return tkTHIS;
     else if ( data == "throw" )     return tkTHROW;

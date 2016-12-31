@@ -39,8 +39,8 @@ fun sqr x = x*x;
 
 class NBodySystem
 {
-    private using numBodies = 5;
-    private var bodies: StaticArray(Body, numBodies);
+    using numBodies = 5;
+    var bodies: StaticArray(Body, numBodies);
 
     fun energy: Double
     {

@@ -30,7 +30,7 @@ using nRotations = 12;
  * from one end to the other along 12 hexagonal directions.
  *
  *   Piece 0   Piece 1   Piece 2   Piece 3   Piece 4
- *                   
+ *
  *  O O O O    O   O O   O O O     O O O     O   O
  *         O    O O           O       O       O O
  *                           O         O         O
@@ -77,12 +77,12 @@ using nRotations = 12;
 
 //    //fun isValid: Bool { return findIf(pos, (fun p = p._2>=0 && p._2 < 5)); }
 
-//    private fun[static] rotatePos(p: PosType) = (p._1 + p._2) ~ -p._2;
+//    fun[static] rotatePos(p: PosType) = (p._1 + p._2) ~ -p._2;
 
-//    //private fun[static] posToNum(p: PosType) = p._1 + 5*p._2;
-//    //private fun[static] posFromNum(p: Byte): PosType = p%5 ~ p/5;
+//    //fun[static] posToNum(p: PosType) = p._1 + 5*p._2;
+//    //fun[static] posFromNum(p: Byte): PosType = p%5 ~ p/5;
 
-//    private fun offsetToMin: Piece
+//    fun offsetToMin: Piece
 //    {
 //        var min = minElement(pos.all).front;
 //        var offseted = pos.all map (fun.{min} p = p._1-min._1 ~ p._2-min._2);
@@ -304,7 +304,7 @@ fun cellsFitOnBoard(cell: @StaticArray(Byte, 5), piece: Int): Bool
 {
     return !outOfBounds(cell(0), pieceDef(piece)(0))
         && !outOfBounds(cell(1), pieceDef(piece)(1))
-        && !outOfBounds(cell(2), pieceDef(piece)(2)) 
+        && !outOfBounds(cell(2), pieceDef(piece)(2))
         && !outOfBounds(cell(3), pieceDef(piece)(3));
 }
 
@@ -365,12 +365,12 @@ fun fillContiguousSpace(board: @StaticArray(Byte, nPositions), index: Byte)
         return;
     board(index) = Byte(1);
     using Direction.*;
-    if ( !outOfBounds(index, E) )  fillContiguousSpace(board, shift(index, E));   
-    if ( !outOfBounds(index, SE) ) fillContiguousSpace(board, shift(index, SE));   
-    if ( !outOfBounds(index, SW) ) fillContiguousSpace(board, shift(index, SW));   
-    if ( !outOfBounds(index, W) )  fillContiguousSpace(board, shift(index, W));   
-    if ( !outOfBounds(index, NW) ) fillContiguousSpace(board, shift(index, NW));   
-    if ( !outOfBounds(index, NE) ) fillContiguousSpace(board, shift(index, NE));   
+    if ( !outOfBounds(index, E) )  fillContiguousSpace(board, shift(index, E));
+    if ( !outOfBounds(index, SE) ) fillContiguousSpace(board, shift(index, SE));
+    if ( !outOfBounds(index, SW) ) fillContiguousSpace(board, shift(index, SW));
+    if ( !outOfBounds(index, W) )  fillContiguousSpace(board, shift(index, W));
+    if ( !outOfBounds(index, NW) ) fillContiguousSpace(board, shift(index, NW));
+    if ( !outOfBounds(index, NE) ) fillContiguousSpace(board, shift(index, NE));
 }
 
 
@@ -412,7 +412,7 @@ fun calcSixRotations(piece, index: Byte)
     for ( rot = 0..6 )
     {
         if ( piece != 3 || rot < 3 )
-        { 
+        {
             calcCellIndices(cell, piece, index);
             if ( cellsFitOnBoard(cell, piece) && !hasIsland(cell, piece) )
             {
@@ -656,9 +656,9 @@ fun pretty(s: @StaticArray(Byte, nPositions))
 {
     for ( i = 0..nPositions ../ nPieces )
     {
-        cout<<s(i+0)<<' '<<s(i+1)<<' '<<s(i+2)<<' '<<s(i+3)<<' '<<s(i+4)<<' ';
+        cout<<s(i+0)<<' '<<s(i+1)<<' '<<s(i+2)<<' '<<s(i+3)<<' '<<s(i+4);
         cout<<endl<<' ';
-        cout<<s(i+5)<<' '<<s(i+6)<<' '<<s(i+7)<<' '<<s(i+8)<<' '<<s(i+9)<<' ';
+        cout<<s(i+5)<<' '<<s(i+6)<<' '<<s(i+7)<<' '<<s(i+8)<<' '<<s(i+9);
         cout<<endl;
     }
     cout << endl;
@@ -681,53 +681,53 @@ fun sprMain
 /*<<<meteor (4)
 4 solutions found
 
-0 0 0 0 1 
- 2 2 2 0 1 
-2 6 6 1 1 
- 2 6 1 5 5 
-8 6 5 5 5 
- 8 6 3 3 3 
-4 8 8 9 3 
- 4 4 8 9 3 
-4 7 4 7 9 
- 7 7 7 9 9 
+0 0 0 0 1
+ 2 2 2 0 1
+2 6 6 1 1
+ 2 6 1 5 5
+8 6 5 5 5
+ 8 6 3 3 3
+4 8 8 9 3
+ 4 4 8 9 3
+4 7 4 7 9
+ 7 7 7 9 9
 
-9 9 7 7 7 
- 9 7 4 7 4 
-3 9 8 4 4 
- 3 9 8 8 4 
-3 3 3 6 8 
- 5 5 5 6 8 
-5 5 1 6 2 
- 1 1 6 6 2 
-1 0 2 2 2 
- 1 0 0 0 0 
+9 9 7 7 7
+ 9 7 4 7 4
+3 9 8 4 4
+ 3 9 8 8 4
+3 3 3 6 8
+ 5 5 5 6 8
+5 5 1 6 2
+ 1 1 6 6 2
+1 0 2 2 2
+ 1 0 0 0 0
 
 >>>*/
 
 /*<<<run (2098)
 2098 solutions found
 
-0 0 0 0 1 
- 2 2 2 0 1 
-2 6 6 1 1 
- 2 6 1 5 5 
-8 6 5 5 5 
- 8 6 3 3 3 
-4 8 8 9 3 
- 4 4 8 9 3 
-4 7 4 7 9 
- 7 7 7 9 9 
+0 0 0 0 1
+ 2 2 2 0 1
+2 6 6 1 1
+ 2 6 1 5 5
+8 6 5 5 5
+ 8 6 3 3 3
+4 8 8 9 3
+ 4 4 8 9 3
+4 7 4 7 9
+ 7 7 7 9 9
 
-9 9 9 9 8 
- 9 6 6 8 5 
-6 6 8 8 5 
- 6 8 2 5 5 
-7 7 7 2 5 
- 7 4 7 2 0 
-1 4 2 2 0 
- 1 4 4 0 3 
-1 4 0 0 3 
- 1 1 3 3 3 
+9 9 9 9 8
+ 9 6 6 8 5
+6 6 8 8 5
+ 6 8 2 5 5
+7 7 7 2 5
+ 7 4 7 2 0
+1 4 2 2 0
+ 1 4 4 0 3
+1 4 0 0 3
+ 1 1 3 3 3
 
 >>>*/

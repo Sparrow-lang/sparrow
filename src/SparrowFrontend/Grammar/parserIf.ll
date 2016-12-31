@@ -19,7 +19,7 @@ target datalayout = "e-i64:64-f80:128-n8:16:32:64"
 %FileRange = type { %File*, i1, i8 }
 %File = type { i8* }
 %ParserContext = type { %File, %FileRange, %CharSource, %"SparrowScanner[CharSource, ExternalErrorReporter]", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]" }
-%"SparrowScanner[CharSource, ExternalErrorReporter]" = type { %Location, %"LocationSyncCharRange[RangeWithLookahead[CharSource]]", %Token, i1, i1, %ExternalErrorReporter }
+%"SparrowScanner[CharSource, ExternalErrorReporter]" = type { %Location, %"LocationSyncCharRange[RangeWithLookahead[CharSource]]", %Token, i1, i1, %ExternalErrorReporter, %LineCol }
 %"LocationSyncCharRange[RangeWithLookahead[CharSource]]" = type { %"RangeWithLookahead[CharSource]", %Location* }
 %"RangeWithLookahead[CharSource]" = type { %CharSource, %"Vector[Char/rtct]" }
 %"Vector[Char/rtct]" = type { %"RawPtr[Char/rtct]", %"RawPtr[Char/rtct]", %"RawPtr[Char/rtct]" }
@@ -32,6 +32,8 @@ target datalayout = "e-i64:64-f80:128-n8:16:32:64"
 %StringOutputStream = type { %String }
 %"ContiguousMemoryRange[Char/rtct]" = type { %"RawPtr[Char/rtct]", %"RawPtr[Char/rtct]" }
 %"$lambdaEnclosure" = type {}
+%"$lambdaEnclosure.0" = type {}
+%"$lambdaEnclosure.1" = type {}
 %"FunctionPtr[Bool/rtct, Char/rtct]" = type { i8* }
 %"FunctionPtr[Bool, Char]" = type { i8* }
 %Node = type { %UntypedPtr }
@@ -5006,6 +5008,9 @@ code:                                             ; preds = %0
   %9 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %"$this.addr"
   %10 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %9, i32 0, i32 4
   store i1 false, i1* %10
+  %11 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %"$this.addr"
+  %12 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %11, i32 0, i32 6
+  call void @ctor121(%LineCol* %12)
   ret void
 }
 
@@ -6334,27 +6339,38 @@ define internal void @ctor160(%"SparrowScanner[CharSource, ExternalErrorReporter
 
 code:                                             ; preds = %0
   %1 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %"$this.addr"
-  %2 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %1, i32 0, i32 0
-  %3 = load %Location** %iniLocation.addr
-  call void @ctor161(%Location* %2, %Location* %3)
-  %4 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %"$this.addr"
-  %5 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %4, i32 0, i32 1
-  %6 = load %CharSource* %source.addr
-  call void @ctor170(%"RangeWithLookahead[CharSource]"* %tmp.v, %CharSource %6)
-  %7 = load %"RangeWithLookahead[CharSource]"* %tmp.v
-  %8 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %"$this.addr"
-  %9 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %8, i32 0, i32 0
-  call void @ctor164(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %5, %"RangeWithLookahead[CharSource]" %7, %Location* %9)
-  call void @dtor178(%"RangeWithLookahead[CharSource]"* %tmp.v)
+  %2 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %1, i32 0, i32 6
+  call void @ctor121(%LineCol* %2)
+  %3 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %"$this.addr"
+  %4 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %3, i32 0, i32 0
+  %5 = load %Location** %iniLocation.addr
+  call void @ctor161(%Location* %4, %Location* %5)
+  %6 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %"$this.addr"
+  %7 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %6, i32 0, i32 1
+  %8 = load %CharSource* %source.addr
+  call void @ctor170(%"RangeWithLookahead[CharSource]"* %tmp.v, %CharSource %8)
+  %9 = load %"RangeWithLookahead[CharSource]"* %tmp.v
   %10 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %"$this.addr"
-  %11 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %10, i32 0, i32 2
-  call void @ctor126(%Token* %11)
+  %11 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %10, i32 0, i32 0
+  call void @ctor164(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %7, %"RangeWithLookahead[CharSource]" %9, %Location* %11)
+  call void @dtor178(%"RangeWithLookahead[CharSource]"* %tmp.v)
   %12 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %"$this.addr"
-  %13 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %12, i32 0, i32 3
-  store i1 false, i1* %13
+  %13 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %12, i32 0, i32 2
+  call void @ctor126(%Token* %13)
   %14 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %"$this.addr"
-  %15 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %14, i32 0, i32 4
+  %15 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %14, i32 0, i32 3
   store i1 false, i1* %15
+  %16 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %"$this.addr"
+  %17 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %16, i32 0, i32 4
+  store i1 false, i1* %17
+  %18 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %"$this.addr"
+  %19 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %18, i32 0, i32 6
+  %20 = getelementptr inbounds %LineCol* %19, i32 0, i32 0
+  store i32 1, i32* %20
+  %21 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %"$this.addr"
+  %22 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %21, i32 0, i32 6
+  %23 = getelementptr inbounds %LineCol* %22, i32 0, i32 1
+  store i32 1, i32* %23
   ret void
 }
 
@@ -7074,7 +7090,7 @@ if_then:                                          ; preds = %if_block
   %15 = getelementptr inbounds %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %14, i32 0, i32 0
   call void @"post_++214"(%Token* %"$tmpC", %"SparrowScanner[CharSource, ExternalErrorReporter]"* %15)
   call void @"+=207"(%"Vector[Token]"* %13, %Token* %"$tmpC")
-  call void @dtor282(%Token* %"$tmpC")
+  call void @dtor292(%Token* %"$tmpC")
   br label %if_end
 
 if_end:                                           ; preds = %if_then, %if_block
@@ -7117,6 +7133,11 @@ code:                                             ; preds = %0
   %21 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %"$this.addr"
   %22 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %21, i32 0, i32 4
   store i1 %20, i1* %22
+  %23 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %"$this.addr"
+  %24 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %23, i32 0, i32 6
+  %25 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %other.addr
+  %26 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %25, i32 0, i32 6
+  call void @"=185"(%LineCol* %24, %LineCol* %26)
   ret void
 }
 
@@ -7940,11 +7961,11 @@ code:                                             ; preds = %0
   call void @popFront216(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %2)
   %3 = load %Token** %_result.addr
   call void @ctor210(%Token* %3, %Token* %res)
-  call void @dtor282(%Token* %res)
+  call void @dtor292(%Token* %res)
   ret void
 
 dumy_block:                                       ; No predecessors!
-  call void @dtor282(%Token* %res)
+  call void @dtor292(%Token* %res)
   ret void
 }
 
@@ -8155,18 +8176,25 @@ define void @nextToken(%TokenType* sret %_result, %"SparrowScanner[CharSource, E
   %loc = alloca %Location*
   %ch = alloca i8
   %ch2 = alloca i8
-  %funptr = alloca i1 (i8)*
   %tmp.v = alloca %"$lambdaEnclosure"
+  %ch14 = alloca i8
+  %ch215 = alloca i8
+  %funptr = alloca i1 (i8)*
+  %"$tmpC" = alloca %String
+  %const.bytes = alloca [30 x i8]
+  %const.struct = alloca %StringRef
+  %tmp.v23 = alloca %"$lambdaEnclosure.0"
+  %tmp.v36 = alloca %"$lambdaEnclosure.1"
   %c1 = alloca i8
   %c2 = alloca i8
   %"$tmpForRef" = alloca %String
-  %tmp.v34 = alloca %String
-  %"$tmpC" = alloca %String
-  %const.bytes = alloca [27 x i8]
-  %const.struct = alloca %StringRef
-  %const.bytes140 = alloca [4 x i8]
-  %const.struct141 = alloca %StringRef
-  %tmp.v142 = alloca i32
+  %tmp.v63 = alloca %String
+  %"$tmpC177" = alloca %String
+  %const.bytes178 = alloca [27 x i8]
+  %const.struct179 = alloca %StringRef
+  %const.bytes180 = alloca [4 x i8]
+  %const.struct181 = alloca %StringRef
+  %tmp.v182 = alloca i32
   br label %code
 
 code:                                             ; preds = %0
@@ -8175,780 +8203,916 @@ code:                                             ; preds = %0
   %3 = getelementptr inbounds %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %2, i32 0, i32 1
   %4 = load %Location** %3
   store %Location* %4, %Location** %loc
-  br label %while_block
-
-while_block:                                      ; preds = %while_step, %code
-  br i1 true, label %while_body, label %while_end
-
-while_body:                                       ; preds = %while_block
-  %5 = load %Location** %loc
-  call void @stepOver(%Location* %5)
-  %6 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %7 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %6, i32 0, i32 2
-  %8 = getelementptr inbounds %Token* %7, i32 0, i32 2
-  call void @clear(%String* %8)
   br label %if_block
 
-while_step:                                       ; preds = %dumy_block143, %if_end33, %if_end10, %if_then2
-  br label %while_block
+if_block:                                         ; preds = %code
+  %5 = load %Location** %loc
+  %6 = getelementptr inbounds %Location* %5, i32 0, i32 1
+  %7 = getelementptr inbounds %LineCol* %6, i32 0, i32 0
+  %8 = load i32* %7
+  %9 = call i1 @"==223"(i32 %8, i32 1)
+  br i1 %9, label %cond.true, label %cond.false
 
-while_end:                                        ; preds = %while_block
-  ret void
-
-if_block:                                         ; preds = %while_body
-  %9 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %10 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %9, i32 0, i32 1
-  %11 = call i1 @isEmpty217(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %10)
-  br i1 %11, label %if_then, label %if_end
-
-if_then:                                          ; preds = %if_block
-  %12 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %12, i32 0)
-  ret void
-
-if_end:                                           ; preds = %dumy_block, %if_block
+if_then:                                          ; preds = %cond.end
+  %10 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %11 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %10, i32 0, i32 1
+  %12 = call i8 @"pre_*"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %11)
+  store i8 %12, i8* %ch
   %13 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %14 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %13, i32 0, i32 1
-  %15 = call i8 @"pre_*"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %14)
-  store i8 %15, i8* %ch
-  %16 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %17 = call i8 @peekChar(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %16)
-  store i8 %17, i8* %ch2
+  %14 = call i8 @peekChar(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %13)
+  store i8 %14, i8* %ch2
   br label %if_block1
 
-dumy_block:                                       ; No predecessors!
-  br label %if_end
+if_end:                                           ; preds = %if_end3, %cond.end
+  br label %while_block
 
-if_block1:                                        ; preds = %if_end
-  %18 = load i8* %ch
-  %19 = call i1 @isSpace(i8 %18)
-  br i1 %19, label %if_then2, label %if_end3
-
-if_then2:                                         ; preds = %if_block1
-  %20 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %21 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %20, i32 0, i32 1
-  store i1 (i8)* @isSpace, i1 (i8)** %funptr
-  %22 = bitcast i1 (i8)** %funptr to %"FunctionPtr[Bool/rtct, Char/rtct]"*
-  %23 = load %"FunctionPtr[Bool/rtct, Char/rtct]"* %22
-  call void @advanceIf(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %21, %"FunctionPtr[Bool/rtct, Char/rtct]" %23)
-  br label %while_step
-
-if_end3:                                          ; preds = %dumy_block4, %if_block1
-  br label %if_block5
-
-dumy_block4:                                      ; No predecessors!
-  br label %if_end3
-
-if_block5:                                        ; preds = %if_end3
-  %24 = load i8* %ch
-  %25 = icmp eq i8 %24, 47
-  br i1 %25, label %cond.true, label %cond.false
-
-if_then6:                                         ; preds = %cond.end
-  %26 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %27 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %26, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %27)
-  %28 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %29 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %28, i32 0, i32 1
-  %30 = load %"$lambdaEnclosure"* %tmp.v
-  call void @advanceIf241(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %29, %"$lambdaEnclosure" %30)
-  br label %if_block8
-
-if_end7:                                          ; preds = %dumy_block11, %cond.end
-  br label %if_block12
-
-cond.true:                                        ; preds = %if_block5
-  %31 = load i8* %ch2
-  %32 = icmp eq i8 %31, 47
+cond.true:                                        ; preds = %if_block
+  %15 = load %Location** %loc
+  %16 = getelementptr inbounds %Location* %15, i32 0, i32 1
+  %17 = getelementptr inbounds %LineCol* %16, i32 0, i32 1
+  %18 = load i32* %17
+  %19 = call i1 @"==223"(i32 %18, i32 1)
   br label %cond.end
 
-cond.false:                                       ; preds = %if_block5
+cond.false:                                       ; preds = %if_block
   br label %cond.end
 
 cond.end:                                         ; preds = %cond.false, %cond.true
-  %cond.res = phi i1 [ %32, %cond.true ], [ false, %cond.false ]
-  br i1 %cond.res, label %if_then6, label %if_end7
+  %cond.res = phi i1 [ %19, %cond.true ], [ false, %cond.false ]
+  br i1 %cond.res, label %if_then, label %if_end
 
-if_block8:                                        ; preds = %if_then6
-  %33 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %34 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %33, i32 0, i32 1
-  %35 = call i1 @"pre_!!244"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %34)
-  br i1 %35, label %if_then9, label %if_end10
+if_block1:                                        ; preds = %if_then
+  %20 = load i8* %ch
+  %21 = icmp eq i8 %20, 35
+  br i1 %21, label %cond.true4, label %cond.false5
+
+if_then2:                                         ; preds = %cond.end6
+  %22 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %23 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %22, i32 0, i32 1
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %23)
+  %24 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %25 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %24, i32 0, i32 1
+  %26 = load %"$lambdaEnclosure"* %tmp.v
+  call void @advanceIf(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %25, %"$lambdaEnclosure" %26)
+  br label %if_block8
+
+if_end3:                                          ; preds = %if_end10, %cond.end6
+  br label %if_end
+
+cond.true4:                                       ; preds = %if_block1
+  %27 = load i8* %ch2
+  %28 = icmp eq i8 %27, 33
+  br label %cond.end6
+
+cond.false5:                                      ; preds = %if_block1
+  br label %cond.end6
+
+cond.end6:                                        ; preds = %cond.false5, %cond.true4
+  %cond.res7 = phi i1 [ %28, %cond.true4 ], [ false, %cond.false5 ]
+  br i1 %cond.res7, label %if_then2, label %if_end3
+
+if_block8:                                        ; preds = %if_then2
+  %29 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %30 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %29, i32 0, i32 1
+  %31 = call i1 @"pre_!!244"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %30)
+  br i1 %31, label %if_then9, label %if_end10
 
 if_then9:                                         ; preds = %if_block8
-  %36 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %37 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %36, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %37)
+  %32 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %33 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %32, i32 0, i32 1
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %33)
   br label %if_end10
 
 if_end10:                                         ; preds = %if_then9, %if_block8
-  br label %while_step
+  br label %if_end3
 
-dumy_block11:                                     ; No predecessors!
-  br label %if_end7
-
-if_block12:                                       ; preds = %if_end7
-  %38 = load i8* %ch
-  %39 = icmp eq i8 %38, 47
-  br i1 %39, label %cond.true15, label %cond.false16
-
-if_then13:                                        ; preds = %cond.end17
-  %40 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %41 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %40, i32 0, i32 1
-  call void @advance245(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %41, i64 2)
-  store i8 97, i8* %c1
-  store i8 97, i8* %c2
-  br label %while_block19
-
-if_end14:                                         ; preds = %dumy_block36, %cond.end17
-  br label %if_block37
-
-cond.true15:                                      ; preds = %if_block12
-  %42 = load i8* %ch2
-  %43 = icmp eq i8 %42, 42
-  br label %cond.end17
-
-cond.false16:                                     ; preds = %if_block12
-  br label %cond.end17
-
-cond.end17:                                       ; preds = %cond.false16, %cond.true15
-  %cond.res18 = phi i1 [ %43, %cond.true15 ], [ false, %cond.false16 ]
-  br i1 %cond.res18, label %if_then13, label %if_end14
-
-while_block19:                                    ; preds = %while_step21, %if_then13
-  %44 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %45 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %44, i32 0, i32 1
-  %46 = call i1 @"pre_!!244"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %45)
-  br i1 %46, label %cond.true23, label %cond.false24
-
-while_body20:                                     ; preds = %cond.end25
-  %47 = load i8* %c2
-  store i8 %47, i8* %c1
-  %48 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %49 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %48, i32 0, i32 1
-  %50 = call i8 @"pre_++246"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %49)
-  store i8 %50, i8* %c2
-  br label %while_step21
-
-while_step21:                                     ; preds = %while_body20
-  br label %while_block19
-
-while_end22:                                      ; preds = %cond.end25
-  br label %if_block31
-
-cond.true23:                                      ; preds = %while_block19
-  %51 = load i8* %c1
-  %52 = icmp ne i8 %51, 42
-  br i1 %52, label %cond.true26, label %cond.false27
-
-cond.false24:                                     ; preds = %while_block19
-  br label %cond.end25
-
-cond.end25:                                       ; preds = %cond.false24, %cond.end28
-  %cond.res30 = phi i1 [ %cond.res29, %cond.end28 ], [ false, %cond.false24 ]
-  br i1 %cond.res30, label %while_body20, label %while_end22
-
-cond.true26:                                      ; preds = %cond.true23
-  br label %cond.end28
-
-cond.false27:                                     ; preds = %cond.true23
-  %53 = load i8* %c2
-  %54 = icmp ne i8 %53, 47
-  br label %cond.end28
-
-cond.end28:                                       ; preds = %cond.false27, %cond.true26
-  %cond.res29 = phi i1 [ true, %cond.true26 ], [ %54, %cond.false27 ]
-  br label %cond.end25
-
-if_block31:                                       ; preds = %while_end22
-  %55 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %56 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %55, i32 0, i32 1
-  %57 = call i1 @"pre_!"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %56)
-  br i1 %57, label %if_then32, label %if_end33
-
-if_then32:                                        ; preds = %if_block31
-  %58 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  call void @ctorFromCt(%String* %tmp.v34)
-  %59 = load %String* %tmp.v34
-  store %String %59, %String* %"$tmpForRef"
-  call void @reportError247(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %58, %String* %"$tmpForRef")
-  call void @dtor159(%String* %tmp.v34)
-  %60 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %60, i32 0)
-  ret void
-
-if_end33:                                         ; preds = %dumy_block35, %if_block31
-  %61 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %62 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %61, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %62)
-  br label %while_step
-
-dumy_block35:                                     ; No predecessors!
-  br label %if_end33
-
-dumy_block36:                                     ; No predecessors!
-  br label %if_end14
-
-if_block37:                                       ; preds = %if_end14
-  %63 = load i8* %ch
-  %64 = icmp eq i8 %63, 39
-  br i1 %64, label %if_then38, label %if_end39
-
-if_then38:                                        ; preds = %if_block37
-  %65 = load %TokenType** %_result.addr
-  %66 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  call void @parseCharacter(%TokenType* %65, %"SparrowScanner[CharSource, ExternalErrorReporter]"* %66)
-  ret void
-
-if_end39:                                         ; preds = %dumy_block40, %if_block37
-  br label %if_block41
-
-dumy_block40:                                     ; No predecessors!
-  br label %if_end39
-
-if_block41:                                       ; preds = %if_end39
-  %67 = load i8* %ch
-  %68 = icmp eq i8 %67, 34
-  br i1 %68, label %if_then42, label %if_end43
-
-if_then42:                                        ; preds = %if_block41
-  %69 = load %TokenType** %_result.addr
-  %70 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  call void @parseString(%TokenType* %69, %"SparrowScanner[CharSource, ExternalErrorReporter]"* %70)
-  ret void
-
-if_end43:                                         ; preds = %dumy_block44, %if_block41
-  br label %if_block45
-
-dumy_block44:                                     ; No predecessors!
-  br label %if_end43
-
-if_block45:                                       ; preds = %if_end43
-  %71 = load i8* %ch
-  %72 = icmp eq i8 %71, 60
-  br i1 %72, label %cond.true48, label %cond.false49
-
-if_then46:                                        ; preds = %cond.end50
-  %73 = load %TokenType** %_result.addr
-  %74 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  call void @parseStringNE(%TokenType* %73, %"SparrowScanner[CharSource, ExternalErrorReporter]"* %74)
-  ret void
-
-if_end47:                                         ; preds = %dumy_block52, %cond.end50
-  br label %if_block53
-
-cond.true48:                                      ; preds = %if_block45
-  %75 = load i8* %ch2
-  %76 = icmp eq i8 %75, 123
-  br label %cond.end50
-
-cond.false49:                                     ; preds = %if_block45
-  br label %cond.end50
-
-cond.end50:                                       ; preds = %cond.false49, %cond.true48
-  %cond.res51 = phi i1 [ %76, %cond.true48 ], [ false, %cond.false49 ]
-  br i1 %cond.res51, label %if_then46, label %if_end47
-
-dumy_block52:                                     ; No predecessors!
-  br label %if_end47
-
-if_block53:                                       ; preds = %if_end47
-  %77 = load i8* %ch
-  %78 = icmp eq i8 %77, 123
-  br i1 %78, label %if_then54, label %if_end55
-
-if_then54:                                        ; preds = %if_block53
-  %79 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %80 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %79, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %80)
-  %81 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %81, i32 28)
-  ret void
-
-if_end55:                                         ; preds = %dumy_block56, %if_block53
-  br label %if_block57
-
-dumy_block56:                                     ; No predecessors!
-  br label %if_end55
-
-if_block57:                                       ; preds = %if_end55
-  %82 = load i8* %ch
-  %83 = icmp eq i8 %82, 123
-  br i1 %83, label %if_then58, label %if_end59
-
-if_then58:                                        ; preds = %if_block57
-  %84 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %85 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %84, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %85)
-  %86 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %86, i32 28)
-  ret void
-
-if_end59:                                         ; preds = %dumy_block60, %if_block57
-  br label %if_block61
-
-dumy_block60:                                     ; No predecessors!
-  br label %if_end59
-
-if_block61:                                       ; preds = %if_end59
-  %87 = load i8* %ch
-  %88 = icmp eq i8 %87, 125
-  br i1 %88, label %if_then62, label %if_end63
-
-if_then62:                                        ; preds = %if_block61
-  %89 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %90 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %89, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %90)
-  %91 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %91, i32 29)
-  ret void
-
-if_end63:                                         ; preds = %dumy_block64, %if_block61
-  br label %if_block65
-
-dumy_block64:                                     ; No predecessors!
-  br label %if_end63
-
-if_block65:                                       ; preds = %if_end63
-  %92 = load i8* %ch
-  %93 = icmp eq i8 %92, 91
-  br i1 %93, label %if_then66, label %if_end67
-
-if_then66:                                        ; preds = %if_block65
-  %94 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %95 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %94, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %95)
-  %96 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %96, i32 30)
-  ret void
-
-if_end67:                                         ; preds = %dumy_block68, %if_block65
-  br label %if_block69
-
-dumy_block68:                                     ; No predecessors!
-  br label %if_end67
-
-if_block69:                                       ; preds = %if_end67
-  %97 = load i8* %ch
-  %98 = icmp eq i8 %97, 93
-  br i1 %98, label %if_then70, label %if_end71
-
-if_then70:                                        ; preds = %if_block69
-  %99 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %100 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %99, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %100)
-  %101 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %101, i32 31)
-  ret void
-
-if_end71:                                         ; preds = %dumy_block72, %if_block69
-  br label %if_block73
-
-dumy_block72:                                     ; No predecessors!
-  br label %if_end71
-
-if_block73:                                       ; preds = %if_end71
-  %102 = load i8* %ch
-  %103 = icmp eq i8 %102, 40
-  br i1 %103, label %if_then74, label %if_end75
-
-if_then74:                                        ; preds = %if_block73
-  %104 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %105 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %104, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %105)
-  %106 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %106, i32 32)
-  ret void
-
-if_end75:                                         ; preds = %dumy_block76, %if_block73
-  br label %if_block77
-
-dumy_block76:                                     ; No predecessors!
-  br label %if_end75
-
-if_block77:                                       ; preds = %if_end75
-  %107 = load i8* %ch
-  %108 = icmp eq i8 %107, 41
-  br i1 %108, label %if_then78, label %if_end79
-
-if_then78:                                        ; preds = %if_block77
-  %109 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %110 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %109, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %110)
-  %111 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %111, i32 33)
-  ret void
-
-if_end79:                                         ; preds = %dumy_block80, %if_block77
-  br label %if_block81
-
-dumy_block80:                                     ; No predecessors!
-  br label %if_end79
-
-if_block81:                                       ; preds = %if_end79
-  %112 = load i8* %ch
-  %113 = icmp eq i8 %112, 59
-  br i1 %113, label %if_then82, label %if_end83
-
-if_then82:                                        ; preds = %if_block81
-  %114 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %115 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %114, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %115)
-  %116 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %116, i32 35)
-  ret void
-
-if_end83:                                         ; preds = %dumy_block84, %if_block81
-  br label %if_block85
-
-dumy_block84:                                     ; No predecessors!
-  br label %if_end83
-
-if_block85:                                       ; preds = %if_end83
-  %117 = load i8* %ch
-  %118 = icmp eq i8 %117, 44
-  br i1 %118, label %if_then86, label %if_end87
-
-if_then86:                                        ; preds = %if_block85
-  %119 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %120 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %119, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %120)
-  %121 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %121, i32 36)
-  ret void
-
-if_end87:                                         ; preds = %dumy_block88, %if_block85
-  br label %if_block89
-
-dumy_block88:                                     ; No predecessors!
-  br label %if_end87
-
-if_block89:                                       ; preds = %if_end87
-  %122 = load i8* %ch
-  %123 = icmp eq i8 %122, 96
-  br i1 %123, label %if_then90, label %if_end91
-
-if_then90:                                        ; preds = %if_block89
-  %124 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %125 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %124, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %125)
-  %126 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %126, i32 38)
-  ret void
-
-if_end91:                                         ; preds = %dumy_block92, %if_block89
-  br label %if_block93
-
-dumy_block92:                                     ; No predecessors!
-  br label %if_end91
-
-if_block93:                                       ; preds = %if_end91
-  %127 = load i8* %ch
-  %128 = icmp eq i8 %127, 58
-  br i1 %128, label %cond.true96, label %cond.false97
-
-if_then94:                                        ; preds = %cond.end98
-  %129 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %130 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %129, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %130)
-  %131 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %131, i32 34)
-  ret void
-
-if_end95:                                         ; preds = %dumy_block100, %cond.end98
-  br label %if_block101
-
-cond.true96:                                      ; preds = %if_block93
-  %132 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %133 = call i8 @peekChar(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %132)
-  %134 = call i1 @isOpChar(i8 %133)
-  %135 = xor i1 true, %134
-  br label %cond.end98
-
-cond.false97:                                     ; preds = %if_block93
-  br label %cond.end98
-
-cond.end98:                                       ; preds = %cond.false97, %cond.true96
-  %cond.res99 = phi i1 [ %135, %cond.true96 ], [ false, %cond.false97 ]
-  br i1 %cond.res99, label %if_then94, label %if_end95
-
-dumy_block100:                                    ; No predecessors!
-  br label %if_end95
-
-if_block101:                                      ; preds = %if_end95
-  %136 = load i8* %ch
-  %137 = icmp eq i8 %136, 61
-  br i1 %137, label %cond.true104, label %cond.false105
-
-if_then102:                                       ; preds = %cond.end106
-  %138 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %139 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %138, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %139)
-  %140 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %140, i32 39)
-  ret void
-
-if_end103:                                        ; preds = %dumy_block108, %cond.end106
-  br label %if_block109
-
-cond.true104:                                     ; preds = %if_block101
-  %141 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %142 = call i8 @peekChar(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %141)
-  %143 = call i1 @isOpChar(i8 %142)
-  %144 = xor i1 true, %143
-  br label %cond.end106
-
-cond.false105:                                    ; preds = %if_block101
-  br label %cond.end106
-
-cond.end106:                                      ; preds = %cond.false105, %cond.true104
-  %cond.res107 = phi i1 [ %144, %cond.true104 ], [ false, %cond.false105 ]
-  br i1 %cond.res107, label %if_then102, label %if_end103
-
-dumy_block108:                                    ; No predecessors!
-  br label %if_end103
-
-if_block109:                                      ; preds = %if_end103
-  %145 = load i8* %ch
-  %146 = call i1 @isOpCharDot(i8 %145)
-  br i1 %146, label %if_then110, label %if_end111
-
-if_then110:                                       ; preds = %if_block109
-  br label %if_block112
-
-if_end111:                                        ; preds = %if_end114, %if_block109
-  br label %if_block116
-
-if_block112:                                      ; preds = %if_then110
-  %147 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %148 = call i1 @parseOperator(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %147)
-  br i1 %148, label %if_then113, label %if_end114
-
-if_then113:                                       ; preds = %if_block112
-  %149 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %149, i32 41)
-  ret void
-
-if_end114:                                        ; preds = %dumy_block115, %if_block112
-  br label %if_end111
-
-dumy_block115:                                    ; No predecessors!
-  br label %if_end114
-
-if_block116:                                      ; preds = %if_end111
-  %150 = load i8* %ch
-  %151 = icmp eq i8 %150, 46
-  br i1 %151, label %cond.true119, label %cond.false120
-
-if_then117:                                       ; preds = %cond.end121
-  %152 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %153 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %152, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %153)
-  %154 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %154, i32 37)
-  ret void
-
-if_end118:                                        ; preds = %dumy_block123, %cond.end121
-  br label %if_block124
-
-cond.true119:                                     ; preds = %if_block116
-  %155 = load i8* %ch2
-  %156 = call i1 @isDigit(i8 %155)
-  %157 = xor i1 true, %156
-  br label %cond.end121
-
-cond.false120:                                    ; preds = %if_block116
-  br label %cond.end121
-
-cond.end121:                                      ; preds = %cond.false120, %cond.true119
-  %cond.res122 = phi i1 [ %157, %cond.true119 ], [ false, %cond.false120 ]
-  br i1 %cond.res122, label %if_then117, label %if_end118
-
-dumy_block123:                                    ; No predecessors!
-  br label %if_end118
-
-if_block124:                                      ; preds = %if_end118
-  %158 = load i8* %ch
-  %159 = call i1 @isAlpha(i8 %158)
-  br i1 %159, label %cond.true127, label %cond.false128
-
-if_then125:                                       ; preds = %cond.end129
-  %160 = load %TokenType** %_result.addr
-  %161 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  call void @parseIdentifer(%TokenType* %160, %"SparrowScanner[CharSource, ExternalErrorReporter]"* %161)
-  ret void
-
-if_end126:                                        ; preds = %dumy_block131, %cond.end129
-  br label %if_block132
-
-cond.true127:                                     ; preds = %if_block124
-  br label %cond.end129
-
-cond.false128:                                    ; preds = %if_block124
-  %162 = load i8* %ch
-  %163 = icmp eq i8 %162, 95
-  br label %cond.end129
-
-cond.end129:                                      ; preds = %cond.false128, %cond.true127
-  %cond.res130 = phi i1 [ true, %cond.true127 ], [ %163, %cond.false128 ]
-  br i1 %cond.res130, label %if_then125, label %if_end126
-
-dumy_block131:                                    ; No predecessors!
-  br label %if_end126
-
-if_block132:                                      ; preds = %if_end126
-  %164 = load i8* %ch
-  %165 = call i1 @isDigit(i8 %164)
-  br i1 %165, label %cond.true135, label %cond.false136
-
-if_then133:                                       ; preds = %cond.end137
-  %166 = load %TokenType** %_result.addr
-  %167 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  call void @parseNumeric(%TokenType* %166, %"SparrowScanner[CharSource, ExternalErrorReporter]"* %167)
-  ret void
-
-if_end134:                                        ; preds = %dumy_block139, %cond.end137
-  %168 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  store [27 x i8] c"Invalid character found: '\00", [27 x i8]* %const.bytes
-  %169 = getelementptr inbounds [27 x i8]* %const.bytes, i32 0, i32 0
-  %170 = getelementptr inbounds [27 x i8]* %const.bytes, i32 0, i32 26
-  %171 = getelementptr inbounds %StringRef* %const.struct, i32 0, i32 0
-  %172 = getelementptr inbounds %StringRef* %const.struct, i32 0, i32 1
-  store i8* %169, i8** %171
-  store i8* %170, i8** %172
-  %173 = load %StringRef* %const.struct
-  %174 = load i8* %ch
-  store [4 x i8] c"' (\00", [4 x i8]* %const.bytes140
-  %175 = getelementptr inbounds [4 x i8]* %const.bytes140, i32 0, i32 0
-  %176 = getelementptr inbounds [4 x i8]* %const.bytes140, i32 0, i32 3
-  %177 = getelementptr inbounds %StringRef* %const.struct141, i32 0, i32 0
-  %178 = getelementptr inbounds %StringRef* %const.struct141, i32 0, i32 1
-  store i8* %175, i8** %177
-  store i8* %176, i8** %178
-  %179 = load %StringRef* %const.struct141
-  %180 = load i8* %ch
-  call void @_ass_32_8z(i32* %tmp.v142, i8 %180)
-  %181 = load i32* %tmp.v142
-  call void @toString273(%String* %"$tmpC", %StringRef %173, i8 %174, %StringRef %179, i32 %181, i8 41)
-  call void @reportError247(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %168, %String* %"$tmpC")
-  call void @dtor159(%String* %"$tmpC")
-  %182 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %183 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %182, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %183)
-  %184 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %184, i32 0)
-  ret void
-
-cond.true135:                                     ; preds = %if_block132
-  br label %cond.end137
-
-cond.false136:                                    ; preds = %if_block132
-  %185 = load i8* %ch
-  %186 = icmp eq i8 %185, 46
-  br label %cond.end137
-
-cond.end137:                                      ; preds = %cond.false136, %cond.true135
-  %cond.res138 = phi i1 [ true, %cond.true135 ], [ %186, %cond.false136 ]
-  br i1 %cond.res138, label %if_then133, label %if_end134
-
-dumy_block139:                                    ; No predecessors!
-  br label %if_end134
-
-dumy_block143:                                    ; No predecessors!
-  br label %while_step
-}
-
-; Function Attrs: inlinehint nounwind
-define internal void @stepOver(%Location* %l) #3 {
-  %l.addr = alloca %Location*
-  store %Location* %l, %Location** %l.addr
-  br label %code
-
-code:                                             ; preds = %0
-  %1 = load %Location** %l.addr
-  %2 = getelementptr inbounds %Location* %1, i32 0, i32 1
-  %3 = load %Location** %l.addr
-  %4 = getelementptr inbounds %Location* %3, i32 0, i32 2
-  call void @"=185"(%LineCol* %2, %LineCol* %4)
-  ret void
-}
-
-; Function Attrs: inlinehint nounwind
-define internal void @clear(%String* %"$this") #3 {
-  %"$this.addr" = alloca %String*
-  store %String* %"$this", %String** %"$this.addr"
-  %tmp.v = alloca %"ContiguousMemoryRange[Char/rtct]"
-  br label %code
-
-code:                                             ; preds = %0
-  %1 = load %String** %"$this.addr"
-  %2 = load %String** %"$this.addr"
-  %3 = getelementptr inbounds %String* %2, i32 0, i32 0
-  %4 = load %"RawPtr[Char/rtct]"* %3
-  %5 = load %String** %"$this.addr"
-  %6 = getelementptr inbounds %String* %5, i32 0, i32 1
-  %7 = load %"RawPtr[Char/rtct]"* %6
-  call void @ctor155(%"ContiguousMemoryRange[Char/rtct]"* %tmp.v, %"RawPtr[Char/rtct]" %4, %"RawPtr[Char/rtct]" %7)
-  %8 = load %"ContiguousMemoryRange[Char/rtct]"* %tmp.v
-  call void @remove(%String* %1, %"ContiguousMemoryRange[Char/rtct]" %8)
-  ret void
-}
-
-; Function Attrs: inlinehint nounwind
-define internal void @remove(%String* %"$this", %"ContiguousMemoryRange[Char/rtct]" %range) #3 {
-  %"$this.addr" = alloca %String*
-  store %String* %"$this", %String** %"$this.addr"
-  %range.addr = alloca %"ContiguousMemoryRange[Char/rtct]"
-  store %"ContiguousMemoryRange[Char/rtct]" %range, %"ContiguousMemoryRange[Char/rtct]"* %range.addr
-  %rSize = alloca i64
-  %rBegin = alloca %"RawPtr[Char/rtct]"
-  %rEnd = alloca %"RawPtr[Char/rtct]"
-  %tmp.v = alloca i64
-  %"$tmpC" = alloca %"RawPtr[Char/rtct]"
-  %"$tmpC1" = alloca %"RawPtr[Char/rtct]"
-  br label %code
-
-code:                                             ; preds = %0
-  %1 = call i64 @size136(%"ContiguousMemoryRange[Char/rtct]"* %range.addr)
-  store i64 %1, i64* %rSize
-  call void @frontPtr(%"RawPtr[Char/rtct]"* %rBegin, %"ContiguousMemoryRange[Char/rtct]"* %range.addr)
-  %2 = load i64* %rSize
-  store i64 %2, i64* %tmp.v
-  %3 = load i64* %tmp.v
-  call void @advance(%"RawPtr[Char/rtct]"* %rEnd, %"RawPtr[Char/rtct]"* %rBegin, i64 %3)
-  br label %while_block
-
-while_block:                                      ; preds = %while_step, %code
-  %4 = load %String** %"$this.addr"
-  %5 = getelementptr inbounds %String* %4, i32 0, i32 1
-  %6 = load %"RawPtr[Char/rtct]"* %5
-  %7 = call i1 @"==148"(%"RawPtr[Char/rtct]"* %rEnd, %"RawPtr[Char/rtct]" %6)
-  %8 = xor i1 true, %7
-  br i1 %8, label %while_body, label %while_end
+while_block:                                      ; preds = %while_step, %if_end
+  br i1 true, label %while_body, label %while_end
 
 while_body:                                       ; preds = %while_block
-  %9 = call i8* @value(%"RawPtr[Char/rtct]"* %rBegin)
-  %10 = call i8* @value(%"RawPtr[Char/rtct]"* %rEnd)
-  %11 = load i8* %10
-  %12 = call i8* @value(%"RawPtr[Char/rtct]"* %rBegin)
-  store i8 %11, i8* %12
-  call void @advance150(%"RawPtr[Char/rtct]"* %"$tmpC", %"RawPtr[Char/rtct]"* %rBegin)
-  %13 = load %"RawPtr[Char/rtct]"* %"$tmpC"
-  call void @"=144"(%"RawPtr[Char/rtct]"* %rBegin, %"RawPtr[Char/rtct]" %13)
-  call void @advance150(%"RawPtr[Char/rtct]"* %"$tmpC1", %"RawPtr[Char/rtct]"* %rEnd)
-  %14 = load %"RawPtr[Char/rtct]"* %"$tmpC1"
-  call void @"=144"(%"RawPtr[Char/rtct]"* %rEnd, %"RawPtr[Char/rtct]" %14)
-  br label %while_step
+  %34 = load %Location** %loc
+  call void @stepOver(%Location* %34)
+  %35 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %36 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %35, i32 0, i32 2
+  %37 = getelementptr inbounds %Token* %36, i32 0, i32 2
+  call void @clear(%String* %37)
+  br label %if_block11
 
-while_step:                                       ; preds = %while_body
+while_step:                                       ; preds = %dumy_block183, %if_then67, %if_end62, %if_end39, %if_then21, %if_then17
   br label %while_block
 
 while_end:                                        ; preds = %while_block
-  %15 = load %String** %"$this.addr"
-  %16 = getelementptr inbounds %String* %15, i32 0, i32 1
-  %17 = load %"RawPtr[Char/rtct]"* %rBegin
-  call void @"=144"(%"RawPtr[Char/rtct]"* %16, %"RawPtr[Char/rtct]" %17)
   ret void
+
+if_block11:                                       ; preds = %while_body
+  %38 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %39 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %38, i32 0, i32 1
+  %40 = call i1 @isEmpty217(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %39)
+  br i1 %40, label %if_then12, label %if_end13
+
+if_then12:                                        ; preds = %if_block11
+  %41 = load %TokenType** %_result.addr
+  call void @ctor222(%TokenType* %41, i32 0)
+  ret void
+
+if_end13:                                         ; preds = %dumy_block, %if_block11
+  %42 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %43 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %42, i32 0, i32 1
+  %44 = call i8 @"pre_*"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %43)
+  store i8 %44, i8* %ch14
+  %45 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %46 = call i8 @peekChar(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %45)
+  store i8 %46, i8* %ch215
+  br label %if_block16
+
+dumy_block:                                       ; No predecessors!
+  br label %if_end13
+
+if_block16:                                       ; preds = %if_end13
+  %47 = load i8* %ch14
+  %48 = call i1 @isSpace(i8 %47)
+  br i1 %48, label %if_then17, label %if_end18
+
+if_then17:                                        ; preds = %if_block16
+  %49 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %50 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %49, i32 0, i32 1
+  store i1 (i8)* @isSpace, i1 (i8)** %funptr
+  %51 = bitcast i1 (i8)** %funptr to %"FunctionPtr[Bool/rtct, Char/rtct]"*
+  %52 = load %"FunctionPtr[Bool/rtct, Char/rtct]"* %51
+  call void @advanceIf246(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %50, %"FunctionPtr[Bool/rtct, Char/rtct]" %52)
+  br label %while_step
+
+if_end18:                                         ; preds = %dumy_block19, %if_block16
+  br label %if_block20
+
+dumy_block19:                                     ; No predecessors!
+  br label %if_end18
+
+if_block20:                                       ; preds = %if_end18
+  %53 = load i8* %ch14
+  %54 = icmp eq i8 %53, 9
+  br i1 %54, label %if_then21, label %if_end22
+
+if_then21:                                        ; preds = %if_block20
+  %55 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  store [30 x i8] c"Tabs are not valid characters\00", [30 x i8]* %const.bytes
+  %56 = getelementptr inbounds [30 x i8]* %const.bytes, i32 0, i32 0
+  %57 = getelementptr inbounds [30 x i8]* %const.bytes, i32 0, i32 29
+  %58 = getelementptr inbounds %StringRef* %const.struct, i32 0, i32 0
+  %59 = getelementptr inbounds %StringRef* %const.struct, i32 0, i32 1
+  store i8* %56, i8** %58
+  store i8* %57, i8** %59
+  %60 = load %StringRef* %const.struct
+  call void @toString249(%String* %"$tmpC", %StringRef %60)
+  call void @reportError248(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %55, %String* %"$tmpC")
+  call void @dtor159(%String* %"$tmpC")
+  %61 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %62 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %61, i32 0, i32 1
+  %63 = load %"$lambdaEnclosure.0"* %tmp.v23
+  call void @advanceIf250(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %62, %"$lambdaEnclosure.0" %63)
+  br label %while_step
+
+if_end22:                                         ; preds = %dumy_block24, %if_block20
+  br label %if_block25
+
+dumy_block24:                                     ; No predecessors!
+  br label %if_end22
+
+if_block25:                                       ; preds = %if_end22
+  %64 = load i8* %ch14
+  %65 = icmp eq i8 %64, 10
+  br i1 %65, label %if_then26, label %if_end27
+
+if_then26:                                        ; preds = %if_block25
+  %66 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %67 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %66, i32 0, i32 1
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %67)
+  %68 = load %TokenType** %_result.addr
+  call void @ctor222(%TokenType* %68, i32 1)
+  ret void
+
+if_end27:                                         ; preds = %dumy_block28, %if_block25
+  br label %if_block29
+
+dumy_block28:                                     ; No predecessors!
+  br label %if_end27
+
+if_block29:                                       ; preds = %if_end27
+  %69 = load i8* %ch14
+  %70 = icmp eq i8 %69, 47
+  br i1 %70, label %cond.true32, label %cond.false33
+
+if_then30:                                        ; preds = %cond.end34
+  %71 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %72 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %71, i32 0, i32 1
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %72)
+  %73 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %74 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %73, i32 0, i32 1
+  %75 = load %"$lambdaEnclosure.1"* %tmp.v36
+  call void @advanceIf253(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %74, %"$lambdaEnclosure.1" %75)
+  br label %if_block37
+
+if_end31:                                         ; preds = %dumy_block40, %cond.end34
+  br label %if_block41
+
+cond.true32:                                      ; preds = %if_block29
+  %76 = load i8* %ch215
+  %77 = icmp eq i8 %76, 47
+  br label %cond.end34
+
+cond.false33:                                     ; preds = %if_block29
+  br label %cond.end34
+
+cond.end34:                                       ; preds = %cond.false33, %cond.true32
+  %cond.res35 = phi i1 [ %77, %cond.true32 ], [ false, %cond.false33 ]
+  br i1 %cond.res35, label %if_then30, label %if_end31
+
+if_block37:                                       ; preds = %if_then30
+  %78 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %79 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %78, i32 0, i32 1
+  %80 = call i1 @"pre_!!244"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %79)
+  br i1 %80, label %if_then38, label %if_end39
+
+if_then38:                                        ; preds = %if_block37
+  %81 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %82 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %81, i32 0, i32 1
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %82)
+  br label %if_end39
+
+if_end39:                                         ; preds = %if_then38, %if_block37
+  br label %while_step
+
+dumy_block40:                                     ; No predecessors!
+  br label %if_end31
+
+if_block41:                                       ; preds = %if_end31
+  %83 = load i8* %ch14
+  %84 = icmp eq i8 %83, 47
+  br i1 %84, label %cond.true44, label %cond.false45
+
+if_then42:                                        ; preds = %cond.end46
+  %85 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %86 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %85, i32 0, i32 1
+  call void @advance256(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %86, i64 2)
+  store i8 97, i8* %c1
+  store i8 97, i8* %c2
+  br label %while_block48
+
+if_end43:                                         ; preds = %dumy_block65, %cond.end46
+  br label %if_block66
+
+cond.true44:                                      ; preds = %if_block41
+  %87 = load i8* %ch215
+  %88 = icmp eq i8 %87, 42
+  br label %cond.end46
+
+cond.false45:                                     ; preds = %if_block41
+  br label %cond.end46
+
+cond.end46:                                       ; preds = %cond.false45, %cond.true44
+  %cond.res47 = phi i1 [ %88, %cond.true44 ], [ false, %cond.false45 ]
+  br i1 %cond.res47, label %if_then42, label %if_end43
+
+while_block48:                                    ; preds = %while_step50, %if_then42
+  %89 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %90 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %89, i32 0, i32 1
+  %91 = call i1 @"pre_!!244"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %90)
+  br i1 %91, label %cond.true52, label %cond.false53
+
+while_body49:                                     ; preds = %cond.end54
+  %92 = load i8* %c2
+  store i8 %92, i8* %c1
+  %93 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %94 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %93, i32 0, i32 1
+  %95 = call i8 @"pre_++257"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %94)
+  store i8 %95, i8* %c2
+  br label %while_step50
+
+while_step50:                                     ; preds = %while_body49
+  br label %while_block48
+
+while_end51:                                      ; preds = %cond.end54
+  br label %if_block60
+
+cond.true52:                                      ; preds = %while_block48
+  %96 = load i8* %c1
+  %97 = icmp ne i8 %96, 42
+  br i1 %97, label %cond.true55, label %cond.false56
+
+cond.false53:                                     ; preds = %while_block48
+  br label %cond.end54
+
+cond.end54:                                       ; preds = %cond.false53, %cond.end57
+  %cond.res59 = phi i1 [ %cond.res58, %cond.end57 ], [ false, %cond.false53 ]
+  br i1 %cond.res59, label %while_body49, label %while_end51
+
+cond.true55:                                      ; preds = %cond.true52
+  br label %cond.end57
+
+cond.false56:                                     ; preds = %cond.true52
+  %98 = load i8* %c2
+  %99 = icmp ne i8 %98, 47
+  br label %cond.end57
+
+cond.end57:                                       ; preds = %cond.false56, %cond.true55
+  %cond.res58 = phi i1 [ true, %cond.true55 ], [ %99, %cond.false56 ]
+  br label %cond.end54
+
+if_block60:                                       ; preds = %while_end51
+  %100 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %101 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %100, i32 0, i32 1
+  %102 = call i1 @"pre_!"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %101)
+  br i1 %102, label %if_then61, label %if_end62
+
+if_then61:                                        ; preds = %if_block60
+  %103 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  call void @ctorFromCt(%String* %tmp.v63)
+  %104 = load %String* %tmp.v63
+  store %String %104, %String* %"$tmpForRef"
+  call void @reportError248(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %103, %String* %"$tmpForRef")
+  call void @dtor159(%String* %tmp.v63)
+  %105 = load %TokenType** %_result.addr
+  call void @ctor222(%TokenType* %105, i32 0)
+  ret void
+
+if_end62:                                         ; preds = %dumy_block64, %if_block60
+  %106 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %107 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %106, i32 0, i32 1
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %107)
+  %108 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %109 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %108, i32 0, i32 1
+  %110 = getelementptr inbounds %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %109, i32 0, i32 1
+  %111 = load %Location** %110
+  %112 = getelementptr inbounds %Location* %111, i32 0, i32 2
+  %113 = getelementptr inbounds %LineCol* %112, i32 0, i32 0
+  %114 = load i32* %113
+  %115 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %116 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %115, i32 0, i32 6
+  %117 = getelementptr inbounds %LineCol* %116, i32 0, i32 0
+  store i32 %114, i32* %117
+  br label %while_step
+
+dumy_block64:                                     ; No predecessors!
+  br label %if_end62
+
+dumy_block65:                                     ; No predecessors!
+  br label %if_end43
+
+if_block66:                                       ; preds = %if_end43
+  %118 = load i8* %ch14
+  %119 = icmp eq i8 %118, 92
+  br i1 %119, label %cond.true69, label %cond.false70
+
+if_then67:                                        ; preds = %cond.end71
+  %120 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %121 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %120, i32 0, i32 1
+  call void @advance256(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %121, i64 2)
+  %122 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %123 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %122, i32 0, i32 1
+  %124 = getelementptr inbounds %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %123, i32 0, i32 1
+  %125 = load %Location** %124
+  %126 = getelementptr inbounds %Location* %125, i32 0, i32 2
+  %127 = getelementptr inbounds %LineCol* %126, i32 0, i32 0
+  %128 = load i32* %127
+  %129 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %130 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %129, i32 0, i32 6
+  %131 = getelementptr inbounds %LineCol* %130, i32 0, i32 0
+  store i32 %128, i32* %131
+  br label %while_step
+
+if_end68:                                         ; preds = %dumy_block73, %cond.end71
+  br label %if_block74
+
+cond.true69:                                      ; preds = %if_block66
+  %132 = load i8* %ch215
+  %133 = icmp eq i8 %132, 10
+  br label %cond.end71
+
+cond.false70:                                     ; preds = %if_block66
+  br label %cond.end71
+
+cond.end71:                                       ; preds = %cond.false70, %cond.true69
+  %cond.res72 = phi i1 [ %133, %cond.true69 ], [ false, %cond.false70 ]
+  br i1 %cond.res72, label %if_then67, label %if_end68
+
+dumy_block73:                                     ; No predecessors!
+  br label %if_end68
+
+if_block74:                                       ; preds = %if_end68
+  %134 = load i8* %ch14
+  %135 = icmp eq i8 %134, 39
+  br i1 %135, label %if_then75, label %if_end76
+
+if_then75:                                        ; preds = %if_block74
+  %136 = load %TokenType** %_result.addr
+  %137 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  call void @parseCharacter(%TokenType* %136, %"SparrowScanner[CharSource, ExternalErrorReporter]"* %137)
+  ret void
+
+if_end76:                                         ; preds = %dumy_block77, %if_block74
+  br label %if_block78
+
+dumy_block77:                                     ; No predecessors!
+  br label %if_end76
+
+if_block78:                                       ; preds = %if_end76
+  %138 = load i8* %ch14
+  %139 = icmp eq i8 %138, 34
+  br i1 %139, label %if_then79, label %if_end80
+
+if_then79:                                        ; preds = %if_block78
+  %140 = load %TokenType** %_result.addr
+  %141 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  call void @parseString(%TokenType* %140, %"SparrowScanner[CharSource, ExternalErrorReporter]"* %141)
+  ret void
+
+if_end80:                                         ; preds = %dumy_block81, %if_block78
+  br label %if_block82
+
+dumy_block81:                                     ; No predecessors!
+  br label %if_end80
+
+if_block82:                                       ; preds = %if_end80
+  %142 = load i8* %ch14
+  %143 = icmp eq i8 %142, 60
+  br i1 %143, label %cond.true85, label %cond.false86
+
+if_then83:                                        ; preds = %cond.end87
+  %144 = load %TokenType** %_result.addr
+  %145 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  call void @parseStringNE(%TokenType* %144, %"SparrowScanner[CharSource, ExternalErrorReporter]"* %145)
+  ret void
+
+if_end84:                                         ; preds = %dumy_block89, %cond.end87
+  br label %if_block90
+
+cond.true85:                                      ; preds = %if_block82
+  %146 = load i8* %ch215
+  %147 = icmp eq i8 %146, 123
+  br label %cond.end87
+
+cond.false86:                                     ; preds = %if_block82
+  br label %cond.end87
+
+cond.end87:                                       ; preds = %cond.false86, %cond.true85
+  %cond.res88 = phi i1 [ %147, %cond.true85 ], [ false, %cond.false86 ]
+  br i1 %cond.res88, label %if_then83, label %if_end84
+
+dumy_block89:                                     ; No predecessors!
+  br label %if_end84
+
+if_block90:                                       ; preds = %if_end84
+  %148 = load i8* %ch14
+  %149 = icmp eq i8 %148, 123
+  br i1 %149, label %if_then91, label %if_end92
+
+if_then91:                                        ; preds = %if_block90
+  %150 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %151 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %150, i32 0, i32 1
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %151)
+  %152 = load %TokenType** %_result.addr
+  call void @ctor222(%TokenType* %152, i32 29)
+  ret void
+
+if_end92:                                         ; preds = %dumy_block93, %if_block90
+  br label %if_block94
+
+dumy_block93:                                     ; No predecessors!
+  br label %if_end92
+
+if_block94:                                       ; preds = %if_end92
+  %153 = load i8* %ch14
+  %154 = icmp eq i8 %153, 123
+  br i1 %154, label %if_then95, label %if_end96
+
+if_then95:                                        ; preds = %if_block94
+  %155 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %156 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %155, i32 0, i32 1
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %156)
+  %157 = load %TokenType** %_result.addr
+  call void @ctor222(%TokenType* %157, i32 29)
+  ret void
+
+if_end96:                                         ; preds = %dumy_block97, %if_block94
+  br label %if_block98
+
+dumy_block97:                                     ; No predecessors!
+  br label %if_end96
+
+if_block98:                                       ; preds = %if_end96
+  %158 = load i8* %ch14
+  %159 = icmp eq i8 %158, 125
+  br i1 %159, label %if_then99, label %if_end100
+
+if_then99:                                        ; preds = %if_block98
+  %160 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %161 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %160, i32 0, i32 1
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %161)
+  %162 = load %TokenType** %_result.addr
+  call void @ctor222(%TokenType* %162, i32 30)
+  ret void
+
+if_end100:                                        ; preds = %dumy_block101, %if_block98
+  br label %if_block102
+
+dumy_block101:                                    ; No predecessors!
+  br label %if_end100
+
+if_block102:                                      ; preds = %if_end100
+  %163 = load i8* %ch14
+  %164 = icmp eq i8 %163, 91
+  br i1 %164, label %if_then103, label %if_end104
+
+if_then103:                                       ; preds = %if_block102
+  %165 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %166 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %165, i32 0, i32 1
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %166)
+  %167 = load %TokenType** %_result.addr
+  call void @ctor222(%TokenType* %167, i32 31)
+  ret void
+
+if_end104:                                        ; preds = %dumy_block105, %if_block102
+  br label %if_block106
+
+dumy_block105:                                    ; No predecessors!
+  br label %if_end104
+
+if_block106:                                      ; preds = %if_end104
+  %168 = load i8* %ch14
+  %169 = icmp eq i8 %168, 93
+  br i1 %169, label %if_then107, label %if_end108
+
+if_then107:                                       ; preds = %if_block106
+  %170 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %171 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %170, i32 0, i32 1
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %171)
+  %172 = load %TokenType** %_result.addr
+  call void @ctor222(%TokenType* %172, i32 32)
+  ret void
+
+if_end108:                                        ; preds = %dumy_block109, %if_block106
+  br label %if_block110
+
+dumy_block109:                                    ; No predecessors!
+  br label %if_end108
+
+if_block110:                                      ; preds = %if_end108
+  %173 = load i8* %ch14
+  %174 = icmp eq i8 %173, 40
+  br i1 %174, label %if_then111, label %if_end112
+
+if_then111:                                       ; preds = %if_block110
+  %175 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %176 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %175, i32 0, i32 1
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %176)
+  %177 = load %TokenType** %_result.addr
+  call void @ctor222(%TokenType* %177, i32 33)
+  ret void
+
+if_end112:                                        ; preds = %dumy_block113, %if_block110
+  br label %if_block114
+
+dumy_block113:                                    ; No predecessors!
+  br label %if_end112
+
+if_block114:                                      ; preds = %if_end112
+  %178 = load i8* %ch14
+  %179 = icmp eq i8 %178, 41
+  br i1 %179, label %if_then115, label %if_end116
+
+if_then115:                                       ; preds = %if_block114
+  %180 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %181 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %180, i32 0, i32 1
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %181)
+  %182 = load %TokenType** %_result.addr
+  call void @ctor222(%TokenType* %182, i32 34)
+  ret void
+
+if_end116:                                        ; preds = %dumy_block117, %if_block114
+  br label %if_block118
+
+dumy_block117:                                    ; No predecessors!
+  br label %if_end116
+
+if_block118:                                      ; preds = %if_end116
+  %183 = load i8* %ch14
+  %184 = icmp eq i8 %183, 59
+  br i1 %184, label %if_then119, label %if_end120
+
+if_then119:                                       ; preds = %if_block118
+  %185 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %186 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %185, i32 0, i32 1
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %186)
+  %187 = load %TokenType** %_result.addr
+  call void @ctor222(%TokenType* %187, i32 36)
+  ret void
+
+if_end120:                                        ; preds = %dumy_block121, %if_block118
+  br label %if_block122
+
+dumy_block121:                                    ; No predecessors!
+  br label %if_end120
+
+if_block122:                                      ; preds = %if_end120
+  %188 = load i8* %ch14
+  %189 = icmp eq i8 %188, 44
+  br i1 %189, label %if_then123, label %if_end124
+
+if_then123:                                       ; preds = %if_block122
+  %190 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %191 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %190, i32 0, i32 1
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %191)
+  %192 = load %TokenType** %_result.addr
+  call void @ctor222(%TokenType* %192, i32 37)
+  ret void
+
+if_end124:                                        ; preds = %dumy_block125, %if_block122
+  br label %if_block126
+
+dumy_block125:                                    ; No predecessors!
+  br label %if_end124
+
+if_block126:                                      ; preds = %if_end124
+  %193 = load i8* %ch14
+  %194 = icmp eq i8 %193, 96
+  br i1 %194, label %if_then127, label %if_end128
+
+if_then127:                                       ; preds = %if_block126
+  %195 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %196 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %195, i32 0, i32 1
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %196)
+  %197 = load %TokenType** %_result.addr
+  call void @ctor222(%TokenType* %197, i32 39)
+  ret void
+
+if_end128:                                        ; preds = %dumy_block129, %if_block126
+  br label %if_block130
+
+dumy_block129:                                    ; No predecessors!
+  br label %if_end128
+
+if_block130:                                      ; preds = %if_end128
+  %198 = load i8* %ch14
+  %199 = icmp eq i8 %198, 58
+  br i1 %199, label %cond.true133, label %cond.false134
+
+if_then131:                                       ; preds = %cond.end135
+  %200 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %201 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %200, i32 0, i32 1
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %201)
+  %202 = load %TokenType** %_result.addr
+  call void @ctor222(%TokenType* %202, i32 35)
+  ret void
+
+if_end132:                                        ; preds = %dumy_block137, %cond.end135
+  br label %if_block138
+
+cond.true133:                                     ; preds = %if_block130
+  %203 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %204 = call i8 @peekChar(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %203)
+  %205 = call i1 @isOpChar(i8 %204)
+  %206 = xor i1 true, %205
+  br label %cond.end135
+
+cond.false134:                                    ; preds = %if_block130
+  br label %cond.end135
+
+cond.end135:                                      ; preds = %cond.false134, %cond.true133
+  %cond.res136 = phi i1 [ %206, %cond.true133 ], [ false, %cond.false134 ]
+  br i1 %cond.res136, label %if_then131, label %if_end132
+
+dumy_block137:                                    ; No predecessors!
+  br label %if_end132
+
+if_block138:                                      ; preds = %if_end132
+  %207 = load i8* %ch14
+  %208 = icmp eq i8 %207, 61
+  br i1 %208, label %cond.true141, label %cond.false142
+
+if_then139:                                       ; preds = %cond.end143
+  %209 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %210 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %209, i32 0, i32 1
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %210)
+  %211 = load %TokenType** %_result.addr
+  call void @ctor222(%TokenType* %211, i32 40)
+  ret void
+
+if_end140:                                        ; preds = %dumy_block145, %cond.end143
+  br label %if_block146
+
+cond.true141:                                     ; preds = %if_block138
+  %212 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %213 = call i8 @peekChar(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %212)
+  %214 = call i1 @isOpChar(i8 %213)
+  %215 = xor i1 true, %214
+  br label %cond.end143
+
+cond.false142:                                    ; preds = %if_block138
+  br label %cond.end143
+
+cond.end143:                                      ; preds = %cond.false142, %cond.true141
+  %cond.res144 = phi i1 [ %215, %cond.true141 ], [ false, %cond.false142 ]
+  br i1 %cond.res144, label %if_then139, label %if_end140
+
+dumy_block145:                                    ; No predecessors!
+  br label %if_end140
+
+if_block146:                                      ; preds = %if_end140
+  %216 = load i8* %ch14
+  %217 = call i1 @isOpCharDot(i8 %216)
+  br i1 %217, label %if_then147, label %if_end148
+
+if_then147:                                       ; preds = %if_block146
+  br label %if_block149
+
+if_end148:                                        ; preds = %if_end151, %if_block146
+  br label %if_block153
+
+if_block149:                                      ; preds = %if_then147
+  %218 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %219 = call i1 @parseOperator(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %218)
+  br i1 %219, label %if_then150, label %if_end151
+
+if_then150:                                       ; preds = %if_block149
+  %220 = load %TokenType** %_result.addr
+  call void @ctor222(%TokenType* %220, i32 42)
+  ret void
+
+if_end151:                                        ; preds = %dumy_block152, %if_block149
+  br label %if_end148
+
+dumy_block152:                                    ; No predecessors!
+  br label %if_end151
+
+if_block153:                                      ; preds = %if_end148
+  %221 = load i8* %ch14
+  %222 = icmp eq i8 %221, 46
+  br i1 %222, label %cond.true156, label %cond.false157
+
+if_then154:                                       ; preds = %cond.end158
+  %223 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %224 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %223, i32 0, i32 1
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %224)
+  %225 = load %TokenType** %_result.addr
+  call void @ctor222(%TokenType* %225, i32 38)
+  ret void
+
+if_end155:                                        ; preds = %dumy_block160, %cond.end158
+  br label %if_block161
+
+cond.true156:                                     ; preds = %if_block153
+  %226 = load i8* %ch215
+  %227 = call i1 @isDigit(i8 %226)
+  %228 = xor i1 true, %227
+  br label %cond.end158
+
+cond.false157:                                    ; preds = %if_block153
+  br label %cond.end158
+
+cond.end158:                                      ; preds = %cond.false157, %cond.true156
+  %cond.res159 = phi i1 [ %228, %cond.true156 ], [ false, %cond.false157 ]
+  br i1 %cond.res159, label %if_then154, label %if_end155
+
+dumy_block160:                                    ; No predecessors!
+  br label %if_end155
+
+if_block161:                                      ; preds = %if_end155
+  %229 = load i8* %ch14
+  %230 = call i1 @isAlpha(i8 %229)
+  br i1 %230, label %cond.true164, label %cond.false165
+
+if_then162:                                       ; preds = %cond.end166
+  %231 = load %TokenType** %_result.addr
+  %232 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  call void @parseIdentifer(%TokenType* %231, %"SparrowScanner[CharSource, ExternalErrorReporter]"* %232)
+  ret void
+
+if_end163:                                        ; preds = %dumy_block168, %cond.end166
+  br label %if_block169
+
+cond.true164:                                     ; preds = %if_block161
+  br label %cond.end166
+
+cond.false165:                                    ; preds = %if_block161
+  %233 = load i8* %ch14
+  %234 = icmp eq i8 %233, 95
+  br label %cond.end166
+
+cond.end166:                                      ; preds = %cond.false165, %cond.true164
+  %cond.res167 = phi i1 [ true, %cond.true164 ], [ %234, %cond.false165 ]
+  br i1 %cond.res167, label %if_then162, label %if_end163
+
+dumy_block168:                                    ; No predecessors!
+  br label %if_end163
+
+if_block169:                                      ; preds = %if_end163
+  %235 = load i8* %ch14
+  %236 = call i1 @isDigit(i8 %235)
+  br i1 %236, label %cond.true172, label %cond.false173
+
+if_then170:                                       ; preds = %cond.end174
+  %237 = load %TokenType** %_result.addr
+  %238 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  call void @parseNumeric(%TokenType* %237, %"SparrowScanner[CharSource, ExternalErrorReporter]"* %238)
+  ret void
+
+if_end171:                                        ; preds = %dumy_block176, %cond.end174
+  %239 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  store [27 x i8] c"Invalid character found: '\00", [27 x i8]* %const.bytes178
+  %240 = getelementptr inbounds [27 x i8]* %const.bytes178, i32 0, i32 0
+  %241 = getelementptr inbounds [27 x i8]* %const.bytes178, i32 0, i32 26
+  %242 = getelementptr inbounds %StringRef* %const.struct179, i32 0, i32 0
+  %243 = getelementptr inbounds %StringRef* %const.struct179, i32 0, i32 1
+  store i8* %240, i8** %242
+  store i8* %241, i8** %243
+  %244 = load %StringRef* %const.struct179
+  %245 = load i8* %ch14
+  store [4 x i8] c"' (\00", [4 x i8]* %const.bytes180
+  %246 = getelementptr inbounds [4 x i8]* %const.bytes180, i32 0, i32 0
+  %247 = getelementptr inbounds [4 x i8]* %const.bytes180, i32 0, i32 3
+  %248 = getelementptr inbounds %StringRef* %const.struct181, i32 0, i32 0
+  %249 = getelementptr inbounds %StringRef* %const.struct181, i32 0, i32 1
+  store i8* %246, i8** %248
+  store i8* %247, i8** %249
+  %250 = load %StringRef* %const.struct181
+  %251 = load i8* %ch14
+  call void @_ass_32_8z(i32* %tmp.v182, i8 %251)
+  %252 = load i32* %tmp.v182
+  call void @toString283(%String* %"$tmpC177", %StringRef %244, i8 %245, %StringRef %250, i32 %252, i8 41)
+  call void @reportError248(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %239, %String* %"$tmpC177")
+  call void @dtor159(%String* %"$tmpC177")
+  %253 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %254 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %253, i32 0, i32 1
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %254)
+  %255 = load %TokenType** %_result.addr
+  call void @ctor222(%TokenType* %255, i32 0)
+  ret void
+
+cond.true172:                                     ; preds = %if_block169
+  br label %cond.end174
+
+cond.false173:                                    ; preds = %if_block169
+  %256 = load i8* %ch14
+  %257 = icmp eq i8 %256, 46
+  br label %cond.end174
+
+cond.end174:                                      ; preds = %cond.false173, %cond.true172
+  %cond.res175 = phi i1 [ true, %cond.true172 ], [ %257, %cond.false173 ]
+  br i1 %cond.res175, label %if_then170, label %if_end171
+
+dumy_block176:                                    ; No predecessors!
+  br label %if_end171
+
+dumy_block183:                                    ; No predecessors!
+  br label %while_step
+}
+
+; Function Attrs: alwaysinline nounwind
+define internal i1 @"==223"(i32 %x, i32 %y) #2 {
+  %x.addr = alloca i32
+  store i32 %x, i32* %x.addr
+  %y.addr = alloca i32
+  store i32 %y, i32* %y.addr
+  br label %code
+
+code:                                             ; preds = %0
+  %1 = load i32* %x.addr
+  %2 = load i32* %y.addr
+  %3 = call i32 @cmn224(i32 %1, i32 %2)
+  %4 = load i32* %y.addr
+  %5 = load i32* %x.addr
+  %6 = call i32 @cmn225(i32 %4, i32 %5)
+  %7 = icmp eq i32 %3, %6
+  ret i1 %7
+}
+
+; Function Attrs: alwaysinline nounwind
+define internal i32 @cmn224(i32 %x, i32 %y) #2 {
+  %x.addr = alloca i32
+  store i32 %x, i32* %x.addr
+  %y.addr = alloca i32
+  store i32 %y, i32* %y.addr
+  br label %code
+
+code:                                             ; preds = %0
+  %1 = load i32* %x.addr
+  ret i32 %1
+}
+
+; Function Attrs: alwaysinline nounwind
+define internal i32 @cmn225(i32 %x, i32 %y) #2 {
+  %x.addr = alloca i32
+  store i32 %x, i32* %x.addr
+  %y.addr = alloca i32
+  store i32 %y, i32* %y.addr
+  %tmp.v = alloca i32
+  br label %code
+
+code:                                             ; preds = %0
+  %1 = load i32* %x.addr
+  store i32 %1, i32* %tmp.v
+  %2 = load i32* %tmp.v
+  ret i32 %2
 }
 
 ; Function Attrs: alwaysinline nounwind
@@ -8959,12 +9123,12 @@ define internal i8 @"pre_*"(%"LocationSyncCharRange[RangeWithLookahead[CharSourc
 
 code:                                             ; preds = %0
   %1 = load %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %r.addr
-  %2 = call i8 @front223(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %1)
+  %2 = call i8 @front226(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %1)
   ret i8 %2
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i8 @front223(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %s) #2 {
+define internal i8 @front226(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %s) #2 {
   %s.addr = alloca %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"*
   store %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %s, %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %s.addr
   br label %code
@@ -8972,12 +9136,12 @@ define internal i8 @front223(%"LocationSyncCharRange[RangeWithLookahead[CharSour
 code:                                             ; preds = %0
   %1 = load %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %s.addr
   %2 = getelementptr inbounds %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %1, i32 0, i32 0
-  %3 = call i8 @front224(%"RangeWithLookahead[CharSource]"* %2)
+  %3 = call i8 @front227(%"RangeWithLookahead[CharSource]"* %2)
   ret i8 %3
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i8 @front224(%"RangeWithLookahead[CharSource]"* %s) #2 {
+define internal i8 @front227(%"RangeWithLookahead[CharSource]"* %s) #2 {
   %s.addr = alloca %"RangeWithLookahead[CharSource]"*
   store %"RangeWithLookahead[CharSource]"* %s, %"RangeWithLookahead[CharSource]"** %s.addr
   br label %code
@@ -8985,13 +9149,13 @@ define internal i8 @front224(%"RangeWithLookahead[CharSource]"* %s) #2 {
 code:                                             ; preds = %0
   %1 = load %"RangeWithLookahead[CharSource]"** %s.addr
   %2 = getelementptr inbounds %"RangeWithLookahead[CharSource]"* %1, i32 0, i32 1
-  %3 = call i8* @front225(%"Vector[Char/rtct]"* %2)
+  %3 = call i8* @front228(%"Vector[Char/rtct]"* %2)
   %4 = load i8* %3
   ret i8 %4
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i8* @front225(%"Vector[Char/rtct]"* %"$this") #2 {
+define internal i8* @front228(%"Vector[Char/rtct]"* %"$this") #2 {
   %"$this.addr" = alloca %"Vector[Char/rtct]"*
   store %"Vector[Char/rtct]"* %"$this", %"Vector[Char/rtct]"** %"$this.addr"
   br label %code
@@ -9073,7 +9237,7 @@ if_block:                                         ; preds = %while_end
   %15 = load %"RangeWithLookahead[CharSource]"** %s.addr
   %16 = getelementptr inbounds %"RangeWithLookahead[CharSource]"* %15, i32 0, i32 1
   %17 = call i64 @size168(%"Vector[Char/rtct]"* %16)
-  %18 = call i1 @"<228"(i32 %14, i64 %17)
+  %18 = call i1 @"<231"(i32 %14, i64 %17)
   br i1 %18, label %if_then, label %if_else
 
 if_then:                                          ; preds = %if_block
@@ -9083,7 +9247,7 @@ if_then:                                          ; preds = %if_block
   %22 = zext i32 %21 to i64
   store i64 %22, i64* %tmp.v
   %23 = load i64* %tmp.v
-  %24 = call i8* @"()229"(%"Vector[Char/rtct]"* %20, i64 %23)
+  %24 = call i8* @"()232"(%"Vector[Char/rtct]"* %20, i64 %23)
   %25 = load i8* %24
   ret i8 %25
 
@@ -9113,16 +9277,16 @@ define internal i1 @">="(i32 %x, i64 %y) #2 {
 code:                                             ; preds = %0
   %1 = load i32* %x.addr
   %2 = load i64* %y.addr
-  %3 = call i64 @cmn226(i32 %1, i64 %2)
+  %3 = call i64 @cmn229(i32 %1, i64 %2)
   %4 = load i64* %y.addr
   %5 = load i32* %x.addr
-  %6 = call i64 @cmn227(i64 %4, i32 %5)
+  %6 = call i64 @cmn230(i64 %4, i32 %5)
   %7 = icmp sge i64 %3, %6
   ret i1 %7
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i64 @cmn226(i32 %x, i64 %y) #2 {
+define internal i64 @cmn229(i32 %x, i64 %y) #2 {
   %x.addr = alloca i32
   store i32 %x, i32* %x.addr
   %y.addr = alloca i64
@@ -9139,7 +9303,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i64 @cmn227(i64 %x, i32 %y) #2 {
+define internal i64 @cmn230(i64 %x, i32 %y) #2 {
   %x.addr = alloca i64
   store i64 %x, i64* %x.addr
   %y.addr = alloca i32
@@ -9152,7 +9316,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"<228"(i32 %x, i64 %y) #2 {
+define internal i1 @"<231"(i32 %x, i64 %y) #2 {
   %x.addr = alloca i32
   store i32 %x, i32* %x.addr
   %y.addr = alloca i64
@@ -9162,16 +9326,16 @@ define internal i1 @"<228"(i32 %x, i64 %y) #2 {
 code:                                             ; preds = %0
   %1 = load i32* %x.addr
   %2 = load i64* %y.addr
-  %3 = call i64 @cmn226(i32 %1, i64 %2)
+  %3 = call i64 @cmn229(i32 %1, i64 %2)
   %4 = load i64* %y.addr
   %5 = load i32* %x.addr
-  %6 = call i64 @cmn227(i64 %4, i32 %5)
+  %6 = call i64 @cmn230(i64 %4, i32 %5)
   %7 = icmp slt i64 %3, %6
   ret i1 %7
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i8* @"()229"(%"Vector[Char/rtct]"* %"$this", i64 %index) #2 {
+define internal i8* @"()232"(%"Vector[Char/rtct]"* %"$this", i64 %index) #2 {
   %"$this.addr" = alloca %"Vector[Char/rtct]"*
   store %"Vector[Char/rtct]"* %"$this", %"Vector[Char/rtct]"** %"$this.addr"
   %index.addr = alloca i64
@@ -9188,85 +9352,8 @@ code:                                             ; preds = %0
   ret i8* %4
 }
 
-; Function Attrs: alwaysinline nounwind
-define internal i1 @isSpace(i8 %c) #2 {
-  %c.addr = alloca i8
-  store i8 %c, i8* %c.addr
-  %tmp.v = alloca i32
-  br label %code
-
-code:                                             ; preds = %0
-  %1 = load i8* %c.addr
-  call void @_ass_32_8z(i32* %tmp.v, i8 %1)
-  %2 = load i32* %tmp.v
-  %3 = call i32 @isspace(i32 %2)
-  %4 = call i1 @"!=110"(i32 0, i32 %3)
-  ret i1 %4
-}
-
-declare i32 @isspace(i32)
-
 ; Function Attrs: inlinehint nounwind
-define internal void @advanceIf(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %range, %"FunctionPtr[Bool/rtct, Char/rtct]" %pred) #3 {
-  %range.addr = alloca %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"*
-  store %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %range, %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %range.addr
-  %pred.addr = alloca %"FunctionPtr[Bool/rtct, Char/rtct]"
-  store %"FunctionPtr[Bool/rtct, Char/rtct]" %pred, %"FunctionPtr[Bool/rtct, Char/rtct]"* %pred.addr
-  br label %code
-
-code:                                             ; preds = %0
-  br label %while_block
-
-while_block:                                      ; preds = %while_step, %code
-  %1 = load %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %range.addr
-  %2 = call i1 @isEmpty217(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %1)
-  %3 = xor i1 true, %2
-  br i1 %3, label %cond.true, label %cond.false
-
-while_body:                                       ; preds = %cond.end
-  %4 = load %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %range.addr
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %4)
-  br label %while_step
-
-while_step:                                       ; preds = %while_body
-  br label %while_block
-
-while_end:                                        ; preds = %cond.end
-  ret void
-
-cond.true:                                        ; preds = %while_block
-  %5 = load %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %range.addr
-  %6 = call i8 @front223(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %5)
-  %7 = call i1 @"()230"(%"FunctionPtr[Bool/rtct, Char/rtct]"* %pred.addr, i8 %6)
-  br label %cond.end
-
-cond.false:                                       ; preds = %while_block
-  br label %cond.end
-
-cond.end:                                         ; preds = %cond.false, %cond.true
-  %cond.res = phi i1 [ %7, %cond.true ], [ false, %cond.false ]
-  br i1 %cond.res, label %while_body, label %while_end
-}
-
-; Function Attrs: alwaysinline nounwind
-define internal i1 @"()230"(%"FunctionPtr[Bool/rtct, Char/rtct]"* %"$this", i8 %p1) #2 {
-  %"$this.addr" = alloca %"FunctionPtr[Bool/rtct, Char/rtct]"*
-  store %"FunctionPtr[Bool/rtct, Char/rtct]"* %"$this", %"FunctionPtr[Bool/rtct, Char/rtct]"** %"$this.addr"
-  %p1.addr = alloca i8
-  store i8 %p1, i8* %p1.addr
-  br label %code
-
-code:                                             ; preds = %0
-  %1 = load %"FunctionPtr[Bool/rtct, Char/rtct]"** %"$this.addr"
-  %2 = load i8* %p1.addr
-  %3 = bitcast %"FunctionPtr[Bool/rtct, Char/rtct]"* %1 to i1 (i8)**
-  %4 = load i1 (i8)** %3
-  %5 = call i1 %4(i8 %2)
-  ret i1 %5
-}
-
-; Function Attrs: inlinehint nounwind
-define internal void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %s) #3 {
+define internal void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %s) #3 {
   %s.addr = alloca %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"*
   store %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %s, %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %s.addr
   br label %code
@@ -9277,7 +9364,7 @@ code:                                             ; preds = %0
 if_block:                                         ; preds = %code
   %1 = load %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %s.addr
   %2 = getelementptr inbounds %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %1, i32 0, i32 0
-  %3 = call i8 @"pre_*232"(%"RangeWithLookahead[CharSource]"* %2)
+  %3 = call i8 @"pre_*234"(%"RangeWithLookahead[CharSource]"* %2)
   %4 = icmp eq i8 %3, 10
   br i1 %4, label %if_then, label %if_else
 
@@ -9298,19 +9385,19 @@ if_else:                                          ; preds = %if_block
 if_end:                                           ; preds = %if_else, %if_then
   %11 = load %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %s.addr
   %12 = getelementptr inbounds %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %11, i32 0, i32 0
-  call void @popFront233(%"RangeWithLookahead[CharSource]"* %12)
+  call void @popFront235(%"RangeWithLookahead[CharSource]"* %12)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i8 @"pre_*232"(%"RangeWithLookahead[CharSource]"* %r) #2 {
+define internal i8 @"pre_*234"(%"RangeWithLookahead[CharSource]"* %r) #2 {
   %r.addr = alloca %"RangeWithLookahead[CharSource]"*
   store %"RangeWithLookahead[CharSource]"* %r, %"RangeWithLookahead[CharSource]"** %r.addr
   br label %code
 
 code:                                             ; preds = %0
   %1 = load %"RangeWithLookahead[CharSource]"** %r.addr
-  %2 = call i8 @front224(%"RangeWithLookahead[CharSource]"* %1)
+  %2 = call i8 @front227(%"RangeWithLookahead[CharSource]"* %1)
   ret i8 %2
 }
 
@@ -9363,7 +9450,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @popFront233(%"RangeWithLookahead[CharSource]"* %s) #3 {
+define internal void @popFront235(%"RangeWithLookahead[CharSource]"* %s) #3 {
   %s.addr = alloca %"RangeWithLookahead[CharSource]"*
   store %"RangeWithLookahead[CharSource]"* %s, %"RangeWithLookahead[CharSource]"** %s.addr
   %"$tmpForRef" = alloca i8
@@ -9372,7 +9459,7 @@ define internal void @popFront233(%"RangeWithLookahead[CharSource]"* %s) #3 {
 code:                                             ; preds = %0
   %1 = load %"RangeWithLookahead[CharSource]"** %s.addr
   %2 = getelementptr inbounds %"RangeWithLookahead[CharSource]"* %1, i32 0, i32 1
-  call void @remove234(%"Vector[Char/rtct]"* %2, i64 0)
+  call void @remove(%"Vector[Char/rtct]"* %2, i64 0)
   br label %if_block
 
 if_block:                                         ; preds = %code
@@ -9409,7 +9496,7 @@ cond.end:                                         ; preds = %cond.false, %cond.t
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @remove234(%"Vector[Char/rtct]"* %"$this", i64 %index) #3 {
+define internal void @remove(%"Vector[Char/rtct]"* %"$this", i64 %index) #3 {
   %"$this.addr" = alloca %"Vector[Char/rtct]"*
   store %"Vector[Char/rtct]"* %"$this", %"Vector[Char/rtct]"** %"$this.addr"
   %index.addr = alloca i64
@@ -9419,23 +9506,23 @@ define internal void @remove234(%"Vector[Char/rtct]"* %"$this", i64 %index) #3 {
 
 code:                                             ; preds = %0
   %1 = load %"Vector[Char/rtct]"** %"$this.addr"
-  call void @all235(%"ContiguousMemoryRange[Char/rtct]"* %r, %"Vector[Char/rtct]"* %1)
+  call void @all236(%"ContiguousMemoryRange[Char/rtct]"* %r, %"Vector[Char/rtct]"* %1)
   %2 = load i64* %index.addr
-  call void @popFront236(%"ContiguousMemoryRange[Char/rtct]"* %r, i64 %2)
+  call void @popFront237(%"ContiguousMemoryRange[Char/rtct]"* %r, i64 %2)
   %3 = load %"Vector[Char/rtct]"** %"$this.addr"
   %4 = call i64 @size168(%"Vector[Char/rtct]"* %3)
   %5 = load i64* %index.addr
   %6 = call i64 @-43(i64 %4, i64 %5)
-  %7 = call i64 @-238(i64 %6, i32 1)
-  call void @popBack237(%"ContiguousMemoryRange[Char/rtct]"* %r, i64 %7)
+  %7 = call i64 @-239(i64 %6, i32 1)
+  call void @popBack238(%"ContiguousMemoryRange[Char/rtct]"* %r, i64 %7)
   %8 = load %"Vector[Char/rtct]"** %"$this.addr"
   %9 = load %"ContiguousMemoryRange[Char/rtct]"* %r
-  call void @remove239(%"Vector[Char/rtct]"* %8, %"ContiguousMemoryRange[Char/rtct]" %9)
+  call void @remove240(%"Vector[Char/rtct]"* %8, %"ContiguousMemoryRange[Char/rtct]" %9)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @all235(%"ContiguousMemoryRange[Char/rtct]"* sret %_result, %"Vector[Char/rtct]"* %"$this") #2 {
+define internal void @all236(%"ContiguousMemoryRange[Char/rtct]"* sret %_result, %"Vector[Char/rtct]"* %"$this") #2 {
   %_result.addr = alloca %"ContiguousMemoryRange[Char/rtct]"*
   store %"ContiguousMemoryRange[Char/rtct]"* %_result, %"ContiguousMemoryRange[Char/rtct]"** %_result.addr
   %"$this.addr" = alloca %"Vector[Char/rtct]"*
@@ -9455,7 +9542,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @popFront236(%"ContiguousMemoryRange[Char/rtct]"* %"$this", i64 %n) #2 {
+define internal void @popFront237(%"ContiguousMemoryRange[Char/rtct]"* %"$this", i64 %n) #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[Char/rtct]"*
   store %"ContiguousMemoryRange[Char/rtct]"* %"$this", %"ContiguousMemoryRange[Char/rtct]"** %"$this.addr"
   %n.addr = alloca i64
@@ -9479,7 +9566,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @popBack237(%"ContiguousMemoryRange[Char/rtct]"* %"$this", i64 %n) #2 {
+define internal void @popBack238(%"ContiguousMemoryRange[Char/rtct]"* %"$this", i64 %n) #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[Char/rtct]"*
   store %"ContiguousMemoryRange[Char/rtct]"* %"$this", %"ContiguousMemoryRange[Char/rtct]"** %"$this.addr"
   %n.addr = alloca i64
@@ -9504,7 +9591,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i64 @-238(i64 %x, i32 %y) #2 {
+define internal i64 @-239(i64 %x, i32 %y) #2 {
   %x.addr = alloca i64
   store i64 %x, i64* %x.addr
   %y.addr = alloca i32
@@ -9523,7 +9610,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @remove239(%"Vector[Char/rtct]"* %"$this", %"ContiguousMemoryRange[Char/rtct]" %range) #3 {
+define internal void @remove240(%"Vector[Char/rtct]"* %"$this", %"ContiguousMemoryRange[Char/rtct]" %range) #3 {
   %"$this.addr" = alloca %"Vector[Char/rtct]"*
   store %"Vector[Char/rtct]"* %"$this", %"Vector[Char/rtct]"** %"$this.addr"
   %range.addr = alloca %"ContiguousMemoryRange[Char/rtct]"
@@ -9539,7 +9626,7 @@ define internal void @remove239(%"Vector[Char/rtct]"* %"$this", %"ContiguousMemo
 code:                                             ; preds = %0
   call void @frontPtr(%"RawPtr[Char/rtct]"* %rBegin, %"ContiguousMemoryRange[Char/rtct]"* %range.addr)
   call void @backPtr(%"RawPtr[Char/rtct]"* %rEnd, %"ContiguousMemoryRange[Char/rtct]"* %range.addr)
-  call void @ctor240(%"ContiguousMemoryRange[Char/rtct]"* %"$rangeVar", %"ContiguousMemoryRange[Char/rtct]"* %range.addr)
+  call void @ctor241(%"ContiguousMemoryRange[Char/rtct]"* %"$rangeVar", %"ContiguousMemoryRange[Char/rtct]"* %range.addr)
   br label %while_block
 
 while_block:                                      ; preds = %while_step, %code
@@ -9609,7 +9696,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor240(%"ContiguousMemoryRange[Char/rtct]"* %"$this", %"ContiguousMemoryRange[Char/rtct]"* %other) #2 {
+define internal void @ctor241(%"ContiguousMemoryRange[Char/rtct]"* %"$this", %"ContiguousMemoryRange[Char/rtct]"* %other) #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[Char/rtct]"*
   store %"ContiguousMemoryRange[Char/rtct]"* %"$this", %"ContiguousMemoryRange[Char/rtct]"** %"$this.addr"
   %other.addr = alloca %"ContiguousMemoryRange[Char/rtct]"*
@@ -9631,7 +9718,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @advanceIf241(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %range, %"$lambdaEnclosure" %pred) #3 {
+define internal void @advanceIf(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %range, %"$lambdaEnclosure" %pred) #3 {
   %range.addr = alloca %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"*
   store %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %range, %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %range.addr
   %pred.addr = alloca %"$lambdaEnclosure"
@@ -9649,7 +9736,7 @@ while_block:                                      ; preds = %while_step, %code
 
 while_body:                                       ; preds = %cond.end
   %4 = load %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %range.addr
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %4)
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %4)
   br label %while_step
 
 while_step:                                       ; preds = %while_body
@@ -9660,7 +9747,7 @@ while_end:                                        ; preds = %cond.end
 
 cond.true:                                        ; preds = %while_block
   %5 = load %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %range.addr
-  %6 = call i8 @front223(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %5)
+  %6 = call i8 @front226(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %5)
   %7 = call i1 @"()242"(%"$lambdaEnclosure"* %pred.addr, i8 %6)
   br label %cond.end
 
@@ -9710,7 +9797,353 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @advance245(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %range, i64 %n) #3 {
+define internal void @stepOver(%Location* %l) #3 {
+  %l.addr = alloca %Location*
+  store %Location* %l, %Location** %l.addr
+  br label %code
+
+code:                                             ; preds = %0
+  %1 = load %Location** %l.addr
+  %2 = getelementptr inbounds %Location* %1, i32 0, i32 1
+  %3 = load %Location** %l.addr
+  %4 = getelementptr inbounds %Location* %3, i32 0, i32 2
+  call void @"=185"(%LineCol* %2, %LineCol* %4)
+  ret void
+}
+
+; Function Attrs: inlinehint nounwind
+define internal void @clear(%String* %"$this") #3 {
+  %"$this.addr" = alloca %String*
+  store %String* %"$this", %String** %"$this.addr"
+  %tmp.v = alloca %"ContiguousMemoryRange[Char/rtct]"
+  br label %code
+
+code:                                             ; preds = %0
+  %1 = load %String** %"$this.addr"
+  %2 = load %String** %"$this.addr"
+  %3 = getelementptr inbounds %String* %2, i32 0, i32 0
+  %4 = load %"RawPtr[Char/rtct]"* %3
+  %5 = load %String** %"$this.addr"
+  %6 = getelementptr inbounds %String* %5, i32 0, i32 1
+  %7 = load %"RawPtr[Char/rtct]"* %6
+  call void @ctor155(%"ContiguousMemoryRange[Char/rtct]"* %tmp.v, %"RawPtr[Char/rtct]" %4, %"RawPtr[Char/rtct]" %7)
+  %8 = load %"ContiguousMemoryRange[Char/rtct]"* %tmp.v
+  call void @remove245(%String* %1, %"ContiguousMemoryRange[Char/rtct]" %8)
+  ret void
+}
+
+; Function Attrs: inlinehint nounwind
+define internal void @remove245(%String* %"$this", %"ContiguousMemoryRange[Char/rtct]" %range) #3 {
+  %"$this.addr" = alloca %String*
+  store %String* %"$this", %String** %"$this.addr"
+  %range.addr = alloca %"ContiguousMemoryRange[Char/rtct]"
+  store %"ContiguousMemoryRange[Char/rtct]" %range, %"ContiguousMemoryRange[Char/rtct]"* %range.addr
+  %rSize = alloca i64
+  %rBegin = alloca %"RawPtr[Char/rtct]"
+  %rEnd = alloca %"RawPtr[Char/rtct]"
+  %tmp.v = alloca i64
+  %"$tmpC" = alloca %"RawPtr[Char/rtct]"
+  %"$tmpC1" = alloca %"RawPtr[Char/rtct]"
+  br label %code
+
+code:                                             ; preds = %0
+  %1 = call i64 @size136(%"ContiguousMemoryRange[Char/rtct]"* %range.addr)
+  store i64 %1, i64* %rSize
+  call void @frontPtr(%"RawPtr[Char/rtct]"* %rBegin, %"ContiguousMemoryRange[Char/rtct]"* %range.addr)
+  %2 = load i64* %rSize
+  store i64 %2, i64* %tmp.v
+  %3 = load i64* %tmp.v
+  call void @advance(%"RawPtr[Char/rtct]"* %rEnd, %"RawPtr[Char/rtct]"* %rBegin, i64 %3)
+  br label %while_block
+
+while_block:                                      ; preds = %while_step, %code
+  %4 = load %String** %"$this.addr"
+  %5 = getelementptr inbounds %String* %4, i32 0, i32 1
+  %6 = load %"RawPtr[Char/rtct]"* %5
+  %7 = call i1 @"==148"(%"RawPtr[Char/rtct]"* %rEnd, %"RawPtr[Char/rtct]" %6)
+  %8 = xor i1 true, %7
+  br i1 %8, label %while_body, label %while_end
+
+while_body:                                       ; preds = %while_block
+  %9 = call i8* @value(%"RawPtr[Char/rtct]"* %rBegin)
+  %10 = call i8* @value(%"RawPtr[Char/rtct]"* %rEnd)
+  %11 = load i8* %10
+  %12 = call i8* @value(%"RawPtr[Char/rtct]"* %rBegin)
+  store i8 %11, i8* %12
+  call void @advance150(%"RawPtr[Char/rtct]"* %"$tmpC", %"RawPtr[Char/rtct]"* %rBegin)
+  %13 = load %"RawPtr[Char/rtct]"* %"$tmpC"
+  call void @"=144"(%"RawPtr[Char/rtct]"* %rBegin, %"RawPtr[Char/rtct]" %13)
+  call void @advance150(%"RawPtr[Char/rtct]"* %"$tmpC1", %"RawPtr[Char/rtct]"* %rEnd)
+  %14 = load %"RawPtr[Char/rtct]"* %"$tmpC1"
+  call void @"=144"(%"RawPtr[Char/rtct]"* %rEnd, %"RawPtr[Char/rtct]" %14)
+  br label %while_step
+
+while_step:                                       ; preds = %while_body
+  br label %while_block
+
+while_end:                                        ; preds = %while_block
+  %15 = load %String** %"$this.addr"
+  %16 = getelementptr inbounds %String* %15, i32 0, i32 1
+  %17 = load %"RawPtr[Char/rtct]"* %rBegin
+  call void @"=144"(%"RawPtr[Char/rtct]"* %16, %"RawPtr[Char/rtct]" %17)
+  ret void
+}
+
+; Function Attrs: alwaysinline nounwind
+define internal i1 @isSpace(i8 %c) #2 {
+  %c.addr = alloca i8
+  store i8 %c, i8* %c.addr
+  %tmp.v = alloca i32
+  br label %code
+
+code:                                             ; preds = %0
+  %1 = load i8* %c.addr
+  call void @_ass_32_8z(i32* %tmp.v, i8 %1)
+  %2 = load i32* %tmp.v
+  %3 = call i32 @isspace(i32 %2)
+  %4 = call i1 @"!=110"(i32 0, i32 %3)
+  ret i1 %4
+}
+
+declare i32 @isspace(i32)
+
+; Function Attrs: inlinehint nounwind
+define internal void @advanceIf246(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %range, %"FunctionPtr[Bool/rtct, Char/rtct]" %pred) #3 {
+  %range.addr = alloca %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"*
+  store %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %range, %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %range.addr
+  %pred.addr = alloca %"FunctionPtr[Bool/rtct, Char/rtct]"
+  store %"FunctionPtr[Bool/rtct, Char/rtct]" %pred, %"FunctionPtr[Bool/rtct, Char/rtct]"* %pred.addr
+  br label %code
+
+code:                                             ; preds = %0
+  br label %while_block
+
+while_block:                                      ; preds = %while_step, %code
+  %1 = load %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %range.addr
+  %2 = call i1 @isEmpty217(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %1)
+  %3 = xor i1 true, %2
+  br i1 %3, label %cond.true, label %cond.false
+
+while_body:                                       ; preds = %cond.end
+  %4 = load %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %range.addr
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %4)
+  br label %while_step
+
+while_step:                                       ; preds = %while_body
+  br label %while_block
+
+while_end:                                        ; preds = %cond.end
+  ret void
+
+cond.true:                                        ; preds = %while_block
+  %5 = load %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %range.addr
+  %6 = call i8 @front226(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %5)
+  %7 = call i1 @"()247"(%"FunctionPtr[Bool/rtct, Char/rtct]"* %pred.addr, i8 %6)
+  br label %cond.end
+
+cond.false:                                       ; preds = %while_block
+  br label %cond.end
+
+cond.end:                                         ; preds = %cond.false, %cond.true
+  %cond.res = phi i1 [ %7, %cond.true ], [ false, %cond.false ]
+  br i1 %cond.res, label %while_body, label %while_end
+}
+
+; Function Attrs: alwaysinline nounwind
+define internal i1 @"()247"(%"FunctionPtr[Bool/rtct, Char/rtct]"* %"$this", i8 %p1) #2 {
+  %"$this.addr" = alloca %"FunctionPtr[Bool/rtct, Char/rtct]"*
+  store %"FunctionPtr[Bool/rtct, Char/rtct]"* %"$this", %"FunctionPtr[Bool/rtct, Char/rtct]"** %"$this.addr"
+  %p1.addr = alloca i8
+  store i8 %p1, i8* %p1.addr
+  br label %code
+
+code:                                             ; preds = %0
+  %1 = load %"FunctionPtr[Bool/rtct, Char/rtct]"** %"$this.addr"
+  %2 = load i8* %p1.addr
+  %3 = bitcast %"FunctionPtr[Bool/rtct, Char/rtct]"* %1 to i1 (i8)**
+  %4 = load i1 (i8)** %3
+  %5 = call i1 %4(i8 %2)
+  ret i1 %5
+}
+
+; Function Attrs: inlinehint nounwind
+define internal void @reportError248(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %s, %String* %msg) #3 {
+  %s.addr = alloca %"SparrowScanner[CharSource, ExternalErrorReporter]"*
+  store %"SparrowScanner[CharSource, ExternalErrorReporter]"* %s, %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %msg.addr = alloca %String*
+  store %String* %msg, %String** %msg.addr
+  br label %code
+
+code:                                             ; preds = %0
+  %1 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %2 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %1, i32 0, i32 5
+  %3 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
+  %4 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %3, i32 0, i32 1
+  %5 = getelementptr inbounds %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %4, i32 0, i32 1
+  %6 = load %Location** %5
+  %7 = load %Location* %6
+  %8 = load %String** %msg.addr
+  call void @reportError(%ExternalErrorReporter* %2, %Location %7, %String* %8)
+  ret void
+}
+
+; Function Attrs: inlinehint nounwind
+define internal void @toString249(%String* sret %_result, %StringRef %a1) #3 {
+  %_result.addr = alloca %String*
+  store %String* %_result, %String** %_result.addr
+  %a1.addr = alloca %StringRef
+  store %StringRef %a1, %StringRef* %a1.addr
+  %s = alloca %StringOutputStream
+  br label %code
+
+code:                                             ; preds = %0
+  call void @ctor135(%StringOutputStream* %s)
+  %1 = call %StringOutputStream* @"<<"(%StringOutputStream* %s, %StringRef* %a1.addr)
+  %2 = load %String** %_result.addr
+  %3 = getelementptr inbounds %StringOutputStream* %s, i32 0, i32 0
+  call void @ctor156(%String* %2, %String* %3)
+  call void @dtor158(%StringOutputStream* %s)
+  ret void
+
+dumy_block:                                       ; No predecessors!
+  call void @dtor158(%StringOutputStream* %s)
+  ret void
+}
+
+; Function Attrs: inlinehint nounwind
+define internal void @advanceIf250(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %range, %"$lambdaEnclosure.0" %pred) #3 {
+  %range.addr = alloca %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"*
+  store %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %range, %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %range.addr
+  %pred.addr = alloca %"$lambdaEnclosure.0"
+  store %"$lambdaEnclosure.0" %pred, %"$lambdaEnclosure.0"* %pred.addr
+  br label %code
+
+code:                                             ; preds = %0
+  br label %while_block
+
+while_block:                                      ; preds = %while_step, %code
+  %1 = load %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %range.addr
+  %2 = call i1 @isEmpty217(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %1)
+  %3 = xor i1 true, %2
+  br i1 %3, label %cond.true, label %cond.false
+
+while_body:                                       ; preds = %cond.end
+  %4 = load %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %range.addr
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %4)
+  br label %while_step
+
+while_step:                                       ; preds = %while_body
+  br label %while_block
+
+while_end:                                        ; preds = %cond.end
+  ret void
+
+cond.true:                                        ; preds = %while_block
+  %5 = load %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %range.addr
+  %6 = call i8 @front226(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %5)
+  %7 = call i1 @"()251"(%"$lambdaEnclosure.0"* %pred.addr, i8 %6)
+  br label %cond.end
+
+cond.false:                                       ; preds = %while_block
+  br label %cond.end
+
+cond.end:                                         ; preds = %cond.false, %cond.true
+  %cond.res = phi i1 [ %7, %cond.true ], [ false, %cond.false ]
+  br i1 %cond.res, label %while_body, label %while_end
+}
+
+; Function Attrs: alwaysinline nounwind
+define internal i1 @"()251"(%"$lambdaEnclosure.0"* %"$this", i8 %c) #2 {
+  %"$this.addr" = alloca %"$lambdaEnclosure.0"*
+  store %"$lambdaEnclosure.0"* %"$this", %"$lambdaEnclosure.0"** %"$this.addr"
+  %c.addr = alloca i8
+  store i8 %c, i8* %c.addr
+  br label %code
+
+code:                                             ; preds = %0
+  %1 = load i8* %c.addr
+  %2 = icmp eq i8 %1, 9
+  ret i1 %2
+}
+
+; Function Attrs: alwaysinline nounwind
+define internal void @ctor252(%"$lambdaEnclosure.0"* %"$this") #2 {
+  %"$this.addr" = alloca %"$lambdaEnclosure.0"*
+  store %"$lambdaEnclosure.0"* %"$this", %"$lambdaEnclosure.0"** %"$this.addr"
+  br label %code
+
+code:                                             ; preds = %0
+  ret void
+}
+
+; Function Attrs: inlinehint nounwind
+define internal void @advanceIf253(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %range, %"$lambdaEnclosure.1" %pred) #3 {
+  %range.addr = alloca %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"*
+  store %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %range, %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %range.addr
+  %pred.addr = alloca %"$lambdaEnclosure.1"
+  store %"$lambdaEnclosure.1" %pred, %"$lambdaEnclosure.1"* %pred.addr
+  br label %code
+
+code:                                             ; preds = %0
+  br label %while_block
+
+while_block:                                      ; preds = %while_step, %code
+  %1 = load %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %range.addr
+  %2 = call i1 @isEmpty217(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %1)
+  %3 = xor i1 true, %2
+  br i1 %3, label %cond.true, label %cond.false
+
+while_body:                                       ; preds = %cond.end
+  %4 = load %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %range.addr
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %4)
+  br label %while_step
+
+while_step:                                       ; preds = %while_body
+  br label %while_block
+
+while_end:                                        ; preds = %cond.end
+  ret void
+
+cond.true:                                        ; preds = %while_block
+  %5 = load %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %range.addr
+  %6 = call i8 @front226(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %5)
+  %7 = call i1 @"()254"(%"$lambdaEnclosure.1"* %pred.addr, i8 %6)
+  br label %cond.end
+
+cond.false:                                       ; preds = %while_block
+  br label %cond.end
+
+cond.end:                                         ; preds = %cond.false, %cond.true
+  %cond.res = phi i1 [ %7, %cond.true ], [ false, %cond.false ]
+  br i1 %cond.res, label %while_body, label %while_end
+}
+
+; Function Attrs: alwaysinline nounwind
+define internal i1 @"()254"(%"$lambdaEnclosure.1"* %"$this", i8 %c) #2 {
+  %"$this.addr" = alloca %"$lambdaEnclosure.1"*
+  store %"$lambdaEnclosure.1"* %"$this", %"$lambdaEnclosure.1"** %"$this.addr"
+  %c.addr = alloca i8
+  store i8 %c, i8* %c.addr
+  br label %code
+
+code:                                             ; preds = %0
+  %1 = load i8* %c.addr
+  %2 = icmp ne i8 %1, 10
+  ret i1 %2
+}
+
+; Function Attrs: alwaysinline nounwind
+define internal void @ctor255(%"$lambdaEnclosure.1"* %"$this") #2 {
+  %"$this.addr" = alloca %"$lambdaEnclosure.1"*
+  store %"$lambdaEnclosure.1"* %"$this", %"$lambdaEnclosure.1"** %"$this.addr"
+  br label %code
+
+code:                                             ; preds = %0
+  ret void
+}
+
+; Function Attrs: inlinehint nounwind
+define internal void @advance256(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %range, i64 %n) #3 {
   %range.addr = alloca %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"*
   store %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %range, %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %range.addr
   %n.addr = alloca i64
@@ -9727,12 +10160,12 @@ while_block:                                      ; preds = %while_step, %code
 
 while_body:                                       ; preds = %while_block
   %3 = load %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %range.addr
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %3)
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %3)
   br label %while_step
 
 while_step:                                       ; preds = %while_body
   %4 = load i64* %n.addr
-  %5 = call i64 @-238(i64 %4, i32 1)
+  %5 = call i64 @-239(i64 %4, i32 1)
   store i64 %5, i64* %n.addr
   br label %while_block
 
@@ -9760,16 +10193,16 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal i8 @"pre_++246"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %r) #3 {
+define internal i8 @"pre_++257"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %r) #3 {
   %r.addr = alloca %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"*
   store %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %r, %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %r.addr
   br label %code
 
 code:                                             ; preds = %0
   %1 = load %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %r.addr
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %1)
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %1)
   %2 = load %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %r.addr
-  %3 = call i8 @front223(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %2)
+  %3 = call i8 @front226(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %2)
   ret i8 %3
 }
 
@@ -9783,27 +10216,6 @@ code:                                             ; preds = %0
   %1 = load %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %r.addr
   %2 = call i1 @isEmpty217(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %1)
   ret i1 %2
-}
-
-; Function Attrs: inlinehint nounwind
-define internal void @reportError247(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %s, %String* %msg) #3 {
-  %s.addr = alloca %"SparrowScanner[CharSource, ExternalErrorReporter]"*
-  store %"SparrowScanner[CharSource, ExternalErrorReporter]"* %s, %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %msg.addr = alloca %String*
-  store %String* %msg, %String** %msg.addr
-  br label %code
-
-code:                                             ; preds = %0
-  %1 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %2 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %1, i32 0, i32 5
-  %3 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %4 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %3, i32 0, i32 1
-  %5 = getelementptr inbounds %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %4, i32 0, i32 1
-  %6 = load %Location** %5
-  %7 = load %Location* %6
-  %8 = load %String** %msg.addr
-  call void @reportError(%ExternalErrorReporter* %2, %Location %7, %String* %8)
-  ret void
 }
 
 ; Function Attrs: inlinehint nounwind
@@ -9826,12 +10238,12 @@ code:                                             ; preds = %0
   store i8* %3, i8** %5
   %6 = load %StringRef* %const.struct
   store %StringRef %6, %StringRef* %"$tmpForRef"
-  call void @ctor248(%String* %1, %StringRef* %"$tmpForRef")
+  call void @ctor258(%String* %1, %StringRef* %"$tmpForRef")
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @ctor248(%String* %"$this", %StringRef* %other) #3 {
+define internal void @ctor258(%String* %"$this", %StringRef* %other) #3 {
   %"$this.addr" = alloca %String*
   store %String* %"$this", %String** %"$this.addr"
   %other.addr = alloca %StringRef*
@@ -9877,7 +10289,7 @@ define internal void @parseCharacter(%TokenType* sret %_result, %"SparrowScanner
 code:                                             ; preds = %0
   %1 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %2 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %1, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %2)
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %2)
   br label %if_block
 
 if_block:                                         ; preds = %code
@@ -9887,10 +10299,10 @@ if_block:                                         ; preds = %code
 
 if_then:                                          ; preds = %if_block
   %5 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  call void @ctorFromCt250(%String* %tmp.v)
+  call void @ctorFromCt260(%String* %tmp.v)
   %6 = load %String* %tmp.v
   store %String %6, %String* %"$tmpForRef"
-  call void @reportError247(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %5, %String* %"$tmpForRef")
+  call void @reportError248(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %5, %String* %"$tmpForRef")
   call void @dtor159(%String* %tmp.v)
   %7 = load %TokenType** %_result.addr
   call void @ctor222(%TokenType* %7, i32 0)
@@ -9913,17 +10325,17 @@ if_block1:                                        ; preds = %if_end
 
 if_then2:                                         ; preds = %if_block1
   %13 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  call void @ctorFromCt251(%String* %tmp.v5)
+  call void @ctorFromCt261(%String* %tmp.v5)
   %14 = load %String* %tmp.v5
   store %String %14, %String* %"$tmpForRef4"
-  call void @reportError247(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %13, %String* %"$tmpForRef4")
+  call void @reportError248(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %13, %String* %"$tmpForRef4")
   call void @dtor159(%String* %tmp.v5)
   %15 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %16 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %15, i32 0, i32 2
   %17 = getelementptr inbounds %Token* %16, i32 0, i32 2
-  call void @"+=252"(%String* %17, i8 63)
+  call void @"+=262"(%String* %17, i8 63)
   %18 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %18, i32 42)
+  call void @ctor222(%TokenType* %18, i32 43)
   ret void
 
 if_else:                                          ; preds = %if_block1
@@ -9957,10 +10369,10 @@ if_block10:                                       ; preds = %if_end3
 
 if_then11:                                        ; preds = %if_block10
   %26 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  call void @ctorFromCt256(%String* %tmp.v14)
+  call void @ctorFromCt266(%String* %tmp.v14)
   %27 = load %String* %tmp.v14
   store %String %27, %String* %"$tmpForRef13"
-  call void @reportError247(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %26, %String* %"$tmpForRef13")
+  call void @reportError248(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %26, %String* %"$tmpForRef13")
   call void @dtor159(%String* %tmp.v14)
   %28 = load %TokenType** %_result.addr
   call void @ctor222(%TokenType* %28, i32 0)
@@ -9981,19 +10393,19 @@ if_block16:                                       ; preds = %if_end12
 
 if_then17:                                        ; preds = %if_block16
   %33 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  call void @ctorFromCt257(%String* %tmp.v20)
+  call void @ctorFromCt267(%String* %tmp.v20)
   %34 = load %String* %tmp.v20
   store %String %34, %String* %"$tmpForRef19"
-  call void @reportError247(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %33, %String* %"$tmpForRef19")
+  call void @reportError248(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %33, %String* %"$tmpForRef19")
   call void @dtor159(%String* %tmp.v20)
   br label %if_end18
 
 if_end18:                                         ; preds = %if_then17, %if_block16
   %35 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %36 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %35, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %36)
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %36)
   %37 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %37, i32 42)
+  call void @ctor222(%TokenType* %37, i32 43)
   ret void
 }
 
@@ -10010,12 +10422,12 @@ code:                                             ; preds = %0
   %2 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %1, i32 0, i32 1
   %3 = getelementptr inbounds %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %2, i32 0, i32 0
   %4 = load i32* %n.addr
-  %5 = call i1 @hasLessThan249(%"RangeWithLookahead[CharSource]"* %3, i32 %4)
+  %5 = call i1 @hasLessThan259(%"RangeWithLookahead[CharSource]"* %3, i32 %4)
   ret i1 %5
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal i1 @hasLessThan249(%"RangeWithLookahead[CharSource]"* %s, i32 %n) #3 {
+define internal i1 @hasLessThan259(%"RangeWithLookahead[CharSource]"* %s, i32 %n) #3 {
   %s.addr = alloca %"RangeWithLookahead[CharSource]"*
   store %"RangeWithLookahead[CharSource]"* %s, %"RangeWithLookahead[CharSource]"** %s.addr
   %n.addr = alloca i32
@@ -10070,7 +10482,7 @@ cond.end:                                         ; preds = %cond.false, %cond.t
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @ctorFromCt250(%String* %"$this") #3 {
+define internal void @ctorFromCt260(%String* %"$this") #3 {
   %"$this.addr" = alloca %String*
   store %String* %"$this", %String** %"$this.addr"
   %"$tmpForRef" = alloca %StringRef
@@ -10089,12 +10501,12 @@ code:                                             ; preds = %0
   store i8* %3, i8** %5
   %6 = load %StringRef* %const.struct
   store %StringRef %6, %StringRef* %"$tmpForRef"
-  call void @ctor248(%String* %1, %StringRef* %"$tmpForRef")
+  call void @ctor258(%String* %1, %StringRef* %"$tmpForRef")
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @ctorFromCt251(%String* %"$this") #3 {
+define internal void @ctorFromCt261(%String* %"$this") #3 {
   %"$this.addr" = alloca %String*
   store %String* %"$this", %String** %"$this.addr"
   %"$tmpForRef" = alloca %StringRef
@@ -10113,12 +10525,12 @@ code:                                             ; preds = %0
   store i8* %3, i8** %5
   %6 = load %StringRef* %const.struct
   store %StringRef %6, %StringRef* %"$tmpForRef"
-  call void @ctor248(%String* %1, %StringRef* %"$tmpForRef")
+  call void @ctor258(%String* %1, %StringRef* %"$tmpForRef")
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @"+=252"(%String* %"$this", i8 %value) #2 {
+define internal void @"+=262"(%String* %"$this", i8 %value) #2 {
   %"$this.addr" = alloca %String*
   store %String* %"$this", %String** %"$this.addr"
   %value.addr = alloca i8
@@ -10128,12 +10540,12 @@ define internal void @"+=252"(%String* %"$this", i8 %value) #2 {
 code:                                             ; preds = %0
   %1 = load %String** %"$this.addr"
   %2 = load i8* %value.addr
-  call void @pushBack253(%String* %1, i8 %2)
+  call void @pushBack263(%String* %1, i8 %2)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @pushBack253(%String* %"$this", i8 %value) #3 {
+define internal void @pushBack263(%String* %"$this", i8 %value) #3 {
   %"$this.addr" = alloca %String*
   store %String* %"$this", %String** %"$this.addr"
   %value.addr = alloca i8
@@ -10218,7 +10630,7 @@ if_block:                                         ; preds = %code
 if_then:                                          ; preds = %if_block
   %6 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %7 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %6, i32 0, i32 1
-  %8 = call i8 @"pre_++246"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %7)
+  %8 = call i8 @"pre_++257"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %7)
   store i8 %8, i8* %ch
   br label %if_block1
 
@@ -10234,7 +10646,7 @@ if_then2:                                         ; preds = %if_block1
   %11 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %12 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %11, i32 0, i32 2
   %13 = getelementptr inbounds %Token* %12, i32 0, i32 2
-  call void @"+=252"(%String* %13, i8 13)
+  call void @"+=262"(%String* %13, i8 13)
   br label %if_end3
 
 if_else:                                          ; preds = %if_block1
@@ -10243,7 +10655,7 @@ if_else:                                          ; preds = %if_block1
 if_end3:                                          ; preds = %if_end7, %if_then2
   %14 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %15 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %14, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %15)
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %15)
   ret i1 true
 
 if_block4:                                        ; preds = %if_else
@@ -10255,7 +10667,7 @@ if_then5:                                         ; preds = %if_block4
   %18 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %19 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %18, i32 0, i32 2
   %20 = getelementptr inbounds %Token* %19, i32 0, i32 2
-  call void @"+=252"(%String* %20, i8 10)
+  call void @"+=262"(%String* %20, i8 10)
   br label %if_end7
 
 if_else6:                                         ; preds = %if_block4
@@ -10273,7 +10685,7 @@ if_then9:                                         ; preds = %if_block8
   %23 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %24 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %23, i32 0, i32 2
   %25 = getelementptr inbounds %Token* %24, i32 0, i32 2
-  call void @"+=252"(%String* %25, i8 8)
+  call void @"+=262"(%String* %25, i8 8)
   br label %if_end11
 
 if_else10:                                        ; preds = %if_block8
@@ -10291,7 +10703,7 @@ if_then13:                                        ; preds = %if_block12
   %28 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %29 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %28, i32 0, i32 2
   %30 = getelementptr inbounds %Token* %29, i32 0, i32 2
-  call void @"+=252"(%String* %30, i8 12)
+  call void @"+=262"(%String* %30, i8 12)
   br label %if_end15
 
 if_else14:                                        ; preds = %if_block12
@@ -10309,7 +10721,7 @@ if_then17:                                        ; preds = %if_block16
   %33 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %34 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %33, i32 0, i32 2
   %35 = getelementptr inbounds %Token* %34, i32 0, i32 2
-  call void @"+=252"(%String* %35, i8 9)
+  call void @"+=262"(%String* %35, i8 9)
   br label %if_end19
 
 if_else18:                                        ; preds = %if_block16
@@ -10327,7 +10739,7 @@ if_then21:                                        ; preds = %if_block20
   %38 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %39 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %38, i32 0, i32 2
   %40 = getelementptr inbounds %Token* %39, i32 0, i32 2
-  call void @"+=252"(%String* %40, i8 92)
+  call void @"+=262"(%String* %40, i8 92)
   br label %if_end23
 
 if_else22:                                        ; preds = %if_block20
@@ -10345,7 +10757,7 @@ if_then25:                                        ; preds = %if_block24
   %43 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %44 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %43, i32 0, i32 2
   %45 = getelementptr inbounds %Token* %44, i32 0, i32 2
-  call void @"+=252"(%String* %45, i8 39)
+  call void @"+=262"(%String* %45, i8 39)
   br label %if_end27
 
 if_else26:                                        ; preds = %if_block24
@@ -10363,7 +10775,7 @@ if_then29:                                        ; preds = %if_block28
   %48 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %49 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %48, i32 0, i32 2
   %50 = getelementptr inbounds %Token* %49, i32 0, i32 2
-  call void @"+=252"(%String* %50, i8 34)
+  call void @"+=262"(%String* %50, i8 34)
   br label %if_end31
 
 if_else30:                                        ; preds = %if_block28
@@ -10386,8 +10798,8 @@ if_else34:                                        ; preds = %cond.end
   %55 = getelementptr inbounds %Token* %54, i32 0, i32 2
   %56 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %57 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %56, i32 0, i32 1
-  %58 = call i8 @"pre_++246"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %57)
-  call void @"+=252"(%String* %55, i8 %58)
+  %58 = call i8 @"pre_++257"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %57)
+  call void @"+=262"(%String* %55, i8 %58)
   br label %if_end35
 
 if_end35:                                         ; preds = %if_else34, %if_end38
@@ -10412,24 +10824,24 @@ if_block36:                                       ; preds = %if_then33
 
 if_then37:                                        ; preds = %if_block36
   %63 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  call void @ctorFromCt254(%String* %tmp.v)
+  call void @ctorFromCt264(%String* %tmp.v)
   %64 = load %String* %tmp.v
   store %String %64, %String* %"$tmpForRef"
-  call void @reportError247(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %63, %String* %"$tmpForRef")
+  call void @reportError248(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %63, %String* %"$tmpForRef")
   call void @dtor159(%String* %tmp.v)
   ret i1 true
 
 if_end38:                                         ; preds = %dumy_block, %if_block36
   %65 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %66 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %65, i32 0, i32 1
-  %67 = call i8 @"pre_++246"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %66)
+  %67 = call i8 @"pre_++257"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %66)
   %68 = call i32 @getXdigitVal(i8 %67)
-  %69 = call i32 @"*255"(i32 16, i32 %68)
+  %69 = call i32 @"*265"(i32 16, i32 %68)
   store i32 %69, i32* %charVal
   %70 = load i32* %charVal
   %71 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %72 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %71, i32 0, i32 1
-  %73 = call i8 @"pre_++246"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %72)
+  %73 = call i8 @"pre_++257"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %72)
   %74 = call i32 @getXdigitVal(i8 %73)
   %75 = call i32 @"+11"(i32 %70, i32 %74)
   store i32 %75, i32* %charVal
@@ -10440,7 +10852,7 @@ if_end38:                                         ; preds = %dumy_block, %if_blo
   %80 = trunc i32 %79 to i8
   store i8 %80, i8* %tmp.v39
   %81 = load i8* %tmp.v39
-  call void @"+=252"(%String* %78, i8 %81)
+  call void @"+=262"(%String* %78, i8 %81)
   br label %if_end35
 
 dumy_block:                                       ; No predecessors!
@@ -10451,7 +10863,7 @@ dumy_block40:                                     ; No predecessors!
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @ctorFromCt254(%String* %"$this") #3 {
+define internal void @ctorFromCt264(%String* %"$this") #3 {
   %"$this.addr" = alloca %String*
   store %String* %"$this", %String** %"$this.addr"
   %"$tmpForRef" = alloca %StringRef
@@ -10470,12 +10882,12 @@ code:                                             ; preds = %0
   store i8* %3, i8** %5
   %6 = load %StringRef* %const.struct
   store %StringRef %6, %StringRef* %"$tmpForRef"
-  call void @ctor248(%String* %1, %StringRef* %"$tmpForRef")
+  call void @ctor258(%String* %1, %StringRef* %"$tmpForRef")
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i32 @"*255"(i32 %x, i32 %y) #2 {
+define internal i32 @"*265"(i32 %x, i32 %y) #2 {
   %x.addr = alloca i32
   store i32 %x, i32* %x.addr
   %y.addr = alloca i32
@@ -10606,15 +11018,15 @@ code:                                             ; preds = %0
   %4 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %5 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %4, i32 0, i32 1
   %6 = call i8 @"pre_*"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %5)
-  call void @"+=252"(%String* %3, i8 %6)
+  call void @"+=262"(%String* %3, i8 %6)
   %7 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %8 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %7, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %8)
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %8)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @ctorFromCt256(%String* %"$this") #3 {
+define internal void @ctorFromCt266(%String* %"$this") #3 {
   %"$this.addr" = alloca %String*
   store %String* %"$this", %String** %"$this.addr"
   %"$tmpForRef" = alloca %StringRef
@@ -10633,12 +11045,12 @@ code:                                             ; preds = %0
   store i8* %3, i8** %5
   %6 = load %StringRef* %const.struct
   store %StringRef %6, %StringRef* %"$tmpForRef"
-  call void @ctor248(%String* %1, %StringRef* %"$tmpForRef")
+  call void @ctor258(%String* %1, %StringRef* %"$tmpForRef")
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @ctorFromCt257(%String* %"$this") #3 {
+define internal void @ctorFromCt267(%String* %"$this") #3 {
   %"$this.addr" = alloca %String*
   store %String* %"$this", %String** %"$this.addr"
   %"$tmpForRef" = alloca %StringRef
@@ -10657,7 +11069,7 @@ code:                                             ; preds = %0
   store i8* %3, i8** %5
   %6 = load %StringRef* %const.struct
   store %StringRef %6, %StringRef* %"$tmpForRef"
-  call void @ctor248(%String* %1, %StringRef* %"$tmpForRef")
+  call void @ctor258(%String* %1, %StringRef* %"$tmpForRef")
   ret void
 }
 
@@ -10676,7 +11088,7 @@ define internal void @parseString(%TokenType* sret %_result, %"SparrowScanner[Ch
 code:                                             ; preds = %0
   %1 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %2 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %1, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %2)
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %2)
   br label %if_block
 
 if_block:                                         ; preds = %code
@@ -10686,10 +11098,10 @@ if_block:                                         ; preds = %code
 
 if_then:                                          ; preds = %if_block
   %5 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  call void @ctorFromCt258(%String* %tmp.v)
+  call void @ctorFromCt268(%String* %tmp.v)
   %6 = load %String* %tmp.v
   store %String %6, %String* %"$tmpForRef"
-  call void @reportError247(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %5, %String* %"$tmpForRef")
+  call void @reportError248(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %5, %String* %"$tmpForRef")
   call void @dtor159(%String* %tmp.v)
   %7 = load %TokenType** %_result.addr
   call void @ctor222(%TokenType* %7, i32 0)
@@ -10752,10 +11164,10 @@ if_block4:                                        ; preds = %while_end
 
 if_then5:                                         ; preds = %if_block4
   %22 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  call void @ctorFromCt259(%String* %tmp.v8)
+  call void @ctorFromCt269(%String* %tmp.v8)
   %23 = load %String* %tmp.v8
   store %String %23, %String* %"$tmpForRef7"
-  call void @reportError247(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %22, %String* %"$tmpForRef7")
+  call void @reportError248(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %22, %String* %"$tmpForRef7")
   call void @dtor159(%String* %tmp.v8)
   %24 = load %TokenType** %_result.addr
   call void @ctor222(%TokenType* %24, i32 0)
@@ -10764,9 +11176,9 @@ if_then5:                                         ; preds = %if_block4
 if_end6:                                          ; preds = %dumy_block9, %if_block4
   %25 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %26 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %25, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %26)
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %26)
   %27 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %27, i32 43)
+  call void @ctor222(%TokenType* %27, i32 44)
   ret void
 
 dumy_block9:                                      ; No predecessors!
@@ -10774,7 +11186,7 @@ dumy_block9:                                      ; No predecessors!
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @ctorFromCt258(%String* %"$this") #3 {
+define internal void @ctorFromCt268(%String* %"$this") #3 {
   %"$this.addr" = alloca %String*
   store %String* %"$this", %String** %"$this.addr"
   %"$tmpForRef" = alloca %StringRef
@@ -10793,12 +11205,12 @@ code:                                             ; preds = %0
   store i8* %3, i8** %5
   %6 = load %StringRef* %const.struct
   store %StringRef %6, %StringRef* %"$tmpForRef"
-  call void @ctor248(%String* %1, %StringRef* %"$tmpForRef")
+  call void @ctor258(%String* %1, %StringRef* %"$tmpForRef")
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @ctorFromCt259(%String* %"$this") #3 {
+define internal void @ctorFromCt269(%String* %"$this") #3 {
   %"$this.addr" = alloca %String*
   store %String* %"$this", %String** %"$this.addr"
   %"$tmpForRef" = alloca %StringRef
@@ -10817,7 +11229,7 @@ code:                                             ; preds = %0
   store i8* %3, i8** %5
   %6 = load %StringRef* %const.struct
   store %StringRef %6, %StringRef* %"$tmpForRef"
-  call void @ctor248(%String* %1, %StringRef* %"$tmpForRef")
+  call void @ctor258(%String* %1, %StringRef* %"$tmpForRef")
   ret void
 }
 
@@ -10834,7 +11246,7 @@ define internal void @parseStringNE(%TokenType* sret %_result, %"SparrowScanner[
 code:                                             ; preds = %0
   %1 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %2 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %1, i32 0, i32 1
-  call void @advance245(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %2, i64 2)
+  call void @advance256(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %2, i64 2)
   br label %while_block
 
 while_block:                                      ; preds = %while_step, %code
@@ -10890,10 +11302,10 @@ if_block:                                         ; preds = %while_end
 
 if_then:                                          ; preds = %if_block
   %18 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  call void @ctorFromCt260(%String* %tmp.v)
+  call void @ctorFromCt270(%String* %tmp.v)
   %19 = load %String* %tmp.v
   store %String %19, %String* %"$tmpForRef"
-  call void @reportError247(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %18, %String* %"$tmpForRef")
+  call void @reportError248(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %18, %String* %"$tmpForRef")
   call void @dtor159(%String* %tmp.v)
   %20 = load %TokenType** %_result.addr
   call void @ctor222(%TokenType* %20, i32 0)
@@ -10902,9 +11314,9 @@ if_then:                                          ; preds = %if_block
 if_end:                                           ; preds = %dumy_block, %if_block
   %21 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %22 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %21, i32 0, i32 1
-  call void @advance245(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %22, i64 2)
+  call void @advance256(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %22, i64 2)
   %23 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %23, i32 43)
+  call void @ctor222(%TokenType* %23, i32 44)
   ret void
 
 dumy_block:                                       ; No predecessors!
@@ -10912,7 +11324,7 @@ dumy_block:                                       ; No predecessors!
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @ctorFromCt260(%String* %"$this") #3 {
+define internal void @ctorFromCt270(%String* %"$this") #3 {
   %"$this.addr" = alloca %String*
   store %String* %"$this", %String** %"$this.addr"
   %"$tmpForRef" = alloca %StringRef
@@ -10931,7 +11343,7 @@ code:                                             ; preds = %0
   store i8* %3, i8** %5
   %6 = load %StringRef* %const.struct
   store %StringRef %6, %StringRef* %"$tmpForRef"
-  call void @ctor248(%String* %1, %StringRef* %"$tmpForRef")
+  call void @ctor258(%String* %1, %StringRef* %"$tmpForRef")
   ret void
 }
 
@@ -11238,7 +11650,7 @@ if_then2:                                         ; preds = %if_block1
   %12 = load i32* %i
   store i32 %12, i32* %tmp.v
   %13 = load i32* %tmp.v
-  %14 = call i8 @peekChar262(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %11, i32 %13)
+  %14 = call i8 @peekChar272(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %11, i32 %13)
   store i8 %14, i8* %c
   br label %while_block
 
@@ -11255,7 +11667,7 @@ while_body:                                       ; preds = %while_block
   %18 = call i32 @"pre_++10"(i32* %i)
   store i32 %18, i32* %tmp.v4
   %19 = load i32* %tmp.v4
-  %20 = call i8 @peekChar262(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %17, i32 %19)
+  %20 = call i8 @peekChar272(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %17, i32 %19)
   store i8 %20, i8* %c
   br label %while_step
 
@@ -11311,13 +11723,13 @@ while_body:                                       ; preds = %cond.end
   %7 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %8 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %7, i32 0, i32 1
   %9 = call i8 @"pre_*"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %8)
-  call void @"+=252"(%String* %6, i8 %9)
+  call void @"+=262"(%String* %6, i8 %9)
   br label %while_step
 
 while_step:                                       ; preds = %while_body
   %10 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %11 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %10, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %11)
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %11)
   br label %while_block
 
 while_end:                                        ; preds = %cond.end
@@ -11327,7 +11739,7 @@ cond.true:                                        ; preds = %while_block
   %12 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %13 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %12, i32 0, i32 1
   %14 = call i8 @"pre_*"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %13)
-  %15 = call i1 @"()261"(%"FunctionPtr[Bool, Char]"* %pred.addr, i8 %14)
+  %15 = call i1 @"()271"(%"FunctionPtr[Bool, Char]"* %pred.addr, i8 %14)
   br label %cond.end
 
 cond.false:                                       ; preds = %while_block
@@ -11339,7 +11751,7 @@ cond.end:                                         ; preds = %cond.false, %cond.t
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"()261"(%"FunctionPtr[Bool, Char]"* %"$this", i8 %p1) #2 {
+define internal i1 @"()271"(%"FunctionPtr[Bool, Char]"* %"$this", i8 %p1) #2 {
   %"$this.addr" = alloca %"FunctionPtr[Bool, Char]"*
   store %"FunctionPtr[Bool, Char]"* %"$this", %"FunctionPtr[Bool, Char]"** %"$this.addr"
   %p1.addr = alloca i8
@@ -11356,7 +11768,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal i8 @peekChar262(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %s, i32 %n) #3 {
+define internal i8 @peekChar272(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %s, i32 %n) #3 {
   %s.addr = alloca %"SparrowScanner[CharSource, ExternalErrorReporter]"*
   store %"SparrowScanner[CharSource, ExternalErrorReporter]"* %s, %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %n.addr = alloca i32
@@ -11433,26 +11845,22 @@ define void @parseIdentifer(%TokenType* sret %_result, %"SparrowScanner[CharSour
   %const.struct116 = alloca %StringRef
   %const.bytes122 = alloca [8 x i8]
   %const.struct123 = alloca %StringRef
-  %const.bytes129 = alloca [8 x i8]
+  %const.bytes129 = alloca [7 x i8]
   %const.struct130 = alloca %StringRef
-  %const.bytes136 = alloca [7 x i8]
+  %const.bytes136 = alloca [5 x i8]
   %const.struct137 = alloca %StringRef
-  %const.bytes143 = alloca [7 x i8]
+  %const.bytes143 = alloca [6 x i8]
   %const.struct144 = alloca %StringRef
   %const.bytes150 = alloca [5 x i8]
   %const.struct151 = alloca %StringRef
-  %const.bytes157 = alloca [6 x i8]
+  %const.bytes157 = alloca [4 x i8]
   %const.struct158 = alloca %StringRef
-  %const.bytes164 = alloca [5 x i8]
+  %const.bytes164 = alloca [6 x i8]
   %const.struct165 = alloca %StringRef
   %const.bytes171 = alloca [4 x i8]
   %const.struct172 = alloca %StringRef
   %const.bytes178 = alloca [6 x i8]
   %const.struct179 = alloca %StringRef
-  %const.bytes185 = alloca [4 x i8]
-  %const.struct186 = alloca %StringRef
-  %const.bytes192 = alloca [6 x i8]
-  %const.struct193 = alloca %StringRef
   br label %code
 
 code:                                             ; preds = %0
@@ -11463,10 +11871,10 @@ code:                                             ; preds = %0
   %4 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %5 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %4, i32 0, i32 1
   %6 = call i8 @"pre_*"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %5)
-  call void @"+=252"(%String* %3, i8 %6)
+  call void @"+=262"(%String* %3, i8 %6)
   %7 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %8 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %7, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %8)
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %8)
   store i1 true, i1* %firstDot
   br label %while_block
 
@@ -11486,7 +11894,7 @@ while_body:                                       ; preds = %while_block
 while_step:                                       ; preds = %if_end7
   %15 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %16 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %15, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %16)
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %16)
   br label %while_block
 
 while_end:                                        ; preds = %if_then, %while_block
@@ -11511,7 +11919,7 @@ if_end:                                           ; preds = %dumy_block, %cond.e
   %24 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %23, i32 0, i32 2
   %25 = getelementptr inbounds %Token* %24, i32 0, i32 2
   %26 = load i8* %ch
-  call void @"+=252"(%String* %25, i8 %26)
+  call void @"+=262"(%String* %25, i8 %26)
   br label %if_block5
 
 cond.true:                                        ; preds = %cond.end3
@@ -11550,7 +11958,7 @@ if_block5:                                        ; preds = %if_end
 if_then6:                                         ; preds = %cond.end10
   %34 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %35 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %34, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %35)
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %35)
   br label %if_block12
 
 if_end7:                                          ; preds = %if_end14, %cond.end10
@@ -11576,7 +11984,7 @@ if_block12:                                       ; preds = %if_then6
 
 if_then13:                                        ; preds = %if_block12
   %41 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %41, i32 40)
+  call void @ctor222(%TokenType* %41, i32 41)
   ret void
 
 if_end14:                                         ; preds = %dumy_block15, %if_block12
@@ -11595,12 +12003,12 @@ if_block16:                                       ; preds = %while_end
   store i8* %43, i8** %45
   store i8* %44, i8** %46
   %47 = load %StringRef* %const.struct
-  %48 = call i1 @"==263"(%StringRef* %42, %StringRef %47)
+  %48 = call i1 @"==273"(%StringRef* %42, %StringRef %47)
   br i1 %48, label %if_then17, label %if_else
 
 if_then17:                                        ; preds = %if_block16
   %49 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %49, i32 12)
+  call void @ctor222(%TokenType* %49, i32 13)
   ret void
 
 if_else:                                          ; preds = %if_block16
@@ -11622,12 +12030,12 @@ if_block20:                                       ; preds = %if_else
   store i8* %51, i8** %53
   store i8* %52, i8** %54
   %55 = load %StringRef* %const.struct25
-  %56 = call i1 @"==263"(%StringRef* %50, %StringRef %55)
+  %56 = call i1 @"==273"(%StringRef* %50, %StringRef %55)
   br i1 %56, label %if_then21, label %if_else22
 
 if_then21:                                        ; preds = %if_block20
   %57 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %57, i32 13)
+  call void @ctor222(%TokenType* %57, i32 14)
   ret void
 
 if_else22:                                        ; preds = %if_block20
@@ -11649,12 +12057,12 @@ if_block27:                                       ; preds = %if_else22
   store i8* %59, i8** %61
   store i8* %60, i8** %62
   %63 = load %StringRef* %const.struct32
-  %64 = call i1 @"==263"(%StringRef* %58, %StringRef %63)
+  %64 = call i1 @"==273"(%StringRef* %58, %StringRef %63)
   br i1 %64, label %if_then28, label %if_else29
 
 if_then28:                                        ; preds = %if_block27
   %65 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %65, i32 5)
+  call void @ctor222(%TokenType* %65, i32 6)
   ret void
 
 if_else29:                                        ; preds = %if_block27
@@ -11676,12 +12084,12 @@ if_block34:                                       ; preds = %if_else29
   store i8* %67, i8** %69
   store i8* %68, i8** %70
   %71 = load %StringRef* %const.struct39
-  %72 = call i1 @"==263"(%StringRef* %66, %StringRef %71)
+  %72 = call i1 @"==273"(%StringRef* %66, %StringRef %71)
   br i1 %72, label %if_then35, label %if_else36
 
 if_then35:                                        ; preds = %if_block34
   %73 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %73, i32 6)
+  call void @ctor222(%TokenType* %73, i32 7)
   ret void
 
 if_else36:                                        ; preds = %if_block34
@@ -11703,12 +12111,12 @@ if_block41:                                       ; preds = %if_else36
   store i8* %75, i8** %77
   store i8* %76, i8** %78
   %79 = load %StringRef* %const.struct46
-  %80 = call i1 @"==263"(%StringRef* %74, %StringRef %79)
+  %80 = call i1 @"==273"(%StringRef* %74, %StringRef %79)
   br i1 %80, label %if_then42, label %if_else43
 
 if_then42:                                        ; preds = %if_block41
   %81 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %81, i32 14)
+  call void @ctor222(%TokenType* %81, i32 15)
   ret void
 
 if_else43:                                        ; preds = %if_block41
@@ -11730,12 +12138,12 @@ if_block48:                                       ; preds = %if_else43
   store i8* %83, i8** %85
   store i8* %84, i8** %86
   %87 = load %StringRef* %const.struct53
-  %88 = call i1 @"==263"(%StringRef* %82, %StringRef %87)
+  %88 = call i1 @"==273"(%StringRef* %82, %StringRef %87)
   br i1 %88, label %if_then49, label %if_else50
 
 if_then49:                                        ; preds = %if_block48
   %89 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %89, i32 7)
+  call void @ctor222(%TokenType* %89, i32 8)
   ret void
 
 if_else50:                                        ; preds = %if_block48
@@ -11757,12 +12165,12 @@ if_block55:                                       ; preds = %if_else50
   store i8* %91, i8** %93
   store i8* %92, i8** %94
   %95 = load %StringRef* %const.struct60
-  %96 = call i1 @"==263"(%StringRef* %90, %StringRef %95)
+  %96 = call i1 @"==273"(%StringRef* %90, %StringRef %95)
   br i1 %96, label %if_then56, label %if_else57
 
 if_then56:                                        ; preds = %if_block55
   %97 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %97, i32 8)
+  call void @ctor222(%TokenType* %97, i32 9)
   ret void
 
 if_else57:                                        ; preds = %if_block55
@@ -11784,12 +12192,12 @@ if_block62:                                       ; preds = %if_else57
   store i8* %99, i8** %101
   store i8* %100, i8** %102
   %103 = load %StringRef* %const.struct67
-  %104 = call i1 @"==263"(%StringRef* %98, %StringRef %103)
+  %104 = call i1 @"==273"(%StringRef* %98, %StringRef %103)
   br i1 %104, label %if_then63, label %if_else64
 
 if_then63:                                        ; preds = %if_block62
   %105 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %105, i32 17)
+  call void @ctor222(%TokenType* %105, i32 18)
   ret void
 
 if_else64:                                        ; preds = %if_block62
@@ -11811,12 +12219,12 @@ if_block69:                                       ; preds = %if_else64
   store i8* %107, i8** %109
   store i8* %108, i8** %110
   %111 = load %StringRef* %const.struct74
-  %112 = call i1 @"==263"(%StringRef* %106, %StringRef %111)
+  %112 = call i1 @"==273"(%StringRef* %106, %StringRef %111)
   br i1 %112, label %if_then70, label %if_else71
 
 if_then70:                                        ; preds = %if_block69
   %113 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %113, i32 27)
+  call void @ctor222(%TokenType* %113, i32 28)
   ret void
 
 if_else71:                                        ; preds = %if_block69
@@ -11838,12 +12246,12 @@ if_block76:                                       ; preds = %if_else71
   store i8* %115, i8** %117
   store i8* %116, i8** %118
   %119 = load %StringRef* %const.struct81
-  %120 = call i1 @"==263"(%StringRef* %114, %StringRef %119)
+  %120 = call i1 @"==273"(%StringRef* %114, %StringRef %119)
   br i1 %120, label %if_then77, label %if_else78
 
 if_then77:                                        ; preds = %if_block76
   %121 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %121, i32 22)
+  call void @ctor222(%TokenType* %121, i32 23)
   ret void
 
 if_else78:                                        ; preds = %if_block76
@@ -11865,12 +12273,12 @@ if_block83:                                       ; preds = %if_else78
   store i8* %123, i8** %125
   store i8* %124, i8** %126
   %127 = load %StringRef* %const.struct88
-  %128 = call i1 @"==263"(%StringRef* %122, %StringRef %127)
+  %128 = call i1 @"==273"(%StringRef* %122, %StringRef %127)
   br i1 %128, label %if_then84, label %if_else85
 
 if_then84:                                        ; preds = %if_block83
   %129 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %129, i32 15)
+  call void @ctor222(%TokenType* %129, i32 16)
   ret void
 
 if_else85:                                        ; preds = %if_block83
@@ -11892,12 +12300,12 @@ if_block90:                                       ; preds = %if_else85
   store i8* %131, i8** %133
   store i8* %132, i8** %134
   %135 = load %StringRef* %const.struct95
-  %136 = call i1 @"==263"(%StringRef* %130, %StringRef %135)
+  %136 = call i1 @"==273"(%StringRef* %130, %StringRef %135)
   br i1 %136, label %if_then91, label %if_else92
 
 if_then91:                                        ; preds = %if_block90
   %137 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %137, i32 16)
+  call void @ctor222(%TokenType* %137, i32 17)
   ret void
 
 if_else92:                                        ; preds = %if_block90
@@ -11919,12 +12327,12 @@ if_block97:                                       ; preds = %if_else92
   store i8* %139, i8** %141
   store i8* %140, i8** %142
   %143 = load %StringRef* %const.struct102
-  %144 = call i1 @"==263"(%StringRef* %138, %StringRef %143)
+  %144 = call i1 @"==273"(%StringRef* %138, %StringRef %143)
   br i1 %144, label %if_then98, label %if_else99
 
 if_then98:                                        ; preds = %if_block97
   %145 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %145, i32 2)
+  call void @ctor222(%TokenType* %145, i32 5)
   ret void
 
 if_else99:                                        ; preds = %if_block97
@@ -11946,12 +12354,12 @@ if_block104:                                      ; preds = %if_else99
   store i8* %147, i8** %149
   store i8* %148, i8** %150
   %151 = load %StringRef* %const.struct109
-  %152 = call i1 @"==263"(%StringRef* %146, %StringRef %151)
+  %152 = call i1 @"==273"(%StringRef* %146, %StringRef %151)
   br i1 %152, label %if_then105, label %if_else106
 
 if_then105:                                       ; preds = %if_block104
   %153 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %153, i32 1)
+  call void @ctor222(%TokenType* %153, i32 4)
   ret void
 
 if_else106:                                       ; preds = %if_block104
@@ -11973,12 +12381,12 @@ if_block111:                                      ; preds = %if_else106
   store i8* %155, i8** %157
   store i8* %156, i8** %158
   %159 = load %StringRef* %const.struct116
-  %160 = call i1 @"==263"(%StringRef* %154, %StringRef %159)
+  %160 = call i1 @"==273"(%StringRef* %154, %StringRef %159)
   br i1 %160, label %if_then112, label %if_else113
 
 if_then112:                                       ; preds = %if_block111
   %161 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %161, i32 23)
+  call void @ctor222(%TokenType* %161, i32 24)
   ret void
 
 if_else113:                                       ; preds = %if_block111
@@ -12000,12 +12408,12 @@ if_block118:                                      ; preds = %if_else113
   store i8* %163, i8** %165
   store i8* %164, i8** %166
   %167 = load %StringRef* %const.struct123
-  %168 = call i1 @"==263"(%StringRef* %162, %StringRef %167)
+  %168 = call i1 @"==273"(%StringRef* %162, %StringRef %167)
   br i1 %168, label %if_then119, label %if_else120
 
 if_then119:                                       ; preds = %if_block118
   %169 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %169, i32 9)
+  call void @ctor222(%TokenType* %169, i32 10)
   ret void
 
 if_else120:                                       ; preds = %if_block118
@@ -12019,20 +12427,20 @@ dumy_block124:                                    ; No predecessors!
 
 if_block125:                                      ; preds = %if_else120
   %170 = load %StringRef** %data
-  store [8 x i8] c"private\00", [8 x i8]* %const.bytes129
-  %171 = getelementptr inbounds [8 x i8]* %const.bytes129, i32 0, i32 0
-  %172 = getelementptr inbounds [8 x i8]* %const.bytes129, i32 0, i32 7
+  store [7 x i8] c"return\00", [7 x i8]* %const.bytes129
+  %171 = getelementptr inbounds [7 x i8]* %const.bytes129, i32 0, i32 0
+  %172 = getelementptr inbounds [7 x i8]* %const.bytes129, i32 0, i32 6
   %173 = getelementptr inbounds %StringRef* %const.struct130, i32 0, i32 0
   %174 = getelementptr inbounds %StringRef* %const.struct130, i32 0, i32 1
   store i8* %171, i8** %173
   store i8* %172, i8** %174
   %175 = load %StringRef* %const.struct130
-  %176 = call i1 @"==263"(%StringRef* %170, %StringRef %175)
+  %176 = call i1 @"==273"(%StringRef* %170, %StringRef %175)
   br i1 %176, label %if_then126, label %if_else127
 
 if_then126:                                       ; preds = %if_block125
   %177 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %177, i32 3)
+  call void @ctor222(%TokenType* %177, i32 19)
   ret void
 
 if_else127:                                       ; preds = %if_block125
@@ -12046,20 +12454,20 @@ dumy_block131:                                    ; No predecessors!
 
 if_block132:                                      ; preds = %if_else127
   %178 = load %StringRef** %data
-  store [7 x i8] c"public\00", [7 x i8]* %const.bytes136
-  %179 = getelementptr inbounds [7 x i8]* %const.bytes136, i32 0, i32 0
-  %180 = getelementptr inbounds [7 x i8]* %const.bytes136, i32 0, i32 6
+  store [5 x i8] c"this\00", [5 x i8]* %const.bytes136
+  %179 = getelementptr inbounds [5 x i8]* %const.bytes136, i32 0, i32 0
+  %180 = getelementptr inbounds [5 x i8]* %const.bytes136, i32 0, i32 4
   %181 = getelementptr inbounds %StringRef* %const.struct137, i32 0, i32 0
   %182 = getelementptr inbounds %StringRef* %const.struct137, i32 0, i32 1
   store i8* %179, i8** %181
   store i8* %180, i8** %182
   %183 = load %StringRef* %const.struct137
-  %184 = call i1 @"==263"(%StringRef* %178, %StringRef %183)
+  %184 = call i1 @"==273"(%StringRef* %178, %StringRef %183)
   br i1 %184, label %if_then133, label %if_else134
 
 if_then133:                                       ; preds = %if_block132
   %185 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %185, i32 4)
+  call void @ctor222(%TokenType* %185, i32 25)
   ret void
 
 if_else134:                                       ; preds = %if_block132
@@ -12073,20 +12481,20 @@ dumy_block138:                                    ; No predecessors!
 
 if_block139:                                      ; preds = %if_else134
   %186 = load %StringRef** %data
-  store [7 x i8] c"return\00", [7 x i8]* %const.bytes143
-  %187 = getelementptr inbounds [7 x i8]* %const.bytes143, i32 0, i32 0
-  %188 = getelementptr inbounds [7 x i8]* %const.bytes143, i32 0, i32 6
+  store [6 x i8] c"throw\00", [6 x i8]* %const.bytes143
+  %187 = getelementptr inbounds [6 x i8]* %const.bytes143, i32 0, i32 0
+  %188 = getelementptr inbounds [6 x i8]* %const.bytes143, i32 0, i32 5
   %189 = getelementptr inbounds %StringRef* %const.struct144, i32 0, i32 0
   %190 = getelementptr inbounds %StringRef* %const.struct144, i32 0, i32 1
   store i8* %187, i8** %189
   store i8* %188, i8** %190
   %191 = load %StringRef* %const.struct144
-  %192 = call i1 @"==263"(%StringRef* %186, %StringRef %191)
+  %192 = call i1 @"==273"(%StringRef* %186, %StringRef %191)
   br i1 %192, label %if_then140, label %if_else141
 
 if_then140:                                       ; preds = %if_block139
   %193 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %193, i32 18)
+  call void @ctor222(%TokenType* %193, i32 20)
   ret void
 
 if_else141:                                       ; preds = %if_block139
@@ -12100,7 +12508,7 @@ dumy_block145:                                    ; No predecessors!
 
 if_block146:                                      ; preds = %if_else141
   %194 = load %StringRef** %data
-  store [5 x i8] c"this\00", [5 x i8]* %const.bytes150
+  store [5 x i8] c"true\00", [5 x i8]* %const.bytes150
   %195 = getelementptr inbounds [5 x i8]* %const.bytes150, i32 0, i32 0
   %196 = getelementptr inbounds [5 x i8]* %const.bytes150, i32 0, i32 4
   %197 = getelementptr inbounds %StringRef* %const.struct151, i32 0, i32 0
@@ -12108,12 +12516,12 @@ if_block146:                                      ; preds = %if_else141
   store i8* %195, i8** %197
   store i8* %196, i8** %198
   %199 = load %StringRef* %const.struct151
-  %200 = call i1 @"==263"(%StringRef* %194, %StringRef %199)
+  %200 = call i1 @"==273"(%StringRef* %194, %StringRef %199)
   br i1 %200, label %if_then147, label %if_else148
 
 if_then147:                                       ; preds = %if_block146
   %201 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %201, i32 24)
+  call void @ctor222(%TokenType* %201, i32 26)
   ret void
 
 if_else148:                                       ; preds = %if_block146
@@ -12127,20 +12535,20 @@ dumy_block152:                                    ; No predecessors!
 
 if_block153:                                      ; preds = %if_else148
   %202 = load %StringRef** %data
-  store [6 x i8] c"throw\00", [6 x i8]* %const.bytes157
-  %203 = getelementptr inbounds [6 x i8]* %const.bytes157, i32 0, i32 0
-  %204 = getelementptr inbounds [6 x i8]* %const.bytes157, i32 0, i32 5
+  store [4 x i8] c"try\00", [4 x i8]* %const.bytes157
+  %203 = getelementptr inbounds [4 x i8]* %const.bytes157, i32 0, i32 0
+  %204 = getelementptr inbounds [4 x i8]* %const.bytes157, i32 0, i32 3
   %205 = getelementptr inbounds %StringRef* %const.struct158, i32 0, i32 0
   %206 = getelementptr inbounds %StringRef* %const.struct158, i32 0, i32 1
   store i8* %203, i8** %205
   store i8* %204, i8** %206
   %207 = load %StringRef* %const.struct158
-  %208 = call i1 @"==263"(%StringRef* %202, %StringRef %207)
+  %208 = call i1 @"==273"(%StringRef* %202, %StringRef %207)
   br i1 %208, label %if_then154, label %if_else155
 
 if_then154:                                       ; preds = %if_block153
   %209 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %209, i32 19)
+  call void @ctor222(%TokenType* %209, i32 21)
   ret void
 
 if_else155:                                       ; preds = %if_block153
@@ -12154,20 +12562,20 @@ dumy_block159:                                    ; No predecessors!
 
 if_block160:                                      ; preds = %if_else155
   %210 = load %StringRef** %data
-  store [5 x i8] c"true\00", [5 x i8]* %const.bytes164
-  %211 = getelementptr inbounds [5 x i8]* %const.bytes164, i32 0, i32 0
-  %212 = getelementptr inbounds [5 x i8]* %const.bytes164, i32 0, i32 4
+  store [6 x i8] c"using\00", [6 x i8]* %const.bytes164
+  %211 = getelementptr inbounds [6 x i8]* %const.bytes164, i32 0, i32 0
+  %212 = getelementptr inbounds [6 x i8]* %const.bytes164, i32 0, i32 5
   %213 = getelementptr inbounds %StringRef* %const.struct165, i32 0, i32 0
   %214 = getelementptr inbounds %StringRef* %const.struct165, i32 0, i32 1
   store i8* %211, i8** %213
   store i8* %212, i8** %214
   %215 = load %StringRef* %const.struct165
-  %216 = call i1 @"==263"(%StringRef* %210, %StringRef %215)
+  %216 = call i1 @"==273"(%StringRef* %210, %StringRef %215)
   br i1 %216, label %if_then161, label %if_else162
 
 if_then161:                                       ; preds = %if_block160
   %217 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %217, i32 25)
+  call void @ctor222(%TokenType* %217, i32 11)
   ret void
 
 if_else162:                                       ; preds = %if_block160
@@ -12181,7 +12589,7 @@ dumy_block166:                                    ; No predecessors!
 
 if_block167:                                      ; preds = %if_else162
   %218 = load %StringRef** %data
-  store [4 x i8] c"try\00", [4 x i8]* %const.bytes171
+  store [4 x i8] c"var\00", [4 x i8]* %const.bytes171
   %219 = getelementptr inbounds [4 x i8]* %const.bytes171, i32 0, i32 0
   %220 = getelementptr inbounds [4 x i8]* %const.bytes171, i32 0, i32 3
   %221 = getelementptr inbounds %StringRef* %const.struct172, i32 0, i32 0
@@ -12189,12 +12597,12 @@ if_block167:                                      ; preds = %if_else162
   store i8* %219, i8** %221
   store i8* %220, i8** %222
   %223 = load %StringRef* %const.struct172
-  %224 = call i1 @"==263"(%StringRef* %218, %StringRef %223)
+  %224 = call i1 @"==273"(%StringRef* %218, %StringRef %223)
   br i1 %224, label %if_then168, label %if_else169
 
 if_then168:                                       ; preds = %if_block167
   %225 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %225, i32 20)
+  call void @ctor222(%TokenType* %225, i32 12)
   ret void
 
 if_else169:                                       ; preds = %if_block167
@@ -12208,7 +12616,7 @@ dumy_block173:                                    ; No predecessors!
 
 if_block174:                                      ; preds = %if_else169
   %226 = load %StringRef** %data
-  store [6 x i8] c"using\00", [6 x i8]* %const.bytes178
+  store [6 x i8] c"while\00", [6 x i8]* %const.bytes178
   %227 = getelementptr inbounds [6 x i8]* %const.bytes178, i32 0, i32 0
   %228 = getelementptr inbounds [6 x i8]* %const.bytes178, i32 0, i32 5
   %229 = getelementptr inbounds %StringRef* %const.struct179, i32 0, i32 0
@@ -12216,85 +12624,31 @@ if_block174:                                      ; preds = %if_else169
   store i8* %227, i8** %229
   store i8* %228, i8** %230
   %231 = load %StringRef* %const.struct179
-  %232 = call i1 @"==263"(%StringRef* %226, %StringRef %231)
+  %232 = call i1 @"==273"(%StringRef* %226, %StringRef %231)
   br i1 %232, label %if_then175, label %if_else176
 
 if_then175:                                       ; preds = %if_block174
   %233 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %233, i32 10)
+  call void @ctor222(%TokenType* %233, i32 22)
   ret void
 
 if_else176:                                       ; preds = %if_block174
-  br label %if_block181
+  %234 = load %TokenType** %_result.addr
+  call void @ctor222(%TokenType* %234, i32 41)
+  ret void
 
-if_end177:                                        ; preds = %if_end184, %dumy_block180
+if_end177:                                        ; preds = %dumy_block181, %dumy_block180
   br label %if_end170
 
 dumy_block180:                                    ; No predecessors!
   br label %if_end177
 
-if_block181:                                      ; preds = %if_else176
-  %234 = load %StringRef** %data
-  store [4 x i8] c"var\00", [4 x i8]* %const.bytes185
-  %235 = getelementptr inbounds [4 x i8]* %const.bytes185, i32 0, i32 0
-  %236 = getelementptr inbounds [4 x i8]* %const.bytes185, i32 0, i32 3
-  %237 = getelementptr inbounds %StringRef* %const.struct186, i32 0, i32 0
-  %238 = getelementptr inbounds %StringRef* %const.struct186, i32 0, i32 1
-  store i8* %235, i8** %237
-  store i8* %236, i8** %238
-  %239 = load %StringRef* %const.struct186
-  %240 = call i1 @"==263"(%StringRef* %234, %StringRef %239)
-  br i1 %240, label %if_then182, label %if_else183
-
-if_then182:                                       ; preds = %if_block181
-  %241 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %241, i32 11)
-  ret void
-
-if_else183:                                       ; preds = %if_block181
-  br label %if_block188
-
-if_end184:                                        ; preds = %if_end191, %dumy_block187
+dumy_block181:                                    ; No predecessors!
   br label %if_end177
-
-dumy_block187:                                    ; No predecessors!
-  br label %if_end184
-
-if_block188:                                      ; preds = %if_else183
-  %242 = load %StringRef** %data
-  store [6 x i8] c"while\00", [6 x i8]* %const.bytes192
-  %243 = getelementptr inbounds [6 x i8]* %const.bytes192, i32 0, i32 0
-  %244 = getelementptr inbounds [6 x i8]* %const.bytes192, i32 0, i32 5
-  %245 = getelementptr inbounds %StringRef* %const.struct193, i32 0, i32 0
-  %246 = getelementptr inbounds %StringRef* %const.struct193, i32 0, i32 1
-  store i8* %243, i8** %245
-  store i8* %244, i8** %246
-  %247 = load %StringRef* %const.struct193
-  %248 = call i1 @"==263"(%StringRef* %242, %StringRef %247)
-  br i1 %248, label %if_then189, label %if_else190
-
-if_then189:                                       ; preds = %if_block188
-  %249 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %249, i32 21)
-  ret void
-
-if_else190:                                       ; preds = %if_block188
-  %250 = load %TokenType** %_result.addr
-  call void @ctor222(%TokenType* %250, i32 40)
-  ret void
-
-if_end191:                                        ; preds = %dumy_block195, %dumy_block194
-  br label %if_end184
-
-dumy_block194:                                    ; No predecessors!
-  br label %if_end191
-
-dumy_block195:                                    ; No predecessors!
-  br label %if_end191
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal i1 @"==263"(%StringRef* %"$this", %StringRef %other) #3 {
+define internal i1 @"==273"(%StringRef* %"$this", %StringRef %other) #3 {
   %"$this.addr" = alloca %StringRef*
   store %StringRef* %"$this", %StringRef** %"$this.addr"
   %other.addr = alloca %StringRef
@@ -12312,7 +12666,7 @@ code:                                             ; preds = %0
 if_block:                                         ; preds = %code
   %3 = load i64* %s
   %4 = call i64 @size(%StringRef* %other.addr)
-  %5 = call i1 @"!=264"(i64 %3, i64 %4)
+  %5 = call i1 @"!=274"(i64 %3, i64 %4)
   br i1 %5, label %if_then, label %if_end
 
 if_then:                                          ; preds = %if_block
@@ -12365,7 +12719,7 @@ dumy_block4:                                      ; No predecessors!
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"!=264"(i64 %x, i64 %y) #2 {
+define internal i1 @"!=274"(i64 %x, i64 %y) #2 {
   %x.addr = alloca i64
   store i64 %x, i64* %x.addr
   %y.addr = alloca i64
@@ -12441,7 +12795,7 @@ code:                                             ; preds = %0
   %6 = call i8 @toLower(i8 %5)
   store i8 %6, i8* %ch2
   %7 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  %8 = call i8 @peekChar262(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %7, i32 2)
+  %8 = call i8 @peekChar272(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %7, i32 2)
   %9 = call i8 @toLower(i8 %8)
   store i8 %9, i8* %ch3
   br label %if_block
@@ -12454,7 +12808,7 @@ if_block:                                         ; preds = %code
 if_then:                                          ; preds = %cond.end
   %12 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %13 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %12, i32 0, i32 1
-  call void @advance245(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %13, i64 2)
+  call void @advance256(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %13, i64 2)
   %14 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %15 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %14, i32 0, i32 1
   %16 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
@@ -12493,7 +12847,7 @@ if_block1:                                        ; preds = %if_else
 if_then2:                                         ; preds = %cond.end7
   %27 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %28 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %27, i32 0, i32 1
-  call void @advance245(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %28, i64 2)
+  call void @advance256(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %28, i64 2)
   %29 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %30 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %29, i32 0, i32 1
   %31 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
@@ -12532,7 +12886,7 @@ if_block9:                                        ; preds = %if_else3
 if_then10:                                        ; preds = %cond.end15
   %42 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %43 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %42, i32 0, i32 1
-  call void @advance245(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %43, i64 1)
+  call void @advance256(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %43, i64 1)
   %44 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %45 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %44, i32 0, i32 1
   %46 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
@@ -12732,7 +13086,7 @@ if_then53:                                        ; preds = %if_block52
   store i1 false, i1* %isLong
   %111 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %112 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %111, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %112)
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %112)
   br label %if_end55
 
 if_else54:                                        ; preds = %if_block52
@@ -12749,7 +13103,7 @@ if_block56:                                       ; preds = %if_else54
 if_then57:                                        ; preds = %if_block56
   %115 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %116 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %115, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %116)
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %116)
   br label %if_end58
 
 if_end58:                                         ; preds = %if_then57, %if_block56
@@ -12759,15 +13113,15 @@ if_block59:                                       ; preds = %if_end
   %117 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %118 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %117, i32 0, i32 2
   %119 = getelementptr inbounds %Token* %118, i32 0, i32 2
-  %120 = call i1 @isEmpty270(%String* %119)
+  %120 = call i1 @isEmpty280(%String* %119)
   br i1 %120, label %if_then60, label %if_end61
 
 if_then60:                                        ; preds = %if_block59
   %121 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
-  call void @ctorFromCt271(%String* %tmp.v)
+  call void @ctorFromCt281(%String* %tmp.v)
   %122 = load %String* %tmp.v
   store %String %122, %String* %"$tmpForRef"
-  call void @reportError247(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %121, %String* %"$tmpForRef")
+  call void @reportError248(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %121, %String* %"$tmpForRef")
   call void @dtor159(%String* %tmp.v)
   %123 = load %TokenType** %_result.addr
   call void @ctor222(%TokenType* %123, i32 0)
@@ -12800,7 +13154,7 @@ if_then66:                                        ; preds = %cond.end70
   store i1 true, i1* %isUnsigned
   %129 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %130 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %129, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %130)
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %130)
   br label %if_end67
 
 if_end67:                                         ; preds = %if_then66, %cond.end70
@@ -12831,7 +13185,7 @@ if_then73:                                        ; preds = %cond.end77
   store i1 true, i1* %isLong
   %139 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %140 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %139, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %140)
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %140)
   br label %if_end74
 
 if_end74:                                         ; preds = %if_then73, %cond.end77
@@ -12862,7 +13216,7 @@ if_then80:                                        ; preds = %if_block79
   %149 = getelementptr inbounds %Token* %148, i32 0, i32 2
   store i8 0, i8* %tmp.v82
   %150 = load i8* %tmp.v82
-  call void @"+=252"(%String* %149, i8 %150)
+  call void @"+=262"(%String* %149, i8 %150)
   %151 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %152 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %151, i32 0, i32 2
   %153 = getelementptr inbounds %Token* %152, i32 0, i32 2
@@ -12876,7 +13230,7 @@ if_then80:                                        ; preds = %if_block79
   %159 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %160 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %159, i32 0, i32 2
   %161 = getelementptr inbounds %Token* %160, i32 0, i32 2
-  call void @popBack272(%String* %161)
+  call void @popBack282(%String* %161)
   %162 = load %TokenType** %_result.addr
   %163 = load i1* %isLong
   br i1 %163, label %cond_alt1, label %cond_alt2
@@ -12885,11 +13239,11 @@ if_end81:                                         ; preds = %cond_destruct_end87
   br label %if_block89
 
 cond_alt1:                                        ; preds = %if_then80
-  call void @ctor222(%TokenType* %tmp.v83, i32 49)
+  call void @ctor222(%TokenType* %tmp.v83, i32 50)
   br label %cond_end
 
 cond_alt2:                                        ; preds = %if_then80
-  call void @ctor222(%TokenType* %tmp.v84, i32 48)
+  call void @ctor222(%TokenType* %tmp.v84, i32 49)
   br label %cond_end
 
 cond_end:                                         ; preds = %cond_alt2, %cond_alt1
@@ -12936,11 +13290,11 @@ if_end92:                                         ; preds = %cond_destruct_end11
   ret void
 
 cond_alt193:                                      ; preds = %if_then90
-  call void @ctor222(%TokenType* %tmp.v96, i32 47)
+  call void @ctor222(%TokenType* %tmp.v96, i32 48)
   br label %cond_end95
 
 cond_alt294:                                      ; preds = %if_then90
-  call void @ctor222(%TokenType* %tmp.v97, i32 46)
+  call void @ctor222(%TokenType* %tmp.v97, i32 47)
   br label %cond_end95
 
 cond_end95:                                       ; preds = %cond_alt294, %cond_alt193
@@ -12970,11 +13324,11 @@ dumy_block105:                                    ; No predecessors!
   br i1 %166, label %cond_destruct_alt1102, label %cond_destruct_alt2103
 
 cond_alt1106:                                     ; preds = %if_else91
-  call void @ctor222(%TokenType* %tmp.v109, i32 45)
+  call void @ctor222(%TokenType* %tmp.v109, i32 46)
   br label %cond_end108
 
 cond_alt2107:                                     ; preds = %if_else91
-  call void @ctor222(%TokenType* %tmp.v110, i32 44)
+  call void @ctor222(%TokenType* %tmp.v110, i32 45)
   br label %cond_end108
 
 cond_end108:                                      ; preds = %cond_alt2107, %cond_alt1106
@@ -13021,7 +13375,7 @@ code:                                             ; preds = %0
 
 if_block:                                         ; preds = %code
   %1 = load i64* %base.addr
-  %2 = call i1 @"==265"(i64 %1, i32 16)
+  %2 = call i1 @"==275"(i64 %1, i32 16)
   br i1 %2, label %if_then, label %if_else
 
 if_then:                                          ; preds = %if_block
@@ -13044,7 +13398,7 @@ while_body:                                       ; preds = %cond.end
 
 while_step:                                       ; preds = %if_end7
   %6 = load %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %r.addr
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %6)
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %6)
   br label %while_block
 
 while_end:                                        ; preds = %cond.end
@@ -13086,16 +13440,16 @@ if_then6:                                         ; preds = %if_block5
   %16 = load %String** %capture.addr
   %17 = load %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %r.addr
   %18 = call i8 @"pre_*"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %17)
-  call void @"+=252"(%String* %16, i8 %18)
+  call void @"+=262"(%String* %16, i8 %18)
   %19 = load i64* %res
   %20 = load i64* %base.addr
-  %21 = call i64 @"*268"(i64 %19, i64 %20)
+  %21 = call i64 @"*278"(i64 %19, i64 %20)
   store i64 %21, i64* %res
   %22 = load i64* %res
   %23 = load %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %r.addr
   %24 = call i8 @"pre_*"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %23)
   %25 = call i32 @getXdigitVal(i8 %24)
-  %26 = call i64 @"+269"(i64 %22, i32 %25)
+  %26 = call i64 @"+279"(i64 %22, i32 %25)
   store i64 %26, i64* %res
   br label %if_end7
 
@@ -13112,7 +13466,7 @@ while_body9:                                      ; preds = %cond.end14
 
 while_step10:                                     ; preds = %if_end22
   %29 = load %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %r.addr
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %29)
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %29)
   br label %while_block8
 
 while_end11:                                      ; preds = %cond.end14
@@ -13154,16 +13508,16 @@ if_then21:                                        ; preds = %if_block20
   %39 = load %String** %capture.addr
   %40 = load %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %r.addr
   %41 = call i8 @"pre_*"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %40)
-  call void @"+=252"(%String* %39, i8 %41)
+  call void @"+=262"(%String* %39, i8 %41)
   %42 = load i64* %res
   %43 = load i64* %base.addr
-  %44 = call i64 @"*268"(i64 %42, i64 %43)
+  %44 = call i64 @"*278"(i64 %42, i64 %43)
   store i64 %44, i64* %res
   %45 = load i64* %res
   %46 = load %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %r.addr
   %47 = call i8 @"pre_*"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %46)
   %48 = call i32 @getDigitVal(i8 %47)
-  %49 = call i64 @"+269"(i64 %45, i32 %48)
+  %49 = call i64 @"+279"(i64 %45, i32 %48)
   store i64 %49, i64* %res
   br label %if_end22
 
@@ -13172,7 +13526,7 @@ if_end22:                                         ; preds = %if_then21, %if_bloc
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"==265"(i64 %x, i32 %y) #2 {
+define internal i1 @"==275"(i64 %x, i32 %y) #2 {
   %x.addr = alloca i64
   store i64 %x, i64* %x.addr
   %y.addr = alloca i32
@@ -13182,16 +13536,16 @@ define internal i1 @"==265"(i64 %x, i32 %y) #2 {
 code:                                             ; preds = %0
   %1 = load i64* %x.addr
   %2 = load i32* %y.addr
-  %3 = call i64 @cmn266(i64 %1, i32 %2)
+  %3 = call i64 @cmn276(i64 %1, i32 %2)
   %4 = load i32* %y.addr
   %5 = load i64* %x.addr
-  %6 = call i64 @cmn267(i32 %4, i64 %5)
+  %6 = call i64 @cmn277(i32 %4, i64 %5)
   %7 = icmp eq i64 %3, %6
   ret i1 %7
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i64 @cmn266(i64 %x, i32 %y) #2 {
+define internal i64 @cmn276(i64 %x, i32 %y) #2 {
   %x.addr = alloca i64
   store i64 %x, i64* %x.addr
   %y.addr = alloca i32
@@ -13204,7 +13558,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i64 @cmn267(i32 %x, i64 %y) #2 {
+define internal i64 @cmn277(i32 %x, i64 %y) #2 {
   %x.addr = alloca i32
   store i32 %x, i32* %x.addr
   %y.addr = alloca i64
@@ -13239,7 +13593,7 @@ code:                                             ; preds = %0
 declare i32 @isxdigit(i32)
 
 ; Function Attrs: alwaysinline nounwind
-define internal i64 @"*268"(i64 %x, i64 %y) #2 {
+define internal i64 @"*278"(i64 %x, i64 %y) #2 {
   %x.addr = alloca i64
   store i64 %x, i64* %x.addr
   %y.addr = alloca i64
@@ -13258,7 +13612,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i64 @"+269"(i64 %x, i32 %y) #2 {
+define internal i64 @"+279"(i64 %x, i32 %y) #2 {
   %x.addr = alloca i64
   store i64 %x, i64* %x.addr
   %y.addr = alloca i32
@@ -13268,10 +13622,10 @@ define internal i64 @"+269"(i64 %x, i32 %y) #2 {
 code:                                             ; preds = %0
   %1 = load i64* %x.addr
   %2 = load i32* %y.addr
-  %3 = call i64 @cmn266(i64 %1, i32 %2)
+  %3 = call i64 @cmn276(i64 %1, i32 %2)
   %4 = load i32* %y.addr
   %5 = load i64* %x.addr
-  %6 = call i64 @cmn267(i32 %4, i64 %5)
+  %6 = call i64 @cmn277(i32 %4, i64 %5)
   %7 = add i64 %3, %6
   ret i64 %7
 }
@@ -13317,7 +13671,7 @@ while_body:                                       ; preds = %cond.end
 while_step:                                       ; preds = %if_end
   %4 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %5 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %4, i32 0, i32 1
-  call void @popFront231(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %5)
+  call void @popFront233(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %5)
   br label %while_block
 
 while_end:                                        ; preds = %cond.end
@@ -13327,7 +13681,7 @@ cond.true:                                        ; preds = %while_block
   %6 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %7 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %6, i32 0, i32 1
   %8 = call i8 @"pre_*"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %7)
-  %9 = call i1 @"()230"(%"FunctionPtr[Bool/rtct, Char/rtct]"* %pred.addr, i8 %8)
+  %9 = call i1 @"()247"(%"FunctionPtr[Bool/rtct, Char/rtct]"* %pred.addr, i8 %8)
   br i1 %9, label %cond.true1, label %cond.false2
 
 cond.false:                                       ; preds = %while_block
@@ -13365,7 +13719,7 @@ if_then:                                          ; preds = %if_block
   %21 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %s.addr
   %22 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %21, i32 0, i32 1
   %23 = call i8 @"pre_*"(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %22)
-  call void @"+=252"(%String* %20, i8 %23)
+  call void @"+=262"(%String* %20, i8 %23)
   br label %if_end
 
 if_end:                                           ; preds = %if_then, %if_block
@@ -13373,7 +13727,7 @@ if_end:                                           ; preds = %if_then, %if_block
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @isEmpty270(%String* %"$this") #2 {
+define internal i1 @isEmpty280(%String* %"$this") #2 {
   %"$this.addr" = alloca %String*
   store %String* %"$this", %String** %"$this.addr"
   br label %code
@@ -13389,7 +13743,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @ctorFromCt271(%String* %"$this") #3 {
+define internal void @ctorFromCt281(%String* %"$this") #3 {
   %"$this.addr" = alloca %String*
   store %String* %"$this", %String** %"$this.addr"
   %"$tmpForRef" = alloca %StringRef
@@ -13408,12 +13762,12 @@ code:                                             ; preds = %0
   store i8* %3, i8** %5
   %6 = load %StringRef* %const.struct
   store %StringRef %6, %StringRef* %"$tmpForRef"
-  call void @ctor248(%String* %1, %StringRef* %"$tmpForRef")
+  call void @ctor258(%String* %1, %StringRef* %"$tmpForRef")
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @popBack272(%String* %"$this") #3 {
+define internal void @popBack282(%String* %"$this") #3 {
   %"$this.addr" = alloca %String*
   store %String* %"$this", %String** %"$this.addr"
   %"$tmpC" = alloca %"RawPtr[Char/rtct]"
@@ -13434,7 +13788,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @toString273(%String* sret %_result, %StringRef %a1, i8 %a2, %StringRef %a3, i32 %a4, i8 %a5) #3 {
+define internal void @toString283(%String* sret %_result, %StringRef %a1, i8 %a2, %StringRef %a3, i32 %a4, i8 %a5) #3 {
   %_result.addr = alloca %String*
   store %String* %_result, %String** %_result.addr
   %a1.addr = alloca %StringRef
@@ -13453,10 +13807,10 @@ define internal void @toString273(%String* sret %_result, %StringRef %a1, i8 %a2
 code:                                             ; preds = %0
   call void @ctor135(%StringOutputStream* %s)
   %1 = call %StringOutputStream* @"<<"(%StringOutputStream* %s, %StringRef* %a1.addr)
-  %2 = call %StringOutputStream* @"<<274"(%StringOutputStream* %1, i8* %a2.addr)
+  %2 = call %StringOutputStream* @"<<284"(%StringOutputStream* %1, i8* %a2.addr)
   %3 = call %StringOutputStream* @"<<"(%StringOutputStream* %2, %StringRef* %a3.addr)
-  %4 = call %StringOutputStream* @"<<278"(%StringOutputStream* %3, i32* %a4.addr)
-  %5 = call %StringOutputStream* @"<<274"(%StringOutputStream* %4, i8* %a5.addr)
+  %4 = call %StringOutputStream* @"<<288"(%StringOutputStream* %3, i32* %a4.addr)
+  %5 = call %StringOutputStream* @"<<284"(%StringOutputStream* %4, i8* %a5.addr)
   %6 = load %String** %_result.addr
   %7 = getelementptr inbounds %StringOutputStream* %s, i32 0, i32 0
   call void @ctor156(%String* %6, %String* %7)
@@ -13469,7 +13823,7 @@ dumy_block:                                       ; No predecessors!
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal %StringOutputStream* @"<<274"(%StringOutputStream* %s, i8* %x) #3 {
+define internal %StringOutputStream* @"<<284"(%StringOutputStream* %s, i8* %x) #3 {
   %s.addr = alloca %StringOutputStream*
   store %StringOutputStream* %s, %StringOutputStream** %s.addr
   %x.addr = alloca i8*
@@ -13480,13 +13834,13 @@ code:                                             ; preds = %0
   %1 = load %StringOutputStream** %s.addr
   %2 = load i8** %x.addr
   %3 = load i8* %2
-  call void @"<<<275"(%StringOutputStream* %1, i8 %3)
+  call void @"<<<285"(%StringOutputStream* %1, i8 %3)
   %4 = load %StringOutputStream** %s.addr
   ret %StringOutputStream* %4
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @"<<<275"(%StringOutputStream* %"$this", i8 %x) #2 {
+define internal void @"<<<285"(%StringOutputStream* %"$this", i8 %x) #2 {
   %"$this.addr" = alloca %StringOutputStream*
   store %StringOutputStream* %"$this", %StringOutputStream** %"$this.addr"
   %x.addr = alloca i8
@@ -13497,12 +13851,12 @@ code:                                             ; preds = %0
   %1 = load %StringOutputStream** %"$this.addr"
   %2 = getelementptr inbounds %StringOutputStream* %1, i32 0, i32 0
   %3 = load i8* %x.addr
-  call void @append276(%String* %2, i8 %3)
+  call void @append286(%String* %2, i8 %3)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @append276(%String* %"$this", i8 %value) #3 {
+define internal void @append286(%String* %"$this", i8 %value) #3 {
   %"$this.addr" = alloca %String*
   store %String* %"$this", %String** %"$this.addr"
   %value.addr = alloca i8
@@ -13521,12 +13875,12 @@ code:                                             ; preds = %0
   %8 = load %"RawPtr[Char/rtct]"* %7
   call void @ctor155(%"ContiguousMemoryRange[Char/rtct]"* %tmp.v, %"RawPtr[Char/rtct]" %5, %"RawPtr[Char/rtct]" %8)
   %9 = load %"ContiguousMemoryRange[Char/rtct]"* %tmp.v
-  call void @insertBefore277(%String* %1, i8 %2, %"ContiguousMemoryRange[Char/rtct]" %9)
+  call void @insertBefore287(%String* %1, i8 %2, %"ContiguousMemoryRange[Char/rtct]" %9)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @insertBefore277(%String* %"$this", i8 %value, %"ContiguousMemoryRange[Char/rtct]" %pos) #3 {
+define internal void @insertBefore287(%String* %"$this", i8 %value, %"ContiguousMemoryRange[Char/rtct]" %pos) #3 {
   %"$this.addr" = alloca %String*
   store %String* %"$this", %String** %"$this.addr"
   %value.addr = alloca i8
@@ -13605,7 +13959,7 @@ while_end:                                        ; preds = %while_block
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal %StringOutputStream* @"<<278"(%StringOutputStream* %s, i32* %x) #3 {
+define internal %StringOutputStream* @"<<288"(%StringOutputStream* %s, i32* %x) #3 {
   %s.addr = alloca %StringOutputStream*
   store %StringOutputStream* %s, %StringOutputStream** %s.addr
   %x.addr = alloca i32*
@@ -13616,13 +13970,13 @@ code:                                             ; preds = %0
   %1 = load %StringOutputStream** %s.addr
   %2 = load i32** %x.addr
   %3 = load i32* %2
-  call void @"<<<279"(%StringOutputStream* %1, i32 %3)
+  call void @"<<<289"(%StringOutputStream* %1, i32 %3)
   %4 = load %StringOutputStream** %s.addr
   ret %StringOutputStream* %4
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @"<<<279"(%StringOutputStream* %"$this", i32 %x) #2 {
+define internal void @"<<<289"(%StringOutputStream* %"$this", i32 %x) #2 {
   %"$this.addr" = alloca %StringOutputStream*
   store %StringOutputStream* %"$this", %StringOutputStream** %"$this.addr"
   %x.addr = alloca i32
@@ -13636,7 +13990,7 @@ code:                                             ; preds = %0
   %2 = getelementptr inbounds %StringOutputStream* %1, i32 0, i32 0
   %3 = load i32* %x.addr
   call void @intToString(%String* %"$tmpC1", i32 %3)
-  call void @all280(%"ContiguousMemoryRange[Char/rtct]"* %"$tmpC", %String* %"$tmpC1")
+  call void @all290(%"ContiguousMemoryRange[Char/rtct]"* %"$tmpC", %String* %"$tmpC1")
   %4 = load %"ContiguousMemoryRange[Char/rtct]"* %"$tmpC"
   call void @append(%String* %2, %"ContiguousMemoryRange[Char/rtct]" %4)
   call void @dtor159(%String* %"$tmpC1")
@@ -13644,7 +13998,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @all280(%"ContiguousMemoryRange[Char/rtct]"* sret %_result, %String* %"$this") #2 {
+define internal void @all290(%"ContiguousMemoryRange[Char/rtct]"* sret %_result, %String* %"$this") #2 {
   %_result.addr = alloca %"ContiguousMemoryRange[Char/rtct]"*
   store %"ContiguousMemoryRange[Char/rtct]"* %_result, %"ContiguousMemoryRange[Char/rtct]"** %_result.addr
   %"$this.addr" = alloca %String*
@@ -13683,12 +14037,12 @@ code:                                             ; preds = %0
   %5 = bitcast [12 x i8]* %buf to i8*
   %6 = call %StringRef @_String_fromCString(i8* %5)
   store %StringRef %6, %StringRef* %"$tmpForRef"
-  call void @ctor248(%String* %4, %StringRef* %"$tmpForRef")
+  call void @ctor258(%String* %4, %StringRef* %"$tmpForRef")
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @dtor281(%TokenType* %"$this") #2 {
+define internal void @dtor291(%TokenType* %"$this") #2 {
   %"$this.addr" = alloca %TokenType*
   store %TokenType* %"$this", %TokenType** %"$this.addr"
   br label %code
@@ -13698,7 +14052,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @dtor282(%Token* %"$this") #2 {
+define internal void @dtor292(%Token* %"$this") #2 {
   %"$this.addr" = alloca %Token*
   store %Token* %"$this", %Token** %"$this.addr"
   br label %code
@@ -13742,7 +14096,7 @@ define internal %ParserContext* @new(%StringRef* %arg1, %StringRef* %arg2, %Loca
   br label %code
 
 code:                                             ; preds = %0
-  %1 = call i8* @malloc(i64 472)
+  %1 = call i8* @malloc(i64 488)
   %2 = bitcast i8* %1 to %ParserContext*
   store %ParserContext* %2, %ParserContext** %res
   %3 = load %ParserContext** %res
@@ -13772,14 +14126,14 @@ define %ParserContext* @spr_parserIf_createParser(%StringRef %filename, %StringR
 
 code1:                                            ; preds = %0
   %1 = load %Location** %loc.addr
-  %2 = call %ParserContext* @new283(%StringRef* %filename.addr, %StringRef* %code.addr, %Location* %1)
+  %2 = call %ParserContext* @new293(%StringRef* %filename.addr, %StringRef* %code.addr, %Location* %1)
   store %ParserContext* %2, %ParserContext** %res
   %3 = load %ParserContext** %res
   ret %ParserContext* %3
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal %ParserContext* @new283(%StringRef* %arg1, %StringRef* %arg2, %Location* %arg3) #3 {
+define internal %ParserContext* @new293(%StringRef* %arg1, %StringRef* %arg2, %Location* %arg3) #3 {
   %arg1.addr = alloca %StringRef*
   store %StringRef* %arg1, %StringRef** %arg1.addr
   %arg2.addr = alloca %StringRef*
@@ -13790,7 +14144,7 @@ define internal %ParserContext* @new283(%StringRef* %arg1, %StringRef* %arg2, %L
   br label %code
 
 code:                                             ; preds = %0
-  %1 = call i8* @malloc(i64 472)
+  %1 = call i8* @malloc(i64 488)
   %2 = bitcast i8* %1 to %ParserContext*
   store %ParserContext* %2, %ParserContext** %res
   %3 = load %ParserContext** %res
@@ -13834,7 +14188,7 @@ if_block:                                         ; preds = %code
 
 if_then:                                          ; preds = %if_block
   %4 = load %ParserContext** %obj.addr
-  call void @dtor284(%ParserContext* %4)
+  call void @dtor294(%ParserContext* %4)
   %5 = load %ParserContext** %obj.addr
   %6 = bitcast %ParserContext* %5 to i8*
   call void @free(i8* %6)
@@ -13845,7 +14199,7 @@ if_end:                                           ; preds = %if_then, %if_block
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @dtor284(%ParserContext* %"$this") #2 {
+define internal void @dtor294(%ParserContext* %"$this") #2 {
   %"$this.addr" = alloca %ParserContext*
   store %ParserContext* %"$this", %ParserContext** %"$this.addr"
   br label %code
@@ -13853,20 +14207,20 @@ define internal void @dtor284(%ParserContext* %"$this") #2 {
 code:                                             ; preds = %0
   %1 = load %ParserContext** %"$this.addr"
   %2 = getelementptr inbounds %ParserContext* %1, i32 0, i32 4
-  call void @dtor285(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %2)
+  call void @dtor295(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %2)
   %3 = load %ParserContext** %"$this.addr"
   %4 = getelementptr inbounds %ParserContext* %3, i32 0, i32 3
-  call void @dtor290(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %4)
+  call void @dtor300(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %4)
   %5 = load %ParserContext** %"$this.addr"
   %6 = getelementptr inbounds %ParserContext* %5, i32 0, i32 1
   %7 = load %ParserContext** %"$this.addr"
   %8 = getelementptr inbounds %ParserContext* %7, i32 0, i32 0
-  call void @dtor293(%File* %8)
+  call void @dtor304(%File* %8)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @dtor285(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %"$this") #2 {
+define internal void @dtor295(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %"$this") #2 {
   %"$this.addr" = alloca %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"*
   store %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %"$this", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %"$this.addr"
   br label %code
@@ -13874,15 +14228,15 @@ define internal void @dtor285(%"SparrowParser[SparrowScanner[CharSource, Externa
 code:                                             ; preds = %0
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %"$this.addr"
   %2 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, i32 0, i32 1
-  call void @dtor282(%Token* %2)
+  call void @dtor292(%Token* %2)
   %3 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %"$this.addr"
   %4 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %3, i32 0, i32 0
-  call void @dtor286(%"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %4)
+  call void @dtor296(%"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %4)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @dtor286(%"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %"$this") #2 {
+define internal void @dtor296(%"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %"$this") #2 {
   %"$this.addr" = alloca %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"*
   store %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %"$this", %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"** %"$this.addr"
   br label %code
@@ -13890,15 +14244,15 @@ define internal void @dtor286(%"RangeWithLookahead[SparrowScanner[CharSource, Ex
 code:                                             ; preds = %0
   %1 = load %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"** %"$this.addr"
   %2 = getelementptr inbounds %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %1, i32 0, i32 1
-  call void @dtor287(%"Vector[Token]"* %2)
+  call void @dtor297(%"Vector[Token]"* %2)
   %3 = load %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"** %"$this.addr"
   %4 = getelementptr inbounds %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %3, i32 0, i32 0
-  call void @dtor290(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %4)
+  call void @dtor300(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %4)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @dtor287(%"Vector[Token]"* %"$this") #3 {
+define internal void @dtor297(%"Vector[Token]"* %"$this") #3 {
   %"$this.addr" = alloca %"Vector[Token]"*
   store %"Vector[Token]"* %"$this", %"Vector[Token]"** %"$this.addr"
   %p = alloca %"RawPtr[Token]"
@@ -13921,7 +14275,7 @@ while_block:                                      ; preds = %while_step, %code
 
 while_body:                                       ; preds = %while_block
   %8 = call %Token* @value212(%"RawPtr[Token]"* %p)
-  call void @dtor282(%Token* %8)
+  call void @dtor292(%Token* %8)
   br label %while_step
 
 while_step:                                       ; preds = %while_body
@@ -13933,12 +14287,12 @@ while_step:                                       ; preds = %while_body
 while_end:                                        ; preds = %while_block
   %10 = load %"Vector[Token]"** %"$this.addr"
   %11 = getelementptr inbounds %"Vector[Token]"* %10, i32 0, i32 0
-  call void @freePtr288(%"RawPtr[Token]"* %11)
+  call void @freePtr298(%"RawPtr[Token]"* %11)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @freePtr288(%"RawPtr[Token]"* %"$this") #3 {
+define internal void @freePtr298(%"RawPtr[Token]"* %"$this") #3 {
   %"$this.addr" = alloca %"RawPtr[Token]"*
   store %"RawPtr[Token]"* %"$this", %"RawPtr[Token]"** %"$this.addr"
   br label %code
@@ -13948,7 +14302,7 @@ code:                                             ; preds = %0
 
 if_block:                                         ; preds = %code
   %1 = load %"RawPtr[Token]"** %"$this.addr"
-  %2 = call i1 @isSet289(%"RawPtr[Token]"* %1)
+  %2 = call i1 @isSet299(%"RawPtr[Token]"* %1)
   br i1 %2, label %if_then, label %if_end
 
 if_then:                                          ; preds = %if_block
@@ -13962,7 +14316,7 @@ if_end:                                           ; preds = %if_then, %if_block
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @isSet289(%"RawPtr[Token]"* %"$this") #2 {
+define internal i1 @isSet299(%"RawPtr[Token]"* %"$this") #2 {
   %"$this.addr" = alloca %"RawPtr[Token]"*
   store %"RawPtr[Token]"* %"$this", %"RawPtr[Token]"** %"$this.addr"
   br label %code
@@ -13977,25 +14331,37 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @dtor290(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %"$this") #2 {
+define internal void @dtor300(%"SparrowScanner[CharSource, ExternalErrorReporter]"* %"$this") #2 {
   %"$this.addr" = alloca %"SparrowScanner[CharSource, ExternalErrorReporter]"*
   store %"SparrowScanner[CharSource, ExternalErrorReporter]"* %"$this", %"SparrowScanner[CharSource, ExternalErrorReporter]"** %"$this.addr"
   br label %code
 
 code:                                             ; preds = %0
   %1 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %"$this.addr"
-  %2 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %1, i32 0, i32 2
-  call void @dtor282(%Token* %2)
+  %2 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %1, i32 0, i32 6
   %3 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %"$this.addr"
-  %4 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %3, i32 0, i32 1
-  call void @dtor291(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %4)
+  %4 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %3, i32 0, i32 2
+  call void @dtor292(%Token* %4)
   %5 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %"$this.addr"
-  %6 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %5, i32 0, i32 0
+  %6 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %5, i32 0, i32 1
+  call void @dtor302(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %6)
+  %7 = load %"SparrowScanner[CharSource, ExternalErrorReporter]"** %"$this.addr"
+  %8 = getelementptr inbounds %"SparrowScanner[CharSource, ExternalErrorReporter]"* %7, i32 0, i32 0
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @dtor291(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %"$this") #2 {
+define internal void @dtor301(%LineCol* %"$this") #2 {
+  %"$this.addr" = alloca %LineCol*
+  store %LineCol* %"$this", %LineCol** %"$this.addr"
+  br label %code
+
+code:                                             ; preds = %0
+  ret void
+}
+
+; Function Attrs: alwaysinline nounwind
+define internal void @dtor302(%"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %"$this") #2 {
   %"$this.addr" = alloca %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"*
   store %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"* %"$this", %"LocationSyncCharRange[RangeWithLookahead[CharSource]]"** %"$this.addr"
   br label %code
@@ -14008,7 +14374,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @dtor292(%Location* %"$this") #2 {
+define internal void @dtor303(%Location* %"$this") #2 {
   %"$this.addr" = alloca %Location*
   store %Location* %"$this", %Location** %"$this.addr"
   br label %code
@@ -14018,7 +14384,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @dtor293(%File* %"$this") #3 {
+define internal void @dtor304(%File* %"$this") #3 {
   %"$this.addr" = alloca %File*
   store %File* %"$this", %File** %"$this.addr"
   br label %code
@@ -14074,7 +14440,7 @@ code:                                             ; preds = %0
   %3 = getelementptr inbounds %ParserContext* %2, i32 0, i32 3
   call void @"post_++214"(%Token* %"$tmpC", %"SparrowScanner[CharSource, ExternalErrorReporter]"* %3)
   call void @"=189"(%Token* %1, %Token* %"$tmpC")
-  call void @dtor282(%Token* %"$tmpC")
+  call void @dtor292(%Token* %"$tmpC")
   ret void
 }
 
@@ -14113,7 +14479,7 @@ code:                                             ; preds = %0
   call void @curLoc(%Location* %loc, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1)
   %2 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseModuleName(%Node* %moduleName, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %2)
-  call void @ctor323(%Node* %decls)
+  call void @ctor334(%Node* %decls)
   %3 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseDecls(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %3, i1 true, %Node* %decls)
   %4 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
@@ -14128,7 +14494,7 @@ code:                                             ; preds = %0
   %10 = load %Node* %decls
   %11 = call %Node @comp_parser_mkModule(%Location* %"$tmpC", %Node %9, %Node %10)
   store %Node %11, %Node* %"$tmpForRef"
-  call void @ctor318(%Node* %7, %Node* %"$tmpForRef")
+  call void @ctor329(%Node* %7, %Node* %"$tmpForRef")
   ret void
 }
 
@@ -14145,19 +14511,19 @@ code:                                             ; preds = %0
   %1 = load %Location** %_result.addr
   %2 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   %3 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %2, i32 0, i32 0
-  call void @"pre_*294"(%Token* %"$tmpC", %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %3)
+  call void @"pre_*305"(%Token* %"$tmpC", %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %3)
   %4 = getelementptr inbounds %Token* %"$tmpC", i32 0, i32 0
   call void @ctor161(%Location* %1, %Location* %4)
-  call void @dtor282(%Token* %"$tmpC")
+  call void @dtor292(%Token* %"$tmpC")
   ret void
 
 dumy_block:                                       ; No predecessors!
-  call void @dtor282(%Token* %"$tmpC")
+  call void @dtor292(%Token* %"$tmpC")
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @"pre_*294"(%Token* sret %_result, %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %r) #2 {
+define internal void @"pre_*305"(%Token* sret %_result, %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %r) #2 {
   %_result.addr = alloca %Token*
   store %Token* %_result, %Token** %_result.addr
   %r.addr = alloca %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"*
@@ -14167,12 +14533,12 @@ define internal void @"pre_*294"(%Token* sret %_result, %"RangeWithLookahead[Spa
 code:                                             ; preds = %0
   %1 = load %Token** %_result.addr
   %2 = load %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"** %r.addr
-  call void @front295(%Token* %1, %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %2)
+  call void @front306(%Token* %1, %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %2)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @front295(%Token* sret %_result, %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %s) #2 {
+define internal void @front306(%Token* sret %_result, %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %s) #2 {
   %_result.addr = alloca %Token*
   store %Token* %_result, %Token** %_result.addr
   %s.addr = alloca %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"*
@@ -14183,13 +14549,13 @@ code:                                             ; preds = %0
   %1 = load %Token** %_result.addr
   %2 = load %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"** %s.addr
   %3 = getelementptr inbounds %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %2, i32 0, i32 1
-  %4 = call %Token* @front296(%"Vector[Token]"* %3)
+  %4 = call %Token* @front307(%"Vector[Token]"* %3)
   call void @ctor210(%Token* %1, %Token* %4)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal %Token* @front296(%"Vector[Token]"* %"$this") #2 {
+define internal %Token* @front307(%"Vector[Token]"* %"$this") #2 {
   %"$this.addr" = alloca %"Vector[Token]"*
   store %"Vector[Token]"* %"$this", %"Vector[Token]"** %"$this.addr"
   br label %code
@@ -14217,7 +14583,7 @@ code:                                             ; preds = %0
 
 if_block:                                         ; preds = %code
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 1)
+  call void @ctor222(%TokenType* %tmp.v, i32 4)
   %2 = load %TokenType* %tmp.v
   %3 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
   br i1 %3, label %if_then, label %if_end
@@ -14226,16 +14592,16 @@ if_then:                                          ; preds = %if_block
   %4 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseQualifiedName(%Node* %qid, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %4, i1 false)
   %5 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v1, i32 35)
+  call void @ctor222(%TokenType* %tmp.v1, i32 36)
   %6 = load %TokenType* %tmp.v1
   %7 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %5, %TokenType %6)
   %8 = load %Node** %_result.addr
-  call void @ctor318(%Node* %8, %Node* %qid)
+  call void @ctor329(%Node* %8, %Node* %qid)
   ret void
 
 if_end:                                           ; preds = %dumy_block, %if_block
   %9 = load %Node** %_result.addr
-  call void @ctor323(%Node* %9)
+  call void @ctor334(%Node* %9)
   ret void
 
 dumy_block:                                       ; No predecessors!
@@ -14258,7 +14624,7 @@ code:                                             ; preds = %0
 if_block:                                         ; preds = %code
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   %2 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, i32 0, i32 0
-  call void @"pre_*294"(%Token* %"$tmpC", %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %2)
+  call void @"pre_*305"(%Token* %"$tmpC", %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %2)
   %3 = getelementptr inbounds %Token* %"$tmpC", i32 0, i32 1
   %4 = call i1 @"==220"(%TokenType* %3, %TokenType* %t.addr)
   br i1 %4, label %if_then, label %if_end
@@ -14268,14 +14634,14 @@ if_then:                                          ; preds = %if_block
   %6 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %5, i32 0, i32 1
   %7 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   %8 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %7, i32 0, i32 0
-  call void @"post_++297"(%Token* %"$tmpC1", %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %8)
+  call void @"post_++308"(%Token* %"$tmpC1", %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %8)
   call void @"=189"(%Token* %6, %Token* %"$tmpC1")
-  call void @dtor282(%Token* %"$tmpC1")
-  call void @dtor282(%Token* %"$tmpC")
+  call void @dtor292(%Token* %"$tmpC1")
+  call void @dtor292(%Token* %"$tmpC")
   ret i1 true
 
 if_end:                                           ; preds = %dumy_block, %if_block
-  call void @dtor282(%Token* %"$tmpC")
+  call void @dtor292(%Token* %"$tmpC")
   ret i1 false
 
 dumy_block:                                       ; No predecessors!
@@ -14283,7 +14649,7 @@ dumy_block:                                       ; No predecessors!
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @"post_++297"(%Token* sret %_result, %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %r) #3 {
+define internal void @"post_++308"(%Token* sret %_result, %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %r) #3 {
   %_result.addr = alloca %Token*
   store %Token* %_result, %Token** %_result.addr
   %r.addr = alloca %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"*
@@ -14293,21 +14659,21 @@ define internal void @"post_++297"(%Token* sret %_result, %"RangeWithLookahead[S
 
 code:                                             ; preds = %0
   %1 = load %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"** %r.addr
-  call void @front295(%Token* %res, %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %1)
+  call void @front306(%Token* %res, %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %1)
   %2 = load %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"** %r.addr
-  call void @popFront298(%"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %2)
+  call void @popFront309(%"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %2)
   %3 = load %Token** %_result.addr
   call void @ctor210(%Token* %3, %Token* %res)
-  call void @dtor282(%Token* %res)
+  call void @dtor292(%Token* %res)
   ret void
 
 dumy_block:                                       ; No predecessors!
-  call void @dtor282(%Token* %res)
+  call void @dtor292(%Token* %res)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @popFront298(%"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %s) #3 {
+define internal void @popFront309(%"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %s) #3 {
   %s.addr = alloca %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"*
   store %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %s, %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"** %s.addr
   %"$tmpC" = alloca %Token
@@ -14316,13 +14682,13 @@ define internal void @popFront298(%"RangeWithLookahead[SparrowScanner[CharSource
 code:                                             ; preds = %0
   %1 = load %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"** %s.addr
   %2 = getelementptr inbounds %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %1, i32 0, i32 1
-  call void @remove299(%"Vector[Token]"* %2, i64 0)
+  call void @remove310(%"Vector[Token]"* %2, i64 0)
   br label %if_block
 
 if_block:                                         ; preds = %code
   %3 = load %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"** %s.addr
   %4 = getelementptr inbounds %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %3, i32 0, i32 1
-  %5 = call i1 @isEmpty312(%"Vector[Token]"* %4)
+  %5 = call i1 @isEmpty323(%"Vector[Token]"* %4)
   br i1 %5, label %cond.true, label %cond.false
 
 if_then:                                          ; preds = %cond.end
@@ -14332,7 +14698,7 @@ if_then:                                          ; preds = %cond.end
   %9 = getelementptr inbounds %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %8, i32 0, i32 0
   call void @"post_++214"(%Token* %"$tmpC", %"SparrowScanner[CharSource, ExternalErrorReporter]"* %9)
   call void @"+=207"(%"Vector[Token]"* %7, %Token* %"$tmpC")
-  call void @dtor282(%Token* %"$tmpC")
+  call void @dtor292(%Token* %"$tmpC")
   br label %if_end
 
 if_end:                                           ; preds = %if_then, %cond.end
@@ -14353,7 +14719,7 @@ cond.end:                                         ; preds = %cond.false, %cond.t
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @remove299(%"Vector[Token]"* %"$this", i64 %index) #3 {
+define internal void @remove310(%"Vector[Token]"* %"$this", i64 %index) #3 {
   %"$this.addr" = alloca %"Vector[Token]"*
   store %"Vector[Token]"* %"$this", %"Vector[Token]"** %"$this.addr"
   %index.addr = alloca i64
@@ -14363,23 +14729,23 @@ define internal void @remove299(%"Vector[Token]"* %"$this", i64 %index) #3 {
 
 code:                                             ; preds = %0
   %1 = load %"Vector[Token]"** %"$this.addr"
-  call void @all300(%"ContiguousMemoryRange[Token]"* %r, %"Vector[Token]"* %1)
+  call void @all311(%"ContiguousMemoryRange[Token]"* %r, %"Vector[Token]"* %1)
   %2 = load i64* %index.addr
-  call void @popFront302(%"ContiguousMemoryRange[Token]"* %r, i64 %2)
+  call void @popFront313(%"ContiguousMemoryRange[Token]"* %r, i64 %2)
   %3 = load %"Vector[Token]"** %"$this.addr"
   %4 = call i64 @size198(%"Vector[Token]"* %3)
   %5 = load i64* %index.addr
   %6 = call i64 @-43(i64 %4, i64 %5)
-  %7 = call i64 @-238(i64 %6, i32 1)
-  call void @popBack304(%"ContiguousMemoryRange[Token]"* %r, i64 %7)
+  %7 = call i64 @-239(i64 %6, i32 1)
+  call void @popBack315(%"ContiguousMemoryRange[Token]"* %r, i64 %7)
   %8 = load %"Vector[Token]"** %"$this.addr"
   %9 = load %"ContiguousMemoryRange[Token]"* %r
-  call void @remove305(%"Vector[Token]"* %8, %"ContiguousMemoryRange[Token]" %9)
+  call void @remove316(%"Vector[Token]"* %8, %"ContiguousMemoryRange[Token]" %9)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @all300(%"ContiguousMemoryRange[Token]"* sret %_result, %"Vector[Token]"* %"$this") #2 {
+define internal void @all311(%"ContiguousMemoryRange[Token]"* sret %_result, %"Vector[Token]"* %"$this") #2 {
   %_result.addr = alloca %"ContiguousMemoryRange[Token]"*
   store %"ContiguousMemoryRange[Token]"* %_result, %"ContiguousMemoryRange[Token]"** %_result.addr
   %"$this.addr" = alloca %"Vector[Token]"*
@@ -14394,12 +14760,12 @@ code:                                             ; preds = %0
   %5 = load %"Vector[Token]"** %"$this.addr"
   %6 = getelementptr inbounds %"Vector[Token]"* %5, i32 0, i32 1
   %7 = load %"RawPtr[Token]"* %6
-  call void @ctor301(%"ContiguousMemoryRange[Token]"* %1, %"RawPtr[Token]" %4, %"RawPtr[Token]" %7)
+  call void @ctor312(%"ContiguousMemoryRange[Token]"* %1, %"RawPtr[Token]" %4, %"RawPtr[Token]" %7)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @ctor301(%"ContiguousMemoryRange[Token]"* %"$this", %"RawPtr[Token]" %begin, %"RawPtr[Token]" %end) #3 {
+define internal void @ctor312(%"ContiguousMemoryRange[Token]"* %"$this", %"RawPtr[Token]" %begin, %"RawPtr[Token]" %end) #3 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[Token]"*
   store %"ContiguousMemoryRange[Token]"* %"$this", %"ContiguousMemoryRange[Token]"** %"$this.addr"
   %begin.addr = alloca %"RawPtr[Token]"
@@ -14419,7 +14785,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @popFront302(%"ContiguousMemoryRange[Token]"* %"$this", i64 %n) #2 {
+define internal void @popFront313(%"ContiguousMemoryRange[Token]"* %"$this", i64 %n) #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[Token]"*
   store %"ContiguousMemoryRange[Token]"* %"$this", %"ContiguousMemoryRange[Token]"** %"$this.addr"
   %n.addr = alloca i64
@@ -14436,14 +14802,14 @@ code:                                             ; preds = %0
   %5 = load i64* %n.addr
   store i64 %5, i64* %tmp.v
   %6 = load i64* %tmp.v
-  call void @advance303(%"RawPtr[Token]"* %"$tmpC", %"RawPtr[Token]"* %4, i64 %6)
+  call void @advance314(%"RawPtr[Token]"* %"$tmpC", %"RawPtr[Token]"* %4, i64 %6)
   %7 = load %"RawPtr[Token]"* %"$tmpC"
   call void @"=200"(%"RawPtr[Token]"* %2, %"RawPtr[Token]" %7)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @advance303(%"RawPtr[Token]"* sret %_result, %"RawPtr[Token]"* %"$this", i64 %n) #2 {
+define internal void @advance314(%"RawPtr[Token]"* sret %_result, %"RawPtr[Token]"* %"$this", i64 %n) #2 {
   %_result.addr = alloca %"RawPtr[Token]"*
   store %"RawPtr[Token]"* %_result, %"RawPtr[Token]"** %_result.addr
   %"$this.addr" = alloca %"RawPtr[Token]"*
@@ -14470,7 +14836,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @popBack304(%"ContiguousMemoryRange[Token]"* %"$this", i64 %n) #2 {
+define internal void @popBack315(%"ContiguousMemoryRange[Token]"* %"$this", i64 %n) #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[Token]"*
   store %"ContiguousMemoryRange[Token]"* %"$this", %"ContiguousMemoryRange[Token]"** %"$this.addr"
   %n.addr = alloca i64
@@ -14488,14 +14854,14 @@ code:                                             ; preds = %0
   store i64 %5, i64* %tmp.v
   %6 = load i64* %tmp.v
   %7 = sub i64 0, %6
-  call void @advance303(%"RawPtr[Token]"* %"$tmpC", %"RawPtr[Token]"* %4, i64 %7)
+  call void @advance314(%"RawPtr[Token]"* %"$tmpC", %"RawPtr[Token]"* %4, i64 %7)
   %8 = load %"RawPtr[Token]"* %"$tmpC"
   call void @"=200"(%"RawPtr[Token]"* %2, %"RawPtr[Token]" %8)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @remove305(%"Vector[Token]"* %"$this", %"ContiguousMemoryRange[Token]" %range) #3 {
+define internal void @remove316(%"Vector[Token]"* %"$this", %"ContiguousMemoryRange[Token]" %range) #3 {
   %"$this.addr" = alloca %"Vector[Token]"*
   store %"Vector[Token]"* %"$this", %"Vector[Token]"** %"$this.addr"
   %range.addr = alloca %"ContiguousMemoryRange[Token]"
@@ -14509,25 +14875,25 @@ define internal void @remove305(%"Vector[Token]"* %"$this", %"ContiguousMemoryRa
   br label %code
 
 code:                                             ; preds = %0
-  call void @frontPtr306(%"RawPtr[Token]"* %rBegin, %"ContiguousMemoryRange[Token]"* %range.addr)
-  call void @backPtr307(%"RawPtr[Token]"* %rEnd, %"ContiguousMemoryRange[Token]"* %range.addr)
-  call void @ctor308(%"ContiguousMemoryRange[Token]"* %"$rangeVar", %"ContiguousMemoryRange[Token]"* %range.addr)
+  call void @frontPtr317(%"RawPtr[Token]"* %rBegin, %"ContiguousMemoryRange[Token]"* %range.addr)
+  call void @backPtr318(%"RawPtr[Token]"* %rEnd, %"ContiguousMemoryRange[Token]"* %range.addr)
+  call void @ctor319(%"ContiguousMemoryRange[Token]"* %"$rangeVar", %"ContiguousMemoryRange[Token]"* %range.addr)
   br label %while_block
 
 while_block:                                      ; preds = %while_step, %code
-  %1 = call i1 @isEmpty309(%"ContiguousMemoryRange[Token]"* %"$rangeVar")
+  %1 = call i1 @isEmpty320(%"ContiguousMemoryRange[Token]"* %"$rangeVar")
   %2 = xor i1 true, %1
   br i1 %2, label %while_body, label %while_end
 
 while_body:                                       ; preds = %while_block
-  %3 = call %Token* @front310(%"ContiguousMemoryRange[Token]"* %"$rangeVar")
+  %3 = call %Token* @front321(%"ContiguousMemoryRange[Token]"* %"$rangeVar")
   store %Token* %3, %Token** %el
   %4 = load %Token** %el
-  call void @dtor282(%Token* %4)
+  call void @dtor292(%Token* %4)
   br label %while_step
 
 while_step:                                       ; preds = %while_body
-  call void @popFront311(%"ContiguousMemoryRange[Token]"* %"$rangeVar")
+  call void @popFront322(%"ContiguousMemoryRange[Token]"* %"$rangeVar")
   br label %while_block
 
 while_end:                                        ; preds = %while_block
@@ -14546,7 +14912,7 @@ while_body2:                                      ; preds = %while_block1
   %11 = call %Token* @value212(%"RawPtr[Token]"* %rEnd)
   call void @ctor210(%Token* %10, %Token* %11)
   %12 = call %Token* @value212(%"RawPtr[Token]"* %rEnd)
-  call void @dtor282(%Token* %12)
+  call void @dtor292(%Token* %12)
   call void @advance213(%"RawPtr[Token]"* %"$tmpC", %"RawPtr[Token]"* %rBegin)
   %13 = load %"RawPtr[Token]"* %"$tmpC"
   call void @"=200"(%"RawPtr[Token]"* %rBegin, %"RawPtr[Token]" %13)
@@ -14567,7 +14933,7 @@ while_end4:                                       ; preds = %while_block1
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @frontPtr306(%"RawPtr[Token]"* sret %_result, %"ContiguousMemoryRange[Token]"* %"$this") #2 {
+define internal void @frontPtr317(%"RawPtr[Token]"* sret %_result, %"ContiguousMemoryRange[Token]"* %"$this") #2 {
   %_result.addr = alloca %"RawPtr[Token]"*
   store %"RawPtr[Token]"* %_result, %"RawPtr[Token]"** %_result.addr
   %"$this.addr" = alloca %"ContiguousMemoryRange[Token]"*
@@ -14583,7 +14949,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @backPtr307(%"RawPtr[Token]"* sret %_result, %"ContiguousMemoryRange[Token]"* %"$this") #2 {
+define internal void @backPtr318(%"RawPtr[Token]"* sret %_result, %"ContiguousMemoryRange[Token]"* %"$this") #2 {
   %_result.addr = alloca %"RawPtr[Token]"*
   store %"RawPtr[Token]"* %_result, %"RawPtr[Token]"** %_result.addr
   %"$this.addr" = alloca %"ContiguousMemoryRange[Token]"*
@@ -14599,7 +14965,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor308(%"ContiguousMemoryRange[Token]"* %"$this", %"ContiguousMemoryRange[Token]"* %other) #2 {
+define internal void @ctor319(%"ContiguousMemoryRange[Token]"* %"$this", %"ContiguousMemoryRange[Token]"* %other) #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[Token]"*
   store %"ContiguousMemoryRange[Token]"* %"$this", %"ContiguousMemoryRange[Token]"** %"$this.addr"
   %other.addr = alloca %"ContiguousMemoryRange[Token]"*
@@ -14621,7 +14987,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @isEmpty309(%"ContiguousMemoryRange[Token]"* %"$this") #2 {
+define internal i1 @isEmpty320(%"ContiguousMemoryRange[Token]"* %"$this") #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[Token]"*
   store %"ContiguousMemoryRange[Token]"* %"$this", %"ContiguousMemoryRange[Token]"** %"$this.addr"
   br label %code
@@ -14638,7 +15004,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal %Token* @front310(%"ContiguousMemoryRange[Token]"* %"$this") #2 {
+define internal %Token* @front321(%"ContiguousMemoryRange[Token]"* %"$this") #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[Token]"*
   store %"ContiguousMemoryRange[Token]"* %"$this", %"ContiguousMemoryRange[Token]"** %"$this.addr"
   br label %code
@@ -14651,7 +15017,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @popFront311(%"ContiguousMemoryRange[Token]"* %"$this") #2 {
+define internal void @popFront322(%"ContiguousMemoryRange[Token]"* %"$this") #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[Token]"*
   store %"ContiguousMemoryRange[Token]"* %"$this", %"ContiguousMemoryRange[Token]"** %"$this.addr"
   %"$tmpC" = alloca %"RawPtr[Token]"
@@ -14669,7 +15035,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @isEmpty312(%"Vector[Token]"* %"$this") #2 {
+define internal i1 @isEmpty323(%"Vector[Token]"* %"$this") #2 {
   %"$this.addr" = alloca %"Vector[Token]"*
   store %"Vector[Token]"* %"$this", %"Vector[Token]"** %"$this.addr"
   br label %code
@@ -14715,7 +15081,7 @@ code:                                             ; preds = %0
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @curLoc(%Location* %loc, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1)
   %2 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 40)
+  call void @ctor222(%TokenType* %tmp.v, i32 41)
   %3 = load %TokenType* %tmp.v
   %4 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %2, %TokenType %3)
   %5 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
@@ -14725,7 +15091,7 @@ code:                                             ; preds = %0
   %8 = load %StringRef* %"$tmpC"
   %9 = call %Node @comp_parser_mkIdentifier(%Location* %loc, %StringRef %8)
   store %Node %9, %Node* %"$tmpForRef"
-  call void @ctor318(%Node* %base, %Node* %"$tmpForRef")
+  call void @ctor329(%Node* %base, %Node* %"$tmpForRef")
   %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   %11 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, i32 0, i32 1
   %12 = getelementptr inbounds %Token* %11, i32 0, i32 2
@@ -14734,7 +15100,7 @@ code:                                             ; preds = %0
 
 while_block:                                      ; preds = %while_step, %code
   %13 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v1, i32 37)
+  call void @ctor222(%TokenType* %tmp.v1, i32 38)
   %14 = load %TokenType* %tmp.v1
   %15 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %13, %TokenType %14)
   br i1 %15, label %while_body, label %while_end
@@ -14747,7 +15113,7 @@ while_step:                                       ; preds = %cond_destruct_end9
 
 while_end:                                        ; preds = %cond_destruct_end, %while_block
   %16 = load %Node** %_result.addr
-  call void @ctor318(%Node* %16, %Node* %base)
+  call void @ctor329(%Node* %16, %Node* %base)
   call void @dtor159(%String* %lastId)
   ret void
 
@@ -14767,7 +15133,7 @@ if_then:                                          ; preds = %cond.end
   %23 = load %StringRef* %"$tmpC6"
   %24 = call %Node @comp_parser_mkStarExpr(%Location* %"$tmpC4", %Node %19, %StringRef %23)
   store %Node %24, %Node* %"$tmpForRef3"
-  call void @"=320"(%Node* %base, %Node* %"$tmpForRef3")
+  call void @"=331"(%Node* %base, %Node* %"$tmpForRef3")
   br i1 %17, label %cond_destruct_alt1, label %cond_destruct_alt2
 
 if_end:                                           ; preds = %dumy_block, %cond.end
@@ -14775,7 +15141,7 @@ if_end:                                           ; preds = %dumy_block, %cond.e
 
 cond.true:                                        ; preds = %if_block
   %25 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v2, i32 41)
+  call void @ctor222(%TokenType* %tmp.v2, i32 42)
   %26 = load %TokenType* %tmp.v2
   %27 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %25, %TokenType %26)
   br label %cond.end
@@ -14807,7 +15173,7 @@ cond_destruct_alt28:                              ; preds = %if_end
 
 cond_destruct_end9:                               ; preds = %cond_destruct_alt28, %cond_destruct_alt17
   %28 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v10, i32 40)
+  call void @ctor222(%TokenType* %tmp.v10, i32 41)
   %29 = load %TokenType* %tmp.v10
   %30 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %28, %TokenType %29)
   %31 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
@@ -14821,7 +15187,7 @@ cond_destruct_end9:                               ; preds = %cond_destruct_alt28
   %36 = load %StringRef* %"$tmpC14"
   %37 = call %Node @comp_parser_mkCompoundExpr(%Location* %"$tmpC12", %Node %32, %StringRef %36)
   store %Node %37, %Node* %"$tmpForRef11"
-  call void @"=320"(%Node* %base, %Node* %"$tmpForRef11")
+  call void @"=331"(%Node* %base, %Node* %"$tmpForRef11")
   br label %while_step
 
 dumy_block15:                                     ; No predecessors!
@@ -14882,7 +15248,7 @@ if_end3:                                          ; preds = %dumy_block4, %if_bl
   %12 = load %StringRef* %const.struct
   %13 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   %14 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %13, i32 0, i32 0
-  call void @"pre_*294"(%Token* %"$tmpC5", %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %14)
+  call void @"pre_*305"(%Token* %"$tmpC5", %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %14)
   %15 = getelementptr inbounds %Token* %"$tmpC5", i32 0, i32 1
   %16 = load %TokenType* %15
   store [13 x i8] c", expecting \00", [13 x i8]* %const.bytes6
@@ -14894,10 +15260,10 @@ if_end3:                                          ; preds = %dumy_block4, %if_bl
   store i8* %18, i8** %20
   %21 = load %StringRef* %const.struct7
   %22 = load %TokenType* %t.addr
-  call void @toString314(%String* %"$tmpC", %StringRef %12, %TokenType %16, %StringRef %21, %TokenType %22)
-  call void @reportError313(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %7, %String* %"$tmpC")
+  call void @toString325(%String* %"$tmpC", %StringRef %12, %TokenType %16, %StringRef %21, %TokenType %22)
+  call void @reportError324(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %7, %String* %"$tmpC")
   call void @dtor159(%String* %"$tmpC")
-  call void @dtor282(%Token* %"$tmpC5")
+  call void @dtor292(%Token* %"$tmpC5")
   ret i1 false
 
 dumy_block4:                                      ; No predecessors!
@@ -14905,7 +15271,7 @@ dumy_block4:                                      ; No predecessors!
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @reportError313(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %String* %msg) #3 {
+define internal void @reportError324(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %String* %msg) #3 {
   %p.addr = alloca %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"*
   store %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   %msg.addr = alloca %String*
@@ -14921,18 +15287,18 @@ code:                                             ; preds = %0
   %2 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, i32 0, i32 3
   %3 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   %4 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %3, i32 0, i32 0
-  call void @"pre_*294"(%Token* %"$tmpC", %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %4)
+  call void @"pre_*305"(%Token* %"$tmpC", %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %4)
   %5 = getelementptr inbounds %Token* %"$tmpC", i32 0, i32 0
   %6 = load %Location* %5
   %7 = load %String** %msg.addr
   call void @reportError(%ExternalErrorReporter* %2, %Location %6, %String* %7)
-  call void @dtor282(%Token* %"$tmpC")
+  call void @dtor292(%Token* %"$tmpC")
   br label %while_block
 
 while_block:                                      ; preds = %while_step, %code
   %8 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   %9 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %8, i32 0, i32 0
-  call void @"pre_*294"(%Token* %"$tmpC1", %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %9)
+  call void @"pre_*305"(%Token* %"$tmpC1", %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %9)
   %10 = getelementptr inbounds %Token* %"$tmpC1", i32 0, i32 1
   call void @ctor222(%TokenType* %tmp.v, i32 0)
   %11 = call i1 @"==220"(%TokenType* %10, %TokenType* %tmp.v)
@@ -14944,16 +15310,16 @@ while_body:                                       ; preds = %while_block
   %14 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %13, i32 0, i32 1
   %15 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   %16 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %15, i32 0, i32 0
-  call void @"post_++297"(%Token* %"$tmpC2", %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %16)
+  call void @"post_++308"(%Token* %"$tmpC2", %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %16)
   call void @"=189"(%Token* %14, %Token* %"$tmpC2")
-  call void @dtor282(%Token* %"$tmpC2")
+  call void @dtor292(%Token* %"$tmpC2")
   br label %while_step
 
 while_step:                                       ; preds = %while_body
   br label %while_block
 
 while_end:                                        ; preds = %while_block
-  call void @dtor282(%Token* %"$tmpC1")
+  call void @dtor292(%Token* %"$tmpC1")
   %17 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   %18 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %17, i32 0, i32 2
   store i1 true, i1* %18
@@ -14961,7 +15327,7 @@ while_end:                                        ; preds = %while_block
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @toString314(%String* sret %_result, %StringRef %a1, %TokenType %a2, %StringRef %a3, %TokenType %a4) #3 {
+define internal void @toString325(%String* sret %_result, %StringRef %a1, %TokenType %a2, %StringRef %a3, %TokenType %a4) #3 {
   %_result.addr = alloca %String*
   store %String* %_result, %String** %_result.addr
   %a1.addr = alloca %StringRef
@@ -14978,9 +15344,9 @@ define internal void @toString314(%String* sret %_result, %StringRef %a1, %Token
 code:                                             ; preds = %0
   call void @ctor135(%StringOutputStream* %s)
   %1 = call %StringOutputStream* @"<<"(%StringOutputStream* %s, %StringRef* %a1.addr)
-  %2 = call %StringOutputStream* @"<<315"(%StringOutputStream* %1, %TokenType* %a2.addr)
+  %2 = call %StringOutputStream* @"<<326"(%StringOutputStream* %1, %TokenType* %a2.addr)
   %3 = call %StringOutputStream* @"<<"(%StringOutputStream* %2, %StringRef* %a3.addr)
-  %4 = call %StringOutputStream* @"<<315"(%StringOutputStream* %3, %TokenType* %a4.addr)
+  %4 = call %StringOutputStream* @"<<326"(%StringOutputStream* %3, %TokenType* %a4.addr)
   %5 = load %String** %_result.addr
   %6 = getelementptr inbounds %StringOutputStream* %s, i32 0, i32 0
   call void @ctor156(%String* %5, %String* %6)
@@ -14993,7 +15359,7 @@ dumy_block:                                       ; No predecessors!
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal %StringOutputStream* @"<<315"(%StringOutputStream* %s, %TokenType* %x) #3 {
+define internal %StringOutputStream* @"<<326"(%StringOutputStream* %s, %TokenType* %x) #3 {
   %s.addr = alloca %StringOutputStream*
   store %StringOutputStream* %s, %StringOutputStream** %s.addr
   %x.addr = alloca %TokenType*
@@ -15022,13 +15388,13 @@ code:                                             ; preds = %0
   %1 = load %StringOutputStream** %os.addr
   %2 = load %TokenType* %t.addr
   call void @asString(%String* %"$tmpC", %TokenType %2)
-  %3 = call %StringOutputStream* @"<<316"(%StringOutputStream* %1, %String* %"$tmpC")
+  %3 = call %StringOutputStream* @"<<327"(%StringOutputStream* %1, %String* %"$tmpC")
   call void @dtor159(%String* %"$tmpC")
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal %StringOutputStream* @"<<316"(%StringOutputStream* %s, %String* %x) #3 {
+define internal %StringOutputStream* @"<<327"(%StringOutputStream* %s, %String* %x) #3 {
   %s.addr = alloca %StringOutputStream*
   store %StringOutputStream* %s, %StringOutputStream** %s.addr
   %x.addr = alloca %String*
@@ -15038,13 +15404,13 @@ define internal %StringOutputStream* @"<<316"(%StringOutputStream* %s, %String* 
 code:                                             ; preds = %0
   %1 = load %String** %x.addr
   %2 = load %StringOutputStream** %s.addr
-  call void @">>317"(%String* %1, %StringOutputStream* %2)
+  call void @">>328"(%String* %1, %StringOutputStream* %2)
   %3 = load %StringOutputStream** %s.addr
   ret %StringOutputStream* %3
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @">>317"(%String* %"$this", %StringOutputStream* %os) #3 {
+define internal void @">>328"(%String* %"$this", %StringOutputStream* %os) #3 {
   %"$this.addr" = alloca %String*
   store %String* %"$this", %String** %"$this.addr"
   %os.addr = alloca %StringOutputStream*
@@ -15076,11 +15442,11 @@ define void @asString(%String* sret %_result, %TokenType %t) #4 {
   %const.struct8 = alloca %StringRef
   %tmp.v14 = alloca %TokenType
   %"$tmpForRef15" = alloca %StringRef
-  %const.bytes16 = alloca [9 x i8]
+  %const.bytes16 = alloca [12 x i8]
   %const.struct17 = alloca %StringRef
   %tmp.v23 = alloca %TokenType
   %"$tmpForRef24" = alloca %StringRef
-  %const.bytes25 = alloca [10 x i8]
+  %const.bytes25 = alloca [15 x i8]
   %const.struct26 = alloca %StringRef
   %tmp.v32 = alloca %TokenType
   %"$tmpForRef33" = alloca %StringRef
@@ -15088,35 +15454,35 @@ define void @asString(%String* sret %_result, %TokenType %t) #4 {
   %const.struct35 = alloca %StringRef
   %tmp.v41 = alloca %TokenType
   %"$tmpForRef42" = alloca %StringRef
-  %const.bytes43 = alloca [8 x i8]
+  %const.bytes43 = alloca [9 x i8]
   %const.struct44 = alloca %StringRef
   %tmp.v50 = alloca %TokenType
   %"$tmpForRef51" = alloca %StringRef
-  %const.bytes52 = alloca [10 x i8]
+  %const.bytes52 = alloca [8 x i8]
   %const.struct53 = alloca %StringRef
   %tmp.v59 = alloca %TokenType
   %"$tmpForRef60" = alloca %StringRef
-  %const.bytes61 = alloca [11 x i8]
+  %const.bytes61 = alloca [10 x i8]
   %const.struct62 = alloca %StringRef
   %tmp.v68 = alloca %TokenType
   %"$tmpForRef69" = alloca %StringRef
-  %const.bytes70 = alloca [6 x i8]
+  %const.bytes70 = alloca [11 x i8]
   %const.struct71 = alloca %StringRef
   %tmp.v77 = alloca %TokenType
   %"$tmpForRef78" = alloca %StringRef
-  %const.bytes79 = alloca [10 x i8]
+  %const.bytes79 = alloca [6 x i8]
   %const.struct80 = alloca %StringRef
   %tmp.v86 = alloca %TokenType
   %"$tmpForRef87" = alloca %StringRef
-  %const.bytes88 = alloca [8 x i8]
+  %const.bytes88 = alloca [10 x i8]
   %const.struct89 = alloca %StringRef
   %tmp.v95 = alloca %TokenType
   %"$tmpForRef96" = alloca %StringRef
-  %const.bytes97 = alloca [6 x i8]
+  %const.bytes97 = alloca [8 x i8]
   %const.struct98 = alloca %StringRef
   %tmp.v104 = alloca %TokenType
   %"$tmpForRef105" = alloca %StringRef
-  %const.bytes106 = alloca [8 x i8]
+  %const.bytes106 = alloca [6 x i8]
   %const.struct107 = alloca %StringRef
   %tmp.v113 = alloca %TokenType
   %"$tmpForRef114" = alloca %StringRef
@@ -15124,35 +15490,35 @@ define void @asString(%String* sret %_result, %TokenType %t) #4 {
   %const.struct116 = alloca %StringRef
   %tmp.v122 = alloca %TokenType
   %"$tmpForRef123" = alloca %StringRef
-  %const.bytes124 = alloca [11 x i8]
+  %const.bytes124 = alloca [8 x i8]
   %const.struct125 = alloca %StringRef
   %tmp.v131 = alloca %TokenType
   %"$tmpForRef132" = alloca %StringRef
-  %const.bytes133 = alloca [10 x i8]
+  %const.bytes133 = alloca [11 x i8]
   %const.struct134 = alloca %StringRef
   %tmp.v140 = alloca %TokenType
   %"$tmpForRef141" = alloca %StringRef
-  %const.bytes142 = alloca [6 x i8]
+  %const.bytes142 = alloca [10 x i8]
   %const.struct143 = alloca %StringRef
   %tmp.v149 = alloca %TokenType
   %"$tmpForRef150" = alloca %StringRef
-  %const.bytes151 = alloca [5 x i8]
+  %const.bytes151 = alloca [6 x i8]
   %const.struct152 = alloca %StringRef
   %tmp.v158 = alloca %TokenType
   %"$tmpForRef159" = alloca %StringRef
-  %const.bytes160 = alloca [9 x i8]
+  %const.bytes160 = alloca [5 x i8]
   %const.struct161 = alloca %StringRef
   %tmp.v167 = alloca %TokenType
   %"$tmpForRef168" = alloca %StringRef
-  %const.bytes169 = alloca [8 x i8]
+  %const.bytes169 = alloca [9 x i8]
   %const.struct170 = alloca %StringRef
   %tmp.v176 = alloca %TokenType
   %"$tmpForRef177" = alloca %StringRef
-  %const.bytes178 = alloca [6 x i8]
+  %const.bytes178 = alloca [8 x i8]
   %const.struct179 = alloca %StringRef
   %tmp.v185 = alloca %TokenType
   %"$tmpForRef186" = alloca %StringRef
-  %const.bytes187 = alloca [8 x i8]
+  %const.bytes187 = alloca [6 x i8]
   %const.struct188 = alloca %StringRef
   %tmp.v194 = alloca %TokenType
   %"$tmpForRef195" = alloca %StringRef
@@ -15160,7 +15526,7 @@ define void @asString(%String* sret %_result, %TokenType %t) #4 {
   %const.struct197 = alloca %StringRef
   %tmp.v203 = alloca %TokenType
   %"$tmpForRef204" = alloca %StringRef
-  %const.bytes205 = alloca [7 x i8]
+  %const.bytes205 = alloca [8 x i8]
   %const.struct206 = alloca %StringRef
   %tmp.v212 = alloca %TokenType
   %"$tmpForRef213" = alloca %StringRef
@@ -15172,15 +15538,15 @@ define void @asString(%String* sret %_result, %TokenType %t) #4 {
   %const.struct224 = alloca %StringRef
   %tmp.v230 = alloca %TokenType
   %"$tmpForRef231" = alloca %StringRef
-  %const.bytes232 = alloca [12 x i8]
+  %const.bytes232 = alloca [7 x i8]
   %const.struct233 = alloca %StringRef
   %tmp.v239 = alloca %TokenType
   %"$tmpForRef240" = alloca %StringRef
-  %const.bytes241 = alloca [7 x i8]
+  %const.bytes241 = alloca [12 x i8]
   %const.struct242 = alloca %StringRef
   %tmp.v248 = alloca %TokenType
   %"$tmpForRef249" = alloca %StringRef
-  %const.bytes250 = alloca [4 x i8]
+  %const.bytes250 = alloca [7 x i8]
   %const.struct251 = alloca %StringRef
   %tmp.v257 = alloca %TokenType
   %"$tmpForRef258" = alloca %StringRef
@@ -15228,27 +15594,27 @@ define void @asString(%String* sret %_result, %TokenType %t) #4 {
   %const.struct350 = alloca %StringRef
   %tmp.v356 = alloca %TokenType
   %"$tmpForRef357" = alloca %StringRef
-  %const.bytes358 = alloca [11 x i8]
+  %const.bytes358 = alloca [4 x i8]
   %const.struct359 = alloca %StringRef
   %tmp.v365 = alloca %TokenType
   %"$tmpForRef366" = alloca %StringRef
-  %const.bytes367 = alloca [9 x i8]
+  %const.bytes367 = alloca [11 x i8]
   %const.struct368 = alloca %StringRef
   %tmp.v374 = alloca %TokenType
   %"$tmpForRef375" = alloca %StringRef
-  %const.bytes376 = alloca [13 x i8]
+  %const.bytes376 = alloca [9 x i8]
   %const.struct377 = alloca %StringRef
   %tmp.v383 = alloca %TokenType
   %"$tmpForRef384" = alloca %StringRef
-  %const.bytes385 = alloca [15 x i8]
+  %const.bytes385 = alloca [13 x i8]
   %const.struct386 = alloca %StringRef
   %tmp.v392 = alloca %TokenType
   %"$tmpForRef393" = alloca %StringRef
-  %const.bytes394 = alloca [12 x i8]
+  %const.bytes394 = alloca [15 x i8]
   %const.struct395 = alloca %StringRef
   %tmp.v401 = alloca %TokenType
   %"$tmpForRef402" = alloca %StringRef
-  %const.bytes403 = alloca [13 x i8]
+  %const.bytes403 = alloca [12 x i8]
   %const.struct404 = alloca %StringRef
   %tmp.v410 = alloca %TokenType
   %"$tmpForRef411" = alloca %StringRef
@@ -15256,16 +15622,20 @@ define void @asString(%String* sret %_result, %TokenType %t) #4 {
   %const.struct413 = alloca %StringRef
   %tmp.v419 = alloca %TokenType
   %"$tmpForRef420" = alloca %StringRef
-  %const.bytes421 = alloca [14 x i8]
+  %const.bytes421 = alloca [13 x i8]
   %const.struct422 = alloca %StringRef
   %tmp.v428 = alloca %TokenType
   %"$tmpForRef429" = alloca %StringRef
   %const.bytes430 = alloca [14 x i8]
   %const.struct431 = alloca %StringRef
-  %tmp.v436 = alloca %TokenType
-  %"$tmpForRef437" = alloca %StringRef
-  %const.bytes438 = alloca [15 x i8]
-  %const.struct439 = alloca %StringRef
+  %tmp.v437 = alloca %TokenType
+  %"$tmpForRef438" = alloca %StringRef
+  %const.bytes439 = alloca [14 x i8]
+  %const.struct440 = alloca %StringRef
+  %tmp.v445 = alloca %TokenType
+  %"$tmpForRef446" = alloca %StringRef
+  %const.bytes447 = alloca [15 x i8]
+  %const.struct448 = alloca %StringRef
   br label %code
 
 code:                                             ; preds = %0
@@ -15287,7 +15657,7 @@ if_then:                                          ; preds = %if_block
   store i8* %4, i8** %6
   %7 = load %StringRef* %const.struct
   store %StringRef %7, %StringRef* %"$tmpForRef"
-  call void @ctor248(%String* %2, %StringRef* %"$tmpForRef")
+  call void @ctor258(%String* %2, %StringRef* %"$tmpForRef")
   ret void
 
 if_else:                                          ; preds = %if_block
@@ -15306,7 +15676,7 @@ if_block1:                                        ; preds = %if_else
 
 if_then2:                                         ; preds = %if_block1
   %9 = load %String** %_result.addr
-  store [9 x i8] c"'module'\00", [9 x i8]* %const.bytes7
+  store [9 x i8] c"new-line\00", [9 x i8]* %const.bytes7
   %10 = getelementptr inbounds [9 x i8]* %const.bytes7, i32 0, i32 0
   %11 = getelementptr inbounds [9 x i8]* %const.bytes7, i32 0, i32 8
   %12 = getelementptr inbounds %StringRef* %const.struct8, i32 0, i32 0
@@ -15315,7 +15685,7 @@ if_then2:                                         ; preds = %if_block1
   store i8* %11, i8** %13
   %14 = load %StringRef* %const.struct8
   store %StringRef %14, %StringRef* %"$tmpForRef6"
-  call void @ctor248(%String* %9, %StringRef* %"$tmpForRef6")
+  call void @ctor258(%String* %9, %StringRef* %"$tmpForRef6")
   ret void
 
 if_else3:                                         ; preds = %if_block1
@@ -15334,16 +15704,16 @@ if_block10:                                       ; preds = %if_else3
 
 if_then11:                                        ; preds = %if_block10
   %16 = load %String** %_result.addr
-  store [9 x i8] c"'import'\00", [9 x i8]* %const.bytes16
-  %17 = getelementptr inbounds [9 x i8]* %const.bytes16, i32 0, i32 0
-  %18 = getelementptr inbounds [9 x i8]* %const.bytes16, i32 0, i32 8
+  store [12 x i8] c"indentation\00", [12 x i8]* %const.bytes16
+  %17 = getelementptr inbounds [12 x i8]* %const.bytes16, i32 0, i32 0
+  %18 = getelementptr inbounds [12 x i8]* %const.bytes16, i32 0, i32 11
   %19 = getelementptr inbounds %StringRef* %const.struct17, i32 0, i32 0
   %20 = getelementptr inbounds %StringRef* %const.struct17, i32 0, i32 1
   store i8* %17, i8** %19
   store i8* %18, i8** %20
   %21 = load %StringRef* %const.struct17
   store %StringRef %21, %StringRef* %"$tmpForRef15"
-  call void @ctor248(%String* %16, %StringRef* %"$tmpForRef15")
+  call void @ctor258(%String* %16, %StringRef* %"$tmpForRef15")
   ret void
 
 if_else12:                                        ; preds = %if_block10
@@ -15362,16 +15732,16 @@ if_block19:                                       ; preds = %if_else12
 
 if_then20:                                        ; preds = %if_block19
   %23 = load %String** %_result.addr
-  store [10 x i8] c"'private'\00", [10 x i8]* %const.bytes25
-  %24 = getelementptr inbounds [10 x i8]* %const.bytes25, i32 0, i32 0
-  %25 = getelementptr inbounds [10 x i8]* %const.bytes25, i32 0, i32 9
+  store [15 x i8] c"de-indentation\00", [15 x i8]* %const.bytes25
+  %24 = getelementptr inbounds [15 x i8]* %const.bytes25, i32 0, i32 0
+  %25 = getelementptr inbounds [15 x i8]* %const.bytes25, i32 0, i32 14
   %26 = getelementptr inbounds %StringRef* %const.struct26, i32 0, i32 0
   %27 = getelementptr inbounds %StringRef* %const.struct26, i32 0, i32 1
   store i8* %24, i8** %26
   store i8* %25, i8** %27
   %28 = load %StringRef* %const.struct26
   store %StringRef %28, %StringRef* %"$tmpForRef24"
-  call void @ctor248(%String* %23, %StringRef* %"$tmpForRef24")
+  call void @ctor258(%String* %23, %StringRef* %"$tmpForRef24")
   ret void
 
 if_else21:                                        ; preds = %if_block19
@@ -15390,7 +15760,7 @@ if_block28:                                       ; preds = %if_else21
 
 if_then29:                                        ; preds = %if_block28
   %30 = load %String** %_result.addr
-  store [9 x i8] c"'public'\00", [9 x i8]* %const.bytes34
+  store [9 x i8] c"'module'\00", [9 x i8]* %const.bytes34
   %31 = getelementptr inbounds [9 x i8]* %const.bytes34, i32 0, i32 0
   %32 = getelementptr inbounds [9 x i8]* %const.bytes34, i32 0, i32 8
   %33 = getelementptr inbounds %StringRef* %const.struct35, i32 0, i32 0
@@ -15399,7 +15769,7 @@ if_then29:                                        ; preds = %if_block28
   store i8* %32, i8** %34
   %35 = load %StringRef* %const.struct35
   store %StringRef %35, %StringRef* %"$tmpForRef33"
-  call void @ctor248(%String* %30, %StringRef* %"$tmpForRef33")
+  call void @ctor258(%String* %30, %StringRef* %"$tmpForRef33")
   ret void
 
 if_else30:                                        ; preds = %if_block28
@@ -15418,16 +15788,16 @@ if_block37:                                       ; preds = %if_else30
 
 if_then38:                                        ; preds = %if_block37
   %37 = load %String** %_result.addr
-  store [8 x i8] c"'class'\00", [8 x i8]* %const.bytes43
-  %38 = getelementptr inbounds [8 x i8]* %const.bytes43, i32 0, i32 0
-  %39 = getelementptr inbounds [8 x i8]* %const.bytes43, i32 0, i32 7
+  store [9 x i8] c"'import'\00", [9 x i8]* %const.bytes43
+  %38 = getelementptr inbounds [9 x i8]* %const.bytes43, i32 0, i32 0
+  %39 = getelementptr inbounds [9 x i8]* %const.bytes43, i32 0, i32 8
   %40 = getelementptr inbounds %StringRef* %const.struct44, i32 0, i32 0
   %41 = getelementptr inbounds %StringRef* %const.struct44, i32 0, i32 1
   store i8* %38, i8** %40
   store i8* %39, i8** %41
   %42 = load %StringRef* %const.struct44
   store %StringRef %42, %StringRef* %"$tmpForRef42"
-  call void @ctor248(%String* %37, %StringRef* %"$tmpForRef42")
+  call void @ctor258(%String* %37, %StringRef* %"$tmpForRef42")
   ret void
 
 if_else39:                                        ; preds = %if_block37
@@ -15446,16 +15816,16 @@ if_block46:                                       ; preds = %if_else39
 
 if_then47:                                        ; preds = %if_block46
   %44 = load %String** %_result.addr
-  store [10 x i8] c"'concept'\00", [10 x i8]* %const.bytes52
-  %45 = getelementptr inbounds [10 x i8]* %const.bytes52, i32 0, i32 0
-  %46 = getelementptr inbounds [10 x i8]* %const.bytes52, i32 0, i32 9
+  store [8 x i8] c"'class'\00", [8 x i8]* %const.bytes52
+  %45 = getelementptr inbounds [8 x i8]* %const.bytes52, i32 0, i32 0
+  %46 = getelementptr inbounds [8 x i8]* %const.bytes52, i32 0, i32 7
   %47 = getelementptr inbounds %StringRef* %const.struct53, i32 0, i32 0
   %48 = getelementptr inbounds %StringRef* %const.struct53, i32 0, i32 1
   store i8* %45, i8** %47
   store i8* %46, i8** %48
   %49 = load %StringRef* %const.struct53
   store %StringRef %49, %StringRef* %"$tmpForRef51"
-  call void @ctor248(%String* %44, %StringRef* %"$tmpForRef51")
+  call void @ctor258(%String* %44, %StringRef* %"$tmpForRef51")
   ret void
 
 if_else48:                                        ; preds = %if_block46
@@ -15474,16 +15844,16 @@ if_block55:                                       ; preds = %if_else48
 
 if_then56:                                        ; preds = %if_block55
   %51 = load %String** %_result.addr
-  store [11 x i8] c"'datatype'\00", [11 x i8]* %const.bytes61
-  %52 = getelementptr inbounds [11 x i8]* %const.bytes61, i32 0, i32 0
-  %53 = getelementptr inbounds [11 x i8]* %const.bytes61, i32 0, i32 10
+  store [10 x i8] c"'concept'\00", [10 x i8]* %const.bytes61
+  %52 = getelementptr inbounds [10 x i8]* %const.bytes61, i32 0, i32 0
+  %53 = getelementptr inbounds [10 x i8]* %const.bytes61, i32 0, i32 9
   %54 = getelementptr inbounds %StringRef* %const.struct62, i32 0, i32 0
   %55 = getelementptr inbounds %StringRef* %const.struct62, i32 0, i32 1
   store i8* %52, i8** %54
   store i8* %53, i8** %55
   %56 = load %StringRef* %const.struct62
   store %StringRef %56, %StringRef* %"$tmpForRef60"
-  call void @ctor248(%String* %51, %StringRef* %"$tmpForRef60")
+  call void @ctor258(%String* %51, %StringRef* %"$tmpForRef60")
   ret void
 
 if_else57:                                        ; preds = %if_block55
@@ -15502,16 +15872,16 @@ if_block64:                                       ; preds = %if_else57
 
 if_then65:                                        ; preds = %if_block64
   %58 = load %String** %_result.addr
-  store [6 x i8] c"'fun'\00", [6 x i8]* %const.bytes70
-  %59 = getelementptr inbounds [6 x i8]* %const.bytes70, i32 0, i32 0
-  %60 = getelementptr inbounds [6 x i8]* %const.bytes70, i32 0, i32 5
+  store [11 x i8] c"'datatype'\00", [11 x i8]* %const.bytes70
+  %59 = getelementptr inbounds [11 x i8]* %const.bytes70, i32 0, i32 0
+  %60 = getelementptr inbounds [11 x i8]* %const.bytes70, i32 0, i32 10
   %61 = getelementptr inbounds %StringRef* %const.struct71, i32 0, i32 0
   %62 = getelementptr inbounds %StringRef* %const.struct71, i32 0, i32 1
   store i8* %59, i8** %61
   store i8* %60, i8** %62
   %63 = load %StringRef* %const.struct71
   store %StringRef %63, %StringRef* %"$tmpForRef69"
-  call void @ctor248(%String* %58, %StringRef* %"$tmpForRef69")
+  call void @ctor258(%String* %58, %StringRef* %"$tmpForRef69")
   ret void
 
 if_else66:                                        ; preds = %if_block64
@@ -15530,16 +15900,16 @@ if_block73:                                       ; preds = %if_else66
 
 if_then74:                                        ; preds = %if_block73
   %65 = load %String** %_result.addr
-  store [10 x i8] c"'package'\00", [10 x i8]* %const.bytes79
-  %66 = getelementptr inbounds [10 x i8]* %const.bytes79, i32 0, i32 0
-  %67 = getelementptr inbounds [10 x i8]* %const.bytes79, i32 0, i32 9
+  store [6 x i8] c"'fun'\00", [6 x i8]* %const.bytes79
+  %66 = getelementptr inbounds [6 x i8]* %const.bytes79, i32 0, i32 0
+  %67 = getelementptr inbounds [6 x i8]* %const.bytes79, i32 0, i32 5
   %68 = getelementptr inbounds %StringRef* %const.struct80, i32 0, i32 0
   %69 = getelementptr inbounds %StringRef* %const.struct80, i32 0, i32 1
   store i8* %66, i8** %68
   store i8* %67, i8** %69
   %70 = load %StringRef* %const.struct80
   store %StringRef %70, %StringRef* %"$tmpForRef78"
-  call void @ctor248(%String* %65, %StringRef* %"$tmpForRef78")
+  call void @ctor258(%String* %65, %StringRef* %"$tmpForRef78")
   ret void
 
 if_else75:                                        ; preds = %if_block73
@@ -15558,16 +15928,16 @@ if_block82:                                       ; preds = %if_else75
 
 if_then83:                                        ; preds = %if_block82
   %72 = load %String** %_result.addr
-  store [8 x i8] c"'using'\00", [8 x i8]* %const.bytes88
-  %73 = getelementptr inbounds [8 x i8]* %const.bytes88, i32 0, i32 0
-  %74 = getelementptr inbounds [8 x i8]* %const.bytes88, i32 0, i32 7
+  store [10 x i8] c"'package'\00", [10 x i8]* %const.bytes88
+  %73 = getelementptr inbounds [10 x i8]* %const.bytes88, i32 0, i32 0
+  %74 = getelementptr inbounds [10 x i8]* %const.bytes88, i32 0, i32 9
   %75 = getelementptr inbounds %StringRef* %const.struct89, i32 0, i32 0
   %76 = getelementptr inbounds %StringRef* %const.struct89, i32 0, i32 1
   store i8* %73, i8** %75
   store i8* %74, i8** %76
   %77 = load %StringRef* %const.struct89
   store %StringRef %77, %StringRef* %"$tmpForRef87"
-  call void @ctor248(%String* %72, %StringRef* %"$tmpForRef87")
+  call void @ctor258(%String* %72, %StringRef* %"$tmpForRef87")
   ret void
 
 if_else84:                                        ; preds = %if_block82
@@ -15586,16 +15956,16 @@ if_block91:                                       ; preds = %if_else84
 
 if_then92:                                        ; preds = %if_block91
   %79 = load %String** %_result.addr
-  store [6 x i8] c"'var'\00", [6 x i8]* %const.bytes97
-  %80 = getelementptr inbounds [6 x i8]* %const.bytes97, i32 0, i32 0
-  %81 = getelementptr inbounds [6 x i8]* %const.bytes97, i32 0, i32 5
+  store [8 x i8] c"'using'\00", [8 x i8]* %const.bytes97
+  %80 = getelementptr inbounds [8 x i8]* %const.bytes97, i32 0, i32 0
+  %81 = getelementptr inbounds [8 x i8]* %const.bytes97, i32 0, i32 7
   %82 = getelementptr inbounds %StringRef* %const.struct98, i32 0, i32 0
   %83 = getelementptr inbounds %StringRef* %const.struct98, i32 0, i32 1
   store i8* %80, i8** %82
   store i8* %81, i8** %83
   %84 = load %StringRef* %const.struct98
   store %StringRef %84, %StringRef* %"$tmpForRef96"
-  call void @ctor248(%String* %79, %StringRef* %"$tmpForRef96")
+  call void @ctor258(%String* %79, %StringRef* %"$tmpForRef96")
   ret void
 
 if_else93:                                        ; preds = %if_block91
@@ -15614,16 +15984,16 @@ if_block100:                                      ; preds = %if_else93
 
 if_then101:                                       ; preds = %if_block100
   %86 = load %String** %_result.addr
-  store [8 x i8] c"'break'\00", [8 x i8]* %const.bytes106
-  %87 = getelementptr inbounds [8 x i8]* %const.bytes106, i32 0, i32 0
-  %88 = getelementptr inbounds [8 x i8]* %const.bytes106, i32 0, i32 7
+  store [6 x i8] c"'var'\00", [6 x i8]* %const.bytes106
+  %87 = getelementptr inbounds [6 x i8]* %const.bytes106, i32 0, i32 0
+  %88 = getelementptr inbounds [6 x i8]* %const.bytes106, i32 0, i32 5
   %89 = getelementptr inbounds %StringRef* %const.struct107, i32 0, i32 0
   %90 = getelementptr inbounds %StringRef* %const.struct107, i32 0, i32 1
   store i8* %87, i8** %89
   store i8* %88, i8** %90
   %91 = load %StringRef* %const.struct107
   store %StringRef %91, %StringRef* %"$tmpForRef105"
-  call void @ctor248(%String* %86, %StringRef* %"$tmpForRef105")
+  call void @ctor258(%String* %86, %StringRef* %"$tmpForRef105")
   ret void
 
 if_else102:                                       ; preds = %if_block100
@@ -15642,7 +16012,7 @@ if_block109:                                      ; preds = %if_else102
 
 if_then110:                                       ; preds = %if_block109
   %93 = load %String** %_result.addr
-  store [8 x i8] c"'catch'\00", [8 x i8]* %const.bytes115
+  store [8 x i8] c"'break'\00", [8 x i8]* %const.bytes115
   %94 = getelementptr inbounds [8 x i8]* %const.bytes115, i32 0, i32 0
   %95 = getelementptr inbounds [8 x i8]* %const.bytes115, i32 0, i32 7
   %96 = getelementptr inbounds %StringRef* %const.struct116, i32 0, i32 0
@@ -15651,7 +16021,7 @@ if_then110:                                       ; preds = %if_block109
   store i8* %95, i8** %97
   %98 = load %StringRef* %const.struct116
   store %StringRef %98, %StringRef* %"$tmpForRef114"
-  call void @ctor248(%String* %93, %StringRef* %"$tmpForRef114")
+  call void @ctor258(%String* %93, %StringRef* %"$tmpForRef114")
   ret void
 
 if_else111:                                       ; preds = %if_block109
@@ -15670,16 +16040,16 @@ if_block118:                                      ; preds = %if_else111
 
 if_then119:                                       ; preds = %if_block118
   %100 = load %String** %_result.addr
-  store [11 x i8] c"'continue'\00", [11 x i8]* %const.bytes124
-  %101 = getelementptr inbounds [11 x i8]* %const.bytes124, i32 0, i32 0
-  %102 = getelementptr inbounds [11 x i8]* %const.bytes124, i32 0, i32 10
+  store [8 x i8] c"'catch'\00", [8 x i8]* %const.bytes124
+  %101 = getelementptr inbounds [8 x i8]* %const.bytes124, i32 0, i32 0
+  %102 = getelementptr inbounds [8 x i8]* %const.bytes124, i32 0, i32 7
   %103 = getelementptr inbounds %StringRef* %const.struct125, i32 0, i32 0
   %104 = getelementptr inbounds %StringRef* %const.struct125, i32 0, i32 1
   store i8* %101, i8** %103
   store i8* %102, i8** %104
   %105 = load %StringRef* %const.struct125
   store %StringRef %105, %StringRef* %"$tmpForRef123"
-  call void @ctor248(%String* %100, %StringRef* %"$tmpForRef123")
+  call void @ctor258(%String* %100, %StringRef* %"$tmpForRef123")
   ret void
 
 if_else120:                                       ; preds = %if_block118
@@ -15698,16 +16068,16 @@ if_block127:                                      ; preds = %if_else120
 
 if_then128:                                       ; preds = %if_block127
   %107 = load %String** %_result.addr
-  store [10 x i8] c"'finally'\00", [10 x i8]* %const.bytes133
-  %108 = getelementptr inbounds [10 x i8]* %const.bytes133, i32 0, i32 0
-  %109 = getelementptr inbounds [10 x i8]* %const.bytes133, i32 0, i32 9
+  store [11 x i8] c"'continue'\00", [11 x i8]* %const.bytes133
+  %108 = getelementptr inbounds [11 x i8]* %const.bytes133, i32 0, i32 0
+  %109 = getelementptr inbounds [11 x i8]* %const.bytes133, i32 0, i32 10
   %110 = getelementptr inbounds %StringRef* %const.struct134, i32 0, i32 0
   %111 = getelementptr inbounds %StringRef* %const.struct134, i32 0, i32 1
   store i8* %108, i8** %110
   store i8* %109, i8** %111
   %112 = load %StringRef* %const.struct134
   store %StringRef %112, %StringRef* %"$tmpForRef132"
-  call void @ctor248(%String* %107, %StringRef* %"$tmpForRef132")
+  call void @ctor258(%String* %107, %StringRef* %"$tmpForRef132")
   ret void
 
 if_else129:                                       ; preds = %if_block127
@@ -15726,16 +16096,16 @@ if_block136:                                      ; preds = %if_else129
 
 if_then137:                                       ; preds = %if_block136
   %114 = load %String** %_result.addr
-  store [6 x i8] c"'for'\00", [6 x i8]* %const.bytes142
-  %115 = getelementptr inbounds [6 x i8]* %const.bytes142, i32 0, i32 0
-  %116 = getelementptr inbounds [6 x i8]* %const.bytes142, i32 0, i32 5
+  store [10 x i8] c"'finally'\00", [10 x i8]* %const.bytes142
+  %115 = getelementptr inbounds [10 x i8]* %const.bytes142, i32 0, i32 0
+  %116 = getelementptr inbounds [10 x i8]* %const.bytes142, i32 0, i32 9
   %117 = getelementptr inbounds %StringRef* %const.struct143, i32 0, i32 0
   %118 = getelementptr inbounds %StringRef* %const.struct143, i32 0, i32 1
   store i8* %115, i8** %117
   store i8* %116, i8** %118
   %119 = load %StringRef* %const.struct143
   store %StringRef %119, %StringRef* %"$tmpForRef141"
-  call void @ctor248(%String* %114, %StringRef* %"$tmpForRef141")
+  call void @ctor258(%String* %114, %StringRef* %"$tmpForRef141")
   ret void
 
 if_else138:                                       ; preds = %if_block136
@@ -15754,16 +16124,16 @@ if_block145:                                      ; preds = %if_else138
 
 if_then146:                                       ; preds = %if_block145
   %121 = load %String** %_result.addr
-  store [5 x i8] c"'if'\00", [5 x i8]* %const.bytes151
-  %122 = getelementptr inbounds [5 x i8]* %const.bytes151, i32 0, i32 0
-  %123 = getelementptr inbounds [5 x i8]* %const.bytes151, i32 0, i32 4
+  store [6 x i8] c"'for'\00", [6 x i8]* %const.bytes151
+  %122 = getelementptr inbounds [6 x i8]* %const.bytes151, i32 0, i32 0
+  %123 = getelementptr inbounds [6 x i8]* %const.bytes151, i32 0, i32 5
   %124 = getelementptr inbounds %StringRef* %const.struct152, i32 0, i32 0
   %125 = getelementptr inbounds %StringRef* %const.struct152, i32 0, i32 1
   store i8* %122, i8** %124
   store i8* %123, i8** %125
   %126 = load %StringRef* %const.struct152
   store %StringRef %126, %StringRef* %"$tmpForRef150"
-  call void @ctor248(%String* %121, %StringRef* %"$tmpForRef150")
+  call void @ctor258(%String* %121, %StringRef* %"$tmpForRef150")
   ret void
 
 if_else147:                                       ; preds = %if_block145
@@ -15782,16 +16152,16 @@ if_block154:                                      ; preds = %if_else147
 
 if_then155:                                       ; preds = %if_block154
   %128 = load %String** %_result.addr
-  store [9 x i8] c"'return'\00", [9 x i8]* %const.bytes160
-  %129 = getelementptr inbounds [9 x i8]* %const.bytes160, i32 0, i32 0
-  %130 = getelementptr inbounds [9 x i8]* %const.bytes160, i32 0, i32 8
+  store [5 x i8] c"'if'\00", [5 x i8]* %const.bytes160
+  %129 = getelementptr inbounds [5 x i8]* %const.bytes160, i32 0, i32 0
+  %130 = getelementptr inbounds [5 x i8]* %const.bytes160, i32 0, i32 4
   %131 = getelementptr inbounds %StringRef* %const.struct161, i32 0, i32 0
   %132 = getelementptr inbounds %StringRef* %const.struct161, i32 0, i32 1
   store i8* %129, i8** %131
   store i8* %130, i8** %132
   %133 = load %StringRef* %const.struct161
   store %StringRef %133, %StringRef* %"$tmpForRef159"
-  call void @ctor248(%String* %128, %StringRef* %"$tmpForRef159")
+  call void @ctor258(%String* %128, %StringRef* %"$tmpForRef159")
   ret void
 
 if_else156:                                       ; preds = %if_block154
@@ -15810,16 +16180,16 @@ if_block163:                                      ; preds = %if_else156
 
 if_then164:                                       ; preds = %if_block163
   %135 = load %String** %_result.addr
-  store [8 x i8] c"'throw'\00", [8 x i8]* %const.bytes169
-  %136 = getelementptr inbounds [8 x i8]* %const.bytes169, i32 0, i32 0
-  %137 = getelementptr inbounds [8 x i8]* %const.bytes169, i32 0, i32 7
+  store [9 x i8] c"'return'\00", [9 x i8]* %const.bytes169
+  %136 = getelementptr inbounds [9 x i8]* %const.bytes169, i32 0, i32 0
+  %137 = getelementptr inbounds [9 x i8]* %const.bytes169, i32 0, i32 8
   %138 = getelementptr inbounds %StringRef* %const.struct170, i32 0, i32 0
   %139 = getelementptr inbounds %StringRef* %const.struct170, i32 0, i32 1
   store i8* %136, i8** %138
   store i8* %137, i8** %139
   %140 = load %StringRef* %const.struct170
   store %StringRef %140, %StringRef* %"$tmpForRef168"
-  call void @ctor248(%String* %135, %StringRef* %"$tmpForRef168")
+  call void @ctor258(%String* %135, %StringRef* %"$tmpForRef168")
   ret void
 
 if_else165:                                       ; preds = %if_block163
@@ -15838,16 +16208,16 @@ if_block172:                                      ; preds = %if_else165
 
 if_then173:                                       ; preds = %if_block172
   %142 = load %String** %_result.addr
-  store [6 x i8] c"'try'\00", [6 x i8]* %const.bytes178
-  %143 = getelementptr inbounds [6 x i8]* %const.bytes178, i32 0, i32 0
-  %144 = getelementptr inbounds [6 x i8]* %const.bytes178, i32 0, i32 5
+  store [8 x i8] c"'throw'\00", [8 x i8]* %const.bytes178
+  %143 = getelementptr inbounds [8 x i8]* %const.bytes178, i32 0, i32 0
+  %144 = getelementptr inbounds [8 x i8]* %const.bytes178, i32 0, i32 7
   %145 = getelementptr inbounds %StringRef* %const.struct179, i32 0, i32 0
   %146 = getelementptr inbounds %StringRef* %const.struct179, i32 0, i32 1
   store i8* %143, i8** %145
   store i8* %144, i8** %146
   %147 = load %StringRef* %const.struct179
   store %StringRef %147, %StringRef* %"$tmpForRef177"
-  call void @ctor248(%String* %142, %StringRef* %"$tmpForRef177")
+  call void @ctor258(%String* %142, %StringRef* %"$tmpForRef177")
   ret void
 
 if_else174:                                       ; preds = %if_block172
@@ -15866,16 +16236,16 @@ if_block181:                                      ; preds = %if_else174
 
 if_then182:                                       ; preds = %if_block181
   %149 = load %String** %_result.addr
-  store [8 x i8] c"'while'\00", [8 x i8]* %const.bytes187
-  %150 = getelementptr inbounds [8 x i8]* %const.bytes187, i32 0, i32 0
-  %151 = getelementptr inbounds [8 x i8]* %const.bytes187, i32 0, i32 7
+  store [6 x i8] c"'try'\00", [6 x i8]* %const.bytes187
+  %150 = getelementptr inbounds [6 x i8]* %const.bytes187, i32 0, i32 0
+  %151 = getelementptr inbounds [6 x i8]* %const.bytes187, i32 0, i32 5
   %152 = getelementptr inbounds %StringRef* %const.struct188, i32 0, i32 0
   %153 = getelementptr inbounds %StringRef* %const.struct188, i32 0, i32 1
   store i8* %150, i8** %152
   store i8* %151, i8** %153
   %154 = load %StringRef* %const.struct188
   store %StringRef %154, %StringRef* %"$tmpForRef186"
-  call void @ctor248(%String* %149, %StringRef* %"$tmpForRef186")
+  call void @ctor258(%String* %149, %StringRef* %"$tmpForRef186")
   ret void
 
 if_else183:                                       ; preds = %if_block181
@@ -15894,7 +16264,7 @@ if_block190:                                      ; preds = %if_else183
 
 if_then191:                                       ; preds = %if_block190
   %156 = load %String** %_result.addr
-  store [8 x i8] c"'false'\00", [8 x i8]* %const.bytes196
+  store [8 x i8] c"'while'\00", [8 x i8]* %const.bytes196
   %157 = getelementptr inbounds [8 x i8]* %const.bytes196, i32 0, i32 0
   %158 = getelementptr inbounds [8 x i8]* %const.bytes196, i32 0, i32 7
   %159 = getelementptr inbounds %StringRef* %const.struct197, i32 0, i32 0
@@ -15903,7 +16273,7 @@ if_then191:                                       ; preds = %if_block190
   store i8* %158, i8** %160
   %161 = load %StringRef* %const.struct197
   store %StringRef %161, %StringRef* %"$tmpForRef195"
-  call void @ctor248(%String* %156, %StringRef* %"$tmpForRef195")
+  call void @ctor258(%String* %156, %StringRef* %"$tmpForRef195")
   ret void
 
 if_else192:                                       ; preds = %if_block190
@@ -15922,16 +16292,16 @@ if_block199:                                      ; preds = %if_else192
 
 if_then200:                                       ; preds = %if_block199
   %163 = load %String** %_result.addr
-  store [7 x i8] c"'null'\00", [7 x i8]* %const.bytes205
-  %164 = getelementptr inbounds [7 x i8]* %const.bytes205, i32 0, i32 0
-  %165 = getelementptr inbounds [7 x i8]* %const.bytes205, i32 0, i32 6
+  store [8 x i8] c"'false'\00", [8 x i8]* %const.bytes205
+  %164 = getelementptr inbounds [8 x i8]* %const.bytes205, i32 0, i32 0
+  %165 = getelementptr inbounds [8 x i8]* %const.bytes205, i32 0, i32 7
   %166 = getelementptr inbounds %StringRef* %const.struct206, i32 0, i32 0
   %167 = getelementptr inbounds %StringRef* %const.struct206, i32 0, i32 1
   store i8* %164, i8** %166
   store i8* %165, i8** %167
   %168 = load %StringRef* %const.struct206
   store %StringRef %168, %StringRef* %"$tmpForRef204"
-  call void @ctor248(%String* %163, %StringRef* %"$tmpForRef204")
+  call void @ctor258(%String* %163, %StringRef* %"$tmpForRef204")
   ret void
 
 if_else201:                                       ; preds = %if_block199
@@ -15950,7 +16320,7 @@ if_block208:                                      ; preds = %if_else201
 
 if_then209:                                       ; preds = %if_block208
   %170 = load %String** %_result.addr
-  store [7 x i8] c"'this'\00", [7 x i8]* %const.bytes214
+  store [7 x i8] c"'null'\00", [7 x i8]* %const.bytes214
   %171 = getelementptr inbounds [7 x i8]* %const.bytes214, i32 0, i32 0
   %172 = getelementptr inbounds [7 x i8]* %const.bytes214, i32 0, i32 6
   %173 = getelementptr inbounds %StringRef* %const.struct215, i32 0, i32 0
@@ -15959,7 +16329,7 @@ if_then209:                                       ; preds = %if_block208
   store i8* %172, i8** %174
   %175 = load %StringRef* %const.struct215
   store %StringRef %175, %StringRef* %"$tmpForRef213"
-  call void @ctor248(%String* %170, %StringRef* %"$tmpForRef213")
+  call void @ctor258(%String* %170, %StringRef* %"$tmpForRef213")
   ret void
 
 if_else210:                                       ; preds = %if_block208
@@ -15978,7 +16348,7 @@ if_block217:                                      ; preds = %if_else210
 
 if_then218:                                       ; preds = %if_block217
   %177 = load %String** %_result.addr
-  store [7 x i8] c"'true'\00", [7 x i8]* %const.bytes223
+  store [7 x i8] c"'this'\00", [7 x i8]* %const.bytes223
   %178 = getelementptr inbounds [7 x i8]* %const.bytes223, i32 0, i32 0
   %179 = getelementptr inbounds [7 x i8]* %const.bytes223, i32 0, i32 6
   %180 = getelementptr inbounds %StringRef* %const.struct224, i32 0, i32 0
@@ -15987,7 +16357,7 @@ if_then218:                                       ; preds = %if_block217
   store i8* %179, i8** %181
   %182 = load %StringRef* %const.struct224
   store %StringRef %182, %StringRef* %"$tmpForRef222"
-  call void @ctor248(%String* %177, %StringRef* %"$tmpForRef222")
+  call void @ctor258(%String* %177, %StringRef* %"$tmpForRef222")
   ret void
 
 if_else219:                                       ; preds = %if_block217
@@ -16006,16 +16376,16 @@ if_block226:                                      ; preds = %if_else219
 
 if_then227:                                       ; preds = %if_block226
   %184 = load %String** %_result.addr
-  store [12 x i8] c"then clause\00", [12 x i8]* %const.bytes232
-  %185 = getelementptr inbounds [12 x i8]* %const.bytes232, i32 0, i32 0
-  %186 = getelementptr inbounds [12 x i8]* %const.bytes232, i32 0, i32 11
+  store [7 x i8] c"'true'\00", [7 x i8]* %const.bytes232
+  %185 = getelementptr inbounds [7 x i8]* %const.bytes232, i32 0, i32 0
+  %186 = getelementptr inbounds [7 x i8]* %const.bytes232, i32 0, i32 6
   %187 = getelementptr inbounds %StringRef* %const.struct233, i32 0, i32 0
   %188 = getelementptr inbounds %StringRef* %const.struct233, i32 0, i32 1
   store i8* %185, i8** %187
   store i8* %186, i8** %188
   %189 = load %StringRef* %const.struct233
   store %StringRef %189, %StringRef* %"$tmpForRef231"
-  call void @ctor248(%String* %184, %StringRef* %"$tmpForRef231")
+  call void @ctor258(%String* %184, %StringRef* %"$tmpForRef231")
   ret void
 
 if_else228:                                       ; preds = %if_block226
@@ -16034,16 +16404,16 @@ if_block235:                                      ; preds = %if_else228
 
 if_then236:                                       ; preds = %if_block235
   %191 = load %String** %_result.addr
-  store [7 x i8] c"'else'\00", [7 x i8]* %const.bytes241
-  %192 = getelementptr inbounds [7 x i8]* %const.bytes241, i32 0, i32 0
-  %193 = getelementptr inbounds [7 x i8]* %const.bytes241, i32 0, i32 6
+  store [12 x i8] c"then clause\00", [12 x i8]* %const.bytes241
+  %192 = getelementptr inbounds [12 x i8]* %const.bytes241, i32 0, i32 0
+  %193 = getelementptr inbounds [12 x i8]* %const.bytes241, i32 0, i32 11
   %194 = getelementptr inbounds %StringRef* %const.struct242, i32 0, i32 0
   %195 = getelementptr inbounds %StringRef* %const.struct242, i32 0, i32 1
   store i8* %192, i8** %194
   store i8* %193, i8** %195
   %196 = load %StringRef* %const.struct242
   store %StringRef %196, %StringRef* %"$tmpForRef240"
-  call void @ctor248(%String* %191, %StringRef* %"$tmpForRef240")
+  call void @ctor258(%String* %191, %StringRef* %"$tmpForRef240")
   ret void
 
 if_else237:                                       ; preds = %if_block235
@@ -16062,16 +16432,16 @@ if_block244:                                      ; preds = %if_else237
 
 if_then245:                                       ; preds = %if_block244
   %198 = load %String** %_result.addr
-  store [4 x i8] c"'{'\00", [4 x i8]* %const.bytes250
-  %199 = getelementptr inbounds [4 x i8]* %const.bytes250, i32 0, i32 0
-  %200 = getelementptr inbounds [4 x i8]* %const.bytes250, i32 0, i32 3
+  store [7 x i8] c"'else'\00", [7 x i8]* %const.bytes250
+  %199 = getelementptr inbounds [7 x i8]* %const.bytes250, i32 0, i32 0
+  %200 = getelementptr inbounds [7 x i8]* %const.bytes250, i32 0, i32 6
   %201 = getelementptr inbounds %StringRef* %const.struct251, i32 0, i32 0
   %202 = getelementptr inbounds %StringRef* %const.struct251, i32 0, i32 1
   store i8* %199, i8** %201
   store i8* %200, i8** %202
   %203 = load %StringRef* %const.struct251
   store %StringRef %203, %StringRef* %"$tmpForRef249"
-  call void @ctor248(%String* %198, %StringRef* %"$tmpForRef249")
+  call void @ctor258(%String* %198, %StringRef* %"$tmpForRef249")
   ret void
 
 if_else246:                                       ; preds = %if_block244
@@ -16090,7 +16460,7 @@ if_block253:                                      ; preds = %if_else246
 
 if_then254:                                       ; preds = %if_block253
   %205 = load %String** %_result.addr
-  store [4 x i8] c"'}'\00", [4 x i8]* %const.bytes259
+  store [4 x i8] c"'{'\00", [4 x i8]* %const.bytes259
   %206 = getelementptr inbounds [4 x i8]* %const.bytes259, i32 0, i32 0
   %207 = getelementptr inbounds [4 x i8]* %const.bytes259, i32 0, i32 3
   %208 = getelementptr inbounds %StringRef* %const.struct260, i32 0, i32 0
@@ -16099,7 +16469,7 @@ if_then254:                                       ; preds = %if_block253
   store i8* %207, i8** %209
   %210 = load %StringRef* %const.struct260
   store %StringRef %210, %StringRef* %"$tmpForRef258"
-  call void @ctor248(%String* %205, %StringRef* %"$tmpForRef258")
+  call void @ctor258(%String* %205, %StringRef* %"$tmpForRef258")
   ret void
 
 if_else255:                                       ; preds = %if_block253
@@ -16118,7 +16488,7 @@ if_block262:                                      ; preds = %if_else255
 
 if_then263:                                       ; preds = %if_block262
   %212 = load %String** %_result.addr
-  store [4 x i8] c"'['\00", [4 x i8]* %const.bytes268
+  store [4 x i8] c"'}'\00", [4 x i8]* %const.bytes268
   %213 = getelementptr inbounds [4 x i8]* %const.bytes268, i32 0, i32 0
   %214 = getelementptr inbounds [4 x i8]* %const.bytes268, i32 0, i32 3
   %215 = getelementptr inbounds %StringRef* %const.struct269, i32 0, i32 0
@@ -16127,7 +16497,7 @@ if_then263:                                       ; preds = %if_block262
   store i8* %214, i8** %216
   %217 = load %StringRef* %const.struct269
   store %StringRef %217, %StringRef* %"$tmpForRef267"
-  call void @ctor248(%String* %212, %StringRef* %"$tmpForRef267")
+  call void @ctor258(%String* %212, %StringRef* %"$tmpForRef267")
   ret void
 
 if_else264:                                       ; preds = %if_block262
@@ -16146,7 +16516,7 @@ if_block271:                                      ; preds = %if_else264
 
 if_then272:                                       ; preds = %if_block271
   %219 = load %String** %_result.addr
-  store [4 x i8] c"']'\00", [4 x i8]* %const.bytes277
+  store [4 x i8] c"'['\00", [4 x i8]* %const.bytes277
   %220 = getelementptr inbounds [4 x i8]* %const.bytes277, i32 0, i32 0
   %221 = getelementptr inbounds [4 x i8]* %const.bytes277, i32 0, i32 3
   %222 = getelementptr inbounds %StringRef* %const.struct278, i32 0, i32 0
@@ -16155,7 +16525,7 @@ if_then272:                                       ; preds = %if_block271
   store i8* %221, i8** %223
   %224 = load %StringRef* %const.struct278
   store %StringRef %224, %StringRef* %"$tmpForRef276"
-  call void @ctor248(%String* %219, %StringRef* %"$tmpForRef276")
+  call void @ctor258(%String* %219, %StringRef* %"$tmpForRef276")
   ret void
 
 if_else273:                                       ; preds = %if_block271
@@ -16174,7 +16544,7 @@ if_block280:                                      ; preds = %if_else273
 
 if_then281:                                       ; preds = %if_block280
   %226 = load %String** %_result.addr
-  store [4 x i8] c"'('\00", [4 x i8]* %const.bytes286
+  store [4 x i8] c"']'\00", [4 x i8]* %const.bytes286
   %227 = getelementptr inbounds [4 x i8]* %const.bytes286, i32 0, i32 0
   %228 = getelementptr inbounds [4 x i8]* %const.bytes286, i32 0, i32 3
   %229 = getelementptr inbounds %StringRef* %const.struct287, i32 0, i32 0
@@ -16183,7 +16553,7 @@ if_then281:                                       ; preds = %if_block280
   store i8* %228, i8** %230
   %231 = load %StringRef* %const.struct287
   store %StringRef %231, %StringRef* %"$tmpForRef285"
-  call void @ctor248(%String* %226, %StringRef* %"$tmpForRef285")
+  call void @ctor258(%String* %226, %StringRef* %"$tmpForRef285")
   ret void
 
 if_else282:                                       ; preds = %if_block280
@@ -16202,7 +16572,7 @@ if_block289:                                      ; preds = %if_else282
 
 if_then290:                                       ; preds = %if_block289
   %233 = load %String** %_result.addr
-  store [4 x i8] c"')'\00", [4 x i8]* %const.bytes295
+  store [4 x i8] c"'('\00", [4 x i8]* %const.bytes295
   %234 = getelementptr inbounds [4 x i8]* %const.bytes295, i32 0, i32 0
   %235 = getelementptr inbounds [4 x i8]* %const.bytes295, i32 0, i32 3
   %236 = getelementptr inbounds %StringRef* %const.struct296, i32 0, i32 0
@@ -16211,7 +16581,7 @@ if_then290:                                       ; preds = %if_block289
   store i8* %235, i8** %237
   %238 = load %StringRef* %const.struct296
   store %StringRef %238, %StringRef* %"$tmpForRef294"
-  call void @ctor248(%String* %233, %StringRef* %"$tmpForRef294")
+  call void @ctor258(%String* %233, %StringRef* %"$tmpForRef294")
   ret void
 
 if_else291:                                       ; preds = %if_block289
@@ -16230,7 +16600,7 @@ if_block298:                                      ; preds = %if_else291
 
 if_then299:                                       ; preds = %if_block298
   %240 = load %String** %_result.addr
-  store [4 x i8] c"':'\00", [4 x i8]* %const.bytes304
+  store [4 x i8] c"')'\00", [4 x i8]* %const.bytes304
   %241 = getelementptr inbounds [4 x i8]* %const.bytes304, i32 0, i32 0
   %242 = getelementptr inbounds [4 x i8]* %const.bytes304, i32 0, i32 3
   %243 = getelementptr inbounds %StringRef* %const.struct305, i32 0, i32 0
@@ -16239,7 +16609,7 @@ if_then299:                                       ; preds = %if_block298
   store i8* %242, i8** %244
   %245 = load %StringRef* %const.struct305
   store %StringRef %245, %StringRef* %"$tmpForRef303"
-  call void @ctor248(%String* %240, %StringRef* %"$tmpForRef303")
+  call void @ctor258(%String* %240, %StringRef* %"$tmpForRef303")
   ret void
 
 if_else300:                                       ; preds = %if_block298
@@ -16258,7 +16628,7 @@ if_block307:                                      ; preds = %if_else300
 
 if_then308:                                       ; preds = %if_block307
   %247 = load %String** %_result.addr
-  store [4 x i8] c"';'\00", [4 x i8]* %const.bytes313
+  store [4 x i8] c"':'\00", [4 x i8]* %const.bytes313
   %248 = getelementptr inbounds [4 x i8]* %const.bytes313, i32 0, i32 0
   %249 = getelementptr inbounds [4 x i8]* %const.bytes313, i32 0, i32 3
   %250 = getelementptr inbounds %StringRef* %const.struct314, i32 0, i32 0
@@ -16267,7 +16637,7 @@ if_then308:                                       ; preds = %if_block307
   store i8* %249, i8** %251
   %252 = load %StringRef* %const.struct314
   store %StringRef %252, %StringRef* %"$tmpForRef312"
-  call void @ctor248(%String* %247, %StringRef* %"$tmpForRef312")
+  call void @ctor258(%String* %247, %StringRef* %"$tmpForRef312")
   ret void
 
 if_else309:                                       ; preds = %if_block307
@@ -16286,7 +16656,7 @@ if_block316:                                      ; preds = %if_else309
 
 if_then317:                                       ; preds = %if_block316
   %254 = load %String** %_result.addr
-  store [4 x i8] c"','\00", [4 x i8]* %const.bytes322
+  store [4 x i8] c"';'\00", [4 x i8]* %const.bytes322
   %255 = getelementptr inbounds [4 x i8]* %const.bytes322, i32 0, i32 0
   %256 = getelementptr inbounds [4 x i8]* %const.bytes322, i32 0, i32 3
   %257 = getelementptr inbounds %StringRef* %const.struct323, i32 0, i32 0
@@ -16295,7 +16665,7 @@ if_then317:                                       ; preds = %if_block316
   store i8* %256, i8** %258
   %259 = load %StringRef* %const.struct323
   store %StringRef %259, %StringRef* %"$tmpForRef321"
-  call void @ctor248(%String* %254, %StringRef* %"$tmpForRef321")
+  call void @ctor258(%String* %254, %StringRef* %"$tmpForRef321")
   ret void
 
 if_else318:                                       ; preds = %if_block316
@@ -16314,7 +16684,7 @@ if_block325:                                      ; preds = %if_else318
 
 if_then326:                                       ; preds = %if_block325
   %261 = load %String** %_result.addr
-  store [4 x i8] c"'.'\00", [4 x i8]* %const.bytes331
+  store [4 x i8] c"','\00", [4 x i8]* %const.bytes331
   %262 = getelementptr inbounds [4 x i8]* %const.bytes331, i32 0, i32 0
   %263 = getelementptr inbounds [4 x i8]* %const.bytes331, i32 0, i32 3
   %264 = getelementptr inbounds %StringRef* %const.struct332, i32 0, i32 0
@@ -16323,7 +16693,7 @@ if_then326:                                       ; preds = %if_block325
   store i8* %263, i8** %265
   %266 = load %StringRef* %const.struct332
   store %StringRef %266, %StringRef* %"$tmpForRef330"
-  call void @ctor248(%String* %261, %StringRef* %"$tmpForRef330")
+  call void @ctor258(%String* %261, %StringRef* %"$tmpForRef330")
   ret void
 
 if_else327:                                       ; preds = %if_block325
@@ -16342,7 +16712,7 @@ if_block334:                                      ; preds = %if_else327
 
 if_then335:                                       ; preds = %if_block334
   %268 = load %String** %_result.addr
-  store [4 x i8] c"'`'\00", [4 x i8]* %const.bytes340
+  store [4 x i8] c"'.'\00", [4 x i8]* %const.bytes340
   %269 = getelementptr inbounds [4 x i8]* %const.bytes340, i32 0, i32 0
   %270 = getelementptr inbounds [4 x i8]* %const.bytes340, i32 0, i32 3
   %271 = getelementptr inbounds %StringRef* %const.struct341, i32 0, i32 0
@@ -16351,7 +16721,7 @@ if_then335:                                       ; preds = %if_block334
   store i8* %270, i8** %272
   %273 = load %StringRef* %const.struct341
   store %StringRef %273, %StringRef* %"$tmpForRef339"
-  call void @ctor248(%String* %268, %StringRef* %"$tmpForRef339")
+  call void @ctor258(%String* %268, %StringRef* %"$tmpForRef339")
   ret void
 
 if_else336:                                       ; preds = %if_block334
@@ -16370,7 +16740,7 @@ if_block343:                                      ; preds = %if_else336
 
 if_then344:                                       ; preds = %if_block343
   %275 = load %String** %_result.addr
-  store [4 x i8] c"'='\00", [4 x i8]* %const.bytes349
+  store [4 x i8] c"'`'\00", [4 x i8]* %const.bytes349
   %276 = getelementptr inbounds [4 x i8]* %const.bytes349, i32 0, i32 0
   %277 = getelementptr inbounds [4 x i8]* %const.bytes349, i32 0, i32 3
   %278 = getelementptr inbounds %StringRef* %const.struct350, i32 0, i32 0
@@ -16379,7 +16749,7 @@ if_then344:                                       ; preds = %if_block343
   store i8* %277, i8** %279
   %280 = load %StringRef* %const.struct350
   store %StringRef %280, %StringRef* %"$tmpForRef348"
-  call void @ctor248(%String* %275, %StringRef* %"$tmpForRef348")
+  call void @ctor258(%String* %275, %StringRef* %"$tmpForRef348")
   ret void
 
 if_else345:                                       ; preds = %if_block343
@@ -16398,16 +16768,16 @@ if_block352:                                      ; preds = %if_else345
 
 if_then353:                                       ; preds = %if_block352
   %282 = load %String** %_result.addr
-  store [11 x i8] c"identifier\00", [11 x i8]* %const.bytes358
-  %283 = getelementptr inbounds [11 x i8]* %const.bytes358, i32 0, i32 0
-  %284 = getelementptr inbounds [11 x i8]* %const.bytes358, i32 0, i32 10
+  store [4 x i8] c"'='\00", [4 x i8]* %const.bytes358
+  %283 = getelementptr inbounds [4 x i8]* %const.bytes358, i32 0, i32 0
+  %284 = getelementptr inbounds [4 x i8]* %const.bytes358, i32 0, i32 3
   %285 = getelementptr inbounds %StringRef* %const.struct359, i32 0, i32 0
   %286 = getelementptr inbounds %StringRef* %const.struct359, i32 0, i32 1
   store i8* %283, i8** %285
   store i8* %284, i8** %286
   %287 = load %StringRef* %const.struct359
   store %StringRef %287, %StringRef* %"$tmpForRef357"
-  call void @ctor248(%String* %282, %StringRef* %"$tmpForRef357")
+  call void @ctor258(%String* %282, %StringRef* %"$tmpForRef357")
   ret void
 
 if_else354:                                       ; preds = %if_block352
@@ -16426,16 +16796,16 @@ if_block361:                                      ; preds = %if_else354
 
 if_then362:                                       ; preds = %if_block361
   %289 = load %String** %_result.addr
-  store [9 x i8] c"operator\00", [9 x i8]* %const.bytes367
-  %290 = getelementptr inbounds [9 x i8]* %const.bytes367, i32 0, i32 0
-  %291 = getelementptr inbounds [9 x i8]* %const.bytes367, i32 0, i32 8
+  store [11 x i8] c"identifier\00", [11 x i8]* %const.bytes367
+  %290 = getelementptr inbounds [11 x i8]* %const.bytes367, i32 0, i32 0
+  %291 = getelementptr inbounds [11 x i8]* %const.bytes367, i32 0, i32 10
   %292 = getelementptr inbounds %StringRef* %const.struct368, i32 0, i32 0
   %293 = getelementptr inbounds %StringRef* %const.struct368, i32 0, i32 1
   store i8* %290, i8** %292
   store i8* %291, i8** %293
   %294 = load %StringRef* %const.struct368
   store %StringRef %294, %StringRef* %"$tmpForRef366"
-  call void @ctor248(%String* %289, %StringRef* %"$tmpForRef366")
+  call void @ctor258(%String* %289, %StringRef* %"$tmpForRef366")
   ret void
 
 if_else363:                                       ; preds = %if_block361
@@ -16454,16 +16824,16 @@ if_block370:                                      ; preds = %if_else363
 
 if_then371:                                       ; preds = %if_block370
   %296 = load %String** %_result.addr
-  store [13 x i8] c"char literal\00", [13 x i8]* %const.bytes376
-  %297 = getelementptr inbounds [13 x i8]* %const.bytes376, i32 0, i32 0
-  %298 = getelementptr inbounds [13 x i8]* %const.bytes376, i32 0, i32 12
+  store [9 x i8] c"operator\00", [9 x i8]* %const.bytes376
+  %297 = getelementptr inbounds [9 x i8]* %const.bytes376, i32 0, i32 0
+  %298 = getelementptr inbounds [9 x i8]* %const.bytes376, i32 0, i32 8
   %299 = getelementptr inbounds %StringRef* %const.struct377, i32 0, i32 0
   %300 = getelementptr inbounds %StringRef* %const.struct377, i32 0, i32 1
   store i8* %297, i8** %299
   store i8* %298, i8** %300
   %301 = load %StringRef* %const.struct377
   store %StringRef %301, %StringRef* %"$tmpForRef375"
-  call void @ctor248(%String* %296, %StringRef* %"$tmpForRef375")
+  call void @ctor258(%String* %296, %StringRef* %"$tmpForRef375")
   ret void
 
 if_else372:                                       ; preds = %if_block370
@@ -16482,16 +16852,16 @@ if_block379:                                      ; preds = %if_else372
 
 if_then380:                                       ; preds = %if_block379
   %303 = load %String** %_result.addr
-  store [15 x i8] c"string literal\00", [15 x i8]* %const.bytes385
-  %304 = getelementptr inbounds [15 x i8]* %const.bytes385, i32 0, i32 0
-  %305 = getelementptr inbounds [15 x i8]* %const.bytes385, i32 0, i32 14
+  store [13 x i8] c"char literal\00", [13 x i8]* %const.bytes385
+  %304 = getelementptr inbounds [13 x i8]* %const.bytes385, i32 0, i32 0
+  %305 = getelementptr inbounds [13 x i8]* %const.bytes385, i32 0, i32 12
   %306 = getelementptr inbounds %StringRef* %const.struct386, i32 0, i32 0
   %307 = getelementptr inbounds %StringRef* %const.struct386, i32 0, i32 1
   store i8* %304, i8** %306
   store i8* %305, i8** %307
   %308 = load %StringRef* %const.struct386
   store %StringRef %308, %StringRef* %"$tmpForRef384"
-  call void @ctor248(%String* %303, %StringRef* %"$tmpForRef384")
+  call void @ctor258(%String* %303, %StringRef* %"$tmpForRef384")
   ret void
 
 if_else381:                                       ; preds = %if_block379
@@ -16510,16 +16880,16 @@ if_block388:                                      ; preds = %if_else381
 
 if_then389:                                       ; preds = %if_block388
   %310 = load %String** %_result.addr
-  store [12 x i8] c"int literal\00", [12 x i8]* %const.bytes394
-  %311 = getelementptr inbounds [12 x i8]* %const.bytes394, i32 0, i32 0
-  %312 = getelementptr inbounds [12 x i8]* %const.bytes394, i32 0, i32 11
+  store [15 x i8] c"string literal\00", [15 x i8]* %const.bytes394
+  %311 = getelementptr inbounds [15 x i8]* %const.bytes394, i32 0, i32 0
+  %312 = getelementptr inbounds [15 x i8]* %const.bytes394, i32 0, i32 14
   %313 = getelementptr inbounds %StringRef* %const.struct395, i32 0, i32 0
   %314 = getelementptr inbounds %StringRef* %const.struct395, i32 0, i32 1
   store i8* %311, i8** %313
   store i8* %312, i8** %314
   %315 = load %StringRef* %const.struct395
   store %StringRef %315, %StringRef* %"$tmpForRef393"
-  call void @ctor248(%String* %310, %StringRef* %"$tmpForRef393")
+  call void @ctor258(%String* %310, %StringRef* %"$tmpForRef393")
   ret void
 
 if_else390:                                       ; preds = %if_block388
@@ -16538,16 +16908,16 @@ if_block397:                                      ; preds = %if_else390
 
 if_then398:                                       ; preds = %if_block397
   %317 = load %String** %_result.addr
-  store [13 x i8] c"long literal\00", [13 x i8]* %const.bytes403
-  %318 = getelementptr inbounds [13 x i8]* %const.bytes403, i32 0, i32 0
-  %319 = getelementptr inbounds [13 x i8]* %const.bytes403, i32 0, i32 12
+  store [12 x i8] c"int literal\00", [12 x i8]* %const.bytes403
+  %318 = getelementptr inbounds [12 x i8]* %const.bytes403, i32 0, i32 0
+  %319 = getelementptr inbounds [12 x i8]* %const.bytes403, i32 0, i32 11
   %320 = getelementptr inbounds %StringRef* %const.struct404, i32 0, i32 0
   %321 = getelementptr inbounds %StringRef* %const.struct404, i32 0, i32 1
   store i8* %318, i8** %320
   store i8* %319, i8** %321
   %322 = load %StringRef* %const.struct404
   store %StringRef %322, %StringRef* %"$tmpForRef402"
-  call void @ctor248(%String* %317, %StringRef* %"$tmpForRef402")
+  call void @ctor258(%String* %317, %StringRef* %"$tmpForRef402")
   ret void
 
 if_else399:                                       ; preds = %if_block397
@@ -16566,7 +16936,7 @@ if_block406:                                      ; preds = %if_else399
 
 if_then407:                                       ; preds = %if_block406
   %324 = load %String** %_result.addr
-  store [13 x i8] c"uint literal\00", [13 x i8]* %const.bytes412
+  store [13 x i8] c"long literal\00", [13 x i8]* %const.bytes412
   %325 = getelementptr inbounds [13 x i8]* %const.bytes412, i32 0, i32 0
   %326 = getelementptr inbounds [13 x i8]* %const.bytes412, i32 0, i32 12
   %327 = getelementptr inbounds %StringRef* %const.struct413, i32 0, i32 0
@@ -16575,7 +16945,7 @@ if_then407:                                       ; preds = %if_block406
   store i8* %326, i8** %328
   %329 = load %StringRef* %const.struct413
   store %StringRef %329, %StringRef* %"$tmpForRef411"
-  call void @ctor248(%String* %324, %StringRef* %"$tmpForRef411")
+  call void @ctor258(%String* %324, %StringRef* %"$tmpForRef411")
   ret void
 
 if_else408:                                       ; preds = %if_block406
@@ -16594,16 +16964,16 @@ if_block415:                                      ; preds = %if_else408
 
 if_then416:                                       ; preds = %if_block415
   %331 = load %String** %_result.addr
-  store [14 x i8] c"ulong literal\00", [14 x i8]* %const.bytes421
-  %332 = getelementptr inbounds [14 x i8]* %const.bytes421, i32 0, i32 0
-  %333 = getelementptr inbounds [14 x i8]* %const.bytes421, i32 0, i32 13
+  store [13 x i8] c"uint literal\00", [13 x i8]* %const.bytes421
+  %332 = getelementptr inbounds [13 x i8]* %const.bytes421, i32 0, i32 0
+  %333 = getelementptr inbounds [13 x i8]* %const.bytes421, i32 0, i32 12
   %334 = getelementptr inbounds %StringRef* %const.struct422, i32 0, i32 0
   %335 = getelementptr inbounds %StringRef* %const.struct422, i32 0, i32 1
   store i8* %332, i8** %334
   store i8* %333, i8** %335
   %336 = load %StringRef* %const.struct422
   store %StringRef %336, %StringRef* %"$tmpForRef420"
-  call void @ctor248(%String* %331, %StringRef* %"$tmpForRef420")
+  call void @ctor258(%String* %331, %StringRef* %"$tmpForRef420")
   ret void
 
 if_else417:                                       ; preds = %if_block415
@@ -16622,7 +16992,7 @@ if_block424:                                      ; preds = %if_else417
 
 if_then425:                                       ; preds = %if_block424
   %338 = load %String** %_result.addr
-  store [14 x i8] c"float literal\00", [14 x i8]* %const.bytes430
+  store [14 x i8] c"ulong literal\00", [14 x i8]* %const.bytes430
   %339 = getelementptr inbounds [14 x i8]* %const.bytes430, i32 0, i32 0
   %340 = getelementptr inbounds [14 x i8]* %const.bytes430, i32 0, i32 13
   %341 = getelementptr inbounds %StringRef* %const.struct431, i32 0, i32 0
@@ -16631,46 +17001,74 @@ if_then425:                                       ; preds = %if_block424
   store i8* %340, i8** %342
   %343 = load %StringRef* %const.struct431
   store %StringRef %343, %StringRef* %"$tmpForRef429"
-  call void @ctor248(%String* %338, %StringRef* %"$tmpForRef429")
+  call void @ctor258(%String* %338, %StringRef* %"$tmpForRef429")
   ret void
 
 if_else426:                                       ; preds = %if_block424
   br label %if_block433
 
-if_end427:                                        ; preds = %if_end435, %dumy_block432
+if_end427:                                        ; preds = %if_end436, %dumy_block432
   br label %if_end418
 
 dumy_block432:                                    ; No predecessors!
   br label %if_end427
 
 if_block433:                                      ; preds = %if_else426
-  call void @ctor222(%TokenType* %tmp.v436, i32 49)
-  %344 = call i1 @"==220"(%TokenType* %t.addr, %TokenType* %tmp.v436)
-  br i1 %344, label %if_then434, label %if_end435
+  call void @ctor222(%TokenType* %tmp.v437, i32 49)
+  %344 = call i1 @"==220"(%TokenType* %t.addr, %TokenType* %tmp.v437)
+  br i1 %344, label %if_then434, label %if_else435
 
 if_then434:                                       ; preds = %if_block433
   %345 = load %String** %_result.addr
-  store [15 x i8] c"double literal\00", [15 x i8]* %const.bytes438
-  %346 = getelementptr inbounds [15 x i8]* %const.bytes438, i32 0, i32 0
-  %347 = getelementptr inbounds [15 x i8]* %const.bytes438, i32 0, i32 14
-  %348 = getelementptr inbounds %StringRef* %const.struct439, i32 0, i32 0
-  %349 = getelementptr inbounds %StringRef* %const.struct439, i32 0, i32 1
+  store [14 x i8] c"float literal\00", [14 x i8]* %const.bytes439
+  %346 = getelementptr inbounds [14 x i8]* %const.bytes439, i32 0, i32 0
+  %347 = getelementptr inbounds [14 x i8]* %const.bytes439, i32 0, i32 13
+  %348 = getelementptr inbounds %StringRef* %const.struct440, i32 0, i32 0
+  %349 = getelementptr inbounds %StringRef* %const.struct440, i32 0, i32 1
   store i8* %346, i8** %348
   store i8* %347, i8** %349
-  %350 = load %StringRef* %const.struct439
-  store %StringRef %350, %StringRef* %"$tmpForRef437"
-  call void @ctor248(%String* %345, %StringRef* %"$tmpForRef437")
+  %350 = load %StringRef* %const.struct440
+  store %StringRef %350, %StringRef* %"$tmpForRef438"
+  call void @ctor258(%String* %345, %StringRef* %"$tmpForRef438")
   ret void
 
-if_end435:                                        ; preds = %dumy_block440, %if_block433
+if_else435:                                       ; preds = %if_block433
+  br label %if_block442
+
+if_end436:                                        ; preds = %if_end444, %dumy_block441
   br label %if_end427
 
-dumy_block440:                                    ; No predecessors!
-  br label %if_end435
+dumy_block441:                                    ; No predecessors!
+  br label %if_end436
+
+if_block442:                                      ; preds = %if_else435
+  call void @ctor222(%TokenType* %tmp.v445, i32 50)
+  %351 = call i1 @"==220"(%TokenType* %t.addr, %TokenType* %tmp.v445)
+  br i1 %351, label %if_then443, label %if_end444
+
+if_then443:                                       ; preds = %if_block442
+  %352 = load %String** %_result.addr
+  store [15 x i8] c"double literal\00", [15 x i8]* %const.bytes447
+  %353 = getelementptr inbounds [15 x i8]* %const.bytes447, i32 0, i32 0
+  %354 = getelementptr inbounds [15 x i8]* %const.bytes447, i32 0, i32 14
+  %355 = getelementptr inbounds %StringRef* %const.struct448, i32 0, i32 0
+  %356 = getelementptr inbounds %StringRef* %const.struct448, i32 0, i32 1
+  store i8* %353, i8** %355
+  store i8* %354, i8** %356
+  %357 = load %StringRef* %const.struct448
+  store %StringRef %357, %StringRef* %"$tmpForRef446"
+  call void @ctor258(%String* %352, %StringRef* %"$tmpForRef446")
+  ret void
+
+if_end444:                                        ; preds = %dumy_block449, %if_block442
+  br label %if_end436
+
+dumy_block449:                                    ; No predecessors!
+  br label %if_end444
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor318(%Node* %"$this", %Node* %other) #2 {
+define internal void @ctor329(%Node* %"$this", %Node* %other) #2 {
   %"$this.addr" = alloca %Node*
   store %Node* %"$this", %Node** %"$this.addr"
   %other.addr = alloca %Node*
@@ -16682,12 +17080,12 @@ code:                                             ; preds = %0
   %2 = getelementptr inbounds %Node* %1, i32 0, i32 0
   %3 = load %Node** %other.addr
   %4 = getelementptr inbounds %Node* %3, i32 0, i32 0
-  call void @ctor319(%UntypedPtr* %2, %UntypedPtr* %4)
+  call void @ctor330(%UntypedPtr* %2, %UntypedPtr* %4)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor319(%UntypedPtr* %"$this", %UntypedPtr* %other) #2 {
+define internal void @ctor330(%UntypedPtr* %"$this", %UntypedPtr* %other) #2 {
   %"$this.addr" = alloca %UntypedPtr*
   store %UntypedPtr* %"$this", %UntypedPtr** %"$this.addr"
   %other.addr = alloca %UntypedPtr*
@@ -16707,7 +17105,7 @@ code:                                             ; preds = %0
 declare %Node @comp_parser_mkIdentifier(%Location*, %StringRef)
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @"=320"(%Node* %"$this", %Node* %other) #2 {
+define internal void @"=331"(%Node* %"$this", %Node* %other) #2 {
   %"$this.addr" = alloca %Node*
   store %Node* %"$this", %Node** %"$this.addr"
   %other.addr = alloca %Node*
@@ -16719,12 +17117,12 @@ code:                                             ; preds = %0
   %2 = getelementptr inbounds %Node* %1, i32 0, i32 0
   %3 = load %Node** %other.addr
   %4 = getelementptr inbounds %Node* %3, i32 0, i32 0
-  call void @"=321"(%UntypedPtr* %2, %UntypedPtr* %4)
+  call void @"=332"(%UntypedPtr* %2, %UntypedPtr* %4)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @"=321"(%UntypedPtr* %"$this", %UntypedPtr* %other) #2 {
+define internal void @"=332"(%UntypedPtr* %"$this", %UntypedPtr* %other) #2 {
   %"$this.addr" = alloca %UntypedPtr*
   store %UntypedPtr* %"$this", %UntypedPtr** %"$this.addr"
   %other.addr = alloca %UntypedPtr*
@@ -16801,7 +17199,7 @@ code:                                             ; preds = %0
 declare %Node @comp_parser_mkCompoundExpr(%Location*, %Node, %StringRef)
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @dtor322(%Node* %"$this") #2 {
+define internal void @dtor333(%Node* %"$this") #2 {
   %"$this.addr" = alloca %Node*
   store %Node* %"$this", %Node** %"$this.addr"
   br label %code
@@ -16811,7 +17209,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor323(%Node* %"$this") #2 {
+define internal void @ctor334(%Node* %"$this") #2 {
   %"$this.addr" = alloca %Node*
   store %Node* %"$this", %Node** %"$this.addr"
   br label %code
@@ -16819,12 +17217,12 @@ define internal void @ctor323(%Node* %"$this") #2 {
 code:                                             ; preds = %0
   %1 = load %Node** %"$this.addr"
   %2 = getelementptr inbounds %Node* %1, i32 0, i32 0
-  call void @ctor324(%UntypedPtr* %2)
+  call void @ctor335(%UntypedPtr* %2)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor324(%UntypedPtr* %"$this") #2 {
+define internal void @ctor335(%UntypedPtr* %"$this") #2 {
   %"$this.addr" = alloca %UntypedPtr*
   store %UntypedPtr* %"$this", %UntypedPtr** %"$this.addr"
   br label %code
@@ -16868,7 +17266,7 @@ while_end:                                        ; preds = %if_end, %while_bloc
 
 if_block:                                         ; preds = %while_body
   %3 = load %Node* %child
-  %4 = call i1 @isSet360(%Node %3)
+  %4 = call i1 @isSet371(%Node %3)
   br i1 %4, label %if_then, label %if_end
 
 if_then:                                          ; preds = %if_block
@@ -16878,7 +17276,7 @@ if_then:                                          ; preds = %if_block
   %8 = load %Node* %child
   %9 = call %Node @comp_parser_addToNodeList(%Node %7, %Node %8)
   store %Node %9, %Node* %"$tmpForRef"
-  call void @"=320"(%Node* %5, %Node* %"$tmpForRef")
+  call void @"=331"(%Node* %5, %Node* %"$tmpForRef")
   br label %while_step
 
 if_end:                                           ; preds = %dumy_block, %if_block
@@ -16900,32 +17298,21 @@ define internal void @parseDecl(%Node* sret %_result, %"SparrowParser[SparrowSca
   %topLevel.addr = alloca i1
   store i1 %topLevel, i1* %topLevel.addr
   %res = alloca %Node
-  %accessSpec = alloca i32
   %found = alloca i1
-  %"$tmpC" = alloca %String
-  %const.bytes = alloca [26 x i8]
-  %const.struct = alloca %StringRef
-  %"$tmpC33" = alloca %Token
-  %const.bytes34 = alloca [24 x i8]
-  %const.struct35 = alloca %StringRef
   br label %code
 
 code:                                             ; preds = %0
-  call void @ctor323(%Node* %res)
+  call void @ctor334(%Node* %res)
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %2 = call i32 @parseAccessSpec(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1)
-  store i32 %2, i32* %accessSpec
-  %3 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %4 = load i32* %accessSpec
-  %5 = call i1 @parseUsingDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %3, i32 %4, %Node* %res)
-  br i1 %5, label %cond.true16, label %cond.false17
+  %2 = call i1 @parseUsingDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %Node* %res)
+  br i1 %2, label %cond.true16, label %cond.false17
 
 cond.true:                                        ; preds = %cond.end3
   br label %cond.end
 
 cond.false:                                       ; preds = %cond.end3
-  %6 = load i1* %topLevel.addr
-  br i1 %6, label %cond.true24, label %cond.false25
+  %3 = load i1* %topLevel.addr
+  br i1 %3, label %cond.true24, label %cond.false25
 
 cond.end:                                         ; preds = %cond.end26, %cond.true
   %cond.res28 = phi i1 [ true, %cond.true ], [ %cond.res27, %cond.end26 ]
@@ -16936,237 +17323,130 @@ cond.true1:                                       ; preds = %cond.end6
   br label %cond.end3
 
 cond.false2:                                      ; preds = %cond.end6
-  %7 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %8 = load i32* %accessSpec
-  %9 = call i1 @parseFunDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %7, i32 %8, %Node* %res)
+  %4 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %5 = call i1 @parseFunDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %4, %Node* %res)
   br label %cond.end3
 
 cond.end3:                                        ; preds = %cond.false2, %cond.true1
-  %cond.res23 = phi i1 [ true, %cond.true1 ], [ %9, %cond.false2 ]
+  %cond.res23 = phi i1 [ true, %cond.true1 ], [ %5, %cond.false2 ]
   br i1 %cond.res23, label %cond.true, label %cond.false
 
 cond.true4:                                       ; preds = %cond.end9
   br label %cond.end6
 
 cond.false5:                                      ; preds = %cond.end9
-  %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %11 = load i32* %accessSpec
-  %12 = call i1 @parseVarDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, i32 %11, %Node* %res)
+  %6 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %7 = call i1 @parseVarDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %6, %Node* %res)
   br label %cond.end6
 
 cond.end6:                                        ; preds = %cond.false5, %cond.true4
-  %cond.res22 = phi i1 [ true, %cond.true4 ], [ %12, %cond.false5 ]
+  %cond.res22 = phi i1 [ true, %cond.true4 ], [ %7, %cond.false5 ]
   br i1 %cond.res22, label %cond.true1, label %cond.false2
 
 cond.true7:                                       ; preds = %cond.end12
   br label %cond.end9
 
 cond.false8:                                      ; preds = %cond.end12
-  %13 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %14 = load i32* %accessSpec
-  %15 = call i1 @parseConceptDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %13, i32 %14, %Node* %res)
+  %8 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %9 = call i1 @parseConceptDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %8, %Node* %res)
   br label %cond.end9
 
 cond.end9:                                        ; preds = %cond.false8, %cond.true7
-  %cond.res21 = phi i1 [ true, %cond.true7 ], [ %15, %cond.false8 ]
+  %cond.res21 = phi i1 [ true, %cond.true7 ], [ %9, %cond.false8 ]
   br i1 %cond.res21, label %cond.true4, label %cond.false5
 
 cond.true10:                                      ; preds = %cond.end15
   br label %cond.end12
 
 cond.false11:                                     ; preds = %cond.end15
-  %16 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %17 = load i32* %accessSpec
-  %18 = call i1 @parseDatatypeDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %16, i32 %17, %Node* %res)
+  %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %11 = call i1 @parseDatatypeDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, %Node* %res)
   br label %cond.end12
 
 cond.end12:                                       ; preds = %cond.false11, %cond.true10
-  %cond.res20 = phi i1 [ true, %cond.true10 ], [ %18, %cond.false11 ]
+  %cond.res20 = phi i1 [ true, %cond.true10 ], [ %11, %cond.false11 ]
   br i1 %cond.res20, label %cond.true7, label %cond.false8
 
 cond.true13:                                      ; preds = %cond.end18
   br label %cond.end15
 
 cond.false14:                                     ; preds = %cond.end18
-  %19 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %20 = load i32* %accessSpec
-  %21 = call i1 @parseClassDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %19, i32 %20, %Node* %res)
+  %12 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %13 = call i1 @parseClassDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %12, %Node* %res)
   br label %cond.end15
 
 cond.end15:                                       ; preds = %cond.false14, %cond.true13
-  %cond.res19 = phi i1 [ true, %cond.true13 ], [ %21, %cond.false14 ]
+  %cond.res19 = phi i1 [ true, %cond.true13 ], [ %13, %cond.false14 ]
   br i1 %cond.res19, label %cond.true10, label %cond.false11
 
 cond.true16:                                      ; preds = %code
   br label %cond.end18
 
 cond.false17:                                     ; preds = %code
-  %22 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %23 = load i32* %accessSpec
-  %24 = call i1 @parsePackageDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %22, i32 %23, %Node* %res)
+  %14 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %15 = call i1 @parsePackageDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %14, %Node* %res)
   br label %cond.end18
 
 cond.end18:                                       ; preds = %cond.false17, %cond.true16
-  %cond.res = phi i1 [ true, %cond.true16 ], [ %24, %cond.false17 ]
+  %cond.res = phi i1 [ true, %cond.true16 ], [ %15, %cond.false17 ]
   br i1 %cond.res, label %cond.true13, label %cond.false14
 
 cond.true24:                                      ; preds = %cond.false
-  %25 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %26 = load i32* %accessSpec
-  %27 = call i1 @parseImportLineOpt(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %25, i32 %26, %Node* %res)
+  %16 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %17 = call i1 @parseImportLineOpt(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %16, %Node* %res)
   br label %cond.end26
 
 cond.false25:                                     ; preds = %cond.false
   br label %cond.end26
 
 cond.end26:                                       ; preds = %cond.false25, %cond.true24
-  %cond.res27 = phi i1 [ %27, %cond.true24 ], [ false, %cond.false25 ]
+  %cond.res27 = phi i1 [ %17, %cond.true24 ], [ false, %cond.false25 ]
   br label %cond.end
 
 if_block:                                         ; preds = %cond.end
-  %28 = load i1* %found
-  %29 = xor i1 true, %28
-  br i1 %29, label %cond.true29, label %cond.false30
+  %18 = load i1* %found
+  %19 = xor i1 true, %18
+  br i1 %19, label %cond.true29, label %cond.false30
 
 if_then:                                          ; preds = %cond.end31
-  %30 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  store [26 x i8] c"Syntax error, unexpected \00", [26 x i8]* %const.bytes
-  %31 = getelementptr inbounds [26 x i8]* %const.bytes, i32 0, i32 0
-  %32 = getelementptr inbounds [26 x i8]* %const.bytes, i32 0, i32 25
-  %33 = getelementptr inbounds %StringRef* %const.struct, i32 0, i32 0
-  %34 = getelementptr inbounds %StringRef* %const.struct, i32 0, i32 1
-  store i8* %31, i8** %33
-  store i8* %32, i8** %34
-  %35 = load %StringRef* %const.struct
-  %36 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %37 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %36, i32 0, i32 0
-  call void @"pre_*294"(%Token* %"$tmpC33", %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %37)
-  %38 = getelementptr inbounds %Token* %"$tmpC33", i32 0, i32 1
-  %39 = load %TokenType* %38
-  store [24 x i8] c", expecting declaration\00", [24 x i8]* %const.bytes34
-  %40 = getelementptr inbounds [24 x i8]* %const.bytes34, i32 0, i32 0
-  %41 = getelementptr inbounds [24 x i8]* %const.bytes34, i32 0, i32 23
-  %42 = getelementptr inbounds %StringRef* %const.struct35, i32 0, i32 0
-  %43 = getelementptr inbounds %StringRef* %const.struct35, i32 0, i32 1
-  store i8* %40, i8** %42
-  store i8* %41, i8** %43
-  %44 = load %StringRef* %const.struct35
-  call void @toString363(%String* %"$tmpC", %StringRef %35, %TokenType %39, %StringRef %44)
-  call void @reportError313(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %30, %String* %"$tmpC")
-  call void @dtor159(%String* %"$tmpC")
-  call void @dtor282(%Token* %"$tmpC33")
-  %45 = load %Node** %_result.addr
-  call void @ctor323(%Node* %45)
+  %20 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %21 = call i1 @parseIfTopLevel(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %20, %Node* %res)
+  br i1 %21, label %cond.true33, label %cond.false34
+
+if_end:                                           ; preds = %cond.end35, %cond.end31
+  %22 = load %Node** %_result.addr
+  call void @ctor329(%Node* %22, %Node* %res)
   ret void
 
-if_end:                                           ; preds = %dumy_block, %cond.end31
-  br label %if_block36
-
 cond.true29:                                      ; preds = %if_block
-  %46 = load i32* %accessSpec
-  %47 = call i1 @"!=110"(i32 %46, i32 0)
+  %23 = load i1* %topLevel.addr
   br label %cond.end31
 
 cond.false30:                                     ; preds = %if_block
   br label %cond.end31
 
 cond.end31:                                       ; preds = %cond.false30, %cond.true29
-  %cond.res32 = phi i1 [ %47, %cond.true29 ], [ false, %cond.false30 ]
+  %cond.res32 = phi i1 [ %23, %cond.true29 ], [ false, %cond.false30 ]
   br i1 %cond.res32, label %if_then, label %if_end
 
-dumy_block:                                       ; No predecessors!
+cond.true33:                                      ; preds = %if_then
+  br label %cond.end35
+
+cond.false34:                                     ; preds = %if_then
+  %24 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %25 = call i1 @parseExprOpt(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %24, %Node* %res, i1 true)
+  br label %cond.end35
+
+cond.end35:                                       ; preds = %cond.false34, %cond.true33
+  %cond.res36 = phi i1 [ true, %cond.true33 ], [ %25, %cond.false34 ]
+  store i1 %cond.res36, i1* %found
   br label %if_end
-
-if_block36:                                       ; preds = %if_end
-  %48 = load i1* %found
-  %49 = xor i1 true, %48
-  br i1 %49, label %cond.true39, label %cond.false40
-
-if_then37:                                        ; preds = %cond.end41
-  %50 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %51 = call i1 @parseIfTopLevel(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %50, %Node* %res)
-  br i1 %51, label %cond.true43, label %cond.false44
-
-if_end38:                                         ; preds = %cond.end45, %cond.end41
-  %52 = load %Node** %_result.addr
-  call void @ctor318(%Node* %52, %Node* %res)
-  ret void
-
-cond.true39:                                      ; preds = %if_block36
-  %53 = load i1* %topLevel.addr
-  br label %cond.end41
-
-cond.false40:                                     ; preds = %if_block36
-  br label %cond.end41
-
-cond.end41:                                       ; preds = %cond.false40, %cond.true39
-  %cond.res42 = phi i1 [ %53, %cond.true39 ], [ false, %cond.false40 ]
-  br i1 %cond.res42, label %if_then37, label %if_end38
-
-cond.true43:                                      ; preds = %if_then37
-  br label %cond.end45
-
-cond.false44:                                     ; preds = %if_then37
-  %54 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %55 = call i1 @parseExprOpt(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %54, %Node* %res, i1 true)
-  br label %cond.end45
-
-cond.end45:                                       ; preds = %cond.false44, %cond.true43
-  %cond.res46 = phi i1 [ true, %cond.true43 ], [ %55, %cond.false44 ]
-  store i1 %cond.res46, i1* %found
-  br label %if_end38
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal i32 @parseAccessSpec(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p) #3 {
+define internal i1 @parseUsingDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %Node* %res) #3 {
   %p.addr = alloca %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"*
   store %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %tmp.v = alloca %TokenType
-  %tmp.v4 = alloca %TokenType
-  br label %code
-
-code:                                             ; preds = %0
-  br label %if_block
-
-if_block:                                         ; preds = %code
-  %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 3)
-  %2 = load %TokenType* %tmp.v
-  %3 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
-  br i1 %3, label %if_then, label %if_end
-
-if_then:                                          ; preds = %if_block
-  ret i32 2
-
-if_end:                                           ; preds = %dumy_block, %if_block
-  br label %if_block1
-
-dumy_block:                                       ; No predecessors!
-  br label %if_end
-
-if_block1:                                        ; preds = %if_end
-  %4 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v4, i32 4)
-  %5 = load %TokenType* %tmp.v4
-  %6 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %4, %TokenType %5)
-  br i1 %6, label %if_then2, label %if_end3
-
-if_then2:                                         ; preds = %if_block1
-  ret i32 1
-
-if_end3:                                          ; preds = %dumy_block5, %if_block1
-  ret i32 0
-
-dumy_block5:                                      ; No predecessors!
-  br label %if_end3
-}
-
-; Function Attrs: inlinehint nounwind
-define internal i1 @parseUsingDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, i32 %accessSpec, %Node* %res) #3 {
-  %p.addr = alloca %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"*
-  store %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %accessSpec.addr = alloca i32
-  store i32 %accessSpec, i32* %accessSpec.addr
   %res.addr = alloca %Node*
   store %Node* %res, %Node** %res.addr
   %tmp.v = alloca %TokenType
@@ -17186,7 +17466,7 @@ code:                                             ; preds = %0
 
 if_block:                                         ; preds = %code
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 10)
+  call void @ctor222(%TokenType* %tmp.v, i32 11)
   %2 = load %TokenType* %tmp.v
   %3 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
   %4 = xor i1 true, %3
@@ -17204,26 +17484,26 @@ if_end:                                           ; preds = %dumy_block, %if_blo
   call void @parseModifiers(%Node* %mods, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %8)
   %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseIdEqualOpt(%String* %id, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9)
-  call void @ctor323(%Node* %usingNode)
+  call void @ctor334(%Node* %usingNode)
   br label %if_block1
 
 dumy_block:                                       ; No predecessors!
   br label %if_end
 
 if_block1:                                        ; preds = %if_end
-  %10 = call i1 @isEmpty270(%String* %id)
+  %10 = call i1 @isEmpty280(%String* %id)
   br i1 %10, label %if_then2, label %if_else
 
 if_then2:                                         ; preds = %if_block1
   %11 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseQualifiedName(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %11, i1 true)
-  call void @"=320"(%Node* %usingNode, %Node* %"$tmpC")
+  call void @"=331"(%Node* %usingNode, %Node* %"$tmpC")
   br label %if_end3
 
 if_else:                                          ; preds = %if_block1
   %12 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseExpr(%Node* %"$tmpC4", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %12, i1 true)
-  call void @"=320"(%Node* %usingNode, %Node* %"$tmpC4")
+  call void @"=331"(%Node* %usingNode, %Node* %"$tmpC4")
   br label %if_end3
 
 if_end3:                                          ; preds = %if_else, %if_then2
@@ -17232,19 +17512,18 @@ if_end3:                                          ; preds = %if_else, %if_then2
   %15 = getelementptr inbounds %Token* %14, i32 0, i32 0
   call void @copyEnd(%Location* %loc, %Location* %15)
   %16 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v5, i32 35)
+  call void @ctor222(%TokenType* %tmp.v5, i32 36)
   %17 = load %TokenType* %tmp.v5
   %18 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %16, %TokenType %17)
   %19 = load %Node** %res.addr
   call void @asStringRef(%StringRef* %"$tmpC6", %String* %id)
   %20 = load %StringRef* %"$tmpC6"
   %21 = load %Node* %usingNode
-  %22 = load i32* %accessSpec.addr
-  %23 = call %Node @comp_parser_mkUsing(%Location* %loc, %StringRef %20, %Node %21, i32 %22)
-  %24 = load %Node* %mods
-  %25 = call %Node @comp_parser_mkModifiers(%Location* %loc, %Node %23, %Node %24)
-  store %Node %25, %Node* %"$tmpForRef"
-  call void @"=320"(%Node* %19, %Node* %"$tmpForRef")
+  %22 = call %Node @comp_parser_mkUsing(%Location* %loc, %StringRef %20, %Node %21)
+  %23 = load %Node* %mods
+  %24 = call %Node @comp_parser_mkModifiers(%Location* %loc, %Node %22, %Node %23)
+  store %Node %24, %Node* %"$tmpForRef"
+  call void @"=331"(%Node* %19, %Node* %"$tmpForRef")
   call void @dtor159(%String* %id)
   ret i1 true
 
@@ -17262,55 +17541,58 @@ define internal void @parseModifiers(%Node* sret %_result, %"SparrowParser[Sparr
   %res = alloca %Node
   %tmp.v = alloca %TokenType
   %e = alloca %Node
+  %"$tmpC" = alloca %Node
   %"$tmpForRef" = alloca %Node
   %tmp.v1 = alloca %TokenType
-  %"$tmpC" = alloca %Node
-  %"$tmpForRef2" = alloca %Node
-  %tmp.v3 = alloca %TokenType
+  %"$tmpC2" = alloca %Node
+  %"$tmpForRef3" = alloca %Node
+  %tmp.v4 = alloca %TokenType
   br label %code
 
 code:                                             ; preds = %0
-  call void @ctor323(%Node* %res)
+  call void @ctor334(%Node* %res)
   br label %if_block
 
 if_block:                                         ; preds = %code
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 30)
+  call void @ctor222(%TokenType* %tmp.v, i32 31)
   %2 = load %TokenType* %tmp.v
   %3 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
   br i1 %3, label %if_then, label %if_end
 
 if_then:                                          ; preds = %if_block
+  call void @ctor334(%Node* %e)
   %4 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseExpr(%Node* %e, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %4, i1 true)
+  call void @parseExpr(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %4, i1 true)
+  call void @"=331"(%Node* %e, %Node* %"$tmpC")
   %5 = load %Node* %res
   %6 = load %Node* %e
   %7 = call %Node @comp_parser_addToNodeList(%Node %5, %Node %6)
   store %Node %7, %Node* %"$tmpForRef"
-  call void @"=320"(%Node* %res, %Node* %"$tmpForRef")
+  call void @"=331"(%Node* %res, %Node* %"$tmpForRef")
   br label %while_block
 
 if_end:                                           ; preds = %while_end, %if_block
   %8 = load %Node** %_result.addr
-  call void @ctor318(%Node* %8, %Node* %res)
+  call void @ctor329(%Node* %8, %Node* %res)
   ret void
 
 while_block:                                      ; preds = %while_step, %if_then
   %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v1, i32 36)
+  call void @ctor222(%TokenType* %tmp.v1, i32 37)
   %10 = load %TokenType* %tmp.v1
   %11 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9, %TokenType %10)
   br i1 %11, label %while_body, label %while_end
 
 while_body:                                       ; preds = %while_block
   %12 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseExpr(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %12, i1 true)
-  call void @"=320"(%Node* %e, %Node* %"$tmpC")
+  call void @parseExpr(%Node* %"$tmpC2", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %12, i1 true)
+  call void @"=331"(%Node* %e, %Node* %"$tmpC2")
   %13 = load %Node* %res
   %14 = load %Node* %e
   %15 = call %Node @comp_parser_addToNodeList(%Node %13, %Node %14)
-  store %Node %15, %Node* %"$tmpForRef2"
-  call void @"=320"(%Node* %res, %Node* %"$tmpForRef2")
+  store %Node %15, %Node* %"$tmpForRef3"
+  call void @"=331"(%Node* %res, %Node* %"$tmpForRef3")
   br label %while_step
 
 while_step:                                       ; preds = %while_body
@@ -17318,8 +17600,8 @@ while_step:                                       ; preds = %while_body
 
 while_end:                                        ; preds = %while_block
   %16 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v3, i32 31)
-  %17 = load %TokenType* %tmp.v3
+  call void @ctor222(%TokenType* %tmp.v4, i32 32)
+  %17 = load %TokenType* %tmp.v4
   %18 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %16, %TokenType %17)
   br label %if_end
 }
@@ -17372,12 +17654,12 @@ while_step:                                       ; preds = %if_end3
 
 while_end:                                        ; preds = %if_else, %if_then, %while_block
   %7 = load %Node** %_result.addr
-  call void @ctor318(%Node* %7, %Node* %baseExpr)
+  call void @ctor329(%Node* %7, %Node* %baseExpr)
   call void @dtor159(%String* %op)
   ret void
 
 if_block:                                         ; preds = %while_body
-  %8 = call i1 @isEmpty270(%String* %op)
+  %8 = call i1 @isEmpty280(%String* %op)
   br i1 %8, label %if_then, label %if_end
 
 if_then:                                          ; preds = %if_block
@@ -17408,7 +17690,7 @@ if_then2:                                         ; preds = %if_block1
   %17 = load %Node* %rhs
   %18 = call %Node @comp_parser_mkInfixOp(%Location* %"$tmpC4", %Node %15, %StringRef %16, %Node %17)
   store %Node %18, %Node* %"$tmpForRef"
-  call void @"=320"(%Node* %baseExpr, %Node* %"$tmpForRef")
+  call void @"=331"(%Node* %baseExpr, %Node* %"$tmpForRef")
   br label %if_end3
 
 if_else:                                          ; preds = %if_block1
@@ -17420,7 +17702,7 @@ if_else:                                          ; preds = %if_block1
   %21 = load %StringRef* %"$tmpC10"
   %22 = call %Node @comp_parser_mkPostfixOp(%Location* %"$tmpC8", %Node %20, %StringRef %21)
   store %Node %22, %Node* %"$tmpForRef7"
-  call void @"=320"(%Node* %baseExpr, %Node* %"$tmpForRef7")
+  call void @"=331"(%Node* %baseExpr, %Node* %"$tmpForRef7")
   br label %while_end
 
 if_end3:                                          ; preds = %dumy_block11, %if_then2
@@ -17463,7 +17745,7 @@ code:                                             ; preds = %0
 
 if_block:                                         ; preds = %code
   %2 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 38)
+  call void @ctor222(%TokenType* %tmp.v, i32 39)
   %3 = load %TokenType* %tmp.v
   %4 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %2, %TokenType %3)
   br i1 %4, label %if_then, label %if_else
@@ -17474,7 +17756,7 @@ if_then:                                          ; preds = %if_block
   %6 = call %String* @"=191"(%String* %op, %String* %"$tmpC")
   call void @dtor159(%String* %"$tmpC")
   %7 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v1, i32 38)
+  call void @ctor222(%TokenType* %tmp.v1, i32 39)
   %8 = load %TokenType* %tmp.v1
   %9 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %7, %TokenType %8)
   br label %if_end
@@ -17490,7 +17772,7 @@ if_end:                                           ; preds = %if_else, %if_then
   br label %if_block3
 
 if_block3:                                        ; preds = %if_end
-  %12 = call i1 @isEmpty270(%String* %op)
+  %12 = call i1 @isEmpty280(%String* %op)
   br i1 %12, label %if_then4, label %if_else5
 
 if_then4:                                         ; preds = %if_block3
@@ -17512,7 +17794,7 @@ if_else5:                                         ; preds = %if_block3
   %19 = load %Node* %baseExpr
   %20 = call %Node @comp_parser_mkPrefixOp(%Location* %"$tmpC7", %StringRef %18, %Node %19)
   store %Node %20, %Node* %"$tmpForRef"
-  call void @ctor318(%Node* %16, %Node* %"$tmpForRef")
+  call void @ctor329(%Node* %16, %Node* %"$tmpForRef")
   call void @dtor159(%String* %op)
   ret void
 
@@ -17538,7 +17820,7 @@ define internal void @parseId(%String* sret %_result, %"SparrowParser[SparrowSca
 
 code:                                             ; preds = %0
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 40)
+  call void @ctor222(%TokenType* %tmp.v, i32 41)
   %2 = load %TokenType* %tmp.v
   %3 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
   %4 = load %String** %_result.addr
@@ -17566,7 +17848,7 @@ code:                                             ; preds = %0
 
 if_block:                                         ; preds = %code
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 41)
+  call void @ctor222(%TokenType* %tmp.v, i32 42)
   %2 = load %TokenType* %tmp.v
   %3 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
   br i1 %3, label %if_then, label %if_else
@@ -17610,7 +17892,7 @@ if_end4:                                          ; preds = %dumy_block10, %dumy
 
 cond.true:                                        ; preds = %if_block1
   %14 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v5, i32 39)
+  call void @ctor222(%TokenType* %tmp.v5, i32 40)
   %15 = load %TokenType* %tmp.v5
   %16 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %14, %TokenType %15)
   br label %cond.end
@@ -17735,14 +18017,14 @@ define void @parseSimpleExpr(%Node* sret %_result, %"SparrowParser[SparrowScanne
   br label %code
 
 code:                                             ; preds = %0
-  call void @ctor323(%Node* %res)
+  call void @ctor334(%Node* %res)
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @curLoc(%Location* %loc, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1)
   br label %if_block
 
 if_block:                                         ; preds = %code
   %2 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 32)
+  call void @ctor222(%TokenType* %tmp.v, i32 33)
   %3 = load %TokenType* %tmp.v
   %4 = call i1 @nextIs(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %2, %TokenType %3)
   br i1 %4, label %cond.true, label %cond.false
@@ -17750,7 +18032,7 @@ if_block:                                         ; preds = %code
 if_then:                                          ; preds = %cond.end
   %5 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseLambdaExpr(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %5)
-  call void @"=320"(%Node* %res, %Node* %"$tmpC")
+  call void @"=331"(%Node* %res, %Node* %"$tmpC")
   br label %if_end
 
 if_else:                                          ; preds = %cond.end
@@ -17761,7 +18043,7 @@ if_end:                                           ; preds = %if_end5, %if_then
 
 cond.true:                                        ; preds = %if_block
   %6 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v1, i32 8)
+  call void @ctor222(%TokenType* %tmp.v1, i32 9)
   %7 = load %TokenType* %tmp.v1
   %8 = call i1 @next2Is(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %6, %TokenType %7)
   br label %cond.end
@@ -17775,7 +18057,7 @@ cond.end:                                         ; preds = %cond.false, %cond.t
 
 if_block2:                                        ; preds = %if_else
   %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v6, i32 32)
+  call void @ctor222(%TokenType* %tmp.v6, i32 33)
   %10 = load %TokenType* %tmp.v6
   %11 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9, %TokenType %10)
   br i1 %11, label %if_then3, label %if_else4
@@ -17786,9 +18068,9 @@ if_then3:                                         ; preds = %if_block2
   %13 = load %Node* %"$tmpC7"
   %14 = call %Node @comp_parser_mkParenthesisExpr(%Node %13)
   store %Node %14, %Node* %"$tmpForRef"
-  call void @"=320"(%Node* %res, %Node* %"$tmpForRef")
+  call void @"=331"(%Node* %res, %Node* %"$tmpForRef")
   %15 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v8, i32 33)
+  call void @ctor222(%TokenType* %tmp.v8, i32 34)
   %16 = load %TokenType* %tmp.v8
   %17 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %15, %TokenType %16)
   br label %if_end5
@@ -17801,7 +18083,7 @@ if_end5:                                          ; preds = %if_end12, %if_then3
 
 if_block9:                                        ; preds = %if_else4
   %18 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v13, i32 40)
+  call void @ctor222(%TokenType* %tmp.v13, i32 41)
   %19 = load %TokenType* %tmp.v13
   %20 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %18, %TokenType %19)
   br i1 %20, label %if_then10, label %if_else11
@@ -17817,7 +18099,7 @@ if_then10:                                        ; preds = %if_block9
   %27 = load %StringRef* %"$tmpC15"
   %28 = call %Node @comp_parser_mkIdentifier(%Location* %23, %StringRef %27)
   store %Node %28, %Node* %"$tmpForRef14"
-  call void @"=320"(%Node* %res, %Node* %"$tmpForRef14")
+  call void @"=331"(%Node* %res, %Node* %"$tmpForRef14")
   br label %if_end12
 
 if_else11:                                        ; preds = %if_block9
@@ -17828,7 +18110,7 @@ if_end12:                                         ; preds = %if_end19, %if_then1
 
 if_block16:                                       ; preds = %if_else11
   %29 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v20, i32 24)
+  call void @ctor222(%TokenType* %tmp.v20, i32 25)
   %30 = load %TokenType* %tmp.v20
   %31 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %29, %TokenType %30)
   br i1 %31, label %if_then17, label %if_else18
@@ -17839,7 +18121,7 @@ if_then17:                                        ; preds = %if_block16
   %34 = getelementptr inbounds %Token* %33, i32 0, i32 0
   %35 = call %Node @comp_parser_mkThisExpr(%Location* %34)
   store %Node %35, %Node* %"$tmpForRef21"
-  call void @"=320"(%Node* %res, %Node* %"$tmpForRef21")
+  call void @"=331"(%Node* %res, %Node* %"$tmpForRef21")
   br label %if_end19
 
 if_else18:                                        ; preds = %if_block16
@@ -17850,7 +18132,7 @@ if_end19:                                         ; preds = %if_end25, %if_then1
 
 if_block22:                                       ; preds = %if_else18
   %36 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v26, i32 23)
+  call void @ctor222(%TokenType* %tmp.v26, i32 24)
   %37 = load %TokenType* %tmp.v26
   %38 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %36, %TokenType %37)
   br i1 %38, label %if_then23, label %if_else24
@@ -17861,7 +18143,7 @@ if_then23:                                        ; preds = %if_block22
   %41 = getelementptr inbounds %Token* %40, i32 0, i32 0
   %42 = call %Node @comp_parser_mkNullLiteral(%Location* %41)
   store %Node %42, %Node* %"$tmpForRef27"
-  call void @"=320"(%Node* %res, %Node* %"$tmpForRef27")
+  call void @"=331"(%Node* %res, %Node* %"$tmpForRef27")
   br label %if_end25
 
 if_else24:                                        ; preds = %if_block22
@@ -17872,7 +18154,7 @@ if_end25:                                         ; preds = %if_end31, %if_then2
 
 if_block28:                                       ; preds = %if_else24
   %43 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v32, i32 25)
+  call void @ctor222(%TokenType* %tmp.v32, i32 26)
   %44 = load %TokenType* %tmp.v32
   %45 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %43, %TokenType %44)
   br i1 %45, label %if_then29, label %if_else30
@@ -17883,7 +18165,7 @@ if_then29:                                        ; preds = %if_block28
   %48 = getelementptr inbounds %Token* %47, i32 0, i32 0
   %49 = call %Node @comp_parser_mkBoolLiteral(%Location* %48, i1 true)
   store %Node %49, %Node* %"$tmpForRef33"
-  call void @"=320"(%Node* %res, %Node* %"$tmpForRef33")
+  call void @"=331"(%Node* %res, %Node* %"$tmpForRef33")
   br label %if_end31
 
 if_else30:                                        ; preds = %if_block28
@@ -17894,7 +18176,7 @@ if_end31:                                         ; preds = %if_end37, %if_then2
 
 if_block34:                                       ; preds = %if_else30
   %50 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v38, i32 22)
+  call void @ctor222(%TokenType* %tmp.v38, i32 23)
   %51 = load %TokenType* %tmp.v38
   %52 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %50, %TokenType %51)
   br i1 %52, label %if_then35, label %if_else36
@@ -17905,7 +18187,7 @@ if_then35:                                        ; preds = %if_block34
   %55 = getelementptr inbounds %Token* %54, i32 0, i32 0
   %56 = call %Node @comp_parser_mkBoolLiteral(%Location* %55, i1 false)
   store %Node %56, %Node* %"$tmpForRef39"
-  call void @"=320"(%Node* %res, %Node* %"$tmpForRef39")
+  call void @"=331"(%Node* %res, %Node* %"$tmpForRef39")
   br label %if_end37
 
 if_else36:                                        ; preds = %if_block34
@@ -17916,7 +18198,7 @@ if_end37:                                         ; preds = %if_end43, %if_then3
 
 if_block40:                                       ; preds = %if_else36
   %57 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v44, i32 44)
+  call void @ctor222(%TokenType* %tmp.v44, i32 45)
   %58 = load %TokenType* %tmp.v44
   %59 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %57, %TokenType %58)
   br i1 %59, label %if_then41, label %if_else42
@@ -17934,7 +18216,7 @@ if_then41:                                        ; preds = %if_block40
   %68 = load i32* %tmp.v46
   %69 = call %Node @comp_parser_mkIntLiteral(%Location* %62, i32 %68)
   store %Node %69, %Node* %"$tmpForRef45"
-  call void @"=320"(%Node* %res, %Node* %"$tmpForRef45")
+  call void @"=331"(%Node* %res, %Node* %"$tmpForRef45")
   br label %if_end43
 
 if_else42:                                        ; preds = %if_block40
@@ -17945,7 +18227,7 @@ if_end43:                                         ; preds = %if_end50, %if_then4
 
 if_block47:                                       ; preds = %if_else42
   %70 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v51, i32 46)
+  call void @ctor222(%TokenType* %tmp.v51, i32 47)
   %71 = load %TokenType* %tmp.v51
   %72 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %70, %TokenType %71)
   br i1 %72, label %if_then48, label %if_else49
@@ -17963,7 +18245,7 @@ if_then48:                                        ; preds = %if_block47
   %81 = load i32* %tmp.v53
   %82 = call %Node @comp_parser_mkUIntLiteral(%Location* %75, i32 %81)
   store %Node %82, %Node* %"$tmpForRef52"
-  call void @"=320"(%Node* %res, %Node* %"$tmpForRef52")
+  call void @"=331"(%Node* %res, %Node* %"$tmpForRef52")
   br label %if_end50
 
 if_else49:                                        ; preds = %if_block47
@@ -17974,7 +18256,7 @@ if_end50:                                         ; preds = %if_end57, %if_then4
 
 if_block54:                                       ; preds = %if_else49
   %83 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v58, i32 45)
+  call void @ctor222(%TokenType* %tmp.v58, i32 46)
   %84 = load %TokenType* %tmp.v58
   %85 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %83, %TokenType %84)
   br i1 %85, label %if_then55, label %if_else56
@@ -17991,7 +18273,7 @@ if_then55:                                        ; preds = %if_block54
   %93 = load i64* %tmp.v60
   %94 = call %Node @comp_parser_mkLongLiteral(%Location* %88, i64 %93)
   store %Node %94, %Node* %"$tmpForRef59"
-  call void @"=320"(%Node* %res, %Node* %"$tmpForRef59")
+  call void @"=331"(%Node* %res, %Node* %"$tmpForRef59")
   br label %if_end57
 
 if_else56:                                        ; preds = %if_block54
@@ -18002,7 +18284,7 @@ if_end57:                                         ; preds = %if_end64, %if_then5
 
 if_block61:                                       ; preds = %if_else56
   %95 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v65, i32 47)
+  call void @ctor222(%TokenType* %tmp.v65, i32 48)
   %96 = load %TokenType* %tmp.v65
   %97 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %95, %TokenType %96)
   br i1 %97, label %if_then62, label %if_else63
@@ -18019,7 +18301,7 @@ if_then62:                                        ; preds = %if_block61
   %105 = load i64* %tmp.v67
   %106 = call %Node @comp_parser_mkULongLiteral(%Location* %100, i64 %105)
   store %Node %106, %Node* %"$tmpForRef66"
-  call void @"=320"(%Node* %res, %Node* %"$tmpForRef66")
+  call void @"=331"(%Node* %res, %Node* %"$tmpForRef66")
   br label %if_end64
 
 if_else63:                                        ; preds = %if_block61
@@ -18030,7 +18312,7 @@ if_end64:                                         ; preds = %if_end71, %if_then6
 
 if_block68:                                       ; preds = %if_else63
   %107 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v72, i32 48)
+  call void @ctor222(%TokenType* %tmp.v72, i32 49)
   %108 = load %TokenType* %tmp.v72
   %109 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %107, %TokenType %108)
   br i1 %109, label %if_then69, label %if_else70
@@ -18048,7 +18330,7 @@ if_then69:                                        ; preds = %if_block68
   %118 = load float* %tmp.v74
   %119 = call %Node @comp_parser_mkFloatLiteral(%Location* %112, float %118)
   store %Node %119, %Node* %"$tmpForRef73"
-  call void @"=320"(%Node* %res, %Node* %"$tmpForRef73")
+  call void @"=331"(%Node* %res, %Node* %"$tmpForRef73")
   br label %if_end71
 
 if_else70:                                        ; preds = %if_block68
@@ -18059,7 +18341,7 @@ if_end71:                                         ; preds = %if_end78, %if_then6
 
 if_block75:                                       ; preds = %if_else70
   %120 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v79, i32 49)
+  call void @ctor222(%TokenType* %tmp.v79, i32 50)
   %121 = load %TokenType* %tmp.v79
   %122 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %120, %TokenType %121)
   br i1 %122, label %if_then76, label %if_else77
@@ -18076,7 +18358,7 @@ if_then76:                                        ; preds = %if_block75
   %130 = load double* %tmp.v81
   %131 = call %Node @comp_parser_mkDoubleLiteral(%Location* %125, double %130)
   store %Node %131, %Node* %"$tmpForRef80"
-  call void @"=320"(%Node* %res, %Node* %"$tmpForRef80")
+  call void @"=331"(%Node* %res, %Node* %"$tmpForRef80")
   br label %if_end78
 
 if_else77:                                        ; preds = %if_block75
@@ -18087,7 +18369,7 @@ if_end78:                                         ; preds = %if_end85, %if_then7
 
 if_block82:                                       ; preds = %if_else77
   %132 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v86, i32 42)
+  call void @ctor222(%TokenType* %tmp.v86, i32 43)
   %133 = load %TokenType* %tmp.v86
   %134 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %132, %TokenType %133)
   br i1 %134, label %if_then83, label %if_else84
@@ -18099,11 +18381,11 @@ if_then83:                                        ; preds = %if_block82
   %138 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   %139 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %138, i32 0, i32 1
   %140 = getelementptr inbounds %Token* %139, i32 0, i32 2
-  %141 = call i8* @"()362"(%String* %140, i64 0)
+  %141 = call i8* @"()373"(%String* %140, i64 0)
   %142 = load i8* %141
   %143 = call %Node @comp_parser_mkCharLiteral(%Location* %137, i8 %142)
   store %Node %143, %Node* %"$tmpForRef87"
-  call void @"=320"(%Node* %res, %Node* %"$tmpForRef87")
+  call void @"=331"(%Node* %res, %Node* %"$tmpForRef87")
   br label %if_end85
 
 if_else84:                                        ; preds = %if_block82
@@ -18114,7 +18396,7 @@ if_end85:                                         ; preds = %if_end90, %if_then8
 
 if_block88:                                       ; preds = %if_else84
   %144 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v91, i32 43)
+  call void @ctor222(%TokenType* %tmp.v91, i32 44)
   %145 = load %TokenType* %tmp.v91
   %146 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %144, %TokenType %145)
   br i1 %146, label %if_then89, label %if_end90
@@ -18130,7 +18412,7 @@ if_then89:                                        ; preds = %if_block88
   %153 = load %StringRef* %"$tmpC93"
   %154 = call %Node @comp_parser_mkStringLiteral(%Location* %149, %StringRef %153)
   store %Node %154, %Node* %"$tmpForRef92"
-  call void @"=320"(%Node* %res, %Node* %"$tmpForRef92")
+  call void @"=331"(%Node* %res, %Node* %"$tmpForRef92")
   br label %if_end90
 
 if_end90:                                         ; preds = %if_then89, %if_block88
@@ -18162,7 +18444,7 @@ if_then95:                                        ; preds = %if_block94
   %162 = load %StringRef* %const.struct
   %163 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   %164 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %163, i32 0, i32 0
-  call void @"pre_*294"(%Token* %"$tmpC98", %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %164)
+  call void @"pre_*305"(%Token* %"$tmpC98", %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %164)
   %165 = getelementptr inbounds %Token* %"$tmpC98", i32 0, i32 1
   %166 = load %TokenType* %165
   store [23 x i8] c", expecting expression\00", [23 x i8]* %const.bytes99
@@ -18173,12 +18455,12 @@ if_then95:                                        ; preds = %if_block94
   store i8* %167, i8** %169
   store i8* %168, i8** %170
   %171 = load %StringRef* %const.struct100
-  call void @toString363(%String* %"$tmpC97", %StringRef %162, %TokenType %166, %StringRef %171)
-  call void @reportError313(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %157, %String* %"$tmpC97")
+  call void @toString374(%String* %"$tmpC97", %StringRef %162, %TokenType %166, %StringRef %171)
+  call void @reportError324(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %157, %String* %"$tmpC97")
   call void @dtor159(%String* %"$tmpC97")
-  call void @dtor282(%Token* %"$tmpC98")
+  call void @dtor292(%Token* %"$tmpC98")
   %172 = load %Node** %_result.addr
-  call void @ctor323(%Node* %172)
+  call void @ctor334(%Node* %172)
   ret void
 
 if_end96:                                         ; preds = %dumy_block, %if_block94
@@ -18198,12 +18480,12 @@ while_step:                                       ; preds = %if_end104
 
 while_end:                                        ; preds = %if_else112, %while_block
   %173 = load %Node** %_result.addr
-  call void @ctor318(%Node* %173, %Node* %res)
+  call void @ctor329(%Node* %173, %Node* %res)
   ret void
 
 if_block101:                                      ; preds = %while_body
   %174 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v105, i32 32)
+  call void @ctor222(%TokenType* %tmp.v105, i32 33)
   %175 = load %TokenType* %tmp.v105
   %176 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %174, %TokenType %175)
   br i1 %176, label %if_then102, label %if_else103
@@ -18212,7 +18494,7 @@ if_then102:                                       ; preds = %if_block101
   %177 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseExprListOpt(%Node* %args, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %177)
   %178 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v106, i32 33)
+  call void @ctor222(%TokenType* %tmp.v106, i32 34)
   %179 = load %TokenType* %tmp.v106
   %180 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %178, %TokenType %179)
   %181 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
@@ -18222,7 +18504,7 @@ if_then102:                                       ; preds = %if_block101
   %183 = load %Node* %args
   %184 = call %Node @comp_parser_mkFunAppExpr(%Location* %"$tmpC108", %Node %182, %Node %183)
   store %Node %184, %Node* %"$tmpForRef107"
-  call void @"=320"(%Node* %res, %Node* %"$tmpForRef107")
+  call void @"=331"(%Node* %res, %Node* %"$tmpForRef107")
   br label %if_end104
 
 if_else103:                                       ; preds = %if_block101
@@ -18233,7 +18515,7 @@ if_end104:                                        ; preds = %if_end113, %if_then
 
 if_block110:                                      ; preds = %if_else103
   %185 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v114, i32 37)
+  call void @ctor222(%TokenType* %tmp.v114, i32 38)
   %186 = load %TokenType* %tmp.v114
   %187 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %185, %TokenType %186)
   br i1 %187, label %if_then111, label %if_else112
@@ -18249,14 +18531,14 @@ if_end113:                                        ; preds = %dumy_block130, %if_
 
 if_block115:                                      ; preds = %if_then111
   %188 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v119, i32 32)
+  call void @ctor222(%TokenType* %tmp.v119, i32 33)
   %189 = load %TokenType* %tmp.v119
   %190 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %188, %TokenType %189)
   br i1 %190, label %if_then116, label %if_else117
 
 if_then116:                                       ; preds = %if_block115
   %191 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v120, i32 33)
+  call void @ctor222(%TokenType* %tmp.v120, i32 34)
   %192 = load %TokenType* %tmp.v120
   %193 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %191, %TokenType %192)
   %194 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
@@ -18273,7 +18555,7 @@ if_then116:                                       ; preds = %if_block115
   %200 = load %StringRef* %const.struct125
   %201 = call %Node @comp_parser_mkDotExpr(%Location* %"$tmpC122", %Node %195, %StringRef %200)
   store %Node %201, %Node* %"$tmpForRef121"
-  call void @"=320"(%Node* %res, %Node* %"$tmpForRef121")
+  call void @"=331"(%Node* %res, %Node* %"$tmpForRef121")
   br label %if_end118
 
 if_else117:                                       ; preds = %if_block115
@@ -18288,7 +18570,7 @@ if_else117:                                       ; preds = %if_block115
   %206 = load %StringRef* %"$tmpC129"
   %207 = call %Node @comp_parser_mkDotExpr(%Location* %"$tmpC127", %Node %205, %StringRef %206)
   store %Node %207, %Node* %"$tmpForRef126"
-  call void @"=320"(%Node* %res, %Node* %"$tmpForRef126")
+  call void @"=331"(%Node* %res, %Node* %"$tmpForRef126")
   call void @dtor159(%String* %id)
   br label %if_end118
 
@@ -18311,14 +18593,14 @@ define internal i1 @nextIs(%"SparrowParser[SparrowScanner[CharSource, ExternalEr
 code:                                             ; preds = %0
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   %2 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, i32 0, i32 0
-  call void @"pre_*294"(%Token* %"$tmpC", %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %2)
+  call void @"pre_*305"(%Token* %"$tmpC", %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %2)
   %3 = getelementptr inbounds %Token* %"$tmpC", i32 0, i32 1
   %4 = call i1 @"==220"(%TokenType* %3, %TokenType* %t.addr)
-  call void @dtor282(%Token* %"$tmpC")
+  call void @dtor292(%Token* %"$tmpC")
   ret i1 %4
 
 dumy_block:                                       ; No predecessors!
-  call void @dtor282(%Token* %"$tmpC")
+  call void @dtor292(%Token* %"$tmpC")
   unreachable
 }
 
@@ -18334,19 +18616,19 @@ define internal i1 @next2Is(%"SparrowParser[SparrowScanner[CharSource, ExternalE
 code:                                             ; preds = %0
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   %2 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, i32 0, i32 0
-  call void @peek325(%Token* %"$tmpC", %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %2, i32 1)
+  call void @peek336(%Token* %"$tmpC", %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %2, i32 1)
   %3 = getelementptr inbounds %Token* %"$tmpC", i32 0, i32 1
   %4 = call i1 @"==220"(%TokenType* %3, %TokenType* %t.addr)
-  call void @dtor282(%Token* %"$tmpC")
+  call void @dtor292(%Token* %"$tmpC")
   ret i1 %4
 
 dumy_block:                                       ; No predecessors!
-  call void @dtor282(%Token* %"$tmpC")
+  call void @dtor292(%Token* %"$tmpC")
   unreachable
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @peek325(%Token* sret %_result, %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %s, i32 %n) #3 {
+define internal void @peek336(%Token* sret %_result, %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %s, i32 %n) #3 {
   %_result.addr = alloca %Token*
   store %Token* %_result, %Token** %_result.addr
   %s.addr = alloca %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"*
@@ -18375,7 +18657,7 @@ while_body:                                       ; preds = %cond.end
   %9 = getelementptr inbounds %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %8, i32 0, i32 0
   call void @"post_++214"(%Token* %"$tmpC", %"SparrowScanner[CharSource, ExternalErrorReporter]"* %9)
   call void @"+=207"(%"Vector[Token]"* %7, %Token* %"$tmpC")
-  call void @dtor282(%Token* %"$tmpC")
+  call void @dtor292(%Token* %"$tmpC")
   br label %while_step
 
 while_step:                                       ; preds = %while_body
@@ -18402,7 +18684,7 @@ if_block:                                         ; preds = %while_end
   %14 = load %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"** %s.addr
   %15 = getelementptr inbounds %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %14, i32 0, i32 1
   %16 = call i64 @size198(%"Vector[Token]"* %15)
-  %17 = call i1 @"<228"(i32 %13, i64 %16)
+  %17 = call i1 @"<231"(i32 %13, i64 %16)
   br i1 %17, label %if_then, label %if_else
 
 if_then:                                          ; preds = %if_block
@@ -18413,7 +18695,7 @@ if_then:                                          ; preds = %if_block
   %22 = zext i32 %21 to i64
   store i64 %22, i64* %tmp.v
   %23 = load i64* %tmp.v
-  %24 = call %Token* @"()326"(%"Vector[Token]"* %20, i64 %23)
+  %24 = call %Token* @"()337"(%"Vector[Token]"* %20, i64 %23)
   call void @ctor210(%Token* %18, %Token* %24)
   ret void
 
@@ -18433,7 +18715,7 @@ dumy_block1:                                      ; No predecessors!
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal %Token* @"()326"(%"Vector[Token]"* %"$this", i64 %index) #2 {
+define internal %Token* @"()337"(%"Vector[Token]"* %"$this", i64 %index) #2 {
   %"$this.addr" = alloca %"Vector[Token]"*
   store %"Vector[Token]"* %"$this", %"Vector[Token]"** %"$this.addr"
   %index.addr = alloca i64
@@ -18477,26 +18759,26 @@ code:                                             ; preds = %0
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @curLoc(%Location* %loc, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1)
   %2 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 32)
+  call void @ctor222(%TokenType* %tmp.v, i32 33)
   %3 = load %TokenType* %tmp.v
   %4 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %2, %TokenType %3)
   %5 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v1, i32 8)
+  call void @ctor222(%TokenType* %tmp.v1, i32 9)
   %6 = load %TokenType* %tmp.v1
   %7 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %5, %TokenType %6)
   %8 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseClosureParams(%Node* %closureParams, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %8)
   %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseFormalsOpt(%Node* %formals, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9, i1 false, i32 0)
+  call void @parseFormalsOpt(%Node* %formals, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9, i1 false)
   %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseTypeNode(%Node* %retType, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10)
-  call void @ctor323(%Node* %body)
-  call void @ctor323(%Node* %bodyExp)
+  call void @ctor334(%Node* %body)
+  call void @ctor334(%Node* %bodyExp)
   br label %if_block
 
 if_block:                                         ; preds = %code
   %11 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v2, i32 39)
+  call void @ctor222(%TokenType* %tmp.v2, i32 40)
   %12 = load %TokenType* %tmp.v2
   %13 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %11, %TokenType %12)
   br i1 %13, label %if_then, label %if_else
@@ -18504,18 +18786,18 @@ if_block:                                         ; preds = %code
 if_then:                                          ; preds = %if_block
   %14 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseExpr(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %14, i1 true)
-  call void @"=320"(%Node* %bodyExp, %Node* %"$tmpC")
+  call void @"=331"(%Node* %bodyExp, %Node* %"$tmpC")
   br label %if_end
 
 if_else:                                          ; preds = %if_block
   %15 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseFunBody(%Node* %"$tmpC3", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %15)
-  call void @"=320"(%Node* %body, %Node* %"$tmpC3")
+  call void @"=331"(%Node* %body, %Node* %"$tmpC3")
   br label %if_end
 
 if_end:                                           ; preds = %if_else, %if_then
   %16 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v4, i32 33)
+  call void @ctor222(%TokenType* %tmp.v4, i32 34)
   %17 = load %TokenType* %tmp.v4
   %18 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %16, %TokenType %17)
   %19 = load %Node** %_result.addr
@@ -18529,7 +18811,7 @@ if_end:                                           ; preds = %if_else, %if_then
   %25 = load %Node* %bodyExp
   %26 = call %Node @comp_parser_mkLambdaExpr(%Location* %"$tmpC5", %Node %21, %Node %22, %Node %23, %Node %24, %Node %25)
   store %Node %26, %Node* %"$tmpForRef"
-  call void @ctor318(%Node* %19, %Node* %"$tmpForRef")
+  call void @ctor329(%Node* %19, %Node* %"$tmpForRef")
   ret void
 }
 
@@ -18548,31 +18830,31 @@ define internal void @parseClosureParams(%Node* sret %_result, %"SparrowParser[S
   br label %code
 
 code:                                             ; preds = %0
-  call void @ctor323(%Node* %res)
+  call void @ctor334(%Node* %res)
   br label %if_block
 
 if_block:                                         ; preds = %code
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 37)
+  call void @ctor222(%TokenType* %tmp.v, i32 38)
   %2 = load %TokenType* %tmp.v
   %3 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
   br i1 %3, label %if_then, label %if_end
 
 if_then:                                          ; preds = %if_block
   %4 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v1, i32 28)
+  call void @ctor222(%TokenType* %tmp.v1, i32 29)
   %5 = load %TokenType* %tmp.v1
   %6 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %4, %TokenType %5)
   br label %if_block2
 
 if_end:                                           ; preds = %if_end4, %if_block
   %7 = load %Node** %_result.addr
-  call void @ctor318(%Node* %7, %Node* %res)
+  call void @ctor329(%Node* %7, %Node* %res)
   ret void
 
 if_block2:                                        ; preds = %if_then
   %8 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v5, i32 40)
+  call void @ctor222(%TokenType* %tmp.v5, i32 41)
   %9 = load %TokenType* %tmp.v5
   %10 = call i1 @nextIs(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %8, %TokenType %9)
   br i1 %10, label %if_then3, label %if_end4
@@ -18580,12 +18862,12 @@ if_block2:                                        ; preds = %if_then
 if_then3:                                         ; preds = %if_block2
   %11 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseIdListNode(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %11)
-  call void @"=320"(%Node* %res, %Node* %"$tmpC")
+  call void @"=331"(%Node* %res, %Node* %"$tmpC")
   br label %if_end4
 
 if_end4:                                          ; preds = %if_then3, %if_block2
   %12 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v6, i32 29)
+  call void @ctor222(%TokenType* %tmp.v6, i32 30)
   %13 = load %TokenType* %tmp.v6
   %14 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %12, %TokenType %13)
   br label %if_end
@@ -18608,7 +18890,7 @@ define internal void @parseIdListNode(%Node* sret %_result, %"SparrowParser[Spar
   br label %code
 
 code:                                             ; preds = %0
-  call void @ctor323(%Node* %res)
+  call void @ctor334(%Node* %res)
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseId(%String* %id, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1)
   %2 = load %Node* %res
@@ -18620,12 +18902,12 @@ code:                                             ; preds = %0
   %7 = call %Node @comp_parser_mkIdentifier(%Location* %5, %StringRef %6)
   %8 = call %Node @comp_parser_addToNodeList(%Node %2, %Node %7)
   store %Node %8, %Node* %"$tmpForRef"
-  call void @"=320"(%Node* %res, %Node* %"$tmpForRef")
+  call void @"=331"(%Node* %res, %Node* %"$tmpForRef")
   br label %while_block
 
 while_block:                                      ; preds = %while_step, %code
   %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 36)
+  call void @ctor222(%TokenType* %tmp.v, i32 37)
   %10 = load %TokenType* %tmp.v
   %11 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9, %TokenType %10)
   br i1 %11, label %while_body, label %while_end
@@ -18644,7 +18926,7 @@ while_body:                                       ; preds = %while_block
   %19 = call %Node @comp_parser_mkIdentifier(%Location* %17, %StringRef %18)
   %20 = call %Node @comp_parser_addToNodeList(%Node %14, %Node %19)
   store %Node %20, %Node* %"$tmpForRef2"
-  call void @"=320"(%Node* %res, %Node* %"$tmpForRef2")
+  call void @"=331"(%Node* %res, %Node* %"$tmpForRef2")
   br label %while_step
 
 while_step:                                       ; preds = %while_body
@@ -18652,7 +18934,7 @@ while_step:                                       ; preds = %while_body
 
 while_end:                                        ; preds = %while_block
   %21 = load %Node** %_result.addr
-  call void @ctor318(%Node* %21, %Node* %res)
+  call void @ctor329(%Node* %21, %Node* %res)
   call void @dtor159(%String* %id)
   ret void
 
@@ -18664,15 +18946,13 @@ dumy_block:                                       ; No predecessors!
 declare %Node @comp_parser_addToNodeList(%Node, %Node)
 
 ; Function Attrs: inlinehint nounwind
-define internal void @parseFormalsOpt(%Node* sret %_result, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, i1 %varFormals, i32 %accessSpec) #3 {
+define internal void @parseFormalsOpt(%Node* sret %_result, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, i1 %varFormals) #3 {
   %_result.addr = alloca %Node*
   store %Node* %_result, %Node** %_result.addr
   %p.addr = alloca %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"*
   store %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   %varFormals.addr = alloca i1
   store i1 %varFormals, i1* %varFormals.addr
-  %accessSpec.addr = alloca i32
-  store i32 %accessSpec, i32* %accessSpec.addr
   %res = alloca %Node
   %tmp.v = alloca %TokenType
   %tmp.v4 = alloca %TokenType
@@ -18690,12 +18970,12 @@ define internal void @parseFormalsOpt(%Node* sret %_result, %"SparrowParser[Spar
   br label %code
 
 code:                                             ; preds = %0
-  call void @ctor323(%Node* %res)
+  call void @ctor334(%Node* %res)
   br label %if_block
 
 if_block:                                         ; preds = %code
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 32)
+  call void @ctor222(%TokenType* %tmp.v, i32 33)
   %2 = load %TokenType* %tmp.v
   %3 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
   br i1 %3, label %if_then, label %if_else
@@ -18708,19 +18988,19 @@ if_else:                                          ; preds = %if_block
 
 if_end:                                           ; preds = %if_end9, %while_end
   %4 = load %Node** %_result.addr
-  call void @ctor318(%Node* %4, %Node* %res)
+  call void @ctor329(%Node* %4, %Node* %res)
   ret void
 
 if_block1:                                        ; preds = %if_then
   %5 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v4, i32 33)
+  call void @ctor222(%TokenType* %tmp.v4, i32 34)
   %6 = load %TokenType* %tmp.v4
   %7 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %5, %TokenType %6)
   br i1 %7, label %if_then2, label %if_end3
 
 if_then2:                                         ; preds = %if_block1
   %8 = load %Node** %_result.addr
-  call void @ctor318(%Node* %8, %Node* %res)
+  call void @ctor329(%Node* %8, %Node* %res)
   ret void
 
 if_end3:                                          ; preds = %dumy_block, %if_block1
@@ -18734,7 +19014,7 @@ dumy_block:                                       ; No predecessors!
 
 while_block:                                      ; preds = %while_step, %if_end3
   %11 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v5, i32 36)
+  call void @ctor222(%TokenType* %tmp.v5, i32 37)
   %12 = load %TokenType* %tmp.v5
   %13 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %11, %TokenType %12)
   br i1 %13, label %while_body, label %while_end
@@ -18750,14 +19030,14 @@ while_step:                                       ; preds = %while_body
 
 while_end:                                        ; preds = %while_block
   %16 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v6, i32 33)
+  call void @ctor222(%TokenType* %tmp.v6, i32 34)
   %17 = load %TokenType* %tmp.v6
   %18 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %16, %TokenType %17)
   br label %if_end
 
 if_block7:                                        ; preds = %if_else
   %19 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v10, i32 40)
+  call void @ctor222(%TokenType* %tmp.v10, i32 41)
   %20 = load %TokenType* %tmp.v10
   %21 = call i1 @nextIs(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %19, %TokenType %20)
   br i1 %21, label %if_then8, label %if_end9
@@ -18779,14 +19059,13 @@ if_then8:                                         ; preds = %if_block7
   store i8* %26, i8** %28
   %29 = load %StringRef* %const.struct
   %30 = call %Node @comp_parser_mkIdentifier(%Location* %"$tmpC", %StringRef %29)
-  call void @ctor323(%Node* %tmp.v12)
+  call void @ctor334(%Node* %tmp.v12)
   %31 = load %Node* %tmp.v12
   %32 = load i1* %varFormals.addr
-  call void @ctor323(%Node* %tmp.v13)
+  call void @ctor334(%Node* %tmp.v13)
   %33 = load %Node* %tmp.v13
-  %34 = load i32* %accessSpec.addr
-  call void @createFormals(%"Vector[LocString]"* %ids, %Node %30, %Node %31, i1 %32, %Node %33, i32 %34, %Node* %res)
-  call void @dtor353(%"Vector[LocString]"* %ids)
+  call void @createFormals(%"Vector[LocString]"* %ids, %Node %30, %Node %31, i1 %32, %Node %33, %Node* %res)
+  call void @dtor364(%"Vector[LocString]"* %ids)
   br label %if_end9
 
 if_end9:                                          ; preds = %if_then8, %if_block7
@@ -18814,17 +19093,17 @@ code:                                             ; preds = %0
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseIdList(%"Vector[LocString]"* %ids, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1)
   %2 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 34)
+  call void @ctor222(%TokenType* %tmp.v, i32 35)
   %3 = load %TokenType* %tmp.v
   %4 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %2, %TokenType %3)
   %5 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseExpr(%Node* %typeNode, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %5, i1 false)
-  call void @ctor323(%Node* %init)
+  call void @ctor334(%Node* %init)
   br label %if_block
 
 if_block:                                         ; preds = %code
   %6 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v1, i32 39)
+  call void @ctor222(%TokenType* %tmp.v1, i32 40)
   %7 = load %TokenType* %tmp.v1
   %8 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %6, %TokenType %7)
   br i1 %8, label %if_then, label %if_end
@@ -18832,18 +19111,18 @@ if_block:                                         ; preds = %code
 if_then:                                          ; preds = %if_block
   %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseExpr(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9, i1 true)
-  call void @"=320"(%Node* %init, %Node* %"$tmpC")
+  call void @"=331"(%Node* %init, %Node* %"$tmpC")
   br label %if_end
 
 if_end:                                           ; preds = %if_then, %if_block
   %10 = load %Node* %typeNode
   %11 = load %Node* %init
   %12 = load i1* %varFormals.addr
-  call void @ctor323(%Node* %tmp.v2)
+  call void @ctor334(%Node* %tmp.v2)
   %13 = load %Node* %tmp.v2
   %14 = load %Node** %res.addr
-  call void @createFormals(%"Vector[LocString]"* %ids, %Node %10, %Node %11, i1 %12, %Node %13, i32 0, %Node* %14)
-  call void @dtor353(%"Vector[LocString]"* %ids)
+  call void @createFormals(%"Vector[LocString]"* %ids, %Node %10, %Node %11, i1 %12, %Node %13, %Node* %14)
+  call void @dtor364(%"Vector[LocString]"* %ids)
   ret void
 }
 
@@ -18864,7 +19143,7 @@ define internal void @parseIdList(%"Vector[LocString]"* sret %_result, %"Sparrow
   br label %code
 
 code:                                             ; preds = %0
-  call void @ctor327(%"Vector[LocString]"* %res)
+  call void @ctor338(%"Vector[LocString]"* %res)
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseId(%String* %id, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1)
   %2 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
@@ -18874,15 +19153,15 @@ code:                                             ; preds = %0
   %6 = load %String* %id
   call void @"~"(%"Tuple[Location/rtct, String/rtct]"* %"$tmpC", %Location %5, %String %6)
   %7 = load %"Tuple[Location/rtct, String/rtct]"* %"$tmpC"
-  call void @ctor347(%LocString* %tmp.v, %"Tuple[Location/rtct, String/rtct]" %7)
-  call void @"+=329"(%"Vector[LocString]"* %res, %LocString* %tmp.v)
-  call void @dtor349(%LocString* %tmp.v)
-  call void @dtor350(%"Tuple[Location/rtct, String/rtct]"* %"$tmpC")
+  call void @ctor358(%LocString* %tmp.v, %"Tuple[Location/rtct, String/rtct]" %7)
+  call void @"+=340"(%"Vector[LocString]"* %res, %LocString* %tmp.v)
+  call void @dtor360(%LocString* %tmp.v)
+  call void @dtor361(%"Tuple[Location/rtct, String/rtct]"* %"$tmpC")
   br label %while_block
 
 while_block:                                      ; preds = %while_step, %code
   %8 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v1, i32 36)
+  call void @ctor222(%TokenType* %tmp.v1, i32 37)
   %9 = load %TokenType* %tmp.v1
   %10 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %8, %TokenType %9)
   br i1 %10, label %while_body, label %while_end
@@ -18899,10 +19178,10 @@ while_body:                                       ; preds = %while_block
   %17 = load %String* %id
   call void @"~"(%"Tuple[Location/rtct, String/rtct]"* %"$tmpC4", %Location %16, %String %17)
   %18 = load %"Tuple[Location/rtct, String/rtct]"* %"$tmpC4"
-  call void @ctor347(%LocString* %tmp.v3, %"Tuple[Location/rtct, String/rtct]" %18)
-  call void @"+=329"(%"Vector[LocString]"* %res, %LocString* %tmp.v3)
-  call void @dtor349(%LocString* %tmp.v3)
-  call void @dtor350(%"Tuple[Location/rtct, String/rtct]"* %"$tmpC4")
+  call void @ctor358(%LocString* %tmp.v3, %"Tuple[Location/rtct, String/rtct]" %18)
+  call void @"+=340"(%"Vector[LocString]"* %res, %LocString* %tmp.v3)
+  call void @dtor360(%LocString* %tmp.v3)
+  call void @dtor361(%"Tuple[Location/rtct, String/rtct]"* %"$tmpC4")
   br label %while_step
 
 while_step:                                       ; preds = %while_body
@@ -18910,19 +19189,19 @@ while_step:                                       ; preds = %while_body
 
 while_end:                                        ; preds = %while_block
   %19 = load %"Vector[LocString]"** %_result.addr
-  call void @ctor351(%"Vector[LocString]"* %19, %"Vector[LocString]"* %res)
+  call void @ctor362(%"Vector[LocString]"* %19, %"Vector[LocString]"* %res)
   call void @dtor159(%String* %id)
-  call void @dtor353(%"Vector[LocString]"* %res)
+  call void @dtor364(%"Vector[LocString]"* %res)
   ret void
 
 dumy_block:                                       ; No predecessors!
   call void @dtor159(%String* %id)
-  call void @dtor353(%"Vector[LocString]"* %res)
+  call void @dtor364(%"Vector[LocString]"* %res)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor327(%"Vector[LocString]"* %"$this") #2 {
+define internal void @ctor338(%"Vector[LocString]"* %"$this") #2 {
   %"$this.addr" = alloca %"Vector[LocString]"*
   store %"Vector[LocString]"* %"$this", %"Vector[LocString]"** %"$this.addr"
   br label %code
@@ -18930,18 +19209,18 @@ define internal void @ctor327(%"Vector[LocString]"* %"$this") #2 {
 code:                                             ; preds = %0
   %1 = load %"Vector[LocString]"** %"$this.addr"
   %2 = getelementptr inbounds %"Vector[LocString]"* %1, i32 0, i32 0
-  call void @ctor328(%"RawPtr[LocString]"* %2)
+  call void @ctor339(%"RawPtr[LocString]"* %2)
   %3 = load %"Vector[LocString]"** %"$this.addr"
   %4 = getelementptr inbounds %"Vector[LocString]"* %3, i32 0, i32 1
-  call void @ctor328(%"RawPtr[LocString]"* %4)
+  call void @ctor339(%"RawPtr[LocString]"* %4)
   %5 = load %"Vector[LocString]"** %"$this.addr"
   %6 = getelementptr inbounds %"Vector[LocString]"* %5, i32 0, i32 2
-  call void @ctor328(%"RawPtr[LocString]"* %6)
+  call void @ctor339(%"RawPtr[LocString]"* %6)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor328(%"RawPtr[LocString]"* %"$this") #2 {
+define internal void @ctor339(%"RawPtr[LocString]"* %"$this") #2 {
   %"$this.addr" = alloca %"RawPtr[LocString]"*
   store %"RawPtr[LocString]"* %"$this", %"RawPtr[LocString]"** %"$this.addr"
   br label %code
@@ -18954,7 +19233,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @"+=329"(%"Vector[LocString]"* %"$this", %LocString* %value) #2 {
+define internal void @"+=340"(%"Vector[LocString]"* %"$this", %LocString* %value) #2 {
   %"$this.addr" = alloca %"Vector[LocString]"*
   store %"Vector[LocString]"* %"$this", %"Vector[LocString]"** %"$this.addr"
   %value.addr = alloca %LocString*
@@ -18964,12 +19243,12 @@ define internal void @"+=329"(%"Vector[LocString]"* %"$this", %LocString* %value
 code:                                             ; preds = %0
   %1 = load %"Vector[LocString]"** %"$this.addr"
   %2 = load %LocString** %value.addr
-  call void @pushBack330(%"Vector[LocString]"* %1, %LocString* %2)
+  call void @pushBack341(%"Vector[LocString]"* %1, %LocString* %2)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @pushBack330(%"Vector[LocString]"* %"$this", %LocString* %value) #3 {
+define internal void @pushBack341(%"Vector[LocString]"* %"$this", %LocString* %value) #3 {
   %"$this.addr" = alloca %"Vector[LocString]"*
   store %"Vector[LocString]"* %"$this", %"Vector[LocString]"** %"$this.addr"
   %value.addr = alloca %LocString*
@@ -18987,12 +19266,12 @@ if_block:                                         ; preds = %code
   %3 = load %"Vector[LocString]"** %"$this.addr"
   %4 = getelementptr inbounds %"Vector[LocString]"* %3, i32 0, i32 2
   %5 = load %"RawPtr[LocString]"* %4
-  %6 = call i1 @"==331"(%"RawPtr[LocString]"* %2, %"RawPtr[LocString]" %5)
+  %6 = call i1 @"==342"(%"RawPtr[LocString]"* %2, %"RawPtr[LocString]" %5)
   br i1 %6, label %if_then, label %if_end
 
 if_then:                                          ; preds = %if_block
   %7 = load %"Vector[LocString]"** %"$this.addr"
-  %8 = call i64 @capacity332(%"Vector[LocString]"* %7)
+  %8 = call i64 @capacity343(%"Vector[LocString]"* %7)
   %9 = call i64 @"*176"(i32 2, i64 %8)
   store i64 %9, i64* %t
   br label %if_block1
@@ -19000,16 +19279,16 @@ if_then:                                          ; preds = %if_block
 if_end:                                           ; preds = %if_end3, %if_block
   %10 = load %"Vector[LocString]"** %"$this.addr"
   %11 = getelementptr inbounds %"Vector[LocString]"* %10, i32 0, i32 1
-  %12 = call %LocString* @value345(%"RawPtr[LocString]"* %11)
+  %12 = call %LocString* @value356(%"RawPtr[LocString]"* %11)
   %13 = load %LocString** %value.addr
-  call void @ctor343(%LocString* %12, %LocString* %13)
+  call void @ctor354(%LocString* %12, %LocString* %13)
   %14 = load %"Vector[LocString]"** %"$this.addr"
   %15 = getelementptr inbounds %"Vector[LocString]"* %14, i32 0, i32 1
   %16 = load %"Vector[LocString]"** %"$this.addr"
   %17 = getelementptr inbounds %"Vector[LocString]"* %16, i32 0, i32 1
-  call void @advance346(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %17)
+  call void @advance357(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %17)
   %18 = load %"RawPtr[LocString]"* %"$tmpC"
-  call void @"=338"(%"RawPtr[LocString]"* %15, %"RawPtr[LocString]" %18)
+  call void @"=349"(%"RawPtr[LocString]"* %15, %"RawPtr[LocString]" %18)
   ret void
 
 if_block1:                                        ; preds = %if_then
@@ -19024,12 +19303,12 @@ if_then2:                                         ; preds = %if_block1
 if_end3:                                          ; preds = %if_then2, %if_block1
   %21 = load %"Vector[LocString]"** %"$this.addr"
   %22 = load i64* %t
-  call void @reserve335(%"Vector[LocString]"* %21, i64 %22)
+  call void @reserve346(%"Vector[LocString]"* %21, i64 %22)
   br label %if_end
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"==331"(%"RawPtr[LocString]"* %"$this", %"RawPtr[LocString]" %other) #2 {
+define internal i1 @"==342"(%"RawPtr[LocString]"* %"$this", %"RawPtr[LocString]" %other) #2 {
   %"$this.addr" = alloca %"RawPtr[LocString]"*
   store %"RawPtr[LocString]"* %"$this", %"RawPtr[LocString]"** %"$this.addr"
   %other.addr = alloca %"RawPtr[LocString]"
@@ -19049,7 +19328,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i64 @capacity332(%"Vector[LocString]"* %"$this") #2 {
+define internal i64 @capacity343(%"Vector[LocString]"* %"$this") #2 {
   %"$this.addr" = alloca %"Vector[LocString]"*
   store %"Vector[LocString]"* %"$this", %"Vector[LocString]"** %"$this.addr"
   %tmp.v = alloca i64
@@ -19061,14 +19340,14 @@ code:                                             ; preds = %0
   %3 = load %"Vector[LocString]"** %"$this.addr"
   %4 = getelementptr inbounds %"Vector[LocString]"* %3, i32 0, i32 0
   %5 = load %"RawPtr[LocString]"* %4
-  %6 = call i64 @diff333(%"RawPtr[LocString]"* %2, %"RawPtr[LocString]" %5)
+  %6 = call i64 @diff344(%"RawPtr[LocString]"* %2, %"RawPtr[LocString]" %5)
   store i64 %6, i64* %tmp.v
   %7 = load i64* %tmp.v
   ret i64 %7
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i64 @diff333(%"RawPtr[LocString]"* %"$this", %"RawPtr[LocString]" %other) #2 {
+define internal i64 @diff344(%"RawPtr[LocString]"* %"$this", %"RawPtr[LocString]" %other) #2 {
   %"$this.addr" = alloca %"RawPtr[LocString]"*
   store %"RawPtr[LocString]"* %"$this", %"RawPtr[LocString]"** %"$this.addr"
   %other.addr = alloca %"RawPtr[LocString]"
@@ -19079,8 +19358,8 @@ define internal i64 @diff333(%"RawPtr[LocString]"* %"$this", %"RawPtr[LocString]
 
 code:                                             ; preds = %0
   %1 = load %"RawPtr[LocString]"** %"$this.addr"
-  %2 = call i8* @bytePtr334(%"RawPtr[LocString]"* %1)
-  %3 = call i8* @bytePtr334(%"RawPtr[LocString]"* %other.addr)
+  %2 = call i8* @bytePtr345(%"RawPtr[LocString]"* %1)
+  %3 = call i8* @bytePtr345(%"RawPtr[LocString]"* %other.addr)
   %4 = call i64 @ptrDiff(i8* %2, i8* %3)
   store i64 48, i64* %tmp.v1
   %5 = load i64* %tmp.v1
@@ -19091,7 +19370,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i8* @bytePtr334(%"RawPtr[LocString]"* %"$this") #2 {
+define internal i8* @bytePtr345(%"RawPtr[LocString]"* %"$this") #2 {
   %"$this.addr" = alloca %"RawPtr[LocString]"*
   store %"RawPtr[LocString]"* %"$this", %"RawPtr[LocString]"** %"$this.addr"
   br label %code
@@ -19105,7 +19384,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @reserve335(%"Vector[LocString]"* %"$this", i64 %n) #3 {
+define internal void @reserve346(%"Vector[LocString]"* %"$this", i64 %n) #3 {
   %"$this.addr" = alloca %"Vector[LocString]"*
   store %"Vector[LocString]"* %"$this", %"Vector[LocString]"** %"$this.addr"
   %n.addr = alloca i64
@@ -19119,7 +19398,7 @@ define internal void @reserve335(%"Vector[LocString]"* %"$this", i64 %n) #3 {
 
 code:                                             ; preds = %0
   %1 = load %"Vector[LocString]"** %"$this.addr"
-  %2 = call i64 @capacity332(%"Vector[LocString]"* %1)
+  %2 = call i64 @capacity343(%"Vector[LocString]"* %1)
   store i64 %2, i64* %curCapacity
   br label %if_block
 
@@ -19168,33 +19447,33 @@ if_then5:                                         ; preds = %if_block4
 
 if_end6:                                          ; preds = %if_then5, %if_block4
   %16 = load %"Vector[LocString]"** %"$this.addr"
-  %17 = call i64 @size336(%"Vector[LocString]"* %16)
+  %17 = call i64 @size347(%"Vector[LocString]"* %16)
   store i64 %17, i64* %curSize
   %18 = load %"Vector[LocString]"** %"$this.addr"
   %19 = getelementptr inbounds %"Vector[LocString]"* %18, i32 0, i32 0
   %20 = load i64* %n.addr
-  call void @reallocPtr337(%"RawPtr[LocString]"* %19, i64 %20)
+  call void @reallocPtr348(%"RawPtr[LocString]"* %19, i64 %20)
   %21 = load %"Vector[LocString]"** %"$this.addr"
   %22 = getelementptr inbounds %"Vector[LocString]"* %21, i32 0, i32 1
   %23 = load %"Vector[LocString]"** %"$this.addr"
   %24 = getelementptr inbounds %"Vector[LocString]"* %23, i32 0, i32 0
   %25 = load i64* %curSize
-  call void @advance339(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %24, i64 %25)
+  call void @advance350(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %24, i64 %25)
   %26 = load %"RawPtr[LocString]"* %"$tmpC"
-  call void @"=338"(%"RawPtr[LocString]"* %22, %"RawPtr[LocString]" %26)
+  call void @"=349"(%"RawPtr[LocString]"* %22, %"RawPtr[LocString]" %26)
   %27 = load %"Vector[LocString]"** %"$this.addr"
   %28 = getelementptr inbounds %"Vector[LocString]"* %27, i32 0, i32 2
   %29 = load %"Vector[LocString]"** %"$this.addr"
   %30 = getelementptr inbounds %"Vector[LocString]"* %29, i32 0, i32 0
   %31 = load i64* %n.addr
-  call void @advance339(%"RawPtr[LocString]"* %"$tmpC7", %"RawPtr[LocString]"* %30, i64 %31)
+  call void @advance350(%"RawPtr[LocString]"* %"$tmpC7", %"RawPtr[LocString]"* %30, i64 %31)
   %32 = load %"RawPtr[LocString]"* %"$tmpC7"
-  call void @"=338"(%"RawPtr[LocString]"* %28, %"RawPtr[LocString]" %32)
+  call void @"=349"(%"RawPtr[LocString]"* %28, %"RawPtr[LocString]" %32)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i64 @size336(%"Vector[LocString]"* %"$this") #2 {
+define internal i64 @size347(%"Vector[LocString]"* %"$this") #2 {
   %"$this.addr" = alloca %"Vector[LocString]"*
   store %"Vector[LocString]"* %"$this", %"Vector[LocString]"** %"$this.addr"
   %tmp.v = alloca i64
@@ -19206,14 +19485,14 @@ code:                                             ; preds = %0
   %3 = load %"Vector[LocString]"** %"$this.addr"
   %4 = getelementptr inbounds %"Vector[LocString]"* %3, i32 0, i32 0
   %5 = load %"RawPtr[LocString]"* %4
-  %6 = call i64 @diff333(%"RawPtr[LocString]"* %2, %"RawPtr[LocString]" %5)
+  %6 = call i64 @diff344(%"RawPtr[LocString]"* %2, %"RawPtr[LocString]" %5)
   store i64 %6, i64* %tmp.v
   %7 = load i64* %tmp.v
   ret i64 %7
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @reallocPtr337(%"RawPtr[LocString]"* %"$this", i64 %n) #3 {
+define internal void @reallocPtr348(%"RawPtr[LocString]"* %"$this", i64 %n) #3 {
   %"$this.addr" = alloca %"RawPtr[LocString]"*
   store %"RawPtr[LocString]"* %"$this", %"RawPtr[LocString]"** %"$this.addr"
   %n.addr = alloca i64
@@ -19222,7 +19501,7 @@ define internal void @reallocPtr337(%"RawPtr[LocString]"* %"$this", i64 %n) #3 {
 
 code:                                             ; preds = %0
   %1 = load %"RawPtr[LocString]"** %"$this.addr"
-  %2 = call i8* @bytePtr334(%"RawPtr[LocString]"* %1)
+  %2 = call i8* @bytePtr345(%"RawPtr[LocString]"* %1)
   %3 = load i64* %n.addr
   %4 = call i64 @"*"(i64 %3, i64 48)
   %5 = call i8* @realloc(i8* %2, i64 %4)
@@ -19234,7 +19513,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @"=338"(%"RawPtr[LocString]"* %"$this", %"RawPtr[LocString]" %other) #2 {
+define internal void @"=349"(%"RawPtr[LocString]"* %"$this", %"RawPtr[LocString]" %other) #2 {
   %"$this.addr" = alloca %"RawPtr[LocString]"*
   store %"RawPtr[LocString]"* %"$this", %"RawPtr[LocString]"** %"$this.addr"
   %other.addr = alloca %"RawPtr[LocString]"
@@ -19251,7 +19530,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @advance339(%"RawPtr[LocString]"* sret %_result, %"RawPtr[LocString]"* %"$this", i64 %n) #2 {
+define internal void @advance350(%"RawPtr[LocString]"* sret %_result, %"RawPtr[LocString]"* %"$this", i64 %n) #2 {
   %_result.addr = alloca %"RawPtr[LocString]"*
   store %"RawPtr[LocString]"* %_result, %"RawPtr[LocString]"** %_result.addr
   %"$this.addr" = alloca %"RawPtr[LocString]"*
@@ -19263,16 +19542,16 @@ define internal void @advance339(%"RawPtr[LocString]"* sret %_result, %"RawPtr[L
 code:                                             ; preds = %0
   %1 = load %"RawPtr[LocString]"** %_result.addr
   %2 = load %"RawPtr[LocString]"** %"$this.addr"
-  %3 = call i8* @bytePtr334(%"RawPtr[LocString]"* %2)
+  %3 = call i8* @bytePtr345(%"RawPtr[LocString]"* %2)
   %4 = load i64* %n.addr
   %5 = call i64 @"*"(i64 %4, i64 48)
   %6 = call i8* @ptrAdd(i8* %3, i64 %5)
-  call void @fromBytePtr340(%"RawPtr[LocString]"* %1, i8* %6)
+  call void @fromBytePtr351(%"RawPtr[LocString]"* %1, i8* %6)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @fromBytePtr340(%"RawPtr[LocString]"* sret %_result, i8* %ptr) #3 {
+define internal void @fromBytePtr351(%"RawPtr[LocString]"* sret %_result, i8* %ptr) #3 {
   %_result.addr = alloca %"RawPtr[LocString]"*
   store %"RawPtr[LocString]"* %_result, %"RawPtr[LocString]"** %_result.addr
   %ptr.addr = alloca i8*
@@ -19281,18 +19560,18 @@ define internal void @fromBytePtr340(%"RawPtr[LocString]"* sret %_result, i8* %p
   br label %code
 
 code:                                             ; preds = %0
-  call void @ctor328(%"RawPtr[LocString]"* %res)
+  call void @ctor339(%"RawPtr[LocString]"* %res)
   %1 = load i8** %ptr.addr
   %2 = bitcast i8* %1 to %LocString*
   %3 = getelementptr inbounds %"RawPtr[LocString]"* %res, i32 0, i32 0
   store %LocString* %2, %LocString** %3
   %4 = load %"RawPtr[LocString]"** %_result.addr
-  call void @ctor341(%"RawPtr[LocString]"* %4, %"RawPtr[LocString]"* %res)
+  call void @ctor352(%"RawPtr[LocString]"* %4, %"RawPtr[LocString]"* %res)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor341(%"RawPtr[LocString]"* %"$this", %"RawPtr[LocString]"* %other) #2 {
+define internal void @ctor352(%"RawPtr[LocString]"* %"$this", %"RawPtr[LocString]"* %other) #2 {
   %"$this.addr" = alloca %"RawPtr[LocString]"*
   store %"RawPtr[LocString]"* %"$this", %"RawPtr[LocString]"** %"$this.addr"
   %other.addr = alloca %"RawPtr[LocString]"*
@@ -19310,7 +19589,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @dtor342(%"RawPtr[LocString]"* %"$this") #2 {
+define internal void @dtor353(%"RawPtr[LocString]"* %"$this") #2 {
   %"$this.addr" = alloca %"RawPtr[LocString]"*
   store %"RawPtr[LocString]"* %"$this", %"RawPtr[LocString]"** %"$this.addr"
   br label %code
@@ -19320,7 +19599,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor343(%LocString* %"$this", %LocString* %other) #2 {
+define internal void @ctor354(%LocString* %"$this", %LocString* %other) #2 {
   %"$this.addr" = alloca %LocString*
   store %LocString* %"$this", %LocString** %"$this.addr"
   %other.addr = alloca %LocString*
@@ -19332,12 +19611,12 @@ code:                                             ; preds = %0
   %2 = getelementptr inbounds %LocString* %1, i32 0, i32 0
   %3 = load %LocString** %other.addr
   %4 = getelementptr inbounds %LocString* %3, i32 0, i32 0
-  call void @ctor344(%"Tuple[Location/rtct, String/rtct]"* %2, %"Tuple[Location/rtct, String/rtct]"* %4)
+  call void @ctor355(%"Tuple[Location/rtct, String/rtct]"* %2, %"Tuple[Location/rtct, String/rtct]"* %4)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor344(%"Tuple[Location/rtct, String/rtct]"* %"$this", %"Tuple[Location/rtct, String/rtct]"* %other) #2 {
+define internal void @ctor355(%"Tuple[Location/rtct, String/rtct]"* %"$this", %"Tuple[Location/rtct, String/rtct]"* %other) #2 {
   %"$this.addr" = alloca %"Tuple[Location/rtct, String/rtct]"*
   store %"Tuple[Location/rtct, String/rtct]"* %"$this", %"Tuple[Location/rtct, String/rtct]"** %"$this.addr"
   %other.addr = alloca %"Tuple[Location/rtct, String/rtct]"*
@@ -19359,7 +19638,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal %LocString* @value345(%"RawPtr[LocString]"* %"$this") #2 {
+define internal %LocString* @value356(%"RawPtr[LocString]"* %"$this") #2 {
   %"$this.addr" = alloca %"RawPtr[LocString]"*
   store %"RawPtr[LocString]"* %"$this", %"RawPtr[LocString]"** %"$this.addr"
   br label %code
@@ -19372,7 +19651,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @advance346(%"RawPtr[LocString]"* sret %_result, %"RawPtr[LocString]"* %"$this") #2 {
+define internal void @advance357(%"RawPtr[LocString]"* sret %_result, %"RawPtr[LocString]"* %"$this") #2 {
   %_result.addr = alloca %"RawPtr[LocString]"*
   store %"RawPtr[LocString]"* %_result, %"RawPtr[LocString]"** %_result.addr
   %"$this.addr" = alloca %"RawPtr[LocString]"*
@@ -19382,14 +19661,14 @@ define internal void @advance346(%"RawPtr[LocString]"* sret %_result, %"RawPtr[L
 code:                                             ; preds = %0
   %1 = load %"RawPtr[LocString]"** %_result.addr
   %2 = load %"RawPtr[LocString]"** %"$this.addr"
-  %3 = call i8* @bytePtr334(%"RawPtr[LocString]"* %2)
+  %3 = call i8* @bytePtr345(%"RawPtr[LocString]"* %2)
   %4 = call i8* @ptrAdd(i8* %3, i64 48)
-  call void @fromBytePtr340(%"RawPtr[LocString]"* %1, i8* %4)
+  call void @fromBytePtr351(%"RawPtr[LocString]"* %1, i8* %4)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor347(%LocString* %"$this", %"Tuple[Location/rtct, String/rtct]" %f_data) #2 {
+define internal void @ctor358(%LocString* %"$this", %"Tuple[Location/rtct, String/rtct]" %f_data) #2 {
   %"$this.addr" = alloca %LocString*
   store %LocString* %"$this", %LocString** %"$this.addr"
   %f_data.addr = alloca %"Tuple[Location/rtct, String/rtct]"
@@ -19399,7 +19678,7 @@ define internal void @ctor347(%LocString* %"$this", %"Tuple[Location/rtct, Strin
 code:                                             ; preds = %0
   %1 = load %LocString** %"$this.addr"
   %2 = getelementptr inbounds %LocString* %1, i32 0, i32 0
-  call void @ctor344(%"Tuple[Location/rtct, String/rtct]"* %2, %"Tuple[Location/rtct, String/rtct]"* %f_data.addr)
+  call void @ctor355(%"Tuple[Location/rtct, String/rtct]"* %2, %"Tuple[Location/rtct, String/rtct]"* %f_data.addr)
   ret void
 }
 
@@ -19435,12 +19714,12 @@ code:                                             ; preds = %0
   %1 = load %"Tuple[Location/rtct, String/rtct]"** %_result.addr
   %2 = load %Location* %v1.addr
   %3 = load %String* %v2.addr
-  call void @ctor348(%"Tuple[Location/rtct, String/rtct]"* %1, %Location %2, %String %3)
+  call void @ctor359(%"Tuple[Location/rtct, String/rtct]"* %1, %Location %2, %String %3)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor348(%"Tuple[Location/rtct, String/rtct]"* %"$this", %Location %f_1, %String %f_2) #2 {
+define internal void @ctor359(%"Tuple[Location/rtct, String/rtct]"* %"$this", %Location %f_1, %String %f_2) #2 {
   %"$this.addr" = alloca %"Tuple[Location/rtct, String/rtct]"*
   store %"Tuple[Location/rtct, String/rtct]"* %"$this", %"Tuple[Location/rtct, String/rtct]"** %"$this.addr"
   %f_1.addr = alloca %Location
@@ -19460,7 +19739,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @dtor349(%LocString* %"$this") #2 {
+define internal void @dtor360(%LocString* %"$this") #2 {
   %"$this.addr" = alloca %LocString*
   store %LocString* %"$this", %LocString** %"$this.addr"
   br label %code
@@ -19468,12 +19747,12 @@ define internal void @dtor349(%LocString* %"$this") #2 {
 code:                                             ; preds = %0
   %1 = load %LocString** %"$this.addr"
   %2 = getelementptr inbounds %LocString* %1, i32 0, i32 0
-  call void @dtor350(%"Tuple[Location/rtct, String/rtct]"* %2)
+  call void @dtor361(%"Tuple[Location/rtct, String/rtct]"* %2)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @dtor350(%"Tuple[Location/rtct, String/rtct]"* %"$this") #2 {
+define internal void @dtor361(%"Tuple[Location/rtct, String/rtct]"* %"$this") #2 {
   %"$this.addr" = alloca %"Tuple[Location/rtct, String/rtct]"*
   store %"Tuple[Location/rtct, String/rtct]"* %"$this", %"Tuple[Location/rtct, String/rtct]"** %"$this.addr"
   br label %code
@@ -19488,7 +19767,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @ctor351(%"Vector[LocString]"* %"$this", %"Vector[LocString]"* %other) #3 {
+define internal void @ctor362(%"Vector[LocString]"* %"$this", %"Vector[LocString]"* %other) #3 {
   %"$this.addr" = alloca %"Vector[LocString]"*
   store %"Vector[LocString]"* %"$this", %"Vector[LocString]"** %"$this.addr"
   %other.addr = alloca %"Vector[LocString]"*
@@ -19505,62 +19784,62 @@ define internal void @ctor351(%"Vector[LocString]"* %"$this", %"Vector[LocString
 code:                                             ; preds = %0
   %1 = load %"Vector[LocString]"** %"$this.addr"
   %2 = getelementptr inbounds %"Vector[LocString]"* %1, i32 0, i32 0
-  call void @ctor328(%"RawPtr[LocString]"* %2)
+  call void @ctor339(%"RawPtr[LocString]"* %2)
   %3 = load %"Vector[LocString]"** %"$this.addr"
   %4 = getelementptr inbounds %"Vector[LocString]"* %3, i32 0, i32 1
-  call void @ctor328(%"RawPtr[LocString]"* %4)
+  call void @ctor339(%"RawPtr[LocString]"* %4)
   %5 = load %"Vector[LocString]"** %"$this.addr"
   %6 = getelementptr inbounds %"Vector[LocString]"* %5, i32 0, i32 2
-  call void @ctor328(%"RawPtr[LocString]"* %6)
+  call void @ctor339(%"RawPtr[LocString]"* %6)
   %7 = load %"Vector[LocString]"** %other.addr
-  %8 = call i64 @size336(%"Vector[LocString]"* %7)
+  %8 = call i64 @size347(%"Vector[LocString]"* %7)
   store i64 %8, i64* %size
   %9 = load %"Vector[LocString]"** %"$this.addr"
   %10 = getelementptr inbounds %"Vector[LocString]"* %9, i32 0, i32 0
   %11 = load i64* %size
-  call void @alloc352(%"RawPtr[LocString]"* %"$tmpC", i64 %11)
+  call void @alloc363(%"RawPtr[LocString]"* %"$tmpC", i64 %11)
   %12 = load %"RawPtr[LocString]"* %"$tmpC"
-  call void @"=338"(%"RawPtr[LocString]"* %10, %"RawPtr[LocString]" %12)
+  call void @"=349"(%"RawPtr[LocString]"* %10, %"RawPtr[LocString]" %12)
   %13 = load %"Vector[LocString]"** %"$this.addr"
   %14 = getelementptr inbounds %"Vector[LocString]"* %13, i32 0, i32 1
   %15 = load %"Vector[LocString]"** %"$this.addr"
   %16 = getelementptr inbounds %"Vector[LocString]"* %15, i32 0, i32 0
   %17 = load i64* %size
-  call void @advance339(%"RawPtr[LocString]"* %"$tmpC1", %"RawPtr[LocString]"* %16, i64 %17)
+  call void @advance350(%"RawPtr[LocString]"* %"$tmpC1", %"RawPtr[LocString]"* %16, i64 %17)
   %18 = load %"RawPtr[LocString]"* %"$tmpC1"
-  call void @"=338"(%"RawPtr[LocString]"* %14, %"RawPtr[LocString]" %18)
+  call void @"=349"(%"RawPtr[LocString]"* %14, %"RawPtr[LocString]" %18)
   %19 = load %"Vector[LocString]"** %"$this.addr"
   %20 = getelementptr inbounds %"Vector[LocString]"* %19, i32 0, i32 2
   %21 = load %"Vector[LocString]"** %"$this.addr"
   %22 = getelementptr inbounds %"Vector[LocString]"* %21, i32 0, i32 1
   %23 = load %"RawPtr[LocString]"* %22
-  call void @"=338"(%"RawPtr[LocString]"* %20, %"RawPtr[LocString]" %23)
+  call void @"=349"(%"RawPtr[LocString]"* %20, %"RawPtr[LocString]" %23)
   %24 = load %"Vector[LocString]"** %"$this.addr"
   %25 = getelementptr inbounds %"Vector[LocString]"* %24, i32 0, i32 0
-  call void @ctor341(%"RawPtr[LocString]"* %dst, %"RawPtr[LocString]"* %25)
+  call void @ctor352(%"RawPtr[LocString]"* %dst, %"RawPtr[LocString]"* %25)
   %26 = load %"Vector[LocString]"** %other.addr
   %27 = getelementptr inbounds %"Vector[LocString]"* %26, i32 0, i32 0
-  call void @ctor341(%"RawPtr[LocString]"* %src, %"RawPtr[LocString]"* %27)
+  call void @ctor352(%"RawPtr[LocString]"* %src, %"RawPtr[LocString]"* %27)
   br label %while_block
 
 while_block:                                      ; preds = %while_step, %code
   %28 = load %"Vector[LocString]"** %"$this.addr"
   %29 = getelementptr inbounds %"Vector[LocString]"* %28, i32 0, i32 1
   %30 = load %"RawPtr[LocString]"* %29
-  %31 = call i1 @"==331"(%"RawPtr[LocString]"* %dst, %"RawPtr[LocString]" %30)
+  %31 = call i1 @"==342"(%"RawPtr[LocString]"* %dst, %"RawPtr[LocString]" %30)
   %32 = xor i1 true, %31
   br i1 %32, label %while_body, label %while_end
 
 while_body:                                       ; preds = %while_block
-  %33 = call %LocString* @value345(%"RawPtr[LocString]"* %dst)
-  %34 = call %LocString* @value345(%"RawPtr[LocString]"* %src)
-  call void @ctor343(%LocString* %33, %LocString* %34)
-  call void @advance346(%"RawPtr[LocString]"* %"$tmpC2", %"RawPtr[LocString]"* %dst)
+  %33 = call %LocString* @value356(%"RawPtr[LocString]"* %dst)
+  %34 = call %LocString* @value356(%"RawPtr[LocString]"* %src)
+  call void @ctor354(%LocString* %33, %LocString* %34)
+  call void @advance357(%"RawPtr[LocString]"* %"$tmpC2", %"RawPtr[LocString]"* %dst)
   %35 = load %"RawPtr[LocString]"* %"$tmpC2"
-  call void @"=338"(%"RawPtr[LocString]"* %dst, %"RawPtr[LocString]" %35)
-  call void @advance346(%"RawPtr[LocString]"* %"$tmpC3", %"RawPtr[LocString]"* %src)
+  call void @"=349"(%"RawPtr[LocString]"* %dst, %"RawPtr[LocString]" %35)
+  call void @advance357(%"RawPtr[LocString]"* %"$tmpC3", %"RawPtr[LocString]"* %src)
   %36 = load %"RawPtr[LocString]"* %"$tmpC3"
-  call void @"=338"(%"RawPtr[LocString]"* %src, %"RawPtr[LocString]" %36)
+  call void @"=349"(%"RawPtr[LocString]"* %src, %"RawPtr[LocString]" %36)
   br label %while_step
 
 while_step:                                       ; preds = %while_body
@@ -19571,7 +19850,7 @@ while_end:                                        ; preds = %while_block
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @alloc352(%"RawPtr[LocString]"* sret %_result, i64 %num) #3 {
+define internal void @alloc363(%"RawPtr[LocString]"* sret %_result, i64 %num) #3 {
   %_result.addr = alloca %"RawPtr[LocString]"*
   store %"RawPtr[LocString]"* %_result, %"RawPtr[LocString]"** %_result.addr
   %num.addr = alloca i64
@@ -19580,7 +19859,7 @@ define internal void @alloc352(%"RawPtr[LocString]"* sret %_result, i64 %num) #3
   br label %code
 
 code:                                             ; preds = %0
-  call void @ctor328(%"RawPtr[LocString]"* %res)
+  call void @ctor339(%"RawPtr[LocString]"* %res)
   %1 = load i64* %num.addr
   %2 = call i64 @"*"(i64 %1, i64 48)
   %3 = call i8* @malloc(i64 %2)
@@ -19588,12 +19867,12 @@ code:                                             ; preds = %0
   %5 = getelementptr inbounds %"RawPtr[LocString]"* %res, i32 0, i32 0
   store %LocString* %4, %LocString** %5
   %6 = load %"RawPtr[LocString]"** %_result.addr
-  call void @ctor341(%"RawPtr[LocString]"* %6, %"RawPtr[LocString]"* %res)
+  call void @ctor352(%"RawPtr[LocString]"* %6, %"RawPtr[LocString]"* %res)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @dtor353(%"Vector[LocString]"* %"$this") #3 {
+define internal void @dtor364(%"Vector[LocString]"* %"$this") #3 {
   %"$this.addr" = alloca %"Vector[LocString]"*
   store %"Vector[LocString]"* %"$this", %"Vector[LocString]"** %"$this.addr"
   %p = alloca %"RawPtr[LocString]"
@@ -19603,37 +19882,37 @@ define internal void @dtor353(%"Vector[LocString]"* %"$this") #3 {
 code:                                             ; preds = %0
   %1 = load %"Vector[LocString]"** %"$this.addr"
   %2 = getelementptr inbounds %"Vector[LocString]"* %1, i32 0, i32 0
-  call void @ctor341(%"RawPtr[LocString]"* %p, %"RawPtr[LocString]"* %2)
+  call void @ctor352(%"RawPtr[LocString]"* %p, %"RawPtr[LocString]"* %2)
   br label %while_block
 
 while_block:                                      ; preds = %while_step, %code
   %3 = load %"Vector[LocString]"** %"$this.addr"
   %4 = getelementptr inbounds %"Vector[LocString]"* %3, i32 0, i32 1
   %5 = load %"RawPtr[LocString]"* %4
-  %6 = call i1 @"==331"(%"RawPtr[LocString]"* %p, %"RawPtr[LocString]" %5)
+  %6 = call i1 @"==342"(%"RawPtr[LocString]"* %p, %"RawPtr[LocString]" %5)
   %7 = xor i1 true, %6
   br i1 %7, label %while_body, label %while_end
 
 while_body:                                       ; preds = %while_block
-  %8 = call %LocString* @value345(%"RawPtr[LocString]"* %p)
-  call void @dtor349(%LocString* %8)
+  %8 = call %LocString* @value356(%"RawPtr[LocString]"* %p)
+  call void @dtor360(%LocString* %8)
   br label %while_step
 
 while_step:                                       ; preds = %while_body
-  call void @advance346(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %p)
+  call void @advance357(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %p)
   %9 = load %"RawPtr[LocString]"* %"$tmpC"
-  call void @"=338"(%"RawPtr[LocString]"* %p, %"RawPtr[LocString]" %9)
+  call void @"=349"(%"RawPtr[LocString]"* %p, %"RawPtr[LocString]" %9)
   br label %while_block
 
 while_end:                                        ; preds = %while_block
   %10 = load %"Vector[LocString]"** %"$this.addr"
   %11 = getelementptr inbounds %"Vector[LocString]"* %10, i32 0, i32 0
-  call void @freePtr354(%"RawPtr[LocString]"* %11)
+  call void @freePtr365(%"RawPtr[LocString]"* %11)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @freePtr354(%"RawPtr[LocString]"* %"$this") #3 {
+define internal void @freePtr365(%"RawPtr[LocString]"* %"$this") #3 {
   %"$this.addr" = alloca %"RawPtr[LocString]"*
   store %"RawPtr[LocString]"* %"$this", %"RawPtr[LocString]"** %"$this.addr"
   br label %code
@@ -19643,12 +19922,12 @@ code:                                             ; preds = %0
 
 if_block:                                         ; preds = %code
   %1 = load %"RawPtr[LocString]"** %"$this.addr"
-  %2 = call i1 @isSet355(%"RawPtr[LocString]"* %1)
+  %2 = call i1 @isSet366(%"RawPtr[LocString]"* %1)
   br i1 %2, label %if_then, label %if_end
 
 if_then:                                          ; preds = %if_block
   %3 = load %"RawPtr[LocString]"** %"$this.addr"
-  %4 = call i8* @bytePtr334(%"RawPtr[LocString]"* %3)
+  %4 = call i8* @bytePtr345(%"RawPtr[LocString]"* %3)
   call void @free(i8* %4)
   br label %if_end
 
@@ -19657,7 +19936,7 @@ if_end:                                           ; preds = %if_then, %if_block
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @isSet355(%"RawPtr[LocString]"* %"$this") #2 {
+define internal i1 @isSet366(%"RawPtr[LocString]"* %"$this") #2 {
   %"$this.addr" = alloca %"RawPtr[LocString]"*
   store %"RawPtr[LocString]"* %"$this", %"RawPtr[LocString]"** %"$this.addr"
   br label %code
@@ -19672,7 +19951,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @createFormals(%"Vector[LocString]"* %ids, %Node %typeNode, %Node %init, i1 %varFormals, %Node %mods, i32 %accessSpec, %Node* %res) #3 {
+define internal void @createFormals(%"Vector[LocString]"* %ids, %Node %typeNode, %Node %init, i1 %varFormals, %Node %mods, %Node* %res) #3 {
   %ids.addr = alloca %"Vector[LocString]"*
   store %"Vector[LocString]"* %ids, %"Vector[LocString]"** %ids.addr
   %typeNode.addr = alloca %Node
@@ -19683,8 +19962,6 @@ define internal void @createFormals(%"Vector[LocString]"* %ids, %Node %typeNode,
   store i1 %varFormals, i1* %varFormals.addr
   %mods.addr = alloca %Node
   store %Node %mods, %Node* %mods.addr
-  %accessSpec.addr = alloca i32
-  store i32 %accessSpec, i32* %accessSpec.addr
   %res.addr = alloca %Node*
   store %Node* %res, %Node** %res.addr
   %"$rangeVar" = alloca %"ContiguousMemoryRange[LocString]"
@@ -19712,24 +19989,24 @@ if_block:                                         ; preds = %code
 
 if_then:                                          ; preds = %if_block
   %2 = load %"Vector[LocString]"** %ids.addr
-  call void @all356(%"ContiguousMemoryRange[LocString]"* %"$rangeVar", %"Vector[LocString]"* %2)
+  call void @all367(%"ContiguousMemoryRange[LocString]"* %"$rangeVar", %"Vector[LocString]"* %2)
   br label %while_block
 
 if_else:                                          ; preds = %if_block
   %3 = load %"Vector[LocString]"** %ids.addr
-  call void @all356(%"ContiguousMemoryRange[LocString]"* %"$rangeVar6", %"Vector[LocString]"* %3)
+  call void @all367(%"ContiguousMemoryRange[LocString]"* %"$rangeVar6", %"Vector[LocString]"* %3)
   br label %while_block7
 
 if_end:                                           ; preds = %while_end10, %while_end
   ret void
 
 while_block:                                      ; preds = %while_step, %if_then
-  %4 = call i1 @isEmpty358(%"ContiguousMemoryRange[LocString]"* %"$rangeVar")
+  %4 = call i1 @isEmpty369(%"ContiguousMemoryRange[LocString]"* %"$rangeVar")
   %5 = xor i1 true, %4
   br i1 %5, label %while_body, label %while_end
 
 while_body:                                       ; preds = %while_block
-  %6 = call %LocString* @front359(%"ContiguousMemoryRange[LocString]"* %"$rangeVar")
+  %6 = call %LocString* @front370(%"ContiguousMemoryRange[LocString]"* %"$rangeVar")
   store %LocString* %6, %LocString** %id
   %7 = load %LocString** %id
   %8 = getelementptr inbounds %LocString* %7, i32 0, i32 0
@@ -19741,104 +20018,103 @@ while_body:                                       ; preds = %while_block
   %13 = load %StringRef* %"$tmpC"
   %14 = load %Node* %typeNode.addr
   %15 = load %Node* %init.addr
-  %16 = load i32* %accessSpec.addr
-  %17 = call %Node @comp_parser_mkVar(%Location* %9, %StringRef %13, %Node %14, %Node %15, i32 %16)
-  store %Node %17, %Node* %"$tmpForRef"
-  call void @ctor318(%Node* %v, %Node* %"$tmpForRef")
+  %16 = call %Node @comp_parser_mkVar(%Location* %9, %StringRef %13, %Node %14, %Node %15)
+  store %Node %16, %Node* %"$tmpForRef"
+  call void @ctor329(%Node* %v, %Node* %"$tmpForRef")
   br label %if_block1
 
 while_step:                                       ; preds = %if_end3
-  call void @popFront361(%"ContiguousMemoryRange[LocString]"* %"$rangeVar")
+  call void @popFront372(%"ContiguousMemoryRange[LocString]"* %"$rangeVar")
   br label %while_block
 
 while_end:                                        ; preds = %while_block
   br label %if_end
 
 if_block1:                                        ; preds = %while_body
-  %18 = load %Node* %mods.addr
-  %19 = call i1 @isSet360(%Node %18)
-  br i1 %19, label %if_then2, label %if_end3
+  %17 = load %Node* %mods.addr
+  %18 = call i1 @isSet371(%Node %17)
+  br i1 %18, label %if_then2, label %if_end3
 
 if_then2:                                         ; preds = %if_block1
-  %20 = load %LocString** %id
-  %21 = getelementptr inbounds %LocString* %20, i32 0, i32 0
-  %22 = getelementptr inbounds %"Tuple[Location/rtct, String/rtct]"* %21, i32 0, i32 0
-  %23 = load %Node* %v
-  %24 = load %Node* %mods.addr
-  %25 = call %Node @comp_parser_mkModifiers(%Location* %22, %Node %23, %Node %24)
-  store %Node %25, %Node* %"$tmpForRef4"
-  call void @"=320"(%Node* %v, %Node* %"$tmpForRef4")
+  %19 = load %LocString** %id
+  %20 = getelementptr inbounds %LocString* %19, i32 0, i32 0
+  %21 = getelementptr inbounds %"Tuple[Location/rtct, String/rtct]"* %20, i32 0, i32 0
+  %22 = load %Node* %v
+  %23 = load %Node* %mods.addr
+  %24 = call %Node @comp_parser_mkModifiers(%Location* %21, %Node %22, %Node %23)
+  store %Node %24, %Node* %"$tmpForRef4"
+  call void @"=331"(%Node* %v, %Node* %"$tmpForRef4")
   br label %if_end3
 
 if_end3:                                          ; preds = %if_then2, %if_block1
+  %25 = load %Node** %res.addr
   %26 = load %Node** %res.addr
-  %27 = load %Node** %res.addr
-  %28 = load %Node* %27
-  %29 = load %Node* %v
-  %30 = call %Node @comp_parser_addToNodeList(%Node %28, %Node %29)
-  store %Node %30, %Node* %"$tmpForRef5"
-  call void @"=320"(%Node* %26, %Node* %"$tmpForRef5")
+  %27 = load %Node* %26
+  %28 = load %Node* %v
+  %29 = call %Node @comp_parser_addToNodeList(%Node %27, %Node %28)
+  store %Node %29, %Node* %"$tmpForRef5"
+  call void @"=331"(%Node* %25, %Node* %"$tmpForRef5")
   br label %while_step
 
 while_block7:                                     ; preds = %while_step9, %if_else
-  %31 = call i1 @isEmpty358(%"ContiguousMemoryRange[LocString]"* %"$rangeVar6")
-  %32 = xor i1 true, %31
-  br i1 %32, label %while_body8, label %while_end10
+  %30 = call i1 @isEmpty369(%"ContiguousMemoryRange[LocString]"* %"$rangeVar6")
+  %31 = xor i1 true, %30
+  br i1 %31, label %while_body8, label %while_end10
 
 while_body8:                                      ; preds = %while_block7
-  %33 = call %LocString* @front359(%"ContiguousMemoryRange[LocString]"* %"$rangeVar6")
-  store %LocString* %33, %LocString** %id11
-  %34 = load %LocString** %id11
-  %35 = getelementptr inbounds %LocString* %34, i32 0, i32 0
-  %36 = getelementptr inbounds %"Tuple[Location/rtct, String/rtct]"* %35, i32 0, i32 0
-  %37 = load %LocString** %id11
-  %38 = getelementptr inbounds %LocString* %37, i32 0, i32 0
-  %39 = getelementptr inbounds %"Tuple[Location/rtct, String/rtct]"* %38, i32 0, i32 1
-  call void @asStringRef(%StringRef* %"$tmpC13", %String* %39)
-  %40 = load %StringRef* %"$tmpC13"
-  %41 = load %Node* %typeNode.addr
-  %42 = load %Node* %init.addr
-  %43 = call %Node @comp_parser_mkParameter(%Location* %36, %StringRef %40, %Node %41, %Node %42)
-  store %Node %43, %Node* %"$tmpForRef12"
-  call void @ctor318(%Node* %p, %Node* %"$tmpForRef12")
+  %32 = call %LocString* @front370(%"ContiguousMemoryRange[LocString]"* %"$rangeVar6")
+  store %LocString* %32, %LocString** %id11
+  %33 = load %LocString** %id11
+  %34 = getelementptr inbounds %LocString* %33, i32 0, i32 0
+  %35 = getelementptr inbounds %"Tuple[Location/rtct, String/rtct]"* %34, i32 0, i32 0
+  %36 = load %LocString** %id11
+  %37 = getelementptr inbounds %LocString* %36, i32 0, i32 0
+  %38 = getelementptr inbounds %"Tuple[Location/rtct, String/rtct]"* %37, i32 0, i32 1
+  call void @asStringRef(%StringRef* %"$tmpC13", %String* %38)
+  %39 = load %StringRef* %"$tmpC13"
+  %40 = load %Node* %typeNode.addr
+  %41 = load %Node* %init.addr
+  %42 = call %Node @comp_parser_mkParameter(%Location* %35, %StringRef %39, %Node %40, %Node %41)
+  store %Node %42, %Node* %"$tmpForRef12"
+  call void @ctor329(%Node* %p, %Node* %"$tmpForRef12")
   br label %if_block14
 
 while_step9:                                      ; preds = %if_end16
-  call void @popFront361(%"ContiguousMemoryRange[LocString]"* %"$rangeVar6")
+  call void @popFront372(%"ContiguousMemoryRange[LocString]"* %"$rangeVar6")
   br label %while_block7
 
 while_end10:                                      ; preds = %while_block7
   br label %if_end
 
 if_block14:                                       ; preds = %while_body8
-  %44 = load %Node* %mods.addr
-  %45 = call i1 @isSet360(%Node %44)
-  br i1 %45, label %if_then15, label %if_end16
+  %43 = load %Node* %mods.addr
+  %44 = call i1 @isSet371(%Node %43)
+  br i1 %44, label %if_then15, label %if_end16
 
 if_then15:                                        ; preds = %if_block14
-  %46 = load %LocString** %id11
-  %47 = getelementptr inbounds %LocString* %46, i32 0, i32 0
-  %48 = getelementptr inbounds %"Tuple[Location/rtct, String/rtct]"* %47, i32 0, i32 0
-  %49 = load %Node* %p
-  %50 = load %Node* %mods.addr
-  %51 = call %Node @comp_parser_mkModifiers(%Location* %48, %Node %49, %Node %50)
-  store %Node %51, %Node* %"$tmpForRef17"
-  call void @"=320"(%Node* %p, %Node* %"$tmpForRef17")
+  %45 = load %LocString** %id11
+  %46 = getelementptr inbounds %LocString* %45, i32 0, i32 0
+  %47 = getelementptr inbounds %"Tuple[Location/rtct, String/rtct]"* %46, i32 0, i32 0
+  %48 = load %Node* %p
+  %49 = load %Node* %mods.addr
+  %50 = call %Node @comp_parser_mkModifiers(%Location* %47, %Node %48, %Node %49)
+  store %Node %50, %Node* %"$tmpForRef17"
+  call void @"=331"(%Node* %p, %Node* %"$tmpForRef17")
   br label %if_end16
 
 if_end16:                                         ; preds = %if_then15, %if_block14
+  %51 = load %Node** %res.addr
   %52 = load %Node** %res.addr
-  %53 = load %Node** %res.addr
-  %54 = load %Node* %53
-  %55 = load %Node* %p
-  %56 = call %Node @comp_parser_addToNodeList(%Node %54, %Node %55)
-  store %Node %56, %Node* %"$tmpForRef18"
-  call void @"=320"(%Node* %52, %Node* %"$tmpForRef18")
+  %53 = load %Node* %52
+  %54 = load %Node* %p
+  %55 = call %Node @comp_parser_addToNodeList(%Node %53, %Node %54)
+  store %Node %55, %Node* %"$tmpForRef18"
+  call void @"=331"(%Node* %51, %Node* %"$tmpForRef18")
   br label %while_step9
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @all356(%"ContiguousMemoryRange[LocString]"* sret %_result, %"Vector[LocString]"* %"$this") #2 {
+define internal void @all367(%"ContiguousMemoryRange[LocString]"* sret %_result, %"Vector[LocString]"* %"$this") #2 {
   %_result.addr = alloca %"ContiguousMemoryRange[LocString]"*
   store %"ContiguousMemoryRange[LocString]"* %_result, %"ContiguousMemoryRange[LocString]"** %_result.addr
   %"$this.addr" = alloca %"Vector[LocString]"*
@@ -19853,12 +20129,12 @@ code:                                             ; preds = %0
   %5 = load %"Vector[LocString]"** %"$this.addr"
   %6 = getelementptr inbounds %"Vector[LocString]"* %5, i32 0, i32 1
   %7 = load %"RawPtr[LocString]"* %6
-  call void @ctor357(%"ContiguousMemoryRange[LocString]"* %1, %"RawPtr[LocString]" %4, %"RawPtr[LocString]" %7)
+  call void @ctor368(%"ContiguousMemoryRange[LocString]"* %1, %"RawPtr[LocString]" %4, %"RawPtr[LocString]" %7)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @ctor357(%"ContiguousMemoryRange[LocString]"* %"$this", %"RawPtr[LocString]" %begin, %"RawPtr[LocString]" %end) #3 {
+define internal void @ctor368(%"ContiguousMemoryRange[LocString]"* %"$this", %"RawPtr[LocString]" %begin, %"RawPtr[LocString]" %end) #3 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[LocString]"*
   store %"ContiguousMemoryRange[LocString]"* %"$this", %"ContiguousMemoryRange[LocString]"** %"$this.addr"
   %begin.addr = alloca %"RawPtr[LocString]"
@@ -19870,15 +20146,15 @@ define internal void @ctor357(%"ContiguousMemoryRange[LocString]"* %"$this", %"R
 code:                                             ; preds = %0
   %1 = load %"ContiguousMemoryRange[LocString]"** %"$this.addr"
   %2 = getelementptr inbounds %"ContiguousMemoryRange[LocString]"* %1, i32 0, i32 0
-  call void @ctor341(%"RawPtr[LocString]"* %2, %"RawPtr[LocString]"* %begin.addr)
+  call void @ctor352(%"RawPtr[LocString]"* %2, %"RawPtr[LocString]"* %begin.addr)
   %3 = load %"ContiguousMemoryRange[LocString]"** %"$this.addr"
   %4 = getelementptr inbounds %"ContiguousMemoryRange[LocString]"* %3, i32 0, i32 1
-  call void @ctor341(%"RawPtr[LocString]"* %4, %"RawPtr[LocString]"* %end.addr)
+  call void @ctor352(%"RawPtr[LocString]"* %4, %"RawPtr[LocString]"* %end.addr)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @isEmpty358(%"ContiguousMemoryRange[LocString]"* %"$this") #2 {
+define internal i1 @isEmpty369(%"ContiguousMemoryRange[LocString]"* %"$this") #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[LocString]"*
   store %"ContiguousMemoryRange[LocString]"* %"$this", %"ContiguousMemoryRange[LocString]"** %"$this.addr"
   br label %code
@@ -19889,13 +20165,13 @@ code:                                             ; preds = %0
   %3 = load %"ContiguousMemoryRange[LocString]"** %"$this.addr"
   %4 = getelementptr inbounds %"ContiguousMemoryRange[LocString]"* %3, i32 0, i32 0
   %5 = load %"RawPtr[LocString]"* %4
-  %6 = call i64 @diff333(%"RawPtr[LocString]"* %2, %"RawPtr[LocString]" %5)
+  %6 = call i64 @diff344(%"RawPtr[LocString]"* %2, %"RawPtr[LocString]" %5)
   %7 = call i1 @"<=152"(i64 %6, i32 0)
   ret i1 %7
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal %LocString* @front359(%"ContiguousMemoryRange[LocString]"* %"$this") #2 {
+define internal %LocString* @front370(%"ContiguousMemoryRange[LocString]"* %"$this") #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[LocString]"*
   store %"ContiguousMemoryRange[LocString]"* %"$this", %"ContiguousMemoryRange[LocString]"** %"$this.addr"
   br label %code
@@ -19903,14 +20179,14 @@ define internal %LocString* @front359(%"ContiguousMemoryRange[LocString]"* %"$th
 code:                                             ; preds = %0
   %1 = load %"ContiguousMemoryRange[LocString]"** %"$this.addr"
   %2 = getelementptr inbounds %"ContiguousMemoryRange[LocString]"* %1, i32 0, i32 0
-  %3 = call %LocString* @value345(%"RawPtr[LocString]"* %2)
+  %3 = call %LocString* @value356(%"RawPtr[LocString]"* %2)
   ret %LocString* %3
 }
 
-declare %Node @comp_parser_mkVar(%Location*, %StringRef, %Node, %Node, i32)
+declare %Node @comp_parser_mkVar(%Location*, %StringRef, %Node, %Node)
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @isSet360(%Node %n) #2 {
+define internal i1 @isSet371(%Node %n) #2 {
   %n.addr = alloca %Node
   store %Node %n, %Node* %n.addr
   br label %code
@@ -19926,7 +20202,7 @@ code:                                             ; preds = %0
 declare %Node @comp_parser_mkModifiers(%Location*, %Node, %Node)
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @popFront361(%"ContiguousMemoryRange[LocString]"* %"$this") #2 {
+define internal void @popFront372(%"ContiguousMemoryRange[LocString]"* %"$this") #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[LocString]"*
   store %"ContiguousMemoryRange[LocString]"* %"$this", %"ContiguousMemoryRange[LocString]"** %"$this.addr"
   %"$tmpC" = alloca %"RawPtr[LocString]"
@@ -19937,9 +20213,9 @@ code:                                             ; preds = %0
   %2 = getelementptr inbounds %"ContiguousMemoryRange[LocString]"* %1, i32 0, i32 0
   %3 = load %"ContiguousMemoryRange[LocString]"** %"$this.addr"
   %4 = getelementptr inbounds %"ContiguousMemoryRange[LocString]"* %3, i32 0, i32 0
-  call void @advance346(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %4)
+  call void @advance357(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %4)
   %5 = load %"RawPtr[LocString]"* %"$tmpC"
-  call void @"=338"(%"RawPtr[LocString]"* %2, %"RawPtr[LocString]" %5)
+  call void @"=349"(%"RawPtr[LocString]"* %2, %"RawPtr[LocString]" %5)
   ret void
 }
 
@@ -19959,7 +20235,7 @@ code:                                             ; preds = %0
 
 if_block:                                         ; preds = %code
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 34)
+  call void @ctor222(%TokenType* %tmp.v, i32 35)
   %2 = load %TokenType* %tmp.v
   %3 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
   br i1 %3, label %if_then, label %if_end
@@ -19972,7 +20248,7 @@ if_then:                                          ; preds = %if_block
 
 if_end:                                           ; preds = %dumy_block, %if_block
   %6 = load %Node** %_result.addr
-  call void @ctor323(%Node* %6)
+  call void @ctor334(%Node* %6)
   ret void
 
 dumy_block:                                       ; No predecessors!
@@ -19993,14 +20269,14 @@ code:                                             ; preds = %0
 
 if_block:                                         ; preds = %code
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 35)
+  call void @ctor222(%TokenType* %tmp.v, i32 36)
   %2 = load %TokenType* %tmp.v
   %3 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
   br i1 %3, label %if_then, label %if_end
 
 if_then:                                          ; preds = %if_block
   %4 = load %Node** %_result.addr
-  call void @ctor323(%Node* %4)
+  call void @ctor334(%Node* %4)
   ret void
 
 if_end:                                           ; preds = %dumy_block, %if_block
@@ -20034,16 +20310,16 @@ define internal void @parseBlockStmt(%Node* sret %_result, %"SparrowParser[Sparr
 code:                                             ; preds = %0
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @curLoc(%Location* %loc, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1)
-  call void @ctor323(%Node* %res)
+  call void @ctor334(%Node* %res)
   %2 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 28)
+  call void @ctor222(%TokenType* %tmp.v, i32 29)
   %3 = load %TokenType* %tmp.v
   %4 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %2, %TokenType %3)
   br label %while_block
 
 while_block:                                      ; preds = %while_step, %code
   %5 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v1, i32 29)
+  call void @ctor222(%TokenType* %tmp.v1, i32 30)
   %6 = load %TokenType* %tmp.v1
   %7 = call i1 @nextIs(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %5, %TokenType %6)
   %8 = xor i1 true, %7
@@ -20056,7 +20332,7 @@ while_body:                                       ; preds = %cond.end
   %11 = load %Node* %s
   %12 = call %Node @comp_parser_addToNodeList(%Node %10, %Node %11)
   store %Node %12, %Node* %"$tmpForRef"
-  call void @"=320"(%Node* %res, %Node* %"$tmpForRef")
+  call void @"=331"(%Node* %res, %Node* %"$tmpForRef")
   br label %while_step
 
 while_step:                                       ; preds = %while_body
@@ -20064,7 +20340,7 @@ while_step:                                       ; preds = %while_body
 
 while_end:                                        ; preds = %cond.end
   %13 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v2, i32 29)
+  call void @ctor222(%TokenType* %tmp.v2, i32 30)
   %14 = load %TokenType* %tmp.v2
   %15 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %13, %TokenType %14)
   %16 = load %Node** %_result.addr
@@ -20074,7 +20350,7 @@ while_end:                                        ; preds = %cond.end
   %18 = load %Node* %res
   %19 = call %Node @comp_parser_mkBlockStmt(%Location* %"$tmpC", %Node %18)
   store %Node %19, %Node* %"$tmpForRef3"
-  call void @ctor318(%Node* %16, %Node* %"$tmpForRef3")
+  call void @ctor329(%Node* %16, %Node* %"$tmpForRef3")
   ret void
 
 cond.true:                                        ; preds = %while_block
@@ -20119,12 +20395,12 @@ define internal void @parseStatement(%Node* sret %_result, %"SparrowParser[Sparr
   br label %code
 
 code:                                             ; preds = %0
-  call void @ctor323(%Node* %res)
+  call void @ctor334(%Node* %res)
   br label %if_block
 
 if_block:                                         ; preds = %code
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 35)
+  call void @ctor222(%TokenType* %tmp.v, i32 36)
   %2 = load %TokenType* %tmp.v
   %3 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
   br i1 %3, label %if_end, label %if_else
@@ -20134,12 +20410,12 @@ if_else:                                          ; preds = %if_block
 
 if_end:                                           ; preds = %if_end3, %if_block
   %4 = load %Node** %_result.addr
-  call void @ctor318(%Node* %4, %Node* %res)
+  call void @ctor329(%Node* %4, %Node* %res)
   ret void
 
 if_block1:                                        ; preds = %if_else
   %5 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v4, i32 28)
+  call void @ctor222(%TokenType* %tmp.v4, i32 29)
   %6 = load %TokenType* %tmp.v4
   %7 = call i1 @nextIs(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %5, %TokenType %6)
   br i1 %7, label %if_then, label %if_else2
@@ -20147,7 +20423,7 @@ if_block1:                                        ; preds = %if_else
 if_then:                                          ; preds = %if_block1
   %8 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseBlockStmt(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %8)
-  call void @"=320"(%Node* %res, %Node* %"$tmpC")
+  call void @"=331"(%Node* %res, %Node* %"$tmpC")
   br label %if_end3
 
 if_else2:                                         ; preds = %if_block1
@@ -20158,7 +20434,7 @@ if_end3:                                          ; preds = %if_end8, %if_then
 
 if_block5:                                        ; preds = %if_else2
   %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v9, i32 17)
+  call void @ctor222(%TokenType* %tmp.v9, i32 18)
   %10 = load %TokenType* %tmp.v9
   %11 = call i1 @nextIs(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9, %TokenType %10)
   br i1 %11, label %if_then6, label %if_else7
@@ -20166,7 +20442,7 @@ if_block5:                                        ; preds = %if_else2
 if_then6:                                         ; preds = %if_block5
   %12 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseIfStmt(%Node* %"$tmpC10", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %12)
-  call void @"=320"(%Node* %res, %Node* %"$tmpC10")
+  call void @"=331"(%Node* %res, %Node* %"$tmpC10")
   br label %if_end8
 
 if_else7:                                         ; preds = %if_block5
@@ -20177,7 +20453,7 @@ if_end8:                                          ; preds = %if_end14, %if_then6
 
 if_block11:                                       ; preds = %if_else7
   %13 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v15, i32 16)
+  call void @ctor222(%TokenType* %tmp.v15, i32 17)
   %14 = load %TokenType* %tmp.v15
   %15 = call i1 @nextIs(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %13, %TokenType %14)
   br i1 %15, label %if_then12, label %if_else13
@@ -20185,7 +20461,7 @@ if_block11:                                       ; preds = %if_else7
 if_then12:                                        ; preds = %if_block11
   %16 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseForStmt(%Node* %"$tmpC16", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %16)
-  call void @"=320"(%Node* %res, %Node* %"$tmpC16")
+  call void @"=331"(%Node* %res, %Node* %"$tmpC16")
   br label %if_end14
 
 if_else13:                                        ; preds = %if_block11
@@ -20196,7 +20472,7 @@ if_end14:                                         ; preds = %if_end20, %if_then1
 
 if_block17:                                       ; preds = %if_else13
   %17 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v21, i32 21)
+  call void @ctor222(%TokenType* %tmp.v21, i32 22)
   %18 = load %TokenType* %tmp.v21
   %19 = call i1 @nextIs(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %17, %TokenType %18)
   br i1 %19, label %if_then18, label %if_else19
@@ -20204,7 +20480,7 @@ if_block17:                                       ; preds = %if_else13
 if_then18:                                        ; preds = %if_block17
   %20 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseWhileStmt(%Node* %"$tmpC22", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %20)
-  call void @"=320"(%Node* %res, %Node* %"$tmpC22")
+  call void @"=331"(%Node* %res, %Node* %"$tmpC22")
   br label %if_end20
 
 if_else19:                                        ; preds = %if_block17
@@ -20215,7 +20491,7 @@ if_end20:                                         ; preds = %if_end26, %if_then1
 
 if_block23:                                       ; preds = %if_else19
   %21 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v27, i32 12)
+  call void @ctor222(%TokenType* %tmp.v27, i32 13)
   %22 = load %TokenType* %tmp.v27
   %23 = call i1 @nextIs(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %21, %TokenType %22)
   br i1 %23, label %if_then24, label %if_else25
@@ -20223,7 +20499,7 @@ if_block23:                                       ; preds = %if_else19
 if_then24:                                        ; preds = %if_block23
   %24 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseBreakStmt(%Node* %"$tmpC28", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %24)
-  call void @"=320"(%Node* %res, %Node* %"$tmpC28")
+  call void @"=331"(%Node* %res, %Node* %"$tmpC28")
   br label %if_end26
 
 if_else25:                                        ; preds = %if_block23
@@ -20234,7 +20510,7 @@ if_end26:                                         ; preds = %if_end32, %if_then2
 
 if_block29:                                       ; preds = %if_else25
   %25 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v33, i32 14)
+  call void @ctor222(%TokenType* %tmp.v33, i32 15)
   %26 = load %TokenType* %tmp.v33
   %27 = call i1 @nextIs(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %25, %TokenType %26)
   br i1 %27, label %if_then30, label %if_else31
@@ -20242,7 +20518,7 @@ if_block29:                                       ; preds = %if_else25
 if_then30:                                        ; preds = %if_block29
   %28 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseContinueStmt(%Node* %"$tmpC34", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %28)
-  call void @"=320"(%Node* %res, %Node* %"$tmpC34")
+  call void @"=331"(%Node* %res, %Node* %"$tmpC34")
   br label %if_end32
 
 if_else31:                                        ; preds = %if_block29
@@ -20253,7 +20529,7 @@ if_end32:                                         ; preds = %if_end38, %if_then3
 
 if_block35:                                       ; preds = %if_else31
   %29 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v39, i32 18)
+  call void @ctor222(%TokenType* %tmp.v39, i32 19)
   %30 = load %TokenType* %tmp.v39
   %31 = call i1 @nextIs(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %29, %TokenType %30)
   br i1 %31, label %if_then36, label %if_else37
@@ -20261,7 +20537,7 @@ if_block35:                                       ; preds = %if_else31
 if_then36:                                        ; preds = %if_block35
   %32 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseReturnStmt(%Node* %"$tmpC40", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %32)
-  call void @"=320"(%Node* %res, %Node* %"$tmpC40")
+  call void @"=331"(%Node* %res, %Node* %"$tmpC40")
   br label %if_end38
 
 if_else37:                                        ; preds = %if_block35
@@ -20278,9 +20554,9 @@ if_block41:                                       ; preds = %if_else37
 if_else42:                                        ; preds = %if_block41
   %35 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseExpr(%Node* %"$tmpC44", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %35, i1 true)
-  call void @"=320"(%Node* %res, %Node* %"$tmpC44")
+  call void @"=331"(%Node* %res, %Node* %"$tmpC44")
   %36 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v45, i32 35)
+  call void @ctor222(%TokenType* %tmp.v45, i32 36)
   %37 = load %TokenType* %tmp.v45
   %38 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %36, %TokenType %37)
   br label %if_end43
@@ -20312,29 +20588,29 @@ code:                                             ; preds = %0
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @curLoc(%Location* %loc, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1)
   %2 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 17)
+  call void @ctor222(%TokenType* %tmp.v, i32 18)
   %3 = load %TokenType* %tmp.v
   %4 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %2, %TokenType %3)
   %5 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseModifiers(%Node* %mods, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %5)
   %6 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v1, i32 32)
+  call void @ctor222(%TokenType* %tmp.v1, i32 33)
   %7 = load %TokenType* %tmp.v1
   %8 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %6, %TokenType %7)
   %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseExpr(%Node* %expr, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9, i1 true)
   %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v2, i32 33)
+  call void @ctor222(%TokenType* %tmp.v2, i32 34)
   %11 = load %TokenType* %tmp.v2
   %12 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, %TokenType %11)
   %13 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseStatement(%Node* %thenClause, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %13)
-  call void @ctor323(%Node* %elseClause)
+  call void @ctor334(%Node* %elseClause)
   br label %if_block
 
 if_block:                                         ; preds = %code
   %14 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v3, i32 27)
+  call void @ctor222(%TokenType* %tmp.v3, i32 28)
   %15 = load %TokenType* %tmp.v3
   %16 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %14, %TokenType %15)
   br i1 %16, label %if_then, label %if_end
@@ -20342,7 +20618,7 @@ if_block:                                         ; preds = %code
 if_then:                                          ; preds = %if_block
   %17 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseStatement(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %17)
-  call void @"=320"(%Node* %elseClause, %Node* %"$tmpC")
+  call void @"=331"(%Node* %elseClause, %Node* %"$tmpC")
   br label %if_end
 
 if_end:                                           ; preds = %if_then, %if_block
@@ -20358,7 +20634,7 @@ if_end:                                           ; preds = %if_then, %if_block
   %26 = load %Node* %mods
   %27 = call %Node @comp_parser_mkModifiers(%Location* %loc, %Node %25, %Node %26)
   store %Node %27, %Node* %"$tmpForRef"
-  call void @ctor318(%Node* %21, %Node* %"$tmpForRef")
+  call void @ctor329(%Node* %21, %Node* %"$tmpForRef")
   ret void
 }
 
@@ -20390,23 +20666,23 @@ code:                                             ; preds = %0
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @curLoc(%Location* %loc, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1)
   %2 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 16)
+  call void @ctor222(%TokenType* %tmp.v, i32 17)
   %3 = load %TokenType* %tmp.v
   %4 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %2, %TokenType %3)
   %5 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseModifiers(%Node* %mods, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %5)
   %6 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v1, i32 32)
+  call void @ctor222(%TokenType* %tmp.v1, i32 33)
   %7 = load %TokenType* %tmp.v1
   %8 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %6, %TokenType %7)
   %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseId(%String* %id, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9)
-  call void @ctor323(%Node* %typeNode)
+  call void @ctor334(%Node* %typeNode)
   br label %if_block
 
 if_block:                                         ; preds = %code
   %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v2, i32 34)
+  call void @ctor222(%TokenType* %tmp.v2, i32 35)
   %11 = load %TokenType* %tmp.v2
   %12 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, %TokenType %11)
   br i1 %12, label %if_then, label %if_end
@@ -20414,18 +20690,18 @@ if_block:                                         ; preds = %code
 if_then:                                          ; preds = %if_block
   %13 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseExpr(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %13, i1 false)
-  call void @"=320"(%Node* %typeNode, %Node* %"$tmpC")
+  call void @"=331"(%Node* %typeNode, %Node* %"$tmpC")
   br label %if_end
 
 if_end:                                           ; preds = %if_then, %if_block
   %14 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v3, i32 39)
+  call void @ctor222(%TokenType* %tmp.v3, i32 40)
   %15 = load %TokenType* %tmp.v3
   %16 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %14, %TokenType %15)
   %17 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseExpr(%Node* %range, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %17, i1 true)
   %18 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v4, i32 33)
+  call void @ctor222(%TokenType* %tmp.v4, i32 34)
   %19 = load %TokenType* %tmp.v4
   %20 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %18, %TokenType %19)
   %21 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
@@ -20444,7 +20720,7 @@ if_end:                                           ; preds = %if_then, %if_block
   %31 = load %Node* %mods
   %32 = call %Node @comp_parser_mkModifiers(%Location* %loc, %Node %30, %Node %31)
   store %Node %32, %Node* %"$tmpForRef"
-  call void @ctor318(%Node* %25, %Node* %"$tmpForRef")
+  call void @ctor329(%Node* %25, %Node* %"$tmpForRef")
   call void @dtor159(%String* %id)
   ret void
 
@@ -20478,23 +20754,23 @@ code:                                             ; preds = %0
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @curLoc(%Location* %loc, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1)
   %2 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 21)
+  call void @ctor222(%TokenType* %tmp.v, i32 22)
   %3 = load %TokenType* %tmp.v
   %4 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %2, %TokenType %3)
   %5 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseModifiers(%Node* %mods, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %5)
   %6 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v1, i32 32)
+  call void @ctor222(%TokenType* %tmp.v1, i32 33)
   %7 = load %TokenType* %tmp.v1
   %8 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %6, %TokenType %7)
   %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseExpr(%Node* %expr, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9, i1 true)
-  call void @ctor323(%Node* %stepAction)
+  call void @ctor334(%Node* %stepAction)
   br label %if_block
 
 if_block:                                         ; preds = %code
   %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v2, i32 35)
+  call void @ctor222(%TokenType* %tmp.v2, i32 36)
   %11 = load %TokenType* %tmp.v2
   %12 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, %TokenType %11)
   br i1 %12, label %if_then, label %if_end
@@ -20504,7 +20780,7 @@ if_then:                                          ; preds = %if_block
 
 if_end:                                           ; preds = %if_end5, %if_block
   %13 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v6, i32 33)
+  call void @ctor222(%TokenType* %tmp.v6, i32 34)
   %14 = load %TokenType* %tmp.v6
   %15 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %13, %TokenType %14)
   %16 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
@@ -20521,7 +20797,7 @@ if_end:                                           ; preds = %if_end5, %if_block
   %25 = load %Node* %mods
   %26 = call %Node @comp_parser_mkModifiers(%Location* %loc, %Node %24, %Node %25)
   store %Node %26, %Node* %"$tmpForRef"
-  call void @ctor318(%Node* %20, %Node* %"$tmpForRef")
+  call void @ctor329(%Node* %20, %Node* %"$tmpForRef")
   ret void
 
 if_block3:                                        ; preds = %if_then
@@ -20533,7 +20809,7 @@ if_block3:                                        ; preds = %if_then
 if_then4:                                         ; preds = %if_block3
   %30 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseStatement(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %30)
-  call void @"=320"(%Node* %stepAction, %Node* %"$tmpC")
+  call void @"=331"(%Node* %stepAction, %Node* %"$tmpC")
   br label %if_end5
 
 if_end5:                                          ; preds = %if_then4, %if_block3
@@ -20564,7 +20840,7 @@ if_then:                                          ; preds = %if_block
   %3 = load %Node** %res.addr
   %4 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseExpr(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %4, i1 true)
-  call void @"=320"(%Node* %3, %Node* %"$tmpC")
+  call void @"=331"(%Node* %3, %Node* %"$tmpC")
   br label %if_block1
 
 if_end:                                           ; preds = %dumy_block, %if_block
@@ -20582,7 +20858,7 @@ if_end3:                                          ; preds = %while_end, %if_bloc
 
 while_block:                                      ; preds = %while_step, %if_then2
   %6 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 35)
+  call void @ctor222(%TokenType* %tmp.v, i32 36)
   %7 = load %TokenType* %tmp.v
   %8 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %6, %TokenType %7)
   br i1 %8, label %while_body, label %while_end
@@ -20630,14 +20906,14 @@ define internal i1 @nextIsExpr(%"SparrowParser[SparrowScanner[CharSource, Extern
 code:                                             ; preds = %0
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   %2 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, i32 0, i32 0
-  call void @"pre_*294"(%Token* %"$tmpC", %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %2)
+  call void @"pre_*305"(%Token* %"$tmpC", %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %2)
   %3 = getelementptr inbounds %Token* %"$tmpC", i32 0, i32 1
   call void @ctor211(%TokenType* %t, %TokenType* %3)
-  call void @dtor282(%Token* %"$tmpC")
+  call void @dtor292(%Token* %"$tmpC")
   br label %if_block
 
 if_block:                                         ; preds = %code
-  call void @ctor222(%TokenType* %tmp.v, i32 39)
+  call void @ctor222(%TokenType* %tmp.v, i32 40)
   %4 = call i1 @"==220"(%TokenType* %t, %TokenType* %tmp.v)
   br i1 %4, label %if_then, label %if_end
 
@@ -20646,7 +20922,7 @@ if_then:                                          ; preds = %if_block
   ret i1 %5
 
 if_end:                                           ; preds = %dumy_block, %if_block
-  call void @ctor222(%TokenType* %tmp.v43, i32 40)
+  call void @ctor222(%TokenType* %tmp.v43, i32 41)
   %6 = call i1 @"==220"(%TokenType* %t, %TokenType* %tmp.v43)
   br i1 %6, label %cond.true40, label %cond.false41
 
@@ -20657,7 +20933,7 @@ cond.true:                                        ; preds = %cond.end3
   br label %cond.end
 
 cond.false:                                       ; preds = %cond.end3
-  call void @ctor222(%TokenType* %tmp.v71, i32 49)
+  call void @ctor222(%TokenType* %tmp.v71, i32 50)
   %7 = call i1 @"==220"(%TokenType* %t, %TokenType* %tmp.v71)
   br label %cond.end
 
@@ -20669,7 +20945,7 @@ cond.true1:                                       ; preds = %cond.end6
   br label %cond.end3
 
 cond.false2:                                      ; preds = %cond.end6
-  call void @ctor222(%TokenType* %tmp.v69, i32 48)
+  call void @ctor222(%TokenType* %tmp.v69, i32 49)
   %8 = call i1 @"==220"(%TokenType* %t, %TokenType* %tmp.v69)
   br label %cond.end3
 
@@ -20681,7 +20957,7 @@ cond.true4:                                       ; preds = %cond.end9
   br label %cond.end6
 
 cond.false5:                                      ; preds = %cond.end9
-  call void @ctor222(%TokenType* %tmp.v67, i32 47)
+  call void @ctor222(%TokenType* %tmp.v67, i32 48)
   %9 = call i1 @"==220"(%TokenType* %t, %TokenType* %tmp.v67)
   br label %cond.end6
 
@@ -20693,7 +20969,7 @@ cond.true7:                                       ; preds = %cond.end12
   br label %cond.end9
 
 cond.false8:                                      ; preds = %cond.end12
-  call void @ctor222(%TokenType* %tmp.v65, i32 46)
+  call void @ctor222(%TokenType* %tmp.v65, i32 47)
   %10 = call i1 @"==220"(%TokenType* %t, %TokenType* %tmp.v65)
   br label %cond.end9
 
@@ -20705,7 +20981,7 @@ cond.true10:                                      ; preds = %cond.end15
   br label %cond.end12
 
 cond.false11:                                     ; preds = %cond.end15
-  call void @ctor222(%TokenType* %tmp.v63, i32 45)
+  call void @ctor222(%TokenType* %tmp.v63, i32 46)
   %11 = call i1 @"==220"(%TokenType* %t, %TokenType* %tmp.v63)
   br label %cond.end12
 
@@ -20717,7 +20993,7 @@ cond.true13:                                      ; preds = %cond.end18
   br label %cond.end15
 
 cond.false14:                                     ; preds = %cond.end18
-  call void @ctor222(%TokenType* %tmp.v61, i32 44)
+  call void @ctor222(%TokenType* %tmp.v61, i32 45)
   %12 = call i1 @"==220"(%TokenType* %t, %TokenType* %tmp.v61)
   br label %cond.end15
 
@@ -20729,7 +21005,7 @@ cond.true16:                                      ; preds = %cond.end21
   br label %cond.end18
 
 cond.false17:                                     ; preds = %cond.end21
-  call void @ctor222(%TokenType* %tmp.v59, i32 43)
+  call void @ctor222(%TokenType* %tmp.v59, i32 44)
   %13 = call i1 @"==220"(%TokenType* %t, %TokenType* %tmp.v59)
   br label %cond.end18
 
@@ -20741,7 +21017,7 @@ cond.true19:                                      ; preds = %cond.end24
   br label %cond.end21
 
 cond.false20:                                     ; preds = %cond.end24
-  call void @ctor222(%TokenType* %tmp.v57, i32 42)
+  call void @ctor222(%TokenType* %tmp.v57, i32 43)
   %14 = call i1 @"==220"(%TokenType* %t, %TokenType* %tmp.v57)
   br label %cond.end21
 
@@ -20753,7 +21029,7 @@ cond.true22:                                      ; preds = %cond.end27
   br label %cond.end24
 
 cond.false23:                                     ; preds = %cond.end27
-  call void @ctor222(%TokenType* %tmp.v55, i32 22)
+  call void @ctor222(%TokenType* %tmp.v55, i32 23)
   %15 = call i1 @"==220"(%TokenType* %t, %TokenType* %tmp.v55)
   br label %cond.end24
 
@@ -20765,7 +21041,7 @@ cond.true25:                                      ; preds = %cond.end30
   br label %cond.end27
 
 cond.false26:                                     ; preds = %cond.end30
-  call void @ctor222(%TokenType* %tmp.v53, i32 25)
+  call void @ctor222(%TokenType* %tmp.v53, i32 26)
   %16 = call i1 @"==220"(%TokenType* %t, %TokenType* %tmp.v53)
   br label %cond.end27
 
@@ -20777,7 +21053,7 @@ cond.true28:                                      ; preds = %cond.end33
   br label %cond.end30
 
 cond.false29:                                     ; preds = %cond.end33
-  call void @ctor222(%TokenType* %tmp.v51, i32 23)
+  call void @ctor222(%TokenType* %tmp.v51, i32 24)
   %17 = call i1 @"==220"(%TokenType* %t, %TokenType* %tmp.v51)
   br label %cond.end30
 
@@ -20789,7 +21065,7 @@ cond.true31:                                      ; preds = %cond.end36
   br label %cond.end33
 
 cond.false32:                                     ; preds = %cond.end36
-  call void @ctor222(%TokenType* %tmp.v49, i32 24)
+  call void @ctor222(%TokenType* %tmp.v49, i32 25)
   %18 = call i1 @"==220"(%TokenType* %t, %TokenType* %tmp.v49)
   br label %cond.end33
 
@@ -20801,7 +21077,7 @@ cond.true34:                                      ; preds = %cond.end39
   br label %cond.end36
 
 cond.false35:                                     ; preds = %cond.end39
-  call void @ctor222(%TokenType* %tmp.v47, i32 32)
+  call void @ctor222(%TokenType* %tmp.v47, i32 33)
   %19 = call i1 @"==220"(%TokenType* %t, %TokenType* %tmp.v47)
   br label %cond.end36
 
@@ -20813,7 +21089,7 @@ cond.true37:                                      ; preds = %cond.end42
   br label %cond.end39
 
 cond.false38:                                     ; preds = %cond.end42
-  call void @ctor222(%TokenType* %tmp.v45, i32 38)
+  call void @ctor222(%TokenType* %tmp.v45, i32 39)
   %20 = call i1 @"==220"(%TokenType* %t, %TokenType* %tmp.v45)
   br label %cond.end39
 
@@ -20825,7 +21101,7 @@ cond.true40:                                      ; preds = %if_end
   br label %cond.end42
 
 cond.false41:                                     ; preds = %if_end
-  call void @ctor222(%TokenType* %tmp.v44, i32 41)
+  call void @ctor222(%TokenType* %tmp.v44, i32 42)
   %21 = call i1 @"==220"(%TokenType* %t, %TokenType* %tmp.v44)
   br label %cond.end42
 
@@ -21123,7 +21399,7 @@ define internal void @parseBreakStmt(%Node* sret %_result, %"SparrowParser[Sparr
 
 code:                                             ; preds = %0
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 12)
+  call void @ctor222(%TokenType* %tmp.v, i32 13)
   %2 = load %TokenType* %tmp.v
   %3 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
   %4 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
@@ -21131,13 +21407,13 @@ code:                                             ; preds = %0
   %6 = getelementptr inbounds %Token* %5, i32 0, i32 0
   call void @ctor161(%Location* %loc, %Location* %6)
   %7 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v1, i32 35)
+  call void @ctor222(%TokenType* %tmp.v1, i32 36)
   %8 = load %TokenType* %tmp.v1
   %9 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %7, %TokenType %8)
   %10 = load %Node** %_result.addr
   %11 = call %Node @comp_parser_mkBreakStmt(%Location* %loc)
   store %Node %11, %Node* %"$tmpForRef"
-  call void @ctor318(%Node* %10, %Node* %"$tmpForRef")
+  call void @ctor329(%Node* %10, %Node* %"$tmpForRef")
   ret void
 }
 
@@ -21157,7 +21433,7 @@ define internal void @parseContinueStmt(%Node* sret %_result, %"SparrowParser[Sp
 
 code:                                             ; preds = %0
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 14)
+  call void @ctor222(%TokenType* %tmp.v, i32 15)
   %2 = load %TokenType* %tmp.v
   %3 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
   %4 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
@@ -21165,13 +21441,13 @@ code:                                             ; preds = %0
   %6 = getelementptr inbounds %Token* %5, i32 0, i32 0
   call void @ctor161(%Location* %loc, %Location* %6)
   %7 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v1, i32 35)
+  call void @ctor222(%TokenType* %tmp.v1, i32 36)
   %8 = load %TokenType* %tmp.v1
   %9 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %7, %TokenType %8)
   %10 = load %Node** %_result.addr
   %11 = call %Node @comp_parser_mkContinueStmt(%Location* %loc)
   store %Node %11, %Node* %"$tmpForRef"
-  call void @ctor318(%Node* %10, %Node* %"$tmpForRef")
+  call void @ctor329(%Node* %10, %Node* %"$tmpForRef")
   ret void
 }
 
@@ -21194,19 +21470,19 @@ define internal void @parseReturnStmt(%Node* sret %_result, %"SparrowParser[Spar
 
 code:                                             ; preds = %0
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 18)
+  call void @ctor222(%TokenType* %tmp.v, i32 19)
   %2 = load %TokenType* %tmp.v
   %3 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
   %4 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   %5 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %4, i32 0, i32 1
   %6 = getelementptr inbounds %Token* %5, i32 0, i32 0
   call void @ctor161(%Location* %loc, %Location* %6)
-  call void @ctor323(%Node* %expr)
+  call void @ctor334(%Node* %expr)
   br label %if_block
 
 if_block:                                         ; preds = %code
   %7 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v1, i32 35)
+  call void @ctor222(%TokenType* %tmp.v1, i32 36)
   %8 = load %TokenType* %tmp.v1
   %9 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %7, %TokenType %8)
   br i1 %9, label %if_end, label %if_else
@@ -21214,9 +21490,9 @@ if_block:                                         ; preds = %code
 if_else:                                          ; preds = %if_block
   %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseExpr(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, i1 true)
-  call void @"=320"(%Node* %expr, %Node* %"$tmpC")
+  call void @"=331"(%Node* %expr, %Node* %"$tmpC")
   %11 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v2, i32 35)
+  call void @ctor222(%TokenType* %tmp.v2, i32 36)
   %12 = load %TokenType* %tmp.v2
   %13 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %11, %TokenType %12)
   br label %if_end
@@ -21226,7 +21502,7 @@ if_end:                                           ; preds = %if_else, %if_block
   %15 = load %Node* %expr
   %16 = call %Node @comp_parser_mkReturnStmt(%Location* %loc, %Node %15)
   store %Node %16, %Node* %"$tmpForRef"
-  call void @ctor318(%Node* %14, %Node* %"$tmpForRef")
+  call void @ctor329(%Node* %14, %Node* %"$tmpForRef")
   ret void
 }
 
@@ -21245,10 +21521,10 @@ code:                                             ; preds = %0
   %1 = load %Node** %res.addr
   %2 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseDecl(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %2, i1 false)
-  call void @"=320"(%Node* %1, %Node* %"$tmpC")
+  call void @"=331"(%Node* %1, %Node* %"$tmpC")
   %3 = load %Node** %res.addr
   %4 = load %Node* %3
-  %5 = call i1 @isSet360(%Node %4)
+  %5 = call i1 @isSet371(%Node %4)
   ret i1 %5
 }
 
@@ -21279,7 +21555,7 @@ declare %Node @comp_parser_mkDoubleLiteral(%Location*, double)
 declare %Node @comp_parser_mkCharLiteral(%Location*, i8)
 
 ; Function Attrs: alwaysinline nounwind
-define internal i8* @"()362"(%String* %"$this", i64 %index) #2 {
+define internal i8* @"()373"(%String* %"$this", i64 %index) #2 {
   %"$this.addr" = alloca %String*
   store %String* %"$this", %String** %"$this.addr"
   %index.addr = alloca i64
@@ -21316,7 +21592,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @toString363(%String* sret %_result, %StringRef %a1, %TokenType %a2, %StringRef %a3) #3 {
+define internal void @toString374(%String* sret %_result, %StringRef %a1, %TokenType %a2, %StringRef %a3) #3 {
   %_result.addr = alloca %String*
   store %String* %_result, %String** %_result.addr
   %a1.addr = alloca %StringRef
@@ -21331,7 +21607,7 @@ define internal void @toString363(%String* sret %_result, %StringRef %a1, %Token
 code:                                             ; preds = %0
   call void @ctor135(%StringOutputStream* %s)
   %1 = call %StringOutputStream* @"<<"(%StringOutputStream* %s, %StringRef* %a1.addr)
-  %2 = call %StringOutputStream* @"<<315"(%StringOutputStream* %1, %TokenType* %a2.addr)
+  %2 = call %StringOutputStream* @"<<326"(%StringOutputStream* %1, %TokenType* %a2.addr)
   %3 = call %StringOutputStream* @"<<"(%StringOutputStream* %2, %StringRef* %a3.addr)
   %4 = load %String** %_result.addr
   %5 = getelementptr inbounds %StringOutputStream* %s, i32 0, i32 0
@@ -21359,8 +21635,8 @@ define internal void @parseExprListOpt(%Node* sret %_result, %"SparrowParser[Spa
   br label %code
 
 code:                                             ; preds = %0
-  call void @ctor323(%Node* %res)
-  call void @ctor323(%Node* %expr)
+  call void @ctor334(%Node* %res)
+  call void @ctor334(%Node* %expr)
   br label %if_block
 
 if_block:                                         ; preds = %code
@@ -21371,7 +21647,7 @@ if_block:                                         ; preds = %code
 
 if_then:                                          ; preds = %if_block
   %4 = load %Node** %_result.addr
-  call void @ctor318(%Node* %4, %Node* %res)
+  call void @ctor329(%Node* %4, %Node* %res)
   ret void
 
 if_end:                                           ; preds = %dumy_block, %if_block
@@ -21379,7 +21655,7 @@ if_end:                                           ; preds = %dumy_block, %if_blo
   %6 = load %Node* %expr
   %7 = call %Node @comp_parser_addToNodeList(%Node %5, %Node %6)
   store %Node %7, %Node* %"$tmpForRef"
-  call void @"=320"(%Node* %res, %Node* %"$tmpForRef")
+  call void @"=331"(%Node* %res, %Node* %"$tmpForRef")
   br label %while_block
 
 dumy_block:                                       ; No predecessors!
@@ -21387,7 +21663,7 @@ dumy_block:                                       ; No predecessors!
 
 while_block:                                      ; preds = %while_step, %if_end
   %8 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 36)
+  call void @ctor222(%TokenType* %tmp.v, i32 37)
   %9 = load %TokenType* %tmp.v
   %10 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %8, %TokenType %9)
   br i1 %10, label %while_body, label %while_end
@@ -21395,12 +21671,12 @@ while_block:                                      ; preds = %while_step, %if_end
 while_body:                                       ; preds = %while_block
   %11 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseExpr(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %11, i1 true)
-  call void @"=320"(%Node* %expr, %Node* %"$tmpC")
+  call void @"=331"(%Node* %expr, %Node* %"$tmpC")
   %12 = load %Node* %res
   %13 = load %Node* %expr
   %14 = call %Node @comp_parser_addToNodeList(%Node %12, %Node %13)
   store %Node %14, %Node* %"$tmpForRef1"
-  call void @"=320"(%Node* %res, %Node* %"$tmpForRef1")
+  call void @"=331"(%Node* %res, %Node* %"$tmpForRef1")
   br label %while_step
 
 while_step:                                       ; preds = %while_body
@@ -21408,7 +21684,7 @@ while_step:                                       ; preds = %while_body
 
 while_end:                                        ; preds = %while_block
   %15 = load %Node** %_result.addr
-  call void @ctor318(%Node* %15, %Node* %res)
+  call void @ctor329(%Node* %15, %Node* %res)
   ret void
 }
 
@@ -21443,7 +21719,7 @@ code:                                             ; preds = %0
 
 if_block:                                         ; preds = %code
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 40)
+  call void @ctor222(%TokenType* %tmp.v, i32 41)
   %2 = load %TokenType* %tmp.v
   %3 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
   br i1 %3, label %if_then, label %if_else
@@ -21471,7 +21747,7 @@ if_end:                                           ; preds = %if_end4, %dumy_bloc
   %13 = load %StringRef* %const.struct16
   %14 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   %15 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %14, i32 0, i32 0
-  call void @"pre_*294"(%Token* %"$tmpC17", %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %15)
+  call void @"pre_*305"(%Token* %"$tmpC17", %"RangeWithLookahead[SparrowScanner[CharSource, ExternalErrorReporter]]"* %15)
   %16 = getelementptr inbounds %Token* %"$tmpC17", i32 0, i32 1
   %17 = load %TokenType* %16
   store [35 x i8] c", expecting identifier or operator\00", [35 x i8]* %const.bytes18
@@ -21482,10 +21758,10 @@ if_end:                                           ; preds = %if_end4, %dumy_bloc
   store i8* %18, i8** %20
   store i8* %19, i8** %21
   %22 = load %StringRef* %const.struct19
-  call void @toString363(%String* %"$tmpC", %StringRef %13, %TokenType %17, %StringRef %22)
-  call void @reportError313(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %8, %String* %"$tmpC")
+  call void @toString374(%String* %"$tmpC", %StringRef %13, %TokenType %17, %StringRef %22)
+  call void @reportError324(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %8, %String* %"$tmpC")
   call void @dtor159(%String* %"$tmpC")
-  call void @dtor282(%Token* %"$tmpC17")
+  call void @dtor292(%Token* %"$tmpC17")
   ret void
 
 dumy_block:                                       ; No predecessors!
@@ -21493,7 +21769,7 @@ dumy_block:                                       ; No predecessors!
 
 if_block1:                                        ; preds = %if_else
   %23 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v5, i32 41)
+  call void @ctor222(%TokenType* %tmp.v5, i32 42)
   %24 = load %TokenType* %tmp.v5
   %25 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %23, %TokenType %24)
   br i1 %25, label %if_then2, label %if_else3
@@ -21530,7 +21806,7 @@ if_then8:                                         ; preds = %cond.end
   store i8* %33, i8** %35
   %36 = load %StringRef* %const.struct
   store %StringRef %36, %StringRef* %"$tmpForRef"
-  call void @ctor248(%String* %31, %StringRef* %"$tmpForRef")
+  call void @ctor258(%String* %31, %StringRef* %"$tmpForRef")
   br i1 %30, label %cond_destruct_alt1, label %cond_destruct_alt2
 
 if_end9:                                          ; preds = %dumy_block11, %cond.end
@@ -21538,7 +21814,7 @@ if_end9:                                          ; preds = %dumy_block11, %cond
 
 cond.true:                                        ; preds = %if_block7
   %37 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v10, i32 39)
+  call void @ctor222(%TokenType* %tmp.v10, i32 40)
   %38 = load %TokenType* %tmp.v10
   %39 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %37, %TokenType %38)
   br label %cond.end
@@ -21595,7 +21871,7 @@ code:                                             ; preds = %0
 
 if_block:                                         ; preds = %code
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 40)
+  call void @ctor222(%TokenType* %tmp.v, i32 41)
   %2 = load %TokenType* %tmp.v
   %3 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
   br i1 %3, label %if_then, label %if_else
@@ -21619,7 +21895,7 @@ dumy_block:                                       ; No predecessors!
 
 if_block1:                                        ; preds = %if_else
   %8 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v5, i32 41)
+  call void @ctor222(%TokenType* %tmp.v5, i32 42)
   %9 = load %TokenType* %tmp.v5
   %10 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %8, %TokenType %9)
   br i1 %10, label %if_then2, label %if_else3
@@ -21656,7 +21932,7 @@ if_then8:                                         ; preds = %cond.end
   store i8* %18, i8** %20
   %21 = load %StringRef* %const.struct
   store %StringRef %21, %StringRef* %"$tmpForRef"
-  call void @ctor248(%String* %16, %StringRef* %"$tmpForRef")
+  call void @ctor258(%String* %16, %StringRef* %"$tmpForRef")
   br i1 %15, label %cond_destruct_alt1, label %cond_destruct_alt2
 
 if_else9:                                         ; preds = %cond.end
@@ -21669,7 +21945,7 @@ if_end10:                                         ; preds = %dumy_block16, %dumy
 
 cond.true:                                        ; preds = %if_block7
   %23 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v11, i32 39)
+  call void @ctor222(%TokenType* %tmp.v11, i32 40)
   %24 = load %TokenType* %tmp.v11
   %25 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %23, %TokenType %24)
   br label %cond.end
@@ -21738,14 +22014,14 @@ code:                                             ; preds = %0
 
 if_block:                                         ; preds = %code
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 40)
+  call void @ctor222(%TokenType* %tmp.v, i32 41)
   %2 = load %TokenType* %tmp.v
   %3 = call i1 @nextIs(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
   br i1 %3, label %cond.true, label %cond.false
 
 if_then:                                          ; preds = %cond.end
   %4 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v2, i32 40)
+  call void @ctor222(%TokenType* %tmp.v2, i32 41)
   %5 = load %TokenType* %tmp.v2
   %6 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %4, %TokenType %5)
   %7 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
@@ -21753,7 +22029,7 @@ if_then:                                          ; preds = %cond.end
   %9 = getelementptr inbounds %Token* %8, i32 0, i32 2
   %10 = call %String* @"=191"(%String* %id, %String* %9)
   %11 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v3, i32 39)
+  call void @ctor222(%TokenType* %tmp.v3, i32 40)
   %12 = load %TokenType* %tmp.v3
   %13 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %11, %TokenType %12)
   br label %if_end
@@ -21763,7 +22039,7 @@ if_end:                                           ; preds = %if_then, %cond.end
 
 cond.true:                                        ; preds = %if_block
   %14 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v1, i32 39)
+  call void @ctor222(%TokenType* %tmp.v1, i32 40)
   %15 = load %TokenType* %tmp.v1
   %16 = call i1 @next2Is(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %14, %TokenType %15)
   br label %cond.end
@@ -21792,14 +22068,12 @@ dumy_block:                                       ; No predecessors!
   ret void
 }
 
-declare %Node @comp_parser_mkUsing(%Location*, %StringRef, %Node, i32)
+declare %Node @comp_parser_mkUsing(%Location*, %StringRef, %Node)
 
 ; Function Attrs: inlinehint nounwind
-define internal i1 @parsePackageDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, i32 %accessSpec, %Node* %res) #3 {
+define internal i1 @parsePackageDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %Node* %res) #3 {
   %p.addr = alloca %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"*
   store %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %accessSpec.addr = alloca i32
-  store i32 %accessSpec, i32* %accessSpec.addr
   %res.addr = alloca %Node*
   store %Node* %res, %Node** %res.addr
   %tmp.v = alloca %TokenType
@@ -21818,7 +22092,7 @@ code:                                             ; preds = %0
 
 if_block:                                         ; preds = %code
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 9)
+  call void @ctor222(%TokenType* %tmp.v, i32 10)
   %2 = load %TokenType* %tmp.v
   %3 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
   %4 = xor i1 true, %3
@@ -21837,14 +22111,14 @@ if_end:                                           ; preds = %dumy_block, %if_blo
   %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseId(%String* %id, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9)
   %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v1, i32 28)
+  call void @ctor222(%TokenType* %tmp.v1, i32 29)
   %11 = load %TokenType* %tmp.v1
   %12 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, %TokenType %11)
-  call void @ctor323(%Node* %children)
+  call void @ctor334(%Node* %children)
   %13 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseDecls(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %13, i1 true, %Node* %children)
   %14 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v2, i32 29)
+  call void @ctor222(%TokenType* %tmp.v2, i32 30)
   %15 = load %TokenType* %tmp.v2
   %16 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %14, %TokenType %15)
   %17 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
@@ -21855,12 +22129,11 @@ if_end:                                           ; preds = %dumy_block, %if_blo
   call void @asStringRef(%StringRef* %"$tmpC", %String* %id)
   %21 = load %StringRef* %"$tmpC"
   %22 = load %Node* %children
-  %23 = load i32* %accessSpec.addr
-  %24 = call %Node @comp_parser_mkPackage(%Location* %loc, %StringRef %21, %Node %22, i32 %23)
-  %25 = load %Node* %mods
-  %26 = call %Node @comp_parser_mkModifiers(%Location* %loc, %Node %24, %Node %25)
-  store %Node %26, %Node* %"$tmpForRef"
-  call void @"=320"(%Node* %20, %Node* %"$tmpForRef")
+  %23 = call %Node @comp_parser_mkPackage(%Location* %loc, %StringRef %21, %Node %22)
+  %24 = load %Node* %mods
+  %25 = call %Node @comp_parser_mkModifiers(%Location* %loc, %Node %23, %Node %24)
+  store %Node %25, %Node* %"$tmpForRef"
+  call void @"=331"(%Node* %20, %Node* %"$tmpForRef")
   call void @dtor159(%String* %id)
   ret i1 true
 
@@ -21872,14 +22145,12 @@ dumy_block3:                                      ; No predecessors!
   unreachable
 }
 
-declare %Node @comp_parser_mkPackage(%Location*, %StringRef, %Node, i32)
+declare %Node @comp_parser_mkPackage(%Location*, %StringRef, %Node)
 
 ; Function Attrs: inlinehint nounwind
-define internal i1 @parseClassDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, i32 %accessSpec, %Node* %res) #3 {
+define internal i1 @parseClassDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %Node* %res) #3 {
   %p.addr = alloca %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"*
   store %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %accessSpec.addr = alloca i32
-  store i32 %accessSpec, i32* %accessSpec.addr
   %res.addr = alloca %Node*
   store %Node* %res, %Node** %res.addr
   %tmp.v = alloca %TokenType
@@ -21901,7 +22172,7 @@ code:                                             ; preds = %0
 
 if_block:                                         ; preds = %code
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 5)
+  call void @ctor222(%TokenType* %tmp.v, i32 6)
   %2 = load %TokenType* %tmp.v
   %3 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
   %4 = xor i1 true, %3
@@ -21920,18 +22191,18 @@ if_end:                                           ; preds = %dumy_block, %if_blo
   %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseId(%String* %id, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9)
   %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseFormalsOpt(%Node* %formals, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, i1 false, i32 0)
+  call void @parseFormalsOpt(%Node* %formals, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, i1 false)
   %11 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseIfClauseOpt(%Node* %ifClause, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %11)
   %12 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v1, i32 28)
+  call void @ctor222(%TokenType* %tmp.v1, i32 29)
   %13 = load %TokenType* %tmp.v1
   %14 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %12, %TokenType %13)
-  call void @ctor323(%Node* %children)
+  call void @ctor334(%Node* %children)
   %15 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseDecls(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %15, i1 true, %Node* %children)
   %16 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v2, i32 29)
+  call void @ctor222(%TokenType* %tmp.v2, i32 30)
   %17 = load %TokenType* %tmp.v2
   %18 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %16, %TokenType %17)
   %19 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
@@ -21942,16 +22213,15 @@ if_end:                                           ; preds = %dumy_block, %if_blo
   call void @asStringRef(%StringRef* %"$tmpC", %String* %id)
   %23 = load %StringRef* %"$tmpC"
   %24 = load %Node* %formals
-  call void @ctor323(%Node* %tmp.v3)
+  call void @ctor334(%Node* %tmp.v3)
   %25 = load %Node* %tmp.v3
   %26 = load %Node* %ifClause
   %27 = load %Node* %children
-  %28 = load i32* %accessSpec.addr
-  %29 = call %Node @comp_parser_mkClass(%Location* %loc, %StringRef %23, %Node %24, %Node %25, %Node %26, %Node %27, i32 %28)
-  %30 = load %Node* %mods
-  %31 = call %Node @comp_parser_mkModifiers(%Location* %loc, %Node %29, %Node %30)
-  store %Node %31, %Node* %"$tmpForRef"
-  call void @"=320"(%Node* %22, %Node* %"$tmpForRef")
+  %28 = call %Node @comp_parser_mkClass(%Location* %loc, %StringRef %23, %Node %24, %Node %25, %Node %26, %Node %27)
+  %29 = load %Node* %mods
+  %30 = call %Node @comp_parser_mkModifiers(%Location* %loc, %Node %28, %Node %29)
+  store %Node %30, %Node* %"$tmpForRef"
+  call void @"=331"(%Node* %22, %Node* %"$tmpForRef")
   call void @dtor159(%String* %id)
   ret i1 true
 
@@ -21977,7 +22247,7 @@ code:                                             ; preds = %0
 
 if_block:                                         ; preds = %code
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 17)
+  call void @ctor222(%TokenType* %tmp.v, i32 18)
   %2 = load %TokenType* %tmp.v
   %3 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
   br i1 %3, label %if_then, label %if_end
@@ -21990,21 +22260,19 @@ if_then:                                          ; preds = %if_block
 
 if_end:                                           ; preds = %dumy_block, %if_block
   %6 = load %Node** %_result.addr
-  call void @ctor323(%Node* %6)
+  call void @ctor334(%Node* %6)
   ret void
 
 dumy_block:                                       ; No predecessors!
   br label %if_end
 }
 
-declare %Node @comp_parser_mkClass(%Location*, %StringRef, %Node, %Node, %Node, %Node, i32)
+declare %Node @comp_parser_mkClass(%Location*, %StringRef, %Node, %Node, %Node, %Node)
 
 ; Function Attrs: inlinehint nounwind
-define internal i1 @parseDatatypeDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, i32 %accessSpec, %Node* %res) #3 {
+define internal i1 @parseDatatypeDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %Node* %res) #3 {
   %p.addr = alloca %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"*
   store %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %accessSpec.addr = alloca i32
-  store i32 %accessSpec, i32* %accessSpec.addr
   %res.addr = alloca %Node*
   store %Node* %res, %Node** %res.addr
   %tmp.v = alloca %TokenType
@@ -22034,7 +22302,7 @@ code:                                             ; preds = %0
 
 if_block:                                         ; preds = %code
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 7)
+  call void @ctor222(%TokenType* %tmp.v, i32 8)
   %2 = load %TokenType* %tmp.v
   %3 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
   %4 = xor i1 true, %3
@@ -22053,7 +22321,7 @@ if_end:                                           ; preds = %dumy_block, %if_blo
   %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseId(%String* %id, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9)
   %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseFormalsOpt(%Node* %formals, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, i1 false, i32 0)
+  call void @parseFormalsOpt(%Node* %formals, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, i1 false)
   br label %if_block1
 
 dumy_block:                                       ; No predecessors!
@@ -22061,7 +22329,7 @@ dumy_block:                                       ; No predecessors!
 
 if_block1:                                        ; preds = %if_end
   %11 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v4, i32 39)
+  call void @ctor222(%TokenType* %tmp.v4, i32 40)
   %12 = load %TokenType* %tmp.v4
   %13 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %11, %TokenType %12)
   br i1 %13, label %if_then2, label %if_else
@@ -22072,7 +22340,7 @@ if_then2:                                         ; preds = %if_block1
   %15 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseIfClauseOpt(%Node* %ifClause, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %15)
   %16 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v5, i32 35)
+  call void @ctor222(%TokenType* %tmp.v5, i32 36)
   %17 = load %TokenType* %tmp.v5
   %18 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %16, %TokenType %17)
   %19 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
@@ -22085,26 +22353,25 @@ if_then2:                                         ; preds = %if_block1
   %24 = load %Node* %formals
   %25 = load %Node* %underlyingData
   %26 = load %Node* %ifClause
-  call void @ctor323(%Node* %tmp.v6)
+  call void @ctor334(%Node* %tmp.v6)
   %27 = load %Node* %tmp.v6
-  %28 = load i32* %accessSpec.addr
-  %29 = call %Node @comp_parser_mkClass(%Location* %loc, %StringRef %23, %Node %24, %Node %25, %Node %26, %Node %27, i32 %28)
-  %30 = load %Node* %mods
-  %31 = call %Node @comp_parser_mkModifiers(%Location* %loc, %Node %29, %Node %30)
-  store %Node %31, %Node* %"$tmpForRef"
-  call void @"=320"(%Node* %22, %Node* %"$tmpForRef")
+  %28 = call %Node @comp_parser_mkClass(%Location* %loc, %StringRef %23, %Node %24, %Node %25, %Node %26, %Node %27)
+  %29 = load %Node* %mods
+  %30 = call %Node @comp_parser_mkModifiers(%Location* %loc, %Node %28, %Node %29)
+  store %Node %30, %Node* %"$tmpForRef"
+  call void @"=331"(%Node* %22, %Node* %"$tmpForRef")
   br label %if_end3
 
 if_else:                                          ; preds = %if_block1
+  %31 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseIfClauseOpt(%Node* %ifClause7, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %31)
   %32 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseIfClauseOpt(%Node* %ifClause7, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %32)
-  %33 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v8, i32 28)
-  %34 = load %TokenType* %tmp.v8
-  %35 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %33, %TokenType %34)
-  call void @ctor323(%Node* %children)
-  %36 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseFormal(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %36, i1 true, %Node* %children)
+  call void @ctor222(%TokenType* %tmp.v8, i32 29)
+  %33 = load %TokenType* %tmp.v8
+  %34 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %32, %TokenType %33)
+  call void @ctor334(%Node* %children)
+  %35 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseFormal(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %35, i1 true, %Node* %children)
   br label %while_block
 
 if_end3:                                          ; preds = %while_end, %if_then2
@@ -22112,43 +22379,42 @@ if_end3:                                          ; preds = %while_end, %if_then
   ret i1 true
 
 while_block:                                      ; preds = %while_step, %if_else
-  %37 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v9, i32 36)
-  %38 = load %TokenType* %tmp.v9
-  %39 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %37, %TokenType %38)
-  br i1 %39, label %while_body, label %while_end
+  %36 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @ctor222(%TokenType* %tmp.v9, i32 37)
+  %37 = load %TokenType* %tmp.v9
+  %38 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %36, %TokenType %37)
+  br i1 %38, label %while_body, label %while_end
 
 while_body:                                       ; preds = %while_block
-  %40 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseFormal(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %40, i1 true, %Node* %children)
+  %39 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseFormal(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %39, i1 true, %Node* %children)
   br label %while_step
 
 while_step:                                       ; preds = %while_body
   br label %while_block
 
 while_end:                                        ; preds = %while_block
-  %41 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v10, i32 29)
-  %42 = load %TokenType* %tmp.v10
-  %43 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %41, %TokenType %42)
-  %44 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %45 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %44, i32 0, i32 1
-  %46 = getelementptr inbounds %Token* %45, i32 0, i32 0
-  call void @copyEnd(%Location* %loc, %Location* %46)
-  %47 = load %Node** %res.addr
+  %40 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @ctor222(%TokenType* %tmp.v10, i32 30)
+  %41 = load %TokenType* %tmp.v10
+  %42 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %40, %TokenType %41)
+  %43 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %44 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %43, i32 0, i32 1
+  %45 = getelementptr inbounds %Token* %44, i32 0, i32 0
+  call void @copyEnd(%Location* %loc, %Location* %45)
+  %46 = load %Node** %res.addr
   call void @asStringRef(%StringRef* %"$tmpC12", %String* %id)
-  %48 = load %StringRef* %"$tmpC12"
-  %49 = load %Node* %formals
-  call void @ctor323(%Node* %tmp.v13)
-  %50 = load %Node* %tmp.v13
-  %51 = load %Node* %ifClause7
-  %52 = load %Node* %children
-  %53 = load i32* %accessSpec.addr
-  %54 = call %Node @comp_parser_mkClass(%Location* %loc, %StringRef %48, %Node %49, %Node %50, %Node %51, %Node %52, i32 %53)
-  %55 = load %Node* %mods
-  %56 = call %Node @comp_parser_mkModifiers(%Location* %loc, %Node %54, %Node %55)
-  store %Node %56, %Node* %"$tmpForRef11"
-  call void @"=320"(%Node* %47, %Node* %"$tmpForRef11")
+  %47 = load %StringRef* %"$tmpC12"
+  %48 = load %Node* %formals
+  call void @ctor334(%Node* %tmp.v13)
+  %49 = load %Node* %tmp.v13
+  %50 = load %Node* %ifClause7
+  %51 = load %Node* %children
+  %52 = call %Node @comp_parser_mkClass(%Location* %loc, %StringRef %47, %Node %48, %Node %49, %Node %50, %Node %51)
+  %53 = load %Node* %mods
+  %54 = call %Node @comp_parser_mkModifiers(%Location* %loc, %Node %52, %Node %53)
+  store %Node %54, %Node* %"$tmpForRef11"
+  call void @"=331"(%Node* %46, %Node* %"$tmpForRef11")
   br label %if_end3
 
 dumy_block14:                                     ; No predecessors!
@@ -22157,11 +22423,9 @@ dumy_block14:                                     ; No predecessors!
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal i1 @parseConceptDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, i32 %accessSpec, %Node* %res) #3 {
+define internal i1 @parseConceptDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %Node* %res) #3 {
   %p.addr = alloca %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"*
   store %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %accessSpec.addr = alloca i32
-  store i32 %accessSpec, i32* %accessSpec.addr
   %res.addr = alloca %Node*
   store %Node* %res, %Node** %res.addr
   %tmp.v = alloca %TokenType
@@ -22184,7 +22448,7 @@ code:                                             ; preds = %0
 
 if_block:                                         ; preds = %code
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 6)
+  call void @ctor222(%TokenType* %tmp.v, i32 7)
   %2 = load %TokenType* %tmp.v
   %3 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
   %4 = xor i1 true, %3
@@ -22203,7 +22467,7 @@ if_end:                                           ; preds = %dumy_block, %if_blo
   %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseId(%String* %id, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9)
   %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v1, i32 32)
+  call void @ctor222(%TokenType* %tmp.v1, i32 33)
   %11 = load %TokenType* %tmp.v1
   %12 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, %TokenType %11)
   %13 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
@@ -22211,13 +22475,13 @@ if_end:                                           ; preds = %dumy_block, %if_blo
   %14 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseTypeNode(%Node* %baseConcept, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %14)
   %15 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v2, i32 33)
+  call void @ctor222(%TokenType* %tmp.v2, i32 34)
   %16 = load %TokenType* %tmp.v2
   %17 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %15, %TokenType %16)
   %18 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseIfClauseOpt(%Node* %ifClause, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %18)
   %19 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v3, i32 35)
+  call void @ctor222(%TokenType* %tmp.v3, i32 36)
   %20 = load %TokenType* %tmp.v3
   %21 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %19, %TokenType %20)
   %22 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
@@ -22231,12 +22495,11 @@ if_end:                                           ; preds = %dumy_block, %if_blo
   %27 = load %StringRef* %"$tmpC4"
   %28 = load %Node* %baseConcept
   %29 = load %Node* %ifClause
-  %30 = load i32* %accessSpec.addr
-  %31 = call %Node @comp_parser_mkConcept(%Location* %loc, %StringRef %26, %StringRef %27, %Node %28, %Node %29, i32 %30)
-  %32 = load %Node* %mods
-  %33 = call %Node @comp_parser_mkModifiers(%Location* %loc, %Node %31, %Node %32)
-  store %Node %33, %Node* %"$tmpForRef"
-  call void @"=320"(%Node* %25, %Node* %"$tmpForRef")
+  %30 = call %Node @comp_parser_mkConcept(%Location* %loc, %StringRef %26, %StringRef %27, %Node %28, %Node %29)
+  %31 = load %Node* %mods
+  %32 = call %Node @comp_parser_mkModifiers(%Location* %loc, %Node %30, %Node %31)
+  store %Node %32, %Node* %"$tmpForRef"
+  call void @"=331"(%Node* %25, %Node* %"$tmpForRef")
   call void @dtor159(%String* %paramName)
   call void @dtor159(%String* %id)
   ret i1 true
@@ -22250,14 +22513,12 @@ dumy_block5:                                      ; No predecessors!
   unreachable
 }
 
-declare %Node @comp_parser_mkConcept(%Location*, %StringRef, %StringRef, %Node, %Node, i32)
+declare %Node @comp_parser_mkConcept(%Location*, %StringRef, %StringRef, %Node, %Node)
 
 ; Function Attrs: inlinehint nounwind
-define internal i1 @parseVarDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, i32 %accessSpec, %Node* %res) #3 {
+define internal i1 @parseVarDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %Node* %res) #3 {
   %p.addr = alloca %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"*
   store %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %accessSpec.addr = alloca i32
-  store i32 %accessSpec, i32* %accessSpec.addr
   %res.addr = alloca %Node*
   store %Node* %res, %Node** %res.addr
   %tmp.v = alloca %TokenType
@@ -22279,7 +22540,7 @@ code:                                             ; preds = %0
 
 if_block:                                         ; preds = %code
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 11)
+  call void @ctor222(%TokenType* %tmp.v, i32 12)
   %2 = load %TokenType* %tmp.v
   %3 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
   %4 = xor i1 true, %3
@@ -22293,8 +22554,8 @@ if_end:                                           ; preds = %dumy_block, %if_blo
   call void @parseModifiers(%Node* %mods, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %5)
   %6 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseIdList(%"Vector[LocString]"* %ids, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %6)
-  call void @ctor323(%Node* %typeNode)
-  call void @ctor323(%Node* %init)
+  call void @ctor334(%Node* %typeNode)
+  call void @ctor334(%Node* %init)
   br label %if_block1
 
 dumy_block:                                       ; No predecessors!
@@ -22302,7 +22563,7 @@ dumy_block:                                       ; No predecessors!
 
 if_block1:                                        ; preds = %if_end
   %7 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v4, i32 34)
+  call void @ctor222(%TokenType* %tmp.v4, i32 35)
   %8 = load %TokenType* %tmp.v4
   %9 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %7, %TokenType %8)
   br i1 %9, label %if_then2, label %if_else
@@ -22310,60 +22571,57 @@ if_block1:                                        ; preds = %if_end
 if_then2:                                         ; preds = %if_block1
   %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseExpr(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, i1 false)
-  call void @"=320"(%Node* %typeNode, %Node* %"$tmpC")
+  call void @"=331"(%Node* %typeNode, %Node* %"$tmpC")
   br label %if_block5
 
 if_else:                                          ; preds = %if_block1
   %11 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v10, i32 39)
+  call void @ctor222(%TokenType* %tmp.v10, i32 40)
   %12 = load %TokenType* %tmp.v10
   %13 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %11, %TokenType %12)
   %14 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseExpr(%Node* %"$tmpC11", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %14, i1 true)
-  call void @"=320"(%Node* %init, %Node* %"$tmpC11")
+  call void @"=331"(%Node* %init, %Node* %"$tmpC11")
   br label %if_end3
 
 if_end3:                                          ; preds = %if_else, %if_end7
   %15 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v12, i32 35)
+  call void @ctor222(%TokenType* %tmp.v12, i32 36)
   %16 = load %TokenType* %tmp.v12
   %17 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %15, %TokenType %16)
   %18 = load %Node* %typeNode
   %19 = load %Node* %init
   %20 = load %Node* %mods
-  %21 = load i32* %accessSpec.addr
-  %22 = load %Node** %res.addr
-  call void @createFormals(%"Vector[LocString]"* %ids, %Node %18, %Node %19, i1 true, %Node %20, i32 %21, %Node* %22)
-  call void @dtor353(%"Vector[LocString]"* %ids)
+  %21 = load %Node** %res.addr
+  call void @createFormals(%"Vector[LocString]"* %ids, %Node %18, %Node %19, i1 true, %Node %20, %Node* %21)
+  call void @dtor364(%"Vector[LocString]"* %ids)
   ret i1 true
 
 if_block5:                                        ; preds = %if_then2
-  %23 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v8, i32 39)
-  %24 = load %TokenType* %tmp.v8
-  %25 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %23, %TokenType %24)
-  br i1 %25, label %if_then6, label %if_end7
+  %22 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @ctor222(%TokenType* %tmp.v8, i32 40)
+  %23 = load %TokenType* %tmp.v8
+  %24 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %22, %TokenType %23)
+  br i1 %24, label %if_then6, label %if_end7
 
 if_then6:                                         ; preds = %if_block5
-  %26 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseExpr(%Node* %"$tmpC9", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %26, i1 true)
-  call void @"=320"(%Node* %init, %Node* %"$tmpC9")
+  %25 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseExpr(%Node* %"$tmpC9", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %25, i1 true)
+  call void @"=331"(%Node* %init, %Node* %"$tmpC9")
   br label %if_end7
 
 if_end7:                                          ; preds = %if_then6, %if_block5
   br label %if_end3
 
 dumy_block13:                                     ; No predecessors!
-  call void @dtor353(%"Vector[LocString]"* %ids)
+  call void @dtor364(%"Vector[LocString]"* %ids)
   unreachable
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal i1 @parseFunDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, i32 %accessSpec, %Node* %res) #3 {
+define internal i1 @parseFunDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %Node* %res) #3 {
   %p.addr = alloca %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"*
   store %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %accessSpec.addr = alloca i32
-  store i32 %accessSpec, i32* %accessSpec.addr
   %res.addr = alloca %Node*
   store %Node* %res, %Node** %res.addr
   %tmp.v = alloca %TokenType
@@ -22390,7 +22648,7 @@ code:                                             ; preds = %0
 
 if_block:                                         ; preds = %code
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 8)
+  call void @ctor222(%TokenType* %tmp.v, i32 9)
   %2 = load %TokenType* %tmp.v
   %3 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
   %4 = xor i1 true, %3
@@ -22409,12 +22667,12 @@ if_end:                                           ; preds = %dumy_block, %if_blo
   %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseFunNameString(%String* %id, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9)
   %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseFormalsOpt(%Node* %formals, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, i1 false, i32 0)
+  call void @parseFormalsOpt(%Node* %formals, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, i1 false)
   %11 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseTypeNode(%Node* %retType, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %11)
-  call void @ctor323(%Node* %body)
-  call void @ctor323(%Node* %bodyExp)
-  call void @ctor323(%Node* %ifClause)
+  call void @ctor334(%Node* %body)
+  call void @ctor334(%Node* %bodyExp)
+  call void @ctor334(%Node* %ifClause)
   br label %if_block1
 
 dumy_block:                                       ; No predecessors!
@@ -22422,7 +22680,7 @@ dumy_block:                                       ; No predecessors!
 
 if_block1:                                        ; preds = %if_end
   %12 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v4, i32 39)
+  call void @ctor222(%TokenType* %tmp.v4, i32 40)
   %13 = load %TokenType* %tmp.v4
   %14 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %12, %TokenType %13)
   br i1 %14, label %if_then2, label %if_else
@@ -22430,12 +22688,12 @@ if_block1:                                        ; preds = %if_end
 if_then2:                                         ; preds = %if_block1
   %15 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseExpr(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %15, i1 true)
-  call void @"=320"(%Node* %bodyExp, %Node* %"$tmpC")
+  call void @"=331"(%Node* %bodyExp, %Node* %"$tmpC")
   %16 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseIfClauseOpt(%Node* %"$tmpC5", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %16)
-  call void @"=320"(%Node* %ifClause, %Node* %"$tmpC5")
+  call void @"=331"(%Node* %ifClause, %Node* %"$tmpC5")
   %17 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v6, i32 35)
+  call void @ctor222(%TokenType* %tmp.v6, i32 36)
   %18 = load %TokenType* %tmp.v6
   %19 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %17, %TokenType %18)
   br label %if_end3
@@ -22443,10 +22701,10 @@ if_then2:                                         ; preds = %if_block1
 if_else:                                          ; preds = %if_block1
   %20 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseIfClauseOpt(%Node* %"$tmpC7", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %20)
-  call void @"=320"(%Node* %ifClause, %Node* %"$tmpC7")
+  call void @"=331"(%Node* %ifClause, %Node* %"$tmpC7")
   %21 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseFunBody(%Node* %"$tmpC8", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %21)
-  call void @"=320"(%Node* %body, %Node* %"$tmpC8")
+  call void @"=331"(%Node* %body, %Node* %"$tmpC8")
   br label %if_end3
 
 if_end3:                                          ; preds = %if_else, %if_then2
@@ -22462,12 +22720,11 @@ if_end3:                                          ; preds = %if_else, %if_then2
   %29 = load %Node* %body
   %30 = load %Node* %bodyExp
   %31 = load %Node* %ifClause
-  %32 = load i32* %accessSpec.addr
-  %33 = call %Node @comp_parser_mkFun(%Location* %loc, %StringRef %26, %Node %27, %Node %28, %Node %29, %Node %30, %Node %31, i32 %32)
-  %34 = load %Node* %mods
-  %35 = call %Node @comp_parser_mkModifiers(%Location* %loc, %Node %33, %Node %34)
-  store %Node %35, %Node* %"$tmpForRef"
-  call void @"=320"(%Node* %25, %Node* %"$tmpForRef")
+  %32 = call %Node @comp_parser_mkFun(%Location* %loc, %StringRef %26, %Node %27, %Node %28, %Node %29, %Node %30, %Node %31)
+  %33 = load %Node* %mods
+  %34 = call %Node @comp_parser_mkModifiers(%Location* %loc, %Node %32, %Node %33)
+  store %Node %34, %Node* %"$tmpForRef"
+  call void @"=331"(%Node* %25, %Node* %"$tmpForRef")
   call void @dtor159(%String* %id)
   ret i1 true
 
@@ -22494,14 +22751,14 @@ code:                                             ; preds = %0
 
 if_block:                                         ; preds = %code
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 32)
+  call void @ctor222(%TokenType* %tmp.v, i32 33)
   %2 = load %TokenType* %tmp.v
   %3 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
   br i1 %3, label %if_then, label %if_end
 
 if_then:                                          ; preds = %if_block
   %4 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v1, i32 33)
+  call void @ctor222(%TokenType* %tmp.v1, i32 34)
   %5 = load %TokenType* %tmp.v1
   %6 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %4, %TokenType %5)
   %7 = load %String** %_result.addr
@@ -22514,7 +22771,7 @@ if_then:                                          ; preds = %if_block
   store i8* %9, i8** %11
   %12 = load %StringRef* %const.struct
   store %StringRef %12, %StringRef* %"$tmpForRef"
-  call void @ctor248(%String* %7, %StringRef* %"$tmpForRef")
+  call void @ctor258(%String* %7, %StringRef* %"$tmpForRef")
   ret void
 
 if_end:                                           ; preds = %dumy_block, %if_block
@@ -22527,19 +22784,20 @@ dumy_block:                                       ; No predecessors!
   br label %if_end
 }
 
-declare %Node @comp_parser_mkFun(%Location*, %StringRef, %Node, %Node, %Node, %Node, %Node, i32)
+declare %Node @comp_parser_mkFun(%Location*, %StringRef, %Node, %Node, %Node, %Node, %Node)
 
 ; Function Attrs: inlinehint nounwind
-define internal i1 @parseImportLineOpt(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, i32 %accessSpec, %Node* %res) #3 {
+define internal i1 @parseImportLineOpt(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %Node* %res) #3 {
   %p.addr = alloca %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"*
   store %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %accessSpec.addr = alloca i32
-  store i32 %accessSpec, i32* %accessSpec.addr
   %res.addr = alloca %Node*
   store %Node* %res, %Node** %res.addr
   %tmp.v = alloca %TokenType
+  %mods = alloca %Node
   %"$tmpC" = alloca %Node
-  %tmp.v1 = alloca %TokenType
+  %"$tmpForRef" = alloca %Node
+  %tmp.v1 = alloca %Location
+  %tmp.v2 = alloca %TokenType
   br label %code
 
 code:                                             ; preds = %0
@@ -22547,21 +22805,30 @@ code:                                             ; preds = %0
 
 if_block:                                         ; preds = %code
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 2)
+  call void @ctor222(%TokenType* %tmp.v, i32 5)
   %2 = load %TokenType* %tmp.v
   %3 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
   br i1 %3, label %if_then, label %if_end
 
 if_then:                                          ; preds = %if_block
-  %4 = load %Node** %res.addr
-  %5 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %6 = load i32* %accessSpec.addr
-  call void @parseImportNames(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %5, i32 %6)
-  call void @"=320"(%Node* %4, %Node* %"$tmpC")
-  %7 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v1, i32 35)
-  %8 = load %TokenType* %tmp.v1
-  %9 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %7, %TokenType %8)
+  %4 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseModifiers(%Node* %mods, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %4)
+  %5 = load %Node** %res.addr
+  %6 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseImportNames(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %6)
+  call void @"=331"(%Node* %5, %Node* %"$tmpC")
+  %7 = load %Node** %res.addr
+  call void @ctor119(%Location* %tmp.v1)
+  %8 = load %Node** %res.addr
+  %9 = load %Node* %8
+  %10 = load %Node* %mods
+  %11 = call %Node @comp_parser_mkModifiers(%Location* %tmp.v1, %Node %9, %Node %10)
+  store %Node %11, %Node* %"$tmpForRef"
+  call void @"=331"(%Node* %7, %Node* %"$tmpForRef")
+  %12 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @ctor222(%TokenType* %tmp.v2, i32 36)
+  %13 = load %TokenType* %tmp.v2
+  %14 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %12, %TokenType %13)
   ret i1 true
 
 if_end:                                           ; preds = %dumy_block, %if_block
@@ -22572,13 +22839,11 @@ dumy_block:                                       ; No predecessors!
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @parseImportNames(%Node* sret %_result, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, i32 %accessSpec) #3 {
+define internal void @parseImportNames(%Node* sret %_result, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p) #3 {
   %_result.addr = alloca %Node*
   store %Node* %_result, %Node** %_result.addr
   %p.addr = alloca %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"*
   store %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %accessSpec.addr = alloca i32
-  store i32 %accessSpec, i32* %accessSpec.addr
   %res = alloca %Node
   %"$tmpForRef" = alloca %Node
   %"$tmpC" = alloca %Node
@@ -22588,52 +22853,48 @@ define internal void @parseImportNames(%Node* sret %_result, %"SparrowParser[Spa
   br label %code
 
 code:                                             ; preds = %0
-  call void @ctor323(%Node* %res)
+  call void @ctor334(%Node* %res)
   %1 = load %Node* %res
   %2 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %3 = load i32* %accessSpec.addr
-  call void @parseImportName(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %2, i32 %3)
-  %4 = load %Node* %"$tmpC"
-  %5 = call %Node @comp_parser_addToNodeList(%Node %1, %Node %4)
-  store %Node %5, %Node* %"$tmpForRef"
-  call void @"=320"(%Node* %res, %Node* %"$tmpForRef")
+  call void @parseImportName(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %2)
+  %3 = load %Node* %"$tmpC"
+  %4 = call %Node @comp_parser_addToNodeList(%Node %1, %Node %3)
+  store %Node %4, %Node* %"$tmpForRef"
+  call void @"=331"(%Node* %res, %Node* %"$tmpForRef")
   br label %while_block
 
 while_block:                                      ; preds = %while_step, %code
-  %6 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 36)
-  %7 = load %TokenType* %tmp.v
-  %8 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %6, %TokenType %7)
-  br i1 %8, label %while_body, label %while_end
+  %5 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @ctor222(%TokenType* %tmp.v, i32 37)
+  %6 = load %TokenType* %tmp.v
+  %7 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %5, %TokenType %6)
+  br i1 %7, label %while_body, label %while_end
 
 while_body:                                       ; preds = %while_block
-  %9 = load %Node* %res
-  %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %11 = load i32* %accessSpec.addr
-  call void @parseImportName(%Node* %"$tmpC2", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, i32 %11)
-  %12 = load %Node* %"$tmpC2"
-  %13 = call %Node @comp_parser_addToNodeList(%Node %9, %Node %12)
-  store %Node %13, %Node* %"$tmpForRef1"
-  call void @"=320"(%Node* %res, %Node* %"$tmpForRef1")
+  %8 = load %Node* %res
+  %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseImportName(%Node* %"$tmpC2", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9)
+  %10 = load %Node* %"$tmpC2"
+  %11 = call %Node @comp_parser_addToNodeList(%Node %8, %Node %10)
+  store %Node %11, %Node* %"$tmpForRef1"
+  call void @"=331"(%Node* %res, %Node* %"$tmpForRef1")
   br label %while_step
 
 while_step:                                       ; preds = %while_body
   br label %while_block
 
 while_end:                                        ; preds = %while_block
-  %14 = load %Node** %_result.addr
-  call void @ctor318(%Node* %14, %Node* %res)
+  %12 = load %Node** %_result.addr
+  call void @ctor329(%Node* %12, %Node* %res)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @parseImportName(%Node* sret %_result, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, i32 %accessSpec) #3 {
+define internal void @parseImportName(%Node* sret %_result, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p) #3 {
   %_result.addr = alloca %Node*
   store %Node* %_result, %Node** %_result.addr
   %p.addr = alloca %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"*
   store %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %accessSpec.addr = alloca i32
-  store i32 %accessSpec, i32* %accessSpec.addr
   %loc = alloca %Location
   %id = alloca %String
   %toImport = alloca %Node
@@ -22661,10 +22922,9 @@ code:                                             ; preds = %0
   %7 = load %StringRef* %"$tmpC2"
   %8 = load %Node* %toImport
   %9 = load %Node* %declNames
-  %10 = load i32* %accessSpec.addr
-  %11 = call %Node @comp_parser_mkImportName(%Location* %"$tmpC", %StringRef %7, %Node %8, %Node %9, i32 %10)
-  store %Node %11, %Node* %"$tmpForRef"
-  call void @ctor318(%Node* %5, %Node* %"$tmpForRef")
+  %10 = call %Node @comp_parser_mkImportName(%Location* %"$tmpC", %StringRef %7, %Node %8, %Node %9)
+  store %Node %10, %Node* %"$tmpForRef"
+  call void @ctor329(%Node* %5, %Node* %"$tmpForRef")
   call void @dtor159(%String* %id)
   ret void
 
@@ -22689,7 +22949,7 @@ code:                                             ; preds = %0
 
 if_block:                                         ; preds = %code
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 43)
+  call void @ctor222(%TokenType* %tmp.v, i32 44)
   %2 = load %TokenType* %tmp.v
   %3 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
   br i1 %3, label %if_then, label %if_end
@@ -22706,7 +22966,7 @@ if_then:                                          ; preds = %if_block
   %11 = load %StringRef* %"$tmpC"
   %12 = call %Node @comp_parser_mkStringLiteral(%Location* %7, %StringRef %11)
   store %Node %12, %Node* %"$tmpForRef"
-  call void @ctor318(%Node* %4, %Node* %"$tmpForRef")
+  call void @ctor329(%Node* %4, %Node* %"$tmpForRef")
   ret void
 
 if_end:                                           ; preds = %dumy_block, %if_block
@@ -22732,12 +22992,12 @@ define internal void @parseImportDeclNamesOpt(%Node* sret %_result, %"SparrowPar
   br label %code
 
 code:                                             ; preds = %0
-  call void @ctor323(%Node* %res)
+  call void @ctor334(%Node* %res)
   br label %if_block
 
 if_block:                                         ; preds = %code
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 32)
+  call void @ctor222(%TokenType* %tmp.v, i32 33)
   %2 = load %TokenType* %tmp.v
   %3 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
   br i1 %3, label %if_then, label %if_end
@@ -22745,16 +23005,16 @@ if_block:                                         ; preds = %code
 if_then:                                          ; preds = %if_block
   %4 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseIdOrOperListNode(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %4)
-  call void @"=320"(%Node* %res, %Node* %"$tmpC")
+  call void @"=331"(%Node* %res, %Node* %"$tmpC")
   %5 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v1, i32 33)
+  call void @ctor222(%TokenType* %tmp.v1, i32 34)
   %6 = load %TokenType* %tmp.v1
   %7 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %5, %TokenType %6)
   br label %if_end
 
 if_end:                                           ; preds = %if_then, %if_block
   %8 = load %Node** %_result.addr
-  call void @ctor318(%Node* %8, %Node* %res)
+  call void @ctor329(%Node* %8, %Node* %res)
   ret void
 }
 
@@ -22775,7 +23035,7 @@ define internal void @parseIdOrOperListNode(%Node* sret %_result, %"SparrowParse
   br label %code
 
 code:                                             ; preds = %0
-  call void @ctor323(%Node* %res)
+  call void @ctor334(%Node* %res)
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseIdOrOper(%String* %id, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, i1 true)
   %2 = load %Node* %res
@@ -22787,12 +23047,12 @@ code:                                             ; preds = %0
   %7 = call %Node @comp_parser_mkIdentifier(%Location* %5, %StringRef %6)
   %8 = call %Node @comp_parser_addToNodeList(%Node %2, %Node %7)
   store %Node %8, %Node* %"$tmpForRef"
-  call void @"=320"(%Node* %res, %Node* %"$tmpForRef")
+  call void @"=331"(%Node* %res, %Node* %"$tmpForRef")
   br label %while_block
 
 while_block:                                      ; preds = %while_step, %code
   %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 36)
+  call void @ctor222(%TokenType* %tmp.v, i32 37)
   %10 = load %TokenType* %tmp.v
   %11 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9, %TokenType %10)
   br i1 %11, label %while_body, label %while_end
@@ -22811,7 +23071,7 @@ while_body:                                       ; preds = %while_block
   %19 = call %Node @comp_parser_mkIdentifier(%Location* %17, %StringRef %18)
   %20 = call %Node @comp_parser_addToNodeList(%Node %14, %Node %19)
   store %Node %20, %Node* %"$tmpForRef2"
-  call void @"=320"(%Node* %res, %Node* %"$tmpForRef2")
+  call void @"=331"(%Node* %res, %Node* %"$tmpForRef2")
   br label %while_step
 
 while_step:                                       ; preds = %while_body
@@ -22819,7 +23079,7 @@ while_step:                                       ; preds = %while_body
 
 while_end:                                        ; preds = %while_block
   %21 = load %Node** %_result.addr
-  call void @ctor318(%Node* %21, %Node* %res)
+  call void @ctor329(%Node* %21, %Node* %res)
   call void @dtor159(%String* %id)
   ret void
 
@@ -22828,7 +23088,7 @@ dumy_block:                                       ; No predecessors!
   ret void
 }
 
-declare %Node @comp_parser_mkImportName(%Location*, %StringRef, %Node, %Node, i32)
+declare %Node @comp_parser_mkImportName(%Location*, %StringRef, %Node, %Node)
 
 ; Function Attrs: inlinehint nounwind
 define internal i1 @parseIfTopLevel(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %Node* %res) #3 {
@@ -22854,7 +23114,7 @@ code:                                             ; preds = %0
 
 if_block:                                         ; preds = %code
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 17)
+  call void @ctor222(%TokenType* %tmp.v, i32 18)
   %2 = load %TokenType* %tmp.v
   %3 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
   %4 = xor i1 true, %3
@@ -22869,18 +23129,18 @@ if_end:                                           ; preds = %dumy_block, %if_blo
   %6 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseModifiers(%Node* %mods, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %6)
   %7 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v1, i32 32)
+  call void @ctor222(%TokenType* %tmp.v1, i32 33)
   %8 = load %TokenType* %tmp.v1
   %9 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %7, %TokenType %8)
   %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseExpr(%Node* %expr, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, i1 true)
   %11 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v2, i32 33)
+  call void @ctor222(%TokenType* %tmp.v2, i32 34)
   %12 = load %TokenType* %tmp.v2
   %13 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %11, %TokenType %12)
   %14 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseDecl(%Node* %thenClause, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %14, i1 true)
-  call void @ctor323(%Node* %elseClause)
+  call void @ctor334(%Node* %elseClause)
   br label %if_block3
 
 dumy_block:                                       ; No predecessors!
@@ -22888,7 +23148,7 @@ dumy_block:                                       ; No predecessors!
 
 if_block3:                                        ; preds = %if_end
   %15 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v6, i32 27)
+  call void @ctor222(%TokenType* %tmp.v6, i32 28)
   %16 = load %TokenType* %tmp.v6
   %17 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %15, %TokenType %16)
   br i1 %17, label %if_then4, label %if_end5
@@ -22896,7 +23156,7 @@ if_block3:                                        ; preds = %if_end
 if_then4:                                         ; preds = %if_block3
   %18 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @parseDecl(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %18, i1 true)
-  call void @"=320"(%Node* %elseClause, %Node* %"$tmpC")
+  call void @"=331"(%Node* %elseClause, %Node* %"$tmpC")
   br label %if_end5
 
 if_end5:                                          ; preds = %if_then4, %if_block3
@@ -22912,7 +23172,7 @@ if_end5:                                          ; preds = %if_then4, %if_block
   %27 = load %Node* %mods
   %28 = call %Node @comp_parser_mkModifiers(%Location* %loc, %Node %26, %Node %27)
   store %Node %28, %Node* %"$tmpForRef"
-  call void @"=320"(%Node* %22, %Node* %"$tmpForRef")
+  call void @"=331"(%Node* %22, %Node* %"$tmpForRef")
   ret i1 true
 }
 
@@ -22951,7 +23211,7 @@ code:                                             ; preds = %0
   %3 = load %TokenType* %tmp.v
   %4 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %2, %TokenType %3)
   %5 = load %Node** %_result.addr
-  call void @ctor318(%Node* %5, %Node* %res)
+  call void @ctor329(%Node* %5, %Node* %res)
   ret void
 }
 
@@ -23069,7 +23329,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @mkLocation364(%Location* sret %_result, %SourceCode %sourceCode) #3 {
+define internal void @mkLocation375(%Location* sret %_result, %SourceCode %sourceCode) #3 {
   %_result.addr = alloca %Location*
   store %Location* %_result, %Location** %_result.addr
   %sourceCode.addr = alloca %SourceCode
@@ -23088,7 +23348,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @mkLocation365(%Location* sret %_result, %SourceCode %sourceCode, %LineCol %start, %LineCol %end) #3 {
+define internal void @mkLocation376(%Location* sret %_result, %SourceCode %sourceCode, %LineCol %start, %LineCol %end) #3 {
   %_result.addr = alloca %Location*
   store %Location* %_result, %Location** %_result.addr
   %sourceCode.addr = alloca %SourceCode
@@ -23175,7 +23435,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @"+366"(%String* sret %_result, %String %x, %String %y) #3 {
+define internal void @"+377"(%String* sret %_result, %String %x, %String %y) #3 {
   %_result.addr = alloca %String*
   store %String* %_result, %String** %_result.addr
   %x.addr = alloca %String
@@ -23222,7 +23482,7 @@ dumy_block:                                       ; No predecessors!
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @"+367"(%String* sret %_result, %String %x, %StringRef %y) #3 {
+define internal void @"+378"(%String* sret %_result, %String %x, %StringRef %y) #3 {
   %_result.addr = alloca %String*
   store %String* %_result, %String** %_result.addr
   %x.addr = alloca %String
@@ -23288,12 +23548,12 @@ code:                                             ; preds = %0
   %5 = bitcast [16 x i8]* %buf to i8*
   %6 = call %StringRef @_String_fromCString(i8* %5)
   store %StringRef %6, %StringRef* %"$tmpForRef"
-  call void @ctor248(%String* %4, %StringRef* %"$tmpForRef")
+  call void @ctor258(%String* %4, %StringRef* %"$tmpForRef")
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @toString368(%String* sret %_result) #2 {
+define internal void @toString379(%String* sret %_result) #2 {
   %_result.addr = alloca %String*
   store %String* %_result, %String** %_result.addr
   br label %code
@@ -23305,7 +23565,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i8* @back369(%"ContiguousMemoryRange[Char/rtct]"* %"$this") #2 {
+define internal i8* @back380(%"ContiguousMemoryRange[Char/rtct]"* %"$this") #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[Char/rtct]"*
   store %"ContiguousMemoryRange[Char/rtct]"* %"$this", %"ContiguousMemoryRange[Char/rtct]"** %"$this.addr"
   %"$tmpC" = alloca %"RawPtr[Char/rtct]"
@@ -23320,7 +23580,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i8* @"()370"(%"ContiguousMemoryRange[Char/rtct]"* %"$this") #2 {
+define internal i8* @"()381"(%"ContiguousMemoryRange[Char/rtct]"* %"$this") #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[Char/rtct]"*
   store %"ContiguousMemoryRange[Char/rtct]"* %"$this", %"ContiguousMemoryRange[Char/rtct]"** %"$this.addr"
   br label %code
@@ -23333,7 +23593,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i8* @"()371"(%"ContiguousMemoryRange[Char/rtct]"* %"$this", i64 %n) #2 {
+define internal i8* @"()382"(%"ContiguousMemoryRange[Char/rtct]"* %"$this", i64 %n) #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[Char/rtct]"*
   store %"ContiguousMemoryRange[Char/rtct]"* %"$this", %"ContiguousMemoryRange[Char/rtct]"** %"$this.addr"
   %n.addr = alloca i64
@@ -23354,7 +23614,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @popBack372(%"ContiguousMemoryRange[Char/rtct]"* %"$this") #2 {
+define internal void @popBack383(%"ContiguousMemoryRange[Char/rtct]"* %"$this") #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[Char/rtct]"*
   store %"ContiguousMemoryRange[Char/rtct]"* %"$this", %"ContiguousMemoryRange[Char/rtct]"** %"$this.addr"
   %"$tmpC" = alloca %"RawPtr[Char/rtct]"
@@ -23372,7 +23632,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i8* @"pre_++373"(%"ContiguousMemoryRange[Char/rtct]"* %"$this") #2 {
+define internal i8* @"pre_++384"(%"ContiguousMemoryRange[Char/rtct]"* %"$this") #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[Char/rtct]"*
   store %"ContiguousMemoryRange[Char/rtct]"* %"$this", %"ContiguousMemoryRange[Char/rtct]"** %"$this.addr"
   br label %code
@@ -23386,7 +23646,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i8* @"post_++374"(%"ContiguousMemoryRange[Char/rtct]"* %"$this") #2 {
+define internal i8* @"post_++385"(%"ContiguousMemoryRange[Char/rtct]"* %"$this") #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[Char/rtct]"*
   store %"ContiguousMemoryRange[Char/rtct]"* %"$this", %"ContiguousMemoryRange[Char/rtct]"** %"$this.addr"
   %res = alloca i8*
@@ -23403,7 +23663,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i64 @size375(%"ContiguousMemoryRange[LocString]"* %"$this") #2 {
+define internal i64 @size386(%"ContiguousMemoryRange[LocString]"* %"$this") #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[LocString]"*
   store %"ContiguousMemoryRange[LocString]"* %"$this", %"ContiguousMemoryRange[LocString]"** %"$this.addr"
   %tmp.v = alloca i64
@@ -23415,14 +23675,14 @@ code:                                             ; preds = %0
   %3 = load %"ContiguousMemoryRange[LocString]"** %"$this.addr"
   %4 = getelementptr inbounds %"ContiguousMemoryRange[LocString]"* %3, i32 0, i32 0
   %5 = load %"RawPtr[LocString]"* %4
-  %6 = call i64 @diff333(%"RawPtr[LocString]"* %2, %"RawPtr[LocString]" %5)
+  %6 = call i64 @diff344(%"RawPtr[LocString]"* %2, %"RawPtr[LocString]" %5)
   store i64 %6, i64* %tmp.v
   %7 = load i64* %tmp.v
   ret i64 %7
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal %LocString* @back376(%"ContiguousMemoryRange[LocString]"* %"$this") #2 {
+define internal %LocString* @back387(%"ContiguousMemoryRange[LocString]"* %"$this") #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[LocString]"*
   store %"ContiguousMemoryRange[LocString]"* %"$this", %"ContiguousMemoryRange[LocString]"** %"$this.addr"
   %"$tmpC" = alloca %"RawPtr[LocString]"
@@ -23431,13 +23691,13 @@ define internal %LocString* @back376(%"ContiguousMemoryRange[LocString]"* %"$thi
 code:                                             ; preds = %0
   %1 = load %"ContiguousMemoryRange[LocString]"** %"$this.addr"
   %2 = getelementptr inbounds %"ContiguousMemoryRange[LocString]"* %1, i32 0, i32 1
-  call void @advance377(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %2, i64 -1)
-  %3 = call %LocString* @value345(%"RawPtr[LocString]"* %"$tmpC")
+  call void @advance388(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %2, i64 -1)
+  %3 = call %LocString* @value356(%"RawPtr[LocString]"* %"$tmpC")
   ret %LocString* %3
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @advance377(%"RawPtr[LocString]"* sret %_result, %"RawPtr[LocString]"* %"$this", i64 %n) #2 {
+define internal void @advance388(%"RawPtr[LocString]"* sret %_result, %"RawPtr[LocString]"* %"$this", i64 %n) #2 {
   %_result.addr = alloca %"RawPtr[LocString]"*
   store %"RawPtr[LocString]"* %_result, %"RawPtr[LocString]"** %_result.addr
   %"$this.addr" = alloca %"RawPtr[LocString]"*
@@ -23451,7 +23711,7 @@ define internal void @advance377(%"RawPtr[LocString]"* sret %_result, %"RawPtr[L
 code:                                             ; preds = %0
   %1 = load %"RawPtr[LocString]"** %_result.addr
   %2 = load %"RawPtr[LocString]"** %"$this.addr"
-  %3 = call i8* @bytePtr334(%"RawPtr[LocString]"* %2)
+  %3 = call i8* @bytePtr345(%"RawPtr[LocString]"* %2)
   %4 = load i64* %n.addr
   store i64 48, i64* %tmp.v1
   %5 = load i64* %tmp.v1
@@ -23459,12 +23719,12 @@ code:                                             ; preds = %0
   store i64 %6, i64* %tmp.v
   %7 = load i64* %tmp.v
   %8 = call i8* @ptrAdd(i8* %3, i64 %7)
-  call void @fromBytePtr340(%"RawPtr[LocString]"* %1, i8* %8)
+  call void @fromBytePtr351(%"RawPtr[LocString]"* %1, i8* %8)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal %LocString* @"()378"(%"ContiguousMemoryRange[LocString]"* %"$this") #2 {
+define internal %LocString* @"()389"(%"ContiguousMemoryRange[LocString]"* %"$this") #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[LocString]"*
   store %"ContiguousMemoryRange[LocString]"* %"$this", %"ContiguousMemoryRange[LocString]"** %"$this.addr"
   br label %code
@@ -23472,12 +23732,12 @@ define internal %LocString* @"()378"(%"ContiguousMemoryRange[LocString]"* %"$thi
 code:                                             ; preds = %0
   %1 = load %"ContiguousMemoryRange[LocString]"** %"$this.addr"
   %2 = getelementptr inbounds %"ContiguousMemoryRange[LocString]"* %1, i32 0, i32 0
-  %3 = call %LocString* @value345(%"RawPtr[LocString]"* %2)
+  %3 = call %LocString* @value356(%"RawPtr[LocString]"* %2)
   ret %LocString* %3
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal %LocString* @"()379"(%"ContiguousMemoryRange[LocString]"* %"$this", i64 %n) #2 {
+define internal %LocString* @"()390"(%"ContiguousMemoryRange[LocString]"* %"$this", i64 %n) #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[LocString]"*
   store %"ContiguousMemoryRange[LocString]"* %"$this", %"ContiguousMemoryRange[LocString]"** %"$this.addr"
   %n.addr = alloca i64
@@ -23492,13 +23752,13 @@ code:                                             ; preds = %0
   %3 = load i64* %n.addr
   store i64 %3, i64* %tmp.v
   %4 = load i64* %tmp.v
-  call void @advance377(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %2, i64 %4)
-  %5 = call %LocString* @value345(%"RawPtr[LocString]"* %"$tmpC")
+  call void @advance388(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %2, i64 %4)
+  %5 = call %LocString* @value356(%"RawPtr[LocString]"* %"$tmpC")
   ret %LocString* %5
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @popBack380(%"ContiguousMemoryRange[LocString]"* %"$this") #2 {
+define internal void @popBack391(%"ContiguousMemoryRange[LocString]"* %"$this") #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[LocString]"*
   store %"ContiguousMemoryRange[LocString]"* %"$this", %"ContiguousMemoryRange[LocString]"** %"$this.addr"
   %"$tmpC" = alloca %"RawPtr[LocString]"
@@ -23509,14 +23769,14 @@ code:                                             ; preds = %0
   %2 = getelementptr inbounds %"ContiguousMemoryRange[LocString]"* %1, i32 0, i32 1
   %3 = load %"ContiguousMemoryRange[LocString]"** %"$this.addr"
   %4 = getelementptr inbounds %"ContiguousMemoryRange[LocString]"* %3, i32 0, i32 1
-  call void @advance377(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %4, i64 -1)
+  call void @advance388(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %4, i64 -1)
   %5 = load %"RawPtr[LocString]"* %"$tmpC"
-  call void @"=338"(%"RawPtr[LocString]"* %2, %"RawPtr[LocString]" %5)
+  call void @"=349"(%"RawPtr[LocString]"* %2, %"RawPtr[LocString]" %5)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @popFront381(%"ContiguousMemoryRange[LocString]"* %"$this", i64 %n) #2 {
+define internal void @popFront392(%"ContiguousMemoryRange[LocString]"* %"$this", i64 %n) #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[LocString]"*
   store %"ContiguousMemoryRange[LocString]"* %"$this", %"ContiguousMemoryRange[LocString]"** %"$this.addr"
   %n.addr = alloca i64
@@ -23533,14 +23793,14 @@ code:                                             ; preds = %0
   %5 = load i64* %n.addr
   store i64 %5, i64* %tmp.v
   %6 = load i64* %tmp.v
-  call void @advance377(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %4, i64 %6)
+  call void @advance388(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %4, i64 %6)
   %7 = load %"RawPtr[LocString]"* %"$tmpC"
-  call void @"=338"(%"RawPtr[LocString]"* %2, %"RawPtr[LocString]" %7)
+  call void @"=349"(%"RawPtr[LocString]"* %2, %"RawPtr[LocString]" %7)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @popBack382(%"ContiguousMemoryRange[LocString]"* %"$this", i64 %n) #2 {
+define internal void @popBack393(%"ContiguousMemoryRange[LocString]"* %"$this", i64 %n) #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[LocString]"*
   store %"ContiguousMemoryRange[LocString]"* %"$this", %"ContiguousMemoryRange[LocString]"** %"$this.addr"
   %n.addr = alloca i64
@@ -23558,28 +23818,28 @@ code:                                             ; preds = %0
   store i64 %5, i64* %tmp.v
   %6 = load i64* %tmp.v
   %7 = sub i64 0, %6
-  call void @advance377(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %4, i64 %7)
+  call void @advance388(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %4, i64 %7)
   %8 = load %"RawPtr[LocString]"* %"$tmpC"
-  call void @"=338"(%"RawPtr[LocString]"* %2, %"RawPtr[LocString]" %8)
+  call void @"=349"(%"RawPtr[LocString]"* %2, %"RawPtr[LocString]" %8)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal %LocString* @"pre_++383"(%"ContiguousMemoryRange[LocString]"* %"$this") #2 {
+define internal %LocString* @"pre_++394"(%"ContiguousMemoryRange[LocString]"* %"$this") #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[LocString]"*
   store %"ContiguousMemoryRange[LocString]"* %"$this", %"ContiguousMemoryRange[LocString]"** %"$this.addr"
   br label %code
 
 code:                                             ; preds = %0
   %1 = load %"ContiguousMemoryRange[LocString]"** %"$this.addr"
-  call void @popFront361(%"ContiguousMemoryRange[LocString]"* %1)
+  call void @popFront372(%"ContiguousMemoryRange[LocString]"* %1)
   %2 = load %"ContiguousMemoryRange[LocString]"** %"$this.addr"
-  %3 = call %LocString* @front359(%"ContiguousMemoryRange[LocString]"* %2)
+  %3 = call %LocString* @front370(%"ContiguousMemoryRange[LocString]"* %2)
   ret %LocString* %3
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal %LocString* @"post_++384"(%"ContiguousMemoryRange[LocString]"* %"$this") #2 {
+define internal %LocString* @"post_++395"(%"ContiguousMemoryRange[LocString]"* %"$this") #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[LocString]"*
   store %"ContiguousMemoryRange[LocString]"* %"$this", %"ContiguousMemoryRange[LocString]"** %"$this.addr"
   %res = alloca %LocString*
@@ -23587,16 +23847,16 @@ define internal %LocString* @"post_++384"(%"ContiguousMemoryRange[LocString]"* %
 
 code:                                             ; preds = %0
   %1 = load %"ContiguousMemoryRange[LocString]"** %"$this.addr"
-  %2 = call %LocString* @front359(%"ContiguousMemoryRange[LocString]"* %1)
+  %2 = call %LocString* @front370(%"ContiguousMemoryRange[LocString]"* %1)
   store %LocString* %2, %LocString** %res
   %3 = load %"ContiguousMemoryRange[LocString]"** %"$this.addr"
-  call void @popFront361(%"ContiguousMemoryRange[LocString]"* %3)
+  call void @popFront372(%"ContiguousMemoryRange[LocString]"* %3)
   %4 = load %LocString** %res
   ret %LocString* %4
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @frontPtr385(%"RawPtr[LocString]"* sret %_result, %"ContiguousMemoryRange[LocString]"* %"$this") #2 {
+define internal void @frontPtr396(%"RawPtr[LocString]"* sret %_result, %"ContiguousMemoryRange[LocString]"* %"$this") #2 {
   %_result.addr = alloca %"RawPtr[LocString]"*
   store %"RawPtr[LocString]"* %_result, %"RawPtr[LocString]"** %_result.addr
   %"$this.addr" = alloca %"ContiguousMemoryRange[LocString]"*
@@ -23607,12 +23867,12 @@ code:                                             ; preds = %0
   %1 = load %"RawPtr[LocString]"** %_result.addr
   %2 = load %"ContiguousMemoryRange[LocString]"** %"$this.addr"
   %3 = getelementptr inbounds %"ContiguousMemoryRange[LocString]"* %2, i32 0, i32 0
-  call void @ctor341(%"RawPtr[LocString]"* %1, %"RawPtr[LocString]"* %3)
+  call void @ctor352(%"RawPtr[LocString]"* %1, %"RawPtr[LocString]"* %3)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @backPtr386(%"RawPtr[LocString]"* sret %_result, %"ContiguousMemoryRange[LocString]"* %"$this") #2 {
+define internal void @backPtr397(%"RawPtr[LocString]"* sret %_result, %"ContiguousMemoryRange[LocString]"* %"$this") #2 {
   %_result.addr = alloca %"RawPtr[LocString]"*
   store %"RawPtr[LocString]"* %_result, %"RawPtr[LocString]"** %_result.addr
   %"$this.addr" = alloca %"ContiguousMemoryRange[LocString]"*
@@ -23623,12 +23883,12 @@ code:                                             ; preds = %0
   %1 = load %"RawPtr[LocString]"** %_result.addr
   %2 = load %"ContiguousMemoryRange[LocString]"** %"$this.addr"
   %3 = getelementptr inbounds %"ContiguousMemoryRange[LocString]"* %2, i32 0, i32 1
-  call void @ctor341(%"RawPtr[LocString]"* %1, %"RawPtr[LocString]"* %3)
+  call void @ctor352(%"RawPtr[LocString]"* %1, %"RawPtr[LocString]"* %3)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i64 @size387(%"ContiguousMemoryRange[Token]"* %"$this") #2 {
+define internal i64 @size398(%"ContiguousMemoryRange[Token]"* %"$this") #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[Token]"*
   store %"ContiguousMemoryRange[Token]"* %"$this", %"ContiguousMemoryRange[Token]"** %"$this.addr"
   %tmp.v = alloca i64
@@ -23647,7 +23907,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal %Token* @back388(%"ContiguousMemoryRange[Token]"* %"$this") #2 {
+define internal %Token* @back399(%"ContiguousMemoryRange[Token]"* %"$this") #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[Token]"*
   store %"ContiguousMemoryRange[Token]"* %"$this", %"ContiguousMemoryRange[Token]"** %"$this.addr"
   %"$tmpC" = alloca %"RawPtr[Token]"
@@ -23656,13 +23916,13 @@ define internal %Token* @back388(%"ContiguousMemoryRange[Token]"* %"$this") #2 {
 code:                                             ; preds = %0
   %1 = load %"ContiguousMemoryRange[Token]"** %"$this.addr"
   %2 = getelementptr inbounds %"ContiguousMemoryRange[Token]"* %1, i32 0, i32 1
-  call void @advance303(%"RawPtr[Token]"* %"$tmpC", %"RawPtr[Token]"* %2, i64 -1)
+  call void @advance314(%"RawPtr[Token]"* %"$tmpC", %"RawPtr[Token]"* %2, i64 -1)
   %3 = call %Token* @value212(%"RawPtr[Token]"* %"$tmpC")
   ret %Token* %3
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal %Token* @"()389"(%"ContiguousMemoryRange[Token]"* %"$this") #2 {
+define internal %Token* @"()400"(%"ContiguousMemoryRange[Token]"* %"$this") #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[Token]"*
   store %"ContiguousMemoryRange[Token]"* %"$this", %"ContiguousMemoryRange[Token]"** %"$this.addr"
   br label %code
@@ -23675,7 +23935,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal %Token* @"()390"(%"ContiguousMemoryRange[Token]"* %"$this", i64 %n) #2 {
+define internal %Token* @"()401"(%"ContiguousMemoryRange[Token]"* %"$this", i64 %n) #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[Token]"*
   store %"ContiguousMemoryRange[Token]"* %"$this", %"ContiguousMemoryRange[Token]"** %"$this.addr"
   %n.addr = alloca i64
@@ -23690,13 +23950,13 @@ code:                                             ; preds = %0
   %3 = load i64* %n.addr
   store i64 %3, i64* %tmp.v
   %4 = load i64* %tmp.v
-  call void @advance303(%"RawPtr[Token]"* %"$tmpC", %"RawPtr[Token]"* %2, i64 %4)
+  call void @advance314(%"RawPtr[Token]"* %"$tmpC", %"RawPtr[Token]"* %2, i64 %4)
   %5 = call %Token* @value212(%"RawPtr[Token]"* %"$tmpC")
   ret %Token* %5
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @popBack391(%"ContiguousMemoryRange[Token]"* %"$this") #2 {
+define internal void @popBack402(%"ContiguousMemoryRange[Token]"* %"$this") #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[Token]"*
   store %"ContiguousMemoryRange[Token]"* %"$this", %"ContiguousMemoryRange[Token]"** %"$this.addr"
   %"$tmpC" = alloca %"RawPtr[Token]"
@@ -23707,28 +23967,28 @@ code:                                             ; preds = %0
   %2 = getelementptr inbounds %"ContiguousMemoryRange[Token]"* %1, i32 0, i32 1
   %3 = load %"ContiguousMemoryRange[Token]"** %"$this.addr"
   %4 = getelementptr inbounds %"ContiguousMemoryRange[Token]"* %3, i32 0, i32 1
-  call void @advance303(%"RawPtr[Token]"* %"$tmpC", %"RawPtr[Token]"* %4, i64 -1)
+  call void @advance314(%"RawPtr[Token]"* %"$tmpC", %"RawPtr[Token]"* %4, i64 -1)
   %5 = load %"RawPtr[Token]"* %"$tmpC"
   call void @"=200"(%"RawPtr[Token]"* %2, %"RawPtr[Token]" %5)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal %Token* @"pre_++392"(%"ContiguousMemoryRange[Token]"* %"$this") #2 {
+define internal %Token* @"pre_++403"(%"ContiguousMemoryRange[Token]"* %"$this") #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[Token]"*
   store %"ContiguousMemoryRange[Token]"* %"$this", %"ContiguousMemoryRange[Token]"** %"$this.addr"
   br label %code
 
 code:                                             ; preds = %0
   %1 = load %"ContiguousMemoryRange[Token]"** %"$this.addr"
-  call void @popFront311(%"ContiguousMemoryRange[Token]"* %1)
+  call void @popFront322(%"ContiguousMemoryRange[Token]"* %1)
   %2 = load %"ContiguousMemoryRange[Token]"** %"$this.addr"
-  %3 = call %Token* @front310(%"ContiguousMemoryRange[Token]"* %2)
+  %3 = call %Token* @front321(%"ContiguousMemoryRange[Token]"* %2)
   ret %Token* %3
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal %Token* @"post_++393"(%"ContiguousMemoryRange[Token]"* %"$this") #2 {
+define internal %Token* @"post_++404"(%"ContiguousMemoryRange[Token]"* %"$this") #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[Token]"*
   store %"ContiguousMemoryRange[Token]"* %"$this", %"ContiguousMemoryRange[Token]"** %"$this.addr"
   %res = alloca %Token*
@@ -23736,10 +23996,10 @@ define internal %Token* @"post_++393"(%"ContiguousMemoryRange[Token]"* %"$this")
 
 code:                                             ; preds = %0
   %1 = load %"ContiguousMemoryRange[Token]"** %"$this.addr"
-  %2 = call %Token* @front310(%"ContiguousMemoryRange[Token]"* %1)
+  %2 = call %Token* @front321(%"ContiguousMemoryRange[Token]"* %1)
   store %Token* %2, %Token** %res
   %3 = load %"ContiguousMemoryRange[Token]"** %"$this.addr"
-  call void @popFront311(%"ContiguousMemoryRange[Token]"* %3)
+  call void @popFront322(%"ContiguousMemoryRange[Token]"* %3)
   %4 = load %Token** %res
   ret %Token* %4
 }
@@ -23764,7 +24024,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @isNull394(%"RawPtr[Char/rtct]"* %"$this") #2 {
+define internal i1 @isNull405(%"RawPtr[Char/rtct]"* %"$this") #2 {
   %"$this.addr" = alloca %"RawPtr[Char/rtct]"*
   store %"RawPtr[Char/rtct]"* %"$this", %"RawPtr[Char/rtct]"** %"$this.addr"
   br label %code
@@ -23778,7 +24038,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"<395"(%"RawPtr[Char/rtct]"* %"$this", %"RawPtr[Char/rtct]" %other) #2 {
+define internal i1 @"<406"(%"RawPtr[Char/rtct]"* %"$this", %"RawPtr[Char/rtct]" %other) #2 {
   %"$this.addr" = alloca %"RawPtr[Char/rtct]"*
   store %"RawPtr[Char/rtct]"* %"$this", %"RawPtr[Char/rtct]"** %"$this.addr"
   %other.addr = alloca %"RawPtr[Char/rtct]"
@@ -23793,12 +24053,12 @@ code:                                             ; preds = %0
   %4 = call i64 @ptrDiff(i8* %2, i8* %3)
   store i64 0, i64* %tmp.v
   %5 = load i64* %tmp.v
-  %6 = call i1 @"<396"(i64 %4, i64 %5)
+  %6 = call i1 @"<407"(i64 %4, i64 %5)
   ret i1 %6
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"<396"(i64 %x, i64 %y) #2 {
+define internal i1 @"<407"(i64 %x, i64 %y) #2 {
   %x.addr = alloca i64
   store i64 %x, i64* %x.addr
   %y.addr = alloca i64
@@ -23817,7 +24077,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @fromRef397(%"RawPtr[LocString]"* sret %_result, %LocString* %ptr) #3 {
+define internal void @fromRef408(%"RawPtr[LocString]"* sret %_result, %LocString* %ptr) #3 {
   %_result.addr = alloca %"RawPtr[LocString]"*
   store %"RawPtr[LocString]"* %_result, %"RawPtr[LocString]"** %_result.addr
   %ptr.addr = alloca %LocString*
@@ -23826,17 +24086,17 @@ define internal void @fromRef397(%"RawPtr[LocString]"* sret %_result, %LocString
   br label %code
 
 code:                                             ; preds = %0
-  call void @ctor328(%"RawPtr[LocString]"* %res)
+  call void @ctor339(%"RawPtr[LocString]"* %res)
   %1 = load %LocString** %ptr.addr
   %2 = getelementptr inbounds %"RawPtr[LocString]"* %res, i32 0, i32 0
   store %LocString* %1, %LocString** %2
   %3 = load %"RawPtr[LocString]"** %_result.addr
-  call void @ctor341(%"RawPtr[LocString]"* %3, %"RawPtr[LocString]"* %res)
+  call void @ctor352(%"RawPtr[LocString]"* %3, %"RawPtr[LocString]"* %res)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @isNull398(%"RawPtr[LocString]"* %"$this") #2 {
+define internal i1 @isNull409(%"RawPtr[LocString]"* %"$this") #2 {
   %"$this.addr" = alloca %"RawPtr[LocString]"*
   store %"RawPtr[LocString]"* %"$this", %"RawPtr[LocString]"** %"$this.addr"
   br label %code
@@ -23851,7 +24111,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @swap399(%"RawPtr[LocString]"* %"$this", %"RawPtr[LocString]"* %other) #3 {
+define internal void @swap410(%"RawPtr[LocString]"* %"$this", %"RawPtr[LocString]"* %other) #3 {
   %"$this.addr" = alloca %"RawPtr[LocString]"*
   store %"RawPtr[LocString]"* %"$this", %"RawPtr[LocString]"** %"$this.addr"
   %other.addr = alloca %"RawPtr[LocString]"*
@@ -23878,7 +24138,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"<400"(%"RawPtr[LocString]"* %"$this", %"RawPtr[LocString]" %other) #2 {
+define internal i1 @"<411"(%"RawPtr[LocString]"* %"$this", %"RawPtr[LocString]" %other) #2 {
   %"$this.addr" = alloca %"RawPtr[LocString]"*
   store %"RawPtr[LocString]"* %"$this", %"RawPtr[LocString]"** %"$this.addr"
   %other.addr = alloca %"RawPtr[LocString]"
@@ -23888,17 +24148,17 @@ define internal i1 @"<400"(%"RawPtr[LocString]"* %"$this", %"RawPtr[LocString]" 
 
 code:                                             ; preds = %0
   %1 = load %"RawPtr[LocString]"** %"$this.addr"
-  %2 = call i8* @bytePtr334(%"RawPtr[LocString]"* %1)
-  %3 = call i8* @bytePtr334(%"RawPtr[LocString]"* %other.addr)
+  %2 = call i8* @bytePtr345(%"RawPtr[LocString]"* %1)
+  %3 = call i8* @bytePtr345(%"RawPtr[LocString]"* %other.addr)
   %4 = call i64 @ptrDiff(i8* %2, i8* %3)
   store i64 0, i64* %tmp.v
   %5 = load i64* %tmp.v
-  %6 = call i1 @"<396"(i64 %4, i64 %5)
+  %6 = call i1 @"<407"(i64 %4, i64 %5)
   ret i1 %6
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @fromRef401(%"RawPtr[Token]"* sret %_result, %Token* %ptr) #3 {
+define internal void @fromRef412(%"RawPtr[Token]"* sret %_result, %Token* %ptr) #3 {
   %_result.addr = alloca %"RawPtr[Token]"*
   store %"RawPtr[Token]"* %_result, %"RawPtr[Token]"** %_result.addr
   %ptr.addr = alloca %Token*
@@ -23917,7 +24177,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @alloc402(%"RawPtr[Token]"* sret %_result, i64 %num) #3 {
+define internal void @alloc413(%"RawPtr[Token]"* sret %_result, i64 %num) #3 {
   %_result.addr = alloca %"RawPtr[Token]"*
   store %"RawPtr[Token]"* %_result, %"RawPtr[Token]"** %_result.addr
   %num.addr = alloca i64
@@ -23939,7 +24199,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @isNull403(%"RawPtr[Token]"* %"$this") #2 {
+define internal i1 @isNull414(%"RawPtr[Token]"* %"$this") #2 {
   %"$this.addr" = alloca %"RawPtr[Token]"*
   store %"RawPtr[Token]"* %"$this", %"RawPtr[Token]"** %"$this.addr"
   br label %code
@@ -23954,7 +24214,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @swap404(%"RawPtr[Token]"* %"$this", %"RawPtr[Token]"* %other) #3 {
+define internal void @swap415(%"RawPtr[Token]"* %"$this", %"RawPtr[Token]"* %other) #3 {
   %"$this.addr" = alloca %"RawPtr[Token]"*
   store %"RawPtr[Token]"* %"$this", %"RawPtr[Token]"** %"$this.addr"
   %other.addr = alloca %"RawPtr[Token]"*
@@ -23981,7 +24241,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"<405"(%"RawPtr[Token]"* %"$this", %"RawPtr[Token]" %other) #2 {
+define internal i1 @"<416"(%"RawPtr[Token]"* %"$this", %"RawPtr[Token]" %other) #2 {
   %"$this.addr" = alloca %"RawPtr[Token]"*
   store %"RawPtr[Token]"* %"$this", %"RawPtr[Token]"** %"$this.addr"
   %other.addr = alloca %"RawPtr[Token]"
@@ -23996,7 +24256,7 @@ code:                                             ; preds = %0
   %4 = call i64 @ptrDiff(i8* %2, i8* %3)
   store i64 0, i64* %tmp.v
   %5 = load i64* %tmp.v
-  %6 = call i1 @"<396"(i64 %4, i64 %5)
+  %6 = call i1 @"<407"(i64 %4, i64 %5)
   ret i1 %6
 }
 
@@ -24089,7 +24349,7 @@ declare double @llvm.truc.f64(double)
 declare double @llvm.rint.f64(double) #5
 
 ; Function Attrs: inlinehint nounwind
-define internal void @ctor406(%"Vector[LocString]"* %"$this", i64 %size) #3 {
+define internal void @ctor417(%"Vector[LocString]"* %"$this", i64 %size) #3 {
   %"$this.addr" = alloca %"Vector[LocString]"*
   store %"Vector[LocString]"* %"$this", %"Vector[LocString]"** %"$this.addr"
   %size.addr = alloca i64
@@ -24103,55 +24363,55 @@ define internal void @ctor406(%"Vector[LocString]"* %"$this", i64 %size) #3 {
 code:                                             ; preds = %0
   %1 = load %"Vector[LocString]"** %"$this.addr"
   %2 = getelementptr inbounds %"Vector[LocString]"* %1, i32 0, i32 0
-  call void @ctor328(%"RawPtr[LocString]"* %2)
+  call void @ctor339(%"RawPtr[LocString]"* %2)
   %3 = load %"Vector[LocString]"** %"$this.addr"
   %4 = getelementptr inbounds %"Vector[LocString]"* %3, i32 0, i32 1
-  call void @ctor328(%"RawPtr[LocString]"* %4)
+  call void @ctor339(%"RawPtr[LocString]"* %4)
   %5 = load %"Vector[LocString]"** %"$this.addr"
   %6 = getelementptr inbounds %"Vector[LocString]"* %5, i32 0, i32 2
-  call void @ctor328(%"RawPtr[LocString]"* %6)
+  call void @ctor339(%"RawPtr[LocString]"* %6)
   %7 = load %"Vector[LocString]"** %"$this.addr"
   %8 = getelementptr inbounds %"Vector[LocString]"* %7, i32 0, i32 0
   %9 = load i64* %size.addr
-  call void @alloc352(%"RawPtr[LocString]"* %"$tmpC", i64 %9)
+  call void @alloc363(%"RawPtr[LocString]"* %"$tmpC", i64 %9)
   %10 = load %"RawPtr[LocString]"* %"$tmpC"
-  call void @"=338"(%"RawPtr[LocString]"* %8, %"RawPtr[LocString]" %10)
+  call void @"=349"(%"RawPtr[LocString]"* %8, %"RawPtr[LocString]" %10)
   %11 = load %"Vector[LocString]"** %"$this.addr"
   %12 = getelementptr inbounds %"Vector[LocString]"* %11, i32 0, i32 1
   %13 = load %"Vector[LocString]"** %"$this.addr"
   %14 = getelementptr inbounds %"Vector[LocString]"* %13, i32 0, i32 0
   %15 = load i64* %size.addr
-  call void @advance339(%"RawPtr[LocString]"* %"$tmpC1", %"RawPtr[LocString]"* %14, i64 %15)
+  call void @advance350(%"RawPtr[LocString]"* %"$tmpC1", %"RawPtr[LocString]"* %14, i64 %15)
   %16 = load %"RawPtr[LocString]"* %"$tmpC1"
-  call void @"=338"(%"RawPtr[LocString]"* %12, %"RawPtr[LocString]" %16)
+  call void @"=349"(%"RawPtr[LocString]"* %12, %"RawPtr[LocString]" %16)
   %17 = load %"Vector[LocString]"** %"$this.addr"
   %18 = getelementptr inbounds %"Vector[LocString]"* %17, i32 0, i32 2
   %19 = load %"Vector[LocString]"** %"$this.addr"
   %20 = getelementptr inbounds %"Vector[LocString]"* %19, i32 0, i32 1
   %21 = load %"RawPtr[LocString]"* %20
-  call void @"=338"(%"RawPtr[LocString]"* %18, %"RawPtr[LocString]" %21)
+  call void @"=349"(%"RawPtr[LocString]"* %18, %"RawPtr[LocString]" %21)
   %22 = load %"Vector[LocString]"** %"$this.addr"
   %23 = getelementptr inbounds %"Vector[LocString]"* %22, i32 0, i32 0
-  call void @ctor341(%"RawPtr[LocString]"* %p, %"RawPtr[LocString]"* %23)
+  call void @ctor352(%"RawPtr[LocString]"* %p, %"RawPtr[LocString]"* %23)
   br label %while_block
 
 while_block:                                      ; preds = %while_step, %code
   %24 = load %"Vector[LocString]"** %"$this.addr"
   %25 = getelementptr inbounds %"Vector[LocString]"* %24, i32 0, i32 1
   %26 = load %"RawPtr[LocString]"* %25
-  %27 = call i1 @"==331"(%"RawPtr[LocString]"* %p, %"RawPtr[LocString]" %26)
+  %27 = call i1 @"==342"(%"RawPtr[LocString]"* %p, %"RawPtr[LocString]" %26)
   %28 = xor i1 true, %27
   br i1 %28, label %while_body, label %while_end
 
 while_body:                                       ; preds = %while_block
-  %29 = call %LocString* @value345(%"RawPtr[LocString]"* %p)
-  call void @ctor407(%LocString* %29)
+  %29 = call %LocString* @value356(%"RawPtr[LocString]"* %p)
+  call void @ctor418(%LocString* %29)
   br label %while_step
 
 while_step:                                       ; preds = %while_body
-  call void @advance346(%"RawPtr[LocString]"* %"$tmpC2", %"RawPtr[LocString]"* %p)
+  call void @advance357(%"RawPtr[LocString]"* %"$tmpC2", %"RawPtr[LocString]"* %p)
   %30 = load %"RawPtr[LocString]"* %"$tmpC2"
-  call void @"=338"(%"RawPtr[LocString]"* %p, %"RawPtr[LocString]" %30)
+  call void @"=349"(%"RawPtr[LocString]"* %p, %"RawPtr[LocString]" %30)
   br label %while_block
 
 while_end:                                        ; preds = %while_block
@@ -24159,7 +24419,7 @@ while_end:                                        ; preds = %while_block
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor407(%LocString* %"$this") #2 {
+define internal void @ctor418(%LocString* %"$this") #2 {
   %"$this.addr" = alloca %LocString*
   store %LocString* %"$this", %LocString** %"$this.addr"
   br label %code
@@ -24167,12 +24427,12 @@ define internal void @ctor407(%LocString* %"$this") #2 {
 code:                                             ; preds = %0
   %1 = load %LocString** %"$this.addr"
   %2 = getelementptr inbounds %LocString* %1, i32 0, i32 0
-  call void @ctor408(%"Tuple[Location/rtct, String/rtct]"* %2)
+  call void @ctor419(%"Tuple[Location/rtct, String/rtct]"* %2)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor408(%"Tuple[Location/rtct, String/rtct]"* %"$this") #2 {
+define internal void @ctor419(%"Tuple[Location/rtct, String/rtct]"* %"$this") #2 {
   %"$this.addr" = alloca %"Tuple[Location/rtct, String/rtct]"*
   store %"Tuple[Location/rtct, String/rtct]"* %"$this", %"Tuple[Location/rtct, String/rtct]"** %"$this.addr"
   br label %code
@@ -24188,7 +24448,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @swap409(%"Vector[LocString]"* %"$this", %"Vector[LocString]"* %other) #3 {
+define internal void @swap420(%"Vector[LocString]"* %"$this", %"Vector[LocString]"* %other) #3 {
   %"$this.addr" = alloca %"Vector[LocString]"*
   store %"Vector[LocString]"* %"$this", %"Vector[LocString]"** %"$this.addr"
   %other.addr = alloca %"Vector[LocString]"*
@@ -24199,50 +24459,50 @@ define internal void @swap409(%"Vector[LocString]"* %"$this", %"Vector[LocString
 code:                                             ; preds = %0
   %1 = load %"Vector[LocString]"** %"$this.addr"
   %2 = getelementptr inbounds %"Vector[LocString]"* %1, i32 0, i32 0
-  call void @ctor341(%"RawPtr[LocString]"* %tmp, %"RawPtr[LocString]"* %2)
+  call void @ctor352(%"RawPtr[LocString]"* %tmp, %"RawPtr[LocString]"* %2)
   %3 = load %"Vector[LocString]"** %"$this.addr"
   %4 = getelementptr inbounds %"Vector[LocString]"* %3, i32 0, i32 0
   %5 = load %"Vector[LocString]"** %other.addr
   %6 = getelementptr inbounds %"Vector[LocString]"* %5, i32 0, i32 0
   %7 = load %"RawPtr[LocString]"* %6
-  call void @"=338"(%"RawPtr[LocString]"* %4, %"RawPtr[LocString]" %7)
+  call void @"=349"(%"RawPtr[LocString]"* %4, %"RawPtr[LocString]" %7)
   %8 = load %"Vector[LocString]"** %other.addr
   %9 = getelementptr inbounds %"Vector[LocString]"* %8, i32 0, i32 0
   %10 = load %"RawPtr[LocString]"* %tmp
-  call void @"=338"(%"RawPtr[LocString]"* %9, %"RawPtr[LocString]" %10)
+  call void @"=349"(%"RawPtr[LocString]"* %9, %"RawPtr[LocString]" %10)
   %11 = load %"Vector[LocString]"** %"$this.addr"
   %12 = getelementptr inbounds %"Vector[LocString]"* %11, i32 0, i32 1
   %13 = load %"RawPtr[LocString]"* %12
-  call void @"=338"(%"RawPtr[LocString]"* %tmp, %"RawPtr[LocString]" %13)
+  call void @"=349"(%"RawPtr[LocString]"* %tmp, %"RawPtr[LocString]" %13)
   %14 = load %"Vector[LocString]"** %"$this.addr"
   %15 = getelementptr inbounds %"Vector[LocString]"* %14, i32 0, i32 1
   %16 = load %"Vector[LocString]"** %other.addr
   %17 = getelementptr inbounds %"Vector[LocString]"* %16, i32 0, i32 1
   %18 = load %"RawPtr[LocString]"* %17
-  call void @"=338"(%"RawPtr[LocString]"* %15, %"RawPtr[LocString]" %18)
+  call void @"=349"(%"RawPtr[LocString]"* %15, %"RawPtr[LocString]" %18)
   %19 = load %"Vector[LocString]"** %other.addr
   %20 = getelementptr inbounds %"Vector[LocString]"* %19, i32 0, i32 1
   %21 = load %"RawPtr[LocString]"* %tmp
-  call void @"=338"(%"RawPtr[LocString]"* %20, %"RawPtr[LocString]" %21)
+  call void @"=349"(%"RawPtr[LocString]"* %20, %"RawPtr[LocString]" %21)
   %22 = load %"Vector[LocString]"** %"$this.addr"
   %23 = getelementptr inbounds %"Vector[LocString]"* %22, i32 0, i32 2
   %24 = load %"RawPtr[LocString]"* %23
-  call void @"=338"(%"RawPtr[LocString]"* %tmp, %"RawPtr[LocString]" %24)
+  call void @"=349"(%"RawPtr[LocString]"* %tmp, %"RawPtr[LocString]" %24)
   %25 = load %"Vector[LocString]"** %"$this.addr"
   %26 = getelementptr inbounds %"Vector[LocString]"* %25, i32 0, i32 2
   %27 = load %"Vector[LocString]"** %other.addr
   %28 = getelementptr inbounds %"Vector[LocString]"* %27, i32 0, i32 2
   %29 = load %"RawPtr[LocString]"* %28
-  call void @"=338"(%"RawPtr[LocString]"* %26, %"RawPtr[LocString]" %29)
+  call void @"=349"(%"RawPtr[LocString]"* %26, %"RawPtr[LocString]" %29)
   %30 = load %"Vector[LocString]"** %other.addr
   %31 = getelementptr inbounds %"Vector[LocString]"* %30, i32 0, i32 2
   %32 = load %"RawPtr[LocString]"* %tmp
-  call void @"=338"(%"RawPtr[LocString]"* %31, %"RawPtr[LocString]" %32)
+  call void @"=349"(%"RawPtr[LocString]"* %31, %"RawPtr[LocString]" %32)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @isEmpty410(%"Vector[LocString]"* %"$this") #2 {
+define internal i1 @isEmpty421(%"Vector[LocString]"* %"$this") #2 {
   %"$this.addr" = alloca %"Vector[LocString]"*
   store %"Vector[LocString]"* %"$this", %"Vector[LocString]"** %"$this.addr"
   br label %code
@@ -24253,12 +24513,12 @@ code:                                             ; preds = %0
   %3 = load %"Vector[LocString]"** %"$this.addr"
   %4 = getelementptr inbounds %"Vector[LocString]"* %3, i32 0, i32 1
   %5 = load %"RawPtr[LocString]"* %4
-  %6 = call i1 @"==331"(%"RawPtr[LocString]"* %2, %"RawPtr[LocString]" %5)
+  %6 = call i1 @"==342"(%"RawPtr[LocString]"* %2, %"RawPtr[LocString]" %5)
   ret i1 %6
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal %LocString* @at411(%"Vector[LocString]"* %"$this", i64 %index) #2 {
+define internal %LocString* @at422(%"Vector[LocString]"* %"$this", i64 %index) #2 {
   %"$this.addr" = alloca %"Vector[LocString]"*
   store %"Vector[LocString]"* %"$this", %"Vector[LocString]"** %"$this.addr"
   %index.addr = alloca i64
@@ -24270,13 +24530,13 @@ code:                                             ; preds = %0
   %1 = load %"Vector[LocString]"** %"$this.addr"
   %2 = getelementptr inbounds %"Vector[LocString]"* %1, i32 0, i32 0
   %3 = load i64* %index.addr
-  call void @advance339(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %2, i64 %3)
-  %4 = call %LocString* @value345(%"RawPtr[LocString]"* %"$tmpC")
+  call void @advance350(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %2, i64 %3)
+  %4 = call %LocString* @value356(%"RawPtr[LocString]"* %"$tmpC")
   ret %LocString* %4
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal %LocString* @"()412"(%"Vector[LocString]"* %"$this", i64 %index) #2 {
+define internal %LocString* @"()423"(%"Vector[LocString]"* %"$this", i64 %index) #2 {
   %"$this.addr" = alloca %"Vector[LocString]"*
   store %"Vector[LocString]"* %"$this", %"Vector[LocString]"** %"$this.addr"
   %index.addr = alloca i64
@@ -24288,13 +24548,13 @@ code:                                             ; preds = %0
   %1 = load %"Vector[LocString]"** %"$this.addr"
   %2 = getelementptr inbounds %"Vector[LocString]"* %1, i32 0, i32 0
   %3 = load i64* %index.addr
-  call void @advance339(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %2, i64 %3)
-  %4 = call %LocString* @value345(%"RawPtr[LocString]"* %"$tmpC")
+  call void @advance350(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %2, i64 %3)
+  %4 = call %LocString* @value356(%"RawPtr[LocString]"* %"$tmpC")
   ret %LocString* %4
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal %LocString* @front413(%"Vector[LocString]"* %"$this") #2 {
+define internal %LocString* @front424(%"Vector[LocString]"* %"$this") #2 {
   %"$this.addr" = alloca %"Vector[LocString]"*
   store %"Vector[LocString]"* %"$this", %"Vector[LocString]"** %"$this.addr"
   br label %code
@@ -24302,12 +24562,12 @@ define internal %LocString* @front413(%"Vector[LocString]"* %"$this") #2 {
 code:                                             ; preds = %0
   %1 = load %"Vector[LocString]"** %"$this.addr"
   %2 = getelementptr inbounds %"Vector[LocString]"* %1, i32 0, i32 0
-  %3 = call %LocString* @value345(%"RawPtr[LocString]"* %2)
+  %3 = call %LocString* @value356(%"RawPtr[LocString]"* %2)
   ret %LocString* %3
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal %LocString* @back414(%"Vector[LocString]"* %"$this") #2 {
+define internal %LocString* @back425(%"Vector[LocString]"* %"$this") #2 {
   %"$this.addr" = alloca %"Vector[LocString]"*
   store %"Vector[LocString]"* %"$this", %"Vector[LocString]"** %"$this.addr"
   %"$tmpC" = alloca %"RawPtr[LocString]"
@@ -24316,8 +24576,8 @@ define internal %LocString* @back414(%"Vector[LocString]"* %"$this") #2 {
 code:                                             ; preds = %0
   %1 = load %"Vector[LocString]"** %"$this.addr"
   %2 = getelementptr inbounds %"Vector[LocString]"* %1, i32 0, i32 1
-  call void @advance377(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %2, i64 -1)
-  %3 = call %LocString* @value345(%"RawPtr[LocString]"* %"$tmpC")
+  call void @advance388(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %2, i64 -1)
+  %3 = call %LocString* @value356(%"RawPtr[LocString]"* %"$tmpC")
   ret %LocString* %3
 }
 
@@ -24340,21 +24600,21 @@ code:                                             ; preds = %0
   %2 = load %"Vector[LocString]"** %"$this.addr"
   %3 = getelementptr inbounds %"Vector[LocString]"* %2, i32 0, i32 0
   %4 = load i64* %index.addr
-  call void @advance339(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %3, i64 %4)
+  call void @advance350(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %3, i64 %4)
   %5 = load %"RawPtr[LocString]"* %"$tmpC"
   %6 = load %"Vector[LocString]"** %"$this.addr"
   %7 = getelementptr inbounds %"Vector[LocString]"* %6, i32 0, i32 0
   %8 = load i64* %index.addr
   %9 = load i64* %num.addr
   %10 = call i64 @"+23"(i64 %8, i64 %9)
-  call void @advance339(%"RawPtr[LocString]"* %"$tmpC1", %"RawPtr[LocString]"* %7, i64 %10)
+  call void @advance350(%"RawPtr[LocString]"* %"$tmpC1", %"RawPtr[LocString]"* %7, i64 %10)
   %11 = load %"RawPtr[LocString]"* %"$tmpC1"
-  call void @ctor357(%"ContiguousMemoryRange[LocString]"* %1, %"RawPtr[LocString]" %5, %"RawPtr[LocString]" %11)
+  call void @ctor368(%"ContiguousMemoryRange[LocString]"* %1, %"RawPtr[LocString]" %5, %"RawPtr[LocString]" %11)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @insertBefore415(%"Vector[LocString]"* %"$this", %LocString* %value, %"ContiguousMemoryRange[LocString]" %pos) #3 {
+define internal void @insertBefore426(%"Vector[LocString]"* %"$this", %LocString* %value, %"ContiguousMemoryRange[LocString]" %pos) #3 {
   %"$this.addr" = alloca %"Vector[LocString]"*
   store %"Vector[LocString]"* %"$this", %"Vector[LocString]"** %"$this.addr"
   %value.addr = alloca %LocString*
@@ -24372,65 +24632,65 @@ define internal void @insertBefore415(%"Vector[LocString]"* %"$this", %LocString
   br label %code
 
 code:                                             ; preds = %0
-  call void @frontPtr385(%"RawPtr[LocString]"* %"$tmpC", %"ContiguousMemoryRange[LocString]"* %pos.addr)
+  call void @frontPtr396(%"RawPtr[LocString]"* %"$tmpC", %"ContiguousMemoryRange[LocString]"* %pos.addr)
   %1 = load %"Vector[LocString]"** %"$this.addr"
   %2 = getelementptr inbounds %"Vector[LocString]"* %1, i32 0, i32 0
   %3 = load %"RawPtr[LocString]"* %2
-  %4 = call i64 @diff333(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]" %3)
+  %4 = call i64 @diff344(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]" %3)
   store i64 %4, i64* %posCount
   %5 = load %"Vector[LocString]"** %"$this.addr"
   %6 = load %"Vector[LocString]"** %"$this.addr"
-  %7 = call i64 @size336(%"Vector[LocString]"* %6)
+  %7 = call i64 @size347(%"Vector[LocString]"* %6)
   %8 = call i64 @"+65"(i64 %7, i32 1)
-  call void @reserve335(%"Vector[LocString]"* %5, i64 %8)
+  call void @reserve346(%"Vector[LocString]"* %5, i64 %8)
   %9 = load %"Vector[LocString]"** %"$this.addr"
   %10 = getelementptr inbounds %"Vector[LocString]"* %9, i32 0, i32 1
-  call void @advance377(%"RawPtr[LocString]"* %p, %"RawPtr[LocString]"* %10, i64 -1)
+  call void @advance388(%"RawPtr[LocString]"* %p, %"RawPtr[LocString]"* %10, i64 -1)
   %11 = load %"Vector[LocString]"** %"$this.addr"
   %12 = getelementptr inbounds %"Vector[LocString]"* %11, i32 0, i32 0
   %13 = load i64* %posCount
-  %14 = call i64 @-416(i64 %13, i32 1)
-  call void @advance377(%"RawPtr[LocString]"* %q, %"RawPtr[LocString]"* %12, i64 %14)
+  %14 = call i64 @-427(i64 %13, i32 1)
+  call void @advance388(%"RawPtr[LocString]"* %q, %"RawPtr[LocString]"* %12, i64 %14)
   br label %while_block
 
 while_block:                                      ; preds = %while_step, %code
   %15 = load %"RawPtr[LocString]"* %q
-  %16 = call i1 @"==331"(%"RawPtr[LocString]"* %p, %"RawPtr[LocString]" %15)
+  %16 = call i1 @"==342"(%"RawPtr[LocString]"* %p, %"RawPtr[LocString]" %15)
   %17 = xor i1 true, %16
   br i1 %17, label %while_body, label %while_end
 
 while_body:                                       ; preds = %while_block
-  call void @advance346(%"RawPtr[LocString]"* %"$tmpC1", %"RawPtr[LocString]"* %p)
-  %18 = call %LocString* @value345(%"RawPtr[LocString]"* %"$tmpC1")
-  %19 = call %LocString* @value345(%"RawPtr[LocString]"* %p)
-  call void @ctor343(%LocString* %18, %LocString* %19)
-  %20 = call %LocString* @value345(%"RawPtr[LocString]"* %p)
-  call void @dtor349(%LocString* %20)
+  call void @advance357(%"RawPtr[LocString]"* %"$tmpC1", %"RawPtr[LocString]"* %p)
+  %18 = call %LocString* @value356(%"RawPtr[LocString]"* %"$tmpC1")
+  %19 = call %LocString* @value356(%"RawPtr[LocString]"* %p)
+  call void @ctor354(%LocString* %18, %LocString* %19)
+  %20 = call %LocString* @value356(%"RawPtr[LocString]"* %p)
+  call void @dtor360(%LocString* %20)
   br label %while_step
 
 while_step:                                       ; preds = %while_body
-  call void @advance377(%"RawPtr[LocString]"* %"$tmpC2", %"RawPtr[LocString]"* %p, i64 -1)
+  call void @advance388(%"RawPtr[LocString]"* %"$tmpC2", %"RawPtr[LocString]"* %p, i64 -1)
   %21 = load %"RawPtr[LocString]"* %"$tmpC2"
-  call void @"=338"(%"RawPtr[LocString]"* %p, %"RawPtr[LocString]" %21)
+  call void @"=349"(%"RawPtr[LocString]"* %p, %"RawPtr[LocString]" %21)
   br label %while_block
 
 while_end:                                        ; preds = %while_block
-  call void @advance346(%"RawPtr[LocString]"* %"$tmpC3", %"RawPtr[LocString]"* %p)
-  %22 = call %LocString* @value345(%"RawPtr[LocString]"* %"$tmpC3")
+  call void @advance357(%"RawPtr[LocString]"* %"$tmpC3", %"RawPtr[LocString]"* %p)
+  %22 = call %LocString* @value356(%"RawPtr[LocString]"* %"$tmpC3")
   %23 = load %LocString** %value.addr
-  call void @ctor343(%LocString* %22, %LocString* %23)
+  call void @ctor354(%LocString* %22, %LocString* %23)
   %24 = load %"Vector[LocString]"** %"$this.addr"
   %25 = getelementptr inbounds %"Vector[LocString]"* %24, i32 0, i32 1
   %26 = load %"Vector[LocString]"** %"$this.addr"
   %27 = getelementptr inbounds %"Vector[LocString]"* %26, i32 0, i32 1
-  call void @advance346(%"RawPtr[LocString]"* %"$tmpC4", %"RawPtr[LocString]"* %27)
+  call void @advance357(%"RawPtr[LocString]"* %"$tmpC4", %"RawPtr[LocString]"* %27)
   %28 = load %"RawPtr[LocString]"* %"$tmpC4"
-  call void @"=338"(%"RawPtr[LocString]"* %25, %"RawPtr[LocString]" %28)
+  call void @"=349"(%"RawPtr[LocString]"* %25, %"RawPtr[LocString]" %28)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i64 @-416(i64 %x, i32 %y) #2 {
+define internal i64 @-427(i64 %x, i32 %y) #2 {
   %x.addr = alloca i64
   store i64 %x, i64* %x.addr
   %y.addr = alloca i32
@@ -24463,19 +24723,19 @@ define internal void @insertAfter(%"Vector[LocString]"* %"$this", %LocString* %v
 code:                                             ; preds = %0
   %1 = load %"Vector[LocString]"** %"$this.addr"
   %2 = load %LocString** %value.addr
-  call void @backPtr386(%"RawPtr[LocString]"* %"$tmpC", %"ContiguousMemoryRange[LocString]"* %pos.addr)
+  call void @backPtr397(%"RawPtr[LocString]"* %"$tmpC", %"ContiguousMemoryRange[LocString]"* %pos.addr)
   %3 = load %"RawPtr[LocString]"* %"$tmpC"
   %4 = load %"Vector[LocString]"** %"$this.addr"
   %5 = getelementptr inbounds %"Vector[LocString]"* %4, i32 0, i32 1
   %6 = load %"RawPtr[LocString]"* %5
-  call void @ctor357(%"ContiguousMemoryRange[LocString]"* %tmp.v, %"RawPtr[LocString]" %3, %"RawPtr[LocString]" %6)
+  call void @ctor368(%"ContiguousMemoryRange[LocString]"* %tmp.v, %"RawPtr[LocString]" %3, %"RawPtr[LocString]" %6)
   %7 = load %"ContiguousMemoryRange[LocString]"* %tmp.v
-  call void @insertBefore415(%"Vector[LocString]"* %1, %LocString* %2, %"ContiguousMemoryRange[LocString]" %7)
+  call void @insertBefore426(%"Vector[LocString]"* %1, %LocString* %2, %"ContiguousMemoryRange[LocString]" %7)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @popBack417(%"Vector[LocString]"* %"$this") #3 {
+define internal void @popBack428(%"Vector[LocString]"* %"$this") #3 {
   %"$this.addr" = alloca %"Vector[LocString]"*
   store %"Vector[LocString]"* %"$this", %"Vector[LocString]"** %"$this.addr"
   %"$tmpC" = alloca %"RawPtr[LocString]"
@@ -24486,18 +24746,18 @@ code:                                             ; preds = %0
   %2 = getelementptr inbounds %"Vector[LocString]"* %1, i32 0, i32 1
   %3 = load %"Vector[LocString]"** %"$this.addr"
   %4 = getelementptr inbounds %"Vector[LocString]"* %3, i32 0, i32 1
-  call void @advance377(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %4, i64 -1)
+  call void @advance388(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %4, i64 -1)
   %5 = load %"RawPtr[LocString]"* %"$tmpC"
-  call void @"=338"(%"RawPtr[LocString]"* %2, %"RawPtr[LocString]" %5)
+  call void @"=349"(%"RawPtr[LocString]"* %2, %"RawPtr[LocString]" %5)
   %6 = load %"Vector[LocString]"** %"$this.addr"
   %7 = getelementptr inbounds %"Vector[LocString]"* %6, i32 0, i32 1
-  %8 = call %LocString* @value345(%"RawPtr[LocString]"* %7)
-  call void @dtor349(%LocString* %8)
+  %8 = call %LocString* @value356(%"RawPtr[LocString]"* %7)
+  call void @dtor360(%LocString* %8)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @remove418(%"Vector[LocString]"* %"$this", %"ContiguousMemoryRange[LocString]" %range) #3 {
+define internal void @remove429(%"Vector[LocString]"* %"$this", %"ContiguousMemoryRange[LocString]" %range) #3 {
   %"$this.addr" = alloca %"Vector[LocString]"*
   store %"Vector[LocString]"* %"$this", %"Vector[LocString]"** %"$this.addr"
   %range.addr = alloca %"ContiguousMemoryRange[LocString]"
@@ -24511,25 +24771,25 @@ define internal void @remove418(%"Vector[LocString]"* %"$this", %"ContiguousMemo
   br label %code
 
 code:                                             ; preds = %0
-  call void @frontPtr385(%"RawPtr[LocString]"* %rBegin, %"ContiguousMemoryRange[LocString]"* %range.addr)
-  call void @backPtr386(%"RawPtr[LocString]"* %rEnd, %"ContiguousMemoryRange[LocString]"* %range.addr)
-  call void @ctor419(%"ContiguousMemoryRange[LocString]"* %"$rangeVar", %"ContiguousMemoryRange[LocString]"* %range.addr)
+  call void @frontPtr396(%"RawPtr[LocString]"* %rBegin, %"ContiguousMemoryRange[LocString]"* %range.addr)
+  call void @backPtr397(%"RawPtr[LocString]"* %rEnd, %"ContiguousMemoryRange[LocString]"* %range.addr)
+  call void @ctor430(%"ContiguousMemoryRange[LocString]"* %"$rangeVar", %"ContiguousMemoryRange[LocString]"* %range.addr)
   br label %while_block
 
 while_block:                                      ; preds = %while_step, %code
-  %1 = call i1 @isEmpty358(%"ContiguousMemoryRange[LocString]"* %"$rangeVar")
+  %1 = call i1 @isEmpty369(%"ContiguousMemoryRange[LocString]"* %"$rangeVar")
   %2 = xor i1 true, %1
   br i1 %2, label %while_body, label %while_end
 
 while_body:                                       ; preds = %while_block
-  %3 = call %LocString* @front359(%"ContiguousMemoryRange[LocString]"* %"$rangeVar")
+  %3 = call %LocString* @front370(%"ContiguousMemoryRange[LocString]"* %"$rangeVar")
   store %LocString* %3, %LocString** %el
   %4 = load %LocString** %el
-  call void @dtor349(%LocString* %4)
+  call void @dtor360(%LocString* %4)
   br label %while_step
 
 while_step:                                       ; preds = %while_body
-  call void @popFront361(%"ContiguousMemoryRange[LocString]"* %"$rangeVar")
+  call void @popFront372(%"ContiguousMemoryRange[LocString]"* %"$rangeVar")
   br label %while_block
 
 while_end:                                        ; preds = %while_block
@@ -24539,22 +24799,22 @@ while_block1:                                     ; preds = %while_step3, %while
   %5 = load %"Vector[LocString]"** %"$this.addr"
   %6 = getelementptr inbounds %"Vector[LocString]"* %5, i32 0, i32 1
   %7 = load %"RawPtr[LocString]"* %6
-  %8 = call i1 @"==331"(%"RawPtr[LocString]"* %rEnd, %"RawPtr[LocString]" %7)
+  %8 = call i1 @"==342"(%"RawPtr[LocString]"* %rEnd, %"RawPtr[LocString]" %7)
   %9 = xor i1 true, %8
   br i1 %9, label %while_body2, label %while_end4
 
 while_body2:                                      ; preds = %while_block1
-  %10 = call %LocString* @value345(%"RawPtr[LocString]"* %rBegin)
-  %11 = call %LocString* @value345(%"RawPtr[LocString]"* %rEnd)
-  call void @ctor343(%LocString* %10, %LocString* %11)
-  %12 = call %LocString* @value345(%"RawPtr[LocString]"* %rEnd)
-  call void @dtor349(%LocString* %12)
-  call void @advance346(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %rBegin)
+  %10 = call %LocString* @value356(%"RawPtr[LocString]"* %rBegin)
+  %11 = call %LocString* @value356(%"RawPtr[LocString]"* %rEnd)
+  call void @ctor354(%LocString* %10, %LocString* %11)
+  %12 = call %LocString* @value356(%"RawPtr[LocString]"* %rEnd)
+  call void @dtor360(%LocString* %12)
+  call void @advance357(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %rBegin)
   %13 = load %"RawPtr[LocString]"* %"$tmpC"
-  call void @"=338"(%"RawPtr[LocString]"* %rBegin, %"RawPtr[LocString]" %13)
-  call void @advance346(%"RawPtr[LocString]"* %"$tmpC5", %"RawPtr[LocString]"* %rEnd)
+  call void @"=349"(%"RawPtr[LocString]"* %rBegin, %"RawPtr[LocString]" %13)
+  call void @advance357(%"RawPtr[LocString]"* %"$tmpC5", %"RawPtr[LocString]"* %rEnd)
   %14 = load %"RawPtr[LocString]"* %"$tmpC5"
-  call void @"=338"(%"RawPtr[LocString]"* %rEnd, %"RawPtr[LocString]" %14)
+  call void @"=349"(%"RawPtr[LocString]"* %rEnd, %"RawPtr[LocString]" %14)
   br label %while_step3
 
 while_step3:                                      ; preds = %while_body2
@@ -24564,12 +24824,12 @@ while_end4:                                       ; preds = %while_block1
   %15 = load %"Vector[LocString]"** %"$this.addr"
   %16 = getelementptr inbounds %"Vector[LocString]"* %15, i32 0, i32 1
   %17 = load %"RawPtr[LocString]"* %rBegin
-  call void @"=338"(%"RawPtr[LocString]"* %16, %"RawPtr[LocString]" %17)
+  call void @"=349"(%"RawPtr[LocString]"* %16, %"RawPtr[LocString]" %17)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor419(%"ContiguousMemoryRange[LocString]"* %"$this", %"ContiguousMemoryRange[LocString]"* %other) #2 {
+define internal void @ctor430(%"ContiguousMemoryRange[LocString]"* %"$this", %"ContiguousMemoryRange[LocString]"* %other) #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[LocString]"*
   store %"ContiguousMemoryRange[LocString]"* %"$this", %"ContiguousMemoryRange[LocString]"** %"$this.addr"
   %other.addr = alloca %"ContiguousMemoryRange[LocString]"*
@@ -24581,17 +24841,17 @@ code:                                             ; preds = %0
   %2 = getelementptr inbounds %"ContiguousMemoryRange[LocString]"* %1, i32 0, i32 0
   %3 = load %"ContiguousMemoryRange[LocString]"** %other.addr
   %4 = getelementptr inbounds %"ContiguousMemoryRange[LocString]"* %3, i32 0, i32 0
-  call void @ctor341(%"RawPtr[LocString]"* %2, %"RawPtr[LocString]"* %4)
+  call void @ctor352(%"RawPtr[LocString]"* %2, %"RawPtr[LocString]"* %4)
   %5 = load %"ContiguousMemoryRange[LocString]"** %"$this.addr"
   %6 = getelementptr inbounds %"ContiguousMemoryRange[LocString]"* %5, i32 0, i32 1
   %7 = load %"ContiguousMemoryRange[LocString]"** %other.addr
   %8 = getelementptr inbounds %"ContiguousMemoryRange[LocString]"* %7, i32 0, i32 1
-  call void @ctor341(%"RawPtr[LocString]"* %6, %"RawPtr[LocString]"* %8)
+  call void @ctor352(%"RawPtr[LocString]"* %6, %"RawPtr[LocString]"* %8)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @remove420(%"Vector[LocString]"* %"$this", i64 %index) #3 {
+define internal void @remove431(%"Vector[LocString]"* %"$this", i64 %index) #3 {
   %"$this.addr" = alloca %"Vector[LocString]"*
   store %"Vector[LocString]"* %"$this", %"Vector[LocString]"** %"$this.addr"
   %index.addr = alloca i64
@@ -24601,18 +24861,18 @@ define internal void @remove420(%"Vector[LocString]"* %"$this", i64 %index) #3 {
 
 code:                                             ; preds = %0
   %1 = load %"Vector[LocString]"** %"$this.addr"
-  call void @all356(%"ContiguousMemoryRange[LocString]"* %r, %"Vector[LocString]"* %1)
+  call void @all367(%"ContiguousMemoryRange[LocString]"* %r, %"Vector[LocString]"* %1)
   %2 = load i64* %index.addr
-  call void @popFront381(%"ContiguousMemoryRange[LocString]"* %r, i64 %2)
+  call void @popFront392(%"ContiguousMemoryRange[LocString]"* %r, i64 %2)
   %3 = load %"Vector[LocString]"** %"$this.addr"
-  %4 = call i64 @size336(%"Vector[LocString]"* %3)
+  %4 = call i64 @size347(%"Vector[LocString]"* %3)
   %5 = load i64* %index.addr
   %6 = call i64 @-43(i64 %4, i64 %5)
-  %7 = call i64 @-238(i64 %6, i32 1)
-  call void @popBack382(%"ContiguousMemoryRange[LocString]"* %r, i64 %7)
+  %7 = call i64 @-239(i64 %6, i32 1)
+  call void @popBack393(%"ContiguousMemoryRange[LocString]"* %r, i64 %7)
   %8 = load %"Vector[LocString]"** %"$this.addr"
   %9 = load %"ContiguousMemoryRange[LocString]"* %r
-  call void @remove418(%"Vector[LocString]"* %8, %"ContiguousMemoryRange[LocString]" %9)
+  call void @remove429(%"Vector[LocString]"* %8, %"ContiguousMemoryRange[LocString]" %9)
   ret void
 }
 
@@ -24631,14 +24891,14 @@ define internal void @resize(%"Vector[LocString]"* %"$this", i64 %n) #3 {
 
 code:                                             ; preds = %0
   %1 = load %"Vector[LocString]"** %"$this.addr"
-  %2 = call i64 @size336(%"Vector[LocString]"* %1)
+  %2 = call i64 @size347(%"Vector[LocString]"* %1)
   store i64 %2, i64* %oldSize
   br label %if_block
 
 if_block:                                         ; preds = %code
   %3 = load i64* %n.addr
   %4 = load i64* %oldSize
-  %5 = call i1 @"==421"(i64 %3, i64 %4)
+  %5 = call i1 @"==432"(i64 %3, i64 %4)
   br i1 %5, label %if_then, label %if_end
 
 if_then:                                          ; preds = %if_block
@@ -24660,17 +24920,17 @@ if_then2:                                         ; preds = %if_block1
   %9 = load %"Vector[LocString]"** %"$this.addr"
   %10 = getelementptr inbounds %"Vector[LocString]"* %9, i32 0, i32 0
   %11 = load i64* %n.addr
-  call void @advance339(%"RawPtr[LocString]"* %newEnd, %"RawPtr[LocString]"* %10, i64 %11)
+  call void @advance350(%"RawPtr[LocString]"* %newEnd, %"RawPtr[LocString]"* %10, i64 %11)
   br label %while_block
 
 if_else:                                          ; preds = %if_block1
   %12 = load %"Vector[LocString]"** %"$this.addr"
   %13 = load i64* %n.addr
-  call void @reserve335(%"Vector[LocString]"* %12, i64 %13)
+  call void @reserve346(%"Vector[LocString]"* %12, i64 %13)
   %14 = load %"Vector[LocString]"** %"$this.addr"
   %15 = getelementptr inbounds %"Vector[LocString]"* %14, i32 0, i32 0
   %16 = load i64* %n.addr
-  call void @advance339(%"RawPtr[LocString]"* %newEnd4, %"RawPtr[LocString]"* %15, i64 %16)
+  call void @advance350(%"RawPtr[LocString]"* %newEnd4, %"RawPtr[LocString]"* %15, i64 %16)
   br label %while_block5
 
 if_end3:                                          ; preds = %while_end8, %while_end
@@ -24680,7 +24940,7 @@ while_block:                                      ; preds = %while_step, %if_the
   %17 = load %"Vector[LocString]"** %"$this.addr"
   %18 = getelementptr inbounds %"Vector[LocString]"* %17, i32 0, i32 1
   %19 = load %"RawPtr[LocString]"* %newEnd
-  %20 = call i1 @"==331"(%"RawPtr[LocString]"* %18, %"RawPtr[LocString]" %19)
+  %20 = call i1 @"==342"(%"RawPtr[LocString]"* %18, %"RawPtr[LocString]" %19)
   %21 = xor i1 true, %20
   br i1 %21, label %while_body, label %while_end
 
@@ -24689,13 +24949,13 @@ while_body:                                       ; preds = %while_block
   %23 = getelementptr inbounds %"Vector[LocString]"* %22, i32 0, i32 1
   %24 = load %"Vector[LocString]"** %"$this.addr"
   %25 = getelementptr inbounds %"Vector[LocString]"* %24, i32 0, i32 1
-  call void @advance377(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %25, i64 -1)
+  call void @advance388(%"RawPtr[LocString]"* %"$tmpC", %"RawPtr[LocString]"* %25, i64 -1)
   %26 = load %"RawPtr[LocString]"* %"$tmpC"
-  call void @"=338"(%"RawPtr[LocString]"* %23, %"RawPtr[LocString]" %26)
+  call void @"=349"(%"RawPtr[LocString]"* %23, %"RawPtr[LocString]" %26)
   %27 = load %"Vector[LocString]"** %"$this.addr"
   %28 = getelementptr inbounds %"Vector[LocString]"* %27, i32 0, i32 1
-  %29 = call %LocString* @value345(%"RawPtr[LocString]"* %28)
-  call void @dtor349(%LocString* %29)
+  %29 = call %LocString* @value356(%"RawPtr[LocString]"* %28)
+  call void @dtor360(%LocString* %29)
   br label %while_step
 
 while_step:                                       ; preds = %while_body
@@ -24708,22 +24968,22 @@ while_block5:                                     ; preds = %while_step7, %if_el
   %30 = load %"Vector[LocString]"** %"$this.addr"
   %31 = getelementptr inbounds %"Vector[LocString]"* %30, i32 0, i32 1
   %32 = load %"RawPtr[LocString]"* %newEnd4
-  %33 = call i1 @"==331"(%"RawPtr[LocString]"* %31, %"RawPtr[LocString]" %32)
+  %33 = call i1 @"==342"(%"RawPtr[LocString]"* %31, %"RawPtr[LocString]" %32)
   %34 = xor i1 true, %33
   br i1 %34, label %while_body6, label %while_end8
 
 while_body6:                                      ; preds = %while_block5
   %35 = load %"Vector[LocString]"** %"$this.addr"
   %36 = getelementptr inbounds %"Vector[LocString]"* %35, i32 0, i32 1
-  %37 = call %LocString* @value345(%"RawPtr[LocString]"* %36)
-  call void @ctor407(%LocString* %37)
+  %37 = call %LocString* @value356(%"RawPtr[LocString]"* %36)
+  call void @ctor418(%LocString* %37)
   %38 = load %"Vector[LocString]"** %"$this.addr"
   %39 = getelementptr inbounds %"Vector[LocString]"* %38, i32 0, i32 1
   %40 = load %"Vector[LocString]"** %"$this.addr"
   %41 = getelementptr inbounds %"Vector[LocString]"* %40, i32 0, i32 1
-  call void @advance346(%"RawPtr[LocString]"* %"$tmpC9", %"RawPtr[LocString]"* %41)
+  call void @advance357(%"RawPtr[LocString]"* %"$tmpC9", %"RawPtr[LocString]"* %41)
   %42 = load %"RawPtr[LocString]"* %"$tmpC9"
-  call void @"=338"(%"RawPtr[LocString]"* %39, %"RawPtr[LocString]" %42)
+  call void @"=349"(%"RawPtr[LocString]"* %39, %"RawPtr[LocString]" %42)
   br label %while_step7
 
 while_step7:                                      ; preds = %while_body6
@@ -24734,7 +24994,7 @@ while_end8:                                       ; preds = %while_block5
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"==421"(i64 %x, i64 %y) #2 {
+define internal i1 @"==432"(i64 %x, i64 %y) #2 {
   %x.addr = alloca i64
   store i64 %x, i64* %x.addr
   %y.addr = alloca i64
@@ -24753,7 +25013,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @clear422(%"Vector[LocString]"* %"$this") #3 {
+define internal void @clear433(%"Vector[LocString]"* %"$this") #3 {
   %"$this.addr" = alloca %"Vector[LocString]"*
   store %"Vector[LocString]"* %"$this", %"Vector[LocString]"** %"$this.addr"
   %tmp.v = alloca %"ContiguousMemoryRange[LocString]"
@@ -24767,14 +25027,14 @@ code:                                             ; preds = %0
   %5 = load %"Vector[LocString]"** %"$this.addr"
   %6 = getelementptr inbounds %"Vector[LocString]"* %5, i32 0, i32 1
   %7 = load %"RawPtr[LocString]"* %6
-  call void @ctor357(%"ContiguousMemoryRange[LocString]"* %tmp.v, %"RawPtr[LocString]" %4, %"RawPtr[LocString]" %7)
+  call void @ctor368(%"ContiguousMemoryRange[LocString]"* %tmp.v, %"RawPtr[LocString]" %4, %"RawPtr[LocString]" %7)
   %8 = load %"ContiguousMemoryRange[LocString]"* %tmp.v
-  call void @remove418(%"Vector[LocString]"* %1, %"ContiguousMemoryRange[LocString]" %8)
+  call void @remove429(%"Vector[LocString]"* %1, %"ContiguousMemoryRange[LocString]" %8)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal %"Vector[LocString]"* @"=423"(%"Vector[LocString]"* %"$this", %"Vector[LocString]"* %other) #3 {
+define internal %"Vector[LocString]"* @"=434"(%"Vector[LocString]"* %"$this", %"Vector[LocString]"* %other) #3 {
   %"$this.addr" = alloca %"Vector[LocString]"*
   store %"Vector[LocString]"* %"$this", %"Vector[LocString]"** %"$this.addr"
   %other.addr = alloca %"Vector[LocString]"*
@@ -24784,20 +25044,20 @@ define internal %"Vector[LocString]"* @"=423"(%"Vector[LocString]"* %"$this", %"
 
 code:                                             ; preds = %0
   %1 = load %"Vector[LocString]"** %other.addr
-  call void @ctor351(%"Vector[LocString]"* %tmp, %"Vector[LocString]"* %1)
+  call void @ctor362(%"Vector[LocString]"* %tmp, %"Vector[LocString]"* %1)
   %2 = load %"Vector[LocString]"** %"$this.addr"
-  call void @swap409(%"Vector[LocString]"* %tmp, %"Vector[LocString]"* %2)
+  call void @swap420(%"Vector[LocString]"* %tmp, %"Vector[LocString]"* %2)
   %3 = load %"Vector[LocString]"** %"$this.addr"
-  call void @dtor353(%"Vector[LocString]"* %tmp)
+  call void @dtor364(%"Vector[LocString]"* %tmp)
   ret %"Vector[LocString]"* %3
 
 dumy_block:                                       ; No predecessors!
-  call void @dtor353(%"Vector[LocString]"* %tmp)
+  call void @dtor364(%"Vector[LocString]"* %tmp)
   unreachable
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal i1 @"==424"(%"Vector[LocString]"* %"$this", %"Vector[LocString]"* %other) #3 {
+define internal i1 @"==435"(%"Vector[LocString]"* %"$this", %"Vector[LocString]"* %other) #3 {
   %"$this.addr" = alloca %"Vector[LocString]"*
   store %"Vector[LocString]"* %"$this", %"Vector[LocString]"** %"$this.addr"
   %other.addr = alloca %"Vector[LocString]"*
@@ -24813,10 +25073,10 @@ code:                                             ; preds = %0
 
 if_block:                                         ; preds = %code
   %1 = load %"Vector[LocString]"** %"$this.addr"
-  %2 = call i64 @size336(%"Vector[LocString]"* %1)
+  %2 = call i64 @size347(%"Vector[LocString]"* %1)
   %3 = load %"Vector[LocString]"** %other.addr
-  %4 = call i64 @size336(%"Vector[LocString]"* %3)
-  %5 = call i1 @"!=264"(i64 %2, i64 %4)
+  %4 = call i64 @size347(%"Vector[LocString]"* %3)
+  %5 = call i1 @"!=274"(i64 %2, i64 %4)
   br i1 %5, label %if_then, label %if_end
 
 if_then:                                          ; preds = %if_block
@@ -24825,7 +25085,7 @@ if_then:                                          ; preds = %if_block
 if_end:                                           ; preds = %dumy_block, %if_block
   store i32 0, i32* %i
   %6 = load %"Vector[LocString]"** %"$this.addr"
-  %7 = call i64 @size336(%"Vector[LocString]"* %6)
+  %7 = call i64 @size347(%"Vector[LocString]"* %6)
   store i64 %7, i64* %s
   br label %while_block
 
@@ -24835,7 +25095,7 @@ dumy_block:                                       ; No predecessors!
 while_block:                                      ; preds = %while_step, %if_end
   %8 = load i32* %i
   %9 = load i64* %s
-  %10 = call i1 @"<425"(i32 %8, i64 %9)
+  %10 = call i1 @"<436"(i32 %8, i64 %9)
   br i1 %10, label %while_body, label %while_end
 
 while_body:                                       ; preds = %while_block
@@ -24856,14 +25116,14 @@ if_block1:                                        ; preds = %while_body
   %15 = zext i32 %14 to i64
   store i64 %15, i64* %tmp.v
   %16 = load i64* %tmp.v
-  %17 = call %LocString* @at411(%"Vector[LocString]"* %13, i64 %16)
+  %17 = call %LocString* @at422(%"Vector[LocString]"* %13, i64 %16)
   %18 = load %"Vector[LocString]"** %other.addr
   %19 = load i32* %i
   %20 = zext i32 %19 to i64
   store i64 %20, i64* %tmp.v4
   %21 = load i64* %tmp.v4
-  %22 = call %LocString* @at411(%"Vector[LocString]"* %18, i64 %21)
-  %23 = call i1 @"==426"(%LocString* %17, %LocString* %22)
+  %22 = call %LocString* @at422(%"Vector[LocString]"* %18, i64 %21)
+  %23 = call i1 @"==437"(%LocString* %17, %LocString* %22)
   %24 = xor i1 true, %23
   br i1 %24, label %if_then2, label %if_end3
 
@@ -24878,7 +25138,7 @@ dumy_block5:                                      ; No predecessors!
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"<425"(i32 %x, i64 %y) #2 {
+define internal i1 @"<436"(i32 %x, i64 %y) #2 {
   %x.addr = alloca i32
   store i32 %x, i32* %x.addr
   %y.addr = alloca i64
@@ -24897,7 +25157,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"==426"(%LocString* %"$this", %LocString* %other) #2 {
+define internal i1 @"==437"(%LocString* %"$this", %LocString* %other) #2 {
   %"$this.addr" = alloca %LocString*
   store %LocString* %"$this", %LocString** %"$this.addr"
   %other.addr = alloca %LocString*
@@ -24909,12 +25169,12 @@ code:                                             ; preds = %0
   %2 = getelementptr inbounds %LocString* %1, i32 0, i32 0
   %3 = load %LocString** %other.addr
   %4 = getelementptr inbounds %LocString* %3, i32 0, i32 0
-  %5 = call i1 @"==427"(%"Tuple[Location/rtct, String/rtct]"* %2, %"Tuple[Location/rtct, String/rtct]"* %4)
+  %5 = call i1 @"==438"(%"Tuple[Location/rtct, String/rtct]"* %2, %"Tuple[Location/rtct, String/rtct]"* %4)
   ret i1 %5
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"==427"(%"Tuple[Location/rtct, String/rtct]"* %"$this", %"Tuple[Location/rtct, String/rtct]"* %other) #2 {
+define internal i1 @"==438"(%"Tuple[Location/rtct, String/rtct]"* %"$this", %"Tuple[Location/rtct, String/rtct]"* %other) #2 {
   %"$this.addr" = alloca %"Tuple[Location/rtct, String/rtct]"*
   store %"Tuple[Location/rtct, String/rtct]"* %"$this", %"Tuple[Location/rtct, String/rtct]"** %"$this.addr"
   %other.addr = alloca %"Tuple[Location/rtct, String/rtct]"*
@@ -24926,7 +25186,7 @@ code:                                             ; preds = %0
   %2 = getelementptr inbounds %"Tuple[Location/rtct, String/rtct]"* %1, i32 0, i32 0
   %3 = load %"Tuple[Location/rtct, String/rtct]"** %other.addr
   %4 = getelementptr inbounds %"Tuple[Location/rtct, String/rtct]"* %3, i32 0, i32 0
-  %5 = call i1 @"==428"(%Location* %2, %Location* %4)
+  %5 = call i1 @"==439"(%Location* %2, %Location* %4)
   br i1 %5, label %cond.true, label %cond.false
 
 cond.true:                                        ; preds = %code
@@ -24934,7 +25194,7 @@ cond.true:                                        ; preds = %code
   %7 = getelementptr inbounds %"Tuple[Location/rtct, String/rtct]"* %6, i32 0, i32 1
   %8 = load %"Tuple[Location/rtct, String/rtct]"** %other.addr
   %9 = getelementptr inbounds %"Tuple[Location/rtct, String/rtct]"* %8, i32 0, i32 1
-  %10 = call i1 @"==432"(%String* %7, %String* %9)
+  %10 = call i1 @"==443"(%String* %7, %String* %9)
   br label %cond.end
 
 cond.false:                                       ; preds = %code
@@ -24946,7 +25206,7 @@ cond.end:                                         ; preds = %cond.false, %cond.t
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"==428"(%Location* %"$this", %Location* %other) #2 {
+define internal i1 @"==439"(%Location* %"$this", %Location* %other) #2 {
   %"$this.addr" = alloca %Location*
   store %Location* %"$this", %Location** %"$this.addr"
   %other.addr = alloca %Location*
@@ -24958,7 +25218,7 @@ code:                                             ; preds = %0
   %2 = getelementptr inbounds %Location* %1, i32 0, i32 0
   %3 = load %Location** %other.addr
   %4 = getelementptr inbounds %Location* %3, i32 0, i32 0
-  %5 = call i1 @"==429"(%SourceCode* %2, %SourceCode* %4)
+  %5 = call i1 @"==440"(%SourceCode* %2, %SourceCode* %4)
   br i1 %5, label %cond.true1, label %cond.false2
 
 cond.true:                                        ; preds = %cond.end3
@@ -24966,7 +25226,7 @@ cond.true:                                        ; preds = %cond.end3
   %7 = getelementptr inbounds %Location* %6, i32 0, i32 2
   %8 = load %Location** %other.addr
   %9 = getelementptr inbounds %Location* %8, i32 0, i32 2
-  %10 = call i1 @"==430"(%LineCol* %7, %LineCol* %9)
+  %10 = call i1 @"==441"(%LineCol* %7, %LineCol* %9)
   br label %cond.end
 
 cond.false:                                       ; preds = %cond.end3
@@ -24981,7 +25241,7 @@ cond.true1:                                       ; preds = %code
   %12 = getelementptr inbounds %Location* %11, i32 0, i32 1
   %13 = load %Location** %other.addr
   %14 = getelementptr inbounds %Location* %13, i32 0, i32 1
-  %15 = call i1 @"==430"(%LineCol* %12, %LineCol* %14)
+  %15 = call i1 @"==441"(%LineCol* %12, %LineCol* %14)
   br label %cond.end3
 
 cond.false2:                                      ; preds = %code
@@ -24993,7 +25253,7 @@ cond.end3:                                        ; preds = %cond.false2, %cond.
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"==429"(%SourceCode* %"$this", %SourceCode* %other) #2 {
+define internal i1 @"==440"(%SourceCode* %"$this", %SourceCode* %other) #2 {
   %"$this.addr" = alloca %SourceCode*
   store %SourceCode* %"$this", %SourceCode** %"$this.addr"
   %other.addr = alloca %SourceCode*
@@ -25012,7 +25272,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"==430"(%LineCol* %"$this", %LineCol* %other) #2 {
+define internal i1 @"==441"(%LineCol* %"$this", %LineCol* %other) #2 {
   %"$this.addr" = alloca %LineCol*
   store %LineCol* %"$this", %LineCol** %"$this.addr"
   %other.addr = alloca %LineCol*
@@ -25026,7 +25286,7 @@ code:                                             ; preds = %0
   %4 = load %LineCol** %other.addr
   %5 = getelementptr inbounds %LineCol* %4, i32 0, i32 0
   %6 = load i32* %5
-  %7 = call i1 @"==431"(i32 %3, i32 %6)
+  %7 = call i1 @"==442"(i32 %3, i32 %6)
   br i1 %7, label %cond.true, label %cond.false
 
 cond.true:                                        ; preds = %code
@@ -25036,7 +25296,7 @@ cond.true:                                        ; preds = %code
   %11 = load %LineCol** %other.addr
   %12 = getelementptr inbounds %LineCol* %11, i32 0, i32 1
   %13 = load i32* %12
-  %14 = call i1 @"==431"(i32 %10, i32 %13)
+  %14 = call i1 @"==442"(i32 %10, i32 %13)
   br label %cond.end
 
 cond.false:                                       ; preds = %code
@@ -25048,7 +25308,7 @@ cond.end:                                         ; preds = %cond.false, %cond.t
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"==431"(i32 %x, i32 %y) #2 {
+define internal i1 @"==442"(i32 %x, i32 %y) #2 {
   %x.addr = alloca i32
   store i32 %x, i32* %x.addr
   %y.addr = alloca i32
@@ -25067,7 +25327,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal i1 @"==432"(%String* %"$this", %String* %other) #3 {
+define internal i1 @"==443"(%String* %"$this", %String* %other) #3 {
   %"$this.addr" = alloca %String*
   store %String* %"$this", %String** %"$this.addr"
   %other.addr = alloca %String*
@@ -25084,7 +25344,7 @@ if_block:                                         ; preds = %code
   %2 = call i64 @size143(%String* %1)
   %3 = load %String** %other.addr
   %4 = call i64 @size143(%String* %3)
-  %5 = call i1 @"!=264"(i64 %2, i64 %4)
+  %5 = call i1 @"!=274"(i64 %2, i64 %4)
   br i1 %5, label %if_then, label %if_end
 
 if_then:                                          ; preds = %if_block
@@ -25121,11 +25381,11 @@ while_end:                                        ; preds = %while_block
 if_block1:                                        ; preds = %while_body
   %13 = load %String** %"$this.addr"
   %14 = load i64* %i
-  %15 = call i8* @at433(%String* %13, i64 %14)
+  %15 = call i8* @at444(%String* %13, i64 %14)
   %16 = load i8* %15
   %17 = load %String** %other.addr
   %18 = load i64* %i
-  %19 = call i8* @at433(%String* %17, i64 %18)
+  %19 = call i8* @at444(%String* %17, i64 %18)
   %20 = load i8* %19
   %21 = icmp ne i8 %16, %20
   br i1 %21, label %if_then2, label %if_end3
@@ -25141,7 +25401,7 @@ dumy_block4:                                      ; No predecessors!
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i8* @at433(%String* %"$this", i64 %index) #2 {
+define internal i8* @at444(%String* %"$this", i64 %index) #2 {
   %"$this.addr" = alloca %String*
   store %String* %"$this", %String** %"$this.addr"
   %index.addr = alloca i64
@@ -25162,7 +25422,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"!=434"(%"Vector[LocString]"* %"$this", %"Vector[LocString]"* %other) #2 {
+define internal i1 @"!=445"(%"Vector[LocString]"* %"$this", %"Vector[LocString]"* %other) #2 {
   %"$this.addr" = alloca %"Vector[LocString]"*
   store %"Vector[LocString]"* %"$this", %"Vector[LocString]"** %"$this.addr"
   %other.addr = alloca %"Vector[LocString]"*
@@ -25172,7 +25432,7 @@ define internal i1 @"!=434"(%"Vector[LocString]"* %"$this", %"Vector[LocString]"
 code:                                             ; preds = %0
   %1 = load %"Vector[LocString]"** %"$this.addr"
   %2 = load %"Vector[LocString]"** %other.addr
-  %3 = call i1 @"==424"(%"Vector[LocString]"* %1, %"Vector[LocString]"* %2)
+  %3 = call i1 @"==435"(%"Vector[LocString]"* %1, %"Vector[LocString]"* %2)
   %4 = xor i1 true, %3
   ret i1 %4
 }
@@ -25212,7 +25472,7 @@ define internal void @dumpThis(%"Vector[LocString]"* %"$this", %StringRef %prefi
   br label %code
 
 code:                                             ; preds = %0
-  %1 = call %ConsoleOutputStream* @"<<441"(%ConsoleOutputStream* @cout, %StringRef* %prefix.addr)
+  %1 = call %ConsoleOutputStream* @"<<452"(%ConsoleOutputStream* @cout, %StringRef* %prefix.addr)
   store [9 x i8] c"dumping \00", [9 x i8]* %const.bytes
   %2 = getelementptr inbounds [9 x i8]* %const.bytes, i32 0, i32 0
   %3 = getelementptr inbounds [9 x i8]* %const.bytes, i32 0, i32 8
@@ -25222,7 +25482,7 @@ code:                                             ; preds = %0
   store i8* %3, i8** %5
   %6 = load %StringRef* %const.struct
   store %StringRef %6, %StringRef* %"$tmpForRef"
-  %7 = call %ConsoleOutputStream* @"<<441"(%ConsoleOutputStream* %1, %StringRef* %"$tmpForRef")
+  %7 = call %ConsoleOutputStream* @"<<452"(%ConsoleOutputStream* %1, %StringRef* %"$tmpForRef")
   store [18 x i8] c"Vector[LocString]\00", [18 x i8]* %const.bytes2
   %8 = getelementptr inbounds [18 x i8]* %const.bytes2, i32 0, i32 0
   %9 = getelementptr inbounds [18 x i8]* %const.bytes2, i32 0, i32 17
@@ -25232,7 +25492,7 @@ code:                                             ; preds = %0
   store i8* %9, i8** %11
   %12 = load %StringRef* %const.struct3
   store %StringRef %12, %StringRef* %"$tmpForRef1"
-  %13 = call %ConsoleOutputStream* @"<<441"(%ConsoleOutputStream* %7, %StringRef* %"$tmpForRef1")
+  %13 = call %ConsoleOutputStream* @"<<452"(%ConsoleOutputStream* %7, %StringRef* %"$tmpForRef1")
   store [3 x i8] c": \00", [3 x i8]* %const.bytes5
   %14 = getelementptr inbounds [3 x i8]* %const.bytes5, i32 0, i32 0
   %15 = getelementptr inbounds [3 x i8]* %const.bytes5, i32 0, i32 2
@@ -25242,11 +25502,11 @@ code:                                             ; preds = %0
   store i8* %15, i8** %17
   %18 = load %StringRef* %const.struct6
   store %StringRef %18, %StringRef* %"$tmpForRef4"
-  %19 = call %ConsoleOutputStream* @"<<441"(%ConsoleOutputStream* %13, %StringRef* %"$tmpForRef4")
+  %19 = call %ConsoleOutputStream* @"<<452"(%ConsoleOutputStream* %13, %StringRef* %"$tmpForRef4")
   %20 = load %"Vector[LocString]"** %"$this.addr"
   call void @mkStreamRefWrapper(%StreamRefWrapperHelperClass* %"$tmpC", %"Vector[LocString]"* %20)
-  %21 = call %ConsoleOutputStream* @"<<439"(%ConsoleOutputStream* %19, %StreamRefWrapperHelperClass* %"$tmpC")
-  %22 = call %ConsoleOutputStream* @"<<435"(%ConsoleOutputStream* %21, %EndLineHelperClass* @endl)
+  %21 = call %ConsoleOutputStream* @"<<450"(%ConsoleOutputStream* %19, %StreamRefWrapperHelperClass* %"$tmpC")
+  %22 = call %ConsoleOutputStream* @"<<446"(%ConsoleOutputStream* %21, %EndLineHelperClass* @endl)
   store [11 x i8] c"    size: \00", [11 x i8]* %const.bytes8
   %23 = getelementptr inbounds [11 x i8]* %const.bytes8, i32 0, i32 0
   %24 = getelementptr inbounds [11 x i8]* %const.bytes8, i32 0, i32 10
@@ -25256,13 +25516,13 @@ code:                                             ; preds = %0
   store i8* %24, i8** %26
   %27 = load %StringRef* %const.struct9
   store %StringRef %27, %StringRef* %"$tmpForRef7"
-  %28 = call %ConsoleOutputStream* @"<<441"(%ConsoleOutputStream* @cout, %StringRef* %"$tmpForRef7")
+  %28 = call %ConsoleOutputStream* @"<<452"(%ConsoleOutputStream* @cout, %StringRef* %"$tmpForRef7")
   %29 = load %"Vector[LocString]"** %"$this.addr"
-  %30 = call i64 @size336(%"Vector[LocString]"* %29)
+  %30 = call i64 @size347(%"Vector[LocString]"* %29)
   %31 = trunc i64 %30 to i32
   store i32 %31, i32* %tmp.v
-  %32 = call %ConsoleOutputStream* @"<<445"(%ConsoleOutputStream* %28, i32* %tmp.v)
-  %33 = call %ConsoleOutputStream* @"<<435"(%ConsoleOutputStream* %32, %EndLineHelperClass* @endl)
+  %32 = call %ConsoleOutputStream* @"<<456"(%ConsoleOutputStream* %28, i32* %tmp.v)
+  %33 = call %ConsoleOutputStream* @"<<446"(%ConsoleOutputStream* %32, %EndLineHelperClass* @endl)
   store [12 x i8] c"    begin: \00", [12 x i8]* %const.bytes11
   %34 = getelementptr inbounds [12 x i8]* %const.bytes11, i32 0, i32 0
   %35 = getelementptr inbounds [12 x i8]* %const.bytes11, i32 0, i32 11
@@ -25272,13 +25532,13 @@ code:                                             ; preds = %0
   store i8* %35, i8** %37
   %38 = load %StringRef* %const.struct12
   store %StringRef %38, %StringRef* %"$tmpForRef10"
-  %39 = call %ConsoleOutputStream* @"<<441"(%ConsoleOutputStream* @cout, %StringRef* %"$tmpForRef10")
+  %39 = call %ConsoleOutputStream* @"<<452"(%ConsoleOutputStream* @cout, %StringRef* %"$tmpForRef10")
   %40 = load %"Vector[LocString]"** %"$this.addr"
   %41 = getelementptr inbounds %"Vector[LocString]"* %40, i32 0, i32 0
-  %42 = call i8* @bytePtr334(%"RawPtr[LocString]"* %41)
-  call void @mkStreamRefWrapper447(%StreamRefWrapperHelperClass* %"$tmpC13", i8* %42)
-  %43 = call %ConsoleOutputStream* @"<<439"(%ConsoleOutputStream* %39, %StreamRefWrapperHelperClass* %"$tmpC13")
-  %44 = call %ConsoleOutputStream* @"<<435"(%ConsoleOutputStream* %43, %EndLineHelperClass* @endl)
+  %42 = call i8* @bytePtr345(%"RawPtr[LocString]"* %41)
+  call void @mkStreamRefWrapper458(%StreamRefWrapperHelperClass* %"$tmpC13", i8* %42)
+  %43 = call %ConsoleOutputStream* @"<<450"(%ConsoleOutputStream* %39, %StreamRefWrapperHelperClass* %"$tmpC13")
+  %44 = call %ConsoleOutputStream* @"<<446"(%ConsoleOutputStream* %43, %EndLineHelperClass* @endl)
   store [10 x i8] c"    end: \00", [10 x i8]* %const.bytes15
   %45 = getelementptr inbounds [10 x i8]* %const.bytes15, i32 0, i32 0
   %46 = getelementptr inbounds [10 x i8]* %const.bytes15, i32 0, i32 9
@@ -25288,13 +25548,13 @@ code:                                             ; preds = %0
   store i8* %46, i8** %48
   %49 = load %StringRef* %const.struct16
   store %StringRef %49, %StringRef* %"$tmpForRef14"
-  %50 = call %ConsoleOutputStream* @"<<441"(%ConsoleOutputStream* @cout, %StringRef* %"$tmpForRef14")
+  %50 = call %ConsoleOutputStream* @"<<452"(%ConsoleOutputStream* @cout, %StringRef* %"$tmpForRef14")
   %51 = load %"Vector[LocString]"** %"$this.addr"
   %52 = getelementptr inbounds %"Vector[LocString]"* %51, i32 0, i32 1
-  %53 = call i8* @bytePtr334(%"RawPtr[LocString]"* %52)
-  call void @mkStreamRefWrapper447(%StreamRefWrapperHelperClass* %"$tmpC17", i8* %53)
-  %54 = call %ConsoleOutputStream* @"<<439"(%ConsoleOutputStream* %50, %StreamRefWrapperHelperClass* %"$tmpC17")
-  %55 = call %ConsoleOutputStream* @"<<435"(%ConsoleOutputStream* %54, %EndLineHelperClass* @endl)
+  %53 = call i8* @bytePtr345(%"RawPtr[LocString]"* %52)
+  call void @mkStreamRefWrapper458(%StreamRefWrapperHelperClass* %"$tmpC17", i8* %53)
+  %54 = call %ConsoleOutputStream* @"<<450"(%ConsoleOutputStream* %50, %StreamRefWrapperHelperClass* %"$tmpC17")
+  %55 = call %ConsoleOutputStream* @"<<446"(%ConsoleOutputStream* %54, %EndLineHelperClass* @endl)
   store [17 x i8] c"    endOfStore: \00", [17 x i8]* %const.bytes19
   %56 = getelementptr inbounds [17 x i8]* %const.bytes19, i32 0, i32 0
   %57 = getelementptr inbounds [17 x i8]* %const.bytes19, i32 0, i32 16
@@ -25304,18 +25564,18 @@ code:                                             ; preds = %0
   store i8* %57, i8** %59
   %60 = load %StringRef* %const.struct20
   store %StringRef %60, %StringRef* %"$tmpForRef18"
-  %61 = call %ConsoleOutputStream* @"<<441"(%ConsoleOutputStream* @cout, %StringRef* %"$tmpForRef18")
+  %61 = call %ConsoleOutputStream* @"<<452"(%ConsoleOutputStream* @cout, %StringRef* %"$tmpForRef18")
   %62 = load %"Vector[LocString]"** %"$this.addr"
   %63 = getelementptr inbounds %"Vector[LocString]"* %62, i32 0, i32 2
-  %64 = call i8* @bytePtr334(%"RawPtr[LocString]"* %63)
-  call void @mkStreamRefWrapper447(%StreamRefWrapperHelperClass* %"$tmpC21", i8* %64)
-  %65 = call %ConsoleOutputStream* @"<<439"(%ConsoleOutputStream* %61, %StreamRefWrapperHelperClass* %"$tmpC21")
-  %66 = call %ConsoleOutputStream* @"<<435"(%ConsoleOutputStream* %65, %EndLineHelperClass* @endl)
+  %64 = call i8* @bytePtr345(%"RawPtr[LocString]"* %63)
+  call void @mkStreamRefWrapper458(%StreamRefWrapperHelperClass* %"$tmpC21", i8* %64)
+  %65 = call %ConsoleOutputStream* @"<<450"(%ConsoleOutputStream* %61, %StreamRefWrapperHelperClass* %"$tmpC21")
+  %66 = call %ConsoleOutputStream* @"<<446"(%ConsoleOutputStream* %65, %EndLineHelperClass* @endl)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal %ConsoleOutputStream* @"<<435"(%ConsoleOutputStream* %s, %EndLineHelperClass* %x) #3 {
+define internal %ConsoleOutputStream* @"<<446"(%ConsoleOutputStream* %s, %EndLineHelperClass* %x) #3 {
   %s.addr = alloca %ConsoleOutputStream*
   store %ConsoleOutputStream* %s, %ConsoleOutputStream** %s.addr
   %x.addr = alloca %EndLineHelperClass*
@@ -25325,13 +25585,13 @@ define internal %ConsoleOutputStream* @"<<435"(%ConsoleOutputStream* %s, %EndLin
 code:                                             ; preds = %0
   %1 = load %EndLineHelperClass** %x.addr
   %2 = load %ConsoleOutputStream** %s.addr
-  call void @">>436"(%EndLineHelperClass* %1, %ConsoleOutputStream* %2)
+  call void @">>447"(%EndLineHelperClass* %1, %ConsoleOutputStream* %2)
   %3 = load %ConsoleOutputStream** %s.addr
   ret %ConsoleOutputStream* %3
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @">>436"(%EndLineHelperClass* %"$this", %ConsoleOutputStream* %os) #3 {
+define internal void @">>447"(%EndLineHelperClass* %"$this", %ConsoleOutputStream* %os) #3 {
   %"$this.addr" = alloca %EndLineHelperClass*
   store %EndLineHelperClass* %"$this", %EndLineHelperClass** %"$this.addr"
   %os.addr = alloca %ConsoleOutputStream*
@@ -25342,12 +25602,12 @@ define internal void @">>436"(%EndLineHelperClass* %"$this", %ConsoleOutputStrea
 code:                                             ; preds = %0
   %1 = load %ConsoleOutputStream** %os.addr
   store i8 10, i8* %"$tmpForRef"
-  %2 = call %ConsoleOutputStream* @"<<437"(%ConsoleOutputStream* %1, i8* %"$tmpForRef")
+  %2 = call %ConsoleOutputStream* @"<<448"(%ConsoleOutputStream* %1, i8* %"$tmpForRef")
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal %ConsoleOutputStream* @"<<437"(%ConsoleOutputStream* %s, i8* %x) #3 {
+define internal %ConsoleOutputStream* @"<<448"(%ConsoleOutputStream* %s, i8* %x) #3 {
   %s.addr = alloca %ConsoleOutputStream*
   store %ConsoleOutputStream* %s, %ConsoleOutputStream** %s.addr
   %x.addr = alloca i8*
@@ -25358,13 +25618,13 @@ code:                                             ; preds = %0
   %1 = load %ConsoleOutputStream** %s.addr
   %2 = load i8** %x.addr
   %3 = load i8* %2
-  call void @"<<<438"(%ConsoleOutputStream* %1, i8 %3)
+  call void @"<<<449"(%ConsoleOutputStream* %1, i8 %3)
   %4 = load %ConsoleOutputStream** %s.addr
   ret %ConsoleOutputStream* %4
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @"<<<438"(%ConsoleOutputStream* %"$this", i8 %x) #2 {
+define internal void @"<<<449"(%ConsoleOutputStream* %"$this", i8 %x) #2 {
   %"$this.addr" = alloca %ConsoleOutputStream*
   store %ConsoleOutputStream* %"$this", %ConsoleOutputStream** %"$this.addr"
   %x.addr = alloca i8
@@ -25378,7 +25638,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal %ConsoleOutputStream* @"<<439"(%ConsoleOutputStream* %s, %StreamRefWrapperHelperClass* %x) #3 {
+define internal %ConsoleOutputStream* @"<<450"(%ConsoleOutputStream* %s, %StreamRefWrapperHelperClass* %x) #3 {
   %s.addr = alloca %ConsoleOutputStream*
   store %ConsoleOutputStream* %s, %ConsoleOutputStream** %s.addr
   %x.addr = alloca %StreamRefWrapperHelperClass*
@@ -25389,13 +25649,13 @@ code:                                             ; preds = %0
   %1 = load %StreamRefWrapperHelperClass** %x.addr
   %2 = load %StreamRefWrapperHelperClass* %1
   %3 = load %ConsoleOutputStream** %s.addr
-  call void @">>440"(%StreamRefWrapperHelperClass %2, %ConsoleOutputStream* %3)
+  call void @">>451"(%StreamRefWrapperHelperClass %2, %ConsoleOutputStream* %3)
   %4 = load %ConsoleOutputStream** %s.addr
   ret %ConsoleOutputStream* %4
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @">>440"(%StreamRefWrapperHelperClass %p, %ConsoleOutputStream* %os) #3 {
+define internal void @">>451"(%StreamRefWrapperHelperClass %p, %ConsoleOutputStream* %os) #3 {
   %p.addr = alloca %StreamRefWrapperHelperClass
   store %StreamRefWrapperHelperClass %p, %StreamRefWrapperHelperClass* %p.addr
   %os.addr = alloca %ConsoleOutputStream*
@@ -25410,7 +25670,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal %ConsoleOutputStream* @"<<441"(%ConsoleOutputStream* %s, %StringRef* %x) #3 {
+define internal %ConsoleOutputStream* @"<<452"(%ConsoleOutputStream* %s, %StringRef* %x) #3 {
   %s.addr = alloca %ConsoleOutputStream*
   store %ConsoleOutputStream* %s, %ConsoleOutputStream** %s.addr
   %x.addr = alloca %StringRef*
@@ -25421,13 +25681,13 @@ code:                                             ; preds = %0
   %1 = load %ConsoleOutputStream** %s.addr
   %2 = load %StringRef** %x.addr
   %3 = load %StringRef* %2
-  call void @"<<<442"(%ConsoleOutputStream* %1, %StringRef %3)
+  call void @"<<<453"(%ConsoleOutputStream* %1, %StringRef %3)
   %4 = load %ConsoleOutputStream** %s.addr
   ret %ConsoleOutputStream* %4
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @"<<<442"(%ConsoleOutputStream* %"$this", %StringRef %x) #2 {
+define internal void @"<<<453"(%ConsoleOutputStream* %"$this", %StringRef %x) #2 {
   %"$this.addr" = alloca %ConsoleOutputStream*
   store %ConsoleOutputStream* %"$this", %ConsoleOutputStream** %"$this.addr"
   %x.addr = alloca %StringRef
@@ -25472,18 +25732,18 @@ define internal void @mkStreamRefWrapper(%StreamRefWrapperHelperClass* sret %_re
   br label %code
 
 code:                                             ; preds = %0
-  call void @ctor443(%StreamRefWrapperHelperClass* %res)
+  call void @ctor454(%StreamRefWrapperHelperClass* %res)
   %1 = load %"Vector[LocString]"** %x.addr
   %2 = bitcast %"Vector[LocString]"* %1 to i8*
   %3 = getelementptr inbounds %StreamRefWrapperHelperClass* %res, i32 0, i32 0
   store i8* %2, i8** %3
   %4 = load %StreamRefWrapperHelperClass** %_result.addr
-  call void @ctor444(%StreamRefWrapperHelperClass* %4, %StreamRefWrapperHelperClass* %res)
+  call void @ctor455(%StreamRefWrapperHelperClass* %4, %StreamRefWrapperHelperClass* %res)
   ret void
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor443(%StreamRefWrapperHelperClass* %"$this") #2 {
+define internal void @ctor454(%StreamRefWrapperHelperClass* %"$this") #2 {
   %"$this.addr" = alloca %StreamRefWrapperHelperClass*
   store %StreamRefWrapperHelperClass* %"$this", %StreamRefWrapperHelperClass** %"$this.addr"
   br label %code
@@ -25496,7 +25756,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @ctor444(%StreamRefWrapperHelperClass* %"$this", %StreamRefWrapperHelperClass* %other) #2 {
+define internal void @ctor455(%StreamRefWrapperHelperClass* %"$this", %StreamRefWrapperHelperClass* %other) #2 {
   %"$this.addr" = alloca %StreamRefWrapperHelperClass*
   store %StreamRefWrapperHelperClass* %"$this", %StreamRefWrapperHelperClass** %"$this.addr"
   %other.addr = alloca %StreamRefWrapperHelperClass*
@@ -25514,7 +25774,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal %ConsoleOutputStream* @"<<445"(%ConsoleOutputStream* %s, i32* %x) #3 {
+define internal %ConsoleOutputStream* @"<<456"(%ConsoleOutputStream* %s, i32* %x) #3 {
   %s.addr = alloca %ConsoleOutputStream*
   store %ConsoleOutputStream* %s, %ConsoleOutputStream** %s.addr
   %x.addr = alloca i32*
@@ -25525,13 +25785,13 @@ code:                                             ; preds = %0
   %1 = load %ConsoleOutputStream** %s.addr
   %2 = load i32** %x.addr
   %3 = load i32* %2
-  call void @"<<<446"(%ConsoleOutputStream* %1, i32 %3)
+  call void @"<<<457"(%ConsoleOutputStream* %1, i32 %3)
   %4 = load %ConsoleOutputStream** %s.addr
   ret %ConsoleOutputStream* %4
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @"<<<446"(%ConsoleOutputStream* %"$this", i32 %x) #2 {
+define internal void @"<<<457"(%ConsoleOutputStream* %"$this", i32 %x) #2 {
   %"$this.addr" = alloca %ConsoleOutputStream*
   store %ConsoleOutputStream* %"$this", %ConsoleOutputStream** %"$this.addr"
   %x.addr = alloca i32
@@ -25545,7 +25805,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @mkStreamRefWrapper447(%StreamRefWrapperHelperClass* sret %_result, i8* %x) #3 {
+define internal void @mkStreamRefWrapper458(%StreamRefWrapperHelperClass* sret %_result, i8* %x) #3 {
   %_result.addr = alloca %StreamRefWrapperHelperClass*
   store %StreamRefWrapperHelperClass* %_result, %StreamRefWrapperHelperClass** %_result.addr
   %x.addr = alloca i8*
@@ -25554,17 +25814,17 @@ define internal void @mkStreamRefWrapper447(%StreamRefWrapperHelperClass* sret %
   br label %code
 
 code:                                             ; preds = %0
-  call void @ctor443(%StreamRefWrapperHelperClass* %res)
+  call void @ctor454(%StreamRefWrapperHelperClass* %res)
   %1 = load i8** %x.addr
   %2 = getelementptr inbounds %StreamRefWrapperHelperClass* %res, i32 0, i32 0
   store i8* %1, i8** %2
   %3 = load %StreamRefWrapperHelperClass** %_result.addr
-  call void @ctor444(%StreamRefWrapperHelperClass* %3, %StreamRefWrapperHelperClass* %res)
+  call void @ctor455(%StreamRefWrapperHelperClass* %3, %StreamRefWrapperHelperClass* %res)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @ctor448(%"Vector[Char/rtct]"* %"$this", i64 %size) #3 {
+define internal void @ctor459(%"Vector[Char/rtct]"* %"$this", i64 %size) #3 {
   %"$this.addr" = alloca %"Vector[Char/rtct]"*
   store %"Vector[Char/rtct]"* %"$this", %"Vector[Char/rtct]"** %"$this.addr"
   %size.addr = alloca i64
@@ -25634,7 +25894,7 @@ while_end:                                        ; preds = %while_block
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i8* @at449(%"Vector[Char/rtct]"* %"$this", i64 %index) #2 {
+define internal i8* @at460(%"Vector[Char/rtct]"* %"$this", i64 %index) #2 {
   %"$this.addr" = alloca %"Vector[Char/rtct]"*
   store %"Vector[Char/rtct]"* %"$this", %"Vector[Char/rtct]"** %"$this.addr"
   %index.addr = alloca i64
@@ -25652,7 +25912,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i8* @back450(%"Vector[Char/rtct]"* %"$this") #2 {
+define internal i8* @back461(%"Vector[Char/rtct]"* %"$this") #2 {
   %"$this.addr" = alloca %"Vector[Char/rtct]"*
   store %"Vector[Char/rtct]"* %"$this", %"Vector[Char/rtct]"** %"$this.addr"
   %"$tmpC" = alloca %"RawPtr[Char/rtct]"
@@ -25667,7 +25927,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @subrange451(%"ContiguousMemoryRange[Char/rtct]"* sret %_result, %"Vector[Char/rtct]"* %"$this", i64 %index, i64 %num) #2 {
+define internal void @subrange462(%"ContiguousMemoryRange[Char/rtct]"* sret %_result, %"Vector[Char/rtct]"* %"$this", i64 %index, i64 %num) #2 {
   %_result.addr = alloca %"ContiguousMemoryRange[Char/rtct]"*
   store %"ContiguousMemoryRange[Char/rtct]"* %_result, %"ContiguousMemoryRange[Char/rtct]"** %_result.addr
   %"$this.addr" = alloca %"Vector[Char/rtct]"*
@@ -25699,7 +25959,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @insertBefore452(%"Vector[Char/rtct]"* %"$this", i8* %value, %"ContiguousMemoryRange[Char/rtct]" %pos) #3 {
+define internal void @insertBefore463(%"Vector[Char/rtct]"* %"$this", i8* %value, %"ContiguousMemoryRange[Char/rtct]" %pos) #3 {
   %"$this.addr" = alloca %"Vector[Char/rtct]"*
   store %"Vector[Char/rtct]"* %"$this", %"Vector[Char/rtct]"** %"$this.addr"
   %value.addr = alloca i8*
@@ -25734,7 +25994,7 @@ code:                                             ; preds = %0
   %11 = load %"Vector[Char/rtct]"** %"$this.addr"
   %12 = getelementptr inbounds %"Vector[Char/rtct]"* %11, i32 0, i32 0
   %13 = load i64* %posCount
-  %14 = call i64 @-416(i64 %13, i32 1)
+  %14 = call i64 @-427(i64 %13, i32 1)
   call void @advance(%"RawPtr[Char/rtct]"* %q, %"RawPtr[Char/rtct]"* %12, i64 %14)
   br label %while_block
 
@@ -25776,7 +26036,7 @@ while_end:                                        ; preds = %while_block
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @insertAfter453(%"Vector[Char/rtct]"* %"$this", i8* %value, %"ContiguousMemoryRange[Char/rtct]" %pos) #3 {
+define internal void @insertAfter464(%"Vector[Char/rtct]"* %"$this", i8* %value, %"ContiguousMemoryRange[Char/rtct]" %pos) #3 {
   %"$this.addr" = alloca %"Vector[Char/rtct]"*
   store %"Vector[Char/rtct]"* %"$this", %"Vector[Char/rtct]"** %"$this.addr"
   %value.addr = alloca i8*
@@ -25797,12 +26057,12 @@ code:                                             ; preds = %0
   %6 = load %"RawPtr[Char/rtct]"* %5
   call void @ctor155(%"ContiguousMemoryRange[Char/rtct]"* %tmp.v, %"RawPtr[Char/rtct]" %3, %"RawPtr[Char/rtct]" %6)
   %7 = load %"ContiguousMemoryRange[Char/rtct]"* %tmp.v
-  call void @insertBefore452(%"Vector[Char/rtct]"* %1, i8* %2, %"ContiguousMemoryRange[Char/rtct]" %7)
+  call void @insertBefore463(%"Vector[Char/rtct]"* %1, i8* %2, %"ContiguousMemoryRange[Char/rtct]" %7)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @popBack454(%"Vector[Char/rtct]"* %"$this") #3 {
+define internal void @popBack465(%"Vector[Char/rtct]"* %"$this") #3 {
   %"$this.addr" = alloca %"Vector[Char/rtct]"*
   store %"Vector[Char/rtct]"* %"$this", %"Vector[Char/rtct]"** %"$this.addr"
   %"$tmpC" = alloca %"RawPtr[Char/rtct]"
@@ -25823,7 +26083,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @resize455(%"Vector[Char/rtct]"* %"$this", i64 %n) #3 {
+define internal void @resize466(%"Vector[Char/rtct]"* %"$this", i64 %n) #3 {
   %"$this.addr" = alloca %"Vector[Char/rtct]"*
   store %"Vector[Char/rtct]"* %"$this", %"Vector[Char/rtct]"** %"$this.addr"
   %n.addr = alloca i64
@@ -25844,7 +26104,7 @@ code:                                             ; preds = %0
 if_block:                                         ; preds = %code
   %3 = load i64* %n.addr
   %4 = load i64* %oldSize
-  %5 = call i1 @"==421"(i64 %3, i64 %4)
+  %5 = call i1 @"==432"(i64 %3, i64 %4)
   br i1 %5, label %if_then, label %if_end
 
 if_then:                                          ; preds = %if_block
@@ -25939,7 +26199,7 @@ while_end8:                                       ; preds = %while_block5
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @clear456(%"Vector[Char/rtct]"* %"$this") #3 {
+define internal void @clear467(%"Vector[Char/rtct]"* %"$this") #3 {
   %"$this.addr" = alloca %"Vector[Char/rtct]"*
   store %"Vector[Char/rtct]"* %"$this", %"Vector[Char/rtct]"** %"$this.addr"
   %tmp.v = alloca %"ContiguousMemoryRange[Char/rtct]"
@@ -25955,12 +26215,12 @@ code:                                             ; preds = %0
   %7 = load %"RawPtr[Char/rtct]"* %6
   call void @ctor155(%"ContiguousMemoryRange[Char/rtct]"* %tmp.v, %"RawPtr[Char/rtct]" %4, %"RawPtr[Char/rtct]" %7)
   %8 = load %"ContiguousMemoryRange[Char/rtct]"* %tmp.v
-  call void @remove239(%"Vector[Char/rtct]"* %1, %"ContiguousMemoryRange[Char/rtct]" %8)
+  call void @remove240(%"Vector[Char/rtct]"* %1, %"ContiguousMemoryRange[Char/rtct]" %8)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal i1 @"==457"(%"Vector[Char/rtct]"* %"$this", %"Vector[Char/rtct]"* %other) #3 {
+define internal i1 @"==468"(%"Vector[Char/rtct]"* %"$this", %"Vector[Char/rtct]"* %other) #3 {
   %"$this.addr" = alloca %"Vector[Char/rtct]"*
   store %"Vector[Char/rtct]"* %"$this", %"Vector[Char/rtct]"** %"$this.addr"
   %other.addr = alloca %"Vector[Char/rtct]"*
@@ -25979,7 +26239,7 @@ if_block:                                         ; preds = %code
   %2 = call i64 @size168(%"Vector[Char/rtct]"* %1)
   %3 = load %"Vector[Char/rtct]"** %other.addr
   %4 = call i64 @size168(%"Vector[Char/rtct]"* %3)
-  %5 = call i1 @"!=264"(i64 %2, i64 %4)
+  %5 = call i1 @"!=274"(i64 %2, i64 %4)
   br i1 %5, label %if_then, label %if_end
 
 if_then:                                          ; preds = %if_block
@@ -25998,7 +26258,7 @@ dumy_block:                                       ; No predecessors!
 while_block:                                      ; preds = %while_step, %if_end
   %8 = load i32* %i
   %9 = load i64* %s
-  %10 = call i1 @"<425"(i32 %8, i64 %9)
+  %10 = call i1 @"<436"(i32 %8, i64 %9)
   br i1 %10, label %while_body, label %while_end
 
 while_body:                                       ; preds = %while_block
@@ -26019,14 +26279,14 @@ if_block1:                                        ; preds = %while_body
   %15 = zext i32 %14 to i64
   store i64 %15, i64* %tmp.v
   %16 = load i64* %tmp.v
-  %17 = call i8* @at449(%"Vector[Char/rtct]"* %13, i64 %16)
+  %17 = call i8* @at460(%"Vector[Char/rtct]"* %13, i64 %16)
   %18 = load i8* %17
   %19 = load %"Vector[Char/rtct]"** %other.addr
   %20 = load i32* %i
   %21 = zext i32 %20 to i64
   store i64 %21, i64* %tmp.v4
   %22 = load i64* %tmp.v4
-  %23 = call i8* @at449(%"Vector[Char/rtct]"* %19, i64 %22)
+  %23 = call i8* @at460(%"Vector[Char/rtct]"* %19, i64 %22)
   %24 = load i8* %23
   %25 = icmp eq i8 %18, %24
   %26 = xor i1 true, %25
@@ -26043,7 +26303,7 @@ dumy_block5:                                      ; No predecessors!
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"!=458"(%"Vector[Char/rtct]"* %"$this", %"Vector[Char/rtct]"* %other) #2 {
+define internal i1 @"!=469"(%"Vector[Char/rtct]"* %"$this", %"Vector[Char/rtct]"* %other) #2 {
   %"$this.addr" = alloca %"Vector[Char/rtct]"*
   store %"Vector[Char/rtct]"* %"$this", %"Vector[Char/rtct]"** %"$this.addr"
   %other.addr = alloca %"Vector[Char/rtct]"*
@@ -26053,13 +26313,13 @@ define internal i1 @"!=458"(%"Vector[Char/rtct]"* %"$this", %"Vector[Char/rtct]"
 code:                                             ; preds = %0
   %1 = load %"Vector[Char/rtct]"** %"$this.addr"
   %2 = load %"Vector[Char/rtct]"** %other.addr
-  %3 = call i1 @"==457"(%"Vector[Char/rtct]"* %1, %"Vector[Char/rtct]"* %2)
+  %3 = call i1 @"==468"(%"Vector[Char/rtct]"* %1, %"Vector[Char/rtct]"* %2)
   %4 = xor i1 true, %3
   ret i1 %4
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @dumpThis459(%"Vector[Char/rtct]"* %"$this", %StringRef %prefix) #3 {
+define internal void @dumpThis470(%"Vector[Char/rtct]"* %"$this", %StringRef %prefix) #3 {
   %"$this.addr" = alloca %"Vector[Char/rtct]"*
   store %"Vector[Char/rtct]"* %"$this", %"Vector[Char/rtct]"** %"$this.addr"
   %prefix.addr = alloca %StringRef
@@ -26093,7 +26353,7 @@ define internal void @dumpThis459(%"Vector[Char/rtct]"* %"$this", %StringRef %pr
   br label %code
 
 code:                                             ; preds = %0
-  %1 = call %ConsoleOutputStream* @"<<441"(%ConsoleOutputStream* @cout, %StringRef* %prefix.addr)
+  %1 = call %ConsoleOutputStream* @"<<452"(%ConsoleOutputStream* @cout, %StringRef* %prefix.addr)
   store [9 x i8] c"dumping \00", [9 x i8]* %const.bytes
   %2 = getelementptr inbounds [9 x i8]* %const.bytes, i32 0, i32 0
   %3 = getelementptr inbounds [9 x i8]* %const.bytes, i32 0, i32 8
@@ -26103,7 +26363,7 @@ code:                                             ; preds = %0
   store i8* %3, i8** %5
   %6 = load %StringRef* %const.struct
   store %StringRef %6, %StringRef* %"$tmpForRef"
-  %7 = call %ConsoleOutputStream* @"<<441"(%ConsoleOutputStream* %1, %StringRef* %"$tmpForRef")
+  %7 = call %ConsoleOutputStream* @"<<452"(%ConsoleOutputStream* %1, %StringRef* %"$tmpForRef")
   store [23 x i8] c"Vector[Char/rtct]/rtct\00", [23 x i8]* %const.bytes2
   %8 = getelementptr inbounds [23 x i8]* %const.bytes2, i32 0, i32 0
   %9 = getelementptr inbounds [23 x i8]* %const.bytes2, i32 0, i32 22
@@ -26113,7 +26373,7 @@ code:                                             ; preds = %0
   store i8* %9, i8** %11
   %12 = load %StringRef* %const.struct3
   store %StringRef %12, %StringRef* %"$tmpForRef1"
-  %13 = call %ConsoleOutputStream* @"<<441"(%ConsoleOutputStream* %7, %StringRef* %"$tmpForRef1")
+  %13 = call %ConsoleOutputStream* @"<<452"(%ConsoleOutputStream* %7, %StringRef* %"$tmpForRef1")
   store [3 x i8] c": \00", [3 x i8]* %const.bytes5
   %14 = getelementptr inbounds [3 x i8]* %const.bytes5, i32 0, i32 0
   %15 = getelementptr inbounds [3 x i8]* %const.bytes5, i32 0, i32 2
@@ -26123,11 +26383,11 @@ code:                                             ; preds = %0
   store i8* %15, i8** %17
   %18 = load %StringRef* %const.struct6
   store %StringRef %18, %StringRef* %"$tmpForRef4"
-  %19 = call %ConsoleOutputStream* @"<<441"(%ConsoleOutputStream* %13, %StringRef* %"$tmpForRef4")
+  %19 = call %ConsoleOutputStream* @"<<452"(%ConsoleOutputStream* %13, %StringRef* %"$tmpForRef4")
   %20 = load %"Vector[Char/rtct]"** %"$this.addr"
-  call void @mkStreamRefWrapper460(%StreamRefWrapperHelperClass* %"$tmpC", %"Vector[Char/rtct]"* %20)
-  %21 = call %ConsoleOutputStream* @"<<439"(%ConsoleOutputStream* %19, %StreamRefWrapperHelperClass* %"$tmpC")
-  %22 = call %ConsoleOutputStream* @"<<435"(%ConsoleOutputStream* %21, %EndLineHelperClass* @endl)
+  call void @mkStreamRefWrapper471(%StreamRefWrapperHelperClass* %"$tmpC", %"Vector[Char/rtct]"* %20)
+  %21 = call %ConsoleOutputStream* @"<<450"(%ConsoleOutputStream* %19, %StreamRefWrapperHelperClass* %"$tmpC")
+  %22 = call %ConsoleOutputStream* @"<<446"(%ConsoleOutputStream* %21, %EndLineHelperClass* @endl)
   store [11 x i8] c"    size: \00", [11 x i8]* %const.bytes8
   %23 = getelementptr inbounds [11 x i8]* %const.bytes8, i32 0, i32 0
   %24 = getelementptr inbounds [11 x i8]* %const.bytes8, i32 0, i32 10
@@ -26137,13 +26397,13 @@ code:                                             ; preds = %0
   store i8* %24, i8** %26
   %27 = load %StringRef* %const.struct9
   store %StringRef %27, %StringRef* %"$tmpForRef7"
-  %28 = call %ConsoleOutputStream* @"<<441"(%ConsoleOutputStream* @cout, %StringRef* %"$tmpForRef7")
+  %28 = call %ConsoleOutputStream* @"<<452"(%ConsoleOutputStream* @cout, %StringRef* %"$tmpForRef7")
   %29 = load %"Vector[Char/rtct]"** %"$this.addr"
   %30 = call i64 @size168(%"Vector[Char/rtct]"* %29)
   %31 = trunc i64 %30 to i32
   store i32 %31, i32* %tmp.v
-  %32 = call %ConsoleOutputStream* @"<<445"(%ConsoleOutputStream* %28, i32* %tmp.v)
-  %33 = call %ConsoleOutputStream* @"<<435"(%ConsoleOutputStream* %32, %EndLineHelperClass* @endl)
+  %32 = call %ConsoleOutputStream* @"<<456"(%ConsoleOutputStream* %28, i32* %tmp.v)
+  %33 = call %ConsoleOutputStream* @"<<446"(%ConsoleOutputStream* %32, %EndLineHelperClass* @endl)
   store [12 x i8] c"    begin: \00", [12 x i8]* %const.bytes11
   %34 = getelementptr inbounds [12 x i8]* %const.bytes11, i32 0, i32 0
   %35 = getelementptr inbounds [12 x i8]* %const.bytes11, i32 0, i32 11
@@ -26153,13 +26413,13 @@ code:                                             ; preds = %0
   store i8* %35, i8** %37
   %38 = load %StringRef* %const.struct12
   store %StringRef %38, %StringRef* %"$tmpForRef10"
-  %39 = call %ConsoleOutputStream* @"<<441"(%ConsoleOutputStream* @cout, %StringRef* %"$tmpForRef10")
+  %39 = call %ConsoleOutputStream* @"<<452"(%ConsoleOutputStream* @cout, %StringRef* %"$tmpForRef10")
   %40 = load %"Vector[Char/rtct]"** %"$this.addr"
   %41 = getelementptr inbounds %"Vector[Char/rtct]"* %40, i32 0, i32 0
   %42 = call i8* @bytePtr(%"RawPtr[Char/rtct]"* %41)
-  call void @mkStreamRefWrapper447(%StreamRefWrapperHelperClass* %"$tmpC13", i8* %42)
-  %43 = call %ConsoleOutputStream* @"<<439"(%ConsoleOutputStream* %39, %StreamRefWrapperHelperClass* %"$tmpC13")
-  %44 = call %ConsoleOutputStream* @"<<435"(%ConsoleOutputStream* %43, %EndLineHelperClass* @endl)
+  call void @mkStreamRefWrapper458(%StreamRefWrapperHelperClass* %"$tmpC13", i8* %42)
+  %43 = call %ConsoleOutputStream* @"<<450"(%ConsoleOutputStream* %39, %StreamRefWrapperHelperClass* %"$tmpC13")
+  %44 = call %ConsoleOutputStream* @"<<446"(%ConsoleOutputStream* %43, %EndLineHelperClass* @endl)
   store [10 x i8] c"    end: \00", [10 x i8]* %const.bytes15
   %45 = getelementptr inbounds [10 x i8]* %const.bytes15, i32 0, i32 0
   %46 = getelementptr inbounds [10 x i8]* %const.bytes15, i32 0, i32 9
@@ -26169,13 +26429,13 @@ code:                                             ; preds = %0
   store i8* %46, i8** %48
   %49 = load %StringRef* %const.struct16
   store %StringRef %49, %StringRef* %"$tmpForRef14"
-  %50 = call %ConsoleOutputStream* @"<<441"(%ConsoleOutputStream* @cout, %StringRef* %"$tmpForRef14")
+  %50 = call %ConsoleOutputStream* @"<<452"(%ConsoleOutputStream* @cout, %StringRef* %"$tmpForRef14")
   %51 = load %"Vector[Char/rtct]"** %"$this.addr"
   %52 = getelementptr inbounds %"Vector[Char/rtct]"* %51, i32 0, i32 1
   %53 = call i8* @bytePtr(%"RawPtr[Char/rtct]"* %52)
-  call void @mkStreamRefWrapper447(%StreamRefWrapperHelperClass* %"$tmpC17", i8* %53)
-  %54 = call %ConsoleOutputStream* @"<<439"(%ConsoleOutputStream* %50, %StreamRefWrapperHelperClass* %"$tmpC17")
-  %55 = call %ConsoleOutputStream* @"<<435"(%ConsoleOutputStream* %54, %EndLineHelperClass* @endl)
+  call void @mkStreamRefWrapper458(%StreamRefWrapperHelperClass* %"$tmpC17", i8* %53)
+  %54 = call %ConsoleOutputStream* @"<<450"(%ConsoleOutputStream* %50, %StreamRefWrapperHelperClass* %"$tmpC17")
+  %55 = call %ConsoleOutputStream* @"<<446"(%ConsoleOutputStream* %54, %EndLineHelperClass* @endl)
   store [17 x i8] c"    endOfStore: \00", [17 x i8]* %const.bytes19
   %56 = getelementptr inbounds [17 x i8]* %const.bytes19, i32 0, i32 0
   %57 = getelementptr inbounds [17 x i8]* %const.bytes19, i32 0, i32 16
@@ -26185,18 +26445,18 @@ code:                                             ; preds = %0
   store i8* %57, i8** %59
   %60 = load %StringRef* %const.struct20
   store %StringRef %60, %StringRef* %"$tmpForRef18"
-  %61 = call %ConsoleOutputStream* @"<<441"(%ConsoleOutputStream* @cout, %StringRef* %"$tmpForRef18")
+  %61 = call %ConsoleOutputStream* @"<<452"(%ConsoleOutputStream* @cout, %StringRef* %"$tmpForRef18")
   %62 = load %"Vector[Char/rtct]"** %"$this.addr"
   %63 = getelementptr inbounds %"Vector[Char/rtct]"* %62, i32 0, i32 2
   %64 = call i8* @bytePtr(%"RawPtr[Char/rtct]"* %63)
-  call void @mkStreamRefWrapper447(%StreamRefWrapperHelperClass* %"$tmpC21", i8* %64)
-  %65 = call %ConsoleOutputStream* @"<<439"(%ConsoleOutputStream* %61, %StreamRefWrapperHelperClass* %"$tmpC21")
-  %66 = call %ConsoleOutputStream* @"<<435"(%ConsoleOutputStream* %65, %EndLineHelperClass* @endl)
+  call void @mkStreamRefWrapper458(%StreamRefWrapperHelperClass* %"$tmpC21", i8* %64)
+  %65 = call %ConsoleOutputStream* @"<<450"(%ConsoleOutputStream* %61, %StreamRefWrapperHelperClass* %"$tmpC21")
+  %66 = call %ConsoleOutputStream* @"<<446"(%ConsoleOutputStream* %65, %EndLineHelperClass* @endl)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @mkStreamRefWrapper460(%StreamRefWrapperHelperClass* sret %_result, %"Vector[Char/rtct]"* %x) #3 {
+define internal void @mkStreamRefWrapper471(%StreamRefWrapperHelperClass* sret %_result, %"Vector[Char/rtct]"* %x) #3 {
   %_result.addr = alloca %StreamRefWrapperHelperClass*
   store %StreamRefWrapperHelperClass* %_result, %StreamRefWrapperHelperClass** %_result.addr
   %x.addr = alloca %"Vector[Char/rtct]"*
@@ -26205,18 +26465,18 @@ define internal void @mkStreamRefWrapper460(%StreamRefWrapperHelperClass* sret %
   br label %code
 
 code:                                             ; preds = %0
-  call void @ctor443(%StreamRefWrapperHelperClass* %res)
+  call void @ctor454(%StreamRefWrapperHelperClass* %res)
   %1 = load %"Vector[Char/rtct]"** %x.addr
   %2 = bitcast %"Vector[Char/rtct]"* %1 to i8*
   %3 = getelementptr inbounds %StreamRefWrapperHelperClass* %res, i32 0, i32 0
   store i8* %2, i8** %3
   %4 = load %StreamRefWrapperHelperClass** %_result.addr
-  call void @ctor444(%StreamRefWrapperHelperClass* %4, %StreamRefWrapperHelperClass* %res)
+  call void @ctor455(%StreamRefWrapperHelperClass* %4, %StreamRefWrapperHelperClass* %res)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @ctor461(%"Vector[Token]"* %"$this", %"Vector[Token]"* %other) #3 {
+define internal void @ctor472(%"Vector[Token]"* %"$this", %"Vector[Token]"* %other) #3 {
   %"$this.addr" = alloca %"Vector[Token]"*
   store %"Vector[Token]"* %"$this", %"Vector[Token]"** %"$this.addr"
   %other.addr = alloca %"Vector[Token]"*
@@ -26246,7 +26506,7 @@ code:                                             ; preds = %0
   %9 = load %"Vector[Token]"** %"$this.addr"
   %10 = getelementptr inbounds %"Vector[Token]"* %9, i32 0, i32 0
   %11 = load i64* %size
-  call void @alloc402(%"RawPtr[Token]"* %"$tmpC", i64 %11)
+  call void @alloc413(%"RawPtr[Token]"* %"$tmpC", i64 %11)
   %12 = load %"RawPtr[Token]"* %"$tmpC"
   call void @"=200"(%"RawPtr[Token]"* %10, %"RawPtr[Token]" %12)
   %13 = load %"Vector[Token]"** %"$this.addr"
@@ -26299,7 +26559,7 @@ while_end:                                        ; preds = %while_block
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @ctor462(%"Vector[Token]"* %"$this", i64 %size) #3 {
+define internal void @ctor473(%"Vector[Token]"* %"$this", i64 %size) #3 {
   %"$this.addr" = alloca %"Vector[Token]"*
   store %"Vector[Token]"* %"$this", %"Vector[Token]"** %"$this.addr"
   %size.addr = alloca i64
@@ -26323,7 +26583,7 @@ code:                                             ; preds = %0
   %7 = load %"Vector[Token]"** %"$this.addr"
   %8 = getelementptr inbounds %"Vector[Token]"* %7, i32 0, i32 0
   %9 = load i64* %size.addr
-  call void @alloc402(%"RawPtr[Token]"* %"$tmpC", i64 %9)
+  call void @alloc413(%"RawPtr[Token]"* %"$tmpC", i64 %9)
   %10 = load %"RawPtr[Token]"* %"$tmpC"
   call void @"=200"(%"RawPtr[Token]"* %8, %"RawPtr[Token]" %10)
   %11 = load %"Vector[Token]"** %"$this.addr"
@@ -26369,7 +26629,7 @@ while_end:                                        ; preds = %while_block
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @swap463(%"Vector[Token]"* %"$this", %"Vector[Token]"* %other) #3 {
+define internal void @swap474(%"Vector[Token]"* %"$this", %"Vector[Token]"* %other) #3 {
   %"$this.addr" = alloca %"Vector[Token]"*
   store %"Vector[Token]"* %"$this", %"Vector[Token]"** %"$this.addr"
   %other.addr = alloca %"Vector[Token]"*
@@ -26423,7 +26683,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal %Token* @at464(%"Vector[Token]"* %"$this", i64 %index) #2 {
+define internal %Token* @at475(%"Vector[Token]"* %"$this", i64 %index) #2 {
   %"$this.addr" = alloca %"Vector[Token]"*
   store %"Vector[Token]"* %"$this", %"Vector[Token]"** %"$this.addr"
   %index.addr = alloca i64
@@ -26441,7 +26701,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal %Token* @back465(%"Vector[Token]"* %"$this") #2 {
+define internal %Token* @back476(%"Vector[Token]"* %"$this") #2 {
   %"$this.addr" = alloca %"Vector[Token]"*
   store %"Vector[Token]"* %"$this", %"Vector[Token]"** %"$this.addr"
   %"$tmpC" = alloca %"RawPtr[Token]"
@@ -26450,13 +26710,13 @@ define internal %Token* @back465(%"Vector[Token]"* %"$this") #2 {
 code:                                             ; preds = %0
   %1 = load %"Vector[Token]"** %"$this.addr"
   %2 = getelementptr inbounds %"Vector[Token]"* %1, i32 0, i32 1
-  call void @advance303(%"RawPtr[Token]"* %"$tmpC", %"RawPtr[Token]"* %2, i64 -1)
+  call void @advance314(%"RawPtr[Token]"* %"$tmpC", %"RawPtr[Token]"* %2, i64 -1)
   %3 = call %Token* @value212(%"RawPtr[Token]"* %"$tmpC")
   ret %Token* %3
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal void @subrange466(%"ContiguousMemoryRange[Token]"* sret %_result, %"Vector[Token]"* %"$this", i64 %index, i64 %num) #2 {
+define internal void @subrange477(%"ContiguousMemoryRange[Token]"* sret %_result, %"Vector[Token]"* %"$this", i64 %index, i64 %num) #2 {
   %_result.addr = alloca %"ContiguousMemoryRange[Token]"*
   store %"ContiguousMemoryRange[Token]"* %_result, %"ContiguousMemoryRange[Token]"** %_result.addr
   %"$this.addr" = alloca %"Vector[Token]"*
@@ -26483,12 +26743,12 @@ code:                                             ; preds = %0
   %10 = call i64 @"+23"(i64 %8, i64 %9)
   call void @advance201(%"RawPtr[Token]"* %"$tmpC1", %"RawPtr[Token]"* %7, i64 %10)
   %11 = load %"RawPtr[Token]"* %"$tmpC1"
-  call void @ctor301(%"ContiguousMemoryRange[Token]"* %1, %"RawPtr[Token]" %5, %"RawPtr[Token]" %11)
+  call void @ctor312(%"ContiguousMemoryRange[Token]"* %1, %"RawPtr[Token]" %5, %"RawPtr[Token]" %11)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @insertBefore467(%"Vector[Token]"* %"$this", %Token* %value, %"ContiguousMemoryRange[Token]" %pos) #3 {
+define internal void @insertBefore478(%"Vector[Token]"* %"$this", %Token* %value, %"ContiguousMemoryRange[Token]" %pos) #3 {
   %"$this.addr" = alloca %"Vector[Token]"*
   store %"Vector[Token]"* %"$this", %"Vector[Token]"** %"$this.addr"
   %value.addr = alloca %Token*
@@ -26506,7 +26766,7 @@ define internal void @insertBefore467(%"Vector[Token]"* %"$this", %Token* %value
   br label %code
 
 code:                                             ; preds = %0
-  call void @frontPtr306(%"RawPtr[Token]"* %"$tmpC", %"ContiguousMemoryRange[Token]"* %pos.addr)
+  call void @frontPtr317(%"RawPtr[Token]"* %"$tmpC", %"ContiguousMemoryRange[Token]"* %pos.addr)
   %1 = load %"Vector[Token]"** %"$this.addr"
   %2 = getelementptr inbounds %"Vector[Token]"* %1, i32 0, i32 0
   %3 = load %"RawPtr[Token]"* %2
@@ -26519,12 +26779,12 @@ code:                                             ; preds = %0
   call void @reserve194(%"Vector[Token]"* %5, i64 %8)
   %9 = load %"Vector[Token]"** %"$this.addr"
   %10 = getelementptr inbounds %"Vector[Token]"* %9, i32 0, i32 1
-  call void @advance303(%"RawPtr[Token]"* %p, %"RawPtr[Token]"* %10, i64 -1)
+  call void @advance314(%"RawPtr[Token]"* %p, %"RawPtr[Token]"* %10, i64 -1)
   %11 = load %"Vector[Token]"** %"$this.addr"
   %12 = getelementptr inbounds %"Vector[Token]"* %11, i32 0, i32 0
   %13 = load i64* %posCount
-  %14 = call i64 @-416(i64 %13, i32 1)
-  call void @advance303(%"RawPtr[Token]"* %q, %"RawPtr[Token]"* %12, i64 %14)
+  %14 = call i64 @-427(i64 %13, i32 1)
+  call void @advance314(%"RawPtr[Token]"* %q, %"RawPtr[Token]"* %12, i64 %14)
   br label %while_block
 
 while_block:                                      ; preds = %while_step, %code
@@ -26539,11 +26799,11 @@ while_body:                                       ; preds = %while_block
   %19 = call %Token* @value212(%"RawPtr[Token]"* %p)
   call void @ctor210(%Token* %18, %Token* %19)
   %20 = call %Token* @value212(%"RawPtr[Token]"* %p)
-  call void @dtor282(%Token* %20)
+  call void @dtor292(%Token* %20)
   br label %while_step
 
 while_step:                                       ; preds = %while_body
-  call void @advance303(%"RawPtr[Token]"* %"$tmpC2", %"RawPtr[Token]"* %p, i64 -1)
+  call void @advance314(%"RawPtr[Token]"* %"$tmpC2", %"RawPtr[Token]"* %p, i64 -1)
   %21 = load %"RawPtr[Token]"* %"$tmpC2"
   call void @"=200"(%"RawPtr[Token]"* %p, %"RawPtr[Token]" %21)
   br label %while_block
@@ -26564,7 +26824,7 @@ while_end:                                        ; preds = %while_block
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @insertAfter468(%"Vector[Token]"* %"$this", %Token* %value, %"ContiguousMemoryRange[Token]" %pos) #3 {
+define internal void @insertAfter479(%"Vector[Token]"* %"$this", %Token* %value, %"ContiguousMemoryRange[Token]" %pos) #3 {
   %"$this.addr" = alloca %"Vector[Token]"*
   store %"Vector[Token]"* %"$this", %"Vector[Token]"** %"$this.addr"
   %value.addr = alloca %Token*
@@ -26578,19 +26838,19 @@ define internal void @insertAfter468(%"Vector[Token]"* %"$this", %Token* %value,
 code:                                             ; preds = %0
   %1 = load %"Vector[Token]"** %"$this.addr"
   %2 = load %Token** %value.addr
-  call void @backPtr307(%"RawPtr[Token]"* %"$tmpC", %"ContiguousMemoryRange[Token]"* %pos.addr)
+  call void @backPtr318(%"RawPtr[Token]"* %"$tmpC", %"ContiguousMemoryRange[Token]"* %pos.addr)
   %3 = load %"RawPtr[Token]"* %"$tmpC"
   %4 = load %"Vector[Token]"** %"$this.addr"
   %5 = getelementptr inbounds %"Vector[Token]"* %4, i32 0, i32 1
   %6 = load %"RawPtr[Token]"* %5
-  call void @ctor301(%"ContiguousMemoryRange[Token]"* %tmp.v, %"RawPtr[Token]" %3, %"RawPtr[Token]" %6)
+  call void @ctor312(%"ContiguousMemoryRange[Token]"* %tmp.v, %"RawPtr[Token]" %3, %"RawPtr[Token]" %6)
   %7 = load %"ContiguousMemoryRange[Token]"* %tmp.v
-  call void @insertBefore467(%"Vector[Token]"* %1, %Token* %2, %"ContiguousMemoryRange[Token]" %7)
+  call void @insertBefore478(%"Vector[Token]"* %1, %Token* %2, %"ContiguousMemoryRange[Token]" %7)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @popBack469(%"Vector[Token]"* %"$this") #3 {
+define internal void @popBack480(%"Vector[Token]"* %"$this") #3 {
   %"$this.addr" = alloca %"Vector[Token]"*
   store %"Vector[Token]"* %"$this", %"Vector[Token]"** %"$this.addr"
   %"$tmpC" = alloca %"RawPtr[Token]"
@@ -26601,18 +26861,18 @@ code:                                             ; preds = %0
   %2 = getelementptr inbounds %"Vector[Token]"* %1, i32 0, i32 1
   %3 = load %"Vector[Token]"** %"$this.addr"
   %4 = getelementptr inbounds %"Vector[Token]"* %3, i32 0, i32 1
-  call void @advance303(%"RawPtr[Token]"* %"$tmpC", %"RawPtr[Token]"* %4, i64 -1)
+  call void @advance314(%"RawPtr[Token]"* %"$tmpC", %"RawPtr[Token]"* %4, i64 -1)
   %5 = load %"RawPtr[Token]"* %"$tmpC"
   call void @"=200"(%"RawPtr[Token]"* %2, %"RawPtr[Token]" %5)
   %6 = load %"Vector[Token]"** %"$this.addr"
   %7 = getelementptr inbounds %"Vector[Token]"* %6, i32 0, i32 1
   %8 = call %Token* @value212(%"RawPtr[Token]"* %7)
-  call void @dtor282(%Token* %8)
+  call void @dtor292(%Token* %8)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @resize470(%"Vector[Token]"* %"$this", i64 %n) #3 {
+define internal void @resize481(%"Vector[Token]"* %"$this", i64 %n) #3 {
   %"$this.addr" = alloca %"Vector[Token]"*
   store %"Vector[Token]"* %"$this", %"Vector[Token]"** %"$this.addr"
   %n.addr = alloca i64
@@ -26633,7 +26893,7 @@ code:                                             ; preds = %0
 if_block:                                         ; preds = %code
   %3 = load i64* %n.addr
   %4 = load i64* %oldSize
-  %5 = call i1 @"==421"(i64 %3, i64 %4)
+  %5 = call i1 @"==432"(i64 %3, i64 %4)
   br i1 %5, label %if_then, label %if_end
 
 if_then:                                          ; preds = %if_block
@@ -26684,13 +26944,13 @@ while_body:                                       ; preds = %while_block
   %23 = getelementptr inbounds %"Vector[Token]"* %22, i32 0, i32 1
   %24 = load %"Vector[Token]"** %"$this.addr"
   %25 = getelementptr inbounds %"Vector[Token]"* %24, i32 0, i32 1
-  call void @advance303(%"RawPtr[Token]"* %"$tmpC", %"RawPtr[Token]"* %25, i64 -1)
+  call void @advance314(%"RawPtr[Token]"* %"$tmpC", %"RawPtr[Token]"* %25, i64 -1)
   %26 = load %"RawPtr[Token]"* %"$tmpC"
   call void @"=200"(%"RawPtr[Token]"* %23, %"RawPtr[Token]" %26)
   %27 = load %"Vector[Token]"** %"$this.addr"
   %28 = getelementptr inbounds %"Vector[Token]"* %27, i32 0, i32 1
   %29 = call %Token* @value212(%"RawPtr[Token]"* %28)
-  call void @dtor282(%Token* %29)
+  call void @dtor292(%Token* %29)
   br label %while_step
 
 while_step:                                       ; preds = %while_body
@@ -26729,7 +26989,7 @@ while_end8:                                       ; preds = %while_block5
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @clear471(%"Vector[Token]"* %"$this") #3 {
+define internal void @clear482(%"Vector[Token]"* %"$this") #3 {
   %"$this.addr" = alloca %"Vector[Token]"*
   store %"Vector[Token]"* %"$this", %"Vector[Token]"** %"$this.addr"
   %tmp.v = alloca %"ContiguousMemoryRange[Token]"
@@ -26743,14 +27003,14 @@ code:                                             ; preds = %0
   %5 = load %"Vector[Token]"** %"$this.addr"
   %6 = getelementptr inbounds %"Vector[Token]"* %5, i32 0, i32 1
   %7 = load %"RawPtr[Token]"* %6
-  call void @ctor301(%"ContiguousMemoryRange[Token]"* %tmp.v, %"RawPtr[Token]" %4, %"RawPtr[Token]" %7)
+  call void @ctor312(%"ContiguousMemoryRange[Token]"* %tmp.v, %"RawPtr[Token]" %4, %"RawPtr[Token]" %7)
   %8 = load %"ContiguousMemoryRange[Token]"* %tmp.v
-  call void @remove305(%"Vector[Token]"* %1, %"ContiguousMemoryRange[Token]" %8)
+  call void @remove316(%"Vector[Token]"* %1, %"ContiguousMemoryRange[Token]" %8)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal %"Vector[Token]"* @"=472"(%"Vector[Token]"* %"$this", %"Vector[Token]"* %other) #3 {
+define internal %"Vector[Token]"* @"=483"(%"Vector[Token]"* %"$this", %"Vector[Token]"* %other) #3 {
   %"$this.addr" = alloca %"Vector[Token]"*
   store %"Vector[Token]"* %"$this", %"Vector[Token]"** %"$this.addr"
   %other.addr = alloca %"Vector[Token]"*
@@ -26760,20 +27020,20 @@ define internal %"Vector[Token]"* @"=472"(%"Vector[Token]"* %"$this", %"Vector[T
 
 code:                                             ; preds = %0
   %1 = load %"Vector[Token]"** %other.addr
-  call void @ctor461(%"Vector[Token]"* %tmp, %"Vector[Token]"* %1)
+  call void @ctor472(%"Vector[Token]"* %tmp, %"Vector[Token]"* %1)
   %2 = load %"Vector[Token]"** %"$this.addr"
-  call void @swap463(%"Vector[Token]"* %tmp, %"Vector[Token]"* %2)
+  call void @swap474(%"Vector[Token]"* %tmp, %"Vector[Token]"* %2)
   %3 = load %"Vector[Token]"** %"$this.addr"
-  call void @dtor287(%"Vector[Token]"* %tmp)
+  call void @dtor297(%"Vector[Token]"* %tmp)
   ret %"Vector[Token]"* %3
 
 dumy_block:                                       ; No predecessors!
-  call void @dtor287(%"Vector[Token]"* %tmp)
+  call void @dtor297(%"Vector[Token]"* %tmp)
   unreachable
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal i1 @"==473"(%"Vector[Token]"* %"$this", %"Vector[Token]"* %other) #3 {
+define internal i1 @"==484"(%"Vector[Token]"* %"$this", %"Vector[Token]"* %other) #3 {
   %"$this.addr" = alloca %"Vector[Token]"*
   store %"Vector[Token]"* %"$this", %"Vector[Token]"** %"$this.addr"
   %other.addr = alloca %"Vector[Token]"*
@@ -26792,7 +27052,7 @@ if_block:                                         ; preds = %code
   %2 = call i64 @size198(%"Vector[Token]"* %1)
   %3 = load %"Vector[Token]"** %other.addr
   %4 = call i64 @size198(%"Vector[Token]"* %3)
-  %5 = call i1 @"!=264"(i64 %2, i64 %4)
+  %5 = call i1 @"!=274"(i64 %2, i64 %4)
   br i1 %5, label %if_then, label %if_end
 
 if_then:                                          ; preds = %if_block
@@ -26811,7 +27071,7 @@ dumy_block:                                       ; No predecessors!
 while_block:                                      ; preds = %while_step, %if_end
   %8 = load i32* %i
   %9 = load i64* %s
-  %10 = call i1 @"<425"(i32 %8, i64 %9)
+  %10 = call i1 @"<436"(i32 %8, i64 %9)
   br i1 %10, label %while_body, label %while_end
 
 while_body:                                       ; preds = %while_block
@@ -26832,14 +27092,14 @@ if_block1:                                        ; preds = %while_body
   %15 = zext i32 %14 to i64
   store i64 %15, i64* %tmp.v
   %16 = load i64* %tmp.v
-  %17 = call %Token* @at464(%"Vector[Token]"* %13, i64 %16)
+  %17 = call %Token* @at475(%"Vector[Token]"* %13, i64 %16)
   %18 = load %"Vector[Token]"** %other.addr
   %19 = load i32* %i
   %20 = zext i32 %19 to i64
   store i64 %20, i64* %tmp.v4
   %21 = load i64* %tmp.v4
-  %22 = call %Token* @at464(%"Vector[Token]"* %18, i64 %21)
-  %23 = call i1 @"==474"(%Token* %17, %Token* %22)
+  %22 = call %Token* @at475(%"Vector[Token]"* %18, i64 %21)
+  %23 = call i1 @"==485"(%Token* %17, %Token* %22)
   %24 = xor i1 true, %23
   br i1 %24, label %if_then2, label %if_end3
 
@@ -26854,7 +27114,7 @@ dumy_block5:                                      ; No predecessors!
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"==474"(%Token* %"$this", %Token* %other) #2 {
+define internal i1 @"==485"(%Token* %"$this", %Token* %other) #2 {
   %"$this.addr" = alloca %Token*
   store %Token* %"$this", %Token** %"$this.addr"
   %other.addr = alloca %Token*
@@ -26866,7 +27126,7 @@ code:                                             ; preds = %0
   %2 = getelementptr inbounds %Token* %1, i32 0, i32 0
   %3 = load %Token** %other.addr
   %4 = getelementptr inbounds %Token* %3, i32 0, i32 0
-  %5 = call i1 @"==428"(%Location* %2, %Location* %4)
+  %5 = call i1 @"==439"(%Location* %2, %Location* %4)
   br i1 %5, label %cond.true7, label %cond.false8
 
 cond.true:                                        ; preds = %cond.end3
@@ -26876,7 +27136,7 @@ cond.true:                                        ; preds = %cond.end3
   %9 = load %Token** %other.addr
   %10 = getelementptr inbounds %Token* %9, i32 0, i32 4
   %11 = load double* %10
-  %12 = call i1 @"==476"(double %8, double %11)
+  %12 = call i1 @"==487"(double %8, double %11)
   br label %cond.end
 
 cond.false:                                       ; preds = %cond.end3
@@ -26893,7 +27153,7 @@ cond.true1:                                       ; preds = %cond.end6
   %16 = load %Token** %other.addr
   %17 = getelementptr inbounds %Token* %16, i32 0, i32 3
   %18 = load i64* %17
-  %19 = call i1 @"==475"(i64 %15, i64 %18)
+  %19 = call i1 @"==486"(i64 %15, i64 %18)
   br label %cond.end3
 
 cond.false2:                                      ; preds = %cond.end6
@@ -26908,7 +27168,7 @@ cond.true4:                                       ; preds = %cond.end9
   %21 = getelementptr inbounds %Token* %20, i32 0, i32 2
   %22 = load %Token** %other.addr
   %23 = getelementptr inbounds %Token* %22, i32 0, i32 2
-  %24 = call i1 @"==432"(%String* %21, %String* %23)
+  %24 = call i1 @"==443"(%String* %21, %String* %23)
   br label %cond.end6
 
 cond.false5:                                      ; preds = %cond.end9
@@ -26935,7 +27195,7 @@ cond.end9:                                        ; preds = %cond.false8, %cond.
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"==475"(i64 %x, i64 %y) #2 {
+define internal i1 @"==486"(i64 %x, i64 %y) #2 {
   %x.addr = alloca i64
   store i64 %x, i64* %x.addr
   %y.addr = alloca i64
@@ -26954,7 +27214,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"==476"(double %x, double %y) #2 {
+define internal i1 @"==487"(double %x, double %y) #2 {
   %x.addr = alloca double
   store double %x, double* %x.addr
   %y.addr = alloca double
@@ -26964,16 +27224,16 @@ define internal i1 @"==476"(double %x, double %y) #2 {
 code:                                             ; preds = %0
   %1 = load double* %x.addr
   %2 = load double* %y.addr
-  %3 = call double @cmn477(double %1, double %2)
+  %3 = call double @cmn488(double %1, double %2)
   %4 = load double* %y.addr
   %5 = load double* %x.addr
-  %6 = call double @cmn477(double %4, double %5)
+  %6 = call double @cmn488(double %4, double %5)
   %7 = call i1 @_Double_opEQ(double %3, double %6)
   ret i1 %7
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal double @cmn477(double %x, double %y) #2 {
+define internal double @cmn488(double %x, double %y) #2 {
   %x.addr = alloca double
   store double %x, double* %x.addr
   %y.addr = alloca double
@@ -26986,7 +27246,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @"!=478"(%"Vector[Token]"* %"$this", %"Vector[Token]"* %other) #2 {
+define internal i1 @"!=489"(%"Vector[Token]"* %"$this", %"Vector[Token]"* %other) #2 {
   %"$this.addr" = alloca %"Vector[Token]"*
   store %"Vector[Token]"* %"$this", %"Vector[Token]"** %"$this.addr"
   %other.addr = alloca %"Vector[Token]"*
@@ -26996,13 +27256,13 @@ define internal i1 @"!=478"(%"Vector[Token]"* %"$this", %"Vector[Token]"* %other
 code:                                             ; preds = %0
   %1 = load %"Vector[Token]"** %"$this.addr"
   %2 = load %"Vector[Token]"** %other.addr
-  %3 = call i1 @"==473"(%"Vector[Token]"* %1, %"Vector[Token]"* %2)
+  %3 = call i1 @"==484"(%"Vector[Token]"* %1, %"Vector[Token]"* %2)
   %4 = xor i1 true, %3
   ret i1 %4
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @dumpThis479(%"Vector[Token]"* %"$this", %StringRef %prefix) #3 {
+define internal void @dumpThis490(%"Vector[Token]"* %"$this", %StringRef %prefix) #3 {
   %"$this.addr" = alloca %"Vector[Token]"*
   store %"Vector[Token]"* %"$this", %"Vector[Token]"** %"$this.addr"
   %prefix.addr = alloca %StringRef
@@ -27036,7 +27296,7 @@ define internal void @dumpThis479(%"Vector[Token]"* %"$this", %StringRef %prefix
   br label %code
 
 code:                                             ; preds = %0
-  %1 = call %ConsoleOutputStream* @"<<441"(%ConsoleOutputStream* @cout, %StringRef* %prefix.addr)
+  %1 = call %ConsoleOutputStream* @"<<452"(%ConsoleOutputStream* @cout, %StringRef* %prefix.addr)
   store [9 x i8] c"dumping \00", [9 x i8]* %const.bytes
   %2 = getelementptr inbounds [9 x i8]* %const.bytes, i32 0, i32 0
   %3 = getelementptr inbounds [9 x i8]* %const.bytes, i32 0, i32 8
@@ -27046,7 +27306,7 @@ code:                                             ; preds = %0
   store i8* %3, i8** %5
   %6 = load %StringRef* %const.struct
   store %StringRef %6, %StringRef* %"$tmpForRef"
-  %7 = call %ConsoleOutputStream* @"<<441"(%ConsoleOutputStream* %1, %StringRef* %"$tmpForRef")
+  %7 = call %ConsoleOutputStream* @"<<452"(%ConsoleOutputStream* %1, %StringRef* %"$tmpForRef")
   store [14 x i8] c"Vector[Token]\00", [14 x i8]* %const.bytes2
   %8 = getelementptr inbounds [14 x i8]* %const.bytes2, i32 0, i32 0
   %9 = getelementptr inbounds [14 x i8]* %const.bytes2, i32 0, i32 13
@@ -27056,7 +27316,7 @@ code:                                             ; preds = %0
   store i8* %9, i8** %11
   %12 = load %StringRef* %const.struct3
   store %StringRef %12, %StringRef* %"$tmpForRef1"
-  %13 = call %ConsoleOutputStream* @"<<441"(%ConsoleOutputStream* %7, %StringRef* %"$tmpForRef1")
+  %13 = call %ConsoleOutputStream* @"<<452"(%ConsoleOutputStream* %7, %StringRef* %"$tmpForRef1")
   store [3 x i8] c": \00", [3 x i8]* %const.bytes5
   %14 = getelementptr inbounds [3 x i8]* %const.bytes5, i32 0, i32 0
   %15 = getelementptr inbounds [3 x i8]* %const.bytes5, i32 0, i32 2
@@ -27066,11 +27326,11 @@ code:                                             ; preds = %0
   store i8* %15, i8** %17
   %18 = load %StringRef* %const.struct6
   store %StringRef %18, %StringRef* %"$tmpForRef4"
-  %19 = call %ConsoleOutputStream* @"<<441"(%ConsoleOutputStream* %13, %StringRef* %"$tmpForRef4")
+  %19 = call %ConsoleOutputStream* @"<<452"(%ConsoleOutputStream* %13, %StringRef* %"$tmpForRef4")
   %20 = load %"Vector[Token]"** %"$this.addr"
-  call void @mkStreamRefWrapper480(%StreamRefWrapperHelperClass* %"$tmpC", %"Vector[Token]"* %20)
-  %21 = call %ConsoleOutputStream* @"<<439"(%ConsoleOutputStream* %19, %StreamRefWrapperHelperClass* %"$tmpC")
-  %22 = call %ConsoleOutputStream* @"<<435"(%ConsoleOutputStream* %21, %EndLineHelperClass* @endl)
+  call void @mkStreamRefWrapper491(%StreamRefWrapperHelperClass* %"$tmpC", %"Vector[Token]"* %20)
+  %21 = call %ConsoleOutputStream* @"<<450"(%ConsoleOutputStream* %19, %StreamRefWrapperHelperClass* %"$tmpC")
+  %22 = call %ConsoleOutputStream* @"<<446"(%ConsoleOutputStream* %21, %EndLineHelperClass* @endl)
   store [11 x i8] c"    size: \00", [11 x i8]* %const.bytes8
   %23 = getelementptr inbounds [11 x i8]* %const.bytes8, i32 0, i32 0
   %24 = getelementptr inbounds [11 x i8]* %const.bytes8, i32 0, i32 10
@@ -27080,13 +27340,13 @@ code:                                             ; preds = %0
   store i8* %24, i8** %26
   %27 = load %StringRef* %const.struct9
   store %StringRef %27, %StringRef* %"$tmpForRef7"
-  %28 = call %ConsoleOutputStream* @"<<441"(%ConsoleOutputStream* @cout, %StringRef* %"$tmpForRef7")
+  %28 = call %ConsoleOutputStream* @"<<452"(%ConsoleOutputStream* @cout, %StringRef* %"$tmpForRef7")
   %29 = load %"Vector[Token]"** %"$this.addr"
   %30 = call i64 @size198(%"Vector[Token]"* %29)
   %31 = trunc i64 %30 to i32
   store i32 %31, i32* %tmp.v
-  %32 = call %ConsoleOutputStream* @"<<445"(%ConsoleOutputStream* %28, i32* %tmp.v)
-  %33 = call %ConsoleOutputStream* @"<<435"(%ConsoleOutputStream* %32, %EndLineHelperClass* @endl)
+  %32 = call %ConsoleOutputStream* @"<<456"(%ConsoleOutputStream* %28, i32* %tmp.v)
+  %33 = call %ConsoleOutputStream* @"<<446"(%ConsoleOutputStream* %32, %EndLineHelperClass* @endl)
   store [12 x i8] c"    begin: \00", [12 x i8]* %const.bytes11
   %34 = getelementptr inbounds [12 x i8]* %const.bytes11, i32 0, i32 0
   %35 = getelementptr inbounds [12 x i8]* %const.bytes11, i32 0, i32 11
@@ -27096,13 +27356,13 @@ code:                                             ; preds = %0
   store i8* %35, i8** %37
   %38 = load %StringRef* %const.struct12
   store %StringRef %38, %StringRef* %"$tmpForRef10"
-  %39 = call %ConsoleOutputStream* @"<<441"(%ConsoleOutputStream* @cout, %StringRef* %"$tmpForRef10")
+  %39 = call %ConsoleOutputStream* @"<<452"(%ConsoleOutputStream* @cout, %StringRef* %"$tmpForRef10")
   %40 = load %"Vector[Token]"** %"$this.addr"
   %41 = getelementptr inbounds %"Vector[Token]"* %40, i32 0, i32 0
   %42 = call i8* @bytePtr197(%"RawPtr[Token]"* %41)
-  call void @mkStreamRefWrapper447(%StreamRefWrapperHelperClass* %"$tmpC13", i8* %42)
-  %43 = call %ConsoleOutputStream* @"<<439"(%ConsoleOutputStream* %39, %StreamRefWrapperHelperClass* %"$tmpC13")
-  %44 = call %ConsoleOutputStream* @"<<435"(%ConsoleOutputStream* %43, %EndLineHelperClass* @endl)
+  call void @mkStreamRefWrapper458(%StreamRefWrapperHelperClass* %"$tmpC13", i8* %42)
+  %43 = call %ConsoleOutputStream* @"<<450"(%ConsoleOutputStream* %39, %StreamRefWrapperHelperClass* %"$tmpC13")
+  %44 = call %ConsoleOutputStream* @"<<446"(%ConsoleOutputStream* %43, %EndLineHelperClass* @endl)
   store [10 x i8] c"    end: \00", [10 x i8]* %const.bytes15
   %45 = getelementptr inbounds [10 x i8]* %const.bytes15, i32 0, i32 0
   %46 = getelementptr inbounds [10 x i8]* %const.bytes15, i32 0, i32 9
@@ -27112,13 +27372,13 @@ code:                                             ; preds = %0
   store i8* %46, i8** %48
   %49 = load %StringRef* %const.struct16
   store %StringRef %49, %StringRef* %"$tmpForRef14"
-  %50 = call %ConsoleOutputStream* @"<<441"(%ConsoleOutputStream* @cout, %StringRef* %"$tmpForRef14")
+  %50 = call %ConsoleOutputStream* @"<<452"(%ConsoleOutputStream* @cout, %StringRef* %"$tmpForRef14")
   %51 = load %"Vector[Token]"** %"$this.addr"
   %52 = getelementptr inbounds %"Vector[Token]"* %51, i32 0, i32 1
   %53 = call i8* @bytePtr197(%"RawPtr[Token]"* %52)
-  call void @mkStreamRefWrapper447(%StreamRefWrapperHelperClass* %"$tmpC17", i8* %53)
-  %54 = call %ConsoleOutputStream* @"<<439"(%ConsoleOutputStream* %50, %StreamRefWrapperHelperClass* %"$tmpC17")
-  %55 = call %ConsoleOutputStream* @"<<435"(%ConsoleOutputStream* %54, %EndLineHelperClass* @endl)
+  call void @mkStreamRefWrapper458(%StreamRefWrapperHelperClass* %"$tmpC17", i8* %53)
+  %54 = call %ConsoleOutputStream* @"<<450"(%ConsoleOutputStream* %50, %StreamRefWrapperHelperClass* %"$tmpC17")
+  %55 = call %ConsoleOutputStream* @"<<446"(%ConsoleOutputStream* %54, %EndLineHelperClass* @endl)
   store [17 x i8] c"    endOfStore: \00", [17 x i8]* %const.bytes19
   %56 = getelementptr inbounds [17 x i8]* %const.bytes19, i32 0, i32 0
   %57 = getelementptr inbounds [17 x i8]* %const.bytes19, i32 0, i32 16
@@ -27128,18 +27388,18 @@ code:                                             ; preds = %0
   store i8* %57, i8** %59
   %60 = load %StringRef* %const.struct20
   store %StringRef %60, %StringRef* %"$tmpForRef18"
-  %61 = call %ConsoleOutputStream* @"<<441"(%ConsoleOutputStream* @cout, %StringRef* %"$tmpForRef18")
+  %61 = call %ConsoleOutputStream* @"<<452"(%ConsoleOutputStream* @cout, %StringRef* %"$tmpForRef18")
   %62 = load %"Vector[Token]"** %"$this.addr"
   %63 = getelementptr inbounds %"Vector[Token]"* %62, i32 0, i32 2
   %64 = call i8* @bytePtr197(%"RawPtr[Token]"* %63)
-  call void @mkStreamRefWrapper447(%StreamRefWrapperHelperClass* %"$tmpC21", i8* %64)
-  %65 = call %ConsoleOutputStream* @"<<439"(%ConsoleOutputStream* %61, %StreamRefWrapperHelperClass* %"$tmpC21")
-  %66 = call %ConsoleOutputStream* @"<<435"(%ConsoleOutputStream* %65, %EndLineHelperClass* @endl)
+  call void @mkStreamRefWrapper458(%StreamRefWrapperHelperClass* %"$tmpC21", i8* %64)
+  %65 = call %ConsoleOutputStream* @"<<450"(%ConsoleOutputStream* %61, %StreamRefWrapperHelperClass* %"$tmpC21")
+  %66 = call %ConsoleOutputStream* @"<<446"(%ConsoleOutputStream* %65, %EndLineHelperClass* @endl)
   ret void
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @mkStreamRefWrapper480(%StreamRefWrapperHelperClass* sret %_result, %"Vector[Token]"* %x) #3 {
+define internal void @mkStreamRefWrapper491(%StreamRefWrapperHelperClass* sret %_result, %"Vector[Token]"* %x) #3 {
   %_result.addr = alloca %StreamRefWrapperHelperClass*
   store %StreamRefWrapperHelperClass* %_result, %StreamRefWrapperHelperClass** %_result.addr
   %x.addr = alloca %"Vector[Token]"*
@@ -27148,13 +27408,13 @@ define internal void @mkStreamRefWrapper480(%StreamRefWrapperHelperClass* sret %
   br label %code
 
 code:                                             ; preds = %0
-  call void @ctor443(%StreamRefWrapperHelperClass* %res)
+  call void @ctor454(%StreamRefWrapperHelperClass* %res)
   %1 = load %"Vector[Token]"** %x.addr
   %2 = bitcast %"Vector[Token]"* %1 to i8*
   %3 = getelementptr inbounds %StreamRefWrapperHelperClass* %res, i32 0, i32 0
   store i8* %2, i8** %3
   %4 = load %StreamRefWrapperHelperClass** %_result.addr
-  call void @ctor444(%StreamRefWrapperHelperClass* %4, %StreamRefWrapperHelperClass* %res)
+  call void @ctor455(%StreamRefWrapperHelperClass* %4, %StreamRefWrapperHelperClass* %res)
   ret void
 }
 

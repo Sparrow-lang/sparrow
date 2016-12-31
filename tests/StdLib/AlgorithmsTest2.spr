@@ -372,14 +372,14 @@ fun test15()
     var li = makeList();
     var pair = minMaxElement(li.all());
 
-    printRange(pair._1);
-    printRange(pair._2);
+    printRange(pair.v1);
+    printRange(pair.v2);
 
     var nr = NumericRangeWithStep(Int)(10, 10, 1);
     var pair2 = minMaxElement(nr);
 
-    printEmpty(pair2._1);
-    printEmpty(pair2._2);
+    printEmpty(pair2.v1);
+    printEmpty(pair2.v2);
 }
 /*<<<Minimum and maximum elements(15)
 7 -4 -8 3 -5 -10 -6 -10 7 -8
@@ -393,14 +393,14 @@ fun test16()
     var li = makeList();
     var pair = minMaxElementIf(li.all(), Greater());
 
-    printRange(pair._1);
-    printRange(pair._2);
+    printRange(pair.v1);
+    printRange(pair.v2);
 
     var nr = NumericRangeWithStep(Int)(10, 10, 1);
 
     var pair2 = minMaxElementIf(nr, Greater());
-    printEmpty(pair2._1);
-    printEmpty(pair2._2);
+    printEmpty(pair2.v1);
+    printEmpty(pair2.v2);
 }
 /*<<<Predicate minimum and maximum elements(16)
 -10 -6 -10 7 -8

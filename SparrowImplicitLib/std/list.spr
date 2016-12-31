@@ -11,33 +11,33 @@ class List(valueType: Type)
 
     fun ctor()
     {
-        listSize = 0;
-        head.prev = headNode();
-        head.next = headNode();
+        _listSize = 0;
+        _head.prev = _headNode();
+        _head.next = _headNode();
     }
 
     fun ctor(other: @List)
     {
-        listSize = 0;
-        head.prev = headNode();
-        head.next = headNode();
+        _listSize = 0;
+        _head.prev = _headNode();
+        _head.next = _headNode();
         for ( v = other.all() )
             pushBack(v);
     }
 
     fun ctor(range: Range)
     {
-        listSize = 0;
-        head.prev = headNode();
-        head.next = headNode();
+        _listSize = 0;
+        _head.prev = _headNode();
+        _head.next = _headNode();
         for ( v = range )
             pushBack(v);
     }
 
     fun dtor
     {
-        var p = head.next;
-        var hn = headNode();
+        var p = _head.next;
+        var hn = _headNode();
 
         while ( p != hn )
         {
@@ -49,13 +49,13 @@ class List(valueType: Type)
         }
     }
 
-    fun size: SizeType          = listSize;
-    fun isEmpty                 = listSize == 0;
+    fun size: SizeType          = _listSize;
+    fun isEmpty                 = _listSize == 0;
 
-    fun front: RetType          = head.next.value().data;
-    fun back: RetType           = head.prev.value().data;
+    fun front: RetType          = _head.next.value().data;
+    fun back: RetType           = _head.prev.value().data;
 
-    fun all: RangeType          = RangeType(head.next, headNode());
+    fun all: RangeType          = RangeType(_head.next, _headNode());
 
     fun assign(range: Range)
     {
@@ -66,45 +66,45 @@ class List(valueType: Type)
 
     fun swap(other: @List)
     {
-        head.prev.swap(other.head.prev);
-        head.next.swap(other.head.next);
+        _head.prev.swap(other._head.prev);
+        _head.next.swap(other._head.next);
 
-        var tmpSize = listSize;
-        listSize = other.listSize;
-        other.listSize = tmpSize;
+        var tmpSize = _listSize;
+        _listSize = other._listSize;
+        other._listSize = tmpSize;
 
-        if ( listSize == 0 )
+        if ( _listSize == 0 )
         {
-            head.prev = headNode();
-            head.next = headNode();
+            _head.prev = _headNode();
+            _head.next = _headNode();
         }
         else
         {
-            head.prev.value().next = headNode();
-            head.next.value().prev = headNode();
+            _head.prev.value().next = _headNode();
+            _head.next.value().prev = _headNode();
         }
-        if ( other.listSize == 0 )
+        if ( other._listSize == 0 )
         {
-            other.head.prev = other.headNode();
-            other.head.next = other.headNode();
+            other._head.prev = other._headNode();
+            other._head.next = other._headNode();
         }
         else
         {
-            other.head.prev.value().next = other.headNode();
-            other.head.next.value().prev = other.headNode();
+            other._head.prev.value().next = other._headNode();
+            other._head.next.value().prev = other._headNode();
         }
     }
 
     fun insertBefore(value: @ValueType, pos: RangeType)
     {
-        var tmp = NodeTypePtr.alloc(1);
+        var tmp = _NodeTypePtr.alloc(1);
 
         tmp.value().data.ctor(value);
-        tmp.value().next = pos.begin;
-        tmp.value().prev = pos.begin.value().prev;
-        pos.begin.value().prev.value().next = tmp;
-        pos.begin.value().prev = tmp;
-        ++listSize;
+        tmp.value().next = pos._begin;
+        tmp.value().prev = pos._begin.value().prev;
+        pos._begin.value().prev.value().next = tmp;
+        pos._begin.value().prev = tmp;
+        ++_listSize;
     }
 
     fun insertBefore(range: Range, pos: RangeType)
@@ -115,14 +115,14 @@ class List(valueType: Type)
 
     fun insertAfter(value: @ValueType, pos: RangeType)
     {
-        var tmp = NodeTypePtr.alloc(1);
+        var tmp = _NodeTypePtr.alloc(1);
 
         tmp.value().data.ctor(value);
-        tmp.value().next = pos.end;
-        tmp.value().prev = pos.end.value().prev;
-        pos.end.value().prev.value().next = tmp;
-        pos.end.value().prev = tmp;
-        ++listSize;
+        tmp.value().next = pos._end;
+        tmp.value().prev = pos._end.value().prev;
+        pos._end.value().prev.value().next = tmp;
+        pos._end.value().prev = tmp;
+        ++_listSize;
     }
 
     fun insertAfter(range: Range, pos: RangeType)
@@ -133,55 +133,55 @@ class List(valueType: Type)
 
     fun pushFront(value: @ValueType)
     {
-        var tmp = NodeTypePtr.alloc(1);
+        var tmp = _NodeTypePtr.alloc(1);
 
         tmp.value().data.ctor(value);
-        tmp.value().next = head.next;
-        tmp.value().prev = headNode();
-        head.next.value().prev = tmp;
-        head.next = tmp;
-        ++listSize;
+        tmp.value().next = _head.next;
+        tmp.value().prev = _headNode();
+        _head.next.value().prev = tmp;
+        _head.next = tmp;
+        ++_listSize;
     }
 
     fun popFront
     {
-        var right = head.next.value().next;
+        var right = _head.next.value().next;
 
-        head.next.value().data.dtor();
-        head.next.freePtr();
-        head.next = right;
-        right.value().prev = headNode();
-        listSize = listSize - 1;
+        _head.next.value().data.dtor();
+        _head.next.freePtr();
+        _head.next = right;
+        right.value().prev = _headNode();
+        _listSize = _listSize - 1;
     }
 
     fun pushBack(value: @ValueType)
     {
-        var tmp = NodeTypePtr.alloc(1);
+        var tmp = _NodeTypePtr.alloc(1);
 
-        tmp.value().prev = head.prev;
-        tmp.value().next = headNode();
+        tmp.value().prev = _head.prev;
+        tmp.value().next = _headNode();
         tmp.value().data.ctor(value);
-        head.prev.value().next = tmp;
-        head.prev = tmp;
-        ++listSize;
+        _head.prev.value().next = tmp;
+        _head.prev = tmp;
+        ++_listSize;
     }
     fun +=(value: @ValueType) { pushBack(value); }
 
     fun popBack
     {
-        var left = head.prev.value().prev;
+        var left = _head.prev.value().prev;
 
-        head.prev.value().data.dtor();
-        head.prev.freePtr();
-        head.prev = left;
-        left.value().next = headNode();
-        listSize = listSize - 1;
+        _head.prev.value().data.dtor();
+        _head.prev.freePtr();
+        _head.prev = left;
+        left.value().next = _headNode();
+        _listSize = _listSize - 1;
     }
 
     fun remove(value: @ValueType)
     {
-        var p = head.next;
-        var hn = headNode();
+        var p = _head.next;
+        var hn = _headNode();
 
         while ( p != hn )
         {
@@ -193,7 +193,7 @@ class List(valueType: Type)
                 p.value().next.value().prev = p.value().prev;
                 p.value().data.dtor();
                 p.freePtr();
-                listSize = listSize - 1;
+                _listSize = _listSize - 1;
             }
             p = tmp;
         }
@@ -201,8 +201,8 @@ class List(valueType: Type)
 
     fun removeIf(pred: AnyType)
     {
-        var p = head.next;
-        var hn = headNode();
+        var p = _head.next;
+        var hn = _headNode();
 
         while ( p != hn )
         {
@@ -214,7 +214,7 @@ class List(valueType: Type)
                 p.value().next.value().prev = p.value().prev;
                 p.value().data.dtor();
                 p.freePtr();
-                listSize = listSize - 1;
+                _listSize = _listSize - 1;
             }
             p = tmp;
         }
@@ -222,32 +222,32 @@ class List(valueType: Type)
 
     fun remove(range: RangeType)
     {
-        var left = range.begin.value().prev;
+        var left = range._begin.value().prev;
 
         while ( !range.isEmpty() )
         {
-            var tmp = range.begin.value().next;
+            var tmp = range._begin.value().next;
 
-            range.begin.value().data.dtor();
-            range.begin.freePtr();
-            listSize = listSize - 1;
-            range.begin = tmp;
+            range._begin.value().data.dtor();
+            range._begin.freePtr();
+            _listSize = _listSize - 1;
+            range._begin = tmp;
         }
-        left.value().next = range.end;
-        range.end.value().prev = left;
+        left.value().next = range._end;
+        range._end.value().prev = left;
     }
 
     fun resize(n: SizeType)
     {
-        if ( n == listSize )
+        if ( n == _listSize )
             return;
 
-        if ( n < listSize )
+        if ( n < _listSize )
         {
-            var p = head.prev;
-            var t = listSize - n;
+            var p = _head.prev;
+            var t = _listSize - n;
 
-            listSize = listSize - t;
+            _listSize = _listSize - t;
             while ( t > 0 ; t -= 1 )
             {
                 var tmp = p.value().prev;
@@ -256,8 +256,8 @@ class List(valueType: Type)
                 p.freePtr();
                 p = tmp;
             }
-            p.value().next = headNode();
-            head.prev = p;
+            p.value().next = _headNode();
+            _head.prev = p;
         }
         else
         {
@@ -265,7 +265,7 @@ class List(valueType: Type)
             if[ct] ( isValid(pushBack(ValueType())) )
             {
                 pushBack(ValueType());
-                while ( n > listSize )
+                while ( n > _listSize )
                     pushBack(ValueType());
             }
         }
@@ -273,11 +273,11 @@ class List(valueType: Type)
 
     fun clear
     {
-        if ( listSize == 0 )
+        if ( _listSize == 0 )
             return;
 
-        var p = head.next;
-        var hn = headNode();
+        var p = _head.next;
+        var hn = _headNode();
 
         while ( p != hn )
         {
@@ -287,18 +287,18 @@ class List(valueType: Type)
             p.freePtr();
             p = tmp;
         }
-        head.next = hn;
-        head.prev = hn;
-        listSize = 0;
+        _head.next = hn;
+        _head.prev = hn;
+        _listSize = 0;
     }
 
     fun unique
     {
-        if ( listSize <= 1 )
+        if ( _listSize <= 1 )
             return;
 
-        var p = head.next;
-        var hn = headNode();
+        var p = _head.next;
+        var hn = _headNode();
 
         while ( p != hn )
         {
@@ -311,7 +311,7 @@ class List(valueType: Type)
                 q.value().data.dtor();
                 q.freePtr();
                 q = tmp;
-                listSize = listSize - 1;
+                _listSize = _listSize - 1;
             }
             if ( p.value().next != q )
             {
@@ -324,11 +324,11 @@ class List(valueType: Type)
 
     fun unique(pred: AnyType)
     {
-        if ( listSize <= 1 )
+        if ( _listSize <= 1 )
             return;
 
-        var p = head.next;
-        var hn = headNode();
+        var p = _head.next;
+        var hn = _headNode();
 
         while ( p != hn )
         {
@@ -341,7 +341,7 @@ class List(valueType: Type)
                 q.value().data.dtor();
                 q.freePtr();
                 q = tmp;
-                listSize = listSize - 1;
+                _listSize = _listSize - 1;
             }
             if ( p.value().next != q )
             {
@@ -356,9 +356,9 @@ class List(valueType: Type)
     {
         if ( !other.isEmpty() )
         {
-            transfer(pos.begin, other.head.next, other.headNode());
-            listSize = listSize + other.listSize;
-            other.listSize = 0;
+            _transfer(pos._begin, other._head.next, other._headNode());
+            _listSize = _listSize + other._listSize;
+            other._listSize = 0;
         }
     }
 
@@ -368,7 +368,7 @@ class List(valueType: Type)
         {
             var tmp = range;
 
-            if ( headNode() != other.headNode() )
+            if ( _headNode() != other._headNode() )
             {
                 var t = 0;
 
@@ -377,10 +377,10 @@ class List(valueType: Type)
                     tmp.popFront();
                     ++t;
                 }
-                listSize += t;
-                other.listSize -= t;
+                _listSize += t;
+                other._listSize -= t;
             }
-            transfer(pos.begin, range.begin, range.end);
+            _transfer(pos._begin, range._begin, range._end);
         }
     }
 
@@ -388,9 +388,9 @@ class List(valueType: Type)
     {
         if ( !other.isEmpty() )
         {
-            transfer(pos.end, other.head.next, other.headNode());
-            listSize = listSize + other.listSize;
-            other.listSize = 0;
+            _transfer(pos._end, other._head.next, other._headNode());
+            _listSize = _listSize + other._listSize;
+            other._listSize = 0;
         }
     }
 
@@ -400,7 +400,7 @@ class List(valueType: Type)
         {
             var tmp = range;
 
-            if ( headNode() != other.headNode() )
+            if ( _headNode() != other._headNode() )
             {
                 var t = 0;
 
@@ -409,16 +409,16 @@ class List(valueType: Type)
                     tmp.popFront();
                     t = t + 1;
                 }
-                listSize = listSize + t;
-                other.listSize = other.listSize - t;
+                _listSize = _listSize + t;
+                other._listSize = other._listSize - t;
             }
-            transfer(pos.end, range.begin, range.end);
+            _transfer(pos._end, range._begin, range._end);
         }
     }
 
     // fun sort()
     // {
-        // if ( listSize < 2 )
+        // if ( _listSize < 2 )
             // return;
 
         // var carry: List;
@@ -429,7 +429,7 @@ class List(valueType: Type)
         // {
             // var r = all();
 
-            // r.end = r.begin.value().next;
+            // r._end = r._begin.value().next;
             // carry.spliceBefore(carry.all(), this, r);
 
             // var i = 0;
@@ -453,7 +453,7 @@ class List(valueType: Type)
 
     fun sort(pred: AnyType)
     {
-        if ( listSize < 2 )
+        if ( _listSize < 2 )
             return;
 
         var carry: List;
@@ -464,7 +464,7 @@ class List(valueType: Type)
         {
             var r = all();
 
-            r.end = r.begin.value().next;
+            r._end = r._begin.value().next;
             carry.spliceBefore(carry.all(), this, r);
 
             var i = 0;
@@ -495,18 +495,18 @@ class List(valueType: Type)
         // {
             // if ( r2.front() < r1.front() )
             // {
-                // var tmp = r2.begin.value().next;
+                // var tmp = r2._begin.value().next;
 
-                // transfer(r1.begin, r2.begin, tmp);
-                // r2.begin = tmp;
+                // _transfer(r1._begin, r2._begin, tmp);
+                // r2._begin = tmp;
             // }
             // else
                 // r1.popFront();
         // }
         // if ( !r2.isEmpty() )
-            // transfer(r1.end, r2.begin, r2.end);
-        // listSize = listSize + other.listSize;
-        // other.listSize = 0;
+            // _transfer(r1._end, r2._begin, r2._end);
+        // _listSize = _listSize + other._listSize;
+        // other._listSize = 0;
     // }
 
     fun merge(other: @List, pred: AnyType)
@@ -518,27 +518,27 @@ class List(valueType: Type)
         {
             if ( pred(r2.front(), r1.front()) )
             {
-                var tmp = r2.begin.value().next;
+                var tmp = r2._begin.value().next;
 
-                transfer(r1.begin, r2.begin, tmp);
-                r2.begin = tmp;
+                _transfer(r1._begin, r2._begin, tmp);
+                r2._begin = tmp;
             }
             else
                 r1.popFront();
         }
         if ( !r2.isEmpty() )
-            transfer(r1.end, r2.begin, r2.end);
-        listSize = listSize + other.listSize;
-        other.listSize = 0;
+            _transfer(r1._end, r2._begin, r2._end);
+        _listSize = _listSize + other._listSize;
+        other._listSize = 0;
     }
 
     fun reverse()
     {
-        if ( listSize < 2 )
+        if ( _listSize < 2 )
             return;
 
-        var p = head.next;
-        var hn = headNode();
+        var p = _head.next;
+        var hn = _headNode();
 
         while ( p != hn )
         {
@@ -549,10 +549,10 @@ class List(valueType: Type)
             p = p.value().prev;
         }
 
-        var tmp = head.prev;
+        var tmp = _head.prev;
 
-        head.prev = head.next;
-        head.next = tmp;
+        _head.prev = _head.next;
+        _head.next = tmp;
     }
 
     fun =(other: @List)
@@ -563,7 +563,7 @@ class List(valueType: Type)
 
     fun ==(other: @List): Bool
     {
-        if ( listSize != other.listSize )
+        if ( _listSize != other._listSize )
             return false;
 
         var r1 = all();
@@ -581,14 +581,14 @@ class List(valueType: Type)
         return true;
     }
 
-    private using NodeTypePtr = RawPtr(NodeType);
+    using _NodeTypePtr = RawPtr(_NodeType);
 
-    private var head: NodeLinks;
-    private var listSize: SizeType;
+    var _head: _NodeLinks;
+    var _listSize: SizeType;
 
-    private fun headNode = NodeTypePtr.fromRef(reinterpretCast(@NodeType, head));
+    fun _headNode = _NodeTypePtr.fromRef(reinterpretCast(@_NodeType, _head));
 
-    private fun[static] transfer(pos, begin, end: NodeTypePtr)
+    fun[static] _transfer(pos, begin, end: _NodeTypePtr)
     {
         end.value().prev.value().next = pos;
         begin.value().prev.value().next = end;
@@ -601,14 +601,14 @@ class List(valueType: Type)
         begin.value().prev = tmp;
     }
 
-    private class NodeLinks
+    class _NodeLinks
     {
-        var prev, next: RawPtr(NodeType);
+        var prev, next: RawPtr(_NodeType);
     }
 
-    private class NodeType
+    class _NodeType
     {
-        var prev, next: RawPtr(NodeType);
+        var prev, next: RawPtr(_NodeType);
         var data: ValueType;
     }
 
@@ -616,21 +616,21 @@ class List(valueType: Type)
     {
         using RetType = @ValueType;
 
-        fun isEmpty         = begin == end;
+        fun isEmpty         = _begin == _end;
 
-        fun front: RetType  = begin.value().data;
-        fun back: RetType   = end.value().prev.value().data;
+        fun front: RetType  = _begin.value().data;
+        fun back: RetType   = _end.value().prev.value().data;
 
-        fun popFront        { begin = begin.value().next; }
-        fun popBack         { end = end.value().prev; }
+        fun popFront        { _begin = _begin.value().next; }
+        fun popBack         { _end = _end.value().prev; }
 
-        private var begin, end: NodeTypePtr;
+        var _begin, _end: _NodeTypePtr;
 
         fun >>(os: @OutStream) if isValid(os << #$ValueType)
         {
             var first = true;
-            var p = begin;
-            while ( p != end ; p = p.value().next )
+            var p = _begin;
+            while ( p != _end ; p = p.value().next )
             {
                 if ( first )
                     first = false;

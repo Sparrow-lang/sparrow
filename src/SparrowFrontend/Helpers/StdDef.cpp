@@ -44,7 +44,7 @@ void SprFrontend::initTypeType(CompilationContext* ctx)
 {
     if ( typeType )
         return;
-    
+
     clsType = Feather_mkClass(NOLOC, fromCStr("Type"), {});
     Feather_setShouldAddToSymTab(clsType, 0);
     Nest_setPropertyString(clsType, propNativeName, fromCStr("Type"));
@@ -124,9 +124,9 @@ void SprFrontend::checkStdFunction(Node* fun)
     ASSERT(f && f->nodeKind == nkFeatherDeclFunction);
 
     StringRef funName = Feather_getName(fun);
-    if ( funName == "_opRefEQ" )
+    if ( funName == "implOpRefEQ" )
         StdDef::opRefEq = f;
-    if ( funName == "_opRefNE" )
+    if ( funName == "implOpRefNE" )
         StdDef::opRefNe = f;
 
     functionsFound = StdDef::opRefEq != nullptr && StdDef::opRefNe != nullptr;

@@ -9,8 +9,8 @@ import std.vector;
 import std.map, std.set;
 //^^^^ keyword.structure.import
 
-public import std.ranges(map, filter);
-//     ^^^^^^ keyword.structure.import
+import[public] std.ranges(map, filter);
+//^^^^ keyword.structure.import
 
 /**
 * // ^ comment.block.documentation

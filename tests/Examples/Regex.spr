@@ -94,8 +94,8 @@ fun[rtct] re2post(re: StringRef): String
             while ( nAlt > 0 ; --nAlt )
                 buf(dstIdx++) = '|';
             --parenIdx;
-            nAlt = paren(parenIdx)._1;
-            nAtom = paren(parenIdx)._2;
+            nAlt = paren(parenIdx).v1;
+            nAtom = paren(parenIdx).v2;
             ++nAtom;
         }
         else if ( ch == '*' || ch == '+' || ch == '?' )
@@ -138,44 +138,42 @@ class[rtct] NfaStatesFactory
 {
     fun ctor
     {
-        noStates ctor 0;
+        _numStates ctor 0;
         var nullObj: Ptr(NfaState);
-        matchState.ctor(NfaState.match, nullObj, nullObj);
+        _matchState.ctor(NfaState.match, nullObj, nullObj);
     }
 
     fun dtor
     {
         // Release the memory occupied by the states
-        for ( page = pages.all() )
+        for ( page = _pages.all() )
             page freePtr;
     }
 
-    fun getCharState(c: Char)                   = alloc(Int(c), Ptr(NfaState)(), Ptr(NfaState)());
-    fun getSplitState(s1, s2: Ptr(NfaState))    = alloc(NfaState.split, s1, s2);
-    fun getSplitState(s1: Ptr(NfaState))        = alloc(NfaState.split, s1, Ptr(NfaState)());
-    fun getMatchState                           = Ptr(NfaState)(matchState);
+    fun getCharState(c: Char)                   = _alloc(Int(c), Ptr(NfaState)(), Ptr(NfaState)());
+    fun getSplitState(s1, s2: Ptr(NfaState))    = _alloc(NfaState.split, s1, s2);
+    fun getSplitState(s1: Ptr(NfaState))        = _alloc(NfaState.split, s1, Ptr(NfaState)());
+    fun getMatchState                           = Ptr(NfaState)(_matchState);
 
-    private fun alloc(c: Int, out1, out2: Ptr(NfaState)): Ptr(NfaState)
+    fun _alloc(c: Int, out1, out2: Ptr(NfaState)): Ptr(NfaState)
     {
-        //var[ct] statesPerPage = 100;
-
-        if ( noStates >= statesPerPage*pages.size() )
+        if ( _numStates >= _statesPerPage*_pages.size() )
         {
-            var p = RawPtr(NfaState).alloc(statesPerPage);
-            pages.pushBack(p);
+            var p = RawPtr(NfaState).alloc(_statesPerPage);
+            _pages.pushBack(p);
         }
-        var idx = noStates % statesPerPage;
-        ++noStates;
-        var state: Ptr(NfaState) = pages.back().advance(idx).value();
+        var idx = _numStates % _statesPerPage;
+        ++_numStates;
+        var state: Ptr(NfaState) = _pages.back().advance(idx).value();
         state.get().ctor(c, out1, out2);
         return state;
     }
 
-    var[ct, static] statesPerPage = 100;
+    using _statesPerPage = 100;
 
-    private var noStates: Int;                      ///< Number of states created
-    private var matchState: NfaState;               ///< The match state
-    private var pages: Vector(RawPtr(NfaState));    ///< Pointers to the memory pages containing the actual NFA states
+    var _numStates: Int;                    ///< Number of states created
+    var _matchState: NfaState;              ///< The match state
+    var _pages: Vector(RawPtr(NfaState));   ///< Pointers to the memory pages containing the actual NFA states
 }
 
 /// Class that represents a NFA state; it allows one or two output states out of this state
@@ -192,12 +190,12 @@ class[rtct] NfaState
     fun isSplit = c == split;
     fun isMatch = c == match;
 
-    private var c: Int;
-    private var out1, out2: Ptr(NfaState);
-    private var listId: Int;
+    var c: Int;
+    var out1, out2: Ptr(NfaState);
+    var listId: Int;
 
-    var[ct, static] match = 256;
-    var[ct, static] split = 257;
+    using match = 256;
+    using split = 257;
 }
 
 /// Class that stores the list of out pointers from a given NFA fragment (set of connected NfaState objects)
@@ -209,34 +207,34 @@ class[rtct] OutPtrList
     /// Construct the out-ptr list from a single out-ptr reference
     fun ctor(outPtr: @Ptr(NfaState))
     {
-        next ctor reinterpretPtr(OutPtrList, Ptr(Ptr(NfaState))(outPtr));
+        _next ctor reinterpretPtr(OutPtrList, Ptr(Ptr(NfaState))(outPtr));
     }
 
     /// Append to this list another list of out-pointers
     fun append(other: OutPtrList)
     {
-        var p = next;
-        while ( p.get().next isSet )
-            p = p.get().next;
-        p.get().next = other.next;
+        var p = _next;
+        while ( p.get()._next isSet )
+            p = p.get()._next;
+        p.get()._next = other._next;
     }
 
     /// Set the final value to all the out-pointers from this list
     /// After calling this method, the list will be actually destroyed (as we right the exact pointers that are used to chain the nodes)
     fun setFinalValue(finalPtr: Ptr(NfaState))
     {
-        var p = next;
+        var p = _next;
         while ( p isSet )
         {
-            var next = p.get().next;
+            var _next = p.get()._next;
             reinterpretPtr(Ptr(NfaState), p).get() = finalPtr;
-            p = next;
+            p = _next;
         }
     }
 
     /// Pointer to the next element.
     /// This actually represents two things: one the pointer to the next element, and the actual data that needs to be filled
-    private var next: Ptr(OutPtrList);
+    var _next: Ptr(OutPtrList);
 }
 
 /// Class that represents a fragment of Nfa states
@@ -371,7 +369,7 @@ class[rtct] NfaNodeList
         this.id = id;
         this.isMatch = false;
         nodes.clear();
-        addState(start);
+        _addState(start);
         sort(nodes.all());
     }
 
@@ -385,7 +383,7 @@ class[rtct] NfaNodeList
         {
             if ( node.get().c == c )
             {
-                addState(node.get().out1);
+                _addState(node.get().out1);
             }
         }
         sort(nodes.all());
@@ -415,7 +413,7 @@ class[rtct] NfaNodeList
         cout << "\n";
     }
 
-    private fun addState(state: Ptr(NfaState))
+    fun _addState(state: Ptr(NfaState))
     {
         if ( (state isNull) || state.get().listId == id )
             return;
@@ -426,8 +424,8 @@ class[rtct] NfaNodeList
 
         if ( s isSplit )
         {
-            addState(s.out1);
-            addState(s.out2);
+            _addState(s.out1);
+            _addState(s.out2);
             return;
         }
         isMatch = isMatch || s.isMatch();
@@ -490,7 +488,7 @@ class[rtct] Automaton
         createDfaStates(nfaStart);
 
         // Print some statistics
-        //cout << "We have " << nfaStatesFactory.noStates << " NFA states\n";
+        //cout << "We have " << nfaStatesFactory._numStates << " NFA states\n";
         //cout << "We have " << dfaStates.size() << " DFA states\n";
         //for ( i=0..dfaStates.size() )
         //{
@@ -555,7 +553,7 @@ class[rtct] Automaton
 
     fun createDfaStates(start: Ptr(NfaState))
     {
-        var noNfaNodes = nfaStatesFactory.noStates;
+        var noNfaNodes = nfaStatesFactory._numStates;
         var tmpList = NfaNodeList(noNfaNodes);
 
         var exploredChars = Bitset(256);

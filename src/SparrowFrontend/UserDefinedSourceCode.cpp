@@ -83,7 +83,7 @@ namespace
         // Create a package for the module
         StringRef packageName = inferModuleName(sourceCode->url);
         Node* content = Feather_mkNodeListVoid(loc, fromIniList({}));
-        Node* moduleContent = mkSprPackage(loc, packageName, content, publicAccess);
+        Node* moduleContent = mkSprPackage(loc, packageName, content);
         Nest_setContext(moduleContent, ctx);
         if ( !Nest_semanticCheck(moduleContent) )
             REP_INTERNAL(loc, "Cannot create main package for user defined source code (%1%)") % sourceCode->url;
@@ -124,7 +124,7 @@ namespace
         Node* funCall = mkFunApplication(loc, toCall, fromIniList({codeNode, locNode, ctxNode}));
 
         // Compile the function and evaluate it
-        Node* implPart = mkCompoundExp(loc, funCall, fromCStr("_data"));
+        Node* implPart = mkCompoundExp(loc, funCall, fromCStr("data"));
         implPart = Feather_mkMemLoad(loc, implPart);    // Remove LValue
         Nest_setContext(implPart, ctx);
         if ( !Nest_semanticCheck(implPart) )

@@ -2,7 +2,6 @@
 
 #include "Nest/Api/EvalMode.h"
 #include "Nest/Api/NodeRange.h"
-#include <SparrowFrontend/Nodes/Decls/AccessType.h>
 
 namespace SprFrontend
 {
@@ -86,15 +85,15 @@ namespace SprFrontend
 
     Node* mkModule(const Location& loc, Node* moduleName, Node* declarations);
     Node* mkImportName(const Location& loc, Node* moduleName, Node* importedDeclNames, bool equals = false, StringRef alias = {0});
-    Node* mkSprUsing(const Location& loc, StringRef alias, Node* usingNode, AccessType accessType = unspecifiedAccess);
-    Node* mkSprPackage(const Location& loc, StringRef name, Node* children, AccessType accessType = unspecifiedAccess);
-    Node* mkSprVariable(const Location& loc, StringRef name, Node* typeNode, Node* init, AccessType accessType = unspecifiedAccess);
-    Node* mkSprVariable(const Location& loc, StringRef name, TypeRef type, Node* init, AccessType accessType = unspecifiedAccess);
-    Node* mkSprClass(const Location& loc, StringRef name, Node* parameters, Node* underlyingData, Node* ifClause, Node* children, AccessType accessType = unspecifiedAccess);
+    Node* mkSprUsing(const Location& loc, StringRef alias, Node* usingNode);
+    Node* mkSprPackage(const Location& loc, StringRef name, Node* children);
+    Node* mkSprVariable(const Location& loc, StringRef name, Node* typeNode, Node* init);
+    Node* mkSprVariable(const Location& loc, StringRef name, TypeRef type, Node* init);
+    Node* mkSprClass(const Location& loc, StringRef name, Node* parameters, Node* underlyingData, Node* ifClause, Node* children);
 
-    Node* mkSprConcept(const Location& loc, StringRef name, StringRef paramName, Node* baseConcept, Node* ifClause, AccessType accessType = unspecifiedAccess);
+    Node* mkSprConcept(const Location& loc, StringRef name, StringRef paramName, Node* baseConcept, Node* ifClause);
 
-    Node* mkSprFunction(const Location& loc, StringRef name, Node* parameters, Node* returnType, Node* body, Node* ifClause = nullptr, AccessType accessType = unspecifiedAccess);
+    Node* mkSprFunction(const Location& loc, StringRef name, Node* parameters, Node* returnType, Node* body, Node* ifClause = nullptr);
     Node* mkSprParameter(const Location& loc, StringRef name, Node* typeNode, Node* init = nullptr);
     Node* mkSprParameter(const Location& loc, StringRef name, TypeRef type, Node* init = nullptr);
     Node* mkSprAutoParameter(const Location& loc, StringRef name);

@@ -25,9 +25,9 @@ var p1: Atomic(@Int);
 var p2: Atomic(Int Ptr);
 
 class TwiddleThumbs {
-    private var message: String;
-    private var count: Int;
-    private var doPrint: Bool;
+    var message: String;
+    var count: Int;
+    var doPrint: Bool;
     var lastCounter: @Int;
 
     fun ctor(message: StringRef, count: Int, lastCounter: @Int, doPrint: Bool = false) {

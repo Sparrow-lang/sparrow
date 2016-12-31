@@ -9,15 +9,15 @@ class[rtct] DefaultHashFunction(type: Type)
     fun ()(arg: @type) = defaultHash(arg);
 }
 
-fun[rtct] defaultHash(arg: Char)        = HashImpl.doHash(Byte(arg), HashImpl.seed);
-//fun[rtct] defaultHash(arg: Integer)     = HashImpl.doHash(arg, HashImpl.seed);
+fun[rtct] defaultHash(arg: Char)        = _HashImpl.doHash(Byte(arg), _HashImpl._seed);
+//fun[rtct] defaultHash(arg: Integer)     = _HashImpl.doHash(arg, _HashImpl._seed);
 fun[rtct] defaultHash(arg: Integer)     = SizeType(arg);
-fun[rtct] defaultHash(arg: StringRef)   = HashImpl.doHash(arg, HashImpl.seed);
-fun[rtct] defaultHash(arg: @String)     = HashImpl.doHash(arg.asStringRef(), HashImpl.seed);
+fun[rtct] defaultHash(arg: StringRef)   = _HashImpl.doHash(arg, _HashImpl._seed);
+fun[rtct] defaultHash(arg: @String)     = _HashImpl.doHash(arg.asStringRef(), _HashImpl._seed);
 
-package HashImpl
+package _HashImpl
 {
-    private var[ct] seed: SizeType = 0xfadef00d;
+    var[ct] _seed: SizeType = 0xfadef00d;
 
     /// FNV hash generator
     fun[rtct] doHash(key: StringRef, start: SizeType): SizeType

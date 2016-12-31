@@ -44,7 +44,7 @@ fun test1
     assert(a == b);
     assert(a+1 < b);
     assert(a >= b, "intentional error");
-    assert(foo._data == 100, "non-printable vars work too");
+    assert(foo.data == 100, "non-printable vars work too");
     assert(fact(c) != 120, "calling functions");
 }
 /*<<<All asserts are ok (1)
@@ -57,6 +57,6 @@ AssertTest.spr(39): assertion failure: check 2 != 1+1 has failed: intentional er
 AssertTest.spr(44): assertion failure: check a[=12] == b[=13] has failed
 AssertTest.spr(45): assertion failure: check a[=12]+1 < b[=13] has failed
 AssertTest.spr(46): assertion failure: check a[=12] >= b[=13] has failed: intentional error
-AssertTest.spr(47): assertion failure: check foo._data == 100 has failed: non-printable vars work too
+AssertTest.spr(47): assertion failure: check foo.data == 100 has failed: non-printable vars work too
 AssertTest.spr(48): assertion failure: check fact(c[=5]) != 120 has failed: calling functions
 >>>*/

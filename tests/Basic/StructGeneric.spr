@@ -39,8 +39,8 @@ fun Pair2(first, second: AnyType): Pair2(typeOf(first)) {
 
 fun Pair3(first, second: AnyType): Pair3(typeOf(first)) {
     var res: Pair3(typeOf(first)) = Uninitialized();
-    res._data.first construct first;
-    res._data.second construct second;
+    res.data.first construct first;
+    res.data.second construct second;
     return res;
 }
 
@@ -62,7 +62,7 @@ fun[native("test")] test(n: Int)
     var p2 = Pair2(1, 2);
     var p3 = Pair3(3, 4);
     writeLn(p2.second);
-    writeLn(p3._data.second);
+    writeLn(p3.data.second);
 }
 
 /*<<<Running()

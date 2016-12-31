@@ -23,8 +23,8 @@ fun doJob(sem: @par.Semaphore, waitTime: Int) {
 }
 
 class[initCtor] Worker {
-    private var sem: @par.Semaphore;
-    private var amountOfWork: Int;
+    var sem: @par.Semaphore;
+    var amountOfWork: Int;
 
     fun ()() {
         for ( i = 0..amountOfWork ) {
@@ -35,9 +35,9 @@ class[initCtor] Worker {
 }
 
 class WorkManager {
-    private var sem: @par.Semaphore;
-    private var amountOfWork, numWorkers: Int;
-    private var threads: (par.Thread Ptr) Vector;
+    var sem: @par.Semaphore;
+    var amountOfWork, numWorkers: Int;
+    var threads: (par.Thread Ptr) Vector;
 
     fun ctor(sem: @par.Semaphore, amountOfWork, numWorkers: Int) {
         this.amountOfWork ctor amountOfWork;

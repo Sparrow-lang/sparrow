@@ -7,8 +7,8 @@ import std.tuple;
 fun fib(n: UInt): UInt {
     var p: UInt*UInt = 0 ~ 1;   // Last 2 entries
     for ( i = 0..n )
-        p = p._2 ~ (p._1 + p._2);
-    return p._2;
+        p = p.v2 ~ (p.v1 + p.v2);
+    return p.v2;
 }
 fun isOdd x = x%2 != 0;
 

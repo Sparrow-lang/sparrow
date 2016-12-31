@@ -1378,9 +1378,12 @@ Node* LambdaFunction_SemanticCheck(Node* node)
     // The actual enclosed function
     Nest_appendNodeToArray(&classBody->children, mkSprFunction(node->location, fromCStr("()"), parameters, returnType, body));
 
-    // Add a private default ctor (only we have some closure parameters)
-    if ( closureParams && size(closureParams->children) > 0 )
-        Nest_appendNodeToArray(&classBody->children, mkSprFunction(node->location, fromCStr("ctor"), nullptr, nullptr, Feather_mkLocalSpace(node->location, {}), nullptr, privateAccess));
+    // Add a private default ctor (only when we have some closure parameters)
+    if ( closureParams && size(closureParams->children) > 0 ) {
+        Node* defCtor = mkSprFunction(node->location, fromCStr("ctor"), nullptr, nullptr, Feather_mkLocalSpace(node->location, {}), nullptr);
+        setAccessType(defCtor, privateAccess);
+        Nest_appendNodeToArray(&classBody->children, defCtor);
+    }
 
     // For each closure variable, create:
     // - a member variable in the class
@@ -1409,7 +1412,7 @@ Node* LambdaFunction_SemanticCheck(Node* node)
             ctorParamsNodes.push_back(mkSprParameter(loc, varName, varType));
 
             // Create a similar variable in the enclosing class - must have the same name
-            Nest_appendNodeToArray(&classBody->children, mkSprVariable(loc, varName, varType, nullptr, privateAccess));
+            Nest_appendNodeToArray(&classBody->children, mkSprVariable(loc, varName, varType, nullptr));
 
             // Create an initialization for the variable
             Node* fieldRef = mkCompoundExp(loc, mkThisExp(loc), varName);

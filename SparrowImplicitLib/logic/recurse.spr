@@ -33,30 +33,30 @@ class Recurse(predGeneratorType: Type)
 {
     fun ctor(predGenerator: @predGeneratorType)
     {
-        this.relation ctor;
-        this.predGenerator ctor predGenerator;
+        this._relation ctor;
+        this._predGenerator ctor predGenerator;
         if[ct] ( isValid(logicDebug) )
             cout << "Recurse.ctor: " << this << "\n";
     }
 
     fun (): Bool
     {
-        if ( relation.isNull() )
-            relation = predGenerator();
+        if ( _relation.isNull() )
+            _relation = _predGenerator();
         if[ct] ( isValid(logicDebug) )
             cout << "Recurse.(): " << this << "\n";
-        return relation();
+        return _relation();
     }
 
     fun >>(os: @OutStream)
     {
         os << "Recurse(this=" << mkStreamRefWrapper(this)
-           << ", fun=" << relation;
-        if[ct] ( isValid( os << predGenerator ) )
-            os << ", gen=" << predGenerator;
+           << ", fun=" << _relation;
+        if[ct] ( isValid( os << _predGenerator ) )
+            os << ", gen=" << _predGenerator;
         os << ")";
     }
 
-    private var relation: Predicate;
-    private var predGenerator: predGeneratorType;
+    var _relation: Predicate;
+    var _predGenerator: predGeneratorType;
 }

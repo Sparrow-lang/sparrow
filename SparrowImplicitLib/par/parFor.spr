@@ -28,7 +28,7 @@ fun parFor(r: Range, f: AnyType, part: @Partitioner)
 class DefaultPartitioner(rangeType: Type) {
     using RangeType = BoundedRange(rangeType);
 
-    private var maxDepth: Int;
+    var _maxDepth: Int;
 
     fun partStart {
         var p: Int = getAvailableCoresNum;
@@ -36,14 +36,14 @@ class DefaultPartitioner(rangeType: Type) {
         while ( 2 !<<! depth < p )
             ++depth;
 
-        maxDepth = 1 + depth;
+        _maxDepth = 1 + depth;
     }
 
     fun partition(r: Range, depth: Int) : RangeType * RangeType
     {
         var splitIdx = 0;
         var sz: Int = r rangeSize;
-        if ( depth <= maxDepth ) {
+        if ( depth <= _maxDepth ) {
             splitIdx = (sz+1) / 2;  // split in half
         }
         var r1 = RangeType(r, 0, splitIdx);
@@ -53,26 +53,26 @@ class DefaultPartitioner(rangeType: Type) {
     }
 }
 
-class BoundedRange(baseRangeType: Type) {
-    private var baseRange: baseRangeType;
-    private var count: SizeType;
+class BoundedRange(_baseRangeType: Type) {
+    var _baseRange: baseRangeType;
+    var _count: SizeType;
 
     using RetType = baseRangeType.RetType;
 
     fun ctor(r: @baseRangeType) {
-        baseRange ctor r;
-        count = (baseRange rangeSize);
+        _baseRange ctor r;
+        _count = (_baseRange rangeSize);
     }
 
     fun ctor(r: @BoundedRange, nSkip, nTake: SizeType) {
-        baseRange ctor r.baseRange;
-        baseRange advance nSkip;
-        count ctor nTake;
+        _baseRange ctor r._baseRange;
+        _baseRange advance nSkip;
+        _count ctor nTake;
     }
 
-    fun isEmpty                     = count == 0 || baseRange.isEmpty();
-    fun front: RetType              = baseRange.front();
-    fun popFront                    { baseRange.popFront(); --count; }
+    fun isEmpty                     = _count == 0 || _baseRange.isEmpty();
+    fun front: RetType              = _baseRange.front();
+    fun popFront                    { _baseRange.popFront(); --_count; }
 }
 
 package Impl {

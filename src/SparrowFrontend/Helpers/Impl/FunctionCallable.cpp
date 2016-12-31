@@ -172,7 +172,7 @@ namespace
         CHECK(loc, args.size() == 1);
 
         // Get the impl part of the node
-        Node* implPart = mkCompoundExp(loc, args[0], fromCStr("_data"));
+        Node* implPart = mkCompoundExp(loc, args[0], fromCStr("data"));
         implPart = Feather_mkMemLoad(loc, implPart);    // Remove LValue
         Nest_setContext(implPart, context);
         if ( !Nest_semanticCheck(implPart) )

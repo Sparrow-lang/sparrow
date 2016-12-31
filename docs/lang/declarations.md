@@ -4,13 +4,12 @@ UNDER CONSTRUCTION
 
 ## Syntax
 ```
-Declaration ::= [AccessSpec] UsingDecl
-              | [AccessSpec] PackageDecl
-              | [AccessSpec] ClassDecl
-              | [AccessSpec] ConceptDecl
-              | [AccessSpec] VarDecl
-              | [AccessSpec] FunDecl
-AccessSpec  ::= 'private' | 'public'
+Declaration ::= UsingDecl
+              | PackageDecl
+              | ClassDecl
+              | ConceptDecl
+              | VarDecl
+              | FunDecl
 
 UsingDecl   ::= 'using' [Mods] QualifiedIdStar ';'
               | 'using' [Mods] Id '=' Expr ';'
@@ -94,9 +93,11 @@ TODO
 
 TODO
 
-## Access specifiers
+## Access modes
 
-Declarations in Sparrow can have only two access specifiers: `public` and `private`. If an access specifier is not explicitly mentioned, the `public` specifier is assumed.
+Declarations in Sparrow can have only two access modes: `public` and `private`. By default, the `public` mode is assumed. If the declaration starts with `_`, then `private` is assumed instead.
+
+The user can force an access mode by using the `public` and `private` modifiers. This is especially useful for public imports, where we cannot control the name of the symbol imported.
 
 A public declaration means that everybody can access and use that declaration.
 
@@ -106,38 +107,38 @@ Example:
 ```
 module A;
 fun f = 1;
-private fun g = f() + 1;
-public fun h = g() + 1;
+fun _g = f() + 1;
+fun h = g() + 1;
 ```
 ```
 module B;
 ...
-A.f()   // ERROR
+A.f()   // ok, 1
 A.g()   // ERROR
 A.h()   // ok, 3
 ```
 
-> Note: Private declarations of one package can be seen from another package in the same module. This rule simplifies *friedship* relations between entities that are closely related. See the following example:
+> Note: Private declarations of one package can be seen from another package in the same module. This rule simplifies *friendship* relations between entities that are closely related. See the following example:
 
 ```
 module goodFamily;
 package mom {
     fun publicAttitude {...}
-    private fun secrets {...}
+    fun _secrets {...}
 }
 package dad {
     fun publicAttitude {...}
-    private fun secrets {...}
+    fun _secrets {...}
 }
 package child {
     fun schoolBehaviour {...}
-    private fun secrets {...}
+    fun _secrets {...}
 }
 
 fun discussion {
     // No secrets between the members of the module
-    mom.secrets;
-    dad.secrets;
-    child.secrets;
+    mom._secrets;
+    dad._secrets;
+    child._secrets;
 }
 ```

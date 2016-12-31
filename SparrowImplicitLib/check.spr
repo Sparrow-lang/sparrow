@@ -10,14 +10,14 @@ class Gen(t: Type) {
 
     fun ctor {}
     fun[convert] ctor(generator: @AnyType) {
-        this.generator ctor generator;
+        this._generator ctor generator;
     }
 
-    fun isValid: Bool = generator isSet;
+    fun isValid: Bool = _generator isSet;
 
-    fun ()(sizeHint: UInt): t = generator(sizeHint);
+    fun ()(sizeHint: UInt): t = _generator(sizeHint);
 
-    private var generator: Function(t, UInt);
+    var _generator: Function(t, UInt);
 }
 
 concept GenType(x)
@@ -74,10 +74,10 @@ concept TestableValuesRange(x)
 //! statistics of running the tests.
 fun check(values: TestableValuesRange, pred: @AnyType): Bool
         = check(values, pred, "")
-    if !isValid(pred._1);
+    if !isValid(pred.v1);
 fun check(values: TestableValuesRange, predMsg: @AnyType): Bool
-        = check(values, predMsg._1, predMsg._2)
-    if isValid(predMsg._1);
+        = check(values, predMsg.v1, predMsg.v2)
+    if isValid(predMsg.v1);
 fun check(values: TestableValuesRange, pred: @AnyType, msg: StringRef, config: CheckConfig = CheckConfig()): Bool {
     cout << "* Checking " << msg << endl;
     var classes: Map(String, UInt);
@@ -144,8 +144,8 @@ fun withClassifier(r: TestableValuesRange, pred: @AnyType) = CheckImpl.Classifie
 //
 
 concept FreqGenType(x)
-    if Integer(x._1)
-    && GenType(x._2)
+    if Integer(x.v1)
+    && GenType(x.v2)
     ;
 
 //! Returns a generator that generates elements from the range
@@ -160,26 +160,26 @@ fun oneOf(gens: Range): gens.RetType if GenType(#$gens.RetType) {
 }
 
 //! Same as oneOf, but for each generator we also have its frequency
-fun frequency(gens: Range): typeOf((#$gens.RetType)._2) if FreqGenType(#$gens.RetType) {
-    if ( gens.isEmpty ) return typeOf((#$gens.RetType)._2)();
+fun frequency(gens: Range): typeOf((#$gens.RetType).v2) if FreqGenType(#$gens.RetType) {
+    if ( gens.isEmpty ) return typeOf((#$gens.RetType).v2)();
 
     // Compute the sum of frequencies
     var sum = 0;
     for ( fg = gens ) {
-        sum += fg._1;
+        sum += fg.v1;
     }
-    if ( sum == 0 ) return typeOf((#$gens.RetType)._2)();
+    if ( sum == 0 ) return typeOf((#$gens.RetType).v2)();
 
     // Select a random number in the total sum of frequencies
     var toSelect = randBetween(0, sum);
     // Select the right generator from the distribution
     var curAcc = 0;
     for ( fg = gens ) {
-        if ( curAcc <= toSelect && toSelect < curAcc + fg._1 )
-            return fg._2;
-        curAcc += fg._1;
+        if ( curAcc <= toSelect && toSelect < curAcc + fg.v1 )
+            return fg.v2;
+        curAcc += fg.v1;
     }
-    return typeOf((#$gens.RetType)._2)();
+    return typeOf((#$gens.RetType).v2)();
 }
 
 
@@ -209,57 +209,57 @@ package CheckImpl {
     class ForAllGenerator(t: Type) {
         using RetType = TestableValue(t);
 
-        private var gen: Gen(t);
-        private var count: UInt;
+        var _gen: Gen(t);
+        var _count: UInt;
 
         fun ctor(gen: @Gen(t)) {
-            this.gen ctor gen;
-            this.count = 0;
+            this._gen ctor gen;
+            this._count = 0;
         }
 
-        fun isEmpty                     = !gen.isValid;
-        fun front: RetType              = RetType(gen(count));
-        fun popFront                    { ++count; }
+        fun isEmpty                     = !_gen.isValid;
+        fun front: RetType              = RetType(_gen(_count));
+        fun popFront                    { ++_count; }
     }
 
     class[initCtor] ForAllRangeGenerator(rangeType: Type) {
         using RetType = TestableValue(rangeType.RetType);
 
-        private var range: rangeType;
+        var _range: rangeType;
 
-        fun isEmpty                     = range.isEmpty;
-        fun front: RetType              = RetType(range.front);
-        fun popFront                    { range.popFront; }
+        fun isEmpty                     = _range.isEmpty;
+        fun front: RetType              = RetType(_range.front);
+        fun popFront                    { _range.popFront; }
     }
 
     class ForWhichRange(rangeType, predType: Type) if typeOf((#$predType)((#$rangeType front).value)) == Bool
     {
-        private var range: rangeType;
-        private var pred: predType;
-        private var lastVal: RetType;
+        var _range: rangeType;
+        var _pred: predType;
+        var _lastVal: RetType;
 
         using RetType = -@rangeType.RetType;
 
         fun ctor(range: rangeType, pred: predType)
         {
-            this.range ctor range;
-            this.pred ctor pred;
-            this.lastVal ctor;
-            popUntilValid;
+            this._range ctor range;
+            this._pred ctor pred;
+            this._lastVal ctor;
+            _popUntilValid;
         }
 
-        fun isEmpty                     = range.isEmpty();
-        fun front: RetType              = lastVal;
-        fun popFront                    { range.popFront(); popUntilValid; }
+        fun isEmpty                     = _range.isEmpty();
+        fun front: RetType              = _lastVal;
+        fun popFront                    { _range.popFront(); _popUntilValid; }
 
-        private fun popUntilValid
+        fun _popUntilValid
         {
-            while ( !range.isEmpty )
+            while ( !_range.isEmpty )
             {
-                lastVal = range.front();
-                if ( pred(lastVal.value) )
+                _lastVal = _range.front();
+                if ( _pred(_lastVal.value) )
                     break;
-                range.popFront();
+                _range.popFront();
             }
         }
     }
@@ -268,14 +268,14 @@ package CheckImpl {
     {
         using RetType = -@rangeType.RetType;
 
-        private var range: rangeType;
-        private var pred: predType;
+        var _range: rangeType;
+        var _pred: predType;
 
-        fun isEmpty                     = range.isEmpty();
-        fun popFront                    { range.popFront(); }
+        fun isEmpty                     = _range.isEmpty();
+        fun popFront                    { _range.popFront(); }
         fun front: RetType {
-            var res = range.front;
-            res.isTrivial = pred(res.value);
+            var res = _range.front;
+            res.isTrivial = _pred(res.value);
             return res;
         }
     }
@@ -285,14 +285,14 @@ package CheckImpl {
     {
         using RetType = -@rangeType.RetType;
 
-        private var range: rangeType;
-        private var pred: predType;
+        var _range: rangeType;
+        var _pred: predType;
 
-        fun isEmpty                     = range.isEmpty();
-        fun popFront                    { range.popFront(); }
+        fun isEmpty                     = _range.isEmpty();
+        fun popFront                    { _range.popFront(); }
         fun front: RetType {
-            var res = range.front;
-            res.classifier = pred(res.value);
+            var res = _range.front;
+            res.classifier = _pred(res.value);
             return res;
         }
     }
@@ -301,20 +301,20 @@ package CheckImpl {
     {
         using ElementType = -@rangeType.RetType;
 
-        private var range: rangeType;
-        private var count: SizeType;
+        var _range: rangeType;
+        var _count: SizeType;
 
         fun ctor(range: rangeType) {
-            this.range ctor range;
-            this.count ctor (range rangeSize);
+            this._range ctor range;
+            this._count ctor (range rangeSize);
         }
 
         fun ()(sizeHint: UInt): ElementType {
-            var r = range;
-            r advance randBetween(0, Int(count));
+            var r = _range;
+            r advance randBetween(0, Int(_count));
             return r.front;
         }
 
-        fun gen: Gen(ElementType) = ife(count>0, this, Gen(ElementType)());
+        fun gen: Gen(ElementType) = ife(_count>0, this, Gen(ElementType)());
     }
 }

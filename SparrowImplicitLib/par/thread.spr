@@ -25,12 +25,12 @@ fun >>(tid: @ThreadId, os: @OutStream)
 
 class Thread
 {
-    private var handle: NativeThreadHandle;
+    var _handle: NativeThreadHandle;
 
     //! Construct the Thread with a functor
     //! The functor can have state, not just executing code
     fun ctor(f: AnyType) if isValid(f()) {
-        handle = Impl.startThread(f);
+        _handle = Impl.startThread(f);
     }
     //! Destructor. Detatch the thread if joinable
     fun dtor {
@@ -38,51 +38,51 @@ class Thread
     }
 
     //! Cannot copy construct or assign a Thread object
-    private fun ctor(other: @Thread);
-    private fun =(other: @Thread);
+    fun[private] ctor(other: @Thread);
+    fun[private] =(other: @Thread);
 
 }
 
 fun >>(t: @Thread, os: @OutStream)
 {
-    if ( handle != NativeThreadHandle() )
-        os << "Thread(" << handle << ")";
+    if ( _handle != NativeThreadHandle() )
+        os << "Thread(" << _handle << ")";
     else
         os << "Thread(null)";
 }
 
 //! Swap the content of two Thread objects
 //fun swap(lhs, rhs: @Thread) {
-//    var tmp = lhs.handle swap rhs.handle;
+//    var tmp = lhs._handle swap rhs._handle;
 //}
 
 //! Test if the thread is joinable (e.g., still active);
-fun isJoinable(t: Thread) = t.handle != NativeThreadHandle();
+fun isJoinable(t: Thread) = t._handle != NativeThreadHandle();
 
 //! Wait for the thread to finish
 //! This shouldn't be called from the same thread
 fun join(t: @Thread) {
     //assert(t isJoinable);
     //assert((t getId) !== curThreadId);
-    var res = Impl.pthread_join(t.handle, null);
+    var res = Impl.pthread_join(t._handle, null);
     //assert(res == 0);
-    t.handle = NativeThreadHandle();
+    t._handle = NativeThreadHandle();
 }
 
 //! Detaches the given thread object from the actual thread of execution
 //! The actual thread may continue to execute after this call
 fun detach(t: @Thread) {
     //assert(t isJoinable);
-    var res = Impl.pthread_detach(t.handle);
+    var res = Impl.pthread_detach(t._handle);
     //assert(res == 0);
-    t.handle = NativeThreadHandle();
+    t._handle = NativeThreadHandle();
 }
 
 //! Get the ID of the given thread
-fun getId(t: Thread): ThreadId = ThreadId(t.handle);
+fun getId(t: Thread): ThreadId = ThreadId(t._handle);
 
 //! Get the native handle of the given thread
-fun getNativeHandle(t: Thread): NativeThreadHandle = t.handle;
+fun getNativeHandle(t: Thread): NativeThreadHandle = t._handle;
 
 
 //! Get the current thread id

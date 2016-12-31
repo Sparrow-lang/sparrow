@@ -12,14 +12,14 @@ fun[native("comp_parser_addToNodeList")] addToNodeList(nl, newNode: Node): Node;
 
 fun[native("comp_parser_mkModifiers")] mkModifiers(loc: @Location, main, mods: Node): Node;
 fun[native("comp_parser_mkModule")] mkModule(loc: @Location, moduleName, decls: Node): Node;
-fun[native("comp_parser_mkImportName")] mkImportName(loc: @Location, alias: StringRef, toImport, decls: Node, accessSpec: Int): Node;
-fun[native("comp_parser_mkUsing")] mkUsing(loc: @Location, alias: StringRef, usingNode: Node, accessSpec: Int): Node;
-fun[native("comp_parser_mkPackage")] mkPackage(loc: @Location, name: StringRef, children: Node, accessSpec: Int): Node;
-fun[native("comp_parser_mkClass")] mkClass(loc: @Location, name: StringRef, params, underlyingData, ifClause, children: Node, accessSpec: Int): Node;
-fun[native("comp_parser_mkConcept")] mkConcept(loc: @Location, name, paramName: StringRef, baseConcept, ifClause: Node, accessSpec: Int): Node;
-fun[native("comp_parser_mkVar")] mkVar(loc: @Location, name: StringRef, typeNode, init: Node, accessSpec: Int): Node;
+fun[native("comp_parser_mkImportName")] mkImportName(loc: @Location, alias: StringRef, toImport, decls: Node): Node;
+fun[native("comp_parser_mkUsing")] mkUsing(loc: @Location, alias: StringRef, usingNode: Node): Node;
+fun[native("comp_parser_mkPackage")] mkPackage(loc: @Location, name: StringRef, children: Node): Node;
+fun[native("comp_parser_mkClass")] mkClass(loc: @Location, name: StringRef, params, underlyingData, ifClause, children: Node): Node;
+fun[native("comp_parser_mkConcept")] mkConcept(loc: @Location, name, paramName: StringRef, baseConcept, ifClause: Node): Node;
+fun[native("comp_parser_mkVar")] mkVar(loc: @Location, name: StringRef, typeNode, init: Node): Node;
 fun[native("comp_parser_mkParameter")] mkParameter(loc: @Location, name: StringRef, typeNode, init: Node): Node;
-fun[native("comp_parser_mkFun")] mkFun(loc: @Location, name: StringRef, formals, retType, body, bodyExp, ifClause: Node, accessSpec: Int): Node;
+fun[native("comp_parser_mkFun")] mkFun(loc: @Location, name: StringRef, formals, retType, body, bodyExp, ifClause: Node): Node;
 
 fun[native("comp_parser_mkParenthesisExpr")] mkParenthesisExpr(expr: Node): Node;
 fun[native("comp_parser_mkPostfixOp")] mkPostfixOp(loc: @Location, base: Node, op: StringRef): Node;

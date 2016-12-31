@@ -61,7 +61,7 @@ fun testChange(bag: @AnyType, n: Int)
         }
 
         // Remove it from the map
-        var obj = r.front()._2;
+        var obj = r.front().v2;
         bag.remove(r);
 
         // Reinsert with a new key
@@ -85,7 +85,7 @@ fun[noInline] testHit(bag: @AnyType, n: Int)
         }
 
         // Ensure that we have the correct element
-        var obj = r.front()._2;
+        var obj = r.front().v2;
         if ( obj.get().value != key )
         {
             cout << "FAIL: Element with key " << key << " has an invalid value: " << obj.get().value << endl;
@@ -123,7 +123,7 @@ fun testRemove(bag: @AnyType, n: Int)
             return;
         }
 
-        var obj = r.front()._2;
+        var obj = r.front().v2;
 
         // Remove it
         bag.remove(r);

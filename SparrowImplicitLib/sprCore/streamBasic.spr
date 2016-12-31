@@ -49,7 +49,7 @@ class[rtct] StreamRefWrapperHelperClass
     var ptr: @Byte;
 }
 fun[rtct] >>(p: StreamRefWrapperHelperClass, os: @OutStream) {
-    Impl.writeRef(p.ptr);
+    _Impl.writeRef(p.ptr);
 }
 
 fun[rtct] mkStreamRefWrapper(x: @AnyType): StreamRefWrapperHelperClass
@@ -59,7 +59,7 @@ fun[rtct] mkStreamRefWrapper(x: @AnyType): StreamRefWrapperHelperClass
     return res;
 }
 
-private package Impl
+package _Impl
 {
     fun[rtct, native("writePointer")] writeRef(x: @Byte);
 }

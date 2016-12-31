@@ -185,14 +185,14 @@ fun test9()
     var nr = createRangeAscending(5);
     var pair = x ~ nr;
 
-    cout << pair._1 << endl;
-    printRange(pair._2);
+    cout << pair.v1 << endl;
+    printRange(pair.v2);
 
     var pair2 = 20 ~ (50 ~ "bla");
 
-    cout << pair2._1 << endl;
-    cout << pair2._2._1 << endl;
-    cout << pair2._2._2 << endl;
+    cout << pair2.v1 << endl;
+    cout << pair2.v2.v1 << endl;
+    cout << pair2.v2.v2 << endl;
 }
 /*<<<Pair making(9)
 10

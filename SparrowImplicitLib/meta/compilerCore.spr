@@ -1,4 +1,4 @@
-public import meta.location;
+import[public] meta.location;
 import std.contiguousMemoryRange;
 
 
@@ -85,9 +85,9 @@ fun[ct, native("$meta.AstType.canBeUsedAtRt")] canBeUsedAtRt(t: AstType): Bool;
 // AstNode functions
 
 /// Tests if the given node is null
-fun[ct] isNull(n: AstNode): Bool = n._data === null;
+fun[ct] isNull(n: AstNode): Bool = n.data === null;
 /// Tests if the given node is set
-fun[ct] isSet(n: AstNode): Bool = n._data !== null;
+fun[ct] isSet(n: AstNode): Bool = n.data !== null;
 
 /// Clone the given node
 fun[ct, native("$meta.AstNode.clone")] clone(n: AstNode): AstNode;

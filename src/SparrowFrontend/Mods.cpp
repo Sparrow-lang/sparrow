@@ -1,11 +1,14 @@
 #include <StdInc.h>
 #include "Mods.h"
 
+#include "Helpers/DeclsHelpers.h"
+
 #include "Feather/Utils/FeatherUtils.hpp"
 
 #include "Nest/Utils/Alloc.h"
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/NodeUtils.h"
+#include "Nest/Utils/NodeUtils.hpp"
 
 using namespace SprFrontend;
 
@@ -16,6 +19,26 @@ void ModStatic_beforeComputeType(Modifier*, Node* node)
         REP_INTERNAL(node->location, "Static modifier can be applied only to variables and functions inside classes");
 
     Nest_setPropertyInt(node, propIsStatic, 1);
+}
+
+void ModPublic_beforeComputeType(Modifier*, Node* node)
+{
+    if ( node->nodeKind == Feather_getFirstFeatherNodeKind()+nkRelFeatherNodeList ) {
+        for ( Node* n: node->children )
+            ModPublic_beforeComputeType(NULL, n);
+    }
+
+    setAccessType(node, publicAccess);
+}
+
+void ModPrivate_beforeComputeType(Modifier*, Node* node)
+{
+    if ( node->nodeKind == Feather_getFirstFeatherNodeKind()+nkRelFeatherNodeList ) {
+        for ( Node* n: node->children )
+            ModPublic_beforeComputeType(NULL, n);
+    }
+
+    setAccessType(node, privateAccess);
 }
 
 void ModCt_beforeSetContext(Modifier*, Node* node)
@@ -94,7 +117,7 @@ void ModInitCtor_beforeComputeType(Modifier*, Node* node)
         REP_ERROR(node->location, "initCtor modifier can be applied only to classes");
         return;
     }
-    
+
     Nest_setPropertyInt(node, propGenerateInitCtor, 1);
 }
 
@@ -106,7 +129,7 @@ void ModMacro_beforeComputeType(Modifier*, Node* node)
         REP_ERROR(node->location, "macro modifier can be applied only to functions");
         return;
     }
-    
+
     Nest_setPropertyInt(node, propMacro, 1);
     Nest_setPropertyInt(node, propCtGeneric, 1);
 }
@@ -121,6 +144,8 @@ void ModNoInline_beforeComputeType(Modifier*, Node* node)
 
 
 Modifier _staticMod = { modTypeBeforeComputeType, &ModStatic_beforeComputeType };
+Modifier _publicMod = { modTypeBeforeComputeType, &ModPublic_beforeComputeType };
+Modifier _privateMod = { modTypeBeforeComputeType, &ModPrivate_beforeComputeType };
 Modifier _ctMod = { modTypeBeforeSetContext, &ModCt_beforeSetContext };
 Modifier _rtMod = { modTypeBeforeSetContext, &ModRt_beforeSetContext };
 Modifier _rtCtMod = { modTypeBeforeSetContext, &ModRtCt_beforeSetContext };
@@ -135,6 +160,14 @@ Modifier _noInlineMod = { modTypeBeforeComputeType, &ModNoInline_beforeComputeTy
 Modifier* SprFe_getStaticMod()
 {
     return &_staticMod;
+}
+Modifier* SprFe_getPublicMod()
+{
+    return &_publicMod;
+}
+Modifier* SprFe_getPrivateMod()
+{
+    return &_privateMod;
 }
 Modifier* SprFe_getCtMod()
 {

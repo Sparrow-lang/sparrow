@@ -17,7 +17,7 @@ class[rtct] StaticArray(valueType: Type, arraySize: SizeType)
 
     fun ctor(other: @StaticArray)
     {
-        for ( i = 0..arrSize )
+        for ( i = 0..arraySize )
             at(i).ctor(other.at(i));
     }
 
@@ -139,12 +139,12 @@ class[rtct] StaticArray(valueType: Type, arraySize: SizeType)
 
     fun size(): SizeType
     {
-        return arrSize;
+        return arraySize;
     }
 
     fun isEmpty(): Bool
     {
-        return arrSize == 0;
+        return arraySize == 0;
     }
 
     fun assign(range: RangeType)
@@ -163,7 +163,7 @@ class[rtct] StaticArray(valueType: Type, arraySize: SizeType)
 
     fun swap(other: @StaticArray)
     {
-        for ( i = 0..arrSize )
+        for ( i = 0..arraySize )
         {
             var tmp = this(i);
             this(i) = other(i);
@@ -171,34 +171,32 @@ class[rtct] StaticArray(valueType: Type, arraySize: SizeType)
         }
     }
 
-    fun at(index: SizeType): @ValueType = asPtr().advance(DiffType(index)).value();
-    fun ()(index: SizeType): @ValueType = asPtr().advance(DiffType(index)).value();
+    fun at(index: SizeType): @ValueType = _asPtr().advance(DiffType(index)).value();
+    fun ()(index: SizeType): @ValueType = _asPtr().advance(DiffType(index)).value();
 
-    fun all = RangeType(asPtr(), asPtr().advance(DiffType(arrSize)));
+    fun all = RangeType(_asPtr(), _asPtr().advance(DiffType(arraySize)));
 
     fun subrange(index: SizeType, num: SizeType)
-        = RangeType(asPtr().advance(DiffType(index)), asPtr().advance(DiffType(index + num)));
+        = RangeType(_asPtr().advance(DiffType(index)), _asPtr().advance(DiffType(index + num)));
 
     fun =(other: @StaticArray): @StaticArray
     {
-        for ( i = 0..arrSize )
+        for ( i = 0..arraySize )
             this(i) = other(i);
         return this;
     }
 
     fun ==(other: @StaticArray): Bool
     {
-        for ( i = 0..arrSize )
+        for ( i = 0..arraySize )
             if ( this(i) != other(i) )
                 return false;
         return true;
     }
 
-    private fun asPtr = RawPtr(ValueType).fromBytePtr(buf);
+    fun _asPtr = RawPtr(ValueType).fromBytePtr(_buf);
 
-    private var buf: static_buffer(arrSize * sizeOf(ValueType));
-
-    private var[static, ct] arrSize = arraySize;
+    var _buf: static_buffer(arraySize * sizeOf(ValueType));
 }
 
 fun mkValues(v0,v1: AnyType) = StaticArray(typeOf(v0), 2)(v0,v1);

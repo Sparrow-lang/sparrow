@@ -8,35 +8,35 @@ class[noDefault] ScopedPtr(type: Type)
 
     fun ctor()
     {
-        ref := null;
+        _ref := null;
     }
 
-    fun ctor(ref: @ValueType)
+    fun ctor(_ref: @ValueType)
     {
-        this.ref := ref;
+        this._ref := _ref;
     }
 
     fun dtor()
     {
-        delete(ref);
+        delete(_ref);
     }
 
-    fun get: @ValueType         = ref;
-    fun isNull                  = ref === null;
-    fun isSet                   = ref !== null;
+    fun get: @ValueType         = _ref;
+    fun isNull                  = _ref === null;
+    fun isSet                   = _ref !== null;
 
-    fun ==(other: ScopedPtr)    = ref === other.ref;
+    fun ==(other: ScopedPtr)    = _ref === other._ref;
 
-    fun reset                   { delete(ref); ref := null; }
-    fun reset(ref: @ValueType)  { delete(this.ref); this.ref := ref; }
+    fun reset                   { delete(_ref); _ref := null; }
+    fun reset(ref: @ValueType)  { delete(this._ref); this._ref := ref; }
 
     fun swap(other: @ScopedPtr)
     {
-        var tmp: @ValueType = other.ref;
+        var tmp: @ValueType = other._ref;
 
-        other.ref := ref;
-        ref := tmp;
+        other._ref := _ref;
+        _ref := tmp;
     }
 
-    private var ref: @ValueType;
+    var _ref: @ValueType;
 }

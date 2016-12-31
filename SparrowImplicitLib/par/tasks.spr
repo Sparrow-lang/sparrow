@@ -1,7 +1,7 @@
 module par.tasks;
 
-public import tasksImpl.taskType(TaskType, TaskPrefix, getPrefix);
-public import tasksImpl.emptyTask(EmptyTask, execute, >>, description);
+import[public] tasksImpl.taskType(TaskType, TaskPrefix, getPrefix);
+import[public] tasksImpl.emptyTask(EmptyTask, execute, >>, description);
 import Impl = tasksImpl.tasksMain(initTaskBasic, initAsRoot, initAsChildOf, doSpawn, doSpawnAndWait);
 import tp = tasksImpl.taskPrefix;
 import tasksImpl.debug;

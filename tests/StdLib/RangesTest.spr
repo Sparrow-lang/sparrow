@@ -77,17 +77,17 @@ class Multiply
 
 class Fact
 {
-    private var res: Int;
-    private var k: Int;
+    var _res: Int;
+    var _k: Int;
 
-    fun ctor() { res = 1; k = 0; }
+    fun ctor() { _res = 1; _k = 0; }
 
     fun ()(): Int
     {
-        ++k;
-        res *= k;
+        ++_k;
+        _res *= _k;
 
-        return res;
+        return _res;
     }
 }
 
@@ -429,7 +429,7 @@ fun test14()
 
     for ( p = zr )
     {
-        cout << p._1 << ' ' << p._2 << '\n';
+        cout << p.v1 << ' ' << p.v2 << '\n';
     }
 }
 /*<<<Zipping(14)

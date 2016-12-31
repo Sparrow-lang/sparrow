@@ -6,7 +6,7 @@ datatype[rtct] LineCol { line, col: UInt }
 /// Type describing a source code; for now we just use an untyped Ptr
 datatype[rtct] SourceCode = @Byte;
 
-fun[rtct] >>(s: @SourceCode, os: @OutStream) { os << mkStreamRefWrapper(s._data); }
+fun[rtct] >>(s: @SourceCode, os: @OutStream) { os << mkStreamRefWrapper(s.data); }
 
 
 /// Type that holds the location information: a source code and a range of chars into it

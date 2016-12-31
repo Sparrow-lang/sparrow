@@ -19,85 +19,85 @@ class SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: Typ
 
     fun ctor(n: SizeType, less: LessType, comp: CompareType)
     {
-        table.ctor();
-        this.valToKey ctor valToKey;
-        this.less ctor less;
-        this.comp ctor comp;
+        _table.ctor();
+        this._valToKey ctor;
+        this._less ctor less;
+        this._comp ctor comp;
         if ( n > 0)
             reserve(n);
     }
 
     fun ctor(range: AnyType, n: SizeType, less: LessType, comp: CompareType)
     {
-        table.ctor();
+        _table.ctor();
         if ( n > 0 )
-            table.reserve(n);
+            _table.reserve(n);
         else
-            table.reserve(rangeSize(range));
-        this.valToKey ctor valToKey;
-        this.less ctor less;
-        this.comp ctor comp;
+            _table.reserve(rangeSize(range));
+        this._valToKey ctor;
+        this._less ctor less;
+        this._comp ctor comp;
 
-        //table.assign(range);
-        //sort(table.all(), less);
+        //_table.assign(range);
+        //sort(_table.all(), less);
         for ( v = range )
             insert(v);
     }
 
     fun ctor(other: @SortedTable)
     {
-        table ctor other.table;
-        less ctor other.less;
-        comp ctor other.comp;
+        _table ctor other._table;
+        _less ctor other._less;
+        _comp ctor other._comp;
     }
 
     fun swap(other: @SortedTable)
     {
-        table.swap(other.table);
+        _table.swap(other._table);
 
-        var tmpv = valToKey;
-        valToKey = other.valToKey;
-        other.valToKey = tmpv;
+        var tmpv = _valToKey;
+        _valToKey = other._valToKey;
+        other._valToKey = tmpv;
 
-        var tmpl = less;
-        less = other.less;
-        other.less = tmpl;
+        var tmpl = _less;
+        _less = other._less;
+        other._less = tmpl;
 
-        var tmpc = comp;
-        comp = other.comp;
-        other.comp = tmpc;
+        var tmpc = _comp;
+        _comp = other._comp;
+        other._comp = tmpc;
     }
 
-    fun lessFunction    = less;
-    fun comparator      = comp;
+    fun lessFunction    = _less;
+    fun comparator      = _comp;
 
-    fun isEmpty         = table.isEmpty();
-    fun size            = table.size();
-    fun capacity        = table.capacity();
+    fun isEmpty         = _table.isEmpty();
+    fun size            = _table.size();
+    fun capacity        = _table.capacity();
 
-    fun all             = table.all();
+    fun all             = _table.all();
 
-    fun reserve(n: SizeType)    { table.reserve(n); }
+    fun reserve(n: SizeType)    { _table.reserve(n); }
 
     fun insert(value: @ValueType): RangeType
     {
-        var r = lowerBound(valToKey(value));
-        var idx = table.size() - r.size();
-        if ( r.isEmpty() || !comp(valToKey(value), valToKey(r.front())) )
-            table.insertBefore(value, r);
-        var res = table.all();
+        var r = lowerBound(_valToKey(value));
+        var idx = _table.size() - r.size();
+        if ( r.isEmpty() || !_comp(_valToKey(value), _valToKey(r.front())) )
+            _table.insertBefore(value, r);
+        var res = _table.all();
         res.popFront(idx);
         return res;
     }
 
     fun insert(range: Range)
     {
-        table.reserve(table.size() + rangeSize(range));
+        _table.reserve(_table.size() + rangeSize(range));
         for ( v = range )
         {
-            var r = lowerBound(valToKey(v));
-            if ( r.isEmpty() || !comp(valToKey(v), valToKey(r.front())) )
-                table.insertBefore(v, r);
+            var r = lowerBound(_valToKey(v));
+            if ( r.isEmpty() || !_comp(_valToKey(v), _valToKey(r.front())) )
+                _table.insertBefore(v, r);
         }
     }
 
@@ -109,15 +109,15 @@ class SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: Typ
         var r = find(key);
         if ( !r.isEmpty() )
         {
-            var idx = r.frontPtr().diff(table.all().frontPtr());
-            table.remove(idx);
+            var idx = r.frontPtr().diff(_table.all().frontPtr());
+            _table.remove(idx);
         }
     }
 
     fun remove(range: RangeType)
     {
         if ( !range.isEmpty() )
-            table.remove(range);
+            _table.remove(range);
     }
 
     fun contains(key: @KeyType): Bool  = !find(key).isEmpty();
@@ -126,12 +126,12 @@ class SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: Typ
     fun lowerBound(key: @KeyType): RangeType
     {
         var first: SizeType = 0;
-        var len = table.size();
+        var len = _table.size();
         while ( len > 0 )
         {
             var l2 = len / 2;
-            var el: @ValueType = table(first + l2);
-            if ( less(valToKey(el), key) )
+            var el: @ValueType = _table(first + l2);
+            if ( _less(_valToKey(el), key) )
             {
                 first += l2+1;
                 len -= l2+1;
@@ -139,7 +139,7 @@ class SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: Typ
             else
                 len = l2;
         }
-        var r = table.all();
+        var r = _table.all();
         r.popFront(first);
         return r;
     }
@@ -147,12 +147,12 @@ class SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: Typ
     fun upperBound(key: @KeyType): RangeType
     {
         var first: SizeType = 0;
-        var len = table.size();
+        var len = _table.size();
         while ( len > 0 )
         {
             var l2 = len / 2;
-            var el: @ValueType = table(first + l2);
-            if ( less(key, valToKey(el)) )
+            var el: @ValueType = _table(first + l2);
+            if ( _less(key, _valToKey(el)) )
                 len = l2;
             else
             {
@@ -160,7 +160,7 @@ class SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: Typ
                 len -= l2+1;
             }
         }
-        var r = table.all();
+        var r = _table.all();
         r.popFront(first);
         return r;
     }
@@ -177,7 +177,7 @@ class SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: Typ
     fun find(key: @KeyType): RangeType
     {
         var r = lowerBound(key);
-        if ( !r.isEmpty() && comp(key, valToKey(r.front())) )
+        if ( !r.isEmpty() && _comp(key, _valToKey(r.front())) )
             return r;
         else
             return RangeType();
@@ -185,31 +185,31 @@ class SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: Typ
 
     fun clear()
     {
-        table.clear();
+        _table.clear();
     }
 
     fun =(other: @SortedTable): @SortedTable
     {
-        table = other.table;
-        valToKey = other.valToKey;
-        comp = other.comp;
-        less = other.less;
-        valToKey = other.valToKey;
+        _table = other._table;
+        _valToKey = other._valToKey;
+        _comp = other._comp;
+        _less = other._less;
+        _valToKey = other._valToKey;
 
         return this;
     }
 
     fun ==(other: @SortedTable): Bool
     {
-        return valToKey == other.valToKey && less == other.less && comp == other.comp && table == other.table;
+        return _valToKey == other._valToKey && _less == other._less && _comp == other._comp && _table == other._table;
     }
 
     fun !=(other: @SortedTable): Bool = !(this == other);
 
-    private var table: Vector(ValueType);
-    private var valToKey: ValueToKeyType;
-    private var less: LessType;
-    private var comp: CompareType;
+    var _table: Vector(ValueType);
+    var _valToKey: ValueToKeyType;
+    var _less: LessType;
+    var _comp: CompareType;
 }
 
 class[rtct] Less(type: Type) if isValid(#$type < #$type)

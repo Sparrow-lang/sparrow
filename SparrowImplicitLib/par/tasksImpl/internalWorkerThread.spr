@@ -10,10 +10,10 @@ import std.ptr;
 //! If no work is available, this goes to sleep
 class[initCtor] InternalWorkerThread {
     //! The worker associated with this thread
-    private var worker: Worker Ptr;
+    var _worker: Worker Ptr;
 
     fun ()() {
-        setLocalWorker(worker);
-        schedDoWait(worker.get(), TaskPtr(), TaskPtr());
+        setLocalWorker(_worker);
+        schedDoWait(_worker.get(), TaskPtr(), TaskPtr());
     }
 }

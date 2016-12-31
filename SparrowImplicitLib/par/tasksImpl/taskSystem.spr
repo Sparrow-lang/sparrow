@@ -21,7 +21,7 @@ class TaskSystem {
     var workers: WorkerPtr Vector;
 
     //! The internal threads that are doing all the work
-    private var threads: (Thread Ptr) Vector;
+    var _threads: (Thread Ptr) Vector;
     //! Object that counts the number of threads that are idle
     var idleCounter: IdleCounter;
 }
@@ -41,7 +41,7 @@ fun initTaskSystem(numWorkers: UInt = 0) {
     for ( i=0..numWorkers ) {
         var worker = ts createWorker;
         var p: Thread Ptr = new(Thread, InternalWorkerThread(worker));
-        ts.threads.pushBack(p);
+        ts._threads.pushBack(p);
     }
 }
 

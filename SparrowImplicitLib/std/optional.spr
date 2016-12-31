@@ -8,42 +8,42 @@ class Optional(valueType: Type)
 
     fun[noDefault] ctor
     {
-        constructed ctor false;
-        value ctor Uninitialized();
+        _constructed ctor false;
+        _value ctor Uninitialized();
     }
     fun[noDefault] ctor(other: @Optional)
     {
-        constructed ctor other.constructed;
-        if ( other.constructed )
-            value ctor other.value;
+        _constructed ctor other._constructed;
+        if ( other._constructed )
+            _value ctor other._value;
     }
     fun[noDefault] ctor(val: @ValueType)
     {
-        constructed ctor true;
-        value ctor val;
+        _constructed ctor true;
+        _value ctor val;
     }
     fun[noDefault] dtor
     {
         reset();
     }
 
-    fun isNull                                      = !constructed;
-    fun isSet                                       = constructed;
-    fun get: @ValueType                             = value;
-    fun getOrElse(default: @ValueType): @ValueType  = ife(constructed, cast(@ValueType, value), default);
+    fun isNull                                      = !_constructed;
+    fun isSet                                       = _constructed;
+    fun get: @ValueType                             = _value;
+    fun getOrElse(default: @ValueType): @ValueType  = ife(_constructed, cast(@ValueType, _value), default);
 
     fun reset
     {
-        if ( constructed )
-            value dtor;
-        constructed = false;
+        if ( _constructed )
+            _value dtor;
+        _constructed = false;
     }
     fun reset(val: @ValueType)
     {
-        if ( constructed )
-            value dtor;
-        value ctor val;
-        constructed = true;
+        if ( _constructed )
+            _value dtor;
+        _value ctor val;
+        _constructed = true;
     }
 
     fun swap(other: @Optional)
@@ -53,22 +53,22 @@ class Optional(valueType: Type)
         other = this;
     }
 
-    fun =(other: @Optional)     { if ( other.constructed ) reset(other.value); else reset(); }
+    fun =(other: @Optional)     { if ( other._constructed ) reset(other._value); else reset(); }
     fun =(val: @ValueType)      { reset(val); }
 
-    fun ==(other: Optional)     = constructed == other.constructed && (!constructed || value == other.value);
+    fun ==(other: Optional)     = _constructed == other._constructed && (!_constructed || _value == other._value);
 
     fun >>(os: @OutStream) if isValid(os << #$ValueType)
     {
         if ( isSet() )
-            os << "Optional(" << value << ")";
+            os << "Optional(" << _value << ")";
         else
             os << "Optional(none)";
         os << flush;
     }
 
-    private var value: ValueType;
-    private var constructed: Bool;
+    var _value: ValueType;
+    var _constructed: Bool;
 }
 
 fun some(x: @AnyType): -@typeOf(x) Optional = (-@typeOf(x) Optional)(x);

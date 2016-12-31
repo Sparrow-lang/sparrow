@@ -4,16 +4,16 @@ var[rtct] cout: ConsoleOutputStream;
 
 class[rtct] ConsoleOutputStream
 {
-    fun <<<(x: Number)                          { Impl.write(x); }
-    fun <<<(x: Char)                            { Impl.write(x); }
+    fun <<<(x: Number)                          { _Impl.write(x); }
+    fun <<<(x: Char)                            { _Impl.write(x); }
     fun <<<(x: Bool)                            { if ( x ) this <<< "true"; else this <<< "false"; }
-    fun <<<(x: StringRef)                       { for ( c = x ) Impl.write(c); }
+    fun <<<(x: StringRef)                       { for ( c = x ) _Impl.write(c); }
 
     // This stream supports flush
-    fun flush                                   { Impl.flushOutput(); }
+    fun flush                                   { _Impl.flushOutput(); }
 }
 
-private package Impl
+package _Impl
 {
     fun[rtct, native("writeByte")] write(x: Byte);
     fun[rtct, native("writeByte")] write(x: UByte);

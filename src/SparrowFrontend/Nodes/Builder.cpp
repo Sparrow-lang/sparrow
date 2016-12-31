@@ -31,51 +31,14 @@ LocStringVec* SprFrontend::buildStringList(LocStringVec* prevList, LocString ele
     return prevList;
 }
 
-Node* SprFrontend::setAccessForNodesInList(Node* nodeList, AccessType access)
-{
-    ASSERT( nodeList && nodeList->nodeKind == nkFeatherNodeList );
-    for ( auto node: nodeList->children )
-        setAccessType(node, access);
-    return nodeList;
-}
-
-Node* SprFrontend::buildVariables(const Location& loc, const LocStringVec& names, Node* typeNode, Node* init, Node* mods, AccessType accessType)
-{
-    NodeVector nodes;
-    nodes.reserve(names.size());
-    for ( const auto& name: names )
-    {
-        nodes.push_back(mkModifiers(name.first, mkSprVariable(name.first, fromString(name.second), typeNode, init, accessType), mods));
-    }
-    return Feather_mkNodeListVoid(loc, all(nodes));
-}
-
-Node* SprFrontend::buildParameters(const Location& loc, const LocStringVec& names, Node* typeNode, Node* init, Node* mods)
-{
-    NodeVector nodes;
-    nodes.reserve(names.size());
-    for ( const auto& name: names )
-    {
-        nodes.push_back(mkModifiers(name.first, mkSprParameter(name.first, fromString(name.second), typeNode, init), mods));
-    }
-    return Feather_mkNodeListVoid(loc, all(nodes));
-}
-
-Node* SprFrontend::buildAutoParameter(const Location& loc, StringRef name, Node* mods)
-{
-    Node* typeNode = mkIdentifier(loc, fromCStr("AnyType"));
-    Node* param = mkModifiers(loc, mkSprParameter(loc, name, typeNode, nullptr), mods);
-    return Feather_mkNodeListVoid(loc, fromIniList({param}));
-}
-
-Node* SprFrontend::buildSprFunctionExp(const Location& loc, StringRef name, Node* parameters, Node* returnType, Node* bodyExp, Node* ifClause, AccessType accessType)
+Node* SprFrontend::buildSprFunctionExp(const Location& loc, StringRef name, Node* parameters, Node* returnType, Node* bodyExp, Node* ifClause)
 {
     const Location& loc2 = bodyExp->location;
     Node* body = buildBlockStmt(loc2, Feather_mkNodeList(loc2, fromIniList({ mkReturnStmt(loc2, bodyExp) })));
     if ( !returnType )
         returnType = mkFunApplication(loc2, mkIdentifier(loc2, fromCStr("typeOf")), Feather_mkNodeList(loc2, fromIniList({ bodyExp })));
 
-    return mkSprFunction(loc, name, parameters, returnType, body, ifClause, accessType);
+    return mkSprFunction(loc, name, parameters, returnType, body, ifClause);
 }
 
 

@@ -6,18 +6,18 @@ import std.vector;
 class[ct] MyRange
 {
     using RetType = Int;
-    
+
     fun ctor(min, max: Int)
     {
-        this.min ctor min;
-        this.max ctor max;
+        this._min ctor min;
+        this._max ctor max;
     }
 
-    fun front = min;
-    fun popFront { min += 1; }
-    fun isEmpty = min > max;
+    fun front = _min;
+    fun popFront { _min += 1; }
+    fun isEmpty = _min > _max;
 
-    private var min, max: Int;
+    var _min, _max: Int;
 }
 
 fun test1()

@@ -8,7 +8,7 @@ class[initCtor] Atomic(T: Type) if T == Int {
     using ValueType = Int;
 
     //! The value for this atomic
-    private var value: ValueType;
+    var _value: ValueType;
 }
 
 class[initCtor] Atomic(T: Type) if T == Long {
@@ -16,7 +16,7 @@ class[initCtor] Atomic(T: Type) if T == Long {
     using ValueType = Long;
 
     //! The value for this atomic
-    private var value: ValueType;
+    var _value: ValueType;
 }
 
 class Atomic(T: Type) if T != Int && T != Long && sizeOf(T) <= 8 {
@@ -24,26 +24,26 @@ class Atomic(T: Type) if T != Int && T != Long && sizeOf(T) <= 8 {
 
     using ValueType = T;
 
-    private using UnderlyingType = Impl.AtomicTypeTraits(T).UnderlyingType;
-    private using BaseAtomicType = Impl.AtomicTypeTraits(T).BaseAtomicType;
+    using _UnderlyingType = Impl.AtomicTypeTraits(T)._UnderlyingType;
+    using _BaseAtomicType = Impl.AtomicTypeTraits(T)._BaseAtomicType;
 
-    private fun toUnderlying(val: T): UnderlyingType {
-        var res: UnderlyingType;
+    fun _toUnderlying(val: T): _UnderlyingType {
+        var res: _UnderlyingType;
         reinterpretCast(@T, res) = val;
         return res;
     }
-    private fun fromUnderlying(val: UnderlyingType): T {
+    fun _fromUnderlying(val: _UnderlyingType): T {
         var res: T;
         res = reinterpretCast(@T, val);
         return res;
     }
-    private fun baseAtomic: @BaseAtomicType = reinterpretCast(@BaseAtomicType, this);
+    fun _baseAtomic: @_BaseAtomicType = reinterpretCast(@_BaseAtomicType, this);
 
     //! The value for this atomic
-    private var value: UnderlyingType;
+    var _value: _UnderlyingType;
 
     fun ctor(v: ValueType) {
-        value construct toUnderlying(v);
+        _value construct _toUnderlying(v);
     }
 }
 
@@ -52,13 +52,13 @@ using AtomicLong = Atomic(Long);
 
 concept AtomicType(x) if x._IsAtomicType;
 concept AtomicInteger(x) if x._IsAtomicType && Integer(#$x.ValueType);
-concept NonStdAtomicType(x) if x._IsAtomicType && x.ValueType != x.UnderlyingType;
+concept NonStdAtomicType(x) if x._IsAtomicType && x.ValueType != x._UnderlyingType;
 
 fun =(lhs: @AtomicType, rhs: AtomicType) { lhs store (rhs load); }
 
 //! Converts a regular value to an atomic value
 //! Returns the reference to the same memory address
-//! Used to make it possible to use atomic operations 
+//! Used to make it possible to use atomic operations
 fun asAtomic(val: @AnyType): @Atomic(typeOf(val))
     = reinterpretCast(@Atomic(typeOf(val)), val)
     if sizeOf(val) == sizeOf(Atomic(typeOf(val)));
@@ -67,13 +67,13 @@ fun asAtomic(val: @AnyType): @Atomic(typeOf(val))
 fun[native("_Atomic_load32")] load(x: @AtomicInt): Int;
 fun[native("_Atomic_load64")] load(x: @AtomicLong): Long;
 fun load(x: @NonStdAtomicType): x.ValueType
-    = x.fromUnderlying(x.baseAtomic load);
+    = x._fromUnderlying(x._baseAtomic load);
 
 //! Stores a value inside the given atomic
 fun[native("_Atomic_store32")] store(x: @AtomicInt, newVal: Int);
 fun[native("_Atomic_store64")] store(x: @AtomicLong, newVal: Long);
 fun store(x: @NonStdAtomicType, newVal: AnyType)
-    { x.baseAtomic store x.toUnderlying(newVal); }
+    { x._baseAtomic store x._toUnderlying(newVal); }
 
 //! Stores a value inside the given atomic, using the assignment operator
 fun =(x: @AtomicType, val: AnyType) = store(x, val);
@@ -82,19 +82,19 @@ fun =(x: @AtomicType, val: AnyType) = store(x, val);
 fun[native("_Atomic_fetchAndStore32")] fetchAndStore(x: @AtomicInt, newVal: Int): Int;
 fun[native("_Atomic_fetchAndStore64")] fetchAndStore(x: @AtomicLong, newVal: Long): Long;
 fun fetchAndStore(x: @NonStdAtomicType, newVal: AnyType): x.ValueType
-    = x.fromUnderlying(x.baseAtomic fetchAndStore x.toUnderlying(newVal));
+    = x._fromUnderlying(x._baseAtomic fetchAndStore x._toUnderlying(newVal));
 
 //! Compare the atomic value with the given comparand; if equal store 'newVal' and return true; if not equal returns false
 fun[native("_Atomic_compareAndSwap32")] compareAndSwap(x: @AtomicInt, newVal, comparand: Int): Bool;
 fun[native("_Atomic_compareAndSwap64")] compareAndSwap(x: @AtomicLong, newVal, comparand: Long): Bool;
 fun compareAndSwap(x: @NonStdAtomicType, newVal, comparand: AnyType): Bool
-    = compareAndSwap(x.baseAtomic, x.toUnderlying(newVal), x.toUnderlying(comparand));
+    = compareAndSwap(x._baseAtomic, x._toUnderlying(newVal), x._toUnderlying(comparand));
 
 //! Fetch the value of the atomic, and then add the given value to it
 fun[native("_Atomic_fetchAndAdd32")] fetchAndAdd(x: @AtomicInt, val: Int): Int;
 fun[native("_Atomic_fetchAndAdd64")] fetchAndAdd(x: @AtomicLong, val: Long): Long;
 fun fetchAndAdd(x: @NonStdAtomicType, val: AnyType): x.ValueType
-    = x.fromUnderlying(x.baseAtomic fetchAndAdd x.toUnderlying(val))
+    = x._fromUnderlying(x._baseAtomic fetchAndAdd x._toUnderlying(val))
     if Integer(#$x.ValueType);
 
 //! Fetch the value of the atomic and the increment it
@@ -119,25 +119,25 @@ fun post_--(x: @AtomicInteger): x.ValueType = (x fetchAndDecrement);
 
 package Impl {
     class AtomicTypeTraits(T: Type) if sizeOf(T) <= 4 {
-        using UnderlyingType = Int;
-        using BaseAtomicType = Atomic(Int);
+        using _UnderlyingType = Int;
+        using _BaseAtomicType = Atomic(Int);
     }
     class AtomicTypeTraits(T: Type) if sizeOf(T) == 8 {
-        using UnderlyingType = Long;
-        using BaseAtomicType = Atomic(Long);
+        using _UnderlyingType = Long;
+        using _BaseAtomicType = Atomic(Long);
     }
 
     fun packAtomic(x: @NonStdAtomicType): @AtomicTypeTraits(x.ValueType)
         = reinterpretCast(@AtomicTypeTraits(x.ValueType), x);
 
-    fun pack(x: @NonStdAtomicType, val: AnyType): AtomicTypeTraits(x.ValueType).UnderlyingType {
-        var res: AtomicTypeTraits(x.ValueType).UnderlyingType;
-        reinterpretCast(@AtomicTypeTraits(x.ValueType).UnderlyingType, res) = val;
+    fun pack(x: @NonStdAtomicType, val: AnyType): AtomicTypeTraits(x.ValueType)._UnderlyingType {
+        var res: AtomicTypeTraits(x.ValueType)._UnderlyingType;
+        reinterpretCast(@AtomicTypeTraits(x.ValueType)._UnderlyingType, res) = val;
         return res;
     }
     fun unpack(x: @NonStdAtomicType, val: AnyType): x.ValueType {
         var res: x.ValueType;
-        res = reinterpretCast(@AtomicTypeTraits(x.ValueType).UnderlyingType, val);
+        res = reinterpretCast(@AtomicTypeTraits(x.ValueType)._UnderlyingType, val);
         return res;
     }
 }

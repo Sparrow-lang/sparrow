@@ -830,12 +830,12 @@ fun[ct, native("$injectBackendCodeRtCt")] injectBackendCodeRtCt(code: StringRef)
 /// Type used to represent an untyped pointer
 datatype[rtct] UntypedPtr = @Byte;
 
-fun[autoCt, native("_opRefEQ")] _opRefEQ(x,y: @Byte): Bool;
-fun[autoCt, native("_opRefNE")] _opRefNE(x,y: @Byte): Bool;
+fun[autoCt, native("implOpRefEQ")] implOpRefEQ(x,y: @Byte): Bool;
+fun[autoCt, native("implOpRefNE")] implOpRefNE(x,y: @Byte): Bool;
 fun[autoCt, native("isNullRef")] isNullRef(x: @Byte): Bool;
 
-fun[autoCt, native("_opRefEQ")] _opRefEQ(x,y: UntypedPtr): Bool;
-fun[autoCt, native("_opRefNE")] _opRefNE(x,y: UntypedPtr): Bool;
+fun[autoCt, native("implOpRefEQ")] implOpRefEQ(x,y: UntypedPtr): Bool;
+fun[autoCt, native("implOpRefNE")] implOpRefNE(x,y: UntypedPtr): Bool;
 fun[autoCt, native("isNullRef")] isNullRef(x: UntypedPtr): Bool;
 
 /// This implements the ternary operator from other languages: cond ? alt1 : alt2

@@ -1,4 +1,4 @@
-public import compilerCore;
+import[public] compilerCore;
 
 fun[ct, native("$meta.Sparrow.mkModifiers")] mkModifiers(loc: @Location, main, mods: AstNode): AstNode;
 
@@ -7,12 +7,12 @@ fun[ct, native("$meta.Sparrow.mkImportName")] mkImportName(loc: @Location, modul
 fun[ct, native("$meta.Sparrow.mkSprUsing")] mkSprUsing(loc: @Location, alias: StringRef, usingNode: AstNode): AstNode;
 fun[ct, native("$meta.Sparrow.mkSprPackage")] mkSprPackage(loc: @Location, name: StringRef, children: AstNode): AstNode;
 fun[ct, native("$meta.Sparrow.mkSprVariable")] mkSprVariable(loc: @Location, name: StringRef, typeNode, init: AstNode): AstNode;
-fun[ct, native("$meta.Sparrow.mkSprClass")] mkSprClass(loc: @Location, name: StringRef, parameters, baseClasses, ifClause, children: AstNode, accessType: Int = 0): AstNode;
+fun[ct, native("$meta.Sparrow.mkSprClass")] mkSprClass(loc: @Location, name: StringRef, parameters, baseClasses, ifClause, children: AstNode): AstNode;
 
 fun[ct, native("$meta.Sparrow.mkSprConcept")] mkSprConcept(loc: @Location, name: StringRef, paramName: StringRef, baseConcept, ifClause: AstNode): AstNode;
 
-fun[ct, native("$meta.Sparrow.mkSprFunction")] mkSprFunction(loc: @Location, name: StringRef, parmeters, returnType, body, ifClause: AstNode, accessType: Int = 0): AstNode;
-fun[ct, native("$meta.Sparrow.mkSprFunctionExp")] mkSprFunctionExp(loc: @Location, name: StringRef, parameters, returnType, bodyExp, ifClause: AstNode, accessType: Int = 0): AstNode;
+fun[ct, native("$meta.Sparrow.mkSprFunction")] mkSprFunction(loc: @Location, name: StringRef, parmeters, returnType, body, ifClause: AstNode): AstNode;
+fun[ct, native("$meta.Sparrow.mkSprFunctionExp")] mkSprFunctionExp(loc: @Location, name: StringRef, parameters, returnType, bodyExp, ifClause: AstNode): AstNode;
 fun[ct, native("$meta.Sparrow.mkSprParameter")] mkSprParameter(loc: @Location, name: StringRef, typeNode, init: AstNode): AstNode;
 fun[ct, native("$meta.Sparrow.mkSprAutoParameter")] mkSprAutoParameter(loc: @Location, name: StringRef): AstNode;
 

@@ -32,11 +32,11 @@ var[ct] defaultHashExtraSpace = 0.1;
 
 fun[rtct, native("rand")] rand(): UInt;
 
-package Impl
+package _Impl
 {
-    private var[ct] keysPerBucket: UInt = 4;
+    var[ct] keysPerBucket: UInt = 4;
 
-    private var[ct] hashSeed: UInt = -1;
+    var[ct] hashSeed: UInt = -1;
 
     /// FNV hash generator
     fun[rtct] doHash(key: StringRef, start: UInt): UInt
@@ -69,7 +69,7 @@ class[rtct] MinPerfHash
     {
         this.numKeys ctor keys.size();
         this.numValues ctor numKeys+UInt(numKeys*extraSpace);
-        var keysPerBucket = Impl.keysPerBucket;
+        var keysPerBucket = _Impl.keysPerBucket;
         while ( (keysPerBucket*keysPerBucket) > numKeys )
             keysPerBucket /= 2;
         var numBuckets = (numKeys-1)/keysPerBucket + UInt(1);
@@ -83,7 +83,7 @@ class[rtct] MinPerfHash
         for ( key: @AnyType = keys.all() )
         {
             //cout << "Key: " << key.asStringRef() << "\n";
-            var pos = Impl.doHash(key.asStringRef(), Impl.hashSeed) % numBuckets;
+            var pos = _Impl.doHash(key.asStringRef(), _Impl.hashSeed) % numBuckets;
             keysToBuckets(pos).pushBack(key.asStringRef());
         }
 
@@ -110,7 +110,7 @@ class[rtct] MinPerfHash
             var item = 0;
             while ( item < bucket.size() )
             {
-                var slot: UInt = Impl.doHash(bucket(item), d) % numValues;
+                var slot: UInt = _Impl.doHash(bucket(item), d) % numValues;
                 var slotAlreadyUsed = !find2(slots.all(), slot).isEmpty();
                 ++numOp;
                 if ( placedKeys.testBit(slot) || slotAlreadyUsed )
@@ -135,7 +135,7 @@ class[rtct] MinPerfHash
             // This is guaranteed to finish quickly
 
             // We found a displacement that works for the current bucket (it doesn't yield overlaps with previous buckets)
-            displacements(Impl.doHash(bucket(0), Impl.hashSeed) % numBuckets) = d;
+            displacements(_Impl.doHash(bucket(0), _Impl.hashSeed) % numBuckets) = d;
             for ( i=0..bucket.size() )
                 placedKeys.setBit(slots(i));
         }
@@ -154,11 +154,11 @@ class[rtct] MinPerfHash
                 ++emptySlot;
 
             // We subtract one to ensure it's negative even if the zero-th slot was used.
-            displacements(Impl.doHash(bucket(0), Impl.hashSeed) % numBuckets) = -emptySlot-1;
+            displacements(_Impl.doHash(bucket(0), _Impl.hashSeed) % numBuckets) = -emptySlot-1;
             placedKeys.setBit(emptySlot);
         }
 
-        //dumpBuckets("buckets final, ", keysToBuckets);
+        //_dumpBuckets("buckets final, ", keysToBuckets);
         //cout << "Executed: " << numOp << " operations\n";
     }
 
@@ -175,14 +175,14 @@ class[rtct] MinPerfHash
     fun search(key: StringRef): UInt
     {
         // Get the displacement from the table...
-        var d = displacements(Impl.doHash(key, Impl.hashSeed) % displacements.size());
+        var d = displacements(_Impl.doHash(key, _Impl.hashSeed) % displacements.size());
         // If the displacement is negative, directly return; otherwise compute the final hash
-        return ife(d<0, Int(-d-1), Int(Impl.doHash(key, d) % numValues));
+        return ife(d<0, Int(-d-1), Int(_Impl.doHash(key, d) % numValues));
     }
 
     fun ()(key: StringRef) = search(key);
 
-    private fun dumpBuckets(prefix: StringRef, bucketKeys: @Array(Vector(StringRef)))
+    fun _dumpBuckets(prefix: StringRef, bucketKeys: @Array(Vector(StringRef)))
     {
         if ( bucketKeys.size() != displacements.size() )
         {
@@ -204,7 +204,7 @@ class[rtct] MinPerfHash
         cout << ")\n\n";
     }
 
-    private fun dumpDisplacements(prefix: StringRef)
+    fun _dumpDisplacements(prefix: StringRef)
     {
         cout << prefix << "size="<<displacements.size()<<", =(\n";
         for ( i=0..displacements.size() )
@@ -219,27 +219,27 @@ class[rtct] MinPerfHashSet
 {
     fun ctor(keys: @Vector(String))
     {
-        mph ctor keys;
-        scrambledKeys.ctor();
-        scrambledKeys.resize(keys size);
+        _mph ctor keys;
+        _scrambledKeys.ctor();
+        _scrambledKeys.resize(keys size);
         for ( key: @AnyType = keys.all() )
         {
-            var idx = mph.search(key.asStringRef());
-            scrambledKeys(idx) = key;
+            var idx = _mph.search(key.asStringRef());
+            _scrambledKeys(idx) = key;
         }
     }
 
     fun search(str: StringRef): Int       // Yields -1 if 'str' is not one of the keys
     {
-        var pos = mph.search(str);
-        if ( str == scrambledKeys(pos).asStringRef() )
+        var pos = _mph.search(str);
+        if ( str == _scrambledKeys(pos).asStringRef() )
             return Int(pos);
         else
             return -1;
     }
 
-    private var mph: MinPerfHash;
-    private var scrambledKeys: Vector(String);
+    var _mph: MinPerfHash;
+    var _scrambledKeys: Vector(String);
 }
 
 

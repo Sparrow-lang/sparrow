@@ -13,7 +13,7 @@ class ContinousMemoryRange(type: Type)
 {
     var[static] ValueType = type;
 
-    private var begin, end: @ValueType;
+    var begin, end: @ValueType;
 
     fun ctor()
     {
@@ -103,28 +103,28 @@ class ContinousMemoryRange(type: Type)
     }
 
 
-    private fun[static] toPtr(p: @ValueType): @Byte
+    fun[static] toPtr(p: @ValueType): @Byte
     {
         return reinterpretCast(@Byte, p);
     }
-    private fun[static] toValue(p: @Byte): @ValueType
+    fun[static] toValue(p: @Byte): @ValueType
     {
         return reinterpretCast(@ValueType, p);
     }
 
-    private fun[static] inc(p: @ValueType): @ValueType
+    fun[static] inc(p: @ValueType): @ValueType
     {
         return toValue(ptrAdd(toPtr(p), sizeOf(ValueType)));
     }
-    private fun[static] inc(p: @ValueType, n: SizeType): @ValueType
+    fun[static] inc(p: @ValueType, n: SizeType): @ValueType
     {
         return toValue(ptrAdd(toPtr(p), n*sizeOf(ValueType)));
     }
-    private fun[static] dec(p: @ValueType): @ValueType
+    fun[static] dec(p: @ValueType): @ValueType
     {
         return toValue(ptrSub(toPtr(p), sizeOf(ValueType)));
     }
-    private fun[static] dec(p: @ValueType, n: SizeType): @ValueType
+    fun[static] dec(p: @ValueType, n: SizeType): @ValueType
     {
         return toValue(ptrSub(toPtr(p), n*sizeOf(ValueType)));
     }
@@ -134,10 +134,10 @@ class Vector(type: Type)
 {
     var[static] ValueType = type;
 
-    private var begin, end, endOfStore: @ValueType;
+    var begin, end, endOfStore: @ValueType;
 
-    private var[static, ct] initialCapacity: SizeType = intToSizeType(16);
-    private var[static, ct] growthFactor = 1.5;
+    var[static, ct] initialCapacity: SizeType = intToSizeType(16);
+    var[static, ct] growthFactor = 1.5;
 
     fun ctor()
     {
@@ -458,7 +458,7 @@ class Vector(type: Type)
     }
 
 
-    private fun debugDumpThis(desc: StringRef)
+    fun debugDumpThis(desc: StringRef)
     {
         writeLn("<<<");
         write("  "); write(desc); writeLn(": ");
@@ -472,36 +472,36 @@ class Vector(type: Type)
         flushOutput();
     }
 
-    private fun[static] toPtr(p: @ValueType): @Byte
+    fun[static] toPtr(p: @ValueType): @Byte
     {
         return reinterpretCast(@Byte, p);
     }
-    private fun[static] toValue(p: @Byte): @ValueType
+    fun[static] toValue(p: @Byte): @ValueType
     {
         return reinterpretCast(@ValueType, p);
     }
 
-    private fun[static] inc(p: @ValueType): @ValueType
+    fun[static] inc(p: @ValueType): @ValueType
     {
         return toValue(ptrAdd(toPtr(p), sizeOf(ValueType)));
     }
-    private fun[static] inc(p: @ValueType, n: SizeType): @ValueType
+    fun[static] inc(p: @ValueType, n: SizeType): @ValueType
     {
         return toValue(ptrAdd(toPtr(p), n*sizeOf(ValueType)));
     }
-    private fun[static] dec(p: @ValueType): @ValueType
+    fun[static] dec(p: @ValueType): @ValueType
     {
         return toValue(ptrSub(toPtr(p), sizeOf(ValueType)));
     }
-    private fun[static] dec(p: @ValueType, n: SizeType): @ValueType
+    fun[static] dec(p: @ValueType, n: SizeType): @ValueType
     {
         return toValue(ptrSub(toPtr(p), n*sizeOf(ValueType)));
     }
-    private fun[static] diff(p,q: @ValueType): SizeType
+    fun[static] diff(p,q: @ValueType): SizeType
     {
         return ptrDiff(toPtr(p), toPtr(q)) / sizeOf(ValueType);
     }
-    private fun[static] move(pBegin, pEnd, destBegin: @ValueType)
+    fun[static] move(pBegin, pEnd, destBegin: @ValueType)
     {
         var size = diff(pEnd, pBegin);
         var destEnd: @AnyType = inc(destBegin, size);

@@ -87,7 +87,7 @@ package Impl
         var funName = pred.name;
         if ( genNative )
             funName += "_native";
-        var res = mkSprFunction(locPred, funName.asStringRef(), paramsNode, returnType, body, nullNode, 1);
+        var res = mkSprFunction(locPred, funName.asStringRef(), paramsNode, returnType, body, nullNode);
         resNodes.pushBack(res);
 
         if ( genNative )

@@ -27,8 +27,8 @@ class fib_pred_wrapper
         p_2 = Int();
         return fib_native(p_1.get(), p_2.get());
     }
-    private var p_1: LInt;
-    private var p_2: LInt;
+    var p_1: LInt;
+    var p_2: LInt;
 }
 fun fib(p_1: @LInt, p_2: @LInt): Predicate = fib_pred_wrapper(p_1, p_2);
 

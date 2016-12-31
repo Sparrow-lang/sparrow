@@ -93,7 +93,7 @@ package Impl
                 var param: @Parameter = pred.paramVars(i);
                 if ( i>0 )
                     os << ", ";
-                os << "p_" << (i+1) << ": ";
+                os << "_" << (i+1) << ": ";
                 var isRef = !genNative || param.isOutput;
                 dumpType(os, pred, param.expr.get(), isRef, genNative);
                 //if ( param.isInput )
@@ -127,7 +127,7 @@ package Impl
                 else
                     os << " && ";
 
-                os << "p_" << (i+1);
+                os << "_" << (i+1);
 
                 var idx = arg.get().paramIdx;
                 assert(idx >= 0);
@@ -278,7 +278,7 @@ package Impl
         {
             if ( i > 0 )
                 os << ", ";
-            os << "p_" << (i+1);
+            os << "_" << (i+1);
         }
         os << ");" << endl;
     }
@@ -301,7 +301,7 @@ package Impl
             os << tab << '{' << endl;
             for ( i = 0..pred.paramVars.size() )
             {
-                os << tab2 << "this.p_" << (i+1) << " ctor " << "p_" << (i+1) << ";" << endl;
+                os << tab2 << "this._" << (i+1) << " ctor " << "_" << (i+1) << ";" << endl;
             }
             os << tab << '}' << endl;
         }
@@ -320,7 +320,7 @@ package Impl
                     os << tab2 << "if ( ";
                 else
                     os << " || ";
-                os << "p_" << (i+1) << ".isNull()";
+                os << "_" << (i+1) << ".isNull()";
             }
         }
         if ( !pred.paramVars.isEmpty() )
@@ -334,7 +334,7 @@ package Impl
             var p: @Parameter = pred.paramVars(i);
             if ( p.isOutput )
             {
-                os << tab2 << "p_" << (i+1) << " = ";
+                os << tab2 << "_" << (i+1) << " = ";
                 dumpType(os, pred, p.expr.get(), false, true);
                 os << "();" << endl;
             }
@@ -345,7 +345,7 @@ package Impl
         {
             if ( i > 0 )
                 os << ", ";
-            os << "p_" << (i+1) << ".get()";
+            os << "_" << (i+1) << ".get()";
         }
         os << ");" << endl;
         os << tab << '}' << endl;
@@ -354,7 +354,7 @@ package Impl
         for ( i = 0..pred.paramVars.size() )
         {
             var p: @Parameter = pred.paramVars(i);
-            os << tab << "private var p_" << (i+1) << ": ";
+            os << tab << "var _" << (i+1) << ": ";
             dumpType(os, pred, p.expr.get(), false, false);
             os << ';' << endl;
         }

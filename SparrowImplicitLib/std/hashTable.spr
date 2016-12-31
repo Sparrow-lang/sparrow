@@ -20,69 +20,69 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
 
     fun ctor(n: SizeType, traits: traitsType)
     {
-        buckets.ctor();
+        _buckets.ctor();
         this.traits ctor traits;
-        guard ctor;
-        numElements = 0;
+        _guard ctor;
+        _numElements = 0;
         if ( n > 0)
             reserve(n);
     }
 
     fun ctor(range: Range, n: SizeType, traits: traitsType)
     {
-        buckets.ctor();
+        _buckets.ctor();
         this.traits ctor traits;
-        guard ctor;
-        numElements = 0;
+        _guard ctor;
+        _numElements = 0;
         reserve(max(n, rangeSize(range)));
         for ( v = range )
-            insertPlain(v);
+            _insertPlain(v);
     }
 
     fun ctor(other: @HashTable)
     {
-        buckets ctor other.buckets.size();
+        _buckets ctor other._buckets.size();
         traits ctor other.traits;
-        numElements ctor 0;
-        guard ctor;
+        _numElements ctor 0;
+        _guard ctor;
 
         for ( v = other.all() )
-            insertPlain(v);
+            _insertPlain(v);
     }
 
     fun dtor
     {
-        deleteElements();
+        _deleteElements();
     }
 
     fun swap(other: @HashTable)
     {
-        buckets.swap(other.buckets);
-        swapTL(guard, other.guard);
+        _buckets.swap(other._buckets);
+        swapTL(_guard, other._guard);
         swapTL(traits, other.traits);
-        swapTL(numElements, other.numElements);
+        swapTL(_numElements, other._numElements);
 
         // Update the buckets pointing to the guard node
-        if ( numElements > 0 && !buckets.isEmpty() )
-            buckets(guard.next.get().hash % buckets.size()) = guardNode();
-        if ( other.numElements > 0 && !other.buckets.isEmpty() )
-            other.buckets(other.guard.next.get().hash % other.buckets.size()) = other.guardNode();
+        if ( _numElements > 0 && !_buckets.isEmpty() )
+            _buckets(_guard.next.get().hash % _buckets.size()) = _guardNode();
+        if ( other._numElements > 0 && !other._buckets.isEmpty() )
+            other._buckets(other._guard.next.get().hash % other._buckets.size()) = other._guardNode();
     }
 
-    fun traits          = tr;
+    fun traits          = _tr;
 
-    fun isEmpty         = (numElements == 0);
-    fun size            = numElements;
-    fun bucketCount     = buckets.size();
+    fun isEmpty         = (_numElements == 0);
+    fun size            = _numElements;
+    fun bucketCount     = _buckets.size();
 
-    fun all             = RangeType(guard.next, NodePtr());
+    fun all             = RangeType(_guard.next, _NodePtr());
 
     fun reserve(n: SizeType)
     {
         // Resize only when we are big enough to re-hash
-        if ( n <= buckets.size() * Impl.loadFactor )
+        if ( n <= _buckets.size() * Impl.loadFactor )
             return;
-        if ( buckets.size() == 0 && n <= Impl.numElementsForBuckets )
+        if ( _buckets.size() == 0 && n <= Impl.numElementsForBuckets )
             return;
 
         // Determine the number of buckets
@@ -90,36 +90,36 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
         while ( Impl.bucketCounts(i) < n )
             ++i;
         var numBuckets = Impl.bucketCounts(i);
-        if ( numBuckets <= buckets.size() )
+        if ( numBuckets <= _buckets.size() )
             return;
 
         // Re-create the buckets array
-        buckets.dtor();
-        buckets.ctor(numBuckets);
+        _buckets.dtor();
+        _buckets.ctor(numBuckets);
 
         // Recompute the proper buckets for our elements
-        var p = guard.next;
-        guard.next.reset();
-        var next: NodePtr;
+        var p = _guard.next;
+        _guard.next.reset();
+        var next: _NodePtr;
         while ( p.isSet() ; p = next )
         {
             next = p.get().next;
-            insertNode(p);
+            _insertNode(p);
         }
     }
 
     fun insert(value: @ValueType): RangeType
     {
-        reserve(numElements + 1);
-        return insertPlain(value);
+        reserve(_numElements + 1);
+        return _insertPlain(value);
     }
 
     fun insert(range: Range)
     {
-        reserve(numElements + rangeSize(range));
+        reserve(_numElements + rangeSize(range));
         var counter = 0;
         for ( v = range )
-            insertPlain(v);
+            _insertPlain(v);
     }
 
     fun remove(key: @KeyType)
@@ -127,12 +127,12 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
         if ( isEmpty() )
             return;
 
-        var node = findNode(key);
+        var node = _findNode(key);
         if ( node.isNull() )
             return;
 
-        var prev = findPrev(node);
-        removeNode(prev, node);
+        var prev = _findPrev(node);
+        _removeNode(prev, node);
     }
 
     fun remove(range: RangeType)
@@ -141,38 +141,38 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
             return;
 
         // Determine the element before the first element from the given range
-        var prev = findPrev(range.startElem);
+        var prev = _findPrev(range._startElem);
 
-        var p = range.startElem;
-        while ( p != range.endElem )
+        var p = range._startElem;
+        while ( p != range._endElem )
         {
             var next = p.get().next;
-            removeNode(prev, p);
+            _removeNode(prev, p);
             p = next;
         }
     }
 
-    fun contains(key: @KeyType): Bool = findNode(key).isSet();
-    fun count(key: @KeyType): SizeType = ife(findNode(key).isSet(), 1, 0);
+    fun contains(key: @KeyType): Bool = _findNode(key).isSet();
+    fun count(key: @KeyType): SizeType = ife(_findNode(key).isSet(), 1, 0);
 
     fun equalRange(key: @KeyType): RangeType
     {
-        var p = findNode(key);
+        var p = _findNode(key);
         return ife(p.isSet(), RangeType(p, p.get().next), RangeType());
     }
 
     fun find(key: @KeyType): RangeType
     {
-        var p = findNode(key);
-        return ife(p.isSet(), RangeType(p, NodePtr()), RangeType());
+        var p = _findNode(key);
+        return ife(p.isSet(), RangeType(p, _NodePtr()), RangeType());
     }
 
     fun clear()
     {
-        buckets.dtor();
-        buckets.ctor();
-        numElements = 0;
-        deleteElements();
+        _buckets.dtor();
+        _buckets.ctor();
+        _numElements = 0;
+        _deleteElements();
     }
 
     fun =(other: @HashTable): @HashTable
@@ -184,12 +184,12 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
 
     fun ==(other: @HashTable): Bool
     {
-        if ( !(traits == other.traits && numElements == other.size()) )
+        if ( !(traits == other.traits && _numElements == other.size()) )
             return false;
 
         for ( v = all() )
         {
-            if ( !other.contains(valToKey(v)) )
+            if ( !other.contains(_valToKey(v)) )
                 return false;
         }
 
@@ -198,18 +198,18 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
 
     fun >> (os: @OutStream)
     {
-        os << "HashTable, first=" << mkStreamRefWrapper(guard.next.get()) << ", size=" << numElements << endl;
+        os << "HashTable, first=" << mkStreamRefWrapper(_guard.next.get()) << ", size=" << _numElements << endl;
 
         if ( isEmpty() )
             return;
-        var numBuckets = buckets.size();
-        var prev = guardNode();
+        var numBuckets = _buckets.size();
+        var prev = _guardNode();
         var p = prev.get().next;
         var prevBi = numBuckets+1;
         while ( p.isSet() ; p = p.get().next )
         {
             var bi = ife(numBuckets > 0, p.get().hash % numBuckets, 0);
-            if ( prev == guardNode() )
+            if ( prev == _guardNode() )
             {
                 os << bi << ": <guard> | ";
                 prevBi = bi;
@@ -228,10 +228,10 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
         os << endl;
     }
 
-    using NodePtr = Ptr(Node);
-    using BucketsType = Array(NodePtr);
+    using _NodePtr = Ptr(Node);
+    using _BucketsType = Array(_NodePtr);
 
-    /*private*/ class[initCtor] Node
+    class[initCtor] Node
     {
         var next: Ptr(Node);
         var hash: SizeType;
@@ -243,42 +243,42 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
         }
     }
 
-    /*private*/ class[initCtor] GuardNode
+    class[initCtor] GuardNode
     {
         var next: Ptr(Node);
     }
 
-    private var buckets: BucketsType;
-    private var guard: GuardNode;
-    private var numElements: SizeType;
-    private var valToKey: ValueToKeyType;
-    private var tr: traitsType;
+    var _buckets: _BucketsType;
+    var _guard: GuardNode;
+    var _numElements: SizeType;
+    var _valToKey: ValueToKeyType;
+    var _tr: traitsType;
 
-    private fun guardNode: NodePtr = reinterpretPtr(Node, Ptr(GuardNode)(guard));
+    fun _guardNode: _NodePtr = reinterpretPtr(Node, Ptr(GuardNode)(_guard));
 
-    private fun findNode(key: @KeyType): NodePtr
+    fun _findNode(key: @KeyType): _NodePtr
     {
-        return findNodeImpl(tr.hash(key), key);
+        return _findNodeImpl(_tr.hash(key), key);
     }
 
-    private fun findNodeImpl(hashVal: SizeType, key: @KeyType): NodePtr
+    fun _findNodeImpl(hashVal: SizeType, key: @KeyType): _NodePtr
     {
-        if ( numElements == 0 )
-            return NodePtr();
+        if ( _numElements == 0 )
+            return _NodePtr();
 
-        var numBuckets = buckets.size();
+        var numBuckets = _buckets.size();
         if ( numBuckets > 0 )
         {
             var bi = hashVal % numBuckets;
 
-            var p: NodePtr = buckets(bi);
+            var p: _NodePtr = _buckets(bi);
             if ( p.isNull() )
-                return NodePtr();
+                return _NodePtr();
             // the first element belongs to the previous bucket, skip one element
             var next = p.get().next;
             while ( next.isSet() && (next.get().hash % numBuckets == bi) )
             {
-                if ( tr.equal(key, valToKey(next.get().data)) )
+                if ( _tr.equal(key, _valToKey(next.get().data)) )
                     return next;
                 p = next;
                 next = p.get().next;
@@ -286,76 +286,76 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
         }
         else
         {
-            var p: NodePtr = guard.next;
+            var p: _NodePtr = _guard.next;
             while ( p.isSet() )
             {
-                if ( tr.equal(key, valToKey(p.get().data)) )
+                if ( _tr.equal(key, _valToKey(p.get().data)) )
                     return p;
                 p = p.get().next;
             }
         }
-        return NodePtr();
+        return _NodePtr();
     }
 
-    private fun findPrev(node: NodePtr): NodePtr
+    fun _findPrev(node: _NodePtr): _NodePtr
     {
-        var numBuckets = buckets.size();
-        var p: NodePtr = ife(numBuckets==0, guardNode(), buckets(node.get().hash % numBuckets));
+        var numBuckets = _buckets.size();
+        var p: _NodePtr = ife(numBuckets==0, _guardNode(), _buckets(node.get().hash % numBuckets));
         while ( p.get().next != node )
             p = p.get().next;
         return p;
     }
 
-    private fun insertPlain(value: @ValueType): RangeType
+    fun _insertPlain(value: @ValueType): RangeType
     {
-        var key = valToKey(value);
-        var h = tr.hash(key);
+        var key = _valToKey(value);
+        var h = _tr.hash(key);
 
         // Insert only if the element is not found in the hash
-        var node = findNodeImpl(h, key);
+        var node = _findNodeImpl(h, key);
         if ( node.isNull() )
         {
-            node = new(Node, NodePtr(), h, value);
-            ++numElements;
-            insertNode(node);
+            node = new(Node, _NodePtr(), h, value);
+            ++_numElements;
+            _insertNode(node);
         }
-        return RangeType(node, NodePtr());
+        return RangeType(node, _NodePtr());
     }
 
-    private fun insertNode(node: NodePtr)
+    fun _insertNode(node: _NodePtr)
     {
-        var numBuckets = buckets.size();
+        var numBuckets = _buckets.size();
         if ( numBuckets == 0 )
         {
             // If we have no buckets, put this node in front
-            node.get().next = guard.next;
-            guard.next = node;
+            node.get().next = _guard.next;
+            _guard.next = node;
         }
         else
         {
             // If there is no element in the bucket, put this in the bucket, and chain the element at the beginning of the global list
             // Otherwise, put this after the first element in the bucket
             var bi = node.get().hash % numBuckets;
-            if ( buckets(bi).isNull() )
+            if ( _buckets(bi).isNull() )
             {
-                node.get().next = guard.next;
-                guard.next = node;
-                buckets(bi) = guardNode();
+                node.get().next = _guard.next;
+                _guard.next = node;
+                _buckets(bi) = _guardNode();
                 // fix the bucket of the old start
                 if ( node.get().next.isSet() )
-                    buckets(node.get().next.get().hash % numBuckets) = node;
+                    _buckets(node.get().next.get().hash % numBuckets) = node;
             }
             else
             {
-                node.get().next = buckets(bi).get().next;
-                buckets(bi).get().next = node;
+                node.get().next = _buckets(bi).get().next;
+                _buckets(bi).get().next = node;
             }
         }
     }
 
-    private fun removeNode(prev, node: NodePtr)
+    fun _removeNode(prev, node: _NodePtr)
     {
-        var numBuckets = buckets.size();
+        var numBuckets = _buckets.size();
         if ( numBuckets == 0 )
         {
             prev.get().next = node.get().next;
@@ -366,10 +366,10 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
             var next = node.get().next;
 
             // If this is the only proper node for this bucket, clear the bucket
-            if ( prev == guardNode() || bi != (prev.get().hash % numBuckets) ) // this is second
+            if ( prev == _guardNode() || bi != (prev.get().hash % numBuckets) ) // this is second
             {
                 if ( next.isNull() || bi != (next.get().hash % numBuckets) ) // next is not in this bucket
-                    buckets(bi).reset();
+                    _buckets(bi).reset();
             }
 
             // If the next node is in another bucket, update the first node from that bucket
@@ -377,43 +377,43 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
             {
                 var nextBi = next.get().hash % numBuckets;
                 if ( bi != nextBi )
-                    buckets(nextBi) = prev;
+                    _buckets(nextBi) = prev;
             }
 
             // Now remove the node
             prev.get().next = next;
             node.release();
-            --numElements;
+            --_numElements;
         }
     }
 
-    private fun deleteElements
+    fun _deleteElements
     {
-        var p = guard.next;
-        var next: NodePtr;
+        var p = _guard.next;
+        var next: _NodePtr;
         while ( p.isSet() ; p = next )
         {
             next = p.get().next;
             p.release();
         }
-        guard.next = NodePtr();
+        _guard.next = _NodePtr();
     }
 
     class RangeType
     {
         using RetType = @ValueType;
 
-        private var startElem, endElem: NodePtr;
+        var _startElem, _endElem: _NodePtr;
 
-        fun ctor(start, end: NodePtr)
+        fun ctor(start, end: _NodePtr)
         {
-            startElem ctor start;
-            endElem ctor end;
+            _startElem ctor start;
+            _endElem ctor end;
         }
 
-        fun isEmpty             = startElem == endElem;
-        fun front: RetType      = startElem.get().data;
-        fun popFront            { startElem = startElem.get().next; }
+        fun isEmpty             = _startElem == _endElem;
+        fun front: RetType      = _startElem.get().data;
+        fun popFront            { _startElem = _startElem.get().next; }
     }
 }
 

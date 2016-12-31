@@ -29,7 +29,7 @@ class MyObj
         this.ctor(100);
     }
 
-    private var v: Int;
+    var v: Int;
 }
 
 class Pair

@@ -663,8 +663,8 @@ define i1 @_Char_opGT(i8 %x, i8 %y)             {\n  %1 = icmp sgt i8 %x, %y\n  
 define i1 @_Char_opLE(i8 %x, i8 %y)             {\n  %1 = icmp sle i8 %x, %y\n  ret i1 %1\n}
 define i1 @_Char_opGE(i8 %x, i8 %y)             {\n  %1 = icmp sge i8 %x, %y\n  ret i1 %1\n}
 
-define i1 @_opRefEQ(i8* %x, i8* %y)             {\n  %1 = icmp eq i8* %x, %y\n  ret i1 %1\n}
-define i1 @_opRefNE(i8* %x, i8* %y)              {\n  %1 = icmp ne i8* %x, %y\n  ret i1 %1\n}
+define i1 @implOpRefEQ(i8* %x, i8* %y)             {\n  %1 = icmp eq i8* %x, %y\n  ret i1 %1\n}
+define i1 @implOpRefNE(i8* %x, i8* %y)              {\n  %1 = icmp ne i8* %x, %y\n  ret i1 %1\n}
 
 define i64 @_SizeType_opAssign(i64* %x, i64 %y)     {\n  store i64 %y, i64* %x\n  ret i64 %y\n}
 define i1 @_SizeType_opEQ(i64 %x, i64 %y)           {\n  %1 = icmp eq i64 %x, %y\n  ret i1 %1\n}
@@ -1290,8 +1290,8 @@ fun[autoCt, native("_SizeType_opPlus1")] + (x: SizeType): SizeType;
 fun[ct, native("$ct")] ct(t: Type): Type;
 fun[ct, native("$rt")] rt(t: Type): Type;
 
-fun[autoCt, native("_opRefEQ")] _opRefEQ(x,y: @Byte): Bool;
-fun[autoCt, native("_opRefNE")] _opRefNE(x,y: @Byte): Bool;
+fun[autoCt, native("implOpRefEQ")] implOpRefEQ(x,y: @Byte): Bool;
+fun[autoCt, native("implOpRefNE")] implOpRefNE(x,y: @Byte): Bool;
 
 
 fun[ct, native("$typeEQ")] == (x, y: Type): Bool;

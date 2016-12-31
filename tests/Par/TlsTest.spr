@@ -8,7 +8,7 @@ var intTls: Tls(Int);
 var ptrTls: Tls(@Int);
 
 class[initCtor] IntWorker {
-    private var val1, val2: Int;
+    var val1, val2: Int;
 
     fun ()() {
         assertEq(intTls get, 0);
@@ -20,7 +20,7 @@ class[initCtor] IntWorker {
 }
 
 class[initCtor] PtrWorker {
-    private var val1, val2: @Int;
+    var val1, val2: @Int;
 
     fun ()() {
         assertTrue((ptrTls get) === null);
@@ -32,8 +32,8 @@ class[initCtor] PtrWorker {
 }
 
 class WorkManager {
-    private var numThreads: Int;
-    private var threads: (Thread Ptr) Vector;
+    var numThreads: Int;
+    var threads: (Thread Ptr) Vector;
 
     fun ctor(numThreads: Int) {
         this.numThreads ctor numThreads;

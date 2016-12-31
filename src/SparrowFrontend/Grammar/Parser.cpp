@@ -25,11 +25,6 @@ namespace SprFrontend {
     };
 }
 
-Node* addAccess(Node* decl, int accessSpec) {
-    setAccessType(decl, AccessType(accessSpec));
-    return decl;
-}
-
 // Externally defined by the Sparrow code
 extern "C" ParserContext* spr_parserIf_createParser(StringRef filename, StringRef code, const Location* loc);
 extern "C" void spr_parserIf_destroyParser(ParserContext* ctx);
@@ -52,36 +47,35 @@ extern "C" Node* comp_parser_mkModifiers(Location* loc, Node* main, Node* mods) 
 extern "C" Node* comp_parser_mkModule(Location* loc, Node* moduleName, Node* decls) {
     return mkModule(*loc, moduleName, decls);
 }
-extern "C" Node* comp_parser_mkImportName(Location* loc, StringRef alias, Node* toImport, Node* decls, int accessSpec) {
-    // TODO: change the interface here
-    return addAccess(mkImportName(*loc, toImport, decls, true, alias), accessSpec);
+extern "C" Node* comp_parser_mkImportName(Location* loc, StringRef alias, Node* toImport, Node* decls) {
+    return mkImportName(*loc, toImport, decls, true, alias);
 }
-extern "C" Node* comp_parser_mkUsing(Location* loc, StringRef alias, Node* usingNode, int accessSpec) {
-    return mkSprUsing(*loc, alias, usingNode, AccessType(accessSpec));
+extern "C" Node* comp_parser_mkUsing(Location* loc, StringRef alias, Node* usingNode) {
+    return mkSprUsing(*loc, alias, usingNode);
 }
-extern "C" Node* comp_parser_mkPackage(Location* loc, StringRef name, Node* children, int accessSpec) {
-    return mkSprPackage(*loc, name, children, AccessType(accessSpec));
+extern "C" Node* comp_parser_mkPackage(Location* loc, StringRef name, Node* children) {
+    return mkSprPackage(*loc, name, children);
 }
-extern "C" Node* comp_parser_mkClass(Location* loc, StringRef name, Node* params, Node* underlyingData, Node* ifClause, Node* children, int accessSpec) {
-    return mkSprClass(*loc, name, params, underlyingData, ifClause, children, AccessType(accessSpec));
+extern "C" Node* comp_parser_mkClass(Location* loc, StringRef name, Node* params, Node* underlyingData, Node* ifClause, Node* children) {
+    return mkSprClass(*loc, name, params, underlyingData, ifClause, children);
 }
-extern "C" Node* comp_parser_mkConcept(Location* loc, StringRef name, StringRef paramName, Node* baseConcept, Node* ifClause, int accessSpec) {
-    return mkSprConcept(*loc, name, paramName, baseConcept, ifClause, AccessType(accessSpec));
+extern "C" Node* comp_parser_mkConcept(Location* loc, StringRef name, StringRef paramName, Node* baseConcept, Node* ifClause) {
+    return mkSprConcept(*loc, name, paramName, baseConcept, ifClause);
 }
-extern "C" Node* comp_parser_mkVar(Location* loc, StringRef name, Node* typeNode, Node* init, int accessSpec) {
-    return mkSprVariable(*loc, name, typeNode, init, AccessType(accessSpec));
+extern "C" Node* comp_parser_mkVar(Location* loc, StringRef name, Node* typeNode, Node* init) {
+    return mkSprVariable(*loc, name, typeNode, init);
 }
 extern "C" Node* comp_parser_mkParameter(Location* loc, StringRef name, Node* typeNode, Node* init) {
     return mkSprParameter(*loc, name, typeNode, init);
 }
-extern "C" Node* comp_parser_mkFun(Location* loc, StringRef name, Node* formals, Node* retType, Node* body, Node* bodyExp, Node* ifClause, int accessSpec) {
+extern "C" Node* comp_parser_mkFun(Location* loc, StringRef name, Node* formals, Node* retType, Node* body, Node* bodyExp, Node* ifClause) {
     if ( bodyExp && !body ) {
         const Location& loc2 = bodyExp->location;
         body = Feather_mkLocalSpace(*loc, fromIniList({ mkReturnStmt(loc2, bodyExp) }));
         if ( !retType )
             retType = mkFunApplication(loc2, mkIdentifier(loc2, fromCStr("typeOf")), Feather_mkNodeList(loc2, fromIniList({ bodyExp })));
     }
-    return mkSprFunction(*loc, name, formals, retType, body, ifClause, AccessType(accessSpec));
+    return mkSprFunction(*loc, name, formals, retType, body, ifClause);
 }
 
 extern "C" Node* comp_parser_mkParenthesisExpr(Node* expr) {

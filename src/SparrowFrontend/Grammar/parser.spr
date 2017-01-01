@@ -76,7 +76,7 @@ fun parseModule(p: @OurParser): Node {
     var loc = p curLoc;
     var moduleName = parseModuleName(p);
     var decls: Node;
-    parseDecls(p, true, decls);
+    parseStmts(p, true, decls);
     p expect tkEND;
     return mkModule(loc span (p lastLoc), moduleName, decls);
 }
@@ -215,9 +215,9 @@ private fun parseModifiers(p: @OurParser): Node {
     return res;
 }
 
-private fun parseDecls(p: @OurParser, topLevel: Bool, res: @Node) {
+private fun parseStmts(p: @OurParser, topLevel: Bool, res: @Node) {
     while ( true ) {
-        var child = parseDecl(p, topLevel);
+        var child = parseStmt(p, topLevel);
         if ( child isSet ) {
             res = addToNodeList(res, child);
             continue;
@@ -227,25 +227,32 @@ private fun parseDecls(p: @OurParser, topLevel: Bool, res: @Node) {
         break;
     }
 }
-private fun parseDecl(p: @OurParser, topLevel: Bool): Node {
+private fun parseStmt(p: @OurParser, topLevel: Bool): Node {
     var res: Node;
+
+    // Ignore empty statements
+    while ( p accept tkSEMICOLON )
+        ;
+
     var loc = p curLoc;
     var mods = parseModifiers(p);
-    var found = parseUsingDecl(p, res)
+    var found = parseImportLineOpt(p, res)
+            || parseUsingDecl(p, res)
             || parsePackageDecl(p, res)
             || parseClassDecl(p, res)
             || parseDatatypeDecl(p, res)
             || parseConceptDecl(p, res)
             || parseVarDecl(p, res)
             || parseFunDecl(p, res)
-            || topLevel && parseImportLineOpt(p, res)
+            || parseExprStmt(p, res)
+            || parseBlockStmt(p, res, topLevel)
+            || parseIfStmt(p, res, topLevel)
+            || parseForStmt(p, res, topLevel)
+            || parseWhileStmt(p, res, topLevel)
+            || parseBreakStmt(p, res)
+            || parseContinueStmt(p, res)
+            || parseReturnStmt(p, res)
             ;
-
-    if ( !found && topLevel ) {
-        found = parseIfTopLevel(p, res)
-            || parseExprOpt(p, res, true)
-            ;
-    }
 
     if ( found )
         res = mkModifiers(loc span (p lastLoc), res, mods);
@@ -313,7 +320,7 @@ private fun parsePackageDecl(p: @OurParser, res: @Node): Bool {
     var id = parseId(p);
     p expect tkLCURLY;
     var children: Node;
-    parseDecls(p, true, children);
+    parseStmts(p, true, children);
     p expect tkRCURLY;
     loc copyEnd p.lastToken.loc;
     res = mkPackage(loc, id.asStringRef, children);
@@ -328,7 +335,7 @@ private fun parseClassDecl(p: @OurParser, res: @Node): Bool {
     var ifClause = parseIfClauseOpt(p);
     p expect tkLCURLY;
     var children: Node;
-    parseDecls(p, true, children);
+    parseStmts(p, true, children);
     p expect tkRCURLY;
     loc copyEnd p.lastToken.loc;
     res = mkClass(loc, id.asStringRef, formals, Node(), ifClause, children);
@@ -483,7 +490,10 @@ private fun parseIfClauseOpt(p: @OurParser): Node {
 private fun parseFunBody(p: @OurParser): Node {
     if ( p accept tkSEMICOLON )
         return Node();
-    return parseBlockStmt(p);
+    var res: Node;
+    if ( !parseBlockStmt(p, res, false) )
+        p reportError toString("Syntax error, unexpected ", (*p.tokens).type, ", expecting block statement");
+    return res;
 }
 
 private fun parseIfTopLevel(p: @OurParser, res: @Node): Bool {
@@ -493,10 +503,10 @@ private fun parseIfTopLevel(p: @OurParser, res: @Node): Bool {
     p expect tkLPAREN;
     var expr = parseExpr(p);
     p expect tkRPAREN;
-    var thenClause = parseDecl(p, true);
+    var thenClause = parseStmt(p, true);
     var elseClause: Node;
     if ( p accept tkELSE )
-        elseClause = parseDecl(p, true);
+        elseClause = parseStmt(p, true);
     loc copyEnd p.lastToken.loc;
     res = mkIfStmt(loc, expr, thenClause, elseClause);
     return true;
@@ -691,116 +701,111 @@ fun parseClosureParams(p: @OurParser): Node {
 // Statements
 //
 
-private fun parseStatement(p: @OurParser): Node {
-    var res: Node;
+private fun parseExprStmt(p: @OurParser, res: @Node): Bool {
+    return parseExprOpt(p, res, true);
+}
+
+private fun parseBlockStmt(p: @OurParser, res: @Node, topLevel: Bool): Bool {
     var loc = p curLoc;
-    var mods = parseModifiers(p);
-    if ( p accept tkSEMICOLON )
-        ;
-    else if ( p nextIs tkLCURLY )
-        res = parseBlockStmt(p);
-    else if ( p nextIs tkIF )
-        res = parseIfStmt(p);
-    else if ( p nextIs tkFOR )
-        res = parseForStmt(p);
-    else if ( p nextIs tkWHILE )
-        res = parseWhileStmt(p);
-    else if ( p nextIs tkBREAK )
-        res = parseBreakStmt(p);
-    else if ( p nextIs tkCONTINUE )
-        res = parseContinueStmt(p);
-    else if ( p nextIs tkRETURN )
-        res = parseReturnStmt(p);
-    else if ( parseFunLevelDecl(p, res) )
-        ;
-    else {
-        res = parseExpr(p);
+    if ( p accept tkLCURLY ) {
+        res = Node();
+        while ( !(p nextIs tkRCURLY) && !p.hasErrors ) {
+            var s = parseStmt(p, topLevel);
+            res = addToNodeList(res, s);
+        }
+        p expect tkRCURLY;
+        if ( !topLevel )
+            res = mkBlockStmt(loc span (p lastLoc), res);
+        return true;
+    }
+    return false;
+}
+private fun parseIfStmt(p: @OurParser, res: @Node, topLevel: Bool): Bool {
+    var loc = p curLoc;
+    if ( p accept tkIF ) {
+        p expect tkLPAREN;
+        var expr = parseExpr(p);
+        p expect tkRPAREN;
+        var thenClause = parseStmt(p, topLevel);
+        var elseClause: Node;
+        if ( p accept tkELSE )
+            elseClause = parseStmt(p, topLevel);
+        loc copyEnd p.lastToken.loc;
+        res = mkIfStmt(loc, expr, thenClause, elseClause);
+        return true;
+    }
+    return false;
+}
+private fun parseForStmt(p: @OurParser, res: @Node, topLevel: Bool): Bool {
+    var loc = p curLoc;
+    if ( p accept tkFOR ) {
+        p expect tkLPAREN;
+        var id = parseId(p);
+        var typeNode: Node;
+        if ( p accept tkCOLON )
+            typeNode = parseExpr(p, false);
+        p expect tkEQUAL;
+        var range = parseExpr(p);
+        p expect tkRPAREN;
+        var action = parseStmt(p, topLevel);
+        loc copyEnd p.lastToken.loc;
+        res = mkForStmt(loc, id.asStringRef, typeNode, range, action);
+        return true;
+    }
+    return false;
+}
+private fun parseWhileStmt(p: @OurParser, res: @Node, topLevel: Bool): Bool {
+    var loc = p curLoc;
+    if ( p accept tkWHILE ) {
+        p expect tkLPAREN;
+        var expr = parseExpr(p);
+        var stepAction: Node;
+        if ( p accept tkSEMICOLON ) {
+            // Try parsing it as an expression; if this is not an expression, try block statement
+            if ( !parseExprOpt(p, stepAction, true)
+                && !parseBlockStmt(p, stepAction, topLevel) ) {
+                p reportError toString("Syntax error, unexpected ", (*p.tokens).type, ", expecting expression or block statement");
+            }
+        }
+        p expect tkRPAREN;
+        var body = parseStmt(p, topLevel);
+        loc copyEnd p.lastToken.loc;
+        res = mkWhileStmt(loc, expr, stepAction, body);
+        return true;
+    }
+    return false;
+}
+private fun parseBreakStmt(p: @OurParser, res: @Node): Bool {
+    if ( p accept tkBREAK ) {
+        var loc = p.lastToken.loc;
         p expect tkSEMICOLON;
+        res = mkBreakStmt(loc);
+        return true;
     }
-    if ( res isSet )
-        res = mkModifiers(loc span (p lastLoc), res, mods);
-    return res;
+    return false;
 }
-private fun parseFunLevelDecl(p: @OurParser, res: @Node): Bool {
-    res = parseDecl(p, false);
-    return res isSet;
-}
-private fun parseBlockStmt(p: @OurParser): Node {
-    var loc = p curLoc;
-    var res: Node;
-    p expect tkLCURLY;
-    while ( !(p nextIs tkRCURLY) && !p.hasErrors ) {
-        var s = parseStatement(p);
-        res = addToNodeList(res, s);
-    }
-    p expect tkRCURLY;
-    return mkBlockStmt(loc span (p lastLoc), res);
-}
-private fun parseIfStmt(p: @OurParser): Node {
-    var loc = p curLoc;
-    p expect tkIF;
-    p expect tkLPAREN;
-    var expr = parseExpr(p);
-    p expect tkRPAREN;
-    var thenClause = parseStatement(p);
-    var elseClause: Node;
-    if ( p accept tkELSE )
-        elseClause = parseStatement(p);
-    loc copyEnd p.lastToken.loc;
-    return mkIfStmt(loc, expr, thenClause, elseClause);
-}
-private fun parseForStmt(p: @OurParser): Node {
-    var loc = p curLoc;
-    p expect tkFOR;
-    p expect tkLPAREN;
-    var id = parseId(p);
-    var typeNode: Node;
-    if ( p accept tkCOLON )
-        typeNode = parseExpr(p, false);
-    p expect tkEQUAL;
-    var range = parseExpr(p);
-    p expect tkRPAREN;
-    var action = parseStatement(p);
-    loc copyEnd p.lastToken.loc;
-    return mkForStmt(loc, id.asStringRef, typeNode, range, action);
-}
-private fun parseWhileStmt(p: @OurParser): Node {
-    var loc = p curLoc;
-    p expect tkWHILE;
-    p expect tkLPAREN;
-    var expr = parseExpr(p);
-    var stepAction: Node;
-    if ( p accept tkSEMICOLON ) {
-        // Try parsing it as an expression; if this is not an expression, try statement
-        if ( !parseExprOpt(p, stepAction, true) )
-            stepAction = parseStatement(p);
-    }
-    p expect tkRPAREN;
-    var body = parseStatement(p);
-    loc copyEnd p.lastToken.loc;
-    return mkWhileStmt(loc, expr, stepAction, body);
-}
-private fun parseBreakStmt(p: @OurParser): Node {
-    p expect tkBREAK;
-    var loc = p.lastToken.loc;
-    p expect tkSEMICOLON;
-    return mkBreakStmt(loc);
-}
-private fun parseContinueStmt(p: @OurParser): Node {
-    p expect tkCONTINUE;
-    var loc = p.lastToken.loc;
-    p expect tkSEMICOLON;
-    return mkContinueStmt(loc);
-}
-private fun parseReturnStmt(p: @OurParser): Node {
-    p expect tkRETURN;
-    var loc = p.lastToken.loc;
-    var expr: Node;
-    if ( p accept tkSEMICOLON )
-        ;
-    else {
-        expr = parseExpr(p);
+private fun parseContinueStmt(p: @OurParser, res: @Node): Bool {
+    if ( p accept tkCONTINUE ) {
+        var loc = p.lastToken.loc;
         p expect tkSEMICOLON;
+        res = mkContinueStmt(loc);
+        return true;
     }
-    return mkReturnStmt(loc, expr);
+    return false;
+}
+
+private fun parseReturnStmt(p: @OurParser, res: @Node): Bool {
+    if ( p accept tkRETURN ) {
+        var loc = p.lastToken.loc;
+        var expr: Node;
+        if ( p accept tkSEMICOLON )
+            ;
+        else {
+            expr = parseExpr(p);
+            p expect tkSEMICOLON;
+        }
+        res = mkReturnStmt(loc, expr);
+        return true;
+    }
+    return false;
 }

@@ -77,10 +77,10 @@ using nRotations = 12;
 
 //    //fun isValid: Bool { return findIf(pos, (fun p = p._2>=0 && p._2 < 5)); }
 
-//    fun[static] rotatePos(p: PosType) = (p._1 + p._2) ~ -p._2;
+//    [static] fun rotatePos(p: PosType) = (p._1 + p._2) ~ -p._2;
 
-//    //fun[static] posToNum(p: PosType) = p._1 + 5*p._2;
-//    //fun[static] posFromNum(p: Byte): PosType = p%5 ~ p/5;
+//    //[static] fun posToNum(p: PosType) = p._1 + 5*p._2;
+//    //[static] fun posFromNum(p: Byte): PosType = p%5 ~ p/5;
 
 //    fun offsetToMin: Piece
 //    {

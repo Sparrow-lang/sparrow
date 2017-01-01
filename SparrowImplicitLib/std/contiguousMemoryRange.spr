@@ -3,7 +3,7 @@ module std.contiguousMemoryRange;
 import rawPtr(RawPtr);
 import ranges(..);
 
-class[rtct] ContiguousMemoryRange(valueType: Type)
+[rtct] class ContiguousMemoryRange(valueType: Type)
 {
     using PtrType = RawPtr(valueType);
     using RetType = @valueType;

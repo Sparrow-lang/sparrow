@@ -26,7 +26,7 @@ fun f2(x: @AnyType)
     x = 20;
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     var a: Int = 5;
 

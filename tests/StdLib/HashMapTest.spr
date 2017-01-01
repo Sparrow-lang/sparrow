@@ -9,7 +9,7 @@ class IntWrapper
 {
     var x: Int;
 
-    fun[convert] ctor(x: Int) { this.x ctor x; }
+    [convert] fun ctor(x: Int) { this.x ctor x; }
 
     fun hash: SizeType
     {
@@ -22,7 +22,7 @@ class IntWithNoHash
 {
     var x: Int;
 
-    fun[convert] ctor(x: Int) { this.x ctor x; }
+    [convert] fun ctor(x: Int) { this.x ctor x; }
 }
 
 class MyTypeTraits

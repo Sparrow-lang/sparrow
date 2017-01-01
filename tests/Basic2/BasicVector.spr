@@ -11,7 +11,7 @@ fun assert(condition: Bool)
 class ContinousMemoryRange(type: Type)
 {
     using RetType = @type;
-    var[static] ValueType = type;
+    [static] var ValueType = type;
 
     var begin, end: @ValueType;
 
@@ -103,28 +103,28 @@ class ContinousMemoryRange(type: Type)
     }
 
 
-    fun[static] toPtr(p: @ValueType): @Byte
+    [static] fun toPtr(p: @ValueType): @Byte
     {
         return reinterpretCast(@Byte, p);
     }
-    fun[static] toValue(p: @Byte): @ValueType
+    [static] fun toValue(p: @Byte): @ValueType
     {
         return reinterpretCast(@ValueType, p);
     }
 
-    fun[static] inc(p: @ValueType): @ValueType
+    [static] fun inc(p: @ValueType): @ValueType
     {
         return toValue(ptrAdd(toPtr(p), sizeOf(ValueType)));
     }
-    fun[static] inc(p: @ValueType, n: SizeType): @ValueType
+    [static] fun inc(p: @ValueType, n: SizeType): @ValueType
     {
         return toValue(ptrAdd(toPtr(p), n*sizeOf(ValueType)));
     }
-    fun[static] dec(p: @ValueType): @ValueType
+    [static] fun dec(p: @ValueType): @ValueType
     {
         return toValue(ptrSub(toPtr(p), sizeOf(ValueType)));
     }
-    fun[static] dec(p: @ValueType, n: SizeType): @ValueType
+    [static] fun dec(p: @ValueType, n: SizeType): @ValueType
     {
         return toValue(ptrSub(toPtr(p), n*sizeOf(ValueType)));
     }
@@ -133,12 +133,12 @@ class ContinousMemoryRange(type: Type)
 
 class Vector(type: Type)
 {
-    var[static] ValueType = type;
+    [static] var ValueType = type;
 
     var begin, end, endOfStore: @ValueType;
 
-    var[static, ct] initialCapacity: SizeType = SizeType(16);
-    var[static, ct] growthFactor = 1.5;
+    [static, ct] var initialCapacity: SizeType = SizeType(16);
+    [static, ct] var growthFactor = 1.5;
 
     fun ctor()
     {
@@ -475,36 +475,36 @@ class Vector(type: Type)
         cout << flush;
     }
 
-    fun[static] toPtr(p: @ValueType): @Byte
+    [static] fun toPtr(p: @ValueType): @Byte
     {
         return reinterpretCast(@Byte, p);
     }
-    fun[static] toValue(p: @Byte): @ValueType
+    [static] fun toValue(p: @Byte): @ValueType
     {
         return reinterpretCast(@ValueType, p);
     }
 
-    fun[static] inc(p: @ValueType): @ValueType
+    [static] fun inc(p: @ValueType): @ValueType
     {
         return toValue(ptrAdd(toPtr(p), sizeOf(ValueType)));
     }
-    fun[static] inc(p: @ValueType, n: SizeType): @ValueType
+    [static] fun inc(p: @ValueType, n: SizeType): @ValueType
     {
         return toValue(ptrAdd(toPtr(p), n*sizeOf(ValueType)));
     }
-    fun[static] dec(p: @ValueType): @ValueType
+    [static] fun dec(p: @ValueType): @ValueType
     {
         return toValue(ptrSub(toPtr(p), sizeOf(ValueType)));
     }
-    fun[static] dec(p: @ValueType, n: SizeType): @ValueType
+    [static] fun dec(p: @ValueType, n: SizeType): @ValueType
     {
         return toValue(ptrSub(toPtr(p), n*sizeOf(ValueType)));
     }
-    fun[static] diff(p,q: @ValueType): SizeType
+    [static] fun diff(p,q: @ValueType): SizeType
     {
         return ptrDiff(toPtr(p), toPtr(q)) / sizeOf(ValueType);
     }
-    fun[static] move(pBegin, pEnd, destBegin: @ValueType)
+    [static] fun move(pBegin, pEnd, destBegin: @ValueType)
     {
         var size = diff(pEnd, pBegin);
         var destEnd: @AnyType = inc(destBegin, size);

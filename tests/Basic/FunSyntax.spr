@@ -35,7 +35,7 @@ fun f3_2 a, b, c            = printAndReturn("f3_2", a+b+c);
 fun f3_3(a, b, c: Int): Int = printAndReturn("f3_4", a+b+c);
 fun f3_4 a, b, c: Int       = printAndReturn("f3_5", a+b+c);
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     f0_1();
     f0_2();

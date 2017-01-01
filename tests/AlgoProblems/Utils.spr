@@ -4,7 +4,7 @@
 // Timing functionality
 //
 
-fun[native("clock")] clock(): Int;
+[native("clock")] fun clock(): Int;
 
 class Timer
 {
@@ -22,7 +22,7 @@ class Timer
 // Useful operators
 //
 
-fun[ct] ^(base, exp: Int): ULong
+[ct] fun ^(base, exp: Int): ULong
 {
     var res: ULong = 1;
     var i = 0;

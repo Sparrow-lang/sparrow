@@ -35,7 +35,7 @@ class Recurse(predGeneratorType: Type)
     {
         this._relation ctor;
         this._predGenerator ctor predGenerator;
-        if[ct] ( isValid(logicDebug) )
+        [ct] if ( isValid(logicDebug) )
             cout << "Recurse.ctor: " << this << "\n";
     }
 
@@ -43,7 +43,7 @@ class Recurse(predGeneratorType: Type)
     {
         if ( _relation.isNull() )
             _relation = _predGenerator();
-        if[ct] ( isValid(logicDebug) )
+        [ct] if ( isValid(logicDebug) )
             cout << "Recurse.(): " << this << "\n";
         return _relation();
     }
@@ -52,7 +52,7 @@ class Recurse(predGeneratorType: Type)
     {
         os << "Recurse(this=" << mkStreamRefWrapper(this)
            << ", fun=" << _relation;
-        if[ct] ( isValid( os << _predGenerator ) )
+        [ct] if ( isValid( os << _predGenerator ) )
             os << ", gen=" << _predGenerator;
         os << ")";
     }

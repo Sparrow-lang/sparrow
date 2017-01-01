@@ -48,12 +48,12 @@ Zeus is not female
 fun test2
 {
     var x: LStr;
-    if[ct] ( isValid(logicDebug) )
+    [ct] if ( isValid(logicDebug) )
         cout << "Result constructed: x=" << x << endl;
     var pred = male(x);
     while ( pred() )
     {
-        if[ct] ( isValid(logicDebug) )
+        [ct] if ( isValid(logicDebug) )
             cout << "In while, x=" << x << endl;
         if ( x.isSet() )
             cout << "Found male: " << x.get() << endl << flush;

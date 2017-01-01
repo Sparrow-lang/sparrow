@@ -4,30 +4,30 @@ import ranges;
 import bitOper;
 import string(String);
 
-class[rtct] DefaultHashFunction(type: Type)
+[rtct] class DefaultHashFunction(type: Type)
 {
     fun ()(arg: @type) = defaultHash(arg);
 }
 
-fun[rtct] defaultHash(arg: Char)        = _HashImpl.doHash(Byte(arg), _HashImpl._seed);
-//fun[rtct] defaultHash(arg: Integer)     = _HashImpl.doHash(arg, _HashImpl._seed);
-fun[rtct] defaultHash(arg: Integer)     = SizeType(arg);
-fun[rtct] defaultHash(arg: StringRef)   = _HashImpl.doHash(arg, _HashImpl._seed);
-fun[rtct] defaultHash(arg: @String)     = _HashImpl.doHash(arg.asStringRef(), _HashImpl._seed);
+[rtct] fun defaultHash(arg: Char)        = _HashImpl.doHash(Byte(arg), _HashImpl._seed);
+//[rtct] fun defaultHash(arg: Integer)     = _HashImpl.doHash(arg, _HashImpl._seed);
+[rtct] fun defaultHash(arg: Integer)     = SizeType(arg);
+[rtct] fun defaultHash(arg: StringRef)   = _HashImpl.doHash(arg, _HashImpl._seed);
+[rtct] fun defaultHash(arg: @String)     = _HashImpl.doHash(arg.asStringRef(), _HashImpl._seed);
 
 package _HashImpl
 {
-    var[ct] _seed: SizeType = 0xfadef00d;
+    [ct] var _seed: SizeType = 0xfadef00d;
 
     /// FNV hash generator
-    fun[rtct] doHash(key: StringRef, start: SizeType): SizeType
+    [rtct] fun doHash(key: StringRef, start: SizeType): SizeType
     {
         var hash = start;
         for ( i = 0..key.size() )
             hash = (hash !^! SizeType(Byte(key(i)))) * 0x01000193;
         return hash;
     }
-    fun[rtct] doHash(value, start: SizeType): SizeType
+    [rtct] fun doHash(value, start: SizeType): SizeType
     {
         return (start !^! value) * 0x01000193;
     }

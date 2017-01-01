@@ -2,25 +2,25 @@
 
 concept Swappable(x) if isValid(x.swap(x));
 
-fun[autoCt] swap(a, b: @AnyType) if typeOf(a) == typeOf(b) && !Swappable(a)
+[autoCt] fun swap(a, b: @AnyType) if typeOf(a) == typeOf(b) && !Swappable(a)
 {
     cout << "Simple swap called" << endl;
     var tmp = a;
     a = b;
     b = tmp;
 }
-fun[autoCt] swap(a, b: @Swappable) if typeOf(a) == typeOf(b)
+[autoCt] fun swap(a, b: @Swappable) if typeOf(a) == typeOf(b)
 {
     cout << "Fast swap called" << endl;
     a.swap(b);
 }
 
-class[initCtor] MyType1
+[initCtor] class MyType1
 {
     var val: Int;
 }
 
-class[initCtor] MyType2
+[initCtor] class MyType2
 {
     var val: Int;
 

@@ -5,11 +5,11 @@ class Test
     var x: Int;
     var y: Int;
 
-    fun[static, rt] f()
+    [static, rt] fun f()
     {
         writeLnInt(1);
     }
-    fun[static, rt] g(n: Int)
+    [static, rt] fun g(n: Int)
     {
         writeLnInt(n);
     }
@@ -17,7 +17,7 @@ class Test
 
 var a: Test;
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     assignInt(a.x, 10);
     assignInt(a.y, 11);

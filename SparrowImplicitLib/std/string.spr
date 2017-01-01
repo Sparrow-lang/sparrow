@@ -9,7 +9,7 @@ import rawPtr(RawPtr);
 // TODO: Can we implement a VectorDetail(Type, InnerSpace), and implement fun Vector(type) = VectorBase(type, 0)
 
 /// String class that has ownership of the characters
-class[rtct] String
+[rtct] class String
 {
     using ValueType = Char;
     using ValuePassType = Char;
@@ -39,7 +39,7 @@ class[rtct] String
         ctor(size);
         memcpy(_begin.bytePtr(), other._begin.bytePtr(), size);
     }
-    fun[convert] ctor(other: @StringRef)
+    [convert] fun ctor(other: @StringRef)
     {
         var size = other size;
         ctor(size);
@@ -61,7 +61,7 @@ class[rtct] String
         }
     }
 
-    fun[rt] ctorFromCt(src: String ct)
+    [rt] fun ctorFromCt(src: String ct)
     {
         this.ctor(src.asStringRef());
     }
@@ -293,8 +293,8 @@ class[rtct] String
         os << asStringRef();
     }
 
-    fun[static] _frontPtr(s: StringRef) = _PtrType.fromBytePtr(s.begin);
-    fun[static] _backPtr(s: StringRef) = _PtrType.fromBytePtr(s.end);
+    [static] fun _frontPtr(s: StringRef) = _PtrType.fromBytePtr(s.begin);
+    [static] fun _backPtr(s: StringRef) = _PtrType.fromBytePtr(s.end);
 
     using _initialCapacity = SizeType(16);
     using _growthFactor = 1.5;
@@ -304,7 +304,7 @@ class[rtct] String
 }
 
 // TODO
-fun[autoCt] + (x,y: String): String
+[autoCt] fun + (x,y: String): String
 {
     var sz1 = x.size();
     var sz2 = y.size();
@@ -314,7 +314,7 @@ fun[autoCt] + (x,y: String): String
     return res;
 }
 
-fun[autoCt] + (x: String, y: StringRef): String
+[autoCt] fun + (x: String, y: StringRef): String
 {
     var sz1 = x.size();
     var sz2 = y.size();
@@ -324,7 +324,7 @@ fun[autoCt] + (x: String, y: StringRef): String
     return res;
 }
 
-//fun[autoCt] + (x: String, y: Char): String
+//[autoCt] fun + (x: String, y: Char): String
 //{
 //    var sz1 = x.size();
 //    var sz2 = sizeOf(y);
@@ -336,13 +336,13 @@ fun[autoCt] + (x: String, y: StringRef): String
 //}
 
 
-fun[rtct] intToString(x: Int): String
+[rtct] fun intToString(x: Int): String
 {
     var buf: static_buffer(12);
     StringImpl.intToCString(x, reinterpretCast(@Char, buf));
     return String(StringRef.fromCString(reinterpretCast(@Char, buf)));
 }
-fun[rtct] ulongToString(x: ULong): String
+[rtct] fun ulongToString(x: ULong): String
 {
     var buf: static_buffer(16);
     StringImpl.ulongToCString(x, reinterpretCast(@Char, buf));
@@ -351,7 +351,7 @@ fun[rtct] ulongToString(x: ULong): String
 
 // TODO
 
-class[rtct] StringOutputStream
+[rtct] class StringOutputStream
 {
     var result: String;
 
@@ -402,6 +402,6 @@ fun toString(a1, a2, a3, a4, a5, a6, a7: AnyType): String {
 
 package StringImpl
 {
-    fun[rtct, native("_Int_to_CString")] intToCString(x: Int, buffer: @Char);
-    fun[rtct, native("_ULong_to_CString")] ulongToCString(x: ULong, buffer: @Char);
+    [rtct, native("_Int_to_CString")] fun intToCString(x: Int, buffer: @Char);
+    [rtct, native("_ULong_to_CString")] fun ulongToCString(x: ULong, buffer: @Char);
 }

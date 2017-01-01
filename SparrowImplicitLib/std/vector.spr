@@ -4,9 +4,9 @@ import contiguousMemoryRange(ContiguousMemoryRange);
 import rawPtr(RawPtr);
 import ranges(RandomAccessRange, ..);
 
-fun[rtct] mkVector(range: Range) = Vector(-@ range.RetType)(range);
+[rtct] fun mkVector(range: Range) = Vector(-@ range.RetType)(range);
 
-class[rtct] Vector(valueType: Type)
+[rtct] class Vector(valueType: Type)
 {
     using ValueType = valueType;
     using ValuePassType = !@valueType;
@@ -64,11 +64,11 @@ class[rtct] Vector(valueType: Type)
             pushBack(v);
     }
 
-    fun[rt] ctorFromCt(src: Vector ct)
+    [rt] fun ctorFromCt(src: Vector ct)
     {
         this.ctor();
         this.reserve(ctEval(src.size()));
-        for[ct] (el: ValueType = src.all())
+        [ct] for (el: ValueType = src.all())
             this.pushBack(el);
     }
 

@@ -30,7 +30,7 @@ fun makeBaseRef(): Base@;
 fun makeDerived(): Derived;
 fun makeDerivedRef(): Derived@;
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     var b = Base(1);
     //var d = Derived(10, 11);

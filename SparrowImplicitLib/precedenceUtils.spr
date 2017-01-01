@@ -1,6 +1,6 @@
 import meta.featherNodes, meta.sparrowNodes;
 
-fun[ct, macro] setOperPrecedence(oper, value: CompilerAstNode): CompilerAstNode
+[ct, macro] fun setOperPrecedence(oper, value: CompilerAstNode): CompilerAstNode
 {
     var loc = oper location;
     var loc2 = value location;
@@ -10,7 +10,7 @@ fun[ct, macro] setOperPrecedence(oper, value: CompilerAstNode): CompilerAstNode
     return mkSprUsing(loc, "oper_precedence_" + operName, mkIntLiteral(loc2, precValue));
 }
 
-fun[ct, macro] getOperPrecedence(oper: CompilerAstNode): CompilerAstNode
+[ct, macro] fun getOperPrecedence(oper: CompilerAstNode): CompilerAstNode
 {
     var loc = oper location;
     var operName = astEval(oper);
@@ -21,7 +21,7 @@ fun[ct, macro] getOperPrecedence(oper: CompilerAstNode): CompilerAstNode
 }
 
 
-fun[ct, macro] setOperRightAssociativity(oper: CompilerAstNode): CompilerAstNode
+[ct, macro] fun setOperRightAssociativity(oper: CompilerAstNode): CompilerAstNode
 {
     var loc = oper location;
     var operName = astEval(oper);

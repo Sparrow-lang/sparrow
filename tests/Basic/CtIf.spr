@@ -1,26 +1,26 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-fun[native("writeLnDouble"), autoCt] writeLnDoubleCt(x: Double);
+[native("writeLnDouble"), autoCt] fun writeLnDoubleCt(x: Double);
 
 // Function that can be called only with compile-time arguments
-fun[ct] ctTest(x: Double)
+[ct] fun ctTest(x: Double)
 {
     writeLnDoubleCt(x);
 }
 
 class TestClass
 {
-    fun[ct,static] ctMethod(n: Int): Int
+    [ct,static] fun ctMethod(n: Int): Int
     {
         return add(n,1000);
     }
 
-    if[ct] ( true )
+    [ct] if ( true )
         fun f { writeLn("f.1"); }
     else
         fun f { writeLn("f.2"); }
 
-    if[ct] ( false )
+    [ct] if ( false )
         fun g { writeLn("g.1"); }
     else
         fun g { writeLn("g.2"); }
@@ -28,31 +28,31 @@ class TestClass
 
 class Gen(t: Type)
 {
-    if[ct] ( t == Int )
+    [ct] if ( t == Int )
         fun print { writeLn("Int"); }
-    else if[ct] ( t == Double )
+    else [ct] if ( t == Double )
         fun print { writeLn("Double"); }
     else
         fun print { writeLn("unknown type"); }
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     if ( true )
         ctTest(1.0);
     else
         ctTest(2.0);
 
-    if[ct] ( true )
+    [ct] if ( true )
         ctTest(11.0);
     else
         ctTest(12.0);
-    if[ct] ( false )
+    [ct] if ( false )
         ctTest(21.0);
     else
         ctTest(22.0);
 
-    if[ct] ( true )
+    [ct] if ( true )
     {
         writeLn("ok");
     }

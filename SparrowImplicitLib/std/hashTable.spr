@@ -231,7 +231,7 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
     using _NodePtr = Ptr(Node);
     using _BucketsType = Array(_NodePtr);
 
-    class[initCtor] Node
+    [initCtor] class Node
     {
         var next: Ptr(Node);
         var hash: SizeType;
@@ -243,7 +243,7 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
         }
     }
 
-    class[initCtor] GuardNode
+    [initCtor] class GuardNode
     {
         var next: Ptr(Node);
     }

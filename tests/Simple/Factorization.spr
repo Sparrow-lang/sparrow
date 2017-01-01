@@ -39,7 +39,7 @@ fun factor(n: Int)
     write('\n');
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     factor(2);
     factor(60);

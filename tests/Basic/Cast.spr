@@ -25,7 +25,7 @@ fun printDerived(d: Derived)
     write('D'); write('-'); write(d.a); write(' '); writeLn(d.b);
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     var b = Base(1);
     //var d = Derived(10, 11);

@@ -8,7 +8,7 @@ import std.tuple;
 using TypeOp.*;
 
 class MyRtOnlyType {}
-class[ct] MyCtOnlyType {}
+[ct] class MyCtOnlyType {}
 
 fun sprMain
 {

@@ -33,20 +33,20 @@ fun min(value1: @AnyType, value2: @AnyType, pred: AnyType): typeOf(value1)
     return value1;
 }
 
-fun[autoCt] swap(a, b: @AnyType) if typeOf(a) == typeOf(b) && !Swappable(a)
+[autoCt] fun swap(a, b: @AnyType) if typeOf(a) == typeOf(b) && !Swappable(a)
 {
     var tmp = a;
     a = b;
     b = tmp;
 }
-fun[autoCt] swap(a, b: @Swappable) if typeOf(a) == typeOf(b)
+[autoCt] fun swap(a, b: @Swappable) if typeOf(a) == typeOf(b)
 {
     a.swap(b);
 }
 
-fun[autoCt] swapTL(a, b: @AnyType) { swap(a, b); }
+[autoCt] fun swapTL(a, b: @AnyType) { swap(a, b); }
 
-fun[rtct] find(range: AnyType, value: @AnyType): typeOf(range)
+[rtct] fun find(range: AnyType, value: @AnyType): typeOf(range)
 {
     while ( !range.isEmpty() && !(range.front() == value) )
         range.popFront();
@@ -55,7 +55,7 @@ fun[rtct] find(range: AnyType, value: @AnyType): typeOf(range)
 }
 
 // TODO (LucTeo): Check why the previous function doesn't work well in RTCT mode
-fun[rtct] find2(range: AnyType, value: AnyType): typeOf(range)
+[rtct] fun find2(range: AnyType, value: AnyType): typeOf(range)
 {
     while ( !range.isEmpty() && !(range.front() == value) )
         range.popFront();
@@ -63,13 +63,13 @@ fun[rtct] find2(range: AnyType, value: AnyType): typeOf(range)
     return range;
 }
 
-fun[rtct] findIf(r: Range, pred: AnyType): typeOf(r) if typeOf(pred(*r)) == Bool
+[rtct] fun findIf(r: Range, pred: AnyType): typeOf(r) if typeOf(pred(*r)) == Bool
 {
     while ( !!r && !pred(*r) )
         ++r;
     return r;
 }
-//fun[rtct] findIf(r: Range, pred: AnyType): typeOf(r) if typeOf(pred(r.front())) == Bool
+//[rtct] fun findIf(r: Range, pred: AnyType): typeOf(r) if typeOf(pred(r.front())) == Bool
 //{
 //    while ( !r.isEmpty() && !pred(r.front()) )
 //        r.popFront();
@@ -294,7 +294,7 @@ fun maxElementIf(range: Range, pred: AnyType): typeOf(range)
     return res;
 }
 
-fun[rtct] minMaxElement(range: Range): Tuple(typeOf(range), typeOf(range))
+[rtct] fun minMaxElement(range: Range): Tuple(typeOf(range), typeOf(range))
 {
     if ( range.isEmpty() )
         return range ~ range;
@@ -315,7 +315,7 @@ fun[rtct] minMaxElement(range: Range): Tuple(typeOf(range), typeOf(range))
     return minRes ~ maxRes;
 }
 
-fun[rtct] minMaxElementIf(range: Range, pred: AnyType): Tuple(typeOf(range), typeOf(range))
+[rtct] fun minMaxElementIf(range: Range, pred: AnyType): Tuple(typeOf(range), typeOf(range))
 {
     if ( range.isEmpty() )
         return range ~ range;
@@ -408,7 +408,7 @@ fun isSorted(range: AnyType, pred: AnyType): Bool
     return true;
 }
 
-fun[rtct] indexOf(range: Range, value: @AnyType): SizeType
+[rtct] fun indexOf(range: Range, value: @AnyType): SizeType
 {
     var n: SizeType = 0;
 
@@ -422,7 +422,7 @@ fun[rtct] indexOf(range: Range, value: @AnyType): SizeType
     return SizeType(DiffType(-1));
 }
 
-fun[rtct] indexOfIf(range: Range, pred: AnyType): SizeType
+[rtct] fun indexOfIf(range: Range, pred: AnyType): SizeType
 {
     var n: SizeType = 0;
 
@@ -454,8 +454,8 @@ fun foldRight(range: AnyType, function: AnyType, seed: @AnyType): -@typeOf(seed)
     return t;
 }
 
-//fun[rtct] copy(r1, r2: Range): typeOf(r2) if isValid(*r2 = *r1)
-fun[rtct] copy(r1, r2: Range): typeOf(r2) if isValid(r2.front() = r1.front())
+//[rtct] fun copy(r1, r2: Range): typeOf(r2) if isValid(*r2 = *r1)
+[rtct] fun copy(r1, r2: Range): typeOf(r2) if isValid(r2.front() = r1.front())
 {
     while ( (!!r1) && (!!r2) )
     {
@@ -465,7 +465,7 @@ fun[rtct] copy(r1, r2: Range): typeOf(r2) if isValid(r2.front() = r1.front())
     }
     return r2;
 }
-//fun[rtct] copy(range1: AnyType, range2: AnyType): typeOf(range2)
+//[rtct] fun copy(range1: AnyType, range2: AnyType): typeOf(range2)
 //{
 //    while ( !range1.isEmpty() && !range2.isEmpty() )
 //    {
@@ -513,7 +513,7 @@ fun reverse(range: AnyType)
     }
 }
 
-fun[rtct] merge(range1: AnyType, range2: AnyType, range3: AnyType): typeOf(range3)
+[rtct] fun merge(range1: AnyType, range2: AnyType, range3: AnyType): typeOf(range3)
 {
     while ( !range1.isEmpty() && !range2.isEmpty() )
     {
@@ -533,7 +533,7 @@ fun[rtct] merge(range1: AnyType, range2: AnyType, range3: AnyType): typeOf(range
     return copy(range2, copy(range1, range3));
 }
 
-fun[rtct] merge(range1: AnyType, range2: AnyType, range3: AnyType, pred: AnyType): typeOf(range3)
+[rtct] fun merge(range1: AnyType, range2: AnyType, range3: AnyType, pred: AnyType): typeOf(range3)
 {
     while ( !range1.isEmpty() && !range2.isEmpty() )
     {
@@ -553,13 +553,13 @@ fun[rtct] merge(range1: AnyType, range2: AnyType, range3: AnyType, pred: AnyType
     return copy(range2, copy(range1, range3));
 }
 
-fun[rtct] sort(range: AnyType)
+[rtct] fun sort(range: AnyType)
 {
     if ( !range.isEmpty() )
         quickSort(range, 0, rangeSize(range) - 1);
 }
 
-fun[rtct] mergeSort(range: AnyType)
+[rtct] fun mergeSort(range: AnyType)
 {
     if ( range.size() <= 1 )
         return;
@@ -578,13 +578,13 @@ fun[rtct] mergeSort(range: AnyType)
     copy(tmp.all(), range);
 }
 
-fun[rtct] sort(range: AnyType, pred: AnyType)
+[rtct] fun sort(range: AnyType, pred: AnyType)
 {
     if ( !range.isEmpty() )
         quickSort(range, 0, rangeSize(range) - 1, pred);
 }
 
-fun[rtct] quickSort(range: AnyType, m: SizeType, n: SizeType)
+[rtct] fun quickSort(range: AnyType, m: SizeType, n: SizeType)
 {
     if ( m >= n || n == SizeType(DiffType(-1)) )
         return;
@@ -611,7 +611,7 @@ fun[rtct] quickSort(range: AnyType, m: SizeType, n: SizeType)
     quickSort(range, j + 1, n);
 }
 
-fun[rtct] quickSort(range: AnyType, m: SizeType, n: SizeType, pred: AnyType)
+[rtct] fun quickSort(range: AnyType, m: SizeType, n: SizeType, pred: AnyType)
 {
     if ( m >= n || n == SizeType(DiffType(-1)) )
         return;
@@ -638,7 +638,7 @@ fun[rtct] quickSort(range: AnyType, m: SizeType, n: SizeType, pred: AnyType)
     quickSort(range, j + 1, n, pred);
 }
 
-fun[rtct] mergeSort(range: AnyType, pred: AnyType)
+[rtct] fun mergeSort(range: AnyType, pred: AnyType)
 {
     if ( range.size() <= 1 )
         return;

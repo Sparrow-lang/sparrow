@@ -8,7 +8,7 @@ fun a_::(x,y: Double) = 6;
 
 fun ..(x,y: Int) = x+y;
 
-fun[autoCt] ~(n: Int): Int = 0xffffffff - n;
+[autoCt] fun ~(n: Int): Int = 0xffffffff - n;
 
 fun +++(l,r: Int): Int
 {

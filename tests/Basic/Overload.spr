@@ -39,7 +39,7 @@ fun getShortRef(): Short@ { return ra; }
 fun getIntRef(): Int@ { return rb; }
 fun getDoubleRef(): Double@ { return rc; }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     f1(a);
     f1(b);

@@ -42,7 +42,7 @@ fun testRef(x: @AnyType) //if 0!=typeNumRef(typeOf(x))
     writeLn("ref");
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     var a = 'a';
     var b = 10;

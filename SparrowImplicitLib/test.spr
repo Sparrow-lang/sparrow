@@ -1,6 +1,6 @@
 import os = os;
 
-fun[rtct] assertTrue(val: Bool, message: StringRef = "") {
+[rtct] fun assertTrue(val: Bool, message: StringRef = "") {
     if ( !val ) {
         cout << "Assertion failure" << endl;
         if ( !message.isEmpty )
@@ -10,7 +10,7 @@ fun[rtct] assertTrue(val: Bool, message: StringRef = "") {
     }
 }
 
-fun[rtct] assertEq(val, expectedVal: AnyType, message: StringRef = "")
+[rtct] fun assertEq(val, expectedVal: AnyType, message: StringRef = "")
     if isValid(val == expectedVal)
 {
     if ( !(val == expectedVal) ) {
@@ -24,7 +24,7 @@ fun[rtct] assertEq(val, expectedVal: AnyType, message: StringRef = "")
     }
 }
 
-fun[rtct] assertNe(val1, val2: AnyType, message: StringRef = "")
+[rtct] fun assertNe(val1, val2: AnyType, message: StringRef = "")
     if isValid(val1 == val2)
 {
     if ( val1 == val2 ) {
@@ -38,7 +38,7 @@ fun[rtct] assertNe(val1, val2: AnyType, message: StringRef = "")
     }
 }
 
-fun[rtct] assertLt(val1, val2: AnyType, message: StringRef = "")
+[rtct] fun assertLt(val1, val2: AnyType, message: StringRef = "")
     if isValid(val1 < val2)
 {
     if ( !(val1 < val2) ) {
@@ -52,7 +52,7 @@ fun[rtct] assertLt(val1, val2: AnyType, message: StringRef = "")
     }
 }
 
-fun[rtct] assertLe(val1, val2: AnyType, message: StringRef = "")
+[rtct] fun assertLe(val1, val2: AnyType, message: StringRef = "")
     if isValid(val1 <= val2)
 {
     if ( !(val1 <= val2) ) {
@@ -66,7 +66,7 @@ fun[rtct] assertLe(val1, val2: AnyType, message: StringRef = "")
     }
 }
 
-fun[rtct] assertGt(val1, val2: AnyType, message: StringRef = "")
+[rtct] fun assertGt(val1, val2: AnyType, message: StringRef = "")
     if isValid(val1 > val2)
 {
     if ( !(val1 > val2) ) {
@@ -80,7 +80,7 @@ fun[rtct] assertGt(val1, val2: AnyType, message: StringRef = "")
     }
 }
 
-fun[rtct] assertGe(val1, val2: AnyType, message: StringRef = "")
+[rtct] fun assertGe(val1, val2: AnyType, message: StringRef = "")
     if isValid(val1 >= val2)
 {
     if ( !(val1 >= val2) ) {

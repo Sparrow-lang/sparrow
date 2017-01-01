@@ -29,7 +29,7 @@ class Array(t: Type, n: SizeType)
 }
 
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     writeLn(sizeOf(A));
 

@@ -13,7 +13,7 @@ import std.vector, std.algorithms, std.string;
  * @param cond      The condition we need to test
  * @param message   Optional message to be displayed if the check fails
  */
-fun[rtct, macro] assert(cond: AstNode, message: AstNode = AstNode()): AstNode
+[rtct, macro] fun assert(cond: AstNode, message: AstNode = AstNode()): AstNode
 {
     if ( !isValidAndTrue(DEBUG) )
         return mkNop(cond location);
@@ -30,17 +30,17 @@ fun[rtct, macro] assert(cond: AstNode, message: AstNode = AstNode()): AstNode
  * @param cond      The condition we need to test
  * @param message   Optional message to be displayed if the check fails
  */
-fun[rtct, macro] verify(cond: AstNode, message: AstNode = AstNode()): AstNode
+[rtct, macro] fun verify(cond: AstNode, message: AstNode = AstNode()): AstNode
 {
     if ( !isValidAndTrue(DEBUG) )
         return cond;
     return _assertMacroBody(cond, message);
 }
 
-fun[ct] _nodeCompare(l,r: AstNode) = (l location) < (r location);
+[ct] fun _nodeCompare(l,r: AstNode) = (l location) < (r location);
 
 /// Macro that creates the expansion of the assert/verify
-fun[ct] _assertMacroBody(cond, message: AstNode): AstNode {
+[ct] fun _assertMacroBody(cond, message: AstNode): AstNode {
     // Extract information about the assert condition
     var loc = cond location;
     var filename = loc.sourceCode filename;
@@ -123,12 +123,12 @@ fun[ct] _assertMacroBody(cond, message: AstNode): AstNode {
 }
 
 /// Adds a print statement node to the destination vector
-fun[ct] _addPrint(loc: Location, dest: @Vector(AstNode), toPrint: AstNode) {
+[ct] fun _addPrint(loc: Location, dest: @Vector(AstNode), toPrint: AstNode) {
     dest += mkInfixOp(loc, "<<", mkIdentifier(loc, "cout"), toPrint);
 }
 
 /// Extract all the variables from the given node
-fun[ct] _extractVars(node: AstNode, varsList: @Vector(AstNode)) {
+[ct] fun _extractVars(node: AstNode, varsList: @Vector(AstNode)) {
     var nk = node nodeKind;
     if ( nk == nkSparrowExpIdentifier ) {
         var exp = node explanation;

@@ -36,7 +36,7 @@ fun isPrime(n: Int): Bool
     return true;
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     fassert(isPrime(0));
     fassert(isPrime(1));

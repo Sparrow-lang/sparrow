@@ -8,7 +8,7 @@ package Impl
 
     using VoidType = typeOf(returnsVoid());
 
-    class[initCtor] FtorWrapper(ftorType: Type)
+    [initCtor] class FtorWrapper(ftorType: Type)
     {
         fun clone: @Int = reinterpretCast(@Int, new(ftorType, ftor));
         var ftor: ftorType;

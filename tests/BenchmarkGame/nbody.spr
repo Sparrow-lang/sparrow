@@ -129,9 +129,9 @@ class NBodySystem
     }
 }
 
-fun[native("printf")] printf(fmt: @Char, x: Double);
-fun[native("printf")] printf(fmt: @Char, x,y: Double);
-fun[native("printf")] printf(fmt: @Char, x,y,z,xx,yy,zz,a: Double);
+[native("printf")] fun printf(fmt: @Char, x: Double);
+[native("printf")] fun printf(fmt: @Char, x,y: Double);
+[native("printf")] fun printf(fmt: @Char, x,y,z,xx,yy,zz,a: Double);
 
 fun cstr(s: StringRef): @Char = s.cStr();
 

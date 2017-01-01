@@ -28,7 +28,7 @@ fun secantMethod(a, b, c, d, x1, x2, err: Double): Double
     return t;
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     writeLnDouble(secantMethod(0.0, 1.0, 0.0, -612.0, 10.0, 30.0, 0.001));
     writeLnDouble(secantMethod(1.0, 2.0, 3.0, 4.0, -10.0, 10.0, 0.00001));

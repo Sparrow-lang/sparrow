@@ -29,7 +29,7 @@ fun gcdSubtraction(a: Int, b: Int): Int
     return a;
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     writeLnInt(gcdDivision(60, 42));
     writeLnInt(gcdDivision(2346, 13556));

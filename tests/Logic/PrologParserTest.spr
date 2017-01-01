@@ -40,7 +40,7 @@ logic.compileProlog("
     ancestor(A, C) :- children(C, P), ancestor(A, P).
 ");
 
-var[ct] solarProlog = <{
+[ct] var solarProlog = <{
     orbits(mercury, sun).
     orbits(venus, sun).
     orbits(earth, sun).
@@ -54,7 +54,7 @@ var[ct] solarProlog = <{
     satellite(S) :- orbits(S, P), planet(P).
 }>;
 
-var[ct] parentsProlog = <{
+[ct] var parentsProlog = <{
     children(sam, mary).
     children(denise, mary).
     children(sam, frank).

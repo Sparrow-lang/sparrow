@@ -11,10 +11,10 @@ concept RangeTmp(x)
     && isValid(x.popFront())
     ;
 
-class[rtct] Array(valueType: Type)
+[rtct] class Array(valueType: Type)
 {
-    var[static] ValueType = valueType;
-    var[static] RangeType = ContiguousMemoryRange(valueType);
+    using ValueType = valueType;
+    using RangeType = ContiguousMemoryRange(valueType);
 
     fun ctor(other: @Array)
     {
@@ -75,11 +75,11 @@ class[rtct] Array(valueType: Type)
         }
     }
 
-    fun[rt] ctorFromCt(src: Array ct)
+    [rt] fun ctorFromCt(src: Array ct)
     {
-        var[ct] size = src size;
+        [ct] var size = src size;
         this ctor size;
-        for[ct] ( i = 0..size )
+        [ct] for ( i = 0..size )
             at(i) = src(i);
     }
 

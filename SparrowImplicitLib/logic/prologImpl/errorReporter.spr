@@ -4,7 +4,7 @@ import std.algorithms;
 import meta = meta.compilerCore;
 import os = os;
 
-class[rtct] ConsoleErrorReporter(sourceType: Type) if CharRange(#$sourceType)
+[rtct] class ConsoleErrorReporter(sourceType: Type) if CharRange(#$sourceType)
 {
     fun ctor(source: @sourceType)
     {
@@ -57,9 +57,9 @@ class[rtct] ConsoleErrorReporter(sourceType: Type) if CharRange(#$sourceType)
 
     var _source: sourceType;
 }
-fun[rtct] mkConsoleErrorReporter(source: @CharRange) = ConsoleErrorReporter(-@typeOf(source))(source);
+[rtct] fun mkConsoleErrorReporter(source: @CharRange) = ConsoleErrorReporter(-@typeOf(source))(source);
 
-class[ct] CompilerErrorReporter
+[ct] class CompilerErrorReporter
 {
     fun raiseError(loc: Location, message: StringRef)
     {

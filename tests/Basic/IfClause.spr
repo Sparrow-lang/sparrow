@@ -164,7 +164,7 @@ fun separ()
     writeLn('-');
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     var a: Pair(Int, Int);
     var b: Pair(Double, Double);

@@ -29,7 +29,7 @@ class Tracer {
     fun <<<(x: @AnyType)       { cout << x; }
 }
 
-class[initCtor] Depth {
+[initCtor] class Depth {
     var depth: Int;
 }
 

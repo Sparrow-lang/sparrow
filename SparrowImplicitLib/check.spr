@@ -9,7 +9,7 @@ class Gen(t: Type) {
     using ValueType = t;
 
     fun ctor {}
-    fun[convert] ctor(generator: @AnyType) {
+    [convert] fun ctor(generator: @AnyType) {
         this._generator ctor generator;
     }
 
@@ -36,7 +36,7 @@ fun arbitrary(t: Type): t Gen if Integer(#$t) {
 
 
 //! Configuration options for our check function
-class[initCtor] CheckConfig {
+[initCtor] class CheckConfig {
     var numTests, maxAttempts: UInt;
     var isVerbose: Bool;
     fun ctor { numTests = 100; maxAttempts = 5*numTests; isVerbose = false; }
@@ -191,16 +191,16 @@ fun randBetween(min, max: Integer): commonType(typeOf(min), typeOf(max)) {
 }
 
 package CheckImpl {
-    fun[rtct, native("rand")] rand(): UInt;
+    [rtct, native("rand")] fun rand(): UInt;
 
     class NumericGen(t: Type) if UnsignedInteger(#$t)
     {
-        fun[static] gen(sizeHint: UInt) = t(randBetween(0, 6 + sizeHint));
+        [static] fun gen(sizeHint: UInt) = t(randBetween(0, 6 + sizeHint));
     }
 
     class NumericGen(t: Type) if SignedInteger(#$t)
     {
-        fun[static] gen(sizeHint: UInt): t {
+        [static] fun gen(sizeHint: UInt): t {
             var h: Int = sizeHint + 3;
             return t(randBetween(-h, h+1));
         }
@@ -222,7 +222,7 @@ package CheckImpl {
         fun popFront                    { ++_count; }
     }
 
-    class[initCtor] ForAllRangeGenerator(rangeType: Type) {
+    [initCtor] class ForAllRangeGenerator(rangeType: Type) {
         using RetType = TestableValue(rangeType.RetType);
 
         var _range: rangeType;
@@ -264,7 +264,7 @@ package CheckImpl {
         }
     }
 
-    class[initCtor] TrivialsRange(rangeType, predType: Type) if typeOf((#$predType)((#$rangeType front).value)) == Bool
+    [initCtor] class TrivialsRange(rangeType, predType: Type) if typeOf((#$predType)((#$rangeType front).value)) == Bool
     {
         using RetType = -@rangeType.RetType;
 
@@ -281,7 +281,7 @@ package CheckImpl {
     }
 
 
-    class[initCtor] ClassifierRange(rangeType, predType: Type) if typeOf((#$predType)((#$rangeType front).value)) == String
+    [initCtor] class ClassifierRange(rangeType, predType: Type) if typeOf((#$predType)((#$rangeType front).value)) == String
     {
         using RetType = -@rangeType.RetType;
 

@@ -7,7 +7,7 @@ import meta = meta.compilerCore;
 
 using allowNativeCodeGen = true;
 
-class[ct] SparrowPrologSystem
+[ct] class SparrowPrologSystem
 {
     var predicates: Vector(SparrowPredicate);
     var loc: LLocation;
@@ -43,7 +43,7 @@ class[ct] SparrowPrologSystem
     }
 }
 
-class[ct] Parameter
+[ct] class Parameter
 {
     var expr: ExpressionPtr;
     var isRead, isInput, isOutput: Bool;
@@ -64,7 +64,7 @@ class[ct] Parameter
     }
 }
 
-class[ct] SparrowPredicate
+[ct] class SparrowPredicate
 {
     var name: String;
     var arity: UInt;

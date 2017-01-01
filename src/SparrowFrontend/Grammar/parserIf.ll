@@ -17266,7 +17266,7 @@ while_end:                                        ; preds = %if_end, %while_bloc
 
 if_block:                                         ; preds = %while_body
   %3 = load %Node* %child
-  %4 = call i1 @isSet371(%Node %3)
+  %4 = call i1 @isSet372(%Node %3)
   br i1 %4, label %if_then, label %if_end
 
 if_then:                                          ; preds = %if_block
@@ -17298,21 +17298,30 @@ define internal void @parseDecl(%Node* sret %_result, %"SparrowParser[SparrowSca
   %topLevel.addr = alloca i1
   store i1 %topLevel, i1* %topLevel.addr
   %res = alloca %Node
+  %loc = alloca %Location
+  %mods = alloca %Node
   %found = alloca i1
+  %"$tmpForRef" = alloca %Node
+  %"$tmpC" = alloca %Location
+  %"$tmpC40" = alloca %Location
   br label %code
 
 code:                                             ; preds = %0
   call void @ctor334(%Node* %res)
   %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %2 = call i1 @parseUsingDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %Node* %res)
-  br i1 %2, label %cond.true16, label %cond.false17
+  call void @curLoc(%Location* %loc, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1)
+  %2 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseModifiers(%Node* %mods, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %2)
+  %3 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %4 = call i1 @parseUsingDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %3, %Node* %res)
+  br i1 %4, label %cond.true16, label %cond.false17
 
 cond.true:                                        ; preds = %cond.end3
   br label %cond.end
 
 cond.false:                                       ; preds = %cond.end3
-  %3 = load i1* %topLevel.addr
-  br i1 %3, label %cond.true24, label %cond.false25
+  %5 = load i1* %topLevel.addr
+  br i1 %5, label %cond.true24, label %cond.false25
 
 cond.end:                                         ; preds = %cond.end26, %cond.true
   %cond.res28 = phi i1 [ true, %cond.true ], [ %cond.res27, %cond.end26 ]
@@ -17323,213 +17332,142 @@ cond.true1:                                       ; preds = %cond.end6
   br label %cond.end3
 
 cond.false2:                                      ; preds = %cond.end6
-  %4 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %5 = call i1 @parseFunDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %4, %Node* %res)
+  %6 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %7 = call i1 @parseFunDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %6, %Node* %res)
   br label %cond.end3
 
 cond.end3:                                        ; preds = %cond.false2, %cond.true1
-  %cond.res23 = phi i1 [ true, %cond.true1 ], [ %5, %cond.false2 ]
+  %cond.res23 = phi i1 [ true, %cond.true1 ], [ %7, %cond.false2 ]
   br i1 %cond.res23, label %cond.true, label %cond.false
 
 cond.true4:                                       ; preds = %cond.end9
   br label %cond.end6
 
 cond.false5:                                      ; preds = %cond.end9
-  %6 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %7 = call i1 @parseVarDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %6, %Node* %res)
+  %8 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %9 = call i1 @parseVarDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %8, %Node* %res)
   br label %cond.end6
 
 cond.end6:                                        ; preds = %cond.false5, %cond.true4
-  %cond.res22 = phi i1 [ true, %cond.true4 ], [ %7, %cond.false5 ]
+  %cond.res22 = phi i1 [ true, %cond.true4 ], [ %9, %cond.false5 ]
   br i1 %cond.res22, label %cond.true1, label %cond.false2
 
 cond.true7:                                       ; preds = %cond.end12
   br label %cond.end9
 
 cond.false8:                                      ; preds = %cond.end12
-  %8 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %9 = call i1 @parseConceptDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %8, %Node* %res)
+  %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %11 = call i1 @parseConceptDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, %Node* %res)
   br label %cond.end9
 
 cond.end9:                                        ; preds = %cond.false8, %cond.true7
-  %cond.res21 = phi i1 [ true, %cond.true7 ], [ %9, %cond.false8 ]
+  %cond.res21 = phi i1 [ true, %cond.true7 ], [ %11, %cond.false8 ]
   br i1 %cond.res21, label %cond.true4, label %cond.false5
 
 cond.true10:                                      ; preds = %cond.end15
   br label %cond.end12
 
 cond.false11:                                     ; preds = %cond.end15
-  %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %11 = call i1 @parseDatatypeDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, %Node* %res)
+  %12 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %13 = call i1 @parseDatatypeDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %12, %Node* %res)
   br label %cond.end12
 
 cond.end12:                                       ; preds = %cond.false11, %cond.true10
-  %cond.res20 = phi i1 [ true, %cond.true10 ], [ %11, %cond.false11 ]
+  %cond.res20 = phi i1 [ true, %cond.true10 ], [ %13, %cond.false11 ]
   br i1 %cond.res20, label %cond.true7, label %cond.false8
 
 cond.true13:                                      ; preds = %cond.end18
   br label %cond.end15
 
 cond.false14:                                     ; preds = %cond.end18
-  %12 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %13 = call i1 @parseClassDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %12, %Node* %res)
+  %14 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %15 = call i1 @parseClassDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %14, %Node* %res)
   br label %cond.end15
 
 cond.end15:                                       ; preds = %cond.false14, %cond.true13
-  %cond.res19 = phi i1 [ true, %cond.true13 ], [ %13, %cond.false14 ]
+  %cond.res19 = phi i1 [ true, %cond.true13 ], [ %15, %cond.false14 ]
   br i1 %cond.res19, label %cond.true10, label %cond.false11
 
 cond.true16:                                      ; preds = %code
   br label %cond.end18
 
 cond.false17:                                     ; preds = %code
-  %14 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %15 = call i1 @parsePackageDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %14, %Node* %res)
+  %16 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %17 = call i1 @parsePackageDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %16, %Node* %res)
   br label %cond.end18
 
 cond.end18:                                       ; preds = %cond.false17, %cond.true16
-  %cond.res = phi i1 [ true, %cond.true16 ], [ %15, %cond.false17 ]
+  %cond.res = phi i1 [ true, %cond.true16 ], [ %17, %cond.false17 ]
   br i1 %cond.res, label %cond.true13, label %cond.false14
 
 cond.true24:                                      ; preds = %cond.false
-  %16 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %17 = call i1 @parseImportLineOpt(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %16, %Node* %res)
+  %18 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %19 = call i1 @parseImportLineOpt(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %18, %Node* %res)
   br label %cond.end26
 
 cond.false25:                                     ; preds = %cond.false
   br label %cond.end26
 
 cond.end26:                                       ; preds = %cond.false25, %cond.true24
-  %cond.res27 = phi i1 [ %17, %cond.true24 ], [ false, %cond.false25 ]
+  %cond.res27 = phi i1 [ %19, %cond.true24 ], [ false, %cond.false25 ]
   br label %cond.end
 
 if_block:                                         ; preds = %cond.end
-  %18 = load i1* %found
-  %19 = xor i1 true, %18
-  br i1 %19, label %cond.true29, label %cond.false30
+  %20 = load i1* %found
+  %21 = xor i1 true, %20
+  br i1 %21, label %cond.true29, label %cond.false30
 
 if_then:                                          ; preds = %cond.end31
-  %20 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %21 = call i1 @parseIfTopLevel(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %20, %Node* %res)
-  br i1 %21, label %cond.true33, label %cond.false34
+  %22 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %23 = call i1 @parseIfTopLevel(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %22, %Node* %res)
+  br i1 %23, label %cond.true33, label %cond.false34
 
 if_end:                                           ; preds = %cond.end35, %cond.end31
-  %22 = load %Node** %_result.addr
-  call void @ctor329(%Node* %22, %Node* %res)
-  ret void
+  br label %if_block37
 
 cond.true29:                                      ; preds = %if_block
-  %23 = load i1* %topLevel.addr
+  %24 = load i1* %topLevel.addr
   br label %cond.end31
 
 cond.false30:                                     ; preds = %if_block
   br label %cond.end31
 
 cond.end31:                                       ; preds = %cond.false30, %cond.true29
-  %cond.res32 = phi i1 [ %23, %cond.true29 ], [ false, %cond.false30 ]
+  %cond.res32 = phi i1 [ %24, %cond.true29 ], [ false, %cond.false30 ]
   br i1 %cond.res32, label %if_then, label %if_end
 
 cond.true33:                                      ; preds = %if_then
   br label %cond.end35
 
 cond.false34:                                     ; preds = %if_then
-  %24 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %25 = call i1 @parseExprOpt(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %24, %Node* %res, i1 true)
+  %25 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %26 = call i1 @parseExprOpt(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %25, %Node* %res, i1 true)
   br label %cond.end35
 
 cond.end35:                                       ; preds = %cond.false34, %cond.true33
-  %cond.res36 = phi i1 [ true, %cond.true33 ], [ %25, %cond.false34 ]
+  %cond.res36 = phi i1 [ true, %cond.true33 ], [ %26, %cond.false34 ]
   store i1 %cond.res36, i1* %found
   br label %if_end
-}
 
-; Function Attrs: inlinehint nounwind
-define internal i1 @parseUsingDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %Node* %res) #3 {
-  %p.addr = alloca %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"*
-  store %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %res.addr = alloca %Node*
-  store %Node* %res, %Node** %res.addr
-  %tmp.v = alloca %TokenType
-  %loc = alloca %Location
-  %mods = alloca %Node
-  %id = alloca %String
-  %usingNode = alloca %Node
-  %"$tmpC" = alloca %Node
-  %"$tmpC4" = alloca %Node
-  %tmp.v5 = alloca %TokenType
-  %"$tmpForRef" = alloca %Node
-  %"$tmpC6" = alloca %StringRef
-  br label %code
+if_block37:                                       ; preds = %if_end
+  %27 = load i1* %found
+  br i1 %27, label %if_then38, label %if_end39
 
-code:                                             ; preds = %0
-  br label %if_block
+if_then38:                                        ; preds = %if_block37
+  %28 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @lastLoc(%Location* %"$tmpC40", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %28)
+  call void @span(%Location* %"$tmpC", %Location* %loc, %Location* %"$tmpC40")
+  %29 = load %Node* %res
+  %30 = load %Node* %mods
+  %31 = call %Node @comp_parser_mkModifiers(%Location* %"$tmpC", %Node %29, %Node %30)
+  store %Node %31, %Node* %"$tmpForRef"
+  call void @"=331"(%Node* %res, %Node* %"$tmpForRef")
+  br label %if_end39
 
-if_block:                                         ; preds = %code
-  %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v, i32 11)
-  %2 = load %TokenType* %tmp.v
-  %3 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
-  %4 = xor i1 true, %3
-  br i1 %4, label %if_then, label %if_end
-
-if_then:                                          ; preds = %if_block
-  ret i1 false
-
-if_end:                                           ; preds = %dumy_block, %if_block
-  %5 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %6 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %5, i32 0, i32 1
-  %7 = getelementptr inbounds %Token* %6, i32 0, i32 0
-  call void @ctor161(%Location* %loc, %Location* %7)
-  %8 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseModifiers(%Node* %mods, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %8)
-  %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseIdEqualOpt(%String* %id, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9)
-  call void @ctor334(%Node* %usingNode)
-  br label %if_block1
-
-dumy_block:                                       ; No predecessors!
-  br label %if_end
-
-if_block1:                                        ; preds = %if_end
-  %10 = call i1 @isEmpty280(%String* %id)
-  br i1 %10, label %if_then2, label %if_else
-
-if_then2:                                         ; preds = %if_block1
-  %11 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseQualifiedName(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %11, i1 true)
-  call void @"=331"(%Node* %usingNode, %Node* %"$tmpC")
-  br label %if_end3
-
-if_else:                                          ; preds = %if_block1
-  %12 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseExpr(%Node* %"$tmpC4", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %12, i1 true)
-  call void @"=331"(%Node* %usingNode, %Node* %"$tmpC4")
-  br label %if_end3
-
-if_end3:                                          ; preds = %if_else, %if_then2
-  %13 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %14 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %13, i32 0, i32 1
-  %15 = getelementptr inbounds %Token* %14, i32 0, i32 0
-  call void @copyEnd(%Location* %loc, %Location* %15)
-  %16 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v5, i32 36)
-  %17 = load %TokenType* %tmp.v5
-  %18 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %16, %TokenType %17)
-  %19 = load %Node** %res.addr
-  call void @asStringRef(%StringRef* %"$tmpC6", %String* %id)
-  %20 = load %StringRef* %"$tmpC6"
-  %21 = load %Node* %usingNode
-  %22 = call %Node @comp_parser_mkUsing(%Location* %loc, %StringRef %20, %Node %21)
-  %23 = load %Node* %mods
-  %24 = call %Node @comp_parser_mkModifiers(%Location* %loc, %Node %22, %Node %23)
-  store %Node %24, %Node* %"$tmpForRef"
-  call void @"=331"(%Node* %19, %Node* %"$tmpForRef")
-  call void @dtor159(%String* %id)
-  ret i1 true
-
-dumy_block7:                                      ; No predecessors!
-  call void @dtor159(%String* %id)
-  unreachable
+if_end39:                                         ; preds = %if_then38, %if_block37
+  %32 = load %Node** %_result.addr
+  call void @ctor329(%Node* %32, %Node* %res)
+  ret void
 }
 
 ; Function Attrs: inlinehint nounwind
@@ -18966,7 +18904,6 @@ define internal void @parseFormalsOpt(%Node* sret %_result, %"SparrowParser[Spar
   %const.bytes = alloca [8 x i8]
   %const.struct = alloca %StringRef
   %tmp.v12 = alloca %Node
-  %tmp.v13 = alloca %Node
   br label %code
 
 code:                                             ; preds = %0
@@ -19062,9 +18999,7 @@ if_then8:                                         ; preds = %if_block7
   call void @ctor334(%Node* %tmp.v12)
   %31 = load %Node* %tmp.v12
   %32 = load i1* %varFormals.addr
-  call void @ctor334(%Node* %tmp.v13)
-  %33 = load %Node* %tmp.v13
-  call void @createFormals(%"Vector[LocString]"* %ids, %Node %30, %Node %31, i1 %32, %Node %33, %Node* %res)
+  call void @createFormals(%"Vector[LocString]"* %ids, %Node %30, %Node %31, i1 %32, %Node* %res)
   call void @dtor364(%"Vector[LocString]"* %ids)
   br label %if_end9
 
@@ -19086,7 +19021,6 @@ define internal void @parseFormal(%"SparrowParser[SparrowScanner[CharSource, Ext
   %init = alloca %Node
   %tmp.v1 = alloca %TokenType
   %"$tmpC" = alloca %Node
-  %tmp.v2 = alloca %Node
   br label %code
 
 code:                                             ; preds = %0
@@ -19118,10 +19052,8 @@ if_end:                                           ; preds = %if_then, %if_block
   %10 = load %Node* %typeNode
   %11 = load %Node* %init
   %12 = load i1* %varFormals.addr
-  call void @ctor334(%Node* %tmp.v2)
-  %13 = load %Node* %tmp.v2
-  %14 = load %Node** %res.addr
-  call void @createFormals(%"Vector[LocString]"* %ids, %Node %10, %Node %11, i1 %12, %Node %13, %Node* %14)
+  %13 = load %Node** %res.addr
+  call void @createFormals(%"Vector[LocString]"* %ids, %Node %10, %Node %11, i1 %12, %Node* %13)
   call void @dtor364(%"Vector[LocString]"* %ids)
   ret void
 }
@@ -19951,7 +19883,7 @@ code:                                             ; preds = %0
 }
 
 ; Function Attrs: inlinehint nounwind
-define internal void @createFormals(%"Vector[LocString]"* %ids, %Node %typeNode, %Node %init, i1 %varFormals, %Node %mods, %Node* %res) #3 {
+define internal void @createFormals(%"Vector[LocString]"* %ids, %Node %typeNode, %Node %init, i1 %varFormals, %Node* %res) #3 {
   %ids.addr = alloca %"Vector[LocString]"*
   store %"Vector[LocString]"* %ids, %"Vector[LocString]"** %ids.addr
   %typeNode.addr = alloca %Node
@@ -19960,8 +19892,6 @@ define internal void @createFormals(%"Vector[LocString]"* %ids, %Node %typeNode,
   store %Node %init, %Node* %init.addr
   %varFormals.addr = alloca i1
   store i1 %varFormals, i1* %varFormals.addr
-  %mods.addr = alloca %Node
-  store %Node %mods, %Node* %mods.addr
   %res.addr = alloca %Node*
   store %Node* %res, %Node** %res.addr
   %"$rangeVar" = alloca %"ContiguousMemoryRange[LocString]"
@@ -19969,15 +19899,13 @@ define internal void @createFormals(%"Vector[LocString]"* %ids, %Node %typeNode,
   %v = alloca %Node
   %"$tmpForRef" = alloca %Node
   %"$tmpC" = alloca %StringRef
-  %"$tmpForRef4" = alloca %Node
-  %"$tmpForRef5" = alloca %Node
-  %"$rangeVar6" = alloca %"ContiguousMemoryRange[LocString]"
-  %id11 = alloca %LocString*
+  %"$tmpForRef1" = alloca %Node
+  %"$rangeVar2" = alloca %"ContiguousMemoryRange[LocString]"
+  %id7 = alloca %LocString*
   %p = alloca %Node
-  %"$tmpForRef12" = alloca %Node
-  %"$tmpC13" = alloca %StringRef
-  %"$tmpForRef17" = alloca %Node
-  %"$tmpForRef18" = alloca %Node
+  %"$tmpForRef8" = alloca %Node
+  %"$tmpC9" = alloca %StringRef
+  %"$tmpForRef10" = alloca %Node
   br label %code
 
 code:                                             ; preds = %0
@@ -19994,10 +19922,10 @@ if_then:                                          ; preds = %if_block
 
 if_else:                                          ; preds = %if_block
   %3 = load %"Vector[LocString]"** %ids.addr
-  call void @all367(%"ContiguousMemoryRange[LocString]"* %"$rangeVar6", %"Vector[LocString]"* %3)
-  br label %while_block7
+  call void @all367(%"ContiguousMemoryRange[LocString]"* %"$rangeVar2", %"Vector[LocString]"* %3)
+  br label %while_block3
 
-if_end:                                           ; preds = %while_end10, %while_end
+if_end:                                           ; preds = %while_end6, %while_end
   ret void
 
 while_block:                                      ; preds = %while_step, %if_then
@@ -20021,96 +19949,58 @@ while_body:                                       ; preds = %while_block
   %16 = call %Node @comp_parser_mkVar(%Location* %9, %StringRef %13, %Node %14, %Node %15)
   store %Node %16, %Node* %"$tmpForRef"
   call void @ctor329(%Node* %v, %Node* %"$tmpForRef")
-  br label %if_block1
+  %17 = load %Node** %res.addr
+  %18 = load %Node** %res.addr
+  %19 = load %Node* %18
+  %20 = load %Node* %v
+  %21 = call %Node @comp_parser_addToNodeList(%Node %19, %Node %20)
+  store %Node %21, %Node* %"$tmpForRef1"
+  call void @"=331"(%Node* %17, %Node* %"$tmpForRef1")
+  br label %while_step
 
-while_step:                                       ; preds = %if_end3
-  call void @popFront372(%"ContiguousMemoryRange[LocString]"* %"$rangeVar")
+while_step:                                       ; preds = %while_body
+  call void @popFront371(%"ContiguousMemoryRange[LocString]"* %"$rangeVar")
   br label %while_block
 
 while_end:                                        ; preds = %while_block
   br label %if_end
 
-if_block1:                                        ; preds = %while_body
-  %17 = load %Node* %mods.addr
-  %18 = call i1 @isSet371(%Node %17)
-  br i1 %18, label %if_then2, label %if_end3
+while_block3:                                     ; preds = %while_step5, %if_else
+  %22 = call i1 @isEmpty369(%"ContiguousMemoryRange[LocString]"* %"$rangeVar2")
+  %23 = xor i1 true, %22
+  br i1 %23, label %while_body4, label %while_end6
 
-if_then2:                                         ; preds = %if_block1
-  %19 = load %LocString** %id
-  %20 = getelementptr inbounds %LocString* %19, i32 0, i32 0
-  %21 = getelementptr inbounds %"Tuple[Location/rtct, String/rtct]"* %20, i32 0, i32 0
-  %22 = load %Node* %v
-  %23 = load %Node* %mods.addr
-  %24 = call %Node @comp_parser_mkModifiers(%Location* %21, %Node %22, %Node %23)
-  store %Node %24, %Node* %"$tmpForRef4"
-  call void @"=331"(%Node* %v, %Node* %"$tmpForRef4")
-  br label %if_end3
+while_body4:                                      ; preds = %while_block3
+  %24 = call %LocString* @front370(%"ContiguousMemoryRange[LocString]"* %"$rangeVar2")
+  store %LocString* %24, %LocString** %id7
+  %25 = load %LocString** %id7
+  %26 = getelementptr inbounds %LocString* %25, i32 0, i32 0
+  %27 = getelementptr inbounds %"Tuple[Location/rtct, String/rtct]"* %26, i32 0, i32 0
+  %28 = load %LocString** %id7
+  %29 = getelementptr inbounds %LocString* %28, i32 0, i32 0
+  %30 = getelementptr inbounds %"Tuple[Location/rtct, String/rtct]"* %29, i32 0, i32 1
+  call void @asStringRef(%StringRef* %"$tmpC9", %String* %30)
+  %31 = load %StringRef* %"$tmpC9"
+  %32 = load %Node* %typeNode.addr
+  %33 = load %Node* %init.addr
+  %34 = call %Node @comp_parser_mkParameter(%Location* %27, %StringRef %31, %Node %32, %Node %33)
+  store %Node %34, %Node* %"$tmpForRef8"
+  call void @ctor329(%Node* %p, %Node* %"$tmpForRef8")
+  %35 = load %Node** %res.addr
+  %36 = load %Node** %res.addr
+  %37 = load %Node* %36
+  %38 = load %Node* %p
+  %39 = call %Node @comp_parser_addToNodeList(%Node %37, %Node %38)
+  store %Node %39, %Node* %"$tmpForRef10"
+  call void @"=331"(%Node* %35, %Node* %"$tmpForRef10")
+  br label %while_step5
 
-if_end3:                                          ; preds = %if_then2, %if_block1
-  %25 = load %Node** %res.addr
-  %26 = load %Node** %res.addr
-  %27 = load %Node* %26
-  %28 = load %Node* %v
-  %29 = call %Node @comp_parser_addToNodeList(%Node %27, %Node %28)
-  store %Node %29, %Node* %"$tmpForRef5"
-  call void @"=331"(%Node* %25, %Node* %"$tmpForRef5")
-  br label %while_step
+while_step5:                                      ; preds = %while_body4
+  call void @popFront371(%"ContiguousMemoryRange[LocString]"* %"$rangeVar2")
+  br label %while_block3
 
-while_block7:                                     ; preds = %while_step9, %if_else
-  %30 = call i1 @isEmpty369(%"ContiguousMemoryRange[LocString]"* %"$rangeVar6")
-  %31 = xor i1 true, %30
-  br i1 %31, label %while_body8, label %while_end10
-
-while_body8:                                      ; preds = %while_block7
-  %32 = call %LocString* @front370(%"ContiguousMemoryRange[LocString]"* %"$rangeVar6")
-  store %LocString* %32, %LocString** %id11
-  %33 = load %LocString** %id11
-  %34 = getelementptr inbounds %LocString* %33, i32 0, i32 0
-  %35 = getelementptr inbounds %"Tuple[Location/rtct, String/rtct]"* %34, i32 0, i32 0
-  %36 = load %LocString** %id11
-  %37 = getelementptr inbounds %LocString* %36, i32 0, i32 0
-  %38 = getelementptr inbounds %"Tuple[Location/rtct, String/rtct]"* %37, i32 0, i32 1
-  call void @asStringRef(%StringRef* %"$tmpC13", %String* %38)
-  %39 = load %StringRef* %"$tmpC13"
-  %40 = load %Node* %typeNode.addr
-  %41 = load %Node* %init.addr
-  %42 = call %Node @comp_parser_mkParameter(%Location* %35, %StringRef %39, %Node %40, %Node %41)
-  store %Node %42, %Node* %"$tmpForRef12"
-  call void @ctor329(%Node* %p, %Node* %"$tmpForRef12")
-  br label %if_block14
-
-while_step9:                                      ; preds = %if_end16
-  call void @popFront372(%"ContiguousMemoryRange[LocString]"* %"$rangeVar6")
-  br label %while_block7
-
-while_end10:                                      ; preds = %while_block7
+while_end6:                                       ; preds = %while_block3
   br label %if_end
-
-if_block14:                                       ; preds = %while_body8
-  %43 = load %Node* %mods.addr
-  %44 = call i1 @isSet371(%Node %43)
-  br i1 %44, label %if_then15, label %if_end16
-
-if_then15:                                        ; preds = %if_block14
-  %45 = load %LocString** %id11
-  %46 = getelementptr inbounds %LocString* %45, i32 0, i32 0
-  %47 = getelementptr inbounds %"Tuple[Location/rtct, String/rtct]"* %46, i32 0, i32 0
-  %48 = load %Node* %p
-  %49 = load %Node* %mods.addr
-  %50 = call %Node @comp_parser_mkModifiers(%Location* %47, %Node %48, %Node %49)
-  store %Node %50, %Node* %"$tmpForRef17"
-  call void @"=331"(%Node* %p, %Node* %"$tmpForRef17")
-  br label %if_end16
-
-if_end16:                                         ; preds = %if_then15, %if_block14
-  %51 = load %Node** %res.addr
-  %52 = load %Node** %res.addr
-  %53 = load %Node* %52
-  %54 = load %Node* %p
-  %55 = call %Node @comp_parser_addToNodeList(%Node %53, %Node %54)
-  store %Node %55, %Node* %"$tmpForRef18"
-  call void @"=331"(%Node* %51, %Node* %"$tmpForRef18")
-  br label %while_step9
 }
 
 ; Function Attrs: alwaysinline nounwind
@@ -20186,23 +20076,7 @@ code:                                             ; preds = %0
 declare %Node @comp_parser_mkVar(%Location*, %StringRef, %Node, %Node)
 
 ; Function Attrs: alwaysinline nounwind
-define internal i1 @isSet371(%Node %n) #2 {
-  %n.addr = alloca %Node
-  store %Node %n, %Node* %n.addr
-  br label %code
-
-code:                                             ; preds = %0
-  %1 = getelementptr inbounds %Node* %n.addr, i32 0, i32 0
-  %2 = getelementptr inbounds %UntypedPtr* %1, i32 0, i32 0
-  %3 = load i8** %2
-  %4 = call i1 @_opRefNE(i8* %3, i8* null)
-  ret i1 %4
-}
-
-declare %Node @comp_parser_mkModifiers(%Location*, %Node, %Node)
-
-; Function Attrs: alwaysinline nounwind
-define internal void @popFront372(%"ContiguousMemoryRange[LocString]"* %"$this") #2 {
+define internal void @popFront371(%"ContiguousMemoryRange[LocString]"* %"$this") #2 {
   %"$this.addr" = alloca %"ContiguousMemoryRange[LocString]"*
   store %"ContiguousMemoryRange[LocString]"* %"$this", %"ContiguousMemoryRange[LocString]"** %"$this.addr"
   %"$tmpC" = alloca %"RawPtr[LocString]"
@@ -20375,6 +20249,8 @@ define internal void @parseStatement(%Node* sret %_result, %"SparrowParser[Sparr
   %p.addr = alloca %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"*
   store %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   %res = alloca %Node
+  %loc = alloca %Location
+  %mods = alloca %Node
   %tmp.v = alloca %TokenType
   %tmp.v4 = alloca %TokenType
   %"$tmpC" = alloca %Node
@@ -20392,37 +20268,42 @@ define internal void @parseStatement(%Node* sret %_result, %"SparrowParser[Sparr
   %"$tmpC40" = alloca %Node
   %"$tmpC44" = alloca %Node
   %tmp.v45 = alloca %TokenType
+  %"$tmpForRef" = alloca %Node
+  %"$tmpC49" = alloca %Location
+  %"$tmpC50" = alloca %Location
   br label %code
 
 code:                                             ; preds = %0
   call void @ctor334(%Node* %res)
+  %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @curLoc(%Location* %loc, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1)
+  %2 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseModifiers(%Node* %mods, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %2)
   br label %if_block
 
 if_block:                                         ; preds = %code
-  %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %3 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v, i32 36)
-  %2 = load %TokenType* %tmp.v
-  %3 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
-  br i1 %3, label %if_end, label %if_else
+  %4 = load %TokenType* %tmp.v
+  %5 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %3, %TokenType %4)
+  br i1 %5, label %if_end, label %if_else
 
 if_else:                                          ; preds = %if_block
   br label %if_block1
 
 if_end:                                           ; preds = %if_end3, %if_block
-  %4 = load %Node** %_result.addr
-  call void @ctor329(%Node* %4, %Node* %res)
-  ret void
+  br label %if_block46
 
 if_block1:                                        ; preds = %if_else
-  %5 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %6 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v4, i32 29)
-  %6 = load %TokenType* %tmp.v4
-  %7 = call i1 @nextIs(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %5, %TokenType %6)
-  br i1 %7, label %if_then, label %if_else2
+  %7 = load %TokenType* %tmp.v4
+  %8 = call i1 @nextIs(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %6, %TokenType %7)
+  br i1 %8, label %if_then, label %if_else2
 
 if_then:                                          ; preds = %if_block1
-  %8 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseBlockStmt(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %8)
+  %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseBlockStmt(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9)
   call void @"=331"(%Node* %res, %Node* %"$tmpC")
   br label %if_end3
 
@@ -20433,15 +20314,15 @@ if_end3:                                          ; preds = %if_end8, %if_then
   br label %if_end
 
 if_block5:                                        ; preds = %if_else2
-  %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v9, i32 18)
-  %10 = load %TokenType* %tmp.v9
-  %11 = call i1 @nextIs(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9, %TokenType %10)
-  br i1 %11, label %if_then6, label %if_else7
+  %11 = load %TokenType* %tmp.v9
+  %12 = call i1 @nextIs(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, %TokenType %11)
+  br i1 %12, label %if_then6, label %if_else7
 
 if_then6:                                         ; preds = %if_block5
-  %12 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseIfStmt(%Node* %"$tmpC10", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %12)
+  %13 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseIfStmt(%Node* %"$tmpC10", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %13)
   call void @"=331"(%Node* %res, %Node* %"$tmpC10")
   br label %if_end8
 
@@ -20452,15 +20333,15 @@ if_end8:                                          ; preds = %if_end14, %if_then6
   br label %if_end3
 
 if_block11:                                       ; preds = %if_else7
-  %13 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %14 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v15, i32 17)
-  %14 = load %TokenType* %tmp.v15
-  %15 = call i1 @nextIs(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %13, %TokenType %14)
-  br i1 %15, label %if_then12, label %if_else13
+  %15 = load %TokenType* %tmp.v15
+  %16 = call i1 @nextIs(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %14, %TokenType %15)
+  br i1 %16, label %if_then12, label %if_else13
 
 if_then12:                                        ; preds = %if_block11
-  %16 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseForStmt(%Node* %"$tmpC16", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %16)
+  %17 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseForStmt(%Node* %"$tmpC16", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %17)
   call void @"=331"(%Node* %res, %Node* %"$tmpC16")
   br label %if_end14
 
@@ -20471,15 +20352,15 @@ if_end14:                                         ; preds = %if_end20, %if_then1
   br label %if_end8
 
 if_block17:                                       ; preds = %if_else13
-  %17 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %18 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v21, i32 22)
-  %18 = load %TokenType* %tmp.v21
-  %19 = call i1 @nextIs(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %17, %TokenType %18)
-  br i1 %19, label %if_then18, label %if_else19
+  %19 = load %TokenType* %tmp.v21
+  %20 = call i1 @nextIs(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %18, %TokenType %19)
+  br i1 %20, label %if_then18, label %if_else19
 
 if_then18:                                        ; preds = %if_block17
-  %20 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseWhileStmt(%Node* %"$tmpC22", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %20)
+  %21 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseWhileStmt(%Node* %"$tmpC22", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %21)
   call void @"=331"(%Node* %res, %Node* %"$tmpC22")
   br label %if_end20
 
@@ -20490,15 +20371,15 @@ if_end20:                                         ; preds = %if_end26, %if_then1
   br label %if_end14
 
 if_block23:                                       ; preds = %if_else19
-  %21 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %22 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v27, i32 13)
-  %22 = load %TokenType* %tmp.v27
-  %23 = call i1 @nextIs(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %21, %TokenType %22)
-  br i1 %23, label %if_then24, label %if_else25
+  %23 = load %TokenType* %tmp.v27
+  %24 = call i1 @nextIs(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %22, %TokenType %23)
+  br i1 %24, label %if_then24, label %if_else25
 
 if_then24:                                        ; preds = %if_block23
-  %24 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseBreakStmt(%Node* %"$tmpC28", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %24)
+  %25 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseBreakStmt(%Node* %"$tmpC28", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %25)
   call void @"=331"(%Node* %res, %Node* %"$tmpC28")
   br label %if_end26
 
@@ -20509,15 +20390,15 @@ if_end26:                                         ; preds = %if_end32, %if_then2
   br label %if_end20
 
 if_block29:                                       ; preds = %if_else25
-  %25 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %26 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v33, i32 15)
-  %26 = load %TokenType* %tmp.v33
-  %27 = call i1 @nextIs(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %25, %TokenType %26)
-  br i1 %27, label %if_then30, label %if_else31
+  %27 = load %TokenType* %tmp.v33
+  %28 = call i1 @nextIs(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %26, %TokenType %27)
+  br i1 %28, label %if_then30, label %if_else31
 
 if_then30:                                        ; preds = %if_block29
-  %28 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseContinueStmt(%Node* %"$tmpC34", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %28)
+  %29 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseContinueStmt(%Node* %"$tmpC34", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %29)
   call void @"=331"(%Node* %res, %Node* %"$tmpC34")
   br label %if_end32
 
@@ -20528,15 +20409,15 @@ if_end32:                                         ; preds = %if_end38, %if_then3
   br label %if_end26
 
 if_block35:                                       ; preds = %if_else31
-  %29 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %30 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v39, i32 19)
-  %30 = load %TokenType* %tmp.v39
-  %31 = call i1 @nextIs(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %29, %TokenType %30)
-  br i1 %31, label %if_then36, label %if_else37
+  %31 = load %TokenType* %tmp.v39
+  %32 = call i1 @nextIs(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %30, %TokenType %31)
+  br i1 %32, label %if_then36, label %if_else37
 
 if_then36:                                        ; preds = %if_block35
-  %32 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseReturnStmt(%Node* %"$tmpC40", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %32)
+  %33 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseReturnStmt(%Node* %"$tmpC40", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %33)
   call void @"=331"(%Node* %res, %Node* %"$tmpC40")
   br label %if_end38
 
@@ -20547,22 +20428,43 @@ if_end38:                                         ; preds = %if_end43, %if_then3
   br label %if_end32
 
 if_block41:                                       ; preds = %if_else37
-  %33 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %34 = call i1 @parseFunLevelDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %33, %Node* %res)
-  br i1 %34, label %if_end43, label %if_else42
+  %34 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %35 = call i1 @parseFunLevelDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %34, %Node* %res)
+  br i1 %35, label %if_end43, label %if_else42
 
 if_else42:                                        ; preds = %if_block41
-  %35 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseExpr(%Node* %"$tmpC44", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %35, i1 true)
-  call void @"=331"(%Node* %res, %Node* %"$tmpC44")
   %36 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseExpr(%Node* %"$tmpC44", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %36, i1 true)
+  call void @"=331"(%Node* %res, %Node* %"$tmpC44")
+  %37 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v45, i32 36)
-  %37 = load %TokenType* %tmp.v45
-  %38 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %36, %TokenType %37)
+  %38 = load %TokenType* %tmp.v45
+  %39 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %37, %TokenType %38)
   br label %if_end43
 
 if_end43:                                         ; preds = %if_else42, %if_block41
   br label %if_end38
+
+if_block46:                                       ; preds = %if_end
+  %40 = load %Node* %res
+  %41 = call i1 @isSet372(%Node %40)
+  br i1 %41, label %if_then47, label %if_end48
+
+if_then47:                                        ; preds = %if_block46
+  %42 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @lastLoc(%Location* %"$tmpC50", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %42)
+  call void @span(%Location* %"$tmpC49", %Location* %loc, %Location* %"$tmpC50")
+  %43 = load %Node* %res
+  %44 = load %Node* %mods
+  %45 = call %Node @comp_parser_mkModifiers(%Location* %"$tmpC49", %Node %43, %Node %44)
+  store %Node %45, %Node* %"$tmpForRef"
+  call void @"=331"(%Node* %res, %Node* %"$tmpForRef")
+  br label %if_end48
+
+if_end48:                                         ; preds = %if_then47, %if_block46
+  %46 = load %Node** %_result.addr
+  call void @ctor329(%Node* %46, %Node* %res)
+  ret void
 }
 
 ; Function Attrs: inlinehint nounwind
@@ -20573,7 +20475,6 @@ define internal void @parseIfStmt(%Node* sret %_result, %"SparrowParser[SparrowS
   store %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   %loc = alloca %Location
   %tmp.v = alloca %TokenType
-  %mods = alloca %Node
   %tmp.v1 = alloca %TokenType
   %expr = alloca %Node
   %tmp.v2 = alloca %TokenType
@@ -20592,49 +20493,45 @@ code:                                             ; preds = %0
   %3 = load %TokenType* %tmp.v
   %4 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %2, %TokenType %3)
   %5 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseModifiers(%Node* %mods, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %5)
-  %6 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v1, i32 33)
-  %7 = load %TokenType* %tmp.v1
-  %8 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %6, %TokenType %7)
+  %6 = load %TokenType* %tmp.v1
+  %7 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %5, %TokenType %6)
+  %8 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseExpr(%Node* %expr, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %8, i1 true)
   %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseExpr(%Node* %expr, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9, i1 true)
-  %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v2, i32 34)
-  %11 = load %TokenType* %tmp.v2
-  %12 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, %TokenType %11)
-  %13 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseStatement(%Node* %thenClause, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %13)
+  %10 = load %TokenType* %tmp.v2
+  %11 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9, %TokenType %10)
+  %12 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseStatement(%Node* %thenClause, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %12)
   call void @ctor334(%Node* %elseClause)
   br label %if_block
 
 if_block:                                         ; preds = %code
-  %14 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %13 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v3, i32 28)
-  %15 = load %TokenType* %tmp.v3
-  %16 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %14, %TokenType %15)
-  br i1 %16, label %if_then, label %if_end
+  %14 = load %TokenType* %tmp.v3
+  %15 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %13, %TokenType %14)
+  br i1 %15, label %if_then, label %if_end
 
 if_then:                                          ; preds = %if_block
-  %17 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseStatement(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %17)
+  %16 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseStatement(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %16)
   call void @"=331"(%Node* %elseClause, %Node* %"$tmpC")
   br label %if_end
 
 if_end:                                           ; preds = %if_then, %if_block
-  %18 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %19 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %18, i32 0, i32 1
-  %20 = getelementptr inbounds %Token* %19, i32 0, i32 0
-  call void @copyEnd(%Location* %loc, %Location* %20)
-  %21 = load %Node** %_result.addr
-  %22 = load %Node* %expr
-  %23 = load %Node* %thenClause
-  %24 = load %Node* %elseClause
-  %25 = call %Node @comp_parser_mkIfStmt(%Location* %loc, %Node %22, %Node %23, %Node %24)
-  %26 = load %Node* %mods
-  %27 = call %Node @comp_parser_mkModifiers(%Location* %loc, %Node %25, %Node %26)
-  store %Node %27, %Node* %"$tmpForRef"
-  call void @ctor329(%Node* %21, %Node* %"$tmpForRef")
+  %17 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %18 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %17, i32 0, i32 1
+  %19 = getelementptr inbounds %Token* %18, i32 0, i32 0
+  call void @copyEnd(%Location* %loc, %Location* %19)
+  %20 = load %Node** %_result.addr
+  %21 = load %Node* %expr
+  %22 = load %Node* %thenClause
+  %23 = load %Node* %elseClause
+  %24 = call %Node @comp_parser_mkIfStmt(%Location* %loc, %Node %21, %Node %22, %Node %23)
+  store %Node %24, %Node* %"$tmpForRef"
+  call void @ctor329(%Node* %20, %Node* %"$tmpForRef")
   ret void
 }
 
@@ -20648,7 +20545,6 @@ define internal void @parseForStmt(%Node* sret %_result, %"SparrowParser[Sparrow
   store %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   %loc = alloca %Location
   %tmp.v = alloca %TokenType
-  %mods = alloca %Node
   %tmp.v1 = alloca %TokenType
   %id = alloca %String
   %typeNode = alloca %Node
@@ -20670,57 +20566,53 @@ code:                                             ; preds = %0
   %3 = load %TokenType* %tmp.v
   %4 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %2, %TokenType %3)
   %5 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseModifiers(%Node* %mods, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %5)
-  %6 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v1, i32 33)
-  %7 = load %TokenType* %tmp.v1
-  %8 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %6, %TokenType %7)
-  %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseId(%String* %id, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9)
+  %6 = load %TokenType* %tmp.v1
+  %7 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %5, %TokenType %6)
+  %8 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseId(%String* %id, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %8)
   call void @ctor334(%Node* %typeNode)
   br label %if_block
 
 if_block:                                         ; preds = %code
-  %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v2, i32 35)
-  %11 = load %TokenType* %tmp.v2
-  %12 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, %TokenType %11)
-  br i1 %12, label %if_then, label %if_end
+  %10 = load %TokenType* %tmp.v2
+  %11 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9, %TokenType %10)
+  br i1 %11, label %if_then, label %if_end
 
 if_then:                                          ; preds = %if_block
-  %13 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseExpr(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %13, i1 false)
+  %12 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseExpr(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %12, i1 false)
   call void @"=331"(%Node* %typeNode, %Node* %"$tmpC")
   br label %if_end
 
 if_end:                                           ; preds = %if_then, %if_block
-  %14 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %13 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v3, i32 40)
-  %15 = load %TokenType* %tmp.v3
-  %16 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %14, %TokenType %15)
+  %14 = load %TokenType* %tmp.v3
+  %15 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %13, %TokenType %14)
+  %16 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseExpr(%Node* %range, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %16, i1 true)
   %17 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseExpr(%Node* %range, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %17, i1 true)
-  %18 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v4, i32 34)
-  %19 = load %TokenType* %tmp.v4
-  %20 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %18, %TokenType %19)
+  %18 = load %TokenType* %tmp.v4
+  %19 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %17, %TokenType %18)
+  %20 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseStatement(%Node* %action, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %20)
   %21 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseStatement(%Node* %action, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %21)
-  %22 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %23 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %22, i32 0, i32 1
-  %24 = getelementptr inbounds %Token* %23, i32 0, i32 0
-  call void @copyEnd(%Location* %loc, %Location* %24)
-  %25 = load %Node** %_result.addr
+  %22 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %21, i32 0, i32 1
+  %23 = getelementptr inbounds %Token* %22, i32 0, i32 0
+  call void @copyEnd(%Location* %loc, %Location* %23)
+  %24 = load %Node** %_result.addr
   call void @asStringRef(%StringRef* %"$tmpC5", %String* %id)
-  %26 = load %StringRef* %"$tmpC5"
-  %27 = load %Node* %typeNode
-  %28 = load %Node* %range
-  %29 = load %Node* %action
-  %30 = call %Node @comp_parser_mkForStmt(%Location* %loc, %StringRef %26, %Node %27, %Node %28, %Node %29)
-  %31 = load %Node* %mods
-  %32 = call %Node @comp_parser_mkModifiers(%Location* %loc, %Node %30, %Node %31)
-  store %Node %32, %Node* %"$tmpForRef"
-  call void @ctor329(%Node* %25, %Node* %"$tmpForRef")
+  %25 = load %StringRef* %"$tmpC5"
+  %26 = load %Node* %typeNode
+  %27 = load %Node* %range
+  %28 = load %Node* %action
+  %29 = call %Node @comp_parser_mkForStmt(%Location* %loc, %StringRef %25, %Node %26, %Node %27, %Node %28)
+  store %Node %29, %Node* %"$tmpForRef"
+  call void @ctor329(%Node* %24, %Node* %"$tmpForRef")
   call void @dtor159(%String* %id)
   ret void
 
@@ -20739,7 +20631,6 @@ define internal void @parseWhileStmt(%Node* sret %_result, %"SparrowParser[Sparr
   store %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   %loc = alloca %Location
   %tmp.v = alloca %TokenType
-  %mods = alloca %Node
   %tmp.v1 = alloca %TokenType
   %expr = alloca %Node
   %stepAction = alloca %Node
@@ -20758,57 +20649,53 @@ code:                                             ; preds = %0
   %3 = load %TokenType* %tmp.v
   %4 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %2, %TokenType %3)
   %5 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseModifiers(%Node* %mods, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %5)
-  %6 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v1, i32 33)
-  %7 = load %TokenType* %tmp.v1
-  %8 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %6, %TokenType %7)
-  %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseExpr(%Node* %expr, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9, i1 true)
+  %6 = load %TokenType* %tmp.v1
+  %7 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %5, %TokenType %6)
+  %8 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseExpr(%Node* %expr, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %8, i1 true)
   call void @ctor334(%Node* %stepAction)
   br label %if_block
 
 if_block:                                         ; preds = %code
-  %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v2, i32 36)
-  %11 = load %TokenType* %tmp.v2
-  %12 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, %TokenType %11)
-  br i1 %12, label %if_then, label %if_end
+  %10 = load %TokenType* %tmp.v2
+  %11 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9, %TokenType %10)
+  br i1 %11, label %if_then, label %if_end
 
 if_then:                                          ; preds = %if_block
   br label %if_block3
 
 if_end:                                           ; preds = %if_end5, %if_block
-  %13 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %12 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v6, i32 34)
-  %14 = load %TokenType* %tmp.v6
-  %15 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %13, %TokenType %14)
+  %13 = load %TokenType* %tmp.v6
+  %14 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %12, %TokenType %13)
+  %15 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseStatement(%Node* %body, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %15)
   %16 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseStatement(%Node* %body, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %16)
-  %17 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %18 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %17, i32 0, i32 1
-  %19 = getelementptr inbounds %Token* %18, i32 0, i32 0
-  call void @copyEnd(%Location* %loc, %Location* %19)
-  %20 = load %Node** %_result.addr
-  %21 = load %Node* %expr
-  %22 = load %Node* %stepAction
-  %23 = load %Node* %body
-  %24 = call %Node @comp_parser_mkWhileStmt(%Location* %loc, %Node %21, %Node %22, %Node %23)
-  %25 = load %Node* %mods
-  %26 = call %Node @comp_parser_mkModifiers(%Location* %loc, %Node %24, %Node %25)
-  store %Node %26, %Node* %"$tmpForRef"
-  call void @ctor329(%Node* %20, %Node* %"$tmpForRef")
+  %17 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %16, i32 0, i32 1
+  %18 = getelementptr inbounds %Token* %17, i32 0, i32 0
+  call void @copyEnd(%Location* %loc, %Location* %18)
+  %19 = load %Node** %_result.addr
+  %20 = load %Node* %expr
+  %21 = load %Node* %stepAction
+  %22 = load %Node* %body
+  %23 = call %Node @comp_parser_mkWhileStmt(%Location* %loc, %Node %20, %Node %21, %Node %22)
+  store %Node %23, %Node* %"$tmpForRef"
+  call void @ctor329(%Node* %19, %Node* %"$tmpForRef")
   ret void
 
 if_block3:                                        ; preds = %if_then
-  %27 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %28 = call i1 @parseExprOpt(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %27, %Node* %stepAction, i1 true)
-  %29 = xor i1 true, %28
-  br i1 %29, label %if_then4, label %if_end5
+  %24 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %25 = call i1 @parseExprOpt(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %24, %Node* %stepAction, i1 true)
+  %26 = xor i1 true, %25
+  br i1 %26, label %if_then4, label %if_end5
 
 if_then4:                                         ; preds = %if_block3
-  %30 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseStatement(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %30)
+  %27 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseStatement(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %27)
   call void @"=331"(%Node* %stepAction, %Node* %"$tmpC")
   br label %if_end5
 
@@ -21524,9 +21411,25 @@ code:                                             ; preds = %0
   call void @"=331"(%Node* %1, %Node* %"$tmpC")
   %3 = load %Node** %res.addr
   %4 = load %Node* %3
-  %5 = call i1 @isSet371(%Node %4)
+  %5 = call i1 @isSet372(%Node %4)
   ret i1 %5
 }
+
+; Function Attrs: alwaysinline nounwind
+define internal i1 @isSet372(%Node %n) #2 {
+  %n.addr = alloca %Node
+  store %Node %n, %Node* %n.addr
+  br label %code
+
+code:                                             ; preds = %0
+  %1 = getelementptr inbounds %Node* %n.addr, i32 0, i32 0
+  %2 = getelementptr inbounds %UntypedPtr* %1, i32 0, i32 0
+  %3 = load i8** %2
+  %4 = call i1 @_opRefNE(i8* %3, i8* null)
+  ret i1 %4
+}
+
+declare %Node @comp_parser_mkModifiers(%Location*, %Node, %Node)
 
 declare %Node @comp_parser_mkBlockStmt(%Location*, %Node)
 
@@ -21996,6 +21899,90 @@ declare %Node @comp_parser_mkInfixOp(%Location*, %Node, %StringRef, %Node)
 declare %Node @comp_parser_mkPostfixOp(%Location*, %Node, %StringRef)
 
 ; Function Attrs: inlinehint nounwind
+define internal i1 @parseUsingDecl(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %Node* %res) #3 {
+  %p.addr = alloca %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"*
+  store %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %res.addr = alloca %Node*
+  store %Node* %res, %Node** %res.addr
+  %tmp.v = alloca %TokenType
+  %loc = alloca %Location
+  %id = alloca %String
+  %usingNode = alloca %Node
+  %"$tmpC" = alloca %Node
+  %"$tmpC4" = alloca %Node
+  %tmp.v5 = alloca %TokenType
+  %"$tmpForRef" = alloca %Node
+  %"$tmpC6" = alloca %StringRef
+  br label %code
+
+code:                                             ; preds = %0
+  br label %if_block
+
+if_block:                                         ; preds = %code
+  %1 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @ctor222(%TokenType* %tmp.v, i32 11)
+  %2 = load %TokenType* %tmp.v
+  %3 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
+  %4 = xor i1 true, %3
+  br i1 %4, label %if_then, label %if_end
+
+if_then:                                          ; preds = %if_block
+  ret i1 false
+
+if_end:                                           ; preds = %dumy_block, %if_block
+  %5 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %6 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %5, i32 0, i32 1
+  %7 = getelementptr inbounds %Token* %6, i32 0, i32 0
+  call void @ctor161(%Location* %loc, %Location* %7)
+  %8 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseIdEqualOpt(%String* %id, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %8)
+  call void @ctor334(%Node* %usingNode)
+  br label %if_block1
+
+dumy_block:                                       ; No predecessors!
+  br label %if_end
+
+if_block1:                                        ; preds = %if_end
+  %9 = call i1 @isEmpty280(%String* %id)
+  br i1 %9, label %if_then2, label %if_else
+
+if_then2:                                         ; preds = %if_block1
+  %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseQualifiedName(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, i1 true)
+  call void @"=331"(%Node* %usingNode, %Node* %"$tmpC")
+  br label %if_end3
+
+if_else:                                          ; preds = %if_block1
+  %11 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseExpr(%Node* %"$tmpC4", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %11, i1 true)
+  call void @"=331"(%Node* %usingNode, %Node* %"$tmpC4")
+  br label %if_end3
+
+if_end3:                                          ; preds = %if_else, %if_then2
+  %12 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %13 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %12, i32 0, i32 1
+  %14 = getelementptr inbounds %Token* %13, i32 0, i32 0
+  call void @copyEnd(%Location* %loc, %Location* %14)
+  %15 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @ctor222(%TokenType* %tmp.v5, i32 36)
+  %16 = load %TokenType* %tmp.v5
+  %17 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %15, %TokenType %16)
+  %18 = load %Node** %res.addr
+  call void @asStringRef(%StringRef* %"$tmpC6", %String* %id)
+  %19 = load %StringRef* %"$tmpC6"
+  %20 = load %Node* %usingNode
+  %21 = call %Node @comp_parser_mkUsing(%Location* %loc, %StringRef %19, %Node %20)
+  store %Node %21, %Node* %"$tmpForRef"
+  call void @"=331"(%Node* %18, %Node* %"$tmpForRef")
+  call void @dtor159(%String* %id)
+  ret i1 true
+
+dumy_block7:                                      ; No predecessors!
+  call void @dtor159(%String* %id)
+  unreachable
+}
+
+; Function Attrs: inlinehint nounwind
 define internal void @parseIdEqualOpt(%String* sret %_result, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %p) #3 {
   %_result.addr = alloca %String*
   store %String* %_result, %String** %_result.addr
@@ -22078,7 +22065,6 @@ define internal i1 @parsePackageDecl(%"SparrowParser[SparrowScanner[CharSource, 
   store %Node* %res, %Node** %res.addr
   %tmp.v = alloca %TokenType
   %loc = alloca %Location
-  %mods = alloca %Node
   %id = alloca %String
   %tmp.v1 = alloca %TokenType
   %children = alloca %Node
@@ -22107,33 +22093,29 @@ if_end:                                           ; preds = %dumy_block, %if_blo
   %7 = getelementptr inbounds %Token* %6, i32 0, i32 0
   call void @ctor161(%Location* %loc, %Location* %7)
   %8 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseModifiers(%Node* %mods, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %8)
+  call void @parseId(%String* %id, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %8)
   %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseId(%String* %id, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9)
-  %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v1, i32 29)
-  %11 = load %TokenType* %tmp.v1
-  %12 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, %TokenType %11)
+  %10 = load %TokenType* %tmp.v1
+  %11 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9, %TokenType %10)
   call void @ctor334(%Node* %children)
+  %12 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseDecls(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %12, i1 true, %Node* %children)
   %13 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseDecls(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %13, i1 true, %Node* %children)
-  %14 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v2, i32 30)
-  %15 = load %TokenType* %tmp.v2
-  %16 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %14, %TokenType %15)
-  %17 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %18 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %17, i32 0, i32 1
-  %19 = getelementptr inbounds %Token* %18, i32 0, i32 0
-  call void @copyEnd(%Location* %loc, %Location* %19)
-  %20 = load %Node** %res.addr
+  %14 = load %TokenType* %tmp.v2
+  %15 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %13, %TokenType %14)
+  %16 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %17 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %16, i32 0, i32 1
+  %18 = getelementptr inbounds %Token* %17, i32 0, i32 0
+  call void @copyEnd(%Location* %loc, %Location* %18)
+  %19 = load %Node** %res.addr
   call void @asStringRef(%StringRef* %"$tmpC", %String* %id)
-  %21 = load %StringRef* %"$tmpC"
-  %22 = load %Node* %children
-  %23 = call %Node @comp_parser_mkPackage(%Location* %loc, %StringRef %21, %Node %22)
-  %24 = load %Node* %mods
-  %25 = call %Node @comp_parser_mkModifiers(%Location* %loc, %Node %23, %Node %24)
-  store %Node %25, %Node* %"$tmpForRef"
-  call void @"=331"(%Node* %20, %Node* %"$tmpForRef")
+  %20 = load %StringRef* %"$tmpC"
+  %21 = load %Node* %children
+  %22 = call %Node @comp_parser_mkPackage(%Location* %loc, %StringRef %20, %Node %21)
+  store %Node %22, %Node* %"$tmpForRef"
+  call void @"=331"(%Node* %19, %Node* %"$tmpForRef")
   call void @dtor159(%String* %id)
   ret i1 true
 
@@ -22155,7 +22137,6 @@ define internal i1 @parseClassDecl(%"SparrowParser[SparrowScanner[CharSource, Ex
   store %Node* %res, %Node** %res.addr
   %tmp.v = alloca %TokenType
   %loc = alloca %Location
-  %mods = alloca %Node
   %id = alloca %String
   %formals = alloca %Node
   %ifClause = alloca %Node
@@ -22187,41 +22168,37 @@ if_end:                                           ; preds = %dumy_block, %if_blo
   %7 = getelementptr inbounds %Token* %6, i32 0, i32 0
   call void @ctor161(%Location* %loc, %Location* %7)
   %8 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseModifiers(%Node* %mods, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %8)
+  call void @parseId(%String* %id, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %8)
   %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseId(%String* %id, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9)
+  call void @parseFormalsOpt(%Node* %formals, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9, i1 false)
   %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseFormalsOpt(%Node* %formals, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, i1 false)
+  call void @parseIfClauseOpt(%Node* %ifClause, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10)
   %11 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseIfClauseOpt(%Node* %ifClause, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %11)
-  %12 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v1, i32 29)
-  %13 = load %TokenType* %tmp.v1
-  %14 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %12, %TokenType %13)
+  %12 = load %TokenType* %tmp.v1
+  %13 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %11, %TokenType %12)
   call void @ctor334(%Node* %children)
+  %14 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseDecls(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %14, i1 true, %Node* %children)
   %15 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseDecls(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %15, i1 true, %Node* %children)
-  %16 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v2, i32 30)
-  %17 = load %TokenType* %tmp.v2
-  %18 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %16, %TokenType %17)
-  %19 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %20 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %19, i32 0, i32 1
-  %21 = getelementptr inbounds %Token* %20, i32 0, i32 0
-  call void @copyEnd(%Location* %loc, %Location* %21)
-  %22 = load %Node** %res.addr
+  %16 = load %TokenType* %tmp.v2
+  %17 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %15, %TokenType %16)
+  %18 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %19 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %18, i32 0, i32 1
+  %20 = getelementptr inbounds %Token* %19, i32 0, i32 0
+  call void @copyEnd(%Location* %loc, %Location* %20)
+  %21 = load %Node** %res.addr
   call void @asStringRef(%StringRef* %"$tmpC", %String* %id)
-  %23 = load %StringRef* %"$tmpC"
-  %24 = load %Node* %formals
+  %22 = load %StringRef* %"$tmpC"
+  %23 = load %Node* %formals
   call void @ctor334(%Node* %tmp.v3)
-  %25 = load %Node* %tmp.v3
-  %26 = load %Node* %ifClause
-  %27 = load %Node* %children
-  %28 = call %Node @comp_parser_mkClass(%Location* %loc, %StringRef %23, %Node %24, %Node %25, %Node %26, %Node %27)
-  %29 = load %Node* %mods
-  %30 = call %Node @comp_parser_mkModifiers(%Location* %loc, %Node %28, %Node %29)
-  store %Node %30, %Node* %"$tmpForRef"
-  call void @"=331"(%Node* %22, %Node* %"$tmpForRef")
+  %24 = load %Node* %tmp.v3
+  %25 = load %Node* %ifClause
+  %26 = load %Node* %children
+  %27 = call %Node @comp_parser_mkClass(%Location* %loc, %StringRef %22, %Node %23, %Node %24, %Node %25, %Node %26)
+  store %Node %27, %Node* %"$tmpForRef"
+  call void @"=331"(%Node* %21, %Node* %"$tmpForRef")
   call void @dtor159(%String* %id)
   ret i1 true
 
@@ -22277,7 +22254,6 @@ define internal i1 @parseDatatypeDecl(%"SparrowParser[SparrowScanner[CharSource,
   store %Node* %res, %Node** %res.addr
   %tmp.v = alloca %TokenType
   %loc = alloca %Location
-  %mods = alloca %Node
   %id = alloca %String
   %formals = alloca %Node
   %tmp.v4 = alloca %TokenType
@@ -22317,61 +22293,57 @@ if_end:                                           ; preds = %dumy_block, %if_blo
   %7 = getelementptr inbounds %Token* %6, i32 0, i32 0
   call void @ctor161(%Location* %loc, %Location* %7)
   %8 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseModifiers(%Node* %mods, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %8)
+  call void @parseId(%String* %id, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %8)
   %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseId(%String* %id, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9)
-  %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseFormalsOpt(%Node* %formals, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, i1 false)
+  call void @parseFormalsOpt(%Node* %formals, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9, i1 false)
   br label %if_block1
 
 dumy_block:                                       ; No predecessors!
   br label %if_end
 
 if_block1:                                        ; preds = %if_end
-  %11 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v4, i32 40)
-  %12 = load %TokenType* %tmp.v4
-  %13 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %11, %TokenType %12)
-  br i1 %13, label %if_then2, label %if_else
+  %11 = load %TokenType* %tmp.v4
+  %12 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, %TokenType %11)
+  br i1 %12, label %if_then2, label %if_else
 
 if_then2:                                         ; preds = %if_block1
+  %13 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseExpr(%Node* %underlyingData, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %13, i1 true)
   %14 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseExpr(%Node* %underlyingData, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %14, i1 true)
+  call void @parseIfClauseOpt(%Node* %ifClause, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %14)
   %15 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseIfClauseOpt(%Node* %ifClause, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %15)
-  %16 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v5, i32 36)
-  %17 = load %TokenType* %tmp.v5
-  %18 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %16, %TokenType %17)
-  %19 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %20 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %19, i32 0, i32 1
-  %21 = getelementptr inbounds %Token* %20, i32 0, i32 0
-  call void @copyEnd(%Location* %loc, %Location* %21)
-  %22 = load %Node** %res.addr
+  %16 = load %TokenType* %tmp.v5
+  %17 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %15, %TokenType %16)
+  %18 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %19 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %18, i32 0, i32 1
+  %20 = getelementptr inbounds %Token* %19, i32 0, i32 0
+  call void @copyEnd(%Location* %loc, %Location* %20)
+  %21 = load %Node** %res.addr
   call void @asStringRef(%StringRef* %"$tmpC", %String* %id)
-  %23 = load %StringRef* %"$tmpC"
-  %24 = load %Node* %formals
-  %25 = load %Node* %underlyingData
-  %26 = load %Node* %ifClause
+  %22 = load %StringRef* %"$tmpC"
+  %23 = load %Node* %formals
+  %24 = load %Node* %underlyingData
+  %25 = load %Node* %ifClause
   call void @ctor334(%Node* %tmp.v6)
-  %27 = load %Node* %tmp.v6
-  %28 = call %Node @comp_parser_mkClass(%Location* %loc, %StringRef %23, %Node %24, %Node %25, %Node %26, %Node %27)
-  %29 = load %Node* %mods
-  %30 = call %Node @comp_parser_mkModifiers(%Location* %loc, %Node %28, %Node %29)
-  store %Node %30, %Node* %"$tmpForRef"
-  call void @"=331"(%Node* %22, %Node* %"$tmpForRef")
+  %26 = load %Node* %tmp.v6
+  %27 = call %Node @comp_parser_mkClass(%Location* %loc, %StringRef %22, %Node %23, %Node %24, %Node %25, %Node %26)
+  store %Node %27, %Node* %"$tmpForRef"
+  call void @"=331"(%Node* %21, %Node* %"$tmpForRef")
   br label %if_end3
 
 if_else:                                          ; preds = %if_block1
-  %31 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseIfClauseOpt(%Node* %ifClause7, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %31)
-  %32 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %28 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseIfClauseOpt(%Node* %ifClause7, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %28)
+  %29 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v8, i32 29)
-  %33 = load %TokenType* %tmp.v8
-  %34 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %32, %TokenType %33)
+  %30 = load %TokenType* %tmp.v8
+  %31 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %29, %TokenType %30)
   call void @ctor334(%Node* %children)
-  %35 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseFormal(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %35, i1 true, %Node* %children)
+  %32 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseFormal(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %32, i1 true, %Node* %children)
   br label %while_block
 
 if_end3:                                          ; preds = %while_end, %if_then2
@@ -22379,42 +22351,40 @@ if_end3:                                          ; preds = %while_end, %if_then
   ret i1 true
 
 while_block:                                      ; preds = %while_step, %if_else
-  %36 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %33 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v9, i32 37)
-  %37 = load %TokenType* %tmp.v9
-  %38 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %36, %TokenType %37)
-  br i1 %38, label %while_body, label %while_end
+  %34 = load %TokenType* %tmp.v9
+  %35 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %33, %TokenType %34)
+  br i1 %35, label %while_body, label %while_end
 
 while_body:                                       ; preds = %while_block
-  %39 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseFormal(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %39, i1 true, %Node* %children)
+  %36 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseFormal(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %36, i1 true, %Node* %children)
   br label %while_step
 
 while_step:                                       ; preds = %while_body
   br label %while_block
 
 while_end:                                        ; preds = %while_block
-  %40 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %37 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v10, i32 30)
-  %41 = load %TokenType* %tmp.v10
-  %42 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %40, %TokenType %41)
-  %43 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %44 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %43, i32 0, i32 1
-  %45 = getelementptr inbounds %Token* %44, i32 0, i32 0
-  call void @copyEnd(%Location* %loc, %Location* %45)
-  %46 = load %Node** %res.addr
+  %38 = load %TokenType* %tmp.v10
+  %39 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %37, %TokenType %38)
+  %40 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %41 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %40, i32 0, i32 1
+  %42 = getelementptr inbounds %Token* %41, i32 0, i32 0
+  call void @copyEnd(%Location* %loc, %Location* %42)
+  %43 = load %Node** %res.addr
   call void @asStringRef(%StringRef* %"$tmpC12", %String* %id)
-  %47 = load %StringRef* %"$tmpC12"
-  %48 = load %Node* %formals
+  %44 = load %StringRef* %"$tmpC12"
+  %45 = load %Node* %formals
   call void @ctor334(%Node* %tmp.v13)
-  %49 = load %Node* %tmp.v13
-  %50 = load %Node* %ifClause7
-  %51 = load %Node* %children
-  %52 = call %Node @comp_parser_mkClass(%Location* %loc, %StringRef %47, %Node %48, %Node %49, %Node %50, %Node %51)
-  %53 = load %Node* %mods
-  %54 = call %Node @comp_parser_mkModifiers(%Location* %loc, %Node %52, %Node %53)
-  store %Node %54, %Node* %"$tmpForRef11"
-  call void @"=331"(%Node* %46, %Node* %"$tmpForRef11")
+  %46 = load %Node* %tmp.v13
+  %47 = load %Node* %ifClause7
+  %48 = load %Node* %children
+  %49 = call %Node @comp_parser_mkClass(%Location* %loc, %StringRef %44, %Node %45, %Node %46, %Node %47, %Node %48)
+  store %Node %49, %Node* %"$tmpForRef11"
+  call void @"=331"(%Node* %43, %Node* %"$tmpForRef11")
   br label %if_end3
 
 dumy_block14:                                     ; No predecessors!
@@ -22430,7 +22400,6 @@ define internal i1 @parseConceptDecl(%"SparrowParser[SparrowScanner[CharSource, 
   store %Node* %res, %Node** %res.addr
   %tmp.v = alloca %TokenType
   %loc = alloca %Location
-  %mods = alloca %Node
   %id = alloca %String
   %tmp.v1 = alloca %TokenType
   %paramName = alloca %String
@@ -22463,43 +22432,39 @@ if_end:                                           ; preds = %dumy_block, %if_blo
   %7 = getelementptr inbounds %Token* %6, i32 0, i32 0
   call void @ctor161(%Location* %loc, %Location* %7)
   %8 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseModifiers(%Node* %mods, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %8)
+  call void @parseId(%String* %id, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %8)
   %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseId(%String* %id, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9)
-  %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v1, i32 33)
-  %11 = load %TokenType* %tmp.v1
-  %12 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, %TokenType %11)
+  %10 = load %TokenType* %tmp.v1
+  %11 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9, %TokenType %10)
+  %12 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseId(%String* %paramName, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %12)
   %13 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseId(%String* %paramName, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %13)
+  call void @parseTypeNode(%Node* %baseConcept, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %13)
   %14 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseTypeNode(%Node* %baseConcept, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %14)
-  %15 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v2, i32 34)
-  %16 = load %TokenType* %tmp.v2
-  %17 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %15, %TokenType %16)
+  %15 = load %TokenType* %tmp.v2
+  %16 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %14, %TokenType %15)
+  %17 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseIfClauseOpt(%Node* %ifClause, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %17)
   %18 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseIfClauseOpt(%Node* %ifClause, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %18)
-  %19 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v3, i32 36)
-  %20 = load %TokenType* %tmp.v3
-  %21 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %19, %TokenType %20)
-  %22 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %23 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %22, i32 0, i32 1
-  %24 = getelementptr inbounds %Token* %23, i32 0, i32 0
-  call void @copyEnd(%Location* %loc, %Location* %24)
-  %25 = load %Node** %res.addr
+  %19 = load %TokenType* %tmp.v3
+  %20 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %18, %TokenType %19)
+  %21 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %22 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %21, i32 0, i32 1
+  %23 = getelementptr inbounds %Token* %22, i32 0, i32 0
+  call void @copyEnd(%Location* %loc, %Location* %23)
+  %24 = load %Node** %res.addr
   call void @asStringRef(%StringRef* %"$tmpC", %String* %id)
-  %26 = load %StringRef* %"$tmpC"
+  %25 = load %StringRef* %"$tmpC"
   call void @asStringRef(%StringRef* %"$tmpC4", %String* %paramName)
-  %27 = load %StringRef* %"$tmpC4"
-  %28 = load %Node* %baseConcept
-  %29 = load %Node* %ifClause
-  %30 = call %Node @comp_parser_mkConcept(%Location* %loc, %StringRef %26, %StringRef %27, %Node %28, %Node %29)
-  %31 = load %Node* %mods
-  %32 = call %Node @comp_parser_mkModifiers(%Location* %loc, %Node %30, %Node %31)
-  store %Node %32, %Node* %"$tmpForRef"
-  call void @"=331"(%Node* %25, %Node* %"$tmpForRef")
+  %26 = load %StringRef* %"$tmpC4"
+  %27 = load %Node* %baseConcept
+  %28 = load %Node* %ifClause
+  %29 = call %Node @comp_parser_mkConcept(%Location* %loc, %StringRef %25, %StringRef %26, %Node %27, %Node %28)
+  store %Node %29, %Node* %"$tmpForRef"
+  call void @"=331"(%Node* %24, %Node* %"$tmpForRef")
   call void @dtor159(%String* %paramName)
   call void @dtor159(%String* %id)
   ret i1 true
@@ -22522,7 +22487,6 @@ define internal i1 @parseVarDecl(%"SparrowParser[SparrowScanner[CharSource, Exte
   %res.addr = alloca %Node*
   store %Node* %res, %Node** %res.addr
   %tmp.v = alloca %TokenType
-  %mods = alloca %Node
   %ids = alloca %"Vector[LocString]"
   %typeNode = alloca %Node
   %init = alloca %Node
@@ -22551,9 +22515,7 @@ if_then:                                          ; preds = %if_block
 
 if_end:                                           ; preds = %dumy_block, %if_block
   %5 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseModifiers(%Node* %mods, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %5)
-  %6 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseIdList(%"Vector[LocString]"* %ids, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %6)
+  call void @parseIdList(%"Vector[LocString]"* %ids, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %5)
   call void @ctor334(%Node* %typeNode)
   call void @ctor334(%Node* %init)
   br label %if_block1
@@ -22562,51 +22524,50 @@ dumy_block:                                       ; No predecessors!
   br label %if_end
 
 if_block1:                                        ; preds = %if_end
-  %7 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %6 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v4, i32 35)
-  %8 = load %TokenType* %tmp.v4
-  %9 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %7, %TokenType %8)
-  br i1 %9, label %if_then2, label %if_else
+  %7 = load %TokenType* %tmp.v4
+  %8 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %6, %TokenType %7)
+  br i1 %8, label %if_then2, label %if_else
 
 if_then2:                                         ; preds = %if_block1
-  %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseExpr(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, i1 false)
+  %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseExpr(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9, i1 false)
   call void @"=331"(%Node* %typeNode, %Node* %"$tmpC")
   br label %if_block5
 
 if_else:                                          ; preds = %if_block1
-  %11 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v10, i32 40)
-  %12 = load %TokenType* %tmp.v10
-  %13 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %11, %TokenType %12)
-  %14 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseExpr(%Node* %"$tmpC11", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %14, i1 true)
+  %11 = load %TokenType* %tmp.v10
+  %12 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, %TokenType %11)
+  %13 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseExpr(%Node* %"$tmpC11", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %13, i1 true)
   call void @"=331"(%Node* %init, %Node* %"$tmpC11")
   br label %if_end3
 
 if_end3:                                          ; preds = %if_else, %if_end7
-  %15 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %14 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v12, i32 36)
-  %16 = load %TokenType* %tmp.v12
-  %17 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %15, %TokenType %16)
-  %18 = load %Node* %typeNode
-  %19 = load %Node* %init
-  %20 = load %Node* %mods
-  %21 = load %Node** %res.addr
-  call void @createFormals(%"Vector[LocString]"* %ids, %Node %18, %Node %19, i1 true, %Node %20, %Node* %21)
+  %15 = load %TokenType* %tmp.v12
+  %16 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %14, %TokenType %15)
+  %17 = load %Node* %typeNode
+  %18 = load %Node* %init
+  %19 = load %Node** %res.addr
+  call void @createFormals(%"Vector[LocString]"* %ids, %Node %17, %Node %18, i1 true, %Node* %19)
   call void @dtor364(%"Vector[LocString]"* %ids)
   ret i1 true
 
 if_block5:                                        ; preds = %if_then2
-  %22 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %20 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v8, i32 40)
-  %23 = load %TokenType* %tmp.v8
-  %24 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %22, %TokenType %23)
-  br i1 %24, label %if_then6, label %if_end7
+  %21 = load %TokenType* %tmp.v8
+  %22 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %20, %TokenType %21)
+  br i1 %22, label %if_then6, label %if_end7
 
 if_then6:                                         ; preds = %if_block5
-  %25 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseExpr(%Node* %"$tmpC9", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %25, i1 true)
+  %23 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseExpr(%Node* %"$tmpC9", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %23, i1 true)
   call void @"=331"(%Node* %init, %Node* %"$tmpC9")
   br label %if_end7
 
@@ -22626,7 +22587,6 @@ define internal i1 @parseFunDecl(%"SparrowParser[SparrowScanner[CharSource, Exte
   store %Node* %res, %Node** %res.addr
   %tmp.v = alloca %TokenType
   %loc = alloca %Location
-  %mods = alloca %Node
   %id = alloca %String
   %formals = alloca %Node
   %retType = alloca %Node
@@ -22663,13 +22623,11 @@ if_end:                                           ; preds = %dumy_block, %if_blo
   %7 = getelementptr inbounds %Token* %6, i32 0, i32 0
   call void @ctor161(%Location* %loc, %Location* %7)
   %8 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseModifiers(%Node* %mods, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %8)
+  call void @parseFunNameString(%String* %id, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %8)
   %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseFunNameString(%String* %id, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9)
+  call void @parseFormalsOpt(%Node* %formals, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9, i1 false)
   %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseFormalsOpt(%Node* %formals, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, i1 false)
-  %11 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseTypeNode(%Node* %retType, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %11)
+  call void @parseTypeNode(%Node* %retType, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10)
   call void @ctor334(%Node* %body)
   call void @ctor334(%Node* %bodyExp)
   call void @ctor334(%Node* %ifClause)
@@ -22679,52 +22637,50 @@ dumy_block:                                       ; No predecessors!
   br label %if_end
 
 if_block1:                                        ; preds = %if_end
-  %12 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %11 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v4, i32 40)
-  %13 = load %TokenType* %tmp.v4
-  %14 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %12, %TokenType %13)
-  br i1 %14, label %if_then2, label %if_else
+  %12 = load %TokenType* %tmp.v4
+  %13 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %11, %TokenType %12)
+  br i1 %13, label %if_then2, label %if_else
 
 if_then2:                                         ; preds = %if_block1
-  %15 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseExpr(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %15, i1 true)
+  %14 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseExpr(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %14, i1 true)
   call void @"=331"(%Node* %bodyExp, %Node* %"$tmpC")
-  %16 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseIfClauseOpt(%Node* %"$tmpC5", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %16)
+  %15 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseIfClauseOpt(%Node* %"$tmpC5", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %15)
   call void @"=331"(%Node* %ifClause, %Node* %"$tmpC5")
-  %17 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %16 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v6, i32 36)
-  %18 = load %TokenType* %tmp.v6
-  %19 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %17, %TokenType %18)
+  %17 = load %TokenType* %tmp.v6
+  %18 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %16, %TokenType %17)
   br label %if_end3
 
 if_else:                                          ; preds = %if_block1
-  %20 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseIfClauseOpt(%Node* %"$tmpC7", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %20)
+  %19 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseIfClauseOpt(%Node* %"$tmpC7", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %19)
   call void @"=331"(%Node* %ifClause, %Node* %"$tmpC7")
-  %21 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseFunBody(%Node* %"$tmpC8", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %21)
+  %20 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseFunBody(%Node* %"$tmpC8", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %20)
   call void @"=331"(%Node* %body, %Node* %"$tmpC8")
   br label %if_end3
 
 if_end3:                                          ; preds = %if_else, %if_then2
-  %22 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %23 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %22, i32 0, i32 1
-  %24 = getelementptr inbounds %Token* %23, i32 0, i32 0
-  call void @copyEnd(%Location* %loc, %Location* %24)
-  %25 = load %Node** %res.addr
+  %21 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %22 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %21, i32 0, i32 1
+  %23 = getelementptr inbounds %Token* %22, i32 0, i32 0
+  call void @copyEnd(%Location* %loc, %Location* %23)
+  %24 = load %Node** %res.addr
   call void @asStringRef(%StringRef* %"$tmpC9", %String* %id)
-  %26 = load %StringRef* %"$tmpC9"
-  %27 = load %Node* %formals
-  %28 = load %Node* %retType
-  %29 = load %Node* %body
-  %30 = load %Node* %bodyExp
-  %31 = load %Node* %ifClause
-  %32 = call %Node @comp_parser_mkFun(%Location* %loc, %StringRef %26, %Node %27, %Node %28, %Node %29, %Node %30, %Node %31)
-  %33 = load %Node* %mods
-  %34 = call %Node @comp_parser_mkModifiers(%Location* %loc, %Node %32, %Node %33)
-  store %Node %34, %Node* %"$tmpForRef"
-  call void @"=331"(%Node* %25, %Node* %"$tmpForRef")
+  %25 = load %StringRef* %"$tmpC9"
+  %26 = load %Node* %formals
+  %27 = load %Node* %retType
+  %28 = load %Node* %body
+  %29 = load %Node* %bodyExp
+  %30 = load %Node* %ifClause
+  %31 = call %Node @comp_parser_mkFun(%Location* %loc, %StringRef %25, %Node %26, %Node %27, %Node %28, %Node %29, %Node %30)
+  store %Node %31, %Node* %"$tmpForRef"
+  call void @"=331"(%Node* %24, %Node* %"$tmpForRef")
   call void @dtor159(%String* %id)
   ret i1 true
 
@@ -22793,11 +22749,8 @@ define internal i1 @parseImportLineOpt(%"SparrowParser[SparrowScanner[CharSource
   %res.addr = alloca %Node*
   store %Node* %res, %Node** %res.addr
   %tmp.v = alloca %TokenType
-  %mods = alloca %Node
   %"$tmpC" = alloca %Node
-  %"$tmpForRef" = alloca %Node
-  %tmp.v1 = alloca %Location
-  %tmp.v2 = alloca %TokenType
+  %tmp.v1 = alloca %TokenType
   br label %code
 
 code:                                             ; preds = %0
@@ -22811,24 +22764,14 @@ if_block:                                         ; preds = %code
   br i1 %3, label %if_then, label %if_end
 
 if_then:                                          ; preds = %if_block
-  %4 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseModifiers(%Node* %mods, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %4)
-  %5 = load %Node** %res.addr
+  %4 = load %Node** %res.addr
+  %5 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseImportNames(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %5)
+  call void @"=331"(%Node* %4, %Node* %"$tmpC")
   %6 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseImportNames(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %6)
-  call void @"=331"(%Node* %5, %Node* %"$tmpC")
-  %7 = load %Node** %res.addr
-  call void @ctor119(%Location* %tmp.v1)
-  %8 = load %Node** %res.addr
-  %9 = load %Node* %8
-  %10 = load %Node* %mods
-  %11 = call %Node @comp_parser_mkModifiers(%Location* %tmp.v1, %Node %9, %Node %10)
-  store %Node %11, %Node* %"$tmpForRef"
-  call void @"=331"(%Node* %7, %Node* %"$tmpForRef")
-  %12 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @ctor222(%TokenType* %tmp.v2, i32 36)
-  %13 = load %TokenType* %tmp.v2
-  %14 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %12, %TokenType %13)
+  call void @ctor222(%TokenType* %tmp.v1, i32 36)
+  %7 = load %TokenType* %tmp.v1
+  %8 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %6, %TokenType %7)
   ret i1 true
 
 if_end:                                           ; preds = %dumy_block, %if_block
@@ -23098,7 +23041,6 @@ define internal i1 @parseIfTopLevel(%"SparrowParser[SparrowScanner[CharSource, E
   store %Node* %res, %Node** %res.addr
   %tmp.v = alloca %TokenType
   %loc = alloca %Location
-  %mods = alloca %Node
   %tmp.v1 = alloca %TokenType
   %expr = alloca %Node
   %tmp.v2 = alloca %TokenType
@@ -23127,19 +23069,17 @@ if_end:                                           ; preds = %dumy_block, %if_blo
   %5 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @lastLoc(%Location* %loc, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %5)
   %6 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseModifiers(%Node* %mods, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %6)
-  %7 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v1, i32 33)
-  %8 = load %TokenType* %tmp.v1
-  %9 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %7, %TokenType %8)
+  %7 = load %TokenType* %tmp.v1
+  %8 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %6, %TokenType %7)
+  %9 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseExpr(%Node* %expr, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %9, i1 true)
   %10 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseExpr(%Node* %expr, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, i1 true)
-  %11 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v2, i32 34)
-  %12 = load %TokenType* %tmp.v2
-  %13 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %11, %TokenType %12)
-  %14 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseDecl(%Node* %thenClause, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %14, i1 true)
+  %11 = load %TokenType* %tmp.v2
+  %12 = call i1 @expect(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %10, %TokenType %11)
+  %13 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseDecl(%Node* %thenClause, %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %13, i1 true)
   call void @ctor334(%Node* %elseClause)
   br label %if_block3
 
@@ -23147,32 +23087,30 @@ dumy_block:                                       ; No predecessors!
   br label %if_end
 
 if_block3:                                        ; preds = %if_end
-  %15 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %14 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
   call void @ctor222(%TokenType* %tmp.v6, i32 28)
-  %16 = load %TokenType* %tmp.v6
-  %17 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %15, %TokenType %16)
-  br i1 %17, label %if_then4, label %if_end5
+  %15 = load %TokenType* %tmp.v6
+  %16 = call i1 @accept(%"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %14, %TokenType %15)
+  br i1 %16, label %if_then4, label %if_end5
 
 if_then4:                                         ; preds = %if_block3
-  %18 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  call void @parseDecl(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %18, i1 true)
+  %17 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  call void @parseDecl(%Node* %"$tmpC", %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %17, i1 true)
   call void @"=331"(%Node* %elseClause, %Node* %"$tmpC")
   br label %if_end5
 
 if_end5:                                          ; preds = %if_then4, %if_block3
-  %19 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
-  %20 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %19, i32 0, i32 1
-  %21 = getelementptr inbounds %Token* %20, i32 0, i32 0
-  call void @copyEnd(%Location* %loc, %Location* %21)
-  %22 = load %Node** %res.addr
-  %23 = load %Node* %expr
-  %24 = load %Node* %thenClause
-  %25 = load %Node* %elseClause
-  %26 = call %Node @comp_parser_mkIfStmt(%Location* %loc, %Node %23, %Node %24, %Node %25)
-  %27 = load %Node* %mods
-  %28 = call %Node @comp_parser_mkModifiers(%Location* %loc, %Node %26, %Node %27)
-  store %Node %28, %Node* %"$tmpForRef"
-  call void @"=331"(%Node* %22, %Node* %"$tmpForRef")
+  %18 = load %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"** %p.addr
+  %19 = getelementptr inbounds %"SparrowParser[SparrowScanner[CharSource, ExternalErrorReporter], ExternalErrorReporter]"* %18, i32 0, i32 1
+  %20 = getelementptr inbounds %Token* %19, i32 0, i32 0
+  call void @copyEnd(%Location* %loc, %Location* %20)
+  %21 = load %Node** %res.addr
+  %22 = load %Node* %expr
+  %23 = load %Node* %thenClause
+  %24 = load %Node* %elseClause
+  %25 = call %Node @comp_parser_mkIfStmt(%Location* %loc, %Node %22, %Node %23, %Node %24)
+  store %Node %25, %Node* %"$tmpForRef"
+  call void @"=331"(%Node* %21, %Node* %"$tmpForRef")
   ret i1 true
 }
 
@@ -23832,7 +23770,7 @@ define internal %LocString* @"pre_++394"(%"ContiguousMemoryRange[LocString]"* %"
 
 code:                                             ; preds = %0
   %1 = load %"ContiguousMemoryRange[LocString]"** %"$this.addr"
-  call void @popFront372(%"ContiguousMemoryRange[LocString]"* %1)
+  call void @popFront371(%"ContiguousMemoryRange[LocString]"* %1)
   %2 = load %"ContiguousMemoryRange[LocString]"** %"$this.addr"
   %3 = call %LocString* @front370(%"ContiguousMemoryRange[LocString]"* %2)
   ret %LocString* %3
@@ -23850,7 +23788,7 @@ code:                                             ; preds = %0
   %2 = call %LocString* @front370(%"ContiguousMemoryRange[LocString]"* %1)
   store %LocString* %2, %LocString** %res
   %3 = load %"ContiguousMemoryRange[LocString]"** %"$this.addr"
-  call void @popFront372(%"ContiguousMemoryRange[LocString]"* %3)
+  call void @popFront371(%"ContiguousMemoryRange[LocString]"* %3)
   %4 = load %LocString** %res
   ret %LocString* %4
 }
@@ -24789,7 +24727,7 @@ while_body:                                       ; preds = %while_block
   br label %while_step
 
 while_step:                                       ; preds = %while_body
-  call void @popFront372(%"ContiguousMemoryRange[LocString]"* %"$rangeVar")
+  call void @popFront371(%"ContiguousMemoryRange[LocString]"* %"$rangeVar")
   br label %while_block
 
 while_end:                                        ; preds = %while_block

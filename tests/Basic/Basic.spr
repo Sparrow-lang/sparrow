@@ -8,7 +8,7 @@ fun factorial(n: Int): Int
         return mul(n, factorial(sub(n,1)));
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     writeLnInt(15);
     writeLnInt(factorial(5));

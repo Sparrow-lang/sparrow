@@ -29,7 +29,7 @@ class MainParameters
 
 package _Impl {
     class CStr { var cstr: @Char; }
-    class[initCtor] CStrPtr { var ptr: @CStr; }
+    [initCtor] class CStrPtr { var ptr: @CStr; }
 
     fun fromArgvPtr(argv: @ @Char): CStrPtr = CStrPtr(reinterpretCast(@CStr, argv));
     fun fromBytePtr(p: @Byte): CStrPtr = CStrPtr(reinterpretCast(@CStr, p));

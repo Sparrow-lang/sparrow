@@ -57,7 +57,7 @@ class BigFunctor
     }
 }
 
-class[initCtor] Counter
+[initCtor] class Counter
 {
     var count: Int;
 

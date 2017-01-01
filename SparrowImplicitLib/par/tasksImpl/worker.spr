@@ -68,24 +68,24 @@ fun goIdle(w: @Worker) {
         // Change the global counter
         w._idleCounter goIdle;
 
-        if[ct] ( isValidAndTrue(traceCalls) )
+        [ct] if ( isValidAndTrue(traceCalls) )
             Tracer(w) << "going idle; we have " << (w._idleCounter.cnt load) << " idle workers" << endl;
 
         // Actually wake up the thread
         w._waitSem acquire;
 
-        if[ct] ( isValidAndTrue(traceCalls) )
+        [ct] if ( isValidAndTrue(traceCalls) )
             Tracer(w) << "woke up; we have " << (w._idleCounter.cnt load) << " idle workers" << endl;
     }
 }
 
 fun tryWakeUp(w: @Worker): Bool {
-    //if[ct] ( isValidAndTrue(traceCalls) )
+    //[ct] if ( isValidAndTrue(traceCalls) )
     //    Tracer(w) << "trying to wake up; _isBusy= " << (w._isBusy load) << endl;
     // If the thread was now busy, and we can set it to busy,
     // release the semaphore to wake up the thread
     if ( compareAndSwap(w._isBusy, 1, 0) ) {
-        if[ct] ( isValidAndTrue(traceCalls) )
+        [ct] if ( isValidAndTrue(traceCalls) )
             Tracer(w) << "waking up; we have " << (w._idleCounter.cnt load) << " idle workers" << endl;
 
         w._waitSem release;

@@ -51,7 +51,7 @@ class Bar(t: Type = Int)
 }
 
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     var foo = Foo(7);
 

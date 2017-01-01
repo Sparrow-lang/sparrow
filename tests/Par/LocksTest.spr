@@ -30,7 +30,7 @@ fun doProtectedJob(mutex: @Lockable, useTryLock: Bool = false) {
     }
 }
 
-class[initCtor] Worker {
+[initCtor] class Worker {
     var amountOfWork: Int;
     var useTryLock: Bool;
 

@@ -13,7 +13,7 @@ class Base
         writeLnInt(12);
     }
 
-    fun[static, rt] sm()
+    [static, rt] fun sm()
     {
         writeLnInt(13);
     }
@@ -46,7 +46,7 @@ fun printBaseObj(obj: Base@)
     writeLnInt(obj.a);
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     assignInt(a.x, 100);
     assignInt(a.y, 101);

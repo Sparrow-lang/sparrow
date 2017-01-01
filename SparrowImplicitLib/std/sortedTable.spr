@@ -212,7 +212,7 @@ class SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: Typ
     var _comp: CompareType;
 }
 
-class[rtct] Less(type: Type) if isValid(#$type < #$type)
+[rtct] class Less(type: Type) if isValid(#$type < #$type)
 {
     fun ()(l, r: @type) = l < r;
 }

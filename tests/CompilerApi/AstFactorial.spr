@@ -3,14 +3,14 @@
 import meta.sparrowNodes, meta.featherNodes;
 import std.ranges, std.vector;
 
-fun[ct] mkNodeVector(p1: AstNode): Vector(AstNode)
+[ct] fun mkNodeVector(p1: AstNode): Vector(AstNode)
 {
     var res: Vector(AstNode);
     res.pushBack(p1);
     return res;
 }
 
-fun[ct] mkNodeVector(p1, p2: AstNode): Vector(AstNode)
+[ct] fun mkNodeVector(p1, p2: AstNode): Vector(AstNode)
 {
     var res: Vector(AstNode);
     res.pushBack(p1);
@@ -18,7 +18,7 @@ fun[ct] mkNodeVector(p1, p2: AstNode): Vector(AstNode)
     return res;
 }
 
-fun[ct] mkNodeVector(p1, p2, p3: AstNode): Vector(AstNode)
+[ct] fun mkNodeVector(p1, p2, p3: AstNode): Vector(AstNode)
 {
     var res: Vector(AstNode);
     res.pushBack(p1);
@@ -27,10 +27,10 @@ fun[ct] mkNodeVector(p1, p2, p3: AstNode): Vector(AstNode)
     return res;
 }
 
-var[ct] nullNode: AstNode;
+[ct] var nullNode: AstNode;
 
 
-fun[ct] addFactorialFun(context: CompilationContext, funName: StringRef): Bool
+[ct] fun addFactorialFun(context: CompilationContext, funName: StringRef): Bool
 {
     var loc = mkLocation(currentSourceCode, mkLineCol(39, 1), mkLineCol(39, 79));
 
@@ -51,7 +51,7 @@ fun[ct] addFactorialFun(context: CompilationContext, funName: StringRef): Bool
     return !(factFun hasError);
 }
 
-fun[ct] addFactorialFun2(context: CompilationContext, funName: StringRef): Bool
+[ct] fun addFactorialFun2(context: CompilationContext, funName: StringRef): Bool
 {
     var loc = mkLocation(currentSourceCode, mkLineCol(39, 1), mkLineCol(39, 79));
 
@@ -65,8 +65,8 @@ fun[ct] addFactorialFun2(context: CompilationContext, funName: StringRef): Bool
     return !(factFun hasError);
 }
 
-var[ct] factAdded = addFactorialFun(currentCompilationContext, "fact");
-var[ct] fact2Added = addFactorialFun2(currentCompilationContext, "fact2");
+[ct] var factAdded = addFactorialFun(currentCompilationContext, "fact");
+[ct] var fact2Added = addFactorialFun2(currentCompilationContext, "fact2");
 
 fun sprMain
 {

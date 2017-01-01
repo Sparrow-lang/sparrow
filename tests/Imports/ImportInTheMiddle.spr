@@ -16,7 +16,7 @@ package Foo2 {
     import HeaderA;
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     Foo1.test1;
     writeLn(Foo2.a);

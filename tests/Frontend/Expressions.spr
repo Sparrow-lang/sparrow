@@ -16,8 +16,8 @@ using Std.*;
 // a candidate for transformations, and what not.
 class SimpleLoop
 {
-    var[static] BasicBlockSet = Set(Ptr(BasicBlock), BBPtrHashFunction, Functors.Equal(Ptr(BasicBlock)));
-    var[static] LoopSet = Set(Ptr(SimpleLoop), SLPtrHashFunction, Functors.Equal(Ptr(SimpleLoop)));
+    [static] var BasicBlockSet = Set(Ptr(BasicBlock), BBPtrHashFunction, Functors.Equal(Ptr(BasicBlock)));
+    [static] var LoopSet = Set(Ptr(SimpleLoop), SLPtrHashFunction, Functors.Equal(Ptr(SimpleLoop)));
 
     fun ctor(counter: UInt)
     {
@@ -84,13 +84,13 @@ class SLPtrHashFunction
 
 
 
-class[autoCt] Pair
+[autoCt] class Pair
 {
 
-	var[static] FirstType = firstType;
+	[static] var FirstType = firstType;
 
 
-	var[static] SecondType = secondType;
+	[static] var SecondType = secondType;
 
 
 	var first: FirstType;

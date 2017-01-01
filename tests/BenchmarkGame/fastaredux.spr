@@ -55,7 +55,7 @@ class RandTableRange
             ++idx;
         return lookup(idx).v2;
     }
-    var[static] counter = 0;
+    [static] var counter = 0;
 }
 
 fun sprMain

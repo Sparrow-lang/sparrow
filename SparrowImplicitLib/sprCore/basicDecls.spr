@@ -4,21 +4,24 @@
 /// Most basic types
 ///
 
-class[native("Type"), noDefault, ct] Type
+[native("Type"), noDefault, ct]
+class Type
 {
-    fun[native("_Type_ctor")] ctor;
-    fun[native("_Type_copy_ctor")] ctor(other: Type);
+    [native("_Type_ctor")] fun ctor;
+    [native("_Type_copy_ctor")] fun ctor(other: Type);
     //fun dtor {}
 }
 
-class[noDefault, rtct] Uninitialized
+[noDefault, rtct]
+class Uninitialized
 {
     fun ctor() {}
     fun ctor(other: Uninitialized) {}
     fun dtor {}
 }
 
-class[rtct, noDefault, native("Null")] Null
+[rtct, noDefault, native("Null")]
+class Null
 {
     fun ctor() {}
     fun ctor(other: Uninitialized) {}
@@ -26,291 +29,305 @@ class[rtct, noDefault, native("Null")] Null
     fun dtor {}
 }
 
-class[native("i1"), noDefault, rtct] Bool
+[native("i1"), noDefault, rtct]
+class Bool
 {
     fun ctor(other: Uninitialized) {}
-    fun[native("_zero_init_1")] ctor();
-    fun[native("_ass_1_1")] ctor(src: Bool);
+    [native("_zero_init_1")] fun ctor();
+    [native("_ass_1_1")] fun ctor(src: Bool);
     fun dtor {}
 
-    fun[autoCt, native("_ass_1_1")] = (y: Bool): Bool;
+    [autoCt, native("_ass_1_1")] fun = (y: Bool): Bool;
 }
 
-class[native("i8"), noDefault, rtct] Byte
+[native("i8"), noDefault, rtct]
+class Byte
 {
     fun ctor(other: Uninitialized) {}
-    fun[native("_zero_init_8")] ctor();
-    fun[native("_ass_8_8")] ctor(src: Byte);
-    fun[native("_ass_8_8")] ctor(src: Char);
-    fun[native("_ass_8_8")] ctor(src: UByte);
-    fun[native("_ass_8_16")] ctor(src: Short);
-    fun[native("_ass_8_16")] ctor(src: UShort);
-    fun[native("_ass_8_32")] ctor(src: Int);
-    fun[native("_ass_8_32")] ctor(src: UInt);
-    fun[native("_ass_8_64")] ctor(src: Long);
-    fun[native("_ass_8_64")] ctor(src: ULong);
-    fun[native("_ass_8_64")] ctor(src: SizeType);
-    fun[native("_ass_8_64")] ctor(src: DiffType);
-    fun[native("_ass_i8_f")] ctor(src: Float);
-    fun[native("_ass_i8_d")] ctor(src: Double);
+    [native("_zero_init_8")] fun ctor();
+    [native("_ass_8_8")] fun ctor(src: Byte);
+    [native("_ass_8_8")] fun ctor(src: Char);
+    [native("_ass_8_8")] fun ctor(src: UByte);
+    [native("_ass_8_16")] fun ctor(src: Short);
+    [native("_ass_8_16")] fun ctor(src: UShort);
+    [native("_ass_8_32")] fun ctor(src: Int);
+    [native("_ass_8_32")] fun ctor(src: UInt);
+    [native("_ass_8_64")] fun ctor(src: Long);
+    [native("_ass_8_64")] fun ctor(src: ULong);
+    [native("_ass_8_64")] fun ctor(src: SizeType);
+    [native("_ass_8_64")] fun ctor(src: DiffType);
+    [native("_ass_i8_f")] fun ctor(src: Float);
+    [native("_ass_i8_d")] fun ctor(src: Double);
     fun dtor {}
 
-    fun[native("_ass_8_8")] = (y: Byte);
+    [native("_ass_8_8")] fun = (y: Byte);
 }
 
-class[native("u8"), noDefault, rtct] UByte
+[native("u8"), noDefault, rtct]
+class UByte
 {
     fun ctor(other: Uninitialized) {}
-    fun[native("_zero_init_8")] ctor();
-    fun[native("_ass_8_8"), convert] ctor(src: Byte);
-    fun[native("_ass_8_8")] ctor(src: UByte);
-    fun[native("_ass_8_16")] ctor(src: Short);
-    fun[native("_ass_8_16")] ctor(src: UShort);
-    fun[native("_ass_8_32")] ctor(src: Int);
-    fun[native("_ass_8_32")] ctor(src: UInt);
-    fun[native("_ass_8_64")] ctor(src: Long);
-    fun[native("_ass_8_64")] ctor(src: ULong);
-    fun[native("_ass_8_64")] ctor(src: SizeType);
-    fun[native("_ass_8_64")] ctor(src: DiffType);
-    fun[native("_ass_u8_f")] ctor(src: Float);
-    fun[native("_ass_u8_d")] ctor(src: Double);
+    [native("_zero_init_8")] fun ctor();
+    [native("_ass_8_8"), convert] fun ctor(src: Byte);
+    [native("_ass_8_8")] fun ctor(src: UByte);
+    [native("_ass_8_16")] fun ctor(src: Short);
+    [native("_ass_8_16")] fun ctor(src: UShort);
+    [native("_ass_8_32")] fun ctor(src: Int);
+    [native("_ass_8_32")] fun ctor(src: UInt);
+    [native("_ass_8_64")] fun ctor(src: Long);
+    [native("_ass_8_64")] fun ctor(src: ULong);
+    [native("_ass_8_64")] fun ctor(src: SizeType);
+    [native("_ass_8_64")] fun ctor(src: DiffType);
+    [native("_ass_u8_f")] fun ctor(src: Float);
+    [native("_ass_u8_d")] fun ctor(src: Double);
     fun dtor {}
 
-    fun[native("_ass_8_8")] = (y: UByte);
+    [native("_ass_8_8")] fun = (y: UByte);
 }
 
-class[native("i16"), noDefault, rtct] Short
+[native("i16"), noDefault, rtct]
+class Short
 {
     fun ctor(other: Uninitialized) {}
-    fun[native("_zero_init_16")] ctor();
-    fun[native("_ass_16_8s"), convert] ctor(src: Byte);
-    fun[native("_ass_16_8z"), convert] ctor(src: UByte);
-    fun[native("_ass_16_16")] ctor(src: Short);
-    fun[native("_ass_16_16")] ctor(src: UShort);
-    fun[native("_ass_16_32")] ctor(src: Int);
-    fun[native("_ass_16_32")] ctor(src: UInt);
-    fun[native("_ass_16_64")] ctor(src: Long);
-    fun[native("_ass_16_64")] ctor(src: ULong);
-    fun[native("_ass_16_64")] ctor(src: SizeType);
-    fun[native("_ass_16_64")] ctor(src: DiffType);
-    fun[native("_ass_i16_f")] ctor(src: Float);
-    fun[native("_ass_i16_d")] ctor(src: Double);
+    [native("_zero_init_16")] fun ctor();
+    [native("_ass_16_8s"), convert] fun ctor(src: Byte);
+    [native("_ass_16_8z"), convert] fun ctor(src: UByte);
+    [native("_ass_16_16")] fun ctor(src: Short);
+    [native("_ass_16_16")] fun ctor(src: UShort);
+    [native("_ass_16_32")] fun ctor(src: Int);
+    [native("_ass_16_32")] fun ctor(src: UInt);
+    [native("_ass_16_64")] fun ctor(src: Long);
+    [native("_ass_16_64")] fun ctor(src: ULong);
+    [native("_ass_16_64")] fun ctor(src: SizeType);
+    [native("_ass_16_64")] fun ctor(src: DiffType);
+    [native("_ass_i16_f")] fun ctor(src: Float);
+    [native("_ass_i16_d")] fun ctor(src: Double);
     fun dtor {}
 
-    fun[native("_ass_16_16")] = (y: Short);
+    [native("_ass_16_16")] fun = (y: Short);
 }
 
-class[native("u16"), noDefault, rtct] UShort
+[native("u16"), noDefault, rtct]
+class UShort
 {
     fun ctor(other: Uninitialized) {}
-    fun[native("_zero_init_16")] ctor();
-    fun[native("_ass_16_8z"), convert] ctor(src: Byte);
-    fun[native("_ass_16_8z"), convert] ctor(src: UByte);
-    fun[native("_ass_16_16"), convert] ctor(src: Short);
-    fun[native("_ass_16_16")] ctor(src: UShort);
-    fun[native("_ass_16_32")] ctor(src: Int);
-    fun[native("_ass_16_32")] ctor(src: UInt);
-    fun[native("_ass_16_64")] ctor(src: Long);
-    fun[native("_ass_16_64")] ctor(src: ULong);
-    fun[native("_ass_16_64")] ctor(src: SizeType);
-    fun[native("_ass_16_64")] ctor(src: DiffType);
-    fun[native("_ass_u16_f")] ctor(src: Float);
-    fun[native("_ass_u16_d")] ctor(src: Double);
+    [native("_zero_init_16")] fun ctor();
+    [native("_ass_16_8z"), convert] fun ctor(src: Byte);
+    [native("_ass_16_8z"), convert] fun ctor(src: UByte);
+    [native("_ass_16_16"), convert] fun ctor(src: Short);
+    [native("_ass_16_16")] fun ctor(src: UShort);
+    [native("_ass_16_32")] fun ctor(src: Int);
+    [native("_ass_16_32")] fun ctor(src: UInt);
+    [native("_ass_16_64")] fun ctor(src: Long);
+    [native("_ass_16_64")] fun ctor(src: ULong);
+    [native("_ass_16_64")] fun ctor(src: SizeType);
+    [native("_ass_16_64")] fun ctor(src: DiffType);
+    [native("_ass_u16_f")] fun ctor(src: Float);
+    [native("_ass_u16_d")] fun ctor(src: Double);
     fun dtor {}
 
-    fun[native("_ass_16_16")] = (y: UShort);
+    [native("_ass_16_16")] fun = (y: UShort);
 }
 
-class[native("i32"), noDefault, rtct] Int
+[native("i32"), noDefault, rtct]
+class Int
 {
     fun ctor(other: Uninitialized) {}
-    fun[native("_zero_init_32")] ctor();
-    fun[native("_ass_32_8s"), convert] ctor(src: Byte);
-    fun[native("_ass_32_8z"), convert] ctor(src: UByte);
-    fun[native("_ass_32_16s"), convert] ctor(src: Short);
-    fun[native("_ass_32_16z"), convert] ctor(src: UShort);
-    fun[native("_ass_32_32")] ctor(src: Int);
-    fun[native("_ass_32_32")] ctor(src: UInt);
-    fun[native("_ass_32_64")] ctor(src: Long);
-    fun[native("_ass_32_64")] ctor(src: ULong);
-    fun[native("_ass_32_64")] ctor(src: SizeType);
-    fun[native("_ass_32_64")] ctor(src: DiffType);
-    fun[native("_ass_i32_f")] ctor(src: Float);
-    fun[native("_ass_i32_d")] ctor(src: Double);
+    [native("_zero_init_32")] fun ctor();
+    [native("_ass_32_8s"), convert] fun ctor(src: Byte);
+    [native("_ass_32_8z"), convert] fun ctor(src: UByte);
+    [native("_ass_32_16s"), convert] fun ctor(src: Short);
+    [native("_ass_32_16z"), convert] fun ctor(src: UShort);
+    [native("_ass_32_32")] fun ctor(src: Int);
+    [native("_ass_32_32")] fun ctor(src: UInt);
+    [native("_ass_32_64")] fun ctor(src: Long);
+    [native("_ass_32_64")] fun ctor(src: ULong);
+    [native("_ass_32_64")] fun ctor(src: SizeType);
+    [native("_ass_32_64")] fun ctor(src: DiffType);
+    [native("_ass_i32_f")] fun ctor(src: Float);
+    [native("_ass_i32_d")] fun ctor(src: Double);
     fun dtor {}
 
-    fun[native("_ass_32_8z")] ctor(src: Char);
+    [native("_ass_32_8z")] fun ctor(src: Char);
 
-    fun[native("_ass_32_32")] = (y: Int);
+    [native("_ass_32_32")] fun = (y: Int);
 }
 
-class[native("u32"), noDefault, rtct] UInt
+[native("u32"), noDefault, rtct]
+class UInt
 {
     fun ctor(other: Uninitialized) {}
-    fun[native("_zero_init_32")] ctor();
-    fun[native("_ass_32_8z"), convert] ctor(src: Byte);
-    fun[native("_ass_32_8z"), convert] ctor(src: UByte);
-    fun[native("_ass_32_16z"), convert] ctor(src: Short);
-    fun[native("_ass_32_16z"), convert] ctor(src: UShort);
-    fun[native("_ass_32_32"), convert] ctor(src: Int);
-    fun[native("_ass_32_32")] ctor(src: UInt);
-    fun[native("_ass_32_64")] ctor(src: Long);
-    fun[native("_ass_32_64")] ctor(src: ULong);
-    fun[native("_ass_32_64")] ctor(src: SizeType);
-    fun[native("_ass_32_64")] ctor(src: DiffType);
-    fun[native("_ass_u32_f")] ctor(src: Float);
-    fun[native("_ass_u32_d")] ctor(src: Double);
+    [native("_zero_init_32")] fun ctor();
+    [native("_ass_32_8z"), convert] fun ctor(src: Byte);
+    [native("_ass_32_8z"), convert] fun ctor(src: UByte);
+    [native("_ass_32_16z"), convert] fun ctor(src: Short);
+    [native("_ass_32_16z"), convert] fun ctor(src: UShort);
+    [native("_ass_32_32"), convert] fun ctor(src: Int);
+    [native("_ass_32_32")] fun ctor(src: UInt);
+    [native("_ass_32_64")] fun ctor(src: Long);
+    [native("_ass_32_64")] fun ctor(src: ULong);
+    [native("_ass_32_64")] fun ctor(src: SizeType);
+    [native("_ass_32_64")] fun ctor(src: DiffType);
+    [native("_ass_u32_f")] fun ctor(src: Float);
+    [native("_ass_u32_d")] fun ctor(src: Double);
     fun dtor {}
 
-    fun[native("_ass_32_32")] = (y: UInt);
+    [native("_ass_32_32")] fun = (y: UInt);
 }
 
-class[native("i64"), noDefault, rtct] Long
+[native("i64"), noDefault, rtct]
+class Long
 {
     fun ctor(other: Uninitialized) {}
-    fun[native("_zero_init_64")] ctor();
-    fun[native("_ass_64_8s"), convert] ctor(src: Byte);
-    fun[native("_ass_64_8z"), convert] ctor(src: UByte);
-    fun[native("_ass_64_16s"), convert] ctor(src: Short);
-    fun[native("_ass_64_16z"), convert] ctor(src: UShort);
-    fun[native("_ass_64_32s"), convert] ctor(src: Int);
-    fun[native("_ass_64_32z"), convert] ctor(src: UInt);
-    fun[native("_ass_64_64")] ctor(src: Long);
-    fun[native("_ass_64_64")] ctor(src: ULong);
-    fun[native("_ass_64_64"), convert] ctor(src: SizeType);
-    fun[native("_ass_64_64"), convert] ctor(src: DiffType);
-    fun[native("_ass_i64_f")] ctor(src: Float);
-    fun[native("_ass_i64_d")] ctor(src: Double);
+    [native("_zero_init_64")] fun ctor();
+    [native("_ass_64_8s"), convert] fun ctor(src: Byte);
+    [native("_ass_64_8z"), convert] fun ctor(src: UByte);
+    [native("_ass_64_16s"), convert] fun ctor(src: Short);
+    [native("_ass_64_16z"), convert] fun ctor(src: UShort);
+    [native("_ass_64_32s"), convert] fun ctor(src: Int);
+    [native("_ass_64_32z"), convert] fun ctor(src: UInt);
+    [native("_ass_64_64")] fun ctor(src: Long);
+    [native("_ass_64_64")] fun ctor(src: ULong);
+    [native("_ass_64_64"), convert] fun ctor(src: SizeType);
+    [native("_ass_64_64"), convert] fun ctor(src: DiffType);
+    [native("_ass_i64_f")] fun ctor(src: Float);
+    [native("_ass_i64_d")] fun ctor(src: Double);
     fun dtor {}
 
-    fun[native("_ass_64_64")] = (y: Long);
+    [native("_ass_64_64")] fun = (y: Long);
 }
 
-class[native("u64"), noDefault, rtct] ULong
+[native("u64"), noDefault, rtct]
+class ULong
 {
     fun ctor(other: Uninitialized) {}
-    fun[native("_zero_init_64")] ctor();
-    fun[native("_ass_64_8z"), convert] ctor(src: Byte);
-    fun[native("_ass_64_8z"), convert] ctor(src: UByte);
-    fun[native("_ass_64_16z"), convert] ctor(src: Short);
-    fun[native("_ass_64_16z"), convert] ctor(src: UShort);
-    fun[native("_ass_64_32z"), convert] ctor(src: Int);
-    fun[native("_ass_64_32z"), convert] ctor(src: UInt);
-    fun[native("_ass_64_64"), convert] ctor(src: Long);
-    fun[native("_ass_64_64")] ctor(src: ULong);
-    fun[native("_ass_64_64"), convert] ctor(src: SizeType);
-    fun[native("_ass_64_64"), convert] ctor(src: DiffType);
-    fun[native("_ass_u64_f")] ctor(src: Float);
-    fun[native("_ass_u64_d")] ctor(src: Double);
+    [native("_zero_init_64")] fun ctor();
+    [native("_ass_64_8z"), convert] fun ctor(src: Byte);
+    [native("_ass_64_8z"), convert] fun ctor(src: UByte);
+    [native("_ass_64_16z"), convert] fun ctor(src: Short);
+    [native("_ass_64_16z"), convert] fun ctor(src: UShort);
+    [native("_ass_64_32z"), convert] fun ctor(src: Int);
+    [native("_ass_64_32z"), convert] fun ctor(src: UInt);
+    [native("_ass_64_64"), convert] fun ctor(src: Long);
+    [native("_ass_64_64")] fun ctor(src: ULong);
+    [native("_ass_64_64"), convert] fun ctor(src: SizeType);
+    [native("_ass_64_64"), convert] fun ctor(src: DiffType);
+    [native("_ass_u64_f")] fun ctor(src: Float);
+    [native("_ass_u64_d")] fun ctor(src: Double);
     fun dtor {}
 
-    fun[native("_ass_64_64")] = (y: ULong);
+    [native("_ass_64_64")] fun = (y: ULong);
 }
 
-class[native("u64"), noDefault, rtct] SizeType
+[native("u64"), noDefault, rtct]
+class SizeType
 {
     fun ctor(other: Uninitialized) {}
-    fun[native("_zero_init_64")] ctor();
-    fun[native("_ass_64_8z"), convert] ctor(src: Byte);
-    fun[native("_ass_64_8z"), convert] ctor(src: UByte);
-    fun[native("_ass_64_16z"), convert] ctor(src: Short);
-    fun[native("_ass_64_16z"), convert] ctor(src: UShort);
-    fun[native("_ass_64_32z"), convert] ctor(src: Int);
-    fun[native("_ass_64_32z"), convert] ctor(src: UInt);
-    fun[native("_ass_64_64")] ctor(src: Long);
-    fun[native("_ass_64_64")] ctor(src: ULong);
-    fun[native("_ass_64_64")] ctor(src: SizeType);
-    fun[native("_ass_64_64"), convert] ctor(src: DiffType);
-    fun[native("_ass_u64_f")] ctor(src: Float);
-    fun[native("_ass_u64_d")] ctor(src: Double);
+    [native("_zero_init_64")] fun ctor();
+    [native("_ass_64_8z"), convert] fun ctor(src: Byte);
+    [native("_ass_64_8z"), convert] fun ctor(src: UByte);
+    [native("_ass_64_16z"), convert] fun ctor(src: Short);
+    [native("_ass_64_16z"), convert] fun ctor(src: UShort);
+    [native("_ass_64_32z"), convert] fun ctor(src: Int);
+    [native("_ass_64_32z"), convert] fun ctor(src: UInt);
+    [native("_ass_64_64")] fun ctor(src: Long);
+    [native("_ass_64_64")] fun ctor(src: ULong);
+    [native("_ass_64_64")] fun ctor(src: SizeType);
+    [native("_ass_64_64"), convert] fun ctor(src: DiffType);
+    [native("_ass_u64_f")] fun ctor(src: Float);
+    [native("_ass_u64_d")] fun ctor(src: Double);
     fun dtor {}
 
-    fun[native("_ass_64_64")] = (y: SizeType);
+    [native("_ass_64_64")] fun = (y: SizeType);
 }
 
 //var NullPos = SizeType(DiffType(-1));
 
-class[native("i64"), noDefault, rtct] DiffType
+[native("i64"), noDefault, rtct]
+class DiffType
 {
     fun ctor(other: Uninitialized) {}
-    fun[native("_zero_init_64")] ctor();
-    fun[native("_ass_64_8s"), convert] ctor(src: Byte);
-    fun[native("_ass_64_8z"), convert] ctor(src: UByte);
-    fun[native("_ass_64_16s"), convert] ctor(src: Short);
-    fun[native("_ass_64_16z"), convert] ctor(src: UShort);
-    fun[native("_ass_64_32s"), convert] ctor(src: Int);
-    fun[native("_ass_64_32z"), convert] ctor(src: UInt);
-    fun[native("_ass_64_64")] ctor(src: Long);
-    fun[native("_ass_64_64")] ctor(src: ULong);
-    fun[native("_ass_64_64")] ctor(src: SizeType);
-    fun[native("_ass_64_64")] ctor(src: DiffType);
-    fun[native("_ass_i64_f")] ctor(src: Float);
-    fun[native("_ass_i64_d")] ctor(src: Double);
+    [native("_zero_init_64")] fun ctor();
+    [native("_ass_64_8s"), convert] fun ctor(src: Byte);
+    [native("_ass_64_8z"), convert] fun ctor(src: UByte);
+    [native("_ass_64_16s"), convert] fun ctor(src: Short);
+    [native("_ass_64_16z"), convert] fun ctor(src: UShort);
+    [native("_ass_64_32s"), convert] fun ctor(src: Int);
+    [native("_ass_64_32z"), convert] fun ctor(src: UInt);
+    [native("_ass_64_64")] fun ctor(src: Long);
+    [native("_ass_64_64")] fun ctor(src: ULong);
+    [native("_ass_64_64")] fun ctor(src: SizeType);
+    [native("_ass_64_64")] fun ctor(src: DiffType);
+    [native("_ass_i64_f")] fun ctor(src: Float);
+    [native("_ass_i64_d")] fun ctor(src: Double);
     fun dtor {}
 
-    fun[native("_ass_64_64")] = (y: DiffType);
+    [native("_ass_64_64")] fun = (y: DiffType);
 }
 
-class[native("float"), noDefault, rtct] Float
+[native("float"), noDefault, rtct]
+class Float
 {
     fun ctor(other: Uninitialized) {}
-    fun[native("_zero_init_f")] ctor();
-    fun[native("_ass_f_i8"), convert] ctor(src: Byte);
-    fun[native("_ass_f_u8"), convert] ctor(src: UByte);
-    fun[native("_ass_f_i16"), convert] ctor(src: Short);
-    fun[native("_ass_f_u16"), convert] ctor(src: UShort);
-    fun[native("_ass_f_i32"), convert] ctor(src: Int);
-    fun[native("_ass_f_u32"), convert] ctor(src: UInt);
-    fun[native("_ass_f_i64"), convert] ctor(src: Long);
-    fun[native("_ass_f_u64"), convert] ctor(src: ULong);
-    fun[native("_ass_f_i64"), convert] ctor(src: SizeType);
-    fun[native("_ass_f_u64"), convert] ctor(src: DiffType);
-    fun[native("_ass_f_f")] ctor(src: Float);
-    fun[native("_ass_f_d")] ctor(src: Double);
+    [native("_zero_init_f")] fun ctor();
+    [native("_ass_f_i8"), convert] fun ctor(src: Byte);
+    [native("_ass_f_u8"), convert] fun ctor(src: UByte);
+    [native("_ass_f_i16"), convert] fun ctor(src: Short);
+    [native("_ass_f_u16"), convert] fun ctor(src: UShort);
+    [native("_ass_f_i32"), convert] fun ctor(src: Int);
+    [native("_ass_f_u32"), convert] fun ctor(src: UInt);
+    [native("_ass_f_i64"), convert] fun ctor(src: Long);
+    [native("_ass_f_u64"), convert] fun ctor(src: ULong);
+    [native("_ass_f_i64"), convert] fun ctor(src: SizeType);
+    [native("_ass_f_u64"), convert] fun ctor(src: DiffType);
+    [native("_ass_f_f")] fun ctor(src: Float);
+    [native("_ass_f_d")] fun ctor(src: Double);
     fun dtor {}
 
-    fun[native("_ass_f_f")] = (y: Float);
+    [native("_ass_f_f")] fun = (y: Float);
 }
 
-class[native("double"), noDefault, rtct] Double
+[native("double"), noDefault, rtct]
+class Double
 {
     fun ctor(other: Uninitialized) {}
-    fun[native("_zero_init_d")] ctor();
-    fun[native("_ass_d_i8"), convert] ctor(src: Byte);
-    fun[native("_ass_d_u8"), convert] ctor(src: UByte);
-    fun[native("_ass_d_i16"), convert] ctor(src: Short);
-    fun[native("_ass_d_u16"), convert] ctor(src: UShort);
-    fun[native("_ass_d_i32"), convert] ctor(src: Int);
-    fun[native("_ass_d_u32"), convert] ctor(src: UInt);
-    fun[native("_ass_d_i64"), convert] ctor(src: Long);
-    fun[native("_ass_d_u64"), convert] ctor(src: ULong);
-    fun[native("_ass_d_i64"), convert] ctor(src: SizeType);
-    fun[native("_ass_d_u64"), convert] ctor(src: DiffType);
-    fun[native("_ass_d_f"), convert] ctor(src: Float);
-    fun[native("_ass_d_d")] ctor(src: Double);
+    [native("_zero_init_d")] fun ctor();
+    [native("_ass_d_i8"), convert] fun ctor(src: Byte);
+    [native("_ass_d_u8"), convert] fun ctor(src: UByte);
+    [native("_ass_d_i16"), convert] fun ctor(src: Short);
+    [native("_ass_d_u16"), convert] fun ctor(src: UShort);
+    [native("_ass_d_i32"), convert] fun ctor(src: Int);
+    [native("_ass_d_u32"), convert] fun ctor(src: UInt);
+    [native("_ass_d_i64"), convert] fun ctor(src: Long);
+    [native("_ass_d_u64"), convert] fun ctor(src: ULong);
+    [native("_ass_d_i64"), convert] fun ctor(src: SizeType);
+    [native("_ass_d_u64"), convert] fun ctor(src: DiffType);
+    [native("_ass_d_f"), convert] fun ctor(src: Float);
+    [native("_ass_d_d")] fun ctor(src: Double);
     fun dtor {}
 
-    fun[native("_ass_d_d")] = (y: Double);
+    [native("_ass_d_d")] fun = (y: Double);
 }
 
-class[native("i8"), noDefault, rtct] Char
+[native("i8"), noDefault, rtct]
+class Char
 {
     fun ctor(other: Uninitialized) {}
-    fun[native("_zero_init_8")] ctor();
-    fun[native("_ass_8_8")] ctor(src: Char);
-    fun[native("_ass_8_8")] ctor(src: Byte);
-    fun[native("_ass_8_8")] ctor(src: UByte);
-    fun[native("_ass_8_16")] ctor(src: Short);
-    fun[native("_ass_8_16")] ctor(src: UShort);
-    fun[native("_ass_8_32")] ctor(src: Int);
-    fun[native("_ass_8_32")] ctor(src: UInt);
-    fun[native("_ass_8_64")] ctor(src: Long);
-    fun[native("_ass_8_64")] ctor(src: ULong);
-    fun[native("_ass_8_64")] ctor(src: SizeType);
-    fun[native("_ass_8_64")] ctor(src: DiffType);
+    [native("_zero_init_8")] fun ctor();
+    [native("_ass_8_8")] fun ctor(src: Char);
+    [native("_ass_8_8")] fun ctor(src: Byte);
+    [native("_ass_8_8")] fun ctor(src: UByte);
+    [native("_ass_8_16")] fun ctor(src: Short);
+    [native("_ass_8_16")] fun ctor(src: UShort);
+    [native("_ass_8_32")] fun ctor(src: Int);
+    [native("_ass_8_32")] fun ctor(src: UInt);
+    [native("_ass_8_64")] fun ctor(src: Long);
+    [native("_ass_8_64")] fun ctor(src: ULong);
+    [native("_ass_8_64")] fun ctor(src: SizeType);
+    [native("_ass_8_64")] fun ctor(src: DiffType);
     fun dtor {}
 
-    fun[native("_ass_8_8")] = (y: Char);
+    [native("_ass_8_8")] fun = (y: Char);
 }
 
 concept SmallInteger(x)
@@ -359,45 +376,45 @@ concept Number(x)
     || FloatingPointNumber(x);
 
 
-class[rtct] NumericLimits(t: Type) if t == Byte
+[rtct] class NumericLimits(t: Type) if t == Byte
 {
     using maxValue = Byte(0x7f);
     using minValue = Byte(0x80);
 }
-class[rtct] NumericLimits(t: Type) if t == UByte
+[rtct] class NumericLimits(t: Type) if t == UByte
 {
     using maxValue = UByte(0xff);
     using minValue = UByte(0x00);
 }
 
-class[rtct] NumericLimits(t: Type) if t == Short
+[rtct] class NumericLimits(t: Type) if t == Short
 {
     using maxValue = Short(0x7fff);
     using minValue = Short(0x8000);
 }
-class[rtct] NumericLimits(t: Type) if t == UShort
+[rtct] class NumericLimits(t: Type) if t == UShort
 {
     using maxValue = UShort(0xfff);
     using minValue = UShort(0x000);
 }
 
-class[rtct] NumericLimits(t: Type) if t == Int
+[rtct] class NumericLimits(t: Type) if t == Int
 {
     using maxValue = Int(0x7fffffff);
     using minValue = Int(0x80000000);
 }
-class[rtct] NumericLimits(t: Type) if t == UInt
+[rtct] class NumericLimits(t: Type) if t == UInt
 {
     using maxValue = UInt(0xffffffff);
     using minValue = UInt(0x00000000);
 }
 
-class[rtct] NumericLimits(t: Type) if t == Long
+[rtct] class NumericLimits(t: Type) if t == Long
 {
     using maxValue = Long(0x7fffffffffffffffL);
     using minValue = Long(0x8000000000000000L);
 }
-class[rtct] NumericLimits(t: Type) if t == ULong
+[rtct] class NumericLimits(t: Type) if t == ULong
 {
     using maxValue = ULong(0xffffffffffffffffL);
     using minValue = ULong(0x0000000000000000L);
@@ -453,19 +470,19 @@ using oper_assoc_:=         = -1;
 /// operations on Bool
 ///
 
-fun[autoCt, native("$logicalOr")] || (x, y: Bool): Bool;
-fun[autoCt, native("$logicalAnd")] && (x, y: Bool): Bool;
-fun[autoCt, native("_Bool_opXor")] ^^ (x, y: Bool): Bool;
-fun[autoCt, native("_Bool_opEQ")] == (x, y: Bool): Bool;
-fun[autoCt, native("_Bool_opNE")] != (x, y: Bool): Bool;
-fun[autoCt, native("_Bool_opNeg")] ! (x: Bool): Bool;
+[autoCt, native("$logicalOr")] fun || (x, y: Bool): Bool;
+[autoCt, native("$logicalAnd")] fun && (x, y: Bool): Bool;
+[autoCt, native("_Bool_opXor")] fun ^^ (x, y: Bool): Bool;
+[autoCt, native("_Bool_opEQ")] fun == (x, y: Bool): Bool;
+[autoCt, native("_Bool_opNE")] fun != (x, y: Bool): Bool;
+[autoCt, native("_Bool_opNeg")] fun ! (x: Bool): Bool;
 
-fun[autoCt, native("_Char_opEQ")] == (x, y: Char): Bool;
-fun[autoCt, native("_Char_opNE")] != (x, y: Char): Bool;
-fun[autoCt, native("_Char_opLT")] < (x, y: Char): Bool;
-fun[autoCt, native("_Char_opGT")] > (x, y: Char): Bool;
-fun[autoCt, native("_Char_opLE")] <= (x, y: Char): Bool;
-fun[autoCt, native("_Char_opGE")] >= (x, y: Char): Bool;
+[autoCt, native("_Char_opEQ")] fun == (x, y: Char): Bool;
+[autoCt, native("_Char_opNE")] fun != (x, y: Char): Bool;
+[autoCt, native("_Char_opLT")] fun < (x, y: Char): Bool;
+[autoCt, native("_Char_opGT")] fun > (x, y: Char): Bool;
+[autoCt, native("_Char_opLE")] fun <= (x, y: Char): Bool;
+[autoCt, native("_Char_opGE")] fun >= (x, y: Char): Bool;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -474,230 +491,230 @@ fun[autoCt, native("_Char_opGE")] >= (x, y: Char): Bool;
 
 package NumOpImpl
 {
-    fun[autoCt] cmn(x, y: Number) = cast(commonType(typeOf(x), typeOf(y)), x);
+    [autoCt] fun cmn(x, y: Number) = cast(commonType(typeOf(x), typeOf(y)), x);
 
-    fun[autoCt, native("_Byte_opEQ")] opEq (x, y: Byte): Bool;
-    fun[autoCt, native("_Byte_opNE")] opNe (x, y: Byte): Bool;
-    fun[autoCt, native("_Byte_opLT")] opLt (x, y: Byte): Bool;
-    fun[autoCt, native("_Byte_opGT")] opGt (x, y: Byte): Bool;
-    fun[autoCt, native("_Byte_opLE")] opLe (x, y: Byte): Bool;
-    fun[autoCt, native("_Byte_opGE")] opGe (x, y: Byte): Bool;
-    fun[autoCt, native("_Byte_opPlus")] opPlus (x, y: Byte): Byte;
-    fun[autoCt, native("_Byte_opMinus")] opMinus (x, y: Byte): Byte;
-    fun[autoCt, native("_Byte_opMul")] opMul (x, y: Byte): Byte;
-    fun[autoCt, native("_Byte_opDiv")] opDiv (x, y: Byte): Byte;
-    fun[autoCt, native("_Byte_opMod")] opMod (x, y: Byte): Byte;
+    [autoCt, native("_Byte_opEQ")] fun opEq (x, y: Byte): Bool;
+    [autoCt, native("_Byte_opNE")] fun opNe (x, y: Byte): Bool;
+    [autoCt, native("_Byte_opLT")] fun opLt (x, y: Byte): Bool;
+    [autoCt, native("_Byte_opGT")] fun opGt (x, y: Byte): Bool;
+    [autoCt, native("_Byte_opLE")] fun opLe (x, y: Byte): Bool;
+    [autoCt, native("_Byte_opGE")] fun opGe (x, y: Byte): Bool;
+    [autoCt, native("_Byte_opPlus")] fun opPlus (x, y: Byte): Byte;
+    [autoCt, native("_Byte_opMinus")] fun opMinus (x, y: Byte): Byte;
+    [autoCt, native("_Byte_opMul")] fun opMul (x, y: Byte): Byte;
+    [autoCt, native("_Byte_opDiv")] fun opDiv (x, y: Byte): Byte;
+    [autoCt, native("_Byte_opMod")] fun opMod (x, y: Byte): Byte;
 
-    fun[autoCt, native("_UByte_opEQ")] opEq (x, y: UByte): Bool;
-    fun[autoCt, native("_UByte_opNE")] opNe (x, y: UByte): Bool;
-    fun[autoCt, native("_UByte_opLT")] opLt (x, y: UByte): Bool;
-    fun[autoCt, native("_UByte_opGT")] opGt (x, y: UByte): Bool;
-    fun[autoCt, native("_UByte_opLE")] opLe (x, y: UByte): Bool;
-    fun[autoCt, native("_UByte_opGE")] opGe (x, y: UByte): Bool;
-    fun[autoCt, native("_UByte_opPlus")] opPlus (x, y: UByte): UByte;
-    fun[autoCt, native("_UByte_opMinus")] opMinus (x, y: UByte): UByte;
-    fun[autoCt, native("_UByte_opMul")] opMul (x, y: UByte): UByte;
-    fun[autoCt, native("_UByte_opDiv")] opDiv (x, y: UByte): UByte;
-    fun[autoCt, native("_UByte_opMod")] opMod (x, y: UByte): UByte;
+    [autoCt, native("_UByte_opEQ")] fun opEq (x, y: UByte): Bool;
+    [autoCt, native("_UByte_opNE")] fun opNe (x, y: UByte): Bool;
+    [autoCt, native("_UByte_opLT")] fun opLt (x, y: UByte): Bool;
+    [autoCt, native("_UByte_opGT")] fun opGt (x, y: UByte): Bool;
+    [autoCt, native("_UByte_opLE")] fun opLe (x, y: UByte): Bool;
+    [autoCt, native("_UByte_opGE")] fun opGe (x, y: UByte): Bool;
+    [autoCt, native("_UByte_opPlus")] fun opPlus (x, y: UByte): UByte;
+    [autoCt, native("_UByte_opMinus")] fun opMinus (x, y: UByte): UByte;
+    [autoCt, native("_UByte_opMul")] fun opMul (x, y: UByte): UByte;
+    [autoCt, native("_UByte_opDiv")] fun opDiv (x, y: UByte): UByte;
+    [autoCt, native("_UByte_opMod")] fun opMod (x, y: UByte): UByte;
 
-    fun[autoCt, native("_Short_opEQ")] opEq (x, y: Short): Bool;
-    fun[autoCt, native("_Short_opNE")] opNe (x, y: Short): Bool;
-    fun[autoCt, native("_Short_opLT")] opLt (x, y: Short): Bool;
-    fun[autoCt, native("_Short_opGT")] opGt (x, y: Short): Bool;
-    fun[autoCt, native("_Short_opLE")] opLe (x, y: Short): Bool;
-    fun[autoCt, native("_Short_opGE")] opGe (x, y: Short): Bool;
-    fun[autoCt, native("_Short_opPlus")] opPlus (x, y: Short): Short;
-    fun[autoCt, native("_Short_opMinus")] opMinus (x, y: Short): Short;
-    fun[autoCt, native("_Short_opMul")] opMul (x, y: Short): Short;
-    fun[autoCt, native("_Short_opDiv")] opDiv (x, y: Short): Short;
-    fun[autoCt, native("_Short_opMod")] opMod (x, y: Short): Short;
+    [autoCt, native("_Short_opEQ")] fun opEq (x, y: Short): Bool;
+    [autoCt, native("_Short_opNE")] fun opNe (x, y: Short): Bool;
+    [autoCt, native("_Short_opLT")] fun opLt (x, y: Short): Bool;
+    [autoCt, native("_Short_opGT")] fun opGt (x, y: Short): Bool;
+    [autoCt, native("_Short_opLE")] fun opLe (x, y: Short): Bool;
+    [autoCt, native("_Short_opGE")] fun opGe (x, y: Short): Bool;
+    [autoCt, native("_Short_opPlus")] fun opPlus (x, y: Short): Short;
+    [autoCt, native("_Short_opMinus")] fun opMinus (x, y: Short): Short;
+    [autoCt, native("_Short_opMul")] fun opMul (x, y: Short): Short;
+    [autoCt, native("_Short_opDiv")] fun opDiv (x, y: Short): Short;
+    [autoCt, native("_Short_opMod")] fun opMod (x, y: Short): Short;
 
-    fun[autoCt, native("_UShort_opEQ")] opEq (x, y: UShort): Bool;
-    fun[autoCt, native("_UShort_opNE")] opNe (x, y: UShort): Bool;
-    fun[autoCt, native("_UShort_opLT")] opLt (x, y: UShort): Bool;
-    fun[autoCt, native("_UShort_opGT")] opGt (x, y: UShort): Bool;
-    fun[autoCt, native("_UShort_opLE")] opLe (x, y: UShort): Bool;
-    fun[autoCt, native("_UShort_opGE")] opGe (x, y: UShort): Bool;
-    fun[autoCt, native("_UShort_opPlus")] opPlus (x, y: UShort): UShort;
-    fun[autoCt, native("_UShort_opMinus")] opMinus (x, y: UShort): UShort;
-    fun[autoCt, native("_UShort_opMul")] opMul (x, y: UShort): UShort;
-    fun[autoCt, native("_UShort_opDiv")] opDiv (x, y: UShort): UShort;
-    fun[autoCt, native("_UShort_opMod")] opMod (x, y: UShort): UShort;
+    [autoCt, native("_UShort_opEQ")] fun opEq (x, y: UShort): Bool;
+    [autoCt, native("_UShort_opNE")] fun opNe (x, y: UShort): Bool;
+    [autoCt, native("_UShort_opLT")] fun opLt (x, y: UShort): Bool;
+    [autoCt, native("_UShort_opGT")] fun opGt (x, y: UShort): Bool;
+    [autoCt, native("_UShort_opLE")] fun opLe (x, y: UShort): Bool;
+    [autoCt, native("_UShort_opGE")] fun opGe (x, y: UShort): Bool;
+    [autoCt, native("_UShort_opPlus")] fun opPlus (x, y: UShort): UShort;
+    [autoCt, native("_UShort_opMinus")] fun opMinus (x, y: UShort): UShort;
+    [autoCt, native("_UShort_opMul")] fun opMul (x, y: UShort): UShort;
+    [autoCt, native("_UShort_opDiv")] fun opDiv (x, y: UShort): UShort;
+    [autoCt, native("_UShort_opMod")] fun opMod (x, y: UShort): UShort;
 
-    fun[autoCt, native("_Int_opEQ")] opEq (x, y: Int): Bool;
-    fun[autoCt, native("_Int_opNE")] opNe (x, y: Int): Bool;
-    fun[autoCt, native("_Int_opLT")] opLt (x, y: Int): Bool;
-    fun[autoCt, native("_Int_opGT")] opGt (x, y: Int): Bool;
-    fun[autoCt, native("_Int_opLE")] opLe (x, y: Int): Bool;
-    fun[autoCt, native("_Int_opGE")] opGe (x, y: Int): Bool;
-    fun[autoCt, native("_Int_opPlus")] opPlus (x, y: Int): Int;
-    fun[autoCt, native("_Int_opMinus")] opMinus (x, y: Int): Int;
-    fun[autoCt, native("_Int_opMul")] opMul (x, y: Int): Int;
-    fun[autoCt, native("_Int_opDiv")] opDiv (x, y: Int): Int;
-    fun[autoCt, native("_Int_opMod")] opMod (x, y: Int): Int;
+    [autoCt, native("_Int_opEQ")] fun opEq (x, y: Int): Bool;
+    [autoCt, native("_Int_opNE")] fun opNe (x, y: Int): Bool;
+    [autoCt, native("_Int_opLT")] fun opLt (x, y: Int): Bool;
+    [autoCt, native("_Int_opGT")] fun opGt (x, y: Int): Bool;
+    [autoCt, native("_Int_opLE")] fun opLe (x, y: Int): Bool;
+    [autoCt, native("_Int_opGE")] fun opGe (x, y: Int): Bool;
+    [autoCt, native("_Int_opPlus")] fun opPlus (x, y: Int): Int;
+    [autoCt, native("_Int_opMinus")] fun opMinus (x, y: Int): Int;
+    [autoCt, native("_Int_opMul")] fun opMul (x, y: Int): Int;
+    [autoCt, native("_Int_opDiv")] fun opDiv (x, y: Int): Int;
+    [autoCt, native("_Int_opMod")] fun opMod (x, y: Int): Int;
 
-    fun[autoCt, native("_UInt_opEQ")] opEq (x, y: UInt): Bool;
-    fun[autoCt, native("_UInt_opNE")] opNe (x, y: UInt): Bool;
-    fun[autoCt, native("_UInt_opLT")] opLt (x, y: UInt): Bool;
-    fun[autoCt, native("_UInt_opGT")] opGt (x, y: UInt): Bool;
-    fun[autoCt, native("_UInt_opLE")] opLe (x, y: UInt): Bool;
-    fun[autoCt, native("_UInt_opGE")] opGe (x, y: UInt): Bool;
-    fun[autoCt, native("_UInt_opPlus")] opPlus (x, y: UInt): UInt;
-    fun[autoCt, native("_UInt_opMinus")] opMinus (x, y: UInt): UInt;
-    fun[autoCt, native("_UInt_opMul")] opMul (x, y: UInt): UInt;
-    fun[autoCt, native("_UInt_opDiv")] opDiv (x, y: UInt): UInt;
-    fun[autoCt, native("_UInt_opMod")] opMod (x, y: UInt): UInt;
+    [autoCt, native("_UInt_opEQ")] fun opEq (x, y: UInt): Bool;
+    [autoCt, native("_UInt_opNE")] fun opNe (x, y: UInt): Bool;
+    [autoCt, native("_UInt_opLT")] fun opLt (x, y: UInt): Bool;
+    [autoCt, native("_UInt_opGT")] fun opGt (x, y: UInt): Bool;
+    [autoCt, native("_UInt_opLE")] fun opLe (x, y: UInt): Bool;
+    [autoCt, native("_UInt_opGE")] fun opGe (x, y: UInt): Bool;
+    [autoCt, native("_UInt_opPlus")] fun opPlus (x, y: UInt): UInt;
+    [autoCt, native("_UInt_opMinus")] fun opMinus (x, y: UInt): UInt;
+    [autoCt, native("_UInt_opMul")] fun opMul (x, y: UInt): UInt;
+    [autoCt, native("_UInt_opDiv")] fun opDiv (x, y: UInt): UInt;
+    [autoCt, native("_UInt_opMod")] fun opMod (x, y: UInt): UInt;
 
-    fun[autoCt, native("_Long_opEQ")] opEq (x, y: Long): Bool;
-    fun[autoCt, native("_Long_opNE")] opNe (x, y: Long): Bool;
-    fun[autoCt, native("_Long_opLT")] opLt (x, y: Long): Bool;
-    fun[autoCt, native("_Long_opGT")] opGt (x, y: Long): Bool;
-    fun[autoCt, native("_Long_opLE")] opLe (x, y: Long): Bool;
-    fun[autoCt, native("_Long_opGE")] opGe (x, y: Long): Bool;
-    fun[autoCt, native("_Long_opPlus")] opPlus (x, y: Long): Long;
-    fun[autoCt, native("_Long_opMinus")] opMinus (x, y: Long): Long;
-    fun[autoCt, native("_Long_opMul")] opMul (x, y: Long): Long;
-    fun[autoCt, native("_Long_opDiv")] opDiv (x, y: Long): Long;
-    fun[autoCt, native("_Long_opMod")] opMod (x, y: Long): Long;
+    [autoCt, native("_Long_opEQ")] fun opEq (x, y: Long): Bool;
+    [autoCt, native("_Long_opNE")] fun opNe (x, y: Long): Bool;
+    [autoCt, native("_Long_opLT")] fun opLt (x, y: Long): Bool;
+    [autoCt, native("_Long_opGT")] fun opGt (x, y: Long): Bool;
+    [autoCt, native("_Long_opLE")] fun opLe (x, y: Long): Bool;
+    [autoCt, native("_Long_opGE")] fun opGe (x, y: Long): Bool;
+    [autoCt, native("_Long_opPlus")] fun opPlus (x, y: Long): Long;
+    [autoCt, native("_Long_opMinus")] fun opMinus (x, y: Long): Long;
+    [autoCt, native("_Long_opMul")] fun opMul (x, y: Long): Long;
+    [autoCt, native("_Long_opDiv")] fun opDiv (x, y: Long): Long;
+    [autoCt, native("_Long_opMod")] fun opMod (x, y: Long): Long;
 
-    fun[autoCt, native("_ULong_opEQ")] opEq (x, y: ULong): Bool;
-    fun[autoCt, native("_ULong_opNE")] opNe (x, y: ULong): Bool;
-    fun[autoCt, native("_ULong_opLT")] opLt (x, y: ULong): Bool;
-    fun[autoCt, native("_ULong_opGT")] opGt (x, y: ULong): Bool;
-    fun[autoCt, native("_ULong_opLE")] opLe (x, y: ULong): Bool;
-    fun[autoCt, native("_ULong_opGE")] opGe (x, y: ULong): Bool;
-    fun[autoCt, native("_ULong_opPlus")] opPlus (x, y: ULong): ULong;
-    fun[autoCt, native("_ULong_opMinus")] opMinus (x, y: ULong): ULong;
-    fun[autoCt, native("_ULong_opMul")] opMul (x, y: ULong): ULong;
-    fun[autoCt, native("_ULong_opDiv")] opDiv (x, y: ULong): ULong;
-    fun[autoCt, native("_ULong_opMod")] opMod (x, y: ULong): ULong;
+    [autoCt, native("_ULong_opEQ")] fun opEq (x, y: ULong): Bool;
+    [autoCt, native("_ULong_opNE")] fun opNe (x, y: ULong): Bool;
+    [autoCt, native("_ULong_opLT")] fun opLt (x, y: ULong): Bool;
+    [autoCt, native("_ULong_opGT")] fun opGt (x, y: ULong): Bool;
+    [autoCt, native("_ULong_opLE")] fun opLe (x, y: ULong): Bool;
+    [autoCt, native("_ULong_opGE")] fun opGe (x, y: ULong): Bool;
+    [autoCt, native("_ULong_opPlus")] fun opPlus (x, y: ULong): ULong;
+    [autoCt, native("_ULong_opMinus")] fun opMinus (x, y: ULong): ULong;
+    [autoCt, native("_ULong_opMul")] fun opMul (x, y: ULong): ULong;
+    [autoCt, native("_ULong_opDiv")] fun opDiv (x, y: ULong): ULong;
+    [autoCt, native("_ULong_opMod")] fun opMod (x, y: ULong): ULong;
 
-    fun[autoCt, native("_SizeType_opEQ")] opEq (x, y: SizeType): Bool;
-    fun[autoCt, native("_SizeType_opNE")] opNe (x, y: SizeType): Bool;
-    fun[autoCt, native("_SizeType_opLT")] opLt (x, y: SizeType): Bool;
-    fun[autoCt, native("_SizeType_opGT")] opGt (x, y: SizeType): Bool;
-    fun[autoCt, native("_SizeType_opLE")] opLe (x, y: SizeType): Bool;
-    fun[autoCt, native("_SizeType_opGE")] opGe (x, y: SizeType): Bool;
-    fun[autoCt, native("_SizeType_opPlus")] opPlus (x, y: SizeType): SizeType;
-    fun[autoCt, native("_SizeType_opMinus")] opMinus (x, y: SizeType): SizeType;
-    fun[autoCt, native("_SizeType_opMul")] opMul (x, y: SizeType): SizeType;
-    fun[autoCt, native("_SizeType_opDiv")] opDiv (x, y: SizeType): SizeType;
-    fun[autoCt, native("_SizeType_opMod")] opMod (x, y: SizeType): SizeType;
+    [autoCt, native("_SizeType_opEQ")] fun opEq (x, y: SizeType): Bool;
+    [autoCt, native("_SizeType_opNE")] fun opNe (x, y: SizeType): Bool;
+    [autoCt, native("_SizeType_opLT")] fun opLt (x, y: SizeType): Bool;
+    [autoCt, native("_SizeType_opGT")] fun opGt (x, y: SizeType): Bool;
+    [autoCt, native("_SizeType_opLE")] fun opLe (x, y: SizeType): Bool;
+    [autoCt, native("_SizeType_opGE")] fun opGe (x, y: SizeType): Bool;
+    [autoCt, native("_SizeType_opPlus")] fun opPlus (x, y: SizeType): SizeType;
+    [autoCt, native("_SizeType_opMinus")] fun opMinus (x, y: SizeType): SizeType;
+    [autoCt, native("_SizeType_opMul")] fun opMul (x, y: SizeType): SizeType;
+    [autoCt, native("_SizeType_opDiv")] fun opDiv (x, y: SizeType): SizeType;
+    [autoCt, native("_SizeType_opMod")] fun opMod (x, y: SizeType): SizeType;
 
-    fun[autoCt, native("_DiffType_opEQ")] opEq (x, y: DiffType): Bool;
-    fun[autoCt, native("_DiffType_opNE")] opNe (x, y: DiffType): Bool;
-    fun[autoCt, native("_DiffType_opLT")] opLt (x, y: DiffType): Bool;
-    fun[autoCt, native("_DiffType_opGT")] opGt (x, y: DiffType): Bool;
-    fun[autoCt, native("_DiffType_opLE")] opLe (x, y: DiffType): Bool;
-    fun[autoCt, native("_DiffType_opGE")] opGe (x, y: DiffType): Bool;
-    fun[autoCt, native("_DiffType_opPlus")] opPlus (x, y: DiffType): DiffType;
-    fun[autoCt, native("_DiffType_opMinus")] opMinus (x, y: DiffType): DiffType;
-    fun[autoCt, native("_DiffType_opMul")] opMul (x, y: DiffType): DiffType;
-    fun[autoCt, native("_DiffType_opDiv")] opDiv (x, y: DiffType): DiffType;
-    fun[autoCt, native("_DiffType_opMod")] opMod (x, y: DiffType): DiffType;
+    [autoCt, native("_DiffType_opEQ")] fun opEq (x, y: DiffType): Bool;
+    [autoCt, native("_DiffType_opNE")] fun opNe (x, y: DiffType): Bool;
+    [autoCt, native("_DiffType_opLT")] fun opLt (x, y: DiffType): Bool;
+    [autoCt, native("_DiffType_opGT")] fun opGt (x, y: DiffType): Bool;
+    [autoCt, native("_DiffType_opLE")] fun opLe (x, y: DiffType): Bool;
+    [autoCt, native("_DiffType_opGE")] fun opGe (x, y: DiffType): Bool;
+    [autoCt, native("_DiffType_opPlus")] fun opPlus (x, y: DiffType): DiffType;
+    [autoCt, native("_DiffType_opMinus")] fun opMinus (x, y: DiffType): DiffType;
+    [autoCt, native("_DiffType_opMul")] fun opMul (x, y: DiffType): DiffType;
+    [autoCt, native("_DiffType_opDiv")] fun opDiv (x, y: DiffType): DiffType;
+    [autoCt, native("_DiffType_opMod")] fun opMod (x, y: DiffType): DiffType;
 
-    fun[autoCt, native("_Float_opEQ")] opEq (x, y: Float): Bool;
-    fun[autoCt, native("_Float_opNE")] opNe (x, y: Float): Bool;
-    fun[autoCt, native("_Float_opLT")] opLt (x, y: Float): Bool;
-    fun[autoCt, native("_Float_opGT")] opGt (x, y: Float): Bool;
-    fun[autoCt, native("_Float_opLE")] opLe (x, y: Float): Bool;
-    fun[autoCt, native("_Float_opGE")] opGe (x, y: Float): Bool;
-    fun[autoCt, native("_Float_opPlus")] opPlus (x, y: Float): Float;
-    fun[autoCt, native("_Float_opMinus")] opMinus (x, y: Float): Float;
-    fun[autoCt, native("_Float_opMul")] opMul (x, y: Float): Float;
-    fun[autoCt, native("_Float_opDiv")] opDiv (x, y: Float): Float;
+    [autoCt, native("_Float_opEQ")] fun opEq (x, y: Float): Bool;
+    [autoCt, native("_Float_opNE")] fun opNe (x, y: Float): Bool;
+    [autoCt, native("_Float_opLT")] fun opLt (x, y: Float): Bool;
+    [autoCt, native("_Float_opGT")] fun opGt (x, y: Float): Bool;
+    [autoCt, native("_Float_opLE")] fun opLe (x, y: Float): Bool;
+    [autoCt, native("_Float_opGE")] fun opGe (x, y: Float): Bool;
+    [autoCt, native("_Float_opPlus")] fun opPlus (x, y: Float): Float;
+    [autoCt, native("_Float_opMinus")] fun opMinus (x, y: Float): Float;
+    [autoCt, native("_Float_opMul")] fun opMul (x, y: Float): Float;
+    [autoCt, native("_Float_opDiv")] fun opDiv (x, y: Float): Float;
 
-    fun[autoCt, native("_Double_opEQ")] opEq (x, y: Double): Bool;
-    fun[autoCt, native("_Double_opNE")] opNe (x, y: Double): Bool;
-    fun[autoCt, native("_Double_opLT")] opLt (x, y: Double): Bool;
-    fun[autoCt, native("_Double_opGT")] opGt (x, y: Double): Bool;
-    fun[autoCt, native("_Double_opLE")] opLe (x, y: Double): Bool;
-    fun[autoCt, native("_Double_opGE")] opGe (x, y: Double): Bool;
-    fun[autoCt, native("_Double_opPlus")] opPlus (x, y: Double): Double;
-    fun[autoCt, native("_Double_opMinus")] opMinus (x, y: Double): Double;
-    fun[autoCt, native("_Double_opMul")] opMul (x, y: Double): Double;
-    fun[autoCt, native("_Double_opDiv")] opDiv (x, y: Double): Double;
+    [autoCt, native("_Double_opEQ")] fun opEq (x, y: Double): Bool;
+    [autoCt, native("_Double_opNE")] fun opNe (x, y: Double): Bool;
+    [autoCt, native("_Double_opLT")] fun opLt (x, y: Double): Bool;
+    [autoCt, native("_Double_opGT")] fun opGt (x, y: Double): Bool;
+    [autoCt, native("_Double_opLE")] fun opLe (x, y: Double): Bool;
+    [autoCt, native("_Double_opGE")] fun opGe (x, y: Double): Bool;
+    [autoCt, native("_Double_opPlus")] fun opPlus (x, y: Double): Double;
+    [autoCt, native("_Double_opMinus")] fun opMinus (x, y: Double): Double;
+    [autoCt, native("_Double_opMul")] fun opMul (x, y: Double): Double;
+    [autoCt, native("_Double_opDiv")] fun opDiv (x, y: Double): Double;
 }
 
-fun[autoCt] == (x, y: Number)   = NumOpImpl.opEq(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
-fun[autoCt] != (x, y: Number)   = NumOpImpl.opNe(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
-fun[autoCt] < (x, y: Number)    = NumOpImpl.opLt(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
-fun[autoCt] > (x, y: Number)    = NumOpImpl.opGt(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
-fun[autoCt] <= (x, y: Number)   = NumOpImpl.opLe(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
-fun[autoCt] >= (x, y: Number)   = NumOpImpl.opGe(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
-fun[autoCt] + (x, y: Number)    = NumOpImpl.opPlus(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
-fun[autoCt] - (x, y: Number)    = NumOpImpl.opMinus(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
-fun[autoCt] * (x, y: Number)    = NumOpImpl.opMul(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
-fun[autoCt] / (x, y: Number)    = NumOpImpl.opDiv(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
-fun[autoCt] % (x, y: Integer)   = NumOpImpl.opMod(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
+[autoCt] fun == (x, y: Number)   = NumOpImpl.opEq(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
+[autoCt] fun != (x, y: Number)   = NumOpImpl.opNe(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
+[autoCt] fun < (x, y: Number)    = NumOpImpl.opLt(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
+[autoCt] fun > (x, y: Number)    = NumOpImpl.opGt(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
+[autoCt] fun <= (x, y: Number)   = NumOpImpl.opLe(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
+[autoCt] fun >= (x, y: Number)   = NumOpImpl.opGe(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
+[autoCt] fun + (x, y: Number)    = NumOpImpl.opPlus(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
+[autoCt] fun - (x, y: Number)    = NumOpImpl.opMinus(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
+[autoCt] fun * (x, y: Number)    = NumOpImpl.opMul(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
+[autoCt] fun / (x, y: Number)    = NumOpImpl.opDiv(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
+[autoCt] fun % (x, y: Integer)   = NumOpImpl.opMod(NumOpImpl.cmn(x,y), NumOpImpl.cmn(y,x));
 
 
 // Unary +
-fun[autoCt, native("_Byte_opPlus1")] + (x: Byte): Byte;
-fun[autoCt, native("_UByte_opPlus1")] + (x: UByte): UByte;
-fun[autoCt, native("_Short_opPlus1")] + (x: Short): Short;
-fun[autoCt, native("_UShort_opPlus1")] + (x: UShort): UShort;
-fun[autoCt, native("_Int_opPlus1")] + (x: Int): Int;
-fun[autoCt, native("_UInt_opPlus1")] + (x: UInt): UInt;
-fun[autoCt, native("_Long_opPlus1")] + (x: Long): Long;
-fun[autoCt, native("_ULong_opPlus1")] + (x: ULong): ULong;
-fun[autoCt, native("_SizeType_opPlus1")] + (x: SizeType): SizeType;
-fun[autoCt, native("_DiffType_opPlus1")] + (x: DiffType): DiffType;
-fun[autoCt, native("_Float_opPlus1")] + (x: Float): Float;
-fun[autoCt, native("_Double_opPlus1")] + (x: Double): Double;
+[autoCt, native("_Byte_opPlus1")] fun + (x: Byte): Byte;
+[autoCt, native("_UByte_opPlus1")] fun + (x: UByte): UByte;
+[autoCt, native("_Short_opPlus1")] fun + (x: Short): Short;
+[autoCt, native("_UShort_opPlus1")] fun + (x: UShort): UShort;
+[autoCt, native("_Int_opPlus1")] fun + (x: Int): Int;
+[autoCt, native("_UInt_opPlus1")] fun + (x: UInt): UInt;
+[autoCt, native("_Long_opPlus1")] fun + (x: Long): Long;
+[autoCt, native("_ULong_opPlus1")] fun + (x: ULong): ULong;
+[autoCt, native("_SizeType_opPlus1")] fun + (x: SizeType): SizeType;
+[autoCt, native("_DiffType_opPlus1")] fun + (x: DiffType): DiffType;
+[autoCt, native("_Float_opPlus1")] fun + (x: Float): Float;
+[autoCt, native("_Double_opPlus1")] fun + (x: Double): Double;
 
 // Unary - (only for signed types)
-fun[autoCt, native("_Byte_opMinus1")] - (x: Byte): Byte;
-fun[autoCt, native("_Short_opMinus1")] - (x: Short): Short;
-fun[autoCt, native("_Int_opMinus1")] - (x: Int): Int;
-fun[autoCt, native("_Long_opMinus1")] - (x: Long): Long;
-fun[autoCt, native("_DiffType_opMinus1")] - (x: DiffType): DiffType;
-fun[autoCt, native("_Float_opMinus1")] - (x: Float): Float;
-fun[autoCt, native("_Double_opMinus1")] - (x: Double): Double;
+[autoCt, native("_Byte_opMinus1")] fun - (x: Byte): Byte;
+[autoCt, native("_Short_opMinus1")] fun - (x: Short): Short;
+[autoCt, native("_Int_opMinus1")] fun - (x: Int): Int;
+[autoCt, native("_Long_opMinus1")] fun - (x: Long): Long;
+[autoCt, native("_DiffType_opMinus1")] fun - (x: DiffType): DiffType;
+[autoCt, native("_Float_opMinus1")] fun - (x: Float): Float;
+[autoCt, native("_Double_opMinus1")] fun - (x: Double): Double;
 
-fun[autoCt] pre_++(n: @Byte): Byte { n+=Byte(1); return n; }
-fun[autoCt] pre_++(n: @UByte): UByte { n+=UByte(1); return n; }
-fun[autoCt] pre_++(n: @Short): Short { n+=Short(1); return n; }
-fun[autoCt] pre_++(n: @UShort): UShort { n+=UShort(1); return n; }
-fun[autoCt] pre_++(n: @Int): Int { n+=1; return n; }
-fun[autoCt] pre_++(n: @UInt): UInt { n+=UInt(1); return n; }
-fun[autoCt] pre_++(n: @Long): Long { n+=Long(1); return n; }
-fun[autoCt] pre_++(n: @ULong): ULong { n+=ULong(1); return n; }
-fun[autoCt] pre_++(n: @SizeType): SizeType { n+=SizeType(1); return n; }
-fun[autoCt] pre_++(n: @DiffType): DiffType { n+=DiffType(1); return n; }
+[autoCt] fun pre_++(n: @Byte): Byte { n+=Byte(1); return n; }
+[autoCt] fun pre_++(n: @UByte): UByte { n+=UByte(1); return n; }
+[autoCt] fun pre_++(n: @Short): Short { n+=Short(1); return n; }
+[autoCt] fun pre_++(n: @UShort): UShort { n+=UShort(1); return n; }
+[autoCt] fun pre_++(n: @Int): Int { n+=1; return n; }
+[autoCt] fun pre_++(n: @UInt): UInt { n+=UInt(1); return n; }
+[autoCt] fun pre_++(n: @Long): Long { n+=Long(1); return n; }
+[autoCt] fun pre_++(n: @ULong): ULong { n+=ULong(1); return n; }
+[autoCt] fun pre_++(n: @SizeType): SizeType { n+=SizeType(1); return n; }
+[autoCt] fun pre_++(n: @DiffType): DiffType { n+=DiffType(1); return n; }
 
-fun[autoCt] pre_--(n: @Byte): Byte { n-=Byte(1); return n; }
-fun[autoCt] pre_--(n: @UByte): UByte { n-=UByte(1); return n; }
-fun[autoCt] pre_--(n: @Short): Short { n-=Short(1); return n; }
-fun[autoCt] pre_--(n: @UShort): UShort { n-=UShort(1); return n; }
-fun[autoCt] pre_--(n: @Int): Int { n-=1; return n; }
-fun[autoCt] pre_--(n: @UInt): UInt { n-=UInt(1); return n; }
-fun[autoCt] pre_--(n: @Long): Long { n-=Long(1); return n; }
-fun[autoCt] pre_--(n: @ULong): ULong { n-=ULong(1); return n; }
-fun[autoCt] pre_--(n: @SizeType): SizeType { n-=SizeType(1); return n; }
-fun[autoCt] pre_--(n: @DiffType): DiffType { n-=DiffType(1); return n; }
+[autoCt] fun pre_--(n: @Byte): Byte { n-=Byte(1); return n; }
+[autoCt] fun pre_--(n: @UByte): UByte { n-=UByte(1); return n; }
+[autoCt] fun pre_--(n: @Short): Short { n-=Short(1); return n; }
+[autoCt] fun pre_--(n: @UShort): UShort { n-=UShort(1); return n; }
+[autoCt] fun pre_--(n: @Int): Int { n-=1; return n; }
+[autoCt] fun pre_--(n: @UInt): UInt { n-=UInt(1); return n; }
+[autoCt] fun pre_--(n: @Long): Long { n-=Long(1); return n; }
+[autoCt] fun pre_--(n: @ULong): ULong { n-=ULong(1); return n; }
+[autoCt] fun pre_--(n: @SizeType): SizeType { n-=SizeType(1); return n; }
+[autoCt] fun pre_--(n: @DiffType): DiffType { n-=DiffType(1); return n; }
 
-fun[autoCt] post_++(n: @Byte): Byte { var old = n; n+=Byte(1); return old; }
-fun[autoCt] post_++(n: @UByte): UByte { var old = n; n+=UByte(1); return old; }
-fun[autoCt] post_++(n: @Short): Short { var old = n; n+=Short(1); return old; }
-fun[autoCt] post_++(n: @UShort): UShort { var old = n; n+=UShort(1); return old; }
-fun[autoCt] post_++(n: @Int): Int { var old = n; n+=1; return old; }
-fun[autoCt] post_++(n: @UInt): UInt { var old = n; n+=UInt(1); return old; }
-fun[autoCt] post_++(n: @Long): Long { var old = n; n+=Long(1); return old; }
-fun[autoCt] post_++(n: @ULong): ULong { var old = n; n+=ULong(1); return old; }
-fun[autoCt] post_++(n: @SizeType): SizeType { var old = n; n+=SizeType(1); return old; }
-fun[autoCt] post_++(n: @DiffType): DiffType { var old = n; n+=DiffType(1); return old; }
+[autoCt] fun post_++(n: @Byte): Byte { var old = n; n+=Byte(1); return old; }
+[autoCt] fun post_++(n: @UByte): UByte { var old = n; n+=UByte(1); return old; }
+[autoCt] fun post_++(n: @Short): Short { var old = n; n+=Short(1); return old; }
+[autoCt] fun post_++(n: @UShort): UShort { var old = n; n+=UShort(1); return old; }
+[autoCt] fun post_++(n: @Int): Int { var old = n; n+=1; return old; }
+[autoCt] fun post_++(n: @UInt): UInt { var old = n; n+=UInt(1); return old; }
+[autoCt] fun post_++(n: @Long): Long { var old = n; n+=Long(1); return old; }
+[autoCt] fun post_++(n: @ULong): ULong { var old = n; n+=ULong(1); return old; }
+[autoCt] fun post_++(n: @SizeType): SizeType { var old = n; n+=SizeType(1); return old; }
+[autoCt] fun post_++(n: @DiffType): DiffType { var old = n; n+=DiffType(1); return old; }
 
-fun[autoCt] post_--(n: @Byte): Byte { var old = n; n-=Byte(1); return old; }
-fun[autoCt] post_--(n: @UByte): UByte { var old = n; n-=UByte(1); return old; }
-fun[autoCt] post_--(n: @Short): Short { var old = n; n-=Short(1); return old; }
-fun[autoCt] post_--(n: @UShort): UShort { var old = n; n-=UShort(1); return old; }
-fun[autoCt] post_--(n: @Int): Int { var old = n; n-=1; return old; }
-fun[autoCt] post_--(n: @UInt): UInt { var old = n; n-=UInt(1); return old; }
-fun[autoCt] post_--(n: @Long): Long { var old = n; n-=Long(1); return old; }
-fun[autoCt] post_--(n: @ULong): ULong { var old = n; n-=ULong(1); return old; }
-fun[autoCt] post_--(n: @SizeType): SizeType { var old = n; n-=SizeType(1); return old; }
-fun[autoCt] post_--(n: @DiffType): DiffType { var old = n; n-=DiffType(1); return old; }
+[autoCt] fun post_--(n: @Byte): Byte { var old = n; n-=Byte(1); return old; }
+[autoCt] fun post_--(n: @UByte): UByte { var old = n; n-=UByte(1); return old; }
+[autoCt] fun post_--(n: @Short): Short { var old = n; n-=Short(1); return old; }
+[autoCt] fun post_--(n: @UShort): UShort { var old = n; n-=UShort(1); return old; }
+[autoCt] fun post_--(n: @Int): Int { var old = n; n-=1; return old; }
+[autoCt] fun post_--(n: @UInt): UInt { var old = n; n-=UInt(1); return old; }
+[autoCt] fun post_--(n: @Long): Long { var old = n; n-=Long(1); return old; }
+[autoCt] fun post_--(n: @ULong): ULong { var old = n; n-=ULong(1); return old; }
+[autoCt] fun post_--(n: @SizeType): SizeType { var old = n; n-=SizeType(1); return old; }
+[autoCt] fun post_--(n: @DiffType): DiffType { var old = n; n-=DiffType(1); return old; }
 
 
 
@@ -707,7 +724,8 @@ fun[autoCt] post_--(n: @DiffType): DiffType { var old = n; n-=DiffType(1); retur
 ///
 
 /// String class that DOES NOT have ownership of the characters; it simply refers to another string
-class[rtct, native("StringRef")] StringRef
+[rtct, native("StringRef")]
+class StringRef
 {
     using RetType = @Char;
 
@@ -748,7 +766,7 @@ class[rtct, native("StringRef")] StringRef
 
     fun cStr(): @Char = reinterpretCast(@Char, begin);
 
-    fun[autoCt, static, native("_String_fromCString")] fromCString(s: @Char): StringRef
+    [autoCt, static, native("_String_fromCString")] fun fromCString(s: @Char): StringRef
     {
         var len = cStringLen(s);
         var res: StringRef;
@@ -757,7 +775,7 @@ class[rtct, native("StringRef")] StringRef
         return res;
     }
 
-    fun[static] cStringLen(s: @Char): SizeType
+    [static] fun cStringLen(s: @Char): SizeType
     {
         var p: @Byte;
         p := reinterpretCast(@Byte, s);
@@ -788,7 +806,7 @@ class[rtct, native("StringRef")] StringRef
     }
 }
 
-fun[autoCt] + (x,y: StringRef): StringRef
+[autoCt] fun + (x,y: StringRef): StringRef
 {
     var sz1 = x.size();
     var sz2 = y.size();
@@ -798,7 +816,7 @@ fun[autoCt] + (x,y: StringRef): StringRef
     return res;
 }
 
-fun[autoCt] + (x: StringRef, y: Char): StringRef
+[autoCt] fun + (x: StringRef, y: Char): StringRef
 {
     var sz1 = x.size();
     var sz2 = 1;
@@ -816,30 +834,30 @@ fun[autoCt] + (x: StringRef, y: Char): StringRef
 fun cast();
 fun reinterpretCast();
 fun construct();
-fun[ct] sizeOf(): SizeType;
-fun[ct] typeOf(): Type;
-fun[ct] isValid(): Bool;
-fun[ct] isValidAndTrue(): Bool;
-fun[ct] valueIfValid(): Bool;
-fun[ct] ctEval();
-fun[ct, native("$injectBackendCodeRt")] injectBackendCodeRt(code: StringRef);
-fun[ct, native("$injectBackendCodeCt")] injectBackendCodeCt(code: StringRef);
-fun[ct, native("$injectBackendCodeRtCt")] injectBackendCodeRtCt(code: StringRef);
+[ct] fun sizeOf(): SizeType;
+[ct] fun typeOf(): Type;
+[ct] fun isValid(): Bool;
+[ct] fun isValidAndTrue(): Bool;
+[ct] fun valueIfValid(): Bool;
+[ct] fun ctEval();
+[ct, native("$injectBackendCodeRt")] fun injectBackendCodeRt(code: StringRef);
+[ct, native("$injectBackendCodeCt")] fun injectBackendCodeCt(code: StringRef);
+[ct, native("$injectBackendCodeRtCt")] fun injectBackendCodeRtCt(code: StringRef);
 
 
 /// Type used to represent an untyped pointer
-datatype[rtct] UntypedPtr = @Byte;
+[rtct] datatype UntypedPtr = @Byte;
 
-fun[autoCt, native("implOpRefEQ")] implOpRefEQ(x,y: @Byte): Bool;
-fun[autoCt, native("implOpRefNE")] implOpRefNE(x,y: @Byte): Bool;
-fun[autoCt, native("isNullRef")] isNullRef(x: @Byte): Bool;
+[autoCt, native("implOpRefEQ")] fun implOpRefEQ(x,y: @Byte): Bool;
+[autoCt, native("implOpRefNE")] fun implOpRefNE(x,y: @Byte): Bool;
+[autoCt, native("isNullRef")] fun isNullRef(x: @Byte): Bool;
 
-fun[autoCt, native("implOpRefEQ")] implOpRefEQ(x,y: UntypedPtr): Bool;
-fun[autoCt, native("implOpRefNE")] implOpRefNE(x,y: UntypedPtr): Bool;
-fun[autoCt, native("isNullRef")] isNullRef(x: UntypedPtr): Bool;
+[autoCt, native("implOpRefEQ")] fun implOpRefEQ(x,y: UntypedPtr): Bool;
+[autoCt, native("implOpRefNE")] fun implOpRefNE(x,y: UntypedPtr): Bool;
+[autoCt, native("isNullRef")] fun isNullRef(x: UntypedPtr): Bool;
 
 /// This implements the ternary operator from other languages: cond ? alt1 : alt2
-fun[ct, native("$meta.ife")] ife();
+[ct, native("$meta.ife")] fun ife();
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Type helpers
@@ -847,68 +865,68 @@ fun[ct, native("$meta.ife")] ife();
 
 package TypeOp
 {
-    fun[ct, native("$typeDescription")] description(t: Type): StringRef;
-    fun[ct, native("$typeHasStorage")] hasStorage(t: Type): Bool;
-    fun[ct, native("$typeMode")] mode(t: Type): Int;    // 0=unspecified, 1=rt, 2=ct, 3=rtct
-    fun[ct, native("$typeCanBeUsedAtCt")] canBeUsedAtCt(t: Type): Bool;
-    fun[ct, native("$typeCanBeUsedAtRt")] canBeUsedAtRt(t: Type): Bool;
-    fun[ct, native("$typeNumRef")] numRef(t: Type): Int;
-    fun[ct, native("$typeChangeMode")] changeMode(t: Type, mode: Int): Type;
-    fun[ct, native("$typeChangeRefCount")] changeRefCount(t: Type, numRef: Int): Type;
+    [ct, native("$typeDescription")] fun description(t: Type): StringRef;
+    [ct, native("$typeHasStorage")] fun hasStorage(t: Type): Bool;
+    [ct, native("$typeMode")] fun mode(t: Type): Int;    // 0=unspecified, 1=rt, 2=ct, 3=rtct
+    [ct, native("$typeCanBeUsedAtCt")] fun canBeUsedAtCt(t: Type): Bool;
+    [ct, native("$typeCanBeUsedAtRt")] fun canBeUsedAtRt(t: Type): Bool;
+    [ct, native("$typeNumRef")] fun numRef(t: Type): Int;
+    [ct, native("$typeChangeMode")] fun changeMode(t: Type, mode: Int): Type;
+    [ct, native("$typeChangeRefCount")] fun changeRefCount(t: Type, numRef: Int): Type;
 
-    fun[ctGeneric] isRef(t: Type) = 0<numRef(t);
-    fun[ctGeneric] addRef(t: Type) = changeRefCount(t, numRef(t)+1);
-    fun[ctGeneric] removeRef(t: Type) = ife(isRef(t), changeRefCount(t, numRef(t)-1), t);
-    fun[ctGeneric] removeAllRef(t: Type) = changeRefCount(t, 0);
-    fun[ctGeneric] atLeastOneRef(t: Type): Type = ife(isRef(t), t, addRef(t));
+    [ctGeneric] fun isRef(t: Type) = 0<numRef(t);
+    [ctGeneric] fun addRef(t: Type) = changeRefCount(t, numRef(t)+1);
+    [ctGeneric] fun removeRef(t: Type) = ife(isRef(t), changeRefCount(t, numRef(t)-1), t);
+    [ctGeneric] fun removeAllRef(t: Type) = changeRefCount(t, 0);
+    [ctGeneric] fun atLeastOneRef(t: Type): Type = ife(isRef(t), t, addRef(t));
 }
 
 /// Add reference operator
-fun[ct, native("$typeAddRef")] pre_@ (t: Type): Type;
-//fun[ctGeneric] pre_@ (t: Type) = TypeOp.addRef(t);
+[ct, native("$typeAddRef")] fun pre_@ (t: Type): Type;
+//[ctGeneric] fun pre_@ (t: Type) = TypeOp.addRef(t);
 /// Remove reference operator
-fun[ctGeneric] pre_-@ (t: Type) = TypeOp.removeRef(t);
+[ctGeneric] fun pre_-@ (t: Type) = TypeOp.removeRef(t);
 /// Operator to ensure at least one refenrence
-fun[ctGeneric] pre_!@ (t: Type) = TypeOp.atLeastOneRef(t);
+[ctGeneric] fun pre_!@ (t: Type) = TypeOp.atLeastOneRef(t);
 
 /// Comparison between types
-fun[ct, native("$typeEQ")] == (x, y: Type): Bool;
+[ct, native("$typeEQ")] fun == (x, y: Type): Bool;
 
-fun[ct, native("$ct")] ct(t: Type): Type;
-fun[ct, native("$rt")] rt(t: Type): Type;
+[ct, native("$ct")] fun ct(t: Type): Type;
+[ct, native("$rt")] fun rt(t: Type): Type;
 
-fun[ct, native("$convertsTo")] convertsTo(src, dest: Type): Bool;
-fun[ct, native("$staticBuffer")] static_buffer(n: SizeType): Type;
-fun[ct, native("$commonType")] commonType(t, u: Type): Type;
+[ct, native("$convertsTo")] fun convertsTo(src, dest: Type): Bool;
+[ct, native("$staticBuffer")] fun static_buffer(n: SizeType): Type;
+[ct, native("$commonType")] fun commonType(t, u: Type): Type;
 
 /// Concept that is satisfied by any type
 concept AnyType(x); // Always true
 
 /// Gets an object of the given type
-fun[rtct] valueOfType(t: Type): t;
-fun[rtct] #$(t: Type): t;
+[rtct] fun valueOfType(t: Type): t;
+[rtct] fun #$(t: Type): t;
 
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Some low-level helper functions
 ///
 
-fun[native("malloc"), rtct] malloc(size: SizeType): @Byte;
-fun[native("calloc"), rtct] calloc(size, count: SizeType): @Byte;
-fun[native("realloc"), autoCt] realloc(p: @Byte, size: SizeType): @Byte;
-fun[native("free"), autoCt] free(p: @Byte);
-fun[native("ptrAdd"), autoCt] ptrAdd(p: @Byte, n: SizeType): @Byte;
-fun[native("ptrSub"), autoCt] ptrSub(p: @Byte, n: SizeType): @Byte;
-fun[native("ptrDiff"), autoCt] ptrDiff(p1, p2: @Byte): DiffType;
-fun[native("ptrAdd"), autoCt] ptrAdd(p: UntypedPtr, n: SizeType): UntypedPtr;
-fun[native("ptrSub"), autoCt] ptrSub(p: UntypedPtr, n: SizeType): UntypedPtr;
-fun[native("ptrDiff"), autoCt] ptrDiff(p1, p2: UntypedPtr): DiffType;
-fun[native("_spr_memcpy"), autoCt] memcpy(dest, src: @Byte, size: SizeType);
-fun[native("_spr_memmove"), autoCt] memmove(dest, src: @Byte, size: SizeType);
-fun[native("_spr_memset"), autoCt] memset(dest: @Byte, val: Byte, count: SizeType);
-fun[native("strcmp"), autoCt] strcmp(lhs, rhs: @Byte): Int;
-fun[native("system")] systemNative(x: @Char);
-fun[native("sleep")] sleep(x: Int);
+[native("malloc"), rtct] fun malloc(size: SizeType): @Byte;
+[native("calloc"), rtct] fun calloc(size, count: SizeType): @Byte;
+[native("realloc"), autoCt] fun realloc(p: @Byte, size: SizeType): @Byte;
+[native("free"), autoCt] fun free(p: @Byte);
+[native("ptrAdd"), autoCt] fun ptrAdd(p: @Byte, n: SizeType): @Byte;
+[native("ptrSub"), autoCt] fun ptrSub(p: @Byte, n: SizeType): @Byte;
+[native("ptrDiff"), autoCt] fun ptrDiff(p1, p2: @Byte): DiffType;
+[native("ptrAdd"), autoCt] fun ptrAdd(p: UntypedPtr, n: SizeType): UntypedPtr;
+[native("ptrSub"), autoCt] fun ptrSub(p: UntypedPtr, n: SizeType): UntypedPtr;
+[native("ptrDiff"), autoCt] fun ptrDiff(p1, p2: UntypedPtr): DiffType;
+[native("_spr_memcpy"), autoCt] fun memcpy(dest, src: @Byte, size: SizeType);
+[native("_spr_memmove"), autoCt] fun memmove(dest, src: @Byte, size: SizeType);
+[native("_spr_memset"), autoCt] fun memset(dest: @Byte, val: Byte, count: SizeType);
+[native("strcmp"), autoCt] fun strcmp(lhs, rhs: @Byte): Int;
+[native("system")] fun systemNative(x: @Char);
+[native("sleep")] fun sleep(x: Int);
 
 
 ////////////////////////////////////////////////////////////////////////////////

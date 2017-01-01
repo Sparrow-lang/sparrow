@@ -1,4 +1,4 @@
-fun[native("main"), noInline] main(argc: Int, args: @ @Char): Int
+[native("main"), noInline] fun main(argc: Int, args: @ @Char): Int
 {
     programArgs.ctor(argc, args);
     sprMain();

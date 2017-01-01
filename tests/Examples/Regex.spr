@@ -18,10 +18,10 @@ import precedenceUtils(getOperPrecedence, setOperPrecedence);
 // - 1 = RT/CT speedup test
 // - 2 = execution test
 // - 3 = timed test
-var[ct] testType = 0;
+[ct] var testType = 0;
 
 
-fun[rtct] **(str: StringRef, count: Int): String
+[rtct] fun **(str: StringRef, count: Int): String
 {
     var sz: SizeType = str.size();
     var res: String = sz*count;
@@ -37,7 +37,7 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
 /// Convert a regular expression from infix notation into postfix notation.
 /// Also inserts '.' character as a concatenation operator
 /// Cheesy parser, return static buffer
-fun[rtct] re2post(re: StringRef): String
+[rtct] fun re2post(re: StringRef): String
 {
     var paren: StaticArray(Int*Int, 100);
 
@@ -134,7 +134,7 @@ fun[rtct] re2post(re: StringRef): String
 }
 
 /// Factory for Nfa states
-class[rtct] NfaStatesFactory
+[rtct] class NfaStatesFactory
 {
     fun ctor
     {
@@ -177,7 +177,7 @@ class[rtct] NfaStatesFactory
 }
 
 /// Class that represents a NFA state; it allows one or two output states out of this state
-class[rtct] NfaState
+[rtct] class NfaState
 {
     fun ctor(c: Int, out1, out2: Ptr(NfaState))
     {
@@ -202,7 +202,7 @@ class[rtct] NfaState
 ///
 /// For optimization reasons we use the out1 and out2 pointer from the actual NfaState objects to store the links of
 /// this list. Therefore, some reinterpretCasts are used to properly use these nodes.
-class[rtct] OutPtrList
+[rtct] class OutPtrList
 {
     /// Construct the out-ptr list from a single out-ptr reference
     fun ctor(outPtr: @Ptr(NfaState))
@@ -240,7 +240,7 @@ class[rtct] OutPtrList
 /// Class that represents a fragment of Nfa states
 /// A fragment consists of a tree of Nfa states, starting with only one Nfa state. It can have one or more out pointers
 /// The out-pointers are used to connect to the next Nfa fragment.
-class[rtct] NfaFragment
+[rtct] class NfaFragment
 {
     var start: Ptr(NfaState);                   ///< Start state of the NFA frament
     var outPtrChain: OutPtrList;  ///< Chain of out-pointers for this fragment that need to be set to the next state
@@ -251,40 +251,40 @@ class[rtct] NfaFragment
         this.outPtrChain ctor outPtrChain;
     }
 
-    fun[static] getChar(nfaStatesFactory: @NfaStatesFactory, c: Char): NfaFragment
+    [static] fun getChar(nfaStatesFactory: @NfaStatesFactory, c: Char): NfaFragment
     {
         var s = nfaStatesFactory.getCharState(c);
         return NfaFragment(s, OutPtrList(s.get().out1));
     }
 
-    fun[static] getConcatenation(nfaStatesFactory: @NfaStatesFactory, e1, e2: @NfaFragment): NfaFragment
+    [static] fun getConcatenation(nfaStatesFactory: @NfaStatesFactory, e1, e2: @NfaFragment): NfaFragment
     {
         e1.outPtrChain.setFinalValue(e2.start);        // e1 fragment is finalized by e2 fragment
         return NfaFragment(e1.start, e2.outPtrChain);
     }
 
-    fun[static] getAlternation(nfaStatesFactory: @NfaStatesFactory, e1, e2: @NfaFragment): NfaFragment
+    [static] fun getAlternation(nfaStatesFactory: @NfaStatesFactory, e1, e2: @NfaFragment): NfaFragment
     {
         var splitState = nfaStatesFactory.getSplitState(e1.start, e2.start);
         e1.outPtrChain.append(e2.outPtrChain);         // Consider both chains
         return NfaFragment(splitState, e1.outPtrChain);
     }
 
-    fun[static] getOptional(nfaStatesFactory: @NfaStatesFactory, e: @NfaFragment): NfaFragment
+    [static] fun getOptional(nfaStatesFactory: @NfaStatesFactory, e: @NfaFragment): NfaFragment
     {
         var splitState = nfaStatesFactory.getSplitState(e.start);
         e.outPtrChain.append(OutPtrList(splitState.get().out2));   // Add second output of the split state to the out-ptr chain
         return NfaFragment(splitState, e.outPtrChain);
     }
 
-    fun[static] getZeroOrMore(nfaStatesFactory: @NfaStatesFactory, e: @NfaFragment): NfaFragment
+    [static] fun getZeroOrMore(nfaStatesFactory: @NfaStatesFactory, e: @NfaFragment): NfaFragment
     {
         var splitState = nfaStatesFactory.getSplitState(e.start);
         e.outPtrChain.setFinalValue(splitState);         // Out pointers of the fragment are connected back to the split state
         return NfaFragment(splitState, OutPtrList(splitState.get().out2));
     }
 
-    fun[static] getOneOrMore(nfaStatesFactory: @NfaStatesFactory, e: @NfaFragment): NfaFragment
+    [static] fun getOneOrMore(nfaStatesFactory: @NfaStatesFactory, e: @NfaFragment): NfaFragment
     {
         var splitState = nfaStatesFactory.getSplitState(e.start);
         e.outPtrChain.setFinalValue(splitState);         // Out pointers of the fragment are connected back to the split state
@@ -298,7 +298,7 @@ class[rtct] NfaFragment
     }
 }
 
-fun[rtct] nfaFromPostfix(nfaStatesFactory: @NfaStatesFactory, postfix: @StringRef): Ptr(NfaState)
+[rtct] fun nfaFromPostfix(nfaStatesFactory: @NfaStatesFactory, postfix: @StringRef): Ptr(NfaState)
 {
     if ( postfix.size() == 0 )
         return Ptr(NfaState)();
@@ -352,7 +352,7 @@ fun[rtct] nfaFromPostfix(nfaStatesFactory: @NfaStatesFactory, postfix: @StringRe
     return e.start;
 }
 
-class[rtct] NfaNodeList
+[rtct] class NfaNodeList
 {
     var nodes: Vector(Ptr(NfaState));
     var id: Int;
@@ -433,7 +433,7 @@ class[rtct] NfaNodeList
     }
 }
 
-class[rtct] Transition
+[rtct] class Transition
 {
     var start, end, ch: Int;
 
@@ -447,7 +447,7 @@ class[rtct] Transition
 
 /// Class that represent a Dfa state
 /// A Dfa state usually contains multiple NfaStates. It also contains a transition array for each possible input char
-class[rtct] DfaState
+[rtct] class DfaState
 {
     var next: StaticArray(Int, 256);
     var nfaNodes: NfaNodeList;
@@ -461,7 +461,7 @@ class[rtct] DfaState
     }
 }
 
-class[rtct] Automaton
+[rtct] class Automaton
 {
     var nfaStatesFactory: NfaStatesFactory;
     var dfaStates: Vector(DfaState);
@@ -496,21 +496,21 @@ class[rtct] Automaton
         //}
     }
 
-    fun[rt] ctorFromCt(src: Automaton ct)
+    [rt] fun ctorFromCt(src: Automaton ct)
     {
         nfaStatesFactory ctor;
         dfaStates ctor;
         dfaStates resize src.dfaStates.size();
 
-        var[ct] transitions = src.getTransitions();
-        for[ct] ( tr = transitions all )
+        [ct] var transitions = src.getTransitions();
+        [ct] for ( tr = transitions all )
         {
             //cout << ctEval(tr.start) << ".." << ctEval(tr.end) << "/" << ctEval(tr.ch) << endl;
             dfaStates.at(ctEval(tr.start)).next.at(ctEval(tr.ch)) = ctEval(tr.end);
         }
-        for[ct] ( st = 0 .. src.dfaStates.size() )
+        [ct] for ( st = 0 .. src.dfaStates.size() )
         {
-            if[ct] ( ctEval(src.dfaStates.at(st).isMatch) )
+            [ct] if ( ctEval(src.dfaStates.at(st).isMatch) )
             {
                 dfaStates.at(ctEval(st)).isMatch = true;
                 //cout << "State " << ctEval(st) << " is matching" << endl;
@@ -518,7 +518,7 @@ class[rtct] Automaton
         }
     }
 
-    fun[ct] getTransitions: Vector(Transition)
+    [ct] fun getTransitions: Vector(Transition)
     {
         var res: Vector(Transition);
         for ( st = 0..(dfaStates.size()-1) )
@@ -628,7 +628,7 @@ fun regexMatch(re, str: StringRef): Bool
 fun regexMatch(re: StringRef ct, str: StringRef): Bool
 {
     cout << "At CT\n";
-    var[ct] automatonCt = Automaton(re);
+    [ct] var automatonCt = Automaton(re);
     var automaton = automatonCt;
     return automaton.match(str);
 }
@@ -689,7 +689,7 @@ fun testCt(re: StringRef ct, testRepCount, totalRepCount: Int, testStrings: Rang
     cout << "'" << re << "'\t CT regex\n";
     for ( i = 0..totalRepCount )
     {
-        var[ct] automatonCt = Automaton(re);
+        [ct] var automatonCt = Automaton(re);
         var automaton = automatonCt;
 
         for ( j = 0..testRepCount )
@@ -704,7 +704,7 @@ fun testCt(re: StringRef ct, testRepCount, totalRepCount: Int, testStrings: Rang
     }
 }
 
-if[ct] ( testType == 1 )
+[ct] if ( testType == 1 )
 fun testCtVsRtPerf(ctRe: StringRef ct, str: StringRef, repCount: Int)
 {
     var rtRe = ctRe;
@@ -788,7 +788,7 @@ aaaaaaaaa no match a?a?a?a?a?a?a?a?a?a?aaaaaaaaaa
 // Case 2: {(a|b)?}^n{(a|b)}^n{z}
 // Case 3: {(a|b)?}^2n{(a|b)}^n{z}
 // Case 4: {(a|b)*a}{(a|b)}^n
-fun[rtct] getReOfType(reType, n: Int): String
+[rtct] fun getReOfType(reType, n: Int): String
 {
          if ( reType == 1 ) return "a?"**n + "a"**n;
     else if ( reType == 2 ) return "(a|b)?"**n + "(a|b)"**n + "z";
@@ -803,17 +803,17 @@ fun[rtct] getReOfType(reType, n: Int): String
 
 fun sprMain
 {
-    if[ct] ( testType == 0 )
+    [ct] if ( testType == 0 )
     {
         autoTest();
     }
-    else if[ct] ( testType == 1 )
+    else [ct] if ( testType == 1 )
     {
-        var[ct] re = getReOfType(4, 8);
+        [ct] var re = getReOfType(4, 8);
         //testCtVsRtPerf("a?a?a?aaa", "aaaaaa", 100000);
         testCtVsRtPerf(re.asStringRef(), "aaaaaaaaaaaaaaaa", 1000);
     }
-    else if[ct] ( testType == 2 )
+    else [ct] if ( testType == 2 )
     {
         var progType = 1;
         var reType = 1;
@@ -839,26 +839,26 @@ fun sprMain
         }
         else
         {
-            for[ct] ( t=1..4 )
-            for[ct] ( n=5..26 )
+            [ct] for ( t=1..4 )
+            [ct] for ( n=5..26 )
             {
                 if ( reType == ctEval(t) && reLen == ctEval(n) )
                 {
-                    var[ct] re = getReOfType(t, n);
+                    [ct] var re = getReOfType(t, n);
                     testCt(re.asStringRef(), testRepCount, totalRepCount);
                 }
             }
-            for[ct] ( n=5..11 )
+            [ct] for ( n=5..11 )
             {
                 if ( reType == 4 && reLen == ctEval(n) )
                 {
-                    var[ct] re = getReOfType(4, n);
+                    [ct] var re = getReOfType(4, n);
                     testCt(re.asStringRef(), testRepCount, totalRepCount);
                 }
             }
         }
     }
-    else if[ct] ( testType == 3 )
+    else [ct] if ( testType == 3 )
     {
         timedTest("(a|b)?"**100 + "(a|b)"**100 + "z", "a"**100 + "z", 1, 1000);
     }

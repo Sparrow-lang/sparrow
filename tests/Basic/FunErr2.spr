@@ -18,11 +18,11 @@ class Test
     var x: Int;
     var y: Int;
 
-    fun[static] f()
+    [static] fun f()
     {
         writeLnInt(1);
     }
-    fun[static] g(n: Int)
+    [static] fun g(n: Int)
     {
         writeLnInt(n);
     }
@@ -38,7 +38,7 @@ class Test
     }
 
 
-    fun[static] staticThisTest()
+    [static] fun staticThisTest()
     {
         x;          // ERROR
         y;          // ERROR
@@ -48,7 +48,7 @@ class Test
 }
 
 fun f();
-//fun[static] g();    // E RROR
+//[static] fun g();    // E RROR
 
 var a: Test;
 
@@ -59,7 +59,7 @@ fun h(a: (Int@)@);
 fun h(a: Double@);
 fun h(a: Double);
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     assignInt(a.x, 10);
     assignInt(a.y, 11);

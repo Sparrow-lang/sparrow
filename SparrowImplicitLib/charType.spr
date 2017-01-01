@@ -1,28 +1,28 @@
-fun[rtct] isAlnum(c: Char) = 0 != Impl.isalnum(Int(c));
-fun[rtct] isAlpha(c: Char) = 0 != Impl.isalpha(Int(c));
-fun[rtct] isBlank(c: Char) = 0 != Impl.isblank(Int(c));
-fun[rtct] isCntrl(c: Char) = 0 != Impl.iscntrl(Int(c));
-fun[rtct] isDigit(c: Char) = 0 != Impl.isdigit(Int(c));
-fun[rtct] isGraph(c: Char) = 0 != Impl.isgraph(Int(c));
-fun[rtct] isLower(c: Char) = 0 != Impl.islower(Int(c));
-fun[rtct] isPrint(c: Char) = 0 != Impl.isprint(Int(c));
-fun[rtct] isPunct(c: Char) = 0 != Impl.ispunct(Int(c));
-fun[rtct] isSpace(c: Char) = 0 != Impl.isspace(Int(c));
-fun[rtct] isUpper(c: Char) = 0 != Impl.isupper(Int(c));
-fun[rtct] isXdigit(c: Char) = 0 != Impl.isxdigit(Int(c));
+[rtct] fun isAlnum(c: Char) = 0 != Impl.isalnum(Int(c));
+[rtct] fun isAlpha(c: Char) = 0 != Impl.isalpha(Int(c));
+[rtct] fun isBlank(c: Char) = 0 != Impl.isblank(Int(c));
+[rtct] fun isCntrl(c: Char) = 0 != Impl.iscntrl(Int(c));
+[rtct] fun isDigit(c: Char) = 0 != Impl.isdigit(Int(c));
+[rtct] fun isGraph(c: Char) = 0 != Impl.isgraph(Int(c));
+[rtct] fun isLower(c: Char) = 0 != Impl.islower(Int(c));
+[rtct] fun isPrint(c: Char) = 0 != Impl.isprint(Int(c));
+[rtct] fun isPunct(c: Char) = 0 != Impl.ispunct(Int(c));
+[rtct] fun isSpace(c: Char) = 0 != Impl.isspace(Int(c));
+[rtct] fun isUpper(c: Char) = 0 != Impl.isupper(Int(c));
+[rtct] fun isXdigit(c: Char) = 0 != Impl.isxdigit(Int(c));
 
 package Impl
 {
-    fun[rtct, native("isalnum")] isalnum(c: Int): Int;
-    fun[rtct, native("isalpha")] isalpha(c: Int): Int;
-    fun[rtct, native("isblank")] isblank(c: Int): Int;
-    fun[rtct, native("iscntrl")] iscntrl(c: Int): Int;
-    fun[rtct, native("isdigit")] isdigit(c: Int): Int;
-    fun[rtct, native("isgraph")] isgraph(c: Int): Int;
-    fun[rtct, native("islower")] islower(c: Int): Int;
-    fun[rtct, native("isprint")] isprint(c: Int): Int;
-    fun[rtct, native("ispunct")] ispunct(c: Int): Int;
-    fun[rtct, native("isspace")] isspace(c: Int): Int;
-    fun[rtct, native("isupper")] isupper(c: Int): Int;
-    fun[rtct, native("isxdigit")] isxdigit(c: Int): Int;
+    [rtct, native("isalnum")] fun isalnum(c: Int): Int;
+    [rtct, native("isalpha")] fun isalpha(c: Int): Int;
+    [rtct, native("isblank")] fun isblank(c: Int): Int;
+    [rtct, native("iscntrl")] fun iscntrl(c: Int): Int;
+    [rtct, native("isdigit")] fun isdigit(c: Int): Int;
+    [rtct, native("isgraph")] fun isgraph(c: Int): Int;
+    [rtct, native("islower")] fun islower(c: Int): Int;
+    [rtct, native("isprint")] fun isprint(c: Int): Int;
+    [rtct, native("ispunct")] fun ispunct(c: Int): Int;
+    [rtct, native("isspace")] fun isspace(c: Int): Int;
+    [rtct, native("isupper")] fun isupper(c: Int): Int;
+    [rtct, native("isxdigit")] fun isxdigit(c: Int): Int;
 }

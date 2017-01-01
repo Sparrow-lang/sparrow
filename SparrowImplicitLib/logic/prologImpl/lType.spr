@@ -2,7 +2,7 @@ import nodes;
 import bitOper;
 import meta = meta.compilerCore;
 
-class[ct] LType
+[ct] class LType
 {
     using atom = 1;
     using number = 2;
@@ -44,7 +44,7 @@ class[ct] LType
 }
 
 /// Structure indicating of set of expressions that share the same type
-class[ct] LTypeSet
+[ct] class LTypeSet
 {
     var type: LType;                    ///< The type of all the expressions in this set
     var expList: Vector(ExpressionPtr); ///< The list of all the expressions in this set, that share the same type

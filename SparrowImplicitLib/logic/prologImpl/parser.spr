@@ -7,7 +7,7 @@ concept TokenRange(x)
     && -@(x.RetType) == Token
     ;
 
-class[ct] Parser(lexerType, errorReporterType: Type) if TokenRange(#$lexerType)
+[ct] class Parser(lexerType, errorReporterType: Type) if TokenRange(#$lexerType)
 {
     fun ctor(lexer: @lexerType, errorReporter: @errorReporterType)
     {
@@ -305,4 +305,4 @@ class[ct] Parser(lexerType, errorReporterType: Type) if TokenRange(#$lexerType)
     var _lexer: lexerType;
     var _errorReporter: errorReporterType;
 }
-fun[ct] mkParser(lexer: @TokenRange, errorReporter: @AnyType) = Parser(-@typeOf(lexer), -@typeOf(errorReporter))(lexer, errorReporter);
+[ct] fun mkParser(lexer: @TokenRange, errorReporter: @AnyType) = Parser(-@typeOf(lexer), -@typeOf(errorReporter))(lexer, errorReporter);

@@ -2,7 +2,7 @@ module std.scopedPtr;
 
 import newDelete(delete);
 
-class[noDefault] ScopedPtr(type: Type)
+[noDefault] class ScopedPtr(type: Type)
 {
     using ValueType = type;
 

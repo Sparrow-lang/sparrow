@@ -1,6 +1,6 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-fun[rt] pow1(x: Double, n: Int): Double
+[rt] fun pow1(x: Double, n: Int): Double
 {
     if ( equal(n, 0) )
         return 1.0;
@@ -11,7 +11,7 @@ fun[rt] pow1(x: Double, n: Int): Double
         return mul(pow1(mul(x,x), div(n,2)), pow1(x, mod(n,2)));
 }
 
-fun[ct] pow2(x: Double, n: Int): Double
+[ct] fun pow2(x: Double, n: Int): Double
 {
     if ( equal(n, 0) )
         return 1.0;
@@ -21,7 +21,7 @@ fun[ct] pow2(x: Double, n: Int): Double
         return mul(pow2(mul(x,x), div(n,2)), pow2(x, mod(n,2)));
 }
 
-fun[autoCt] pow3(x: Double, n: Int): Double
+[autoCt] fun pow3(x: Double, n: Int): Double
 {
     if ( equal(n, 0) )
         return 1.0;
@@ -30,18 +30,18 @@ fun[autoCt] pow3(x: Double, n: Int): Double
     return x;
 }
 
-fun[native("writeLnDouble"), autoCt] writeLnDoubleCt(x: Double);
+[native("writeLnDouble"), autoCt] fun writeLnDoubleCt(x: Double);
 
 
 // Function that can be called only with compile-time arguments
-fun[ct] ctTest(x: Double)
+[ct] fun ctTest(x: Double)
 {
     writeLnDoubleCt(x);
 }
 
 class TestClass
 {
-    fun[ct,static] ctMethod(n: Int): Int
+    [ct,static] fun ctMethod(n: Int): Int
     {
         return add(n,1000);
     }
@@ -49,7 +49,7 @@ class TestClass
 
 var t1: TestClass;
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     writeLnDouble(pow1(2.0, 0));
     writeLnDouble(pow1(2.0, 1));

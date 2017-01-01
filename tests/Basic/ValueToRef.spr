@@ -31,7 +31,7 @@ fun getValue(x: Int ): MyVal
     return MyVal(x);
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     var v: MyVal;
     v.print();

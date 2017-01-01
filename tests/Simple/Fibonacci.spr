@@ -27,7 +27,7 @@ fun fibonacciIterative(n: Int): Int
     return b;
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     writeLnInt(fibonacciRecursive(0));
     writeLnInt(fibonacciRecursive(1));

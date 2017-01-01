@@ -4,7 +4,7 @@ import contiguousMemoryRange(ContiguousMemoryRange);
 import rawPtr(RawPtr);
 import ranges;
 
-class[rtct] StaticArray(valueType: Type, arraySize: SizeType)
+[rtct] class StaticArray(valueType: Type, arraySize: SizeType)
 {
     using ValueType = valueType;
     using RangeType = ContiguousMemoryRange(valueType);
@@ -40,20 +40,20 @@ class[rtct] StaticArray(valueType: Type, arraySize: SizeType)
                 v.ctor();
         }
     }
-    if[ct] ( arraySize == 2 )
+    [ct] if ( arraySize == 2 )
     fun ctor(v0,v1: @ValueType)
     {
         at(0) ctor v0;
         at(1) ctor v1;
     }
-    if[ct] ( arraySize == 3 )
+    [ct] if ( arraySize == 3 )
     fun ctor(v0,v1,v2: @ValueType)
     {
         at(0) ctor v0;
         at(1) ctor v1;
         at(2) ctor v2;
     }
-    if[ct] ( arraySize == 4 )
+    [ct] if ( arraySize == 4 )
     fun ctor(v0,v1,v2,v3: @ValueType)
     {
         at(0) ctor v0;
@@ -61,7 +61,7 @@ class[rtct] StaticArray(valueType: Type, arraySize: SizeType)
         at(2) ctor v2;
         at(3) ctor v3;
     }
-    if[ct] ( arraySize == 5 )
+    [ct] if ( arraySize == 5 )
     fun ctor(v0,v1,v2,v3,v4: @ValueType)
     {
         at(0) ctor v0;
@@ -70,7 +70,7 @@ class[rtct] StaticArray(valueType: Type, arraySize: SizeType)
         at(3) ctor v3;
         at(4) ctor v4;
     }
-    if[ct] ( arraySize == 6 )
+    [ct] if ( arraySize == 6 )
     fun ctor(v0,v1,v2,v3,v4,v5: @ValueType)
     {
         at(0) ctor v0;
@@ -80,7 +80,7 @@ class[rtct] StaticArray(valueType: Type, arraySize: SizeType)
         at(4) ctor v4;
         at(5) ctor v5;
     }
-    if[ct] ( arraySize == 7 )
+    [ct] if ( arraySize == 7 )
     fun ctor(v0,v1,v2,v3,v4,v5,v6: @ValueType)
     {
         at(0) ctor v0;
@@ -91,7 +91,7 @@ class[rtct] StaticArray(valueType: Type, arraySize: SizeType)
         at(5) ctor v5;
         at(6) ctor v6;
     }
-    if[ct] ( arraySize == 8 )
+    [ct] if ( arraySize == 8 )
     fun ctor(v0,v1,v2,v3,v4,v5,v6,v7: @ValueType)
     {
         at(0) ctor v0;
@@ -103,7 +103,7 @@ class[rtct] StaticArray(valueType: Type, arraySize: SizeType)
         at(6) ctor v6;
         at(7) ctor v7;
     }
-    if[ct] ( arraySize == 9 )
+    [ct] if ( arraySize == 9 )
     fun ctor(v0,v1,v2,v3,v4,v5,v6,v7,v8: @ValueType)
     {
         at(0) ctor v0;
@@ -116,7 +116,7 @@ class[rtct] StaticArray(valueType: Type, arraySize: SizeType)
         at(7) ctor v7;
         at(8) ctor v8;
     }
-    if[ct] ( arraySize == 10 )
+    [ct] if ( arraySize == 10 )
     fun ctor(v0,v1,v2,v3,v4,v5,v6,v7,v8,v9: @ValueType)
     {
         at(0) ctor v0;
@@ -210,12 +210,12 @@ fun mkValues(v0,v1,v2,v3,v4,v5,v6,v7,v8: AnyType) = StaticArray(typeOf(v0), 9)(v
 fun mkValues(v0,v1,v2,v3,v4,v5,v6,v7,v8,v9: AnyType) = StaticArray(typeOf(v0), 10)(v0,v1,v2,v3,v4,v5,v6,v7,v8,v9);
 
 
-fun[ctGeneric] StaticArray2d(baseType: Type, d1, d2: SizeType ct)
+[ctGeneric] fun StaticArray2d(baseType: Type, d1, d2: SizeType ct)
     = StaticArray(StaticArray(baseType, d2), d1);
 
-fun[ctGeneric] StaticArray3d(baseType: Type, d1, d2, d3: SizeType ct)
+[ctGeneric] fun StaticArray3d(baseType: Type, d1, d2, d3: SizeType ct)
     = StaticArray(StaticArray(StaticArray(baseType, d3), d2), d1);
 
-fun[ctGeneric] StaticArray4d(baseType: Type, d1, d2, d3, d4: SizeType ct)
+[ctGeneric] fun StaticArray4d(baseType: Type, d1, d2, d3, d4: SizeType ct)
     = StaticArray(StaticArray(StaticArray(StaticArray(baseType, d4), d3), d2), d1);
 

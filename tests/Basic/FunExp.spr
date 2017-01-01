@@ -25,7 +25,7 @@ class Test1
     fun b = this.bb;
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     writeLn(myadd(1,2));
     writeLn(next(5));

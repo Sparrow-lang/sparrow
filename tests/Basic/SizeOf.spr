@@ -14,7 +14,7 @@ class MyVector(t: Type)
     }
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     writeLn(sizeOf(Byte));
     writeLn(sizeOf(UByte));

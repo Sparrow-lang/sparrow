@@ -6,9 +6,9 @@ import std.vector;
 import os;
 import test;
 
-fun[native("rand")] rand(): Int;
-fun[native("srand")] srand(seed: UInt);
-fun[native("time")] time(timer: @Int): Int;
+[native("rand")] fun rand(): Int;
+[native("srand")] fun srand(seed: UInt);
+[native("time")] fun time(timer: @Int): Int;
 
 class UserDefined
 {
@@ -153,7 +153,7 @@ fun testAll(t: Type, count: Int) {
     testCompareAndSwapNumeric(t, count);
     testCompareAndSwapPtr(t, count);
 
-    if[ct] ( Integer(#$t) )
+    [ct] if ( Integer(#$t) )
         testFetchAndAddNumeric(t, count);
 }
 

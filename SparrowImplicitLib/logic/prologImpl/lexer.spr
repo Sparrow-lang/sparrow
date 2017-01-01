@@ -1,7 +1,7 @@
 import token;
 import errorReporter;
 
-class[rtct] Lexer(sourceType, errorReporterType: Type) if CharRange(#$sourceType)
+[rtct] class Lexer(sourceType, errorReporterType: Type) if CharRange(#$sourceType)
 {
     using TokenType = Token;
     using RetType = TokenType;
@@ -213,5 +213,5 @@ class[rtct] Lexer(sourceType, errorReporterType: Type) if CharRange(#$sourceType
     var _curLocation: Location;
 }
 
-fun[rtct] mkLexer(source: @CharRange, errorReporter: @AnyType) = Lexer(-@typeOf(source), -@typeOf(errorReporter))(source, errorReporter);
-fun[rtct] mkLexer(source: @CharRange, errorReporter: @AnyType, startLoc: Location) = Lexer(-@typeOf(source), -@typeOf(errorReporter))(source, errorReporter, startLoc);
+[rtct] fun mkLexer(source: @CharRange, errorReporter: @AnyType) = Lexer(-@typeOf(source), -@typeOf(errorReporter))(source, errorReporter);
+[rtct] fun mkLexer(source: @CharRange, errorReporter: @AnyType, startLoc: Location) = Lexer(-@typeOf(source), -@typeOf(errorReporter))(source, errorReporter, startLoc);

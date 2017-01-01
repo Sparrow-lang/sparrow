@@ -229,6 +229,8 @@ private fun parseDecls(p: @OurParser, topLevel: Bool, res: @Node) {
 }
 private fun parseDecl(p: @OurParser, topLevel: Bool): Node {
     var res: Node;
+    var loc = p curLoc;
+    var mods = parseModifiers(p);
     var found = parseUsingDecl(p, res)
             || parsePackageDecl(p, res)
             || parseClassDecl(p, res)
@@ -245,14 +247,15 @@ private fun parseDecl(p: @OurParser, topLevel: Bool): Node {
             ;
     }
 
+    if ( found )
+        res = mkModifiers(loc span (p lastLoc), res, mods);
+
     return res;
 }
 
 private fun parseImportLineOpt(p: @OurParser, res: @Node): Bool {
     if ( p accept tkIMPORT ) {
-        var mods = parseModifiers(p);
         res = parseImportNames(p);
-        res = mkModifiers(Location(), res, mods);
         p expect tkSEMICOLON;
         return true;
     }
@@ -292,7 +295,6 @@ private fun parseUsingDecl(p: @OurParser, res: @Node): Bool {
     if ( !(p accept tkUSING) )
         return false;
     var loc = p.lastToken.loc;
-    var mods = parseModifiers(p);
     var id = parseIdEqualOpt(p);
     var usingNode: Node;
     if ( id isEmpty )
@@ -301,28 +303,26 @@ private fun parseUsingDecl(p: @OurParser, res: @Node): Bool {
         usingNode = parseExpr(p);
     loc copyEnd p.lastToken.loc;
     p expect tkSEMICOLON;
-    res = mkModifiers(loc, mkUsing(loc, id.asStringRef, usingNode), mods);
+    res = mkUsing(loc, id.asStringRef, usingNode);
     return true;
 }
 private fun parsePackageDecl(p: @OurParser, res: @Node): Bool {
     if ( !(p accept tkPACKAGE) )
         return false;
     var loc = p.lastToken.loc;
-    var mods = parseModifiers(p);
     var id = parseId(p);
     p expect tkLCURLY;
     var children: Node;
     parseDecls(p, true, children);
     p expect tkRCURLY;
     loc copyEnd p.lastToken.loc;
-    res = mkModifiers(loc, mkPackage(loc, id.asStringRef, children), mods);
+    res = mkPackage(loc, id.asStringRef, children);
     return true;
 }
 private fun parseClassDecl(p: @OurParser, res: @Node): Bool {
     if ( !(p accept tkCLASS) )
         return false;
     var loc = p.lastToken.loc;
-    var mods = parseModifiers(p);
     var id = parseId(p);
     var formals = parseFormalsOpt(p);
     var ifClause = parseIfClauseOpt(p);
@@ -331,14 +331,13 @@ private fun parseClassDecl(p: @OurParser, res: @Node): Bool {
     parseDecls(p, true, children);
     p expect tkRCURLY;
     loc copyEnd p.lastToken.loc;
-    res = mkModifiers(loc, mkClass(loc, id.asStringRef, formals, Node(), ifClause, children), mods);
+    res = mkClass(loc, id.asStringRef, formals, Node(), ifClause, children);
     return true;
 }
 private fun parseDatatypeDecl(p: @OurParser, res: @Node): Bool {
     if ( !(p accept tkDATATYPE) )
         return false;
     var loc = p.lastToken.loc;
-    var mods = parseModifiers(p);
     var id = parseId(p);
     var formals = parseFormalsOpt(p);
     if ( p accept tkEQUAL ) {
@@ -346,7 +345,7 @@ private fun parseDatatypeDecl(p: @OurParser, res: @Node): Bool {
         var ifClause = parseIfClauseOpt(p);
         p expect tkSEMICOLON;
         loc copyEnd p.lastToken.loc;
-        res = mkModifiers(loc, mkClass(loc, id.asStringRef, formals, underlyingData, ifClause, Node()), mods);
+        res = mkClass(loc, id.asStringRef, formals, underlyingData, ifClause, Node());
     }
     else {
         var ifClause = parseIfClauseOpt(p);
@@ -358,7 +357,7 @@ private fun parseDatatypeDecl(p: @OurParser, res: @Node): Bool {
         }
         p expect tkRCURLY;
         loc copyEnd p.lastToken.loc;
-        res = mkModifiers(loc, mkClass(loc, id.asStringRef, formals, Node(), ifClause, children), mods);
+        res = mkClass(loc, id.asStringRef, formals, Node(), ifClause, children);
     }
     return true;
 }
@@ -366,7 +365,6 @@ private fun parseConceptDecl(p: @OurParser, res: @Node): Bool {
     if ( !(p accept tkCONCEPT) )
         return false;
     var loc = p.lastToken.loc;
-    var mods = parseModifiers(p);
     var id = parseId(p);
     p expect tkLPAREN;
     var paramName = parseId(p);
@@ -375,13 +373,12 @@ private fun parseConceptDecl(p: @OurParser, res: @Node): Bool {
     var ifClause = parseIfClauseOpt(p);
     p expect tkSEMICOLON;
     loc copyEnd p.lastToken.loc;
-    res = mkModifiers(loc, mkConcept(loc, id.asStringRef, paramName.asStringRef, baseConcept, ifClause), mods);
+    res = mkConcept(loc, id.asStringRef, paramName.asStringRef, baseConcept, ifClause);
     return true;
 }
 private fun parseVarDecl(p: @OurParser, res: @Node): Bool {
     if ( !(p accept tkVAR) )
         return false;
-    var mods = parseModifiers(p);
     var ids = parseIdList(p);
     var typeNode, init: Node;
     if ( p accept tkCOLON ) {
@@ -396,14 +393,13 @@ private fun parseVarDecl(p: @OurParser, res: @Node): Bool {
     }
     p expect tkSEMICOLON;
 
-    createFormals(ids, typeNode, init, true, mods, res);
+    createFormals(ids, typeNode, init, true, res);
     return true;
 }
 private fun parseFunDecl(p: @OurParser, res: @Node): Bool {
     if ( !(p accept tkFUN) )
         return false;
     var loc = p.lastToken.loc;
-    var mods = parseModifiers(p);
     var id = parseFunNameString(p);
     var formals = parseFormalsOpt(p);
     var retType = parseTypeNode(p);
@@ -418,7 +414,7 @@ private fun parseFunDecl(p: @OurParser, res: @Node): Bool {
         body = parseFunBody(p);
     }
     loc copyEnd p.lastToken.loc;
-    res = mkModifiers(loc, mkFun(loc, id.asStringRef, formals, retType, body, bodyExp, ifClause), mods);
+    res = mkFun(loc, id.asStringRef, formals, retType, body, bodyExp, ifClause);
     return true;
 }
 
@@ -445,7 +441,7 @@ private fun parseFormalsOpt(p: @OurParser, varFormals: Bool = false): Node {
         // Simplified versions: just names, without parenthesis
         var loc = p curLoc;
         var ids = parseIdList(p);
-        createFormals(ids, mkIdentifier(loc span (p lastLoc), "AnyType"), Node(), varFormals, Node(), res);
+        createFormals(ids, mkIdentifier(loc span (p lastLoc), "AnyType"), Node(), varFormals, res);
     }
     return res;
 }
@@ -457,20 +453,18 @@ private fun parseFormal(p: @OurParser, varFormals: Bool, res: @Node) {
     if ( p accept tkEQUAL ) {
         init = parseExpr(p);
     }
-    createFormals(ids, typeNode, init, varFormals, Node(), res);
+    createFormals(ids, typeNode, init, varFormals, res);
 }
-private fun createFormals(ids: @LocStringVec, typeNode, init: Node, varFormals: Bool, mods: Node, res: @Node) {
+private fun createFormals(ids: @LocStringVec, typeNode, init: Node, varFormals: Bool, res: @Node) {
     if ( varFormals ) {
         for ( id: @LocString = ids.all ) {
             var v = mkVar(id._data._1, id._data._2.asStringRef, typeNode, init);
-            if ( mods isSet ) v = mkModifiers(id._data._1, v, mods);
             res = addToNodeList(res, v);
         }
     }
     else {
         for ( id: @LocString = ids.all ) {
             var p = mkParameter(id._data._1, id._data._2.asStringRef, typeNode, init);
-            if ( mods isSet ) p = mkModifiers(id._data._1, p, mods);
             res = addToNodeList(res, p);
         }
     }
@@ -496,7 +490,6 @@ private fun parseIfTopLevel(p: @OurParser, res: @Node): Bool {
     if ( !(p accept tkIF) )
         return false;
     var loc = p lastLoc;
-    var mods = parseModifiers(p);
     p expect tkLPAREN;
     var expr = parseExpr(p);
     p expect tkRPAREN;
@@ -505,7 +498,7 @@ private fun parseIfTopLevel(p: @OurParser, res: @Node): Bool {
     if ( p accept tkELSE )
         elseClause = parseDecl(p, true);
     loc copyEnd p.lastToken.loc;
-    res = mkModifiers(loc, mkIfStmt(loc, expr, thenClause, elseClause), mods);
+    res = mkIfStmt(loc, expr, thenClause, elseClause);
     return true;
 }
 
@@ -700,6 +693,8 @@ fun parseClosureParams(p: @OurParser): Node {
 
 private fun parseStatement(p: @OurParser): Node {
     var res: Node;
+    var loc = p curLoc;
+    var mods = parseModifiers(p);
     if ( p accept tkSEMICOLON )
         ;
     else if ( p nextIs tkLCURLY )
@@ -722,6 +717,8 @@ private fun parseStatement(p: @OurParser): Node {
         res = parseExpr(p);
         p expect tkSEMICOLON;
     }
+    if ( res isSet )
+        res = mkModifiers(loc span (p lastLoc), res, mods);
     return res;
 }
 private fun parseFunLevelDecl(p: @OurParser, res: @Node): Bool {
@@ -742,7 +739,6 @@ private fun parseBlockStmt(p: @OurParser): Node {
 private fun parseIfStmt(p: @OurParser): Node {
     var loc = p curLoc;
     p expect tkIF;
-    var mods = parseModifiers(p);
     p expect tkLPAREN;
     var expr = parseExpr(p);
     p expect tkRPAREN;
@@ -751,12 +747,11 @@ private fun parseIfStmt(p: @OurParser): Node {
     if ( p accept tkELSE )
         elseClause = parseStatement(p);
     loc copyEnd p.lastToken.loc;
-    return mkModifiers(loc, mkIfStmt(loc, expr, thenClause, elseClause), mods);
+    return mkIfStmt(loc, expr, thenClause, elseClause);
 }
 private fun parseForStmt(p: @OurParser): Node {
     var loc = p curLoc;
     p expect tkFOR;
-    var mods = parseModifiers(p);
     p expect tkLPAREN;
     var id = parseId(p);
     var typeNode: Node;
@@ -767,12 +762,11 @@ private fun parseForStmt(p: @OurParser): Node {
     p expect tkRPAREN;
     var action = parseStatement(p);
     loc copyEnd p.lastToken.loc;
-    return mkModifiers(loc, mkForStmt(loc, id.asStringRef, typeNode, range, action), mods);
+    return mkForStmt(loc, id.asStringRef, typeNode, range, action);
 }
 private fun parseWhileStmt(p: @OurParser): Node {
     var loc = p curLoc;
     p expect tkWHILE;
-    var mods = parseModifiers(p);
     p expect tkLPAREN;
     var expr = parseExpr(p);
     var stepAction: Node;
@@ -784,7 +778,7 @@ private fun parseWhileStmt(p: @OurParser): Node {
     p expect tkRPAREN;
     var body = parseStatement(p);
     loc copyEnd p.lastToken.loc;
-    return mkModifiers(loc, mkWhileStmt(loc, expr, stepAction, body), mods);
+    return mkWhileStmt(loc, expr, stepAction, body);
 }
 private fun parseBreakStmt(p: @OurParser): Node {
     p expect tkBREAK;

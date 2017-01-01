@@ -38,8 +38,8 @@ class Thread
     }
 
     //! Cannot copy construct or assign a Thread object
-    fun[private] ctor(other: @Thread);
-    fun[private] =(other: @Thread);
+    [private] fun ctor(other: @Thread);
+    [private] fun =(other: @Thread);
 
 }
 
@@ -101,17 +101,17 @@ fun sleep(durMs: UInt) {
 package Impl {
     using ThreadFun = FunctionPtr(@Byte rt, @Byte rt);
 
-    class[initCtor] Closure(FType: Type) {
+    [initCtor] class Closure(FType: Type) {
         var f: FType;
 
-        fun[static] threadFun(arg: @Byte): @Byte {
+        [static] fun threadFun(arg: @Byte): @Byte {
             var self: @Closure = reinterpretCast(@Closure, arg);
             self.f();
             self delete;
             return null;
         }
 
-        fun[static] getFunPtr: ThreadFun = \threadFun;
+        [static] fun getFunPtr: ThreadFun = \threadFun;
     }
     fun startThread(f: AnyType): NativeThreadHandle {
         using ClosureType = Closure(typeOf(f));
@@ -122,16 +122,16 @@ package Impl {
         return handle;
     }
 
-    class[initCtor] TimeSpec { var tv_sec, tv_nsec: Long; }
+    [initCtor] class TimeSpec { var tv_sec, tv_nsec: Long; }
 
-    fun[native("pthread_create")] pthread_create(handle: @NativeThreadHandle, attr: @Byte, f: ThreadFun, arg: @Byte): Int;
-    fun[native("pthread_join")] pthread_join(handle: NativeThreadHandle, valPtr: @ @Byte): Int;
-    fun[native("pthread_detach")] pthread_detach(handle: NativeThreadHandle): Int;
-    fun[native("pthread_self")] pthread_self: NativeThreadHandle;
+    [native("pthread_create")] fun pthread_create(handle: @NativeThreadHandle, attr: @Byte, f: ThreadFun, arg: @Byte): Int;
+    [native("pthread_join")] fun pthread_join(handle: NativeThreadHandle, valPtr: @ @Byte): Int;
+    [native("pthread_detach")] fun pthread_detach(handle: NativeThreadHandle): Int;
+    [native("pthread_self")] fun pthread_self: NativeThreadHandle;
 
-    fun[native("pthread_threadid_np")] pthread_threadid_np(t: NativeThreadHandle, res: @ULong): Int;
+    [native("pthread_threadid_np")] fun pthread_threadid_np(t: NativeThreadHandle, res: @ULong): Int;
 
-    fun[native("sched_yield")] sched_yield;
-    fun[native("nanosleep")] nanosleep(req, rem: @TimeSpec): Int;
+    [native("sched_yield")] fun sched_yield;
+    [native("nanosleep")] fun nanosleep(req, rem: @TimeSpec): Int;
 }
 

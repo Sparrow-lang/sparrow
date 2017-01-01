@@ -7,7 +7,7 @@ import test;
 var intTls: Tls(Int);
 var ptrTls: Tls(@Int);
 
-class[initCtor] IntWorker {
+[initCtor] class IntWorker {
     var val1, val2: Int;
 
     fun ()() {
@@ -19,7 +19,7 @@ class[initCtor] IntWorker {
     }
 }
 
-class[initCtor] PtrWorker {
+[initCtor] class PtrWorker {
     var val1, val2: @Int;
 
     fun ()() {

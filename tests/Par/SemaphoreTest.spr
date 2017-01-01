@@ -22,7 +22,7 @@ fun doJob(sem: @par.Semaphore, waitTime: Int) {
     sem release;
 }
 
-class[initCtor] Worker {
+[initCtor] class Worker {
     var sem: @par.Semaphore;
     var amountOfWork: Int;
 

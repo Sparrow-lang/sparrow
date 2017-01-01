@@ -6,23 +6,23 @@ class Optional(valueType: Type)
 {
     using ValueType = valueType;
 
-    fun[noDefault] ctor
+    [noDefault] fun ctor
     {
         _constructed ctor false;
         _value ctor Uninitialized();
     }
-    fun[noDefault] ctor(other: @Optional)
+    [noDefault] fun ctor(other: @Optional)
     {
         _constructed ctor other._constructed;
         if ( other._constructed )
             _value ctor other._value;
     }
-    fun[noDefault] ctor(val: @ValueType)
+    [noDefault] fun ctor(val: @ValueType)
     {
         _constructed ctor true;
         _value ctor val;
     }
-    fun[noDefault] dtor
+    [noDefault] fun dtor
     {
         reset();
     }

@@ -59,8 +59,8 @@ fun sprMain
     else if ( n == 7 ) test7();
 }
 
-fun[native("malloc")] mallocRt(size: SizeType): @Byte;
-fun[native("free")] freeRt(p: @Byte);
+[native("malloc")] fun mallocRt(size: SizeType): @Byte;
+[native("free")] fun freeRt(p: @Byte);
 
 fun newObj(x: Int): @MyObj
 {

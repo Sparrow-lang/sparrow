@@ -1,6 +1,6 @@
 module logic.predicates;
 
-import[public] lRef;
+[public] import lRef;
 import std.function;
 
 /// Concept describing the type of a predicate: anything that can be called and evaluates to Bool
@@ -14,7 +14,7 @@ class Predicate
 {
     using arity = 0;
 
-    fun[convert] ctor(pred: @PredicateType)
+    [convert] fun ctor(pred: @PredicateType)
     {
         predObj ctor pred;
     }
@@ -47,10 +47,10 @@ using oper_precedence_=/ = oper_precedence_== + 1;
 
 
 /// Logic Disjunction
-fun[rtct] ||(l, r: @PredicateType) = OrRelation(-@typeOf(l), -@typeOf(r))(l, r);
+[rtct] fun ||(l, r: @PredicateType) = OrRelation(-@typeOf(l), -@typeOf(r))(l, r);
 
 /// Logic Conjunction
-fun[rtct] &&(l, r: @PredicateType) = AndRelation(-@typeOf(l), -@typeOf(r))(l, r);
+[rtct] fun &&(l, r: @PredicateType) = AndRelation(-@typeOf(l), -@typeOf(r))(l, r);
 
 /// Relation that always returns false
 fun mkFalse = LFalse();
@@ -68,7 +68,7 @@ class UnifyLR(leftType, rightType: Type) if ValWrapper(#$leftType) && ValWrapper
         this._leftVal ctor l;
         this._rightVal ctor r;
         _coEntryPt ctor 0;
-        if[ct] ( isValid(logicDebug) )
+        [ct] if ( isValid(logicDebug) )
             cout << "UnifyLR.ctor: " << this << "\n";
     }
 
@@ -77,20 +77,20 @@ class UnifyLR(leftType, rightType: Type) if ValWrapper(#$leftType) && ValWrapper
         this._leftVal ctor other._leftVal;
         this._rightVal ctor other._rightVal;
         this._coEntryPt ctor other._coEntryPt;
-        if[ct] ( isValid(logicDebug) )
+        [ct] if ( isValid(logicDebug) )
             cout << "UnifyLR.copy ctor: " << this << "\n";
     }
 
     fun dtor
     {
-        if[ct] ( isValid(logicDebug) )
+        [ct] if ( isValid(logicDebug) )
             cout << "UnifyLR.dtor: " << this << "\n";
     }
 
     fun (): Bool
     {
         //cout << "UnifyLR.(): ltype=" << TypeOp.description(leftType) << ", rtype=" << TypeOp.description(rightType) << "\n" << flush;
-        if[ct] ( isValid(logicDebug) )
+        [ct] if ( isValid(logicDebug) )
             cout << "UnifyLR.(): " << this << "\n";
         if ( _coEntryPt == 0 )   // Never called before
         {
@@ -105,16 +105,16 @@ class UnifyLR(leftType, rightType: Type) if ValWrapper(#$leftType) && ValWrapper
                 if ( _rightVal isSet )
                 {
                     _coEntryPt = -1; // Nothing more to do here
-                    if[ct] ( isValid(logicDebug) )
+                    [ct] if ( isValid(logicDebug) )
                         cout << "UnifyLR.(), checking equality: " << _leftVal << "==" << _rightVal << "\n";
                     var res = _leftVal.get() == _rightVal.get();
                     return res;
                 }
-                if[ct] ( LRefType(#$rightType) && isValid(_rightVal = _leftVal.get()) )
+                [ct] if ( LRefType(#$rightType) && isValid(_rightVal = _leftVal.get()) )
                 {
                     _rightVal = _leftVal.get();
                     _coEntryPt = 1;
-                    if[ct] ( isValid(logicDebug) )
+                    [ct] if ( isValid(logicDebug) )
                         cout << "Unify, assigning " << _leftVal.get() << " to right side => " << this << endl;
                     return true;
                 }
@@ -123,11 +123,11 @@ class UnifyLR(leftType, rightType: Type) if ValWrapper(#$leftType) && ValWrapper
             }
             else
             {
-                if[ct] ( LRefType(#$leftType) && isValid(_leftVal = _rightVal.get()) )
+                [ct] if ( LRefType(#$leftType) && isValid(_leftVal = _rightVal.get()) )
                 {
                     _leftVal = _rightVal.get();
                     _coEntryPt = 2;
-                    if[ct] ( isValid(logicDebug) )
+                    [ct] if ( isValid(logicDebug) )
                         cout << "Unify, assigning " << _rightVal.get() << " to left side => " << this << endl;
                     return true;
                 }
@@ -137,25 +137,25 @@ class UnifyLR(leftType, rightType: Type) if ValWrapper(#$leftType) && ValWrapper
         }
         else if ( _coEntryPt == 1 )  // After we write into the right value
         {
-            if[ct] ( isValid(logicDebug) )
+            [ct] if ( isValid(logicDebug) )
                 cout << "Unify, no more values (after right side assign)\n";
-            if[ct] ( LRefType(#$rightType) )
+            [ct] if ( LRefType(#$rightType) )
                 _rightVal reset;
             _coEntryPt = -1;  // Nothing more to do here
             return false;
         }
         else if ( _coEntryPt == 2 )  // After we write into the left value
         {
-            if[ct] ( isValid(logicDebug) )
+            [ct] if ( isValid(logicDebug) )
                 cout << "Unify, no more values (after left side assign)\n";
-            if[ct] ( LRefType(#$leftType) )
+            [ct] if ( LRefType(#$leftType) )
                 _leftVal reset;
             _coEntryPt = -1;  // Nothing more to do here
             return false;
         }
         else
         {
-            if[ct] ( isValid(logicDebug) )
+            [ct] if ( isValid(logicDebug) )
                 cout << "Unify, done\n";
             return false;
         }
@@ -171,7 +171,7 @@ class UnifyLR(leftType, rightType: Type) if ValWrapper(#$leftType) && ValWrapper
     var _rightVal: rightType;
 }
 
-class[rtct] OrRelation(leftPredicateType, rightPredicateType: Type)
+[rtct] class OrRelation(leftPredicateType, rightPredicateType: Type)
 {
     using ValueType = Bool;
     using ValuePassType = Bool;
@@ -181,19 +181,19 @@ class[rtct] OrRelation(leftPredicateType, rightPredicateType: Type)
         this._left ctor l;
         this._right ctor r;
         _coEntryPt ctor 0;
-        if[ct] ( isValid(logicDebug) )
+        [ct] if ( isValid(logicDebug) )
             cout << "OrRelation.ctor: " << this << "\n";
     }
 
     fun dtor
     {
-        if[ct] ( isValid(logicDebug) )
+        [ct] if ( isValid(logicDebug) )
             cout << "OrRelation.dtor: " << this << "\n";
     }
 
     fun (): Bool
     {
-        if[ct] ( isValid(logicDebug) )
+        [ct] if ( isValid(logicDebug) )
             cout << "OrRelation.(): " << this << "\n";
         if ( _coEntryPt == 0 )   // Never called before, or left is returning true
         {
@@ -233,7 +233,7 @@ class[rtct] OrRelation(leftPredicateType, rightPredicateType: Type)
     var _right: rightPredicateType;
 }
 
-class[rtct] AndRelation(leftPredicateType, rightPredicateType: Type)
+[rtct] class AndRelation(leftPredicateType, rightPredicateType: Type)
 {
     using ValueType = Bool;
     using ValuePassType = Bool;
@@ -244,13 +244,13 @@ class[rtct] AndRelation(leftPredicateType, rightPredicateType: Type)
         this._right ctor r;
         this._rightBegin ctor r;
         _coEntryPt ctor 0;
-        if[ct] ( isValid(logicDebug) )
+        [ct] if ( isValid(logicDebug) )
             cout << "AndRelation.ctor: " << this << "\n";
     }
 
     fun (): Bool
     {
-        if[ct] ( isValid(logicDebug) )
+        [ct] if ( isValid(logicDebug) )
             cout << "AndRelation.(): " << this << "\n";
         if ( _coEntryPt == 0 || _coEntryPt == 1 )   // Never called before; stay here until we have a positive result
         {

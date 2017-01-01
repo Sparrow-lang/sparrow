@@ -1,7 +1,7 @@
 
-var[ct] _iotaVar = 0;
-fun[ct] _iotaReset { _iotaVar = 0; }
-fun[ct] _iota = _iotaVar++;
+[ct] var _iotaVar = 0;
+[ct] fun _iotaReset { _iotaVar = 0; }
+[ct] fun _iota = _iotaVar++;
 
 using nkFeatherNop = ctEval(_iota);
 using nkFeatherTypeNode = ctEval(_iota);

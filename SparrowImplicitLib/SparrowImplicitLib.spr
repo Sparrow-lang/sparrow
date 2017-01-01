@@ -2,12 +2,12 @@ import "sprCore/stdTypesImpl.llvm";
 import "sprCore/basicImpl.llvm";
 import "bitOper.llvm";
 
-import[public] sprCore.basicDecls;
+[public] import sprCore.basicDecls;
 
-import[public] sprCore.functionPtr;
+[public] import sprCore.functionPtr;
 
-import[public] sprCore.streamBasic;
-import[public] sprCore.consoleIO;
-import[public] sprCore.mainDef;
-import[public] sprCore.stringCvt;
-import[public] sprCore.basicMeta;
+[public] import sprCore.streamBasic;
+[public] import sprCore.consoleIO;
+[public] import sprCore.mainDef;
+[public] import sprCore.stringCvt;
+[public] import sprCore.basicMeta;

@@ -16,7 +16,7 @@ var i: Int;
 var a: MyType;
 var b: MyType2;
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     assignInt(i, 1);
     assignInt(a.x, 10);

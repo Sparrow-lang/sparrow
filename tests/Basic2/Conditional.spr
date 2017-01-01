@@ -3,7 +3,7 @@
 class MyObj
 {
     var a: Int;
-    
+
     fun ctor(i: Int) { a = i; cout << "ctor(" << a << ")" << endl; }
     fun ctor(other: MyObj) { a = other.a; cout << "copy ctor(" << a << ")" << endl; }
     fun dtor { cout << "dtor" << endl; }
@@ -46,16 +46,16 @@ fun testDifferentTypes1(cond: Bool)
     var s: Short = 11;
     var b: Byte = 13;
     cout << ife(cond, s, b) << endl;
-    if[ct] ( typeOf(ife(cond, s, b)) != Int )
+    [ct] if ( typeOf(ife(cond, s, b)) != Int )
         cout << "FAIL 1" << endl;
 
-    if[ct] ( typeOf(ife(cond, 1.0, 1)) != Double )
+    [ct] if ( typeOf(ife(cond, 1.0, 1)) != Double )
         cout << "FAIL 2" << endl;
 
-    if[ct] ( typeOf(ife(cond, 1.0f, 1)) != Float )
+    [ct] if ( typeOf(ife(cond, 1.0f, 1)) != Float )
         cout << "FAIL 3" << endl;
 
-    if[ct] ( typeOf(ife(cond, ULong(1), Long(1))) != ULong )
+    [ct] if ( typeOf(ife(cond, ULong(1), Long(1))) != ULong )
         cout << "FAIL 4" << endl;
 }
 

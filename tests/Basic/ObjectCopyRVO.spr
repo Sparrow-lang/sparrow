@@ -44,7 +44,7 @@ fun f3: MyType
 
 
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     if ( n == 1 ) test1();
     else if ( n == 2 ) test2();

@@ -2,7 +2,7 @@
 
 import std.ranges;
 
-fun[noInline] testAccumulate(n: UInt): ULong
+[noInline] fun testAccumulate(n: UInt): ULong
 {
     var res: ULong = 0;
     for ( i = 0..n )

@@ -29,7 +29,7 @@ fun nextRandom: Double
 }
 var randomRange = generate(\nextRandom);
 
-class[initCtor] RandomCharRange(distribValsRangeType: Type)
+[initCtor] class RandomCharRange(distribValsRangeType: Type)
 {
     var distribStr: StringRef;
     var distribVals: distribValsRangeType;

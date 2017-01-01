@@ -1,6 +1,6 @@
 //!!
 
-fun[rt] mallocRt()
+[rt] fun mallocRt()
 {
     var pi: @Int = reinterpretCast(@Int, malloc(sizeOf(Int)));
     pi = 10;
@@ -8,7 +8,7 @@ fun[rt] mallocRt()
     free(reinterpretCast(@Byte, pi));
 }
 
-fun[ct] mallocCt()
+[ct] fun mallocCt()
 {
     var pi: @Int = reinterpretCast(@Int, malloc(sizeOf(Int)));
     pi = 11;
@@ -16,7 +16,7 @@ fun[ct] mallocCt()
     free(reinterpretCast(@Byte, pi));
 }
 
-fun[rtct] mallocRtCt()
+[rtct] fun mallocRtCt()
 {
     var pi: @Int = reinterpretCast(@Int, malloc(sizeOf(Int)));
     pi = 12;
@@ -24,12 +24,12 @@ fun[rtct] mallocRtCt()
     free(reinterpretCast(@Byte, pi));
 }
 
-fun[rt] rtCaller()
+[rt] fun rtCaller()
 {
     mallocRtCt();
 }
 
-fun[ct] ctCaller()
+[ct] fun ctCaller()
 {
     mallocRtCt();
 }
@@ -51,7 +51,7 @@ fun sprMain
 {
     var x = 10;
     var y = 2;
-    var[ct] yy = 2;
+    [ct] var yy = 2;
 
     test1();
     cout << "---" << endl;

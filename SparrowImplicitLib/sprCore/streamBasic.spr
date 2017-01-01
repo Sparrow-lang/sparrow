@@ -10,7 +10,7 @@ concept OutStream(x)
     ;
 
 // If we define an ">>" operator in the type itself, make sure we can support the standard "<<" notation
-fun[rtct] << (s: @OutStream, x: @AnyType): typeOf(s) if isValid(x >> s)
+[rtct] fun << (s: @OutStream, x: @AnyType): typeOf(s) if isValid(x >> s)
 {
     x >> s;
     return s;
@@ -18,41 +18,41 @@ fun[rtct] << (s: @OutStream, x: @AnyType): typeOf(s) if isValid(x >> s)
 
 // If no ">>" operator is defined in the class, then try to place the input element in the stream
 // The stream class must define an "<<<" operator for this element
-fun[rtct] << (s: @OutStream, x: @AnyType): typeOf(s) if !isValid(x.>>(s)) && isValid(s.<<<(x))
+[rtct] fun << (s: @OutStream, x: @AnyType): typeOf(s) if !isValid(x.>>(s)) && isValid(s.<<<(x))
 {
     s.<<<(x);
     return s;
 }
 
 
-var[rtct] endl: EndLineHelperClass;
-var[rtct] flush: FlushHelperClass;
+[rtct] var endl: EndLineHelperClass;
+[rtct] var flush: FlushHelperClass;
 
-class[rtct] EndLineHelperClass
+[rtct] class EndLineHelperClass
 {
     fun >>(os: @OutStream)
     {
         os << '\n';
     }
 }
-class[rtct] FlushHelperClass
+[rtct] class FlushHelperClass
 {
     fun >>(os: @OutStream)
     {
-        if[ct] ( isValid(os.flush()) )
+        [ct] if ( isValid(os.flush()) )
             os.flush();
     }
 }
 
-class[rtct] StreamRefWrapperHelperClass
+[rtct] class StreamRefWrapperHelperClass
 {
     var ptr: @Byte;
 }
-fun[rtct] >>(p: StreamRefWrapperHelperClass, os: @OutStream) {
+[rtct] fun >>(p: StreamRefWrapperHelperClass, os: @OutStream) {
     _Impl.writeRef(p.ptr);
 }
 
-fun[rtct] mkStreamRefWrapper(x: @AnyType): StreamRefWrapperHelperClass
+[rtct] fun mkStreamRefWrapper(x: @AnyType): StreamRefWrapperHelperClass
 {
     var res: StreamRefWrapperHelperClass;
     res.ptr := reinterpretCast(@Byte, x);
@@ -61,5 +61,5 @@ fun[rtct] mkStreamRefWrapper(x: @AnyType): StreamRefWrapperHelperClass
 
 package _Impl
 {
-    fun[rtct, native("writePointer")] writeRef(x: @Byte);
+    [rtct, native("writePointer")] fun writeRef(x: @Byte);
 }

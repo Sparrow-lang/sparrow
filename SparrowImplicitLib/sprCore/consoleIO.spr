@@ -1,8 +1,8 @@
 import basicDecls(Number, Char, Bool, StringRef, Byte, UByte, Short, UShort, Int, UInt, Long, ULong, SizeType, DiffType, Double, Range);
 
-var[rtct] cout: ConsoleOutputStream;
+[rtct] var cout: ConsoleOutputStream;
 
-class[rtct] ConsoleOutputStream
+[rtct] class ConsoleOutputStream
 {
     fun <<<(x: Number)                          { _Impl.write(x); }
     fun <<<(x: Char)                            { _Impl.write(x); }
@@ -15,19 +15,19 @@ class[rtct] ConsoleOutputStream
 
 package _Impl
 {
-    fun[rtct, native("writeByte")] write(x: Byte);
-    fun[rtct, native("writeByte")] write(x: UByte);
-    fun[rtct, native("writeShort")] write(x: Short);
-    fun[rtct, native("writeShort")] write(x: UShort);
-    fun[rtct, native("writeInt")] write(x: Int);
-    fun[rtct, native("writeUInt")] write(x: UInt);
-    fun[rtct, native("writeLong")] write(x: Long);
-    fun[rtct, native("writeULong")] write(x: ULong);
-    fun[rtct, native("writeDouble")] write(x: Double);
-    fun[rtct, native("writeChar")] write(x: Char);
-    fun[rtct, native("writeULong")] write(x: SizeType);
-    fun[rtct, native("writeLong")] write(x: DiffType);
+    [rtct, native("writeByte")] fun write(x: Byte);
+    [rtct, native("writeByte")] fun write(x: UByte);
+    [rtct, native("writeShort")] fun write(x: Short);
+    [rtct, native("writeShort")] fun write(x: UShort);
+    [rtct, native("writeInt")] fun write(x: Int);
+    [rtct, native("writeUInt")] fun write(x: UInt);
+    [rtct, native("writeLong")] fun write(x: Long);
+    [rtct, native("writeULong")] fun write(x: ULong);
+    [rtct, native("writeDouble")] fun write(x: Double);
+    [rtct, native("writeChar")] fun write(x: Char);
+    [rtct, native("writeULong")] fun write(x: SizeType);
+    [rtct, native("writeLong")] fun write(x: DiffType);
 
-    fun[rtct, native("flushOutput")] flushOutput;
+    [rtct, native("flushOutput")] fun flushOutput;
 }
 

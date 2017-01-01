@@ -460,14 +460,14 @@ class HavlakLoopFinder {
                 // At this point, one can set attributes to the loop, such as:
                 //
                 // the bottom node:
-                //    IntList::iterator iter  = back_preds[w].begin;
-                //    loop bottom is: nodes[*backp_iter].node);
+                //    IntList::iterator iter  = [w] back_preds.begin;
+                //    loop bottom is: [*backp_iter] nodes.node);
                 //
                 // the number of backedges:
-                //    back_preds[w].size
+                //    [w] back_preds.size
                 //
                 // whether this loop is reducible:
-                //    type[w] != BB_IRREDUCIBLE
+                //    [w] type != BB_IRREDUCIBLE
                 //
                 // TODO(rhundt): Define those interfaces in the Loop Forest.
                 //

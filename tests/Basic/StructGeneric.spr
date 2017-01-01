@@ -44,7 +44,7 @@ fun Pair3(first, second: AnyType): Pair3(typeOf(first)) {
     return res;
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     var pi = Pair(Int, 1, 2);
     writeLn(pi.first);

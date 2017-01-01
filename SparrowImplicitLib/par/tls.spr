@@ -28,7 +28,7 @@ class Tls(T: Type) if TypeOp.isRef(T) {
         return reinterpretCast(T, _tls getValue);
     }
 
-    fun[static] _destructPtr(p: @Byte): Null {
+    [static] fun _destructPtr(p: @Byte): Null {
         delete(reinterpretCast(T, p));
         return Null();
     }
@@ -74,8 +74,8 @@ package Impl {
 
     using KeyT = ULong;
 
-    fun[native("pthread_key_create")] pthread_key_create(k: @KeyT, dtorFun: DtorFun): Int;
-    fun[native("pthread_key_delete")] pthread_key_delete(k: KeyT): Int;
-    fun[native("pthread_setspecific")] pthread_setspecific(k: KeyT, val: @Byte): Int;
-    fun[native("pthread_getspecific")] pthread_getspecific(k: KeyT): @Byte;
+    [native("pthread_key_create")] fun pthread_key_create(k: @KeyT, dtorFun: DtorFun): Int;
+    [native("pthread_key_delete")] fun pthread_key_delete(k: KeyT): Int;
+    [native("pthread_setspecific")] fun pthread_setspecific(k: KeyT, val: @Byte): Int;
+    [native("pthread_getspecific")] fun pthread_getspecific(k: KeyT): @Byte;
 }

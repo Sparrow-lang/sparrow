@@ -262,7 +262,7 @@ class List(valueType: Type)
         else
         {
             // TODO: Find a proper way of doing this
-            if[ct] ( isValid(pushBack(ValueType())) )
+            [ct] if ( isValid(pushBack(ValueType())) )
             {
                 pushBack(ValueType());
                 while ( n > _listSize )
@@ -588,7 +588,7 @@ class List(valueType: Type)
 
     fun _headNode = _NodeTypePtr.fromRef(reinterpretCast(@_NodeType, _head));
 
-    fun[static] _transfer(pos, begin, end: _NodeTypePtr)
+    [static] fun _transfer(pos, begin, end: _NodeTypePtr)
     {
         end.value().prev.value().next = pos;
         begin.value().prev.value().next = end;
@@ -612,7 +612,7 @@ class List(valueType: Type)
         var data: ValueType;
     }
 
-    class[initCtor] ListRange
+    [initCtor] class ListRange
     {
         using RetType = @ValueType;
 

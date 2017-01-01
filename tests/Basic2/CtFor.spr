@@ -3,7 +3,7 @@
 import std.ranges;
 import std.vector;
 
-class[ct] MyRange
+[ct] class MyRange
 {
     using RetType = Int;
 
@@ -22,13 +22,13 @@ class[ct] MyRange
 
 fun test1()
 {
-    for[ct] ( i = MyRange(0, 4))
+    [ct] for ( i = MyRange(0, 4))
     {
         cout << ctEval(i) << endl;
     }
 }
 
-fun[ct] fact(n: Int): Int
+[ct] fun fact(n: Int): Int
 {
     if ( n < 2 )
         return 1;
@@ -38,13 +38,13 @@ fun[ct] fact(n: Int): Int
 
 fun test2()
 {
-    for[ct] ( i = 0..5 )
+    [ct] for ( i = 0..5 )
     {
         cout << ctEval(fact(i)) << endl;
     }
 }
 
-fun[ct] createVector(min, max: Int): Vector(Int)
+[ct] fun createVector(min, max: Int): Vector(Int)
 {
     var v = Vector(Int)(min..max);
     return v;
@@ -52,9 +52,9 @@ fun[ct] createVector(min, max: Int): Vector(Int)
 
 fun test3()
 {
-    var[ct] v = createVector(10, 15);
+    [ct] var v = createVector(10, 15);
 
-    for[ct] ( el = v.all() )
+    [ct] for ( el = v.all() )
     {
         cout << ctEval(el) << endl;
     }
@@ -64,7 +64,7 @@ fun sprMain
 {
     var x = 10;
     var y = 2;
-    var[ct] yy = 2;
+    [ct] var yy = 2;
 
     test1();
     cout << "---" << endl;

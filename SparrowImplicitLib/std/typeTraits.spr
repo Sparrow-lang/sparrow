@@ -2,15 +2,15 @@ module std.typeTraits;
 
 import defaultHashFunction(defaultHash);
 
-class[rtct] DefaultTypeTraits
+[rtct] class DefaultTypeTraits
 {
     fun equal(l, r: @AnyType) = l == r;
     fun less(l, r: @AnyType) = l < r;
     fun hash(val: @AnyType): SizeType
     {
-        if[ct] ( isValid(SizeType(val hash)) )
+        [ct] if ( isValid(SizeType(val hash)) )
             return val hash;
-        else if[ct] ( isValid(SizeType(val.get() hash)) )
+        else [ct] if ( isValid(SizeType(val.get() hash)) )
         {
             return val.get() hash;
         }

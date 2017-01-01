@@ -44,7 +44,7 @@ class Tester(t: Type) if HasF1(valueOfType(t))
 }
 
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     var a: A;
     var b: B;

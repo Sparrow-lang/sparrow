@@ -8,9 +8,9 @@ concept Regular(x)
     ;
 
 
-class[noDefault] NullType {
+[noDefault] class NullType {
     fun ctor {}
-    fun[convert] ctor(other: AnyType) {}
+    [convert] fun ctor(other: AnyType) {}
     fun dtor {}
     fun ==(other: NullType) = true;
     fun ==(other: AnyType) = false;
@@ -32,7 +32,7 @@ class MyType
     // Operators are implicitly defined
 }
 
-class[noDefault] EmptyType
+[noDefault] class EmptyType
 {
 }
 

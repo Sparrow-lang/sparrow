@@ -3,11 +3,11 @@ import std.tuple;
 import std.ranges;
 import check;
 
-class[initCtor] MyObj1 {
+[initCtor] class MyObj1 {
     var x: Int;
 }
 
-class[initCtor] MyObj2 {
+[initCtor] class MyObj2 {
     var x, y: Int;
 }
 
@@ -90,8 +90,8 @@ fun sprMain {
     var b: MyObj1 * MyObj2;
     //var b: MyObj1 * MyObj2 * Int;
     //var b: MyObj1 * MyObj2 * Int * Bool;
-    if[ct] ( MyObj1 * MyObj2 != T2 ) { cout << "FAILURE: cannot construct tuple types (T2)" << endl; }
-    //if[ct] ( MyObj1 * MyObj2 * Int * Bool != T4 ) { cout << "FAILURE: cannot construct tuple types (T4)" << endl; }
+    [ct] if ( MyObj1 * MyObj2 != T2 ) { cout << "FAILURE: cannot construct tuple types (T2)" << endl; }
+    //[ct] if ( MyObj1 * MyObj2 * Int * Bool != T4 ) { cout << "FAILURE: cannot construct tuple types (T4)" << endl; }
 }
 
 //<<< Tuple checks

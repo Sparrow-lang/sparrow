@@ -2,6 +2,7 @@
 #include "SparrowNodes.h"
 #include "SparrowNodesAccessors.h"
 #include "Mods.h"
+#include "SprDebug.h"
 
 #include <Helpers/ForEachNodeInNodeList.h>
 #include <Helpers/DeclsHelpers.h>

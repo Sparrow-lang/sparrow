@@ -10,8 +10,8 @@ concept Ordered(x)
     && axiom("lessEqual")
     && axiom("greaterEqual")
     ;
-fun[ct] axiom(name: StringRef) = true;     // No checks performed
-fun[rtct] => (premise, conclusion: Bool) = !(premise) || conclusion;
+[ct] fun axiom(name: StringRef) = true;     // No checks performed
+[rtct] fun => (premise, conclusion: Bool) = !(premise) || conclusion;
 fun lessIsOrdered(x, y, z: Ordered)
          = !(x < x)
         && ( (x<y) => !(y<x) )
@@ -41,7 +41,7 @@ class MyType
     // Other operators are implicitly defined
 }
 
-class[noDefault] EmptyType
+[noDefault] class EmptyType
 {
 }
 

@@ -49,7 +49,7 @@ fun CollectionBook(author, name, isbn, collection: StringRef): CollectionBook {
     return res;
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     var b = Book("LucTeo", "The wonders of Sparrow", "ISBN");
     writeLn(b.author);

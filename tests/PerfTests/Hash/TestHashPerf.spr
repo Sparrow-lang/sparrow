@@ -71,7 +71,7 @@ fun testChange(bag: @AnyType, n: Int)
     }
 }
 
-fun[noInline] testHit(bag: @AnyType, n: Int)
+[noInline] fun testHit(bag: @AnyType, n: Int)
 {
     for ( i = 0..n )
     {

@@ -1,24 +1,24 @@
 module std.rawPtr;
 
-class[rtct] RawPtr(valueType: Type)
+[rtct] class RawPtr(valueType: Type)
 {
     using ValueType = valueType;
 
-    fun[static] fromRef(ptr: @ValueType): RawPtr
+    [static] fun fromRef(ptr: @ValueType): RawPtr
     {
         var res: RawPtr;
         res._ptr := ptr;
         return res;
     }
 
-    fun[static] fromBytePtr(ptr: @Byte): RawPtr
+    [static] fun fromBytePtr(ptr: @Byte): RawPtr
     {
         var res: RawPtr;
         res._ptr := reinterpretCast(@ValueType, ptr);
         return res;
     }
 
-    fun[static] alloc(num: SizeType): RawPtr
+    [static] fun alloc(num: SizeType): RawPtr
     {
         var res: RawPtr;
         res._ptr := reinterpretCast(@ValueType, malloc(num * sizeOf(ValueType)));

@@ -1,8 +1,8 @@
 module time;
 
-fun[rtct, native("clock")] clock(): Int;
+[rtct, native("clock")] fun clock(): Int;
 
-class[rtct] Timer
+[rtct] class Timer
 {
     fun ctor() { _startTime = clock(); }
     fun ctor(other: Timer) { _startTime = other._startTime; }

@@ -1,6 +1,6 @@
 import ir;
 
-fun[ct] dumpProlog(os: @OutStream, sps: @SparrowPrologSystem)
+[ct] fun dumpProlog(os: @OutStream, sps: @SparrowPrologSystem)
 {
     Impl.dumpPrologSystem(os, sps);
     os << flush;
@@ -8,13 +8,13 @@ fun[ct] dumpProlog(os: @OutStream, sps: @SparrowPrologSystem)
 
 package Impl
 {
-    fun[ct] dumpPrologSystem(os: @OutStream, sps: @SparrowPrologSystem)
+    [ct] fun dumpPrologSystem(os: @OutStream, sps: @SparrowPrologSystem)
     {
         for ( p: @SparrowPredicate = sps.predicates.all() )
             dumpSprPredicate(os, p);
     }
 
-    fun[ct] dumpSprPredicate(os: @OutStream, pred: @SparrowPredicate)
+    [ct] fun dumpSprPredicate(os: @OutStream, pred: @SparrowPredicate)
     {
         // Dump the type sets
         //for ( typeSet: @LTypeSet = pred.typeSets.all() )
@@ -83,7 +83,7 @@ package Impl
         if ( genNative )
             dumpNativeWrapper(os, pred);
     }
-    fun[ct] dumpParameters(os: @OutStream, pred: @SparrowPredicate, genNative: Bool)
+    [ct] fun dumpParameters(os: @OutStream, pred: @SparrowPredicate, genNative: Bool)
     {
         if ( pred.arity > 0 )
         {
@@ -105,7 +105,7 @@ package Impl
         }
     }
 
-    fun[ct] dumpClause(os: @OutStream, pred: @SparrowPredicate, clause: @PredicateClause)
+    [ct] fun dumpClause(os: @OutStream, pred: @SparrowPredicate, clause: @PredicateClause)
     {
         var condWritten = false;
         dumpBoundArgs(os, pred, clause, condWritten);
@@ -113,7 +113,7 @@ package Impl
         if ( !condWritten )
             os << " true";
     }
-    fun[ct] dumpBoundArgs(os: @OutStream, pred: @SparrowPredicate, clause: @PredicateClause, condWritten: @Bool)
+    [ct] fun dumpBoundArgs(os: @OutStream, pred: @SparrowPredicate, clause: @PredicateClause, condWritten: @Bool)
     {
         var genNative = allowNativeCodeGen && pred.canBeNative;
 
@@ -144,7 +144,7 @@ package Impl
         }
     }
 
-    fun[ct] dumpClauseConditions(os: @OutStream, pred: @SparrowPredicate, clause: @PredicateClause, condWritten: @Bool)
+    [ct] fun dumpClauseConditions(os: @OutStream, pred: @SparrowPredicate, clause: @PredicateClause, condWritten: @Bool)
     {
         for ( cond: @ConditionPtr = clause.conditions.all() )
         {
@@ -160,7 +160,7 @@ package Impl
         }
     }
 
-    fun[ct] dumpPredCall(os: @OutStream, pred: @SparrowPredicate, clause: @PredicateClause, predCall: @Condition)
+    [ct] fun dumpPredCall(os: @OutStream, pred: @SparrowPredicate, clause: @PredicateClause, predCall: @Condition)
     {
         var genNative = allowNativeCodeGen && pred.canBeNative;
         var isRecursive = predCall.predName == clause.name;
@@ -182,7 +182,7 @@ package Impl
         os << ')';
     }
 
-    fun[ct] dumpIsExpr(os: @OutStream, pred: @SparrowPredicate, clause: @PredicateClause, isExpr: @Condition)
+    [ct] fun dumpIsExpr(os: @OutStream, pred: @SparrowPredicate, clause: @PredicateClause, isExpr: @Condition)
     {
         var left: @Expression = isExpr.args(0).get();
         var right: @Expression = isExpr.args(1).get();
@@ -193,7 +193,7 @@ package Impl
         dumpExpr(os, pred, right);
     }
 
-    fun[ct] dumpExpr(os: @OutStream, pred: @SparrowPredicate, expr: @Expression)
+    [ct] fun dumpExpr(os: @OutStream, pred: @SparrowPredicate, expr: @Expression)
     {
         var genNative = allowNativeCodeGen && pred.canBeNative;
 
@@ -219,7 +219,7 @@ package Impl
         //dumpType(os, pred, expr, false, false);
     }
 
-    fun[ct] dumpBinExpr(os: @OutStream, pred: @SparrowPredicate, left, right: @Expression, op: StringRef)
+    [ct] fun dumpBinExpr(os: @OutStream, pred: @SparrowPredicate, left, right: @Expression, op: StringRef)
     {
         os << '(';
         dumpExpr(os, pred, left);
@@ -228,7 +228,7 @@ package Impl
         os << ')';
     }
 
-    fun[ct] dumpType(os: @OutStream, pred: @SparrowPredicate, expr: @Expression, isRef, genNative: Bool)
+    [ct] fun dumpType(os: @OutStream, pred: @SparrowPredicate, expr: @Expression, isRef, genNative: Bool)
     {
         if ( isRef )
             os << "@";
@@ -250,7 +250,7 @@ package Impl
         //os << '{' << expr.typeSetIdx << '}';
     }
 
-    fun[ct] dumpIntegerType(os: @OutStream, genNative: Bool)
+    [ct] fun dumpIntegerType(os: @OutStream, genNative: Bool)
     {
         if ( genNative )
             os << "Int";
@@ -258,7 +258,7 @@ package Impl
             os << "LInt";
     }
 
-    fun[ct] dumpAtomType(os: @OutStream, genNative: Bool)
+    [ct] fun dumpAtomType(os: @OutStream, genNative: Bool)
     {
         if ( genNative )
             os << "String";
@@ -266,7 +266,7 @@ package Impl
             os << "LStr";
     }
 
-    fun[ct] dumpNativeWrapper(os: @OutStream, pred: @SparrowPredicate)
+    [ct] fun dumpNativeWrapper(os: @OutStream, pred: @SparrowPredicate)
     {
         dumpWrapperClass(os, pred);
 
@@ -283,7 +283,7 @@ package Impl
         os << ");" << endl;
     }
 
-    fun[ct] dumpWrapperClass(os: @OutStream, pred: @SparrowPredicate)
+    [ct] fun dumpWrapperClass(os: @OutStream, pred: @SparrowPredicate)
     {
         var tab: StringRef = "    ";
         var tab2: StringRef = "        ";

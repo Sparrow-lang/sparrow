@@ -8,7 +8,7 @@ import std.ptr;
 //! Class that represents an internal worker thread
 //! This tries to execute as much work as possible
 //! If no work is available, this goes to sleep
-class[initCtor] InternalWorkerThread {
+[initCtor] class InternalWorkerThread {
     //! The worker associated with this thread
     var _worker: Worker Ptr;
 

@@ -15,31 +15,31 @@ import os = os;
 // - 1 = CT test
 // - 2 = RT/CT speedup test
 // - 3 = perf test
-var[ct] testType = 0;
-var[ct] keysFilename = "words-full";
-var[ct] maxKeys: UInt = 1000;
+[ct] var testType = 0;
+[ct] var keysFilename = "words-full";
+[ct] var maxKeys: UInt = 1000;
 
-var[ct] startKeysNum = 10000;
-var[ct] endKeysNum = 260000;
-var[ct] stepKeysNum = 12500;
+[ct] var startKeysNum = 10000;
+[ct] var endKeysNum = 260000;
+[ct] var stepKeysNum = 12500;
 
-var[ct] defaultHashExtraSpace = 0.1;
+[ct] var defaultHashExtraSpace = 0.1;
 
 // TODO (Vlad): Create an "EnumRange"; examples:
 //      var numbers: Vector(Int) = EnumRange(Int)(1, 2, 3, 4, 5, 6, 7);
 //      var numbers: Vector(Int) = enum(1,2,3,4,5,6,7);
 // TODO (Vlad): Use this hash function instead of what we're using
 
-fun[rtct, native("rand")] rand(): UInt;
+[rtct, native("rand")] fun rand(): UInt;
 
 package _Impl
 {
-    var[ct] keysPerBucket: UInt = 4;
+    [ct] var keysPerBucket: UInt = 4;
 
-    var[ct] hashSeed: UInt = -1;
+    [ct] var hashSeed: UInt = -1;
 
     /// FNV hash generator
-    fun[rtct] doHash(key: StringRef, start: UInt): UInt
+    [rtct] fun doHash(key: StringRef, start: UInt): UInt
     {
         var hash = start;
         for ( i = 0..key.size() )
@@ -47,14 +47,14 @@ package _Impl
         //cout << "Hash(" << key << ", " << start << ")=" << hash << "\n";
         return hash;
     }
-    fun[rtct] doHash(value, start: UInt): UInt
+    [rtct] fun doHash(value, start: UInt): UInt
     {
         return (start !^! value) * 0x01000193;
     }
 }
 
 
-class[rtct] MinPerfHash
+[rtct] class MinPerfHash
 {
     var displacements: Array(Int);
     var numKeys: UInt;
@@ -162,12 +162,12 @@ class[rtct] MinPerfHash
         //cout << "Executed: " << numOp << " operations\n";
     }
 
-    fun[rt] ctorFromCt(src: MinPerfHash ct)
+    [rt] fun ctorFromCt(src: MinPerfHash ct)
     {
         numKeys ctor src.numKeys;
         numValues ctor src.numValues;
 
-        var[ct] dispStrCt = StringRef(src.displacements.begin_.bytePtr(), src.displacements.end_.bytePtr());
+        [ct] var dispStrCt = StringRef(src.displacements.begin_.bytePtr(), src.displacements.end_.bytePtr());
         var dispStr = dispStrCt;
         displacements ctor ContiguousMemoryRange(UInt)(RawPtr(UInt).fromBytePtr(dispStr.begin), RawPtr(UInt).fromBytePtr(dispStr.end));
     }
@@ -215,7 +215,7 @@ class[rtct] MinPerfHash
     }
 }
 
-class[rtct] MinPerfHashSet
+[rtct] class MinPerfHashSet
 {
     fun ctor(keys: @Vector(String))
     {
@@ -243,22 +243,22 @@ class[rtct] MinPerfHashSet
 }
 
 
-fun[autoCt] minPerfHash(keys: @Vector(String)): MinPerfHash
+[autoCt] fun minPerfHash(keys: @Vector(String)): MinPerfHash
 {
     return MinPerfHash(keys);
 }
 
-fun[autoCt] minPerfHashSet(keys: @Vector(String)): MinPerfHashSet
+[autoCt] fun minPerfHashSet(keys: @Vector(String)): MinPerfHashSet
 {
     return MinPerfHashSet(keys);
 }
 
-fun[rtct] readFileLines(filename: StringRef): Vector(String)
+[rtct] fun readFileLines(filename: StringRef): Vector(String)
 {
     return readFileLines(filename, UInt(-1));
 }
 
-fun[rtct] readFileLines(filename: StringRef, maxLines: UInt): Vector(String)
+[rtct] fun readFileLines(filename: StringRef, maxLines: UInt): Vector(String)
 {
     var lines: Vector(String);
 
@@ -319,20 +319,20 @@ fun testRt(testRepCount, totalRepCount, keysToLoad: Int)
     }
 }
 
-if[ct] ( testType == 1 )
+[ct] if ( testType == 1 )
 fun testCt(testRepCount, totalRepCount: Int, maxKeys: UInt ct)
 {
     cout << "test CT\n";
 
     // Read the keys from the file
-    var[ct] keysCt = readFileLines(keysFilename, maxKeys);
+    [ct] var keysCt = readFileLines(keysFilename, maxKeys);
     var keysRt = readFileLines(keysFilename, maxKeys);
 
     // Repeat the work, and test for performance
     for ( i = 0..totalRepCount )
     {
         // Build the hash
-        var[ct] hashCt = minPerfHash(keysCt);
+        [ct] var hashCt = minPerfHash(keysCt);
         var hash = hashCt;
 
         // Test the keys, several times
@@ -341,13 +341,13 @@ fun testCt(testRepCount, totalRepCount: Int, maxKeys: UInt ct)
     }
 }
 
-if[ct] ( testType == 2 )
+[ct] if ( testType == 2 )
 fun testCtVsRtPerf(testRepCount, totalRepCount: Int)
 {
     cout << "test CT/RT speedup\n";
 
     var timerKeys: Timer;
-    var[ct] keysCt = readFileLines(keysFilename, maxKeys);
+    [ct] var keysCt = readFileLines(keysFilename, maxKeys);
     var keysRt = readFileLines(keysFilename, maxKeys);
     cout << "Reading keys time: " << timerKeys.elapsed() << "\n";
 
@@ -368,7 +368,7 @@ fun testCtVsRtPerf(testRepCount, totalRepCount: Int)
     for ( i = 0..totalRepCount )
     {
         // Build the hash
-        var[ct] hashCt = minPerfHash(keysCt);
+        [ct] var hashCt = minPerfHash(keysCt);
         var hash = hashCt;
 
         // Test the keys, several times
@@ -380,7 +380,7 @@ fun testCtVsRtPerf(testRepCount, totalRepCount: Int)
     cout << "Speedup = " << tRt/tCt << "\n\n";
 }
 
-fun[rtct] getMonths: Vector(String)
+[rtct] fun getMonths: Vector(String)
 {
     var res: Vector(String);
     res.pushBack(String("January"));
@@ -434,7 +434,7 @@ fun[rtct] getMonths: Vector(String)
 //    cout << "if-clauses time: " << tRt << "\n";
 
 //    // Build the hash
-//    var[ct] hashCt = minPerfHashSet(getMonths());
+//    [ct] var hashCt = minPerfHashSet(getMonths());
 //    var hash = hashCt;
 
 //    var timerCt: Timer;
@@ -482,7 +482,7 @@ fun sprMain
     if ( programArgs.size() > 3 )  testRepCount = asInt(programArgs(3));
     if ( programArgs.size() > 4 )  totalRepCount = asInt(programArgs(4));
 
-    if[ct] ( testType == 3 )
+    [ct] if ( testType == 3 )
     {
         if ( testNum == 1 )
         {
@@ -490,16 +490,16 @@ fun sprMain
         }
         else
         {
-            for[ct] ( i=startKeysNum..endKeysNum../stepKeysNum )
+            [ct] for ( i=startKeysNum..endKeysNum../stepKeysNum )
             {
                 if ( keysCount == ctEval(i) )
                     testCt(testRepCount, totalRepCount, i);
             }
         }
     }
-    else if[ct] ( testType == 0 )
+    else [ct] if ( testType == 0 )
         testRt(testRepCount, totalRepCount, keysCount);
-    else if[ct] ( testType == 1 )
+    else [ct] if ( testType == 1 )
         testCt(testRepCount, totalRepCount, numKeys);
     else
         testCtVsRtPerf(testRepCount, totalRepCount);

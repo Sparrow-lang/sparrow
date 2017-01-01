@@ -9,7 +9,7 @@ class MyObj
     fun dtor {}
     fun print() { write("MyObj: "); writeLn(a); }
 
-    var[static] st = 103;
+    [static] var st = 103;
 }
 
 var go = MyObj(10);
@@ -24,7 +24,7 @@ fun f2(): @MyObj
     return go;
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     writeLn(go.a);
     go.print();

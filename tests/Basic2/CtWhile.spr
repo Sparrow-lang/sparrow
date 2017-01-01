@@ -5,14 +5,14 @@ import std.vector;
 
 fun test1()
 {
-    var[ct] i=0;
-    while[ct] ( i<5; i+=1 )
+    [ct] var i=0;
+    [ct] while ( i<5; i+=1 )
     {
         cout << ctEval(i) << endl;
     }
 }
 
-fun[ct] fact(n: Int): Int
+[ct] fun fact(n: Int): Int
 {
     if ( n < 2 )
         return 1;
@@ -22,14 +22,14 @@ fun[ct] fact(n: Int): Int
 
 fun test2()
 {
-    var[ct] i=0;
-    while[ct] ( i<5; i+=1 )
+    [ct] var i=0;
+    [ct] while ( i<5; i+=1 )
     {
         cout << ctEval(fact(i)) << endl;
     }
 }
 
-fun[ct] createVector(min, max: Int): Vector(Int)
+[ct] fun createVector(min, max: Int): Vector(Int)
 {
     var v = Vector(Int)(min..max);
     return v;
@@ -37,10 +37,10 @@ fun[ct] createVector(min, max: Int): Vector(Int)
 
 fun test3()
 {
-    var[ct] v = createVector(10, 15);
+    [ct] var v = createVector(10, 15);
 
-    var[ct] i=0;
-    while[ct] ( i<v.size(); i+=1 )
+    [ct] var i=0;
+    [ct] while ( i<v.size(); i+=1 )
     {
         cout << ctEval(v(i)) << endl;
     }
@@ -50,7 +50,7 @@ fun sprMain
 {
     var x = 10;
     var y = 2;
-    var[ct] yy = 2;
+    [ct] var yy = 2;
 
     test1();
     cout << "---" << endl;

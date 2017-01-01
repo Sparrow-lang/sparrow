@@ -25,7 +25,7 @@ fun printUInt(x: UInt)
 }
 
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     var sb: Byte = 1;
     var ub: UByte = 2;

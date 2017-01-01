@@ -4,7 +4,7 @@ import HeaderB;
 import HeaderC;
 import HeaderD;
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     writeLn(a);
     writeLn(b);

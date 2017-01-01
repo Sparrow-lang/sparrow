@@ -95,7 +95,7 @@ fun popBack(q: @TaskQueue): TaskPtr {
 }
 
 
-class[initCtor] TasksPrinter {
+[initCtor] class TasksPrinter {
     var _first: TaskPtr;
     var list: @TaskQueue;
 }

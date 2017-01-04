@@ -1,6 +1,5 @@
 #include <StdInc.h>
 #include "Mods.h"
-#include "SprDebug.h"
 
 #include "Helpers/DeclsHelpers.h"
 
@@ -14,104 +13,61 @@
 using namespace SprFrontend;
 
 
-void ModStatic_beforeSetContext(Modifier*, Node* node)
+void ModStatic_beforeComputeType(Modifier*, Node* node)
 {
-    if ( node->nodeKind == nkFeatherNodeList ) {
-        for ( Node* n: node->children )
-            ModStatic_beforeSetContext(NULL, n);
-    }
-    else {
-        if ( node->nodeKind != nkSparrowDeclSprVariable && node->nodeKind != nkSparrowDeclSprFunction )
-            REP_INTERNAL(node->location, "Static modifier can be applied only to variables and functions inside classes");
+    if ( node->nodeKind != nkSparrowDeclSprVariable && node->nodeKind != nkSparrowDeclSprFunction )
+        REP_INTERNAL(node->location, "Static modifier can be applied only to variables and functions inside classes (applied to %1%)") % Nest_nodeKindName(node);
 
-        Nest_setPropertyInt(node, propIsStatic, 1);
-    }
+    Nest_setPropertyInt(node, propIsStatic, 1);
 }
 
 void ModPublic_beforeComputeType(Modifier*, Node* node)
 {
-    if ( node->nodeKind == nkFeatherNodeList ) {
-        for ( Node* n: node->children )
-            ModPublic_beforeComputeType(NULL, n);
-    }
-
     setAccessType(node, publicAccess);
 }
 
 void ModPrivate_beforeComputeType(Modifier*, Node* node)
 {
-    if ( node->nodeKind == nkFeatherNodeList ) {
-        for ( Node* n: node->children )
-            ModPrivate_beforeComputeType(NULL, n);
-    }
-
     setAccessType(node, privateAccess);
 }
 
 void ModCt_beforeSetContext(Modifier*, Node* node)
 {
-    if ( node->nodeKind == nkFeatherNodeList ) {
-        for ( Node* n: node->children )
-            ModCt_beforeSetContext(NULL, n);
-    }
-
     Feather_setEvalMode(node, modeCt);
 }
 
 void ModRt_beforeSetContext(Modifier*, Node* node)
 {
-    if ( node->nodeKind == nkFeatherNodeList ) {
-        for ( Node* n: node->children )
-            ModRt_beforeSetContext(NULL, n);
-    }
-
     Feather_setEvalMode(node, modeRt);
 }
 
 void ModRtCt_beforeSetContext(Modifier*, Node* node)
 {
-    if ( node->nodeKind == nkFeatherNodeList ) {
-        for ( Node* n: node->children )
-            ModRtCt_beforeSetContext(NULL, n);
-    }
-
     Feather_setEvalMode(node, modeRtCt);
 }
 
 void ModAutoCt_beforeSetContext(Modifier*, Node* node)
 {
-    if ( node->nodeKind == nkFeatherNodeList ) {
-        for ( Node* n: node->children )
-            ModAutoCt_beforeSetContext(NULL, n);
+    if ( node->nodeKind == nkSparrowDeclSprFunction )
+    {
+        Nest_setPropertyInt(node, propAutoCt, 1);
+        Feather_setEvalMode(node, modeRtCt);
     }
-    else {
-        if ( node->nodeKind == nkSparrowDeclSprFunction )
-        {
-            Nest_setPropertyInt(node, propAutoCt, 1);
-            Feather_setEvalMode(node, modeRtCt);
-        }
-        else
-            REP_INTERNAL(node->location, "'autoCt' modifier can be applied only to functions");
-    }
+    else
+        REP_INTERNAL(node->location, "'autoCt' modifier can be applied only to functions (applied to %1%)") % Nest_nodeKindName(node);
 }
 
 void ModCtGeneric_beforeComputeType(Modifier*, Node* node)
 {
-    if ( node->nodeKind == nkFeatherNodeList ) {
-        for ( Node* n: node->children )
-            ModCtGeneric_beforeComputeType(NULL, n);
+    /// Check to apply only to classes or functions
+    if ( node->nodeKind != nkSparrowDeclSprFunction )
+    {
+        REP_ERROR(node->location, "ctGeneric modifier can be applied only to functions (applied to %1%)") % Nest_nodeKindName(node);
+        return;
     }
-    else {
-        /// Check to apply only to classes or functions
-        if ( node->nodeKind != nkSparrowDeclSprFunction )
-        {
-            REP_ERROR(node->location, "ctGeneric modifier can be applied only to functions");
-            return;
-        }
 
-        Feather_setEvalMode(node, modeCt);
-        Nest_setPropertyInt(node, propCtGeneric, 1);
-    }
+    Feather_setEvalMode(node, modeCt);
+    Nest_setPropertyInt(node, propCtGeneric, 1);
 }
 
 struct _NativeMod {
@@ -129,43 +85,30 @@ void ModConvert_beforeComputeType(Modifier*, Node* node)
 {
     /// Check to apply only to constructors
     if ( node->nodeKind != nkSparrowDeclSprFunction || Feather_getName(node) != "ctor" )
-        REP_INTERNAL(node->location, "convert modifier can be applied only to constructors");
+        REP_INTERNAL(node->location, "convert modifier can be applied only to constructors (applied to %1%)") % Nest_nodeKindName(node);
 
     Nest_setPropertyInt(node, propConvert, 1);
 }
 
 void ModNoDefault_beforeComputeType(Modifier*, Node* node)
 {
-    if ( node->nodeKind == nkFeatherNodeList ) {
-        for ( Node* n: node->children )
-            ModNoDefault_beforeComputeType(NULL, n);
-    }
-    else {
-        /// Check to apply only to classes or functions
-        if ( node->nodeKind != nkSparrowDeclSprFunction && node->nodeKind != nkSparrowDeclSprClass )
-            REP_INTERNAL(node->location, "noDefault modifier can be applied only to classes or methods");
+    /// Check to apply only to classes or functions
+    if ( node->nodeKind != nkSparrowDeclSprFunction && node->nodeKind != nkSparrowDeclSprClass )
+        REP_INTERNAL(node->location, "noDefault modifier can be applied only to classes or methods (applied to %1%)") % Nest_nodeKindName(node);
 
-        Nest_setPropertyInt(node, propNoDefault, 1);
-
-    }
+    Nest_setPropertyInt(node, propNoDefault, 1);
 }
 
 void ModInitCtor_beforeComputeType(Modifier*, Node* node)
 {
-    if ( node->nodeKind == nkFeatherNodeList ) {
-        for ( Node* n: node->children )
-            ModInitCtor_beforeComputeType(NULL, n);
+    /// Check to apply only to classes
+    if ( node->nodeKind != nkSparrowDeclSprClass )
+    {
+        REP_ERROR(node->location, "initCtor modifier can be applied only to classes (applied to %1%)") % Nest_nodeKindName(node);
+        return;
     }
-    else {
-        /// Check to apply only to classes
-        if ( node->nodeKind != nkSparrowDeclSprClass )
-        {
-            REP_ERROR(node->location, "initCtor modifier can be applied only to classes");
-            return;
-        }
 
-        Nest_setPropertyInt(node, propGenerateInitCtor, 1);
-    }
+    Nest_setPropertyInt(node, propGenerateInitCtor, 1);
 }
 
 void ModMacro_beforeComputeType(Modifier*, Node* node)
@@ -173,7 +116,7 @@ void ModMacro_beforeComputeType(Modifier*, Node* node)
     /// Check to apply only to functions
     if ( node->nodeKind != nkSparrowDeclSprFunction )
     {
-        REP_ERROR(node->location, "macro modifier can be applied only to functions");
+        REP_ERROR(node->location, "macro modifier can be applied only to functions (applied to %1%)") % Nest_nodeKindName(node);
         return;
     }
 
@@ -183,20 +126,14 @@ void ModMacro_beforeComputeType(Modifier*, Node* node)
 
 void ModNoInline_beforeComputeType(Modifier*, Node* node)
 {
-    if ( node->nodeKind == nkFeatherNodeList ) {
-        for ( Node* n: node->children )
-            ModNoInline_beforeComputeType(NULL, n);
-    }
-    else {
-        if ( node->nodeKind != nkSparrowDeclSprFunction )
-            REP_INTERNAL(node->location, "noInline modifier can be applied only to functions");
+    if ( node->nodeKind != nkSparrowDeclSprFunction )
+        REP_INTERNAL(node->location, "noInline modifier can be applied only to functions (applied to %1%)") % Nest_nodeKindName(node);
 
-        Nest_setPropertyInt(node, propNoInline, 1);
-    }
+    Nest_setPropertyInt(node, propNoInline, 1);
 }
 
 
-Modifier _staticMod = { modTypeBeforeSetContext, &ModStatic_beforeSetContext };
+Modifier _staticMod = { modTypeBeforeComputeType, &ModStatic_beforeComputeType };
 Modifier _publicMod = { modTypeBeforeComputeType, &ModPublic_beforeComputeType };
 Modifier _privateMod = { modTypeBeforeComputeType, &ModPrivate_beforeComputeType };
 Modifier _ctMod = { modTypeBeforeSetContext, &ModCt_beforeSetContext };

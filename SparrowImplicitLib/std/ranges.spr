@@ -15,36 +15,37 @@ concept RandomAccessRange(x: BidirRange)
     ;
 
 
-// Pre and post ++/-- operators on Ranges
-[rtct] fun pre_++(r: @Range): r.RetType
-{
-    r popFront;
-    return r front;
-}
-[rtct] fun post_++(r: @Range): r.RetType
-{
-    var res: r.RetType = r front;
-    r popFront;
-    return res;
-}
-[rtct] fun pre_--(r: @BidirRange): r.RetType
-{
-    r popBack;
-    return r back;
-}
-[rtct] fun post_--(r: @BidirRange): r.RetType
-{
-    var res: r.RetType = r back;
-    r popBack;
-    return res;
-}
-[rtct] fun pre_!(r: @Range) = r isEmpty;
-[rtct] fun pre_!!(r: @Range) = !(r isEmpty);
-[rtct] fun pre_*(r: @Range): r.RetType = r front;
+[rtct] {
+    // Pre and post ++/-- operators on Ranges
+    fun pre_++(r: @Range): r.RetType
+    {
+        r popFront;
+        return r front;
+    }
+    fun post_++(r: @Range): r.RetType
+    {
+        var res: r.RetType = r front;
+        r popFront;
+        return res;
+    }
+    fun pre_--(r: @BidirRange): r.RetType
+    {
+        r popBack;
+        return r back;
+    }
+    fun post_--(r: @BidirRange): r.RetType
+    {
+        var res: r.RetType = r back;
+        r popBack;
+        return res;
+    }
+    fun pre_!(r: @Range) = r isEmpty;
+    fun pre_!!(r: @Range) = !(r isEmpty);
+    fun pre_*(r: @Range): r.RetType = r front;
 
-// Call operator on range == (range front)
-//fun post_()(r: @Range) = r front;
-
+    // Call operator on range == (range front)
+    //fun post_()(r: @Range) = r front;
+}
 
 [rtct] fun rangeSize(range: Range): SizeType
 {

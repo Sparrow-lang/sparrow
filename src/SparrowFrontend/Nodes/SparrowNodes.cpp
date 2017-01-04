@@ -27,10 +27,24 @@ using namespace Nest;
 // ModifiersNode
 //
 
+/// Apply the given modifier node to the given base node
+/// Recurse down if the base node is a node list or a modifiers node
 void applyModifier(Node* base, Node* modNode)
 {
     Modifier* mod = nullptr;
 
+    // Recurse down if the base if is a node list or a modifiers node
+    if ( base->nodeKind == nkFeatherNodeList ) {
+        for ( Node* n: base->children )
+            applyModifier(n, modNode);
+        return;
+    }
+    else if ( base->nodeKind == nkSparrowModifiersNode ) {
+        applyModifier(at(base->children, 0), modNode);
+        return;
+    }
+
+    // Interpret the modifier expression
     if ( modNode->nodeKind == nkSparrowExpIdentifier )
     {
         StringRef name = Nest_getCheckPropertyString(modNode, "name");

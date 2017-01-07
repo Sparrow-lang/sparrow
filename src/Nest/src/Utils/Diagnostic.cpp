@@ -17,7 +17,7 @@ namespace
     void doReport(const Location& loc, DiagnosticSeverity severity, const string& message)
     {
         cerr << endl;
-        
+
         // Write location: 'filename(line:col) : '
         if ( !Nest_isLocEmpty(&loc) )
         {
@@ -46,7 +46,7 @@ namespace
             if ( sourceLineLen > 0 )
             {
                 char lastChar = *(sourceLine.end-1);
-            
+
                 // Add the source line
                 cerr << "> " << string(sourceLine.begin, sourceLine.end);
                 if ( lastChar != '\n' )

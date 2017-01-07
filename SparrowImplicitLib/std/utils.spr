@@ -1,8 +1,8 @@
 module std.utils;
 
-concept Nullable(x)
-    if typeOf(x.isSet()) == Bool
+concept Nullable(x) if (
+       typeOf(x.isSet()) == Bool
     && typeOf(x.isNull()) == Bool
-    ;
+    );
 
 fun ! (obj: @Nullable): Bool = obj.isNull();

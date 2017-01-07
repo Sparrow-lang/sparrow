@@ -8,10 +8,10 @@ fun fib_native(p_1: Int, p_2: @Int): Bool
     var l2_Y2: Int = Uninitialized();
     var l2_X1: Int = Uninitialized();
     var l2_Y1: Int = Uninitialized();
-    return p_1 == 0 && p_2 =/ 0
+    return ( p_1 == 0 && p_2 =/ 0
         || p_1 == 1 && p_2 =/ 1
         || l2_X2 =/ (p_1 - 2) && fib_native(l2_X2, l2_Y2) && l2_X1 =/ (p_1 - 1) && fib_native(l2_X1, l2_Y1) && p_2 =/ (l2_Y1 + l2_Y2)
-        ;
+        );
 }
 class fib_pred_wrapper
 {

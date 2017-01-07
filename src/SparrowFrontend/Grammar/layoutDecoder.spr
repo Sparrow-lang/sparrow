@@ -1,0 +1,137 @@
+module sparrowc.spr.grammar.layoutDecoder;
+
+import parserDefs, node, token, ext, rangeWithLookahead;
+import meta.location;
+
+/**
+ * This decodes the layout of Sparrow code, and generate corresponding tokens for it.
+ *
+ * It will check for new-lines, and depending on the column number of the first
+ * tokens of each line computes the open and close scope tokens, and also the
+ * SEMI token.
+ *
+ * Rules:
+ * 1) two lines that start with the same column will be separated by a SEMI, unless:
+ *     - the next token is a '{'
+ *     - the previous token is either a ';' or a '{'
+ * 2) a line that is more indented than the previous line will insert a '{'
+ * 3) when decreasing indent, we insert as many '}' to match the new indentation
+ * 4) inside parenthesis or brackets, we don't insert anything
+ */
+class SparrowLayoutDecoder(tokensRangeType, errorReporterType: Type)
+        if TokenRange(#$tokensRangeType) && ErrorReporter(#$errorReporterType) {
+    using RetType = Token;
+    using IsSparrowLayoutDecoder = true;
+
+    fun ctor(tokens: tokensRangeType, errorReporter: errorReporterType) {
+        this.src ctor tokens;
+        this.errorReporter ctor errorReporter;
+        this.numInjects = 0;
+        this.indents += 1;      // Start at column 1
+
+        // If we start by a new-line, advance
+        if ( !(src isEmpty) && (src front).type == tkEOL )
+            this popFront;
+    }
+
+    /// The source ranges of tokens we will used while parsing
+    private var src: RangeWithLookahead(tokensRangeType);
+    /// Object used to report errors
+    private var errorReporter: errorReporterType;
+    /// The vector containing the current indents levels
+    private var indents: UInt Vector;
+    /// The vector of currently open parenthesis and brackets
+    private var parens: Char Vector;
+    /// Token injected by this class
+    private var toInject: Token;
+    /// The number of tokens with value 'toInject' to be injected
+    private var numInjects: UInt;
+}
+/// Concept that matches SparrowParser above
+private concept This(t) if t.IsSparrowLayoutDecoder;
+
+fun <<<(os: @OutStream, l: @Location): typeOf(os)
+{
+    os  << l.start.line << ':' << l.start.col << '-'
+        << l.end.line << ':' << l.end.col
+        ;
+    return os;
+}
+
+fun isEmpty(t: @This) = t.src isEmpty;
+fun front(t: @This): Token = ife(t.numInjects > 0, t.toInject, t.src front);
+fun popFront(t: @This) {
+    // Are we moving past the injected tokens?
+    if ( t.numInjects > 0 ) {
+        t.numInjects--;         // Consume one injected token
+        return;
+    }
+
+    var oldType = (t front).type;
+
+    // Consume the current token from the input range
+    t.src popFront;
+
+    // Check for line endings
+    var changeLine = (t.src front).type == tkEOL;
+    while ( (t.src front).type == tkEOL )
+        t.src popFront;
+
+    var tk = t.src front;
+
+    // Apply special logic on line change -- only outside any parenthesis
+    if ( changeLine && t.parens.isEmpty ) {
+        var newCol = tk.loc.start.col;
+        var oldCol = t.indents.back;
+
+        // If we are at the end of file, make sure to insert the missing dedents
+        if ( tk.type == tkEND )
+            newCol = 1;
+
+        // Inject a semicolon if we stay on the same line, and we are not followed by a open curly
+        if ( newCol == oldCol && tk.type != tkLCURLY && oldType != tkSEMICOLON && oldType != tkRCURLY ) {
+            t.numInjects = 1;
+            t.toInject.type = tkSEMICOLON;
+            t.toInject.loc = tk.loc;
+        }
+
+        // Inject an open curly if we have an indent
+        // Also record add the new indent level to the stack of indents, to
+        // know when we dedent
+        if ( newCol > oldCol && tk.type != tkEND ) {
+            t.numInjects = 1;
+            t.toInject.type = tkLCURLY;
+            t.toInject.loc = tk.loc;
+            t.indents += newCol;
+        }
+
+        // Inject close curly if we have dedent
+        // Make sure to insert the right number of close curly brackets to match
+        // the indent level
+        if ( newCol < oldCol && newCol>=1 ) {
+            t.toInject.type = tkRCURLY;
+            t.toInject.loc = tk.loc;
+            // Check how many dedents we need to insert
+            t.numInjects = 0;
+            while ( newCol < t.indents.back ) {
+                t.numInjects++;
+                t.indents.popBack;
+            }
+            // The new column must match one of the previous indents
+            if ( newCol != t.indents.back ) {
+                t.errorReporter.reportError(tk.loc, toString("Invalid indentation, expecting ", t.indents.back, ", got ", newCol));
+            }
+        }
+    }
+
+    // Check for parenthesis
+    if ( tk.type == tkLPAREN )
+        t.parens += '(';
+    else if ( tk.type == tkLBRACKET )
+        t.parens += '[';
+    else if ( tk.type == tkRPAREN && t.parens.back == '(' )
+        t.parens.popBack;
+    else if ( tk.type == tkRBRACKET && t.parens.back == '[' )
+        t.parens.popBack;
+}
+

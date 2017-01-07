@@ -112,12 +112,6 @@ import std.vector, std.algorithms, std.string;
 
     // Build the resulting code:
     // if ( !cond ) <printsBlock>
-    var args = mkNodeList(loc);
-    addToNodeList(args, mkStringLiteral(loc, loc getCorrespondingCode));
-    addToNodeList(args, mkStringLiteral(loc, filename));
-    addToNodeList(args, mkIntLiteral(loc, lineNum));
-    if ( message isSet )
-        addToNodeList(args, message);
     var res = mkIf(loc, mkPrefixOp(loc, "!", mkParenthesisExp(loc, cond)), printsBlock, AstNode());
     return res;
 }

@@ -72,10 +72,10 @@ class SimpleLoop
 class SLPtrHashFunction
 {
 
-	fun ()(arg: Ptr(SimpleLoop)): UInt
-	{
-		return reinterpretCast(UInt, arg.get());
-	}
+    fun ()(arg: Ptr(SimpleLoop)): UInt
+    {
+        return reinterpretCast(UInt, arg.get());
+    }
 }
 
 
@@ -87,16 +87,16 @@ class SLPtrHashFunction
 [autoCt] class Pair
 {
 
-	[static] var FirstType = firstType;
+    [static] var FirstType = firstType;
 
 
-	[static] var SecondType = secondType;
+    [static] var SecondType = secondType;
 
 
-	var first: FirstType;
+    var first: FirstType;
 
 
-	var second: SecondType;
+    var second: SecondType;
 
 
 
@@ -107,44 +107,44 @@ class SLPtrHashFunction
     }
 
 
-	fun ctor(first: FirstType@, second: SecondType@)
-	{
+    fun ctor(first: FirstType@, second: SecondType@)
+    {
         this.first.ctor(first);
         this.second.ctor(second);
-	}
+    }
 
 
-	fun ctor(other: Std.Pair)
-	{
+    fun ctor(other: Std.Pair)
+    {
         this.first.ctor(other.first);
         this.second.ctor(other.second);
         "abc\t\77\xab\n";
-	}
+    }
 
 
-	fun swap(other: Std.Pair)
-	{
-		var tmp1 = FirstType(first);
-		var tmp2 = SecondType(second);
+    fun swap(other: Std.Pair)
+    {
+        var tmp1 = FirstType(first);
+        var tmp2 = SecondType(second);
 
-		first = other.first;
-		other.first = tmp1;
-		second = other.second;
-		other.second = tmp2;
+        first = other.first;
+        other.first = tmp1;
+        second = other.second;
+        other.second = tmp2;
 
         'a';
         '\n';
         '\t';
         '\x4A';
-	}
+    }
 
 
-	fun =(other: Std.Pair): Std.Pair
-	{
-		first = other.first;
-		second = other.second;
+    fun =(other: Std.Pair): Std.Pair
+    {
+        first = other.first;
+        second = other.second;
 
-		return this;
+        return this;
 
         1;
         2u;
@@ -158,7 +158,7 @@ class SLPtrHashFunction
         0b1010L;
         .5f;
         2E-2d;
-	}
+    }
 
 
 }

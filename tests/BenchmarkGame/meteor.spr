@@ -214,7 +214,7 @@ fun shift(cell: Byte, dir: Direction): Byte
     var oddRow: Bool = (cell/5) % 2 != 0;
 
     using Direction.*;
-         if ( dir == E )             return cell + Byte(1);
+    if ( dir == E )                  return cell + Byte(1);
     else if ( dir == ESE && oddRow ) return cell + Byte(7);
     else if ( dir == ESE )           return cell + Byte(6);
     else if ( dir == SE && oddRow )  return cell + Byte(6);
@@ -246,7 +246,7 @@ fun outOfBounds(cell: Byte, dir: Direction): Bool
     var col = cell % 5;
     var colEx = cell % 10;
     using Direction.*;
-         if ( dir == E )    return col==4;
+    if ( dir == E )         return col==4;
     else if ( dir == ESE )  return colEx==4 || colEx==8 || colEx==9 || cell>=45;
     else if ( dir == SE )   return colEx==9 || cell>=45;
     else if ( dir == S )    return cell>=40;
@@ -302,10 +302,11 @@ fun calcCellIndices(cell: @StaticArray(Byte, 5), piece: Int, index: Byte)
 /* Convenience function to quickly calculate if a piece fits on the board */
 fun cellsFitOnBoard(cell: @StaticArray(Byte, 5), piece: Int): Bool
 {
-    return !outOfBounds(cell(0), pieceDef(piece)(0))
+    return(!outOfBounds(cell(0), pieceDef(piece)(0))
         && !outOfBounds(cell(1), pieceDef(piece)(1))
         && !outOfBounds(cell(2), pieceDef(piece)(2))
-        && !outOfBounds(cell(3), pieceDef(piece)(3));
+        && !outOfBounds(cell(3), pieceDef(piece)(3))
+    );
 }
 
 /* Returns the lowest index of the cells of a piece.
@@ -394,7 +395,7 @@ fun hasIsland(cell: @StaticArray(Byte, 5), piece: Int): Bool
     for ( i = 0..50 )
         if ( tempBoard(i) == 0)
             ++c;
-    return c != 0 && !(c == 5 && piece == 8) && !(c == 40 && piece == 8)
+    return c != 0 && !(c == 5 && piece == 8) && !(c == 40 && piece == 8) \
         && !(c % 5 == 0 && piece == 0);
 }
 
@@ -497,17 +498,18 @@ fun rowsBad(row1, row2: Byte, even: Bool): Bool
  */
 fun tripleIsOkay(row1, row2, row3: Byte, even: Bool): Bool
 {
-   if ( even )
-   {
+    if ( even )
+    {
         /* There are four cases:
          * row1: 00011  00001  11001  10101
          * row2: 01011  00101  10001  10001
          * row3: 011??  00110  ?????  ?????
          */
-        return ((row1 == 0x03) && (row2 == 0x0B) && ((row3 !&! 0x1C) == 0x0C))
+        return(((row1 == 0x03) && (row2 == 0x0B) && ((row3 !&! 0x1C) == 0x0C))
             || ((row1 == 0x01) && (row2 == 0x05) && (row3 == 0x06))
             || ((row1 == 0x19) && (row2 == 0x11))
-            || ((row1 == 0x15) && (row2 == 0x11));
+            || ((row1 == 0x15) && (row2 == 0x11))
+        );
     }
     else
     {
@@ -516,7 +518,7 @@ fun tripleIsOkay(row1, row2, row3: Byte, even: Bool): Bool
          * row2: 10001  10001
          * row3: ?????  ?????
          */
-        return ((row1 == 0x13) && (row2 == 0x11))
+        return ((row1 == 0x13) && (row2 == 0x11)) \
             || ((row1 == 0x15) && (row2 == 0x11));
     }
 }

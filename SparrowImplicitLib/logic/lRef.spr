@@ -6,19 +6,19 @@ import std.sharedPtr;
 import std.string;
 import precedenceUtils;
 
-concept ValWrapper(x)
-    if isValid(x.ValueType)
+concept ValWrapper(x) if (
+    isValid(x.ValueType)
     //&& isValid(x.isSet())
     //&& isValid(x.get())
     //&& isValid(x())
-    ;
+    );
 
-concept LRefType(x)
-    if ValWrapper(x)
+concept LRefType(x) if (
+       ValWrapper(x)
     && isValid(x.isLogicalRef)
     && isValid(x.reset())
     && isValid(x.reset(#$x.ValueType))
-    ;
+    );
 
 
 //using logicDebug = 1;

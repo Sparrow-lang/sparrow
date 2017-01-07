@@ -4,7 +4,7 @@ module logic.predicates;
 import std.function;
 
 /// Concept describing the type of a predicate: anything that can be called and evaluates to Bool
-concept PredicateType(x)
+concept PredicateType(x) \
     if typeOf(x()) == Bool;
 
 /// Basic implementation of a predicate with type erasure

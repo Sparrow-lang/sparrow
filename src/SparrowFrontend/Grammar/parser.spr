@@ -17,6 +17,7 @@ class SparrowParser(tokensRangeType, errorReporterType: Type)
     fun ctor(tokens: tokensRangeType, errorReporter: errorReporterType) {
         this.tokens ctor tokens;
         this.hasErrors ctor false;
+        this.errorReporter ctor errorReporter;
     }
 
     /// The source ranges of tokens we will used while parsing
@@ -211,6 +212,9 @@ private fun parseModifiers(p: @OurParser): Node {
             res = addToNodeList(res, e);
         }
         p expect tkRBRACKET;
+
+        // Ignore any possible semicolons (newlines) after the modifiers
+        while ( p accept tkSEMICOLON ) ;
     }
     return res;
 }
@@ -231,8 +235,7 @@ private fun parseStmt(p: @OurParser, topLevel: Bool): Node {
     var res: Node;
 
     // Ignore empty statements
-    while ( p accept tkSEMICOLON )
-        ;
+    while ( p accept tkSEMICOLON ) ;
 
     var loc = p curLoc;
     var mods = parseModifiers(p);
@@ -254,8 +257,12 @@ private fun parseStmt(p: @OurParser, topLevel: Bool): Node {
             || parseReturnStmt(p, res)
             ;
 
-    if ( found )
-        res = mkModifiers(loc span (p lastLoc), res, mods);
+    if ( mods isSet ) {
+        if ( found )
+            res = mkModifiers(loc span (p lastLoc), res, mods);
+        else
+            p reportError toString("Syntax error, unexpected ", (*p.tokens).type, ", expecting statement");
+    }
 
     return res;
 }
@@ -711,7 +718,10 @@ private fun parseBlockStmt(p: @OurParser, res: @Node, topLevel: Bool): Bool {
         res = Node();
         while ( !(p nextIs tkRCURLY) && !p.hasErrors ) {
             var s = parseStmt(p, topLevel);
-            res = addToNodeList(res, s);
+            if ( s isSet )
+                res = addToNodeList(res, s);
+            else
+                break;
         }
         p expect tkRCURLY;
         if ( !topLevel )

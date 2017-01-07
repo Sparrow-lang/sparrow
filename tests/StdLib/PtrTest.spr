@@ -9,7 +9,7 @@ class MyObj
     fun ctor(xx: Int)
     {
         x = xx;
-	}
+    }
 
     fun dtor()
     {

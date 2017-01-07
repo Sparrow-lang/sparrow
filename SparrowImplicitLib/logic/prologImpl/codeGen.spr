@@ -43,10 +43,11 @@ package Impl
 
         // Generate nodes for parameters and return type
         var paramsNode = genParameters(pred, genNative);
-        var returnType =
+        var returnType = (
             ife(genNative
             , mkIdentifier(locPred, "Bool")
-            , mkIdentifier(locPred, "Predicate"));
+            , mkIdentifier(locPred, "Predicate"))
+        );
 
         var bodyNodes: Vector(AstNode);
 

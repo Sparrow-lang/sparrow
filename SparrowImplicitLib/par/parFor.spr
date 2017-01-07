@@ -115,8 +115,8 @@ package Impl {
         }
     }
 
-    fun ParForTask(r: Range, f: AnyType, part: @Partitioner, depth: Int)
+    fun ParForTask(r: Range, f: AnyType, part: @Partitioner, depth: Int) \
         = ParForTask(typeOf(r), typeOf(f), -@typeOf(part))(r, f, part, depth);
-    fun allocParForTask(r: Range, f: AnyType, part: @Partitioner, depth: Int)
+    fun allocParForTask(r: Range, f: AnyType, part: @Partitioner, depth: Int) \
         = new(ParForTask(typeOf(r), typeOf(f), -@typeOf(part)), r, f, part, depth);
 }

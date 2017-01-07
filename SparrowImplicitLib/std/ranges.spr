@@ -4,14 +4,14 @@ import math = math(floor);
 import tuple(MakePair);
 import staticArray(mkValues);
 
-concept BidirRange(x: Range)
-    if typeOf(x.back()) == x.RetType
-    && isValid(x.popBack())
+concept BidirRange(x: Range)                \
+    if typeOf(x.back()) == x.RetType        \
+    && isValid(x.popBack())                 \
     ;
 
-concept RandomAccessRange(x: BidirRange)
-    if typeOf(x.size()) == SizeType
-    && typeOf(x(0)) == x.RetType
+concept RandomAccessRange(x: BidirRange)    \
+    if typeOf(x.size()) == SizeType         \
+    && typeOf(x(0)) == x.RetType            \
     ;
 
 

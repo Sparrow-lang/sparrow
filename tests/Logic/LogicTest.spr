@@ -10,8 +10,8 @@ fun female(x: @LStr) = x /=/ "leda" || x /=/ "clytaemnestra";
 
 fun person(x: @LStr) = male(x) || female(x);
 
-fun parents(father, mother, child: LRef(String))
-     = father /=/ "zeus" && mother /=/ "leda" && child /=/ "castor"
+fun parents(father, mother, child: LRef(String)) \
+     = father /=/ "zeus" && mother /=/ "leda" && child /=/ "castor" \
     || father /=/ "zeus" && mother /=/ "leda" && child /=/ "clytaemnestra";
 
 

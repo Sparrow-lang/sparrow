@@ -21,6 +21,7 @@ SET(sourceFiles
     "IntMods.cpp"
     "SprDebug.cpp"
     "Grammar/ext.spr"
+    "Grammar/layoutDecoder.spr"
     "Grammar/node.spr"
     "Grammar/parser.spr"
     "Grammar/parserDefs.spr"
@@ -82,6 +83,7 @@ if(BOOSTSTRAP_SPARROW)
         DEPENDS Grammar/parser.spr
                 Grammar/parserDefs.spr
                 Grammar/ext.spr
+                Grammar/layoutDecoder.spr
                 Grammar/node.spr
                 Grammar/scanner.spr
                 Grammar/token.spr

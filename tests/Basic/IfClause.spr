@@ -11,8 +11,7 @@ class Pair(t1, t2: Type)
 fun instanceOfType(t: Type): t;
 fun instanceOfTypeRef(t: Type): t@;
 
-fun f(x: AnyType)
-    if sizeOf(x)<=sizeOf(Double)
+fun f(x: AnyType) if sizeOf(x)<=sizeOf(Double)
 {
     write('S');
     write(':');
@@ -20,8 +19,7 @@ fun f(x: AnyType)
     writeLn(sizeOf(x));
 }
 
-fun f(x: AnyType)
-    if sizeOf(x)>sizeOf(Double)
+fun f(x: AnyType) if sizeOf(x)>sizeOf(Double)
 {
     write('B');
     write(':');
@@ -29,10 +27,7 @@ fun f(x: AnyType)
     writeLn(sizeOf(x));
 }
 
-fun f(x: AnyType)
-    if false
-    //if isValid(x + 2.9)
-    //if typeOf(x) == Int
+fun f(x: AnyType) if false
 {
     write('X');
     write(':');
@@ -40,18 +35,14 @@ fun f(x: AnyType)
     writeLn(sizeOf(x));
 }
 
-fun tst(x: AnyType)
-    //if isValid(x + 2)
-    if typeOf(x) == Int
+fun tst(x: AnyType) if typeOf(x) == Int
 {
     write('I');
     write('n');
     writeLn('t');
 }
 
-fun tst(x: AnyType)
-    //if isValid(x + 2.2)
-    if typeOf(x) == Double
+fun tst(x: AnyType) if typeOf(x) == Double
 {
     write('D');
     write('o');
@@ -61,8 +52,7 @@ fun tst(x: AnyType)
     writeLn('e');
 }
 
-fun tst(x: AnyType)
-    if isValid(x.second)
+fun tst(x: AnyType) if isValid(x.second)
 {
     write('P');
     write('a');
@@ -72,16 +62,14 @@ fun tst(x: AnyType)
 
 
 
-fun tst2(x: AnyType)
-    if typeOf(x) == Int
+fun tst2(x: AnyType) if typeOf(x) == Int
 {
     write('I');
     write('n');
     writeLn('t');
 }
 
-fun tst2(x: AnyType)
-    if typeOf(x) == Double
+fun tst2(x: AnyType) if typeOf(x) == Double
 {
     write('D');
     write('o');
@@ -91,8 +79,7 @@ fun tst2(x: AnyType)
     writeLn('e');
 }
 
-fun tst2(x: AnyType)
-    if isValid(x.second)
+fun tst2(x: AnyType) if isValid(x.second)
 {
     write('P');
     write('a');
@@ -102,16 +89,14 @@ fun tst2(x: AnyType)
 
 
 
-fun tst3(x: AnyType)
-    if typeOf(x) == Int
+fun tst3(x: AnyType) if typeOf(x) == Int
 {
     write('I');
     write('n');
     writeLn('t');
 }
 
-fun tst3(x: AnyType)
-    if typeOf(x) == Double
+fun tst3(x: AnyType) if typeOf(x) == Double
 {
     write('D');
     write('o');
@@ -121,8 +106,7 @@ fun tst3(x: AnyType)
     writeLn('e');
 }
 
-fun tst3(x: AnyType)
-    if typeOf(x.second) == Double
+fun tst3(x: AnyType) if typeOf(x.second) == Double
 {
     write('P');
     write('a');
@@ -132,8 +116,7 @@ fun tst3(x: AnyType)
     writeLn('D');
 }
 
-fun tst3(x: AnyType)
-    if typeOf(x.second) != Double
+fun tst3(x: AnyType) if typeOf(x.second) != Double
 {
     write('P');
     write('a');

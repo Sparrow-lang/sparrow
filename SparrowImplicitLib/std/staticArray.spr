@@ -176,7 +176,7 @@ import ranges;
 
     fun all = RangeType(_asPtr(), _asPtr().advance(DiffType(arraySize)));
 
-    fun subrange(index: SizeType, num: SizeType)
+    fun subrange(index: SizeType, num: SizeType) \
         = RangeType(_asPtr().advance(DiffType(index)), _asPtr().advance(DiffType(index + num)));
 
     fun =(other: @StaticArray): @StaticArray
@@ -210,12 +210,12 @@ fun mkValues(v0,v1,v2,v3,v4,v5,v6,v7,v8: AnyType) = StaticArray(typeOf(v0), 9)(v
 fun mkValues(v0,v1,v2,v3,v4,v5,v6,v7,v8,v9: AnyType) = StaticArray(typeOf(v0), 10)(v0,v1,v2,v3,v4,v5,v6,v7,v8,v9);
 
 
-[ctGeneric] fun StaticArray2d(baseType: Type, d1, d2: SizeType ct)
+[ctGeneric] fun StaticArray2d(baseType: Type, d1, d2: SizeType ct) \
     = StaticArray(StaticArray(baseType, d2), d1);
 
-[ctGeneric] fun StaticArray3d(baseType: Type, d1, d2, d3: SizeType ct)
+[ctGeneric] fun StaticArray3d(baseType: Type, d1, d2, d3: SizeType ct) \
     = StaticArray(StaticArray(StaticArray(baseType, d3), d2), d1);
 
-[ctGeneric] fun StaticArray4d(baseType: Type, d1, d2, d3, d4: SizeType ct)
+[ctGeneric] fun StaticArray4d(baseType: Type, d1, d2, d3, d4: SizeType ct) \
     = StaticArray(StaticArray(StaticArray(StaticArray(baseType, d4), d3), d2), d1);
 

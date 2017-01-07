@@ -254,7 +254,7 @@ namespace
         // Make sure we have only one argument
         if ( (int) Nest_nodeArraySize(arguments->children) != numArgs )
         {
-            REP_ERROR(loc, "%1% expects %2% arguments; %2% given") % funName % numArgs % Nest_nodeArraySize(arguments->children);
+            REP_ERROR(loc, "%1% expects %2% arguments; %3% given") % funName % numArgs % Nest_nodeArraySize(arguments->children);
             return false;
         }
 

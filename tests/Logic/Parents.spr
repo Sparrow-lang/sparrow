@@ -3,21 +3,21 @@ import logic.predicates;
 import logic.recurse;
 //import assert;
 
-fun children(child, parent: @LStr)
-     = child /=/ "Sam"    && parent /=/ "Mary"
+fun children(child, parent: @LStr) = (
+       child /=/ "Sam"    && parent /=/ "Mary"
     || child /=/ "Denise" && parent /=/ "Mary"
     || child /=/ "Sam"    && parent /=/ "Frank"
     || child /=/ "Denise" && parent /=/ "Frank"
     || child /=/ "Frank"  && parent /=/ "Gary"
-    ;
+    );
 
-fun gender(name, g: @LStr)
-     = name /=/ "Frank"   && g /=/ "male"
+fun gender(name, g: @LStr) = (
+       name /=/ "Frank"   && g /=/ "male"
     || name /=/ "Sam"     && g /=/ "male"
     || name /=/ "Mary"    && g /=/ "female"
     || name /=/ "Denise"  && g /=/ "female"
     || name /=/ "Gary"    && g /=/ "male"
-    ;
+    );
 
 fun male(name: @LStr) = gender(name, "male");
 fun female(name: @LStr) = gender(name, "female");
@@ -30,7 +30,7 @@ fun mother(name, child: @LStr) = children(child, name) && gender(name, "female")
 fun ancestor(a, c: @LStr): Predicate
 {
     var parent: LStr;
-    return children(c, a)
+    return children(c, a) \
         || children(c, parent) && rec(\ancestor, a, parent);
 }
 

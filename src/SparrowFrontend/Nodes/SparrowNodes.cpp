@@ -33,6 +33,9 @@ void applyModifier(Node* base, Node* modNode)
 {
     Modifier* mod = nullptr;
 
+    if ( !base )
+        return;
+
     // Recurse down if the base if is a node list or a modifiers node
     if ( base->nodeKind == nkFeatherNodeList ) {
         for ( Node* n: base->children )

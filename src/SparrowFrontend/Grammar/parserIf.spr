@@ -1,7 +1,7 @@
 /// Interface between the parser (& scanner) and the Sparrow compiler
 module sparrowc.spr.grammar.parserIf;
 
-import scanner, parser, ext;
+import scanner, parser, layoutDecoder, ext;
 import os, std.newDelete;
 
 class ExternalErrorReporter {
@@ -35,12 +35,14 @@ fun popFront(s: @CharSource) {
 
 class ParserContext {
     using ScannerType = SparrowScanner(CharSource, ExternalErrorReporter);
-    using ParserType = SparrowParser(ScannerType, ExternalErrorReporter);
+    using LayoutDecoderType = SparrowLayoutDecoder(ScannerType, ExternalErrorReporter);
+    using ParserType = SparrowParser(LayoutDecoderType, ExternalErrorReporter);
 
     private var file: File;
     private var fileRange: FileRange;
     private var source: CharSource;
     private var scanner: ScannerType;
+    private var layoutDecoder: LayoutDecoderType;
     private var parser: ParserType;
 
     fun ctor(filename, code: StringRef, loc: Location, scannerOnly: Bool = false) {
@@ -63,8 +65,10 @@ class ParserContext {
         }
 
         scanner.ctor(source, reporter, loc);
-        if ( !scannerOnly )
-            parser.ctor(scanner, reporter);
+        if ( !scannerOnly ) {
+            layoutDecoder.ctor(scanner, reporter);
+            parser.ctor(layoutDecoder, reporter);
+        }
     }
 }
 

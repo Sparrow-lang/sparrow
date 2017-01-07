@@ -2,7 +2,7 @@
 
 fun sprMain
 {
-	// test for string '=' operator
+    // test for string '=' operator
     var string1: StringRef = "first string";
     cout << string1 << endl; // first string
 

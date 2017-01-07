@@ -129,6 +129,10 @@ namespace
                     REP_ERROR_RET(nullptr, init->location, "Initializer of the variable (%1%) cannot be converted to variable type (%2%)")
                     % init->type % t;
 
+                if ( !init->type->hasStorage ) {
+                    REP_ERROR_RET(nullptr, init->location, "Invalid type for variable (%1%)") % init->type;
+                }
+
                 t = getAutoType(init, isRefAuto);
             }
             else

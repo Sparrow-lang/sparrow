@@ -3,15 +3,15 @@ import logic.predicates;
 //import assert;
 
 
-fun orbits(a, b: @LStr)
-     = a /=/ "Mercury"  && b /=/ "Sun"
+fun orbits(a, b: @LStr) = (
+       a /=/ "Mercury"  && b /=/ "Sun"
     || a /=/ "Venus"    && b /=/ "Sun"
     || a /=/ "Earth"    && b /=/ "Sun"
     || a /=/ "Mars"     && b /=/ "Sun"
     || a /=/ "Moon"     && b /=/ "Earth"
     || a /=/ "Phobos"   && b /=/ "Mars"
     || a /=/ "Deimos"   && b /=/ "Mars"
-    ;
+    );
 
 fun planet(p: @LStr) = orbits(p, "Sun");
 

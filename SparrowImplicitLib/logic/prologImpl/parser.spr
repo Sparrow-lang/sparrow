@@ -2,10 +2,7 @@ import token;
 import nodes;
 import errorReporter;
 
-concept TokenRange(x)
-    if Range(x)
-    && -@(x.RetType) == Token
-    ;
+concept TokenRange(x: Range) if -@(x.RetType) == Token
 
 [ct] class Parser(lexerType, errorReporterType: Type) if TokenRange(#$lexerType)
 {

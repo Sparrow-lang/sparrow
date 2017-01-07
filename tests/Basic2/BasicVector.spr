@@ -577,20 +577,20 @@ fun printVector(v: AnyType)
     if ( !v.isEmpty() )
         cout << endl;
 
-	/*var i = SizeType(0);
+    /*var i = SizeType(0);
 
-	while ( i < v.size() ; i = i + SizeType(1); )
-	{
-		cout << v.at(i);
-		if ( i < v.size() - SizeType(1) )
-		{
-			cout << ", ";
-		}
-		else
-		{
-			cout << endl;
-		}
-	}*/
+    while ( i < v.size() ; i = i + SizeType(1); )
+    {
+        cout << v.at(i);
+        if ( i < v.size() - SizeType(1) )
+        {
+            cout << ", ";
+        }
+        else
+        {
+            cout << endl;
+        }
+    }*/
 }
 
 fun printRange(r: AnyType)
@@ -626,7 +626,7 @@ fun printSizeInfo(v: AnyType) if isValid(v.isEmpty()) && isValid(v.size())
 {
     if ( v.isEmpty() ) cout << "empty" << endl;
     else cout << "not empty" << endl;
-	cout << v.size() << endl;
+    cout << v.size() << endl;
 }
 
 
@@ -674,13 +674,13 @@ fun test1()
     printSizeInfo(v);
     printVector(v);
     cout << "---" << endl;
-	v.popBack();
-	printSizeInfo(v);
-	printVector(v);
+    v.popBack();
+    printSizeInfo(v);
+    printVector(v);
     cout << "---" << endl;
-	v.popBack();
-	printSizeInfo(v);
-	printVector(v);
+    v.popBack();
+    printSizeInfo(v);
+    printVector(v);
 }
 /*<<<Basic test(1)
 0
@@ -743,9 +743,9 @@ fun test4()
     var v3: Vector(Int) = v1;
     var v4 = v2;
 
-	printSizeInfo(v3);
-	printSizeInfo(v4);
-	printVector(v4);
+    printSizeInfo(v3);
+    printSizeInfo(v4);
+    printVector(v4);
 }
 /*<<<Copy constructor(4)
 empty
@@ -782,24 +782,24 @@ done
 
 fun test6()
 {
-	var v1: Vector(Int);
+    var v1: Vector(Int);
 
-	v1.reserve(SizeType(42));
-	printSizeInfo(v1);
-	cout << v1.capacity() << endl;
+    v1.reserve(SizeType(42));
+    printSizeInfo(v1);
+    cout << v1.capacity() << endl;
 
-	var v2: Vector(Int) = createRange(Int, 4);
+    var v2: Vector(Int) = createRange(Int, 4);
 
-	v2.reserve(SizeType(100));
-	printSizeInfo(v2);
-	cout << v2.capacity() << endl;
-	printVector(v2);
-	v2.reserve(SizeType(10));
-	printSizeInfo(v2);
-	cout << v2.capacity() << endl;
-	printVector(v2);
+    v2.reserve(SizeType(100));
+    printSizeInfo(v2);
+    cout << v2.capacity() << endl;
+    printVector(v2);
+    v2.reserve(SizeType(10));
+    printSizeInfo(v2);
+    cout << v2.capacity() << endl;
+    printVector(v2);
 
-	var v3: Vector(Int) = createRange(Int, 1024);
+    var v3: Vector(Int) = createRange(Int, 1024);
 
     if ( v3.capacity() < SizeType(1024) ) cout << "Test failed" << endl;
     v3.pushBack(0);

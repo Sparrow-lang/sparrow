@@ -59,14 +59,14 @@ fun =(lhs: @AtomicType, rhs: AtomicType) { lhs store (rhs load); }
 //! Converts a regular value to an atomic value
 //! Returns the reference to the same memory address
 //! Used to make it possible to use atomic operations
-fun asAtomic(val: @AnyType): @Atomic(typeOf(val))
-    = reinterpretCast(@Atomic(typeOf(val)), val)
+fun asAtomic(val: @AnyType): @Atomic(typeOf(val)) \
+    = reinterpretCast(@Atomic(typeOf(val)), val) \
     if sizeOf(val) == sizeOf(Atomic(typeOf(val)));
 
 //! Loads the value from an atomic; returns a non-atomic value
 [native("_Atomic_load32")] fun load(x: @AtomicInt): Int;
 [native("_Atomic_load64")] fun load(x: @AtomicLong): Long;
-fun load(x: @NonStdAtomicType): x.ValueType
+fun load(x: @NonStdAtomicType): x.ValueType \
     = x._fromUnderlying(x._baseAtomic load);
 
 //! Stores a value inside the given atomic
@@ -81,20 +81,20 @@ fun =(x: @AtomicType, val: AnyType) = store(x, val);
 //! Fetches the current value of an atomic, and stores a new value in the atomic
 [native("_Atomic_fetchAndStore32")] fun fetchAndStore(x: @AtomicInt, newVal: Int): Int;
 [native("_Atomic_fetchAndStore64")] fun fetchAndStore(x: @AtomicLong, newVal: Long): Long;
-fun fetchAndStore(x: @NonStdAtomicType, newVal: AnyType): x.ValueType
+fun fetchAndStore(x: @NonStdAtomicType, newVal: AnyType): x.ValueType \
     = x._fromUnderlying(x._baseAtomic fetchAndStore x._toUnderlying(newVal));
 
 //! Compare the atomic value with the given comparand; if equal store 'newVal' and return true; if not equal returns false
 [native("_Atomic_compareAndSwap32")] fun compareAndSwap(x: @AtomicInt, newVal, comparand: Int): Bool;
 [native("_Atomic_compareAndSwap64")] fun compareAndSwap(x: @AtomicLong, newVal, comparand: Long): Bool;
-fun compareAndSwap(x: @NonStdAtomicType, newVal, comparand: AnyType): Bool
+fun compareAndSwap(x: @NonStdAtomicType, newVal, comparand: AnyType): Bool \
     = compareAndSwap(x._baseAtomic, x._toUnderlying(newVal), x._toUnderlying(comparand));
 
 //! Fetch the value of the atomic, and then add the given value to it
 [native("_Atomic_fetchAndAdd32")] fun fetchAndAdd(x: @AtomicInt, val: Int): Int;
 [native("_Atomic_fetchAndAdd64")] fun fetchAndAdd(x: @AtomicLong, val: Long): Long;
-fun fetchAndAdd(x: @NonStdAtomicType, val: AnyType): x.ValueType
-    = x._fromUnderlying(x._baseAtomic fetchAndAdd x._toUnderlying(val))
+fun fetchAndAdd(x: @NonStdAtomicType, val: AnyType): x.ValueType \
+    = x._fromUnderlying(x._baseAtomic fetchAndAdd x._toUnderlying(val)) \
     if Integer(#$x.ValueType);
 
 //! Fetch the value of the atomic and the increment it
@@ -127,7 +127,7 @@ package Impl {
         using _BaseAtomicType = Atomic(Long);
     }
 
-    fun packAtomic(x: @NonStdAtomicType): @AtomicTypeTraits(x.ValueType)
+    fun packAtomic(x: @NonStdAtomicType): @AtomicTypeTraits(x.ValueType) \
         = reinterpretCast(@AtomicTypeTraits(x.ValueType), x);
 
     fun pack(x: @NonStdAtomicType, val: AnyType): AtomicTypeTraits(x.ValueType)._UnderlyingType {

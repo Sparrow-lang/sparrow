@@ -5,11 +5,11 @@ import rawPtr(RawPtr);
 import ranges(rangeSize, ..);
 
 // !!!
-concept RangeTmp(x)
-    if typeOf(x.isEmpty()) == Bool
+concept RangeTmp(x) if (
+       typeOf(x.isEmpty()) == Bool
     && isValid(x.front())
     && isValid(x.popFront())
-    ;
+    );
 
 [rtct] class Array(valueType: Type)
 {

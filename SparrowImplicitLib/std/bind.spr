@@ -1,19 +1,19 @@
 module std.bind;
 
-fun mkBindAll(ftor, a1: @AnyType)
-    = BindAll(-@typeOf(ftor), -@typeOf(a1))(ftor, a1)
+fun mkBindAll(ftor, a1: @AnyType) \
+    = BindAll(-@typeOf(ftor), -@typeOf(a1))(ftor, a1) \
     if isValid(ftor(a1));
-fun mkBindAll(ftor, a1, a2: @AnyType)
-    = BindAll(-@typeOf(ftor), -@typeOf(a1), -@typeOf(a2))(ftor, a1, a2)
+fun mkBindAll(ftor, a1, a2: @AnyType) \
+    = BindAll(-@typeOf(ftor), -@typeOf(a1), -@typeOf(a2))(ftor, a1, a2) \
     if isValid(ftor(a1, a2));
-fun mkBindAll(ftor, a1, a2, a3: @AnyType)
-    = BindAll(-@typeOf(ftor), -@typeOf(a1), -@typeOf(a2), -@typeOf(a3))(ftor, a1, a2, a3)
+fun mkBindAll(ftor, a1, a2, a3: @AnyType) \
+    = BindAll(-@typeOf(ftor), -@typeOf(a1), -@typeOf(a2), -@typeOf(a3))(ftor, a1, a2, a3) \
     if isValid(ftor(a1, a2, a3));
-fun mkBindAll(ftor, a1, a2, a3, a4: @AnyType)
-    = BindAll(-@typeOf(ftor), -@typeOf(a1), -@typeOf(a2), -@typeOf(a3), -@typeOf(a4))(ftor, a1, a2, a3, a4)
+fun mkBindAll(ftor, a1, a2, a3, a4: @AnyType) \
+    = BindAll(-@typeOf(ftor), -@typeOf(a1), -@typeOf(a2), -@typeOf(a3), -@typeOf(a4))(ftor, a1, a2, a3, a4) \
     if isValid(ftor(a1, a2, a3, a4));
-fun mkBindAll(ftor, a1, a2, a3, a4, a5: @AnyType)
-    = BindAll(-@typeOf(ftor), -@typeOf(a1), -@typeOf(a2), -@typeOf(a3), -@typeOf(a4), -@typeOf(a5))(ftor, a1, a2, a3, a4, a5)
+fun mkBindAll(ftor, a1, a2, a3, a4, a5: @AnyType) \
+    = BindAll(-@typeOf(ftor), -@typeOf(a1), -@typeOf(a2), -@typeOf(a3), -@typeOf(a4), -@typeOf(a5))(ftor, a1, a2, a3, a4, a5) \
     if isValid(ftor(a1, a2, a3, a4, a5));
 
 class BindAll(ftorType, T1: Type)

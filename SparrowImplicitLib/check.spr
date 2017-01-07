@@ -20,10 +20,10 @@ class Gen(t: Type) {
     var _generator: Function(t, UInt);
 }
 
-concept GenType(x)
-    if typeOf(x.ValueType) == Type
-    && typeOf(x.isValid()) == Bool
-    && typeOf(x(0)) == x.ValueType
+concept GenType(x)                  \
+    if typeOf(x.ValueType) == Type  \
+    && typeOf(x.isValid()) == Bool  \
+    && typeOf(x(0)) == x.ValueType  \
     ;
 
 //! Arbitrary prototype
@@ -61,22 +61,21 @@ class TestableValue(t: Type)
 }
 
 //! Concept that matches all TestableValues instances
-concept TestableValuesRange(x)
-    if Range(x)
-    && isValid(x.RetType.ValueType)
+concept TestableValuesRange(x: Range) if (
+       isValid(x.RetType.ValueType)
     && x.RetType == TestableValue(x.RetType.ValueType)
-    ;
+    );
 
 //! Function that checks a range of testable values against a predicate
 //!
 //! This will extract values from the input range and applies the predicate on
 //! them. Makes sure that the predicate holds for all these values. Reports the
 //! statistics of running the tests.
-fun check(values: TestableValuesRange, pred: @AnyType): Bool
-        = check(values, pred, "")
+fun check(values: TestableValuesRange, pred: @AnyType): Bool \
+        = check(values, pred, "") \
     if !isValid(pred.v1);
-fun check(values: TestableValuesRange, predMsg: @AnyType): Bool
-        = check(values, predMsg.v1, predMsg.v2)
+fun check(values: TestableValuesRange, predMsg: @AnyType): Bool \
+        = check(values, predMsg.v1, predMsg.v2) \
     if isValid(predMsg.v1);
 fun check(values: TestableValuesRange, pred: @AnyType, msg: StringRef, config: CheckConfig = CheckConfig()): Bool {
     cout << "* Checking " << msg << endl;
@@ -143,10 +142,10 @@ fun withClassifier(r: TestableValuesRange, pred: @AnyType) = CheckImpl.Classifie
 // Combinators
 //
 
-concept FreqGenType(x)
-    if Integer(x.v1)
+concept FreqGenType(x) if(
+       Integer(x.v1)
     && GenType(x.v2)
-    ;
+    );
 
 //! Returns a generator that generates elements from the range
 fun elements(r: Range): r.RetType Gen = CheckImpl.ElementsGen(typeOf(r))(r).gen;

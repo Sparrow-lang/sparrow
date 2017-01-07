@@ -81,16 +81,16 @@ import rawPtr(RawPtr);
     fun asStringRef             = StringRef(_begin.bytePtr(), _end.bytePtr());
 
 
-    fun size: SizeType        = _end.diff(_begin);
+    fun size: SizeType          = _end.diff(_begin);
     fun isEmpty                 = _begin == _end;
-    fun capacity: SizeType    = _endOfStore.diff(_begin);
+    fun capacity: SizeType      = _endOfStore.diff(_begin);
 
     fun at(index: SizeType)     = _begin.advance(DiffType(index)).value();
     fun ()(index: SizeType)     = _begin.advance(DiffType(index)).value();
     fun front                   = _begin.value();
     fun back                    = _end.advance(-1).value();
     fun all                     = RangeType(_begin.bytePtr, _end.bytePtr);
-    fun subrange(index: SizeType, num: SizeType): RangeType
+    fun subrange(index: SizeType, num: SizeType): RangeType \
                                 = RangeType(_begin.advance(DiffType(index)).bytePtr, _begin.advance(DiffType(index + num)).bytePtr);
 
     fun pushBack(value: Char)

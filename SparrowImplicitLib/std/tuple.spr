@@ -95,11 +95,11 @@ module std.tuple;
     var v10: t10;
 }
 
-concept TupleType(x)
-    if typeOf(x.arity) == Int
+concept TupleType(x) if (
+       typeOf(x.arity) == Int
     && isValid(x.v1)
     && isValid(x.v2)
-    ;
+    );
 
 [rtct] fun mkTuple(v1,v2: AnyType) = Tuple(typeOf(v1), typeOf(v2))(v1,v2);
 [rtct] fun mkTuple(v1,v2,v3: AnyType) = Tuple(typeOf(v1), typeOf(v2), typeOf(v3))(v1,v2,v3);

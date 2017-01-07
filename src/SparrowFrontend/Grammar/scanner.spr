@@ -55,8 +55,7 @@ class SparrowScanner(sourceType, errorReporterType: Type)
         this.curToken ctor;
         this.tokenIsComputed ctor false;
         this.atEnd ctor false;
-        this.lastLineStart.line = 1;
-        this.lastLineStart.col = 1;
+        this.errorReporter ctor errorReporter;
     }
 
     /// Location that we use to keep track of the source chars
@@ -72,9 +71,6 @@ class SparrowScanner(sourceType, errorReporterType: Type)
     private var atEnd: Bool;
     /// Object used to report errors
     private var errorReporter: errorReporterType;
-    /// The start of the last processed line, ignoring initial whitespace
-    /// Used for determining indentation
-    private var lastLineStart: LineCol;
 }
 /// Concept that matches SparrowScanner above
 private concept OurScanner(t) if t.IsSparrowScanner;
@@ -170,14 +166,10 @@ private fun nextToken(s: @OurScanner): TokenType {
         var ch2 = s peekChar;
 
         // Check for whitespace -- drop all the whitespace
-        if ( isSpace(ch) ) {
-            s.src advanceIf \isSpace;   // At this point, keep compatibility with the old scanner
+        if ( ch == ' ' ) {
+            s.src advanceIf (fun c = c==' ');
             continue;
         }
-        // if ( ch == ' ' ) {
-        //     s.src advanceIf (fun c = c==' ');
-        //     continue;
-        // }
 
         // Check for tabs -- forbidden
         if ( ch == '\t' ) {
@@ -214,30 +206,14 @@ private fun nextToken(s: @OurScanner): TokenType {
                 return tkEND;
             }
             s.src popFront;    // move past '/'
-            // Update the last line number, but not the column
-            s.lastLineStart.line = s.src.location.end.line;
             continue;
         }
 
         // Backslash followed by a new-line collapses
         if ( ch == '\\' && ch2 == '\n' ) {
             s.src advance 2;
-            // Update the last line number, but not the column
-            s.lastLineStart.line = s.src.location.end.line;
             continue;
         }
-
-        // From now on, everything we find needs to be a non-whitespace
-
-        // Check for line indents/dedents
-        // if ( loc.start.line != s.lastLineStart.line ) {
-        //     var lastCol = s.lastLineStart.col;
-        //     s.lastLineStart = loc.start;
-        //     if ( loc.start.col > lastCol )
-        //         return tkINDENT;
-        //     if ( loc.start.col < lastCol )
-        //         return tkDEDENT;
-        // }
 
         // Character & strings
         if ( ch == '\'' ) return parseCharacter(s);

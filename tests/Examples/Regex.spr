@@ -790,7 +790,7 @@ aaaaaaaaa no match a?a?a?a?a?a?a?a?a?a?aaaaaaaaaa
 // Case 4: {(a|b)*a}{(a|b)}^n
 [rtct] fun getReOfType(reType, n: Int): String
 {
-         if ( reType == 1 ) return "a?"**n + "a"**n;
+    if      ( reType == 1 ) return "a?"**n + "a"**n;
     else if ( reType == 2 ) return "(a|b)?"**n + "(a|b)"**n + "z";
     else if ( reType == 3 ) return "(a|b)?"**(2*n) + "(a|b)"**n + "z";
     else if ( reType == 4 ) return String("(a|b)*a") + "(a|b)"**n;

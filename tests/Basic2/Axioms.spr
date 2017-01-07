@@ -1,7 +1,7 @@
 //!!
 
-concept Ordered(x)
-    if typeOf(x < x) == Bool   // Main ordering operator
+concept Ordered(x) if (
+       typeOf(x < x) == Bool   // Main ordering operator
     && typeOf(x > x) == Bool   // Other operators can be inferred
     && typeOf(x <= x) == Bool
     && typeOf(x >= x) == Bool
@@ -9,16 +9,16 @@ concept Ordered(x)
     && axiom("greater")
     && axiom("lessEqual")
     && axiom("greaterEqual")
-    ;
+    );
 [ct] fun axiom(name: StringRef) = true;     // No checks performed
 [rtct] fun => (premise, conclusion: Bool) = !(premise) || conclusion;
-fun lessIsOrdered(x, y, z: Ordered)
-         = !(x < x)
+fun lessIsOrdered(x, y, z: Ordered) = (
+           !(x < x)
         && ( (x<y) => !(y<x) )
         && ( (x<y) => !(y<x) )
         && ( (x<y && y<z) => (x<z) )
         && ( x<y || y<x || x==y )
-        ;
+        );
 fun greater(x,y: Ordered)      = (x>y) == (y<x);
 fun lessEqual(x,y: Ordered)    = (x<=y) == !(y<x);
 fun greaterEqual(x,y: Ordered) = (x>=y) == !(x<y);

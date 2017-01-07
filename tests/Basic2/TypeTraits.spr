@@ -42,11 +42,11 @@ fun printHeader
 fun printType(t: Type)
 {
     cout << ife(hasStorage(t), "storage     ", "no storage  ")
-         << getMode(mode(t)).asStringRef()
-         << ife(canBeUsedAtCt(t), "y  ", "n  ")
-         << ife(canBeUsedAtRt(t), "y  ", "n  ")
-         << numRef(t) << "    "
-         << description(t) << endl;
+    cout << getMode(mode(t)).asStringRef()
+    cout << ife(canBeUsedAtCt(t), "y  ", "n  ")
+    cout << ife(canBeUsedAtRt(t), "y  ", "n  ")
+    cout << numRef(t) << "    "
+    cout << description(t) << endl;
 
 }
 

@@ -548,20 +548,20 @@ fun write1(obj: MyObj)
 // Prints the elements in the vector on one line.
 fun printVector(v: AnyType)
 {
-	var i = intToSizeType(0);
+    var i = intToSizeType(0);
 
-	while ( i < v.size() ; i = i + intToSizeType(1); )
-	{
-		write(v.at(i));
-		if ( i < v.size() - intToSizeType(1) )
-		{
-			write(", ");
-		}
-		else
-		{
-			writeLn("");
-		}
-	}
+    while ( i < v.size() ; i = i + intToSizeType(1); )
+    {
+        write(v.at(i));
+        if ( i < v.size() - intToSizeType(1) )
+        {
+            write(", ");
+        }
+        else
+        {
+            writeLn("");
+        }
+    }
 }
 
 fun printRange(r: AnyType)
@@ -569,14 +569,14 @@ fun printRange(r: AnyType)
     while ( !r.isEmpty() ; r.popFront(); )
     {
         write(r.front());
-		if ( r.size() > intToSizeType(1) )
-		{
-			write(", ");
-		}
-		else
-		{
-			writeLn("");
-		}
+        if ( r.size() > intToSizeType(1) )
+        {
+            write(", ");
+        }
+        else
+        {
+            writeLn("");
+        }
     }
 }
 
@@ -586,7 +586,7 @@ fun printSizeInfo(v: AnyType) if isValid(v.isEmpty()) && isValid(v.size())
 {
     if ( v.isEmpty() ) writeLn("empty");
     else writeLn("not empty");
-	writeLn(v.size());
+    writeLn(v.size());
 }
 
 
@@ -630,13 +630,13 @@ fun test1()
     printSizeInfo(v);
     printVector(v);
     writeLn("---");
-	v.popBack();
-	printSizeInfo(v);
-	printVector(v);
+    v.popBack();
+    printSizeInfo(v);
+    printVector(v);
     writeLn("---");
-	v.popBack();
-	printSizeInfo(v);
-	printVector(v);
+    v.popBack();
+    printSizeInfo(v);
+    printVector(v);
 }
 /*<<<Basic test(1)
 0
@@ -699,9 +699,9 @@ fun test4()
     var v3: Vector(Int) = v1;
     var v4 = v2;
 
-	printSizeInfo(v3);
-	printSizeInfo(v4);
-	printVector(v4);
+    printSizeInfo(v3);
+    printSizeInfo(v4);
+    printVector(v4);
 }
 /*<<<Copy constructor(4)
 empty
@@ -736,24 +736,24 @@ done
 
 fun test6()
 {
-	var v1: Vector(Int);
+    var v1: Vector(Int);
 
-	v1.reserve(intToSizeType(42));
-	printSizeInfo(v1);
-	writeLn(v1.capacity());
+    v1.reserve(intToSizeType(42));
+    printSizeInfo(v1);
+    writeLn(v1.capacity());
 
-	var v2: Vector(Int) = createRange(Int, 4);
+    var v2: Vector(Int) = createRange(Int, 4);
 
-	v2.reserve(intToSizeType(100));
-	printSizeInfo(v2);
-	writeLn(v2.capacity());
-	printVector(v2);
-	v2.reserve(intToSizeType(10));
-	printSizeInfo(v2);
-	writeLn(v2.capacity());
-	printVector(v2);
+    v2.reserve(intToSizeType(100));
+    printSizeInfo(v2);
+    writeLn(v2.capacity());
+    printVector(v2);
+    v2.reserve(intToSizeType(10));
+    printSizeInfo(v2);
+    writeLn(v2.capacity());
+    printVector(v2);
 
-	var v3: Vector(Int) = createRange(Int, 1024);
+    var v3: Vector(Int) = createRange(Int, 1024);
 
     if ( v3.capacity() < intToSizeType(1024) ) writeLn("Test failed");
     v3.pushBack(0);

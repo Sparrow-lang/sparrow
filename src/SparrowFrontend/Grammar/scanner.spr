@@ -30,7 +30,7 @@ package _ImplLSCR
     fun isEmpty(s: @_This) = s.source isEmpty
     fun front(s: @_This)   = s.source front
     fun popFront(s: @_This)
-        if *s.source == '\n'
+        if *s.source == '\n'.char
             s.location addLines 1
         else
             s.location addColumns 1
@@ -115,8 +115,8 @@ package _Impl
 
     /// Same as above, but do not capture '_'; we advance past it
     fun advanceAndCaptureDigit(s: @_OurScanner, pred: AnyType)
-        while !!s._src && (pred(*s._src) || *s._src == '_') ; s._src popFront
-            if *s._src != '_'
+        while !!s._src && (pred(*s._src) || *s._src == '_'.char) ; s._src popFront
+            if *s._src != '_'.char
                 s._curToken.data += *s._src
 
     /// Computes the next token, for the current characters in the source stream.
@@ -129,9 +129,9 @@ package _Impl
         if loc.start.line == 1 && loc.start.col == 1
             var ch = *s._src
             var ch2 = s peekChar
-            if ch == '#' && ch2 == '!'
+            if ch == '#'.char && ch2 == '!'.char
                 s._src popFront
-                s._src advanceIf (fun c = c!='\n')
+                s._src advanceIf (fun c = c!='\n'.char)
                 if !!s._src ; s._src popFront
 
         while true
@@ -148,33 +148,33 @@ package _Impl
             var ch2 = s peekChar
 
             // Check for whitespace -- drop all the whitespace
-            if ch == ' '
-                s._src advanceIf (fun c = c==' ')
+            if ch == ' '.char
+                s._src advanceIf (fun c = c==' '.char)
                 continue
 
             // Check for tabs -- forbidden
-            if ch == '\t'
+            if ch == '\t'.char
                 s reportError toString("Tabs are not valid characters")
-                s._src advanceIf (fun c = c=='\t')
+                s._src advanceIf (fun c = c=='\t'.char)
                 continue
 
             // Check for new lines
-            if ch == '\n'
+            if ch == '\n'.char
                 s._src popFront
                 return tkEOL
 
             // Check for line comments -- drop everything until the end of line (including eol)
-            if ch == '/' && ch2 == '/'
+            if ch == '/'.char && ch2 == '/'.char
                 s._src popFront
-                s._src advanceIf (fun c = c!='\n')
+                s._src advanceIf (fun c = c!='\n'.char)
                 continue
 
             // Check for multi-line comments -- drop them
-            if ch == '/' && ch2 == '*'
+            if ch == '/'.char && ch2 == '*'.char
                 s._src advance 2
-                var c1 = 'a'
-                var c2 = 'a'
-                while !!s._src && (c1 != '*' || c2 != '/')
+                var c1 = 'a'.char
+                var c2 = 'a'.char
+                while !!s._src && (c1 != "*".char || c2 != "/".char)
                     c1 = c2
                     c2 = ++s._src
                 if !s._src
@@ -184,30 +184,30 @@ package _Impl
                 continue
 
             // Backslash followed by a new-line collapses
-            if ch == '\\' && ch2 == '\n'
+            if ch == '\\'.char && ch2 == '\n'.char
                 s._src advance 2
                 continue
 
-            // Character & strings
-            if ch == '\''               return parseCharacter(s)
-            if ch == '"'                return parseString(s)
-            if ch == '<' && ch2 == '{'  return parseStringNE(s)
+            // Strings
+            if ch == "'".char                     return parseString(s, "'".char)
+            if ch == '"'.char                     return parseString(s, '"'.char)
+            if ch == '<'.char && ch2 == '{'.char  return parseStringNE(s)
 
             // Symbols
-            if ch == '{'    { s._src popFront; return tkLCURLY; }
-            if ch == '{'    { s._src popFront; return tkLCURLY; }
-            if ch == '}'    { s._src popFront; return tkRCURLY; }
-            if ch == '['    { s._src popFront; return tkLBRACKET; }
-            if ch == ']'    { s._src popFront; return tkRBRACKET; }
-            if ch == '('    { s._src popFront; return tkLPAREN; }
-            if ch == ')'    { s._src popFront; return tkRPAREN; }
-            if ch == ';'    { s._src popFront; return tkSEMICOLON; }
-            if ch == ','    { s._src popFront; return tkCOMMA; }
-            if ch == '`'    { s._src popFront; return tkBACKSQUOTE; }
+            if ch == '{'.char  { s._src popFront; return tkLCURLY; }
+            if ch == '{'.char  { s._src popFront; return tkLCURLY; }
+            if ch == '}'.char  { s._src popFront; return tkRCURLY; }
+            if ch == '['.char  { s._src popFront; return tkLBRACKET; }
+            if ch == ']'.char  { s._src popFront; return tkRBRACKET; }
+            if ch == '('.char  { s._src popFront; return tkLPAREN; }
+            if ch == ')'.char  { s._src popFront; return tkRPAREN; }
+            if ch == ';'.char  { s._src popFront; return tkSEMICOLON; }
+            if ch == ','.char  { s._src popFront; return tkCOMMA; }
+            if ch == '`'.char  { s._src popFront; return tkBACKSQUOTE; }
 
             // These two symbols can also be part of operators
-            if ch == ':' && !isOpChar(s peekChar)   { s._src popFront; return tkCOLON; }
-            if ch == '=' && !isOpChar(s peekChar)   { s._src popFront; return tkEQUAL; }
+            if ch == ':'.char && !isOpChar(s peekChar) { s._src popFront; return tkCOLON; }
+            if ch == '='.char && !isOpChar(s peekChar) { s._src popFront; return tkEQUAL; }
 
             // Is this an operator?
             // If this is just a lonely dot, it will do nothing
@@ -216,29 +216,32 @@ package _Impl
                     return tkOPERATOR
 
             // Check for dot -- dot followed by a digit is a floating point constant
-            if ch == '.' && !isDigit(ch2) { s._src popFront; return tkDOT; }
+            if ch == '.'.char && !isDigit(ch2) { s._src popFront; return tkDOT; }
 
             // Identifiers
-            if isAlpha(ch) || ch == '_' return parseIdentifer(s)
+            if isAlpha(ch) || ch == '_'.char return parseIdentifer(s)
 
             // Numeric literals
-            if isDigit(ch) || ch == '.' return parseNumeric(s)
+            if isDigit(ch) || ch == '.'.char return parseNumeric(s)
 
-            s reportError toString("Invalid character found: '", ch, "' (", Int(ch), ')')
+            s reportError toString("Invalid character found: '", ch, "' (", Int(ch), ')'.char)
             s._src popFront
             return tkEND
 
 
     fun isOpChar(c: Char): Bool
         return (
-               c == '~' || c == '!' || c == '@' || c == '#' || c == '$' || c == '%'
-            || c == '^' || c == '&' || c == '-' || c == '+' || c == '=' || c == '|'
-            || c == '\\' || c == ':' || c == '<' || c == '>' || c == '?' || c == '/'
-            || c == '*')
-    fun isOpCharDot(c: Char) = c == '.' || isOpChar(c)
+               c == '~'.char || c == '!'.char || c == '@'.char
+            || c == '#'.char || c == '$'.char || c == '%'.char
+            || c == '^'.char || c == '&'.char || c == '-'.char
+            || c == '+'.char || c == '='.char || c == '|'.char
+            || c == '\\'.char || c == ':'.char || c == '<'.char
+            || c == '>'.char || c == '?'.char || c == '/'.char
+            || c == '*'.char)
+    fun isOpCharDot(c: Char) = c == '.'.char || isOpChar(c)
 
-    fun isOctalDigit(c: Char) = '0' <= c && c <= '7'
-    fun isBinDigit(c: Char) = c == '0' || c == '1'
+    fun isOctalDigit(c: Char) = '0'.char <= c && c <= '7'.char
+    fun isBinDigit(c: Char) = c == '0'.char || c == '1'.char
 
     [native("tolower")]
     fun tolower(c: Int): Int
@@ -262,12 +265,12 @@ package _Impl
             return true
         // If a dot is found in the first position, at least one other dot needs to be in the operators string
         // We need to look-ahead for the whole operator for this
-        if ch == '.'
+        if ch == '.'.char
             var i = 1
             var c = s peekChar i
             while isOpChar(c)
                 c = (s peekChar ++i)
-            var hasOtherDot = c == '.'
+            var hasOtherDot = c == '.'.char
             if hasOtherDot
                 s advanceAndCapture \isOpCharDot
                 return true
@@ -295,14 +298,14 @@ package _Impl
 
             // Check for characters allowed in the identifier
             // At this point we only accept alpha-numeric and underscore
-            if !isAlpha(ch) && ch != '_' && !isDigit(ch)
+            if !isAlpha(ch) && ch != '_'.char && !isDigit(ch)
                 break
 
             s._curToken.data += ch
 
             // At underscores we may start accepting symbol characters
             // If that's the case, we need to have symbol until the end
-            if ch == '_' && isOpCharDot(s peekChar)
+            if ch == '_'.char && isOpCharDot(s peekChar)
                 s._src popFront
                 if parseOperator(s)
                     return tkIDENTIFIER
@@ -349,13 +352,13 @@ package _Impl
         var ch3 = toLower(s peekChar 2)
 
         // Do the main parsing of all the digits (until the decimal part)
-        if ch == '0' && ch2 == 'x'
+        if ch == '0'.char && ch2 == 'x'.char
             s._src advance 2
             s._curToken.intData = consumeDigits(s._src, 16, s._curToken.data)
-        else if ch == '0' && ch2 == 'b'
+        else if ch == '0'.char && ch2 == 'b'.char
             s._src advance 2
             s._curToken.intData = consumeDigits(s._src, 2, s._curToken.data)
-        else if ch == '0' && ch2 == 'o'
+        else if ch == '0'.char && ch2 == 'o'.char
             s._src advance 1
             s._curToken.intData = consumeDigits(s._src, 8, s._curToken.data)
         else
@@ -369,18 +372,18 @@ package _Impl
 
                 // If we started as a decimal, and encountered a fractional or an exponential part,
                 // or a float suffix, make this a float
-                if (ch == '.' && !isOpCharDot(s peekChar)) || ch == 'e' || ch == 'f' || ch == 'd'
+                if (ch == '.'.char && !isOpCharDot(s peekChar)) || ch == 'e'.char || ch == 'f'.char || ch == 'd'.char
                     isFloating = true
 
                     // Do we have fractional part?
-                    if ch == '.'
+                    if ch == '.'.char
                         s advanceAndCapture1    // past the dot
                         s advanceAndCaptureDigit \isDigit
 
                     // consume exponential part, if any
                     if !!s._src
                         ch = toLower(*s._src)
-                        if ch == 'e'
+                        if ch == 'e'.char
                             s advanceAndCapture1
                             s advanceAndCaptureDigit \isDigit
 
@@ -388,10 +391,10 @@ package _Impl
                     if !!s._src
                         isLong = true   // by default double
                         ch = toLower(*s._src)
-                        if ch == 'f'
+                        if ch == 'f'.char
                             isLong = false
                             s._src popFront
-                        else if ch == 'd'
+                        else if ch == 'd'.char
                             s._src popFront
 
         // Check if the number has enough digits
@@ -401,10 +404,10 @@ package _Impl
 
         // Suffix for integers
         if !isFloating
-            if !!s._src && toLower(*s._src) == 'u'
+            if !!s._src && toLower(*s._src) == 'u'.char
                 isUnsigned = true
                 s._src popFront
-            if !!s._src && toLower(*s._src) == 'l'
+            if !!s._src && toLower(*s._src) == 'l'.char
                 isLong = true
                 s._src popFront
 
@@ -420,71 +423,46 @@ package _Impl
         else
             return ife(isLong, tkLONG_LITERAL, tkINT_LITERAL)
 
-    fun getDigitVal(c: Char) = (Int(c) - Int('0'))
-    fun getXdigitVal(c: Char) = ife(isDigit(c), Int(c) - Int('0'), 10 + Int(toLower(c)) - Int('a'))
+    fun getDigitVal(c: Char) = (Int(c) - Int('0'.char))
+    fun getXdigitVal(c: Char) = ife(isDigit(c), Int(c) - Int('0'.char), 10 + Int(toLower(c)) - Int('a'.char))
 
     fun consumeDigits(r: @Range, base: ULong, capture: @String): ULong
         var res: ULong = 0
         if base == 16
-            while !!r && (isXdigit(*r) || *r == '_') ; r popFront
-                if *r != '_'
+            while !!r && (isXdigit(*r) || *r == '_'.char) ; r popFront
+                if *r != '_'.char
                     capture += *r
                     res *= base
                     res += getXdigitVal(*r)
         else
-            while !!r && (isXdigit(*r) || *r == '_') ; r popFront
-                if *r != '_'
+            while !!r && (isXdigit(*r) || *r == '_'.char) ; r popFront
+                if *r != '_'.char
                     capture += *r
                     res *= base
                     res += getDigitVal(*r)
         return res
 
-    fun parseCharacter(s: @_OurScanner): TokenType
-        s._src popFront
-        if s hasLessThan 2
-            s reportError "End of file found inside character literal"
-            return tkEND
-
-        // Get the character literal
-        var ch = *s._src
-        if ch == '\''
-            s reportError "Invalid character literal"
-            s._curToken.data += '?'
-            return tkCHAR_LITERAL
-        else if !checkEscapeChar(s)
-            s advanceAndCapture1
-
-        // Now expect closing quote
-        if !s._src
-            s reportError "End of file found inside character literal"
-            return tkEND
-        if *s._src != '\''
-            s reportError "Character literal too large"
-        s._src popFront
-
-        return tkCHAR_LITERAL
-
     fun checkEscapeChar(s: @_OurScanner): Bool
         var ch = *s._src
-        if ch == '\\'
+        if ch == '\\'.char
             ch = ++s._src
-            if ch == 'r'
-                s._curToken.data += '\r'
-            else if ch == 'n'
-                s._curToken.data += '\n'
-            else if ch == 'b'
-                s._curToken.data += '\b'
-            else if ch == 'f'
-                s._curToken.data += '\f'
-            else if ch == 't'
-                s._curToken.data += '\t'
-            else if ch == '\\'
-                s._curToken.data += '\\'
-            else if ch == '\''
-                s._curToken.data += '\''
-            else if ch == '\"'
-                s._curToken.data += '\"'
-            else if ch == 'x' || ch == 'X'
+            if ch == 'r'.char
+                s._curToken.data += '\r'.char
+            else if ch == 'n'.char
+                s._curToken.data += '\n'.char
+            else if ch == 'b'.char
+                s._curToken.data += '\b'.char
+            else if ch == 'f'.char
+                s._curToken.data += '\f'.char
+            else if ch == 't'.char
+                s._curToken.data += '\t'.char
+            else if ch == '\\'.char
+                s._curToken.data += '\\'.char
+            else if ch == "'".char
+                s._curToken.data += "'".char
+            else if ch == '\"'.char
+                s._curToken.data += '\"'.char
+            else if ch == 'x'.char || ch == 'X'.char
                 if s hasLessThan 2
                     s reportError "Not enough digits for character code"
                     return true
@@ -498,14 +476,14 @@ package _Impl
             return true
         return false
 
-    fun parseString(s: @_OurScanner): TokenType
+    fun parseString(s: @_OurScanner, endChar: Char): TokenType
         s._src popFront
         if s hasLessThan 1
             s reportError "End of file found inside string literal"
             return tkEND
 
         // Get all the characters from the string
-        while !!s._src && *s._src != '"'
+        while !!s._src && *s._src != endChar
             if !checkEscapeChar(s)
                 s advanceAndCapture1
 
@@ -522,7 +500,7 @@ package _Impl
         s._src advance 2
 
         // Get all the characters from the string
-        while !!s._src && !(*s._src == '}' && (s peekChar) == '>')
+        while !!s._src && !(*s._src == '}'.char && (s peekChar) == '>'.char)
             s advanceAndCapture1
 
         if !s._src

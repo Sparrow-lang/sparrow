@@ -45,11 +45,11 @@ import os = os;
         // Skip until our line
         var curLine = 1;
         while curLine < loc.start.line
-            sourceCopy = find(sourceCopy, '\n');
+            sourceCopy = find(sourceCopy, '\n'.char);
             sourceCopy.popFront();
             ++curLine;
 
-        var len = indexOf(sourceCopy, '\n');
+        var len = indexOf(sourceCopy, '\n'.char);
         return String(take(sourceCopy, len));
     }
 

@@ -35,5 +35,5 @@ class Tracer {
 
 fun >> (d: Depth, os: @OutStream) {
     if ( d.depth > 0 )
-        os << String(d.depth*2, ' ');
+        os << String(d.depth*2, ' '.char);
 }

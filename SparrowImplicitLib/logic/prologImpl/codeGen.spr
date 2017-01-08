@@ -256,9 +256,9 @@ package Impl
         //var sz = exp.size();
         //if ( sz == 0 )
         //    return mkNop(loc);
-        //if ( sz >= 2 && exp.front() == '"' && exp.back() == '"' )
+        //if ( sz >= 2 && exp.front() == '"'.char && exp.back() == '"'.char )
         //    return mkStringLiteral(loc, String(exp.subrange(1, sz-2)).asStringRef());
-        //if ( sz > 2 && exp(sz-2) == '(' && exp(sz-1) == ')' )
+        //if ( sz > 2 && exp(sz-2) == '('.char && exp(sz-1) == ')'.char )
         //    return mkFunApplication(loc, mkIdentifier(loc, String(exp.subrange(0, sz-2)).asStringRef()), nullNode);
 
         //return mkIdentifier(loc, exp.asStringRef());

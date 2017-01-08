@@ -54,7 +54,7 @@ import errorReporter;
         }
 
         // Check for comments
-        if ( ch == '%' )
+        if ( ch == '%'.char )
         {
             _consumeLineComment();   // Just drop all characters until the end of line
             return _getNextToken();  // Get the next token
@@ -82,7 +82,7 @@ import errorReporter;
                 return Token(_curLocation, tkAtom, data);
             }
         }
-        else if ( ch == '$' )
+        else if ( ch == '$'.char )
         {
             var data = _consumeAntiQuote();
             return Token(_curLocation, tkAntiQuote, data);
@@ -90,27 +90,27 @@ import errorReporter;
         else
         {
             var chNext = _advanceSource();
-            if ( ch == '(' )
+            if ( ch == '('.char )
                 return Token(_curLocation, tkLParen);
-            else if ( ch == ')' )
+            else if ( ch == ')'.char )
                 return Token(_curLocation, tkRParen);
-            else if ( ch == '[' )
+            else if ( ch == '['.char )
                 return Token(_curLocation, tkLBracket);
-            else if ( ch == ']' )
+            else if ( ch == ']'.char )
                 return Token(_curLocation, tkRBracket);
-            else if ( ch == '.' )
+            else if ( ch == '.'.char )
                 return Token(_curLocation, tkDot);
-            else if ( ch == ',' )
+            else if ( ch == ','.char )
                 return Token(_curLocation, tkComma);
-            else if ( ch == '+' )
+            else if ( ch == '+'.char )
                 return Token(_curLocation, tkOpPlus);
-            else if ( ch == '-' )
+            else if ( ch == '-'.char )
                 return Token(_curLocation, tkOpMinus);
-            else if ( ch == '*' )
+            else if ( ch == '*'.char )
                 return Token(_curLocation, tkOpMul);
-            else if ( ch == '/' )
+            else if ( ch == '/'.char )
                 return Token(_curLocation, tkOpDiv);
-            else if ( ch == ':' && chNext == '-' )
+            else if ( ch == ':'.char && chNext == '-'.char )
             {
                 _advanceSource();
                 return Token(_curLocation, tkClause);
@@ -133,7 +133,7 @@ import errorReporter;
     fun _consumeLineComment
     {
         var ch = _source();
-        while !_source.isEmpty() && ch != '\n'
+        while !_source.isEmpty() && ch != '\n'.char
             ch = _advanceSource();
         if ( !_source.isEmpty() )
             _advanceSource();
@@ -163,7 +163,7 @@ import errorReporter;
     fun _consumeAntiQuote: String
     {
         var ch = _advanceSource();
-        if ( ch == '{' )
+        if ( ch == '{'.char )
         {
             var res: String;
             var braces = 1;
@@ -173,7 +173,7 @@ import errorReporter;
             {
                 if ( _source.isEmpty() )
                     _errorReporter.raiseError(_curLocation, "End of stream found inside anti-quotation");
-                if ( ch == '}' )
+                if ( ch == '}'.char )
                 {
                     if ( --braces == 0 )
                     {
@@ -184,7 +184,7 @@ import errorReporter;
 
                 res.pushBack(ch);
 
-                if ( ch == '{' )
+                if ( ch == '{'.char )
                     ++braces;
                 ch = _advanceSource();
             }
@@ -199,7 +199,7 @@ import errorReporter;
 
     fun _advanceSource: Char
     {
-        if ( _source() == '\n' )
+        if ( _source() == '\n'.char )
             _curLocation addLines 1;
         else
             _curLocation addColumns 1;

@@ -744,6 +744,11 @@ class StringRef
 
         //return 0 == strcmp(begin, other.begin);
 
+    [autoCt]
+        fun char: Char
+            if isEmpty return Char()
+            else return this(0)
+
 [autoCt]
 fun + (x,y: StringRef): StringRef
     var sz1 = x.size();

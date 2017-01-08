@@ -79,7 +79,7 @@ fun popFront(t: @_This)
     var tk = t._src front
 
     // Apply special logic on line change -- only outside any parenthesis
-    var outsideParens = t._parens.isEmpty || t._parens.back == '{'
+    var outsideParens = t._parens.isEmpty || t._parens.back == '{'.char
     if changeLine && outsideParens
         var newCol = tk.loc.start.col
         var oldCol = t._indents.back
@@ -119,15 +119,15 @@ fun popFront(t: @_This)
 
     // Check for parenthesis
     if tk.type == tkLPAREN
-        t._parens += '('
+        t._parens += '('.char
     else if tk.type == tkLBRACKET
-        t._parens += '['
+        t._parens += '['.char
     else if tk.type == tkLCURLY
-        t._parens += '{'
-    else if tk.type == tkRPAREN && t._parens.back == '('
+        t._parens += '{'.char
+    else if tk.type == tkRPAREN && t._parens.back == '('.char
         t._parens.popBack
-    else if tk.type == tkRBRACKET && t._parens.back == '['
+    else if tk.type == tkRBRACKET && t._parens.back == '['.char
         t._parens.popBack
-    else if tk.type == tkRCURLY && t._parens.back == '{'
+    else if tk.type == tkRCURLY && t._parens.back == '{'.char
         t._parens.popBack
 

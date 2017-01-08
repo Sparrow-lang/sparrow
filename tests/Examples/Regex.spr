@@ -55,12 +55,12 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
     for i=0 .. strSize
     {
         var ch = re.at(i);
-        if ( ch == '(' )
+        if ( ch == '('.char )
         {
             if ( nAtom > 1 )
             {
                 --nAtom;
-                buf(dstIdx++) = '.';
+                buf(dstIdx++) = '.'.char;
             }
             if ( parenIdx >= 100 )
             {
@@ -71,7 +71,7 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
             nAlt = 0;
             nAtom = 0;
         }
-        else if ( ch == '|' )
+        else if ( ch == '|'.char )
         {
             if ( nAtom == 0 )
             {
@@ -79,10 +79,10 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
                 return String();
             }
             while --nAtom > 0
-                buf(dstIdx++) = '.';
+                buf(dstIdx++) = '.'.char;
             nAlt++;
         }
-        else if ( ch == ')' )
+        else if ( ch == ')'.char )
         {
             if ( parenIdx == 0 || nAtom == 0 )
             {
@@ -90,15 +90,15 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
                 return String();
             }
             while --nAtom > 0
-                buf(dstIdx++) = '.';
+                buf(dstIdx++) = '.'.char;
             while nAlt > 0 ; --nAlt
-                buf(dstIdx++) = '|';
+                buf(dstIdx++) = '|'.char;
             --parenIdx;
             nAlt = paren(parenIdx).v1;
             nAtom = paren(parenIdx).v2;
             ++nAtom;
         }
-        else if ( ch == '*' || ch == '+' || ch == '?' )
+        else if ( ch == '*'.char || ch == '+'.char || ch == '?'.char )
         {
             if ( nAtom == 0 )
             {
@@ -112,7 +112,7 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
             if ( nAtom > 1 )
             {
                 --nAtom;
-                buf(dstIdx++) = '.';
+                buf(dstIdx++) = '.'.char;
             }
             buf(dstIdx++) = ch;
             nAtom++;
@@ -125,9 +125,9 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
         return String();
     }
     while --nAtom > 0
-        buf(dstIdx++) = '.';
+        buf(dstIdx++) = '.'.char;
     while nAlt > 0 ; --nAlt
-        buf(dstIdx++) = '|';
+        buf(dstIdx++) = '|'.char;
     buf(dstIdx) = Char(0);
 
     return String(RawPtr(Char).fromRef(buf(0)), RawPtr(Char).fromRef(buf(dstIdx)));
@@ -312,29 +312,29 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
         var ch = postfix(i);
 
         var e1, e2: NfaFragment;
-        if ( ch == '.' )        // Concatenate
+        if ( ch == '.'.char )        // Concatenate
         {
             e2 = stack(--stackIdx);
             e1 = stack(--stackIdx);
             stack(stackIdx++) = NfaFragment.getConcatenation(nfaStatesFactory, e1, e2);
         }
-        else if ( ch == '|' )
+        else if ( ch == '|'.char )
         {
             e2 = stack(--stackIdx);
             e1 = stack(--stackIdx);
             stack(stackIdx++) = NfaFragment.getAlternation(nfaStatesFactory, e1, e2);
         }
-        else if ( ch == '?' )
+        else if ( ch == '?'.char )
         {
             e1 = stack(--stackIdx);
             stack(stackIdx++) = NfaFragment.getOptional(nfaStatesFactory, e1);
         }
-        else if ( ch == '*' )
+        else if ( ch == '*'.char )
         {
             e1 = stack(--stackIdx);
             stack(stackIdx++) = NfaFragment.getZeroOrMore(nfaStatesFactory, e1);
         }
-        else if ( ch == '+' )
+        else if ( ch == '+'.char )
         {
             e1 = stack(--stackIdx);
             stack(stackIdx++) = NfaFragment.getOneOrMore(nfaStatesFactory, e1);

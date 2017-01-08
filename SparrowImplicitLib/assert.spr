@@ -56,7 +56,7 @@ import std.vector, std.algorithms, std.string;
     // Now start creating the print body, in case the expression check fails
     var prints: Vector(AstNode);
     _addPrint(loc, prints, mkStringLiteral(loc, filename));
-    _addPrint(loc, prints, mkCharLiteral(loc, '('));
+    _addPrint(loc, prints, mkStringLiteral(loc, "("));
     _addPrint(loc, prints, mkIntLiteral(loc, lineNum));
     _addPrint(loc, prints, mkStringLiteral(loc, "): assertion failure: check "));
 
@@ -86,7 +86,7 @@ import std.vector, std.algorithms, std.string;
             var varPrints: AstNode Vector;
             _addPrint(loc, varPrints, mkStringLiteral(loc, "[="));
             _addPrint(loc, varPrints, v clone);
-            _addPrint(loc, varPrints, mkCharLiteral(loc, ']'));
+            _addPrint(loc, varPrints, mkStringLiteral(loc, "]"));
             var varPrintsBlock = mkLocalSpace(loc, varPrints.all);
             // if statement
             prints += mkIf(loc, cond, varPrintsBlock, AstNode(), true);

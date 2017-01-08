@@ -25,7 +25,7 @@ import precedenceUtils(getOperPrecedence, setOperPrecedence);
 {
     var sz: SizeType = str.size();
     var res: String = sz*count;
-    for ( i = 0..count )
+    for i = 0..count
     {
         memcpy(reinterpretCast(@Byte, res(i*sz)), str.begin, sz);
     }
@@ -52,7 +52,7 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
 
     var dstIdx = 0;
     var dst: @Char = buf.at(0);
-    for ( i=0 .. strSize )
+    for i=0 .. strSize
     {
         var ch = re.at(i);
         if ( ch == '(' )
@@ -78,7 +78,7 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
                 //cout << "No atoms is zero at alternation\n";
                 return String();
             }
-            while ( --nAtom > 0 )
+            while --nAtom > 0
                 buf(dstIdx++) = '.';
             nAlt++;
         }
@@ -89,9 +89,9 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
                 //cout << "Invalid state at closing parenthesis (parenIdx:" << parenIdx << ", nAtom:" << nAtom << ")\n";
                 return String();
             }
-            while ( --nAtom > 0 )
+            while --nAtom > 0
                 buf(dstIdx++) = '.';
-            while ( nAlt > 0 ; --nAlt )
+            while nAlt > 0 ; --nAlt
                 buf(dstIdx++) = '|';
             --parenIdx;
             nAlt = paren(parenIdx).v1;
@@ -124,9 +124,9 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
         //cout << "Parenthesis don't close correctly\n";
         return String();
     }
-    while ( --nAtom > 0 )
+    while --nAtom > 0
         buf(dstIdx++) = '.';
-    while ( nAlt > 0 ; --nAlt )
+    while nAlt > 0 ; --nAlt
         buf(dstIdx++) = '|';
     buf(dstIdx) = Char(0);
 
@@ -146,7 +146,7 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
     fun dtor
     {
         // Release the memory occupied by the states
-        for ( page = _pages.all() )
+        for page = _pages.all()
             page freePtr;
     }
 
@@ -214,7 +214,7 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
     fun append(other: OutPtrList)
     {
         var p = _next;
-        while ( p.get()._next isSet )
+        while p.get()._next isSet
             p = p.get()._next;
         p.get()._next = other._next;
     }
@@ -224,7 +224,7 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
     fun setFinalValue(finalPtr: Ptr(NfaState))
     {
         var p = _next;
-        while ( p isSet )
+        while p isSet
         {
             var _next = p.get()._next;
             reinterpretPtr(Ptr(NfaState), p).get() = finalPtr;
@@ -307,7 +307,7 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
     var stackIdx = 0;
 
     //cout << "Postfix to parse: '" << postfix << "'\n";
-    for ( i = 0 .. Int(postfix.size()) )
+    for i = 0 .. Int(postfix.size())
     {
         var ch = postfix(i);
 
@@ -379,7 +379,7 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
         this.id = id;
         this.isMatch = false;
         nodes.clear();
-        for ( node = prev.nodes.all() )
+        for node = prev.nodes.all()
         {
             if ( node.get().c == c )
             {
@@ -406,7 +406,7 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
         if ( isMatch )
             cout << " (match)";
         cout << ":";
-        for ( n = nodes.all() )
+        for n = nodes.all()
         {
             cout << " " << n.get().c << " " << mkStreamRefWrapper(n.get());
         }
@@ -490,7 +490,7 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
         // Print some statistics
         //cout << "We have " << nfaStatesFactory._numStates << " NFA states\n";
         //cout << "We have " << dfaStates.size() << " DFA states\n";
-        //for ( i=0..dfaStates.size() )
+        //for i=0..dfaStates.size()
         //{
         //    cout << "DFA state " << i << " has " << dfaStates(i).nfaNodes.nodes.size() << " NFA states\n";
         //}
@@ -503,12 +503,12 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
         dfaStates resize src.dfaStates.size();
 
         [ct] var transitions = src.getTransitions();
-        [ct] for ( tr = transitions all )
+        [ct] for tr = transitions all
         {
             //cout << ctEval(tr.start) << ".." << ctEval(tr.end) << "/" << ctEval(tr.ch) << endl;
             dfaStates.at(ctEval(tr.start)).next.at(ctEval(tr.ch)) = ctEval(tr.end);
         }
-        [ct] for ( st = 0 .. src.dfaStates.size() )
+        [ct] for st = 0 .. src.dfaStates.size()
         {
             [ct] if ( ctEval(src.dfaStates.at(st).isMatch) )
             {
@@ -521,9 +521,9 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
     [ct] fun getTransitions: Vector(Transition)
     {
         var res: Vector(Transition);
-        for ( st = 0..(dfaStates.size()-1) )
+        for st = 0..(dfaStates.size()-1)
         {
-            for ( ch = 0..255 )
+            for ch = 0..255
             {
                 var nextState = dfaStates.at(st).next.at(ch);
                 if ( nextState >= 0 )
@@ -539,7 +539,7 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
             return false;
 
         var curStateIdx = 0;
-        for ( i=0 .. str.size )
+        for i=0 .. str.size
         {
             var c = Int(str(i));
             var nextStateIdx = dfaStates(curStateIdx).next(c);
@@ -570,7 +570,7 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
 
         // For each new DFA state ...
         var i=0;
-        while ( i<dfaStates.size(); ++i )
+        while i<dfaStates.size(); ++i
         {
             exploredChars.clear();
 
@@ -578,7 +578,7 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
             //dfaStates(i).nfaNodes.print();
 
             // Try to go trough all possible transitions (NFA states with actual characters)
-            for ( nfaState = dfaStates(i).nfaNodes.nodes.all() )
+            for nfaState = dfaStates(i).nfaNodes.nodes.all()
             {
                 if ( nfaState.get().isMatch() || nfaState.get().isSplit() )
                     continue;
@@ -594,7 +594,7 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
 
                 // Check if we already have a DFA state with this list
                 var found = false;
-                for ( j = 0 .. Int(dfaStates.size()) )
+                for j = 0 .. Int(dfaStates.size())
                 {
                     if ( dfaStates(j).nfaNodes == tmpList )
                     {
@@ -654,7 +654,7 @@ fun timedTest(re, str: String, k, repCount: Int)
 {
     var matchCount = 0;
     var timer: time.Timer;
-    for ( i = 0..repCount )
+    for i = 0..repCount
     {
         if ( regexMatch(re.asStringRef(), str.asStringRef()) )
             ++matchCount;
@@ -668,13 +668,13 @@ fun timedTest(re, str: String, k, repCount: Int)
 fun testRt(re: StringRef, testRepCount, totalRepCount: Int, testStrings: Range)
 {
     cout << "'" << re << "'\t RT regex\n";
-    for ( i = 0..totalRepCount )
+    for i = 0..totalRepCount
     {
         var automaton = Automaton(re);
 
-        for ( j = 0..testRepCount )
+        for j = 0..testRepCount
         {
-            for ( ts = programArgs )
+            for ts = programArgs
             {
                 var res = automaton.match(ts);
                 if ( !res )
@@ -687,14 +687,14 @@ fun testRt(re: StringRef, testRepCount, totalRepCount: Int, testStrings: Range)
 fun testCt(re: StringRef ct, testRepCount, totalRepCount: Int, testStrings: Range)
 {
     cout << "'" << re << "'\t CT regex\n";
-    for ( i = 0..totalRepCount )
+    for i = 0..totalRepCount
     {
         [ct] var automatonCt = Automaton(re);
         var automaton = automatonCt;
 
-        for ( j = 0..testRepCount )
+        for j = 0..testRepCount
         {
-            for ( ts = testStrings )
+            for ts = testStrings
             {
                 var res = automaton.match(ts);
                 if ( !res )
@@ -839,23 +839,23 @@ fun sprMain
         }
         else
         {
-            [ct] for ( t=1..4 )
-            [ct] for ( n=5..26 )
-            {
-                if ( reType == ctEval(t) && reLen == ctEval(n) )
+            [ct] for t=1..4
+                [ct] for n=5..26
                 {
-                    [ct] var re = getReOfType(t, n);
-                    testCt(re.asStringRef(), testRepCount, totalRepCount);
+                    if ( reType == ctEval(t) && reLen == ctEval(n) )
+                    {
+                        [ct] var re = getReOfType(t, n);
+                        testCt(re.asStringRef(), testRepCount, totalRepCount);
+                    }
                 }
-            }
-            [ct] for ( n=5..11 )
-            {
-                if ( reType == 4 && reLen == ctEval(n) )
+                [ct] for n=5..11
                 {
-                    [ct] var re = getReOfType(4, n);
-                    testCt(re.asStringRef(), testRepCount, totalRepCount);
+                    if ( reType == 4 && reLen == ctEval(n) )
+                    {
+                        [ct] var re = getReOfType(4, n);
+                        testCt(re.asStringRef(), testRepCount, totalRepCount);
+                    }
                 }
-            }
         }
     }
     else [ct] if ( testType == 3 )

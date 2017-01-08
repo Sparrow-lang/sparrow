@@ -9,8 +9,8 @@ fun sprMain
         return;
     var n = programArgs(1) asInt;
 
-    if      ( n == 1 ) test1();
-    else if ( n == 2 ) test2();
+    if      n == 1; test1
+    else if n == 2; test2
 }
 
 [rtct] class MyObj
@@ -26,7 +26,7 @@ fun sprMain
     var ptrEnd = ptr.advance(DiffType(size));
     var i = 0;
 
-    while ( i < size ; i = i + 1; )
+    while i < size ; i = i + 1;
     {
         var o: @AnyType = ptr.advance(i).value();
 
@@ -46,7 +46,7 @@ fun test1()
 {
     [ct] var v = createVector(10);
     cout << v.size() << endl;
-    [ct] for ( el = v.all() )
+    [ct] for el = v.all()
     {
         cout << ctEval(el.x) << endl;
     }
@@ -70,7 +70,7 @@ fun test2()
     [ct] var v = createVector(10);
     var v2: Vector(MyObj) = v;
     cout << v2.size() << endl;
-    for ( el = v2.all() )
+    for el = v2.all()
     {
         cout << el.x << endl;
     }

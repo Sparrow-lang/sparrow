@@ -18,85 +18,87 @@ fun sprMain
             if ( v.isEmpty != r.isEmpty ) return false;
             if ( v.size != (r rangeSize) ) return false;
             var sz = v.size;
-            for ( i = 0..sz ) {
+            for i = 0..sz {
                 if ( v(i) != r.front ) return false;
                 r.popFront;
             }
             return true;
-        }) ~ "vector's range constructor";
+    }) ~ "vector's range constructor";
 
     forAll(Vec arbitrary) check (fun vec: Bool {
             var vec2: Vec = vec;
             if ( vec2.isEmpty != vec.isEmpty ) return false;
             if ( vec2.size != vec.size ) return false;
-            for ( i = 0..vec.size ) {
+            for i = 0..vec.size {
                 if ( vec2(i) != vec(i) ) return false;
             }
             return true;
-        }) ~ "vector's copy constructor";
+    }) ~ "vector's copy constructor";
 
     forAll(SizeType) check (fun sz: Bool {
             var vec: Vec = sz;
             if ( vec.size != sz ) return false;
-            for ( i = 0..sz ) {
+            for i = 0..sz {
                 if ( vec(i) != Vec.ValueType() ) return false;
             }
             return true;
-        }) ~ "vector's sized constructor";
+    }) ~ "vector's sized constructor";
 
     // TODO: swap
 
     forAll(Vec arbitrary) check(fun vec: Bool {
             return vec.capacity >= vec.size;
-        }) ~ "that capacity is always greater or equal to size";
+    }) ~ "that capacity is always greater or equal to size";
 
     forAll(repeat(Vec(), 3)) check (fun vec: Bool {
             return vec.capacity == 0;
-        }) ~ "that we have zero capacity of empty vectors";
+    }) ~ "that we have zero capacity of empty vectors";
 
     forAll(Vec arbitrary) check(fun vec: Bool {
-            for ( i = 0..vec.size ) {
+            for i = 0..vec.size {
                 if ( vec(i) != vec.at(i) ) return false;
             }
             return true;
-        }) ~ "that at function yields the same as call operator";
+    }) ~ "that at function yields the same as call operator";
 
     forAll(Vec arbitrary) check(fun vec: Bool {
-            return vec.isEmpty
+            return vec.isEmpty \
                 || vec.front == vec(0);
-        }) ~ "vector's front";
+    }) ~ "vector's front";
 
     forAll(Vec arbitrary) check(fun vec: Bool {
-            return vec.isEmpty
+            return vec.isEmpty \
                 || vec.back == vec(vec.size-1);
-        }) ~ "vector's back";
+    }) ~ "vector's back";
 
     forAll(Vec arbitrary) check(fun vec: Bool {
             var r = vec.all;
             if ( vec.size != (r rangeSize) ) return false;
-            for ( i = 0..vec.size ) {
+            for i = 0..vec.size {
                 if ( vec(i) != r.front ) return false;
                 r.popFront;
             }
             return r.isEmpty;
-        }) ~ "vector's returning range";
+    }) ~ "vector's returning range";
 
     forAll(SubrangeTestData arbitrary) check(fun td: Bool {
             var r = td.vec.all skip td.start take td.count;
             return td.vec.subrange(td.start, td.count) equal r;
 
-        }) ~ "vector's subrange";
+    }) ~ "vector's subrange";
 
     forAll(InsertValueTestData arbitrary) check(fun td: Bool {
             var v = td.vec;
             var r = v.subrange(td.idx, v.size-td.idx);
             v.insertBefore(td.value, r);
 
-            return v.size == td.vec.size+1
+            return (
+                   v.size == td.vec.size+1
                 && (v.all take td.idx equal (td.vec.all take td.idx))
                 && v(td.idx) == td.value
-                && (v.all skip (td.idx+1) equal (td.vec.all skip td.idx));
-        }) ~ "vector's insertBefore with a value";
+                && (v.all skip (td.idx+1) equal (td.vec.all skip td.idx))
+            );
+    }) ~ "vector's insertBefore with a value";
 
     forAll(InsertRangeTestData arbitrary) check(fun td: Bool {
             var v = td.vec;
@@ -104,22 +106,26 @@ fun sprMain
             v.insertBefore(td.values.all, r);
 
             var diff = td.values.size;
-            return v.size == td.vec.size+diff
+            return (
+                   v.size == td.vec.size+diff
                 && (v.all take td.idx equal (td.vec.all take td.idx))
                 && (v.subrange(td.idx, diff) equal td.values.all)
-                && (v.all skip (td.idx+diff) equal (td.vec.all skip td.idx));
-        }) ~ "vector's insertBefore with a range";
+                && (v.all skip (td.idx+diff) equal (td.vec.all skip td.idx))
+            );
+    }) ~ "vector's insertBefore with a range";
 
     forAll(InsertValueTestData arbitrary) check(fun td: Bool {
             var v = td.vec;
             var r = v.subrange(0, td.idx);
             v.insertAfter(td.value, r);
 
-            return v.size == td.vec.size+1
+            return (
+                   v.size == td.vec.size+1
                 && (v.all take td.idx equal (td.vec.all take td.idx))
                 && v(td.idx) == td.value
-                && (v.all skip (td.idx+1) equal (td.vec.all skip td.idx));
-        }) ~ "vector's insertAfter with a value";
+                && (v.all skip (td.idx+1) equal (td.vec.all skip td.idx))
+            );
+    }) ~ "vector's insertAfter with a value";
 
     forAll(InsertRangeTestData arbitrary) check(fun td: Bool {
             var v = td.vec;
@@ -127,94 +133,110 @@ fun sprMain
             v.insertAfter(td.values.all, r);
 
             var diff = td.values.size;
-            return v.size == td.vec.size+diff
+            return (
+                   v.size == td.vec.size+diff
                 && (v.all take td.idx equal (td.vec.all take td.idx))
                 && (v.subrange(td.idx, diff) equal td.values.all)
-                && (v.all skip (td.idx+diff) equal (td.vec.all skip td.idx));
-        }) ~ "vector's insertAfter with a range";
+                && (v.all skip (td.idx+diff) equal (td.vec.all skip td.idx))
+            );
+    }) ~ "vector's insertAfter with a range";
 
     forAll(InsertValueTestData arbitrary) check(fun td: Bool {
             var v = td.vec;
             v.pushBack(td.value);
-            return v.size == td.vec.size+1
+            return (
+                   v.size == td.vec.size+1
                 && (v.subrange(0, td.vec.size) equal td.vec.all)
-                && v.back == td.value;
-        }) ~ "vector's pushBack";
+                && v.back == td.value
+            );
+    }) ~ "vector's pushBack";
 
     forAll(InsertValueTestData arbitrary) check(fun td: Bool {
             var v = td.vec;
             v += td.value;
-            return v.size == td.vec.size+1
+            return (
+                   v.size == td.vec.size+1
                 && (v.subrange(0, td.vec.size) equal td.vec.all)
-                && v.back == td.value;
-        }) ~ "vector's pushBack operator";
+                && v.back == td.value
+            );
+    }) ~ "vector's pushBack operator";
 
     forAll(InsertRangeTestData arbitrary) check(fun td: Bool {
             var v = td.vec;
-            for ( x = td.values.all )
+            for x = td.values.all
                 v += x;
 
             var diff = td.values.size;
-            return v.size == td.vec.size+diff
+            return (
+                   v.size == td.vec.size+diff
                 && (v.all take td.vec.size equal td.vec.all)
-                && (v.all skip td.vec.size equal td.values.all);
-        }) ~ "vector's pushBack operator with multiple values";
+                && (v.all skip td.vec.size equal td.values.all)
+            );
+    }) ~ "vector's pushBack operator with multiple values";
 
     forAll(InsertValueTestData arbitrary) check(fun td: Bool {
             if ( td.vec.isEmpty ) return true;
             var v = td.vec;
             v popBack;
             return v.size == td.vec.size-1;
-        }) ~ "vector's popBack";
+    }) ~ "vector's popBack";
 
     forAll(SubrangeTestData arbitrary) check(fun td: Bool {
             var v = td.vec;
             v.remove(v.subrange(td.start, td.count));
-            return v.size == td.vec.size-td.count
+            return (
+                   v.size == td.vec.size-td.count
                 && (v.all take td.start equal (td.vec.all take td.start))
-                && (v.all skip td.start equal (td.vec.all skip td.start+td.count));
-        }) ~ "vector's remove of ranges";
+                && (v.all skip td.start equal (td.vec.all skip td.start+td.count))
+            );
+    }) ~ "vector's remove of ranges";
 
     forAll(SubrangeTestData arbitrary) check(fun td: Bool {
             if ( td.vec.isEmpty ) return true;
             var v = td.vec;
             v.remove(td.start);
-            return v.size == td.vec.size-1
+            return (
+                   v.size == td.vec.size-1
                 && (v.all take td.start equal (td.vec.all take td.start))
-                && (v.all skip td.start equal (td.vec.all skip td.start+1));
-        }) ~ "vector's remove of an index";
+                && (v.all skip td.start equal (td.vec.all skip td.start+1))
+            );
+    }) ~ "vector's remove of an index";
 
     forAll(SubrangeTestData arbitrary) check(fun td: Bool {
             var v = td.vec;
             v.resize(td.start);
-            return v.size == td.start
-                && (v.all take td.start equal (td.vec.all take td.start));
-        }) ~ "vector's resize shrink";
+            return (
+                   v.size == td.start
+                && (v.all take td.start equal (td.vec.all take td.start))
+            );
+    }) ~ "vector's resize shrink";
 
     forAll(SubrangeTestData arbitrary) check(fun td: Bool {
             var v = td.vec;
             v.resize(v.size + td.start);
-            return v.size == td.vec.size + td.start
+            return (
+                   v.size == td.vec.size + td.start
                 && (v.all take td.start equal td.vec.all)
-                && (v.all skip td.vec.size equal repeat(Int(), td.start));
-        }) ~ "vector's resize grow";
+                && (v.all skip td.vec.size equal repeat(Int(), td.start))
+            );
+    }) ~ "vector's resize grow";
 
     forAll(SubrangeTestData arbitrary) check(fun td: Bool {
             td.vec clear;
             return td.vec.isEmpty && td.vec.size == 0;
-        }) ~ "that we can clear a vector";
+    }) ~ "that we can clear a vector";
 
     forAll(InsertRangeTestData arbitrary) check(fun td: Bool {
             var v: Vec;
             v = td.vec;
             v = td.values;
             return v.size == td.values.size && v == td.values;
-        }) ~ "assignment operator for vector";
+    }) ~ "assignment operator for vector";
 
     forAll(Vec arbitrary) check(fun v: Bool {
             var vec = v;
             return vec == v && vec == vec && !(vec != v);
-        }) ~ "vector's equality comparison";
+    }) ~ "vector's equality comparison";
 }
 
 //<<< Vector checks
@@ -237,7 +259,7 @@ fun generateVec(sizeHint: UInt): Vec {
     var h: Int = sizeHint + 5;
     var size = randBetween(0, h);
     res.resize(size);
-    for ( i = 0..size )
+    for i = 0..size
         res(i) = randBetween(-h, h+1);
     return res;
 }
@@ -253,7 +275,7 @@ fun generateTestRange(sizeHint: UInt): TestRange {
 
     // Populate with values
     var i = 0;
-    while ( i < size ; i = i + 1; )
+    while i < size ; i = i + 1;
     {
         var val: @AnyType = ptr.advance(i).value();
         val = randBetween(-h, h+1);

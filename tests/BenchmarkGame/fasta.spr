@@ -9,10 +9,10 @@ fun write(r: Range, length: Int) if isValid(Char(r.front))
 {
     using lineLength = 60;
     var line: String = lineLength;
-    for ( n = length..0 ../ (-lineLength) )
+    for n = length..0 ../ (-lineLength)
     {
         var len = min(n, lineLength);
-        for ( i = 0..len )
+        for i = 0..len
             line(i) = (r++);
         if ( len < lineLength )
             line.resize(len);
@@ -42,7 +42,7 @@ var randomRange = generate(\nextRandom);
         var randVal: Float = (randomRange++);
         var i = 0;
         var r = distribVals;
-        while ( !r.isEmpty; r.popFront() )
+        while !r.isEmpty; r.popFront()
         {
             if ( randVal < *r )
                 break;

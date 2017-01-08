@@ -27,9 +27,9 @@ package Impl
         resNodes += mkImportName(l, mkStringLiteral(l, "logic/recurse.spr"), nullNode, "");
 
         // Generate code for the predicates
-        for ( p: @SparrowPredicate = sps.predicates.all() )
+        for p: @SparrowPredicate = sps.predicates.all()
             genPredicate(p, resNodes);
-        //for ( n = resNodes.all() )
+        //for n = resNodes.all()
         //    cout << ">> " << n.toStringExt() << endl;
 
         return mkNodeList(l, resNodes.all);
@@ -52,7 +52,7 @@ package Impl
         var bodyNodes: Vector(AstNode);
 
         // Add local variables to body nodes
-        for ( lv: @ExpressionPtr = pred.localVars.all() )
+        for lv: @ExpressionPtr = pred.localVars.all()
         {
             var locVar = lv.get().loc;
             var typeName = getTypeName(pred, lv.get(), false, genNative);
@@ -69,7 +69,7 @@ package Impl
 
         // Add the main logic as a disjunction of all the clauses
         var logicNode: AstNode;
-        for ( clause: @PredicateClausePtr = pred.clauses.all() )
+        for clause: @PredicateClausePtr = pred.clauses.all()
         {
             var clauseNode = genClause(pred, clause.get());
             if ( clauseNode isSet )
@@ -102,7 +102,7 @@ package Impl
     {
         var locPred = pred.firstClause.get().loc;
         var params = mkNodeList(locPred, AstNodeRange(), true);
-        for ( i = 0..pred.paramVars.size() )
+        for i = 0..pred.paramVars.size()
         {
             var param: @Parameter = pred.paramVars(i);
             var p: @Expression = param.expr.get();
@@ -133,7 +133,7 @@ package Impl
         var genNative = allowNativeCodeGen && pred.canBeNative;
 
         var res = nullNode;
-        for ( i = 0..clause.args.size() )
+        for i = 0..clause.args.size()
         {
             var arg: @ExpressionPtr = clause.args(i);
             if ( arg.isSet() && arg.get().kind != ekVar )
@@ -163,7 +163,7 @@ package Impl
 
     [ct] fun genConditions(pred: @SparrowPredicate, clause: @PredicateClause, prevCond: AstNode): AstNode
     {
-        for ( cond: @ConditionPtr = clause.conditions.all() )
+        for cond: @ConditionPtr = clause.conditions.all()
         {
             var thisCond = nullNode;
             if ( cond.get().kind == ckPredCall )
@@ -201,7 +201,7 @@ package Impl
             ++size;
         if ( isRecursive && !genNative )
             addToNodeList(argsAst, mkPrefixOp(loc, "\\", mkIdentifier(loc, predCall.predName.asStringRef())));
-        for ( arg: @ExpressionPtr = predCall.args.all() )
+        for arg: @ExpressionPtr = predCall.args.all()
             addToNodeList(argsAst, genExpr(pred, arg.get()) );
 
         var funName: AstNode;
@@ -299,7 +299,7 @@ package Impl
 
     [ct] fun genWrapperClassVars(pred: @SparrowPredicate, classChildren: @AstNode)
     {
-        for ( i = 0..pred.paramVars.size() )
+        for i = 0..pred.paramVars.size()
         {
             var pe: @Expression = pred.paramVars(i).expr.get();
             var paramName = String("p_") + intToString(Int(i+1));
@@ -315,7 +315,7 @@ package Impl
         // Create the body
         var bodyNodes: Vector(AstNode);
         bodyNodes.reserve(pred.arity);
-        for ( i = 0..pred.paramVars.size() )
+        for i = 0..pred.paramVars.size()
         {
             var pe: @Expression = pred.paramVars(i).expr.get();
             var locParam = pe.loc;
@@ -338,7 +338,7 @@ package Impl
 
         // Checks for the input parameters
         var inputChecks = nullNode;
-        for ( i = 0..pred.paramVars.size() )
+        for i = 0..pred.paramVars.size()
         {
             var p: @Parameter = pred.paramVars(i);
             if ( p.isInput )
@@ -364,7 +364,7 @@ package Impl
         }
 
         // Create some values for the output parameters
-        for ( i = 0..pred.paramVars.size() )
+        for i = 0..pred.paramVars.size()
         {
             var p: @Parameter = pred.paramVars(i);
             if ( p.isOutput )
@@ -382,7 +382,7 @@ package Impl
 
         // The call to the native function
         var callArgsNode = mkNodeList(loc, AstNodeRange(), true);
-        for ( i = 0..pred.paramVars.size() )
+        for i = 0..pred.paramVars.size()
         {
             var p: @Parameter = pred.paramVars(i);
             var pe: @Expression = p.expr.get();
@@ -409,7 +409,7 @@ package Impl
 
         // Create the function application to call the predicate wrapper ctor
         var argsAst = mkNodeList(loc, AstNodeRange(), true);
-        for ( i = 0..pred.paramVars.size() )
+        for i = 0..pred.paramVars.size()
         {
             var p: @Expression = pred.paramVars(i).expr.get();
             var locParam = p.loc;

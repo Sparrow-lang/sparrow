@@ -85,7 +85,7 @@ import meta = meta.compilerCore;
         // Merge the two lists
         //expList.insertAfter(other.expList.all(), expList.all());
         expList.reserve(expList.size() + other.expList.size());
-        for ( e = other.expList.all() )
+        for e = other.expList.all()
         {
             expList.pushBack(e);
             e.get().typeSetIdx = idx;
@@ -119,10 +119,8 @@ import meta = meta.compilerCore;
         else
             os << "???";
         os << " :";
-        for ( pe = expList.all() )
-        {
+        for pe = expList.all()
             os << ' ' << pe.get();
-        }
     }
 
     fun _reportTypeError(loc: @Location)
@@ -149,23 +147,19 @@ import meta = meta.compilerCore;
 
     fun _findNumberExp: ExpressionPtr
     {
-        for ( e = expList.all() )
-        {
+        for e = expList.all()
             var k = e.get().kind;
             if ( k == ekNumber || k == ekOpPlus || k == ekOpMinus || k == ekOpMul || k == ekOpDiv )
                 return e;
-        }
         return ExpressionPtr();
     }
 
     fun _findAtomExp: ExpressionPtr
     {
-        for ( e = expList.all() )
-        {
+        for e = expList.all()
             var k = e.get().kind;
             if ( k == ekAtom )
                 return e;
-        }
         return ExpressionPtr();
     }
 }

@@ -11,25 +11,25 @@ fun sprMain
         return;
     var n = programArgs(1) asInt;
 
-    if      ( n == 1 ) test1();
-    else if ( n == 2 ) test2();
-    else if ( n == 3 ) test3();
-    else if ( n == 4 ) test4();
-    else if ( n == 5 ) test5();
-    else if ( n == 6 ) test6();
-    else if ( n == 7 ) test7();
-    else if ( n == 8 ) test8();
-    else if ( n == 9 ) test9();
-    else if ( n == 10 ) test10();
-    else if ( n == 11 ) test11();
-    else if ( n == 12 ) test12();
-    else if ( n == 13 ) test13();
-    else if ( n == 14 ) test14();
-    else if ( n == 15 ) test15();
-    else if ( n == 16 ) test16();
-    else if ( n == 17 ) test17();
-    else if ( n == 18 ) test18();
-    else if ( n == 19 ) test19();
+    if      n == 1  ; test1
+    else if n == 2  ; test2
+    else if n == 3  ; test3
+    else if n == 4  ; test4
+    else if n == 5  ; test5
+    else if n == 6  ; test6
+    else if n == 7  ; test7
+    else if n == 8  ; test8
+    else if n == 9  ; test9
+    else if n == 10 ; test10
+    else if n == 11 ; test11
+    else if n == 12 ; test12
+    else if n == 13 ; test13
+    else if n == 14 ; test14
+    else if n == 15 ; test15
+    else if n == 16 ; test16
+    else if n == 17 ; test17
+    else if n == 18 ; test18
+    else if n == 19 ; test19
 }
 
 fun makeList(): List(Int)
@@ -61,7 +61,7 @@ fun printRange(nr: AnyType)
 
     var r = v.all();
     sort(r);
-    while ( !r.isEmpty() )
+    while !r.isEmpty()
     {
         cout << r.front();
         r.popFront();
@@ -424,7 +424,7 @@ fun test19()
 {
     var hs = Set(Int)(0 .. 1000);
 
-    for ( i = numericRange(0, 1000) )
+    for i = numericRange(0, 1000)
     {
         if ( !hs.contains(i) )
             cout << "Test failed" << endl;

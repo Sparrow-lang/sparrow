@@ -7,7 +7,7 @@ import basicDecls(Number, Char, Bool, StringRef, Byte, UByte, Short, UShort, Int
     fun <<<(x: Number)                          { _Impl.write(x); }
     fun <<<(x: Char)                            { _Impl.write(x); }
     fun <<<(x: Bool)                            { if ( x ) this <<< "true"; else this <<< "false"; }
-    fun <<<(x: StringRef)                       { for ( c = x ) _Impl.write(c); }
+    fun <<<(x: StringRef)                       { for c = x {_Impl.write(c);} }
 
     // This stream supports flush
     fun flush                                   { _Impl.flushOutput(); }

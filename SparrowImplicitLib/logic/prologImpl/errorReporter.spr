@@ -31,9 +31,9 @@ import os = os;
             endCol = UInt(line.size()+1);
         if ( loc.start.col == endCol )
             ++endCol;
-        for ( i = 1..loc.start.col )
+        for i = 1..loc.start.col
             os << ' ';
-        for ( i = loc.start.col..endCol )
+        for i = loc.start.col..endCol
             os << '~';
         os << '\n';
     }
@@ -44,12 +44,10 @@ import os = os;
 
         // Skip until our line
         var curLine = 1;
-        while ( curLine < loc.start.line )
-        {
+        while curLine < loc.start.line
             sourceCopy = find(sourceCopy, '\n');
             sourceCopy.popFront();
             ++curLine;
-        }
 
         var len = indexOf(sourceCopy, '\n');
         return String(take(sourceCopy, len));

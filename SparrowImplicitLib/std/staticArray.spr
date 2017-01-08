@@ -11,25 +11,25 @@ import ranges;
 
     fun ctor()
     {
-        for ( v: @ValueType = all() )
+        for v: @ValueType = all()
             v.ctor();
     }
 
     fun ctor(other: @StaticArray)
     {
-        for ( i = 0..arraySize )
+        for i = 0..arraySize
             at(i).ctor(other.at(i));
     }
 
     fun ctor(value: @ValueType)
     {
-        for ( v: @ValueType = all() )
+        for v: @ValueType = all()
             v.ctor(value);
     }
 
     fun ctor(range: Range)
     {
-        for ( v: @ValueType = all() )
+        for v: @ValueType = all()
         {
             if ( !range.isEmpty() )
             {
@@ -133,7 +133,7 @@ import ranges;
 
     fun dtor
     {
-        for ( v: @ValueType = all() )
+        for v: @ValueType = all()
             v.dtor();
     }
 
@@ -149,7 +149,7 @@ import ranges;
 
     fun assign(range: RangeType)
     {
-        for ( v: @ValueType = all() )
+        for v: @ValueType = all()
         {
             if ( !range.isEmpty() )
             {
@@ -163,7 +163,7 @@ import ranges;
 
     fun swap(other: @StaticArray)
     {
-        for ( i = 0..arraySize )
+        for i = 0..arraySize
         {
             var tmp = this(i);
             this(i) = other(i);
@@ -181,14 +181,14 @@ import ranges;
 
     fun =(other: @StaticArray): @StaticArray
     {
-        for ( i = 0..arraySize )
+        for i = 0..arraySize
             this(i) = other(i);
         return this;
     }
 
     fun ==(other: @StaticArray): Bool
     {
-        for ( i = 0..arraySize )
+        for i = 0..arraySize
             if ( this(i) != other(i) )
                 return false;
         return true;

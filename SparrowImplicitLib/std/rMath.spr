@@ -12,7 +12,7 @@ fun mean(r: Range): Double if Number(r.front())
 {
     var sum: r.RetType = 0;
     var count = 0;
-    for ( x = r )
+    for x = r
     {
         sum += x;
         ++count;

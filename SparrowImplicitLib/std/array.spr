@@ -26,7 +26,7 @@ concept RangeTmp(x) if (
         var dst = _begin;
         var src = other._begin;
 
-        while ( dst != _end )
+        while dst != _end
         {
             dst.value().ctor(src.value());
             dst = dst.advance();
@@ -41,7 +41,7 @@ concept RangeTmp(x) if (
 
         var p = _begin;
 
-        while ( p != _end ; p = p.advance() )
+        while p != _end ; p = p.advance()
             p.value().ctor();
     }
 
@@ -52,7 +52,7 @@ concept RangeTmp(x) if (
 
         var p = _begin;
 
-        while ( p != _end ; p = p.advance() )
+        while p != _end ; p = p.advance()
             p.value().ctor(value);
     }
 
@@ -67,11 +67,9 @@ concept RangeTmp(x) if (
 
             var p = _begin;
 
-            for ( v = range )
-            {
+            for v = range
                 p.value().ctor(v);
                 p = p.advance();
-            }
         }
     }
 
@@ -79,7 +77,7 @@ concept RangeTmp(x) if (
     {
         [ct] var size = src size;
         this ctor size;
-        [ct] for ( i = 0..size )
+        [ct] for i = 0..size
             at(i) = src(i);
     }
 
@@ -90,7 +88,7 @@ concept RangeTmp(x) if (
 
         var p = _begin;
 
-        while ( p != _end ; p = p.advance() )
+        while p != _end ; p = p.advance()
             p.value().dtor();
         _begin.freePtr();
     }
@@ -109,7 +107,7 @@ concept RangeTmp(x) if (
     {
         var r = all();
 
-        while ( !r.isEmpty() && !range.isEmpty() )
+        while !r.isEmpty() && !range.isEmpty()
         {
             r.front().dtor();
             r.front().ctor(range.front());
@@ -117,7 +115,7 @@ concept RangeTmp(x) if (
             range.popFront();
         }
 
-        while ( !r.isEmpty() ; r.popFront() )
+        while !r.isEmpty() ; r.popFront()
         {
             r.front().dtor();
             r.front().ctor();
@@ -171,7 +169,7 @@ concept RangeTmp(x) if (
         var r1 = all();
         var r2 = other.all();
 
-        while ( !r1.isEmpty() )
+        while !r1.isEmpty()
         {
             if ( !(r1.front() == r2.front()) )
                 return false;
@@ -191,14 +189,12 @@ concept RangeTmp(x) if (
     fun >>(os: @OutStream) if isValid(os << #$ValueType)
     {
         var first = true;
-        for ( el = all )
-        {
+        for el = all
             if ( first )
                 first = false;
             else
                 os << ", ";
             os << el;
-        }
     }
     fun _dumpThis(prefix: StringRef)
     {

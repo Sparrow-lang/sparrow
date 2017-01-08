@@ -40,7 +40,7 @@ class SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: Typ
 
         //_table.assign(range);
         //sort(_table.all(), less);
-        for ( v = range )
+        for v = range
             insert(v);
     }
 
@@ -93,12 +93,10 @@ class SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: Typ
     fun insert(range: Range)
     {
         _table.reserve(_table.size() + rangeSize(range));
-        for ( v = range )
-        {
+        for v = range
             var r = lowerBound(_valToKey(v));
-            if ( r.isEmpty() || !_comp(_valToKey(v), _valToKey(r.front())) )
+            if r.isEmpty() || !_comp(_valToKey(v), _valToKey(r.front()))
                 _table.insertBefore(v, r);
-        }
     }
 
     fun remove(key: @KeyType)
@@ -127,7 +125,7 @@ class SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: Typ
     {
         var first: SizeType = 0;
         var len = _table.size();
-        while ( len > 0 )
+        while len > 0
         {
             var l2 = len / 2;
             var el: @ValueType = _table(first + l2);
@@ -148,7 +146,7 @@ class SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: Typ
     {
         var first: SizeType = 0;
         var len = _table.size();
-        while ( len > 0 )
+        while len > 0
         {
             var l2 = len / 2;
             var el: @ValueType = _table(first + l2);

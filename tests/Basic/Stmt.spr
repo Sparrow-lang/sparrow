@@ -1,0 +1,69 @@
+//!! -t "SparrowImplicitLib.spr" -fno-main
+
+fun factorial(n: Int): Int
+    if n == 0
+        return 1
+    else
+        return n * factorial(n-1)
+
+fun writeIf     { writeLn("IF"); }
+fun writeIfErr  { writeLn("IF-bad"); }
+fun writeMarker { writeLn("---"); }
+
+fun pre_--(n: @Int): Int { n=n-1; return n; }
+
+[native("test")]
+fun test(n: Int)
+    factorial(5) writeLnInt
+    writeMarker
+
+    // If
+    if true
+        writeIf         // writes
+    if true ; writeIf   // writes
+    if true ;;; writeIf // writes
+    if true ;
+    if true
+    if false
+        writeIfErr
+    if false ; writeIfErr
+    if false { writeIfErr }
+    writeMarker
+
+    // while
+    n = 5;
+    while --n > 0       // only 4 iterations
+        "." write
+    "" writeLn
+    n = 5;
+    while n > 0 ; n=n-1
+        "." write
+    "" writeLn
+    n = 5;
+    while n > 0 ; n=n-1 ; "." write
+    "" writeLn
+    n = 5;
+    while --n > 0 ;{} "." write
+    "" writeLn
+    n = 5;
+    while --n > 0 { "." write }
+    "" writeLn
+    n = 5;
+    while --n > 0 ; {break;}
+        "." write
+    "" writeLn
+
+/*<<<Running()
+120
+---
+IF
+IF
+IF
+---
+....
+.....
+.....
+....
+....
+.
+>>>*/

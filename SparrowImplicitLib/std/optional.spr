@@ -53,7 +53,7 @@ class Optional(valueType: Type)
         other = this;
     }
 
-    fun =(other: @Optional)     { if ( other._constructed ) reset(other._value); else reset(); }
+    fun =(other: @Optional)     { if other._constructed ; reset(other._value) else reset(); }
     fun =(val: @ValueType)      { reset(val); }
 
     fun ==(other: Optional)     = _constructed == other._constructed && (!_constructed || _value == other._value);

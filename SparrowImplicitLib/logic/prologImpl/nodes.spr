@@ -13,10 +13,8 @@ using ExpressionPtr = SharedPtr(Expression);
     var loc: Location;
 
     fun >>(os: @OutStream)
-    {
-        for ( p = predicates.all() )
+        for p = predicates.all()
             os << p << endl;
-    }
 }
 
 [ct] class PredicateClause
@@ -29,19 +27,15 @@ using ExpressionPtr = SharedPtr(Expression);
     fun >>(os: @OutStream)
     {
         os << name << "(";
-        for ( i = 0..args.size() )
-        {
+        for i = 0..args.size()
             if ( i>0 )
                 os << ", ";
             os << args(i).get();
-        }
         os << ") :- ";
-        for ( i = 0..conditions.size() )
-        {
+        for i = 0..conditions.size()
             if ( i>0 )
                 os << ", ";
             os << conditions(i).get();
-        }
         os << ".";
     }
 }
@@ -77,12 +71,10 @@ using ExpressionPtr = SharedPtr(Expression);
         if ( kind == ckPredCall )
         {
             os << predName << '(';
-            for ( i = 0..args.size() )
-            {
+            for i = 0..args.size()
                 if ( i>0 )
                     os << ", ";
                 os << args(i).get();
-            }
             os << ')';
         }
         else

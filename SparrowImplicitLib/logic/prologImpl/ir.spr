@@ -18,7 +18,7 @@ using allowNativeCodeGen = true;
         this.loc ctor program.get().loc;
 
         // Handle all predicate clauses
-        for ( pptr: @PredicateClausePtr = program.get().predicates.all() )
+        for pptr: @PredicateClausePtr = program.get().predicates.all()
         {
             var p: @PredicateClause = pptr.get();
             var name: @String = p.name;
@@ -38,7 +38,7 @@ using allowNativeCodeGen = true;
 
     fun semanticCheck
     {
-        for ( pred: @SparrowPredicate = predicates.all() )
+        for pred: @SparrowPredicate = predicates.all()
             pred.semanticCheck();
     }
 }
@@ -100,7 +100,7 @@ using allowNativeCodeGen = true;
     {
         // Update the variables from all the clauses
         // Compute the types of the expressions and variables
-        for ( i = 0..clauses.size() )
+        for i = 0..clauses.size()
             _checkClause(clauses(i).get(), Int(i));
 
         // Check if we can generate this natively
@@ -111,7 +111,7 @@ using allowNativeCodeGen = true;
     fun _checkClause(clause: @PredicateClause, clauseIdx: Int)
     {
         // Assign type sets for bound args
-        for ( i = 0..clause.args.size() )
+        for i = 0..clause.args.size()
         {
             var arg: @ExpressionPtr = clause.args(i);
             arg.get().paramIdx = Int(i);
@@ -125,14 +125,14 @@ using allowNativeCodeGen = true;
         }
 
         // Check conditions
-        for ( c = clause.conditions.all() )
+        for c = clause.conditions.all()
             _checkCondition(clause, clauseIdx, c.get());
     }
     fun _checkCondition(clause: @PredicateClause, clauseIdx: Int, cond: @Condition)
     {
         if ( cond.kind == ckPredCall )
         {
-            for ( arg = cond.args.all() )
+            for arg = cond.args.all()
                 _checkExpr(clause, clauseIdx, arg);
         }
         else
@@ -240,9 +240,9 @@ using allowNativeCodeGen = true;
         var isVars: Vector(String);
         isVars.reserve(arity + localVars.size());
 
-        for ( clause: @PredicateClausePtr = clauses.all() )
+        for clause: @PredicateClausePtr = clauses.all()
         {
-            for ( c: @ConditionPtr = clause.get().conditions.all() )
+            for c: @ConditionPtr = clause.get().conditions.all()
             {
                 var cond: @Condition = c.get();
                 if ( cond.kind == ckIsExpr )
@@ -298,7 +298,7 @@ using allowNativeCodeGen = true;
 
         // This can be native if all the parameter are wither input or output
         canBeNative = true;
-        for ( param: @Parameter = paramVars.all() )
+        for param: @Parameter = paramVars.all()
         {
             if ( !param.isInput && !param.isOutput )
             {

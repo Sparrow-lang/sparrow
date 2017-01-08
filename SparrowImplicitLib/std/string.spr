@@ -55,7 +55,7 @@ import rawPtr(RawPtr);
     {
         ctor(rangeSize(range));
         var i=0;
-        for ( ch = range )
+        for ch = range
         {
             _begin.advance(DiffType(i++)).value() = ch;
         }
@@ -125,7 +125,7 @@ import rawPtr(RawPtr);
         {
             var newEnd = _begin.advance(DiffType(n));
 
-            while ( _end != newEnd )
+            while _end != newEnd
             {
                 _end = _end.advance(-1);
                 _end.value().dtor();
@@ -137,7 +137,7 @@ import rawPtr(RawPtr);
 
             var newEnd = _begin.advance(DiffType(n));
 
-            while ( _end != newEnd )
+            while _end != newEnd
             {
                 _end.value().ctor();
                 _end = _end.advance();
@@ -178,7 +178,7 @@ import rawPtr(RawPtr);
         var p = _end.advance(-1);
         var q = _begin.advance(posCount - DiffType(1));
 
-        while ( p != q ; p = p.advance(-1) )
+        while p != q ; p = p.advance(-1)
         {
             p.advance().value().ctor(p.value());
             p.value().dtor();
@@ -197,13 +197,13 @@ import rawPtr(RawPtr);
         var p = _end.advance(-1);
         var q = _begin.advance(index - DiffType(1));
 
-        while ( p != q ; p = p.advance(-1) )
+        while p != q ; p = p.advance(-1)
         {
             p.advance(DiffType(n)).value().ctor(p.value());
             p.value().dtor();
         }
         p = p.advance();
-        while ( !range.isEmpty() )
+        while !range.isEmpty()
         {
             p.value().ctor(range.front());
             p = p.advance();
@@ -237,7 +237,7 @@ import rawPtr(RawPtr);
         var rBegin = _frontPtr(range);
         var rEnd = rBegin.advance(DiffType(rSize));
 
-        while ( rEnd != _end )
+        while rEnd != _end
         {
             rBegin.value().dtor();
             rBegin.value().ctor(rEnd.value());
@@ -271,7 +271,7 @@ import rawPtr(RawPtr);
         var i: SizeType = 0;
         var s = size();
 
-        while ( i < s ; i = i + 1 )
+        while i < s ; i++
         {
             if ( at(i) != other.at(i) )
                 return false;
@@ -284,7 +284,7 @@ import rawPtr(RawPtr);
     fun assign(range: Range)
     {
         clear();
-        for ( v = range )
+        for v = range
             pushBack(v);
     }
 

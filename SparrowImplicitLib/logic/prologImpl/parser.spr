@@ -17,7 +17,7 @@ concept TokenRange(x: Range) if -@(x.RetType) == Token
         var resptr = PrologProgramPtr.create();
         var res: @PrologProgram = resptr.get();
 
-        while ( !_lexer.isEmpty() && _lexer().type != tkEof )
+        while !_lexer.isEmpty() && _lexer().type != tkEof
         {
             res.predicates.pushBack(_parsePredicateClause());
         }
@@ -74,7 +74,7 @@ concept TokenRange(x: Range) if -@(x.RetType) == Token
 
     fun _parsePredicateClauseArgs(predClause: @PredicateClause)
     {
-        while ( true )
+        while true
         {
             // Expect a term appropriate for an argument
             var arg = _parseTerm();
@@ -97,7 +97,7 @@ concept TokenRange(x: Range) if -@(x.RetType) == Token
 
     fun _parsePredicateConditions(predClause: @PredicateClause)
     {
-        while ( true )
+        while true
         {
             // Expect a condition expression
             predClause.conditions.pushBack(_parseCondition());
@@ -157,7 +157,7 @@ concept TokenRange(x: Range) if -@(x.RetType) == Token
 
     fun _parsePredicateCallArgs(args: @Vector(ExpressionPtr))
     {
-        while ( true )
+        while true
         {
             // Expect an expression
             args.pushBack(_parseExpression());
@@ -203,7 +203,7 @@ concept TokenRange(x: Range) if -@(x.RetType) == Token
         var loc = left.get().loc;
 
         // Consume all the muls and divs
-        while ( true )
+        while true
         {
             // Is there also a right part?
             var tok = _lexer();
@@ -230,7 +230,7 @@ concept TokenRange(x: Range) if -@(x.RetType) == Token
         var loc = left.get().loc;
 
         // Consume all the pluses and minuses
-        while ( true )
+        while true
         {
             // Is there also a right part?
             var tok = _lexer();

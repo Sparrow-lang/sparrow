@@ -188,7 +188,6 @@ private fun nextToken(s: @OurScanner): TokenType {
         if ( ch == '/' && ch2 == '/' ) {
             s.src popFront;
             s.src advanceIf (fun c = c!='\n');
-            if ( !!s.src ) s.src popFront;
             continue;
         }
 

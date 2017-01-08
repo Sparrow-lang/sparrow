@@ -255,7 +255,7 @@ class UnifyLR(leftType, rightType: Type) if ValWrapper(#$leftType) && ValWrapper
         if ( _coEntryPt == 0 || _coEntryPt == 1 )   // Never called before; stay here until we have a positive result
         {
             var skipEvalLeft = _coEntryPt == 1;
-            while ( skipEvalLeft || _left() )
+            while skipEvalLeft || _left()
             {
                 // Left is (still) true; check if right is also true
                 if ( _right() )

@@ -50,7 +50,7 @@ concept RandomAccessRange(x: BidirRange)    \
 [rtct] fun rangeSize(range: Range): SizeType
 {
     var n: SizeType = 0;
-    while ( !(range isEmpty) ; range popFront )
+    while !(range isEmpty) ; range popFront
         ++n;
     return n;
 }
@@ -63,25 +63,25 @@ concept RandomAccessRange(x: BidirRange)    \
 
 fun advance(range: @Range, n: SizeType)
 {
-    while ( n > 0 ; n -= 1 )
+    while n > 0 ; n--
         range popFront;
 }
 
 fun advanceIf(range: @Range, pred: AnyType)
 {
-    while ( !(range isEmpty) && pred(range front) )
+    while !(range isEmpty) && pred(range front)
         range popFront;
 }
 
 fun retract(range: @BidirRange, n: SizeType)
 {
-    while ( n > 0 ; n -= 1 )
+    while n > 0 ; n--
         range popBack;
 }
 
 fun retractIf(range: @BidirRange, pred: AnyType)
 {
-    while ( !(range isEmpty) && pred(range back) )
+    while !(range isEmpty) && pred(range back)
         range popBack;
 }
 
@@ -351,7 +351,7 @@ class FilteredRange(rangeType, predType: Type) if Range(#$rangeType) && typeOf((
 
     fun _popUntilValid
     {
-        while ( !(_range isEmpty) )
+        while !(_range isEmpty)
         {
             _lastVal = (_range front);
             if ( _pred(_lastVal) )
@@ -433,7 +433,7 @@ class FilteredRange(rangeType, predType: Type) if Range(#$rangeType) && typeOf((
     {
         var s = _strideStep;
 
-        while ( !(_range isEmpty) && s > 0 )
+        while !(_range isEmpty) && s > 0
         {
             s = s - 1;
             _range popFront;
@@ -466,12 +466,10 @@ class RadialRange(rangeType: Type) if RandomAccessRange(#$rangeType)
         _step = _step + 1;
         _sign = -_sign;
         _count = _count + 1;
-        while ( (_index < 0 || _index >= (_range size)) && _count < (_range size) )
-        {
+        while (_index < 0 || _index >= (_range size)) && _count < (_range size)
             _index = _index + _step * _sign;
             _step = _step + 1;
             _sign = -_sign;
-        }
     }
 }
 

@@ -45,17 +45,17 @@ fun sprMain
         return;
     var n = programArgs(1) asInt;
 
-    if      ( n == 1 ) test1();
-    else if ( n == 2 ) test2();
-    else if ( n == 3 ) test3();
-    else if ( n == 4 ) test4();
-    else if ( n == 5 ) test5();
-    else if ( n == 6 ) test6();
-    else if ( n == 7 ) test7();
-    else if ( n == 8 ) test8();
-    else if ( n == 9 ) test9();
-    else if ( n == 10 ) test10();
-    else if ( n == 11 ) test11();
+    if      n == 1  ; test1
+    else if n == 2  ; test2
+    else if n == 3  ; test3
+    else if n == 4  ; test4
+    else if n == 5  ; test5
+    else if n == 6  ; test6
+    else if n == 7  ; test7
+    else if n == 8  ; test8
+    else if n == 9  ; test9
+    else if n == 10 ; test10
+    else if n == 11 ; test11
 }
 
 fun test1

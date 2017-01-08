@@ -723,7 +723,7 @@ class StringRef
         var p: @Byte;
         p := reinterpretCast(@Byte, s);
         var len: SizeType = 0;
-        while ( p != Byte(0) ; p:=ptrAdd(p, 1) )
+        while p != Byte(0) ; p:=ptrAdd(p, 1)
             len = len+1;
         return len;
 
@@ -735,10 +735,11 @@ class StringRef
 
     fun == (other: StringRef): Bool
         var s = size();
-        if ( s != other.size() ) return false;
+        if s != other.size
+            return false
         var i: SizeType = 0;
-        while ( i<s ; i+=1 )
-            if ( at(i) != other.at(i) ) return false;
+        while i<s ; i+=1
+            if at(i) != other.at(i) return false
         return true;
 
         //return 0 == strcmp(begin, other.begin);

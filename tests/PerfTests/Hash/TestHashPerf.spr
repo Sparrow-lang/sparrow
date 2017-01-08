@@ -34,7 +34,7 @@ var searchKeys: Array(UInt);
 
 fun testInsert(bag: @AnyType, n: Int)
 {
-    for ( i = 0..n )
+    for i = 0..n
     {
         // The element to insert
         var key = insertKeys(i);
@@ -48,7 +48,7 @@ fun testInsert(bag: @AnyType, n: Int)
 
 fun testChange(bag: @AnyType, n: Int)
 {
-    for ( i = 0..n )
+    for i = 0..n
     {
         // Search the element
         var key = searchKeys(i);
@@ -73,7 +73,7 @@ fun testChange(bag: @AnyType, n: Int)
 
 [noInline] fun testHit(bag: @AnyType, n: Int)
 {
-    for ( i = 0..n )
+    for i = 0..n
     {
         // Search the element
         var key = searchKeys(i) + 1;
@@ -96,7 +96,7 @@ fun testChange(bag: @AnyType, n: Int)
 
 fun testMiss(bag: @AnyType, n: Int)
 {
-    for ( i = 0..n )
+    for i = 0..n
     {
         // Search the element
         // As all elements are shifted by one, we will find nothing
@@ -112,7 +112,7 @@ fun testMiss(bag: @AnyType, n: Int)
 
 fun testRemove(bag: @AnyType, n: Int)
 {
-    for ( i = 0..n )
+    for i = 0..n
     {
         // Search the element
         var key = searchKeys(i) + 1;
@@ -171,7 +171,7 @@ fun sprMain
     // Initialize the keys
     insertKeys = Array(UInt)(n);
     searchKeys = Array(UInt)(n);
-    for ( i = 0..n )
+    for i = 0..n
     {
         insertKeys(i) = 0x80000000 + i*2;
         searchKeys(i) = 0x80000000 + i*2;

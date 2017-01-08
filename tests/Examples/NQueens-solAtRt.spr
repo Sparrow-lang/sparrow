@@ -9,7 +9,7 @@ import math = math;
 
 [rtct] fun testQueens(placements: @PlacementType, k, y: Int): Bool
 {
-    for ( i = 0..k )
+    for i = 0..k
     {
         if ( y == placements(i) || math.abs(k-i) == math.abs(y-placements(i)) )
             return false;
@@ -19,7 +19,7 @@ import math = math;
 
 [rtct] fun backtracking(x: @PlacementType, k, n: Int, res: @SolutionsType)
 {
-    for ( y = 0..n )
+    for y = 0..n
     {
         if ( testQueens(x, k, y) )
         {
@@ -34,12 +34,12 @@ import math = math;
 
 [rtct] fun writeSolution(x: @PlacementType)
 {
-    for ( v = x.all() )
+    for v = x.all()
     {
-        for ( i = 0..v )
+        for i = 0..v
             cout << "| ";
         cout << "|Q";
-        for ( i = (v+1)..(x.size()) )
+        for i = (v+1)..(x.size())
             cout << "| ";
         cout << "|\n";
     }
@@ -48,7 +48,7 @@ import math = math;
 
 [rtct] fun writeSolutionBasic(x: @PlacementType)
 {
-    for ( v = x.all() )
+    for v = x.all()
         cout << v;
     cout << "\n";
 }
@@ -58,7 +58,7 @@ import math = math;
     var x: PlacementType = n;
     var res: SolutionsType;
     backtracking(x, 0, n, res);
-    for ( sol = res.all() )
+    for sol = res.all()
         writeSolution(sol);
     return res;
 }
@@ -67,7 +67,7 @@ fun sprMain
 {
     [ct] var solutionsCt = nQueens(4);
     var solutions = solutionsCt;
-    for ( sol = solutions.all() )
+    for sol = solutions.all()
         writeSolution(sol);
 }
 

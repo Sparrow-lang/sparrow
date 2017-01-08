@@ -21,11 +21,11 @@ fun sprMain
         return;
     var n = programArgs(1) asInt;
 
-    if      ( n == 1 ) test1();
-    else if ( n == 2 ) test2();
-    else if ( n == 3 ) test3();
-    else if ( n == 4 ) test4();
-    else if ( n == 5 ) test5();
+    if      n == 1; test1
+    else if n == 2; test2
+    else if n == 3; test3
+    else if n == 4; test4
+    else if n == 5; test5
 }
 
 fun test1
@@ -51,7 +51,7 @@ fun test2
     [ct] if ( isValid(logicDebug) )
         cout << "Result constructed: x=" << x << endl;
     var pred = male(x);
-    while ( pred() )
+    while pred()
     {
         [ct] if ( isValid(logicDebug) )
             cout << "In while, x=" << x << endl;
@@ -73,7 +73,7 @@ fun test3
 {
     var x: LStr;
     var pred = female(x);
-    while ( pred() )
+    while pred()
     {
         //assert(x.isSet());
         cout << "Found female: " << x.get() << endl << flush;
@@ -89,7 +89,7 @@ fun test4
 {
     var x: LStr;
     var pred = person(x);
-    while ( pred() )
+    while pred()
     {
         //assert(x.isSet());
         cout << "Found person: " << x.get() << endl << flush;
@@ -108,7 +108,7 @@ fun test5
 {
     var father, mother, child: LStr;
     var pred = parents(father, mother, child);
-    while ( pred() )
+    while pred()
     {
         //assert(father.isSet());
         //assert(mother.isSet());

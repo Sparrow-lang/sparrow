@@ -35,7 +35,7 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
         _guard ctor;
         _numElements = 0;
         reserve(max(n, rangeSize(range)));
-        for ( v = range )
+        for v = range
             _insertPlain(v);
     }
 
@@ -46,7 +46,7 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
         _numElements ctor 0;
         _guard ctor;
 
-        for ( v = other.all() )
+        for v = other.all()
             _insertPlain(v);
     }
 
@@ -87,7 +87,7 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
 
         // Determine the number of buckets
         var i = 0;
-        while ( Impl.bucketCounts(i) < n )
+        while Impl.bucketCounts(i) < n
             ++i;
         var numBuckets = Impl.bucketCounts(i);
         if ( numBuckets <= _buckets.size() )
@@ -101,7 +101,7 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
         var p = _guard.next;
         _guard.next.reset();
         var next: _NodePtr;
-        while ( p.isSet() ; p = next )
+        while p.isSet() ; p = next
         {
             next = p.get().next;
             _insertNode(p);
@@ -118,7 +118,7 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
     {
         reserve(_numElements + rangeSize(range));
         var counter = 0;
-        for ( v = range )
+        for v = range
             _insertPlain(v);
     }
 
@@ -144,7 +144,7 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
         var prev = _findPrev(range._startElem);
 
         var p = range._startElem;
-        while ( p != range._endElem )
+        while p != range._endElem
         {
             var next = p.get().next;
             _removeNode(prev, p);
@@ -187,7 +187,7 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
         if ( !(traits == other.traits && _numElements == other.size()) )
             return false;
 
-        for ( v = all() )
+        for v = all()
         {
             if ( !other.contains(_valToKey(v)) )
                 return false;
@@ -206,7 +206,7 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
         var prev = _guardNode();
         var p = prev.get().next;
         var prevBi = numBuckets+1;
-        while ( p.isSet() ; p = p.get().next )
+        while p.isSet() ; p = p.get().next
         {
             var bi = ife(numBuckets > 0, p.get().hash % numBuckets, 0);
             if ( prev == _guardNode() )
@@ -276,7 +276,7 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
                 return _NodePtr();
             // the first element belongs to the previous bucket, skip one element
             var next = p.get().next;
-            while ( next.isSet() && (next.get().hash % numBuckets == bi) )
+            while next.isSet() && (next.get().hash % numBuckets == bi)
             {
                 if ( _tr.equal(key, _valToKey(next.get().data)) )
                     return next;
@@ -287,7 +287,7 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
         else
         {
             var p: _NodePtr = _guard.next;
-            while ( p.isSet() )
+            while p.isSet()
             {
                 if ( _tr.equal(key, _valToKey(p.get().data)) )
                     return p;
@@ -301,7 +301,7 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
     {
         var numBuckets = _buckets.size();
         var p: _NodePtr = ife(numBuckets==0, _guardNode(), _buckets(node.get().hash % numBuckets));
-        while ( p.get().next != node )
+        while p.get().next != node
             p = p.get().next;
         return p;
     }
@@ -391,7 +391,7 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
     {
         var p = _guard.next;
         var next: _NodePtr;
-        while ( p.isSet() ; p = next )
+        while p.isSet() ; p = next
         {
             next = p.get().next;
             p.release();

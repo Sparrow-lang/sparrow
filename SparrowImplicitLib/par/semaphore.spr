@@ -27,7 +27,8 @@ fun release(s: @Semaphore) {
 //! Decrements the semaphore counter
 //! If the counter reaches zero, the call blocks until somebody calls 'release'
 fun acquire(s: @Semaphore) {
-    while ( 0 != Impl.semaphore_wait(s._handle) ) /*keep trying*/;
+    while 0 != Impl.semaphore_wait(s._handle)
+        /*keep trying*/;
 }
 
 package Impl {

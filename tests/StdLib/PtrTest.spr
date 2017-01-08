@@ -50,13 +50,13 @@ fun sprMain
         return;
     var n = programArgs(1) asInt;
 
-    if      ( n == 1 ) test1();
-    else if ( n == 2 ) test2();
-    else if ( n == 3 ) test3();
-    else if ( n == 4 ) test4();
-    else if ( n == 5 ) test5();
-    else if ( n == 6 ) test6();
-    else if ( n == 7 ) test7();
+    if      n == 1; test1
+    else if n == 2; test2
+    else if n == 3; test3
+    else if n == 4; test4
+    else if n == 5; test5
+    else if n == 6; test6
+    else if n == 7; test7
 }
 
 [native("malloc")] fun mallocRt(size: SizeType): @Byte;
@@ -257,7 +257,7 @@ fun test7
     v += Ptr(MyObj)(newObj(11));
     v += Ptr(MyObj)(newObj(12));
     v += Ptr(MyObj)(newObj(13));
-    for ( x = v.all() )
+    for x = v.all()
         cout << x->x << endl;
     v.all() delete;
     cout << "---" << endl;

@@ -35,7 +35,7 @@ fun doProtectedJob(mutex: @Lockable, useTryLock: Bool = false) {
     var useTryLock: Bool;
 
     fun ()() {
-        for ( i = 0..amountOfWork ) {
+        for i = 0..amountOfWork {
             doProtectedJob(normalMutex, useTryLock);
         }
         if ( !useTryLock )
@@ -51,18 +51,18 @@ class WorkManager {
         this.amountOfWork ctor amountOfWork;
         this.numWorkers ctor numWorkers;
         this.numTryWorkers ctor numTryWorkers;
-        for ( i=0..numWorkers ) {
+        for i=0..numWorkers {
             var p: Thread Ptr = new(Thread, Worker(amountOfWork, false));
             threads.pushBack(p);
         }
-        for ( i=0..numTryWorkers ) {
+        for i=0..numTryWorkers {
             var p: Thread Ptr = new(Thread, Worker(amountOfWork, true));
             threads.pushBack(p);
         }
     }
 
     fun dtor {
-        for ( t = threads.all ) {
+        for t = threads.all {
             t.get join;
             t.release;
         }

@@ -23,7 +23,7 @@ package _HashImpl
     [rtct] fun doHash(key: StringRef, start: SizeType): SizeType
     {
         var hash = start;
-        for ( i = 0..key.size() )
+        for i = 0..key.size()
             hash = (hash !^! SizeType(Byte(key(i)))) * 0x01000193;
         return hash;
     }

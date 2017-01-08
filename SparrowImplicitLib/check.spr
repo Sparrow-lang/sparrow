@@ -83,7 +83,7 @@ fun check(values: TestableValuesRange, pred: @AnyType, msg: StringRef, config: C
 
     var numTrivial = 0;
     var n = 0;
-    for ( val = values ) {
+    for val = values {
         // Check the value's class
         if ( val.isTrivial )
             ++numTrivial;
@@ -113,10 +113,9 @@ fun check(values: TestableValuesRange, pred: @AnyType, msg: StringRef, config: C
     // Print distribution of classes
     classes.remove("");
     if ( !classes.isEmpty ) {
-        for ( c = classes.keys ) {
+        for c = classes.keys
             var percent = classes(c)*100/n;
             cout << percent << "% : " << c << endl;
-        }
         // TODO: sort the classes before displaying them
     }
 
@@ -164,20 +163,18 @@ fun frequency(gens: Range): typeOf((#$gens.RetType).v2) if FreqGenType(#$gens.Re
 
     // Compute the sum of frequencies
     var sum = 0;
-    for ( fg = gens ) {
+    for fg = gens
         sum += fg.v1;
-    }
     if ( sum == 0 ) return typeOf((#$gens.RetType).v2)();
 
     // Select a random number in the total sum of frequencies
     var toSelect = randBetween(0, sum);
     // Select the right generator from the distribution
     var curAcc = 0;
-    for ( fg = gens ) {
-        if ( curAcc <= toSelect && toSelect < curAcc + fg.v1 )
+    for fg = gens
+        if curAcc <= toSelect && toSelect < curAcc + fg.v1
             return fg.v2;
         curAcc += fg.v1;
-    }
     return typeOf((#$gens.RetType).v2)();
 }
 
@@ -253,13 +250,11 @@ package CheckImpl {
 
         fun _popUntilValid
         {
-            while ( !_range.isEmpty )
-            {
+            while !_range.isEmpty
                 _lastVal = _range.front();
-                if ( _pred(_lastVal.value) )
+                if _pred(_lastVal.value)
                     break;
                 _range.popFront();
-            }
         }
     }
 

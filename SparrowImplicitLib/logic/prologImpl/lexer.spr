@@ -127,13 +127,13 @@ import errorReporter;
     fun _consumeWhiteSpace
     {
         var ch = _source();
-        while ( !_source.isEmpty() && isSpace(ch) )
+        while !_source.isEmpty() && isSpace(ch)
             ch = _advanceSource();
     }
     fun _consumeLineComment
     {
         var ch = _source();
-        while ( !_source.isEmpty() && ch != '\n' )
+        while !_source.isEmpty() && ch != '\n'
             ch = _advanceSource();
         if ( !_source.isEmpty() )
             _advanceSource();
@@ -142,7 +142,7 @@ import errorReporter;
     {
         var res: String;
         var ch = _source();
-        while ( !_source.isEmpty() && isDigit(ch) )
+        while !_source.isEmpty() && isDigit(ch)
         {
             res.pushBack(ch);
             ch = _advanceSource();
@@ -153,7 +153,7 @@ import errorReporter;
     {
         var res: String;
         var ch = _source();
-        while ( !_source.isEmpty() && isAlnum(ch) )
+        while !_source.isEmpty() && isAlnum(ch)
         {
             res.pushBack(ch);
             ch = _advanceSource();
@@ -169,7 +169,7 @@ import errorReporter;
             var braces = 1;
             ch = _advanceSource();
             _curLocation stepOver;
-            while ( !_source.isEmpty() )
+            while !_source.isEmpty()
             {
                 if ( _source.isEmpty() )
                     _errorReporter.raiseError(_curLocation, "End of stream found inside anti-quotation");

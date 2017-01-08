@@ -65,17 +65,17 @@ fun testRef(x: @AnyType) //if 0!=typeNumRef(typeOf(x))
 
     writeLn("---");
 
-    if ( 0!=typeNumRef(typeOf('a'))   ) writeLn("ref"); else writeLn("non-ref");
-    if ( 0!=typeNumRef(typeOf(10))    ) writeLn("ref"); else writeLn("non-ref");
-    if ( 0!=typeNumRef(typeOf(3.14))  ) writeLn("ref"); else writeLn("non-ref");
+    if 0!=typeNumRef(typeOf('a'))   ; writeLn("ref") else writeLn("non-ref")
+    if 0!=typeNumRef(typeOf(10))    ; writeLn("ref") else writeLn("non-ref")
+    if 0!=typeNumRef(typeOf(3.14))  ; writeLn("ref") else writeLn("non-ref")
 
-    if ( 0!=typeNumRef(typeOf(a)) ) writeLn("ref"); else writeLn("non-ref");
-    if ( 0!=typeNumRef(typeOf(b)) ) writeLn("ref"); else writeLn("non-ref");
-    if ( 0!=typeNumRef(typeOf(c)) ) writeLn("ref"); else writeLn("non-ref");
+    if 0!=typeNumRef(typeOf(a))     ; writeLn("ref") else writeLn("non-ref")
+    if 0!=typeNumRef(typeOf(b))     ; writeLn("ref") else writeLn("non-ref")
+    if 0!=typeNumRef(typeOf(c))     ; writeLn("ref") else writeLn("non-ref")
 
-    if ( 0!=typeNumRef(typeOf(ra)) ) writeLn("ref"); else writeLn("non-ref");
-    if ( 0!=typeNumRef(typeOf(rb)) ) writeLn("ref"); else writeLn("non-ref");
-    if ( 0!=typeNumRef(typeOf(rc)) ) writeLn("ref"); else writeLn("non-ref");
+    if 0!=typeNumRef(typeOf(ra))    ; writeLn("ref") else writeLn("non-ref")
+    if 0!=typeNumRef(typeOf(rb))    ; writeLn("ref") else writeLn("non-ref")
+    if 0!=typeNumRef(typeOf(rc))    ; writeLn("ref") else writeLn("non-ref")
 
     writeLn("---");
 

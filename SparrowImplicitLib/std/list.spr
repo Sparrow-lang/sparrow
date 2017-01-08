@@ -21,7 +21,7 @@ class List(valueType: Type)
         _listSize = 0;
         _head.prev = _headNode();
         _head.next = _headNode();
-        for ( v = other.all() )
+        for v = other.all()
             pushBack(v);
     }
 
@@ -30,7 +30,7 @@ class List(valueType: Type)
         _listSize = 0;
         _head.prev = _headNode();
         _head.next = _headNode();
-        for ( v = range )
+        for v = range
             pushBack(v);
     }
 
@@ -39,14 +39,12 @@ class List(valueType: Type)
         var p = _head.next;
         var hn = _headNode();
 
-        while ( p != hn )
-        {
+        while p != hn
             var nextNode = p.value().next;
 
             p.value().data.dtor();
             p.freePtr();
             p = nextNode;
-        }
     }
 
     fun size: SizeType          = _listSize;
@@ -60,7 +58,7 @@ class List(valueType: Type)
     fun assign(range: Range)
     {
         clear();
-        for ( v = range )
+        for v = range
             pushBack(v);
     }
 
@@ -109,7 +107,7 @@ class List(valueType: Type)
 
     fun insertBefore(range: Range, pos: RangeType)
     {
-        for ( v = range )
+        for v = range
             insertBefore(v, pos);
     }
 
@@ -127,7 +125,7 @@ class List(valueType: Type)
 
     fun insertAfter(range: Range, pos: RangeType)
     {
-        for ( v = range )
+        for v = range
             insertAfter(v, pos);
     }
 
@@ -183,7 +181,7 @@ class List(valueType: Type)
         var p = _head.next;
         var hn = _headNode();
 
-        while ( p != hn )
+        while p != hn
         {
             var tmp = p.value().next;
 
@@ -204,7 +202,7 @@ class List(valueType: Type)
         var p = _head.next;
         var hn = _headNode();
 
-        while ( p != hn )
+        while p != hn
         {
             var tmp = p.value().next;
 
@@ -224,7 +222,7 @@ class List(valueType: Type)
     {
         var left = range._begin.value().prev;
 
-        while ( !range.isEmpty() )
+        while !range.isEmpty()
         {
             var tmp = range._begin.value().next;
 
@@ -248,7 +246,7 @@ class List(valueType: Type)
             var t = _listSize - n;
 
             _listSize = _listSize - t;
-            while ( t > 0 ; t -= 1 )
+            while t > 0 ; t -= 1
             {
                 var tmp = p.value().prev;
 
@@ -265,7 +263,7 @@ class List(valueType: Type)
             [ct] if ( isValid(pushBack(ValueType())) )
             {
                 pushBack(ValueType());
-                while ( n > _listSize )
+                while n > _listSize
                     pushBack(ValueType());
             }
         }
@@ -279,7 +277,7 @@ class List(valueType: Type)
         var p = _head.next;
         var hn = _headNode();
 
-        while ( p != hn )
+        while p != hn
         {
             var tmp = p.value().next;
 
@@ -300,11 +298,11 @@ class List(valueType: Type)
         var p = _head.next;
         var hn = _headNode();
 
-        while ( p != hn )
+        while p != hn
         {
             var q = p.value().next;
 
-            while ( q != hn && p.value().data == q.value().data )
+            while q != hn && p.value().data == q.value().data
             {
                 var tmp = q.value().next;
 
@@ -330,11 +328,11 @@ class List(valueType: Type)
         var p = _head.next;
         var hn = _headNode();
 
-        while ( p != hn )
+        while p != hn
         {
             var q = p.value().next;
 
-            while ( q != hn && pred(p.value().data, q.value().data) )
+            while q != hn && pred(p.value().data, q.value().data)
             {
                 var tmp = q.value().next;
 
@@ -372,7 +370,7 @@ class List(valueType: Type)
             {
                 var t = 0;
 
-                while ( !tmp.isEmpty() )
+                while !tmp.isEmpty()
                 {
                     tmp.popFront();
                     ++t;
@@ -404,7 +402,7 @@ class List(valueType: Type)
             {
                 var t = 0;
 
-                while ( !tmp.isEmpty() )
+                while !tmp.isEmpty()
                 {
                     tmp.popFront();
                     t = t + 1;
@@ -425,7 +423,7 @@ class List(valueType: Type)
         // var counter = Array(List)(64);
         // var fill = 0;
 
-        // while ( !isEmpty() )
+        // while !isEmpty()
         // {
             // var r = all();
 
@@ -434,7 +432,7 @@ class List(valueType: Type)
 
             // var i = 0;
 
-            // while ( i < fill && !counter(i).isEmpty() ; ++i )
+            // while i < fill && !counter(i).isEmpty() ; ++i
             // {
                 // counter(i).merge(carry);
                 // carry.swap(counter(i));
@@ -446,7 +444,7 @@ class List(valueType: Type)
 
         // var i = 1;
 
-        // while ( i < fill ; ++i )
+        // while i < fill ; ++i
             // counter(i).merge(counter(i - 1));
         // swap(counter(fill - 1));
     // }
@@ -460,7 +458,7 @@ class List(valueType: Type)
         var counter = Array(List)(64);
         var fill = 0;
 
-        while ( !isEmpty() )
+        while !isEmpty()
         {
             var r = all();
 
@@ -469,7 +467,7 @@ class List(valueType: Type)
 
             var i = 0;
 
-            while ( i < fill && !counter(i).isEmpty() ; ++i )
+            while i < fill && !counter(i).isEmpty() ; ++i
             {
                 counter(i).merge(carry, pred);
                 carry.swap(counter(i));
@@ -481,7 +479,7 @@ class List(valueType: Type)
 
         var i = 1;
 
-        while ( i < fill ; ++i )
+        while i < fill ; ++i
             counter(i).merge(counter(i - 1), pred);
         swap(counter(fill - 1));
     }
@@ -491,7 +489,7 @@ class List(valueType: Type)
         // var r1 = all();
         // var r2 = other.all();
 
-        // while ( !r1.isEmpty() && !r2.isEmpty() )
+        // while !r1.isEmpty() && !r2.isEmpty()
         // {
             // if ( r2.front() < r1.front() )
             // {
@@ -514,7 +512,7 @@ class List(valueType: Type)
         var r1 = all();
         var r2 = other.all();
 
-        while ( !r1.isEmpty() && !r2.isEmpty() )
+        while !r1.isEmpty() && !r2.isEmpty()
         {
             if ( pred(r2.front(), r1.front()) )
             {
@@ -540,7 +538,7 @@ class List(valueType: Type)
         var p = _head.next;
         var hn = _headNode();
 
-        while ( p != hn )
+        while p != hn
         {
             var tmp = p.value().prev;
 
@@ -569,7 +567,7 @@ class List(valueType: Type)
         var r1 = all();
         var r2 = other.all();
 
-        while ( !r1.isEmpty() )
+        while !r1.isEmpty()
         {
             if ( !(r1.front() == r2.front()) )
                 return false;
@@ -627,17 +625,13 @@ class List(valueType: Type)
         var _begin, _end: _NodeTypePtr;
 
         fun >>(os: @OutStream) if isValid(os << #$ValueType)
-        {
             var first = true;
             var p = _begin;
-            while ( p != _end ; p = p.value().next )
-            {
-                if ( first )
+            while p != _end ; p = p.value().next
+                if first
                     first = false;
                 else
                     os << ", ";
                 os << p.value().data;
-            }
-        }
     }
 }

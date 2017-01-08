@@ -27,7 +27,7 @@ fun doJob(sem: @par.Semaphore, waitTime: Int) {
     var amountOfWork: Int;
 
     fun ()() {
-        for ( i = 0..amountOfWork ) {
+        for i = 0..amountOfWork {
             doJob(sem, i % 5 + 1);
         }
         test.assertGe(numExecutions load, amountOfWork, "all our job should be executed");
@@ -42,14 +42,14 @@ class WorkManager {
     fun ctor(sem: @par.Semaphore, amountOfWork, numWorkers: Int) {
         this.amountOfWork ctor amountOfWork;
         this.numWorkers ctor numWorkers;
-        for ( i=0..numWorkers ) {
+        for i=0..numWorkers {
             var p: par.Thread Ptr = new(par.Thread, Worker(sem, amountOfWork));
             threads.pushBack(p);
         }
     }
 
     fun dtor {
-        for ( t = threads.all ) {
+        for t = threads.all {
             t.get join;
             t.release;
         }

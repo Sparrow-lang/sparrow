@@ -16,7 +16,7 @@ fun secantMethod(a, b, c, d, x1, x2, err: Double): Double
 {
     var t, p1, p2: Double;
 
-    while ( abs(poly3(a, b, c, d, x2)) > err )
+    while abs(poly3(a, b, c, d, x2)) > err
     {
         p2 = poly3(a, b, c, d, x2);
         p1 = poly3(a, b, c, d, x1);

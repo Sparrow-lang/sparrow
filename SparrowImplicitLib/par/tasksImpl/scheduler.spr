@@ -109,7 +109,7 @@ fun schedDoWait(worker: @Worker, toExecute, waitingTask: TaskPtr) {
     */
 
     var nextToExecute: TaskPtr = toExecute;
-    while ( true ) {
+    while true {
         [ct] if ( isValidAndTrue(traceCalls) )
             Tracer(worker)<< "work: " << TasksPrinter(toExecute, worker.work) << endl;
 
@@ -137,7 +137,7 @@ fun schedDoWait(worker: @Worker, toExecute, waitingTask: TaskPtr) {
         if ( toExecute isNull ) {
             // Try different queues until we find one we can steal from
             var numStealAttempts = 2*(worker.taskSystem numAvailableWorkers);
-            for ( i = 1..numStealAttempts ) {
+            for i = 1..numStealAttempts {
                 // Get a queue from another worker; chose it randomly
                 var otherQueue: @TaskQueue = (worker.taskSystem getRandomTaskQueue);
                 // Get item from the back: try to take as much work as possible
@@ -165,7 +165,7 @@ fun schedDoWait(worker: @Worker, toExecute, waitingTask: TaskPtr) {
         // This is our terminating condition
         if ( (waitingTask isSet) ) {
             // If the task has a continuation, make sure we wait on it
-            while ( waitingTask.get().cont isSet ) {
+            while waitingTask.get().cont isSet {
                 waitingTask = waitingTask.get().cont;
                 // Account for the wait of the continuation
                 waitingTask.get() incrementRefCount;

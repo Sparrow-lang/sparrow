@@ -65,7 +65,7 @@ import std.vector, std.algorithms, std.string;
     // Print all the expression string in between
     var expr: String = loc getCorrespondingCode;
     var lastIdx = 0;
-    for ( i = 0..varsList.size ) {
+    for i = 0..varsList.size {
         var v = varsList(i);
         var vl = v location;
         if ( vl.end.line != loc.start.line )
@@ -131,7 +131,7 @@ import std.vector, std.algorithms, std.string;
         }
     }
     else {
-        for ( child = node children )
+        for child = node children
             if ( child isSet )
                 _extractVars(child, varsList);
     }

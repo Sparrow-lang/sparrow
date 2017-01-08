@@ -9,18 +9,18 @@ fun sprMain
         return;
     var n = programArgs(1) asInt;
 
-    if      ( n == 1 ) test1();
-    else if ( n == 2 ) test2();
-    else if ( n == 3 ) test3();
-    else if ( n == 4 ) test4();
-    else if ( n == 5 ) test5();
-    else if ( n == 6 ) test6();
-    else if ( n == 7 ) test7();
-    else if ( n == 8 ) test8();
-    else if ( n == 9 ) test9();
-    else if ( n == 10 ) test10();
-    else if ( n == 11 ) test11();
-    else if ( n == 12 ) test12();
+    if      n == 1  ; test1
+    else if n == 2  ; test2
+    else if n == 3  ; test3
+    else if n == 4  ; test4
+    else if n == 5  ; test5
+    else if n == 6  ; test6
+    else if n == 7  ; test7
+    else if n == 8  ; test8
+    else if n == 9  ; test9
+    else if n == 10 ; test10
+    else if n == 11 ; test11
+    else if n == 12 ; test12
 }
 
 class MyObj
@@ -36,7 +36,7 @@ fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
     var ptrEnd = ptr.advance(DiffType(size));
     var i = 0;
 
-    while ( i < size ; i = i + 1; )
+    while i < size ; i = i + 1;
     {
         var o: @AnyType = ptr.advance(i).value();
 
@@ -50,7 +50,7 @@ fun printStaticArray(a: @AnyType)
 {
     var i = 0;
 
-    while ( i < a.size() ; i = i + 1; )
+    while i < a.size() ; i = i + 1;
     {
         cout << a.at(i).x;
         if ( i < a.size() - 1 )
@@ -148,10 +148,10 @@ fun test7()
     var a = StaticArray(MyObj, 4)(createRangeAscending(4));
     var r = a.all();
 
-    while ( !r.isEmpty() ; r.popFront(); )
+    while !r.isEmpty() ; r.popFront();
         cout << r.front().x << endl;
     r = ContiguousMemoryRange(MyObj)(a.all());
-    while ( !r.isEmpty() ; r.popFront(); )
+    while !r.isEmpty() ; r.popFront();
         r.front().x = r.front().x + 1;
     printSizeInfo(a);
     printStaticArray(a);
@@ -237,7 +237,7 @@ fun test11()
     var i = 0;
 
     printSizeInfo(a);
-    while ( i < a.size() ; i = i + 1; )
+    while i < a.size() ; i = i + 1;
     {
         if ( a.at(i).x != i )
             cout << "test failed" << endl;
@@ -247,7 +247,7 @@ fun test11()
 
     i = 0;
     printSizeInfo(aa);
-    while ( i < aa.size() ; i = i + 1; )
+    while i < aa.size() ; i = i + 1;
     {
         if ( aa.at(i).x != i )
             cout << "test failed" << endl;
@@ -258,7 +258,7 @@ fun test11()
     aaa.assign(createRangeAscending(1000));
     i = 0;
     printSizeInfo(aaa);
-    while ( i < aaa.size() ; i = i + 1; )
+    while i < aaa.size() ; i = i + 1;
     {
         if ( aaa.at(i).x != i )
             cout << "test failed" << endl;
@@ -278,16 +278,16 @@ fun test12()
     var v = StaticArray(MyObj, 8)(createRangeAscending(8));
     var r = v.subrange(0, 0);
 
-    while ( !r.isEmpty() ; r.popFront(); )
+    while !r.isEmpty() ; r.popFront();
         cout << r.front().x << endl;
     r = v.subrange(0, 1);
-    while ( !r.isEmpty() ; r.popFront(); )
+    while !r.isEmpty() ; r.popFront();
         cout << r.front().x << endl;
     r = v.subrange(2, 3);
-    while ( !r.isEmpty() ; r.popFront(); )
+    while !r.isEmpty() ; r.popFront();
         cout << r.front().x << endl;
     r = v.subrange(0, v.size());
-    while ( !r.isEmpty() ; r.popFront(); )
+    while !r.isEmpty() ; r.popFront();
         cout << r.front().x << endl;
 }
 /*<<<Subrange(12)

@@ -27,7 +27,7 @@ fun apply(f: AnyType, n: Int ct)
 
 fun apply(f: AnyType, n: Int rt)
 {
-    for (i = 0..n )
+    for i = 0..n
     {
         f();
     }

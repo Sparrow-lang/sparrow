@@ -366,9 +366,11 @@ private fun parseDatatypeDecl(p: @OurParser, res: @Node): Bool {
         p expect tkLCURLY;
         var children: Node;
         parseFormal(p, true, children);
-        while ( p accept tkCOMMA ) {
+        while ( (p accept tkCOMMA) || (p accept tkSEMICOLON) ) {
+            if ( p nextIs tkRCURLY ) break;
             parseFormal(p, true, children);
         }
+        while ( p accept tkSEMICOLON ) ;
         p expect tkRCURLY;
         loc copyEnd p.lastToken.loc;
         res = mkClass(loc, id.asStringRef, formals, Node(), ifClause, children);
@@ -733,9 +735,7 @@ private fun parseBlockStmt(p: @OurParser, res: @Node, topLevel: Bool): Bool {
 private fun parseIfStmt(p: @OurParser, res: @Node, topLevel: Bool): Bool {
     var loc = p curLoc;
     if ( p accept tkIF ) {
-        p expect tkLPAREN;
         var expr = parseExpr(p);
-        p expect tkRPAREN;
         var thenClause = parseStmt(p, topLevel);
         var elseClause: Node;
         if ( p accept tkELSE )
@@ -749,14 +749,12 @@ private fun parseIfStmt(p: @OurParser, res: @Node, topLevel: Bool): Bool {
 private fun parseForStmt(p: @OurParser, res: @Node, topLevel: Bool): Bool {
     var loc = p curLoc;
     if ( p accept tkFOR ) {
-        p expect tkLPAREN;
         var id = parseId(p);
         var typeNode: Node;
         if ( p accept tkCOLON )
             typeNode = parseExpr(p, false);
         p expect tkEQUAL;
         var range = parseExpr(p);
-        p expect tkRPAREN;
         var action = parseStmt(p, topLevel);
         loc copyEnd p.lastToken.loc;
         res = mkForStmt(loc, id.asStringRef, typeNode, range, action);
@@ -767,17 +765,15 @@ private fun parseForStmt(p: @OurParser, res: @Node, topLevel: Bool): Bool {
 private fun parseWhileStmt(p: @OurParser, res: @Node, topLevel: Bool): Bool {
     var loc = p curLoc;
     if ( p accept tkWHILE ) {
-        p expect tkLPAREN;
         var expr = parseExpr(p);
         var stepAction: Node;
         if ( p accept tkSEMICOLON ) {
-            // Try parsing it as an expression; if this is not an expression, try block statement
+            // Now expect an expression or a block statement, as the step action
             if ( !parseExprOpt(p, stepAction, true)
                 && !parseBlockStmt(p, stepAction, topLevel) ) {
                 p reportError toString("Syntax error, unexpected ", (*p.tokens).type, ", expecting expression or block statement");
             }
         }
-        p expect tkRPAREN;
         var body = parseStmt(p, topLevel);
         loc copyEnd p.lastToken.loc;
         res = mkWhileStmt(loc, expr, stepAction, body);

@@ -97,6 +97,8 @@ void Nest_reportDiagnostic(Location loc, DiagnosticSeverity severity, const char
 
     if ( severity == diagInternalError )
         exit(-1);
+    // if ( severity == diagError )
+    //     exit(-1);
 }
 
 void Nest_reportFmt(Location loc, DiagnosticSeverity severity, const char* fmt, ...)

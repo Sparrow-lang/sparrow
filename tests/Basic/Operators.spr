@@ -39,7 +39,7 @@ fun pow3(x: Double, n: Int): Double
 {
     var res: Double;
     res = 1.0;
-    while ( n>0 ; n=n-1; )
+    while n>0 ; n=n-1;
     {
         res = res * x;
     }
@@ -50,7 +50,7 @@ fun pow4(x: Double, n: Int): Double
 {
     var res: Double;
     res = 1.0;
-    while ( n>0 ; n-=1; )
+    while n>0 ; n-=1
     {
         res *= x;
     }

@@ -40,20 +40,20 @@ fun sprMain
         return;
     var n = programArgs(1) asInt;
 
-    if      ( n == 1 ) test1();
-    else if ( n == 2 ) test2();
-    else if ( n == 3 ) test3();
-    else if ( n == 4 ) test4();
-    else if ( n == 5 ) test5();
-    else if ( n == 6 ) test6();
-    else if ( n == 7 ) test7();
+    if      n == 1; test1
+    else if n == 2; test2
+    else if n == 3; test3
+    else if n == 4; test4
+    else if n == 5; test5
+    else if n == 6; test6
+    else if n == 7; test7
 }
 
 fun test1
 {
     var x, y: LStr;
     var pred = children(x, y);
-    while ( pred() )
+    while pred()
     {
         //assert(x.isSet());
         //assert(y.isSet());
@@ -62,7 +62,7 @@ fun test1
     cout << "---\n";
     var x2, y2: LStr;
     var pred2 = gender(x2, y2);
-    while ( pred2() )
+    while pred2()
     {
         //assert(x2.isSet());
         //assert(y2.isSet());
@@ -87,7 +87,7 @@ fun test2
 {
     var x: LStr;
     var pred = male(x);
-    while ( pred() )
+    while pred()
     {
         //assert(x.isSet());
         cout << "Male: " << x.get() << endl;
@@ -103,7 +103,7 @@ fun test3
 {
     var x: LStr;
     var pred = female(x);
-    while ( pred() )
+    while pred()
     {
         //assert(x.isSet());
         cout << "Female: " << x.get() << endl;
@@ -118,7 +118,7 @@ fun test4
 {
     var x, y: LStr;
     var pred = parent(x, y);
-    while ( pred() )
+    while pred()
     {
         //assert(x.isSet());
         //assert(y.isSet());
@@ -137,7 +137,7 @@ fun test5
 {
     var x, y: LStr;
     var pred = father(x, y);
-    while ( pred() )
+    while pred()
     {
         //assert(x.isSet());
         //assert(y.isSet());
@@ -154,7 +154,7 @@ fun test6
 {
     var x, y: LStr;
     var pred = mother(x, y);
-    while ( pred() )
+    while pred()
     {
         //assert(x.isSet());
         //assert(y.isSet());
@@ -170,7 +170,7 @@ fun test7
 {
     var x, y: LStr;
     var pred = ancestor(x, y);
-    while ( pred() )
+    while pred()
     {
         //assert(x.isSet());
         //assert(y.isSet());

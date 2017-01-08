@@ -23,10 +23,8 @@ class Timer
 //
 
 [ct] fun ^(base, exp: Int): ULong
-{
     var res: ULong = 1;
     var i = 0;
-    while ( i<exp; ++i )
+    while i<exp; ++i
         res *= ULong(base);
     return res;
-}

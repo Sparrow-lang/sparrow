@@ -48,7 +48,7 @@ fun min(value1: @AnyType, value2: @AnyType, pred: AnyType): typeOf(value1)
 
 [rtct] fun find(range: AnyType, value: @AnyType): typeOf(range)
 {
-    while ( !range.isEmpty() && !(range.front() == value) )
+    while !range.isEmpty() && !(range.front() == value)
         range.popFront();
 
     return range;
@@ -57,7 +57,7 @@ fun min(value1: @AnyType, value2: @AnyType, pred: AnyType): typeOf(value1)
 // TODO (LucTeo): Check why the previous function doesn't work well in RTCT mode
 [rtct] fun find2(range: AnyType, value: AnyType): typeOf(range)
 {
-    while ( !range.isEmpty() && !(range.front() == value) )
+    while !range.isEmpty() && !(range.front() == value)
         range.popFront();
 
     return range;
@@ -65,21 +65,21 @@ fun min(value1: @AnyType, value2: @AnyType, pred: AnyType): typeOf(value1)
 
 [rtct] fun findIf(r: Range, pred: AnyType): typeOf(r) if typeOf(pred(*r)) == Bool
 {
-    while ( !!r && !pred(*r) )
+    while !!r && !pred(*r)
         ++r;
     return r;
 }
 //[rtct] fun findIf(r: Range, pred: AnyType): typeOf(r) if typeOf(pred(r.front())) == Bool
 //{
-//    while ( !r.isEmpty() && !pred(r.front()) )
+//    while !r.isEmpty() && !pred(r.front())
 //        r.popFront();
 //    return r;
 //}
 
 fun findFirstOf(range1, range2: Range): typeOf(range1)
 {
-    while ( !range1.isEmpty() ; range1.popFront() )
-        for ( val = range2 )
+    while !range1.isEmpty() ; range1.popFront()
+        for val = range2
             if  ( range1.front() == val )
                 return range1;
 
@@ -88,8 +88,8 @@ fun findFirstOf(range1, range2: Range): typeOf(range1)
 
 fun findFirstOfIf(range1, range2: Range, pred: AnyType): typeOf(range1)
 {
-    while ( !range1.isEmpty() ; range1.popFront() )
-        for ( val = range2 )
+    while !range1.isEmpty() ; range1.popFront()
+        for val = range2
             if ( pred(range1.front(), val) )
                 return range1;
 
@@ -99,7 +99,7 @@ fun findFirstOfIf(range1, range2: Range, pred: AnyType): typeOf(range1)
 fun count(range: AnyType, value: @AnyType): SizeType
 {
     var n: SizeType = 0;
-    for ( v = range )
+    for v = range
         if ( v == value )
             ++n;
     return n;
@@ -108,7 +108,7 @@ fun count(range: AnyType, value: @AnyType): SizeType
 fun countIf(range: AnyType, pred: AnyType): SizeType
 {
     var n: SizeType = 0;
-    for ( v = range )
+    for v = range
         if ( pred(v) )
             ++n;
     return n;
@@ -116,7 +116,7 @@ fun countIf(range: AnyType, pred: AnyType): SizeType
 
 fun equal(range1: AnyType, range2: AnyType): Bool
 {
-    while ( !range1.isEmpty() && !range2.isEmpty() && range1.front() == range2.front() )
+    while !range1.isEmpty() && !range2.isEmpty() && range1.front() == range2.front()
     {
         range1.popFront();
         range2.popFront();
@@ -130,7 +130,7 @@ fun equal(range1: AnyType, range2: AnyType): Bool
 
 fun equalIf(range1: AnyType, range2: AnyType, pred: AnyType): Bool
 {
-    while ( !range1.isEmpty() && !range2.isEmpty() && pred(range1.front(), range2.front()) )
+    while !range1.isEmpty() && !range2.isEmpty() && pred(range1.front(), range2.front())
     {
         range1.popFront();
         range2.popFront();
@@ -154,12 +154,12 @@ fun findRange(range1: AnyType, range2: AnyType): typeOf(range1)
     if ( tmp.isEmpty() )
         return find(range1, range2.front());
 
-    while ( !range1.isEmpty() )
+    while !range1.isEmpty()
     {
         var r1 = range1;
         var r2 = range2;
 
-        while ( !r1.isEmpty() && !r2.isEmpty() && r1.front() == r2.front() )
+        while !r1.isEmpty() && !r2.isEmpty() && r1.front() == r2.front()
         {
             r1.popFront();
             r2.popFront();
@@ -179,12 +179,12 @@ fun findRangeIf(range1: AnyType, range2: AnyType, pred: AnyType): typeOf(range1)
     if ( range1.isEmpty() || range2.isEmpty() )
         return range1;
 
-    while ( !range1.isEmpty() )
+    while !range1.isEmpty()
     {
         var r1 = range1;
         var r2 = range2;
 
-        while ( !r1.isEmpty() && !r2.isEmpty() && pred(r1.front(), r2.front()) )
+        while !r1.isEmpty() && !r2.isEmpty() && pred(r1.front(), r2.front())
         {
             r1.popFront();
             r2.popFront();
@@ -213,12 +213,12 @@ fun indexOfRange(range1: AnyType, range2: AnyType): SizeType
 
     var k = 0;
 
-    while ( !range1.isEmpty() )
+    while !range1.isEmpty()
     {
         var r1 = range1;
         var r2 = range2;
 
-        while ( !r1.isEmpty() && !r2.isEmpty() && r1.front() == r2.front() )
+        while !r1.isEmpty() && !r2.isEmpty() && r1.front() == r2.front()
         {
             r1.popFront();
             r2.popFront();
@@ -242,7 +242,7 @@ fun minElement(range: Range): typeOf(range)
     var res = range;
 
     range.popFront();
-    while ( !range.isEmpty() ; range.popFront() )
+    while !range.isEmpty() ; range.popFront()
         if ( range.front() < res.front() )
             res = range;
 
@@ -257,7 +257,7 @@ fun minElementIf(range: Range, pred: AnyType): typeOf(range)
     var res = range;
 
     range.popFront();
-    while ( !range.isEmpty() ; range.popFront() )
+    while !range.isEmpty() ; range.popFront()
         if ( pred(range.front(), res.front()) )
             res = range;
 
@@ -272,7 +272,7 @@ fun maxElement(range: Range): typeOf(range)
     var res = range;
 
     range.popFront();
-    while ( !range.isEmpty() ; range.popFront() )
+    while !range.isEmpty() ; range.popFront()
         if ( res.front() < range.front() )
             res = range;
 
@@ -287,7 +287,7 @@ fun maxElementIf(range: Range, pred: AnyType): typeOf(range)
     var res = range;
 
     range.popFront();
-    while ( !range.isEmpty() ; range.popFront() )
+    while !range.isEmpty() ; range.popFront()
         if ( pred(res.front(), range.front()) )
             res = range;
 
@@ -303,7 +303,7 @@ fun maxElementIf(range: Range, pred: AnyType): typeOf(range)
     var maxRes = range;
 
     range.popFront();
-    while ( !range.isEmpty() )
+    while !range.isEmpty()
     {
         if ( minRes.front() < range.front() )
             minRes = range;
@@ -324,7 +324,7 @@ fun maxElementIf(range: Range, pred: AnyType): typeOf(range)
     var maxRes = range;
 
     range.popFront();
-    while ( !range.isEmpty() )
+    while !range.isEmpty()
     {
         if ( pred(minRes.front(), range.front()) )
             minRes = range;
@@ -338,7 +338,7 @@ fun maxElementIf(range: Range, pred: AnyType): typeOf(range)
 
 fun compare(range1: AnyType, range2: AnyType): Bool
 {
-    while ( !range1.isEmpty() && !range2.isEmpty() )
+    while !range1.isEmpty() && !range2.isEmpty()
     {
         if ( !(range1.front() < range2.front()) )
             return false;
@@ -354,7 +354,7 @@ fun compare(range1: AnyType, range2: AnyType): Bool
 
 fun compare(range1: AnyType, range2: AnyType, pred: AnyType): Bool
 {
-    while ( !range1.isEmpty() && !range2.isEmpty() )
+    while !range1.isEmpty() && !range2.isEmpty()
     {
         if ( !pred(range1.front(), range2.front()) )
             return false;
@@ -376,7 +376,7 @@ fun isSorted(range: AnyType): Bool
     var next = range;
 
     next.popFront();
-    while ( !next.isEmpty() )
+    while !next.isEmpty()
     {
         if ( next.front() < range.front() )
             return false;
@@ -396,7 +396,7 @@ fun isSorted(range: AnyType, pred: AnyType): Bool
     var next = range;
 
     next.popFront();
-    while ( !next.isEmpty() )
+    while !next.isEmpty()
     {
         if ( pred(next.front(), range.front()) )
             return false;
@@ -412,7 +412,7 @@ fun isSorted(range: AnyType, pred: AnyType): Bool
 {
     var n: SizeType = 0;
 
-    for ( v = range )
+    for v = range
     {
         if ( v == value )
             return n;
@@ -426,7 +426,7 @@ fun isSorted(range: AnyType, pred: AnyType): Bool
 {
     var n: SizeType = 0;
 
-    for ( v = range )
+    for v = range
     {
         if ( pred(v) )
             return n;
@@ -439,7 +439,7 @@ fun isSorted(range: AnyType, pred: AnyType): Bool
 fun foldLeft(range: AnyType, function: AnyType, seed: @AnyType): -@typeOf(seed)
 {
     var t = seed;
-    for ( v = range )
+    for v = range
         t = function(t, v);
     return t;
 }
@@ -448,7 +448,7 @@ fun foldRight(range: AnyType, function: AnyType, seed: @AnyType): -@typeOf(seed)
 {
     var t = seed;
 
-    while ( !range.isEmpty() ; range.popBack() )
+    while !range.isEmpty() ; range.popBack()
         t = function(t, range.back());
 
     return t;
@@ -457,7 +457,7 @@ fun foldRight(range: AnyType, function: AnyType, seed: @AnyType): -@typeOf(seed)
 //[rtct] fun copy(r1, r2: Range): typeOf(r2) if isValid(*r2 = *r1)
 [rtct] fun copy(r1, r2: Range): typeOf(r2) if isValid(r2.front() = r1.front())
 {
-    while ( (!!r1) && (!!r2) )
+    while (!!r1) && (!!r2)
     {
         *r2 = *r1;
         ++r1;
@@ -467,7 +467,7 @@ fun foldRight(range: AnyType, function: AnyType, seed: @AnyType): -@typeOf(seed)
 }
 //[rtct] fun copy(range1: AnyType, range2: AnyType): typeOf(range2)
 //{
-//    while ( !range1.isEmpty() && !range2.isEmpty() )
+//    while !range1.isEmpty() && !range2.isEmpty()
 //    {
 //        range2.front() = range1.front();
 //        range1.popFront();
@@ -479,21 +479,21 @@ fun foldRight(range: AnyType, function: AnyType, seed: @AnyType): -@typeOf(seed)
 
 fun replace(range: Range, oldValue: @AnyType, newValue: @AnyType) //if TypeOp.isRef(typeOf(range.RetType))
 {
-    for ( v = range )
+    for v = range
         if ( v == oldValue )
             v = newValue;
 }
 
 fun replaceIf(range: Range, pred: AnyType, newValue: @AnyType) //if TypeOp.isRef(typeOf(range.RetType))
 {
-    for ( v = range )
+    for v = range
         if ( pred(v) )
             v = newValue;
 }
 
 fun reverse(range: AnyType)
 {
-    while ( true )
+    while true
     {
         if ( range.isEmpty() )
             return;
@@ -515,7 +515,7 @@ fun reverse(range: AnyType)
 
 [rtct] fun merge(range1: AnyType, range2: AnyType, range3: AnyType): typeOf(range3)
 {
-    while ( !range1.isEmpty() && !range2.isEmpty() )
+    while !range1.isEmpty() && !range2.isEmpty()
     {
         if ( range2.front() < range1.front() )
         {
@@ -535,7 +535,7 @@ fun reverse(range: AnyType)
 
 [rtct] fun merge(range1: AnyType, range2: AnyType, range3: AnyType, pred: AnyType): typeOf(range3)
 {
-    while ( !range1.isEmpty() && !range2.isEmpty() )
+    while !range1.isEmpty() && !range2.isEmpty()
     {
         if ( pred(range2.front(), range1.front()) )
         {
@@ -597,11 +597,11 @@ fun reverse(range: AnyType)
     var i = m + 1;
     var j = n;
 
-    while ( i <= j )
+    while i <= j
     {
-        while ( i <= n && range(i) <= mv )
+        while i <= n && range(i) <= mv
             i = i + 1;
-        while ( j >= m && range(j) > mv )
+        while j >= m && range(j) > mv
             j = j - 1;
         if ( i < j )
             swap(range(i), range(j));
@@ -624,11 +624,11 @@ fun reverse(range: AnyType)
     var i = m + 1;
     var j = n;
 
-    while ( i <= j )
+    while i <= j
     {
-        while ( i <= n && !pred(mv, range(i)) )
+        while i <= n && !pred(mv, range(i))
             i = i + 1;
-        while ( j >= m && pred(mv, range(j)) )
+        while j >= m && pred(mv, range(j))
             j = j - 1;
         if ( i < j )
             swap(range(i), range(j));
@@ -659,7 +659,7 @@ fun reverse(range: AnyType)
 
 fun binarySearch(range: AnyType, value: AnyType): Bool
 {
-    while ( !range.isEmpty() )
+    while !range.isEmpty()
     {
         var mid = (range.size() - 1) / 2;
         var t = range(mid);
@@ -678,7 +678,7 @@ fun binarySearch(range: AnyType, value: AnyType): Bool
 
 fun binarySearch(range: AnyType, value: AnyType, pred: AnyType): Bool
 {
-    while ( !range.isEmpty() )
+    while !range.isEmpty()
     {
         var mid = (range.size() - 1) / 2;
         var t = range(mid);

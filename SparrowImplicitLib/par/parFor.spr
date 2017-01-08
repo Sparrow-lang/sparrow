@@ -33,7 +33,7 @@ class DefaultPartitioner(rangeType: Type) {
     fun partStart {
         var p: Int = getAvailableCoresNum;
         var depth = 1;
-        while ( 2 !<<! depth < p )
+        while 2 !<<! depth < p
             ++depth;
 
         _maxDepth = 1 + depth;
@@ -99,19 +99,17 @@ package Impl {
             // Do we have a split?
             var splitValid = !(split._1 isEmpty) && !(split._2 isEmpty);
 
-            if ( splitValid ) {
+            if splitValid
                 // Create two new tasks for the splits
                 var cont: @tasks.EmptyTask = new(tasks.EmptyTask);
                 tasks.setContinuation(this, cont);
                 var t1: @ParForTask = allocParForTask(split._1, func, part, depth+1);
                 var t2: @ParForTask = allocParForTask(split._2, func, part, depth+1);
                 tasks.spawn(cont, t1, t2);
-            } else {
+            else
                 // No more splitting; execute the function serially
-                for ( val: rangeType.RetType = range ) {
+                for val: rangeType.RetType = range
                     func(val);
-                }
-            }
         }
     }
 

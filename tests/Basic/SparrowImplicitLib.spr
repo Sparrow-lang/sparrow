@@ -1083,7 +1083,7 @@ define void @_Type_copy_ctor(i8** %$this, i8* %other)
         var s = size();
         if ( s != other.size() ) return false;
         var i: SizeType = 0;
-        while ( i<s ; i+=SizeType(1) )
+        while i<s ; i+=SizeType(1)
             if ( getChar(i) != other.getChar(i) ) return false;
         return true;
     }

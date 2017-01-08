@@ -9,10 +9,10 @@ fun write(r: Range, length: Int) if isValid(Char(r.front))
 {
     using lineLength = 60;
     var line: String = lineLength;
-    for ( n = length..0 ../ (-lineLength) )
+    for n = length..0 ../ (-lineLength)
     {
         var len = min(n, lineLength);
-        for ( i = 0..len )
+        for i = 0..len
             line(i) = (r++);
         if ( len < lineLength )
             line.resize(len);
@@ -36,9 +36,9 @@ class RandTableRange
     fun ctor(data: Range)
     {
         lookup.ctor(numEntries+1);
-        for ( i = 0...numEntries )
+        for i = 0...numEntries
         {
-            while ( i > data.front().v1*numEntries )
+            while i > data.front().v1*numEntries
                 data.popFront();
             lookup(i) = data.front;
         }
@@ -51,7 +51,7 @@ class RandTableRange
     {
         var r = nextRandom;
         var idx: SizeType = r*numEntries;
-        while ( lookup(idx).v1 < r )
+        while lookup(idx).v1 < r
             ++idx;
         return lookup(idx).v2;
     }

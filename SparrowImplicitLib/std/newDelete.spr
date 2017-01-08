@@ -51,6 +51,6 @@ module std.newDelete;
 
 [rtct] fun delete(r: Range)
 {
-    for ( x = r )
+    for x = r
         delete(x);
 }

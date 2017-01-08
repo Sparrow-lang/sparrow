@@ -43,28 +43,28 @@ fun sprMain
         return;
     var n = programArgs(1) asInt;
 
-    if      ( n == 1 ) test1();
-    else if ( n == 2 ) test2();
-    else if ( n == 3 ) test3();
-    else if ( n == 4 ) test4();
-    else if ( n == 5 ) test5();
-    else if ( n == 6 ) test6();
-    else if ( n == 7 ) test7();
-    else if ( n == 8 ) test8();
-    else if ( n == 9 ) test9();
-    else if ( n == 10 ) test10();
-    else if ( n == 11 ) test11();
-    else if ( n == 12 ) test12();
-    else if ( n == 13 ) test13();
-    else if ( n == 14 ) test14();
-    else if ( n == 15 ) test15();
-    else if ( n == 16 ) test16();
-    else if ( n == 17 ) test17();
-    else if ( n == 18 ) test18();
-    else if ( n == 19 ) test19();
-    else if ( n == 20 ) test20();
-    else if ( n == 21 ) test21();
-    else if ( n == 22 ) test22();
+    if      n == 1  ; test1
+    else if n == 2  ; test2
+    else if n == 3  ; test3
+    else if n == 4  ; test4
+    else if n == 5  ; test5
+    else if n == 6  ; test6
+    else if n == 7  ; test7
+    else if n == 8  ; test8
+    else if n == 9  ; test9
+    else if n == 10 ; test10
+    else if n == 11 ; test11
+    else if n == 12 ; test12
+    else if n == 13 ; test13
+    else if n == 14 ; test14
+    else if n == 15 ; test15
+    else if n == 16 ; test16
+    else if n == 17 ; test17
+    else if n == 18 ; test18
+    else if n == 19 ; test19
+    else if n == 20 ; test20
+    else if n == 21 ; test21
+    else if n == 22 ; test22
 }
 
 fun makeList(): List(Int*Int)
@@ -103,7 +103,7 @@ fun printRange(nr: AnyType)
 
     var r = v.all();
     sort(r, (fun (l,r: AnyType) = l.v1 < r.v1));
-    while ( !r.isEmpty() )
+    while !r.isEmpty()
     {
         printPair(r.front());
         r.popFront();
@@ -261,7 +261,7 @@ fun test8()
     // var hs: Map(Int, Int);
     // var i = 0;
 
-    // while ( i < 5 )
+    // while i < 5
     // {
         // hs.insert(i ~ (i * i));
         // i = i + 1;
@@ -284,7 +284,7 @@ fun test9()
     var hs = Map(Int, Int)();
     var i = 0;
 
-    while ( i < 5 )
+    while i < 5
     {
         hs.insert(i, i * i);
         i = i + 1;
@@ -478,14 +478,14 @@ fun test19()
     var keys = hs.keys();
     var values = hs.values();
 
-    while ( !keys.isEmpty() )
+    while !keys.isEmpty()
     {
         cout << keys.front();
         cout << ' ';
         keys.popFront();
     }
     cout << "." << endl;
-    while ( !values.isEmpty() )
+    while !values.isEmpty()
     {
         cout << values.front();
         cout << ' ';
@@ -503,12 +503,12 @@ fun test20()
     var hs: Map(Int, Int);
     var i = 0;
 
-    while ( i < 1000 )
+    while i < 1000
     {
         hs.insert(i, i * i);
         i = i + 1;
     }
-    while ( i < 1000 )
+    while i < 1000
     {
         if ( !hs.contains(i) )
             cout << "Test failed" << endl;
@@ -522,7 +522,7 @@ fun test21()
 {
     var hs: Map(IntWrapper, Int);
 
-    for ( i = 1..5 )
+    for i = 1..5
     {
         hs.insert(i, i*10);
     }
@@ -538,7 +538,7 @@ fun test22()
 {
     var hs: Map(IntWithNoHash, Int, MyTypeTraits);
 
-    for ( i = 1..5 )
+    for i = 1..5
     {
         hs.insert(i, i*10);
     }

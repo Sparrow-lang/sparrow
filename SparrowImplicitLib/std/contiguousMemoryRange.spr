@@ -36,7 +36,7 @@ import ranges(..);
     fun >>(os: @OutStream) if isValid(os << #$valueType)
     {
         os << "MemRange(";
-        for ( i = 0..size ) {
+        for i = 0..size {
             if ( i > 0 )
                 os << ", ";
             os << this(i);

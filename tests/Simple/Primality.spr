@@ -27,7 +27,7 @@ fun isPrime(n: Int): Bool
     var i: Int;
     i = 3;
 
-    while ( i * i <= n ; i = i + 1; )
+    while i * i <= n ; i = i + 1;
     {
         if ( n % i == 0 )
             return false;

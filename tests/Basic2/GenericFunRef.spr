@@ -6,7 +6,7 @@ fun <<(os: @OutStream, r: Range): typeOf(os) if typeOf(r) != StringRef
 {
     var first = true;
     cout << "(";
-    for ( x = r )
+    for x = r
     {
         if ( !first )
             cout << ", ";

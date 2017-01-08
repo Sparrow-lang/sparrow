@@ -24,7 +24,7 @@ import ranges(RandomAccessRange, ..);
         var dst = _begin;
         var src = other._begin;
 
-        while ( dst != _end )
+        while dst != _end
         {
             dst.value().ctor(src.value());
             dst = dst.advance();
@@ -41,7 +41,7 @@ import ranges(RandomAccessRange, ..);
 
         // Construct the elements
         var p = _begin;
-        while ( p != _end ; p = p.advance() )
+        while p != _end ; p = p.advance()
             p.value().ctor();
     }
 
@@ -50,7 +50,7 @@ import ranges(RandomAccessRange, ..);
         _begin.ctor();
         _end.ctor();
         _endOfStore.ctor();
-        for ( v = range )
+        for v = range
             pushBack(v);
     }
 
@@ -60,7 +60,7 @@ import ranges(RandomAccessRange, ..);
         _end.ctor();
         _endOfStore.ctor();
         reserve(range.size());
-        for ( v = range )
+        for v = range
             pushBack(v);
     }
 
@@ -68,7 +68,7 @@ import ranges(RandomAccessRange, ..);
     {
         this.ctor();
         this.reserve(ctEval(src.size()));
-        [ct] for (el: ValueType = src.all())
+        [ct] for el: ValueType = src.all()
             this.pushBack(el);
     }
 
@@ -90,7 +90,7 @@ import ranges(RandomAccessRange, ..);
     {
         var p = _begin;
 
-        while ( p != _end ; p = p.advance() )
+        while p != _end ; p = p.advance()
             p.value().dtor();
         _begin.freePtr();
     }
@@ -135,7 +135,7 @@ import ranges(RandomAccessRange, ..);
         var p = _end.advance(-1);
         var q = _begin.advance(posCount - 1);
 
-        while ( p != q ; p = p.advance(-1) )
+        while p != q ; p = p.advance(-1)
         {
             p.advance().value().ctor(p.value());
             p.value().dtor();
@@ -154,13 +154,13 @@ import ranges(RandomAccessRange, ..);
         var p = _end.advance(-1);
         var q = _begin.advance(index - 1);
 
-        while ( p != q ; p = p.advance(-1) )
+        while p != q ; p = p.advance(-1)
         {
             p.advance(n).value().ctor(p.value());
             p.value().dtor();
         }
         p = p.advance();
-        while ( !range.isEmpty() )
+        while !range.isEmpty()
         {
             p.value().ctor(range.front());
             p = p.advance();
@@ -206,11 +206,11 @@ import ranges(RandomAccessRange, ..);
         var rEnd = range.backPtr();
 
         // Destruct all elements in the range
-        for ( el = range )
+        for el = range
             el.dtor();
 
         // Move back elements in front
-        while ( rEnd != _end )
+        while rEnd != _end
         {
             rBegin.value().ctor(rEnd.value());
             rEnd.value().dtor();
@@ -240,7 +240,7 @@ import ranges(RandomAccessRange, ..);
         {
             var newEnd = _begin.advance(n);
 
-            while ( _end != newEnd )
+            while _end != newEnd
             {
                 _end = _end.advance(-1);
                 _end.value().dtor();
@@ -252,7 +252,7 @@ import ranges(RandomAccessRange, ..);
 
             var newEnd = _begin.advance(n);
 
-            while ( _end != newEnd )
+            while _end != newEnd
             {
                 _end.value().ctor();
                 _end = _end.advance();
@@ -282,7 +282,7 @@ import ranges(RandomAccessRange, ..);
         var i = 0;
         var s = size();
 
-        while ( i < s ; i = i + 1 )
+        while i < s ; i++
         {
             if ( !(at(i) == other.at(i)) )
                 return false;
@@ -295,18 +295,17 @@ import ranges(RandomAccessRange, ..);
     fun assign(range: Range)
     {
         clear();
-        for ( v = range )
+        for v = range
             pushBack(v);
     }
 
     fun >>(os: @OutStream) if isValid(os << #$ValueType)
     {
         os << "Vec(";
-        for ( i = 0..size ) {
+        for i = 0..size
             if ( i > 0 )
                 os << ", ";
             os << at(i);
-        }
         os << ')';
     }
 

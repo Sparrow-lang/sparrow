@@ -34,10 +34,9 @@ fun size(q: @TaskQueue): SizeType {
 fun uncheckedSize(q: @TaskQueue): SizeType {
     var count: SizeType = 0;
     var p: TaskPtr = q._first;
-    while ( p isSet ) {
+    while p isSet
         ++count;
         p = p.get().next;
-    }
     return count;
 }
 
@@ -104,8 +103,7 @@ fun >> (tasks: @TasksPrinter, os: @OutStream) {
     if ( tasks._first isSet )
         os << tasks._first.get() << " + ";
     var p: TaskPtr = tasks.list._first;
-    while ( p isSet ) {
+    while p isSet
         os << p.get() << ' ';
         p = p.get().next;
-    }
 }

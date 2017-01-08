@@ -6,7 +6,7 @@ import std.vector;
 fun test1()
 {
     [ct] var i=0;
-    [ct] while ( i<5; i+=1 )
+    [ct] while i<5; i++
     {
         cout << ctEval(i) << endl;
     }
@@ -23,7 +23,7 @@ fun test1()
 fun test2()
 {
     [ct] var i=0;
-    [ct] while ( i<5; i+=1 )
+    [ct] while i<5; i++
     {
         cout << ctEval(fact(i)) << endl;
     }
@@ -40,7 +40,7 @@ fun test3()
     [ct] var v = createVector(10, 15);
 
     [ct] var i=0;
-    [ct] while ( i<v.size(); i+=1 )
+    [ct] while i<v.size(); i++
     {
         cout << ctEval(v(i)) << endl;
     }

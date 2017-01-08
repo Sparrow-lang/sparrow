@@ -10,29 +10,29 @@ fun fannkuch(n: Int): Int
     var flips, nperm, checksum = 0;
 
     var r = n;
-    while ( r>0 )
+    while r>0
     {
         (1...r) copy count.subrange(0, r);
-        for ( i = 0..n )
+        for i = 0..n
             perm(i) = perm1(i);
 
         // Count flips and update max and checksum
         var f = 0;
         var k = perm(0);
-        while ( k != 0 )
+        while k != 0
         {
-            for ( i = 0..(k+1)/2 )
+            for i = 0..(k+1)/2
                 swap(perm(i), perm(k-i));
             k = perm(0);
             ++f;
         }
-        if ( f>flips )      flips = f;
-        if ( nperm%2==0 )   checksum += f;
-        else                checksum -= f;
+        if f>flips;     flips = f;
+        if nperm%2==0;  checksum += f;
+        else            checksum -= f;
 
         // Use incremental change to generate another permutation
         r = 1;
-        while ( true )
+        while true
         {
             if ( r == n )
             {
@@ -40,7 +40,7 @@ fun fannkuch(n: Int): Int
                 return flips;
             }
             var p0 = perm1(0);
-            for ( i = 0..r )
+            for i = 0..r
                 perm1(i) = perm1(i+1);
             perm1(r) = p0;
 

@@ -38,11 +38,10 @@ fun initTaskSystem(numWorkers: UInt = 0) {
         numWorkers = getAvailableCoresNum();
     //numWorkers = 1;
     var ts: @TaskSystem = globalTaskSystem.get();
-    for ( i=0..numWorkers ) {
+    for i=0..numWorkers
         var worker = ts createWorker;
         var p: Thread Ptr = new(Thread, InternalWorkerThread(worker));
         ts._threads.pushBack(p);
-    }
 }
 
 fun getInitTaskSystem: TaskSystem Ptr {
@@ -68,16 +67,13 @@ fun getRandomTaskQueue(ts: @TaskSystem): @TaskQueue {
     return worker.get().work;
 }
 
-fun onTaskAvailable(ts: @TaskSystem) {
+fun onTaskAvailable(ts: @TaskSystem)
     // Do something only if we have at least one idle worker
-    if ( ts.idleCounter hasIdle ) {
-        for ( w: Worker Ptr = ts.workers.all ) {
+    if ts.idleCounter hasIdle
+        for w: Worker Ptr = ts.workers.all
             // If we can wake up one worker, exit
-            if ( w.get() tryWakeUp )
+            if w.get() tryWakeUp
                 return;
-        }
-    }
-}
 
 //! Get the number of currently available workers
 fun numAvailableWorkers(ts: @TaskSystem): SizeType = (ts.workers size) - (ts.idleCounter numIdleWorkers);

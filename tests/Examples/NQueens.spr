@@ -20,7 +20,7 @@ using SolutionsType = Vector(PlacementType);
 
 [rtct] fun testQueens(placements: @PlacementType, k, y: Int): Bool
 {
-    for ( i = 0..k )
+    for i = 0..k
     {
         if ( y == placements(i) || k-i == math.abs(y-placements(i)) )
             return false;
@@ -30,7 +30,7 @@ using SolutionsType = Vector(PlacementType);
 
 [rtct] fun backtracking(curSol: @PlacementType, k, n: Int, res: @SolutionsType)
 {
-    for ( y = 0..n )
+    for y = 0..n
     {
         if ( testQueens(curSol, k, y) )
         {
@@ -54,18 +54,18 @@ using SolutionsType = Vector(PlacementType);
 [autoCt] fun writeSolutions(solutions: @SolutionsType)
 {
     cout << "We have " << solutions.size() << " solutions\n";
-    for ( sol = solutions.all() )
+    for sol = solutions.all()
         writeSolution(sol);
 }
 
 [rtct] fun writeSolution(x: @PlacementType)
 {
-    for ( v = x.all() )
+    for v = x.all()
     {
-        for ( i = 0..v )
+        for i = 0..v
             cout << "| ";
         cout << "|Q";
-        for ( i = (v+1)..(x.size()) )
+        for i = (v+1)..(x.size())
             cout << "| ";
         cout << "|\n";
     }
@@ -74,7 +74,7 @@ using SolutionsType = Vector(PlacementType);
 
 [rtct] fun writeSolutionBasic(x: @PlacementType)
 {
-    for ( v = x.all() )
+    for v = x.all()
         cout << v;
     cout << "\n";
 }
@@ -87,20 +87,22 @@ using SolutionsType = Vector(PlacementType);
     // lines 2N+1..3N   the characters to be displayed for a queen on white square
     // lines 3N+1..4N   the characters to be displayed for a queen on black square
     var lines = readFileLines("queen-art.txt");
-    if ( lines.isEmpty() ) os.exit(-1);
+    if lines.isEmpty()
+        os.exit(-1);
     var n = asInt(lines(0).asStringRef());
-    if ( lines.size() < 1+4*n ) os.exit(-1);
+    if lines.size() < 1+4*n
+        os.exit(-1);
 
     cout << "We have " << solutions.size() << " solutions\n";
 
-    for ( sol = solutions.all() )
+    for sol = solutions.all()
     {
-        for ( line = 0..sol.size() )
+        for line = 0..sol.size()
         {
             var v = sol(line);
-            for ( l = 0..n )
+            for l = 0..n
             {
-                for ( col = 0..sol.size() )
+                for col = 0..sol.size()
                 {
                     var isQueen = col==v;
                     var isWhite = (line+col)%2==0;
@@ -124,7 +126,7 @@ using SolutionsType = Vector(PlacementType);
         cout << "Cannot open file: " << filename << "\n";
         return lines;
     }
-    while ( !f.isEof() )
+    while !f.isEof()
     {
         var s = f.readLine();
         if ( !s.isEmpty() )
@@ -147,11 +149,11 @@ using SolutionsType = Vector(PlacementType);
 {
     var res: SolutionsType;
     res.reserve(ctEval(sols.size()));
-    [ct] for ( sol = sols.all() )
+    [ct] for sol = sols.all()
     {
         [ct] var size = sol size;
         var arr = PlacementType(ctEval(size));
-        [ct] for ( i = 0..size )
+        [ct] for i = 0..size
             arr(i) = sol(i);
 
         res.pushBack(arr);
@@ -163,11 +165,11 @@ using SolutionsType = Vector(PlacementType);
 {
     var res: SolutionsType;
     res.reserve(ctEval(sols.size()));
-    [ct] for ( sol = sols.all() )
+    [ct] for sol = sols.all()
     {
         [ct] var size = sol size;
         var arr = PlacementType(ctEval(size));
-        [ct] for ( i = 0..size )
+        [ct] for i = 0..size
             arr(i) = ctEval(sol(ctEval(i)));
 
         res.pushBack(arr);
@@ -179,11 +181,11 @@ using SolutionsType = Vector(PlacementType);
 {
     var res: SolutionsType;
     res.reserve(ctEval(sols.size()));
-    [ct] for ( sol = sols.all() )
+    [ct] for sol = sols.all()
     {
         [ct] var size = sol size;
         var arr = PlacementType(ctEval(size));
-        [ct] for ( i = 0..size )
+        [ct] for i = 0..size
         {
             arr(i) = sol(i);
             cout << res.size() << endl;
@@ -202,7 +204,7 @@ using SolutionsType = Vector(PlacementType);
 
     var res: String = 1 + numSols*n;
     res(0) = Char(n);
-    for ( i = 0..numSols*n )
+    for i = 0..numSols*n
     {
         var solNum = i / n;
         var qNum = i % n;
@@ -219,7 +221,7 @@ using SolutionsType = Vector(PlacementType);
 
     var res: SolutionsType = repeat(PlacementType(n), numSols);
 
-    for ( i = 0..numSols*n )
+    for i = 0..numSols*n
     {
         var solNum = i / n;
         var qNum = i % n;

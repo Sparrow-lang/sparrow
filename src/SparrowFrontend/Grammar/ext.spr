@@ -1,52 +1,92 @@
 /// External functions used in the Sparrow parser & scanner
-module sparrowc.spr.grammar.ext;
+module sparrowc.spr.grammar.ext
 
-import node;
-import meta.location;
+import node
+import meta.location
 
 // All the functions here are defined in the compiler
 
-fun[native("comp_parser_reportError")] reportErrorExternal(loc: @Location, msg: StringRef);
+[native("comp_parser_reportError")]
+fun reportErrorExternal(loc: @Location, msg: StringRef)
 
-fun[native("comp_parser_addToNodeList")] addToNodeList(nl, newNode: Node): Node;
+[native("comp_parser_addToNodeList")]
+fun addToNodeList(nl, newNode: Node): Node
 
-fun[native("comp_parser_mkModifiers")] mkModifiers(loc: @Location, main, mods: Node): Node;
-fun[native("comp_parser_mkModule")] mkModule(loc: @Location, moduleName, decls: Node): Node;
-fun[native("comp_parser_mkImportName")] mkImportName(loc: @Location, alias: StringRef, toImport, decls: Node): Node;
-fun[native("comp_parser_mkUsing")] mkUsing(loc: @Location, alias: StringRef, usingNode: Node): Node;
-fun[native("comp_parser_mkPackage")] mkPackage(loc: @Location, name: StringRef, children: Node): Node;
-fun[native("comp_parser_mkClass")] mkClass(loc: @Location, name: StringRef, params, underlyingData, ifClause, children: Node): Node;
-fun[native("comp_parser_mkConcept")] mkConcept(loc: @Location, name, paramName: StringRef, baseConcept, ifClause: Node): Node;
-fun[native("comp_parser_mkVar")] mkVar(loc: @Location, name: StringRef, typeNode, init: Node): Node;
-fun[native("comp_parser_mkParameter")] mkParameter(loc: @Location, name: StringRef, typeNode, init: Node): Node;
-fun[native("comp_parser_mkFun")] mkFun(loc: @Location, name: StringRef, formals, retType, body, bodyExp, ifClause: Node): Node;
+[native("comp_parser_mkModifiers")]
+fun mkModifiers(loc: @Location, main, mods: Node): Node
+[native("comp_parser_mkModule")]
+fun mkModule(loc: @Location, moduleName, decls: Node): Node
+[native("comp_parser_mkImportName")]
+fun mkImportName(loc: @Location, alias: StringRef, toImport, decls: Node): Node
+[native("comp_parser_mkUsing")]
+fun mkUsing(loc: @Location, alias: StringRef, usingNode: Node): Node
+[native("comp_parser_mkPackage")]
+fun mkPackage(loc: @Location, name: StringRef, children: Node): Node
+[native("comp_parser_mkClass")]
+fun mkClass(loc: @Location, name: StringRef, params, underlyingData, ifClause, children: Node): Node
+[native("comp_parser_mkConcept")]
+fun mkConcept(loc: @Location, name, paramName: StringRef, baseConcept, ifClause: Node): Node
+[native("comp_parser_mkVar")]
+fun mkVar(loc: @Location, name: StringRef, typeNode, init: Node): Node
+[native("comp_parser_mkParameter")]
+fun mkParameter(loc: @Location, name: StringRef, typeNode, init: Node): Node
+[native("comp_parser_mkFun")]
+fun mkFun(loc: @Location, name: StringRef, formals, retType, body, bodyExp, ifClause: Node): Node
 
-fun[native("comp_parser_mkParenthesisExpr")] mkParenthesisExpr(expr: Node): Node;
-fun[native("comp_parser_mkPostfixOp")] mkPostfixOp(loc: @Location, base: Node, op: StringRef): Node;
-fun[native("comp_parser_mkInfixOp")] mkInfixOp(loc: @Location, lhs: Node, op: StringRef, rhs: Node): Node;
-fun[native("comp_parser_mkPrefixOp")] mkPrefixOp(loc: @Location, op: StringRef, base: Node): Node;
-fun[native("comp_parser_mkIdentifier")] mkIdentifier(loc: @Location, id: StringRef): Node;
-fun[native("comp_parser_mkCompoundExpr")] mkCompoundExpr(loc: @Location, base: Node, id: StringRef): Node;
-fun[native("comp_parser_mkStarExpr")] mkStarExpr(loc: @Location, base: Node, id: StringRef): Node;
-fun[native("comp_parser_mkDotExpr")] mkDotExpr(loc: @Location, base: Node, id: StringRef): Node;
-fun[native("comp_parser_mkFunAppExpr")] mkFunAppExpr(loc: @Location, base, args: Node): Node;
-fun[native("comp_parser_mkLambdaExpr")] mkLambdaExpr(loc: @Location, closureParams, formals, retType, body, bodyExpr: Node): Node;
-fun[native("comp_parser_mkThisExpr")] mkThisExpr(loc: @Location): Node;
-fun[native("comp_parser_mkNullLiteral")] mkNullLiteral(loc: @Location): Node;
-fun[native("comp_parser_mkBoolLiteral")] mkBoolLiteral(loc: @Location, val: Bool): Node;
-fun[native("comp_parser_mkIntLiteral")] mkIntLiteral(loc: @Location, val: Int): Node;
-fun[native("comp_parser_mkUIntLiteral")] mkUIntLiteral(loc: @Location, val: UInt): Node;
-fun[native("comp_parser_mkLongLiteral")] mkLongLiteral(loc: @Location, val: Long): Node;
-fun[native("comp_parser_mkULongLiteral")] mkULongLiteral(loc: @Location, val: ULong): Node;
-fun[native("comp_parser_mkFloatLiteral")] mkFloatLiteral(loc: @Location, val: Float): Node;
-fun[native("comp_parser_mkDoubleLiteral")] mkDoubleLiteral(loc: @Location, val: Double): Node;
-fun[native("comp_parser_mkCharLiteral")] mkCharLiteral(loc: @Location, val: Char): Node;
-fun[native("comp_parser_mkStringLiteral")] mkStringLiteral(loc: @Location, data: StringRef): Node;
+[native("comp_parser_mkParenthesisExpr")]
+fun mkParenthesisExpr(expr: Node): Node
+[native("comp_parser_mkPostfixOp")]
+fun mkPostfixOp(loc: @Location, base: Node, op: StringRef): Node
+[native("comp_parser_mkInfixOp")]
+fun mkInfixOp(loc: @Location, lhs: Node, op: StringRef, rhs: Node): Node
+[native("comp_parser_mkPrefixOp")]
+fun mkPrefixOp(loc: @Location, op: StringRef, base: Node): Node
+[native("comp_parser_mkIdentifier")]
+fun mkIdentifier(loc: @Location, id: StringRef): Node
+[native("comp_parser_mkCompoundExpr")]
+fun mkCompoundExpr(loc: @Location, base: Node, id: StringRef): Node
+[native("comp_parser_mkStarExpr")]
+fun mkStarExpr(loc: @Location, base: Node, id: StringRef): Node
+[native("comp_parser_mkDotExpr")]
+fun mkDotExpr(loc: @Location, base: Node, id: StringRef): Node
+[native("comp_parser_mkFunAppExpr")]
+fun mkFunAppExpr(loc: @Location, base, args: Node): Node
+[native("comp_parser_mkLambdaExpr")]
+fun mkLambdaExpr(loc: @Location, closureParams, formals, retType, body, bodyExpr: Node): Node
+[native("comp_parser_mkThisExpr")]
+fun mkThisExpr(loc: @Location): Node
+[native("comp_parser_mkNullLiteral")]
+fun mkNullLiteral(loc: @Location): Node
+[native("comp_parser_mkBoolLiteral")]
+fun mkBoolLiteral(loc: @Location, val: Bool): Node
+[native("comp_parser_mkIntLiteral")]
+fun mkIntLiteral(loc: @Location, val: Int): Node
+[native("comp_parser_mkUIntLiteral")]
+fun mkUIntLiteral(loc: @Location, val: UInt): Node
+[native("comp_parser_mkLongLiteral")]
+fun mkLongLiteral(loc: @Location, val: Long): Node
+[native("comp_parser_mkULongLiteral")]
+fun mkULongLiteral(loc: @Location, val: ULong): Node
+[native("comp_parser_mkFloatLiteral")]
+fun mkFloatLiteral(loc: @Location, val: Float): Node
+[native("comp_parser_mkDoubleLiteral")]
+fun mkDoubleLiteral(loc: @Location, val: Double): Node
+[native("comp_parser_mkCharLiteral")]
+fun mkCharLiteral(loc: @Location, val: Char): Node
+[native("comp_parser_mkStringLiteral")]
+fun mkStringLiteral(loc: @Location, data: StringRef): Node
 
-fun[native("comp_parser_mkBlockStmt")] mkBlockStmt(loc: @Location, stmts: Node): Node;
-fun[native("comp_parser_mkIfStmt")] mkIfStmt(loc: @Location, expr, thenClause, elseClause: Node): Node;
-fun[native("comp_parser_mkForStmt")] mkForStmt(loc: @Location, id: StringRef, typeNode, range, action: Node): Node;
-fun[native("comp_parser_mkWhileStmt")] mkWhileStmt(loc: @Location, expr, stepAction, body: Node): Node;
-fun[native("comp_parser_mkBreakStmt")] mkBreakStmt(loc: @Location): Node;
-fun[native("comp_parser_mkContinueStmt")] mkContinueStmt(loc: @Location): Node;
-fun[native("comp_parser_mkReturnStmt")] mkReturnStmt(loc: @Location, expr: Node): Node;
+[native("comp_parser_mkBlockStmt")]
+fun mkBlockStmt(loc: @Location, stmts: Node): Node
+[native("comp_parser_mkIfStmt")]
+fun mkIfStmt(loc: @Location, expr, thenClause, elseClause: Node): Node
+[native("comp_parser_mkForStmt")]
+fun mkForStmt(loc: @Location, id: StringRef, typeNode, range, action: Node): Node
+[native("comp_parser_mkWhileStmt")]
+fun mkWhileStmt(loc: @Location, expr, stepAction, body: Node): Node
+[native("comp_parser_mkBreakStmt")]
+fun mkBreakStmt(loc: @Location): Node
+[native("comp_parser_mkContinueStmt")]
+fun mkContinueStmt(loc: @Location): Node
+[native("comp_parser_mkReturnStmt")]
+fun mkReturnStmt(loc: @Location, expr: Node): Node

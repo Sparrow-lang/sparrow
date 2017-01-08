@@ -1,122 +1,123 @@
-module sparrowc.spr.grammar.token;
+module sparrowc.spr.grammar.token
 
-import meta.location;
-import std.string;
+import meta.location
+import std.string
 
 /// A token type; identifies the type of the token
-datatype TokenType = Int;
+datatype TokenType = Int
 
 /// The actual token; holds all the information needed for a token
-datatype Token { loc: Location, type: TokenType, data: String, intData: ULong, floatData: Double }
+datatype Token
+    loc: Location
+    type: TokenType
+    data: String
+    intData: ULong
+    floatData: Double
 
 /// Concept modeling the output of the scanner
 /// It's basically a range of tokens
-concept TokenRange(x: Range)
-    if -@(x.RetType) == Token
-    ;
+concept TokenRange(x: Range) if -@(x.RetType) == Token
 
 // The list of all tokens used by the parser/scanner
-using tkEND             = TokenType(0);
-using tkEOL             = TokenType(1);
-using tkMODULE          = TokenType(2);
-using tkIMPORT          = TokenType(3);
-using tkCLASS           = TokenType(4);
-using tkCONCEPT         = TokenType(5);
-using tkDATATYPE        = TokenType(6);
-using tkFUN             = TokenType(7);
-using tkPACKAGE         = TokenType(8);
-using tkUSING           = TokenType(9);
-using tkVAR             = TokenType(10);
-using tkBREAK           = TokenType(11);
-using tkCATCH           = TokenType(12);
-using tkCONTINUE        = TokenType(13);
-using tkFINALLY         = TokenType(14);
-using tkFOR             = TokenType(15);
-using tkIF              = TokenType(16);
-using tkRETURN          = TokenType(17);
-using tkTHROW           = TokenType(18);
-using tkTRY             = TokenType(19);
-using tkWHILE           = TokenType(20);
-using tkFALSE           = TokenType(21);
-using tkNULLCT          = TokenType(22);
-using tkTHIS            = TokenType(23);
-using tkTRUE            = TokenType(24);
-using tkELSE            = TokenType(25);
-using tkLCURLY          = TokenType(26);
-using tkRCURLY          = TokenType(27);
-using tkLBRACKET        = TokenType(28);
-using tkRBRACKET        = TokenType(29);
-using tkLPAREN          = TokenType(30);
-using tkRPAREN          = TokenType(31);
-using tkCOLON           = TokenType(32);
-using tkSEMICOLON       = TokenType(33);
-using tkCOMMA           = TokenType(34);
-using tkDOT             = TokenType(35);
-using tkBACKSQUOTE      = TokenType(36);
-using tkEQUAL           = TokenType(37);
-using tkIDENTIFIER      = TokenType(38);
-using tkOPERATOR        = TokenType(39);
-using tkCHAR_LITERAL    = TokenType(40);
-using tkSTRING_LITERAL  = TokenType(41);
-using tkINT_LITERAL     = TokenType(42);
-using tkLONG_LITERAL    = TokenType(43);
-using tkUINT_LITERAL    = TokenType(44);
-using tkULONG_LITERAL   = TokenType(45);
-using tkFLOAT_LITERAL   = TokenType(46);
-using tkDOUBLE_LITERAL  = TokenType(47);
+using tkEND             = TokenType(0)
+using tkEOL             = TokenType(1)
+using tkMODULE          = TokenType(2)
+using tkIMPORT          = TokenType(3)
+using tkCLASS           = TokenType(4)
+using tkCONCEPT         = TokenType(5)
+using tkDATATYPE        = TokenType(6)
+using tkFUN             = TokenType(7)
+using tkPACKAGE         = TokenType(8)
+using tkUSING           = TokenType(9)
+using tkVAR             = TokenType(10)
+using tkBREAK           = TokenType(11)
+using tkCATCH           = TokenType(12)
+using tkCONTINUE        = TokenType(13)
+using tkFINALLY         = TokenType(14)
+using tkFOR             = TokenType(15)
+using tkIF              = TokenType(16)
+using tkRETURN          = TokenType(17)
+using tkTHROW           = TokenType(18)
+using tkTRY             = TokenType(19)
+using tkWHILE           = TokenType(20)
+using tkFALSE           = TokenType(21)
+using tkNULLCT          = TokenType(22)
+using tkTHIS            = TokenType(23)
+using tkTRUE            = TokenType(24)
+using tkELSE            = TokenType(25)
+using tkLCURLY          = TokenType(26)
+using tkRCURLY          = TokenType(27)
+using tkLBRACKET        = TokenType(28)
+using tkRBRACKET        = TokenType(29)
+using tkLPAREN          = TokenType(30)
+using tkRPAREN          = TokenType(31)
+using tkCOLON           = TokenType(32)
+using tkSEMICOLON       = TokenType(33)
+using tkCOMMA           = TokenType(34)
+using tkDOT             = TokenType(35)
+using tkBACKSQUOTE      = TokenType(36)
+using tkEQUAL           = TokenType(37)
+using tkIDENTIFIER      = TokenType(38)
+using tkOPERATOR        = TokenType(39)
+using tkCHAR_LITERAL    = TokenType(40)
+using tkSTRING_LITERAL  = TokenType(41)
+using tkINT_LITERAL     = TokenType(42)
+using tkLONG_LITERAL    = TokenType(43)
+using tkUINT_LITERAL    = TokenType(44)
+using tkULONG_LITERAL   = TokenType(45)
+using tkFLOAT_LITERAL   = TokenType(46)
+using tkDOUBLE_LITERAL  = TokenType(47)
 
-private fun asString(t: TokenType): String {
-    if ( t == tkEND )                   return "end-of-file";
-    else if ( t == tkEOL )              return "new-line";
-    else if ( t == tkMODULE )           return "'module'";
-    else if ( t == tkIMPORT )           return "'import'";
-    else if ( t == tkCLASS )            return "'class'";
-    else if ( t == tkCONCEPT )          return "'concept'";
-    else if ( t == tkDATATYPE )         return "'datatype'";
-    else if ( t == tkFUN )              return "'fun'";
-    else if ( t == tkPACKAGE )          return "'package'";
-    else if ( t == tkUSING )            return "'using'";
-    else if ( t == tkVAR )              return "'var'";
-    else if ( t == tkBREAK )            return "'break'";
-    else if ( t == tkCATCH )            return "'catch'";
-    else if ( t == tkCONTINUE )         return "'continue'";
-    else if ( t == tkFINALLY )          return "'finally'";
-    else if ( t == tkFOR )              return "'for'";
-    else if ( t == tkIF )               return "'if'";
-    else if ( t == tkRETURN )           return "'return'";
-    else if ( t == tkTHROW )            return "'throw'";
-    else if ( t == tkTRY )              return "'try'";
-    else if ( t == tkWHILE )            return "'while'";
-    else if ( t == tkFALSE )            return "'false'";
-    else if ( t == tkNULLCT )           return "'null'";
-    else if ( t == tkTHIS )             return "'this'";
-    else if ( t == tkTRUE )             return "'true'";
-    else if ( t == tkELSE )             return "'else'";
-    else if ( t == tkLCURLY )           return "'{' (or indent)";
-    else if ( t == tkRCURLY )           return "'}' (or dedent)";
-    else if ( t == tkLBRACKET )         return "'['";
-    else if ( t == tkRBRACKET )         return "']'";
-    else if ( t == tkLPAREN )           return "'('";
-    else if ( t == tkRPAREN )           return "')'";
-    else if ( t == tkCOLON )            return "':'";
-    else if ( t == tkSEMICOLON )        return "';' (or newline)";
-    else if ( t == tkCOMMA )            return "','";
-    else if ( t == tkDOT )              return "'.'";
-    else if ( t == tkBACKSQUOTE )       return "'`'";
-    else if ( t == tkEQUAL )            return "'='";
-    else if ( t == tkIDENTIFIER )       return "identifier";
-    else if ( t == tkOPERATOR )         return "operator";
-    else if ( t == tkCHAR_LITERAL )     return "char literal";
-    else if ( t == tkSTRING_LITERAL )   return "string literal";
-    else if ( t == tkINT_LITERAL )      return "int literal";
-    else if ( t == tkLONG_LITERAL )     return "long literal";
-    else if ( t == tkUINT_LITERAL )     return "uint literal";
-    else if ( t == tkULONG_LITERAL )    return "ulong literal";
-    else if ( t == tkFLOAT_LITERAL )    return "float literal";
-    else if ( t == tkDOUBLE_LITERAL )   return "double literal";
-}
+fun _asString(t: TokenType): String
+    if t == tkEND                   return "end-of-file"
+    else if t == tkEOL              return "new-line"
+    else if t == tkMODULE           return "'module'"
+    else if t == tkIMPORT           return "'import'"
+    else if t == tkCLASS            return "'class'"
+    else if t == tkCONCEPT          return "'concept'"
+    else if t == tkDATATYPE         return "'datatype'"
+    else if t == tkFUN              return "'fun'"
+    else if t == tkPACKAGE          return "'package'"
+    else if t == tkUSING            return "'using'"
+    else if t == tkVAR              return "'var'"
+    else if t == tkBREAK            return "'break'"
+    else if t == tkCATCH            return "'catch'"
+    else if t == tkCONTINUE         return "'continue'"
+    else if t == tkFINALLY          return "'finally'"
+    else if t == tkFOR              return "'for'"
+    else if t == tkIF               return "'if'"
+    else if t == tkRETURN           return "'return'"
+    else if t == tkTHROW            return "'throw'"
+    else if t == tkTRY              return "'try'"
+    else if t == tkWHILE            return "'while'"
+    else if t == tkFALSE            return "'false'"
+    else if t == tkNULLCT           return "'null'"
+    else if t == tkTHIS             return "'this'"
+    else if t == tkTRUE             return "'true'"
+    else if t == tkELSE             return "'else'"
+    else if t == tkLCURLY           return "'{' (or indent)"
+    else if t == tkRCURLY           return "'}' (or dedent)"
+    else if t == tkLBRACKET         return "'['"
+    else if t == tkRBRACKET         return "']'"
+    else if t == tkLPAREN           return "'('"
+    else if t == tkRPAREN           return "')'"
+    else if t == tkCOLON            return "':'"
+    else if t == tkSEMICOLON        return "';' (or newline)"
+    else if t == tkCOMMA            return "','"
+    else if t == tkDOT              return "'.'"
+    else if t == tkBACKSQUOTE       return "'`'"
+    else if t == tkEQUAL            return "'='"
+    else if t == tkIDENTIFIER       return "identifier"
+    else if t == tkOPERATOR         return "operator"
+    else if t == tkCHAR_LITERAL     return "char literal"
+    else if t == tkSTRING_LITERAL   return "string literal"
+    else if t == tkINT_LITERAL      return "int literal"
+    else if t == tkLONG_LITERAL     return "long literal"
+    else if t == tkUINT_LITERAL     return "uint literal"
+    else if t == tkULONG_LITERAL    return "ulong literal"
+    else if t == tkFLOAT_LITERAL    return "float literal"
+    else if t == tkDOUBLE_LITERAL   return "double literal"
 
-fun >>(t: TokenType, os: @OutStream) {
-    os << (t asString);
-}
+fun >>(t: TokenType, os: @OutStream)
+    os << (t _asString)
 

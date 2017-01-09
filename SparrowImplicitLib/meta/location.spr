@@ -93,12 +93,12 @@ module meta.location
 
     /// Compare locations based on start pos then on end pos
     fun <(lhs, rhs: @Location): Bool
-        if ( lhs.start.line < rhs.start.line ) return true
-        if ( lhs.start.line > rhs.start.line ) return false
-        if ( lhs.start.col < rhs.start.col ) return true
-        if ( lhs.start.col > rhs.start.col ) return false
-        if ( lhs.end.line < rhs.end.line ) return true
-        if ( lhs.end.line > rhs.end.line ) return false
+        if lhs.start.line < rhs.start.line  ; return true
+        if lhs.start.line > rhs.start.line  ; return false
+        if lhs.start.col < rhs.start.col    ; return true
+        if lhs.start.col > rhs.start.col    ; return false
+        if lhs.end.line < rhs.end.line      ; return true
+        if lhs.end.line > rhs.end.line      ; return false
         return lhs.end.col < rhs.end.col
 
     fun >>(l: @Location, os: @OutStream)

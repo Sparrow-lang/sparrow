@@ -111,7 +111,7 @@ package _Impl
             while item < bucket.size()
             {
                 var slot: UInt = _Impl.doHash(bucket(item), d) % numValues;
-                var slotAlreadyUsed = !find2(slots.all(), slot).isEmpty();
+                var slotAlreadyUsed = !find(slots.all(), slot).isEmpty();
                 ++numOp;
                 if ( placedKeys.testBit(slot) || slotAlreadyUsed )
                 {

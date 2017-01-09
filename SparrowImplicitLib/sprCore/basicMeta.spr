@@ -1,12 +1,15 @@
-import basicDecls(UntypedPtr, Byte, StringRef, Null, pre_@);
+import basicDecls(UntypedPtr, Byte, StringRef, Null, pre_@)
 
-/// The type used to represent a compiler AST node
-[ct] datatype CompilerAstNode = @Byte;
+[ct]
+    /// The type used to represent a compiler AST node
+    datatype CompilerAstNode = @Byte
 
-/// Taking an AST node, this will evaluate the node and produce the corresponding code
-/// Opposite of astLift
-[ct, native("$meta.astEval")] fun astEval(node: CompilerAstNode): CompilerAstNode;
+    /// Taking an AST node, this will evaluate the node and produce the corresponding code
+    /// Opposite of astLift
+    [native("$meta.astEval")]
+    fun astEval(node: CompilerAstNode): CompilerAstNode
 
-/// Given any Sparrow node as parameter, this will transform it into an AST node
-/// Opposite of astEval
-[ct, native("$meta.astLift")] fun astLift(): CompilerAstNode;
+    /// Given any Sparrow node as parameter, this will transform it into an AST node
+    /// Opposite of astEval
+    [native("$meta.astLift")]
+    fun astLift(node: CompilerAstNode): CompilerAstNode

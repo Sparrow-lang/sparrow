@@ -1,118 +1,96 @@
-module os;
+module os
 
-import std.string(String);
+import std.string(String)
 
-[rtct, native("exit")] fun exit(code: Int);
+[rtct]
+    [native("exit")]
+    fun exit(code: Int)
 
-[rtct] fun systemCall(cmd: StringRef): Int
-{
-    return _OsImpl.system(cmd.cStr());
-}
+    fun systemCall(cmd: StringRef): Int
+        return _Impl.system(cmd.cStr)
 
-[rtct] class File
-{
-    fun ctor
-    {
-        _handle := null;
-    }
+    class File
+        fun ctor
+            _handle := null
 
-    fun ctor(handle: @Byte)
-    {
-        this._handle := handle;
-    }
+        fun ctor(handle: @Byte)
+            this._handle := handle
 
-    fun ctor(filename: StringRef, mode: StringRef = "r")
-    {
-        this._handle := _OsImpl.fopen(filename.cStr(), mode.cStr());
-    }
+        fun ctor(filename: StringRef, mode: StringRef = "r")
+            this._handle := _Impl.fopen(filename.cStr, mode.cStr)
 
-    // Move ctor and assignment operator
-    fun ctor(other: @File) {
-        this._handle := other._handle;
-        other._handle := null;
-    }
-    fun =(other: @File) {
-        this._handle := other._handle;
-        other._handle := null;
-    }
+        // Move ctor and operator
+        fun ctor(other: @File)
+            this._handle := other._handle
+            other._handle := null
+        fun =(other: @File)
+            this._handle := other._handle
+            other._handle := null
 
-    fun dtor
-    {
-        close();
-    }
+        fun dtor
+            close
 
-    [static] fun open(filename: StringRef, mode: StringRef = "r"): File
-    {
-        return File(_OsImpl.fopen(filename.cStr(), mode.cStr()));
-    }
+        [static]
+        fun open(filename: StringRef, mode: StringRef = "r"): File
+            return File(_Impl.fopen(filename.cStr, mode.cStr))
 
-    fun close
-    {
-        if ( isOpen() )
-            _OsImpl.fclose(_handle);
-        _handle := null;
-    }
+        fun close
+            if isOpen
+                _Impl.fclose(_handle)
+            _handle := null
 
-    fun flush       = ife(isOpen(), _OsImpl.fflush(_handle), -1);
+        fun flush       = ife(isOpen, _Impl.fflush(_handle), -1)
 
-    fun isOpen      = _handle !== null;
-    fun isEof       = 0 != _OsImpl.feof(_handle);
+        fun isOpen      = _handle !== null
+        fun isEof       = 0 != _Impl.feof(_handle)
 
-    fun readChar: Char = Char(_OsImpl.fgetc(_handle));
-    fun readLine: String
-    {
-        var res: String = 256;
-        var cstr: @Char = _OsImpl.fgets(res(0), 256, _handle);
-        if ( cstr === null )
-            res.clear();
-        else
-            res.resize(StringRef.cStringLen(cstr));
-        return res;
-    }
+        fun readChar: Char = Char(_Impl.fgetc(_handle))
+        fun readLine: String
+            var res: String = 256
+            var cstr: @Char = _Impl.fgets(res(0), 256, _handle)
+            if cstr === null
+                res.clear
+            else
+                res.resize(StringRef.cStringLen(cstr))
+            return res
 
-    fun all = FileRange(this);
+        fun all = FileRange(this)
 
-    var _handle: @Byte;
-}
+        var _handle: @Byte
 
-[rtct] class FileRange {
-    using RetType = Char;
+    class FileRange
+        using RetType = Char
 
-    var _file: @File;
-    var _isEmpty: Bool;
-    var _cur: Char;
+        var _file: @File
+        var _isEmpty: Bool
+        var _cur: Char
 
-    fun ctor(file: @File) {
-        this._file := file;
-        _isEmpty = true;
-        _cur ctor;
-        if ( !_file.isEof ) {
-            _cur = _file.readChar;
-            _isEmpty = false;
-        }
-    }
-}
+        fun ctor(file: @File)
+            this._file := file
+            _isEmpty = true
+            _cur ctor
+            if !_file.isEof
+                _cur = _file.readChar
+                _isEmpty = false
 
-[rtct] fun isEmpty(s: @FileRange) = s._isEmpty;
-[rtct] fun front(s: @FileRange)   = s._cur;
-[rtct] fun popFront(s: @FileRange) {
-    // Try reading a char; we don't know yet about eof, we need to check it afterwards
-    s._cur = s._file.readChar;
-    if ( s._file.isEof )
-        s._isEmpty = true;
-}
+    fun isEmpty(s: @FileRange) = s._isEmpty
+    fun front(s: @FileRange)   = s._cur
+    fun popFront(s: @FileRange)
+        // Try reading a char; we don't know yet about eof, we need to check it afterwards
+        s._cur = s._file.readChar
+        if s._file.isEof
+            s._isEmpty = true
 
+package _Impl
+    [rtct]
+        [native("system")]  fun system(x: @Char): Int
 
-package _OsImpl
-{
-    [rtct, native("system")] fun system(x: @Char): Int;
+        [native("fopen")]   fun fopen(filename, mode: @Char): @Byte
+        [native("fclose")]  fun fclose(handle: @Byte)
+        [native("fflush")]  fun fflush(handle: @Byte): Int
+        [native("feof")]    fun feof(handle: @Byte): Int
+        [native("fgetc")]   fun fgetc(handle: @Byte): Int
+        [native("fgets")]   fun fgets(buffer: @Char, bufSize: Int, handle: @Byte): @Char
+        [native("fread")]   fun fread(buffer: @Byte, size, count: UInt, handle: @Byte): UInt
 
-    [rtct, native("fopen")] fun fopen(filename, mode: @Char): @Byte;
-    [rtct, native("fclose")] fun fclose(handle: @Byte);
-    [rtct, native("fflush")] fun fflush(handle: @Byte): Int;
-    [rtct, native("feof")] fun feof(handle: @Byte): Int;
-    [rtct, native("fgetc")] fun fgetc(handle: @Byte): Int;
-    [rtct, native("fgets")] fun fgets(buffer: @Char, bufSize: Int, handle: @Byte): @Char;
-    [rtct, native("fread")] fun fread(buffer: @Byte, size, count: UInt, handle: @Byte): UInt;
-}
 

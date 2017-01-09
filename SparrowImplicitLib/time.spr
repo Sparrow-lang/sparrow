@@ -1,15 +1,13 @@
-module time;
+module time
 
-[rtct, native("clock")] fun clock(): Int;
+[rtct]
+    [native("clock")] fun clock: Int
 
-[rtct] class Timer
-{
-    fun ctor() { _startTime = clock(); }
-    fun ctor(other: Timer) { _startTime = other._startTime; }
+    class Timer
+        var _startTime: Int
 
-    fun elapsed = Double(clock() - _startTime) / 1000.0;
+        fun ctor { _startTime = clock }
+        fun ctor(other: Timer) { _startTime = other._startTime }
 
-    fun restart { _startTime = clock(); }
-
-    var _startTime: Int;
-}
+        fun elapsed = Double(clock - _startTime) / 1000.0
+        fun restart { _startTime = clock }

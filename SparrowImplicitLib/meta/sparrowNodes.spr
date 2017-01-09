@@ -1,93 +1,93 @@
-[public] import compilerCore;
+[public] import compilerCore
 
 [ct]
     [native("$meta.Sparrow.mkModifiers")]
-    fun mkModifiers(loc: @Location, main, mods: AstNode): AstNode;
+    fun mkModifiers(loc: @Location, main, mods: AstNode): AstNode
 
     [native("$meta.Sparrow.mkModule")]
-    fun mkModule(loc: @Location, moduleName, declarations: AstNode): AstNode;
+    fun mkModule(loc: @Location, moduleName, declarations: AstNode): AstNode
     [native("$meta.Sparrow.mkImportName")]
-    fun mkImportName(loc: @Location, moduleName, importedDeclNames: AstNode, alias: StringRef): AstNode;
+    fun mkImportName(loc: @Location, moduleName, importedDeclNames: AstNode, alias: StringRef): AstNode
     [native("$meta.Sparrow.mkSprUsing")]
-    fun mkSprUsing(loc: @Location, alias: StringRef, usingNode: AstNode): AstNode;
+    fun mkSprUsing(loc: @Location, alias: StringRef, usingNode: AstNode): AstNode
     [native("$meta.Sparrow.mkSprPackage")]
-    fun mkSprPackage(loc: @Location, name: StringRef, children: AstNode): AstNode;
+    fun mkSprPackage(loc: @Location, name: StringRef, children: AstNode): AstNode
     [native("$meta.Sparrow.mkSprVariable")]
-    fun mkSprVariable(loc: @Location, name: StringRef, typeNode, init: AstNode): AstNode;
+    fun mkSprVariable(loc: @Location, name: StringRef, typeNode, init: AstNode): AstNode
     [native("$meta.Sparrow.mkSprClass")]
-    fun mkSprClass(loc: @Location, name: StringRef, parameters, baseClasses, ifClause, children: AstNode): AstNode;
+    fun mkSprClass(loc: @Location, name: StringRef, parameters, baseClasses, ifClause, children: AstNode): AstNode
 
     [native("$meta.Sparrow.mkSprConcept")]
-    fun mkSprConcept(loc: @Location, name: StringRef, paramName: StringRef, baseConcept, ifClause: AstNode): AstNode;
+    fun mkSprConcept(loc: @Location, name: StringRef, paramName: StringRef, baseConcept, ifClause: AstNode): AstNode
 
     [native("$meta.Sparrow.mkSprFunction")]
-    fun mkSprFunction(loc: @Location, name: StringRef, parmeters, returnType, body, ifClause: AstNode): AstNode;
+    fun mkSprFunction(loc: @Location, name: StringRef, parmeters, returnType, body, ifClause: AstNode): AstNode
     [native("$meta.Sparrow.mkSprFunctionExp")]
-    fun mkSprFunctionExp(loc: @Location, name: StringRef, parameters, returnType, bodyExp, ifClause: AstNode): AstNode;
+    fun mkSprFunctionExp(loc: @Location, name: StringRef, parameters, returnType, bodyExp, ifClause: AstNode): AstNode
     [native("$meta.Sparrow.mkSprParameter")]
-    fun mkSprParameter(loc: @Location, name: StringRef, typeNode, init: AstNode): AstNode;
+    fun mkSprParameter(loc: @Location, name: StringRef, typeNode, init: AstNode): AstNode
     [native("$meta.Sparrow.mkSprAutoParameter")]
-    fun mkSprAutoParameter(loc: @Location, name: StringRef): AstNode;
+    fun mkSprAutoParameter(loc: @Location, name: StringRef): AstNode
 
     [native("$meta.Sparrow.mkIdentifier")]
-    fun mkIdentifier(loc: @Location, id: StringRef): AstNode;
+    fun mkIdentifier(loc: @Location, id: StringRef): AstNode
     [native("$meta.Sparrow.mkCompoundExp")]
-    fun mkCompoundExp(loc: @Location, base: AstNode, id: StringRef): AstNode;
+    fun mkCompoundExp(loc: @Location, base: AstNode, id: StringRef): AstNode
     [native("$meta.Sparrow.mkStarExp")]
-    fun mkStarExp(loc: @Location, base: AstNode, operName: StringRef): AstNode;
+    fun mkStarExp(loc: @Location, base: AstNode, operName: StringRef): AstNode
     [native("$meta.Sparrow.mkPostfixOp")]
-    fun mkPostfixOp(loc: @Location, op: StringRef, base: AstNode): AstNode;
+    fun mkPostfixOp(loc: @Location, op: StringRef, base: AstNode): AstNode
     [native("$meta.Sparrow.mkInfixOp")]
-    fun mkInfixOp(loc: @Location, op: StringRef, arg1, arg2: AstNode): AstNode;
+    fun mkInfixOp(loc: @Location, op: StringRef, arg1, arg2: AstNode): AstNode
     [native("$meta.Sparrow.mkPrefixOp")]
-    fun mkPrefixOp(loc: @Location, op: StringRef, base: AstNode): AstNode;
+    fun mkPrefixOp(loc: @Location, op: StringRef, base: AstNode): AstNode
     [native("$meta.Sparrow.mkFunApplication")]
-    fun mkFunApplication(loc: @Location, base, arguments: AstNode): AstNode;
+    fun mkFunApplication(loc: @Location, base, arguments: AstNode): AstNode
     [native("$meta.Sparrow.mkOperatorCall")]
-    fun mkOperatorCall(loc: @Location, arg1: AstNode, op: StringRef, arg2: AstNode): AstNode;
+    fun mkOperatorCall(loc: @Location, arg1: AstNode, op: StringRef, arg2: AstNode): AstNode
 
     [native("$meta.Sparrow.mkConditionalExp")]
-    fun mkConditionalExp(loc: @Location, cond, alt1, alt2: AstNode): AstNode;
+    fun mkConditionalExp(loc: @Location, cond, alt1, alt2: AstNode): AstNode
     [native("$meta.Sparrow.mkThisExp")]
-    fun mkThisExp(loc: Location): AstNode;
+    fun mkThisExp(loc: Location): AstNode
     [native("$meta.Sparrow.mkParenthesisExp")]
-    fun mkParenthesisExp(loc: @Location, exp: AstNode): AstNode;
+    fun mkParenthesisExp(loc: @Location, exp: AstNode): AstNode
     [native("$meta.Sparrow.mkIntLiteral")]
-    fun mkIntLiteral(loc: @Location, value: Int): AstNode;
+    fun mkIntLiteral(loc: @Location, value: Int): AstNode
     [native("$meta.Sparrow.mkUIntLiteral")]
-    fun mkUIntLiteral(loc: @Location, value: UInt): AstNode;
+    fun mkUIntLiteral(loc: @Location, value: UInt): AstNode
     [native("$meta.Sparrow.mkLongLiteral")]
-    fun mkLongLiteral(loc: @Location, value: Long): AstNode;
+    fun mkLongLiteral(loc: @Location, value: Long): AstNode
     [native("$meta.Sparrow.mkULongLiteral")]
-    fun mkULongLiteral(loc: @Location, value: ULong): AstNode;
+    fun mkULongLiteral(loc: @Location, value: ULong): AstNode
     [native("$meta.Sparrow.mkFloatLiteral")]
-    fun mkFloatLiteral(loc: @Location, value: Float): AstNode;
+    fun mkFloatLiteral(loc: @Location, value: Float): AstNode
     [native("$meta.Sparrow.mkDoubleLiteral")]
-    fun mkDoubleLiteral(loc: @Location, value: Double): AstNode;
+    fun mkDoubleLiteral(loc: @Location, value: Double): AstNode
     [native("$meta.Sparrow.mkCharLiteral")]
-    fun mkCharLiteral(loc: @Location, value: Char): AstNode;
+    fun mkCharLiteral(loc: @Location, value: Char): AstNode
     [native("$meta.Sparrow.mkStringLiteral")]
-    fun mkStringLiteral(loc: @Location, value: StringRef): AstNode;
+    fun mkStringLiteral(loc: @Location, value: StringRef): AstNode
     [native("$meta.Sparrow.mkNullLiteral")]
-    fun mkNullLiteral(loc: Location): AstNode;
+    fun mkNullLiteral(loc: Location): AstNode
     [native("$meta.Sparrow.mkBoolLiteral")]
-    fun mkBoolLiteral(loc: @Location, value: Bool): AstNode;
+    fun mkBoolLiteral(loc: @Location, value: Bool): AstNode
     [native("$meta.Sparrow.mkLambdaExp")]
-    fun mkLambdaExp(loc: @Location, parameters, returnType, body, bodyExp, closureParams: AstNode): AstNode;
+    fun mkLambdaExp(loc: @Location, parameters, returnType, body, bodyExp, closureParams: AstNode): AstNode
 
     [native("$meta.Sparrow.mkExpressionStmt")]
-    fun mkExpressionStmt(loc: @Location, exp: AstNode): AstNode;
+    fun mkExpressionStmt(loc: @Location, exp: AstNode): AstNode
     [native("$meta.Sparrow.mkBlockStmt")]
-    fun mkBlockStmt(loc: @Location, statements: AstNode): AstNode;
+    fun mkBlockStmt(loc: @Location, statements: AstNode): AstNode
     [native("$meta.Sparrow.mkIfStmt")]
-    fun mkIfStmt(loc: @Location, cond, thenClause, elseClause: AstNode): AstNode;
+    fun mkIfStmt(loc: @Location, cond, thenClause, elseClause: AstNode): AstNode
     [native("$meta.Sparrow.mkForStmt")]
-    fun mkForStmt(loc: @Location, name: StringRef, type, range, action: AstNode): AstNode;
+    fun mkForStmt(loc: @Location, name: StringRef, type, range, action: AstNode): AstNode
     [native("$meta.Sparrow.mkWhileStmt")]
-    fun mkWhileStmt(loc: @Location, cond, step, action: AstNode): AstNode;
+    fun mkWhileStmt(loc: @Location, cond, step, action: AstNode): AstNode
     [native("$meta.Sparrow.mkBreakStmt")]
-    fun mkBreakStmt(loc: Location): AstNode;
+    fun mkBreakStmt(loc: Location): AstNode
     [native("$meta.Sparrow.mkContinueStmt")]
-    fun mkContinueStmt(loc: Location): AstNode;
+    fun mkContinueStmt(loc: Location): AstNode
     [native("$meta.Sparrow.mkReturnStmt")]
-    fun mkReturnStmt(loc: @Location, exp: AstNode): AstNode;
+    fun mkReturnStmt(loc: @Location, exp: AstNode): AstNode

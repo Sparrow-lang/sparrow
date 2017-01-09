@@ -4,7 +4,7 @@ import staticArray(StaticArray);
 import array(Array);
 import ptr(Ptr, reinterpretPtr);
 import ranges(rangeSize);
-import algorithms(swapTL, max);
+import algo = algorithms(swap, max);
 import newDelete(new);
 
 class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
@@ -34,7 +34,7 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
         this.traits ctor traits;
         _guard ctor;
         _numElements = 0;
-        reserve(max(n, rangeSize(range)));
+        reserve(algo.max(n, rangeSize(range)));
         for v = range
             _insertPlain(v);
     }
@@ -58,9 +58,9 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
     fun swap(other: @HashTable)
     {
         _buckets.swap(other._buckets);
-        swapTL(_guard, other._guard);
-        swapTL(traits, other.traits);
-        swapTL(_numElements, other._numElements);
+        algo.swap(_guard, other._guard);
+        algo.swap(traits, other.traits);
+        algo.swap(_numElements, other._numElements);
 
         // Update the buckets pointing to the guard node
         if ( _numElements > 0 && !_buckets.isEmpty() )

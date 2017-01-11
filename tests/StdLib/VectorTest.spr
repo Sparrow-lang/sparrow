@@ -211,32 +211,32 @@ fun sprMain
             );
     }) ~ "vector's resize shrink";
 
-    forAll(SubrangeTestData arbitrary) check(fun td: Bool {
+    forAll(SubrangeTestData arbitrary) check ((fun td: Bool {
             var v = td.vec;
             v.resize(v.size + td.start);
             return (
                    v.size == td.vec.size + td.start
-                && (v.all take td.start equal td.vec.all)
+                && (v.all take td.start equal (td.vec.all take td.start))
                 && (v.all skip td.vec.size equal repeat(Int(), td.start))
             );
-    }) ~ "vector's resize grow";
+    }) ~ "vector's resize grow");
 
-    forAll(SubrangeTestData arbitrary) check(fun td: Bool {
+    forAll(SubrangeTestData arbitrary) check ((fun td: Bool {
             td.vec clear;
             return td.vec.isEmpty && td.vec.size == 0;
-    }) ~ "that we can clear a vector";
+    }) ~ "that we can clear a vector");
 
-    forAll(InsertRangeTestData arbitrary) check(fun td: Bool {
+    forAll(InsertRangeTestData arbitrary) check ((fun td: Bool {
             var v: Vec;
             v = td.vec;
             v = td.values;
             return v.size == td.values.size && v == td.values;
-    }) ~ "assignment operator for vector";
+    }) ~ "assignment operator for vector");
 
-    forAll(Vec arbitrary) check(fun v: Bool {
+    forAll(Vec arbitrary) check ((fun v: Bool {
             var vec = v;
             return vec == v && vec == vec && !(vec != v);
-    }) ~ "vector's equality comparison";
+    }) ~ "vector's equality comparison");
 }
 
 //<<< Vector checks

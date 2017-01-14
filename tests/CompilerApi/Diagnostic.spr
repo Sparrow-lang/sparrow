@@ -5,18 +5,18 @@ import meta.compilerCore;
 
 fun sprMain // ERROR - introduced by the last meta.report
 {
-    var[ct] loc = mkLocation(currentSourceCode, mkLineCol(6, 5), mkLineCol(6, 12));
+    [ct] var loc = mkLocation(currentSourceCode, mkLineCol(6, 5), mkLineCol(6, 12));
 
-    var[ct] diag1 = mkDiagnostic(diagInfo, loc, "Some information");
+    [ct] var diag1 = mkDiagnostic(diagInfo, loc, "Some information");
     report(diag1);
 
-    var[ct] diag2 = mkDiagnostic(diagWarning, loc, "Some warning");
+    [ct] var diag2 = mkDiagnostic(diagWarning, loc, "Some warning");
     report(diag2);
 
     report(diagError, loc, "Error at the beginning of the function");
 
-    var[ct] sc = currentSourceCode;
-    var[ct] sc2 = sourceCodeFromFilename("/Users/lucteo/work/sparrow/dev/tests/CompilerApi/Diagnostic.spr");
+    [ct] var sc = currentSourceCode;
+    [ct] var sc2 = sourceCodeFromFilename("/Users/lucteo/work/sparrow/dev/tests/CompilerApi/Diagnostic.spr");
 
     cout << (sc filename) << endl;
     // cout << (sc2 filename) << endl;

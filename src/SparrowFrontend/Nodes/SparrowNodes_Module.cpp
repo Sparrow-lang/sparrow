@@ -60,7 +60,8 @@ namespace
             const auto& id = qid[i];
 
             Node* pkgContent = Feather_mkNodeListVoid(id.second, pkg ? fromIniList({ pkg }) : fromIniList({}));
-            pkg = mkSprPackage(id.second, id.first, pkgContent, accessType);
+            pkg = mkSprPackage(id.second, id.first, pkgContent);
+            setAccessType(pkg, accessType);
 
             if ( !innerPackage )
                 innerPackage = pkg;
@@ -85,7 +86,8 @@ namespace
         Node* refImpContent = mkModuleRef(importLoc, toImport->mainNode);
         ASSERT(refImpContent);
         Node* starExp = mkStarExp(importLoc, refImpContent, fromCStr("*"));
-        Node* iCode = mkSprUsing(importLoc, StringRef({0,0}), starExp, privateAccess);
+        Node* iCode = mkSprUsing(importLoc, StringRef({0,0}), starExp);
+        setAccessType(iCode, privateAccess);
 
         // Don't warn if we don't find anything
         Nest_setPropertyInt(iCode, propNoWarnIfNoDeclFound, 1);
@@ -295,7 +297,8 @@ Node* ImportName_SemanticCheck(Node* node)
         for ( Node* id : all(declNames->children) ) {
             StringRef name = Feather_getName(id);
             Node* cid = mkCompoundExp(id->location, refImpContent, name);
-            Node* usng = mkSprUsing(id->location, name, cid, accessType);
+            Node* usng = mkSprUsing(id->location, name, cid);
+            setAccessType(usng, accessType);
             content = Feather_addToNodeList(content, usng);
         }
 
@@ -309,7 +312,8 @@ Node* ImportName_SemanticCheck(Node* node)
         // we return something like:
         //      using <moduleRef>.*;
         Node* starExp = mkStarExp(importLoc, refImpContent, fromCStr("*"));
-        content = mkSprUsing(importLoc, StringRef({0,0}), starExp, accessType);
+        content = mkSprUsing(importLoc, StringRef({0,0}), starExp);
+        setAccessType(content, accessType);
 
         // Don't warn if we don't find anything
         Nest_setPropertyInt(content, propNoWarnIfNoDeclFound, 1);
@@ -317,7 +321,8 @@ Node* ImportName_SemanticCheck(Node* node)
 
     // If we have an alias, create a package for it
     if ( size(alias) > 0 ) {
-        content = mkSprPackage(importLoc, alias, content, accessType);
+        content = mkSprPackage(importLoc, alias, content);
+        setAccessType(content, accessType);
     }
 
     return content;

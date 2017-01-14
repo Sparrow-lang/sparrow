@@ -1,7 +1,7 @@
-module sparrowc.spr.grammar.parser;
+module sparrowc.spr.grammar.parser
 
-import parserDefs, node, token, ext, rangeWithLookahead;
-import meta.location;
+import parserDefs, node, token, ext, rangeWithLookahead
+import meta.location
 
 /// Our main parser
 ///
@@ -10,814 +10,697 @@ import meta.location;
 ///
 /// All the nodes are created outside the parser; we only care about node pointers
 ///
-class SparrowParser(tokensRangeType, errorReporterType: Type)
-        if TokenRange(#$tokensRangeType) && ErrorReporter(#$errorReporterType) {
-    using IsSparrowParser = true;
+class SparrowParser(tokensRangeType, errorReporterType: Type) \
+        if TokenRange(#$tokensRangeType) && ErrorReporter(#$errorReporterType)
+    using _IsSparrowParser = true
 
-    fun ctor(tokens: tokensRangeType, errorReporter: errorReporterType) {
-        this.tokens ctor tokens;
-        this.hasErrors ctor false;
-    }
+    fun ctor(tokens: tokensRangeType, errorReporter: errorReporterType)
+        this._tokens ctor tokens
+        this._hasErrors ctor false
+        this._errorReporter ctor errorReporter
 
     /// The source ranges of tokens we will used while parsing
-    private var tokens: RangeWithLookahead(tokensRangeType);
+    var _tokens: RangeWithLookahead(tokensRangeType)
     /// The last processed token
-    private var lastToken: Token;
+    var _lastToken: Token
     /// Indicates whether we have some syntax errors
-    private var hasErrors: Bool;
+    var _hasErrors: Bool
     /// Object used to report errors
-    private var errorReporter: errorReporterType;
-}
-/// Concept that matches SparrowParser above
-private concept OurParser(t) if t.IsSparrowParser;
+    var _errorReporter: errorReporterType
 
-private fun reportError(p: @OurParser, msg: @String) {
-    // Report the error
-    p.errorReporter.reportError((*p.tokens).loc, msg);
-    // Consume all the tokens until the end of the file
-    while ( (*p.tokens).type != tkEND )
-        p.lastToken = (p.tokens++);
-    p.hasErrors = true;
-}
+using parseModule = _Impl.parseModule
+using parseExpression = _Impl.parseExpression
 
-private fun curLoc(p: @OurParser) = (*p.tokens).loc;
-private fun lastLoc(p: @OurParser) = p.lastToken.loc;
+package _Impl
+    /// Concept that matches SparrowParser above
+    concept This(t) if t._IsSparrowParser
 
-private fun nextIs(p: @OurParser, t: TokenType): Bool = (*p.tokens).type == t;
-private fun next2Is(p: @OurParser, t: TokenType): Bool = (p.tokens peek 1).type == t;
+    fun reportError(p: @This, msg: @String)
+        // Report the error
+        p._errorReporter.reportError((*p._tokens).loc, msg)
+        // Consume all the tokens until the end of the file
+        while (*p._tokens).type != tkEND
+            p._lastToken = (p._tokens++)
+        p._hasErrors = true
 
-private fun accept(p: @OurParser, t: TokenType): Bool {
-    if ( (*p.tokens).type == t ) {
-        p.lastToken = (p.tokens++);
-        // cout << "Accepted " << p.lastToken.type << endl;
-        return true;
-    }
-    return false;
-}
+    fun curLoc(p: @This) = (*p._tokens).loc
+    fun lastLoc(p: @This) = p._lastToken.loc
 
-private fun expect(p: @OurParser, t: TokenType): Bool {
-    // Everything is ok if this is the token we are expecting
-    if ( p accept t )
-        return true;
+    fun nextIs(p: @This, t: TokenType): Bool = (*p._tokens).type == t
+    fun next2Is(p: @This, t: TokenType): Bool = (p._tokens peek 1).type == t
 
-    if ( p.hasErrors )  // Already inside an error; don't do anything
-        return false;
+    fun accept(p: @This, t: TokenType): Bool
+        if (*p._tokens).type == t
+            p._lastToken = (p._tokens++)
+            // cout << "Accepted " << p._lastToken.type << endl
+            return true
+        return false
 
-    // Report error if this token is now what we expected
-    p reportError toString("Syntax error, unexpected ", (*p.tokens).type, ", expecting ", t);
-    return false;
-}
+    fun expect(p: @This, t: TokenType): Bool
+        // Everything is ok if this is the token we are expecting
+        if p accept t
+            return true
+        if p._hasErrors  // Already inside an error; don't do anything
+            return false
+        // Report error if this token is now what we expected
+        p reportError toString("Syntax error, unexpected ", (*p._tokens).type, ", expecting ", t)
+        return false
 
-///////////////////////////////////////////////////////////////////////////////
-// Top level parsing
-//
+    ///////////////////////////////////////////////////////////////////////////////
+    // Top level parsing
+    //
 
-fun parseModule(p: @OurParser): Node {
-    var loc = p curLoc;
-    var moduleName = parseModuleName(p);
-    var decls: Node;
-    parseDecls(p, true, decls);
-    p expect tkEND;
-    return mkModule(loc span (p lastLoc), moduleName, decls);
-}
+    fun parseModule(p: @This): Node
+        var loc = p curLoc
+        var moduleName = parseModuleName(p)
+        var decls: Node
+        parseStmts(p, true, decls)
+        p expect tkEND
+        return mkModule(loc span (p lastLoc), moduleName, decls)
 
-fun parseExpression(p: @OurParser): Node {
-    var res = parseExpr(p);
-    p expect tkEND;
-    return res;
-}
+    fun parseExpression(p: @This): Node
+        var res = parseExpr(p)
+        p expect tkEND
+        return res
 
-///////////////////////////////////////////////////////////////////////////////
-// Common rules
-//
+    ///////////////////////////////////////////////////////////////////////////////
+    // Common rules
+    //
 
-private fun parseIdOrOper(p: @OurParser, withEqual: Bool = true): String {
-    if ( p accept tkIDENTIFIER )
-        return p.lastToken.data;
-    else if ( p accept tkOPERATOR )
-        return p.lastToken.data;
-    else if ( withEqual && (p accept tkEQUAL) )
-        return "=";
-    p reportError toString("Syntax error, unexpected ", (*p.tokens).type, ", expecting identifier or operator");
-}
+    fun consumeSemis(p: @This)
+        while p accept tkSEMICOLON {}
 
-private fun parseIdOrOperOpt(p: @OurParser, withEqual: Bool = true): String {
-    if ( p accept tkIDENTIFIER )
-        return p.lastToken.data;
-    else if ( p accept tkOPERATOR )
-        return p.lastToken.data;
-    else if ( withEqual && (p accept tkEQUAL) )
-        return "=";
-    else
-        return String();
-}
+    fun parseIdOrOper(p: @This, withEqual: Bool = true): String
+        if p accept tkIDENTIFIER
+            return p._lastToken.data
+        else if p accept tkOPERATOR
+            return p._lastToken.data
+        else if withEqual && (p accept tkEQUAL)
+            return "="
+        p reportError toString("Syntax error, unexpected ", (*p._tokens).type, ", expecting identifier or operator")
 
-private fun parseOperOpt(p: @OurParser, withEqual: Bool = true): String {
-    if ( p accept tkOPERATOR )
-        return p.lastToken.data;
-    else if ( withEqual && (p accept tkEQUAL) )
-        return p.lastToken.data;
-    else
-        return String();
-}
-
-private fun parseId(p: @OurParser): String {
-    p expect tkIDENTIFIER;
-    return p.lastToken.data;
-}
-
-// Parses a structure of the form 'id =', with lookahead
-// Can appear in the context of other non-equal expressions
-private fun parseIdEqualOpt(p: @OurParser): String {
-    var id: String;
-    if ( (p nextIs tkIDENTIFIER) && (p next2Is tkEQUAL) ) {
-        p expect tkIDENTIFIER;
-        id = p.lastToken.data;
-        p expect tkEQUAL;
-    }
-    return id;
-}
-
-private fun parseQualifiedName(p: @OurParser, allowStar: Bool = false): Node {
-    var loc = p curLoc;
-    p expect tkIDENTIFIER;
-    var base = mkIdentifier(loc, p.lastToken.data.asStringRef);
-
-    var lastId = p.lastToken.data;
-    while ( p accept tkDOT ) {
-        if ( allowStar && (p accept tkOPERATOR) ) {
-            base = mkStarExpr(loc span (p lastLoc), base, p.lastToken.data.asStringRef);
-            break;
-        }
-        p expect tkIDENTIFIER;
-        base = mkCompoundExpr(loc span (p lastLoc), base, p.lastToken.data.asStringRef);
-    }
-    return base;
-}
-
-private fun parseIdList(p: @OurParser): LocStringVec {
-    var res: LocStringVec;
-    var id = parseId(p);
-    res += LocString(p.lastToken.loc ~ id);
-    while ( p accept tkCOMMA ) {
-        id = parseId(p);
-        res += LocString(p.lastToken.loc ~ id);
-    }
-    return res;
-}
-private fun parseIdListNode(p: @OurParser): Node {
-    var res: Node;
-    var id = parseId(p);
-    res = addToNodeList(res, mkIdentifier(p.lastToken.loc, id.asStringRef));
-    while ( p accept tkCOMMA ) {
-        id = parseId(p);
-        res = addToNodeList(res, mkIdentifier(p.lastToken.loc, id.asStringRef));
-    }
-    return res;
-}
-
-private fun parseIdOrOperListNode(p: @OurParser): Node {
-    var res: Node;
-    var id = parseIdOrOper(p);
-    res = addToNodeList(res, mkIdentifier(p.lastToken.loc, id.asStringRef));
-    while ( p accept tkCOMMA ) {
-        id = parseIdOrOper(p);
-        res = addToNodeList(res, mkIdentifier(p.lastToken.loc, id.asStringRef));
-    }
-    return res;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Top level
-//
-
-private fun parseModuleName(p: @OurParser): Node {
-    if ( p accept tkMODULE ) {
-        var qid = parseQualifiedName(p);
-        p expect tkSEMICOLON;
-        return qid;
-    }
-    return Node();
-}
-
-private fun parseAccessSpec(p: @OurParser): Int {
-    if ( p accept tkPRIVATE )
-        return privateAccess;
-    if ( p accept tkPUBLIC )
-        return publicAccess;
-    return unspecifiedAccess;
-}
-
-private fun parseModifiers(p: @OurParser): Node {
-    var res: Node;
-    if ( p accept tkLBRACKET ) {
-        var e = parseExpr(p);
-        res = addToNodeList(res, e);
-        while ( p accept tkCOMMA ) {
-            e = parseExpr(p);
-            res = addToNodeList(res, e);
-        }
-        p expect tkRBRACKET;
-    }
-    return res;
-}
-
-private fun parseDecls(p: @OurParser, topLevel: Bool, res: @Node) {
-    while ( true ) {
-        var child = parseDecl(p, topLevel);
-        if ( child isSet ) {
-            res = addToNodeList(res, child);
-            continue;
-        }
-
-        // No more top level decls found
-        break;
-    }
-}
-private fun parseDecl(p: @OurParser, topLevel: Bool): Node {
-    var res: Node;
-    var accessSpec = parseAccessSpec(p);
-    var found = parseUsingDecl(p, accessSpec, res)
-            || parsePackageDecl(p, accessSpec, res)
-            || parseClassDecl(p, accessSpec, res)
-            || parseDatatypeDecl(p, accessSpec, res)
-            || parseConceptDecl(p, accessSpec, res)
-            || parseVarDecl(p, accessSpec, res)
-            || parseFunDecl(p, accessSpec, res)
-            || topLevel && parseImportLineOpt(p, accessSpec, res)
-            ;
-
-    if ( !found && accessSpec != unspecifiedAccess ) {
-        p reportError toString("Syntax error, unexpected ", (*p.tokens).type, ", expecting declaration");
-        return Node();
-    }
-
-    if ( !found && topLevel ) {
-        found = parseIfTopLevel(p, res)
-            || parseExprOpt(p, res, true)
-            ;
-    }
-
-    return res;
-}
-
-private fun parseImportLineOpt(p: @OurParser, accessSpec: Int, res: @Node): Bool {
-    if ( p accept tkIMPORT ) {
-        res = parseImportNames(p, accessSpec);
-        p expect tkSEMICOLON;
-        return true;
-    }
-    return false;
-}
-private fun parseImportNames(p: @OurParser, accessSpec: Int): Node {
-    var res: Node;
-    res = addToNodeList(res, parseImportName(p, accessSpec));
-    while ( p accept tkCOMMA ) {
-        res = addToNodeList(res, parseImportName(p, accessSpec));
-    }
-    return res;
-}
-private fun parseImportName(p: @OurParser, accessSpec: Int): Node {
-    var loc = p curLoc;
-    var id = parseIdEqualOpt(p);
-    var toImport = parseQidOrString(p);
-    var declNames = parseImportDeclNamesOpt(p);
-    return mkImportName(loc span (p lastLoc), id.asStringRef, toImport, declNames, accessSpec);
-}
-private fun parseQidOrString(p: @OurParser): Node {
-    if ( p accept tkSTRING_LITERAL ) {
-        return mkStringLiteral(p.lastToken.loc, p.lastToken.data.asStringRef);
-    }
-    return parseQualifiedName(p);
-}
-private fun parseImportDeclNamesOpt(p: @OurParser): Node {
-    var res: Node;
-    if ( p accept tkLPAREN ) {
-        res = parseIdOrOperListNode(p);
-        p expect tkRPAREN;
-    }
-    return res;
-}
-
-private fun parseUsingDecl(p: @OurParser, accessSpec: Int, res: @Node): Bool {
-    if ( !(p accept tkUSING) )
-        return false;
-    var loc = p.lastToken.loc;
-    var mods = parseModifiers(p);
-    var id = parseIdEqualOpt(p);
-    var usingNode: Node;
-    if ( id isEmpty )
-        usingNode = parseQualifiedName(p, true);
-    else
-        usingNode = parseExpr(p);
-    loc copyEnd p.lastToken.loc;
-    p expect tkSEMICOLON;
-    res = mkModifiers(loc, mkUsing(loc, id.asStringRef, usingNode, accessSpec), mods);
-    return true;
-}
-private fun parsePackageDecl(p: @OurParser, accessSpec: Int, res: @Node): Bool {
-    if ( !(p accept tkPACKAGE) )
-        return false;
-    var loc = p.lastToken.loc;
-    var mods = parseModifiers(p);
-    var id = parseId(p);
-    p expect tkLCURLY;
-    var children: Node;
-    parseDecls(p, true, children);
-    p expect tkRCURLY;
-    loc copyEnd p.lastToken.loc;
-    res = mkModifiers(loc, mkPackage(loc, id.asStringRef, children, accessSpec), mods);
-    return true;
-}
-private fun parseClassDecl(p: @OurParser, accessSpec: Int, res: @Node): Bool {
-    if ( !(p accept tkCLASS) )
-        return false;
-    var loc = p.lastToken.loc;
-    var mods = parseModifiers(p);
-    var id = parseId(p);
-    var formals = parseFormalsOpt(p);
-    var ifClause = parseIfClauseOpt(p);
-    p expect tkLCURLY;
-    var children: Node;
-    parseDecls(p, true, children);
-    p expect tkRCURLY;
-    loc copyEnd p.lastToken.loc;
-    res = mkModifiers(loc, mkClass(loc, id.asStringRef, formals, Node(), ifClause, children, accessSpec), mods);
-    return true;
-}
-private fun parseDatatypeDecl(p: @OurParser, accessSpec: Int, res: @Node): Bool {
-    if ( !(p accept tkDATATYPE) )
-        return false;
-    var loc = p.lastToken.loc;
-    var mods = parseModifiers(p);
-    var id = parseId(p);
-    var formals = parseFormalsOpt(p);
-    if ( p accept tkEQUAL ) {
-        var underlyingData = parseExpr(p);
-        var ifClause = parseIfClauseOpt(p);
-        p expect tkSEMICOLON;
-        loc copyEnd p.lastToken.loc;
-        res = mkModifiers(loc, mkClass(loc, id.asStringRef, formals, underlyingData, ifClause, Node(), accessSpec), mods);
-    }
-    else {
-        var ifClause = parseIfClauseOpt(p);
-        p expect tkLCURLY;
-        var children: Node;
-        parseFormal(p, true, children);
-        while ( p accept tkCOMMA ) {
-            parseFormal(p, true, children);
-        }
-        p expect tkRCURLY;
-        loc copyEnd p.lastToken.loc;
-        res = mkModifiers(loc, mkClass(loc, id.asStringRef, formals, Node(), ifClause, children, accessSpec), mods);
-    }
-    return true;
-}
-private fun parseConceptDecl(p: @OurParser, accessSpec: Int, res: @Node): Bool {
-    if ( !(p accept tkCONCEPT) )
-        return false;
-    var loc = p.lastToken.loc;
-    var mods = parseModifiers(p);
-    var id = parseId(p);
-    p expect tkLPAREN;
-    var paramName = parseId(p);
-    var baseConcept = parseTypeNode(p);
-    p expect tkRPAREN;
-    var ifClause = parseIfClauseOpt(p);
-    p expect tkSEMICOLON;
-    loc copyEnd p.lastToken.loc;
-    res = mkModifiers(loc, mkConcept(loc, id.asStringRef, paramName.asStringRef, baseConcept, ifClause, accessSpec), mods);
-    return true;
-}
-private fun parseVarDecl(p: @OurParser, accessSpec: Int, res: @Node): Bool {
-    if ( !(p accept tkVAR) )
-        return false;
-    var mods = parseModifiers(p);
-    var ids = parseIdList(p);
-    var typeNode, init: Node;
-    if ( p accept tkCOLON ) {
-        typeNode = parseExpr(p, false);
-        if ( p accept tkEQUAL ) {
-            init = parseExpr(p);
-        }
-    }
-    else {
-        p expect tkEQUAL;
-        init = parseExpr(p);
-    }
-    p expect tkSEMICOLON;
-
-    createFormals(ids, typeNode, init, true, mods, accessSpec, res);
-    return true;
-}
-private fun parseFunDecl(p: @OurParser, accessSpec: Int, res: @Node): Bool {
-    if ( !(p accept tkFUN) )
-        return false;
-    var loc = p.lastToken.loc;
-    var mods = parseModifiers(p);
-    var id = parseFunNameString(p);
-    var formals = parseFormalsOpt(p);
-    var retType = parseTypeNode(p);
-    var body, bodyExp, ifClause: Node;
-    if ( p accept tkEQUAL ) {
-        bodyExp = parseExpr(p);
-        ifClause = parseIfClauseOpt(p);
-        p expect tkSEMICOLON;
-    }
-    else {
-        ifClause = parseIfClauseOpt(p);
-        body = parseFunBody(p);
-    }
-    loc copyEnd p.lastToken.loc;
-    res = mkModifiers(loc, mkFun(loc, id.asStringRef, formals, retType, body, bodyExp, ifClause, accessSpec), mods);
-    return true;
-}
-
-private fun parseFunNameString(p: @OurParser): String {
-    if ( p accept tkLPAREN ) {
-        p expect tkRPAREN;
-        return "()";
-    }
-    return parseIdOrOper(p);
-}
-private fun parseFormalsOpt(p: @OurParser, varFormals: Bool = false, accessSpec: Int = unspecifiedAccess): Node {
-    var res: Node;
-    if ( p accept tkLPAREN ) {
-        // Traditional case: formals in parenthesis
-        if ( p accept tkRPAREN )
-            return res; // no formal
-        parseFormal(p, varFormals, res);
-        while ( p accept tkCOMMA ) {
-            parseFormal(p, varFormals, res);
-        }
-        p expect tkRPAREN;
-    }
-    else if ( p nextIs tkIDENTIFIER ) {
-        // Simplified versions: just names, without parenthesis
-        var loc = p curLoc;
-        var ids = parseIdList(p);
-        createFormals(ids, mkIdentifier(loc span (p lastLoc), "AnyType"), Node(), varFormals, Node(), accessSpec, res);
-    }
-    return res;
-}
-private fun parseFormal(p: @OurParser, varFormals: Bool, res: @Node) {
-    var ids = parseIdList(p);
-    p expect tkCOLON;
-    var typeNode = parseExpr(p, false);
-    var init: Node;
-    if ( p accept tkEQUAL ) {
-        init = parseExpr(p);
-    }
-    createFormals(ids, typeNode, init, varFormals, Node(), unspecifiedAccess, res);
-}
-private fun createFormals(ids: @LocStringVec, typeNode, init: Node, varFormals: Bool, mods: Node, accessSpec: Int, res: @Node) {
-    if ( varFormals ) {
-        for ( id: @LocString = ids.all ) {
-            var v = mkVar(id._data._1, id._data._2.asStringRef, typeNode, init, accessSpec);
-            if ( mods isSet ) v = mkModifiers(id._data._1, v, mods);
-            res = addToNodeList(res, v);
-        }
-    }
-    else {
-        for ( id: @LocString = ids.all ) {
-            var p = mkParameter(id._data._1, id._data._2.asStringRef, typeNode, init);
-            if ( mods isSet ) p = mkModifiers(id._data._1, p, mods);
-            res = addToNodeList(res, p);
-        }
-    }
-}
-private fun parseTypeNode(p: @OurParser): Node {
-    if ( p accept tkCOLON ) {
-        return parseExpr(p, false);
-    }
-    return Node();
-}
-private fun parseIfClauseOpt(p: @OurParser): Node {
-    if ( p accept tkIF )
-        return parseExpr(p);
-    return Node();
-}
-private fun parseFunBody(p: @OurParser): Node {
-    if ( p accept tkSEMICOLON )
-        return Node();
-    return parseBlockStmt(p);
-}
-
-private fun parseIfTopLevel(p: @OurParser, res: @Node): Bool {
-    if ( !(p accept tkIF) )
-        return false;
-    var loc = p lastLoc;
-    var mods = parseModifiers(p);
-    p expect tkLPAREN;
-    var expr = parseExpr(p);
-    p expect tkRPAREN;
-    var thenClause = parseDecl(p, true);
-    var elseClause: Node;
-    if ( p accept tkELSE )
-        elseClause = parseDecl(p, true);
-    loc copyEnd p.lastToken.loc;
-    res = mkModifiers(loc, mkIfStmt(loc, expr, thenClause, elseClause), mods);
-    return true;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Expressions
-//
-
-
-private fun nextIsExpr(p: @OurParser, withEqual: Bool = true): Bool {
-    var t = (*p.tokens).type;
-    if ( t == tkEQUAL )
-        return withEqual;
-    return t == tkIDENTIFIER
-        || t == tkOPERATOR
-        || t == tkBACKSQUOTE
-        || t == tkLPAREN
-        || t == tkTHIS
-        || t == tkNULLCT
-        || t == tkTRUE
-        || t == tkFALSE
-        || t == tkCHAR_LITERAL
-        || t == tkSTRING_LITERAL
-        || t == tkINT_LITERAL
-        || t == tkLONG_LITERAL
-        || t == tkUINT_LITERAL
-        || t == tkULONG_LITERAL
-        || t == tkFLOAT_LITERAL
-        || t == tkDOUBLE_LITERAL
-        ;
-}
-private fun parseExprOpt(p: @OurParser, res: @Node, allowSemicolons: Bool = false): Bool {
-    if ( p nextIsExpr ) {
-        res = parseExpr(p);
-        // We may have some semicolons after
-        if ( allowSemicolons )
-            while ( p accept tkSEMICOLON ) ;
-        return true;
-    }
-    return false;
-}
-
-// Zero, one, or more expressions separated by comma
-private fun parseExprListOpt(p: @OurParser): Node {
-    var res: Node;
-    var expr: Node;
-    if ( !parseExprOpt(p, expr) )
-        return res; // no expression found
-    res = addToNodeList(res, expr);
-    while ( p accept tkCOMMA ) {
-        expr = parseExpr(p);
-        res = addToNodeList(res, expr);
-    }
-    return res;
-}
-
-// Logic for parsing infix & postfix expressions
-private fun parseExpr(p: @OurParser, withEqual: Bool = true): Node {
-    var loc = p curLoc;
-    var baseExpr = parsePrefixExpr(p, withEqual);
-    var op: String;
-    while ( true ) {
-        op = parseIdOrOperOpt(p, withEqual);
-        if ( op isEmpty )
-            break;
-
-        if ( nextIsExpr(p, withEqual) ) {
-            // Infix expression
-            var rhs = parsePrefixExpr(p, withEqual);
-            baseExpr = mkInfixOp(loc span (p lastLoc), baseExpr, op.asStringRef, rhs);
-        }
-        else {
-            // The end of a postfix expression
-            baseExpr = mkPostfixOp(loc span (p lastLoc), baseExpr, op.asStringRef);
-            break;
-        }
-
-    }
-    return baseExpr;
-
-}
-private fun parsePrefixExpr(p: @OurParser, withEqual: Bool = true): Node {
-    var loc = p curLoc;
-    var op: String;
-    if ( p accept tkBACKSQUOTE ) {
-        op = parseId(p);
-        p expect tkBACKSQUOTE;
-    }
-    else
-        op = parseOperOpt(p);
-
-    if ( op.isEmpty )
-        return parseSimpleExpr(p);
-    else {
-        var baseExpr = parsePrefixExpr(p);
-        return mkPrefixOp(loc span (p lastLoc), op.asStringRef, baseExpr);
-    }
-}
-private fun parseSimpleExpr(p: @OurParser, withEqual: Bool = true): Node {
-    var res: Node;
-    var loc = p curLoc;
-    if ( (p nextIs tkLPAREN) && (p next2Is tkFUN) ) {
-        res = parseLambdaExpr(p);
-    }
-    else if ( p accept tkLPAREN ) {
-        res = mkParenthesisExpr(parseExpr(p));
-        p expect tkRPAREN;
-    }
-    else if ( p accept tkIDENTIFIER )
-        res = mkIdentifier(p.lastToken.loc, p.lastToken.data.asStringRef);
-    else if ( p accept tkTHIS )
-        res = mkThisExpr(p.lastToken.loc);
-    else if ( p accept tkNULLCT )
-        res = mkNullLiteral(p.lastToken.loc);
-    else if ( p accept tkTRUE )
-        res = mkBoolLiteral(p.lastToken.loc, true);
-    else if ( p accept tkFALSE )
-        res = mkBoolLiteral(p.lastToken.loc, false);
-    else if ( p accept tkINT_LITERAL )
-        res = mkIntLiteral(p.lastToken.loc, Int(p.lastToken.intData));
-    else if ( p accept tkUINT_LITERAL )
-        res = mkUIntLiteral(p.lastToken.loc, UInt(p.lastToken.intData));
-    else if ( p accept tkLONG_LITERAL )
-        res = mkLongLiteral(p.lastToken.loc, Long(p.lastToken.intData));
-    else if ( p accept tkULONG_LITERAL )
-        res = mkULongLiteral(p.lastToken.loc, ULong(p.lastToken.intData));
-    else if ( p accept tkFLOAT_LITERAL )
-        res = mkFloatLiteral(p.lastToken.loc, Float(p.lastToken.floatData));
-    else if ( p accept tkDOUBLE_LITERAL )
-        res = mkDoubleLiteral(p.lastToken.loc, Double(p.lastToken.floatData));
-    else if ( p accept tkCHAR_LITERAL )
-        res = mkCharLiteral(p.lastToken.loc, p.lastToken.data(0));
-    else if ( p accept tkSTRING_LITERAL )
-        res = mkStringLiteral(p.lastToken.loc, p.lastToken.data.asStringRef);
-
-    if ( res isNull ) {
-        p reportError toString("Syntax error, unexpected ", (*p.tokens).type, ", expecting expression");
-        return Node();
-    }
-
-    // possible expression suffixes
-    while ( true ) {
-        if ( p accept tkLPAREN ) {
-            var args = parseExprListOpt(p);
-            p expect tkRPAREN;
-            res = mkFunAppExpr(loc span (p lastLoc), res, args);
-        }
-        else if ( p accept tkDOT ) {
-            if ( p accept tkLPAREN ) {
-                p expect tkRPAREN;
-                res = mkDotExpr(loc span (p lastLoc), res, "()");
-            }
-            else {
-                var id = parseIdOrOper(p, withEqual);
-                res = mkDotExpr(loc span (p lastLoc), res, id.asStringRef);
-            }
-        }
+    fun parseIdOrOperOpt(p: @This, withEqual: Bool = true): String
+        if p accept tkIDENTIFIER
+            return p._lastToken.data
+        else if p accept tkOPERATOR
+            return p._lastToken.data
+        else if withEqual && (p accept tkEQUAL)
+            return "="
         else
-            break;
-    }
+            return String()
 
-    return res;
-}
-fun parseLambdaExpr(p: @OurParser): Node {
-    var loc = p curLoc;
-    p expect tkLPAREN;
-    p expect tkFUN;
-    var closureParams = parseClosureParams(p);
-    var formals = parseFormalsOpt(p);
-    var retType = parseTypeNode(p);
-    var body, bodyExp: Node;
-    if ( p accept tkEQUAL )
-        bodyExp = parseExpr(p);
-    else
-        body = parseFunBody(p);
-    p expect tkRPAREN;
-    return mkLambdaExpr(loc span (p lastLoc), closureParams, formals, retType, body, bodyExp);
-}
-fun parseClosureParams(p: @OurParser): Node {
-    var res: Node;
-    if ( p accept tkDOT ) {
-        p expect tkLCURLY;
-        if ( p nextIs tkIDENTIFIER )
-            res = parseIdListNode(p);
-        p expect tkRCURLY;
-    }
-    return res;
-}
+    fun parseOperOpt(p: @This, withEqual: Bool = true): String
+        if p accept tkOPERATOR
+            return p._lastToken.data
+        else if withEqual && (p accept tkEQUAL)
+            return p._lastToken.data
+        else
+            return String()
 
-///////////////////////////////////////////////////////////////////////////////
-// Statements
-//
+    fun parseId(p: @This): String
+        p expect tkIDENTIFIER
+        return p._lastToken.data
 
-private fun parseStatement(p: @OurParser): Node {
-    var res: Node;
-    if ( p accept tkSEMICOLON )
-        ;
-    else if ( p nextIs tkLCURLY )
-        res = parseBlockStmt(p);
-    else if ( p nextIs tkIF )
-        res = parseIfStmt(p);
-    else if ( p nextIs tkFOR )
-        res = parseForStmt(p);
-    else if ( p nextIs tkWHILE )
-        res = parseWhileStmt(p);
-    else if ( p nextIs tkBREAK )
-        res = parseBreakStmt(p);
-    else if ( p nextIs tkCONTINUE )
-        res = parseContinueStmt(p);
-    else if ( p nextIs tkRETURN )
-        res = parseReturnStmt(p);
-    else if ( parseFunLevelDecl(p, res) )
-        ;
-    else {
-        res = parseExpr(p);
-        p expect tkSEMICOLON;
-    }
-    return res;
-}
-private fun parseFunLevelDecl(p: @OurParser, res: @Node): Bool {
-    res = parseDecl(p, false);
-    return res isSet;
-}
-private fun parseBlockStmt(p: @OurParser): Node {
-    var loc = p curLoc;
-    var res: Node;
-    p expect tkLCURLY;
-    while ( !(p nextIs tkRCURLY) && !p.hasErrors ) {
-        var s = parseStatement(p);
-        res = addToNodeList(res, s);
-    }
-    p expect tkRCURLY;
-    return mkBlockStmt(loc span (p lastLoc), res);
-}
-private fun parseIfStmt(p: @OurParser): Node {
-    var loc = p curLoc;
-    p expect tkIF;
-    var mods = parseModifiers(p);
-    p expect tkLPAREN;
-    var expr = parseExpr(p);
-    p expect tkRPAREN;
-    var thenClause = parseStatement(p);
-    var elseClause: Node;
-    if ( p accept tkELSE )
-        elseClause = parseStatement(p);
-    loc copyEnd p.lastToken.loc;
-    return mkModifiers(loc, mkIfStmt(loc, expr, thenClause, elseClause), mods);
-}
-private fun parseForStmt(p: @OurParser): Node {
-    var loc = p curLoc;
-    p expect tkFOR;
-    var mods = parseModifiers(p);
-    p expect tkLPAREN;
-    var id = parseId(p);
-    var typeNode: Node;
-    if ( p accept tkCOLON )
-        typeNode = parseExpr(p, false);
-    p expect tkEQUAL;
-    var range = parseExpr(p);
-    p expect tkRPAREN;
-    var action = parseStatement(p);
-    loc copyEnd p.lastToken.loc;
-    return mkModifiers(loc, mkForStmt(loc, id.asStringRef, typeNode, range, action), mods);
-}
-private fun parseWhileStmt(p: @OurParser): Node {
-    var loc = p curLoc;
-    p expect tkWHILE;
-    var mods = parseModifiers(p);
-    p expect tkLPAREN;
-    var expr = parseExpr(p);
-    var stepAction: Node;
-    if ( p accept tkSEMICOLON ) {
-        // Try parsing it as an expression; if this is not an expression, try statement
-        if ( !parseExprOpt(p, stepAction, true) )
-            stepAction = parseStatement(p);
-    }
-    p expect tkRPAREN;
-    var body = parseStatement(p);
-    loc copyEnd p.lastToken.loc;
-    return mkModifiers(loc, mkWhileStmt(loc, expr, stepAction, body), mods);
-}
-private fun parseBreakStmt(p: @OurParser): Node {
-    p expect tkBREAK;
-    var loc = p.lastToken.loc;
-    p expect tkSEMICOLON;
-    return mkBreakStmt(loc);
-}
-private fun parseContinueStmt(p: @OurParser): Node {
-    p expect tkCONTINUE;
-    var loc = p.lastToken.loc;
-    p expect tkSEMICOLON;
-    return mkContinueStmt(loc);
-}
-private fun parseReturnStmt(p: @OurParser): Node {
-    p expect tkRETURN;
-    var loc = p.lastToken.loc;
-    var expr: Node;
-    if ( p accept tkSEMICOLON )
-        ;
-    else {
-        expr = parseExpr(p);
-        p expect tkSEMICOLON;
-    }
-    return mkReturnStmt(loc, expr);
-}
+    // Parses a structure of the form 'id =', with lookahead
+    // Can appear in the context of other non-equal expressions
+    fun parseIdEqualOpt(p: @This): String
+        var id: String
+        if (p nextIs tkIDENTIFIER) && (p next2Is tkEQUAL)
+            p expect tkIDENTIFIER
+            id = p._lastToken.data
+            p expect tkEQUAL
+        return id
+
+    fun parseQualifiedName(p: @This, allowStar: Bool = false): Node
+        var loc = p curLoc
+        p expect tkIDENTIFIER
+        var base = mkIdentifier(loc, p._lastToken.data.asStringRef)
+
+        var lastId = p._lastToken.data
+        while p accept tkDOT
+            if allowStar && (p accept tkOPERATOR)
+                base = mkStarExpr(loc span (p lastLoc), base, p._lastToken.data.asStringRef)
+                break
+            p expect tkIDENTIFIER
+            base = mkCompoundExpr(loc span (p lastLoc), base, p._lastToken.data.asStringRef)
+        return base
+
+    fun parseIdList(p: @This): LocStringVec
+        var res: LocStringVec
+        var id = parseId(p)
+        res += LocString(p._lastToken.loc ~ id)
+        while p accept tkCOMMA
+            id = parseId(p)
+            res += LocString(p._lastToken.loc ~ id)
+        return res
+    fun parseIdListNode(p: @This): Node
+        var res: Node
+        var id = parseId(p)
+        res = addToNodeList(res, mkIdentifier(p._lastToken.loc, id.asStringRef))
+        while p accept tkCOMMA
+            id = parseId(p)
+            res = addToNodeList(res, mkIdentifier(p._lastToken.loc, id.asStringRef))
+        return res
+
+    fun parseIdOrOperListNode(p: @This): Node
+        var res: Node
+        var id = parseIdOrOper(p)
+        res = addToNodeList(res, mkIdentifier(p._lastToken.loc, id.asStringRef))
+        while p accept tkCOMMA
+            id = parseIdOrOper(p)
+            res = addToNodeList(res, mkIdentifier(p._lastToken.loc, id.asStringRef))
+        return res
+
+    ///////////////////////////////////////////////////////////////////////////////
+    // Top level
+    //
+
+    fun parseModuleName(p: @This): Node
+        if p accept tkMODULE
+            var qid = parseQualifiedName(p)
+            p expect tkSEMICOLON
+            return qid
+        return Node()
+
+    fun parseModifiers(p: @This): Node
+        var res: Node
+        if p accept tkLBRACKET
+            var e: Node
+            e = parseExpr(p)
+            res = addToNodeList(res, e)
+            while p accept tkCOMMA
+                e = parseExpr(p)
+                res = addToNodeList(res, e)
+            p expect tkRBRACKET
+
+            // Ignore any possible semicolons (newlines) after the modifiers
+            p consumeSemis
+        return res
+
+    fun parseStmts(p: @This, topLevel: Bool, res: @Node)
+        while true
+            var child = parseStmt(p, topLevel)
+            if child isSet
+                res = addToNodeList(res, child)
+                continue
+
+            // No more top level decls found
+            break
+    fun parseStmt(p: @This, topLevel: Bool): Node
+        var res: Node
+
+        // Ignore empty statements
+        p consumeSemis
+
+        var loc = p curLoc
+        var mods = parseModifiers(p)
+        var found = (
+               parseImportLineOpt(p, res)
+            || parseUsingDecl(p, res)
+            || parsePackageDecl(p, res)
+            || parseClassDecl(p, res)
+            || parseDatatypeDecl(p, res)
+            || parseConceptDecl(p, res)
+            || parseVarDecl(p, res)
+            || parseFunDecl(p, res)
+            || parseExprStmt(p, res)
+            || parseBlockStmt(p, res, topLevel)
+            || parseIfStmt(p, res, topLevel)
+            || parseForStmt(p, res, topLevel)
+            || parseWhileStmt(p, res, topLevel)
+            || parseBreakStmt(p, res)
+            || parseContinueStmt(p, res)
+            || parseReturnStmt(p, res)
+        )
+
+        if mods isSet
+            if found
+                res = mkModifiers(loc span (p lastLoc), res, mods)
+            else
+                p reportError toString("Syntax error, unexpected ", (*p._tokens).type, ", expecting statement")
+
+        return res
+
+    fun parseImportLineOpt(p: @This, res: @Node): Bool
+        if p accept tkIMPORT
+            res = parseImportNames(p)
+            p expect tkSEMICOLON
+            return true
+        return false
+    fun parseImportNames(p: @This): Node
+        var res: Node
+        res = addToNodeList(res, parseImportName(p))
+        while p accept tkCOMMA
+            res = addToNodeList(res, parseImportName(p))
+        return res
+    fun parseImportName(p: @This): Node
+        var loc = p curLoc
+        var id = parseIdEqualOpt(p)
+        var toImport = parseQidOrString(p)
+        var declNames = parseImportDeclNamesOpt(p)
+        return mkImportName(loc span (p lastLoc), id.asStringRef, toImport, declNames)
+    fun parseQidOrString(p: @This): Node
+        if p accept tkSTRING_LITERAL
+            return mkStringLiteral(p._lastToken.loc, p._lastToken.data.asStringRef)
+        return parseQualifiedName(p)
+    fun parseImportDeclNamesOpt(p: @This): Node
+        var res: Node
+        if p accept tkLPAREN
+            res = parseIdOrOperListNode(p)
+            p expect tkRPAREN
+        return res
+
+    fun parseUsingDecl(p: @This, res: @Node): Bool
+        if !(p accept tkUSING)
+            return false
+        var loc = p._lastToken.loc
+        var id = parseIdEqualOpt(p)
+        var usingNode: Node
+        if id isEmpty
+            usingNode = parseQualifiedName(p, true)
+        else
+            usingNode = parseExpr(p)
+        loc copyEnd p._lastToken.loc
+        p expect tkSEMICOLON
+        res = mkUsing(loc, id.asStringRef, usingNode)
+        return true
+    fun parsePackageDecl(p: @This, res: @Node): Bool
+        if !(p accept tkPACKAGE)
+            return false
+        var loc = p._lastToken.loc
+        var id = parseId(p)
+        p expect tkLCURLY
+        var children: Node
+        parseStmts(p, true, children)
+        p expect tkRCURLY
+        loc copyEnd p._lastToken.loc
+        res = mkPackage(loc, id.asStringRef, children)
+        return true
+    fun parseClassDecl(p: @This, res: @Node): Bool
+        if !(p accept tkCLASS)
+            return false
+        var loc = p._lastToken.loc
+        var id = parseId(p)
+        var formals = parseFormalsOpt(p)
+        var ifClause = parseIfClauseOpt(p)
+        p expect tkLCURLY
+        var children: Node
+        parseStmts(p, true, children)
+        p expect tkRCURLY
+        loc copyEnd p._lastToken.loc
+        res = mkClass(loc, id.asStringRef, formals, Node(), ifClause, children)
+        return true
+    fun parseDatatypeDecl(p: @This, res: @Node): Bool
+        if !(p accept tkDATATYPE)
+            return false
+        var loc = p._lastToken.loc
+        var id = parseId(p)
+        var formals = parseFormalsOpt(p)
+        if p accept tkEQUAL
+            var underlyingData = parseExpr(p)
+            var ifClause = parseIfClauseOpt(p)
+            p expect tkSEMICOLON
+            loc copyEnd p._lastToken.loc
+            res = mkClass(loc, id.asStringRef, formals, underlyingData, ifClause, Node())
+        else
+            var ifClause = parseIfClauseOpt(p)
+            p expect tkLCURLY
+            var children: Node
+            parseFormal(p, true, children)
+            while (p accept tkCOMMA) || (p accept tkSEMICOLON)
+                if p nextIs tkRCURLY break
+                parseFormal(p, true, children)
+            p consumeSemis
+            p expect tkRCURLY
+            loc copyEnd p._lastToken.loc
+            res = mkClass(loc, id.asStringRef, formals, Node(), ifClause, children)
+        return true
+    fun parseConceptDecl(p: @This, res: @Node): Bool
+        if !(p accept tkCONCEPT)
+            return false
+        var loc = p._lastToken.loc
+        var id = parseId(p)
+        p expect tkLPAREN
+        var paramName = parseId(p)
+        var baseConcept = parseTypeNode(p)
+        p expect tkRPAREN
+        var ifClause = parseIfClauseOpt(p)
+        p expect tkSEMICOLON
+        loc copyEnd p._lastToken.loc
+        res = mkConcept(loc, id.asStringRef, paramName.asStringRef, baseConcept, ifClause)
+        return true
+    fun parseVarDecl(p: @This, res: @Node): Bool
+        if !(p accept tkVAR)
+            return false
+        var ids = parseIdList(p)
+        var typeNode, init: Node
+        if p accept tkCOLON
+            typeNode = parseExpr(p, false)
+            if p accept tkEQUAL
+                init = parseExpr(p)
+        else
+            p expect tkEQUAL
+            init = parseExpr(p)
+        p expect tkSEMICOLON
+
+        createFormals(ids, typeNode, init, true, res)
+        return true
+    fun parseFunDecl(p: @This, res: @Node): Bool
+        if !(p accept tkFUN)
+            return false
+        var loc = p._lastToken.loc
+        var id = parseFunNameString(p)
+        var formals = parseFormalsOpt(p)
+        var retType = parseTypeNode(p)
+        var body, bodyExp, ifClause: Node
+        if p accept tkEQUAL
+            bodyExp = parseExpr(p)
+            ifClause = parseIfClauseOpt(p)
+            p expect tkSEMICOLON
+        else
+            ifClause = parseIfClauseOpt(p)
+            body = parseFunBody(p)
+        loc copyEnd p._lastToken.loc
+        res = mkFun(loc, id.asStringRef, formals, retType, body, bodyExp, ifClause)
+        return true
+
+    fun parseFunNameString(p: @This): String
+        if p accept tkLPAREN
+            p expect tkRPAREN
+            return "()"
+        return parseIdOrOper(p)
+    fun parseFormalsOpt(p: @This, varFormals: Bool = false): Node
+        var res: Node
+        if p accept tkLPAREN
+            // Traditional case: formals in parenthesis
+            if p accept tkRPAREN
+                return res // no formal
+            parseFormal(p, varFormals, res)
+            while p accept tkCOMMA
+                parseFormal(p, varFormals, res)
+            p expect tkRPAREN
+        else if p nextIs tkIDENTIFIER
+            // Simplified versions: just names, without parenthesis
+            var loc = p curLoc
+            var ids = parseIdList(p)
+            createFormals(ids, mkIdentifier(loc span (p lastLoc), "AnyType"), Node(), varFormals, res)
+        return res
+    fun parseFormal(p: @This, varFormals: Bool, res: @Node)
+        var ids = parseIdList(p)
+        p expect tkCOLON
+        var typeNode = parseExpr(p, false)
+        var init: Node
+        if p accept tkEQUAL
+            init = parseExpr(p)
+        createFormals(ids, typeNode, init, varFormals, res)
+    fun createFormals(ids: @LocStringVec, typeNode, init: Node, varFormals: Bool, res: @Node)
+        if varFormals
+            for id: @LocString = ids.all
+                var v = mkVar(id.data.v1, id.data.v2.asStringRef, typeNode, init)
+                res = addToNodeList(res, v)
+        else
+            for id: @LocString = ids.all
+                var p = mkParameter(id.data.v1, id.data.v2.asStringRef, typeNode, init)
+                res = addToNodeList(res, p)
+    fun parseTypeNode(p: @This): Node
+        if p accept tkCOLON
+            return parseExpr(p, false)
+        return Node()
+    fun parseIfClauseOpt(p: @This): Node
+        if p accept tkIF
+            return parseExpr(p)
+        return Node()
+    fun parseFunBody(p: @This): Node
+        if p accept tkSEMICOLON
+            return Node()
+        var res: Node
+        if !parseBlockStmt(p, res, false)
+            p reportError toString("Syntax error, unexpected ", (*p._tokens).type, ", expecting block statement")
+        return res
+
+    fun parseIfTopLevel(p: @This, res: @Node): Bool
+        if !(p accept tkIF)
+            return false
+        var loc = p lastLoc
+        p expect tkLPAREN
+        var expr = parseExpr(p)
+        p expect tkRPAREN
+        var thenClause = parseStmt(p, true)
+        var elseClause: Node
+        if p accept tkELSE
+            elseClause = parseStmt(p, true)
+        loc copyEnd p._lastToken.loc
+        res = mkIfStmt(loc, expr, thenClause, elseClause)
+        return true
+
+    ///////////////////////////////////////////////////////////////////////////////
+    // Expressions
+    //
+
+
+    fun nextIsExpr(p: @This, withEqual: Bool = true): Bool
+        var t = (*p._tokens).type
+        if t == tkEQUAL
+            return withEqual
+        return (
+               t == tkIDENTIFIER
+            || t == tkOPERATOR
+            || t == tkBACKSQUOTE
+            || t == tkLPAREN
+            || t == tkTHIS
+            || t == tkNULLCT
+            || t == tkTRUE
+            || t == tkFALSE
+            || t == tkCHAR_LITERAL
+            || t == tkSTRING_LITERAL
+            || t == tkINT_LITERAL
+            || t == tkLONG_LITERAL
+            || t == tkUINT_LITERAL
+            || t == tkULONG_LITERAL
+            || t == tkFLOAT_LITERAL
+            || t == tkDOUBLE_LITERAL
+        )
+    fun parseExprOpt(p: @This, res: @Node, allowSemicolons: Bool = false): Bool
+        if p nextIsExpr
+            res = parseExpr(p)
+            // We may have some semicolons after
+            if allowSemicolons
+                p consumeSemis
+            return true
+        return false
+
+    // Zero, one, or more expressions separated by comma
+    fun parseExprListOpt(p: @This): Node
+        var res: Node
+        var expr: Node
+        if !parseExprOpt(p, expr)
+            return res // no expression found
+        res = addToNodeList(res, expr)
+        while p accept tkCOMMA
+            expr = parseExpr(p)
+            res = addToNodeList(res, expr)
+        return res
+
+    // Logic for parsing infix & postfix expressions
+    fun parseExpr(p: @This, withEqual: Bool = true): Node
+        var loc = p curLoc
+        var baseExpr = parsePrefixExpr(p, withEqual)
+        var op: String
+        while true
+            op = parseIdOrOperOpt(p, withEqual)
+            if op isEmpty break
+
+            if nextIsExpr(p, withEqual)
+                // Infix expression
+                var rhs = parsePrefixExpr(p, withEqual)
+                baseExpr = mkInfixOp(loc span (p lastLoc), baseExpr, op.asStringRef, rhs)
+            else
+                // The end of a postfix expression
+                baseExpr = mkPostfixOp(loc span (p lastLoc), baseExpr, op.asStringRef)
+                break
+        return baseExpr
+
+    fun parsePrefixExpr(p: @This, withEqual: Bool = true): Node
+        var loc = p curLoc
+        var op: String
+        if p accept tkBACKSQUOTE
+            op = parseId(p)
+            p expect tkBACKSQUOTE
+        else
+            op = parseOperOpt(p)
+
+        if op.isEmpty
+            return parseSimpleExpr(p)
+        else
+            var baseExpr = parsePrefixExpr(p)
+            return mkPrefixOp(loc span (p lastLoc), op.asStringRef, baseExpr)
+
+    fun parseSimpleExpr(p: @This, withEqual: Bool = true): Node
+        var res: Node
+        var loc = p curLoc
+        if (p nextIs tkLPAREN) && (p next2Is tkFUN)
+            res = parseLambdaExpr(p)
+        else if p accept tkLPAREN
+            res = mkParenthesisExpr(parseExpr(p))
+            p expect tkRPAREN
+        else if p accept tkIDENTIFIER
+            res = mkIdentifier(p._lastToken.loc, p._lastToken.data.asStringRef)
+        else if p accept tkTHIS
+            res = mkThisExpr(p._lastToken.loc)
+        else if p accept tkNULLCT
+            res = mkNullLiteral(p._lastToken.loc)
+        else if p accept tkTRUE
+            res = mkBoolLiteral(p._lastToken.loc, true)
+        else if p accept tkFALSE
+            res = mkBoolLiteral(p._lastToken.loc, false)
+        else if p accept tkINT_LITERAL
+            res = mkIntLiteral(p._lastToken.loc, Int(p._lastToken.intData))
+        else if p accept tkUINT_LITERAL
+            res = mkUIntLiteral(p._lastToken.loc, UInt(p._lastToken.intData))
+        else if p accept tkLONG_LITERAL
+            res = mkLongLiteral(p._lastToken.loc, Long(p._lastToken.intData))
+        else if p accept tkULONG_LITERAL
+            res = mkULongLiteral(p._lastToken.loc, ULong(p._lastToken.intData))
+        else if p accept tkFLOAT_LITERAL
+            res = mkFloatLiteral(p._lastToken.loc, Float(p._lastToken.floatData))
+        else if p accept tkDOUBLE_LITERAL
+            res = mkDoubleLiteral(p._lastToken.loc, Double(p._lastToken.floatData))
+        else if p accept tkCHAR_LITERAL
+            res = mkCharLiteral(p._lastToken.loc, p._lastToken.data(0))
+        else if p accept tkSTRING_LITERAL
+            res = mkStringLiteral(p._lastToken.loc, p._lastToken.data.asStringRef)
+
+        if res isNull
+            p reportError toString("Syntax error, unexpected ", (*p._tokens).type, ", expecting expression")
+            return Node()
+
+        // possible expression suffixes
+        while true
+            if p accept tkLPAREN
+                var args = parseExprListOpt(p)
+                p expect tkRPAREN
+                res = mkFunAppExpr(loc span (p lastLoc), res, args)
+            else if p accept tkDOT
+                if p accept tkLPAREN
+                    p expect tkRPAREN
+                    res = mkDotExpr(loc span (p lastLoc), res, "()")
+                else
+                    var id = parseIdOrOper(p, withEqual)
+                    res = mkDotExpr(loc span (p lastLoc), res, id.asStringRef)
+            else
+                break
+
+        return res
+    fun parseLambdaExpr(p: @This): Node
+        var loc = p curLoc
+        p expect tkLPAREN
+        p expect tkFUN
+        var closureParams = parseClosureParams(p)
+        var formals = parseFormalsOpt(p)
+        var retType = parseTypeNode(p)
+        var body, bodyExp: Node
+        if p accept tkEQUAL
+            bodyExp = parseExpr(p)
+        else
+            body = parseFunBody(p)
+        p expect tkRPAREN
+        return mkLambdaExpr(loc span (p lastLoc), closureParams, formals, retType, body, bodyExp)
+    fun parseClosureParams(p: @This): Node
+        var res: Node
+        if p accept tkDOT
+            p expect tkLCURLY
+            if p nextIs tkIDENTIFIER
+                res = parseIdListNode(p)
+            p expect tkRCURLY
+        return res
+
+    ///////////////////////////////////////////////////////////////////////////////
+    // Statements
+    //
+
+    fun parseExprStmt(p: @This, res: @Node): Bool
+        return parseExprOpt(p, res, true)
+
+    fun parseBlockStmt(p: @This, res: @Node, topLevel: Bool): Bool
+        var loc = p curLoc
+        if p accept tkLCURLY
+            res = Node()
+            while !(p nextIs tkRCURLY) && !p._hasErrors
+                var s = parseStmt(p, topLevel)
+                if s isSet
+                    res = addToNodeList(res, s)
+                else
+                    break
+            p expect tkRCURLY
+            if !topLevel
+                res = mkBlockStmt(loc span (p lastLoc), res)
+            return true
+        return false
+    fun parseIfStmt(p: @This, res: @Node, topLevel: Bool): Bool
+        var loc = p curLoc
+        if p accept tkIF
+            var expr = parseExpr(p)
+            var thenClause = parseStmt(p, topLevel)
+            var elseClause: Node
+            if p accept tkELSE
+                elseClause = parseStmt(p, topLevel)
+            loc copyEnd p._lastToken.loc
+            res = mkIfStmt(loc, expr, thenClause, elseClause)
+            return true
+        return false
+    fun parseForStmt(p: @This, res: @Node, topLevel: Bool): Bool
+        var loc = p curLoc
+        if p accept tkFOR
+            var id = parseId(p)
+            var typeNode: Node
+            if p accept tkCOLON
+                typeNode = parseExpr(p, false)
+            p expect tkEQUAL
+            var range = parseExpr(p)
+            var action = parseStmt(p, topLevel)
+            loc copyEnd p._lastToken.loc
+            res = mkForStmt(loc, id.asStringRef, typeNode, range, action)
+            return true
+        return false
+    fun parseWhileStmt(p: @This, res: @Node, topLevel: Bool): Bool
+        var loc = p curLoc
+        if p accept tkWHILE
+            var expr = parseExpr(p)
+            var stepAction: Node
+            if p accept tkSEMICOLON
+                // Now expect an expression or a block statement, as the step action
+                if ( !parseExprOpt(p, stepAction, true)
+                    && !parseBlockStmt(p, stepAction, topLevel) )
+                    p reportError toString("Syntax error, unexpected ", (*p._tokens).type, ", expecting expression or block statement")
+            var body = parseStmt(p, topLevel)
+            loc copyEnd p._lastToken.loc
+            res = mkWhileStmt(loc, expr, stepAction, body)
+            return true
+        return false
+    fun parseBreakStmt(p: @This, res: @Node): Bool
+        if p accept tkBREAK
+            var loc = p._lastToken.loc
+            p expect tkSEMICOLON
+            res = mkBreakStmt(loc)
+            return true
+        return false
+    fun parseContinueStmt(p: @This, res: @Node): Bool
+        if p accept tkCONTINUE
+            var loc = p._lastToken.loc
+            p expect tkSEMICOLON
+            res = mkContinueStmt(loc)
+            return true
+        return false
+
+    fun parseReturnStmt(p: @This, res: @Node): Bool
+        if p accept tkRETURN
+            var loc = p._lastToken.loc
+            var expr: Node
+            if p accept tkSEMICOLON
+
+            else
+                expr = parseExpr(p)
+                p expect tkSEMICOLON
+            res = mkReturnStmt(loc, expr)
+            return true
+        return false

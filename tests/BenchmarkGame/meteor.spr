@@ -30,7 +30,7 @@ using nRotations = 12;
  * from one end to the other along 12 hexagonal directions.
  *
  *   Piece 0   Piece 1   Piece 2   Piece 3   Piece 4
- *                   
+ *
  *  O O O O    O   O O   O O O     O O O     O   O
  *         O    O O           O       O       O O
  *                           O         O         O
@@ -77,12 +77,12 @@ using nRotations = 12;
 
 //    //fun isValid: Bool { return findIf(pos, (fun p = p._2>=0 && p._2 < 5)); }
 
-//    private fun[static] rotatePos(p: PosType) = (p._1 + p._2) ~ -p._2;
+//    [static] fun rotatePos(p: PosType) = (p._1 + p._2) ~ -p._2;
 
-//    //private fun[static] posToNum(p: PosType) = p._1 + 5*p._2;
-//    //private fun[static] posFromNum(p: Byte): PosType = p%5 ~ p/5;
+//    //[static] fun posToNum(p: PosType) = p._1 + 5*p._2;
+//    //[static] fun posFromNum(p: Byte): PosType = p%5 ~ p/5;
 
-//    private fun offsetToMin: Piece
+//    fun offsetToMin: Piece
 //    {
 //        var min = minElement(pos.all).front;
 //        var offseted = pos.all map (fun.{min} p = p._1-min._1 ~ p._2-min._2);
@@ -113,12 +113,12 @@ using nRotations = 12;
 //}
 //fun copyFromOldAlgo
 //{
-//    for ( piece = 0..nPieces )
+//    for piece = 0..nPieces
 //    {
-//        for ( pos = 0..nPositions )
+//        for pos = 0..nPositions
 //        {
 //            pieceCounts(piece)(pos) = P1.pieceCounts(piece)(pos);
-//            for ( rot = 0..nRotations )
+//            for rot = 0..nRotations
 //            {
 //                pieces(piece)(pos)(rot) = P1.pieces(piece)(pos)(rot);
 //                nextCell(piece)(pos)(rot) = P1.nextCell(piece)(pos)(rot);
@@ -214,7 +214,7 @@ fun shift(cell: Byte, dir: Direction): Byte
     var oddRow: Bool = (cell/5) % 2 != 0;
 
     using Direction.*;
-         if ( dir == E )             return cell + Byte(1);
+    if ( dir == E )                  return cell + Byte(1);
     else if ( dir == ESE && oddRow ) return cell + Byte(7);
     else if ( dir == ESE )           return cell + Byte(6);
     else if ( dir == SE && oddRow )  return cell + Byte(6);
@@ -246,7 +246,7 @@ fun outOfBounds(cell: Byte, dir: Direction): Bool
     var col = cell % 5;
     var colEx = cell % 10;
     using Direction.*;
-         if ( dir == E )    return col==4;
+    if ( dir == E )         return col==4;
     else if ( dir == ESE )  return colEx==4 || colEx==8 || colEx==9 || cell>=45;
     else if ( dir == SE )   return colEx==9 || cell>=45;
     else if ( dir == S )    return cell>=40;
@@ -264,14 +264,14 @@ fun outOfBounds(cell: Byte, dir: Direction): Bool
 /* Rotate a piece 60 degrees clockwise */
 fun rotatePiece(piece: Int)
 {
-    for ( p: @Direction = pieceDef(piece).all )
+    for p: @Direction = pieceDef(piece).all
         p = rotate(p);
 }
 
 /* Flip a piece along the horizontal axis */
 fun flipPiece(piece: Int)
 {
-    for ( p: @Direction = pieceDef(piece).all )
+    for p: @Direction = pieceDef(piece).all
         p = flip(p);
 }
 
@@ -279,7 +279,7 @@ fun flipPiece(piece: Int)
 fun calcCellIndices(cell: @StaticArray(Byte, 5), piece: Int, index: Byte)
 {
     var hasOddDir = false;
-    //for ( i = 0..4 )
+    //for i = 0..4
     //{
     //    var dir = pieceDef(piece)(i);
     //    if ( dir.id % 2 == 1 )
@@ -288,7 +288,7 @@ fun calcCellIndices(cell: @StaticArray(Byte, 5), piece: Int, index: Byte)
     if ( hasOddDir )
     {
         cout << "Piece: " << piece << ": ";
-        for ( i = 0..4 )
+        for i = 0..4
             cout << ' ' << pieceDef(piece)(i).id;
         cout << endl;
     }
@@ -302,10 +302,11 @@ fun calcCellIndices(cell: @StaticArray(Byte, 5), piece: Int, index: Byte)
 /* Convenience function to quickly calculate if a piece fits on the board */
 fun cellsFitOnBoard(cell: @StaticArray(Byte, 5), piece: Int): Bool
 {
-    return !outOfBounds(cell(0), pieceDef(piece)(0))
+    return(!outOfBounds(cell(0), pieceDef(piece)(0))
         && !outOfBounds(cell(1), pieceDef(piece)(1))
-        && !outOfBounds(cell(2), pieceDef(piece)(2)) 
-        && !outOfBounds(cell(3), pieceDef(piece)(3));
+        && !outOfBounds(cell(2), pieceDef(piece)(2))
+        && !outOfBounds(cell(3), pieceDef(piece)(3))
+    );
 }
 
 /* Returns the lowest index of the cells of a piece.
@@ -340,7 +341,7 @@ fun firstEmptyCell(cell: @StaticArray(Byte, 5), min: Byte): Byte {
 fun bitmaskFromCells(cell: @StaticArray(Byte, 5)): ULong
 {
    var pieceMask: ULong;
-   for ( c = cell.all )
+   for c = cell.all
       pieceMask !|!= (ULong(1L) !<<! c);
    return pieceMask;
 }
@@ -365,12 +366,12 @@ fun fillContiguousSpace(board: @StaticArray(Byte, nPositions), index: Byte)
         return;
     board(index) = Byte(1);
     using Direction.*;
-    if ( !outOfBounds(index, E) )  fillContiguousSpace(board, shift(index, E));   
-    if ( !outOfBounds(index, SE) ) fillContiguousSpace(board, shift(index, SE));   
-    if ( !outOfBounds(index, SW) ) fillContiguousSpace(board, shift(index, SW));   
-    if ( !outOfBounds(index, W) )  fillContiguousSpace(board, shift(index, W));   
-    if ( !outOfBounds(index, NW) ) fillContiguousSpace(board, shift(index, NW));   
-    if ( !outOfBounds(index, NE) ) fillContiguousSpace(board, shift(index, NE));   
+    if !outOfBounds(index, E)  ; fillContiguousSpace(board, shift(index, E));
+    if !outOfBounds(index, SE) ; fillContiguousSpace(board, shift(index, SE));
+    if !outOfBounds(index, SW) ; fillContiguousSpace(board, shift(index, SW));
+    if !outOfBounds(index, W)  ; fillContiguousSpace(board, shift(index, W));
+    if !outOfBounds(index, NW) ; fillContiguousSpace(board, shift(index, NW));
+    if !outOfBounds(index, NE) ; fillContiguousSpace(board, shift(index, NE));
 }
 
 
@@ -384,17 +385,17 @@ fun hasIsland(cell: @StaticArray(Byte, 5), piece: Int): Bool
 {
     var tempBoard: StaticArray(Byte, nPositions);
 
-    for ( c = cell.all )
+    for c = cell.all
         tempBoard(c) = Byte(1);
     var i: Byte = 49;
-    while ( tempBoard(i) == 1 )
+    while tempBoard(i) == 1
         --i;
     fillContiguousSpace(tempBoard, i);
     var c: Byte = 0;
-    for ( i = 0..50 )
+    for i = 0..50
         if ( tempBoard(i) == 0)
             ++c;
-    return c != 0 && !(c == 5 && piece == 8) && !(c == 40 && piece == 8)
+    return c != 0 && !(c == 5 && piece == 8) && !(c == 40 && piece == 8) \
         && !(c % 5 == 0 && piece == 0);
 }
 
@@ -409,10 +410,10 @@ fun hasIsland(cell: @StaticArray(Byte, 5), piece: Int): Bool
 fun calcSixRotations(piece, index: Byte)
 {
     var cell: StaticArray(Byte, 5);
-    for ( rot = 0..6 )
+    for rot = 0..6
     {
         if ( piece != 3 || rot < 3 )
-        { 
+        {
             calcCellIndices(cell, piece, index);
             if ( cellsFitOnBoard(cell, piece) && !hasIsland(cell, piece) )
             {
@@ -429,15 +430,11 @@ fun calcSixRotations(piece, index: Byte)
 /* Calculate every legal rotation for each piece at each board location. */
 fun calcPieces
 {
-    for ( piece: Byte = 0..nPieces )
-    {
-        for ( index: Byte = 0..nPositions )
-        {
+    for piece: Byte = 0..nPieces
+        for index: Byte = 0..nPositions
             calcSixRotations(piece, index);
             flipPiece(piece);
             calcSixRotations(piece, index);
-        }
-    }
 }
 
 
@@ -468,7 +465,7 @@ fun rowsBad(row1, row2: Byte, even: Bool): Bool
     /* Test for groups of 0's */
     var inZeroes = false;
     var groupOkay = false;
-    for ( i = 0..5 )
+    for i = 0..5
     {
         if ( (row1 !&! (1 !<<! i)) != 0 )
         {
@@ -497,17 +494,18 @@ fun rowsBad(row1, row2: Byte, even: Bool): Bool
  */
 fun tripleIsOkay(row1, row2, row3: Byte, even: Bool): Bool
 {
-   if ( even )
-   {
+    if ( even )
+    {
         /* There are four cases:
          * row1: 00011  00001  11001  10101
          * row2: 01011  00101  10001  10001
          * row3: 011??  00110  ?????  ?????
          */
-        return ((row1 == 0x03) && (row2 == 0x0B) && ((row3 !&! 0x1C) == 0x0C))
+        return(((row1 == 0x03) && (row2 == 0x0B) && ((row3 !&! 0x1C) == 0x0C))
             || ((row1 == 0x01) && (row2 == 0x05) && (row3 == 0x06))
             || ((row1 == 0x19) && (row2 == 0x11))
-            || ((row1 == 0x15) && (row2 == 0x11));
+            || ((row1 == 0x15) && (row2 == 0x11))
+        );
     }
     else
     {
@@ -516,7 +514,7 @@ fun tripleIsOkay(row1, row2, row3: Byte, even: Bool): Bool
          * row2: 10001  10001
          * row3: ?????  ?????
          */
-        return ((row1 == 0x13) && (row2 == 0x11))
+        return ((row1 == 0x13) && (row2 == 0x11)) \
             || ((row1 == 0x15) && (row2 == 0x11));
     }
 }
@@ -524,16 +522,13 @@ fun tripleIsOkay(row1, row2, row3: Byte, even: Bool): Bool
 
 fun calcRows
 {
-    for ( row1: Byte = 0..32 )
-        for ( row2: Byte = 0..32 )
-        {
+    for row1: Byte = 0..32
+        for row2: Byte = 0..32
             badEvenRows(row1)(row2) = rowsBad(row1, row2, true);
             badOddRows(row1)(row2) = rowsBad(row1, row2, false);
-        }
-    for ( row1: Byte = 0..32 )
-        for ( row2: Byte = 0..32 )
-            for ( row3: Byte = 0..32 )
-            {
+    for row1: Byte = 0..32
+        for row2: Byte = 0..32
+            for row3: Byte = 0..32
                 var res1 = badEvenRows(row1)(row2);
                 var res2 = badOddRows(row2)(row3);
                 if ( !res1 && res2 && tripleIsOkay(row1,row2,row3, true) )
@@ -547,7 +542,6 @@ fun calcRows
                    badOddTriple(row1+(row2*32)+(row3*1024)) = false;
                 else
                    badOddTriple(row1+(row2*32)+(row3*1024)) = res1 || res2;
-            }
 }
 
 
@@ -584,10 +578,10 @@ var maxSolutions = 2100;
 
 fun recordSolution
 {
-    for ( solNo = 0..10 )
+    for solNo = 0..10
     {
         var solMask = solMasks(solNo);
-        for ( index = 0..nPositions )
+        for index = 0..nPositions
         {
             if ( (solMask !&! 1) != 0 )
             {
@@ -606,10 +600,10 @@ fun solve(depth, cell: Int)
     if ( solutionCount >= maxSolutions )
         return;
 
-    while ( (board !&! (1L !<<! cell)) != 0 )
+    while (board !&! (1L !<<! cell)) != 0
         cell++;
 
-    for ( piece: Byte = 0..nPieces )
+    for piece: Byte = 0..nPieces
     {
         var pieceNoMask: Short = Short(1) !<<! piece;
         if ( 0 == (avail !&! pieceNoMask) )
@@ -617,7 +611,7 @@ fun solve(depth, cell: Int)
         avail !^!= pieceNoMask;
         var maxRots = P1.pieceCounts(piece)(cell);
         var pieceMask: @StaticArray(ULong, nRotations) = P1.pieces(piece)(cell);
-        for ( rotation = 0..maxRots )
+        for rotation = 0..maxRots
         {
             if ( 0 == (board !&! pieceMask(rotation)) )
             {
@@ -644,7 +638,7 @@ fun solve(depth, cell: Int)
 /* qsort comparator - used to find first and last solutions */
 fun solutionSort(l,r: @StaticArray(Byte, nPositions)): Bool
 {
-    for ( i = 0..nPositions )
+    for i = 0..nPositions
         if ( l(i) != r(i) )
             return l(i) < r(i);
     return false;
@@ -654,11 +648,11 @@ fun solutionSort(l,r: @StaticArray(Byte, nPositions)): Bool
 /* pretty print a board in the specified hexagonal format */
 fun pretty(s: @StaticArray(Byte, nPositions))
 {
-    for ( i = 0..nPositions ../ nPieces )
+    for i = 0..nPositions ../ nPieces
     {
-        cout<<s(i+0)<<' '<<s(i+1)<<' '<<s(i+2)<<' '<<s(i+3)<<' '<<s(i+4)<<' ';
+        cout<<s(i+0)<<' '<<s(i+1)<<' '<<s(i+2)<<' '<<s(i+3)<<' '<<s(i+4);
         cout<<endl<<' ';
-        cout<<s(i+5)<<' '<<s(i+6)<<' '<<s(i+7)<<' '<<s(i+8)<<' '<<s(i+9)<<' ';
+        cout<<s(i+5)<<' '<<s(i+6)<<' '<<s(i+7)<<' '<<s(i+8)<<' '<<s(i+9);
         cout<<endl;
     }
     cout << endl;
@@ -681,53 +675,53 @@ fun sprMain
 /*<<<meteor (4)
 4 solutions found
 
-0 0 0 0 1 
- 2 2 2 0 1 
-2 6 6 1 1 
- 2 6 1 5 5 
-8 6 5 5 5 
- 8 6 3 3 3 
-4 8 8 9 3 
- 4 4 8 9 3 
-4 7 4 7 9 
- 7 7 7 9 9 
+0 0 0 0 1
+ 2 2 2 0 1
+2 6 6 1 1
+ 2 6 1 5 5
+8 6 5 5 5
+ 8 6 3 3 3
+4 8 8 9 3
+ 4 4 8 9 3
+4 7 4 7 9
+ 7 7 7 9 9
 
-9 9 7 7 7 
- 9 7 4 7 4 
-3 9 8 4 4 
- 3 9 8 8 4 
-3 3 3 6 8 
- 5 5 5 6 8 
-5 5 1 6 2 
- 1 1 6 6 2 
-1 0 2 2 2 
- 1 0 0 0 0 
+9 9 7 7 7
+ 9 7 4 7 4
+3 9 8 4 4
+ 3 9 8 8 4
+3 3 3 6 8
+ 5 5 5 6 8
+5 5 1 6 2
+ 1 1 6 6 2
+1 0 2 2 2
+ 1 0 0 0 0
 
 >>>*/
 
 /*<<<run (2098)
 2098 solutions found
 
-0 0 0 0 1 
- 2 2 2 0 1 
-2 6 6 1 1 
- 2 6 1 5 5 
-8 6 5 5 5 
- 8 6 3 3 3 
-4 8 8 9 3 
- 4 4 8 9 3 
-4 7 4 7 9 
- 7 7 7 9 9 
+0 0 0 0 1
+ 2 2 2 0 1
+2 6 6 1 1
+ 2 6 1 5 5
+8 6 5 5 5
+ 8 6 3 3 3
+4 8 8 9 3
+ 4 4 8 9 3
+4 7 4 7 9
+ 7 7 7 9 9
 
-9 9 9 9 8 
- 9 6 6 8 5 
-6 6 8 8 5 
- 6 8 2 5 5 
-7 7 7 2 5 
- 7 4 7 2 0 
-1 4 2 2 0 
- 1 4 4 0 3 
-1 4 0 0 3 
- 1 1 3 3 3 
+9 9 9 9 8
+ 9 6 6 8 5
+6 6 8 8 5
+ 6 8 2 5 5
+7 7 7 2 5
+ 7 4 7 2 0
+1 4 2 2 0
+ 1 4 4 0 3
+1 4 0 0 3
+ 1 1 3 3 3
 
 >>>*/

@@ -3,15 +3,15 @@ import logic.predicates;
 //import assert;
 
 
-fun orbits(a, b: @LStr)
-     = a /=/ "Mercury"  && b /=/ "Sun"
+fun orbits(a, b: @LStr) = (
+       a /=/ "Mercury"  && b /=/ "Sun"
     || a /=/ "Venus"    && b /=/ "Sun"
     || a /=/ "Earth"    && b /=/ "Sun"
     || a /=/ "Mars"     && b /=/ "Sun"
     || a /=/ "Moon"     && b /=/ "Earth"
     || a /=/ "Phobos"   && b /=/ "Mars"
     || a /=/ "Deimos"   && b /=/ "Mars"
-    ;
+    );
 
 fun planet(p: @LStr) = orbits(p, "Sun");
 
@@ -27,16 +27,16 @@ fun sprMain
         return;
     var n = programArgs(1) asInt;
 
-    if      ( n == 1 ) test1();
-    else if ( n == 2 ) test2();
-    else if ( n == 3 ) test3();
+    if      n == 1; test1
+    else if n == 2; test2
+    else if n == 3; test3
 }
 
 fun test1
 {
     var x, y: LStr;
     var pred = orbits(x, y);
-    while ( pred() )
+    while pred()
     {
         //assert(x.isSet());
         //assert(y.isSet());
@@ -57,7 +57,7 @@ fun test2
 {
     var x: LStr;
     var pred = planet(x);
-    while ( pred() )
+    while pred()
     {
         //assert(x.isSet());
         cout << "Planet: " << x.get() << endl;
@@ -74,7 +74,7 @@ fun test3
 {
     var x: LStr;
     var pred = satellite(x);
-    while ( pred() )
+    while pred()
     {
         //assert(x.isSet());
         cout << "Satellite: " << x.get() << endl;

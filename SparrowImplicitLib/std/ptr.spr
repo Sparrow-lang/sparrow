@@ -3,54 +3,54 @@ module std.ptr;
 import meta.sparrowNodes, meta.featherNodes;
 import newDelete(delete);
 
-class[rtct] Ptr(type: Type)
+[rtct] class Ptr(type: Type)
 {
     using ValueType = type;
 
-    fun ctor                    = ptr := null;
-    fun ctor(other: Ptr)        = ptr := other.ptr;
-    fun[convert] ctor(ref: @ValueType)   = ptr := ref;
+    fun ctor                    = _ptr := null;
+    fun ctor(other: Ptr)        = _ptr := other._ptr;
+    [convert] fun ctor(ref: @ValueType)   = _ptr := ref;
 
-    fun get: @ValueType         = ptr;
-    fun isNull                  = ptr === null;
-    fun isSet                   = ptr !== null;
+    fun get: @ValueType         = _ptr;
+    fun isNull                  = _ptr === null;
+    fun isSet                   = _ptr !== null;
 
-    fun reset                   = ptr := null;
-    fun reset(ref: @ValueType)  = ptr := ref;
-    fun release                 { delete(ptr); }
+    fun reset                   = _ptr := null;
+    fun reset(ref: @ValueType)  = _ptr := ref;
+    fun release                 { delete(_ptr); }
 
     fun swap(other: @Ptr)
     {
-        var t: @ValueType = ptr;
-        ptr := other.ptr;
-        other.ptr := t;
+        var t: @ValueType = _ptr;
+        _ptr := other._ptr;
+        other._ptr := t;
     }
 
-    fun =(other: Ptr)           = ptr := other.ptr;
-    fun =(ref: @ValueType)      = ptr := ref;
+    fun =(other: Ptr)           = _ptr := other._ptr;
+    fun =(ref: @ValueType)      = _ptr := ref;
 
-    fun ==(other: Ptr)          = ptr === other.ptr;
-    fun < (other: Ptr)          = ptrDiff(reinterpretCast(@Byte, this.ptr), reinterpretCast(@Byte, other.ptr)) < DiffType(0);
+    fun ==(other: Ptr)          = _ptr === other._ptr;
+    fun < (other: Ptr)          = ptrDiff(reinterpretCast(@Byte, this._ptr), reinterpretCast(@Byte, other._ptr)) < DiffType(0);
 
     fun >>(os: @OutStream) if isValid(os << #$ValueType)
     {
-        if ( ptr !== null )
-            os << "Ptr(" << ptr << ")";
+        if ( _ptr !== null )
+            os << "Ptr(" << _ptr << ")";
         else
             os << "Ptr(null)";
         os << flush;
     }
 
-    private var ptr: @ValueType;
+    var _ptr: @ValueType;
 }
 
-fun[rtct] reinterpretPtr(t: Type, ptr: AnyType): Ptr(t) //if isValid(p.isNull()) && isValid(p.get())
+[rtct] fun reinterpretPtr(t: Type, ptr: AnyType): Ptr(t) //if isValid(p.isNull()) && isValid(p.get())
 {
     return Ptr(t)(reinterpretCast(@t, ptr.get()));
 }
 
 
-fun[rtct, macro] ->(base, id: CompilerAstNode): CompilerAstNode
+[rtct, macro] fun ->(base, id: CompilerAstNode): CompilerAstNode
 {
     // Expand to: <base>.get().<id>
     var loc = base location;

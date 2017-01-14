@@ -4,24 +4,24 @@ import std.algorithms;
 import meta = meta.compilerCore;
 import os = os;
 
-class[rtct] ConsoleErrorReporter(sourceType: Type) if CharRange(#$sourceType)
+[rtct] class ConsoleErrorReporter(sourceType: Type) if CharRange(#$sourceType)
 {
     fun ctor(source: @sourceType)
     {
-        this.source ctor source;
+        this._source ctor source;
     }
 
     fun raiseError(loc: Location, message: StringRef)
     {
         cout << message << flush;
-        printLocation(cout, loc);
+        _printLocation(cout, loc);
         cout << flush;
         os.exit(-1);
     }
 
-    private fun printLocation(os: @OutStream, loc: Location)
+    fun _printLocation(os: @OutStream, loc: Location)
     {
-        var line = getLineAtLocation(loc);
+        var line = _getLineAtLocation(loc);
         //os << "(" << loc.start.line << ":" << loc.start.col << " - " << loc.end.line << ":" << loc.end.col << ")\n";
         os << '>' << line << '\n';
 
@@ -31,35 +31,33 @@ class[rtct] ConsoleErrorReporter(sourceType: Type) if CharRange(#$sourceType)
             endCol = UInt(line.size()+1);
         if ( loc.start.col == endCol )
             ++endCol;
-        for ( i = 1..loc.start.col )
+        for i = 1..loc.start.col
             os << ' ';
-        for ( i = loc.start.col..endCol )
+        for i = loc.start.col..endCol
             os << '~';
         os << '\n';
     }
 
-    private fun getLineAtLocation(loc: Location): String
+    fun _getLineAtLocation(loc: Location): String
     {
-        var sourceCopy = source;
+        var sourceCopy = _source;
 
         // Skip until our line
         var curLine = 1;
-        while ( curLine < loc.start.line )
-        {
-            sourceCopy = find(sourceCopy, '\n');
+        while curLine < loc.start.line
+            sourceCopy = find(sourceCopy, '\n'.char);
             sourceCopy.popFront();
             ++curLine;
-        }
 
-        var len = indexOf(sourceCopy, '\n');
+        var len = indexOf(sourceCopy, '\n'.char);
         return String(take(sourceCopy, len));
     }
 
-    private var source: sourceType;
+    var _source: sourceType;
 }
-fun[rtct] mkConsoleErrorReporter(source: @CharRange) = ConsoleErrorReporter(-@typeOf(source))(source);
+[rtct] fun mkConsoleErrorReporter(source: @CharRange) = ConsoleErrorReporter(-@typeOf(source))(source);
 
-class[ct] CompilerErrorReporter
+[ct] class CompilerErrorReporter
 {
     fun raiseError(loc: Location, message: StringRef)
     {

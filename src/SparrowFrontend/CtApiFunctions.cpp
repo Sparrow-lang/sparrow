@@ -33,19 +33,19 @@ namespace
     Node* ctApi_Sparrow_mkSprVariable(Location* loc, StringRef name, Node* typeNode, Node* init) {
         return mkSprVariable(*loc, name, typeNode, init);
     }
-    Node* ctApi_Sparrow_mkSprClass(Location* loc, StringRef name, Node* parameters, Node* baseClasses, Node* ifClause, Node* children, int accessType) {
-        return mkSprClass(*loc, name, parameters, baseClasses, ifClause, children, (AccessType) accessType);
+    Node* ctApi_Sparrow_mkSprClass(Location* loc, StringRef name, Node* parameters, Node* baseClasses, Node* ifClause, Node* children) {
+        return mkSprClass(*loc, name, parameters, baseClasses, ifClause, children);
     }
 
     Node* ctApi_Sparrow_mkSprConcept(Location* loc, StringRef name, Node* baseConcept, StringRef paramName, Node* ifClause) {
         return mkSprConcept(*loc, name, paramName, baseConcept, ifClause);
     }
 
-    Node* ctApi_Sparrow_mkSprFunction(Location* loc, StringRef name, Node* parameters, Node* returnType, Node* body, Node* ifClause, int accessType) {
-        return mkSprFunction(*loc, name, parameters, returnType, body, nullptr, (AccessType) accessType);
+    Node* ctApi_Sparrow_mkSprFunction(Location* loc, StringRef name, Node* parameters, Node* returnType, Node* body, Node* ifClause) {
+        return mkSprFunction(*loc, name, parameters, returnType, body, nullptr);
     }
-    Node* ctApi_Sparrow_mkSprFunctionExp(Location* loc, StringRef name, Node* parameters, Node* returnType, Node* bodyExp, Node* ifClause, int accessType) {
-        return buildSprFunctionExp(*loc, name, parameters, returnType, bodyExp, nullptr, (AccessType) accessType);
+    Node* ctApi_Sparrow_mkSprFunctionExp(Location* loc, StringRef name, Node* parameters, Node* returnType, Node* bodyExp, Node* ifClause) {
+        return buildSprFunctionExp(*loc, name, parameters, returnType, bodyExp, nullptr);
     }
     Node* ctApi_Sparrow_mkSprParameter(Location* loc, StringRef name, Node* typeNode, Node* init) {
         return mkSprParameter(*loc, name, typeNode);

@@ -2,13 +2,11 @@
 <plist version="1.0">
 <dict>
     <key>scope</key>
-    <string>source.sparrow meta.block meta.block entity.name</string>
+    <string>source.sparrow entity.name.variable</string>
     <key>settings</key>
     <dict>
         <key>showInSymbolList</key>
-        <integer>1</integer>
-        <key>symbolTransformation</key>
-        <string>s/^\s*/    /;  # pad</string>
+        <integer>0</integer>
     </dict>
 </dict>
 </plist>

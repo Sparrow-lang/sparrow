@@ -1,49 +1,44 @@
-import basicDecls(Char, Byte, Int, SizeType, DiffType, StringRef, Null, typeOf, reinterpretCast, sizeOf, ptrAdd, ptrSub, ptrDiff, *);
+import basicDecls(Char, Byte, Int, SizeType, DiffType, StringRef, Null, typeOf, reinterpretCast, sizeOf, ptrAdd, ptrSub, ptrDiff, *)
 
 /// Range type that returns StringRef objects referring to program arguments
 class MainParameters
-{
-    using RetType = StringRef;
+    using RetType = StringRef
 
-    fun isEmpty                     = size == 0;
-    fun size: SizeType              = end - begin;
+    fun isEmpty                     = size == 0
+    fun size: SizeType              = _end - _begin
 
-    fun front: RetType              = begin toStringRef;
-    fun back: RetType               = end - 1 toStringRef;
-    fun () : RetType                = begin toStringRef;
-    fun ()(n: SizeType): RetType    = begin + n toStringRef;
+    fun front: RetType              = _begin toStringRef
+    fun back: RetType               = _end - 1 toStringRef
+    fun () : RetType                = _begin toStringRef
+    fun ()(n: SizeType): RetType    = _begin + n toStringRef
 
-    fun popFront                    { begin = (begin + 1); }
-    fun popBack                     { end = (end - 1); }
-    fun popFront(n: SizeType)       { begin = (begin + n); }
-    fun popBack(n: SizeType)        { end = (end - n); }
+    fun popFront                    { _begin = (_begin + 1); }
+    fun popBack                     { _end = (_end - 1); }
+    fun popFront(n: SizeType)       { _begin = (_begin + n); }
+    fun popBack(n: SizeType)        { _end = (_end - n); }
 
     fun ctor(argc: Int, argv: @ @Char)
-    {
-        this.begin = (Impl.fromArgvPtr(argv));
-        this.end = (this.begin + argc);
-    }
+        this._begin = (_Impl.fromArgvPtr(argv))
+        this._end = (this._begin + argc)
 
-    private var begin, end: Impl.CStrPtr;
-}
+    var _begin, _end: _Impl.CStrPtr
 
-private package Impl {
+package _Impl
     class CStr { var cstr: @Char; }
-    class[initCtor] CStrPtr { var ptr: @CStr; }
+    [initCtor] class CStrPtr { var ptr: @CStr; }
 
-    fun fromArgvPtr(argv: @ @Char): CStrPtr = CStrPtr(reinterpretCast(@CStr, argv));
-    fun fromBytePtr(p: @Byte): CStrPtr = CStrPtr(reinterpretCast(@CStr, p));
-    fun toBytePtr(p: CStrPtr): @Byte = reinterpretCast(@Byte, p.ptr);
-    fun +(p: CStrPtr, n: SizeType): CStrPtr = fromBytePtr( ptrAdd(toBytePtr(p), n*(sizeOf(CStrPtr))) );
-    fun -(p: CStrPtr, n: SizeType): CStrPtr = fromBytePtr( ptrSub(toBytePtr(p), n*(sizeOf(CStrPtr))) );
-    fun -(p, q: CStrPtr): SizeType = ptrDiff(toBytePtr(p), toBytePtr(q)) / (sizeOf(CStrPtr));
+    fun fromArgvPtr(argv: @ @Char): CStrPtr = CStrPtr(reinterpretCast(@CStr, argv))
+    fun fromBytePtr(p: @Byte): CStrPtr = CStrPtr(reinterpretCast(@CStr, p))
+    fun toBytePtr(p: CStrPtr): @Byte = reinterpretCast(@Byte, p.ptr)
+    fun +(p: CStrPtr, n: SizeType): CStrPtr = fromBytePtr( ptrAdd(toBytePtr(p), n*(sizeOf(CStrPtr))) )
+    fun -(p: CStrPtr, n: SizeType): CStrPtr = fromBytePtr( ptrSub(toBytePtr(p), n*(sizeOf(CStrPtr))) )
+    fun -(p, q: CStrPtr): SizeType = ptrDiff(toBytePtr(p), toBytePtr(q)) / (sizeOf(CStrPtr))
 
-    fun toStringRef(p: CStrPtr): StringRef = StringRef.fromCString(p.ptr.cstr);
-}
+    fun toStringRef(p: CStrPtr): StringRef = StringRef.fromCString(p.ptr.cstr)
 
-var programArgs: MainParameters;
+var programArgs: MainParameters
 
 // To be defined by the application:
-fun sprMain();
+fun sprMain
 
 // The "main" function will be declared in 'mainImpl.spr'

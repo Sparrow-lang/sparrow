@@ -1,6 +1,6 @@
 module par.tasksImpl.taskType;
 
-public import taskPrefix(TaskPrefix);
+[public] import taskPrefix(TaskPrefix);
 
 //! A concept describing a task that can be spawned
 //!

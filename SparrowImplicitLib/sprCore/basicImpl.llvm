@@ -26,12 +26,12 @@ define i1 @isNullRef(i8* %x) alwaysinline
     %1 = icmp eq i8* %x, null
     ret i1 %1
 }
-define i1 @_opRefEQ(i8* %x, i8* %y) alwaysinline
+define i1 @implOpRefEQ(i8* %x, i8* %y) alwaysinline
 {
     %1 = icmp eq i8* %x, %y
     ret i1 %1
 }
-define i1 @_opRefNE(i8* %x, i8* %y) alwaysinline
+define i1 @implOpRefNE(i8* %x, i8* %y) alwaysinline
 {
     %1 = icmp ne i8* %x, %y
     ret i1 %1

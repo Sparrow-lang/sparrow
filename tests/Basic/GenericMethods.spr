@@ -21,7 +21,7 @@ class Simple
         i = x;
     }
 
-    fun[static] fromOther(x: AnyType): Simple
+    [static] fun fromOther(x: AnyType): Simple
     {
         var s: Simple;
         s.i = x;
@@ -38,7 +38,7 @@ class GClass(type: Type)
         i = x;
     }
 
-    fun[static] fromOther(x: AnyType): GClass
+    [static] fun fromOther(x: AnyType): GClass
     {
         var s: Simple;
         s.i = x;
@@ -52,7 +52,7 @@ fun = (dest: Int@; src: GClass(Int))      { dest = src.i; }
 fun = (dest: Int@; src: GClass(MyObj))    { dest = src.i.val; }
 
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     var obj: MyObj = 10;
     var s: Simple;

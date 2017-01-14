@@ -1,6 +1,6 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-fun[autoCt] fact(n: Int): Int
+[autoCt] fun fact(n: Int): Int
 {
     if ( n == 0 )
         return 1;
@@ -15,7 +15,7 @@ fun testFact()
     writeLn(fact(5));
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     testFact();
 }

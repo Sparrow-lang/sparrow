@@ -29,11 +29,11 @@ class Tracer {
     fun <<<(x: @AnyType)       { cout << x; }
 }
 
-class[initCtor] Depth {
+[initCtor] class Depth {
     var depth: Int;
 }
 
 fun >> (d: Depth, os: @OutStream) {
     if ( d.depth > 0 )
-        os << String(d.depth*2, ' ');
+        os << String(d.depth*2, ' '.char);
 }

@@ -44,7 +44,7 @@ class Tester(t: Type) if HasF1(valueOfType(t))
 }
 
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     var a: A;
     var b: B;
@@ -62,9 +62,9 @@ fun[native("test")] test(n: Int)
 
 
     writeLn("---");
-    if ( HasF1(a) ) writeLn("concept ok"); else writeLn("concept failed");
-    if ( HasF1(b) ) writeLn("concept ok"); else writeLn("concept failed");
-    if ( HasF1(c) ) writeLn("concept ok"); else writeLn("concept failed");
+    if a HasF1 ; writeLn("concept ok") else writeLn("concept failed")
+    if b HasF1 ; writeLn("concept ok") else writeLn("concept failed")
+    if c HasF1 ; writeLn("concept ok") else writeLn("concept failed")
 
     writeLn("---");
     var t1: Tester(A);

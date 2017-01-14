@@ -14,7 +14,7 @@ fun myName = 10;
 fun myName(x: Int) = x;
 fun myName(x,y: Int) = x+y;
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     var y: myName = 5;      // ERROR
     writeLn(y.x);           // ERROR

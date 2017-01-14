@@ -1,4 +1,1 @@
-concept CharRange(x)
-    if Range(x)
-    //&& -@(x.RetType) == Char
-    ;
+concept CharRange(x: Range) if -@(x.RetType) == Char

@@ -1,12 +1,12 @@
-import basicDecls(StringRef, Char, Int, Long, Double, typeOf);
+import basicDecls(StringRef, Char, Int, Long, Double, typeOf)
 
-fun[rtct] asInt(src: StringRef)       = StringCvtImpl.atoi(src.cStr());
-fun[rtct] asLong(src: StringRef)      = StringCvtImpl.atoll(src.cStr());
-fun[rtct] asDouble(src: StringRef)    = StringCvtImpl.atof(src.cStr());
+[rtct]
+    fun asInt(src: StringRef)       = StringCvtImpl.atoi(src.cStr())
+    fun asLong(src: StringRef)      = StringCvtImpl.atoll(src.cStr())
+    fun asDouble(src: StringRef)    = StringCvtImpl.atof(src.cStr())
 
 package StringCvtImpl
-{
-    fun[rtct, native("atoi")] atoi(str: @Char): Int;
-    fun[rtct, native("atoll")] atoll(str: @Char): Long;
-    fun[rtct, native("atof")] atof(str: @Char): Double;
-}
+    [rtct]
+        [native("atoi")] fun atoi(str: @Char): Int
+        [native("atoll")] fun atoll(str: @Char): Long
+        [native("atof")] fun atof(str: @Char): Double

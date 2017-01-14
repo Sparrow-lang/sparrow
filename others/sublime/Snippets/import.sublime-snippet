@@ -1,5 +1,5 @@
 <snippet>
-    <content><![CDATA[import ${1:name};]]></content>
+    <content><![CDATA[import ${1:name}]]></content>
     <tabTrigger>im</tabTrigger>
     <scope>source.sparrow</scope>
     <description>import …</description>

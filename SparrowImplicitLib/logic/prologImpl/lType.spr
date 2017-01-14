@@ -2,7 +2,7 @@ import nodes;
 import bitOper;
 import meta = meta.compilerCore;
 
-class[ct] LType
+[ct] class LType
 {
     using atom = 1;
     using number = 2;
@@ -10,41 +10,41 @@ class[ct] LType
     //using output = 8;
     using initialVal = atom !|! number;// !|! input !|! output;
 
-    private var bits: Int;
+    var _bits: Int;
 
     fun ctor
     {
-        bits ctor initialVal;
+        _bits ctor initialVal;
     }
 
-    fun isValid: Bool       = (testBit(atom) || testBit(number));// && (testBit(input) || testBit(output));
+    fun isValid: Bool       = (_testBit(atom) || _testBit(number));// && (_testBit(input) || _testBit(output));
 
-    fun isAtom: Bool        = testBit(atom);
-    fun isNumber: Bool      = testBit(number);
-    fun isAtomOnly: Bool    = testBit(atom) && !testBit(number);
-    fun isNumberOnly: Bool  = testBit(number) && !testBit(atom);
+    fun isAtom: Bool        = _testBit(atom);
+    fun isNumber: Bool      = _testBit(number);
+    fun isAtomOnly: Bool    = _testBit(atom) && !_testBit(number);
+    fun isNumberOnly: Bool  = _testBit(number) && !_testBit(atom);
 
 
-    fun setAtomOnly: Bool   = setAlternativeBits(atom, number);
-    fun setNumberOnly: Bool = setAlternativeBits(number, atom);
+    fun setAtomOnly: Bool   = _setAlternativeBits(atom, number);
+    fun setNumberOnly: Bool = _setAlternativeBits(number, atom);
 
-    //fun setInputOnly: Bool  = setAlternativeBits(input, output);
-    //fun setOutputOnly: Bool = setAlternativeBits(output, input);
+    //fun setInputOnly: Bool  = _setAlternativeBits(input, output);
+    //fun setOutputOnly: Bool = _setAlternativeBits(output, input);
 
-    private fun testBit(b: Int): Bool = ((bits !&! b) != 0);
+    fun _testBit(b: Int): Bool = ((_bits !&! b) != 0);
 
-    private fun setAlternativeBits(toSet, toClear: Int): Bool
+    fun _setAlternativeBits(toSet, toClear: Int): Bool
     {
-        if ( !testBit(toSet) )
+        if ( !_testBit(toSet) )
             return false;
-        if ( testBit(toClear) )
-            bits -= toClear;
+        if ( _testBit(toClear) )
+            _bits -= toClear;
         return true;
     }
 }
 
 /// Structure indicating of set of expressions that share the same type
-class[ct] LTypeSet
+[ct] class LTypeSet
 {
     var type: LType;                    ///< The type of all the expressions in this set
     var expList: Vector(ExpressionPtr); ///< The list of all the expressions in this set, that share the same type
@@ -66,13 +66,13 @@ class[ct] LTypeSet
     fun setAtomOnly(loc: @Location)
     {
         if ( !type.setAtomOnly() )
-            reportTypeError(loc);
+            _reportTypeError(loc);
     }
 
     fun setNumberOnly(loc: @Location)
     {
         if ( !type.setNumberOnly() )
-            reportTypeError(loc);
+            _reportTypeError(loc);
     }
 
     fun mergeWith(other: @LTypeSet, mergeLocation: @Location)
@@ -85,7 +85,7 @@ class[ct] LTypeSet
         // Merge the two lists
         //expList.insertAfter(other.expList.all(), expList.all());
         expList.reserve(expList.size() + other.expList.size());
-        for ( e = other.expList.all() )
+        for e = other.expList.all()
         {
             expList.pushBack(e);
             e.get().typeSetIdx = idx;
@@ -96,12 +96,12 @@ class[ct] LTypeSet
         if ( other.type.isAtomOnly() )
         {
             if ( !type.setAtomOnly() )
-                reportTypeError(mergeLocation);
+                _reportTypeError(mergeLocation);
         }
         else if ( other.type.isNumberOnly() )
         {
             if ( !type.setNumberOnly() )
-                reportTypeError(mergeLocation);
+                _reportTypeError(mergeLocation);
         }
 
         other.type = LType();
@@ -119,25 +119,23 @@ class[ct] LTypeSet
         else
             os << "???";
         os << " :";
-        for ( pe = expList.all() )
-        {
+        for pe = expList.all()
             os << ' ' << pe.get();
-        }
     }
 
-    private fun reportTypeError(loc: @Location)
+    fun _reportTypeError(loc: @Location)
     {
         var l = loc;
         meta.report(meta.diagError, l, "Type mismatch: cannot combine atom with number");
 
-        var atomExp = findAtomExp();
+        var atomExp = _findAtomExp();
         if ( atomExp isSet )
         {
             var lAtom = atomExp.get().loc;
             meta.report(meta.diagInfo, lAtom, "See also atom expression");
         }
 
-        var numExp = findNumberExp();
+        var numExp = _findNumberExp();
         if ( numExp isSet )
         {
             var lNum = numExp.get().loc;
@@ -147,30 +145,21 @@ class[ct] LTypeSet
         meta.raise;
     }
 
-    private fun findNumberExp: ExpressionPtr
+    fun _findNumberExp: ExpressionPtr
     {
-        for ( e = expList.all() )
-        {
+        for e = expList.all()
             var k = e.get().kind;
             if ( k == ekNumber || k == ekOpPlus || k == ekOpMinus || k == ekOpMul || k == ekOpDiv )
                 return e;
-        }
         return ExpressionPtr();
     }
 
-    private fun findAtomExp: ExpressionPtr
+    fun _findAtomExp: ExpressionPtr
     {
-        for ( e = expList.all() )
-        {
+        for e = expList.all()
             var k = e.get().kind;
             if ( k == ekAtom )
                 return e;
-        }
         return ExpressionPtr();
-    }
-
-    private fun writeLoc(loc: @Location)
-    {
-        cout << '(' << loc.start.line << ':' << loc.start.col << " - " << loc.end.line << ':' << loc.end.col << "): ";
     }
 }

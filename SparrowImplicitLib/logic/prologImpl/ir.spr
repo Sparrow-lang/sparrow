@@ -7,7 +7,7 @@ import meta = meta.compilerCore;
 
 using allowNativeCodeGen = true;
 
-class[ct] SparrowPrologSystem
+[ct] class SparrowPrologSystem
 {
     var predicates: Vector(SparrowPredicate);
     var loc: LLocation;
@@ -18,7 +18,7 @@ class[ct] SparrowPrologSystem
         this.loc ctor program.get().loc;
 
         // Handle all predicate clauses
-        for ( pptr: @PredicateClausePtr = program.get().predicates.all() )
+        for pptr: @PredicateClausePtr = program.get().predicates.all()
         {
             var p: @PredicateClause = pptr.get();
             var name: @String = p.name;
@@ -38,12 +38,12 @@ class[ct] SparrowPrologSystem
 
     fun semanticCheck
     {
-        for ( pred: @SparrowPredicate = predicates.all() )
+        for pred: @SparrowPredicate = predicates.all()
             pred.semanticCheck();
     }
 }
 
-class[ct] Parameter
+[ct] class Parameter
 {
     var expr: ExpressionPtr;
     var isRead, isInput, isOutput: Bool;
@@ -64,7 +64,7 @@ class[ct] Parameter
     }
 }
 
-class[ct] SparrowPredicate
+[ct] class SparrowPredicate
 {
     var name: String;
     var arity: UInt;
@@ -100,18 +100,18 @@ class[ct] SparrowPredicate
     {
         // Update the variables from all the clauses
         // Compute the types of the expressions and variables
-        for ( i = 0..clauses.size() )
-            checkClause(clauses(i).get(), Int(i));
+        for i = 0..clauses.size()
+            _checkClause(clauses(i).get(), Int(i));
 
         // Check if we can generate this natively
         if ( allowNativeCodeGen )
-            checkNative();
+            _checkNative();
     }
 
-    private fun checkClause(clause: @PredicateClause, clauseIdx: Int)
+    fun _checkClause(clause: @PredicateClause, clauseIdx: Int)
     {
         // Assign type sets for bound args
-        for ( i = 0..clause.args.size() )
+        for i = 0..clause.args.size()
         {
             var arg: @ExpressionPtr = clause.args(i);
             arg.get().paramIdx = Int(i);
@@ -120,33 +120,33 @@ class[ct] SparrowPredicate
             if ( paramVar.expr isNull )
                 paramVar = Parameter(arg);
             else
-                mergeTypeSets(paramVar.expr, arg);
-            checkExpr(clause, clauseIdx, arg.get());
+                _mergeTypeSets(paramVar.expr, arg);
+            _checkExpr(clause, clauseIdx, arg.get());
         }
 
         // Check conditions
-        for ( c = clause.conditions.all() )
-            checkCondition(clause, clauseIdx, c.get());
+        for c = clause.conditions.all()
+            _checkCondition(clause, clauseIdx, c.get());
     }
-    private fun checkCondition(clause: @PredicateClause, clauseIdx: Int, cond: @Condition)
+    fun _checkCondition(clause: @PredicateClause, clauseIdx: Int, cond: @Condition)
     {
         if ( cond.kind == ckPredCall )
         {
-            for ( arg = cond.args.all() )
-                checkExpr(clause, clauseIdx, arg);
+            for arg = cond.args.all()
+                _checkExpr(clause, clauseIdx, arg);
         }
         else
         {
-            checkExpr(clause, clauseIdx, cond.args(0));
-            checkExpr(clause, clauseIdx, cond.args(1));
+            _checkExpr(clause, clauseIdx, cond.args(0));
+            _checkExpr(clause, clauseIdx, cond.args(1));
 
             // The two expressions must have the same type
-            mergeTypeSets(cond.args(0), cond.args(1));
+            _mergeTypeSets(cond.args(0), cond.args(1));
         }
     }
-    private fun checkExpr(clause: @PredicateClause, clauseIdx: Int, exprPtr: @ExpressionPtr)
+    fun _checkExpr(clause: @PredicateClause, clauseIdx: Int, exprPtr: @ExpressionPtr)
     {
-        var typeSet: @LTypeSet = getCreateTypeSet(exprPtr);
+        var typeSet: @LTypeSet = _getCreateTypeSet(exprPtr);
 
         var expr: @Expression = exprPtr.get();
         if ( expr.kind == ekAtom )
@@ -172,7 +172,7 @@ class[ct] SparrowPredicate
                 if ( paramVar.expr isNull )
                     paramVar = Parameter(expr);
                 else
-                    mergeTypeSets(paramVar.expr, exprPtr);
+                    _mergeTypeSets(paramVar.expr, exprPtr);
 
                 expr.paramIdx = Int(idx);
             }
@@ -185,7 +185,7 @@ class[ct] SparrowPredicate
                 if ( idx == SizeType(DiffType(-1)) )
                     localVars.pushBack(exprPtr);
                 else
-                    mergeTypeSets(localVars(idx), exprPtr);
+                    _mergeTypeSets(localVars(idx), exprPtr);
 
             }
             expr.data = newName;
@@ -198,11 +198,11 @@ class[ct] SparrowPredicate
             if ( expr.right isNull )
                 meta.report(meta.diagError, expr.loc, "Invalid binary expression: no right part");
 
-            checkExpr(clause, clauseIdx, expr.left);
-            checkExpr(clause, clauseIdx, expr.right);
+            _checkExpr(clause, clauseIdx, expr.left);
+            _checkExpr(clause, clauseIdx, expr.right);
 
-            mergeTypeSets(expr.left, exprPtr);
-            mergeTypeSets(expr.right, exprPtr);
+            _mergeTypeSets(expr.left, exprPtr);
+            _mergeTypeSets(expr.right, exprPtr);
 
             // If left of right are parameters, mark them as input parameters
             if ( expr.left.get().paramIdx >= 0 )
@@ -220,7 +220,7 @@ class[ct] SparrowPredicate
         }
     }
 
-    private fun checkNative
+    fun _checkNative
     {
         // Rules:
         // - input parameters:
@@ -240,9 +240,9 @@ class[ct] SparrowPredicate
         var isVars: Vector(String);
         isVars.reserve(arity + localVars.size());
 
-        for ( clause: @PredicateClausePtr = clauses.all() )
+        for clause: @PredicateClausePtr = clauses.all()
         {
-            for ( c: @ConditionPtr = clause.get().conditions.all() )
+            for c: @ConditionPtr = clause.get().conditions.all()
             {
                 var cond: @Condition = c.get();
                 if ( cond.kind == ckIsExpr )
@@ -251,7 +251,7 @@ class[ct] SparrowPredicate
                     var right: @Expression = cond.args(1).get();
 
                     // Right should always be a value
-                    if ( !isValue(right) )
+                    if ( !_isValue(right) )
                     {
                         canBeNative = false;
                         return;
@@ -298,7 +298,7 @@ class[ct] SparrowPredicate
 
         // This can be native if all the parameter are wither input or output
         canBeNative = true;
-        for ( param: @Parameter = paramVars.all() )
+        for param: @Parameter = paramVars.all()
         {
             if ( !param.isInput && !param.isOutput )
             {
@@ -308,13 +308,13 @@ class[ct] SparrowPredicate
         }
     }
 
-    private fun isValue(expr: @Expression): Bool
+    fun _isValue(expr: @Expression): Bool
     {
         // Anything except a variable is a value
         return expr.kind != ekVar;
     }
 
-    private fun checkCreateTypeSet(exp: @ExpressionPtr)
+    fun _checkCreateTypeSet(exp: @ExpressionPtr)
     {
         if ( exp.get().typeSetIdx < 0 )
         {
@@ -326,16 +326,16 @@ class[ct] SparrowPredicate
         }
     }
 
-    private fun getCreateTypeSet(exp: @ExpressionPtr): @LTypeSet
+    fun _getCreateTypeSet(exp: @ExpressionPtr): @LTypeSet
     {
-        checkCreateTypeSet(exp);
+        _checkCreateTypeSet(exp);
         return typeSets(exp.get().typeSetIdx);
     }
 
-    private fun mergeTypeSets(exp1, exp2: @ExpressionPtr)
+    fun _mergeTypeSets(exp1, exp2: @ExpressionPtr)
     {
-        checkCreateTypeSet(exp1);
-        checkCreateTypeSet(exp2);
+        _checkCreateTypeSet(exp1);
+        _checkCreateTypeSet(exp2);
         typeSets(exp1.get().typeSetIdx).mergeWith(typeSets(exp2.get().typeSetIdx), exp2.get().loc);
     }
 }

@@ -1,6 +1,6 @@
 import ir;
 
-fun[ct] dumpProlog(os: @OutStream, sps: @SparrowPrologSystem)
+[ct] fun dumpProlog(os: @OutStream, sps: @SparrowPrologSystem)
 {
     Impl.dumpPrologSystem(os, sps);
     os << flush;
@@ -8,16 +8,16 @@ fun[ct] dumpProlog(os: @OutStream, sps: @SparrowPrologSystem)
 
 package Impl
 {
-    fun[ct] dumpPrologSystem(os: @OutStream, sps: @SparrowPrologSystem)
+    [ct] fun dumpPrologSystem(os: @OutStream, sps: @SparrowPrologSystem)
     {
-        for ( p: @SparrowPredicate = sps.predicates.all() )
+        for p: @SparrowPredicate = sps.predicates.all()
             dumpSprPredicate(os, p);
     }
 
-    fun[ct] dumpSprPredicate(os: @OutStream, pred: @SparrowPredicate)
+    [ct] fun dumpSprPredicate(os: @OutStream, pred: @SparrowPredicate)
     {
         // Dump the type sets
-        //for ( typeSet: @LTypeSet = pred.typeSets.all() )
+        //for typeSet: @LTypeSet = pred.typeSets.all()
         //{
         //    os << typeSet << endl;
         //}
@@ -42,7 +42,7 @@ package Impl
         if ( withScope )
         {
             os << "{" << endl;
-            for ( lv: @ExpressionPtr = pred.localVars.all() )
+            for lv: @ExpressionPtr = pred.localVars.all()
             {
                 os << "    var " << lv.get().data << ": ";
                 dumpType(os, pred, lv.get(), false, genNative);
@@ -65,7 +65,7 @@ package Impl
 
         // Conditions for all the clauses
         var first = true;
-        for ( i = 0..pred.clauses.size() )
+        for i = 0..pred.clauses.size()
         {
             if ( first )
                 first = false;
@@ -83,17 +83,17 @@ package Impl
         if ( genNative )
             dumpNativeWrapper(os, pred);
     }
-    fun[ct] dumpParameters(os: @OutStream, pred: @SparrowPredicate, genNative: Bool)
+    [ct] fun dumpParameters(os: @OutStream, pred: @SparrowPredicate, genNative: Bool)
     {
         if ( pred.arity > 0 )
         {
             os << "(";
-            for ( i = 0..pred.paramVars.size() )
+            for i = 0..pred.paramVars.size()
             {
                 var param: @Parameter = pred.paramVars(i);
                 if ( i>0 )
                     os << ", ";
-                os << "p_" << (i+1) << ": ";
+                os << "_" << (i+1) << ": ";
                 var isRef = !genNative || param.isOutput;
                 dumpType(os, pred, param.expr.get(), isRef, genNative);
                 //if ( param.isInput )
@@ -105,7 +105,7 @@ package Impl
         }
     }
 
-    fun[ct] dumpClause(os: @OutStream, pred: @SparrowPredicate, clause: @PredicateClause)
+    [ct] fun dumpClause(os: @OutStream, pred: @SparrowPredicate, clause: @PredicateClause)
     {
         var condWritten = false;
         dumpBoundArgs(os, pred, clause, condWritten);
@@ -113,11 +113,11 @@ package Impl
         if ( !condWritten )
             os << " true";
     }
-    fun[ct] dumpBoundArgs(os: @OutStream, pred: @SparrowPredicate, clause: @PredicateClause, condWritten: @Bool)
+    [ct] fun dumpBoundArgs(os: @OutStream, pred: @SparrowPredicate, clause: @PredicateClause, condWritten: @Bool)
     {
         var genNative = allowNativeCodeGen && pred.canBeNative;
 
-        for ( i = 0..clause.args.size() )
+        for i = 0..clause.args.size()
         {
             var arg: @ExpressionPtr = clause.args(i);
             if ( arg.isSet() && arg.get().kind != ekVar )
@@ -127,7 +127,7 @@ package Impl
                 else
                     os << " && ";
 
-                os << "p_" << (i+1);
+                os << "_" << (i+1);
 
                 var idx = arg.get().paramIdx;
                 assert(idx >= 0);
@@ -144,9 +144,9 @@ package Impl
         }
     }
 
-    fun[ct] dumpClauseConditions(os: @OutStream, pred: @SparrowPredicate, clause: @PredicateClause, condWritten: @Bool)
+    [ct] fun dumpClauseConditions(os: @OutStream, pred: @SparrowPredicate, clause: @PredicateClause, condWritten: @Bool)
     {
-        for ( cond: @ConditionPtr = clause.conditions.all() )
+        for cond: @ConditionPtr = clause.conditions.all()
         {
             if ( !condWritten )
                 condWritten = true;
@@ -160,7 +160,7 @@ package Impl
         }
     }
 
-    fun[ct] dumpPredCall(os: @OutStream, pred: @SparrowPredicate, clause: @PredicateClause, predCall: @Condition)
+    [ct] fun dumpPredCall(os: @OutStream, pred: @SparrowPredicate, clause: @PredicateClause, predCall: @Condition)
     {
         var genNative = allowNativeCodeGen && pred.canBeNative;
         var isRecursive = predCall.predName == clause.name;
@@ -173,7 +173,7 @@ package Impl
         }
         else
             os << predCall.predName << '(';
-        for ( i = 0..predCall.args.size() )
+        for i = 0..predCall.args.size()
         {
             if ( i>0 )
                 os << ", ";
@@ -182,7 +182,7 @@ package Impl
         os << ')';
     }
 
-    fun[ct] dumpIsExpr(os: @OutStream, pred: @SparrowPredicate, clause: @PredicateClause, isExpr: @Condition)
+    [ct] fun dumpIsExpr(os: @OutStream, pred: @SparrowPredicate, clause: @PredicateClause, isExpr: @Condition)
     {
         var left: @Expression = isExpr.args(0).get();
         var right: @Expression = isExpr.args(1).get();
@@ -193,7 +193,7 @@ package Impl
         dumpExpr(os, pred, right);
     }
 
-    fun[ct] dumpExpr(os: @OutStream, pred: @SparrowPredicate, expr: @Expression)
+    [ct] fun dumpExpr(os: @OutStream, pred: @SparrowPredicate, expr: @Expression)
     {
         var genNative = allowNativeCodeGen && pred.canBeNative;
 
@@ -219,7 +219,7 @@ package Impl
         //dumpType(os, pred, expr, false, false);
     }
 
-    fun[ct] dumpBinExpr(os: @OutStream, pred: @SparrowPredicate, left, right: @Expression, op: StringRef)
+    [ct] fun dumpBinExpr(os: @OutStream, pred: @SparrowPredicate, left, right: @Expression, op: StringRef)
     {
         os << '(';
         dumpExpr(os, pred, left);
@@ -228,7 +228,7 @@ package Impl
         os << ')';
     }
 
-    fun[ct] dumpType(os: @OutStream, pred: @SparrowPredicate, expr: @Expression, isRef, genNative: Bool)
+    [ct] fun dumpType(os: @OutStream, pred: @SparrowPredicate, expr: @Expression, isRef, genNative: Bool)
     {
         if ( isRef )
             os << "@";
@@ -250,7 +250,7 @@ package Impl
         //os << '{' << expr.typeSetIdx << '}';
     }
 
-    fun[ct] dumpIntegerType(os: @OutStream, genNative: Bool)
+    [ct] fun dumpIntegerType(os: @OutStream, genNative: Bool)
     {
         if ( genNative )
             os << "Int";
@@ -258,7 +258,7 @@ package Impl
             os << "LInt";
     }
 
-    fun[ct] dumpAtomType(os: @OutStream, genNative: Bool)
+    [ct] fun dumpAtomType(os: @OutStream, genNative: Bool)
     {
         if ( genNative )
             os << "String";
@@ -266,7 +266,7 @@ package Impl
             os << "LStr";
     }
 
-    fun[ct] dumpNativeWrapper(os: @OutStream, pred: @SparrowPredicate)
+    [ct] fun dumpNativeWrapper(os: @OutStream, pred: @SparrowPredicate)
     {
         dumpWrapperClass(os, pred);
 
@@ -274,16 +274,16 @@ package Impl
         os << "fun " << pred.name;
         dumpParameters(os, pred, false);
         os << ": Predicate = " << pred.name << "_pred_wrapper(";
-        for ( i = 0..pred.paramVars.size() )
+        for i = 0..pred.paramVars.size()
         {
             if ( i > 0 )
                 os << ", ";
-            os << "p_" << (i+1);
+            os << "_" << (i+1);
         }
         os << ");" << endl;
     }
 
-    fun[ct] dumpWrapperClass(os: @OutStream, pred: @SparrowPredicate)
+    [ct] fun dumpWrapperClass(os: @OutStream, pred: @SparrowPredicate)
     {
         var tab: StringRef = "    ";
         var tab2: StringRef = "        ";
@@ -299,9 +299,9 @@ package Impl
             dumpParameters(os, pred, false);
             os << endl;
             os << tab << '{' << endl;
-            for ( i = 0..pred.paramVars.size() )
+            for i = 0..pred.paramVars.size()
             {
-                os << tab2 << "this.p_" << (i+1) << " ctor " << "p_" << (i+1) << ";" << endl;
+                os << tab2 << "this._" << (i+1) << " ctor " << "_" << (i+1) << ";" << endl;
             }
             os << tab << '}' << endl;
         }
@@ -311,7 +311,7 @@ package Impl
         os << tab << "fun (): Bool" << endl;
         os << tab << '{' << endl;
         // Checks for the input parameters
-        for ( i = 0..pred.paramVars.size() )
+        for i = 0..pred.paramVars.size()
         {
             var p: @Parameter = pred.paramVars(i);
             if ( p.isInput )
@@ -320,7 +320,7 @@ package Impl
                     os << tab2 << "if ( ";
                 else
                     os << " || ";
-                os << "p_" << (i+1) << ".isNull()";
+                os << "_" << (i+1) << ".isNull()";
             }
         }
         if ( !pred.paramVars.isEmpty() )
@@ -329,32 +329,32 @@ package Impl
             os << tab3 << "return false;" << endl;
         }
         // Create some values for the output parameters
-        for ( i = 0..pred.paramVars.size() )
+        for i = 0..pred.paramVars.size()
         {
             var p: @Parameter = pred.paramVars(i);
             if ( p.isOutput )
             {
-                os << tab2 << "p_" << (i+1) << " = ";
+                os << tab2 << "_" << (i+1) << " = ";
                 dumpType(os, pred, p.expr.get(), false, true);
                 os << "();" << endl;
             }
         }
         // The call to the native function
         os << tab2 << "return " << pred.name << "_native(";
-        for ( i = 0..pred.paramVars.size() )
+        for i = 0..pred.paramVars.size()
         {
             if ( i > 0 )
                 os << ", ";
-            os << "p_" << (i+1) << ".get()";
+            os << "_" << (i+1) << ".get()";
         }
         os << ");" << endl;
         os << tab << '}' << endl;
 
         // The variables corresponding to the parameters
-        for ( i = 0..pred.paramVars.size() )
+        for i = 0..pred.paramVars.size()
         {
             var p: @Parameter = pred.paramVars(i);
-            os << tab << "private var p_" << (i+1) << ": ";
+            os << tab << "var _" << (i+1) << ": ";
             dumpType(os, pred, p.expr.get(), false, false);
             os << ';' << endl;
         }

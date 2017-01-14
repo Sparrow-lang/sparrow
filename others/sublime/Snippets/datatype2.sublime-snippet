@@ -1,0 +1,10 @@
+<snippet>
+    <content><![CDATA[/**
+ * @brief $2
+ */
+datatype ${1:${TM_FILENAME/(.*?)(\..+)/$1/}} = { ${3:_data: Int} }
+]]></content>
+    <tabTrigger>datatype=</tabTrigger>
+    <scope>source.sparrow</scope>
+    <description>datatype … { … }</description>
+</snippet>

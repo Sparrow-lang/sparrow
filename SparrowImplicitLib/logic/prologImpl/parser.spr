@@ -2,17 +2,14 @@ import token;
 import nodes;
 import errorReporter;
 
-concept TokenRange(x)
-    if Range(x)
-    && -@(x.RetType) == Token
-    ;
+concept TokenRange(x: Range) if -@(x.RetType) == Token
 
-class[ct] Parser(lexerType, errorReporterType: Type) if TokenRange(#$lexerType)
+[ct] class Parser(lexerType, errorReporterType: Type) if TokenRange(#$lexerType)
 {
     fun ctor(lexer: @lexerType, errorReporter: @errorReporterType)
     {
-        this.lexer ctor lexer;
-        this.errorReporter ctor errorReporter;
+        this._lexer ctor lexer;
+        this._errorReporter ctor errorReporter;
     }
 
     fun parse: PrologProgramPtr
@@ -20,9 +17,9 @@ class[ct] Parser(lexerType, errorReporterType: Type) if TokenRange(#$lexerType)
         var resptr = PrologProgramPtr.create();
         var res: @PrologProgram = resptr.get();
 
-        while ( !lexer.isEmpty() && lexer().type != tkEof )
+        while !_lexer.isEmpty() && _lexer().type != tkEof
         {
-            res.predicates.pushBack(parsePredicateClause());
+            res.predicates.pushBack(_parsePredicateClause());
         }
 
         if ( !res.predicates.isEmpty() )
@@ -34,188 +31,188 @@ class[ct] Parser(lexerType, errorReporterType: Type) if TokenRange(#$lexerType)
         return resptr;
     }
 
-    private fun parsePredicateClause: PredicateClausePtr
+    fun _parsePredicateClause: PredicateClausePtr
     {
         var resptr = PredicateClausePtr.create();
         var res: @PredicateClause = resptr.get();
 
         // Read predicate name
-        var tok = (lexer++);
-        expectToken(tok, tkAtom);
+        var tok = (_lexer++);
+        _expectToken(tok, tkAtom);
         res.loc = tok.loc;
         res.name = tok.data;
 
         // Expect '('
-        tok = (lexer++);
-        expectToken(tok, tkLParen);
+        tok = (_lexer++);
+        _expectToken(tok, tkLParen);
 
         // Parse all arguments, until the parenthesis is closed
-        parsePredicateClauseArgs(res);
+        _parsePredicateClauseArgs(res);
 
         // Expect ')'
-        tok = (lexer++);
-        expectToken(tok, tkRParen);
+        tok = (_lexer++);
+        _expectToken(tok, tkRParen);
 
         // Zero or more predicate calls
-        tok = lexer();
+        tok = _lexer();
         if ( tok.type == tkClause )
         {
-            ++lexer;
+            ++_lexer;
 
             // Parse all predicate conditions
-            parsePredicateConditions(res);
+            _parsePredicateConditions(res);
         }
 
         // Expect '.'
-        tok = (lexer++);
-        expectToken(tok, tkDot);
+        tok = (_lexer++);
+        _expectToken(tok, tkDot);
 
         // Update the end part of the location
         res.loc copyEnd tok.loc;
         return resptr;
     }
 
-    private fun parsePredicateClauseArgs(predClause: @PredicateClause)
+    fun _parsePredicateClauseArgs(predClause: @PredicateClause)
     {
-        while ( true )
+        while true
         {
             // Expect a term appropriate for an argument
-            var arg = parseTerm();
+            var arg = _parseTerm();
             var argKind = arg.get().kind;
             if ( argKind != ekVar && argKind != ekAtom && argKind != ekNumber )
-                errorReporter.raiseError(arg.get().loc, "Invalid argument found; expected variable, atom or number");
+                _errorReporter.raiseError(arg.get().loc, "Invalid argument found; expected variable, atom or number");
             predClause.args.pushBack(arg);
 
             // A right parenthesis is our terminator
-            var tok = lexer();
+            var tok = _lexer();
             if ( tok.type == tkRParen )
                 break;
 
             // Expect a comma
-            expectToken(tok, tkComma);
-            ++lexer;
+            _expectToken(tok, tkComma);
+            ++_lexer;
         }
         // The terminator (right parenthesis) is not consumed
     }
 
-    private fun parsePredicateConditions(predClause: @PredicateClause)
+    fun _parsePredicateConditions(predClause: @PredicateClause)
     {
-        while ( true )
+        while true
         {
             // Expect a condition expression
-            predClause.conditions.pushBack(parseCondition());
+            predClause.conditions.pushBack(_parseCondition());
 
             // A dot is our terminator
-            var tok = lexer();
+            var tok = _lexer();
             if ( tok.type == tkDot )
                 break;
 
             // Expect a comma
-            expectToken(tok, tkComma);
-            ++lexer;
+            _expectToken(tok, tkComma);
+            ++_lexer;
         }
         // The terminator (dot) is not consumed
     }
 
-    private fun parseCondition: ConditionPtr
+    fun _parseCondition: ConditionPtr
     {
         // A condition can be either a predicate call or an 'is' expression
         // We distinguish between them by the first token
 
         // If we start with an atom, it must be a predicate call
-        var tok = lexer();
+        var tok = _lexer();
         if ( tok.type == tkAtom )
-            return parsePredicateCall();
+            return _parsePredicateCall();
 
         // an 'is' condition always start with a variable
         if ( tok.type != tkVar )
-            invalidToken(tok, String("atom or variable"));
-        return parseIsExpression();
+            _invalidToken(tok, String("atom or variable"));
+        return _parseIsExpression();
     }
 
-    private fun parsePredicateCall: ConditionPtr
+    fun _parsePredicateCall: ConditionPtr
     {
         // Read predicate name
-        var tok = (lexer++);
-        expectToken(tok, tkAtom);
+        var tok = (_lexer++);
+        _expectToken(tok, tkAtom);
         var loc = tok.loc;
         var name = tok.data;
 
         // Expect '('
-        tok = (lexer++);
-        expectToken(tok, tkLParen);
+        tok = (_lexer++);
+        _expectToken(tok, tkLParen);
 
         // Parse all arguments, until the parenthesis is closed
         var args: Vector(ExpressionPtr);
-        parsePredicateCallArgs(args);
+        _parsePredicateCallArgs(args);
 
         // Expect ')'
-        tok = (lexer++);
-        expectToken(tok, tkRParen);
+        tok = (_lexer++);
+        _expectToken(tok, tkRParen);
 
         // Update the end part of the location
         loc copyEnd tok.loc;
         return mkPredCall(loc, name, args);
     }
 
-    private fun parsePredicateCallArgs(args: @Vector(ExpressionPtr))
+    fun _parsePredicateCallArgs(args: @Vector(ExpressionPtr))
     {
-        while ( true )
+        while true
         {
             // Expect an expression
-            args.pushBack(parseExpression());
+            args.pushBack(_parseExpression());
 
             // A right parenthesis is our terminator
-            var tok = lexer();
+            var tok = _lexer();
             if ( tok.type == tkRParen )
                 break;
 
             // Expect a comma
-            expectToken(tok, tkComma);
-            ++lexer;
+            _expectToken(tok, tkComma);
+            ++_lexer;
         }
         // The terminator (right parenthesis) is not consumed
     }
 
-    private fun parseIsExpression: ConditionPtr
+    fun _parseIsExpression: ConditionPtr
     {
         // Read variable name
-        var tok = lexer();
-        expectToken(tok, tkVar);
-        var varName = parseTerm();
+        var tok = _lexer();
+        _expectToken(tok, tkVar);
+        var varName = _parseTerm();
         var loc = tok.loc;
 
         // Expect 'is'
-        tok = (lexer++);
-        expectToken(tok, tkIs);
+        tok = (_lexer++);
+        _expectToken(tok, tkIs);
 
         // Expect an expression
-        var exp = parseExpression();
+        var exp = _parseExpression();
 
         // Update the end part of the location
         loc copyEnd tok.loc;
         return mkIsExpr(loc, varName, exp);
     }
 
-    private fun parseExpression = parseMulDivExpression();
+    fun _parseExpression = _parseMulDivExpression();
 
-    private fun parseMulDivExpression: ExpressionPtr
+    fun _parseMulDivExpression: ExpressionPtr
     {
         // Parse left part of the expression
-        var left = parsePlusMinusExpression();
+        var left = _parsePlusMinusExpression();
         var loc = left.get().loc;
 
         // Consume all the muls and divs
-        while ( true )
+        while true
         {
             // Is there also a right part?
-            var tok = lexer();
+            var tok = _lexer();
             if ( tok.type != tkOpMul && tok.type != tkOpDiv )
                 return left;
 
             // Yes, there is still a right part, so parse it
-            ++lexer;
-            var right = parsePlusMinusExpression();
+            ++_lexer;
+            var right = _parsePlusMinusExpression();
 
             // Combine the left and right into one single expression
             loc copyEnd right.get().loc;
@@ -226,23 +223,23 @@ class[ct] Parser(lexerType, errorReporterType: Type) if TokenRange(#$lexerType)
         }
     }
 
-    private fun parsePlusMinusExpression: ExpressionPtr
+    fun _parsePlusMinusExpression: ExpressionPtr
     {
         // Parse left part of the expression
-        var left = parseSimpleExpression();
+        var left = _parseSimpleExpression();
         var loc = left.get().loc;
 
         // Consume all the pluses and minuses
-        while ( true )
+        while true
         {
             // Is there also a right part?
-            var tok = lexer();
+            var tok = _lexer();
             if ( tok.type != tkOpPlus && tok.type != tkOpMinus )
                 return left;
 
             // Yes, there is still a right part, so parse it
-            ++lexer;
-            var right = parseSimpleExpression();
+            ++_lexer;
+            var right = _parseSimpleExpression();
 
             // Combine the left and right into one single expression
             loc copyEnd right.get().loc;
@@ -253,29 +250,29 @@ class[ct] Parser(lexerType, errorReporterType: Type) if TokenRange(#$lexerType)
         }
     }
 
-    private fun parseSimpleExpression: ExpressionPtr
+    fun _parseSimpleExpression: ExpressionPtr
     {
         // Accept expression in parenthesis
-        var tok = lexer();
+        var tok = _lexer();
         if ( tok.type == tkLParen )
         {
-            ++lexer;
-            var res = parseExpression();
+            ++_lexer;
+            var res = _parseExpression();
 
             // Expect ')'
-            tok = (lexer++);
-            expectToken(tok, tkRParen);
+            tok = (_lexer++);
+            _expectToken(tok, tkRParen);
 
             return res;
         }
 
         // Otherwise this must be a term
-        return parseTerm();
+        return _parseTerm();
     }
 
-    private fun parseTerm: ExpressionPtr
+    fun _parseTerm: ExpressionPtr
     {
-        var tok = (lexer++);
+        var tok = (_lexer++);
         if ( tok.type == tkAtom )
             return mkAtom(tok.loc, tok.data);
         else if ( tok.type == tkNumber )
@@ -285,24 +282,24 @@ class[ct] Parser(lexerType, errorReporterType: Type) if TokenRange(#$lexerType)
         else if ( tok.type == tkAntiQuote )
             return mkAntiQuote(tok.loc, tok.data);
         else
-            invalidToken(tok, String("atom, variable, number or antiquote"));
+            _invalidToken(tok, String("atom, variable, number or antiquote"));
         return ExpressionPtr();
     }
 
 
-    private fun expectToken(tok: @Token, expected: Int)
+    fun _expectToken(tok: @Token, expected: Int)
     {
         if ( tok.type != expected )
-            invalidToken(tok, tokenTypeToString(expected));
+            _invalidToken(tok, tokenTypeToString(expected));
     }
 
-    private fun invalidToken(tok: @Token, expected: @String)
+    fun _invalidToken(tok: @Token, expected: @String)
     {
         var msg: String = String("Invalid token found: ") + tokenTypeToString(tok.type) + String("; expected: ") + expected;
-        errorReporter.raiseError(tok.loc, msg.asStringRef());
+        _errorReporter.raiseError(tok.loc, msg.asStringRef());
     }
 
-    private var lexer: lexerType;
-    private var errorReporter: errorReporterType;
+    var _lexer: lexerType;
+    var _errorReporter: errorReporterType;
 }
-fun[ct] mkParser(lexer: @TokenRange, errorReporter: @AnyType) = Parser(-@typeOf(lexer), -@typeOf(errorReporter))(lexer, errorReporter);
+[ct] fun mkParser(lexer: @TokenRange, errorReporter: @AnyType) = Parser(-@typeOf(lexer), -@typeOf(errorReporter))(lexer, errorReporter);

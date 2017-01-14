@@ -1,7 +1,7 @@
 import token;
 import errorReporter;
 
-class[rtct] Lexer(sourceType, errorReporterType: Type) if CharRange(#$sourceType)
+[rtct] class Lexer(sourceType, errorReporterType: Type) if CharRange(#$sourceType)
 {
     using TokenType = Token;
     using RetType = TokenType;
@@ -15,49 +15,49 @@ class[rtct] Lexer(sourceType, errorReporterType: Type) if CharRange(#$sourceType
 
     fun ctor(source: @sourceType, errorReporter: @errorReporterType, startLoc: Location)
     {
-        this.source ctor source;
-        this.errorReporter ctor errorReporter;
-        this.curToken ctor;
-        this.curLocation ctor startLoc;
+        this._source ctor source;
+        this._errorReporter ctor errorReporter;
+        this._curToken ctor;
+        this._curLocation ctor startLoc;
 
-        curLocation setAsStartOf curLocation;
+        _curLocation setAsStartOf _curLocation;
 
         // Read the first token
-        this.curToken = getNextToken();
+        this._curToken = _getNextToken();
     }
 
-    fun isEmpty             = source.isEmpty();
-    fun front               = curToken;
-    fun ()                  = curToken;
+    fun isEmpty             = _source.isEmpty();
+    fun front               = _curToken;
+    fun ()                  = _curToken;
 
-    fun popFront            { curToken = getNextToken(); }
-    fun pre_++ : RetType    { popFront(); return curToken; }
-    fun post_++ : RetType   { var res = curToken; popFront(); return res; }
+    fun popFront            { _curToken = _getNextToken(); }
+    fun pre_++ : RetType    { popFront(); return _curToken; }
+    fun post_++ : RetType   { var res = _curToken; popFront(); return res; }
 
-    private fun getNextToken: Token
+    fun _getNextToken: Token
     {
         // The current location starts where the last one ended
-        curLocation stepOver;
+        _curLocation stepOver;
 
         // First check if the source is empty; if so, return an EOF token
-        if ( source.isEmpty() )
-            return Token(curLocation, tkEof);
+        if ( _source.isEmpty() )
+            return Token(_curLocation, tkEof);
 
         // Get the first character in the source
-        var ch = source();
+        var ch = _source();
 
         // Check for whitespace
         if ( isSpace(ch) )
         {
-            consumeWhiteSpace();    // Just drop it
-            return getNextToken();  // Get the next token
+            _consumeWhiteSpace();    // Just drop it
+            return _getNextToken();  // Get the next token
         }
 
         // Check for comments
-        if ( ch == '%' )
+        if ( ch == '%'.char )
         {
-            consumeLineComment();   // Just drop all characters until the end of line
-            return getNextToken();  // Get the next token
+            _consumeLineComment();   // Just drop all characters until the end of line
+            return _getNextToken();  // Get the next token
         }
 
 
@@ -66,152 +66,152 @@ class[rtct] Lexer(sourceType, errorReporterType: Type) if CharRange(#$sourceType
             // Check for numbers, variables and string atoms
             if ( isDigit(ch) )
             {
-                var data = consumeNumber();
-                return Token(curLocation, tkNumber, data);
+                var data = _consumeNumber();
+                return Token(_curLocation, tkNumber, data);
             }
             else if ( isUpper(ch) )
             {
-                var data = consumeIdentifier();
-                return Token(curLocation, tkVar, data);
+                var data = _consumeIdentifier();
+                return Token(_curLocation, tkVar, data);
             }
             else
             {
-                var data = consumeIdentifier();
+                var data = _consumeIdentifier();
                 if ( data == String("is") )
-                    return Token(curLocation, tkIs, data);
-                return Token(curLocation, tkAtom, data);
+                    return Token(_curLocation, tkIs, data);
+                return Token(_curLocation, tkAtom, data);
             }
         }
-        else if ( ch == '$' )
+        else if ( ch == '$'.char )
         {
-            var data = consumeAntiQuote();
-            return Token(curLocation, tkAntiQuote, data);
+            var data = _consumeAntiQuote();
+            return Token(_curLocation, tkAntiQuote, data);
         }
         else
         {
-            var chNext = advanceSource();
-            if ( ch == '(' )
-                return Token(curLocation, tkLParen);
-            else if ( ch == ')' )
-                return Token(curLocation, tkRParen);
-            else if ( ch == '[' )
-                return Token(curLocation, tkLBracket);
-            else if ( ch == ']' )
-                return Token(curLocation, tkRBracket);
-            else if ( ch == '.' )
-                return Token(curLocation, tkDot);
-            else if ( ch == ',' )
-                return Token(curLocation, tkComma);
-            else if ( ch == '+' )
-                return Token(curLocation, tkOpPlus);
-            else if ( ch == '-' )
-                return Token(curLocation, tkOpMinus);
-            else if ( ch == '*' )
-                return Token(curLocation, tkOpMul);
-            else if ( ch == '/' )
-                return Token(curLocation, tkOpDiv);
-            else if ( ch == ':' && chNext == '-' )
+            var chNext = _advanceSource();
+            if ( ch == '('.char )
+                return Token(_curLocation, tkLParen);
+            else if ( ch == ')'.char )
+                return Token(_curLocation, tkRParen);
+            else if ( ch == '['.char )
+                return Token(_curLocation, tkLBracket);
+            else if ( ch == ']'.char )
+                return Token(_curLocation, tkRBracket);
+            else if ( ch == '.'.char )
+                return Token(_curLocation, tkDot);
+            else if ( ch == ','.char )
+                return Token(_curLocation, tkComma);
+            else if ( ch == '+'.char )
+                return Token(_curLocation, tkOpPlus);
+            else if ( ch == '-'.char )
+                return Token(_curLocation, tkOpMinus);
+            else if ( ch == '*'.char )
+                return Token(_curLocation, tkOpMul);
+            else if ( ch == '/'.char )
+                return Token(_curLocation, tkOpDiv);
+            else if ( ch == ':'.char && chNext == '-'.char )
             {
-                advanceSource();
-                return Token(curLocation, tkClause);
+                _advanceSource();
+                return Token(_curLocation, tkClause);
             }
 
         }
 
         var errMsg: String = "Invalid character found while parsing Prolog code: ";
         errMsg.append(ch);
-        errorReporter.raiseError(curLocation, errMsg.asStringRef());
-        return Token(curLocation, tkEof);
+        _errorReporter.raiseError(_curLocation, errMsg.asStringRef());
+        return Token(_curLocation, tkEof);
     }
 
-    private fun consumeWhiteSpace
+    fun _consumeWhiteSpace
     {
-        var ch = source();
-        while ( !source.isEmpty() && isSpace(ch) )
-            ch = advanceSource();
+        var ch = _source();
+        while !_source.isEmpty() && isSpace(ch)
+            ch = _advanceSource();
     }
-    private fun consumeLineComment
+    fun _consumeLineComment
     {
-        var ch = source();
-        while ( !source.isEmpty() && ch != '\n' )
-            ch = advanceSource();
-        if ( !source.isEmpty() )
-            advanceSource();
+        var ch = _source();
+        while !_source.isEmpty() && ch != '\n'.char
+            ch = _advanceSource();
+        if ( !_source.isEmpty() )
+            _advanceSource();
     }
-    private fun consumeNumber: String
+    fun _consumeNumber: String
     {
         var res: String;
-        var ch = source();
-        while ( !source.isEmpty() && isDigit(ch) )
+        var ch = _source();
+        while !_source.isEmpty() && isDigit(ch)
         {
             res.pushBack(ch);
-            ch = advanceSource();
+            ch = _advanceSource();
         }
         return res;
     }
-    private fun consumeIdentifier: String
+    fun _consumeIdentifier: String
     {
         var res: String;
-        var ch = source();
-        while ( !source.isEmpty() && isAlnum(ch) )
+        var ch = _source();
+        while !_source.isEmpty() && isAlnum(ch)
         {
             res.pushBack(ch);
-            ch = advanceSource();
+            ch = _advanceSource();
         }
         return res;
     }
-    private fun consumeAntiQuote: String
+    fun _consumeAntiQuote: String
     {
-        var ch = advanceSource();
-        if ( ch == '{' )
+        var ch = _advanceSource();
+        if ( ch == '{'.char )
         {
             var res: String;
             var braces = 1;
-            ch = advanceSource();
-            curLocation stepOver;
-            while ( !source.isEmpty() )
+            ch = _advanceSource();
+            _curLocation stepOver;
+            while !_source.isEmpty()
             {
-                if ( source.isEmpty() )
-                    errorReporter.raiseError(curLocation, "End of stream found inside anti-quotation");
-                if ( ch == '}' )
+                if ( _source.isEmpty() )
+                    _errorReporter.raiseError(_curLocation, "End of stream found inside anti-quotation");
+                if ( ch == '}'.char )
                 {
                     if ( --braces == 0 )
                     {
-                        ch = advanceSource();
+                        ch = _advanceSource();
                         break;
                     }
                 }
 
                 res.pushBack(ch);
 
-                if ( ch == '{' )
+                if ( ch == '{'.char )
                     ++braces;
-                ch = advanceSource();
+                ch = _advanceSource();
             }
             return res;
         }
         else
         {
-            curLocation stepOver;
-            return consumeIdentifier();
+            _curLocation stepOver;
+            return _consumeIdentifier();
         }
     }
 
-    private fun advanceSource: Char
+    fun _advanceSource: Char
     {
-        if ( source() == '\n' )
-            curLocation addLines 1;
+        if ( _source() == '\n'.char )
+            _curLocation addLines 1;
         else
-            curLocation addColumns 1;
-        source popFront;
-        return source front;
+            _curLocation addColumns 1;
+        _source popFront;
+        return _source front;
     }
 
-    private var source: sourceType;
-    private var errorReporter: errorReporterType;
-    private var curToken: Token;
-    private var curLocation: Location;
+    var _source: sourceType;
+    var _errorReporter: errorReporterType;
+    var _curToken: Token;
+    var _curLocation: Location;
 }
 
-fun[rtct] mkLexer(source: @CharRange, errorReporter: @AnyType) = Lexer(-@typeOf(source), -@typeOf(errorReporter))(source, errorReporter);
-fun[rtct] mkLexer(source: @CharRange, errorReporter: @AnyType, startLoc: Location) = Lexer(-@typeOf(source), -@typeOf(errorReporter))(source, errorReporter, startLoc);
+[rtct] fun mkLexer(source: @CharRange, errorReporter: @AnyType) = Lexer(-@typeOf(source), -@typeOf(errorReporter))(source, errorReporter);
+[rtct] fun mkLexer(source: @CharRange, errorReporter: @AnyType, startLoc: Location) = Lexer(-@typeOf(source), -@typeOf(errorReporter))(source, errorReporter, startLoc);

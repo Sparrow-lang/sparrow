@@ -9,10 +9,10 @@ fun write(r: Range, length: Int) if isValid(Char(r.front))
 {
     using lineLength = 60;
     var line: String = lineLength;
-    for ( n = length..0 ../ (-lineLength) )
+    for n = length..0 ../ (-lineLength)
     {
         var len = min(n, lineLength);
-        for ( i = 0..len )
+        for i = 0..len
             line(i) = (r++);
         if ( len < lineLength )
             line.resize(len);
@@ -31,14 +31,14 @@ fun nextRandom: Double
 class RandTableRange
 {
     using numEntries = 4095;
-    private var lookup: Array((Float rt)*(Char rt));
+    var lookup: Array((Float rt)*(Char rt));
 
     fun ctor(data: Range)
     {
         lookup.ctor(numEntries+1);
-        for ( i = 0...numEntries )
+        for i = 0...numEntries
         {
-            while ( i > data.front()._1*numEntries )
+            while i > data.front().v1*numEntries
                 data.popFront();
             lookup(i) = data.front;
         }
@@ -51,25 +51,25 @@ class RandTableRange
     {
         var r = nextRandom;
         var idx: SizeType = r*numEntries;
-        while ( lookup(idx)._1 < r )
+        while lookup(idx).v1 < r
             ++idx;
-        return lookup(idx)._2;
+        return lookup(idx).v2;
     }
-    var[static] counter = 0;
+    [static] var counter = 0;
 }
 
 fun sprMain
 {
     var n = (programArgs(1) asInt);
 
-    var alu: String =
+    var alu: String = (
         "GGCCGGGCGCGGTGGCTCACGCCTGTAATCCCAGCACTTTGG" +
         "GAGGCCGAGGCGGGCGGATCACCTGAGGTCAGGAGTTCGAGA" +
         "CCAGCCTGGCCAACATGGTGAAACCCCGTCTCTACTAAAAAT" +
         "ACAAAAATTAGCCGGGCGTGGTGGCGCGCGCCTGTAATCCCA" +
         "GCTACTCGGGAGGCTGAGGCAGGAGAATCGCTTGAACCCGGG" +
         "AGGCGGAGGTTGCAGTGAGCCGAGATCGCGCCACTGCACTCC" +
-        "AGCCTGGGCGACAGAGCGAGACTCCGTCTCAAAAA";
+        "AGCCTGGGCGACAGAGCGAGACTCCGTCTCAAAAA");
 
     var iubStr: String = "acgtBDHKMNRSVWY";
     var iubDist = values(0.27f, 0.12f, 0.12f, 0.27f) ++ repeat(0.02f, 11);

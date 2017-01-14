@@ -27,7 +27,7 @@ fun isPrime(n: Int): Bool
     var i: Int;
     i = 3;
 
-    while ( i * i <= n ; i = i + 1; )
+    while i * i <= n ; i = i + 1;
     {
         if ( n % i == 0 )
             return false;
@@ -36,7 +36,7 @@ fun isPrime(n: Int): Bool
     return true;
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     fassert(isPrime(0));
     fassert(isPrime(1));

@@ -27,7 +27,7 @@ class Test
     }
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     var t: Test;
     t();

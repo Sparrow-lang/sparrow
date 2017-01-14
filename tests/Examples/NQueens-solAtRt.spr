@@ -4,12 +4,12 @@ import std.array;
 import std.vector;
 import math = math;
 
-var[ct] PlacementType = Array(Int);
-var[ct] SolutionsType = Vector(PlacementType);
+[ct] var PlacementType = Array(Int);
+[ct] var SolutionsType = Vector(PlacementType);
 
-fun[rtct] testQueens(placements: @PlacementType, k, y: Int): Bool
+[rtct] fun testQueens(placements: @PlacementType, k, y: Int): Bool
 {
-    for ( i = 0..k )
+    for i = 0..k
     {
         if ( y == placements(i) || math.abs(k-i) == math.abs(y-placements(i)) )
             return false;
@@ -17,9 +17,9 @@ fun[rtct] testQueens(placements: @PlacementType, k, y: Int): Bool
     return true;
 }
 
-fun[rtct] backtracking(x: @PlacementType, k, n: Int, res: @SolutionsType)
+[rtct] fun backtracking(x: @PlacementType, k, n: Int, res: @SolutionsType)
 {
-    for ( y = 0..n )
+    for y = 0..n
     {
         if ( testQueens(x, k, y) )
         {
@@ -32,42 +32,42 @@ fun[rtct] backtracking(x: @PlacementType, k, n: Int, res: @SolutionsType)
     }
 }
 
-fun[rtct] writeSolution(x: @PlacementType)
+[rtct] fun writeSolution(x: @PlacementType)
 {
-    for ( v = x.all() )
+    for v = x.all()
     {
-        for ( i = 0..v )
+        for i = 0..v
             cout << "| ";
         cout << "|Q";
-        for ( i = (v+1)..(x.size()) )
+        for i = (v+1)..(x.size())
             cout << "| ";
         cout << "|\n";
     }
     cout << "\n";
 }
 
-fun[rtct] writeSolutionBasic(x: @PlacementType)
+[rtct] fun writeSolutionBasic(x: @PlacementType)
 {
-    for ( v = x.all() )
+    for v = x.all()
         cout << v;
     cout << "\n";
 }
 
-fun[autoCt] nQueens(n: Int): SolutionsType
+[autoCt] fun nQueens(n: Int): SolutionsType
 {
     var x: PlacementType = n;
     var res: SolutionsType;
     backtracking(x, 0, n, res);
-    for ( sol = res.all() )
+    for sol = res.all()
         writeSolution(sol);
     return res;
 }
 
 fun sprMain
 {
-    var[ct] solutionsCt = nQueens(4);
+    [ct] var solutionsCt = nQueens(4);
     var solutions = solutionsCt;
-    for ( sol = solutions.all() )
+    for sol = solutions.all()
         writeSolution(sol);
 }
 

@@ -3,6 +3,7 @@
 name: Sparrow
 file_extensions: [spr]
 scope: source.sparrow
+# See http://www.sublimetext.com/docs/3/syntax.html
 
 contexts:
   main:
@@ -15,74 +16,67 @@ contexts:
     - include: decls
     - include: basic-elements
 
+
   decls:
     # Class
     - match: |-
         (?x)^\s*
+        (\[.*\])?\s*            # modifier
         \b(class|datatype)\b\s*
-        (?:(\[.*\])?\s*) # modifier
-        (\w+)\s* # identifier
+        (\w+)                   # identifier
       captures:
-        1: storage.type.structure.sparrow
-        2: storage.modifier.sparrow
+        1: storage.modifier.sparrow
+        2: storage.type.struct.sparrow
         3: entity.name.type.class.sparrow
-      push:
-        - meta_scope: meta.class.sparrow
-        - match: '(?<=(\}|\;))'
-          pop: true
-        - include: $top_level_main
+      scope: meta.class.sparrow
+
     # Concept
     - match: |-
         (?x)^\s*
+        (\[.*\])?\s*          # modifier
         \b(concept)\b\s*
-        (?:(\[.*\])?\s*) # modifier
-        (\w+)\s* # identifier
+        (\w+)                 # identifier
       captures:
-        1: storage.type.structure.sparrow
-        2: storage.modifier.sparrow
+        1: storage.modifier.sparrow
+        2: storage.type.concept.sparrow
         3: entity.name.type.concept.sparrow
-      push:
-        - meta_scope: meta.concept.sparrow
-        - match: '(?<=\;)'
-          pop: true
-        - include: $top_level_main
+      scope: meta.concept.sparrow
+
     # Function
     - match: |-
         (?x)^\s*
-        (?:\b(private|public)\b\s*)* # access modifier
+        (\[.*\])?\s*          # modifier
         \b(fun)\b\s*
-        (?:(\[.*\])?\s*) # modifier
-        ([^\s\:\(]+)\s* # identifier
+        ([^\s\:\(]+)          # identifier
       captures:
-        1: storage.modifier.access-control.sparrow
-        2: storage.type.structure.sparrow
-        3: storage.modifier.sparrow
-        4: entity.name.function.sparrow
+        1: storage.modifier.sparrow
+        2: storage.type.fun.sparrow
+        3: entity.name.function.sparrow
+      scope: meta.function.sparrow
+
     # Variable
     - match: |-
         (?x)^\s*
+        (\[.*\])?\s*          # modifier
         \b(var)\b\s*
-        (?:(\[.*\])?\s*) # modifier
-        (\w+)\s* # identifier
+        (\w+)                 # identifier
       captures:
-        1: storage.type.structure.sparrow
-        2: storage.modifier.sparrow
+        1: storage.modifier.sparrow
+        2: storage.type.var.sparrow
         3: entity.name.variable.sparrow
+      scope: meta.var.sparrow
+
     # Package
     - match: |-
         (?x)^\s*
+        (\[.*\])?\s*          # modifier
         \b(package)\b\s*
-        (?:(\[.*\])?\s*) # modifier
-        (\w+)\s* # identifier
+        (\w+)                 # identifier
       captures:
-        1: keyword.control.module.sparrow
-        2: storage.modifier.sparrow
+        1: storage.modifier.sparrow
+        2: storage.type.package.sparrow
         3: entity.name.type.package.sparrow
-      push:
-        - meta_scope: meta.package.sparrow
-        - match: '(?<=\})'
-          pop: true
-        - include: $top_level_main
+      scope: meta.namespace.sparrow
 
     # Parameter-like types
     - match: (\:)\s*([\!\@\#\$\%\^\&amp;\*\/\~\-\+\=\.\&lt;&gt;]*)\b(\w+)\b
@@ -104,16 +98,12 @@ contexts:
 
   basic-elements:
     # Keywords
-    - match: \b(private|public)\b
-      scope: storage.modifier.access-control.sparrow
     - match: \b(module)\b
       scope: keyword.structure.module.sparrow
     - match: \b(import)\b
       scope: keyword.structure.import.sparrow
     - match: \b(datatype|class|concept|fun|var|package)\b
       scope: storage.type.structure.sparrow
-    - match: \b(Type|Null|Uninitialized|Bool|Byte|UByte|Short|UShort|Int|UInt|Long|ULong|SizeType|DiffType|Float|Double|Char|StringRef|String)\b
-      scope: storage.type.sparrow
     - match: \b(try|catch|finally|throw)\b
       scope: keyword.control.exception.sparrow
     - match: \b(if|else)\b
@@ -124,20 +114,18 @@ contexts:
       scope: keyword.control.repeat.sparrow
     - match: \b(return)\b
       scope: keyword.control.statement.sparrow
-    - match: \b(using|package|friend)\b
+    - match: \b(using|package)\b
       scope: keyword.control.other.sparrow
     - match: \b(true|false)\b
       scope: constant.language.boolean.sparrow
     - match: \b(null)\b
       scope: constant.language.null.sparrow
-    - match: \b(this)\b
-      scope: variable.language.sparrow
 
     # Numeric constants
     - match: |-
         (?x)
         (
-          (\b0(x|X)[0-9a-fA-F](_[0-9a-fA-F]+)*)            # 0x0, 0X0, 0x000_000
+          (\b0(x|X)[0-9a-fA-F](_?[0-9a-fA-F]+)*)            # 0x0, 0X0, 0x000_000
           |
           (
             (\b[0-9]+(_[0-9]+)*\.?([0-9]+_[0-9]+)?[0-9]*)  # 0.0, 0_0.0, 0.0_0
@@ -154,7 +142,7 @@ contexts:
       scope: keyword.operator.sparrow
 
     # Modifiers
-    - match: (?:(\[.*\])?\s*)
+    - match: (\[.*\])?\s*
       scope: storage.modifier.sparrow
 
   # Comments
@@ -225,7 +213,7 @@ contexts:
   std-lib-names:
     - match: \b(Void|Type|Null|Uninitialized|Bool|Byte|UByte|Short|UShort|Int|UInt|Long|ULong|SizeType|DiffType|Float|Double|Char|StringRef|String)\b
       scope: support.type.built-ins.classes.sparrow
-    - match: \b(cast|reinterpretCast|construct|sizeOf|typeOf|isValid|isValidAndTrue|valueIfValid|ctEval|lift)\b
+    - match: \b(cast|reinterpretCast|construct|sizeOf|typeOf|isValid|isValidAndTrue|valueIfValid|ctEval|astLift)\b
       scope: support.function.sparrow
 
   helpers:
@@ -242,10 +230,11 @@ contexts:
     - match: \}
       scope: invalid.illegal.stray-bracket-end
       pop: true
-    # - match: \;
-    #   scope: invalid.illegal.stray-bracket-end
-    #   pop: true
+    - match: \;
+      scope: invalid.illegal.stray-bracket-end
+      pop: true
     - include: main
+
 
   syntax-formats:
     # list the main alternative formats

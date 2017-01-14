@@ -16,7 +16,7 @@ fun doCompute(x: Int, y: Int rt): Int
 
 fun apply(f: AnyType, n: Int ct)
 {
-    if[ct] ( n != 0 )
+    [ct] if ( n != 0 )
     {
         f();
         apply(f, n-1);
@@ -27,7 +27,7 @@ fun apply(f: AnyType, n: Int ct)
 
 fun apply(f: AnyType, n: Int rt)
 {
-    for (i = 0..n )
+    for i = 0..n
     {
         f();
     }
@@ -38,7 +38,7 @@ fun sprMain
 {
     var x = 10;
     var y = 2;
-    var[ct] yy = 2;
+    [ct] var yy = 2;
 
     cout << doCompute(x, y) << endl;
     cout << doCompute(x, yy) << endl;

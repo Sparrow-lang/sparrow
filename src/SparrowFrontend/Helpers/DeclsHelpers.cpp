@@ -251,6 +251,17 @@ void SprFrontend::setAccessType(Node* decl, AccessType accessType)
         Nest_setPropertyInt(decl, "spr.accessType", accessType);
 }
 
+void SprFrontend::deduceAccessType(Node* decl)
+{
+    const StringRef* name = Nest_getPropertyString(decl, "name");
+    if ( name ) {
+        AccessType acc = publicAccess;
+        if ( size(*name) > 0 && *name->begin == '_' )
+            acc = privateAccess;
+        Nest_setPropertyInt(decl, "spr.accessType", acc);
+    }
+}
+
 void SprFrontend::copyAccessType(Node* destDecl, Node* srcDecl)
 {
     const int* res = Nest_getPropertyInt(srcDecl, "spr.accessType");

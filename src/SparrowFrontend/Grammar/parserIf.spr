@@ -1,90 +1,88 @@
 /// Interface between the parser (& scanner) and the Sparrow compiler
-module sparrowc.spr.grammar.parserIf;
+module sparrowc.spr.grammar.parserIf
 
-import scanner, parser, ext;
-import os, std.newDelete;
+import scanner, parser, layoutDecoder, ext
+import os, std.newDelete
 
-class ExternalErrorReporter {
-    fun reportError(loc: Location, msg: @String) {
-        reportErrorExternal(loc, msg.asStringRef());
-    }
-}
+class ExternalErrorReporter
+    fun reportError(loc: Location, msg: @String)
+        reportErrorExternal(loc, msg.asStringRef())
 
-private class CharSource {
-    using RetType = Char;
+class _CharSource
+    using RetType = Char
 
-    private var fileRange: @FileRange;
-    private var stringRange: StringRef;
+    var fileRange: @FileRange
+    var stringRange: StringRef
 
-    fun ctor(fileRange: @FileRange, code: StringRef) {
-        this.fileRange := fileRange;
-        this.stringRange ctor code;
-    }
-}
+    fun ctor(fileRange: @FileRange, code: StringRef)
+        this.fileRange := fileRange
+        this.stringRange ctor code
 
-fun isEmpty(s: @CharSource): Bool = ife(s.fileRange !== null, s.fileRange isEmpty, s.stringRange isEmpty);
-fun front(s: @CharSource): Char {
-    if ( s.fileRange !== null ) return s.fileRange front;
-    else return s.stringRange front;
-}
-fun popFront(s: @CharSource) {
-    if ( s.fileRange !== null ) s.fileRange popFront;
-    else s.stringRange popFront;
-}
+fun isEmpty(s: @_CharSource): Bool = ife(s.fileRange !== null, s.fileRange isEmpty, s.stringRange isEmpty)
+fun front(s: @_CharSource): Char
+    if ( s.fileRange !== null ) return s.fileRange front
+    else return s.stringRange front
+fun popFront(s: @_CharSource)
+    if s.fileRange !== null
+        s.fileRange popFront
+    else s.stringRange popFront
 
 
-class ParserContext {
-    using ScannerType = SparrowScanner(CharSource, ExternalErrorReporter);
-    using ParserType = SparrowParser(ScannerType, ExternalErrorReporter);
+class ParserContext
+    using _ScannerType = SparrowScanner(_CharSource, ExternalErrorReporter)
+    using _LayoutDecoderType = SparrowLayoutDecoder(_ScannerType, ExternalErrorReporter)
+    using _ParserType = SparrowParser(_LayoutDecoderType, ExternalErrorReporter)
 
-    private var file: File;
-    private var fileRange: FileRange;
-    private var source: CharSource;
-    private var scanner: ScannerType;
-    private var parser: ParserType;
+    var _file: File
+    var _fileRange: FileRange
+    var _source: _CharSource
+    var _scanner: _ScannerType
+    var _layoutDecoder: _LayoutDecoderType
+    var _parser: _ParserType
 
-    fun ctor(filename, code: StringRef, loc: Location, scannerOnly: Bool = false) {
-        var reporter = ExternalErrorReporter();
+    fun ctor(filename, code: StringRef, loc: Location, scannerOnly: Bool = false)
+        var reporter = ExternalErrorReporter()
 
-        if ( code isEmpty ) {
+        if code isEmpty
             // Open the file, and create a scanner on top of the file
-            file ctor filename;
-            fileRange ctor file.all;
-            source.ctor(fileRange, "");
+            _file ctor filename
+            _fileRange ctor _file.all
+            _source.ctor(_fileRange, "")
 
-            if ( !file.isOpen )
-                reporter.reportError(loc, toString("Cannot open file: ", filename));
-        }
-        else {
+            if !_file.isOpen
+                reporter.reportError(loc, toString("Cannot open file: ", filename))
+        else
             // Use the code as a the input
-            file ctor;
-            fileRange ctor;
-            source.ctor(null, code);
-        }
+            _file ctor
+            _fileRange ctor
+            _source.ctor(null, code)
 
-        scanner.ctor(source, reporter, loc);
-        if ( !scannerOnly )
-            parser.ctor(scanner, reporter);
-    }
-}
+        _scanner.ctor(_source, reporter, loc)
+        if !scannerOnly
+            _layoutDecoder.ctor(_scanner, reporter)
+            _parser.ctor(_layoutDecoder, reporter)
 
 // For testing only
-fun createScanner(filename, code: StringRef, loc: @Location): @ParserContext {
-    return new(ParserContext, filename, code, loc, true);
-}
+fun createScanner(filename, code: StringRef, loc: @Location): @ParserContext
+    return new(ParserContext, filename, code, loc, true)
 
 // Used by the compiler
-fun[native("spr_parserIf_createParser"), noInline] createParser(filename, code: StringRef, loc: @Location): @ParserContext {
-    var res: @ParserContext = new(ParserContext, filename, code, loc);
-    return res;
-}
-fun[native("spr_parserIf_destroyParser"), noInline] destroyParser(ctx: @ParserContext) {
-    delete(ctx);
-}
-fun[native("spr_parserIf_nextToken"), noInline] nextToken(ctx: @ParserContext, outToken: @Token) {
-    outToken = (ctx.scanner++);
-}
-fun[native("spr_parserIf_parseModule"), noInline] parseModule(ctx: @ParserContext): Node {
-    return ctx.parser parseModule;
-}
-fun[native("spr_parserIf_parseExpression"), noInline] parseExpression(ctx: @ParserContext): Node = ctx.parser parseExpression;
+[noInline]
+    [native("spr_parserIf_createParser")]
+    fun createParser(filename, code: StringRef, loc: @Location): @ParserContext
+        var res: @ParserContext = new(ParserContext, filename, code, loc)
+        return res
+
+    [native("spr_parserIf_destroyParser")]
+    fun destroyParser(ctx: @ParserContext)
+        delete(ctx)
+
+    [native("spr_parserIf_nextToken")]
+    fun nextToken(ctx: @ParserContext, outToken: @Token)
+        outToken = (ctx._scanner++)
+
+    [native("spr_parserIf_parseModule")]
+    fun parseModule(ctx: @ParserContext): Node = ctx._parser parseModule
+
+    [native("spr_parserIf_parseExpression")]
+    fun parseExpression(ctx: @ParserContext): Node = ctx._parser parseExpression

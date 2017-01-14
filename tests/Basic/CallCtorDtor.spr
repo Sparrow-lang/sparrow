@@ -29,7 +29,7 @@ class MyObj
         this.ctor(100);
     }
 
-    private var v: Int;
+    var v: Int;
 }
 
 class Pair
@@ -60,7 +60,7 @@ class Pair
     var first, second: MyObj;
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     {
         var x: MyObj;

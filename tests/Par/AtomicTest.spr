@@ -6,9 +6,9 @@ import std.vector;
 import os;
 import test;
 
-fun[native("rand")] rand(): Int;
-fun[native("srand")] srand(seed: UInt);
-fun[native("time")] time(timer: @Int): Int;
+[native("rand")] fun rand(): Int;
+[native("srand")] fun srand(seed: UInt);
+[native("time")] fun time(timer: @Int): Int;
 
 class UserDefined
 {
@@ -28,13 +28,13 @@ fun testOneLoad(t: Type, val: AnyType) {
     assertEq(atomic load, val);
 }
 fun testLoadNumeric(t: Type, count: Int) {
-    for ( i=0..count ) {
+    for i=0..count {
         var val: t = rand();
         testOneLoad(t, val);
     }
 }
 fun testLoadPtr(t: Type, count: Int) {
-    for ( i=0..count ) {
+    for i=0..count {
         var val: t = rand();
         var p: t Ptr = new(t, val);
         testOneLoad(t Ptr, p);
@@ -48,14 +48,14 @@ fun testOneStore(atomic: AnyType, val: AnyType) {
 }
 fun testStoreNumeric(t: Type, count: Int) {
     var atomic: t Atomic;
-    for ( i=0..count ) {
+    for i=0..count {
         var val: t = rand();
         testOneStore(atomic, val);
     }
 }
 fun testStorePtr(t: Type, count: Int) {
     var atomic: (t Ptr) Atomic;
-    for ( i=0..count ) {
+    for i=0..count {
         var val: t = rand();
         var p: t Ptr = new(t, val);
         testOneStore(atomic, p);
@@ -72,7 +72,7 @@ fun testOneFetchAndStore(atomic: AnyType, val1, val2: AnyType) {
 }
 fun testFetchAndStoreNumeric(t: Type, count: Int) {
     var atomic: t Atomic;
-    for ( i=0..count ) {
+    for i=0..count {
         var val1: t = rand();
         var val2: t = rand();
         testOneFetchAndStore(atomic, val1, val2);
@@ -80,7 +80,7 @@ fun testFetchAndStoreNumeric(t: Type, count: Int) {
 }
 fun testFetchAndStorePtr(t: Type, count: Int) {
     var atomic: (t Ptr) Atomic;
-    for ( i=0..count ) {
+    for i=0..count {
         var val1: t = rand();
         var val2: t = rand();
         var p1: t Ptr = new(t, val1);
@@ -100,7 +100,7 @@ fun testOneFetchAndAdd(atomic: AnyType, val, add: AnyType) {
 }
 fun testFetchAndAddNumeric(t: Type, count: Int) {
     var atomic: t Atomic;
-    for ( i=0..count ) {
+    for i=0..count {
         var val: t = rand();
         var add: t = rand();
         testOneFetchAndAdd(atomic, val, add);
@@ -121,7 +121,7 @@ fun testOneCompareAndSwap(atomic: AnyType, val1, val2: AnyType) {
 }
 fun testCompareAndSwapNumeric(t: Type, count: Int) {
     var atomic: t Atomic;
-    for ( i=0..count ) {
+    for i=0..count {
         var val1: t = rand();
         var val2: t = rand();
         testOneCompareAndSwap(atomic, val1, val2);
@@ -129,7 +129,7 @@ fun testCompareAndSwapNumeric(t: Type, count: Int) {
 }
 fun testCompareAndSwapPtr(t: Type, count: Int) {
     var atomic: (t Ptr) Atomic;
-    for ( i=0..count ) {
+    for i=0..count {
         var val1: t = rand();
         var val2: t = rand();
         var p1: t Ptr = new(t, val1);
@@ -153,7 +153,7 @@ fun testAll(t: Type, count: Int) {
     testCompareAndSwapNumeric(t, count);
     testCompareAndSwapPtr(t, count);
 
-    if[ct] ( Integer(#$t) )
+    [ct] if ( Integer(#$t) )
         testFetchAndAddNumeric(t, count);
 }
 

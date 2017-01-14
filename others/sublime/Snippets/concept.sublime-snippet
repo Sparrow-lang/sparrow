@@ -1,0 +1,10 @@
+<snippet>
+    <content><![CDATA[/**
+ * @brief $2
+ */
+concept ${1:name}(x) if ${3:condition}
+]]></content>
+    <tabTrigger>concept</tabTrigger>
+    <scope>source.sparrow</scope>
+    <description>concept … if …</description>
+</snippet>

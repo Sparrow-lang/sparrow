@@ -7,10 +7,10 @@ fun fib(p_1: @LInt, p_2: @LInt): Predicate
     var l2_Y2: LInt;
     var l2_X1: LInt;
     var l2_Y1: LInt;
-    return p_1 /=/ 0 && p_2 /=/ 0
+    return ( p_1 /=/ 0 && p_2 /=/ 0
         || p_1 /=/ 1 && p_2 /=/ 1
         || l2_X2 /=/ (p_1 /-/ 2) && rec(\fib, l2_X2, l2_Y2) && l2_X1 /=/ (p_1 /-/ 1) && rec(\fib, l2_X1, l2_Y1) && p_2 /=/ (l2_Y1 /+/ l2_Y2)
-        ;
+        );
 }
 
 fun sprMain

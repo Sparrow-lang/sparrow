@@ -29,7 +29,7 @@ class Test
 
 var a: Test;
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     assignInt(a.x, 100);
     assignInt(a.y, 101);

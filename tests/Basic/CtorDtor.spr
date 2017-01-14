@@ -29,7 +29,7 @@ var g: MyType = 999;
 
 class TestType
 {
-    var[static] g2: MyType = 777;
+    [static] var g2: MyType = 777;
 }
 
 fun doTest()
@@ -43,7 +43,7 @@ fun doTest()
     write('o'); writeLn('k');
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     write('<'); writeLn('-');
     doTest();

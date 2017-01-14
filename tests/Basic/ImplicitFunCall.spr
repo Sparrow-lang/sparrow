@@ -18,7 +18,7 @@ class Foo
 fun f1          { writeLn("inside f1()"); }
 fun f2(i: Int)  { writeLn("inside f2()"); }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     f1;         // inside f1()
     //f2;

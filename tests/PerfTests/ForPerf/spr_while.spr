@@ -4,14 +4,10 @@ fun testAccumulate(n: UInt): ULong
 {
     var res: ULong = 0;
     var i = 0;
-    while ( i<n; ++i )
-    {
+    while i<n; ++i
         var j = 0;
-        while ( j<n; ++j )
-        {
+        while j<n; ++j
             res += i*j;
-        }
-    }
     return res;
 }
 

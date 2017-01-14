@@ -5,14 +5,14 @@
 	<string>source.sparrow</string>
 	<key>settings</key>
 	<dict>
-		<key>decreaseIndentPattern</key>
-		<string>^(.*\*/)?\s*\}([^}{"']*\{)?[;\s]*(//.*|/\*.*\*/\s*)?$</string>
 		<key>increaseIndentPattern</key>
 		<string>^.*\{[^}"']*$</string>
+		<key>decreaseIndentPattern</key>
+		<string>^(.*\*/)?\s*\}([^}{"']*\{)?[;\s]*(//.*|/\*.*\*/\s*)?$</string>
 
 		<key>bracketIndentNextLinePattern</key>
 		<string>(?x)
-		^ \s* \b(if|while|else|for)\b [^;]* $
+		^ \s* \b(if|while|else|for|class|datatype|fun)\b [^;]* $
 		</string>
 
 	</dict>

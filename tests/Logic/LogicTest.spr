@@ -10,8 +10,8 @@ fun female(x: @LStr) = x /=/ "leda" || x /=/ "clytaemnestra";
 
 fun person(x: @LStr) = male(x) || female(x);
 
-fun parents(father, mother, child: LRef(String))
-     = father /=/ "zeus" && mother /=/ "leda" && child /=/ "castor"
+fun parents(father, mother, child: LRef(String)) \
+     = father /=/ "zeus" && mother /=/ "leda" && child /=/ "castor" \
     || father /=/ "zeus" && mother /=/ "leda" && child /=/ "clytaemnestra";
 
 
@@ -21,11 +21,11 @@ fun sprMain
         return;
     var n = programArgs(1) asInt;
 
-    if      ( n == 1 ) test1();
-    else if ( n == 2 ) test2();
-    else if ( n == 3 ) test3();
-    else if ( n == 4 ) test4();
-    else if ( n == 5 ) test5();
+    if      n == 1; test1
+    else if n == 2; test2
+    else if n == 3; test3
+    else if n == 4; test4
+    else if n == 5; test5
 }
 
 fun test1
@@ -48,12 +48,12 @@ Zeus is not female
 fun test2
 {
     var x: LStr;
-    if[ct] ( isValid(logicDebug) )
+    [ct] if ( isValid(logicDebug) )
         cout << "Result constructed: x=" << x << endl;
     var pred = male(x);
-    while ( pred() )
+    while pred()
     {
-        if[ct] ( isValid(logicDebug) )
+        [ct] if ( isValid(logicDebug) )
             cout << "In while, x=" << x << endl;
         if ( x.isSet() )
             cout << "Found male: " << x.get() << endl << flush;
@@ -73,7 +73,7 @@ fun test3
 {
     var x: LStr;
     var pred = female(x);
-    while ( pred() )
+    while pred()
     {
         //assert(x.isSet());
         cout << "Found female: " << x.get() << endl << flush;
@@ -89,7 +89,7 @@ fun test4
 {
     var x: LStr;
     var pred = person(x);
-    while ( pred() )
+    while pred()
     {
         //assert(x.isSet());
         cout << "Found person: " << x.get() << endl << flush;
@@ -108,7 +108,7 @@ fun test5
 {
     var father, mother, child: LStr;
     var pred = parents(father, mother, child);
-    while ( pred() )
+    while pred()
     {
         //assert(father.isSet());
         //assert(mother.isSet());

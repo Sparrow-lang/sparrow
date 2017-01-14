@@ -11,39 +11,39 @@ class Map(keyType, dataType: Type, traitsType: Type = DefaultTypeTraits)
     using DataType = dataType;
     using TraitsType = traitsType;
     using ValueType = Tuple(KeyType, DataType);
-    private using ImplTable = HashTable(keyType, ValueType, PairFirst(ValueType), TraitsType);
-    using RangeType = ImplTable.RangeType;
+    using _ImplTable = HashTable(keyType, ValueType, PairFirst(ValueType), TraitsType);
+    using RangeType = _ImplTable.RangeType;
 
-    private var hashTable: ImplTable;
+    var _hashTable: _ImplTable;
 
-    fun ctor(n: SizeType)                                       { hashTable.ctor(n, TraitsType()); }
-    fun ctor(n: SizeType, traits: traitsType)                   { hashTable.ctor(n, traits); }
-    fun ctor(range: Range)                                      { hashTable.ctor(range, 0, TraitsType()); }
-    fun ctor(range: Range, n: SizeType)                         { hashTable.ctor(range, n, HashType(), CompareType()); }
-    fun ctor(range: Range, n: SizeType, traits: traitsType)     { hashTable.ctor(range, n, traits); }
-    fun ctor(other: @Map)                                       { this.hashTable ctor other.hashTable; }
+    fun ctor(n: SizeType)                                       { _hashTable.ctor(n, TraitsType()); }
+    fun ctor(n: SizeType, traits: traitsType)                   { _hashTable.ctor(n, traits); }
+    fun ctor(range: Range)                                      { _hashTable.ctor(range, 0, TraitsType()); }
+    fun ctor(range: Range, n: SizeType)                         { _hashTable.ctor(range, n, HashType(), CompareType()); }
+    fun ctor(range: Range, n: SizeType, traits: traitsType)     { _hashTable.ctor(range, n, traits); }
+    fun ctor(other: @Map)                                       { this._hashTable ctor other._hashTable; }
 
-    fun traits                                  = hashTable.traits;
+    fun traits                                  = _hashTable.traits;
 
-    fun size                                    = hashTable.size;
-    fun isEmpty                                 = (hashTable.size == 0);
-    fun bucketCount                             = hashTable.bucketCount;
-    fun reserve(n: SizeType)                    { hashTable.reserve(n); }
+    fun size                                    = _hashTable.size;
+    fun isEmpty                                 = (_hashTable.size == 0);
+    fun bucketCount                             = _hashTable.bucketCount;
+    fun reserve(n: SizeType)                    { _hashTable.reserve(n); }
 
-    fun all                                     = hashTable.all();
+    fun all                                     = _hashTable.all();
     fun keys                                    = transform(all(), PairFirst(ValueType)());
     fun values                                  = transform(all(), PairSecond(ValueType)());
 
-    fun insert(key: @KeyType, data: @DataType)  = hashTable.insert(ValueType(key, data));
-    fun insert(value: @ValueType)               = hashTable.insert(value);
-    fun insert(range: Range)                    { hashTable.insert(range); }
-    fun remove(key: @KeyType)                   { hashTable.remove(key); }
-    fun remove(range: RangeType)                { hashTable.remove(range); }
+    fun insert(key: @KeyType, data: @DataType)  = _hashTable.insert(ValueType(key, data));
+    fun insert(value: @ValueType)               = _hashTable.insert(value);
+    fun insert(range: Range)                    { _hashTable.insert(range); }
+    fun remove(key: @KeyType)                   { _hashTable.remove(key); }
+    fun remove(range: RangeType)                { _hashTable.remove(range); }
 
-    fun contains(key: @KeyType)                 = hashTable.contains(key);
-    fun count(key: @KeyType)                    = hashTable.count(key);
-    fun equalRange(key: @KeyType)               = hashTable.equalRange(key);
-    fun find(key: @KeyType)                     = hashTable.find(key);
+    fun contains(key: @KeyType)                 = _hashTable.contains(key);
+    fun count(key: @KeyType)                    = _hashTable.count(key);
+    fun equalRange(key: @KeyType)               = _hashTable.equalRange(key);
+    fun find(key: @KeyType)                     = _hashTable.find(key);
 
     fun ()(key: @KeyType): @DataType            = at(key);
     fun at(key: @KeyType): @DataType
@@ -52,14 +52,14 @@ class Map(keyType, dataType: Type, traitsType: Type = DefaultTypeTraits)
         if ( r.isEmpty() )
         {
             var data: DataType;
-            r = hashTable.insert(ValueType(key, data));
+            r = _hashTable.insert(ValueType(key, data));
         }
-        return r.front()._2;
+        return r.front().v2;
     }
 
-    fun clear()                                 { hashTable.clear(); }
+    fun clear()                                 { _hashTable.clear(); }
 
-    fun swap(other: @Map)                       { this.hashTable swap other.hashTable; }
+    fun swap(other: @Map)                       { this._hashTable swap other._hashTable; }
 
-    fun >> (os: @OutStream)                     { hashTable.>>(os); }
+    fun >> (os: @OutStream)                     { _hashTable.>>(os); }
 }

@@ -93,6 +93,7 @@ Basic2/Axioms.spr:                      Basic features 2 - Axioms
 
 Basic/LLVMCode.llvm:                    Basic features - Code from llvm file
 Basic/Basic.spr:                        Basic features - A small Sparrow code
+Basic/Stmt.spr:                         Basic features - Statements
 Basic/DataStruct.spr:                   Basic features - Data structure
 Basic/Struct.spr:                       Basic features - New data structure
 Basic/StructGeneric.spr:                Basic features - New data structure, with generics

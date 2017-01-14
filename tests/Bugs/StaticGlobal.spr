@@ -9,8 +9,8 @@ fun ctor()
 
 class MyObj(n: Int)
 {
-    var[static] b = 1024;
-    var[static] c = n;
+    [static] var b = 1024;
+    [static] var c = n;
 
 }
 

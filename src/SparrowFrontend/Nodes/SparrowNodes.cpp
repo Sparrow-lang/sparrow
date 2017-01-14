@@ -2,6 +2,7 @@
 #include "SparrowNodes.h"
 #include "SparrowNodesAccessors.h"
 #include "Mods.h"
+#include "SprDebug.h"
 
 #include <Helpers/ForEachNodeInNodeList.h>
 #include <Helpers/DeclsHelpers.h>
@@ -26,15 +27,36 @@ using namespace Nest;
 // ModifiersNode
 //
 
+/// Apply the given modifier node to the given base node
+/// Recurse down if the base node is a node list or a modifiers node
 void applyModifier(Node* base, Node* modNode)
 {
     Modifier* mod = nullptr;
 
+    if ( !base )
+        return;
+
+    // Recurse down if the base if is a node list or a modifiers node
+    if ( base->nodeKind == nkFeatherNodeList ) {
+        for ( Node* n: base->children )
+            applyModifier(n, modNode);
+        return;
+    }
+    else if ( base->nodeKind == nkSparrowModifiersNode ) {
+        applyModifier(at(base->children, 0), modNode);
+        return;
+    }
+
+    // Interpret the modifier expression
     if ( modNode->nodeKind == nkSparrowExpIdentifier )
     {
         StringRef name = Nest_getCheckPropertyString(modNode, "name");
         if ( name == "static" )
             mod = SprFe_getStaticMod();
+        else if ( name == "public" )
+            mod = SprFe_getPublicMod();
+        else if ( name == "private" )
+            mod = SprFe_getPrivateMod();
         else if ( name == "ct" )
             mod = SprFe_getCtMod();
         else if ( name == "rt" )
@@ -487,55 +509,55 @@ Node* SprFrontend::mkImportName(const Location& loc, Node* moduleName, Node* imp
     return res;
 }
 
-Node* SprFrontend::mkSprUsing(const Location& loc, StringRef alias, Node* usingNode, AccessType accessType)
+Node* SprFrontend::mkSprUsing(const Location& loc, StringRef alias, Node* usingNode)
 {
     Node* res = Nest_createNode(nkSparrowDeclUsing);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({ usingNode }));
     if ( size(alias) > 0 )
         Feather_setName(res, alias);
-    setAccessType(res, accessType);
+    deduceAccessType(res);
     return res;
 }
 
-Node* SprFrontend::mkSprPackage(const Location& loc, StringRef name, Node* children, AccessType accessType)
+Node* SprFrontend::mkSprPackage(const Location& loc, StringRef name, Node* children)
 {
     Node* res = Nest_createNode(nkSparrowDeclPackage);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({ children }));
     Feather_setName(res, name);
-    setAccessType(res, accessType);
+    deduceAccessType(res);
     return res;
 }
 
-Node* SprFrontend::mkSprVariable(const Location& loc, StringRef name, Node* typeNode, Node* init, AccessType accessType)
+Node* SprFrontend::mkSprVariable(const Location& loc, StringRef name, Node* typeNode, Node* init)
 {
     Node* res = Nest_createNode(nkSparrowDeclSprVariable);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({ typeNode, init }));
     Feather_setName(res, name);
-    setAccessType(res, accessType);
+    deduceAccessType(res);
     return res;
 }
 
-Node* SprFrontend::mkSprVariable(const Location& loc, StringRef name, TypeRef type, Node* init, AccessType accessType)
+Node* SprFrontend::mkSprVariable(const Location& loc, StringRef name, TypeRef type, Node* init)
 {
     Node* res = Nest_createNode(nkSparrowDeclSprVariable);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({ nullptr, init }));
     Feather_setName(res, name);
-    setAccessType(res, accessType);
+    deduceAccessType(res);
     Nest_setPropertyType(res, "spr.givenType", type);
     return res;
 }
 
-Node* SprFrontend::mkSprClass(const Location& loc, StringRef name, Node* parameters, Node* underlyingData, Node* ifClause, Node* children, AccessType accessType)
+Node* SprFrontend::mkSprClass(const Location& loc, StringRef name, Node* parameters, Node* underlyingData, Node* ifClause, Node* children)
 {
     Node* res = Nest_createNode(nkSparrowDeclSprClass);
     res->location = loc;
     if ( underlyingData ) {
         ASSERT( !children );
-        Node* innerVar = mkSprVariable(loc, fromCStr("_data"), underlyingData, nullptr);
+        Node* innerVar = mkSprVariable(loc, fromCStr("data"), underlyingData, nullptr);
         children = Feather_addToNodeList(children, innerVar);
         Nest_setPropertyInt(res, propGenerateInitCtor, 1);
     }
@@ -543,29 +565,29 @@ Node* SprFrontend::mkSprClass(const Location& loc, StringRef name, Node* paramet
     ASSERT( !parameters || parameters->nodeKind == nkFeatherNodeList );
     ASSERT( !children || children->nodeKind == nkFeatherNodeList );
     Feather_setName(res, name);
-    setAccessType(res, accessType);
+    deduceAccessType(res);
     return res;
 }
 
-Node* SprFrontend::mkSprConcept(const Location& loc, StringRef name, StringRef paramName, Node* baseConcept, Node* ifClause, AccessType accessType)
+Node* SprFrontend::mkSprConcept(const Location& loc, StringRef name, StringRef paramName, Node* baseConcept, Node* ifClause)
 {
     Node* res = Nest_createNode(nkSparrowDeclSprConcept);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({ baseConcept, ifClause, nullptr }));
     Feather_setName(res, name);
-    setAccessType(res, accessType);
+    deduceAccessType(res);
     Nest_setPropertyString(res, "spr.paramName", paramName);
     return res;
 }
 
-Node* SprFrontend::mkSprFunction(const Location& loc, StringRef name, Node* parameters, Node* returnType, Node* body, Node* ifClause, AccessType accessType)
+Node* SprFrontend::mkSprFunction(const Location& loc, StringRef name, Node* parameters, Node* returnType, Node* body, Node* ifClause)
 {
     Node* res = Nest_createNode(nkSparrowDeclSprFunction);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({ parameters, returnType, body, ifClause }));
     ASSERT( !parameters || parameters->nodeKind == nkFeatherNodeList );
     Feather_setName(res, name);
-    setAccessType(res, accessType);
+    deduceAccessType(res);
     return res;
 }
 

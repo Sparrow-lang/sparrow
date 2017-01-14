@@ -1,16 +1,16 @@
 //!!
 
-concept Regular(x)
-    if isValid(x.ctor())        // Default construction
+concept Regular(x) if (
+       isValid(x.ctor())        // Default construction
     && isValid(x.ctor(x))       // Copy construction
     && isValid(x.dtor())        // Destruction
     && typeOf(x == x) == Bool   // Equality is defined
-    ;
+    );
 
 
-class[noDefault] NullType {
+[noDefault] class NullType {
     fun ctor {}
-    fun[convert] ctor(other: AnyType) {}
+    [convert] fun ctor(other: AnyType) {}
     fun dtor {}
     fun ==(other: NullType) = true;
     fun ==(other: AnyType) = false;
@@ -32,7 +32,7 @@ class MyType
     // Operators are implicitly defined
 }
 
-class[noDefault] EmptyType
+[noDefault] class EmptyType
 {
 }
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Nest/Utils/NodeVector.hpp"
+#include <SparrowFrontend/Nodes/Decls/AccessType.h>
 
 namespace SprFrontend
 {
@@ -9,14 +10,14 @@ namespace SprFrontend
     NodeVector getDeclsFromNode(Node* n, Node*& baseExp);
 
     /// Get the resulting decls out of the given decls.
-    /// 
+    ///
     /// A decl can be a using that points to other decls. Make sure we get the
     /// target decls.
     NodeArray expandDecls(NodeRange decls, Node* seenFrom);
 
     /// Get the resulting declaration from the given node
     Node* resultingDecl(Node* node);
-    
+
     /// Check if the given node is a field or not
     bool isField(Node* node);
 
@@ -40,13 +41,17 @@ namespace SprFrontend
     /// Set the access type for a node
     void setAccessType(Node* decl, AccessType accessType);
 
+    /// Deduce and set the access type for a node
+    /// If the name of the node starts with '_', we consider private, otherwise public
+    void deduceAccessType(Node* decl);
+
     /// Copy the access type from one declaration to the other
     void copyAccessType(Node* destDecl, Node* srcDecl);
-    
-    
+
+
     /// Gets the result parameter of a function, if it has one
     Node* getResultParam(Node* f);
-    
+
     /// Checks all the children of a namespace or a class are of allowed types
     void checkForAllowedNamespaceChildren(Node* children, bool insideClass = false);
 

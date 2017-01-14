@@ -1,155 +1,200 @@
-public import meta.location;
-import std.contiguousMemoryRange;
+[public] import meta.location
+import std.contiguousMemoryRange
 
 
 // Main types
 
 /// Type representing a compilation context -- some information describing how
 /// a particular node should be compiled
-datatype[ct] CompilationContext = UntypedPtr;
+[ct] datatype CompilationContext = UntypedPtr
 
 /// Type representing a compiler-internal type
-datatype[ct] AstType = UntypedPtr;
+[ct] datatype AstType = UntypedPtr
 
 /// The compiler AST node
-using AstNode = CompilerAstNode;
+using AstNode = CompilerAstNode
 
 /// A range of nodes (contiguously aligned in memory)
-using AstNodeRange = ContiguousMemoryRange(AstNode);
+using AstNodeRange = ContiguousMemoryRange(AstNode)
+
+
+// Evaluation modes
+using modeUnspecified = 0
+using modeRt = 1
+using modeCt = 2
+using modeRtCt = 3
 
 
 // Diagnostic
 
-using diagInternal  = 0;
-using diagError     = 1;
-using diagWarning   = 2;
-using diagInfo      = 3;
+using diagInternal  = 0
+using diagError     = 1
+using diagWarning   = 2
+using diagInfo      = 3
 
-// Type describing a diagnostic
-datatype[rtct] Diagnostic { type: Int, loc: Location, message: StringRef }
+[rtct]
+    // Type describing a diagnostic
+    datatype Diagnostic
+                type: Int
+                loc: Location
+                message: StringRef
 
-fun[rtct] mkDiagnostic(type: Int, loc: Location, message: StringRef): Diagnostic {
-    var res: Diagnostic;
-    res.type = type;
-    res.loc = loc;
-    res.message = message;
-    return res;
-}
+    fun mkDiagnostic(type: Int, loc: Location, message: StringRef): Diagnostic
+        var res: Diagnostic
+        res.type = type
+        res.loc = loc
+        res.message = message
+        return res
 
+[ct]
 /// Function called to report a diagnostic in the compiler
-fun[ct, native("$meta.report")] report(type: Int, loc: @Location, message: StringRef);
-fun[ct] report(diag: @Diagnostic) { report(diag.type, diag.loc, diag.message); }
+    [native("$meta.report")]
+    fun report(type: Int, loc: @Location, message: StringRef)
+    fun report(diag: @Diagnostic) = report(diag.type, diag.loc, diag.message)
 
-/// When this is called, we stop the compiler
-fun[ct, native("$meta.raise")] raise();
-
-
-// Evaluation modes
-using modeUnspecified = 0;
-using modeRt = 1;
-using modeCt = 2;
-using modeRtCt = 3;
+    /// When this is called, we stop the compiler
+    [native("$meta.raise")]
+    fun raise()
 
 
+[ct]
+
+    // CompilationContext functions
+
+    /// Gets the compilation context of the caller
+    [native("$meta.CompilationContext.current")]
+    fun currentCompilationContext: CompilationContext
+
+    /// Gets the eval mode of the given compilation context
+    [native("$meta.CompilationContext.evalMode")]
+    fun evalMode(ctx: CompilationContext): Int
+    /// Gets the source code object of the given compilation context
+    [native("$meta.CompilationContext.sourceCode")]
+    fun sourceCode(ctx: CompilationContext): SourceCode
 
 
-// CompilationContext functions
+    // AstType functions
 
-/// Gets the compilation context of the caller
-fun[ct, native("$meta.CompilationContext.current")] currentCompilationContext: CompilationContext;
-
-/// Gets the eval mode of the given compilation context
-fun[ct, native("$meta.CompilationContext.evalMode")] evalMode(ctx: CompilationContext): Int;
-/// Gets the source code object of the given compilation context
-fun[ct, native("$meta.CompilationContext.sourceCode")] sourceCode(ctx: CompilationContext): SourceCode;
-
-
-// AstType functions
-
-/// Gets the kind of the given type
-fun[ct, native("$meta.AstType.typeKind")] typeKind(t: AstType): Int;
-/// Gets a string description of the type
-fun[ct, native("$meta.AstType.toString")] toString(t: AstType): StringRef;
-/// Returns true if the given type has storage
-fun[ct, native("$meta.AstType.hasStorage")] hasStorage(t: AstType): Bool;
-/// Returns the number of references in the given type
-fun[ct, native("$meta.AstType.numReferences")] numReferences(t: AstType): Int;
-/// Returns the evaluation mode of the given type
-fun[ct, native("$meta.AstType.mode")] mode(t: AstType): Int;
-/// Returns true if the given type can be used at compile-time
-fun[ct, native("$meta.AstType.canBeUsedAtCt")] canBeUsedAtCt(t: AstType): Bool;
-/// Returns true if the given type can be used at run-time
-fun[ct, native("$meta.AstType.canBeUsedAtRt")] canBeUsedAtRt(t: AstType): Bool;
+    /// Gets the kind of the given type
+    [native("$meta.AstType.typeKind")]
+    fun typeKind(t: AstType): Int
+    /// Gets a string description of the type
+    [native("$meta.AstType.toString")]
+    fun toString(t: AstType): StringRef
+    /// Returns true if the given type has storage
+    [native("$meta.AstType.hasStorage")]
+    fun hasStorage(t: AstType): Bool
+    /// Returns the number of references in the given type
+    [native("$meta.AstType.numReferences")]
+    fun numReferences(t: AstType): Int
+    /// Returns the evaluation mode of the given type
+    [native("$meta.AstType.mode")]
+    fun mode(t: AstType): Int
+    /// Returns true if the given type can be used at compile-time
+    [native("$meta.AstType.canBeUsedAtCt")]
+    fun canBeUsedAtCt(t: AstType): Bool
+    /// Returns true if the given type can be used at run-time
+    [native("$meta.AstType.canBeUsedAtRt")]
+    fun canBeUsedAtRt(t: AstType): Bool
 
 
-// AstNode functions
+    // AstNode functions
 
-/// Tests if the given node is null
-fun[ct] isNull(n: AstNode): Bool = n._data === null;
-/// Tests if the given node is set
-fun[ct] isSet(n: AstNode): Bool = n._data !== null;
+    /// Tests if the given node is null
+    fun isNull(n: AstNode): Bool = n.data === null
+    /// Tests if the given node is set
+    fun isSet(n: AstNode): Bool = n.data !== null
 
-/// Clone the given node
-fun[ct, native("$meta.AstNode.clone")] clone(n: AstNode): AstNode;
-/// Returns the kind of the given node
-fun[ct, native("$meta.AstNode.nodeKind")] nodeKind(n: AstNode): Int;
-/// Returns the name of the node kind
-fun[ct, native("$meta.AstNode.nodeKindName")] nodeKindName(n: AstNode): StringRef;
-/// Returns a human-readable description of the node
-fun[ct, native("$meta.AstNode.toString")] toString(n: AstNode): StringRef;
-/// Returns a human-readable description of the node -- extended version
-fun[ct, native("$meta.AstNode.toStringExt")] toStringExt(n: AstNode): StringRef;
+    /// Clone the given node
+    [native("$meta.AstNode.clone")]
+    fun clone(n: AstNode): AstNode
+    /// Returns the kind of the given node
+    [native("$meta.AstNode.nodeKind")]
+    fun nodeKind(n: AstNode): Int
+    /// Returns the name of the node kind
+    [native("$meta.AstNode.nodeKindName")]
+    fun nodeKindName(n: AstNode): StringRef
+    /// Returns a human-readable description of the node
+    [native("$meta.AstNode.toString")]
+    fun toString(n: AstNode): StringRef
+    /// Returns a human-readable description of the node -- extended version
+    [native("$meta.AstNode.toStringExt")]
+    fun toStringExt(n: AstNode): StringRef
 
-/// Returns the location of the node
-fun[ct, native("$meta.AstNode.location")] location(n: AstNode): Location;
+    /// Returns the location of the node
+    [native("$meta.AstNode.location")]
+    fun location(n: AstNode): Location
 
-/// Returns the children of the node
-fun[ct, native("$meta.AstNode.children")] children(n: AstNode): AstNodeRange;
-/// Return the child at the given index
-fun[ct, native("$meta.AstNode.getChild")] getChild(n: AstNode, idx: Int): AstNode;
-/// Returns the referred nodes of the given node
-fun[ct, native("$meta.AstNode.referredNodes")] referredNodes(n: AstNode): AstNodeRange;
+    /// Returns the children of the node
+    [native("$meta.AstNode.children")]
+    fun children(n: AstNode): AstNodeRange
+    /// Return the child at the given index
+    [native("$meta.AstNode.getChild")]
+    fun getChild(n: AstNode, idx: Int): AstNode
+    /// Returns the referred nodes of the given node
+    [native("$meta.AstNode.referredNodes")]
+    fun referredNodes(n: AstNode): AstNodeRange
 
-/// Checks if the node has a property with the given name
-fun[ct, native("$meta.AstNode.hasProperty")] hasProperty(n: AstNode, name: StringRef): Bool;
-/// Get a string property (can fail)
-fun[ct, native("$meta.AstNode.getPropertyString")] getPropertyString(n: AstNode, name: StringRef, value: @StringRef): Bool;
-/// Get an integer property (can fail)
-fun[ct, native("$meta.AstNode.getPropertyInt")] getPropertyInt(n: AstNode, name: StringRef, value: @Int): Bool;
-/// Get an node property (can fail)
-fun[ct, native("$meta.AstNode.getPropertyNode")] getPropertyNode(n: AstNode, name: StringRef, value: @AstNode): Bool;
-/// Get an type property (can fail)
-fun[ct, native("$meta.AstNode.getPropertyType")] getPropertyType(n: AstNode, name: StringRef, value: @AstType): Bool;
-/// Set a string property
-fun[ct, native("$meta.AstNode.setProperty")] setProperty(n: AstNode, name: StringRef, value: StringRef);
-/// Set an integer property
-fun[ct, native("$meta.AstNode.setProperty")] setProperty(n: AstNode, name: StringRef, value: Int);
-/// Set a node property
-fun[ct, native("$meta.AstNode.setProperty")] setProperty(n: AstNode, name: StringRef, value: AstNode);
-/// Set a type property
-fun[ct, native("$meta.AstNode.setProperty")] setProperty(n: AstNode, name: StringRef, value: AstType);
+    /// Checks if the node has a property with the given name
+    [native("$meta.AstNode.hasProperty")]
+    fun hasProperty(n: AstNode, name: StringRef): Bool
+    /// Get a string property (can fail)
+    [native("$meta.AstNode.getPropertyString")]
+    fun getPropertyString(n: AstNode, name: StringRef, value: @StringRef): Bool
+    /// Get an integer property (can fail)
+    [native("$meta.AstNode.getPropertyInt")]
+    fun getPropertyInt(n: AstNode, name: StringRef, value: @Int): Bool
+    /// Get an node property (can fail)
+    [native("$meta.AstNode.getPropertyNode")]
+    fun getPropertyNode(n: AstNode, name: StringRef, value: @AstNode): Bool
+    /// Get an type property (can fail)
+    [native("$meta.AstNode.getPropertyType")]
+    fun getPropertyType(n: AstNode, name: StringRef, value: @AstType): Bool
+    /// Set a string property
+    [native("$meta.AstNode.setProperty")]
+    fun setProperty(n: AstNode, name: StringRef, value: StringRef)
+    /// Set an integer property
+    [native("$meta.AstNode.setProperty")]
+    fun setProperty(n: AstNode, name: StringRef, value: Int)
+    /// Set a node property
+    [native("$meta.AstNode.setProperty")]
+    fun setProperty(n: AstNode, name: StringRef, value: AstNode)
+    /// Set a type property
+    [native("$meta.AstNode.setProperty")]
+    fun setProperty(n: AstNode, name: StringRef, value: AstType)
 
-/// Set the context of the node; will clear any compilation state
-fun[ct, native("$meta.AstNode.setContext")] setContext(n: AstNode, context: CompilationContext);
-/// Computes the type of the node
-fun[ct, native("$meta.AstNode.computeType")] computeType(n: AstNode);
-/// Fully apply all the semantic checks on the node
-fun[ct, native("$meta.AstNode.semanticCheck")] semanticCheck(n: AstNode);
-/// Clear the compilation state of the node
-fun[ct, native("$meta.AstNode.clearCompilationState")] clearCompilationState(n: AstNode);
+    /// Set the context of the node; will clear any compilation state
+    [native("$meta.AstNode.setContext")]
+    fun setContext(n: AstNode, context: CompilationContext)
+    /// Computes the type of the node
+    [native("$meta.AstNode.computeType")]
+    fun computeType(n: AstNode)
+    /// Fully apply all the semantic checks on the node
+    [native("$meta.AstNode.semanticCheck")]
+    fun semanticCheck(n: AstNode)
+    /// Clear the compilation state of the node
+    [native("$meta.AstNode.clearCompilationState")]
+    fun clearCompilationState(n: AstNode)
 
-/// Getter for the compilation context of the node
-fun[ct, native("$meta.AstNode.context")] context(n: AstNode): CompilationContext;
-/// Getter for the type of the node
-fun[ct, native("$meta.AstNode.type")] type(n: AstNode): AstType;
+    /// Getter for the compilation context of the node
+    [native("$meta.AstNode.context")]
+    fun context(n: AstNode): CompilationContext
+    /// Getter for the type of the node
+    [native("$meta.AstNode.type")]
+    fun type(n: AstNode): AstType
 
-/// Returns true if the node has some errors
-fun[ct, native("$meta.AstNode.hasError")] hasError(n: AstNode): Bool;
-/// Returns true if the node is semantically checked
-fun[ct, native("$meta.AstNode.isSemanticallyChecked")] isSemanticallyChecked(n: AstNode): Bool;
-/// Returns true if the node has an explanation attached to it
-fun[ct, native("$meta.AstNode.isExplained")] isExplained(n: AstNode): Bool;
-/// Returns the current explanation of the node
-fun[ct, native("$meta.AstNode.curExplanation")] curExplanation(n: AstNode): AstNode;
-/// Returns the final explanation of the node (applied recursively)
-fun[ct, native("$meta.AstNode.explanation")] explanation(n: AstNode): AstNode;
+    /// Returns true if the node has some errors
+    [native("$meta.AstNode.hasError")]
+    fun hasError(n: AstNode): Bool
+    /// Returns true if the node is semantically checked
+    [native("$meta.AstNode.isSemanticallyChecked")]
+    fun isSemanticallyChecked(n: AstNode): Bool
+    /// Returns true if the node has an explanation attached to it
+    [native("$meta.AstNode.isExplained")]
+    fun isExplained(n: AstNode): Bool
+    /// Returns the current explanation of the node
+    [native("$meta.AstNode.curExplanation")]
+    fun curExplanation(n: AstNode): AstNode
+    /// Returns the final explanation of the node (applied recursively)
+    [native("$meta.AstNode.explanation")]
+    fun explanation(n: AstNode): AstNode

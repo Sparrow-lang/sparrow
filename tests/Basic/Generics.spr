@@ -34,7 +34,7 @@ class MyVector(t: Type)
         writeLn(end);
     }
 
-    var[static] glob: t;
+    [static] var glob: t;
 }
 
 fun valSize(x: AnyType): SizeType
@@ -42,7 +42,7 @@ fun valSize(x: AnyType): SizeType
     return sizeOf(x);
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     writeLn(f1(Int, 4));
     //writeLn(f1(Double, 4));

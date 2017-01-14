@@ -5,28 +5,28 @@ import rawPtr(RawPtr);
 import ranges(rangeSize, ..);
 
 // !!!
-concept RangeTmp(x)
-    if typeOf(x.isEmpty()) == Bool
+concept RangeTmp(x) if (
+       typeOf(x.isEmpty()) == Bool
     && isValid(x.front())
     && isValid(x.popFront())
-    ;
+    );
 
-class[rtct] Array(valueType: Type)
+[rtct] class Array(valueType: Type)
 {
-    var[static] ValueType = valueType;
-    var[static] RangeType = ContiguousMemoryRange(valueType);
+    using ValueType = valueType;
+    using RangeType = ContiguousMemoryRange(valueType);
 
     fun ctor(other: @Array)
     {
         var size = other.size();
 
-        begin = RawPtr(ValueType).alloc(size);
-        end = begin.advance(DiffType(size));
+        _begin = RawPtr(ValueType).alloc(size);
+        _end = _begin.advance(DiffType(size));
 
-        var dst = begin;
-        var src = other.begin;
+        var dst = _begin;
+        var src = other._begin;
 
-        while ( dst != end )
+        while dst != _end
         {
             dst.value().ctor(src.value());
             dst = dst.advance();
@@ -36,23 +36,23 @@ class[rtct] Array(valueType: Type)
 
     fun ctor(size: SizeType)
     {
-        begin = RawPtr(ValueType).alloc(size);
-        end = begin.advance(DiffType(size));
+        _begin = RawPtr(ValueType).alloc(size);
+        _end = _begin.advance(DiffType(size));
 
-        var p = begin;
+        var p = _begin;
 
-        while ( p != end ; p = p.advance() )
+        while p != _end ; p = p.advance()
             p.value().ctor();
     }
 
     fun ctor(size: SizeType, value: @ValueType)
     {
-        begin = RawPtr(ValueType).alloc(size);
-        end = begin.advance(DiffType(size));
+        _begin = RawPtr(ValueType).alloc(size);
+        _end = _begin.advance(DiffType(size));
 
-        var p = begin;
+        var p = _begin;
 
-        while ( p != end ; p = p.advance() )
+        while p != _end ; p = p.advance()
             p.value().ctor(value);
     }
 
@@ -62,24 +62,22 @@ class[rtct] Array(valueType: Type)
         {
             var size = rangeSize(range);
 
-            begin = RawPtr(ValueType).alloc(size);
-            end = begin.advance(DiffType(size));
+            _begin = RawPtr(ValueType).alloc(size);
+            _end = _begin.advance(DiffType(size));
 
-            var p = begin;
+            var p = _begin;
 
-            for ( v = range )
-            {
+            for v = range
                 p.value().ctor(v);
                 p = p.advance();
-            }
         }
     }
 
-    fun[rt] ctorFromCt(src: Array ct)
+    [rt] fun ctorFromCt(src: Array ct)
     {
-        var[ct] size = src size;
+        [ct] var size = src size;
         this ctor size;
-        for[ct] ( i = 0..size )
+        [ct] for i = 0..size
             at(i) = src(i);
     }
 
@@ -88,28 +86,28 @@ class[rtct] Array(valueType: Type)
         if ( isEmpty() )
             return;
 
-        var p = begin;
+        var p = _begin;
 
-        while ( p != end ; p = p.advance() )
+        while p != _end ; p = p.advance()
             p.value().dtor();
-        begin.freePtr();
+        _begin.freePtr();
     }
 
     fun size(): SizeType
     {
-        return end.diff(begin);
+        return _end.diff(_begin);
     }
 
     fun isEmpty(): Bool
     {
-        return begin == end;
+        return _begin == _end;
     }
 
     fun assign(range: RangeType)
     {
         var r = all();
 
-        while ( !r.isEmpty() && !range.isEmpty() )
+        while !r.isEmpty() && !range.isEmpty()
         {
             r.front().dtor();
             r.front().ctor(range.front());
@@ -117,7 +115,7 @@ class[rtct] Array(valueType: Type)
             range.popFront();
         }
 
-        while ( !r.isEmpty() ; r.popFront() )
+        while !r.isEmpty() ; r.popFront()
         {
             r.front().dtor();
             r.front().ctor();
@@ -126,32 +124,32 @@ class[rtct] Array(valueType: Type)
 
     fun swap(other: @Array)
     {
-        var tmp = begin;
+        var tmp = _begin;
 
-        begin = other.begin;
-        other.begin = tmp;
-        tmp = end;
-        end = other.end;
-        other.end = tmp;
+        _begin = other._begin;
+        other._begin = tmp;
+        tmp = _end;
+        _end = other._end;
+        other._end = tmp;
     }
 
     fun at(index: SizeType): @ValueType
     {
-        return begin.advance(DiffType(index)).value();
+        return _begin.advance(DiffType(index)).value();
     }
     fun ()(index: SizeType): @ValueType
     {
-        return begin.advance(DiffType(index)).value();
+        return _begin.advance(DiffType(index)).value();
     }
 
     fun all(): RangeType
     {
-        return RangeType(begin, end);
+        return RangeType(_begin, _end);
     }
 
     fun subrange(index: SizeType, num: SizeType): RangeType
     {
-        return RangeType(begin.advance(DiffType(index)), begin.advance(DiffType(index + num)));
+        return RangeType(_begin.advance(DiffType(index)), _begin.advance(DiffType(index + num)));
     }
 
     fun =(other: @Array): @Array
@@ -171,7 +169,7 @@ class[rtct] Array(valueType: Type)
         var r1 = all();
         var r2 = other.all();
 
-        while ( !r1.isEmpty() )
+        while !r1.isEmpty()
         {
             if ( !(r1.front() == r2.front()) )
                 return false;
@@ -191,22 +189,19 @@ class[rtct] Array(valueType: Type)
     fun >>(os: @OutStream) if isValid(os << #$ValueType)
     {
         var first = true;
-        for ( el = all )
-        {
+        for el = all
             if ( first )
                 first = false;
             else
                 os << ", ";
             os << el;
-        }
     }
-    private fun dumpThis(prefix: StringRef)
+    fun _dumpThis(prefix: StringRef)
     {
         cout << prefix << "dumping " << TypeOp.description(Array) << ": " << mkStreamRefWrapper(this) << endl;
-        cout << "    begin: " << mkStreamRefWrapper(begin.bytePtr()) << endl;
-        cout << "    end: " << mkStreamRefWrapper(end.bytePtr()) << endl;
+        cout << "    begin: " << mkStreamRefWrapper(_begin.bytePtr()) << endl;
+        cout << "    end: " << mkStreamRefWrapper(_end.bytePtr()) << endl;
     }
 
-    private var begin: RawPtr(ValueType);
-    private var end: RawPtr(ValueType);
+    var _begin, _end: RawPtr(ValueType);
 }

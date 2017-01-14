@@ -12,7 +12,7 @@ fun getRangeSize(range: Range): SizeType
 {
     cout << "Range fun selected" << endl;
     var n: SizeType = 0;
-    while ( !range.isEmpty(); range.popFront() )
+    while !range.isEmpty(); range.popFront()
         ++n;
     return n;
 }

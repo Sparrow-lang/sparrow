@@ -1,33 +1,31 @@
-import basicDecls(Number, Char, Bool, StringRef, Byte, UByte, Short, UShort, Int, UInt, Long, ULong, SizeType, DiffType, Double, Range);
+import basicDecls(Number, Char, Bool, StringRef, Byte, UByte, Short, UShort, Int, UInt, Long, ULong, SizeType, DiffType, Double, Range)
 
-var[rtct] cout: ConsoleOutputStream;
+[rtct]
+    var cout: ConsoleOutputStream
 
-class[rtct] ConsoleOutputStream
-{
-    fun <<<(x: Number)                          { Impl.write(x); }
-    fun <<<(x: Char)                            { Impl.write(x); }
-    fun <<<(x: Bool)                            { if ( x ) this <<< "true"; else this <<< "false"; }
-    fun <<<(x: StringRef)                       { for ( c = x ) Impl.write(c); }
+    class ConsoleOutputStream
+        fun <<<(x: Number)                          { _Impl.write(x) }
+        fun <<<(x: Char)                            { _Impl.write(x) }
+        fun <<<(x: Bool)                            { if x ; this <<< "true" else this <<< "false" }
+        fun <<<(x: StringRef)                       { for c = x { _Impl.write(c) } }
 
-    // This stream supports flush
-    fun flush                                   { Impl.flushOutput(); }
-}
+        // This stream supports flush
+        fun flush                                   { _Impl.flushOutput }
 
-private package Impl
-{
-    fun[rtct, native("writeByte")] write(x: Byte);
-    fun[rtct, native("writeByte")] write(x: UByte);
-    fun[rtct, native("writeShort")] write(x: Short);
-    fun[rtct, native("writeShort")] write(x: UShort);
-    fun[rtct, native("writeInt")] write(x: Int);
-    fun[rtct, native("writeUInt")] write(x: UInt);
-    fun[rtct, native("writeLong")] write(x: Long);
-    fun[rtct, native("writeULong")] write(x: ULong);
-    fun[rtct, native("writeDouble")] write(x: Double);
-    fun[rtct, native("writeChar")] write(x: Char);
-    fun[rtct, native("writeULong")] write(x: SizeType);
-    fun[rtct, native("writeLong")] write(x: DiffType);
+package _Impl
+    [rtct]
+        [native("writeByte")] fun write(x: Byte)
+        [native("writeByte")] fun write(x: UByte)
+        [native("writeShort")] fun write(x: Short)
+        [native("writeShort")] fun write(x: UShort)
+        [native("writeInt")] fun write(x: Int)
+        [native("writeUInt")] fun write(x: UInt)
+        [native("writeLong")] fun write(x: Long)
+        [native("writeULong")] fun write(x: ULong)
+        [native("writeDouble")] fun write(x: Double)
+        [native("writeChar")] fun write(x: Char)
+        [native("writeULong")] fun write(x: SizeType)
+        [native("writeLong")] fun write(x: DiffType)
 
-    fun[rtct, native("flushOutput")] flushOutput;
-}
+        [native("flushOutput")] fun flushOutput
 

@@ -3,7 +3,7 @@ fun gcdDivision(a: Int, b: Int): Int
 {
     var t: Int;
 
-    while ( b != 0 )
+    while b != 0
     {
         t = b;
         b = a % b;
@@ -18,7 +18,7 @@ fun gcdSubtraction(a: Int, b: Int): Int
     if ( a == 0 )
         return b;
 
-    while ( b != 0 )
+    while b != 0
     {
         if ( a > b )
             a = a - b;
@@ -29,7 +29,7 @@ fun gcdSubtraction(a: Int, b: Int): Int
     return a;
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     writeLnInt(gcdDivision(60, 42));
     writeLnInt(gcdDivision(2346, 13556));

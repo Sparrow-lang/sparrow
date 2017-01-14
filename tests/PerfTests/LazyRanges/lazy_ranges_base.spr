@@ -9,7 +9,7 @@ fun nextCollatz n = ife(n%2==0, n/2, n*3+1);
 fun collatzLen(n: ULong): UInt
 {
     var len = UInt(1);
-    while ( n > 1 )
+    while n > 1
     {
         n = nextCollatz(n);
         ++len;
@@ -26,7 +26,7 @@ fun sprMain
 
     var sum: ULong = 0;
     var count = 0;
-    for ( i = 1.. )
+    for i = 1..
     {
         var len = collatzLen(i);
         if ( len >= n )

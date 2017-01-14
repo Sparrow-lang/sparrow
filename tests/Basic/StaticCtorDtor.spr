@@ -49,7 +49,7 @@ fun dtor
     write('d'); write('t'); write('o'); write('r'); write('-'); writeLn(2);
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     write('o'); writeLn('k');
 }

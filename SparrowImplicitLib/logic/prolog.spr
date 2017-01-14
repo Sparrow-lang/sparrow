@@ -16,10 +16,10 @@ import meta = meta.nodeKinds;
 import assert;
 import time = time;
 
-fun[macro] compileProlog(sourceString: CompilerAstNode): CompilerAstNode
+[macro] fun compileProlog(sourceString: CompilerAstNode): CompilerAstNode
 {
     var sourceStr: meta.AstNode = sourceString;
-    if[ct] ( (sourceString nodeKind) != meta.nkSparrowExpLiteral )
+    [ct] if ( (sourceString nodeKind) != meta.nkSparrowExpLiteral )
         meta.report("compileProlog should take a string literal as argument", (sourceStr location));
     else
     {
@@ -31,7 +31,7 @@ fun[macro] compileProlog(sourceString: CompilerAstNode): CompilerAstNode
     }
 }
 
-fun[ct] handlePrologCode(code: @String, location: meta.Location, context: meta.CompilationContext): meta.AstNode
+[ct] fun handlePrologCode(code: @String, location: meta.Location, context: meta.CompilationContext): meta.AstNode
 {
     //cout << "(" << location.startLineNo << ":" << location.startColNo << " - " << location.endLineNo << ":" << location.endColNo << ')' << endl << flush;
     var t: time.Timer;
@@ -47,7 +47,7 @@ fun[ct] handlePrologCode(code: @String, location: meta.Location, context: meta.C
     return res;
 }
 
-fun[ct] prologToString(source: @String): String
+[ct] fun prologToString(source: @String): String
 {
     var errorReporter = mkConsoleErrorReporter(source.all());
     var lexer = mkLexer(source.all(), errorReporter);

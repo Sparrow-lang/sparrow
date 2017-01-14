@@ -11,15 +11,15 @@ fun assert(condition: Bool)
 class ContinousMemoryRange(type: Type)
 {
     using RetType = @type;
-    var[static] ValueType = type;
+    [static] var ValueType = type;
 
-    private var begin, end: @ValueType;
-    
+    var begin, end: @ValueType;
+
     fun ctor()
     {
         assert(this.size() == SizeType(0));
     }
-    
+
     fun ctor(begin,end: @ValueType)
     {
         this.begin := begin;
@@ -41,12 +41,12 @@ class ContinousMemoryRange(type: Type)
         end := other.end;
         other.end := tmp;
     }
-    
+
     fun isEmpty(): Bool
     {
         return begin === end;
     }
-    
+
     fun size(): SizeType
     {
         return ptrDiff(toPtr(end), toPtr(begin)) / sizeOf(ValueType);
@@ -56,42 +56,42 @@ class ContinousMemoryRange(type: Type)
     {
         begin := inc(begin);
     }
-    
+
     fun popBack()
     {
         end := dec(end);
     }
-    
+
     fun popFront(n: SizeType)
     {
         begin := inc(begin, n);
     }
-    
+
     fun popBack(n: SizeType)
     {
         end := dec(end, n);
     }
-    
+
     fun popFront(n: Int)
     {
         begin := inc(begin, SizeType(n));
     }
-    
+
     fun popBack(n: Int)
     {
         end := dec(end, SizeType(n));
     }
-    
+
     fun front(): @ValueType
     {
         return begin;
     }
-    
+
     fun back(): @ValueType
     {
         return dec(end);
     }
-    
+
     fun peekFront(n: SizeType): @ValueType
     {
         return inc(begin, n);
@@ -103,28 +103,28 @@ class ContinousMemoryRange(type: Type)
     }
 
 
-    private fun[static] toPtr(p: @ValueType): @Byte
+    [static] fun toPtr(p: @ValueType): @Byte
     {
         return reinterpretCast(@Byte, p);
     }
-    private fun[static] toValue(p: @Byte): @ValueType
+    [static] fun toValue(p: @Byte): @ValueType
     {
         return reinterpretCast(@ValueType, p);
     }
 
-    private fun[static] inc(p: @ValueType): @ValueType
+    [static] fun inc(p: @ValueType): @ValueType
     {
         return toValue(ptrAdd(toPtr(p), sizeOf(ValueType)));
     }
-    private fun[static] inc(p: @ValueType, n: SizeType): @ValueType
+    [static] fun inc(p: @ValueType, n: SizeType): @ValueType
     {
         return toValue(ptrAdd(toPtr(p), n*sizeOf(ValueType)));
     }
-    private fun[static] dec(p: @ValueType): @ValueType
+    [static] fun dec(p: @ValueType): @ValueType
     {
         return toValue(ptrSub(toPtr(p), sizeOf(ValueType)));
     }
-    private fun[static] dec(p: @ValueType, n: SizeType): @ValueType
+    [static] fun dec(p: @ValueType, n: SizeType): @ValueType
     {
         return toValue(ptrSub(toPtr(p), n*sizeOf(ValueType)));
     }
@@ -133,12 +133,12 @@ class ContinousMemoryRange(type: Type)
 
 class Vector(type: Type)
 {
-    var[static] ValueType = type;
+    [static] var ValueType = type;
 
-    private var begin, end, endOfStore: @ValueType;
+    var begin, end, endOfStore: @ValueType;
 
-    private var[static, ct] initialCapacity: SizeType = SizeType(16);
-    private var[static, ct] growthFactor = 1.5;
+    [static, ct] var initialCapacity: SizeType = SizeType(16);
+    [static, ct] var growthFactor = 1.5;
 
     fun ctor()
     {
@@ -156,7 +156,7 @@ class Vector(type: Type)
         var dst: @AnyType = begin;
         var src: @AnyType = other.begin;
 
-        while ( dst !== end )
+        while dst !== end
         {
             dst = src;
             // TODO: Call ctor here
@@ -165,14 +165,14 @@ class Vector(type: Type)
         }
         assert(this.size() == other.size());
     }
-    
+
     fun ctor(r: ContinousMemoryRange(ValueType))
     {
         begin := null;
         end := null;
         endOfStore := null;
         this.reserve(r.size());
-        while ( !r.isEmpty() ; r.popFront(); )
+        while !r.isEmpty() ; r.popFront();
         {
             this.pushBack(r.front());
         }
@@ -185,7 +185,7 @@ class Vector(type: Type)
         var p: @AnyType = begin;
 
         // TODO: call dtor on an object
-        //while ( p !== end ; p := inc(p); )
+        //while p !== end ; p := inc(p);
         //    p.dtor();
         free(toPtr(begin));
     }
@@ -232,7 +232,7 @@ class Vector(type: Type)
         var dst: @AnyType = begin;
 
         // TODO: Call ctors/dtors when reallocating
-        while ( dst !== end )
+        while dst !== end
         {
             dst = src;
             // TODO: Call ctor here
@@ -304,7 +304,7 @@ class Vector(type: Type)
         var p: @AnyType = inc(begin, index);
 
         move(p, end, inc(begin, index + n));
-        while ( p !== inc(begin, index + n) ; p := inc(p); )
+        while p !== inc(begin, index + n) ; p := inc(p);
         {
             p = range.front();
             range.popFront();
@@ -334,7 +334,7 @@ class Vector(type: Type)
         var p: @AnyType = inc(begin, index);
 
         move(p, end, inc(begin, index + n));
-        while ( p !== inc(begin, index + n) ; p := inc(p); )
+        while p !== inc(begin, index + n) ; p := inc(p);
         {
             p = range.front();
             range.popFront();
@@ -360,7 +360,7 @@ class Vector(type: Type)
 
         //assert(this.back() == value);
     }
-    
+
     fun popBack()
     {
         end := dec(end);
@@ -374,7 +374,7 @@ class Vector(type: Type)
         var rBegin: @ValueType = range.front();
         var rEnd: @AnyType = inc(rBegin, rSize);
 
-        while ( rEnd !== end )
+        while rEnd !== end
         {
             rBegin = rEnd;
             rBegin := inc(rBegin);
@@ -402,7 +402,7 @@ class Vector(type: Type)
         {
             var newEnd: @AnyType = inc(begin, n);
 
-            while ( end !== newEnd )
+            while end !== newEnd
             {
                 end := dec(end);
                 //end.@dtor();
@@ -413,7 +413,7 @@ class Vector(type: Type)
         {
             this.reserve(n);
             var newEnd: @AnyType = inc(begin, n);
-            while ( end !== newEnd )
+            while end !== newEnd
             {
                 //end.@ctor();
                 // TODO: call default ctor inplace
@@ -432,7 +432,7 @@ class Vector(type: Type)
     {
         this.clear();
         this.reserve(r.size());
-        while ( !r.isEmpty() ; r.popFront(); )
+        while !r.isEmpty() ; r.popFront()
         {
             this.pushBack(r.front());
         }
@@ -459,9 +459,9 @@ class Vector(type: Type)
         endOfStore := other.endOfStore;
         other.endOfStore := tmp;
     }
-    
 
-    private fun debugDumpThis(desc: StringRef)
+
+    fun debugDumpThis(desc: StringRef)
     {
         cout << "<<<" << endl;
         cout << "  " << desc << ": " << endl;
@@ -475,41 +475,41 @@ class Vector(type: Type)
         cout << flush;
     }
 
-    private fun[static] toPtr(p: @ValueType): @Byte
+    [static] fun toPtr(p: @ValueType): @Byte
     {
         return reinterpretCast(@Byte, p);
     }
-    private fun[static] toValue(p: @Byte): @ValueType
+    [static] fun toValue(p: @Byte): @ValueType
     {
         return reinterpretCast(@ValueType, p);
     }
 
-    private fun[static] inc(p: @ValueType): @ValueType
+    [static] fun inc(p: @ValueType): @ValueType
     {
         return toValue(ptrAdd(toPtr(p), sizeOf(ValueType)));
     }
-    private fun[static] inc(p: @ValueType, n: SizeType): @ValueType
+    [static] fun inc(p: @ValueType, n: SizeType): @ValueType
     {
         return toValue(ptrAdd(toPtr(p), n*sizeOf(ValueType)));
     }
-    private fun[static] dec(p: @ValueType): @ValueType
+    [static] fun dec(p: @ValueType): @ValueType
     {
         return toValue(ptrSub(toPtr(p), sizeOf(ValueType)));
     }
-    private fun[static] dec(p: @ValueType, n: SizeType): @ValueType
+    [static] fun dec(p: @ValueType, n: SizeType): @ValueType
     {
         return toValue(ptrSub(toPtr(p), n*sizeOf(ValueType)));
     }
-    private fun[static] diff(p,q: @ValueType): SizeType
+    [static] fun diff(p,q: @ValueType): SizeType
     {
         return ptrDiff(toPtr(p), toPtr(q)) / sizeOf(ValueType);
     }
-    private fun[static] move(pBegin, pEnd, destBegin: @ValueType)
+    [static] fun move(pBegin, pEnd, destBegin: @ValueType)
     {
         var size = diff(pEnd, pBegin);
         var destEnd: @AnyType = inc(destBegin, size);
 
-        while ( pEnd !== pBegin )
+        while pEnd !== pBegin
         {
             destEnd := dec(destEnd);
             pEnd := dec(pEnd);
@@ -527,7 +527,7 @@ fun createRange(t: Type, n: Int): ContinousMemoryRange(t)
     end := ptrAdd(begin, sizeToAlloc);
     var res = ContinousMemoryRange(t)(reinterpretCast(@t, begin), reinterpretCast(@t, end));
     var i = 0;
-    while ( i<n ; i=i+1; )
+    while i<n ; i++
     {
         res.peekFront(SizeType(i)) = i;
     }
@@ -539,7 +539,7 @@ class MyObj
     fun ctor(xx: Int) { x = xx; cout << "ctor(" << x << ')' << endl; }
     fun ctor(other: @MyObj) { x = other.x; cout << "copy ctor(MyObj(" << x << "))" << endl; }
     fun dtor { cout << "dtor(" << x << ')' << endl; }
-    
+
     var x: Int;
 }
 
@@ -565,7 +565,7 @@ fun write1(obj: MyObj)
 fun printVector(v: AnyType)
 {
     var isFirst = true;
-    for ( v = v.all() )
+    for v = v.all
     {
         if ( isFirst )
             isFirst = false;
@@ -577,26 +577,26 @@ fun printVector(v: AnyType)
     if ( !v.isEmpty() )
         cout << endl;
 
-	/*var i = SizeType(0);
-	
-	while ( i < v.size() ; i = i + SizeType(1); )
-	{
-		cout << v.at(i);
-		if ( i < v.size() - SizeType(1) )
-		{
-			cout << ", ";
-		}
-		else
-		{
-			cout << endl;
-		}
-	}*/	
+    /*var i = SizeType(0);
+
+    while i < v.size() ; i = i + SizeType(1);
+    {
+        cout << v.at(i);
+        if ( i < v.size() - SizeType(1) )
+        {
+            cout << ", ";
+        }
+        else
+        {
+            cout << endl;
+        }
+    }*/
 }
 
 fun printRange(r: AnyType)
 {
     var isFirst = true;
-    for ( v = r )
+    for v = r
     {
         if ( isFirst )
             isFirst = false;
@@ -606,7 +606,7 @@ fun printRange(r: AnyType)
         cout << v;
     }
     cout << endl;
-    /*while ( !r.isEmpty() ; r.popFront(); )
+    /*while !r.isEmpty() ; r.popFront()
     {
         cout << r.front();
         if ( r.size() > SizeType(1) )
@@ -624,9 +624,10 @@ fun printRange(r: AnyType)
 // each on a different line.
 fun printSizeInfo(v: AnyType) if isValid(v.isEmpty()) && isValid(v.size())
 {
-    if ( v.isEmpty() ) cout << "empty" << endl;
-    else cout << "not empty" << endl;
-	cout << v.size() << endl;
+    if v.isEmpty
+        cout << "empty" << endl
+    else cout << "not empty" << endl
+    cout << v.size << endl;
 }
 
 
@@ -637,27 +638,27 @@ fun sprMain
         return;
     var n = programArgs(1) asInt;
 
-    if      ( n == 1 ) test1();
-    else if ( n == 2 ) test2();
-    else if ( n == 3 ) test3();
-    else if ( n == 4 ) test4();
-    else if ( n == 5 ) test5();
-    else if ( n == 6 ) test6();
-    else if ( n == 7 ) test7();
-    else if ( n == 8 ) test8();
-    else if ( n == 9 ) test9();
-    else if ( n == 10 ) test10();
-    else if ( n == 11 ) test11();
-    else if ( n == 12 ) test12();
-    else if ( n == 13 ) test13();
-    else if ( n == 14 ) test14();
-    else if ( n == 15 ) test15();
-    else if ( n == 16 ) test16();
-    else if ( n == 17 ) test17();
-    else if ( n == 18 ) test18();
-    else if ( n == 19 ) test19();
-    else if ( n == 20 ) test20();
-    else if ( n == 21 ) test21();
+    if      n == 1  ; test1
+    else if n == 2  ; test2
+    else if n == 3  ; test3
+    else if n == 4  ; test4
+    else if n == 5  ; test5
+    else if n == 6  ; test6
+    else if n == 7  ; test7
+    else if n == 8  ; test8
+    else if n == 9  ; test9
+    else if n == 10 ; test10
+    else if n == 11 ; test11
+    else if n == 12 ; test12
+    else if n == 13 ; test13
+    else if n == 14 ; test14
+    else if n == 15 ; test15
+    else if n == 16 ; test16
+    else if n == 17 ; test17
+    else if n == 18 ; test18
+    else if n == 19 ; test19
+    else if n == 20 ; test20
+    else if n == 21 ; test21
 }
 
 fun test1()
@@ -674,13 +675,13 @@ fun test1()
     printSizeInfo(v);
     printVector(v);
     cout << "---" << endl;
-	v.popBack();
-	printSizeInfo(v);
-	printVector(v);
+    v.popBack();
+    printSizeInfo(v);
+    printVector(v);
     cout << "---" << endl;
-	v.popBack();
-	printSizeInfo(v);
-	printVector(v);
+    v.popBack();
+    printSizeInfo(v);
+    printVector(v);
 }
 /*<<<Basic test(1)
 0
@@ -743,9 +744,9 @@ fun test4()
     var v3: Vector(Int) = v1;
     var v4 = v2;
 
-	printSizeInfo(v3);
-	printSizeInfo(v4);
-	printVector(v4);
+    printSizeInfo(v3);
+    printSizeInfo(v4);
+    printVector(v4);
 }
 /*<<<Copy constructor(4)
 empty
@@ -782,28 +783,30 @@ done
 
 fun test6()
 {
-	var v1: Vector(Int);
-	
-	v1.reserve(SizeType(42));
-	printSizeInfo(v1);
-	cout << v1.capacity() << endl;
-    
-	var v2: Vector(Int) = createRange(Int, 4);
+    var v1: Vector(Int);
 
-	v2.reserve(SizeType(100));
-	printSizeInfo(v2);
-	cout << v2.capacity() << endl;
-	printVector(v2);
-	v2.reserve(SizeType(10));
-	printSizeInfo(v2);
-	cout << v2.capacity() << endl;
-	printVector(v2);
+    v1.reserve(SizeType(42));
+    printSizeInfo(v1);
+    cout << v1.capacity() << endl;
 
-	var v3: Vector(Int) = createRange(Int, 1024);
-    
-    if ( v3.capacity() < SizeType(1024) ) cout << "Test failed" << endl;
-    v3.pushBack(0);
-    if ( v3.capacity() < SizeType(1024) ) cout << "Test failed" << endl;
+    var v2: Vector(Int) = createRange(Int, 4);
+
+    v2.reserve(SizeType(100));
+    printSizeInfo(v2);
+    cout << v2.capacity() << endl;
+    printVector(v2);
+    v2.reserve(SizeType(10));
+    printSizeInfo(v2);
+    cout << v2.capacity() << endl;
+    printVector(v2);
+
+    var v3: Vector(Int) = createRange(Int, 1024);
+
+    if v3.capacity() < SizeType(1024)
+        cout << "Test failed" << endl
+    v3 pushBack 0
+    if v3.capacity() < SizeType(1024)
+        cout << "Test failed" << endl
 }
 /*<<<Reserve(6)
 empty
@@ -823,7 +826,7 @@ fun test7()
 {
     var v1: Vector(Int);
     var v2: Vector(Int) = createRange(Int, 8);
-    
+
     v1.assign(createRange(Int, 5));
     printSizeInfo(v1);
     printVector(v1);
@@ -844,7 +847,7 @@ fun test8()
 {
     var v1: Vector(Int);
     var v2: Vector(Int) = createRange(Int, 4);
-    
+
     v1.swap(v2);
     printSizeInfo(v1);
     printVector(v1);
@@ -867,7 +870,7 @@ not empty
 fun test9()
 {
     var v: Vector(Int) = createRange(Int, 8);
-    
+
     v.at(SizeType(1)) = 111;
     v.at(SizeType(5)) = 555;
     printVector(v);
@@ -883,21 +886,21 @@ fun test9()
 fun test10()
 {
     var v: Vector(Int);
-    
+
     v.pushBack(3);
     v.pushBack(2);
     v.pushBack(1);
     v.pushBack(0);
-    
+
     var r = v.all();
-    
-    while ( !r.isEmpty() ; r.popFront(); )
+
+    while !r.isEmpty() ; r.popFront()
     {
         cout << r.front() << endl;
     }
-    
+
     r = ContinousMemoryRange(Int)(v.all());
-    while ( !r.isEmpty() ; r.popFront(); )
+    while !r.isEmpty() ; r.popFront()
     {
         r.front() = r.front() + 1;
     }
@@ -918,8 +921,8 @@ fun test11()
 {
     var v: Vector(Int);
     var i = 0;
-    
-    while ( i < 4 ; i=i+1; )
+
+    while i < 4 ; i++
     {
         v.pushBack(i);
     }
@@ -938,8 +941,8 @@ fun test11()
     printVector(v);
     v.popBack();
     v.popBack();
-    i = 0; 
-    while ( i < 20 ; i=i+1; )
+    i = 0;
+    while i < 20 ; i=i+1
     {
         v.pushBack(i);
     }
@@ -966,7 +969,7 @@ not empty
 fun test12()
 {
     var v: Vector(Int) = createRange(Int, 4);
-    
+
     v.resize(4);
     printSizeInfo(v);
     printVector(v);
@@ -976,9 +979,9 @@ fun test12()
     v.resize(6);
     printSizeInfo(v);
     //printVector(v);
-    
+
     var vv: Vector(Int);
-    
+
     vv.resize(6);
     printSizeInfo(vv);
     //printVector(vv);
@@ -999,7 +1002,7 @@ not empty
 fun test13()
 {
     var v: Vector(Int) = createRange(Int, 4);
-    
+
     v.clear();
     printSizeInfo(v);
     v.pushBack(42);
@@ -1008,7 +1011,7 @@ fun test13()
     printVector(v);
     v.clear();
     printSizeInfo(v);
-    
+
     var vv: Vector(Int);
     vv.clear();
     printSizeInfo(v);
@@ -1030,7 +1033,7 @@ fun test14()
     //var v1: Vector(Int) = createRange(Int, 4);
     //var v2: Vector(Int) = createRange(Int, 6);
     //var v3: Vector(Int);
-    
+
     //v2 = v1;
     //printSizeInfo(v2);
     //printVector(v2);
@@ -1048,7 +1051,7 @@ fun test15()
 {
     var v: Vector(Int) = createRange(Int, 4);
     var r = v.all();
-    
+
     v.insertBefore(42, v.all());
     printSizeInfo(v);
     printVector(v);
@@ -1060,7 +1063,7 @@ fun test15()
     r.popFront();
     v.insertBefore(11, r);
     printSizeInfo(v);
-    printVector(v); 
+    printVector(v);
     r = v.all();
     r.popBack();
     r.popBack();
@@ -1087,7 +1090,7 @@ fun test16()
 {
     var v: Vector(Int) = createRange(Int, 4);
     var r = v.all();
-    
+
     v.insertBefore(createRange(Int, 2), v.all());
     printSizeInfo(v);
     printVector(v);
@@ -1105,13 +1108,13 @@ fun test16()
     printVector(v);
     v.insertAfter(createRange(Int, 0), v.all());
     printSizeInfo(v);
-    printVector(v); 
+    printVector(v);
     r = v.all();
     r.popFront();
     r.popFront();
     v.insertBefore(createRange(Int, 2), r);
     printSizeInfo(v);
-    printVector(v); 
+    printVector(v);
     r = v.all();
     r.popBack();
     r.popBack();
@@ -1123,7 +1126,7 @@ fun test16()
     r.popFront();
     v.insertBefore(createRange(Int, 1), r);
     printSizeInfo(v);
-    printVector(v); 
+    printVector(v);
     r = v.all();
     r.popBack();
     r.popBack();
@@ -1135,7 +1138,7 @@ fun test16()
     r.popFront();
     v.insertBefore(createRange(Int, 0), r);
     printSizeInfo(v);
-    printVector(v); 
+    printVector(v);
     r = v.all();
     r.popBack();
     r.popBack();
@@ -1248,13 +1251,13 @@ fun test18()
 {
     var v1: Vector(Int) = createRange(Int, 4);
     var v2: Vector(Int) = createRange(Int, 4);
-    var v3: Vector(Int) = createRange(Int, 6);   
+    var v3: Vector(Int) = createRange(Int, 6);
 
-    // TODO    
+    // TODO
     //if ( v1 == v2 ) cout << "true" << endl; else cout << "false" << endl;
     //if ( v1 == v3 ) cout << "true" << endl; else cout << "false" << endl;
     //cout << (v1 == ife(v2, "true", "false")) << endl;
-    //cout << (v1 == ife(v3, "true", "false")) << endl; 
+    //cout << (v1 == ife(v3, "true", "false")) << endl;
 }
 /*---<<<Equality operator(18)
 true
@@ -1267,32 +1270,32 @@ fun test19()
     var i = 0;
 
     printSizeInfo(v);
-    while ( SizeType(i) < v.size() ; i = i + 1; )
+    while SizeType(i) < v.size() ; i++
     {
         if ( v.at(i) != i )
         {
             cout << "test failed" << endl;
         }
     }
-    
+
     var vv = v;
-    
-    i = 0; 
+
+    i = 0;
     printSizeInfo(vv);
-    while ( SizeType(i) < vv.size() ; i = i + 1; )
+    while SizeType(i) < vv.size() ; i++
     {
-        if ( vv.at(i) != i ) 
+        if ( vv.at(i) != i )
         {
             cout << "test failed" << endl;
         }
     }
-    
+
     var vvv: Vector(Int);
-    
+
     vvv.assign(createRange(Int, 1000));
     i = 0;
     printSizeInfo(vvv);
-    while ( SizeType(i) < vvv.size() ; i = i + 1; )
+    while SizeType(i) < vvv.size() ; i++
     {
         if ( vvv.at(i) != i )
         {
@@ -1312,7 +1315,7 @@ not empty
 fun test20()
 {
     var v: Vector(Int) = createRange(Int, 8);
-    
+
     v.remove(SizeType(1));
     printVector(v);
     v.remove(SizeType(0));
@@ -1320,7 +1323,7 @@ fun test20()
     v.remove(SizeType(5));
     printVector(v);
     v.remove(SizeType(3));
-    printVector(v);    
+    printVector(v);
 }
 /*<<<Element removal(20)
 0, 2, 3, 4, 5, 6, 7
@@ -1333,23 +1336,23 @@ fun test21()
 {
     var v: Vector(Int) = createRange(Int, 8);
     var r = v.subrange(SizeType(0), SizeType(0));
-    
-    while ( !r.isEmpty() ; r.popFront(); )
+
+    while !r.isEmpty() ; r.popFront()
     {
         cout << r.front() << endl;
     }
     r = v.subrange(0, 1);
-    while ( !r.isEmpty() ; r.popFront(); )
+    while !r.isEmpty() ; r.popFront()
     {
         cout << r.front() << endl;
     }
     r = v.subrange(2, 3);
-    while ( !r.isEmpty() ; r.popFront(); )
+    while !r.isEmpty() ; r.popFront()
     {
         cout << r.front() << endl;
     }
     r = v.subrange(SizeType(0), v.size());
-    while ( !r.isEmpty() ; r.popFront(); )
+    while !r.isEmpty() ; r.popFront()
     {
         cout << r.front() << endl;
     }

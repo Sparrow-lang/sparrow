@@ -6,19 +6,19 @@ import std.sharedPtr;
 import std.string;
 import precedenceUtils;
 
-concept ValWrapper(x)
-    if isValid(x.ValueType)
+concept ValWrapper(x) if (
+    isValid(x.ValueType)
     //&& isValid(x.isSet())
     //&& isValid(x.get())
     //&& isValid(x())
-    ;
+    );
 
-concept LRefType(x)
-    if ValWrapper(x)
+concept LRefType(x) if (
+       ValWrapper(x)
     && isValid(x.isLogicalRef)
     && isValid(x.reset())
     && isValid(x.reset(#$x.ValueType))
-    ;
+    );
 
 
 //using logicDebug = 1;
@@ -47,35 +47,35 @@ class LRef(valueType: Type)
 
     fun ctor
     {
-        pptr ctor Optional(valueType)();
-        if[ct] ( isValid(logicDebug) && isValid(logicRefDebug) )
+        _pptr ctor Optional(valueType)();
+        [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "ctor: " << this << "\n";
     }
 
-    fun[convert] ctor(value: @ValueType)
+    [convert] fun ctor(value: @ValueType)
     {
-        pptr ctor Optional(valueType)(value);
-        if[ct] ( isValid(logicDebug) && isValid(logicRefDebug) )
+        _pptr ctor Optional(valueType)(value);
+        [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "value ctor: " << this << "\n";
     }
 
-    fun[convert] ctor(value: @AnyType) if isValid(ValueType(value))
+    [convert] fun ctor(value: @AnyType) if isValid(ValueType(value))
     {
-        pptr ctor Optional(valueType)(value);
-        if[ct] ( isValid(logicDebug) && isValid(logicRefDebug) )
+        _pptr ctor Optional(valueType)(value);
+        [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "value ctor: " << this << "\n";
     }
 
     fun ctor(other: @LRef)
     {
-        pptr ctor other.pptr;
-        if[ct] ( isValid(logicDebug) && isValid(logicRefDebug) )
+        _pptr ctor other._pptr;
+        [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "copy ctor: " << this << "\n";
     }
 
     fun dtor
     {
-        if[ct] ( isValid(logicDebug) && isValid(logicRefDebug) )
+        [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "dtor: " << this << "\n";
     }
 
@@ -86,64 +86,64 @@ class LRef(valueType: Type)
             reset(other.get());
         else
             reset();
-        if[ct] ( isValid(logicDebug) && isValid(logicRefDebug) )
+        [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "LRef.=" << this << "\n";
     }
     fun =(value: @ValueType)
     {
-        pptr.get().reset(value);
-        if[ct] ( isValid(logicDebug) && isValid(logicRefDebug) )
+        _pptr.get().reset(value);
+        [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "LRef.=" << this << "\n";
     }
     fun =(value: AnyType) if isValid(ValueType(value))
     {
-        pptr.get().reset(value);
-        if[ct] ( isValid(logicDebug) && isValid(logicRefDebug) )
+        _pptr.get().reset(value);
+        [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "LRef.=" << this << "\n";
     }
 
 
-    fun get: @ValueType         = pptr.get().get();
+    fun get: @ValueType         = _pptr.get().get();
 
     fun reset
     {
         // Reset the value shared by the shared pointer
-        pptr.get().reset();
-        if[ct] ( isValid(logicDebug) && isValid(logicRefDebug) )
+        _pptr.get().reset();
+        [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "LRef.reset " << this << "\n";
     }
 
     fun reset(value: @ValueType)
     {
         // Reset the value shared by the shared pointer
-        pptr.get().reset(value);
-        if[ct] ( isValid(logicDebug) && isValid(logicRefDebug) )
+        _pptr.get().reset(value);
+        [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "LRef.reset " << this << "\n";
     }
 
-    fun isUnique                = pptr.isUnique();
-    fun useCount: UInt          = pptr.useCount();
+    fun isUnique                = _pptr.isUnique();
+    fun useCount: UInt          = _pptr.useCount();
 
-    fun isNull                  = pptr.get().isNull();
-    fun isSet                   = pptr.get().isSet();
+    fun isNull                  = _pptr.get().isNull();
+    fun isSet                   = _pptr.get().isSet();
 
     //fun (): Bool                = true;
 
     fun swap(other: @LRef)
     {
-        pptr.swap(other.pptr);
+        _pptr.swap(other._pptr);
     }
 
     fun >>(os: @OutStream)
     {
-        os << "LRef(" << mkStreamRefWrapper(pptr.get()) << ", " << useCount() << ", " << flush;
+        os << "LRef(" << mkStreamRefWrapper(_pptr.get()) << ", " << useCount() << ", " << flush;
         if ( isSet() )
             os << get();
         else
             os << "null";
         os << ")" << flush;
     }
-    private var pptr: SharedPtr(Optional(ValueType));
+    var _pptr: SharedPtr(Optional(ValueType));
 }
 
 fun mkLRef(x: @LRefType) = x;
@@ -172,24 +172,24 @@ package Impl
 
         fun ctor(l: @leftType, r: @rightType, oper: operType)
         {
-            this.left ctor l;
-            this.right ctor r;
-            this.oper ctor oper;
+            this._left ctor l;
+            this._right ctor r;
+            this._oper ctor oper;
         }
 
-        fun get: ValueType          = oper(left.get(), right.get());
+        fun get: ValueType          = _oper(_left.get(), _right.get());
 
-        fun isNull                  = left.isNull() || right.isNull();
-        fun isSet                   = left.isSet() && right.isSet();
+        fun isNull                  = _left.isNull() || _right.isNull();
+        fun isSet                   = _left.isSet() && _right.isSet();
 
         fun >>(os: @OutStream)
         {
-            os << "BinaryOp(left=" << left << ", right=" << right << ", " << TypeOp.description(operType) << ")" << flush;
+            os << "BinaryOp(left=" << _left << ", right=" << _right << ", " << TypeOp.description(operType) << ")" << flush;
         }
 
-        private var left: leftType;
-        private var right: rightType;
-        private var oper: operType;
+        var _left: leftType;
+        var _right: rightType;
+        var _oper: operType;
     }
 
     fun mkBinaryOp(l, r: @ValWrapper, oper: @AnyType) = BinaryOp(-@typeOf(l), -@typeOf(r), -@typeOf(oper))(l, r, oper);

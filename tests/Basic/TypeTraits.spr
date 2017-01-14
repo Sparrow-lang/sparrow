@@ -42,16 +42,16 @@ fun testRef(x: @AnyType) //if 0!=typeNumRef(typeOf(x))
     writeLn("ref");
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
-    var a = 'a';
+    var a = 'a'.getChar(0);
     var b = 10;
     var c = 3.14;
     var ra: @Char = a;
     var rb: Int@ = b;
     var rc: Double@ = c;
 
-    writeLn(sizeOf('a'));
+    writeLn(sizeOf('a'.getChar(0)));
     writeLn(sizeOf(10));
     writeLn(sizeOf(3.14));
 
@@ -65,21 +65,21 @@ fun[native("test")] test(n: Int)
 
     writeLn("---");
 
-    if ( 0!=typeNumRef(typeOf('a'))   ) writeLn("ref"); else writeLn("non-ref");
-    if ( 0!=typeNumRef(typeOf(10))    ) writeLn("ref"); else writeLn("non-ref");
-    if ( 0!=typeNumRef(typeOf(3.14))  ) writeLn("ref"); else writeLn("non-ref");
+    if 0!=typeNumRef(typeOf('a'.getChar(0)))    ; writeLn("ref") else writeLn("non-ref")
+    if 0!=typeNumRef(typeOf(10))                ; writeLn("ref") else writeLn("non-ref")
+    if 0!=typeNumRef(typeOf(3.14))              ; writeLn("ref") else writeLn("non-ref")
 
-    if ( 0!=typeNumRef(typeOf(a)) ) writeLn("ref"); else writeLn("non-ref");
-    if ( 0!=typeNumRef(typeOf(b)) ) writeLn("ref"); else writeLn("non-ref");
-    if ( 0!=typeNumRef(typeOf(c)) ) writeLn("ref"); else writeLn("non-ref");
+    if 0!=typeNumRef(typeOf(a))         ; writeLn("ref") else writeLn("non-ref")
+    if 0!=typeNumRef(typeOf(b))         ; writeLn("ref") else writeLn("non-ref")
+    if 0!=typeNumRef(typeOf(c))         ; writeLn("ref") else writeLn("non-ref")
 
-    if ( 0!=typeNumRef(typeOf(ra)) ) writeLn("ref"); else writeLn("non-ref");
-    if ( 0!=typeNumRef(typeOf(rb)) ) writeLn("ref"); else writeLn("non-ref");
-    if ( 0!=typeNumRef(typeOf(rc)) ) writeLn("ref"); else writeLn("non-ref");
+    if 0!=typeNumRef(typeOf(ra))        ; writeLn("ref") else writeLn("non-ref")
+    if 0!=typeNumRef(typeOf(rb))        ; writeLn("ref") else writeLn("non-ref")
+    if 0!=typeNumRef(typeOf(rc))        ; writeLn("ref") else writeLn("non-ref")
 
     writeLn("---");
 
-    testRef('a');
+    testRef('a'.getChar(0));
     testRef(10);
     testRef(3.14);
 
@@ -93,7 +93,7 @@ fun[native("test")] test(n: Int)
 
     writeLn("---");
 
-    typeTest('a');
+    typeTest('a'.getChar(0));
     typeTest(10);
     typeTest(3.14);
 

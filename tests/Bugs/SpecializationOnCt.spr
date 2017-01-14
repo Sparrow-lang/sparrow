@@ -46,7 +46,7 @@ fun sprMain
     g(6, n);
 
     var str = "mumu";
-    var[ct] strCt = "bubu";
+    [ct] var strCt = "bubu";
     regexMatch(str, "testStr");
     regexMatch(strCt, "testStr");
 }

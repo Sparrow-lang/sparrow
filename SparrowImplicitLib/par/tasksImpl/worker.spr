@@ -26,19 +26,19 @@ class Worker {
     var curDepth: Int;
 
     //! The global counter that keeps track on how many internal threads are idle
-    private var idleCounter: @IdleCounter;
+    var _idleCounter: @IdleCounter;
     //! Non-zero if this thread has work to do
-    private var isBusy: Int Atomic;
+    var _isBusy: Int Atomic;
     //! Semaphore used when sleeping
-    private var waitSem: Semaphore;
+    var _waitSem: Semaphore;
 
     fun ctor(taskSystem: @TaskSystem, workerId: Int, idleCounter: @IdleCounter) {
         this.taskSystem := taskSystem;
         this.workerId = workerId;
         this.curDepth = 0;
-        this.idleCounter := idleCounter;
-        this.isBusy store 0;
-        this.waitSem ctor 0;
+        this._idleCounter := idleCounter;
+        this._isBusy store 0;
+        this._waitSem ctor 0;
     }
 
     fun dtor {
@@ -48,50 +48,50 @@ class Worker {
 
 using WorkerPtr = Worker Ptr;
 
-private var tlsWorker: Tls(@Worker);
+var _tlsWorker: Tls(@Worker);
 
 fun localWorker: Worker Ptr {
-    var worker: Worker Ptr = tlsWorker get;
+    var worker: Worker Ptr = _tlsWorker get;
     if ( worker isNull ) {
         worker = (getInitTaskSystem createWorker);
-        tlsWorker = worker.get();
+        _tlsWorker = worker.get();
     }
     return worker;
 }
 
 fun setLocalWorker(worker: Worker Ptr) {
-    tlsWorker = worker.get();
+    _tlsWorker = worker.get();
 }
 
 fun goIdle(w: @Worker) {
-    if ( compareAndSwap(w.isBusy, 0, 1) ) {
+    if ( compareAndSwap(w._isBusy, 0, 1) ) {
         // Change the global counter
-        w.idleCounter goIdle;
+        w._idleCounter goIdle;
 
-        if[ct] ( isValidAndTrue(traceCalls) )
-            Tracer(w) << "going idle; we have " << (w.idleCounter.cnt load) << " idle workers" << endl;
+        [ct] if ( isValidAndTrue(traceCalls) )
+            Tracer(w) << "going idle; we have " << (w._idleCounter.cnt load) << " idle workers" << endl;
 
         // Actually wake up the thread
-        w.waitSem acquire;
+        w._waitSem acquire;
 
-        if[ct] ( isValidAndTrue(traceCalls) )
-            Tracer(w) << "woke up; we have " << (w.idleCounter.cnt load) << " idle workers" << endl;
+        [ct] if ( isValidAndTrue(traceCalls) )
+            Tracer(w) << "woke up; we have " << (w._idleCounter.cnt load) << " idle workers" << endl;
     }
 }
 
 fun tryWakeUp(w: @Worker): Bool {
-    //if[ct] ( isValidAndTrue(traceCalls) )
-    //    Tracer(w) << "trying to wake up; isBusy= " << (w.isBusy load) << endl;
+    //[ct] if ( isValidAndTrue(traceCalls) )
+    //    Tracer(w) << "trying to wake up; _isBusy= " << (w._isBusy load) << endl;
     // If the thread was now busy, and we can set it to busy,
     // release the semaphore to wake up the thread
-    if ( compareAndSwap(w.isBusy, 1, 0) ) {
-        if[ct] ( isValidAndTrue(traceCalls) )
-            Tracer(w) << "waking up; we have " << (w.idleCounter.cnt load) << " idle workers" << endl;
+    if ( compareAndSwap(w._isBusy, 1, 0) ) {
+        [ct] if ( isValidAndTrue(traceCalls) )
+            Tracer(w) << "waking up; we have " << (w._idleCounter.cnt load) << " idle workers" << endl;
 
-        w.waitSem release;
+        w._waitSem release;
 
         // Make sure the counter will not count us anymore
-        w.idleCounter wakeUp;
+        w._idleCounter wakeUp;
         return true;
     }
     return false;

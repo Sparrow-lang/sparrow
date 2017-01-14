@@ -1,7 +1,7 @@
-module sparrowc.spr.grammar.node;
+module sparrowc.spr.grammar.node
 
 /// A node in the compiler, expressing the root of an AST
-datatype Node = UntypedPtr;
+datatype Node = UntypedPtr
 
-fun isSet(n: Node): Bool = n._data._data !== null;
-fun isNull(n: Node): Bool = n._data._data === null;
+fun isSet(n: Node): Bool = n.data.data !== null
+fun isNull(n: Node): Bool = n.data.data === null

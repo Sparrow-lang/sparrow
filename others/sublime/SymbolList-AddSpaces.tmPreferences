@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0">
+<dict>
+    <key>scope</key>
+    <string>source.sparrow meta.class,source.sparrow meta.concept,source.sparrow meta.function,source.sparrow meta.namespace</string>
+    <key>settings</key>
+    <dict>
+        <key>showInSymbolList</key>
+        <integer>1</integer>
+        <key>symbolTransformation</key>
+        <string>
+            s/(\s*)(?:\[.*\])?\s*class\s*(.+)/$1$2/f;
+            s/(\s*)(?:\[.*\])?\s*datatype\s*(.+)/$1$2/f;
+            s/(\s*)(?:\[.*\])?\s*concept\s*(.+)/$1$2/f;
+            s/(\s*)(?:\[.*\])?\s*fun\s*(.+)/$1$2 \(...\)/f;
+            s/(\s*)(?:\[.*\])?\s*package\s*(.+)/$1$2/f;
+        </string>
+    </dict>
+</dict>
+</plist>

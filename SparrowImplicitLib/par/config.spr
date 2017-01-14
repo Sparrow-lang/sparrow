@@ -6,7 +6,7 @@ package Impl
 {
     using _SC_NPROCESSORS_ONLN = 58;
 
-    fun[native("sysconf")] sysconf(name: Int): Long;
+    [native("sysconf")] fun sysconf(name: Int): Long;
 }
 
 datatype NativeThreadHandle = Byte Ptr;  // Opaque type

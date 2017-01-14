@@ -16,7 +16,7 @@ fun fassert(b: Bool)
     }
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     "mumu";
     writeLn("Hello, world!");

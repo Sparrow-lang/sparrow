@@ -12,15 +12,15 @@ fun sprMain
         return;
     var n = programArgs(1) asInt;
 
-    if      ( n == 1 ) test1();
-    else if ( n == 2 ) test2();
-    else if ( n == 3 ) test3();
-    else if ( n == 4 ) test4();
-    else if ( n == 5 ) test5();
-    else if ( n == 6 ) test6();
-    else if ( n == 7 ) test7();
-    else if ( n == 8 ) test8();
-    else if ( n == 9 ) test9();
+    if      n == 1; test1
+    else if n == 2; test2
+    else if n == 3; test3
+    else if n == 4; test4
+    else if n == 5; test5
+    else if n == 6; test6
+    else if n == 7; test7
+    else if n == 8; test8
+    else if n == 9; test9
 }
 
 class MyObj
@@ -38,7 +38,7 @@ class Greater
 
 fun printRange(nr: ContiguousMemoryRange(Int))
 {
-    while ( !nr.isEmpty() )
+    while !nr.isEmpty()
     {
         cout << nr.front();
         nr.popFront();
@@ -51,7 +51,7 @@ fun printRange(nr: ContiguousMemoryRange(Int))
 
 fun printRange(nr: List(Int).RangeType)
 {
-    while ( !nr.isEmpty() )
+    while !nr.isEmpty()
     {
         cout << nr.front();
         nr.popFront();
@@ -68,7 +68,7 @@ fun createRangeAscending(size: SizeType): ContiguousMemoryRange(Int)
     var ptrEnd = ptr.advance(DiffType(size));
     var i = 0;
 
-    while ( i < size ; i = i + 1; )
+    while i < size ; i = i + 1;
         ptr.advance(i).value() = i;
 
     return ContiguousMemoryRange(Int)(ptr, ptrEnd);
@@ -185,14 +185,14 @@ fun test9()
     var nr = createRangeAscending(5);
     var pair = x ~ nr;
 
-    cout << pair._1 << endl;
-    printRange(pair._2);
+    cout << pair.v1 << endl;
+    printRange(pair.v2);
 
     var pair2 = 20 ~ (50 ~ "bla");
 
-    cout << pair2._1 << endl;
-    cout << pair2._2._1 << endl;
-    cout << pair2._2._2 << endl;
+    cout << pair2.v1 << endl;
+    cout << pair2.v2.v1 << endl;
+    cout << pair2.v2.v2 << endl;
 }
 /*<<<Pair making(9)
 10

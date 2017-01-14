@@ -4,9 +4,9 @@ import contiguousMemoryRange(ContiguousMemoryRange);
 import rawPtr(RawPtr);
 import ranges(RandomAccessRange, ..);
 
-fun[rtct] mkVector(range: Range) = Vector(-@ range.RetType)(range);
+[rtct] fun mkVector(range: Range) = Vector(-@ range.RetType)(range);
 
-class[rtct] Vector(valueType: Type)
+[rtct] class Vector(valueType: Type)
 {
     using ValueType = valueType;
     using ValuePassType = !@valueType;
@@ -17,14 +17,14 @@ class[rtct] Vector(valueType: Type)
     {
         var size = other.size();
 
-        begin = RawPtr(ValueType).alloc(size);
-        end = begin.advance(size);
-        endOfStore = end;
+        _begin = RawPtr(ValueType).alloc(size);
+        _end = _begin.advance(size);
+        _endOfStore = _end;
 
-        var dst = begin;
-        var src = other.begin;
+        var dst = _begin;
+        var src = other._begin;
 
-        while ( dst != end )
+        while dst != _end
         {
             dst.value().ctor(src.value());
             dst = dst.advance();
@@ -35,69 +35,69 @@ class[rtct] Vector(valueType: Type)
     fun ctor(size: SizeType)
     {
         // Allocate the buffer
-        begin = RawPtr(ValueType).alloc(size);
-        end = begin.advance(size);
-        endOfStore = end;
+        _begin = RawPtr(ValueType).alloc(size);
+        _end = _begin.advance(size);
+        _endOfStore = _end;
 
         // Construct the elements
-        var p = begin;
-        while ( p != end ; p = p.advance() )
+        var p = _begin;
+        while p != _end ; p = p.advance()
             p.value().ctor();
     }
 
     fun ctor(range: Range) if !RandomAccessRange(range)
     {
-        begin.ctor();
-        end.ctor();
-        endOfStore.ctor();
-        for ( v = range )
+        _begin.ctor();
+        _end.ctor();
+        _endOfStore.ctor();
+        for v = range
             pushBack(v);
     }
 
     fun ctor(range: RandomAccessRange)
     {
-        begin.ctor();
-        end.ctor();
-        endOfStore.ctor();
+        _begin.ctor();
+        _end.ctor();
+        _endOfStore.ctor();
         reserve(range.size());
-        for ( v = range )
+        for v = range
             pushBack(v);
     }
 
-    fun[rt] ctorFromCt(src: Vector ct)
+    [rt] fun ctorFromCt(src: Vector ct)
     {
         this.ctor();
         this.reserve(ctEval(src.size()));
-        for[ct] (el: ValueType = src.all())
+        [ct] for el: ValueType = src.all()
             this.pushBack(el);
     }
 
     fun swap(other: @Vector)
     {
-        var tmp = begin;
+        var tmp = _begin;
 
-        begin = other.begin;
-        other.begin = tmp;
-        tmp = end;
-        end = other.end;
-        other.end = tmp;
-        tmp = endOfStore;
-        endOfStore = other.endOfStore;
-        other.endOfStore = tmp;
+        _begin = other._begin;
+        other._begin = tmp;
+        tmp = _end;
+        _end = other._end;
+        other._end = tmp;
+        tmp = _endOfStore;
+        _endOfStore = other._endOfStore;
+        other._endOfStore = tmp;
     }
 
     fun dtor
     {
-        var p = begin;
+        var p = _begin;
 
-        while ( p != end ; p = p.advance() )
+        while p != _end ; p = p.advance()
             p.value().dtor();
-        begin.freePtr();
+        _begin.freePtr();
     }
 
-    fun size: SizeType = end.diff(begin);
-    fun isEmpty = begin == end;
-    fun capacity: SizeType = endOfStore.diff(begin);
+    fun size: SizeType = _end.diff(_begin);
+    fun isEmpty = _begin == _end;
+    fun capacity: SizeType = _endOfStore.diff(_begin);
 
     fun reserve(n: SizeType)
     {
@@ -107,81 +107,81 @@ class[rtct] Vector(valueType: Type)
             return;
 
 
-        if ( n < initialCapacity )
-            n = initialCapacity;
-        if ( n < growthFactor*curCapacity )
-            n = SizeType(growthFactor*curCapacity);
+        if ( n < _initialCapacity )
+            n = _initialCapacity;
+        if ( n < _growthFactor*curCapacity )
+            n = SizeType(_growthFactor*curCapacity);
 
         var curSize = size();
 
-        begin.reallocPtr(n);
-        end = begin.advance(curSize);
-        endOfStore = begin.advance(n);
+        _begin.reallocPtr(n);
+        _end = _begin.advance(curSize);
+        _endOfStore = _begin.advance(n);
     }
 
-    fun at(index: SizeType)    = begin.advance(index).value();
-    fun ()(index: SizeType)    = begin.advance(index).value();
-    fun front                   = begin.value();
-    fun back                    = end.advance(-1).value();
-    fun all                     = RangeType(begin, end);
-    fun subrange(index: SizeType, num: SizeType): RangeType = RangeType(begin.advance(index), begin.advance(index + num));
+    fun at(index: SizeType)    = _begin.advance(index).value();
+    fun ()(index: SizeType)    = _begin.advance(index).value();
+    fun front                   = _begin.value();
+    fun back                    = _end.advance(-1).value();
+    fun all                     = RangeType(_begin, _end);
+    fun subrange(index: SizeType, num: SizeType): RangeType = RangeType(_begin.advance(index), _begin.advance(index + num));
 
     fun insertBefore(value: ValuePassType, pos: RangeType)
     {
-        var posCount = pos.frontPtr().diff(begin);
+        var posCount = pos.frontPtr().diff(_begin);
 
         reserve(size() + 1);
 
-        var p = end.advance(-1);
-        var q = begin.advance(posCount - 1);
+        var p = _end.advance(-1);
+        var q = _begin.advance(posCount - 1);
 
-        while ( p != q ; p = p.advance(-1) )
+        while p != q ; p = p.advance(-1)
         {
             p.advance().value().ctor(p.value());
             p.value().dtor();
         }
         p.advance().value().ctor(value);
-        end = end.advance();
+        _end = _end.advance();
     }
 
     fun insertBefore(range: Range, pos: RangeType)
     {
         var n = range.size();
-        var index = pos.frontPtr().diff(begin);
+        var index = pos.frontPtr().diff(_begin);
 
         reserve(size() + n);
 
-        var p = end.advance(-1);
-        var q = begin.advance(index - 1);
+        var p = _end.advance(-1);
+        var q = _begin.advance(index - 1);
 
-        while ( p != q ; p = p.advance(-1) )
+        while p != q ; p = p.advance(-1)
         {
             p.advance(n).value().ctor(p.value());
             p.value().dtor();
         }
         p = p.advance();
-        while ( !range.isEmpty() )
+        while !range.isEmpty()
         {
             p.value().ctor(range.front());
             p = p.advance();
             range.popFront();
         }
-        end = end.advance(n);
+        _end = _end.advance(n);
     }
 
     fun insertAfter(value: ValuePassType, pos: RangeType)
     {
-        insertBefore(value, RangeType(pos.backPtr(), end));
+        insertBefore(value, RangeType(pos.backPtr(), _end));
     }
 
     fun insertAfter(range: Range, pos: RangeType)
     {
-        insertBefore(range, RangeType(pos.backPtr(), end));
+        insertBefore(range, RangeType(pos.backPtr(), _end));
     }
 
     fun pushBack(value: ValuePassType)
     {
-        if ( end == endOfStore )
+        if ( _end == _endOfStore )
         {
             var t = 2 * capacity();
 
@@ -189,15 +189,15 @@ class[rtct] Vector(valueType: Type)
                 t = 2;
             reserve(t);
         }
-        end.value().ctor(value);
-        end = end.advance();
+        _end.value().ctor(value);
+        _end = _end.advance();
     }
     fun +=(value: ValuePassType) { pushBack(value); }
 
     fun popBack()
     {
-        end = end.advance(-1);
-        end.value().dtor();
+        _end = _end.advance(-1);
+        _end.value().dtor();
     }
 
     fun remove(range: RangeType)
@@ -206,18 +206,18 @@ class[rtct] Vector(valueType: Type)
         var rEnd = range.backPtr();
 
         // Destruct all elements in the range
-        for ( el = range )
+        for el = range
             el.dtor();
 
         // Move back elements in front
-        while ( rEnd != end )
+        while rEnd != _end
         {
             rBegin.value().ctor(rEnd.value());
             rEnd.value().dtor();
             rBegin = rBegin.advance();
             rEnd = rEnd.advance();
         }
-        end = rBegin;
+        _end = rBegin;
     }
 
     fun remove(index: SizeType)
@@ -238,31 +238,31 @@ class[rtct] Vector(valueType: Type)
 
         if ( n < oldSize )
         {
-            var newEnd = begin.advance(n);
+            var newEnd = _begin.advance(n);
 
-            while ( end != newEnd )
+            while _end != newEnd
             {
-                end = end.advance(-1);
-                end.value().dtor();
+                _end = _end.advance(-1);
+                _end.value().dtor();
             }
         }
         else
         {
             reserve(n);
 
-            var newEnd = begin.advance(n);
+            var newEnd = _begin.advance(n);
 
-            while ( end != newEnd )
+            while _end != newEnd
             {
-                end.value().ctor();
-                end = end.advance();
+                _end.value().ctor();
+                _end = _end.advance();
             }
         }
     }
 
     fun clear()
     {
-        remove(RangeType(begin, end));
+        remove(RangeType(_begin, _end));
     }
 
     fun =(other: @Vector): @Vector
@@ -282,7 +282,7 @@ class[rtct] Vector(valueType: Type)
         var i = 0;
         var s = size();
 
-        while ( i < s ; i = i + 1 )
+        while i < s ; i++
         {
             if ( !(at(i) == other.at(i)) )
                 return false;
@@ -295,32 +295,31 @@ class[rtct] Vector(valueType: Type)
     fun assign(range: Range)
     {
         clear();
-        for ( v = range )
+        for v = range
             pushBack(v);
     }
 
     fun >>(os: @OutStream) if isValid(os << #$ValueType)
     {
         os << "Vec(";
-        for ( i = 0..size ) {
+        for i = 0..size
             if ( i > 0 )
                 os << ", ";
             os << at(i);
-        }
         os << ')';
     }
 
-    private fun dumpThis(prefix: StringRef)
+    fun _dumpThis(prefix: StringRef)
     {
         cout << prefix << "dumping " << TypeOp.description(Vector) << ": " << mkStreamRefWrapper(this) << endl;
         cout << "    size: " << Int(size()) << endl;
-        cout << "    begin: " << mkStreamRefWrapper(begin.bytePtr()) << endl;
-        cout << "    end: " << mkStreamRefWrapper(end.bytePtr()) << endl;
-        cout << "    endOfStore: " << mkStreamRefWrapper(endOfStore.bytePtr()) << endl;
+        cout << "    _begin: " << mkStreamRefWrapper(_begin.bytePtr()) << endl;
+        cout << "    _end: " << mkStreamRefWrapper(_end.bytePtr()) << endl;
+        cout << "    _endOfStore: " << mkStreamRefWrapper(_endOfStore.bytePtr()) << endl;
     }
 
-    private var[ct,static] initialCapacity = 8;
-    private var[ct,static] growthFactor = 2.0;
+    using _initialCapacity = 8;
+    using _growthFactor = 2.0;
 
-    private var begin, end, endOfStore: RawPtr(ValueType);
+    var _begin, _end, _endOfStore: RawPtr(ValueType);
 }

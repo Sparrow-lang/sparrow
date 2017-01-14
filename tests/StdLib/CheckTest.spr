@@ -24,8 +24,8 @@ fun sprMain {
         return;
     var n = programArgs(1) asInt;
 
-    if      ( n == 1 ) testOk();
-    else if ( n == 2 ) testFailure();
+    if      n == 1; testOk
+    else if n == 2; testFailure
 }
 
 fun testOk {

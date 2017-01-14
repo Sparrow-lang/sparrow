@@ -9,10 +9,10 @@ fun write(r: Range, length: Int) if isValid(Char(r.front))
 {
     using lineLength = 60;
     var line: String = lineLength;
-    for ( n = length..0 ../ (-lineLength) )
+    for n = length..0 ../ (-lineLength)
     {
         var len = min(n, lineLength);
-        for ( i = 0..len )
+        for i = 0..len
             line(i) = (r++);
         if ( len < lineLength )
             line.resize(len);
@@ -29,10 +29,10 @@ fun nextRandom: Double
 }
 var randomRange = generate(\nextRandom);
 
-class[initCtor] RandomCharRange(distribValsRangeType: Type)
+[initCtor] class RandomCharRange(distribValsRangeType: Type)
 {
-    private var distribStr: StringRef;
-    private var distribVals: distribValsRangeType;
+    var distribStr: StringRef;
+    var distribVals: distribValsRangeType;
 
     using RetType = Char;
     fun isEmpty = false;
@@ -42,7 +42,7 @@ class[initCtor] RandomCharRange(distribValsRangeType: Type)
         var randVal: Float = (randomRange++);
         var i = 0;
         var r = distribVals;
-        while ( !r.isEmpty; r.popFront() )
+        while !r.isEmpty; r.popFront()
         {
             if ( randVal < *r )
                 break;
@@ -57,14 +57,14 @@ fun sprMain
 {
     var n = (programArgs(1) asInt);
 
-    var alu: String =
+    var alu: String = (
         "GGCCGGGCGCGGTGGCTCACGCCTGTAATCCCAGCACTTTGG" +
         "GAGGCCGAGGCGGGCGGATCACCTGAGGTCAGGAGTTCGAGA" +
         "CCAGCCTGGCCAACATGGTGAAACCCCGTCTCTACTAAAAAT" +
         "ACAAAAATTAGCCGGGCGTGGTGGCGCGCGCCTGTAATCCCA" +
         "GCTACTCGGGAGGCTGAGGCAGGAGAATCGCTTGAACCCGGG" +
         "AGGCGGAGGTTGCAGTGAGCCGAGATCGCGCCACTGCACTCC" +
-        "AGCCTGGGCGACAGAGCGAGACTCCGTCTCAAAAA";
+        "AGCCTGGGCGACAGAGCGAGACTCCGTCTCAAAAA");
 
     var iubStr = "acgtBDHKMNRSVWY";
     var iubDist = mkValues(0.27f, 0.12f, 0.12f, 0.27f).all ++ repeat(0.02f, 11);

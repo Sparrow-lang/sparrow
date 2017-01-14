@@ -9,24 +9,24 @@ fun sprMain
         return;
     var n = programArgs(1) asInt;
 
-    if      ( n == 1 ) test1();
-    else if ( n == 2 ) test2();
+    if      n == 1; test1
+    else if n == 2; test2
 }
 
-class[rtct] MyObj
+[rtct] class MyObj
 {
     var x: Int;
 
     fun ctor(xx: Int) { x = xx; }
 }
 
-fun[ct] createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
+[ct] fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
 {
     var ptr = RawPtr(MyObj).alloc(size);
     var ptrEnd = ptr.advance(DiffType(size));
     var i = 0;
 
-    while ( i < size ; i = i + 1; )
+    while i < size ; i = i + 1;
     {
         var o: @AnyType = ptr.advance(i).value();
 
@@ -36,7 +36,7 @@ fun[ct] createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
     return ContiguousMemoryRange(MyObj)(ptr, ptrEnd);
 }
 
-fun[ct] createVector(size: SizeType): Vector(MyObj)
+[ct] fun createVector(size: SizeType): Vector(MyObj)
 {
     var v = Vector(MyObj)(createRangeAscending(size));
     return v;
@@ -44,9 +44,9 @@ fun[ct] createVector(size: SizeType): Vector(MyObj)
 
 fun test1()
 {
-    var[ct] v = createVector(10);
+    [ct] var v = createVector(10);
     cout << v.size() << endl;
-    for[ct] ( el = v.all() )
+    [ct] for el = v.all()
     {
         cout << ctEval(el.x) << endl;
     }
@@ -67,10 +67,10 @@ fun test1()
 
 fun test2()
 {
-    var[ct] v = createVector(10);
+    [ct] var v = createVector(10);
     var v2: Vector(MyObj) = v;
     cout << v2.size() << endl;
-    for ( el = v2.all() )
+    for el = v2.all()
     {
         cout << el.x << endl;
     }

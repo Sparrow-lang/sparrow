@@ -5,46 +5,46 @@ import std.ranges;
 fun sprMain
 {
     var r = 0..10;
-    for ( val = r )
+    for val = r
     {
-        cout << val << ' ';
+        cout << ' ' << val;
     }
     cout << endl;
-    for ( val = r )
+    for val = r
     {
-        cout << val << ' ';
+        cout << ' ' << val;
     }
     cout << endl;
-    for ( val = r )
+    for val = r
     {
-        cout << val << ' ';
+        cout << ' ' << val;
     }
     cout << endl;
 
     var r2 = 125..130;
-    for ( val = r2 )
+    for val = r2
     {
-        cout << val << ' ';
+        cout << ' ' << val;
     }
     cout << endl;
-    for ( val: Int = r2 )
+    for val: Int = r2
     {
-        cout << val << ' ';
+        cout << ' ' << val;
     }
     cout << endl;
-    for ( val: Byte = r2 )
+    for val: Byte = r2
     {
-        cout << Int(val) << ' ';
+        cout << ' ' << Int(val);
     }
     cout << endl;
 }
 
 
 /*<<<Running()
-0 1 2 3 4 5 6 7 8 9 
-0 1 2 3 4 5 6 7 8 9 
-0 1 2 3 4 5 6 7 8 9 
-125 126 127 128 129 
-125 126 127 128 129 
-125 126 127 -128 -127 
+ 0 1 2 3 4 5 6 7 8 9
+ 0 1 2 3 4 5 6 7 8 9
+ 0 1 2 3 4 5 6 7 8 9
+ 125 126 127 128 129
+ 125 126 127 128 129
+ 125 126 127 -128 -127
 >>>*/

@@ -29,9 +29,9 @@ fun Book3(author, name, isbn: StringRef): Book3 {
 
 fun Book4(author, name, isbn: StringRef): Book4 {
     var res: Book4 = Uninitialized();
-    res._data.author construct author;
-    res._data.name construct name;
-    res._data.isbn construct isbn;
+    res.data.author construct author;
+    res.data.name construct name;
+    res.data.isbn construct isbn;
     return res;
 }
 
@@ -49,7 +49,7 @@ fun CollectionBook(author, name, isbn, collection: StringRef): CollectionBook {
     return res;
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     var b = Book("LucTeo", "The wonders of Sparrow", "ISBN");
     writeLn(b.author);
@@ -72,10 +72,10 @@ fun[native("test")] test(n: Int)
     var b3 = Book3("LucTeo", "Nice datastructs in Sparrow", "ISBN");
     var b4 = Book4("LucTeo", "Nicer datastructs in Sparrow", "ISBN");
     writeLn(b3.name);
-    writeLn(b4._data.name);
+    writeLn(b4.data.name);
 
     var b4_1 = Book4(b);
-    writeLn(b4_1._data.name);
+    writeLn(b4_1.data.name);
 
     var o: Opaque = reinterpretCast(@Byte, b);
 }

@@ -13,12 +13,12 @@ fun sprMain
         return;
     var n = programArgs(1) asInt;
 
-    if      ( n == 1 ) test1();
-    else if ( n == 2 ) test2();
-    else if ( n == 3 ) test3();
-    else if ( n == 4 ) test4();
-    else if ( n == 5 ) test5();
-    else if ( n == 6 ) test6();
+    if      n == 1; test1
+    else if n == 2; test2
+    else if n == 3; test3
+    else if n == 4; test4
+    else if n == 5; test5
+    else if n == 6; test6
 }
 
 class MyObj
@@ -49,7 +49,7 @@ class Even
 
 fun printRange(nr: AnyType)
 {
-    while ( !nr.isEmpty() )
+    while !nr.isEmpty()
     {
         cout << nr.front();
         nr.popFront();
@@ -109,7 +109,7 @@ fun makeList(li: @List(Int))
 
 // fun printRange(nr: List(Int).RangeType)
 // {
-    // while ( !nr.isEmpty() )
+    // while !nr.isEmpty()
     // {
         // cout << nr.front();
         // nr.popFront();
@@ -126,7 +126,7 @@ fun createRangeAscending(size: SizeType): ContiguousMemoryRange(Int)
     var ptrEnd = ptr.advance(DiffType(size));
     var i = 0;
 
-    while ( i < size ; i = i + 1; )
+    while i < size ; i = i + 1;
         ptr.advance(i).value() = i;
 
     return ContiguousMemoryRange(Int)(ptr, ptrEnd);

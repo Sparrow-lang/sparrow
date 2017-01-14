@@ -30,12 +30,12 @@ fun doProtectedJob(mutex: @Lockable, useTryLock: Bool = false) {
     }
 }
 
-class[initCtor] Worker {
-    private var amountOfWork: Int;
-    private var useTryLock: Bool;
+[initCtor] class Worker {
+    var amountOfWork: Int;
+    var useTryLock: Bool;
 
     fun ()() {
-        for ( i = 0..amountOfWork ) {
+        for i = 0..amountOfWork {
             doProtectedJob(normalMutex, useTryLock);
         }
         if ( !useTryLock )
@@ -44,25 +44,25 @@ class[initCtor] Worker {
 }
 
 class WorkManager {
-    private var amountOfWork, numWorkers, numTryWorkers: Int;
-    private var threads: (Thread Ptr) Vector;
+    var amountOfWork, numWorkers, numTryWorkers: Int;
+    var threads: (Thread Ptr) Vector;
 
     fun ctor(amountOfWork, numWorkers, numTryWorkers: Int) {
         this.amountOfWork ctor amountOfWork;
         this.numWorkers ctor numWorkers;
         this.numTryWorkers ctor numTryWorkers;
-        for ( i=0..numWorkers ) {
+        for i=0..numWorkers {
             var p: Thread Ptr = new(Thread, Worker(amountOfWork, false));
             threads.pushBack(p);
         }
-        for ( i=0..numTryWorkers ) {
+        for i=0..numTryWorkers {
             var p: Thread Ptr = new(Thread, Worker(amountOfWork, true));
             threads.pushBack(p);
         }
     }
 
     fun dtor {
-        for ( t = threads.all ) {
+        for t = threads.all {
             t.get join;
             t.release;
         }

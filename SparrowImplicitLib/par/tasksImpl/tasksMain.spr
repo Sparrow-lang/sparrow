@@ -5,14 +5,14 @@ import schedulerIf = schedulerIf(localWorker, spawn, spawnAndWaitForAll);
 import taskPrefix(TaskPrefix);
 
 class ExecuteHelper(T: Type) {
-    fun[static] doExecute(prefix: @TaskPrefix): Null {
+    [static] fun doExecute(prefix: @TaskPrefix): Null {
         var objP: @Byte = ptrAdd(reinterpretCast(@Byte, prefix), prefix.taskOffset);
         var obj: @T = reinterpretCast(@T, objP);
         obj execute;
         return Null();
     }
 
-    fun[static] getExecuteFn: FunctionPtr(Null rt, @TaskPrefix) = \doExecute;
+    [static] fun getExecuteFn: FunctionPtr(Null rt, @TaskPrefix) = \doExecute;
 }
 
 //! Initializes the fields required for a task
@@ -23,7 +23,7 @@ fun initTaskBasic(obj: @TaskType) {
     prefix.executeFn = ExecuteHelper(typeOf(obj)).getExecuteFn();
 
     // Get its description (if it has one)
-    if[ct] ( isValidAndTrue(typeOf(obj description) == String) ) {
+    [ct] if ( isValidAndTrue(typeOf(obj description) == String) ) {
         prefix.desc = (obj description);
     }
 }

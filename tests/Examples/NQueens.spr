@@ -18,9 +18,9 @@ using autoTestMode = true;
 using PlacementType = Array(Int);
 using SolutionsType = Vector(PlacementType);
 
-fun[rtct] testQueens(placements: @PlacementType, k, y: Int): Bool
+[rtct] fun testQueens(placements: @PlacementType, k, y: Int): Bool
 {
-    for ( i = 0..k )
+    for i = 0..k
     {
         if ( y == placements(i) || k-i == math.abs(y-placements(i)) )
             return false;
@@ -28,9 +28,9 @@ fun[rtct] testQueens(placements: @PlacementType, k, y: Int): Bool
     return true;
 }
 
-fun[rtct] backtracking(curSol: @PlacementType, k, n: Int, res: @SolutionsType)
+[rtct] fun backtracking(curSol: @PlacementType, k, n: Int, res: @SolutionsType)
 {
-    for ( y = 0..n )
+    for y = 0..n
     {
         if ( testQueens(curSol, k, y) )
         {
@@ -43,7 +43,7 @@ fun[rtct] backtracking(curSol: @PlacementType, k, n: Int, res: @SolutionsType)
     }
 }
 
-fun[rtct] nQueens(n: Int): SolutionsType
+[rtct] fun nQueens(n: Int): SolutionsType
 {
     var res: SolutionsType;
     var curSol: PlacementType = n;
@@ -51,35 +51,35 @@ fun[rtct] nQueens(n: Int): SolutionsType
     return res;
 }
 
-fun[autoCt] writeSolutions(solutions: @SolutionsType)
+[autoCt] fun writeSolutions(solutions: @SolutionsType)
 {
     cout << "We have " << solutions.size() << " solutions\n";
-    for ( sol = solutions.all() )
+    for sol = solutions.all()
         writeSolution(sol);
 }
 
-fun[rtct] writeSolution(x: @PlacementType)
+[rtct] fun writeSolution(x: @PlacementType)
 {
-    for ( v = x.all() )
+    for v = x.all()
     {
-        for ( i = 0..v )
+        for i = 0..v
             cout << "| ";
         cout << "|Q";
-        for ( i = (v+1)..(x.size()) )
+        for i = (v+1)..(x.size())
             cout << "| ";
         cout << "|\n";
     }
     cout << "\n";
 }
 
-fun[rtct] writeSolutionBasic(x: @PlacementType)
+[rtct] fun writeSolutionBasic(x: @PlacementType)
 {
-    for ( v = x.all() )
+    for v = x.all()
         cout << v;
     cout << "\n";
 }
 
-fun[autoCt] writeAsciiArt(solutions: @SolutionsType)
+[autoCt] fun writeAsciiArt(solutions: @SolutionsType)
 {
     // line 0           N = number of lines per board square
     // lines 1..N       the characters to be displayed for a "white" board square
@@ -87,20 +87,22 @@ fun[autoCt] writeAsciiArt(solutions: @SolutionsType)
     // lines 2N+1..3N   the characters to be displayed for a queen on white square
     // lines 3N+1..4N   the characters to be displayed for a queen on black square
     var lines = readFileLines("queen-art.txt");
-    if ( lines.isEmpty() ) os.exit(-1);
+    if lines.isEmpty()
+        os.exit(-1);
     var n = asInt(lines(0).asStringRef());
-    if ( lines.size() < 1+4*n ) os.exit(-1);
+    if lines.size() < 1+4*n
+        os.exit(-1);
 
     cout << "We have " << solutions.size() << " solutions\n";
 
-    for ( sol = solutions.all() )
+    for sol = solutions.all()
     {
-        for ( line = 0..sol.size() )
+        for line = 0..sol.size()
         {
             var v = sol(line);
-            for ( l = 0..n )
+            for l = 0..n
             {
-                for ( col = 0..sol.size() )
+                for col = 0..sol.size()
                 {
                     var isQueen = col==v;
                     var isWhite = (line+col)%2==0;
@@ -114,7 +116,7 @@ fun[autoCt] writeAsciiArt(solutions: @SolutionsType)
     }
 }
 
-fun[rtct] readFileLines(filename: StringRef): Vector(String)
+[rtct] fun readFileLines(filename: StringRef): Vector(String)
 {
     var lines: Vector(String);
 
@@ -124,7 +126,7 @@ fun[rtct] readFileLines(filename: StringRef): Vector(String)
         cout << "Cannot open file: " << filename << "\n";
         return lines;
     }
-    while ( !f.isEof() )
+    while !f.isEof()
     {
         var s = f.readLine();
         if ( !s.isEmpty() )
@@ -137,21 +139,21 @@ fun[rtct] readFileLines(filename: StringRef): Vector(String)
 }
 
 
-fun[rt] toRt(sols: SolutionsType ct): SolutionsType
+[rt] fun toRt(sols: SolutionsType ct): SolutionsType
 {
     var solsRt = sols;
     return solsRt;
 }
 
-fun[rt] toRt1(sols: SolutionsType ct): SolutionsType
+[rt] fun toRt1(sols: SolutionsType ct): SolutionsType
 {
     var res: SolutionsType;
     res.reserve(ctEval(sols.size()));
-    for[ct] ( sol = sols.all() )
+    [ct] for sol = sols.all()
     {
-        var[ct] size = sol size;
+        [ct] var size = sol size;
         var arr = PlacementType(ctEval(size));
-        for[ct] ( i = 0..size )
+        [ct] for i = 0..size
             arr(i) = sol(i);
 
         res.pushBack(arr);
@@ -159,15 +161,15 @@ fun[rt] toRt1(sols: SolutionsType ct): SolutionsType
     return res;
 }
 
-fun[rt] toRt2(sols: SolutionsType ct): SolutionsType
+[rt] fun toRt2(sols: SolutionsType ct): SolutionsType
 {
     var res: SolutionsType;
     res.reserve(ctEval(sols.size()));
-    for[ct] ( sol = sols.all() )
+    [ct] for sol = sols.all()
     {
-        var[ct] size = sol size;
+        [ct] var size = sol size;
         var arr = PlacementType(ctEval(size));
-        for[ct] ( i = 0..size )
+        [ct] for i = 0..size
             arr(i) = ctEval(sol(ctEval(i)));
 
         res.pushBack(arr);
@@ -175,15 +177,15 @@ fun[rt] toRt2(sols: SolutionsType ct): SolutionsType
     return res;
 }
 
-fun[rt] toRt3(sols: SolutionsType ct): SolutionsType
+[rt] fun toRt3(sols: SolutionsType ct): SolutionsType
 {
     var res: SolutionsType;
     res.reserve(ctEval(sols.size()));
-    for[ct] ( sol = sols.all() )
+    [ct] for sol = sols.all()
     {
-        var[ct] size = sol size;
+        [ct] var size = sol size;
         var arr = PlacementType(ctEval(size));
-        for[ct] ( i = 0..size )
+        [ct] for i = 0..size
         {
             arr(i) = sol(i);
             cout << res.size() << endl;
@@ -195,14 +197,14 @@ fun[rt] toRt3(sols: SolutionsType ct): SolutionsType
     return res;
 }
 
-fun[ct] toStringBuffer(sols: SolutionsType): String
+[ct] fun toStringBuffer(sols: SolutionsType): String
 {
     var numSols = sols.size();
     var n = ife(numSols == 0, 1, sols(0).size());
 
     var res: String = 1 + numSols*n;
     res(0) = Char(n);
-    for ( i = 0..numSols*n )
+    for i = 0..numSols*n
     {
         var solNum = i / n;
         var qNum = i % n;
@@ -212,14 +214,14 @@ fun[ct] toStringBuffer(sols: SolutionsType): String
     return res;
 }
 
-fun[rt] fromStringBuffer(sols: String): SolutionsType
+[rt] fun fromStringBuffer(sols: String): SolutionsType
 {
     var n: Int = sols(0);
     var numSols = (sols.size()-1) / n;
 
     var res: SolutionsType = repeat(PlacementType(n), numSols);
 
-    for ( i = 0..numSols*n )
+    for i = 0..numSols*n
     {
         var solNum = i / n;
         var qNum = i % n;
@@ -229,7 +231,7 @@ fun[rt] fromStringBuffer(sols: String): SolutionsType
     return res;
 }
 
-fun[rt] toRt4(sols: SolutionsType ct): SolutionsType
+[rt] fun toRt4(sols: SolutionsType ct): SolutionsType
 {
     return fromStringBuffer(toStringBuffer(sols));
 }
@@ -237,31 +239,31 @@ fun[rt] toRt4(sols: SolutionsType ct): SolutionsType
 
 fun sprMain
 {
-    if[ct] ( autoTestMode )
+    [ct] if ( autoTestMode )
     {
-        var[ct] solutionsCt = nQueens(numQueens);
+        [ct] var solutionsCt = nQueens(numQueens);
         var solutions = solutionsCt;
         writeSolutions(solutionsCt);
         writeSolutions(solutions);
     }
-    else if[ct] ( isValid(runAtCt) )
+    else [ct] if ( isValid(runAtCt) )
     {
-        var[ct] solutionsCt = nQueens(numQueens);
-        if[ct] ( isValid(printRt) )
+        [ct] var solutionsCt = nQueens(numQueens);
+        [ct] if ( isValid(printRt) )
         {
-            if[ct] ( printRt == 0 )
+            [ct] if ( printRt == 0 )
                 writeAsciiArt(toRt(solutionsCt));
 
-            if[ct] ( printRt == 1 )
+            [ct] if ( printRt == 1 )
                 writeAsciiArt(toRt1(solutionsCt));
 
-            if[ct] ( printRt == 2 )
+            [ct] if ( printRt == 2 )
                 writeAsciiArt(toRt2(solutionsCt));
 
-            if[ct] ( printRt == 3 )
+            [ct] if ( printRt == 3 )
                 writeAsciiArt(toRt3(solutionsCt));
 
-            if[ct] ( printRt == 4 )
+            [ct] if ( printRt == 4 )
                 writeAsciiArt(toRt4(solutionsCt));
         }
         else

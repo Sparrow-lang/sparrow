@@ -43,7 +43,7 @@ fun testConvertsTo(t1, t2: Type)
         writeLn("does not convert to");
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     testIsA(B, A);
     testIsA(C, A);

@@ -92,7 +92,7 @@ class AlmostEmpty
 }
 
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     if ( n == 1 )
         test1();

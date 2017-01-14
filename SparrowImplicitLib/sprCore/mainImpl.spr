@@ -1,6 +1,5 @@
-fun[native("main"), noInline] main(argc: Int, args: @ @Char): Int
-{
-    programArgs.ctor(argc, args);
-    sprMain();
-    return 0;
-}
+[native("main"), noInline]
+fun main(argc: Int, args: @ @Char): Int
+    programArgs.ctor(argc, args)
+    sprMain
+    return 0

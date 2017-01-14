@@ -2,15 +2,12 @@
     <content><![CDATA[/**
  * @brief $2
  */
-class ${1:${TM_FILENAME/(.*?)(\..+)/$1/}} {
-	fun ctor($3) {
-		$4
-	}
-    fun dtor {
-        $5
-    }
+class ${1:${TM_FILENAME/(.*?)(\..+)/$1/}}
+    fun ctor
+        $3
+    fun dtor
+        $4
     $0
-}
 ]]></content>
     <tabTrigger>class</tabTrigger>
     <scope>source.sparrow</scope>

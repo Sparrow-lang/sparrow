@@ -20,7 +20,7 @@ fun assertF(b: Bool)
         writeLn("Failure");
 }
 
-fun[native("test")] test(n: Int)
+[native("test")] fun test(n: Int)
 {
     var v11: MyVector(Int);
     v11.start = 4;

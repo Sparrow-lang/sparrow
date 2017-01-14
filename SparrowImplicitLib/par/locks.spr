@@ -20,15 +20,15 @@ concept TryLockable(x)
 class ScopedLock(T: Type) if Lockable(#$T) {
     using LockType = T;
 
-    private var theLock: @LockType;
+    var _theLock: @LockType;
 
     fun ctor(theLock: @LockType) {
-        this.theLock := theLock;
-        theLock lock;
+        this._theLock := theLock;
+        _theLock lock;
     }
 
     fun dtor {
-        theLock unlock;
+        _theLock unlock;
     }
 }
 
@@ -37,19 +37,19 @@ class ScopedLock(T: Type) if Lockable(#$T) {
 class ScopedTryLock(T: Type) if TryLockable(#$T) {
     using LockType = T;
 
-    private var theLock: @LockType;
-    private var lockSucceeded: Bool;
+    var _theLock: @LockType;
+    var _lockSucceeded: Bool;
 
     fun ctor(theLock: @LockType) {
-        this.theLock := theLock;
-        this.lockSucceeded  = (theLock tryLock);
+        this._theLock := theLock;
+        this._lockSucceeded  = (_theLock tryLock);
     }
 
-    fun isLocked = lockSucceeded;
+    fun isLocked = _lockSucceeded;
 
     fun dtor {
-        if ( lockSucceeded )
-            theLock unlock;
+        if ( _lockSucceeded )
+            _theLock unlock;
     }
 }
 
@@ -105,9 +105,9 @@ package Impl {
         var opaque: StaticArray(Byte, PTHREAD_MUTEX_SIZE);
     }
 
-    fun[native("pthread_mutex_init")] pthread_mutex_init(mutex: @PThreadMutex, attr: @Byte): Int;
-    fun[native("pthread_mutex_lock")] pthread_mutex_lock(mutex: @PThreadMutex): Int;
-    fun[native("pthread_mutex_trylock")] pthread_mutex_trylock(mutex: @PThreadMutex): Int;
-    fun[native("pthread_mutex_unlock")] pthread_mutex_unlock(mutex: @PThreadMutex): Int;
-    fun[native("pthread_mutex_destroy")] pthread_mutex_destroy(mutex: @PThreadMutex): Int;
+    [native("pthread_mutex_init")] fun pthread_mutex_init(mutex: @PThreadMutex, attr: @Byte): Int;
+    [native("pthread_mutex_lock")] fun pthread_mutex_lock(mutex: @PThreadMutex): Int;
+    [native("pthread_mutex_trylock")] fun pthread_mutex_trylock(mutex: @PThreadMutex): Int;
+    [native("pthread_mutex_unlock")] fun pthread_mutex_unlock(mutex: @PThreadMutex): Int;
+    [native("pthread_mutex_destroy")] fun pthread_mutex_destroy(mutex: @PThreadMutex): Int;
 }

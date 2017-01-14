@@ -21,7 +21,7 @@ using tkOpMinus = 14;
 using tkOpMul = 15;
 using tkOpDiv = 16;
 
-class[rtct] Token
+[rtct] class Token
 {
     var loc: Location;
     var type: Int;
@@ -73,7 +73,7 @@ class[rtct] Token
     }
 }
 
-fun[rtct] tokenTypeToString(type: Int): String
+[rtct] fun tokenTypeToString(type: Int): String
 {
     if ( type == tkEof )
         return "EOF";

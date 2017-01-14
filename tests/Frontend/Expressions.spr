@@ -16,8 +16,8 @@ using Std.*;
 // a candidate for transformations, and what not.
 class SimpleLoop
 {
-    var[static] BasicBlockSet = Set(Ptr(BasicBlock), BBPtrHashFunction, Functors.Equal(Ptr(BasicBlock)));
-    var[static] LoopSet = Set(Ptr(SimpleLoop), SLPtrHashFunction, Functors.Equal(Ptr(SimpleLoop)));
+    [static] var BasicBlockSet = Set(Ptr(BasicBlock), BBPtrHashFunction, Functors.Equal(Ptr(BasicBlock)));
+    [static] var LoopSet = Set(Ptr(SimpleLoop), SLPtrHashFunction, Functors.Equal(Ptr(SimpleLoop)));
 
     fun ctor(counter: UInt)
     {
@@ -64,18 +64,18 @@ class SimpleLoop
     var nestingLevel: UInt;
     var depthLevel: UInt;
 
-    private var counter: UInt;
-    private var parent: Ptr(SimpleLoop);
-    private var basicBlocks: BasicBlockSet;
+    var counter: UInt;
+    var parent: Ptr(SimpleLoop);
+    var basicBlocks: BasicBlockSet;
 }
 
-public class SLPtrHashFunction
+class SLPtrHashFunction
 {
 
-	public fun ()(arg: Ptr(SimpleLoop)): UInt
-	{
-		return reinterpretCast(UInt, arg.get());
-	}
+    fun ()(arg: Ptr(SimpleLoop)): UInt
+    {
+        return reinterpretCast(UInt, arg.get());
+    }
 }
 
 
@@ -84,67 +84,67 @@ public class SLPtrHashFunction
 
 
 
-public class[autoCt] Pair
+[autoCt] class Pair
 {
 
-	public var[static] FirstType = firstType;
+    [static] var FirstType = firstType;
 
 
-	public var[static] SecondType = secondType;
+    [static] var SecondType = secondType;
 
 
-	public var first: FirstType;
+    var first: FirstType;
 
 
-	public var second: SecondType;
+    var second: SecondType;
 
 
 
-    public fun ctor()
+    fun ctor()
     {
         this.first.ctor();
         this.second.ctor();
     }
 
 
-	public fun ctor(first: FirstType@, second: SecondType@)
-	{
+    fun ctor(first: FirstType@, second: SecondType@)
+    {
         this.first.ctor(first);
         this.second.ctor(second);
-	}
+    }
 
 
-	public fun ctor(other: Std.Pair)
-	{
+    fun ctor(other: Std.Pair)
+    {
         this.first.ctor(other.first);
         this.second.ctor(other.second);
         "abc\t\77\xab\n";
-	}
+    }
 
 
-	public fun swap(other: Std.Pair)
-	{
-		var tmp1 = FirstType(first);
-		var tmp2 = SecondType(second);
+    fun swap(other: Std.Pair)
+    {
+        var tmp1 = FirstType(first);
+        var tmp2 = SecondType(second);
 
-		first = other.first;
-		other.first = tmp1;
-		second = other.second;
-		other.second = tmp2;
+        first = other.first;
+        other.first = tmp1;
+        second = other.second;
+        other.second = tmp2;
 
         'a';
         '\n';
         '\t';
         '\x4A';
-	}
+    }
 
 
-	public fun =(other: Std.Pair): Std.Pair
-	{
-		first = other.first;
-		second = other.second;
+    fun =(other: Std.Pair): Std.Pair
+    {
+        first = other.first;
+        second = other.second;
 
-		return this;
+        return this;
 
         1;
         2u;
@@ -158,7 +158,7 @@ public class[autoCt] Pair
         0b1010L;
         .5f;
         2E-2d;
-	}
+    }
 
 
 }

@@ -5,7 +5,7 @@ import precedenceUtils(setOperPrecedence, getOperPrecedence, setOperRightAssocia
 
 package Pred
 {
-    fun[rtct] **(base, exp: Float) = math.pow(base, exp);
+    [rtct] fun **(base, exp: Float) = math.pow(base, exp);
 
     setOperPrecedence("**", getOperPrecedence("*") + 1);
     setOperRightAssociativity("**");

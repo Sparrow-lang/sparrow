@@ -1,5 +1,5 @@
 <snippet>
-    <content><![CDATA[return $0;]]></content>
+    <content><![CDATA[return $0]]></content>
     <tabTrigger>ret</tabTrigger>
     <scope>source.sparrow</scope>
     <description>return …</description>

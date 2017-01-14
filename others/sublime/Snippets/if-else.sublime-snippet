@@ -1,11 +1,10 @@
 <snippet>
-    <content><![CDATA[if ( ${1:condition} ) {
-	$2
-}
-else {
-	$0
-}]]></content>
+    <content><![CDATA[if ${1:condition}
+	${2:thenBody}
+else
+    ${3:elseBody}
+]]></content>
     <tabTrigger>ife</tabTrigger>
     <scope>source.sparrow</scope>
-    <description>if ( … ) else</description>
+    <description>if … {} else {}</description>
 </snippet>

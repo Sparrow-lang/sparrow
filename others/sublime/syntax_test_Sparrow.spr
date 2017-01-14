@@ -1,16 +1,17 @@
 // SYNTAX TEST "Sparrow.sublime-syntax"
 
-module Test;
+module Test
 // ^ keyword.structure.module
 
-import std.vector;
+import std.vector
 //^^^^ keyword.structure.import
 
-import std.map, std.set;
+import std.map, std.set
 //^^^^ keyword.structure.import
 
-import[public] std.ranges(map, filter);
-//^^^^ keyword.structure.import
+[public] import std.ranges(map, filter)
+//^^^^^^ storage.modifier
+//       ^^^^^^ keyword.structure.import
 
 /**
 * // ^ comment.block.documentation
@@ -19,47 +20,52 @@ import[public] std.ranges(map, filter);
 */
 
 class Book { var author, name, isbn: StringRef; }
-// ^ storage.type.structure
+//^^^^^^^^ meta.class
+// ^^ storage.type.struct
 //    ^^^^ entity.name
-//          ^ meta.class meta.block
+//          ^ meta.block
 //           ^^^ storage.type.structure
 //                                   ^^^^^^^^^ variable.parameter
 datatype Book3 { author, name, isbn: StringRef }
-// ^ storage.type.structure
+//^^^^^^^^^^^^ meta.class
+// ^^^^^ storage.type.struct
 //       ^^^^^ entity.name
 //                                   ^^^^^^^^^ variable.parameter
-datatype Book4 = Book;
-// ^ storage.type.structure
+datatype Book4 = Book
+//^^^^^^^^^^^^ meta.class
+// ^^^^^ storage.type.struct
 //       ^^^^^ entity.name
 
-class[rtct, initCtor] Tuple(t1, t2: Type) {
-// ^ storage.type.structure
-//   ^^^^^^^^^^^^^^^^ storage.modifier
-//                    ^^^^^ entity.name
-    using arity = 2;
+[rtct, initCtor] class Tuple(t1, t2: Type) {
+//^^^^^^^^^^^^^^^^^^^^^^^^^^ meta.class
+//               ^^^^^ storage.type.struct
+//^^^^^^^^^^^^^^ storage.modifier
+//                     ^^^^^ entity.name
+    using arity = 2
 //  ^^^^^ keyword.control
-// <- meta.class
-// <- meta.class meta.block
-    var _1: t1;
-    var _2: t2;
+    var _1: t1
+    var _2: t2
 
-    fun[convert] ctor(other: TupleType) if other.arity == 2 {
-        this._1 ctor other._1;
-        this._2 ctor other._2;
-    }
+    [convert] fun ctor(other: TupleType) if other.arity == 2
+//  ^^^^^^^^^^^^^^^^^^ meta.function
+//            ^^^ storage.type.fun
+//                ^^^^ entity.name
+        this._1 ctor other._1
+        this._2 ctor other._2
 }
 
 class FwdDefined;
-// ^ storage.type.structure
+// ^^ storage.type.struct
 //    ^^^^^^^^^^ entity.name
 //              ^ source.sparrow
 
 concept HasF1(x) if isValid(x.f1());
-// ^ storage.type.structure
+// ^^^^^^^^^^ meta.concept
+// ^^^ storage.type.concept
 //      ^^^^^ entity.name
 
 concept Range(x)
-// ^ storage.type.structure
+// ^^^^ meta.concept
 //      ^^^^^ entity.name
     if typeOf(x.RetType) == Type
     && typeOf(x.isEmpty()) == Bool
@@ -68,116 +74,117 @@ concept Range(x)
     ;
 
 fun f0_1()          { writeLn("f0_1"); }
-//^ storage.type.structure
+//^^^^^^ meta.function
+//^ storage.type.fun
 //  ^^^^ entity.name
 fun f0_2            { writeLn("f0_2"); }
-//^ storage.type.structure
+//^ storage.type.fun
 //  ^^^^ entity.name
 fun f0_3            = writeLn("f0_3");              // Returns Void
-//^ storage.type.structure
+//^ storage.type.fun
 //  ^^^^ entity.name
 fun f0_4            = printAndReturn("f0_4", 0);    // Returns Int
-//^ storage.type.structure
+//^ storage.type.fun
 //  ^^^^ entity.name
 fun f0_8: Int       = printAndReturn("f0_8", 1);
-//^ storage.type.structure
+//^ storage.type.fun
 //  ^^^^ entity.name
 
 fun f1_1(n: Int)        { writeLn("f1_1"); }
-//^ storage.type.structure
+//^ storage.type.fun
 //  ^^^^ entity.name
 fun f1_2(n: Int)        = writeLn("f1_2");             // Returns Void
-//^ storage.type.structure
+//^ storage.type.fun
 //  ^^^^ entity.name
 fun f1_3(n: Int)        = printAndReturn("f1_3", n);   // Returns Int
-//^ storage.type.structure
+//^ storage.type.fun
 //  ^^^^ entity.name
 fun f1_4 n              { writeLn("f1_4"); }
-//^ storage.type.structure
+//^ storage.type.fun
 //  ^^^^ entity.name
 fun f1_5 n              = writeLn("f1_5");
-//^ storage.type.structure
+//^ storage.type.fun
 //  ^^^^ entity.name
 fun f1_6 n              = printAndReturn("f1_6", n);   // Returns Int
-//^ storage.type.structure
+//^ storage.type.fun
 //  ^^^^ entity.name
 fun f1_9(n: Int): Int   = printAndReturn("f1_9", n);
-//^ storage.type.structure
+//^ storage.type.fun
 //  ^^^^ entity.name
 fun f1_12 n: Int        = printAndReturn("f1_12", n);
-//^ storage.type.structure
+//^ storage.type.fun
 //  ^^^^^ entity.name
 
 fun f3_1(a, b, c: Int)      = printAndReturn("f3_1", a+b+c);
-//^ storage.type.structure
+//^ storage.type.fun
 //  ^^^^ entity.name
 
 var a = 10;
-//^ storage.type.structure
+//^^^ meta.var
+//^ storage.type.var
 //  ^ entity.name.variable
 
 fun f3_2 a, b, c            = printAndReturn("f3_2", a+b+c);
-//^ storage.type.structure
+//^ storage.type.fun
 //  ^^^^ entity.name
 
 fun f3_2 a, b, c            = printAndReturn("f3_2", a+b+c);
-//^ storage.type.structure
+//^ storage.type.fun
 //  ^^^^ entity.name
 fun f3_3(a, b, c: Int): Int = printAndReturn("f3_4", a+b+c);
-//^ storage.type.structure
+//^ storage.type.fun
 //  ^^^^ entity.name
 fun f3_4 a, b, c: Int       = printAndReturn("f3_5", a+b+c);
-//^ storage.type.structure
+//^ storage.type.fun
 //  ^^^^ entity.name
 
-fun[native("test")] test(n: Int): Int
-//^ storage.type.structure
-// ^^^^^^^^^^^^^^^^ storage.modifier
-//                  ^^^^ entity.name
+[native("test")] fun test(n: Int): Int
+//^^^^^^^^^^^^^^^^^^^^^^^ meta.function
+// ^^^^^^^^^^^^^ storage.modifier
+//               ^^^ storage.type.fun
+//                   ^^^^ entity.name
 {
 // <- meta.block
     return n+2;
 }
 
 
-fun[static] ctor()
-//^ storage.type.structure
-// ^^^^^^^^ storage.modifier
-//          ^^^^ entity.name
+[static] fun ctor()
+//^^^^^^^^^^^^^^^ meta.function
+// ^^^^^ storage.modifier
+//           ^^^^ entity.name
 {
 }
 
-fun[static] ctor
-//^ storage.type.structure
-// ^^^^^^^^ storage.modifier
-//          ^^^^ entity.name
+[static] fun ctor
+//^^^^^^^^^^^^^^^ meta.function
+// ^^^^^ storage.modifier
+//           ^^^^ entity.name
 {
 }
 
 fun >> = 10;
-//^ storage.type.structure
+//^ meta.function
 //  ^^ entity.name
 fun >>(a: Int) = 10;
-//^ storage.type.structure
+//^ meta.function
 //  ^^ entity.name
 
 
 package A {
-// ^ meta.package keyword.control.module
+//^^^^^^^ meta.namespace
+// ^ storage.type.package
 //      ^ entity.name
 //        ^^^^ meta.block.sparrow
     package B {
-    // ^ meta.package keyword.control.module
+    // ^ meta.namespace
     //      ^ entity.name
         var c: Int;
-//      ^^^ storage.type.structure
+//      ^^^ meta.var
 //          ^ entity.name.variable
 
-        friend Book;
-//      ^^^^^^ keyword.control
-
         fun inner { }
-//      ^^^ storage.type.structure
+//      ^^^ meta.function
 //          ^^^^^ meta.block entity.name
     }
 }
@@ -210,35 +217,35 @@ fun testStrings {
 }
 
 fun testControl {
-    if ( a ) b; else c;
+    if a ; b else c
 //  ^^ keyword.control.conditional
-//              ^^^^ keyword.control.conditional
+//           ^^^^ keyword.control.conditional
 
-    for ( n = 1..10 ) {
+    for n = 1..10 {
 //  ^^^ keyword.control.repeat
-//          ^ keyword.operator
-//             ^^ keyword.operator
+//        ^ keyword.operator
+//           ^^ keyword.operator
         break;
 //      ^^^^^ keyword.control.branch
         continue;
 //      ^^^^^^^^ keyword.control.branch
     }
 
-    if[ct] ( true ) ;
-//  ^^ keyword.control.conditional
-//    ^^^^ storage.modifier.sparrow
+    [ct] if true {}
+//  ^^^^ storage.modifier.sparrow
+//       ^^ keyword.control.conditional
 
-    for[ct] ( n = 1..10 ) cout << n << endl;
-//  ^^^ keyword.control.repeat
-//     ^^^^ storage.modifier.sparrow
+    [ct] for n = 1..10 cout << n << endl;
+//  ^^^^ storage.modifier.sparrow
+//       ^^^ keyword.control.repeat
 
-    while ( false ) ;
+    while false {}
 //  ^^^^^ keyword.control.repeat
 
-    while ( false; ++i ) ;
+    while false; ++i {}
 //  ^^^^^ keyword.control.repeat
 
-    return;
+    return
 //  ^^^^^^ keyword.control.statement
 }
 
@@ -260,6 +267,8 @@ fun testLitarals {
 //               ^^ constant.numeric
 //                   ^^^ constant.numeric
 //                        ^^^ constant.numeric
+     0xf
+//   ^^^ constant.numeric
      0xfade;
 //   ^^^^^^ constant.numeric
 
@@ -268,17 +277,6 @@ fun testLitarals {
 //          ^^^^^^^^^^^^^^^^ constant.numeric
 //                            ^^^^ constant.numeric
 
-}
-
-class ClassWithMethods {
-    fun ctor {
-        this.a = 10;
-//      ^^^^ variable.language
-    }
-    var a: Int;
-
-    private var b: Int;
-//  ^^^^^^^ storage.modifier.access-control
 }
 
 fun testStdNames {
@@ -356,12 +354,10 @@ fun sprMain()
 
 class CmdLin
 {
-// <- meta.class meta.block
-
-    public fun ctor(argc: Int, argv: @ @Char)
-//  ^^^^^^ storage.modifier.access-control
-//         ^^^ storage.type.structure
-//             ^^^^ entity.name
+    [public] fun ctor(argc: Int, argv: @ @Char)
+//  ^^^^^^^^ storage.modifier
+//           ^^^ meta.function
+//               ^^^^ entity.name
     {
         _argc = argc + 1;
         _argv = argv;
@@ -375,13 +371,13 @@ class CmdLin
     fun argnum: Int
     {
         class Foo {}
-//      ^^^^^ storage.type.structure
+//      ^^^^^ storage.type.struct
 //            ^^^ entity.name
         package Inner {
-//      ^^^^^^^ meta.package keyword.control.module
+//      ^^^^^^^ meta.namespace
 //              ^^^^^ entity.name
             class Bar { }
-//          ^^^^^ storage.type.structure
+//          ^^^^^ storage.type.struct
 //                ^^^ entity.name
         }
         return _argc;
@@ -390,7 +386,6 @@ class CmdLin
     var _argc: Int;
     var _argv: @ @Char;
 }
- // <- - meta.class
 
 // The following are helpers to be able to see the coloring of different tags
 

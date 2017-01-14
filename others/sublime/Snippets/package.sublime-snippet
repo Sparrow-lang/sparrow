@@ -1,0 +1,8 @@
+<snippet>
+    <content><![CDATA[package ${1:name}
+    ${2:body}
+]]></content>
+    <tabTrigger>package</tabTrigger>
+    <scope>source.sparrow</scope>
+    <description>package … {}</description>
+</snippet>

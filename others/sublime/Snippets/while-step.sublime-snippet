@@ -1,8 +1,8 @@
 <snippet>
-    <content><![CDATA[while ( ${1:condition} ; ${2:step} ) {
-    $0
-}]]></content>
+    <content><![CDATA[while ${1:condition} ; ${2:step}
+    ${3:body}
+]]></content>
     <tabTrigger>while-step</tabTrigger>
     <scope>source.sparrow</scope>
-    <description>while ( … ; … ) { … }</description>
+    <description>while … ; … { … }</description>
 </snippet>

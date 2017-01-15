@@ -33,8 +33,8 @@ int _isTestable(TypeRef type)
     // If not Testable, check at least that is some kind of boolean
     if ( !type || !type->hasStorage )
         return false;
-    const StringRef* nativeName = Feather_nativeName(type);
-    return nativeName && (*nativeName == "i1" || *nativeName == "u1");
+    StringRef nativeName = Feather_nativeName(type);
+    return size(nativeName)>0 && (nativeName == "i1" || nativeName == "u1");
 }
 
 int Feather_isTestable(Node* node)
@@ -46,14 +46,14 @@ int Feather_isBasicNumericType(TypeRef type)
 {
     if ( !type || !type->hasStorage )
         return false;
-    const StringRef* nativeName = Feather_nativeName(type);
-    return nativeName && (
-        *nativeName == "i1" || *nativeName == "u1" || 
-        *nativeName == "i8" || *nativeName == "u8" || 
-        *nativeName == "i16" || *nativeName == "u16" || 
-        *nativeName == "i32" || *nativeName == "u32" || 
-        *nativeName == "i64" || *nativeName == "u64" || 
-        *nativeName == "float" || *nativeName == "double"
+    StringRef nativeName = Feather_nativeName(type);
+    return size(nativeName)>0 && (
+        nativeName == "i1" || nativeName == "u1" ||
+        nativeName == "i8" || nativeName == "u8" ||
+        nativeName == "i16" || nativeName == "u16" ||
+        nativeName == "i32" || nativeName == "u32" ||
+        nativeName == "i64" || nativeName == "u64" ||
+        nativeName == "float" || nativeName == "double"
         );
 }
 
@@ -66,6 +66,7 @@ TypeRef Feather_checkChangeTypeMode(TypeRef type, EvalMode mode, Location loc)
     TypeRef resType = Nest_changeTypeMode(type, mode);
     if ( !resType )
         REP_INTERNAL(loc, "Don't know how to change eval mode of type %1%") % type;
+    ASSERT(resType);
 
     if ( mode == modeCt && resType->mode != modeCt )
         REP_ERROR_RET(nullptr, loc, "Type '%1%' cannot be used at compile-time") % type;

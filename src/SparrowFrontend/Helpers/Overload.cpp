@@ -64,6 +64,8 @@ namespace
                     continue;
 
                 Node* decl = resultingDecl(node);
+                if ( !decl )
+                    continue;
 
                 // Is this a normal function call?
                 if ( decl && decl->nodeKind == nkFeatherDeclFunction )

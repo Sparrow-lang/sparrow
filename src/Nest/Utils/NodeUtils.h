@@ -63,6 +63,7 @@ void Nest_setPropertyExplType(Node* node, const char* name, TypeRef val);
 int Nest_hasProperty(const Node* node, const char* name);
 const int* Nest_getPropertyInt(const Node* node, const char* name);
 const StringRef* Nest_getPropertyString(const Node* node, const char* name);
+StringRef Nest_getPropertyStringDeref(const Node* node, const char* name);
 Node*const* Nest_getPropertyNode(const Node* node, const char* name);
 const TypeRef* Nest_getPropertyType(const Node* node, const char* name);
 

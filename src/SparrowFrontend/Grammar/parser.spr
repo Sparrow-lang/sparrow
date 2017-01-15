@@ -467,7 +467,6 @@ package _Impl
             || t == tkOPERATOR
             || t == tkBACKSQUOTE
             || t == tkLPAREN
-            || t == tkTHIS
             || t == tkNULLCT
             || t == tkTRUE
             || t == tkFALSE
@@ -545,8 +544,6 @@ package _Impl
             p expect tkRPAREN
         else if p accept tkIDENTIFIER
             res = mkIdentifier(p._lastToken.loc, p._lastToken.data.asStringRef)
-        else if p accept tkTHIS
-            res = mkThisExpr(p._lastToken.loc)
         else if p accept tkNULLCT
             res = mkNullLiteral(p._lastToken.loc)
         else if p accept tkTRUE

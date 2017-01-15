@@ -234,7 +234,7 @@ class AstTraversal:
     def _addNewNodeToTraverse(self, node, level, linkType):
         if node and node not in self._traversed.keys() and self.filter.canAddNode(level, linkType):
             self._toTraverse.append((node, level))
-        
+
 
 class DotGeneration:
     """ Class that generates the dot file corresponding to the given AST """
@@ -271,7 +271,7 @@ class DotGeneration:
         trav = AstTraversal(f)
         for n in self.backboneNodes:
             trav.traverse(n, (lambda n: _addToDict(self.visible, n)))
-        
+
         # Check if we have directly reachable nodes that are not visible
         for n in self.backboneNodes.keys():
             if n not in self.visible:
@@ -308,7 +308,7 @@ class DotGeneration:
         self._printLinks(ref, dest, styleChild)
 
         # Print links to the referred nodes
-        if self.args.showReferredNodes: 
+        if self.args.showReferredNodes:
             dest = [n for n in node.referredNodes if n in self.visible]
             mainRefs = [n for n in dest if n in self.backboneNodes]
             auxRefs = [n for n in dest if n not in self.backboneNodes]
@@ -316,7 +316,7 @@ class DotGeneration:
             self._printLinks(ref, auxRefs, styleRefAux)
 
         # Print links to the nodes in the properties
-        if self.args.showPropNodes: 
+        if self.args.showPropNodes:
             for kv in node.properties.items():
                 k = kv[0]
                 v = kv[1]
@@ -325,7 +325,7 @@ class DotGeneration:
                     self._printLink(ref, v.ref, k, style)
 
         # Print connections with the explanation
-        if self.args.showExplanation: 
+        if self.args.showExplanation:
             if node.explanation:
                 self._printLink(ref, node.explanation.ref, '', styleExpl)
 
@@ -347,7 +347,7 @@ class DotGeneration:
                 print >>self.out, 'n_%s' % d.ref,
             print >>self.out, '}', style
 
-    
+
 def main():
     print 'gen-tree, copyright (c) 2016 Lucian Radu Teodorescu'
     print ''
@@ -363,6 +363,10 @@ def main():
     # Read the nodes from the Json
     astData = AstData()
     rootNode = readNodePtr(astData, jsonData)
+
+    # If a start node was specified, use it as root
+    if args.startNode and args.startNode in astData.nodes.keys():
+        rootNode = astData.nodes[args.startNode]
 
     # Generate the .dot file
     outFilename = args.jsonFile + '.dot'

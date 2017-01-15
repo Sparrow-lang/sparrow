@@ -335,7 +335,7 @@ const char* ImportName_toString(const Node* node) {
 
     ostringstream os;
     os << "ImportName(" << moduleName << ", " << declNames;
-    if ( size(alias) > 0 )
+    if ( alias.begin && size(alias) > 0 )
         os << ", \"" << alias.begin << "\"";
     os << ")";
     return dupString(os.str().c_str());

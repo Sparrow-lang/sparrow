@@ -48,14 +48,17 @@ int Nest_getSuppressedErrorsNum();
 #define NOLOC                           Nest_mkEmptyLocation()
 
 #define CHECK(loc, val) \
-    if ( !!(val) ); else \
-        Nest_reportFmt(loc, diagInternalError, "Non-zero expression expected for '%s' (file %s, line %d)", #val, __FILE__, __LINE__)
+    if ( !!(val) ); else { \
+        Nest_reportFmt(loc, diagInternalError, "Non-zero expression expected for '%s' (file %s, line %d)", #val, __FILE__, __LINE__); \
+        ASSERT(false); \
+    }
 
 #define EXPECT_KIND(loc, node, kind) \
     if ( !(node) ) \
         Nest_reportFmt(loc, diagInternalError, "Expected non-NULL node: '%s' (file %s, line %d)", #node, __FILE__, __LINE__); \
-    else if ( (node)->nodeKind != (kind) ) \
+    else if ( (node)->nodeKind != (kind) ) {\
         Nest_reportFmt(loc, diagInternalError, "Node: '%s' of kind %s needs to be of kind %s; (file %s, line %d)", \
-            #node, Nest_getNodeKindName((node)->nodeKind), Nest_getNodeKindName(kind), __FILE__, __LINE__)
-
+            #node, Nest_getNodeKindName((node)->nodeKind), Nest_getNodeKindName(kind), __FILE__, __LINE__); \
+        ASSERT(false); \
+    }
 

@@ -46,7 +46,7 @@ namespace
             size_t numParams = Feather_Function_numParameters(decl);
             if ( numParams < 1+thisParamIdx )
                 continue;
-            if ( Feather_getName(Feather_Function_getParameter(decl, thisParamIdx)) != "$this" )
+            if ( Feather_getName(Feather_Function_getParameter(decl, thisParamIdx)) != "this" )
                 continue;
 
             if ( paramClass )
@@ -202,7 +202,7 @@ namespace
         Node* body = Feather_mkLocalSpace(loc, {});
         for ( Node* field: cls->children )
         {
-            Node* fieldRef = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, mkThisExp(loc)), field);
+            Node* fieldRef = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, mkIdentifier(loc, fromCStr("this"))), field);
             Node* otherFieldRef = otherParam ? Feather_mkFieldRef(loc, otherRef, field) : nullptr;
 
             string oper = op;
@@ -318,7 +318,7 @@ namespace
             if ( t->numReferences > 0 )
                 paramId = Feather_mkMemLoad(loc, paramId);
 
-            Node* fieldRef = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, mkThisExp(loc)), field);
+            Node* fieldRef = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, mkIdentifier(loc, fromCStr("this"))), field);
 
             string oper = t->numReferences > 0 ? ":=" : "ctor";
             addOperatorCall(body, false, fieldRef, oper, paramId);
@@ -345,7 +345,7 @@ namespace
             if ( cls2 != cls )
                 continue;
 
-            Node* fieldRef = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, mkThisExp(loc)), field);
+            Node* fieldRef = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, mkIdentifier(loc, fromCStr("this"))), field);
             Node* otherFieldRef = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, mkIdentifier(loc, fromCStr("other"))), field);
 
             const char* op = (field->type->numReferences == 0) ? "==" : "===";
@@ -413,7 +413,7 @@ namespace
                     thisArg = Nest_explanation(at(thisArg->children, 0));
 
                 if ( !thisArg || thisArg->nodeKind != nkFeatherExpVarRef
-                    || Feather_getName(at(thisArg->referredNodes, 0)) != "$this" )
+                    || Feather_getName(at(thisArg->referredNodes, 0)) != "this" )
                     continue;
             }
 
@@ -522,7 +522,7 @@ void IntModCtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
 
         if ( !hasCtorCall(body, nullptr, false, field) )
         {
-            Node* fieldRef = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, mkThisExp(loc)), field);
+            Node* fieldRef = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, mkIdentifier(loc, fromCStr("this"))), field);
             Node* call = nullptr;
             if ( field->type->numReferences == 0 )
             {
@@ -571,7 +571,7 @@ void IntModDtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
 
         if ( field->type->numReferences == 0 )
         {
-            Node* fieldRef = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, mkThisExp(loc)), field);
+            Node* fieldRef = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, mkIdentifier(loc, fromCStr("this"))), field);
             Nest_setContext(fieldRef, context);
             Node* call = mkOperatorCall(loc, fieldRef, fromCStr("dtor"), nullptr);
             Nest_setContext(call, context);

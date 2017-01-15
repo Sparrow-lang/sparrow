@@ -128,6 +128,7 @@ namespace
 
     Node* createNewInstantiation(Node* instSet, NodeRange values, EvalMode evalMode)
     {
+        ASSERT(instSet);
         // Create a new context, but at the same level as the context of the parent node
         Node* parentNode = at(instSet->referredNodes, 0);
         CompilationContext* context = Nest_mkChildContextWithSymTab(parentNode->context, nullptr, evalMode);
@@ -142,7 +143,7 @@ namespace
         // Compile the newly created instantiation
         Nest_setContext(expandedInstantiation(inst), context);
         if ( !Nest_semanticCheck(expandedInstantiation(inst)) )
-            return nullptr;            
+            return nullptr;
 
         return inst;
     }
@@ -476,7 +477,7 @@ namespace
 
     Node* createCallFn(const Location& loc, CompilationContext* context, Node* inst, NodeRange nonBoundArgs)
     {
-        ASSERT(inst->nodeKind == nkSparrowDeclSprFunction);
+        ASSERT(inst && inst->nodeKind == nkSparrowDeclSprFunction);
         if ( !Nest_computeType(inst) )
             return nullptr;
         Node* resultingFun = Nest_explanation(inst);
@@ -548,7 +549,7 @@ Node* SprFrontend::createGenericFun(Node* originalFun, Node* parameters, Node* i
     if ( thisClass )
     {
         TypeRef thisType = Feather_getDataType(thisClass, 1, Feather_effectiveEvalMode(originalFun));
-        Node* thisParam = mkSprParameter(originalFun->location, fromCStr("$this"), thisType);
+        Node* thisParam = mkSprParameter(originalFun->location, fromCStr("this"), thisType);
         Nest_setContext(thisParam, Nest_childrenContext(originalFun));
         if ( !Nest_computeType(thisParam) )
             return nullptr;

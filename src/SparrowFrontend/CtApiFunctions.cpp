@@ -82,9 +82,6 @@ namespace
     Node* ctApi_Sparrow_mkConditionalExp(Location* loc, Node* cond, Node* alt1, Node* alt2) {
         return mkConditionalExp(*loc, cond, alt1, alt2);
     }
-    Node* ctApi_Sparrow_mkThisExp(Location* loc) {
-        return mkThisExp(*loc);
-    }
     Node* ctApi_Sparrow_mkParenthesisExp(Location* loc, Node* exp) {
         return buildParenthesisExp(*loc, exp);
     }
@@ -177,7 +174,6 @@ void SprFrontend::registerCtApiFunctions(Backend* backend)
     backend->ctApiRegisterFun(backend, "$meta.Sparrow.mkOperatorCall",        (void*) &ctApi_Sparrow_mkOperatorCall);
 
     backend->ctApiRegisterFun(backend, "$meta.Sparrow.mkConditionalExp",      (void*) &ctApi_Sparrow_mkConditionalExp);
-    backend->ctApiRegisterFun(backend, "$meta.Sparrow.mkThisExp",             (void*) &ctApi_Sparrow_mkThisExp);
     backend->ctApiRegisterFun(backend, "$meta.Sparrow.mkParenthesisExp",      (void*) &ctApi_Sparrow_mkParenthesisExp);
     backend->ctApiRegisterFun(backend, "$meta.Sparrow.mkIntLiteral",          (void*) &ctApi_Sparrow_mkIntLiteral);
     backend->ctApiRegisterFun(backend, "$meta.Sparrow.mkUIntLiteral",         (void*) &ctApi_Sparrow_mkUIntLiteral);

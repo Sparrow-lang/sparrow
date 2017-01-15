@@ -331,7 +331,6 @@ package _Impl
         else if data == "null"      return tkNULLCT
         else if data == "package"   return tkPACKAGE
         else if data == "return"    return tkRETURN
-        else if data == "this"      return tkTHIS
         else if data == "throw"     return tkTHROW
         else if data == "true"      return tkTRUE
         else if data == "try"       return tkTRY

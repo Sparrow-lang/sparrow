@@ -108,9 +108,6 @@ extern "C" Node* comp_parser_mkFunAppExpr(Location* loc, Node* base, Node* args)
 extern "C" Node* comp_parser_mkLambdaExpr(Location* loc, Node* closureParams, Node* formals, Node* retType, Node* body, Node* bodyExpr) {
     return mkLambdaExp(*loc, formals, retType, body, bodyExpr, closureParams);
 }
-extern "C" Node* comp_parser_mkThisExpr(Location* loc) {
-    return mkThisExp(*loc);
-}
 extern "C" Node* comp_parser_mkNullLiteral(Location* loc) {
     return buildNullLiteral(*loc);
 }

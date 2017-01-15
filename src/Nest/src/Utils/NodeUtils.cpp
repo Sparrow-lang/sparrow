@@ -169,6 +169,13 @@ const StringRef* Nest_getPropertyString(const Node* node, const char* name)
         return nullptr;
     return &p->value.stringValue;
 }
+StringRef Nest_getPropertyStringDeref(const Node* node, const char* name)
+{
+    NodeProperty* p = _findProperty(node->properties, fromCStr(name));
+    if ( !p || p->kind != propString )
+        return StringRef{0,0};
+    return p->value.stringValue;
+}
 Node*const* Nest_getPropertyNode(const Node* node, const char* name)
 {
     NodeProperty* p = _findProperty(node->properties, fromCStr(name));

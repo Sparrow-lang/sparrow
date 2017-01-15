@@ -121,7 +121,7 @@ size_t DataLayoutHelper::getAlignOf(TypeRef type)
 
     // Start computing it now -- make sure we store the result in the map
     size_t& align = alignmentsOfTypes_[type];
-    
+
     llvm::Type* llvmType = getLLVMTypeForSize(type, *llvmContext_);
     auto dataLayout = llvmModule_->getDataLayout();
     align = dataLayout->getPrefTypeAlignment(llvmType) / 8;

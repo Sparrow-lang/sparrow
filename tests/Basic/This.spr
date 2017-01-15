@@ -1,0 +1,56 @@
+//!! -t "SparrowImplicitLib.spr" -fno-main
+
+
+class TestClass
+    var a: Int
+    fun method
+        a = 1;
+    [static]
+    fun staticMethod
+        writeLn("---")
+        //a = 2
+
+datatype MyType { data: Int }
+datatype MyType2 { data: MyType }
+
+fun printData(this: MyType)
+    writeLn(this.data)
+    writeLn(data)
+
+fun printData(this: MyType2)
+    writeLn(this.data.data)
+    writeLn(data.data)
+
+fun useAsVar
+    var this: Int;
+    this = 100
+    writeLn(this)
+
+[native("test")]
+fun test(n: Int)
+    var obj: TestClass
+    obj.method
+    writeLnInt(obj.a)
+    TestClass.staticMethod
+
+    var obj1: MyType
+    obj1.data = 10
+    obj1 printData
+
+    var obj2: MyType2
+    obj2.data.data = 20
+    obj2 printData
+
+    writeLn("---")
+    useAsVar
+
+/*<<<Running()
+1
+---
+10
+10
+20
+20
+---
+100
+>>>*/

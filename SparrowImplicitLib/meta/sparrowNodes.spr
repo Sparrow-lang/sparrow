@@ -48,8 +48,6 @@
 
     [native("$meta.Sparrow.mkConditionalExp")]
     fun mkConditionalExp(loc: @Location, cond, alt1, alt2: AstNode): AstNode
-    [native("$meta.Sparrow.mkThisExp")]
-    fun mkThisExp(loc: Location): AstNode
     [native("$meta.Sparrow.mkParenthesisExp")]
     fun mkParenthesisExp(loc: @Location, exp: AstNode): AstNode
     [native("$meta.Sparrow.mkIntLiteral")]

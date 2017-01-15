@@ -43,6 +43,7 @@ namespace
                 {
                     if ( !baseExp )
                         REP_INTERNAL(loc, "No base expression to refer to a field");
+                    ASSERT(baseExp);
 
                     // Make sure the base is a reference
                     if ( baseExp->type->numReferences == 0 )
@@ -106,6 +107,7 @@ namespace
 
         if ( !arg1->type || !arg2->type )
             REP_INTERNAL(loc, "Invalid arguments");
+        ASSERT(arg1->type && arg2->type);
 
         // Make sure the first argument is a type
         TypeRef t = getType(arg1);
@@ -495,6 +497,7 @@ namespace
             // Step 1: Try to find an operator that match in the class of the base expression
             mode = base->type->mode;
             ctx = Nest_childrenContext(argClass);
+            ASSERT(ctx);
             if ( !opPrefix.empty() ) {
                 searches[numSearches++] = SearchAttempt{ opWithPrefix, ctx, false, mode };
             }
@@ -523,6 +526,7 @@ namespace
             SearchAttempt& s = searches[i];
 
             // Search for decls in the given context
+            ASSERT(s.searchContext);
             SymTab* sTab = s.searchContext->currentSymTab;
             NodeArray decls = s.canSearchUp
                                 ? Nest_symTabLookup(sTab, s.operation.begin)
@@ -923,17 +927,28 @@ Node* Literal_SemanticCheck(Node* node)
         return Feather_mkCtValue(node->location, t, data);
 }
 
-Node* This_SemanticCheck(Node* node)
-{
-    return mkIdentifier(node->location, fromCStr("$this"));
-}
-
 Node* Identifier_SemanticCheck(Node* node)
 {
     StringRef id = Nest_getCheckPropertyString(node, "name");
 
     // Search in the current symbol table for the identifier
     NodeArray declsOrig = Nest_symTabLookup(node->context->currentSymTab, id.begin);
+    // If not found, check if we may have an implicit this
+    // Try searching for the symbol in the context of the 'this' datatype
+    if ( Nest_nodeArraySize(declsOrig) == 0 ) {
+        Node* funDecl = Feather_getParentFun(node->context);
+        if ( funDecl ) {
+            // Does the function has a 'this' param?
+            const TypeRef* pThisParamType = Nest_getPropertyType(funDecl, propThisParamType);
+            if ( pThisParamType && (*pThisParamType)->hasStorage ) {
+                Node* dataType = Feather_classDecl(*pThisParamType);
+                if ( dataType ) {
+                    declsOrig = Nest_symTabLookupCurrent(dataType->childrenContext->currentSymTab, id.begin);
+                }
+            }
+        }
+    }
+
     if ( Nest_nodeArraySize(declsOrig) == 0 )
         REP_ERROR_RET(nullptr, node->location, "No declarations found with the given name (%1%)") % id;
 
@@ -943,7 +958,7 @@ Node* Identifier_SemanticCheck(Node* node)
     NodeArray decls = expandDecls(all(declsOrig), node);
 
     if ( size(decls) == 0 ) {
-        REP_ERROR(node->location, "No declarations found with the given name (%1%)") % id;
+        REP_ERROR(node->location, "No compatible declarations found with the given name (%1%)") % id;
 
         // Print the removed declarations
         for ( Node* n: declsOrig ) {
@@ -954,7 +969,7 @@ Node* Identifier_SemanticCheck(Node* node)
             else if ( n && !n->type )
                 REP_INFO(n->location, "See declaration without a type");
             else
-                REP_INFO(n->location, "See invalid declaration");
+                REP_INFO(node->location, "Encountered invalid declaration");
         }
         Nest_freeNodeArray(declsOrig);
         Nest_freeNodeArray(decls);
@@ -981,7 +996,7 @@ Node* Identifier_SemanticCheck(Node* node)
     if ( needsThis )
     {
         // Add 'this' parameter to handle this case
-        Node* res = mkCompoundExp(node->location, mkThisExp(node->location), id);
+        Node* res = mkCompoundExp(node->location, mkIdentifier(node->location, fromCStr("this")), id);
         return res;
     }
 
@@ -1018,7 +1033,7 @@ Node* CompoundExp_SemanticCheck(Node* node)
     Nest_setPropertyNode(node, "baseDataExp", baseDataExp);
 
     // Get the declarations that this node refers to
-    NodeArray declsOrig;
+    NodeArray declsOrig{0,0,0};
     if ( !baseDecls.empty() )
     {
         // Get the referred declarations; search for our id inside the symbol table of the declarations of the base
@@ -1082,7 +1097,7 @@ Node* CompoundExp_SemanticCheck(Node* node)
             else if ( n && !n->type )
                 REP_INFO(n->location, "See declaration without a type");
             else
-                REP_INFO(n->location, "See invalid declaration");
+                REP_INFO(node->location, "Encountered invalid declaration");
         }
         Nest_freeNodeArray(declsOrig);
         Nest_freeNodeArray(decls);
@@ -1104,6 +1119,7 @@ Node* FunApplication_SemanticCheck(Node* node)
 
     if ( !base )
         REP_INTERNAL(node->location, "Don't know what function to call");
+    ASSERT(base);
 
     // For the base expression allow it to return DeclExp
     Nest_setPropertyExplInt(base, propAllowDeclExp, 1);
@@ -1341,8 +1357,6 @@ Node* OperatorCall_SemanticCheck(Node* node)
 Node* InfixExp_SemanticCheck(Node* node)
 {
     ASSERT(Nest_nodeArraySize(node->children) == 2);
-    Node* arg1 = at(node->children, 0);
-    Node* arg2 = at(node->children, 1);
 
     // This is constructed in such way that left most operations are applied first.
     // This way, we have a tree that has a lot of children on the left side and one children on the right side
@@ -1352,8 +1366,8 @@ Node* InfixExp_SemanticCheck(Node* node)
     handlePrecedence(node);
     handleAssociativity(node);
 
-    arg1 = at(node->children, 0);
-    arg2 = at(node->children, 1);
+    Node* arg1 = at(node->children, 0);
+    Node* arg2 = at(node->children, 1);
 
     return mkOperatorCall(node->location, arg1, getOperation(node), arg2);
 }
@@ -1396,7 +1410,10 @@ Node* LambdaFunction_SemanticCheck(Node* node)
         NodeVector ctorArgsNodes, ctorParamsNodes;
         for ( Node* arg: closureParams->children )
         {
-            if ( !arg || arg->nodeKind != nkSparrowExpIdentifier )
+            if ( !arg )
+                REP_INTERNAL(closureParams->location, "Invalid closure parameter");
+            ASSERT(arg);
+            if ( arg->nodeKind != nkSparrowExpIdentifier )
                 REP_INTERNAL(arg->location, "The closure parameter must be identifier");
             StringRef varName = Feather_getName(arg);
             const Location& loc = arg->location;
@@ -1415,7 +1432,7 @@ Node* LambdaFunction_SemanticCheck(Node* node)
             Nest_appendNodeToArray(&classBody->children, mkSprVariable(loc, varName, varType, nullptr));
 
             // Create an initialization for the variable
-            Node* fieldRef = mkCompoundExp(loc, mkThisExp(loc), varName);
+            Node* fieldRef = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("this")), varName);
             Node* paramRef = mkIdentifier(loc, varName);
             const char* op = (varType->numReferences == 0) ? "ctor" : ":=";
             Node* initCall = mkOperatorCall(loc, fieldRef, fromCStr(op), paramRef);

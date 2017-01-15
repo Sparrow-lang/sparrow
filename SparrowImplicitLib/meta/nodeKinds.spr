@@ -51,7 +51,6 @@ using nkSparrowDeclGenericFunction = ctEval(_iota)
 using nkSparrowDeclUsing = ctEval(_iota)
 
 using nkSparrowExpLiteral = ctEval(_iota)
-using nkSparrowExpThis = ctEval(_iota)
 using nkSparrowExpIdentifier = ctEval(_iota)
 using nkSparrowExpCompoundExp = ctEval(_iota)
 using nkSparrowExpFunApplication = ctEval(_iota)

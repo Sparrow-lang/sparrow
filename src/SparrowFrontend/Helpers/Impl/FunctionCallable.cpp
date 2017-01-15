@@ -202,50 +202,50 @@ namespace
     Node* handleIntrinsic(Node* fun, CompilationContext* context, const Location& loc, const NodeVector& args)
     {
         // Check for natives
-        const StringRef* nativeName = Nest_getPropertyString(fun, propNativeName);
-        if ( nativeName && size(*nativeName) > 0 && nativeName->begin[0] == '$' )
+        StringRef nativeName = Nest_getPropertyStringDeref(fun, propNativeName);
+        if ( size(nativeName) > 0 && nativeName.begin[0] == '$' )
         {
-            if ( *nativeName == "$injectBackendCodeRt" )
+            if ( nativeName == "$injectBackendCodeRt" )
                 return impl_injectBackendCode(context, loc, args, modeRt);
-            if ( *nativeName == "$injectBackendCodeCt" )
+            if ( nativeName == "$injectBackendCodeCt" )
                 return impl_injectBackendCode(context, loc, args, modeCt);
-            if ( *nativeName == "$injectBackendCodeRtCt" )
+            if ( nativeName == "$injectBackendCodeRtCt" )
                 return impl_injectBackendCode(context, loc, args, modeRtCt);
-            if ( *nativeName == "$typeDescription" )
+            if ( nativeName == "$typeDescription" )
                 return impl_typeDescription(context, loc, args);
-            if ( *nativeName == "$typeHasStorage" )
+            if ( nativeName == "$typeHasStorage" )
                 return impl_typeHasStorage(context, loc, args);
-            if ( *nativeName == "$typeMode" )
+            if ( nativeName == "$typeMode" )
                 return impl_typeMode(context, loc, args);
-            if ( *nativeName == "$typeCanBeUsedAtCt" )
+            if ( nativeName == "$typeCanBeUsedAtCt" )
                 return impl_typeCanBeUsedAtCt(context, loc, args);
-            if ( *nativeName == "$typeCanBeUsedAtRt" )
+            if ( nativeName == "$typeCanBeUsedAtRt" )
                 return impl_typeCanBeUsedAtRt(context, loc, args);
-            if ( *nativeName == "$typeNumRef" )
+            if ( nativeName == "$typeNumRef" )
                 return impl_typeNumRef(context, loc, args);
-            if ( *nativeName == "$typeChangeMode" )
+            if ( nativeName == "$typeChangeMode" )
                 return impl_typeChangeMode(context, loc, args);
-            if ( *nativeName == "$typeChangeRefCount" )
+            if ( nativeName == "$typeChangeRefCount" )
                 return impl_typeChangeRefCount(context, loc, args);
-            if ( *nativeName == "$typeEQ" )
+            if ( nativeName == "$typeEQ" )
                 return impl_typeEQ(context, loc, args);
-            if ( *nativeName == "$typeAddRef" )
+            if ( nativeName == "$typeAddRef" )
                 return impl_typeAddRef(context, loc, args);
-            if ( *nativeName == "$ct" )
+            if ( nativeName == "$ct" )
                 return impl_ct(context, loc, args);
-            if ( *nativeName == "$rt" )
+            if ( nativeName == "$rt" )
                 return impl_rt(context, loc, args);
-            if ( *nativeName == "$convertsTo" )
+            if ( nativeName == "$convertsTo" )
                 return impl_convertsTo(context, loc, args);
-            if ( *nativeName == "$staticBuffer" )
+            if ( nativeName == "$staticBuffer" )
                 return impl_staticBuffer(context, loc, args);
-            if ( *nativeName == "$commonType" )
+            if ( nativeName == "$commonType" )
                 return impl_commonType(context, loc, args);
-            if ( *nativeName == "$meta.astEval" )
+            if ( nativeName == "$meta.astEval" )
                 return impl_Meta_astEval(context, loc, args);
-            if ( *nativeName == "$meta.SourceCode.current" )
+            if ( nativeName == "$meta.SourceCode.current" )
                 return impl_Meta_SourceCode_current(context, loc, args);
-            if ( *nativeName == "$meta.CompilationContext.current" )
+            if ( nativeName == "$meta.CompilationContext.current" )
                 return impl_Meta_CompilationContext_current(context, loc, args);
         }
 

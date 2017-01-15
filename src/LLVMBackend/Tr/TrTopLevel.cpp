@@ -115,6 +115,7 @@ void Tr::translateBackendCode(Node* node, Module& module)
         if ( loc.start.line == 1 && loc.start.col == 1 )
             loc = Nest_mkLocation1(node->location.sourceCode, error.getLineNo(), error.getColumnNo());
         REP_ERROR(loc, "Cannot parse backend code node: %1% (line: %2%)") % string(error.getMessage()) % error.getLineNo();
+        return;
     }
 
     // Make sure it has the same data layout and target triple

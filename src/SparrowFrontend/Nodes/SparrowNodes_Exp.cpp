@@ -428,6 +428,90 @@ namespace
         return res ? res : cls->context;
     }
 
+    //! Structure defining the parameters for a search scope
+    struct SearchScope {
+        StringRef operation;                //!< The operation name to look for
+        CompilationContext* searchContext;  //!< The search context
+        bool canSearchUp;                   //!< Whether to search up from the given context
+        EvalMode mode;                      //!< The evaluation mode to be used
+    };
+
+    /**
+     * Builds the search scopes for an operator call with the given operation and operands
+     *
+     * The given 'dest' buffer must contain at least 6 entries. On return
+     * 'numScopes' will indicate how many we've filled.
+     *
+     * We assume that both arguments are expressions.
+     *
+     * @param dest          [out] Where to place the search scopes
+     * @param numScopes     [out] The number of search scopes filled
+     * @param node          The node containing the node that initiated the search
+     * @param operation     The name of the operation that needs to be called
+     * @param opWithPrefix  Prefixed name of operation to be searched (can be empty)
+     * @param arg1          The left argument (can be NULL)
+     * @param arg2          The right argument (can be NULL)
+     * @param searchFromCur True if we are allowed to search from the current node
+     */
+    void buildSearchScopes(SearchScope* dest, int& numScopes,
+            Node* node, StringRef operation, StringRef opWithPrefix, Node* arg1, Node* arg2,
+            bool searchFromCur = true) {
+        // Identify the first valid operand, so that we can search near it
+        Node* base = arg1 ? arg1 : arg2;
+        Node* argClass = nullptr;
+        if ( base )
+        {
+            if ( !Nest_semanticCheck(base) )
+                return;
+            argClass = Feather_classForType(base->type);
+        }
+
+        // Gather the search places and parameters
+
+        numScopes = 0;
+
+        EvalMode mode;
+        CompilationContext* ctx;
+
+        if ( argClass )
+        {
+            // Step 1: Try to find an operator that match in the class of the base expression
+            mode = base->type->mode;
+            ctx = Nest_childrenContext(argClass);
+            ASSERT(ctx);
+            if ( size(opWithPrefix) > 0 )
+                dest[numScopes++] = SearchScope{ opWithPrefix, ctx, false, mode };
+            dest[numScopes++] = SearchScope{ operation, ctx, false, mode };
+
+            // Step 2: Try to find an operator that match in the near the class the base expression
+            mode = node->context->evalMode;
+            ctx = classContext(argClass);
+            if ( size(opWithPrefix) > 0 )
+                dest[numScopes++] = SearchScope{ opWithPrefix, ctx, false, mode };
+            dest[numScopes++] = SearchScope{ operation, ctx, false, mode };
+        }
+
+        if ( searchFromCur ) {
+            // Step 3: General search from the current context
+            mode = node->context->evalMode;
+            ctx = node->context;
+            if ( size(opWithPrefix) > 0 )
+                dest[numScopes++] = SearchScope{ opWithPrefix, ctx, true, mode };
+            dest[numScopes++] = SearchScope{ operation, ctx, true, mode };
+        }
+    }
+
+    //! Performs a scoped search, returning the found declarations
+    NodeArray performSearch(SearchScope& ss) {
+        ASSERT(ss.searchContext);
+        SymTab* sTab = ss.searchContext->currentSymTab;
+        NodeArray decls = ss.canSearchUp
+                            ? Nest_symTabLookup(sTab, ss.operation.begin)
+                            : Nest_symTabLookupCurrent(sTab, ss.operation.begin);
+        return decls;
+    }
+
+
     /**
      * Tries to select an operator call for the given operation and operands.
      *
@@ -446,91 +530,26 @@ namespace
     {
         Node* argsSrc[] = { arg1, arg2, nullptr };
         NodeRange args = { argsSrc, argsSrc+2 };
-        if ( !arg1 )
-            args.beginPtr++;
-        if ( !arg2 )
-            args.endPtr--;
+        if ( !arg1 ) args.beginPtr++;
+        if ( !arg2 ) args.endPtr--;
 
-        // If this is an unary operator, try using the operation prefix
-        string opPrefix;
-        if ( arg1 && !arg2 )
-            opPrefix = "post_";
-        if ( !arg1 && arg2 )
-            opPrefix = "pre_";
-
-        // Identifiy the first valid operand, so that we can search near it
-        Node* base = nullptr;
-        if ( arg1 )
-            base = arg1;
-        else if ( arg2 )
-            base = arg2;
-
-        Node* argClass = nullptr;
-        if ( base )
-        {
-            if ( !Nest_semanticCheck(base) )
-                return nullptr;
-            argClass = Feather_classForType(base->type);
-        }
+        // For unary operations, we are also searching with 'pre_', 'post_' prefixes
+        string opWithPrefixStr;
+        if ( arg1 && !arg2 ) opWithPrefixStr = "post_" + toString(operation);
+        if ( !arg1 && arg2 ) opWithPrefixStr = "pre_" + toString(operation);
 
         // Gather the search places and parameters
+        SearchScope searchScopes[6];
+        int numScopes = 0;
+        buildSearchScopes(searchScopes, numScopes, node, operation, fromString(opWithPrefixStr), arg1, arg2, true);
 
-        //! Structure defining the parameters for a search attempt
-        struct SearchAttempt {
-            StringRef operation;                //!< The operation name to look for
-            CompilationContext* searchContext;  //!< The search context
-            bool canSearchUp;                   //!< Whether to search up from the given context
-            EvalMode mode;                      //!< The evaluation mode to be used
-        };
-
-        //! Defines the places we have to search for
-        SearchAttempt searches[6];
-        int numSearches = 0;
-
-        EvalMode mode;
-        CompilationContext* ctx;
-        opPrefix += toString(operation);
-        StringRef opWithPrefix = fromString(opPrefix);
-
-        if ( argClass )
-        {
-            // Step 1: Try to find an operator that match in the class of the base expression
-            mode = base->type->mode;
-            ctx = Nest_childrenContext(argClass);
-            ASSERT(ctx);
-            if ( !opPrefix.empty() ) {
-                searches[numSearches++] = SearchAttempt{ opWithPrefix, ctx, false, mode };
-            }
-            searches[numSearches++] = SearchAttempt{ operation, ctx, false, mode };
-
-            // Step 2: Try to find an operator that match in the near the class the base expression
-            mode = node->context->evalMode;
-            ctx = classContext(argClass);
-            if ( !opPrefix.empty() ) {
-                searches[numSearches++] = SearchAttempt{ opWithPrefix, ctx, false, mode };
-            }
-            searches[numSearches++] = SearchAttempt{ operation, ctx, false, mode };
-        }
-
-        // Step 3: General search from the current context
-        mode = node->context->evalMode;
-        ctx = node->context;
-        if ( !opPrefix.empty() ) {
-            searches[numSearches++] = SearchAttempt{ opWithPrefix, ctx, true, mode };
-        }
-        searches[numSearches++] = SearchAttempt{ operation, ctx, true, mode };
-
-        // Now actually perform the searches
+        // Now actually perform the searchScopes
         OverloadReporting errReporting = reportErrors ? OverloadReporting::noTopLevel : OverloadReporting::none;
-        for ( int i=0; i<numSearches; ++i ) {
-            SearchAttempt& s = searches[i];
+        for ( int i=0; i<numScopes; ++i ) {
+            SearchScope& s = searchScopes[i];
 
             // Search for decls in the given context
-            ASSERT(s.searchContext);
-            SymTab* sTab = s.searchContext->currentSymTab;
-            NodeArray decls = s.canSearchUp
-                                ? Nest_symTabLookup(sTab, s.operation.begin)
-                                : Nest_symTabLookupCurrent(sTab, s.operation.begin);
+            NodeArray decls = performSearch(s);
 
             // Do we have any results? If yes, run the overloading mechanism
             Node* result = nullptr;
@@ -1051,13 +1070,21 @@ Node* CompoundExp_SemanticCheck(Node* node)
     }
     else if ( base->type->hasStorage )
     {
-        // If the base is an expression with a data type, treat this as a data access
-        Node* classDecl = Feather_classForType(base->type);
-        if ( !Nest_computeType(classDecl) )
-            return nullptr;
+        // We also consider searching with the 'post_' prefix
+        string idWithPrefixStr = "post_" + toString(id);
 
-        // Search for a declaration in the class
-        declsOrig = Nest_symTabLookupCurrent(classDecl->childrenContext->currentSymTab, id.begin);
+        // Get the scopes where we search for the id
+        SearchScope searchScopes[6];
+        int numScopes = 0;
+        buildSearchScopes(searchScopes, numScopes, node, id, fromString(idWithPrefixStr), base, nullptr, false);
+
+        // Perform the search sequentially; stop if we find something
+        for ( size_t i=0; i<numScopes; i++ ) {
+            SearchScope& ss = searchScopes[i];
+            declsOrig = performSearch(ss);
+            if ( size(declsOrig) > 0 )
+                break;
+        }
     }
 
     // At this point, 'declsOrig' may contain using nodes that will point to other decls
@@ -1065,6 +1092,7 @@ Node* CompoundExp_SemanticCheck(Node* node)
     // Also filter our nodes that cannot be access or without a proper type
     NodeArray decls = expandDecls(all(declsOrig), node);
 
+    // Error reporting
     if ( size(decls) == 0 ) {
         // Get the string describing where we are searching
         ostringstream oss;
@@ -1106,7 +1134,6 @@ Node* CompoundExp_SemanticCheck(Node* node)
 
     bool allowDeclExp = 0 != Nest_getCheckPropertyInt(node, propAllowDeclExp);
     Node* res = getIdentifierResult(node, all(decls), baseDataExp, allowDeclExp);
-    ASSERT(res);
     return res;
 }
 

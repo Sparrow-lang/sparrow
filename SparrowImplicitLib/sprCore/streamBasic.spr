@@ -31,7 +31,7 @@ concept OutStream(x) if (
     class FlushHelperClass
         fun >>(os: @OutStream)
             [ct] if isValid(os.flush)
-                os.flush()
+                os.flush
 
     class StreamRefWrapperHelperClass
         var ptr: @Byte

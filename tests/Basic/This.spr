@@ -29,9 +29,9 @@ fun useAsVar
 
 concept Range(x) if (
        typeOf(x.RetType) == Type
-    && typeOf(x isEmpty) == Bool
-    && typeOf(x front) == x.RetType
-    && isValid(x popFront)
+    && typeOf(x.isEmpty) == Bool
+    && typeOf(x.front) == x.RetType
+    && isValid(x.popFront)
 )
 
 [initCtor]
@@ -65,6 +65,8 @@ fun test(n: Int)
 
     writeLn("---")
     var r = MyRange(0, 10)
+    if r.isEmpty
+        writeLn('isEmpty')
     for x = r
         write(' ')
         write(x)

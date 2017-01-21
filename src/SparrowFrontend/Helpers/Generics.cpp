@@ -1,6 +1,7 @@
 #include <StdInc.h>
 #include "Generics.h"
 #include "SprTypeTraits.h"
+#include "SprDebug.h"
 
 #include <SparrowFrontendTypes.h>
 #include <Helpers/DeclsHelpers.h>
@@ -371,7 +372,7 @@ namespace
         nonBoundParams.reserve(numParams);
         for ( size_t i=0; i<numParams; ++i )
         {
-            if ( i==0 && funHasThisParameters(origFun) )
+            if ( i==0 && Nest_hasProperty(origFun, propHasImplicitThisParam) )
                 continue;
 
             Node* p = at(params, i);
@@ -701,7 +702,6 @@ Node* SprFrontend::genericDoInstantiate(Node* node, const Location& loc, Compila
                     return nullptr;
                 Nest_queueSemanticCheck(instDecl);
                 setInstantiatedDecl(inst, instDecl);
-
             }
 
             // Now actually create the call object

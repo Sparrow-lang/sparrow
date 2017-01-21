@@ -11,4 +11,5 @@ const char* SprFrontend::propIsStatic = "spr.isStatic";
 const char* SprFrontend::propAllowDeclExp = "spr.allowDeclExp";
 const char* SprFrontend::propNoWarnIfNoDeclFound = "spr.noWarnIfNoDeclFound";
 const char* SprFrontend::propHasThisParam = "spr.hasThisParam";
+const char* SprFrontend::propHasImplicitThisParam = "spr.hasImplicitThisParam";
 const char* SprFrontend::propThisParamType = "spr.thisParamType";

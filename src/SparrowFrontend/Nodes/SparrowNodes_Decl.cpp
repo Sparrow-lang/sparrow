@@ -341,7 +341,6 @@ TypeRef SprFunction_ComputeType(Node* node)
                 continue;
             StringRef name = Feather_getName(param);
             if ( name == "this" ) {
-                REP_INFO(param->location, "Found this param");
                 thisParamIdx = i;
                 break;
             }
@@ -349,11 +348,13 @@ TypeRef SprFunction_ComputeType(Node* node)
     }
     if ( addThisParam || thisParamIdx >= 0 )
         Nest_setPropertyInt(node, propHasThisParam, 1);
+    if ( addThisParam )
+        Nest_setPropertyInt(node, propHasImplicitThisParam, 1);
 
     // Is this a generic?
     if ( parameters )
     {
-        Node* thisClass = isMember && !isStatic ? parentClass : nullptr;
+        Node* thisClass = addThisParam ? parentClass : nullptr;
         Node* generic = createGenericFun(node, parameters, ifClause, thisClass);
         if ( generic )
         {
@@ -371,7 +372,7 @@ TypeRef SprFunction_ComputeType(Node* node)
     StringRef funName = Feather_getName(node);
 
     // Special modifier for ctors & dtors
-    if ( isMember && !isStatic && !Nest_hasProperty(node, propNoDefault) )
+    if ( addThisParam && !Nest_hasProperty(node, propNoDefault) )
     {
         if ( funName == "ctor" )
             Nest_addModifier(node, SprFe_getCtorMembersIntMod());

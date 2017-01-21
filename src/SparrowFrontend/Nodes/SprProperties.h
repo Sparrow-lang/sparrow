@@ -15,5 +15,6 @@ namespace SprFrontend
     extern const char* propAllowDeclExp;
     extern const char* propNoWarnIfNoDeclFound;
     extern const char* propHasThisParam;
+    extern const char* propHasImplicitThisParam;
     extern const char* propThisParamType;
 }

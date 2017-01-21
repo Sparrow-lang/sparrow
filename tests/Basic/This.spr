@@ -26,6 +26,25 @@ fun useAsVar
     this = 100
     writeLn(this)
 
+
+concept Range(x) if (
+       typeOf(x.RetType) == Type
+    && typeOf(x isEmpty) == Bool
+    && typeOf(x front) == x.RetType
+    && isValid(x popFront)
+)
+
+[initCtor]
+class MyRange
+    using RetType = Int
+    var curVal, stop: Int
+
+fun isEmpty(this: @MyRange): Bool = curVal >= stop
+fun front(this: @MyRange): Int
+    return curVal
+fun popFront(this: @MyRange)
+    curVal = curVal+1
+
 [native("test")]
 fun test(n: Int)
     var obj: TestClass
@@ -44,6 +63,13 @@ fun test(n: Int)
     writeLn("---")
     useAsVar
 
+    writeLn("---")
+    var r = MyRange(0, 10)
+    for x = r
+        write(' ')
+        write(x)
+    writeLn('')
+
 /*<<<Running()
 1
 ---
@@ -53,4 +79,6 @@ fun test(n: Int)
 20
 ---
 100
+---
+ 0 1 2 3 4 5 6 7 8 9
 >>>*/

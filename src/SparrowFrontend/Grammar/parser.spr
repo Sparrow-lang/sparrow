@@ -35,383 +35,383 @@ package _Impl
     /// Concept that matches SparrowParser above
     concept This(t) if t._IsSparrowParser
 
-    fun reportError(p: @This, msg: @String)
+    fun reportError(this: @This, msg: @String)
         // Report the error
-        p._errorReporter.reportError((*p._tokens).loc, msg)
+        _errorReporter.reportError((*_tokens).loc, msg)
         // Consume all the tokens until the end of the file
-        while (*p._tokens).type != tkEND
-            p._lastToken = (p._tokens++)
-        p._hasErrors = true
+        while (*_tokens).type != tkEND
+            _lastToken = (_tokens++)
+        _hasErrors = true
 
-    fun curLoc(p: @This) = (*p._tokens).loc
-    fun lastLoc(p: @This) = p._lastToken.loc
+    fun curLoc(this: @This) = (*_tokens).loc
+    fun lastLoc(this: @This) = _lastToken.loc
 
-    fun nextIs(p: @This, t: TokenType): Bool = (*p._tokens).type == t
-    fun next2Is(p: @This, t: TokenType): Bool = (p._tokens peek 1).type == t
+    fun nextIs(this: @This, t: TokenType): Bool = (*_tokens).type == t
+    fun next2Is(this: @This, t: TokenType): Bool = (_tokens peek 1).type == t
 
-    fun accept(p: @This, t: TokenType): Bool
-        if (*p._tokens).type == t
-            p._lastToken = (p._tokens++)
-            // cout << "Accepted " << p._lastToken.type << endl
+    fun accept(this: @This, t: TokenType): Bool
+        if (*_tokens).type == t
+            _lastToken = (_tokens++)
+            // cout << "Accepted " << _lastToken.type << endl
             return true
         return false
 
-    fun expect(p: @This, t: TokenType): Bool
+    fun expect(this: @This, t: TokenType): Bool
         // Everything is ok if this is the token we are expecting
-        if p accept t
+        if this accept t
             return true
-        if p._hasErrors  // Already inside an error; don't do anything
+        if _hasErrors  // Already inside an error; don't do anything
             return false
         // Report error if this token is now what we expected
-        p reportError toString("Syntax error, unexpected ", (*p._tokens).type, ", expecting ", t)
+        this reportError toString("Syntax error, unexpected ", (*_tokens).type, ", expecting ", t)
         return false
 
     ///////////////////////////////////////////////////////////////////////////////
     // Top level parsing
     //
 
-    fun parseModule(p: @This): Node
-        var loc = p curLoc
-        var moduleName = parseModuleName(p)
+    fun parseModule(this: @This): Node
+        var loc = this curLoc
+        var moduleName = parseModuleName(this)
         var decls: Node
-        parseStmts(p, true, decls)
-        p expect tkEND
-        return mkModule(loc span (p lastLoc), moduleName, decls)
+        parseStmts(this, true, decls)
+        this expect tkEND
+        return mkModule(loc span (this lastLoc), moduleName, decls)
 
-    fun parseExpression(p: @This): Node
-        var res = parseExpr(p)
-        p expect tkEND
+    fun parseExpression(this: @This): Node
+        var res = parseExpr(this)
+        this expect tkEND
         return res
 
     ///////////////////////////////////////////////////////////////////////////////
     // Common rules
     //
 
-    fun consumeSemis(p: @This)
-        while p accept tkSEMICOLON {}
+    fun consumeSemis(this: @This)
+        while this accept tkSEMICOLON {}
 
-    fun parseIdOrOper(p: @This, withEqual: Bool = true): String
-        if p accept tkIDENTIFIER
-            return p._lastToken.data
-        else if p accept tkOPERATOR
-            return p._lastToken.data
-        else if withEqual && (p accept tkEQUAL)
+    fun parseIdOrOper(this: @This, withEqual: Bool = true): String
+        if this accept tkIDENTIFIER
+            return _lastToken.data
+        else if this accept tkOPERATOR
+            return _lastToken.data
+        else if withEqual && (this accept tkEQUAL)
             return "="
-        p reportError toString("Syntax error, unexpected ", (*p._tokens).type, ", expecting identifier or operator")
+        this reportError toString("Syntax error, unexpected ", (*_tokens).type, ", expecting identifier or operator")
 
-    fun parseIdOrOperOpt(p: @This, withEqual: Bool = true): String
-        if p accept tkIDENTIFIER
-            return p._lastToken.data
-        else if p accept tkOPERATOR
-            return p._lastToken.data
-        else if withEqual && (p accept tkEQUAL)
+    fun parseIdOrOperOpt(this: @This, withEqual: Bool = true): String
+        if this accept tkIDENTIFIER
+            return _lastToken.data
+        else if this accept tkOPERATOR
+            return _lastToken.data
+        else if withEqual && (this accept tkEQUAL)
             return "="
         else
             return String()
 
-    fun parseOperOpt(p: @This, withEqual: Bool = true): String
-        if p accept tkOPERATOR
-            return p._lastToken.data
-        else if withEqual && (p accept tkEQUAL)
-            return p._lastToken.data
+    fun parseOperOpt(this: @This, withEqual: Bool = true): String
+        if this accept tkOPERATOR
+            return _lastToken.data
+        else if withEqual && (this accept tkEQUAL)
+            return _lastToken.data
         else
             return String()
 
-    fun parseId(p: @This): String
-        p expect tkIDENTIFIER
-        return p._lastToken.data
+    fun parseId(this: @This): String
+        this expect tkIDENTIFIER
+        return _lastToken.data
 
     // Parses a structure of the form 'id =', with lookahead
     // Can appear in the context of other non-equal expressions
-    fun parseIdEqualOpt(p: @This): String
+    fun parseIdEqualOpt(this: @This): String
         var id: String
-        if (p nextIs tkIDENTIFIER) && (p next2Is tkEQUAL)
-            p expect tkIDENTIFIER
-            id = p._lastToken.data
-            p expect tkEQUAL
+        if (this nextIs tkIDENTIFIER) && (this next2Is tkEQUAL)
+            this expect tkIDENTIFIER
+            id = _lastToken.data
+            this expect tkEQUAL
         return id
 
-    fun parseQualifiedName(p: @This, allowStar: Bool = false): Node
-        var loc = p curLoc
-        p expect tkIDENTIFIER
-        var base = mkIdentifier(loc, p._lastToken.data.asStringRef)
+    fun parseQualifiedName(this: @This, allowStar: Bool = false): Node
+        var loc = this curLoc
+        this expect tkIDENTIFIER
+        var base = mkIdentifier(loc, _lastToken.data.asStringRef)
 
-        var lastId = p._lastToken.data
-        while p accept tkDOT
-            if allowStar && (p accept tkOPERATOR)
-                base = mkStarExpr(loc span (p lastLoc), base, p._lastToken.data.asStringRef)
+        var lastId = _lastToken.data
+        while this accept tkDOT
+            if allowStar && (this accept tkOPERATOR)
+                base = mkStarExpr(loc span (this lastLoc), base, _lastToken.data.asStringRef)
                 break
-            p expect tkIDENTIFIER
-            base = mkCompoundExpr(loc span (p lastLoc), base, p._lastToken.data.asStringRef)
+            this expect tkIDENTIFIER
+            base = mkCompoundExpr(loc span (this lastLoc), base, _lastToken.data.asStringRef)
         return base
 
-    fun parseIdList(p: @This): LocStringVec
+    fun parseIdList(this: @This): LocStringVec
         var res: LocStringVec
-        var id = parseId(p)
-        res += LocString(p._lastToken.loc ~ id)
-        while p accept tkCOMMA
-            id = parseId(p)
-            res += LocString(p._lastToken.loc ~ id)
+        var id = parseId(this)
+        res += LocString(_lastToken.loc ~ id)
+        while this accept tkCOMMA
+            id = parseId(this)
+            res += LocString(_lastToken.loc ~ id)
         return res
-    fun parseIdListNode(p: @This): Node
+    fun parseIdListNode(this: @This): Node
         var res: Node
-        var id = parseId(p)
-        res = addToNodeList(res, mkIdentifier(p._lastToken.loc, id.asStringRef))
-        while p accept tkCOMMA
-            id = parseId(p)
-            res = addToNodeList(res, mkIdentifier(p._lastToken.loc, id.asStringRef))
+        var id = parseId(this)
+        res = addToNodeList(res, mkIdentifier(_lastToken.loc, id.asStringRef))
+        while this accept tkCOMMA
+            id = parseId(this)
+            res = addToNodeList(res, mkIdentifier(_lastToken.loc, id.asStringRef))
         return res
 
-    fun parseIdOrOperListNode(p: @This): Node
+    fun parseIdOrOperListNode(this: @This): Node
         var res: Node
-        var id = parseIdOrOper(p)
-        res = addToNodeList(res, mkIdentifier(p._lastToken.loc, id.asStringRef))
-        while p accept tkCOMMA
-            id = parseIdOrOper(p)
-            res = addToNodeList(res, mkIdentifier(p._lastToken.loc, id.asStringRef))
+        var id = parseIdOrOper(this)
+        res = addToNodeList(res, mkIdentifier(_lastToken.loc, id.asStringRef))
+        while this accept tkCOMMA
+            id = parseIdOrOper(this)
+            res = addToNodeList(res, mkIdentifier(_lastToken.loc, id.asStringRef))
         return res
 
     ///////////////////////////////////////////////////////////////////////////////
     // Top level
     //
 
-    fun parseModuleName(p: @This): Node
-        if p accept tkMODULE
-            var qid = parseQualifiedName(p)
-            p expect tkSEMICOLON
+    fun parseModuleName(this: @This): Node
+        if this accept tkMODULE
+            var qid = parseQualifiedName(this)
+            this expect tkSEMICOLON
             return qid
         return Node()
 
-    fun parseModifiers(p: @This): Node
+    fun parseModifiers(this: @This): Node
         var res: Node
-        if p accept tkLBRACKET
+        if this accept tkLBRACKET
             var e: Node
-            e = parseExpr(p)
+            e = parseExpr(this)
             res = addToNodeList(res, e)
-            while p accept tkCOMMA
-                e = parseExpr(p)
+            while this accept tkCOMMA
+                e = parseExpr(this)
                 res = addToNodeList(res, e)
-            p expect tkRBRACKET
+            this expect tkRBRACKET
 
             // Ignore any possible semicolons (newlines) after the modifiers
-            p consumeSemis
+            this consumeSemis
         return res
 
-    fun parseStmts(p: @This, topLevel: Bool, res: @Node)
+    fun parseStmts(this: @This, topLevel: Bool, res: @Node)
         while true
-            var child = parseStmt(p, topLevel)
+            var child = parseStmt(this, topLevel)
             if child isSet
                 res = addToNodeList(res, child)
                 continue
 
             // No more top level decls found
             break
-    fun parseStmt(p: @This, topLevel: Bool): Node
+    fun parseStmt(this: @This, topLevel: Bool): Node
         var res: Node
 
         // Ignore empty statements
-        p consumeSemis
+        this consumeSemis
 
-        var loc = p curLoc
-        var mods = parseModifiers(p)
+        var loc = this curLoc
+        var mods = parseModifiers(this)
         var found = (
-               parseImportLineOpt(p, res)
-            || parseUsingDecl(p, res)
-            || parsePackageDecl(p, res)
-            || parseClassDecl(p, res)
-            || parseDatatypeDecl(p, res)
-            || parseConceptDecl(p, res)
-            || parseVarDecl(p, res)
-            || parseFunDecl(p, res)
-            || parseExprStmt(p, res)
-            || parseBlockStmt(p, res, topLevel)
-            || parseIfStmt(p, res, topLevel)
-            || parseForStmt(p, res, topLevel)
-            || parseWhileStmt(p, res, topLevel)
-            || parseBreakStmt(p, res)
-            || parseContinueStmt(p, res)
-            || parseReturnStmt(p, res)
+               parseImportLineOpt(this, res)
+            || parseUsingDecl(this, res)
+            || parsePackageDecl(this, res)
+            || parseClassDecl(this, res)
+            || parseDatatypeDecl(this, res)
+            || parseConceptDecl(this, res)
+            || parseVarDecl(this, res)
+            || parseFunDecl(this, res)
+            || parseExprStmt(this, res)
+            || parseBlockStmt(this, res, topLevel)
+            || parseIfStmt(this, res, topLevel)
+            || parseForStmt(this, res, topLevel)
+            || parseWhileStmt(this, res, topLevel)
+            || parseBreakStmt(this, res)
+            || parseContinueStmt(this, res)
+            || parseReturnStmt(this, res)
         )
 
         if mods isSet
             if found
-                res = mkModifiers(loc span (p lastLoc), res, mods)
+                res = mkModifiers(loc span (this lastLoc), res, mods)
             else
-                p reportError toString("Syntax error, unexpected ", (*p._tokens).type, ", expecting statement")
+                this reportError toString("Syntax error, unexpected ", (*_tokens).type, ", expecting statement")
 
         return res
 
-    fun parseImportLineOpt(p: @This, res: @Node): Bool
-        if p accept tkIMPORT
-            res = parseImportNames(p)
-            p expect tkSEMICOLON
+    fun parseImportLineOpt(this: @This, res: @Node): Bool
+        if this accept tkIMPORT
+            res = parseImportNames(this)
+            this expect tkSEMICOLON
             return true
         return false
-    fun parseImportNames(p: @This): Node
+    fun parseImportNames(this: @This): Node
         var res: Node
-        res = addToNodeList(res, parseImportName(p))
-        while p accept tkCOMMA
-            res = addToNodeList(res, parseImportName(p))
+        res = addToNodeList(res, parseImportName(this))
+        while this accept tkCOMMA
+            res = addToNodeList(res, parseImportName(this))
         return res
-    fun parseImportName(p: @This): Node
-        var loc = p curLoc
-        var id = parseIdEqualOpt(p)
-        var toImport = parseQidOrString(p)
-        var declNames = parseImportDeclNamesOpt(p)
-        return mkImportName(loc span (p lastLoc), id.asStringRef, toImport, declNames)
-    fun parseQidOrString(p: @This): Node
-        if p accept tkSTRING_LITERAL
-            return mkStringLiteral(p._lastToken.loc, p._lastToken.data.asStringRef)
-        return parseQualifiedName(p)
-    fun parseImportDeclNamesOpt(p: @This): Node
+    fun parseImportName(this: @This): Node
+        var loc = this curLoc
+        var id = parseIdEqualOpt(this)
+        var toImport = parseQidOrString(this)
+        var declNames = parseImportDeclNamesOpt(this)
+        return mkImportName(loc span (this lastLoc), id.asStringRef, toImport, declNames)
+    fun parseQidOrString(this: @This): Node
+        if this accept tkSTRING_LITERAL
+            return mkStringLiteral(_lastToken.loc, _lastToken.data.asStringRef)
+        return parseQualifiedName(this)
+    fun parseImportDeclNamesOpt(this: @This): Node
         var res: Node
-        if p accept tkLPAREN
-            res = parseIdOrOperListNode(p)
-            p expect tkRPAREN
+        if this accept tkLPAREN
+            res = parseIdOrOperListNode(this)
+            this expect tkRPAREN
         return res
 
-    fun parseUsingDecl(p: @This, res: @Node): Bool
-        if !(p accept tkUSING)
+    fun parseUsingDecl(this: @This, res: @Node): Bool
+        if !(this accept tkUSING)
             return false
-        var loc = p._lastToken.loc
-        var id = parseIdEqualOpt(p)
+        var loc = _lastToken.loc
+        var id = parseIdEqualOpt(this)
         var usingNode: Node
         if id isEmpty
-            usingNode = parseQualifiedName(p, true)
+            usingNode = parseQualifiedName(this, true)
         else
-            usingNode = parseExpr(p)
-        loc copyEnd p._lastToken.loc
-        p expect tkSEMICOLON
+            usingNode = parseExpr(this)
+        loc copyEnd _lastToken.loc
+        this expect tkSEMICOLON
         res = mkUsing(loc, id.asStringRef, usingNode)
         return true
-    fun parsePackageDecl(p: @This, res: @Node): Bool
-        if !(p accept tkPACKAGE)
+    fun parsePackageDecl(this: @This, res: @Node): Bool
+        if !(this accept tkPACKAGE)
             return false
-        var loc = p._lastToken.loc
-        var id = parseId(p)
-        p expect tkLCURLY
+        var loc = _lastToken.loc
+        var id = parseId(this)
+        this expect tkLCURLY
         var children: Node
-        parseStmts(p, true, children)
-        p expect tkRCURLY
-        loc copyEnd p._lastToken.loc
+        parseStmts(this, true, children)
+        this expect tkRCURLY
+        loc copyEnd _lastToken.loc
         res = mkPackage(loc, id.asStringRef, children)
         return true
-    fun parseClassDecl(p: @This, res: @Node): Bool
-        if !(p accept tkCLASS)
+    fun parseClassDecl(this: @This, res: @Node): Bool
+        if !(this accept tkCLASS)
             return false
-        var loc = p._lastToken.loc
-        var id = parseId(p)
-        var formals = parseFormalsOpt(p)
-        var ifClause = parseIfClauseOpt(p)
-        p expect tkLCURLY
+        var loc = _lastToken.loc
+        var id = parseId(this)
+        var formals = parseFormalsOpt(this)
+        var ifClause = parseIfClauseOpt(this)
+        this expect tkLCURLY
         var children: Node
-        parseStmts(p, true, children)
-        p expect tkRCURLY
-        loc copyEnd p._lastToken.loc
+        parseStmts(this, true, children)
+        this expect tkRCURLY
+        loc copyEnd _lastToken.loc
         res = mkClass(loc, id.asStringRef, formals, Node(), ifClause, children)
         return true
-    fun parseDatatypeDecl(p: @This, res: @Node): Bool
-        if !(p accept tkDATATYPE)
+    fun parseDatatypeDecl(this: @This, res: @Node): Bool
+        if !(this accept tkDATATYPE)
             return false
-        var loc = p._lastToken.loc
-        var id = parseId(p)
-        var formals = parseFormalsOpt(p)
-        if p accept tkEQUAL
-            var underlyingData = parseExpr(p)
-            var ifClause = parseIfClauseOpt(p)
-            p expect tkSEMICOLON
-            loc copyEnd p._lastToken.loc
+        var loc = _lastToken.loc
+        var id = parseId(this)
+        var formals = parseFormalsOpt(this)
+        if this accept tkEQUAL
+            var underlyingData = parseExpr(this)
+            var ifClause = parseIfClauseOpt(this)
+            this expect tkSEMICOLON
+            loc copyEnd _lastToken.loc
             res = mkClass(loc, id.asStringRef, formals, underlyingData, ifClause, Node())
         else
-            var ifClause = parseIfClauseOpt(p)
-            p expect tkLCURLY
+            var ifClause = parseIfClauseOpt(this)
+            this expect tkLCURLY
             var children: Node
-            parseFormal(p, true, children)
-            while (p accept tkCOMMA) || (p accept tkSEMICOLON)
-                if p nextIs tkRCURLY break
-                parseFormal(p, true, children)
-            p consumeSemis
-            p expect tkRCURLY
-            loc copyEnd p._lastToken.loc
+            parseFormal(this, true, children)
+            while (this accept tkCOMMA) || (this accept tkSEMICOLON)
+                if this nextIs tkRCURLY break
+                parseFormal(this, true, children)
+            this consumeSemis
+            this expect tkRCURLY
+            loc copyEnd _lastToken.loc
             res = mkClass(loc, id.asStringRef, formals, Node(), ifClause, children)
         return true
-    fun parseConceptDecl(p: @This, res: @Node): Bool
-        if !(p accept tkCONCEPT)
+    fun parseConceptDecl(this: @This, res: @Node): Bool
+        if !(this accept tkCONCEPT)
             return false
-        var loc = p._lastToken.loc
-        var id = parseId(p)
-        p expect tkLPAREN
-        var paramName = parseId(p)
-        var baseConcept = parseTypeNode(p)
-        p expect tkRPAREN
-        var ifClause = parseIfClauseOpt(p)
-        p expect tkSEMICOLON
-        loc copyEnd p._lastToken.loc
+        var loc = _lastToken.loc
+        var id = parseId(this)
+        this expect tkLPAREN
+        var paramName = parseId(this)
+        var baseConcept = parseTypeNode(this)
+        this expect tkRPAREN
+        var ifClause = parseIfClauseOpt(this)
+        this expect tkSEMICOLON
+        loc copyEnd _lastToken.loc
         res = mkConcept(loc, id.asStringRef, paramName.asStringRef, baseConcept, ifClause)
         return true
-    fun parseVarDecl(p: @This, res: @Node): Bool
-        if !(p accept tkVAR)
+    fun parseVarDecl(this: @This, res: @Node): Bool
+        if !(this accept tkVAR)
             return false
-        var ids = parseIdList(p)
+        var ids = parseIdList(this)
         var typeNode, init: Node
-        if p accept tkCOLON
-            typeNode = parseExpr(p, false)
-            if p accept tkEQUAL
-                init = parseExpr(p)
+        if this accept tkCOLON
+            typeNode = parseExpr(this, false)
+            if this accept tkEQUAL
+                init = parseExpr(this)
         else
-            p expect tkEQUAL
-            init = parseExpr(p)
-        p expect tkSEMICOLON
+            this expect tkEQUAL
+            init = parseExpr(this)
+        this expect tkSEMICOLON
 
         createFormals(ids, typeNode, init, true, res)
         return true
-    fun parseFunDecl(p: @This, res: @Node): Bool
-        if !(p accept tkFUN)
+    fun parseFunDecl(this: @This, res: @Node): Bool
+        if !(this accept tkFUN)
             return false
-        var loc = p._lastToken.loc
-        var id = parseFunNameString(p)
-        var formals = parseFormalsOpt(p)
-        var retType = parseTypeNode(p)
+        var loc = _lastToken.loc
+        var id = parseFunNameString(this)
+        var formals = parseFormalsOpt(this)
+        var retType = parseTypeNode(this)
         var body, bodyExp, ifClause: Node
-        if p accept tkEQUAL
-            bodyExp = parseExpr(p)
-            ifClause = parseIfClauseOpt(p)
-            p expect tkSEMICOLON
+        if this accept tkEQUAL
+            bodyExp = parseExpr(this)
+            ifClause = parseIfClauseOpt(this)
+            this expect tkSEMICOLON
         else
-            ifClause = parseIfClauseOpt(p)
-            body = parseFunBody(p)
-        loc copyEnd p._lastToken.loc
+            ifClause = parseIfClauseOpt(this)
+            body = parseFunBody(this)
+        loc copyEnd _lastToken.loc
         res = mkFun(loc, id.asStringRef, formals, retType, body, bodyExp, ifClause)
         return true
 
-    fun parseFunNameString(p: @This): String
-        if p accept tkLPAREN
-            p expect tkRPAREN
+    fun parseFunNameString(this: @This): String
+        if this accept tkLPAREN
+            this expect tkRPAREN
             return "()"
-        return parseIdOrOper(p)
-    fun parseFormalsOpt(p: @This, varFormals: Bool = false): Node
+        return parseIdOrOper(this)
+    fun parseFormalsOpt(this: @This, varFormals: Bool = false): Node
         var res: Node
-        if p accept tkLPAREN
+        if this accept tkLPAREN
             // Traditional case: formals in parenthesis
-            if p accept tkRPAREN
+            if this accept tkRPAREN
                 return res // no formal
-            parseFormal(p, varFormals, res)
-            while p accept tkCOMMA
-                parseFormal(p, varFormals, res)
-            p expect tkRPAREN
-        else if p nextIs tkIDENTIFIER
+            parseFormal(this, varFormals, res)
+            while this accept tkCOMMA
+                parseFormal(this, varFormals, res)
+            this expect tkRPAREN
+        else if this nextIs tkIDENTIFIER
             // Simplified versions: just names, without parenthesis
-            var loc = p curLoc
-            var ids = parseIdList(p)
-            createFormals(ids, mkIdentifier(loc span (p lastLoc), "AnyType"), Node(), varFormals, res)
+            var loc = this curLoc
+            var ids = parseIdList(this)
+            createFormals(ids, mkIdentifier(loc span (this lastLoc), "AnyType"), Node(), varFormals, res)
         return res
-    fun parseFormal(p: @This, varFormals: Bool, res: @Node)
-        var ids = parseIdList(p)
-        p expect tkCOLON
-        var typeNode = parseExpr(p, false)
+    fun parseFormal(this: @This, varFormals: Bool, res: @Node)
+        var ids = parseIdList(this)
+        this expect tkCOLON
+        var typeNode = parseExpr(this, false)
         var init: Node
-        if p accept tkEQUAL
-            init = parseExpr(p)
+        if this accept tkEQUAL
+            init = parseExpr(this)
         createFormals(ids, typeNode, init, varFormals, res)
     fun createFormals(ids: @LocStringVec, typeNode, init: Node, varFormals: Bool, res: @Node)
         if varFormals
@@ -422,34 +422,34 @@ package _Impl
             for id: @LocString = ids.all
                 var p = mkParameter(id.data.v1, id.data.v2.asStringRef, typeNode, init)
                 res = addToNodeList(res, p)
-    fun parseTypeNode(p: @This): Node
-        if p accept tkCOLON
-            return parseExpr(p, false)
+    fun parseTypeNode(this: @This): Node
+        if this accept tkCOLON
+            return parseExpr(this, false)
         return Node()
-    fun parseIfClauseOpt(p: @This): Node
-        if p accept tkIF
-            return parseExpr(p)
+    fun parseIfClauseOpt(this: @This): Node
+        if this accept tkIF
+            return parseExpr(this)
         return Node()
-    fun parseFunBody(p: @This): Node
-        if p accept tkSEMICOLON
+    fun parseFunBody(this: @This): Node
+        if this accept tkSEMICOLON
             return Node()
         var res: Node
-        if !parseBlockStmt(p, res, false)
-            p reportError toString("Syntax error, unexpected ", (*p._tokens).type, ", expecting block statement")
+        if !parseBlockStmt(this, res, false)
+            this reportError toString("Syntax error, unexpected ", (*_tokens).type, ", expecting block statement")
         return res
 
-    fun parseIfTopLevel(p: @This, res: @Node): Bool
-        if !(p accept tkIF)
+    fun parseIfTopLevel(this: @This, res: @Node): Bool
+        if !(this accept tkIF)
             return false
-        var loc = p lastLoc
-        p expect tkLPAREN
-        var expr = parseExpr(p)
-        p expect tkRPAREN
-        var thenClause = parseStmt(p, true)
+        var loc = this lastLoc
+        this expect tkLPAREN
+        var expr = parseExpr(this)
+        this expect tkRPAREN
+        var thenClause = parseStmt(this, true)
         var elseClause: Node
-        if p accept tkELSE
-            elseClause = parseStmt(p, true)
-        loc copyEnd p._lastToken.loc
+        if this accept tkELSE
+            elseClause = parseStmt(this, true)
+        loc copyEnd _lastToken.loc
         res = mkIfStmt(loc, expr, thenClause, elseClause)
         return true
 
@@ -458,8 +458,8 @@ package _Impl
     //
 
 
-    fun nextIsExpr(p: @This, withEqual: Bool = true): Bool
-        var t = (*p._tokens).type
+    fun nextIsExpr(this: @This, withEqual: Bool = true): Bool
+        var t = (*_tokens).type
         if t == tkEQUAL
             return withEqual
         return (
@@ -479,225 +479,225 @@ package _Impl
             || t == tkFLOAT_LITERAL
             || t == tkDOUBLE_LITERAL
         )
-    fun parseExprOpt(p: @This, res: @Node, allowSemicolons: Bool = false): Bool
-        if p nextIsExpr
-            res = parseExpr(p)
+    fun parseExprOpt(this: @This, res: @Node, allowSemicolons: Bool = false): Bool
+        if this nextIsExpr
+            res = parseExpr(this)
             // We may have some semicolons after
             if allowSemicolons
-                p consumeSemis
+                this consumeSemis
             return true
         return false
 
     // Zero, one, or more expressions separated by comma
-    fun parseExprListOpt(p: @This): Node
+    fun parseExprListOpt(this: @This): Node
         var res: Node
         var expr: Node
-        if !parseExprOpt(p, expr)
+        if !parseExprOpt(this, expr)
             return res // no expression found
         res = addToNodeList(res, expr)
-        while p accept tkCOMMA
-            expr = parseExpr(p)
+        while this accept tkCOMMA
+            expr = parseExpr(this)
             res = addToNodeList(res, expr)
         return res
 
     // Logic for parsing infix & postfix expressions
-    fun parseExpr(p: @This, withEqual: Bool = true): Node
-        var loc = p curLoc
-        var baseExpr = parsePrefixExpr(p, withEqual)
+    fun parseExpr(this: @This, withEqual: Bool = true): Node
+        var loc = this curLoc
+        var baseExpr = parsePrefixExpr(this, withEqual)
         var op: String
         while true
-            op = parseIdOrOperOpt(p, withEqual)
+            op = parseIdOrOperOpt(this, withEqual)
             if op isEmpty break
 
-            if nextIsExpr(p, withEqual)
+            if nextIsExpr(this, withEqual)
                 // Infix expression
-                var rhs = parsePrefixExpr(p, withEqual)
-                baseExpr = mkInfixOp(loc span (p lastLoc), baseExpr, op.asStringRef, rhs)
+                var rhs = parsePrefixExpr(this, withEqual)
+                baseExpr = mkInfixOp(loc span (this lastLoc), baseExpr, op.asStringRef, rhs)
             else
                 // The end of a postfix expression
-                baseExpr = mkPostfixOp(loc span (p lastLoc), baseExpr, op.asStringRef)
+                baseExpr = mkPostfixOp(loc span (this lastLoc), baseExpr, op.asStringRef)
                 break
         return baseExpr
 
-    fun parsePrefixExpr(p: @This, withEqual: Bool = true): Node
-        var loc = p curLoc
+    fun parsePrefixExpr(this: @This, withEqual: Bool = true): Node
+        var loc = this curLoc
         var op: String
-        if p accept tkBACKSQUOTE
-            op = parseId(p)
-            p expect tkBACKSQUOTE
+        if this accept tkBACKSQUOTE
+            op = parseId(this)
+            this expect tkBACKSQUOTE
         else
-            op = parseOperOpt(p)
+            op = parseOperOpt(this)
 
         if op.isEmpty
-            return parseSimpleExpr(p)
+            return parseSimpleExpr(this)
         else
-            var baseExpr = parsePrefixExpr(p)
-            return mkPrefixOp(loc span (p lastLoc), op.asStringRef, baseExpr)
+            var baseExpr = parsePrefixExpr(this)
+            return mkPrefixOp(loc span (this lastLoc), op.asStringRef, baseExpr)
 
-    fun parseSimpleExpr(p: @This, withEqual: Bool = true): Node
+    fun parseSimpleExpr(this: @This, withEqual: Bool = true): Node
         var res: Node
-        var loc = p curLoc
-        if (p nextIs tkLPAREN) && (p next2Is tkFUN)
-            res = parseLambdaExpr(p)
-        else if p accept tkLPAREN
-            res = mkParenthesisExpr(parseExpr(p))
-            p expect tkRPAREN
-        else if p accept tkIDENTIFIER
-            res = mkIdentifier(p._lastToken.loc, p._lastToken.data.asStringRef)
-        else if p accept tkNULLCT
-            res = mkNullLiteral(p._lastToken.loc)
-        else if p accept tkTRUE
-            res = mkBoolLiteral(p._lastToken.loc, true)
-        else if p accept tkFALSE
-            res = mkBoolLiteral(p._lastToken.loc, false)
-        else if p accept tkINT_LITERAL
-            res = mkIntLiteral(p._lastToken.loc, Int(p._lastToken.intData))
-        else if p accept tkUINT_LITERAL
-            res = mkUIntLiteral(p._lastToken.loc, UInt(p._lastToken.intData))
-        else if p accept tkLONG_LITERAL
-            res = mkLongLiteral(p._lastToken.loc, Long(p._lastToken.intData))
-        else if p accept tkULONG_LITERAL
-            res = mkULongLiteral(p._lastToken.loc, ULong(p._lastToken.intData))
-        else if p accept tkFLOAT_LITERAL
-            res = mkFloatLiteral(p._lastToken.loc, Float(p._lastToken.floatData))
-        else if p accept tkDOUBLE_LITERAL
-            res = mkDoubleLiteral(p._lastToken.loc, Double(p._lastToken.floatData))
-        else if p accept tkCHAR_LITERAL
-            res = mkCharLiteral(p._lastToken.loc, p._lastToken.data(0))
-        else if p accept tkSTRING_LITERAL
-            res = mkStringLiteral(p._lastToken.loc, p._lastToken.data.asStringRef)
+        var loc = this curLoc
+        if (this nextIs tkLPAREN) && (this next2Is tkFUN)
+            res = parseLambdaExpr(this)
+        else if this accept tkLPAREN
+            res = mkParenthesisExpr(parseExpr(this))
+            this expect tkRPAREN
+        else if this accept tkIDENTIFIER
+            res = mkIdentifier(_lastToken.loc, _lastToken.data.asStringRef)
+        else if this accept tkNULLCT
+            res = mkNullLiteral(_lastToken.loc)
+        else if this accept tkTRUE
+            res = mkBoolLiteral(_lastToken.loc, true)
+        else if this accept tkFALSE
+            res = mkBoolLiteral(_lastToken.loc, false)
+        else if this accept tkINT_LITERAL
+            res = mkIntLiteral(_lastToken.loc, Int(_lastToken.intData))
+        else if this accept tkUINT_LITERAL
+            res = mkUIntLiteral(_lastToken.loc, UInt(_lastToken.intData))
+        else if this accept tkLONG_LITERAL
+            res = mkLongLiteral(_lastToken.loc, Long(_lastToken.intData))
+        else if this accept tkULONG_LITERAL
+            res = mkULongLiteral(_lastToken.loc, ULong(_lastToken.intData))
+        else if this accept tkFLOAT_LITERAL
+            res = mkFloatLiteral(_lastToken.loc, Float(_lastToken.floatData))
+        else if this accept tkDOUBLE_LITERAL
+            res = mkDoubleLiteral(_lastToken.loc, Double(_lastToken.floatData))
+        else if this accept tkCHAR_LITERAL
+            res = mkCharLiteral(_lastToken.loc, _lastToken.data(0))
+        else if this accept tkSTRING_LITERAL
+            res = mkStringLiteral(_lastToken.loc, _lastToken.data.asStringRef)
 
         if res isNull
-            p reportError toString("Syntax error, unexpected ", (*p._tokens).type, ", expecting expression")
+            this reportError toString("Syntax error, unexpected ", (*_tokens).type, ", expecting expression")
             return Node()
 
         // possible expression suffixes
         while true
-            if p accept tkLPAREN
-                var args = parseExprListOpt(p)
-                p expect tkRPAREN
-                res = mkFunAppExpr(loc span (p lastLoc), res, args)
-            else if p accept tkDOT
-                if p accept tkLPAREN
-                    p expect tkRPAREN
-                    res = mkDotExpr(loc span (p lastLoc), res, "()")
+            if this accept tkLPAREN
+                var args = parseExprListOpt(this)
+                this expect tkRPAREN
+                res = mkFunAppExpr(loc span (this lastLoc), res, args)
+            else if this accept tkDOT
+                if this accept tkLPAREN
+                    this expect tkRPAREN
+                    res = mkDotExpr(loc span (this lastLoc), res, "()")
                 else
-                    var id = parseIdOrOper(p, withEqual)
-                    res = mkDotExpr(loc span (p lastLoc), res, id.asStringRef)
+                    var id = parseIdOrOper(this, withEqual)
+                    res = mkDotExpr(loc span (this lastLoc), res, id.asStringRef)
             else
                 break
 
         return res
-    fun parseLambdaExpr(p: @This): Node
-        var loc = p curLoc
-        p expect tkLPAREN
-        p expect tkFUN
-        var closureParams = parseClosureParams(p)
-        var formals = parseFormalsOpt(p)
-        var retType = parseTypeNode(p)
+    fun parseLambdaExpr(this: @This): Node
+        var loc = this curLoc
+        this expect tkLPAREN
+        this expect tkFUN
+        var closureParams = parseClosureParams(this)
+        var formals = parseFormalsOpt(this)
+        var retType = parseTypeNode(this)
         var body, bodyExp: Node
-        if p accept tkEQUAL
-            bodyExp = parseExpr(p)
+        if this accept tkEQUAL
+            bodyExp = parseExpr(this)
         else
-            body = parseFunBody(p)
-        p expect tkRPAREN
-        return mkLambdaExpr(loc span (p lastLoc), closureParams, formals, retType, body, bodyExp)
-    fun parseClosureParams(p: @This): Node
+            body = parseFunBody(this)
+        this expect tkRPAREN
+        return mkLambdaExpr(loc span (this lastLoc), closureParams, formals, retType, body, bodyExp)
+    fun parseClosureParams(this: @This): Node
         var res: Node
-        if p accept tkDOT
-            p expect tkLCURLY
-            if p nextIs tkIDENTIFIER
-                res = parseIdListNode(p)
-            p expect tkRCURLY
+        if this accept tkDOT
+            this expect tkLCURLY
+            if this nextIs tkIDENTIFIER
+                res = parseIdListNode(this)
+            this expect tkRCURLY
         return res
 
     ///////////////////////////////////////////////////////////////////////////////
     // Statements
     //
 
-    fun parseExprStmt(p: @This, res: @Node): Bool
-        return parseExprOpt(p, res, true)
+    fun parseExprStmt(this: @This, res: @Node): Bool
+        return parseExprOpt(this, res, true)
 
-    fun parseBlockStmt(p: @This, res: @Node, topLevel: Bool): Bool
-        var loc = p curLoc
-        if p accept tkLCURLY
+    fun parseBlockStmt(this: @This, res: @Node, topLevel: Bool): Bool
+        var loc = this curLoc
+        if this accept tkLCURLY
             res = Node()
-            while !(p nextIs tkRCURLY) && !p._hasErrors
-                var s = parseStmt(p, topLevel)
+            while !(this nextIs tkRCURLY) && !_hasErrors
+                var s = parseStmt(this, topLevel)
                 if s isSet
                     res = addToNodeList(res, s)
                 else
                     break
-            p expect tkRCURLY
+            this expect tkRCURLY
             if !topLevel
-                res = mkBlockStmt(loc span (p lastLoc), res)
+                res = mkBlockStmt(loc span (this lastLoc), res)
             return true
         return false
-    fun parseIfStmt(p: @This, res: @Node, topLevel: Bool): Bool
-        var loc = p curLoc
-        if p accept tkIF
-            var expr = parseExpr(p)
-            var thenClause = parseStmt(p, topLevel)
+    fun parseIfStmt(this: @This, res: @Node, topLevel: Bool): Bool
+        var loc = this curLoc
+        if this accept tkIF
+            var expr = parseExpr(this)
+            var thenClause = parseStmt(this, topLevel)
             var elseClause: Node
-            if p accept tkELSE
-                elseClause = parseStmt(p, topLevel)
-            loc copyEnd p._lastToken.loc
+            if this accept tkELSE
+                elseClause = parseStmt(this, topLevel)
+            loc copyEnd _lastToken.loc
             res = mkIfStmt(loc, expr, thenClause, elseClause)
             return true
         return false
-    fun parseForStmt(p: @This, res: @Node, topLevel: Bool): Bool
-        var loc = p curLoc
-        if p accept tkFOR
-            var id = parseId(p)
+    fun parseForStmt(this: @This, res: @Node, topLevel: Bool): Bool
+        var loc = this curLoc
+        if this accept tkFOR
+            var id = parseId(this)
             var typeNode: Node
-            if p accept tkCOLON
-                typeNode = parseExpr(p, false)
-            p expect tkEQUAL
-            var range = parseExpr(p)
-            var action = parseStmt(p, topLevel)
-            loc copyEnd p._lastToken.loc
+            if this accept tkCOLON
+                typeNode = parseExpr(this, false)
+            this expect tkEQUAL
+            var range = parseExpr(this)
+            var action = parseStmt(this, topLevel)
+            loc copyEnd _lastToken.loc
             res = mkForStmt(loc, id.asStringRef, typeNode, range, action)
             return true
         return false
-    fun parseWhileStmt(p: @This, res: @Node, topLevel: Bool): Bool
-        var loc = p curLoc
-        if p accept tkWHILE
-            var expr = parseExpr(p)
+    fun parseWhileStmt(this: @This, res: @Node, topLevel: Bool): Bool
+        var loc = this curLoc
+        if this accept tkWHILE
+            var expr = parseExpr(this)
             var stepAction: Node
-            if p accept tkSEMICOLON
+            if this accept tkSEMICOLON
                 // Now expect an expression or a block statement, as the step action
-                if ( !parseExprOpt(p, stepAction, true)
-                    && !parseBlockStmt(p, stepAction, topLevel) )
-                    p reportError toString("Syntax error, unexpected ", (*p._tokens).type, ", expecting expression or block statement")
-            var body = parseStmt(p, topLevel)
-            loc copyEnd p._lastToken.loc
+                if ( !parseExprOpt(this, stepAction, true)
+                    && !parseBlockStmt(this, stepAction, topLevel) )
+                    this reportError toString("Syntax error, unexpected ", (*_tokens).type, ", expecting expression or block statement")
+            var body = parseStmt(this, topLevel)
+            loc copyEnd _lastToken.loc
             res = mkWhileStmt(loc, expr, stepAction, body)
             return true
         return false
-    fun parseBreakStmt(p: @This, res: @Node): Bool
-        if p accept tkBREAK
-            var loc = p._lastToken.loc
-            p expect tkSEMICOLON
+    fun parseBreakStmt(this: @This, res: @Node): Bool
+        if this accept tkBREAK
+            var loc = _lastToken.loc
+            this expect tkSEMICOLON
             res = mkBreakStmt(loc)
             return true
         return false
-    fun parseContinueStmt(p: @This, res: @Node): Bool
-        if p accept tkCONTINUE
-            var loc = p._lastToken.loc
-            p expect tkSEMICOLON
+    fun parseContinueStmt(this: @This, res: @Node): Bool
+        if this accept tkCONTINUE
+            var loc = _lastToken.loc
+            this expect tkSEMICOLON
             res = mkContinueStmt(loc)
             return true
         return false
 
-    fun parseReturnStmt(p: @This, res: @Node): Bool
-        if p accept tkRETURN
-            var loc = p._lastToken.loc
+    fun parseReturnStmt(this: @This, res: @Node): Bool
+        if this accept tkRETURN
+            var loc = _lastToken.loc
             var expr: Node
-            if p accept tkSEMICOLON
+            if this accept tkSEMICOLON
 
             else
-                expr = parseExpr(p)
-                p expect tkSEMICOLON
+                expr = parseExpr(this)
+                this expect tkSEMICOLON
             res = mkReturnStmt(loc, expr)
             return true
         return false

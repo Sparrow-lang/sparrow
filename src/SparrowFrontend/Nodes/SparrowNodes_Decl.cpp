@@ -437,6 +437,11 @@ TypeRef SprFunction_ComputeType(Node* node)
         Nest_setPropertyType(resultingFun, propThisParamType, thisParam->type);
     }
 
+    // The explanation may be needed while computing the return type
+    // E.g., when we are using implicit 'this' for expressions that would be
+    // used to compute the result type (fun name = expr)
+    node->explanation = resultingFun;
+
     // Compute the type of the return type node
     // We do this after the parameters, as the computation of the result might require access to the parameters
     TypeRef resType = returnType ? getType(returnType) : Feather_getVoidType(thisEvalMode);
@@ -459,8 +464,7 @@ TypeRef SprFunction_ComputeType(Node* node)
     else
         Feather_Function_setResultType(resultingFun, Feather_mkTypeNode(node->location, resType));
 
-    // TODO (explanation): explanation should be the result of semantic check
-    node->explanation = resultingFun;
+    // Now we can actually compute the type of the resulting function
     node->type = Nest_computeType(node->explanation);
 
     // Check for Std functions

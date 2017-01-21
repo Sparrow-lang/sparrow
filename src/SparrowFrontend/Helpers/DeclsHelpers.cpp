@@ -318,3 +318,9 @@ bool SprFrontend::funHasThisParameters(Node* fun)
     return fun && fun->nodeKind == nkSparrowDeclSprFunction
         && Nest_hasProperty(fun, propHasThisParam);
 }
+
+bool SprFrontend::funHasImplicitThis(Node* fun)
+{
+    return fun && fun->nodeKind == nkSparrowDeclSprFunction
+        && Nest_hasProperty(fun, propHasImplicitThisParam);
+}

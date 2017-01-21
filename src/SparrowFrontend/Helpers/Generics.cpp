@@ -372,7 +372,7 @@ namespace
         nonBoundParams.reserve(numParams);
         for ( size_t i=0; i<numParams; ++i )
         {
-            if ( i==0 && Nest_hasProperty(origFun, propHasImplicitThisParam) )
+            if ( i==0 && funHasImplicitThis(origFun) )
                 continue;
 
             Node* p = at(params, i);

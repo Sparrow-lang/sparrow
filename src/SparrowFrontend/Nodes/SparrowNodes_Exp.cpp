@@ -987,7 +987,7 @@ Node* Identifier_SemanticCheck(Node* node)
             needsThis = true;
             break;
         }
-        if ( decl && decl->nodeKind == nkSparrowDeclSprFunction && funHasThisParameters(decl) )
+        if ( funHasImplicitThis(decl) )
         {
             needsThis = true;
             break;

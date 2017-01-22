@@ -320,7 +320,7 @@ package Impl
             var pe: @Expression = pred.paramVars(i).expr.get();
             var locParam = pe.loc;
             var paramName = String("p_") + intToString(Int(i+1));
-            var left = mkCompoundExp(locParam, mkThisExp(locParam), paramName.asStringRef());
+            var left = mkCompoundExp(locParam, mkIdentifier(locParam, "this"), paramName.asStringRef());
             var right = mkIdentifier(locParam, paramName.asStringRef());
             bodyNodes.pushBack(mkInfixOp(locParam, "ctor", left, right));
         }

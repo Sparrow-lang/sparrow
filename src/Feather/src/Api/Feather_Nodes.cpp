@@ -490,32 +490,32 @@ using namespace Feather;
         StringRef valueDataStr = Nest_getCheckPropertyString(node, "valueData");
         const void* valueData = valueDataStr.begin;
 
-        const StringRef* nativeName = node->type->hasStorage ? Feather_nativeName(node->type) : nullptr;
+        StringRef nativeName = node->type->hasStorage ? Feather_nativeName(node->type) : StringRef{0,0};
         if ( 0 == strcmp(node->type->description, "Type/ct") )
         {
             TypeRef t = *((TypeRef*) valueData);
             os << t;
         }
-        else if ( nativeName && node->type->numReferences == 0 )
+        else if ( size(nativeName)>0 && node->type->numReferences == 0 )
         {
-            if ( *nativeName == "i1" || *nativeName == "u1" )
+            if ( nativeName == "i1" || nativeName == "u1" )
             {
                 bool val = 0 != (*((unsigned char*) valueData));
                 os << (val ? "true" : "false");
             }
-            else if ( *nativeName == "i16" )
+            else if ( nativeName == "i16" )
                 os << *((const short*) valueData);
-            else if (  *nativeName == "u16" )
+            else if (  nativeName == "u16" )
                 os << *((const unsigned short*) valueData);
-            else if ( *nativeName == "i32" )
+            else if ( nativeName == "i32" )
                 os << *((const int*) valueData);
-            else if (  *nativeName == "u32" )
+            else if (  nativeName == "u32" )
                 os << *((const unsigned int*) valueData);
-            else if ( *nativeName == "i64" )
+            else if ( nativeName == "i64" )
                 os << *((const long long*) valueData);
-            else if (  *nativeName == "u64" )
+            else if (  nativeName == "u64" )
                 os << *((const unsigned long long*) valueData);
-            else if (  *nativeName == "StringRef" )
+            else if (  nativeName == "StringRef" )
             {
                 const StringRef* s = (const StringRef*) valueData;
                 os << "'" << toString(*s) << "'";
@@ -861,6 +861,7 @@ using namespace Feather;
             if ( !Nest_semanticCheck(cond) )
                 return nullptr;
         }
+        ASSERT(cond->type);
         // TODO (conditional): This shouldn't be performed here
 
         // Semantic check the alternatives

@@ -879,8 +879,8 @@ concept AnyType(x); // Always true
 
 concept Range(x) if (
        typeOf(x.RetType) == Type
-    && typeOf(x isEmpty) == Bool
-    && typeOf(x front) == x.RetType
-    && isValid(x popFront)
+    && typeOf(x.isEmpty) == Bool
+    && typeOf(x.front) == x.RetType
+    && isValid(x.popFront)
 )
 

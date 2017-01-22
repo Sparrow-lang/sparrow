@@ -8,12 +8,12 @@ import staticArray(mkValues)
 /// the back
 concept BidirRange(x: Range) if (
        typeOf(x.back) == x.RetType
-    && isValid(x popBack)
+    && isValid(x.popBack)
 )
 
 /// A random access range allows obtaining the size and accessing elements by index
 concept RandomAccessRange(x: BidirRange) if (
-       typeOf(x size) == SizeType
+       typeOf(x.size) == SizeType
     && typeOf(x(0)) == x.RetType
 )
 
@@ -24,31 +24,31 @@ concept RandomAccessRange(x: BidirRange) if (
 
     /// Advances and return the new front value of the range
     fun pre_++(r: @Range): r.RetType
-        r popFront
-        return r front
+        r.popFront
+        return r.front
     /// Advances and return the old front value of the range
     fun post_++(r: @Range): r.RetType
-        var res: r.RetType = r front
-        r popFront
+        var res: r.RetType = r.front
+        r.popFront
         return res
     /// Pops back and return the new back value of the range
     fun pre_--(r: @BidirRange): r.RetType
-        r popBack
-        return r back
+        r.popBack
+        return r.back
     /// Pops back and return the old back value of the range
     fun post_--(r: @BidirRange): r.RetType
-        var res: r.RetType = r back
-        r popBack
+        var res: r.RetType = r.back
+        r.popBack
         return res
     /// Returns true if the range is empty
-    fun pre_!(r: @Range) = r isEmpty
+    fun pre_!(r: @Range) = r.isEmpty
     /// Returns true if the range is not empty
-    fun pre_!!(r: @Range) = !(r isEmpty)
+    fun pre_!!(r: @Range) = !r.isEmpty
     /// Get the front value of the range
-    fun pre_*(r: @Range): r.RetType = r front
+    fun pre_*(r: @Range): r.RetType = r.front
 
-    // Call operator on range == (range front)
-    //fun post_()(r: @Range) = r front
+    // Call operator on range == range.front
+    //fun post_()(r: @Range) = r.front
 
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -58,32 +58,32 @@ concept RandomAccessRange(x: BidirRange) if (
     /// Gets the size of the range -- generic case
     fun rangeSize(range: Range): SizeType
         var n: SizeType = 0
-        while !(range isEmpty) ; range popFront
+        while !range.isEmpty ; range.popFront
             ++n
         return n
     /// Gets the size of the range -- random-access-range case
     fun rangeSize(range: RandomAccessRange): SizeType
-        return range size
+        return range.size
 
     /// Advances the given number of positions -- does not check for range validity
     fun advance(range: @Range, n: SizeType)
         while (n--) > 0
-            range popFront
+            range.popFront
 
     /// Advances while the predicate is satisfied; checks the range validity
-    fun advanceIf(range: @Range, pred: AnyType) if isValid(pred(range front))
-        while !(range isEmpty) && pred(range front)
-            range popFront
+    fun advanceIf(range: @Range, pred: AnyType) if isValid(pred(range.front))
+        while !range.isEmpty && pred(range.front)
+            range.popFront
 
     /// Removes from back the given number of positions -- does not check for range validity
     fun retract(range: @BidirRange, n: SizeType)
         while (n--) > 0
-            range popBack
+            range.popBack
 
     /// Removes from back while the predicate is satisfied; checks the range validity
-    fun retractIf(range: @BidirRange, pred: AnyType) if isValid(pred(range back))
-        while !(range isEmpty) && pred(range back)
-            range popBack
+    fun retractIf(range: @BidirRange, pred: AnyType) if isValid(pred(range.back))
+        while !(range.isEmpty) && pred(range.back)
+            range.popBack
 
     ///////////////////////////////////////////////////////////////////////////////
     // Numeric ranges
@@ -162,7 +162,7 @@ concept RandomAccessRange(x: BidirRange) if (
 
     /// Given two ranges, combine the values from the two ranges together to produce one single range
     fun zip(range1, range2: Range, function: AnyType) = ZippedRange(typeOf(range1), typeOf(range2), typeOf(function))(range1, range2, function)
-    fun zip(range1, range2: Range) = zip(range1, range2, MakePair(-@typeOf(range1 front), -@typeOf(range2 front))())
+    fun zip(range1, range2: Range) = zip(range1, range2, MakePair(-@typeOf(range1.front), -@typeOf(range2.front))())
 
     /// Scans left a range for the given functor and initial accumulator value
     fun scanLeft(acc: AnyType, range: Range, function: AnyType) = ScanLeftRange(typeOf(acc), typeOf(range), typeOf(function))(acc, range, function)
@@ -280,12 +280,12 @@ concept RandomAccessRange(x: BidirRange) if (
 
         using RetType = rangeType.RetType
 
-        fun isEmpty                     = _range isEmpty
-        fun front: RetType              = _range back
-        fun popFront                    { _range popBack }
+        fun isEmpty                     = _range.isEmpty
+        fun front: RetType              = _range.back
+        fun popFront                    { _range.popBack }
 
-        fun back: RetType               = _range front
-        fun popBack                     { _range popFront }
+        fun back: RetType               = _range.front
+        fun popBack                     { _range.popFront }
 
     [initCtor]
     class TakeRange(rangeType: Type) if Range(#$rangeType)
@@ -294,9 +294,9 @@ concept RandomAccessRange(x: BidirRange) if (
 
         using RetType = rangeType.RetType
 
-        fun isEmpty                     = _count == 0 || (_range isEmpty)
-        fun front: RetType              = _range front
-        fun popFront                    { _range popFront; --_count }
+        fun isEmpty                     = _count == 0 || _range.isEmpty
+        fun front: RetType              = _range.front
+        fun popFront                    { _range.popFront; --_count }
 
     [initCtor]
     class TakeWhileRange(rangeType: Type, predType: Type) \
@@ -306,9 +306,9 @@ concept RandomAccessRange(x: BidirRange) if (
 
         using RetType = rangeType.RetType
 
-        fun isEmpty                     = (_range isEmpty) || !_pred(_range front)
-        fun front: RetType              = _range front
-        fun popFront                    { _range popFront }
+        fun isEmpty                     = _range.isEmpty || !_pred(_range.front)
+        fun front: RetType              = _range.front
+        fun popFront                    { _range.popFront }
 
     [initCtor]
     class TakeUntilRange(rangeType: Type, predType: Type) \
@@ -324,11 +324,11 @@ concept RandomAccessRange(x: BidirRange) if (
             this._pred ctor pred
             _shouldStop = false
 
-        fun isEmpty                     = (_range isEmpty) || _shouldStop
-        fun front: RetType              = _range front
+        fun isEmpty                     = _range.isEmpty || _shouldStop
+        fun front: RetType              = _range.front
         fun popFront
-            var lastVal = _range front
-            _range popFront
+            var lastVal = _range.front
+            _range.popFront
             _shouldStop = _pred(lastVal)
 
     class FilteredRange(rangeType, predType: Type) \
@@ -345,16 +345,16 @@ concept RandomAccessRange(x: BidirRange) if (
             this._lastVal ctor
             _popUntilValid
 
-        fun isEmpty                     = _range isEmpty
+        fun isEmpty                     = _range.isEmpty
         fun front: RetType              = _lastVal
-        fun popFront                    { _range popFront; _popUntilValid }
+        fun popFront                    { _range.popFront; _popUntilValid }
 
         fun _popUntilValid
-            while !(_range isEmpty)
-                _lastVal = (_range front)
+            while !_range.isEmpty
+                _lastVal = _range.front
                 if _pred(_lastVal)
                     break
-                _range popFront
+                _range.popFront
 
     class TransformedRange(rangeType, funType: Type) \
             if Range(#$rangeType) && isValid((#$funType)(#$rangeType front))
@@ -371,13 +371,13 @@ concept RandomAccessRange(x: BidirRange) if (
             this._curVal ctor
             this._hasValue ctor false
 
-        fun isEmpty                     = _range isEmpty
+        fun isEmpty                     = _range.isEmpty
         fun front: RetType
             if !_hasValue
-                _curVal = _function(_range front)
+                _curVal = _function(_range.front)
                 _hasValue = true
             return _curVal
-        fun popFront                    { _range popFront; _hasValue = false }
+        fun popFront                    { _range.popFront; _hasValue = false }
 
     [initCtor]
     class RepeatRange(valueType: Type)
@@ -397,13 +397,13 @@ concept RandomAccessRange(x: BidirRange) if (
 
         using RetType = commonType(rangeType1.RetType, rangeType2.RetType)
 
-        fun isEmpty                 = (_range1 isEmpty) && (_range2 isEmpty)
-        fun front: RetType          = ife(_range1 isEmpty, _range2 front, _range1 front)
+        fun isEmpty                 = _range1.isEmpty && _range2.isEmpty
+        fun front: RetType          = ife(_range1.isEmpty, _range2.front, _range1.front)
         fun popFront
-            if _range1 isEmpty
-                _range2 popFront
+            if _range1.isEmpty
+                _range2.popFront
             else
-                _range1 popFront
+                _range1.popFront
 
     [initCtor]
     class StridedRange(rangeType: Type) if Range(#$rangeType)
@@ -412,13 +412,13 @@ concept RandomAccessRange(x: BidirRange) if (
 
         using RetType = rangeType.RetType
 
-        fun isEmpty                     = _range isEmpty
-        fun front: RetType              = _range front
+        fun isEmpty                     = _range.isEmpty
+        fun front: RetType              = _range.front
         fun popFront
             var s = _strideStep
-            while !(_range isEmpty) && s > 0
+            while !_range.isEmpty && s > 0
                 s = s - 1
-                _range popFront
+                _range.popFront
 
     class RadialRange(rangeType: Type) if RandomAccessRange(#$rangeType)
         var _range: rangeType
@@ -434,14 +434,14 @@ concept RandomAccessRange(x: BidirRange) if (
             this._sign ctor 1
             this._count ctor 0
 
-        fun isEmpty                     = (_range isEmpty) || _count == (_range size)
+        fun isEmpty                     = _range.isEmpty || _count == _range.size
         fun front: RetType              = _range(_index)
         fun popFront
             _index = _index + _step * _sign
             _step = _step + 1
             _sign = -_sign
             _count = _count + 1
-            while (_index < 0 || _index >= (_range size)) && _count < (_range size)
+            while (_index < 0 || _index >= _range.size) && _count < _range.size
                 _index = _index + _step * _sign
                 _step = _step + 1
                 _sign = -_sign
@@ -456,10 +456,10 @@ concept RandomAccessRange(x: BidirRange) if (
             this.base ctor range
 
         fun isEmpty                     = false
-        fun front: RetType              = _range front
+        fun front: RetType              = _range.front
         fun popFront
-            _range popFront
-            if _range isEmpty
+            _range.popFront
+            if _range.isEmpty
                 _range = base
 
     class CyclicCountedRange(rangeType: Type) if Range(#$rangeType)
@@ -474,10 +474,10 @@ concept RandomAccessRange(x: BidirRange) if (
             this.base ctor range
 
         fun isEmpty                     = _count == 0
-        fun front: RetType              = _range front
+        fun front: RetType              = _range.front
         fun popFront
-            _range popFront
-            if _range isEmpty
+            _range.popFront
+            if _range.isEmpty
                 if _count > 0
                     _range = base
                     --_count
@@ -518,9 +518,9 @@ concept RandomAccessRange(x: BidirRange) if (
 
         using RetType = typeOf((#$functionType)(#$rangeType1 front, #$rangeType2 front))
 
-        fun isEmpty                     = (_range1 isEmpty) || (_range2 isEmpty)
-        fun front: RetType              = _function(_range1 front, _range2 front)
-        fun popFront                    { _range1 popFront; _range2 popFront }
+        fun isEmpty                     = _range1.isEmpty || _range2.isEmpty
+        fun front: RetType              = _function(_range1.front, _range2.front)
+        fun popFront                    { _range1.popFront; _range2.popFront }
 
     class ScanLeftRange(accType, rangeType: Type, functionType: Type) if Range(#$rangeType)
         var _acc: accType
@@ -536,11 +536,11 @@ concept RandomAccessRange(x: BidirRange) if (
             this._function ctor function
             this._valComputed ctor false
 
-        fun isEmpty         = _range isEmpty
-        fun popFront        { _range popFront; _valComputed=false }
+        fun isEmpty         = _range.isEmpty
+        fun popFront        { _range.popFront; _valComputed=false }
         fun front: RetType
             if !_valComputed
-                _acc = _function(_acc, _range front)
+                _acc = _function(_acc, _range.front)
             _valComputed=true
             return _acc
 

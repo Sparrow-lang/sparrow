@@ -219,8 +219,8 @@ TypeRef SprClass_ComputeType(Node* node)
     Node* resultingClass = nullptr;
 
     // Special case for Type class; re-use the existing StdDef class
-    const StringRef* nativeName = Nest_getPropertyString(node, propNativeName);
-    if ( nativeName && *nativeName == "Type" )
+    StringRef nativeName = Nest_getPropertyStringDeref(node, propNativeName);
+    if ( nativeName == "Type" )
     {
         resultingClass = StdDef::clsType;
     }
@@ -233,9 +233,9 @@ TypeRef SprClass_ComputeType(Node* node)
     Feather_setShouldAddToSymTab(resultingClass, 0);
 
     // Copy the "native" and "description" properties to the resulting class
-    if ( nativeName )
+    if ( size(nativeName) > 0 )
     {
-        Nest_setPropertyString(resultingClass, propNativeName, *nativeName);
+        Nest_setPropertyString(resultingClass, propNativeName, nativeName);
     }
     const StringRef* description = Nest_getPropertyString(node, propDescription);
     if ( description )
@@ -331,10 +331,30 @@ TypeRef SprFunction_ComputeType(Node* node)
     if ( isMember )
         Nest_setPropertyInt(node, propIsMember, 1);
 
+    // Does this function have an implicit 'this' arg?
+    bool addThisParam = isMember && !isStatic;
+    int thisParamIdx = -1;
+    if ( !addThisParam && parameters ) {
+        for ( int i=0; i<size(parameters->children); i++ ) {
+            Node* param = at(parameters->children, i);
+            if ( !param )
+                continue;
+            StringRef name = Feather_getName(param);
+            if ( name == "this" ) {
+                thisParamIdx = i;
+                break;
+            }
+        }
+    }
+    if ( addThisParam || thisParamIdx >= 0 )
+        Nest_setPropertyInt(node, propHasThisParam, 1);
+    if ( addThisParam )
+        Nest_setPropertyInt(node, propHasImplicitThisParam, 1);
+
     // Is this a generic?
     if ( parameters )
     {
-        Node* thisClass = isMember && !isStatic ? parentClass : nullptr;
+        Node* thisClass = addThisParam ? parentClass : nullptr;
         Node* generic = createGenericFun(node, parameters, ifClause, thisClass);
         if ( generic )
         {
@@ -352,7 +372,7 @@ TypeRef SprFunction_ComputeType(Node* node)
     StringRef funName = Feather_getName(node);
 
     // Special modifier for ctors & dtors
-    if ( isMember && !isStatic && !Nest_hasProperty(node, propNoDefault) )
+    if ( addThisParam && !Nest_hasProperty(node, propNoDefault) )
     {
         if ( funName == "ctor" )
             Nest_addModifier(node, SprFe_getCtorMembersIntMod());
@@ -368,9 +388,10 @@ TypeRef SprFunction_ComputeType(Node* node)
     copyAccessType(resultingFun, node);
 
     // Copy the "native" and the "autoCt" properties
-    const StringRef* nativeName = Nest_getPropertyString(node, propNativeName);
-    if ( nativeName )
-        Nest_setPropertyString(resultingFun, propNativeName, *nativeName);
+    StringRef nativeName = Nest_getPropertyStringDeref(node, propNativeName);
+
+    if ( size(nativeName) > 0 )
+        Nest_setPropertyString(resultingFun, propNativeName, nativeName);
     if ( Nest_hasProperty(node, propAutoCt) )
         Nest_setPropertyInt(resultingFun, propAutoCt, 1);
     if ( Nest_hasProperty(node, propNoInline) )
@@ -386,12 +407,13 @@ TypeRef SprFunction_ComputeType(Node* node)
         return nullptr;
 
     // If this is a non-static member function, add this as a parameter
-    if ( isMember && !isStatic )
+    if ( addThisParam )
     {
         TypeRef thisType = Feather_getDataType(parentClass, 1, thisEvalMode);
-        Node* thisParam = Feather_mkVar(node->location, fromCStr("$this"), Feather_mkTypeNode(node->location, thisType));
+        Node* thisParam = Feather_mkVar(node->location, fromCStr("this"), Feather_mkTypeNode(node->location, thisType));
         Nest_setContext(thisParam, node->childrenContext);
         Feather_Function_addParameter(resultingFun, thisParam);
+        Nest_setPropertyType(resultingFun, propThisParamType, thisType);
     }
 
     // Add the actual specified parameters
@@ -400,13 +422,25 @@ TypeRef SprFunction_ComputeType(Node* node)
         for ( Node* n: parameters->children )
         {
             if ( !n )
-                REP_ERROR_RET(nullptr, n->location, "Invalid node as parameter");
+                REP_ERROR_RET(nullptr, parameters->location, "Invalid node as parameter");
             if ( n->nodeError )
                 return nullptr;
 
             Feather_Function_addParameter(resultingFun, n);
         }
     }
+
+    // If we found an explicit 'this' parameter, mark this as a property of the resulting function
+    if ( thisParamIdx >= 0 ) {
+        Node* thisParam = at(parameters->children, thisParamIdx);
+        ASSERT(thisParam);
+        Nest_setPropertyType(resultingFun, propThisParamType, thisParam->type);
+    }
+
+    // The explanation may be needed while computing the return type
+    // E.g., when we are using implicit 'this' for expressions that would be
+    // used to compute the result type (fun name = expr)
+    node->explanation = resultingFun;
 
     // Compute the type of the return type node
     // We do this after the parameters, as the computation of the result might require access to the parameters
@@ -417,9 +451,10 @@ TypeRef SprFunction_ComputeType(Node* node)
 
     // If the result is a non-reference class, not basic numeric, and our function is not native, add result parameter;
     // otherwise, normal result
-    bool nativeAbi = nativeName && *nativeName != "$funptr";
+    bool nativeAbi = size(nativeName) > 0 && nativeName != "$funptr";
     if ( !nativeAbi && resType->hasStorage && resType->numReferences == 0 && !Feather_isBasicNumericType(resType) )
     {
+        ASSERT(returnType);
         Node* resParam = Feather_mkVar(returnType->location, fromCStr("_result"), Feather_mkTypeNode(returnType->location, Feather_addRef(resType)));
         Nest_setContext(resParam, node->childrenContext);
         Feather_Function_addParameterFirst(resultingFun, resParam);
@@ -429,8 +464,7 @@ TypeRef SprFunction_ComputeType(Node* node)
     else
         Feather_Function_setResultType(resultingFun, Feather_mkTypeNode(node->location, resType));
 
-    // TODO (explanation): explanation should be the result of semantic check
-    node->explanation = resultingFun;
+    // Now we can actually compute the type of the resulting function
     node->type = Nest_computeType(node->explanation);
 
     // Check for Std functions

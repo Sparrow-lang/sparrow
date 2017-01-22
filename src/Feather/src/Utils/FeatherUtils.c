@@ -49,11 +49,12 @@ Node* Feather_classDecl(TypeRef type)
     return type->referredNode;
 }
 
-const StringRef* Feather_nativeName(TypeRef type)
+StringRef Feather_nativeName(TypeRef type)
 {
+    StringRef res = {0,0};
     if ( type->referredNode && type->referredNode->nodeKind == nkFeatherDeclClass )
-        return Nest_getPropertyString(type->referredNode, propNativeName);
-    return 0;
+        res = Nest_getPropertyStringDeref(type->referredNode, propNativeName);
+    return res;
 }
 
 int Feather_numReferences(TypeRef type)
@@ -167,6 +168,7 @@ void Feather_addToSymTab(Node* decl)
 
     if ( !decl->context )
         Nest_reportFmt(decl->location, diagInternalError, "Cannot add node %s to sym-tab: context is not set", Nest_nodeKindName(decl));
+    ASSERT(decl->context);
     StringRef declName = Feather_getName(decl);
     if ( declName.begin == declName.end )
         Nest_reportFmt(decl->location, diagInternalError, "Cannot add node %s to sym-tab: no name set", Nest_nodeKindName(decl));

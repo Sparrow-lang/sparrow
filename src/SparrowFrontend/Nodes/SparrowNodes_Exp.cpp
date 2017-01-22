@@ -43,6 +43,7 @@ namespace
                 {
                     if ( !baseExp )
                         REP_INTERNAL(loc, "No base expression to refer to a field");
+                    ASSERT(baseExp);
 
                     // Make sure the base is a reference
                     if ( baseExp->type->numReferences == 0 )
@@ -106,6 +107,7 @@ namespace
 
         if ( !arg1->type || !arg2->type )
             REP_INTERNAL(loc, "Invalid arguments");
+        ASSERT(arg1->type && arg2->type);
 
         // Make sure the first argument is a type
         TypeRef t = getType(arg1);
@@ -426,6 +428,90 @@ namespace
         return res ? res : cls->context;
     }
 
+    //! Structure defining the parameters for a search scope
+    struct SearchScope {
+        StringRef operation;                //!< The operation name to look for
+        CompilationContext* searchContext;  //!< The search context
+        bool canSearchUp;                   //!< Whether to search up from the given context
+        EvalMode mode;                      //!< The evaluation mode to be used
+    };
+
+    /**
+     * Builds the search scopes for an operator call with the given operation and operands
+     *
+     * The given 'dest' buffer must contain at least 6 entries. On return
+     * 'numScopes' will indicate how many we've filled.
+     *
+     * We assume that both arguments are expressions.
+     *
+     * @param dest          [out] Where to place the search scopes
+     * @param numScopes     [out] The number of search scopes filled
+     * @param node          The node containing the node that initiated the search
+     * @param operation     The name of the operation that needs to be called
+     * @param opWithPrefix  Prefixed name of operation to be searched (can be empty)
+     * @param arg1          The left argument (can be NULL)
+     * @param arg2          The right argument (can be NULL)
+     * @param searchFromCur True if we are allowed to search from the current node
+     */
+    void buildSearchScopes(SearchScope* dest, int& numScopes,
+            Node* node, StringRef operation, StringRef opWithPrefix, Node* arg1, Node* arg2,
+            bool searchFromCur = true) {
+        // Identify the first valid operand, so that we can search near it
+        Node* base = arg1 ? arg1 : arg2;
+        Node* argClass = nullptr;
+        if ( base )
+        {
+            if ( !Nest_semanticCheck(base) )
+                return;
+            argClass = Feather_classForType(base->type);
+        }
+
+        // Gather the search places and parameters
+
+        numScopes = 0;
+
+        EvalMode mode;
+        CompilationContext* ctx;
+
+        if ( argClass )
+        {
+            // Step 1: Try to find an operator that match in the class of the base expression
+            mode = base->type->mode;
+            ctx = Nest_childrenContext(argClass);
+            ASSERT(ctx);
+            if ( size(opWithPrefix) > 0 )
+                dest[numScopes++] = SearchScope{ opWithPrefix, ctx, false, mode };
+            dest[numScopes++] = SearchScope{ operation, ctx, false, mode };
+
+            // Step 2: Try to find an operator that match in the near the class the base expression
+            mode = node->context->evalMode;
+            ctx = classContext(argClass);
+            if ( size(opWithPrefix) > 0 )
+                dest[numScopes++] = SearchScope{ opWithPrefix, ctx, false, mode };
+            dest[numScopes++] = SearchScope{ operation, ctx, false, mode };
+        }
+
+        if ( searchFromCur ) {
+            // Step 3: General search from the current context
+            mode = node->context->evalMode;
+            ctx = node->context;
+            if ( size(opWithPrefix) > 0 )
+                dest[numScopes++] = SearchScope{ opWithPrefix, ctx, true, mode };
+            dest[numScopes++] = SearchScope{ operation, ctx, true, mode };
+        }
+    }
+
+    //! Performs a scoped search, returning the found declarations
+    NodeArray performSearch(SearchScope& ss) {
+        ASSERT(ss.searchContext);
+        SymTab* sTab = ss.searchContext->currentSymTab;
+        NodeArray decls = ss.canSearchUp
+                            ? Nest_symTabLookup(sTab, ss.operation.begin)
+                            : Nest_symTabLookupCurrent(sTab, ss.operation.begin);
+        return decls;
+    }
+
+
     /**
      * Tries to select an operator call for the given operation and operands.
      *
@@ -444,89 +530,26 @@ namespace
     {
         Node* argsSrc[] = { arg1, arg2, nullptr };
         NodeRange args = { argsSrc, argsSrc+2 };
-        if ( !arg1 )
-            args.beginPtr++;
-        if ( !arg2 )
-            args.endPtr--;
+        if ( !arg1 ) args.beginPtr++;
+        if ( !arg2 ) args.endPtr--;
 
-        // If this is an unary operator, try using the operation prefix
-        string opPrefix;
-        if ( arg1 && !arg2 )
-            opPrefix = "post_";
-        if ( !arg1 && arg2 )
-            opPrefix = "pre_";
-
-        // Identifiy the first valid operand, so that we can search near it
-        Node* base = nullptr;
-        if ( arg1 )
-            base = arg1;
-        else if ( arg2 )
-            base = arg2;
-
-        Node* argClass = nullptr;
-        if ( base )
-        {
-            if ( !Nest_semanticCheck(base) )
-                return nullptr;
-            argClass = Feather_classForType(base->type);
-        }
+        // For unary operations, we are also searching with 'pre_', 'post_' prefixes
+        string opWithPrefixStr;
+        if ( arg1 && !arg2 ) opWithPrefixStr = "post_" + toString(operation);
+        if ( !arg1 && arg2 ) opWithPrefixStr = "pre_" + toString(operation);
 
         // Gather the search places and parameters
+        SearchScope searchScopes[6];
+        int numScopes = 0;
+        buildSearchScopes(searchScopes, numScopes, node, operation, fromString(opWithPrefixStr), arg1, arg2, true);
 
-        //! Structure defining the parameters for a search attempt
-        struct SearchAttempt {
-            StringRef operation;                //!< The operation name to look for
-            CompilationContext* searchContext;  //!< The search context
-            bool canSearchUp;                   //!< Whether to search up from the given context
-            EvalMode mode;                      //!< The evaluation mode to be used
-        };
-
-        //! Defines the places we have to search for
-        SearchAttempt searches[6];
-        int numSearches = 0;
-
-        EvalMode mode;
-        CompilationContext* ctx;
-        opPrefix += toString(operation);
-        StringRef opWithPrefix = fromString(opPrefix);
-
-        if ( argClass )
-        {
-            // Step 1: Try to find an operator that match in the class of the base expression
-            mode = base->type->mode;
-            ctx = Nest_childrenContext(argClass);
-            if ( !opPrefix.empty() ) {
-                searches[numSearches++] = SearchAttempt{ opWithPrefix, ctx, false, mode };
-            }
-            searches[numSearches++] = SearchAttempt{ operation, ctx, false, mode };
-
-            // Step 2: Try to find an operator that match in the near the class the base expression
-            mode = node->context->evalMode;
-            ctx = classContext(argClass);
-            if ( !opPrefix.empty() ) {
-                searches[numSearches++] = SearchAttempt{ opWithPrefix, ctx, false, mode };
-            }
-            searches[numSearches++] = SearchAttempt{ operation, ctx, false, mode };
-        }
-
-        // Step 3: General search from the current context
-        mode = node->context->evalMode;
-        ctx = node->context;
-        if ( !opPrefix.empty() ) {
-            searches[numSearches++] = SearchAttempt{ opWithPrefix, ctx, true, mode };
-        }
-        searches[numSearches++] = SearchAttempt{ operation, ctx, true, mode };
-
-        // Now actually perform the searches
+        // Now actually perform the searchScopes
         OverloadReporting errReporting = reportErrors ? OverloadReporting::noTopLevel : OverloadReporting::none;
-        for ( int i=0; i<numSearches; ++i ) {
-            SearchAttempt& s = searches[i];
+        for ( int i=0; i<numScopes; ++i ) {
+            SearchScope& s = searchScopes[i];
 
             // Search for decls in the given context
-            SymTab* sTab = s.searchContext->currentSymTab;
-            NodeArray decls = s.canSearchUp
-                                ? Nest_symTabLookup(sTab, s.operation.begin)
-                                : Nest_symTabLookupCurrent(sTab, s.operation.begin);
+            NodeArray decls = performSearch(s);
 
             // Do we have any results? If yes, run the overloading mechanism
             Node* result = nullptr;
@@ -923,17 +946,28 @@ Node* Literal_SemanticCheck(Node* node)
         return Feather_mkCtValue(node->location, t, data);
 }
 
-Node* This_SemanticCheck(Node* node)
-{
-    return mkIdentifier(node->location, fromCStr("$this"));
-}
-
 Node* Identifier_SemanticCheck(Node* node)
 {
     StringRef id = Nest_getCheckPropertyString(node, "name");
 
     // Search in the current symbol table for the identifier
     NodeArray declsOrig = Nest_symTabLookup(node->context->currentSymTab, id.begin);
+    // If not found, check if we may have an implicit this
+    // Try searching for the symbol in the context of the 'this' datatype
+    if ( Nest_nodeArraySize(declsOrig) == 0 ) {
+        Node* funDecl = Feather_getParentFun(node->context);
+        if ( funDecl ) {
+            // Does the function has a 'this' param?
+            const TypeRef* pThisParamType = Nest_getPropertyType(funDecl, propThisParamType);
+            if ( pThisParamType && (*pThisParamType)->hasStorage ) {
+                Node* dataType = Feather_classDecl(*pThisParamType);
+                if ( dataType ) {
+                    declsOrig = Nest_symTabLookupCurrent(dataType->childrenContext->currentSymTab, id.begin);
+                }
+            }
+        }
+    }
+
     if ( Nest_nodeArraySize(declsOrig) == 0 )
         REP_ERROR_RET(nullptr, node->location, "No declarations found with the given name (%1%)") % id;
 
@@ -943,7 +977,7 @@ Node* Identifier_SemanticCheck(Node* node)
     NodeArray decls = expandDecls(all(declsOrig), node);
 
     if ( size(decls) == 0 ) {
-        REP_ERROR(node->location, "No declarations found with the given name (%1%)") % id;
+        REP_ERROR(node->location, "No compatible declarations found with the given name (%1%)") % id;
 
         // Print the removed declarations
         for ( Node* n: declsOrig ) {
@@ -954,7 +988,7 @@ Node* Identifier_SemanticCheck(Node* node)
             else if ( n && !n->type )
                 REP_INFO(n->location, "See declaration without a type");
             else
-                REP_INFO(n->location, "See invalid declaration");
+                REP_INFO(node->location, "Encountered invalid declaration");
         }
         Nest_freeNodeArray(declsOrig);
         Nest_freeNodeArray(decls);
@@ -972,7 +1006,7 @@ Node* Identifier_SemanticCheck(Node* node)
             needsThis = true;
             break;
         }
-        if ( decl && decl->nodeKind == nkSparrowDeclSprFunction && funHasThisParameters(decl) )
+        if ( funHasImplicitThis(decl) )
         {
             needsThis = true;
             break;
@@ -981,7 +1015,7 @@ Node* Identifier_SemanticCheck(Node* node)
     if ( needsThis )
     {
         // Add 'this' parameter to handle this case
-        Node* res = mkCompoundExp(node->location, mkThisExp(node->location), id);
+        Node* res = mkCompoundExp(node->location, mkIdentifier(node->location, fromCStr("this")), id);
         return res;
     }
 
@@ -1018,7 +1052,7 @@ Node* CompoundExp_SemanticCheck(Node* node)
     Nest_setPropertyNode(node, "baseDataExp", baseDataExp);
 
     // Get the declarations that this node refers to
-    NodeArray declsOrig;
+    NodeArray declsOrig{0,0,0};
     if ( !baseDecls.empty() )
     {
         // Get the referred declarations; search for our id inside the symbol table of the declarations of the base
@@ -1036,13 +1070,21 @@ Node* CompoundExp_SemanticCheck(Node* node)
     }
     else if ( base->type->hasStorage )
     {
-        // If the base is an expression with a data type, treat this as a data access
-        Node* classDecl = Feather_classForType(base->type);
-        if ( !Nest_computeType(classDecl) )
-            return nullptr;
+        // We also consider searching with the 'post_' prefix
+        string idWithPrefixStr = "post_" + toString(id);
 
-        // Search for a declaration in the class
-        declsOrig = Nest_symTabLookupCurrent(classDecl->childrenContext->currentSymTab, id.begin);
+        // Get the scopes where we search for the id
+        SearchScope searchScopes[6];
+        int numScopes = 0;
+        buildSearchScopes(searchScopes, numScopes, node, id, fromString(idWithPrefixStr), base, nullptr, false);
+
+        // Perform the search sequentially; stop if we find something
+        for ( size_t i=0; i<numScopes; i++ ) {
+            SearchScope& ss = searchScopes[i];
+            declsOrig = performSearch(ss);
+            if ( size(declsOrig) > 0 )
+                break;
+        }
     }
 
     // At this point, 'declsOrig' may contain using nodes that will point to other decls
@@ -1050,6 +1092,7 @@ Node* CompoundExp_SemanticCheck(Node* node)
     // Also filter our nodes that cannot be access or without a proper type
     NodeArray decls = expandDecls(all(declsOrig), node);
 
+    // Error reporting
     if ( size(decls) == 0 ) {
         // Get the string describing where we are searching
         ostringstream oss;
@@ -1082,7 +1125,7 @@ Node* CompoundExp_SemanticCheck(Node* node)
             else if ( n && !n->type )
                 REP_INFO(n->location, "See declaration without a type");
             else
-                REP_INFO(n->location, "See invalid declaration");
+                REP_INFO(node->location, "Encountered invalid declaration");
         }
         Nest_freeNodeArray(declsOrig);
         Nest_freeNodeArray(decls);
@@ -1091,7 +1134,6 @@ Node* CompoundExp_SemanticCheck(Node* node)
 
     bool allowDeclExp = 0 != Nest_getCheckPropertyInt(node, propAllowDeclExp);
     Node* res = getIdentifierResult(node, all(decls), baseDataExp, allowDeclExp);
-    ASSERT(res);
     return res;
 }
 
@@ -1104,6 +1146,7 @@ Node* FunApplication_SemanticCheck(Node* node)
 
     if ( !base )
         REP_INTERNAL(node->location, "Don't know what function to call");
+    ASSERT(base);
 
     // For the base expression allow it to return DeclExp
     Nest_setPropertyExplInt(base, propAllowDeclExp, 1);
@@ -1341,8 +1384,6 @@ Node* OperatorCall_SemanticCheck(Node* node)
 Node* InfixExp_SemanticCheck(Node* node)
 {
     ASSERT(Nest_nodeArraySize(node->children) == 2);
-    Node* arg1 = at(node->children, 0);
-    Node* arg2 = at(node->children, 1);
 
     // This is constructed in such way that left most operations are applied first.
     // This way, we have a tree that has a lot of children on the left side and one children on the right side
@@ -1352,8 +1393,8 @@ Node* InfixExp_SemanticCheck(Node* node)
     handlePrecedence(node);
     handleAssociativity(node);
 
-    arg1 = at(node->children, 0);
-    arg2 = at(node->children, 1);
+    Node* arg1 = at(node->children, 0);
+    Node* arg2 = at(node->children, 1);
 
     return mkOperatorCall(node->location, arg1, getOperation(node), arg2);
 }
@@ -1396,7 +1437,10 @@ Node* LambdaFunction_SemanticCheck(Node* node)
         NodeVector ctorArgsNodes, ctorParamsNodes;
         for ( Node* arg: closureParams->children )
         {
-            if ( !arg || arg->nodeKind != nkSparrowExpIdentifier )
+            if ( !arg )
+                REP_INTERNAL(closureParams->location, "Invalid closure parameter");
+            ASSERT(arg);
+            if ( arg->nodeKind != nkSparrowExpIdentifier )
                 REP_INTERNAL(arg->location, "The closure parameter must be identifier");
             StringRef varName = Feather_getName(arg);
             const Location& loc = arg->location;
@@ -1415,7 +1459,7 @@ Node* LambdaFunction_SemanticCheck(Node* node)
             Nest_appendNodeToArray(&classBody->children, mkSprVariable(loc, varName, varType, nullptr));
 
             // Create an initialization for the variable
-            Node* fieldRef = mkCompoundExp(loc, mkThisExp(loc), varName);
+            Node* fieldRef = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("this")), varName);
             Node* paramRef = mkIdentifier(loc, varName);
             const char* op = (varType->numReferences == 0) ? "ctor" : ":=";
             Node* initCall = mkOperatorCall(loc, fieldRef, fromCStr(op), paramRef);

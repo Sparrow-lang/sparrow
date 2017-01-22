@@ -70,6 +70,7 @@ llvm::Type* Tr::getLLVMType(TypeRef type, Module& module)
 {
     if ( !type )
         REP_INTERNAL(NOLOC, "Invalid type to translate to LLVM");
+    ASSERT(type);
     if ( module.isCt() && type->mode == modeRt )
         REP_INTERNAL(NOLOC, "Cannot use non-CT type at CT (%1%)") % type->description;
     if ( !module.isCt() && !type->canBeUsedAtRt )

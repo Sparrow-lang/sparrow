@@ -21,30 +21,30 @@ namespace
         Node* cls = Feather_classForType(t);
         ASSERT(cls);
 
-        const StringRef* nativeName = Nest_getPropertyString(cls, propNativeName);
-        if ( !nativeName || size(*nativeName) <= 1 || !islower(nativeName->begin[0]) )
+        StringRef nativeName = Nest_getPropertyStringDeref(cls, propNativeName);
+        if ( size(nativeName) <= 1 || !islower(nativeName.begin[0]) )
             return false;
 
-        if ( *nativeName == "double" )
+        if ( nativeName == "double" )
         {
             numBits = 64;
             isUnsigned = false;
             isFloating = true;
             return true;
         }
-        else if ( *nativeName == "float" )
+        else if ( nativeName == "float" )
         {
             numBits = 32;
             isUnsigned = false;
             isFloating = true;
             return true;
         }
-        else if ( size(*nativeName) > 1 && (nativeName->begin[0] == 'i' || nativeName->begin[0] == 'u') )
+        else if ( size(nativeName) > 1 && (nativeName.begin[0] == 'i' || nativeName.begin[0] == 'u') )
         {
             try
             {
-                numBits = boost::lexical_cast<int>(nativeName->begin+1);
-                isUnsigned = nativeName->begin[0] == 'u';
+                numBits = boost::lexical_cast<int>(nativeName.begin+1);
+                isUnsigned = nativeName.begin[0] == 'u';
                 isFloating = false;
                 return true;
             }

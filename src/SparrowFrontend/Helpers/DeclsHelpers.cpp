@@ -151,7 +151,7 @@ NodeArray SprFrontend::expandDecls(NodeRange decls, Node* seenFrom) {
             decl = nullptr;
 
         // Check for 'using(declExp(d))''
-        if ( decl->nodeKind == nkSparrowDeclUsing ) {
+        if ( decl && decl->nodeKind == nkSparrowDeclUsing ) {
             Node* ref = at(decl->children, 0);
             ref = Nest_explanation(ref);
             if ( ref->nodeKind == nkSparrowExpDeclExp ) {
@@ -253,13 +253,11 @@ void SprFrontend::setAccessType(Node* decl, AccessType accessType)
 
 void SprFrontend::deduceAccessType(Node* decl)
 {
-    const StringRef* name = Nest_getPropertyString(decl, "name");
-    if ( name ) {
-        AccessType acc = publicAccess;
-        if ( size(*name) > 0 && *name->begin == '_' )
-            acc = privateAccess;
-        Nest_setPropertyInt(decl, "spr.accessType", acc);
-    }
+    StringRef name = Nest_getPropertyStringDeref(decl, "name");
+    AccessType acc = publicAccess;
+    if ( size(name) > 0 && *name.begin == '_' )
+        acc = privateAccess;
+    Nest_setPropertyInt(decl, "spr.accessType", acc);
 }
 
 void SprFrontend::copyAccessType(Node* destDecl, Node* srcDecl)
@@ -318,5 +316,11 @@ void SprFrontend::copyModifiersSetMode(Node* src, Node* dest, EvalMode newMode)
 bool SprFrontend::funHasThisParameters(Node* fun)
 {
     return fun && fun->nodeKind == nkSparrowDeclSprFunction
-        && Nest_hasProperty(fun, "spr.isMember") && !Nest_hasProperty(fun, propIsStatic);
+        && Nest_hasProperty(fun, propHasThisParam);
+}
+
+bool SprFrontend::funHasImplicitThis(Node* fun)
+{
+    return fun && fun->nodeKind == nkSparrowDeclSprFunction
+        && Nest_hasProperty(fun, propHasImplicitThisParam);
 }

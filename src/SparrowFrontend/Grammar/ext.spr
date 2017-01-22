@@ -53,8 +53,6 @@ fun mkDotExpr(loc: @Location, base: Node, id: StringRef): Node
 fun mkFunAppExpr(loc: @Location, base, args: Node): Node
 [native("comp_parser_mkLambdaExpr")]
 fun mkLambdaExpr(loc: @Location, closureParams, formals, retType, body, bodyExpr: Node): Node
-[native("comp_parser_mkThisExpr")]
-fun mkThisExpr(loc: @Location): Node
 [native("comp_parser_mkNullLiteral")]
 fun mkNullLiteral(loc: @Location): Node
 [native("comp_parser_mkBoolLiteral")]

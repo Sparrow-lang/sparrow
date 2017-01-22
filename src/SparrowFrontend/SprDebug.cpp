@@ -436,9 +436,6 @@ void printNodeImpl(const Node* node, int mode) {
         case nkRelSparrowExpLiteral:
             printLiteralNode(node);
             return;
-        case nkRelSparrowExpThis:
-            printf("this");
-            return;
         case nkRelSparrowExpIdentifier:
             printf("%s", Feather_getName(node).begin);
             return;

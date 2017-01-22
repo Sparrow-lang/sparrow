@@ -310,7 +310,7 @@ Node* SprReturn_SemanticCheck(Node* node)
     }
     else
     {
-        if ( Feather_Function_resultType(parentFun)->typeKind != typeKindVoid )
+        if ( resultParam || Feather_Function_resultType(parentFun)->typeKind != typeKindVoid )
             REP_ERROR_RET(nullptr, node->location, "You must return something in a function that has non-Void result type");
     }
 
@@ -381,7 +381,6 @@ Node* Using_SemanticCheck(Node* node);
 //
 
 Node* Literal_SemanticCheck(Node* node);
-Node* This_SemanticCheck(Node* node);
 Node* Identifier_SemanticCheck(Node* node);
 Node* CompoundExp_SemanticCheck(Node* node);
 Node* FunApplication_SemanticCheck(Node* node);
@@ -416,7 +415,6 @@ int SprFrontend::nkSparrowDeclGenericFunction = 0;
 int SprFrontend::nkSparrowDeclUsing = 0;
 
 int SprFrontend::nkSparrowExpLiteral = 0;
-int SprFrontend::nkSparrowExpThis = 0;
 int SprFrontend::nkSparrowExpIdentifier = 0;
 int SprFrontend::nkSparrowExpCompoundExp = 0;
 int SprFrontend::nkSparrowExpFunApplication = 0;
@@ -455,7 +453,6 @@ void SprFrontend::initSparrowNodeKinds()
     nkSparrowDeclUsing =                Nest_registerNodeKind("spr.using", &Using_SemanticCheck, &Using_ComputeType, &Using_SetContextForChildren, NULL);
 
     nkSparrowExpLiteral =               Nest_registerNodeKind("spr.literal", &Literal_SemanticCheck, NULL, NULL, NULL);
-    nkSparrowExpThis =                  Nest_registerNodeKind("spr.this", &This_SemanticCheck, NULL, NULL, NULL);
     nkSparrowExpIdentifier =            Nest_registerNodeKind("spr.identifier", &Identifier_SemanticCheck, NULL, NULL, NULL);
     nkSparrowExpCompoundExp =           Nest_registerNodeKind("spr.compoundExp", &CompoundExp_SemanticCheck, NULL, NULL, NULL);
     nkSparrowExpFunApplication =        Nest_registerNodeKind("spr.funApplication", &FunApplication_SemanticCheck, NULL, NULL, NULL);
@@ -661,13 +658,6 @@ Node* SprFrontend::mkLiteral(const Location& loc, StringRef litType, StringRef d
     res->location = loc;
     Nest_setPropertyString(res, "spr.literalType", litType);
     Nest_setPropertyString(res, "spr.literalData", data);
-    return res;
-}
-
-Node* SprFrontend::mkThisExp(const Location& loc)
-{
-    Node* res = Nest_createNode(nkSparrowExpThis);
-    res->location = loc;
     return res;
 }
 

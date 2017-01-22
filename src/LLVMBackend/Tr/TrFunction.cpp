@@ -195,6 +195,7 @@ llvm::Function* Tr::translateFunction(Node* node, Module& module)
             Node* param = Nest_ofKind(Nest_explanation(paramNode), nkFeatherDeclVar);
             if ( !param )
                 REP_INTERNAL(paramNode->location, "Expected Var node; found %1%") % paramNode;
+            ASSERT(param);
             llvm::AllocaInst* newVar = new llvm::AllocaInst(argIt->getType(), toString(Feather_getName(param))+".addr", bodyBlock);
             newVar->setAlignment(Nest_getCheckPropertyInt(param, "alignment"));
             new llvm::StoreInst(argIt, newVar, bodyBlock); // Copy the value of the parameter into it

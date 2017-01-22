@@ -19,6 +19,8 @@ StringRef fromCStr(const char* str) {
     return res;
 }
 StringRef fromString(const string& str) {
+    if ( str.empty() )
+        return StringRef{0,0};
     StringRef res = { &str[0], (&str[0])+str.size() };
     return res;
 

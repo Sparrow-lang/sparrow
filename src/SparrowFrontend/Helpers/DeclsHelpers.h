@@ -62,4 +62,8 @@ namespace SprFrontend
     /// Check if the given function node has a this parameter
     /// returns false if the given node is null or is not a function
     bool funHasThisParameters(Node* fun);
+
+    /// Check if the given function node has an implicit this parameter
+    /// returns false if the given node is null or is not a function
+    bool funHasImplicitThis(Node* fun);
 }

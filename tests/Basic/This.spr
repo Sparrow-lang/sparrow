@@ -1,0 +1,86 @@
+//!! -t "SparrowImplicitLib.spr" -fno-main
+
+
+class TestClass
+    var a: Int
+    fun method
+        a = 1;
+    [static]
+    fun staticMethod
+        writeLn("---")
+        //a = 2
+
+datatype MyType { data: Int }
+datatype MyType2 { data: MyType }
+
+fun printData(this: MyType)
+    writeLn(this.data)
+    writeLn(data)
+
+fun printData(this: MyType2)
+    writeLn(this.data.data)
+    writeLn(data.data)
+
+fun useAsVar
+    var this: Int;
+    this = 100
+    writeLn(this)
+
+
+concept Range(x) if (
+       typeOf(x.RetType) == Type
+    && typeOf(x.isEmpty) == Bool
+    && typeOf(x.front) == x.RetType
+    && isValid(x.popFront)
+)
+
+[initCtor]
+class MyRange
+    using RetType = Int
+    var curVal, stop: Int
+
+fun isEmpty(this: @MyRange): Bool = curVal >= stop
+fun front(this: @MyRange): Int
+    return curVal
+fun popFront(this: @MyRange)
+    curVal = curVal+1
+
+[native("test")]
+fun test(n: Int)
+    var obj: TestClass
+    obj.method
+    writeLnInt(obj.a)
+    TestClass.staticMethod
+
+    var obj1: MyType
+    obj1.data = 10
+    obj1 printData
+
+    var obj2: MyType2
+    obj2.data.data = 20
+    obj2 printData
+
+    writeLn("---")
+    useAsVar
+
+    writeLn("---")
+    var r = MyRange(0, 10)
+    if r.isEmpty
+        writeLn('isEmpty')
+    for x = r
+        write(' ')
+        write(x)
+    writeLn('')
+
+/*<<<Running()
+1
+---
+10
+10
+20
+20
+---
+100
+---
+ 0 1 2 3 4 5 6 7 8 9
+>>>*/

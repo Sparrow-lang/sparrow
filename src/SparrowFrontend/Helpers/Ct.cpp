@@ -24,6 +24,7 @@ namespace
         ValueType* val = node ? Feather_getCtValueData<ValueType>(node) : nullptr;
         if ( !val )
             REP_INTERNAL(node->location, "Invalid value");
+        ASSERT(val);
         return *val;
     }
 }

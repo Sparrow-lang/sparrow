@@ -32,8 +32,8 @@ class SparrowLayoutDecoder(tokensRangeType, errorReporterType: Type) \
         this._toInjectCnt = 0
 
         // If we start by a new-line, advance
-        if !(_src isEmpty) && (_src front).type == tkEOL
-            this popFront
+        if !_src.isEmpty && (_src.front).type == tkEOL
+            this.popFront
 
     /// The source ranges of tokens we will used while parsing
     var _src: RangeWithLookahead(tokensRangeType)
@@ -52,37 +52,37 @@ class SparrowLayoutDecoder(tokensRangeType, errorReporterType: Type) \
 /// Concept that matches SparrowParser above
 concept _This(t) if t._IsSparrowLayoutDecoder
 
-fun isEmpty(t: @_This): Bool = t._toInjectCnt == 0 && (t._src isEmpty)
-fun front(t: @_This): Token
-    var tk = t._src front
-    if t._toInjectCnt > 0
-        tk.type = t._toInject
+fun isEmpty(this: @_This): Bool = _toInjectCnt == 0 && _src.isEmpty
+fun front(this: @_This): Token
+    var tk = _src.front
+    if _toInjectCnt > 0
+        tk.type = _toInject
     return tk
-fun popFront(t: @_This)
+fun popFront(this: @_This)
     // Are we moving past the injected tokens?
-    if t._toInjectCnt > 0
-        t._toInjectCnt--         // Consume one injected token
+    if _toInjectCnt > 0
+        _toInjectCnt--         // Consume one injected token
         // After the first token injected, switch to '}'
-        t._toInject = tkRCURLY
+        _toInject = tkRCURLY
         return
 
-    var oldType = (t front).type
+    var oldType = (this.front).type
 
     // Consume the current token from the input range
-    t._src popFront
+    _src.popFront
 
     // Check for line endings
-    var changeLine = (t._src front).type == tkEOL
-    while (t._src front).type == tkEOL
-        t._src popFront
+    var changeLine = _src.front().type == tkEOL
+    while _src.front().type == tkEOL
+        _src.popFront
 
-    var tk = t._src front
+    var tk = _src.front
 
     // Apply special logic on line change -- only outside any parenthesis
-    var outsideParens = t._parens.isEmpty || t._parens.back == '{'.char
+    var outsideParens = _parens.isEmpty || _parens.back == '{'.char
     if changeLine && outsideParens
         var newCol = tk.loc.start.col
-        var oldCol = t._indents.back
+        var oldCol = _indents.back
 
         // If we are at the end of file, make sure to insert the missing '}'
         if tk.type == tkEND
@@ -90,16 +90,16 @@ fun popFront(t: @_This)
 
         // Inject a semicolon if we stay on the same line, and we are not followed by a open curly
         if newCol == oldCol && tk.type != tkLCURLY && oldType != tkSEMICOLON && oldType != tkRCURLY
-            t._toInject = tkSEMICOLON
-            t._toInjectCnt = 1
+            _toInject = tkSEMICOLON
+            _toInjectCnt = 1
 
         // Inject an open curly if we have an indent
         // Also record add the new indent level to the stack of indents, to
         // know how many scopes we need to pop
         if newCol > oldCol && tk.type != tkEND
-            t._toInject = tkLCURLY
-            t._toInjectCnt = 1
-            t._indents += newCol
+            _toInject = tkLCURLY
+            _toInjectCnt = 1
+            _indents += newCol
 
         // Inject close curly if we have dedent
         // Make sure to insert the right number of close curly brackets to match
@@ -107,27 +107,27 @@ fun popFront(t: @_This)
         if newCol < oldCol && newCol>=1
             // Check how many '}' we need to insert
             var numDedents = 0
-            while newCol < t._indents.back
+            while newCol < _indents.back
                 numDedents++
-                t._indents.popBack
+                _indents.popBack
             // Insert a ';', then numDedents of '}'
-            t._toInject = tkSEMICOLON
-            t._toInjectCnt = 1+numDedents
+            _toInject = tkSEMICOLON
+            _toInjectCnt = 1+numDedents
             // The new column must match one of the previous indents
-            if newCol != t._indents.back
-                t._errorReporter.reportError(tk.loc, toString("Invalid indentation, expecting ", t._indents.back, ", got ", newCol))
+            if newCol != _indents.back
+                _errorReporter.reportError(tk.loc, toString("Invalid indentation, expecting ", _indents.back, ", got ", newCol))
 
     // Check for parenthesis
     if tk.type == tkLPAREN
-        t._parens += '('.char
+        _parens += '('.char
     else if tk.type == tkLBRACKET
-        t._parens += '['.char
+        _parens += '['.char
     else if tk.type == tkLCURLY
-        t._parens += '{'.char
-    else if tk.type == tkRPAREN && t._parens.back == '('.char
-        t._parens.popBack
-    else if tk.type == tkRBRACKET && t._parens.back == '['.char
-        t._parens.popBack
-    else if tk.type == tkRCURLY && t._parens.back == '{'.char
-        t._parens.popBack
+        _parens += '{'.char
+    else if tk.type == tkRPAREN && _parens.back == '('.char
+        _parens.popBack
+    else if tk.type == tkRBRACKET && _parens.back == '['.char
+        _parens.popBack
+    else if tk.type == tkRCURLY && _parens.back == '{'.char
+        _parens.popBack
 

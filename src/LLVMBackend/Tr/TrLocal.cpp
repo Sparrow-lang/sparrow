@@ -565,8 +565,8 @@ namespace
             TypeRef tt = node->type;
             if ( tt->typeKind == typeKindData )
             {
-                const StringRef* nativeName = Feather_nativeName(tt);
-                if ( nativeName && *nativeName == "StringRef" )
+                StringRef nativeName = Feather_nativeName(tt);
+                if ( nativeName == "StringRef" )
                 {
                     StringRef data = *Feather_getCtValueData<StringRef>(node);
                     return translateDataTypeConstant(t, data.begin, data.end, context);

@@ -86,7 +86,7 @@ Node* Feather_classDecl(TypeRef type);
 
 /// If the class associated with the given type has an associated name this will return it; otherwise it returns nullptr
 /// Works for only for storage types (data, l-value, array)
-const StringRef* Feather_nativeName(TypeRef type);
+StringRef Feather_nativeName(TypeRef type);
 
 /// The number of references applied
 /// Works for only for storage types (data, l-value, array)

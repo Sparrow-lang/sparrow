@@ -26,26 +26,26 @@ class RangeWithLookahead(baseRangeType: Type) if Range(#$baseRangeType)
             buffer += (source++)
 concept _This(t) if t._IsRangeWithLookahead
 
-fun isEmpty(s: @_This): Bool = s.buffer isEmpty
-fun front(s: @_This): s.RetType = s.buffer front
-fun popFront(s: @_This)
-    s.buffer remove 0
+fun isEmpty(this: @_This): Bool = buffer.isEmpty
+fun front(this: @_This): RetType = buffer.front
+fun popFront(this: @_This)
+    buffer remove 0
     // Add a new element in the buffer if the buffer is empty
-    if (s.buffer isEmpty) && !!s.source
-        s.buffer += (s.source++)
+    if (buffer.isEmpty) && !!source
+        buffer += (source++)
 
-fun peek(s: @_This, n: UInt): s.RetType
+fun peek(this: @_This, n: UInt): RetType
     // If not enough elements in the buffer, add them now
-    while n >= s.buffer.size && !!s.source
-        s.buffer += (s.source++)
-    if n < s.buffer.size
-        return s.buffer(n)
+    while n >= buffer.size && !!source
+        buffer += (source++)
+    if n < buffer.size
+        return buffer(n)
     else
-        return s.RetType() // not enough elements in the source
+        return RetType() // not enough elements in the source
 
-fun hasLessThan(s: @_This, n: UInt): Bool
+fun hasLessThan(this: @_This, n: UInt): Bool
     // Try to fill the buffer with the amount of elements
-    while n >= s.buffer.size && !!s.source
-        s.buffer += (s.source++)
+    while n >= buffer.size && !!source
+        buffer += (source++)
     // Check if we have enough elements in the buffer
-    return n >= s.buffer.size
+    return n >= buffer.size

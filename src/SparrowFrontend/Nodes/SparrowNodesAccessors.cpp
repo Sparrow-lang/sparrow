@@ -34,6 +34,7 @@ void SprFrontend::Class_addChild(Node* cls, Node* child)
         membersPtr = &at(cls->children, 1);
     else
         REP_INTERNAL(cls->location, "Expected class node; found %1%") % Nest_nodeKindName(cls);
+    ASSERT(membersPtr);
     Node*& members = *membersPtr;
     if ( !members )
     {

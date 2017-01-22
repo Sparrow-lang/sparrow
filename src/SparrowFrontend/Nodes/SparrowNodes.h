@@ -22,7 +22,6 @@ namespace SprFrontend
         nkRelSparrowDeclUsing,
 
         nkRelSparrowExpLiteral,
-        nkRelSparrowExpThis,
         nkRelSparrowExpIdentifier,
         nkRelSparrowExpCompoundExp,
         nkRelSparrowExpFunApplication,
@@ -60,7 +59,6 @@ namespace SprFrontend
     extern int nkSparrowDeclUsing;
 
     extern int nkSparrowExpLiteral;
-    extern int nkSparrowExpThis;
     extern int nkSparrowExpIdentifier;
     extern int nkSparrowExpCompoundExp;
     extern int nkSparrowExpFunApplication;
@@ -102,7 +100,6 @@ namespace SprFrontend
     Node* mkGenericFunction(Node* originalFun, NodeRange params, NodeRange genericParams, Node* ifClause, Node* thisClass = nullptr);
 
     Node* mkLiteral(const Location& loc, StringRef litType, StringRef data);
-    Node* mkThisExp(const Location& loc);
     Node* mkIdentifier(const Location& loc, StringRef id);
     Node* mkCompoundExp(const Location& loc, Node* base, StringRef id);
     Node* mkFunApplication(const Location& loc, Node* base, Node* arguments);

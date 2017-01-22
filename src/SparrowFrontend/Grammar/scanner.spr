@@ -27,14 +27,14 @@ package _ImplLSCR
         var location: @Location
     concept _This(t) if t.IsLocationSyncCharRange
 
-    fun isEmpty(this: @_This) = source isEmpty
-    fun front(this: @_This)   = source front
+    fun isEmpty(this: @_This) = source.isEmpty
+    fun front(this: @_This)   = source.front
     fun popFront(this: @_This)
         if *source == '\n'.char
             location addLines 1
         else
             location addColumns 1
-        source popFront
+        source.popFront
 
 
 /// Our main scanner
@@ -75,10 +75,10 @@ fun isEmpty(this: @_OurScanner) = _atEnd
 fun front(this: @_OurScanner): Token
     if !_tokenIsComputed
         _tokenIsComputed = true
-        this popFront
+        this.popFront
     return _curToken
 fun popFront(this: @_OurScanner)
-    if (_src isEmpty) && _curToken.type == tkEND
+    if (_src.isEmpty) && _curToken.type == tkEND
         _atEnd = true
     else
         _curToken.type = _Impl.nextToken(this)
@@ -105,17 +105,17 @@ package _Impl
     /// Advances the input stream while the predicate matches
     /// Captures every character that matches
     fun advanceAndCapture(this: @_OurScanner, pred: AnyType)
-        while !!_src && pred(*_src) ; _src popFront
+        while !!_src && pred(*_src) ; _src.popFront
             _curToken.data += *_src
 
     /// Advances and captures 1 char
     fun advanceAndCapture1(this: @_OurScanner)
         _curToken.data += *_src
-        _src popFront
+        _src.popFront
 
     /// Same as above, but do not capture '_'; we advance past it
     fun advanceAndCaptureDigit(this: @_OurScanner, pred: AnyType)
-        while !!_src && (pred(*_src) || *_src == '_'.char) ; _src popFront
+        while !!_src && (pred(*_src) || *_src == '_'.char) ; _src.popFront
             if *_src != '_'.char
                 _curToken.data += *_src
 
@@ -130,9 +130,9 @@ package _Impl
             var ch = *_src
             var ch2 = this peekChar
             if ch == '#'.char && ch2 == '!'.char
-                _src popFront
+                _src.popFront
                 _src advanceIf (fun c = c!='\n'.char)
-                if !!_src ; _src popFront
+                if !!_src ; _src.popFront
 
         while true
             // The current location starts where the last one ended
@@ -140,7 +140,7 @@ package _Impl
             _curToken.data clear
 
             // First check if the source is empty; if so, return an EOF token
-            if _src isEmpty
+            if _src.isEmpty
                 return tkEND
 
             // Get the first character in the source
@@ -160,12 +160,12 @@ package _Impl
 
             // Check for new lines
             if ch == '\n'.char
-                _src popFront
+                _src.popFront
                 return tkEOL
 
             // Check for line comments -- drop everything until the end of line (including eol)
             if ch == '/'.char && ch2 == '/'.char
-                _src popFront
+                _src.popFront
                 _src advanceIf (fun c = c!='\n'.char)
                 continue
 
@@ -180,7 +180,7 @@ package _Impl
                 if !_src
                     this reportError "End of file found inside comment"
                     return tkEND
-                _src popFront     // move past '/'
+                _src.popFront     // move past '/'
                 continue
 
             // Backslash followed by a new-line collapses
@@ -194,20 +194,20 @@ package _Impl
             if ch == '<'.char && ch2 == '{'.char  return parseStringNE(this)
 
             // Symbols
-            if ch == '{'.char  { _src popFront; return tkLCURLY; }
-            if ch == '{'.char  { _src popFront; return tkLCURLY; }
-            if ch == '}'.char  { _src popFront; return tkRCURLY; }
-            if ch == '['.char  { _src popFront; return tkLBRACKET; }
-            if ch == ']'.char  { _src popFront; return tkRBRACKET; }
-            if ch == '('.char  { _src popFront; return tkLPAREN; }
-            if ch == ')'.char  { _src popFront; return tkRPAREN; }
-            if ch == ';'.char  { _src popFront; return tkSEMICOLON; }
-            if ch == ','.char  { _src popFront; return tkCOMMA; }
-            if ch == '`'.char  { _src popFront; return tkBACKSQUOTE; }
+            if ch == '{'.char  { _src.popFront; return tkLCURLY; }
+            if ch == '{'.char  { _src.popFront; return tkLCURLY; }
+            if ch == '}'.char  { _src.popFront; return tkRCURLY; }
+            if ch == '['.char  { _src.popFront; return tkLBRACKET; }
+            if ch == ']'.char  { _src.popFront; return tkRBRACKET; }
+            if ch == '('.char  { _src.popFront; return tkLPAREN; }
+            if ch == ')'.char  { _src.popFront; return tkRPAREN; }
+            if ch == ';'.char  { _src.popFront; return tkSEMICOLON; }
+            if ch == ','.char  { _src.popFront; return tkCOMMA; }
+            if ch == '`'.char  { _src.popFront; return tkBACKSQUOTE; }
 
             // These two symbols can also be part of operators
-            if ch == ':'.char && !isOpChar(this peekChar) { _src popFront; return tkCOLON; }
-            if ch == '='.char && !isOpChar(this peekChar) { _src popFront; return tkEQUAL; }
+            if ch == ':'.char && !isOpChar(this peekChar) { _src.popFront; return tkCOLON; }
+            if ch == '='.char && !isOpChar(this peekChar) { _src.popFront; return tkEQUAL; }
 
             // Is this an operator?
             // If this is just a lonely dot, it will do nothing
@@ -216,7 +216,7 @@ package _Impl
                     return tkOPERATOR
 
             // Check for dot -- dot followed by a digit is a floating point constant
-            if ch == '.'.char && !isDigit(ch2) { _src popFront; return tkDOT; }
+            if ch == '.'.char && !isDigit(ch2) { _src.popFront; return tkDOT; }
 
             // Identifiers
             if isAlpha(ch) || ch == '_'.char return parseIdentifer(this)
@@ -225,7 +225,7 @@ package _Impl
             if isDigit(ch) || ch == '.'.char return parseNumeric(this)
 
             this reportError toString("Invalid character found: '", ch, "' (", Int(ch), ')'.char)
-            _src popFront
+            _src.popFront
             return tkEND
 
 
@@ -291,9 +291,9 @@ package _Impl
         // Capture all the characters possible for the identifier
         var allowSymbolChars = false
         _curToken.data += *_src
-        _src popFront     // Skip the first char, we know it matches
+        _src.popFront     // Skip the first char, we know it matches
         var firstDot = true
-        while !!_src ; _src popFront
+        while !!_src ; _src.popFront
             var ch = *_src
 
             // Check for characters allowed in the identifier
@@ -306,7 +306,7 @@ package _Impl
             // At underscores we may start accepting symbol characters
             // If that's the case, we need to have symbol until the end
             if ch == '_'.char && isOpCharDot(this peekChar)
-                _src popFront
+                _src.popFront
                 if parseOperator(this)
                     return tkIDENTIFIER
 
@@ -392,12 +392,12 @@ package _Impl
                         ch = toLower(*_src)
                         if ch == 'f'.char
                             isLong = false
-                            _src popFront
+                            _src.popFront
                         else if ch == 'd'.char
-                            _src popFront
+                            _src.popFront
 
         // Check if the number has enough digits
-        if _curToken.data isEmpty
+        if _curToken.data.isEmpty
             this reportError "Invalid numeric literal"
             return tkEND
 
@@ -405,10 +405,10 @@ package _Impl
         if !isFloating
             if !!_src && toLower(*_src) == 'u'.char
                 isUnsigned = true
-                _src popFront
+                _src.popFront
             if !!_src && toLower(*_src) == 'l'.char
                 isLong = true
-                _src popFront
+                _src.popFront
 
         // Compute the value and return the token type
         if isFloating
@@ -428,13 +428,13 @@ package _Impl
     fun consumeDigits(r: @Range, base: ULong, capture: @String): ULong
         var res: ULong = 0
         if base == 16
-            while !!r && (isXdigit(*r) || *r == '_'.char) ; r popFront
+            while !!r && (isXdigit(*r) || *r == '_'.char) ; r.popFront
                 if *r != '_'.char
                     capture += *r
                     res *= base
                     res += getXdigitVal(*r)
         else
-            while !!r && (isXdigit(*r) || *r == '_'.char) ; r popFront
+            while !!r && (isXdigit(*r) || *r == '_'.char) ; r.popFront
                 if *r != '_'.char
                     capture += *r
                     res *= base
@@ -471,12 +471,12 @@ package _Impl
             else
                 // Just use the next character
                 _curToken.data += ++_src
-            _src popFront  // Advance past the escape sequence
+            _src.popFront  // Advance past the escape sequence
             return true
         return false
 
     fun parseString(this: @_OurScanner, endChar: Char): TokenType
-        _src popFront
+        _src.popFront
         if this hasLessThan 1
             this reportError "End of file found inside string literal"
             return tkEND
@@ -491,7 +491,7 @@ package _Impl
         if !_src
             this reportError "End of file found inside string literal"
             return tkEND
-        _src popFront
+        _src.popFront
 
         return tkSTRING_LITERAL
 

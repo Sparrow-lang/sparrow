@@ -276,7 +276,7 @@ package _Impl
         var loc = _lastToken.loc
         var id = parseIdEqualOpt(this)
         var usingNode: Node
-        if id isEmpty
+        if id.isEmpty
             usingNode = parseQualifiedName(this, true)
         else
             usingNode = parseExpr(this)
@@ -507,7 +507,7 @@ package _Impl
         var op: String
         while true
             op = parseIdOrOperOpt(this, withEqual)
-            if op isEmpty break
+            if op.isEmpty break
 
             if nextIsExpr(this, withEqual)
                 // Infix expression

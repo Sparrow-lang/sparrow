@@ -26,12 +26,12 @@ class RangeWithLookahead(baseRangeType: Type) if Range(#$baseRangeType)
             buffer += (source++)
 concept _This(t) if t._IsRangeWithLookahead
 
-fun isEmpty(this: @_This): Bool = buffer isEmpty
-fun front(this: @_This): RetType = buffer front
+fun isEmpty(this: @_This): Bool = buffer.isEmpty
+fun front(this: @_This): RetType = buffer.front
 fun popFront(this: @_This)
     buffer remove 0
     // Add a new element in the buffer if the buffer is empty
-    if (buffer isEmpty) && !!source
+    if (buffer.isEmpty) && !!source
         buffer += (source++)
 
 fun peek(this: @_This, n: UInt): RetType

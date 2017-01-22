@@ -32,8 +32,8 @@ class SparrowLayoutDecoder(tokensRangeType, errorReporterType: Type) \
         this._toInjectCnt = 0
 
         // If we start by a new-line, advance
-        if !(_src isEmpty) && (_src front).type == tkEOL
-            this popFront
+        if !_src.isEmpty && (_src.front).type == tkEOL
+            this.popFront
 
     /// The source ranges of tokens we will used while parsing
     var _src: RangeWithLookahead(tokensRangeType)
@@ -52,9 +52,9 @@ class SparrowLayoutDecoder(tokensRangeType, errorReporterType: Type) \
 /// Concept that matches SparrowParser above
 concept _This(t) if t._IsSparrowLayoutDecoder
 
-fun isEmpty(this: @_This): Bool = _toInjectCnt == 0 && (_src isEmpty)
+fun isEmpty(this: @_This): Bool = _toInjectCnt == 0 && _src.isEmpty
 fun front(this: @_This): Token
-    var tk = _src front
+    var tk = _src.front
     if _toInjectCnt > 0
         tk.type = _toInject
     return tk
@@ -66,17 +66,17 @@ fun popFront(this: @_This)
         _toInject = tkRCURLY
         return
 
-    var oldType = (this front).type
+    var oldType = (this.front).type
 
     // Consume the current token from the input range
-    _src popFront
+    _src.popFront
 
     // Check for line endings
-    var changeLine = (_src front).type == tkEOL
-    while (_src front).type == tkEOL
-        _src popFront
+    var changeLine = _src.front().type == tkEOL
+    while _src.front().type == tkEOL
+        _src.popFront
 
-    var tk = _src front
+    var tk = _src.front
 
     // Apply special logic on line change -- only outside any parenthesis
     var outsideParens = _parens.isEmpty || _parens.back == '{'.char

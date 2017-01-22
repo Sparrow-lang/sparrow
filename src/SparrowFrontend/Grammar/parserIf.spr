@@ -18,14 +18,14 @@ class _CharSource
         this.fileRange := fileRange
         this.stringRange ctor code
 
-fun isEmpty(this: @_CharSource): Bool = ife(fileRange !== null, fileRange isEmpty, stringRange isEmpty)
+fun isEmpty(this: @_CharSource): Bool = ife(fileRange !== null, fileRange.isEmpty, stringRange.isEmpty)
 fun front(this: @_CharSource): Char
-    if ( fileRange !== null ) return fileRange front
-    else return stringRange front
+    if ( fileRange !== null ) return fileRange.front
+    else return stringRange.front
 fun popFront(this: @_CharSource)
     if fileRange !== null
-        fileRange popFront
-    else stringRange popFront
+        fileRange.popFront
+    else stringRange.popFront
 
 
 class ParserContext
@@ -43,7 +43,7 @@ class ParserContext
     fun ctor(filename, code: StringRef, loc: Location, scannerOnly: Bool = false)
         var reporter = ExternalErrorReporter()
 
-        if code isEmpty
+        if code.isEmpty
             // Open the file, and create a scanner on top of the file
             _file ctor filename
             _fileRange ctor _file.all

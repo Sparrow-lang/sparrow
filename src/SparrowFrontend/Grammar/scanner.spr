@@ -52,7 +52,6 @@ class SparrowScanner(sourceType, errorReporterType: Type) \
         this._src.ctor(RangeWithLookahead(sourceType)(source), _curLocation)
         this._curToken ctor
         this._tokenIsComputed ctor false
-        this._atEnd ctor false
         this._errorReporter ctor errorReporter
 
     /// Location that we use to keep track of the source chars
@@ -64,22 +63,23 @@ class SparrowScanner(sourceType, errorReporterType: Type) \
     var _curToken: Token
     /// Indicates if '_curToken' is computed or not
     var _tokenIsComputed: Bool
-    /// Indicates if '_curToken' is computed or not
-    var _atEnd: Bool
     /// Object used to report errors
     var _errorReporter: errorReporterType
 /// Concept that matches SparrowScanner above
 concept _OurScanner(t) if t.IsSparrowScanner
 
-fun isEmpty(this: @_OurScanner) = _atEnd
+fun isEmpty(this: @_OurScanner) = false
 fun front(this: @_OurScanner): Token
     if !_tokenIsComputed
         _tokenIsComputed = true
         this.popFront
     return _curToken
 fun popFront(this: @_OurScanner)
-    if (_src.isEmpty) && _curToken.type == tkEND
-        _atEnd = true
+    if _src.isEmpty
+        _src.location stepOver
+        _curToken.type = tkEND
+        _curToken.data clear
+        _curToken.loc = _src.location
     else
         _curToken.type = _Impl.nextToken(this)
         _curToken.loc = _src.location

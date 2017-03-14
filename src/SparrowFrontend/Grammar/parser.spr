@@ -80,6 +80,7 @@ package _Impl
 
     fun parseExpression(this: @This): Node
         var res = parseExpr(this)
+        this accept tkSEMICOLON
         this expect tkEND
         return res
 

@@ -974,6 +974,17 @@ using namespace Feather;
         if ( !Feather_isTestable(condition) )
             REP_ERROR_RET(nullptr, condition->location, "The condition of the while is not Testable");
 
+        // Dereference the condition as much as possible
+        while ( condition->type && condition->type->numReferences > 0 )
+        {
+            condition = Feather_mkMemLoad(condition->location, condition);
+            Nest_setContext(condition, Nest_childrenContext(node));
+            if ( !Nest_semanticCheck(condition) )
+                return nullptr;
+        }
+        at(node->children, 0) = condition;
+        // TODO (while): Remove this dereference from here
+
         if ( Feather_nodeEvalMode(node) == modeCt )
         {
             if ( !Feather_isCt(condition) )

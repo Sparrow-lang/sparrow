@@ -1,0 +1,61 @@
+module grammar.parserBase
+
+import commonDefs, charRange, rangeWithLookahead
+import meta.location
+
+class ParserBase(tokensRangeType: Type) //if TokenRange(#$tokensRangeType)
+    using _IsParserBase = true
+    using TokenType = tokensRangeType.RetType
+    using TokenKindType = typeOf((#$TokenType).kind)
+
+    fun ctor(tokens: tokensRangeType, errorReporter: ErrorReporter, tokenKindEnd: TokenKindType)
+        this.tokens ctor tokens
+        this.hasErrors ctor false
+        this._errorReporter ctor errorReporter
+        this._tokenKindEnd ctor tokenKindEnd
+
+    /// The source ranges of tokens we will used while parsing
+    var tokens: RangeWithLookahead(tokensRangeType)
+    /// The last processed token
+    var lastToken: TokenType
+    /// Indicates whether we have some syntax errors
+    var hasErrors: Bool
+    /// Function used to report errors
+    var _errorReporter: ErrorReporter
+    /// The kind of the END token
+    var _tokenKindEnd: TokenKindType
+
+/// Concept that matches ParserBase above
+concept _This(t) if t._IsParserBase
+
+fun reportError(this: @_This, msg: @String)
+    // Report the error
+    _errorReporter((*tokens).loc, msg)
+    // Consume all the tokens until the end of the file
+    while (*tokens).kind != _tokenKindEnd
+        lastToken = (tokens++)
+    hasErrors = true
+
+fun curLoc(this: @_This) = (*tokens).loc
+fun lastLoc(this: @_This) = lastToken.loc
+
+fun nextIs(this: @_This, t: AnyType): Bool = tokens(0).kind == t
+fun next2Is(this: @_This, t: AnyType): Bool = tokens(1).kind == t
+
+fun accept(this: @_This, t: AnyType): Bool
+    if (*tokens).kind == t
+        lastToken = (tokens++)
+        // cout << "Accepted " << lastToken.kind << endl
+        return true
+    return false
+
+fun expect(this: @_This, t: AnyType): Bool
+    // Everything is ok if this is the token we are expecting
+    if this accept t
+        return true
+    if hasErrors  // Already inside an error; don't do anything
+        return false
+    // Report error if this token is now what we expected
+    this reportError toString("Syntax error, unexpected ", (*tokens).kind, ", expecting ", t)
+    return false
+

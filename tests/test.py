@@ -399,7 +399,7 @@ def doTestFile(testFilePair, reporter, args, compilerLookup):
 
         for t in fileInfo.runTests:
             (testName, testArgs, expectedOutput) = t
-            cmd = changeDirPrefix + programToRun + ' ' + testArgs
+            cmd = changeDirPrefix + programToRun + ' "' + testArgs + '"'
 
             reporter.beforeTestRun(testName, testArgs, expectedOutput, cmd)
 

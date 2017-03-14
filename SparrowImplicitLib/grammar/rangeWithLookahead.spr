@@ -1,0 +1,56 @@
+module grammar.rangeWithLookahead
+
+import std.tuple
+import std.vector
+import std.ranges
+
+
+/// Helper class that provides lookup functionality over a Range
+///
+/// This will hold an internal buffer of elements from the given range
+/// If there are not enough items in the source range we give back the default-constructed element
+class RangeWithLookahead(baseRangeType: Type) if Range(#$baseRangeType)
+    using RetType = -@(baseRangeType.RetType)
+    using _IsRangeWithLookahead = true
+
+    var source: baseRangeType
+    var buffer: Vector(RetType)
+
+    fun ctor(src: baseRangeType)
+        this.source = src
+        this.buffer ctor
+        this.buffer reserve 10
+
+        // Always have at least one element in the buffer
+        if !!source
+            buffer += (source++)
+
+    /// We use the call operator to peek into the range
+    fun ()(n: UInt): RetType
+        return this peek n
+
+concept _This(t) if t._IsRangeWithLookahead
+
+fun isEmpty(this: @_This): Bool = buffer.isEmpty
+fun front(this: @_This): RetType = buffer.front
+fun popFront(this: @_This)
+    buffer remove 0
+    // Add a new element in the buffer if the buffer is empty
+    if (buffer.isEmpty) && !!source
+        buffer += (source++)
+
+fun peek(this: @_This, n: UInt): RetType
+    // If not enough elements in the buffer, add them now
+    while n >= buffer.size && !!source
+        buffer += (source++)
+    if n < buffer.size
+        return buffer(n)
+    else
+        return RetType() // not enough elements in the source
+
+fun hasLessThan(this: @_This, n: UInt): Bool
+    // Try to fill the buffer with the amount of elements
+    while n >= buffer.size && !!source
+        buffer += (source++)
+    // Check if we have enough elements in the buffer
+    return n >= buffer.size

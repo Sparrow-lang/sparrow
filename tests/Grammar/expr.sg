@@ -1,0 +1,67 @@
+grammar=Expr;
+lexer=ExprLexer;
+parser=ExprParser;
+
+ExprParser {
+
+.start = Prog
+
+Prog    = Stat* ;
+Stat    = Expr '=' Expr ';'
+        | Expr ';'
+        ;
+Expr    = Expr '(' Expr ')'             // precedence 7
+        | Expr ('*'|'/') Expr           // precedence 6
+        | Expr ('+'|'-') Expr           // precedence 5
+        | Expr '='<assoc=right> Expr    // precedence 4
+        | INT                           // precedence 3
+        | ID                            // precedence 2
+        | '(' Expr ')'                  // precedence 1
+        ;
+
+s       = ID
+        | ID '=' Expr
+        'unsigned'* 'int' ID
+        'unsigned'* ID ID
+
+a   = b
+    | c
+    ;
+
+b   = L K
+c   = L M
+
+
+}
+
+ExprLexer {
+
+INT = [0-9]+ ;
+ID  = [A-Za-z]+ ;
+WS  = [ \t\r\n]+ -> skip;
+}
+
+/*
+
+Expr        = ExprAssign
+ExprAssign  = ExprPlus '=' Expr
+ExprPlus    = ExprMul '+' ExprPlus
+ExprMul     = ExprPrim '*' ExprMul
+ExprPrim    = INT | ID | '(' Expr ')'
+
+
+Expr = Expr[0]
+
+Expr[p] =   ( INT
+            | ID
+            | '(' Expr ')'
+            )
+            | (p <= 7)? '(' Expr[0] ')'
+            ( (p <= 6)? ('*'|'/') Expr[7]
+            | (p <= 5)? ('+'|'-') Expr[6]
+            | (p <= 4)? '='<assoc=right> Expr[5]
+            )*
+
+
+
+*/

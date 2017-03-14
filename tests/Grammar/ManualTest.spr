@@ -1,0 +1,234 @@
+//!! -dump-assembly
+import grammar.lexerBase, grammar.parserBase
+import charType
+import std.algorithms
+
+//package ExprTokens
+
+datatype TokenKind = Int
+
+/// The actual token; holds all the information needed for a token
+datatype Token
+    loc: Location
+    kind: TokenKind
+    data: String
+
+using tkEND = TokenKind(0)
+using tkINT = TokenKind(1)
+using tkID = TokenKind(2)
+using tk__3D = TokenKind(3)
+using tk__3B = TokenKind(4)
+using tk__2A = TokenKind(5)
+using tk__2F = TokenKind(6)
+using tk__2B = TokenKind(7)
+using tk__2D = TokenKind(8)
+using tk__28 = TokenKind(9)
+using tk__29 = TokenKind(10)
+
+fun _asString(t: TokenKind): String
+    if t == tkEND                   return "end-of-file"
+    else if t == tkINT              return "INT"
+    else if t == tkID               return "ID"
+    else if t == tk__3D             return "'='"
+    else if t == tk__3B             return "';'"
+    else if t == tk__2A             return "'*'"
+    else if t == tk__2F             return "'/'"
+    else if t == tk__2B             return "'+'"
+    else if t == tk__2D             return "'-'"
+    else if t == tk__28             return "'('"
+    else if t == tk__29             return "')'"
+    else                            return '<unknown token>'
+
+fun >>(t: TokenKind, os: @OutStream)
+    os << (t _asString)
+
+//using ExprTokens.*
+
+class ExprLexer//(sourceType: Type) if CharRange(#$sourceType)
+    using RetType = Token
+    using _IsExprLexer = true
+
+    fun ctor(getCharsFun: GetCharsFun, /*source: sourceType, */errorReporter: ErrorReporter, iniLocation: @Location)
+        this._base.ctor(getCharsFun, errorReporter, iniLocation)
+        this._curToken ctor
+        this._tokenIsComputed ctor false
+
+    /// The base lexer object to be used for common lexing operations
+    var _base: LexerBase
+    /// The current token we look at. We will reuse this object for all the
+    /// tokens that we parse from the source stream
+    var _curToken: Token
+    /// Indicates if '_curToken' is computed or not
+    var _tokenIsComputed: Bool
+
+/// Concept that matches ExprLexer above
+concept _OurLexer(t) if t._IsExprLexer
+
+fun isEmpty(this: @_OurLexer) = false
+fun front(this: @_OurLexer): Token
+    if !_tokenIsComputed
+        _tokenIsComputed = true
+        this.popFront
+    return _curToken
+fun popFront(this: @_OurLexer)
+    //if !_base.isEmpty || _curToken.kind != tkEND
+    if _base.isEmpty
+        _base.curLocation stepOver
+        _curToken.kind = tkEND
+        _curToken.loc = _base.curLocation
+    else
+        // The current location starts where the last one ended
+        _base.curLocation stepOver
+        // Clear the data for the next token
+        _curToken.data clear
+
+        // Compute the next token
+        _curToken.kind = _ExprLexerImpl._start(this)
+        _curToken.loc = _base.curLocation
+        //cout << _curToken.loc << ": token: " << _curToken.kind << " - '" << _curToken.data << "'" << endl
+
+package _ExprLexerImpl
+    fun _start(this: @_OurLexer): TokenKind
+        var ch = _base(0)
+
+        if ch == ' '.char || ch == '\t'.char || ch == '\r'.char || ch == '\n'.char
+            consumeWS(this)
+            if _base.isEmpty
+                return tkEND
+            ch = _base(0)
+
+        if isDigit(ch)
+            return parseINT(this)
+        if isAlpha(ch)
+            return parseID(this)
+
+        if ch == '='.char  { _base.popFront; return tk__3D; }
+        if ch == ';'.char  { _base.popFront; return tk__3B; }
+        if ch == '*'.char  { _base.popFront; return tk__2A; }
+        if ch == '/'.char  { _base.popFront; return tk__2F; }
+        if ch == '+'.char  { _base.popFront; return tk__2B; }
+        if ch == '-'.char  { _base.popFront; return tk__2D; }
+        if ch == '('.char  { _base.popFront; return tk__28; }
+        if ch == ')'.char  { _base.popFront; return tk__29; }
+
+        _base reportError toString("Invalid character found: '", ch, "' (", Int(ch), ')'.char)
+        _base.popFront
+        return tkEND
+
+    fun consumeWS(this: @_OurLexer)
+        while !_base.isEmpty && (_base.front == ' '.char || _base.front == '\t'.char || _base.front == '\r'.char || _base.front == '\n'.char)
+            _base.popFront
+
+    fun parseINT(this: @_OurLexer): TokenKind
+        while !_base.isEmpty && isDigit(_base.front) ; _base.popFront
+            _curToken.data += _base.front
+        return tkINT
+
+    fun parseID(this: @_OurLexer): TokenKind
+        while !_base.isEmpty && isAlpha(_base.front) ; _base.popFront
+            _curToken.data += _base.front
+        return tkINT
+
+
+class ExprParser(sourceType: Type) //if TokenRange(#$sourceType)
+    using _IsExprParser = true
+
+    fun ctor(source: sourceType, errorReporter: ErrorReporter)
+        this._base.ctor(source, errorReporter, tkEND)
+
+    /// The base parser object to be used for common parsing operations
+    var _base: ParserBase(sourceType)
+
+/// Concept that matches ExprParser above
+concept _OurParser(t) if t._IsExprParser
+
+fun parse_start(this: @_OurParser)
+    this parseProg
+    _base expect tkEND
+
+fun parseProg(this: @_OurParser)
+    cout << 'Prog=(' << endl
+    while (_base nextIs tkINT) || (_base nextIs tkID) || (_base nextIs tk__28)
+        this parseStat
+    cout << ')' << endl
+
+fun parseStat(this: @_OurParser)
+    cout << 'Stat('
+    this parseExpr
+    if _base accept tk__3D
+        cout << ' = '
+        this parseExpr
+    _base expect tk__3B
+    cout << ')' << endl
+
+fun parseExpr(this: @_OurParser)
+    cout << 'Expr('
+
+    // Parenthesis expressions
+    if _base accept tk__28
+        this parseExpr
+        _base expect tk__29
+
+    // Everything else needs to start with INT
+    if _base accept tkINT
+        cout << 'INT'
+    else if _base accept tkID
+        cout << 'ID'
+    else
+        _base reportError toString("Invalid token found: ", _base.tokens(0).kind)
+
+    if _base accept tk__2A
+        cout << ' * '
+        this parseExpr
+    if _base accept tk__2F
+        cout << ' / '
+        this parseExpr
+    if _base accept tk__2B
+        cout << ' + '
+        this parseExpr
+    if _base accept tk__2D
+        cout << ' - '
+        this parseExpr
+    if _base accept tk__28
+        cout << ' ( '
+        this parseExpr
+        _base expect tk__29
+        cout << ' ) '
+
+    cout << ')'
+
+
+fun doReportError(loc: Location, msg: String)
+    cout << 'ERROR: ' << loc << ' ' << msg << endl      // IGNORE-ERROR
+
+
+fun sprMain
+    if programArgs.size() < 2
+        return;
+    var inText = programArgs(1)
+
+    var iniLoc: Location = mkLocation
+    var reporter: ErrorReporter = \doReportError
+    var getCharsFun: GetCharsFun = GetCharsFromRange(StringRef)(inText)
+    var lexer = ExprLexer(getCharsFun, reporter, iniLoc)
+    var parser = ExprParser(typeOf(lexer))(lexer, reporter)
+    for x = lexer
+        //cout << x.loc << ": token: " << x.kind << " - '" << x.data << "'" << endl
+        cout << ' ' << x.kind
+        if x.kind == tkEND ; break
+    cout << endl
+    parser parse_start
+
+/*<<<Running(2+3 ;)
+ INT '+' INT ';' end-of-file
+Prog=(
+Stat(Expr(INT + Expr(INT)))
+)
+>>>*/
+
+/*<<<Running(1+2+ 3*4/5 -1 ;)
+ INT '+' INT '+' INT '*' INT '/' INT '-' INT ';' end-of-file
+Prog=(
+Stat(Expr(INT + Expr(INT + Expr(INT * Expr(INT / Expr(INT - Expr(INT)))))))
+)
+>>>*/

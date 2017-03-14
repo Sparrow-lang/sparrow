@@ -1,0 +1,116 @@
+module grammar.lexerBase
+
+import commonDefs, charRange, rangeWithLookahead
+import meta.location
+import std.algorithms
+
+//concept TokenBase(x) if (
+//       typeOf(x.loc) == Location    // Has a loc: Location member to represent the location of the token
+//    && isValid(x.kind)              // Has a kind member
+//    && typeOf(x.data) == String     // Has a data: String member to hold the matched chars
+//    )
+
+class GetCharsFromRange(rangeType: Type) if CharRange(#$rangeType)
+    var chars: rangeType;
+
+    fun ctor(chars: rangeType)
+        this.chars ctor chars
+
+    fun ()(n: Int, dest: @Vector(Char)): Int
+        var cnt = 0
+        while n > cnt && !!chars
+            dest += (chars++)
+            cnt++
+        return cnt
+
+class LexerBase
+    using RetType = Char
+
+    fun ctor(getCharsFun: GetCharsFun, errorReporter: ErrorReporter, iniLocation: @Location)
+        this.getCharsFun ctor getCharsFun
+        //this.source ctor source
+        this.buffer ctor
+        this.buffer reserve _DefaultChunkSize
+        // Always have at least one element in the buffer
+        this _ensureAtLeast 1
+
+        this.curLocation ctor iniLocation
+        this.errorReporter ctor errorReporter
+
+    /// The source stream of chars
+    //var source: sourceType
+    var getCharsFun: GetCharsFun
+    /// The buffer of chars, used for lookahead
+    var buffer: Vector(Char)
+    /// Location that we use to keep track of the source chars
+    var curLocation: Location
+    /// Function used to report errors
+    var errorReporter: ErrorReporter
+
+    /// We use the call operator to be able to peek into the source chars range
+    fun ()(n: UInt): Char
+        return peekChar(this, n)
+
+fun isEmpty(this: @LexerBase): Bool     = buffer.isEmpty
+fun front(this: @LexerBase): Char       = buffer.front
+fun popFront(this: @LexerBase)
+    var curChar = buffer.front
+    // Change the location
+    if curChar == '\n'.char
+        curLocation addLines 1
+    else
+        curLocation addColumns 1
+    // Advance in our buffer
+    buffer remove 0
+    // Add a new element in the buffer if the buffer is empty
+    this _ensureAtLeast 1
+
+/// Check if the source to has less than the given number of characters
+fun hasLessThan(this: @LexerBase, n: UInt): Bool
+    // Try to fill the buffer with the required amount of elements
+    this _ensureAtLeast n
+    // Check if we have enough elements in the buffer
+    return n >= buffer.size
+
+/// Peeks at the next char; we assume that at least the cur char is valid
+/// Returns Char(0) if no next char is available
+fun peekChar(this: @LexerBase): Char
+    peekChar(this, 1)
+
+fun peekChar(this: @LexerBase, n: UInt): Char
+    // Try to fill the buffer with the required amount of elements
+    this _ensureAtLeast n
+    if n < buffer.size
+        return buffer(n)
+    else
+        return Char() // not enough elements in the source
+
+using _DefaultChunkSize = 4096
+
+/// Ensures we have at least 'n' chars in our buffer
+/// This will add elements to our internal buffer until the buffer has the required
+/// number of characters, or there are no more chars to add
+fun _ensureAtLeast(this: @LexerBase, n: UInt)
+    while n >= buffer.size
+        // Read in chunks
+        var toRead = max(_DefaultChunkSize, Int(n-buffer.size))       // Read in chunks
+        var res = this.getCharsFun(toRead, buffer)
+        if res == 0 ; break
+
+fun reportError(this: @LexerBase, msg: @String)
+    errorReporter(curLocation, msg)
+
+fun accept(this: @LexerBase, ch: Char): Bool
+    if this(0) == ch
+        this.popFront
+        return true
+    return false
+
+fun expect(this: @LexerBase, ch: Char): Bool
+    // Everything is ok if this is the char we are expecting
+    if this accept ch
+        return true
+    // Report error if this char is not what we expected
+    this reportError toString("Unexpected char '", this(0), "', expecting '", ch, "'")
+    return false
+

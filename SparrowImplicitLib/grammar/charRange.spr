@@ -1,0 +1,7 @@
+module grammar.charRange
+
+import commonDefs
+
+/// Concept for modeling the source data for the scanner
+/// It's basically a range of characters
+concept CharRange(x: Range) if -@(x.RetType) == Char

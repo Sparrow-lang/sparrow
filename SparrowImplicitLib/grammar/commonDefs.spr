@@ -1,0 +1,27 @@
+module grammar.commonDefs
+
+import meta.location
+import std.tuple, std.string, std.vector, std.function
+
+// TODO: Move this to a common place
+fun returnsVoid {}
+using VoidType = typeOf(returnsVoid());
+
+/// Type of function that will report errors
+using ErrorReporter = Function(VoidType, Location, String)
+
+/// Type of function that is called to read the input characters for the lexer
+/// The function should append chars to the given vector, not overwrite the chars in there
+/// It should return the number of chars added
+using GetCharsFun = Function(Int, Int, @Vector(Char))
+
+///// Concept for objects that can report errors produced by scanner
+//concept ErrorReporter(x: AnyType) \
+//    if isValid(x.reportError(Location(), String()))
+
+/// A string (representing an identifier) and the corresponding location
+datatype LocString = Location*String
+
+/// Vector of LocString objects
+using LocStringVec = LocString Vector
+

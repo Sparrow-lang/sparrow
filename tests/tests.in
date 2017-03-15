@@ -52,6 +52,7 @@ Bugs/SpecializationOnCt.spr:            Bugs - specialization on CT vs RT
 # Bugs/Overload.spr:                      Bugs - overload resolution fails
 Bugs/StaticGlobal.spr:                  Bugs - static vars, global vars, static ctor
 Bugs/VectorOfCtClass.spr:               Bugs - vectors of CT-only classes
+Bugs/WhileVarCond.spr:                  Bugs - while condition is a variable or a reference
 
 # AlgoProblems/P1_Collatz.spr:            Algo problems - P1. Collatz sequences
 Examples/Power.spr:                     Examples: Powers
@@ -163,3 +164,5 @@ Frontend/Identifiers.spr:               Frontend - identifiers
 Frontend/Operators.spr:                 Frontend - operators
 Frontend/PrefixPostfix.spr:             Frontend - prefix & postfix operators
 Frontend/StringAndDsl.spr:              Frontend - string and DSL
+
+# ../src/SparrowFrontend/Grammar/parserTest.spr:  Sparrow parser test

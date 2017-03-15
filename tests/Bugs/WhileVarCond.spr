@@ -1,0 +1,8 @@
+fun sprMain
+    var a: Bool
+    a = true
+    var ra: @Bool = a
+    while a
+        break
+    while ra
+        break

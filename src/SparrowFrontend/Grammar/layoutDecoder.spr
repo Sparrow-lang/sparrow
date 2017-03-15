@@ -71,8 +71,8 @@ fun popFront(this: @_This)
     // Consume the current token from the input range
     _src.popFront
 
-    // Check for line endings
-    var changeLine = _src.front().type == tkEOL
+    // Check for line endings (or end of files)
+    var changeLine = _src.front().type == tkEOL || _src.front().type == tkEND
     while _src.front().type == tkEOL
         _src.popFront
 

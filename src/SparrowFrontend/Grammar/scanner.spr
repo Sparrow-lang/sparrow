@@ -21,15 +21,13 @@ package _ImplLSCR
     [initCtor]
     class LocationSyncCharRange(sourceType: Type) if CharRange(#$sourceType)
         using RetType = Char
-        using IsLocationSyncCharRange = true
 
         var source: sourceType
         var location: @Location
-    concept _This(t) if t.IsLocationSyncCharRange
 
-    fun isEmpty(this: @_This) = source.isEmpty
-    fun front(this: @_This)   = source.front
-    fun popFront(this: @_This)
+    fun isEmpty(this: @LocationSyncCharRange) = source.isEmpty
+    fun front(this: @LocationSyncCharRange)   = source.front
+    fun popFront(this: @LocationSyncCharRange)
         if *source == '\n'.char
             location addLines 1
         else
@@ -45,7 +43,6 @@ package _ImplLSCR
 class SparrowScanner(sourceType, errorReporterType: Type) \
         if CharRange(#$sourceType) && ErrorReporter(#$errorReporterType)
     using RetType = Token
-    using IsSparrowScanner = true
 
     fun ctor(source: sourceType, errorReporter: errorReporterType, iniLocation: @Location)
         this._curLocation ctor iniLocation
@@ -65,16 +62,14 @@ class SparrowScanner(sourceType, errorReporterType: Type) \
     var _tokenIsComputed: Bool
     /// Object used to report errors
     var _errorReporter: errorReporterType
-/// Concept that matches SparrowScanner above
-concept _OurScanner(t) if t.IsSparrowScanner
 
-fun isEmpty(this: @_OurScanner) = false
-fun front(this: @_OurScanner): Token
+fun isEmpty(this: @SparrowScanner) = false
+fun front(this: @SparrowScanner): Token
     if !_tokenIsComputed
         _tokenIsComputed = true
         this.popFront
     return _curToken
-fun popFront(this: @_OurScanner)
+fun popFront(this: @SparrowScanner)
     if _src.isEmpty
         _src.location stepOver
         _curToken.type = tkEND
@@ -87,41 +82,41 @@ fun popFront(this: @_OurScanner)
 
 package _Impl
 
-    fun reportError(this: @_OurScanner, msg: @String)
+    fun reportError(this: @SparrowScanner, msg: @String)
         _errorReporter.reportError(_src.location, msg)
 
     /// Peeks at the next char; we assume that at least the cur char is valid
     /// Returns Char(0) if no next char is available
-    fun peekChar(this: @_OurScanner): Char
+    fun peekChar(this: @SparrowScanner): Char
         return _src.source peek 1
 
-    fun peekChar(this: @_OurScanner, n: UInt): Char
+    fun peekChar(this: @SparrowScanner, n: UInt): Char
         return _src.source peek n
 
     /// Check if the source to has less than the given number of characters
-    fun hasLessThan(this: @_OurScanner, n: UInt): Bool
+    fun hasLessThan(this: @SparrowScanner, n: UInt): Bool
         return _src.source hasLessThan n
 
     /// Advances the input stream while the predicate matches
     /// Captures every character that matches
-    fun advanceAndCapture(this: @_OurScanner, pred: AnyType)
+    fun advanceAndCapture(this: @SparrowScanner, pred: AnyType)
         while !!_src && pred(*_src) ; _src.popFront
             _curToken.data += *_src
 
     /// Advances and captures 1 char
-    fun advanceAndCapture1(this: @_OurScanner)
+    fun advanceAndCapture1(this: @SparrowScanner)
         _curToken.data += *_src
         _src.popFront
 
     /// Same as above, but do not capture '_'; we advance past it
-    fun advanceAndCaptureDigit(this: @_OurScanner, pred: AnyType)
+    fun advanceAndCaptureDigit(this: @SparrowScanner, pred: AnyType)
         while !!_src && (pred(*_src) || *_src == '_'.char) ; _src.popFront
             if *_src != '_'.char
                 _curToken.data += *_src
 
     /// Computes the next token, for the current characters in the source stream.
     /// Stores the token in _curToken
-    fun nextToken(this: @_OurScanner): TokenType
+    fun nextToken(this: @SparrowScanner): TokenType
         var loc: @Location = _src.location
 
 
@@ -256,7 +251,7 @@ package _Impl
     ///
     /// If this is called to parse just a '.' without any follow-up operator chars,
     /// this will return false
-    fun parseOperator(this: @_OurScanner): Bool
+    fun parseOperator(this: @SparrowScanner): Bool
         var ch = *_src
 
         // Operators
@@ -280,7 +275,7 @@ package _Impl
 
     /// Parse an identifier; we know that we start with a letter or underscore
     /// Also checked for reserved keywords
-    fun parseIdentifer(this: @_OurScanner): TokenType
+    fun parseIdentifer(this: @SparrowScanner): TokenType
         // Match the following:
         //      Identifier      {IdLetters} | {IdLettersOp}
         //      IdLetters       ({Letter} | '_') ({Letter} | '_' | {Digit})*
@@ -340,7 +335,7 @@ package _Impl
         else                        return tkIDENTIFIER
 
     /// Parse a numeric constant (decimal, octal, hex, binary, floating)
-    fun parseNumeric(this: @_OurScanner): TokenType
+    fun parseNumeric(this: @SparrowScanner): TokenType
         var isLong = false
         var isUnsigned = false
         var isFloating = false
@@ -441,7 +436,7 @@ package _Impl
                     res += getDigitVal(*r)
         return res
 
-    fun checkEscapeChar(this: @_OurScanner): Bool
+    fun checkEscapeChar(this: @SparrowScanner): Bool
         var ch = *_src
         if ch == '\\'.char
             ch = ++_src
@@ -475,7 +470,7 @@ package _Impl
             return true
         return false
 
-    fun parseString(this: @_OurScanner, endChar: Char): TokenType
+    fun parseString(this: @SparrowScanner, endChar: Char): TokenType
         _src.popFront
         if this hasLessThan 1
             this reportError "End of file found inside string literal"
@@ -495,7 +490,7 @@ package _Impl
 
         return tkSTRING_LITERAL
 
-    fun parseStringNE(this: @_OurScanner): TokenType
+    fun parseStringNE(this: @SparrowScanner): TokenType
         _src advance 2
 
         // Get all the characters from the string

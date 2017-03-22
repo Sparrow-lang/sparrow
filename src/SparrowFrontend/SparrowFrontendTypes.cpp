@@ -33,7 +33,7 @@ namespace
 
     TypeRef changeTypeModeConcept(TypeRef type, EvalMode newMode)
     {
-        return getConceptType(Nest_ofKind(type->referredNode, nkSparrowDeclSprConcept), type->numReferences, newMode);
+        return getConceptType(type->referredNode, type->numReferences, newMode);
     }
 }
 
@@ -44,9 +44,9 @@ void initSparrowFrontendTypeKinds()
     typeKindConcept = Nest_registerTypeKind(&changeTypeModeConcept);
 }
 
-TypeRef getConceptType(Node* concept, uint8_t numReferences, EvalMode mode)
+TypeRef getConceptType(Node* conceptOrGeneric, uint8_t numReferences, EvalMode mode)
 {
-    ASSERT(!concept || concept->nodeKind == nkSparrowDeclSprConcept);
+    ASSERT(!conceptOrGeneric || conceptOrGeneric->nodeKind == nkSparrowDeclSprConcept || conceptOrGeneric->nodeKind == nkSparrowDeclGenericClass);
     Type referenceType;
     referenceType.typeKind      = typeKindConcept;
     referenceType.mode          = mode;
@@ -56,8 +56,8 @@ TypeRef getConceptType(Node* concept, uint8_t numReferences, EvalMode mode)
     referenceType.canBeUsedAtCt = 1;
     referenceType.canBeUsedAtRt = 1;
     referenceType.flags         = 0;
-    referenceType.referredNode  = concept;
-    referenceType.description   = getConceptTypeDescription(concept, numReferences, mode);
+    referenceType.referredNode  = conceptOrGeneric;
+    referenceType.description   = getConceptTypeDescription(conceptOrGeneric, numReferences, mode);
 
     TypeRef t = Nest_findStockType(&referenceType);
     if ( !t )

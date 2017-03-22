@@ -108,27 +108,38 @@ namespace
 
         return combine(res, cachedCanConvertImpl(context, flags, srcTypeNew, destType));
     }
-    
+
     /// concept: #C@N -> Concept@N
-    ConversionResult checkConvertToAuto(CompilationContext* /*context*/, int /*flags*/, TypeRef srcType, TypeRef destType)
+    ConversionResult checkConvertToConcept(CompilationContext* /*context*/, int /*flags*/, TypeRef srcType, TypeRef destType)
     {
         if ( destType->typeKind != typeKindConcept )
             return convNone;
         if ( srcType->typeKind == typeKindConcept || !srcType->hasStorage )
             return convNone;
 
+        bool isOk = false;
+
         if ( srcType->typeKind != typeKindLValue && srcType->numReferences == destType->numReferences )
         {
             Node* concept = conceptOfType(destType);
+            if ( !concept ) {
+                isOk = true;
+            }
+            else {
+                // If we have a concept, check if the type fulfills the concept
+                if ( concept->nodeKind == nkSparrowDeclSprConcept ) {
+                    isOk = conceptIsFulfilled(concept, srcType);
+                }
 
-            // If we have a concept, check if the type fulfills the concept
-            if ( concept )
-                return conceptIsFulfilled(concept, srcType) ? convConcept : convNone;
-            else
-                return convConcept;
+                // If we have a generic, check if the type is generated from the generic
+                if ( concept->nodeKind == nkSparrowDeclGenericClass ) {
+                    isOk = typeGeneratedFromGeneric(concept, srcType);
+                }
+            }
+
         }
-        else
-            return convNone;
+
+        return isOk ? convConcept : convNone;
     }
 
     /// concept: Concept1@N -> Concept2@N
@@ -148,7 +159,7 @@ namespace
         srcBaseConceptType = Feather_checkChangeTypeMode(srcBaseConceptType, srcType->mode, srcConcept->location);
         return cachedCanConvertImpl(context, flags, srcBaseConceptType, destType);
     }
-    
+
 
     // direct: lv(T) -> U, if T-> U or Feather_addRef(T) -> U (take best alternative)
     ConversionResult checkLValueToNormal(CompilationContext* context, int flags, TypeRef srcType, TypeRef destType)
@@ -201,7 +212,7 @@ namespace
         });
         return combine(res, cachedCanConvertImpl(context, flags | flagDontAddReference, t, destType));
     }
-    
+
     // implicit:  #C@0 -> U, if #C@1 -> U
     ConversionResult checkAddReference(CompilationContext* context, int flags, TypeRef srcType, TypeRef destType)
     {
@@ -219,7 +230,7 @@ namespace
         });
         return combine(res, cachedCanConvertImpl(context, flags | flagDontAddReference, baseDataType, destType));
     }
-    
+
     // T => U, if U has a conversion ctor for T
     ConversionResult checkConversionCtor(CompilationContext* context, int flags, TypeRef srcType, TypeRef destType)
     {
@@ -286,7 +297,7 @@ namespace
             return c;
 
         // Direct: Type with storage to concept
-        c = checkConvertToAuto(context, flags, srcType, destType);
+        c = checkConvertToConcept(context, flags, srcType, destType);
         if ( c )
             return c;
 

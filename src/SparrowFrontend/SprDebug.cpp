@@ -68,7 +68,7 @@ static int g_debugIndent = 0;
 
 int atLocation(Location loc, const char* filename, int startLine, int startCol, int endLine, int endCol) {
     // Check the URL part
-    if ( filename ) {
+    if ( filename && loc.sourceCode ) {
         const char* p = strstr(loc.sourceCode->url, filename);
         if ( !p )
             return 0;

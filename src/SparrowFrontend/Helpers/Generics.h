@@ -3,6 +3,7 @@
 namespace SprFrontend
 {
     bool conceptIsFulfilled(Node* concept, TypeRef type);
+    bool typeGeneratedFromGeneric(Node* genericClass, TypeRef type);
 
     TypeRef baseConceptType(Node* concept);
 

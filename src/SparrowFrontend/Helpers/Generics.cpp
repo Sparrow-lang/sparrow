@@ -490,6 +490,7 @@ namespace
 
 bool SprFrontend::conceptIsFulfilled(Node* concept, TypeRef type)
 {
+    ASSERT(concept->nodeKind == nkSparrowDeclSprConcept);
     Node* instantiationsSet = at(concept->children, 2);
 
     if ( !concept->nodeSemanticallyChecked || !instantiationsSet )
@@ -500,6 +501,17 @@ bool SprFrontend::conceptIsFulfilled(Node* concept, TypeRef type)
         return false;
 
     return nullptr != canInstantiate(instantiationsSet, fromIniList({typeValue}), concept->context->evalMode);
+}
+
+bool SprFrontend::typeGeneratedFromGeneric(Node* genericClass, TypeRef type)
+{
+    ASSERT(genericClass && genericClass->nodeKind == nkSparrowDeclGenericClass);
+    Node* cls = Feather_classForType(type);
+    if ( !cls )
+        return false;
+
+    // Simple check: location & name is the same
+    return 0 == Nest_compareLocations(&genericClass->location, &cls->location) && Feather_getName(genericClass) == Feather_getName(cls);
 }
 
 TypeRef SprFrontend::baseConceptType(Node* concept)

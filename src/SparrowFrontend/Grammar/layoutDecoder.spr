@@ -22,7 +22,6 @@ import meta.location
 class SparrowLayoutDecoder(tokensRangeType, errorReporterType: Type) \
         if TokenRange(#$tokensRangeType) && ErrorReporter(#$errorReporterType)
     using RetType = Token
-    using _IsSparrowLayoutDecoder = true
 
     fun ctor(tokens: tokensRangeType, errorReporter: errorReporterType)
         this._src ctor tokens
@@ -49,16 +48,13 @@ class SparrowLayoutDecoder(tokensRangeType, errorReporterType: Type) \
     /// If the number of tokens is greater than 1, we change the type to '}'
     var _toInjectCnt: Int
 
-/// Concept that matches SparrowParser above
-concept _This(t) if t._IsSparrowLayoutDecoder
-
-fun isEmpty(this: @_This): Bool = _toInjectCnt == 0 && _src.isEmpty
-fun front(this: @_This): Token
+fun isEmpty(this: @SparrowLayoutDecoder): Bool = _toInjectCnt == 0 && _src.isEmpty
+fun front(this: @SparrowLayoutDecoder): Token
     var tk = _src.front
     if _toInjectCnt > 0
         tk.type = _toInject
     return tk
-fun popFront(this: @_This)
+fun popFront(this: @SparrowLayoutDecoder)
     // Are we moving past the injected tokens?
     if _toInjectCnt > 0
         _toInjectCnt--         // Consume one injected token

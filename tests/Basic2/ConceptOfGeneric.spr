@@ -1,0 +1,27 @@
+//!!
+
+import std.ranges, std.tuple
+
+class FibRange(valType: Type)
+    using RetType = valType
+
+    var _lastTwo: valType*valType
+
+    fun ctor
+        _lastTwo = 1 ~ 1
+
+
+fun isEmpty(this: @FibRange) = false
+fun front(this: @FibRange)   = _lastTwo.v2
+fun popFront(this: @FibRange)
+    _lastTwo = _lastTwo.v2 ~ (_lastTwo.v1 + _lastTwo.v2);
+
+fun sprMain
+    for n = take(FibRange(Int)(), 10)
+        cout << ' ' << n
+    cout << endl
+    //isEmpty(3.14)
+
+/*<<<Running()
+ 1 2 3 5 8 13 21 34 55 89
+>>>*/

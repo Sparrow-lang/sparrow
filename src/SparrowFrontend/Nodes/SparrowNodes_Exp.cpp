@@ -72,7 +72,7 @@ namespace
             TypeRef t = nullptr;
             if ( resDecl->nodeKind == nkFeatherDeclClass )
                 t = Feather_getDataType(resDecl, 0, modeRtCt);
-            if ( resDecl->nodeKind == nkSparrowDeclSprConcept )
+            if ( resDecl->nodeKind == nkSparrowDeclSprConcept || resDecl->nodeKind == nkSparrowDeclGenericClass )
                 t = getConceptType(resDecl);
             if ( t )
                 return createTypeNode(node->context, loc, t);
@@ -1023,7 +1023,6 @@ Node* Identifier_SemanticCheck(Node* node)
     Node* res = getIdentifierResult(node, all(decls), nullptr, allowDeclExp);
     Nest_freeNodeArray(decls);
     Nest_freeNodeArray(declsOrig);
-    ASSERT(res);
     return res;
 }
 

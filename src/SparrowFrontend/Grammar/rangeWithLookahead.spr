@@ -11,7 +11,6 @@ import std.ranges
 /// If there are not enough items in the source range we give back the default-constructed element
 class RangeWithLookahead(baseRangeType: Type) if Range(#$baseRangeType)
     using RetType = -@(baseRangeType.RetType)
-    using _IsRangeWithLookahead = true
 
     var source: baseRangeType
     var buffer: Vector(RetType)
@@ -24,17 +23,16 @@ class RangeWithLookahead(baseRangeType: Type) if Range(#$baseRangeType)
         // Always have at least one element in the buffer
         if !!source
             buffer += (source++)
-concept _This(t) if t._IsRangeWithLookahead
 
-fun isEmpty(this: @_This): Bool = buffer.isEmpty
-fun front(this: @_This): RetType = buffer.front
-fun popFront(this: @_This)
+fun isEmpty(this: @RangeWithLookahead): Bool = buffer.isEmpty
+fun front(this: @RangeWithLookahead): RetType = buffer.front
+fun popFront(this: @RangeWithLookahead)
     buffer remove 0
     // Add a new element in the buffer if the buffer is empty
     if (buffer.isEmpty) && !!source
         buffer += (source++)
 
-fun peek(this: @_This, n: UInt): RetType
+fun peek(this: @RangeWithLookahead, n: UInt): RetType
     // If not enough elements in the buffer, add them now
     while n >= buffer.size && !!source
         buffer += (source++)
@@ -43,7 +41,7 @@ fun peek(this: @_This, n: UInt): RetType
     else
         return RetType() // not enough elements in the source
 
-fun hasLessThan(this: @_This, n: UInt): Bool
+fun hasLessThan(this: @RangeWithLookahead, n: UInt): Bool
     // Try to fill the buffer with the amount of elements
     while n >= buffer.size && !!source
         buffer += (source++)

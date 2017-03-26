@@ -287,6 +287,7 @@ namespace
         Node* body = Feather_mkLocalSpace(loc, {});
         addMethod(parent, "ctor", body, StdDef::typeUninitialized);
     }
+    // TODO (ctors): Check the generation of ctors -> prefer external ctors
 
 
     /// Generate an init ctor, that initializes all the members with data received as arguments
@@ -488,6 +489,8 @@ void _IntModClassMembers_afterComputeType(Modifier*, Node* node)
 
 void IntModCtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
 {
+    // TODO (ctors): Fix this asap
+
     /// Check to apply only to non-static constructors
     if ( fun->nodeKind != nkSparrowDeclSprFunction || Feather_getName(fun) != "ctor" )
         REP_INTERNAL(fun->location, "IntModCtorMembers modifier can be applied only to constructors");

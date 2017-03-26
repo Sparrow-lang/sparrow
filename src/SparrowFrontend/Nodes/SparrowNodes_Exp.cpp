@@ -1418,6 +1418,7 @@ Node* LambdaFunction_SemanticCheck(Node* node)
     // The actual enclosed function
     Nest_appendNodeToArray(&classBody->children, mkSprFunction(node->location, fromCStr("()"), parameters, returnType, body));
 
+    // TODO (ctors): Make sure that we generate proper ctors to lambda closures
     // Add a private default ctor (only when we have some closure parameters)
     if ( closureParams && size(closureParams->children) > 0 ) {
         Node* defCtor = mkSprFunction(node->location, fromCStr("ctor"), nullptr, nullptr, Feather_mkLocalSpace(node->location, {}), nullptr);

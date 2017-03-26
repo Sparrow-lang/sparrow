@@ -372,6 +372,8 @@ bool SprFrontend::selectConversionCtor(CompilationContext* context, Node* destCl
 {
     ASSERT(argType);
 
+    // TODO (ctors): Check this
+
     // Search for the ctors in the class
     NodeArray decls = Nest_symTabLookupCurrent(Nest_childrenContext(destClass)->currentSymTab, "ctor");
 

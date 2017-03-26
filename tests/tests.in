@@ -114,6 +114,7 @@ Basic/Convert.spr:                      Basic features - Conversions
 Basic/GeneratedCtorDtor.spr:            Basic features - Generated ctor dtor
 Basic/CtorDtor.spr:                     Basic features - Object constructors & destructors
 Basic/StaticCtorDtor.spr:               Basic features - Static constructors & destructors
+Basic/ExternalCtor.spr:                 Basic features - External ctor
 Basic/ObjectCopy.spr:                   Basic features - Object copying
 Basic/ObjectCopyRVO.spr:                Basic features - Object copying + Return Value Optimization
 # Basic/CastErr.spr:                      Basic features - Casts with errors

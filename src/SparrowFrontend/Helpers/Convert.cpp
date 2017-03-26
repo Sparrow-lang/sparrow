@@ -232,6 +232,7 @@ namespace
     }
 
     // T => U, if U has a conversion ctor for T
+    // TODO (ctors): Check this
     ConversionResult checkConversionCtor(CompilationContext* context, int flags, TypeRef srcType, TypeRef destType)
     {
         if ( !destType->hasStorage )

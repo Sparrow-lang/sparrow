@@ -72,8 +72,12 @@ Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* conte
         }
     }
 
-    // Search for the ctors in the class
+    // Search for the ctors in the class & outside of the class
+    // TODO (ctors): Keep only the search near the class
     NodeArray decls = Nest_symTabLookupCurrent(cls->childrenContext->currentSymTab, "ctor");
+    NodeArray decls2 = Nest_symTabLookupCurrent(cls->context->currentSymTab, "ctor");
+    Nest_appendNodesToArray(&decls, all(decls2));
+    Nest_freeNodeArray(decls2);
 
     // If no declarations found, just don't initialize the object
     if ( Nest_nodeArraySize(decls) == 0 )

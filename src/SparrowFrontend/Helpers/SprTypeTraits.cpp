@@ -137,6 +137,8 @@ namespace
         if ( Feather_effectiveEvalMode(cls) != modeRtCt )
             REP_INTERNAL(loc, "Cannot convert ct to rt for non-rtct classes (%1%)") % cls;
 
+        // TODO (ctors): Check this
+
         // Check if we have a ct-to-rt ctor
         Callable* call = selectCtToRtCtor(node->context, t);
         if ( !call )

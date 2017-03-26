@@ -60,6 +60,7 @@ namespace
 
     void handleStaticCtorDtor(Node* node, bool ctor)
     {
+        // TODO (ctors): Check this -- how can we distinguish between static ctirs and normal ctors?
         ASSERT(Nest_nodeArraySize(node->children) == 4);
         Node* parameters = at(node->children, 0);
 
@@ -477,13 +478,16 @@ Node* SprFunction_SemanticCheck(Node* node)
     if ( !Nest_computeType(node) )
         return nullptr;
     Node* resultingFun = node->explanation;
+    Node* parameters = at(node->children, 0);
 
     ASSERT(resultingFun);
     if ( !Nest_semanticCheck(resultingFun) )
         return nullptr;
 
     // Check for static ctors & dtors
-    if ( resultingFun && (!Nest_hasProperty(node, propIsMember) || Nest_hasProperty(node, propIsStatic)) )
+    // A static ctor/ctor has no parameters (i.e., the 'this' parameter)
+    if ( resultingFun && (!Nest_hasProperty(node, propIsMember) || Nest_hasProperty(node, propIsStatic))
+        && (!parameters || size(parameters->children) == 0) )
     {
         StringRef funName = Feather_getName(node);
 

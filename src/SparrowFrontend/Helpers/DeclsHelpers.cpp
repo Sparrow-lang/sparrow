@@ -324,3 +324,21 @@ bool SprFrontend::funHasImplicitThis(Node* fun)
     return fun && fun->nodeKind == nkSparrowDeclSprFunction
         && Nest_hasProperty(fun, propHasImplicitThisParam);
 }
+
+CompilationContext* SprFrontend::classContext(Node* cls)
+{
+    CompilationContext* res = cls->context;
+    while ( res && !res->currentSymTab->node )
+        res = res->parent;
+    return res ? res : cls->context;
+}
+
+NodeArray SprFrontend::getClassAssociatedDecls(Node* cls, const char* name)
+{
+    // TODO (ctors): Don't search within the class anymore
+    NodeArray decls = Nest_symTabLookupCurrent(cls->childrenContext->currentSymTab, name);
+    NodeArray decls2 = Nest_symTabLookupCurrent(classContext(cls)->currentSymTab, name);
+    Nest_appendNodesToArray(&decls, all(decls2));
+    Nest_freeNodeArray(decls2);
+    return decls;
+}

@@ -54,11 +54,12 @@ fun test(n: Int)
     writeLn(b4_1.data.name);
     writeLn("---");
 
-    //using IntPair = Pair(Int)
+    using IntPair = Pair(Int)
 
-    //var p = IntPair(1, 3)
-    //writeLn(p.first)
-    //writeLn(p.second)
+    var p = IntPair(1, 3)
+    var p2 = Pair(Int)(1, 3)
+    writeLn(p.first)
+    writeLn(p.second)
 
 /*<<<Running()
 LucTeo
@@ -69,4 +70,6 @@ External ctors in Sparrow
 More external ctors in Sparrow
 The wonders of Sparrow
 ---
+1
+3
 >>>*/

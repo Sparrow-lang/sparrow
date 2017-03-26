@@ -30,6 +30,10 @@ Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* conte
     Node* cls = Feather_classForType(thisArg->type);
     CHECK(loc, cls);
 
+    // TODO (ctors): We need to apply this even if we are calling ctor by hand
+    // Example: this.subObj ctor MyType(a,b,c)
+    // should be transformed into: ctor(this.subObj, a,b,c)
+
     // Check if we can apply RVO, or pseudo-RVO
     // Whenever we try to construct an object from another temporary object, try to bypass the temporary object creation
     if ( numArgs == 2 && !Nest_compilerSettings()->noRVO_ && !Feather_isCt(thisArg) )
@@ -72,12 +76,8 @@ Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* conte
         }
     }
 
-    // Search for the ctors in the class & outside of the class
-    // TODO (ctors): Keep only the search near the class
-    NodeArray decls = Nest_symTabLookupCurrent(cls->childrenContext->currentSymTab, "ctor");
-    NodeArray decls2 = Nest_symTabLookupCurrent(cls->context->currentSymTab, "ctor");
-    Nest_appendNodesToArray(&decls, all(decls2));
-    Nest_freeNodeArray(decls2);
+    // Search for the ctors associated with the class
+    NodeArray decls = getClassAssociatedDecls(cls, "ctor");
 
     // If no declarations found, just don't initialize the object
     if ( Nest_nodeArraySize(decls) == 0 )

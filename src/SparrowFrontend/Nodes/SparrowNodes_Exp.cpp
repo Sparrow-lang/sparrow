@@ -417,17 +417,6 @@ namespace
     // Helpers for OperatorCall node
     //
 
-    //! Returns the compilation context surrounding the given class
-    //! If the context is not introduced by a node, move up to the first context introduced by a node
-    //! Case treated: If the class is introduced by a generic, it will search the context of the generic
-    CompilationContext* classContext(Node* cls)
-    {
-        CompilationContext* res = cls->context;
-        while ( res && !res->currentSymTab->node )
-            res = res->parent;
-        return res ? res : cls->context;
-    }
-
     //! Structure defining the parameters for a search scope
     struct SearchScope {
         StringRef operation;                //!< The operation name to look for

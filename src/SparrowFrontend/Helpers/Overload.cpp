@@ -372,10 +372,8 @@ bool SprFrontend::selectConversionCtor(CompilationContext* context, Node* destCl
 {
     ASSERT(argType);
 
-    // TODO (ctors): Check this
-
-    // Search for the ctors in the class
-    NodeArray decls = Nest_symTabLookupCurrent(Nest_childrenContext(destClass)->currentSymTab, "ctor");
+    // Search for the ctors associated with the class
+    NodeArray decls = getClassAssociatedDecls(destClass, "ctor");
 
 //     cerr << "Convert: " << argType->toString() << " -> " << Nest_toString(destClass) << " ?" << endl;
 
@@ -434,8 +432,8 @@ Callable* SprFrontend::selectCtToRtCtor(CompilationContext* context, TypeRef ctT
     if ( Feather_effectiveEvalMode(cls) != modeRtCt )
         return nullptr;
 
-    // Search for the ctors in the class
-    NodeArray decls = Nest_symTabLookupCurrent(Nest_childrenContext(cls)->currentSymTab, "ctorFromCt");
+    // Search for the ctors associated with the class
+    NodeArray decls = getClassAssociatedDecls(cls, "ctorFromCt");
 
     // Select the possible ct-to-rt constructors
     Callables candidates;

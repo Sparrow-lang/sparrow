@@ -60,7 +60,6 @@ namespace
 
     void handleStaticCtorDtor(Node* node, bool ctor)
     {
-        // TODO (ctors): Check this -- how can we distinguish between static ctirs and normal ctors?
         ASSERT(Nest_nodeArraySize(node->children) == 4);
         Node* parameters = at(node->children, 0);
 

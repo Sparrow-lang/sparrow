@@ -34,11 +34,8 @@ ClassCtorCallable::ClassCtorCallable(Node* cls, Callable* baseCallable, EvalMode
 
 Callables ClassCtorCallable::getCtorCallables(Node* cls, EvalMode evalMode)
 {
-    // TODO (ctors): Keep only the search near the class
-    NodeArray decls = Nest_symTabLookupCurrent(Nest_childrenContext(cls)->currentSymTab, "ctor");
-    NodeArray decls2 = Nest_symTabLookupCurrent(cls->context->currentSymTab, "ctor");
-    Nest_appendNodesToArray(&decls, all(decls2));
-    Nest_freeNodeArray(decls2);
+    // Search for the ctors associated with the class
+    NodeArray decls = getClassAssociatedDecls(cls, "ctor");
 
     evalMode = Feather_combineMode(Feather_effectiveEvalMode(cls), evalMode, cls->location);
 

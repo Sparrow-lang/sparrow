@@ -66,4 +66,12 @@ namespace SprFrontend
     /// Check if the given function node has an implicit this parameter
     /// returns false if the given node is null or is not a function
     bool funHasImplicitThis(Node* fun);
+
+    //! Returns the compilation context surrounding the given class
+    //! If the context is not introduced by a node, move up to the first context introduced by a node
+    //! Case treated: If the class is introduced by a generic, it will search the context of the generic
+    CompilationContext* classContext(Node* cls);
+
+    //! Get the decls with the given name associated with the given class
+    NodeArray getClassAssociatedDecls(Node* cls, const char* name);
 }

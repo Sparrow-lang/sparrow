@@ -18,7 +18,7 @@ TypeRef Callable::paramType(size_t idx) const
     return p->type;
 }
 
-ConversionType Callable::canCall(CompilationContext* context, const Location& loc, NodeRange args, EvalMode evalMode, bool noCustomCvt, bool reportErrors)
+ConversionType Callable::canCall(CompilationContext* context, const Location& loc, NodeRange args, EvalMode evalMode, CustomCvtMode customCvtMode, bool reportErrors)
 {
     // Copy the list of arguments; add default values if arguments are missing
     size_t paramsCount = this->paramsCount();
@@ -39,14 +39,14 @@ ConversionType Callable::canCall(CompilationContext* context, const Location& lo
     vector<TypeRef> argTypes(args_.size(), nullptr);
     for ( size_t i=0; i<args_.size(); ++i)
         argTypes[i] = args_[i]->type;
-    ConversionType res = canCall(context, loc, argTypes, evalMode, noCustomCvt, reportErrors);
+    ConversionType res = canCall(context, loc, argTypes, evalMode, customCvtMode, reportErrors);
     if ( !res )
         return convNone;
 
     return res;
 }
 
-ConversionType Callable::canCall(CompilationContext* context, const Location& /*loc*/, const vector<TypeRef>& argTypes, EvalMode evalMode, bool noCustomCvt, bool reportErrors)
+ConversionType Callable::canCall(CompilationContext* context, const Location& /*loc*/, const vector<TypeRef>& argTypes, EvalMode evalMode, CustomCvtMode customCvtMode, bool reportErrors)
 {
     // Check argument count
     size_t paramsCount = this->paramsCount();
@@ -92,7 +92,9 @@ ConversionType Callable::canCall(CompilationContext* context, const Location& /*
         if ( paramType->hasStorage && useCt )
             paramType = Feather_checkChangeTypeMode(paramType, modeCt, NOLOC);
 
-        ConversionFlags flags = noCustomCvt ? flagDontCallConversionCtor : flagsDefault;
+        ConversionFlags flags = flagsDefault;
+        if ( customCvtMode == noCustomCvt || (customCvtMode == noCustomCvtForFirst && i == 0) )
+            flags = flagDontCallConversionCtor;
         conversions_[i] = canConvertType(context, argType, paramType, flags);
         if ( !conversions_[i] ) {
             if ( reportErrors )

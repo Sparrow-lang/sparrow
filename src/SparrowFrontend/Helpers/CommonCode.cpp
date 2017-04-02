@@ -7,6 +7,7 @@
 #include "StdDef.h"
 #include "SprTypeTraits.h"
 #include "Generics.h"
+#include "SprDebug.h"
 #include <NodeCommonsCpp.h>
 
 #include "Feather/Api/Feather.h"
@@ -100,42 +101,27 @@ Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* conte
 
 Node* SprFrontend::createDtorCall(const Location& loc, CompilationContext* context, Node* thisArg)
 {
+    ASSERT(thisArg);
+
     // Get the class from 'thisArg'
     if ( !Nest_computeType(thisArg) )
         return nullptr;
     Node* cls = Feather_classForType(thisArg->type);
     CHECK(loc, cls);
 
-    // Search for the dtor in the class
-    NodeArray decls = Nest_symTabLookupCurrent(cls->childrenContext->currentSymTab, "dtor");
+    // Search for the dtor associated with the class
+    NodeArray decls = getClassAssociatedDecls(cls, "dtor");
 
     // If no destructor found, don't call anything
     auto numDecls = Nest_nodeArraySize(decls);
     if ( numDecls == 0 )
         return nullptr;
 
-    // Sanity checks
-    if ( numDecls > 1 )
-        REP_ERROR_RET(nullptr, loc, "Multiple destructors found for class %1%") % Feather_getName(cls);
-    Node* dtor = Nest_explanation(at(decls, 0));
+    // Do the overloading procedure to select the right dtor
+    // Don't report errors; having no matching dtor is a valid case
+    Node* res = selectOverload(context, loc, thisArg->type->mode, all(decls), fromIniList({thisArg}), OverloadReporting::none, fromCStr("dtor"));
     Nest_freeNodeArray(decls);
-    if ( !dtor || dtor->nodeKind != nkFeatherDeclFunction )
-        REP_ERROR_RET(nullptr, at(decls, 0)->location, "Invalid destructor found for class %1%") % Feather_getName(cls);
-    if ( Feather_Function_numParameters(dtor) != 1 )
-        REP_INTERNAL(dtor->location, "Invalid destructor found for class %1%; it has %2% parameters") % Feather_getName(cls) % Feather_Function_numParameters(dtor);
-
-    // Check this parameter
-    TypeRef thisParamType = Feather_Function_getParameter(dtor, 0)->type;
-    if ( Feather_isCt(thisArg) )
-        thisParamType = Feather_checkChangeTypeMode(thisParamType, modeCt, thisArg->location);
-    ConversionResult c = canConvert(thisArg, thisParamType);
-    if ( !c )
-        REP_INTERNAL(loc, "Invalid this argument when calling dtor");
-    Node* argWithConversion = c.apply(thisArg);
-
-    Node* funCall = Feather_mkFunCall(loc, dtor, fromIniList({ argWithConversion }));
-    Nest_setContext(funCall, context);
-    return funCall;
+    return res; // can be null
 }
 
 bool _areNodesCt(NodeRange nodes)
@@ -252,6 +238,7 @@ Node* SprFrontend::createFunPtr(Node* funNode)
     NodeVector decls = getDeclsFromNode(funNode, baseExp);
 
     // Make sure we refer only to one decl
+    // TODO
     if ( decls.size() == 0 )
         REP_ERROR_RET(nullptr, loc, "No function found: %1%") % funNode;
 

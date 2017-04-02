@@ -145,7 +145,7 @@ namespace
         // Generate the call to the ctor
         if ( !Nest_computeType(node) )
             return nullptr;
-        auto cr = call->canCall(node->context, loc, fromIniList({node}), modeRt, true);
+        auto cr = call->canCall(node->context, loc, fromIniList({node}), modeRt, noCustomCvt);
         ASSERT(cr);
         (void) cr; // avoid warning for unused cr
         Node* res = call->generateCall(loc);

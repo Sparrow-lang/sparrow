@@ -53,10 +53,10 @@ bool GenericCallable::isAutoCt() const
     return false;
 }
 
-ConversionType GenericCallable::canCall(CompilationContext* context, const Location& loc, NodeRange args, EvalMode evalMode, bool noCustomCvt, bool reportErrors)
+ConversionType GenericCallable::canCall(CompilationContext* context, const Location& loc, NodeRange args, EvalMode evalMode, CustomCvtMode customCvtMode, bool reportErrors)
 {
     // Call the base first
-    ConversionType res = Callable::canCall(context, loc, args, evalMode, noCustomCvt, reportErrors);
+    ConversionType res = Callable::canCall(context, loc, args, evalMode, customCvtMode, reportErrors);
     if ( !res )
         return convNone;
 

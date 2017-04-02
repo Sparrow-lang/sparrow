@@ -5,7 +5,7 @@
 namespace SprFrontend
 {
     class Instantiation;
-    
+
     /// A generic callable object
     class GenericCallable : public Callable
     {
@@ -19,13 +19,13 @@ namespace SprFrontend
         virtual EvalMode evalMode() const;
         virtual bool isAutoCt() const;
 
-        virtual ConversionType canCall(CompilationContext* context, const Location& loc, NodeRange args, EvalMode evalMode, bool noCustomCvt = false, bool reportErrors = false);
+        virtual ConversionType canCall(CompilationContext* context, const Location& loc, NodeRange args, EvalMode evalMode, CustomCvtMode customCvtMode, bool reportErrors = false);
         virtual Node* generateCall(const Location& loc);
 
     private:
         Node* generic_;
         Node* inst_;
-        
+
         NodeVector argsWithCvt_;
     };
 }

@@ -328,8 +328,14 @@ bool SprFrontend::funHasImplicitThis(Node* fun)
 CompilationContext* SprFrontend::classContext(Node* cls)
 {
     CompilationContext* res = cls->context;
-    while ( res && !res->currentSymTab->node )
+    while ( res && res->parent ) {
+        Node* n = res->currentSymTab->node;
+        if ( n && n->nodeKind != nkSparrowDeclSprClass && n->nodeKind != nkSparrowDeclGenericClass
+        && n->nodeKind != Feather_getFirstFeatherNodeKind() + nkRelFeatherDeclClass )
+            break;
+
         res = res->parent;
+    }
     return res ? res : cls->context;
 }
 

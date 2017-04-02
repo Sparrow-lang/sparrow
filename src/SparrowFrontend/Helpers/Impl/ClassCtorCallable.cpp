@@ -83,16 +83,16 @@ bool ClassCtorCallable::isAutoCt() const
     return baseCallable_->isAutoCt();
 }
 
-ConversionType ClassCtorCallable::canCall(CompilationContext* context, const Location& loc, const vector<TypeRef>& argTypes, EvalMode evalMode, bool noCustomCvt, bool reportErrors)
+ConversionType ClassCtorCallable::canCall(CompilationContext* context, const Location& loc, const vector<TypeRef>& argTypes, EvalMode evalMode, CustomCvtMode customCvtMode, bool reportErrors)
 {
     TypeRef t = Feather_getLValueType(varType(cls_, evalMode_));
 
     vector<TypeRef> argTypes2 = argTypes;
     argTypes2.insert(argTypes2.begin(), t);
-    return baseCallable_->canCall(context, loc, argTypes2, evalMode, noCustomCvt, reportErrors);
+    return baseCallable_->canCall(context, loc, argTypes2, evalMode, customCvtMode, reportErrors);
 }
 
-ConversionType ClassCtorCallable::canCall(CompilationContext* context, const Location& loc, NodeRange args, EvalMode evalMode, bool noCustomCvt, bool reportErrors)
+ConversionType ClassCtorCallable::canCall(CompilationContext* context, const Location& loc, NodeRange args, EvalMode evalMode, CustomCvtMode customCvtMode, bool reportErrors)
 {
     context_ = context;
 
@@ -115,7 +115,7 @@ ConversionType ClassCtorCallable::canCall(CompilationContext* context, const Loc
 
     NodeVector args2 = toVec(args);
     args2.insert(args2.begin(), thisArg_);
-    return baseCallable_->canCall(context, loc, all(args2), evalMode, noCustomCvt, reportErrors);
+    return baseCallable_->canCall(context, loc, all(args2), evalMode, customCvtMode, reportErrors);
 }
 
 

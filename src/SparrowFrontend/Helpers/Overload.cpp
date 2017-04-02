@@ -96,15 +96,15 @@ namespace
     /// Retain only the candidates with the highest conversion
     /// Accepts either the argument nodes, or their type
     /// Returns true if there are some valid candidates
-    bool filterCandidates(CompilationContext* context, const Location& loc, const Callables& candidates, NodeRange* args, const vector<TypeRef>* argTypes, EvalMode evalMode, bool noCustomCvt = false)
+    bool filterCandidates(CompilationContext* context, const Location& loc, const Callables& candidates, NodeRange* args, const vector<TypeRef>* argTypes, EvalMode evalMode, CustomCvtMode customCvtMode)
     {
         ConversionType bestConv = convNone;
         for ( size_t i=0; i<candidates.size(); ++i ) {
             Callable* cand = candidates[i];
 
             ConversionType conv = args
-                                    ? cand->canCall(context, loc, *args, evalMode, noCustomCvt)
-                                    : cand->canCall(context, loc, *argTypes, evalMode, noCustomCvt);
+                                    ? cand->canCall(context, loc, *args, evalMode, customCvtMode)
+                                    : cand->canCall(context, loc, *argTypes, evalMode, customCvtMode);
             if ( conv == convNone ) {
                 cand->markInvalid();
                 continue;
@@ -125,7 +125,7 @@ namespace
 
     /// This is called if filterCandidates failed to select any valid candidate.
     /// This will report all the candidates, and why they could not be called.
-    void filterCandidatesErrReport(CompilationContext* context, const Location& loc, const Callables& candidates, NodeRange* args, const vector<TypeRef>* argTypes, EvalMode evalMode, bool noCustomCvt = false)
+    void filterCandidatesErrReport(CompilationContext* context, const Location& loc, const Callables& candidates, NodeRange* args, const vector<TypeRef>* argTypes, EvalMode evalMode, CustomCvtMode customCvtMode)
     {
         for ( size_t i=0; i<candidates.size(); ++i ) {
             Callable* cand = candidates[i];
@@ -134,9 +134,9 @@ namespace
             REP_INFO(cand->location(), "See possible candidate: %1%") % cand->toString();
 
             if ( args )
-                cand->canCall(context, loc, *args, evalMode, noCustomCvt, true);
+                cand->canCall(context, loc, *args, evalMode, customCvtMode, true);
             else
-                cand->canCall(context, loc, *argTypes, evalMode, noCustomCvt, true);
+                cand->canCall(context, loc, *argTypes, evalMode, customCvtMode, true);
         }
     }
 
@@ -278,6 +278,7 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
     for ( size_t i=0; i<numArgs; ++i)
     {
         Node* arg = at(args, i);
+        ASSERT(arg);
         if ( !Nest_semanticCheck(arg) )
             return nullptr;
         argsTypes[i] = arg->type;
@@ -316,13 +317,18 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
         return nullptr;
     }
 
+    // For ctors and dtors don't allow custom conversions for the first parameter
+    CustomCvtMode customCvtMode = allowCustomCvt;
+    if ( funName == "ctor" || funName == "dtor" )
+        customCvtMode = noCustomCvtForFirst;
+
     // Check the candidates to be able to be called with the given arguments
-    bool hasValidCandidates = filterCandidates(context, loc, candidates, &args, nullptr, evalMode);
+    bool hasValidCandidates = filterCandidates(context, loc, candidates, &args, nullptr, evalMode, customCvtMode);
     if ( !hasValidCandidates )
     {
         if ( errReporting != OverloadReporting::none ) {
             startError(errReporting, loc, argsTypes, funName);
-            filterCandidatesErrReport(context, loc, candidates, &args, nullptr, evalMode);
+            filterCandidatesErrReport(context, loc, candidates, &args, nullptr, evalMode, customCvtMode);
         }
         return nullptr;
     }
@@ -402,7 +408,7 @@ bool SprFrontend::selectConversionCtor(CompilationContext* context, Node* destCl
 
     // Check the candidates to be able to be called with the given arguments
     vector<TypeRef> argTypes(1, argType);
-    filterCandidates(context, arg ? arg->location : Location(), candidates, nullptr, &argTypes, destMode, true);
+    filterCandidates(context, arg ? arg->location : Location(), candidates, nullptr, &argTypes, destMode, noCustomCvt);
 
     // From the remaining candidates, try to select the most specialized one
     Callable* selectedFun = selectMostSpecialized(context, candidates, true);
@@ -414,10 +420,11 @@ bool SprFrontend::selectConversionCtor(CompilationContext* context, Node* destCl
     {
         if ( !Nest_computeType(arg) )
             return false;
-        auto cr = selectedFun->canCall(context, arg->location, fromIniList({ arg }), destMode, true);
+        auto cr = selectedFun->canCall(context, arg->location, fromIniList({ arg }), destMode, noCustomCvt);
         (void) cr;
         ASSERT(cr);
         *conv = selectedFun->generateCall(arg->location);
+        ASSERT(*conv);
         Nest_setContext(*conv, context);
         Nest_semanticCheck(*conv);
     }
@@ -471,7 +478,7 @@ Callable* SprFrontend::selectCtToRtCtor(CompilationContext* context, TypeRef ctT
 
     // Check the candidates to be able to be called with the given arguments
     vector<TypeRef> argTypes(1, ctType);
-    filterCandidates(context, Location(), candidates, nullptr, &argTypes, modeRt, true);
+    filterCandidates(context, Location(), candidates, nullptr, &argTypes, modeRt, noCustomCvt);
 
     // From the remaining candidates, try to select the most specialized one
     return selectMostSpecialized(context, candidates, true);

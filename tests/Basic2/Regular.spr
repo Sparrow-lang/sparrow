@@ -32,9 +32,10 @@ class MyType
     // Operators are implicitly defined
 }
 
-[noDefault] class EmptyType
-{
-}
+package Isolated
+    [noDefault] class EmptyType
+    {
+    }
 
 fun sprMain
 {
@@ -42,7 +43,7 @@ fun sprMain
     testRegular(1.0);
     var o: NullType;
     var o1: MyType;
-    var o2: EmptyType;
+    var o2: Isolated.EmptyType;
     testRegular(o);
     testRegular(o1);
     testRegular(o2);

@@ -68,8 +68,10 @@ namespace SprFrontend
     bool funHasImplicitThis(Node* fun);
 
     //! Returns the compilation context surrounding the given class
-    //! If the context is not introduced by a node, move up to the first context introduced by a node
-    //! Case treated: If the class is introduced by a generic, it will search the context of the generic
+    //! If the context is not introduced by a node, move up to the first context
+    //! introduced by a node, which is not a class-like node
+    //! Case treated: If the class is introduced by a generic, it will search
+    //! the context of the generic; if we have nested classes, get up to top-level scope
     CompilationContext* classContext(Node* cls);
 
     //! Get the decls with the given name associated with the given class

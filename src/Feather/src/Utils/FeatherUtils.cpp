@@ -198,6 +198,21 @@ TypeRef Feather_adjustModeBase(TypeRef srcType, EvalMode baseMode, CompilationCo
     return Feather_checkChangeTypeMode(srcType, resMode, loc);
 }
 
+void _printContextNodes(Node* node) {
+    CompilationContext* ctx = node->context;
+    while ( ctx ) {
+        Node* n = ctx->currentSymTab->node;
+        Node* expl = Nest_explanation(n);
+        if ( expl
+            && (expl->nodeKind == Feather_getFirstFeatherNodeKind() + nkRelFeatherDeclClass
+                || expl->nodeKind == Feather_getFirstFeatherNodeKind() + nkRelFeatherDeclFunction)
+        )
+            REP_INFO(expl->location, "In context: %1%") % Nest_toString(expl);
+
+        ctx = ctx->parent;
+    }
+}
+
 void Feather_checkEvalMode(Node* src, EvalMode referencedEvalMode)
 {
     ASSERT(src && src->type);
@@ -205,10 +220,14 @@ void Feather_checkEvalMode(Node* src, EvalMode referencedEvalMode)
     EvalMode contextEvalMode = src->context->evalMode;
 
     // Check if the context eval mode requirements are fulfilled
-    if ( contextEvalMode == modeRtCt && nodeEvalMode == modeRt )
+    if ( contextEvalMode == modeRtCt && nodeEvalMode == modeRt ) {
+        _printContextNodes(src);
         REP_INTERNAL(src->location, "Cannot have RT nodes in a RT-CT context");
-    if ( contextEvalMode == modeCt && nodeEvalMode != modeCt )
+    }
+    if ( contextEvalMode == modeCt && nodeEvalMode != modeCt ) {
+        _printContextNodes(src);
         REP_INTERNAL(src->location, "Cannot have non-CT nodes in a CT context");
+    }
 
     // Check if the referenced eval mode requirements are fulfilled
     if ( referencedEvalMode == modeCt && nodeEvalMode != modeCt )

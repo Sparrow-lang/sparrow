@@ -1,5 +1,6 @@
 #include <StdInc.h>
 #include "IntMods.h"
+#include "SprDebug.h"
 
 #include <Nodes/Builder.h>
 #include <Nodes/SparrowNodesAccessors.h>
@@ -18,68 +19,53 @@ using namespace std;
 
 namespace
 {
-    /// Search in the given class for a function with a specified name, taking the given type of parameter
-    bool checkForMember(Node* cls, const string& funName, Node* paramClass)
+    /// Check if the parameter with the given index has the given class type
+    /// The given decl must be a Feather function
+    bool checkParamOfClass(Node* funDecl, size_t idx, Node* expectedClass)
     {
-        NodeArray decls = Nest_symTabLookupCurrent(Nest_childrenContext(cls)->currentSymTab, funName.c_str());
+        TypeRef paramType = Feather_Function_getParameter(funDecl, idx)->type;
+        return paramType->hasStorage && Feather_classForType(paramType) == expectedClass;
+    }
+
+    /// Search a function with the given name, taking the given type of parameter in the context of the given class
+    bool checkForAssociatedFun(Node* cls, const string& funName, Node* paramClass)
+    {
+        bool res = false;
+
+        NodeArray decls = getClassAssociatedDecls(cls, funName.c_str());
         for ( Node* decl: decls )
         {
             decl = Nest_explanation(decl);
-            if ( !decl )
-                continue;
             if ( !decl || decl->nodeKind != nkFeatherDeclFunction )
                 continue;
 
-            // Make sure we only take in considerations operations of this class
-            Node* cls2 = Feather_getParentClass(decl->context);
-            if ( cls2 != Nest_explanation(cls) )
+            // Check parameter count
+            size_t thisParamIdx = getResultParam(decl) ? 1 : 0;
+            size_t numExpectedParams = 1+(paramClass ? 1+thisParamIdx : thisParamIdx);
+            if ( Feather_Function_numParameters(decl) != numExpectedParams )
                 continue;
 
-            // Check 'this' and 'other' parameters
-            size_t thisParamIdx = 0;
-            size_t otherParamIdx = 1;
-            if ( getResultParam(decl) )
-            {
-                ++thisParamIdx;
-                ++otherParamIdx;
-            }
-            size_t numParams = Feather_Function_numParameters(decl);
-            if ( numParams < 1+thisParamIdx )
-                continue;
-            if ( Feather_getName(Feather_Function_getParameter(decl, thisParamIdx)) != "this" )
+            // Check the 'this' parameter first
+            Node* basicClass = Nest_explanation(cls);
+            if ( !checkParamOfClass(decl, thisParamIdx, basicClass) )
                 continue;
 
-            if ( paramClass )
-            {
-                if ( numParams != 1+otherParamIdx )
-                    continue;
-                TypeRef paramType = Feather_Function_getParameter(decl, otherParamIdx)->type;
-                if ( paramType->hasStorage )
-                {
-                    if ( Feather_classForType(paramType) == paramClass )
-                    {
-                        Nest_freeNodeArray(decls);
-                        return true;
-                    }
-                }
-            }
-            else
-            {
-                if ( numParams == 1+thisParamIdx )
-                {
-                    Nest_freeNodeArray(decls);
-                    return true;
-                }
-            }
+            // Check the 'other' parameter has the required type, if applicable
+            if ( paramClass && !checkParamOfClass(decl, thisParamIdx+1, paramClass) )
+                continue;
+
+            // Everything ok; we found a matching associated function
+            res = true;
+            break;
         }
         Nest_freeNodeArray(decls);
-        return false;
+        return res;
     }
 
-    /// Checks if the class has a 'ctorFromCt' method
+    /// Checks if the class has a 'ctorFromCt' associated function
     bool checkForCtorFromCt(Node* cls)
     {
-        NodeArray decls = Nest_symTabLookupCurrent(Nest_childrenContext(cls)->currentSymTab, "ctorFromCt");
+        NodeArray decls = getClassAssociatedDecls(cls, "ctorFromCt");
         for ( Node* n: decls )
         {
             if ( Feather_effectiveEvalMode(n) == modeRt )
@@ -156,7 +142,7 @@ namespace
     {
         Location loc = parent->location;
         loc.end = loc.start;
-        CompilationContext* ctx = parent->context;
+        CompilationContext* ctx = classContext(parent);
 
         // Construct the parameters list, return type node
         NodeVector sprParams;
@@ -224,7 +210,7 @@ namespace
     }
 
     /// Generate an associated function with the given name, by calling 'op' for the base classes and fields
-    void generateAssociatedFun(Node* parent, const string& name, const string& op, TypeRef otherParam, bool reverse = false, EvalMode mode = modeUnspecified)
+    Node* generateAssociatedFun(Node* parent, const string& name, const string& op, TypeRef otherParam, bool reverse = false, EvalMode mode = modeUnspecified)
     {
         Location loc = parent->location;
         loc.end = loc.start;
@@ -275,7 +261,7 @@ namespace
         if ( otherParam )
             params.push_back({otherParam, string("other")});
 
-        addAssociatedFun(parent, name, body, params, nullptr, mode);
+        return addAssociatedFun(parent, name, body, params, nullptr, mode);
     }
 
     /// Generate an empty, uninitialized ctor
@@ -451,18 +437,16 @@ void _IntModClassMembers_afterComputeType(Modifier*, Node* node)
     TypeRef paramType = Feather_getDataType(basicClass, 1, modeRtCt);
 
     // Default ctor
-    if ( !checkForMember(cls, "ctor", nullptr) )
+    if ( !checkForAssociatedFun(cls, "ctor", nullptr) )
         generateMethod(cls, "ctor", "ctor", nullptr);
 
     // Uninitialized ctor
-    if ( !checkForMember(cls, "ctor", StdDef::clsUninitialized) )
+    if ( !checkForAssociatedFun(cls, "ctor", StdDef::clsUninitialized) )
         generateUnititializedCtor(cls);
 
     // Copy ctor
-    if ( !checkForMember(cls, "ctor", basicClass) ) {
+    if ( !checkForAssociatedFun(cls, "ctor", basicClass) )
         generateMethod(cls, "ctor", "ctor", paramType);
-        // generateAssociatedFun(cls, "construct", "construct", paramType);
-    }
 
     // Initialization ctor
     if ( Nest_hasProperty(cls, propGenerateInitCtor) )
@@ -473,17 +457,15 @@ void _IntModClassMembers_afterComputeType(Modifier*, Node* node)
         generateMethod(cls, "ctorFromCt", "ctor", Feather_checkChangeTypeMode(Feather_getDataType(basicClass, 0, modeRtCt), modeCt, node->location), false, modeRt);
 
     // Dtor
-    if ( !checkForMember(cls, "dtor", nullptr) ) {
-        generateMethod(cls, "dtor", "dtor", nullptr, true);
-        // generateAssociatedFun(cls, "destruct", "dtor", nullptr);
-    }
+    if ( !checkForAssociatedFun(cls, "dtor", nullptr) )
+        generateAssociatedFun(cls, "dtor", "dtor", nullptr, true);
 
     // Assignment operator
-    if ( !checkForMember(cls, "=", basicClass) )
+    if ( !checkForAssociatedFun(cls, "=", basicClass) )
         generateMethod(cls, "=", "=", paramType);
 
     // Equality test operator
-    if ( !checkForMember(cls, "==", basicClass) )
+    if ( !checkForAssociatedFun(cls, "==", basicClass) )
         generateEqualityCheckMethod(cls);
 }
 

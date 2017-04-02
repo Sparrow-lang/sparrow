@@ -78,10 +78,6 @@ namespace
                 return createTypeNode(node->context, loc, t);
         }
 
-        // If we have a valid base expression, filter our all the decls for which
-        // the baseExp cannot be passed as the first argument
-        // TODO
-
         // Add the referenced declarations as a property to our result
         if ( allowDeclExp )
             return mkDeclExp(loc, decls, baseExp);

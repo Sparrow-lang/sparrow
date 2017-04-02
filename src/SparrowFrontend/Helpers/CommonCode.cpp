@@ -234,31 +234,95 @@ Node* SprFrontend::createFunPtr(Node* funNode)
     // Allow the funNode to return DeclExp
     Nest_setPropertyExplInt(funNode, propAllowDeclExp, 1);
 
+    // Get all the declarations we may refer to
     Node* baseExp = nullptr;
     NodeVector decls = getDeclsFromNode(funNode, baseExp);
+    NodeArray declsEx = expandDecls(all(decls), funNode);
+
+    if ( baseExp )
+        Nest_computeType(baseExp);
+
+    // Filter out all the decls that cannot fit here
+    //  - remove all the non-function decls
+    //  - but keep generic functions as they are
+    //  - if we have a base expression, make sure that the first parameter matches
+    // put the good decls back in the 'decls' vector
+    decls.clear();
+    bool hasGenericFun = false;
+    for ( auto decl: declsEx ) {
+        decl = resultingDecl(decl);
+        if ( decl->nodeKind == nkSparrowDeclGenericFunction ) {
+            decls.push_back(decl);
+            hasGenericFun = true;
+        }
+        else if ( decl->nodeKind == nkFeatherDeclFunction ) {
+            // Check the first parameter if we arrived here through a baseExp
+            if ( baseExp && baseExp->type ) {
+                // Check parameter count
+                size_t thisParamIdx = getResultParam(decl) ? 1 : 0;
+                if ( Feather_Function_numParameters(decl) <= thisParamIdx ) {
+                    continue;
+                }
+
+                // Ensure we can convert baseExp to the first param
+                TypeRef paramType = Feather_Function_getParameter(decl, thisParamIdx)->type;
+                if ( !canConvert(baseExp, paramType, flagDontCallConversionCtor) ) {
+                    continue;
+                }
+            }
+            // The decl is ok
+            decls.push_back(decl);
+        }
+        // Don't allow other decls
+    }
 
     // Make sure we refer only to one decl
-    // TODO
-    if ( decls.size() == 0 )
+    if ( decls.size() == 0 ) {
         REP_ERROR_RET(nullptr, loc, "No function found: %1%") % funNode;
-
+    }
+    else if ( !hasGenericFun && decls.size() > 1 ) {
+        REP_ERROR(loc, "Too many functions found while taking function reference: %1%") % decls.size();
+        for ( auto decl: decls )
+            REP_INFO(decl->location, "See matching decl");
+        return nullptr;
+    }
+    else if ( hasGenericFun ) {
+        // We may have multiple decls that we are refering to, as we may have
+        // multiple specializations of the generic
+        // In this case, we just check that the argument count is the same
+        size_t numParams = genericParamsCount(decls[0]);
+        bool mismatch = false;
+        for ( size_t i=1; i<decls.size(); i++ )
+            if ( genericParamsCount(decls[i]) != numParams ) {
+                mismatch = true;
+                break;
+            }
+        if ( mismatch ) {
+            REP_ERROR(loc, "Functions with different parameters count found while taking function reference: %1%") % decls.size();
+            for ( auto decl: decls )
+                REP_INFO(decl->location, "See matching decl");
+            return nullptr;
+        }
+    }
+    Node* resDecl = decls[0];   // already obtained the resultingDecl from it
+    Nest_freeNodeArray(declsEx);
 
     // Basic case: is this a plain function?
-    Node* resDecl = decls.size() >= 1 ? resultingDecl(decls[0]) : nullptr;
-    Node* fun = (resDecl && resDecl->nodeKind == nkFeatherDeclFunction) ? resDecl : nullptr;
-    if ( fun )
-    {
+    if ( !hasGenericFun ) {
+        ASSERT(resDecl->nodeKind == nkFeatherDeclFunction);
+        CHECK(resDecl->location, resDecl->nodeKind == nkFeatherDeclFunction);
+
         // Does this have a result parameter?
         Node* resParam = getResultParam(resDecl);
 
         // Try to instantiate the corresponding FunctionPtr class
         NodeVector parameters;
-        parameters.reserve(1+Feather_Function_numParameters(fun));
-        TypeRef resType = resParam ? Feather_removeRef(resParam->type) : Feather_Function_resultType(fun);
+        parameters.reserve(1+Feather_Function_numParameters(resDecl));
+        TypeRef resType = resParam ? Feather_removeRef(resParam->type) : Feather_Function_resultType(resDecl);
         parameters.push_back(createTypeNode(ctx, loc, resType));
-        for ( size_t i = resParam ? 1 : 0; i<Feather_Function_numParameters(fun); ++i )
+        for ( size_t i = resParam ? 1 : 0; i<Feather_Function_numParameters(resDecl); ++i )
         {
-            parameters.push_back(createTypeNode(ctx, loc, Feather_Function_getParameter(fun, i)->type));
+            parameters.push_back(createTypeNode(ctx, loc, Feather_Function_getParameter(resDecl, i)->type));
         }
         Node* classCall = mkFunApplication(loc, mkIdentifier(loc, fromCStr("FunctionPtr")), Feather_mkNodeList(loc, all(parameters)));
         Nest_setContext(classCall, ctx);
@@ -270,17 +334,15 @@ Node* SprFrontend::createFunPtr(Node* funNode)
 
         // If the class is valid, we have a conversion
         if ( t )
-            return Feather_mkFunRef(loc, fun, Feather_mkTypeNode(loc, t));
+            return Feather_mkFunRef(loc, resDecl, Feather_mkTypeNode(loc, t));
 
         REP_ERROR(loc, "Invalid function: %1%") % funNode;
         return nullptr;
     }
+    else {
+        // If we have a generic, try to wrap it in a lambda
+        // TODO: In general we should create an object that is able to call any type of callable
 
-    // TODO: In general we should create an object that is able to call any type of callable
-
-    // If we have a generic, try to wrap it in a lambda
-    if ( isGeneric(resDecl) )
-    {
         size_t numParams = genericParamsCount(resDecl);
 
         Node* paramsType = mkIdentifier(loc, fromCStr("AnyType"));
@@ -300,9 +362,4 @@ Node* SprFrontend::createFunPtr(Node* funNode)
         Node* res = mkLambdaExp(loc, parameters, nullptr, nullptr, bodyExp, nullptr);
         return res;
     }
-
-    if ( !fun )
-        REP_ERROR(funNode->location, "The given node does not refer to a function (we have: %1%)") % decls[0];
-    return nullptr;
-
 }

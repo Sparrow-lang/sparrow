@@ -280,8 +280,6 @@ package _Impl
             this._range ctor range
             this._count ctor (range rangeSize)
 
-        fun dtor {}
-
         fun ()(sizeHint: UInt): ElementType
             var r = _range
             r advance randBetween(0, Int(_count))

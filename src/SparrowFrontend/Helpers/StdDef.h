@@ -7,7 +7,6 @@ namespace SprFrontend
     namespace StdDef
     {
         extern TypeRef typeType;
-        extern TypeRef typeUninitialized;
         extern TypeRef typeVoid;
         extern TypeRef typeNull;
         extern TypeRef typeBool;
@@ -22,7 +21,6 @@ namespace SprFrontend
         extern TypeRef typeSizeTypeCt;
 
         extern Node* clsType;
-        extern Node* clsUninitialized;
         extern Node* clsBool;
 
         extern Node* opRefEq;
@@ -31,7 +29,7 @@ namespace SprFrontend
 
     /// Creates the Type class & corresponding type; we need it before loading anything else
     void initTypeType(CompilationContext* ctx);
-    
+
     void checkStdClass(Node* cls);
     void checkStdFunction(Node* cls);
 }

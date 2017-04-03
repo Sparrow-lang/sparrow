@@ -1,6 +1,7 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
 concept AnyType(x);
+fun ctor(this: @AnyType, nothing: Uninitialized) {}
 
 fun writeLnBool(val: Bool) {
     if ( val )

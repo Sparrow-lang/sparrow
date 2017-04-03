@@ -264,18 +264,6 @@ namespace
         return addAssociatedFun(parent, name, body, params, nullptr, mode);
     }
 
-    /// Generate an empty, uninitialized ctor
-    void generateUnititializedCtor(Node* parent)
-    {
-        Location loc = parent->location;
-        loc.end = loc.start;
-
-        Node* body = Feather_mkLocalSpace(loc, {});
-        addMethod(parent, "ctor", body, StdDef::typeUninitialized);
-    }
-    // TODO (ctors): Check the generation of ctors -> prefer external ctors
-
-
     /// Generate an init ctor, that initializes all the members with data received as arguments
     void generateInitCtor(Node* parent)
     {
@@ -439,10 +427,6 @@ void _IntModClassMembers_afterComputeType(Modifier*, Node* node)
     // Default ctor
     if ( !checkForAssociatedFun(cls, "ctor", nullptr) )
         generateMethod(cls, "ctor", "ctor", nullptr);
-
-    // Uninitialized ctor
-    if ( !checkForAssociatedFun(cls, "ctor", StdDef::clsUninitialized) )
-        generateUnititializedCtor(cls);
 
     // Copy ctor
     if ( !checkForAssociatedFun(cls, "ctor", basicClass) )

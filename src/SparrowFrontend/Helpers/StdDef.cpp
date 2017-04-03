@@ -13,7 +13,6 @@ using namespace Nest;
 // TODO (refactoring): Remove the Void type
 
 TypeRef StdDef::typeType = nullptr;
-TypeRef StdDef::typeUninitialized = nullptr;
 TypeRef StdDef::typeVoid = nullptr;
 TypeRef StdDef::typeNull = nullptr;
 TypeRef StdDef::typeBool = nullptr;
@@ -28,7 +27,6 @@ TypeRef StdDef::typeRefInt = nullptr;
 TypeRef StdDef::typeSizeTypeCt = nullptr;
 
 Node* StdDef::clsType = nullptr;
-Node* StdDef::clsUninitialized = nullptr;
 Node* StdDef::clsBool = nullptr;
 
 Node* StdDef::opRefEq = nullptr;
@@ -88,11 +86,6 @@ void SprFrontend::checkStdClass(Node* cls)
     {
         StdDef::typeSizeType = Feather_getDataType(cls, 0, modeRtCt);
         StdDef::typeSizeTypeCt = Feather_getDataType(cls, 0, modeCt);
-    }
-    else if ( clsName == "Uninitialized" )
-    {
-        StdDef::clsUninitialized = cls;
-        StdDef::typeUninitialized = Feather_getDataType(cls, 0, modeRtCt);
     }
     else if ( clsName == "Type" )
     {

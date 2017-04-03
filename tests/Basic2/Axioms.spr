@@ -44,6 +44,7 @@ class MyType
 [noDefault] class EmptyType
 {
 }
+fun ctor(this: @EmptyType) {}
 
 fun sprMain
 {

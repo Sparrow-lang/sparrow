@@ -1,6 +1,7 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
 concept AnyType(x);
+fun ctor(this: @AnyType, nothing: Uninitialized) {}
 
 class Book { var author, name, isbn: StringRef; }
 class CollectionBook { var book: Book; var col: StringRef; }

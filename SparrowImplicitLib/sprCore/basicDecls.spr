@@ -16,16 +16,17 @@ class Type
         fun ctor(other: Uninitialized) {}
         fun dtor {}
 
+    // Everything can be initialized with 'Uninitialized', and does nothing
+    fun ctor(this: @AnyType, nothing: Uninitialized) {}
+
     [native("Null")]
     class Null
         fun ctor {}
-        fun ctor(other: Uninitialized) {}
         fun ctor(other: Null) {}
         fun dtor {}
 
     [native("i1")]
     class Bool
-        fun ctor(other: Uninitialized) {}
         [native("_zero_init_1")] fun ctor
         [native("_ass_1_1")] fun ctor(src: Bool)
         fun dtor {}
@@ -34,7 +35,6 @@ class Type
 
     [native("i8")]
     class Byte
-        fun ctor(other: Uninitialized) {}
         [native("_zero_init_8")] fun ctor
         [native("_ass_8_8")] fun ctor(src: Byte)
         [native("_ass_8_8")] fun ctor(src: Char)
@@ -55,7 +55,6 @@ class Type
 
     [native("u8")]
     class UByte
-        fun ctor(other: Uninitialized) {}
         [native("_zero_init_8")] fun ctor
         [native("_ass_8_8"), convert] fun ctor(src: Byte)
         [native("_ass_8_8")] fun ctor(src: UByte)
@@ -75,7 +74,6 @@ class Type
 
     [native("i16")]
     class Short
-        fun ctor(other: Uninitialized) {}
         [native("_zero_init_16")] fun ctor
         [native("_ass_16_8s"), convert] fun ctor(src: Byte)
         [native("_ass_16_8z"), convert] fun ctor(src: UByte)
@@ -95,7 +93,6 @@ class Type
 
     [native("u16")]
     class UShort
-        fun ctor(other: Uninitialized) {}
         [native("_zero_init_16")] fun ctor
         [native("_ass_16_8z"), convert] fun ctor(src: Byte)
         [native("_ass_16_8z"), convert] fun ctor(src: UByte)
@@ -115,7 +112,6 @@ class Type
 
     [native("i32")]
     class Int
-        fun ctor(other: Uninitialized) {}
         [native("_zero_init_32")] fun ctor
         [native("_ass_32_8s"), convert] fun ctor(src: Byte)
         [native("_ass_32_8z"), convert] fun ctor(src: UByte)
@@ -137,7 +133,6 @@ class Type
 
     [native("u32")]
     class UInt
-        fun ctor(other: Uninitialized) {}
         [native("_zero_init_32")] fun ctor
         [native("_ass_32_8z"), convert] fun ctor(src: Byte)
         [native("_ass_32_8z"), convert] fun ctor(src: UByte)
@@ -157,7 +152,6 @@ class Type
 
     [native("i64")]
     class Long
-        fun ctor(other: Uninitialized) {}
         [native("_zero_init_64")] fun ctor
         [native("_ass_64_8s"), convert] fun ctor(src: Byte)
         [native("_ass_64_8z"), convert] fun ctor(src: UByte)
@@ -177,7 +171,6 @@ class Type
 
     [native("u64")]
     class ULong
-        fun ctor(other: Uninitialized) {}
         [native("_zero_init_64")] fun ctor
         [native("_ass_64_8z"), convert] fun ctor(src: Byte)
         [native("_ass_64_8z"), convert] fun ctor(src: UByte)
@@ -197,7 +190,6 @@ class Type
 
     [native("u64")]
     class SizeType
-        fun ctor(other: Uninitialized) {}
         [native("_zero_init_64")] fun ctor
         [native("_ass_64_8z"), convert] fun ctor(src: Byte)
         [native("_ass_64_8z"), convert] fun ctor(src: UByte)
@@ -217,7 +209,6 @@ class Type
 
     [native("i64")]
     class DiffType
-        fun ctor(other: Uninitialized) {}
         [native("_zero_init_64")] fun ctor
         [native("_ass_64_8s"), convert] fun ctor(src: Byte)
         [native("_ass_64_8z"), convert] fun ctor(src: UByte)
@@ -237,7 +228,6 @@ class Type
 
     [native("float")]
     class Float
-        fun ctor(other: Uninitialized) {}
         [native("_zero_init_f")] fun ctor
         [native("_ass_f_i8"), convert] fun ctor(src: Byte)
         [native("_ass_f_u8"), convert] fun ctor(src: UByte)
@@ -257,7 +247,6 @@ class Type
 
     [native("double")]
     class Double
-        fun ctor(other: Uninitialized) {}
         [native("_zero_init_d")] fun ctor
         [native("_ass_d_i8"), convert] fun ctor(src: Byte)
         [native("_ass_d_u8"), convert] fun ctor(src: UByte)
@@ -277,7 +266,6 @@ class Type
 
     [native("i8")]
     class Char
-        fun ctor(other: Uninitialized) {}
         [native("_zero_init_8")] fun ctor
         [native("_ass_8_8")] fun ctor(src: Char)
         [native("_ass_8_8")] fun ctor(src: Byte)

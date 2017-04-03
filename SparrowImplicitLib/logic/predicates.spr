@@ -14,6 +14,8 @@ class Predicate
 {
     using arity = 0;
 
+    fun ctor(other: @Predicate)
+        this.predObj ctor other.predObj
     [convert] fun ctor(pred: @PredicateType)
     {
         predObj ctor pred;

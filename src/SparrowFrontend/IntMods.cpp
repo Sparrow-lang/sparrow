@@ -7,6 +7,7 @@
 #include <Helpers/SprTypeTraits.h>
 #include <Helpers/DeclsHelpers.h>
 #include <Helpers/StdDef.h>
+#include <Helpers/Convert.h>
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
 
@@ -26,22 +27,74 @@ namespace
         TypeRef paramType = Feather_Function_getParameter(funDecl, idx)->type;
         return paramType->hasStorage && Feather_classForType(paramType) == expectedClass;
     }
+    // Same as above, but expects a SprFunction declaration
+    bool checkArgTypeFitsIntoParam(Node* funDecl, size_t idx, TypeRef argType)
+    {
+        Node* parameters = at(funDecl->children, 0);
+        TypeRef paramType = at(parameters->children, idx)->type;
+
+        return (bool) canConvertType(funDecl->context, argType, paramType, flagDontCallConversionCtor);
+    }
 
     /// Search a function with the given name, taking the given type of parameter in the context of the given class
-    bool checkForAssociatedFun(Node* cls, const string& funName, Node* paramClass)
+    bool checkForAssociatedFun(Node* cls, const string& funName, Node* otherParamClass)
     {
         bool res = false;
 
         NodeArray decls = getClassAssociatedDecls(cls, funName.c_str());
         for ( Node* decl: decls )
         {
+            // if ( decl->nodeKind != nkSparrowDeclSprFunction )
+            //     continue;
+
+            // if ( !Nest_computeType(decl) )
+            //     continue;
+
+            // // Get the parameters of this function
+            // Node* parameters = at(decl->children, 0);
+            // bool implicitThis = funHasImplicitThis(decl);
+            // Node* parentClass = nullptr;
+            // if ( implicitThis )
+            //     parentClass = Feather_getParentClass(decl->context);
+
+            // // Check parameter count
+            // size_t numParams = (parameters ? size(parameters->children) : 0) + (implicitThis ? 1 : 0);
+            // size_t numExpectedParams = otherParamClass ? 2 : 1;
+            // if ( numParams != numExpectedParams )
+            //     continue;
+
+            // // Check the 'this' parameter first
+            // // TODO (ctors): Remove this after functions are not in classes anymore
+            // if ( !implicitThis ) {  // For implicit this we assume everything is ok
+            //     Node* basicClass = Nest_explanation(cls);
+            //     if ( !checkArgTypeFitsIntoParam(decl, 0, basicClass->type) )
+            //         continue;
+            // }
+
+            // // Check the 'other' parameter has the required type, if applicable
+            // if ( otherParamClass && !checkArgTypeFitsIntoParam(decl, implicitThis?0:1, otherParamClass->type) )
+            //     continue;
+
+            // // Everything ok; we found a matching associated function
+            // res = true;
+            // break;
+
+            // TODO (ctors): Remove the following
+
+
+            // Make sure to compute the type of the function
+            // TODO (ctors): We don't need this; we can check the original decl
+            // But before that, we need to be sure that we don't have any implicit this
+            if ( !decl->type && decl->nodeKind == nkSparrowDeclSprFunction )
+                Nest_computeType(decl);
+
             decl = Nest_explanation(decl);
             if ( !decl || decl->nodeKind != nkFeatherDeclFunction )
                 continue;
 
             // Check parameter count
             size_t thisParamIdx = getResultParam(decl) ? 1 : 0;
-            size_t numExpectedParams = 1+(paramClass ? 1+thisParamIdx : thisParamIdx);
+            size_t numExpectedParams = 1+(otherParamClass ? 1+thisParamIdx : thisParamIdx);
             if ( Feather_Function_numParameters(decl) != numExpectedParams )
                 continue;
 
@@ -51,7 +104,7 @@ namespace
                 continue;
 
             // Check the 'other' parameter has the required type, if applicable
-            if ( paramClass && !checkParamOfClass(decl, thisParamIdx+1, paramClass) )
+            if ( otherParamClass && !checkParamOfClass(decl, thisParamIdx+1, otherParamClass) )
                 continue;
 
             // Everything ok; we found a matching associated function
@@ -59,6 +112,8 @@ namespace
             break;
         }
         Nest_freeNodeArray(decls);
+        if ( !res && funName == "ctor" && atLocation(cls->location, "function.spr", 0,0,0,0) )
+            REP_INFO(cls->location, "Could not find %1%(%2%)") % funName % otherParamClass;
         return res;
     }
 
@@ -168,7 +223,7 @@ namespace
     }
 
     /// Generate a typical method with the given name, by calling 'op' for the base classes and fields
-    void generateMethod(Node* parent, const string& name, const string& op, TypeRef otherParam, bool reverse = false, EvalMode mode = modeUnspecified)
+    Node* generateMethod(Node* parent, const string& name, const string& op, TypeRef otherParam, bool reverse = false, EvalMode mode = modeUnspecified)
     {
         Location loc = parent->location;
         loc.end = loc.start;
@@ -206,7 +261,7 @@ namespace
             addOperatorCall(body, reverse, fieldRef, oper, otherFieldRef);
         }
 
-        addMethod(parent, name, body, otherParam, nullptr, mode);
+        return addMethod(parent, name, body, otherParam, nullptr, mode);
     }
 
     /// Generate an associated function with the given name, by calling 'op' for the base classes and fields
@@ -446,7 +501,7 @@ void _IntModClassMembers_afterComputeType(Modifier*, Node* node)
 
     // Assignment operator
     if ( !checkForAssociatedFun(cls, "=", basicClass) )
-        generateMethod(cls, "=", "=", paramType);
+        generateAssociatedFun(cls, "=", "=", paramType);
 
     // Equality test operator
     if ( !checkForAssociatedFun(cls, "==", basicClass) )

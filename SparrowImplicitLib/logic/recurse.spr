@@ -30,6 +30,9 @@ package Impl
 
 class Recurse(predGeneratorType: Type)
 {
+    fun ctor(other: @Recurse)
+        this._relation ctor other._relation;
+        this._predGenerator ctor other._predGenerator;
     fun ctor(predGenerator: @predGeneratorType)
     {
         this._relation ctor;

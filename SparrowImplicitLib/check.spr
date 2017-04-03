@@ -9,6 +9,9 @@ class Gen(t: Type)
     using ValueType = t
 
     fun ctor {}
+    fun ctor(other: @Gen)
+        this._generator ctor other._generator
+
     [convert]
     fun ctor(generator: @AnyType)
         this._generator ctor generator

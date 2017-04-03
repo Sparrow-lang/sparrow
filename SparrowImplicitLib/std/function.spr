@@ -12,6 +12,9 @@ package Impl
     {
         fun clone: @Int = reinterpretCast(@Int, new(ftorType, ftor));
         var ftor: ftorType;
+
+        fun ctor(other: @FtorWrapper)
+            this.ftor ctor other.ftor
     }
 
     class FunctionImpl(funPtrType: Type)
@@ -81,6 +84,7 @@ class Function(resT: Type)
 {
     using arity = 0;
     fun ctor(ftor: @AnyType) if isValid(ftor()) { _impl ctor ftor; }
+    fun ctor(other: @Function) { this._impl ctor other._impl; }
     fun isNull = _impl.obj === null;
     fun isSet = _impl.obj !== null;
 
@@ -94,6 +98,7 @@ class Function(resT, T1: Type)
 {
     using arity = 1;
     fun ctor(ftor: @AnyType) if isValid(ftor(#$T1)) { _impl ctor ftor; }
+    fun ctor(other: @Function) { this._impl ctor other._impl; }
     fun isNull = _impl.obj === null;
     fun isSet = _impl.obj !== null;
 
@@ -107,6 +112,7 @@ class Function(resT, T1, T2: Type)
 {
     using arity = 2;
     fun ctor(ftor: @AnyType) if isValid(ftor(#$T1, #$T2)) { _impl ctor ftor; }
+    fun ctor(other: @Function) { this._impl ctor other._impl; }
     fun isNull = _impl.obj === null;
     fun isSet = _impl.obj !== null;
 
@@ -120,6 +126,7 @@ class Function(resT, T1, T2, T3: Type)
 {
     using arity = 3;
     fun ctor(ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3)) { _impl ctor ftor; }
+    fun ctor(other: @Function) { this._impl ctor other._impl; }
     fun isNull = _impl.obj === null;
     fun isSet = _impl.obj !== null;
 
@@ -133,6 +140,7 @@ class Function(resT, T1, T2, T3, T4: Type)
 {
     using arity = 4;
     fun ctor(ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4)) { _impl ctor ftor; }
+    fun ctor(other: @Function) { this._impl ctor other._impl; }
     fun isNull = _impl.obj === null;
     fun isSet = _impl.obj !== null;
 
@@ -146,6 +154,7 @@ class Function(resT, T1, T2, T3, T4, T5: Type)
 {
     using arity = 5;
     fun ctor(ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5)) { _impl ctor ftor; }
+    fun ctor(other: @Function) { this._impl ctor other._impl; }
     fun isNull = _impl.obj === null;
     fun isSet = _impl.obj !== null;
 
@@ -159,6 +168,7 @@ class Function(resT, T1, T2, T3, T4, T5, T6: Type)
 {
     using arity = 6;
     fun ctor(ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6)) { _impl ctor ftor; }
+    fun ctor(other: @Function) { this._impl ctor other._impl; }
     fun isNull = _impl.obj === null;
     fun isSet = _impl.obj !== null;
 
@@ -172,6 +182,7 @@ class Function(resT, T1, T2, T3, T4, T5, T6, T7: Type)
 {
     using arity = 7;
     fun ctor(ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7)) { _impl ctor ftor; }
+    fun ctor(other: @Function) { this._impl ctor other._impl; }
     fun isNull = _impl.obj === null;
     fun isSet = _impl.obj !== null;
 
@@ -185,6 +196,7 @@ class Function(resT, T1, T2, T3, T4, T5, T6, T7, T8: Type)
 {
     using arity = 8;
     fun ctor(ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8)) { _impl ctor ftor; }
+    fun ctor(other: @Function) { this._impl ctor other._impl; }
     fun isNull = _impl.obj === null;
     fun isSet = _impl.obj !== null;
 
@@ -198,6 +210,7 @@ class Function(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9: Type)
 {
     using arity = 9;
     fun ctor(ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9)) { _impl ctor ftor; }
+    fun ctor(other: @Function) { this._impl ctor other._impl; }
     fun isNull = _impl.obj === null;
     fun isSet = _impl.obj !== null;
 
@@ -211,6 +224,7 @@ class Function(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10: Type)
 {
     using arity = 10;
     fun ctor(ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10)) { _impl ctor ftor; }
+    fun ctor(other: @Function) { this._impl ctor other._impl; }
     fun isNull = _impl.obj === null;
     fun isSet = _impl.obj !== null;
 
@@ -224,6 +238,7 @@ class Function(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11: Type)
 {
     using arity = 11;
     fun ctor(ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10, #$T11)) { _impl ctor ftor; }
+    fun ctor(other: @Function) { this._impl ctor other._impl; }
     fun isNull = _impl.obj === null;
     fun isSet = _impl.obj !== null;
 
@@ -237,6 +252,7 @@ class Function(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12: Type)
 {
     using arity = 12;
     fun ctor(ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10, #$T11, #$T12)) { _impl ctor ftor; }
+    fun ctor(other: @Function) { this._impl ctor other._impl; }
     fun isNull = _impl.obj === null;
     fun isSet = _impl.obj !== null;
 
@@ -250,6 +266,7 @@ class Function(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13: Typ
 {
     using arity = 13;
     fun ctor(ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10, #$T11, #$T12, #$T13)) { _impl ctor ftor; }
+    fun ctor(other: @Function) { this._impl ctor other._impl; }
     fun isNull = _impl.obj === null;
     fun isSet = _impl.obj !== null;
 
@@ -263,6 +280,7 @@ class Function(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14
 {
     using arity = 14;
     fun ctor(ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10, #$T11, #$T12, #$T13, #$T14)) { _impl ctor ftor; }
+    fun ctor(other: @Function) { this._impl ctor other._impl; }
     fun isNull = _impl.obj === null;
     fun isSet = _impl.obj !== null;
 
@@ -276,6 +294,7 @@ class Function(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14
 {
     using arity = 15;
     fun ctor(ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10, #$T11, #$T12, #$T13, #$T14, #$T15)) { _impl ctor ftor; }
+    fun ctor(other: @Function) { this._impl ctor other._impl; }
     fun isNull = _impl.obj === null;
     fun isSet = _impl.obj !== null;
 

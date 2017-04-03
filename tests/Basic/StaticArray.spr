@@ -28,6 +28,9 @@ class Array(t: Type, n: SizeType)
     }
 }
 
+fun =(this, other: @A) {}
+fun =(this, other: @Array) {}
+
 
 [native("test")] fun test(n: Int)
 {

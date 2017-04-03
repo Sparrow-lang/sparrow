@@ -1,5 +1,6 @@
 #include <StdInc.h>
 #include "IntMods.h"
+#include "Mods.h"
 #include "SprDebug.h"
 
 #include <Nodes/Builder.h>
@@ -193,7 +194,9 @@ namespace
     }
 
     // Add an associated function with the given body and given arguments, near the parent class
-    Node* addAssociatedFun(Node* parent, const string& name, Node* body, vector<pair<TypeRef, string>> params, Node* resClass = nullptr, EvalMode mode = modeUnspecified)
+    // If autoCt==true, and mode==modeRtCt, we will also add the autoCt modifier
+    // This is useful for things like the '==' operator
+    Node* addAssociatedFun(Node* parent, const string& name, Node* body, vector<pair<TypeRef, string>> params, Node* resClass = nullptr, EvalMode mode = modeUnspecified, bool autoCt=false)
     {
         Location loc = parent->location;
         loc.end = loc.start;
@@ -213,7 +216,11 @@ namespace
         Node* f = mkSprFunction(loc, fromString(name), parameters, ret, body);
         Nest_setPropertyInt(f, propNoDefault, 1);
         copyAccessType(f, parent);
-        Feather_setEvalMode(f, mode == modeUnspecified ? Feather_effectiveEvalMode(parent) : mode);
+        if ( mode == modeUnspecified )
+            mode = Feather_effectiveEvalMode(parent);
+        Feather_setEvalMode(f, mode);
+        if ( mode == modeRtCt && autoCt )
+            Nest_addModifier(f, SprFe_getAutoCtMod());
         Nest_setContext(f, ctx);
         if ( !Nest_computeType(f) )
             return nullptr;
@@ -358,7 +365,7 @@ namespace
     }
 
     /// Generate the equality check method for the given class
-    void generateEqualityCheckMethod(Node* parent)
+    void generateEqualityCheckFun(Node* parent)
     {
         Location loc = parent->location;
         loc.end = loc.start;
@@ -390,7 +397,15 @@ namespace
 
         Node* body = Feather_mkLocalSpace(loc, {});
         Nest_appendNodeToArray(&body->children, mkReturnStmt(loc, exp));
-        addMethod(parent, "==", body, Feather_getDataType(cls, 1, modeUnspecified), StdDef::clsBool);
+        // addMethod(parent, "==", body, Feather_getDataType(cls, 1, modeUnspecified), StdDef::clsBool);
+        vector<pair<TypeRef, string>> params;
+        params.reserve(2);
+        TypeRef t = Feather_getDataType(cls, 1, modeUnspecified);
+        params.push_back({t, string("this")});
+        params.push_back({t, string("other")});
+        EvalMode mode = Feather_effectiveEvalMode(parent);
+        REP_INFO(loc, "Generating ==; mode=%1%") % mode;
+        addAssociatedFun(parent, "==", body, params, StdDef::clsBool, mode, true);
     }
 
     /// Search the given body for a constructor with the given properties.
@@ -505,7 +520,7 @@ void _IntModClassMembers_afterComputeType(Modifier*, Node* node)
 
     // Equality test operator
     if ( !checkForAssociatedFun(cls, "==", basicClass) )
-        generateEqualityCheckMethod(cls);
+        generateEqualityCheckFun(cls);
 }
 
 void IntModCtorMembers_beforeSemanticCheck(Modifier*, Node* fun)

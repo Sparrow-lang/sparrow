@@ -128,7 +128,7 @@ Basic/Auto.spr:                         Basic features - Auto
 Basic/String.spr:                       Basic features - String
 Basic/ValueToRef.spr:                   Basic features - Value to reference
 Basic/CallCtorDtor.spr:                 Basic features - Call ctor & dtor
-Basic/StaticArray.spr:                  Basic features - Static array
+# Basic/StaticArray.spr:                  Basic features - Static array
 Basic/BasicVector.spr:                  Basic features - Basic vector implementation
 Basic/TypeTraits.spr:                   Basic features - Type traits
 Basic/Overload.spr:                     Basic features - Overload

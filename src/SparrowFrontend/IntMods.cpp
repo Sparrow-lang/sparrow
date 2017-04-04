@@ -113,8 +113,6 @@ namespace
             break;
         }
         Nest_freeNodeArray(decls);
-        if ( !res && funName == "ctor" && atLocation(cls->location, "function.spr", 0,0,0,0) )
-            REP_INFO(cls->location, "Could not find %1%(%2%)") % funName % otherParamClass;
         return res;
     }
 
@@ -330,6 +328,7 @@ namespace
     void generateInitCtor(Node* parent)
     {
         vector<pair<TypeRef, string>> params;
+        // params.push_back({Feather_addRef(parent->type), "this"});
 
         Location loc = parent->location;
         loc.end = loc.start;
@@ -362,6 +361,7 @@ namespace
         }
 
         addMethod(parent, "ctor", body, params);
+        // addAssociatedFun(parent, "ctor", body, params);
     }
 
     /// Generate the equality check method for the given class
@@ -397,15 +397,13 @@ namespace
 
         Node* body = Feather_mkLocalSpace(loc, {});
         Nest_appendNodeToArray(&body->children, mkReturnStmt(loc, exp));
-        // addMethod(parent, "==", body, Feather_getDataType(cls, 1, modeUnspecified), StdDef::clsBool);
+
         vector<pair<TypeRef, string>> params;
         params.reserve(2);
         TypeRef t = Feather_getDataType(cls, 1, modeUnspecified);
         params.push_back({t, string("this")});
         params.push_back({t, string("other")});
-        EvalMode mode = Feather_effectiveEvalMode(parent);
-        REP_INFO(loc, "Generating ==; mode=%1%") % mode;
-        addAssociatedFun(parent, "==", body, params, StdDef::clsBool, mode, true);
+        addAssociatedFun(parent, "==", body, params, StdDef::clsBool, Feather_effectiveEvalMode(parent), true);
     }
 
     /// Search the given body for a constructor with the given properties.
@@ -497,10 +495,12 @@ void _IntModClassMembers_afterComputeType(Modifier*, Node* node)
     // Default ctor
     if ( !checkForAssociatedFun(cls, "ctor", nullptr) )
         generateMethod(cls, "ctor", "ctor", nullptr);
+        // generateAssociatedFun(cls, "ctor", "ctor", nullptr);
 
     // Copy ctor
     if ( !checkForAssociatedFun(cls, "ctor", basicClass) )
         generateMethod(cls, "ctor", "ctor", paramType);
+        // generateAssociatedFun(cls, "ctor", "ctor", paramType);
 
     // Initialization ctor
     if ( Nest_hasProperty(cls, propGenerateInitCtor) )
@@ -509,6 +509,7 @@ void _IntModClassMembers_afterComputeType(Modifier*, Node* node)
     // CT to RT ctor
     if ( !checkForCtorFromCt(cls) && !hasReferences(basicClass) )
         generateMethod(cls, "ctorFromCt", "ctor", Feather_checkChangeTypeMode(Feather_getDataType(basicClass, 0, modeRtCt), modeCt, node->location), false, modeRt);
+        // generateAssociatedFun(cls, "ctorFromCt", "ctor", Feather_checkChangeTypeMode(Feather_getDataType(basicClass, 0, modeRtCt), modeCt, node->location), false, modeRt);
 
     // Dtor
     if ( !checkForAssociatedFun(cls, "dtor", nullptr) )

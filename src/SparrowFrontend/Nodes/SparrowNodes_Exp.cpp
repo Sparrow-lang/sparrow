@@ -1221,7 +1221,9 @@ Node* FunApplication_SemanticCheck(Node* node)
     if ( base->type->hasStorage && decls.empty() )
     {
         Node* cls = Feather_classForType(base->type);
-        decls = toVec(Nest_symTabLookupCurrent(cls->childrenContext->currentSymTab, "()"));
+        NodeArray arr = getClassAssociatedDecls(cls, "()");
+        decls = toVec(arr);
+        Nest_freeNodeArray(arr);
         if ( decls.empty() )
             REP_ERROR_RET(nullptr, node->location, "Class %1% has no user defined call operators") % Feather_getName(cls);
         thisArg = base;

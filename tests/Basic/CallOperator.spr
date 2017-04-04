@@ -1,0 +1,21 @@
+//!! -t "SparrowImplicitLib.spr" -fno-main
+
+datatype MyType = Int
+
+fun ()(this: @MyType)
+    writeLn(this.data)
+
+fun ()(this: @MyType, offset: Int)
+    writeLn(this.data + offset)
+
+[native("test")] fun test(n: Int)
+{
+    var obj: MyType = 5
+    obj()
+    obj(10)
+}
+
+/*<<<Running()
+5
+15
+>>>*/

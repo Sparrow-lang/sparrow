@@ -143,6 +143,7 @@ Basic/CtToRtComplex.spr:                Basic features - CT to RT for complex ty
 Basic/ImplicitFunCall.spr:              Basic features - Implicit function call, without parenthesis
 Basic/CompDefines.spr:                  Basic features - Compiler defines
 Basic/This.spr:                         Basic features - This
+Basic/CallOperator.spr:                 Basic features - Call operator
 
 Imports/ImportTwice.spr:                Import twice the same file
 Imports/ImportComplex.spr:              Import a complex hierarchy of files, some of them twice

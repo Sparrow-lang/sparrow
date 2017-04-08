@@ -55,6 +55,8 @@ void applyModifier(Node* base, Node* modNode)
             mod = SprFe_getStaticMod();
         else if ( name == "public" )
             mod = SprFe_getPublicMod();
+        else if ( name == "protected" )
+            mod = SprFe_getProtectedMod();
         else if ( name == "private" )
             mod = SprFe_getPrivateMod();
         else if ( name == "ct" )

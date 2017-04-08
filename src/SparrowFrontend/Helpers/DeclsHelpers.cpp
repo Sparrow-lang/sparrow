@@ -233,6 +233,11 @@ bool SprFrontend::isPublic(Node* decl)
     return getAccessType(decl) != privateAccess;
 }
 
+bool SprFrontend::isProtected(Node* decl)
+{
+    return getAccessType(decl) == protectedAccess;
+}
+
 AccessType SprFrontend::getAccessType(Node* decl)
 {
     const int* res = Nest_getPropertyInt(decl, "spr.accessType");
@@ -257,6 +262,7 @@ void SprFrontend::deduceAccessType(Node* decl)
     AccessType acc = publicAccess;
     if ( size(name) > 0 && *name.begin == '_' )
         acc = privateAccess;
+    else if ( name == "ctor" || name == "dtor" || name == "=" )
     Nest_setPropertyInt(decl, "spr.accessType", acc);
 }
 

@@ -26,6 +26,11 @@ void ModPublic_beforeComputeType(Modifier*, Node* node)
     setAccessType(node, publicAccess);
 }
 
+void ModProtected_beforeComputeType(Modifier*, Node* node)
+{
+    setAccessType(node, protectedAccess);
+}
+
 void ModPrivate_beforeComputeType(Modifier*, Node* node)
 {
     setAccessType(node, privateAccess);
@@ -135,6 +140,7 @@ void ModNoInline_beforeComputeType(Modifier*, Node* node)
 
 Modifier _staticMod = { modTypeBeforeComputeType, &ModStatic_beforeComputeType };
 Modifier _publicMod = { modTypeBeforeComputeType, &ModPublic_beforeComputeType };
+Modifier _protectedMod = { modTypeBeforeComputeType, &ModProtected_beforeComputeType };
 Modifier _privateMod = { modTypeBeforeComputeType, &ModPrivate_beforeComputeType };
 Modifier _ctMod = { modTypeBeforeSetContext, &ModCt_beforeSetContext };
 Modifier _rtMod = { modTypeBeforeSetContext, &ModRt_beforeSetContext };
@@ -154,6 +160,10 @@ Modifier* SprFe_getStaticMod()
 Modifier* SprFe_getPublicMod()
 {
     return &_publicMod;
+}
+Modifier* SprFe_getProtectedMod()
+{
+    return &_protectedMod;
 }
 Modifier* SprFe_getPrivateMod()
 {

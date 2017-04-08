@@ -30,6 +30,9 @@ namespace SprFrontend
     /// Check if the given node can be accessed from everywhere
     bool isPublic(Node* decl);
 
+    /// Check if the given node should not be included in using.* resolving
+    bool isProtected(Node* decl);
+
 
     /// Getter for the access type of the given node
     /// Returns the default access if the node doesn't have an explicit access type

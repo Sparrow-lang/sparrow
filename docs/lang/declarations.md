@@ -95,9 +95,9 @@ TODO
 
 ## Access modes
 
-Declarations in Sparrow can have only two access modes: `public` and `private`. By default, the `public` mode is assumed. If the declaration starts with `_`, then `private` is assumed instead.
+Declarations in Sparrow can have three access modes: `public`, `protected` and `private`. By default, the `public` mode is assumed. If the declaration starts with `_`, then `private` is assumed instead. If the declaration is a ctor, dtor or the `=` operator, by default the access mode is `protected`.
 
-The user can force an access mode by using the `public` and `private` modifiers. This is especially useful for public imports, where we cannot control the name of the symbol imported.
+The user can force an access mode by using the `public`, `protected` and `private` modifiers. This is especially useful for public imports, where we cannot control the name of the symbol imported.
 
 A public declaration means that everybody can access and use that declaration.
 
@@ -141,4 +141,19 @@ fun discussion {
     dad._secrets;
     child._secrets;
 }
+```
+
+A protected declaration is accessible by everybody. The difference from a public declaration is that protected declarations are not considered in `using` clauses without explicit names given. This way, one can hide the declaration from general name lookups. This hiding occurs across different modules as well as within the same module. Protected declarations can be still be accessed whenever we access them indirectly by searching near a class at the operator call.
+
+Example:
+```
+package ShySpace {
+    datatype Foo = Int;
+    [protected] fun print(this: Foo) { cout << this.data; }
+}
+using ShySpace.*
+var x: Foo = 0
+x print     // ok; print searched indirectly through Foo
+x.print     // also ok
+print(x)    // ERROR: print is not visible here
 ```

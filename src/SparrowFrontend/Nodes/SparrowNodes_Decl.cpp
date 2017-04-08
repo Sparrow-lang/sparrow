@@ -783,7 +783,8 @@ TypeRef Using_ComputeType(Node* node)
         // Add references in the current symbol tab
         for ( Node* decl: decls )
         {
-            Nest_symTabEnter(node->context->currentSymTab, Feather_getName(decl).begin, decl);
+            if ( !isProtected(decl) )
+                Nest_symTabEnter(node->context->currentSymTab, Feather_getName(decl).begin, decl);
         }
     }
     else

@@ -1,4 +1,4 @@
-import basicDecls(Char, Byte, Int, SizeType, DiffType, StringRef, Null, typeOf, reinterpretCast, sizeOf, ptrAdd, ptrSub, ptrDiff, *)
+import basicDecls(Char, Byte, Int, SizeType, DiffType, StringRef, Null, typeOf, reinterpretCast, sizeOf, ptrAdd, ptrSub, ptrDiff, fromCString, *)
 
 /// Range type that returns StringRef objects referring to program arguments
 class MainParameters
@@ -34,7 +34,7 @@ package _Impl
     fun -(p: CStrPtr, n: SizeType): CStrPtr = fromBytePtr( ptrSub(toBytePtr(p), n*(sizeOf(CStrPtr))) )
     fun -(p, q: CStrPtr): SizeType = ptrDiff(toBytePtr(p), toBytePtr(q)) / (sizeOf(CStrPtr))
 
-    fun toStringRef(p: CStrPtr): StringRef = StringRef.fromCString(p.ptr.cstr)
+    fun toStringRef(p: CStrPtr): StringRef = fromCString(p.ptr.cstr)
 
 var programArgs: MainParameters
 

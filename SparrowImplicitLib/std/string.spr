@@ -340,13 +340,13 @@ import rawPtr(RawPtr);
 {
     var buf: static_buffer(12);
     StringImpl.intToCString(x, reinterpretCast(@Char, buf));
-    return String(StringRef.fromCString(reinterpretCast(@Char, buf)));
+    return String(fromCString(reinterpretCast(@Char, buf)));
 }
 [rtct] fun ulongToString(x: ULong): String
 {
     var buf: static_buffer(16);
     StringImpl.ulongToCString(x, reinterpretCast(@Char, buf));
-    return String(StringRef.fromCString(reinterpretCast(@Char, buf)));
+    return String(fromCString(reinterpretCast(@Char, buf)));
 }
 
 // TODO

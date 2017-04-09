@@ -51,7 +51,7 @@ import std.string(String)
             if cstr === null
                 res.clear
             else
-                res.resize(StringRef.cStringLen(cstr))
+                res.resize(cStringLen(cstr))
             return res
 
         fun all = FileRange(this)

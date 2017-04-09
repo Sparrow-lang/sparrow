@@ -20,11 +20,10 @@ fun sprMain
 }
 
 class MyObj
-{
     var x: Int;
 
-    fun ctor(xx: Int) { x = xx; }
-}
+fun ctor(this: @MyObj, xx: Int)
+    x ctor xx
 
 fun createRange(size: SizeType): ContiguousMemoryRange(MyObj)
 {

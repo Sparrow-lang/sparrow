@@ -204,7 +204,7 @@ namespace
     // Generic class
     //
 
-    NodeRange genericParams(Node* generic)
+    NodeRange genericInstSetParams(Node* generic)
     {
         return getInstantiationsSetParameters(at(generic->children, 0));
     }
@@ -623,6 +623,24 @@ Node* SprFrontend::genericParam(const Node* node, size_t idx)
             return nullptr;
     }
 }
+NodeRange SprFrontend::genericParams(const Node* node)
+{
+    switch ( node->nodeKind - firstSparrowNodeKind )
+    {
+        case nkRelSparrowDeclGenericClass:
+        {
+            Node* instantiationsSet = at(node->children, 0);
+            return getInstantiationsSetParameters(instantiationsSet);
+        }
+        case nkRelSparrowDeclGenericFunction:
+        {
+            return all(at(node->referredNodes, 1)->children);
+        }
+        default:
+            REP_INTERNAL(node->location, "Node is not a generic: %1%") % node;
+            return NodeRange{nullptr, nullptr};
+    }
+}
 
 Node* SprFrontend::genericCanInstantiate(Node* node, NodeRange args)
 {
@@ -639,11 +657,11 @@ Node* SprFrontend::genericCanInstantiate(Node* node, NodeRange args)
         case nkRelSparrowDeclGenericFunction:
         {
             Node* originalFun = at(node->referredNodes, 0);
-            NodeVector boundValues = getGenericFunBoundValues(originalFun->context, args, genericParams(node));
+            NodeVector boundValues = getGenericFunBoundValues(originalFun->context, args, genericInstSetParams(node));
 
             EvalMode resultingEvalMode = Nest_hasProperty(originalFun, propCtGeneric)
                 ? modeCt        // If we have a CT generic, the resulting eval mode is always CT
-                : getGenericFunResultingEvalMode(originalFun->location, Feather_effectiveEvalMode(originalFun), args, genericParams(node));
+                : getGenericFunResultingEvalMode(originalFun->location, Feather_effectiveEvalMode(originalFun), args, genericInstSetParams(node));
 
             Node* instantiationsSet = at(node->children, 0);
             return canInstantiate(instantiationsSet, all(boundValues), resultingEvalMode);
@@ -703,7 +721,7 @@ Node* SprFrontend::genericDoInstantiate(Node* node, const Location& loc, Compila
                 Node* originalFun = at(node->referredNodes, 0);
                 ASSERT(originalFun->nodeKind == nkSparrowDeclSprFunction);
                 NodeRange params = all(at(node->referredNodes, 1)->children);
-                NodeVector nonBoundParams = getGenericFunNonBoundParameters(inst, originalFun, params, genericParams(node));
+                NodeVector nonBoundParams = getGenericFunNonBoundParameters(inst, originalFun, params, genericInstSetParams(node));
 
                 // Create the actual instantiation declaration
                 CompilationContext* ctx = Nest_childrenContext(expandedInst);
@@ -717,7 +735,7 @@ Node* SprFrontend::genericDoInstantiate(Node* node, const Location& loc, Compila
             }
 
             // Now actually create the call object
-            NodeVector nonBoundArgs = getGenericFunNonBoundArgs(args, genericParams(node));
+            NodeVector nonBoundArgs = getGenericFunNonBoundArgs(args, genericInstSetParams(node));
             Node* res = createCallFn(loc, context, instDecl, all(nonBoundArgs));
             if ( !res )
                 REP_INTERNAL(loc, "Cannot create code that calls generic");

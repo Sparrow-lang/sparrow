@@ -2,12 +2,12 @@
 #include "SprTypeTraits.h"
 #include "Overload.h"
 #include "StdDef.h"
-#include "Impl/Callable.h"
 #include <SparrowFrontendTypes.h>
 #include <NodeCommonsCpp.h>
 
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
+#include "Nest/Utils/NodeVector.hpp"
 
 
 using namespace SprFrontend;
@@ -132,23 +132,20 @@ namespace
     Node* checkDataTypeConversion(Node* node)
     {
         const Location& loc = node->location;
+        if ( !Nest_computeType(node) )
+            REP_INTERNAL(loc, "Cannot convert null node from CT to RT");
+
         TypeRef t = node->type;
         Node* cls = Feather_classForType(t);
         if ( Feather_effectiveEvalMode(cls) != modeRtCt )
             REP_INTERNAL(loc, "Cannot convert ct to rt for non-rtct classes (%1%)") % cls;
 
         // Check if we have a ct-to-rt ctor
-        Callable* call = selectCtToRtCtor(node->context, t);
-        if ( !call )
-            REP_ERROR_RET(nullptr, loc, "Cannot convert %1% from CT to RT (make sure 'ctorFromRt' method exists)") % t;
+        Node* res = selectCtToRtCtor(node);
+        if ( !res )
+            REP_ERROR_RET(nullptr, loc, "Cannot convert %1% from CT to RT (make sure 'ctorFromRt' ctor exists)") % t;
 
-        // Generate the call to the ctor
-        if ( !Nest_computeType(node) )
-            return nullptr;
-        auto cr = call->canCall(node->context, loc, fromIniList({node}), modeRt, noCustomCvt);
-        ASSERT(cr);
-        (void) cr; // avoid warning for unused cr
-        Node* res = call->generateCall(loc);
+        // Remove the reference from the result
         res = Feather_mkMemLoad(loc, res);
 
         // Sanity check

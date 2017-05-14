@@ -64,14 +64,8 @@ SET(sourceFiles
     "Helpers/QualifiedId.cpp"
     "Helpers/Impl/Callable.h"
     "Helpers/Impl/Callable.cpp"
-    "Helpers/Impl/FunctionCallable.h"
-    "Helpers/Impl/FunctionCallable.cpp"
-    "Helpers/Impl/GenericCallable.h"
-    "Helpers/Impl/GenericCallable.cpp"
-    "Helpers/Impl/ClassCtorCallable.h"
-    "Helpers/Impl/ClassCtorCallable.cpp"
-    "Helpers/Impl/ConceptCallable.h"
-    "Helpers/Impl/ConceptCallable.cpp"
+    "Helpers/Impl/Intrinsics.h"
+    "Helpers/Impl/Intrinsics.cpp"
 )
 
 if(BOOSTSTRAP_SPARROW)

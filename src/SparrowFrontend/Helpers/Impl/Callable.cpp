@@ -28,8 +28,8 @@ int getParamsCount(const CallableData& c, bool hideImplicit = false) {
 /// Get the type of parameter with the given index
 /// The last flag indicates whether we should hide or not the implicit param
 /// If we hide it, we return only the parameters the caller sees.
-TypeRef getParamType(const CallableData& c, int idx,
-                     bool hideImplicit = false) {
+TypeRef getParamType(
+        const CallableData& c, int idx, bool hideImplicit = false) {
     if (c.type == CallableType::concept)
         return getConceptType();
     // If we have an implicit arg type, hide it
@@ -41,28 +41,27 @@ TypeRef getParamType(const CallableData& c, int idx,
     return param ? param->type : nullptr;
 }
 
-ConversionType
-canCall_common_types(CallableData& c, CompilationContext* context,
-                     const Location& /*loc*/, const vector<TypeRef>& argTypes,
-                     EvalMode evalMode, CustomCvtMode customCvtMode,
-                     bool reportErrors) {
+ConversionType canCall_common_types(CallableData& c,
+        CompilationContext* context, const Location& /*loc*/,
+        const vector<TypeRef>& argTypes, EvalMode evalMode,
+        CustomCvtMode customCvtMode, bool reportErrors) {
     // Check argument count (including hidden params)
     size_t paramsCount = getParamsCount(c);
     if (paramsCount != argTypes.size()) {
         if (reportErrors)
             REP_INFO(NOLOC,
-                     "Different number of parameters; args=%1%, params=%2%") %
-                argTypes.size() % paramsCount;
+                    "Different number of parameters; args=%1%, params=%2%") %
+                    argTypes.size() % paramsCount;
         return convNone;
     }
 
     // Check evaluation mode
     EvalMode thisEvalMode = c.evalMode;
     if (thisEvalMode == modeRt &&
-        (evalMode == modeCt || evalMode == modeRtCt)) {
+            (evalMode == modeCt || evalMode == modeRtCt)) {
         if (reportErrors)
             REP_INFO(NOLOC,
-                     "Cannot call RT only functions in CT and RTCT contexts");
+                    "Cannot call RT only functions in CT and RTCT contexts");
         return convNone;
     }
     bool useCt = thisEvalMode == modeCt || evalMode == modeCt;
@@ -87,7 +86,7 @@ canCall_common_types(CallableData& c, CompilationContext* context,
         if (!paramType) {
             if (reportErrors)
                 REP_INFO(NOLOC, "Bad parameter %1%; arg type: %2%") % i %
-                    argType;
+                        argType;
             return convNone;
         }
 
@@ -98,13 +97,13 @@ canCall_common_types(CallableData& c, CompilationContext* context,
 
         ConversionFlags flags = flagsDefault;
         if (customCvtMode == noCustomCvt ||
-            (customCvtMode == noCustomCvtForFirst && i == 0))
+                (customCvtMode == noCustomCvtForFirst && i == 0))
             flags = flagDontCallConversionCtor;
         c.conversions[i] = canConvertType(context, argType, paramType, flags);
         if (!c.conversions[i]) {
             if (reportErrors)
                 REP_INFO(NOLOC, "Cannot convert argument %1% from %2% to %3%") %
-                    i % argType % paramType;
+                        i % argType % paramType;
             return convNone;
         } else if (c.conversions[i].conversionType() < res)
             res = c.conversions[i].conversionType();
@@ -114,10 +113,8 @@ canCall_common_types(CallableData& c, CompilationContext* context,
 }
 
 ConversionType canCall_common_args(CallableData& c, CompilationContext* context,
-                                   const Location& loc, NodeRange args,
-                                   EvalMode evalMode,
-                                   CustomCvtMode customCvtMode,
-                                   bool reportErrors) {
+        const Location& loc, NodeRange args, EvalMode evalMode,
+        CustomCvtMode customCvtMode, bool reportErrors) {
     // Copy the list of arguments; add default values if arguments are missing
     size_t paramsCount = getParamsCount(c);
     c.args = toVec(args);
@@ -125,13 +122,13 @@ ConversionType canCall_common_args(CallableData& c, CompilationContext* context,
     for (size_t i = Nest_nodeRangeSize(args); i < paramsCount; ++i) {
         Node* param = at(c.params, i);
         Node* defaultArg = param && param->nodeKind == nkSparrowDeclSprParameter
-                               ? at(param->children, 1)
-                               : nullptr;
+                                   ? at(param->children, 1)
+                                   : nullptr;
         if (!defaultArg)
             return convNone; // We have a non-default parameter but we don't
                              // have an argument for that
         if (!Nest_semanticCheck(
-                defaultArg)) // Make sure this is semantically checked
+                    defaultArg)) // Make sure this is semantically checked
             return convNone;
 
         c.args.push_back(defaultArg);
@@ -142,7 +139,7 @@ ConversionType canCall_common_args(CallableData& c, CompilationContext* context,
     for (size_t i = 0; i < c.args.size(); ++i)
         argTypes[i] = c.args[i]->type;
     ConversionType res = canCall_common_types(
-        c, context, loc, argTypes, evalMode, customCvtMode, reportErrors);
+            c, context, loc, argTypes, evalMode, customCvtMode, reportErrors);
     if (!res)
         return convNone;
 
@@ -178,16 +175,22 @@ CallableData mkFunCallable(Node* fun, TypeRef implicitArgType = nullptr) {
     res.implicitArgType = implicitArgType;
     return res;
 }
-CallableData mkGenericCallable(Node* generic,
-                               TypeRef implicitArgType = nullptr) {
-    ASSERT(isGeneric(generic));
-
+CallableData mkGenericFunCallable(
+        Node* genericFun, TypeRef implicitArgType = nullptr) {
     CallableData res;
-    res.type = CallableType::generic;
-    res.decl = generic;
-    res.params = genericParams(generic);
-    res.evalMode = Feather_effectiveEvalMode(generic);
+    res.type = CallableType::genericFun;
+    res.decl = genericFun;
+    res.params = genericFunParams(genericFun);
+    res.evalMode = Feather_effectiveEvalMode(genericFun);
     res.implicitArgType = implicitArgType;
+    return res;
+}
+CallableData mkGenericClassCallable(Node* genericClass) {
+    CallableData res;
+    res.type = CallableType::genericClass;
+    res.decl = genericClass;
+    res.params = genericClassParams(genericClass);
+    res.evalMode = Feather_effectiveEvalMode(genericClass);
     return res;
 }
 CallableData mkConceptCallable(Node* concept) {
@@ -207,39 +210,41 @@ bool predIsSatisfied(Node* decl, const boost::function<bool(Node*)>& pred) {
 
 //! Get the class-ctor callables corresponding to the given class
 void getClassCtorCallables(Node* cls, EvalMode evalMode, Callables& res,
-                           const boost::function<bool(Node*)>& pred,
-                           const char* ctorName) {
+        const boost::function<bool(Node*)>& pred, const char* ctorName) {
     // Search for the ctors associated with the class
     NodeArray decls = getClassAssociatedDecls(cls, ctorName);
 
-    evalMode = Feather_combineMode(Feather_effectiveEvalMode(cls), evalMode,
-                                   cls->location);
+    evalMode = Feather_combineMode(
+            Feather_effectiveEvalMode(cls), evalMode, cls->location);
     TypeRef implicitArgType = varType(cls, evalMode);
 
     res.reserve(res.size() + Nest_nodeArraySize(decls));
     for (Node* decl : decls) {
         Node* fun = Nest_explanation(decl);
         if (fun && fun->nodeKind == nkFeatherDeclFunction &&
-            predIsSatisfied(decl, pred))
+                predIsSatisfied(decl, pred))
             res.push_back(mkFunCallable(fun, implicitArgType));
 
         Node* resDecl = resultingDecl(decl);
-        if (isGeneric(resDecl) && predIsSatisfied(decl, pred))
-            res.push_back(mkGenericCallable(resDecl, implicitArgType));
+        if (resDecl->nodeKind == nkSparrowDeclGenericFunction &&
+                predIsSatisfied(decl, pred))
+            res.push_back(mkGenericFunCallable(resDecl, implicitArgType));
+        else if (resDecl->nodeKind == nkSparrowDeclGenericClass &&
+                 predIsSatisfied(decl, pred))
+            res.push_back(mkGenericClassCallable(resDecl));
     }
     Nest_freeNodeArray(decls);
 }
 }
 
-void SprFrontend::getCallables(NodeRange decls, EvalMode evalMode,
-                               Callables& res) {
+void SprFrontend::getCallables(
+        NodeRange decls, EvalMode evalMode, Callables& res) {
     getCallables(decls, evalMode, res, boost::function<bool(Node*)>());
 }
 
 void SprFrontend::getCallables(NodeRange decls, EvalMode evalMode,
-                               Callables& res,
-                               const boost::function<bool(Node*)>& pred,
-                               const char* ctorName) {
+        Callables& res, const boost::function<bool(Node*)>& pred,
+        const char* ctorName) {
     NodeArray declsEx = expandDecls(decls, nullptr);
 
     for (Node* decl : declsEx) {
@@ -256,12 +261,16 @@ void SprFrontend::getCallables(NodeRange decls, EvalMode evalMode,
 
             // Is this a normal function call?
             if (decl && decl->nodeKind == nkFeatherDeclFunction &&
-                predIsSatisfied(decl, pred))
+                    predIsSatisfied(decl, pred))
                 res.emplace_back(mkFunCallable(decl));
 
             // Is this a generic?
-            else if (isGeneric(decl) && predIsSatisfied(decl, pred))
-                res.emplace_back(mkGenericCallable(decl));
+            else if (decl->nodeKind == nkSparrowDeclGenericFunction &&
+                     predIsSatisfied(decl, pred))
+                res.push_back(mkGenericFunCallable(decl));
+            else if (decl->nodeKind == nkSparrowDeclGenericClass &&
+                     predIsSatisfied(decl, pred))
+                res.push_back(mkGenericClassCallable(decl));
 
             // Is this a concept?
             else if (decl->nodeKind == nkSparrowDeclSprConcept &&
@@ -276,16 +285,15 @@ void SprFrontend::getCallables(NodeRange decls, EvalMode evalMode,
     }
 }
 
-ConversionType
-SprFrontend::canCall(CallableData& c, CompilationContext* context,
-                     const Location& loc, NodeRange args, EvalMode evalMode,
-                     CustomCvtMode customCvtMode, bool reportErrors) {
+ConversionType SprFrontend::canCall(CallableData& c,
+        CompilationContext* context, const Location& loc, NodeRange args,
+        EvalMode evalMode, CustomCvtMode customCvtMode, bool reportErrors) {
     NodeVector args2;
 
     // If this callable requires an added this argument, add it
     if (c.implicitArgType) {
-        Node* thisTempVar = Feather_mkVar(
-            loc, fromCStr("tmp.v"), Feather_mkTypeNode(loc, c.implicitArgType));
+        Node* thisTempVar = Feather_mkVar(loc, fromCStr("tmp.v"),
+                Feather_mkTypeNode(loc, c.implicitArgType));
         Nest_setContext(thisTempVar, context);
         if (!Nest_computeType(thisTempVar)) {
             if (reportErrors)
@@ -308,32 +316,44 @@ SprFrontend::canCall(CallableData& c, CompilationContext* context,
     }
 
     // Do the common 'canCall' logic
-    ConversionType res = canCall_common_args(c, context, loc, args, evalMode,
-                                             customCvtMode, reportErrors);
+    ConversionType res = canCall_common_args(
+            c, context, loc, args, evalMode, customCvtMode, reportErrors);
     if (!res)
         return convNone;
 
-    if (c.type == CallableType::generic) {
+    if (c.type == CallableType::genericFun) {
         // Check if we can instantiate the generic with the given arguments
         // (with conversions applied)
         // Note: we overwrite the args with their conversions;
         // We don't use the old arguments anymore
         c.args = argsWithConversion(c);
         ASSERT(!c.genericInst);
-        c.genericInst = genericCanInstantiate(c.decl, all(c.args));
+        c.genericInst = canInstantiateGenericFun(c.decl, all(c.args));
         if (!c.genericInst && reportErrors) {
-            REP_INFO(NOLOC, "Cannot instantiate generic");
+            REP_INFO(NOLOC, "Cannot instantiate generic function");
+        }
+        return c.genericInst ? res : convNone;
+    }
+    else if (c.type == CallableType::genericClass) {
+        // Check if we can instantiate the generic with the given arguments
+        // (with conversions applied)
+        // Note: we overwrite the args with their conversions;
+        // We don't use the old arguments anymore
+        c.args = argsWithConversion(c);
+        ASSERT(!c.genericInst);
+        c.genericInst = canInstantiateGenericClass(c.decl, all(c.args));
+        if (!c.genericInst && reportErrors) {
+            REP_INFO(NOLOC, "Cannot instantiate generic class");
         }
         return c.genericInst ? res : convNone;
     }
 
     return res;
 }
-ConversionType
-SprFrontend::canCall(CallableData& c, CompilationContext* context,
-                     const Location& loc, const vector<TypeRef>& argTypes,
-                     EvalMode evalMode, CustomCvtMode customCvtMode,
-                     bool reportErrors) {
+ConversionType SprFrontend::canCall(CallableData& c,
+        CompilationContext* context, const Location& loc,
+        const vector<TypeRef>& argTypes, EvalMode evalMode,
+        CustomCvtMode customCvtMode, bool reportErrors) {
     vector<TypeRef> argTypes2;
     const vector<TypeRef>* argTypesToUse = &argTypes;
 
@@ -347,12 +367,11 @@ SprFrontend::canCall(CallableData& c, CompilationContext* context,
     }
 
     return canCall_common_types(c, context, loc, *argTypesToUse, evalMode,
-                                customCvtMode, reportErrors);
+            customCvtMode, reportErrors);
 }
 
 int SprFrontend::moreSpecialized(CompilationContext* context,
-                                 const CallableData& f1, const CallableData& f2,
-                                 bool noCustomCvt) {
+        const CallableData& f1, const CallableData& f2, bool noCustomCvt) {
     // Check parameter count
     size_t paramsCount = getParamsCount(f1, true);
     if (paramsCount != getParamsCount(f2, true))
@@ -369,7 +388,7 @@ int SprFrontend::moreSpecialized(CompilationContext* context,
             continue;
 
         ConversionFlags flags =
-            noCustomCvt ? flagDontCallConversionCtor : flagsDefault;
+                noCustomCvt ? flagDontCallConversionCtor : flagsDefault;
         ConversionResult c1 = canConvertType(context, t1, t2, flags);
         if (c1) {
             firstIsMoreSpecialized = true;
@@ -391,8 +410,8 @@ int SprFrontend::moreSpecialized(CompilationContext* context,
         return 0;
 }
 
-Node* SprFrontend::generateCall(CallableData& c, CompilationContext* context,
-                                const Location& loc) {
+Node* SprFrontend::generateCall(
+        CallableData& c, CompilationContext* context, const Location& loc) {
     Node* res = nullptr;
 
     // Regular function call case
@@ -415,10 +434,13 @@ Node* SprFrontend::generateCall(CallableData& c, CompilationContext* context,
     }
 
     // Generic call case
-    if (c.type == CallableType::generic) {
+    if (c.type == CallableType::genericFun) {
         ASSERT(c.genericInst);
-        res = genericDoInstantiate(c.decl, loc, context, all(c.args),
-                                   c.genericInst);
+        res = callGenericFun(c.decl, loc, context, all(c.args), c.genericInst);
+        Nest_setContext(res, context);
+    } else if (c.type == CallableType::genericClass) {
+        ASSERT(c.genericInst);
+        res = callGenericClass(c.decl, loc, context, all(c.args), c.genericInst);
         Nest_setContext(res, context);
     }
 

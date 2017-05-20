@@ -20,7 +20,8 @@ enum CustomCvtMode {
 /// The type of a callable entity
 enum class CallableType {
     function,
-    generic,
+    genericFun,
+    genericClass,
     concept,
 };
 

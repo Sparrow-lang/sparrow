@@ -37,6 +37,7 @@ Generics organization
     - bound vars: the variables created to hold the values for the bound params
     - bound values: the CT values used to initialize the bound vars
     - generic params: the list of params with nulls in the positions of non-bound params
+    - dependent param: a parameter for which it's type expression depends on the previous params
 
 We distinguish between partial instantiation and full instantiation. The partial instantiation is
 just a copy of the bound parameters/vars and the check of the if clause. In this partial
@@ -48,9 +49,16 @@ we also clone the original declaration, and semantic check it.
 Any errors in compiling the partial instantiation, will make the generic not callable. Any errors in
 the full instantiation (if partial instantiation succeeded) will be reported.
 
+To check if we have dependent parameters, we check the type node of the param to contain an
+identifier that refers to any of the previously seen parameters. If we detected that a parameter is
+dependent, then we don't compute it's type. It will be added to the generic params, but with a null
+type. A dependent param will be treated as if the type was 'AnyType', and we add an extra condition
+for instantiation. A dependent param will therefore be treated as a concept param.
+
 the instantiation process goes as following for generic functions:
 - checkCreateGenericFun -- checks if the given function is generic, and prepare the generic fun
-    - > compute the type of every param
+    - > check which parameter is dependent on another parameter
+    - > compute the type of every non-dependent param
     - > if at least one of them is CT or concept, then we are seeing a generic fun
     - > gather all the concept & CT params; use them to create the generic fun node
     - > the generic params will be stored in the instSet(), while the original params in the node.
@@ -217,7 +225,7 @@ NodeVector createBoundVariables(
             continue;
         ASSERT(boundValue);
 
-        if (isConceptType(p->type)) {
+        if (!p->type || isConceptType(p->type)) {
             TypeRef t = getType(boundValue);
 
             Node* var = mkSprVariable(p->location, Feather_getName(p), t, nullptr);
@@ -529,6 +537,8 @@ string getGenericClassDescription(Node* originalClass, InstNode inst) {
  * For every CT param that we have, we add the arg value as a bound value.
  * For every concept param that we have, we add the type of the arg as a bound value.
  *
+ * The params that have a null type are dependent params, so we treat them as concept params.
+ *
  * These bound values are the 'signature' used to instantiate the generic function for these args.
  *
  * @param context       The context in which we should create any type nodes
@@ -549,7 +559,7 @@ NodeVector getGenericFunBoundValues(
             continue;
 
         bool isRefAuto;
-        if (isConceptType(param->type, isRefAuto)) {
+        if (!param->type || isConceptType(param->type, isRefAuto)) {
             // Create a CtValue with the type of the argument corresponding to
             // the auto parameter
             if (!Nest_computeType(arg))
@@ -608,12 +618,11 @@ NodeVector getGenericFunFinalParams(
         Node* p = at(params, i);
         Node* boundValue = at(boundValues, i);
 
-        if (!at(genericParams, i)) // If this is not a generic parameter => non-bound parameter
-        {
+        if (!at(genericParams, i)) {
+            // If this is not a generic parameter => final-bound parameter
             finalParams.push_back(Nest_cloneNode(p));
-        } else if (isConceptType(p->type)) // For auto-type parameters, we also
-                                           // create a non-bound parameter
-        {
+        } else if (!p->type || isConceptType(p->type)) {
+            // For concept-type parameters, we also create a final-bound parameter
             finalParams.push_back(mkSprParameter(p->location, Feather_getName(p), boundValue));
         }
     }
@@ -696,8 +705,8 @@ NodeVector getGenericFunFinalArgs(NodeRange args, NodeRange genericParams) {
     finalArgs.reserve(size(args));
     for (size_t i = 0; i < size(args); ++i) {
         Node* param = at(genericParams, i);
-        if (!param || isConceptType(param->type)) // Get non-generic and also concept parameters
-        {
+        if (!param || !param->type || isConceptType(param->type)) {
+            // Get non-generic and also concept parameters
             finalArgs.push_back(at(args, i));
         }
     }
@@ -757,28 +766,104 @@ Node* createCallFn(
                 Feather_getName(inst);
     return createFunctionCall(loc, context, resultingFun, finalArgs);
 }
+
+typedef vector<StringRef> NamesVec;
+
+/**
+ * Checks if the given node references any of the given seen names.
+ *
+ * Recursively digs deep in the given node to find any identifier that references to the given set
+ * of names.
+ *
+ * We use this to find whether we have dependent types: one type depending on the actual
+ * instantiation of another.
+ *
+ * @param node      The node that we want to check
+ * @param seenNames The list of seen names we compare against
+ *
+ * @return True if this node references any of the given names
+ */
+bool referencesSeenName(Node* node, const NamesVec& seenNames) {
+    if (!node)
+        return false;
+    if (node->nodeKind == nkSparrowExpIdentifier) {
+        // Check to see if the name matches one of our previously seen parameter names
+        StringRef name = Feather_getName(node);
+        for (StringRef seenName : seenNames) {
+            if (name == seenName)
+                return true;
+        }
+    } else {
+        // For the rest of the nodes, check all the children
+        for (Node* child : node->children) {
+            if (referencesSeenName(child, seenNames))
+                return true;
+        }
+    }
+    return false;
+}
 }
 
 Node* SprFrontend::checkCreateGenericFun(
         Node* originalFun, Node* parameters, Node* ifClause, Node* thisClass) {
+    ASSERT(parameters);
+    NodeRange params = all(parameters->children);
+    auto numParams = Nest_nodeRangeSize(params);
+    if (numParams == 0)
+        return nullptr;   // cannot be generic
+
     // If we are in a CT function, don't consider CT parameters
     bool inCtFun = Feather_effectiveEvalMode(originalFun) == modeCt;
     // For CT-generics, we consider all the parameters to be generic parameters
     bool isCtGeneric = Nest_hasProperty(originalFun, propCtGeneric);
 
-    // Check if we have some CT parameters
-    ASSERT(parameters);
-    NodeRange params = all(parameters->children);
-    auto numParams = Nest_nodeRangeSize(params);
-    NodeVector ourParams(numParams, nullptr);
+    // Check if we have some dependent type parameters
+    NodeVector dependentParams(numParams, nullptr);
+    NamesVec seenNames;
+    seenNames.reserve(numParams);
+    bool hasDependentParams = false;
+    for (int i = 0; i < numParams; ++i) {
+        Node* param = at(params, i);
+        Node* paramType = at(param->children, 0);
+        ASSERT(param->nodeKind == nkSparrowDeclSprParameter);
+
+        // Check if this parameter references a previously seen parameter
+        if (i>0 && referencesSeenName(paramType, seenNames)) {
+            dependentParams[i] = param;
+            hasDependentParams = true;
+        }
+
+        // Add this param name to the list of seen names
+        seenNames.push_back(Feather_getName(param));
+    }
+    ASSERT(dependentParams[0] == nullptr);  // the first param cannot be dependent
+
+    // TODO: properly implement dependent params
+    if (hasDependentParams) {
+        ostringstream oss;
+        oss << "(null";
+        for (int i=1; i<numParams; i++) {
+            oss << ", " << (dependentParams[i] ? Nest_toString(dependentParams[i]) : "null");
+        }
+        oss << ")";
+        REP_INFO(originalFun->location, "Dependent types: %1%") % oss.str();
+    }
+
+
+    // Check if we have some CT or concept parameters
+    // We compute the type of all the parameters, except the dependent ones
     NodeVector genericParams(numParams, nullptr);
     bool hasGenericParams = false;
     for (size_t i = 0; i < numParams; ++i) {
         Node* param = at(params, i);
+        if (dependentParams[i]) {
+            genericParams[i] = param;
+            hasGenericParams = true;
+            continue;   // Don't compute the type
+        }
         if (!Nest_computeType(param))
             return nullptr;
 
-        ourParams[i] = param;
         if (isConceptType(param->type)) {
             genericParams[i] = param;
             hasGenericParams = true;
@@ -793,6 +878,7 @@ Node* SprFrontend::checkCreateGenericFun(
         return nullptr;
 
     // If a 'this' class is passed, add an extra parameter for this
+    NodeVector paramsWithThis;
     if (thisClass) {
         TypeRef thisType =
                 Feather_getDataType(thisClass, 1, Feather_effectiveEvalMode(originalFun));
@@ -800,12 +886,16 @@ Node* SprFrontend::checkCreateGenericFun(
         Nest_setContext(thisParam, Nest_childrenContext(originalFun));
         if (!Nest_computeType(thisParam))
             return nullptr;
-        ourParams.insert(ourParams.begin(), thisParam);
         genericParams.insert(genericParams.begin(), nullptr);
+
+        // Add 'this' param to our range of parameters
+        paramsWithThis = NodeVector(params.beginPtr, params.endPtr);
+        paramsWithThis.insert(paramsWithThis.begin(), thisParam);
+        params = all(paramsWithThis);
     }
 
     // Actually create the generic
-    Node* res = mkGenericFunction(originalFun, all(ourParams), all(genericParams), ifClause);
+    Node* res = mkGenericFunction(originalFun, params, all(genericParams), ifClause);
     Feather_setEvalMode(res, Feather_effectiveEvalMode(originalFun));
     Nest_setContext(res, originalFun->context);
     return res;

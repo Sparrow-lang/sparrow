@@ -39,8 +39,6 @@ struct CallableData {
     Node* decl;
     /// The parameters of the decl to call
     NodeRange params;
-    /// The eval mode in which we want the call to be made
-    EvalMode evalMode;
     /// True if we need to call the function in autoCt mode
     bool autoCt;
 
@@ -64,9 +62,8 @@ struct CallableData {
     Node* tmpVar;
 
     CallableData()
-        : type(CallableType::function), valid(true), decl{nullptr},
-          params{nullptr, nullptr}, evalMode{modeUnspecified}, autoCt{false},
-          implicitArgType(nullptr), genericInst(nullptr), tmpVar(nullptr) {}
+        : type(CallableType::function), valid(true), decl{nullptr}, params{nullptr, nullptr},
+          autoCt{false}, implicitArgType(nullptr), genericInst(nullptr), tmpVar(nullptr) {}
 };
 
 //! A vector of callables

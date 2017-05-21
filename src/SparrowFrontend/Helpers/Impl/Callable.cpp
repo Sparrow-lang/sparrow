@@ -38,83 +38,14 @@ TypeRef getParamType(
     ASSERT(idx < size(c.params));
     Node* param = at(c.params, idx);
     ASSERT(param);
-    return param ? param->type : nullptr;
-}
-
-ConversionType canCall_common_types(CallableData& c,
-        CompilationContext* context, const Location& /*loc*/,
-        const vector<TypeRef>& argTypes, EvalMode evalMode,
-        CustomCvtMode customCvtMode, bool reportErrors) {
-    // Check argument count (including hidden params)
-    size_t paramsCount = getParamsCount(c);
-    if (paramsCount != argTypes.size()) {
-        if (reportErrors)
-            REP_INFO(NOLOC,
-                    "Different number of parameters; args=%1%, params=%2%") %
-                    argTypes.size() % paramsCount;
-        return convNone;
-    }
-
-    // Check evaluation mode
-    EvalMode thisEvalMode = c.evalMode;
-    if (thisEvalMode == modeRt &&
-            (evalMode == modeCt || evalMode == modeRtCt)) {
-        if (reportErrors)
-            REP_INFO(NOLOC,
-                    "Cannot call RT only functions in CT and RTCT contexts");
-        return convNone;
-    }
-    bool useCt = thisEvalMode == modeCt || evalMode == modeCt;
-    if (thisEvalMode == modeRtCt && c.autoCt) {
-        // In autoCt mode, if all the arguments are CT, make a CT call
-        useCt = true;
-        for (TypeRef t : argTypes) {
-            if (t->mode != modeCt) {
-                useCt = false;
-                break;
-            }
-        }
-    }
-
-    c.conversions.resize(paramsCount, convNone);
-
-    ConversionType res = convDirect;
-    for (size_t i = 0; i < paramsCount; ++i) {
-        TypeRef argType = argTypes[i];
-        ASSERT(argType);
-        TypeRef paramType = getParamType(c, i);
-        if (!paramType) {
-            if (reportErrors)
-                REP_INFO(NOLOC, "Bad parameter %1%; arg type: %2%") % i %
-                        argType;
-            return convNone;
-        }
-
-        // If we are looking at a CT callable, make sure the parameters are in
-        // CT
-        if (paramType->hasStorage && useCt)
-            paramType = Feather_checkChangeTypeMode(paramType, modeCt, NOLOC);
-
-        ConversionFlags flags = flagsDefault;
-        if (customCvtMode == noCustomCvt ||
-                (customCvtMode == noCustomCvtForFirst && i == 0))
-            flags = flagDontCallConversionCtor;
-        c.conversions[i] = canConvertType(context, argType, paramType, flags);
-        if (!c.conversions[i]) {
-            if (reportErrors)
-                REP_INFO(NOLOC, "Cannot convert argument %1% from %2% to %3%") %
-                        i % argType % paramType;
-            return convNone;
-        } else if (c.conversions[i].conversionType() < res)
-            res = c.conversions[i].conversionType();
-    }
-
+    TypeRef res = param ? param->type : nullptr;
+    // For generics, null params mean dependent types, so we replace it with 'any-type'
+    // if (!res && (c.type==CallableType::genericFun || c.type == CallableType::genericClass))
+    //     res = getConceptType();
     return res;
 }
 
-ConversionType canCall_common_args(CallableData& c, CompilationContext* context,
-        const Location& loc, NodeRange args, EvalMode evalMode,
-        CustomCvtMode customCvtMode, bool reportErrors) {
+bool completeArgsWithDefaults(CallableData& c, NodeRange args) {
     // Copy the list of arguments; add default values if arguments are missing
     size_t paramsCount = getParamsCount(c);
     c.args = toVec(args);
@@ -125,23 +56,105 @@ ConversionType canCall_common_args(CallableData& c, CompilationContext* context,
                                    ? at(param->children, 1)
                                    : nullptr;
         if (!defaultArg)
-            return convNone; // We have a non-default parameter but we don't
-                             // have an argument for that
-        if (!Nest_semanticCheck(
-                    defaultArg)) // Make sure this is semantically checked
-            return convNone;
+            return false; // We have a non-default parameter but we don't have an argument for that
+        if (!Nest_semanticCheck(defaultArg)) // Make sure this is semantically checked
+            return false;
 
         c.args.push_back(defaultArg);
     }
+    return true;
+}
+// TODO (overloading): We are missing default args for the types-only checks
 
-    // Do the checks on types
-    vector<TypeRef> argTypes(c.args.size(), nullptr);
-    for (size_t i = 0; i < c.args.size(); ++i)
-        argTypes[i] = c.args[i]->type;
-    ConversionType res = canCall_common_types(
-            c, context, loc, argTypes, evalMode, customCvtMode, reportErrors);
-    if (!res)
-        return convNone;
+/**
+ * Checks the eval mode for the given callable.
+ *
+ * Returns false if the eval mode is not ok.
+ *
+ * Also checks the 'autoCt' mode. If autoCt is true, and one of the arg types is not CT, this will
+ * reset autoCt to false.
+ * After calling this function whenever 'autoCt' is true, we should call CT.
+ *
+ * @param c            The callable we are operating on
+ * @param argTypes     The types of the arguments passed in
+ * @param evalMode     The eval mode desired for calling the callable
+ * @param reportErrors True if we should report errors
+ *
+ * @return True if the callable can be used in the given eval mode
+ */
+bool checkEvalMode(
+        CallableData& c, const vector<TypeRef>& argTypes, EvalMode evalMode, bool reportErrors) {
+
+    // Nothing to check for concepts
+    if (c.type == CallableType::concept)
+        return true;
+
+    // Check if eval-mode allows us to call the callable
+    EvalMode declEvalMode = Feather_effectiveEvalMode(c.decl);
+    if (declEvalMode == modeRt && (evalMode == modeCt || evalMode == modeRtCt)) {
+        if (reportErrors)
+            REP_INFO(NOLOC, "Cannot call RT only functions in CT and RTCT contexts");
+        return false;
+    }
+
+    // Compute the final version of autoCt flag
+    bool useCt = declEvalMode == modeCt || evalMode == modeCt;
+    if (declEvalMode == modeRtCt && c.autoCt) {
+        // In autoCt mode, if all the arguments are CT, make a CT call
+        useCt = true;
+        for (TypeRef t : argTypes) {
+            if (t->mode != modeCt) {
+                useCt = false;
+                break;
+            }
+        }
+    }
+    c.autoCt = useCt;
+    return true;
+}
+
+ConversionType canCall_common_types(CallableData& c,
+        CompilationContext* context,
+        const vector<TypeRef>& argTypes, EvalMode evalMode,
+        CustomCvtMode customCvtMode, bool reportErrors) {
+    size_t paramsCount = getParamsCount(c);
+
+    c.conversions.resize(paramsCount, convNone);
+
+    bool isGeneric = c.type==CallableType::genericFun || c.type == CallableType::genericClass;
+
+    ConversionType res = convDirect;
+    for (size_t i = 0; i < paramsCount; ++i) {
+        TypeRef argType = argTypes[i];
+        ASSERT(argType);
+        TypeRef paramType = getParamType(c, i);
+        if (!paramType) {
+            if (!isGeneric) {
+                // For generics, we allow null parameters for now
+                if (reportErrors)
+                    REP_INFO(NOLOC, "Bad parameter %1%; arg type: %2%") % i % argType;
+                return convNone;
+            }
+            // continue;   // Will get back on this arg in a secondary pass
+            paramType = getConceptType();
+        }
+
+        // If we are looking at a CT callable, make sure the parameters are in CT
+        if (paramType->hasStorage && c.autoCt)
+            paramType = Feather_checkChangeTypeMode(paramType, modeCt, NOLOC);
+
+        ConversionFlags flags = flagsDefault;
+        if (customCvtMode == noCustomCvt || (customCvtMode == noCustomCvtForFirst && i == 0))
+            flags = flagDontCallConversionCtor;
+        c.conversions[i] = canConvertType(context, argType, paramType, flags);
+        if (!c.conversions[i]) {
+            if (reportErrors)
+                REP_INFO(NOLOC, "Cannot convert argument %1% from %2% to %3%") % i % argType %
+                        paramType;
+            return convNone;
+        } else if (c.conversions[i].conversionType() < res)
+            res = c.conversions[i].conversionType();
+    }
 
     return res;
 }
@@ -170,7 +183,6 @@ CallableData mkFunCallable(Node* fun, TypeRef implicitArgType = nullptr) {
     res.type = CallableType::function;
     res.decl = fun;
     res.params = params;
-    res.evalMode = Feather_effectiveEvalMode(fun);
     res.autoCt = Nest_hasProperty(fun, propAutoCt);
     res.implicitArgType = implicitArgType;
     return res;
@@ -181,7 +193,6 @@ CallableData mkGenericFunCallable(
     res.type = CallableType::genericFun;
     res.decl = genericFun;
     res.params = genericFunParams(genericFun);
-    res.evalMode = Feather_effectiveEvalMode(genericFun);
     res.implicitArgType = implicitArgType;
     return res;
 }
@@ -190,7 +201,6 @@ CallableData mkGenericClassCallable(Node* genericClass) {
     res.type = CallableType::genericClass;
     res.decl = genericClass;
     res.params = genericClassParams(genericClass);
-    res.evalMode = Feather_effectiveEvalMode(genericClass);
     return res;
 }
 CallableData mkConceptCallable(Node* concept) {
@@ -198,7 +208,6 @@ CallableData mkConceptCallable(Node* concept) {
     res.type = CallableType::concept;
     res.decl = concept;
     res.params = fromIniList({nullptr});
-    res.evalMode = modeCt;
     return res;
 }
 
@@ -315,9 +324,31 @@ ConversionType SprFrontend::canCall(CallableData& c,
         args = all(args2);
     }
 
-    // Do the common 'canCall' logic
-    ConversionType res = canCall_common_args(
-            c, context, loc, args, evalMode, customCvtMode, reportErrors);
+    // Complete the missing args with defaults
+    if (!completeArgsWithDefaults(c, args))
+        return convNone;
+
+    // Check argument count (including hidden params)
+    size_t paramsCount = getParamsCount(c);
+    if (paramsCount != c.args.size()) {
+        if (reportErrors)
+            REP_INFO(NOLOC, "Different number of parameters; args=%1%, params=%2%") %
+                    c.args.size() % paramsCount;
+        return convNone;
+    }
+
+    // Get the arg types to perform the check on types
+    vector<TypeRef> argTypes(c.args.size(), nullptr);
+    for (size_t i = 0; i < c.args.size(); ++i)
+        argTypes[i] = c.args[i]->type;
+
+    // Check evaluation mode
+    if ( !checkEvalMode(c, argTypes, evalMode, reportErrors) )
+        return convNone;
+
+    // Do the checks on types
+    ConversionType res =
+            canCall_common_types(c, context, argTypes, evalMode, customCvtMode, reportErrors);
     if (!res)
         return convNone;
 
@@ -332,9 +363,9 @@ ConversionType SprFrontend::canCall(CallableData& c,
         if (!c.genericInst && reportErrors) {
             REP_INFO(NOLOC, "Cannot instantiate generic function");
         }
-        return c.genericInst ? res : convNone;
-    }
-    else if (c.type == CallableType::genericClass) {
+        if (!c.genericInst)
+            return convNone;
+    } else if (c.type == CallableType::genericClass) {
         // Check if we can instantiate the generic with the given arguments
         // (with conversions applied)
         // Note: we overwrite the args with their conversions;
@@ -345,7 +376,8 @@ ConversionType SprFrontend::canCall(CallableData& c,
         if (!c.genericInst && reportErrors) {
             REP_INFO(NOLOC, "Cannot instantiate generic class");
         }
-        return c.genericInst ? res : convNone;
+        if (!c.genericInst)
+            return convNone;
     }
 
     return res;
@@ -366,7 +398,20 @@ ConversionType SprFrontend::canCall(CallableData& c,
         argTypesToUse = &argTypes2;
     }
 
-    return canCall_common_types(c, context, loc, *argTypesToUse, evalMode,
+    // Check argument count (including hidden params)
+    size_t paramsCount = getParamsCount(c);
+    if (paramsCount != argTypesToUse->size()) {
+        if (reportErrors)
+            REP_INFO(NOLOC, "Different number of parameters; args=%1%, params=%2%") %
+                    argTypesToUse->size() % paramsCount;
+        return convNone;
+    }
+
+    // Check evaluation mode
+    if ( !checkEvalMode(c, *argTypesToUse, evalMode, reportErrors) )
+        return convNone;
+
+    return canCall_common_types(c, context, *argTypesToUse, evalMode,
             customCvtMode, reportErrors);
 }
 
@@ -382,6 +427,8 @@ int SprFrontend::moreSpecialized(CompilationContext* context,
     for (size_t i = 0; i < paramsCount; ++i) {
         TypeRef t1 = getParamType(f1, i, true);
         TypeRef t2 = getParamType(f2, i, true);
+        // At this point, all param types must be valid
+        ASSERT(t1 && t2);
 
         // Ignore parameters of same type
         if (t1 == t2)

@@ -1,5 +1,8 @@
 #pragma once
 
+#include "NodeCommonsH.h"
+#include "Nest/Utils/NodeUtils.hpp"
+
 namespace SprFrontend {
 
 // There are 3 types of generics:
@@ -20,6 +23,81 @@ namespace SprFrontend {
 //
 // All concepts may have if-clauses. These are predicates that will be checked before instantiation.
 // IF they return false, the instantiation fails.
+
+struct InstNode {
+    Node* node;
+
+    InstNode(Node* n) : node(n) { ASSERT(!n || n->nodeKind == nkSparrowInnerInstantiation); }
+    operator Node*() const { return node; }
+
+    Node* boundVarsNode() const { return at(node->children, 0); }
+    Node* expandedInstantiation() { return at(node->children, 0); }
+
+    NodeRange boundValues() const { return all(node->referredNodes); }
+
+    bool isValid() const { return 0 != Nest_getCheckPropertyInt(node, "instIsValid"); }
+    void setValid(bool valid = true) { Nest_setPropertyInt(node, "instIsValid", valid ? 1 : 0); }
+
+    bool isEvaluated() const { return 0 != Nest_getCheckPropertyInt(node, "instIsEvaluated"); }
+    void setEvaluated(bool evaluated = true) { Nest_setPropertyInt(node, "instIsEvaluated", evaluated ? 1 : 0); }
+
+    Node* instantiatedDecl() const { return Nest_getCheckPropertyNode(node, "instantiatedDecl"); }
+    void setInstantiatedDecl(Node* decl) {
+        Nest_setPropertyNode(node, "instantiatedDecl", decl);
+        Nest_appendNodeToArray(&expandedInstantiation()->children, decl);
+    }
+};
+
+struct InstSetNode {
+    Node* node;
+
+    InstSetNode(Node* n) : node(n) { ASSERT(!n || n->nodeKind == nkSparrowInnerInstantiationsSet); }
+    operator Node*() const { return node; }
+
+    Node* ifClause() const { return at(node->children, 0); }
+    NodeArray& instantiations() const { return at(node->children, 1)->children; }
+
+    Node* parentNode() const { return at(node->referredNodes, 0); }
+    NodeRange params() const { return all(at(node->referredNodes, 1)->children); }
+};
+
+struct GenericFunNode {
+    Node* node;
+
+    GenericFunNode(Node* n) : node(n) { ASSERT(!n || n->nodeKind == nkSparrowDeclGenericFunction); }
+    operator Node*() const { return node; }
+
+    InstSetNode instSet() const { return at(node->children, 0); }
+
+    Node* originalFun() const { return at(node->referredNodes, 0); }
+    NodeRange originalParams() const { return all(at(node->referredNodes, 1)->children); }
+};
+
+struct GenericClassNode {
+    Node* node;
+
+    GenericClassNode(Node* n) : node(n) { ASSERT(!n || n->nodeKind == nkSparrowDeclGenericClass); }
+    operator Node*() const { return node; }
+
+    InstSetNode instSet() const { return at(node->children, 0); }
+
+    Node* originalClass() const { return at(node->referredNodes, 0); }
+};
+
+struct ConceptNode {
+    Node* node;
+
+    ConceptNode(Node* n) : node(n) { ASSERT(!n || n->nodeKind == nkSparrowDeclSprConcept); }
+    operator Node*() const { return node; }
+
+    Node* baseConcept() const { return at(node->children, 0); }
+    Node* ifClause() const { return at(node->children, 1); }
+    InstSetNode instSet() const { return at(node->children, 2); }
+
+    Node* originalClass() const { return at(node->referredNodes, 0); }
+};
+
+
 
 /**
  * Checks if the given function is a generic, and creates a generic function node for it.

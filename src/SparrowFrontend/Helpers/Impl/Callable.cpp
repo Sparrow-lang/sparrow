@@ -1,14 +1,25 @@
 #include <StdInc.h>
 #include "Callable.h"
 #include "Helpers/Impl/Intrinsics.h"
+#include "Helpers/SprTypeTraits.h"
 #include "Helpers/CommonCode.h"
 #include "Helpers/Generics.h"
 #include "Helpers/StdDef.h"
 #include "Helpers/DeclsHelpers.h"
+#include <Helpers/Ct.h>
 #include "SparrowFrontendTypes.h"
 
 using namespace SprFrontend;
 using namespace Nest;
+
+// TODO: Properly refactor to use these:
+InstNode canInstantiate(InstSetNode instSet, NodeRange values, EvalMode evalMode);
+EvalMode getGenericFunResultingEvalMode(
+        const Location& loc, EvalMode mainEvalMode, NodeRange args, NodeRange genericParams);
+InstNode searchInstantiation(InstSetNode instSet, NodeRange values);
+Node* createBoundVar(Node* param, Node* boundValue, bool insideClass);
+Node* createDependentBoundVar(Node* param, bool insideClass);
+InstNode createNewInstantiation(InstSetNode instSet, NodeRange values, EvalMode evalMode);
 
 namespace {
 
@@ -244,6 +255,200 @@ void getClassCtorCallables(Node* cls, EvalMode evalMode, Callables& res,
     }
     Nest_freeNodeArray(decls);
 }
+
+Node* applyConversion(Node* arg, TypeRef paramType, ConversionType& worstConv,
+        ConversionFlags flags = flagsDefault, bool autoCt = false) {
+    ASSERT(arg->type);
+
+    // If we are looking at a CT callable, make sure the parameters are in CT
+    if (paramType->hasStorage && autoCt)
+        paramType = Feather_checkChangeTypeMode(paramType, modeCt, NOLOC);
+
+    ConversionResult conv = canConvertType(arg->context, arg->type, paramType, flags);
+    if (!conv) {
+        // if (reportErrors)
+        //     REP_INFO(NOLOC, "Cannot convert argument %1% from %2% to %3%") % i % argType %
+        //             paramType;
+        return nullptr;
+    } else if (conv.conversionType() < worstConv)
+        worstConv = conv.conversionType();
+
+    // Apply the conversion to our arg
+    // We are not interested in the original arg anymore
+    return conv.apply(arg->context, arg);
+}
+
+Node* getBoundValue(Node* arg, Node* param) {
+    bool isRefAuto = false;
+    if (!param->type || isConceptType(param->type, isRefAuto)) {
+        // Create a CtValue with the type of the argument corresponding to
+        // the auto parameter
+        TypeRef t = getAutoType(arg, isRefAuto);
+        Node* typeNode = createTypeNode(arg->context, param->location, t);
+        if (!Nest_computeType(typeNode))
+            return nullptr;
+        return typeNode;
+    } else {
+        // Evaluate the node and add the resulting CtValue as a bound argument
+        if (!Feather_isCt(arg))
+            return nullptr;
+        Node* boundVal = Nest_ctEval(arg);
+        if (!boundVal || boundVal->nodeKind != nkFeatherExpCtValue)
+            return nullptr;
+        ASSERT(boundVal->type);
+        return boundVal;
+    }
+}
+
+ConversionType canCallGenericFun(CallableData& c,
+        CompilationContext* context, const Location& loc, NodeRange args,
+        EvalMode evalMode, CustomCvtMode customCvtMode, bool reportErrors) {
+    // Get the arg types to perform the check on types
+    vector<TypeRef> argTypes(c.args.size(), nullptr);
+    for (size_t i = 0; i < c.args.size(); ++i)
+        argTypes[i] = c.args[i]->type;
+
+    // Check evaluation mode
+    if ( !checkEvalMode(c, argTypes, evalMode, reportErrors) )
+        return convNone;
+
+    ASSERT(!c.genericInst);
+
+    bool insideClass = nullptr != Feather_getParentClass(c.decl->context);
+
+    // Do the checks on types
+    int paramsCount = getParamsCount(c);
+
+    GenericFunNode genFun = c.decl;
+    InstSetNode instSet = genFun.instSet();
+    Node* originalFun = genFun.originalFun();
+    NodeRange genericParams = genFun.instSet().params();
+
+    NodeVector boundValues;
+    boundValues.resize(paramsCount, nullptr);
+
+    // Compute the resulting eval mode
+    EvalMode resultingEvalMode =
+            Nest_hasProperty(originalFun, propCtGeneric)
+                    ? modeCt // If we have a CT generic, the resulting eval mode is
+                             // always CT
+                    : getGenericFunResultingEvalMode(originalFun->location,
+                              Feather_effectiveEvalMode(originalFun), all(c.args),
+                              instSet.params());
+
+    // The currently working instance
+    // We will use this to check/create bound vars, and to deduce the types of the dependent type
+    // params. We can reuse previously created instantiations, or we can build our own inst. As much
+    // as possible, reuse previously created instantiations.
+    InstNode curInst(nullptr);
+    bool reuseExistingInst = true;
+
+    ConversionType worstConv = convDirect;
+    for (int i = 0; i < paramsCount; ++i) {
+        TypeRef argType = c.args[i]->type;
+        ASSERT(argType);
+        TypeRef paramType = getParamType(c, i);
+
+        bool isDependentParam = !paramType;
+        if (isDependentParam) {
+            ASSERT(curInst);
+            if (reuseExistingInst) {
+                // We can get the type of this parameter from the current inst
+                // The dependent type should be the same for all the instantiations that start with
+                // the same bound values.
+                Node* otherBoundVal = at(curInst.boundValues(), i);
+                if (!otherBoundVal || !otherBoundVal->type) {
+                    if (reportErrors)
+                        REP_INFO(NOLOC, "Invalid deduced type for parameter %1%") % (i + 1);
+                    return convNone;
+                }
+                paramType = otherBoundVal->type;
+            }
+            if (!paramType) {
+                // Add the appropriate bound variable to the instantiation
+                // We will get our deduced type by computing the type of this var
+                Node* param = at(genericParams, i);
+                ASSERT(param);
+                Node* typeNode = Nest_cloneNode(at(param->children, 0));
+                Nest_setContext(typeNode, curInst.boundVarsNode()->context);
+                if (!Nest_computeType(typeNode))
+                    return convNone;
+                paramType = getType(typeNode);
+                ASSERT(paramType);
+            }
+        }
+
+        Node*& arg = c.args[i];
+        ASSERT(arg->type);
+
+        // Apply the conversion
+        ConversionFlags flags = flagsDefault;
+        if (customCvtMode == noCustomCvt || (customCvtMode == noCustomCvtForFirst && i == 0))
+            flags = flagDontCallConversionCtor;
+        arg = applyConversion(arg, paramType, worstConv, flags, c.autoCt);
+        if (!arg || !Nest_computeType(arg)) {
+            if (reportErrors)
+                REP_INFO(NOLOC, "Cannot convert argument %1% from %2% to %3%") % (i+1) % argType %
+                        paramType;
+            return convNone;
+        }
+
+        // Treat generic params
+        Node* param = at(genericParams, i);
+        if (param) {
+            Node* boundVal = getBoundValue(arg, param);
+            if (!boundVal)
+                REP_INTERNAL(arg->location, "Invalid argument %1% when instantiating generic") %
+                        (i + 1);
+            ASSERT(boundVal && boundVal->type);
+            boundValues[i] = boundVal;
+
+            // Now, select the appropriate inst for the new bound value
+            if (reuseExistingInst) {
+                // First, check if we can continue the existing inst
+                if (curInst.node && !ctValsEqual(boundVal, at(curInst.boundValues(), i))) {
+                    curInst = InstNode(nullptr);
+                }
+                // If the current instantiation is not valid, try to search another
+                if (!curInst.node) {
+                    curInst = searchInstantiation(instSet, all(boundValues));
+                    reuseExistingInst = curInst.node != nullptr;
+                }
+            }
+            if (!reuseExistingInst) {
+                // This is a new instantiation; check if we have to create it
+                if (!curInst.node) {
+                    curInst = createNewInstantiation(instSet, all(boundValues), resultingEvalMode);
+                    // TODO (now): Eval mode
+                    ASSERT(curInst);
+                }
+                else {
+                    // Add the appropriate bound variable to the instantiation
+                    Node* boundVar = createBoundVar(param, boundVal, insideClass);
+                    Feather_addToNodeList(curInst.boundVarsNode(), boundVar);
+                    Nest_setContext(boundVar, curInst.boundVarsNode()->context);
+                    Nest_clearCompilationStateSimple(curInst.boundVarsNode());
+                }
+                at(curInst.boundValues(), i) = boundVal;
+                ASSERT(boundVal && boundVal->type);
+            }
+        }
+    }
+    // If for one arg there isn't a viable conversion, we can't call this
+    if (!worstConv)
+        return convNone;
+
+    // Check if we can instantiate this
+    InstNode inst = canInstantiate(instSet, all(boundValues), resultingEvalMode);
+    c.genericInst =  inst.node;
+    if (!c.genericInst) {
+        if (reportErrors)
+            REP_INFO(NOLOC, "Cannot instantiate generic function (if clause not satisfied)");
+        return convNone;
+    }
+
+    return worstConv;
+}
 }
 
 void SprFrontend::getCallables(
@@ -335,6 +540,10 @@ ConversionType SprFrontend::canCall(CallableData& c,
             REP_INFO(NOLOC, "Different number of parameters; args=%1%, params=%2%") %
                     c.args.size() % paramsCount;
         return convNone;
+    }
+
+    if (c.type == CallableType::genericFun) {
+        return canCallGenericFun(c, context, loc, args, evalMode, customCvtMode, reportErrors);
     }
 
     // Get the arg types to perform the check on types

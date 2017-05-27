@@ -15,7 +15,8 @@
 using namespace SprFrontend;
 using namespace Nest;
 
-namespace {
+// TODO
+// namespace {
 
 /*
 Generics organization
@@ -116,82 +117,56 @@ and for generic classes:
  */
 
 ////////////////////////////////////////////////////////////////////////////
-// Accessors
-//
-
-struct InstNode {
-    Node* node;
-
-    InstNode(Node* n) : node(n) { ASSERT(!n || n->nodeKind == nkSparrowInnerInstantiation); }
-    operator Node*() const { return node; }
-
-    Node* boundVarsNode() const { return at(node->children, 0); }
-    Node*& expandedInstantiation() { return at(node->children, 0); }
-
-    NodeRange boundValues() const { return all(node->referredNodes); }
-
-    bool isValid() const { return 0 != Nest_getCheckPropertyInt(node, "instIsValid"); }
-    void setValid(bool valid = true) { Nest_setPropertyInt(node, "instIsValid", valid ? 1 : 0); }
-
-    Node* instantiatedDecl() const { return Nest_getCheckPropertyNode(node, "instantiatedDecl"); }
-    void setInstantiatedDecl(Node* decl) {
-        Nest_setPropertyNode(node, "instantiatedDecl", decl);
-        Nest_appendNodeToArray(&expandedInstantiation()->children, decl);
-    }
-};
-
-struct InstSetNode {
-    Node* node;
-
-    InstSetNode(Node* n) : node(n) { ASSERT(!n || n->nodeKind == nkSparrowInnerInstantiationsSet); }
-    operator Node*() const { return node; }
-
-    Node* ifClause() const { return at(node->children, 0); }
-    NodeArray& instantiations() const { return at(node->children, 1)->children; }
-
-    Node* parentNode() const { return at(node->referredNodes, 0); }
-    NodeRange params() const { return all(at(node->referredNodes, 1)->children); }
-};
-
-struct GenericFunNode {
-    Node* node;
-
-    GenericFunNode(Node* n) : node(n) { ASSERT(!n || n->nodeKind == nkSparrowDeclGenericFunction); }
-    operator Node*() const { return node; }
-
-    InstSetNode instSet() const { return at(node->children, 0); }
-
-    Node* originalFun() const { return at(node->referredNodes, 0); }
-    NodeRange originalParams() const { return all(at(node->referredNodes, 1)->children); }
-};
-
-struct GenericClassNode {
-    Node* node;
-
-    GenericClassNode(Node* n) : node(n) { ASSERT(!n || n->nodeKind == nkSparrowDeclGenericClass); }
-    operator Node*() const { return node; }
-
-    InstSetNode instSet() const { return at(node->children, 0); }
-
-    Node* originalClass() const { return at(node->referredNodes, 0); }
-};
-
-struct ConceptNode {
-    Node* node;
-
-    ConceptNode(Node* n) : node(n) { ASSERT(!n || n->nodeKind == nkSparrowDeclSprConcept); }
-    operator Node*() const { return node; }
-
-    Node* baseConcept() const { return at(node->children, 0); }
-    Node* ifClause() const { return at(node->children, 1); }
-    InstSetNode instSet() const { return at(node->children, 2); }
-
-    Node* originalClass() const { return at(node->referredNodes, 0); }
-};
-
-////////////////////////////////////////////////////////////////////////////
 // InstantiationsSet
 //
+
+/**
+ * Create a bound var for the given parameter / bound value
+ *
+ * We need bound variables for several reasons:
+ *     - dependent param types might reference them
+ *     - the if clause might reference them
+ *     - the instantiated decl might reference them
+ *
+ * For the CT parameters that we have, we create a variable that is initialized with the given arg.
+ * For concept params, we create a value of the appropriate type (the type is present as a bound
+ * value), but we don't initialize the variable. The only thing we can do with these variables (for
+ * concept params) is to deduce their type.
+ *
+ * @param param       The parameter for which we want to create a bound variable
+ * @param boundValue  The bound value used for the type (and init) of the variable
+ * @param insideClass True if we are inside a class; in this case, mark the variable as static.
+ *
+ * @return [description]
+ */
+Node* createBoundVar(Node* param, Node* boundValue, bool insideClass) {
+    ASSERT(param);
+    ASSERT(boundValue && boundValue->type);
+
+    bool isConcept = !param->type || isConceptType(param->type);
+
+    TypeRef t = isConcept ? getType(boundValue) : boundValue->type;
+    Node* init = isConcept ? nullptr : Nest_cloneNode(boundValue);
+    Node* var = mkSprVariable(param->location, Feather_getName(param), t, init);
+
+    if (insideClass)
+        Nest_setPropertyInt(var, propIsStatic, 1);
+    if (!isConcept)
+        Feather_setEvalMode(var, modeCt);
+    return var;
+}
+// TODO (now): document
+Node* createDependentBoundVar(Node* param, bool insideClass) {
+    ASSERT(param);
+    ASSERT(param->nodeKind == nkSparrowDeclSprParameter);
+
+    Node* typeNode = Nest_cloneNode(at(param->children, 0)); // clone the original param type node
+    Node* var = mkSprVariable(param->location, Feather_getName(param), typeNode, nullptr);
+
+    if (insideClass)
+        Nest_setPropertyInt(var, propIsStatic, 1);
+    return var;
+}
 
 /**
  * Create the bound variables for a (partial) instantiation.
@@ -215,33 +190,19 @@ struct ConceptNode {
  */
 NodeVector createBoundVariables(
         const Location& loc, NodeRange boundValues, NodeRange params, bool insideClass) {
-    // Create a variable for each bound parameter - put everything in a node
-    // list
+    // Create a variable for each bound parameter - put everything in a node list
     NodeVector nodes;
     size_t idx = 0;
     for (Node* p : params) {
         Node* boundValue = at(boundValues, idx++);
-        if (!p)
+        if (!p || !boundValue)
             continue;
-        ASSERT(boundValue);
-
-        if (!p->type || isConceptType(p->type)) {
-            TypeRef t = getType(boundValue);
-
-            Node* var = mkSprVariable(p->location, Feather_getName(p), t, nullptr);
-            if (insideClass)
-                Nest_setPropertyInt(var, propIsStatic, 1);
-            nodes.push_back(var);
-        } else {
-            Node* var =
-                    mkSprVariable(p->location, Feather_getName(p), boundValue->type, boundValue);
-            if (insideClass)
-                Nest_setPropertyInt(var, propIsStatic, 1);
-            Feather_setEvalMode(var, modeCt);
-            nodes.push_back(var);
-        }
+        Node* var = createBoundVar(p, boundValue, insideClass);
+        ASSERT(var);
+        nodes.push_back(var);
     }
-    nodes.push_back(Feather_mkNop(loc)); // Make sure the resulting type is Void
+    // TODO (now): Remove this
+    // nodes.push_back(Feather_mkNop(loc)); // Make sure the resulting type is Void
     return nodes;
 }
 
@@ -253,6 +214,8 @@ NodeVector createBoundVariables(
  *
  * We assume that the bound values will be consistent in their null values; null values are placed
  * exactly in the same place for all the instantiations.
+ *
+ * @note: We only check non-null values. This allows us to do partial matches.
  *
  * @param instSet The instantiations set to search into
  * @param values  The bound values that we are using to search for the instantiation.
@@ -268,10 +231,12 @@ InstNode searchInstantiation(InstSetNode instSet, NodeRange values) {
         bool argsMatch = true;
         for (size_t i = 0; i < size(values); ++i) {
             Node* boundVal = at(boundValues, i);
-            if (!boundVal)
-                continue;
             Node* val = at(values, i);
-            if (!val || !ctValsEqual(val, boundVal)) {
+            if (!val || !boundVal)
+                continue;
+            ASSERT(val->type);
+            ASSERT(boundVal->type);
+            if (!ctValsEqual(val, boundVal)) {
                 argsMatch = false;
                 break;
             }
@@ -346,13 +311,21 @@ InstNode createNewInstantiation(InstSetNode instSet, NodeRange values, EvalMode 
 InstNode canInstantiate(InstSetNode instSet, NodeRange values, EvalMode evalMode) {
     // Try to find an existing instantiation
     InstNode inst = searchInstantiation(instSet, values);
-    if (inst.node) {
+    if (inst && inst.isEvaluated()) {
         // We already checked whether we can instantiate this
         return inst.isValid() ? inst : nullptr;
     }
+    // ASSERT(inst); // As we construct it iteratively, we should always have one
 
     // If no instantiation is found, create a new instantiation
-    inst = createNewInstantiation(instSet, values, evalMode);
+    // TODO: LucTeo: Remove this
+    // TODO: Check the concepts instantiation case first
+    if (!inst)
+        inst = createNewInstantiation(instSet, values, evalMode);
+
+    // From this point, we consider our instantiation evaluated
+    // If we fail, then we will not set that it's valid
+    inst.setEvaluated();
 
     // If we have an if clause, check if this CT evaluates to true
     Node* ifClause = instSet.ifClause();
@@ -416,6 +389,7 @@ NodeVector getGenericClassBoundValues(NodeRange args) {
         if (!n || n->nodeKind != nkFeatherExpCtValue)
             REP_INTERNAL(arg->location, "Invalid argument %1% when instantiating generic") %
                     (i + 1);
+        ASSERT(n && n->type);
         boundValues.push_back(n);
     }
     return boundValues;
@@ -441,6 +415,7 @@ EvalMode getGenericClassResultingEvalMode(
     bool hasRtOnlyArgs = false;
     bool hasCtOnlyArgs = false;
     for (Node* boundVal : boundValues) {
+        ASSERT(!boundVal || boundVal->type);
         // Test the type given to the 'Type' parameters (i.e., we need to know
         // if Vector(t) can be rtct based on the mode of t)
         TypeRef t = tryGetTypeValue(boundVal);
@@ -458,8 +433,9 @@ EvalMode getGenericClassResultingEvalMode(
                        "CT-only arguments");
     if (mainEvalMode == modeCt && hasRtOnlyArgs)
         REP_ERROR(loc, "Cannot use RT-only arguments in a CT generic");
-    if (mainEvalMode == modeRt && hasCtOnlyArgs)
-        REP_ERROR(loc, "Cannot use CT-only arguments in a RT generic");
+    // if (mainEvalMode == modeRt && hasCtOnlyArgs)
+    //     REP_ERROR(loc, "Cannot use CT-only arguments in a RT generic");
+    // TODO (now): check this
 
     if (hasCtOnlyArgs)
         return modeCt;
@@ -583,6 +559,7 @@ NodeVector getGenericFunBoundValues(
                         (i + 1);
             boundValues[i] = n;
         }
+        ASSERT(boundValues[i] && boundValues[i]->type);
     }
     return boundValues;
 }
@@ -622,6 +599,7 @@ NodeVector getGenericFunFinalParams(
             // If this is not a generic parameter => final-bound parameter
             finalParams.push_back(Nest_cloneNode(p));
         } else if (!p->type || isConceptType(p->type)) {
+            ASSERT(boundValue && boundValue->type);
             // For concept-type parameters, we also create a final-bound parameter
             finalParams.push_back(mkSprParameter(p->location, Feather_getName(p), boundValue));
         }
@@ -679,8 +657,9 @@ EvalMode getGenericFunResultingEvalMode(
                        "CT-only arguments");
     if (mainEvalMode == modeCt && hasRtOnlyArgs)
         REP_ERROR(loc, "Cannot use RT-only arguments in a CT generic");
-    if (mainEvalMode == modeRt && hasCtOnlyArgs)
-        REP_ERROR(loc, "Cannot use CT-only arguments in a RT generic");
+    // if (mainEvalMode == modeRt && hasCtOnlyArgs)
+    //     REP_ERROR(loc, "Cannot use CT-only arguments in a RT generic");
+    // TODO (now): Check this
 
     if (hasCtOnlyArgs)
         return modeCt;
@@ -802,7 +781,7 @@ bool referencesSeenName(Node* node, const NamesVec& seenNames) {
     }
     return false;
 }
-}
+// }
 
 Node* SprFrontend::checkCreateGenericFun(
         Node* originalFun, Node* parameters, Node* ifClause, Node* thisClass) {

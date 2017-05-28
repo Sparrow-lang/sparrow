@@ -186,10 +186,6 @@ NodeRange genericClassParams(Node* genericClass);
  * Two instantiations are the same if the set of bound values are the same. This function checks all
  * the existing (partial) instantiations to see if they match a given set of bound values.
  *
- * We assume that the bound values will be consistent in their null values; null values are placed
- * exactly in the same place for all the instantiations.
- *
- * @note: We only check non-null values. This allows us to do partial matches.
  * @note: We allow 'values' to have a smaller size than the bound values of other instantiations.
  * @note: We may have erroneous instantiations with lower number of bound values
  *
@@ -231,12 +227,13 @@ InstNode createNewInstantiation(InstSetNode instSet, NodeRange values, EvalMode 
  * concept params) is to deduce their type.
  *
  * @param param       The parameter for which we want to create a bound variable
+ * @param paramType   The the of the parameter; used when cannot deduce it directly from 'param'
  * @param boundValue  The bound value used for the type (and init) of the variable
  * @param insideClass True if we are inside a class; in this case, mark the variable as static.
  *
  * @return [description]
  */
-Node* createBoundVar(Node* param, Node* boundValue, bool insideClass);
+Node* createBoundVar(Node* param, TypeRef paramType, Node* boundValue, bool insideClass);
 
 /**
  * Check if the given instantiation is valid.

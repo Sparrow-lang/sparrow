@@ -34,6 +34,9 @@ class Vec(t: Type)
 fun pushBack(this: @Vec, val: this.ValueType)
     data = val
 
+fun pushBack2(this: @Vec, val: @this.ValueType)
+    data = val
+
 [native("test")] fun test(n: Int)
     normal(1, 2)
     normal(1, Byte(2))
@@ -43,6 +46,17 @@ fun pushBack(this: @Vec, val: this.ValueType)
     writeLn('---')
     deduced(3.14, Byte(2))
 
+    writeLn('---')
+    var v: Vec(Int)
+    v.data = 1
+    writeLn(v.data)
+    pushBack(v, 2)
+    writeLn(v.data)
+    pushBack2(v, 3)
+    writeLn(v.data)
+    pushBack2(v, Byte(4))
+    writeLn(v.data)
+
 /*<<<Running()
 Int Int
 Int Int
@@ -51,4 +65,9 @@ Double Byte
 Double Double
 ---
 Double Double
+---
+1
+2
+3
+4
 >>>*/

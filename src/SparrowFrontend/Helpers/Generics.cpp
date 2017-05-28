@@ -50,7 +50,10 @@ NodeVector createAllBoundVariables(
         Node* boundValue = at(boundValues, idx++);
         if (!p || !boundValue)
             continue;
-        Node* var = createBoundVar(p, boundValue, insideClass);
+        TypeRef paramType = p->type;
+        if (!paramType)
+            paramType = getType(boundValue);    // Dependent param type case
+        Node* var = createBoundVar(p, paramType, boundValue, insideClass);
         ASSERT(var);
         nodes.push_back(var);
     }
@@ -214,10 +217,10 @@ InstNode SprFrontend::searchInstantiation(InstSetNode instSet, NodeRange values)
         bool argsMatch = true;
         for (size_t i = 0; i < size(values); ++i) {
             Node* boundVal = at(boundValues, i);
-            if (!boundVal)
-                continue;
             Node* val = at(values, i);
-            if (!val || !ctValsEqual(val, boundVal)) {
+            if (!boundVal && !val)
+                continue;
+            if (!boundVal || !val || !ctValsEqual(val, boundVal)) {
                 argsMatch = false;
                 break;
             }
@@ -253,11 +256,12 @@ InstNode SprFrontend::createNewInstantiation(
     return inst;
 }
 
-Node* SprFrontend::createBoundVar(Node* param, Node* boundValue, bool insideClass) {
+Node* SprFrontend::createBoundVar(Node* param, TypeRef paramType, Node* boundValue, bool insideClass) {
     ASSERT(param);
+    ASSERT(paramType);
     ASSERT(boundValue && boundValue->type);
 
-    bool isConcept = !param->type || isConceptType(param->type);
+    bool isConcept = param->type != paramType || isConceptType(paramType);
 
     TypeRef t = isConcept ? getType(boundValue) : boundValue->type;
     Node* init = isConcept ? nullptr : Nest_cloneNode(boundValue);

@@ -455,6 +455,11 @@ Node* callGenericFun(GenericFunNode node, const Location& loc, CompilationContex
             REP_INTERNAL(loc, "Cannot instantiate generic");
         if (!Nest_computeType(instDecl))
             return nullptr;
+        // Debugging
+        // cout << "Bound values: " << Nest_rangeToString(inst.boundValues()) << endl;
+        // printStart();
+        // printNode(instDecl);
+        // printEnd();
         Nest_queueSemanticCheck(instDecl);
         inst.setInstantiatedDecl(instDecl);
     }
@@ -519,7 +524,10 @@ TypeRef getDeducedType(int idx, InstSetNode instSet, InstNode curInst, bool reus
         // The dependent type should be the same for all the instantiations that start with the same
         // bound values.
         Node* otherBoundVal = at(curInst.boundValues(), idx);
-        paramType = otherBoundVal->type;
+        if (otherBoundVal) {
+            paramType = getType(otherBoundVal);
+            // REP_INFO(NOLOC, "Deduced type (reused): %1%") % paramType;
+        }
     }
     if (!paramType) {
         // Add the appropriate bound variable to the instantiation
@@ -532,6 +540,7 @@ TypeRef getDeducedType(int idx, InstSetNode instSet, InstNode curInst, bool reus
             return nullptr;
         paramType = getType(typeNode);
         ASSERT(paramType);
+        // REP_INFO(NOLOC, "Deduced type (computed): %1%") % paramType;
     }
     return paramType;
 }
@@ -539,16 +548,24 @@ TypeRef getDeducedType(int idx, InstSetNode instSet, InstNode curInst, bool reus
 /**
  * Get the bound value for the given parameter.
  *
- * @param arg   The argument to deduce the bound value from
- * @param param The parameter to get the bound value for
+ * @param arg       The argument to deduce the bound value from
+ * @param param     The parameter to get the bound value for
+ * @param paramType The type of parameter; used for dependent type params
  *
  * @return The bound value corresponding to the given argument/parameter
  */
-Node* getBoundValue(Node* arg, Node* param) {
+Node* getBoundValue(Node* arg, Node* param, TypeRef paramType) {
     bool isRefAuto = false;
-    if (!param->type || isConceptType(param->type, isRefAuto)) {
-        // Create a CtValue with the type of the argument corresponding to
-        // the auto parameter
+    ASSERT(paramType);
+    if (param->type != paramType) {
+        // Create a CtValue with the deduced param type
+        Node* typeNode = createTypeNode(arg->context, param->location, paramType);
+        if (!Nest_computeType(typeNode))
+            return nullptr;
+        return typeNode;
+    }
+    else if (isConceptType(paramType, isRefAuto)) {
+        // Create a CtValue with the type of the argument
         TypeRef t = getAutoType(arg, isRefAuto);
         Node* typeNode = createTypeNode(arg->context, param->location, t);
         if (!Nest_computeType(typeNode))
@@ -579,6 +596,7 @@ Node* getBoundValue(Node* arg, Node* param) {
  *
  * @param [in] idx                   The index of the parameter/argument we are checking
  * @param [in] arg                   The argument given when calling the generic
+ * @param [in] paramType             The type to use for the current parameter
  * @param [in/out] boundValues       The vector that contains the bound values that we have
  * @param [in] instSet               The instantiations set
  * @param [in/out] curInst           The inst we are currently using; can be reused or not
@@ -586,14 +604,14 @@ Node* getBoundValue(Node* arg, Node* param) {
  * @param [in] resultingEvalMode     The evalMode for the resulting generic
  * @param [in] insideClass           True if we are inside a class
  */
-void handleGenericFunParam(int idx, Node* arg, NodeVector& boundValues, InstSetNode instSet,
+void handleGenericFunParam(int idx, Node* arg, TypeRef paramType, NodeVector& boundValues, InstSetNode instSet,
         InstNode& curInst, bool& reuseExistingInst, EvalMode resultingEvalMode, bool insideClass) {
     Node* param = at(instSet.params(), idx);
     if (!param)
         return; // nothing to do
 
     // First compute the bound value for the current generic parameter
-    Node* boundVal = getBoundValue(arg, param);
+    Node* boundVal = getBoundValue(arg, param, paramType);
     if (!boundVal)
         REP_INTERNAL(arg->location, "Invalid argument %1% when instantiating generic") % (idx + 1);
     ASSERT(boundVal && boundVal->type);
@@ -602,8 +620,11 @@ void handleGenericFunParam(int idx, Node* arg, NodeVector& boundValues, InstSetN
     // Now, select the appropriate inst for the new bound value
     if (reuseExistingInst) {
         // First, check if we can continue the existing inst
-        if (curInst.node && !ctValsEqual(boundVal, at(curInst.boundValues(), idx))) {
-            curInst = InstNode(nullptr);
+        if (curInst.node) {
+            Node* existingBoundVal = at(curInst.boundValues(), idx);
+            if (!existingBoundVal || !ctValsEqual(boundVal, existingBoundVal)) {
+                curInst = InstNode(nullptr);
+            }
         }
         // If the current instantiation is not valid, try to search another
         if (!curInst.node) {
@@ -618,7 +639,7 @@ void handleGenericFunParam(int idx, Node* arg, NodeVector& boundValues, InstSetN
             ASSERT(curInst);
         } else {
             // Add the appropriate bound variable to the instantiation
-            Node* boundVar = createBoundVar(param, boundVal, insideClass);
+            Node* boundVar = createBoundVar(param, paramType, boundVal, insideClass);
             Feather_addToNodeList(curInst.boundVarsNode(), boundVar);
             Nest_setContext(boundVar, curInst.boundVarsNode()->context);
             Nest_clearCompilationStateSimple(curInst.boundVarsNode());
@@ -655,15 +676,12 @@ ConversionType canCallGenericFun(CallableData& c, CompilationContext* context, c
     boundValues.resize(paramsCount, nullptr);
 
     // Compute the resulting eval mode
-    int oldErrNum = Nest_getErrorsNum();
     EvalMode resultingEvalMode =
             Nest_hasProperty(originalFun, propCtGeneric)
                     ? modeCt // If we have a CT generic, the resulting eval mode is always CT
                     : getGenericFunResultingEvalMode(originalFun->location,
                               Feather_effectiveEvalMode(originalFun), all(c.args),
                               instSet.params());
-    if ( Nest_getErrorsNum() != oldErrNum )
-        REP_INFO(loc, "Resulting eval mode: %1%") % resultingEvalMode;
 
     // The currently working instance
     // We will use this to check/create bound vars, and to deduce the types of the dependent type
@@ -705,7 +723,7 @@ ConversionType canCallGenericFun(CallableData& c, CompilationContext* context, c
         }
 
         // Treat generic params
-        handleGenericFunParam(i, arg, boundValues, instSet, curInst, reuseExistingInst,
+        handleGenericFunParam(i, arg, paramType, boundValues, instSet, curInst, reuseExistingInst,
                 resultingEvalMode, insideClass);
     }
     // If for one arg there isn't a viable conversion, we can't call this

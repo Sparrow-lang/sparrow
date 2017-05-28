@@ -34,9 +34,6 @@ class Vec(t: Type)
 fun pushBack(this: @Vec, val: this.ValueType)
     data = val
 
-//fun pushBack2(this: @Vec, val: ValueType)   // ValueType -> 'this.ValueType'
-//    data = val
-
 [native("test")] fun test(n: Int)
     normal(1, 2)
     normal(1, Byte(2))

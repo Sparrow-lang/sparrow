@@ -46,6 +46,22 @@ const char* Nest_toStringEx(const Node* node)
     return strdup(ss.str().c_str());
 }
 
+const char* Nest_rangeToString(NodeRange nodes)
+{
+    ostringstream ss;
+    ss << '[';
+    for (int i = 0; i < size(nodes); ++i) {
+        Node* node = at(nodes, i);
+        if (i > 0)
+            ss << ", ";
+        if (node)
+            ss << Nest_toString(node);
+        else
+            ss << "null";
+    }
+    ss << ']';
+    return strdup(ss.str().c_str());
+}
 
 const char* Nest_nodeKindName(const Node* node)
 {

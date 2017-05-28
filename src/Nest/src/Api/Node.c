@@ -195,6 +195,16 @@ Node* Nest_semanticCheck(Node* node)
     return node->explanation;
 }
 
+void Nest_clearCompilationStateSimple(Node* node)
+{
+    node->nodeError = 0;
+    node->nodeSemanticallyChecked = 0;
+    node->computeTypeStarted = 0;
+    node->semanticCheckStarted = 0;
+    node->explanation = 0;
+    node->type = 0;
+}
+
 void Nest_clearCompilationState(Node* node)
 {
     node->nodeError = 0;

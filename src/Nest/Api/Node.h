@@ -33,7 +33,7 @@ struct Nest_Node
 
     /// The nodes referred by this node
     NodeArray referredNodes;
-    
+
     /// Additional top-level nodes generated for this node
     NodeArray additionalNodes;
 
@@ -42,13 +42,13 @@ struct Nest_Node
 
     /// The context of this node
     CompilationContext* context;
-    
+
     /// The context of the children
     CompilationContext* childrenContext;
-    
+
     /// The type of this node
     TypeRef type;
-    
+
     /// The explanation of this node
     /// A node has explanation if its meaning can be explained with the help of another node (the explanation node)
     Node* explanation;
@@ -91,6 +91,7 @@ TypeRef Nest_computeType(Node* node);
 Node* Nest_semanticCheck(Node* node);
 
 /// Reverts the compilation state; brings the node to un-compiled state
+void Nest_clearCompilationStateSimple(Node* node);
 void Nest_clearCompilationState(Node* node);
 
 

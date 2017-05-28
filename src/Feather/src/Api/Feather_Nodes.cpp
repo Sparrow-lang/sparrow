@@ -1546,6 +1546,10 @@ Node* Feather_Function_getParameter(Node* node, unsigned idx)
 {
     return at(node->children, idx+2);
 }
+NodeRange Feather_Function_getParameters(Node* node)
+{
+    return NodeRange { node->children.beginPtr+2, node->children.endPtr };
+}
 TypeRef Feather_Function_resultType(Node* node)
 {
     return at(node->children, 0)->type;

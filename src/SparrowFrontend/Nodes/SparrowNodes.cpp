@@ -799,9 +799,10 @@ Node* SprFrontend::mkInstantiation(const Location& loc, NodeRange boundValues, N
 {
     Node* res = Nest_createNode(nkSparrowInnerInstantiation);
     res->location = loc;
-    Nest_nodeSetChildren(res, fromIniList({ Feather_mkNodeList(loc, boundVars) }));
+    Nest_nodeSetChildren(res, fromIniList({ Feather_mkNodeListVoid(loc, boundVars) }));
     Nest_appendNodesToArray(&res->referredNodes, boundValues);
     Nest_setPropertyInt(res, "instIsValid", 0);
+    Nest_setPropertyInt(res, "instIsEvaluated", 0);
     Nest_setPropertyNode(res, "instantiatedDecl", nullptr);
     return res;
 }

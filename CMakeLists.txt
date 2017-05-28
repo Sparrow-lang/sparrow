@@ -94,6 +94,7 @@ if(MSVC)
 else()
     add_definitions( -D__STDC_LIMIT_MACROS=1 )
     set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=gnu++0x" )
+    # set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address" )
     add_definitions( -Wall )                    # All warnings...
     # add_definitions( -Wno-c++11-extensions )    # ... except C++11 extensions warnings
     add_definitions( -Wno-deprecated )          # ... and except deprecated functions

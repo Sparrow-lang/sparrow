@@ -355,7 +355,7 @@ TypeRef SprFunction_ComputeType(Node* node)
     if ( parameters )
     {
         Node* thisClass = addThisParam ? parentClass : nullptr;
-        Node* generic = createGenericFun(node, parameters, ifClause, thisClass);
+        Node* generic = checkCreateGenericFun(node, parameters, ifClause, thisClass);
         if ( generic )
         {
             // TODO (explanation): explanation should be the result of semantic check

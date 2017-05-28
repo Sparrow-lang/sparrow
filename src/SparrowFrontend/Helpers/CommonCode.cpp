@@ -290,10 +290,10 @@ Node* SprFrontend::createFunPtr(Node* funNode)
         // We may have multiple decls that we are refering to, as we may have
         // multiple specializations of the generic
         // In this case, we just check that the argument count is the same
-        size_t numParams = genericParamsCount(decls[0]);
+        size_t numParams = size(genericFunParams(decls[0]));
         bool mismatch = false;
         for ( size_t i=1; i<decls.size(); i++ )
-            if ( genericParamsCount(decls[i]) != numParams ) {
+            if ( size(genericFunParams(decls[i])) != numParams ) {
                 mismatch = true;
                 break;
             }
@@ -343,7 +343,7 @@ Node* SprFrontend::createFunPtr(Node* funNode)
         // If we have a generic, try to wrap it in a lambda
         // TODO: In general we should create an object that is able to call any type of callable
 
-        size_t numParams = genericParamsCount(resDecl);
+        size_t numParams = size(genericFunParams(resDecl));
 
         Node* paramsType = mkIdentifier(loc, fromCStr("AnyType"));
 

@@ -6,90 +6,123 @@
 
 #include "Nest/Utils/NodeVector.hpp"
 
-namespace SprFrontend
-{
-    /// Indicates whether we should apply custom conversions for the params
-    enum CustomCvtMode
-    {
-        noCustomCvt,            ///< No custom conversions are allowed
-        noCustomCvtForFirst,    ///< No custom conversions for the first param
-        allowCustomCvt,         ///< Allow custom conversions for all params
-    };
+#include <boost/function.hpp>
 
-    /// Base class for all the callable items in Sparrow.
-    /// A callable is an entity (declaration) that can be called by a fun application.
-    class Callable
-    {
-    public:
-        virtual ~Callable() {}
+namespace SprFrontend {
 
-        /// Getter for the location of this callable (i.e., location of the function)
-        virtual const Location& location() const = 0;
-        /// Method used to get a string representation of the callable (i.e., function name)
-        virtual string toString() const = 0;
+/// Indicates whether we should apply custom conversions for the params
+enum CustomCvtMode {
+    noCustomCvt,         ///< No custom conversions are allowed
+    noCustomCvtForFirst, ///< No custom conversions for the first param
+    allowCustomCvt,      ///< Allow custom conversions for all params
+};
 
-        /// The number of parameters of the callable
-        virtual size_t paramsCount() const = 0;
-        /// Returns the parameter at the given index
-        virtual Node* param(size_t idx) const = 0;
-        /// The type of the parameter at the given index
-        virtual TypeRef paramType(size_t idx) const;
-        /// The evaluation mode of the callable (declaration)
-        virtual EvalMode evalMode() const = 0;
-        /// An autoCt callable is a 'rtct' callable for which passing all CT arguments will make a CT call
-        virtual bool isAutoCt() const = 0;
+/// The type of a callable entity
+enum class CallableType {
+    function,
+    genericFun,
+    genericClass,
+    concept,
+};
 
+/// Data build to evaluate a callable.
+/// Holds additional data about the callable, and data used in the process
+/// of determining whether the decl is callable, and generating the actual call
+struct CallableData {
+    /// The type of callable that we have
+    CallableType type;
 
-        /// Checks if we can call this with the given arguments
-        /// This method can cache some information needed by the 'generateCall'
-        virtual ConversionType canCall(CompilationContext* context, const Location& loc, NodeRange args, EvalMode evalMode, CustomCvtMode customCvtMode, bool reportErrors = false);
+    /// Indicates if the callable is valid (it hasn't been excluded)
+    bool valid;
 
-        /// Same as above, but makes the check only on type, and not on the actual argument; doesn't cache any args_
-        virtual ConversionType canCall(CompilationContext* context, const Location& loc, const vector<TypeRef>& argTypes, EvalMode evalMode, CustomCvtMode customCvtMode, bool reportErrors = false);
+    /// The decls we want to call
+    Node* decl;
+    /// The parameters of the decl to call
+    NodeRange params;
+    /// True if we need to call the function in autoCt mode
+    bool autoCt;
 
-        /// Generates the node that actually calls this callable
-        /// This must be called only if 'canCall' method returned a success conversion type
-        virtual Node* generateCall(const Location& loc) = 0;
+    /// The arguments used to call the callable
+    /// If the callable has default parameters, this will be extended
+    /// Computed by 'canCall'
+    NodeVector args;
 
-        /// Returns true if the callable is valid, and considered for selection
-        bool isValid() const { return valid_; }
+    /// The conversions needed for each argument
+    /// Computed by 'canCall'
+    vector<ConversionResult> conversions;
 
-        /// Called to mark this callable as not viable for selection
-        void markInvalid() { valid_ = false; }
+    /// This is set for class-ctor callables to add an implicit this argument
+    /// when calling the underlying callable. This is the type of the argument
+    /// to be added.
+    TypeRef implicitArgType;
 
-    protected:
-        Callable();
+    /// Temporary data: the generic instantiation (generic case)
+    Node* genericInst;
+    /// Temporary data: the variable created for implicit this (class-ctor case)
+    Node* tmpVar;
 
-        /// If the parameter with the given index has a default value, this will return that expression
-        Node* paramDefaultVal(size_t idx) const;
+    CallableData()
+        : type(CallableType::function), valid(true), decl{nullptr}, params{nullptr, nullptr},
+          autoCt{false}, implicitArgType(nullptr), genericInst(nullptr), tmpVar(nullptr) {}
+};
 
-        /// Returns the arguments with the conversions applied
-        NodeVector argsWithConversion();
+//! A vector of callables
+typedef vector<CallableData> Callables;
 
-    protected:
-        /// The context in which we may generate the call; set by 'canCall'
-        CompilationContext* context_;
+/*
 
-        /// The original arguments passed to 'canCall'
-        NodeVector args_;
+The process of using callables is the following:
 
-        /// The conversions needed for each argument; computed by 'canCall'
-        vector<ConversionResult> conversions_;
+- we gather all the callables
+- we use 'canCall' to check which callable is compatible with the given
+arguments
+- we call moreSpecialized to check which callable is more specialized
+- we finally call generateCall to generate the code for the actual call
 
-        /// True if the callable is valid
-        bool valid_;
-    };
+After 'canCall' is called, we know the actual types to be used for generating
+the call.
 
-    typedef vector<Callable*> Callables;
+ */
 
-    /// Destroys the given list of callables
-    void destroyCallables(Callables& callables);
+/// Given a declaration, try to gets a list of Callable objects from it.
+/// Returns an empty list if the declaration is not callable
+void getCallables(NodeRange decls, EvalMode evalMode, Callables& res);
 
-    /// Helper class that destroys a list of callables at the end of the scope
-    class CallablesDestroyer {
-        Callables& callables_;
-    public:
-        CallablesDestroyer(Callables& callables) : callables_(callables) {}
-        ~CallablesDestroyer() { destroyCallables(callables_); }
-    };
+/// Same as above, but apply a filter to all the callables that we have
+/// We keep all the decls for which the predicate returns true
+void getCallables(NodeRange decls, EvalMode evalMode, Callables& res,
+                  const boost::function<bool(Node*)>& pred,
+                  const char* ctorName = "ctor");
+
+/// Checks if we can call this with the given arguments
+/// This method can cache some information needed by the 'generateCall'
+ConversionType canCall(CallableData& c, CompilationContext* context,
+                       const Location& loc, NodeRange args, EvalMode evalMode,
+                       CustomCvtMode customCvtMode, bool reportErrors = false);
+/// Same as above, but makes the check only on type, and not on the actual
+/// argument; doesn't cache any args
+ConversionType canCall(CallableData& c, CompilationContext* context,
+                       const Location& loc, const vector<TypeRef>& argTypes,
+                       EvalMode evalMode, CustomCvtMode customCvtMode,
+                       bool reportErrors = false);
+
+/// Returns who of two candidates is more specialized.
+/// Returns:
+///     -1 if f1 is more specialized than f2,
+///     1 if f2 is more specialized than f1;
+///     0 if neither is more specialized
+int moreSpecialized(CompilationContext* context, const CallableData& f1,
+                    const CallableData& f2, bool noCustomCvt = false);
+
+/// Generates the node that actually calls this callable
+/// This must be called only if 'canCall' method returned a success conversion
+/// type
+Node* generateCall(CallableData& c, CompilationContext* context,
+                   const Location& loc);
+
+/// Getter for the location of this callable (i.e., location of the function)
+const Location& location(const CallableData& c);
+
+/// Gets a string representation of the callable (i.e., function name)
+string toString(const CallableData& c);
 }

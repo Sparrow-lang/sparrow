@@ -75,6 +75,7 @@ void Feather_Function_setResultType(Node* node, Node* resultType);
 void Feather_Function_setBody(Node* node, Node* body);
 unsigned Feather_Function_numParameters(Node* node);
 Node* Feather_Function_getParameter(Node* node, unsigned idx);
+NodeRange Feather_Function_getParameters(Node* node);
 TypeRef Feather_Function_resultType(Node* node);
 Node* Feather_Function_body(Node* node);
 CallConvention Feather_Function_callConvention(Node* node);

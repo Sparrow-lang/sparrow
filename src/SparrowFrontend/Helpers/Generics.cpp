@@ -15,716 +15,347 @@
 using namespace SprFrontend;
 using namespace Nest;
 
-namespace
-{
-    ////////////////////////////////////////////////////////////////////////////
-    // Instantiation
-    //
-    NodeRange instantiationBoundValues(Node* inst)
-    {
-        return all(inst->referredNodes);
+namespace {
+
+////////////////////////////////////////////////////////////////////////////
+// InstantiationsSet
+//
+
+/**
+ * Create all the bound variables for a (partial) instantiation.
+ *
+ * We need these variables for two reasons:
+ *     - the if clause might reference them
+ *     - the instantiated decl might reference them
+ *
+ * For the CT parameters that we have, we create a variable that is initialized with the given arg.
+ * For concept params, we create a value of the appropriate type (the type is present as a bound
+ * value), but we don't initialize the variable. The only thing we can do with these variables (for
+ * concept params) is to deduce their type.
+ *
+ * @param loc         The location in which we are creating the nodes
+ * @param boundValues The list of bound values used in the creation of bound vars
+ * @param params      The params of the instantiated set (may contain nulls for RT params)
+ * @param insideClass True if the generic is inside a class; we mark the variables static if we are
+ *                    inside classes
+ *
+ * @return A vector of all the bound variable
+ */
+NodeVector createAllBoundVariables(
+        const Location& loc, NodeRange boundValues, NodeRange params, bool insideClass) {
+    // Create a variable for each bound parameter - put everything in a node list
+    NodeVector nodes;
+    size_t idx = 0;
+    for (Node* p : params) {
+        Node* boundValue = at(boundValues, idx++);
+        if (!p || !boundValue)
+            continue;
+        TypeRef paramType = p->type;
+        if (!paramType)
+            paramType = getType(boundValue);    // Dependent param type case
+        Node* var = createBoundVar(p, paramType, boundValue, insideClass);
+        ASSERT(var);
+        nodes.push_back(var);
     }
-
-    Node*& expandedInstantiation(Node* inst)
-    {
-        return at(inst->children, 0);
-    }
-
-    Node* instantiatedDecl(Node* inst)
-    {
-        return Nest_getCheckPropertyNode(inst, "instantiatedDecl");
-    }
-
-    void setInstantiatedDecl(Node* inst, Node* decl)
-    {
-        Nest_setPropertyNode(inst, "instantiatedDecl", decl);
-        Nest_appendNodeToArray(&expandedInstantiation(inst)->children, decl);
-    }
-
-    bool instantiationIsValid(Node* inst)
-    {
-        return 0 != Nest_getCheckPropertyInt(inst, "instIsValid");
-    }
-
-    void setInstantiationValid(Node* inst, bool valid = true)
-    {
-        Nest_setPropertyInt(inst, "instIsValid", valid ? 1 : 0);
-    }
-
-    ////////////////////////////////////////////////////////////////////////////
-    // InstantiationsSet
-    //
-
-    NodeRange getInstantiationsSetParameters(Node* instSet)
-    {
-        return all(at(instSet->referredNodes, 1)->children);
-    }
-
-    /// In a generic we need to be able to access the bound variables; moreover the if clause might reference them.
-    /// For this, we create a set of variables corresponding to the instantiation bound values. These variables are
-    /// created for each instantiated and put in the node-list of the instantiation (the expanded instantiation node).
-    /// Note that for auto-parameters we will create RT variables; the only thing we can do with them is to use their type
-    /// In the expanded instantiation we need to add the actual instantiated declaration - in other place, not here
-    NodeVector getBoundVariables(const Location& loc, NodeRange boundValues, NodeRange params, bool insideClass)
-    {
-        // Create a variable for each bound parameter - put everything in a node list
-        NodeVector nodes;
-        NodeVector nonBoundParams;
-        size_t idx = 0;
-        for ( Node* p: params )
-        {
-            Node* boundValue = at(boundValues, idx++);
-            if ( !p )
-                continue;
-            ASSERT(boundValue);
-
-            if ( isConceptType(p->type) )
-            {
-                TypeRef t = getType(boundValue);
-
-                Node* var = mkSprVariable(p->location, Feather_getName(p), t, nullptr);
-                if ( insideClass )
-                    Nest_setPropertyInt(var, propIsStatic, 1);
-                nodes.push_back(var);
-            }
-            else
-            {
-                Node* var = mkSprVariable(p->location, Feather_getName(p), boundValue->type, boundValue);
-                if ( insideClass )
-                    Nest_setPropertyInt(var, propIsStatic, 1);
-                Feather_setEvalMode(var, modeCt);
-                nodes.push_back(var);
-            }
-        }
-        nodes.push_back(Feather_mkNop(loc));    // Make sure the resulting type is Void
-        return nodes;
-    }
-
-    Node* searchInstantiation(Node* instSet, NodeRange values)
-    {
-        for ( Node* inst: at(instSet->children, 1)->children )
-        {
-            const auto& boundValues = inst->referredNodes;
-            if ( size(boundValues) != size(values) )
-                continue;
-
-            bool argsMatch = true;
-            for ( size_t i=0; i<size(values); ++i )
-            {
-                Node* boundVal = at(boundValues, i);
-                if ( !boundVal )
-                    continue;
-                Node* val = at(values, i);
-                if ( !val || !ctValsEqual(val, boundVal) )
-                {
-                    argsMatch = false;
-                    break;
-                }
-            }
-            if ( argsMatch )
-                return inst;
-        }
-        return nullptr;
-    }
-
-    Node* createNewInstantiation(Node* instSet, NodeRange values, EvalMode evalMode)
-    {
-        ASSERT(instSet);
-        // Create a new context, but at the same level as the context of the parent node
-        Node* parentNode = at(instSet->referredNodes, 0);
-        CompilationContext* context = Nest_mkChildContextWithSymTab(parentNode->context, nullptr, evalMode);
-        bool insideClass = nullptr != Feather_getParentClass(context);
-
-        // Create the instantiation
-        auto boundVars = getBoundVariables(instSet->location, values, getInstantiationsSetParameters(instSet), insideClass);
-        Node* inst = mkInstantiation(instSet->location, values, all(boundVars));
-        NodeArray& instantiations = at(instSet->children, 1)->children;
-        Nest_appendNodeToArray(&instantiations, inst);
-
-        // Compile the newly created instantiation
-        Nest_setContext(expandedInstantiation(inst), context);
-        if ( !Nest_semanticCheck(expandedInstantiation(inst)) )
-            return nullptr;
-
-        return inst;
-    }
-
-    Node* canInstantiate(Node* instSet, NodeRange values, EvalMode evalMode)
-    {
-        // Try to find an existing instantiation
-        Node* inst = searchInstantiation(instSet, values);
-        if ( inst )
-        {
-            // We already checked whether we can instantiate this
-            return instantiationIsValid(inst) ? inst : nullptr;
-        }
-
-        // If no instantiation is found, create a new instantiation
-        inst = createNewInstantiation(instSet, values, evalMode);
-
-        // If we have an if clause, check if this CT evaluates to true
-        Node* ifClause = at(instSet->children, 0);
-        if ( ifClause )
-        {
-            // Always use a clone of the original node
-            Node* cond = Nest_cloneNode(ifClause);
-            Nest_setContext(cond, Nest_childrenContext(expandedInstantiation(inst)));
-
-            // If the condition does not compile, we cannot instantiate
-            bool isValid = false;
-            int oldVal = Nest_isReportingEnabled();
-            Nest_enableReporting(0);
-            try
-            {
-                Node* res = Nest_semanticCheck(cond);
-                isValid = res != nullptr
-                    && Feather_isCt(res)                   // We must have a value at CT
-                    && Feather_isTestable(res)             // The value must be boolean
-                    && Nest_getSuppressedErrorsNum() == 0;  // No suppressed errors
-            }
-            catch (...)
-            {
-            }
-            Nest_enableReporting(oldVal);
-            if ( !isValid )
-                return nullptr;
-
-            // Evaluate the if clause condition and check the result
-            if ( !SprFrontend::getBoolCtValue(Nest_ctEval(cond)) )
-                return nullptr;
-        }
-
-        setInstantiationValid(inst);
-        return inst;
-    }
-
-
-
-    ////////////////////////////////////////////////////////////////////////////
-    // Generic class
-    //
-
-    NodeRange genericParams(Node* generic)
-    {
-        return getInstantiationsSetParameters(at(generic->children, 0));
-    }
-
-    /// Get the bound arguments corresponding to the arguments passed to the generic
-    /// We return here the CT values of these arguments; we use their value to check for duplicate instantiations
-    NodeVector getGenericClassBoundValues(NodeRange args)
-    {
-        NodeVector boundValues;
-        boundValues.reserve(size(args));
-
-        for ( size_t i=0; i<size(args); ++i )
-        {
-            Node* arg = at(args, i);
-
-            // Evaluate the node and add the resulting CtValue as a bound argument
-            if ( !Nest_computeType(arg) )
-                return {};
-            if ( !Feather_isCt(arg) )
-                REP_INTERNAL(arg->location, "Argument to a class generic must be CT (type: %1%)") % arg->type;
-            Node* n = Nest_ctEval(arg);
-            if ( !n || n->nodeKind != nkFeatherExpCtValue )
-                REP_INTERNAL(arg->location, "Invalid argument %1% when instantiating generic") % (i+1);
-            boundValues.push_back(n);
-        }
-        return boundValues;
-    }
-
-    EvalMode getGenericClassResultingEvalMode(const Location& loc, EvalMode mainEvalMode, NodeRange boundValues)
-    {
-        bool hasRtOnlyArgs = false;
-        bool hasCtOnlyArgs = false;
-        for ( Node* boundVal: boundValues )
-        {
-            // Test the type given to the 'Type' parameters (i.e., we need to know if Vector(t) can be rtct based on the mode of t)
-            TypeRef t = tryGetTypeValue(boundVal);
-            if ( t )
-            {
-                if ( t->mode == modeRt )
-                    hasRtOnlyArgs = true;
-                else if ( t->mode == modeCt )
-                    hasCtOnlyArgs = true;
-            }
-            else if ( !boundVal->type->canBeUsedAtRt )
-            {
-                hasCtOnlyArgs = true;
-            }
-        }
-        if ( hasCtOnlyArgs && hasRtOnlyArgs )
-            REP_ERROR(loc, "Cannot instantiate generic with both RT-only and CT-only arguments");
-        if ( mainEvalMode == modeCt && hasRtOnlyArgs )
-            REP_ERROR(loc, "Cannot use RT-only arguments in a CT generic");
-        if ( mainEvalMode == modeRt && hasCtOnlyArgs )
-            REP_ERROR(loc, "Cannot use CT-only arguments in a RT generic");
-
-        if ( hasCtOnlyArgs )
-            return modeCt;
-        if ( hasRtOnlyArgs )
-            return modeRt;
-        return mainEvalMode;
-    }
-
-    Node* createInstantiatedClass(CompilationContext* context, Node* orig, const string& description)
-    {
-        const Location& loc = orig->location;
-
-        Node* children = at(orig->children, 1);
-        children = children ? Nest_cloneNode(children) : nullptr;
-        Node* newClass = mkSprClass(loc, Feather_getName(orig), nullptr, nullptr, nullptr, children);
-        copyAccessType(newClass, orig);
-
-        copyModifiersSetMode(orig, newClass, context->evalMode);
-
-        //Feather_setShouldAddToSymTab(newClass, 0);    // TODO (generics): Uncomment this line
-        Nest_setContext(newClass, context);
-
-//        REP_INFO(loc, "Instantiated %1%") % description;
-        return newClass;
-    }
-
-    string getGenericClassDescription(Node* cls, Node* inst)
-    {
-        ostringstream oss;
-        oss << toString(Feather_getName(cls)) << "[";
-        auto boundValues = instantiationBoundValues(inst);
-        bool first = true;
-        for ( Node* bv: boundValues )
-        {
-            if ( first )
-                first = false;
-            else
-                oss << ", ";
-            TypeRef t = evalTypeIfPossible(bv);
-            if ( t )
-                oss << t;
-            else
-                oss << bv;
-        }
-        oss << "]";
-        return oss.str();
-    }
-
-    ////////////////////////////////////////////////////////////////////////////
-    // Generic function
-    //
-
-    /// Get the bound arguments corresponding to the CT or Auto parameters of the generic
-    /// We return here the CT values of these arguments; we use their value to check for duplicate instantiations
-    NodeVector getGenericFunBoundValues(CompilationContext* context, NodeRange args, NodeRange genericParams)
-    {
-        NodeVector boundValues;
-        boundValues.resize(size(args), nullptr);
-
-        // There are two types of bound arguments:
-        //  - parameters with CT types
-        //  - auto parameters - in this case we retain the type of the argument as a bound value
-        for ( size_t i=0; i<size(args); ++i )
-        {
-            Node* arg = at(args, i);
-            Node* param = at(genericParams, i);
-            if ( !param )
-                continue;
-
-            bool isRefAuto;
-            if ( isConceptType(param->type, isRefAuto) )
-            {
-                // Create a CtValue with the type of the argument corresponding to the auto parameter
-                if ( !Nest_computeType(arg) )
-                    return {};
-                TypeRef t = getAutoType(arg, isRefAuto);
-                Node* typeNode = createTypeNode(context, param->location, t);
-                if ( !Nest_computeType(typeNode) )
-                    return {};
-                boundValues[i] = typeNode;
-            }
-            else
-            {
-                // Evaluate the node and add the resulting CtValue as a bound argument
-                if ( !Nest_computeType(arg) )
-                    return {};
-                if ( !Feather_isCt(arg) )
-                    return {};     // This argument must be CT in order to instantiate the generic
-                Node* n = Nest_ctEval(arg);
-                if ( !n || n->nodeKind != nkFeatherExpCtValue )
-                    REP_INTERNAL(arg->location, "Invalid argument %1% when instantiating generic") % (i+1);
-                boundValues[i] = n;
-            }
-        }
-        return boundValues;
-    }
-
-    /// Get the list of non-bound parameters (including auto parameters) to be passed to an instantiation
-    /// There are two types of non-bound arguments:
-    ///  - parameters that are not marked as generic (e.g., RT types)
-    ///  - auto parameters - the type is considered bound, but the argument value is non-bound
-    /// For auto parameters create a parameter with the auto-type corresponding to the bound type of the argument
-    /// Do not return the this parameter.
-    /// Does not return the original parameters; creates a clone if needed
-    NodeVector getGenericFunNonBoundParameters(Node* inst, Node* origFun, NodeRange params, NodeRange genericParams)
-    {
-        auto boundValues = instantiationBoundValues(inst);
-        ASSERT(Nest_nodeRangeSize(boundValues) != 0);
-        auto numParams = Nest_nodeRangeSize(params);
-        NodeVector nonBoundParams;
-        nonBoundParams.reserve(numParams);
-        for ( size_t i=0; i<numParams; ++i )
-        {
-            if ( i==0 && funHasImplicitThis(origFun) )
-                continue;
-
-            Node* p = at(params, i);
-            Node* boundValue = at(boundValues, i);
-
-            if ( !at(genericParams, i) )         // If this is not a generic parameter => non-bound parameter
-            {
-                nonBoundParams.push_back(Nest_cloneNode(p));
-            }
-            else if ( isConceptType(p->type) )   // For auto-type parameters, we also create a non-bound parameter
-            {
-                nonBoundParams.push_back(mkSprParameter(p->location, Feather_getName(p), boundValue));
-            }
-        }
-        return nonBoundParams;
-    }
-
-
-    /// Get the eval mode for the resulting function; check the eval mode of the original function, of the non-bound arguments, and of the types
-    EvalMode getGenericFunResultingEvalMode(const Location& loc, EvalMode mainEvalMode, NodeRange args, NodeRange genericParams)
-    {
-        bool hasRtOnlyArgs = false;
-        bool hasCtOnlyArgs = false;
-        auto numGenericParams = Nest_nodeRangeSize(genericParams);
-        ASSERT(size(args) == numGenericParams);
-        for ( size_t i=0; i<numGenericParams; ++i)
-        {
-            Node* arg = at(args, i);
-            // Test auto and non-bound arguments
-            // Also test the type given to the 'Type' parameters (i.e., we need to know if Vector(t) can be rtct based on the mode of t)
-            Node* genParam = at(genericParams, i);
-            TypeRef pType = genParam ? genParam->type : nullptr;
-            TypeRef typeToCheck = nullptr;
-            if ( !pType || isConceptType(pType) )
-            {
-                typeToCheck = Nest_computeType(arg);
-            }
-            else
-            {
-                // Is the argument a Type?
-                typeToCheck = tryGetTypeValue(arg);
-            }
-            if ( typeToCheck )
-            {
-                if ( !typeToCheck->canBeUsedAtCt )
-                    hasRtOnlyArgs = true;
-                else if ( !typeToCheck->canBeUsedAtRt )
-                    hasCtOnlyArgs = true;
-            }
-        }
-        if ( hasCtOnlyArgs && hasRtOnlyArgs )
-            REP_ERROR(loc, "Cannot instantiate generic with both RT-only and CT-only arguments");
-        if ( mainEvalMode == modeCt && hasRtOnlyArgs )
-            REP_ERROR(loc, "Cannot use RT-only arguments in a CT generic");
-        if ( mainEvalMode == modeRt && hasCtOnlyArgs )
-            REP_ERROR(loc, "Cannot use CT-only arguments in a RT generic");
-
-        if ( hasCtOnlyArgs )
-            return modeCt;
-        if ( hasRtOnlyArgs )
-            return modeRt;
-        return mainEvalMode;
-    }
-
-    /// From the list of arguments passed at generic instantiation, filter only the ones corresponding to the non-bound
-    /// parameters, the ones that are passed to the actual instantiation.
-    /// Note that this also returns the arguments corresponding to the auto parameters
-    NodeVector getGenericFunNonBoundArgs(NodeRange args, NodeRange genericParams)
-    {
-        NodeVector nonBoundArgs;
-        nonBoundArgs.reserve(size(args));
-        for ( size_t i=0; i<size(args); ++i )
-        {
-            Node* param = at(genericParams, i);
-            if ( !param || isConceptType(param->type) )     // Get non-generic and also parameters
-            {
-                nonBoundArgs.push_back(at(args, i));
-            }
-        }
-        return nonBoundArgs;
-    }
-
-    Node* createInstFn(CompilationContext* context, Node* origFun, NodeRange nonBoundParams)
-    {
-        const Location& loc = origFun->location;
-
-        //REP_INFO(loc, "Instantiating %1% with %2% params") % Feather_getName(origFun) % nonBoundParams.size();
-
-        Node* parameters = Feather_mkNodeList(loc, nonBoundParams);
-        Node* returnType = at(origFun->children, 1);
-        Node* body = at(origFun->children, 2);
-        returnType = returnType ? Nest_cloneNode(returnType) : nullptr;
-        body = body ? Nest_cloneNode(body) : nullptr;
-        Node* newFun = mkSprFunction(loc, Feather_getName(origFun), parameters, returnType, body);
-        copyModifiersSetMode(origFun, newFun, context->evalMode);
-        copyAccessType(newFun, origFun);
-        Feather_setShouldAddToSymTab(newFun, 0);
-        Nest_setContext(newFun, context);
-
-        //REP_INFO(loc, "Instantiated %1%") % newFun->toString();
-        return newFun;
-    }
-
-    Node* createCallFn(const Location& loc, CompilationContext* context, Node* inst, NodeRange nonBoundArgs)
-    {
-        ASSERT(inst && inst->nodeKind == nkSparrowDeclSprFunction);
-        if ( !Nest_computeType(inst) )
-            return nullptr;
-        Node* resultingFun = Nest_explanation(inst);
-        if ( !resultingFun )
-            REP_ERROR_RET(nullptr, loc, "Cannot instantiate function generic %1%") % Feather_getName(inst);
-        return createFunctionCall(loc, context, resultingFun, nonBoundArgs);
-    }
+    return nodes;
 }
 
-bool SprFrontend::conceptIsFulfilled(Node* concept, TypeRef type)
-{
-    ASSERT(concept->nodeKind == nkSparrowDeclSprConcept);
-    Node* instantiationsSet = at(concept->children, 2);
+////////////////////////////////////////////////////////////////////////////
+// Generic class
+//
 
-    if ( !concept->nodeSemanticallyChecked || !instantiationsSet )
-        REP_INTERNAL(concept->location, "Invalid concept");
+////////////////////////////////////////////////////////////////////////////
+// Generic function
+//
 
-    Node* typeValue = createTypeNode(concept->context, concept->location, type);
-    if ( !Nest_semanticCheck(typeValue) )
+typedef vector<StringRef> NamesVec;
+
+/**
+ * Checks if the given node references any of the given seen names.
+ *
+ * Recursively digs deep in the given node to find any identifier that references to the given set
+ * of names.
+ *
+ * We use this to find whether we have dependent types: one type depending on the actual
+ * instantiation of another.
+ *
+ * @param node      The node that we want to check
+ * @param seenNames The list of seen names we compare against
+ *
+ * @return True if this node references any of the given names
+ */
+bool referencesSeenName(Node* node, const NamesVec& seenNames) {
+    if (!node)
         return false;
-
-    return nullptr != canInstantiate(instantiationsSet, fromIniList({typeValue}), concept->context->evalMode);
+    if (node->nodeKind == nkSparrowExpIdentifier) {
+        // Check to see if the name matches one of our previously seen parameter names
+        StringRef name = Feather_getName(node);
+        for (StringRef seenName : seenNames) {
+            if (name == seenName)
+                return true;
+        }
+    } else {
+        // For the rest of the nodes, check all the children
+        for (Node* child : node->children) {
+            if (referencesSeenName(child, seenNames))
+                return true;
+        }
+    }
+    return false;
+}
 }
 
-bool SprFrontend::typeGeneratedFromGeneric(Node* genericClass, TypeRef type)
-{
-    ASSERT(genericClass && genericClass->nodeKind == nkSparrowDeclGenericClass);
-    Node* cls = Feather_classForType(type);
-    if ( !cls )
-        return false;
+Node* SprFrontend::checkCreateGenericFun(
+        Node* originalFun, Node* parameters, Node* ifClause, Node* thisClass) {
+    ASSERT(parameters);
+    NodeRange params = all(parameters->children);
+    auto numParams = Nest_nodeRangeSize(params);
+    if (numParams == 0)
+        return nullptr; // cannot be generic
 
-    // Simple check: location & name is the same
-    return 0 == Nest_compareLocations(&genericClass->location, &cls->location) && Feather_getName(genericClass) == Feather_getName(cls);
-}
-
-TypeRef SprFrontend::baseConceptType(Node* concept)
-{
-    Node* baseConcept = at(concept->children, 0);
-
-    TypeRef res = baseConcept ? getType(baseConcept) : getConceptType();
-    return res;
-}
-
-Node* SprFrontend::createGenericFun(Node* originalFun, Node* parameters, Node* ifClause, Node* thisClass)
-{
     // If we are in a CT function, don't consider CT parameters
     bool inCtFun = Feather_effectiveEvalMode(originalFun) == modeCt;
     // For CT-generics, we consider all the parameters to be generic parameters
     bool isCtGeneric = Nest_hasProperty(originalFun, propCtGeneric);
 
-    // Check if we have some CT parameters
-    ASSERT(parameters);
-    NodeRange params = all(parameters->children);
-    auto numParams = Nest_nodeRangeSize(params);
-    NodeVector ourParams(numParams, nullptr);
+    // Check if we have some dependent type parameters
+    NodeVector dependentParams(numParams, nullptr);
+    NamesVec seenNames;
+    seenNames.reserve(numParams);
+    bool hasDependentParams = false;
+    for (int i = 0; i < numParams; ++i) {
+        Node* param = at(params, i);
+        Node* paramType = at(param->children, 0);
+        ASSERT(param->nodeKind == nkSparrowDeclSprParameter);
+
+        // Check if this parameter references a previously seen parameter
+        if (i > 0 && referencesSeenName(paramType, seenNames)) {
+            dependentParams[i] = param;
+            hasDependentParams = true;
+        }
+
+        // Add this param name to the list of seen names
+        seenNames.push_back(Feather_getName(param));
+    }
+    ASSERT(dependentParams[0] == nullptr); // the first param cannot be dependent
+
+    // Dependent types debug info
+    // if (hasDependentParams) {
+    //     ostringstream oss;
+    //     oss << "(null";
+    //     for (int i = 1; i < numParams; i++) {
+    //         oss << ", " << (dependentParams[i] ? Nest_toString(dependentParams[i]) : "null");
+    //     }
+    //     oss << ")";
+    //     REP_INFO(originalFun->location, "Dependent types: %1%") % oss.str();
+    // }
+
+    // Check if we have some CT or concept parameters
+    // We compute the type of all the parameters, except the dependent ones
     NodeVector genericParams(numParams, nullptr);
     bool hasGenericParams = false;
-    for ( size_t i=0; i<numParams; ++i )
-    {
+    for (size_t i = 0; i < numParams; ++i) {
         Node* param = at(params, i);
-        if ( !Nest_computeType(param) )
+        if (dependentParams[i]) {
+            genericParams[i] = param;
+            hasGenericParams = true;
+            continue; // Don't compute the type
+        }
+        if (!Nest_computeType(param))
             return nullptr;
 
-        ourParams[i] = param;
-        if ( isConceptType(param->type) )
-        {
+        if (isConceptType(param->type)) {
             genericParams[i] = param;
             hasGenericParams = true;
         }
-        if ( (!inCtFun || isCtGeneric) && Feather_isCt(param) )
-        {
+        if ((!inCtFun || isCtGeneric) && Feather_isCt(param)) {
             genericParams[i] = param;
             hasGenericParams = true;
         }
     }
 
-    if ( !hasGenericParams )
+    if (!hasGenericParams)
         return nullptr;
 
     // If a 'this' class is passed, add an extra parameter for this
-    if ( thisClass )
-    {
-        TypeRef thisType = Feather_getDataType(thisClass, 1, Feather_effectiveEvalMode(originalFun));
+    NodeVector paramsWithThis;
+    if (thisClass) {
+        TypeRef thisType =
+                Feather_getDataType(thisClass, 1, Feather_effectiveEvalMode(originalFun));
         Node* thisParam = mkSprParameter(originalFun->location, fromCStr("this"), thisType);
         Nest_setContext(thisParam, Nest_childrenContext(originalFun));
-        if ( !Nest_computeType(thisParam) )
+        if (!Nest_computeType(thisParam))
             return nullptr;
-        ourParams.insert(ourParams.begin(), thisParam);
         genericParams.insert(genericParams.begin(), nullptr);
+
+        // Add 'this' param to our range of parameters
+        paramsWithThis = NodeVector(params.beginPtr, params.endPtr);
+        paramsWithThis.insert(paramsWithThis.begin(), thisParam);
+        params = all(paramsWithThis);
     }
 
     // Actually create the generic
-    Node* res = mkGenericFunction(originalFun, all(ourParams), all(genericParams), ifClause);
+    Node* res = mkGenericFunction(originalFun, params, all(genericParams), ifClause);
     Feather_setEvalMode(res, Feather_effectiveEvalMode(originalFun));
     Nest_setContext(res, originalFun->context);
     return res;
 }
 
-bool SprFrontend::isGeneric(const Node* node)
-{
-    return node->nodeKind == nkSparrowDeclGenericClass
-        || node->nodeKind == nkSparrowDeclGenericFunction;
+NodeRange SprFrontend::genericFunParams(Node* genericFun) {
+    return GenericFunNode(genericFun).originalParams();
+}
+NodeRange SprFrontend::genericClassParams(Node* genericClass) {
+    return GenericClassNode(genericClass).instSet().params();
 }
 
-size_t SprFrontend::genericParamsCount(const Node* node)
-{
-    switch ( node->nodeKind - firstSparrowNodeKind )
-    {
-        case nkRelSparrowDeclGenericClass:
-        {
-            Node* instantiationsSet = at(node->children, 0);
-            NodeRange genericParams = getInstantiationsSetParameters(instantiationsSet);
-            return Nest_nodeRangeSize(genericParams);
-        }
-        case nkRelSparrowDeclGenericFunction:
-        {
-            NodeRange genericParams = all(at(node->referredNodes, 1)->children);
-            return Nest_nodeRangeSize(genericParams);
-        }
-        default:
-            REP_INTERNAL(node->location, "Node is not a generic: %1%") % node;
-            return 0;
-    }
-}
-Node* SprFrontend::genericParam(const Node* node, size_t idx)
-{
-    switch ( node->nodeKind - firstSparrowNodeKind )
-    {
-        case nkRelSparrowDeclGenericClass:
-        {
-            Node* instantiationsSet = at(node->children, 0);
-            NodeRange genericParams = getInstantiationsSetParameters(instantiationsSet);
-            return at(genericParams, idx);
-        }
-        case nkRelSparrowDeclGenericFunction:
-        {
-            NodeRange genericParams = all(at(node->referredNodes, 1)->children);
-            return at(genericParams, idx);
-        }
-        default:
-            REP_INTERNAL(node->location, "Node is not a generic: %1%") % node;
-            return nullptr;
-    }
-}
+InstNode SprFrontend::searchInstantiation(InstSetNode instSet, NodeRange values) {
+    for (InstNode inst : instSet.instantiations()) {
+        const auto& boundValues = inst.boundValues();
+        if (size(boundValues) < size(values))
+            continue;
 
-Node* SprFrontend::genericCanInstantiate(Node* node, NodeRange args)
-{
-    switch ( node->nodeKind - firstSparrowNodeKind )
-    {
-        case nkRelSparrowDeclGenericClass:
-        {
-            NodeVector boundValues = getGenericClassBoundValues(args);
-            Node* originalClass = at(node->referredNodes, 0);
-            EvalMode resultingEvalMode = getGenericClassResultingEvalMode(originalClass->location, Feather_effectiveEvalMode(originalClass), all(boundValues));
-            Node* instantiationsSet = at(node->children, 0);
-            return canInstantiate(instantiationsSet, all(boundValues), resultingEvalMode);
-        }
-        case nkRelSparrowDeclGenericFunction:
-        {
-            Node* originalFun = at(node->referredNodes, 0);
-            NodeVector boundValues = getGenericFunBoundValues(originalFun->context, args, genericParams(node));
-
-            EvalMode resultingEvalMode = Nest_hasProperty(originalFun, propCtGeneric)
-                ? modeCt        // If we have a CT generic, the resulting eval mode is always CT
-                : getGenericFunResultingEvalMode(originalFun->location, Feather_effectiveEvalMode(originalFun), args, genericParams(node));
-
-            Node* instantiationsSet = at(node->children, 0);
-            return canInstantiate(instantiationsSet, all(boundValues), resultingEvalMode);
-        }
-        default:
-            REP_INTERNAL(node->location, "Node is not a generic: %1%") % node;
-            return nullptr;
-    }
-}
-Node* SprFrontend::genericDoInstantiate(Node* node, const Location& loc, CompilationContext* context, NodeRange args, Node* inst)
-{
-    switch ( node->nodeKind - firstSparrowNodeKind )
-    {
-        case nkRelSparrowDeclGenericClass:
-        {
-            ASSERT(inst);
-
-            // If not already created, create the actual instantiation declaration
-            Node* instDecl = instantiatedDecl(inst);
-            Node* expandedInst = expandedInstantiation(inst);
-            if ( !instDecl )
-            {
-                Node* originalClass = Nest_ofKind(at(node->referredNodes, 0), nkSparrowDeclSprClass);
-                string description = getGenericClassDescription(originalClass, inst);
-
-                // Create the actual instantiation declaration
-                CompilationContext* ctx = Nest_childrenContext(expandedInst);
-                instDecl = createInstantiatedClass(ctx, originalClass, description);
-                if ( !instDecl )
-                    REP_INTERNAL(loc, "Cannot instantiate generic");
-                Nest_setPropertyString(instDecl, propDescription, fromString(description));
-                if ( !Nest_computeType(instDecl) )
-                    return nullptr;
-                Nest_queueSemanticCheck(instDecl);
-                setInstantiatedDecl(inst, instDecl);
-
-                // Add the instantiated class as an additional node to the generic node
-                Nest_appendNodeToArray(&node->additionalNodes, expandedInst);
-                if ( node->explanation && node->explanation != node )
-                    Nest_appendNodeToArray(&node->explanation->additionalNodes, expandedInst);
+        bool argsMatch = true;
+        for (size_t i = 0; i < size(values); ++i) {
+            Node* boundVal = at(boundValues, i);
+            Node* val = at(values, i);
+            if (!boundVal && !val)
+                continue;
+            if (!boundVal || !val || !ctValsEqual(val, boundVal)) {
+                argsMatch = false;
+                break;
             }
-
-            // Now actually create the call object: a Type CT value
-            Node* cls = Nest_ofKind(Nest_explanation(instDecl), nkFeatherDeclClass);
-            ASSERT(cls);
-            return createTypeNode(node->context, loc, Feather_getDataType(cls, 0, modeRtCt));
         }
-        case nkRelSparrowDeclGenericFunction:
-        {
-            ASSERT(inst);
-
-            // If not already created, create the actual instantiation declaration
-            Node* instDecl = instantiatedDecl(inst);
-            Node* expandedInst = expandedInstantiation(inst);
-            if ( !instDecl )
-            {
-                Node* originalFun = at(node->referredNodes, 0);
-                ASSERT(originalFun->nodeKind == nkSparrowDeclSprFunction);
-                NodeRange params = all(at(node->referredNodes, 1)->children);
-                NodeVector nonBoundParams = getGenericFunNonBoundParameters(inst, originalFun, params, genericParams(node));
-
-                // Create the actual instantiation declaration
-                CompilationContext* ctx = Nest_childrenContext(expandedInst);
-                instDecl = createInstFn(ctx, originalFun, all(nonBoundParams));
-                if ( !instDecl )
-                    REP_INTERNAL(loc, "Cannot instantiate generic");
-                if ( !Nest_computeType(instDecl) )
-                    return nullptr;
-                Nest_queueSemanticCheck(instDecl);
-                setInstantiatedDecl(inst, instDecl);
-            }
-
-            // Now actually create the call object
-            NodeVector nonBoundArgs = getGenericFunNonBoundArgs(args, genericParams(node));
-            Node* res = createCallFn(loc, context, instDecl, all(nonBoundArgs));
-            if ( !res )
-                REP_INTERNAL(loc, "Cannot create code that calls generic");
-            return res;
-        }
-        default:
-            REP_INTERNAL(node->location, "Node is not a generic: %1%") % node;
-            return nullptr;
+        if (argsMatch)
+            return inst;
     }
+    return nullptr;
+}
+
+InstNode SprFrontend::createNewInstantiation(
+        InstSetNode instSet, NodeRange values, EvalMode evalMode) {
+    ASSERT(instSet.node);
+    const Location& loc = instSet.node->location;
+
+    // Create a new context, but at the same level as the context of the parent node
+    Node* parentNode = instSet.parentNode();
+    CompilationContext* context =
+            Nest_mkChildContextWithSymTab(parentNode->context, nullptr, evalMode);
+    bool insideClass = nullptr != Feather_getParentClass(context);
+
+    // Create the instantiation
+    auto boundVars = createAllBoundVariables(loc, values, instSet.params(), insideClass);
+    InstNode inst = mkInstantiation(loc, values, all(boundVars));
+    // Add it to the parent instSet
+    Nest_appendNodeToArray(&instSet.instantiations(), inst.node);
+
+    // Compile the bound vars for the newly created instantiation
+    Nest_setContext(inst.boundVarsNode(), context);
+    if (!Nest_semanticCheck(inst.boundVarsNode()))
+        return nullptr;
+
+    return inst;
+}
+
+Node* SprFrontend::createBoundVar(Node* param, TypeRef paramType, Node* boundValue, bool insideClass) {
+    ASSERT(param);
+    ASSERT(paramType);
+    ASSERT(boundValue && boundValue->type);
+
+    bool isConcept = param->type != paramType || isConceptType(paramType);
+
+    TypeRef t = isConcept ? getType(boundValue) : boundValue->type;
+    Node* init = isConcept ? nullptr : Nest_cloneNode(boundValue);
+    Node* var = mkSprVariable(param->location, Feather_getName(param), t, init);
+
+    if (insideClass)
+        Nest_setPropertyInt(var, propIsStatic, 1);
+    if (!isConcept)
+        Feather_setEvalMode(var, modeCt);
+    return var;
+}
+
+bool SprFrontend::canInstantiate(InstNode inst, InstSetNode instSet) {
+    // If we already evaluated this, we already know the answer
+    if (inst.isEvaluated())
+        return inst.isValid();
+
+    // From this point, we consider our instantiation evaluated
+    // If we fail, then we will not set that it's valid
+    inst.setEvaluated();
+
+    // If we have an if clause, check if this CT evaluates to true
+    Node* ifClause = instSet.ifClause();
+    if (ifClause) {
+        // Always use a clone of the original node
+        Node* cond = Nest_cloneNode(ifClause);
+        Nest_setContext(cond, Nest_childrenContext(inst.boundVarsNode()));
+
+        // If the condition does not compile, we cannot instantiate
+        bool isValid = false;
+        int oldVal = Nest_isReportingEnabled();
+        Nest_enableReporting(0);
+        try {
+            Node* res = Nest_semanticCheck(cond);
+            isValid = res != nullptr && Feather_isCt(res)    // We must have a value at CT
+                      && Feather_isTestable(res)             // The value must be boolean
+                      && Nest_getSuppressedErrorsNum() == 0; // No suppressed errors
+        } catch (...) {
+        }
+        Nest_enableReporting(oldVal);
+        if (!isValid)
+            return false;
+
+        // Evaluate the if clause condition and check the result
+        if (!SprFrontend::getBoolCtValue(Nest_ctEval(cond)))
+            return false;
+    }
+
+    inst.setValid();
+    return true;
+}
+
+InstNode SprFrontend::canInstantiate(InstSetNode instSet, NodeRange values, EvalMode evalMode) {
+    // Try to find an existing instantiation
+    InstNode inst = searchInstantiation(instSet, values);
+
+    // If no instantiation is found, create a new instantiation
+    if (!inst)
+        inst = createNewInstantiation(instSet, values, evalMode);
+
+    return canInstantiate(inst, instSet) ? inst : nullptr;
+}
+
+bool SprFrontend::conceptIsFulfilled(Node* concept1, TypeRef type) {
+    ASSERT(concept1);
+    ConceptNode concept = concept1;
+    InstSetNode instSet = concept.instSet();
+
+    if (!concept.node->nodeSemanticallyChecked || !instSet)
+        REP_INTERNAL(concept.node->location, "Invalid concept");
+
+    Node* typeValue = createTypeNode(concept.node->context, concept.node->location, type);
+    if (!Nest_semanticCheck(typeValue))
+        return false;
+
+    InstNode inst =
+            canInstantiate(instSet, fromIniList({typeValue}), concept.node->context->evalMode);
+    return inst.node != nullptr;
+}
+
+bool SprFrontend::typeGeneratedFromGeneric(Node* genericClass, TypeRef type) {
+    ASSERT(genericClass && genericClass->nodeKind == nkSparrowDeclGenericClass);
+    Node* cls = Feather_classForType(type);
+    if (!cls)
+        return false;
+
+    // Simple check: location & name is the same
+    return 0 == Nest_compareLocations(&genericClass->location, &cls->location) &&
+           Feather_getName(genericClass) == Feather_getName(cls);
+}
+
+TypeRef SprFrontend::baseConceptType(Node* concept) {
+    Node* baseConcept = at(concept->children, 0);
+
+    TypeRef res = baseConcept ? getType(baseConcept) : getConceptType();
+    return res;
 }

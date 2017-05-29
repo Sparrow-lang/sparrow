@@ -51,7 +51,7 @@ import ranges(RandomAccessRange, ..);
         _end.ctor();
         _endOfStore.ctor();
         for v = range
-            pushBack(v);
+            this.pushBack(v);
     }
 
     fun ctor(range: RandomAccessRange)
@@ -59,9 +59,9 @@ import ranges(RandomAccessRange, ..);
         _begin.ctor();
         _end.ctor();
         _endOfStore.ctor();
-        reserve(range.size());
+        this.reserve(range.size());
         for v = range
-            pushBack(v);
+            this.pushBack(v);
     }
 
     [rt] fun ctorFromCt(src: Vector ct)
@@ -70,20 +70,6 @@ import ranges(RandomAccessRange, ..);
         this.reserve(ctEval(src.size()));
         [ct] for el: ValueType = src.all()
             this.pushBack(el);
-    }
-
-    fun swap(other: @Vector)
-    {
-        var tmp = _begin;
-
-        _begin = other._begin;
-        other._begin = tmp;
-        tmp = _end;
-        _end = other._end;
-        other._end = tmp;
-        tmp = _endOfStore;
-        _endOfStore = other._endOfStore;
-        other._endOfStore = tmp;
     }
 
     fun dtor
@@ -95,13 +81,55 @@ import ranges(RandomAccessRange, ..);
         _begin.freePtr();
     }
 
-    fun size: SizeType = _end.diff(_begin);
-    fun isEmpty = _begin == _end;
-    fun capacity: SizeType = _endOfStore.diff(_begin);
+    fun =(other: @Vector): @Vector
+        var tmp = other;
 
-    fun reserve(n: SizeType)
+        tmp.swap(this);
+
+        return this;
+
+    fun ==(other: @Vector): Bool
+        if ( this.size() != other.size() )
+            return false;
+
+        var i = 0;
+        var s = this.size();
+
+        while i < s ; i++
+        {
+            if ( !(this.at(i) == other.at(i)) )
+                return false;
+        }
+        return true;
+
+    fun !=(other: @Vector): Bool = !(this == other);
+
+    using _initialCapacity = 8;
+    using _growthFactor = 2.0;
+
+    var _begin, _end, _endOfStore: RawPtr(ValueType);
+}
+
+[rtct, protected]
+    fun swap(this: @Vector, other: typeOf(this))
+        var tmp = _begin;
+
+        _begin = other._begin;
+        other._begin = tmp;
+        tmp = _end;
+        _end = other._end;
+        other._end = tmp;
+        tmp = _endOfStore;
+        _endOfStore = other._endOfStore;
+        other._endOfStore = tmp;
+
+    fun size(this: @Vector): SizeType = _end.diff(_begin);
+    fun isEmpty(this: @Vector) = _begin == _end;
+    fun capacity(this: @Vector): SizeType = _endOfStore.diff(_begin);
+
+    fun reserve(this: @Vector, n: SizeType)
     {
-        var curCapacity = capacity();
+        var curCapacity = this.capacity();
 
         if ( n <= curCapacity )
             return;
@@ -112,25 +140,25 @@ import ranges(RandomAccessRange, ..);
         if ( n < _growthFactor*curCapacity )
             n = SizeType(_growthFactor*curCapacity);
 
-        var curSize = size();
+        var curSize = this.size();
 
         _begin.reallocPtr(n);
         _end = _begin.advance(curSize);
         _endOfStore = _begin.advance(n);
     }
 
-    fun at(index: SizeType)    = _begin.advance(index).value();
-    fun ()(index: SizeType)    = _begin.advance(index).value();
-    fun front                   = _begin.value();
-    fun back                    = _end.advance(-1).value();
-    fun all                     = RangeType(_begin, _end);
-    fun subrange(index: SizeType, num: SizeType): RangeType = RangeType(_begin.advance(index), _begin.advance(index + num));
+    fun at(this: @Vector, index: SizeType)    = _begin.advance(index).value();
+    fun ()(this: @Vector, index: SizeType)    = _begin.advance(index).value();
+    fun front(this: @Vector)                   = _begin.value();
+    fun back(this: @Vector)                    = _end.advance(-1).value();
+    fun all(this: @Vector)                     = RangeType(_begin, _end);
+    fun subrange(this: @Vector, index: SizeType, num: SizeType): RangeType = RangeType(_begin.advance(index), _begin.advance(index + num));
 
-    fun insertBefore(value: ValuePassType, pos: RangeType)
+    fun insertBefore(this: @Vector, value: this.ValuePassType, pos: this.RangeType)
     {
         var posCount = pos.frontPtr().diff(_begin);
 
-        reserve(size() + 1);
+        this.reserve(this.size() + 1);
 
         var p = _end.advance(-1);
         var q = _begin.advance(posCount - 1);
@@ -144,12 +172,12 @@ import ranges(RandomAccessRange, ..);
         _end = _end.advance();
     }
 
-    fun insertBefore(range: Range, pos: RangeType)
+    fun insertBefore(this: @Vector, range: Range, pos: this.RangeType)
     {
         var n = range.size();
         var index = pos.frontPtr().diff(_begin);
 
-        reserve(size() + n);
+        this.reserve(this.size() + n);
 
         var p = _end.advance(-1);
         var q = _begin.advance(index - 1);
@@ -169,38 +197,38 @@ import ranges(RandomAccessRange, ..);
         _end = _end.advance(n);
     }
 
-    fun insertAfter(value: ValuePassType, pos: RangeType)
+    fun insertAfter(this: @Vector, value: this.ValuePassType, pos: this.RangeType)
     {
-        insertBefore(value, RangeType(pos.backPtr(), _end));
+        this.insertBefore(value, RangeType(pos.backPtr(), _end));
     }
 
-    fun insertAfter(range: Range, pos: RangeType)
+    fun insertAfter(this: @Vector, range: Range, pos: this.RangeType)
     {
-        insertBefore(range, RangeType(pos.backPtr(), _end));
+        this.insertBefore(range, RangeType(pos.backPtr(), _end));
     }
 
-    fun pushBack(value: ValuePassType)
+    fun pushBack(this: @Vector, value: this.ValuePassType)
     {
         if ( _end == _endOfStore )
         {
-            var t = 2 * capacity();
+            var t = 2 * this.capacity();
 
             if ( t < 2 )
                 t = 2;
-            reserve(t);
+            this.reserve(t);
         }
         _end.value().ctor(value);
         _end = _end.advance();
     }
-    fun +=(value: ValuePassType) { pushBack(value); }
+    fun +=(this: @Vector, value: this.ValuePassType) { this.pushBack(value); }
 
-    fun popBack()
+    fun popBack(this: @Vector)
     {
         _end = _end.advance(-1);
         _end.value().dtor();
     }
 
-    fun remove(range: RangeType)
+    fun remove(this: @Vector, range: this.RangeType)
     {
         var rBegin = range.frontPtr();
         var rEnd = range.backPtr();
@@ -220,18 +248,18 @@ import ranges(RandomAccessRange, ..);
         _end = rBegin;
     }
 
-    fun remove(index: SizeType)
+    fun remove(this: @Vector, index: SizeType)
     {
-        var r = all();
+        var r = this.all();
 
         r.popFront(index);
-        r.popBack(size() - index - 1);
-        remove(r);
+        r.popBack(this.size() - index - 1);
+        this.remove(r);
     }
 
-    fun resize(n: SizeType)
+    fun resize(this: @Vector, n: SizeType)
     {
-        var oldSize = size();
+        var oldSize = this.size();
 
         if ( n == oldSize )
             return;
@@ -248,7 +276,7 @@ import ranges(RandomAccessRange, ..);
         }
         else
         {
-            reserve(n);
+            this.reserve(n);
 
             var newEnd = _begin.advance(n);
 
@@ -260,66 +288,34 @@ import ranges(RandomAccessRange, ..);
         }
     }
 
-    fun clear()
+    fun clear(this: @Vector)
     {
-        remove(RangeType(_begin, _end));
+        this.remove(RangeType(_begin, _end));
     }
 
-    fun =(other: @Vector): @Vector
+    fun assign(this: @Vector, range: Range)
     {
-        var tmp = other;
-
-        tmp.swap(this);
-
-        return this;
-    }
-
-    fun ==(other: @Vector): Bool
-    {
-        if ( size() != other.size() )
-            return false;
-
-        var i = 0;
-        var s = size();
-
-        while i < s ; i++
-        {
-            if ( !(at(i) == other.at(i)) )
-                return false;
-        }
-        return true;
-    }
-
-    fun !=(other: @Vector): Bool = !(this == other);
-
-    fun assign(range: Range)
-    {
-        clear();
+        this.clear();
         for v = range
-            pushBack(v);
+            this.pushBack(v);
     }
 
-    fun >>(os: @OutStream) if isValid(os << #$ValueType)
+    fun >>(this: @Vector, os: @OutStream) if isValid(os << #$this.ValueType)
     {
         os << "Vec(";
-        for i = 0..size
+        for i = 0..this.size
             if ( i > 0 )
                 os << ", ";
-            os << at(i);
+            os << this.at(i);
         os << ')';
     }
 
-    fun _dumpThis(prefix: StringRef)
+    fun _dumpThis(this: @Vector, prefix: StringRef)
     {
         cout << prefix << "dumping " << TypeOp.description(Vector) << ": " << mkStreamRefWrapper(this) << endl;
-        cout << "    size: " << Int(size()) << endl;
+        cout << "    size: " << Int(this.size()) << endl;
         cout << "    _begin: " << mkStreamRefWrapper(_begin.bytePtr()) << endl;
         cout << "    _end: " << mkStreamRefWrapper(_end.bytePtr()) << endl;
         cout << "    _endOfStore: " << mkStreamRefWrapper(_endOfStore.bytePtr()) << endl;
     }
 
-    using _initialCapacity = 8;
-    using _growthFactor = 2.0;
-
-    var _begin, _end, _endOfStore: RawPtr(ValueType);
-}

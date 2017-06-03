@@ -1,108 +1,100 @@
-import location;
-import std.string;
-import charType;
+import location
+import std.string
+import charType
 
-using tkEof = -1;
-using tkWhitespace = 0;
-using tkLParen = 1;
-using tkRParen = 2;
-using tkLBracket = 3;
-using tkRBracket = 4;
-using tkDot = 5;
-using tkComma = 6;
-using tkClause = 7;
-using tkVar = 8;
-using tkAtom = 9;
-using tkNumber = 10;
-using tkAntiQuote = 11;
-using tkIs = 12;
-using tkOpPlus = 13;
-using tkOpMinus = 14;
-using tkOpMul = 15;
-using tkOpDiv = 16;
+using tkEof = -1
+using tkWhitespace = 0
+using tkLParen = 1
+using tkRParen = 2
+using tkLBracket = 3
+using tkRBracket = 4
+using tkDot = 5
+using tkComma = 6
+using tkClause = 7
+using tkVar = 8
+using tkAtom = 9
+using tkNumber = 10
+using tkAntiQuote = 11
+using tkIs = 12
+using tkOpPlus = 13
+using tkOpMinus = 14
+using tkOpMul = 15
+using tkOpDiv = 16
 
-[rtct] class Token
-{
-    var loc: Location;
-    var type: Int;
-    var data: String;
+[rtct]
+    class Token
+        var loc: Location
+        var type: Int
+        var data: String
 
-    fun ctor(loc: @Location, type: Int)
-    {
-        this.loc ctor loc;
-        this.type ctor type;
-        this.data ctor;
-    }
-    fun ctor(loc: @Location, type: Int, data: @String)
-    {
-        this.loc ctor loc;
-        this.type ctor type;
-        this.data ctor data;
-    }
+        fun ctor(loc: @Location, type: Int)
+            this.loc ctor loc
+            this.type ctor type
+            this.data ctor
+        fun ctor(loc: @Location, type: Int, data: @String)
+            this.loc ctor loc
+            this.type ctor type
+            this.data ctor data
 
-    fun >>(os: @OutStream)
-    {
-        if ( type == tkEof )
-            os << "<eof>";
-        else if ( type == tkWhitespace )
-            os << "<ws>";
-        else if ( type == tkLParen )
-            os << "<(>";
-        else if ( type == tkRParen )
-            os << "<)>";
-        else if ( type == tkLBracket )
-            os << "<[>";
-        else if ( type == tkRBracket )
-            os << "<]>";
-        else if ( type == tkDot )
-            os << "<.>";
-        else if ( type == tkComma )
-            os << "<,>";
-        else if ( type == tkClause )
-            os << "<:->";
-        else if ( type == tkVar )
-            os << "<v:" << data << ">";
-        else if ( type == tkAtom )
-            os << "<a:" << data << ">";
-        else if ( type == tkNumber )
-            os << "<n:" << data << ">";
-        else if ( type == tkAntiQuote )
-            os << "<$:" << data << ">";
+
+    fun >>(this: @Token, os: @OutStream)
+        if type == tkEof
+            os << "<eof>"
+        else if type == tkWhitespace
+            os << "<ws>"
+        else if type == tkLParen
+            os << "<(>"
+        else if type == tkRParen
+            os << "<)>"
+        else if type == tkLBracket
+            os << "<[>"
+        else if type == tkRBracket
+            os << "<]>"
+        else if type == tkDot
+            os << "<.>"
+        else if type == tkComma
+            os << "<,>"
+        else if type == tkClause
+            os << "<:->"
+        else if type == tkVar
+            os << "<v:" << data << ">"
+        else if type == tkAtom
+            os << "<a:" << data << ">"
+        else if type == tkNumber
+            os << "<n:" << data << ">"
+        else if type == tkAntiQuote
+            os << "<$:" << data << ">"
         else
-            os << "<?:" << data << ">";
-    }
-}
+            os << "<?:" << data << ">"
 
-[rtct] fun tokenTypeToString(type: Int): String
-{
-    if ( type == tkEof )
-        return "EOF";
-    else if ( type == tkWhitespace )
-        return "whitespace";
-    else if ( type == tkLParen )
-        return "'('";
-    else if ( type == tkRParen )
-        return "')'";
-    else if ( type == tkLBracket )
-        return "'['";
-    else if ( type == tkRBracket )
-        return "']'";
-    else if ( type == tkDot )
-        return "'.'";
-    else if ( type == tkComma )
-        return "','";
-    else if ( type == tkClause )
-        return "':-'";
-    else if ( type == tkVar )
-        return "variable";
-    else if ( type == tkAtom )
-        return "atom";
-    else if ( type == tkNumber )
-        return "number";
-    else if ( type == tkAntiQuote )
-        return "antiquote";
-    else
-        return "invalid token";
+    fun tokenTypeToString(type: Int): String
+        if type == tkEof
+            return "EOF"
+        else if type == tkWhitespace
+            return "whitespace"
+        else if type == tkLParen
+            return "'('"
+        else if type == tkRParen
+            return "')'"
+        else if type == tkLBracket
+            return "'['"
+        else if type == tkRBracket
+            return "']'"
+        else if type == tkDot
+            return "'.'"
+        else if type == tkComma
+            return "','"
+        else if type == tkClause
+            return "':-'"
+        else if type == tkVar
+            return "variable"
+        else if type == tkAtom
+            return "atom"
+        else if type == tkNumber
+            return "number"
+        else if type == tkAntiQuote
+            return "antiquote"
+        else
+            return "invalid token"
 
-}
 

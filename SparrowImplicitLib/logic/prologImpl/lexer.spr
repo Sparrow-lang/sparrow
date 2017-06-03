@@ -1,217 +1,166 @@
-import token;
-import errorReporter;
+import token
+import errorReporter
 
-[rtct] class Lexer(sourceType, errorReporterType: Type) if CharRange(#$sourceType)
-{
-    using TokenType = Token;
-    using RetType = TokenType;
+[rtct]
+    class Lexer(sourceType, errorReporterType: Type)
+        using TokenType = Token
+        using RetType = TokenType
 
-    fun ctor(source: @sourceType, errorReporter: @errorReporterType)
-    {
-        var startLoc: Location;
-        startLoc setOne;
-        this.ctor(source, errorReporter, startLoc);
-    }
+        var _source: sourceType
+        var _errorReporter: errorReporterType
+        var _curToken: Token
+        var _curLocation: Location
 
-    fun ctor(source: @sourceType, errorReporter: @errorReporterType, startLoc: Location)
-    {
-        this._source ctor source;
-        this._errorReporter ctor errorReporter;
-        this._curToken ctor;
-        this._curLocation ctor startLoc;
+        fun ctor(source: @sourceType, errorReporter: @errorReporterType)
+            var startLoc: Location
+            startLoc setOne
+            this.ctor(source, errorReporter, startLoc)
 
-        _curLocation setAsStartOf _curLocation;
+        fun ctor(source: @sourceType, errorReporter: @errorReporterType, startLoc: Location)
+            this._source ctor source
+            this._errorReporter ctor errorReporter
+            this._curToken ctor
+            this._curLocation ctor startLoc
 
-        // Read the first token
-        this._curToken = _getNextToken();
-    }
+            _curLocation setAsStartOf _curLocation
 
-    fun isEmpty             = _source.isEmpty();
-    fun front               = _curToken;
-    fun ()                  = _curToken;
+            // Read the first token
+            this._curToken = this._getNextToken
 
-    fun popFront            { _curToken = _getNextToken(); }
-    fun pre_++ : RetType    { popFront(); return _curToken; }
-    fun post_++ : RetType   { var res = _curToken; popFront(); return res; }
+    fun mkLexer(source: @CharRange, errorReporter: @AnyType) = Lexer(-@typeOf(source), -@typeOf(errorReporter))(source, errorReporter)
+    fun mkLexer(source: @CharRange, errorReporter: @AnyType, startLoc: Location) = Lexer(-@typeOf(source), -@typeOf(errorReporter))(source, errorReporter, startLoc)
 
-    fun _getNextToken: Token
-    {
+    fun isEmpty(this: @Lexer)             = _source.isEmpty
+    fun front(this: @Lexer)               = _curToken
+    fun ()(this: @Lexer)                  = _curToken
+
+    fun popFront(this: @Lexer)            { _curToken = this._getNextToken }
+    //fun pre_++(this: @Lexer): RetType    { this.popFront; return _curToken }
+    //fun post_++(this: @Lexer): RetType   { var res = _curToken; this.popFront; return res }
+
+    fun _getNextToken(this: @Lexer): Token
         // The current location starts where the last one ended
-        _curLocation stepOver;
+        _curLocation stepOver
 
         // First check if the source is empty; if so, return an EOF token
-        if ( _source.isEmpty() )
-            return Token(_curLocation, tkEof);
+        if _source.isEmpty
+            return Token(_curLocation, tkEof)
 
         // Get the first character in the source
-        var ch = _source();
+        var ch = _source()
 
         // Check for whitespace
-        if ( isSpace(ch) )
-        {
-            _consumeWhiteSpace();    // Just drop it
-            return _getNextToken();  // Get the next token
-        }
+        if isSpace(ch)
+            this._consumeWhiteSpace    // Just drop it
+            return this._getNextToken  // Get the next token
 
         // Check for comments
-        if ( ch == '%'.char )
-        {
-            _consumeLineComment();   // Just drop all characters until the end of line
-            return _getNextToken();  // Get the next token
-        }
+        if ch == '%'.char
+            this._consumeLineComment   // Just drop all characters until the end of line
+            return this._getNextToken  // Get the next token
 
 
-        if ( isAlnum(ch) )
-        {
+        if isAlnum(ch)
             // Check for numbers, variables and string atoms
-            if ( isDigit(ch) )
-            {
-                var data = _consumeNumber();
-                return Token(_curLocation, tkNumber, data);
-            }
-            else if ( isUpper(ch) )
-            {
-                var data = _consumeIdentifier();
-                return Token(_curLocation, tkVar, data);
-            }
+            if isDigit(ch)
+                var data = this._consumeNumber
+                return Token(_curLocation, tkNumber, data)
+            else if isUpper(ch)
+                var data = this._consumeIdentifier
+                return Token(_curLocation, tkVar, data)
             else
-            {
-                var data = _consumeIdentifier();
-                if ( data == String("is") )
-                    return Token(_curLocation, tkIs, data);
-                return Token(_curLocation, tkAtom, data);
-            }
-        }
-        else if ( ch == '$'.char )
-        {
-            var data = _consumeAntiQuote();
-            return Token(_curLocation, tkAntiQuote, data);
-        }
+                var data = this._consumeIdentifier
+                if data == String("is")
+                    return Token(_curLocation, tkIs, data)
+                return Token(_curLocation, tkAtom, data)
+        else if ch == '$'.char
+            var data = this._consumeAntiQuote
+            return Token(_curLocation, tkAntiQuote, data)
         else
-        {
-            var chNext = _advanceSource();
-            if ( ch == '('.char )
-                return Token(_curLocation, tkLParen);
-            else if ( ch == ')'.char )
-                return Token(_curLocation, tkRParen);
-            else if ( ch == '['.char )
-                return Token(_curLocation, tkLBracket);
-            else if ( ch == ']'.char )
-                return Token(_curLocation, tkRBracket);
-            else if ( ch == '.'.char )
-                return Token(_curLocation, tkDot);
-            else if ( ch == ','.char )
-                return Token(_curLocation, tkComma);
-            else if ( ch == '+'.char )
-                return Token(_curLocation, tkOpPlus);
-            else if ( ch == '-'.char )
-                return Token(_curLocation, tkOpMinus);
-            else if ( ch == '*'.char )
-                return Token(_curLocation, tkOpMul);
-            else if ( ch == '/'.char )
-                return Token(_curLocation, tkOpDiv);
-            else if ( ch == ':'.char && chNext == '-'.char )
-            {
-                _advanceSource();
-                return Token(_curLocation, tkClause);
-            }
+            var chNext = this._advanceSource
+            if ch == '('.char
+                return Token(_curLocation, tkLParen)
+            else if ch == ')'.char
+                return Token(_curLocation, tkRParen)
+            else if ch == '['.char
+                return Token(_curLocation, tkLBracket)
+            else if ch == ']'.char
+                return Token(_curLocation, tkRBracket)
+            else if ch == '.'.char
+                return Token(_curLocation, tkDot)
+            else if ch == ','.char
+                return Token(_curLocation, tkComma)
+            else if ch == '+'.char
+                return Token(_curLocation, tkOpPlus)
+            else if ch == '-'.char
+                return Token(_curLocation, tkOpMinus)
+            else if ch == '*'.char
+                return Token(_curLocation, tkOpMul)
+            else if ch == '/'.char
+                return Token(_curLocation, tkOpDiv)
+            else if ch == ':'.char && chNext == '-'.char
+                this._advanceSource
+                return Token(_curLocation, tkClause)
 
-        }
 
-        var errMsg: String = "Invalid character found while parsing Prolog code: ";
-        errMsg.append(ch);
-        _errorReporter.raiseError(_curLocation, errMsg.asStringRef());
-        return Token(_curLocation, tkEof);
-    }
+        var errMsg: String = "Invalid character found while parsing Prolog code: "
+        errMsg.append(ch)
+        _errorReporter.raiseError(_curLocation, errMsg.asStringRef)
+        return Token(_curLocation, tkEof)
 
-    fun _consumeWhiteSpace
-    {
-        var ch = _source();
-        while !_source.isEmpty() && isSpace(ch)
-            ch = _advanceSource();
-    }
-    fun _consumeLineComment
-    {
-        var ch = _source();
-        while !_source.isEmpty() && ch != '\n'.char
-            ch = _advanceSource();
-        if ( !_source.isEmpty() )
-            _advanceSource();
-    }
-    fun _consumeNumber: String
-    {
-        var res: String;
-        var ch = _source();
-        while !_source.isEmpty() && isDigit(ch)
-        {
-            res.pushBack(ch);
-            ch = _advanceSource();
-        }
-        return res;
-    }
-    fun _consumeIdentifier: String
-    {
-        var res: String;
-        var ch = _source();
-        while !_source.isEmpty() && isAlnum(ch)
-        {
-            res.pushBack(ch);
-            ch = _advanceSource();
-        }
-        return res;
-    }
-    fun _consumeAntiQuote: String
-    {
-        var ch = _advanceSource();
-        if ( ch == '{'.char )
-        {
-            var res: String;
-            var braces = 1;
-            ch = _advanceSource();
-            _curLocation stepOver;
-            while !_source.isEmpty()
-            {
-                if ( _source.isEmpty() )
-                    _errorReporter.raiseError(_curLocation, "End of stream found inside anti-quotation");
-                if ( ch == '}'.char )
-                {
-                    if ( --braces == 0 )
-                    {
-                        ch = _advanceSource();
-                        break;
-                    }
-                }
+    fun _consumeWhiteSpace(this: @Lexer)
+        var ch = _source()
+        while !_source.isEmpty && isSpace(ch)
+            ch = this._advanceSource
+    fun _consumeLineComment(this: @Lexer)
+        var ch = _source()
+        while !_source.isEmpty && ch != '\n'.char
+            ch = this._advanceSource
+        if !_source.isEmpty
+            this._advanceSource
+    fun _consumeNumber(this: @Lexer): String
+        var res: String
+        var ch = _source()
+        while !_source.isEmpty && isDigit(ch)
+            res.pushBack(ch)
+            ch = this._advanceSource
+        return res
+    fun _consumeIdentifier(this: @Lexer): String
+        var res: String
+        var ch = _source()
+        while !_source.isEmpty && isAlnum(ch)
+            res.pushBack(ch)
+            ch = this._advanceSource
+        return res
+    fun _consumeAntiQuote(this: @Lexer): String
+        var ch = this._advanceSource
+        if ch == '{'.char
+            var res: String
+            var braces = 1
+            ch = this._advanceSource
+            _curLocation stepOver
+            while !_source.isEmpty
+                if _source.isEmpty
+                    _errorReporter.raiseError(_curLocation, "End of stream found inside anti-quotation")
+                if ch == '}'.char
+                    if --braces == 0
+                        ch = this._advanceSource
+                        break
 
-                res.pushBack(ch);
+                res.pushBack(ch)
 
-                if ( ch == '{'.char )
-                    ++braces;
-                ch = _advanceSource();
-            }
-            return res;
-        }
+                if ch == '{'.char
+                    ++braces
+                ch = this._advanceSource
+            return res
         else
-        {
-            _curLocation stepOver;
-            return _consumeIdentifier();
-        }
-    }
+            _curLocation stepOver
+            return this._consumeIdentifier
 
-    fun _advanceSource: Char
-    {
-        if ( _source() == '\n'.char )
-            _curLocation addLines 1;
+    fun _advanceSource(this: @Lexer): Char
+        if _source() == '\n'.char
+            _curLocation addLines 1
         else
-            _curLocation addColumns 1;
-        _source popFront;
-        return _source front;
-    }
-
-    var _source: sourceType;
-    var _errorReporter: errorReporterType;
-    var _curToken: Token;
-    var _curLocation: Location;
-}
-
-[rtct] fun mkLexer(source: @CharRange, errorReporter: @AnyType) = Lexer(-@typeOf(source), -@typeOf(errorReporter))(source, errorReporter);
-[rtct] fun mkLexer(source: @CharRange, errorReporter: @AnyType, startLoc: Location) = Lexer(-@typeOf(source), -@typeOf(errorReporter))(source, errorReporter, startLoc);
+            _curLocation addColumns 1
+        _source popFront
+        return _source front

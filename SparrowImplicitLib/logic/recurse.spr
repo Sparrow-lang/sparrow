@@ -1,64 +1,54 @@
-module logic.recurse;
+module logic.recurse
 
-import predicates;
-import std.bind;
+import predicates
+import std.bind
 
 fun rec(pred: @AnyType) \
-    = Impl.mkRecurse(mkBindAll(pred)) \
-    if isValid(pred());
+    = _mkRecurse(mkBindAll(pred)) \
+    if isValid(pred())
 fun rec(pred, a1: @AnyType) \
-    = Impl.mkRecurse(mkBindAll(pred, mkLRef(a1))) \
-    if isValid(pred(a1));
+    = _mkRecurse(mkBindAll(pred, mkLRef(a1))) \
+    if isValid(pred(a1))
 fun rec(pred, a1, a2: @AnyType) \
-    = Impl.mkRecurse(mkBindAll(pred, a1, mkLRef(a2))) \
-    if isValid(pred(a1, a2));
+    = _mkRecurse(mkBindAll(pred, a1, mkLRef(a2))) \
+    if isValid(pred(a1, a2))
 fun rec(pred, a1, a2, a3: @AnyType) \
-    = Impl.mkRecurse(mkBindAll(pred, mkLRef(a1), mkLRef(a2), mkLRef(a3))) \
-    if isValid(pred(a1, a2, a3));
+    = _mkRecurse(mkBindAll(pred, mkLRef(a1), mkLRef(a2), mkLRef(a3))) \
+    if isValid(pred(a1, a2, a3))
 fun rec(pred, a1, a2, a3, a4: @AnyType) \
-    = Impl.mkRecurse(mkBindAll(pred, mkLRef(a1), mkLRef(a2), mkLRef(a3), mkLRef(a4))) \
-    if isValid(pred(a1, a2, a3, a4));
+    = _mkRecurse(mkBindAll(pred, mkLRef(a1), mkLRef(a2), mkLRef(a3), mkLRef(a4))) \
+    if isValid(pred(a1, a2, a3, a4))
 fun rec(pred, a1, a2, a3, a4, a5: @AnyType) \
-    = Impl.mkRecurse(mkBindAll(pred, mkLRef(a1), mkLRef(a2), mkLRef(a3), mkLRef(a4), mkLRef(a5))) \
-    if isValid(pred(a1, a2, a3, a4, a5));
+    = _mkRecurse(mkBindAll(pred, mkLRef(a1), mkLRef(a2), mkLRef(a3), mkLRef(a4), mkLRef(a5))) \
+    if isValid(pred(a1, a2, a3, a4, a5))
 
-package Impl
-{
-    fun mkRecurse(predGenerator: @AnyType) = Recurse(-@typeOf(predGenerator))(predGenerator);
-}
+fun _mkRecurse(predGenerator: @AnyType) = Recurse(-@typeOf(predGenerator))(predGenerator)
 
 
 class Recurse(predGeneratorType: Type)
-{
+    var _relation: Predicate
+    var _predGenerator: predGeneratorType
+
     fun ctor(other: @Recurse)
-        this._relation ctor other._relation;
-        this._predGenerator ctor other._predGenerator;
+        this._relation ctor other._relation
+        this._predGenerator ctor other._predGenerator
     fun ctor(predGenerator: @predGeneratorType)
-    {
-        this._relation ctor;
-        this._predGenerator ctor predGenerator;
-        [ct] if ( isValid(logicDebug) )
-            cout << "Recurse.ctor: " << this << "\n";
-    }
+        this._relation ctor
+        this._predGenerator ctor predGenerator
+        [ct] if isValid(logicDebug)
+            cout << "Recurse.ctor: " << this << "\n"
 
     fun (): Bool
-    {
-        if ( _relation.isNull() )
-            _relation = _predGenerator();
-        [ct] if ( isValid(logicDebug) )
-            cout << "Recurse.(): " << this << "\n";
-        return _relation();
-    }
+        if _relation.isNull()
+            _relation = _predGenerator()
+        [ct] if isValid(logicDebug)
+            cout << "Recurse.(): " << this << "\n"
+        return _relation()
 
-    fun >>(os: @OutStream)
-    {
-        os << "Recurse(this=" << mkStreamRefWrapper(this)
-           << ", fun=" << _relation;
-        [ct] if ( isValid( os << _predGenerator ) )
-            os << ", gen=" << _predGenerator;
-        os << ")";
-    }
 
-    var _relation: Predicate;
-    var _predGenerator: predGeneratorType;
-}
+fun >>(this: @Recurse, os: @OutStream)
+    os << "Recurse(this=" << mkStreamRefWrapper(this)
+       << ", fun=" << _relation
+    [ct] if isValid( os << _predGenerator )
+        os << ", gen=" << _predGenerator
+    os << ")"

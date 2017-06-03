@@ -1,173 +1,148 @@
-import token;
-import std.vector;
-import std.sharedPtr;
+import token
+import std.vector
+import std.sharedPtr
 
-using PrologProgramPtr = SharedPtr(PrologProgram);
-using PredicateClausePtr = SharedPtr(PredicateClause);
-using ConditionPtr = SharedPtr(Condition);
-using ExpressionPtr = SharedPtr(Expression);
+using PrologProgramPtr = SharedPtr(PrologProgram)
+using PredicateClausePtr = SharedPtr(PredicateClause)
+using ConditionPtr = SharedPtr(Condition)
+using ExpressionPtr = SharedPtr(Expression)
 
-[ct] class PrologProgram
-{
-    var predicates: Vector(PredicateClausePtr);
-    var loc: Location;
+using ekAtom = 0
+using ekNumber = 1
+using ekVar = 2
+using ekAntiQuote = 3
+using ekOpPlus = 4
+using ekOpMinus = 5
+using ekOpMul = 6
+using ekOpDiv = 7
 
-    fun >>(os: @OutStream)
+using ckPredCall = 8
+using ckIsExpr = 9
+
+[ct]
+    class PrologProgram
+        var predicates: Vector(PredicateClausePtr)
+        var loc: Location
+
+    class PredicateClause
+        var name: String
+        var args: Vector(ExpressionPtr)
+        var conditions: Vector(ConditionPtr)
+        var loc: Location
+
+    class Condition
+        var kind: Int
+        var loc: Location
+        var args: Vector(SharedPtr(Expression))
+        var predName: String
+
+        fun ctor(loc: @Location, predName: @String, args: @Vector(SharedPtr(Expression)))
+            this.kind ctor ckPredCall
+            this.loc ctor loc
+            this.predName ctor predName
+            this.args ctor args
+
+        fun ctor(loc: @Location, isLeft, isRight: @SharedPtr(Expression))
+            this.kind ctor ckIsExpr
+            this.loc ctor loc
+            this.predName ctor
+            this.args ctor
+            this.args.reserve(2)
+            this.args.pushBack(isLeft)
+            this.args.pushBack(isRight)
+
+    class Expression
+        var kind: Int
+        var loc: Location
+        var data: String
+        var left, right: SharedPtr(Expression)
+        var typeSetIdx: Int
+        var paramIdx: Int
+
+        fun ctor(kind: Int, loc: @Location)
+            this.kind ctor kind
+            this.loc ctor loc
+            this.data ctor
+            this.left ctor
+            this.right ctor
+            this.typeSetIdx ctor -1
+            this.paramIdx ctor -1
+
+        fun ctor(kind: Int, loc: @Location, data: @String)
+            this.kind ctor kind
+            this.loc ctor loc
+            this.data ctor data
+            this.left ctor
+            this.right ctor
+            this.typeSetIdx ctor -1
+            this.paramIdx ctor -1
+
+        fun ctor(kind: Int, loc: @Location, left, right: @SharedPtr(Expression))
+            this.kind ctor kind
+            this.loc ctor loc
+            this.data ctor
+            this.left ctor left
+            this.right ctor right
+            this.typeSetIdx ctor -1
+            this.paramIdx ctor -1
+
+    fun mkAtom(loc: @Location, atom: @String): ExpressionPtr = mkShared(Expression, ekAtom, loc, atom)
+    fun mkNumber(loc: @Location, data: @String): ExpressionPtr = mkShared(Expression, ekNumber, loc, data)
+    fun mkVar(loc: @Location, varName: @String): ExpressionPtr = mkShared(Expression, ekVar, loc, varName)
+    fun mkAntiQuote(loc: @Location, aq: @String): ExpressionPtr = mkShared(Expression, ekAntiQuote, loc, aq)
+
+    fun mkOpPlus(loc: @Location, l, r: @ExpressionPtr): ExpressionPtr = mkShared(Expression, ekOpPlus, loc, l, r)
+    fun mkOpMinus(loc: @Location, l, r: @ExpressionPtr): ExpressionPtr = mkShared(Expression, ekOpMinus, loc, l, r)
+    fun mkOpMul(loc: @Location, l, r: @ExpressionPtr): ExpressionPtr = mkShared(Expression, ekOpMul, loc, l, r)
+    fun mkOpDiv(loc: @Location, l, r: @ExpressionPtr): ExpressionPtr = mkShared(Expression, ekOpDiv, loc, l, r)
+
+    fun mkPredCall(loc: @Location, predName: @String, args: @Vector(ExpressionPtr)): ConditionPtr = mkShared(Condition, loc, predName, args)
+    fun mkIsExpr(loc: @Location, l, r: @ExpressionPtr): ConditionPtr = mkShared(Condition, loc, l, r)
+
+    fun >>(this: @PrologProgram, os: @OutStream)
         for p = predicates.all()
-            os << p << endl;
-}
+            os << p << endl
 
-[ct] class PredicateClause
-{
-    var name: String;
-    var args: Vector(ExpressionPtr);
-    var conditions: Vector(ConditionPtr);
-    var loc: Location;
-
-    fun >>(os: @OutStream)
-    {
-        os << name << "(";
+    fun >>(this: @PredicateClause, os: @OutStream)
+        os << name << "("
         for i = 0..args.size()
-            if ( i>0 )
-                os << ", ";
-            os << args(i).get();
-        os << ") :- ";
+            if i>0
+                os << ", "
+            os << args(i).get()
+        os << ") :- "
         for i = 0..conditions.size()
-            if ( i>0 )
-                os << ", ";
-            os << conditions(i).get();
-        os << ".";
-    }
-}
+            if i>0
+                os << ", "
+            os << conditions(i).get()
+        os << "."
 
-[ct] class Condition
-{
-    var kind: Int;
-    var loc: Location;
-    var args: Vector(SharedPtr(Expression));
-    var predName: String;
-
-    fun ctor(loc: @Location, predName: @String, args: @Vector(SharedPtr(Expression)))
-    {
-        this.kind ctor ckPredCall;
-        this.loc ctor loc;
-        this.predName ctor predName;
-        this.args ctor args;
-    }
-
-    fun ctor(loc: @Location, isLeft, isRight: @SharedPtr(Expression))
-    {
-        this.kind ctor ckIsExpr;
-        this.loc ctor loc;
-        this.predName ctor;
-        this.args ctor;
-        this.args.reserve(2);
-        this.args.pushBack(isLeft);
-        this.args.pushBack(isRight);
-    }
-
-    fun >>(os: @OutStream)
-    {
-        if ( kind == ckPredCall )
-        {
-            os << predName << '(';
+    fun >>(this: @Condition, os: @OutStream)
+        if kind == ckPredCall
+            os << predName << '('
             for i = 0..args.size()
-                if ( i>0 )
-                    os << ", ";
-                os << args(i).get();
-            os << ')';
-        }
+                if i>0
+                    os << ", "
+                os << args(i).get()
+            os << ')'
         else
-            os << args(0).get() << " is " << args(1).get();
-    }
-}
+            os << args(0).get() << " is " << args(1).get()
 
-[ct] class Expression
-{
-    var kind: Int;
-    var loc: Location;
-    var data: String;
-    var left, right: SharedPtr(Expression);
-    var typeSetIdx: Int;
-    var paramIdx: Int;
-
-    fun ctor(kind: Int, loc: @Location)
-    {
-        this.kind ctor kind;
-        this.loc ctor loc;
-        this.data ctor;
-        this.left ctor;
-        this.right ctor;
-        this.typeSetIdx ctor -1;
-        this.paramIdx ctor -1;
-    }
-
-    fun ctor(kind: Int, loc: @Location, data: @String)
-    {
-        this.kind ctor kind;
-        this.loc ctor loc;
-        this.data ctor data;
-        this.left ctor;
-        this.right ctor;
-        this.typeSetIdx ctor -1;
-        this.paramIdx ctor -1;
-    }
-
-    fun ctor(kind: Int, loc: @Location, left, right: @SharedPtr(Expression))
-    {
-        this.kind ctor kind;
-        this.loc ctor loc;
-        this.data ctor;
-        this.left ctor left;
-        this.right ctor right;
-        this.typeSetIdx ctor -1;
-        this.paramIdx ctor -1;
-    }
-
-    fun >>(os: @OutStream)
-    {
-        if ( kind == ekAtom )
-            os << data;
-        else if ( kind == ekNumber )
-            os << data;
-        else if ( kind == ekVar )
-            os << "var<" << data << '>';
-        else if ( kind == ekAntiQuote )
-            os << "aq<" << data << '>';
-        else if ( kind == ekOpPlus )
-            os << '(' << left.get() << '+' << right.get() << ')';
-        else if ( kind == ekOpMinus )
-            os << '(' << left.get() << '-' << right.get() << ')';
-        else if ( kind == ekOpMul )
-            os << '(' << left.get() << '*' << right.get() << ')';
-        else if ( kind == ekOpDiv )
-            os << '(' << left.get() << '/' << right.get() << ')';
+    fun >>(this: @Expression, os: @OutStream)
+        if kind == ekAtom
+            os << data
+        else if kind == ekNumber
+            os << data
+        else if kind == ekVar
+            os << "var<" << data << '>'
+        else if kind == ekAntiQuote
+            os << "aq<" << data << '>'
+        else if kind == ekOpPlus
+            os << '(' << left.get() << '+' << right.get() << ')'
+        else if kind == ekOpMinus
+            os << '(' << left.get() << '-' << right.get() << ')'
+        else if kind == ekOpMul
+            os << '(' << left.get() << '*' << right.get() << ')'
+        else if kind == ekOpDiv
+            os << '(' << left.get() << '/' << right.get() << ')'
         else
-            os << "<invalid expression kind:" << kind << ">";
-    }
-}
-
-using ekAtom = 0;
-using ekNumber = 1;
-using ekVar = 2;
-using ekAntiQuote = 3;
-using ekOpPlus = 4;
-using ekOpMinus = 5;
-using ekOpMul = 6;
-using ekOpDiv = 7;
-
-using ckPredCall = 8;
-using ckIsExpr = 9;
-
-[ct] fun mkAtom(loc: @Location, atom: @String): ExpressionPtr = mkShared(Expression, ekAtom, loc, atom);
-[ct] fun mkNumber(loc: @Location, data: @String): ExpressionPtr = mkShared(Expression, ekNumber, loc, data);
-[ct] fun mkVar(loc: @Location, varName: @String): ExpressionPtr = mkShared(Expression, ekVar, loc, varName);
-[ct] fun mkAntiQuote(loc: @Location, aq: @String): ExpressionPtr = mkShared(Expression, ekAntiQuote, loc, aq);
-
-[ct] fun mkOpPlus(loc: @Location, l, r: @ExpressionPtr): ExpressionPtr = mkShared(Expression, ekOpPlus, loc, l, r);
-[ct] fun mkOpMinus(loc: @Location, l, r: @ExpressionPtr): ExpressionPtr = mkShared(Expression, ekOpMinus, loc, l, r);
-[ct] fun mkOpMul(loc: @Location, l, r: @ExpressionPtr): ExpressionPtr = mkShared(Expression, ekOpMul, loc, l, r);
-[ct] fun mkOpDiv(loc: @Location, l, r: @ExpressionPtr): ExpressionPtr = mkShared(Expression, ekOpDiv, loc, l, r);
-
-[ct] fun mkPredCall(loc: @Location, predName: @String, args: @Vector(ExpressionPtr)): ConditionPtr = mkShared(Condition, loc, predName, args);
-[ct] fun mkIsExpr(loc: @Location, l, r: @ExpressionPtr): ConditionPtr = mkShared(Condition, loc, l, r);
+            os << "<invalid expression kind:" << kind << ">"

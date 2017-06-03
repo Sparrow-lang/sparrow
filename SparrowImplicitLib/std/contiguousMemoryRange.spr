@@ -1,48 +1,40 @@
-module std.contiguousMemoryRange;
+module std.contiguousMemoryRange
 
-import rawPtr(RawPtr);
-import ranges(..);
+import rawPtr(RawPtr)
+import ranges(..)
 
-[rtct] class ContiguousMemoryRange(valueType: Type)
-{
-    using PtrType = RawPtr(valueType);
-    using RetType = @valueType;
+[rtct]
+    [initCtor]
+    class ContiguousMemoryRange(valueType: Type)
+        using PtrType = RawPtr(valueType)
+        using RetType = @valueType
 
-    fun ctor(begin, end: PtrType)
-    {
-        this._begin ctor begin;
-        this._end ctor end;
-    }
+        var _begin, _end: PtrType
 
-    fun isEmpty                 = _end.diff(_begin) <= 0;
-    fun size: SizeType          = _end.diff(_begin);
+    fun isEmpty(this: ContiguousMemoryRange)                 = _end.diff(_begin) <= 0
+    fun size(this: ContiguousMemoryRange): SizeType          = _end.diff(_begin)
 
-    fun front: RetType          = _begin.value();
-    fun back: RetType           = _end.advance(-1).value();
-    fun () : RetType            = _begin.value();
-    fun ()(n: SizeType): RetType = _begin.advance(DiffType(n)).value();
+    fun front(this: ContiguousMemoryRange): RetType          = _begin.value
+    fun back(this: ContiguousMemoryRange): RetType           = _end.advance(-1).value
+    fun ()(this: ContiguousMemoryRange) : RetType            = _begin.value
+    fun ()(this: ContiguousMemoryRange, n: SizeType): RetType = _begin.advance(DiffType(n)).value
 
-    fun popFront                { _begin = _begin.advance(); }
-    fun popBack                 { _end = _end.advance(-1); }
-    fun popFront(n: SizeType)   { _begin = _begin.advance(DiffType(n)); }
-    fun popBack(n: SizeType)    { _end = _end.advance(-DiffType(n)); }
+    fun popFront(this: @ContiguousMemoryRange)                { _begin = _begin.advance }
+    fun popBack(this: @ContiguousMemoryRange)                 { _end = _end.advance(-1) }
+    fun popFront(this: @ContiguousMemoryRange, n: SizeType)   { _begin = _begin.advance(DiffType(n)) }
+    fun popBack(this: @ContiguousMemoryRange, n: SizeType)    { _end = _end.advance(-DiffType(n)) }
 
-    fun pre_++ : RetType         { popFront(); return front(); }
-    fun post_++ : RetType        { var res: RetType = front(); popFront(); return res; }
+    fun pre_++(this: @ContiguousMemoryRange) : RetType         { this.popFront; return this.front; }
+    fun post_++(this: @ContiguousMemoryRange) : RetType        { var res: RetType = this.front; this.popFront; return res; }
 
-    fun frontPtr                = _begin;
-    fun backPtr                 = _end;
+    fun frontPtr(this: ContiguousMemoryRange)                = _begin
+    fun backPtr(this: ContiguousMemoryRange)                 = _end
 
-    fun >>(os: @OutStream) if isValid(os << #$valueType)
-    {
-        os << "MemRange(";
-        for i = 0..size {
-            if ( i > 0 )
-                os << ", ";
-            os << this(i);
-        }
-        os << ')';
-    }
+    fun >>(this: ContiguousMemoryRange, os: @OutStream) if isValid(os << this.front)
+        os << "MemRange("
+        for i = 0..this.size
+            if i > 0
+                os << ", "
+            os << this(i)
+        os << ')'
 
-    var _begin, _end: PtrType;
-}

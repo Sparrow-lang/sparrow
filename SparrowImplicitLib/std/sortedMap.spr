@@ -5,7 +5,7 @@ import tuple(Tuple, PairFirst, PairSecond);
 import ranges(transform);
 
 class SortedMap(keyType, dataType, lessType, compareType: Type)
-{
+
     using KeyType = keyType;
     using DataType = dataType;
     using LessType = lessType;
@@ -25,42 +25,38 @@ class SortedMap(keyType, dataType, lessType, compareType: Type)
     fun ctor(range: Range, n: SizeType, less: LessType, comp: CompareType)  { _sortedTable.ctor(range, n, less, comp); }
     fun ctor(other: @SortedMap)                                 { this._sortedTable ctor other._sortedTable; }
 
-    fun lessFunction                            = _sortedTable.lessFunction;
-    fun comparator                              = _sortedTable.comparator;
+fun lessFunction(this: @SortedMap)                            = _sortedTable.lessFunction;
+fun comparator(this: @SortedMap)                              = _sortedTable.comparator;
 
-    fun size                                    = _sortedTable.size();
-    fun isEmpty                                 = _sortedTable.isEmpty();
-    fun capacity                                = _sortedTable.capacity;
-    fun reserve(n: SizeType)                    { _sortedTable.reserve(n); }
+fun size(this: @SortedMap)                                    = _sortedTable.size();
+fun isEmpty(this: @SortedMap)                                 = _sortedTable.isEmpty();
+fun capacity(this: @SortedMap)                                = _sortedTable.capacity;
+fun reserve(this: @SortedMap, n: SizeType)                    { _sortedTable.reserve(n); }
 
-    fun all                                     = _sortedTable.all();
-    fun keys                                    = transform(all(), PairFirst(ValueType)());
-    fun values                                  = transform(all(), PairSecond(ValueType)());
+fun all(this: @SortedMap)                                     = _sortedTable.all;
+fun keys(this: @SortedMap)                                    = transform(_sortedTable.all, PairFirst(ValueType)());
+fun values(this: @SortedMap)                                  = transform(_sortedTable.all, PairSecond(ValueType)());
 
-    fun insert(key: @KeyType, data: @DataType)  = _sortedTable.insert(ValueType(key, data));
-    fun insert(value: @ValueType)               = _sortedTable.insert(value);
-    fun insert(range: Range)                    { _sortedTable.insert(range); }
-    fun remove(key: @KeyType)                   { _sortedTable.remove(key); }
-    fun remove(range: RangeType)                { _sortedTable.remove(range); }
+fun insert(this: @SortedMap, key: @this.KeyType, data: @this.DataType)  = _sortedTable.insert(ValueType(key, data));
+fun insert(this: @SortedMap, value: @this.ValueType)            = _sortedTable.insert(value);
+fun insert(this: @SortedMap, range: Range)                      { _sortedTable.insert(range); }
+fun remove(this: @SortedMap, key: @this.KeyType)                { _sortedTable.remove(key); }
+fun remove(this: @SortedMap, range: this.RangeType)             { _sortedTable.remove(range); }
 
-    fun contains(key: @KeyType)                 = _sortedTable.contains(key);
-    fun count(key: @KeyType)                    = _sortedTable.count(key);
-    fun equalRange(key: @KeyType)               = _sortedTable.equalRange(key);
-    fun find(key: @KeyType)                     = _sortedTable.find(key);
+fun contains(this: @SortedMap, key: @this.KeyType)              = _sortedTable.contains(key);
+fun count(this: @SortedMap, key: @this.KeyType)                 = _sortedTable.count(key);
+fun equalRange(this: @SortedMap, key: @this.KeyType)            = _sortedTable.equalRange(key);
+fun find(this: @SortedMap, key: @this.KeyType)                  = _sortedTable.find(key);
 
-    fun ()(key: @KeyType): @DataType            = at(key);
-    fun at(key: @KeyType): @DataType
-    {
-        var r = _sortedTable.lowerBound(key);
-        if ( r.isEmpty() || !_sortedTable.comparator()(key, r.front().v1) )
-        {
-            var data: DataType;
-            r = _sortedTable.insert(ValueType(key, data));
-        }
-        return r.front().v2;
-    }
+fun ()(this: @SortedMap, key: @this.KeyType): @DataType         = this.at(key);
+fun at(this: @SortedMap, key: @this.KeyType): @DataType
+    var r = _sortedTable.lowerBound(key);
+    if ( r.isEmpty() || !_sortedTable.comparator()(key, r.front().v1) )
 
-    fun clear()                                 { _sortedTable.clear(); }
+        var data: DataType;
+        r = _sortedTable.insert(ValueType(key, data));
+    return r.front().v2;
 
-    fun swap(other: @SortedMap)                 { this._sortedTable swap other._sortedTable; }
-}
+fun clear(this: @SortedMap)                                 { _sortedTable.clear(); }
+
+fun swap(this: @SortedMap, other: typeOf(this))                 { this._sortedTable swap other._sortedTable; }

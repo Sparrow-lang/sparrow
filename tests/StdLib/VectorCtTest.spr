@@ -22,7 +22,7 @@ fun sprMain
 
 [ct] fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
 {
-    var ptr = RawPtr(MyObj).alloc(size);
+    var ptr = allocRawPtr(MyObj, size);
     var ptrEnd = ptr.advance(DiffType(size));
     var i = 0;
 

@@ -14,7 +14,7 @@ concept TokenRange(x: Range) if -@(x.RetType) == Token
 
     fun parse: PrologProgramPtr
     {
-        var resptr = PrologProgramPtr.create();
+        var resptr = mkShared(PrologProgram);
         var res: @PrologProgram = resptr.get();
 
         while !_lexer.isEmpty() && _lexer().type != tkEof
@@ -33,7 +33,7 @@ concept TokenRange(x: Range) if -@(x.RetType) == Token
 
     fun _parsePredicateClause: PredicateClausePtr
     {
-        var resptr = PredicateClausePtr.create();
+        var resptr = mkShared(PredicateClause);
         var res: @PredicateClause = resptr.get();
 
         // Read predicate name

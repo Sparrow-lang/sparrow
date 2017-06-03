@@ -267,7 +267,7 @@ void Feather_checkEvalMode(Node* src, EvalMode referencedEvalMode)
                     continue;
 
                 if ( child->type && child->type->mode == modeRt )
-                    REP_INTERNAL(child->location, "Children of a RT-CT node must not be RT; current mode: %1%") % child->type->mode;
+                    REP_INTERNAL(child->location, "Children of a RT-CT node must not be RT; current mode: %1% (from %2%)") % child->type->mode % child->type;
             }
         }
     }

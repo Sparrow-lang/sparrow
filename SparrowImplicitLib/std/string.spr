@@ -1,407 +1,310 @@
-module std.string;
+module std.string
 
-import contiguousMemoryRange(ContiguousMemoryRange);
-import ranges(rangeSize);
-import rawPtr(RawPtr);
+import contiguousMemoryRange(ContiguousMemoryRange)
+import ranges(rangeSize)
+import rawPtr(RawPtr, allocRawPtr)
 
 // TODO: Make sure that we have the same performance for Strings that we would have for basic char arrays
 // TODO: Can we implement this in terms of Vector?
 // TODO: Can we implement a VectorDetail(Type, InnerSpace), and implement fun Vector(type) = VectorBase(type, 0)
 
 /// String class that has ownership of the characters
-[rtct] class String
-{
-    using ValueType = Char;
-    using ValuePassType = Char;
-    using RangeType = StringRef;
+[rtct]
+    class String
+        using ValueType = Char
+        using ValuePassType = Char
+        using RangeType = StringRef
 
-    fun ctor
-    {
-        _begin.ctor();
-        _end.ctor();
-        _endOfStore.ctor();
-    }
-    fun ctor(size: SizeType)
-    {
-        _begin       ctor _PtrType.alloc(size+1);
-        _end         ctor _begin.advance(DiffType(size));
-        _endOfStore  ctor _end;
-        _end.value() = Char(0);
-    }
-    fun ctor(count: SizeType, ch: Char)
-    {
-        ctor(count);
-        memset(_begin.bytePtr(), reinterpretCast(@Byte, ch), count);
-    }
-    fun ctor(other: @String)
-    {
-        var size = other size;
-        ctor(size);
-        memcpy(_begin.bytePtr(), other._begin.bytePtr(), size);
-    }
-    [convert] fun ctor(other: @StringRef)
-    {
-        var size = other size;
-        ctor(size);
-        memcpy(_begin.bytePtr(), other.begin, size);
-    }
-    fun ctor(_begin, _end: _PtrType)
-    {
-        var size = _end.diff(_begin);
-        ctor(size);
-        memcpy(this._begin.bytePtr(), _begin.bytePtr(), size);
-    }
-    fun ctor(range: Range) if typeOf(range) != String
-    {
-        ctor(rangeSize(range));
-        var i=0;
-        for ch = range
-        {
-            _begin.advance(DiffType(i++)).value() = ch;
-        }
-    }
+        using _initialCapacity = SizeType(16)
+        using _growthFactor = 1.5
+        using _PtrType = RawPtr(Char)
 
-    [rt] fun ctorFromCt(src: String ct)
-    {
-        this.ctor(src.asStringRef());
-    }
+        var _begin, _end, _endOfStore: _PtrType
 
-    fun dtor
-    {
-        _begin.freePtr();
-    }
+        fun ctor
+            _begin ctor
+            _end ctor
+            _endOfStore ctor
+        fun ctor(size: SizeType)
+            _begin       ctor allocRawPtr(Char, size+1)
+            _end         ctor _begin.advance(DiffType(size))
+            _endOfStore  ctor _end
+            _end.value = Char(0)
+        fun ctor(count: SizeType, ch: Char)
+            ctor(count)
+            memset(_begin.bytePtr, reinterpretCast(@Byte, ch), count)
+        fun ctor(other: @String)
+            var size = other size
+            ctor(size)
+            memcpy(_begin.bytePtr, other._begin.bytePtr, size)
+        [convert] fun ctor(other: @StringRef)
+            var size = other size
+            ctor(size)
+            memcpy(_begin.bytePtr, other.begin, size)
+        fun ctor(_begin, _end: _PtrType)
+            var size = _end.diff(_begin)
+            ctor(size)
+            memcpy(this._begin.bytePtr, _begin.bytePtr, size)
+        fun ctor(range: Range) if typeOf(range) != String
+            ctor(rangeSize(range))
+            var i=0
+            for ch = range
+                _begin.advance(DiffType(i++)).value = ch
 
-    fun swap(other: @String)
-    {
-        this._begin      swap    other._begin;
-        this._end        swap    other._end;
-        this._endOfStore swap    other._endOfStore;
-    }
+        [rt] fun ctorFromCt(src: String ct)
+            this ctor src.asStringRef
 
-    fun asStringRef             = StringRef(_begin.bytePtr(), _end.bytePtr());
+        fun dtor
+            _begin.freePtr
+
+        fun =(other: @String): @String
+            var tmp = other
+            tmp.swap(this)
+            return this
+
+        fun ==(other: @String): Bool
+            if this.size != other.size
+                return false
+
+            var i: SizeType = 0
+            var s = this.size
+
+            while i < s ; i++
+                if this(i) != other(i)
+                    return false
+            return true
+
+        fun !=(other: @String): Bool = !(this == other)
+
+    fun swap(this: @String, other: @String)
+        this._begin      swap    other._begin
+        this._end        swap    other._end
+        this._endOfStore swap    other._endOfStore
+
+    fun asStringRef(this: @String)             = StringRef(_begin.bytePtr, _end.bytePtr)
 
 
-    fun size: SizeType          = _end.diff(_begin);
-    fun isEmpty                 = _begin == _end;
-    fun capacity: SizeType      = _endOfStore.diff(_begin);
+    fun size(this: @String): SizeType          = _end.diff(_begin)
+    fun isEmpty(this: @String)                 = _begin == _end
+    fun capacity(this: @String): SizeType      = _endOfStore.diff(_begin)
 
-    fun at(index: SizeType)     = _begin.advance(DiffType(index)).value();
-    fun ()(index: SizeType)     = _begin.advance(DiffType(index)).value();
-    fun front                   = _begin.value();
-    fun back                    = _end.advance(-1).value();
-    fun all                     = RangeType(_begin.bytePtr, _end.bytePtr);
-    fun subrange(index: SizeType, num: SizeType): RangeType \
-                                = RangeType(_begin.advance(DiffType(index)).bytePtr, _begin.advance(DiffType(index + num)).bytePtr);
+    fun at(this: @String, index: SizeType)     = _begin.advance(DiffType(index)).value
+    fun ()(this: @String, index: SizeType)     = _begin.advance(DiffType(index)).value
+    fun front(this: @String)                   = _begin.value
+    fun back(this: @String)                    = _end.advance(-1).value
+    fun all(this: @String)                     = StringRef(_begin.bytePtr, _end.bytePtr)
+    fun subrange(this: @String, index: SizeType, num: SizeType): StringRef \
+                                = StringRef(_begin.advance(DiffType(index)).bytePtr, _begin.advance(DiffType(index + num)).bytePtr)
 
-    fun pushBack(value: Char)
-    {
-        if ( _end == _endOfStore )
-        {
-            var t = 2 * capacity();
+    fun pushBack(this: @String, value: Char)
+        if _end == _endOfStore
+            var t = 2 * this.capacity
 
-            if ( t < 2 )
-                t = 2;
-            reserve(t);
-        }
-        _end.value().ctor(value);
-        _end = _end.advance();
-    }
-    fun +=(value: Char) { pushBack(value); }
+            if t < 2
+                t = 2
+            this.reserve(t)
+        _end.value ctor value
+        _end = _end.advance
+    fun +=(this: @String, value: Char)
+        this.pushBack(value)
 
-    fun popBack()
-    {
-        _end = _end advance -1;
-        _end.value() dtor;
-    }
+    fun popBack(this: @String)
+        _end = _end advance -1
+        _end.value dtor
 
-    fun resize(n: SizeType)
-    {
-        var oldSize = size();
+    fun resize(this: @String, n: SizeType)
+        var oldSize = this.size
 
-        if ( n == oldSize )
-            return;
+        if n == oldSize
+            return
 
-        if ( n < oldSize )
-        {
-            var newEnd = _begin.advance(DiffType(n));
+        if n < oldSize
+            var newEnd = _begin.advance(DiffType(n))
 
             while _end != newEnd
-            {
-                _end = _end.advance(-1);
-                _end.value().dtor();
-            }
-        }
+                _end = _end.advance(-1)
+                _end.value dtor
         else
-        {
-            reserve(n);
+            this.reserve(n)
 
-            var newEnd = _begin.advance(DiffType(n));
+            var newEnd = _begin.advance(DiffType(n))
 
             while _end != newEnd
-            {
-                _end.value().ctor();
-                _end = _end.advance();
-            }
-        }
-    }
+                _end.value ctor
+                _end = _end.advance
 
-    fun reserve(n: SizeType)
-    {
-        var curCapacity = capacity();
+    fun reserve(this: @String, n: SizeType)
+        var curCapacity = this.capacity
 
-        if ( n <= curCapacity )
-            return;
+        if n <= curCapacity
+            return
 
-        if ( n < _initialCapacity )
-            n = _initialCapacity;
-        if ( n <_growthFactor*curCapacity )
-            n = SizeType(_growthFactor*curCapacity);
+        if n < _initialCapacity
+            n = _initialCapacity
+        if n <_growthFactor*curCapacity
+            n = SizeType(_growthFactor*curCapacity)
 
-        var curSize = size();
+        var curSize = this.size
 
-        _begin.reallocPtr(n);
-        _end = _begin.advance(DiffType(curSize));
-        _endOfStore = _begin.advance(DiffType(n));
-    }
+        _begin.reallocPtr(n)
+        _end = _begin.advance(DiffType(curSize))
+        _endOfStore = _begin.advance(DiffType(n))
 
-    fun clear()
-    {
-        remove(RangeType(_begin.bytePtr, _end.bytePtr));
-    }
+    fun clear(this: @String)
+        this.remove(StringRef(_begin.bytePtr, _end.bytePtr))
 
-    fun insertBefore(value: ValuePassType, pos: RangeType)
-    {
-        var posCount = _frontPtr(pos).diff(_begin);
+    fun insertBefore(this: @String, value: Char, pos: StringRef)
+        var posCount = _frontPtr(pos).diff(_begin)
 
-        reserve(size() + 1);
+        this.reserve(this.size + 1)
 
-        var p = _end.advance(-1);
-        var q = _begin.advance(posCount - DiffType(1));
+        var p = _end.advance(-1)
+        var q = _begin.advance(posCount - DiffType(1))
 
         while p != q ; p = p.advance(-1)
-        {
-            p.advance().value().ctor(p.value());
-            p.value().dtor();
-        }
-        p.advance().value().ctor(value);
-        _end = _end.advance();
-    }
+            p.advance().value ctor p.value
+            p.value dtor
+        p.advance().value ctor value
+        _end = _end.advance
 
-    fun insertBefore(range: Range, pos: RangeType)
-    {
-        var n = range.size();
-        var index = _frontPtr(pos).diff(_begin);
+    fun insertBefore(this: @String, range: Range, pos: StringRef)
+        var n = range.size
+        var index = _frontPtr(pos).diff(_begin)
 
-        reserve(size() + n);
+        this.reserve(this.size + n)
 
-        var p = _end.advance(-1);
-        var q = _begin.advance(index - DiffType(1));
+        var p = _end.advance(-1)
+        var q = _begin.advance(index - DiffType(1))
 
         while p != q ; p = p.advance(-1)
-        {
-            p.advance(DiffType(n)).value().ctor(p.value());
-            p.value().dtor();
-        }
-        p = p.advance();
-        while !range.isEmpty()
-        {
-            p.value().ctor(range.front());
-            p = p.advance();
-            range.popFront();
-        }
-        _end = _end.advance(DiffType(n));
-    }
+            p.advance(DiffType(n)).value ctor p.value
+            p.value dtor
+        p = p.advance
+        while !range.isEmpty
+            p.value ctor range.front
+            p = p.advance
+            range.popFront
+        _end = _end.advance(DiffType(n))
 
-    fun insertAfter(value: ValuePassType, pos: RangeType)
-    {
-        insertBefore(value, RangeType(_backPtr(pos).bytePtr, _end.bytePtr));
-    }
+    fun insertAfter(this: @String, value: Char, pos: StringRef)
+        this.insertBefore(value, StringRef(_backPtr(pos).bytePtr, _end.bytePtr))
 
-    fun insertAfter(range: Range, pos: RangeType)
-    {
-        insertBefore(range, RangeType(_backPtr(pos).bytePtr, _end.bytePtr));
-    }
+    fun insertAfter(this: @String, range: Range, pos: StringRef)
+        this.insertBefore(range, StringRef(_backPtr(pos).bytePtr, _end.bytePtr))
 
-    fun append(range: Range)
-    {
-        insertBefore(range, RangeType(_end.bytePtr, _end.bytePtr));
-    }
-    fun append(value: ValuePassType)
-    {
-        insertBefore(value, RangeType(_end.bytePtr, _end.bytePtr));
-    }
+    fun append(this: @String, range: Range)
+        this.insertBefore(range, StringRef(_end.bytePtr, _end.bytePtr))
+    fun append(this: @String, value: Char)
+        this.insertBefore(value, StringRef(_end.bytePtr, _end.bytePtr))
 
-    fun remove(range: RangeType)
-    {
-        var rSize = range.size();
-        var rBegin = _frontPtr(range);
-        var rEnd = rBegin.advance(DiffType(rSize));
+    fun remove(this: @String, range: StringRef)
+        var rSize = range.size
+        var rBegin = _frontPtr(range)
+        var rEnd = rBegin.advance(DiffType(rSize))
 
         while rEnd != _end
-        {
-            rBegin.value().dtor();
-            rBegin.value().ctor(rEnd.value());
-            rBegin = rBegin.advance();
-            rEnd = rEnd.advance();
-        }
-        _end = rBegin;
-    }
+            rBegin.value dtor
+            rBegin.value ctor rEnd.value
+            rBegin = rBegin.advance
+            rEnd = rEnd.advance
+        _end = rBegin
 
-    fun remove(index: SizeType)
-    {
-        var r = all();
+    fun remove(this: @String, index: SizeType)
+        var r = this.all
 
-        r.popFront(index);
-        r.popBack(size() - index - 1);
-        remove(r);
-    }
+        r.popFront(index)
+        r.popBack(this.size - index - 1)
+        this.remove(r)
 
-    fun =(other: @String): @String
-    {
-        var tmp = other;
-        tmp.swap(this);
-        return this;
-    }
-
-    fun ==(other: @String): Bool
-    {
-        if ( size() != other.size() )
-            return false;
-
-        var i: SizeType = 0;
-        var s = size();
-
-        while i < s ; i++
-        {
-            if ( at(i) != other.at(i) )
-                return false;
-        }
-        return true;
-    }
-
-    fun !=(other: @String): Bool = !(this == other);
-
-    fun assign(range: Range)
-    {
-        clear();
+    fun assign(this: @String, range: Range)
+        this.clear
         for v = range
-            pushBack(v);
-    }
+            this.pushBack(v)
 
-    fun >>(os: @OutStream)
-    {
-        os << asStringRef();
-    }
+    fun >>(this: @String, os: @OutStream)
+        os << this.asStringRef
 
-    [static] fun _frontPtr(s: StringRef) = _PtrType.fromBytePtr(s.begin);
-    [static] fun _backPtr(s: StringRef) = _PtrType.fromBytePtr(s.end);
-
-    using _initialCapacity = SizeType(16);
-    using _growthFactor = 1.5;
-    using _PtrType = RawPtr(Char);
-
-    var _begin, _end, _endOfStore: _PtrType;
-}
+    fun _frontPtr(s: StringRef) = RawPtr(Char)(s.begin)
+    fun _backPtr(s: StringRef) = RawPtr(Char)(s.end)
 
 // TODO
 [autoCt] fun + (x,y: String): String
-{
-    var sz1 = x.size();
-    var sz2 = y.size();
-    var res: String = sz1 + sz2;
-    memcpy(res._begin.bytePtr(), x._begin.bytePtr(), sz1);
-    memcpy(res._begin.advance(sz1).bytePtr(), y._begin.bytePtr(), sz2);
-    return res;
-}
+    var sz1 = x.size
+    var sz2 = y.size
+    var res: String = sz1 + sz2
+    memcpy(res._begin.bytePtr, x._begin.bytePtr, sz1)
+    memcpy(res._begin.advance(sz1).bytePtr, y._begin.bytePtr, sz2)
+    return res
 
 [autoCt] fun + (x: String, y: StringRef): String
-{
-    var sz1 = x.size();
-    var sz2 = y.size();
-    var res: String = sz1 + sz2;
-    memcpy(res._begin.bytePtr(), x._begin.bytePtr(), sz1);
-    memcpy(res._begin.advance(sz1).bytePtr(), y.begin, sz2);
-    return res;
-}
+    var sz1 = x.size
+    var sz2 = y.size
+    var res: String = sz1 + sz2
+    memcpy(res._begin.bytePtr, x._begin.bytePtr, sz1)
+    memcpy(res._begin.advance(sz1).bytePtr, y.begin, sz2)
+    return res
 
 //[autoCt] fun + (x: String, y: Char): String
-//{
-//    var sz1 = x.size();
-//    var sz2 = sizeOf(y);
-//    var res: String = sz1 + sz2;
-//    memcpy(res._begin, x._begin, sz1);
-//    memcpy(ptrAdd(res._begin, sz1), reinterpretCast(@Byte, y), sz2);
+//    var sz1 = x.size
+//    var sz2 = sizeOf(y)
+//    var res: String = sz1 + sz2
+//    memcpy(res._begin, x._begin, sz1)
+//    memcpy(ptrAdd(res._begin, sz1), reinterpretCast(@Byte, y), sz2)
 
-//    return res;
-//}
+//    return res
 
 
 [rtct] fun intToString(x: Int): String
-{
-    var buf: static_buffer(12);
-    StringImpl.intToCString(x, reinterpretCast(@Char, buf));
-    return String(fromCString(reinterpretCast(@Char, buf)));
-}
+    var buf: static_buffer(12)
+    _intToCString(x, reinterpretCast(@Char, buf))
+    return String(fromCString(reinterpretCast(@Char, buf)))
 [rtct] fun ulongToString(x: ULong): String
-{
-    var buf: static_buffer(16);
-    StringImpl.ulongToCString(x, reinterpretCast(@Char, buf));
-    return String(fromCString(reinterpretCast(@Char, buf)));
-}
+    var buf: static_buffer(16)
+    _ulongToCString(x, reinterpretCast(@Char, buf))
+    return String(fromCString(reinterpretCast(@Char, buf)))
 
 // TODO
 
-[rtct] class StringOutputStream
-{
-    var result: String;
+[rtct]
+    class StringOutputStream
+        var result: String
 
-    fun <<<(s: @String)       { result.append(s.all()); }
-    fun <<<(s: @StringRef)    { result.append(ContiguousMemoryRange(Char)(RawPtr(Char).fromBytePtr(s.begin), RawPtr(Char).fromBytePtr(s.end))); }
-    fun <<<(x: Char)          { result.append(x); }
-    fun <<<(x: Int)           { result.append(intToString(x).all()); }
-    fun <<<(x: ULong)         { result.append(ulongToString(x).all()); }
-    fun <<<(x: Double)        { result.append(ulongToString(ULong(x)).all()); } // Not properly supported
-}
+    fun <<<(this: @StringOutputStream, s: @String)       { result.append(s.all) }
+    fun <<<(this: @StringOutputStream, s: @StringRef)    { result.append(s) }
+    fun <<<(this: @StringOutputStream, x: Char)          { result.append(x) }
+    fun <<<(this: @StringOutputStream, x: Int)           { result.append(intToString(x).all) }
+    fun <<<(this: @StringOutputStream, x: ULong)         { result.append(ulongToString(x).all) }
+    fun <<<(this: @StringOutputStream, x: Double)        { result.append(ulongToString(ULong(x)).all) } // Not properly supported
 
-fun toString() = String();
-fun toString(a1: AnyType): String {
-    var s: StringOutputStream;
-    s << a1;
-    return s.result;
-}
-fun toString(a1, a2: AnyType): String {
-    var s: StringOutputStream;
-    s << a1 << a2;
-    return s.result;
-}
-fun toString(a1, a2, a3: AnyType): String {
-    var s: StringOutputStream;
-    s << a1 << a2 << a3;
-    return s.result;
-}
-fun toString(a1, a2, a3, a4: AnyType): String {
-    var s: StringOutputStream;
-    s << a1 << a2 << a3 << a4;
-    return s.result;
-}
-fun toString(a1, a2, a3, a4, a5: AnyType): String {
-    var s: StringOutputStream;
-    s << a1 << a2 << a3 << a4 << a5;
-    return s.result;
-}
-fun toString(a1, a2, a3, a4, a5, a6: AnyType): String {
-    var s: StringOutputStream;
-    s << a1 << a2 << a3 << a4 << a5 << a6;
-    return s.result;
-}
-fun toString(a1, a2, a3, a4, a5, a6, a7: AnyType): String {
-    var s: StringOutputStream;
-    s << a1 << a2 << a3 << a4 << a5 << a6 << a7;
-    return s.result;
-}
+fun toString = String()
+fun toString(a1: AnyType): String
+    var s: StringOutputStream
+    s << a1
+    return s.result
+fun toString(a1, a2: AnyType): String
+    var s: StringOutputStream
+    s << a1 << a2
+    return s.result
+fun toString(a1, a2, a3: AnyType): String
+    var s: StringOutputStream
+    s << a1 << a2 << a3
+    return s.result
+fun toString(a1, a2, a3, a4: AnyType): String
+    var s: StringOutputStream
+    s << a1 << a2 << a3 << a4
+    return s.result
+fun toString(a1, a2, a3, a4, a5: AnyType): String
+    var s: StringOutputStream
+    s << a1 << a2 << a3 << a4 << a5
+    return s.result
+fun toString(a1, a2, a3, a4, a5, a6: AnyType): String
+    var s: StringOutputStream
+    s << a1 << a2 << a3 << a4 << a5 << a6
+    return s.result
+fun toString(a1, a2, a3, a4, a5, a6, a7: AnyType): String
+    var s: StringOutputStream
+    s << a1 << a2 << a3 << a4 << a5 << a6 << a7
+    return s.result
 
-package StringImpl
-{
-    [rtct, native("_Int_to_CString")] fun intToCString(x: Int, buffer: @Char);
-    [rtct, native("_ULong_to_CString")] fun ulongToCString(x: ULong, buffer: @Char);
-}
+[rtct, native("_Int_to_CString")] fun _intToCString(x: Int, buffer: @Char)
+[rtct, native("_ULong_to_CString")] fun _ulongToCString(x: ULong, buffer: @Char)

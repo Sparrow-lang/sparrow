@@ -159,15 +159,15 @@ using ekOpDiv = 7;
 using ckPredCall = 8;
 using ckIsExpr = 9;
 
-[ct] fun mkAtom(loc: @Location, atom: @String): ExpressionPtr = ExpressionPtr.create(ekAtom, loc, atom);
-[ct] fun mkNumber(loc: @Location, data: @String): ExpressionPtr = ExpressionPtr.create(ekNumber, loc, data);
-[ct] fun mkVar(loc: @Location, varName: @String): ExpressionPtr = ExpressionPtr.create(ekVar, loc, varName);
-[ct] fun mkAntiQuote(loc: @Location, aq: @String): ExpressionPtr = ExpressionPtr.create(ekAntiQuote, loc, aq);
+[ct] fun mkAtom(loc: @Location, atom: @String): ExpressionPtr = mkShared(Expression, ekAtom, loc, atom);
+[ct] fun mkNumber(loc: @Location, data: @String): ExpressionPtr = mkShared(Expression, ekNumber, loc, data);
+[ct] fun mkVar(loc: @Location, varName: @String): ExpressionPtr = mkShared(Expression, ekVar, loc, varName);
+[ct] fun mkAntiQuote(loc: @Location, aq: @String): ExpressionPtr = mkShared(Expression, ekAntiQuote, loc, aq);
 
-[ct] fun mkOpPlus(loc: @Location, l, r: @ExpressionPtr): ExpressionPtr = ExpressionPtr.create(ekOpPlus, loc, l, r);
-[ct] fun mkOpMinus(loc: @Location, l, r: @ExpressionPtr): ExpressionPtr = ExpressionPtr.create(ekOpMinus, loc, l, r);
-[ct] fun mkOpMul(loc: @Location, l, r: @ExpressionPtr): ExpressionPtr = ExpressionPtr.create(ekOpMul, loc, l, r);
-[ct] fun mkOpDiv(loc: @Location, l, r: @ExpressionPtr): ExpressionPtr = ExpressionPtr.create(ekOpDiv, loc, l, r);
+[ct] fun mkOpPlus(loc: @Location, l, r: @ExpressionPtr): ExpressionPtr = mkShared(Expression, ekOpPlus, loc, l, r);
+[ct] fun mkOpMinus(loc: @Location, l, r: @ExpressionPtr): ExpressionPtr = mkShared(Expression, ekOpMinus, loc, l, r);
+[ct] fun mkOpMul(loc: @Location, l, r: @ExpressionPtr): ExpressionPtr = mkShared(Expression, ekOpMul, loc, l, r);
+[ct] fun mkOpDiv(loc: @Location, l, r: @ExpressionPtr): ExpressionPtr = mkShared(Expression, ekOpDiv, loc, l, r);
 
-[ct] fun mkPredCall(loc: @Location, predName: @String, args: @Vector(ExpressionPtr)): ConditionPtr = ConditionPtr.create(loc, predName, args);
-[ct] fun mkIsExpr(loc: @Location, l, r: @ExpressionPtr): ConditionPtr = ConditionPtr.create(loc, l, r);
+[ct] fun mkPredCall(loc: @Location, predName: @String, args: @Vector(ExpressionPtr)): ConditionPtr = mkShared(Condition, loc, predName, args);
+[ct] fun mkIsExpr(loc: @Location, l, r: @ExpressionPtr): ConditionPtr = mkShared(Condition, loc, l, r);

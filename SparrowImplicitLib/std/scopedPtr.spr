@@ -1,42 +1,35 @@
-module std.scopedPtr;
+module std.scopedPtr
 
-import newDelete(delete);
+import newDelete(delete)
 
-[noDefault] class ScopedPtr(type: Type)
-{
-    using ValueType = type;
+[noDefault]
+class ScopedPtr(type: Type)
+    using ValueType = type
 
-    fun ctor()
-    {
-        _ref := null;
-    }
+    var _ref: @ValueType
+
+    fun ctor
+        _ref := null
 
     fun ctor(_ref: @ValueType)
-    {
-        this._ref := _ref;
-    }
+        this._ref := _ref
 
-    fun dtor()
-    {
-        delete(_ref);
-    }
+    fun dtor
+        delete(_ref)
 
-    fun get: @ValueType         = _ref;
-    fun isNull                  = _ref === null;
-    fun isSet                   = _ref !== null;
+    fun ==(other: ScopedPtr)    = _ref === other._ref
 
-    fun ==(other: ScopedPtr)    = _ref === other._ref;
 
-    fun reset                   { delete(_ref); _ref := null; }
-    fun reset(ref: @ValueType)  { delete(this._ref); this._ref := ref; }
+fun get(this: ScopedPtr): @ValueType         = _ref
+fun isNull(this: ScopedPtr)                  = _ref === null
+fun isSet(this: ScopedPtr)                   = _ref !== null
 
-    fun swap(other: @ScopedPtr)
-    {
-        var tmp: @ValueType = other._ref;
 
-        other._ref := _ref;
-        _ref := tmp;
-    }
+fun reset(this: @ScopedPtr)                         { delete(_ref); _ref := null }
+fun reset(this: @ScopedPtr, ref: @this.ValueType)   { delete(this._ref); this._ref := ref }
 
-    var _ref: @ValueType;
-}
+fun swap(this: @ScopedPtr, other: typeOf(this))
+    var tmp: @ValueType = other._ref
+
+    other._ref := _ref
+    _ref := tmp

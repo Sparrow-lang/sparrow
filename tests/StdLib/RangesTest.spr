@@ -2,7 +2,7 @@ import std.ranges;
 import std.vector(Vector);
 import std.list(List);
 import std.contiguousMemoryRange(ContiguousMemoryRange);
-import std.rawPtr(RawPtr);
+import std.rawPtr(RawPtr, allocRawPtr);
 import std.algorithms;
 
 fun sprMain
@@ -131,7 +131,7 @@ fun makeList(): List(Int)
 
 fun createRangeAscending(size: SizeType): ContiguousMemoryRange(Int)
 {
-    var ptr = RawPtr(Int).alloc(size);
+    var ptr = allocRawPtr(Int, size);
     var ptrEnd = ptr.advance(DiffType(size));
     var i = 0;
 

@@ -713,11 +713,6 @@ ConversionType canCallGenericFun(CallableData& c, CompilationContext* context, c
         Node*& arg = c.args[i];
         ASSERT(arg->type);
 
-        if (loc.start.line == 536 && c.decl->location.start.line == 224) {
-            REP_INFO(NOLOC, "Calling %1%; arg%2%=%3%, paramType=%4%")
-                % Nest_toStringEx(c.decl) % i % Nest_toStringEx(arg) % paramType;
-        }
-
         // Apply the conversion
         ConversionFlags flags = flagsDefault;
         if (customCvtMode == noCustomCvt || (customCvtMode == noCustomCvtForFirst && i == 0))
@@ -728,11 +723,6 @@ ConversionType canCallGenericFun(CallableData& c, CompilationContext* context, c
                 REP_INFO(NOLOC, "Cannot convert argument %1% from %2% to %3%") % (i + 1) % argType %
                         paramType;
             return convNone;
-        }
-
-        if (loc.start.line == 536 && c.decl->location.start.line == 224) {
-            REP_INFO(NOLOC, "  after conversion: arg=%1%")
-                % Nest_toStringEx(arg);
         }
 
         // Treat generic params

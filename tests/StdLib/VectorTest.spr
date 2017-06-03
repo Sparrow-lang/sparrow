@@ -1,7 +1,7 @@
 //!!
 import std.vector(Vector);
 import std.contiguousMemoryRange(ContiguousMemoryRange);
-import std.rawPtr(RawPtr);
+import std.rawPtr(RawPtr, allocRawPtr);
 import std.ranges(.., rangeSize, repeat, skip, take);
 import std.algorithms(equal);
 import std.tuple;
@@ -270,8 +270,8 @@ fun generateTestRange(sizeHint: UInt): TestRange {
     var size = randBetween(0, h+1);
 
     // Allocate a buffer of memory to hold the values
-    var ptr = RawPtr(Int).alloc(size);
-    var ptrEnd = ptr.advance(DiffType(size));
+    var ptr = allocRawPtr(Int, size);
+    var ptrEnd = ptr.advance(size);
 
     // Populate with values
     var i = 0;

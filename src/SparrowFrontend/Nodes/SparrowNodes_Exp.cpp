@@ -1046,11 +1046,14 @@ Node* CompoundExp_SemanticCheck(Node* node)
         // Get the referred declarations; search for our id inside the symbol table of the declarations of the base
 
         // Get the decls from the first base decl
-        declsOrig = Nest_symTabLookupCurrent(baseDecls[0]->childrenContext->currentSymTab, id.begin);
+        if (baseDecls[0]->childrenContext)
+            declsOrig = Nest_symTabLookupCurrent(baseDecls[0]->childrenContext->currentSymTab, id.begin);
 
         // And now from the rest of base decls
         for ( size_t i=1; i<baseDecls.size(); i++ ) {
             Node* baseDecl = baseDecls[i];
+            if (!baseDecl->childrenContext)
+                continue;
             NodeArray declsCur = Nest_symTabLookupCurrent(baseDecl->childrenContext->currentSymTab, id.begin);
             Nest_appendNodesToArray(&declsOrig, all(declsCur));
             Nest_freeNodeArray(declsCur);

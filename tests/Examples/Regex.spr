@@ -130,7 +130,7 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
         buf(dstIdx++) = '|'.char;
     buf(dstIdx) = Char(0);
 
-    return String(RawPtr(Char).fromRef(buf(0)), RawPtr(Char).fromRef(buf(dstIdx)));
+    return String(mkRawPtr(buf(0)), mkRawPtr(buf(dstIdx)));
 }
 
 /// Factory for Nfa states
@@ -159,7 +159,7 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
     {
         if ( _numStates >= _statesPerPage*_pages.size() )
         {
-            var p = RawPtr(NfaState).alloc(_statesPerPage);
+            var p = allocRawPtr(NfaState, _statesPerPage);
             _pages.pushBack(p);
         }
         var idx = _numStates % _statesPerPage;

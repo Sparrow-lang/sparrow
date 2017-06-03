@@ -270,11 +270,16 @@ import rawPtr(RawPtr, allocRawPtr)
         var result: String
 
     fun <<<(this: @StringOutputStream, s: @String)       { result.append(s.all) }
-    fun <<<(this: @StringOutputStream, s: @StringRef)    { result.append(s) }
+    fun <<<(this: @StringOutputStream, s: StringRef)     { result.append(s) }
     fun <<<(this: @StringOutputStream, x: Char)          { result.append(x) }
     fun <<<(this: @StringOutputStream, x: Int)           { result.append(intToString(x).all) }
     fun <<<(this: @StringOutputStream, x: ULong)         { result.append(ulongToString(x).all) }
     fun <<<(this: @StringOutputStream, x: Double)        { result.append(ulongToString(ULong(x)).all) } // Not properly supported
+
+    fun testStringOutputStream
+        var os: StringOutputStream
+        os <<< 1
+        cout << os.result << endl
 
 fun toString = String()
 fun toString(a1: AnyType): String

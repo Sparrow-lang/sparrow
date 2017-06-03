@@ -26,13 +26,16 @@ concept OutStream(x) if (
     var flush: FlushHelperClass
 
     class EndLineHelperClass
-        fun >>(os: @OutStream)
-            os << '\n'
+        ;
+    fun >>(this: EndLineHelperClass, os: @OutStream)
+        os << '\n'
     class FlushHelperClass
-        fun >>(os: @OutStream)
-            [ct] if isValid(os.flush)
-                os.flush
+        ;
+    fun >>(this: FlushHelperClass, os: @OutStream)
+        [ct] if isValid(os.flush)
+            os.flush
 
+    // TODO: make this work for streams other than ConsoleOutputStream
     class StreamRefWrapperHelperClass
         var ptr: @Byte
     fun >>(p: StreamRefWrapperHelperClass, os: @OutStream)

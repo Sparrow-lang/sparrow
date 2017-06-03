@@ -262,7 +262,7 @@ package _Impl
 {
     var lines: Vector(String);
 
-    var f = os.File.open(filename, "r");
+    var f = os.openFile(filename, "r");
     if ( !f.isOpen() )
     {
         cout << "Cannot open file: " << filename << "\n";

@@ -8,6 +8,8 @@ import std.function(Function)
 class Gen(t: Type)
     using ValueType = t
 
+    var _generator: Function(t, UInt)
+
     fun ctor {}
     fun ctor(other: @Gen)
         this._generator ctor other._generator
@@ -16,16 +18,17 @@ class Gen(t: Type)
     fun ctor(generator: @AnyType)
         this._generator ctor generator
 
-    fun isValid: Bool = _generator isSet
+    // TODO: move this out of the class
+    fun ()(sizeHint: UInt): ValueType = _generator(sizeHint)
 
-    fun ()(sizeHint: UInt): t = _generator(sizeHint)
+fun isValid(this: @Gen): Bool = _generator isSet
 
-    var _generator: Function(t, UInt)
+
 
 concept GenType(x)                  \
     if typeOf(x.ValueType) == Type  \
-    && typeOf(x.isValid()) == Bool  \
-    && typeOf(x(0)) == x.ValueType  \
+    && typeOf(x.isValid) == Bool  \
+    && typeOf(x(0)) == x.ValueType
 
 
 //! Arbitrary prototype
@@ -203,9 +206,9 @@ package _Impl
             this._gen ctor gen
             this._count = 0
 
-        fun isEmpty                     = !_gen.isValid
-        fun front: RetType              = RetType(_gen(_count))
-        fun popFront                    { ++_count }
+    fun isEmpty(this: @ForAllGenerator)                     = !_gen.isValid
+    fun front(this: @ForAllGenerator): RetType              = RetType(_gen(_count))
+    fun popFront(this: @ForAllGenerator)                    { ++_count }
 
     [initCtor]
     class ForAllRangeGenerator(rangeType: Type)
@@ -213,9 +216,9 @@ package _Impl
 
         var _range: rangeType
 
-        fun isEmpty                     = _range.isEmpty
-        fun front: RetType              = RetType(_range.front)
-        fun popFront                    { _range.popFront }
+    fun isEmpty(this: @ForAllRangeGenerator)                     = _range.isEmpty
+    fun front(this: @ForAllRangeGenerator): RetType              = RetType(_range.front)
+    fun popFront(this: @ForAllRangeGenerator)                    { _range.popFront }
 
     class ForWhichRange(rangeType, predType: Type) \
             if typeOf((#$predType)((#$rangeType front).value)) == Bool
@@ -229,18 +232,18 @@ package _Impl
             this._range ctor range
             this._pred ctor pred
             this._lastVal ctor
-            _popUntilValid
+            this._popUntilValid
 
-        fun isEmpty                     = _range.isEmpty()
-        fun front: RetType              = _lastVal
-        fun popFront                    { _range.popFront(); _popUntilValid }
+    fun isEmpty(this: @ForWhichRange)                     = _range.isEmpty()
+    fun front(this: @ForWhichRange): RetType              = _lastVal
+    fun popFront(this: @ForWhichRange)                    { _range.popFront(); this._popUntilValid }
 
-        fun _popUntilValid
-            while !_range.isEmpty
-                _lastVal = _range.front()
-                if _pred(_lastVal.value)
-                    break
-                _range.popFront()
+    fun _popUntilValid(this: @ForWhichRange)
+        while !_range.isEmpty
+            _lastVal = _range.front()
+            if _pred(_lastVal.value)
+                break
+            _range.popFront()
 
     [initCtor]
     class TrivialsRange(rangeType, predType: Type) \
@@ -250,12 +253,12 @@ package _Impl
         var _range: rangeType
         var _pred: predType
 
-        fun isEmpty                     = _range.isEmpty()
-        fun popFront                    { _range.popFront() }
-        fun front: RetType
-            var res = _range.front
-            res.isTrivial = _pred(res.value)
-            return res
+    fun isEmpty(this: @TrivialsRange)                     = _range.isEmpty()
+    fun popFront(this: @TrivialsRange)                    { _range.popFront() }
+    fun front(this: @TrivialsRange): RetType
+        var res = _range.front
+        res.isTrivial = _pred(res.value)
+        return res
 
 
     [initCtor]
@@ -266,12 +269,12 @@ package _Impl
         var _range: rangeType
         var _pred: predType
 
-        fun isEmpty                     = _range.isEmpty()
-        fun popFront                    { _range.popFront() }
-        fun front: RetType
-            var res = _range.front
-            res.classifier = _pred(res.value)
-            return res
+    fun isEmpty(this: @ClassifierRange)                     = _range.isEmpty()
+    fun popFront(this: @ClassifierRange)                    { _range.popFront() }
+    fun front(this: @ClassifierRange): RetType
+        var res = _range.front
+        res.classifier = _pred(res.value)
+        return res
 
     class ElementsGen(rangeType: Type)
         using ElementType = -@rangeType.RetType
@@ -283,9 +286,10 @@ package _Impl
             this._range ctor range
             this._count ctor (range rangeSize)
 
+        // TODO: Move this outside of class
         fun ()(sizeHint: UInt): ElementType
             var r = _range
             r advance randBetween(0, Int(_count))
             return r.front
 
-        fun gen: Gen(ElementType) = ife(_count>0, this, Gen(ElementType)())
+    fun gen(this: @ElementsGen): Gen(ElementType) = ife(_count>0, this, Gen(ElementType)())

@@ -9,5 +9,5 @@ module time
         fun ctor { _startTime = clock }
         fun ctor(other: Timer) { _startTime = other._startTime }
 
-        fun elapsed = Double(clock - _startTime) / 1000.0
-        fun restart { _startTime = clock }
+    fun elapsed(this: Timer) = Double(clock - _startTime) / 1000.0
+    fun restart(this: @Timer) { _startTime = clock }

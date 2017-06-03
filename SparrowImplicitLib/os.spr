@@ -10,6 +10,8 @@ import std.string(String)
         return _Impl.system(cmd.cStr)
 
     class File
+        var _handle: @Byte
+
         fun ctor
             _handle := null
 
@@ -28,35 +30,32 @@ import std.string(String)
             other._handle := null
 
         fun dtor
-            close
+            this.close
 
-        [static]
-        fun open(filename: StringRef, mode: StringRef = "r"): File
-            return File(_Impl.fopen(filename.cStr, mode.cStr))
+    fun openFile(filename: StringRef, mode: StringRef = "r"): File
+        return File(_Impl.fopen(filename.cStr, mode.cStr))
 
-        fun close
-            if isOpen
-                _Impl.fclose(_handle)
-            _handle := null
+    fun close(this: @File)
+        if this.isOpen
+            _Impl.fclose(_handle)
+        _handle := null
 
-        fun flush       = ife(isOpen, _Impl.fflush(_handle), -1)
+    fun flush(this: @File)       = ife(this.isOpen, _Impl.fflush(_handle), -1)
 
-        fun isOpen      = _handle !== null
-        fun isEof       = 0 != _Impl.feof(_handle)
+    fun isOpen(this: @File)      = _handle !== null
+    fun isEof(this: @File)       = 0 != _Impl.feof(_handle)
 
-        fun readChar: Char = Char(_Impl.fgetc(_handle))
-        fun readLine: String
-            var res: String = 256
-            var cstr: @Char = _Impl.fgets(res(0), 256, _handle)
-            if cstr === null
-                res.clear
-            else
-                res.resize(cStringLen(cstr))
-            return res
+    fun readChar(this: @File): Char = Char(_Impl.fgetc(_handle))
+    fun readLine(this: @File): String
+        var res: String = 256
+        var cstr: @Char = _Impl.fgets(res(0), 256, _handle)
+        if cstr === null
+            res.clear
+        else
+            res.resize(cStringLen(cstr))
+        return res
 
-        fun all = FileRange(this)
-
-        var _handle: @Byte
+    fun all(this: @File) = FileRange(this)
 
     class FileRange
         using RetType = Char

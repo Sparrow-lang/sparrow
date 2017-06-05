@@ -226,9 +226,44 @@ Node* SprFrontend::createTempVarConstruct(const Location& loc, CompilationContex
     return res;
 }
 
-Node* SprFrontend::createFunPtr(Node* funNode)
-{
-    CompilationContext* ctx = funNode->context;
+Node* _createFunPtrForFeatherFun(Node* fun, Node* callNode) {
+    ASSERT(fun);
+    ASSERT(fun->nodeKind == nkFeatherDeclFunction);
+    CHECK(fun->location, fun->nodeKind == nkFeatherDeclFunction);
+
+    CompilationContext* ctx = callNode->context;
+    const Location& loc = callNode->location;
+
+    // Does this have a result parameter?
+    Node* resParam = getResultParam(fun);
+
+    // Try to instantiate the corresponding FunctionPtr class
+    NodeVector parameters;
+    parameters.reserve(1 + Feather_Function_numParameters(fun));
+    TypeRef resType =
+            resParam ? Feather_removeRef(resParam->type) : Feather_Function_resultType(fun);
+    parameters.push_back(createTypeNode(ctx, loc, resType));
+    for (size_t i = resParam ? 1 : 0; i < Feather_Function_numParameters(fun); ++i) {
+        parameters.push_back(createTypeNode(ctx, loc, Feather_Function_getParameter(fun, i)->type));
+    }
+    Node* classCall = mkFunApplication(loc, mkIdentifier(loc, fromCStr("FunctionPtr")),
+            Feather_mkNodeList(loc, all(parameters)));
+    Nest_setContext(classCall, ctx);
+    if (!Nest_computeType(classCall))
+        return nullptr;
+
+    // Get the actual class object from the instantiation
+    TypeRef t = getType(classCall);
+
+    // If the class is valid, we have a conversion
+    if (t)
+        return Feather_mkFunRef(loc, fun, Feather_mkTypeNode(loc, t));
+
+    REP_ERROR(loc, "Invalid function: %1%") % callNode;
+    return nullptr;
+}
+
+Node* _createFunPtrForDecl(Node* funNode) {
     const Location& loc = funNode->location;
 
     // Allow the funNode to return DeclExp
@@ -239,7 +274,7 @@ Node* SprFrontend::createFunPtr(Node* funNode)
     NodeVector decls = getDeclsFromNode(funNode, baseExp);
     NodeArray declsEx = expandDecls(all(decls), funNode);
 
-    if ( baseExp )
+    if (baseExp)
         Nest_computeType(baseExp);
 
     // Filter out all the decls that cannot fit here
@@ -249,24 +284,23 @@ Node* SprFrontend::createFunPtr(Node* funNode)
     // put the good decls back in the 'decls' vector
     decls.clear();
     bool hasGenericFun = false;
-    for ( auto decl: declsEx ) {
+    for (auto decl : declsEx) {
         decl = resultingDecl(decl);
-        if ( decl->nodeKind == nkSparrowDeclGenericFunction ) {
+        if (decl->nodeKind == nkSparrowDeclGenericFunction) {
             decls.push_back(decl);
             hasGenericFun = true;
-        }
-        else if ( decl->nodeKind == nkFeatherDeclFunction ) {
+        } else if (decl->nodeKind == nkFeatherDeclFunction) {
             // Check the first parameter if we arrived here through a baseExp
-            if ( baseExp && baseExp->type ) {
+            if (baseExp && baseExp->type) {
                 // Check parameter count
                 size_t thisParamIdx = getResultParam(decl) ? 1 : 0;
-                if ( Feather_Function_numParameters(decl) <= thisParamIdx ) {
+                if (Feather_Function_numParameters(decl) <= thisParamIdx) {
                     continue;
                 }
 
                 // Ensure we can convert baseExp to the first param
                 TypeRef paramType = Feather_Function_getParameter(decl, thisParamIdx)->type;
-                if ( !canConvert(baseExp, paramType, flagDontCallConversionCtor) ) {
+                if (!canConvert(baseExp, paramType, flagDontCallConversionCtor)) {
                     continue;
                 }
             }
@@ -277,69 +311,41 @@ Node* SprFrontend::createFunPtr(Node* funNode)
     }
 
     // Make sure we refer only to one decl
-    if ( decls.size() == 0 ) {
+    if (decls.size() == 0) {
         REP_ERROR_RET(nullptr, loc, "No function found: %1%") % funNode;
-    }
-    else if ( !hasGenericFun && decls.size() > 1 ) {
-        REP_ERROR(loc, "Too many functions found while taking function reference: %1%") % decls.size();
-        for ( auto decl: decls )
+    } else if (!hasGenericFun && decls.size() > 1) {
+        REP_ERROR(loc, "Too many functions found while taking function reference: %1%") %
+                decls.size();
+        for (auto decl : decls)
             REP_INFO(decl->location, "See matching decl");
         return nullptr;
-    }
-    else if ( hasGenericFun ) {
+    } else if (hasGenericFun) {
         // We may have multiple decls that we are refering to, as we may have
         // multiple specializations of the generic
         // In this case, we just check that the argument count is the same
         size_t numParams = size(genericFunParams(decls[0]));
         bool mismatch = false;
-        for ( size_t i=1; i<decls.size(); i++ )
-            if ( size(genericFunParams(decls[i])) != numParams ) {
+        for (size_t i = 1; i < decls.size(); i++)
+            if (size(genericFunParams(decls[i])) != numParams) {
                 mismatch = true;
                 break;
             }
-        if ( mismatch ) {
-            REP_ERROR(loc, "Functions with different parameters count found while taking function reference: %1%") % decls.size();
-            for ( auto decl: decls )
+        if (mismatch) {
+            REP_ERROR(loc, "Functions with different parameters count found while taking function "
+                           "reference: %1%") %
+                    decls.size();
+            for (auto decl : decls)
                 REP_INFO(decl->location, "See matching decl");
             return nullptr;
         }
     }
-    Node* resDecl = decls[0];   // already obtained the resultingDecl from it
+    Node* resDecl = decls[0]; // already obtained the resultingDecl from it
     Nest_freeNodeArray(declsEx);
 
     // Basic case: is this a plain function?
-    if ( !hasGenericFun ) {
-        ASSERT(resDecl->nodeKind == nkFeatherDeclFunction);
-        CHECK(resDecl->location, resDecl->nodeKind == nkFeatherDeclFunction);
-
-        // Does this have a result parameter?
-        Node* resParam = getResultParam(resDecl);
-
-        // Try to instantiate the corresponding FunctionPtr class
-        NodeVector parameters;
-        parameters.reserve(1+Feather_Function_numParameters(resDecl));
-        TypeRef resType = resParam ? Feather_removeRef(resParam->type) : Feather_Function_resultType(resDecl);
-        parameters.push_back(createTypeNode(ctx, loc, resType));
-        for ( size_t i = resParam ? 1 : 0; i<Feather_Function_numParameters(resDecl); ++i )
-        {
-            parameters.push_back(createTypeNode(ctx, loc, Feather_Function_getParameter(resDecl, i)->type));
-        }
-        Node* classCall = mkFunApplication(loc, mkIdentifier(loc, fromCStr("FunctionPtr")), Feather_mkNodeList(loc, all(parameters)));
-        Nest_setContext(classCall, ctx);
-        if ( !Nest_computeType(classCall) )
-            return nullptr;
-
-        // Get the actual class object from the instantiation
-        TypeRef t = getType(classCall);
-
-        // If the class is valid, we have a conversion
-        if ( t )
-            return Feather_mkFunRef(loc, resDecl, Feather_mkTypeNode(loc, t));
-
-        REP_ERROR(loc, "Invalid function: %1%") % funNode;
-        return nullptr;
-    }
-    else {
+    if (!hasGenericFun) {
+        return _createFunPtrForFeatherFun(resDecl, funNode);
+    } else {
         // If we have a generic, try to wrap it in a lambda
         // TODO: In general we should create an object that is able to call any type of callable
 
@@ -349,8 +355,7 @@ Node* SprFrontend::createFunPtr(Node* funNode)
 
         NodeVector paramIds(numParams, nullptr);
         NodeVector args(numParams, nullptr);
-        for ( size_t i=0; i<numParams; ++i )
-        {
+        for (size_t i = 0; i < numParams; ++i) {
             string name = "p" + boost::lexical_cast<string>(i);
             paramIds[i] = mkSprParameter(loc, fromString(name), paramsType, nullptr);
             args[i] = mkIdentifier(loc, fromString(name));
@@ -362,4 +367,22 @@ Node* SprFrontend::createFunPtr(Node* funNode)
         Node* res = mkLambdaExp(loc, parameters, nullptr, nullptr, bodyExp, nullptr);
         return res;
     }
+}
+
+Node* SprFrontend::createFunPtr(Node* funNode) {
+    if (funNode->nodeKind == nkFeatherNodeList && size(funNode->children) == 1) {
+        // Recursively apply ourselves to get rid of the node list
+        return createFunPtr(at(funNode->children, 0));
+    } else if (funNode->nodeKind == nkSparrowExpInfixExp &&
+               Nest_getCheckPropertyString(funNode, "spr.operation") == "__fapp__") {
+        // This is a function call; take the address off the called function
+        Nest_semanticCheck(funNode);
+        Node* expl = Nest_explanation(funNode);
+        if (!expl || !expl->type)
+            return nullptr;
+        Node* referredFun = at(expl->referredNodes, 0);
+        return _createFunPtrForFeatherFun(referredFun, funNode);
+    }
+
+    return _createFunPtrForDecl(funNode);
 }

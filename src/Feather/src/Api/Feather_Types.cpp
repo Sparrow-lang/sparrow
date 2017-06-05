@@ -104,6 +104,22 @@ void initFeatherTypeKinds()
     typeKindFunction = Nest_registerTypeKind(&changeTypeModeFunction);
 }
 
+int Feather_getVoidTypeKind() {
+    return typeKindVoid;
+}
+int Feather_getDataTypeKind() {
+    return typeKindData;
+}
+int Feather_getLValueTypeKind() {
+    return typeKindLValue;
+}
+int Feather_getArrayTypeKind() {
+    return typeKindArray;
+}
+int Feather_getFunctionTypeKind() {
+    return typeKindFunction;
+}
+
 TypeRef Feather_getVoidType(EvalMode mode)
 {
     Type referenceType;

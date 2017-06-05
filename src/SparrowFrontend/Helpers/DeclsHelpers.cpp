@@ -147,7 +147,7 @@ NodeArray SprFrontend::expandDecls(NodeRange decls, Node* seenFrom) {
             decl = resultingDecl(decl);
 
         // Make sure we have a valid type for the decl
-        if ( !Nest_computeType(decl) )
+        if ( decl && !Nest_computeType(decl) )
             decl = nullptr;
 
         // Check for 'using(declExp(d))''

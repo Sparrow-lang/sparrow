@@ -146,6 +146,7 @@ Basic/CompDefines.spr:                  Basic features - Compiler defines
 Basic/This.spr:                         Basic features - This
 Basic/CallOperator.spr:                 Basic features - Call operator
 Basic/DependentTypes.spr:               Basic features - Dependent types
+Basic/Using.spr:                        Basic features - Using directives
 
 Imports/ImportTwice.spr:                Import twice the same file
 Imports/ImportComplex.spr:              Import a complex hierarchy of files, some of them twice

@@ -68,6 +68,10 @@ namespace
             if ( resDecl->nodeKind == nkSparrowDeclUsing )
                 return at(resDecl->children, 0);
 
+            // If we allow decl expressions, create a decl expression out of this
+            if ( allowDeclExp )
+                return mkDeclExp(loc, decls, baseExp);
+
             // Try to convert this to a type
             TypeRef t = nullptr;
             if ( resDecl->nodeKind == nkFeatherDeclClass )
@@ -78,7 +82,7 @@ namespace
                 return createTypeNode(node->context, loc, t);
         }
 
-        // Add the referenced declarations as a property to our result
+        // If we allow decl expressions, create a decl expression out of this
         if ( allowDeclExp )
             return mkDeclExp(loc, decls, baseExp);
 
@@ -1008,7 +1012,7 @@ Node* Identifier_SemanticCheck(Node* node)
         return res;
     }
 
-    bool allowDeclExp = 0 != Nest_getCheckPropertyInt(node, propAllowDeclExp);
+    bool allowDeclExp = 0 != Nest_getPropertyDefaultInt(node, propAllowDeclExp, 0);
     Node* res = getIdentifierResult(node, all(decls), nullptr, allowDeclExp);
     Nest_freeNodeArray(decls);
     Nest_freeNodeArray(declsOrig);
@@ -1123,7 +1127,7 @@ Node* CompoundExp_SemanticCheck(Node* node)
         return nullptr;
     }
 
-    bool allowDeclExp = 0 != Nest_getCheckPropertyInt(node, propAllowDeclExp);
+    bool allowDeclExp = 0 != Nest_getPropertyDefaultInt(node, propAllowDeclExp, 0);
     Node* res = getIdentifierResult(node, all(decls), baseDataExp, allowDeclExp);
     return res;
 }

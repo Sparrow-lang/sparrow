@@ -1,5 +1,6 @@
 #include <StdInc.h>
 #include "SprTypeTraits.h"
+#include "DeclsHelpers.h"
 #include "Overload.h"
 #include "StdDef.h"
 #include <SparrowFrontendTypes.h>
@@ -188,23 +189,14 @@ Node* SprFrontend::convertCtToRt(Node* node)
 
 TypeRef SprFrontend::getType(Node* typeNode)
 {
-    Nest_setPropertyExplInt(typeNode, propAllowDeclExp, 1);
-    if ( !Nest_semanticCheck(typeNode) )
-        return nullptr;
-    if ( !typeNode->type )
-        REP_ERROR_RET(nullptr, typeNode->location, "Invalid type name");
-
     TypeRef t = tryGetTypeValue(typeNode);
-    if ( t )
-        return t;
-
-    REP_ERROR(typeNode->location, "Invalid type name (%1%)") % typeNode->type;
-    return nullptr;
+    if (!t)
+        REP_ERROR(typeNode->location, "Invalid type name (%1%)") % typeNode->type;
+    return t;
 }
 
 TypeRef SprFrontend::tryGetTypeValue(Node* typeNode)
 {
-    Nest_setPropertyExplInt(typeNode, propAllowDeclExp, 1);
     if ( !Nest_semanticCheck(typeNode) )
         return nullptr;
 
@@ -216,7 +208,16 @@ TypeRef SprFrontend::tryGetTypeValue(Node* typeNode)
         NodeRange decls = { expl->referredNodes.beginPtr+1, expl->referredNodes.endPtr };
         for ( Node* decl: decls )
         {
-            TypeRef t = decl->nodeKind == nkSparrowDeclSprClass ? decl->type : nullptr;
+            TypeRef t = nullptr;
+            Node* resDecl = resultingDecl(decl);
+
+            // Check if we have a concept or a generic class
+            if ( resDecl->nodeKind == nkSparrowDeclSprConcept || resDecl->nodeKind == nkSparrowDeclGenericClass )
+                t = getConceptType(resDecl);
+            // Check for a traditional class
+            else if ( decl->nodeKind == nkSparrowDeclSprClass )
+                t = decl->type;
+
             if ( t ) {
                 if ( res )
                     return nullptr; // multiple class decls; not a clear type

@@ -668,7 +668,6 @@ Node* SprFrontend::mkIdentifier(const Location& loc, StringRef id)
     Node* res = Nest_createNode(nkSparrowExpIdentifier);
     res->location = loc;
     Nest_setPropertyString(res, "name", id);
-    Nest_setPropertyInt(res, propAllowDeclExp, 0);
     return res;
 }
 
@@ -678,7 +677,6 @@ Node* SprFrontend::mkCompoundExp(const Location& loc, Node* base, StringRef id)
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({ base }));
     Nest_setPropertyString(res, "name", id);
-    Nest_setPropertyInt(res, propAllowDeclExp, 0);
     return res;
 }
 

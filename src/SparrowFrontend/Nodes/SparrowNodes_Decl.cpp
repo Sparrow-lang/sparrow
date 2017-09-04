@@ -323,6 +323,9 @@ TypeRef SprFunction_ComputeType(Node* node)
 
     bool isStatic = Nest_hasProperty(node, propIsStatic);
 
+    if (returnType)
+        Nest_setPropertyExplInt(returnType, propAllowDeclExp, 1);
+
     // Check if this is a member function
     Node* parentClass = Feather_getParentClass(node->context);
     bool isMember = nullptr != parentClass;
@@ -508,6 +511,8 @@ TypeRef SprParameter_ComputeType(Node* node)
 {
     ASSERT(Nest_nodeArraySize(node->children) == 2);
     Node* typeNode = at(node->children, 0);
+    if (typeNode)
+        Nest_setPropertyExplInt(typeNode, propAllowDeclExp, 1);
 
     const TypeRef* givenType = Nest_getPropertyType(node, "spr.givenType");
     TypeRef t = givenType ? *givenType : getType(typeNode);

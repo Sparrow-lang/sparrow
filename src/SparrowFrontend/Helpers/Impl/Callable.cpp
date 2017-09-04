@@ -231,6 +231,8 @@ void getClassCtorCallables(Node* cls, EvalMode evalMode, Callables& res,
     NodeArray decls = getClassAssociatedDecls(cls, ctorName);
 
     evalMode = Feather_combineMode(Feather_effectiveEvalMode(cls), evalMode, cls->location);
+    if (!Nest_computeType(cls))
+        return;
     TypeRef implicitArgType = varType(cls, evalMode);
 
     res.reserve(res.size() + Nest_nodeArraySize(decls));

@@ -43,6 +43,33 @@ const char* Nest_toStringEx(const Node* node)
     if ( node->explanation && node->explanation != node )
         ss << " -> " << Nest_getNodeKindName(node->explanation->nodeKind);
     ss << ')';
+
+    // If we have some properties, also write those
+    if ( node->properties.end != node->properties.begin ) {
+        ss << '[';
+        NodeProperty* p = node->properties.begin;
+        for ( ; p!=node->properties.end; ++p ) {
+            if ( p != node->properties.begin )
+                ss << ", ";
+            ss << p->name << '=';
+            switch ( p->kind )
+            {
+            case propInt:
+                ss << p->value.intValue;
+                break;
+            case propString:
+                ss << p->value.stringValue;
+                break;
+            case propNode:
+                ss << Nest_toStringEx(p->value.nodeValue);
+                break;
+            case propType:
+                ss << p->value.typeValue;
+                break;
+            }
+        }
+        ss << ']';
+    }
     return strdup(ss.str().c_str());
 }
 
@@ -205,6 +232,27 @@ const TypeRef* Nest_getPropertyType(const Node* node, const char* name)
     if ( !p || p->kind != propType )
         return nullptr;
     return &p->value.typeValue;
+}
+
+int Nest_getPropertyDefaultInt(const Node* node, const char* name, int defaultVal)
+{
+    const int* res = Nest_getPropertyInt(node, name);
+    return res ? *res : defaultVal;
+}
+StringRef Nest_getPropertyDefaultString(const Node* node, const char* name, StringRef defaultVal)
+{
+    const StringRef* res = Nest_getPropertyString(node, name);
+    return res ? *res : defaultVal;
+}
+Node* Nest_getPropertyDefaultNode(const Node* node, const char* name, Node* defaultVal)
+{
+    Node*const* res = Nest_getPropertyNode(node, name);
+    return res ? *res : defaultVal;
+}
+TypeRef Nest_getPropertyDefaultType(const Node* node, const char* name, TypeRef defaultVal)
+{
+    const TypeRef* res = Nest_getPropertyType(node, name);
+    return res ? *res : defaultVal;
 }
 
 int Nest_getCheckPropertyInt(const Node* node, const char* name)

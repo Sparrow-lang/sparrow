@@ -530,8 +530,8 @@ namespace
         llvm::Value* tmpVar = context.addVariable(t, "tmp.StringRef");
 
         // Copy pointers of the string constant into the StringRef structure
-        llvm::Value* beginAddr = context.builder().CreateInBoundsGEP(tmpVar, {constInt0, constInt0}, "");
-        llvm::Value* endAddr = context.builder().CreateInBoundsGEP(tmpVar, {constInt0, constInt1}, "");
+        llvm::Value* beginAddr = context.builder().CreateInBoundsGEP(tmpVar, llvm::ArrayRef<llvm::Value*>({constInt0, constInt0}), "");
+        llvm::Value* endAddr = context.builder().CreateInBoundsGEP(tmpVar, llvm::ArrayRef<llvm::Value*>({constInt0, constInt1}), "");
         context.builder().CreateStore(globalStr, beginAddr);
         context.builder().CreateStore(globalStrEnd, endAddr);
 

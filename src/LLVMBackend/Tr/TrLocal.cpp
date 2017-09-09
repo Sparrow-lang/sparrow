@@ -524,14 +524,16 @@ namespace
         llvm::Value* globalStr = context.builder().CreateGlobalStringPtr(llvm::StringRef(begin, (size_t) size), "str");
 
         // Obtain pointers to the end of the global string
-        llvm::Value* globalStrEnd = context.builder().CreateInBoundsGEP(globalStr, llvm::ArrayRef<llvm::Value*>(constIntSize), "");
+        llvm::Value* globalStrEnd = context.builder().CreateInBoundsGEP(globalStr, constIntSize, "");
 
         // Create a temporary variable for the actual structure object
         llvm::Value* tmpVar = context.addVariable(t, "tmp.StringRef");
 
         // Copy pointers of the string constant into the StringRef structure
-        llvm::Value* beginAddr = context.builder().CreateInBoundsGEP(tmpVar, llvm::ArrayRef<llvm::Value*>({constInt0, constInt0}), "");
-        llvm::Value* endAddr = context.builder().CreateInBoundsGEP(tmpVar, llvm::ArrayRef<llvm::Value*>({constInt0, constInt1}), "");
+        llvm::Value* indices[2] = { constInt0, constInt0 };
+        llvm::Value* beginAddr = context.builder().CreateInBoundsGEP(tmpVar, indices, "");
+        indices[1] = constInt1;
+        llvm::Value* endAddr = context.builder().CreateInBoundsGEP(tmpVar, indices, "");
         context.builder().CreateStore(globalStr, beginAddr);
         context.builder().CreateStore(globalStrEnd, endAddr);
 

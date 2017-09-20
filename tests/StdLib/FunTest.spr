@@ -1,74 +1,50 @@
 //!!
-import std.function(Function);
-import std.string(String);
+import std.function(Function)
+import std.string(String)
 
-fun assert(cond: Bool) {
-    if ( !cond )
-        cout << "Assertion failed!!!" << endl;
-}
+fun assert(cond: Bool)
+    if !cond
+        cout << "Assertion failed!!!" << endl
 
 fun stdFunInt(n: Int): Int
-{
-    cout << "stdFunInt(" << n << ") called";
-    return n*10;
-}
+    cout << "stdFunInt(" << n << ") called"
+    return n*10
 
 fun stdFun(s: String): String
-{
-    if ( s.isEmpty() )
-        cout << "Given string is empty!" << endl << flush;
-    cout << "stdFun(" << s << ") called" << flush;
-    return "stdFun";
-}
+    if s.isEmpty()
+        cout << "Given string is empty!" << endl << flush
+    cout << "stdFun(" << s << ") called" << flush
+    return "stdFun"
 
 class FunctorInt
-{
     fun ctor(n: Int)
-    {
-        storedNum ctor n;
-    }
+        storedNum ctor n
     fun ()(n: Int): Int
-    {
-        cout << "Functor(" << storedNum << ")(" << n << ") called" << flush;
-        return n*storedNum;
-    }
-    var storedNum: Int;
-}
+        cout << "Functor(" << storedNum << ")(" << n << ") called" << flush
+        return n*storedNum
+    var storedNum: Int
 
 class Functor
-{
     fun ctor(s: String)
-    {
-        storedString ctor s;
-    }
+        storedString ctor s
     fun ()(s: String): String
-    {
-        cout << "Functor(" << storedString << ")(" << s << ") called" << flush;
-        return "Functor";
-    }
-    var storedString: String;
-}
+        cout << "Functor(" << storedString << ")(" << s << ") called" << flush
+        return "Functor"
+    var storedString: String
 
 class BigFunctor
-{
     fun () (p1, p2, p3, p4, p5, p6, p7, p8, p9, p10: Int): Int
-    {
-        return p1+p2+p3+p4+p5+p6+p7+p8+p9+p10;
-    }
-}
+        return p1+p2+p3+p4+p5+p6+p7+p8+p9+p10
 
 [initCtor] class Counter
-{
-    var count: Int;
+    var count: Int
 
-    fun (): Int = ++count;
-}
+    fun (): Int = ++count
 
 fun sprMain
-{
-    if ( programArgs.size() < 2 )
-        return;
-    var n = programArgs(1) asInt;
+    if programArgs.size() < 2
+        return
+    var n = programArgs(1) asInt
 
     if      n == 1; test1
     else if n == 2; test2
@@ -78,128 +54,111 @@ fun sprMain
     else if n == 6; test6
     else if n == 7; test7
     else if n == 8; test8
-    else cout << "Invalid test number!\n";
-}
+    else cout << "Invalid test number!\n"
 
 fun test1
-{
-    var f0 = \stdFunInt;
-    var r0 = f0(10);
-    cout << " => " << r0 << endl;
+    var f0 = \stdFunInt
+    var r0 = f0(10)
+    cout << " => " << r0 << endl
 
-    var f1 = \stdFun;
-    var r1 = f1("Hello, world!");
-    cout << " => " << r1 << endl;
-}
+    var f1 = \stdFun
+    var r1 = f1("Hello, world!")
+    cout << " => " << r1 << endl
 /*<<< Basic testing of FunctionPtr(1)
 stdFunInt(10) called => 100
 stdFun(Hello, world!) called => stdFun
 >>>*/
 
 fun test2
-{
-    var f0: Function(Int, Int) = \stdFunInt;
-    var r0 = f0(10);
-    cout << " => " << r0 << endl;
+    var f0: Function(Int, Int) = \stdFunInt
+    var r0 = f0(10)
+    cout << " => " << r0 << endl
 
-    var f1: Function(String, String) = \stdFun;
-    var r1 = f1("Hello, world!");
-    cout << " => " << r1 << endl;
-}
+    var f1: Function(String, String) = \stdFun
+    var r1 = f1("Hello, world!")
+    cout << " => " << r1 << endl
 /*<<< Function constructed with function pointer(2)
 stdFunInt(10) called => 100
 stdFun(Hello, world!) called => stdFun
 >>>*/
 
 fun test3
-{
-    var f0: Function(Int, Int) = FunctorInt(3);
-    var r0 = f0(10);
-    cout << " => " << r0 << endl;
+    var f0: Function(Int, Int) = FunctorInt(3)
+    var r0 = f0(10)
+    cout << " => " << r0 << endl
 
-    var f1: Function(String, String) = Functor("bubu");
-    var r1 = f1("Hello, world!");
-    cout << " => " << r1 << endl;
-}
+    var f1: Function(String, String) = Functor("bubu")
+    var r1 = f1("Hello, world!")
+    cout << " => " << r1 << endl
 /*<<< Function constructed with functor(3)
 Functor(3)(10) called => 30
 Functor(bubu)(Hello, world!) called => Functor
 >>>*/
 
 fun test4
-{
-    var f: Function(Int, Int,Int,Int,Int,Int,Int,Int,Int,Int,Int) = BigFunctor();
-    cout << f(1,2,3,4,5,6,7,8,9,10) << endl;
-}
+    var f: Function(Int, Int,Int,Int,Int,Int,Int,Int,Int,Int,Int) = BigFunctor()
+    cout << f(1,2,3,4,5,6,7,8,9,10) << endl
 /*<<< Functor with a large number of parameters(4)
 55
 >>>*/
 
 fun test5
-{
-    var f1: Function(String, String) = Functor("bubu");
-    var r1 = f1("Hello, world!");
-    cout << " => " << r1 << endl;
+    var f1: Function(String, String) = Functor("bubu")
+    var r1 = f1("Hello, world!")
+    cout << " => " << r1 << endl
 
-    var f2 = f1;
-    var r2 = f2("Hello, to you too!");
-    cout << " => " << r2 << endl;
-}
+    var f2 = f1
+    var r2 = f2("Hello, to you too!")
+    cout << " => " << r2 << endl
 /*<<< Copying functors (5)
 Functor(bubu)(Hello, world!) called => Functor
 Functor(bubu)(Hello, to you too!) called => Functor
 >>>*/
 
 fun test6
-{
-    var f1: Function(String, String) = Functor("bubu");
-    var r1 = f1("Hello, world!");
-    cout << " => " << r1 << endl;
+    var f1: Function(String, String) = Functor("bubu")
+    var r1 = f1("Hello, world!")
+    cout << " => " << r1 << endl
 
-    var f2: Function(String, String);
-    f2 = f1;
-    var r2 = f2("Hello, to you too!");
-    cout << " => " << r2 << endl;
-}
+    var f2: Function(String, String)
+    f2 = f1
+    var r2 = f2("Hello, to you too!")
+    cout << " => " << r2 << endl
 /*<<< Functor assignment (6)
 Functor(bubu)(Hello, world!) called => Functor
 Functor(bubu)(Hello, to you too!) called => Functor
 >>>*/
 
 fun test7
-{
-    var f1: Function(String, String) = Functor("bubu");
-    var r1 = f1("Hello, world!");
-    cout << " => " << r1 << endl;
-    assert(f1.isSet());
-    assert(!f1.isNull());
+    var f1: Function(String, String) = Functor("bubu")
+    var r1 = f1("Hello, world!")
+    cout << " => " << r1 << endl
+    assert(f1.isSet())
+    assert(!f1.isNull())
 
-    var f2: Function(String, String);
-    assert(!f2.isSet());
-    assert(f2.isNull());
-    f2 = f1;
-    var r2 = f2("Hello, to you too!");
-    cout << " => " << r2 << endl;
-    assert(f2.isSet());
-    assert(!f2.isNull());
-}
+    var f2: Function(String, String)
+    assert(!f2.isSet())
+    assert(f2.isNull())
+    f2 = f1
+    var r2 = f2("Hello, to you too!")
+    cout << " => " << r2 << endl
+    assert(f2.isSet())
+    assert(!f2.isNull())
 /*<<< Function isSet (7)
 Functor(bubu)(Hello, world!) called => Functor
 Functor(bubu)(Hello, to you too!) called => Functor
 >>>*/
 
 fun test8
-{
-    var f1: Function(Int) = Counter(10);
-    var f2 = f1;
+    var f1: Function(Int) = Counter(10)
+    var f2 = f1
 
-    cout << f1() << endl;
-    cout << f2() << endl;
-    cout << f1() << endl;
-    cout << f2() << endl;
-    cout << f1() << endl;
-    cout << f2() << endl;
-}
+    cout << f1() << endl
+    cout << f2() << endl
+    cout << f1() << endl
+    cout << f2() << endl
+    cout << f1() << endl
+    cout << f2() << endl
 /*<<<Functor shouldn't be shared (8)
 11
 11

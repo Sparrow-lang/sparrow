@@ -91,7 +91,7 @@ storage     rt    y  y  0    NumericRangeInc[Int/rtct]
 no storage  rtct  y  y  0    #Number/rtct
 no storage  rt    y  y  0    Void
 no storage  ct    y  y  0    Void/ct
-storage     rt    n  y  0    FunctionPtr[Void]
+storage     rt    n  y  0    FunctionPtr0[Void]
 storage     rt    n  y  0    MyRtOnlyType
 >>>*/
 

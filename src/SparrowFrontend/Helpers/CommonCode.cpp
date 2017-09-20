@@ -18,15 +18,15 @@
 using namespace SprFrontend;
 using namespace Nest;
 
-Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* context, NodeRange args)
-{
+Node* SprFrontend::createCtorCall(
+        const Location& loc, CompilationContext* context, NodeRange args) {
     auto numArgs = Nest_nodeRangeSize(args);
-    if ( numArgs == 0 )
+    if (numArgs == 0)
         REP_INTERNAL(loc, "At least 'this' argument must be given when creating a ctor call");
 
     // Get the class from 'thisArg'
     Node* thisArg = at(args, 0);
-    if ( !Nest_computeType(thisArg) )
+    if (!Nest_computeType(thisArg))
         return nullptr;
     Node* cls = Feather_classForType(thisArg->type);
     CHECK(loc, cls);
@@ -36,19 +36,17 @@ Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* conte
     // should be transformed into: ctor(this.subObj, a,b,c)
 
     // Check if we can apply RVO, or pseudo-RVO
-    // Whenever we try to construct an object from another temporary object, try to bypass the temporary object creation
-    if ( numArgs == 2 && !Nest_compilerSettings()->noRVO_ && !Feather_isCt(thisArg) )
-    {
+    // Whenever we try to construct an object from another temporary object, try to bypass the
+    // temporary object creation
+    if (numArgs == 2 && !Nest_compilerSettings()->noRVO_ && !Feather_isCt(thisArg)) {
         Node* arg = at(args, 1);
-        if ( ! Nest_computeType(arg) )
+        if (!Nest_computeType(arg))
             return nullptr;
         arg = Nest_explanation(arg);
-        if ( Feather_classForType(arg->type) == cls )
-        {
-            Node*const* tempVarConstruction1 = Nest_getPropertyNode(arg, propTempVarContstruction);
+        if (Feather_classForType(arg->type) == cls) {
+            Node* const* tempVarConstruction1 = Nest_getPropertyNode(arg, propTempVarContstruction);
             Node* tempVarConstruction = tempVarConstruction1 ? *tempVarConstruction1 : nullptr;
-            if ( tempVarConstruction && tempVarConstruction->nodeKind == nkFeatherExpFunCall )
-            {
+            if (tempVarConstruction && tempVarConstruction->nodeKind == nkFeatherExpFunCall) {
                 Node* fnCall = tempVarConstruction;
                 ASSERT(Nest_nodeArraySize(fnCall->children) >= 1);
                 Node* fun = at(fnCall->referredNodes, 0);
@@ -57,18 +55,20 @@ Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* conte
                 Node* thisParam = Feather_Function_getParameter(fun, 0);
                 TypeRef thisParamType = thisParam->type;
                 ConversionResult cvt = canConvert(thisArg, thisParamType);
-                if ( !cvt )
-                    REP_INTERNAL(loc, "Cannot convert this arg in RVO (%1% -> %2%)") % thisArg->type % thisParamType;
+                if (!cvt)
+                    REP_INTERNAL(loc, "Cannot convert this arg in RVO (%1% -> %2%)") %
+                            thisArg->type % thisParamType;
                 Node* thisArg1 = cvt.apply(thisArg);
 
-                // Create a new call based on the original temp var construction call, but changing the this argument
+                // Create a new call based on the original temp var construction call, but changing
+                // the this argument
                 NodeVector args;
                 size_t size = Nest_nodeArraySize(fnCall->children);
                 args.reserve(size);
                 args.push_back(thisArg1);
                 NodeRange r = Nest_nodeChildren(fnCall);
                 r.beginPtr++;
-                for ( Node* child: r )
+                for (Node* child : r)
                     args.push_back(child);
                 Node* newCall = Feather_mkFunCall(loc, fun, all(args));
                 Nest_setContext(newCall, context);
@@ -81,30 +81,30 @@ Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* conte
     NodeArray decls = getClassAssociatedDecls(cls, "ctor");
 
     // If no declarations found, just don't initialize the object
-    if ( Nest_nodeArraySize(decls) == 0 )
+    if (Nest_nodeArraySize(decls) == 0)
         return nullptr;
 
     // Do the overloading procedure to select the right ctor
-    Node* res = selectOverload(context, loc, thisArg->type->mode, all(decls), args, OverloadReporting::full, fromCStr("ctor"));
+    Node* res = selectOverload(context, loc, thisArg->type->mode, all(decls), args,
+            OverloadReporting::full, fromCStr("ctor"));
     Nest_freeNodeArray(decls);
     return res;
 }
 
-Node* SprFrontend::createCtorCall(const Location& loc, CompilationContext* context, Node* thisArg, Node* initArg)
-{
+Node* SprFrontend::createCtorCall(
+        const Location& loc, CompilationContext* context, Node* thisArg, Node* initArg) {
     NodeVector args;
     args.push_back(thisArg);
-    if ( initArg )
+    if (initArg)
         args.push_back(initArg);
     return createCtorCall(loc, context, all(args));
 }
 
-Node* SprFrontend::createDtorCall(const Location& loc, CompilationContext* context, Node* thisArg)
-{
+Node* SprFrontend::createDtorCall(const Location& loc, CompilationContext* context, Node* thisArg) {
     ASSERT(thisArg);
 
     // Get the class from 'thisArg'
-    if ( !Nest_computeType(thisArg) )
+    if (!Nest_computeType(thisArg))
         return nullptr;
     Node* cls = Feather_classForType(thisArg->type);
     CHECK(loc, cls);
@@ -114,59 +114,61 @@ Node* SprFrontend::createDtorCall(const Location& loc, CompilationContext* conte
 
     // If no destructor found, don't call anything
     auto numDecls = Nest_nodeArraySize(decls);
-    if ( numDecls == 0 )
+    if (numDecls == 0)
         return nullptr;
 
     // Do the overloading procedure to select the right dtor
     // Don't report errors; having no matching dtor is a valid case
-    Node* res = selectOverload(context, loc, thisArg->type->mode, all(decls), fromIniList({thisArg}), OverloadReporting::none, fromCStr("dtor"));
+    Node* res = selectOverload(context, loc, thisArg->type->mode, all(decls),
+            fromIniList({thisArg}), OverloadReporting::none, fromCStr("dtor"));
     Nest_freeNodeArray(decls);
     return res; // can be null
 }
 
-bool _areNodesCt(NodeRange nodes)
-{
-    for ( Node* n: nodes )
-    {
-        if ( !n->type )
+bool _areNodesCt(NodeRange nodes) {
+    for (Node* n : nodes) {
+        if (!n->type)
             Nest_computeType(n);
-        if ( n->type->mode != modeCt )
+        if (n->type->mode != modeCt)
             return false;
     }
     return true;
 }
 
-Node* SprFrontend::createFunctionCall(const Location& loc, CompilationContext* context, Node* fun, NodeRange args)
-{
+Node* SprFrontend::createFunctionCall(
+        const Location& loc, CompilationContext* context, Node* fun, NodeRange args) {
     ASSERT(context);
-    if ( !Nest_computeType(fun) )
+    if (!Nest_computeType(fun))
         return nullptr;
 
     // Set the arguments to the function call.
-    // If we have a result param, create a temporary variable for it, and call the function with it; then we return the
+    // If we have a result param, create a temporary variable for it, and call the function with it;
+    // then we return the
     // content of the variable
     Node* tmpVarRef = nullptr;
     Node* res = nullptr;
     Node* resultParam = getResultParam(fun);
-    if ( resultParam )
-    {
+    if (resultParam) {
         // Get the resulting type; check for CT-ness
         TypeRef resTypeRef = resultParam->type;
         EvalMode funEvalMode = Feather_effectiveEvalMode(fun);
-        if ( funEvalMode == modeCt && resTypeRef->mode != modeCt )
+        if (funEvalMode == modeCt && resTypeRef->mode != modeCt)
             resTypeRef = Feather_checkChangeTypeMode(resTypeRef, modeCt, resultParam->location);
-        if ( funEvalMode == modeRtCt && Nest_hasProperty(fun, propAutoCt) && resTypeRef->mode != modeCt && _areNodesCt(args) )
+        if (funEvalMode == modeRtCt && Nest_hasProperty(fun, propAutoCt) &&
+                resTypeRef->mode != modeCt && _areNodesCt(args))
             resTypeRef = Feather_checkChangeTypeMode(resTypeRef, modeCt, resultParam->location);
 
         // Create a temporary variable for the result
-        Node* tmpVar = Feather_mkVar(loc, fromCStr("$tmpC"), Feather_mkTypeNode(loc, Feather_removeRef(resTypeRef)));
+        Node* tmpVar = Feather_mkVar(
+                loc, fromCStr("$tmpC"), Feather_mkTypeNode(loc, Feather_removeRef(resTypeRef)));
         Nest_setContext(tmpVar, context);
         tmpVarRef = Feather_mkVarRef(loc, tmpVar);
         Nest_setContext(tmpVarRef, context);
 
         // Add a new argument with the temporary variable
         NodeVector args1 = toVec(args);
-        Node* arg = Feather_mkBitcast(tmpVarRef->location, Feather_mkTypeNode(loc, resTypeRef), tmpVarRef);
+        Node* arg = Feather_mkBitcast(
+                tmpVarRef->location, Feather_mkTypeNode(loc, resTypeRef), tmpVarRef);
         Nest_setContext(arg, context);
         args1.insert(args1.begin(), arg);
         Node* funCall = Feather_mkFunCall(loc, fun, all(args1));
@@ -174,49 +176,47 @@ Node* SprFrontend::createFunctionCall(const Location& loc, CompilationContext* c
         res = createTempVarConstruct(loc, context, funCall, tmpVar);
 
         // TODO: Check why we cannot return a reference when the result is a type
-        if ( resTypeRef == StdDef::typeRefType )
+        if (resTypeRef == StdDef::typeRefType)
             res = Feather_mkMemLoad(loc, res);
-    }
-    else
-    {
+    } else {
         Node* funCall = Feather_mkFunCall(loc, fun, args);
         res = funCall;
     }
 
     Nest_setContext(res, context);
-    if ( !Nest_computeType(res) )
+    if (!Nest_computeType(res))
         return nullptr;
 
     // CT sanity check
-    //Feather_checkEvalMode(funCall, Feather_effectiveEvalMode(fun));
+    // Feather_checkEvalMode(funCall, Feather_effectiveEvalMode(fun));
 
     return res;
 }
 
-Node* SprFrontend::createTempVarConstruct(const Location& loc, CompilationContext* context, Node* constructAction, Node* var)
-{
+Node* SprFrontend::createTempVarConstruct(
+        const Location& loc, CompilationContext* context, Node* constructAction, Node* var) {
     CHECK(loc, constructAction->nodeKind == nkFeatherExpFunCall);
     Node* funCall = constructAction;
     CHECK(loc, Nest_nodeArraySize(funCall->children) != 0);
     Node* thisArg = at(funCall->children, 0);
-    if ( !Nest_computeType(thisArg) )
+    if (!Nest_computeType(thisArg))
         return nullptr;
 
     // Create a temp destruct action with the call of the destructor
     Node* destructAction = nullptr;
-    if ( !Feather_isCt(thisArg) )
-    {
+    if (!Feather_isCt(thisArg)) {
         Node* dtorCall = createDtorCall(loc, context, thisArg);
-        if ( dtorCall )
+        if (dtorCall)
             destructAction = Feather_mkTempDestructAction(loc, dtorCall);
     }
 
     // The result of the expressions
-    Node* result = Feather_mkVarRef(loc, var);   // Return a var-ref to the temporary object
+    Node* result = Feather_mkVarRef(loc, var); // Return a var-ref to the temporary object
 
-    Node* res = Feather_mkNodeList(loc, fromIniList({ var, constructAction, destructAction, result }));
+    Node* res =
+            Feather_mkNodeList(loc, fromIniList({var, constructAction, destructAction, result}));
     Nest_setContext(res, context);
-    if ( !Nest_computeType(res) )
+    if (!Nest_computeType(res))
         return nullptr;
     Nest_setPropertyNode(res, propTempVarContstruction, constructAction);
 
@@ -370,18 +370,44 @@ Node* _createFunPtrForDecl(Node* funNode) {
 }
 
 Node* SprFrontend::createFunPtr(Node* funNode) {
-    if (funNode->nodeKind == nkFeatherNodeList && size(funNode->children) == 1) {
-        // Recursively apply ourselves to get rid of the node list
-        return createFunPtr(at(funNode->children, 0));
-    } else if (funNode->nodeKind == nkSparrowExpInfixExp &&
-               Nest_getCheckPropertyString(funNode, "spr.operation") == "__fapp__") {
-        // This is a function call; take the address off the called function
+
+    // Get rid of any node lists wraparounds
+    while (funNode && funNode->nodeKind == nkFeatherNodeList && size(funNode->children) == 1)
+        funNode = at(funNode->children, 0);
+
+    // Check for fun applications
+    if (funNode->nodeKind == nkSparrowExpInfixExp &&
+            Nest_getCheckPropertyString(funNode, "spr.operation") == "__fapp__") {
+        Node* featherFunCall = nullptr;
+
+        // Compile the fun application node and try to extract the Feather fun call
         Nest_semanticCheck(funNode);
         Node* expl = Nest_explanation(funNode);
-        if (!expl || !expl->type)
+        if (!expl && !expl->type)
             return nullptr;
-        Node* referredFun = at(expl->referredNodes, 0);
-        return _createFunPtrForFeatherFun(referredFun, funNode);
+
+        // Case 1: directly expands into a Feather fun-call
+        if (expl->nodeKind == nkFeatherExpFunCall) {
+            featherFunCall = expl;
+        }
+        // Case 2: fun-call that returns an rvalue, wrapped in a node list with temp var
+        if (expl->nodeKind == nkFeatherNodeList &&
+                (size(expl->children) == 3 || size(expl->children) == 4)) {
+            Node* varNode = at(expl->children, 0);
+            Node* callNode = at(expl->children, 1);
+            // we may have a destruct action in between
+            Node* varRefNode = at(expl->children, size(expl->children) - 1);
+            if (varNode && varNode->nodeKind == nkFeatherDeclVar && callNode &&
+                    callNode->nodeKind == nkFeatherExpFunCall && varRefNode &&
+                    varRefNode->nodeKind == nkFeatherExpVarRef)
+                featherFunCall = callNode;
+        }
+
+        if (featherFunCall) {
+            Node* referredFunDecl = at(featherFunCall->referredNodes, 0);
+            return _createFunPtrForFeatherFun(referredFunDecl, funNode);
+        } else
+            return nullptr;
     }
 
     return _createFunPtrForDecl(funNode);

@@ -26,6 +26,7 @@ fun sprMain
     if      n == 1; test1
     else if n == 2; test2
     else if n == 3; test3
+    else if n == 4; test4
     else cout << "Invalid test number!\n"
 
 fun test1
@@ -56,13 +57,26 @@ stdFun(Hello, world!) called => stdFun
 
 fun test3
     var f0 = \(f(0))
-    var r0 = f0(10);
+    var r0 = f0(10)
     cout << ' => ' << r0 << '\n'
 
     var f1 = \(f(3.14))
-    var r1 = f1(2.71);
+    var r1 = f1(2.71)
     cout << ' => ' << r1 << '\n'
 /*<<< FunctionPtr applied to overloaded function(3)
+f(Int) called => 10
+f(Double) called => 2.71
+>>>*/
+
+fun test4
+    var f0 = \f(0)
+    var r0 = f0(10)
+    cout << ' => ' << r0 << '\n'
+
+    var f1 = \f(3.14)
+    var r1 = f1(2.71)
+    cout << ' => ' << r1 << '\n'
+/*<<< FunctionPtr applied to overloaded function - no parens(4)
 f(Int) called => 10
 f(Double) called => 2.71
 >>>*/

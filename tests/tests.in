@@ -78,7 +78,6 @@ Basic2/Conditional.spr:                 Basic features 2 - Conditionals
 Basic2/LogicalAndOr.spr:                Basic features 2 - Logical AND & OR operators with shortcut
 Basic2/CustomOperators.spr:             Basic features 2 - Custom operators precedence
 Basic2/Precedence.spr:                  Basic features 2 - Precedence of operators
-Basic2/BasicVector.spr:                 Basic features 2 - Basic vector implementation
 Basic2/For.spr:                         Basic features 2 - For statement
 Basic2/Lambda.spr:                      Basic features 2 - Lambda expressions
 Basic2/GenericFunRef.spr:               Basic features 2 - Fun ptr for generics
@@ -100,10 +99,6 @@ Basic/Stmt.spr:                         Basic features - Statements
 Basic/DataStruct.spr:                   Basic features - Data structure
 Basic/Struct.spr:                       Basic features - New data structure
 Basic/StructGeneric.spr:                Basic features - New data structure, with generics
-Basic/FunErr.spr:                       Basic features - Function errors
-Basic/FunErr2.spr:                      Basic features - Function errors (more)
-Basic/StaticFun.spr:                    Basic features - Static functions
-Basic/NonStaticFun.spr:                 Basic features - Non static functions
 Basic/Compound.spr:                     Basic features - Compound expressions
 Basic/SameName.spr:                     Basic features - Class, function, var with same name
 # Basic/Inheritance.spr:                  Basic features - Inheritance
@@ -130,7 +125,6 @@ Basic/String.spr:                       Basic features - String
 Basic/ValueToRef.spr:                   Basic features - Value to reference
 Basic/CallCtorDtor.spr:                 Basic features - Call ctor & dtor
 # Basic/StaticArray.spr:                  Basic features - Static array
-Basic/BasicVector.spr:                  Basic features - Basic vector implementation
 Basic/TypeTraits.spr:                   Basic features - Type traits
 Basic/Overload.spr:                     Basic features - Overload
 Basic/FunExp.spr:                       Basic features - Expression functions

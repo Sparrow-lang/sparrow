@@ -7,9 +7,8 @@ fun fact(n: Int): Int
 }
 
 class FactFun
-{
-    fun ()(n: Int) = fact(n);
-}
+    ;
+fun ()(this: FactFun, n: Int) = fact(n);
 
 fun doCall(f: AnyType, val: Int): Int
 {
@@ -70,19 +69,17 @@ fun test2
 >>>*/
 
 class Test
-{
-    fun doTest1
-    {
-        cout << doCall((fun n = n*n), 5) << endl;
-    }
-    fun doTest2
-    {
-        cout << doCall((fun.{x} n = n*n + x), 5) << endl;
-    }
+    var x: Int;
 
     fun ctor { x = 10; }
 
-    var x: Int;
+fun doTest1(this: Test)
+{
+    cout << doCall((fun n = n*n), 5) << endl;
+}
+fun doTest2(this: Test)
+{
+    cout << doCall((fun.{x} n = n*n + x), 5) << endl;
 }
 
 fun test3

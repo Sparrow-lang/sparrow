@@ -7,10 +7,11 @@ class MyObj
     fun ctor(i: Int) { a = i; }
     fun ctor(other: MyObj) { a = other.a; }
     fun dtor {}
-    fun print() { write("MyObj: "); writeLn(a); }
 
     [static] var st = 103;
 }
+
+fun print(this: MyObj) { write("MyObj: "); writeLn(a); }
 
 var go = MyObj(10);
 

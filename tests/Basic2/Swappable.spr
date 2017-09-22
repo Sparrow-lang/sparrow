@@ -20,17 +20,16 @@ concept Swappable(x) if isValid(x.swap(x));
     var val: Int;
 }
 
-[initCtor] class MyType2
-{
-    var val: Int;
+package Inner
+    [initCtor] class MyType2
+        var val: Int;
 
-    fun swap(other: @MyType2)
-    {
+    fun swap(this, other: @MyType2)
         var tmp = val;
         val = other.val;
         other.val = tmp;
-    }
-}
+
+using Inner.MyType2
 
 fun sprMain
 {

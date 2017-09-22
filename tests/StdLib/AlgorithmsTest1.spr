@@ -24,17 +24,16 @@ fun sprMain
 }
 
 class MyObj
-{
     var x: Int;
 
     fun ctor(xx: Int) { x = xx; }
-    fun <(other: @MyObj): Bool { return x < other.x; }
-}
+
+fun <(this, other: @MyObj): Bool { return x < other.x; }
 
 class Greater
-{
-    fun ()(x: Int, y: Int): Bool { return x > y; }
-}
+    ;
+fun ()(this: Greater, x: Int, y: Int): Bool { return x > y; }
+
 
 fun printRange(nr: ContiguousMemoryRange(Int))
 {

@@ -1,19 +1,17 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
 class Foo
-{
     var a: Int;
     var b: Int;
 
-    fun f: @Foo         { writeLn("inside Foo.f()"); return this; }
+fun f(this: Foo): @Foo         { writeLn("inside Foo.f()"); return this; }
 
-    fun g: @Foo         { writeLn("inside Foo.g()"); return this; }
-    fun g(i: Int): @Foo { writeLn("inside Foo.g(i)"); return this; }
+fun g(this: Foo): @Foo         { writeLn("inside Foo.g()"); return this; }
+fun g(this: Foo, i: Int): @Foo { writeLn("inside Foo.g(i)"); return this; }
 
-    fun h(i: Int): @Foo { writeLn("inside Foo.h(i)"); return this; }
+fun h(this: Foo, i: Int): @Foo { writeLn("inside Foo.h(i)"); return this; }
 
-    fun aa = a;
-}
+fun aa(this: Foo) = a;
 
 fun f1          { writeLn("inside f1()"); }
 fun f2(i: Int)  { writeLn("inside f2()"); }

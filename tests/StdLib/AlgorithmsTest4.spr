@@ -19,37 +19,29 @@ fun sprMain
 }
 
 class MyObj
-{
     var x: Int;
 
     fun ctor() { x = 0; }
     fun ctor(xx: Int) { x = xx; }
     fun ctor(other: @MyObj) { x = other.x; }
     fun dtor {}
-    fun =(other: @MyObj): @MyObj { x = other.x; return this; }
-    fun ==(other: @MyObj): Bool { return x == other.x; }
-    fun <(other: @MyObj): Bool { return x < other.x; }
-}
+fun =(this, other: @MyObj): @MyObj { x = other.x; return this; }
+fun ==(this, other: @MyObj): Bool { return x == other.x; }
+fun <(this, other: @MyObj): Bool { return x < other.x; }
 
 class Greater
-{
-    fun ctor() { }
-    fun ()(x: Int, y: Int): Bool { return x > y; }
-}
+    ;
+fun ()(this: Greater, x: Int, y: Int): Bool { return x > y; }
 
 class Even
-{
-    fun ctor() { }
-
-    fun ()(x: Int): Bool { return x % 2 == 0; }
-}
+    ;
+fun ()(this: Even, x: Int): Bool { return x % 2 == 0; }
 
 class Minus
-{
     fun ctor() { }
 
-    fun ()(x: Int, y: Int) = x - y;
-}
+fun ()(this: Minus, x: Int, y: Int) = x - y;
+
 
 fun printRange(nr: AnyType)
 {

@@ -38,27 +38,21 @@ fun sprMain
 }
 
 class MyObj
-{
     var x: Int;
 
     fun ctor(xx: Int) { x = xx; }
-    fun <(other: @MyObj): Bool { return x < other.x; }
 
-    fun >>(os: @OutStream)      { os << x; }
-}
+fun <(this, other: @MyObj): Bool { return x < other.x; }
+
+fun >>(this: MyObj, os: @OutStream)      { os << x; }
 
 class Greater
-{
-    fun ()(x: MyObj, y: MyObj): Bool { return x.x > y.x; }
-}
+    ;
+fun ()(this: Greater, x: MyObj, y: MyObj): Bool { return x.x > y.x; }
 
 class Even
-{
-    fun ()(obj: @MyObj): Bool
-    {
-        return obj.x % 2 == 0;
-    }
-}
+    ;
+fun ()(this: Even, x: MyObj): Bool { return x.x % 2 == 0; }
 
 fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
 {

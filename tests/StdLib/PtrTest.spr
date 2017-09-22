@@ -3,46 +3,29 @@ import std.newDelete;
 import std.vector;
 
 class MyObj
-{
     var x: Int;
 
     fun ctor(xx: Int)
-    {
         x = xx;
-    }
 
     fun dtor()
-    {
         cout << x;
         cout << " destroyed" << endl;
-    }
 
-    fun >>(os: @OutStream)
-    {
-        os << "MyObj(" << x << ")";
-    }
+fun >>(this: @MyObj, os: @OutStream)
+    os << "MyObj(" << x << ")";
 
-    fun print
-    {
-        cout << "MyObj.print" << endl;
-    }
-    fun print(arg: StringRef)
-    {
-        cout << "MyObj.print(" << arg << ")" << endl;
-    }
-}
+fun print(this: @MyObj)
+    cout << "MyObj.print" << endl;
+fun print(this: @MyObj, arg: StringRef)
+    cout << "MyObj.print(" << arg << ")" << endl;
 
 class Foo
-{
-    fun ctor(x: Int)
-    {
-        obj ctor x;
-    }
-
-    fun get = obj;
-
     var obj: MyObj;
-}
+    fun ctor(x: Int)
+        obj ctor x;
+
+fun get(this: @Foo) = obj;
 
 fun sprMain
 {

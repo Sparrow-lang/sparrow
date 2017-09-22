@@ -29,28 +29,26 @@ fun nextRandom: Double
 }
 var randomRange = generate(\nextRandom);
 
-[initCtor] class RandomCharRange(distribValsRangeType: Type)
-{
+[initCtor]
+class RandomCharRange(distribValsRangeType: Type)
+    using RetType = Char;
     var distribStr: StringRef;
     var distribVals: distribValsRangeType;
 
-    using RetType = Char;
-    fun isEmpty = false;
-    fun popFront {}
-    fun front: Char
+fun isEmpty(this: @RandomCharRange) = false;
+fun popFront(this: @RandomCharRange) {}
+fun front(this: @RandomCharRange): Char
+    var randVal: Float = (randomRange++);
+    var i = 0;
+    var r = distribVals;
+    while !r.isEmpty; r.popFront()
     {
-        var randVal: Float = (randomRange++);
-        var i = 0;
-        var r = distribVals;
-        while !r.isEmpty; r.popFront()
-        {
-            if ( randVal < *r )
-                break;
-            ++i;
-        }
-        return distribStr(i);
+        if ( randVal < *r )
+            break;
+        ++i;
     }
-}
+    return distribStr(i);
+
 fun mkRandomCharRange(s: StringRef, v: Range) = RandomCharRange(typeOf(v))(s,v);
 
 fun sprMain

@@ -1031,48 +1031,35 @@ define void @_Type_copy_ctor(i8** %$this, i8* %other)
 }
 
 [rtct, noDefault, native("StringRef")] class StringRef
-{
     var begin: @Byte;
     var end: @Byte;
 
     fun ctor()
-    {
         begin := null;
         end := null;
-    }
     fun ctor(size: SizeType)
-    {
         begin := malloc(size + intToSizeType(1));
         end := ptrAdd(begin, size);
         end = intToByte(0);
-    }
     fun ctor(other: StringRef)
-    {
         begin := other.begin;
         end := other.end;
-    }
     fun dtor {}
 
-    fun size(): SizeType
-    {
+[rtct]
+    fun size(this: StringRef): SizeType
         return ptrDiff(end, begin);
-    }
 
-    fun getChar(i: SizeType): Char
-    {
+    fun getChar(this: StringRef, i: SizeType): Char
         return reinterpretCast(@Char, ptrAdd(begin, i));
-    }
 
-    fun == (other: StringRef): Bool
-    {
-        var s = size();
+    fun == (this, other: StringRef): Bool
+        var s = this.size();
         if ( s != other.size() ) return false;
         var i: SizeType = 0;
         while i<s ; i+=SizeType(1)
-            if ( getChar(i) != other.getChar(i) ) return false;
+            if ( this.getChar(i) != other.getChar(i) ) return false;
         return true;
-    }
-}
 
 [autoCt] fun = (dest: @StringRef, src: StringRef): @StringRef
 {

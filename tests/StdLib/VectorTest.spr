@@ -284,15 +284,12 @@ fun generateTestRange(sizeHint: UInt): TestRange {
 }
 
 
-class SubrangeTestData {
+class SubrangeTestData
     var vec: Vec;
     var start, count: SizeType;
 
-    fun >>(os: @OutStream)
-    {
-        os << vec << ", start=" << start << ", count=" << count;
-    }
-}
+fun >>(this: @SubrangeTestData, os: @OutStream)
+    os << vec << ", start=" << start << ", count=" << count;
 
 fun arbitrary(t: Type): SubrangeTestData Gen if t == SubrangeTestData {
     return (Vec Gen)((fun (sizeHint: UInt): SubrangeTestData {
@@ -305,16 +302,13 @@ fun arbitrary(t: Type): SubrangeTestData Gen if t == SubrangeTestData {
     }));
 }
 
-class InsertValueTestData {
+class InsertValueTestData
     var vec: Vec;
     var idx: SizeType;
     var value: Int;
 
-    fun >>(os: @OutStream)
-    {
-        os << vec << ", idx=" << idx << ", value=" << value;
-    }
-}
+fun >>(this: @InsertValueTestData, os: @OutStream)
+    os << vec << ", idx=" << idx << ", value=" << value;
 
 fun arbitrary(t: Type): InsertValueTestData Gen if t == InsertValueTestData {
     return (Vec Gen)((fun (sizeHint: UInt): InsertValueTestData {
@@ -326,16 +320,13 @@ fun arbitrary(t: Type): InsertValueTestData Gen if t == InsertValueTestData {
     }));
 }
 
-class InsertRangeTestData {
+class InsertRangeTestData
     var vec: Vec;
     var idx: SizeType;
     var values: Vec;
 
-    fun >>(os: @OutStream)
-    {
-        os << vec << ", idx=" << idx << ", values=" << values;
-    }
-}
+fun >>(this: @InsertRangeTestData, os: @OutStream)
+    os << vec << ", idx=" << idx << ", values=" << values;
 
 fun arbitrary(t: Type): InsertRangeTestData Gen if t == InsertRangeTestData {
     return (Vec Gen)((fun (sizeHint: UInt): InsertRangeTestData {

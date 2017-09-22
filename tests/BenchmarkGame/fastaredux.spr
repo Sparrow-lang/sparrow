@@ -29,34 +29,25 @@ fun nextRandom: Double
 }
 
 class RandTableRange
-{
+    using RetType   = Char;
     using numEntries = 4095;
     var lookup: Array((Float rt)*(Char rt));
 
     fun ctor(data: Range)
-    {
         lookup.ctor(numEntries+1);
         for i = 0...numEntries
-        {
             while i > data.front().v1*numEntries
                 data.popFront();
             lookup(i) = data.front;
-        }
-    }
 
-    using RetType   = Char;
-    fun isEmpty     = false;
-    fun popFront    {}
-    fun front: Char
-    {
-        var r = nextRandom;
-        var idx: SizeType = r*numEntries;
-        while lookup(idx).v1 < r
-            ++idx;
-        return lookup(idx).v2;
-    }
-    [static] var counter = 0;
-}
+fun isEmpty(this: @RandTableRange)     = false;
+fun popFront(this: @RandTableRange)    {}
+fun front(this: @RandTableRange): Char
+    var r = nextRandom;
+    var idx: SizeType = r*numEntries;
+    while lookup(idx).v1 < r
+        ++idx;
+    return lookup(idx).v2;
 
 fun sprMain
 {

@@ -1,36 +1,23 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main -fno-rvo
 
 class MyObj
-{
-    fun ctor()
-    {
-        writeLn("MyObj.ctor()");
-    }
-    fun ctor(i: Int)
-    {
-        write("MyObj.ctor("); write(i); writeLn(")");
-    }
-    fun ctor(i,j: Int)
-    {
-        write("MyObj.ctor("); write(i); write(", "); write(j); writeLn(")");
-    }
-    fun ctor(src: @MyObj)
-    {
-        writeLn("MyObj.ctor(copy)");
-    }
-    fun dtor
-    {
-        writeLn("MyObj.dtor");
-    }
-
-    fun reconstruct()
-    {
-        this.dtor();
-        this.ctor(100);
-    }
-
     var v: Int;
-}
+
+    fun ctor()
+        writeLn("MyObj.ctor()");
+    fun ctor(i: Int)
+        write("MyObj.ctor("); write(i); writeLn(")");
+    fun ctor(i,j: Int)
+        write("MyObj.ctor("); write(i); write(", "); write(j); writeLn(")");
+    fun ctor(src: @MyObj)
+        writeLn("MyObj.ctor(copy)");
+    fun dtor
+        writeLn("MyObj.dtor");
+
+
+fun reconstruct(this: @MyObj)
+    this.dtor();
+    this.ctor(100);
 
 class Pair
 {

@@ -3,12 +3,9 @@
 
 class TestClass
     var a: Int
-    fun method
-        a = 1;
-    [static]
-    fun staticMethod
-        writeLn("---")
-        //a = 2
+
+fun method(this: @TestClass)     // not quite, but close enough
+    a = 1;
 
 datatype MyType { data: Int }
 datatype MyType2 { data: MyType }
@@ -50,7 +47,7 @@ fun test(n: Int)
     var obj: TestClass
     obj.method
     writeLnInt(obj.a)
-    TestClass.staticMethod
+    writeLn("---")
 
     var obj1: MyType
     obj1.data = 10

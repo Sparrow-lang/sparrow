@@ -12,17 +12,15 @@ import os = os;
 using payloadSize = 16;
 
 class Obj
-{
     var value: UInt;
     var payload: StaticArray(Byte, payloadSize);
 
-    fun >> (os: @OutStream) { os << "Obj(" << value << ")"; }
-}
+fun >> (this: @Obj, os: @OutStream) { os << "Obj(" << value << ")"; }
 
 // TODO: Move this to Std ???
-class Equal(type: Type) {
-    fun () (x,y: type): Bool = x == y;
-}
+class Equal(type: Type)
+    using T = type
+fun () (this: Equal, x,y: this.T): Bool = x == y;
 
 using ObjPtr = Ptr(Obj);
 using TestHashMap = Map(UInt, ObjPtr);

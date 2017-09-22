@@ -6,35 +6,28 @@ import std.vector;
 import std.algorithms;
 
 class IntWrapper
-{
     var x: Int;
 
     [convert] fun ctor(x: Int) { this.x ctor x; }
 
-    fun hash: SizeType
-    {
-        cout << "IntWrapper.hash called for value " << x << endl;
-        return x;
-    }
-}
+
+fun hash(this: IntWrapper): SizeType
+    cout << "IntWrapper.hash called for value " << x << endl;
+    return x;
 
 class IntWithNoHash
-{
     var x: Int;
 
     [convert] fun ctor(x: Int) { this.x ctor x; }
-}
 
 class MyTypeTraits
-{
-    fun equal(l, r: IntWithNoHash) = l == r;
-    fun less(l, r: IntWithNoHash) = l.x < r.x;
-    fun hash(val: IntWithNoHash): SizeType
-    {
-        cout << "MyTypeTraits.hash called for value " << val.x << endl;
-        return val.x;
-    }
-}
+    ;
+
+fun equal(this: MyTypeTraits, l, r: IntWithNoHash) = l == r;
+fun less(this: MyTypeTraits, l, r: IntWithNoHash) = l.x < r.x;
+fun hash(this: MyTypeTraits, val: IntWithNoHash): SizeType
+    cout << "MyTypeTraits.hash called for value " << val.x << endl;
+    return val.x;
 
 
 fun sprMain

@@ -14,16 +14,14 @@ fun sum(x,y: AnyType) = x+y if typeOf(x) == typeOf(y);
 fun nextAsDouble(x: AnyType): Double = x+1.0;
 
 class Test1
-{
     var aa: Int;
     var bb: Int;
 
     fun ctor(a,b: Int) { aa = a; bb = b; }
     fun ctor(other: Test1) { aa = other.aa; bb = other.bb; }
 
-    fun a = this.aa;
-    fun b = this.bb;
-}
+fun a(this: Test1) = this.aa;
+fun b(this: Test1) = this.bb;
 
 [native("test")] fun test(n: Int)
 {

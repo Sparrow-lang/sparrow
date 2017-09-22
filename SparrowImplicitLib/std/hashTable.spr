@@ -303,8 +303,8 @@ class _Node(valueType: Type)
     var hash: SizeType
     var data: valueType
 
-    fun >> (os: @OutStream)
-        os << data << " <" << mkStreamRefWrapper(this) << '>'
+fun >> (this: @_Node, os: @OutStream)
+    os << data << " <" << mkStreamRefWrapper(this) << '>'
 
 [initCtor]
 class _GuardNode(valueType: Type)

@@ -24,12 +24,9 @@ fun sprMain
     else if n == 13 ; test13
 }
 
+[initCtor]
 class MyObj
-{
     var x: Int;
-
-    fun ctor(xx: Int) { x = xx; }
-}
 
 fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
 {

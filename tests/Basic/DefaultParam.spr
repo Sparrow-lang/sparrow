@@ -6,7 +6,6 @@ fun myadd(x: Int, y: Int = 1) = x+y;
 
 
 class Foo
-{
     var x: Int;
 
     fun ctor(x: Int = 10) { this.x = x; }
@@ -14,10 +13,9 @@ class Foo
 
     fun ctor(dummy1, dummy2, dummy3: AnyType, x: AnyType = 10) { this.x ctor x; }
 
-    fun incWith(n: Int = 1) = x+n;
+fun incWith(this: Foo, n: Int = 1) = x+n;
 
-    fun genMember(x: AnyType = 10) = x;
-}
+fun genMember(this: Foo, x: AnyType = 10) = x;
 
 fun writeGen(x: AnyType = 1) { writeLn(x); }
 
@@ -33,22 +31,19 @@ fun printType(t: Type)
 }
 
 class TypePrinter(t1: Type, t2: Type = Int)
-{
-    fun print
-    {
-        write("t1=");
-        printType(t1);
-        write(", t2=");
-        printType(t2);
-        writeLn("");
-    }
+    using T1 = t1
+    using T2 = t2
 
-}
+fun print(this: TypePrinter)
+    write("t1=");
+    printType(T1);
+    write(", t2=");
+    printType(T2);
+    writeLn("");
 
 class Bar(t: Type = Int)
-{
-    fun print  { printType(t); writeLn(""); }
-}
+    using T = t
+fun print(this: Bar)  { printType(T); writeLn(""); }
 
 
 [native("test")] fun test(n: Int)

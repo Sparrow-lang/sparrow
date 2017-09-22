@@ -4,37 +4,17 @@
 
 // Function that can be called only with compile-time arguments
 [ct] fun ctTest(x: Double)
-{
     writeLnDoubleCt(x);
-}
 
-class TestClass
-{
-    [ct,static] fun ctMethod(n: Int): Int
-    {
-        return add(n,1000);
-    }
+[ct] if ( true )
+    fun my_f { writeLn("f.1"); }
+else
+    fun my_f { writeLn("f.2"); }
 
-    [ct] if ( true )
-        fun f { writeLn("f.1"); }
-    else
-        fun f { writeLn("f.2"); }
-
-    [ct] if ( false )
-        fun g { writeLn("g.1"); }
-    else
-        fun g { writeLn("g.2"); }
-}
-
-class Gen(t: Type)
-{
-    [ct] if ( t == Int )
-        fun print { writeLn("Int"); }
-    else [ct] if ( t == Double )
-        fun print { writeLn("Double"); }
-    else
-        fun print { writeLn("unknown type"); }
-}
+[ct] if ( false )
+    fun my_g { writeLn("g.1"); }
+else
+    fun my_g { writeLn("g.2"); }
 
 [native("test")] fun test(n: Int)
 {
@@ -62,23 +42,12 @@ class Gen(t: Type)
         some error here;
     }
 
-    var x: TestClass;
-    x.f();
-    x.g();
-
-    var gi: Gen(Int);
-    var gd: Gen(Double);
-    var gc: Gen(Char);
-    gi.print();
-    gd.print();
-    gc.print();
+    my_f();
+    my_g();
 }
 
 /*<<<Running()
 ok
 f.1
 g.2
-Int
-Double
-unknown type
 >>>*/

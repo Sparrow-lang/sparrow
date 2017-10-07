@@ -507,6 +507,12 @@ Node* SprFunction_SemanticCheck(Node* node)
     if ( !Nest_semanticCheck(resultingFun) )
         return nullptr;
 
+    if (Nest_hasProperty(node, propIsMember)) {
+        StringRef funName = Feather_getName(node);
+        if (funName != "ctor" && funName != "dtor" && funName != "ctorFromCt" && funName != "=" && funName != "==" && funName != "!=" && funName != "<" && funName != "()")
+            REP_ERROR(node->location, "Member functions are not supported (%1%)") % funName;
+    }
+
     // Check for static ctors & dtors
     // A static ctor/ctor has no parameters (i.e., the 'this' parameter)
     if ( resultingFun && (!Nest_hasProperty(node, propIsMember) || Nest_hasProperty(node, propIsStatic))

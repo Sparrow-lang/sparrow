@@ -186,12 +186,10 @@ package _Impl
     [rtct, native("rand")]
     fun rand(): UInt
 
-    class NumericGen(t: Type) if UnsignedInteger(#$t)
-        [static]
+    package NumericGen(t: Type) if UnsignedInteger(#$t)
         fun gen(sizeHint: UInt) = t(randBetween(0, 6 + sizeHint))
 
-    class NumericGen(t: Type) if SignedInteger(#$t)
-        [static]
+    package NumericGen(t: Type) if SignedInteger(#$t)
         fun gen(sizeHint: UInt): t
             var h: Int = sizeHint + 3
             return t(randBetween(-h, h+1))

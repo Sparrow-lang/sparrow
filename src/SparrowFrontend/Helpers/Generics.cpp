@@ -61,10 +61,6 @@ NodeVector createAllBoundVariables(
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// Generic class
-//
-
-////////////////////////////////////////////////////////////////////////////
 // Generic function
 //
 
@@ -206,6 +202,9 @@ NodeRange SprFrontend::genericFunParams(Node* genericFun) {
 }
 NodeRange SprFrontend::genericClassParams(Node* genericClass) {
     return GenericClassNode(genericClass).instSet().params();
+}
+NodeRange SprFrontend::genericPackageParams(Node* genericPackage) {
+    return GenericPackageNode(genericPackage).instSet().params();
 }
 
 InstNode SprFrontend::searchInstantiation(InstSetNode instSet, NodeRange values) {

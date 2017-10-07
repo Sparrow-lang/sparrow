@@ -45,9 +45,6 @@ TypeRef getParamType(const CallableData& c, int idx, bool hideImplicit = false) 
     Node* param = at(c.params, idx);
     ASSERT(param);
     TypeRef res = param ? param->type : nullptr;
-    // For generics, null params mean dependent types, so we replace it with 'any-type'
-    // if (!res && (c.type==CallableType::genericFun || c.type == CallableType::genericClass))
-    //     res = getConceptType();
     return res;
 }
 
@@ -129,7 +126,7 @@ ConversionType canCall_common_types(CallableData& c, CompilationContext* context
 
     c.conversions.resize(paramsCount, convNone);
 
-    bool isGeneric = c.type == CallableType::genericFun || c.type == CallableType::genericClass;
+    bool isGeneric = c.type == CallableType::genericFun || c.type == CallableType::genericClass || c.type == CallableType::genericPackage;
 
     ConversionType res = convDirect;
     for (size_t i = 0; i < paramsCount; ++i) {
@@ -208,6 +205,13 @@ CallableData mkGenericClassCallable(Node* genericClass) {
     res.type = CallableType::genericClass;
     res.decl = genericClass;
     res.params = genericClassParams(genericClass);
+    return res;
+}
+CallableData mkGenericPackageCallable(Node* genericPackage) {
+    CallableData res;
+    res.type = CallableType::genericPackage;
+    res.decl = genericPackage;
+    res.params = genericPackageParams(genericPackage);
     return res;
 }
 CallableData mkConceptCallable(Node* concept) {
@@ -751,16 +755,16 @@ ConversionType canCallGenericFun(CallableData& c, CompilationContext* context, c
 //
 
 /**
- * Get the bound values for a generic class, from the given set of arguments.
+ * Get the bound values for a generic class/package, from the given set of arguments.
  *
  * If any of the given arguments is not a CT value, we issue an error.
- * The assumption is that all the class parameters are CT.
+ * The assumption is that all the parameters are CT.
  *
- * @param args The set of arguments passed when trying to instantiate the class.
+ * @param args The set of arguments passed when trying to instantiate the class/pacakge.
  *
  * @return The vector of bound values
  */
-NodeVector getGenericClassBoundValues(NodeRange args) {
+NodeVector getGenericClassOrPackageBoundValues(NodeRange args) {
     NodeVector boundValues;
     boundValues.reserve(size(args));
 
@@ -784,21 +788,21 @@ NodeVector getGenericClassBoundValues(NodeRange args) {
 }
 
 /**
- * Get the resulting eval mode for a generic class instantiation.
+ * Get the resulting eval mode for a generic class/package instantiation.
  *
- * This will be used for the instantiation of the generic class.
+ * This will be used for the instantiation of the generic class/package.
  *
  * This checks all the bound values that are types. If all the bound types are CT types, then we
  * return a CT-only mode. If all the bound types are RT-only, then we return a RT-only mode.
  * For the rest of the cases (mixed modes, no types, etc.) We return the mainEvalMode value.
  *
  * @param loc          The location of the generic; used for error reporting
- * @param mainEvalMode The effective eval mode of the generic class decl
- * @param boundValues  The bound values to be used for instantiating the class generic
+ * @param mainEvalMode The effective eval mode of the generic decl
+ * @param boundValues  The bound values to be used for instantiating the generic
  *
  * @return The eval mode that should be used for the instantiation.
  */
-EvalMode getGenericClassResultingEvalMode(
+EvalMode getGenericClassOrPackageResultingEvalMode(
         const Location& loc, EvalMode mainEvalMode, NodeRange boundValues) {
     bool hasRtOnlyArgs = false;
     bool hasCtOnlyArgs = false;
@@ -831,17 +835,17 @@ EvalMode getGenericClassResultingEvalMode(
  * it will return the instantiation node. If there are errors creating the partial instantiation, or
  * if evaluating the if clause yields false, this will return null.
  *
- * @param node The generic class we want to check if we can instantiate
+ * @param originalDecl The original decl node (the one that it's a generic)
+ * @param instSet The instSet associated with the generic
  * @param args The list of arguments that we want to instantiate the class with.
  *
  * @return The instantiation node, or null if the instantiation is not valid
  */
-Node* canInstantiateGenericClass(GenericClassNode node, NodeRange args) {
-    NodeVector boundValues = getGenericClassBoundValues(args);
-    Node* originalClass = node.originalClass();
-    EvalMode resultingEvalMode = getGenericClassResultingEvalMode(
-            originalClass->location, Feather_effectiveEvalMode(originalClass), all(boundValues));
-    InstNode inst = canInstantiate(node.instSet(), all(boundValues), resultingEvalMode);
+Node* canInstantiateGenericClassOrPackage(Node* originalDecl, InstSetNode instSet, NodeRange args) {
+    NodeVector boundValues = getGenericClassOrPackageBoundValues(args);
+    EvalMode resultingEvalMode = getGenericClassOrPackageResultingEvalMode(
+            originalDecl->location, Feather_effectiveEvalMode(originalDecl), all(boundValues));
+    InstNode inst = canInstantiate(instSet, all(boundValues), resultingEvalMode);
     return inst.node;
 }
 
@@ -875,18 +879,18 @@ Node* createInstantiatedClass(CompilationContext* context, Node* orig) {
 }
 
 /**
- * Gets the description of a to-be-instantiated class.
+ * Gets the description of a to-be-instantiated class/package.
  *
- * We use this description when generating the assembly name for the class.
+ * We use this description when generating the assembly name for the class/package.
  *
- * @param cls  The original class node
+ * @param originalDecl  The original decl node
  * @param inst The inst node in which we are placing the instantiated node
  *
- * @return The description of the instantiated class
+ * @return The description of the instantiated class/package
  */
-string getGenericClassDescription(Node* originalClass, InstNode inst) {
+string getGenericClassOrPackageDescription(Node* originalDecl, InstNode inst) {
     ostringstream oss;
-    oss << toString(Feather_getName(originalClass)) << "[";
+    oss << toString(Feather_getName(originalDecl)) << "[";
     auto boundValues = inst.boundValues();
     bool first = true;
     for (Node* bv : boundValues) {
@@ -926,7 +930,7 @@ Node* callGenericClass(GenericClassNode node, const Location& loc, CompilationCo
     Node* instDecl = inst.instantiatedDecl();
     if (!instDecl) {
         Node* originalClass = Nest_ofKind(node.originalClass(), nkSparrowDeclSprClass);
-        string description = getGenericClassDescription(originalClass, inst);
+        string description = getGenericClassOrPackageDescription(originalClass, inst);
 
         // Create the actual instantiation declaration
         CompilationContext* ctx = Nest_childrenContext(inst.boundVarsNode());
@@ -950,6 +954,84 @@ Node* callGenericClass(GenericClassNode node, const Location& loc, CompilationCo
     Node* cls = Nest_ofKind(Nest_explanation(instDecl), nkFeatherDeclClass);
     ASSERT(cls);
     return createTypeNode(node.node->context, loc, Feather_getDataType(cls, 0, modeRtCt));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Generic package
+//
+
+/**
+ * Create the actual instantiated package.
+ *
+ * This will make a clone of the original package object. It make sure to clear any parameters and
+ * returns the cloned node.s
+ *
+ * @param context     The context to be used for the instantiated package
+ * @param orig        The original package declaration (that was a generic)
+ *
+ * @return The node of the instantiated package decl
+ */
+Node* createInstantiatedPackage(CompilationContext* context, Node* orig) {
+    const Location& loc = orig->location;
+
+    Node* packageChildren = at(orig->children, 0);
+    packageChildren = packageChildren ? Nest_cloneNode(packageChildren) : nullptr;
+    Node* newPackage =
+            mkSprPackage(loc, Feather_getName(orig), packageChildren);
+    copyAccessType(newPackage, orig);
+
+    copyModifiersSetMode(orig, newPackage, context->evalMode);
+
+    // TODO (generics): Uncomment this line
+    // Feather_setShouldAddToSymTab(newPackage, 0);
+    Nest_setContext(newPackage, context);
+
+    return newPackage;
+}
+
+/**
+ * Generate the code to call a generic package.
+ *
+ * Given a partial instantiation that we already know we can call, this will generate the code to
+ * call that package. If we haven't already fully instantiated the generic (i.e., create the
+ * instantiated package), we do it now.
+ *
+ * @param node          The generic package node
+ * @param loc           The location of the call site
+ * @param context       The context of the calling code
+ * @param args          The arguments we use to call the generic
+ * @param instantiation The instantiation node that we want to call
+ *
+ * @return The call code
+ */
+Node* callGenericPackage(GenericPackageNode node, const Location& loc, CompilationContext* context,
+        NodeRange args, InstNode inst) {
+
+    // If not already created, create the actual instantiation declaration
+    Node* instDecl = inst.instantiatedDecl();
+    if (!instDecl) {
+        Node* originalPackage = Nest_ofKind(node.originalPackage(), nkSparrowDeclPackage);
+        string description = getGenericClassOrPackageDescription(originalPackage, inst);
+
+        // Create the actual instantiation declaration
+        CompilationContext* ctx = Nest_childrenContext(inst.boundVarsNode());
+        instDecl = createInstantiatedPackage(ctx, originalPackage);
+        if (!instDecl)
+            REP_INTERNAL(loc, "Cannot instantiate generic");
+        Nest_setPropertyString(instDecl, propDescription, fromString(description));
+        if (!Nest_computeType(instDecl))
+            return nullptr;
+        Nest_queueSemanticCheck(instDecl);
+        inst.setInstantiatedDecl(instDecl);
+
+        // Add the instantiated package as an additional node to the generic
+        // node
+        Nest_appendNodeToArray(&node.node->additionalNodes, inst.boundVarsNode());
+        if (node.node->explanation && node.node->explanation != node)
+            Nest_appendNodeToArray(&node.node->explanation->additionalNodes, inst.boundVarsNode());
+    }
+
+    return mkDeclExp(loc, fromIniList({instDecl}), nullptr);
 }
 }
 
@@ -982,6 +1064,8 @@ void SprFrontend::getCallables(NodeRange decls, EvalMode evalMode, Callables& re
                 res.push_back(mkGenericFunCallable(decl));
             else if (decl->nodeKind == nkSparrowDeclGenericClass && predIsSatisfied(decl, pred))
                 res.push_back(mkGenericClassCallable(decl));
+            else if (decl->nodeKind == nkSparrowDeclGenericPackage && predIsSatisfied(decl, pred))
+                res.push_back(mkGenericPackageCallable(decl));
 
             // Is this a concept?
             else if (decl->nodeKind == nkSparrowDeclSprConcept && predIsSatisfied(decl, pred))
@@ -1064,9 +1148,25 @@ ConversionType SprFrontend::canCall(CallableData& c, CompilationContext* context
         // We don't use the old arguments anymore
         c.args = argsWithConversion(c);
         ASSERT(!c.genericInst);
-        c.genericInst = canInstantiateGenericClass(c.decl, all(c.args));
+        GenericClassNode genNode = c.decl;
+        c.genericInst = canInstantiateGenericClassOrPackage(genNode.originalClass(), genNode.instSet(), all(c.args));
         if (!c.genericInst && reportErrors) {
             REP_INFO(NOLOC, "Cannot instantiate generic class");
+        }
+        if (!c.genericInst)
+            return convNone;
+    }
+    else if (c.type == CallableType::genericPackage) {
+        // Check if we can instantiate the generic with the given arguments
+        // (with conversions applied)
+        // Note: we overwrite the args with their conversions;
+        // We don't use the old arguments anymore
+        c.args = argsWithConversion(c);
+        ASSERT(!c.genericInst);
+        GenericPackageNode genNode = c.decl;
+        c.genericInst = canInstantiateGenericClassOrPackage(genNode.originalPackage(), genNode.instSet(), all(c.args));
+        if (!c.genericInst && reportErrors) {
+            REP_INFO(NOLOC, "Cannot instantiate generic package");
         }
         if (!c.genericInst)
             return convNone;
@@ -1176,6 +1276,10 @@ Node* SprFrontend::generateCall(CallableData& c, CompilationContext* context, co
     } else if (c.type == CallableType::genericClass) {
         ASSERT(c.genericInst);
         res = callGenericClass(c.decl, loc, context, all(c.args), c.genericInst);
+        Nest_setContext(res, context);
+    } else if (c.type == CallableType::genericPackage) {
+        ASSERT(c.genericInst);
+        res = callGenericPackage(c.decl, loc, context, all(c.args), c.genericInst);
         Nest_setContext(res, context);
     }
 

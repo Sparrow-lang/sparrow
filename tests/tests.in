@@ -81,6 +81,7 @@ Basic2/Precedence.spr:                  Basic features 2 - Precedence of operato
 Basic2/For.spr:                         Basic features 2 - For statement
 Basic2/Lambda.spr:                      Basic features 2 - Lambda expressions
 Basic2/GenericFunRef.spr:               Basic features 2 - Fun ptr for generics
+Basic2/GenericPackage.spr:              Basic features 2 - Generic package
 Basic2/CtRtParam.spr:                   Basic features 2 - CT and RT params
 Basic2/CtWhile.spr:                     Basic features 2 - CT while
 Basic2/CtFor.spr:                       Basic features 2 - CT for

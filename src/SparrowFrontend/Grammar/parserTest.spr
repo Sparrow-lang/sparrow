@@ -71,28 +71,28 @@ fun mkModifiers(loc: @Location, main, mods: Node) \
 fun mkModule(loc: @Location, moduleName, decls: Node) \
     = createNode(loc, "module", values(moduleName, decls))
 [native("comp_parser_mkImportName")]
-fun mkImportName(loc: @Location, alias: StringRef, toImport, decls: Node, accessSpec: Int) \
+fun mkImportName(loc: @Location, alias: StringRef, toImport, decls: Node) \
     = createNode(loc, "importName", values(toImport, decls), alias)
 [native("comp_parser_mkUsing")]
-fun mkUsing(loc: @Location, alias: StringRef, usingNode: Node, accessSpec: Int) \
+fun mkUsing(loc: @Location, alias: StringRef, usingNode: Node) \
     = createNode(loc, "using", repeat(usingNode, 1), alias)
 [native("comp_parser_mkPackage")]
-fun mkPackage(loc: @Location, name: StringRef, children: Node, accessSpec: Int) \
+fun mkPackage(loc: @Location, name: StringRef, children, params, ifClause: Node) \
     = createNode(loc, "package", repeat(children, 1), name)
 [native("comp_parser_mkClass")]
-fun mkClass(loc: @Location, name: StringRef, params, underlyingData, ifClause, children: Node, accessSpec: Int) \
+fun mkClass(loc: @Location, name: StringRef, params, underlyingData, ifClause, children: Node) \
     = createNode(loc, "class", values(params, underlyingData, ifClause, children), name)
 [native("comp_parser_mkConcept")]
-fun mkConcept(loc: @Location, name, paramName: StringRef, baseConcept, ifClause: Node, accessSpec: Int) \
+fun mkConcept(loc: @Location, name, paramName: StringRef, baseConcept, ifClause: Node) \
     = createNode(loc, "concept", values(baseConcept, ifClause), name)
 [native("comp_parser_mkVar")]
-fun mkVar(loc: @Location, name: StringRef, typeNode, init: Node, accessSpec: Int) \
+fun mkVar(loc: @Location, name: StringRef, typeNode, init: Node) \
     = createNode(loc, "var", values(typeNode, init), name)
 [native("comp_parser_mkParameter")]
 fun mkParameter(loc: @Location, name: StringRef, typeNode, init: Node) \
     = createNode(loc, "param", values(typeNode, init), name)
 [native("comp_parser_mkFun")]
-fun mkFun(loc: @Location, name: StringRef, formals, retType, body, bodyExp, ifClause: Node, accessSpec: Int) \
+fun mkFun(loc: @Location, name: StringRef, formals, retType, body, bodyExp, ifClause: Node) \
     = createNode(loc, "fun", values(formals, retType, body, bodyExp, ifClause), name)
 
 [native("comp_parser_mkParenthesisExpr")]

@@ -412,6 +412,7 @@ int SprFrontend::nkSparrowDeclSprFunction = 0;
 int SprFrontend::nkSparrowDeclSprParameter = 0;
 int SprFrontend::nkSparrowDeclSprVariable = 0;
 int SprFrontend::nkSparrowDeclSprConcept = 0;
+int SprFrontend::nkSparrowDeclGenericPackage = 0;
 int SprFrontend::nkSparrowDeclGenericClass = 0;
 int SprFrontend::nkSparrowDeclGenericFunction = 0;
 int SprFrontend::nkSparrowDeclUsing = 0;
@@ -450,6 +451,7 @@ void SprFrontend::initSparrowNodeKinds()
     nkSparrowDeclSprParameter =         Nest_registerNodeKind("spr.sprParameter", &SprParameter_SemanticCheck, &SprParameter_ComputeType, &SprParameter_SetContextForChildren, NULL);
     nkSparrowDeclSprVariable =          Nest_registerNodeKind("spr.sprVariable", &SprVariable_SemanticCheck, &SprVariable_ComputeType, &SprVariable_SetContextForChildren, NULL);
     nkSparrowDeclSprConcept =           Nest_registerNodeKind("spr.sprConcept", &SprConcept_SemanticCheck, NULL, &SprConcept_SetContextForChildren, NULL);
+    nkSparrowDeclGenericPackage =       Nest_registerNodeKind("spr.genericPackage", &Generic_SemanticCheck, NULL, NULL, NULL);
     nkSparrowDeclGenericClass =         Nest_registerNodeKind("spr.genericClass", &Generic_SemanticCheck, NULL, NULL, NULL);
     nkSparrowDeclGenericFunction =      Nest_registerNodeKind("spr.genericFunction", &Generic_SemanticCheck, NULL, NULL, NULL);
     nkSparrowDeclUsing =                Nest_registerNodeKind("spr.using", &Using_SemanticCheck, &Using_ComputeType, &Using_SetContextForChildren, NULL);
@@ -519,11 +521,11 @@ Node* SprFrontend::mkSprUsing(const Location& loc, StringRef alias, Node* usingN
     return res;
 }
 
-Node* SprFrontend::mkSprPackage(const Location& loc, StringRef name, Node* children)
+Node* SprFrontend::mkSprPackage(const Location& loc, StringRef name, Node* children, Node* params, Node* ifClause)
 {
     Node* res = Nest_createNode(nkSparrowDeclPackage);
     res->location = loc;
-    Nest_nodeSetChildren(res, fromIniList({ children }));
+    Nest_nodeSetChildren(res, fromIniList({ children, params, ifClause }));
     Feather_setName(res, name);
     deduceAccessType(res);
     return res;
@@ -618,6 +620,29 @@ Node* SprFrontend::mkSprAutoParameter(const Location& loc, StringRef name)
     return res;
 }
 
+
+Node* SprFrontend::mkGenericPackage(Node* originalPackage, Node* parameters, Node* ifClause)
+{
+    Node* res = Nest_createNode(nkSparrowDeclGenericPackage);
+    res->location = originalPackage->location;
+    Nest_nodeSetChildren(res, fromIniList({ mkInstantiationsSet(originalPackage, all(parameters->children), ifClause) }));
+    Nest_nodeSetReferredNodes(res, fromIniList({ originalPackage }));
+    Feather_setName(res, Feather_getName(originalPackage));
+    copyAccessType(res, originalPackage);
+    Feather_setEvalMode(res, Feather_effectiveEvalMode(originalPackage));
+
+    Nest_appendNodeToArray(&res->additionalNodes, originalPackage);
+
+    // Semantic check the arguments
+    for ( Node* param: parameters->children )
+    {
+        if ( !Nest_semanticCheck(param) )
+            return nullptr;
+        if ( isConceptType(param->type) )
+            REP_ERROR_RET(nullptr, param->location, "Cannot use auto or concept parameters for package generics");
+    }
+    return res;
+}
 
 Node* SprFrontend::mkGenericClass(Node* originalClass, Node* parameters, Node* ifClause)
 {

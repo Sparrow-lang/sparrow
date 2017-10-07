@@ -22,6 +22,7 @@ enum class CallableType {
     function,
     genericFun,
     genericClass,
+    genericPackage,
     concept,
 };
 

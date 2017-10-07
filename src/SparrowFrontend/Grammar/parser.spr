@@ -286,12 +286,14 @@ package _Impl
             return false
         var loc = _lastToken.loc
         var id = parseId(this)
+        var formals = parseFormalsOpt(this)
+        var ifClause = parseIfClauseOpt(this)
         this expect tkLCURLY
         var children: Node
         parseStmts(this, true, children)
         this expect tkRCURLY
         loc copyEnd _lastToken.loc
-        res = mkPackage(loc, id.asStringRef, children)
+        res = mkPackage(loc, id.asStringRef, children, formals, ifClause)
         return true
     fun parseClassDecl(this: @SparrowParser, res: @Node): Bool
         if !(this accept tkCLASS)

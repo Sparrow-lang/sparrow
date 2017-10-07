@@ -25707,6 +25707,8 @@ define internal i1 @parsePackageDecl(%"SparrowParser[SparrowLayoutDecoder[Sparro
   %tmp.v = alloca %TokenType
   %loc = alloca %Location
   %id = alloca %String
+  %formals = alloca %Node
+  %ifClause = alloca %Node
   %tmp.v1 = alloca %TokenType
   %children = alloca %Node
   %tmp.v2 = alloca %TokenType
@@ -25736,27 +25738,33 @@ if_end:                                           ; preds = %dumy_block, %if_blo
   %8 = load %"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"** %this.addr
   call void @parseId(%String* %id, %"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"* %8)
   %9 = load %"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"** %this.addr
+  call void @parseFormalsOpt(%Node* %formals, %"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"* %9, i1 false)
+  %10 = load %"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"** %this.addr
+  call void @parseIfClauseOpt(%Node* %ifClause, %"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"* %10)
+  %11 = load %"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"** %this.addr
   call void @ctor272(%TokenType* %tmp.v1, i32 25)
-  %10 = load %TokenType* %tmp.v1
-  %11 = call i1 @expect(%"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"* %9, %TokenType %10)
+  %12 = load %TokenType* %tmp.v1
+  %13 = call i1 @expect(%"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"* %11, %TokenType %12)
   call void @ctor568(%Node* %children)
-  %12 = load %"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"** %this.addr
-  call void @parseStmts(%"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"* %12, i1 true, %Node* %children)
-  %13 = load %"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"** %this.addr
+  %14 = load %"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"** %this.addr
+  call void @parseStmts(%"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"* %14, i1 true, %Node* %children)
+  %15 = load %"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"** %this.addr
   call void @ctor272(%TokenType* %tmp.v2, i32 26)
-  %14 = load %TokenType* %tmp.v2
-  %15 = call i1 @expect(%"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"* %13, %TokenType %14)
-  %16 = load %"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"** %this.addr
-  %17 = getelementptr inbounds %"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"* %16, i32 0, i32 1
-  %18 = getelementptr inbounds %Token* %17, i32 0, i32 0
-  call void @copyEnd(%Location* %loc, %Location* %18)
-  %19 = load %Node** %res.addr
+  %16 = load %TokenType* %tmp.v2
+  %17 = call i1 @expect(%"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"* %15, %TokenType %16)
+  %18 = load %"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"** %this.addr
+  %19 = getelementptr inbounds %"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"* %18, i32 0, i32 1
+  %20 = getelementptr inbounds %Token* %19, i32 0, i32 0
+  call void @copyEnd(%Location* %loc, %Location* %20)
+  %21 = load %Node** %res.addr
   call void @asStringRef(%StringRef* %"$tmpC", %String* %id)
-  %20 = load %StringRef* %"$tmpC"
-  %21 = load %Node* %children
-  %22 = call %Node @comp_parser_mkPackage(%Location* %loc, %StringRef %20, %Node %21)
-  store %Node %22, %Node* %"$tmpForRef"
-  call void @"=566"(%Node* %19, %Node* %"$tmpForRef")
+  %22 = load %StringRef* %"$tmpC"
+  %23 = load %Node* %children
+  %24 = load %Node* %formals
+  %25 = load %Node* %ifClause
+  %26 = call %Node @comp_parser_mkPackage(%Location* %loc, %StringRef %22, %Node %23, %Node %24, %Node %25)
+  store %Node %26, %Node* %"$tmpForRef"
+  call void @"=566"(%Node* %21, %Node* %"$tmpForRef")
   call void @dtor214(%String* %id)
   ret i1 true
 
@@ -25768,7 +25776,41 @@ dumy_block3:                                      ; No predecessors!
   unreachable
 }
 
-declare %Node @comp_parser_mkPackage(%Location*, %StringRef, %Node)
+; Function Attrs: inlinehint nounwind
+define internal void @parseIfClauseOpt(%Node* sret %_result, %"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"* %this) #3 {
+  %_result.addr = alloca %Node*
+  store %Node* %_result, %Node** %_result.addr
+  %this.addr = alloca %"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"*
+  store %"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"* %this, %"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"** %this.addr
+  %tmp.v = alloca %TokenType
+  br label %code
+
+code:                                             ; preds = %0
+  br label %if_block
+
+if_block:                                         ; preds = %code
+  %1 = load %"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"** %this.addr
+  call void @ctor272(%TokenType* %tmp.v, i32 16)
+  %2 = load %TokenType* %tmp.v
+  %3 = call i1 @accept(%"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
+  br i1 %3, label %if_then, label %if_end
+
+if_then:                                          ; preds = %if_block
+  %4 = load %Node** %_result.addr
+  %5 = load %"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"** %this.addr
+  call void @parseExpr(%Node* %4, %"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"* %5, i1 true)
+  ret void
+
+if_end:                                           ; preds = %dumy_block, %if_block
+  %6 = load %Node** %_result.addr
+  call void @ctor568(%Node* %6)
+  ret void
+
+dumy_block:                                       ; No predecessors!
+  br label %if_end
+}
+
+declare %Node @comp_parser_mkPackage(%Location*, %StringRef, %Node, %Node, %Node)
 
 ; Function Attrs: inlinehint nounwind
 define internal i1 @parseClassDecl(%"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"* %this, %Node* %res) #3 {
@@ -25849,40 +25891,6 @@ dumy_block:                                       ; No predecessors!
 dumy_block4:                                      ; No predecessors!
   call void @dtor214(%String* %id)
   unreachable
-}
-
-; Function Attrs: inlinehint nounwind
-define internal void @parseIfClauseOpt(%Node* sret %_result, %"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"* %this) #3 {
-  %_result.addr = alloca %Node*
-  store %Node* %_result, %Node** %_result.addr
-  %this.addr = alloca %"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"*
-  store %"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"* %this, %"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"** %this.addr
-  %tmp.v = alloca %TokenType
-  br label %code
-
-code:                                             ; preds = %0
-  br label %if_block
-
-if_block:                                         ; preds = %code
-  %1 = load %"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"** %this.addr
-  call void @ctor272(%TokenType* %tmp.v, i32 16)
-  %2 = load %TokenType* %tmp.v
-  %3 = call i1 @accept(%"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"* %1, %TokenType %2)
-  br i1 %3, label %if_then, label %if_end
-
-if_then:                                          ; preds = %if_block
-  %4 = load %Node** %_result.addr
-  %5 = load %"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"** %this.addr
-  call void @parseExpr(%Node* %4, %"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"* %5, i1 true)
-  ret void
-
-if_end:                                           ; preds = %dumy_block, %if_block
-  %6 = load %Node** %_result.addr
-  call void @ctor568(%Node* %6)
-  ret void
-
-dumy_block:                                       ; No predecessors!
-  br label %if_end
 }
 
 declare %Node @comp_parser_mkClass(%Location*, %StringRef, %Node, %Node, %Node, %Node)

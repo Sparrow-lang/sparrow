@@ -6,7 +6,7 @@
 namespace SprFrontend {
 
 /*
-There are 3 types of generics:
+There are 4 types of generics:
  - function generics
      - these are function that either have CT types as parameters, or have some concepts as
      parameters
@@ -16,6 +16,10 @@ There are 3 types of generics:
      - the concept parameters will become both bound and final params
      - we can have dependent types (a param type depends on the actual types of previous params)
  - class generics
+     - all parameters must be CT
+     - all parameters are considered to be bound params
+     - there are no RT nor non-bound params
+ - package generics
      - all parameters must be CT
      - all parameters are considered to be bound params
      - there are no RT nor non-bound params
@@ -127,6 +131,17 @@ struct GenericClassNode {
     Node* originalClass() const { return at(node->referredNodes, 0); }
 };
 
+struct GenericPackageNode {
+    Node* node;
+
+    GenericPackageNode(Node* n) : node(n) { ASSERT(!n || n->nodeKind == nkSparrowDeclGenericPackage); }
+    operator Node*() const { return node; }
+
+    InstSetNode instSet() const { return at(node->children, 0); }
+
+    Node* originalPackage() const { return at(node->referredNodes, 0); }
+};
+
 struct ConceptNode {
     Node* node;
 
@@ -179,6 +194,16 @@ NodeRange genericFunParams(Node* genericFun);
  * @return The params for the generic class.
  */
 NodeRange genericClassParams(Node* genericClass);
+/**
+ * Returns the parameters that the caller needs to fill to instantiate/call the generic.
+ *
+ * This returns all the parameters of the package.
+ *
+ * @param genericPackage The generic package node to get the parameters for
+ *
+ * @return The params for the generic package.
+ */
+NodeRange genericPackageParams(Node* genericPackage);
 
 /**
  * Search an instantiation in an instSet.

@@ -47,6 +47,7 @@ namespace
             || nodeKind == nkSparrowDeclSprParameter
             || nodeKind == nkSparrowDeclSprVariable
             || nodeKind == nkSparrowDeclSprConcept
+            || nodeKind == nkSparrowDeclGenericPackage
             || nodeKind == nkSparrowDeclGenericClass
             || nodeKind == nkSparrowDeclGenericFunction
             || nodeKind == nkSparrowDeclUsing

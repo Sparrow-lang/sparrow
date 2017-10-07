@@ -17,6 +17,7 @@ namespace SprFrontend
         nkRelSparrowDeclSprParameter,
         nkRelSparrowDeclSprVariable,
         nkRelSparrowDeclSprConcept,
+        nkRelSparrowDeclGenericPackage,
         nkRelSparrowDeclGenericClass,
         nkRelSparrowDeclGenericFunction,
         nkRelSparrowDeclUsing,
@@ -54,6 +55,7 @@ namespace SprFrontend
     extern int nkSparrowDeclSprParameter;
     extern int nkSparrowDeclSprVariable;
     extern int nkSparrowDeclSprConcept;
+    extern int nkSparrowDeclGenericPackage;
     extern int nkSparrowDeclGenericClass;
     extern int nkSparrowDeclGenericFunction;
     extern int nkSparrowDeclUsing;
@@ -84,7 +86,7 @@ namespace SprFrontend
     Node* mkModule(const Location& loc, Node* moduleName, Node* declarations);
     Node* mkImportName(const Location& loc, Node* moduleName, Node* importedDeclNames, bool equals = false, StringRef alias = {0});
     Node* mkSprUsing(const Location& loc, StringRef alias, Node* usingNode);
-    Node* mkSprPackage(const Location& loc, StringRef name, Node* children);
+    Node* mkSprPackage(const Location& loc, StringRef name, Node* children, Node* params = nullptr, Node* ifClause = nullptr);
     Node* mkSprVariable(const Location& loc, StringRef name, Node* typeNode, Node* init);
     Node* mkSprVariable(const Location& loc, StringRef name, TypeRef type, Node* init);
     Node* mkSprClass(const Location& loc, StringRef name, Node* parameters, Node* underlyingData, Node* ifClause, Node* children);
@@ -96,6 +98,7 @@ namespace SprFrontend
     Node* mkSprParameter(const Location& loc, StringRef name, TypeRef type, Node* init = nullptr);
     Node* mkSprAutoParameter(const Location& loc, StringRef name);
 
+    Node* mkGenericPackage(Node* originalPackage, Node* parameters, Node* ifClause);
     Node* mkGenericClass(Node* originalClass, Node* parameters, Node* ifClause);
     Node* mkGenericFunction(Node* originalFun, NodeRange params, NodeRange genericParams, Node* ifClause, Node* thisClass = nullptr);
 

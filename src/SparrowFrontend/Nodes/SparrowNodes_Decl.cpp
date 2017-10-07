@@ -155,22 +155,38 @@ void Package_SetContextForChildren(Node* node)
         node->childrenContext = Nest_mkChildContextWithSymTab(node->context, node, modeUnspecified);
 
     // Set the context for all the children
-    Node* content = at(node->children, 0);
-    if ( content )
-        Nest_setContext(content, node->childrenContext);
+    Nest_defaultFunSetContextForChildren(node);
 }
 TypeRef Package_ComputeType(Node* node)
 {
+    ASSERT(Nest_nodeArraySize(node->children) == 3);
+    Node* children = at(node->children, 0);
+    Node* parameters = at(node->children, 1);
+    Node* ifClause = at(node->children, 2);
+
+    // Is this a generic?
+    if ( parameters && Nest_nodeArraySize(parameters->children) != 0 )
+    {
+        Node* generic = mkGenericPackage(node, parameters, ifClause);
+        Nest_setPropertyNode(node, propResultingDecl, generic);
+        Nest_setContext(generic, node->context);
+        if ( !Nest_semanticCheck(generic) )
+            return nullptr;
+        node->explanation = generic;
+        return generic->type;
+    }
+    if ( ifClause )
+        REP_ERROR_RET(nullptr, node->location, "If clauses must be applied only to generics; this is not a generic package");
+
     // This can be computed without checking the children
     node->type = Feather_getVoidType(modeCt);
 
     // Compute the type for the children
-    Node* content = at(node->children, 0);
-    if ( content && !Nest_computeType(content) )
+    if ( children && !Nest_computeType(children) )
         return nullptr;
-    node->explanation = content;
-    if ( content )
-        checkForAllowedNamespaceChildren(content);
+    node->explanation = children;
+    if ( children )
+        checkForAllowedNamespaceChildren(children);
 
     return node->type;
 }
@@ -178,6 +194,11 @@ Node* Package_SemanticCheck(Node* node)
 {
     if ( !Nest_computeType(node) )
         return nullptr;
+
+    Node* parameters = at(node->children, 1);
+    if (parameters)
+        return node->explanation; // This should be a generic; there is nothing else to do here
+
     return Nest_semanticCheck(at(node->children, 0));
 }
 

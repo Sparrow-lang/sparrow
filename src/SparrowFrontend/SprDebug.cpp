@@ -6,6 +6,7 @@
 
 #include "Nodes/SparrowNodes.h"
 #include "Nodes/SparrowNodesAccessors.h"
+#include "Helpers/SprTypeTraits.h"
 
 // Defined in SparrowNodes_Module.cpp
 StringRef inferModuleName(const char* url);
@@ -475,13 +476,17 @@ void printNodeImpl(const Node* node, int mode) {
         case nkRelSparrowExpDeclExp:
             if ( size(node->referredNodes) == 2 ) {
                 // Only one referred decl
-                printNodeImpl(at(node->referredNodes, 1), 2);    // 0 is baseExp
+                Node* decl = at(node->referredNodes, 1);
+                TypeRef t = tryGetTypeValue(decl);
+                printf("%s", t ? t->description : Feather_getName(decl).begin);
             }
             else {
                 printf("decls(");
                 for ( int i=1; i<size(node->referredNodes); i++ ) {
                     if ( i>1 ) printf(", ");
-                    printNodeImpl(at(node->referredNodes, i), 2);
+                    Node* decl = at(node->referredNodes, i);
+                    TypeRef t = tryGetTypeValue(decl);
+                    printf("%s", t ? t->description : Feather_getName(decl).begin);
                 }
                 printf(")");
             }

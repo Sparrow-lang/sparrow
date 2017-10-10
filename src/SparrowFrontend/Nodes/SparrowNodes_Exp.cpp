@@ -1404,95 +1404,68 @@ Node* LambdaFunction_SemanticCheck(Node* node)
     Node* body = at(node->referredNodes, 2);
     Node* closureParams = at(node->referredNodes, 3);
 
-    Node* parentFun = Feather_getParentFun(node->context);
-    CompilationContext* parentContext = parentFun ? parentFun->context : node->context;
+    Location loc = node->location;
 
-    Node* ctorArgs = nullptr;
-    Node* ctorParams = nullptr;
-
-    // Create the enclosing class body node list
-    Node* classBody = Feather_mkNodeList(node->location, {});
-
-    // The actual enclosed function
-    Nest_appendNodeToArray(&classBody->children, mkSprFunction(node->location, fromCStr("()"), parameters, returnType, body));
-
-    // TODO (ctors): Make sure that we generate proper ctors to lambda closures
-    // Add a private default ctor (only when we have some closure parameters)
-    if ( closureParams && size(closureParams->children) > 0 ) {
-        Node* defCtor = mkSprFunction(node->location, fromCStr("ctor"), nullptr, nullptr, Feather_mkLocalSpace(node->location, {}), nullptr);
-        setAccessType(defCtor, privateAccess);
-        Nest_appendNodeToArray(&classBody->children, defCtor);
-    }
-
-    // For each closure variable, create:
-    // - a member variable in the class
-    // - an initialization line in the ctor
-    // - a parameter to ctor
-    // - an argument to pass to the ctor
-    NodeVector ctorStmts;
+    // Create the enclosing class body node list; add here variables corresponding to the closure params
+    Node* classBody = Feather_mkNodeList(loc, {});
     if ( closureParams )
     {
-        NodeVector ctorArgsNodes, ctorParamsNodes;
         for ( Node* arg: closureParams->children )
         {
+            // Get the name and the type of the argument
             if ( !arg )
                 REP_INTERNAL(closureParams->location, "Invalid closure parameter");
             ASSERT(arg);
             if ( arg->nodeKind != nkSparrowExpIdentifier )
-                REP_INTERNAL(arg->location, "The closure parameter must be identifier");
-            StringRef varName = Feather_getName(arg);
-            const Location& loc = arg->location;
-
-            // Create an argument node to pass to the ctor
+                REP_INTERNAL(arg->location, "The closure parameter must be an identifier");
             Nest_setContext(arg, node->context);
             if ( !Nest_semanticCheck(arg) )
                 return nullptr;
-            ctorArgsNodes.push_back(arg);
-
-            // Create a closure parameter
+            StringRef varName = Feather_getName(arg);
             TypeRef varType = Feather_removeLValueIfPresent(arg->type);
-            ctorParamsNodes.push_back(mkSprParameter(loc, varName, varType));
 
             // Create a similar variable in the enclosing class - must have the same name
-            Nest_appendNodeToArray(&classBody->children, mkSprVariable(loc, varName, varType, nullptr));
-
-            // Create an initialization for the variable
-            Node* fieldRef = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("this")), varName);
-            Node* paramRef = mkIdentifier(loc, varName);
-            const char* op = (varType->numReferences == 0) ? "ctor" : ":=";
-            Node* initCall = mkOperatorCall(loc, fieldRef, fromCStr(op), paramRef);
-            ctorStmts.push_back(initCall);
+            const Location& argLoc = arg->location;
+            Nest_appendNodeToArray(&classBody->children, mkSprVariable(argLoc, varName, varType, nullptr));
         }
-        ctorArgs = Feather_mkNodeList(node->location, all(ctorArgsNodes));
-        ctorParams = Feather_mkNodeList(node->location, all(ctorParamsNodes));
     }
 
-    // Create the ctor used to initialize the closure class
-    Node* ctorBody = Feather_mkLocalSpace(node->location, all(ctorStmts));
-    Node* enclosingCtor = mkSprFunction(node->location, fromCStr("ctor"), ctorParams, nullptr, ctorBody);
-    Nest_setPropertyInt(enclosingCtor, propNoDefault, 1);
-    Nest_appendNodeToArray(&classBody->children, enclosingCtor);
+    // Create the lambda closure class
+    Node* closureClass = mkSprClass(loc, fromCStr("$lambdaEnclosureData"), nullptr, nullptr, nullptr, classBody);
+    if ( closureParams && size(closureParams->children) > 0 )
+        Nest_setPropertyInt(closureClass, propGenerateInitCtor, 1);
 
-    // Create the lambda closure
-    Node* closure = mkSprClass(node->location, fromCStr("$lambdaEnclosure"), nullptr, nullptr, nullptr, classBody);
+    // The actual enclosed function -- ensure adding a 'this' parameter
+    Node* thisParamTypeNode = mkOperatorCall(loc, nullptr, fromCStr("@"), mkIdentifier(loc, fromCStr("$lambdaEnclosureData")));
+    Node* thisParam = mkSprParameter(loc, fromCStr("this"), thisParamTypeNode);
+    Node* parametersWithThis = Feather_mkNodeList(loc, fromIniList({thisParam}));
+    Feather_appendNodeList(parametersWithThis, parameters);
+    Node* enclosedFun = mkSprFunction(loc, fromCStr("()"), parametersWithThis, returnType, body);
+    Nest_setPropertyInt(enclosedFun, propIsStatic, 1);
 
-    // Add the closure as a top level node of this node
-    Nest_setContext(closure, parentContext);  // Put the enclosing class in the context of the parent function
-    Nest_appendNodeToArray(&node->additionalNodes, closure);
+    // Create the enclosing package node list
+    Node* packageBody = Feather_mkNodeList(loc, fromIniList({closureClass, enclosedFun}));
+    Node* closurePackage = mkSprPackage(loc, fromCStr("$lambdaEnclosurePackage"), packageBody);
 
-    // Compute the type for the enclosing class
-    if ( !Nest_computeType(closure) )
+
+    // Add the closure package as a top level node of this node
+    // We add it in the context of the parent function
+    Node* parentFun = Feather_getParentFun(node->context);
+    CompilationContext* parentContext = parentFun ? parentFun->context : node->context;
+    Nest_setContext(closurePackage, parentContext);
+    Nest_appendNodeToArray(&node->additionalNodes, closurePackage);
+
+    // Compute the type & semantically check the resulting package
+    if ( !Nest_computeType(closurePackage) )
         return nullptr;
-    Node* cls = Nest_explanation(closure);
-    ASSERT(cls);
-
-    // Make sure the closure class is semantically checked
-    if ( !Nest_semanticCheck(closure) )
+    if ( !Nest_semanticCheck(closurePackage) )
         return nullptr;
 
     // Create a resulting object: a constructor call to our class
-    Node* classId = createTypeNode(node->context, node->location, Feather_getDataType(cls, 0, modeRtCt));
-    return mkFunApplication(node->location, classId, ctorArgs);
+    Node* cls = Nest_explanation(closureClass);
+    ASSERT(cls);
+    Node* classId = createTypeNode(node->context, loc, Feather_getDataType(cls, 0, modeRtCt));
+    return mkFunApplication(loc, classId, closureParams);
 }
 
 Node* SprConditional_SemanticCheck(Node* node)

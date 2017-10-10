@@ -350,8 +350,9 @@ TypeRef SprFunction_ComputeType(Node* node)
     // Check if this is a member function
     Node* parentClass = Feather_getParentClass(node->context);
     bool isMember = nullptr != parentClass;
-    if ( !isMember && isStatic )
-        REP_ERROR_RET(nullptr, node->location, "Only functions inside classes can be static");
+    // TODO (classes): Remove this
+    // if ( !isMember && isStatic )
+    //     REP_ERROR_RET(nullptr, node->location, "Only functions inside classes can be static");
     if ( isMember )
         Nest_setPropertyInt(node, propIsMember, 1);
 

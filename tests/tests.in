@@ -63,16 +63,16 @@ Examples/NQueens.spr:                   Examples: N Queens
 Logic/LogicTest.spr:                    Logic: basic test
 Logic/Parents.spr:                      Logic: parents example, with recursive calls
 Logic/Solar.spr:                        Logic: solar system example
-Logic/PrologParserTest.spr:             Logic: parsing Prolog code
-Logic/PrologErr1.spr:                   Logic: Prolog error - invalid char
-Logic/PrologErr2.spr:                   Logic: Prolog error - invalid token
-Logic/PrologErr3.spr:                   Logic: Prolog error - cannot find predicate
-Logic/Antiquotation.spr:                Logic: Antiquotation in Prolog
-Logic/ImportProlog.spr:                 Logic: Directly importing Prolog code
-Logic/FibTest.spr:                      Logic: Fibonacci computation
-Logic/FibOptTest.spr:                   Logic: Fibonacci computation - using optimized version
-Logic/FibProlog.spr:                    Logic: Fibonacci computation - Prolog code
-Logic/FibPrologErr.spr:                 Logic: Fibonacci computation - Prolog code with errors
+# Logic/PrologParserTest.spr:             Logic: parsing Prolog code
+# Logic/PrologErr1.spr:                   Logic: Prolog error - invalid char
+# Logic/PrologErr2.spr:                   Logic: Prolog error - invalid token
+# Logic/PrologErr3.spr:                   Logic: Prolog error - cannot find predicate
+# Logic/Antiquotation.spr:                Logic: Antiquotation in Prolog
+# Logic/ImportProlog.spr:                 Logic: Directly importing Prolog code
+# Logic/FibTest.spr:                      Logic: Fibonacci computation
+# Logic/FibOptTest.spr:                   Logic: Fibonacci computation - using optimized version
+# Logic/FibProlog.spr:                    Logic: Fibonacci computation - Prolog code
+# Logic/FibPrologErr.spr:                 Logic: Fibonacci computation - Prolog code with errors
 
 Basic2/Conditional.spr:                 Basic features 2 - Conditionals
 Basic2/LogicalAndOr.spr:                Basic features 2 - Logical AND & OR operators with shortcut

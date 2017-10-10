@@ -168,5 +168,6 @@ fun clear(this: @SortedTable)
     _table.clear
 
 [rtct] class Less(type: Type) if isValid(#$type < #$type)
-    fun ()(l, r: @type) = l < r
+    using ValueType = type
+fun ()(this: Less, l, r: @this.ValueType) = l < r
 

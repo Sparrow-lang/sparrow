@@ -58,6 +58,8 @@ fun mkTrue = LTrue()
 class UnifyLR(leftType, rightType: Type) if ValWrapper(#$leftType) && ValWrapper(#$rightType)
     using ValueType = Bool
     using ValuePassType = Bool
+    using LeftType = leftType
+    using RightType = rightType
 
     var _coEntryPt: Int
     var _leftVal: leftType
@@ -81,57 +83,57 @@ class UnifyLR(leftType, rightType: Type) if ValWrapper(#$leftType) && ValWrapper
         [ct] if isValid(logicDebug)
             cout << "UnifyLR.dtor: " << this << "\n"
 
-    fun (): Bool
-        //cout << "UnifyLR.(): ltype=" << TypeOp.description(leftType) << ", rtype=" << TypeOp.description(rightType) << "\n" << flush
-        [ct] if isValid(logicDebug)
-            cout << "UnifyLR.(): " << this << "\n"
-        if _coEntryPt == 0   // Never called before
-            if _leftVal.isNull() && _rightVal.isNull()
-                // Cannot unify two undefined references
-                _coEntryPt = -1
-                return false
-            if _leftVal isSet
-                if _rightVal isSet
-                    _coEntryPt = -1 // Nothing more to do here
-                    [ct] if isValid(logicDebug)
-                        cout << "UnifyLR.(), checking equality: " << _leftVal << "==" << _rightVal << "\n"
-                    var res = _leftVal.get() == _rightVal.get()
-                    return res
-                [ct] if LRefType(#$rightType) && isValid(_rightVal = _leftVal.get())
-                    _rightVal = _leftVal.get()
-                    _coEntryPt = 1
-                    [ct] if isValid(logicDebug)
-                        cout << "Unify, assigning " << _leftVal.get() << " to right side => " << this << endl
-                    return true
-                _coEntryPt = -1
-                return false
-            else
-                [ct] if LRefType(#$leftType) && isValid(_leftVal = _rightVal.get())
-                    _leftVal = _rightVal.get()
-                    _coEntryPt = 2
-                    [ct] if isValid(logicDebug)
-                        cout << "Unify, assigning " << _rightVal.get() << " to left side => " << this << endl
-                    return true
-                _coEntryPt = -1
-                return false
-        else if _coEntryPt == 1   // After we write into the right value
-            [ct] if isValid(logicDebug)
-                cout << "Unify, no more values (after right side assign)\n"
-            [ct] if LRefType(#$rightType)
-                _rightVal reset
-            _coEntryPt = -1  // Nothing more to do here
+fun ()(this: @UnifyLR): Bool
+    //cout << "UnifyLR.(): ltype=" << TypeOp.description(LeftType) << ", rtype=" << TypeOp.description(RightType) << "\n" << flush
+    [ct] if isValid(logicDebug)
+        cout << "UnifyLR.(): " << this << "\n"
+    if _coEntryPt == 0   // Never called before
+        if _leftVal.isNull() && _rightVal.isNull()
+            // Cannot unify two undefined references
+            _coEntryPt = -1
             return false
-        else if _coEntryPt == 2  // After we write into the left value
-            [ct] if isValid(logicDebug)
-                cout << "Unify, no more values (after left side assign)\n"
-            [ct] if LRefType(#$leftType)
-                _leftVal reset
-            _coEntryPt = -1  // Nothing more to do here
+        if _leftVal isSet
+            if _rightVal isSet
+                _coEntryPt = -1 // Nothing more to do here
+                [ct] if isValid(logicDebug)
+                    cout << "UnifyLR.(), checking equality: " << _leftVal << "==" << _rightVal << "\n"
+                var res = _leftVal.get() == _rightVal.get()
+                return res
+            [ct] if LRefType(#$RightType) && isValid(_rightVal = _leftVal.get())
+                _rightVal = _leftVal.get()
+                _coEntryPt = 1
+                [ct] if isValid(logicDebug)
+                    cout << "Unify, assigning " << _leftVal.get() << " to right side => " << this << endl
+                return true
+            _coEntryPt = -1
             return false
         else
-            [ct] if isValid(logicDebug)
-                cout << "Unify, done\n"
+            [ct] if LRefType(#$LeftType) && isValid(_leftVal = _rightVal.get())
+                _leftVal = _rightVal.get()
+                _coEntryPt = 2
+                [ct] if isValid(logicDebug)
+                    cout << "Unify, assigning " << _rightVal.get() << " to left side => " << this << endl
+                return true
+            _coEntryPt = -1
             return false
+    else if _coEntryPt == 1   // After we write into the right value
+        [ct] if isValid(logicDebug)
+            cout << "Unify, no more values (after right side assign)\n"
+        [ct] if LRefType(#$RightType)
+            _rightVal reset
+        _coEntryPt = -1  // Nothing more to do here
+        return false
+    else if _coEntryPt == 2  // After we write into the left value
+        [ct] if isValid(logicDebug)
+            cout << "Unify, no more values (after left side assign)\n"
+        [ct] if LRefType(#$LeftType)
+            _leftVal reset
+        _coEntryPt = -1  // Nothing more to do here
+        return false
+    else
+        [ct] if isValid(logicDebug)
+            cout << "Unify, done\n"
+        return false
 
 fun _mkEq(l, r: @ValWrapper) = UnifyLR(-@typeOf(l), -@typeOf(r))(l, r)
 
@@ -155,29 +157,29 @@ fun _mkEq(l, r: @ValWrapper) = UnifyLR(-@typeOf(l), -@typeOf(r))(l, r)
         [ct] if isValid(logicDebug)
             cout << "OrRelation.dtor: " << this << "\n"
 
-    fun (): Bool
-        [ct] if isValid(logicDebug)
-            cout << "OrRelation.(): " << this << "\n"
-        if _coEntryPt == 0   // Never called before, or left is returning true
-            // While left returns true, stay in the same state and return true
-            if _left()
-                return true
+fun ()(this: @OrRelation): Bool
+    [ct] if isValid(logicDebug)
+        cout << "OrRelation.(): " << this << "\n"
+    if _coEntryPt == 0   // Never called before, or left is returning true
+        // While left returns true, stay in the same state and return true
+        if _left()
+            return true
 
-            // Left is not false, check right
-            if _right()
-                // If the right is true, go to state 1 and return true
-                _coEntryPt = 1
-                return true
-            _coEntryPt = -1
-            return false
-        else if _coEntryPt == 1  // Right is returning true
-            // While right returns true, stay in the same state and return true
-            if _right()
-                return true
-
-            // Right is false, nothing to do anymore
-            _coEntryPt = -1 // Done here
+        // Left is not false, check right
+        if _right()
+            // If the right is true, go to state 1 and return true
+            _coEntryPt = 1
+            return true
+        _coEntryPt = -1
         return false
+    else if _coEntryPt == 1  // Right is returning true
+        // While right returns true, stay in the same state and return true
+        if _right()
+            return true
+
+        // Right is false, nothing to do anymore
+        _coEntryPt = -1 // Done here
+    return false
 
 [rtct] class AndRelation(leftPredicateType, rightPredicateType: Type)
     using ValueType = Bool
@@ -195,34 +197,36 @@ fun _mkEq(l, r: @ValWrapper) = UnifyLR(-@typeOf(l), -@typeOf(r))(l, r)
         [ct] if isValid(logicDebug)
             cout << "AndRelation.ctor: " << this << "\n"
 
-    fun (): Bool
-        [ct] if isValid(logicDebug)
-            cout << "AndRelation.(): " << this << "\n"
-        if _coEntryPt == 0 || _coEntryPt == 1   // Never called before stay here until we have a positive result
-            var skipEvalLeft = _coEntryPt == 1
-            while skipEvalLeft || _left()
-                // Left is (still) true check if right is also true
-                if _right()
-                    // Both left and right are true
-                    _coEntryPt = 1
-                    return true
+fun ()(this: @AndRelation): Bool
+    [ct] if isValid(logicDebug)
+        cout << "AndRelation.(): " << this << "\n"
+    if _coEntryPt == 0 || _coEntryPt == 1   // Never called before stay here until we have a positive result
+        var skipEvalLeft = _coEntryPt == 1
+        while skipEvalLeft || _left()
+            // Left is (still) true check if right is also true
+            if _right()
+                // Both left and right are true
+                _coEntryPt = 1
+                return true
 
-                // Right is false now reset right and check left for new values
-                _right = _rightBegin
-                skipEvalLeft = false
+            // Right is false now reset right and check left for new values
+            _right = _rightBegin
+            skipEvalLeft = false
 
-            // Left is now false, bail out
-            _coEntryPt = -1
-            return false
+        // Left is now false, bail out
+        _coEntryPt = -1
         return false
+    return false
 
 
 
 class LFalse
-    fun () = false
+    ;
+fun ()(this: LFalse) = false
 
 class LTrue
-    fun () = true
+    ;
+fun ()(this: LTrue) = true
 
 fun >>(this: @Predicate, os: @OutStream)
     os << "Pred-" << predObj

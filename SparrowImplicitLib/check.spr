@@ -18,8 +18,7 @@ class Gen(t: Type)
     fun ctor(generator: @AnyType)
         this._generator ctor generator
 
-    // TODO: move this out of the class
-    fun ()(sizeHint: UInt): ValueType = _generator(sizeHint)
+fun ()(this: @Gen, sizeHint: UInt): ValueType = _generator(sizeHint)
 
 fun isValid(this: @Gen): Bool = _generator isSet
 
@@ -284,10 +283,9 @@ package _Impl
             this._range ctor range
             this._count ctor (range rangeSize)
 
-        // TODO: Move this outside of class
-        fun ()(sizeHint: UInt): ElementType
-            var r = _range
-            r advance randBetween(0, Int(_count))
-            return r.front
+    fun ()(this: @ElementsGen, sizeHint: UInt): ElementType
+        var r = _range
+        r advance randBetween(0, Int(_count))
+        return r.front
 
     fun gen(this: @ElementsGen): Gen(ElementType) = ife(_count>0, this, Gen(ElementType)())

@@ -38,12 +38,12 @@ class Recurse(predGeneratorType: Type)
         [ct] if isValid(logicDebug)
             cout << "Recurse.ctor: " << this << "\n"
 
-    fun (): Bool
-        if _relation.isNull()
-            _relation = _predGenerator()
-        [ct] if isValid(logicDebug)
-            cout << "Recurse.(): " << this << "\n"
-        return _relation()
+fun ()(this: @Recurse): Bool
+    if _relation.isNull()
+        _relation = _predGenerator()
+    [ct] if isValid(logicDebug)
+        cout << "Recurse.(): " << this << "\n"
+    return _relation()
 
 
 fun >>(this: @Recurse, os: @OutStream)

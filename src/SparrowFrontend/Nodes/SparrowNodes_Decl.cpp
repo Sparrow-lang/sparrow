@@ -508,9 +508,9 @@ Node* SprFunction_SemanticCheck(Node* node)
     if ( !Nest_semanticCheck(resultingFun) )
         return nullptr;
 
-    if (Nest_hasProperty(node, propIsMember)) {
+    if (Nest_hasProperty(node, propIsMember) && !Nest_hasProperty(node, propIsStatic)) {
         StringRef funName = Feather_getName(node);
-        if (funName != "ctor" && funName != "dtor" && funName != "ctorFromCt" && funName != "=" && funName != "==" && funName != "!=" && funName != "<" && funName != "()")
+        if (funName != "ctor" && funName != "dtor" && funName != "ctorFromCt" && funName != "=" && funName != "==" && funName != "!=" && funName != "<")
             REP_ERROR(node->location, "Member functions are not supported (%1%)") % funName;
     }
 

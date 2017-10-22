@@ -32,18 +32,13 @@ fun sprMain
     else if n == 19 ; test19
 }
 
+[initCtor]
 class MyObj
-{
     var x: Int;
 
-    fun ctor() { x = 0; }
-    fun ctor(xx: Int) { x = xx; }
-    fun ctor(other: @MyObj) { x = other.x; }
-    fun dtor {}
-    fun =(other: @MyObj): @MyObj { x = other.x; return this; }
-    fun ==(other: @MyObj): Bool { return x == other.x; }
-    fun <(other: @MyObj): Bool { return x < other.x; }
-}
+fun =(this, other: @MyObj): @MyObj { x = other.x; return this; }
+fun ==(this, other: @MyObj): Bool = x == other.x
+fun <(this, other: @MyObj): Bool = x < other.x
 
 class Greater
     ;

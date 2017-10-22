@@ -94,6 +94,35 @@ using oper_precedence_~ = oper_precedence_*
         var v9: t9
         var v10: t10
 
+[rtct, protected]
+    fun <(lhs, rhs: TupleType) if typeOf(lhs) == typeOf(rhs) && lhs.arity == 2
+        if ( lhs.v1 < rhs.v1 )      return true
+        else if ( rhs.v1 < lhs.v1 ) return false
+        else if ( lhs.v2 < rhs.v2 ) return true
+        return false
+    fun <(lhs, rhs: TupleType) if typeOf(lhs) == typeOf(rhs) && lhs.arity > 2
+        if ( lhs.v1 < rhs.v1 )      return true
+        else if ( rhs.v1 < lhs.v1 ) return false
+        return tail(lhs) < tail(rhs)
+
+    fun >>(t: @TupleType, os: @OutStream)
+        os << '(' << t.v1
+        _dumpTail(t, os)
+        os << ')'
+
+[rtct]
+    fun first(t: @TupleType) = t.v1
+    fun second(t: @TupleType) = t.v2
+
+    fun tail(t: @TupleType) = mkTuple(t.v2, t.v3) if t.arity == 3
+    fun tail(t: @TupleType) = mkTuple(t.v2, t.v3, t.v4) if t.arity == 4
+    fun tail(t: @TupleType) = mkTuple(t.v2, t.v3, t.v4, t.v5) if t.arity == 5
+    fun tail(t: @TupleType) = mkTuple(t.v2, t.v3, t.v4, t.v5, t.v6) if t.arity == 6
+    fun tail(t: @TupleType) = mkTuple(t.v2, t.v3, t.v4, t.v5, t.v6, t.v7) if t.arity == 7
+    fun tail(t: @TupleType) = mkTuple(t.v2, t.v3, t.v4, t.v5, t.v6, t.v7, t.v8) if t.arity == 8
+    fun tail(t: @TupleType) = mkTuple(t.v2, t.v3, t.v4, t.v5, t.v6, t.v7, t.v8, t.v9) if t.arity == 9
+    fun tail(t: @TupleType) = mkTuple(t.v2, t.v3, t.v4, t.v5, t.v6, t.v7, t.v8, t.v9, t.v10) if t.arity == 10
+
     fun mkTuple(v1,v2: AnyType) = Tuple(typeOf(v1), typeOf(v2))(v1,v2)
     fun mkTuple(v1,v2,v3: AnyType) = Tuple(typeOf(v1), typeOf(v2), typeOf(v3))(v1,v2,v3)
     fun mkTuple(v1,v2,v3,v4: AnyType) = Tuple(typeOf(v1), typeOf(v2), typeOf(v3), typeOf(v4))(v1,v2,v3,v4)
@@ -117,53 +146,32 @@ using oper_precedence_~ = oper_precedence_*
     [ctGeneric] fun *(t1,t2: Type): Type = Tuple(t1, t2) //if !TupleType(#$t1)
     //[ctGeneric] fun *(tt,tex: Type): Type = Tuple(typeOf(tt.v1), typeOf(tt.v2), tex) if TupleType(#$tt) && tt.arity == 2
 
-
-    fun first(t: @TupleType) = t.v1
-    fun second(t: @TupleType) = t.v2
-
-    fun tail(t: @TupleType) = mkTuple(t.v2, t.v3) if t.arity == 3
-    fun tail(t: @TupleType) = mkTuple(t.v2, t.v3, t.v4) if t.arity == 4
-    fun tail(t: @TupleType) = mkTuple(t.v2, t.v3, t.v4, t.v5) if t.arity == 5
-    fun tail(t: @TupleType) = mkTuple(t.v2, t.v3, t.v4, t.v5, t.v6) if t.arity == 6
-    fun tail(t: @TupleType) = mkTuple(t.v2, t.v3, t.v4, t.v5, t.v6, t.v7) if t.arity == 7
-    fun tail(t: @TupleType) = mkTuple(t.v2, t.v3, t.v4, t.v5, t.v6, t.v7, t.v8) if t.arity == 8
-    fun tail(t: @TupleType) = mkTuple(t.v2, t.v3, t.v4, t.v5, t.v6, t.v7, t.v8, t.v9) if t.arity == 9
-    fun tail(t: @TupleType) = mkTuple(t.v2, t.v3, t.v4, t.v5, t.v6, t.v7, t.v8, t.v9, t.v10) if t.arity == 10
-
-    fun <(lhs, rhs: TupleType) if typeOf(lhs) == typeOf(rhs) && lhs.arity == 2
-        if ( lhs.v1 < rhs.v1 )      return true
-        else if ( rhs.v1 < lhs.v1 ) return false
-        else if ( lhs.v2 < rhs.v2 ) return true
-        return false
-    fun <(lhs, rhs: TupleType) if typeOf(lhs) == typeOf(rhs) && lhs.arity > 2
-        if ( lhs.v1 < rhs.v1 )      return true
-        else if ( rhs.v1 < lhs.v1 ) return false
-        return tail(lhs) < tail(rhs)
-
-    fun >>(t: @TupleType, os: @OutStream)
-        os << '(' << t.v1
-        _dumpTail(t, os)
-        os << ')'
-
+[rtct]
     class MakePair(firstType: Type, secondType: Type)
         using FirstType = firstType
         using SecondType = secondType
 
+[rtct, protected]
     fun ()(this: MakePair, fst: this.FirstType, snd: this.SecondType): Tuple(FirstType, SecondType)
         return Tuple(FirstType, SecondType)(fst, snd)
 
+[rtct]
     class PairFirst(pairType: Type)
         using PairType = pairType
 
+[rtct, protected]
     fun ()(this: PairFirst, pair: @this.PairType): @typeOf(pair.v1)
         return pair.v1
 
+[rtct]
     class PairSecond(pairType: Type)
         using PairType = pairType
 
+[rtct, protected]
     fun ()(this: PairSecond, pair: @this.PairType): @typeOf(pair.v2)
         return pair.v2
 
+[rtct]
     fun _dumpTail(t: @TupleType, os: @OutStream) if t.arity == 2
         os << ',' << t.v2
     fun _dumpTail(t: @TupleType, os: @OutStream) if t.arity > 2

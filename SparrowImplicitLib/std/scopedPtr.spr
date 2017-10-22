@@ -17,19 +17,20 @@ class ScopedPtr(type: Type)
     fun dtor
         delete(_ref)
 
-    fun ==(other: ScopedPtr)    = _ref === other._ref
+[protected]
+    fun ==(this, other: ScopedPtr)    = _ref === other._ref
 
 
-fun get(this: ScopedPtr): @ValueType         = _ref
-fun isNull(this: ScopedPtr)                  = _ref === null
-fun isSet(this: ScopedPtr)                   = _ref !== null
+    fun get(this: ScopedPtr): @ValueType         = _ref
+    fun isNull(this: ScopedPtr)                  = _ref === null
+    fun isSet(this: ScopedPtr)                   = _ref !== null
 
 
-fun reset(this: @ScopedPtr)                         { delete(_ref); _ref := null }
-fun reset(this: @ScopedPtr, ref: @this.ValueType)   { delete(this._ref); this._ref := ref }
+    fun reset(this: @ScopedPtr)                         { delete(_ref); _ref := null }
+    fun reset(this: @ScopedPtr, ref: @this.ValueType)   { delete(this._ref); this._ref := ref }
 
-fun swap(this: @ScopedPtr, other: typeOf(this))
-    var tmp: @ValueType = other._ref
+    fun swap(this: @ScopedPtr, other: typeOf(this))
+        var tmp: @ValueType = other._ref
 
-    other._ref := _ref
-    _ref := tmp
+        other._ref := _ref
+        _ref := tmp

@@ -279,8 +279,11 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
             this.nodes swap other.nodes;
             //this.nodes ctor other.nodes;
 
-        fun ==(other: @NfaNodeList): Bool = this.isMatch == other.isMatch && this.nodes == other.nodes;
+[rtct, protected]
+    fun ==(this, other: @NfaNodeList): Bool
+        return this.isMatch == other.isMatch && this.nodes == other.nodes;
 
+[rtct]
     /// Initialize the list to be the epsilon-closure of the given node
     fun initFromState(this: @NfaNodeList, id: Int, start: Ptr(NfaState))
         this.id = id;

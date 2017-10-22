@@ -7,17 +7,18 @@ import newDelete(delete)
     class Ptr(type: Type)
         using ValueType = type
 
+        var _ptr: @ValueType
+
         fun ctor                    = _ptr := null
         fun ctor(other: Ptr)        = _ptr := other._ptr
         [convert] fun ctor(ref: @ValueType)   = _ptr := ref
 
-        fun =(other: Ptr)           = _ptr := other._ptr
-        fun =(ref: @ValueType)      = _ptr := ref
+[rtct, protected]
+    fun =(this, other: @Ptr)           = _ptr := other._ptr
+    fun =(this: @Ptr, ref: @this.ValueType) = _ptr := ref
 
-        fun ==(other: Ptr)          = _ptr === other._ptr
-        fun < (other: Ptr)          = ptrDiff(reinterpretCast(@Byte, this._ptr), reinterpretCast(@Byte, other._ptr)) < DiffType(0)
-
-        var _ptr: @ValueType
+    fun ==(this, other: Ptr)          = _ptr === other._ptr
+    fun < (this, other: Ptr)          = ptrDiff(reinterpretCast(@Byte, this._ptr), reinterpretCast(@Byte, other._ptr)) < DiffType(0)
 
     fun get(this: Ptr): @ValueType         = _ptr
     fun isNull(this: Ptr)                  = _ptr === null
@@ -39,9 +40,9 @@ import newDelete(delete)
             os << "Ptr(null)"
         os << flush
 
+[rtct]
     fun reinterpretPtr(t: Type, ptr: AnyType): Ptr(t) //if isValid(p.isNull()) && isValid(p.get())
         return Ptr(t)(reinterpretCast(@t, ptr.get()))
-
 
     [macro] fun ->(base, id: CompilerAstNode): CompilerAstNode
         // Expand to: <base>.get().<id>

@@ -71,18 +71,19 @@ class LRef(valueType: Type)
             cout << "dtor: " << this << "\n"
 
 
-    fun =(other: @LRef)
+[protected]
+    fun =(this, other: @LRef)
         if ( other.isSet )
             this.reset(other.get)
         else
             this.reset
         [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "LRef.=" << this << "\n"
-    fun =(value: @ValueType)
+    fun =(this: @LRef, value: @this.ValueType)
         _pptr.get().reset(value)
         [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "LRef.=" << this << "\n"
-    fun =(value: AnyType) if isValid(ValueType(value))
+    fun =(this: @LRef, value: AnyType) if isValid(ValueType(value))
         _pptr.get().reset(value)
         [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "LRef.=" << this << "\n"

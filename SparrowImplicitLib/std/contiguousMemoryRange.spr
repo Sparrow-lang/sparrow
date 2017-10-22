@@ -11,6 +11,7 @@ import ranges(..)
 
         var _begin, _end: PtrType
 
+[rtct, protected]
     fun isEmpty(this: ContiguousMemoryRange)                 = _end.diff(_begin) <= 0
     fun size(this: ContiguousMemoryRange): SizeType          = _end.diff(_begin)
 
@@ -37,4 +38,3 @@ import ranges(..)
                 os << ", "
             os << this(i)
         os << ')'
-

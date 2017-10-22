@@ -57,24 +57,25 @@ import rawPtr(RawPtr, allocRawPtr)
         fun dtor
             _begin.freePtr
 
-        fun =(other: @String): @String
-            var tmp = other
-            tmp.swap(this)
-            return this
+[rtct, protected]
+    fun =(this, other: @String): @String
+        var tmp = other
+        tmp.swap(this)
+        return this
 
-        fun ==(other: @String): Bool
-            if this.size != other.size
+    fun ==(this, other: @String): Bool
+        if this.size != other.size
+            return false
+
+        var i: SizeType = 0
+        var s = this.size
+
+        while i < s ; i++
+            if this(i) != other(i)
                 return false
+        return true
 
-            var i: SizeType = 0
-            var s = this.size
-
-            while i < s ; i++
-                if this(i) != other(i)
-                    return false
-            return true
-
-        fun !=(other: @String): Bool = !(this == other)
+    fun !=(this, other: @String): Bool = !(this == other)
 
     fun swap(this: @String, other: @String)
         this._begin      swap    other._begin
@@ -228,7 +229,8 @@ import rawPtr(RawPtr, allocRawPtr)
     fun _backPtr(s: StringRef) = RawPtr(Char)(s.end)
 
 // TODO
-[autoCt] fun + (x,y: String): String
+[autoCt]
+fun + (x,y: String): String
     var sz1 = x.size
     var sz2 = y.size
     var res: String = sz1 + sz2
@@ -236,7 +238,8 @@ import rawPtr(RawPtr, allocRawPtr)
     memcpy(res._begin.advance(sz1).bytePtr, y._begin.bytePtr, sz2)
     return res
 
-[autoCt] fun + (x: String, y: StringRef): String
+[autoCt]
+fun + (x: String, y: StringRef): String
     var sz1 = x.size
     var sz2 = y.size
     var res: String = sz1 + sz2
@@ -244,7 +247,8 @@ import rawPtr(RawPtr, allocRawPtr)
     memcpy(res._begin.advance(sz1).bytePtr, y.begin, sz2)
     return res
 
-//[autoCt] fun + (x: String, y: Char): String
+//[autoCt]
+//fun + (x: String, y: Char): String
 //    var sz1 = x.size
 //    var sz2 = sizeOf(y)
 //    var res: String = sz1 + sz2
@@ -254,11 +258,13 @@ import rawPtr(RawPtr, allocRawPtr)
 //    return res
 
 
-[rtct] fun intToString(x: Int): String
+[rtct]
+fun intToString(x: Int): String
     var buf: static_buffer(12)
     _intToCString(x, reinterpretCast(@Char, buf))
     return String(fromCString(reinterpretCast(@Char, buf)))
-[rtct] fun ulongToString(x: ULong): String
+[rtct]
+fun ulongToString(x: ULong): String
     var buf: static_buffer(16)
     _ulongToCString(x, reinterpretCast(@Char, buf))
     return String(fromCString(reinterpretCast(@Char, buf)))
@@ -269,17 +275,13 @@ import rawPtr(RawPtr, allocRawPtr)
     class StringOutputStream
         var result: String
 
+[rtct, protected]
     fun <<<(this: @StringOutputStream, s: @String)       { result.append(s.all) }
     fun <<<(this: @StringOutputStream, s: StringRef)     { result.append(s) }
     fun <<<(this: @StringOutputStream, x: Char)          { result.append(x) }
     fun <<<(this: @StringOutputStream, x: Int)           { result.append(intToString(x).all) }
     fun <<<(this: @StringOutputStream, x: ULong)         { result.append(ulongToString(x).all) }
     fun <<<(this: @StringOutputStream, x: Double)        { result.append(ulongToString(ULong(x)).all) } // Not properly supported
-
-    fun testStringOutputStream
-        var os: StringOutputStream
-        os <<< 1
-        cout << os.result << endl
 
 fun toString = String()
 fun toString(a1: AnyType): String

@@ -1,60 +1,43 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
 class MyType
-{
-    fun ctor()
-    {
+    var x: Int;
+
+    fun ctor
         writeLn("ctor()");
-    }
     fun ctor(i: Int)
-    {
         x = i;
         write("ctor("); write(x); writeLn(")");
-    }
     fun ctor(other: MyType@)
-    {
         x = other.x;
         write("copy ctor("); write(x); writeLn(")");
-    }
     fun dtor
-    {
         write("dtor-"); writeLn(x);
-    }
 
-    fun =(other: MyType)
-    {
-        write("assign("); write(other.x); writeLn(")");
-        x = other.x;
-    }
+fun =(this, other: @MyType)
+    write("assign("); write(other.x); writeLn(")");
+    x = other.x;
 
-    var x: Int;
-}
 
 fun f1(): MyType
-{
     return MyType(101);
-}
 fun f2 = MyType(102);
 fun f3: MyType
-{
     var x = MyType(103);
     return x;
-}
 
 
 
 
-[native("test")] fun test(n: Int)
-{
+[native("test")]
+fun test(n: Int)
     if      n == 1; test1
     else if n == 2; test2
     else if n == 3; test3
     else if n == 4; test4
     else if n == 5; test5
-}
 
 fun test1
-{
     var o1: MyType;
     var o2: MyType = 1;
     MyType(10);
@@ -62,7 +45,6 @@ fun test1
     var o3 = o1;
     var o4 = MyType(100);
     writeLn("done");
-}
 
 /*<<<Basic test(1)
 ctor()
@@ -81,16 +63,13 @@ dtor-0
 >>>*/
 
 fun test2
-{
     var x = MyType(10);
-}
 /*<<<Object construction(2)
 ctor(10)
 dtor-10
 >>>*/
 
 fun test3
-{
     f1();
     writeLn("---");
     f2();
@@ -98,7 +77,6 @@ fun test3
 
     var x: MyType;
     x = f1();
-}
 /*<<<Function call(3)
 ctor(101)
 dtor-101
@@ -114,19 +92,15 @@ dtor-101
 >>>*/
 
 fun test4
-{
     var x = f1();
-}
 /*<<<Put result of a function call into a variable(4)
 ctor(101)
 dtor-101
 >>>*/
 
 fun test5
-{
     var x = f3();
     // NRVO will reduce onece more the ctor call - right now we have an extra copy
-}
 /*<<<Fn call to function that returns by name(5)
 ctor(103)
 copy ctor(103)

@@ -57,14 +57,15 @@ package _Impl0
         using _FunPtrType = FunctionPtr(resT, @Byte)
         var _data: _Impl.FunctionData
 
-
         fun ctor(ftor: @AnyType) if isValid(ftor())
             _Impl.reinterpretCopy(this._data.callFn, \ftor())
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
+        fun ctor(other: @Function0)
+            this._data ctor other._data
 
-    [rtct]
+    [rtct, protected]
         fun isNull(this: @Function0) = _data.obj === null
         fun isSet(this: @Function0) = _data.obj !== null
 
@@ -81,14 +82,15 @@ package _Impl1
         using _FunPtrType = FunctionPtr(resT, @Byte, T1)
         var _data: _Impl.FunctionData
 
-
         fun ctor(ftor: @AnyType) if isValid(ftor(#$T1))
             _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1))
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
+        fun ctor(other: @Function1)
+            this._data ctor other._data
 
-    [rtct]
+    [rtct, protected]
         fun isNull(this: @Function1) = _data.obj === null
         fun isSet(this: @Function1) = _data.obj !== null
 
@@ -111,8 +113,10 @@ package _Impl2
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
+        fun ctor(other: @Function2)
+            this._data ctor other._data
 
-    [rtct]
+    [rtct, protected]
         fun isNull(this: @Function2) = _data.obj === null
         fun isSet(this: @Function2) = _data.obj !== null
 
@@ -138,8 +142,10 @@ package _Impl3
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
+        fun ctor(other: @Function3)
+            this._data ctor other._data
 
-    [rtct]
+    [rtct, protected]
         fun isNull(this: @Function3) = _data.obj === null
         fun isSet(this: @Function3) = _data.obj !== null
 
@@ -164,8 +170,10 @@ package _Impl4
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
+        fun ctor(other: @Function4)
+            this._data ctor other._data
 
-    [rtct]
+    [rtct, protected]
         fun isNull(this: @Function4) = _data.obj === null
         fun isSet(this: @Function4) = _data.obj !== null
 
@@ -191,8 +199,10 @@ package _Impl5
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
+        fun ctor(other: @Function5)
+            this._data ctor other._data
 
-    [rtct]
+    [rtct, protected]
         fun isNull(this: @Function5) = _data.obj === null
         fun isSet(this: @Function5) = _data.obj !== null
 
@@ -219,8 +229,10 @@ package _Impl6
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
+        fun ctor(other: @Function6)
+            this._data ctor other._data
 
-    [rtct]
+    [rtct, protected]
         fun isNull(this: @Function6) = _data.obj === null
         fun isSet(this: @Function6) = _data.obj !== null
 
@@ -248,8 +260,10 @@ package _Impl7
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
+        fun ctor(other: @Function7)
+            this._data ctor other._data
 
-    [rtct]
+    [rtct, protected]
         fun isNull(this: @Function7) = _data.obj === null
         fun isSet(this: @Function7) = _data.obj !== null
 
@@ -278,8 +292,10 @@ package _Impl8
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
+        fun ctor(other: @Function8)
+            this._data ctor other._data
 
-    [rtct]
+    [rtct, protected]
         fun isNull(this: @Function8) = _data.obj === null
         fun isSet(this: @Function8) = _data.obj !== null
 
@@ -309,8 +325,10 @@ package _Impl9
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
+        fun ctor(other: @Function9)
+            this._data ctor other._data
 
-    [rtct]
+    [rtct, protected]
         fun isNull(this: @Function9) = _data.obj === null
         fun isSet(this: @Function9) = _data.obj !== null
 
@@ -341,8 +359,10 @@ package _Impl10
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
+        fun ctor(other: @Function10)
+            this._data ctor other._data
 
-    [rtct]
+    [rtct, protected]
         fun isNull(this: @Function10) = _data.obj === null
         fun isSet(this: @Function10) = _data.obj !== null
 
@@ -374,8 +394,10 @@ package _Impl11
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
+        fun ctor(other: @Function11)
+            this._data ctor other._data
 
-    [rtct]
+    [rtct, protected]
         fun isNull(this: @Function11) = _data.obj === null
         fun isSet(this: @Function11) = _data.obj !== null
 
@@ -408,8 +430,10 @@ package _Impl12
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
+        fun ctor(other: @Function12)
+            this._data ctor other._data
 
-    [rtct]
+    [rtct, protected]
         fun isNull(this: @Function12) = _data.obj === null
         fun isSet(this: @Function12) = _data.obj !== null
 
@@ -443,8 +467,10 @@ package _Impl13
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
+        fun ctor(other: @Function13)
+            this._data ctor other._data
 
-    [rtct]
+    [rtct, protected]
         fun isNull(this: @Function13) = _data.obj === null
         fun isSet(this: @Function13) = _data.obj !== null
 
@@ -479,8 +505,10 @@ package _Impl14
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
+        fun ctor(other: @Function14)
+            this._data ctor other._data
 
-    [rtct]
+    [rtct, protected]
         fun isNull(this: @Function14) = _data.obj === null
         fun isSet(this: @Function14) = _data.obj !== null
 
@@ -516,8 +544,10 @@ package _Impl15
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
+        fun ctor(other: @Function15)
+            this._data ctor other._data
 
-    [rtct]
+    [rtct, protected]
         fun isNull(this: @Function15) = _data.obj === null
         fun isSet(this: @Function15) = _data.obj !== null
 

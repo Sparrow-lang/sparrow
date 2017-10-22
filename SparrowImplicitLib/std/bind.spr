@@ -81,15 +81,16 @@ class BindAll5(ftorType, T1, T2, T3, T4, T5: Type)
     var a4: T4
     var a5: T5
 
-fun ()(this: @BindAll1) = ftor(a1)
-fun ()(this: @BindAll2) = ftor(a1, a2)
-fun ()(this: @BindAll3) = ftor(a1, a2, a3)
-fun ()(this: @BindAll4) = ftor(a1, a2, a3, a4)
-fun ()(this: @BindAll5) = ftor(a1, a2, a3, a4, a5)
+[protected]
+    fun ()(this: @BindAll1) = ftor(a1)
+    fun ()(this: @BindAll2) = ftor(a1, a2)
+    fun ()(this: @BindAll3) = ftor(a1, a2, a3)
+    fun ()(this: @BindAll4) = ftor(a1, a2, a3, a4)
+    fun ()(this: @BindAll5) = ftor(a1, a2, a3, a4, a5)
 
-fun >>(this: @BindAll1, os: @OutStream) { os << 'BindAll(' << a1 << ')' }
-fun >>(this: @BindAll2, os: @OutStream) { os << 'BindAll(' << a1 << ', ' << a2 << ')' }
-fun >>(this: @BindAll3, os: @OutStream) { os << 'BindAll(' << a1 << ', ' << a2 << ', ' << a3 << ')' }
-fun >>(this: @BindAll4, os: @OutStream) { os << 'BindAll(' << a1 << ', ' << a2 << ', ' << a3 << ', ' << a4 << ')' }
-fun >>(this: @BindAll5, os: @OutStream) { os << 'BindAll(' << a1 << ', ' << a2 << ', ' << a3 << ', ' << a4 << ', ' << a5 << ')' }
+    fun >>(this: @BindAll1, os: @OutStream) { os << 'BindAll(' << a1 << ')' }
+    fun >>(this: @BindAll2, os: @OutStream) { os << 'BindAll(' << a1 << ', ' << a2 << ')' }
+    fun >>(this: @BindAll3, os: @OutStream) { os << 'BindAll(' << a1 << ', ' << a2 << ', ' << a3 << ')' }
+    fun >>(this: @BindAll4, os: @OutStream) { os << 'BindAll(' << a1 << ', ' << a2 << ', ' << a3 << ', ' << a4 << ')' }
+    fun >>(this: @BindAll5, os: @OutStream) { os << 'BindAll(' << a1 << ', ' << a2 << ', ' << a3 << ', ' << a4 << ', ' << a5 << ')' }
 

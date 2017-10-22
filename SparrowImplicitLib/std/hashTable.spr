@@ -51,21 +51,6 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
     fun dtor
         this._deleteElements
 
-    fun =(other: @HashTable): @HashTable
-        var tmp: HashTable = other
-        this swap tmp
-        return this
-
-    fun ==(other: @HashTable): Bool
-        if !(this._tr == other._tr && _numElements == other.size)
-            return false
-
-        for v = this.all
-            if !other.contains(_valToKey(v))
-                return false
-
-        return true
-
     var _buckets: _BucketsType
     var _guard: _MyGuardNode
     var _numElements: SizeType
@@ -84,115 +69,131 @@ fun swap(this: @HashTable, other: typeOf(this))
     if other._numElements > 0 && !other._buckets.isEmpty
         other._buckets(other._guard.next.get().hash % other._buckets.size) = other._guardNode
 
-fun traits(this: @HashTable)          = _tr
+[protected]
+    fun =(this, other: @HashTable): @typeOf(this)
+        var tmp: HashTable = other
+        this swap tmp
+        return this
 
-fun isEmpty(this: @HashTable)         = (_numElements == 0)
-fun size(this: @HashTable)            = _numElements
-fun bucketCount(this: @HashTable)     = _buckets.size
+    fun ==(this, other: @HashTable): Bool
+        if !(this._tr == other._tr && _numElements == other.size)
+            return false
 
-fun all(this: @HashTable)             = RangeType(_guard.next, _NodePtr())
+        for v = this.all
+            if !other.contains(_valToKey(v))
+                return false
 
-fun reserve(this: @HashTable, n: SizeType)
-    // Resize only when we are big enough to re-hash
-    if n <= _buckets.size * _loadFactor
-        return
-    if _buckets.size == 0 && n <= _numElementsForBuckets
-        return
+        return true
 
-    // Determine the number of buckets
-    var i = 0
-    while _bucketCounts(i) < n
-        ++i
-    var numBuckets = _bucketCounts(i)
-    if numBuckets <= _buckets.size
-        return
+    fun traits(this: @HashTable)          = _tr
 
-    // Re-create the buckets array
-    _buckets dtor
-    _buckets ctor numBuckets
+    fun isEmpty(this: @HashTable)         = (_numElements == 0)
+    fun size(this: @HashTable)            = _numElements
+    fun bucketCount(this: @HashTable)     = _buckets.size
 
-    // Recompute the proper buckets for our elements
-    var p = _guard.next
-    _guard.next.reset
-    var next: _NodePtr
-    while p.isSet ; p = next
-        next = p.get().next
-        this._insertNode(p)
+    fun all(this: @HashTable)             = RangeType(_guard.next, _NodePtr())
 
-fun insert(this: @HashTable, value: @this.ValueType): this.RangeType
-    this.reserve(_numElements + 1)
-    return this._insertPlain(value)
+    fun reserve(this: @HashTable, n: SizeType)
+        // Resize only when we are big enough to re-hash
+        if n <= _buckets.size * _loadFactor
+            return
+        if _buckets.size == 0 && n <= _numElementsForBuckets
+            return
 
-fun insert(this: @HashTable, range: Range)
-    this.reserve(_numElements + (range rangeSize))
-    var counter = 0
-    for v = range
-        this._insertPlain(v)
+        // Determine the number of buckets
+        var i = 0
+        while _bucketCounts(i) < n
+            ++i
+        var numBuckets = _bucketCounts(i)
+        if numBuckets <= _buckets.size
+            return
 
-fun remove(this: @HashTable, key: @this.KeyType)
-    if this.isEmpty
-        return
+        // Re-create the buckets array
+        _buckets dtor
+        _buckets ctor numBuckets
 
-    var node = this._findNode(key)
-    if node.isNull
-        return
+        // Recompute the proper buckets for our elements
+        var p = _guard.next
+        _guard.next.reset
+        var next: _NodePtr
+        while p.isSet ; p = next
+            next = p.get().next
+            this._insertNode(p)
 
-    var prev = this._findPrev(node)
-    this._removeNode(prev, node)
+    fun insert(this: @HashTable, value: @this.ValueType): this.RangeType
+        this.reserve(_numElements + 1)
+        return this._insertPlain(value)
 
-fun remove(this: @HashTable, range: this.RangeType)
-    if range.isEmpty
-        return
+    fun insert(this: @HashTable, range: Range)
+        this.reserve(_numElements + (range rangeSize))
+        var counter = 0
+        for v = range
+            this._insertPlain(v)
 
-    // Determine the element before the first element from the given range
-    var prev = this._findPrev(range._startElem)
+    fun remove(this: @HashTable, key: @this.KeyType)
+        if this.isEmpty
+            return
 
-    var p = range._startElem
-    while p != range._endElem
-        var next = p.get().next
-        this._removeNode(prev, p)
-        p = next
+        var node = this._findNode(key)
+        if node.isNull
+            return
 
-fun contains(this: @HashTable, key: @this.KeyType): Bool = this._findNode(key).isSet
-fun count(this: @HashTable, key: @this.KeyType): SizeType = ife(this._findNode(key).isSet, 1, 0)
+        var prev = this._findPrev(node)
+        this._removeNode(prev, node)
 
-fun equalRange(this: @HashTable, key: @this.KeyType): this.RangeType
-    var p = this._findNode(key)
-    return ife(p.isSet, RangeType(p, p.get().next), RangeType())
+    fun remove(this: @HashTable, range: this.RangeType)
+        if range.isEmpty
+            return
 
-fun find(this: @HashTable, key: @this.KeyType): this.RangeType
-    var p = this._findNode(key)
-    return ife(p.isSet, RangeType(p, _NodePtr()), RangeType())
+        // Determine the element before the first element from the given range
+        var prev = this._findPrev(range._startElem)
 
-fun clear(this: @HashTable)
-    _buckets dtor
-    _buckets ctor
-    _numElements = 0
-    this._deleteElements
+        var p = range._startElem
+        while p != range._endElem
+            var next = p.get().next
+            this._removeNode(prev, p)
+            p = next
 
-fun >> (this: @HashTable, os: @OutStream)
-    os << "HashTable, first=" << mkStreamRefWrapper(_guard.next.get) << ", size=" << _numElements << endl
+    fun contains(this: @HashTable, key: @this.KeyType): Bool = this._findNode(key).isSet
+    fun count(this: @HashTable, key: @this.KeyType): SizeType = ife(this._findNode(key).isSet, 1, 0)
 
-    if this.isEmpty
-        return
-    var numBuckets = _buckets.size
-    var prev = this._guardNode
-    var p = prev.get().next
-    var prevBi = numBuckets+1
-    while p.isSet ; p = p.get().next
-        var bi = ife(numBuckets > 0, p.get().hash % numBuckets, 0)
-        if prev == this._guardNode
-            os << bi << ": <guard> | "
-            prevBi = bi
-        else if bi != prevBi
-            os << endl << bi << ": " << prevBi << '-' << prev.get << " | "
-            prevBi = bi
-        else
-            os << ' ' << prevBi << '-' << prev.get
-        prev = p
-        //os << '(' << p.get << ')'
-    os << ' ' << prevBi << '-' << prev.get
-    os << endl
+    fun equalRange(this: @HashTable, key: @this.KeyType): this.RangeType
+        var p = this._findNode(key)
+        return ife(p.isSet, RangeType(p, p.get().next), RangeType())
+
+    fun find(this: @HashTable, key: @this.KeyType): this.RangeType
+        var p = this._findNode(key)
+        return ife(p.isSet, RangeType(p, _NodePtr()), RangeType())
+
+    fun clear(this: @HashTable)
+        _buckets dtor
+        _buckets ctor
+        _numElements = 0
+        this._deleteElements
+
+    fun >> (this: @HashTable, os: @OutStream)
+        os << "HashTable, first=" << mkStreamRefWrapper(_guard.next.get) << ", size=" << _numElements << endl
+
+        if this.isEmpty
+            return
+        var numBuckets = _buckets.size
+        var prev = this._guardNode
+        var p = prev.get().next
+        var prevBi = numBuckets+1
+        while p.isSet ; p = p.get().next
+            var bi = ife(numBuckets > 0, p.get().hash % numBuckets, 0)
+            if prev == this._guardNode
+                os << bi << ": <guard> | "
+                prevBi = bi
+            else if bi != prevBi
+                os << endl << bi << ": " << prevBi << '-' << prev.get << " | "
+                prevBi = bi
+            else
+                os << ' ' << prevBi << '-' << prev.get
+            prev = p
+            //os << '(' << p.get << ')'
+        os << ' ' << prevBi << '-' << prev.get
+        os << endl
 
 fun _guardNode(this: @HashTable): this._NodePtr = reinterpretPtr(_MyNode, Ptr(_MyGuardNode)(_guard))
 
@@ -321,9 +322,10 @@ class _HashRange(valueType: Type)
         _startElem ctor start
         _endElem ctor end
 
-fun isEmpty(this: _HashRange)               = _startElem == _endElem
-fun front(this: _HashRange): this.RetType   = _startElem.get().data
-fun popFront(this: @_HashRange)             { _startElem = _startElem.get().next; }
+[protected]
+    fun isEmpty(this: _HashRange)               = _startElem == _endElem
+    fun front(this: _HashRange): this.RetType   = _startElem.get().data
+    fun popFront(this: @_HashRange)             { _startElem = _startElem.get().next; }
 
 
 var _bucketCounts: StaticArray(SizeType, 31)

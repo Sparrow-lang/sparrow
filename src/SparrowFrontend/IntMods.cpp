@@ -21,20 +21,44 @@ using namespace std;
 
 namespace
 {
-    /// Check if the parameter with the given index has the given class type
-    /// The given decl must be a Feather function
-    bool checkParamOfClass(Node* funDecl, size_t idx, Node* expectedClass)
-    {
-        TypeRef paramType = Feather_Function_getParameter(funDecl, idx)->type;
-        return paramType->hasStorage && Feather_classForType(paramType) == expectedClass;
-    }
     // Same as above, but expects a SprFunction declaration
     bool checkArgTypeFitsIntoParam(Node* funDecl, size_t idx, TypeRef argType)
     {
         Node* parameters = at(funDecl->children, 0);
-        TypeRef paramType = at(parameters->children, idx)->type;
+        Node* param = at(parameters->children, idx);
 
-        return (bool) canConvertType(funDecl->context, argType, paramType, flagDontCallConversionCtor);
+        // Workaround, to avoid circular dependencies on compute-type for the class
+        Node* reqCls = Feather_classDecl(argType);
+        if (reqCls && param->nodeKind == nkSparrowDeclSprParameter) {
+            ASSERT(Nest_nodeArraySize(param->children) == 2);
+            Node* typeNode = at(param->children, 0);
+            if ( typeNode ) {
+                // Ignore references
+                while (typeNode && typeNode->nodeKind == nkSparrowExpInfixExp) {
+                    ASSERT(Nest_nodeArraySize(typeNode->children) == 2);
+                    Node* arg1 = at(typeNode->children, 0);
+                    Node* arg2 = at(typeNode->children, 1);
+                    StringRef operation = Nest_getCheckPropertyString(typeNode, "spr.operation");
+                    if (operation != "@" || arg1 != nullptr)
+                        break;
+                    typeNode = arg2;
+                }
+
+                // Check we are referring to the same class
+                if (typeNode && typeNode->nodeKind == nkSparrowExpIdentifier) {
+                    StringRef id = Nest_getCheckPropertyString(typeNode, "name");
+                    StringRef reqClassName = Feather_getName(reqCls);
+                    if (id==reqClassName)
+                        return true;
+                }
+            }
+        }
+
+        if ( !Nest_computeType(param) )
+            return false;    // Assume we are just computing the type of it
+        // TODO (type-check): We need to ensure not type-check cycles
+
+        return (bool) canConvertType(funDecl->context, argType, param->type, flagDontCallConversionCtor);
     }
 
     /// Search a function with the given name, taking the given type of parameter in the context of the given class
@@ -45,67 +69,32 @@ namespace
         NodeArray decls = getClassAssociatedDecls(cls, funName.c_str());
         for ( Node* decl: decls )
         {
-            // if ( decl->nodeKind != nkSparrowDeclSprFunction )
-            //     continue;
-
-            // if ( !Nest_computeType(decl) )
-            //     continue;
-
-            // // Get the parameters of this function
-            // Node* parameters = at(decl->children, 0);
-            // bool implicitThis = funHasImplicitThis(decl);
-            // Node* parentClass = nullptr;
-            // if ( implicitThis )
-            //     parentClass = Feather_getParentClass(decl->context);
-
-            // // Check parameter count
-            // size_t numParams = (parameters ? size(parameters->children) : 0) + (implicitThis ? 1 : 0);
-            // size_t numExpectedParams = otherParamClass ? 2 : 1;
-            // if ( numParams != numExpectedParams )
-            //     continue;
-
-            // // Check the 'this' parameter first
-            // // TODO (ctors): Remove this after functions are not in classes anymore
-            // if ( !implicitThis ) {  // For implicit this we assume everything is ok
-            //     Node* basicClass = Nest_explanation(cls);
-            //     if ( !checkArgTypeFitsIntoParam(decl, 0, basicClass->type) )
-            //         continue;
-            // }
-
-            // // Check the 'other' parameter has the required type, if applicable
-            // if ( otherParamClass && !checkArgTypeFitsIntoParam(decl, implicitThis?0:1, otherParamClass->type) )
-            //     continue;
-
-            // // Everything ok; we found a matching associated function
-            // res = true;
-            // break;
-
-            // TODO (ctors): Remove the following
-
-
-            // Make sure to compute the type of the function
-            // TODO (ctors): We don't need this; we can check the original decl
-            // But before that, we need to be sure that we don't have any implicit this
-            if ( !decl->type && decl->nodeKind == nkSparrowDeclSprFunction )
-                Nest_computeType(decl);
-
-            decl = Nest_explanation(decl);
-            if ( !decl || decl->nodeKind != nkFeatherDeclFunction )
+            if ( decl->nodeKind != nkSparrowDeclSprFunction )
                 continue;
 
+            // Get the parameters of this function
+            Node* parameters = at(decl->children, 0);
+            bool implicitThis = funHasImplicitThis(decl);
+            Node* parentClass = nullptr;
+            if ( implicitThis )
+                parentClass = Feather_getParentClass(decl->context);
+
             // Check parameter count
-            size_t thisParamIdx = getResultParam(decl) ? 1 : 0;
-            size_t numExpectedParams = 1+(otherParamClass ? 1+thisParamIdx : thisParamIdx);
-            if ( Feather_Function_numParameters(decl) != numExpectedParams )
+            size_t numParams = (parameters ? size(parameters->children) : 0) + (implicitThis ? 1 : 0);
+            size_t numExpectedParams = otherParamClass ? 2 : 1;
+            if ( numParams != numExpectedParams )
                 continue;
 
             // Check the 'this' parameter first
-            Node* basicClass = Nest_explanation(cls);
-            if ( !checkParamOfClass(decl, thisParamIdx, basicClass) )
-                continue;
+            // TODO (ctors): Remove this after functions are not in classes anymore
+            if ( !implicitThis ) {  // For implicit this we assume everything is ok
+                Node* basicClass = Nest_explanation(cls);
+                if ( !checkArgTypeFitsIntoParam(decl, 0, basicClass->type) )
+                    continue;
+            }
 
             // Check the 'other' parameter has the required type, if applicable
-            if ( otherParamClass && !checkParamOfClass(decl, thisParamIdx+1, otherParamClass) )
+            if ( otherParamClass && !checkArgTypeFitsIntoParam(decl, implicitThis?0:1, otherParamClass->type) )
                 continue;
 
             // Everything ok; we found a matching associated function
@@ -212,6 +201,7 @@ namespace
 
         // Add the function in the context of the parent
         Node* f = mkSprFunction(loc, fromString(name), parameters, ret, body);
+        Nest_setPropertyInt(f, propIsStatic, 1);
         Nest_setPropertyInt(f, propNoDefault, 1);
         copyAccessType(f, parent);
         if ( mode == modeUnspecified )
@@ -360,12 +350,13 @@ namespace
             addOperatorCall(body, false, fieldRef, oper, paramId);
         }
 
-        addMethod(parent, "ctor", body, params);
+        /*Node* ctor = */addMethod(parent, "ctor", body, params);
         // addAssociatedFun(parent, "ctor", body, params);
+        // REP_INFO(loc, "Generated InitCtor: %1%") % Nest_toStringEx(ctor);
     }
 
     /// Generate the equality check method for the given class
-    void generateEqualityCheckFun(Node* parent)
+    Node* generateEqualityCheckFun(Node* parent)
     {
         Location loc = parent->location;
         loc.end = loc.start;
@@ -403,7 +394,8 @@ namespace
         TypeRef t = Feather_getDataType(cls, 1, modeUnspecified);
         params.push_back({t, string("this")});
         params.push_back({t, string("other")});
-        addAssociatedFun(parent, "==", body, params, StdDef::clsBool, Feather_effectiveEvalMode(parent), true);
+        Node* res = addAssociatedFun(parent, "==", body, params, StdDef::clsBool, Feather_effectiveEvalMode(parent), true);
+        return res;
     }
 
     /// Search the given body for a constructor with the given properties.
@@ -480,7 +472,7 @@ namespace
 
 void _IntModClassMembers_afterComputeType(Modifier*, Node* node)
 {
-    /// Check to apply only to classes
+    // Check to apply only to classes
     if ( node->nodeKind != nkSparrowDeclSprClass )
         REP_INTERNAL(node->location, "IntModClassMembers modifier can be applied only to classes");
     Node* cls = node;

@@ -168,10 +168,11 @@ concept RandomAccessRange(x: BidirRange) if (
     fun scanLeft(acc: AnyType, range: Range, function: AnyType) = ScanLeftRange(typeOf(acc), typeOf(range), typeOf(function))(acc, range, function)
 
 
-    ///////////////////////////////////////////////////////////////////////////////
-    // Classes that implement ranges
-    //
+///////////////////////////////////////////////////////////////////////////////
+// Classes that implement ranges
+//
 
+[rtct]
     class NumericRangeInc(valueType: Type) if Number(#$valueType)
         var _begin, _end: valueType
         var _closed: Bool
@@ -189,6 +190,7 @@ concept RandomAccessRange(x: BidirRange) if (
             this._end ctor end
             this._closed ctor closed
 
+[rtct, protected]
     fun isEmpty(this: NumericRangeInc)                  = ife(_closed, _begin > _end, _begin >= _end)
     fun front(this: NumericRangeInc): RetType           = _begin
     fun popFront(this: @NumericRangeInc)                { _begin += _step }
@@ -203,6 +205,7 @@ concept RandomAccessRange(x: BidirRange) if (
 
     fun ()(this: NumericRangeInc, n: SizeType): RetType = _begin + RetType(n)
 
+[rtct]
     class NumericRangeWithStep(valueType: Type) if Number(#$valueType)
         var _begin, _end, _step: valueType
         var _closed: Bool
@@ -266,12 +269,14 @@ concept RandomAccessRange(x: BidirRange) if (
 
     fun ()(this: NumericRangeWithStep, n: SizeType): RetType    = _begin + RetType(n*_step)
 
+[rtct]
     [initCtor]
     class RetroRange(rangeType: Type) if BidirRange(#$rangeType)
         var _range: rangeType
 
         using RetType = rangeType.RetType
 
+[rtct, protected]
     fun isEmpty(this: @RetroRange)          = _range.isEmpty
     fun front(this: @RetroRange): RetType   = _range.back
     fun popFront(this: @RetroRange)         { _range.popBack }
@@ -279,6 +284,7 @@ concept RandomAccessRange(x: BidirRange) if (
     fun back(this: @RetroRange): RetType    = _range.front
     fun popBack(this: @RetroRange)          { _range.popFront }
 
+[rtct]
     [initCtor]
     class TakeRange(rangeType: Type) if Range(#$rangeType)
         var _range: rangeType
@@ -286,10 +292,12 @@ concept RandomAccessRange(x: BidirRange) if (
 
         using RetType = rangeType.RetType
 
+[rtct, protected]
     fun isEmpty(this: @TakeRange)           = _count == 0 || _range.isEmpty
     fun front(this: @TakeRange): RetType    = _range.front
     fun popFront(this: @TakeRange)          { _range.popFront; --_count }
 
+[rtct]
     [initCtor]
     class TakeWhileRange(rangeType: Type, predType: Type) \
             if Range(#$rangeType) && typeOf((#$predType)(#$rangeType front)) == Bool
@@ -298,10 +306,12 @@ concept RandomAccessRange(x: BidirRange) if (
 
         using RetType = rangeType.RetType
 
+[rtct, protected]
     fun isEmpty(this: @TakeWhileRange)          = _range.isEmpty || !_pred(_range.front)
     fun front(this: @TakeWhileRange): RetType   = _range.front
     fun popFront(this: @TakeWhileRange)         { _range.popFront }
 
+[rtct]
     [initCtor]
     class TakeUntilRange(rangeType: Type, predType: Type) \
             if Range(#$rangeType) && typeOf((#$predType)(#$rangeType front)) == Bool
@@ -316,6 +326,7 @@ concept RandomAccessRange(x: BidirRange) if (
             this._pred ctor pred
             _shouldStop = false
 
+[rtct, protected]
     fun isEmpty(this: @TakeUntilRange)          = _range.isEmpty || _shouldStop
     fun front(this: @TakeUntilRange): RetType   = _range.front
     fun popFront(this: @TakeUntilRange)
@@ -323,6 +334,7 @@ concept RandomAccessRange(x: BidirRange) if (
         _range.popFront
         _shouldStop = _pred(lastVal)
 
+[rtct]
     class FilteredRange(rangeType, predType: Type) \
             if Range(#$rangeType) && typeOf((#$predType)(#$rangeType front)) == Bool
         var _range: rangeType
@@ -337,6 +349,7 @@ concept RandomAccessRange(x: BidirRange) if (
             this._lastVal ctor
             this._popUntilValid
 
+[rtct, protected]
     fun isEmpty(this: @FilteredRange)        = _range.isEmpty
     fun front(this: @FilteredRange): RetType = _lastVal
     fun popFront(this: @FilteredRange)       { _range.popFront; this._popUntilValid }
@@ -348,6 +361,7 @@ concept RandomAccessRange(x: BidirRange) if (
                 break
             _range.popFront
 
+[rtct]
     class TransformedRange(rangeType, funType: Type) \
             if Range(#$rangeType) && isValid((#$funType)(#$rangeType front))
         var _range: rangeType
@@ -363,6 +377,7 @@ concept RandomAccessRange(x: BidirRange) if (
             this._curVal ctor
             this._hasValue ctor false
 
+[rtct, protected]
     fun isEmpty(this: @TransformedRange)    = _range.isEmpty
     fun front(this: @TransformedRange): RetType
         if !_hasValue
@@ -371,16 +386,19 @@ concept RandomAccessRange(x: BidirRange) if (
         return _curVal
     fun popFront(this: @TransformedRange)   { _range.popFront; _hasValue = false }
 
+[rtct]
     [initCtor]
     class RepeatRange(valueType: Type)
         var _value: valueType
 
         using RetType = valueType
 
+[rtct, protected]
     fun isEmpty(this: @RepeatRange)         = false
     fun front(this: @RepeatRange): RetType  = _value
     fun popFront(this: @RepeatRange)        {}
 
+[rtct]
     [initCtor]
     class ChainRange(rangeType1: Type, rangeType2: Type) \
             if Range(#$rangeType1) && Range(#$rangeType2)
@@ -389,6 +407,7 @@ concept RandomAccessRange(x: BidirRange) if (
 
         using RetType = commonType(rangeType1.RetType, rangeType2.RetType)
 
+[rtct, protected]
     fun isEmpty(this: @ChainRange)          = _range1.isEmpty && _range2.isEmpty
     fun front(this: @ChainRange): RetType   = ife(_range1.isEmpty, _range2.front, _range1.front)
     fun popFront(this: @ChainRange)
@@ -397,6 +416,7 @@ concept RandomAccessRange(x: BidirRange) if (
         else
             _range1.popFront
 
+[rtct]
     [initCtor]
     class StridedRange(rangeType: Type) if Range(#$rangeType)
         var _range: rangeType
@@ -404,6 +424,7 @@ concept RandomAccessRange(x: BidirRange) if (
 
         using RetType = rangeType.RetType
 
+[rtct, protected]
     fun isEmpty(this: @StridedRange)        = _range.isEmpty
     fun front(this: @StridedRange): RetType = _range.front
     fun popFront(this: @StridedRange)
@@ -412,6 +433,7 @@ concept RandomAccessRange(x: BidirRange) if (
             s = s - 1
             _range.popFront
 
+[rtct]
     class RadialRange(rangeType: Type) if RandomAccessRange(#$rangeType)
         var _range: rangeType
         var _index, _count: SizeType
@@ -426,6 +448,7 @@ concept RandomAccessRange(x: BidirRange) if (
             this._sign ctor 1
             this._count ctor 0
 
+[rtct, protected]
     fun isEmpty(this: @RadialRange)         = _range.isEmpty || _count == _range.size
     fun front(this: @RadialRange): RetType  = _range(_index)
     fun popFront(this: @RadialRange)
@@ -438,6 +461,7 @@ concept RandomAccessRange(x: BidirRange) if (
             _step = _step + 1
             _sign = -_sign
 
+[rtct]
     class CyclicRange(rangeType: Type) if Range(#$rangeType)
         var _range, base: rangeType
 
@@ -447,6 +471,7 @@ concept RandomAccessRange(x: BidirRange) if (
             this._range ctor range
             this.base ctor range
 
+[rtct, protected]
     fun isEmpty(this: @CyclicRange)         = false
     fun front(this: @CyclicRange): RetType  = _range.front
     fun popFront(this: @CyclicRange)
@@ -454,6 +479,7 @@ concept RandomAccessRange(x: BidirRange) if (
         if _range.isEmpty
             _range = base
 
+[rtct]
     class CyclicCountedRange(rangeType: Type) if Range(#$rangeType)
         var _range, base: rangeType
         var _count: SizeType
@@ -465,6 +491,7 @@ concept RandomAccessRange(x: BidirRange) if (
             this._count ctor count
             this.base ctor range
 
+[rtct, protected]
     fun isEmpty(this: @CyclicCountedRange)          = _count == 0
     fun front(this: @CyclicCountedRange): RetType   = _range.front
     fun popFront(this: @CyclicCountedRange)
@@ -474,6 +501,7 @@ concept RandomAccessRange(x: BidirRange) if (
                 _range = base
                 --_count
 
+[rtct]
     class GeneratedRange(functionType: Type)
         var _function: functionType
         var _current: RetType
@@ -484,10 +512,12 @@ concept RandomAccessRange(x: BidirRange) if (
             this._function ctor function
             this._current ctor this._function()
 
+[rtct, protected]
     fun isEmpty(this: @GeneratedRange)          = false
     fun front(this: @GeneratedRange): RetType   = _current
     fun popFront(this: @GeneratedRange)         { _current = _function() }
 
+[rtct]
     class Generated1Range(elType, functionType: Type) //if isValid(elType(#$functionType)(#$elType))
         var _function: functionType
         var _current: RetType
@@ -498,10 +528,12 @@ concept RandomAccessRange(x: BidirRange) if (
             this._function ctor function
             this._current ctor initialValue
 
+[rtct, protected]
     fun isEmpty(this: @Generated1Range)         = false
     fun front(this: @Generated1Range): RetType  = _current
     fun popFront(this: @Generated1Range)        { _current = _function(_current) }
 
+[rtct]
     [initCtor]
     class ZippedRange(rangeType1, rangeType2: Type, functionType: Type) if Range(#$rangeType1) &&  Range(#$rangeType2)
         var _range1: rangeType1
@@ -510,10 +542,12 @@ concept RandomAccessRange(x: BidirRange) if (
 
         using RetType = typeOf((#$functionType)(#$rangeType1 front, #$rangeType2 front))
 
+[rtct, protected]
     fun isEmpty(this: @ZippedRange)          = _range1.isEmpty || _range2.isEmpty
     fun front(this: @ZippedRange): RetType   = _function(_range1.front, _range2.front)
     fun popFront(this: @ZippedRange)        { _range1.popFront; _range2.popFront }
 
+[rtct]
     class ScanLeftRange(accType, rangeType: Type, functionType: Type) if Range(#$rangeType)
         var _acc: accType
         var _range: rangeType
@@ -528,6 +562,7 @@ concept RandomAccessRange(x: BidirRange) if (
             this._function ctor function
             this._valComputed ctor false
 
+[rtct, protected]
     fun isEmpty(this: @ScanLeftRange)    = _range.isEmpty
     fun popFront(this: @ScanLeftRange)  { _range.popFront; _valComputed=false }
     fun front(this: @ScanLeftRange): RetType
@@ -536,6 +571,7 @@ concept RandomAccessRange(x: BidirRange) if (
         _valComputed=true
         return _acc
 
+[rtct]
     class ValuesRange(contType: Type) if isValid((#$contType)(1))
         var _values: contType
         var _idx: SizeType
@@ -550,10 +586,12 @@ concept RandomAccessRange(x: BidirRange) if (
 
         using RetType       = contType.ValueType
 
+[rtct, protected]
     fun isEmpty(this: @ValuesRange)         = _idx >= _values.size
     fun front(this: @ValuesRange): RetType  = _values(_idx)
     fun popFront(this: @ValuesRange)        { ++_idx }
 
+[rtct]
     fun mkValuesRange(cont: AnyType) = ValuesRange(typeOf(cont))(cont)
 
 

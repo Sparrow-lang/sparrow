@@ -6,11 +6,6 @@ module std.rawPtr
 
         var _ptr: @ValueType
 
-        fun =(other: RawPtr)        { _ptr := other._ptr }
-
-        fun ==(other: RawPtr)       = _ptr === other._ptr
-        fun < (other: RawPtr)       = ptrDiff(this.bytePtr(), other.bytePtr()) < DiffType(0)
-
         fun ctor
             _ptr := null
 
@@ -21,8 +16,11 @@ module std.rawPtr
             fun ctor(byteRef: @Byte)
                 _ptr := reinterpretCast(@ValueType, byteRef)
 
-    fun mkRawPtr(ref: @AnyType) = RawPtr(-@typeOf(ref))(ref)
-    fun allocRawPtr(t: Type, num: SizeType) = RawPtr(t)(reinterpretCast(@t, malloc(num * sizeOf(t))))
+[rtct, protected]
+    fun =(this: @RawPtr, other: RawPtr)        { _ptr := other._ptr }
+
+    fun ==(this, other: RawPtr)       = _ptr === other._ptr
+    fun < (this, other: RawPtr)       = ptrDiff(this.bytePtr(), other.bytePtr()) < DiffType(0)
 
     fun value(this: RawPtr): @ValueType                     = _ptr
     fun advance(this: RawPtr): typeOf(this)                 = typeOf(this)(ptrAdd(this.bytePtr(), sizeOf(ValueType)))
@@ -50,3 +48,8 @@ module std.rawPtr
 
     fun >>(this: RawPtr, os: @OutStream)
         os << "RawPtr(" << mkStreamRefWrapper(this.bytePtr) << ")"
+
+[rtct]
+    fun mkRawPtr(ref: @AnyType) = RawPtr(-@typeOf(ref))(ref)
+    fun allocRawPtr(t: Type, num: SizeType) = RawPtr(t)(reinterpretCast(@t, malloc(num * sizeOf(t))))
+

@@ -71,14 +71,15 @@ import ranges(RandomAccessRange, ..)
             p.value().dtor()
         _begin.freePtr()
 
-    fun =(other: @Vector): @Vector
+[rtct, protected]
+    fun =(this, other: @Vector): @typeOf(this)
         var tmp = other
 
         tmp.swap(this)
 
         return this
 
-    fun ==(other: @Vector): Bool
+    fun ==(this, other: @Vector): Bool
         if this.size() != other.size()
             return false
 
@@ -92,7 +93,6 @@ import ranges(RandomAccessRange, ..)
 
     fun !=(other: @Vector): Bool = !(this == other)
 
-[rtct, protected]
     fun swap(this: @Vector, other: typeOf(this))
         var tmp = _begin
 

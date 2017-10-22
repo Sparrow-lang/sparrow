@@ -10,6 +10,8 @@ import ranges
         using RangeType = ContiguousMemoryRange(valueType)
         using _arraySize = arraySize
 
+        var _buf: static_buffer(arraySize * sizeOf(ValueType))
+
         fun ctor
             for v: @ValueType = this.all
                 v ctor
@@ -106,18 +108,18 @@ import ranges
             for v: @ValueType = this.all
                 v dtor
 
-        fun =(other: @StaticArray): @StaticArray
-            for i = 0..arraySize
-                this(i) = other(i)
-            return this
 
-        fun ==(other: @StaticArray): Bool
-            for i = 0..arraySize
-                if this(i) != other(i)
-                    return false
-            return true
+[rtct, protected]
+    fun =(this, other: @StaticArray): @typeOf(this)
+        for i = 0.._arraySize
+            this(i) = other(i)
+        return this
 
-        var _buf: static_buffer(arraySize * sizeOf(ValueType))
+    fun ==(this, other: @StaticArray): Bool
+        for i = 0.._arraySize
+            if this(i) != other(i)
+                return false
+        return true
 
     fun size(this: @StaticArray): SizeType
         return _arraySize

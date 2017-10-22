@@ -8,8 +8,10 @@ import string(String)
     class DefaultHashFunction(type: Type)
         using ValueType = type
 
+[rtct, protected]
     fun ()(this: DefaultHashFunction, arg: @this.ValueType) = defaultHash(arg)
 
+[rtct]
     fun defaultHash(arg: Char)        = _doHash(Byte(arg), _seed)
     //fun defaultHash(arg: Integer)     = _doHash(arg, _seed)
     fun defaultHash(arg: Integer)     = SizeType(arg)

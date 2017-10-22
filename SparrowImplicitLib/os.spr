@@ -25,13 +25,16 @@ import std.string(String)
         fun ctor(other: @File)
             this._handle := other._handle
             other._handle := null
-        fun =(other: @File)
-            this._handle := other._handle
-            other._handle := null
 
         fun dtor
             this.close
 
+[rtct, protected]
+    fun =(this, other: @File)
+        this._handle := other._handle
+        other._handle := null
+
+[rtct]
     fun openFile(filename: StringRef, mode: StringRef = "r"): File
         return File(_Impl.fopen(filename.cStr, mode.cStr))
 
@@ -57,6 +60,7 @@ import std.string(String)
 
     fun all(this: @File) = FileRange(this)
 
+[rtct]
     class FileRange
         using RetType = Char
 
@@ -72,6 +76,7 @@ import std.string(String)
                 _cur = _file.readChar
                 _isEmpty = false
 
+[rtct, protected]
     fun isEmpty(s: @FileRange) = s._isEmpty
     fun front(s: @FileRange)   = s._cur
     fun popFront(s: @FileRange)

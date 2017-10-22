@@ -19,41 +19,42 @@ class Optional(valueType: Type)
         this.reset()
 
 
-    fun =(other: @Optional)     { if other._constructed ; this.reset(other._value) else this.reset }
-    fun =(val: @ValueType)      { this.reset(val) }
-
-    fun ==(other: Optional)     = _constructed == other._constructed && (!_constructed || _value == other._value)
-
     var _value: ValueType
     var _constructed: Bool
 
-fun some(x: @AnyType): -@typeOf(x) Optional = (-@typeOf(x) Optional)(x)
-fun none(t: Type) = (t Optional)()
+[protected]
+    fun =(this, other: @Optional)           { if other._constructed ; this.reset(other._value) else this.reset }
+    fun =(this: @Optional, val: @this.ValueType) { this.reset(val) }
 
-fun isNull(this: @Optional)                                      = !_constructed
-fun isSet(this: @Optional)                                       = _constructed
-fun get(this: @Optional): @ValueType                             = _value
-fun getOrElse(this: @Optional, default: @this.ValueType): @ValueType  = ife(_constructed, cast(@ValueType, _value), default)
+    fun ==(this, other: @Optional)          = _constructed == other._constructed && (!_constructed || _value == other._value)
 
-fun reset(this: @Optional)
-    if _constructed
-        _value dtor
-    _constructed = false
-fun reset(this: @Optional, val: @this.ValueType)
-    if _constructed
-        _value dtor
-    _value ctor val
-    _constructed = true
+    fun some(x: @AnyType): -@typeOf(x) Optional = (-@typeOf(x) Optional)(x)
+    fun none(t: Type) = (t Optional)()
 
-fun swap(this: @Optional, other: typeOf(this))
-    var tmp = this
-    this = other
-    other = this
+    fun isNull(this: @Optional)                                      = !_constructed
+    fun isSet(this: @Optional)                                       = _constructed
+    fun get(this: @Optional): @ValueType                             = _value
+    fun getOrElse(this: @Optional, default: @this.ValueType): @ValueType  = ife(_constructed, cast(@ValueType, _value), default)
 
-fun >>(this: @Optional, os: @OutStream) if isValid(os << #$ValueType)
-    if this.isSet
-        os << "Optional(" << _value << ")"
-    else
-        os << "Optional(none)"
+    fun reset(this: @Optional)
+        if _constructed
+            _value dtor
+        _constructed = false
+    fun reset(this: @Optional, val: @this.ValueType)
+        if _constructed
+            _value dtor
+        _value ctor val
+        _constructed = true
+
+    fun swap(this: @Optional, other: typeOf(this))
+        var tmp = this
+        this = other
+        other = this
+
+    fun >>(this: @Optional, os: @OutStream) if isValid(os << #$ValueType)
+        if this.isSet
+            os << "Optional(" << _value << ")"
+        else
+            os << "Optional(none)"
 
 

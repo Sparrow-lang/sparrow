@@ -4,7 +4,8 @@ import contiguousMemoryRange(ContiguousMemoryRange)
 import rawPtr(RawPtr, allocRawPtr)
 import ranges(rangeSize, ..)
 
-[rtct] class Array(valueType: Type)
+[rtct]
+class Array(valueType: Type)
     using ValueType = valueType
     using RangeType = ContiguousMemoryRange(valueType)
 
@@ -69,31 +70,6 @@ import ranges(rangeSize, ..)
             p.value dtor
         _begin.freePtr
 
-    fun =(other: @Array): @Array
-        var tmp = other
-
-        tmp.swap(this)
-
-        return this
-
-    fun ==(other: @Array): Bool
-        if this.size != other.size
-            return false
-
-        var r1 = this.all
-        var r2 = other.all
-
-        while !r1.isEmpty
-            if !(r1.front == r2.front)
-                return false
-            r1.popFront
-            r2.popFront
-
-        return true
-
-    fun !=(other: @Array): Bool
-        return !(this == other)
-
     var _begin, _end: RawPtr(ValueType)
 
 [rtct, protected]
@@ -134,6 +110,31 @@ import ranges(rangeSize, ..)
 
     fun subrange(this: @Array, index: SizeType, num: SizeType): RangeType
         return RangeType(_begin.advance(DiffType(index)), _begin.advance(DiffType(index + num)))
+
+    fun =(this, other: @Array): @typeOf(this)
+        var tmp = other
+
+        tmp.swap(this)
+
+        return this
+
+    fun ==(this, other: @Array): Bool
+        if this.size != other.size
+            return false
+
+        var r1 = this.all
+        var r2 = other.all
+
+        while !r1.isEmpty
+            if !(r1.front == r2.front)
+                return false
+            r1.popFront
+            r2.popFront
+
+        return true
+
+    fun !=(this, other: @Array): Bool
+        return !(this == other)
 
     fun >>(this: @Array, os: @OutStream) if isValid(os << #$ValueType)
         var first = true

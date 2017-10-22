@@ -6,6 +6,7 @@ import defaultHashFunction(defaultHash)
     class DefaultTypeTraits
         ;
 
+[rtct, protected]
     fun equal(this: DefaultTypeTraits, l, r: @AnyType) = l == r
     fun less(this: DefaultTypeTraits, l, r: @AnyType) = l < r
     fun hash(this: DefaultTypeTraits, val: @AnyType): SizeType

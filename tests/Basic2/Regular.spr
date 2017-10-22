@@ -8,37 +8,32 @@ concept Regular(x) if (
     );
 
 
-[noDefault] class NullType {
+[noDefault]
+class NullType
     fun ctor {}
     [convert] fun ctor(other: AnyType) {}
     fun dtor {}
-    fun ==(other: NullType) = true;
-    fun ==(other: AnyType) = false;
-}
+
+fun ==(this, other: NullType) = true;
+fun ==(this, other: AnyType) = false;
 
 
 fun testRegular(x: Regular)
-{
     cout << TypeOp.description(typeOf(x)) << " is Regular\n";
-}
 
 fun testRegular(x: AnyType) if !Regular(x)
-{
     cout << TypeOp.description(typeOf(x)) << " is not Regular\n";
-}
 
 class MyType
-{
+    ;
     // Operators are implicitly defined
-}
 
 package Isolated
-    [noDefault] class EmptyType
-    {
-    }
+    [noDefault]
+    class EmptyType
+        ;
 
 fun sprMain
-{
     testRegular(1);
     testRegular(1.0);
     var o: NullType;
@@ -47,7 +42,6 @@ fun sprMain
     testRegular(o);
     testRegular(o1);
     testRegular(o2);
-}
 /*<<<Running()
 Int is Regular
 Double is Regular

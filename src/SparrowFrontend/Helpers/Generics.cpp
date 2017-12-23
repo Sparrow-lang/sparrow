@@ -7,6 +7,7 @@
 #include <Helpers/DeclsHelpers.h>
 #include <Helpers/CommonCode.h>
 #include <Helpers/Ct.h>
+#include <Helpers/StdDef.h>
 
 #include "Feather/Utils/FeatherUtils.hpp"
 
@@ -16,6 +17,7 @@ using namespace SprFrontend;
 using namespace Nest;
 
 namespace {
+
 
 ////////////////////////////////////////////////////////////////////////////
 // InstantiationsSet
@@ -36,13 +38,14 @@ namespace {
  * @param loc         The location in which we are creating the nodes
  * @param boundValues The list of bound values used in the creation of bound vars
  * @param params      The params of the instantiated set (may contain nulls for RT params)
+ * @param isCtGeneric True if this is a CT-generic function
  * @param insideClass True if the generic is inside a class; we mark the variables static if we are
  *                    inside classes
  *
  * @return A vector of all the bound variable
  */
 NodeVector createAllBoundVariables(
-        const Location& loc, NodeRange boundValues, NodeRange params, bool insideClass) {
+        const Location& loc, NodeRange boundValues, NodeRange params, bool isCtGeneric, bool insideClass) {
     // Create a variable for each bound parameter - put everything in a node list
     NodeVector nodes;
     size_t idx = 0;
@@ -53,7 +56,7 @@ NodeVector createAllBoundVariables(
         TypeRef paramType = p->type;
         if (!paramType)
             paramType = getType(boundValue);    // Dependent param type case
-        Node* var = createBoundVar(p, paramType, boundValue, insideClass);
+        Node* var = createBoundVar(p, paramType, boundValue, isCtGeneric, insideClass);
         ASSERT(var);
         nodes.push_back(var);
     }
@@ -110,7 +113,7 @@ Node* SprFrontend::checkCreateGenericFun(
         return nullptr; // cannot be generic
 
     // If we are in a CT function, don't consider CT parameters
-    bool inCtFun = Feather_effectiveEvalMode(originalFun) == modeCt;
+    bool isCtFun = Feather_effectiveEvalMode(originalFun) == modeCt;
     // For CT-generics, we consider all the parameters to be generic parameters
     bool isCtGeneric = Nest_hasProperty(originalFun, propCtGeneric);
 
@@ -160,11 +163,13 @@ Node* SprFrontend::checkCreateGenericFun(
         if (!Nest_computeType(param))
             return nullptr;
 
-        if (isConceptType(param->type)) {
-            genericParams[i] = param;
-            hasGenericParams = true;
-        }
-        if ((!inCtFun || isCtGeneric) && Feather_isCt(param)) {
+        ASSERT(param->type);
+        bool isGeneric = isCtGeneric
+                    || (!isCtFun && param->type->mode == modeCt)
+                    || isConceptType(param->type)
+                    ;
+
+        if (isGeneric) {
             genericParams[i] = param;
             hasGenericParams = true;
         }
@@ -239,10 +244,12 @@ InstNode SprFrontend::createNewInstantiation(
     Node* parentNode = instSet.parentNode();
     CompilationContext* context =
             Nest_mkChildContextWithSymTab(parentNode->context, nullptr, evalMode);
+
+    bool isCtGeneric = Nest_hasProperty(parentNode, propCtGeneric);
     bool insideClass = nullptr != Feather_getParentClass(context);
 
     // Create the instantiation
-    auto boundVars = createAllBoundVariables(loc, values, instSet.params(), insideClass);
+    auto boundVars = createAllBoundVariables(loc, values, instSet.params(), isCtGeneric, insideClass);
     InstNode inst = mkInstantiation(loc, values, all(boundVars));
     // Add it to the parent instSet
     Nest_appendNodeToArray(&instSet.instantiations(), inst.node);
@@ -255,12 +262,12 @@ InstNode SprFrontend::createNewInstantiation(
     return inst;
 }
 
-Node* SprFrontend::createBoundVar(Node* param, TypeRef paramType, Node* boundValue, bool insideClass) {
+Node* SprFrontend::createBoundVar(Node* param, TypeRef paramType, Node* boundValue, bool isCtGeneric, bool insideClass) {
     ASSERT(param);
     ASSERT(paramType);
     ASSERT(boundValue && boundValue->type);
 
-    bool isConcept = param->type != paramType || isConceptType(paramType);
+    bool isConcept = !isCtGeneric && isConceptParam(param->location, paramType, boundValue);
 
     TypeRef t = isConcept ? getType(boundValue) : boundValue->type;
     Node* init = isConcept ? nullptr : Nest_cloneNode(boundValue);
@@ -357,4 +364,23 @@ TypeRef SprFrontend::baseConceptType(Node* concept) {
 
     TypeRef res = baseConcept ? getType(baseConcept) : getConceptType();
     return res;
+}
+
+bool SprFrontend::isConceptParam(Location paramLoc, TypeRef paramType, Node* boundValue) {
+    ASSERT(boundValue && boundValue->type);
+
+    // Check the bound value type first; it should always be 'Type' (we store the type of the given
+    // arg for concept types)
+    // If it's not type, this is not a concept param
+    if (boundValue->type != StdDef::typeType || boundValue->type == paramType)
+        return false;
+
+    // Dependent param case: if we passes the above check, treat this as a concept type
+    if (!paramType)
+        return true;
+
+    // In a non-dependent parameter case, in which we have a proper paramType, check if this is a
+    // concept or the param type is not CT
+    ASSERT(isConceptType(paramType) || paramType == getType(boundValue));
+    return isConceptType(paramType) || paramType->mode != modeCt;
 }

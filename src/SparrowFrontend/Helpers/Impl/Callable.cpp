@@ -126,7 +126,8 @@ ConversionType canCall_common_types(CallableData& c, CompilationContext* context
 
     c.conversions.resize(paramsCount, convNone);
 
-    bool isGeneric = c.type == CallableType::genericFun || c.type == CallableType::genericClass || c.type == CallableType::genericPackage;
+    bool isGeneric = c.type == CallableType::genericFun || c.type == CallableType::genericClass ||
+                     c.type == CallableType::genericPackage;
 
     ConversionType res = convDirect;
     for (size_t i = 0; i < paramsCount; ++i) {
@@ -257,27 +258,71 @@ void getClassCtorCallables(Node* cls, EvalMode evalMode, Callables& res,
 ////////////////////////////////////////////////////////////////////////////////
 // Generic function
 //
+// Call tree:
+//
+// - SprFrontend::canCall
+//      - canCallGenericFun
+//          - getDeducedType
+//          - applyConversion
+//          - handleGenericFunParam
+// - SprFrontend::generateCall
+//      - callGenericFun
+//          - getGenericFunFinalParams
+//          - createInstFn
+//          - getGenericFunFinalArgs
+//          - createCallFn
 
-/**
- * Get the resulting eval mode for a generic class instantiation.
- *
- * This will be used for the instantiation of the generic function.
- *
- * This will look at all the 'Type' bound values, and at all the types of the concept params. For
- * all these types, we check if the types are RT only or CT only.
- *
- * If all the types checked are RT- or CT- only, we return the corresponding mode.
- * If not, return the mainEvalMode.
- *
- * @param loc           The location of the generic; used for error reporting
- * @param mainEvalMode  The effective eval mode of the generic function decl
- * @param args          The args used to perform the instantiation
- * @param genericParams The generic params of the instSet
- *
- * @return The eval mode to be used for instantiation.
- */
-EvalMode getGenericFunResultingEvalMode(
-        const Location& loc, EvalMode mainEvalMode, NodeRange args, NodeRange genericParams) {
+//! Class to be used by the 'canCall' functionality to store the relevant parameters of the generic
+//! function. It describes how the generic function should be instantiated
+//!
+//! We use this as a blackboard for the canCallGenericFun. We store all the info needed here
+class GenericFunCallParams {
+  public:
+    const GenericFunNode genFun_; //!< The generic function to be called
+
+    const bool isCtGeneric_; //!< True if we are calling a CT-generic
+
+    const EvalMode callEvalMode_;  //!< The eval mode in which this generic should be called
+    const EvalMode origEvalMode_;  //!< The original eval mode for the generic
+    const EvalMode finalEvalMode_; //!< The final eval mode to be used for the generic function
+
+    const bool insideClass_; //!< True if the generic is inside class
+
+    NodeVector boundValues_; //!< The bound values that we have; constructed iteratively
+
+    //! Constructor. Initializes most of the parameters here
+    GenericFunCallParams(CallableData& c, EvalMode callEvalMode);
+
+  private:
+    //! Compute the final eval mode, based on the params, args and the original eval mode
+    static EvalMode getFinalEvalMode(
+            NodeRange genericParams, NodeRange args, EvalMode origEvalMode, bool isCtGeneric);
+};
+
+GenericFunCallParams::GenericFunCallParams(CallableData& c, EvalMode callEvalMode)
+    : genFun_(c.decl)
+    , isCtGeneric_(Nest_hasProperty(genFun_.originalFun(), propCtGeneric))
+    , callEvalMode_(callEvalMode)
+    , origEvalMode_(Feather_effectiveEvalMode(genFun_.originalFun()))
+    , finalEvalMode_(getFinalEvalMode(
+              genFun_.instSet().params(), all(c.args), origEvalMode_, isCtGeneric_))
+    , insideClass_(nullptr != Feather_getParentClass(c.decl->context))
+    , boundValues_(getParamsCount(c), nullptr) {}
+
+EvalMode GenericFunCallParams::getFinalEvalMode(NodeRange genericParams, NodeRange args, EvalMode origEvalMode, bool isCtGeneric)
+{
+    if (isCtGeneric)
+        return modeCt; // If we have a CT generic, the resulting eval mode is always CT
+
+    // Deduce the resulting eval mode by looking at the parameters of the
+    // generic function.
+    //
+    // This will look at all the 'Type' bound values, and at all the types
+    // of the concept params. For
+    // all these types, we check if the types are RT only or CT only.
+    // If all the types checked are RT- or CT- only, we return the
+    // corresponding mode.
+    // If not, return the original eval mode.
     bool hasRtOnlyArgs = false;
     bool hasCtOnlyArgs = false;
     auto numGenericParams = Nest_nodeRangeSize(genericParams);
@@ -285,8 +330,8 @@ EvalMode getGenericFunResultingEvalMode(
     for (size_t i = 0; i < numGenericParams; ++i) {
         Node* arg = at(args, i);
         // Test concept and non-bound arguments
-        // Also test the type given to the 'Type' parameters (i.e., we need to
-        // know if Vector(t) can be rtct based on the mode of t)
+        // Also test the type given to the 'Type' parameters (i.e., we need to know if Vector(t) can
+        // be rtct based on the mode of t)
         Node* genParam = at(genericParams, i);
         TypeRef pType = genParam ? genParam->type : nullptr;
         TypeRef typeToCheck = nullptr;
@@ -306,13 +351,14 @@ EvalMode getGenericFunResultingEvalMode(
 
     if (hasCtOnlyArgs)
         return modeCt;
-    if (hasRtOnlyArgs)
+    else if (hasRtOnlyArgs)
         return modeRt;
-    return mainEvalMode;
+    return origEvalMode;
 }
 
+
 /**
- * Get the list of final params that shouls be used in an instantiated function.
+ * Get the list of final params that should be used in an instantiated function.
  *
  * There are two types of final parameters: the RT params and the concept params.
  * The RT params are cloned directly to the list of final params.
@@ -332,23 +378,24 @@ NodeVector getGenericFunFinalParams(
         InstNode inst, Node* origFun, NodeRange params, NodeRange genericParams) {
     auto boundValues = inst.boundValues();
     ASSERT(Nest_nodeRangeSize(boundValues) != 0);
-    auto numParams = Nest_nodeRangeSize(params);
+    auto numParams = Nest_nodeRangeSize(genericParams);
     NodeVector finalParams;
     finalParams.reserve(numParams);
     for (size_t i = 0; i < numParams; ++i) {
         if (i == 0 && funHasImplicitThis(origFun))
             continue;
 
-        Node* p = at(params, i);
-        Node* boundValue = at(boundValues, i);
-
-        if (!at(genericParams, i)) {
-            // If this is not a generic parameter => final-bound parameter
-            finalParams.push_back(Nest_cloneNode(p));
-        } else if (!p->type || isConceptType(p->type)) {
-            ASSERT(boundValue && boundValue->type);
-            // For concept-type parameters, we also create a final-bound parameter
-            finalParams.push_back(mkSprParameter(p->location, Feather_getName(p), boundValue));
+        Node* param = at(genericParams, i);
+        // If a parameter is not generic, it must be final => add final param
+        if (!param)
+            finalParams.push_back(Nest_cloneNode(at(params, i)));
+        else {
+            // For concept-type parameters, we also create a final parameter
+            Node* boundValue = at(boundValues, i);
+            bool isConcept = isConceptParam(param->location, param->type, boundValue);
+            if (isConcept)
+                finalParams.push_back(
+                        mkSprParameter(param->location, Feather_getName(param), boundValue));
         }
     }
     return finalParams;
@@ -360,19 +407,26 @@ NodeVector getGenericFunFinalParams(
  * We keep only the arguments corresponding toe the final params.
  * All the arguments corresponding to CT params are dropped.
  *
+ * @param inst          The instantiation node
  * @param args          The initial list of arguments to be filtered
  * @param genericParams The generic params to know which argument to filter
  *
  * @return The list of final args that should be used to call the instantiated function
  */
-NodeVector getGenericFunFinalArgs(NodeRange args, NodeRange genericParams) {
+NodeVector getGenericFunFinalArgs(InstNode inst, NodeRange args, NodeRange genericParams) {
+    auto boundValues = inst.boundValues();
     NodeVector finalArgs;
     finalArgs.reserve(size(args));
     for (size_t i = 0; i < size(args); ++i) {
         Node* param = at(genericParams, i);
-        if (!param || !param->type || isConceptType(param->type)) {
-            // Get non-generic and also concept parameters
+        // If a parameter is not generic, it must be final => add final arg
+        if (!param)
             finalArgs.push_back(at(args, i));
+        else {
+            // Also add final arg for concept params
+            Node* boundValue = at(boundValues, i);
+            if (isConceptParam(param->location, param->type, boundValue))
+                finalArgs.push_back(at(args, i));
         }
     }
     return finalArgs;
@@ -392,9 +446,6 @@ NodeVector getGenericFunFinalArgs(NodeRange args, NodeRange genericParams) {
 Node* createInstFn(CompilationContext* context, Node* origFun, NodeRange finalParams) {
     const Location& loc = origFun->location;
 
-    // REP_INFO(loc, "Instantiating %1% with %2% params") %
-    // Feather_getName(origFun) % finalParams.size();
-
     Node* parameters = Feather_mkNodeList(loc, finalParams);
     Node* returnType = at(origFun->children, 1);
     Node* body = at(origFun->children, 2);
@@ -406,7 +457,6 @@ Node* createInstFn(CompilationContext* context, Node* origFun, NodeRange finalPa
     Feather_setShouldAddToSymTab(newFun, 0);
     Nest_setContext(newFun, context);
 
-    // REP_INFO(loc, "Instantiated %1%") % newFun->toString();
     return newFun;
 }
 
@@ -474,7 +524,7 @@ Node* callGenericFun(GenericFunNode node, const Location& loc, CompilationContex
     }
 
     // Now actually create the call object
-    NodeVector finalArgs = getGenericFunFinalArgs(args, node.instSet().params());
+    NodeVector finalArgs = getGenericFunFinalArgs(inst, args, node.instSet().params());
     Node* res = createCallFn(loc, context, instDecl, all(finalArgs));
     if (!res)
         REP_INTERNAL(loc, "Cannot create code that calls generic");
@@ -555,44 +605,6 @@ TypeRef getDeducedType(int idx, InstSetNode instSet, InstNode curInst, bool reus
 }
 
 /**
- * Get the bound value for the given parameter.
- *
- * @param arg       The argument to deduce the bound value from
- * @param param     The parameter to get the bound value for
- * @param paramType The type of parameter; used for dependent type params
- *
- * @return The bound value corresponding to the given argument/parameter
- */
-Node* getBoundValue(Node* arg, Node* param, TypeRef paramType) {
-    bool isRefAuto = false;
-    ASSERT(paramType);
-    if (param->type != paramType) {
-        // Create a CtValue with the deduced param type
-        Node* typeNode = createTypeNode(arg->context, param->location, paramType);
-        if (!Nest_computeType(typeNode))
-            return nullptr;
-        return typeNode;
-    }
-    else if (isConceptType(paramType, isRefAuto)) {
-        // Create a CtValue with the type of the argument
-        TypeRef t = getAutoType(arg, isRefAuto);
-        Node* typeNode = createTypeNode(arg->context, param->location, t);
-        if (!Nest_computeType(typeNode))
-            return nullptr;
-        return typeNode;
-    } else {
-        // Evaluate the node and add the resulting CtValue as a bound argument
-        if (!Feather_isCt(arg))
-            return nullptr;
-        Node* boundVal = Nest_ctEval(arg);
-        if (!boundVal || boundVal->nodeKind != nkFeatherExpCtValue)
-            return nullptr;
-        ASSERT(boundVal->type);
-        return boundVal;
-    }
-}
-
-/**
  * Called to handle a generic parameter.
  *
  * This is called for each parameter/arg of a generic to handle the generic parameters. We perform
@@ -603,28 +615,64 @@ Node* getBoundValue(Node* arg, Node* param, TypeRef paramType) {
  *     - create the bound variable (not reusing inst case)
  *     - update the vector of bound values
  *
+ * @param [in/out] callParams        Blackboard object with all params for checking the call
  * @param [in] idx                   The index of the parameter/argument we are checking
  * @param [in] arg                   The argument given when calling the generic
  * @param [in] paramType             The type to use for the current parameter
- * @param [in/out] boundValues       The vector that contains the bound values that we have
- * @param [in] instSet               The instantiations set
  * @param [in/out] curInst           The inst we are currently using; can be reused or not
  * @param [in/out] reuseExistingInst Indicates if we are reusing an existing instantiation
- * @param [in] resultingEvalMode     The evalMode for the resulting generic
- * @param [in] insideClass           True if we are inside a class
  */
-void handleGenericFunParam(int idx, Node* arg, TypeRef paramType, NodeVector& boundValues, InstSetNode instSet,
-        InstNode& curInst, bool& reuseExistingInst, EvalMode resultingEvalMode, bool insideClass) {
+void handleGenericFunParam(GenericFunCallParams& callParams, int idx, Node* arg, TypeRef paramType,
+        InstNode& curInst, bool& reuseExistingInst) {
+    InstSetNode instSet = callParams.genFun_.instSet();
     Node* param = at(instSet.params(), idx);
     if (!param)
         return; // nothing to do
+    ASSERT(paramType);
+    ASSERT(!param->type || param->type == paramType);
 
     // First compute the bound value for the current generic parameter
-    Node* boundVal = getBoundValue(arg, param, paramType);
+    Node* boundVal = nullptr;
+    bool isRefAuto = false;
+    TypeRef boundValType = nullptr; // used for concept types
+    if (param->type == nullptr) {
+        // If we are here this is a dependent param
+        //
+        // Conditions for considering this a concept param:
+        // - param is non-CT
+        // - fun was originally RTCT, and now turned to CT
+        //
+        // A concept param will ensure the creation of a final param.
+        if (paramType->mode != modeCt ||
+                (callParams.origEvalMode_ == modeRtCt && callParams.finalEvalMode_ == modeCt))
+            boundValType = paramType;
+    } else if (isConceptType(paramType, isRefAuto)) {
+        // Deduce the type for boundVal for regular concept types
+        boundValType = getAutoType(arg, isRefAuto);
+    }
+    if (boundValType) {
+        // then the bound value will be a type node
+        boundVal = createTypeNode(arg->context, param->location, boundValType);
+        if (!Nest_computeType(boundVal))
+            REP_INTERNAL(arg->location, "Invalid argument %1% when instantiating generic (cannot "
+                                        "compute type of typenode)") %
+                    (idx + 1);
+    } else {
+        // Evaluate the node and add the resulting CtValue as a bound argument
+        ASSERT(Feather_isCt(arg));
+        boundVal = Nest_ctEval(arg);
+        if (!boundVal || boundVal->nodeKind != nkFeatherExpCtValue)
+            REP_INTERNAL(arg->location,
+                    "Invalid argument %1% when instantiating generic (arg is not CT evaluable)") %
+                    (idx + 1);
+        ASSERT(boundVal->type);
+    }
+
+    // If we don't have a bound value, this is not a proper generic param/arg
     if (!boundVal)
-        REP_INTERNAL(arg->location, "Invalid argument %1% when instantiating generic") % (idx + 1);
+        return;
     ASSERT(boundVal && boundVal->type);
-    boundValues[idx] = boundVal;
+    callParams.boundValues_[idx] = boundVal;
 
     // Now, select the appropriate inst for the new bound value
     if (reuseExistingInst) {
@@ -637,18 +685,20 @@ void handleGenericFunParam(int idx, Node* arg, TypeRef paramType, NodeVector& bo
         }
         // If the current instantiation is not valid, try to search another
         if (!curInst.node) {
-            curInst = searchInstantiation(instSet, subrange(boundValues, 0, idx+1));
+            curInst = searchInstantiation(instSet, subrange(callParams.boundValues_, 0, idx + 1));
             reuseExistingInst = curInst.node != nullptr;
         }
     }
     if (!reuseExistingInst) {
         // This is a new instantiation; check if we have to create it
         if (!curInst.node) {
-            curInst = createNewInstantiation(instSet, all(boundValues), resultingEvalMode);
+            curInst = createNewInstantiation(
+                    instSet, all(callParams.boundValues_), callParams.finalEvalMode_);
             ASSERT(curInst);
         } else {
             // Add the appropriate bound variable to the instantiation
-            Node* boundVar = createBoundVar(param, paramType, boundVal, insideClass);
+            Node* boundVar = createBoundVar(
+                    param, paramType, boundVal, callParams.isCtGeneric_, callParams.insideClass_);
             Feather_addToNodeList(curInst.boundVarsNode(), boundVar);
             Nest_setContext(boundVar, curInst.boundVarsNode()->context);
             Nest_clearCompilationStateSimple(curInst.boundVarsNode());
@@ -674,23 +724,9 @@ ConversionType canCallGenericFun(CallableData& c, CompilationContext* context, c
         NodeRange args, EvalMode evalMode, CustomCvtMode customCvtMode, bool reportErrors) {
     ASSERT(!c.genericInst);
 
-    GenericFunNode genFun = c.decl;
-    InstSetNode instSet = genFun.instSet();
-    Node* originalFun = genFun.originalFun();
+    GenericFunCallParams callParams{c, evalMode};
 
-    bool insideClass = nullptr != Feather_getParentClass(c.decl->context);
-
-    int paramsCount = getParamsCount(c);
-    NodeVector boundValues;
-    boundValues.resize(paramsCount, nullptr);
-
-    // Compute the resulting eval mode
-    EvalMode resultingEvalMode =
-            Nest_hasProperty(originalFun, propCtGeneric)
-                    ? modeCt // If we have a CT generic, the resulting eval mode is always CT
-                    : getGenericFunResultingEvalMode(originalFun->location,
-                              Feather_effectiveEvalMode(originalFun), all(c.args),
-                              instSet.params());
+    InstSetNode instSet = callParams.genFun_.instSet();
 
     // The currently working instance
     // We will use this to check/create bound vars, and to deduce the types of the dependent type
@@ -700,6 +736,7 @@ ConversionType canCallGenericFun(CallableData& c, CompilationContext* context, c
     bool reuseExistingInst = true;
 
     ConversionType worstConv = convDirect;
+    int paramsCount = getParamsCount(c);
     for (int i = 0; i < paramsCount; ++i) {
         TypeRef argType = c.args[i]->type;
         ASSERT(argType);
@@ -732,13 +769,16 @@ ConversionType canCallGenericFun(CallableData& c, CompilationContext* context, c
         }
 
         // Treat generic params
-        handleGenericFunParam(i, arg, paramType, boundValues, instSet, curInst, reuseExistingInst,
-                resultingEvalMode, insideClass);
+        handleGenericFunParam(callParams, i, arg, paramType, curInst, reuseExistingInst);
     }
     // If for one arg there isn't a viable conversion, we can't call this
     if (!worstConv)
         return convNone;
 
+    if (!curInst.node) {
+        REP_INTERNAL(c.decl->location, "Failed to generate an instantiation for %1%") %
+                Nest_toStringEx(c.decl);
+    }
     // Check if we can instantiate this
     if (!canInstantiate(curInst, instSet)) {
         if (reportErrors)
@@ -964,7 +1004,7 @@ Node* callGenericClass(GenericClassNode node, const Location& loc, CompilationCo
  * Create the actual instantiated package.
  *
  * This will make a clone of the original package object. It make sure to clear any parameters and
- * returns the cloned node.s
+ * returns the cloned node.
  *
  * @param context     The context to be used for the instantiated package
  * @param orig        The original package declaration (that was a generic)
@@ -976,8 +1016,7 @@ Node* createInstantiatedPackage(CompilationContext* context, Node* orig) {
 
     Node* packageChildren = at(orig->children, 0);
     packageChildren = packageChildren ? Nest_cloneNode(packageChildren) : nullptr;
-    Node* newPackage =
-            mkSprPackage(loc, Feather_getName(orig), packageChildren);
+    Node* newPackage = mkSprPackage(loc, Feather_getName(orig), packageChildren);
     copyAccessType(newPackage, orig);
 
     copyModifiersSetMode(orig, newPackage, context->evalMode);
@@ -1149,14 +1188,14 @@ ConversionType SprFrontend::canCall(CallableData& c, CompilationContext* context
         c.args = argsWithConversion(c);
         ASSERT(!c.genericInst);
         GenericClassNode genNode = c.decl;
-        c.genericInst = canInstantiateGenericClassOrPackage(genNode.originalClass(), genNode.instSet(), all(c.args));
+        c.genericInst = canInstantiateGenericClassOrPackage(
+                genNode.originalClass(), genNode.instSet(), all(c.args));
         if (!c.genericInst && reportErrors) {
             REP_INFO(NOLOC, "Cannot instantiate generic class");
         }
         if (!c.genericInst)
             return convNone;
-    }
-    else if (c.type == CallableType::genericPackage) {
+    } else if (c.type == CallableType::genericPackage) {
         // Check if we can instantiate the generic with the given arguments
         // (with conversions applied)
         // Note: we overwrite the args with their conversions;
@@ -1164,7 +1203,8 @@ ConversionType SprFrontend::canCall(CallableData& c, CompilationContext* context
         c.args = argsWithConversion(c);
         ASSERT(!c.genericInst);
         GenericPackageNode genNode = c.decl;
-        c.genericInst = canInstantiateGenericClassOrPackage(genNode.originalPackage(), genNode.instSet(), all(c.args));
+        c.genericInst = canInstantiateGenericClassOrPackage(
+                genNode.originalPackage(), genNode.instSet(), all(c.args));
         if (!c.genericInst && reportErrors) {
             REP_INFO(NOLOC, "Cannot instantiate generic package");
         }

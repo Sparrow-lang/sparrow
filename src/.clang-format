@@ -11,4 +11,5 @@ SortIncludes: false
 DerivePointerAlignment: false
 PointerAlignment: Left
 AlignAfterOpenBracket: DontAlign
+BreakConstructorInitializersBeforeComma: true
 ReflowComments: true

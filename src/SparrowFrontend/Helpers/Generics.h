@@ -218,6 +218,8 @@ NodeRange genericPackageParams(Node* genericPackage);
  * @param values  The bound values that we are using to search for the instantiation.
  *
  * @return The instantiation node if found; null otherwise
+ *
+ * Called only for generic functions.
  */
 InstNode searchInstantiation(InstSetNode instSet, NodeRange values);
 
@@ -254,11 +256,12 @@ InstNode createNewInstantiation(InstSetNode instSet, NodeRange values, EvalMode 
  * @param param       The parameter for which we want to create a bound variable
  * @param paramType   The the of the parameter; used when cannot deduce it directly from 'param'
  * @param boundValue  The bound value used for the type (and init) of the variable
+ * @param isCtGeneric True if this is a CT-generic function
  * @param insideClass True if we are inside a class; in this case, mark the variable as static.
  *
- * @return [description]
+ * @return The created bound variable.
  */
-Node* createBoundVar(Node* param, TypeRef paramType, Node* boundValue, bool insideClass);
+Node* createBoundVar(Node* param, TypeRef paramType, Node* boundValue, bool isCtGeneric, bool insideClass);
 
 /**
  * Check if the given instantiation is valid.
@@ -307,4 +310,10 @@ bool typeGeneratedFromGeneric(Node* genericClass, TypeRef type);
 
 /// Get the base concept type
 TypeRef baseConceptType(Node* concept);
+
+/// Given a generic param type and the corresponding bound value, determine if
+/// the parameter is a concept parameter.
+/// For concept parameters, we store the type as a bound value.
+/// Used as a low-level primitive. Should not be called for CT-generics
+bool isConceptParam(Location paramLoc, TypeRef paramType, Node* boundValue);
 }

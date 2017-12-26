@@ -12,7 +12,7 @@ using namespace LLVMB;
 
 Module::Module(const string& name)
     : llvmContext_(new llvm::LLVMContext())
-	, llvmModule_(new llvm::Module(name, *llvmContext_))
+    , llvmModule_(new llvm::Module(name, *llvmContext_))
     , debugInfo_(nullptr)
 {
     CompilerSettings& s = *Nest_compilerSettings();
@@ -23,8 +23,6 @@ Module::Module(const string& name)
 
 Module::~Module()
 {
-    delete llvmModule_;
-    delete llvmContext_;
 }
 
 bool Module::canUse(Node* decl) const

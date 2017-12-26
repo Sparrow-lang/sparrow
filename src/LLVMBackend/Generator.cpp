@@ -10,19 +10,12 @@
 
 #include <algorithm>
 
-#ifdef _MSC_VER
-#pragma warning(push,1)
-#endif
 #include <llvm/Linker/Linker.h>
 #include <llvm/IR/Verifier.h>
-#include <llvm/Bitcode/ReaderWriter.h>
+#include <llvm/Bitcode/BitcodeWriter.h>
 #include <llvm/Support/FileUtilities.h>
 #include <llvm/Support/Program.h>
 #include <llvm/Support/ToolOutputFile.h>
-#include <llvm/Support/raw_ostream.h>
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
 
 using namespace LLVMB;
 using namespace llvm;
@@ -79,9 +72,9 @@ namespace
     /// Write the given LLVM module, as a bitcode to disk
     void writeBitcodeFile(const Module& module, const string& outputFilename)
     {
-        string errorInfo;
+        error_code errorInfo;
         unique_ptr<tool_output_file> outFile(new tool_output_file(outputFilename.c_str(), errorInfo, sys::fs::OpenFlags::F_None));
-        if ( !errorInfo.empty() )
+        if ( errorInfo )
             REP_INTERNAL(NOLOC, "Cannot generate bitcode file (%1%); reason: %2%") % outputFilename % errorInfo;
 
         llvm::WriteBitcodeToFile(&module, outFile->os());
@@ -92,9 +85,9 @@ namespace
     /// Write the given LLVM module, as an assembly file to disk
     void writeAssemblyFile(const Module& module, const string& outputFilename)
     {
-        string errorInfo;
+        error_code errorInfo;
         unique_ptr<tool_output_file> outFile(new tool_output_file(outputFilename.c_str(), errorInfo, sys::fs::OpenFlags::F_None));
-        if ( !outFile || !errorInfo.empty() )
+        if ( !outFile || errorInfo )
             REP_INTERNAL(NOLOC, "Cannot generate LLVM assembly file (%1%); reason: %2%") % outputFilename % errorInfo;
 
         outFile->os() << module;
@@ -188,11 +181,12 @@ void LLVMB::link(const vector<llvm::Module*>& inputs, const string& outFilename)
     if ( inputs.empty() )
         REP_INTERNAL(NOLOC, "At least one bitcode needs to be passed to the linker");
     llvm::Module* compositeModule = inputs[0];
+    llvm::Linker liner(*compositeModule);
     for ( size_t i=1; i<inputs.size(); ++i )
     {
-        string errString;
-        if ( !llvm::Linker::LinkModules(compositeModule, inputs[i], llvm::Linker::DestroySource, &errString) )
-            REP_INTERNAL(NOLOC, "Link error: %1%") % errString;
+        unique_ptr<llvm::Module> mod(inputs[i]);
+        if ( liner.linkInModule(move(mod), llvm::Linker::OverrideFromSrc) )
+            REP_INTERNAL(NOLOC, "Link error");
     }
 
     // Verify the module
@@ -266,9 +260,9 @@ void LLVMB::link(const vector<llvm::Module*>& inputs, const string& outFilename)
     // Our link process has become just the transformation from obj file to executable.
 
     // Try to find GCC and call it to generate native code out of the assembly (or C)
-    string gcc = sys::FindProgramByName("gcc");
-    if ( gcc.empty() )
+    ErrorOr<string> gcc = sys::findProgramByName("gcc");
+    if ( gcc.getError() )
         REP_INTERNAL(NOLOC, "Failed to find gcc");
 
-    generateNativeObjGCC(outFilename, objFile.c_str(), gcc);
+    generateNativeObjGCC(outFilename, objFile.c_str(), gcc.get());
 }

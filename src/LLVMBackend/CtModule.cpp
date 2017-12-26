@@ -18,7 +18,7 @@
 #endif
 #include <llvm/IR/Verifier.h>
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
-#include <llvm/ExecutionEngine/JIT.h>               // We need this include to instantiate the JIT engine
+#include <llvm/ExecutionEngine/MCJIT.h>               // We need this include to instantiate the JIT engine
 #include <llvm/ExecutionEngine/GenericValue.h>
 #include <llvm/Support/TargetSelect.h>
 #ifdef _MSC_VER
@@ -39,7 +39,7 @@ CtModule::CtModule(const string& name)
 	// Now we going to create JIT
 	string errStr;
 	llvmExecutionEngine_ =
-		llvm::EngineBuilder(llvmModule_)
+		llvm::EngineBuilder(move(llvmModule_))
 		.setErrorStr(&errStr)
 		.setEngineKind(llvm::EngineKind::JIT)
         .setOptLevel(llvm::CodeGenOpt::None)
@@ -51,11 +51,7 @@ CtModule::CtModule(const string& name)
 
 CtModule::~CtModule()
 {
-    if ( llvmExecutionEngine_ )
-    {
-        delete llvmExecutionEngine_;    // Also deletes llvmCtModule_
-        llvmModule_ = nullptr;
-    }
+    delete llvmExecutionEngine_;
 }
 
 void CtModule::ctProcess(Node* node)
@@ -117,8 +113,9 @@ Node* CtModule::ctEvaluate(Node* node)
 
 void CtModule::ctApiRegisterFun(const char* name, void* funPtr)
 {
+    ASSERT(llvmModule_);
     llvm::FunctionType* llvmFunType = llvm::FunctionType::get(llvm::Type::getVoidTy(*llvmContext_), {}, false);
-    llvm::Function* fun = llvm::Function::Create(llvmFunType, llvm::Function::ExternalLinkage, name, llvmModule_);
+    llvm::Function* fun = llvm::Function::Create(llvmFunType, llvm::Function::ExternalLinkage, name, llvmModule_.get());
     llvmExecutionEngine_->addGlobalMapping(fun, funPtr);
 }
 
@@ -167,22 +164,28 @@ void CtModule::ctProcessBackendCode(Node* node)
 
 Node* CtModule::ctEvaluateExpression(Node* node)
 {
-	// Create a function of type 'void f(void*)', which will execute our expression node and put the result at the address 
-	llvm::Function* f = Tr::makeFunThatCalls(node, *this, "ctEval", node->type->hasStorage);
+    ASSERT(llvmModule_);
 
+    // Create a function of type 'void f(void*)', which will execute our expression node and put the result at the address
+    llvm::Function* f = Tr::makeFunThatCalls(node, *this, "ctEval", node->type->hasStorage);
 
-	// Uncomment this for CT debugging
-//    REP_INFO(node->location, "CT eval: %1%") % node;
-//    cerr << "----------------------------" << endl;
-//    cerr << node->location.toString() << " - eval: " << node << endl;
-//    f->dump();
-//    llvmModule_->dump();
+    // Uncomment this for CT debugging
+    Nest_enableReporting(1);
+    REP_INFO(node->location, "CT eval: %1%") % Nest_toStringEx(node);
+    cerr << "----------------------------" << endl;
+    f->print(llvm::errs());
+    cerr << "----------------------------" << endl;
+    // llvmModule_->print(llvm::errs(), nullptr);
+    // cerr << "----------------------------" << endl;
 
 	// Validate the generated code, checking for consistency.
-    if ( llvm::verifyFunction(*f) )
+    string errMsg;
+    llvm::raw_string_ostream errStream(errMsg);
+    if ( llvm::verifyFunction(*f, &errStream) )
     {
-        REP_ERROR(node->location, "Error constructing CT evaluation function");
-        f->dump();
+        REP_ERROR(node->location, "Error constructing CT evaluation function: %1%") % errMsg;
+        if ( Nest_isReportingEnabled() )
+            f->print(llvm::errs());
         return nullptr;
     }
 
@@ -190,13 +193,12 @@ Node* CtModule::ctEvaluateExpression(Node* node)
     {
 	    // Create a memory space where to put the result
         llvm::Type* llvmType = Tr::getLLVMType(node->type, *this);
-        size_t size = llvmModule_->getDataLayout()->getTypeAllocSize(llvmType);
+        size_t size = llvmModule_->getDataLayout().getTypeAllocSize(llvmType);
         StringRef dataBuffer = allocStringRef(size);
 
 	    vector<llvm::GenericValue> args(1);
 	    args[0] = llvm::GenericValue((void*) dataBuffer.begin);
 	    llvmExecutionEngine_->runFunction(f, args);
-        llvmExecutionEngine_->freeMachineCodeForFunction(f);
 
         // Create a CtValue containing the data resulted from expression evaluation
         TypeRef t = node->type;
@@ -208,7 +210,6 @@ Node* CtModule::ctEvaluateExpression(Node* node)
     {
 	    vector<llvm::GenericValue> args(0);
 	    llvmExecutionEngine_->runFunction(f, args);
-        llvmExecutionEngine_->freeMachineCodeForFunction(f);
 
 	    // Create a Nop operation for return
         return Feather_mkNop(node->location);

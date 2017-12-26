@@ -97,8 +97,8 @@ size_t DataLayoutHelper::getSizeOf(TypeRef type)
     size_t& size = sizesOfTypes_[type];
 
     llvm::Type* llvmType = getLLVMTypeForSize(type, *llvmContext_);
-    auto dataLayout = llvmModule_->getDataLayout();
-    size = dataLayout->getTypeAllocSize(llvmType);
+    const auto& dataLayout = llvmModule_->getDataLayout();
+    size = dataLayout.getTypeAllocSize(llvmType);
     return size;
 }
 
@@ -123,7 +123,7 @@ size_t DataLayoutHelper::getAlignOf(TypeRef type)
     size_t& align = alignmentsOfTypes_[type];
 
     llvm::Type* llvmType = getLLVMTypeForSize(type, *llvmContext_);
-    auto dataLayout = llvmModule_->getDataLayout();
-    align = dataLayout->getPrefTypeAlignment(llvmType) / 8;
+    const auto& dataLayout = llvmModule_->getDataLayout();
+    align = dataLayout.getPrefTypeAlignment(llvmType) / 8;
     return align;
 }

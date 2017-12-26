@@ -90,7 +90,7 @@ void RtModule::emitCtorList(const CtorList& funs, const char* globalName, bool r
     llvm::Type* ctorPFTy = llvm::PointerType::getUnqual(ctorFTy);
 
     // Get the type of a ctor entry, { i32, void ()* }.
-    llvm::StructType* ctorStructTy = llvm::StructType::get(int32T, ctorPFTy, NULL);
+    llvm::StructType* ctorStructTy = llvm::StructType::get(int32T, ctorPFTy);
 
     // Construct the constructor and destructor arrays.
     llvm::SmallVector<llvm::Constant*, 8> ctors;
@@ -106,10 +106,11 @@ void RtModule::emitCtorList(const CtorList& funs, const char* globalName, bool r
 
     if ( !ctors.empty() )
     {
+        ASSERT(llvmModule_);
         llvm::ArrayType *arrT = llvm::ArrayType::get(ctorStructTy, ctors.size());
         new llvm::GlobalVariable(*llvmModule_, arrT, false,
             llvm::GlobalValue::AppendingLinkage,
             llvm::ConstantArray::get(arrT, ctors),
             globalName);
-    } 
+    }
 }

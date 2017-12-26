@@ -499,14 +499,14 @@ namespace
     {
         switch ( ord )
         {
-        case atomicNone:            return llvm::NotAtomic;
-        case atomicUnordered:       return llvm::Unordered;
-        case atomicMonotonic:       return llvm::Monotonic;
-        case atomicAcquire:         return llvm::Acquire;
-        case atomicRelease:         return llvm::Release;
-        case atomicAcquireRelease:  return llvm::AcquireRelease;
-        case atomicSeqConsistent:   return llvm::SequentiallyConsistent;
-        default:                    return llvm::NotAtomic;
+        case atomicNone:            return llvm::AtomicOrdering::NotAtomic;
+        case atomicUnordered:       return llvm::AtomicOrdering::Unordered;
+        case atomicMonotonic:       return llvm::AtomicOrdering::Monotonic;
+        case atomicAcquire:         return llvm::AtomicOrdering::Acquire;
+        case atomicRelease:         return llvm::AtomicOrdering::Release;
+        case atomicAcquireRelease:  return llvm::AtomicOrdering::AcquireRelease;
+        case atomicSeqConsistent:   return llvm::AtomicOrdering::SequentiallyConsistent;
+        default:                    return llvm::AtomicOrdering::NotAtomic;
         }
     }
 
@@ -614,7 +614,7 @@ namespace
         else if ( t->isStructTy() )
         {
             // If our size is zero, return a zero constant aggregate
-            size_t size = context.llvmModule().getDataLayout()->getTypeAllocSize(t);
+            size_t size = context.llvmModule().getDataLayout().getTypeAllocSize(t);
             if ( size == 0 )
                 return llvm::ConstantAggregateZero::get(t);
 
@@ -657,7 +657,7 @@ namespace
             val->setAlignment(alignment);
         val->setVolatile(0 != Nest_getCheckPropertyInt(node, "volatile"));
         val->setOrdering(llvmOrdering((AtomicOrdering) Nest_getCheckPropertyInt(node, "atomicOrdering")));
-        val->setSynchScope(Nest_getCheckPropertyInt(node, "singleThreaded") ? llvm::SingleThread : llvm::CrossThread);
+        val->setSyncScopeID(Nest_getCheckPropertyInt(node, "singleThreaded") ? llvm::SyncScope::SingleThread : llvm::SyncScope::System);
         return setValue(context.module(), *node, val);
     }
 
@@ -679,7 +679,7 @@ namespace
             val->setAlignment(alignment);
         val->setVolatile(0 != Nest_getCheckPropertyInt(node, "volatile"));
         val->setOrdering(llvmOrdering((AtomicOrdering) Nest_getCheckPropertyInt(node, "atomicOrdering")));
-        val->setSynchScope(Nest_getCheckPropertyInt(node, "singleThreaded") ? llvm::SingleThread : llvm::CrossThread);
+        val->setSyncScopeID(Nest_getCheckPropertyInt(node, "singleThreaded") ? llvm::SyncScope::SingleThread : llvm::SyncScope::System);
         return setValue(context.module(), *node, val);
     }
 
@@ -812,9 +812,17 @@ namespace
             return nullptr;
         }
 
-        // Create a 'call' instruction
         context.ensureInsertionPoint();
-        llvm::CallInst* val = context.builder().CreateCall(func, args, "");;
+
+        // Apply a bitcast if the types don't match
+        llvm::Constant* toCall = func;
+        llvm::FunctionType* funType = static_cast<llvm::FunctionType*>(getLLVMType(funDecl->type, context.module()));
+        llvm::PointerType* funTypePtr = llvm::PointerType::getUnqual(funType);
+        if ( func->getType() != funTypePtr )
+            toCall = llvm::ConstantExpr::getBitCast(func, funTypePtr);
+
+        // Create a 'call' instruction
+        llvm::CallInst* val = context.builder().CreateCall(toCall, args, "");;
         val->setCallingConv(Tr::translateCallingConv(Feather_Function_callConvention(funDecl)));
         if ( res )
             return context.builder().CreateLoad(res);

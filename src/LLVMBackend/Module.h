@@ -46,7 +46,7 @@ namespace LLVMB
 
         /// Add a global destructor function to this module
         virtual void addGlobalDtor(llvm::Function* fun) = 0;
-        
+
         /// Getter for the functor used to translate nodes from CT to RT
         virtual NodeFun ctToRtTranslator() const = 0;
 
@@ -55,7 +55,7 @@ namespace LLVMB
         llvm::LLVMContext& llvmContext() const { return *llvmContext_; }
 
         /// Getter for the LLVM module that is used for code generation
-        llvm::Module& llvmModule() const { return *llvmModule_; }
+        llvm::Module& llvmModule() const { ASSERT(llvmModule_); return *llvmModule_; }
 
         /// Getter for the debug information object used for this module
         Tr::DebugInfo* debugInfo() const { return debugInfo_; }
@@ -89,8 +89,8 @@ namespace LLVMB
             }
         };
 
-        llvm::LLVMContext* llvmContext_;
-        llvm::Module* llvmModule_;
+        unique_ptr<llvm::LLVMContext> llvmContext_;
+        unique_ptr<llvm::Module> llvmModule_;
         unordered_map<PropKey, void*, PropKeyHash> nodeProperties_;
         unordered_set<llvm::Function*> definedFunctions_;
 

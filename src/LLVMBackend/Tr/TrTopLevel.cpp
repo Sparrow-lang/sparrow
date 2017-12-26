@@ -108,7 +108,7 @@ void Tr::translateBackendCode(Node* node, Module& module)
     // Generate a new module from the given backend code
     llvm::SMDiagnostic error;
     StringRef code = Nest_getCheckPropertyString(node, propCode);
-    llvm::Module* resModule = llvm::ParseAssemblyString(code.begin, nullptr, error, module.llvmContext());
+    unique_ptr<llvm::Module> resModule = llvm::parseAssemblyString(code.begin, error, module.llvmContext());
     if ( !resModule )
     {
         Location loc = node->location;
@@ -123,10 +123,8 @@ void Tr::translateBackendCode(Node* node, Module& module)
     resModule->setTargetTriple(module.llvmModule().getTargetTriple());
 
     // Merge the new module into the current module
-    string errMsg;
-    llvm::Linker::LinkModules(&module.llvmModule(), resModule, llvm::Linker::DestroySource, &errMsg);
-    if ( !errMsg.empty() )
-        REP_ERROR(node->location, "Cannot merge backend code node into main LLVM module: %1%") % errMsg;
+    if ( llvm::Linker::linkModules(module.llvmModule(), move(resModule), llvm::Linker::OverrideFromSrc) )
+        REP_ERROR(node->location, "Cannot merge backend code node into main LLVM module");
 }
 
 llvm::Type* Tr::translateClass(Node* node, Module& module)

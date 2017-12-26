@@ -112,5 +112,5 @@ Instruction& TrContext::curInstruction() const
 
 llvm::AllocaInst* TrContext::addVariable(llvm::Type* type, const char* name)
 {
-    return new llvm::AllocaInst(type, name, varsBlock_);
+    return new llvm::AllocaInst(type, 0, name, varsBlock_);
 }

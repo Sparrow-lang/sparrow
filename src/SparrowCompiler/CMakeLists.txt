@@ -21,6 +21,7 @@ ADD_SOURCES_TO_GROUPS(sourceFiles)
 LINK_DIRECTORIES(${LIBRARY_OUTPUT_PATH})
 ADD_EXECUTABLE( SparrowCompiler ${sourceFiles} )
 TARGET_LINK_LIBRARIES(SparrowCompiler SparrowFrontend LLVMBackend Feather Nest)
+
 llvm_map_components_to_libnames(LLVM_LIBS
     support core irreader codegen linker
     ipo vectorize objcarcopts
@@ -38,53 +39,53 @@ message(STATUS "LLVM libraries: ${LLVM_LIBS}")
 TARGET_LINK_LIBRARIES(SparrowCompiler ${LLVM_LIBS})
 TARGET_LINK_LIBRARIES(SparrowCompiler boost_timer boost_chrono boost_program_options)
 
-# Copy llvm binaries in the output directory
-# Also add install targets
-FILE(GLOB llvmBinaries "${CONAN_BIN_DIRS_LLVM}/*")
-foreach(llvmFile ${llvmBinaries})
-    get_filename_component(fileName ${llvmFile} NAME)
-    add_custom_command(TARGET SparrowCompiler POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${llvmFile}"
-            "$<TARGET_FILE_DIR:SparrowCompiler>/spr-${fileName}")
-    install(FILES "${llvmFile}" DESTINATION bin RENAME "spr-${fileName}"
-        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ)
-endforeach()
+# # Copy llvm binaries in the output directory
+# # Also add install targets
+# FILE(GLOB llvmBinaries "${CONAN_BIN_DIRS_LLVM}/*")
+# foreach(llvmFile ${llvmBinaries})
+#     get_filename_component(fileName ${llvmFile} NAME)
+#     add_custom_command(TARGET SparrowCompiler POST_BUILD
+#         COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#             "${llvmFile}"
+#             "$<TARGET_FILE_DIR:SparrowCompiler>/spr-${fileName}")
+#     install(FILES "${llvmFile}" DESTINATION bin RENAME "spr-${fileName}"
+#         PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ)
+# endforeach()
 
 
-# Copy the LLVM dynamic libraries
-# Also add install targets
-if(APPLE)
-    foreach(llvmLib ${LLVM_LIBS})
-        add_custom_command(TARGET SparrowCompiler POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.dylib"
-                "$<TARGET_FILE_DIR:SparrowCompiler>/")
-        install(FILES "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.dylib" DESTINATION lib)
-    endforeach()
-    foreach(llvmLib ${LLVM_EXTRA_LIBS})
-        add_custom_command(TARGET SparrowCompiler POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.dylib"
-                "$<TARGET_FILE_DIR:SparrowCompiler>/")
-        install(FILES "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.dylib" DESTINATION lib)
-    endforeach()
-elseif(UNIX)
-    foreach(llvmLib ${LLVM_LIBS})
-        add_custom_command(TARGET SparrowCompiler POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.so"
-                "$<TARGET_FILE_DIR:SparrowCompiler>/lib/lib${llvmLib}.so")
-        install(FILES "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.so" DESTINATION lib)
-    endforeach()
-    foreach(llvmLib ${LLVM_EXTRA_LIBS})
-        add_custom_command(TARGET SparrowCompiler POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.so"
-                "$<TARGET_FILE_DIR:SparrowCompiler>/lib/lib${llvmLib}.so")
-        install(FILES "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.so" DESTINATION lib)
-    endforeach()
-endif()
+# # Copy the LLVM dynamic libraries
+# # Also add install targets
+# if(APPLE)
+#     foreach(llvmLib ${LLVM_LIBS})
+#         add_custom_command(TARGET SparrowCompiler POST_BUILD
+#             COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#                 "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.dylib"
+#                 "$<TARGET_FILE_DIR:SparrowCompiler>/")
+#         install(FILES "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.dylib" DESTINATION lib)
+#     endforeach()
+#     foreach(llvmLib ${LLVM_EXTRA_LIBS})
+#         add_custom_command(TARGET SparrowCompiler POST_BUILD
+#             COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#                 "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.dylib"
+#                 "$<TARGET_FILE_DIR:SparrowCompiler>/")
+#         install(FILES "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.dylib" DESTINATION lib)
+#     endforeach()
+# elseif(UNIX)
+#     foreach(llvmLib ${LLVM_LIBS})
+#         add_custom_command(TARGET SparrowCompiler POST_BUILD
+#             COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#                 "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.so"
+#                 "$<TARGET_FILE_DIR:SparrowCompiler>/lib/lib${llvmLib}.so")
+#         install(FILES "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.so" DESTINATION lib)
+#     endforeach()
+#     foreach(llvmLib ${LLVM_EXTRA_LIBS})
+#         add_custom_command(TARGET SparrowCompiler POST_BUILD
+#             COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#                 "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.so"
+#                 "$<TARGET_FILE_DIR:SparrowCompiler>/lib/lib${llvmLib}.so")
+#         install(FILES "${LLVM_LIBRARY_DIRS}/lib${llvmLib}.so" DESTINATION lib)
+#     endforeach()
+# endif()
 
 # Install targets for the executable and the implicit lib
 install(TARGETS SparrowCompiler DESTINATION bin)

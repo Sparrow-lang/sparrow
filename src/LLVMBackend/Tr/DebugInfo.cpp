@@ -36,6 +36,7 @@ namespace
 
 DebugInfo::DebugInfo(llvm::Module& module, const string& mainFilename)
     : diBuilder_(module)
+    , compileUnit_(nullptr)
 {
     // Make sure that we set the debug info version to the module
     module.addModuleFlag(llvm::Module::Error, "Debug Info Version", llvm::DEBUG_METADATA_VERSION);
@@ -56,7 +57,7 @@ void DebugInfo::finalize()
 void DebugInfo::emitLocation(LlvmBuilder& builder, const Location& loc, bool takeStart)
 {
     // Update our current location
-    setLocation(loc);
+    setLocation(builder, loc);
     if ( Nest_isLocEmpty(&curLoc_) || 0 == Nest_compareLocations(&curLoc_, &prevLoc_) )
         return;
 
@@ -73,42 +74,32 @@ void DebugInfo::emitFunctionStart(LlvmBuilder& builder, Node* fun, llvm::Functio
     regionCountAtFunStartStack_.push_back(lexicalBlockStack_.size());
 
     const Location& loc = fun->location;
-
-    llvm::DIFile file = getOrCreateFile(fun->location);
-    llvm::DIDescriptor fileDesc(file);
-
-    // For now, just create an empty function declaration
-    llvm::DISubprogram diFunDecl;
+    llvm::DIFile* file = getOrCreateFile(fun->location);
+    llvm::DIScope* fContext = file;
 
     // For now, just create a fake subroutine type -- it should be ok
-    llvm::DICompositeType diFunType = diBuilder_.createSubroutineType(file, diBuilder_.getOrCreateArray({}));
+    llvm::DISubroutineType* diFunType = createFunctionType(llvmFun);
 
-    // Debug info for function declaration
-
-    llvm::DISubprogram diSubprogram;
     StringRef name = Feather_getName(fun);
     llvm::StringRef nameLLVM(name.begin, size(name));
-    diSubprogram = diBuilder_.createFunction(
-        fileDesc,                   // function scope
-        nameLLVM,                   // function name
-        llvmFun->getName(),         // mangled function name (link name)
-        file,                       // file where this is defined
-        loc.start.line,             // line number
-        diFunType,                  // function type
-        true,                       // true if this function is not externally visible
-        true,                       // is a function definition
-        loc.start.line,             // the beginning of the scope this starts
-        0,                          // flags
-        false,                      // is optimized
-        llvmFun,                    // llvm::Function pointer
-        nullptr,                    // function template parameters
-        diFunDecl);                 // decl
-    if ( !diSubprogram.Verify() )
-        REP_INTERNAL(NOLOC, "Invalid debug metadata generated for function");
+    llvm::DISubprogram* diSubprogram = diBuilder_.createFunction(
+        fContext,                       // function scope
+        nameLLVM,                       // function name
+        llvmFun->getName(),             // mangled function name (link name)
+        file,                           // file where this is defined
+        loc.start.line,                 // line number
+        diFunType,                      // function type
+        false,                          // true if this function is not externally visible
+        true,                           // is a function definition
+        loc.start.line,                 // the beginning of the scope this starts
+        llvm::DINode::FlagPrototyped,   // flags
+        false);                         // is optimized
+
+    llvmFun->setSubprogram(diSubprogram);
 
     // Push function on region stack.
-    lexicalBlockStack_.push_back((llvm::MDNode*) diSubprogram);
-    regionMap_[fun] = llvm::WeakVH(diSubprogram);
+    lexicalBlockStack_.push_back(diSubprogram);
+    regionMap_[fun] = diSubprogram;
 }
 
 void DebugInfo::emitFunctionEnd(LlvmBuilder& builder, const Location& loc)
@@ -126,24 +117,14 @@ void DebugInfo::emitFunctionEnd(LlvmBuilder& builder, const Location& loc)
 void DebugInfo::emitLexicalBlockStart(LlvmBuilder& builder, const Location& loc)
 {
     // Set the current location
-    setLocation(loc);
+    setLocation(builder, loc);
 
-    // Create a debug information metadata for the lexical block
-    llvm::DIDescriptor scope = lexicalBlockStack_.empty()
-        ? llvm::DIDescriptor()
-        : llvm::DIDescriptor(lexicalBlockStack_.back());
-    llvm::DIDescriptor desc = diBuilder_.createLexicalBlock(
-        scope,                      // the scope of this lexical block
-        getOrCreateFile(loc),       // the file of this lexical block
-        loc.start.line,            // the start line number of this lexical block
-        loc.start.col,             // the start column number of the lexical block
-        0);                         // DRAWF path discriminator
-    llvm::MDNode* node = desc;
-    lexicalBlockStack_.push_back(node);
+    llvm::DILexicalBlock* lexicalBock = diBuilder_.createLexicalBlock(
+        lexicalBlockStack_.back(), getOrCreateFile(loc), loc.start.line, loc.start.col);
+    lexicalBlockStack_.push_back(lexicalBock);
 
     // Emit the debug location change
-    builder.SetCurrentDebugLocation(getDebugLoc(curLoc_, scope));
-
+    builder.SetCurrentDebugLocation(getDebugLoc(curLoc_, lexicalBock));
 }
 
 void DebugInfo::emitLexicalBlockEnd(LlvmBuilder& builder, const Location& loc)
@@ -161,22 +142,19 @@ void DebugInfo::createCompileUnit(const string& mainFilename)
 {
     auto p = splitFilename(mainFilename.c_str());
 
+    llvm::DIFile* filename = nullptr; // TODO (debug-info): get it from p.second
+
     // Create new compile unit
     compileUnit_ = diBuilder_.createCompileUnit(
-        llvm::dwarf::DW_LANG_lo_user + 109, // language
-        p.second,                           // file name
-        p.first,                            // directory
+        llvm::dwarf::DW_LANG_C,             // language
+        filename,                           // file name
         "Sparrow Compiler",                 // producer of debug information
         false,                              // isOptimized
         "",                                 // debug flags (command line options)
-        1,                                  // run-time version of the language
-        "",                                 // split name
-        llvm::DIBuilder::LineTablesOnly);   // type of debug generation
-    if ( !compileUnit_.Verify() )
-        REP_INTERNAL(NOLOC, "Invalid debug metadata generated for compile unit");
+        1);                                 // run-time version of the language
 }
 
-void DebugInfo::setLocation(const Location& loc)
+void DebugInfo::setLocation(LlvmBuilder& builder, const Location& loc)
 {
     // If the new location isn't valid return.
     if ( Nest_isLocEmpty(&loc) )
@@ -187,44 +165,36 @@ void DebugInfo::setLocation(const Location& loc)
     // If we changed the files in the middle of a lexical scope, create a new lexical scope
     if ( !Nest_isLocEmpty(&curLoc_) && Nest_isLocEmpty(&prevLoc_) && curLoc_.sourceCode != prevLoc_.sourceCode && !lexicalBlockStack_.empty() )
     {
-        llvm::MDNode* lexicalBlock = lexicalBlockStack_.back();
-        llvm::DIScope scope = llvm::DIScope(lexicalBlock);
-        if ( scope.isLexicalBlockFile() )
-        {
-            llvm::DILexicalBlockFile lexicalBlockFile = llvm::DILexicalBlockFile(lexicalBlock);
-            scope = lexicalBlockFile.getScope();
-        }
+        llvm::DIScope* scope = lexicalBlockStack_.empty() ? compileUnit_ : lexicalBlockStack_.back();
 
-        if ( scope.isLexicalBlock() )
-        {
-            llvm::DIDescriptor desc = diBuilder_.createLexicalBlockFile(scope, getOrCreateFile(curLoc_));
-            if ( !desc.Verify() )
-                REP_INTERNAL(NOLOC, "Invalid debug metadata generated for location");
-            llvm::MDNode* node = desc;
-            lexicalBlockStack_.pop_back();
-            lexicalBlockStack_.push_back(node);
-        }
+        builder.SetCurrentDebugLocation(llvm::DebugLoc::get(loc.start.line, loc.start.col, scope));
     }
 }
 
-llvm::DIFile DebugInfo::getOrCreateFile(const Location& loc)
+llvm::DIFile* DebugInfo::getOrCreateFile(const Location& loc)
 {
-    // If the location is not valid, then return the main file
-    if ( Nest_isLocEmpty(&loc) )
-        return diBuilder_.createFile(compileUnit_.getFilename(), compileUnit_.getDirectory());
-
     // Check the cache first
     auto it = filenameCache_.find(loc.sourceCode);
     if ( it != filenameCache_.end() )
-    {
-        llvm::Value* val = it->second;
-        ASSERT(val);
-        return llvm::DIFile(llvm::cast<llvm::MDNode>(val));
-    }
+        return it->second;
 
     // Create the file, and cache it
-    auto p = splitFilename(loc.sourceCode->url);
-    llvm::DIFile file = diBuilder_.createFile(p.second, p.first);
+    // If the location is not valid, then return the main file
+    llvm::DIFile* file = nullptr;
+    if ( Nest_isLocEmpty(&loc) ) {
+        file = diBuilder_.createFile(compileUnit_->getFilename(), compileUnit_->getDirectory());
+    }
+    else {
+        auto p = splitFilename(loc.sourceCode->url);
+        file = diBuilder_.createFile(p.second, p.first);
+    }
     filenameCache_.insert(make_pair(loc.sourceCode, file));
     return file;
+}
+
+llvm::DISubroutineType* DebugInfo::createFunctionType(llvm::Function* llvmFun) {
+    llvm::SmallVector<llvm::Metadata*, 8> funTypes;
+    // TODO: populate this; result type + arg types
+    // TODO: Try to cache the types that we are using
+    return diBuilder_.createSubroutineType(diBuilder_.getOrCreateTypeArray(funTypes));
 }

@@ -36,6 +36,8 @@ SET(sourceFiles
     "Tr/TrLocal.h"
     "Tr/TrLocal.cpp"
     "Tr/LlvmBuilder.h"
+    "Tr/PrepareTranslate.h"
+    "Tr/PrepareTranslate.cpp"
 )
 
 # Project settings

@@ -1,0 +1,16 @@
+---
+# We'll use defaults from the LLVM style, but with 4 columns indentation.
+BasedOnStyle: LLVM
+IndentWidth: 4
+ColumnLimit: 100
+ContinuationIndentWidth: 8
+---
+Language: Cpp
+SortIncludes: false
+# Force pointers to the type for C++.
+DerivePointerAlignment: false
+PointerAlignment: Left
+AlignAfterOpenBracket: DontAlign
+BreakConstructorInitializersBeforeComma: true
+ReflowComments: true
+AccessModifierOffset: -4

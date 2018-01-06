@@ -478,25 +478,36 @@ using namespace Feather;
         node->type = Feather_checkChangeTypeMode(node->type, modeCt, node->location);
         return node;
     }
+    void writeHex(ostringstream& os, StringRef data) {
+        os << "0x" << hex;
+        for ( const char* p = data.begin; p!=data.end; p++) {
+            unsigned char uc = *p;
+            if ( uc < 16 )
+                os << '0';
+            os << (int) uc;
+        }
+        os << dec;
+    }
     const char* CtValue_toString(const Node* node)
     {
+        TypeRef type = node->type;
         if ( !node->type )
-        {
+            type = Nest_getCheckPropertyType(node, "valueType");
+        if ( !type )
             return "ctValue";
-        }
         ostringstream os;
-        os << "ctValue(" << node->type << ": ";
+        os << "ctValue(" << type << ": ";
 
         StringRef valueDataStr = Nest_getCheckPropertyString(node, "valueData");
         const void* valueData = valueDataStr.begin;
 
-        StringRef nativeName = node->type->hasStorage ? Feather_nativeName(node->type) : StringRef{0,0};
-        if ( 0 == strcmp(node->type->description, "Type/ct") )
+        StringRef nativeName = type->hasStorage ? Feather_nativeName(type) : StringRef{0,0};
+        if ( 0 == strcmp(type->description, "Type/ct") )
         {
             TypeRef t = *((TypeRef*) valueData);
             os << t;
         }
-        else if ( size(nativeName)>0 && node->type->numReferences == 0 )
+        else if ( size(nativeName)>0 && type->numReferences == 0 )
         {
             if ( nativeName == "i1" || nativeName == "u1" )
             {
@@ -521,10 +532,10 @@ using namespace Feather;
                 os << "'" << toString(*s) << "'";
             }
             else
-                os << "'" << toString(valueDataStr) << "'";
+                writeHex(os, valueDataStr);
         }
         else
-            os << "'" << toString(valueDataStr) << "'";
+            writeHex(os, valueDataStr);
         os << ")";
         return dupString(os.str().c_str());
     }

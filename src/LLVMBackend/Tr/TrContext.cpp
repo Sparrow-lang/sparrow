@@ -3,6 +3,7 @@
 #include "Scope.h"
 #include "Module.h"
 #include "DebugInfo.h"
+#include "GlobalContext.h"
 
 #include "Nest/Utils/Diagnostic.hpp"
 
@@ -10,8 +11,8 @@ using namespace LLVMB;
 using namespace LLVMB::Tr;
 using namespace Nest;
 
-TrContext::TrContext(Module& module, llvm::BasicBlock* insertionPoint, LlvmBuilder& llvmBuilder)
-    : module_(module)
+TrContext::TrContext(GlobalContext& ctx, llvm::BasicBlock* insertionPoint, LlvmBuilder& llvmBuilder)
+    : globalContext_(ctx)
     , builder_(llvmBuilder)
     , insertionPoint_(nullptr)
     , varsBlock_(insertionPoint)
@@ -36,7 +37,7 @@ llvm::BasicBlock* TrContext::insertionPoint()
     if ( !insertionPoint_ )
     {
         CHECK(NOLOC, parentFun_);
-        insertionPoint_ = llvm::BasicBlock::Create(module_.llvmContext(), "dumy_block", parentFun_);
+        insertionPoint_ = llvm::BasicBlock::Create(globalContext_.targetBackend_.llvmContext(), "dumy_block", parentFun_);
         builder_.SetInsertPoint(insertionPoint_);
     }
     return insertionPoint_;
@@ -62,9 +63,14 @@ void TrContext::ensureInsertionPoint()
 }
 
 
+GlobalContext& TrContext::globalContext() const
+{
+    return globalContext_;
+}
+
 Module& TrContext::module() const
 {
-    return module_;
+    return globalContext_.targetBackend_;
 }
 
 llvm::Function* TrContext::parentFun() const
@@ -74,12 +80,12 @@ llvm::Function* TrContext::parentFun() const
 
 llvm::LLVMContext& TrContext::llvmContext() const
 {
-    return module_.llvmContext();
+    return globalContext_.targetBackend_.llvmContext();
 }
 
 llvm::Module& TrContext::llvmModule() const
 {
-    return module_.llvmModule();
+    return globalContext_.llvmModule_;
 }
 
 LlvmBuilder& TrContext::builder() const

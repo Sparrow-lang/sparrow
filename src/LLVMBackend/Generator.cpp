@@ -6,9 +6,10 @@
 #include "Nest/Api/Compiler.h"
 #include "Nest/Utils/CompilerSettings.hpp"
 
-#include <boost/filesystem/path.hpp>
+#include <boost/filesystem.hpp>
 
 #include <algorithm>
+#include <iomanip>
 
 #include <llvm/Linker/Linker.h>
 #include <llvm/IR/Verifier.h>
@@ -100,7 +101,7 @@ namespace
     {
         CompilerSettings& s = *Nest_compilerSettings();
 
-        vector<string> args = { opt, "-std-compile-opts", "-std-link-opts", "-O" + s.optimizationLevel_ };
+        vector<string> args = { opt, "-std-link-opts", "-O" + s.optimizationLevel_ };
         args.insert(args.end(), s.optimizerArgs_.begin(), s.optimizerArgs_.end());
         args.insert(args.end(), { inputFilename, "-o", outputFilename });
         runCmd(args);
@@ -160,10 +161,41 @@ namespace
 
 
 
-void LLVMB::generateAssembly(const llvm::Module& module, const string& outFilename, const string& ext)
+void LLVMB::generateRtAssembly(const llvm::Module& module)
 {
-    string filename = replaceExtension(outFilename, outFilename, ext);
+    const auto& s = *Nest_compilerSettings();
+
+    string filename = replaceExtension(s.output_, s.output_, ".ll");
     writeAssemblyFile(module, filename);
+}
+
+void LLVMB::generateCtAssembly(const llvm::Module& module)
+{
+    const auto& s = *Nest_compilerSettings();
+
+    // Safety check
+    if (!s.dumpCtAssembly_)
+        return;
+
+    namespace fs = boost::filesystem;
+
+    // We will create one directory per compilation containing all the CT module dumps
+    static int fileCounter = 0;
+    static fs::path dirPath = replaceExtension(s.output_, s.output_, ".ct");
+    if (fileCounter == 0) {
+        // Remove the directory if exists
+        fs::remove_all(dirPath);
+
+        // Create the directory
+        if (!fs::create_directory(dirPath))
+            return;
+    }
+
+    // Get the actual file name (with path)
+    int curFileIdx = fileCounter++;
+    ostringstream filePath;
+    filePath << dirPath.string() << "/ct_" << setfill('0') << setw(4) << curFileIdx << ".ll";
+    writeAssemblyFile(module, filePath.str());
 }
 
 void LLVMB::link(const vector<llvm::Module*>& inputs, const string& outFilename)

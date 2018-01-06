@@ -4,13 +4,7 @@
 
 #include "LlvmBuilder.h"
 
-#ifdef _MSC_VER
-#pragma warning(push,1)
-#endif
 #include <llvm/IR/DIBuilder.h>
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
 
 typedef struct Nest_Node Node;
 typedef struct Nest_SourceCode SourceCode;

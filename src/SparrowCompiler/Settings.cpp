@@ -515,6 +515,7 @@ bool initSettingsWithArgs(int argc, char** argv)
         cout << endl;
         cout << "Run '" << s.programName_ << " -help' for the list of available options" << endl;
         cout << endl;
+        exit(-1);
         return false;
     }
 

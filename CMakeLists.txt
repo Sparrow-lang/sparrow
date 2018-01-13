@@ -1,11 +1,12 @@
 # Top-Level CMakeLists.txt
 
-cmake_minimum_required(VERSION 3.10.0)
+cmake_minimum_required(VERSION 3.9.0)
 
 # Project information
 project( SparrowCompiler )
 
 # Get compiler version
+set(SparrowCompiler_BUILD_VERSION 0)
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.git)
     find_package(Git)
     if(GIT_FOUND)
@@ -15,8 +16,6 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.git)
             OUTPUT_VARIABLE "SparrowCompiler_BUILD_VERSION"
             ERROR_QUIET
             OUTPUT_STRIP_TRAILING_WHITESPACE)
-    else()
-        set(SparrowCompiler_BUILD_VERSION 0)
     endif()
 endif()
 string(REGEX REPLACE
@@ -65,13 +64,14 @@ set(Boost_USE_STATIC_LIBS        ON)
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    OFF)
 set(BOOST_LIBRARYDIR "" CACHE PATH "Path to Boost libraries")
-find_package( Boost 1.66.0 COMPONENTS filesystem system program_options timer REQUIRED )
-message(STATUS "Boost include: ${Boost_INCLUDE_DIRS}")
+find_package( Boost 1.54.0 COMPONENTS filesystem system program_options timer REQUIRED )
+message(STATUS "Boost include dir: ${Boost_INCLUDE_DIRS}")
+message(STATUS "Boost lib dir: ${Boost_LIBRARY_DIRS}")
 include_directories( "${Boost_INCLUDE_DIRS}" )
 link_directories(${Boost_LIBRARY_DIRS})
 
 # Find the LLVM library
-find_package( LLVM 5.0.1 REQUIRED )
+find_package( LLVM 5.0.0 REQUIRED )
 include_directories( "${LLVM_INCLUDE_DIRS}" )
 link_directories(${LLVM_LIBRARY_DIRS})
 message(STATUS "LLVM bin dir: ${LLVM_TOOLS_BINARY_DIR}")
@@ -79,8 +79,8 @@ message(STATUS "LLVM include dir: ${LLVM_INCLUDE_DIRS}")
 
 
 # Project options
-if( NOT CMAKE_BUILD_TYPE )      # set default cmake build type to RelWithDebInfo (None Debug Release RelWithDebInfo MinSizeRel)
-    set( CMAKE_BUILD_TYPE "RelWithDebInfo" )
+if( NOT CMAKE_BUILD_TYPE )      # set default cmake build type to Release (None Debug Release RelWithDebInfo MinSizeRel)
+    set( CMAKE_BUILD_TYPE "Release" )
 endif()
 
 # Compilation flags
@@ -90,13 +90,9 @@ if(MSVC)
     add_definitions( -D_SCL_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE )
 else()
     add_definitions( -D__STDC_LIMIT_MACROS=1 )
-    set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=gnu++0x" )
+    set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=c++11" )
     add_definitions( -Wall )                    # All warnings...
-    # add_definitions( -Wno-c++11-extensions )    # ... except C++11 extensions warnings
     add_definitions( -Wno-deprecated )          # ... and except deprecated functions
-    # add_definitions( -Wno-undefined-bool-conversion ) # ... and except undefined bool conversions
-    # add_definitions( -Wno-typedef-redefinition )   # redefinition of typedef '...' is a C11 feature
-    # add_definitions( -Wno-unused-local-typedef ) # unused typedef 'cons_element' (inside boost headers)
 endif()
 
 # Add our macros

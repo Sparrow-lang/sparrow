@@ -3,21 +3,14 @@
 set -e
 set -x
 
-if [[ "$(uname -s)" == 'Darwin' ]]; then
-    brew update || brew update
-    brew outdated pyenv || brew upgrade pyenv
-    brew install pyenv-virtualenv
-    brew install cmake || true
+echo "Travis OS name: $TRAVIS_OS_NAME"
+echo "Travis branch: $TRAVIS_BRANCH"
+echo "Travis tag: $TRAVIS_TAG"
+echo "LANG=$LANG"
+echo "LC_ALL=$LC_ALL"
 
-    if which pyenv > /dev/null; then
-        eval "$(pyenv init -)"
-    fi
-
-    pyenv install 2.7.10
-    pyenv virtualenv 2.7.10 conan
-    pyenv rehash
-    pyenv activate conan
+if [ $TRAVIS_OS_NAME == osx ]; then
+    # brew update
+    brew upgrade boost@1.66
+    brew install llvm@5
 fi
-
-pip install conan_package_tools # It install conan too
-conan user

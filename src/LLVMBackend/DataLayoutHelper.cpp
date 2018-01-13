@@ -78,8 +78,6 @@ DataLayoutHelper::DataLayoutHelper()
 
 DataLayoutHelper::~DataLayoutHelper()
 {
-    delete llvmModule_;
-    delete llvmContext_;
 }
 
 size_t DataLayoutHelper::getSizeOf(TypeRef type)
@@ -97,22 +95,16 @@ size_t DataLayoutHelper::getSizeOf(TypeRef type)
     size_t& size = sizesOfTypes_[type];
 
     llvm::Type* llvmType = getLLVMTypeForSize(type, *llvmContext_);
-    auto dataLayout = llvmModule_->getDataLayout();
-    size = dataLayout->getTypeAllocSize(llvmType);
+    const auto& dataLayout = llvmModule_->getDataLayout();
+    size = dataLayout.getTypeAllocSize(llvmType);
     return size;
 }
 
 size_t DataLayoutHelper::getAlignOf(TypeRef type)
 {
-#ifdef _MSC_VER
-    #define ALIGNOF(x) __alignof(x)
-#else
-    #define ALIGNOF(x) alignof(x)
-#endif
-
     // Special case for "Type" type
     if ( 0 == strcmp(type->description, "Type/ct") )
-        return ALIGNOF(const char*);
+        return alignof(const char*);
 
     // Check if we already computed this
     auto it = alignmentsOfTypes_.find(type);
@@ -123,7 +115,7 @@ size_t DataLayoutHelper::getAlignOf(TypeRef type)
     size_t& align = alignmentsOfTypes_[type];
 
     llvm::Type* llvmType = getLLVMTypeForSize(type, *llvmContext_);
-    auto dataLayout = llvmModule_->getDataLayout();
-    align = dataLayout->getPrefTypeAlignment(llvmType) / 8;
+    const auto& dataLayout = llvmModule_->getDataLayout();
+    align = dataLayout.getPrefTypeAlignment(llvmType) / 8;
     return align;
 }

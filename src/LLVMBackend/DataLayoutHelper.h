@@ -23,8 +23,8 @@ namespace LLVMB
         size_t getAlignOf(TypeRef type);
 
     private:
-        llvm::LLVMContext* llvmContext_;
-        llvm::Module* llvmModule_;
+        unique_ptr<llvm::LLVMContext> llvmContext_;
+        unique_ptr<llvm::Module> llvmModule_;
 
         unordered_map<TypeRef, size_t> sizesOfTypes_;
         unordered_map<TypeRef, size_t> alignmentsOfTypes_;

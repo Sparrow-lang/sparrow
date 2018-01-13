@@ -25,16 +25,26 @@ namespace LLVMB { namespace Tr
         virtual void addGlobalCtor(llvm::Function* fun);
         virtual void addGlobalDtor(llvm::Function* fun);
         virtual NodeFun ctToRtTranslator() const;
+        virtual Tr::DebugInfo* debugInfo() const;
+
+        /// Getter for the LLVM module that is used for code generation
+        llvm::Module& llvmModule() const { ASSERT(llvmModule_); return *llvmModule_; }
 
     private:
         typedef vector<llvm::Function*> CtorList;
 
         void emitCtorList(const CtorList& funs, const char* globalName, bool reverse = false);
 
-    protected:
+    private:
+        //! The LLVM module we are adding translated code into
+        unique_ptr<llvm::Module> llvmModule_;
+
         CtorList globalCtors_;
         CtorList globalDtors_;
         NodeFun ctToRtTranslator_;
+
+        /// If set, it represents the object that is used to generate debug information for this module
+        unique_ptr<Tr::DebugInfo> debugInfo_;
     };
 
 }}

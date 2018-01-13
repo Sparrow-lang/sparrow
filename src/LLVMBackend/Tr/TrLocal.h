@@ -17,8 +17,8 @@ namespace LLVMB { namespace Tr
     llvm::Value* translateNode(Node* node, TrContext& context);
 
     /// Sets the given llvm value as attribute to the node; returns the given value
-    llvm::Value* setValue(Module& module, Node& node, llvm::Value* val);
+    llvm::Value* setValue(TrContext& context, Node& node, llvm::Value* val);
 
     /// Gets the LLVM value associated with a node; returns null if no value is associated
-    llvm::Value* getValue(Module& module, Node& node, bool doCheck = true);
+    llvm::Value* getValue(TrContext& context, Node& node, bool doCheck = true);
 }}

@@ -18,3 +18,5 @@ tests/*/*.json.dot
 tests/*/*.json.pdf
 SparrowImplicitLib/std/compilerInfo.spr
 src/SparrowCompiler/VersionInfo.h
+*.sublime-project
+*.sublime-workspace

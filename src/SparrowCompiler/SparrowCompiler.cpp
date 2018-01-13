@@ -20,6 +20,8 @@
 #include <boost/filesystem.hpp>
 #include <boost/scoped_ptr.hpp>
 
+#include <fstream>
+
 using namespace Nest;
 
 namespace fs = boost::filesystem;
@@ -211,7 +213,7 @@ int main(int argc,char* argv[])
     timer.start();
 
     if ( !initSettingsWithArgs(argc, argv) )
-        return -1;
+        return 0;   // Successful exit
 
     const auto& s = *Nest_compilerSettings();
 

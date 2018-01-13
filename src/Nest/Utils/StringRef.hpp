@@ -24,3 +24,18 @@ bool operator == (StringRef lhs, const char* rhs);
 bool operator != (StringRef lhs, const char* rhs);
 
 ostream& operator << (ostream& os, StringRef str);
+
+namespace std {
+
+template<>
+struct hash<StringRef> {
+    typedef StringRef argument_type;
+    size_t operator()(const StringRef& s) const noexcept {
+        size_t seed = 0;
+        for ( const char* p = s.begin; p!=s.end; p++ )
+            seed ^= size_t(*p) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        return seed;
+    }
+};
+
+} // namespace std

@@ -383,6 +383,7 @@ Node* Using_SemanticCheck(Node* node);
 Node* Literal_SemanticCheck(Node* node);
 Node* Identifier_SemanticCheck(Node* node);
 Node* CompoundExp_SemanticCheck(Node* node);
+const char* CompoundExp_toString(const Node* node);
 Node* FunApplication_SemanticCheck(Node* node);
 Node* OperatorCall_SemanticCheck(Node* node);
 Node* InfixExp_SemanticCheck(Node* node);
@@ -454,7 +455,7 @@ void SprFrontend::initSparrowNodeKinds()
 
     nkSparrowExpLiteral =               Nest_registerNodeKind("spr.literal", &Literal_SemanticCheck, NULL, NULL, NULL);
     nkSparrowExpIdentifier =            Nest_registerNodeKind("spr.identifier", &Identifier_SemanticCheck, NULL, NULL, NULL);
-    nkSparrowExpCompoundExp =           Nest_registerNodeKind("spr.compoundExp", &CompoundExp_SemanticCheck, NULL, NULL, NULL);
+    nkSparrowExpCompoundExp =           Nest_registerNodeKind("spr.compoundExp", &CompoundExp_SemanticCheck, NULL, NULL, &CompoundExp_toString);
     nkSparrowExpFunApplication =        Nest_registerNodeKind("spr.funApplication", &FunApplication_SemanticCheck, NULL, NULL, NULL);
     nkSparrowExpOperatorCall =          Nest_registerNodeKind("spr.operatorCall", &OperatorCall_SemanticCheck, NULL, NULL, NULL);
     nkSparrowExpInfixExp =              Nest_registerNodeKind("spr.infixExp", &InfixExp_SemanticCheck, NULL, NULL, NULL);

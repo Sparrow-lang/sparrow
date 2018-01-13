@@ -6,10 +6,10 @@ RUN mkdir /sparrow/src
 RUN mkdir /sparrow/SparrowImplicitLib
 COPY src /sparrow/src
 COPY SparrowImplicitLib /sparrow/SparrowImplicitLib
-COPY conanfile.txt /sparrow/
 COPY CMakeLists.txt /sparrow/
 COPY Macros.cmake /sparrow/
 COPY LICENSE /sparrow/
+COPY .git /sparrow/.git
 
 # Copy the test files
 RUN mkdir /sparrow_tests
@@ -19,8 +19,9 @@ COPY tests /sparrow_tests
 WORKDIR /sparrow
 RUN mkdir /sparrow/build
 WORKDIR /sparrow/build
-RUN conan install .. --build=missing
 RUN cmake ..
+# Just make sure we don't copy this file
+RUN rm -f ../src/SparrowFrontend/Grammar/parserIf.o
 RUN cmake --build . -- -j4
 RUN cmake --build . -- install
 

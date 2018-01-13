@@ -30,7 +30,7 @@ class CompilerLookup:
         ]
 
         # filter out files that do not exist
-        alt = [f for f in alt if os.path.isfile(f)]
+        alt = [f for f in alt if f and os.path.isfile(f)]
 
         # Make sure we have at least one entry
         if len(alt) == 0:
@@ -439,7 +439,7 @@ def main():
         help='Measures the execution time of the test')
     parser.add_argument('--debug', action='store_true',
         help='Runs the test in debug mode, without capturing its output')
-    parser.add_argument('--simpleLinkLimit', action='store', type=int, default=1, metavar='N',
+    parser.add_argument('--simpleLinkLimit', action='store', type=int, default=0, metavar='N',
         help='Max num of tests per file needed for which we use simple linking')
     parser.add_argument('--compilerProg', action='store', default='auto', metavar='P',
         help='Path to the SparrowCompiler program, or auto')

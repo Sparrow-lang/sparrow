@@ -50,7 +50,7 @@ fun doTest()
     write('-'); writeLn('>');
 }
 
-/*<<<Running()
+/*<<<Running KNOWN-PROBLEM()
 ctor(999)
 ctor(777)
 <-

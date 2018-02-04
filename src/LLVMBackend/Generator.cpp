@@ -5,6 +5,7 @@
 #include "Nest/Utils/PrintTimer.hpp"
 #include "Nest/Api/Compiler.h"
 #include "Nest/Utils/CompilerSettings.hpp"
+#include "Nest/Utils/CompilerStats.hpp"
 
 #include <boost/filesystem.hpp>
 
@@ -50,7 +51,7 @@ namespace
 
         const auto& s = *Nest_compilerSettings();
 
-        Nest::Common::PrintTimer timer(s.verbose_, "", "   [%ws]\n");
+        Nest::Common::PrintTimer timer(s.verbose_, "", "   [%d ms]\n");
 
         // Transform the strings into C-style strings, as required by ExecuteAndWait
         vector<const char*> cstrArgs;
@@ -99,6 +100,10 @@ namespace
     /// Generate optimized code from the given bitcode
     void generateOptimizedCode(const string& outputFilename, const string& inputFilename, const string& opt)
     {
+        // Gather statistics if requested
+        CompilerStats& stats = CompilerStats::instance();
+        ScopedTimeCapture timeCapture(stats.enabled, stats.timeOpt);
+
         CompilerSettings& s = *Nest_compilerSettings();
 
         vector<string> args = { opt, "-std-link-opts", "-O" + s.optimizationLevel_ };
@@ -111,6 +116,10 @@ namespace
     /// Generate machine native assembly from the given bitcode file
     void generateMachineAssembly(const string& outputFilename, const string& inputFilename, const string& llc)
     {
+        // Gather statistics if requested
+        CompilerStats& stats = CompilerStats::instance();
+        ScopedTimeCapture timeCapture(stats.enabled, stats.timeLlc);
+
         CompilerSettings& s = *Nest_compilerSettings();
 
         vector<string> args = { llc, "--filetype=obj" };
@@ -127,6 +136,10 @@ namespace
     // Given a bitcode file, generate a native object file
     void generateNativeObjGCC(const string& outputFilename, const string& inputFilename, const string& gcc)
     {
+        // Gather statistics if requested
+        CompilerStats& stats = CompilerStats::instance();
+        ScopedTimeCapture timeCapture(stats.enabled, stats.timeLink);
+
         CompilerSettings& s = *Nest_compilerSettings();
 
         // Run GCC to assemble and link the program into native code.

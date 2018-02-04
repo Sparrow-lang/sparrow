@@ -6,6 +6,7 @@
 #include "Nest/Api/CompilerModule.h"
 #include "Nest/Api/Compiler.h"
 #include "Nest/Utils/CompilerSettings.hpp"
+#include "Nest/Utils/CompilerStats.hpp"
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/PrintTimer.hpp"
 #include "Nest/Utils/StringRef.hpp"
@@ -141,7 +142,11 @@ void doCompilation(const vector<CompilerModule*>& modules)
 
     // Phase 1: Implicit lib
     {
-        Nest::Common::PrintTimer timer(s.verbose_, s.implicitLibFilePath_.c_str(), "   [%ws]\n");
+        Nest::Common::PrintTimer timer(s.verbose_, s.implicitLibFilePath_.c_str(), "   [%d ms]\n");
+
+        // Gather statistics if requested
+        CompilerStats& stats = CompilerStats::instance();
+        ScopedTimeCapture timeCapture(stats.enabled, stats.timeImplicitLib);
 
         // Process the implicit definitions file
         g_implicitLibSC = nullptr;
@@ -153,7 +158,7 @@ void doCompilation(const vector<CompilerModule*>& modules)
     if ( !s.defines_.empty() )
     {
         const char* filename = "argsDefines.spr";
-        Nest::Common::PrintTimer timer(s.verbose_, filename, "   [%ws]\n");
+        Nest::Common::PrintTimer timer(s.verbose_, filename, "   [%d ms]\n");
 
         _handleArgDefines(s.defines_, filename);
     }
@@ -162,7 +167,7 @@ void doCompilation(const vector<CompilerModule*>& modules)
     // Parse each individual file
     for ( const auto& filename: s.filesToBeCompiled_  )
     {
-        Nest::Common::PrintTimer timer(s.verbose_, "", "   [%ws]\n");
+        Nest::Common::PrintTimer timer(s.verbose_, "", "   [%d ms]\n");
         if ( s.verbose_ )
             cout << filename;
         Nest_compileFile(fromString(filename));
@@ -170,7 +175,7 @@ void doCompilation(const vector<CompilerModule*>& modules)
 
     // Also process the file that implements 'main' entry-point functionality
     if ( s.useMain_ ) {
-        Nest::Common::PrintTimer timer(s.verbose_, "", "   [%ws]\n");
+        Nest::Common::PrintTimer timer(s.verbose_, "", "   [%d ms]\n");
         if ( s.verbose_ )
             cout << "mainImpl.spr";
         Nest_compileFile(fromCStr("sprCore/mainImpl.spr"));
@@ -181,7 +186,7 @@ void doCompilation(const vector<CompilerModule*>& modules)
     {
         try
         {
-            Nest::Common::PrintTimer timer(s.verbose_, "", "[%ws]\n");
+            Nest::Common::PrintTimer timer(s.verbose_, "", "[%d ms]\n");
             if ( s.verbose_ )
                 cout << "Linking..." << endl;
         	Nest_getCurBackend()->link(Nest_getCurBackend(), s.output_.c_str());
@@ -209,8 +214,8 @@ vector<CompilerModule*> gatherModules()
 
 int main(int argc,char* argv[])
 {
-    boost::timer::cpu_timer timer;
-    timer.start();
+    CompilerStats& stats = CompilerStats::instance();
+    auto startTime = chrono::steady_clock::now();
 
     if ( !initSettingsWithArgs(argc, argv) )
         return 0;   // Successful exit
@@ -258,9 +263,21 @@ int main(int argc,char* argv[])
             mod->destroyFun();
     }
 
-    if ( s.verbose_ ) {
-        timer.stop();
-        cout << timer.format(3, "\nTime elapsed: %ws\n\n");
+    auto endTime = chrono::steady_clock::now();
+    auto durMs = chrono::duration_cast<chrono::milliseconds>(endTime - startTime);
+    if (s.verbose_) {
+        printf("\nTime elapsed: %.3f s\n\n", durMs.count() / 1000.0);
+    }
+    if (stats.enabled) {
+        printf("\nCompiler stats:\n");
+        printf("#TotalTime: %d\n", (int)durMs.count());
+        printf("#ImplicitLibTime: %d\n", (int)stats.timeImplicitLib.count()/1000);
+        printf("#LlcTime: %d\n", (int)stats.timeLlc.count()/1000);
+        printf("#OptTime: %d\n", (int)stats.timeOpt.count()/1000);
+        printf("#FinalLinkTime: %d\n", (int)stats.timeLink.count()/1000);
+        printf("#NumCtEvals: %d\n", stats.numCtEvals);
+        printf("#CtEvalsTime: %d\n", (int)stats.timeCtEvals.count()/1000);
+        printf("\n");
     }
 
     return 0;

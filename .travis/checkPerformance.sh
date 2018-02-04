@@ -13,7 +13,7 @@ if [ $TRAVIS_OS_NAME == linux ]; then
     # Run the performance test, storing the result in the perf-monitor data folder
     echo "Running performance tests"
     cd tests/
-    python perf-test.py $BUILD_NAME > "../_perf-monitoring/_data/builds/$BUILD_NAME.yaml"
+    python perf-test.py $BUILD_NAME -b $TRAVIS_BRANCH > "../_perf-monitoring/_data/builds/$BUILD_NAME.yaml"
 
     # Print the measurements, for reference
     cat "../_perf-monitoring/_data/builds/$BUILD_NAME.yaml"

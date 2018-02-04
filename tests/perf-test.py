@@ -132,7 +132,7 @@ def testRuntimePerf(mKey, filename, runArgs, args, compilerLookup):
     # Return the measurement
     return [ '  ' + mKey + ': ' + str(res) ]
 
-def getGitInfo(buildName):
+def getGitInfo(buildName, branchName = None):
     lines = []
 
     # If no buildName is given, take the short SHA
@@ -145,16 +145,17 @@ def getGitInfo(buildName):
     lines.append('  date: ' + formatdate(time.time(), True))
 
     # GIT branch
-    gitBranch = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD'])
-    lines.append('  branch: ' + gitBranch.rstrip())
+    if not branchName:
+        branchName = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD'])
+    lines.append('  branch: "' + branchName.rstrip() + '"')
 
     # Get the parent commits
-    parents = subprocess.check_output(['git', 'show', '--format=%p']).rstrip().split(' ')
+    parents = subprocess.check_output(['git', 'show', '--no-patch', '--format=%p']).rstrip().split(' ')
     lines.append('  parents: ' + str(parents))
 
     # Get most GIT params
     fmtParam = '--format=  sha: %h%n  sha-long: %H%n  commit-author: %an%n  commit-date: %cD%n  commit-message: "%s"'
-    gitInfo = subprocess.check_output(['git', 'show', fmtParam])
+    gitInfo = subprocess.check_output(['git', 'show', '--no-patch', fmtParam])
     lines.append(gitInfo.rstrip())
     return lines;
 
@@ -166,6 +167,8 @@ def main():
     parser = argparse.ArgumentParser(description='Runs performance tests')
     parser.add_argument('buildName', action='store', nargs='?',
         help='The name of the build')
+    parser.add_argument('--branchName', '-b', action='store',
+        help='The name of the branch we are on')
     parser.add_argument('--numRepeats', '-r', action='store', default='7', metavar='N', type=int,
         help='Number of repetitions we shall have')
     parser.add_argument('--compilerArgs', '-c', action='store', default='-O2',
@@ -181,7 +184,7 @@ def main():
     compilerLookup = CompilerLookup(args.compilerProg, args.lliProg)
 
     # First, get the git-info data
-    resLines = getGitInfo(args.buildName)
+    resLines = getGitInfo(args.buildName, args.branchName)
 
     # Run each test
     resLines.append('')

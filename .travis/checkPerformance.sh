@@ -32,6 +32,7 @@ if [ $TRAVIS_OS_NAME == linux ]; then
         git add .
         git -c user.name='travis' -c user.email='travis' commit -m  "Performance for build: $BUILD_NAME"
         # the output quiet, so that we don't leak the API token
+        echo "Pushing to GitHub"
         git push -f -q https://Sparrow-lang:$PERFMONITORING_KEY@github.com/Sparrow-lang/perf-monitoring &2>/dev/null
     fi
 fi

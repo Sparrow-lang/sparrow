@@ -15,8 +15,6 @@ matrix:
                   - libedit-dev
        - os: osx
          osx_image: xcode9.2 # apple-clang 9.2, OS X 10.12
-before_install:
-  - pip install numpy
 install:
   - ./.travis/install.sh
 script:

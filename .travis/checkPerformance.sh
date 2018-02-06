@@ -31,8 +31,10 @@ if [ $TRAVIS_OS_NAME == linux ]; then
     if [ -n "$PERFMONITORING_KEY" ]; then
         git add .
         git -c user.name='travis' -c user.email='travis' commit -m  "Performance for build: $BUILD_NAME"
+
         # the output quiet, so that we don't leak the API token
         echo "Pushing to GitHub"
-        git push -f -q https://$PERFMONITORING_KEY@github.com/Sparrow-lang/perf-monitoring.git master &2>/dev/null
+        git remote add origin https://$PERFMONITORING_KEY@github.com/Sparrow-lang/perf-monitoring.git > /dev/null 2>&1
+        git push --quiet --force --set-upstream origin master
     fi
 fi

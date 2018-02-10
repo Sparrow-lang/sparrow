@@ -24,6 +24,7 @@ if [ $TRAVIS_OS_NAME == linux ]; then
     python _scripts/genPerfTrends.py $BUILD_NAME
 
     # Add this build to the list of recent builds
+    echo "Adding to recent builds"
     python _scripts/addRecent.py $BUILD_NAME
 
 

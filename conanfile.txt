@@ -1,6 +1,0 @@
-[requires]
-Boost/1.60.0@lucteo/stable
-llvm/3.5.2@lucteo/stable
-
-[generators]
-cmake

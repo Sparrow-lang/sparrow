@@ -13,3 +13,4 @@ PointerAlignment: Left
 AlignAfterOpenBracket: DontAlign
 BreakConstructorInitializersBeforeComma: true
 ReflowComments: true
+AccessModifierOffset: -4

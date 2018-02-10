@@ -1,42 +1,33 @@
 #pragma once
 
-#include <boost/timer/timer.hpp>
+#include <chrono>
 
+namespace Nest {
+namespace Common {
+/// Helper timer that prints the elapsed time at the console
+///
+/// In order for this to do something, the "enable" constructor parameter must be true; otherwise
+/// this has no effect.
+class PrintTimer {
+    chrono::steady_clock::time_point startTime;
+    const char* format;
 
-namespace Nest { namespace Common
-{
-    /// Helper timer that prints the elapsed time at the console
-    ///
-    /// In order for this to do something, the "enable" constructor parameter must be true; otherwise this has no effect.
-    class PrintTimer
-    {
-        typedef boost::timer::cpu_timer TimerType;
-        typedef boost::optional<TimerType> OptType;
-
-    public:
-        PrintTimer(bool enable, const char* beginStr, const char* endStrFormat, int places = 3)
-            : places_(places)
-            , endStrFormat_(endStrFormat)
-        {
-            if ( enable )
-            {
-                cout << beginStr;
-                timer_ = TimerType();
-            }
+public:
+    PrintTimer(bool enable, const char* startText, const char* fmtEnd = "[%d ms]\n")
+        : format(enable ? fmtEnd : nullptr) {
+        if (enable) {
+            printf("%s", startText);
+            startTime = chrono::steady_clock::now();
         }
+    }
 
-        ~PrintTimer()
-        {
-            if ( timer_ )
-            {
-                timer_->stop();
-                cout << timer_->format(places_, endStrFormat_);
-            }
+    ~PrintTimer() {
+        if (format) {
+            auto durMs = chrono::duration_cast<chrono::milliseconds>(
+                    chrono::steady_clock::now() - startTime);
+            printf(format, durMs);
         }
-
-    private:
-        int places_;
-        string endStrFormat_;
-        OptType timer_;
-    };
-}}
+    }
+};
+} // namespace Common
+} // namespace Nest

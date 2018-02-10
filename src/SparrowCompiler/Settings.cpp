@@ -4,6 +4,7 @@
 
 #include "Nest/Api/Compiler.h"
 #include "Nest/Utils/CompilerSettings.hpp"
+#include "Nest/Utils/CompilerStats.hpp"
 
 #ifdef _MSC_VER
 #pragma warning(disable: 4512)
@@ -389,7 +390,7 @@ bool initSettingsWithArgs(int argc, char** argv)
     s.executableDir_ = boost::filesystem::system_complete(getExecutablePath(argv[0])).parent_path().string();
 
     // Default data layout & target triple
-    s.dataLayout_ = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-f32:32:32-f64:64:64-v64:64:64-v128:128:128-a0:0:64-s0:64:64-f80:128:128-n8:16:32:64";
+    s.dataLayout_ = "e-m:o-i64:64-f80:128-n8:16:32:64-S128";
 #if (BOOST_OS_MACOS)
     s.targetTriple_ = "x86_64-apple-macosx10.9.0";
 #else
@@ -397,6 +398,7 @@ bool initSettingsWithArgs(int argc, char** argv)
 #endif
 
     bool showHelp = false;
+    bool& enableCompilerStats = CompilerStats::instance().enabled;
 
     OptionEntry optionsMap[] = {
         { NULL,                     NULL, {}, "Generic options" },
@@ -449,6 +451,7 @@ bool initSettingsWithArgs(int argc, char** argv)
         { "-dump-assembly",         NULL, s.dumpAssembly_, "dump LLVM assembly for the compilation units" },
         { "-dump-ct-assembly",      NULL, s.dumpCtAssembly_, "dump LLVM assembly for the CT module" },
         { "-dump-opt-assembly",     NULL, s.dumpOptAssembly_, "dump LLVM assembly for the optimized module" },
+        { "-dump-compile-stats",    NULL, enableCompilerStats, "dump timing and stats about compilation" },
         { "-dump-ast",              " <filter>", s.dumpAST_, "dump AST for the files matching the given filter" },
         { "-keep-intermediate-files", NULL, s.keepIntermediateFiles_, "keep intermediate files generating during compilation" },
     };
@@ -515,6 +518,7 @@ bool initSettingsWithArgs(int argc, char** argv)
         cout << endl;
         cout << "Run '" << s.programName_ << " -help' for the list of available options" << endl;
         cout << endl;
+        exit(-1);
         return false;
     }
 

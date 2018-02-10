@@ -16,6 +16,7 @@
 #include "Feather/Utils/FeatherUtils.hpp"
 
 #include "Nest/Api/SourceCode.h"
+#include "Nest/Utils/Alloc.h"
 
 using namespace SprFrontend;
 using namespace Nest;
@@ -1130,6 +1131,15 @@ Node* CompoundExp_SemanticCheck(Node* node)
     bool allowDeclExp = 0 != Nest_getPropertyDefaultInt(node, propAllowDeclExp, 0);
     Node* res = getIdentifierResult(node, all(decls), baseDataExp, allowDeclExp);
     return res;
+}
+const char* CompoundExp_toString(const Node* node)
+{
+    Node* base = at(node->children, 0);
+    StringRef id = Nest_getCheckPropertyString(node, "name");
+
+    ostringstream os;
+    os << Nest_toString(base) << "." << toString(id);
+    return dupString(os.str().c_str());
 }
 
 Node* FunApplication_SemanticCheck(Node* node)

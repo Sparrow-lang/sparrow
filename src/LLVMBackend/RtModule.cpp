@@ -2,6 +2,7 @@
 #include "RtModule.h"
 #include <Tr/TrTopLevel.h>
 #include <Tr/DebugInfo.h>
+#include <Tr/GlobalContext.h>
 
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Api/Node.h"
@@ -17,15 +18,19 @@ using namespace Feather;
 
 RtModule::RtModule(const string& name, const string& filename)
     : Module(name)
+    , llvmModule_(new llvm::Module(name, *llvmContext_))
 {
-    const CompilerSettings& s = *Nest_compilerSettings();
+    CompilerSettings& s = *Nest_compilerSettings();
+
+    llvmModule_->setDataLayout(s.dataLayout_);
+    llvmModule_->setTargetTriple(s.targetTriple_);
+
     if ( s.generateDebugInfo_ )
-        debugInfo_ = new DebugInfo(*llvmModule_, filename);
+        debugInfo_.reset(new DebugInfo(*llvmModule_, filename));
 }
 
 RtModule::~RtModule()
 {
-    delete debugInfo_;
 }
 
 void RtModule::generate(Node* rootNode)
@@ -34,14 +39,15 @@ void RtModule::generate(Node* rootNode)
         REP_INTERNAL(NOLOC, "The root node to be processed by the LLVM backend is not semantically checked");
 
     // Translate the root node as a top level node
-    Tr::translateTopLevelNode(rootNode, *this);
+    Tr::GlobalContext ctx(*llvmModule_, *this);
+    Tr::translateTopLevelNode(rootNode, ctx);
 }
 
 void RtModule::generateGlobalCtorDtor()
 {
 
     bool reverseOnCtor = false;
-    bool reverseOnDtor = true;
+    bool reverseOnDtor = false;
 #ifdef _WIN32
     //reverseOnCtor = true;
     //reverseOnDtor = true;
@@ -76,6 +82,8 @@ RtModule::NodeFun RtModule::ctToRtTranslator() const
     return ctToRtTranslator_;
 }
 
+Tr::DebugInfo* RtModule::debugInfo() const { return debugInfo_.get(); }
+
 
 
 void RtModule::emitCtorList(const CtorList& funs, const char* globalName, bool reverse)
@@ -90,7 +98,7 @@ void RtModule::emitCtorList(const CtorList& funs, const char* globalName, bool r
     llvm::Type* ctorPFTy = llvm::PointerType::getUnqual(ctorFTy);
 
     // Get the type of a ctor entry, { i32, void ()* }.
-    llvm::StructType* ctorStructTy = llvm::StructType::get(int32T, ctorPFTy, NULL);
+    llvm::StructType* ctorStructTy = llvm::StructType::get(int32T, ctorPFTy);
 
     // Construct the constructor and destructor arrays.
     llvm::SmallVector<llvm::Constant*, 8> ctors;
@@ -106,10 +114,11 @@ void RtModule::emitCtorList(const CtorList& funs, const char* globalName, bool r
 
     if ( !ctors.empty() )
     {
+        ASSERT(llvmModule_);
         llvm::ArrayType *arrT = llvm::ArrayType::get(ctorStructTy, ctors.size());
         new llvm::GlobalVariable(*llvmModule_, arrT, false,
             llvm::GlobalValue::AppendingLinkage,
             llvm::ConstantArray::get(arrT, ctors),
             globalName);
-    } 
+    }
 }

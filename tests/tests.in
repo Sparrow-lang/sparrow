@@ -69,10 +69,10 @@ Logic/Solar.spr:                        Logic: solar system example
 # Logic/PrologErr2.spr:                   Logic: Prolog error - invalid token
 # Logic/PrologErr3.spr:                   Logic: Prolog error - cannot find predicate
 # Logic/Antiquotation.spr:                Logic: Antiquotation in Prolog
-# Logic/ImportProlog.spr:                 Logic: Directly importing Prolog code
+# # Logic/ImportProlog.spr:                 Logic: Directly importing Prolog code
 # Logic/FibTest.spr:                      Logic: Fibonacci computation
 # Logic/FibOptTest.spr:                   Logic: Fibonacci computation - using optimized version
-# Logic/FibProlog.spr:                    Logic: Fibonacci computation - Prolog code
+# # Logic/FibProlog.spr:                    Logic: Fibonacci computation - Prolog code
 # Logic/FibPrologErr.spr:                 Logic: Fibonacci computation - Prolog code with errors
 
 Basic2/Conditional.spr:                 Basic features 2 - Conditionals

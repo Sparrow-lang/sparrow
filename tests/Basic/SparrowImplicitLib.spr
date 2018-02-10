@@ -83,14 +83,14 @@ define void @assignRefByte(i8** %ptr, i8* %val)
 
 define i8* @ptrAdd(i8* %p, i64 %n)
 {
-    %1 = getelementptr i8* %p, i64 %n
+    %1 = getelementptr i8, i8* %p, i64 %n
     ret i8* %1
 }
 
 define i8* @ptrSub(i8* %p, i64 %n)
 {
     %1 = sub i64 0, %n
-    %2 = getelementptr i8* %p, i64 %1
+    %2 = getelementptr i8, i8* %p, i64 %1
     ret i8* %2
 }
 
@@ -102,25 +102,6 @@ define i64 @ptrDiff(i8* %p1, i8* %p2)
     ret i64 %3
 }
 
-define i32 @main(i32 %argc, i8** %argv) nounwind uwtable {
-  %1 = icmp sgt i32 %argc, 1
-  br i1 %1, label %trueBranch, label %falseBranch
-
-trueBranch:
-  %2 = getelementptr inbounds i8** %argv, i64 1
-  %3 = load i8** %2
-  %4 = call i32 @atoi(i8* %3) nounwind readonly
-  call void @test(i32 %4)
-  br label %end
-
-falseBranch:
-  call void @test(i32 0)
-  br label %end
-
-end:
-  ret i32 0
-}
-
 %Type = type { i8* }
 
 %struct._IO_FILE = type opaque
@@ -128,7 +109,6 @@ declare i32 @fflush(%struct._IO_FILE*) nounwind readonly
 
 declare i32 @atoi(i8*) nounwind readonly
 declare i32 @printf(i8*, ...)
-declare void @test(i32)
 declare double @llvm.pow.f64(double,double)
 declare i8* @malloc(i64) nounwind
 declare i8* @realloc(i8*, i64) nounwind
@@ -693,92 +673,92 @@ define i8 @intToByte(i32 %n) {
 
 
 define void @writeLnByte(i8 %val) {
-  %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.fmtIntN, i32 0, i32 0), i8 %val)
+  %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.fmtIntN, i32 0, i32 0), i8 %val)
   ret void
 }
 
 define void @writeLnShort(i16 %val) {
-  %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.fmtIntN, i32 0, i32 0), i16 %val)
+  %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.fmtIntN, i32 0, i32 0), i16 %val)
   ret void
 }
 
 define void @writeLnInt(i32 %val) {
-  %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.fmtIntN, i32 0, i32 0), i32 %val)
+  %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.fmtIntN, i32 0, i32 0), i32 %val)
   ret void
 }
 
 define void @writeLnUInt(i32 %val) {
-  %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.fmtIntN, i32 0, i32 0), i32 %val)
+  %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.fmtIntN, i32 0, i32 0), i32 %val)
   ret void
 }
 
 define void @writeLnSizeType(i64 %val) {
-  %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.fmtIntN, i32 0, i32 0), i64 %val)
+  %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.fmtIntN, i32 0, i32 0), i64 %val)
   ret void
 }
 
 define void @writeLnFloat(float %val) {
-  %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.fmtDoubleN, i32 0, i32 0), float %val)
+  %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.fmtDoubleN, i32 0, i32 0), float %val)
   ret void
 }
 
 define void @writeLnDouble(double %val) {
-  %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.fmtDoubleN, i32 0, i32 0), double %val)
+  %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.fmtDoubleN, i32 0, i32 0), double %val)
   ret void
 }
 
 define void @writeLnChar(i8 %val) {
-  %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.fmtCharN, i32 0, i32 0), i8 %val)
+  %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.fmtCharN, i32 0, i32 0), i8 %val)
   ret void
 }
 
 define void @writeLnStringImpl(i8* %val) {
-  %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.fmtStringN, i32 0, i32 0), i8* %val)
+  %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.fmtStringN, i32 0, i32 0), i8* %val)
   ret void
 }
 
 define void @writeLnPointer(i8* %val) {
-  %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.fmtPointerN, i32 0, i32 0), i8* %val)
+  %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.fmtPointerN, i32 0, i32 0), i8* %val)
   ret void
 }
 
 define void @writeByte(i8 %val) {
-  %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.fmtInt, i32 0, i32 0), i8 %val)
+  %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.fmtInt, i32 0, i32 0), i8 %val)
   ret void
 }
 
 define void @writeShort(i16 %val) {
-  %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.fmtInt, i32 0, i32 0), i16 %val)
+  %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.fmtInt, i32 0, i32 0), i16 %val)
   ret void
 }
 
 define void @writeInt(i32 %val) {
-  %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.fmtInt, i32 0, i32 0), i32 %val)
+  %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.fmtInt, i32 0, i32 0), i32 %val)
   ret void
 }
 
 define void @writeSizeType(i64 %val) {
-  %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.fmtInt, i32 0, i32 0), i64 %val)
+  %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.fmtInt, i32 0, i32 0), i64 %val)
   ret void
 }
 
 define void @writeDouble(double %val) {
-  %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.fmtDouble, i32 0, i32 0), double %val)
+  %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.fmtDouble, i32 0, i32 0), double %val)
   ret void
 }
 
 define void @writeChar(i8 %val) {
-  %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.fmtChar, i32 0, i32 0), i8 %val)
+  %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.fmtChar, i32 0, i32 0), i8 %val)
   ret void
 }
 
 define void @writeStringImpl(i8* %val) {
-  %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.fmtString, i32 0, i32 0), i8* %val)
+  %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.fmtString, i32 0, i32 0), i8* %val)
   ret void
 }
 
 define void @writePointer(i8* %val) {
-  %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.fmtPointer, i32 0, i32 0), i8* %val)
+  %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.fmtPointer, i32 0, i32 0), i8* %val)
   ret void
 }
 
@@ -793,9 +773,34 @@ define void @_Type_copy_ctor(i8** %$this, i8* %other)
   store i8* %other, i8** %$this
   ret void
 }
-
 "
 );
+injectBackendCodeRt(
+"
+define i32 @main(i32 %argc, i8** %argv) nounwind uwtable {
+  %1 = icmp sgt i32 %argc, 1
+  br i1 %1, label %trueBranch, label %falseBranch
+
+trueBranch:
+  %2 = getelementptr inbounds i8*, i8** %argv, i64 1
+  %3 = load i8*, i8** %2
+  %4 = call i32 @atoi(i8* %3) nounwind readonly
+  call void @test(i32 %4)
+  br label %end
+
+falseBranch:
+  call void @test(i32 0)
+  br label %end
+
+end:
+  ret i32 0
+}
+
+declare void @test(i32)
+declare i32 @atoi(i8*) nounwind readonly
+"
+);
+
 
 [native("Type"), noDefault, ct] class Type
 {

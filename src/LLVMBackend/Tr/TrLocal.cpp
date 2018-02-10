@@ -150,7 +150,7 @@ namespace
 
         // Translate the PHI node
         context.setInsertionPoint(afterBlock);
-        llvm::PHINode* phiVal = llvm::PHINode::Create(getLLVMType(destType, context.module()), 2, "cond.res", context.insertionPoint());
+        llvm::PHINode* phiVal = llvm::PHINode::Create(getLLVMType(destType, context.globalContext()), 2, "cond.res", context.insertionPoint());
         phiVal->addIncoming(val1, alt1Block);
         phiVal->addIncoming(val2, alt2Block);
 
@@ -181,7 +181,7 @@ namespace
         Node* arg2 = at(funCall->children, 1);
         llvm::Value* trueConst = llvm::ConstantInt::getTrue(context.llvmContext());
         llvm::Value* res = generateConditionalCode(arg1->type, arg1->context, arg1, Exp(trueConst), Exp(arg2), context);
-        return setValue(context.module(), *funCall, res);
+        return setValue(context, *funCall, res);
     }
 
     llvm::Value* handleLogicalAnd(Node* funCall, TrContext& context)
@@ -193,7 +193,7 @@ namespace
         Node* arg2 = at(funCall->children, 1);
         llvm::Value* falseConst = llvm::ConstantInt::getFalse(context.llvmContext());
         llvm::Value* res = generateConditionalCode(arg1->type, arg1->context, arg1, Exp(arg2), Exp(falseConst), context);
-        return setValue(context.module(), *funCall, res);
+        return setValue(context, *funCall, res);
     }
 
     llvm::Value* handleFunPtr(Node* funCall, TrContext& context)
@@ -219,7 +219,7 @@ namespace
         context.ensureInsertionPoint();
 
         // Create a function type pointer based on the arguments of the function
-        llvm::Type* fType = getLLVMFunctionType(fun, thisArgPos, context.module());
+        llvm::Type* fType = getLLVMFunctionType(fun, thisArgPos, context.globalContext());
         llvm::Type* pfType = llvm::PointerType::get(fType, 0);
         llvm::Type* ppfType = llvm::PointerType::get(pfType, 0);
 
@@ -234,7 +234,7 @@ namespace
         // Create a call instruction to the pointer to function
         llvm::CallInst* val = context.builder().CreateCall(ptrToFun, args, "");
         val->setCallingConv(Tr::translateCallingConv(Feather_Function_callConvention(fun)));
-        return setValue(context.module(), *funCall, val);
+        return setValue(context, *funCall, val);
     }
 
     llvm::Value* handleNativeFunCall(StringRef native, Node* funCall, TrContext& context)
@@ -499,14 +499,14 @@ namespace
     {
         switch ( ord )
         {
-        case atomicNone:            return llvm::NotAtomic;
-        case atomicUnordered:       return llvm::Unordered;
-        case atomicMonotonic:       return llvm::Monotonic;
-        case atomicAcquire:         return llvm::Acquire;
-        case atomicRelease:         return llvm::Release;
-        case atomicAcquireRelease:  return llvm::AcquireRelease;
-        case atomicSeqConsistent:   return llvm::SequentiallyConsistent;
-        default:                    return llvm::NotAtomic;
+        case atomicNone:            return llvm::AtomicOrdering::NotAtomic;
+        case atomicUnordered:       return llvm::AtomicOrdering::Unordered;
+        case atomicMonotonic:       return llvm::AtomicOrdering::Monotonic;
+        case atomicAcquire:         return llvm::AtomicOrdering::Acquire;
+        case atomicRelease:         return llvm::AtomicOrdering::Release;
+        case atomicAcquireRelease:  return llvm::AtomicOrdering::AcquireRelease;
+        case atomicSeqConsistent:   return llvm::AtomicOrdering::SequentiallyConsistent;
+        default:                    return llvm::AtomicOrdering::NotAtomic;
         }
     }
 
@@ -543,7 +543,7 @@ namespace
     llvm::Value* translateCtValue(Node* node, TrContext& context)
     {
         // Get the type of the ct value
-        llvm::Type* t = Tr::getLLVMType(node->type, context.module());
+        llvm::Type* t = Tr::getLLVMType(node->type, context.globalContext());
 
         // Check for String CtValues
         if ( !context.module().isCt() )
@@ -581,15 +581,15 @@ namespace
                 }
             }
 
-            return setValue(context.module(), *node, llvm::ConstantInt::get(static_cast<llvm::IntegerType*>(t), val));
+            return setValue(context, *node, llvm::ConstantInt::get(static_cast<llvm::IntegerType*>(t), val));
         }
         else if ( t->isFloatTy() )
         {
-            return setValue(context.module(), *node, llvm::ConstantFP::get(t, *Feather_getCtValueData<float>(node)));
+            return setValue(context, *node, llvm::ConstantFP::get(t, *Feather_getCtValueData<float>(node)));
         }
         else if ( t->isDoubleTy() )
         {
-            return setValue(context.module(), *node, llvm::ConstantFP::get(t, *Feather_getCtValueData<double>(node)));
+            return setValue(context, *node, llvm::ConstantFP::get(t, *Feather_getCtValueData<double>(node)));
         }
         else if ( t->isPointerTy() )
         {
@@ -600,7 +600,7 @@ namespace
         else if ( t->isStructTy() )
         {
             // If our size is zero, return a zero constant aggregate
-            size_t size = context.llvmModule().getDataLayout()->getTypeAllocSize(t);
+            size_t size = context.llvmModule().getDataLayout().getTypeAllocSize(t);
             if ( size == 0 )
                 return llvm::ConstantAggregateZero::get(t);
 
@@ -643,8 +643,8 @@ namespace
             val->setAlignment(alignment);
         val->setVolatile(0 != Nest_getCheckPropertyInt(node, "volatile"));
         val->setOrdering(llvmOrdering((AtomicOrdering) Nest_getCheckPropertyInt(node, "atomicOrdering")));
-        val->setSynchScope(Nest_getCheckPropertyInt(node, "singleThreaded") ? llvm::SingleThread : llvm::CrossThread);
-        return setValue(context.module(), *node, val);
+        val->setSyncScopeID(Nest_getCheckPropertyInt(node, "singleThreaded") ? llvm::SyncScope::SingleThread : llvm::SyncScope::System);
+        return setValue(context, *node, val);
     }
 
     llvm::Value* translateMemStore(Node* node, TrContext& context)
@@ -665,8 +665,8 @@ namespace
             val->setAlignment(alignment);
         val->setVolatile(0 != Nest_getCheckPropertyInt(node, "volatile"));
         val->setOrdering(llvmOrdering((AtomicOrdering) Nest_getCheckPropertyInt(node, "atomicOrdering")));
-        val->setSynchScope(Nest_getCheckPropertyInt(node, "singleThreaded") ? llvm::SingleThread : llvm::CrossThread);
-        return setValue(context.module(), *node, val);
+        val->setSyncScopeID(Nest_getCheckPropertyInt(node, "singleThreaded") ? llvm::SyncScope::SingleThread : llvm::SyncScope::System);
+        return setValue(context, *node, val);
     }
 
     llvm::Value* translateVarRef(Node* node, TrContext& context)
@@ -674,7 +674,7 @@ namespace
         // Simply take the value from the referenced variable
         Node* variable = at(node->referredNodes, 0);
         CHECK(node->location, variable);
-        llvm::Value* varVal = getValue(context.module(), *variable, false);
+        llvm::Value* varVal = getValue(context, *variable, false);
         if ( !varVal )
         {
             // If we are here, we are trying to reference a variable that wasn't declared yet.
@@ -682,7 +682,7 @@ namespace
             if ( variable->nodeKind != nkFeatherDeclVar )
                 REP_INTERNAL(variable->location, "Cannot find variable %1%") % Feather_getName(variable);
 
-            varVal = Tr::translateGlobalVar(variable, context.module());
+            varVal = Tr::translateGlobalVar(variable, context.globalContext());
             if ( !varVal )
             {
                 if ( Feather_effectiveEvalMode(variable) == modeCt && !context.module().isCt() )
@@ -691,7 +691,7 @@ namespace
                     REP_INTERNAL(node->location, "Cannot find variable %1% in the current module") % Feather_getName(variable);
             }
         }
-        return setValue(context.module(), *node, varVal);
+        return setValue(context, *node, varVal);
     }
 
     llvm::Value* translateFieldRef(Node* node, TrContext& context)
@@ -724,18 +724,18 @@ namespace
         indices.push_back(llvm::ConstantInt::get(context.llvmContext(), llvm::APInt(32, idx, false)));
         context.ensureInsertionPoint();
         llvm::Value* val = context.builder().CreateInBoundsGEP(objVal, indices, "");
-        return setValue(context.module(), *node, val);
+        return setValue(context, *node, val);
     }
 
     llvm::Value* translateFunRef(Node* node, TrContext& context)
     {
         // Make sure the function is translated; get a function pointer value
         Node* funDecl = at(node->referredNodes, 0);
-        llvm::Function* func = translateFunction(funDecl, context.module());
+        llvm::Function* func = translateFunction(funDecl, context.globalContext());
         CHECK(node->location, func);
 
         // Get the functor data type, plain and with 1 or 2 pointers
-        llvm::Type* t = getLLVMType(node->type, context.module());
+        llvm::Type* t = getLLVMType(node->type, context.globalContext());
         llvm::Type* pt = llvm::PointerType::get(t, 0);
         CHECK(node->location, t);
 
@@ -745,7 +745,7 @@ namespace
         context.builder().CreateStore(func, tmpVal);
         llvm::Value* bc = context.builder().CreateBitCast(tmpVal, pt);
         llvm::Value* res = context.builder().CreateLoad(bc);
-        return setValue(context.module(), *node, res);
+        return setValue(context, *node, res);
     }
 
     llvm::Value* translateFunCall(Node* node, TrContext& context)
@@ -775,10 +775,10 @@ namespace
             context.ensureInsertionPoint();
             auto res = handleNativeFunCall(*nativeName, node, context);
             if ( res )
-                return setValue(context.module(), *node, res);
+                return setValue(context, *node, res);
         }
 
-        llvm::Function* func = translateFunction(funDecl, context.module());
+        llvm::Function* func = translateFunction(funDecl, context.globalContext());
         CHECK(node->location, func);
 
         llvm::Value* res = nullptr;
@@ -798,9 +798,17 @@ namespace
             return nullptr;
         }
 
-        // Create a 'call' instruction
         context.ensureInsertionPoint();
-        llvm::CallInst* val = context.builder().CreateCall(func, args, "");;
+
+        // Apply a bitcast if the types don't match
+        llvm::Constant* toCall = func;
+        llvm::FunctionType* funType = static_cast<llvm::FunctionType*>(getLLVMType(funDecl->type, context.globalContext()));
+        llvm::PointerType* funTypePtr = llvm::PointerType::getUnqual(funType);
+        if ( func->getType() != funTypePtr )
+            toCall = llvm::ConstantExpr::getBitCast(func, funTypePtr);
+
+        // Create a 'call' instruction
+        llvm::CallInst* val = context.builder().CreateCall(toCall, args, "");;
         val->setCallingConv(Tr::translateCallingConv(Feather_Function_callConvention(funDecl)));
         if ( res )
             return context.builder().CreateLoad(res);
@@ -814,9 +822,9 @@ namespace
         Node* destTypeNode = at(node->children, 1);
         llvm::Value* exp = translateNode(expNode, context);
         CHECK(node->location, exp);
-        llvm::Type* destType = Tr::getLLVMType(destTypeNode->type, context.module());
+        llvm::Type* destType = Tr::getLLVMType(destTypeNode->type, context.globalContext());
         if ( exp->getType() == destType )
-            return setValue(context.module(), *node, exp);
+            return setValue(context, *node, exp);
 
         // Create a 'bitcast' instruction
         llvm::Value* val;
@@ -824,7 +832,7 @@ namespace
         ASSERT(expNode->type->numReferences > 0 );
         context.ensureInsertionPoint();
         val = context.builder().CreateBitCast(exp, destType);
-        return setValue(context.module(), *node, val);
+        return setValue(context, *node, val);
     }
 
     llvm::Value* translateConditional(Node* node, TrContext& context)
@@ -874,7 +882,7 @@ namespace
 
         // Translate the PHI node
         context.setInsertionPoint(afterBlock);
-        llvm::Type* destType = Tr::getLLVMType(node->type, context.module());
+        llvm::Type* destType = Tr::getLLVMType(node->type, context.globalContext());
         llvm::PHINode* phiVal = llvm::PHINode::Create(destType, 2, "cond", context.insertionPoint());
         phiVal->addIncoming(val1, alt1Block);
         phiVal->addIncoming(val2, alt2Block);
@@ -938,7 +946,7 @@ namespace
 
     llvm::Value* translateNull(Node* node, TrContext& context)
     {
-        llvm::Type* resType = Tr::getLLVMType(node->type, context.module());
+        llvm::Type* resType = Tr::getLLVMType(node->type, context.globalContext());
         if ( !resType->isPointerTy() )
             REP_INTERNAL(node->location, "Null type should be a pointer (we have: %1%)") % node->type;
 
@@ -1063,9 +1071,9 @@ namespace
 
         // Store the step & the end labels (blocks) in the object
         ASSERT(!context.scopesStack().empty());
-        context.module().setNodeProperty(node, Module::propWhileInstr, &scopeGuard);
-        context.module().setNodeProperty(node, Module::propWhileStepLabel, whileStep);
-        context.module().setNodeProperty(node, Module::propWhileEndLabel, whileEnd);
+        context.whileInstrGuards_[node] = &scopeGuard;
+        context.whileStepLabels_[node] = whileStep;
+        context.whileEndLabels_[node] = whileEnd;
 
         // Jump in the while block
         {
@@ -1116,19 +1124,19 @@ namespace
         CHECK(node->location, whileNode);
 
         // Get the instruction guard for the while instruction
-        Scope** whileInstr = context.module().getNodePropertyValue<Scope*>(whileNode, Module::propWhileInstr);
+        Scope* whileInstr = context.whileInstrGuards_[whileNode];
         CHECK(node->location, whileInstr);
 
         // Translate the destruct actions until the while instruction
-        unwind(context, *whileInstr);
+        unwind(context, whileInstr);
 
         // Get the while's end label
-        llvm::BasicBlock** endLabel = context.module().getNodePropertyValue<llvm::BasicBlock*>(whileNode, Module::propWhileEndLabel);
+        llvm::BasicBlock* endLabel = context.whileEndLabels_[whileNode];
         CHECK(node->location, endLabel);
 
         // Create a jump to the end-of-while label
         context.ensureInsertionPoint();
-        context.builder().CreateBr(*endLabel);
+        context.builder().CreateBr(endLabel);
         context.setInsertionPoint(nullptr); // No other instruction will be placed in this block
 
         return nullptr;
@@ -1142,19 +1150,19 @@ namespace
         CHECK(node->location, whileNode);
 
         // Get the instruction guard for the while instruction
-        Scope** whileInstr = context.module().getNodePropertyValue<Scope*>(whileNode, Module::propWhileInstr);
+        Scope* whileInstr = context.whileInstrGuards_[whileNode];
         CHECK(node->location, whileInstr);
 
         // Translate the destruct actions until the while instruction
-        unwind(context, *whileInstr);
+        unwind(context, whileInstr);
 
         // Get the while's step label
-        llvm::BasicBlock** stepLabel = context.module().getNodePropertyValue<llvm::BasicBlock*>(whileNode, Module::propWhileStepLabel);
+        llvm::BasicBlock* stepLabel = context.whileStepLabels_[whileNode];
         CHECK(node->location, stepLabel);
 
         // Create a jump to the while-step label
         context.ensureInsertionPoint();
-        context.builder().CreateBr(*stepLabel);
+        context.builder().CreateBr(stepLabel);
         context.setInsertionPoint(nullptr); // No other instruction will be placed in this block
 
         return nullptr;
@@ -1170,12 +1178,12 @@ namespace
 		ASSERT(context.parentFun());
 
         // Create an 'alloca' instruction for the local variable
-        llvm::Type* t = Tr::getLLVMType(node->type, context.module());
+        llvm::Type* t = Tr::getLLVMType(node->type, context.globalContext());
 		llvm::AllocaInst* val = context.addVariable(t, Feather_getName(node).begin);
         int alignment = Nest_getCheckPropertyInt(node, "alignment");
 		if ( alignment > 0 )
 			val->setAlignment(alignment);
-		return setValue(context.module(), *node, val);
+		return setValue(context, *node, val);
     }
 
 
@@ -1204,7 +1212,7 @@ llvm::Value* Tr::translateNode(Node* node, TrContext& context)
     // Translate the additional nodes for this node
     for ( Node* n: all(node->additionalNodes) )
     {
-        translateTopLevelNode(n, context.module());
+        translateTopLevelNode(n, context.globalContext());
     }
 
     // If this node is explained, then translate its explanation
@@ -1260,16 +1268,17 @@ llvm::Value* Tr::translateNode(Node* node, TrContext& context)
     }
 }
 
-llvm::Value* Tr::setValue(Module& module, Node& node, llvm::Value* val)
+llvm::Value* Tr::setValue(TrContext& context, Node& node, llvm::Value* val)
 {
-    module.setNodeProperty(&node, Module::propValue, val);
+    context.resultingValues_[&node] = val;
     return val;
 }
 
-llvm::Value* Tr::getValue(Module& module, Node& node, bool doCheck)
+llvm::Value* Tr::getValue(TrContext& context, Node& node, bool doCheck)
 {
-    llvm::Value** val = module.getNodePropertyValue<llvm::Value*>(&node, Module::propValue);
-    if ( !val && doCheck )
-        REP_INTERNAL(node.location, "Expected LLVM value for node %1%") % &node;
-    return val ? *val : nullptr;
+    auto it = context.resultingValues_.find(&node);
+    bool isValid = it != context.resultingValues_.end();
+    if ( !isValid && doCheck )
+        REP_INTERNAL(node.location, "Expected LLVM value for node %1%") % Nest_toStringEx(&node);
+    return isValid ? it->second : nullptr;
 }

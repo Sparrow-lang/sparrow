@@ -52,14 +52,14 @@ define void @_Type_copy_ctor(i8** %$this, i8* %other)
 
 define i8* @ptrAdd(i8* %p, i64 %n) alwaysinline
 {
-    %1 = getelementptr i8* %p, i64 %n
+    %1 = getelementptr i8, i8* %p, i64 %n
     ret i8* %1
 }
 
 define i8* @ptrSub(i8* %p, i64 %n) alwaysinline
 {
     %1 = sub i64 0, %n
-    %2 = getelementptr i8* %p, i64 %1
+    %2 = getelementptr i8, i8* %p, i64 %1
     ret i8* %2
 }
 
@@ -100,60 +100,60 @@ define void @flushOutput() alwaysinline
 
 
 define void @writeByte(i8 %val) alwaysinline {
-    %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.fmtInt, i32 0, i32 0), i8 %val)
+    %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.fmtInt, i32 0, i32 0), i8 %val)
     ret void
 }
 
 define void @writeShort(i16 %val) alwaysinline {
-    %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.fmtInt, i32 0, i32 0), i16 %val)
+    %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.fmtInt, i32 0, i32 0), i16 %val)
     ret void
 }
 
 define void @writeInt(i32 %val) alwaysinline {
-    %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.fmtInt, i32 0, i32 0), i32 %val)
+    %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.fmtInt, i32 0, i32 0), i32 %val)
     ret void
 }
 
 define void @writeUInt(i32 %val) alwaysinline {
-    %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.fmtUInt, i32 0, i32 0), i32 %val)
+    %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.fmtUInt, i32 0, i32 0), i32 %val)
     ret void
 }
 
 define void @writeLong(i64 %val) alwaysinline {
-    %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([5 x i8]* @.fmtLong, i32 0, i32 0), i64 %val)
+    %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @.fmtLong, i32 0, i32 0), i64 %val)
     ret void
 }
 
 define void @writeULong(i64 %val) alwaysinline {
-    %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([5 x i8]* @.fmtULong, i32 0, i32 0), i64 %val)
+    %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @.fmtULong, i32 0, i32 0), i64 %val)
     ret void
 }
 
 define void @writeDouble(double %val) alwaysinline {
-    %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.fmtDouble, i32 0, i32 0), double %val)
+    %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.fmtDouble, i32 0, i32 0), double %val)
     ret void
 }
 
 define void @writeChar(i8 %val) alwaysinline {
-    %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.fmtChar, i32 0, i32 0), i8 %val)
+    %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.fmtChar, i32 0, i32 0), i8 %val)
     ret void
 }
 
 define void @writePointer(i8* %val) alwaysinline {
-    %1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.fmtPointer, i32 0, i32 0), i8* %val)
+    %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.fmtPointer, i32 0, i32 0), i8* %val)
     ret void
 }
 
 
 define void @_Int_to_CString(i32 %val, i8* %buffer) alwaysinline
 {
-    call i32 (i8*, i8*, ...)* @sprintf(i8* %buffer, i8* getelementptr inbounds ([3 x i8]* @.fmtInt, i32 0, i32 0), i32 %val) nounwind
+    call i32 (i8*, i8*, ...) @sprintf(i8* %buffer, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.fmtInt, i32 0, i32 0), i32 %val) nounwind
     ret void
 }
 
 define void @_ULong_to_CString(i64 %val, i8* %buffer) alwaysinline
 {
-    call i32 (i8*, i8*, ...)* @sprintf(i8* %buffer, i8* getelementptr inbounds ([5 x i8]* @.fmtULong, i32 0, i32 0), i64 %val) nounwind
+    call i32 (i8*, i8*, ...) @sprintf(i8* %buffer, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @.fmtULong, i32 0, i32 0), i64 %val) nounwind
     ret void
 }
 

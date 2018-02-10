@@ -1,13 +1,13 @@
 
 # General Cmake settings
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.9.0)
 SET( CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE )           # allow more human readable "if then else" constructs
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 # Try to find an external Sparrow executable
 find_program(SPARROW_EXECUTABLE_EXT NAMES SparrowCompiler DOC "path to the SparrowCompiler executable (external)")
 # Try to find an external llc executable
-find_program(LLC_EXECUTABLE_EXT NAMES llc spr-llc DOC "path to the llc executable (external)")
+find_program(LLC_EXECUTABLE_EXT NAMES spr-llc "${LLVM_TOOLS_BINARY_DIR}/llc" DOC "path to the llc executable (external)")
 
 MACRO(GROUP_NAME_FROM_PATH filePath resultVar)
     IF(MSVC OR APPLE)

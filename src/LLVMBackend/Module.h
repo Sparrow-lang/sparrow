@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Nest/Api/TypeRef.h"
+#include "Nest/Utils/StringRef.hpp"
 
 #include <boost/function.hpp>
 #include <string>
@@ -17,21 +18,51 @@ typedef struct Nest_Node Node;
 
 namespace LLVMB
 {
+    // TODO (backend): Refactor these
+    namespace Tr {
+        class Scope;
+    }
+
+    //! Keeps track of how a particular Sparrow function was translated.
+    struct TranslatedFunInfo {
+        //! The main declaration of the function -- where we added the body of the function
+        llvm::Function* mainDecl_;
+        //! The function declaration we used for our last LLVM module.
+        //! Theoretically, we may have a set of decls here, one for each module. But, typically once we
+        //! switch to a new LLVM module, we don't care about the decls for previous modules. So, use
+        //! only the last decl, and check if we switch LLVM modules.
+        llvm::Function* lastDecl_;
+        //! The name of the function when first translated.
+        //! We make sure that we generate unique names for functions.
+        StringRef name_;
+
+        TranslatedFunInfo()
+            : mainDecl_(nullptr)
+            , lastDecl_(nullptr)
+            , name_{nullptr, nullptr} {}
+    };
+
+    //! Keeps track of how a particular Sparrow global variable was translated.
+    struct TranslatedGVarInfo {
+        //! The definition of the global variable (if available)
+        llvm::GlobalVariable* definition_;
+        //! The function declaration we used for our last LLVM module.
+        //! Theoretically, we may have a set of decls here, one for each module. But, typically once we
+        //! switch to a new LLVM module, we don't care about the decls for previous modules. So, use
+        //! only the last decl, and check if we switch LLVM modules.
+        llvm::GlobalVariable* lastDecl_;
+
+        TranslatedGVarInfo()
+            : definition_(nullptr)
+            , lastDecl_(nullptr) {}
+    };
+
+
     /// Class that represents a backend module.
     /// It is responsible for the translation of an intermediate code into LLVM bitcode
     class Module
     {
     public:
-        enum NodePropertyType
-        {
-            propValue = 0,
-            propFunDecl,
-            propTransType,
-            propWhileInstr,
-            propWhileStepLabel,
-            propWhileEndLabel,
-        };
-
         typedef boost::function<Node*(Node*)> NodeFun;
 
     public:
@@ -46,59 +77,42 @@ namespace LLVMB
 
         /// Add a global destructor function to this module
         virtual void addGlobalDtor(llvm::Function* fun) = 0;
-        
+
         /// Getter for the functor used to translate nodes from CT to RT
         virtual NodeFun ctToRtTranslator() const = 0;
+
+        /// Getter for the debug information object used for this module
+        virtual Tr::DebugInfo* debugInfo() const { return nullptr; }
 
     public:
         /// Getter for the LLVM context used for the code generation
         llvm::LLVMContext& llvmContext() const { return *llvmContext_; }
 
-        /// Getter for the LLVM module that is used for code generation
-        llvm::Module& llvmModule() const { return *llvmModule_; }
-
-        /// Getter for the debug information object used for this module
-        Tr::DebugInfo* debugInfo() const { return debugInfo_; }
-
         /// Returns true if the given declaration makes sense in the current module
         bool canUse(Node* decl) const;
 
-        /// Getter/setter for the llvm functions defined by this module
-        bool isFunctionDefined(llvm::Function* fun) const;
-        void addDefinedFunction(llvm::Function* fun);
-
-        /// Getters/setter for node properties
-        void** getNodePropertyPtr(Node* node, NodePropertyType type);
-        void setNodeProperty(Node* node, NodePropertyType type, void* value);
-
-    // Helpers
-    public:
-        template <typename T>
-        T* getNodePropertyValue(Node* node, NodePropertyType type)
-        {
-            return reinterpret_cast<T*>(getNodePropertyPtr(node, type));
-        }
-
     protected:
-        typedef pair<Node*, NodePropertyType> PropKey;
-        struct PropKeyHash
-        {
-            size_t operator()(const PropKey& k) const
-            {
-                return std::hash<Node*>()(k.first) + 393241*int(k.second);
-            }
-        };
-
-        llvm::LLVMContext* llvmContext_;
-        llvm::Module* llvmModule_;
-        unordered_map<PropKey, void*, PropKeyHash> nodeProperties_;
-        unordered_set<llvm::Function*> definedFunctions_;
-
-        /// If set, it represents the object that is used to generate debug information for this module
-        Tr::DebugInfo* debugInfo_;
+        //! The LLVM context to be used
+        unique_ptr<llvm::LLVMContext> llvmContext_;
 
     public:
+        //! Map with all the translated types (per type)
         unordered_map<TypeRef, llvm::Type*> translatedTypes_;
+        //! Information about the translated data structures (per node)
+        unordered_map<Node*, llvm::Type*> translatedStructs_;
+        //! Information about the translated functions
+        unordered_map<Node*, TranslatedFunInfo> translatedFunInfos_;
+        //! List of all LLVM function declarations defined in this backend target
+        unordered_set<llvm::Function*> definedFunctions_;
+        //! Information about the translated global variables
+        unordered_map<Node*, TranslatedGVarInfo> translatedGVarInfos_;
+
+        //! The set of all the names of functions that we've used so far
+        unordered_set<StringRef> funNamesTaken_;
+
+        //! The set of all the prepared decl nodes for translation.
+        //! Any decl from this set can be translated without needing extra semantic checks.
+        unordered_set<Node*> preparedDecls_;
     };
 
 }

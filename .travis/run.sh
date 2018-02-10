@@ -3,21 +3,24 @@
 set -e
 set -x
 
-if [[ "$(uname -s)" == 'Darwin' ]]; then
-    if which pyenv > /dev/null; then
-        eval "$(pyenv init -)"
-    fi
-    pyenv activate conan
+CFG_PARAMS=
+
+if [ $TRAVIS_OS_NAME == osx ]; then
+    CFG_PARAMS="-DLLVM_DIR=/usr/local/Cellar/llvm/5.0.1/lib/cmake/llvm"
+fi
+
+if [ $TRAVIS_OS_NAME == linux ]; then
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu:/usr/lib/llvm-5.0/lib/
 fi
 
 cd build
-conan install .. --build=missing
-cmake ..
-cmake --build .
-sudo cmake --build . -- install
+cmake .. $CFG_PARAMS
+make
+sudo make install
 
 echo "---------- Testing ----------"
 
 cd ../tests
+
 python test.py StdLib/RangesTest.spr --returnError
 python test.py --returnError

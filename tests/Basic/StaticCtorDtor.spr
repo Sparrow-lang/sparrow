@@ -54,7 +54,7 @@ fun dtor
     write('o'); writeLn('k');
 }
 
-/*<<<Running()
+/*<<<Running KNOWN-PROBLEM()
 ctor-1
 ctor-3
 ok

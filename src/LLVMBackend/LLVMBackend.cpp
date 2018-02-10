@@ -13,6 +13,9 @@
 #include "Nest/Api/Compiler.h"
 #include "Nest/Utils/CompilerSettings.hpp"
 
+#include <llvm/Support/TargetSelect.h>
+#include <llvm/Support/Debug.h>
+
 #include <boost/bind.hpp>
 
 using namespace LLVMB;
@@ -21,7 +24,7 @@ using namespace LLVMB;
 struct LLVMBackend {
     Backend baseData;
     Tr::RtModule* rtModule;
-    Tr::CtModule* ctModule;
+    CtModule* ctModule;
     DataLayoutHelper* dataLayoutHelper;
 };
 
@@ -52,8 +55,16 @@ struct LLVMBackend _llvmBackend = {
 
 void _llvmBeInit(Backend* backend, const char* mainFilename)
 {
+    // Init LLVM
+    llvm::InitializeNativeTarget();
+    llvm::InitializeNativeTargetAsmPrinter();
+    llvm::InitializeNativeTargetAsmParser();
+
+    // llvm::DebugFlag = true;
+    // llvm::setCurrentDebugType("dyld");
+
     _llvmBackend.rtModule = new Tr::RtModule("LLVM backend module Runtime", mainFilename);
-    _llvmBackend.ctModule = new Tr::CtModule("LLVM backend module CT");
+    _llvmBackend.ctModule = new CtModule("LLVM backend module CT");
     _llvmBackend.dataLayoutHelper = new DataLayoutHelper();
 }
 
@@ -87,8 +98,6 @@ void _llvmBeGenerateMachineCode(Backend* backend, const SourceCode* code)
 
 void _llvmBeLink(Backend* backend, const char* outFilename)
 {
-    CompilerSettings& s = *Nest_compilerSettings();
-
     ASSERT(_llvmBackend.rtModule);
 
     // Generate code for the the global ctors and dtors
@@ -99,13 +108,11 @@ void _llvmBeLink(Backend* backend, const char* outFilename)
         _llvmBackend.rtModule->debugInfo()->finalize();
 
 
+    const auto& s = *Nest_compilerSettings();
+
     // Generate a dump for the RT module - just for debugging
     if ( s.dumpAssembly_ )
-        generateAssembly(_llvmBackend.rtModule->llvmModule(), outFilename, ".ll");
-
-    // Generate a dump for the CT module - just for debugging
-    if ( s.dumpCtAssembly_ )
-        generateAssembly(_llvmBackend.ctModule->llvmModule(), outFilename, ".ct.ll");
+        generateRtAssembly(_llvmBackend.rtModule->llvmModule());
 
     // Do the linking for the RT module
     vector<llvm::Module*> modules;

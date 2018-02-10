@@ -15,9 +15,9 @@ matrix:
                   - libedit-dev
        - os: osx
          osx_image: xcode9.2 # apple-clang 9.2, OS X 10.12
-
 install:
   - ./.travis/install.sh
 script:
   - ./.travis/tryCreateTag.sh
   - ./.travis/run.sh
+  - ./.travis/checkPerformance.sh

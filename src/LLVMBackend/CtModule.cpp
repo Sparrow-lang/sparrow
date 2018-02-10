@@ -14,6 +14,7 @@
 #include "Nest/Api/Compiler.h"
 #include "Nest/Utils/CompilerSettings.hpp"
 #include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/CompilerStats.hpp"
 
 #include <llvm/IR/Verifier.h>
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
@@ -186,6 +187,12 @@ void CtModule::ctProcessBackendCode(Node* node)
 Node* CtModule::ctEvaluateExpression(Node* node)
 {
     ASSERT(llvmModule_);
+
+    // Gather statistics if requested
+    CompilerStats& stats = CompilerStats::instance();
+    if ( stats.enabled )
+        ++stats.numCtEvals;
+    ScopedTimeCapture timeCapture(stats.enabled, stats.timeCtEvals);
 
     static int counter = 0;
     ostringstream oss;

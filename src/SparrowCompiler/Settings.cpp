@@ -4,6 +4,7 @@
 
 #include "Nest/Api/Compiler.h"
 #include "Nest/Utils/CompilerSettings.hpp"
+#include "Nest/Utils/CompilerStats.hpp"
 
 #ifdef _MSC_VER
 #pragma warning(disable: 4512)
@@ -397,6 +398,7 @@ bool initSettingsWithArgs(int argc, char** argv)
 #endif
 
     bool showHelp = false;
+    bool& enableCompilerStats = CompilerStats::instance().enabled;
 
     OptionEntry optionsMap[] = {
         { NULL,                     NULL, {}, "Generic options" },
@@ -449,6 +451,7 @@ bool initSettingsWithArgs(int argc, char** argv)
         { "-dump-assembly",         NULL, s.dumpAssembly_, "dump LLVM assembly for the compilation units" },
         { "-dump-ct-assembly",      NULL, s.dumpCtAssembly_, "dump LLVM assembly for the CT module" },
         { "-dump-opt-assembly",     NULL, s.dumpOptAssembly_, "dump LLVM assembly for the optimized module" },
+        { "-dump-compile-stats",    NULL, enableCompilerStats, "dump timing and stats about compilation" },
         { "-dump-ast",              " <filter>", s.dumpAST_, "dump AST for the files matching the given filter" },
         { "-keep-intermediate-files", NULL, s.keepIntermediateFiles_, "keep intermediate files generating during compilation" },
     };

@@ -34,6 +34,7 @@ if [ $TRAVIS_OS_NAME == linux ]; then
 
         # the output quiet, so that we don't leak the API token
         echo "Pushing to GitHub"
+        git remote rm origin
         git remote add origin https://$PERFMONITORING_KEY@github.com/Sparrow-lang/perf-monitoring.git > /dev/null 2>&1
         git push --quiet --set-upstream origin master
     fi

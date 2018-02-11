@@ -58,7 +58,7 @@ import ranges(RandomAccessRange, ..)
         for v = range
             this.pushBack(v)
 
-    [rt] fun ctorFromCt(src: Vector ct)
+    [rt] fun ctorFromCt(this: @Vector, src: Vector ct)
         this.ctor()
         this.reserve(ctEval(src.size()))
         [ct] for el: ValueType = src.all()

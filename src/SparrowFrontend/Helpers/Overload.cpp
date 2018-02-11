@@ -352,14 +352,23 @@ Node* SprFrontend::selectCtToRtCtor(Node* ctArg) {
 
     // Check the candidates to be able to be called with the given arguments
     vector<TypeRef> argTypes(1, ctArg->type);
-    filterCandidates(ctArg->context, Location(), candidates, nullptr, &argTypes,
-                     modeRt, noCustomCvt);
+    bool hasValidCandidates = filterCandidates(
+            ctArg->context, Location(), candidates, nullptr, &argTypes, modeRt, noCustomCvt);
+    if (!hasValidCandidates) {
+        REP_ERROR(loc, "No matching overload found for calling ctorFromCt");
+        filterCandidatesErrReport(
+                ctArg->context, loc, candidates, nullptr, &argTypes, modeRt, noCustomCvt);
+        return nullptr;
+    }
 
     // From the remaining candidates, try to select the most specialized one
     CallableData* call =
         selectMostSpecialized(ctArg->context, candidates, true);
-    if (!call)
+    if (!call) {
+        REP_ERROR(loc, "No matching overload found for calling ctorFromCt");
+        selectMostSpecializedErrReport(ctArg->context, candidates);
         return nullptr;
+    }
 
     // Generate the call to the ctor
     auto cr = canCall(*call, ctArg->context, loc, fromIniList({ctArg}), modeRt,

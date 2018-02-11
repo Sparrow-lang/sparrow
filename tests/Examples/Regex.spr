@@ -372,20 +372,20 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
             //for i=0..dfaStates.size()
             //    cout << "DFA state " << i << " has " << dfaStates(i).nfaNodes.nodes.size() << " NFA states\n";
 
-        [rt]
-        fun ctorFromCt(src: Automaton ct)
-            nfaStatesFactory ctor;
-            dfaStates ctor;
-            dfaStates resize src.dfaStates.size();
+    [rt]
+    fun ctorFromCt(this: @Automaton, src: Automaton ct)
+        nfaStatesFactory ctor;
+        dfaStates ctor;
+        dfaStates resize src.dfaStates.size();
 
-            [ct] var transitions = src.getTransitions();
-            [ct] for tr = transitions all
-                //cout << ctEval(tr.start) << ".." << ctEval(tr.end) << "/" << ctEval(tr.ch) << endl;
-                dfaStates.at(ctEval(tr.start)).next.at(ctEval(tr.ch)) = ctEval(tr.end);
-            [ct] for st = 0 .. src.dfaStates.size()
-                [ct] if ( ctEval(src.dfaStates.at(st).isMatch) )
-                    dfaStates.at(ctEval(st)).isMatch = true;
-                    //cout << "State " << ctEval(st) << " is matching" << endl;
+        [ct] var transitions = src.getTransitions();
+        [ct] for tr = transitions all
+            //cout << ctEval(tr.start) << ".." << ctEval(tr.end) << "/" << ctEval(tr.ch) << endl;
+            dfaStates.at(ctEval(tr.start)).next.at(ctEval(tr.ch)) = ctEval(tr.end);
+        [ct] for st = 0 .. src.dfaStates.size()
+            [ct] if ( ctEval(src.dfaStates.at(st).isMatch) )
+                dfaStates.at(ctEval(st)).isMatch = true;
+                //cout << "State " << ctEval(st) << " is matching" << endl;
 
     [ct]
     fun getTransitions(this: @Automaton): Vector(Transition)

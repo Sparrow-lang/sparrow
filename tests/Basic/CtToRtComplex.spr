@@ -2,34 +2,27 @@
 
 concept AnyType(x); // Always true
 
-[rtct] class Pair
-{
+[rtct]
+class Pair
     var x, y: Int;
 
     fun ctor(x,y: Int)
-    {
-        this.x = x;
-        this.y = y;
-    }
-}
+        this.x = x
+        this.y = y
 
-[rtct] class Pair2
-{
+[rtct]
+class Pair2
     var x, y: Int;
 
     fun ctor(x,y: Int)
-    {
-        this.x = x;
-        this.y = y;
-    }
+        this.x = x
+        this.y = y
 
-    [rt] fun ctorFromCt(src: Pair2 ct)
-    {
-        writeLn("Pair2 Ct ctor");
-        x ctor src.x;
-        y ctor src.y;
-    }
-}
+[rt]
+fun ctorFromCt(this: @Pair2, src: Pair2 ct)
+    writeLn("Pair2 Ct ctor")
+    x ctor src.x
+    y ctor src.y
 
 fun identity(obj: AnyType) = obj;
 

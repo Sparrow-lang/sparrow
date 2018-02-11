@@ -814,8 +814,6 @@ declare i32 @atoi(i8*) nounwind readonly
     fun ctor() {}
     fun ctor(other: Uninitialized) {}
     fun dtor {}
-
-    [rt] fun ctorFromCt(src: Uninitialized ct) {}
 }
 
 [rtct, noDefault, native("Null")] class Null

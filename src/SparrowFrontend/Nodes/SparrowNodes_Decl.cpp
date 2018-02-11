@@ -358,6 +358,13 @@ TypeRef SprFunction_ComputeType(Node* node)
 
     // Does this function have an implicit 'this' arg?
     bool addThisParam = isMember && !isStatic;
+    // Don't add implicit this for functions declared inside classes
+    // TODO (classes): Make this true for all methods
+    if (addThisParam) {
+        StringRef funName = Feather_getName(node);
+        if (funName == "ctorFromCt")
+            addThisParam = false;
+    }
     int thisParamIdx = -1;
     if ( !addThisParam && parameters ) {
         for ( int i=0; i<size(parameters->children); i++ ) {

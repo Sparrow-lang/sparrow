@@ -140,14 +140,14 @@ package _Impl
             //_dumpBuckets("buckets final, ", keysToBuckets);
             //cout << "Executed: " << numOp << " operations\n";
 
-        [rt]
-        fun ctorFromCt(src: MinPerfHash ct)
-            numKeys ctor src.numKeys;
-            numValues ctor src.numValues;
+    [rt]
+    fun ctorFromCt(this: @MinPerfHash, src: MinPerfHash ct)
+        numKeys ctor src.numKeys;
+        numValues ctor src.numValues;
 
-            [ct] var dispStrCt = StringRef(src.displacements.begin_.bytePtr(), src.displacements.end_.bytePtr());
-            var dispStr = dispStrCt;
-            displacements ctor ContiguousMemoryRange(UInt)(RawPtr(UInt).fromBytePtr(dispStr.begin), RawPtr(UInt).fromBytePtr(dispStr.end));
+        [ct] var dispStrCt = StringRef(src.displacements.begin_.bytePtr(), src.displacements.end_.bytePtr());
+        var dispStr = dispStrCt;
+        displacements ctor ContiguousMemoryRange(UInt)(RawPtr(UInt).fromBytePtr(dispStr.begin), RawPtr(UInt).fromBytePtr(dispStr.end));
 
     fun search(this: @MinPerfHash, key: StringRef): UInt
         // Get the displacement from the table...

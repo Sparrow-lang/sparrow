@@ -478,7 +478,6 @@ void _IntModClassMembers_afterComputeType(Modifier*, Node* node)
 
     // CT to RT ctor
     if ( !checkForAssociatedFun(cls, "ctorFromCt", basicClass, modeRt) )
-        // generateMethod(cls, "ctorFromCt", "ctor", Feather_checkChangeTypeMode(Feather_getDataType(basicClass, 0, modeRtCt), modeCt, node->location), false, modeRt);
         generateAssociatedFun(cls, "ctorFromCt", "ctor", Feather_checkChangeTypeMode(Feather_getDataType(basicClass, 0, modeRtCt), modeCt, node->location), false, modeRt);
 
     // Dtor
@@ -494,8 +493,27 @@ void _IntModClassMembers_afterComputeType(Modifier*, Node* node)
         generateEqualityCheckFun(cls);
 }
 
-void IntModCtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
-{
+Node* getThisTypeForFun(Node* fun) {
+    // TODO (classes): Remove this
+    if (funHasImplicitThis(fun))
+        return Feather_getParentClass(fun->context);
+
+    // Get the class of the 'this' param
+    int thisIdx = getThisParamIdx(fun);
+    if (thisIdx < 0)
+        REP_INTERNAL(fun->location, "Cannot find 'this' parameter");
+    Node* parameters = at(fun->children, 0);
+    Node* thisParam = at(parameters->children, thisIdx);
+    CHECK(fun->location, thisParam);
+    if (!Nest_computeType(thisParam))
+        return nullptr;
+    ASSERT(thisParam->type);
+    Node* cls = thisParam->type->referredNode;
+    ASSERT(cls);
+    return cls;
+}
+
+void IntModCtorMembers_beforeSemanticCheck(Modifier*, Node* fun) {
     /// Check to apply only to non-static constructors
     if ( fun->nodeKind != nkSparrowDeclSprFunction || Feather_getName(fun) != "ctor" )
         REP_INTERNAL(fun->location, "IntModCtorMembers modifier can be applied only to constructors");
@@ -510,8 +528,9 @@ void IntModCtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
         REP_INTERNAL(fun->location, "Constructor body is not a local space (needed by IntModCtorMembers)");
 
     // Get the class
-    Node* cls = Feather_getParentClass(fun->context);
-    CHECK(fun->location, cls);
+    Node* cls = getThisTypeForFun(fun);
+    if (!cls)
+        return;
 
     // If we are calling other constructor of this class, don't add any initialization
     if ( hasCtorCall(body, cls, true, nullptr) )
@@ -530,15 +549,15 @@ void IntModCtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
 
         if ( !hasCtorCall(body, nullptr, false, field) )
         {
-            Node* fieldRef = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, mkIdentifier(loc, fromCStr("this"))), field);
+            Node* base = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("this")), Feather_getName(field));
             Node* call = nullptr;
             if ( field->type->numReferences == 0 )
             {
-                call = mkOperatorCall(loc, fieldRef, fromCStr("ctor"), nullptr);
+                call = mkOperatorCall(loc, base, fromCStr("ctor"), nullptr);
             }
             else
             {
-                call = mkOperatorCall(loc, fieldRef, fromCStr(":="), buildNullLiteral(loc));
+                call = mkOperatorCall(loc, base, fromCStr(":="), buildNullLiteral(loc));
             }
             Nest_setContext(call, Nest_childrenContext(body));
             Nest_insertNodeIntoArray(&body->children, 0, call);
@@ -561,9 +580,9 @@ void IntModDtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
     if ( body->nodeKind != nkFeatherLocalSpace )
         REP_INTERNAL(fun->location, "Destructor body is not a local space (needed by IntModDtorMembers)");
 
-    // Get the class
-    Node* cls = Feather_getParentClass(fun->context);
-    CHECK(fun->location, cls);
+    Node* cls = getThisTypeForFun(fun);
+    if (!cls)
+        return;
 
     // Generate the dtor calls in reverse order of the fields; add them to the body of the destructor
     CompilationContext* context = Nest_childrenContext(body);
@@ -579,9 +598,8 @@ void IntModDtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
 
         if ( field->type->numReferences == 0 )
         {
-            Node* fieldRef = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, mkIdentifier(loc, fromCStr("this"))), field);
-            Nest_setContext(fieldRef, context);
-            Node* call = mkOperatorCall(loc, fieldRef, fromCStr("dtor"), nullptr);
+            Node* base = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("this")), Feather_getName(field));
+            Node* call = mkOperatorCall(loc, base, fromCStr("dtor"), nullptr);
             Nest_setContext(call, context);
             Nest_appendNodeToArray(&body->children, call);
         }

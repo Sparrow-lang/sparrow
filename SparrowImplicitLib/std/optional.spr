@@ -15,7 +15,7 @@ class Optional(valueType: Type)
     [noDefault] fun ctor(val: @ValueType)
         _constructed ctor true
         _value ctor val
-    [noDefault] fun dtor
+    [noDefault] fun dtor(this: @Optional)
         this.reset()
 
 

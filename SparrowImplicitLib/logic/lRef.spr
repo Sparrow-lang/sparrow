@@ -66,7 +66,7 @@ class LRef(valueType: Type)
         [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "copy ctor: " << this << "\n"
 
-    fun dtor
+    fun dtor(this: @LRef)
         [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "dtor: " << this << "\n"
 

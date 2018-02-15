@@ -114,7 +114,7 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
             var nullObj: Ptr(NfaState);
             _matchState.ctor(NfaState.match, nullObj, nullObj);
 
-        fun dtor
+        fun dtor(this: @NfaStatesFactory)
             // Release the memory occupied by the states
             for page = _pages.all()
                 page freePtr;

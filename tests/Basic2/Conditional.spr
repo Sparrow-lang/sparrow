@@ -5,7 +5,7 @@ class MyObj
 
     fun ctor(i: Int) { a = i; cout << "ctor(" << a << ")" << endl; }
     fun ctor(other: MyObj) { a = other.a; cout << "copy ctor(" << a << ")" << endl; }
-    fun dtor { cout << "dtor" << endl; }
+    fun dtor(this: MyObj) { cout << "dtor" << endl; }
 
 fun print(this: MyObj) { cout << "print(" << a << ")" << endl; }
 

@@ -41,9 +41,7 @@ class Worker {
         this._waitSem ctor 0;
     }
 
-    fun dtor {
-    }
-
+    fun dtor(this: @Worker) {}
 }
 
 using WorkerPtr = Worker Ptr;

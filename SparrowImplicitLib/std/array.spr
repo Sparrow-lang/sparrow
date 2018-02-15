@@ -60,7 +60,7 @@ class Array(valueType: Type)
         [ct] for i = 0..size
             this(i) = src(i)
 
-    fun dtor
+    fun dtor(this: @Array)
         if this.isEmpty
             return
 

@@ -48,7 +48,7 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
         for v = other.all
             this._insertPlain(v)
 
-    fun dtor
+    fun dtor(this: @HashTable)
         this._deleteElements
 
     var _buckets: _BucketsType

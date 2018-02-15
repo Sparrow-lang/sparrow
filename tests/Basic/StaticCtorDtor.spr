@@ -16,13 +16,12 @@ class MyType
         x = other.x;
         write('c'); write('t'); write('o'); write('r'); write('('); write('C'); write(' '); write(x); writeLn(')');
     }
-    fun dtor
-    {
-        write('d'); write('t'); write('o'); write('r'); write('-'); writeLn(x);
-    }
 
     var x: Int;
 }
+
+fun dtor(this: MyType)
+    write('d'); write('t'); write('o'); write('r'); write('-'); writeLn(x);
 
 fun ctor()
 {

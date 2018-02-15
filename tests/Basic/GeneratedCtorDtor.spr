@@ -10,8 +10,8 @@ class A
     fun ctor(a: A)
         writeLn("A.ctor(copy)")
 
-    fun dtor
-        writeLn("A.dtor")
+fun dtor(this: @A)
+    writeLn("A.dtor")
 
 fun =(this, other: @A)
     writeLn("A.=")
@@ -27,7 +27,7 @@ class B
     fun ctor(b: B)
         writeLn("B.ctor(copy)")
 
-    fun dtor
+    fun dtor(this: @B)
         writeLn("B.dtor")
 
 fun =(this, other: B)
@@ -54,7 +54,7 @@ class MyType
         ctor(Int(x), Int(y))
         writeLn("MyType.ctor(Double, Double)")
 
-    fun dtor
+    fun dtor(this: @MyType)
         writeLn("MyType.dtor")
 
 

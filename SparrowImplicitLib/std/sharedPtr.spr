@@ -30,7 +30,7 @@ import newDelete(new, delete)
             if ( _count !== null )
                 ++_count
 
-        fun dtor
+        fun dtor(this: @SharedPtr)
             if ( _count !== null && --_count == 0 )
                 _ref.dtor()
                 delete(_count)

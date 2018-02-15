@@ -64,9 +64,8 @@ package Impl {
             pthread_key_create(key, dtorFun);
         }
 
-        fun dtor {
+        fun dtor(this: @TlsCommon)
             pthread_key_delete(key);
-        }
     }
 
     fun setValue(tls: @TlsCommon, val: @Byte) { pthread_setspecific(tls.key, val); }

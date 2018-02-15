@@ -27,7 +27,7 @@ class BoolValue
         cout << '.';
     }
 
-    fun dtor
+    fun dtor(this: BoolValue)
     {
         cout << "D";
         if ( b )

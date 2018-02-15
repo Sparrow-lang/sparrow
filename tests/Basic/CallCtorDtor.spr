@@ -11,8 +11,9 @@ class MyObj
         write("MyObj.ctor("); write(i); write(", "); write(j); writeLn(")");
     fun ctor(src: @MyObj)
         writeLn("MyObj.ctor(copy)");
-    fun dtor
-        writeLn("MyObj.dtor");
+
+fun dtor(this: @MyObj)
+    writeLn("MyObj.dtor");
 
 
 fun reconstruct(this: @MyObj)
@@ -39,13 +40,11 @@ class Pair
         second.ctor(src.second);
         writeLn("Pair.ctor(copy)");
     }
-    fun dtor
-    {
-        writeLn("Pair.dtor");
-    }
 
     var first, second: MyObj;
 }
+fun dtor(this: @Pair)
+    writeLn("Pair.dtor");
 
 [native("test")] fun test(n: Int)
 {

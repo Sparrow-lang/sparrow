@@ -362,7 +362,7 @@ TypeRef SprFunction_ComputeType(Node* node)
     // TODO (classes): Make this true for all methods
     if (addThisParam) {
         StringRef funName = Feather_getName(node);
-        if (funName == "ctorFromCt")
+        if (funName == "ctorFromCt" || funName == "dtor")
             addThisParam = false;
     }
     int thisParamIdx = -1;
@@ -379,7 +379,7 @@ TypeRef SprFunction_ComputeType(Node* node)
         }
     }
     if ( addThisParam || thisParamIdx >= 0 )
-        Nest_setPropertyInt(node, propHasThisParam, 1);
+        Nest_setPropertyInt(node, propThisParamIdx, thisParamIdx);
     if ( addThisParam )
         Nest_setPropertyInt(node, propHasImplicitThisParam, 1);
 
@@ -404,7 +404,7 @@ TypeRef SprFunction_ComputeType(Node* node)
     StringRef funName = Feather_getName(node);
 
     // Special modifier for ctors & dtors
-    if ( addThisParam && !Nest_hasProperty(node, propNoDefault) )
+    if ( (addThisParam || thisParamIdx >= 0) && !Nest_hasProperty(node, propNoDefault) )
     {
         if ( funName == "ctor" )
             Nest_addModifier(node, SprFe_getCtorMembersIntMod());

@@ -323,7 +323,14 @@ void SprFrontend::copyModifiersSetMode(Node* src, Node* dest, EvalMode newMode)
 bool SprFrontend::funHasThisParameters(Node* fun)
 {
     return fun && fun->nodeKind == nkSparrowDeclSprFunction
-        && Nest_hasProperty(fun, propHasThisParam);
+        && Nest_hasProperty(fun, propThisParamIdx);
+}
+
+int SprFrontend::getThisParamIdx(Node* fun) {
+    if (!fun || fun->nodeKind != nkSparrowDeclSprFunction)
+        return -1;
+    const int* val = Nest_getPropertyInt(fun, propThisParamIdx);
+    return val ? *val : -1;
 }
 
 bool SprFrontend::funHasImplicitThis(Node* fun)

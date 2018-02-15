@@ -27,7 +27,7 @@ class List(valueType: Type)
         for v = range
             this += v
 
-    fun dtor
+    fun dtor(this: @List)
         var p = _head.next
         var hn = this._headNode
 

@@ -33,9 +33,8 @@ class Thread
         _handle = Impl.startThread(f);
     }
     //! Destructor. Detatch the thread if joinable
-    fun dtor {
+    fun dtor(this: @Thread)
         if ( this isJoinable ) this detach;
-    }
 
     //! Cannot copy construct or assign a Thread object
     [private] fun ctor(other: @Thread);

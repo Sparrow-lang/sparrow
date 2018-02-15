@@ -8,7 +8,7 @@ class MyObj
     fun ctor(xx: Int)
         x = xx;
 
-    fun dtor()
+    fun dtor(this: MyObj)
         cout << x;
         cout << " destroyed" << endl;
 

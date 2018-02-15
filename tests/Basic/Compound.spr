@@ -6,7 +6,6 @@ class MyObj
 
     fun ctor(i: Int) { a = i; }
     fun ctor(other: MyObj) { a = other.a; }
-    fun dtor {}
 
     [static] var st = 103;
 }

@@ -14,7 +14,7 @@ class ScopedPtr(type: Type)
     fun ctor(_ref: @ValueType)
         this._ref := _ref
 
-    fun dtor
+    fun dtor(this: @ScopedPtr)
         delete(_ref)
 
 [protected]

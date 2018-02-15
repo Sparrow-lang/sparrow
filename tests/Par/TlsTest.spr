@@ -54,7 +54,7 @@ class WorkManager {
         }
     }
 
-    fun dtor {
+    fun dtor(this: @WorkManager) {
         for t = threads.all {
             t.get join;
             t.release;

@@ -66,6 +66,9 @@ namespace SprFrontend
     /// returns false if the given node is null or is not a function
     bool funHasThisParameters(Node* fun);
 
+    /// Get the index of the 'this' param, if the function has one. Otherwise returns -1
+    int getThisParamIdx(Node* fun);
+
     /// Check if the given function node has an implicit this parameter
     /// returns false if the given node is null or is not a function
     bool funHasImplicitThis(Node* fun);

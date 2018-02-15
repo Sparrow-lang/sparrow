@@ -11,8 +11,8 @@ class MyType
     fun ctor(other: MyType@)
         x = other.x
         write("copy ctor("); write(x); writeLn(")")
-    fun dtor
-        write("dtor-"); writeLn(x)
+fun dtor(this: @MyType)
+    write("dtor-"); writeLn(x)
 
 fun =(this, other: @MyType)
     write("assign("); write(other.x); writeLn(")")

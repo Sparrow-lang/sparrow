@@ -12,7 +12,7 @@ concept Regular(x) if (
 class NullType
     fun ctor {}
     [convert] fun ctor(other: AnyType) {}
-    fun dtor {}
+    fun dtor(this: NullType) {}
 
 fun ==(this, other: NullType) = true;
 fun ==(this, other: AnyType) = false;

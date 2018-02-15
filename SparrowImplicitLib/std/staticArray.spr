@@ -104,7 +104,7 @@ import ranges
             this(8) ctor v8
             this(9) ctor v9
 
-        fun dtor
+        fun dtor(this: @StaticArray)
             for v: @ValueType = this.all
                 v dtor
 

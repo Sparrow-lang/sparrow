@@ -806,28 +806,28 @@ declare i32 @atoi(i8*) nounwind readonly
 {
     [native("_Type_ctor")] fun ctor;
     [native("_Type_copy_ctor")] fun ctor(other: Type);
-    fun dtor {}
+    //fun dtor(this: @Type) {}
 }
 
 [noDefault, rtct] class Uninitialized
 {
     fun ctor() {}
     fun ctor(other: Uninitialized) {}
-    fun dtor {}
+    fun dtor(this: Uninitialized) {}
 }
 
 [rtct, noDefault, native("Null")] class Null
 {
     fun ctor() {}
     fun ctor(other: Null) {}
-    fun dtor {}
+    fun dtor(this: Null) {}
 }
 
 [native("i1"), noDefault, rtct] class Bool
 {
     fun ctor() { this = false; }
     fun ctor(other: Bool) { this = other; }
-    fun dtor {}
+    fun dtor(this: Bool) {}
 }
 
 [native("i8"), noDefault, rtct] class Byte
@@ -844,7 +844,7 @@ declare i32 @atoi(i8*) nounwind readonly
     [native("_ass_8_64")] fun ctor(src: SizeType);
     [native("_ass_i8_f")] fun ctor(src: Float);
     [native("_ass_i8_d")] fun ctor(src: Double);
-    fun dtor {}
+    fun dtor(this: Byte) {}
 }
 
 [native("u8"), noDefault, rtct] class UByte
@@ -861,7 +861,7 @@ declare i32 @atoi(i8*) nounwind readonly
     [native("_ass_8_64")] fun ctor(src: SizeType);
     [native("_ass_u8_f")] fun ctor(src: Float);
     [native("_ass_u8_d")] fun ctor(src: Double);
-    fun dtor {}
+    fun dtor(this: UByte) {}
 }
 
 [native("i16"), noDefault, rtct] class Short
@@ -878,7 +878,7 @@ declare i32 @atoi(i8*) nounwind readonly
     [native("_ass_16_64")] fun ctor(src: SizeType);
     [native("_ass_i16_f")] fun ctor(src: Float);
     [native("_ass_i16_d")] fun ctor(src: Double);
-    fun dtor {}
+    fun dtor(this: Short) {}
 }
 
 [native("i16"), noDefault, rtct] class UShort
@@ -895,7 +895,7 @@ declare i32 @atoi(i8*) nounwind readonly
     [native("_ass_16_64")] fun ctor(src: SizeType);
     [native("_ass_u16_f")] fun ctor(src: Float);
     [native("_ass_u16_d")] fun ctor(src: Double);
-    fun dtor {}
+    fun dtor(this: UShort) {}
 }
 
 [native("i32"), noDefault, rtct] class Int
@@ -912,7 +912,7 @@ declare i32 @atoi(i8*) nounwind readonly
     [native("_ass_32_64")] fun ctor(src: SizeType);
     [native("_ass_i32_f")] fun ctor(src: Float);
     [native("_ass_i32_d")] fun ctor(src: Double);
-    fun dtor {}
+    fun dtor(this: Int) {}
 }
 
 [native("u32"), noDefault, rtct] class UInt
@@ -929,7 +929,7 @@ declare i32 @atoi(i8*) nounwind readonly
     [native("_ass_32_64")] fun ctor(src: SizeType);
     [native("_ass_u32_f")] fun ctor(src: Float);
     [native("_ass_u32_d")] fun ctor(src: Double);
-    fun dtor {}
+    fun dtor(this: UInt) {}
 }
 
 [native("i64"), noDefault, rtct] class Long
@@ -946,7 +946,7 @@ declare i32 @atoi(i8*) nounwind readonly
     [native("_ass_64_64"), convert] fun ctor(src: SizeType);
     [native("_ass_i64_f")] fun ctor(src: Float);
     [native("_ass_i64_d")] fun ctor(src: Double);
-    fun dtor {}
+    fun dtor(this: Long) {}
 }
 
 [native("u64"), noDefault, rtct] class ULong
@@ -963,7 +963,7 @@ declare i32 @atoi(i8*) nounwind readonly
     [native("_ass_64_64"), convert] fun ctor(src: SizeType);
     [native("_ass_u64_f")] fun ctor(src: Float);
     [native("_ass_u64_d")] fun ctor(src: Double);
-    fun dtor {}
+    fun dtor(this: ULong) {}
 }
 
 [native("float"), noDefault, rtct] class Float
@@ -980,7 +980,7 @@ declare i32 @atoi(i8*) nounwind readonly
     [native("_ass_f_i64")] fun ctor(src: SizeType);
     [native("_ass_f_f")] fun ctor(src: Float);
     [native("_ass_f_d")] fun ctor(src: Double);
-    fun dtor {}
+    fun dtor(this: Float) {}
 }
 
 [native("double"), noDefault, rtct] class Double
@@ -997,7 +997,7 @@ declare i32 @atoi(i8*) nounwind readonly
     [native("_ass_d_i64")] fun ctor(src: SizeType);
     [native("_ass_d_f"), convert] fun ctor(src: Float);
     [native("_ass_d_d")] fun ctor(src: Double);
-    fun dtor {}
+    fun dtor(this: Double) {}
 }
 
 [native("i8"), noDefault, rtct] class Char
@@ -1013,7 +1013,7 @@ declare i32 @atoi(i8*) nounwind readonly
     [native("_ass_8_64")] fun ctor(src: Long);
     [native("_ass_8_64")] fun ctor(src: ULong);
     [native("_ass_8_64")] fun ctor(src: SizeType);
-    fun dtor {}
+    fun dtor(this: Char) {}
 }
 
 [native("u64"), noDefault, rtct] class SizeType
@@ -1030,7 +1030,7 @@ declare i32 @atoi(i8*) nounwind readonly
     [native("_ass_64_64")] fun ctor(src: SizeType);
     [native("_ass_u64_f")] fun ctor(src: Float);
     [native("_ass_u64_d")] fun ctor(src: Double);
-    fun dtor {}
+    fun dtor(this: SizeType) {}
 }
 
 [rtct, noDefault, native("StringRef")] class StringRef
@@ -1047,7 +1047,7 @@ declare i32 @atoi(i8*) nounwind readonly
     fun ctor(other: StringRef)
         begin := other.begin;
         end := other.end;
-    fun dtor {}
+    fun dtor(this: StringRef) {}
 
 [rtct]
     fun size(this: StringRef): SizeType

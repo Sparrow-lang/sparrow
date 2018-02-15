@@ -64,7 +64,7 @@ import ranges(RandomAccessRange, ..)
         [ct] for el: ValueType = src.all()
             this.pushBack(el)
 
-    fun dtor
+    fun dtor(this: @Vector)
         var p = _begin
 
         while p != _end ; p = p.advance()

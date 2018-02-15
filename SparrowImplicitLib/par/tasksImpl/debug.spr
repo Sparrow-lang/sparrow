@@ -22,9 +22,8 @@ class Tracer {
         cout << worker.workerId << ": " << Depth(worker.curDepth);
     }
 
-    fun dtor {
+    fun dtor(this: @Tracer)
         traceMutex unlock;
-    }
 
     fun <<<(x: @AnyType)       { cout << x; }
 }

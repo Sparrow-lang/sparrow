@@ -28,7 +28,7 @@ package _Impl
             this.destructFn ctor other.destructFn
 
         //! Destructor - destroy the object
-        fun dtor
+        fun dtor(this: @FunctionData)
             if obj !== null
                 destructFn(obj) // Call the right destructor
                 delete(obj)     // Free the memory for the object

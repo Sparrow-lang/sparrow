@@ -144,7 +144,7 @@ class TestTimer
         timerImpl ctor;
     }
 
-    fun dtor
+    fun dtor(this: @TestTimer)
     {
         var t = timerImpl.elapsed();
         var t_ns = t * 1000000.0 / Double(n);

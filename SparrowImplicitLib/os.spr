@@ -26,7 +26,7 @@ import std.string(String)
             this._handle := other._handle
             other._handle := null
 
-        fun dtor
+        fun dtor(this: @File)
             this.close
 
 [rtct, protected]

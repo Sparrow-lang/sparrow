@@ -11,8 +11,7 @@ class TaskSystem {
     fun ctor {
     }
 
-    fun dtor {
-    }
+    fun dtor(this: @TaskSystem) {}
 
     //! The global queue of tasks
     var globalQueue: TaskQueue;

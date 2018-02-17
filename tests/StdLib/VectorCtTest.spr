@@ -17,7 +17,7 @@ fun sprMain
 {
     var x: Int;
 
-    fun ctor(xx: Int) { x = xx; }
+    fun ctor(this: @MyObj, xx: Int) { x = xx; }
 }
 
 [ct] fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)

@@ -137,7 +137,7 @@ fun testRemove(bag: @AnyType, n: Int)
 
 class TestTimer
 {
-    fun ctor(desc: StringRef, n: UInt)
+    fun ctor(this: @TestTimer, desc: StringRef, n: UInt)
     {
         this.desc ctor desc;
         this.n ctor n;

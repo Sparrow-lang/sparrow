@@ -3,14 +3,14 @@
 class MyObj
     var v: Int;
 
-    fun ctor()
-        writeLn("MyObj.ctor()");
-    fun ctor(i: Int)
-        write("MyObj.ctor("); write(i); writeLn(")");
-    fun ctor(i,j: Int)
-        write("MyObj.ctor("); write(i); write(", "); write(j); writeLn(")");
-    fun ctor(src: @MyObj)
-        writeLn("MyObj.ctor(copy)");
+fun ctor(this: @MyObj)
+    writeLn("MyObj.ctor()");
+fun ctor(this: @MyObj, i: Int)
+    write("MyObj.ctor("); write(i); writeLn(")");
+fun ctor(this: @MyObj, i,j: Int)
+    write("MyObj.ctor("); write(i); write(", "); write(j); writeLn(")");
+fun ctor(this: @MyObj, src: @MyObj)
+    writeLn("MyObj.ctor(copy)");
 
 fun dtor(this: @MyObj)
     writeLn("MyObj.dtor");
@@ -21,28 +21,20 @@ fun reconstruct(this: @MyObj)
     this.ctor(100);
 
 class Pair
-{
-    fun ctor()
-    {
-        first.ctor();
-        second.ctor();
-        writeLn("Pair.ctor()");
-    }
-    fun ctor(i,j: Int)
-    {
-        first.ctor(i);
-        second.ctor(j);
-        write("Pair.ctor("); write(i); write(", "); write(j); writeLn(")");
-    }
-    fun ctor(src: Pair@)
-    {
-        first.ctor(src.first);
-        second.ctor(src.second);
-        writeLn("Pair.ctor(copy)");
-    }
-
     var first, second: MyObj;
-}
+
+fun ctor(this: @Pair)
+    first.ctor();
+    second.ctor();
+    writeLn("Pair.ctor()");
+fun ctor(this: @Pair, i,j: Int)
+    first.ctor(i);
+    second.ctor(j);
+    write("Pair.ctor("); write(i); write(", "); write(j); writeLn(")");
+fun ctor(this: @Pair, src: Pair@)
+    first.ctor(src.first);
+    second.ctor(src.second);
+    writeLn("Pair.ctor(copy)");
 fun dtor(this: @Pair)
     writeLn("Pair.dtor");
 

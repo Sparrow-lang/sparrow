@@ -56,10 +56,10 @@ package _Impl
         var numKeys: UInt;
         var numValues: UInt;
 
-        fun ctor(keys: @Vector(String))
+        fun ctor(this: @MinPerfHash, keys: @Vector(String))
             this.ctor(keys, defaultHashExtraSpace);
 
-        fun ctor(keys: @Vector(String), extraSpace: Double)
+        fun ctor(this: @MinPerfHash, keys: @Vector(String), extraSpace: Double)
             this.numKeys ctor keys.size();
             this.numValues ctor numKeys+UInt(numKeys*extraSpace);
             var keysPerBucket = _Impl.keysPerBucket;
@@ -181,7 +181,7 @@ package _Impl
         var _mph: MinPerfHash;
         var _scrambledKeys: Vector(String);
 
-        fun ctor(keys: @Vector(String))
+        fun ctor(this: @MinPerfHashSet, keys: @Vector(String))
             _mph ctor keys;
             _scrambledKeys.ctor();
             _scrambledKeys.resize(keys size);

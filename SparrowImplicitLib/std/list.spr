@@ -8,19 +8,19 @@ class List(valueType: Type)
     using RangeType = _ListRange(valueType)
     using RetType = @valueType
 
-    fun ctor
+    fun ctor(this: @List)
         _listSize = 0
         _head.prev = this._headNode
         _head.next = this._headNode
 
-    fun ctor(other: @List)
+    fun ctor(this, other: @List)
         _listSize = 0
         _head.prev = this._headNode
         _head.next = this._headNode
         for v = other.all
             this += v
 
-    fun ctor(range: Range)
+    fun ctor(this: @List, range: Range)
         _listSize = 0
         _head.prev = this._headNode
         _head.next = this._headNode

@@ -14,7 +14,10 @@ using oper_precedence_~ = oper_precedence_*
         var v1: t1
         var v2: t2
 
-        [convert] fun ctor(other: TupleType) if other.arity == 2
+        fun ctor(this: @Tuple)
+            v1 ctor
+            v2 ctor
+        [convert] fun ctor(this: @Tuple, other: TupleType) if other.arity == 2
             this.v1 ctor other.v1
             this.v2 ctor other.v2
 

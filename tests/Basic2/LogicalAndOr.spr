@@ -16,7 +16,7 @@ fun getF: Bool
 
 class BoolValue
 {
-    fun ctor(b: Bool)
+    fun ctor(this: @BoolValue, b: Bool)
     {
         this.b ctor b;
         cout << "C";

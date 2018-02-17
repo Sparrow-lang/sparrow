@@ -12,12 +12,12 @@ class Set(keyType: Type, traitsType: Type = DefaultTypeTraits)
 
     var _hashTable: _ImplTable
 
-    fun ctor(n: SizeType)                                       { _hashTable.ctor(n, TraitsType()) }
-    fun ctor(n: SizeType, traits: traitsType)                   { _hashTable.ctor(n, traits) }
-    fun ctor(range: Range)                                      { _hashTable.ctor(range, 0, TraitsType()) }
-    fun ctor(range: Range, n: SizeType)                         { _hashTable.ctor(range, n, HashType(), CompareType()) }
-    fun ctor(range: Range, n: SizeType, traits: traitsType)     { _hashTable.ctor(range, n, traits) }
-    fun ctor(other: @Set)                                       { this._hashTable ctor other._hashTable }
+    fun ctor(this: @Set, n: SizeType)                                       { _hashTable.ctor(n, TraitsType()) }
+    fun ctor(this: @Set, n: SizeType, traits: traitsType)                   { _hashTable.ctor(n, traits) }
+    fun ctor(this: @Set, range: Range)                                      { _hashTable.ctor(range, 0, TraitsType()) }
+    fun ctor(this: @Set, range: Range, n: SizeType)                         { _hashTable.ctor(range, n, HashType(), CompareType()) }
+    fun ctor(this: @Set, range: Range, n: SizeType, traits: traitsType)     { _hashTable.ctor(range, n, traits) }
+    fun ctor(this, other: @Set)                                       { this._hashTable ctor other._hashTable }
 
 [protected]
     fun traits(this: @Set)                                  = _hashTable.traits

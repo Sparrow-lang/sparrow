@@ -27,7 +27,7 @@ class MyObj
 {
     var x: Int;
 
-    fun ctor(xx: Int) { x = xx; }
+    fun ctor(this: @MyObj, xx: Int) { x = xx; }
 }
 
 fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)

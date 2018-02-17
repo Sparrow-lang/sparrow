@@ -342,7 +342,8 @@ TypeRef SprFunction_ComputeType(Node* node)
     Node* body = at(node->children, 2);
     Node* ifClause = at(node->children, 3);
 
-    bool isStatic = Nest_hasProperty(node, propIsStatic);
+    // TODO (classes): Remove static functions
+    // bool isStatic = Nest_hasProperty(node, propIsStatic);
 
     if (returnType)
         Nest_setPropertyExplInt(returnType, propAllowDeclExp, 1);
@@ -357,14 +358,15 @@ TypeRef SprFunction_ComputeType(Node* node)
         Nest_setPropertyInt(node, propIsMember, 1);
 
     // Does this function have an implicit 'this' arg?
-    bool addThisParam = isMember && !isStatic;
+    bool addThisParam = false; //isMember && !isStatic;
+    // TODO (classes): Remove this
     // Don't add implicit this for functions declared inside classes
     // TODO (classes): Make this true for all methods
-    if (addThisParam) {
-        StringRef funName = Feather_getName(node);
-        if (funName == "ctorFromCt" || funName == "dtor")
-            addThisParam = false;
-    }
+    // if (addThisParam) {
+    //     StringRef funName = Feather_getName(node);
+    //     if (funName == "ctorFromCt" || funName == "dtor")
+    //         addThisParam = false;
+    // }
     int thisParamIdx = -1;
     if ( !addThisParam && parameters ) {
         for ( int i=0; i<size(parameters->children); i++ ) {
@@ -404,7 +406,7 @@ TypeRef SprFunction_ComputeType(Node* node)
     StringRef funName = Feather_getName(node);
 
     // Special modifier for ctors & dtors
-    if ( (addThisParam || thisParamIdx >= 0) && !Nest_hasProperty(node, propNoDefault) )
+    if ( (thisParamIdx >= 0) && !Nest_hasProperty(node, propNoDefault) )
     {
         if ( funName == "ctor" )
             Nest_addModifier(node, SprFe_getCtorMembersIntMod());

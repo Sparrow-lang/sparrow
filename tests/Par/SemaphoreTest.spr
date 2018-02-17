@@ -39,7 +39,7 @@ class WorkManager {
     var amountOfWork, numWorkers: Int;
     var threads: (par.Thread Ptr) Vector;
 
-    fun ctor(sem: @par.Semaphore, amountOfWork, numWorkers: Int) {
+    fun ctor(this: @WorkManager, sem: @par.Semaphore, amountOfWork, numWorkers: Int) {
         this.amountOfWork ctor amountOfWork;
         this.numWorkers ctor numWorkers;
         for i=0..numWorkers {

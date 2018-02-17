@@ -12,7 +12,7 @@ using allowNativeCodeGen = true
         var predicates: Vector(SparrowPredicate)
         var loc: LLocation
 
-        fun ctor(program: @PrologProgramPtr)
+        fun ctor(this: @SparrowPrologSystem, program: @PrologProgramPtr)
             this.predicates ctor
             this.loc ctor program.get().loc
 
@@ -40,12 +40,12 @@ using allowNativeCodeGen = true
         var expr: ExpressionPtr
         var isRead, isInput, isOutput: Bool
 
-        fun ctor
+        fun ctor(this: @Parameter)
             expr ctor
             isRead ctor false
             isInput ctor false
             isOutput ctor false
-        fun ctor(e: ExpressionPtr)
+        fun ctor(this: @Parameter, e: ExpressionPtr)
             expr ctor e
             isRead ctor false
             isInput ctor false
@@ -61,7 +61,7 @@ using allowNativeCodeGen = true
         var typeSets: Vector(LTypeSet)
         var canBeNative: Bool
 
-        fun ctor(firstClause: @PredicateClausePtr)
+        fun ctor(this: @SparrowPredicate, firstClause: @PredicateClausePtr)
             this.name ctor firstClause.get().name
             this.arity ctor UInt(firstClause.get().args.size)
             this.firstClause ctor firstClause

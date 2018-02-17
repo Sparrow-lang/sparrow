@@ -3,7 +3,7 @@
 class MyVal
     var x: Int;
 
-    fun ctor(xx: Int ) { x = xx; }
+fun ctor(this: @MyVal, xx: Int ) { x = xx; }
 
 fun value(this: MyVal): Int
     return x

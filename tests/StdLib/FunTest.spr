@@ -18,7 +18,7 @@ fun stdFun(s: String): String
 
 class FunctorInt
     var storedNum: Int
-    fun ctor(n: Int)
+    fun ctor(this: @FunctorInt, n: Int)
         storedNum ctor n
 
 fun ()(this: @FunctorInt, n: Int): Int
@@ -27,7 +27,7 @@ fun ()(this: @FunctorInt, n: Int): Int
 
 class Functor
     var storedString: String
-    fun ctor(s: String)
+    fun ctor(this: @Functor, s: String)
         storedString ctor s
 
 fun ()(this: @Functor, s: String): String

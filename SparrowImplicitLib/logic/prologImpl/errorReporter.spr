@@ -8,7 +8,7 @@ import os = os;
     class ConsoleErrorReporter(sourceType: Type) if CharRange(#$sourceType)
         var _source: sourceType;
 
-        fun ctor(source: @sourceType)
+        fun ctor(this: @ConsoleErrorReporter, source: @sourceType)
             this._source ctor source;
 
     fun raiseError(this: @ConsoleErrorReporter, loc: Location, message: StringRef)

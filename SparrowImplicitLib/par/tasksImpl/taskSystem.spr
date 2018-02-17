@@ -8,8 +8,7 @@ import std.ptr, std.vector;
 //import assert;
 
 class TaskSystem {
-    fun ctor {
-    }
+    fun ctor(this: @TaskSystem) {}
 
     fun dtor(this: @TaskSystem) {}
 

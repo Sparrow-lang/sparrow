@@ -17,7 +17,7 @@ import ranges(RandomAccessRange, ..)
 
     var _begin, _end, _endOfStore: RawPtr(ValueType)
 
-    fun ctor(other: @Vector)
+    fun ctor(this, other: @Vector)
         var size = other.size()
 
         _begin = allocRawPtr(ValueType, size)
@@ -32,7 +32,7 @@ import ranges(RandomAccessRange, ..)
             dst = dst.advance()
             src = src.advance()
 
-    fun ctor(size: SizeType)
+    fun ctor(this: @Vector, size: SizeType)
         // Allocate the buffer
         _begin = allocRawPtr(ValueType, size)
         _end = _begin.advance(size)
@@ -43,14 +43,14 @@ import ranges(RandomAccessRange, ..)
         while p != _end ; p = p.advance()
             p.value().ctor()
 
-    fun ctor(range: Range) if !RandomAccessRange(range)
+    fun ctor(this: @Vector, range: Range) if !RandomAccessRange(range)
         _begin.ctor()
         _end.ctor()
         _endOfStore.ctor()
         for v = range
             this.pushBack(v)
 
-    fun ctor(range: RandomAccessRange)
+    fun ctor(this: @Vector, range: RandomAccessRange)
         _begin.ctor()
         _end.ctor()
         _endOfStore.ctor()

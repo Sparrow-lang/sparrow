@@ -19,7 +19,7 @@ class SimpleLoop
     [static] var BasicBlockSet = Set(Ptr(BasicBlock), BBPtrHashFunction, Functors.Equal(Ptr(BasicBlock)));
     [static] var LoopSet = Set(Ptr(SimpleLoop), SLPtrHashFunction, Functors.Equal(Ptr(SimpleLoop)));
 
-    fun ctor(counter: UInt)
+    fun ctor(this: @SimpleLoop, counter: UInt)
     {
         parent.ctor(null);
         isRoot.ctor(false);
@@ -100,21 +100,21 @@ class SLPtrHashFunction
 
 
 
-    fun ctor()
+    fun ctor(this: @Pair)
     {
         this.first.ctor();
         this.second.ctor();
     }
 
 
-    fun ctor(first: FirstType@, second: SecondType@)
+    fun ctor(this: @Pair, first: FirstType@, second: SecondType@)
     {
         this.first.ctor(first);
         this.second.ctor(second);
     }
 
 
-    fun ctor(other: Std.Pair)
+    fun ctor(this: @Pair, other: Std.Pair)
     {
         this.first.ctor(other.first);
         this.second.ctor(other.second);

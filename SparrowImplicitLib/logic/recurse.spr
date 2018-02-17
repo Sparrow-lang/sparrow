@@ -29,10 +29,10 @@ class Recurse(predGeneratorType: Type)
     var _relation: Predicate
     var _predGenerator: predGeneratorType
 
-    fun ctor(other: @Recurse)
+    fun ctor(this: @Recurse, other: @Recurse)
         this._relation ctor other._relation
         this._predGenerator ctor other._predGenerator
-    fun ctor(predGenerator: @predGeneratorType)
+    fun ctor(this: @Recurse, predGenerator: @predGeneratorType)
         this._relation ctor
         this._predGenerator ctor predGenerator
         [ct] if isValid(logicDebug)

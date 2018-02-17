@@ -29,10 +29,10 @@ class Result
     var len: Short;
     var pos: ULong;
 
-    fun ctor() { len = Short(1); pos = 1; }
-    fun ctor(l: Short, p: ULong) { len = l; pos = p; }
-    fun ctor(other: Result) { ctor(other); }
-    fun =(other: Result) { len = other.len; pos = other.pos; }
+    fun ctor(this: @Result) { len = Short(1); pos = 1; }
+    fun ctor(this: @Result, l: Short, p: ULong) { len = l; pos = p; }
+    //fun ctor(other: Result) { ctor(other); }
+    //fun =(other: Result) { len = other.len; pos = other.pos; }
 
     fun checkUpdate(l: Short, p: ULong)
     {

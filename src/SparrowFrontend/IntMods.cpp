@@ -125,39 +125,6 @@ namespace
             Nest_insertNodeIntoArray(&dest->children, 0, call);
     }
 
-    // Add a method with the given body and given arguments to the parent class
-    Node* addMethod(Node* parent, const string& name, Node* body, vector<pair<TypeRef, string>> params, Node* resClass = nullptr, EvalMode mode = modeUnspecified)
-    {
-        Location loc = parent->location;
-        loc.end = loc.start;
-
-        // Construct the parameters list, return type node
-        NodeVector sprParams;
-        sprParams.reserve(params.size());
-        for ( auto param: params )
-        {
-            sprParams.push_back(mkSprParameter(loc, fromString(param.second), param.first));
-        }
-        Node* parameters = sprParams.empty() ? nullptr : Feather_mkNodeList(loc, all(sprParams));
-        Node* ret = resClass ? createTypeNode(Nest_childrenContext(parent), loc, Feather_getDataType(resClass, 0, modeRtCt)) : nullptr;
-
-        // Add the function
-        Node* m = mkSprFunction(loc, fromString(name), parameters, ret, body);
-        Nest_setPropertyInt(m, propNoDefault, 1);
-        copyAccessType(m, parent);
-        Feather_setEvalMode(m, mode == modeUnspecified ? Feather_effectiveEvalMode(parent) : mode);
-        Class_addChild(parent, m);
-        if ( !Nest_computeType(m) )
-            return nullptr;
-        return m;
-    }
-
-    // Add a method with the given body to the parent class
-    Node* addMethod(Node* parent, const string& name, Node* body, TypeRef otherParam, Node* resClass = nullptr, EvalMode mode = modeUnspecified)
-    {
-        return addMethod(parent, name, body, otherParam ? vector<pair<TypeRef, string>>({ {otherParam, string("other")} }) : vector<pair<TypeRef, string>>({}), resClass, mode);
-    }
-
     // Add an associated function with the given body and given arguments, near the parent class
     // If autoCt==true, and mode==modeRtCt, we will also add the autoCt modifier
     // This is useful for things like the '==' operator
@@ -165,7 +132,17 @@ namespace
     {
         Location loc = parent->location;
         loc.end = loc.start;
-        CompilationContext* ctx = classContext(parent);
+
+        // The context in which we add the associated fun
+        // If this is a ctor, and we have other ctors inside the class, then add it inside the class
+        // Otherwise, add it near the class.
+        bool shouldBeInner = false;
+        if (name=="ctor") {
+            NodeArray decls = Nest_symTabLookupCurrent(parent->childrenContext->currentSymTab, "ctor");
+            shouldBeInner = size(decls) > 0;
+            Nest_freeNodeArray(decls);
+        }
+        CompilationContext* ctx = shouldBeInner ? parent->childrenContext : classContext(parent);
 
         // Construct the parameters list, return type node
         NodeVector sprParams;
@@ -181,7 +158,7 @@ namespace
         Node* f = mkSprFunction(loc, fromString(name), parameters, ret, body);
         Nest_setPropertyInt(f, propIsStatic, 1);
         Nest_setPropertyInt(f, propNoDefault, 1);
-        copyAccessType(f, parent);
+        Nest_setPropertyInt(f, "spr.accessType", (int) protectedAccess);
         if ( mode == modeUnspecified )
             mode = Feather_effectiveEvalMode(parent);
         Feather_setEvalMode(f, mode);
@@ -195,48 +172,6 @@ namespace
         return f;
     }
 
-    /// Generate a typical method with the given name, by calling 'op' for the base classes and fields
-    Node* generateMethod(Node* parent, const string& name, const string& op, TypeRef otherParam, bool reverse = false, EvalMode mode = modeUnspecified)
-    {
-        Location loc = parent->location;
-        loc.end = loc.start;
-        Node* cls = Nest_explanation(parent);
-        cls = cls && cls->nodeKind == nkFeatherDeclClass ? cls : nullptr;
-        ASSERT(cls);
-
-        Node* otherRef = nullptr;
-        if ( otherParam )
-        {
-            otherRef = mkIdentifier(loc, fromCStr("other"));
-            if ( otherParam->numReferences > 0 )
-                otherRef = Feather_mkMemLoad(loc, otherRef);
-        }
-
-        // Construct the body
-        Node* body = Feather_mkLocalSpace(loc, {});
-        for ( Node* field: cls->children )
-        {
-            Node* fieldRef = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, mkIdentifier(loc, fromCStr("this"))), field);
-            Node* otherFieldRef = otherParam ? Feather_mkFieldRef(loc, otherRef, field) : nullptr;
-
-            string oper = op;
-            if ( field->type->numReferences > 0 )
-            {
-                if ( op == "=" || op == "ctor" )
-                {
-                    oper = ":=";    // Transform into ref assignment
-                    if ( !otherFieldRef )
-                        otherFieldRef = buildNullLiteral(loc);
-                }
-                else if ( op == "dtor" )
-                    continue;       // Nothing to destruct on references
-            }
-            addOperatorCall(body, reverse, fieldRef, oper, otherFieldRef);
-        }
-
-        return addMethod(parent, name, body, otherParam, nullptr, mode);
-    }
-
     /// Generate an associated function with the given name, by calling 'op' for the base classes and fields
     Node* generateAssociatedFun(Node* parent, const string& name, const string& op, TypeRef otherParam, bool reverse = false, EvalMode mode = modeUnspecified)
     {
@@ -246,7 +181,7 @@ namespace
         cls = cls && cls->nodeKind == nkFeatherDeclClass ? cls : nullptr;
         ASSERT(cls);
 
-        Node* destRef = mkIdentifier(loc, fromCStr("dest"));
+        Node* thisRef = mkIdentifier(loc, fromCStr("this"));
 
         Node* otherRef = nullptr;
         if ( otherParam )
@@ -265,7 +200,7 @@ namespace
             if ( cls2 != cls )
                 continue;
 
-            Node* fieldRef = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, destRef), field);
+            Node* fieldRef = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, thisRef), field);
             Node* otherFieldRef = otherParam ? Feather_mkFieldRef(loc, otherRef, field) : nullptr;
 
             string oper = op;
@@ -285,7 +220,7 @@ namespace
 
         vector<pair<TypeRef, string>> params;
         params.reserve(2);
-        params.push_back({Feather_addRef(cls->type), string("dest")});
+        params.push_back({Feather_addRef(cls->type), string("this")});
         if ( otherParam )
             params.push_back({otherParam, string("other")});
 
@@ -296,7 +231,7 @@ namespace
     void generateInitCtor(Node* parent)
     {
         vector<pair<TypeRef, string>> params;
-        // params.push_back({Feather_addRef(parent->type), "this"});
+        params.push_back({Feather_addRef(parent->type), "this"});
 
         Location loc = parent->location;
         loc.end = loc.start;
@@ -328,9 +263,7 @@ namespace
             addOperatorCall(body, false, fieldRef, oper, paramId);
         }
 
-        /*Node* ctor = */addMethod(parent, "ctor", body, params);
-        // addAssociatedFun(parent, "ctor", body, params);
-        // REP_INFO(loc, "Generated InitCtor: %1%") % Nest_toStringEx(ctor);
+        addAssociatedFun(parent, "ctor", body, params);
     }
 
     /// Generate the equality check method for the given class
@@ -376,13 +309,33 @@ namespace
         return res;
     }
 
+    Node* getThisTypeForFun(Node* fun) {
+        // TODO (classes): Remove this
+        if (funHasImplicitThis(fun))
+            return Feather_getParentClass(fun->context);
+
+        // Get the class of the 'this' param
+        int thisIdx = getThisParamIdx(fun);
+        if (thisIdx < 0)
+            REP_INTERNAL(fun->location, "Cannot find 'this' parameter");
+        Node* parameters = at(fun->children, 0);
+        Node* thisParam = at(parameters->children, thisIdx);
+        CHECK(fun->location, thisParam);
+        if (!Nest_computeType(thisParam))
+            return nullptr;
+        ASSERT(thisParam->type);
+        Node* cls = thisParam->type->referredNode;
+        ASSERT(cls);
+        return cls;
+    }
+
     /// Search the given body for a constructor with the given properties.
     ///
     /// This can search for constructors of given classes, constructors called on this, or called for the given field.
     ///
     /// It will search only the instructions directly inside the given local space, or in a child local space
     /// It will not search inside conditionals, or other instructions
-    bool hasCtorCall(Node* inSpace, Node* ofClass, bool checkThis, Node* forField)
+    bool hasCtorCall(Node* inSpace, bool checkThis, Node* forField)
     {
         // Check all the items in the local space
         for ( Node* n: inSpace->children )
@@ -396,7 +349,7 @@ namespace
             // Check inner local spaces
             if ( n->nodeKind == nkFeatherLocalSpace )
             {
-                if ( hasCtorCall(n, ofClass, checkThis, forField) )
+                if ( hasCtorCall(n, checkThis, forField) )
                     return true;
                 continue;
             }
@@ -404,25 +357,18 @@ namespace
             // We consider function calls for our checks
             if ( n->nodeKind != nkFeatherExpFunCall )
                 continue;
-            if ( Feather_getName(at(n->referredNodes, 0)) != "ctor" )
+            Node* funDecl = at(n->referredNodes, 0);
+            if ( Feather_getName(funDecl) != "ctor" )
                 continue;
             if ( Nest_nodeArraySize(n->children) == 0 )
                 continue;
             Node* thisArg = at(n->children, 0);
 
-            // If a class is given, check that the call is made to a function of that class
-            if ( ofClass )
-            {
-                Node* parentCls = Feather_getParentClass(at(n->referredNodes, 0)->context);
-                if ( parentCls != ofClass )
-                    continue;
-            }
-
             // Check for this to be passed as argument
             if ( checkThis )
             {
                 // If we have a MemLoad, just ignore it
-                if ( thisArg->nodeKind == nkFeatherExpMemLoad )
+                while (thisArg && thisArg->nodeKind == nkFeatherExpMemLoad)
                     thisArg = Nest_explanation(at(thisArg->children, 0));
 
                 if ( !thisArg || thisArg->nodeKind != nkFeatherExpVarRef
@@ -464,13 +410,11 @@ void _IntModClassMembers_afterComputeType(Modifier*, Node* node)
 
     // Default ctor
     if ( !checkForAssociatedFun(cls, "ctor", nullptr) )
-        generateMethod(cls, "ctor", "ctor", nullptr);
-        // generateAssociatedFun(cls, "ctor", "ctor", nullptr);
+        generateAssociatedFun(cls, "ctor", "ctor", nullptr);
 
     // Copy ctor
     if ( !checkForAssociatedFun(cls, "ctor", basicClass) )
-        generateMethod(cls, "ctor", "ctor", paramType);
-        // generateAssociatedFun(cls, "ctor", "ctor", paramType);
+        generateAssociatedFun(cls, "ctor", "ctor", paramType);
 
     // Initialization ctor
     if ( Nest_hasProperty(cls, propGenerateInitCtor) )
@@ -493,26 +437,6 @@ void _IntModClassMembers_afterComputeType(Modifier*, Node* node)
         generateEqualityCheckFun(cls);
 }
 
-Node* getThisTypeForFun(Node* fun) {
-    // TODO (classes): Remove this
-    if (funHasImplicitThis(fun))
-        return Feather_getParentClass(fun->context);
-
-    // Get the class of the 'this' param
-    int thisIdx = getThisParamIdx(fun);
-    if (thisIdx < 0)
-        REP_INTERNAL(fun->location, "Cannot find 'this' parameter");
-    Node* parameters = at(fun->children, 0);
-    Node* thisParam = at(parameters->children, thisIdx);
-    CHECK(fun->location, thisParam);
-    if (!Nest_computeType(thisParam))
-        return nullptr;
-    ASSERT(thisParam->type);
-    Node* cls = thisParam->type->referredNode;
-    ASSERT(cls);
-    return cls;
-}
-
 void IntModCtorMembers_beforeSemanticCheck(Modifier*, Node* fun) {
     /// Check to apply only to non-static constructors
     if ( fun->nodeKind != nkSparrowDeclSprFunction || Feather_getName(fun) != "ctor" )
@@ -533,7 +457,7 @@ void IntModCtorMembers_beforeSemanticCheck(Modifier*, Node* fun) {
         return;
 
     // If we are calling other constructor of this class, don't add any initialization
-    if ( hasCtorCall(body, cls, true, nullptr) )
+    if ( hasCtorCall(body, true, nullptr) )
         return;
 
     // Generate the ctor calls in the order of the fields; add them to the body of the constructor
@@ -547,7 +471,7 @@ void IntModCtorMembers_beforeSemanticCheck(Modifier*, Node* fun) {
         if ( cls2 != cls )
             continue;
 
-        if ( !hasCtorCall(body, nullptr, false, field) )
+        if ( !hasCtorCall(body, false, field) )
         {
             Node* base = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("this")), Feather_getName(field));
             Node* call = nullptr;

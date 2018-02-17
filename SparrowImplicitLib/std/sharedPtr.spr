@@ -10,12 +10,12 @@ import newDelete(new, delete)
         var _ref: @ValueType
         var _count: @UInt
 
-        fun ctor
+        fun ctor(this: @SharedPtr)
             _ref := null
             _count := null
 
         [convert]
-        fun ctor(value: @ValueType)
+        fun ctor(this: @SharedPtr, value: @ValueType)
             if ( value === null )
                 this._ref := null
                 this._count := null
@@ -24,7 +24,7 @@ import newDelete(new, delete)
                 this._ref := d.data
                 this._count := d._count
 
-        fun ctor(other: @SharedPtr)
+        fun ctor(this, other: @SharedPtr)
             _ref := other._ref
             _count := other._count
             if ( _count !== null )
@@ -74,23 +74,23 @@ import newDelete(new, delete)
         var _count: UInt
         var data: type
 
-        fun ctor
+        fun ctor(this: @_AllocData)
             _count ctor 1
             data ctor
 
-        fun ctor(arg1: @AnyType)
+        fun ctor(this: @_AllocData, arg1: @AnyType)
             _count ctor 1
             data ctor arg1
 
-        fun ctor(arg1, arg2: @AnyType)
+        fun ctor(this: @_AllocData, arg1, arg2: @AnyType)
             _count ctor 1
             data.ctor(arg1, arg2)
 
-        fun ctor(arg1, arg2, arg3: @AnyType)
+        fun ctor(this: @_AllocData, arg1, arg2, arg3: @AnyType)
             _count ctor 1
             data.ctor(arg1, arg2, arg3)
 
-        fun ctor(arg1, arg2, arg3, arg4: @AnyType)
+        fun ctor(this: @_AllocData, arg1, arg2, arg3, arg4: @AnyType)
             _count ctor 1
             data.ctor(arg1, arg2, arg3, arg4)
 

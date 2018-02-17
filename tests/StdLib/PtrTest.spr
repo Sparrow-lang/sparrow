@@ -5,7 +5,7 @@ import std.vector;
 class MyObj
     var x: Int;
 
-    fun ctor(xx: Int)
+    fun ctor(this: @MyObj, xx: Int)
         x = xx;
 
     fun dtor(this: MyObj)
@@ -22,7 +22,7 @@ fun print(this: @MyObj, arg: StringRef)
 
 class Foo
     var obj: MyObj;
-    fun ctor(x: Int)
+    fun ctor(this: @Foo, x: Int)
         obj ctor x;
 
 fun get(this: @Foo) = obj;

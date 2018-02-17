@@ -12,17 +12,17 @@ import std.string(String)
     class File
         var _handle: @Byte
 
-        fun ctor
+        fun ctor(this: @File)
             _handle := null
 
-        fun ctor(handle: @Byte)
+        fun ctor(this: @File, handle: @Byte)
             this._handle := handle
 
-        fun ctor(filename: StringRef, mode: StringRef = "r")
+        fun ctor(this: @File, filename: StringRef, mode: StringRef = "r")
             this._handle := _Impl.fopen(filename.cStr, mode.cStr)
 
         // Move ctor and operator
-        fun ctor(other: @File)
+        fun ctor(this, other: @File)
             this._handle := other._handle
             other._handle := null
 
@@ -68,7 +68,7 @@ import std.string(String)
         var _isEmpty: Bool
         var _cur: Char
 
-        fun ctor(file: @File)
+        fun ctor(this: @FileRange, file: @File)
             this._file := file
             _isEmpty = true
             _cur ctor

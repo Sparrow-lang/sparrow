@@ -20,7 +20,7 @@ package _Impl
         var destructFn: FunctionPtr(VoidType, @Byte)
 
         //! Copy constructor - clones the object and copies the FunctionPtrs
-        fun ctor(other: @FunctionData)
+        fun ctor(this, other: @FunctionData)
             if other.obj !== null
                 this.obj := other.cloneFn(other.obj)
             this.callFn ctor other.callFn
@@ -57,12 +57,12 @@ package _Impl0
         using _FunPtrType = FunctionPtr(resT, @Byte)
         var _data: _Impl.FunctionData
 
-        fun ctor(ftor: @AnyType) if isValid(ftor())
+        fun ctor(this: @Function0, ftor: @AnyType) if isValid(ftor())
             _Impl.reinterpretCopy(this._data.callFn, \ftor())
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
-        fun ctor(other: @Function0)
+        fun ctor(this, other: @Function0)
             this._data ctor other._data
 
     [rtct, protected]
@@ -82,12 +82,12 @@ package _Impl1
         using _FunPtrType = FunctionPtr(resT, @Byte, T1)
         var _data: _Impl.FunctionData
 
-        fun ctor(ftor: @AnyType) if isValid(ftor(#$T1))
+        fun ctor(this: @Function1, ftor: @AnyType) if isValid(ftor(#$T1))
             _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1))
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
-        fun ctor(other: @Function1)
+        fun ctor(this, other: @Function1)
             this._data ctor other._data
 
     [rtct, protected]
@@ -108,12 +108,12 @@ package _Impl2
         using _FunPtrType = FunctionPtr(resT, @Byte, T1, T2)
         var _data: _Impl.FunctionData
 
-        fun ctor(ftor: @AnyType) if isValid(ftor(#$T1, #$T2))
+        fun ctor(this: @Function2, ftor: @AnyType) if isValid(ftor(#$T1, #$T2))
             _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2))
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
-        fun ctor(other: @Function2)
+        fun ctor(this, other: @Function2)
             this._data ctor other._data
 
     [rtct, protected]
@@ -137,12 +137,12 @@ package _Impl3
         using _FunPtrType = FunctionPtr(resT, @Byte, T1, T2, T3)
         var _data: _Impl.FunctionData
 
-        fun ctor(ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3))
+        fun ctor(this: @Function3, ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3))
             _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3))
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
-        fun ctor(other: @Function3)
+        fun ctor(this, other: @Function3)
             this._data ctor other._data
 
     [rtct, protected]
@@ -165,12 +165,12 @@ package _Impl4
         using _FunPtrType = FunctionPtr(resT, @Byte, T1, T2, T3, T4)
         var _data: _Impl.FunctionData
 
-        fun ctor(ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4))
+        fun ctor(this: @Function4, ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4))
             _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4))
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
-        fun ctor(other: @Function4)
+        fun ctor(this, other: @Function4)
             this._data ctor other._data
 
     [rtct, protected]
@@ -194,12 +194,12 @@ package _Impl5
         using _FunPtrType = FunctionPtr(resT, @Byte, T1, T2, T3, T4, T5)
         var _data: _Impl.FunctionData
 
-        fun ctor(ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5))
+        fun ctor(this: @Function5, ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5))
             _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5))
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
-        fun ctor(other: @Function5)
+        fun ctor(this, other: @Function5)
             this._data ctor other._data
 
     [rtct, protected]
@@ -224,12 +224,12 @@ package _Impl6
         using _FunPtrType = FunctionPtr(resT, @Byte, T1, T2, T3, T4, T5, T6)
         var _data: _Impl.FunctionData
 
-        fun ctor(ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6))
+        fun ctor(this: @Function6, ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6))
             _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6))
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
-        fun ctor(other: @Function6)
+        fun ctor(this, other: @Function6)
             this._data ctor other._data
 
     [rtct, protected]
@@ -255,12 +255,12 @@ package _Impl7
         using _FunPtrType = FunctionPtr(resT, @Byte, T1, T2, T3, T4, T5, T6, T7)
         var _data: _Impl.FunctionData
 
-        fun ctor(ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7))
+        fun ctor(this: @Function7, ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7))
             _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7))
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
-        fun ctor(other: @Function7)
+        fun ctor(this, other: @Function7)
             this._data ctor other._data
 
     [rtct, protected]
@@ -287,12 +287,12 @@ package _Impl8
         using _FunPtrType = FunctionPtr(resT, @Byte, T1, T2, T3, T4, T5, T6, T7, T8)
         var _data: _Impl.FunctionData
 
-        fun ctor(ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8))
+        fun ctor(this: @Function8, ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8))
             _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8))
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
-        fun ctor(other: @Function8)
+        fun ctor(this, other: @Function8)
             this._data ctor other._data
 
     [rtct, protected]
@@ -320,12 +320,12 @@ package _Impl9
         using _FunPtrType = FunctionPtr(resT, @Byte, T1, T2, T3, T4, T5, T6, T7, T8, T9)
         var _data: _Impl.FunctionData
 
-        fun ctor(ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9))
+        fun ctor(this: @Function9, ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9))
             _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9))
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
-        fun ctor(other: @Function9)
+        fun ctor(this, other: @Function9)
             this._data ctor other._data
 
     [rtct, protected]
@@ -354,12 +354,12 @@ package _Impl10
         using _FunPtrType = FunctionPtr(resT, @Byte, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
         var _data: _Impl.FunctionData
 
-        fun ctor(ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10))
+        fun ctor(this: @Function10, ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10))
             _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10))
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
-        fun ctor(other: @Function10)
+        fun ctor(this, other: @Function10)
             this._data ctor other._data
 
     [rtct, protected]
@@ -389,12 +389,12 @@ package _Impl11
         using _FunPtrType = FunctionPtr(resT, @Byte, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
         var _data: _Impl.FunctionData
 
-        fun ctor(ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10, #$T11))
+        fun ctor(this: @Function11, ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10, #$T11))
             _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10, #$T11))
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
-        fun ctor(other: @Function11)
+        fun ctor(this, other: @Function11)
             this._data ctor other._data
 
     [rtct, protected]
@@ -425,12 +425,12 @@ package _Impl12
         using _FunPtrType = FunctionPtr(resT, @Byte, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
         var _data: _Impl.FunctionData
 
-        fun ctor(ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10, #$T11, #$T12))
+        fun ctor(this: @Function12, ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10, #$T11, #$T12))
             _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10, #$T11, #$T12))
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
-        fun ctor(other: @Function12)
+        fun ctor(this, other: @Function12)
             this._data ctor other._data
 
     [rtct, protected]
@@ -462,12 +462,12 @@ package _Impl13
         using _FunPtrType = FunctionPtr(resT, @Byte, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
         var _data: _Impl.FunctionData
 
-        fun ctor(ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10, #$T11, #$T12, #$T13))
+        fun ctor(this: @Function13, ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10, #$T11, #$T12, #$T13))
             _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10, #$T11, #$T12, #$T13))
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
-        fun ctor(other: @Function13)
+        fun ctor(this, other: @Function13)
             this._data ctor other._data
 
     [rtct, protected]
@@ -500,12 +500,12 @@ package _Impl14
         using _FunPtrType = FunctionPtr(resT, @Byte, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
         var _data: _Impl.FunctionData
 
-        fun ctor(ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10, #$T11, #$T12, #$T13, #$T14))
+        fun ctor(this: @Function14, ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10, #$T11, #$T12, #$T13, #$T14))
             _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10, #$T11, #$T12, #$T13, #$T14))
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
-        fun ctor(other: @Function14)
+        fun ctor(this, other: @Function14)
             this._data ctor other._data
 
     [rtct, protected]
@@ -539,12 +539,12 @@ package _Impl15
         using _FunPtrType = FunctionPtr(resT, @Byte, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
         var _data: _Impl.FunctionData
 
-        fun ctor(ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10, #$T11, #$T12, #$T13, #$T14, #$T15))
+        fun ctor(this: @Function15, ftor: @AnyType) if isValid(ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10, #$T11, #$T12, #$T13, #$T14, #$T15))
             _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10, #$T11, #$T12, #$T13, #$T14, #$T15))
             _Impl.reinterpretCopy(this._data.cloneFn, \new(-@typeOf(ftor), ftor))
             _Impl.reinterpretCopy(this._data.destructFn, \ftor.dtor)
             this._data.obj := _data.cloneFn(reinterpretCast(@Byte, ftor))
-        fun ctor(other: @Function15)
+        fun ctor(this, other: @Function15)
             this._data ctor other._data
 
     [rtct, protected]

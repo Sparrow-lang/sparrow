@@ -1,14 +1,10 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
 class myName
-{
     var x: Int;
 
-    fun ctor(x: Int)
-    {
+    fun ctor(this: @myName, x: Int) // ERROR ERROR
         this.x = x;
-    }
-}
 
 fun myName = 10;
 fun myName(x: Int) = x;

@@ -9,20 +9,20 @@ class  MyObj
 {
 
     var x: Int;
-    
+
     using pi = 3.14;
-    
-    fun ctor()
+
+    fun ctor(this: @MyObj)
     {
         x.ctor(0);
     }
-    
-    fun ctor(x: Int)
+
+    fun ctor(this: @MyObj, x: Int)
     {
         this.x.ctor(x);
-    }   
-    
-    fun ctor(src: @MyObj)
+    }
+
+    fun ctor(this, src: @MyObj)
     {
         this.x.ctor(src);
         cdsa;
@@ -32,12 +32,12 @@ class  MyObj
     fun =(other: @MyObj): Bool
     {
     }
-    
+
     fun bla(x: Int, t: Std.meta.Type)
     {
         dew.cda;
     }
-    
+
 }
 
 }

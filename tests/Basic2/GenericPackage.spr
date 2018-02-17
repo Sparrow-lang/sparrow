@@ -3,7 +3,7 @@
 import std.ranges
 
 class TypePrint(t: Type)
-    fun ctor
+    fun ctor(this: @TypePrint)
         cout << 'TypePrint.ctor ' << TypeOp.description(t) << endl
 
 package GenPackage(t: Type)

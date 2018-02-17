@@ -59,12 +59,12 @@ class BoundedRange(_baseRangeType: Type) {
 
     using RetType = baseRangeType.RetType;
 
-    fun ctor(r: @baseRangeType) {
+    fun ctor(this: @BoundedRange, r: @baseRangeType) {
         _baseRange ctor r;
         _count = (_baseRange rangeSize);
     }
 
-    fun ctor(r: @BoundedRange, nSkip, nTake: SizeType) {
+    fun ctor(this, r: @BoundedRange, nSkip, nTake: SizeType) {
         _baseRange ctor r._baseRange;
         _baseRange advance nSkip;
         _count ctor nTake;
@@ -85,7 +85,7 @@ package Impl {
 
         using RangeType = rangeType;
 
-        fun ctor(r: rangeType, f: funcType, part: @partType, depth: Int) {
+        fun ctor(this: @ParForTask, r: rangeType, f: funcType, part: @partType, depth: Int) {
             this.range ctor r;
             this.func ctor f;
             this.part := part;

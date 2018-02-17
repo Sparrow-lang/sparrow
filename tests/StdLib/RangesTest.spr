@@ -64,7 +64,7 @@ class Fact
     var _res: Int;
     var _k: Int;
 
-    fun ctor() { _res = 1; _k = 0; }
+    fun ctor(this: @Fact) { _res = 1; _k = 0; }
 
 fun ()(this: @Fact): Int
     ++_k;

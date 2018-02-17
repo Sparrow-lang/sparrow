@@ -11,12 +11,12 @@ import errorReporter
         var _curToken: Token
         var _curLocation: Location
 
-        fun ctor(source: @sourceType, errorReporter: @errorReporterType)
+        fun ctor(this: @Lexer, source: @sourceType, errorReporter: @errorReporterType)
             var startLoc: Location
             startLoc setOne
             this.ctor(source, errorReporter, startLoc)
 
-        fun ctor(source: @sourceType, errorReporter: @errorReporterType, startLoc: Location)
+        fun ctor(this: @Lexer, source: @sourceType, errorReporter: @errorReporterType, startLoc: Location)
             this._source ctor source
             this._errorReporter ctor errorReporter
             this._curToken ctor

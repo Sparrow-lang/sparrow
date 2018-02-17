@@ -136,7 +136,7 @@ class Direction
 {
     var id: Int;
 
-    fun ctor(id: Int)
+    fun ctor(this: @Direction, id: Int)
     {
         this.id ctor id;
     }

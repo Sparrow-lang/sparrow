@@ -3,18 +3,17 @@
 concept AnyType(x); // Always true
 
 [rtct]
-class Pair
-    var x, y: Int;
+    class Pair
+        var x, y: Int;
 
-    fun ctor(x,y: Int)
+    fun ctor(this: @Pair, x,y: Int)
         this.x = x
         this.y = y
 
-[rtct]
-class Pair2
-    var x, y: Int;
+    class Pair2
+        var x, y: Int;
 
-    fun ctor(x,y: Int)
+    fun ctor(this: @Pair2, x,y: Int)
         this.x = x
         this.y = y
 

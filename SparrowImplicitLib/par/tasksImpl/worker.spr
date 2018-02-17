@@ -32,7 +32,7 @@ class Worker {
     //! Semaphore used when sleeping
     var _waitSem: Semaphore;
 
-    fun ctor(taskSystem: @TaskSystem, workerId: Int, idleCounter: @IdleCounter) {
+    fun ctor(this: @Worker, taskSystem: @TaskSystem, workerId: Int, idleCounter: @IdleCounter) {
         this.taskSystem := taskSystem;
         this.workerId = workerId;
         this.curDepth = 0;

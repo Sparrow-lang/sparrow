@@ -1,19 +1,15 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
 class Base
-{
     var a: Int;
 
-    fun ctor(i: Int) { a = i; }
-    fun ctor(other: Base) { a = other.a; }
-}
+fun ctor(this: @Base, i: Int) { a = i; }
+fun ctor(this: @Base, other: Base) { a = other.a; }
 
 class Derived: Base
-{
     var b: Int;
 
-    fun ctor(i,j: Int) { a = i; b = j; }
-}
+fun ctor(this: @Derived, i,j: Int) { a = i; b = j; }
 
 fun printBase(b: Base)
 {

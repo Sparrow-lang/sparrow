@@ -19,10 +19,10 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
     using _BucketsType = Array(_NodePtr)
 
 
-    fun ctor
+    fun ctor(this: @HashTable)
         this.ctor(0, traitsType())
 
-    fun ctor(n: SizeType, traits: traitsType)
+    fun ctor(this: @HashTable, n: SizeType, traits: traitsType)
         _buckets ctor
         _tr ctor traits
         _guard ctor
@@ -30,7 +30,7 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
         if n > 0
             this.reserve(n)
 
-    fun ctor(range: Range, n: SizeType, traits: traitsType)
+    fun ctor(this: @HashTable, range: Range, n: SizeType, traits: traitsType)
         _buckets ctor
         _tr ctor traits
         _guard ctor
@@ -39,7 +39,7 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
         for v = range
             this._insertPlain(v)
 
-    fun ctor(other: @HashTable)
+    fun ctor(this, other: @HashTable)
         _buckets ctor other._buckets.size
         _tr ctor other.traits
         _numElements ctor 0
@@ -318,7 +318,7 @@ class _HashRange(valueType: Type)
 
     var _startElem, _endElem: _NodePtr
 
-    fun ctor(start, end: _NodePtr)
+    fun ctor(this: @_HashRange, start, end: _NodePtr)
         _startElem ctor start
         _endElem ctor end
 

@@ -58,12 +58,10 @@ fun pow4(x: Double, n: Int): Double
 }
 
 class MyInt
-{
     var x: Int;
 
-    fun ctor() { x = 0; }
-    fun ctor(other: MyInt) { x = other.x; }
-}
+fun ctor(this: @MyInt) { x = 0; }
+fun ctor(this: @MyInt, other: MyInt) { x = other.x; }
 
 fun + (x,y: MyInt): MyInt
 {
@@ -94,8 +92,8 @@ package NearClass
     class MyInt2
         var x: Int;
 
-        fun ctor() { x = 0; }
-        fun ctor(other: MyInt2) { x = other.x; }
+    fun ctor(this: @MyInt2) { x = 0; }
+    fun ctor(this: @MyInt2, other: MyInt2) { x = other.x; }
 
     fun + (l, r: MyInt2): MyInt2
         var res: MyInt2;

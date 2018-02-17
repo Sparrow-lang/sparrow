@@ -8,10 +8,10 @@ import std.newDelete;
 class ThreadId {
     var id: ULong;
 
-    fun ctor(id: ULong) {
+    fun ctor(this: @ThreadId, id: ULong) {
         this.id ctor id;
     }
-    fun ctor(h: NativeThreadHandle) {
+    fun ctor(this: @ThreadId, h: NativeThreadHandle) {
         this.id ctor;
         Impl.pthread_threadid_np(h, id);
     }
@@ -29,7 +29,7 @@ class Thread
 
     //! Construct the Thread with a functor
     //! The functor can have state, not just executing code
-    fun ctor(f: AnyType) if isValid(f()) {
+    fun ctor(this: @Thread, f: AnyType) if isValid(f()) {
         _handle = Impl.startThread(f);
     }
     //! Destructor. Detatch the thread if joinable
@@ -37,8 +37,8 @@ class Thread
         if ( this isJoinable ) this detach;
 
     //! Cannot copy construct or assign a Thread object
-    [private] fun ctor(other: @Thread);
-    [private] fun =(other: @Thread);
+    [private] fun ctor(this, other: @Thread);
+    [private] fun =(this, other: @Thread);
 
 }
 

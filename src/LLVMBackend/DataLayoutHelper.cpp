@@ -35,8 +35,6 @@ namespace
 
         Node* clsDecl = type->referredNode;
         CHECK(NOLOC, clsDecl && clsDecl->nodeKind == nkFeatherDeclClass);
-        if ( !clsDecl->type )
-            REP_INTERNAL(clsDecl->location, "Class %1% doesn't have type computed, while computing its size") % Feather_getName(clsDecl);
 
         // Check if this is a standard/native type
         const StringRef* nativeName = Nest_getPropertyString(clsDecl, propNativeName);
@@ -46,6 +44,9 @@ namespace
             if ( t )
                 return t;
         }
+
+        if ( !clsDecl->type )
+            REP_INTERNAL(clsDecl->location, "Class %1% doesn't have type computed, while computing its size") % Feather_getName(clsDecl);
 
         // Create the type, and set it as a property (don't add any subtypes yet to avoid endless loops)
         const StringRef* description = Nest_getPropertyString(clsDecl, propDescription);

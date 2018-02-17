@@ -17,8 +17,8 @@ class Test1
     var aa: Int;
     var bb: Int;
 
-    fun ctor(a,b: Int) { aa = a; bb = b; }
-    fun ctor(other: Test1) { aa = other.aa; bb = other.bb; }
+fun ctor(this: @Test1, a,b: Int) { aa = a; bb = b; }
+fun ctor(this, other: @Test1) { aa = other.aa; bb = other.bb; }
 
 fun a(this: Test1) = this.aa;
 fun b(this: Test1) = this.bb;

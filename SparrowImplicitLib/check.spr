@@ -10,12 +10,12 @@ class Gen(t: Type)
 
     var _generator: Function(t, UInt)
 
-    fun ctor {}
-    fun ctor(other: @Gen)
+    fun ctor(this: @Gen) {}
+    fun ctor(this, other: @Gen)
         this._generator ctor other._generator
 
     [convert]
-    fun ctor(generator: @AnyType)
+    fun ctor(this: @Gen, generator: @AnyType)
         this._generator ctor generator
 
 fun ()(this: @Gen, sizeHint: UInt): ValueType = _generator(sizeHint)
@@ -43,7 +43,7 @@ fun arbitrary(t: Type): t Gen if Integer(#$t)
 class CheckConfig
     var numTests, maxAttempts: UInt
     var isVerbose: Bool
-    fun ctor
+    fun ctor(this: @CheckConfig)
         numTests = 100
         maxAttempts = 5*numTests
         isVerbose = false
@@ -58,7 +58,7 @@ class TestableValue(t: Type)
     var isTrivial: Bool
     var classifier: String
 
-    fun ctor(value: @t)
+    fun ctor(this: @TestableValue, value: @t)
         this.value ctor value
         this.isTrivial ctor false
         this.classifier ctor ""
@@ -199,7 +199,7 @@ package _Impl
         var _gen: Gen(t)
         var _count: UInt
 
-        fun ctor(gen: @Gen(t))
+        fun ctor(this: @ForAllGenerator, gen: @Gen(t))
             this._gen ctor gen
             this._count = 0
 
@@ -225,7 +225,7 @@ package _Impl
 
         using RetType = -@rangeType.RetType
 
-        fun ctor(range: rangeType, pred: predType)
+        fun ctor(this: @ForWhichRange, range: rangeType, pred: predType)
             this._range ctor range
             this._pred ctor pred
             this._lastVal ctor
@@ -279,7 +279,7 @@ package _Impl
         var _range: rangeType
         var _count: SizeType
 
-        fun ctor(range: rangeType)
+        fun ctor(this: @ElementsGen, range: rangeType)
             this._range ctor range
             this._count ctor (range rangeSize)
 

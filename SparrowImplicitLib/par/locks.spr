@@ -17,19 +17,17 @@ concept TryLockable(x)
 
 //! Class used to take the lock for the duration of a scope
 //! Can be used with any lockable object
-class ScopedLock(T: Type) if Lockable(#$T) {
+class ScopedLock(T: Type) if Lockable(#$T)
     using LockType = T;
 
     var _theLock: @LockType;
 
-    fun ctor(theLock: @LockType) {
+    fun ctor(this: @ScopedLock, theLock: @LockType)
         this._theLock := theLock;
         _theLock lock;
-    }
 
     fun dtor(this: @ScopedLock)
         _theLock unlock;
-}
 
 //! Class used to try to take the lock for the duration of a scope
 //! To test if the lock was taken, use the 'isLocked' function
@@ -39,14 +37,13 @@ class ScopedTryLock(T: Type) if TryLockable(#$T) {
     var _theLock: @LockType;
     var _lockSucceeded: Bool;
 
-    fun ctor(theLock: @LockType) {
+    fun ctor(this: @ScopedTryLock, theLock: @LockType)
         this._theLock := theLock;
         this._lockSucceeded  = (_theLock tryLock);
-    }
 
     fun isLocked = _lockSucceeded;
 
-    fun dtor(this: @LockType)
+    fun dtor(this: @ScopedTryLock)
         if ( _lockSucceeded )
             _theLock unlock;
 }
@@ -55,7 +52,7 @@ class ScopedTryLock(T: Type) if TryLockable(#$T) {
 class Mutex {
     var handle: Impl.PThreadMutex;
 
-    fun ctor {
+    fun ctor(this: @Mutex) {
         handle.sig = Impl.PTHREAD_MUTEX_SIG_INIT;
     }
 
@@ -71,9 +68,8 @@ fun >> (m: @Mutex, os: @OutStream) {
 class RecMutex {
     var handle: Impl.PThreadMutex;
 
-    fun ctor {
+    fun ctor(this: @RecMutex)
         handle.sig = Impl.PTHREAD_RECURSIVE_MUTEX_SIG_INIT;
-    }
 
     fun dtor(this: @RecMutex)
         Impl.pthread_mutex_destroy(handle);

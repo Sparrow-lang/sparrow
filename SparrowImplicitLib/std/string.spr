@@ -21,32 +21,32 @@ import rawPtr(RawPtr, allocRawPtr)
 
         var _begin, _end, _endOfStore: _PtrType
 
-        fun ctor
+        fun ctor(this: @String)
             _begin ctor
             _end ctor
             _endOfStore ctor
-        fun ctor(size: SizeType)
+        fun ctor(this: @String, size: SizeType)
             _begin       ctor allocRawPtr(Char, size+1)
             _end         ctor _begin.advance(DiffType(size))
             _endOfStore  ctor _end
             _end.value = Char(0)
-        fun ctor(count: SizeType, ch: Char)
-            ctor(count)
+        fun ctor(this: @String, count: SizeType, ch: Char)
+            this.ctor(count)
             memset(_begin.bytePtr, reinterpretCast(@Byte, ch), count)
-        fun ctor(other: @String)
+        fun ctor(this, other: @String)
             var size = other size
-            ctor(size)
+            this.ctor(size)
             memcpy(_begin.bytePtr, other._begin.bytePtr, size)
-        [convert] fun ctor(other: @StringRef)
+        [convert] fun ctor(this: @String, other: @StringRef)
             var size = other size
-            ctor(size)
+            this.ctor(size)
             memcpy(_begin.bytePtr, other.begin, size)
-        fun ctor(_begin, _end: _PtrType)
+        fun ctor(this: @String, _begin, _end: _PtrType)
             var size = _end.diff(_begin)
-            ctor(size)
+            this.ctor(size)
             memcpy(this._begin.bytePtr, _begin.bytePtr, size)
-        fun ctor(range: Range) if typeOf(range) != String
-            ctor(rangeSize(range))
+        fun ctor(this: @String, range: Range) if typeOf(range) != String
+            this.ctor(rangeSize(range))
             var i=0
             for ch = range
                 _begin.advance(DiffType(i++)).value = ch

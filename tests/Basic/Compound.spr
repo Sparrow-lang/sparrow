@@ -1,14 +1,11 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
 class MyObj
-{
     var a: Int;
-
-    fun ctor(i: Int) { a = i; }
-    fun ctor(other: MyObj) { a = other.a; }
-
     [static] var st = 103;
-}
+
+fun ctor(this: @MyObj, i: Int) { a = i; }
+fun ctor(this: @MyObj, other: MyObj) { a = other.a; }
 
 fun print(this: MyObj) { write("MyObj: "); writeLn(a); }
 

@@ -9,7 +9,7 @@ class Array(valueType: Type)
     using ValueType = valueType
     using RangeType = ContiguousMemoryRange(valueType)
 
-    fun ctor(other: @Array)
+    fun ctor(this, other: @Array)
         var size = other.size
 
         _begin = allocRawPtr(ValueType, size)
@@ -23,7 +23,7 @@ class Array(valueType: Type)
             dst = dst.advance
             src = src.advance
 
-    fun ctor(size: SizeType)
+    fun ctor(this: @Array, size: SizeType)
         _begin = allocRawPtr(ValueType, size)
         _end = _begin.advance(DiffType(size))
 
@@ -32,7 +32,7 @@ class Array(valueType: Type)
         while p != _end ; p = p.advance
             p.value ctor
 
-    fun ctor(size: SizeType, value: @ValueType)
+    fun ctor(this: @Array, size: SizeType, value: @ValueType)
         _begin = allocRawPtr(ValueType, size)
         _end = _begin.advance(DiffType(size))
 
@@ -41,7 +41,7 @@ class Array(valueType: Type)
         while p != _end ; p = p.advance
             p.value ctor value
 
-    fun ctor(range: Range) if typeOf(range) != Array
+    fun ctor(this: @Array, range: Range) if typeOf(range) != Array
         if !range.isEmpty
             var size = rangeSize(range)
 

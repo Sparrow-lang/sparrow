@@ -1,14 +1,16 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
 class A
-    fun ctor
-        writeLn("A.ctor")
+    ;
 
-    fun ctor(n: Int)
-        write("A.ctor("); write(n); writeLn(")")
+fun ctor(this: @A)
+    writeLn("A.ctor")
 
-    fun ctor(a: A)
-        writeLn("A.ctor(copy)")
+fun ctor(this: @A, n: Int)
+    write("A.ctor("); write(n); writeLn(")")
+
+fun ctor(this: @A, a: A)
+    writeLn("A.ctor(copy)")
 
 fun dtor(this: @A)
     writeLn("A.dtor")
@@ -18,17 +20,19 @@ fun =(this, other: @A)
 
 
 class B
-    fun ctor
-        writeLn("B.ctor")
+    ;
 
-    fun ctor(n: Int)
-        write("B.ctor("); write(n); writeLn(")")
+fun ctor(this: @B)
+    writeLn("B.ctor")
 
-    fun ctor(b: B)
-        writeLn("B.ctor(copy)")
+fun ctor(this: @B, n: Int)
+    write("B.ctor("); write(n); writeLn(")")
 
-    fun dtor(this: @B)
-        writeLn("B.dtor")
+fun ctor(this: @B, b: B)
+    writeLn("B.ctor(copy)")
+
+fun dtor(this: @B)
+    writeLn("B.dtor")
 
 fun =(this, other: B)
     writeLn("B.=")
@@ -38,24 +42,28 @@ class MyType
     var a: A
     var b: B
 
-    fun ctor
-        writeLn("MyType.ctor")
+fun ctor(this: @MyType)
+    writeLn("MyType.ctor")
 
-    fun ctor(i: Int)
-        a.ctor(i)
-        writeLn("MyType.ctor(Int)")
+fun ctor(this, other: @MyType)
+    ;
 
-    fun ctor(i,j: Int)
-        a.ctor(i)
-        b.ctor(j)
-        writeLn("MyType.ctor(Int, Int)")
+fun ctor(this: @MyType, i: Int)
+    a.ctor(i)
+    writeLn("MyType.ctor(Int)")
 
-    fun ctor(x,y: Double)
-        ctor(Int(x), Int(y))
-        writeLn("MyType.ctor(Double, Double)")
+fun ctor(this: @MyType, i,j: Int)
+    a.ctor(i)
+    b.ctor(j)
+    writeLn("MyType.ctor(Int, Int)")
 
-    fun dtor(this: @MyType)
-        writeLn("MyType.dtor")
+fun ctor(this: @MyType, x,y: Double)
+    this.ctor(Int(x), Int(y))
+    //ctor(this, Int(x), Int(y))
+    writeLn("MyType.ctor(Double, Double)")
+
+fun dtor(this: @MyType)
+    writeLn("MyType.dtor")
 
 
 class Empty

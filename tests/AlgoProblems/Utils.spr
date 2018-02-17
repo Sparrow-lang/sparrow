@@ -8,8 +8,8 @@
 
 class Timer
 {
-    fun ctor() { _startTime = clock(); }
-    fun ctor(other: Timer) { _startTime = other._startTime; }
+    fun ctor(this: @Timer) { _startTime = clock(); }
+    //fun ctor(other: Timer) { _startTime = other._startTime; }
 
     fun elapsed = Double(clock() - _startTime) / 1000.0;
 

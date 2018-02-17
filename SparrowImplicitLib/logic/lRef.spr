@@ -46,22 +46,22 @@ class LRef(valueType: Type)
 
     var _pptr: SharedPtr(Optional(ValueType))
 
-    fun ctor
+    fun ctor(this: @LRef)
         _pptr ctor Optional(valueType)()
         [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "ctor: " << this << "\n"
 
-    [convert] fun ctor(value: @ValueType)
+    [convert] fun ctor(this: @LRef, value: @ValueType)
         _pptr ctor Optional(valueType)(value)
         [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "value ctor: " << this << "\n"
 
-    [convert] fun ctor(value: @AnyType) if isValid(ValueType(value))
+    [convert] fun ctor(this: @LRef, value: @AnyType) if isValid(ValueType(value))
         _pptr ctor Optional(valueType)(value)
         [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "value ctor: " << this << "\n"
 
-    fun ctor(other: @LRef)
+    fun ctor(this, other: @LRef)
         _pptr ctor other._pptr
         [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "copy ctor: " << this << "\n"
@@ -150,7 +150,7 @@ package _Impl
         var _left: leftType
         var _right: rightType
 
-        fun ctor(l: @leftType, r: @rightType)
+        fun ctor(this: @BinaryOp, l: @leftType, r: @rightType)
             this._left ctor l
             this._right ctor r
 

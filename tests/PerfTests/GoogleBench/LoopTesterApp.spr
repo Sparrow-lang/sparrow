@@ -8,7 +8,7 @@ import std.ptr, std.newDelete
 class BasicBlockEdge
     var from, to: BasicBlock Ptr
 
-    fun ctor(cfg: @MaoCFG, fromName, toName: Int)
+    fun ctor(this: @BasicBlockEdge, cfg: @MaoCFG, fromName, toName: Int)
         from ctor cfg.createNode(fromName)
         to   ctor cfg.createNode(toName)
 
@@ -23,7 +23,7 @@ class BasicBlock
     var _inEdges, _outEdges: Vector(BasicBlock Ptr)
     var _name: Int
 
-    fun ctor(name: Int)
+    fun ctor(this: @BasicBlock, name: Int)
         this._name ctor name
 
 fun numPred(this: @BasicBlock) = _inEdges.size
@@ -119,7 +119,7 @@ class LoopStructureGraph
     var _loops: List(SimpleLoop Ptr)
     var _loopCounter: Int
 
-    fun ctor
+    fun ctor(this: @LoopStructureGraph)
         _loopCounter ctor 1
         _root ctor new(SimpleLoop)
         _root->counter = 0
@@ -251,7 +251,7 @@ class HavlakLoopFinder
     var _cfg: @MaoCFG
     var _lsg: @LoopStructureGraph
 
-    fun ctor(cfg: @MaoCFG, lsg: @LoopStructureGraph)
+    fun ctor(this: @HavlakLoopFinder, cfg: @MaoCFG, lsg: @LoopStructureGraph)
         this._cfg := cfg
         this._lsg := lsg
 

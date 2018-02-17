@@ -15,10 +15,10 @@ class Predicate
 
     var predObj: Function(Bool)
 
-    fun ctor(other: @Predicate)
+    fun ctor(this, other: @Predicate)
         this.predObj ctor other.predObj
     [convert]
-    fun ctor(pred: @PredicateType)
+    fun ctor(this: @Predicate, pred: @PredicateType)
         predObj ctor pred
 
 fun isNull(this: @Predicate) = predObj.isNull()
@@ -65,14 +65,14 @@ class UnifyLR(leftType, rightType: Type) if ValWrapper(#$leftType) && ValWrapper
     var _leftVal: leftType
     var _rightVal: rightType
 
-    fun ctor(l: @leftType, r: @rightType)
+    fun ctor(this: @UnifyLR, l: @leftType, r: @rightType)
         this._leftVal ctor l
         this._rightVal ctor r
         _coEntryPt ctor 0
         [ct] if isValid(logicDebug)
             cout << "UnifyLR.ctor: " << this << "\n"
 
-    fun ctor(other: @UnifyLR)
+    fun ctor(this, other: @UnifyLR)
         this._leftVal ctor other._leftVal
         this._rightVal ctor other._rightVal
         this._coEntryPt ctor other._coEntryPt
@@ -146,7 +146,7 @@ fun _mkEq(l, r: @ValWrapper) = UnifyLR(-@typeOf(l), -@typeOf(r))(l, r)
     var _left: leftPredicateType
     var _right: rightPredicateType
 
-    fun ctor(l: @leftPredicateType, r: @rightPredicateType)
+    fun ctor(this: @OrRelation, l: @leftPredicateType, r: @rightPredicateType)
         this._left ctor l
         this._right ctor r
         _coEntryPt ctor 0
@@ -189,7 +189,7 @@ fun ()(this: @OrRelation): Bool
     var _left: leftPredicateType
     var _right, _rightBegin: rightPredicateType
 
-    fun ctor(l: leftPredicateType, r: rightPredicateType)
+    fun ctor(this: @AndRelation, l: leftPredicateType, r: rightPredicateType)
         this._left ctor l
         this._right ctor r
         this._rightBegin ctor r

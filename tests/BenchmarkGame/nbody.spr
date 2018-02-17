@@ -34,7 +34,7 @@ class NBodySystem
     using numBodies = 5;
     var bodies: StaticArray(Body, numBodies);
 
-    fun ctor
+    fun ctor(this: @NBodySystem)
         using solarMass = 4 * PI * PI;
         //using daysPerYear = 365.24;
         using daysPerYear = 1.0;

@@ -8,7 +8,7 @@ import std.vector;
         using RetType = Int;
         var _min, _max: Int;
 
-        fun ctor(min, max: Int)
+        fun ctor(this: @MyRange, min, max: Int)
             this._min ctor min;
             this._max ctor max;
 

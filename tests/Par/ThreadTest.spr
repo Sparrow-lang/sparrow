@@ -30,7 +30,7 @@ class TwiddleThumbs {
     var doPrint: Bool;
     var lastCounter: @Int;
 
-    fun ctor(message: StringRef, count: Int, lastCounter: @Int, doPrint: Bool = false) {
+    fun ctor(this: @TwiddleThumbs, message: StringRef, count: Int, lastCounter: @Int, doPrint: Bool = false) {
         this.message construct message;
         this.count construct count;
         this.lastCounter := lastCounter;

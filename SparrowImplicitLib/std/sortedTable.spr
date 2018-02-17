@@ -16,10 +16,10 @@ class SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: Typ
     var _less: LessType
     var _comp: CompareType
 
-    fun ctor
+    fun ctor(this: @SortedTable)
         this.ctor(0, LessType(), CompareType())
 
-    fun ctor(n: SizeType, less: LessType, comp: CompareType)
+    fun ctor(this: @SortedTable, n: SizeType, less: LessType, comp: CompareType)
         this._table ctor
         this._valToKey ctor
         this._less ctor less
@@ -27,7 +27,7 @@ class SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: Typ
         if n > 0
             this.reserve(n)
 
-    fun ctor(range: AnyType, n: SizeType, less: LessType, comp: CompareType)
+    fun ctor(this: @SortedTable, range: AnyType, n: SizeType, less: LessType, comp: CompareType)
         this._table ctor
         if n > 0
             _table.reserve(n)
@@ -42,7 +42,7 @@ class SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: Typ
         for v = range
             this.insert(v)
 
-    fun ctor(other: @SortedTable)
+    fun ctor(this, other: @SortedTable)
         _table ctor other._table
         _less ctor other._less
         _comp ctor other._comp

@@ -71,7 +71,7 @@ fun test2
 class Test
     var x: Int;
 
-    fun ctor { x = 10; }
+    fun ctor(this: @Test) { x = 10; }
 
 fun doTest1(this: Test)
 {
@@ -105,7 +105,7 @@ fun test4
 
 class Foo
 {
-    fun ctor(x: Int)
+    fun ctor(this: @Foo, x: Int)
     {
         this.x ctor x;
     }

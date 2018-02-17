@@ -2,17 +2,12 @@
 
 var a = 2048;
 
-fun ctor()
-{
+fun ctor
     cout << 42 << endl;
-}
 
 class MyObj(n: Int)
-{
     [static] var b = 1024;
     [static] var c = n;
-
-}
 
 fun sprMain
 {

@@ -6,6 +6,7 @@
     [native("Type"), noDefault]
     class Type {}
 
+[ct, protected]
     [native("_Type_ctor")] fun ctor(this: @Type)
     [native("_Type_copy_ctor")] fun ctor(this: @Type, other: Type)
     //fun dtor(this: @Type) {}
@@ -30,7 +31,7 @@
     [native("double")]  class Double {}
     [native("i8")]      class Char {}
 
-[rtct]
+[rtct, protected]
     fun ctor(this: Uninitialized) {}
     fun ctor(this, other: Uninitialized) {}
     fun dtor(this: Uninitialized) {}

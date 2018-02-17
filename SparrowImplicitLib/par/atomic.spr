@@ -42,9 +42,8 @@ class Atomic(T: Type) if T != Int && T != Long && sizeOf(T) <= 8 {
     //! The value for this atomic
     var _value: _UnderlyingType;
 
-    fun ctor(v: ValueType) {
+    fun ctor(this: @Atomic, v: ValueType)
         _value construct _toUnderlying(v);
-    }
 }
 
 using AtomicInt = Atomic(Int);

@@ -6,14 +6,14 @@ module std.rawPtr
 
         var _ptr: @ValueType
 
-        fun ctor
+        fun ctor(this: @RawPtr)
             _ptr := null
 
-        fun ctor(ref: @ValueType)
+        fun ctor(this: @RawPtr, ref: @ValueType)
             _ptr := ref
 
         [ct] if ValueType != Byte
-            fun ctor(byteRef: @Byte)
+            fun ctor(this: @RawPtr, byteRef: @Byte)
                 _ptr := reinterpretCast(@ValueType, byteRef)
 
 [rtct, protected]

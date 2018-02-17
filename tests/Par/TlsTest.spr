@@ -35,7 +35,7 @@ class WorkManager {
     var numThreads: Int;
     var threads: (Thread Ptr) Vector;
 
-    fun ctor(numThreads: Int) {
+    fun ctor(this: @WorkManager, numThreads: Int) {
         this.numThreads ctor numThreads;
 
         var i1 = 10;

@@ -8,10 +8,10 @@ class ScopedPtr(type: Type)
 
     var _ref: @ValueType
 
-    fun ctor
+    fun ctor(this: @ScopedPtr)
         _ref := null
 
-    fun ctor(_ref: @ValueType)
+    fun ctor(this: @ScopedPtr, _ref: @ValueType)
         this._ref := _ref
 
     fun dtor(this: @ScopedPtr)

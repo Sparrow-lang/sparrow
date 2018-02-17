@@ -9,9 +9,9 @@ import newDelete(delete)
 
         var _ptr: @ValueType
 
-        fun ctor                    = _ptr := null
-        fun ctor(other: Ptr)        = _ptr := other._ptr
-        [convert] fun ctor(ref: @ValueType)   = _ptr := ref
+        fun ctor(this: @Ptr)                    = _ptr := null
+        fun ctor(this: @Ptr, other: Ptr)        = _ptr := other._ptr
+        [convert] fun ctor(this: @Ptr, ref: @ValueType)   = _ptr := ref
 
 [rtct, protected]
     fun =(this, other: @Ptr)           = _ptr := other._ptr

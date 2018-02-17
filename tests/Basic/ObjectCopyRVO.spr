@@ -3,16 +3,16 @@
 class MyType
     var x: Int;
 
-    fun ctor
-        writeLn("ctor()");
-    fun ctor(i: Int)
-        x = i;
-        write("ctor("); write(x); writeLn(")");
-    fun ctor(other: MyType@)
-        x = other.x;
-        write("copy ctor("); write(x); writeLn(")");
-    fun dtor(this: @MyType)
-        write("dtor-"); writeLn(x);
+fun ctor(this: @MyType)
+    writeLn("ctor()");
+fun ctor(this: @MyType, i: Int)
+    x = i;
+    write("ctor("); write(x); writeLn(")");
+fun ctor(this, other: @MyType)
+    x = other.x;
+    write("copy ctor("); write(x); writeLn(")");
+fun dtor(this: @MyType)
+    write("dtor-"); writeLn(x);
 
 fun =(this, other: @MyType)
     write("assign("); write(other.x); writeLn(")");

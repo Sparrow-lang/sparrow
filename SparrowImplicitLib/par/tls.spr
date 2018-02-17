@@ -12,14 +12,14 @@ class Tls(T: Type) if TypeOp.isRef(T) {
 
     using ValueType = T;
 
-    fun ctor {
+    fun ctor(this: @Tls) {
         _tls.ctor(\_destructPtr);
     }
 
-    fun =(other: @Tls) {
+    fun =(this, other: @Tls) {
         _tls setValue (other._tls getValue);
     }
-    fun =(val: T) {
+    fun =(this: @Tls, val: T) {
         _tls setValue reinterpretCast(@Byte, val);
     }
 
@@ -57,10 +57,10 @@ package Impl {
     class TlsCommon {
         var key: KeyT;
 
-        fun ctor {
+        fun ctor(this: @TlsCommon) {
             pthread_key_create(key, DtorFun());
         }
-        fun ctor(dtorFun: DtorFun) {
+        fun ctor(this: @TlsCommon, dtorFun: DtorFun) {
             pthread_key_create(key, dtorFun);
         }
 

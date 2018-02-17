@@ -28,7 +28,7 @@ namespace Spr
     {
     public:
         typedef T ValueType;
-        
+
         Ptr() : ptr(nullptr) {}
         Ptr(const Ptr& other) : ptr(other.ptr) {}
         Ptr(T& ref) : ptr(&ref) {}
@@ -36,21 +36,21 @@ namespace Spr
         T& get()                    { return *ptr; }
         bool isNull()               { return !ptr; }
         bool isSet()                { return ptr; }
-        
+
         void reset()                { ptr = nullptr; }
         void reset(T& ref)          { ptr = &ref; }
         void release()              { delete ptr; }
-        
+
         // void swap(const Ptr& other)
         // {
         //     T& t = ptr;
         //     ptr = other.ptr;
         //     other.ptr = t;
         // }
-        
+
         void operator =(const Ptr& other)   { ptr = other.ptr; }
         void operator =(T& ref)             { ptr = &ref; }
-        
+
         bool operator ==(const Ptr& other) const  { return ptr == other.ptr; }
         bool operator !=(const Ptr& other) const  { return ptr != other.ptr; }
         bool operator < (const Ptr& other) const  { return ptr < other.ptr; }

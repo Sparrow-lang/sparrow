@@ -9,7 +9,7 @@ concept TokenRange(x: Range) if -@(x.RetType) == Token
         var _lexer: lexerType
         var _errorReporter: errorReporterType
 
-        fun ctor(lexer: @lexerType, errorReporter: @errorReporterType)
+        fun ctor(this: @Parser, lexer: @lexerType, errorReporter: @errorReporterType)
             this._lexer ctor lexer
             this._errorReporter ctor errorReporter
 

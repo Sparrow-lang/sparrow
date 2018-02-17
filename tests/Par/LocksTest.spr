@@ -47,7 +47,7 @@ class WorkManager {
     var amountOfWork, numWorkers, numTryWorkers: Int;
     var threads: (Thread Ptr) Vector;
 
-    fun ctor(amountOfWork, numWorkers, numTryWorkers: Int) {
+    fun ctor(this: @WorkManager, amountOfWork, numWorkers, numTryWorkers: Int) {
         this.amountOfWork ctor amountOfWork;
         this.numWorkers ctor numWorkers;
         this.numTryWorkers ctor numTryWorkers;

@@ -180,12 +180,12 @@ concept RandomAccessRange(x: BidirRange) if (
 
         using RetType = valueType
 
-        fun ctor(start, end: valueType)
+        fun ctor(this: @NumericRangeInc, start, end: valueType)
             this._begin ctor start
             this._end ctor end
             this._closed ctor false
 
-        fun ctor(start, end: valueType, closed: Bool)
+        fun ctor(this: @NumericRangeInc, start, end: valueType, closed: Bool)
             this._begin ctor start
             this._end ctor end
             this._closed ctor closed
@@ -212,7 +212,7 @@ concept RandomAccessRange(x: BidirRange) if (
 
         using RetType = valueType
 
-        fun ctor(other: @NumericRangeInc(valueType))
+        fun ctor(this: @NumericRangeWithStep, other: @NumericRangeInc(valueType))
             this._begin ctor other._begin
             this._end ctor other._end
             this._closed ctor other._closed
@@ -221,13 +221,13 @@ concept RandomAccessRange(x: BidirRange) if (
             else
                 _step = valueType(-1)
 
-        fun ctor(other: @NumericRangeInc(valueType), step: valueType)
+        fun ctor(this: @NumericRangeWithStep, other: @NumericRangeInc(valueType), step: valueType)
             this._begin ctor other._begin
             this._end ctor other._end
             this._closed ctor other._closed
             this._step ctor step
 
-        fun ctor(start, end: valueType)
+        fun ctor(this: @NumericRangeWithStep, start, end: valueType)
             this._begin ctor start
             this._end ctor end
             this._closed ctor false
@@ -236,7 +236,7 @@ concept RandomAccessRange(x: BidirRange) if (
             else
                 _step = valueType(-1)
 
-        fun ctor(start, end: valueType, closed: Bool)
+        fun ctor(this: @NumericRangeWithStep, start, end: valueType, closed: Bool)
             this._begin ctor start
             this._end ctor end
             this._closed ctor closed
@@ -245,7 +245,7 @@ concept RandomAccessRange(x: BidirRange) if (
             else
                 _step = valueType(-1)
 
-        fun ctor(start, end, step: valueType)
+        fun ctor(this: @NumericRangeWithStep, start, end, step: valueType)
             this._begin ctor start
             this._end ctor end
             this._step ctor step
@@ -321,7 +321,7 @@ concept RandomAccessRange(x: BidirRange) if (
 
         using RetType = rangeType.RetType
 
-        fun ctor(range: rangeType, pred: predType)
+        fun ctor(this: @TakeUntilRange, range: rangeType, pred: predType)
             this._range ctor range
             this._pred ctor pred
             _shouldStop = false
@@ -343,7 +343,7 @@ concept RandomAccessRange(x: BidirRange) if (
 
         using RetType = -@rangeType.RetType
 
-        fun ctor(range: rangeType, pred: predType)
+        fun ctor(this: @FilteredRange, range: rangeType, pred: predType)
             this._range ctor range
             this._pred ctor pred
             this._lastVal ctor
@@ -371,7 +371,7 @@ concept RandomAccessRange(x: BidirRange) if (
 
         using RetType = -@typeOf((#$funType)(#$rangeType front))
 
-        fun ctor(range: rangeType, function: funType)
+        fun ctor(this: @TransformedRange, range: rangeType, function: funType)
             this._range ctor range
             this._function ctor function
             this._curVal ctor
@@ -441,7 +441,7 @@ concept RandomAccessRange(x: BidirRange) if (
 
         using RetType = rangeType.RetType
 
-        fun ctor(range: rangeType, index: SizeType)
+        fun ctor(this: @RadialRange, range: rangeType, index: SizeType)
             this._range ctor range
             this._index ctor index
             this._step ctor 1
@@ -467,7 +467,7 @@ concept RandomAccessRange(x: BidirRange) if (
 
         using RetType = rangeType.RetType
 
-        fun ctor(range: rangeType)
+        fun ctor(this: @CyclicRange, range: rangeType)
             this._range ctor range
             this.base ctor range
 
@@ -486,7 +486,7 @@ concept RandomAccessRange(x: BidirRange) if (
 
         using RetType = rangeType.RetType
 
-        fun ctor(range: rangeType, count: SizeType)
+        fun ctor(this: @CyclicCountedRange, range: rangeType, count: SizeType)
             this._range ctor range
             this._count ctor count
             this.base ctor range
@@ -508,7 +508,7 @@ concept RandomAccessRange(x: BidirRange) if (
 
         using RetType = typeOf((#$functionType)())
 
-        fun ctor(function: functionType)
+        fun ctor(this: @GeneratedRange, function: functionType)
             this._function ctor function
             this._current ctor this._function()
 
@@ -524,7 +524,7 @@ concept RandomAccessRange(x: BidirRange) if (
 
         using RetType = elType
 
-        fun ctor(initialValue: RetType, function: functionType)
+        fun ctor(this: @Generated1Range, initialValue: RetType, function: functionType)
             this._function ctor function
             this._current ctor initialValue
 
@@ -556,7 +556,7 @@ concept RandomAccessRange(x: BidirRange) if (
 
         using RetType = accType
 
-        fun ctor(acc: accType, range: rangeType, function: functionType)
+        fun ctor(this: @ScanLeftRange, acc: accType, range: rangeType, function: functionType)
             this._acc ctor acc
             this._range ctor range
             this._function ctor function
@@ -576,11 +576,11 @@ concept RandomAccessRange(x: BidirRange) if (
         var _values: contType
         var _idx: SizeType
 
-        fun ctor(values: @contType)
+        fun ctor(this: @ValuesRange, values: @contType)
             this._values ctor values
             _idx = 0
 
-        fun ctor(other: @ValuesRange)
+        fun ctor(this, other: @ValuesRange)
             this._values ctor other._values
             this._idx ctor other._idx
 

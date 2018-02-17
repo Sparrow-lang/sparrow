@@ -12,19 +12,19 @@ import ranges
 
         var _buf: static_buffer(arraySize * sizeOf(ValueType))
 
-        fun ctor
+        fun ctor(this: @StaticArray)
             for v: @ValueType = this.all
                 v ctor
 
-        fun ctor(other: @StaticArray)
+        fun ctor(this, other: @StaticArray)
             for i = 0..arraySize
                 this(i) ctor other(i)
 
-        fun ctor(value: @ValueType)
+        fun ctor(this: @StaticArray, value: @ValueType)
             for v: @ValueType = this.all
                 v.ctor(value)
 
-        fun ctor(range: Range)
+        fun ctor(this: @StaticArray, range: Range)
             for v: @ValueType = this.all
                 if !range.isEmpty
                     v.ctor(range.front)
@@ -32,29 +32,29 @@ import ranges
                 else
                     v ctor
         [ct] if arraySize == 2
-        fun ctor(v0,v1: @ValueType)
+        fun ctor(this: @StaticArray, v0,v1: @ValueType)
             this(0) ctor v0
             this(1) ctor v1
         [ct] if arraySize == 3
-        fun ctor(v0,v1,v2: @ValueType)
+        fun ctor(this: @StaticArray, v0,v1,v2: @ValueType)
             this(0) ctor v0
             this(1) ctor v1
             this(2) ctor v2
         [ct] if arraySize == 4
-        fun ctor(v0,v1,v2,v3: @ValueType)
+        fun ctor(this: @StaticArray, v0,v1,v2,v3: @ValueType)
             this(0) ctor v0
             this(1) ctor v1
             this(2) ctor v2
             this(3) ctor v3
         [ct] if arraySize == 5
-        fun ctor(v0,v1,v2,v3,v4: @ValueType)
+        fun ctor(this: @StaticArray, v0,v1,v2,v3,v4: @ValueType)
             this(0) ctor v0
             this(1) ctor v1
             this(2) ctor v2
             this(3) ctor v3
             this(4) ctor v4
         [ct] if arraySize == 6
-        fun ctor(v0,v1,v2,v3,v4,v5: @ValueType)
+        fun ctor(this: @StaticArray, v0,v1,v2,v3,v4,v5: @ValueType)
             this(0) ctor v0
             this(1) ctor v1
             this(2) ctor v2
@@ -62,7 +62,7 @@ import ranges
             this(4) ctor v4
             this(5) ctor v5
         [ct] if arraySize == 7
-        fun ctor(v0,v1,v2,v3,v4,v5,v6: @ValueType)
+        fun ctor(this: @StaticArray, v0,v1,v2,v3,v4,v5,v6: @ValueType)
             this(0) ctor v0
             this(1) ctor v1
             this(2) ctor v2
@@ -71,7 +71,7 @@ import ranges
             this(5) ctor v5
             this(6) ctor v6
         [ct] if arraySize == 8
-        fun ctor(v0,v1,v2,v3,v4,v5,v6,v7: @ValueType)
+        fun ctor(this: @StaticArray, v0,v1,v2,v3,v4,v5,v6,v7: @ValueType)
             this(0) ctor v0
             this(1) ctor v1
             this(2) ctor v2
@@ -81,7 +81,7 @@ import ranges
             this(6) ctor v6
             this(7) ctor v7
         [ct] if arraySize == 9
-        fun ctor(v0,v1,v2,v3,v4,v5,v6,v7,v8: @ValueType)
+        fun ctor(this: @StaticArray, v0,v1,v2,v3,v4,v5,v6,v7,v8: @ValueType)
             this(0) ctor v0
             this(1) ctor v1
             this(2) ctor v2
@@ -92,7 +92,7 @@ import ranges
             this(7) ctor v7
             this(8) ctor v8
         [ct] if arraySize == 10
-        fun ctor(v0,v1,v2,v3,v4,v5,v6,v7,v8,v9: @ValueType)
+        fun ctor(this: @StaticArray, v0,v1,v2,v3,v4,v5,v6,v7,v8,v9: @ValueType)
             this(0) ctor v0
             this(1) ctor v1
             this(2) ctor v2

@@ -7,7 +7,7 @@ class FibRange(valType: Type)
 
     var _lastTwo: valType*valType
 
-    fun ctor
+    fun ctor(this: @FibRange)
         _lastTwo = 1 ~ 1
 
 

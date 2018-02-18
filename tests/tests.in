@@ -94,6 +94,7 @@ Basic2/Regular.spr:                     Basic features 2 - Regular concept
 Basic2/Axioms.spr:                      Basic features 2 - Axioms
 Basic2/ConceptOfGeneric.spr:            Basic features 2 - Concepts out of generics
 Basic2/FunPtrTest.spr:                  Basic features 2 - FunctionPtr test
+Basic2/InstSpeed.spr:                   Basic features 2 - Instantiation speed
 
 Basic/LLVMCode.llvm:                    Basic features - Code from llvm file
 Basic/Basic.spr:                        Basic features - A small Sparrow code

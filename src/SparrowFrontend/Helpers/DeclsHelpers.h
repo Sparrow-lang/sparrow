@@ -69,10 +69,6 @@ namespace SprFrontend
     /// Get the index of the 'this' param, if the function has one. Otherwise returns -1
     int getThisParamIdx(Node* fun);
 
-    /// Check if the given function node has an implicit this parameter
-    /// returns false if the given node is null or is not a function
-    bool funHasImplicitThis(Node* fun);
-
     //! Returns the compilation context surrounding the given class
     //! If the context is not introduced by a node, move up to the first context
     //! introduced by a node, which is not a class-like node

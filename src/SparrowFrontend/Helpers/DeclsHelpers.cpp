@@ -333,12 +333,6 @@ int SprFrontend::getThisParamIdx(Node* fun) {
     return val ? *val : -1;
 }
 
-bool SprFrontend::funHasImplicitThis(Node* fun)
-{
-    return fun && fun->nodeKind == nkSparrowDeclSprFunction
-        && Nest_hasProperty(fun, propHasImplicitThisParam);
-}
-
 CompilationContext* SprFrontend::classContext(Node* cls)
 {
     CompilationContext* res = cls->context;

@@ -367,15 +367,11 @@ TypeRef SprFunction_ComputeType(Node* node)
     }
     if ( thisParamIdx >= 0 )
         Nest_setPropertyInt(node, propThisParamIdx, thisParamIdx);
-    // TODO (classes): Remove this
-    // if ( addThisParam )
-    //     Nest_setPropertyInt(node, propHasImplicitThisParam, 1);
 
     // Is this a generic?
     if ( parameters )
     {
-        Node* thisClass = nullptr;  // TODO (classes): Remove this
-        Node* generic = checkCreateGenericFun(node, parameters, ifClause, thisClass);
+        Node* generic = checkCreateGenericFun(node, parameters, ifClause);
         if ( generic )
         {
             // TODO (explanation): explanation should be the result of semantic check

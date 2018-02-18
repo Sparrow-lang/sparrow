@@ -82,29 +82,20 @@ namespace
             if (expectedMode != modeUnspecified && Feather_effectiveEvalMode(decl) != expectedMode)
                 continue;
 
-            // Get the parameters of this function
-            Node* parameters = at(decl->children, 0);
-            bool implicitThis = funHasImplicitThis(decl);
-            Node* parentClass = nullptr;
-            if ( implicitThis )
-                parentClass = Feather_getParentClass(decl->context);
-
             // Check parameter count
-            size_t numParams = (parameters ? size(parameters->children) : 0) + (implicitThis ? 1 : 0);
+            Node* parameters = at(decl->children, 0);
+            size_t numParams = (parameters ? size(parameters->children) : 0);
             size_t numExpectedParams = otherParamClass ? 2 : 1;
             if ( numParams != numExpectedParams )
                 continue;
 
             // Check the 'this' parameter first
-            // TODO (ctors): Remove this after functions are not in classes anymore
-            if ( !implicitThis ) {  // For implicit this we assume everything is ok
-                Node* basicClass = Nest_explanation(cls);
-                if ( !checkArgTypeFitsIntoParam(decl, 0, basicClass->type) )
-                    continue;
-            }
+            Node* basicClass = Nest_explanation(cls);
+            if ( !checkArgTypeFitsIntoParam(decl, 0, basicClass->type) )
+                continue;
 
             // Check the 'other' parameter has the required type, if applicable
-            if ( otherParamClass && !checkArgTypeFitsIntoParam(decl, implicitThis?0:1, otherParamClass->type) )
+            if ( otherParamClass && !checkArgTypeFitsIntoParam(decl, 1, otherParamClass->type) )
                 continue;
 
             // Everything ok; we found a matching associated function
@@ -308,15 +299,12 @@ namespace
         return res;
     }
 
+    //! Gets the type for the 'this' parameter of the given function
     Node* getThisTypeForFun(Node* fun) {
-        // TODO (classes): Remove this
-        if (funHasImplicitThis(fun))
-            return Feather_getParentClass(fun->context);
-
         // Get the class of the 'this' param
         int thisIdx = getThisParamIdx(fun);
-        if (thisIdx < 0)
-            REP_INTERNAL(fun->location, "Cannot find 'this' parameter");
+        if (thisIdx != 0)
+            REP_INTERNAL(fun->location, "'this' parameter should be the first parameter");
         Node* parameters = at(fun->children, 0);
         Node* thisParam = at(parameters->children, thisIdx);
         CHECK(fun->location, thisParam);

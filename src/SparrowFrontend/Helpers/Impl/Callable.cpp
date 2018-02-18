@@ -382,9 +382,6 @@ NodeVector getGenericFunFinalParams(
     NodeVector finalParams;
     finalParams.reserve(numParams);
     for (size_t i = 0; i < numParams; ++i) {
-        if (i == 0 && funHasImplicitThis(origFun))
-            continue;
-
         Node* param = at(genericParams, i);
         // If a parameter is not generic, it must be final => add final param
         if (!param)

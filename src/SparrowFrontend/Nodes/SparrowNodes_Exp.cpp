@@ -1000,11 +1000,6 @@ Node* Identifier_SemanticCheck(Node* node)
             needsThis = true;
             break;
         }
-        if ( funHasImplicitThis(decl) )
-        {
-            needsThis = true;
-            break;
-        }
     }
     if ( needsThis )
     {

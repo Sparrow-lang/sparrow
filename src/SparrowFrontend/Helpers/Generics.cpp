@@ -104,8 +104,7 @@ bool referencesSeenName(Node* node, const NamesVec& seenNames) {
 }
 }
 
-Node* SprFrontend::checkCreateGenericFun(
-        Node* originalFun, Node* parameters, Node* ifClause, Node* thisClass) {
+Node* SprFrontend::checkCreateGenericFun(Node* originalFun, Node* parameters, Node* ifClause) {
     ASSERT(parameters);
     NodeRange params = all(parameters->children);
     auto numParams = Nest_nodeRangeSize(params);
@@ -177,23 +176,6 @@ Node* SprFrontend::checkCreateGenericFun(
 
     if (!hasGenericParams)
         return nullptr;
-
-    // If a 'this' class is passed, add an extra parameter for this
-    NodeVector paramsWithThis;
-    if (thisClass) {
-        TypeRef thisType =
-                Feather_getDataType(thisClass, 1, Feather_effectiveEvalMode(originalFun));
-        Node* thisParam = mkSprParameter(originalFun->location, fromCStr("this"), thisType);
-        Nest_setContext(thisParam, Nest_childrenContext(originalFun));
-        if (!Nest_computeType(thisParam))
-            return nullptr;
-        genericParams.insert(genericParams.begin(), nullptr);
-
-        // Add 'this' param to our range of parameters
-        paramsWithThis = NodeVector(params.beginPtr, params.endPtr);
-        paramsWithThis.insert(paramsWithThis.begin(), thisParam);
-        params = all(paramsWithThis);
-    }
 
     // Actually create the generic
     Node* res = mkGenericFunction(originalFun, params, all(genericParams), ifClause);

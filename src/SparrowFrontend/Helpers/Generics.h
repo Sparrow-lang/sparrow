@@ -164,12 +164,10 @@ struct ConceptNode {
  * @param originalFun The original function (SprFunction) to be checked
  * @param parameters  The parameters of the original function
  * @param ifClause    The if clause of the function
- * @param thisClass   The this class for the function, if applicable
  *
  * @return A GenericFunction node, if this is a generic; null otherwise
  */
-Node* checkCreateGenericFun(
-        Node* originalFun, Node* parameters, Node* ifClause, Node* thisClass = nullptr);
+Node* checkCreateGenericFun(Node* originalFun, Node* parameters, Node* ifClause);
 
 // The generic classes are created whenever we have class parameters
 // In that case, we call mkGenericClass directly

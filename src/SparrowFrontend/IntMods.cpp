@@ -156,7 +156,6 @@ namespace
 
         // Add the function in the context of the parent
         Node* f = mkSprFunction(loc, fromString(name), parameters, ret, body);
-        Nest_setPropertyInt(f, propIsStatic, 1);
         Nest_setPropertyInt(f, propNoDefault, 1);
         Nest_setPropertyInt(f, "spr.accessType", (int) protectedAccess);
         if ( mode == modeUnspecified )

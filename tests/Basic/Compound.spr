@@ -2,7 +2,7 @@
 
 class MyObj
     var a: Int;
-    [static] var st = 103;
+    using st = 103;
 
 fun ctor(this: @MyObj, i: Int) { a = i; }
 fun ctor(this: @MyObj, other: MyObj) { a = other.a; }

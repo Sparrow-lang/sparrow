@@ -13,14 +13,6 @@
 using namespace SprFrontend;
 
 
-void ModStatic_beforeComputeType(Modifier*, Node* node)
-{
-    if ( node->nodeKind != nkSparrowDeclSprVariable && node->nodeKind != nkSparrowDeclSprFunction )
-        REP_INTERNAL(node->location, "Static modifier can be applied only to variables and functions inside classes (applied to %1%)") % Nest_nodeKindName(node);
-
-    Nest_setPropertyInt(node, propIsStatic, 1);
-}
-
 void ModPublic_beforeComputeType(Modifier*, Node* node)
 {
     setAccessType(node, publicAccess);
@@ -138,7 +130,6 @@ void ModNoInline_beforeComputeType(Modifier*, Node* node)
 }
 
 
-Modifier _staticMod = { modTypeBeforeComputeType, &ModStatic_beforeComputeType };
 Modifier _publicMod = { modTypeBeforeComputeType, &ModPublic_beforeComputeType };
 Modifier _protectedMod = { modTypeBeforeComputeType, &ModProtected_beforeComputeType };
 Modifier _privateMod = { modTypeBeforeComputeType, &ModPrivate_beforeComputeType };
@@ -153,10 +144,6 @@ Modifier _initCtorMod = { modTypeBeforeComputeType, ModInitCtor_beforeComputeTyp
 Modifier _macroMod = { modTypeBeforeComputeType, &ModMacro_beforeComputeType };
 Modifier _noInlineMod = { modTypeBeforeComputeType, &ModNoInline_beforeComputeType };
 
-Modifier* SprFe_getStaticMod()
-{
-    return &_staticMod;
-}
 Modifier* SprFe_getPublicMod()
 {
     return &_publicMod;

@@ -77,19 +77,19 @@ using nRotations = 12;
 
 //    //fun isValid: Bool { return findIf(pos, (fun p = p._2>=0 && p._2 < 5)); }
 
-//    [static] fun rotatePos(p: PosType) = (p._1 + p._2) ~ -p._2;
-
-//    //[static] fun posToNum(p: PosType) = p._1 + 5*p._2;
-//    //[static] fun posFromNum(p: Byte): PosType = p%5 ~ p/5;
-
-//    fun offsetToMin: Piece
-//    {
-//        var min = minElement(pos.all).front;
-//        var offseted = pos.all map (fun.{min} p = p._1-min._1 ~ p._2-min._2);
-//        return Piece(PosTypeArr(offseted));
-//    }
-
 //}
+//fun rotatePos(p: PosType) = (p._1 + p._2) ~ -p._2;
+
+//// fun posToNum(p: PosType) = p._1 + 5*p._2;
+//// fun posFromNum(p: Byte): PosType = p%5 ~ p/5;
+
+//fun offsetToMin: Piece
+//{
+//    var min = minElement(pos.all).front;
+//    var offseted = pos.all map (fun.{min} p = p._1-min._1 ~ p._2-min._2);
+//    return Piece(PosTypeArr(offseted));
+//}
+
 
 //var models: StaticArray(Piece, nPieces);
 //fun ctor

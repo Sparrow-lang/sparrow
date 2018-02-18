@@ -18,10 +18,8 @@ fun dtor(this: @MyType)
 
 var g: MyType = 999;
 
-class TestType
-{
-    [static] var g2: MyType = 777;
-}
+package TestPkg
+    var g2: MyType = 777;
 
 fun doTest()
 {

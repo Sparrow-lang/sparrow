@@ -292,7 +292,7 @@ TypeRef SprClass_ComputeType(Node* node)
     forEachNodeInNodeList(children, [&] (Node* child) -> void
     {
         Node* p = Nest_explanation(child);
-        if ( !isField(p) || Nest_hasProperty(node, propIsStatic) )
+        if ( !isField(p) )
         {
             // Methods, generics
             Nest_appendNodeToArray(&node->additionalNodes, child);
@@ -342,33 +342,18 @@ TypeRef SprFunction_ComputeType(Node* node)
     Node* body = at(node->children, 2);
     Node* ifClause = at(node->children, 3);
 
-    // TODO (classes): Remove static functions
-    // bool isStatic = Nest_hasProperty(node, propIsStatic);
-
     if (returnType)
         Nest_setPropertyExplInt(returnType, propAllowDeclExp, 1);
 
     // Check if this is a member function
     Node* parentClass = Feather_getParentClass(node->context);
     bool isMember = nullptr != parentClass;
-    // TODO (classes): Remove this
-    // if ( !isMember && isStatic )
-    //     REP_ERROR_RET(nullptr, node->location, "Only functions inside classes can be static");
     if ( isMember )
         Nest_setPropertyInt(node, propIsMember, 1);
 
     // Does this function have an implicit 'this' arg?
-    bool addThisParam = false; //isMember && !isStatic;
-    // TODO (classes): Remove this
-    // Don't add implicit this for functions declared inside classes
-    // TODO (classes): Make this true for all methods
-    // if (addThisParam) {
-    //     StringRef funName = Feather_getName(node);
-    //     if (funName == "ctorFromCt" || funName == "dtor")
-    //         addThisParam = false;
-    // }
     int thisParamIdx = -1;
-    if ( !addThisParam && parameters ) {
+    if ( parameters ) {
         for ( int i=0; i<size(parameters->children); i++ ) {
             Node* param = at(parameters->children, i);
             if ( !param )
@@ -380,15 +365,16 @@ TypeRef SprFunction_ComputeType(Node* node)
             }
         }
     }
-    if ( addThisParam || thisParamIdx >= 0 )
+    if ( thisParamIdx >= 0 )
         Nest_setPropertyInt(node, propThisParamIdx, thisParamIdx);
-    if ( addThisParam )
-        Nest_setPropertyInt(node, propHasImplicitThisParam, 1);
+    // TODO (classes): Remove this
+    // if ( addThisParam )
+    //     Nest_setPropertyInt(node, propHasImplicitThisParam, 1);
 
     // Is this a generic?
     if ( parameters )
     {
-        Node* thisClass = addThisParam ? parentClass : nullptr;
+        Node* thisClass = nullptr;  // TODO (classes): Remove this
         Node* generic = checkCreateGenericFun(node, parameters, ifClause, thisClass);
         if ( generic )
         {
@@ -439,16 +425,6 @@ TypeRef SprFunction_ComputeType(Node* node)
     // Compute the types of the parameters first
     if ( parameters && !Nest_computeType(parameters) )
         return nullptr;
-
-    // If this is a non-static member function, add this as a parameter
-    if ( addThisParam )
-    {
-        TypeRef thisType = Feather_getDataType(parentClass, 1, thisEvalMode);
-        Node* thisParam = Feather_mkVar(node->location, fromCStr("this"), Feather_mkTypeNode(node->location, thisType));
-        Nest_setContext(thisParam, node->childrenContext);
-        Feather_Function_addParameter(resultingFun, thisParam);
-        Nest_setPropertyType(resultingFun, propThisParamType, thisType);
-    }
 
     // Add the actual specified parameters
     if ( parameters )
@@ -517,16 +493,9 @@ Node* SprFunction_SemanticCheck(Node* node)
     if ( !Nest_semanticCheck(resultingFun) )
         return nullptr;
 
-    if (Nest_hasProperty(node, propIsMember) && !Nest_hasProperty(node, propIsStatic)) {
-        StringRef funName = Feather_getName(node);
-        if (funName != "ctor" && funName != "dtor" && funName != "ctorFromCt")
-            REP_ERROR(node->location, "Member functions are not supported (%1%)") % funName;
-    }
-
     // Check for static ctors & dtors
     // A static ctor/ctor has no parameters (i.e., the 'this' parameter)
-    if ( resultingFun && (!Nest_hasProperty(node, propIsMember) || Nest_hasProperty(node, propIsStatic))
-        && (!parameters || size(parameters->children) == 0) )
+    if ( resultingFun && (!parameters || size(parameters->children) == 0) )
     {
         StringRef funName = Feather_getName(node);
 
@@ -600,6 +569,7 @@ TypeRef SprVariable_ComputeType(Node* node)
     Node* typeNode = at(node->children, 0);
     Node* init = at(node->children, 1);
 
+    // We still use this for ensuring bound vars of generics are not treated as fields
     bool isStatic = Nest_hasProperty(node, propIsStatic);
 
     // Check the kind of the variable (local, global, field)
@@ -619,8 +589,6 @@ TypeRef SprVariable_ComputeType(Node* node)
         else
         {
             varKind = varGlobal;
-            if ( isStatic )
-                REP_ERROR(node->location, "Only variables inside classes can be static");
         }
     }
 

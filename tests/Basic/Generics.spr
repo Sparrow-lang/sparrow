@@ -23,7 +23,10 @@ fun f2(t: Type)
 
 class MyVector(t: Type)
     var start, end: t;
-    [static] var glob: t;
+    using glob = _MyVectorHelper(t).glob
+
+package _MyVectorHelper(t: Type)
+    var glob: t;
 
 fun print(this: @MyVector)
     write(start);

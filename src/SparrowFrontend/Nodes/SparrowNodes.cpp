@@ -51,9 +51,7 @@ void applyModifier(Node* base, Node* modNode)
     if ( modNode->nodeKind == nkSparrowExpIdentifier )
     {
         StringRef name = Nest_getCheckPropertyString(modNode, "name");
-        if ( name == "static" )
-            mod = SprFe_getStaticMod();
-        else if ( name == "public" )
+        if ( name == "public" )
             mod = SprFe_getPublicMod();
         else if ( name == "protected" )
             mod = SprFe_getProtectedMod();

@@ -1451,7 +1451,6 @@ Node* LambdaFunction_SemanticCheck(Node* node)
     Node* parametersWithThis = Feather_mkNodeList(loc, fromIniList({thisParam}));
     Feather_appendNodeList(parametersWithThis, parameters);
     Node* enclosedFun = mkSprFunction(loc, fromCStr("()"), parametersWithThis, returnType, body);
-    Nest_setPropertyInt(enclosedFun, propIsStatic, 1);
 
     // Create the enclosing package node list
     Node* packageBody = Feather_mkNodeList(loc, fromIniList({closureClass, enclosedFun}));

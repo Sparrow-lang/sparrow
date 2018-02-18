@@ -274,7 +274,7 @@ Node* SprFrontend::createBoundVar(Node* param, TypeRef paramType, Node* boundVal
     Node* var = mkSprVariable(param->location, Feather_getName(param), t, init);
 
     if (insideClass)
-        Nest_setPropertyInt(var, propIsStatic, 1);
+        Nest_setPropertyInt(var, propIsStatic, 1);  // Ensure this is not treated as a regular field
     if (!isConcept)
         Feather_setEvalMode(var, modeCt);
     return var;

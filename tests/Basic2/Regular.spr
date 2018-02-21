@@ -10,9 +10,11 @@ concept Regular(x) if (
 
 [noDefault]
 class NullType
-    fun ctor(this: @NullType) {}
-    [convert] fun ctor(this: @NullType, other: AnyType) {}
-    fun dtor(this: NullType) {}
+    ;
+
+fun ctor(this: @NullType) {}
+[convert] fun ctor(this: @NullType, other: AnyType) {}
+fun dtor(this: NullType) {}
 
 fun ==(this, other: NullType) = true;
 fun ==(this, other: AnyType) = false;

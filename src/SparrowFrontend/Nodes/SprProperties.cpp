@@ -7,7 +7,6 @@ const char* SprFrontend::propCtGeneric = "spr.ctGeneric";
 const char* SprFrontend::propGenerateInitCtor = "spr.generateInitCtor";
 const char* SprFrontend::propMacro = "spr.macro";
 const char* SprFrontend::propIsField = "spr.isField";
-const char* SprFrontend::propIsStatic = "spr.isStatic";
 const char* SprFrontend::propAllowDeclExp = "spr.allowDeclExp";
 const char* SprFrontend::propNoWarnIfNoDeclFound = "spr.noWarnIfNoDeclFound";
 const char* SprFrontend::propThisParamIdx = "spr.thisParamIdx";

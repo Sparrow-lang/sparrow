@@ -349,7 +349,13 @@ TypeRef SprFunction_ComputeType(Node* node)
     Node* parentClass = Feather_getParentClass(node->context);
     bool isMember = nullptr != parentClass;
     if ( isMember )
+    {
         Nest_setPropertyInt(node, propIsMember, 1);
+
+        // StringRef funName = Feather_getName(node);
+        // if (funName != "ctor" && funName != "ctorFromCt")
+        //     REP_ERROR(node->location, "Cannot have %1% inside classes") % funName;
+    }
 
     // Does this function have an implicit 'this' arg?
     int thisParamIdx = -1;
@@ -565,9 +571,6 @@ TypeRef SprVariable_ComputeType(Node* node)
     Node* typeNode = at(node->children, 0);
     Node* init = at(node->children, 1);
 
-    // We still use this for ensuring bound vars of generics are not treated as fields
-    bool isStatic = Nest_hasProperty(node, propIsStatic);
-
     // Check the kind of the variable (local, global, field)
     VarKind varKind = varLocal;
     Node* parentFun = Feather_getParentFun(node->context);
@@ -576,16 +579,7 @@ TypeRef SprVariable_ComputeType(Node* node)
     {
         // Check if this is a member function
         parentClass = Feather_getParentClass(node->context);
-        if ( parentClass )
-        {
-            varKind = isStatic ? varGlobal : varField;
-            if ( isStatic )
-                parentClass = nullptr;
-        }
-        else
-        {
-            varKind = varGlobal;
-        }
+        varKind = parentClass ? varField : varGlobal;
     }
 
     // Get the type of the variable

@@ -27,11 +27,11 @@ package _Impl
             this.cloneFn ctor other.cloneFn
             this.destructFn ctor other.destructFn
 
-        //! Destructor - destroy the object
-        fun dtor(this: @FunctionData)
-            if obj !== null
-                destructFn(obj) // Call the right destructor
-                delete(obj)     // Free the memory for the object
+    //! Destructor - destroy the object
+    fun dtor(this: @FunctionData)
+        if obj !== null
+            destructFn(obj) // Call the right destructor
+            delete(obj)     // Free the memory for the object
 
     //! Assignment operator -- use copy ctor
     fun =(this, other: @FunctionData)

@@ -8,9 +8,9 @@ class MyObj
     fun ctor(this: @MyObj, xx: Int)
         x = xx;
 
-    fun dtor(this: MyObj)
-        cout << x;
-        cout << " destroyed" << endl;
+fun dtor(this: MyObj)
+    cout << x;
+    cout << " destroyed" << endl;
 
 fun >>(this: @MyObj, os: @OutStream)
     os << "MyObj(" << x << ")";

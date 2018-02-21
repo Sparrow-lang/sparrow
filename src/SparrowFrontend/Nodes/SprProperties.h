@@ -11,7 +11,6 @@ namespace SprFrontend
     extern const char* propGenerateInitCtor;
     extern const char* propMacro;
     extern const char* propIsField;
-    extern const char* propIsStatic;
     extern const char* propAllowDeclExp;
     extern const char* propNoWarnIfNoDeclFound;
     extern const char* propThisParamIdx;

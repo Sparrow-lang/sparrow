@@ -54,10 +54,10 @@ import rawPtr(RawPtr, allocRawPtr)
         [rt] fun ctorFromCt(this: @String, src: String ct)
             this ctor src.asStringRef
 
-        fun dtor(this: @String)
-            _begin.freePtr
-
 [rtct, protected]
+    fun dtor(this: @String)
+        _begin.freePtr
+
     fun =(this, other: @String): @String
         var tmp = other
         tmp.swap(this)

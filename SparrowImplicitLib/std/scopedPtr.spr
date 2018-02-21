@@ -14,10 +14,10 @@ class ScopedPtr(type: Type)
     fun ctor(this: @ScopedPtr, _ref: @ValueType)
         this._ref := _ref
 
+[protected]
     fun dtor(this: @ScopedPtr)
         delete(_ref)
 
-[protected]
     fun ==(this, other: ScopedPtr)    = _ref === other._ref
 
 

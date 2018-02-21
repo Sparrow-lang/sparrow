@@ -64,6 +64,7 @@ import ranges(RandomAccessRange, ..)
         [ct] for el: ValueType = src.all()
             this.pushBack(el)
 
+[rtct, protected]
     fun dtor(this: @Vector)
         var p = _begin
 
@@ -71,7 +72,6 @@ import ranges(RandomAccessRange, ..)
             p.value().dtor()
         _begin.freePtr()
 
-[rtct, protected]
     fun =(this, other: @Vector): @typeOf(this)
         var tmp = other
 

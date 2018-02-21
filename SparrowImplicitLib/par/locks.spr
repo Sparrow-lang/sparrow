@@ -26,12 +26,13 @@ class ScopedLock(T: Type) if Lockable(#$T)
         this._theLock := theLock;
         _theLock lock;
 
+[protected]
     fun dtor(this: @ScopedLock)
         _theLock unlock;
 
 //! Class used to try to take the lock for the duration of a scope
 //! To test if the lock was taken, use the 'isLocked' function
-class ScopedTryLock(T: Type) if TryLockable(#$T) {
+class ScopedTryLock(T: Type) if TryLockable(#$T)
     using LockType = T;
 
     var _theLock: @LockType;
@@ -43,37 +44,36 @@ class ScopedTryLock(T: Type) if TryLockable(#$T) {
 
     fun isLocked = _lockSucceeded;
 
+[protected]
     fun dtor(this: @ScopedTryLock)
         if ( _lockSucceeded )
             _theLock unlock;
-}
 
 //! A simple and fast mutual-exclusion lockable
-class Mutex {
+class Mutex
     var handle: Impl.PThreadMutex;
 
-    fun ctor(this: @Mutex) {
+    fun ctor(this: @Mutex)
         handle.sig = Impl.PTHREAD_MUTEX_SIG_INIT;
-    }
 
+[protected]
     fun dtor(this: @Mutex)
         Impl.pthread_mutex_destroy(handle);
-}
 
 fun >> (m: @Mutex, os: @OutStream) {
     cout << "Mutex(" << mkStreamRefWrapper(m) << ", " << m.handle.sig << ")";
 }
 
 //! A mutual-exclusion lockable that is able to support recursive locking
-class RecMutex {
+class RecMutex
     var handle: Impl.PThreadMutex;
 
     fun ctor(this: @RecMutex)
         handle.sig = Impl.PTHREAD_RECURSIVE_MUTEX_SIG_INIT;
 
+[protected]
     fun dtor(this: @RecMutex)
         Impl.pthread_mutex_destroy(handle);
-}
 
 //! Locks a lockable; if the lockable is already locked this call blocks until it's unblocked by the other party
 fun lock(mutex: @Mutex) { var res = Impl.pthread_mutex_lock(mutex.handle); /*assert(res == 0);*/ }

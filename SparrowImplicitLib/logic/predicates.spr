@@ -79,6 +79,7 @@ class UnifyLR(leftType, rightType: Type) if ValWrapper(#$leftType) && ValWrapper
         [ct] if isValid(logicDebug)
             cout << "UnifyLR.copy ctor: " << this << "\n"
 
+[protected]
     fun dtor(this: @UnifyLR)
         [ct] if isValid(logicDebug)
             cout << "UnifyLR.dtor: " << this << "\n"
@@ -153,6 +154,7 @@ fun _mkEq(l, r: @ValWrapper) = UnifyLR(-@typeOf(l), -@typeOf(r))(l, r)
         [ct] if isValid(logicDebug)
             cout << "OrRelation.ctor: " << this << "\n"
 
+[protected]
     fun dtor(this: @OrRelation)
         [ct] if isValid(logicDebug)
             cout << "OrRelation.dtor: " << this << "\n"

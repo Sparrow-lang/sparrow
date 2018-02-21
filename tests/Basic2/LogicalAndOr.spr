@@ -15,30 +15,24 @@ fun getF: Bool
 }
 
 class BoolValue
-{
-    fun ctor(this: @BoolValue, b: Bool)
-    {
-        this.b ctor b;
-        cout << "C";
-        if ( b )
-            cout << "t";
-        else
-            cout << "f";
-        cout << '.';
-    }
-
-    fun dtor(this: BoolValue)
-    {
-        cout << "D";
-        if ( b )
-            cout << "t";
-        else
-            cout << "f";
-        cout << '.';
-    }
-
     var b: Bool;
-}
+
+fun ctor(this: @BoolValue, b: Bool)
+    this.b ctor b;
+    cout << "C";
+    if ( b )
+        cout << "t";
+    else
+        cout << "f";
+    cout << '.';
+
+fun dtor(this: BoolValue)
+    cout << "D";
+    if ( b )
+        cout << "t";
+    else
+        cout << "f";
+    cout << '.';
 
 fun sprMain
 {

@@ -66,12 +66,12 @@ class LRef(valueType: Type)
         [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "copy ctor: " << this << "\n"
 
+
+[protected]
     fun dtor(this: @LRef)
         [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
             cout << "dtor: " << this << "\n"
 
-
-[protected]
     fun =(this, other: @LRef)
         if ( other.isSet )
             this.reset(other.get)

@@ -104,12 +104,12 @@ import ranges
             this(8) ctor v8
             this(9) ctor v9
 
-        fun dtor(this: @StaticArray)
-            for v: @ValueType = this.all
-                v dtor
-
 
 [rtct, protected]
+    fun dtor(this: @StaticArray)
+        for v: @ValueType = this.all
+            v dtor
+
     fun =(this, other: @StaticArray): @typeOf(this)
         for i = 0.._arraySize
             this(i) = other(i)

@@ -60,6 +60,9 @@ class Array(valueType: Type)
         [ct] for i = 0..size
             this(i) = src(i)
 
+    var _begin, _end: RawPtr(ValueType)
+
+[rtct, protected]
     fun dtor(this: @Array)
         if this.isEmpty
             return
@@ -70,9 +73,6 @@ class Array(valueType: Type)
             p.value dtor
         _begin.freePtr
 
-    var _begin, _end: RawPtr(ValueType)
-
-[rtct, protected]
     fun size(this: @Array): SizeType
         return _end.diff(_begin)
 

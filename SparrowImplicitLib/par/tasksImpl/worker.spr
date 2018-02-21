@@ -19,7 +19,7 @@ fun numIdleWorkers(c: @IdleCounter) = c.cnt load;
 
 
 //! A worker class describes a thread that is doing some work on our task system
-class Worker {
+class Worker
     var taskSystem: @TaskSystem;
     var work: TaskQueue;
     var workerId: Int;
@@ -41,8 +41,8 @@ class Worker {
         this._waitSem ctor 0;
     }
 
+[protected]
     fun dtor(this: @Worker) {}
-}
 
 using WorkerPtr = Worker Ptr;
 

@@ -7,11 +7,7 @@ import par.thread;
 import std.ptr, std.vector;
 //import assert;
 
-class TaskSystem {
-    fun ctor(this: @TaskSystem) {}
-
-    fun dtor(this: @TaskSystem) {}
-
+class TaskSystem
     //! The global queue of tasks
     var globalQueue: TaskQueue;
 
@@ -22,7 +18,11 @@ class TaskSystem {
     var _threads: (Thread Ptr) Vector;
     //! Object that counts the number of threads that are idle
     var idleCounter: IdleCounter;
-}
+
+    fun ctor(this: @TaskSystem) {}
+
+[protected]
+    fun dtor(this: @TaskSystem) {}
 
 var globalTaskSystem: TaskSystem Ptr;
 

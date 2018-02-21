@@ -36,6 +36,7 @@ namespace {
  * concept params) is to deduce their type.
  *
  * @param loc         The location in which we are creating the nodes
+ * @param context     The compilation context in which we create the bound vars
  * @param boundValues The list of bound values used in the creation of bound vars
  * @param params      The params of the instantiated set (may contain nulls for RT params)
  * @param isCtGeneric True if this is a CT-generic function
@@ -44,8 +45,8 @@ namespace {
  *
  * @return A vector of all the bound variable
  */
-NodeVector createAllBoundVariables(
-        const Location& loc, NodeRange boundValues, NodeRange params, bool isCtGeneric, bool insideClass) {
+NodeVector createAllBoundVariables(const Location& loc, CompilationContext* context,
+        NodeRange boundValues, NodeRange params, bool isCtGeneric, bool insideClass) {
     // Create a variable for each bound parameter - put everything in a node list
     NodeVector nodes;
     size_t idx = 0;
@@ -56,7 +57,7 @@ NodeVector createAllBoundVariables(
         TypeRef paramType = p->type;
         if (!paramType)
             paramType = getType(boundValue);    // Dependent param type case
-        Node* var = createBoundVar(p, paramType, boundValue, isCtGeneric, insideClass);
+        Node* var = createBoundVar(context, p, paramType, boundValue, isCtGeneric, insideClass);
         ASSERT(var);
         nodes.push_back(var);
     }
@@ -231,7 +232,7 @@ InstNode SprFrontend::createNewInstantiation(
     bool insideClass = nullptr != Feather_getParentClass(context);
 
     // Create the instantiation
-    auto boundVars = createAllBoundVariables(loc, values, instSet.params(), isCtGeneric, insideClass);
+    auto boundVars = createAllBoundVariables(loc, context, values, instSet.params(), isCtGeneric, insideClass);
     InstNode inst = mkInstantiation(loc, values, all(boundVars));
     // Add it to the parent instSet
     Nest_appendNodeToArray(&instSet.instantiations(), inst.node);
@@ -244,21 +245,29 @@ InstNode SprFrontend::createNewInstantiation(
     return inst;
 }
 
-Node* SprFrontend::createBoundVar(Node* param, TypeRef paramType, Node* boundValue, bool isCtGeneric, bool insideClass) {
+Node* SprFrontend::createBoundVar(CompilationContext* context, Node* param, TypeRef paramType, Node* boundValue, bool isCtGeneric, bool insideClass) {
     ASSERT(param);
     ASSERT(paramType);
     ASSERT(boundValue && boundValue->type);
 
-    bool isConcept = !isCtGeneric && isConceptParam(param->location, paramType, boundValue);
+    Location loc = param->location;
+    bool isConcept = !isCtGeneric && isConceptParam(loc, paramType, boundValue);
 
-    TypeRef t = isConcept ? getType(boundValue) : boundValue->type;
-    Node* init = isConcept ? nullptr : Nest_cloneNode(boundValue);
-    Node* var = mkSprVariable(param->location, Feather_getName(param), t, init);
-
-    if (insideClass)
-        Nest_setPropertyInt(var, propIsStatic, 1);  // Ensure this is not treated as a regular field
-    if (!isConcept)
+    StringRef name = Feather_getName(param);
+    Node* var = nullptr;
+    if (isConcept) {
+        TypeRef t = getType(boundValue);
+        var = Feather_mkVar(loc, name, Feather_mkTypeNode(loc, t));
+        if (t->mode == modeCt)
+            Feather_setEvalMode(var, modeCt);
+        Nest_symTabEnter(context->currentSymTab, name.begin, var);
+    }
+    else {
+        var = mkSprUsing(loc, name, Nest_cloneNode(boundValue));
         Feather_setEvalMode(var, modeCt);
+    }
+
+    Nest_setContext(var, context);
     return var;
 }
 

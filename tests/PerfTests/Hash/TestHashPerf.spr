@@ -135,26 +135,21 @@ fun testRemove(bag: @AnyType, n: Int)
     }
 }
 
+[noDefault]
 class TestTimer
-{
-    fun ctor(this: @TestTimer, desc: StringRef, n: UInt)
-    {
-        this.desc ctor desc;
-        this.n ctor n;
-        timerImpl ctor;
-    }
-
-    fun dtor(this: @TestTimer)
-    {
-        var t = timerImpl.elapsed();
-        var t_ns = t * 1000000.0 / Double(n);
-        cout << desc << ":\t" << t << ", " << t_ns << " ns" << endl;
-    }
-
     var desc: StringRef;
     var n: UInt;
     var timerImpl: time.Timer;
-}
+
+fun ctor(this: @TestTimer, desc: StringRef, n: UInt)
+    this.desc ctor desc;
+    this.n ctor n;
+    timerImpl ctor;
+
+fun dtor(this: @TestTimer)
+    var t = timerImpl.elapsed();
+    var t_ns = t * 1000000.0 / Double(n);
+    cout << desc << ":\t" << t << ", " << t_ns << " ns" << endl;
 
 fun sprMain
 {

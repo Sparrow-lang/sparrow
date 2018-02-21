@@ -694,10 +694,9 @@ void handleGenericFunParam(GenericFunCallParams& callParams, int idx, Node* arg,
             ASSERT(curInst);
         } else {
             // Add the appropriate bound variable to the instantiation
-            Node* boundVar = createBoundVar(
-                    param, paramType, boundVal, callParams.isCtGeneric_, callParams.insideClass_);
+            Node* boundVar = createBoundVar(curInst.boundVarsNode()->context, param, paramType,
+                    boundVal, callParams.isCtGeneric_, callParams.insideClass_);
             Feather_addToNodeList(curInst.boundVarsNode(), boundVar);
-            Nest_setContext(boundVar, curInst.boundVarsNode()->context);
             Nest_clearCompilationStateSimple(curInst.boundVarsNode());
         }
         at(curInst.boundValues(), idx) = boundVal;

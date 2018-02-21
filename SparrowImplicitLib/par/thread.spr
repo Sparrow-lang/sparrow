@@ -24,7 +24,6 @@ fun >>(tid: @ThreadId, os: @OutStream)
 
 
 class Thread
-{
     var _handle: NativeThreadHandle;
 
     //! Construct the Thread with a functor
@@ -32,15 +31,15 @@ class Thread
     fun ctor(this: @Thread, f: AnyType) if isValid(f()) {
         _handle = Impl.startThread(f);
     }
-    //! Destructor. Detatch the thread if joinable
-    fun dtor(this: @Thread)
-        if ( this isJoinable ) this detach;
 
     //! Cannot copy construct or assign a Thread object
     [private] fun ctor(this, other: @Thread);
     [private] fun =(this, other: @Thread);
 
-}
+[protected]
+    //! Destructor. Detach the thread if joinable
+    fun dtor(this: @Thread)
+        if ( this isJoinable ) this detach;
 
 fun >>(t: @Thread, os: @OutStream)
 {

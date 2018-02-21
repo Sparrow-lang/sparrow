@@ -48,14 +48,15 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
         for v = other.all
             this._insertPlain(v)
 
-    fun dtor(this: @HashTable)
-        this._deleteElements
-
     var _buckets: _BucketsType
     var _guard: _MyGuardNode
     var _numElements: SizeType
     var _valToKey: ValueToKeyType
     var _tr: traitsType
+
+[protected]
+    fun dtor(this: @HashTable)
+        this._deleteElements
 
 fun swap(this: @HashTable, other: typeOf(this))
     _buckets.swap(other._buckets)

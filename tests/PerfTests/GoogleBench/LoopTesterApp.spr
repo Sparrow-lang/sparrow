@@ -43,9 +43,9 @@ class MaoCFG
     var _basicBlockMap: Map(Int, BasicBlock Ptr)
     var _edges: List(BasicBlockEdge Ptr)
 
-    fun dtor(this: @MaoCFG)
-        _basicBlockMap.values delete
-        _edges.all delete
+fun dtor(this: @MaoCFG)
+    _basicBlockMap.values delete
+    _edges.all delete
 
 fun createNode(this: @MaoCFG, name: Int): BasicBlock Ptr
     var node: @Ptr(BasicBlock) = _basicBlockMap(name)
@@ -126,7 +126,7 @@ class LoopStructureGraph
         _root->setNestingLevel(0)
         _loops += _root
 
-    fun dtor(this: @LoopStructureGraph) = this.killAll
+fun dtor(this: @LoopStructureGraph) = this.killAll
 
 fun killAll(this: @LoopStructureGraph)
     for loop = _loops.all

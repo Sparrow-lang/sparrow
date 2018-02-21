@@ -15,14 +15,14 @@ class Optional(valueType: Type)
     [noDefault] fun ctor(this: @Optional, val: @ValueType)
         _constructed ctor true
         _value ctor val
-    [noDefault] fun dtor(this: @Optional)
-        this.reset()
-
 
     var _value: ValueType
     var _constructed: Bool
 
 [protected]
+    [noDefault] fun dtor(this: @Optional)
+        this.reset()
+
     fun =(this, other: @Optional)           { if other._constructed ; this.reset(other._value) else this.reset }
     fun =(this: @Optional, val: @this.ValueType) { this.reset(val) }
 

@@ -251,6 +251,7 @@ InstNode createNewInstantiation(InstSetNode instSet, NodeRange values, EvalMode 
  * value), but we don't initialize the variable. The only thing we can do with these variables (for
  * concept params) is to deduce their type.
  *
+ * @param context     The compilation context in which we are adding the bound variable
  * @param param       The parameter for which we want to create a bound variable
  * @param paramType   The the of the parameter; used when cannot deduce it directly from 'param'
  * @param boundValue  The bound value used for the type (and init) of the variable
@@ -259,7 +260,7 @@ InstNode createNewInstantiation(InstSetNode instSet, NodeRange values, EvalMode 
  *
  * @return The created bound variable.
  */
-Node* createBoundVar(Node* param, TypeRef paramType, Node* boundValue, bool isCtGeneric, bool insideClass);
+Node* createBoundVar(CompilationContext* context, Node* param, TypeRef paramType, Node* boundValue, bool isCtGeneric, bool insideClass);
 
 /**
  * Check if the given instantiation is valid.

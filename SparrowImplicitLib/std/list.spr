@@ -27,6 +27,14 @@ class List(valueType: Type)
         for v = range
             this += v
 
+    using _MyNodeType = _NodeType(valueType)
+    using _NodeTypePtr = RawPtr(_MyNodeType)
+
+    var _head: _NodeLinks(valueType)
+    var _listSize: SizeType
+
+
+[protected]
     fun dtor(this: @List)
         var p = _head.next
         var hn = this._headNode
@@ -38,14 +46,6 @@ class List(valueType: Type)
             p.freePtr
             p = nextNode
 
-    using _MyNodeType = _NodeType(valueType)
-    using _NodeTypePtr = RawPtr(_MyNodeType)
-
-    var _head: _NodeLinks(valueType)
-    var _listSize: SizeType
-
-
-[protected]
     fun =(this, other: @List)
         var tmp = other
         this swap tmp

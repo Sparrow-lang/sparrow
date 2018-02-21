@@ -191,7 +191,8 @@ namespace
                 continue;
 
             Node* fieldRef = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, thisRef), field);
-            Node* otherFieldRef = otherParam ? Feather_mkFieldRef(loc, otherRef, field) : nullptr;
+            Node* otherFieldRef =
+                    otherParam ? mkCompoundExp(loc, otherRef, Feather_getName(field)) : nullptr;
 
             string oper = op;
             if ( field->type->numReferences > 0 )

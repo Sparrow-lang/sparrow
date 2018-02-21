@@ -5,17 +5,17 @@ import config;
 //! Allows a limited numbers of threads to simultaneously "acquire" a resource
 //! before releasing it.
 //! Compared to the mutex, we can release the semaphore without acquiring it
-class Semaphore {
+class Semaphore
     var _handle: Impl.SemaphoreT;
 
     fun ctor(this: @Semaphore, startValue: UInt = 0)
         _handle ctor;
         var res = Impl.semaphore_create(Impl.mach_task_self(), _handle, Impl.SYNC_POLICY_FIFO, Int(startValue));
 
+[protected]
     fun dtor(this: @Semaphore)
         //verify(0 == Impl.semaphore_destroy(Impl.mach_task_self(), _handle));
         Impl.semaphore_destroy(Impl.mach_task_self(), _handle);
-}
 
 //! Increments the counter of the semaphore
 fun release(s: @Semaphore) {

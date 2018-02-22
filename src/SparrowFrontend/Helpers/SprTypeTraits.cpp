@@ -5,6 +5,7 @@
 #include "StdDef.h"
 #include <SparrowFrontendTypes.h>
 #include <NodeCommonsCpp.h>
+#include "SprDebug.h"
 
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
@@ -269,7 +270,7 @@ Node* SprFrontend::createTypeNode(CompilationContext* context, const Location& l
     return res;
 }
 
-TypeRef SprFrontend::getAutoType(Node* typeNode, bool addRef)
+TypeRef SprFrontend::getAutoType(Node* typeNode, bool addRef, EvalMode evalMode)
 {
     TypeRef t = typeNode->type;
 
@@ -286,7 +287,7 @@ TypeRef SprFrontend::getAutoType(Node* typeNode, bool addRef)
 
     if ( addRef )
         t = Feather_addRef(t);
-    t = Feather_checkChangeTypeMode(t, modeRtCt, typeNode->location);
+    t = Feather_checkChangeTypeMode(t, evalMode, typeNode->location);
     return t;
 }
 

@@ -54,13 +54,14 @@ class Array(valueType: Type)
                 p.value ctor v
                 p = p.advance
 
-    [rt] fun ctorFromCt(this: @Array, src: Array ct)
-        [ct] var size = src size
-        this ctor size
-        [ct] for i = 0..size
-            this(i) = src(i)
-
     var _begin, _end: RawPtr(ValueType)
+
+[rt, protected]
+fun ctorFromCt(this: @Array, src: Array ct)
+    [ct] var size = src size
+    this ctor size
+    [ct] for i = 0..size
+        this(i) = src(i)
 
 [rtct, protected]
     fun dtor(this: @Array)

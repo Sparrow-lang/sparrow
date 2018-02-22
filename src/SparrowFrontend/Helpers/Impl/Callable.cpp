@@ -632,6 +632,7 @@ void handleGenericFunParam(GenericFunCallParams& callParams, int idx, Node* arg,
     Node* boundVal = nullptr;
     bool isRefAuto = false;
     TypeRef boundValType = nullptr; // used for concept types
+    bool isCtConcept = false;
     if (param->type == nullptr) {
         // If we are here this is a dependent param
         //
@@ -645,9 +646,10 @@ void handleGenericFunParam(GenericFunCallParams& callParams, int idx, Node* arg,
             boundValType = paramType;
     } else if (isConceptType(paramType, isRefAuto)) {
         // Deduce the type for boundVal for regular concept types
-        boundValType = getAutoType(arg, isRefAuto);
+        boundValType = getAutoType(arg, isRefAuto, paramType->mode);
+        isCtConcept = paramType->mode == modeCt;
     }
-    if (boundValType) {
+    if (boundValType && !isCtConcept) {
         // then the bound value will be a type node
         boundVal = createTypeNode(arg->context, param->location, boundValType);
         if (!Nest_computeType(boundVal))

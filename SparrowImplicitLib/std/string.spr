@@ -51,8 +51,9 @@ import rawPtr(RawPtr, allocRawPtr)
             for ch = range
                 _begin.advance(DiffType(i++)).value = ch
 
-        [rt] fun ctorFromCt(this: @String, src: String ct)
-            this ctor src.asStringRef
+[rt, protected]
+fun ctorFromCt(this: @String, src: String ct)
+    this ctor src.asStringRef
 
 [rtct, protected]
     fun dtor(this: @String)

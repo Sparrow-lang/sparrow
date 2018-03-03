@@ -550,4 +550,8 @@ void printNode(const Node* node) {
     printf("\n");
 }
 
+void printNodeExp(const Node* node) {
+    printNodeImpl(node, 2);
+}
+
 }

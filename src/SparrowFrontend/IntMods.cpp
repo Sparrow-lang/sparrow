@@ -134,6 +134,7 @@ namespace
             Nest_freeNodeArray(decls);
         }
         CompilationContext* ctx = shouldBeInner ? parent->childrenContext : classContext(parent);
+        // TODO (classes): Remove this
 
         // Construct the parameters list, return type node
         NodeVector sprParams;
@@ -504,6 +505,7 @@ void IntModDtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
         Node* field = at(cls->children, i);
 
         // Make sure we destruct only fields of the current class
+        // TODO (classes): Revisit this
         Node* cls2 = Feather_getParentClass(field->context);
         if ( cls2 != cls )
             continue;

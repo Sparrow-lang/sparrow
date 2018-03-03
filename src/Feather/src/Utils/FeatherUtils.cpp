@@ -222,18 +222,18 @@ void Feather_checkEvalMode(Node* src, EvalMode referencedEvalMode)
     // Check if the context eval mode requirements are fulfilled
     if ( contextEvalMode == modeRtCt && nodeEvalMode == modeRt ) {
         _printContextNodes(src);
-        REP_INTERNAL(src->location, "Cannot have RT nodes in a RT-CT context");
+        REP_INTERNAL(src->location, "Cannot have RT nodes in a RT-CT context (%1%)") % Nest_toStringEx(src);
     }
     if ( contextEvalMode == modeCt && nodeEvalMode != modeCt ) {
         _printContextNodes(src);
-        REP_INTERNAL(src->location, "Cannot have non-CT nodes in a CT context");
+        REP_INTERNAL(src->location, "Cannot have non-CT nodes in a CT context (%1%)") % Nest_toStringEx(src);
     }
 
     // Check if the referenced eval mode requirements are fulfilled
     if ( referencedEvalMode == modeCt && nodeEvalMode != modeCt )
-        REP_INTERNAL(src->location, "CT node required; found: %1%") % nodeEvalMode;
+        REP_INTERNAL(src->location, "CT node required; found: %1% (%2%)") % nodeEvalMode % Nest_toStringEx(src);
     if ( referencedEvalMode == modeRt && nodeEvalMode != modeRt )
-        REP_INTERNAL(src->location, "RT node required; found: %1%") % nodeEvalMode;
+        REP_INTERNAL(src->location, "RT node required; found: %1% (%2%)") % nodeEvalMode % Nest_toStringEx(src);
 
     // If the node has direct children, check them
     if ( Nest_nodeArraySize(src->children) != 0 )

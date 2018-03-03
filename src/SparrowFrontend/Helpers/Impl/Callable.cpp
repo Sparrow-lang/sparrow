@@ -242,6 +242,8 @@ void getClassCtorCallables(Node* cls, EvalMode evalMode, Callables& res,
 
     res.reserve(res.size() + Nest_nodeArraySize(decls));
     for (Node* decl : decls) {
+        if (!Nest_computeType(decl))
+            continue;
         Node* fun = Nest_explanation(decl);
         if (fun && fun->nodeKind == nkFeatherDeclFunction && predIsSatisfied(decl, pred))
             res.push_back(mkFunCallable(fun, implicitArgType));
@@ -1353,4 +1355,21 @@ Node* SprFrontend::generateCall(CallableData& c, CompilationContext* context, co
 
 const Location& SprFrontend::location(const CallableData& c) { return c.decl->location; }
 
-string SprFrontend::toString(const CallableData& c) { return Nest_toString(c.decl); }
+string SprFrontend::toString(const CallableData& c) {
+    ostringstream oss;
+    oss << Feather_getName(c.decl) << "(";
+    bool first = true;
+    for (auto p : c.params) {
+        if (first)
+            first = false;
+        else
+            oss << ", ";
+        if (p->nodeKind == nkFeatherDeclVar || p->nodeKind == nkSparrowDeclSprParameter) {
+            Node* typeNode = at(p->children, 0);
+            oss << Nest_toString(typeNode);
+        } else
+            oss << Nest_toString(p);
+    }
+    oss << ")";
+    return oss.str();
+}

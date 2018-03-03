@@ -437,6 +437,10 @@ TypeRef SprFunction_ComputeType(Node* node)
                 REP_ERROR_RET(nullptr, parameters->location, "Invalid node as parameter");
             if ( n->nodeError )
                 return nullptr;
+            if ( Nest_explanation(n)->nodeKind != nkFeatherDeclVar ) {
+                printNode(node);
+                REP_INTERNAL(n->location, "Trouble converting %1% to a Feather parameter") % Nest_toStringEx(n);
+            }
 
             Feather_Function_addParameter(resultingFun, n);
         }

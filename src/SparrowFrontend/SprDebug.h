@@ -35,6 +35,7 @@ void printSpaces();
 
 /// Print the given node to the console, in a pretty fashion
 void printNode(const Node* node);
+void printNodeExp(const Node* node);
 
 
 #ifdef __cplusplus

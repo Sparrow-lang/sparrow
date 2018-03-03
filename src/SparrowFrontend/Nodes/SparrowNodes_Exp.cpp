@@ -1451,6 +1451,11 @@ Node* LambdaFunction_SemanticCheck(Node* node)
     Node* packageBody = Feather_mkNodeList(loc, fromIniList({closureClass, enclosedFun}));
     Node* closurePackage = mkSprPackage(loc, fromCStr("$lambdaEnclosurePackage"), packageBody);
 
+    // Set the right eval mode for the closure package
+    EvalMode evalMode = Feather_effectiveEvalMode(node);
+    Feather_setEvalMode(closurePackage, evalMode);
+    Feather_setEvalMode(closureClass, evalMode);
+    Feather_setEvalMode(enclosedFun, evalMode);
 
     // Add the closure package as a top level node of this node
     // We add it in the context of the parent function

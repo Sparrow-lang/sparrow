@@ -48,7 +48,7 @@ NodeArray Nest_symTabLookup(SymTab* symTab, const char* name);
 /// Writes to console the content of the current symbol table and of all the
 /// parent symbol tables
 void Nest_dumpSymTabs(SymTab* symTab);
-/// Writes to console the names in the current symtab (one a signle line)
+/// Writes to console the names in the current symtab (one a single line)
 void Nest_dumpSymTabNames(SymTab* symTab);
 
 /// Writes to console the hierarchy of the given symbol table

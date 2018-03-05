@@ -26,11 +26,10 @@ import std.string(String)
             this._handle := other._handle
             other._handle := null
 
-[protected]
-        fun dtor(this: @File)
-            this.close
-
 [rtct, protected]
+    fun dtor(this: @File)
+        this.close
+
     fun =(this, other: @File)
         this._handle := other._handle
         other._handle := null

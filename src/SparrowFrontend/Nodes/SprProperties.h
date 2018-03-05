@@ -15,4 +15,5 @@ namespace SprFrontend
     extern const char* propNoWarnIfNoDeclFound;
     extern const char* propThisParamIdx;
     extern const char* propThisParamType;
+    extern const char* propOverloadPrio;
 }

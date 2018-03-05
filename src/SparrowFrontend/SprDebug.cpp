@@ -190,8 +190,43 @@ void printNodeImpl(const Node* node, int mode) {
             return;
 
         case nkRelFeatherDeclFunction:
-            printf("fun %s;", Feather_getName(node).begin);
+        {
+            Node* returnType = at(node->children, 0);
+            Node* body = at(node->children, 1);
+            NodeRange params = all(node->children);
+            params.beginPtr += 2;
+            printf("fun %s", Feather_getName(node).begin);
+            if (size(params) > 0) {
+                printf("(");
+                bool first = true;
+                for (auto p: params) {
+                    if (!p)
+                        continue;
+                    if (first)
+                        first = false;
+                    else
+                        printf(", ");
+                    if (p->nodeKind == nkFeatherDeclVar) {
+                        Node* typeNode = at(node->children, 0);
+                        printf("%s: ", Feather_getName(node).begin);
+                        printNodeImpl(typeNode, 2);
+                    }
+                    else
+                        printNodeImpl(p, 2);
+                }
+                printf(")");
+            }
+            if ( returnType ) {
+                printf(": ");
+                printNodeImpl(returnType, 2);
+            }
+            if ( body ) {
+                printf("\n");
+                printSpaces();
+                printNodeImpl(body, 1);
+            }
             return;
+        }
         case nkRelFeatherDeclClass:
             printf("class %s;", Feather_getName(node).begin);
             return;
@@ -552,6 +587,11 @@ void printNode(const Node* node) {
 
 void printNodeExp(const Node* node) {
     printNodeImpl(node, 2);
+}
+
+void printNodes(NodeRange nodes) {
+    for (auto n: nodes)
+        printNode(n);
 }
 
 }

@@ -180,6 +180,7 @@ Node* SprFrontend::checkCreateGenericFun(Node* originalFun, Node* parameters, No
 
     // Actually create the generic
     Node* res = mkGenericFunction(originalFun, params, all(genericParams), ifClause);
+    copyOverloadPrio(originalFun, res);
     Feather_setEvalMode(res, Feather_effectiveEvalMode(originalFun));
     Nest_setContext(res, originalFun->context);
     return res;

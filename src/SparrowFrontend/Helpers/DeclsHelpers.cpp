@@ -320,6 +320,13 @@ void SprFrontend::copyModifiersSetMode(Node* src, Node* dest, EvalMode newMode)
     }
 }
 
+void SprFrontend::copyOverloadPrio(Node* src, Node* dest)
+{
+    auto overloadPrio = Nest_getPropertyInt(src, propOverloadPrio);
+    if (overloadPrio)
+        Nest_setPropertyExplInt(dest, propOverloadPrio, *overloadPrio);
+}
+
 bool SprFrontend::funHasThisParameters(Node* fun)
 {
     return fun && fun->nodeKind == nkSparrowDeclSprFunction

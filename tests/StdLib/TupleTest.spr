@@ -22,11 +22,11 @@ using T2 = Tuple(MyObj1, MyObj2);
 using T4 = Tuple(MyObj1, MyObj2, Int rt, Bool rt);
 
 fun arbitrary(t: Type): T2 Gen if t == T2 {
-    return (T2 Gen)(\generateT2);
+    return mkGen(T2, \generateT2);
 }
 
 fun arbitrary(t: Type): T4 Gen if t == T4 {
-    return (T4 Gen)(\generateT4);
+    return mkGen(T4, \generateT4);
 }
 
 //! Generate an arbitrary tuple 2

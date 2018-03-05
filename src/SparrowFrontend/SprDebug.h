@@ -37,6 +37,8 @@ void printSpaces();
 void printNode(const Node* node);
 void printNodeExp(const Node* node);
 
+/// Print the given node range
+void printNodes(NodeRange nodes);
 
 #ifdef __cplusplus
 }

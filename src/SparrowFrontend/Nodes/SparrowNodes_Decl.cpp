@@ -423,6 +423,7 @@ TypeRef SprFunction_ComputeType(Node* node)
     resultingFun->childrenContext = node->childrenContext;
     Nest_setContext(resultingFun, node->context);
     Nest_setPropertyNode(node, propResultingDecl, resultingFun);
+    copyOverloadPrio(node, resultingFun);
 
     // Compute the types of the parameters first
     if ( parameters && !Nest_computeType(parameters) )

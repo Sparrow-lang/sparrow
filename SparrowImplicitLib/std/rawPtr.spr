@@ -17,9 +17,6 @@ module std.rawPtr
                 _ptr := reinterpretCast(@ValueType, byteRef)
 
 [rtct, protected]
-    fun =(this: @RawPtr, other: RawPtr)        { _ptr := other._ptr }
-
-    fun ==(this, other: RawPtr)       = _ptr === other._ptr
     fun < (this, other: RawPtr)       = ptrDiff(this.bytePtr(), other.bytePtr()) < DiffType(0)
 
     fun value(this: RawPtr): @ValueType                     = _ptr

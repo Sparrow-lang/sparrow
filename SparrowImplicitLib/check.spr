@@ -5,18 +5,14 @@ import std.map(Map)
 import std.function(Function)
 
 //! An object that is able to generate values of the given type, possibly in a random fashion
+[initCtor]
 class Gen(t: Type)
     using ValueType = t
-
     var _generator: Function(t, UInt)
 
-    fun ctor(this: @Gen) {}
-    fun ctor(this, other: @Gen)
-        this._generator ctor other._generator
-
-    [convert]
-    fun ctor(this: @Gen, generator: @AnyType)
-        this._generator ctor generator
+fun mkGen(t: Type, generator: @AnyType): Gen(t) if isValid(generator(UInt(0)))
+    using FunType = Function(t, UInt)
+    return Gen(t)(FunType(generator))
 
 fun ()(this: @Gen, sizeHint: UInt): ValueType = _generator(sizeHint)
 
@@ -35,7 +31,7 @@ concept GenType(x)                  \
 
 //! Arbitrary definition for the integer types
 fun arbitrary(t: Type): t Gen if Integer(#$t)
-    return (t Gen)(\_Impl.NumericGen(t).gen)
+    return mkGen(t, \_Impl.NumericGen(t).gen)
 
 
 //! Configuration options for our check function
@@ -199,6 +195,10 @@ package _Impl
         var _gen: Gen(t)
         var _count: UInt
 
+        fun ctor(this, other: @ForAllGenerator)
+            this._gen ctor other._gen
+            this._count ctor other._count
+
         fun ctor(this: @ForAllGenerator, gen: @Gen(t))
             this._gen ctor gen
             this._count = 0
@@ -288,4 +288,4 @@ package _Impl
         r advance randBetween(0, Int(_count))
         return r.front
 
-    fun gen(this: @ElementsGen): Gen(ElementType) = ife(_count>0, this, Gen(ElementType)())
+    fun gen(this: @ElementsGen): Gen(ElementType) = ife(_count>0, mkGen(ElementType, this), Gen(ElementType)())

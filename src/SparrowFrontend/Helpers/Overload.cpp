@@ -53,14 +53,18 @@ void reportDeclsAlternatives(const Location& loc, NodeRange decls) {
 /// Retain only the candidates with the highest conversion
 /// Accepts either the argument nodes, or their type
 /// Returns true if there are some valid candidates
+/// If there are callables with smaller overload prio, drop them in the favor of those with higher
+/// overload prio.
 bool filterCandidates(CompilationContext* context, const Location& loc,
                       Callables& candidates, NodeRange* args,
                       const vector<TypeRef>* argTypes, EvalMode evalMode,
                       CustomCvtMode customCvtMode) {
     ConversionType bestConv = convNone;
+    int bestPrio = INT_MIN;
     for (size_t i = 0; i < candidates.size(); ++i) {
         CallableData& cand = candidates[i];
 
+        // Check if this can be called with the given args
         ConversionType conv =
             args ? canCall(cand, context, loc, *args, evalMode, customCvtMode)
                  : canCall(cand, context, loc, *argTypes, evalMode,
@@ -70,13 +74,16 @@ bool filterCandidates(CompilationContext* context, const Location& loc,
             continue;
         }
 
-        if (conv > bestConv) {
+        int prio = Nest_getPropertyDefaultInt(cand.decl, propOverloadPrio, 0);
+
+        if (prio > bestPrio || (prio == bestPrio && conv > bestConv)) {
             bestConv = conv;
+            bestPrio = prio;
             for (size_t j = 0; j < i; ++j)
                 if (candidates[j].valid) {
                     candidates[j].valid = false;
                 }
-        } else if (conv < bestConv)
+        } else if (prio < bestPrio || conv < bestConv)
             cand.valid = false;
     }
 

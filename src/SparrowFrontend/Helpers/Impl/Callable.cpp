@@ -453,6 +453,7 @@ Node* createInstFn(CompilationContext* context, Node* origFun, NodeRange finalPa
     Node* newFun = mkSprFunction(loc, Feather_getName(origFun), parameters, returnType, body);
     copyModifiersSetMode(origFun, newFun, context->evalMode);
     copyAccessType(newFun, origFun);
+    copyOverloadPrio(origFun, newFun);
     Feather_setShouldAddToSymTab(newFun, 0);
     Nest_setContext(newFun, context);
 
@@ -1364,11 +1365,15 @@ string SprFrontend::toString(const CallableData& c) {
             first = false;
         else
             oss << ", ";
-        if (p->nodeKind == nkFeatherDeclVar || p->nodeKind == nkSparrowDeclSprParameter) {
-            Node* typeNode = at(p->children, 0);
+
+        Node* typeNode = nullptr;
+        if (p && (p->nodeKind == nkFeatherDeclVar || p->nodeKind == nkSparrowDeclSprParameter))
+            typeNode = at(p->children, 0);
+
+        if (typeNode)
             oss << Nest_toString(typeNode);
-        } else
-            oss << Nest_toString(p);
+        else
+            oss << '?';
     }
     oss << ")";
     return oss.str();

@@ -62,6 +62,9 @@ namespace SprFrontend
     /// instead we add a new modifier to change the mode
     void copyModifiersSetMode(Node* src, Node* dest, EvalMode newMode);
 
+    /// Copy the overload priority property from 'src' to 'dest'
+    void copyOverloadPrio(Node* src, Node* dest);
+
     /// Check if the given function node has a this parameter
     /// returns false if the given node is null or is not a function
     bool funHasThisParameters(Node* fun);

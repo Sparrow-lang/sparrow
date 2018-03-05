@@ -11,3 +11,4 @@ const char* SprFrontend::propAllowDeclExp = "spr.allowDeclExp";
 const char* SprFrontend::propNoWarnIfNoDeclFound = "spr.noWarnIfNoDeclFound";
 const char* SprFrontend::propThisParamIdx = "spr.thisParamIdx";
 const char* SprFrontend::propThisParamType = "spr.thisParamType";
+const char* SprFrontend::propOverloadPrio = "spr.overloadPrio";

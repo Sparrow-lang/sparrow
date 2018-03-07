@@ -106,14 +106,14 @@ namespace
         Node* body = Feather_mkLocalSpace(loc, {});
         for ( Node* field: cls->children )
         {
-            // Take in account only fields of the current class
-            Node* cls2 = Feather_getParentClass(field->context);
-            if ( cls2 != cls )
-                continue;
+            // Left-hand side: field-ref to the current field
+            Node* lhs = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, thisRef), field);
 
-            Node* fieldRef = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, thisRef), field);
-            Node* otherFieldRef =
-                    otherParam ? mkCompoundExp(loc, otherRef, Feather_getName(field)) : nullptr;
+            // Right-hand side
+            Node* rhs = otherParam ? mkCompoundExp(loc, otherRef, Feather_getName(field))
+                                   : (name == "ctor" ? Nest_getPropertyDefaultNode(
+                                                               field, propVarInit, nullptr)
+                                                     : nullptr);
 
             string oper = op;
             if ( field->type->numReferences > 0 )
@@ -121,13 +121,13 @@ namespace
                 if ( op == "=" || op == "ctor" )
                 {
                     oper = ":=";    // Transform into ref assignment
-                    if ( !otherFieldRef )
-                        otherFieldRef = buildNullLiteral(loc);
+                    if ( !rhs )
+                        rhs = buildNullLiteral(loc);
                 }
                 else if ( op == "dtor" )
                     continue;       // Nothing to destruct on references
             }
-            addOperatorCall(body, reverse, fieldRef, oper, otherFieldRef);
+            addOperatorCall(body, reverse, lhs, oper, rhs);
         }
 
         vector<pair<TypeRef, string>> params;
@@ -140,7 +140,8 @@ namespace
     }
 
     /// Generate an init ctor, that initializes all the members with data received as arguments
-    void generateInitCtor(Node* parent)
+    /// Returns true if all fields were initialized with default values, and no params are needed.
+    bool generateInitCtor(Node* parent)
     {
         vector<pair<TypeRef, string>> params;
         params.push_back({Feather_addRef(parent->type), "this"});
@@ -150,6 +151,8 @@ namespace
         Node* cls = Nest_explanation(parent);
         cls = cls && cls->nodeKind == nkFeatherDeclClass ? cls : nullptr;
         ASSERT(cls);
+
+        Node* thisRef = mkIdentifier(loc, fromCStr("this"));
 
         // Construct the body
         Node* body = Feather_mkLocalSpace(loc, {});
@@ -162,20 +165,27 @@ namespace
 
             TypeRef t = field->type;
 
-            // Add a parameter for the base
-            string paramName = "f"+toString(Feather_getName(field));
-            params.push_back({t, paramName});
-            Node* paramId = mkIdentifier(loc, fromString(paramName));
-            if ( t->numReferences > 0 )
-                paramId = Feather_mkMemLoad(loc, paramId);
+            // Do we have an initialization specified in the data struct?
+            Node* init = Nest_getPropertyDefaultNode(field, propVarInit, nullptr);
+            if (!init) {
+                // Add a parameter for the base
+                string paramName = "f"+toString(Feather_getName(field));
+                params.push_back({t, paramName});
+                init = mkIdentifier(loc, fromString(paramName));
+                if ( t->numReferences > 0 )
+                    init = Feather_mkMemLoad(loc, init);
+            }
 
-            Node* fieldRef = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, mkIdentifier(loc, fromCStr("this"))), field);
+
+            // Left-hand side: field-ref to the current field
+            Node* lhs = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, thisRef), field);
 
             string oper = t->numReferences > 0 ? ":=" : "ctor";
-            addOperatorCall(body, false, fieldRef, oper, paramId);
+            addOperatorCall(body, false, lhs, oper, init);
         }
 
-        addAssociatedFun(parent, "ctor", body, params, defaultOverloadPrio);
+        (void) addAssociatedFun(parent, "ctor", body, params, defaultOverloadPrio);
+        return params.size() == 1;
     }
 
     /// Generate the equality check method for the given class
@@ -318,11 +328,13 @@ void _IntModClassMembers_afterComputeType(Modifier*, Node* node)
     TypeRef paramType = Feather_getDataType(basicClass, 1, modeRtCt);
 
     // Initialization ctor
+    bool skipDefaultCtor = false;
     if ( Nest_hasProperty(cls, propGenerateInitCtor) )
-        generateInitCtor(cls);
+        skipDefaultCtor = generateInitCtor(cls);
 
     // Auto-generated functions
-    generateAssociatedFun(cls, "ctor", "ctor", nullptr);
+    if (!skipDefaultCtor)
+        generateAssociatedFun(cls, "ctor", "ctor", nullptr);
     generateAssociatedFun(cls, "ctor", "ctor", paramType);
     generateAssociatedFun(cls, "ctorFromCt", "ctor", Feather_checkChangeTypeMode(Feather_getDataType(basicClass, 0, modeRtCt), modeCt, node->location), false, modeRt);
     generateAssociatedFun(cls, "dtor", "dtor", nullptr, true);

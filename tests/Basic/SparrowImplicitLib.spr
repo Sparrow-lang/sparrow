@@ -1156,7 +1156,6 @@ fun + (x,y: StringRef): StringRef
     return res;
 }*/
 
-[autoCt, native("_Bool_opAssign")] fun = (x: Bool@, y: Bool): Bool;
 [autoCt, native("_Bool_opOr")] fun || (x, y: Bool): Bool;
 [autoCt, native("_Bool_opXor")] fun ^^ (x, y: Bool): Bool;
 [autoCt, native("_Bool_opAnd")] fun && (x, y: Bool): Bool;

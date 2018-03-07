@@ -680,6 +680,10 @@ TypeRef SprVariable_ComputeType(Node* node)
     }
 
     ASSERT(expl);
+
+    if (init && varKind == varField)
+        Nest_setPropertyNode(expl, propVarInit, init);
+
     Nest_setContext(expl, node->childrenContext);
     node->type = Nest_computeType(expl);
     if ( !node->type )
@@ -687,10 +691,6 @@ TypeRef SprVariable_ComputeType(Node* node)
     node->explanation = expl;
 
     Nest_setPropertyNode(node, "spr.resultingVar", resultingVar);
-
-    // TODO (var): field initialization
-    if ( init && varKind == varField )
-        REP_ERROR(node->location, "Initializers for class attributes are not supported yet");
 
     return node->type;
 }

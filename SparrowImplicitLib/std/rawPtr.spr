@@ -1,16 +1,11 @@
 module std.rawPtr
 
 [rtct]
+    [initCtor]
     class RawPtr(valueType: Type)
         using ValueType = valueType
 
         var _ptr: @ValueType
-
-        fun ctor(this: @RawPtr)
-            _ptr := null
-
-        fun ctor(this: @RawPtr, ref: @ValueType)
-            _ptr := ref
 
         [ct] if ValueType != Byte
             fun ctor(this: @RawPtr, byteRef: @Byte)

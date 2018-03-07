@@ -317,14 +317,9 @@ concept RandomAccessRange(x: BidirRange) if (
             if Range(#$rangeType) && typeOf((#$predType)(#$rangeType front)) == Bool
         var _range: rangeType
         var _pred: predType
-        var _shouldStop: Bool
+        var _shouldStop: Bool = false
 
         using RetType = rangeType.RetType
-
-        fun ctor(this: @TakeUntilRange, range: rangeType, pred: predType)
-            this._range ctor range
-            this._pred ctor pred
-            _shouldStop = false
 
 [rtct, protected]
     fun isEmpty(this: @TakeUntilRange)          = _range.isEmpty || _shouldStop
@@ -362,20 +357,15 @@ concept RandomAccessRange(x: BidirRange) if (
             _range.popFront
 
 [rtct]
+    [initCtor]
     class TransformedRange(rangeType, funType: Type) \
             if Range(#$rangeType) && isValid((#$funType)(#$rangeType front))
         var _range: rangeType
         var _function: funType
-        var _curVal: RetType
-        var _hasValue: Bool
+        var _curVal: RetType = RetType()
+        var _hasValue: Bool = false
 
         using RetType = -@typeOf((#$funType)(#$rangeType front))
-
-        fun ctor(this: @TransformedRange, range: rangeType, function: funType)
-            this._range ctor range
-            this._function ctor function
-            this._curVal ctor
-            this._hasValue ctor false
 
 [rtct, protected]
     fun isEmpty(this: @TransformedRange)    = _range.isEmpty
@@ -434,19 +424,15 @@ concept RandomAccessRange(x: BidirRange) if (
             _range.popFront
 
 [rtct]
+    [initCtor]
     class RadialRange(rangeType: Type) if RandomAccessRange(#$rangeType)
         var _range: rangeType
-        var _index, _count: SizeType
-        var _step, _sign: DiffType
+        var _index: SizeType
+        var _count: SizeType = 0
+        var _step: DiffType = 1
+        var _sign: DiffType = 1
 
         using RetType = rangeType.RetType
-
-        fun ctor(this: @RadialRange, range: rangeType, index: SizeType)
-            this._range ctor range
-            this._index ctor index
-            this._step ctor 1
-            this._sign ctor 1
-            this._count ctor 0
 
 [rtct, protected]
     fun isEmpty(this: @RadialRange)         = _range.isEmpty || _count == _range.size
@@ -463,13 +449,13 @@ concept RandomAccessRange(x: BidirRange) if (
 
 [rtct]
     class CyclicRange(rangeType: Type) if Range(#$rangeType)
-        var _range, base: rangeType
+        var _range, _base: rangeType
 
         using RetType = rangeType.RetType
 
         fun ctor(this: @CyclicRange, range: rangeType)
             this._range ctor range
-            this.base ctor range
+            this._base ctor range
 
 [rtct, protected]
     fun isEmpty(this: @CyclicRange)         = false
@@ -477,11 +463,11 @@ concept RandomAccessRange(x: BidirRange) if (
     fun popFront(this: @CyclicRange)
         _range.popFront
         if _range.isEmpty
-            _range = base
+            _range = _base
 
 [rtct]
     class CyclicCountedRange(rangeType: Type) if Range(#$rangeType)
-        var _range, base: rangeType
+        var _range, _base: rangeType
         var _count: SizeType
 
         using RetType = rangeType.RetType
@@ -489,7 +475,7 @@ concept RandomAccessRange(x: BidirRange) if (
         fun ctor(this: @CyclicCountedRange, range: rangeType, count: SizeType)
             this._range ctor range
             this._count ctor count
-            this.base ctor range
+            this._base ctor range
 
 [rtct, protected]
     fun isEmpty(this: @CyclicCountedRange)          = _count == 0
@@ -498,7 +484,7 @@ concept RandomAccessRange(x: BidirRange) if (
         _range.popFront
         if _range.isEmpty
             if _count > 0
-                _range = base
+                _range = _base
                 --_count
 
 [rtct]
@@ -518,15 +504,12 @@ concept RandomAccessRange(x: BidirRange) if (
     fun popFront(this: @GeneratedRange)         { _current = _function() }
 
 [rtct]
+    [initCtor]
     class Generated1Range(elType, functionType: Type) //if isValid(elType(#$functionType)(#$elType))
-        var _function: functionType
         var _current: RetType
+        var _function: functionType
 
         using RetType = elType
-
-        fun ctor(this: @Generated1Range, initialValue: RetType, function: functionType)
-            this._function ctor function
-            this._current ctor initialValue
 
 [rtct, protected]
     fun isEmpty(this: @Generated1Range)         = false
@@ -548,19 +531,14 @@ concept RandomAccessRange(x: BidirRange) if (
     fun popFront(this: @ZippedRange)        { _range1.popFront; _range2.popFront }
 
 [rtct]
+    [initCtor]
     class ScanLeftRange(accType, rangeType: Type, functionType: Type) if Range(#$rangeType)
         var _acc: accType
         var _range: rangeType
         var _function: functionType
-        var _valComputed: Bool
+        var _valComputed: Bool = false
 
         using RetType = accType
-
-        fun ctor(this: @ScanLeftRange, acc: accType, range: rangeType, function: functionType)
-            this._acc ctor acc
-            this._range ctor range
-            this._function ctor function
-            this._valComputed ctor false
 
 [rtct, protected]
     fun isEmpty(this: @ScanLeftRange)    = _range.isEmpty
@@ -576,6 +554,8 @@ concept RandomAccessRange(x: BidirRange) if (
         var _values: contType
         var _idx: SizeType
 
+        using RetType       = contType.ValueType
+
         fun ctor(this: @ValuesRange, values: @contType)
             this._values ctor values
             _idx = 0
@@ -584,7 +564,6 @@ concept RandomAccessRange(x: BidirRange) if (
             this._values ctor other._values
             this._idx ctor other._idx
 
-        using RetType       = contType.ValueType
 
 [rtct, protected]
     fun isEmpty(this: @ValuesRange)         = _idx >= _values.size

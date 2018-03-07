@@ -102,6 +102,7 @@ Basic/Stmt.spr:                         Basic features - Statements
 Basic/DataStruct.spr:                   Basic features - Data structure
 Basic/Struct.spr:                       Basic features - New data structure
 Basic/StructGeneric.spr:                Basic features - New data structure, with generics
+Basic/StructInit.spr:                   Basic features - Struct initialization
 Basic/Compound.spr:                     Basic features - Compound expressions
 Basic/SameName.spr:                     Basic features - Class, function, var with same name
 # Basic/Inheritance.spr:                  Basic features - Inheritance

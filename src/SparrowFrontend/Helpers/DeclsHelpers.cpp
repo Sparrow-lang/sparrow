@@ -263,7 +263,8 @@ void SprFrontend::deduceAccessType(Node* decl)
     AccessType acc = publicAccess;
     if ( size(name) > 0 && *name.begin == '_' )
         acc = privateAccess;
-    else if ( name == "ctor" || name == "dtor" || name == "=" )
+    else if ( name == "ctor" || name == "dtor" || name == "=" || name == "==" )
+        acc = protectedAccess;
     Nest_setPropertyInt(decl, "spr.accessType", acc);
 }
 

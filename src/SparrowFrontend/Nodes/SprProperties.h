@@ -16,4 +16,6 @@ namespace SprFrontend
     extern const char* propThisParamIdx;
     extern const char* propThisParamType;
     extern const char* propOverloadPrio;
+
+    constexpr const char* propVarInit = "spr.varInit";
 }

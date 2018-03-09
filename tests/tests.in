@@ -167,4 +167,4 @@ Frontend/Operators.spr:                 Frontend - operators
 Frontend/PrefixPostfix.spr:             Frontend - prefix & postfix operators
 Frontend/StringAndDsl.spr:              Frontend - string and DSL
 
-../src/SparrowFrontend/Grammar/parserTest.spr:  Sparrow parser test
+# ../src/SparrowFrontend/Grammar/parserTest.spr:  Sparrow parser test

@@ -8,14 +8,13 @@ import config;
 class Semaphore
     var _handle: Impl.SemaphoreT;
 
-    fun ctor(this: @Semaphore, startValue: UInt = 0)
-        _handle ctor;
-        var res = Impl.semaphore_create(Impl.mach_task_self(), _handle, Impl.SYNC_POLICY_FIFO, Int(startValue));
+fun ctor(this: @Semaphore, startValue: UInt = 0)
+    _handle ctor;
+    var res = Impl.semaphore_create(Impl.mach_task_self(), _handle, Impl.SYNC_POLICY_FIFO, Int(startValue));
 
-[protected]
-    fun dtor(this: @Semaphore)
-        //verify(0 == Impl.semaphore_destroy(Impl.mach_task_self(), _handle));
-        Impl.semaphore_destroy(Impl.mach_task_self(), _handle);
+fun dtor(this: @Semaphore)
+    //verify(0 == Impl.semaphore_destroy(Impl.mach_task_self(), _handle));
+    Impl.semaphore_destroy(Impl.mach_task_self(), _handle);
 
 //! Increments the counter of the semaphore
 fun release(s: @Semaphore) {

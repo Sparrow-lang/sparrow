@@ -46,25 +46,25 @@ class LRef(valueType: Type)
 
     var _pptr: SharedPtr(Optional(ValueType))
 
-    fun ctor(this: @LRef)
-        _pptr ctor Optional(valueType)()
-        [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
-            cout << "ctor: " << this << "\n"
+fun ctor(this: @LRef)
+    _pptr ctor Optional(valueType)()
+    [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
+        cout << "ctor: " << this << "\n"
 
-    [convert] fun ctor(this: @LRef, value: @ValueType)
-        _pptr ctor Optional(valueType)(value)
-        [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
-            cout << "value ctor: " << this << "\n"
+[convert] fun ctor(this: @LRef, value: @this.ValueType)
+    _pptr ctor Optional(valueType)(value)
+    [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
+        cout << "value ctor: " << this << "\n"
 
-    [convert] fun ctor(this: @LRef, value: @AnyType) if isValid(ValueType(value))
-        _pptr ctor Optional(valueType)(value)
-        [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
-            cout << "value ctor: " << this << "\n"
+[convert] fun ctor(this: @LRef, value: @AnyType) if isValid(this.ValueType(value))
+    _pptr ctor Optional(valueType)(value)
+    [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
+        cout << "value ctor: " << this << "\n"
 
-    fun ctor(this, other: @LRef)
-        _pptr ctor other._pptr
-        [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
-            cout << "copy ctor: " << this << "\n"
+fun ctor(this, other: @LRef)
+    _pptr ctor other._pptr
+    [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
+        cout << "copy ctor: " << this << "\n"
 
 
 [protected]
@@ -150,9 +150,9 @@ package _Impl
         var _left: leftType
         var _right: rightType
 
-        fun ctor(this: @BinaryOp, l: @leftType, r: @rightType)
-            this._left ctor l
-            this._right ctor r
+    fun ctor(this: @BinaryOp, l: @leftType, r: @rightType)
+        this._left ctor l
+        this._right ctor r
 
     fun get(this: @BinaryOp): ValueType
         if _myOper == _operPlus ;  return _left.get + _right.get

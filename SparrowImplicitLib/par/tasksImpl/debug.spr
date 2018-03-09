@@ -13,24 +13,24 @@ var traceMutex: TraceLockType;
 //! Helper class that does the trace while holding a mutex
 //! Prevents the output to be messed up
 class Tracer
-    fun ctor(this: @Tracer) {
-        traceMutex lock;
-    }
-
-    fun ctor(this: @Tracer, worker: @Worker) {
-        traceMutex lock;
-        cout << worker.workerId << ": " << Depth(worker.curDepth);
-    }
+    ;
 
 [protected]
+    fun ctor(this: @Tracer)
+        traceMutex lock;
+
+    fun ctor(this: @Tracer, worker: @Worker)
+        traceMutex lock;
+        cout << worker.workerId << ": " << Depth(worker.curDepth);
+
     fun dtor(this: @Tracer)
         traceMutex unlock;
 
     fun <<<(this: @Tracer, x: @AnyType)       { cout << x; }
 
-[initCtor] class Depth {
+[initCtor]
+class Depth
     var depth: Int;
-}
 
 fun >> (d: Depth, os: @OutStream) {
     if ( d.depth > 0 )

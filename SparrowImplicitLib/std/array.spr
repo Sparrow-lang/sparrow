@@ -5,11 +5,21 @@ import rawPtr(RawPtr, allocRawPtr)
 import ranges(rangeSize, ..)
 
 [rtct]
-class Array(valueType: Type)
-    using ValueType = valueType
-    using RangeType = ContiguousMemoryRange(valueType)
+    class Array(valueType: Type)
+        using ValueType = valueType
+        using RangeType = ContiguousMemoryRange(valueType)
 
-    fun ctor(this, other: @Array)
+        var _begin, _end: RawPtr(ValueType)
+
+[rt, protected]
+fun ctorFromCt(this: @Array, src: Array ct)
+    [ct] var size = src size
+    this ctor size
+    [ct] for i = 0..size
+        this(i) = src(i)
+
+[rtct, protected]
+    fun ctor(this: @Array, other: typeOf(this))
         var size = other.size
 
         _begin = allocRawPtr(ValueType, size)
@@ -32,7 +42,7 @@ class Array(valueType: Type)
         while p != _end ; p = p.advance
             p.value ctor
 
-    fun ctor(this: @Array, size: SizeType, value: @ValueType)
+    fun ctor(this: @Array, size: SizeType, value: @this.ValueType)
         _begin = allocRawPtr(ValueType, size)
         _end = _begin.advance(DiffType(size))
 
@@ -54,16 +64,6 @@ class Array(valueType: Type)
                 p.value ctor v
                 p = p.advance
 
-    var _begin, _end: RawPtr(ValueType)
-
-[rt, protected]
-fun ctorFromCt(this: @Array, src: Array ct)
-    [ct] var size = src size
-    this ctor size
-    [ct] for i = 0..size
-        this(i) = src(i)
-
-[rtct, protected]
     fun dtor(this: @Array)
         if this.isEmpty
             return

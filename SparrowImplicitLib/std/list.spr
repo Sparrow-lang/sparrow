@@ -8,33 +8,32 @@ class List(valueType: Type)
     using RangeType = _ListRange(valueType)
     using RetType = @valueType
 
-    fun ctor(this: @List)
-        _listSize = 0
-        _head.prev = this._headNode
-        _head.next = this._headNode
-
-    fun ctor(this, other: @List)
-        _listSize = 0
-        _head.prev = this._headNode
-        _head.next = this._headNode
-        for v = other.all
-            this += v
-
-    fun ctor(this: @List, range: Range)
-        _listSize = 0
-        _head.prev = this._headNode
-        _head.next = this._headNode
-        for v = range
-            this += v
-
     using _MyNodeType = _NodeType(valueType)
     using _NodeTypePtr = RawPtr(_MyNodeType)
 
     var _head: _NodeLinks(valueType)
     var _listSize: SizeType
 
-
 [protected]
+    fun ctor(this: @List)
+        _listSize = 0
+        _head.prev = this._headNode
+        _head.next = this._headNode
+
+    fun ctor(this: @List, other: typeOf(this))
+        _listSize = 0
+        _head.prev = this._headNode
+        _head.next = this._headNode
+        for v = other.all
+            this += v
+
+    fun ctor(this: @List, range: Range) if typeOf(range) != -@typeOf(this)
+        _listSize = 0
+        _head.prev = this._headNode
+        _head.next = this._headNode
+        for v = range
+            this += v
+
     fun dtor(this: @List)
         var p = _head.next
         var hn = this._headNode
@@ -46,11 +45,11 @@ class List(valueType: Type)
             p.freePtr
             p = nextNode
 
-    fun =(this, other: @List)
+    fun =(this: @List, other: typeOf(this))
         var tmp = other
         this swap tmp
 
-    fun ==(this, other: @List): Bool
+    fun ==(this: @List, other: typeOf(this)): Bool
         if _listSize != other._listSize
             return false
 

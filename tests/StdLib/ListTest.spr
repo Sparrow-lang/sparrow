@@ -37,10 +37,9 @@ fun sprMain
     else if n == 26 ; test26
 }
 
+[initCtor]
 class MyObj
     var x: Int;
-
-    fun ctor(this: @MyObj, xx: Int) { x = xx; }
 
 fun <(this, other: @MyObj): Bool { return x < other.x; }
 

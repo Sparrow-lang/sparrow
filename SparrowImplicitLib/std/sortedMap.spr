@@ -16,16 +16,16 @@ class SortedMap(keyType, dataType, lessType, compareType: Type)
 
     var _sortedTable: _ImplTable;
 
+[protected]
     fun ctor(this: @SortedMap, n: SizeType)                                       { _sortedTable.ctor(n, LessType(), CompareType()); }
-    fun ctor(this: @SortedMap, n: SizeType, less: LessType)                       { _sortedTable.ctor(n, less, CompareType()); }
-    fun ctor(this: @SortedMap, n: SizeType, less: LessType, comp: CompareType)    { _sortedTable.ctor(n, less, comp); }
+    fun ctor(this: @SortedMap, n: SizeType, less: this.LessType)                       { _sortedTable.ctor(n, less, CompareType()); }
+    fun ctor(this: @SortedMap, n: SizeType, less: this.LessType, comp: this.CompareType)    { _sortedTable.ctor(n, less, comp); }
     fun ctor(this: @SortedMap, range: Range)                                      { _sortedTable.ctor(range, 0, LessType(), CompareType()); }
     fun ctor(this: @SortedMap, range: Range, n: SizeType)                         { _sortedTable.ctor(range, n, LessType(), CompareType()); }
-    fun ctor(this: @SortedMap, range: Range, n: SizeType, less: LessType)         { _sortedTable.ctor(range, n, less, CompareType()); }
-    fun ctor(this: @SortedMap, range: Range, n: SizeType, less: LessType, comp: CompareType)  { _sortedTable.ctor(range, n, less, comp); }
+    fun ctor(this: @SortedMap, range: Range, n: SizeType, less: this.LessType)         { _sortedTable.ctor(range, n, less, CompareType()); }
+    fun ctor(this: @SortedMap, range: Range, n: SizeType, less: this.LessType, comp: this.CompareType)  { _sortedTable.ctor(range, n, less, comp); }
     fun ctor(this, other: @SortedMap)                                 { this._sortedTable ctor other._sortedTable; }
 
-[protected]
     fun lessFunction(this: @SortedMap)                            = _sortedTable.lessFunction;
     fun comparator(this: @SortedMap)                              = _sortedTable.comparator;
 

@@ -39,24 +39,24 @@ class WorkManager {
     var amountOfWork, numWorkers: Int;
     var threads: (par.Thread Ptr) Vector;
 
-    fun ctor(this: @WorkManager, sem: @par.Semaphore, amountOfWork, numWorkers: Int) {
-        this.amountOfWork ctor amountOfWork;
-        this.numWorkers ctor numWorkers;
-        for i=0..numWorkers {
-            var p: par.Thread Ptr = new(par.Thread, Worker(sem, amountOfWork));
-            threads.pushBack(p);
-        }
-    }
+}
 
-    fun dtor(this: @WorkManager) {
-        for t = threads.all {
-            t.get join;
-            t.release;
-        }
-        test.assertEq(numExecutions load, amountOfWork*numWorkers, "numExecutions should be equal to the total amount of work");
+fun ctor(this: @WorkManager, sem: @par.Semaphore, amountOfWork, numWorkers: Int) {
+    this.amountOfWork ctor amountOfWork;
+    this.numWorkers ctor numWorkers;
+    for i=0..numWorkers {
+        var p: par.Thread Ptr = new(par.Thread, Worker(sem, amountOfWork));
+        threads.pushBack(p);
     }
 }
 
+fun dtor(this: @WorkManager) {
+    for t = threads.all {
+        t.get join;
+        t.release;
+    }
+    test.assertEq(numExecutions load, amountOfWork*numWorkers, "numExecutions should be equal to the total amount of work");
+}
 fun sprMain
 {
     if ( programArgs.size() < 4 )

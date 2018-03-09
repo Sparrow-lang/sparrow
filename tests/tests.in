@@ -162,11 +162,9 @@ Simple/SecantMethod.spr:                Simple problems - Secant method solver
 Simple/Ackermann.spr:                   Simple problems - Ackermann function
 
 Frontend/Smoke.spr:                     Frontend - grammar smoke test
-Frontend/Declarations.spr:              Frontend - some declarations
-Frontend/Expressions.spr:               Frontend - some expressions
 Frontend/Identifiers.spr:               Frontend - identifiers
 Frontend/Operators.spr:                 Frontend - operators
 Frontend/PrefixPostfix.spr:             Frontend - prefix & postfix operators
 Frontend/StringAndDsl.spr:              Frontend - string and DSL
 
-# ../src/SparrowFrontend/Grammar/parserTest.spr:  Sparrow parser test
+../src/SparrowFrontend/Grammar/parserTest.spr:  Sparrow parser test

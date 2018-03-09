@@ -17,36 +17,8 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
     using _MyGuardNode = _GuardNode(valueType)
     using _NodePtr = Ptr(_MyNode)
     using _BucketsType = Array(_NodePtr)
+    using _TraitsType = traitsType
 
-
-    fun ctor(this: @HashTable)
-        this.ctor(0, traitsType())
-
-    fun ctor(this: @HashTable, n: SizeType, traits: traitsType)
-        _buckets ctor
-        _tr ctor traits
-        _guard ctor
-        _numElements ctor 0
-        if n > 0
-            this.reserve(n)
-
-    fun ctor(this: @HashTable, range: Range, n: SizeType, traits: traitsType)
-        _buckets ctor
-        _tr ctor traits
-        _guard ctor
-        _numElements ctor 0
-        this.reserve(algo.max(n, range rangeSize))
-        for v = range
-            this._insertPlain(v)
-
-    fun ctor(this, other: @HashTable)
-        _buckets ctor other._buckets.size
-        _tr ctor other.traits
-        _numElements ctor 0
-        _guard ctor
-
-        for v = other.all
-            this._insertPlain(v)
 
     var _buckets: _BucketsType
     var _guard: _MyGuardNode
@@ -54,9 +26,37 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
     var _valToKey: ValueToKeyType
     var _tr: traitsType
 
-[protected]
-    fun dtor(this: @HashTable)
-        this._deleteElements
+fun ctor(this: @HashTable)
+    this.ctor(0, _TraitsType())
+
+fun ctor(this: @HashTable, n: SizeType, traits: this._TraitsType)
+    _buckets ctor
+    _tr ctor traits
+    _guard ctor
+    _numElements ctor 0
+    if n > 0
+        this.reserve(n)
+
+fun ctor(this: @HashTable, range: Range, n: SizeType, traits: this._TraitsType)
+    _buckets ctor
+    _tr ctor traits
+    _guard ctor
+    _numElements ctor 0
+    this.reserve(algo.max(n, range rangeSize))
+    for v = range
+        this._insertPlain(v)
+
+fun ctor(this: @HashTable, other: typeOf(this))
+    _buckets ctor other._buckets.size
+    _tr ctor other.traits
+    _numElements ctor 0
+    _guard ctor
+
+    for v = other.all
+        this._insertPlain(v)
+
+fun dtor(this: @HashTable)
+    this._deleteElements
 
 fun swap(this: @HashTable, other: typeOf(this))
     _buckets.swap(other._buckets)
@@ -313,15 +313,12 @@ class _GuardNode(valueType: Type)
     var next: Ptr(_Node(valueType))
 
 
+[initCtor]
 class _HashRange(valueType: Type)
     using RetType = @valueType
     using _NodePtr = Ptr(_Node(valueType))
 
     var _startElem, _endElem: _NodePtr
-
-    fun ctor(this: @_HashRange, start, end: _NodePtr)
-        _startElem ctor start
-        _endElem ctor end
 
 [protected]
     fun isEmpty(this: _HashRange)               = _startElem == _endElem

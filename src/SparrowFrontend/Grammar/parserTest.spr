@@ -15,22 +15,23 @@ class NodeImpl
     var name: String
     var children: Vector(Node)
 
-    fun ctor() { this.kind ctor "<null>"; }
-    fun ctor(l: Location, kind: StringRef)
-        this.kind ctor kind
-        this.loc ctor l
-        // cout << "Parsed: " << kind << endl
-    fun ctor(l: Location, kind: StringRef, r: Range)
-        this.kind ctor kind
-        this.loc ctor l
-        children ctor r
-        // cout << "Parsed: " << kind << endl
-    fun ctor(l: Location, kind: StringRef, r: Range, name: StringRef)
-        this.kind ctor kind
-        this.loc ctor l
-        this.name ctor name
-        children ctor r
-        // cout << "Parsed: " << kind << endl
+fun ctor(this: @NodeImpl)
+    this.kind ctor "<null>"
+fun ctor(this: @NodeImpl, l: Location, kind: StringRef)
+    this.kind ctor kind
+    this.loc ctor l
+    // cout << "Parsed: " << kind << endl
+fun ctor(this: @NodeImpl, l: Location, kind: StringRef, r: Range)
+    this.kind ctor kind
+    this.loc ctor l
+    children ctor r
+    // cout << "Parsed: " << kind << endl
+fun ctor(this: @NodeImpl, l: Location, kind: StringRef, r: Range, name: StringRef)
+    this.kind ctor kind
+    this.loc ctor l
+    this.name ctor name
+    children ctor r
+    // cout << "Parsed: " << kind << endl
 
 fun toImpl(n: Node): @NodeImpl = ife(n.data.data !== null, reinterpretCast(@NodeImpl, n.data.data), _nullNodeImpl)
 fun toNode(impl: @NodeImpl)    = Node(UntypedPtr(reinterpretCast(@Byte, impl)))

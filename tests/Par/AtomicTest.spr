@@ -14,15 +14,15 @@ class UserDefined
 {
     var lo, hi: Short;
 
-    fun ctor(this: @UserDefined, val: Int) {
-        lo = Short(val % 0xffff);
-        hi = Short(val / 0xffff);
-    }
-    fun >> (os: OutStream) {
-        os << "(" << hi << "," << lo << ")";
-    }
 }
 
+fun ctor(this: @UserDefined, val: Int) {
+    lo = Short(val % 0xffff);
+    hi = Short(val / 0xffff);
+}
+fun >> (os: OutStream) {
+    os << "(" << hi << "," << lo << ")";
+}
 fun testOneLoad(t: Type, val: AnyType) {
     var atomic: t Atomic = val;
     assertEq(atomic load, val);

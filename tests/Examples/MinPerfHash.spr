@@ -56,89 +56,89 @@ package _Impl
         var numKeys: UInt;
         var numValues: UInt;
 
-        fun ctor(this: @MinPerfHash, keys: @Vector(String))
-            this.ctor(keys, defaultHashExtraSpace);
+    fun ctor(this: @MinPerfHash, keys: @Vector(String))
+        this.ctor(keys, defaultHashExtraSpace);
 
-        fun ctor(this: @MinPerfHash, keys: @Vector(String), extraSpace: Double)
-            this.numKeys ctor keys.size();
-            this.numValues ctor numKeys+UInt(numKeys*extraSpace);
-            var keysPerBucket = _Impl.keysPerBucket;
-            while (keysPerBucket*keysPerBucket) > numKeys
-                keysPerBucket /= 2;
-            var numBuckets = (numKeys-1)/keysPerBucket + UInt(1);
-            this.displacements.ctor(numBuckets, 0);
+    fun ctor(this: @MinPerfHash, keys: @Vector(String), extraSpace: Double)
+        this.numKeys ctor keys.size();
+        this.numValues ctor numKeys+UInt(numKeys*extraSpace);
+        var keysPerBucket = _Impl.keysPerBucket;
+        while (keysPerBucket*keysPerBucket) > numKeys
+            keysPerBucket /= 2;
+        var numBuckets = (numKeys-1)/keysPerBucket + UInt(1);
+        this.displacements.ctor(numBuckets, 0);
 
-            var numOp = 0;
+        var numOp = 0;
 
-            var keysToBuckets: Array(Vector(StringRef)) = numBuckets;
+        var keysToBuckets: Array(Vector(StringRef)) = numBuckets;
 
-            // Split the keys into buckets
-            for key: @AnyType = keys.all()
-                //cout << "Key: " << key.asStringRef() << "\n";
-                var pos = _Impl.doHash(key.asStringRef(), _Impl.hashSeed) % numBuckets;
-                keysToBuckets(pos).pushBack(key.asStringRef());
+        // Split the keys into buckets
+        for key: @AnyType = keys.all()
+            //cout << "Key: " << key.asStringRef() << "\n";
+            var pos = _Impl.doHash(key.asStringRef(), _Impl.hashSeed) % numBuckets;
+            keysToBuckets(pos).pushBack(key.asStringRef());
 
-            // Sort the buckets in failing order according to their size
-            sort(keysToBuckets.all(), (fun (lhs, rhs: @Vector(StringRef)) = lhs.size() > rhs.size()));
+        // Sort the buckets in failing order according to their size
+        sort(keysToBuckets.all(), (fun (lhs, rhs: @Vector(StringRef)) = lhs.size() > rhs.size()));
 
-            var placedKeys: Bitset = numValues; // Bitset with the positions in the final array that are occupied
-            var slots: Vector(UInt);            // Local - the slots (in the final array) to be occupied by iterating bucket
+        var placedKeys: Bitset = numValues; // Bitset with the positions in the final array that are occupied
+        var slots: Vector(UInt);            // Local - the slots (in the final array) to be occupied by iterating bucket
 
-            // Process the buckets; start with the ones that contain the most items
-            // Here we process buckets that have at least 2 keys in them
-            var b = 0;
-            while b < numBuckets; ++b
-                var bucket: @AnyType = keysToBuckets(b);
-                if ( bucket.size() <= 1 )
-                    break;
+        // Process the buckets; start with the ones that contain the most items
+        // Here we process buckets that have at least 2 keys in them
+        var b = 0;
+        while b < numBuckets; ++b
+            var bucket: @AnyType = keysToBuckets(b);
+            if ( bucket.size() <= 1 )
+                break;
 
-                var d = 1;      // The displacement for this bucket
-                slots.clear();
+            var d = 1;      // The displacement for this bucket
+            slots.clear();
 
-                // Start trying different displacements for this buckets, so that we can place all the
-                // keys in this bucket without conflicts with keys from previous buckets.
-                var item = 0;
-                while item < bucket.size()
-                    var slot: UInt = _Impl.doHash(bucket(item), d) % numValues;
-                    var slotAlreadyUsed = !find(slots.all(), slot).isEmpty();
-                    ++numOp;
-                    if ( placedKeys.testBit(slot) || slotAlreadyUsed )
-                        // We have a conflict; try another displacement and start over
-                        ++d;
-                        item = 0;
-                        slots.clear();
-                    else
-                        // No conflict; continue
-                        slots.pushBack(slot);
-                        ++item;
-                    if ( d > 1000*numValues )
-                        cout << "WARNING: Cannot find displacement! Do you have duplicates?\n";
-                        os.exit(-1);
-                // This is guaranteed to finish quickly
+            // Start trying different displacements for this buckets, so that we can place all the
+            // keys in this bucket without conflicts with keys from previous buckets.
+            var item = 0;
+            while item < bucket.size()
+                var slot: UInt = _Impl.doHash(bucket(item), d) % numValues;
+                var slotAlreadyUsed = !find(slots.all(), slot).isEmpty();
+                ++numOp;
+                if ( placedKeys.testBit(slot) || slotAlreadyUsed )
+                    // We have a conflict; try another displacement and start over
+                    ++d;
+                    item = 0;
+                    slots.clear();
+                else
+                    // No conflict; continue
+                    slots.pushBack(slot);
+                    ++item;
+                if ( d > 1000*numValues )
+                    cout << "WARNING: Cannot find displacement! Do you have duplicates?\n";
+                    os.exit(-1);
+            // This is guaranteed to finish quickly
 
-                // We found a displacement that works for the current bucket (it doesn't yield overlaps with previous buckets)
-                displacements(_Impl.doHash(bucket(0), _Impl.hashSeed) % numBuckets) = d;
-                for i=0..bucket.size()
-                    placedKeys.setBit(slots(i));
+            // We found a displacement that works for the current bucket (it doesn't yield overlaps with previous buckets)
+            displacements(_Impl.doHash(bucket(0), _Impl.hashSeed) % numBuckets) = d;
+            for i=0..bucket.size()
+                placedKeys.setBit(slots(i));
 
-            // Now process the buckets with 1 key in them.
-            // To speed up processing, directly assign them an item; use a negative index as a discriminator
-            var emptySlot = 0;
-            while b < numBuckets; ++b
-                var bucket: @AnyType = keysToBuckets(b);
-                if ( bucket.size() == 0 )
-                    break;
+        // Now process the buckets with 1 key in them.
+        // To speed up processing, directly assign them an item; use a negative index as a discriminator
+        var emptySlot = 0;
+        while b < numBuckets; ++b
+            var bucket: @AnyType = keysToBuckets(b);
+            if ( bucket.size() == 0 )
+                break;
 
-                // Find an empty slot, iteratively - all the slots until 'emptySlot' are guaranteed to be occupied
-                while placedKeys.testBit(emptySlot)
-                    ++emptySlot;
+            // Find an empty slot, iteratively - all the slots until 'emptySlot' are guaranteed to be occupied
+            while placedKeys.testBit(emptySlot)
+                ++emptySlot;
 
-                // We subtract one to ensure it's negative even if the zero-th slot was used.
-                displacements(_Impl.doHash(bucket(0), _Impl.hashSeed) % numBuckets) = -emptySlot-1;
-                placedKeys.setBit(emptySlot);
+            // We subtract one to ensure it's negative even if the zero-th slot was used.
+            displacements(_Impl.doHash(bucket(0), _Impl.hashSeed) % numBuckets) = -emptySlot-1;
+            placedKeys.setBit(emptySlot);
 
-            //_dumpBuckets("buckets final, ", keysToBuckets);
-            //cout << "Executed: " << numOp << " operations\n";
+        //_dumpBuckets("buckets final, ", keysToBuckets);
+        //cout << "Executed: " << numOp << " operations\n";
 
     [rt]
     fun ctorFromCt(this: @MinPerfHash, src: MinPerfHash ct)
@@ -181,13 +181,13 @@ package _Impl
         var _mph: MinPerfHash;
         var _scrambledKeys: Vector(String);
 
-        fun ctor(this: @MinPerfHashSet, keys: @Vector(String))
-            _mph ctor keys;
-            _scrambledKeys.ctor();
-            _scrambledKeys.resize(keys size);
-            for key: @AnyType = keys.all()
-                var idx = _mph.search(key.asStringRef());
-                _scrambledKeys(idx) = key;
+    fun ctor(this: @MinPerfHashSet, keys: @Vector(String))
+        _mph ctor keys;
+        _scrambledKeys.ctor();
+        _scrambledKeys.resize(keys size);
+        for key: @AnyType = keys.all()
+            var idx = _mph.search(key.asStringRef());
+            _scrambledKeys(idx) = key;
 
     fun search(this: @MinPerfHashSet, str: StringRef): Int       // Yields -1 if 'str' is not one of the keys
         var pos = _mph.search(str);

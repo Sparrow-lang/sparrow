@@ -36,20 +36,20 @@ using ckIsExpr = 9
         var args: Vector(SharedPtr(Expression))
         var predName: String
 
-        fun ctor(this: @Condition, loc: @Location, predName: @String, args: @Vector(SharedPtr(Expression)))
-            this.kind ctor ckPredCall
-            this.loc ctor loc
-            this.predName ctor predName
-            this.args ctor args
+    fun ctor(this: @Condition, loc: @Location, predName: @String, args: @Vector(SharedPtr(Expression)))
+        this.kind ctor ckPredCall
+        this.loc ctor loc
+        this.predName ctor predName
+        this.args ctor args
 
-        fun ctor(this: @Condition, loc: @Location, isLeft, isRight: @SharedPtr(Expression))
-            this.kind ctor ckIsExpr
-            this.loc ctor loc
-            this.predName ctor
-            this.args ctor
-            this.args.reserve(2)
-            this.args.pushBack(isLeft)
-            this.args.pushBack(isRight)
+    fun ctor(this: @Condition, loc: @Location, isLeft, isRight: @SharedPtr(Expression))
+        this.kind ctor ckIsExpr
+        this.loc ctor loc
+        this.predName ctor
+        this.args ctor
+        this.args.reserve(2)
+        this.args.pushBack(isLeft)
+        this.args.pushBack(isRight)
 
     class Expression
         var kind: Int
@@ -59,32 +59,32 @@ using ckIsExpr = 9
         var typeSetIdx: Int
         var paramIdx: Int
 
-        fun ctor(this: @Expression, kind: Int, loc: @Location)
-            this.kind ctor kind
-            this.loc ctor loc
-            this.data ctor
-            this.left ctor
-            this.right ctor
-            this.typeSetIdx ctor -1
-            this.paramIdx ctor -1
+    fun ctor(this: @Expression, kind: Int, loc: @Location)
+        this.kind ctor kind
+        this.loc ctor loc
+        this.data ctor
+        this.left ctor
+        this.right ctor
+        this.typeSetIdx ctor -1
+        this.paramIdx ctor -1
 
-        fun ctor(this: @Expression, kind: Int, loc: @Location, data: @String)
-            this.kind ctor kind
-            this.loc ctor loc
-            this.data ctor data
-            this.left ctor
-            this.right ctor
-            this.typeSetIdx ctor -1
-            this.paramIdx ctor -1
+    fun ctor(this: @Expression, kind: Int, loc: @Location, data: @String)
+        this.kind ctor kind
+        this.loc ctor loc
+        this.data ctor data
+        this.left ctor
+        this.right ctor
+        this.typeSetIdx ctor -1
+        this.paramIdx ctor -1
 
-        fun ctor(this: @Expression, kind: Int, loc: @Location, left, right: @SharedPtr(Expression))
-            this.kind ctor kind
-            this.loc ctor loc
-            this.data ctor
-            this.left ctor left
-            this.right ctor right
-            this.typeSetIdx ctor -1
-            this.paramIdx ctor -1
+    fun ctor(this: @Expression, kind: Int, loc: @Location, left, right: @SharedPtr(Expression))
+        this.kind ctor kind
+        this.loc ctor loc
+        this.data ctor
+        this.left ctor left
+        this.right ctor right
+        this.typeSetIdx ctor -1
+        this.paramIdx ctor -1
 
     fun mkAtom(loc: @Location, atom: @String): ExpressionPtr = mkShared(Expression, ekAtom, loc, atom)
     fun mkNumber(loc: @Location, data: @String): ExpressionPtr = mkShared(Expression, ekNumber, loc, data)

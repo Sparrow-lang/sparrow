@@ -10,10 +10,7 @@ import meta = meta.compilerCore
         //using output = 8
         using initialVal = atom !|! number// !|! input !|! output
 
-        var _bits: Int
-
-        fun ctor(this: @LType)
-            _bits ctor initialVal
+        var _bits: Int = initialVal
 
     fun isValid(this: LType): Bool       = (this._testBit(atom) || this._testBit(number))// && (this._testBit(input) || this._testBit(output))
 
@@ -44,10 +41,10 @@ import meta = meta.compilerCore
         var expList: Vector(ExpressionPtr) ///< The list of all the expressions in this set, that share the same type
         var idx: Int                       ///< The index of this type set
 
-        fun ctor(this: @LTypeSet, idx: Int, type: LType)
-            this.type ctor type
-            this.expList ctor
-            this.idx ctor idx
+    fun ctor(this: @LTypeSet, idx: Int, type: LType)
+        this.type ctor type
+        this.expList ctor
+        this.idx ctor idx
 
     fun addExpression(this: @LTypeSet, exp: @ExpressionPtr)
         expList.pushBack(exp)

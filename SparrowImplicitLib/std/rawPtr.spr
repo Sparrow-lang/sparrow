@@ -7,9 +7,8 @@ module std.rawPtr
 
         var _ptr: @ValueType
 
-        [ct] if ValueType != Byte
-            fun ctor(this: @RawPtr, byteRef: @Byte)
-                _ptr := reinterpretCast(@ValueType, byteRef)
+    fun ctor(this: @RawPtr, byteRef: @Byte) if this.ValueType != Byte
+        _ptr := reinterpretCast(@ValueType, byteRef)
 
 [rtct, protected]
     fun < (this, other: RawPtr)       = ptrDiff(this.bytePtr(), other.bytePtr()) < DiffType(0)

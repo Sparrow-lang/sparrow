@@ -4,20 +4,15 @@ import meta.sparrowNodes, meta.featherNodes
 import newDelete(delete)
 
 [rtct]
+    [initCtor]
     class Ptr(type: Type)
         using ValueType = type
 
         var _ptr: @ValueType
 
-        fun ctor(this: @Ptr)                    = _ptr := null
-        fun ctor(this: @Ptr, other: Ptr)        = _ptr := other._ptr
-        [convert] fun ctor(this: @Ptr, ref: @ValueType)   = _ptr := ref
-
 [rtct, protected]
-    fun =(this, other: @Ptr)           = _ptr := other._ptr
     fun =(this: @Ptr, ref: @this.ValueType) = _ptr := ref
 
-    fun ==(this, other: Ptr)          = _ptr === other._ptr
     fun < (this, other: Ptr)          = ptrDiff(reinterpretCast(@Byte, this._ptr), reinterpretCast(@Byte, other._ptr)) < DiffType(0)
 
     fun get(this: Ptr): @ValueType         = _ptr
@@ -41,6 +36,7 @@ import newDelete(delete)
         os << flush
 
 [rtct]
+    fun mkPtr(v: @AnyType) = Ptr(-@typeOf(v))(v);
     fun reinterpretPtr(t: Type, ptr: AnyType): Ptr(t) //if isValid(p.isNull()) && isValid(p.get())
         return Ptr(t)(reinterpretCast(@t, ptr.get()))
 

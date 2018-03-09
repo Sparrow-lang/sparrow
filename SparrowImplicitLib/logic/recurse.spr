@@ -28,15 +28,16 @@ fun _mkRecurse(predGenerator: @AnyType) = Recurse(-@typeOf(predGenerator))(predG
 class Recurse(predGeneratorType: Type)
     var _relation: Predicate
     var _predGenerator: predGeneratorType
+    using _PredGen = predGeneratorType
 
-    fun ctor(this: @Recurse, other: @Recurse)
-        this._relation ctor other._relation
-        this._predGenerator ctor other._predGenerator
-    fun ctor(this: @Recurse, predGenerator: @predGeneratorType)
-        this._relation ctor
-        this._predGenerator ctor predGenerator
-        [ct] if isValid(logicDebug)
-            cout << "Recurse.ctor: " << this << "\n"
+fun ctor(this: @Recurse, other: @Recurse)
+    this._relation ctor other._relation
+    this._predGenerator ctor other._predGenerator
+fun ctor(this: @Recurse, predGenerator: @this._PredGen)
+    this._relation ctor
+    this._predGenerator ctor predGenerator
+    [ct] if isValid(logicDebug)
+        cout << "Recurse.ctor: " << this << "\n"
 
 fun ()(this: @Recurse): Bool
     if _relation.isNull()

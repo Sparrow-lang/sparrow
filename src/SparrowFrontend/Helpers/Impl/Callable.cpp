@@ -1366,12 +1366,19 @@ string SprFrontend::toString(const CallableData& c) {
         else
             oss << ", ";
 
-        Node* typeNode = nullptr;
-        if (p && (p->nodeKind == nkFeatherDeclVar || p->nodeKind == nkSparrowDeclSprParameter))
-            typeNode = at(p->children, 0);
+        TypeRef type = nullptr;
+        StringRef name;
+        if (p && (p->nodeKind == nkFeatherDeclVar || p->nodeKind == nkSparrowDeclSprParameter)) {
+            name = Feather_getName(p);
+            auto typeNode = at(p->children, 0);
+            if (typeNode->type)
+                type = tryGetTypeValue(typeNode);
+        }
 
-        if (typeNode)
-            oss << Nest_toString(typeNode);
+        if (size(name) > 0)
+            oss << name << ": ";
+        if (type)
+            oss << type;
         else
             oss << '?';
     }

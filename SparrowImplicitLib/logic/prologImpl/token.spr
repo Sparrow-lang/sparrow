@@ -27,14 +27,14 @@ using tkOpDiv = 16
         var type: Int
         var data: String
 
-        fun ctor(this: @Token, loc: @Location, type: Int)
-            this.loc ctor loc
-            this.type ctor type
-            this.data ctor
-        fun ctor(this: @Token, loc: @Location, type: Int, data: @String)
-            this.loc ctor loc
-            this.type ctor type
-            this.data ctor data
+    fun ctor(this: @Token, loc: @Location, type: Int)
+        this.loc ctor loc
+        this.type ctor type
+        this.data ctor
+    fun ctor(this: @Token, loc: @Location, type: Int, data: @String)
+        this.loc ctor loc
+        this.type ctor type
+        this.data ctor data
 
 
     fun >>(this: @Token, os: @OutStream)

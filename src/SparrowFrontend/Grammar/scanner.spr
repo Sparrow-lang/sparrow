@@ -43,13 +43,8 @@ package _ImplLSCR
 class SparrowScanner(sourceType, errorReporterType: Type) \
         if CharRange(#$sourceType) && ErrorReporter(#$errorReporterType)
     using RetType = Token
-
-    fun ctor(source: sourceType, errorReporter: errorReporterType, iniLocation: @Location)
-        this._curLocation ctor iniLocation
-        this._src.ctor(RangeWithLookahead(sourceType)(source), _curLocation)
-        this._curToken ctor
-        this._tokenIsComputed ctor false
-        this._errorReporter ctor errorReporter
+    using _SourceType = sourceType
+    using _ErrRepType = errorReporterType
 
     /// Location that we use to keep track of the source chars
     var _curLocation: Location
@@ -62,6 +57,13 @@ class SparrowScanner(sourceType, errorReporterType: Type) \
     var _tokenIsComputed: Bool
     /// Object used to report errors
     var _errorReporter: errorReporterType
+
+fun ctor(this: @SparrowScanner, source: this._SourceType, errorReporter: this._ErrRepType, iniLocation: @Location)
+    this._curLocation ctor iniLocation
+    this._src.ctor(RangeWithLookahead(_SourceType)(source), _curLocation)
+    this._curToken ctor
+    this._tokenIsComputed ctor false
+    this._errorReporter ctor errorReporter
 
 fun isEmpty(this: @SparrowScanner) = false
 fun front(this: @SparrowScanner): Token

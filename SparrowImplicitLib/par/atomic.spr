@@ -27,24 +27,25 @@ class Atomic(T: Type) if T != Int && T != Long && sizeOf(T) <= 8 {
     using _UnderlyingType = Impl.AtomicTypeTraits(T)._UnderlyingType;
     using _BaseAtomicType = Impl.AtomicTypeTraits(T)._BaseAtomicType;
 
-    fun _toUnderlying(val: T): _UnderlyingType {
-        var res: _UnderlyingType;
-        reinterpretCast(@T, res) = val;
-        return res;
-    }
-    fun _fromUnderlying(val: _UnderlyingType): T {
-        var res: T;
-        res = reinterpretCast(@T, val);
-        return res;
-    }
-    fun _baseAtomic: @_BaseAtomicType = reinterpretCast(@_BaseAtomicType, this);
-
     //! The value for this atomic
     var _value: _UnderlyingType;
 
-    fun ctor(this: @Atomic, v: ValueType)
-        _value construct _toUnderlying(v);
 }
+
+fun ctor(this: @Atomic, v: this.ValueType)
+    _value construct _toUnderlying(v);
+
+fun _toUnderlying(this: @Atomic, val: this.ValueType): this._UnderlyingType {
+    var res: _UnderlyingType;
+    reinterpretCast(@T, res) = val;
+    return res;
+}
+fun _fromUnderlying(this: @Atomic, val: this._UnderlyingType): T {
+    var res: ValueType;
+    res = reinterpretCast(@ValueType, val);
+    return res;
+}
+fun _baseAtomic(this: @Atomic): @_BaseAtomicType = reinterpretCast(@_BaseAtomicType, this);
 
 using AtomicInt = Atomic(Int);
 using AtomicLong = Atomic(Long);

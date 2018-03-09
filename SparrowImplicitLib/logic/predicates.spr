@@ -15,11 +15,11 @@ class Predicate
 
     var predObj: Function(Bool)
 
-    fun ctor(this, other: @Predicate)
-        this.predObj ctor other.predObj
-    [convert]
-    fun ctor(this: @Predicate, pred: @PredicateType)
-        predObj ctor pred
+fun ctor(this, other: @Predicate)
+    this.predObj ctor other.predObj
+[convert]
+fun ctor(this: @Predicate, pred: @PredicateType)
+    predObj ctor pred
 
 fun isNull(this: @Predicate) = predObj.isNull()
 fun isSet(this: @Predicate) = predObj.isSet()
@@ -65,19 +65,19 @@ class UnifyLR(leftType, rightType: Type) if ValWrapper(#$leftType) && ValWrapper
     var _leftVal: leftType
     var _rightVal: rightType
 
-    fun ctor(this: @UnifyLR, l: @leftType, r: @rightType)
-        this._leftVal ctor l
-        this._rightVal ctor r
-        _coEntryPt ctor 0
-        [ct] if isValid(logicDebug)
-            cout << "UnifyLR.ctor: " << this << "\n"
+fun ctor(this: @UnifyLR, l: @leftType, r: @rightType)
+    this._leftVal ctor l
+    this._rightVal ctor r
+    _coEntryPt ctor 0
+    [ct] if isValid(logicDebug)
+        cout << "UnifyLR.ctor: " << this << "\n"
 
-    fun ctor(this, other: @UnifyLR)
-        this._leftVal ctor other._leftVal
-        this._rightVal ctor other._rightVal
-        this._coEntryPt ctor other._coEntryPt
-        [ct] if isValid(logicDebug)
-            cout << "UnifyLR.copy ctor: " << this << "\n"
+fun ctor(this, other: @UnifyLR)
+    this._leftVal ctor other._leftVal
+    this._rightVal ctor other._rightVal
+    this._coEntryPt ctor other._coEntryPt
+    [ct] if isValid(logicDebug)
+        cout << "UnifyLR.copy ctor: " << this << "\n"
 
 [protected]
     fun dtor(this: @UnifyLR)
@@ -142,17 +142,19 @@ fun _mkEq(l, r: @ValWrapper) = UnifyLR(-@typeOf(l), -@typeOf(r))(l, r)
 [rtct] class OrRelation(leftPredicateType, rightPredicateType: Type)
     using ValueType = Bool
     using ValuePassType = Bool
+    using _LType = leftPredicateType
+    using _TType = rightPredicateType
 
     var _coEntryPt: Int
     var _left: leftPredicateType
     var _right: rightPredicateType
 
-    fun ctor(this: @OrRelation, l: @leftPredicateType, r: @rightPredicateType)
-        this._left ctor l
-        this._right ctor r
-        _coEntryPt ctor 0
-        [ct] if isValid(logicDebug)
-            cout << "OrRelation.ctor: " << this << "\n"
+fun ctor(this: @OrRelation, l: @this._LType, r: @this._RType)
+    this._left ctor l
+    this._right ctor r
+    _coEntryPt ctor 0
+    [ct] if isValid(logicDebug)
+        cout << "OrRelation.ctor: " << this << "\n"
 
 [protected]
     fun dtor(this: @OrRelation)
@@ -186,18 +188,20 @@ fun ()(this: @OrRelation): Bool
 [rtct] class AndRelation(leftPredicateType, rightPredicateType: Type)
     using ValueType = Bool
     using ValuePassType = Bool
+    using _LType = leftPredicateType
+    using _TType = rightPredicateType
 
     var _coEntryPt: Int
     var _left: leftPredicateType
     var _right, _rightBegin: rightPredicateType
 
-    fun ctor(this: @AndRelation, l: leftPredicateType, r: rightPredicateType)
-        this._left ctor l
-        this._right ctor r
-        this._rightBegin ctor r
-        _coEntryPt ctor 0
-        [ct] if isValid(logicDebug)
-            cout << "AndRelation.ctor: " << this << "\n"
+fun ctor(this: @AndRelation, l: this._LType, r: this._RType)
+    this._left ctor l
+    this._right ctor r
+    this._rightBegin ctor r
+    _coEntryPt ctor 0
+    [ct] if isValid(logicDebug)
+        cout << "AndRelation.ctor: " << this << "\n"
 
 fun ()(this: @AndRelation): Bool
     [ct] if isValid(logicDebug)

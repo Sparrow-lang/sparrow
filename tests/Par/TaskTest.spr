@@ -19,10 +19,10 @@ package StackSpawnStyle {
         var n: Long;
         var result: @Long;
 
-        fun ctor(this: @StackSpawnStyle, n: Long, result: @Long) {
-            this.n ctor n;
-            this.result := result;
-        }
+    }
+    fun ctor(this: @StackSpawnStyle, n: Long, result: @Long) {
+        this.n ctor n;
+        this.result := result;
     }
 
     [ct] if ( isValidAndTrue(useDescriptions) )
@@ -61,10 +61,10 @@ package DynSpawnStyle {
         var n: Long;
         var result: @Long;
 
-        fun ctor(this: @DynSpawnStyle, n: Long, result: @Long) {
-            this.n ctor n;
-            this.result := result;
-        }
+    }
+    fun ctor(this: @DynSpawnStyle, n: Long, result: @Long) {
+        this.n ctor n;
+        this.result := result;
     }
 
     [ct] if ( isValidAndTrue(useDescriptions) )
@@ -106,10 +106,10 @@ package ContStyle {
         var n: Long;
         var result: @Long;
 
-        fun ctor(this: @ContStyle, n: Long, result: @Long) {
-            this.n ctor n;
-            this.result := result;
-        }
+    }
+    fun ctor(this: @ContStyle, n: Long, result: @Long) {
+        this.n ctor n;
+        this.result := result;
     }
 
     [ct] if ( isValidAndTrue(useDescriptions) )
@@ -138,10 +138,10 @@ package ContStyle {
         var s1, s2: Long;
         var result: @Long;
 
-        fun ctor(this: @FibContTask, n, result: @Long) {
-            this.n ctor n;
-            this.result := result;
-        }
+    }
+    fun ctor(this: @FibContTask, n, result: @Long) {
+        this.n ctor n;
+        this.result := result;
     }
 
     [ct] if ( isValidAndTrue(useDescriptions) )

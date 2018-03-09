@@ -22,13 +22,12 @@ class ScopedLock(T: Type) if Lockable(#$T)
 
     var _theLock: @LockType;
 
-    fun ctor(this: @ScopedLock, theLock: @LockType)
-        this._theLock := theLock;
-        _theLock lock;
+fun ctor(this: @ScopedLock, theLock: @this.LockType)
+    this._theLock := theLock;
+    _theLock lock;
 
-[protected]
-    fun dtor(this: @ScopedLock)
-        _theLock unlock;
+fun dtor(this: @ScopedLock)
+    _theLock unlock;
 
 //! Class used to try to take the lock for the duration of a scope
 //! To test if the lock was taken, use the 'isLocked' function
@@ -38,27 +37,25 @@ class ScopedTryLock(T: Type) if TryLockable(#$T)
     var _theLock: @LockType;
     var _lockSucceeded: Bool;
 
-    fun ctor(this: @ScopedTryLock, theLock: @LockType)
-        this._theLock := theLock;
-        this._lockSucceeded  = (_theLock tryLock);
-
     fun isLocked = _lockSucceeded;
 
-[protected]
-    fun dtor(this: @ScopedTryLock)
-        if ( _lockSucceeded )
-            _theLock unlock;
+fun ctor(this: @ScopedTryLock, theLock: @this.LockType)
+    this._theLock := theLock;
+    this._lockSucceeded  = (_theLock tryLock);
+
+fun dtor(this: @ScopedTryLock)
+    if ( _lockSucceeded )
+        _theLock unlock;
 
 //! A simple and fast mutual-exclusion lockable
 class Mutex
     var handle: Impl.PThreadMutex;
 
-    fun ctor(this: @Mutex)
-        handle.sig = Impl.PTHREAD_MUTEX_SIG_INIT;
+fun ctor(this: @Mutex)
+    handle.sig = Impl.PTHREAD_MUTEX_SIG_INIT;
 
-[protected]
-    fun dtor(this: @Mutex)
-        Impl.pthread_mutex_destroy(handle);
+fun dtor(this: @Mutex)
+    Impl.pthread_mutex_destroy(handle);
 
 fun >> (m: @Mutex, os: @OutStream) {
     cout << "Mutex(" << mkStreamRefWrapper(m) << ", " << m.handle.sig << ")";
@@ -68,12 +65,11 @@ fun >> (m: @Mutex, os: @OutStream) {
 class RecMutex
     var handle: Impl.PThreadMutex;
 
-    fun ctor(this: @RecMutex)
-        handle.sig = Impl.PTHREAD_RECURSIVE_MUTEX_SIG_INIT;
+fun ctor(this: @RecMutex)
+    handle.sig = Impl.PTHREAD_RECURSIVE_MUTEX_SIG_INIT;
 
-[protected]
-    fun dtor(this: @RecMutex)
-        Impl.pthread_mutex_destroy(handle);
+fun dtor(this: @RecMutex)
+    Impl.pthread_mutex_destroy(handle);
 
 //! Locks a lockable; if the lockable is already locked this call blocks until it's unblocked by the other party
 fun lock(mutex: @Mutex) { var res = Impl.pthread_mutex_lock(mutex.handle); /*assert(res == 0);*/ }

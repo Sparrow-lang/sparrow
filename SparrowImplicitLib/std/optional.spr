@@ -5,19 +5,22 @@ module std.optional
 class Optional(valueType: Type)
     using ValueType = valueType
 
-    [noDefault] fun ctor(this: @Optional)
-        _constructed ctor false
-        _value ctor Uninitialized()
-    [noDefault] fun ctor(this, other: @Optional)
-        _constructed ctor other._constructed
-        if other._constructed
-            _value ctor other._value
-    [noDefault] fun ctor(this: @Optional, val: @ValueType)
-        _constructed ctor true
-        _value ctor val
-
     var _value: ValueType
     var _constructed: Bool
+
+[noDefault]
+fun ctor(this: @Optional)
+    _constructed ctor false
+    _value ctor Uninitialized()
+[noDefault]
+fun ctor(this: @Optional, other: typeOf(this))
+    _constructed ctor other._constructed
+    if other._constructed
+        _value ctor other._value
+[noDefault]
+fun ctor(this: @Optional, val: @this.ValueType)
+    _constructed ctor true
+    _value ctor val
 
 [protected]
     [noDefault] fun dtor(this: @Optional)

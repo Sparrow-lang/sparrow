@@ -69,9 +69,7 @@ fun test2
 >>>*/
 
 class Test
-    var x: Int;
-
-    fun ctor(this: @Test) { x = 10; }
+    var x: Int = 10;
 
 fun doTest1(this: Test)
 {
@@ -103,15 +101,9 @@ fun test4
 120
 >>>*/
 
+[initCtor]
 class Foo
-{
-    fun ctor(this: @Foo, x: Int)
-    {
-        this.x ctor x;
-    }
-
     var x: Int;
-}
 
 fun getVector(): Foo
 {

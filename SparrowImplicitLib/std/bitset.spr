@@ -7,10 +7,10 @@ import bitOper
     class Bitset
         var _bits: Array(UByte)
 
+[rtct, protected]
     fun ctor(this: @Bitset, noBits: SizeType)
         _bits.ctor(1 + (noBits-1)/8, UByte(0))
 
-[rtct, protected]
     fun setBit(this: @Bitset, n: SizeType)
         _bits(n/8) = _bits(n/8) !|! (UByte(1) !<<! UByte(n%8))
 

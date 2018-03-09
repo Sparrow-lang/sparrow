@@ -39,10 +39,10 @@ fun arbitrary(t: Type): t Gen if Integer(#$t)
 class CheckConfig
     var numTests, maxAttempts: UInt
     var isVerbose: Bool
-    fun ctor(this: @CheckConfig)
-        numTests = 100
-        maxAttempts = 5*numTests
-        isVerbose = false
+fun ctor(this: @CheckConfig)
+    numTests = 100
+    maxAttempts = 5*numTests
+    isVerbose = false
 
 //! A value to be tested
 //! Along with the actual value we also hold whether the value is trivial and its
@@ -54,10 +54,10 @@ class TestableValue(t: Type)
     var isTrivial: Bool
     var classifier: String
 
-    fun ctor(this: @TestableValue, value: @t)
-        this.value ctor value
-        this.isTrivial ctor false
-        this.classifier ctor ""
+fun ctor(this: @TestableValue, value: @this.ValueType)
+    this.value ctor value
+    this.isTrivial ctor false
+    this.classifier ctor ""
 
 //! Concept that matches all TestableValues instances
 concept TestableValuesRange(x: Range) if (
@@ -191,17 +191,18 @@ package _Impl
 
     class ForAllGenerator(t: Type)
         using RetType = TestableValue(t)
+        using _T = t
 
         var _gen: Gen(t)
         var _count: UInt
 
-        fun ctor(this, other: @ForAllGenerator)
-            this._gen ctor other._gen
-            this._count ctor other._count
+    fun ctor(this, other: @ForAllGenerator)
+        this._gen ctor other._gen
+        this._count ctor other._count
 
-        fun ctor(this: @ForAllGenerator, gen: @Gen(t))
-            this._gen ctor gen
-            this._count = 0
+    fun ctor(this: @ForAllGenerator, gen: @Gen(this._T))
+        this._gen ctor gen
+        this._count = 0
 
     fun isEmpty(this: @ForAllGenerator)                     = !_gen.isValid
     fun front(this: @ForAllGenerator): RetType              = RetType(_gen(_count))
@@ -224,12 +225,14 @@ package _Impl
         var _lastVal: RetType
 
         using RetType = -@rangeType.RetType
+        using _RangeType = rangeType
+        using _PredType = predType
 
-        fun ctor(this: @ForWhichRange, range: rangeType, pred: predType)
-            this._range ctor range
-            this._pred ctor pred
-            this._lastVal ctor
-            this._popUntilValid
+    fun ctor(this: @ForWhichRange, range: this._RangeType, pred: this._PredType)
+        this._range ctor range
+        this._pred ctor pred
+        this._lastVal ctor
+        this._popUntilValid
 
     fun isEmpty(this: @ForWhichRange)                     = _range.isEmpty()
     fun front(this: @ForWhichRange): RetType              = _lastVal
@@ -275,13 +278,14 @@ package _Impl
 
     class ElementsGen(rangeType: Type)
         using ElementType = -@rangeType.RetType
+        using _RangeType = rangeType
 
         var _range: rangeType
         var _count: SizeType
 
-        fun ctor(this: @ElementsGen, range: rangeType)
-            this._range ctor range
-            this._count ctor (range rangeSize)
+    fun ctor(this: @ElementsGen, range: this._RangeType)
+        this._range ctor range
+        this._count ctor (range rangeSize)
 
     fun ()(this: @ElementsGen, sizeHint: UInt): ElementType
         var r = _range

@@ -21,14 +21,10 @@ fun sprMain
     else if n == 6; test6
 }
 
+[initCtor]
 class MyObj
     var x: Int;
 
-    fun ctor(this: @MyObj) { x = 0; }
-    fun ctor(this: @MyObj, xx: Int) { x = xx; }
-    fun ctor(this, other: @MyObj) { x = other.x; }
-fun =(this, other: @MyObj): @MyObj { x = other.x; return this; }
-fun ==(this, other: @MyObj): Bool { return x == other.x; }
 fun <(this, other: @MyObj): Bool { return x < other.x; }
 
 class Greater

@@ -33,12 +33,12 @@ class RandTableRange
     using numEntries = 4095;
     var lookup: Array((Float rt)*(Char rt));
 
-    fun ctor(this: @RandTableRange, data: Range)
-        lookup.ctor(numEntries+1);
-        for i = 0...numEntries
-            while i > data.front().v1*numEntries
-                data.popFront();
-            lookup(i) = data.front;
+fun ctor(this: @RandTableRange, data: Range)
+    lookup.ctor(numEntries+1);
+    for i = 0...numEntries
+        while i > data.front().v1*numEntries
+            data.popFront();
+        lookup(i) = data.front;
 
 fun isEmpty(this: @RandTableRange)     = false;
 fun popFront(this: @RandTableRange)    {}

@@ -8,7 +8,8 @@ import std.algorithms;
 class IntWrapper
     var x: Int;
 
-    [convert] fun ctor(this: @IntWrapper, x: Int) { this.x ctor x; }
+[convert]
+fun ctor(this: @IntWrapper, x: Int) { this.x ctor x; }
 
 
 fun hash(this: IntWrapper): SizeType
@@ -18,7 +19,8 @@ fun hash(this: IntWrapper): SizeType
 class IntWithNoHash
     var x: Int;
 
-    [convert] fun ctor(this: @IntWithNoHash, x: Int) { this.x ctor x; }
+[convert]
+fun ctor(this: @IntWithNoHash, x: Int) { this.x ctor x; }
 
 class MyTypeTraits
     ;

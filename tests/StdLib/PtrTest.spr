@@ -2,11 +2,9 @@ import std.ptr, std.sharedPtr, std.scopedPtr;
 import std.newDelete;
 import std.vector;
 
+[initCtor]
 class MyObj
     var x: Int;
-
-    fun ctor(this: @MyObj, xx: Int)
-        x = xx;
 
 fun dtor(this: MyObj)
     cout << x;
@@ -22,8 +20,9 @@ fun print(this: @MyObj, arg: StringRef)
 
 class Foo
     var obj: MyObj;
-    fun ctor(this: @Foo, x: Int)
-        obj ctor x;
+
+fun ctor(this: @Foo, x: Int)
+    obj ctor x;
 
 fun get(this: @Foo) = obj;
 

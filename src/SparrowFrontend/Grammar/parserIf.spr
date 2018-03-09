@@ -5,8 +5,10 @@ import scanner, parser, layoutDecoder, ext
 import os, std.newDelete
 
 class ExternalErrorReporter
-    fun reportError(loc: Location, msg: @String)
-        reportErrorExternal(loc, msg.asStringRef())
+    ;
+
+fun reportError(this: @ExternalErrorReporter, loc: Location, msg: @String)
+    reportErrorExternal(loc, msg.asStringRef())
 
 class _CharSource
     using RetType = Char
@@ -14,9 +16,9 @@ class _CharSource
     var fileRange: @FileRange
     var stringRange: StringRef
 
-    fun ctor(fileRange: @FileRange, code: StringRef)
-        this.fileRange := fileRange
-        this.stringRange ctor code
+fun ctor(this: @_CharSource, fileRange: @FileRange, code: StringRef)
+    this.fileRange := fileRange
+    this.stringRange ctor code
 
 fun isEmpty(this: @_CharSource): Bool = ife(fileRange !== null, fileRange.isEmpty, stringRange.isEmpty)
 fun front(this: @_CharSource): Char
@@ -40,27 +42,27 @@ class ParserContext
     var _layoutDecoder: _LayoutDecoderType
     var _parser: _ParserType
 
-    fun ctor(filename, code: StringRef, loc: Location, scannerOnly: Bool = false)
-        var reporter = ExternalErrorReporter()
+fun ctor(this: @ParserContext, filename, code: StringRef, loc: Location, scannerOnly: Bool = false)
+    var reporter = ExternalErrorReporter()
 
-        if code.isEmpty
-            // Open the file, and create a scanner on top of the file
-            _file ctor filename
-            _fileRange ctor _file.all
-            _source.ctor(_fileRange, "")
+    if code.isEmpty
+        // Open the file, and create a scanner on top of the file
+        _file ctor filename
+        _fileRange ctor _file.all
+        _source.ctor(_fileRange, "")
 
-            if !_file.isOpen
-                reporter.reportError(loc, toString("Cannot open file: ", filename))
-        else
-            // Use the code as a the input
-            _file ctor
-            _fileRange ctor
-            _source.ctor(null, code)
+        if !_file.isOpen
+            reporter.reportError(loc, toString("Cannot open file: ", filename))
+    else
+        // Use the code as a the input
+        _file ctor
+        _fileRange ctor
+        _source.ctor(null, code)
 
-        _scanner.ctor(_source, reporter, loc)
-        if !scannerOnly
-            _layoutDecoder.ctor(_scanner, reporter)
-            _parser.ctor(_layoutDecoder, reporter)
+    _scanner.ctor(_source, reporter, loc)
+    if !scannerOnly
+        _layoutDecoder.ctor(_scanner, reporter)
+        _parser.ctor(_layoutDecoder, reporter)
 
 // For testing only
 fun createScanner(filename, code: StringRef, loc: @Location): @ParserContext

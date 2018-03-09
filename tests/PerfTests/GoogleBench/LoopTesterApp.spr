@@ -8,13 +8,13 @@ import std.ptr, std.newDelete
 class BasicBlockEdge
     var from, to: BasicBlock Ptr
 
-    fun ctor(this: @BasicBlockEdge, cfg: @MaoCFG, fromName, toName: Int)
-        from ctor cfg.createNode(fromName)
-        to   ctor cfg.createNode(toName)
+fun ctor(this: @BasicBlockEdge, cfg: @MaoCFG, fromName, toName: Int)
+    from ctor cfg.createNode(fromName)
+    to   ctor cfg.createNode(toName)
 
-        from->addOutEdge(to)
-        to->addInEdge(from)
-        cfg.addEdge(this)
+    from->addOutEdge(to)
+    to->addInEdge(from)
+    cfg.addEdge(this mkPtr)
 
 // BasicBlock only maintains a vector of in-edges and
 // a vector of out-edges.
@@ -23,8 +23,8 @@ class BasicBlock
     var _inEdges, _outEdges: Vector(BasicBlock Ptr)
     var _name: Int
 
-    fun ctor(this: @BasicBlock, name: Int)
-        this._name ctor name
+fun ctor(this: @BasicBlock, name: Int)
+    this._name ctor name
 
 fun numPred(this: @BasicBlock) = _inEdges.size
 fun numSucc(this: @BasicBlock) = _outEdges.size
@@ -88,7 +88,7 @@ fun addChildLoop(this: @SimpleLoop, loop: SimpleLoop Ptr)  = this.children += lo
 
 fun setParent(this: @SimpleLoop, parent: SimpleLoop Ptr)
     this._parent = parent
-    this._parent->addChildLoop(this)
+    this._parent->addChildLoop(this mkPtr)
 fun setNestingLevel(this: @SimpleLoop, level: Int)
     nestingLevel = level
     isRoot = (level == 0)
@@ -119,12 +119,12 @@ class LoopStructureGraph
     var _loops: List(SimpleLoop Ptr)
     var _loopCounter: Int
 
-    fun ctor(this: @LoopStructureGraph)
-        _loopCounter ctor 1
-        _root ctor new(SimpleLoop)
-        _root->counter = 0
-        _root->setNestingLevel(0)
-        _loops += _root
+fun ctor(this: @LoopStructureGraph)
+    _loopCounter ctor 1
+    _root ctor new(SimpleLoop)
+    _root->counter = 0
+    _root->setNestingLevel(0)
+    _loops += _root
 
 fun dtor(this: @LoopStructureGraph) = this.killAll
 
@@ -251,9 +251,9 @@ class HavlakLoopFinder
     var _cfg: @MaoCFG
     var _lsg: @LoopStructureGraph
 
-    fun ctor(this: @HavlakLoopFinder, cfg: @MaoCFG, lsg: @LoopStructureGraph)
-        this._cfg := cfg
-        this._lsg := lsg
+fun ctor(this: @HavlakLoopFinder, cfg: @MaoCFG, lsg: @LoopStructureGraph)
+    this._cfg := cfg
+    this._lsg := lsg
 
 //
 // IsAncestor
@@ -440,7 +440,7 @@ fun findLoops(this: @HavlakLoopFinder)
 
             for node = nodePool.all
                 header(node->dfsNumber) = w
-                node->union(nodes(w))
+                node->union(nodes(w) mkPtr)
 
                 if node->loop.isSet
                     node->loop->setParent(loop)

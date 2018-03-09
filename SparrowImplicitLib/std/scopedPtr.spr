@@ -2,24 +2,15 @@ module std.scopedPtr
 
 import newDelete(delete)
 
-[noDefault]
+[initCtor]
 class ScopedPtr(type: Type)
     using ValueType = type
 
     var _ref: @ValueType
 
-    fun ctor(this: @ScopedPtr)
-        _ref := null
-
-    fun ctor(this: @ScopedPtr, _ref: @ValueType)
-        this._ref := _ref
-
 [protected]
     fun dtor(this: @ScopedPtr)
         delete(_ref)
-
-    fun ==(this, other: ScopedPtr)    = _ref === other._ref
-
 
     fun get(this: ScopedPtr): @ValueType         = _ref
     fun isNull(this: ScopedPtr)                  = _ref === null

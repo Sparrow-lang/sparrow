@@ -53,65 +53,63 @@ class DefaultPartitioner(rangeType: Type) {
     }
 }
 
-class BoundedRange(_baseRangeType: Type) {
+class BoundedRange(_baseRangeType: Type)
     var _baseRange: baseRangeType;
     var _count: SizeType;
 
     using RetType = baseRangeType.RetType;
+    using _RangeType = baseRangeType
 
-    fun ctor(this: @BoundedRange, r: @baseRangeType) {
-        _baseRange ctor r;
-        _count = (_baseRange rangeSize);
-    }
 
-    fun ctor(this, r: @BoundedRange, nSkip, nTake: SizeType) {
-        _baseRange ctor r._baseRange;
-        _baseRange advance nSkip;
-        _count ctor nTake;
-    }
+fun ctor(this: @BoundedRange, r: @this._RangeType)
+    _baseRange ctor r;
+    _count = (_baseRange rangeSize);
 
-    fun isEmpty                     = _count == 0 || _baseRange.isEmpty();
-    fun front: RetType              = _baseRange.front();
-    fun popFront                    { _baseRange.popFront(); --_count; }
-}
+fun ctor(this, r: @BoundedRange, nSkip, nTake: SizeType)
+    _baseRange ctor r._baseRange;
+    _baseRange advance nSkip;
+    _count ctor nTake;
+
+fun isEmpty(this: @BoundedRange)                     = _count == 0 || _baseRange.isEmpty();
+fun front(this: @BoundedRange): this.RetType         = _baseRange.front();
+fun popFront(this: @BoundedRange)                    { _baseRange.popFront(); --_count; }
 
 package Impl {
-    class ParForTask(rangeType, funcType, partType: Type) {
+    class ParForTask(rangeType, funcType, partType: Type)
         var prefix: tasks.TaskPrefix;
         var range: rangeType;
         var func: funcType;
         var part: @partType;
         var depth: Int;
 
-        using RangeType = rangeType;
+        using RangeType = rangeType
+        using _FuncType = funcType
+        using _PartType = partType
 
-        fun ctor(this: @ParForTask, r: rangeType, f: funcType, part: @partType, depth: Int) {
-            this.range ctor r;
-            this.func ctor f;
-            this.part := part;
-            this.depth ctor depth;
-        }
+    fun ctor(this: @ParForTask, r: this.RangeType, f: this._FuncType, part: @this._PartType, depth: Int)
+        this.range ctor r;
+        this.func ctor f;
+        this.part := part;
+        this.depth ctor depth;
 
-        fun execute {
-            // Check if we need to split the range
-            var split = part.partition(range, depth);
+    fun execute(this: @ParForTask)
+        // Check if we need to split the range
+        var split = part.partition(range, depth);
 
-            // Do we have a split?
-            var splitValid = !(split._1 isEmpty) && !(split._2 isEmpty);
+        // Do we have a split?
+        var splitValid = !(split._1 isEmpty) && !(split._2 isEmpty);
 
-            if splitValid
-                // Create two new tasks for the splits
-                var cont: @tasks.EmptyTask = new(tasks.EmptyTask);
-                tasks.setContinuation(this, cont);
-                var t1: @ParForTask = allocParForTask(split._1, func, part, depth+1);
-                var t2: @ParForTask = allocParForTask(split._2, func, part, depth+1);
-                tasks.spawn(cont, t1, t2);
-            else
-                // No more splitting; execute the function serially
-                for val: rangeType.RetType = range
-                    func(val);
-        }
-    }
+        if splitValid
+            // Create two new tasks for the splits
+            var cont: @tasks.EmptyTask = new(tasks.EmptyTask);
+            tasks.setContinuation(this, cont);
+            var t1: @ParForTask = allocParForTask(split._1, func, part, depth+1);
+            var t2: @ParForTask = allocParForTask(split._2, func, part, depth+1);
+            tasks.spawn(cont, t1, t2);
+        else
+            // No more splitting; execute the function serially
+            for val: rangeType.RetType = range
+                func(val);
 
     fun ParForTask(r: Range, f: AnyType, part: @Partitioner, depth: Int) \
         = ParForTask(typeOf(r), typeOf(f), -@typeOf(part))(r, f, part, depth);

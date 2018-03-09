@@ -13,12 +13,9 @@ fun sprMain
     else if n == 2; test2
 }
 
-[rtct] class MyObj
-{
+[rtct, initCtor]
+class MyObj
     var x: Int;
-
-    fun ctor(this: @MyObj, xx: Int) { x = xx; }
-}
 
 [ct] fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
 {

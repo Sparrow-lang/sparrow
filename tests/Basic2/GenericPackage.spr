@@ -3,8 +3,10 @@
 import std.ranges
 
 class TypePrint(t: Type)
-    fun ctor(this: @TypePrint)
-        cout << 'TypePrint.ctor ' << TypeOp.description(t) << endl
+    using T = t
+
+fun ctor(this: @TypePrint)
+    cout << 'TypePrint.ctor ' << TypeOp.description(T) << endl
 
 package GenPackage(t: Type)
     using MyType = t rt

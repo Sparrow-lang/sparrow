@@ -36,10 +36,9 @@ fun sprMain
     else if n == 23 ; test23
 }
 
+[initCtor]
 class MyObj
     var x: Int;
-
-    fun ctor(this: @MyObj, xx: Int) { x = xx; }
 
 fun <(this, other: @MyObj): Bool { return x < other.x; }
 
@@ -52,7 +51,7 @@ class Even
 fun ()(this: Even, x: Int): Bool { return x % 2 == 0; }
 
 class Minus
-    fun ctor(this: @Minus) { }
+    ;
 
 fun ()(this: Minus, x: Int, y: Int) = x - y;
 

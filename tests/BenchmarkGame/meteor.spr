@@ -133,13 +133,7 @@ package P1
 {
 
 class Direction
-{
     var id: Int;
-
-    fun ctor(this: @Direction, id: Int)
-    {
-        this.id ctor id;
-    }
 
     using E     = Direction(0);
     using ESE   = Direction(1);
@@ -154,7 +148,10 @@ class Direction
     using NE    = Direction(10);
     using ENE   = Direction(11);
     using numValues = 12;
-}
+
+fun ctor(this: @Direction, id: Int)
+    this.id ctor id;
+
 
 var pieceDef: StaticArray2d(Direction, 10, 4);
 

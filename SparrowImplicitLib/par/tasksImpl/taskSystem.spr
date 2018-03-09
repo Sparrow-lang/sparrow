@@ -19,9 +19,9 @@ class TaskSystem
     //! Object that counts the number of threads that are idle
     var idleCounter: IdleCounter;
 
+[protected]
     fun ctor(this: @TaskSystem) {}
 
-[protected]
     fun dtor(this: @TaskSystem) {}
 
 var globalTaskSystem: TaskSystem Ptr;

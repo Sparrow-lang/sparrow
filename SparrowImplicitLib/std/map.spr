@@ -15,14 +15,13 @@ class Map(keyType, dataType: Type, traitsType: Type = DefaultTypeTraits)
 
     var _hashTable: _ImplTable
 
+[protected]
     fun ctor(this: @Map, n: SizeType)                                       { _hashTable.ctor(n, TraitsType()); }
-    fun ctor(this: @Map, n: SizeType, traits: traitsType)                   { _hashTable.ctor(n, traits); }
+    fun ctor(this: @Map, n: SizeType, traits: this.TraitsType)              { _hashTable.ctor(n, traits); }
     fun ctor(this: @Map, range: Range)                                      { _hashTable.ctor(range, 0, TraitsType()); }
     fun ctor(this: @Map, range: Range, n: SizeType)                         { _hashTable.ctor(range, n, HashType(), CompareType()); }
-    fun ctor(this: @Map, range: Range, n: SizeType, traits: traitsType)     { _hashTable.ctor(range, n, traits); }
-    fun ctor(this, other: @Map)                                       { this._hashTable ctor other._hashTable; }
+    fun ctor(this: @Map, range: Range, n: SizeType, traits: this.TraitsType){ _hashTable.ctor(range, n, traits); }
 
-[protected]
     fun traits(this: @Map)                                  = _hashTable.traits
 
     fun size(this: @Map)                                    = _hashTable.size

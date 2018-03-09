@@ -12,44 +12,36 @@ using allowNativeCodeGen = true
         var predicates: Vector(SparrowPredicate)
         var loc: LLocation
 
-        fun ctor(this: @SparrowPrologSystem, program: @PrologProgramPtr)
-            this.predicates ctor
-            this.loc ctor program.get().loc
+    fun ctor(this: @SparrowPrologSystem, program: @PrologProgramPtr)
+        this.predicates ctor
+        this.loc ctor program.get().loc
 
-            // Handle all predicate clauses
-            for pptr: @PredicateClausePtr = program.get().predicates.all
-                var p: @PredicateClause = pptr.get
-                var name: @String = p.name
-                var arity: UInt = p.args.size
+        // Handle all predicate clauses
+        for pptr: @PredicateClausePtr = program.get().predicates.all
+            var p: @PredicateClause = pptr.get
+            var name: @String = p.name
+            var arity: UInt = p.args.size
 
-                // Search for an existing predicate with same name and same arity
-                var r = findIf(predicates.all,
-                    (fun.{name,arity} (sp: @SparrowPredicate) = sp.name == name && sp.arity == arity))
+            // Search for an existing predicate with same name and same arity
+            var r = findIf(predicates.all,
+                (fun.{name,arity} (sp: @SparrowPredicate) = sp.name == name && sp.arity == arity))
 
-                // Id the predicate does not exist add it; otherwise add a clause to it
-                if ( r.isEmpty )
-                    predicates.pushBack(SparrowPredicate(pptr))
-                else
-                    r.front().addClause(p)
+            // Id the predicate does not exist add it; otherwise add a clause to it
+            if ( r.isEmpty )
+                predicates.pushBack(SparrowPredicate(pptr))
+            else
+                r.front().addClause(p)
 
     fun semanticCheck(this: @SparrowPrologSystem)
         for pred: @SparrowPredicate = predicates.all
             pred.semanticCheck
 
+    [initCtor]
     class Parameter
         var expr: ExpressionPtr
-        var isRead, isInput, isOutput: Bool
-
-        fun ctor(this: @Parameter)
-            expr ctor
-            isRead ctor false
-            isInput ctor false
-            isOutput ctor false
-        fun ctor(this: @Parameter, e: ExpressionPtr)
-            expr ctor e
-            isRead ctor false
-            isInput ctor false
-            isOutput ctor false
+        var isRead: Bool = false
+        var isInput: Bool = false
+        var isOutput: Bool = false
 
     class SparrowPredicate
         var name: String
@@ -61,18 +53,18 @@ using allowNativeCodeGen = true
         var typeSets: Vector(LTypeSet)
         var canBeNative: Bool
 
-        fun ctor(this: @SparrowPredicate, firstClause: @PredicateClausePtr)
-            this.name ctor firstClause.get().name
-            this.arity ctor UInt(firstClause.get().args.size)
-            this.firstClause ctor firstClause
-            this.paramVars ctor
-            this.localVars ctor
-            this.clauses ctor
-            this.typeSets ctor
-            this.canBeNative ctor false
+    fun ctor(this: @SparrowPredicate, firstClause: @PredicateClausePtr)
+        this.name ctor firstClause.get().name
+        this.arity ctor UInt(firstClause.get().args.size)
+        this.firstClause ctor firstClause
+        this.paramVars ctor
+        this.localVars ctor
+        this.clauses ctor
+        this.typeSets ctor
+        this.canBeNative ctor false
 
-            this.addClause(firstClause)
-            paramVars.resize(arity)
+        this.addClause(firstClause)
+        paramVars.resize(arity)
 
     fun addClause(this: @SparrowPredicate, clause: @PredicateClausePtr)
         assert(clause.get().args.size == arity)

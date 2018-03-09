@@ -16,19 +16,17 @@ fun stdFun(s: String): String
     cout << "stdFun(" << s << ") called" << flush
     return "stdFun"
 
+[initCtor]
 class FunctorInt
     var storedNum: Int
-    fun ctor(this: @FunctorInt, n: Int)
-        storedNum ctor n
 
 fun ()(this: @FunctorInt, n: Int): Int
     cout << "Functor(" << storedNum << ")(" << n << ") called" << flush
     return n*storedNum
 
+[initCtor]
 class Functor
     var storedString: String
-    fun ctor(this: @Functor, s: String)
-        storedString ctor s
 
 fun ()(this: @Functor, s: String): String
     cout << "Functor(" << storedString << ")(" << s << ") called" << flush

@@ -109,10 +109,10 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
         var _matchState: NfaState;              ///< The match state
         var _pages: Vector(RawPtr(NfaState));   ///< Pointers to the memory pages containing the actual NFA states
 
-        fun ctor(this: @NfaStatesFactory)
-            _numStates ctor 0;
-            var nullObj: Ptr(NfaState);
-            _matchState.ctor(NfaState.match, nullObj, nullObj);
+    fun ctor(this: @NfaStatesFactory)
+        _numStates ctor 0;
+        var nullObj: Ptr(NfaState);
+        _matchState.ctor(NfaState.match, nullObj, nullObj);
 
     fun dtor(this: @NfaStatesFactory)
         // Release the memory occupied by the states
@@ -137,19 +137,14 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
         return state;
 
     /// Class that represents a NFA state; it allows one or two output states out of this state
+    [initCtor]
     class NfaState
         var c: Int;
         var out1, out2: Ptr(NfaState);
-        var listId: Int;
+        var listId: Int = -1;
 
         using match = 256;
         using split = 257;
-
-        fun ctor(this: @NfaState, c: Int, out1, out2: Ptr(NfaState))
-            this.c ctor c;
-            this.out1 ctor out1;
-            this.out2 ctor out2;
-            this.listId ctor -1;
 
     fun isSplit(this: NfaState) = c == NfaState.split;
     fun isMatch(this: NfaState) = c == NfaState.match;
@@ -163,9 +158,9 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
         /// This actually represents two things: one the pointer to the next element, and the actual data that needs to be filled
         var _next: Ptr(OutPtrList);
 
-        /// Construct the out-ptr list from a single out-ptr reference
-        fun ctor(this: @OutPtrList, outPtr: @Ptr(NfaState))
-            _next ctor reinterpretPtr(OutPtrList, Ptr(Ptr(NfaState))(outPtr));
+    /// Construct the out-ptr list from a single out-ptr reference
+    fun ctor(this: @OutPtrList, outPtr: @Ptr(NfaState))
+        _next ctor reinterpretPtr(OutPtrList, Ptr(Ptr(NfaState))(outPtr));
 
     /// Append to this list another list of out-pointers
     fun append(this: @OutPtrList, other: OutPtrList)
@@ -190,9 +185,9 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
         var start: Ptr(NfaState);                   ///< Start state of the NFA frament
         var outPtrChain: OutPtrList;  ///< Chain of out-pointers for this fragment that need to be set to the next state
 
-        fun ctor(this: @NfaFragment, start: Ptr(NfaState), outPtrChain: @OutPtrList)
-            this.start ctor start;
-            this.outPtrChain ctor outPtrChain;
+    fun ctor(this: @NfaFragment, start: Ptr(NfaState), outPtrChain: @OutPtrList)
+        this.start ctor start;
+        this.outPtrChain ctor outPtrChain;
 
     fun getChar(nfaStatesFactory: @NfaStatesFactory, c: Char): NfaFragment
         var s = nfaStatesFactory.getCharState(c);
@@ -269,15 +264,15 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
         var id: Int;
         var isMatch: Bool;
 
-        fun ctor(this: @NfaNodeList, noNfaNodes: Int)
-            nodes.reserve(noNfaNodes);
+    fun ctor(this: @NfaNodeList, noNfaNodes: Int)
+        nodes.reserve(noNfaNodes);
 
-        fun ctor(this, other: @NfaNodeList)   // move ctor
-            this.id ctor other.id;
-            this.isMatch ctor other.isMatch;
-            this.nodes ctor;
-            this.nodes swap other.nodes;
-            //this.nodes ctor other.nodes;
+    fun ctor(this, other: @NfaNodeList)   // move ctor
+        this.id ctor other.id;
+        this.isMatch ctor other.isMatch;
+        this.nodes ctor;
+        this.nodes swap other.nodes;
+        //this.nodes ctor other.nodes;
 
 [rtct, protected]
     fun ==(this, other: @NfaNodeList): Bool
@@ -329,10 +324,10 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
     class Transition
         var start, end, ch: Int;
 
-        fun ctor(this: @Transition, start, end, ch: Int)
-            this.start ctor start;
-            this.end ctor end;
-            this.ch ctor ch;
+    fun ctor(this: @Transition, start, end, ch: Int)
+        this.start ctor start;
+        this.end ctor end;
+        this.ch ctor ch;
 
     /// Class that represent a Dfa state
     /// A Dfa state usually contains multiple NfaStates. It also contains a transition array for each possible input char
@@ -341,36 +336,36 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
         var nfaNodes: NfaNodeList;
         var isMatch: Bool;
 
-        fun ctor(this: @DfaState, nfaNodes: @NfaNodeList) // moves the nodes list
-            next ctor -1;
-            this.nfaNodes ctor nfaNodes;
-            this.isMatch ctor nfaNodes.isMatch;
+    fun ctor(this: @DfaState, nfaNodes: @NfaNodeList) // moves the nodes list
+        next ctor -1;
+        this.nfaNodes ctor nfaNodes;
+        this.isMatch ctor nfaNodes.isMatch;
 
     class Automaton
         var nfaStatesFactory: NfaStatesFactory;
         var dfaStates: Vector(DfaState);
 
-        fun ctor(this: @Automaton, re: StringRef)
-            // Convert the regex from infix to postfix notation
-            var post = re2post(re);
-            if ( post.size() == 0 )
-                cout << "Bad regular expression: " << re << endl;
-                return;
+    fun ctor(this: @Automaton, re: StringRef)
+        // Convert the regex from infix to postfix notation
+        var post = re2post(re);
+        if ( post.size() == 0 )
+            cout << "Bad regular expression: " << re << endl;
+            return;
 
-            /// Convert the postfix form into a NFA
-            var nfaStart = nfaFromPostfix(nfaStatesFactory, post.asStringRef());
-            if ( nfaStart.isNull() )
-                cout << "error in post2nfa for regexp: " << re << endl;
-                return;
+        /// Convert the postfix form into a NFA
+        var nfaStart = nfaFromPostfix(nfaStatesFactory, post.asStringRef());
+        if ( nfaStart.isNull() )
+            cout << "error in post2nfa for regexp: " << re << endl;
+            return;
 
-            // Create the DFA states
-            this.createDfaStates(nfaStart);
+        // Create the DFA states
+        this.createDfaStates(nfaStart);
 
-            // Print some statistics
-            //cout << "We have " << nfaStatesFactory._numStates << " NFA states\n";
-            //cout << "We have " << dfaStates.size() << " DFA states\n";
-            //for i=0..dfaStates.size()
-            //    cout << "DFA state " << i << " has " << dfaStates(i).nfaNodes.nodes.size() << " NFA states\n";
+        // Print some statistics
+        //cout << "We have " << nfaStatesFactory._numStates << " NFA states\n";
+        //cout << "We have " << dfaStates.size() << " DFA states\n";
+        //for i=0..dfaStates.size()
+        //    cout << "DFA state " << i << " has " << dfaStates(i).nfaNodes.nodes.size() << " NFA states\n";
 
     [rt]
     fun ctorFromCt(this: @Automaton, src: Automaton ct)

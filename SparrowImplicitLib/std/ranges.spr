@@ -180,15 +180,15 @@ concept RandomAccessRange(x: BidirRange) if (
 
         using RetType = valueType
 
-        fun ctor(this: @NumericRangeInc, start, end: valueType)
-            this._begin ctor start
-            this._end ctor end
-            this._closed ctor false
+    fun ctor(this: @NumericRangeInc, start, end: this.RetType)
+        this._begin ctor start
+        this._end ctor end
+        this._closed ctor false
 
-        fun ctor(this: @NumericRangeInc, start, end: valueType, closed: Bool)
-            this._begin ctor start
-            this._end ctor end
-            this._closed ctor closed
+    fun ctor(this: @NumericRangeInc, start, end: this.RetType, closed: Bool)
+        this._begin ctor start
+        this._end ctor end
+        this._closed ctor closed
 
 [rtct, protected]
     fun isEmpty(this: NumericRangeInc)                  = ife(_closed, _begin > _end, _begin >= _end)
@@ -212,44 +212,44 @@ concept RandomAccessRange(x: BidirRange) if (
 
         using RetType = valueType
 
-        fun ctor(this: @NumericRangeWithStep, other: @NumericRangeInc(valueType))
-            this._begin ctor other._begin
-            this._end ctor other._end
-            this._closed ctor other._closed
-            if _begin <= _end
-                _step = valueType(1)
-            else
-                _step = valueType(-1)
+    fun ctor(this: @NumericRangeWithStep, other: @NumericRangeInc(this.RetType))
+        this._begin ctor other._begin
+        this._end ctor other._end
+        this._closed ctor other._closed
+        if _begin <= _end
+            _step = valueType(1)
+        else
+            _step = valueType(-1)
 
-        fun ctor(this: @NumericRangeWithStep, other: @NumericRangeInc(valueType), step: valueType)
-            this._begin ctor other._begin
-            this._end ctor other._end
-            this._closed ctor other._closed
-            this._step ctor step
+    fun ctor(this: @NumericRangeWithStep, other: @NumericRangeInc(this.RetType), step: this.RetType)
+        this._begin ctor other._begin
+        this._end ctor other._end
+        this._closed ctor other._closed
+        this._step ctor step
 
-        fun ctor(this: @NumericRangeWithStep, start, end: valueType)
-            this._begin ctor start
-            this._end ctor end
-            this._closed ctor false
-            if start <= end
-                _step = valueType(1)
-            else
-                _step = valueType(-1)
+    fun ctor(this: @NumericRangeWithStep, start, end: this.RetType)
+        this._begin ctor start
+        this._end ctor end
+        this._closed ctor false
+        if start <= end
+            _step = valueType(1)
+        else
+            _step = valueType(-1)
 
-        fun ctor(this: @NumericRangeWithStep, start, end: valueType, closed: Bool)
-            this._begin ctor start
-            this._end ctor end
-            this._closed ctor closed
-            if start <= end
-                _step = valueType(1)
-            else
-                _step = valueType(-1)
+    fun ctor(this: @NumericRangeWithStep, start, end: this.RetType, closed: Bool)
+        this._begin ctor start
+        this._end ctor end
+        this._closed ctor closed
+        if start <= end
+            _step = valueType(1)
+        else
+            _step = valueType(-1)
 
-        fun ctor(this: @NumericRangeWithStep, start, end, step: valueType)
-            this._begin ctor start
-            this._end ctor end
-            this._step ctor step
-            this._closed ctor false
+    fun ctor(this: @NumericRangeWithStep, start, end, step: this.RetType)
+        this._begin ctor start
+        this._end ctor end
+        this._step ctor step
+        this._closed ctor false
 
     fun isEmpty(this: NumericRangeWithStep): Bool
         if _closed
@@ -337,12 +337,14 @@ concept RandomAccessRange(x: BidirRange) if (
         var _lastVal: RetType
 
         using RetType = -@rangeType.RetType
+        using _RangeType = rangeType
+        using _PredType = predType
 
-        fun ctor(this: @FilteredRange, range: rangeType, pred: predType)
-            this._range ctor range
-            this._pred ctor pred
-            this._lastVal ctor
-            this._popUntilValid
+    fun ctor(this: @FilteredRange, range: this._RangeType, pred: this._PredType)
+        this._range ctor range
+        this._pred ctor pred
+        this._lastVal ctor
+        this._popUntilValid
 
 [rtct, protected]
     fun isEmpty(this: @FilteredRange)        = _range.isEmpty
@@ -452,10 +454,11 @@ concept RandomAccessRange(x: BidirRange) if (
         var _range, _base: rangeType
 
         using RetType = rangeType.RetType
+        using _RangeType = rangeType
 
-        fun ctor(this: @CyclicRange, range: rangeType)
-            this._range ctor range
-            this._base ctor range
+    fun ctor(this: @CyclicRange, range: this._RangeType)
+        this._range ctor range
+        this._base ctor range
 
 [rtct, protected]
     fun isEmpty(this: @CyclicRange)         = false
@@ -471,11 +474,12 @@ concept RandomAccessRange(x: BidirRange) if (
         var _count: SizeType
 
         using RetType = rangeType.RetType
+        using _RangeType = rangeType
 
-        fun ctor(this: @CyclicCountedRange, range: rangeType, count: SizeType)
-            this._range ctor range
-            this._count ctor count
-            this._base ctor range
+    fun ctor(this: @CyclicCountedRange, range: this._RangeType, count: SizeType)
+        this._range ctor range
+        this._count ctor count
+        this._base ctor range
 
 [rtct, protected]
     fun isEmpty(this: @CyclicCountedRange)          = _count == 0
@@ -493,10 +497,11 @@ concept RandomAccessRange(x: BidirRange) if (
         var _current: RetType
 
         using RetType = typeOf((#$functionType)())
+        using _FunType = functionType
 
-        fun ctor(this: @GeneratedRange, function: functionType)
-            this._function ctor function
-            this._current ctor this._function()
+    fun ctor(this: @GeneratedRange, function: this._FunType)
+        this._function ctor function
+        this._current ctor this._function()
 
 [rtct, protected]
     fun isEmpty(this: @GeneratedRange)          = false
@@ -550,19 +555,12 @@ concept RandomAccessRange(x: BidirRange) if (
         return _acc
 
 [rtct]
+    [initCtor]
     class ValuesRange(contType: Type) if isValid((#$contType)(1))
         var _values: contType
-        var _idx: SizeType
+        var _idx: SizeType = 0
 
         using RetType       = contType.ValueType
-
-        fun ctor(this: @ValuesRange, values: @contType)
-            this._values ctor values
-            _idx = 0
-
-        fun ctor(this, other: @ValuesRange)
-            this._values ctor other._values
-            this._idx ctor other._idx
 
 
 [rtct, protected]

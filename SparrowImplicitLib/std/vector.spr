@@ -17,6 +17,14 @@ import ranges(RandomAccessRange, ..)
 
     var _begin, _end, _endOfStore: RawPtr(ValueType)
 
+[rt, protected]
+fun ctorFromCt(this: @Vector, src: Vector ct)
+    this.ctor()
+    this.reserve(ctEval(src.size()))
+    [ct] for el: ValueType = src.all()
+        this.pushBack(el)
+
+[rtct, protected]
     fun ctor(this, other: @Vector)
         var size = other.size()
 
@@ -58,14 +66,6 @@ import ranges(RandomAccessRange, ..)
         for v = range
             this.pushBack(v)
 
-[rt, protected]
-fun ctorFromCt(this: @Vector, src: Vector ct)
-    this.ctor()
-    this.reserve(ctEval(src.size()))
-    [ct] for el: ValueType = src.all()
-        this.pushBack(el)
-
-[rtct, protected]
     fun dtor(this: @Vector)
         var p = _begin
 

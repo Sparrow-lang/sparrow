@@ -5,13 +5,10 @@ import errorReporter
 concept TokenRange(x: Range) if -@(x.RetType) == Token
 
 [ct]
+    [initCtor]
     class Parser(lexerType, errorReporterType: Type) if TokenRange(#$lexerType)
         var _lexer: lexerType
         var _errorReporter: errorReporterType
-
-        fun ctor(this: @Parser, lexer: @lexerType, errorReporter: @errorReporterType)
-            this._lexer ctor lexer
-            this._errorReporter ctor errorReporter
 
     fun parse(this: @Parser): PrologProgramPtr
         var resptr = mkShared(PrologProgram)

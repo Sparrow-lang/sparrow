@@ -12,11 +12,8 @@ import meta.location
 ///
 class SparrowParser(tokensRangeType, errorReporterType: Type) \
         if TokenRange(#$tokensRangeType) && ErrorReporter(#$errorReporterType)
-
-    fun ctor(tokens: tokensRangeType, errorReporter: errorReporterType)
-        this._tokens ctor tokens
-        this._hasErrors ctor false
-        this._errorReporter ctor errorReporter
+    using _TokensRangeType = tokensRangeType
+    using _ErrRepType = errorReporterType
 
     /// The source ranges of tokens we will used while parsing
     var _tokens: RangeWithLookahead(tokensRangeType)
@@ -26,6 +23,11 @@ class SparrowParser(tokensRangeType, errorReporterType: Type) \
     var _hasErrors: Bool
     /// Object used to report errors
     var _errorReporter: errorReporterType
+
+fun ctor(this: @SparrowParser, tokens: this._TokensRangeType, errorReporter: this._ErrRepType)
+    this._tokens ctor tokens
+    this._hasErrors ctor false
+    this._errorReporter ctor errorReporter
 
 using parseModule = _Impl.parseModule
 using parseExpression = _Impl.parseExpression

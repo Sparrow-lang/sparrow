@@ -22,17 +22,8 @@ import meta.location
 class SparrowLayoutDecoder(tokensRangeType, errorReporterType: Type) \
         if TokenRange(#$tokensRangeType) && ErrorReporter(#$errorReporterType)
     using RetType = Token
-
-    fun ctor(tokens: tokensRangeType, errorReporter: errorReporterType)
-        this._src ctor tokens
-        this._errorReporter ctor errorReporter
-        this._indents += 1      // Start at column 1
-        this._toInject = tkSEMICOLON
-        this._toInjectCnt = 0
-
-        // If we start by a new-line, advance
-        if !_src.isEmpty && (_src.front).type == tkEOL
-            this.popFront
+    using _TokensRangeType = tokensRangeType
+    using _ErrRepType = errorReporterType
 
     /// The source ranges of tokens we will used while parsing
     var _src: RangeWithLookahead(tokensRangeType)
@@ -47,6 +38,17 @@ class SparrowLayoutDecoder(tokensRangeType, errorReporterType: Type) \
     /// The number of tokens to be injected
     /// If the number of tokens is greater than 1, we change the type to '}'
     var _toInjectCnt: Int
+
+fun ctor(this: @SparrowLayoutDecoder, tokens: this._TokensRangeType, errorReporter: this._ErrRepType)
+    this._src ctor tokens
+    this._errorReporter ctor errorReporter
+    this._indents += 1      // Start at column 1
+    this._toInject = tkSEMICOLON
+    this._toInjectCnt = 0
+
+    // If we start by a new-line, advance
+    if !_src.isEmpty && (_src.front).type == tkEOL
+        this.popFront
 
 fun isEmpty(this: @SparrowLayoutDecoder): Bool = _toInjectCnt == 0 && _src.isEmpty
 fun front(this: @SparrowLayoutDecoder): Token

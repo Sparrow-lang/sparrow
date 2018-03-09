@@ -56,8 +56,6 @@ namespace
     // Helpers for SprFunction node
     //
 
-    static const char* propIsMember = "spr.isMember";
-
     void handleStaticCtorDtor(Node* node, bool ctor)
     {
         ASSERT(Nest_nodeArraySize(node->children) == 4);
@@ -349,13 +347,7 @@ TypeRef SprFunction_ComputeType(Node* node)
     Node* parentClass = Feather_getParentClass(node->context);
     bool isMember = nullptr != parentClass;
     if ( isMember )
-    {
-        Nest_setPropertyInt(node, propIsMember, 1);
-
-        // StringRef funName = Feather_getName(node);
-        // if (funName != "ctor" && funName != "ctorFromCt")
-        //     REP_ERROR(node->location, "Cannot have %1% inside classes") % funName;
-    }
+        REP_ERROR(node->location, "Cannot have function inside classes");
 
     // Does this function have an implicit 'this' arg?
     int thisParamIdx = -1;

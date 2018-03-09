@@ -4,13 +4,10 @@ import std.ranges;
 import std.vector;
 
 [ct]
+    [initCtor]
     class MyRange
         using RetType = Int;
         var _min, _max: Int;
-
-        fun ctor(this: @MyRange, min, max: Int)
-            this._min ctor min;
-            this._max ctor max;
 
     fun front(this: MyRange) = _min;
     fun popFront(this: @MyRange) { _min += 1; }

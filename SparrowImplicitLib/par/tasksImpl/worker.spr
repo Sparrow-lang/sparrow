@@ -32,17 +32,15 @@ class Worker
     //! Semaphore used when sleeping
     var _waitSem: Semaphore;
 
-    fun ctor(this: @Worker, taskSystem: @TaskSystem, workerId: Int, idleCounter: @IdleCounter) {
-        this.taskSystem := taskSystem;
-        this.workerId = workerId;
-        this.curDepth = 0;
-        this._idleCounter := idleCounter;
-        this._isBusy store 0;
-        this._waitSem ctor 0;
-    }
+fun ctor(this: @Worker, taskSystem: @TaskSystem, workerId: Int, idleCounter: @IdleCounter)
+    this.taskSystem := taskSystem;
+    this.workerId = workerId;
+    this.curDepth = 0;
+    this._idleCounter := idleCounter;
+    this._isBusy store 0;
+    this._waitSem ctor 0;
 
-[protected]
-    fun dtor(this: @Worker) {}
+fun dtor(this: @Worker) {}
 
 using WorkerPtr = Worker Ptr;
 

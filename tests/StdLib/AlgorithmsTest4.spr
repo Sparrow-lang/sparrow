@@ -18,14 +18,10 @@ fun sprMain
     else if n == 4; test4
 }
 
+[initCtor]
 class MyObj
     var x: Int;
 
-    fun ctor(this: @MyObj) { x = 0; }
-    fun ctor(this: @MyObj, xx: Int) { x = xx; }
-    fun ctor(this, other: @MyObj) { x = other.x; }
-fun =(this, other: @MyObj): @MyObj { x = other.x; return this; }
-fun ==(this, other: @MyObj): Bool { return x == other.x; }
 fun <(this, other: @MyObj): Bool { return x < other.x; }
 
 class Greater
@@ -37,7 +33,7 @@ class Even
 fun ()(this: Even, x: Int): Bool { return x % 2 == 0; }
 
 class Minus
-    fun ctor(this: @Minus) { }
+    ;
 
 fun ()(this: Minus, x: Int, y: Int) = x - y;
 

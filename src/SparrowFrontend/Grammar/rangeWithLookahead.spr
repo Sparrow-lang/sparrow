@@ -11,18 +11,19 @@ import std.ranges
 /// If there are not enough items in the source range we give back the default-constructed element
 class RangeWithLookahead(baseRangeType: Type) if Range(#$baseRangeType)
     using RetType = -@(baseRangeType.RetType)
+    using _RangeType = baseRangeType
 
     var source: baseRangeType
     var buffer: Vector(RetType)
 
-    fun ctor(src: baseRangeType)
-        this.source = src
-        this.buffer ctor
-        this.buffer reserve 10
+fun ctor(this: @RangeWithLookahead, src: this._RangeType)
+    this.source = src
+    this.buffer ctor
+    this.buffer reserve 10
 
-        // Always have at least one element in the buffer
-        if !!source
-            buffer += (source++)
+    // Always have at least one element in the buffer
+    if !!source
+        buffer += (source++)
 
 fun isEmpty(this: @RangeWithLookahead): Bool = buffer.isEmpty
 fun front(this: @RangeWithLookahead): RetType = buffer.front

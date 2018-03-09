@@ -61,10 +61,8 @@ class Multiply
 fun ()(this: Multiply, x: AnyType, y: AnyType) = x * y;
 
 class Fact
-    var _res: Int;
-    var _k: Int;
-
-    fun ctor(this: @Fact) { _res = 1; _k = 0; }
+    var _res: Int = 1;
+    var _k: Int = 0;
 
 fun ()(this: @Fact): Int
     ++_k;

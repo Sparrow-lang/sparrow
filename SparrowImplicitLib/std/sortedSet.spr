@@ -12,16 +12,16 @@ class SortedSet(keyType, lessType, compareType: Type)
 
     var _sortedTable: _ImplTable
 
+[protected]
     fun ctor(this: @SortedSet, n: SizeType)                                       { _sortedTable.ctor(n, LessType(), CompareType()) }
-    fun ctor(this: @SortedSet, n: SizeType, less: LessType)                       { _sortedTable.ctor(n, less, CompareType()) }
-    fun ctor(this: @SortedSet, n: SizeType, less: LessType, comp: CompareType)    { _sortedTable.ctor(n, less, comp) }
+    fun ctor(this: @SortedSet, n: SizeType, less: this.LessType)                       { _sortedTable.ctor(n, less, CompareType()) }
+    fun ctor(this: @SortedSet, n: SizeType, less: this.LessType, comp: this.CompareType)    { _sortedTable.ctor(n, less, comp) }
     fun ctor(this: @SortedSet, range: Range)                                      { _sortedTable.ctor(range, 0, LessType(), CompareType()) }
     fun ctor(this: @SortedSet, range: Range, n: SizeType)                         { _sortedTable.ctor(range, n, LessType(), CompareType()) }
-    fun ctor(this: @SortedSet, range: Range, n: SizeType, less: LessType)         { _sortedTable.ctor(range, n, less, CompareType()) }
-    fun ctor(this: @SortedSet, range: Range, n: SizeType, less: LessType, comp: CompareType)  { _sortedTable.ctor(range, n, less, comp) }
+    fun ctor(this: @SortedSet, range: Range, n: SizeType, less: this.LessType)         { _sortedTable.ctor(range, n, less, CompareType()) }
+    fun ctor(this: @SortedSet, range: Range, n: SizeType, less: this.LessType, comp: this.CompareType)  { _sortedTable.ctor(range, n, less, comp) }
     fun ctor(this, other: @SortedSet)                                 { this._sortedTable ctor other._sortedTable }
 
-[protected]
     fun lessFunction(this: @SortedSet)              = _sortedTable.lessFunction
     fun comparator(this: @SortedSet)                = _sortedTable.comparator
 

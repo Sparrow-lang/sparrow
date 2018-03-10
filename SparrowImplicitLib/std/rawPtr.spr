@@ -2,10 +2,10 @@ module std.rawPtr
 
 [rtct]
     [initCtor]
-    class RawPtr(valueType: Type)
+    datatype RawPtr(valueType: Type)
         using ValueType = valueType
 
-        var _ptr: @ValueType
+        _ptr: @ValueType
 
     fun ctor(this: @RawPtr, byteRef: @Byte) if this.ValueType != Byte
         _ptr := reinterpretCast(@ValueType, byteRef)

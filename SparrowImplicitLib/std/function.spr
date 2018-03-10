@@ -9,15 +9,15 @@ package _Impl
 
     //! Class that holds all the data for a Function object.
     //! We store the data in a type-agnostic fashion, and we use casts later on to make it the appropriate type.
-    class FunctionData
+    datatype FunctionData
         //! The object of the function; i.e., the one that indicates what needs to be called + first arg
-        var obj: @Byte
+        obj: @Byte
         //! The actual call function
-        var callFn: FunctionPtr(VoidType)
+        callFn: FunctionPtr(VoidType)
         //! Function that is able to clone the object
-        var cloneFn: FunctionPtr(@Byte, @Byte)
+        cloneFn: FunctionPtr(@Byte, @Byte)
         //! Function that is able to destruct the object
-        var destructFn: FunctionPtr(VoidType, @Byte)
+        destructFn: FunctionPtr(VoidType, @Byte)
 
     //! Copy constructor - clones the object and copies the FunctionPtrs
     fun ctor(this, other: @FunctionData)
@@ -51,11 +51,11 @@ package _Impl
            << ')'
 
 package _Impl0
-    class Function0(resT: Type)
+    datatype Function0(resT: Type)
         using arity = 0
         using ResT = resT
         using _FunPtrType = FunctionPtr(resT, @Byte)
-        var _data: _Impl.FunctionData
+        _data: _Impl.FunctionData
 
     fun ctor(this: @Function0, ftor: @AnyType) if isValid(ftor()) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor())
@@ -72,12 +72,12 @@ package _Impl0
         os << _data
 
 package _Impl1
-    class Function1(resT, t1: Type)
+    datatype Function1(resT, t1: Type)
         using arity = 1
         using ResT = resT
         using T1 = t1
         using _FunPtrType = FunctionPtr(resT, @Byte, T1)
-        var _data: _Impl.FunctionData
+        _data: _Impl.FunctionData
 
     fun ctor(this: @Function1, ftor: @AnyType) if isValid(ftor(#$this.T1)) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1))
@@ -94,13 +94,13 @@ package _Impl1
         os << _data
 
 package _Impl2
-    class Function2(resT, t1, t2: Type)
+    datatype Function2(resT, t1, t2: Type)
         using arity = 2
         using ResT = resT
         using T1 = t1
         using T2 = t2
         using _FunPtrType = FunctionPtr(resT, @Byte, T1, T2)
-        var _data: _Impl.FunctionData
+        _data: _Impl.FunctionData
 
     fun ctor(this: @Function2, ftor: @AnyType) if isValid(ftor(#$this.T1, #$this.T2)) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2))
@@ -119,14 +119,14 @@ package _Impl2
 
 
 package _Impl3
-    class Function3(resT, t1, t2, t3: Type)
+    datatype Function3(resT, t1, t2, t3: Type)
         using arity = 3
         using ResT = resT
         using T1 = t1
         using T2 = t2
         using T3 = t3
         using _FunPtrType = FunctionPtr(resT, @Byte, T1, T2, T3)
-        var _data: _Impl.FunctionData
+        _data: _Impl.FunctionData
 
     fun ctor(this: @Function3, ftor: @AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3)) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3))
@@ -143,7 +143,7 @@ package _Impl3
         os << _data
 
 package _Impl4
-    class Function4(resT, t1, t2, t3, t4: Type)
+    datatype Function4(resT, t1, t2, t3, t4: Type)
         using arity = 4
         using ResT = resT
         using T1 = t1
@@ -151,7 +151,7 @@ package _Impl4
         using T3 = t3
         using T4 = t4
         using _FunPtrType = FunctionPtr(resT, @Byte, T1, T2, T3, T4)
-        var _data: _Impl.FunctionData
+        _data: _Impl.FunctionData
 
     fun ctor(this: @Function4, ftor: @AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4)) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4))
@@ -168,7 +168,7 @@ package _Impl4
         os << _data
 
 package _Impl5
-    class Function5(resT, t1, t2, t3, t4, t5: Type)
+    datatype Function5(resT, t1, t2, t3, t4, t5: Type)
         using arity = 5
         using ResT = resT
         using T1 = t1
@@ -177,7 +177,7 @@ package _Impl5
         using T4 = t4
         using T5 = t5
         using _FunPtrType = FunctionPtr(resT, @Byte, T1, T2, T3, T4, T5)
-        var _data: _Impl.FunctionData
+        _data: _Impl.FunctionData
 
     fun ctor(this: @Function5, ftor: @AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5)) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5))
@@ -194,7 +194,7 @@ package _Impl5
         os << _data
 
 package _Impl6
-    class Function6(resT, t1, t2, t3, t4, t5, t6: Type)
+    datatype Function6(resT, t1, t2, t3, t4, t5, t6: Type)
         using arity = 6
         using ResT = resT
         using T1 = t1
@@ -204,7 +204,7 @@ package _Impl6
         using T5 = t5
         using T6 = t6
         using _FunPtrType = FunctionPtr(resT, @Byte, T1, T2, T3, T4, T5, T6)
-        var _data: _Impl.FunctionData
+        _data: _Impl.FunctionData
 
     fun ctor(this: @Function6, ftor: @AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5, #$this.T6)) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6))
@@ -221,7 +221,7 @@ package _Impl6
         os << _data
 
 package _Impl7
-    class Function7(resT, t1, t2, t3, t4, t5, t6, t7: Type)
+    datatype Function7(resT, t1, t2, t3, t4, t5, t6, t7: Type)
         using arity = 7
         using ResT = resT
         using T1 = t1
@@ -232,7 +232,7 @@ package _Impl7
         using T6 = t6
         using T7 = t7
         using _FunPtrType = FunctionPtr(resT, @Byte, T1, T2, T3, T4, T5, T6, T7)
-        var _data: _Impl.FunctionData
+        _data: _Impl.FunctionData
 
     fun ctor(this: @Function7, ftor: @AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5, #$this.T6, #$this.T7)) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7))
@@ -249,7 +249,7 @@ package _Impl7
         os << _data
 
 package _Impl8
-    class Function8(resT, t1, t2, t3, t4, t5, t6, t7, t8: Type)
+    datatype Function8(resT, t1, t2, t3, t4, t5, t6, t7, t8: Type)
         using arity = 8
         using ResT = resT
         using T1 = t1
@@ -261,7 +261,7 @@ package _Impl8
         using T7 = t7
         using T8 = t8
         using _FunPtrType = FunctionPtr(resT, @Byte, T1, T2, T3, T4, T5, T6, T7, T8)
-        var _data: _Impl.FunctionData
+        _data: _Impl.FunctionData
 
     fun ctor(this: @Function8, ftor: @AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5, #$this.T6, #$this.T7, #$this.T8)) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8))
@@ -278,7 +278,7 @@ package _Impl8
         os << _data
 
 package _Impl9
-    class Function9(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9: Type)
+    datatype Function9(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9: Type)
         using arity = 9
         using ResT = resT
         using T1 = t1
@@ -291,7 +291,7 @@ package _Impl9
         using T8 = t8
         using T9 = t9
         using _FunPtrType = FunctionPtr(resT, @Byte, T1, T2, T3, T4, T5, T6, T7, T8, T9)
-        var _data: _Impl.FunctionData
+        _data: _Impl.FunctionData
 
     fun ctor(this: @Function9, ftor: @AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5, #$this.T6, #$this.T7, #$this.T8, #$this.T9)) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9))
@@ -308,7 +308,7 @@ package _Impl9
         os << _data
 
 package _Impl10
-    class Function10(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10: Type)
+    datatype Function10(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10: Type)
         using arity = 10
         using ResT = resT
         using T1 = t1
@@ -322,7 +322,7 @@ package _Impl10
         using T9 = t9
         using T10 = t10
         using _FunPtrType = FunctionPtr(resT, @Byte, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)
-        var _data: _Impl.FunctionData
+        _data: _Impl.FunctionData
 
     fun ctor(this: @Function10, ftor: @AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5, #$this.T6, #$this.T7, #$this.T8, #$this.T9, #$this.T10)) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10))
@@ -339,7 +339,7 @@ package _Impl10
         os << _data
 
 package _Impl11
-    class Function11(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11: Type)
+    datatype Function11(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11: Type)
         using arity = 11
         using ResT = resT
         using T1 = t1
@@ -354,7 +354,7 @@ package _Impl11
         using T10 = t10
         using T11 = t11
         using _FunPtrType = FunctionPtr(resT, @Byte, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)
-        var _data: _Impl.FunctionData
+        _data: _Impl.FunctionData
 
     fun ctor(this: @Function11, ftor: @AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5, #$this.T6, #$this.T7, #$this.T8, #$this.T9, #$this.T10, #$this.T11)) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10, #$T11))
@@ -371,7 +371,7 @@ package _Impl11
         os << _data
 
 package _Impl12
-    class Function12(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12: Type)
+    datatype Function12(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12: Type)
         using arity = 12
         using ResT = resT
         using T1 = t1
@@ -387,7 +387,7 @@ package _Impl12
         using T11 = t11
         using T12 = t12
         using _FunPtrType = FunctionPtr(resT, @Byte, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)
-        var _data: _Impl.FunctionData
+        _data: _Impl.FunctionData
 
     fun ctor(this: @Function12, ftor: @AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5, #$this.T6, #$this.T7, #$this.T8, #$this.T9, #$this.T10, #$this.T11, #$this.T12)) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10, #$T11, #$T12))
@@ -404,7 +404,7 @@ package _Impl12
         os << _data
 
 package _Impl13
-    class Function13(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13: Type)
+    datatype Function13(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13: Type)
         using arity = 13
         using ResT = resT
         using T1 = t1
@@ -421,7 +421,7 @@ package _Impl13
         using T12 = t12
         using T13 = t13
         using _FunPtrType = FunctionPtr(resT, @Byte, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)
-        var _data: _Impl.FunctionData
+        _data: _Impl.FunctionData
 
     fun ctor(this: @Function13, ftor: @AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5, #$this.T6, #$this.T7, #$this.T8, #$this.T9, #$this.T10, #$this.T11, #$this.T12, #$this.T13)) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10, #$T11, #$T12, #$T13))
@@ -438,7 +438,7 @@ package _Impl13
         os << _data
 
 package _Impl14
-    class Function14(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14: Type)
+    datatype Function14(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14: Type)
         using arity = 14
         using ResT = resT
         using T1 = t1
@@ -456,7 +456,7 @@ package _Impl14
         using T13 = t13
         using T14 = t14
         using _FunPtrType = FunctionPtr(resT, @Byte, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)
-        var _data: _Impl.FunctionData
+        _data: _Impl.FunctionData
 
     fun ctor(this: @Function14, ftor: @AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5, #$this.T6, #$this.T7, #$this.T8, #$this.T9, #$this.T10, #$this.T11, #$this.T12, #$this.T13, #$this.T14)) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10, #$T11, #$T12, #$T13, #$T14))
@@ -473,7 +473,7 @@ package _Impl14
         os << _data
 
 package _Impl15
-    class Function15(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15: Type)
+    datatype Function15(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15: Type)
         using arity = 15
         using ResT = resT
         using T1 = t1
@@ -492,7 +492,7 @@ package _Impl15
         using T14 = t14
         using T15 = t15
         using _FunPtrType = FunctionPtr(resT, @Byte, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)
-        var _data: _Impl.FunctionData
+        _data: _Impl.FunctionData
 
     fun ctor(this: @Function15, ftor: @AnyType) if isValid(ftor(#$this.T1, #$this.T2, #$this.T3, #$this.T4, #$this.T5, #$this.T6, #$this.T7, #$this.T8, #$this.T9, #$this.T10, #$this.T11, #$this.T12, #$this.T13, #$this.T14, #$this.T15)) && typeOf(ftor) != typeOf(this)
         _Impl.reinterpretCopy(this._data.callFn, \ftor(#$T1, #$T2, #$T3, #$T4, #$T5, #$T6, #$T7, #$T8, #$T9, #$T10, #$T11, #$T12, #$T13, #$T14, #$T15))

@@ -19,11 +19,11 @@ package _ImplLSCR
     /// This also exposes a CharRange functionality, but it also modifiers an external
     /// location when iterating over the chars
     [initCtor]
-    class LocationSyncCharRange(sourceType: Type) if CharRange(#$sourceType)
+    datatype LocationSyncCharRange(sourceType: Type) if CharRange(#$sourceType)
         using RetType = Char
 
-        var source: sourceType
-        var location: @Location
+        source: sourceType
+        location: @Location
 
     fun isEmpty(this: @LocationSyncCharRange) = source.isEmpty
     fun front(this: @LocationSyncCharRange)   = source.front
@@ -40,23 +40,23 @@ package _ImplLSCR
 /// This behaves just like a range transformation. Given the source range, this
 /// will represent a range of tokens extracted from the source characters.
 ///
-class SparrowScanner(sourceType, errorReporterType: Type) \
+datatype SparrowScanner(sourceType, errorReporterType: Type) \
         if CharRange(#$sourceType) && ErrorReporter(#$errorReporterType)
     using RetType = Token
     using _SourceType = sourceType
     using _ErrRepType = errorReporterType
 
     /// Location that we use to keep track of the source chars
-    var _curLocation: Location
+    _curLocation: Location
     /// The source stream of chars (and locations) we are going to use
-    var _src: _ImplLSCR.LocationSyncCharRange(RangeWithLookahead(sourceType))
+    _src: _ImplLSCR.LocationSyncCharRange(RangeWithLookahead(sourceType))
     /// The current token we look at. We will reuse this object for all the
     /// tokens that we parse from the source stream
-    var _curToken: Token
+    _curToken: Token
     /// Indicates if '_curToken' is computed or not
-    var _tokenIsComputed: Bool
+    _tokenIsComputed: Bool
     /// Object used to report errors
-    var _errorReporter: errorReporterType
+    _errorReporter: errorReporterType
 
 fun ctor(this: @SparrowScanner, source: this._SourceType, errorReporter: this._ErrRepType, iniLocation: @Location)
     this._curLocation ctor iniLocation

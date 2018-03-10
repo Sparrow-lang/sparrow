@@ -5,8 +5,8 @@ import std.ptr, std.newDelete
 
 // BasicBlockEdge only maintains two pointers to BasicBlocks.
 //
-class BasicBlockEdge
-    var from, to: BasicBlock Ptr
+datatype BasicBlockEdge
+    from, to: BasicBlock Ptr
 
 fun ctor(this: @BasicBlockEdge, cfg: @MaoCFG, fromName, toName: Int)
     from ctor cfg.createNode(fromName)
@@ -19,9 +19,9 @@ fun ctor(this: @BasicBlockEdge, cfg: @MaoCFG, fromName, toName: Int)
 // BasicBlock only maintains a vector of in-edges and
 // a vector of out-edges.
 //
-class BasicBlock
-    var _inEdges, _outEdges: Vector(BasicBlock Ptr)
-    var _name: Int
+datatype BasicBlock
+    _inEdges, _outEdges: Vector(BasicBlock Ptr)
+    _name: Int
 
 fun ctor(this: @BasicBlock, name: Int)
     this._name ctor name
@@ -38,10 +38,10 @@ fun outEdgesRange(this: @BasicBlock) = _outEdges all
 fun hash(this: @BasicBlock) = _name
 
 // MaoCFG maintains a list of nodes.
-class MaoCFG
-    var startNode: BasicBlock Ptr
-    var _basicBlockMap: Map(Int, BasicBlock Ptr)
-    var _edges: List(BasicBlockEdge Ptr)
+datatype MaoCFG
+    startNode: BasicBlock Ptr
+    _basicBlockMap: Map(Int, BasicBlock Ptr)
+    _edges: List(BasicBlockEdge Ptr)
 
 fun dtor(this: @MaoCFG)
     _basicBlockMap.values delete
@@ -72,16 +72,16 @@ fun basicBlocksRange(this: @MaoCFG) = _basicBlockMap.values()
 // it can be an irreducible loop, have control flow, be
 // a candidate for transformations, and what not.
 //
-class SimpleLoop
-    var children: Set(SimpleLoop Ptr)
+datatype SimpleLoop
+    children: Set(SimpleLoop Ptr)
 
-    var isRoot: Bool
-    var nestingLevel: Int
-    var depthLevel: Int
-    var counter: Int
+    isRoot: Bool
+    nestingLevel: Int
+    depthLevel: Int
+    counter: Int
 
-    var _parent: SimpleLoop Ptr
-    var _basicBlocks: Set(BasicBlock Ptr)
+    _parent: SimpleLoop Ptr
+    _basicBlocks: Set(BasicBlock Ptr)
 
 fun addNode(this: @SimpleLoop, bb: BasicBlock Ptr)         = _basicBlocks += bb
 fun addChildLoop(this: @SimpleLoop, loop: SimpleLoop Ptr)  = this.children += loop
@@ -114,10 +114,10 @@ fun >>(this: @SimpleLoop, os: @OutStream)
 //   loop-3    1                1
 //     loop-2  0                2
 //
-class LoopStructureGraph
-    var _root: SimpleLoop Ptr
-    var _loops: List(SimpleLoop Ptr)
-    var _loopCounter: Int
+datatype LoopStructureGraph
+    _root: SimpleLoop Ptr
+    _loops: List(SimpleLoop Ptr)
+    _loopCounter: Int
 
 fun ctor(this: @LoopStructureGraph)
     _loopCounter ctor 1
@@ -168,11 +168,11 @@ fun _dumpRec(os: @OutStream, loop: SimpleLoop Ptr, indent: Int)
 // Union/Find algorithm after Tarjan, R.E., 1983, Data Structures
 // and Network Algorithms.
 //
-class UnionFindNode
-    var bb: BasicBlock Ptr
-    var loop: SimpleLoop Ptr
-    var dfsNumber: Int
-    var _parent: UnionFindNode Ptr
+datatype UnionFindNode
+    bb: BasicBlock Ptr
+    loop: SimpleLoop Ptr
+    dfsNumber: Int
+    _parent: UnionFindNode Ptr
 
 // Initialize this node.
 //
@@ -247,9 +247,9 @@ using kUnvisited = -1              // Marker for uninitialized nodes.
 using kMaxNonBackPreds = 32*1024   // Safeguard against pathologic algorithm behavior.
 
 
-class HavlakLoopFinder
-    var _cfg: @MaoCFG
-    var _lsg: @LoopStructureGraph
+datatype HavlakLoopFinder
+    _cfg: @MaoCFG
+    _lsg: @LoopStructureGraph
 
 fun ctor(this: @HavlakLoopFinder, cfg: @MaoCFG, lsg: @LoopStructureGraph)
     this._cfg := cfg

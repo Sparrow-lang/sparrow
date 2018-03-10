@@ -54,7 +54,7 @@ using nRotations = 12;
 //var nextCell:    StaticArray3d(Byte, nPieces, nPositions, nRotations);
 //var pieceCounts: StaticArray2d(Int, nPieces, nPositions);
 
-//class Piece
+//datatype Piece
 //{
 //    using PosType = Byte * Byte;    // y coord then x coord - used for sorting
 //    using PosTypeArr = StaticArray(PosType, 5);
@@ -132,8 +132,8 @@ using nRotations = 12;
 package P1
 {
 
-class Direction
-    var id: Int;
+datatype Direction
+    id: Int;
 
     using E     = Direction(0);
     using ESE   = Direction(1);

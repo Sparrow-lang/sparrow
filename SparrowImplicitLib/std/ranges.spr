@@ -173,9 +173,9 @@ concept RandomAccessRange(x: BidirRange) if (
 //
 
 [rtct]
-    class NumericRangeInc(valueType: Type) if Number(#$valueType)
-        var _begin, _end: valueType
-        var _closed: Bool
+    datatype NumericRangeInc(valueType: Type) if Number(#$valueType)
+        _begin, _end: valueType
+        _closed: Bool
         using _step = valueType(1)
 
         using RetType = valueType
@@ -206,9 +206,9 @@ concept RandomAccessRange(x: BidirRange) if (
     fun ()(this: NumericRangeInc, n: SizeType): RetType = _begin + RetType(n)
 
 [rtct]
-    class NumericRangeWithStep(valueType: Type) if Number(#$valueType)
-        var _begin, _end, _step: valueType
-        var _closed: Bool
+    datatype NumericRangeWithStep(valueType: Type) if Number(#$valueType)
+        _begin, _end, _step: valueType
+        _closed: Bool
 
         using RetType = valueType
 
@@ -271,8 +271,8 @@ concept RandomAccessRange(x: BidirRange) if (
 
 [rtct]
     [initCtor]
-    class RetroRange(rangeType: Type) if BidirRange(#$rangeType)
-        var _range: rangeType
+    datatype RetroRange(rangeType: Type) if BidirRange(#$rangeType)
+        _range: rangeType
 
         using RetType = rangeType.RetType
 
@@ -286,9 +286,9 @@ concept RandomAccessRange(x: BidirRange) if (
 
 [rtct]
     [initCtor]
-    class TakeRange(rangeType: Type) if Range(#$rangeType)
-        var _range: rangeType
-        var _count: SizeType
+    datatype TakeRange(rangeType: Type) if Range(#$rangeType)
+        _range: rangeType
+        _count: SizeType
 
         using RetType = rangeType.RetType
 
@@ -299,10 +299,10 @@ concept RandomAccessRange(x: BidirRange) if (
 
 [rtct]
     [initCtor]
-    class TakeWhileRange(rangeType: Type, predType: Type) \
+    datatype TakeWhileRange(rangeType: Type, predType: Type) \
             if Range(#$rangeType) && typeOf((#$predType)(#$rangeType front)) == Bool
-        var _range: rangeType
-        var _pred: predType
+        _range: rangeType
+        _pred: predType
 
         using RetType = rangeType.RetType
 
@@ -313,11 +313,11 @@ concept RandomAccessRange(x: BidirRange) if (
 
 [rtct]
     [initCtor]
-    class TakeUntilRange(rangeType: Type, predType: Type) \
+    datatype TakeUntilRange(rangeType: Type, predType: Type) \
             if Range(#$rangeType) && typeOf((#$predType)(#$rangeType front)) == Bool
-        var _range: rangeType
-        var _pred: predType
-        var _shouldStop: Bool = false
+        _range: rangeType
+        _pred: predType
+        _shouldStop: Bool = false
 
         using RetType = rangeType.RetType
 
@@ -330,11 +330,11 @@ concept RandomAccessRange(x: BidirRange) if (
         _shouldStop = _pred(lastVal)
 
 [rtct]
-    class FilteredRange(rangeType, predType: Type) \
+    datatype FilteredRange(rangeType, predType: Type) \
             if Range(#$rangeType) && typeOf((#$predType)(#$rangeType front)) == Bool
-        var _range: rangeType
-        var _pred: predType
-        var _lastVal: RetType
+        _range: rangeType
+        _pred: predType
+        _lastVal: RetType
 
         using RetType = -@rangeType.RetType
         using _RangeType = rangeType
@@ -360,12 +360,12 @@ concept RandomAccessRange(x: BidirRange) if (
 
 [rtct]
     [initCtor]
-    class TransformedRange(rangeType, funType: Type) \
+    datatype TransformedRange(rangeType, funType: Type) \
             if Range(#$rangeType) && isValid((#$funType)(#$rangeType front))
-        var _range: rangeType
-        var _function: funType
-        var _curVal: RetType = RetType()
-        var _hasValue: Bool = false
+        _range: rangeType
+        _function: funType
+        _curVal: RetType = RetType()
+        _hasValue: Bool = false
 
         using RetType = -@typeOf((#$funType)(#$rangeType front))
 
@@ -380,8 +380,8 @@ concept RandomAccessRange(x: BidirRange) if (
 
 [rtct]
     [initCtor]
-    class RepeatRange(valueType: Type)
-        var _value: valueType
+    datatype RepeatRange(valueType: Type)
+        _value: valueType
 
         using RetType = valueType
 
@@ -392,10 +392,10 @@ concept RandomAccessRange(x: BidirRange) if (
 
 [rtct]
     [initCtor]
-    class ChainRange(rangeType1: Type, rangeType2: Type) \
+    datatype ChainRange(rangeType1: Type, rangeType2: Type) \
             if Range(#$rangeType1) && Range(#$rangeType2)
-        var _range1: rangeType1
-        var _range2: rangeType2
+        _range1: rangeType1
+        _range2: rangeType2
 
         using RetType = commonType(rangeType1.RetType, rangeType2.RetType)
 
@@ -410,9 +410,9 @@ concept RandomAccessRange(x: BidirRange) if (
 
 [rtct]
     [initCtor]
-    class StridedRange(rangeType: Type) if Range(#$rangeType)
-        var _range: rangeType
-        var _strideStep: SizeType
+    datatype StridedRange(rangeType: Type) if Range(#$rangeType)
+        _range: rangeType
+        _strideStep: SizeType
 
         using RetType = rangeType.RetType
 
@@ -427,12 +427,12 @@ concept RandomAccessRange(x: BidirRange) if (
 
 [rtct]
     [initCtor]
-    class RadialRange(rangeType: Type) if RandomAccessRange(#$rangeType)
-        var _range: rangeType
-        var _index: SizeType
-        var _count: SizeType = 0
-        var _step: DiffType = 1
-        var _sign: DiffType = 1
+    datatype RadialRange(rangeType: Type) if RandomAccessRange(#$rangeType)
+        _range: rangeType
+        _index: SizeType
+        _count: SizeType = 0
+        _step: DiffType = 1
+        _sign: DiffType = 1
 
         using RetType = rangeType.RetType
 
@@ -450,8 +450,8 @@ concept RandomAccessRange(x: BidirRange) if (
             _sign = -_sign
 
 [rtct]
-    class CyclicRange(rangeType: Type) if Range(#$rangeType)
-        var _range, _base: rangeType
+    datatype CyclicRange(rangeType: Type) if Range(#$rangeType)
+        _range, _base: rangeType
 
         using RetType = rangeType.RetType
         using _RangeType = rangeType
@@ -469,9 +469,9 @@ concept RandomAccessRange(x: BidirRange) if (
             _range = _base
 
 [rtct]
-    class CyclicCountedRange(rangeType: Type) if Range(#$rangeType)
-        var _range, _base: rangeType
-        var _count: SizeType
+    datatype CyclicCountedRange(rangeType: Type) if Range(#$rangeType)
+        _range, _base: rangeType
+        _count: SizeType
 
         using RetType = rangeType.RetType
         using _RangeType = rangeType
@@ -492,9 +492,9 @@ concept RandomAccessRange(x: BidirRange) if (
                 --_count
 
 [rtct]
-    class GeneratedRange(functionType: Type)
-        var _function: functionType
-        var _current: RetType
+    datatype GeneratedRange(functionType: Type)
+        _function: functionType
+        _current: RetType
 
         using RetType = typeOf((#$functionType)())
         using _FunType = functionType
@@ -510,9 +510,9 @@ concept RandomAccessRange(x: BidirRange) if (
 
 [rtct]
     [initCtor]
-    class Generated1Range(elType, functionType: Type) //if isValid(elType(#$functionType)(#$elType))
-        var _current: RetType
-        var _function: functionType
+    datatype Generated1Range(elType, functionType: Type) //if isValid(elType(#$functionType)(#$elType))
+        _current: RetType
+        _function: functionType
 
         using RetType = elType
 
@@ -523,10 +523,10 @@ concept RandomAccessRange(x: BidirRange) if (
 
 [rtct]
     [initCtor]
-    class ZippedRange(rangeType1, rangeType2: Type, functionType: Type) if Range(#$rangeType1) &&  Range(#$rangeType2)
-        var _range1: rangeType1
-        var _range2: rangeType2
-        var _function: functionType
+    datatype ZippedRange(rangeType1, rangeType2: Type, functionType: Type) if Range(#$rangeType1) &&  Range(#$rangeType2)
+        _range1: rangeType1
+        _range2: rangeType2
+        _function: functionType
 
         using RetType = typeOf((#$functionType)(#$rangeType1 front, #$rangeType2 front))
 
@@ -537,11 +537,11 @@ concept RandomAccessRange(x: BidirRange) if (
 
 [rtct]
     [initCtor]
-    class ScanLeftRange(accType, rangeType: Type, functionType: Type) if Range(#$rangeType)
-        var _acc: accType
-        var _range: rangeType
-        var _function: functionType
-        var _valComputed: Bool = false
+    datatype ScanLeftRange(accType, rangeType: Type, functionType: Type) if Range(#$rangeType)
+        _acc: accType
+        _range: rangeType
+        _function: functionType
+        _valComputed: Bool = false
 
         using RetType = accType
 
@@ -556,9 +556,9 @@ concept RandomAccessRange(x: BidirRange) if (
 
 [rtct]
     [initCtor]
-    class ValuesRange(contType: Type) if isValid((#$contType)(1))
-        var _values: contType
-        var _idx: SizeType = 0
+    datatype ValuesRange(contType: Type) if isValid((#$contType)(1))
+        _values: contType
+        _idx: SizeType = 0
 
         using RetType       = contType.ValueType
 

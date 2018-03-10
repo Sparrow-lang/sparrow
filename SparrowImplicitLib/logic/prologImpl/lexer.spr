@@ -2,16 +2,16 @@ import token
 import errorReporter
 
 [rtct]
-    class Lexer(sourceType, errorReporterType: Type)
+    datatype Lexer(sourceType, errorReporterType: Type)
         using TokenType = Token
         using RetType = TokenType
         using _SourceType = sourceType
         using _ErrorReporterType = errorReporterType
 
-        var _source: sourceType
-        var _errorReporter: errorReporterType
-        var _curToken: Token
-        var _curLocation: Location
+        _source: sourceType
+        _errorReporter: errorReporterType
+        _curToken: Token
+        _curLocation: Location
 
     fun ctor(this: @Lexer, source: @this._SourceType, errorReporter: @this._ErrorReporterType)
         var startLoc: Location

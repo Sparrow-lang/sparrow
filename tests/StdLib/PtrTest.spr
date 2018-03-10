@@ -3,8 +3,8 @@ import std.newDelete;
 import std.vector;
 
 [initCtor]
-class MyObj
-    var x: Int;
+datatype MyObj
+    x: Int;
 
 fun dtor(this: MyObj)
     cout << x;
@@ -18,8 +18,8 @@ fun print(this: @MyObj)
 fun print(this: @MyObj, arg: StringRef)
     cout << "MyObj.print(" << arg << ")" << endl;
 
-class Foo
-    var obj: MyObj;
+datatype Foo
+    obj: MyObj;
 
 fun ctor(this: @Foo, x: Int)
     obj ctor x;

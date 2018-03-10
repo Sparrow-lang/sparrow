@@ -25,19 +25,19 @@ concept OutStream(x) if (
     var endl: EndLineHelperClass
     var flush: FlushHelperClass
 
-    class EndLineHelperClass
+    datatype EndLineHelperClass
         ;
     fun >>(this: EndLineHelperClass, os: @OutStream)
         os << '\n'
-    class FlushHelperClass
+    datatype FlushHelperClass
         ;
     fun >>(this: FlushHelperClass, os: @OutStream)
         [ct] if isValid(os.flush)
             os.flush
 
     // TODO: make this work for streams other than ConsoleOutputStream
-    class StreamRefWrapperHelperClass
-        var ptr: @Byte
+    datatype StreamRefWrapperHelperClass
+        ptr: @Byte
     fun >>(p: StreamRefWrapperHelperClass, os: @OutStream)
         _Impl.writeRef(p.ptr)
 

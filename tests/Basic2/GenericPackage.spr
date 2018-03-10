@@ -2,7 +2,7 @@
 
 import std.ranges
 
-class TypePrint(t: Type)
+datatype TypePrint(t: Type)
     using T = t
 
 fun ctor(this: @TypePrint)

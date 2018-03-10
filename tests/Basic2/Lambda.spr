@@ -6,7 +6,7 @@ fun fact(n: Int): Int
     else return n*fact(n-1);
 }
 
-class FactFun
+datatype FactFun
     ;
 fun ()(this: FactFun, n: Int) = fact(n);
 
@@ -68,8 +68,8 @@ fun test2
 25
 >>>*/
 
-class Test
-    var x: Int = 10;
+datatype Test
+    x: Int = 10;
 
 fun doTest1(this: Test)
 {
@@ -102,8 +102,8 @@ fun test4
 >>>*/
 
 [initCtor]
-class Foo
-    var x: Int;
+datatype Foo
+    x: Int;
 
 fun getVector(): Foo
 {

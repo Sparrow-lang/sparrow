@@ -5,11 +5,11 @@ import rawPtr(RawPtr, allocRawPtr)
 import ranges(rangeSize, ..)
 
 [rtct]
-    class Array(valueType: Type)
+    datatype Array(valueType: Type)
         using ValueType = valueType
         using RangeType = ContiguousMemoryRange(valueType)
 
-        var _begin, _end: RawPtr(ValueType)
+        _begin, _end: RawPtr(ValueType)
 
 [rt, protected]
 fun ctorFromCt(this: @Array, src: Array ct)

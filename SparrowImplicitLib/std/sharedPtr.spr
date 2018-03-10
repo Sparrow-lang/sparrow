@@ -3,12 +3,12 @@ module std.sharedPtr
 import newDelete(new, delete)
 
 [rtct]
-    class SharedPtr(type: Type)
+    datatype SharedPtr(type: Type)
         using ValueType = type
         using _MyAllocData = _AllocData(type)
 
-        var _ref: @ValueType
-        var _count: @UInt
+        _ref: @ValueType
+        _count: @UInt
 
 [rtct, protected]
     fun ctor(this: @SharedPtr)
@@ -70,9 +70,9 @@ import newDelete(new, delete)
             os << "SharedPtr(null)"
 
 [rtct]
-    class _AllocData(type: Type)
-        var _count: UInt
-        var data: type
+    datatype _AllocData(type: Type)
+        _count: UInt
+        data: type
 
     fun ctor(this: @_AllocData)
         _count ctor 1

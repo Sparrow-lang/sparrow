@@ -5,8 +5,8 @@ import std.newDelete;
 //import assert;
 
 //! Datatype describing a thread ID
-class ThreadId
-    var id: ULong;
+datatype ThreadId
+    id: ULong;
 
 fun ctor(this: @ThreadId, id: ULong)
     this.id ctor id;
@@ -18,8 +18,8 @@ fun >>(tid: @ThreadId, os: @OutStream)
 
 
 
-class Thread
-    var _handle: NativeThreadHandle;
+datatype Thread
+    _handle: NativeThreadHandle;
 
 //! Construct the Thread with a functor
 //! The functor can have state, not just executing code
@@ -92,8 +92,8 @@ fun sleep(durMs: UInt) {
 package Impl {
     using ThreadFun = FunctionPtr(@Byte rt, @Byte rt);
 
-    [initCtor] class Closure(FType: Type) {
-        var f: FType;
+    [initCtor] Closure(FType: Type) {
+        f: FType;
 
         [static] fun threadFun(arg: @Byte): @Byte {
             var self: @Closure = reinterpretCast(@Closure, arg);
@@ -113,7 +113,7 @@ package Impl {
         return handle;
     }
 
-    [initCtor] class TimeSpec { var tv_sec, tv_nsec: Long; }
+    [initCtor] datatype TimeSpec { var tv_sec, tv_nsec: Long; }
 
     [native("pthread_create")] fun pthread_create(handle: @NativeThreadHandle, attr: @Byte, f: ThreadFun, arg: @Byte): Int;
     [native("pthread_join")] fun pthread_join(handle: NativeThreadHandle, valPtr: @ @Byte): Int;

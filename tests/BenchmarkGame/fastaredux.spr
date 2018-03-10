@@ -28,10 +28,10 @@ fun nextRandom: Double
     return seed * 1.0/IM;
 }
 
-class RandTableRange
+datatype RandTableRange
     using RetType   = Char;
     using numEntries = 4095;
-    var lookup: Array((Float rt)*(Char rt));
+    lookup: Array((Float rt)*(Char rt));
 
 fun ctor(this: @RandTableRange, data: Range)
     lookup.ctor(numEntries+1);

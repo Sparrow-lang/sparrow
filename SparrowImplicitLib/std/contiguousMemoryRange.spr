@@ -5,11 +5,11 @@ import ranges(..)
 
 [rtct]
     [initCtor]
-    class ContiguousMemoryRange(valueType: Type)
+    datatype ContiguousMemoryRange(valueType: Type)
         using PtrType = RawPtr(valueType)
         using RetType = @valueType
 
-        var _begin, _end: PtrType
+        _begin, _end: PtrType
 
 [rtct, protected]
     fun isEmpty(this: ContiguousMemoryRange)                 = _end.diff(_begin) <= 0

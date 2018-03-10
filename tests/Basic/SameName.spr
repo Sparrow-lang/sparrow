@@ -1,7 +1,7 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-class myName
-    var x: Int;
+datatype myName
+    x: Int;
 
 fun ctor(this: @myName, x: Int) // ERROR ERROR
     this.x = x;

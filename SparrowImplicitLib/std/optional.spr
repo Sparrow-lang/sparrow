@@ -2,11 +2,11 @@ module std.optional
 
 /// A container that may or may not store a value.
 /// One can check whether the value is defined or not, and can access the value
-class Optional(valueType: Type)
+datatype Optional(valueType: Type)
     using ValueType = valueType
 
-    var _value: ValueType
-    var _constructed: Bool
+    _value: ValueType
+    _constructed: Bool
 
 [noDefault]
 fun ctor(this: @Optional)

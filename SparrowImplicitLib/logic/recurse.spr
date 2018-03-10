@@ -25,9 +25,9 @@ fun rec(pred, a1, a2, a3, a4, a5: @AnyType) \
 fun _mkRecurse(predGenerator: @AnyType) = Recurse(-@typeOf(predGenerator))(predGenerator)
 
 
-class Recurse(predGeneratorType: Type)
-    var _relation: Predicate
-    var _predGenerator: predGeneratorType
+datatype Recurse(predGeneratorType: Type)
+    _relation: Predicate
+    _predGenerator: predGeneratorType
     using _PredGen = predGeneratorType
 
 fun ctor(this: @Recurse, other: @Recurse)

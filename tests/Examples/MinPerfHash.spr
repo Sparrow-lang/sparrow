@@ -51,10 +51,10 @@ package _Impl
 
 
 [rtct]
-    class MinPerfHash
-        var displacements: Array(Int);
-        var numKeys: UInt;
-        var numValues: UInt;
+    datatype MinPerfHash
+        displacements: Array(Int);
+        numKeys: UInt;
+        numValues: UInt;
 
     fun ctor(this: @MinPerfHash, keys: @Vector(String))
         this.ctor(keys, defaultHashExtraSpace);
@@ -177,9 +177,9 @@ package _Impl
             cout << "\t" << displacements(i) << "\n";
         cout << ")\n\n";
 
-    class MinPerfHashSet
-        var _mph: MinPerfHash;
-        var _scrambledKeys: Vector(String);
+    datatype MinPerfHashSet
+        _mph: MinPerfHash;
+        _scrambledKeys: Vector(String);
 
     fun ctor(this: @MinPerfHashSet, keys: @Vector(String))
         _mph ctor keys;

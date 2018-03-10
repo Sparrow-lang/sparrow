@@ -5,8 +5,8 @@ concept AnyType(x) if true;
 fun myadd(x: Int, y: Int = 1) = x+y;
 
 
-class Foo
-    var x: Int;
+datatype Foo
+    x: Int;
 
 fun ctor(this: @Foo, x: Int = 10) { this.x = x; }
 fun ctor(this: @Foo, dummy1, dummy2: Int, x: Int = 10) { this.x = x; }
@@ -30,7 +30,7 @@ fun printType(t: Type)
         write("Char");
 }
 
-class TypePrinter(t1: Type, t2: Type = Int)
+datatype TypePrinter(t1: Type, t2: Type = Int)
     using T1 = t1
     using T2 = t2
 
@@ -41,7 +41,7 @@ fun print(this: TypePrinter)
     printType(T2);
     writeLn("");
 
-class Bar(t: Type = Int)
+datatype Bar(t: Type = Int)
     using T = t
 fun print(this: Bar)  { printType(T); writeLn(""); }
 

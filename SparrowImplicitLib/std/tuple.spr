@@ -9,10 +9,10 @@ concept TupleType(x) if (
 using oper_precedence_~ = oper_precedence_*
 
 [rtct]
-    [initCtor] class Tuple(t1, t2: Type)
+    [initCtor] datatype Tuple(t1, t2: Type)
         using arity = 2
-        var v1: t1
-        var v2: t2
+        v1: t1
+        v2: t2
 
     //fun ctor(this: @Tuple)
     //    v1 ctor
@@ -21,81 +21,81 @@ using oper_precedence_~ = oper_precedence_*
     //    this.v1 ctor other.v1
     //    this.v2 ctor other.v2
 
-    [initCtor] class Tuple(t1, t2, t3: Type)
+    [initCtor] datatype Tuple(t1, t2, t3: Type)
         using arity = 3
-        var v1: t1
-        var v2: t2
-        var v3: t3
+        v1: t1
+        v2: t2
+        v3: t3
 
-    [initCtor] class Tuple(t1, t2, t3, t4: Type)
+    [initCtor] datatype Tuple(t1, t2, t3, t4: Type)
         using arity = 4
-        var v1: t1
-        var v2: t2
-        var v3: t3
-        var v4: t4
+        v1: t1
+        v2: t2
+        v3: t3
+        v4: t4
 
-    [initCtor] class Tuple(t1, t2, t3, t4, t5: Type)
+    [initCtor] datatype Tuple(t1, t2, t3, t4, t5: Type)
         using arity = 5
-        var v1: t1
-        var v2: t2
-        var v3: t3
-        var v4: t4
-        var v5: t5
+        v1: t1
+        v2: t2
+        v3: t3
+        v4: t4
+        v5: t5
 
-    [initCtor] class Tuple(t1, t2, t3, t4, t5, t6: Type)
+    [initCtor] datatype Tuple(t1, t2, t3, t4, t5, t6: Type)
         using arity = 6
-        var v1: t1
-        var v2: t2
-        var v3: t3
-        var v4: t4
-        var v5: t5
-        var v6: t6
+        v1: t1
+        v2: t2
+        v3: t3
+        v4: t4
+        v5: t5
+        v6: t6
 
-    [initCtor] class Tuple(t1, t2, t3, t4, t5, t6, t7: Type)
+    [initCtor] datatype Tuple(t1, t2, t3, t4, t5, t6, t7: Type)
         using arity = 7
-        var v1: t1
-        var v2: t2
-        var v3: t3
-        var v4: t4
-        var v5: t5
-        var v6: t6
-        var v7: t7
+        v1: t1
+        v2: t2
+        v3: t3
+        v4: t4
+        v5: t5
+        v6: t6
+        v7: t7
 
-    [initCtor] class Tuple(t1, t2, t3, t4, t5, t6, t7, t8: Type)
+    [initCtor] datatype Tuple(t1, t2, t3, t4, t5, t6, t7, t8: Type)
         using arity = 8
-        var v1: t1
-        var v2: t2
-        var v3: t3
-        var v4: t4
-        var v5: t5
-        var v6: t6
-        var v7: t7
-        var v8: t8
+        v1: t1
+        v2: t2
+        v3: t3
+        v4: t4
+        v5: t5
+        v6: t6
+        v7: t7
+        v8: t8
 
-    [initCtor] class Tuple(t1, t2, t3, t4, t5, t6, t7, t8, t9: Type)
+    [initCtor] datatype Tuple(t1, t2, t3, t4, t5, t6, t7, t8, t9: Type)
         using arity = 9
-        var v1: t1
-        var v2: t2
-        var v3: t3
-        var v4: t4
-        var v5: t5
-        var v6: t6
-        var v7: t7
-        var v8: t8
-        var v9: t9
+        v1: t1
+        v2: t2
+        v3: t3
+        v4: t4
+        v5: t5
+        v6: t6
+        v7: t7
+        v8: t8
+        v9: t9
 
-    [initCtor] class Tuple(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10: Type)
+    [initCtor] datatype Tuple(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10: Type)
         using arity = 10
-        var v1: t1
-        var v2: t2
-        var v3: t3
-        var v4: t4
-        var v5: t5
-        var v6: t6
-        var v7: t7
-        var v8: t8
-        var v9: t9
-        var v10: t10
+        v1: t1
+        v2: t2
+        v3: t3
+        v4: t4
+        v5: t5
+        v6: t6
+        v7: t7
+        v8: t8
+        v9: t9
+        v10: t10
 
 [rtct, protected]
     fun <(lhs, rhs: TupleType) if typeOf(lhs) == typeOf(rhs) && lhs.arity == 2
@@ -150,7 +150,7 @@ using oper_precedence_~ = oper_precedence_*
     //[ctGeneric] fun *(tt,tex: Type): Type = Tuple(typeOf(tt.v1), typeOf(tt.v2), tex) if TupleType(#$tt) && tt.arity == 2
 
 [rtct]
-    class MakePair(firstType: Type, secondType: Type)
+    datatype MakePair(firstType: Type, secondType: Type)
         using FirstType = firstType
         using SecondType = secondType
 
@@ -159,7 +159,7 @@ using oper_precedence_~ = oper_precedence_*
         return Tuple(FirstType, SecondType)(fst, snd)
 
 [rtct]
-    class PairFirst(pairType: Type)
+    datatype PairFirst(pairType: Type)
         using PairType = pairType
 
 [rtct, protected]
@@ -167,7 +167,7 @@ using oper_precedence_~ = oper_precedence_*
         return pair.v1
 
 [rtct]
-    class PairSecond(pairType: Type)
+    datatype PairSecond(pairType: Type)
         using PairType = pairType
 
 [rtct, protected]

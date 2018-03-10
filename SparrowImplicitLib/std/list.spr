@@ -3,7 +3,7 @@ module std.list
 import rawPtr(RawPtr, mkRawPtr, allocRawPtr)
 import array(Array)
 
-class List(valueType: Type)
+datatype List(valueType: Type)
     using ValueType = valueType
     using RangeType = _ListRange(valueType)
     using RetType = @valueType
@@ -11,8 +11,8 @@ class List(valueType: Type)
     using _MyNodeType = _NodeType(valueType)
     using _NodeTypePtr = RawPtr(_MyNodeType)
 
-    var _head: _NodeLinks(valueType)
-    var _listSize: SizeType
+    _head: _NodeLinks(valueType)
+    _listSize: SizeType
 
 [protected]
     fun ctor(this: @List)
@@ -415,17 +415,17 @@ class List(valueType: Type)
         end.value().prev = begin.value().prev
         begin.value().prev = tmp
 
-class _NodeLinks(valueType: Type)
-    var prev, next: RawPtr(_NodeType(valueType))
+datatype _NodeLinks(valueType: Type)
+    prev, next: RawPtr(_NodeType(valueType))
 
-class _NodeType(valueType: Type)
-    var prev, next: RawPtr(_NodeType)
-    var data: valueType
+datatype _NodeType(valueType: Type)
+    prev, next: RawPtr(_NodeType)
+    data: valueType
 
-[initCtor] class _ListRange(valueType: Type)
+[initCtor] datatype _ListRange(valueType: Type)
     using RetType = @valueType
 
-    var _begin, _end: RawPtr(_NodeType(valueType))
+    _begin, _end: RawPtr(_NodeType(valueType))
 
 [protected]
     fun isEmpty(this: _ListRange)         = _begin == _end

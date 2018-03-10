@@ -4,9 +4,9 @@
 //import std.tuple;
 
 [noDefault]
-class Generic(t: Type, idx: Int)
+datatype Generic(t: Type, idx: Int)
     using _idx = idx
-    var x: t
+    x: t
 
     //fun ctor(this: @Generic, n: Int)
     //    x ctor (n + idx)

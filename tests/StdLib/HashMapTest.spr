@@ -5,8 +5,8 @@ import std.list;
 import std.vector;
 import std.algorithms;
 
-class IntWrapper
-    var x: Int;
+datatype IntWrapper
+    x: Int;
 
 [convert]
 fun ctor(this: @IntWrapper, x: Int) { this.x ctor x; }
@@ -16,13 +16,13 @@ fun hash(this: IntWrapper): SizeType
     cout << "IntWrapper.hash called for value " << x << endl;
     return x;
 
-class IntWithNoHash
-    var x: Int;
+datatype IntWithNoHash
+    x: Int;
 
 [convert]
 fun ctor(this: @IntWithNoHash, x: Int) { this.x ctor x; }
 
-class MyTypeTraits
+datatype MyTypeTraits
     ;
 
 fun equal(this: MyTypeTraits, l, r: IntWithNoHash) = l == r;

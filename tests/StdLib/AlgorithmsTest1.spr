@@ -24,12 +24,12 @@ fun sprMain
 }
 
 [initCtor]
-class MyObj
-    var x: Int;
+datatype MyObj
+    x: Int;
 
 fun <(this, other: @MyObj): Bool { return x < other.x; }
 
-class Greater
+datatype Greater
     ;
 fun ()(this: Greater, x: Int, y: Int): Bool { return x > y; }
 

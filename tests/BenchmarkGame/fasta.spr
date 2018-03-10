@@ -30,10 +30,10 @@ fun nextRandom: Double
 var randomRange = generate(\nextRandom);
 
 [initCtor]
-class RandomCharRange(distribValsRangeType: Type)
+datatype RandomCharRange(distribValsRangeType: Type)
     using RetType = Char;
-    var distribStr: StringRef;
-    var distribVals: distribValsRangeType;
+    distribStr: StringRef;
+    distribVals: distribValsRangeType;
 
 fun isEmpty(this: @RandomCharRange) = false;
 fun popFront(this: @RandomCharRange) {}

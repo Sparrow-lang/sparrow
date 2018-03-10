@@ -5,7 +5,7 @@ import typeTraits(DefaultTypeTraits)
 import tuple(Tuple, PairFirst, PairSecond)
 import ranges(transform)
 
-class Map(keyType, dataType: Type, traitsType: Type = DefaultTypeTraits)
+datatype Map(keyType, dataType: Type, traitsType: Type = DefaultTypeTraits)
     using KeyType = keyType
     using DataType = dataType
     using TraitsType = traitsType
@@ -13,7 +13,7 @@ class Map(keyType, dataType: Type, traitsType: Type = DefaultTypeTraits)
     using _ImplTable = HashTable(keyType, ValueType, PairFirst(ValueType), TraitsType)
     using RangeType = _ImplTable.RangeType
 
-    var _hashTable: _ImplTable
+    _hashTable: _ImplTable
 
 [protected]
     fun ctor(this: @Map, n: SizeType)                                       { _hashTable.ctor(n, TraitsType()); }

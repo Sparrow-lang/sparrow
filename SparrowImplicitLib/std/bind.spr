@@ -17,49 +17,49 @@ fun mkBindAll(ftor, a1, a2, a3, a4, a5: @AnyType) \
     if isValid(ftor(a1, a2, a3, a4, a5))
 
 [initCtor]
-class BindAll1(ftorType, T1: Type)
+datatype BindAll1(ftorType, T1: Type)
     using arity = 0
 
-    var ftor: ftorType
-    var a1: T1
+    ftor: ftorType
+    a1: T1
 
 [initCtor]
-class BindAll2(ftorType, T1, T2: Type)
+datatype BindAll2(ftorType, T1, T2: Type)
     using arity = 0
 
-    var ftor: ftorType
-    var a1: T1
-    var a2: T2
+    ftor: ftorType
+    a1: T1
+    a2: T2
 
 [initCtor]
-class BindAll3(ftorType, T1, T2, T3: Type)
+datatype BindAll3(ftorType, T1, T2, T3: Type)
     using arity = 0
 
-    var ftor: ftorType
-    var a1: T1
-    var a2: T2
-    var a3: T3
+    ftor: ftorType
+    a1: T1
+    a2: T2
+    a3: T3
 
 [initCtor]
-class BindAll4(ftorType, T1, T2, T3, T4: Type)
+datatype BindAll4(ftorType, T1, T2, T3, T4: Type)
     using arity = 0
 
-    var ftor: ftorType
-    var a1: T1
-    var a2: T2
-    var a3: T3
-    var a4: T4
+    ftor: ftorType
+    a1: T1
+    a2: T2
+    a3: T3
+    a4: T4
 
 [initCtor]
-class BindAll5(ftorType, T1, T2, T3, T4, T5: Type)
+datatype BindAll5(ftorType, T1, T2, T3, T4, T5: Type)
     using arity = 0
 
-    var ftor: ftorType
-    var a1: T1
-    var a2: T2
-    var a3: T3
-    var a4: T4
-    var a5: T5
+    ftor: ftorType
+    a1: T1
+    a2: T2
+    a3: T3
+    a4: T4
+    a5: T5
 
 [protected]
     fun ()(this: @BindAll1) = ftor(a1)

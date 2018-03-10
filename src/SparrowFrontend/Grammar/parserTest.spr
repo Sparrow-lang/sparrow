@@ -9,11 +9,11 @@ import std.newDelete
 
 var _nullNodeImpl: NodeImpl
 
-class NodeImpl
-    var kind: String
-    var loc: Location
-    var name: String
-    var children: Vector(Node)
+datatype NodeImpl
+    kind: String
+    loc: Location
+    name: String
+    children: Vector(Node)
 
 fun ctor(this: @NodeImpl)
     this.kind ctor "<null>"

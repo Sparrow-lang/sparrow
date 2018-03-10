@@ -5,7 +5,7 @@ import bitOper
 import string(String)
 
 [rtct]
-    class DefaultHashFunction(type: Type)
+    datatype DefaultHashFunction(type: Type)
         using ValueType = type
 
 [rtct, protected]

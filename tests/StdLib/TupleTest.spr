@@ -3,13 +3,11 @@ import std.tuple;
 import std.ranges;
 import check;
 
-[initCtor] class MyObj1 {
-    var x: Int;
-}
+[initCtor] datatype MyObj1
+    x: Int
 
-[initCtor] class MyObj2 {
-    var x, y: Int;
-}
+[initCtor] datatype MyObj2
+    x, y: Int
 
 fun >>(o: MyObj1, os: @OutStream) {
     os << o.x;

@@ -3,14 +3,14 @@ import bitOper
 import meta = meta.compilerCore
 
 [ct]
-    class LType
+    datatype LType
         using atom = 1
         using number = 2
         //using input = 4
         //using output = 8
         using initialVal = atom !|! number// !|! input !|! output
 
-        var _bits: Int = initialVal
+        _bits: Int = initialVal
 
     fun isValid(this: LType): Bool       = (this._testBit(atom) || this._testBit(number))// && (this._testBit(input) || this._testBit(output))
 
@@ -36,10 +36,10 @@ import meta = meta.compilerCore
         return true
 
     /// Structure indicating of set of expressions that share the same type
-    class LTypeSet
-        var type: LType                    ///< The type of all the expressions in this set
-        var expList: Vector(ExpressionPtr) ///< The list of all the expressions in this set, that share the same type
-        var idx: Int                       ///< The index of this type set
+    datatype LTypeSet
+        type: LType                    ///< The type of all the expressions in this set
+        expList: Vector(ExpressionPtr) ///< The list of all the expressions in this set, that share the same type
+        idx: Int                       ///< The index of this type set
 
     fun ctor(this: @LTypeSet, idx: Int, type: LType)
         this.type ctor type

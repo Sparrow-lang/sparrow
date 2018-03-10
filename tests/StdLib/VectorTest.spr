@@ -284,9 +284,9 @@ fun generateTestRange(sizeHint: UInt): TestRange {
 }
 
 
-class SubrangeTestData
-    var vec: Vec;
-    var start, count: SizeType;
+datatype SubrangeTestData
+    vec: Vec;
+    start, count: SizeType;
 
 fun >>(this: @SubrangeTestData, os: @OutStream)
     os << vec << ", start=" << start << ", count=" << count;
@@ -302,10 +302,10 @@ fun arbitrary(t: Type): SubrangeTestData Gen if t == SubrangeTestData {
     }));
 }
 
-class InsertValueTestData
-    var vec: Vec;
-    var idx: SizeType;
-    var value: Int;
+datatype InsertValueTestData
+    vec: Vec
+    idx: SizeType
+    value: Int
 
 fun >>(this: @InsertValueTestData, os: @OutStream)
     os << vec << ", idx=" << idx << ", value=" << value;
@@ -320,10 +320,10 @@ fun arbitrary(t: Type): InsertValueTestData Gen if t == InsertValueTestData {
     }));
 }
 
-class InsertRangeTestData
-    var vec: Vec;
-    var idx: SizeType;
-    var values: Vec;
+datatype InsertRangeTestData
+    vec: Vec
+    idx: SizeType
+    values: Vec
 
 fun >>(this: @InsertRangeTestData, os: @OutStream)
     os << vec << ", idx=" << idx << ", values=" << values;

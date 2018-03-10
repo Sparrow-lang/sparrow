@@ -33,36 +33,36 @@ fun sprMain
 }
 
 [initCtor]
-class MyObj
-    var x: Int;
+datatype MyObj
+    x: Int;
 
 fun =(this, other: @MyObj): @MyObj { x = other.x; return this; }
 fun ==(this, other: @MyObj): Bool = x == other.x
 fun <(this, other: @MyObj): Bool = x < other.x
 
-class Greater
+datatype Greater
     ;
 fun ()(this: Greater, x: Int, y: Int): Bool { return x > y; }
 
-class Even
+datatype Even
     ;
 fun ()(this: Even, x: Int): Bool { return x % 2 == 0; }
 
-class Minus
+datatype Minus
     ;
 fun ()(this: Minus, x: Int, y: Int) = x - y;
 
-class Square
+datatype Square
     ;
 fun ()(this: Square, x: AnyType) = x * x;
 
-class Multiply
+datatype Multiply
     ;
 fun ()(this: Multiply, x: AnyType, y: AnyType) = x * y;
 
-class Fact
-    var _res: Int = 1;
-    var _k: Int = 0;
+datatype Fact
+    _res: Int = 1;
+    _k: Int = 0;
 
 fun ()(this: @Fact): Int
     ++_k;

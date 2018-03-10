@@ -8,9 +8,8 @@ import par.semaphore;
 import par.atomic;
 
 //! Class used to keep count of the number of threads that go idle
-class IdleCounter {
-    var cnt: Int Atomic;
-}
+datatype IdleCounter
+    cnt: Int Atomic;
 
 fun goIdle(c: @IdleCounter) { c.cnt++; }
 fun wakeUp(c: @IdleCounter) { c.cnt--; }
@@ -19,18 +18,18 @@ fun numIdleWorkers(c: @IdleCounter) = c.cnt load;
 
 
 //! A worker class describes a thread that is doing some work on our task system
-class Worker
-    var taskSystem: @TaskSystem;
-    var work: TaskQueue;
-    var workerId: Int;
-    var curDepth: Int;
+datatype Worker
+    taskSystem: @TaskSystem;
+    work: TaskQueue;
+    workerId: Int;
+    curDepth: Int;
 
     //! The global counter that keeps track on how many internal threads are idle
-    var _idleCounter: @IdleCounter;
+    _idleCounter: @IdleCounter;
     //! Non-zero if this thread has work to do
-    var _isBusy: Int Atomic;
+    _isBusy: Int Atomic;
     //! Semaphore used when sleeping
-    var _waitSem: Semaphore;
+    _waitSem: Semaphore;
 
 fun ctor(this: @Worker, taskSystem: @TaskSystem, workerId: Int, idleCounter: @IdleCounter)
     this.taskSystem := taskSystem;

@@ -11,14 +11,14 @@ import par.locks;
 //!
 //! We use an intrinsic double-linked list to store the queue.
 //! The methods are synchronized to protect 2 threads popping elements.
-class TaskQueue {
+datatype TaskQueue {
     //! Points to the first element in the queue
-    var _first: TaskPrefix Ptr;
+    _first: TaskPrefix Ptr;
     //! Points to the last valid element in the queue
-    var _last: TaskPrefix Ptr;
+    _last: TaskPrefix Ptr;
 
     //! Mutex used to protect the extraction of tasks from both ends
-    var _mutex: Mutex;
+    _mutex: Mutex;
 }
 
 fun empty(q: @TaskQueue): Bool {
@@ -94,9 +94,9 @@ fun popBack(q: @TaskQueue): TaskPtr {
 }
 
 
-[initCtor] class TasksPrinter {
-    var _first: TaskPtr;
-    var list: @TaskQueue;
+[initCtor] datatype TasksPrinter {
+    _first: TaskPtr;
+    list: @TaskQueue;
 }
 
 fun >> (tasks: @TasksPrinter, os: @OutStream) {

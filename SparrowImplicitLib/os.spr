@@ -9,8 +9,8 @@ import std.string(String)
     fun systemCall(cmd: StringRef): Int
         return _Impl.system(cmd.cStr)
 
-    class File
-        var _handle: @Byte
+    datatype File
+        _handle: @Byte
 
 [rtct, protected]
     fun ctor(this: @File)
@@ -61,12 +61,12 @@ import std.string(String)
     fun all(this: @File) = FileRange(this)
 
 [rtct]
-    class FileRange
+    datatype FileRange
         using RetType = Char
 
-        var _file: @File
-        var _isEmpty: Bool
-        var _cur: Char
+        _file: @File
+        _isEmpty: Bool
+        _cur: Char
 
     fun ctor(this: @FileRange, file: @File)
         this._file := file

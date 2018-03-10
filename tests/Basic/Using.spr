@@ -28,7 +28,7 @@ package Inner2
 using MyDouble = Inner2.MyDouble
 
 package Inner3
-    class Gen(t: Type)
+    datatype Gen(t: Type)
         using MyType = t
 
     fun print(this: @Gen) if this.MyType == Int
@@ -41,7 +41,7 @@ package Inner3
 using MyGen = Inner3.Gen
 
 package Inner4
-    class Gen(t: Type)
+    datatype Gen(t: Type)
         using MyType1 = t
 
     fun print(this: @Gen)
@@ -49,7 +49,7 @@ package Inner4
         f1(MyType1())
 
 package Inner5
-    class Gen(t, u: Type)
+    datatype Gen(t, u: Type)
         using MyType1 = t
         using MyType2 = u
 

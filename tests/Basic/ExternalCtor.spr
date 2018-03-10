@@ -1,6 +1,6 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-class Book { var author, name, isbn: StringRef; }
+datatype Book { author, name, isbn: StringRef; }
 
 datatype Book3 { author, name, isbn: StringRef}
 datatype Book4 = Book

@@ -22,10 +22,10 @@ using tkOpMul = 15
 using tkOpDiv = 16
 
 [rtct]
-    class Token
-        var loc: Location
-        var type: Int
-        var data: String
+    datatype Token
+        loc: Location
+        type: Int
+        data: String
 
     fun ctor(this: @Token, loc: @Location, type: Int)
         this.loc ctor loc

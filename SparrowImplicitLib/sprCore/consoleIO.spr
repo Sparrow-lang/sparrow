@@ -4,7 +4,7 @@ import streamBasic(FlushHelperClass)
 [rtct]
     var cout: ConsoleOutputStream
 
-    class ConsoleOutputStream
+    datatype ConsoleOutputStream
         ;
 
     fun <<<(this: ConsoleOutputStream, x: Number)       { _Impl.write(x) }

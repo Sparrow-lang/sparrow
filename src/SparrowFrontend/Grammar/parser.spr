@@ -10,19 +10,19 @@ import meta.location
 ///
 /// All the nodes are created outside the parser; we only care about node pointers
 ///
-class SparrowParser(tokensRangeType, errorReporterType: Type) \
+datatype SparrowParser(tokensRangeType, errorReporterType: Type) \
         if TokenRange(#$tokensRangeType) && ErrorReporter(#$errorReporterType)
     using _TokensRangeType = tokensRangeType
     using _ErrRepType = errorReporterType
 
     /// The source ranges of tokens we will used while parsing
-    var _tokens: RangeWithLookahead(tokensRangeType)
+    _tokens: RangeWithLookahead(tokensRangeType)
     /// The last processed token
-    var _lastToken: Token
+    _lastToken: Token
     /// Indicates whether we have some syntax errors
-    var _hasErrors: Bool
+    _hasErrors: Bool
     /// Object used to report errors
-    var _errorReporter: errorReporterType
+    _errorReporter: errorReporterType
 
 fun ctor(this: @SparrowParser, tokens: this._TokensRangeType, errorReporter: this._ErrRepType)
     this._tokens ctor tokens

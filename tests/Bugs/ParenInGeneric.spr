@@ -1,7 +1,7 @@
 //!! -t ../Basic/SparrowImplicitLib.spr -fno-main
 
-class MyVector(t: Type)
-    var start, end: t;
+datatype MyVector(t: Type)
+    start, end: t;
 
 fun ==(this, other: MyVector): Bool = start == other.start && end == other.end;
 fun !=(this, other: MyVector): Bool = !(this == other);

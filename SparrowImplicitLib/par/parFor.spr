@@ -25,10 +25,10 @@ fun parFor(r: Range, f: AnyType, part: @Partitioner)
     tasks.spawnRootAndWait(Impl.ParForTask(range, f, part, 0));
 }
 
-class DefaultPartitioner(rangeType: Type) {
+datatype DefaultPartitioner(rangeType: Type) {
     using RangeType = BoundedRange(rangeType);
 
-    var _maxDepth: Int;
+    _maxDepth: Int;
 
     fun partStart {
         var p: Int = getAvailableCoresNum;
@@ -53,9 +53,9 @@ class DefaultPartitioner(rangeType: Type) {
     }
 }
 
-class BoundedRange(_baseRangeType: Type)
-    var _baseRange: baseRangeType;
-    var _count: SizeType;
+datatype BoundedRange(_baseRangeType: Type)
+    _baseRange: baseRangeType;
+    _count: SizeType;
 
     using RetType = baseRangeType.RetType;
     using _RangeType = baseRangeType
@@ -75,12 +75,12 @@ fun front(this: @BoundedRange): this.RetType         = _baseRange.front();
 fun popFront(this: @BoundedRange)                    { _baseRange.popFront(); --_count; }
 
 package Impl {
-    class ParForTask(rangeType, funcType, partType: Type)
-        var prefix: tasks.TaskPrefix;
-        var range: rangeType;
-        var func: funcType;
-        var part: @partType;
-        var depth: Int;
+    datatype ParForTask(rangeType, funcType, partType: Type)
+        prefix: tasks.TaskPrefix;
+        range: rangeType;
+        func: funcType;
+        part: @partType;
+        depth: Int;
 
         using RangeType = rangeType
         using _FuncType = funcType

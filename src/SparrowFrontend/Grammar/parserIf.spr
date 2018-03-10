@@ -4,17 +4,17 @@ module sparrowc.spr.grammar.parserIf
 import scanner, parser, layoutDecoder, ext
 import os, std.newDelete
 
-class ExternalErrorReporter
+datatype ExternalErrorReporter
     ;
 
 fun reportError(this: @ExternalErrorReporter, loc: Location, msg: @String)
     reportErrorExternal(loc, msg.asStringRef())
 
-class _CharSource
+datatype _CharSource
     using RetType = Char
 
-    var fileRange: @FileRange
-    var stringRange: StringRef
+    fileRange: @FileRange
+    stringRange: StringRef
 
 fun ctor(this: @_CharSource, fileRange: @FileRange, code: StringRef)
     this.fileRange := fileRange
@@ -30,17 +30,17 @@ fun popFront(this: @_CharSource)
     else stringRange.popFront
 
 
-class ParserContext
+datatype ParserContext
     using _ScannerType = SparrowScanner(_CharSource, ExternalErrorReporter)
     using _LayoutDecoderType = SparrowLayoutDecoder(_ScannerType, ExternalErrorReporter)
     using _ParserType = SparrowParser(_LayoutDecoderType, ExternalErrorReporter)
 
-    var _file: File
-    var _fileRange: FileRange
-    var _source: _CharSource
-    var _scanner: _ScannerType
-    var _layoutDecoder: _LayoutDecoderType
-    var _parser: _ParserType
+    _file: File
+    _fileRange: FileRange
+    _source: _CharSource
+    _scanner: _ScannerType
+    _layoutDecoder: _LayoutDecoderType
+    _parser: _ParserType
 
 fun ctor(this: @ParserContext, filename, code: StringRef, loc: Location, scannerOnly: Bool = false)
     var reporter = ExternalErrorReporter()

@@ -30,9 +30,9 @@ fun doProtectedJob(mutex: @Lockable, useTryLock: Bool = false) {
     }
 }
 
-[initCtor] class Worker {
-    var amountOfWork: Int;
-    var useTryLock: Bool;
+[initCtor] datatype Worker {
+    amountOfWork: Int;
+    useTryLock: Bool;
 
     fun ()() {
         for i = 0..amountOfWork {
@@ -43,9 +43,9 @@ fun doProtectedJob(mutex: @Lockable, useTryLock: Bool = false) {
     }
 }
 
-class WorkManager {
-    var amountOfWork, numWorkers, numTryWorkers: Int;
-    var threads: (Thread Ptr) Vector;
+datatype WorkManager {
+    amountOfWork, numWorkers, numTryWorkers: Int;
+    threads: (Thread Ptr) Vector;
 
 }
 

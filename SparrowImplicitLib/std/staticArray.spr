@@ -6,12 +6,12 @@ import ranges
 
 [rtct]
     [noDefault]
-    class StaticArray(valueType: Type, arraySize: SizeType)
+    datatype StaticArray(valueType: Type, arraySize: SizeType)
         using ValueType = valueType
         using RangeType = ContiguousMemoryRange(valueType)
         using _arraySize = arraySize
 
-        var _buf: static_buffer(arraySize * sizeOf(ValueType))
+        _buf: static_buffer(arraySize * sizeOf(ValueType))
 
 
 [rtct, protected]

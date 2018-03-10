@@ -19,8 +19,8 @@ fun sprMain
     else if n == 9; test9
 }
 
-class MyObj
-    var x: Int;
+datatype MyObj
+    x: Int;
 
 fun ctor(this: @MyObj, xx: Int)
     x ctor xx

@@ -1,10 +1,10 @@
 import basicDecls(Char, Byte, Int, SizeType, DiffType, StringRef, Null, typeOf, reinterpretCast, sizeOf, ptrAdd, ptrSub, ptrDiff, fromCString, *)
 
 /// Range type that returns StringRef objects referring to program arguments
-class MainParameters
+datatype MainParameters
     using RetType = StringRef
 
-    var _begin, _end: _Impl.CStrPtr
+    _begin, _end: _Impl.CStrPtr
 
 fun ctor(this: @MainParameters, argc: Int, argv: @ @Char)
     this._begin = (_Impl.fromArgvPtr(argv))
@@ -24,8 +24,8 @@ fun popFront(this: @MainParameters, n: SizeType)       { _begin = (_begin + n); 
 fun popBack(this: @MainParameters, n: SizeType)        { _end = (_end - n); }
 
 package _Impl
-    class CStr { var cstr: @Char; }
-    [initCtor] class CStrPtr { var ptr: @CStr; }
+    datatype CStr { cstr: @Char; }
+    [initCtor] datatype CStrPtr { ptr: @CStr; }
 
     fun fromArgvPtr(argv: @ @Char): CStrPtr = CStrPtr(reinterpretCast(@CStr, argv))
     fun fromBytePtr(p: @Byte): CStrPtr = CStrPtr(reinterpretCast(@CStr, p))

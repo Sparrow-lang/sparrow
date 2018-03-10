@@ -2,10 +2,10 @@ import basicDecls(Type, Byte, Int, Null, AnyType)
 
 package _Impl0
     [rtct]
-    class FunctionPtr0(resT: Type)
+    datatype FunctionPtr0(resT: Type)
         using arity = 0
         using ResT = resT
-        var _funPtr: @Byte
+        _funPtr: @Byte
 
     [rtct]
         [native("$funptr")] fun _doCall(this: @FunctionPtr0): ResT
@@ -13,11 +13,11 @@ package _Impl0
 
 package _Impl1
     [rtct]
-    class FunctionPtr1(resT, t1: Type)
+    datatype FunctionPtr1(resT, t1: Type)
         using arity = 1
         using ResT = resT
         using T1 = t1
-        var _funPtr: @Byte
+        _funPtr: @Byte
 
     [rtct]
         [native("$funptr")] fun _doCall(this: @FunctionPtr1, p1: this.T1): ResT
@@ -25,12 +25,12 @@ package _Impl1
 
 package _Impl2
     [rtct]
-    class FunctionPtr2(resT, t1, t2: Type)
+    datatype FunctionPtr2(resT, t1, t2: Type)
         using arity = 2
         using ResT = resT
         using T1 = t1
         using T2 = t2
-        var _funPtr: @Byte
+        _funPtr: @Byte
 
     [rtct]
         [native("$funptr")] fun _doCall(this: @FunctionPtr2, p1: this.T1, p2: this.T2): ResT
@@ -38,13 +38,13 @@ package _Impl2
 
 package _Impl3
     [rtct]
-    class FunctionPtr3(resT, t1, t2, t3: Type)
+    datatype FunctionPtr3(resT, t1, t2, t3: Type)
         using arity = 3
         using ResT = resT
         using T1 = t1
         using T2 = t2
         using T3 = t3
-        var _funPtr: @Byte
+        _funPtr: @Byte
 
     [rtct]
         [native("$funptr")] fun _doCall(this: @FunctionPtr3, p1: this.T1, p2: this.T2, p3: this.T3): ResT
@@ -52,14 +52,14 @@ package _Impl3
 
 package _Impl4
     [rtct]
-    class FunctionPtr4(resT, t1, t2, t3, t4: Type)
+    datatype FunctionPtr4(resT, t1, t2, t3, t4: Type)
         using arity = 4
         using ResT = resT
         using T1 = t1
         using T2 = t2
         using T3 = t3
         using T4 = t4
-        var _funPtr: @Byte
+        _funPtr: @Byte
 
     [rtct]
         [native("$funptr")] fun _doCall(this: @FunctionPtr4, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4): ResT
@@ -67,7 +67,7 @@ package _Impl4
 
 package _Impl5
     [rtct]
-    class FunctionPtr5(resT, t1, t2, t3, t4, t5: Type)
+    datatype FunctionPtr5(resT, t1, t2, t3, t4, t5: Type)
         using arity = 5
         using ResT = resT
         using T1 = t1
@@ -75,7 +75,7 @@ package _Impl5
         using T3 = t3
         using T4 = t4
         using T5 = t5
-        var _funPtr: @Byte
+        _funPtr: @Byte
 
     [rtct]
         [native("$funptr")] fun _doCall(this: @FunctionPtr5, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5): ResT
@@ -83,7 +83,7 @@ package _Impl5
 
 package _Impl6
     [rtct]
-    class FunctionPtr6(resT, t1, t2, t3, t4, t5, t6: Type)
+    datatype FunctionPtr6(resT, t1, t2, t3, t4, t5, t6: Type)
         using arity = 6
         using ResT = resT
         using T1 = t1
@@ -92,7 +92,7 @@ package _Impl6
         using T4 = t4
         using T5 = t5
         using T6 = t6
-        var _funPtr: @Byte
+        _funPtr: @Byte
 
     [rtct]
         [native("$funptr")] fun _doCall(this: @FunctionPtr6, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6): ResT
@@ -100,7 +100,7 @@ package _Impl6
 
 package _Impl7
     [rtct]
-    class FunctionPtr7(resT, t1, t2, t3, t4, t5, t6, t7: Type)
+    datatype FunctionPtr7(resT, t1, t2, t3, t4, t5, t6, t7: Type)
         using arity = 7
         using ResT = resT
         using T1 = t1
@@ -110,7 +110,7 @@ package _Impl7
         using T5 = t5
         using T6 = t6
         using T7 = t7
-        var _funPtr: @Byte
+        _funPtr: @Byte
 
     [rtct]
         [native("$funptr")] fun _doCall(this: @FunctionPtr7, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7): ResT
@@ -118,7 +118,7 @@ package _Impl7
 
 package _Impl8
     [rtct]
-    class FunctionPtr8(resT, t1, t2, t3, t4, t5, t6, t7, t8: Type)
+    datatype FunctionPtr8(resT, t1, t2, t3, t4, t5, t6, t7, t8: Type)
         using arity = 8
         using ResT = resT
         using T1 = t1
@@ -129,7 +129,7 @@ package _Impl8
         using T6 = t6
         using T7 = t7
         using T8 = t8
-        var _funPtr: @Byte
+        _funPtr: @Byte
 
     [rtct]
         [native("$funptr")] fun _doCall(this: @FunctionPtr8, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8): ResT
@@ -137,7 +137,7 @@ package _Impl8
 
 package _Impl9
     [rtct]
-    class FunctionPtr9(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9: Type)
+    datatype FunctionPtr9(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9: Type)
         using arity = 9
         using ResT = resT
         using T1 = t1
@@ -149,7 +149,7 @@ package _Impl9
         using T7 = t7
         using T8 = t8
         using T9 = t9
-        var _funPtr: @Byte
+        _funPtr: @Byte
 
     [rtct]
         [native("$funptr")] fun _doCall(this: @FunctionPtr9, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9): ResT
@@ -157,7 +157,7 @@ package _Impl9
 
 package _Impl10
     [rtct]
-    class FunctionPtr10(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10: Type)
+    datatype FunctionPtr10(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10: Type)
         using arity = 10
         using ResT = resT
         using T1 = t1
@@ -170,7 +170,7 @@ package _Impl10
         using T8 = t8
         using T9 = t9
         using T10 = t10
-        var _funPtr: @Byte
+        _funPtr: @Byte
 
     [rtct]
         [native("$funptr")] fun _doCall(this: @FunctionPtr10, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10): ResT
@@ -178,7 +178,7 @@ package _Impl10
 
 package _Impl11
     [rtct]
-    class FunctionPtr11(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11: Type)
+    datatype FunctionPtr11(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11: Type)
         using arity = 11
         using ResT = resT
         using T1 = t1
@@ -192,7 +192,7 @@ package _Impl11
         using T9 = t9
         using T10 = t10
         using T11 = t11
-        var _funPtr: @Byte
+        _funPtr: @Byte
 
     [rtct]
         [native("$funptr")] fun _doCall(this: @FunctionPtr11, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11): ResT
@@ -201,7 +201,7 @@ package _Impl11
 
 package _Impl12
     [rtct]
-    class FunctionPtr12(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12: Type)
+    datatype FunctionPtr12(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12: Type)
         using arity = 12
         using ResT = resT
         using T1 = t1
@@ -216,7 +216,7 @@ package _Impl12
         using T10 = t10
         using T11 = t11
         using T12 = t12
-        var _funPtr: @Byte
+        _funPtr: @Byte
 
     [rtct]
         [native("$funptr")] fun _doCall(this: @FunctionPtr12, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12): ResT
@@ -224,7 +224,7 @@ package _Impl12
 
 package _Impl13
     [rtct]
-    class FunctionPtr13(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13: Type)
+    datatype FunctionPtr13(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13: Type)
         using arity = 13
         using ResT = resT
         using T1 = t1
@@ -240,7 +240,7 @@ package _Impl13
         using T11 = t11
         using T12 = t12
         using T13 = t13
-        var _funPtr: @Byte
+        _funPtr: @Byte
 
     [rtct]
         [native("$funptr")] fun _doCall(this: @FunctionPtr13, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13): ResT
@@ -248,7 +248,7 @@ package _Impl13
 
 package _Impl14
     [rtct]
-    class FunctionPtr14(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14: Type)
+    datatype FunctionPtr14(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14: Type)
         using arity = 14
         using ResT = resT
         using T1 = t1
@@ -265,7 +265,7 @@ package _Impl14
         using T12 = t12
         using T13 = t13
         using T14 = t14
-        var _funPtr: @Byte
+        _funPtr: @Byte
 
     [rtct]
         [native("$funptr")] fun _doCall(this: @FunctionPtr14, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13, p14: this.T14): ResT
@@ -273,7 +273,7 @@ package _Impl14
 
 package _Impl15
     [rtct]
-    class FunctionPtr15(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15: Type)
+    datatype FunctionPtr15(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15: Type)
         using arity = 15
         using ResT = resT
         using T1 = t1
@@ -291,7 +291,7 @@ package _Impl15
         using T13 = t13
         using T14 = t14
         using T15 = t15
-        var _funPtr: @Byte
+        _funPtr: @Byte
 
     [rtct]
         [native("$funptr")] fun _doCall(this: @FunctionPtr15, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13, p14: this.T14, p15: this.T15): ResT

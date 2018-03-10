@@ -1,7 +1,7 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-class MyObj
-    var a: Int;
+datatype MyObj
+    a: Int;
     using st = 103;
 
 fun ctor(this: @MyObj, i: Int) { a = i; }

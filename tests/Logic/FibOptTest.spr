@@ -13,9 +13,9 @@ fun fib_native(p_1: Int, p_2: @Int): Bool
         || l2_X2 =/ (p_1 - 2) && fib_native(l2_X2, l2_Y2) && l2_X1 =/ (p_1 - 1) && fib_native(l2_X1, l2_Y1) && p_2 =/ (l2_Y1 + l2_Y2)
         );
 }
-class fib_pred_wrapper
-    var p_1: LInt;
-    var p_2: LInt;
+datatype fib_pred_wrapper
+    p_1: LInt;
+    p_2: LInt;
 fun ctor(this: @fib_pred_wrapper, p_1: @LInt, p_2: @LInt)
 {
     this.p_1 ctor p_1;

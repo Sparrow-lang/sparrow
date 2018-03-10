@@ -10,10 +10,10 @@ concept PredicateType(x) \
 /// Basic implementation of a predicate with type erasure
 /// We store the actual predicate function as a Function object that takes no parameters and returns Bool
 /// Provides implicit conversion from any predicate
-class Predicate
+datatype Predicate
     using arity = 0
 
-    var predObj: Function(Bool)
+    predObj: Function(Bool)
 
 fun ctor(this, other: @Predicate)
     this.predObj ctor other.predObj
@@ -55,15 +55,15 @@ fun mkFalse = LFalse()
 fun mkTrue = LTrue()
 
 
-class UnifyLR(leftType, rightType: Type) if ValWrapper(#$leftType) && ValWrapper(#$rightType)
+datatype UnifyLR(leftType, rightType: Type) if ValWrapper(#$leftType) && ValWrapper(#$rightType)
     using ValueType = Bool
     using ValuePassType = Bool
     using LeftType = leftType
     using RightType = rightType
 
-    var _coEntryPt: Int
-    var _leftVal: leftType
-    var _rightVal: rightType
+    _coEntryPt: Int
+    _leftVal: leftType
+    _rightVal: rightType
 
 fun ctor(this: @UnifyLR, l: @leftType, r: @rightType)
     this._leftVal ctor l
@@ -139,15 +139,15 @@ fun ()(this: @UnifyLR): Bool
 fun _mkEq(l, r: @ValWrapper) = UnifyLR(-@typeOf(l), -@typeOf(r))(l, r)
 
 
-[rtct] class OrRelation(leftPredicateType, rightPredicateType: Type)
+[rtct] datatype OrRelation(leftPredicateType, rightPredicateType: Type)
     using ValueType = Bool
     using ValuePassType = Bool
     using _LType = leftPredicateType
     using _TType = rightPredicateType
 
-    var _coEntryPt: Int
-    var _left: leftPredicateType
-    var _right: rightPredicateType
+    _coEntryPt: Int
+    _left: leftPredicateType
+    _right: rightPredicateType
 
 fun ctor(this: @OrRelation, l: @this._LType, r: @this._RType)
     this._left ctor l
@@ -185,15 +185,15 @@ fun ()(this: @OrRelation): Bool
         _coEntryPt = -1 // Done here
     return false
 
-[rtct] class AndRelation(leftPredicateType, rightPredicateType: Type)
+[rtct] datatype AndRelation(leftPredicateType, rightPredicateType: Type)
     using ValueType = Bool
     using ValuePassType = Bool
     using _LType = leftPredicateType
     using _TType = rightPredicateType
 
-    var _coEntryPt: Int
-    var _left: leftPredicateType
-    var _right, _rightBegin: rightPredicateType
+    _coEntryPt: Int
+    _left: leftPredicateType
+    _right, _rightBegin: rightPredicateType
 
 fun ctor(this: @AndRelation, l: this._LType, r: this._RType)
     this._left ctor l
@@ -226,11 +226,11 @@ fun ()(this: @AndRelation): Bool
 
 
 
-class LFalse
+datatype LFalse
     ;
 fun ()(this: LFalse) = false
 
-class LTrue
+datatype LTrue
     ;
 fun ()(this: LTrue) = true
 

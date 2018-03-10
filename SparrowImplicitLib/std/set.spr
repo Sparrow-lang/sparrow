@@ -3,14 +3,14 @@ module std.set
 import hashTable(HashTable)
 import typeTraits(DefaultTypeTraits)
 
-class Set(keyType: Type, traitsType: Type = DefaultTypeTraits)
+datatype Set(keyType: Type, traitsType: Type = DefaultTypeTraits)
     using KeyType = keyType
     using ValueType = keyType
     using TraitsType = traitsType
     using _ImplTable = HashTable(keyType, ValueType, _Identity(keyType), traitsType)
     using RangeType = _ImplTable.RangeType
 
-    var _hashTable: _ImplTable
+    _hashTable: _ImplTable
 
 fun ctor(this: @Set, n: SizeType)                                       { _hashTable.ctor(n, TraitsType()) }
 fun ctor(this: @Set, n: SizeType, traits: this.TraitsType)              { _hashTable.ctor(n, traits) }
@@ -50,7 +50,7 @@ fun ctor(this: @Set, range: Range, n: SizeType, traits: this.TraitsType){ _hashT
 
     fun >>(this: @Set, os: @OutStream)                      { _hashTable.>>(os) }
 
-class _Identity(type: Type)
+datatype _Identity(type: Type)
     using ValueType = type
 
 [protected]

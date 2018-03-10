@@ -4,7 +4,7 @@ import taskType(TaskType, getPrefix);
 import schedulerIf = schedulerIf(localWorker, spawn, spawnAndWaitForAll);
 import taskPrefix(TaskPrefix);
 
-class ExecuteHelper(T: Type) {
+datatype ExecuteHelper(T: Type) {
     [static] fun doExecute(prefix: @TaskPrefix): Null {
         var objP: @Byte = ptrAdd(reinterpretCast(@Byte, prefix), prefix.taskOffset);
         var obj: @T = reinterpretCast(@T, objP);

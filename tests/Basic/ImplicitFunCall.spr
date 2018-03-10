@@ -1,8 +1,8 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-class Foo
-    var a: Int;
-    var b: Int;
+datatype Foo
+    a: Int;
+    b: Int;
 
 fun f(this: Foo): @Foo         { writeLn("inside Foo.f()"); return this; }
 

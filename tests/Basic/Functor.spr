@@ -1,6 +1,6 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-class Test
+datatype Test
     ;
 
 fun ()(this: Test)

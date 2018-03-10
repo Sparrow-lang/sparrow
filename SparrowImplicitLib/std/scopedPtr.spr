@@ -3,10 +3,10 @@ module std.scopedPtr
 import newDelete(delete)
 
 [initCtor]
-class ScopedPtr(type: Type)
+datatype ScopedPtr(type: Type)
     using ValueType = type
 
-    var _ref: @ValueType
+    _ref: @ValueType
 
 [protected]
     fun dtor(this: @ScopedPtr)

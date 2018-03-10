@@ -21,8 +21,8 @@ fun f2(t: Type)
     writeLn(sizeOf(tmp));
 }
 
-class MyVector(t: Type)
-    var start, end: t;
+datatype MyVector(t: Type)
+    start, end: t;
     using glob = _MyVectorHelper(t).glob
 
 package _MyVectorHelper(t: Type)

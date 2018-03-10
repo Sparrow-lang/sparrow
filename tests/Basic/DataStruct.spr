@@ -1,16 +1,12 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-class MyType
-{
-    var x: Int;
-    var y: Int;
-}
+datatype MyType
+    x: Int;
+    y: Int;
 
-class MyType2
-{
-    var x: MyType;
-    var y: Double;
-}
+datatype MyType2
+    x: MyType;
+    y: Double;
 
 var i: Int;
 var a: MyType;

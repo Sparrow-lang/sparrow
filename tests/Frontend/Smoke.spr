@@ -6,12 +6,9 @@ package A
 {
     package B
     {
-        class C
-        {
-            var a: Int;
-            var b: Bool;
-
-        }
+        datatype C
+            a: Int;
+            b: Bool;
 
         fun ctor(this: @C, aa: Int, bb: Bool) { a=aa; b=bb; }
         fun f(x: Int): Int { return a; }

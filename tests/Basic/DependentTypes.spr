@@ -27,9 +27,9 @@ fun anyIf(a, b: AnyType) if typeOf(b) == typeOf(a)
 fun deduced(a: AnyType, b: typeOf(a))
     writeTypes(a, b)
 
-class Vec(t: Type)
+datatype Vec(t: Type)
     using ValueType = t
-    var data: t
+    data: t
 
 fun pushBack(this: @Vec, val: this.ValueType)
     data = val

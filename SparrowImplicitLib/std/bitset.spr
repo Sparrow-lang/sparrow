@@ -4,8 +4,8 @@ import array(Array)
 import bitOper
 
 [rtct]
-    class Bitset
-        var _bits: Array(UByte)
+    datatype Bitset
+        _bits: Array(UByte)
 
 [rtct, protected]
     fun ctor(this: @Bitset, noBits: SizeType)

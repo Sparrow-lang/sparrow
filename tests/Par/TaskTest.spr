@@ -14,10 +14,10 @@ fun serialFib(n: Long): Long {
 }
 
 package StackSpawnStyle {
-    class FibTask {
-        var prefix: TaskPrefix;
-        var n: Long;
-        var result: @Long;
+    datatype FibTask {
+        prefix: TaskPrefix;
+        n: Long;
+        result: @Long;
 
     }
     fun ctor(this: @StackSpawnStyle, n: Long, result: @Long) {
@@ -56,10 +56,10 @@ package StackSpawnStyle {
 }
 
 package DynSpawnStyle {
-    class FibTask {
-        var prefix: TaskPrefix;
-        var n: Long;
-        var result: @Long;
+    datatype FibTask {
+        prefix: TaskPrefix;
+        n: Long;
+        result: @Long;
 
     }
     fun ctor(this: @DynSpawnStyle, n: Long, result: @Long) {
@@ -101,10 +101,10 @@ package DynSpawnStyle {
 }
 
 package ContStyle {
-    class FibTask {
-        var prefix: TaskPrefix;
-        var n: Long;
-        var result: @Long;
+    datatype FibTask {
+        prefix: TaskPrefix;
+        n: Long;
+        result: @Long;
 
     }
     fun ctor(this: @ContStyle, n: Long, result: @Long) {
@@ -132,11 +132,11 @@ package ContStyle {
         }
     }
 
-    class FibContTask {
-        var prefix: TaskPrefix;
-        var n: Long;
-        var s1, s2: Long;
-        var result: @Long;
+    datatype FibContTask {
+        prefix: TaskPrefix;
+        n: Long;
+        s1, s2: Long;
+        result: @Long;
 
     }
     fun ctor(this: @FibContTask, n, result: @Long) {

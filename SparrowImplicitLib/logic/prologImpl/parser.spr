@@ -6,9 +6,9 @@ concept TokenRange(x: Range) if -@(x.RetType) == Token
 
 [ct]
     [initCtor]
-    class Parser(lexerType, errorReporterType: Type) if TokenRange(#$lexerType)
-        var _lexer: lexerType
-        var _errorReporter: errorReporterType
+    datatype Parser(lexerType, errorReporterType: Type) if TokenRange(#$lexerType)
+        _lexer: lexerType
+        _errorReporter: errorReporterType
 
     fun parse(this: @Parser): PrologProgramPtr
         var resptr = mkShared(PrologProgram)

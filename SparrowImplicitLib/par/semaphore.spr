@@ -5,8 +5,8 @@ import config;
 //! Allows a limited numbers of threads to simultaneously "acquire" a resource
 //! before releasing it.
 //! Compared to the mutex, we can release the semaphore without acquiring it
-class Semaphore
-    var _handle: Impl.SemaphoreT;
+datatype Semaphore
+    _handle: Impl.SemaphoreT;
 
 fun ctor(this: @Semaphore, startValue: UInt = 0)
     _handle ctor;

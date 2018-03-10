@@ -57,8 +57,8 @@ fun pow4(x: Double, n: Int): Double
     return res;
 }
 
-class MyInt
-    var x: Int;
+datatype MyInt
+    x: Int;
 
 fun ctor(this: @MyInt) { x = 0; }
 fun ctor(this: @MyInt, other: MyInt) { x = other.x; }
@@ -89,8 +89,8 @@ fun = (x: MyInt@, y: MyInt)
 
 package NearClass
 
-    class MyInt2
-        var x: Int;
+    datatype MyInt2
+        x: Int;
 
     fun ctor(this: @MyInt2) { x = 0; }
     fun ctor(this: @MyInt2, other: MyInt2) { x = other.x; }

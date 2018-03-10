@@ -3,7 +3,7 @@ module std.sortedTable
 import vector(Vector)
 import ranges(rangeSize)
 
-class SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: Type)
+datatype SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: Type)
     using KeyType = keyType
     using ValueType = valueType
     using ValueToKeyType = valueToKeyType
@@ -11,10 +11,10 @@ class SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: Typ
     using CompareType = compareType
     using RangeType = Vector(valueType).RangeType
 
-    var _table: Vector(ValueType)
-    var _valToKey: ValueToKeyType
-    var _less: LessType
-    var _comp: CompareType
+    _table: Vector(ValueType)
+    _valToKey: ValueToKeyType
+    _less: LessType
+    _comp: CompareType
 
 [protected]
     fun ctor(this: @SortedTable)
@@ -168,7 +168,7 @@ class SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: Typ
     fun clear(this: @SortedTable)
         _table.clear
 
-[rtct] class Less(type: Type) if isValid(#$type < #$type)
+[rtct] datatype Less(type: Type) if isValid(#$type < #$type)
     using ValueType = type
 [rtct, protected]
     fun ()(this: Less, l, r: @this.ValueType) = l < r

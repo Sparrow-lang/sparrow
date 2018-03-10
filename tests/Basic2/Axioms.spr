@@ -31,13 +31,13 @@ fun testOrdered(x: Ordered)
 fun testOrdered(x: AnyType) if !Ordered(x)
     cout << TypeOp.description(typeOf(x)) << " is not Ordered\n";
 
-class MyType
+datatype MyType
     ;
 fun < (this, other: MyType) = false;
 // Other operators are implicitly defined
 
 [noDefault]
-class EmptyType
+datatype EmptyType
     ;
 fun ctor(this: @EmptyType) {}
 

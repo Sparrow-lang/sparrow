@@ -8,8 +8,8 @@ import math = math;
 using PI = 3.141592653589793;
 
 [initCtor]
-class Vec
-    var x, y, z: Double;
+datatype Vec
+    x, y, z: Double;
 
 fun len(this: Vec): Double = math.sqrt(this*this);
 
@@ -20,9 +20,9 @@ fun * (this: Vec, k: Double)    = Vec(x*k, y*k, z*k);
 fun / (this: Vec, k: Double)    = Vec(x/k, y/k, z/k);
 fun - (this: Vec)               = Vec(-x, -y, -z);
 
-class Body
-    var p, v: Vec;
-    var mass: Double;
+datatype Body
+    p, v: Vec;
+    mass: Double;
 
 fun speedSq(this: Body)                         = v*v;
 fun move(this: @Body, dt: Double)               { p += v*dt; }
@@ -30,9 +30,9 @@ fun advance(this: @Body, d: Vec, delta: Double) { v += d*delta; }
 
 fun sqr x = x*x;
 
-class NBodySystem
+datatype NBodySystem
     using numBodies = 5;
-    var bodies: StaticArray(Body, numBodies);
+    bodies: StaticArray(Body, numBodies);
 
 fun ctor(this: @NBodySystem)
     using solarMass = 4 * PI * PI;

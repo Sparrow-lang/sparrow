@@ -25,19 +25,19 @@ fun dtor(this: @Tracer)
     writeLn(_val)
 
 [initCtor]
-class S1
-    var _v1: Tracer
-    var _v2: Tracer
+datatype S1
+    _v1: Tracer
+    _v2: Tracer
 
 [initCtor]
-class S2
-    var _v1: Tracer
-    var _v2: Tracer = 20
+datatype S2
+    _v1: Tracer
+    _v2: Tracer = 20
 
 [initCtor]
-class S3
-    var _v1: Tracer = 10
-    var _v2: Tracer = 20
+datatype S3
+    _v1: Tracer = 10
+    _v2: Tracer = 20
 
 [native("test")]
 fun test(n: Int)

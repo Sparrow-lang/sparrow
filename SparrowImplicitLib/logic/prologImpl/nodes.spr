@@ -20,21 +20,21 @@ using ckPredCall = 8
 using ckIsExpr = 9
 
 [ct]
-    class PrologProgram
-        var predicates: Vector(PredicateClausePtr)
-        var loc: Location
+    datatype PrologProgram
+        predicates: Vector(PredicateClausePtr)
+        loc: Location
 
-    class PredicateClause
-        var name: String
-        var args: Vector(ExpressionPtr)
-        var conditions: Vector(ConditionPtr)
-        var loc: Location
+    datatype PredicateClause
+        name: String
+        args: Vector(ExpressionPtr)
+        conditions: Vector(ConditionPtr)
+        loc: Location
 
-    class Condition
-        var kind: Int
-        var loc: Location
-        var args: Vector(SharedPtr(Expression))
-        var predName: String
+    datatype Condition
+        kind: Int
+        loc: Location
+        args: Vector(SharedPtr(Expression))
+        predName: String
 
     fun ctor(this: @Condition, loc: @Location, predName: @String, args: @Vector(SharedPtr(Expression)))
         this.kind ctor ckPredCall
@@ -51,13 +51,13 @@ using ckIsExpr = 9
         this.args.pushBack(isLeft)
         this.args.pushBack(isRight)
 
-    class Expression
-        var kind: Int
-        var loc: Location
-        var data: String
-        var left, right: SharedPtr(Expression)
-        var typeSetIdx: Int
-        var paramIdx: Int
+    datatype Expression
+        kind: Int
+        loc: Location
+        data: String
+        left, right: SharedPtr(Expression)
+        typeSetIdx: Int
+        paramIdx: Int
 
     fun ctor(this: @Expression, kind: Int, loc: @Location)
         this.kind ctor kind

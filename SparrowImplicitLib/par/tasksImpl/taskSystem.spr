@@ -7,17 +7,17 @@ import par.thread;
 import std.ptr, std.vector;
 //import assert;
 
-class TaskSystem
+datatype TaskSystem
     //! The global queue of tasks
-    var globalQueue: TaskQueue;
+    globalQueue: TaskQueue;
 
     //! All the workers in the system
-    var workers: WorkerPtr Vector;
+    workers: WorkerPtr Vector;
 
     //! The internal threads that are doing all the work
-    var _threads: (Thread Ptr) Vector;
+    _threads: (Thread Ptr) Vector;
     //! Object that counts the number of threads that are idle
-    var idleCounter: IdleCounter;
+    idleCounter: IdleCounter;
 
 [protected]
     fun ctor(this: @TaskSystem) {}

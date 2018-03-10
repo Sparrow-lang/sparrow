@@ -4,7 +4,7 @@
 
 [ct]
     [native("Type"), noDefault]
-    class Type {}
+    datatype Type {}
 
 [ct, protected]
     [native("_Type_ctor")] fun ctor(this: @Type)
@@ -12,24 +12,24 @@
     //fun dtor(this: @Type) {}
 
 [rtct, noDefault]
-    class Uninitialized {}
+    datatype Uninitialized {}
 
-    [native("Null")]    class Null {}
+    [native("Null")]    datatype Null {}
 
-    [native("i1")]      class Bool {}
-    [native("i8")]      class Byte {}
-    [native("u8")]      class UByte {}
-    [native("i16")]     class Short {}
-    [native("u16")]     class UShort {}
-    [native("i32")]     class Int {}
-    [native("u32")]     class UInt {}
-    [native("i64")]     class Long {}
-    [native("u64")]     class ULong {}
-    [native("u64")]     class SizeType {}
-    [native("i64")]     class DiffType {}
-    [native("float")]   class Float {}
-    [native("double")]  class Double {}
-    [native("i8")]      class Char {}
+    [native("i1")]      datatype Bool {}
+    [native("i8")]      datatype Byte {}
+    [native("u8")]      datatype UByte {}
+    [native("i16")]     datatype Short {}
+    [native("u16")]     datatype UShort {}
+    [native("i32")]     datatype Int {}
+    [native("u32")]     datatype UInt {}
+    [native("i64")]     datatype Long {}
+    [native("u64")]     datatype ULong {}
+    [native("u64")]     datatype SizeType {}
+    [native("i64")]     datatype DiffType {}
+    [native("float")]   datatype Float {}
+    [native("double")]  datatype Double {}
+    [native("i8")]      datatype Char {}
 
 [rtct, protected]
     fun ctor(this: Uninitialized) {}
@@ -308,31 +308,31 @@ concept Number(x)                   \
 
 
 [rtct]
-    class NumericLimits(t: Type) if t == Byte
+    datatype NumericLimits(t: Type) if t == Byte
         using maxValue = Byte(0x7f)
         using minValue = Byte(0x80)
-    class NumericLimits(t: Type) if t == UByte
+    datatype NumericLimits(t: Type) if t == UByte
         using maxValue = UByte(0xff)
         using minValue = UByte(0x00)
 
-    class NumericLimits(t: Type) if t == Short
+    datatype NumericLimits(t: Type) if t == Short
         using maxValue = Short(0x7fff)
         using minValue = Short(0x8000)
-    class NumericLimits(t: Type) if t == UShort
+    datatype NumericLimits(t: Type) if t == UShort
         using maxValue = UShort(0xfff)
         using minValue = UShort(0x000)
 
-    class NumericLimits(t: Type) if t == Int
+    datatype NumericLimits(t: Type) if t == Int
         using maxValue = Int(0x7fffffff)
         using minValue = Int(0x80000000)
-    class NumericLimits(t: Type) if t == UInt
+    datatype NumericLimits(t: Type) if t == UInt
         using maxValue = UInt(0xffffffff)
         using minValue = UInt(0x00000000)
 
-    class NumericLimits(t: Type) if t == Long
+    datatype NumericLimits(t: Type) if t == Long
         using maxValue = Long(0x7fffffffffffffffL)
         using minValue = Long(0x8000000000000000L)
-    class NumericLimits(t: Type) if t == ULong
+    datatype NumericLimits(t: Type) if t == ULong
         using maxValue = ULong(0xffffffffffffffffL)
         using minValue = ULong(0x0000000000000000L)
 
@@ -644,11 +644,11 @@ package _NumOpImpl
 [rtct]
     /// String class that DOES NOT have ownership of the characters; it simply refers to another string
     [native("StringRef")]
-    class StringRef
+    datatype StringRef
         using RetType = @Char
 
-        var begin: @Byte
-        var end: @Byte
+        begin: @Byte
+        end: @Byte
 
     [protected]
         fun ctor(this: @StringRef)

@@ -14,8 +14,8 @@ fun sprMain
 }
 
 [rtct, initCtor]
-class MyObj
-    var x: Int;
+datatype MyObj
+    x: Int
 
 [ct] fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
 {

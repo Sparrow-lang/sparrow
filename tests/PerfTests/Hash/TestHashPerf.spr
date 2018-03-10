@@ -11,14 +11,14 @@ import os = os;
 
 using payloadSize = 16;
 
-class Obj
-    var value: UInt;
-    var payload: StaticArray(Byte, payloadSize);
+datatype Obj
+    value: UInt;
+    payload: StaticArray(Byte, payloadSize);
 
 fun >> (this: @Obj, os: @OutStream) { os << "Obj(" << value << ")"; }
 
 // TODO: Move this to Std ???
-class Equal(type: Type)
+datatype Equal(type: Type)
     using T = type
 fun () (this: Equal, x,y: this.T): Bool = x == y;
 
@@ -136,10 +136,10 @@ fun testRemove(bag: @AnyType, n: Int)
 }
 
 [noDefault]
-class TestTimer
-    var desc: StringRef;
-    var n: UInt;
-    var timerImpl: time.Timer;
+datatype TestTimer
+    desc: StringRef;
+    n: UInt;
+    timerImpl: time.Timer;
 
 fun ctor(this: @TestTimer, desc: StringRef, n: UInt)
     this.desc ctor desc;

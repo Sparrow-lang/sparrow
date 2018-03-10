@@ -1,7 +1,7 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-class MyType
-    var x: Int;
+datatype MyType
+    x: Int;
 
 fun ctor(this: @MyType)
     writeLn("ctor()");

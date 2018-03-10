@@ -2,7 +2,7 @@ module std.sortedSet
 
 import sortedTable(SortedTable)
 
-class SortedSet(keyType, lessType, compareType: Type)
+datatype SortedSet(keyType, lessType, compareType: Type)
     using KeyType = keyType
     using ValueType = keyType
     using LessType = lessType
@@ -10,7 +10,7 @@ class SortedSet(keyType, lessType, compareType: Type)
     using _ImplTable = SortedTable(keyType, ValueType, _Identity(keyType), lessType, compareType)
     using RangeType = _ImplTable.RangeType
 
-    var _sortedTable: _ImplTable
+    _sortedTable: _ImplTable
 
 [protected]
     fun ctor(this: @SortedSet, n: SizeType)                                       { _sortedTable.ctor(n, LessType(), CompareType()) }
@@ -48,7 +48,7 @@ class SortedSet(keyType, lessType, compareType: Type)
 
     fun swap(this: @SortedSet, other: typeOf(this)) { this._sortedTable swap other._sortedTable }
 
-class _Identity(type: Type)
+datatype _Identity(type: Type)
     using ValueType = type
 
 fun () (this: _Identity, val: this.ValueType): this.ValueType = val

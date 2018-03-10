@@ -3,8 +3,8 @@
 concept AnyType(x);
 fun ctor(this: @AnyType, nothing: Uninitialized) {}
 
-class Book { var author, name, isbn: StringRef; }
-class CollectionBook { var book: Book; var col: StringRef; }
+datatype Book { author, name, isbn: StringRef; }
+datatype CollectionBook { book: Book; col: StringRef; }
 
 //datatype Book2 = StringRef * StringRef;
 datatype Book3 { author, name, isbn: StringRef}

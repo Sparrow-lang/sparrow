@@ -1,8 +1,8 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
 
-class TestClass
-    var a: Int
+datatype TestClass
+    a: Int
 
 fun method(this: @TestClass)     // not quite, but close enough
     a = 1;
@@ -32,9 +32,9 @@ concept Range(x) if (
 )
 
 [initCtor]
-class MyRange
+datatype MyRange
     using RetType = Int
-    var curVal, stop: Int
+    curVal, stop: Int
 
 fun isEmpty(this: @MyRange): Bool = curVal >= stop
 fun front(this: @MyRange): Int

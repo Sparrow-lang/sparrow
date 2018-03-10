@@ -38,18 +38,18 @@ fun sprMain
 }
 
 [initCtor]
-class MyObj
-    var x: Int;
+datatype MyObj
+    x: Int;
 
 fun <(this, other: @MyObj): Bool { return x < other.x; }
 
 fun >>(this: MyObj, os: @OutStream)      { os << x; }
 
-class Greater
+datatype Greater
     ;
 fun ()(this: Greater, x: MyObj, y: MyObj): Bool { return x.x > y.x; }
 
-class Even
+datatype Even
     ;
 fun ()(this: Even, x: MyObj): Bool { return x.x % 2 == 0; }
 

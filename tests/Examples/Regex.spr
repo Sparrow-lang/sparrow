@@ -104,10 +104,10 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
         return String(mkRawPtr(buf(0)), mkRawPtr(buf(dstIdx)));
 
     /// Factory for Nfa states
-    class NfaStatesFactory
-        var _numStates: Int;                    ///< Number of states created
-        var _matchState: NfaState;              ///< The match state
-        var _pages: Vector(RawPtr(NfaState));   ///< Pointers to the memory pages containing the actual NFA states
+    datatype NfaStatesFactory
+        _numStates: Int;                    ///< Number of states created
+        _matchState: NfaState;              ///< The match state
+        _pages: Vector(RawPtr(NfaState));   ///< Pointers to the memory pages containing the actual NFA states
 
     fun ctor(this: @NfaStatesFactory)
         _numStates ctor 0;
@@ -138,10 +138,10 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
 
     /// Class that represents a NFA state; it allows one or two output states out of this state
     [initCtor]
-    class NfaState
-        var c: Int;
-        var out1, out2: Ptr(NfaState);
-        var listId: Int = -1;
+    datatype NfaState
+        c: Int;
+        out1, out2: Ptr(NfaState);
+        listId: Int = -1;
 
         using match = 256;
         using split = 257;
@@ -153,10 +153,10 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
     ///
     /// For optimization reasons we use the out1 and out2 pointer from the actual NfaState objects to store the links of
     /// this list. Therefore, some reinterpretCasts are used to properly use these nodes.
-    class OutPtrList
+    datatype OutPtrList
         /// Pointer to the next element.
         /// This actually represents two things: one the pointer to the next element, and the actual data that needs to be filled
-        var _next: Ptr(OutPtrList);
+        _next: Ptr(OutPtrList);
 
     /// Construct the out-ptr list from a single out-ptr reference
     fun ctor(this: @OutPtrList, outPtr: @Ptr(NfaState))
@@ -181,9 +181,9 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
     /// Class that represents a fragment of Nfa states
     /// A fragment consists of a tree of Nfa states, starting with only one Nfa state. It can have one or more out pointers
     /// The out-pointers are used to connect to the next Nfa fragment.
-    class NfaFragment
-        var start: Ptr(NfaState);                   ///< Start state of the NFA frament
-        var outPtrChain: OutPtrList;  ///< Chain of out-pointers for this fragment that need to be set to the next state
+    datatype NfaFragment
+        start: Ptr(NfaState);                   ///< Start state of the NFA frament
+        outPtrChain: OutPtrList;  ///< Chain of out-pointers for this fragment that need to be set to the next state
 
     fun ctor(this: @NfaFragment, start: Ptr(NfaState), outPtrChain: @OutPtrList)
         this.start ctor start;
@@ -259,10 +259,10 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
         e.finalize(nfaStatesFactory);
         return e.start;
 
-    class NfaNodeList
-        var nodes: Vector(Ptr(NfaState));
-        var id: Int;
-        var isMatch: Bool;
+    datatype NfaNodeList
+        nodes: Vector(Ptr(NfaState));
+        id: Int;
+        isMatch: Bool;
 
     fun ctor(this: @NfaNodeList, noNfaNodes: Int)
         nodes.reserve(noNfaNodes);
@@ -321,8 +321,8 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
         this.isMatch = this.isMatch || s.isMatch();
         nodes.pushBack(state);
 
-    class Transition
-        var start, end, ch: Int;
+    datatype Transition
+        start, end, ch: Int;
 
     fun ctor(this: @Transition, start, end, ch: Int)
         this.start ctor start;
@@ -331,19 +331,19 @@ setOperPrecedence("**", getOperPrecedence("*") + 1);
 
     /// Class that represent a Dfa state
     /// A Dfa state usually contains multiple NfaStates. It also contains a transition array for each possible input char
-    class DfaState
-        var next: StaticArray(Int, 256);
-        var nfaNodes: NfaNodeList;
-        var isMatch: Bool;
+    datatype DfaState
+        next: StaticArray(Int, 256);
+        nfaNodes: NfaNodeList;
+        isMatch: Bool;
 
     fun ctor(this: @DfaState, nfaNodes: @NfaNodeList) // moves the nodes list
         next ctor -1;
         this.nfaNodes ctor nfaNodes;
         this.isMatch ctor nfaNodes.isMatch;
 
-    class Automaton
-        var nfaStatesFactory: NfaStatesFactory;
-        var dfaStates: Vector(DfaState);
+    datatype Automaton
+        nfaStatesFactory: NfaStatesFactory;
+        dfaStates: Vector(DfaState);
 
     fun ctor(this: @Automaton, re: StringRef)
         // Convert the regex from infix to postfix notation

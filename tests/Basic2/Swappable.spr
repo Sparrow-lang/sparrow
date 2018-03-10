@@ -15,14 +15,12 @@ concept Swappable(x) if isValid(x.swap(x));
     a.swap(b);
 }
 
-[initCtor] class MyType1
-{
-    var val: Int;
-}
+[initCtor] datatype MyType1
+    val: Int
 
 package Inner
-    [initCtor] class MyType2
-        var val: Int;
+    [initCtor] datatype MyType2
+        val: Int
 
     fun swap(this, other: @MyType2)
         var tmp = val;

@@ -19,25 +19,25 @@ import meta.location
  * 4) inside parenthesis or brackets, we don't insert anything, except:
  *     - if we are inside curly braces that are inside the inner most paren/brackets
  */
-class SparrowLayoutDecoder(tokensRangeType, errorReporterType: Type) \
+datatype SparrowLayoutDecoder(tokensRangeType, errorReporterType: Type) \
         if TokenRange(#$tokensRangeType) && ErrorReporter(#$errorReporterType)
     using RetType = Token
     using _TokensRangeType = tokensRangeType
     using _ErrRepType = errorReporterType
 
     /// The source ranges of tokens we will used while parsing
-    var _src: RangeWithLookahead(tokensRangeType)
+    _src: RangeWithLookahead(tokensRangeType)
     /// Object used to report errors
-    var _errorReporter: errorReporterType
+    _errorReporter: errorReporterType
     /// The vector containing the current indents levels
-    var _indents: UInt Vector
+    _indents: UInt Vector
     /// The vector of currently open parenthesis and brackets
-    var _parens: Char Vector
+    _parens: Char Vector
     /// Indicates what and how many tokens we should inject in the stream
-    var _toInject: TokenType
+    _toInject: TokenType
     /// The number of tokens to be injected
     /// If the number of tokens is greater than 1, we change the type to '}'
-    var _toInjectCnt: Int
+    _toInjectCnt: Int
 
 fun ctor(this: @SparrowLayoutDecoder, tokens: this._TokensRangeType, errorReporter: this._ErrRepType)
     this._src ctor tokens

@@ -105,7 +105,6 @@ Basic/StructGeneric.spr:                Basic features - New data structure, wit
 Basic/StructInit.spr:                   Basic features - Struct initialization
 Basic/Compound.spr:                     Basic features - Compound expressions
 Basic/SameName.spr:                     Basic features - Class, function, var with same name
-# Basic/Inheritance.spr:                  Basic features - Inheritance
 Basic/CtFun.spr:                        Basic features - CT functions
 Basic/CtFactorial.spr:                  Basic features - CT factorial
 Basic/CtIf.spr:                         Basic features - CT if
@@ -119,7 +118,6 @@ Basic/ObjectCopy.spr:                   Basic features - Object copying
 Basic/ObjectCopyRVO.spr:                Basic features - Object copying + Return Value Optimization
 # Basic/CastErr.spr:                      Basic features - Casts with errors
 # Basic/Cast.spr:                         Basic features - Casts
-Basic/SizeOf.spr:                       Basic features - SizeOf
 Basic/Functor.spr:                      Basic features - Functors
 Basic/TypeVar.spr:                      Basic features - Type variables
 Basic/Generics.spr:                     Basic features - Generics
@@ -128,14 +126,12 @@ Basic/Auto.spr:                         Basic features - Auto
 Basic/String.spr:                       Basic features - String
 Basic/ValueToRef.spr:                   Basic features - Value to reference
 Basic/CallCtorDtor.spr:                 Basic features - Call ctor & dtor
-# Basic/StaticArray.spr:                  Basic features - Static array
 Basic/TypeTraits.spr:                   Basic features - Type traits
 Basic/Overload.spr:                     Basic features - Overload
 Basic/FunExp.spr:                       Basic features - Expression functions
 Basic/FunSyntax.spr:                    Basic features - Function syntax
 Basic/DefaultParam.spr:                 Basic features - Default parameters
 Basic/Concepts.spr:                     Basic features - Concepts
-# Basic/IsA.spr:                          Basic features - isa and convertsTo relationships
 Basic/CtToRt.spr:                       Basic features - CT to RT for basic types
 Basic/CtToRtErr.spr:                    Basic features - CT to RT for basic types - errors
 Basic/CtToRtComplex.spr:                Basic features - CT to RT for complex types

@@ -24,11 +24,11 @@ var gCounter: Atomic(Int) = 0;
 var p1: Atomic(@Int);
 var p2: Atomic(Int Ptr);
 
-class TwiddleThumbs {
-    var message: String;
-    var count: Int;
-    var doPrint: Bool;
-    var lastCounter: @Int;
+datatype TwiddleThumbs {
+    message: String;
+    count: Int;
+    doPrint: Bool;
+    lastCounter: @Int;
 
 }
 

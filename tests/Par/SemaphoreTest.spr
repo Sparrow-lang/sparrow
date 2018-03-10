@@ -22,9 +22,9 @@ fun doJob(sem: @par.Semaphore, waitTime: Int) {
     sem release;
 }
 
-[initCtor] class Worker {
-    var sem: @par.Semaphore;
-    var amountOfWork: Int;
+[initCtor] datatype Worker {
+    sem: @par.Semaphore;
+    amountOfWork: Int;
 
     fun ()() {
         for i = 0..amountOfWork {
@@ -34,10 +34,10 @@ fun doJob(sem: @par.Semaphore, waitTime: Int) {
     }
 }
 
-class WorkManager {
-    var sem: @par.Semaphore;
-    var amountOfWork, numWorkers: Int;
-    var threads: (par.Thread Ptr) Vector;
+datatype WorkManager {
+    sem: @par.Semaphore;
+    amountOfWork, numWorkers: Int;
+    threads: (par.Thread Ptr) Vector;
 
 }
 

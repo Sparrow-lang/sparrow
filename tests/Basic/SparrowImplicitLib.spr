@@ -846,7 +846,7 @@ declare i32 @atoi(i8*) nounwind readonly
 
 [ct]
     [native("Type"), noDefault]
-    class Type {}
+    datatype Type {}
 
 [ct, protected]
     [native("_Type_ctor")] fun ctor(this: @Type)
@@ -854,24 +854,24 @@ declare i32 @atoi(i8*) nounwind readonly
     //fun dtor(this: @Type) {}
 
 [rtct, noDefault]
-    class Uninitialized {}
+    datatype Uninitialized {}
 
-    [native("Null")]    class Null {}
+    [native("Null")]    datatype Null {}
 
-    [native("i1")]      class Bool {}
-    [native("i8")]      class Byte {}
-    [native("u8")]      class UByte {}
-    [native("i16")]     class Short {}
-    [native("u16")]     class UShort {}
-    [native("i32")]     class Int {}
-    [native("u32")]     class UInt {}
-    [native("i64")]     class Long {}
-    [native("u64")]     class ULong {}
-    [native("u64")]     class SizeType {}
-    [native("i64")]     class DiffType {}
-    [native("float")]   class Float {}
-    [native("double")]  class Double {}
-    [native("i8")]      class Char {}
+    [native("i1")]      datatype Bool {}
+    [native("i8")]      datatype Byte {}
+    [native("u8")]      datatype UByte {}
+    [native("i16")]     datatype Short {}
+    [native("u16")]     datatype UShort {}
+    [native("i32")]     datatype Int {}
+    [native("u32")]     datatype UInt {}
+    [native("i64")]     datatype Long {}
+    [native("u64")]     datatype ULong {}
+    [native("u64")]     datatype SizeType {}
+    [native("i64")]     datatype DiffType {}
+    [native("float")]   datatype Float {}
+    [native("double")]  datatype Double {}
+    [native("i8")]      datatype Char {}
 
 [rtct, protected]
     fun ctor(this: Uninitialized) {}
@@ -1100,9 +1100,9 @@ declare i32 @atoi(i8*) nounwind readonly
 
 
 [rtct, noDefault, native("StringRef")]
-class StringRef
-    var begin: @Byte;
-    var end: @Byte;
+datatype StringRef
+    begin: @Byte;
+    end: @Byte;
 
 [rtct, protected]
     fun ctor(this: @StringRef)

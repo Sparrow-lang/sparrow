@@ -10,7 +10,7 @@ import rawPtr(RawPtr, allocRawPtr)
 
 /// String class that has ownership of the characters
 [rtct]
-    class String
+    datatype String
         using ValueType = Char
         using ValuePassType = Char
         using RangeType = StringRef
@@ -19,7 +19,7 @@ import rawPtr(RawPtr, allocRawPtr)
         using _growthFactor = 1.5
         using _PtrType = RawPtr(Char)
 
-        var _begin, _end, _endOfStore: _PtrType
+        _begin, _end, _endOfStore: _PtrType
 
     fun ctor(this: @String)
         _begin ctor
@@ -273,8 +273,8 @@ fun ulongToString(x: ULong): String
 // TODO
 
 [rtct]
-    class StringOutputStream
-        var result: String
+    datatype StringOutputStream
+        result: String
 
 [rtct, protected]
     fun <<<(this: @StringOutputStream, s: @String)       { result.append(s.all) }

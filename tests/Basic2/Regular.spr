@@ -9,7 +9,7 @@ concept Regular(x) if (
 
 
 [noDefault]
-class NullType
+datatype NullType
     ;
 
 fun ctor(this: @NullType) {}
@@ -26,13 +26,13 @@ fun testRegular(x: Regular)
 fun testRegular(x: AnyType) if !Regular(x)
     cout << TypeOp.description(typeOf(x)) << " is not Regular\n";
 
-class MyType
+datatype MyType
     ;
     // Operators are implicitly defined
 
 package Isolated
     [noDefault]
-    class EmptyType
+    datatype EmptyType
         ;
 
 fun sprMain

@@ -1,7 +1,7 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main -fno-rvo
 
-class MyObj
-    var v: Int;
+datatype MyObj
+    v: Int;
 
 fun ctor(this: @MyObj)
     writeLn("MyObj.ctor()");
@@ -20,8 +20,8 @@ fun reconstruct(this: @MyObj)
     this.dtor();
     this.ctor(100);
 
-class Pair
-    var first, second: MyObj;
+datatype Pair
+    first, second: MyObj;
 
 fun ctor(this: @Pair)
     first.ctor();

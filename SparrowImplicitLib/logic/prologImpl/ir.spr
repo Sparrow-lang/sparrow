@@ -8,9 +8,9 @@ import meta = meta.compilerCore
 using allowNativeCodeGen = true
 
 [ct]
-    class SparrowPrologSystem
-        var predicates: Vector(SparrowPredicate)
-        var loc: LLocation
+    datatype SparrowPrologSystem
+        predicates: Vector(SparrowPredicate)
+        loc: LLocation
 
     fun ctor(this: @SparrowPrologSystem, program: @PrologProgramPtr)
         this.predicates ctor
@@ -37,21 +37,21 @@ using allowNativeCodeGen = true
             pred.semanticCheck
 
     [initCtor]
-    class Parameter
-        var expr: ExpressionPtr
-        var isRead: Bool = false
-        var isInput: Bool = false
-        var isOutput: Bool = false
+    datatype Parameter
+        expr: ExpressionPtr
+        isRead: Bool = false
+        isInput: Bool = false
+        isOutput: Bool = false
 
-    class SparrowPredicate
-        var name: String
-        var arity: UInt
-        var firstClause: PredicateClausePtr
-        var paramVars: Vector(Parameter)
-        var localVars: Vector(ExpressionPtr)
-        var clauses: Vector(PredicateClausePtr)
-        var typeSets: Vector(LTypeSet)
-        var canBeNative: Bool
+    datatype SparrowPredicate
+        name: String
+        arity: UInt
+        firstClause: PredicateClausePtr
+        paramVars: Vector(Parameter)
+        localVars: Vector(ExpressionPtr)
+        clauses: Vector(PredicateClausePtr)
+        typeSets: Vector(LTypeSet)
+        canBeNative: Bool
 
     fun ctor(this: @SparrowPredicate, firstClause: @PredicateClausePtr)
         this.name ctor firstClause.get().name

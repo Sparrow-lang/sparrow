@@ -6,9 +6,9 @@ import std.function(Function)
 
 //! An object that is able to generate values of the given type, possibly in a random fashion
 [initCtor]
-class Gen(t: Type)
+datatype Gen(t: Type)
     using ValueType = t
-    var _generator: Function(t, UInt)
+    _generator: Function(t, UInt)
 
 fun mkGen(t: Type, generator: @AnyType): Gen(t) if isValid(generator(UInt(0)))
     using FunType = Function(t, UInt)
@@ -36,9 +36,9 @@ fun arbitrary(t: Type): t Gen if Integer(#$t)
 
 //! Configuration options for our check function
 [initCtor]
-class CheckConfig
-    var numTests, maxAttempts: UInt
-    var isVerbose: Bool
+datatype CheckConfig
+    numTests, maxAttempts: UInt
+    isVerbose: Bool
 fun ctor(this: @CheckConfig)
     numTests = 100
     maxAttempts = 5*numTests
@@ -47,12 +47,12 @@ fun ctor(this: @CheckConfig)
 //! A value to be tested
 //! Along with the actual value we also hold whether the value is trivial and its
 //! classifier
-class TestableValue(t: Type)
+datatype TestableValue(t: Type)
     using ValueType = t
 
-    var value: t
-    var isTrivial: Bool
-    var classifier: String
+    value: t
+    isTrivial: Bool
+    classifier: String
 
 fun ctor(this: @TestableValue, value: @this.ValueType)
     this.value ctor value
@@ -189,12 +189,12 @@ package _Impl
             var h: Int = sizeHint + 3
             return t(randBetween(-h, h+1))
 
-    class ForAllGenerator(t: Type)
+    datatype ForAllGenerator(t: Type)
         using RetType = TestableValue(t)
         using _T = t
 
-        var _gen: Gen(t)
-        var _count: UInt
+        _gen: Gen(t)
+        _count: UInt
 
     fun ctor(this, other: @ForAllGenerator)
         this._gen ctor other._gen
@@ -209,20 +209,20 @@ package _Impl
     fun popFront(this: @ForAllGenerator)                    { ++_count }
 
     [initCtor]
-    class ForAllRangeGenerator(rangeType: Type)
+    datatype ForAllRangeGenerator(rangeType: Type)
         using RetType = TestableValue(rangeType.RetType)
 
-        var _range: rangeType
+        _range: rangeType
 
     fun isEmpty(this: @ForAllRangeGenerator)                     = _range.isEmpty
     fun front(this: @ForAllRangeGenerator): RetType              = RetType(_range.front)
     fun popFront(this: @ForAllRangeGenerator)                    { _range.popFront }
 
-    class ForWhichRange(rangeType, predType: Type) \
+    datatype ForWhichRange(rangeType, predType: Type) \
             if typeOf((#$predType)((#$rangeType front).value)) == Bool
-        var _range: rangeType
-        var _pred: predType
-        var _lastVal: RetType
+        _range: rangeType
+        _pred: predType
+        _lastVal: RetType
 
         using RetType = -@rangeType.RetType
         using _RangeType = rangeType
@@ -246,12 +246,12 @@ package _Impl
             _range.popFront()
 
     [initCtor]
-    class TrivialsRange(rangeType, predType: Type) \
+    datatype TrivialsRange(rangeType, predType: Type) \
             if typeOf((#$predType)((#$rangeType front).value)) == Bool
         using RetType = -@rangeType.RetType
 
-        var _range: rangeType
-        var _pred: predType
+        _range: rangeType
+        _pred: predType
 
     fun isEmpty(this: @TrivialsRange)                     = _range.isEmpty()
     fun popFront(this: @TrivialsRange)                    { _range.popFront() }
@@ -262,12 +262,12 @@ package _Impl
 
 
     [initCtor]
-    class ClassifierRange(rangeType, predType: Type) \
+    datatype ClassifierRange(rangeType, predType: Type) \
             if typeOf((#$predType)((#$rangeType front).value)) == String
         using RetType = -@rangeType.RetType
 
-        var _range: rangeType
-        var _pred: predType
+        _range: rangeType
+        _pred: predType
 
     fun isEmpty(this: @ClassifierRange)                     = _range.isEmpty()
     fun popFront(this: @ClassifierRange)                    { _range.popFront() }
@@ -276,12 +276,12 @@ package _Impl
         res.classifier = _pred(res.value)
         return res
 
-    class ElementsGen(rangeType: Type)
+    datatype ElementsGen(rangeType: Type)
         using ElementType = -@rangeType.RetType
         using _RangeType = rangeType
 
-        var _range: rangeType
-        var _count: SizeType
+        _range: rangeType
+        _count: SizeType
 
     fun ctor(this: @ElementsGen, range: this._RangeType)
         this._range ctor range

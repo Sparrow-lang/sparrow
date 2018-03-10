@@ -10,7 +10,7 @@ fun writeLnBool(val: Bool) {
         writeLn("false");
 }
 
-class Pair(t: Type) { var first, second: t; }
+datatype Pair(t: Type) { first, second: t; }
 
 datatype Pair2(t:Type) { first, second: t }
 datatype Pair3(t:Type) = Pair(t);

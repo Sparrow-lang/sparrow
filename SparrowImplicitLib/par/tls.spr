@@ -7,8 +7,8 @@ import std.newDelete;
 //! A class that can hold some data into a thread-local storage
 //! The size of the data must be less or equal to the size of a reference
 //! For references, we would delete the pointer when the thread exits
-class Tls(T: Type) if TypeOp.isRef(T)
-    var _tls: Impl.TlsCommon;
+datatype Tls(T: Type) if TypeOp.isRef(T)
+    _tls: Impl.TlsCommon;
 
     using ValueType = T;
 
@@ -30,8 +30,8 @@ fun _destructPtr(t: Type, p: @Byte): Null {
     return Null();
 }
 
-class Tls(T: Type) if !TypeOp.isRef(T) && sizeOf(T) <= sizeOf(@Byte) {
-    var _tls: Impl.TlsCommon;
+datatype Tls(T: Type) if !TypeOp.isRef(T) && sizeOf(T) <= sizeOf(@Byte) {
+    _tls: Impl.TlsCommon;
 
     using ValueType = T;
 
@@ -51,8 +51,8 @@ class Tls(T: Type) if !TypeOp.isRef(T) && sizeOf(T) <= sizeOf(@Byte) {
 package Impl {
     using DtorFun = FunctionPtr(Null rt, @Byte rt);
 
-    class TlsCommon
-        var key: KeyT;
+    datatype TlsCommon
+        key: KeyT;
 
     fun ctor(this: @TlsCommon)
         pthread_key_create(key, DtorFun());

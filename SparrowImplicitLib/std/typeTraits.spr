@@ -3,7 +3,7 @@ module std.typeTraits
 import defaultHashFunction(defaultHash)
 
 [rtct]
-    class DefaultTypeTraits
+    datatype DefaultTypeTraits
         ;
 
 [rtct, protected]

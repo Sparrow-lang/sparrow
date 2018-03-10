@@ -2,17 +2,17 @@
 
 concept AnyType(x); // Always true
 
-class A
+datatype A
     ;
 fun f1(this: A) = 1;
 fun f2(this: A) = 2;
 fun f3(this: A) = 3;
 
-class B
+datatype B
     ;
 fun f1(this: B) = 1;
 
-class C
+datatype C
     ;
 fun f3(this: C) = 3;
 
@@ -31,7 +31,7 @@ fun test3(x: AnyType) if !HasF3(x)  { writeLn('-'); }
 
 fun valueOfType(t: Type): t;
 
-class Tester(t: Type) if HasF1(valueOfType(t))
+datatype Tester(t: Type) if HasF1(valueOfType(t))
     using T = t
 
 fun call(this: Tester)

@@ -5,9 +5,9 @@ import std.vector;
 
 [ct]
     [initCtor]
-    class MyRange
+    datatype MyRange
         using RetType = Int;
-        var _min, _max: Int;
+        _min, _max: Int;
 
     fun front(this: MyRange) = _min;
     fun popFront(this: @MyRange) { _min += 1; }

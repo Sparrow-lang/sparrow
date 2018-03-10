@@ -39,12 +39,12 @@ using LInt = LRef(Int)
 /// reference, it's immediately visible in all the other references sharing the same value. This is particularly useful
 /// in logical inference process, when we repeatedly assign values to variables and expect the values to be propagated
 /// in all the places the variable appears.
-class LRef(valueType: Type)
+datatype LRef(valueType: Type)
     using ValueType = valueType
     using ValuePassType = !@valueType
     using isLogicalRef = 1
 
-    var _pptr: SharedPtr(Optional(ValueType))
+    _pptr: SharedPtr(Optional(ValueType))
 
 fun ctor(this: @LRef)
     _pptr ctor Optional(valueType)()
@@ -143,12 +143,12 @@ package _Impl
     using _operMul = 2
     using _operDiv = 3
 
-    class BinaryOp(leftType, rightType: Type, oper: Int) if ValWrapper(#$leftType) && ValWrapper(#$rightType)
+    datatype BinaryOp(leftType, rightType: Type, oper: Int) if ValWrapper(#$leftType) && ValWrapper(#$rightType)
         using ValueType = leftType.ValueType
         using _myOper = oper
 
-        var _left: leftType
-        var _right: rightType
+        _left: leftType
+        _right: rightType
 
     fun ctor(this: @BinaryOp, l: @leftType, r: @rightType)
         this._left ctor l

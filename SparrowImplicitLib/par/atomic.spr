@@ -3,23 +3,23 @@ module par.atomic;
 import config;
 import "atomic.llvm";
 
-[initCtor] class Atomic(T: Type) if T == Int {
+[initCtor] datatype Atomic(T: Type) if T == Int {
     using _IsAtomicType = true;
     using ValueType = Int;
 
     //! The value for this atomic
-    var _value: ValueType;
+    _value: ValueType;
 }
 
-[initCtor] class Atomic(T: Type) if T == Long {
+[initCtor] datatype Atomic(T: Type) if T == Long {
     using _IsAtomicType = true;
     using ValueType = Long;
 
     //! The value for this atomic
-    var _value: ValueType;
+    _value: ValueType;
 }
 
-class Atomic(T: Type) if T != Int && T != Long && sizeOf(T) <= 8 {
+datatype Atomic(T: Type) if T != Int && T != Long && sizeOf(T) <= 8 {
     using _IsAtomicType = true;
 
     using ValueType = T;
@@ -28,7 +28,7 @@ class Atomic(T: Type) if T != Int && T != Long && sizeOf(T) <= 8 {
     using _BaseAtomicType = Impl.AtomicTypeTraits(T)._BaseAtomicType;
 
     //! The value for this atomic
-    var _value: _UnderlyingType;
+    _value: _UnderlyingType;
 
 }
 
@@ -118,11 +118,11 @@ fun pre_--(x: @AtomicInteger): x.ValueType = (x fetchAndDecrement)-1;
 fun post_--(x: @AtomicInteger): x.ValueType = (x fetchAndDecrement);
 
 package Impl {
-    class AtomicTypeTraits(T: Type) if sizeOf(T) <= 4 {
+    datatype AtomicTypeTraits(T: Type) if sizeOf(T) <= 4 {
         using _UnderlyingType = Int;
         using _BaseAtomicType = Atomic(Int);
     }
-    class AtomicTypeTraits(T: Type) if sizeOf(T) == 8 {
+    datatype AtomicTypeTraits(T: Type) if sizeOf(T) == 8 {
         using _UnderlyingType = Long;
         using _BaseAtomicType = Atomic(Long);
     }

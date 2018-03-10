@@ -2,11 +2,9 @@
 
 concept AnyType(x); // Always true
 
-class Pair(t1, t2: Type)
-{
-    var first: t1;
-    var second: t2;
-}
+datatype Pair(t1, t2: Type)
+    first: t1;
+    second: t2;
 
 fun instanceOfType(t: Type): t;
 fun instanceOfTypeRef(t: Type): t@;

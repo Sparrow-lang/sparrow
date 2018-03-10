@@ -4,9 +4,8 @@ import taskPrefix(TaskPrefix);
 import std.string;
 
 //! An empty task; can be used for synchronization
-class EmptyTask {
-    var prefix: TaskPrefix;
-}
+datatype EmptyTask
+    prefix: TaskPrefix
 
 fun execute(task: @EmptyTask) {}
 

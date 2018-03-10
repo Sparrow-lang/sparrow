@@ -7,7 +7,7 @@ import ranges(rangeSize)
 import algo = algorithms(swap, max)
 import newDelete(new)
 
-class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
+datatype HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
     using KeyType = keyType
     using ValueType = valueType
     using ValueToKeyType = valueToKeyType
@@ -20,11 +20,11 @@ class HashTable(keyType, valueType, valueToKeyType, traitsType: Type)
     using _TraitsType = traitsType
 
 
-    var _buckets: _BucketsType
-    var _guard: _MyGuardNode
-    var _numElements: SizeType
-    var _valToKey: ValueToKeyType
-    var _tr: traitsType
+    _buckets: _BucketsType
+    _guard: _MyGuardNode
+    _numElements: SizeType
+    _valToKey: ValueToKeyType
+    _tr: traitsType
 
 fun ctor(this: @HashTable)
     this.ctor(0, _TraitsType())
@@ -300,25 +300,25 @@ fun _deleteElements(this: @HashTable)
     _guard.next = _NodePtr()
 
 [initCtor]
-class _Node(valueType: Type)
-    var next: Ptr(_Node)
-    var hash: SizeType
-    var data: valueType
+datatype _Node(valueType: Type)
+    next: Ptr(_Node)
+    hash: SizeType
+    data: valueType
 
 fun >> (this: @_Node, os: @OutStream)
     os << data << " <" << mkStreamRefWrapper(this) << '>'
 
 [initCtor]
-class _GuardNode(valueType: Type)
-    var next: Ptr(_Node(valueType))
+datatype _GuardNode(valueType: Type)
+    next: Ptr(_Node(valueType))
 
 
 [initCtor]
-class _HashRange(valueType: Type)
+datatype _HashRange(valueType: Type)
     using RetType = @valueType
     using _NodePtr = Ptr(_Node(valueType))
 
-    var _startElem, _endElem: _NodePtr
+    _startElem, _endElem: _NodePtr
 
 [protected]
     fun isEmpty(this: _HashRange)               = _startElem == _endElem

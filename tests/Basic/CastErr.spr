@@ -1,13 +1,13 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-class Base
-    var a: Int;
+datatype Base
+    a: Int;
 
 fun ctor(this: @Base, i: Int) { a = i; }
 fun ctor(this: @Base, other: Base) { a = other.a; }
 
-class Derived: Base
-    var b: Int;
+datatype Derived: Base
+    b: Int;
 
 fun ctor(this: @Derived, i,j: Int) { a = i; b = j; }
 

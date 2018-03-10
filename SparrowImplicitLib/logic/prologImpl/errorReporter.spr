@@ -6,8 +6,8 @@ import os = os;
 
 [rtct]
     [initCtor]
-    class ConsoleErrorReporter(sourceType: Type) if CharRange(#$sourceType)
-        var _source: sourceType;
+    datatype ConsoleErrorReporter(sourceType: Type) if CharRange(#$sourceType)
+        _source: sourceType;
 
     fun raiseError(this: @ConsoleErrorReporter, loc: Location, message: StringRef)
     {
@@ -54,7 +54,7 @@ import os = os;
     fun mkConsoleErrorReporter(source: @CharRange) = ConsoleErrorReporter(-@typeOf(source))(source);
 
 [ct]
-    class CompilerErrorReporter
+    datatype CompilerErrorReporter
         ;
 
     fun raiseError(this: CompilerErrorReporter, loc: Location, message: StringRef)

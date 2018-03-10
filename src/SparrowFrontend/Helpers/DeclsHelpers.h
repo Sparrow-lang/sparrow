@@ -18,9 +18,6 @@ namespace SprFrontend
     /// Get the resulting declaration from the given node
     Node* resultingDecl(Node* node);
 
-    /// Check if the given node is a field or not
-    bool isField(Node* node);
-
 
     /// Checks if we can access 'node' from 'fromNode'
     bool canAccessNode(Node* decl, Node* fromNode);

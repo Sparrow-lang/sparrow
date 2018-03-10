@@ -59,6 +59,9 @@ extern "C" Node* comp_parser_mkPackage(Location* loc, StringRef name, Node* chil
 extern "C" Node* comp_parser_mkClass(Location* loc, StringRef name, Node* params, Node* underlyingData, Node* ifClause, Node* children) {
     return mkSprClass(*loc, name, params, underlyingData, ifClause, children);
 }
+extern "C" Node* comp_parser_mkField(Location* loc, StringRef name, Node* typeNode, Node* init) {
+    return mkSprField(*loc, name, typeNode, init);
+}
 extern "C" Node* comp_parser_mkConcept(Location* loc, StringRef name, StringRef paramName, Node* baseConcept, Node* ifClause) {
     return mkSprConcept(*loc, name, paramName, baseConcept, ifClause);
 }

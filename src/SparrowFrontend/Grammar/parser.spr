@@ -217,7 +217,6 @@ package _Impl
                parseImportLineOpt(this, res)
             || parseUsingDecl(this, res)
             || parsePackageDecl(this, res)
-            || parseClassDecl(this, res)
             || parseDatatypeDecl(this, res)
             || parseConceptDecl(this, res)
             || parseVarDecl(this, res)
@@ -297,20 +296,6 @@ package _Impl
         loc copyEnd _lastToken.loc
         res = mkPackage(loc, id.asStringRef, children, formals, ifClause)
         return true
-    fun parseClassDecl(this: @SparrowParser, res: @Node): Bool
-        if !(this accept tkCLASS)
-            return false
-        var loc = _lastToken.loc
-        var id = parseId(this)
-        var formals = parseFormalsOpt(this)
-        var ifClause = parseIfClauseOpt(this)
-        this expect tkLCURLY
-        var children: Node
-        parseStmts(this, true, children)
-        this expect tkRCURLY
-        loc copyEnd _lastToken.loc
-        res = mkClass(loc, id.asStringRef, formals, Node(), ifClause, children)
-        return true
     fun parseDatatypeDecl(this: @SparrowParser, res: @Node): Bool
         if !(this accept tkDATATYPE)
             return false
@@ -337,7 +322,7 @@ package _Impl
                     if parseUsingDecl(this, usingNode)
                         children = addToNodeList(children, usingNode)
                     else
-                        parseFormal(this, true, children)
+                        parseFieldsLine(this, children)
                     while (this accept tkCOMMA) || (this accept tkSEMICOLON) {}
                 this expect tkRCURLY
             loc copyEnd _lastToken.loc
@@ -430,6 +415,16 @@ package _Impl
             for id: @LocString = ids.all
                 var p = mkParameter(id.data.v1, id.data.v2.asStringRef, typeNode, init)
                 res = addToNodeList(res, p)
+    fun parseFieldsLine(this: @SparrowParser, res: @Node)
+        var ids = parseIdList(this)
+        this expect tkCOLON
+        var typeNode = parseExpr(this, false)
+        var init: Node
+        if this accept tkEQUAL
+            init = parseExpr(this)
+        for id: @LocString = ids.all
+            var v = mkField(id.data.v1, id.data.v2.asStringRef, typeNode, init)
+            res = addToNodeList(res, v)
     fun parseTypeNode(this: @SparrowParser): Node
         if this accept tkCOLON
             return parseExpr(this, false)

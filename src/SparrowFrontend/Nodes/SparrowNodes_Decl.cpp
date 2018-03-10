@@ -29,7 +29,7 @@ namespace
         NodeVector fields;
         for ( Node* n: Nest_symTabAllEntries(curSymTab) )
         {
-            if ( n->nodeKind == nkFeatherDeclVar || n->nodeKind == nkSparrowDeclSprVariable )
+            if ( n->nodeKind == nkFeatherDeclVar || n->nodeKind == nkSparrowDeclSprField )
                 fields.push_back(n);
         }
 
@@ -42,7 +42,7 @@ namespace
             if ( !Nest_computeType(field) )
                 field = nullptr;
             field = Nest_explanation(field);
-            if ( field->nodeKind != nkFeatherDeclVar || !isField(field) )
+            if ( field->nodeKind != nkFeatherDeclVar )
                 field = nullptr;
         }
 
@@ -290,9 +290,9 @@ TypeRef SprClass_ComputeType(Node* node)
     forEachNodeInNodeList(children, [&] (Node* child) -> void
     {
         Node* p = Nest_explanation(child);
-        if ( !isField(p) )
+        if ( p->nodeKind != nkFeatherDeclVar )
         {
-            // Methods, generics
+            // Using decls
             Nest_appendNodeToArray(&node->additionalNodes, child);
         }
     });
@@ -543,6 +543,65 @@ Node* SprParameter_SemanticCheck(Node* node)
 }
 
 
+void SprField_SetContextForChildren(Node* node)
+{
+    Feather_addToSymTab(node);
+
+    // Create a new child compilation context if the mode has changed; otherwise stay in the same context
+    EvalMode curEvalMode = Feather_nodeEvalMode(node);
+    if ( curEvalMode != modeUnspecified && curEvalMode != node->context->evalMode )
+        node->childrenContext = Nest_mkChildContext(node->context, curEvalMode);
+    else
+        node->childrenContext = node->context;
+
+    Nest_defaultFunSetContextForChildren(node);
+}
+TypeRef SprField_ComputeType(Node* node)
+{
+    ASSERT(Nest_nodeArraySize(node->children) == 2);
+    Node* typeNode = at(node->children, 0);
+    Node* init = at(node->children, 1);
+
+    // Get the type of the variable
+    TypeRef t = computeVarType(node, node->childrenContext, typeNode, init);
+    if ( !t )
+        return nullptr;
+
+    // If the type of the variable indicates a variable that can only be CT, change the evalMode
+    if ( t->mode == modeCt )
+        Feather_setEvalMode(node, modeCt);
+
+    // Create the resulting var
+    Node* resultingVar = Feather_mkVar(node->location, Feather_getName(node), Feather_mkTypeNode(node->location, t));
+    Feather_setEvalMode(resultingVar, Feather_effectiveEvalMode(node));
+    Feather_setShouldAddToSymTab(resultingVar, 0);
+    Nest_setPropertyNode(node, propResultingDecl, resultingVar);
+
+    Nest_setContext(resultingVar, node->childrenContext);
+    if ( !Nest_computeType(resultingVar) )
+        return nullptr;
+
+    if (init)
+        Nest_setPropertyNode(resultingVar, propVarInit, init);
+
+    // Set the explanation of this node
+    Nest_setContext(resultingVar, node->childrenContext);
+    node->type = Nest_computeType(resultingVar);
+    if ( !node->type )
+        return nullptr;
+    node->explanation = resultingVar;
+
+    Nest_setPropertyNode(node, "spr.resultingVar", resultingVar);
+
+    return node->type;
+}
+Node* SprField_SemanticCheck(Node* node)
+{
+    if ( !Nest_computeType(node) )
+        return nullptr;
+    return Nest_semanticCheck(node->explanation);
+}
+
 void SprVariable_SetContextForChildren(Node* node)
 {
     Feather_addToSymTab(node);
@@ -563,15 +622,8 @@ TypeRef SprVariable_ComputeType(Node* node)
     Node* init = at(node->children, 1);
 
     // Check the kind of the variable (local, global, field)
-    VarKind varKind = varLocal;
     Node* parentFun = Feather_getParentFun(node->context);
-    Node* parentClass = nullptr;
-    if ( !parentFun )
-    {
-        // Check if this is a field
-        parentClass = Feather_getParentClass(node->context);
-        varKind = parentClass ? varField : varGlobal;
-    }
+    VarKind varKind = parentFun ? varLocal : varGlobal;
 
     // Get the type of the variable
     TypeRef t = computeVarType(node, node->childrenContext, typeNode, init);
@@ -587,11 +639,6 @@ TypeRef SprVariable_ComputeType(Node* node)
     Feather_setEvalMode(resultingVar, Feather_effectiveEvalMode(node));
     Feather_setShouldAddToSymTab(resultingVar, 0);
     Nest_setPropertyNode(node, propResultingDecl, resultingVar);
-
-    if ( varKind == varField )
-    {
-        Nest_setPropertyInt(resultingVar, propIsField, 1);
-    }
 
     Nest_setContext(resultingVar, node->childrenContext);
     if ( !Nest_computeType(resultingVar) )
@@ -609,7 +656,7 @@ TypeRef SprVariable_ComputeType(Node* node)
     Node* ctorCall = nullptr;
     Node* dtorCall = nullptr;
     Node* varRef = nullptr;
-    if ( varKind != varField && (init || !isRef) )
+    if ( init || !isRef )
     {
         ASSERT(resultingVar->type);
 
@@ -630,45 +677,30 @@ TypeRef SprVariable_ComputeType(Node* node)
         }
     }
 
-    // Set the explanation of this node
+    // Set the explanation of this node; take into consideration the ctor and dtor calls
     Node* expl = nullptr;
-    if ( varKind == varField )
+    auto nop = Feather_mkNop(node->location);
+    if ( varKind == varLocal )
     {
-        // For fields, just explain this as the resulting var
-        expl = resultingVar;
+        // For local variables, add the ctor & dtor actions in the node list, and make this as explanation
+        dtorCall = dtorCall ? Feather_mkScopeDestructAction(node->location, dtorCall) : nullptr;
+        expl = Feather_mkNodeList(node->location, fromIniList({ resultingVar, ctorCall, dtorCall, nop }));
     }
     else
     {
-        // For local and global variables take into consideration the ctor and dtor calls
-        Node* resVar = resultingVar;
-        if ( varKind == varLocal )
-        {
-            // For local variables, add the ctor & dtor actions in the node list, and make this as explanation
-            dtorCall = dtorCall ? Feather_mkScopeDestructAction(node->location, dtorCall) : nullptr;
-        }
-        else
-        {
-            // For global variables, wrap ctor & dtor nodes in global ctor/dtor actions
-            if ( ctorCall )
-                ctorCall = Feather_mkGlobalConstructAction(node->location, ctorCall);
-            if ( dtorCall )
-                dtorCall = Feather_mkGlobalDestructAction(node->location, dtorCall);
+        // For global variables, wrap ctor & dtor nodes in global ctor/dtor actions
+        if ( ctorCall )
+            ctorCall = Feather_mkGlobalConstructAction(node->location, ctorCall);
+        if ( dtorCall )
+            dtorCall = Feather_mkGlobalDestructAction(node->location, dtorCall);
 
-            // This is a global var: don't include it into the function scope
-            resVar = nullptr;
-        }
-        expl = Feather_mkNodeList(node->location, fromIniList({ resVar, ctorCall, dtorCall, Feather_mkNop(node->location) }));
+        expl = Feather_mkNodeList(node->location, fromIniList({ ctorCall, dtorCall, nop }));
 
-        // If the variable was not added to the result, add it as an additional
-        // (top-level) node to the result
-        if ( !resVar )
-            Nest_appendNodeToArray(&expl->additionalNodes, resultingVar);
+        // This is a global var: don't include it into the function scope
+        // Add it as an additional (top-level) node to the result
+        Nest_appendNodeToArray(&expl->additionalNodes, resultingVar);
     }
-
     ASSERT(expl);
-
-    if (init && varKind == varField)
-        Nest_setPropertyNode(expl, propVarInit, init);
 
     Nest_setContext(expl, node->childrenContext);
     node->type = Nest_computeType(expl);

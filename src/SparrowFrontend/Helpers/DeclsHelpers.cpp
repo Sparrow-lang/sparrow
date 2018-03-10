@@ -36,7 +36,7 @@ namespace
             return;
         }
 
-        // Check declarations -- everywhere
+        // Check declarations
         if ( nodeKind == nkFeatherDeclClass
             || (!insideClass && nodeKind == nkFeatherDeclFunction)
             || nodeKind == nkFeatherDeclVar
@@ -44,8 +44,8 @@ namespace
             || (!insideClass && nodeKind == nkSparrowDeclPackage)
             || (!insideClass && nodeKind == nkSparrowDeclSprClass)
             || (!insideClass && nodeKind == nkSparrowDeclSprFunction)
-            || (!insideClass && nodeKind == nkSparrowDeclSprParameter)
-            || nodeKind == nkSparrowDeclSprVariable
+            || (!insideClass && nodeKind == nkSparrowDeclSprVariable)
+            || (insideClass && nodeKind == nkSparrowDeclSprField)
             || (!insideClass && nodeKind == nkSparrowDeclSprConcept)
             || (!insideClass && nodeKind == nkSparrowDeclGenericPackage)
             || (!insideClass && nodeKind == nkSparrowDeclGenericClass)
@@ -190,14 +190,6 @@ Node* SprFrontend::resultingDecl(Node* node)
 {
     Node*const* res = Nest_getPropertyNode(node, propResultingDecl);
     return res ? *res : node;
-}
-
-bool SprFrontend::isField(Node* node)
-{
-    if ( node->nodeKind != nkFeatherDeclVar )
-        return false;
-    const int* isFieldFlag = Nest_getPropertyInt(node, propIsField);
-    return isFieldFlag && *isFieldFlag;
 }
 
 

@@ -16,6 +16,8 @@
     fun mkSprVariable(loc: @Location, name: StringRef, typeNode, init: AstNode): AstNode
     [native("$meta.Sparrow.mkSprClass")]
     fun mkSprClass(loc: @Location, name: StringRef, parameters, baseClasses, ifClause, children: AstNode): AstNode
+    [native("$meta.Sparrow.mkSprField")]
+    fun mkSprField(loc: @Location, name: StringRef, typeNode, init: AstNode): AstNode
 
     [native("$meta.Sparrow.mkSprConcept")]
     fun mkSprConcept(loc: @Location, name: StringRef, paramName: StringRef, baseConcept, ifClause: AstNode): AstNode

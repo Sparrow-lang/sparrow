@@ -27,6 +27,12 @@ namespace
     // Helpers for Identifier and CompoundExp nodes
     //
 
+    bool isField(Node* node) {
+        if (node->nodeKind != nkFeatherDeclVar)
+            return false;
+        return nullptr != Feather_getParentClass(node->context);
+    }
+
     Node* getIdentifierResult(Node* node, NodeRange decls, Node* baseExp, bool allowDeclExp)
     {
         const Location& loc = node->location;
@@ -1431,7 +1437,8 @@ Node* LambdaFunction_SemanticCheck(Node* node)
 
             // Create a similar variable in the enclosing class - must have the same name
             const Location& argLoc = arg->location;
-            Nest_appendNodeToArray(&classBody->children, mkSprVariable(argLoc, varName, varType, nullptr));
+            auto typeNode = createTypeNode(nullptr, argLoc, varType);
+            Nest_appendNodeToArray(&classBody->children, mkSprField(argLoc, varName, typeNode, nullptr));
         }
     }
 

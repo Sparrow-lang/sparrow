@@ -313,7 +313,6 @@ package _Impl
         // Check for reserved words
         if      data == "break"     return tkBREAK
         else if data == "catch"     return tkCATCH
-        else if data == "class"     return tkCLASS
         else if data == "concept"   return tkCONCEPT
         else if data == "continue"  return tkCONTINUE
         else if data == "datatype"  return tkDATATYPE

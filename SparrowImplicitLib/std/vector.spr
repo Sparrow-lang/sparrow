@@ -6,7 +6,8 @@ import ranges(RandomAccessRange, ..)
 
 [rtct] fun mkVector(range: Range) = Vector(-@ range.RetType)(range)
 
-[rtct] class Vector(valueType: Type)
+[rtct]
+datatype Vector(valueType: Type)
     using ValueType = valueType
     using ValuePassType = !@valueType
 
@@ -15,7 +16,7 @@ import ranges(RandomAccessRange, ..)
     using _initialCapacity = 8
     using _growthFactor = 2.0
 
-    var _begin, _end, _endOfStore: RawPtr(ValueType)
+    _begin, _end, _endOfStore: RawPtr(ValueType)
 
 [rt, protected]
 fun ctorFromCt(this: @Vector, src: Vector ct)

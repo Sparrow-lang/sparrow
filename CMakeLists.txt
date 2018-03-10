@@ -46,8 +46,8 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/src/SparrowCompiler/VersionInfo.h.in 
 
 
 # User passed compilation options
-option(BOOSTSTRAP_SPARROW "Use system-wide SparrowCompiler to compile Sparrow files needed for the compiler" OFF)
-message(STATUS "BOOSTSTRAP_SPARROW: ${BOOSTSTRAP_SPARROW}")
+option(BOOTSTRAP_SPARROW "Use system-wide SparrowCompiler to compile Sparrow files needed for the compiler" OFF)
+message(STATUS "BOOTSTRAP_SPARROW: ${BOOTSTRAP_SPARROW}")
 
 # Where to output the results of the compilation
 set(OutDir ${CMAKE_CURRENT_SOURCE_DIR}/build/bin)

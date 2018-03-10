@@ -68,7 +68,7 @@ SET(sourceFiles
     "Helpers/Impl/Intrinsics.cpp"
 )
 
-if(BOOSTSTRAP_SPARROW)
+if(BOOTSTRAP_SPARROW)
     message(STATUS "Using SparrowCompiler to generate the parser object")
     SPARROW_TARGET(SparrowParser
         Grammar/parserIf.spr

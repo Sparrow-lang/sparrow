@@ -343,12 +343,6 @@ TypeRef SprFunction_ComputeType(Node* node)
     if (returnType)
         Nest_setPropertyExplInt(returnType, propAllowDeclExp, 1);
 
-    // Check if this is a member function
-    Node* parentClass = Feather_getParentClass(node->context);
-    bool isMember = nullptr != parentClass;
-    if ( isMember )
-        REP_ERROR(node->location, "Cannot have function inside classes");
-
     // Does this function have an implicit 'this' arg?
     int thisParamIdx = -1;
     if ( parameters ) {
@@ -574,7 +568,7 @@ TypeRef SprVariable_ComputeType(Node* node)
     Node* parentClass = nullptr;
     if ( !parentFun )
     {
-        // Check if this is a member function
+        // Check if this is a field
         parentClass = Feather_getParentClass(node->context);
         varKind = parentClass ? varField : varGlobal;
     }

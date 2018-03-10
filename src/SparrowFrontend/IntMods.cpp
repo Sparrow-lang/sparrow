@@ -43,17 +43,7 @@ namespace
         Location loc = parent->location;
         loc.end = loc.start;
 
-        // The context in which we add the associated fun
-        // If this is a ctor, and we have other ctors inside the class, then add it inside the class
-        // Otherwise, add it near the class.
-        bool shouldBeInner = false;
-        if (name=="ctor") {
-            NodeArray decls = Nest_symTabLookupCurrent(parent->childrenContext->currentSymTab, "ctor");
-            shouldBeInner = size(decls) > 0;
-            Nest_freeNodeArray(decls);
-        }
-        CompilationContext* ctx = shouldBeInner ? parent->childrenContext : classContext(parent);
-        // TODO (classes): Remove this
+        CompilationContext* ctx = classContext(parent);
 
         // Construct the parameters list, return type node
         NodeVector sprParams;
@@ -158,11 +148,6 @@ namespace
         Node* body = Feather_mkLocalSpace(loc, {});
         for ( Node* field: cls->children )
         {
-            // Take in account only fields of the current class
-            Node* cls2 = Feather_getParentClass(field->context);
-            if ( cls2 != cls )
-                continue;
-
             TypeRef t = field->type;
 
             // Do we have an initialization specified in the data struct?
@@ -201,11 +186,6 @@ namespace
         Node* exp = nullptr;
         for ( Node* field: cls->children )
         {
-            // Take in account only fields of the current class
-            Node* cls2 = Feather_getParentClass(field->context);
-            if ( cls2 != cls )
-                continue;
-
             Node* fieldRef = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, mkIdentifier(loc, fromCStr("this"))), field);
             Node* otherFieldRef = Feather_mkFieldRef(loc, Feather_mkMemLoad(loc, mkIdentifier(loc, fromCStr("other"))), field);
 
@@ -371,11 +351,6 @@ void IntModCtorMembers_beforeSemanticCheck(Modifier*, Node* fun) {
     {
         Node* field = at(cls->children, i);
 
-        // Make sure we initialize only fields of the current class
-        Node* cls2 = Feather_getParentClass(field->context);
-        if ( cls2 != cls )
-            continue;
-
         if ( !hasCtorCall(body, false, field) )
         {
             Node* base = mkCompoundExp(loc, mkIdentifier(loc, fromCStr("this")), Feather_getName(field));
@@ -419,12 +394,6 @@ void IntModDtorMembers_beforeSemanticCheck(Modifier*, Node* fun)
     for ( int i = Nest_nodeArraySize(cls->children)-1; i>=0; --i )
     {
         Node* field = at(cls->children, i);
-
-        // Make sure we destruct only fields of the current class
-        // TODO (classes): Revisit this
-        Node* cls2 = Feather_getParentClass(field->context);
-        if ( cls2 != cls )
-            continue;
 
         if ( field->type->numReferences == 0 )
         {

@@ -256,11 +256,10 @@ InstNode createNewInstantiation(InstSetNode instSet, NodeRange values, EvalMode 
  * @param paramType   The the of the parameter; used when cannot deduce it directly from 'param'
  * @param boundValue  The bound value used for the type (and init) of the variable
  * @param isCtGeneric True if this is a CT-generic function
- * @param insideClass True if we are inside a class; in this case, mark the variable as static.
  *
  * @return The created bound variable.
  */
-Node* createBoundVar(CompilationContext* context, Node* param, TypeRef paramType, Node* boundValue, bool isCtGeneric, bool insideClass);
+Node* createBoundVar(CompilationContext* context, Node* param, TypeRef paramType, Node* boundValue, bool isCtGeneric);
 
 /**
  * Check if the given instantiation is valid.

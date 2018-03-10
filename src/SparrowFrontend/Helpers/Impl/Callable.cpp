@@ -288,8 +288,6 @@ class GenericFunCallParams {
     const EvalMode origEvalMode_;  //!< The original eval mode for the generic
     const EvalMode finalEvalMode_; //!< The final eval mode to be used for the generic function
 
-    const bool insideClass_; //!< True if the generic is inside class
-
     NodeVector boundValues_; //!< The bound values that we have; constructed iteratively
 
     //! Constructor. Initializes most of the parameters here
@@ -308,7 +306,6 @@ GenericFunCallParams::GenericFunCallParams(CallableData& c, EvalMode callEvalMod
     , origEvalMode_(Feather_effectiveEvalMode(genFun_.originalFun()))
     , finalEvalMode_(getFinalEvalMode(
               genFun_.instSet().params(), all(c.args), origEvalMode_, isCtGeneric_))
-    , insideClass_(nullptr != Feather_getParentClass(c.decl->context))
     , boundValues_(getParamsCount(c), nullptr) {}
 
 EvalMode GenericFunCallParams::getFinalEvalMode(NodeRange genericParams, NodeRange args, EvalMode origEvalMode, bool isCtGeneric)
@@ -700,7 +697,7 @@ void handleGenericFunParam(GenericFunCallParams& callParams, int idx, Node* arg,
         } else {
             // Add the appropriate bound variable to the instantiation
             Node* boundVar = createBoundVar(curInst.boundVarsNode()->context, param, paramType,
-                    boundVal, callParams.isCtGeneric_, callParams.insideClass_);
+                    boundVal, callParams.isCtGeneric_);
             Feather_addToNodeList(curInst.boundVarsNode(), boundVar);
             Nest_clearCompilationStateSimple(curInst.boundVarsNode());
         }

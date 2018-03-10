@@ -36,20 +36,20 @@ namespace
             return;
         }
 
-        // Check declarations
+        // Check declarations -- everywhere
         if ( nodeKind == nkFeatherDeclClass
-            || nodeKind == nkFeatherDeclFunction
+            || (!insideClass && nodeKind == nkFeatherDeclFunction)
             || nodeKind == nkFeatherDeclVar
-            || nodeKind == nkSparrowDeclModule
-            || nodeKind == nkSparrowDeclPackage
-            || nodeKind == nkSparrowDeclSprClass
-            || nodeKind == nkSparrowDeclSprFunction
-            || nodeKind == nkSparrowDeclSprParameter
+            || (!insideClass && nodeKind == nkSparrowDeclModule)
+            || (!insideClass && nodeKind == nkSparrowDeclPackage)
+            || (!insideClass && nodeKind == nkSparrowDeclSprClass)
+            || (!insideClass && nodeKind == nkSparrowDeclSprFunction)
+            || (!insideClass && nodeKind == nkSparrowDeclSprParameter)
             || nodeKind == nkSparrowDeclSprVariable
-            || nodeKind == nkSparrowDeclSprConcept
-            || nodeKind == nkSparrowDeclGenericPackage
-            || nodeKind == nkSparrowDeclGenericClass
-            || nodeKind == nkSparrowDeclGenericFunction
+            || (!insideClass && nodeKind == nkSparrowDeclSprConcept)
+            || (!insideClass && nodeKind == nkSparrowDeclGenericPackage)
+            || (!insideClass && nodeKind == nkSparrowDeclGenericClass)
+            || (!insideClass && nodeKind == nkSparrowDeclGenericFunction)
             || nodeKind == nkSparrowDeclUsing
             )
             return;
@@ -357,10 +357,6 @@ CompilationContext* SprFrontend::classContext(Node* cls)
 
 NodeArray SprFrontend::getClassAssociatedDecls(Node* cls, const char* name)
 {
-    // TODO (ctors): Don't search within the class anymore
-    NodeArray decls = Nest_symTabLookupCurrent(cls->childrenContext->currentSymTab, name);
-    NodeArray decls2 = Nest_symTabLookupCurrent(classContext(cls)->currentSymTab, name);
-    Nest_appendNodesToArray(&decls, all(decls2));
-    Nest_freeNodeArray(decls2);
+    NodeArray decls = Nest_symTabLookupCurrent(classContext(cls)->currentSymTab, name);
     return decls;
 }

@@ -40,13 +40,11 @@ namespace {
  * @param boundValues The list of bound values used in the creation of bound vars
  * @param params      The params of the instantiated set (may contain nulls for RT params)
  * @param isCtGeneric True if this is a CT-generic function
- * @param insideClass True if the generic is inside a class; we mark the variables static if we are
- *                    inside classes
  *
  * @return A vector of all the bound variable
  */
 NodeVector createAllBoundVariables(const Location& loc, CompilationContext* context,
-        NodeRange boundValues, NodeRange params, bool isCtGeneric, bool insideClass) {
+        NodeRange boundValues, NodeRange params, bool isCtGeneric) {
     // Create a variable for each bound parameter - put everything in a node list
     NodeVector nodes;
     size_t idx = 0;
@@ -57,7 +55,7 @@ NodeVector createAllBoundVariables(const Location& loc, CompilationContext* cont
         TypeRef paramType = p->type;
         if (!paramType)
             paramType = getType(boundValue);    // Dependent param type case
-        Node* var = createBoundVar(context, p, paramType, boundValue, isCtGeneric, insideClass);
+        Node* var = createBoundVar(context, p, paramType, boundValue, isCtGeneric);
         ASSERT(var);
         nodes.push_back(var);
     }
@@ -230,10 +228,9 @@ InstNode SprFrontend::createNewInstantiation(
             Nest_mkChildContextWithSymTab(parentNode->context, nullptr, evalMode);
 
     bool isCtGeneric = Nest_hasProperty(parentNode, propCtGeneric);
-    bool insideClass = nullptr != Feather_getParentClass(context);
 
     // Create the instantiation
-    auto boundVars = createAllBoundVariables(loc, context, values, instSet.params(), isCtGeneric, insideClass);
+    auto boundVars = createAllBoundVariables(loc, context, values, instSet.params(), isCtGeneric);
     InstNode inst = mkInstantiation(loc, values, all(boundVars));
     // Add it to the parent instSet
     Nest_appendNodeToArray(&instSet.instantiations(), inst.node);
@@ -246,7 +243,7 @@ InstNode SprFrontend::createNewInstantiation(
     return inst;
 }
 
-Node* SprFrontend::createBoundVar(CompilationContext* context, Node* param, TypeRef paramType, Node* boundValue, bool isCtGeneric, bool insideClass) {
+Node* SprFrontend::createBoundVar(CompilationContext* context, Node* param, TypeRef paramType, Node* boundValue, bool isCtGeneric) {
     ASSERT(param);
     ASSERT(paramType);
     ASSERT(boundValue && boundValue->type);

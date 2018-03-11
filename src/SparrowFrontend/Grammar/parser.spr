@@ -10,22 +10,24 @@ import meta.location
 ///
 /// All the nodes are created outside the parser; we only care about node pointers
 ///
-class SparrowParser(tokensRangeType, errorReporterType: Type) \
+datatype SparrowParser(tokensRangeType, errorReporterType: Type) \
         if TokenRange(#$tokensRangeType) && ErrorReporter(#$errorReporterType)
-
-    fun ctor(tokens: tokensRangeType, errorReporter: errorReporterType)
-        this._tokens ctor tokens
-        this._hasErrors ctor false
-        this._errorReporter ctor errorReporter
+    using _TokensRangeType = tokensRangeType
+    using _ErrRepType = errorReporterType
 
     /// The source ranges of tokens we will used while parsing
-    var _tokens: RangeWithLookahead(tokensRangeType)
+    _tokens: RangeWithLookahead(tokensRangeType)
     /// The last processed token
-    var _lastToken: Token
+    _lastToken: Token
     /// Indicates whether we have some syntax errors
-    var _hasErrors: Bool
+    _hasErrors: Bool
     /// Object used to report errors
-    var _errorReporter: errorReporterType
+    _errorReporter: errorReporterType
+
+fun ctor(this: @SparrowParser, tokens: this._TokensRangeType, errorReporter: this._ErrRepType)
+    this._tokens ctor tokens
+    this._hasErrors ctor false
+    this._errorReporter ctor errorReporter
 
 using parseModule = _Impl.parseModule
 using parseExpression = _Impl.parseExpression
@@ -215,7 +217,6 @@ package _Impl
                parseImportLineOpt(this, res)
             || parseUsingDecl(this, res)
             || parsePackageDecl(this, res)
-            || parseClassDecl(this, res)
             || parseDatatypeDecl(this, res)
             || parseConceptDecl(this, res)
             || parseVarDecl(this, res)
@@ -286,18 +287,6 @@ package _Impl
             return false
         var loc = _lastToken.loc
         var id = parseId(this)
-        this expect tkLCURLY
-        var children: Node
-        parseStmts(this, true, children)
-        this expect tkRCURLY
-        loc copyEnd _lastToken.loc
-        res = mkPackage(loc, id.asStringRef, children)
-        return true
-    fun parseClassDecl(this: @SparrowParser, res: @Node): Bool
-        if !(this accept tkCLASS)
-            return false
-        var loc = _lastToken.loc
-        var id = parseId(this)
         var formals = parseFormalsOpt(this)
         var ifClause = parseIfClauseOpt(this)
         this expect tkLCURLY
@@ -305,7 +294,7 @@ package _Impl
         parseStmts(this, true, children)
         this expect tkRCURLY
         loc copyEnd _lastToken.loc
-        res = mkClass(loc, id.asStringRef, formals, Node(), ifClause, children)
+        res = mkPackage(loc, id.asStringRef, children, formals, ifClause)
         return true
     fun parseDatatypeDecl(this: @SparrowParser, res: @Node): Bool
         if !(this accept tkDATATYPE)
@@ -318,19 +307,26 @@ package _Impl
             var ifClause = parseIfClauseOpt(this)
             this expect tkSEMICOLON
             loc copyEnd _lastToken.loc
-            res = mkClass(loc, id.asStringRef, formals, underlyingData, ifClause, Node())
+            res = mkDatatype(loc, id.asStringRef, formals, underlyingData, ifClause, Node())
         else
             var ifClause = parseIfClauseOpt(this)
-            this expect tkLCURLY
             var children: Node
-            parseFormal(this, true, children)
-            while (this accept tkCOMMA) || (this accept tkSEMICOLON)
-                if this nextIs tkRCURLY break
-                parseFormal(this, true, children)
-            this consumeSemis
-            this expect tkRCURLY
+            if this accept tkSEMICOLON
+                ;
+            else
+                this expect tkLCURLY
+                while !(this nextIs tkRCURLY) && !_hasErrors
+                    while (this accept tkCOMMA) || (this accept tkSEMICOLON) {}
+                    if this nextIs tkRCURLY break
+                    var usingNode: Node
+                    if parseUsingDecl(this, usingNode)
+                        children = addToNodeList(children, usingNode)
+                    else
+                        parseFieldsLine(this, children)
+                    while (this accept tkCOMMA) || (this accept tkSEMICOLON) {}
+                this expect tkRCURLY
             loc copyEnd _lastToken.loc
-            res = mkClass(loc, id.asStringRef, formals, Node(), ifClause, children)
+            res = mkDatatype(loc, id.asStringRef, formals, Node(), ifClause, children)
         return true
     fun parseConceptDecl(this: @SparrowParser, res: @Node): Bool
         if !(this accept tkCONCEPT)
@@ -419,6 +415,16 @@ package _Impl
             for id: @LocString = ids.all
                 var p = mkParameter(id.data.v1, id.data.v2.asStringRef, typeNode, init)
                 res = addToNodeList(res, p)
+    fun parseFieldsLine(this: @SparrowParser, res: @Node)
+        var ids = parseIdList(this)
+        this expect tkCOLON
+        var typeNode = parseExpr(this, false)
+        var init: Node
+        if this accept tkEQUAL
+            init = parseExpr(this)
+        for id: @LocString = ids.all
+            var v = mkField(id.data.v1, id.data.v2.asStringRef, typeNode, init)
+            res = addToNodeList(res, v)
     fun parseTypeNode(this: @SparrowParser): Node
         if this accept tkCOLON
             return parseExpr(this, false)

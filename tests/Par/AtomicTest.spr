@@ -10,19 +10,16 @@ import test;
 [native("srand")] fun srand(seed: UInt);
 [native("time")] fun time(timer: @Int): Int;
 
-class UserDefined
-{
-    var lo, hi: Short;
+datatype UserDefined
+    lo, hi: Short;
 
-    fun ctor(val: Int) {
-        lo = Short(val % 0xffff);
-        hi = Short(val / 0xffff);
-    }
-    fun >> (os: OutStream) {
-        os << "(" << hi << "," << lo << ")";
-    }
+fun ctor(this: @UserDefined, val: Int) {
+    lo = Short(val % 0xffff);
+    hi = Short(val / 0xffff);
 }
-
+fun >> (os: OutStream) {
+    os << "(" << hi << "," << lo << ")";
+}
 fun testOneLoad(t: Type, val: AnyType) {
     var atomic: t Atomic = val;
     assertEq(atomic load, val);

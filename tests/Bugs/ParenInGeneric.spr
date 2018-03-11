@@ -1,27 +1,21 @@
 //!! -t ../Basic/SparrowImplicitLib.spr -fno-main
 
-class MyVector(t: Type)
-{
-    var start, end: t;
+datatype MyVector(t: Type)
+    start, end: t;
 
-    fun ==(other: MyVector): Bool = start == other.start && end == other.end;
-    fun !=(other: MyVector): Bool = !(this == other);
-}
+fun ==(this, other: MyVector): Bool = start == other.start && end == other.end;
+fun !=(this, other: MyVector): Bool = !(this == other);
 
 fun assert(b: Bool)
-{
     if ( !b )
         writeLn("Failure");
-}
 
 fun assertF(b: Bool)
-{
     if ( b )
         writeLn("Failure");
-}
 
-[native("test")] fun test(n: Int)
-{
+[native("test")]
+fun test(n: Int)
     var v11: MyVector(Int);
     v11.start = 4;
     v11.end = 5;
@@ -41,7 +35,6 @@ fun assertF(b: Bool)
     assert(v21 != v22);
     assertF(v21 == v22);
     writeLn("OK");
-}
 
 
 /*<<<Running()

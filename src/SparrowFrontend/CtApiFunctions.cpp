@@ -33,8 +33,11 @@ namespace
     Node* ctApi_Sparrow_mkSprVariable(Location* loc, StringRef name, Node* typeNode, Node* init) {
         return mkSprVariable(*loc, name, typeNode, init);
     }
-    Node* ctApi_Sparrow_mkSprClass(Location* loc, StringRef name, Node* parameters, Node* baseClasses, Node* ifClause, Node* children) {
-        return mkSprClass(*loc, name, parameters, baseClasses, ifClause, children);
+    Node* ctApi_Sparrow_mkSprDatatype(Location* loc, StringRef name, Node* parameters, Node* baseClasses, Node* ifClause, Node* children) {
+        return mkSprDatatype(*loc, name, parameters, baseClasses, ifClause, children);
+    }
+    Node* ctApi_Sparrow_mkSprField(Location* loc, StringRef name, Node* typeNode, Node* init) {
+        return mkSprField(*loc, name, typeNode, init);
     }
 
     Node* ctApi_Sparrow_mkSprConcept(Location* loc, StringRef name, Node* baseConcept, StringRef paramName, Node* ifClause) {
@@ -155,7 +158,8 @@ void SprFrontend::registerCtApiFunctions(Backend* backend)
     backend->ctApiRegisterFun(backend, "$meta.Sparrow.mkSprUsing",            (void*) &ctApi_Sparrow_mkSprUsing);
     backend->ctApiRegisterFun(backend, "$meta.Sparrow.mkSprPackage",          (void*) &ctApi_Sparrow_mkSprPackage);
     backend->ctApiRegisterFun(backend, "$meta.Sparrow.mkSprVariable",         (void*) &ctApi_Sparrow_mkSprVariable);
-    backend->ctApiRegisterFun(backend, "$meta.Sparrow.mkSprClass",            (void*) &ctApi_Sparrow_mkSprClass);
+    backend->ctApiRegisterFun(backend, "$meta.Sparrow.mkSprDatatype",         (void*) &ctApi_Sparrow_mkSprDatatype);
+    backend->ctApiRegisterFun(backend, "$meta.Sparrow.mkSprField",            (void*) &ctApi_Sparrow_mkSprField);
 
     backend->ctApiRegisterFun(backend, "$meta.Sparrow.mkSprConcept",          (void*) &ctApi_Sparrow_mkSprConcept);
 

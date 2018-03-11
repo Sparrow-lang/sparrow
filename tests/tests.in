@@ -53,6 +53,7 @@ Bugs/SpecializationOnCt.spr:            Bugs - specialization on CT vs RT
 Bugs/StaticGlobal.spr:                  Bugs - static vars, global vars, static ctor
 Bugs/VectorOfCtClass.spr:               Bugs - vectors of CT-only classes
 Bugs/WhileVarCond.spr:                  Bugs - while condition is a variable or a reference
+Bugs/GenericWithCtConcept.spr:          Bugs - generic with CT concept
 
 # AlgoProblems/P1_Collatz.spr:            Algo problems - P1. Collatz sequences
 Examples/Power.spr:                     Examples: Powers
@@ -61,27 +62,27 @@ Examples/MinPerfHash.spr:               Examples: Minimal Perfect Hashing
 Examples/NQueens.spr:                   Examples: N Queens
 
 Logic/LogicTest.spr:                    Logic: basic test
-Logic/Parents.spr:                      Logic: parents example, with recursive calls
-Logic/Solar.spr:                        Logic: solar system example
-Logic/PrologParserTest.spr:             Logic: parsing Prolog code
-Logic/PrologErr1.spr:                   Logic: Prolog error - invalid char
-Logic/PrologErr2.spr:                   Logic: Prolog error - invalid token
-Logic/PrologErr3.spr:                   Logic: Prolog error - cannot find predicate
-Logic/Antiquotation.spr:                Logic: Antiquotation in Prolog
-# Logic/ImportProlog.spr:                 Logic: Directly importing Prolog code
-Logic/FibTest.spr:                      Logic: Fibonacci computation
-Logic/FibOptTest.spr:                   Logic: Fibonacci computation - using optimized version
-# Logic/FibProlog.spr:                    Logic: Fibonacci computation - Prolog code
-Logic/FibPrologErr.spr:                 Logic: Fibonacci computation - Prolog code with errors
+# Logic/Parents.spr:                      Logic: parents example, with recursive calls
+# Logic/Solar.spr:                        Logic: solar system example
+# Logic/PrologParserTest.spr:             Logic: parsing Prolog code
+# Logic/PrologErr1.spr:                   Logic: Prolog error - invalid char
+# Logic/PrologErr2.spr:                   Logic: Prolog error - invalid token
+# Logic/PrologErr3.spr:                   Logic: Prolog error - cannot find predicate
+# Logic/Antiquotation.spr:                Logic: Antiquotation in Prolog
+# # Logic/ImportProlog.spr:                 Logic: Directly importing Prolog code
+# Logic/FibTest.spr:                      Logic: Fibonacci computation
+# Logic/FibOptTest.spr:                   Logic: Fibonacci computation - using optimized version
+# # Logic/FibProlog.spr:                    Logic: Fibonacci computation - Prolog code
+# Logic/FibPrologErr.spr:                 Logic: Fibonacci computation - Prolog code with errors
 
 Basic2/Conditional.spr:                 Basic features 2 - Conditionals
 Basic2/LogicalAndOr.spr:                Basic features 2 - Logical AND & OR operators with shortcut
 Basic2/CustomOperators.spr:             Basic features 2 - Custom operators precedence
 Basic2/Precedence.spr:                  Basic features 2 - Precedence of operators
-Basic2/BasicVector.spr:                 Basic features 2 - Basic vector implementation
 Basic2/For.spr:                         Basic features 2 - For statement
 Basic2/Lambda.spr:                      Basic features 2 - Lambda expressions
 Basic2/GenericFunRef.spr:               Basic features 2 - Fun ptr for generics
+Basic2/GenericPackage.spr:              Basic features 2 - Generic package
 Basic2/CtRtParam.spr:                   Basic features 2 - CT and RT params
 Basic2/CtWhile.spr:                     Basic features 2 - CT while
 Basic2/CtFor.spr:                       Basic features 2 - CT for
@@ -92,20 +93,14 @@ Basic2/Swappable.spr:                   Basic features 2 - Swappable
 Basic2/Regular.spr:                     Basic features 2 - Regular concept
 Basic2/Axioms.spr:                      Basic features 2 - Axioms
 Basic2/ConceptOfGeneric.spr:            Basic features 2 - Concepts out of generics
+Basic2/FunPtrTest.spr:                  Basic features 2 - FunctionPtr test
+Basic2/InstSpeed.spr:                   Basic features 2 - Instantiation speed
 
 Basic/LLVMCode.llvm:                    Basic features - Code from llvm file
 Basic/Basic.spr:                        Basic features - A small Sparrow code
 Basic/Stmt.spr:                         Basic features - Statements
-Basic/DataStruct.spr:                   Basic features - Data structure
-Basic/Struct.spr:                       Basic features - New data structure
-Basic/StructGeneric.spr:                Basic features - New data structure, with generics
-Basic/FunErr.spr:                       Basic features - Function errors
-Basic/FunErr2.spr:                      Basic features - Function errors (more)
-Basic/StaticFun.spr:                    Basic features - Static functions
-Basic/NonStaticFun.spr:                 Basic features - Non static functions
 Basic/Compound.spr:                     Basic features - Compound expressions
 Basic/SameName.spr:                     Basic features - Class, function, var with same name
-# Basic/Inheritance.spr:                  Basic features - Inheritance
 Basic/CtFun.spr:                        Basic features - CT functions
 Basic/CtFactorial.spr:                  Basic features - CT factorial
 Basic/CtIf.spr:                         Basic features - CT if
@@ -114,11 +109,9 @@ Basic/Convert.spr:                      Basic features - Conversions
 Basic/GeneratedCtorDtor.spr:            Basic features - Generated ctor dtor
 Basic/CtorDtor.spr:                     Basic features - Object constructors & destructors
 Basic/StaticCtorDtor.spr:               Basic features - Static constructors & destructors
+Basic/ExternalCtor.spr:                 Basic features - External ctor
 Basic/ObjectCopy.spr:                   Basic features - Object copying
 Basic/ObjectCopyRVO.spr:                Basic features - Object copying + Return Value Optimization
-# Basic/CastErr.spr:                      Basic features - Casts with errors
-# Basic/Cast.spr:                         Basic features - Casts
-Basic/SizeOf.spr:                       Basic features - SizeOf
 Basic/Functor.spr:                      Basic features - Functors
 Basic/TypeVar.spr:                      Basic features - Type variables
 Basic/Generics.spr:                     Basic features - Generics
@@ -127,21 +120,26 @@ Basic/Auto.spr:                         Basic features - Auto
 Basic/String.spr:                       Basic features - String
 Basic/ValueToRef.spr:                   Basic features - Value to reference
 Basic/CallCtorDtor.spr:                 Basic features - Call ctor & dtor
-Basic/StaticArray.spr:                  Basic features - Static array
-Basic/BasicVector.spr:                  Basic features - Basic vector implementation
 Basic/TypeTraits.spr:                   Basic features - Type traits
 Basic/Overload.spr:                     Basic features - Overload
 Basic/FunExp.spr:                       Basic features - Expression functions
 Basic/FunSyntax.spr:                    Basic features - Function syntax
 Basic/DefaultParam.spr:                 Basic features - Default parameters
 Basic/Concepts.spr:                     Basic features - Concepts
-# Basic/IsA.spr:                          Basic features - isa and convertsTo relationships
 Basic/CtToRt.spr:                       Basic features - CT to RT for basic types
 Basic/CtToRtErr.spr:                    Basic features - CT to RT for basic types - errors
 Basic/CtToRtComplex.spr:                Basic features - CT to RT for complex types
 Basic/ImplicitFunCall.spr:              Basic features - Implicit function call, without parenthesis
 Basic/CompDefines.spr:                  Basic features - Compiler defines
 Basic/This.spr:                         Basic features - This
+Basic/CallOperator.spr:                 Basic features - Call operator
+Basic/DependentTypes.spr:               Basic features - Dependent types
+Basic/Using.spr:                        Basic features - Using directives
+Basic/datatype/syntax.spr:              Basic features - datatype - various syntaxes
+Basic/datatype/storage.spr:             Basic features - datatype - storage
+Basic/datatype/interaction.spr:         Basic features - datatype - various interaction patterns
+Basic/datatype/generic.spr:             Basic features - datatype - basic generics test
+Basic/datatype/initCtor.spr:            Basic features - datatype - initCtor
 
 Imports/ImportTwice.spr:                Import twice the same file
 Imports/ImportComplex.spr:              Import a complex hierarchy of files, some of them twice
@@ -159,8 +157,6 @@ Simple/SecantMethod.spr:                Simple problems - Secant method solver
 Simple/Ackermann.spr:                   Simple problems - Ackermann function
 
 Frontend/Smoke.spr:                     Frontend - grammar smoke test
-Frontend/Declarations.spr:              Frontend - some declarations
-Frontend/Expressions.spr:               Frontend - some expressions
 Frontend/Identifiers.spr:               Frontend - identifiers
 Frontend/Operators.spr:                 Frontend - operators
 Frontend/PrefixPostfix.spr:             Frontend - prefix & postfix operators

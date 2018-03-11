@@ -510,46 +510,32 @@ namespace
         }
     }
 
-    llvm::Value* translateDataTypeConstant(llvm::Type* t, const char* begin, const char* end, TrContext& context)
+    llvm::Value* translateStringRefConstant(llvm::Type* t, const char* begin, const char* end, TrContext& context)
     {
         uint64_t size = end - begin;
 
         context.ensureInsertionPoint();
 
-        llvm::Value* constInt0 = llvm::ConstantInt::get(context.llvmContext(), llvm::APInt(32, 0, false));
-        llvm::Value* constInt1 = llvm::ConstantInt::get(context.llvmContext(), llvm::APInt(32, 1, false));
-        llvm::Value* constIntSize = llvm::ConstantInt::get(context.llvmContext(), llvm::APInt(32, size, false));
+        llvm::Value* constInt0 = context.builder().getInt32(0);
+        llvm::Value* constInt1 = context.builder().getInt32(1);
+        llvm::Value* constIntSize = context.builder().getInt32(size);
 
-        // Create a the data array constant
-        llvm::Value* bytesVal = llvm::ConstantDataArray::getString(context.llvmContext(), llvm::StringRef(begin, (size_t) size));
+        // Create a global string constant
+        llvm::Value* globalStr = context.builder().CreateGlobalStringPtr(llvm::StringRef(begin, (size_t) size), "str");
 
-        // Allocate a temporary variable to hold it
-        llvm::Value* constTmpVar = context.addVariable(bytesVal->getType(), "const.bytes");
-        context.builder().CreateStore(bytesVal, constTmpVar);
-        //bytesVal->getType()->dump();
-
-        // Obtain pointers to begin and end in the allocated temporary variable
-        vector<llvm::Value*> indices(2);
-        indices[0] = constInt0;
-        indices[1] = constInt0;
-        llvm::Value* constPtrBegin = context.builder().CreateInBoundsGEP(constTmpVar, indices, "");
-        indices[1] = constIntSize;
-        llvm::Value* constPtrEnd = context.builder().CreateInBoundsGEP(constTmpVar, indices, "");
+        // Obtain pointers to the end of the global string
+        llvm::Value* globalStrEnd = context.builder().CreateInBoundsGEP(globalStr, constIntSize, "");
 
         // Create a temporary variable for the actual structure object
-        llvm::Value* tmpVar = context.addVariable(t, "const.struct");
+        llvm::Value* tmpVar = context.addVariable(t, "tmp.StringRef");
 
-        // Index for the the begin and end fields in our structure
-        indices[1] = constInt0;
+        // Copy pointers of the string constant into the StringRef structure
+        llvm::Value* indices[2] = { constInt0, constInt0 };
         llvm::Value* beginAddr = context.builder().CreateInBoundsGEP(tmpVar, indices, "");
         indices[1] = constInt1;
         llvm::Value* endAddr = context.builder().CreateInBoundsGEP(tmpVar, indices, "");
-
-        // Copy pointers
-        context.builder().CreateStore(constPtrBegin, beginAddr);
-        context.builder().CreateStore(constPtrEnd, endAddr);
-
-        //context.parentFun()->dump();
+        context.builder().CreateStore(globalStr, beginAddr);
+        context.builder().CreateStore(globalStrEnd, endAddr);
 
         return context.builder().CreateLoad(tmpVar);
     }
@@ -569,7 +555,7 @@ namespace
                 if ( nativeName == "StringRef" )
                 {
                     StringRef data = *Feather_getCtValueData<StringRef>(node);
-                    return translateDataTypeConstant(t, data.begin, data.end, context);
+                    return translateStringRefConstant(t, data.begin, data.end, context);
                 }
             }
         }

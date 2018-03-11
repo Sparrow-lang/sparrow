@@ -1,0 +1,75 @@
+//!! -t "SparrowImplicitLib.spr" -fno-main
+
+datatype Book { author, name, isbn: StringRef; }
+
+datatype Book3 { author, name, isbn: StringRef}
+datatype Book4 = Book
+
+datatype Pair(t: Type) { first, second: t }
+
+concept AnyType(x);
+
+fun ctor(this: @Book)
+    this.author ctor
+    this.name ctor
+    this.isbn ctor
+
+fun ctor(this: @Book, author, name, isbn: StringRef)
+    this.author ctor author
+    this.name ctor name
+    this.isbn ctor isbn
+
+fun ctor(this: @Book3, author, name, isbn: StringRef)
+    this.author ctor author
+    this.name ctor name
+    this.isbn ctor isbn
+
+fun ctor(this: @Book4, author, name, isbn: StringRef)
+    this.data.author ctor author
+    this.data.name ctor name
+    this.data.isbn ctor isbn
+
+fun ctor(this: @Pair, f,s: AnyType)
+    this.first ctor f
+    this.second ctor s
+
+fun ctor(this: @Pair(Int), f,s: Int)
+    this.first ctor f
+    this.second ctor s
+
+[native("test")]
+fun test(n: Int)
+    var b = Book("LucTeo", "The wonders of Sparrow", "ISBN")
+    writeLn(b.author);
+    writeLn(b.name);
+    writeLn(b.isbn);
+    writeLn("---");
+
+    var b3 = Book3("LucTeo", "External ctors in Sparrow", "ISBN");
+    var b4 = Book4("LucTeo", "More external ctors in Sparrow", "ISBN");
+    writeLn(b3.name);
+    writeLn(b4.data.name);
+
+    var b4_1 = Book4(b);
+    writeLn(b4_1.data.name);
+    writeLn("---");
+
+    using IntPair = Pair(Int)
+
+    var p = IntPair(1, 3)
+    var p2 = Pair(Int)(1, 3)
+    writeLn(p.first)
+    writeLn(p.second)
+
+/*<<<Running()
+LucTeo
+The wonders of Sparrow
+ISBN
+---
+External ctors in Sparrow
+More external ctors in Sparrow
+The wonders of Sparrow
+---
+1
+3
+>>>*/

@@ -282,9 +282,17 @@ llvm::Function* Tr::makeFunThatCalls(
     llvm::IRBuilder<> llvmBuilder(llvmContext);
     TrContext localCtx(ctx, bodyBlock, llvmBuilder);
 
+    auto dbgInfo = ctx.targetBackend_.debugInfo();
+    if (dbgInfo)
+        dbgInfo->emitFunctionStart(llvmBuilder, node, f);
+
     // Add the action as the body of the function
     llvm::Value* addressToStoreResult = expectsResult ? f->arg_begin() : nullptr;
     translateFunctionBody(localCtx, node, addressToStoreResult);
+
+    // If we are emitting debug information, emit function end
+    if (dbgInfo)
+        dbgInfo->emitFunctionEnd(llvmBuilder, node->location);
 
     return f;
 }

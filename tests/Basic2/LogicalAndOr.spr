@@ -14,31 +14,25 @@ fun getF: Bool
     return false;
 }
 
-class BoolValue
-{
-    fun ctor(b: Bool)
-    {
-        this.b ctor b;
-        cout << "C";
-        if ( b )
-            cout << "t";
-        else
-            cout << "f";
-        cout << '.';
-    }
+datatype BoolValue
+    b: Bool;
 
-    fun dtor
-    {
-        cout << "D";
-        if ( b )
-            cout << "t";
-        else
-            cout << "f";
-        cout << '.';
-    }
+fun ctor(this: @BoolValue, b: Bool)
+    this.b ctor b;
+    cout << "C";
+    if ( b )
+        cout << "t";
+    else
+        cout << "f";
+    cout << '.';
 
-    var b: Bool;
-}
+fun dtor(this: BoolValue)
+    cout << "D";
+    if ( b )
+        cout << "t";
+    else
+        cout << "f";
+    cout << '.';
 
 fun sprMain
 {

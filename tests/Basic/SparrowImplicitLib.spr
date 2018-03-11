@@ -128,70 +128,112 @@ define void @flushOutput()
 }
 
 
+; Initializations
+define void @_zero_init_1(i1* %$this) alwaysinline
+{
+  store i1 0, i1* %$this
+  ret void
+}
+define void @_zero_init_8(i8* %$this) alwaysinline
+{
+  store i8 0, i8* %$this
+  ret void
+}
+define void @_zero_init_16(i16* %$this) alwaysinline
+{
+  store i16 0, i16* %$this
+  ret void
+}
+define void @_zero_init_32(i32* %$this) alwaysinline
+{
+  store i32 0, i32* %$this
+  ret void
+}
+define void @_zero_init_64(i64* %$this) alwaysinline
+{
+  store i64 0, i64* %$this
+  ret void
+}
+define void @_zero_init_f(float* %$this) alwaysinline
+{
+  store float 0.0, float* %$this
+  ret void
+}
+define void @_zero_init_d(double* %$this) alwaysinline
+{
+  store double 0.0, double* %$this
+  ret void
+}
+
 ; Same type assignments
-define void @_ass_8_8(i8* %$this, i8 %src)
+define void @_ass_1_1(i1* %$this, i1 %src) alwaysinline
+{
+  store i1 %src, i1* %$this
+  ret void
+}
+define void @_ass_8_8(i8* %$this, i8 %src) alwaysinline
 {
   store i8 %src, i8* %$this
   ret void
 }
-define void @_ass_16_16(i16* %$this, i16 %src)
+define void @_ass_16_16(i16* %$this, i16 %src) alwaysinline
 {
   store i16 %src, i16* %$this
   ret void
 }
-define void @_ass_32_32(i32* %$this, i32 %src)
+define void @_ass_32_32(i32* %$this, i32 %src) alwaysinline
 {
   store i32 %src, i32* %$this
   ret void
 }
-define void @_ass_64_64(i64* %$this, i64 %src)
+define void @_ass_64_64(i64* %$this, i64 %src) alwaysinline
 {
   store i64 %src, i64* %$this
   ret void
 }
-define void @_ass_f_f(float* %$this, float %src)
+define void @_ass_f_f(float* %$this, float %src) alwaysinline
 {
   store float %src, float* %$this
   ret void
 }
-define void @_ass_d_d(double* %$this, double %src)
+define void @_ass_d_d(double* %$this, double %src) alwaysinline
 {
   store double %src, double* %$this
   ret void
 }
 
 ; Truncates
-define void @_ass_8_16(i8* %$this, i16 %src)
+define void @_ass_8_16(i8* %$this, i16 %src) alwaysinline
 {
   %1 = trunc i16 %src to i8
   store i8 %1, i8* %$this
   ret void
 }
-define void @_ass_8_32(i8* %$this, i32 %src)
+define void @_ass_8_32(i8* %$this, i32 %src) alwaysinline
 {
   %1 = trunc i32 %src to i8
   store i8 %1, i8* %$this
   ret void
 }
-define void @_ass_8_64(i8* %$this, i64 %src)
+define void @_ass_8_64(i8* %$this, i64 %src) alwaysinline
 {
   %1 = trunc i64 %src to i8
   store i8 %1, i8* %$this
   ret void
 }
-define void @_ass_16_32(i16* %$this, i32 %src)
+define void @_ass_16_32(i16* %$this, i32 %src) alwaysinline
 {
   %1 = trunc i32 %src to i16
   store i16 %1, i16* %$this
   ret void
 }
-define void @_ass_16_64(i16* %$this, i64 %src)
+define void @_ass_16_64(i16* %$this, i64 %src) alwaysinline
 {
   %1 = trunc i64 %src to i16
   store i16 %1, i16* %$this
   ret void
 }
-define void @_ass_32_64(i32* %$this, i64 %src)
+define void @_ass_32_64(i32* %$this, i64 %src) alwaysinline
 {
   %1 = trunc i64 %src to i32
   store i32 %1, i32* %$this
@@ -199,73 +241,73 @@ define void @_ass_32_64(i32* %$this, i64 %src)
 }
 
 ; Extends
-define void @_ass_16_8s(i16* %$this, i8 %src)
+define void @_ass_16_8s(i16* %$this, i8 %src) alwaysinline
 {
   %1 = sext i8 %src to i16
   store i16 %1, i16* %$this
   ret void
 }
-define void @_ass_16_8z(i16* %$this, i8 %src)
+define void @_ass_16_8z(i16* %$this, i8 %src) alwaysinline
 {
   %1 = zext i8 %src to i16
   store i16 %1, i16* %$this
   ret void
 }
-define void @_ass_32_8s(i32* %$this, i8 %src)
+define void @_ass_32_8s(i32* %$this, i8 %src) alwaysinline
 {
   %1 = sext i8 %src to i32
   store i32 %1, i32* %$this
   ret void
 }
-define void @_ass_32_8z(i32* %$this, i8 %src)
+define void @_ass_32_8z(i32* %$this, i8 %src) alwaysinline
 {
   %1 = zext i8 %src to i32
   store i32 %1, i32* %$this
   ret void
 }
-define void @_ass_32_16s(i32* %$this, i16 %src)
+define void @_ass_32_16s(i32* %$this, i16 %src) alwaysinline
 {
   %1 = sext i16 %src to i32
   store i32 %1, i32* %$this
   ret void
 }
-define void @_ass_32_16z(i32* %$this, i16 %src)
+define void @_ass_32_16z(i32* %$this, i16 %src) alwaysinline
 {
   %1 = zext i16 %src to i32
   store i32 %1, i32* %$this
   ret void
 }
-define void @_ass_64_8s(i64* %$this, i8 %src)
+define void @_ass_64_8s(i64* %$this, i8 %src) alwaysinline
 {
   %1 = sext i8 %src to i64
   store i64 %1, i64* %$this
   ret void
 }
-define void @_ass_64_8z(i64* %$this, i8 %src)
+define void @_ass_64_8z(i64* %$this, i8 %src) alwaysinline
 {
   %1 = zext i8 %src to i64
   store i64 %1, i64* %$this
   ret void
 }
-define void @_ass_64_16s(i64* %$this, i16 %src)
+define void @_ass_64_16s(i64* %$this, i16 %src) alwaysinline
 {
   %1 = sext i16 %src to i64
   store i64 %1, i64* %$this
   ret void
 }
-define void @_ass_64_16z(i64* %$this, i16 %src)
+define void @_ass_64_16z(i64* %$this, i16 %src) alwaysinline
 {
   %1 = zext i16 %src to i64
   store i64 %1, i64* %$this
   ret void
 }
-define void @_ass_64_32s(i64* %$this, i32 %src)
+define void @_ass_64_32s(i64* %$this, i32 %src) alwaysinline
 {
   %1 = sext i32 %src to i64
   store i64 %1, i64* %$this
   ret void
 }
-define void @_ass_64_32z(i64* %$this, i32 %src)
+define void @_ass_64_32z(i64* %$this, i32 %src) alwaysinline
 {
   %1 = zext i32 %src to i64
   store i64 %1, i64* %$this
@@ -273,97 +315,97 @@ define void @_ass_64_32z(i64* %$this, i32 %src)
 }
 
 ; Floating to integral
-define void @_ass_i8_f(i8* %$this, float %src)
+define void @_ass_i8_f(i8* %$this, float %src) alwaysinline
 {
   %1 = fptosi float %src to i8
   store i8 %1, i8* %$this
   ret void
 }
-define void @_ass_i8_d(i8* %$this, double %src)
+define void @_ass_i8_d(i8* %$this, double %src) alwaysinline
 {
   %1 = fptosi double %src to i8
   store i8 %1, i8* %$this
   ret void
 }
-define void @_ass_u8_f(i8* %$this, float %src)
+define void @_ass_u8_f(i8* %$this, float %src) alwaysinline
 {
   %1 = fptoui float %src to i8
   store i8 %1, i8* %$this
   ret void
 }
-define void @_ass_u8_d(i8* %$this, double %src)
+define void @_ass_u8_d(i8* %$this, double %src) alwaysinline
 {
   %1 = fptoui double %src to i8
   store i8 %1, i8* %$this
   ret void
 }
-define void @_ass_i16_f(i16* %$this, float %src)
+define void @_ass_i16_f(i16* %$this, float %src) alwaysinline
 {
   %1 = fptosi float %src to i16
   store i16 %1, i16* %$this
   ret void
 }
-define void @_ass_i16_d(i16* %$this, double %src)
+define void @_ass_i16_d(i16* %$this, double %src) alwaysinline
 {
   %1 = fptosi double %src to i16
   store i16 %1, i16* %$this
   ret void
 }
-define void @_ass_u16_f(i16* %$this, float %src)
+define void @_ass_u16_f(i16* %$this, float %src) alwaysinline
 {
   %1 = fptoui float %src to i16
   store i16 %1, i16* %$this
   ret void
 }
-define void @_ass_u16_d(i16* %$this, double %src)
+define void @_ass_u16_d(i16* %$this, double %src) alwaysinline
 {
   %1 = fptoui double %src to i16
   store i16 %1, i16* %$this
   ret void
 }
-define void @_ass_i32_f(i32* %$this, float %src)
+define void @_ass_i32_f(i32* %$this, float %src) alwaysinline
 {
   %1 = fptosi float %src to i32
   store i32 %1, i32* %$this
   ret void
 }
-define void @_ass_i32_d(i32* %$this, double %src)
+define void @_ass_i32_d(i32* %$this, double %src) alwaysinline
 {
   %1 = fptosi double %src to i32
   store i32 %1, i32* %$this
   ret void
 }
-define void @_ass_u32_f(i32* %$this, float %src)
+define void @_ass_u32_f(i32* %$this, float %src) alwaysinline
 {
   %1 = fptoui float %src to i32
   store i32 %1, i32* %$this
   ret void
 }
-define void @_ass_u32_d(i32* %$this, double %src)
+define void @_ass_u32_d(i32* %$this, double %src) alwaysinline
 {
   %1 = fptoui double %src to i32
   store i32 %1, i32* %$this
   ret void
 }
-define void @_ass_i64_f(i64* %$this, float %src)
+define void @_ass_i64_f(i64* %$this, float %src) alwaysinline
 {
   %1 = fptosi float %src to i64
   store i64 %1, i64* %$this
   ret void
 }
-define void @_ass_i64_d(i64* %$this, double %src)
+define void @_ass_i64_d(i64* %$this, double %src) alwaysinline
 {
   %1 = fptosi double %src to i64
   store i64 %1, i64* %$this
   ret void
 }
-define void @_ass_u64_f(i64* %$this, float %src)
+define void @_ass_u64_f(i64* %$this, float %src) alwaysinline
 {
   %1 = fptoui float %src to i64
   store i64 %1, i64* %$this
   ret void
 }
-define void @_ass_u64_d(i64* %$this, double %src)
+define void @_ass_u64_d(i64* %$this, double %src) alwaysinline
 {
   %1 = fptoui double %src to i64
   store i64 %1, i64* %$this
@@ -371,110 +413,110 @@ define void @_ass_u64_d(i64* %$this, double %src)
 }
 
 ; Something to floating
-define void @_ass_f_i8(float* %$this, i8 %src)
+define void @_ass_f_i8(float* %$this, i8 %src) alwaysinline
 {
   %1 = sitofp i8 %src to float
   store float %1, float* %$this
   ret void
 }
-define void @_ass_f_u8(float* %$this, i8 %src)
+define void @_ass_f_u8(float* %$this, i8 %src) alwaysinline
 {
   %1 = uitofp i8 %src to float
   store float %1, float* %$this
   ret void
 }
-define void @_ass_f_i16(float* %$this, i16 %src)
+define void @_ass_f_i16(float* %$this, i16 %src) alwaysinline
 {
   %1 = sitofp i16 %src to float
   store float %1, float* %$this
   ret void
 }
-define void @_ass_f_u16(float* %$this, i16 %src)
+define void @_ass_f_u16(float* %$this, i16 %src) alwaysinline
 {
   %1 = uitofp i16 %src to float
   store float %1, float* %$this
   ret void
 }
-define void @_ass_f_i32(float* %$this, i32 %src)
+define void @_ass_f_i32(float* %$this, i32 %src) alwaysinline
 {
   %1 = sitofp i32 %src to float
   store float %1, float* %$this
   ret void
 }
-define void @_ass_f_u32(float* %$this, i32 %src)
+define void @_ass_f_u32(float* %$this, i32 %src) alwaysinline
 {
   %1 = uitofp i32 %src to float
   store float %1, float* %$this
   ret void
 }
-define void @_ass_f_i64(float* %$this, i64 %src)
+define void @_ass_f_i64(float* %$this, i64 %src) alwaysinline
 {
   %1 = sitofp i64 %src to float
   store float %1, float* %$this
   ret void
 }
-define void @_ass_f_u64(float* %$this, i64 %src)
+define void @_ass_f_u64(float* %$this, i64 %src) alwaysinline
 {
   %1 = uitofp i64 %src to float
   store float %1, float* %$this
   ret void
 }
-define void @_ass_f_d(float* %$this, double %src)
+define void @_ass_f_d(float* %$this, double %src) alwaysinline
 {
   %1 = fptrunc double %src to float
   store float %1, float* %$this
   ret void
 }
 
-define void @_ass_d_i8(double* %$this, i8 %src)
+define void @_ass_d_i8(double* %$this, i8 %src) alwaysinline
 {
   %1 = sitofp i8 %src to double
   store double %1, double* %$this
   ret void
 }
-define void @_ass_d_u8(double* %$this, i8 %src)
+define void @_ass_d_u8(double* %$this, i8 %src) alwaysinline
 {
   %1 = uitofp i8 %src to double
   store double %1, double* %$this
   ret void
 }
-define void @_ass_d_i16(double* %$this, i16 %src)
+define void @_ass_d_i16(double* %$this, i16 %src) alwaysinline
 {
   %1 = sitofp i16 %src to double
   store double %1, double* %$this
   ret void
 }
-define void @_ass_d_u16(double* %$this, i16 %src)
+define void @_ass_d_u16(double* %$this, i16 %src) alwaysinline
 {
   %1 = uitofp i16 %src to double
   store double %1, double* %$this
   ret void
 }
-define void @_ass_d_i32(double* %$this, i32 %src)
+define void @_ass_d_i32(double* %$this, i32 %src) alwaysinline
 {
   %1 = sitofp i32 %src to double
   store double %1, double* %$this
   ret void
 }
-define void @_ass_d_u32(double* %$this, i32 %src)
+define void @_ass_d_u32(double* %$this, i32 %src) alwaysinline
 {
   %1 = uitofp i32 %src to double
   store double %1, double* %$this
   ret void
 }
-define void @_ass_d_i64(double* %$this, i64 %src)
+define void @_ass_d_i64(double* %$this, i64 %src) alwaysinline
 {
   %1 = sitofp i64 %src to double
   store double %1, double* %$this
   ret void
 }
-define void @_ass_d_u64(double* %$this, i64 %src)
+define void @_ass_d_u64(double* %$this, i64 %src) alwaysinline
 {
   %1 = uitofp i64 %src to double
   store double %1, double* %$this
   ret void
 }
-define void @_ass_d_f(double* %$this, float %src)
+define void @_ass_d_f(double* %$this, float %src) alwaysinline
 {
   %1 = fpext float %src to double
   store double %1, double* %$this
@@ -802,297 +844,293 @@ declare i32 @atoi(i8*) nounwind readonly
 );
 
 
-[native("Type"), noDefault, ct] class Type
-{
-    [native("_Type_ctor")] fun ctor;
-    [native("_Type_copy_ctor")] fun ctor(other: Type);
-    fun dtor {}
-}
+[ct]
+    [native("Type"), noDefault]
+    datatype Type {}
 
-[noDefault, rtct] class Uninitialized
-{
-    fun ctor() {}
-    fun ctor(other: Uninitialized) {}
-    fun dtor {}
+[ct, protected]
+    [native("_Type_ctor")] fun ctor(this: @Type)
+    [native("_Type_copy_ctor")] fun ctor(this: @Type, other: Type)
+    //fun dtor(this: @Type) {}
 
-    [rt] fun ctorFromCt(src: Uninitialized ct) {}
-}
+[rtct, noDefault]
+    datatype Uninitialized {}
 
-[rtct, noDefault, native("Null")] class Null
-{
-    fun ctor() {}
-    fun ctor(other: Uninitialized) {}
-    fun ctor(other: Null) {}
-    fun dtor {}
-}
+    [native("Null")]    datatype Null {}
 
-[native("i1"), noDefault, rtct] class Bool
-{
-    fun ctor() { this = false; }
-    fun ctor(other: Uninitialized) {}
-    fun ctor(other: Bool) { this = other; }
-    fun dtor {}
-}
+    [native("i1")]      datatype Bool {}
+    [native("i8")]      datatype Byte {}
+    [native("u8")]      datatype UByte {}
+    [native("i16")]     datatype Short {}
+    [native("u16")]     datatype UShort {}
+    [native("i32")]     datatype Int {}
+    [native("u32")]     datatype UInt {}
+    [native("i64")]     datatype Long {}
+    [native("u64")]     datatype ULong {}
+    [native("u64")]     datatype SizeType {}
+    [native("i64")]     datatype DiffType {}
+    [native("float")]   datatype Float {}
+    [native("double")]  datatype Double {}
+    [native("i8")]      datatype Char {}
 
-[native("i8"), noDefault, rtct] class Byte
-{
-    fun ctor() { this = Byte(0); }
-    fun ctor(other: Uninitialized) {}
-    [native("_ass_8_8")] fun ctor(src: Byte);
-    [native("_ass_8_8"), convert] fun ctor(src: UByte);
-    [native("_ass_8_16")] fun ctor(src: Short);
-    [native("_ass_8_16")] fun ctor(src: UShort);
-    [native("_ass_8_32")] fun ctor(src: Int);
-    [native("_ass_8_32")] fun ctor(src: UInt);
-    [native("_ass_8_64")] fun ctor(src: Long);
-    [native("_ass_8_64")] fun ctor(src: ULong);
-    [native("_ass_8_64")] fun ctor(src: SizeType);
-    [native("_ass_i8_f")] fun ctor(src: Float);
-    [native("_ass_i8_d")] fun ctor(src: Double);
-    fun dtor {}
-}
+[rtct, protected]
+    fun ctor(this: Uninitialized) {}
+    fun ctor(this, other: Uninitialized) {}
+    fun dtor(this: Uninitialized) {}
 
-[native("u8"), noDefault, rtct] class UByte
-{
-    fun ctor() { this = UByte(0); }
-    fun ctor(other: Uninitialized) {}
-    [native("_ass_8_8"), convert] fun ctor(src: Byte);
-    [native("_ass_8_8")] fun ctor(src: UByte);
-    [native("_ass_8_16")] fun ctor(src: Short);
-    [native("_ass_8_16")] fun ctor(src: UShort);
-    [native("_ass_8_32")] fun ctor(src: Int);
-    [native("_ass_8_32")] fun ctor(src: UInt);
-    [native("_ass_8_64")] fun ctor(src: Long);
-    [native("_ass_8_64")] fun ctor(src: ULong);
-    [native("_ass_8_64")] fun ctor(src: SizeType);
-    [native("_ass_u8_f")] fun ctor(src: Float);
-    [native("_ass_u8_d")] fun ctor(src: Double);
-    fun dtor {}
-}
+[rtct, protected]
+    fun ctor(this: Null) {}
+    fun ctor(this, other: Null) {}
+    fun dtor(this: Null) {}
 
-[native("i16"), noDefault, rtct] class Short
-{
-    fun ctor() { this = Short(0); }
-    fun ctor(other: Uninitialized) {}
-    [native("_ass_16_8s"), convert] fun ctor(src: Byte);
-    [native("_ass_16_8z"), convert] fun ctor(src: UByte);
-    [native("_ass_16_16")] fun ctor(src: Short);
-    [native("_ass_16_16"), convert] fun ctor(src: UShort);
-    [native("_ass_16_32")] fun ctor(src: Int);
-    [native("_ass_16_32")] fun ctor(src: UInt);
-    [native("_ass_16_64")] fun ctor(src: Long);
-    [native("_ass_16_64")] fun ctor(src: ULong);
-    [native("_ass_16_64")] fun ctor(src: SizeType);
-    [native("_ass_i16_f")] fun ctor(src: Float);
-    [native("_ass_i16_d")] fun ctor(src: Double);
-    fun dtor {}
-}
+    [native("_zero_init_1")] fun ctor(this: @Bool)
+    [native("_ass_1_1")] fun ctor(this: @Bool, src: Bool)
+    fun dtor(this: @Bool) {}
+    [autoCt, native("_ass_1_1")] fun = (this: @Bool, other: Bool): Bool
 
-[native("i16"), noDefault, rtct] class UShort
-{
-    fun ctor() { this = UShort(0); }
-    fun ctor(other: Uninitialized) {}
-    [native("_ass_16_8z"), convert] fun ctor(src: Byte);
-    [native("_ass_16_8z"), convert] fun ctor(src: UByte);
-    [native("_ass_16_16"), convert] fun ctor(src: Short);
-    [native("_ass_16_16")] fun ctor(src: UShort);
-    [native("_ass_16_32")] fun ctor(src: Int);
-    [native("_ass_16_32")] fun ctor(src: UInt);
-    [native("_ass_16_64")] fun ctor(src: Long);
-    [native("_ass_16_64")] fun ctor(src: ULong);
-    [native("_ass_16_64")] fun ctor(src: SizeType);
-    [native("_ass_u16_f")] fun ctor(src: Float);
-    [native("_ass_u16_d")] fun ctor(src: Double);
-    fun dtor {}
-}
+    [native("_zero_init_8")] fun ctor(this: @Byte)
+    [native("_ass_8_8")] fun ctor(this: @Byte, src: Byte)
+    [native("_ass_8_8")] fun ctor(this: @Byte, src: Char)
+    [native("_ass_8_8")] fun ctor(this: @Byte, src: UByte)
+    [native("_ass_8_16")] fun ctor(this: @Byte, src: Short)
+    [native("_ass_8_16")] fun ctor(this: @Byte, src: UShort)
+    [native("_ass_8_32")] fun ctor(this: @Byte, src: Int)
+    [native("_ass_8_32")] fun ctor(this: @Byte, src: UInt)
+    [native("_ass_8_64")] fun ctor(this: @Byte, src: Long)
+    [native("_ass_8_64")] fun ctor(this: @Byte, src: ULong)
+    [native("_ass_8_64")] fun ctor(this: @Byte, src: SizeType)
+    [native("_ass_8_64")] fun ctor(this: @Byte, src: DiffType)
+    [native("_ass_i8_f")] fun ctor(this: @Byte, src: Float)
+    [native("_ass_i8_d")] fun ctor(this: @Byte, src: Double)
+    fun dtor(this: Byte) {}
+    [native("_ass_8_8")] fun = (this: @Byte, other: Byte)
 
-[native("i32"), noDefault, rtct] class Int
-{
-    fun ctor() { this = 0; }
-    fun ctor(other: Uninitialized) {}
-    [native("_ass_32_8s"), convert] fun ctor(src: Byte);
-    [native("_ass_32_8z"), convert] fun ctor(src: UByte);
-    [native("_ass_32_16s"), convert] fun ctor(src: Short);
-    [native("_ass_32_16z"), convert] fun ctor(src: UShort);
-    [native("_ass_32_32")] fun ctor(src: Int);
-    [native("_ass_32_32"), convert] fun ctor(src: UInt);
-    [native("_ass_32_64")] fun ctor(src: Long);
-    [native("_ass_32_64")] fun ctor(src: ULong);
-    [native("_ass_32_64")] fun ctor(src: SizeType);
-    [native("_ass_i32_f")] fun ctor(src: Float);
-    [native("_ass_i32_d")] fun ctor(src: Double);
-    fun dtor {}
-}
+    [native("_zero_init_8")] fun ctor(this: @UByte)
+    [native("_ass_8_8"), convert] fun ctor(this: @UByte, src: Byte)
+    [native("_ass_8_8")] fun ctor(this: @UByte, src: UByte)
+    [native("_ass_8_16")] fun ctor(this: @UByte, src: Short)
+    [native("_ass_8_16")] fun ctor(this: @UByte, src: UShort)
+    [native("_ass_8_32")] fun ctor(this: @UByte, src: Int)
+    [native("_ass_8_32")] fun ctor(this: @UByte, src: UInt)
+    [native("_ass_8_64")] fun ctor(this: @UByte, src: Long)
+    [native("_ass_8_64")] fun ctor(this: @UByte, src: ULong)
+    [native("_ass_8_64")] fun ctor(this: @UByte, src: SizeType)
+    [native("_ass_8_64")] fun ctor(this: @UByte, src: DiffType)
+    [native("_ass_u8_f")] fun ctor(this: @UByte, src: Float)
+    [native("_ass_u8_d")] fun ctor(this: @UByte, src: Double)
+    fun dtor(this: UByte) {}
+    [native("_ass_8_8")] fun = (this: @UByte, other: UByte)
 
-[native("u32"), noDefault, rtct] class UInt
-{
-    fun ctor() { this = UInt(0); }
-    fun ctor(other: Uninitialized) {}
-    [native("_ass_32_8z"), convert] fun ctor(src: Byte);
-    [native("_ass_32_8z"), convert] fun ctor(src: UByte);
-    [native("_ass_32_16z"), convert] fun ctor(src: Short);
-    [native("_ass_32_16z"), convert] fun ctor(src: UShort);
-    [native("_ass_32_32"), convert] fun ctor(src: Int);
-    [native("_ass_32_32")] fun ctor(src: UInt);
-    [native("_ass_32_64")] fun ctor(src: Long);
-    [native("_ass_32_64")] fun ctor(src: ULong);
-    [native("_ass_32_64")] fun ctor(src: SizeType);
-    [native("_ass_u32_f")] fun ctor(src: Float);
-    [native("_ass_u32_d")] fun ctor(src: Double);
-    fun dtor {}
-}
+    [native("_zero_init_16")] fun ctor(this: @Short)
+    [native("_ass_16_8s"), convert] fun ctor(this: @Short, src: Byte)
+    [native("_ass_16_8z"), convert] fun ctor(this: @Short, src: UByte)
+    [native("_ass_16_16")] fun ctor(this: @Short, src: Short)
+    [native("_ass_16_16")] fun ctor(this: @Short, src: UShort)
+    [native("_ass_16_32")] fun ctor(this: @Short, src: Int)
+    [native("_ass_16_32")] fun ctor(this: @Short, src: UInt)
+    [native("_ass_16_64")] fun ctor(this: @Short, src: Long)
+    [native("_ass_16_64")] fun ctor(this: @Short, src: ULong)
+    [native("_ass_16_64")] fun ctor(this: @Short, src: SizeType)
+    [native("_ass_16_64")] fun ctor(this: @Short, src: DiffType)
+    [native("_ass_i16_f")] fun ctor(this: @Short, src: Float)
+    [native("_ass_i16_d")] fun ctor(this: @Short, src: Double)
+    fun dtor(this: Short) {}
+    [native("_ass_16_16")] fun = (this: @Short, other: Short)
 
-[native("i64"), noDefault, rtct] class Long
-{
-    fun ctor() { this = Long(0); }
-    fun ctor(other: Uninitialized) {}
-    [native("_ass_64_8s"), convert] fun ctor(src: Byte);
-    [native("_ass_64_8z"), convert] fun ctor(src: UByte);
-    [native("_ass_64_16s"), convert] fun ctor(src: Short);
-    [native("_ass_64_16z"), convert] fun ctor(src: UShort);
-    [native("_ass_64_32s"), convert] fun ctor(src: Int);
-    [native("_ass_64_32z"), convert] fun ctor(src: UInt);
-    [native("_ass_64_64")] fun ctor(src: Long);
-    [native("_ass_64_64"), convert] fun ctor(src: ULong);
-    [native("_ass_64_64"), convert] fun ctor(src: SizeType);
-    [native("_ass_i64_f")] fun ctor(src: Float);
-    [native("_ass_i64_d")] fun ctor(src: Double);
-    fun dtor {}
-}
+    [native("_zero_init_16")] fun ctor(this: @UShort)
+    [native("_ass_16_8z"), convert] fun ctor(this: @UShort, src: Byte)
+    [native("_ass_16_8z"), convert] fun ctor(this: @UShort, src: UByte)
+    [native("_ass_16_16"), convert] fun ctor(this: @UShort, src: Short)
+    [native("_ass_16_16")] fun ctor(this: @UShort, src: UShort)
+    [native("_ass_16_32")] fun ctor(this: @UShort, src: Int)
+    [native("_ass_16_32")] fun ctor(this: @UShort, src: UInt)
+    [native("_ass_16_64")] fun ctor(this: @UShort, src: Long)
+    [native("_ass_16_64")] fun ctor(this: @UShort, src: ULong)
+    [native("_ass_16_64")] fun ctor(this: @UShort, src: SizeType)
+    [native("_ass_16_64")] fun ctor(this: @UShort, src: DiffType)
+    [native("_ass_u16_f")] fun ctor(this: @UShort, src: Float)
+    [native("_ass_u16_d")] fun ctor(this: @UShort, src: Double)
+    fun dtor(this: UShort) {}
+    [native("_ass_16_16")] fun = (this: @UShort, other: UShort)
 
-[native("u64"), noDefault, rtct] class ULong
-{
-    fun ctor() { this = ULong(0); }
-    fun ctor(other: Uninitialized) {}
-    [native("_ass_64_8z"), convert] fun ctor(src: Byte);
-    [native("_ass_64_8z"), convert] fun ctor(src: UByte);
-    [native("_ass_64_16z"), convert] fun ctor(src: Short);
-    [native("_ass_64_16z"), convert] fun ctor(src: UShort);
-    [native("_ass_64_32z"), convert] fun ctor(src: Int);
-    [native("_ass_64_32z"), convert] fun ctor(src: UInt);
-    [native("_ass_64_64"), convert] fun ctor(src: Long);
-    [native("_ass_64_64")] fun ctor(src: ULong);
-    [native("_ass_64_64"), convert] fun ctor(src: SizeType);
-    [native("_ass_u64_f")] fun ctor(src: Float);
-    [native("_ass_u64_d")] fun ctor(src: Double);
-    fun dtor {}
-}
+    [native("_zero_init_32")] fun ctor(this: @Int)
+    [native("_ass_32_8s"), convert] fun ctor(this: @Int, src: Byte)
+    [native("_ass_32_8z"), convert] fun ctor(this: @Int, src: UByte)
+    [native("_ass_32_16s"), convert] fun ctor(this: @Int, src: Short)
+    [native("_ass_32_16z"), convert] fun ctor(this: @Int, src: UShort)
+    [native("_ass_32_32")] fun ctor(this: @Int, src: Int)
+    [native("_ass_32_32")] fun ctor(this: @Int, src: UInt)
+    [native("_ass_32_64")] fun ctor(this: @Int, src: Long)
+    [native("_ass_32_64")] fun ctor(this: @Int, src: ULong)
+    [native("_ass_32_64")] fun ctor(this: @Int, src: SizeType)
+    [native("_ass_32_64")] fun ctor(this: @Int, src: DiffType)
+    [native("_ass_i32_f")] fun ctor(this: @Int, src: Float)
+    [native("_ass_i32_d")] fun ctor(this: @Int, src: Double)
+    [native("_ass_32_8z")] fun ctor(this: @Int, src: Char)
+    fun dtor(this: Int) {}
+    [native("_ass_32_32")] fun = (this: @Int, other: Int)
 
-[native("float"), noDefault, rtct] class Float
-{
-    fun ctor() { this = 0.0f; }
-    fun ctor(other: Uninitialized) {}
-    [native("_ass_f_i8"), convert] fun ctor(src: Byte);
-    [native("_ass_f_u8"), convert] fun ctor(src: UByte);
-    [native("_ass_f_i16"), convert] fun ctor(src: Short);
-    [native("_ass_f_u16"), convert] fun ctor(src: UShort);
-    [native("_ass_f_i32"), convert] fun ctor(src: Int);
-    [native("_ass_f_u32"), convert] fun ctor(src: UInt);
-    [native("_ass_f_i64"), convert] fun ctor(src: Long);
-    [native("_ass_f_u64"), convert] fun ctor(src: ULong);
-    [native("_ass_f_i64")] fun ctor(src: SizeType);
-    [native("_ass_f_f")] fun ctor(src: Float);
-    [native("_ass_f_d")] fun ctor(src: Double);
-    fun dtor {}
-}
+    [native("_zero_init_32")] fun ctor(this: @UInt)
+    [native("_ass_32_8z"), convert] fun ctor(this: @UInt, src: Byte)
+    [native("_ass_32_8z"), convert] fun ctor(this: @UInt, src: UByte)
+    [native("_ass_32_16z"), convert] fun ctor(this: @UInt, src: Short)
+    [native("_ass_32_16z"), convert] fun ctor(this: @UInt, src: UShort)
+    [native("_ass_32_32"), convert] fun ctor(this: @UInt, src: Int)
+    [native("_ass_32_32")] fun ctor(this: @UInt, src: UInt)
+    [native("_ass_32_64")] fun ctor(this: @UInt, src: Long)
+    [native("_ass_32_64")] fun ctor(this: @UInt, src: ULong)
+    [native("_ass_32_64")] fun ctor(this: @UInt, src: SizeType)
+    [native("_ass_32_64")] fun ctor(this: @UInt, src: DiffType)
+    [native("_ass_u32_f")] fun ctor(this: @UInt, src: Float)
+    [native("_ass_u32_d")] fun ctor(this: @UInt, src: Double)
+    fun dtor(this: UInt) {}
+    [native("_ass_32_32")] fun = (this: @UInt, other: UInt)
 
-[native("double"), noDefault, rtct] class Double
-{
-    fun ctor() { this = 0.0; }
-    fun ctor(other: Uninitialized) {}
-    [native("_ass_d_i8"), convert] fun ctor(src: Byte);
-    [native("_ass_d_u8"), convert] fun ctor(src: UByte);
-    [native("_ass_d_i16"), convert] fun ctor(src: Short);
-    [native("_ass_d_u16"), convert] fun ctor(src: UShort);
-    [native("_ass_d_i32"), convert] fun ctor(src: Int);
-    [native("_ass_d_u32"), convert] fun ctor(src: UInt);
-    [native("_ass_d_i64"), convert] fun ctor(src: Long);
-    [native("_ass_d_u64"), convert] fun ctor(src: ULong);
-    [native("_ass_d_i64")] fun ctor(src: SizeType);
-    [native("_ass_d_f"), convert] fun ctor(src: Float);
-    [native("_ass_d_d")] fun ctor(src: Double);
-    fun dtor {}
-}
+    [native("_zero_init_64")] fun ctor(this: @Long)
+    [native("_ass_64_8s"), convert] fun ctor(this: @Long, src: Byte)
+    [native("_ass_64_8z"), convert] fun ctor(this: @Long, src: UByte)
+    [native("_ass_64_16s"), convert] fun ctor(this: @Long, src: Short)
+    [native("_ass_64_16z"), convert] fun ctor(this: @Long, src: UShort)
+    [native("_ass_64_32s"), convert] fun ctor(this: @Long, src: Int)
+    [native("_ass_64_32z"), convert] fun ctor(this: @Long, src: UInt)
+    [native("_ass_64_64")] fun ctor(this: @Long, src: Long)
+    [native("_ass_64_64")] fun ctor(this: @Long, src: ULong)
+    [native("_ass_64_64"), convert] fun ctor(this: @Long, src: SizeType)
+    [native("_ass_64_64"), convert] fun ctor(this: @Long, src: DiffType)
+    [native("_ass_i64_f")] fun ctor(this: @Long, src: Float)
+    [native("_ass_i64_d")] fun ctor(this: @Long, src: Double)
+    fun dtor(this: Long) {}
+    [native("_ass_64_64")] fun = (this: @Long, other: Long)
 
-[native("i8"), noDefault, rtct] class Char
-{
-    fun ctor() { this = Char(0); }
-    fun ctor(other: Uninitialized) {}
-    [native("_ass_8_8")] fun ctor(src: Char);
-    [native("_ass_8_8")] fun ctor(src: Byte);
-    [native("_ass_8_8")] fun ctor(src: UByte);
-    [native("_ass_8_16")] fun ctor(src: Short);
-    [native("_ass_8_16")] fun ctor(src: UShort);
-    [native("_ass_8_32")] fun ctor(src: Int);
-    [native("_ass_8_32")] fun ctor(src: UInt);
-    [native("_ass_8_64")] fun ctor(src: Long);
-    [native("_ass_8_64")] fun ctor(src: ULong);
-    [native("_ass_8_64")] fun ctor(src: SizeType);
-    fun dtor {}
-}
+    [native("_zero_init_64")] fun ctor(this: @ULong)
+    [native("_ass_64_8z"), convert] fun ctor(this: @ULong, src: Byte)
+    [native("_ass_64_8z"), convert] fun ctor(this: @ULong, src: UByte)
+    [native("_ass_64_16z"), convert] fun ctor(this: @ULong, src: Short)
+    [native("_ass_64_16z"), convert] fun ctor(this: @ULong, src: UShort)
+    [native("_ass_64_32z"), convert] fun ctor(this: @ULong, src: Int)
+    [native("_ass_64_32z"), convert] fun ctor(this: @ULong, src: UInt)
+    [native("_ass_64_64"), convert] fun ctor(this: @ULong, src: Long)
+    [native("_ass_64_64")] fun ctor(this: @ULong, src: ULong)
+    [native("_ass_64_64"), convert] fun ctor(this: @ULong, src: SizeType)
+    [native("_ass_64_64"), convert] fun ctor(this: @ULong, src: DiffType)
+    [native("_ass_u64_f")] fun ctor(this: @ULong, src: Float)
+    [native("_ass_u64_d")] fun ctor(this: @ULong, src: Double)
+    fun dtor(this: @ULong) {}
+    [native("_ass_64_64")] fun = (this: @ULong, other: ULong)
 
-[native("u64"), noDefault, rtct] class SizeType
-{
-    fun ctor() { this = SizeType(0); }
-    fun ctor(other: Uninitialized) {}
-    [native("_ass_64_8z"), convert] fun ctor(src: Byte);
-    [native("_ass_64_8z"), convert] fun ctor(src: UByte);
-    [native("_ass_64_16z"), convert] fun ctor(src: Short);
-    [native("_ass_64_16z"), convert] fun ctor(src: UShort);
-    [native("_ass_64_32z"), convert] fun ctor(src: Int);
-    [native("_ass_64_32z"), convert] fun ctor(src: UInt);
-    [native("_ass_64_64"), convert] fun ctor(src: Long);
-    [native("_ass_64_64"), convert] fun ctor(src: ULong);
-    [native("_ass_64_64")] fun ctor(src: SizeType);
-    [native("_ass_u64_f")] fun ctor(src: Float);
-    [native("_ass_u64_d")] fun ctor(src: Double);
-    fun dtor {}
-}
+    [native("_zero_init_64")] fun ctor(this: @SizeType)
+    [native("_ass_64_8z"), convert] fun ctor(this: @SizeType, src: Byte)
+    [native("_ass_64_8z"), convert] fun ctor(this: @SizeType, src: UByte)
+    [native("_ass_64_16z"), convert] fun ctor(this: @SizeType, src: Short)
+    [native("_ass_64_16z"), convert] fun ctor(this: @SizeType, src: UShort)
+    [native("_ass_64_32z"), convert] fun ctor(this: @SizeType, src: Int)
+    [native("_ass_64_32z"), convert] fun ctor(this: @SizeType, src: UInt)
+    [native("_ass_64_64")] fun ctor(this: @SizeType, src: Long)
+    [native("_ass_64_64")] fun ctor(this: @SizeType, src: ULong)
+    [native("_ass_64_64")] fun ctor(this: @SizeType, src: SizeType)
+    [native("_ass_64_64"), convert] fun ctor(this: @SizeType, src: DiffType)
+    [native("_ass_u64_f")] fun ctor(this: @SizeType, src: Float)
+    [native("_ass_u64_d")] fun ctor(this: @SizeType, src: Double)
+    fun dtor(this: SizeType) {}
+    [native("_ass_64_64")] fun = (this: @SizeType, other: SizeType)
 
-[rtct, noDefault, native("StringRef")] class StringRef
-{
-    var begin: @Byte;
-    var end: @Byte;
+    [native("_zero_init_64")] fun ctor(this: @DiffType)
+    [native("_ass_64_8s"), convert] fun ctor(this: @DiffType, src: Byte)
+    [native("_ass_64_8z"), convert] fun ctor(this: @DiffType, src: UByte)
+    [native("_ass_64_16s"), convert] fun ctor(this: @DiffType, src: Short)
+    [native("_ass_64_16z"), convert] fun ctor(this: @DiffType, src: UShort)
+    [native("_ass_64_32s"), convert] fun ctor(this: @DiffType, src: Int)
+    [native("_ass_64_32z"), convert] fun ctor(this: @DiffType, src: UInt)
+    [native("_ass_64_64")] fun ctor(this: @DiffType, src: Long)
+    [native("_ass_64_64")] fun ctor(this: @DiffType, src: ULong)
+    [native("_ass_64_64")] fun ctor(this: @DiffType, src: SizeType)
+    [native("_ass_64_64")] fun ctor(this: @DiffType, src: DiffType)
+    [native("_ass_i64_f")] fun ctor(this: @DiffType, src: Float)
+    [native("_ass_i64_d")] fun ctor(this: @DiffType, src: Double)
+    fun dtor(this: DiffType) {}
+    [native("_ass_64_64")] fun = (this: @DiffType, other: DiffType)
 
-    fun ctor()
-    {
+    [native("_zero_init_f")] fun ctor(this: @Float)
+    [native("_ass_f_i8"), convert] fun ctor(this: @Float, src: Byte)
+    [native("_ass_f_u8"), convert] fun ctor(this: @Float, src: UByte)
+    [native("_ass_f_i16"), convert] fun ctor(this: @Float, src: Short)
+    [native("_ass_f_u16"), convert] fun ctor(this: @Float, src: UShort)
+    [native("_ass_f_i32"), convert] fun ctor(this: @Float, src: Int)
+    [native("_ass_f_u32"), convert] fun ctor(this: @Float, src: UInt)
+    [native("_ass_f_i64"), convert] fun ctor(this: @Float, src: Long)
+    [native("_ass_f_u64"), convert] fun ctor(this: @Float, src: ULong)
+    [native("_ass_f_i64"), convert] fun ctor(this: @Float, src: SizeType)
+    [native("_ass_f_u64"), convert] fun ctor(this: @Float, src: DiffType)
+    [native("_ass_f_f")] fun ctor(this: @Float, src: Float)
+    [native("_ass_f_d")] fun ctor(this: @Float, src: Double)
+    fun dtor(this: Float) {}
+    [native("_ass_f_f")] fun = (this: @Float, other: Float)
+
+    [native("_zero_init_d")] fun ctor(this: @Double)
+    [native("_ass_d_i8"), convert] fun ctor(this: @Double, src: Byte)
+    [native("_ass_d_u8"), convert] fun ctor(this: @Double, src: UByte)
+    [native("_ass_d_i16"), convert] fun ctor(this: @Double, src: Short)
+    [native("_ass_d_u16"), convert] fun ctor(this: @Double, src: UShort)
+    [native("_ass_d_i32"), convert] fun ctor(this: @Double, src: Int)
+    [native("_ass_d_u32"), convert] fun ctor(this: @Double, src: UInt)
+    [native("_ass_d_i64"), convert] fun ctor(this: @Double, src: Long)
+    [native("_ass_d_u64"), convert] fun ctor(this: @Double, src: ULong)
+    [native("_ass_d_i64"), convert] fun ctor(this: @Double, src: SizeType)
+    [native("_ass_d_u64"), convert] fun ctor(this: @Double, src: DiffType)
+    [native("_ass_d_f"), convert] fun ctor(this: @Double, src: Float)
+    [native("_ass_d_d")] fun ctor(this: @Double, src: Double)
+    fun dtor(this: Double) {}
+    [native("_ass_d_d")] fun = (this: @Double, other: Double)
+
+    [native("_zero_init_8")] fun ctor(this: @Char)
+    [native("_ass_8_8")] fun ctor(this: @Char, src: Char)
+    [native("_ass_8_8")] fun ctor(this: @Char, src: Byte)
+    [native("_ass_8_8")] fun ctor(this: @Char, src: UByte)
+    [native("_ass_8_16")] fun ctor(this: @Char, src: Short)
+    [native("_ass_8_16")] fun ctor(this: @Char, src: UShort)
+    [native("_ass_8_32")] fun ctor(this: @Char, src: Int)
+    [native("_ass_8_32")] fun ctor(this: @Char, src: UInt)
+    [native("_ass_8_64")] fun ctor(this: @Char, src: Long)
+    [native("_ass_8_64")] fun ctor(this: @Char, src: ULong)
+    [native("_ass_8_64")] fun ctor(this: @Char, src: SizeType)
+    [native("_ass_8_64")] fun ctor(this: @Char, src: DiffType)
+    fun dtor(this: Char) {}
+    [native("_ass_8_8")] fun = (this: @Char, other: Char)
+
+
+
+[rtct, noDefault, native("StringRef")]
+datatype StringRef
+    begin: @Byte;
+    end: @Byte;
+
+[rtct, protected]
+    fun ctor(this: @StringRef)
         begin := null;
         end := null;
-    }
-    fun ctor(other: Uninitialized) {}
-    fun ctor(size: SizeType)
-    {
+    fun ctor(this: @StringRef, size: SizeType)
         begin := malloc(size + intToSizeType(1));
         end := ptrAdd(begin, size);
         end = intToByte(0);
-    }
-    fun ctor(other: StringRef)
-    {
+    fun ctor(this: @StringRef, other: StringRef)
         begin := other.begin;
         end := other.end;
-    }
-    fun dtor {}
+    fun dtor(this: StringRef) {}
 
-    fun size(): SizeType
-    {
+[rtct]
+    fun size(this: StringRef): SizeType
         return ptrDiff(end, begin);
-    }
 
-    fun getChar(i: SizeType): Char
-    {
+    fun getChar(this: StringRef, i: SizeType): Char
         return reinterpretCast(@Char, ptrAdd(begin, i));
-    }
 
-    fun == (other: StringRef): Bool
-    {
-        var s = size();
+    fun == (this, other: StringRef): Bool
+        var s = this.size();
         if ( s != other.size() ) return false;
         var i: SizeType = 0;
         while i<s ; i+=SizeType(1)
-            if ( getChar(i) != other.getChar(i) ) return false;
+            if ( this.getChar(i) != other.getChar(i) ) return false;
         return true;
-    }
-}
 
 [autoCt] fun = (dest: @StringRef, src: StringRef): @StringRef
 {
@@ -1118,7 +1156,6 @@ fun + (x,y: StringRef): StringRef
     return res;
 }*/
 
-[autoCt, native("_Bool_opAssign")] fun = (x: Bool@, y: Bool): Bool;
 [autoCt, native("_Bool_opOr")] fun || (x, y: Bool): Bool;
 [autoCt, native("_Bool_opXor")] fun ^^ (x, y: Bool): Bool;
 [autoCt, native("_Bool_opAnd")] fun && (x, y: Bool): Bool;
@@ -1126,7 +1163,6 @@ fun + (x,y: StringRef): StringRef
 [autoCt, native("_Bool_opNE")] fun != (x, y: Bool): Bool;
 [autoCt, native("_Bool_opNeg")] fun ! (x: Bool): Bool;
 
-[autoCt, native("_Byte_opAssign")] fun = (x: @Byte, y: Byte): Byte;
 [autoCt, native("_Byte_opEQ")] fun == (x, y: Byte): Bool;
 [autoCt, native("_Byte_opNE")] fun != (x, y: Byte): Bool;
 [autoCt, native("_Byte_opLT")] fun < (x, y: Byte): Bool;
@@ -1141,7 +1177,6 @@ fun + (x,y: StringRef): StringRef
 [autoCt, native("_Byte_opPlus1")] fun + (x: Byte): Byte;
 [autoCt, native("_Byte_opMinus1")] fun - (x: Byte): Byte;
 
-[autoCt, native("_UByte_opAssign")] fun = (x: @UByte, y: UByte): UByte;
 [autoCt, native("_UByte_opEQ")] fun == (x, y: UByte): Bool;
 [autoCt, native("_UByte_opNE")] fun != (x, y: UByte): Bool;
 [autoCt, native("_UByte_opLT")] fun < (x, y: UByte): Bool;
@@ -1155,7 +1190,6 @@ fun + (x,y: StringRef): StringRef
 [autoCt, native("_UByte_opMod")] fun % (x, y: UByte): UByte;
 [autoCt, native("_UByte_opPlus1")] fun + (x: UByte): UByte;
 
-[autoCt, native("_Short_opAssign")] fun = (x: Short@, y: Short): Short;
 [autoCt, native("_Short_opEQ")] fun == (x, y: Short): Bool;
 [autoCt, native("_Short_opNE")] fun != (x, y: Short): Bool;
 [autoCt, native("_Short_opLT")] fun < (x, y: Short): Bool;
@@ -1170,7 +1204,6 @@ fun + (x,y: StringRef): StringRef
 [autoCt, native("_Short_opPlus1")] fun + (x: Short): Short;
 [autoCt, native("_Short_opMinus1")] fun - (x: Short): Short;
 
-[autoCt, native("_UShort_opAssign")] fun = (x: UShort@, y: UShort): UShort;
 [autoCt, native("_UShort_opEQ")] fun == (x, y: UShort): Bool;
 [autoCt, native("_UShort_opNE")] fun != (x, y: UShort): Bool;
 [autoCt, native("_UShort_opLT")] fun < (x, y: UShort): Bool;
@@ -1184,7 +1217,6 @@ fun + (x,y: StringRef): StringRef
 [autoCt, native("_UShort_opMod")] fun % (x, y: UShort): UShort;
 [autoCt, native("_UShort_opPlus1")] fun + (x: UShort): UShort;
 
-[autoCt, native("_Int_opAssign")] fun = (x: Int@, y: Int): Int;
 [autoCt, native("_Int_opEQ")] fun == (x, y: Int): Bool;
 [autoCt, native("_Int_opNE")] fun != (x, y: Int): Bool;
 [autoCt, native("_Int_opLT")] fun < (x, y: Int): Bool;
@@ -1199,7 +1231,6 @@ fun + (x,y: StringRef): StringRef
 [autoCt, native("_Int_opPlus1")] fun + (x: Int): Int;
 [autoCt, native("_Int_opMinus1")] fun - (x: Int): Int;
 
-[autoCt, native("_UInt_opAssign")] fun = (x: UInt@, y: UInt): UInt;
 [autoCt, native("_UInt_opEQ")] fun == (x, y: UInt): Bool;
 [autoCt, native("_UInt_opNE")] fun != (x, y: UInt): Bool;
 [autoCt, native("_UInt_opLT")] fun < (x, y: UInt): Bool;
@@ -1213,7 +1244,6 @@ fun + (x,y: StringRef): StringRef
 [autoCt, native("_UInt_opMod")] fun % (x, y: UInt): UInt;
 [autoCt, native("_UInt_opPlus1")] fun + (x: UInt): UInt;
 
-[autoCt, native("_Long_opAssign")] fun = (x: Long@, y: Long): Long;
 [autoCt, native("_Long_opEQ")] fun == (x, y: Long): Bool;
 [autoCt, native("_Long_opNE")] fun != (x, y: Long): Bool;
 [autoCt, native("_Long_opLT")] fun < (x, y: Long): Bool;
@@ -1228,7 +1258,6 @@ fun + (x,y: StringRef): StringRef
 [autoCt, native("_Long_opPlus1")] fun + (x: Long): Long;
 [autoCt, native("_Long_opMinus1")] fun - (x: Long): Long;
 
-[autoCt, native("_ULong_opAssign")] fun = (x: ULong@, y: ULong): ULong;
 [autoCt, native("_ULong_opEQ")] fun == (x, y: ULong): Bool;
 [autoCt, native("_ULong_opNE")] fun != (x, y: ULong): Bool;
 [autoCt, native("_ULong_opLT")] fun < (x, y: ULong): Bool;
@@ -1242,7 +1271,6 @@ fun + (x,y: StringRef): StringRef
 [autoCt, native("_ULong_opMod")] fun % (x, y: ULong): ULong;
 [autoCt, native("_ULong_opPlus1")] fun + (x: ULong): ULong;
 
-[autoCt, native("_Float_opAssign")] fun = (x: Float@, y: Float): Float;
 [autoCt, native("_Float_opEQ")] fun == (x, y: Float): Bool;
 [autoCt, native("_Float_opNE")] fun != (x, y: Float): Bool;
 [autoCt, native("_Float_opLT")] fun < (x, y: Float): Bool;
@@ -1256,7 +1284,6 @@ fun + (x,y: StringRef): StringRef
 [autoCt, native("_Float_opPlus1")] fun + (x: Float): Float;
 [autoCt, native("_Float_opMinus1")] fun - (x: Float): Float;
 
-[autoCt, native("_Double_opAssign")] fun = (x: Double@, y: Double): Double;
 [autoCt, native("_Double_opEQ")] fun == (x, y: Double): Bool;
 [autoCt, native("_Double_opNE")] fun != (x, y: Double): Bool;
 [autoCt, native("_Double_opLT")] fun < (x, y: Double): Bool;
@@ -1270,7 +1297,6 @@ fun + (x,y: StringRef): StringRef
 [autoCt, native("_Double_opPlus1")] fun + (x: Double): Double;
 [autoCt, native("_Double_opMinus1")] fun - (x: Double): Double;
 
-[autoCt, native("_Char_opAssign")] fun = (x: @Char, y: Char): Char;
 [autoCt, native("_Char_opEQ")] fun == (x, y: Char): Bool;
 [autoCt, native("_Char_opNE")] fun != (x, y: Char): Bool;
 [autoCt, native("_Char_opLT")] fun < (x, y: Char): Bool;
@@ -1278,7 +1304,6 @@ fun + (x,y: StringRef): StringRef
 [autoCt, native("_Char_opLE")] fun <= (x, y: Char): Bool;
 [autoCt, native("_Char_opGE")] fun >= (x, y: Char): Bool;
 
-[autoCt, native("_SizeType_opAssign")] fun = (x: SizeType@, y: SizeType): SizeType;
 [autoCt, native("_SizeType_opEQ")] fun == (x, y: SizeType): Bool;
 [autoCt, native("_SizeType_opNE")] fun != (x, y: SizeType): Bool;
 [autoCt, native("_SizeType_opLT")] fun < (x, y: SizeType): Bool;

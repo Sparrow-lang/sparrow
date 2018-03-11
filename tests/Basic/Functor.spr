@@ -1,31 +1,25 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-class Test
-{
-    fun ()()
-    {
-        writeLn("call operator");
-    }
-    fun ()(x: Int)
-    {
-        write("call operator(");
-        write(x);
-        writeLn(")");
-    }
-    fun ()(x,y: Int)
-    {
-        write("call operator(");
-        write(x);
-        write(", ");
-        write(y);
-        writeLn(")");
-    }
+datatype Test
+    ;
 
-    fun selfCall()
-    {
-        this(100);
-    }
-}
+fun ()(this: Test)
+    writeLn("call operator");
+
+fun ()(this: Test, x: Int)
+    write("call operator(");
+    write(x);
+    writeLn(")");
+
+fun ()(this: Test, x,y: Int)
+    write("call operator(");
+    write(x);
+    write(", ");
+    write(y);
+    writeLn(")");
+
+fun selfCall(this: Test)
+    this(100);
 
 [native("test")] fun test(n: Int)
 {

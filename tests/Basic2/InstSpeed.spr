@@ -1,0 +1,230 @@
+//!!
+
+//import std.ranges;
+//import std.tuple;
+
+[noDefault]
+datatype Generic(t: Type, idx: Int)
+    using _idx = idx
+    x: t
+
+    //fun ctor(this: @Generic, n: Int)
+    //    x ctor (n + idx)
+    //    cout << "ctor " << idx << endl
+
+    //fun dtor(this: @Generic)
+    //    cout << "dtor " << idx << endl
+
+fun ctor(this: @Generic, n: Int)
+    x ctor (n + _idx)
+    cout << "ctor " << _idx << endl
+
+fun dtor(this: @Generic)
+    cout << "dtor " << _idx << endl
+
+
+fun sprMain
+    var v00: Generic(Int, 00) = 999
+    var v01: Generic(Int, 01) = 999
+    var v02: Generic(Int, 02) = 999
+    var v03: Generic(Int, 03) = 999
+    var v04: Generic(Int, 04) = 999
+    var v05: Generic(Int, 05) = 999
+    var v06: Generic(Int, 06) = 999
+    var v07: Generic(Int, 07) = 999
+    var v08: Generic(Int, 08) = 999
+    var v09: Generic(Int, 09) = 999
+    //var v10: Generic(Int, 10) = 999
+    //var v11: Generic(Int, 11) = 999
+    //var v12: Generic(Int, 12) = 999
+    //var v13: Generic(Int, 13) = 999
+    //var v14: Generic(Int, 14) = 999
+    //var v15: Generic(Int, 15) = 999
+    //var v16: Generic(Int, 16) = 999
+    //var v17: Generic(Int, 17) = 999
+    //var v18: Generic(Int, 18) = 999
+    //var v19: Generic(Int, 19) = 999
+    //var v20: Generic(Int, 20) = 999
+    //var v21: Generic(Int, 21) = 999
+    //var v22: Generic(Int, 22) = 999
+    //var v23: Generic(Int, 23) = 999
+    //var v24: Generic(Int, 24) = 999
+    //var v25: Generic(Int, 25) = 999
+    //var v26: Generic(Int, 26) = 999
+    //var v27: Generic(Int, 27) = 999
+    //var v28: Generic(Int, 28) = 999
+    //var v29: Generic(Int, 29) = 999
+    //var v30: Generic(Int, 30) = 999
+    //var v31: Generic(Int, 31) = 999
+    //var v32: Generic(Int, 32) = 999
+    //var v33: Generic(Int, 33) = 999
+    //var v34: Generic(Int, 34) = 999
+    //var v35: Generic(Int, 35) = 999
+    //var v36: Generic(Int, 36) = 999
+    //var v37: Generic(Int, 37) = 999
+    //var v38: Generic(Int, 38) = 999
+    //var v39: Generic(Int, 39) = 999
+    //var v40: Generic(Int, 40) = 999
+    //var v41: Generic(Int, 41) = 999
+    //var v42: Generic(Int, 42) = 999
+    //var v43: Generic(Int, 43) = 999
+    //var v44: Generic(Int, 44) = 999
+    //var v45: Generic(Int, 45) = 999
+    //var v46: Generic(Int, 46) = 999
+    //var v47: Generic(Int, 47) = 999
+    //var v48: Generic(Int, 48) = 999
+    //var v49: Generic(Int, 49) = 999
+    //var v50: Generic(Int, 50) = 999
+    //var v51: Generic(Int, 51) = 999
+    //var v52: Generic(Int, 52) = 999
+    //var v53: Generic(Int, 53) = 999
+    //var v54: Generic(Int, 54) = 999
+    //var v55: Generic(Int, 55) = 999
+    //var v56: Generic(Int, 56) = 999
+    //var v57: Generic(Int, 57) = 999
+    //var v58: Generic(Int, 58) = 999
+    //var v59: Generic(Int, 59) = 999
+    //var v60: Generic(Int, 60) = 999
+    //var v61: Generic(Int, 61) = 999
+    //var v62: Generic(Int, 62) = 999
+    //var v63: Generic(Int, 63) = 999
+    //var v64: Generic(Int, 64) = 999
+    //var v65: Generic(Int, 65) = 999
+    //var v66: Generic(Int, 66) = 999
+    //var v67: Generic(Int, 67) = 999
+    //var v68: Generic(Int, 68) = 999
+    //var v69: Generic(Int, 69) = 999
+    //var v00: Generic(Int, 70) = 999
+    //var v71: Generic(Int, 71) = 999
+    //var v72: Generic(Int, 72) = 999
+    //var v73: Generic(Int, 73) = 999
+    //var v74: Generic(Int, 74) = 999
+    //var v75: Generic(Int, 75) = 999
+    //var v76: Generic(Int, 76) = 999
+    //var v77: Generic(Int, 77) = 999
+    //var v78: Generic(Int, 78) = 999
+    //var v79: Generic(Int, 79) = 999
+    //var v70: Generic(Int, 80) = 999
+    //var v81: Generic(Int, 81) = 999
+    //var v82: Generic(Int, 82) = 999
+    //var v83: Generic(Int, 83) = 999
+    //var v84: Generic(Int, 84) = 999
+    //var v85: Generic(Int, 85) = 999
+    //var v86: Generic(Int, 86) = 999
+    //var v87: Generic(Int, 87) = 999
+    //var v88: Generic(Int, 88) = 999
+    //var v89: Generic(Int, 89) = 999
+    //var v90: Generic(Int, 90) = 999
+    //var v91: Generic(Int, 91) = 999
+    //var v92: Generic(Int, 92) = 999
+    //var v93: Generic(Int, 93) = 999
+    //var v94: Generic(Int, 94) = 999
+    //var v95: Generic(Int, 95) = 999
+    //var v96: Generic(Int, 96) = 999
+    //var v97: Generic(Int, 97) = 999
+    //var v98: Generic(Int, 98) = 999
+    //var v99: Generic(Int, 99) = 999
+
+    //var v100: Generic(Int, 100) = 999
+    //var v101: Generic(Int, 101) = 999
+    //var v102: Generic(Int, 102) = 999
+    //var v103: Generic(Int, 103) = 999
+    //var v104: Generic(Int, 104) = 999
+    //var v105: Generic(Int, 105) = 999
+    //var v106: Generic(Int, 106) = 999
+    //var v107: Generic(Int, 107) = 999
+    //var v108: Generic(Int, 108) = 999
+    //var v109: Generic(Int, 109) = 999
+    //var v110: Generic(Int, 110) = 999
+    //var v111: Generic(Int, 111) = 999
+    //var v112: Generic(Int, 112) = 999
+    //var v113: Generic(Int, 113) = 999
+    //var v114: Generic(Int, 114) = 999
+    //var v115: Generic(Int, 115) = 999
+    //var v116: Generic(Int, 116) = 999
+    //var v117: Generic(Int, 117) = 999
+    //var v118: Generic(Int, 118) = 999
+    //var v119: Generic(Int, 119) = 999
+    //var v120: Generic(Int, 120) = 999
+    //var v121: Generic(Int, 121) = 999
+    //var v122: Generic(Int, 122) = 999
+    //var v123: Generic(Int, 123) = 999
+    //var v124: Generic(Int, 124) = 999
+    //var v125: Generic(Int, 125) = 999
+    //var v126: Generic(Int, 126) = 999
+    //var v127: Generic(Int, 127) = 999
+    //var v128: Generic(Int, 128) = 999
+    //var v129: Generic(Int, 129) = 999
+    //var v130: Generic(Int, 130) = 999
+    //var v131: Generic(Int, 131) = 999
+    //var v132: Generic(Int, 132) = 999
+    //var v133: Generic(Int, 133) = 999
+    //var v134: Generic(Int, 134) = 999
+    //var v135: Generic(Int, 135) = 999
+    //var v136: Generic(Int, 136) = 999
+    //var v137: Generic(Int, 137) = 999
+    //var v138: Generic(Int, 138) = 999
+    //var v139: Generic(Int, 139) = 999
+    //var v140: Generic(Int, 140) = 999
+    //var v141: Generic(Int, 141) = 999
+    //var v142: Generic(Int, 142) = 999
+    //var v143: Generic(Int, 143) = 999
+    //var v144: Generic(Int, 144) = 999
+    //var v145: Generic(Int, 145) = 999
+    //var v146: Generic(Int, 146) = 999
+    //var v147: Generic(Int, 147) = 999
+    //var v148: Generic(Int, 148) = 999
+    //var v149: Generic(Int, 149) = 999
+    //var v150: Generic(Int, 150) = 999
+    //var v151: Generic(Int, 151) = 999
+    //var v152: Generic(Int, 152) = 999
+    //var v153: Generic(Int, 153) = 999
+    //var v154: Generic(Int, 154) = 999
+    //var v155: Generic(Int, 155) = 999
+    //var v156: Generic(Int, 156) = 999
+    //var v157: Generic(Int, 157) = 999
+    //var v158: Generic(Int, 158) = 999
+    //var v159: Generic(Int, 159) = 999
+    //var v160: Generic(Int, 160) = 999
+    //var v161: Generic(Int, 161) = 999
+    //var v162: Generic(Int, 162) = 999
+    //var v163: Generic(Int, 163) = 999
+    //var v164: Generic(Int, 164) = 999
+    //var v165: Generic(Int, 165) = 999
+    //var v166: Generic(Int, 166) = 999
+    //var v167: Generic(Int, 167) = 999
+    //var v168: Generic(Int, 168) = 999
+    //var v169: Generic(Int, 169) = 999
+    //var v100: Generic(Int, 170) = 999
+    //var v171: Generic(Int, 171) = 999
+    //var v172: Generic(Int, 172) = 999
+    //var v173: Generic(Int, 173) = 999
+    //var v174: Generic(Int, 174) = 999
+    //var v175: Generic(Int, 175) = 999
+    //var v176: Generic(Int, 176) = 999
+    //var v177: Generic(Int, 177) = 999
+    //var v178: Generic(Int, 178) = 999
+    //var v179: Generic(Int, 179) = 999
+    //var v170: Generic(Int, 180) = 999
+    //var v181: Generic(Int, 181) = 999
+    //var v182: Generic(Int, 182) = 999
+    //var v183: Generic(Int, 183) = 999
+    //var v184: Generic(Int, 184) = 999
+    //var v185: Generic(Int, 185) = 999
+    //var v186: Generic(Int, 186) = 999
+    //var v187: Generic(Int, 187) = 999
+    //var v188: Generic(Int, 188) = 999
+    //var v189: Generic(Int, 189) = 999
+    //var v190: Generic(Int, 190) = 999
+    //var v191: Generic(Int, 191) = 999
+    //var v192: Generic(Int, 192) = 999
+    //var v193: Generic(Int, 193) = 999
+    //var v194: Generic(Int, 194) = 999
+    //var v195: Generic(Int, 195) = 999
+    //var v196: Generic(Int, 196) = 999
+    //var v197: Generic(Int, 197) = 999
+    //var v198: Generic(Int, 198) = 999
+    //var v199: Generic(Int, 199) = 999
+
+/* <<<Running()
+>>>*/

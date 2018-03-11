@@ -1,76 +1,63 @@
-module std.optional;
+module std.optional
 
 /// A container that may or may not store a value.
 /// One can check whether the value is defined or not, and can access the value
-class Optional(valueType: Type)
-{
-    using ValueType = valueType;
+datatype Optional(valueType: Type)
+    using ValueType = valueType
 
-    [noDefault] fun ctor
-    {
-        _constructed ctor false;
-        _value ctor Uninitialized();
-    }
-    [noDefault] fun ctor(other: @Optional)
-    {
-        _constructed ctor other._constructed;
-        if ( other._constructed )
-            _value ctor other._value;
-    }
-    [noDefault] fun ctor(val: @ValueType)
-    {
-        _constructed ctor true;
-        _value ctor val;
-    }
-    [noDefault] fun dtor
-    {
-        reset();
-    }
+    _value: ValueType
+    _constructed: Bool
 
-    fun isNull                                      = !_constructed;
-    fun isSet                                       = _constructed;
-    fun get: @ValueType                             = _value;
-    fun getOrElse(default: @ValueType): @ValueType  = ife(_constructed, cast(@ValueType, _value), default);
+[noDefault]
+fun ctor(this: @Optional)
+    _constructed ctor false
+    _value ctor Uninitialized()
+[noDefault]
+fun ctor(this: @Optional, other: typeOf(this))
+    _constructed ctor other._constructed
+    if other._constructed
+        _value ctor other._value
+[noDefault]
+fun ctor(this: @Optional, val: @this.ValueType)
+    _constructed ctor true
+    _value ctor val
 
-    fun reset
-    {
-        if ( _constructed )
-            _value dtor;
-        _constructed = false;
-    }
-    fun reset(val: @ValueType)
-    {
-        if ( _constructed )
-            _value dtor;
-        _value ctor val;
-        _constructed = true;
-    }
+[protected]
+    [noDefault] fun dtor(this: @Optional)
+        this.reset()
 
-    fun swap(other: @Optional)
-    {
-        var tmp = this;
-        this = other;
-        other = this;
-    }
+    fun =(this, other: @Optional)           { if other._constructed ; this.reset(other._value) else this.reset }
+    fun =(this: @Optional, val: @this.ValueType) { this.reset(val) }
 
-    fun =(other: @Optional)     { if other._constructed ; reset(other._value) else reset(); }
-    fun =(val: @ValueType)      { reset(val); }
+    fun ==(this, other: @Optional)          = _constructed == other._constructed && (!_constructed || _value == other._value)
 
-    fun ==(other: Optional)     = _constructed == other._constructed && (!_constructed || _value == other._value);
+    fun some(x: @AnyType): -@typeOf(x) Optional = (-@typeOf(x) Optional)(x)
+    fun none(t: Type) = (t Optional)()
 
-    fun >>(os: @OutStream) if isValid(os << #$ValueType)
-    {
-        if ( isSet() )
-            os << "Optional(" << _value << ")";
+    fun isNull(this: @Optional)                                      = !_constructed
+    fun isSet(this: @Optional)                                       = _constructed
+    fun get(this: @Optional): @ValueType                             = _value
+    fun getOrElse(this: @Optional, default: @this.ValueType): @ValueType  = ife(_constructed, cast(@ValueType, _value), default)
+
+    fun reset(this: @Optional)
+        if _constructed
+            _value dtor
+        _constructed = false
+    fun reset(this: @Optional, val: @this.ValueType)
+        if _constructed
+            _value dtor
+        _value ctor val
+        _constructed = true
+
+    fun swap(this: @Optional, other: typeOf(this))
+        var tmp = this
+        this = other
+        other = this
+
+    fun >>(this: @Optional, os: @OutStream) if isValid(os << #$this.ValueType)
+        if this.isSet
+            os << "Optional(" << _value << ")"
         else
-            os << "Optional(none)";
-        os << flush;
-    }
+            os << "Optional(none)"
 
-    var _value: ValueType;
-    var _constructed: Bool;
-}
-
-fun some(x: @AnyType): -@typeOf(x) Optional = (-@typeOf(x) Optional)(x);
-fun none(t: Type) = (t Optional)();
 

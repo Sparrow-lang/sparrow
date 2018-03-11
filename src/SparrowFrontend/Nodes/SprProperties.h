@@ -10,11 +10,11 @@ namespace SprFrontend
     extern const char* propCtGeneric;
     extern const char* propGenerateInitCtor;
     extern const char* propMacro;
-    extern const char* propIsField;
-    extern const char* propIsStatic;
     extern const char* propAllowDeclExp;
     extern const char* propNoWarnIfNoDeclFound;
-    extern const char* propHasThisParam;
-    extern const char* propHasImplicitThisParam;
+    extern const char* propThisParamIdx;
     extern const char* propThisParamType;
+    extern const char* propOverloadPrio;
+
+    constexpr const char* propVarInit = "spr.varInit";
 }

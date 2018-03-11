@@ -24,29 +24,30 @@ var gCounter: Atomic(Int) = 0;
 var p1: Atomic(@Int);
 var p2: Atomic(Int Ptr);
 
-class TwiddleThumbs {
-    var message: String;
-    var count: Int;
-    var doPrint: Bool;
-    var lastCounter: @Int;
+datatype TwiddleThumbs {
+    message: String;
+    count: Int;
+    doPrint: Bool;
+    lastCounter: @Int;
 
-    fun ctor(message: StringRef, count: Int, lastCounter: @Int, doPrint: Bool = false) {
-        this.message construct message;
-        this.count construct count;
-        this.lastCounter := lastCounter;
-        this.doPrint construct doPrint;
-    }
+}
 
-    fun ()() {
-        for i = 0..count {
-            var cnt: Int = gCounter++;
-            if ( i == count-1 )
-                lastCounter = cnt;
-            if ( doPrint ) {
-                cout << message << ": i=" << i << "; cnt=" << cnt << endl;
-            }
-            sleep(10);
+fun ctor(this: @TwiddleThumbs, message: StringRef, count: Int, lastCounter: @Int, doPrint: Bool = false) {
+    this.message construct message;
+    this.count construct count;
+    this.lastCounter := lastCounter;
+    this.doPrint construct doPrint;
+}
+
+fun ()(this: @TwiddleThumbs) {
+    for i = 0..count {
+        var cnt: Int = gCounter++;
+        if ( i == count-1 )
+            lastCounter = cnt;
+        if ( doPrint ) {
+            cout << message << ": i=" << i << "; cnt=" << cnt << endl;
         }
+        sleep(10);
     }
 }
 

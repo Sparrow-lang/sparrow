@@ -17,6 +17,9 @@ const char* Nest_toString(const Node* node);
 /// Returns a more detailed string description out of the given node
 const char* Nest_toStringEx(const Node* node);
 
+/// Returns a string description out of the given node range
+const char* Nest_rangeToString(NodeRange nodes);
+
 /// Getter for the name of the node kind for the given node
 const char* Nest_nodeKindName(const Node* node);
 
@@ -66,6 +69,11 @@ const StringRef* Nest_getPropertyString(const Node* node, const char* name);
 StringRef Nest_getPropertyStringDeref(const Node* node, const char* name);
 Node*const* Nest_getPropertyNode(const Node* node, const char* name);
 const TypeRef* Nest_getPropertyType(const Node* node, const char* name);
+
+int Nest_getPropertyDefaultInt(const Node* node, const char* name, int defaultVal);
+StringRef Nest_getPropertyDefaultString(const Node* node, const char* name, StringRef defaultVal);
+Node* Nest_getPropertyDefaultNode(const Node* node, const char* name, Node* defaultVal);
+TypeRef Nest_getPropertyDefaultType(const Node* node, const char* name, TypeRef defaultVal);
 
 int Nest_getCheckPropertyInt(const Node* node, const char* name);
 StringRef Nest_getCheckPropertyString(const Node* node, const char* name);

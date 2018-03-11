@@ -575,7 +575,7 @@ using namespace Feather;
         if ( isField(var) )
             REP_INTERNAL(node->location, "VarRef used on a field (%1%). Use FieldRef instead") % Feather_getName(var);
         if ( !var->type->hasStorage )
-            REP_ERROR_RET(nullptr, node->location, "Variable type is doesn't have a storage type (type: %1%)") % var->type;
+            REP_ERROR_RET(nullptr, node->location, "Variable type doesn't have a storage type (type: %1%)") % var->type;
         node->type = Feather_adjustMode(Feather_getLValueType(var->type), node->context, node->location);
         Feather_checkEvalMode(node, var->type->mode);
         return node;
@@ -1556,6 +1556,10 @@ unsigned Feather_Function_numParameters(Node* node)
 Node* Feather_Function_getParameter(Node* node, unsigned idx)
 {
     return at(node->children, idx+2);
+}
+NodeRange Feather_Function_getParameters(Node* node)
+{
+    return NodeRange { node->children.beginPtr+2, node->children.endPtr };
 }
 TypeRef Feather_Function_resultType(Node* node)
 {

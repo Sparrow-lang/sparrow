@@ -6,10 +6,9 @@ fun fact(n: Int): Int
     else return n*fact(n-1);
 }
 
-class FactFun
-{
-    fun ()(n: Int) = fact(n);
-}
+datatype FactFun
+    ;
+fun ()(this: FactFun, n: Int) = fact(n);
 
 fun doCall(f: AnyType, val: Int): Int
 {
@@ -69,20 +68,16 @@ fun test2
 25
 >>>*/
 
-class Test
+datatype Test
+    x: Int = 10;
+
+fun doTest1(this: Test)
 {
-    fun doTest1
-    {
-        cout << doCall((fun n = n*n), 5) << endl;
-    }
-    fun doTest2
-    {
-        cout << doCall((fun.{x} n = n*n + x), 5) << endl;
-    }
-
-    fun ctor { x = 10; }
-
-    var x: Int;
+    cout << doCall((fun n = n*n), 5) << endl;
+}
+fun doTest2(this: Test)
+{
+    cout << doCall((fun.{x} n = n*n + x), 5) << endl;
 }
 
 fun test3
@@ -106,15 +101,9 @@ fun test4
 120
 >>>*/
 
-class Foo
-{
-    fun ctor(x: Int)
-    {
-        this.x ctor x;
-    }
-
-    var x: Int;
-}
+[initCtor]
+datatype Foo
+    x: Int;
 
 fun getVector(): Foo
 {

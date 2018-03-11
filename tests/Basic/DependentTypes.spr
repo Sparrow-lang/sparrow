@@ -1,0 +1,73 @@
+//!! -t "SparrowImplicitLib.spr" -fno-main
+
+concept AnyType(x);
+
+fun writeType(a: AnyType) if typeOf(a) == Int
+    write('Int')
+fun writeType(a: AnyType) if typeOf(a) == Byte
+    write('Byte')
+fun writeType(a: AnyType) if typeOf(a) == Double
+    write('Double')
+
+fun writeTypes(a, b: AnyType)
+    writeType(a)
+    write(' ')
+    writeType(b)
+    writeLn('')
+
+fun normal(a, b: Int)
+    writeTypes(a,b)
+
+fun any(a, b: AnyType)
+    writeTypes(a, b)
+
+fun anyIf(a, b: AnyType) if typeOf(b) == typeOf(a)
+    writeTypes(a, b)
+
+fun deduced(a: AnyType, b: typeOf(a))
+    writeTypes(a, b)
+
+datatype Vec(t: Type)
+    using ValueType = t
+    data: t
+
+fun pushBack(this: @Vec, val: this.ValueType)
+    data = val
+
+fun pushBack2(this: @Vec, val: @this.ValueType)
+    data = val
+
+[native("test")] fun test(n: Int)
+    normal(1, 2)
+    normal(1, Byte(2))
+    writeLn('---')
+    any(3.14, Byte(2))
+    anyIf(3.14, Double(Byte(2)))
+    writeLn('---')
+    deduced(3.14, Byte(2))
+
+    writeLn('---')
+    var v: Vec(Int)
+    v.data = 1
+    writeLn(v.data)
+    pushBack(v, 2)
+    writeLn(v.data)
+    pushBack2(v, 3)
+    writeLn(v.data)
+    pushBack2(v, Byte(4))
+    writeLn(v.data)
+
+/*<<<Running()
+Int Int
+Int Int
+---
+Double Byte
+Double Double
+---
+Double Double
+---
+1
+2
+3
+4
+>>>*/

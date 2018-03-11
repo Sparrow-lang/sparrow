@@ -21,9 +21,11 @@ fun mkImportName(loc: @Location, alias: StringRef, toImport, decls: Node): Node
 [native("comp_parser_mkUsing")]
 fun mkUsing(loc: @Location, alias: StringRef, usingNode: Node): Node
 [native("comp_parser_mkPackage")]
-fun mkPackage(loc: @Location, name: StringRef, children: Node): Node
-[native("comp_parser_mkClass")]
-fun mkClass(loc: @Location, name: StringRef, params, underlyingData, ifClause, children: Node): Node
+fun mkPackage(loc: @Location, name: StringRef, children, params, ifClause: Node): Node
+[native("comp_parser_mkDatatype")]
+fun mkDatatype(loc: @Location, name: StringRef, params, underlyingData, ifClause, children: Node): Node
+[native("comp_parser_mkField")]
+fun mkField(loc: @Location, name: StringRef, typeNode, init: Node): Node
 [native("comp_parser_mkConcept")]
 fun mkConcept(loc: @Location, name, paramName: StringRef, baseConcept, ifClause: Node): Node
 [native("comp_parser_mkVar")]

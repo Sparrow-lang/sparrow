@@ -1,10 +1,21 @@
 import ir;
+import std.string
 
-[ct] fun dumpProlog(os: @OutStream, sps: @SparrowPrologSystem)
+//[ct] fun dumpProlog(os: @OutStream, sps: @SparrowPrologSystem)
+[ct] fun dumpProlog(os: @StringOutputStream, sps: @SparrowPrologSystem)
 {
-    Impl.dumpPrologSystem(os, sps);
-    os << flush;
+    //Impl.dumpPrologSystem(os, sps);
+    //testStringOutputStream
+    var sos: OutStream = StringOutputStream()
+    sos <<< 1
+    cout << sos.result << endl
+    testStream(os)
+    //os << flush;
 }
+
+[ct]
+fun testStream(os: @OutStream)
+    os << 1
 
 package Impl
 {

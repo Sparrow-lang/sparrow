@@ -1,0 +1,49 @@
+//!!
+
+import std.ranges
+
+datatype TypePrint(t: Type)
+    using T = t
+
+fun ctor(this: @TypePrint)
+    cout << 'TypePrint.ctor ' << TypeOp.description(T) << endl
+
+package GenPackage(t: Type)
+    using MyType = t rt
+
+    // Causes a global print for all the instantiations
+    var printer: TypePrint(t)
+
+    fun getType: StringRef = TypeOp.description(MyType)
+
+    fun printLine
+        cout << '---\n'
+
+fun sprMain
+    // Instantiate two packages by calling functions from there
+    GenPackage(Int).printLine
+    GenPackage(Double).printLine
+
+    // Instantiate another one with an using
+    using MyCharPackage = GenPackage(Char)
+
+    // Get function pointers from a function in the generic package
+    var f: FunctionPtr(StringRef rt)
+    f = \(GenPackage(Int).getType)
+    cout << f() << endl
+    f = \(GenPackage(Double).getType)
+    cout << f() << endl
+    f = \(MyCharPackage.getType)
+    cout << f() << endl
+
+
+/*<<<Ranges of ranges, with generic fun-ptr passed to map()
+TypePrint.ctor Int/rtct
+TypePrint.ctor Double/rtct
+TypePrint.ctor Char/rtct
+---
+---
+Int
+Double
+Char
+>>>*/

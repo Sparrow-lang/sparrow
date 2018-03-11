@@ -7,8 +7,8 @@ import test;
 var intTls: Tls(Int);
 var ptrTls: Tls(@Int);
 
-[initCtor] class IntWorker {
-    var val1, val2: Int;
+[initCtor] datatype IntWorker {
+    val1, val2: Int;
 
     fun ()() {
         assertEq(intTls get, 0);
@@ -19,8 +19,8 @@ var ptrTls: Tls(@Int);
     }
 }
 
-[initCtor] class PtrWorker {
-    var val1, val2: @Int;
+[initCtor] datatype PtrWorker {
+    val1, val2: @Int;
 
     fun ()() {
         assertTrue((ptrTls get) === null);
@@ -31,34 +31,33 @@ var ptrTls: Tls(@Int);
     }
 }
 
-class WorkManager {
-    var numThreads: Int;
-    var threads: (Thread Ptr) Vector;
+datatype WorkManager
+    numThreads: Int
+    threads: (Thread Ptr) Vector
 
-    fun ctor(numThreads: Int) {
-        this.numThreads ctor numThreads;
+fun ctor(this: @WorkManager, numThreads: Int) {
+    this.numThreads ctor numThreads;
 
-        var i1 = 10;
-        var i2 = 20;
-        var pi1: @Int = i1;
-        var pi2: @Int = i2;
+    var i1 = 10;
+    var i2 = 20;
+    var pi1: @Int = i1;
+    var pi2: @Int = i2;
 
-        for i=0..numThreads {
-            var p: Thread Ptr = new(Thread, IntWorker(i1, i2));
-            threads.pushBack(p);
-        }
-
-        for i=0..numThreads {
-            var p: Thread Ptr = new(Thread, PtrWorker(pi1, pi2));
-            threads.pushBack(p);
-        }
+    for i=0..numThreads {
+        var p: Thread Ptr = new(Thread, IntWorker(i1, i2));
+        threads.pushBack(p);
     }
 
-    fun dtor {
-        for t = threads.all {
-            t.get join;
-            t.release;
-        }
+    for i=0..numThreads {
+        var p: Thread Ptr = new(Thread, PtrWorker(pi1, pi2));
+        threads.pushBack(p);
+    }
+}
+
+fun dtor(this: @WorkManager) {
+    for t = threads.all {
+        t.get join;
+        t.release;
     }
 }
 

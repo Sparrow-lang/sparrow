@@ -21,21 +21,20 @@ fun f2(t: Type)
     writeLn(sizeOf(tmp));
 }
 
-class MyVector(t: Type)
-{
-    var start, end: t;
+datatype MyVector(t: Type)
+    start, end: t;
+    using glob = _MyVectorHelper(t).glob
 
-    fun print()
-    {
-        write(start);
-        write(' ');
-        write('-');
-        write(' ');
-        writeLn(end);
-    }
+package _MyVectorHelper(t: Type)
+    var glob: t;
 
-    [static] var glob: t;
-}
+fun print(this: @MyVector)
+    write(start);
+    write(' ');
+    write('-');
+    write(' ');
+    writeLn(end);
+
 
 fun valSize(x: AnyType): SizeType
 {

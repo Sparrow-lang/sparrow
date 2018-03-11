@@ -5,43 +5,34 @@ import std.newDelete;
 //import assert;
 
 //! Datatype describing a thread ID
-class ThreadId {
-    var id: ULong;
+datatype ThreadId
+    id: ULong;
 
-    fun ctor(id: ULong) {
-        this.id ctor id;
-    }
-    fun ctor(h: NativeThreadHandle) {
-        this.id ctor;
-        Impl.pthread_threadid_np(h, id);
-    }
-}
+fun ctor(this: @ThreadId, id: ULong)
+    this.id ctor id;
+fun ctor(this: @ThreadId, h: NativeThreadHandle)
+    this.id ctor;
+    Impl.pthread_threadid_np(h, id);
 fun >>(tid: @ThreadId, os: @OutStream)
-{
     os << tid.id;
-}
 
 
 
-class Thread
-{
-    var _handle: NativeThreadHandle;
+datatype Thread
+    _handle: NativeThreadHandle;
 
-    //! Construct the Thread with a functor
-    //! The functor can have state, not just executing code
-    fun ctor(f: AnyType) if isValid(f()) {
-        _handle = Impl.startThread(f);
-    }
-    //! Destructor. Detatch the thread if joinable
-    fun dtor {
-        if ( this isJoinable ) this detach;
-    }
+//! Construct the Thread with a functor
+//! The functor can have state, not just executing code
+fun ctor(this: @Thread, f: AnyType) if isValid(f())
+    _handle = Impl.startThread(f);
 
-    //! Cannot copy construct or assign a Thread object
-    [private] fun ctor(other: @Thread);
-    [private] fun =(other: @Thread);
+//! Cannot copy construct or assign a Thread object
+[private] fun ctor(this, other: @Thread);
+[private] fun =(this, other: @Thread);
 
-}
+//! Destructor. Detach the thread if joinable
+fun dtor(this: @Thread)
+    if ( this isJoinable ) this detach;
 
 fun >>(t: @Thread, os: @OutStream)
 {
@@ -101,8 +92,8 @@ fun sleep(durMs: UInt) {
 package Impl {
     using ThreadFun = FunctionPtr(@Byte rt, @Byte rt);
 
-    [initCtor] class Closure(FType: Type) {
-        var f: FType;
+    [initCtor] Closure(FType: Type) {
+        f: FType;
 
         [static] fun threadFun(arg: @Byte): @Byte {
             var self: @Closure = reinterpretCast(@Closure, arg);
@@ -122,7 +113,7 @@ package Impl {
         return handle;
     }
 
-    [initCtor] class TimeSpec { var tv_sec, tv_nsec: Long; }
+    [initCtor] datatype TimeSpec { var tv_sec, tv_nsec: Long; }
 
     [native("pthread_create")] fun pthread_create(handle: @NativeThreadHandle, attr: @Byte, f: ThreadFun, arg: @Byte): Int;
     [native("pthread_join")] fun pthread_join(handle: NativeThreadHandle, valPtr: @ @Byte): Int;

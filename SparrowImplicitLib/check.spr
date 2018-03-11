@@ -5,24 +5,25 @@ import std.map(Map)
 import std.function(Function)
 
 //! An object that is able to generate values of the given type, possibly in a random fashion
-class Gen(t: Type)
+[initCtor]
+datatype Gen(t: Type)
     using ValueType = t
+    _generator: Function(t, UInt)
 
-    fun ctor {}
-    [convert]
-    fun ctor(generator: @AnyType)
-        this._generator ctor generator
+fun mkGen(t: Type, generator: @AnyType): Gen(t) if isValid(generator(UInt(0)))
+    using FunType = Function(t, UInt)
+    return Gen(t)(FunType(generator))
 
-    fun isValid: Bool = _generator isSet
+fun ()(this: @Gen, sizeHint: UInt): ValueType = _generator(sizeHint)
 
-    fun ()(sizeHint: UInt): t = _generator(sizeHint)
+fun isValid(this: @Gen): Bool = _generator isSet
 
-    var _generator: Function(t, UInt)
+
 
 concept GenType(x)                  \
     if typeOf(x.ValueType) == Type  \
-    && typeOf(x.isValid()) == Bool  \
-    && typeOf(x(0)) == x.ValueType  \
+    && typeOf(x.isValid) == Bool  \
+    && typeOf(x(0)) == x.ValueType
 
 
 //! Arbitrary prototype
@@ -30,33 +31,33 @@ concept GenType(x)                  \
 
 //! Arbitrary definition for the integer types
 fun arbitrary(t: Type): t Gen if Integer(#$t)
-    return (t Gen)(\_Impl.NumericGen(t).gen)
+    return mkGen(t, \_Impl.NumericGen(t).gen)
 
 
 //! Configuration options for our check function
 [initCtor]
-class CheckConfig
-    var numTests, maxAttempts: UInt
-    var isVerbose: Bool
-    fun ctor
-        numTests = 100
-        maxAttempts = 5*numTests
-        isVerbose = false
+datatype CheckConfig
+    numTests, maxAttempts: UInt
+    isVerbose: Bool
+fun ctor(this: @CheckConfig)
+    numTests = 100
+    maxAttempts = 5*numTests
+    isVerbose = false
 
 //! A value to be tested
 //! Along with the actual value we also hold whether the value is trivial and its
 //! classifier
-class TestableValue(t: Type)
+datatype TestableValue(t: Type)
     using ValueType = t
 
-    var value: t
-    var isTrivial: Bool
-    var classifier: String
+    value: t
+    isTrivial: Bool
+    classifier: String
 
-    fun ctor(value: @t)
-        this.value ctor value
-        this.isTrivial ctor false
-        this.classifier ctor ""
+fun ctor(this: @TestableValue, value: @this.ValueType)
+    this.value ctor value
+    this.isTrivial ctor false
+    this.classifier ctor ""
 
 //! Concept that matches all TestableValues instances
 concept TestableValuesRange(x: Range) if (
@@ -180,109 +181,115 @@ package _Impl
     [rtct, native("rand")]
     fun rand(): UInt
 
-    class NumericGen(t: Type) if UnsignedInteger(#$t)
-        [static]
+    package NumericGen(t: Type) if UnsignedInteger(#$t)
         fun gen(sizeHint: UInt) = t(randBetween(0, 6 + sizeHint))
 
-    class NumericGen(t: Type) if SignedInteger(#$t)
-        [static]
+    package NumericGen(t: Type) if SignedInteger(#$t)
         fun gen(sizeHint: UInt): t
             var h: Int = sizeHint + 3
             return t(randBetween(-h, h+1))
 
-    class ForAllGenerator(t: Type)
+    datatype ForAllGenerator(t: Type)
         using RetType = TestableValue(t)
+        using _T = t
 
-        var _gen: Gen(t)
-        var _count: UInt
+        _gen: Gen(t)
+        _count: UInt
 
-        fun ctor(gen: @Gen(t))
-            this._gen ctor gen
-            this._count = 0
+    fun ctor(this, other: @ForAllGenerator)
+        this._gen ctor other._gen
+        this._count ctor other._count
 
-        fun isEmpty                     = !_gen.isValid
-        fun front: RetType              = RetType(_gen(_count))
-        fun popFront                    { ++_count }
+    fun ctor(this: @ForAllGenerator, gen: @Gen(this._T))
+        this._gen ctor gen
+        this._count = 0
+
+    fun isEmpty(this: @ForAllGenerator)                     = !_gen.isValid
+    fun front(this: @ForAllGenerator): RetType              = RetType(_gen(_count))
+    fun popFront(this: @ForAllGenerator)                    { ++_count }
 
     [initCtor]
-    class ForAllRangeGenerator(rangeType: Type)
+    datatype ForAllRangeGenerator(rangeType: Type)
         using RetType = TestableValue(rangeType.RetType)
 
-        var _range: rangeType
+        _range: rangeType
 
-        fun isEmpty                     = _range.isEmpty
-        fun front: RetType              = RetType(_range.front)
-        fun popFront                    { _range.popFront }
+    fun isEmpty(this: @ForAllRangeGenerator)                     = _range.isEmpty
+    fun front(this: @ForAllRangeGenerator): RetType              = RetType(_range.front)
+    fun popFront(this: @ForAllRangeGenerator)                    { _range.popFront }
 
-    class ForWhichRange(rangeType, predType: Type) \
+    datatype ForWhichRange(rangeType, predType: Type) \
             if typeOf((#$predType)((#$rangeType front).value)) == Bool
-        var _range: rangeType
-        var _pred: predType
-        var _lastVal: RetType
+        _range: rangeType
+        _pred: predType
+        _lastVal: RetType
 
         using RetType = -@rangeType.RetType
+        using _RangeType = rangeType
+        using _PredType = predType
 
-        fun ctor(range: rangeType, pred: predType)
-            this._range ctor range
-            this._pred ctor pred
-            this._lastVal ctor
-            _popUntilValid
+    fun ctor(this: @ForWhichRange, range: this._RangeType, pred: this._PredType)
+        this._range ctor range
+        this._pred ctor pred
+        this._lastVal ctor
+        this._popUntilValid
 
-        fun isEmpty                     = _range.isEmpty()
-        fun front: RetType              = _lastVal
-        fun popFront                    { _range.popFront(); _popUntilValid }
+    fun isEmpty(this: @ForWhichRange)                     = _range.isEmpty()
+    fun front(this: @ForWhichRange): RetType              = _lastVal
+    fun popFront(this: @ForWhichRange)                    { _range.popFront(); this._popUntilValid }
 
-        fun _popUntilValid
-            while !_range.isEmpty
-                _lastVal = _range.front()
-                if _pred(_lastVal.value)
-                    break
-                _range.popFront()
+    fun _popUntilValid(this: @ForWhichRange)
+        while !_range.isEmpty
+            _lastVal = _range.front()
+            if _pred(_lastVal.value)
+                break
+            _range.popFront()
 
     [initCtor]
-    class TrivialsRange(rangeType, predType: Type) \
+    datatype TrivialsRange(rangeType, predType: Type) \
             if typeOf((#$predType)((#$rangeType front).value)) == Bool
         using RetType = -@rangeType.RetType
 
-        var _range: rangeType
-        var _pred: predType
+        _range: rangeType
+        _pred: predType
 
-        fun isEmpty                     = _range.isEmpty()
-        fun popFront                    { _range.popFront() }
-        fun front: RetType
-            var res = _range.front
-            res.isTrivial = _pred(res.value)
-            return res
+    fun isEmpty(this: @TrivialsRange)                     = _range.isEmpty()
+    fun popFront(this: @TrivialsRange)                    { _range.popFront() }
+    fun front(this: @TrivialsRange): RetType
+        var res = _range.front
+        res.isTrivial = _pred(res.value)
+        return res
 
 
     [initCtor]
-    class ClassifierRange(rangeType, predType: Type) \
+    datatype ClassifierRange(rangeType, predType: Type) \
             if typeOf((#$predType)((#$rangeType front).value)) == String
         using RetType = -@rangeType.RetType
 
-        var _range: rangeType
-        var _pred: predType
+        _range: rangeType
+        _pred: predType
 
-        fun isEmpty                     = _range.isEmpty()
-        fun popFront                    { _range.popFront() }
-        fun front: RetType
-            var res = _range.front
-            res.classifier = _pred(res.value)
-            return res
+    fun isEmpty(this: @ClassifierRange)                     = _range.isEmpty()
+    fun popFront(this: @ClassifierRange)                    { _range.popFront() }
+    fun front(this: @ClassifierRange): RetType
+        var res = _range.front
+        res.classifier = _pred(res.value)
+        return res
 
-    class ElementsGen(rangeType: Type)
+    datatype ElementsGen(rangeType: Type)
         using ElementType = -@rangeType.RetType
+        using _RangeType = rangeType
 
-        var _range: rangeType
-        var _count: SizeType
+        _range: rangeType
+        _count: SizeType
 
-        fun ctor(range: rangeType)
-            this._range ctor range
-            this._count ctor (range rangeSize)
+    fun ctor(this: @ElementsGen, range: this._RangeType)
+        this._range ctor range
+        this._count ctor (range rangeSize)
 
-        fun ()(sizeHint: UInt): ElementType
-            var r = _range
-            r advance randBetween(0, Int(_count))
-            return r.front
+    fun ()(this: @ElementsGen, sizeHint: UInt): ElementType
+        var r = _range
+        r advance randBetween(0, Int(_count))
+        return r.front
 
-        fun gen: Gen(ElementType) = ife(_count>0, this, Gen(ElementType)())
+    fun gen(this: @ElementsGen): Gen(ElementType) = ife(_count>0, mkGen(ElementType, this), Gen(ElementType)())

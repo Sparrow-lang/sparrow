@@ -1,6 +1,6 @@
 //!!
 import std.contiguousMemoryRange(ContiguousMemoryRange);
-import std.rawPtr(RawPtr);
+import std.rawPtr(RawPtr, allocRawPtr);
 
 fun sprMain
 {
@@ -19,16 +19,15 @@ fun sprMain
     else if n == 9; test9
 }
 
-class MyObj
-{
-    var x: Int;
+datatype MyObj
+    x: Int;
 
-    fun ctor(xx: Int) { x = xx; }
-}
+fun ctor(this: @MyObj, xx: Int)
+    x ctor xx
 
 fun createRange(size: SizeType): ContiguousMemoryRange(MyObj)
 {
-    var ptr = RawPtr(MyObj).alloc(size);
+    var ptr = allocRawPtr(MyObj, size);
     var ptrEnd = ptr.advance(DiffType(size));
     var p = ptr;
 
@@ -40,7 +39,7 @@ fun createRange(size: SizeType): ContiguousMemoryRange(MyObj)
 
 fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
 {
-    var ptr = RawPtr(MyObj).alloc(size);
+    var ptr = allocRawPtr(MyObj, size);
     var ptrEnd = ptr.advance(DiffType(size));
     var i = 0;
 

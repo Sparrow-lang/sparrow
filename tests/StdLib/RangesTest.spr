@@ -2,7 +2,7 @@ import std.ranges;
 import std.vector(Vector);
 import std.list(List);
 import std.contiguousMemoryRange(ContiguousMemoryRange);
-import std.rawPtr(RawPtr);
+import std.rawPtr(RawPtr, allocRawPtr);
 import std.algorithms;
 
 fun sprMain
@@ -32,64 +32,43 @@ fun sprMain
     else if n == 19 ; test19
 }
 
-class MyObj
-{
-    var x: Int;
+[initCtor]
+datatype MyObj
+    x: Int;
 
-    fun ctor() { x = 0; }
-    fun ctor(xx: Int) { x = xx; }
-    fun ctor(other: @MyObj) { x = other.x; }
-    fun dtor {}
-    fun =(other: @MyObj): @MyObj { x = other.x; return this; }
-    fun ==(other: @MyObj): Bool { return x == other.x; }
-    fun <(other: @MyObj): Bool { return x < other.x; }
-}
+fun =(this, other: @MyObj): @MyObj { x = other.x; return this; }
+fun ==(this, other: @MyObj): Bool = x == other.x
+fun <(this, other: @MyObj): Bool = x < other.x
 
-class Greater
-{
-    fun ctor() { }
-    fun ()(x: Int, y: Int): Bool { return x > y; }
-}
+datatype Greater
+    ;
+fun ()(this: Greater, x: Int, y: Int): Bool { return x > y; }
 
-class Even
-{
-    fun ctor() { }
-    fun ()(x: Int): Bool { return x % 2 == 0; }
-}
+datatype Even
+    ;
+fun ()(this: Even, x: Int): Bool { return x % 2 == 0; }
 
-class Minus
-{
-    fun ctor() { }
-    fun ()(x: Int, y: Int) = x - y;
-}
+datatype Minus
+    ;
+fun ()(this: Minus, x: Int, y: Int) = x - y;
 
-class Square
-{
-    fun ctor() { }
-    fun ()(x: AnyType) = x * x;
-}
+datatype Square
+    ;
+fun ()(this: Square, x: AnyType) = x * x;
 
-class Multiply
-{
-    fun ctor() { }
-    fun ()(x: AnyType, y: AnyType) = x * y;
-}
+datatype Multiply
+    ;
+fun ()(this: Multiply, x: AnyType, y: AnyType) = x * y;
 
-class Fact
-{
-    var _res: Int;
-    var _k: Int;
+datatype Fact
+    _res: Int = 1;
+    _k: Int = 0;
 
-    fun ctor() { _res = 1; _k = 0; }
+fun ()(this: @Fact): Int
+    ++_k;
+    _res *= _k;
 
-    fun ()(): Int
-    {
-        ++_k;
-        _res *= _k;
-
-        return _res;
-    }
-}
+    return _res;
 
 fun isOdd(n: Int) = n%2==1;
 
@@ -131,7 +110,7 @@ fun makeList(): List(Int)
 
 fun createRangeAscending(size: SizeType): ContiguousMemoryRange(Int)
 {
-    var ptr = RawPtr(Int).alloc(size);
+    var ptr = allocRawPtr(Int, size);
     var ptrEnd = ptr.advance(DiffType(size));
     var i = 0;
 

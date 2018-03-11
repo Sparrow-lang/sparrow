@@ -1,165 +1,127 @@
-import nodes;
-import bitOper;
-import meta = meta.compilerCore;
+import nodes
+import bitOper
+import meta = meta.compilerCore
 
-[ct] class LType
-{
-    using atom = 1;
-    using number = 2;
-    //using input = 4;
-    //using output = 8;
-    using initialVal = atom !|! number;// !|! input !|! output;
+[ct]
+    datatype LType
+        using atom = 1
+        using number = 2
+        //using input = 4
+        //using output = 8
+        using initialVal = atom !|! number// !|! input !|! output
 
-    var _bits: Int;
+        _bits: Int = initialVal
 
-    fun ctor
-    {
-        _bits ctor initialVal;
-    }
+    fun isValid(this: LType): Bool       = (this._testBit(atom) || this._testBit(number))// && (this._testBit(input) || this._testBit(output))
 
-    fun isValid: Bool       = (_testBit(atom) || _testBit(number));// && (_testBit(input) || _testBit(output));
-
-    fun isAtom: Bool        = _testBit(atom);
-    fun isNumber: Bool      = _testBit(number);
-    fun isAtomOnly: Bool    = _testBit(atom) && !_testBit(number);
-    fun isNumberOnly: Bool  = _testBit(number) && !_testBit(atom);
+    fun isAtom(this: LType): Bool        = this._testBit(atom)
+    fun isNumber(this: LType): Bool      = this._testBit(number)
+    fun isAtomOnly(this: LType): Bool    = this._testBit(atom) && !this._testBit(number)
+    fun isNumberOnly(this: LType): Bool  = this._testBit(number) && !this._testBit(atom)
 
 
-    fun setAtomOnly: Bool   = _setAlternativeBits(atom, number);
-    fun setNumberOnly: Bool = _setAlternativeBits(number, atom);
+    fun setAtomOnly(this: @LType): Bool   = this._setAlternativeBits(atom, number)
+    fun setNumberOnly(this: @LType): Bool = this._setAlternativeBits(number, atom)
 
-    //fun setInputOnly: Bool  = _setAlternativeBits(input, output);
-    //fun setOutputOnly: Bool = _setAlternativeBits(output, input);
+    //fun setInputOnly(this: @LType): Bool  = this._setAlternativeBits(input, output)
+    //fun setOutputOnly(this: @LType): Bool = this._setAlternativeBits(output, input)
 
-    fun _testBit(b: Int): Bool = ((_bits !&! b) != 0);
+    fun _testBit(this: LType, b: Int): Bool = ((_bits !&! b) != 0)
 
-    fun _setAlternativeBits(toSet, toClear: Int): Bool
-    {
-        if ( !_testBit(toSet) )
-            return false;
-        if ( _testBit(toClear) )
-            _bits -= toClear;
-        return true;
-    }
-}
+    fun _setAlternativeBits(this: @LType, toSet, toClear: Int): Bool
+        if !this._testBit(toSet)
+            return false
+        if this._testBit(toClear)
+            _bits -= toClear
+        return true
 
-/// Structure indicating of set of expressions that share the same type
-[ct] class LTypeSet
-{
-    var type: LType;                    ///< The type of all the expressions in this set
-    var expList: Vector(ExpressionPtr); ///< The list of all the expressions in this set, that share the same type
-    var idx: Int;                       ///< The index of this type set
+    /// Structure indicating of set of expressions that share the same type
+    datatype LTypeSet
+        type: LType                    ///< The type of all the expressions in this set
+        expList: Vector(ExpressionPtr) ///< The list of all the expressions in this set, that share the same type
+        idx: Int                       ///< The index of this type set
 
-    fun ctor(idx: Int, type: LType)
-    {
-        this.type ctor type;
-        this.expList ctor;
-        this.idx ctor idx;
-    }
+    fun ctor(this: @LTypeSet, idx: Int, type: LType)
+        this.type ctor type
+        this.expList ctor
+        this.idx ctor idx
 
-    fun addExpression(exp: @ExpressionPtr)
-    {
-        expList.pushBack(exp);
-        exp.get().typeSetIdx = idx;
-    }
+    fun addExpression(this: @LTypeSet, exp: @ExpressionPtr)
+        expList.pushBack(exp)
+        exp.get().typeSetIdx = idx
 
-    fun setAtomOnly(loc: @Location)
-    {
-        if ( !type.setAtomOnly() )
-            _reportTypeError(loc);
-    }
+    fun setAtomOnly(this: @LTypeSet, loc: @Location)
+        if !type.setAtomOnly
+            this._reportTypeError(loc)
 
-    fun setNumberOnly(loc: @Location)
-    {
-        if ( !type.setNumberOnly() )
-            _reportTypeError(loc);
-    }
+    fun setNumberOnly(this: @LTypeSet, loc: @Location)
+        if !type.setNumberOnly
+            this._reportTypeError(loc)
 
-    fun mergeWith(other: @LTypeSet, mergeLocation: @Location)
-    {
-        if ( this === other )
-            return;
+    fun mergeWith(this: @LTypeSet, other: @LTypeSet, mergeLocation: @Location)
+        if this === other
+            return
 
-        //cout << '{' << idx << "} + {" << other.idx << "} -- <" << this << "> ++++ <" << other << ">" << flush;
+        //cout << '{' << idx << "} + {" << other.idx << "} -- <" << this << "> ++++ <" << other << ">" << flush
 
         // Merge the two lists
-        //expList.insertAfter(other.expList.all(), expList.all());
-        expList.reserve(expList.size() + other.expList.size());
-        for e = other.expList.all()
-        {
-            expList.pushBack(e);
-            e.get().typeSetIdx = idx;
-        }
-        other.expList.clear();
+        //expList.insertAfter(other.expList.all, expList.all)
+        expList.reserve(expList.size + other.expList.size)
+        for e = other.expList.all
+            expList.pushBack(e)
+            e.get().typeSetIdx = idx
+        other.expList.clear
 
         // Compute merged type
-        if ( other.type.isAtomOnly() )
-        {
-            if ( !type.setAtomOnly() )
-                _reportTypeError(mergeLocation);
-        }
-        else if ( other.type.isNumberOnly() )
-        {
-            if ( !type.setNumberOnly() )
-                _reportTypeError(mergeLocation);
-        }
+        if other.type.isAtomOnly
+            if !type.setAtomOnly
+                this._reportTypeError(mergeLocation)
+        else if other.type.isNumberOnly
+            if !type.setNumberOnly
+                this._reportTypeError(mergeLocation)
 
-        other.type = LType();
+        other.type = LType()
 
-        //cout << " => " << this << endl << flush;
-    }
+        //cout << " => " << this << endl << flush
 
-    fun >>(os: @OutStream)
-    {
-        os << '{' << idx << "} ";
-        if ( type.isAtomOnly() )
-            os << "str";
-        else if ( type.isNumberOnly() )
-            os << "int";
+    fun >>(this: @LTypeSet, os: @OutStream)
+        os << '{' << idx << "} "
+        if type.isAtomOnly
+            os << "str"
+        else if type.isNumberOnly
+            os << "int"
         else
-            os << "???";
-        os << " :";
-        for pe = expList.all()
-            os << ' ' << pe.get();
-    }
+            os << "???"
+        os << " :"
+        for pe = expList.all
+            os << ' ' << pe.get
 
-    fun _reportTypeError(loc: @Location)
-    {
-        var l = loc;
-        meta.report(meta.diagError, l, "Type mismatch: cannot combine atom with number");
+    fun _reportTypeError(this: @LTypeSet, loc: @Location)
+        var l = loc
+        meta.report(meta.diagError, l, "Type mismatch: cannot combine atom with number")
 
-        var atomExp = _findAtomExp();
-        if ( atomExp isSet )
-        {
-            var lAtom = atomExp.get().loc;
-            meta.report(meta.diagInfo, lAtom, "See also atom expression");
-        }
+        var atomExp = this._findAtomExp
+        if atomExp isSet
+            var lAtom = atomExp.get().loc
+            meta.report(meta.diagInfo, lAtom, "See also atom expression")
 
-        var numExp = _findNumberExp();
-        if ( numExp isSet )
-        {
-            var lNum = numExp.get().loc;
-            meta.report(meta.diagInfo, lNum, "See also number expression");
-        }
+        var numExp = this._findNumberExp
+        if numExp isSet
+            var lNum = numExp.get().loc
+            meta.report(meta.diagInfo, lNum, "See also number expression")
 
-        meta.raise;
-    }
+        meta.raise
 
-    fun _findNumberExp: ExpressionPtr
-    {
-        for e = expList.all()
-            var k = e.get().kind;
-            if ( k == ekNumber || k == ekOpPlus || k == ekOpMinus || k == ekOpMul || k == ekOpDiv )
-                return e;
-        return ExpressionPtr();
-    }
+    fun _findNumberExp(this: @LTypeSet): ExpressionPtr
+        for e = expList.all
+            var k = e.get().kind
+            if k == ekNumber || k == ekOpPlus || k == ekOpMinus || k == ekOpMul || k == ekOpDiv
+                return e
+        return ExpressionPtr()
 
-    fun _findAtomExp: ExpressionPtr
-    {
-        for e = expList.all()
-            var k = e.get().kind;
-            if ( k == ekAtom )
-                return e;
-        return ExpressionPtr();
-    }
-}
+    fun _findAtomExp(this: @LTypeSet): ExpressionPtr
+        for e = expList.all
+            var k = e.get().kind
+            if k == ekAtom
+                return e
+        return ExpressionPtr()

@@ -54,7 +54,7 @@ using nRotations = 12;
 //var nextCell:    StaticArray3d(Byte, nPieces, nPositions, nRotations);
 //var pieceCounts: StaticArray2d(Int, nPieces, nPositions);
 
-//class Piece
+//datatype Piece
 //{
 //    using PosType = Byte * Byte;    // y coord then x coord - used for sorting
 //    using PosTypeArr = StaticArray(PosType, 5);
@@ -77,19 +77,19 @@ using nRotations = 12;
 
 //    //fun isValid: Bool { return findIf(pos, (fun p = p._2>=0 && p._2 < 5)); }
 
-//    [static] fun rotatePos(p: PosType) = (p._1 + p._2) ~ -p._2;
-
-//    //[static] fun posToNum(p: PosType) = p._1 + 5*p._2;
-//    //[static] fun posFromNum(p: Byte): PosType = p%5 ~ p/5;
-
-//    fun offsetToMin: Piece
-//    {
-//        var min = minElement(pos.all).front;
-//        var offseted = pos.all map (fun.{min} p = p._1-min._1 ~ p._2-min._2);
-//        return Piece(PosTypeArr(offseted));
-//    }
-
 //}
+//fun rotatePos(p: PosType) = (p._1 + p._2) ~ -p._2;
+
+//// fun posToNum(p: PosType) = p._1 + 5*p._2;
+//// fun posFromNum(p: Byte): PosType = p%5 ~ p/5;
+
+//fun offsetToMin: Piece
+//{
+//    var min = minElement(pos.all).front;
+//    var offseted = pos.all map (fun.{min} p = p._1-min._1 ~ p._2-min._2);
+//    return Piece(PosTypeArr(offseted));
+//}
+
 
 //var models: StaticArray(Piece, nPieces);
 //fun ctor
@@ -132,14 +132,8 @@ using nRotations = 12;
 package P1
 {
 
-class Direction
-{
-    var id: Int;
-
-    fun ctor(id: Int)
-    {
-        this.id ctor id;
-    }
+datatype Direction
+    id: Int;
 
     using E     = Direction(0);
     using ESE   = Direction(1);
@@ -154,7 +148,10 @@ class Direction
     using NE    = Direction(10);
     using ENE   = Direction(11);
     using numValues = 12;
-}
+
+fun ctor(this: @Direction, id: Int)
+    this.id ctor id;
+
 
 var pieceDef: StaticArray2d(Direction, 10, 4);
 

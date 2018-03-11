@@ -18,8 +18,8 @@ module meta.location
         start, end: LineCol
 
     // TODO (functional): Make it possible to define ctors & dtors outside the class
-    //fun ctor(l: @Location)
-    //    setOne(l)
+    //fun ctor(this: @Location)
+    //    setOne(this)
 
     fun mkLineCol(line, col: UInt): LineCol
         var res: LineCol

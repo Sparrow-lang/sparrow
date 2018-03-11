@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Nest/Api/Node.h"
+#include "Nest/Utils/Diagnostic.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,9 +35,27 @@ void printSpaces();
 
 /// Print the given node to the console, in a pretty fashion
 void printNode(const Node* node);
+void printNodeExp(const Node* node);
 
+/// Print the given node range
+void printNodes(NodeRange nodes);
 
 #ifdef __cplusplus
 }
 #endif
 
+
+#ifdef __cplusplus
+struct ScopeEnableReporting {
+    ScopeEnableReporting() {
+        oldVal_ = Nest_isReportingEnabled();
+        Nest_enableReporting(1);
+    }
+
+    ~ScopeEnableReporting() { Nest_enableReporting(oldVal_); }
+
+  private:
+    int oldVal_;
+};
+
+#endif

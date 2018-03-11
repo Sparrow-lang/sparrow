@@ -1,60 +1,57 @@
-module std.set;
+module std.set
 
-import hashTable(HashTable);
-import typeTraits(DefaultTypeTraits);
+import hashTable(HashTable)
+import typeTraits(DefaultTypeTraits)
 
-class Set(keyType: Type, traitsType: Type = DefaultTypeTraits)
-{
-    using KeyType = keyType;
-    using ValueType = keyType;
-    using TraitsType = traitsType;
-    using _ImplTable = HashTable(keyType, ValueType, Impl.Identity(keyType), traitsType);
-    using RangeType = _ImplTable.RangeType;
+datatype Set(keyType: Type, traitsType: Type = DefaultTypeTraits)
+    using KeyType = keyType
+    using ValueType = keyType
+    using TraitsType = traitsType
+    using _ImplTable = HashTable(keyType, ValueType, _Identity(keyType), traitsType)
+    using RangeType = _ImplTable.RangeType
 
-    var _hashTable: _ImplTable;
+    _hashTable: _ImplTable
 
-    fun ctor(n: SizeType)                                       { _hashTable.ctor(n, TraitsType()); }
-    fun ctor(n: SizeType, traits: traitsType)                   { _hashTable.ctor(n, traits); }
-    fun ctor(range: Range)                                      { _hashTable.ctor(range, 0, TraitsType()); }
-    fun ctor(range: Range, n: SizeType)                         { _hashTable.ctor(range, n, HashType(), CompareType()); }
-    fun ctor(range: Range, n: SizeType, traits: traitsType)     { _hashTable.ctor(range, n, traits); }
-    fun ctor(other: @Set)                                       { this._hashTable ctor other._hashTable; }
+fun ctor(this: @Set, n: SizeType)                                       { _hashTable.ctor(n, TraitsType()) }
+fun ctor(this: @Set, n: SizeType, traits: this.TraitsType)              { _hashTable.ctor(n, traits) }
+fun ctor(this: @Set, range: Range)                                      { _hashTable.ctor(range, 0, TraitsType()) }
+fun ctor(this: @Set, range: Range, n: SizeType)                         { _hashTable.ctor(range, n, HashType(), CompareType()) }
+fun ctor(this: @Set, range: Range, n: SizeType, traits: this.TraitsType){ _hashTable.ctor(range, n, traits) }
+//fun ctor(this, other: @Set)                                       { this._hashTable ctor other._hashTable }
 
-    fun traits                                  = _hashTable.traits;
+[protected]
+    fun traits(this: @Set)                                  = _hashTable.traits
 
-    fun size                                    = _hashTable.size;
-    fun isEmpty                                 = (_hashTable.size == 0);
-    fun bucketCount                             = _hashTable.bucketCount;
-    fun reserve(n: SizeType)                    { _hashTable.reserve(n); }
+    fun size(this: @Set)                                    = _hashTable.size
+    fun isEmpty(this: @Set)                                 = (_hashTable.size == 0)
+    fun bucketCount(this: @Set)                             = _hashTable.bucketCount
+    fun reserve(this: @Set, n: SizeType)                    { _hashTable.reserve(n); }
 
-    fun all                                     = _hashTable.all();
+    fun all(this: @Set)                                     = _hashTable.all
 
-    fun insert(value: @ValueType)               = _hashTable.insert(value);
-    fun insert(range: Range)                    { _hashTable.insert(range); }
-    fun remove(key: @KeyType)                   { _hashTable.remove(key); }
-    fun remove(range: RangeType)                { _hashTable.remove(range); }
+    fun insert(this: @Set, value: @this.ValueType)          = _hashTable.insert(value)
+    fun insert(this: @Set, range: Range)                    { _hashTable.insert(range); }
+    fun remove(this: @Set, key: @this.KeyType)              { _hashTable.remove(key); }
+    fun remove(this: @Set, range: this.RangeType)           { _hashTable.remove(range); }
 
-    fun +=(value: @ValueType)                   { insert(value); }
-    fun +=(range: Range)                        { insert(range); }
-    fun -=(key: @KeyType)                       { remove(key); }
-    fun -=(range: RangeType)                    { remove(range); }
+    fun +=(this: @Set, value: @this.ValueType)              { _hashTable.insert(value) }
+    fun +=(this: @Set, range: Range)                        { _hashTable.insert(range) }
+    fun -=(this: @Set, key: @this.KeyType)                  { _hashTable.remove(key) }
+    fun -=(this: @Set, range: this.RangeType)               { _hashTable.remove(range) }
 
-    fun contains(key: @KeyType)                 = _hashTable.contains(key);
-    fun count(key: @KeyType)                    = _hashTable.count(key);
-    fun equalRange(key: @KeyType)               = _hashTable.equalRange(key);
-    fun find(key: @KeyType)                     = _hashTable.find(key);
+    fun contains(this: @Set, key: @this.KeyType)            = _hashTable.contains(key)
+    fun count(this: @Set, key: @this.KeyType)               = _hashTable.count(key)
+    fun equalRange(this: @Set, key: @this.KeyType)          = _hashTable.equalRange(key)
+    fun find(this: @Set, key: @this.KeyType)                = _hashTable.find(key)
 
-    fun clear()                                 { _hashTable.clear(); }
+    fun clear(this: @Set)                                   { _hashTable.clear }
 
-    fun swap(other: @Set)                       { this._hashTable swap other._hashTable; }
+    fun swap(this: @Set, other: typeOf(this))               { this._hashTable swap other._hashTable }
 
-    fun >> (os: @OutStream)                     { _hashTable.>>(os); }
-}
+    fun >>(this: @Set, os: @OutStream)                      { _hashTable.>>(os) }
 
-package Impl
-{
-    class Identity(type: Type)
-    {
-        fun () (val: type): type = val;
-    }
-}
+datatype _Identity(type: Type)
+    using ValueType = type
+
+[protected]
+    fun () (this: _Identity, val: this.ValueType): this.ValueType = val

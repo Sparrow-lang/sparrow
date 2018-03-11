@@ -1,14 +1,10 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-class myName
-{
-    var x: Int;
+datatype myName
+    x: Int;
 
-    fun ctor(x: Int)
-    {
-        this.x = x;
-    }
-}
+fun ctor(this: @myName, x: Int) // ERROR ERROR
+    this.x = x;
 
 fun myName = 10;
 fun myName(x: Int) = x;
@@ -16,11 +12,11 @@ fun myName(x,y: Int) = x+y;
 
 [native("test")] fun test(n: Int)
 {
-    var y: myName = 5;      // ERROR
-    writeLn(y.x);           // ERROR
+    var y: myName = 5;      // E RROR
+    writeLn(y.x);           // E RROR
     var myName = 7;
     writeLn(myName);
-    writeLn(myName());      // ERROR
-    writeLn(myName(15));    // ERROR
-    writeLn(myName(15, 5)); // ERROR
+    writeLn(myName());      // E RROR
+    writeLn(myName(15));    // E RROR
+    writeLn(myName(15, 5)); // E RROR
 }

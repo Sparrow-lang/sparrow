@@ -13,22 +13,20 @@ fun fib_native(p_1: Int, p_2: @Int): Bool
         || l2_X2 =/ (p_1 - 2) && fib_native(l2_X2, l2_Y2) && l2_X1 =/ (p_1 - 1) && fib_native(l2_X1, l2_Y1) && p_2 =/ (l2_Y1 + l2_Y2)
         );
 }
-class fib_pred_wrapper
+datatype fib_pred_wrapper
+    p_1: LInt;
+    p_2: LInt;
+fun ctor(this: @fib_pred_wrapper, p_1: @LInt, p_2: @LInt)
 {
-    fun ctor(p_1: @LInt, p_2: @LInt)
-    {
-        this.p_1 ctor p_1;
-        this.p_2 ctor p_2;
-    }
-    fun (): Bool
-    {
-        if ( p_1.isNull() )
-            return false;
-        p_2 = Int();
-        return fib_native(p_1.get(), p_2.get());
-    }
-    var p_1: LInt;
-    var p_2: LInt;
+    this.p_1 ctor p_1;
+    this.p_2 ctor p_2;
+}
+fun ()(this: @fib_pred_wrapper): Bool
+{
+    if ( p_1.isNull() )
+        return false;
+    p_2 = Int();
+    return fib_native(p_1.get(), p_2.get());
 }
 fun fib(p_1: @LInt, p_2: @LInt): Predicate = fib_pred_wrapper(p_1, p_2);
 

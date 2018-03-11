@@ -3,23 +3,23 @@ module par.atomic;
 import config;
 import "atomic.llvm";
 
-[initCtor] class Atomic(T: Type) if T == Int {
+[initCtor] datatype Atomic(T: Type) if T == Int {
     using _IsAtomicType = true;
     using ValueType = Int;
 
     //! The value for this atomic
-    var _value: ValueType;
+    _value: ValueType;
 }
 
-[initCtor] class Atomic(T: Type) if T == Long {
+[initCtor] datatype Atomic(T: Type) if T == Long {
     using _IsAtomicType = true;
     using ValueType = Long;
 
     //! The value for this atomic
-    var _value: ValueType;
+    _value: ValueType;
 }
 
-class Atomic(T: Type) if T != Int && T != Long && sizeOf(T) <= 8 {
+datatype Atomic(T: Type) if T != Int && T != Long && sizeOf(T) <= 8 {
     using _IsAtomicType = true;
 
     using ValueType = T;
@@ -27,25 +27,25 @@ class Atomic(T: Type) if T != Int && T != Long && sizeOf(T) <= 8 {
     using _UnderlyingType = Impl.AtomicTypeTraits(T)._UnderlyingType;
     using _BaseAtomicType = Impl.AtomicTypeTraits(T)._BaseAtomicType;
 
-    fun _toUnderlying(val: T): _UnderlyingType {
-        var res: _UnderlyingType;
-        reinterpretCast(@T, res) = val;
-        return res;
-    }
-    fun _fromUnderlying(val: _UnderlyingType): T {
-        var res: T;
-        res = reinterpretCast(@T, val);
-        return res;
-    }
-    fun _baseAtomic: @_BaseAtomicType = reinterpretCast(@_BaseAtomicType, this);
-
     //! The value for this atomic
-    var _value: _UnderlyingType;
+    _value: _UnderlyingType;
 
-    fun ctor(v: ValueType) {
-        _value construct _toUnderlying(v);
-    }
 }
+
+fun ctor(this: @Atomic, v: this.ValueType)
+    _value construct _toUnderlying(v);
+
+fun _toUnderlying(this: @Atomic, val: this.ValueType): this._UnderlyingType {
+    var res: _UnderlyingType;
+    reinterpretCast(@T, res) = val;
+    return res;
+}
+fun _fromUnderlying(this: @Atomic, val: this._UnderlyingType): T {
+    var res: ValueType;
+    res = reinterpretCast(@ValueType, val);
+    return res;
+}
+fun _baseAtomic(this: @Atomic): @_BaseAtomicType = reinterpretCast(@_BaseAtomicType, this);
 
 using AtomicInt = Atomic(Int);
 using AtomicLong = Atomic(Long);
@@ -118,11 +118,11 @@ fun pre_--(x: @AtomicInteger): x.ValueType = (x fetchAndDecrement)-1;
 fun post_--(x: @AtomicInteger): x.ValueType = (x fetchAndDecrement);
 
 package Impl {
-    class AtomicTypeTraits(T: Type) if sizeOf(T) <= 4 {
+    datatype AtomicTypeTraits(T: Type) if sizeOf(T) <= 4 {
         using _UnderlyingType = Int;
         using _BaseAtomicType = Atomic(Int);
     }
-    class AtomicTypeTraits(T: Type) if sizeOf(T) == 8 {
+    datatype AtomicTypeTraits(T: Type) if sizeOf(T) == 8 {
         using _UnderlyingType = Long;
         using _BaseAtomicType = Atomic(Long);
     }

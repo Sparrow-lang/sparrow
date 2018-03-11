@@ -1,36 +1,25 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main -fno-rvo
 
-class MyType
-{
-    fun ctor()
-    {
-        x = 0;
-        write('c'); write('t'); write('o'); write('r'); write('('); writeLn(')');
-    }
-    fun ctor(i: Int)
-    {
-        x = i;
-        write('c'); write('t'); write('o'); write('r'); write('('); write(i); writeLn(')');
-    }
-    fun ctor(other: MyType@)
-    {
-        x = other.x;
-        write('c'); write('t'); write('o'); write('r'); write('('); write('C'); write(' '); write(x); writeLn(')');
-    }
-    fun dtor
-    {
-        write('d'); write('t'); write('o'); write('r'); write('-'); writeLn(x);
-    }
+datatype MyType
+    x: Int;
 
-    var x: Int;
-}
+fun ctor(this: @MyType)
+    x = 0;
+    write('c'); write('t'); write('o'); write('r'); write('('); writeLn(')');
+fun ctor(this: @MyType, i: Int)
+    x = i;
+    write('c'); write('t'); write('o'); write('r'); write('('); write(i); writeLn(')');
+fun ctor(this, other: @MyType)
+    x = other.x;
+    write('c'); write('t'); write('o'); write('r'); write('('); write('C'); write(' '); write(x); writeLn(')');
+
+fun dtor(this: @MyType)
+    write('d'); write('t'); write('o'); write('r'); write('-'); writeLn(x);
 
 var g: MyType = 999;
 
-class TestType
-{
-    [static] var g2: MyType = 777;
-}
+package TestPkg
+    var g2: MyType = 777;
 
 fun doTest()
 {

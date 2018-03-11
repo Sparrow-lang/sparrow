@@ -6,15 +6,12 @@ package A
 {
     package B
     {
-        class C
-        {
-            var a: Int;
-            [static] var b: Bool;
+        datatype C
+            a: Int;
+            b: Bool;
 
-            fun ctor(aa: Int, bb: Bool) { a=aa; b=bb; }
-
-            fun f(x: Int): Int { return a; }
-        }
+        fun ctor(this: @C, aa: Int, bb: Bool) { a=aa; b=bb; }
+        fun f(x: Int): Int { return a; }
     }
 }
 

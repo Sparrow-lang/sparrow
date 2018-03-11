@@ -4,8 +4,8 @@ import std.algorithms;
 import std.rMath;
 import std.tuple;
 
-fun fib(n: UInt): UInt {
-    var p: UInt*UInt = 0 ~ 1;   // Last 2 entries
+fun fib(n: Int): Int {
+    var p: Int*Int = 0 ~ 1;   // Last 2 entries
     for i = 0..n
         p = p.v2 ~ (p.v1 + p.v2);
     return p.v2;

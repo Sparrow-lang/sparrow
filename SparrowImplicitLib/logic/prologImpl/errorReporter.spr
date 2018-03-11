@@ -4,24 +4,22 @@ import std.algorithms;
 import meta = meta.compilerCore;
 import os = os;
 
-[rtct] class ConsoleErrorReporter(sourceType: Type) if CharRange(#$sourceType)
-{
-    fun ctor(source: @sourceType)
-    {
-        this._source ctor source;
-    }
+[rtct]
+    [initCtor]
+    datatype ConsoleErrorReporter(sourceType: Type) if CharRange(#$sourceType)
+        _source: sourceType;
 
-    fun raiseError(loc: Location, message: StringRef)
+    fun raiseError(this: @ConsoleErrorReporter, loc: Location, message: StringRef)
     {
         cout << message << flush;
-        _printLocation(cout, loc);
+        this._printLocation(cout, loc);
         cout << flush;
         os.exit(-1);
     }
 
-    fun _printLocation(os: @OutStream, loc: Location)
+    fun _printLocation(this: @ConsoleErrorReporter, os: @OutStream, loc: Location)
     {
-        var line = _getLineAtLocation(loc);
+        var line = this._getLineAtLocation(loc);
         //os << "(" << loc.start.line << ":" << loc.start.col << " - " << loc.end.line << ":" << loc.end.col << ")\n";
         os << '>' << line << '\n';
 
@@ -38,7 +36,7 @@ import os = os;
         os << '\n';
     }
 
-    fun _getLineAtLocation(loc: Location): String
+    fun _getLineAtLocation(this: @ConsoleErrorReporter, loc: Location): String
     {
         var sourceCopy = _source;
 
@@ -53,15 +51,12 @@ import os = os;
         return String(take(sourceCopy, len));
     }
 
-    var _source: sourceType;
-}
-[rtct] fun mkConsoleErrorReporter(source: @CharRange) = ConsoleErrorReporter(-@typeOf(source))(source);
+    fun mkConsoleErrorReporter(source: @CharRange) = ConsoleErrorReporter(-@typeOf(source))(source);
 
-[ct] class CompilerErrorReporter
-{
-    fun raiseError(loc: Location, message: StringRef)
-    {
+[ct]
+    datatype CompilerErrorReporter
+        ;
+
+    fun raiseError(this: CompilerErrorReporter, loc: Location, message: StringRef)
         meta.report(meta.diagError, loc, message);
         meta.raise;
-    }
-}

@@ -1,0 +1,30 @@
+//!!
+
+[rtct]
+datatype TestData = Int
+
+concept MyConcept(x);
+
+[ct]
+fun getCtData(val: Int): TestData
+    return TestData(val)
+
+fun testConcept(x: @MyConcept)
+    ;
+
+fun copyFromtCt(dest: @MyConcept, src: MyConcept ct)
+    dest.data = src.data
+
+fun sprMain
+    var x: TestData
+
+    testConcept(x)
+    testConcept(getCtData(3))
+
+    copyFromtCt(x, getCtData(3))
+
+    cout << "OK\n"
+
+/*<<<Running()
+OK
+>>>*/

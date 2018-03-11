@@ -2,47 +2,29 @@ import std.ptr, std.sharedPtr, std.scopedPtr;
 import std.newDelete;
 import std.vector;
 
-class MyObj
-{
-    var x: Int;
+[initCtor]
+datatype MyObj
+    x: Int;
 
-    fun ctor(xx: Int)
-    {
-        x = xx;
-    }
+fun dtor(this: MyObj)
+    cout << x;
+    cout << " destroyed" << endl;
 
-    fun dtor()
-    {
-        cout << x;
-        cout << " destroyed" << endl;
-    }
+fun >>(this: @MyObj, os: @OutStream)
+    os << "MyObj(" << x << ")";
 
-    fun >>(os: @OutStream)
-    {
-        os << "MyObj(" << x << ")";
-    }
+fun print(this: @MyObj)
+    cout << "MyObj.print" << endl;
+fun print(this: @MyObj, arg: StringRef)
+    cout << "MyObj.print(" << arg << ")" << endl;
 
-    fun print
-    {
-        cout << "MyObj.print" << endl;
-    }
-    fun print(arg: StringRef)
-    {
-        cout << "MyObj.print(" << arg << ")" << endl;
-    }
-}
+datatype Foo
+    obj: MyObj;
 
-class Foo
-{
-    fun ctor(x: Int)
-    {
-        obj ctor x;
-    }
+fun ctor(this: @Foo, x: Int)
+    obj ctor x;
 
-    fun get = obj;
-
-    var obj: MyObj;
-}
+fun get(this: @Foo) = obj;
 
 fun sprMain
 {

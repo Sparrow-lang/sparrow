@@ -30,9 +30,9 @@ fun doProtectedJob(mutex: @Lockable, useTryLock: Bool = false) {
     }
 }
 
-[initCtor] class Worker {
-    var amountOfWork: Int;
-    var useTryLock: Bool;
+[initCtor] datatype Worker {
+    amountOfWork: Int;
+    useTryLock: Bool;
 
     fun ()() {
         for i = 0..amountOfWork {
@@ -43,32 +43,33 @@ fun doProtectedJob(mutex: @Lockable, useTryLock: Bool = false) {
     }
 }
 
-class WorkManager {
-    var amountOfWork, numWorkers, numTryWorkers: Int;
-    var threads: (Thread Ptr) Vector;
+datatype WorkManager {
+    amountOfWork, numWorkers, numTryWorkers: Int;
+    threads: (Thread Ptr) Vector;
 
-    fun ctor(amountOfWork, numWorkers, numTryWorkers: Int) {
-        this.amountOfWork ctor amountOfWork;
-        this.numWorkers ctor numWorkers;
-        this.numTryWorkers ctor numTryWorkers;
-        for i=0..numWorkers {
-            var p: Thread Ptr = new(Thread, Worker(amountOfWork, false));
-            threads.pushBack(p);
-        }
-        for i=0..numTryWorkers {
-            var p: Thread Ptr = new(Thread, Worker(amountOfWork, true));
-            threads.pushBack(p);
-        }
-    }
+}
 
-    fun dtor {
-        for t = threads.all {
-            t.get join;
-            t.release;
-        }
-        test.assertGe(numLocks load, amountOfWork*numWorkers, "numLocks should be greater equal to what normals workers did");
-        test.assertLe(numLocks load, amountOfWork*(numWorkers+numTryWorkers), "numLocks should be less or equal to the total work");
+fun ctor(this: @WorkManager, amountOfWork, numWorkers, numTryWorkers: Int) {
+    this.amountOfWork ctor amountOfWork;
+    this.numWorkers ctor numWorkers;
+    this.numTryWorkers ctor numTryWorkers;
+    for i=0..numWorkers {
+        var p: Thread Ptr = new(Thread, Worker(amountOfWork, false));
+        threads.pushBack(p);
     }
+    for i=0..numTryWorkers {
+        var p: Thread Ptr = new(Thread, Worker(amountOfWork, true));
+        threads.pushBack(p);
+    }
+}
+
+fun dtor(this: @WorkManager) {
+    for t = threads.all {
+        t.get join;
+        t.release;
+    }
+    test.assertGe(numLocks load, amountOfWork*numWorkers, "numLocks should be greater equal to what normals workers did");
+    test.assertLe(numLocks load, amountOfWork*(numWorkers+numTryWorkers), "numLocks should be less or equal to the total work");
 }
 
 fun sprMain

@@ -1,7 +1,7 @@
 //!!
 import std.algorithms;
 import std.contiguousMemoryRange(ContiguousMemoryRange);
-import std.rawPtr(RawPtr);
+import std.rawPtr(RawPtr, allocRawPtr);
 import std.list(List);
 import std.vector(Vector);
 import std.array(Array);
@@ -18,38 +18,25 @@ fun sprMain
     else if n == 4; test4
 }
 
-class MyObj
-{
-    var x: Int;
+[initCtor]
+datatype MyObj
+    x: Int;
 
-    fun ctor() { x = 0; }
-    fun ctor(xx: Int) { x = xx; }
-    fun ctor(other: @MyObj) { x = other.x; }
-    fun dtor {}
-    fun =(other: @MyObj): @MyObj { x = other.x; return this; }
-    fun ==(other: @MyObj): Bool { return x == other.x; }
-    fun <(other: @MyObj): Bool { return x < other.x; }
-}
+fun <(this, other: @MyObj): Bool { return x < other.x; }
 
-class Greater
-{
-    fun ctor() { }
-    fun ()(x: Int, y: Int): Bool { return x > y; }
-}
+datatype Greater
+    ;
+fun ()(this: Greater, x: Int, y: Int): Bool { return x > y; }
 
-class Even
-{
-    fun ctor() { }
+datatype Even
+    ;
+fun ()(this: Even, x: Int): Bool { return x % 2 == 0; }
 
-    fun ()(x: Int): Bool { return x % 2 == 0; }
-}
+datatype Minus
+    ;
 
-class Minus
-{
-    fun ctor() { }
+fun ()(this: Minus, x: Int, y: Int) = x - y;
 
-    fun ()(x: Int, y: Int) = x - y;
-}
 
 fun printRange(nr: AnyType)
 {
@@ -89,7 +76,7 @@ fun makeList(): List(Int)
 
 fun createRangeAscending(size: SizeType): ContiguousMemoryRange(Int)
 {
-    var ptr = RawPtr(Int).alloc(size);
+    var ptr = allocRawPtr(Int, size);
     var ptrEnd = ptr.advance(DiffType(size));
     var i = 0;
 

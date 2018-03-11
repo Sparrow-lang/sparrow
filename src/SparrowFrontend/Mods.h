@@ -4,8 +4,8 @@
 
 typedef struct Nest_Modifier Modifier;
 
-Modifier* SprFe_getStaticMod();
 Modifier* SprFe_getPublicMod();
+Modifier* SprFe_getProtectedMod();
 Modifier* SprFe_getPrivateMod();
 Modifier* SprFe_getCtMod();
 Modifier* SprFe_getRtMod();

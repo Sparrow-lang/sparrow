@@ -30,7 +30,7 @@ void SprFrontend::Class_addChild(Node* cls, Node* child)
     Node** membersPtr = nullptr;
     if ( cls->nodeKind == Feather_getFirstFeatherNodeKind()+nkRelFeatherDeclClass )
         membersPtr = &at(cls->children, 2);
-    else if ( cls->nodeKind == nkSparrowDeclSprClass )
+    else if ( cls->nodeKind == nkSparrowDeclSprDatatype )
         membersPtr = &at(cls->children, 1);
     else
         REP_INTERNAL(cls->location, "Expected class node; found %1%") % Nest_nodeKindName(cls);

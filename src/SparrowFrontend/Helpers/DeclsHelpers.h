@@ -18,9 +18,6 @@ namespace SprFrontend
     /// Get the resulting declaration from the given node
     Node* resultingDecl(Node* node);
 
-    /// Check if the given node is a field or not
-    bool isField(Node* node);
-
 
     /// Checks if we can access 'node' from 'fromNode'
     bool canAccessNode(Node* decl, Node* fromNode);
@@ -29,6 +26,9 @@ namespace SprFrontend
 
     /// Check if the given node can be accessed from everywhere
     bool isPublic(Node* decl);
+
+    /// Check if the given node should not be included in using.* resolving
+    bool isProtected(Node* decl);
 
 
     /// Getter for the access type of the given node
@@ -59,11 +59,23 @@ namespace SprFrontend
     /// instead we add a new modifier to change the mode
     void copyModifiersSetMode(Node* src, Node* dest, EvalMode newMode);
 
+    /// Copy the overload priority property from 'src' to 'dest'
+    void copyOverloadPrio(Node* src, Node* dest);
+
     /// Check if the given function node has a this parameter
     /// returns false if the given node is null or is not a function
     bool funHasThisParameters(Node* fun);
 
-    /// Check if the given function node has an implicit this parameter
-    /// returns false if the given node is null or is not a function
-    bool funHasImplicitThis(Node* fun);
+    /// Get the index of the 'this' param, if the function has one. Otherwise returns -1
+    int getThisParamIdx(Node* fun);
+
+    //! Returns the compilation context surrounding the given class
+    //! If the context is not introduced by a node, move up to the first context
+    //! introduced by a node, which is not a class-like node
+    //! Case treated: If the class is introduced by a generic, it will search
+    //! the context of the generic; if we have nested classes, get up to top-level scope
+    CompilationContext* classContext(Node* cls);
+
+    //! Get the decls with the given name associated with the given class
+    NodeArray getClassAssociatedDecls(Node* cls, const char* name);
 }

@@ -38,17 +38,18 @@ namespace
 
         // Check declarations
         if ( nodeKind == nkFeatherDeclClass
-            || nodeKind == nkFeatherDeclFunction
+            || (!insideClass && nodeKind == nkFeatherDeclFunction)
             || nodeKind == nkFeatherDeclVar
-            || nodeKind == nkSparrowDeclModule
-            || nodeKind == nkSparrowDeclPackage
-            || nodeKind == nkSparrowDeclSprClass
-            || nodeKind == nkSparrowDeclSprFunction
-            || nodeKind == nkSparrowDeclSprParameter
-            || nodeKind == nkSparrowDeclSprVariable
-            || nodeKind == nkSparrowDeclSprConcept
-            || nodeKind == nkSparrowDeclGenericClass
-            || nodeKind == nkSparrowDeclGenericFunction
+            || (!insideClass && nodeKind == nkSparrowDeclModule)
+            || (!insideClass && nodeKind == nkSparrowDeclPackage)
+            || (!insideClass && nodeKind == nkSparrowDeclSprDatatype)
+            || (!insideClass && nodeKind == nkSparrowDeclSprFunction)
+            || (!insideClass && nodeKind == nkSparrowDeclSprVariable)
+            || (insideClass && nodeKind == nkSparrowDeclSprField)
+            || (!insideClass && nodeKind == nkSparrowDeclSprConcept)
+            || (!insideClass && nodeKind == nkSparrowDeclGenericPackage)
+            || (!insideClass && nodeKind == nkSparrowDeclGenericClass)
+            || (!insideClass && nodeKind == nkSparrowDeclGenericFunction)
             || nodeKind == nkSparrowDeclUsing
             )
             return;
@@ -147,7 +148,7 @@ NodeArray SprFrontend::expandDecls(NodeRange decls, Node* seenFrom) {
             decl = resultingDecl(decl);
 
         // Make sure we have a valid type for the decl
-        if ( !Nest_computeType(decl) )
+        if ( decl && !Nest_computeType(decl) )
             decl = nullptr;
 
         // Check for 'using(declExp(d))''
@@ -191,14 +192,6 @@ Node* SprFrontend::resultingDecl(Node* node)
     return res ? *res : node;
 }
 
-bool SprFrontend::isField(Node* node)
-{
-    if ( node->nodeKind != nkFeatherDeclVar )
-        return false;
-    const int* isFieldFlag = Nest_getPropertyInt(node, propIsField);
-    return isFieldFlag && *isFieldFlag;
-}
-
 
 bool SprFrontend::canAccessNode(Node* decl, Node* fromNode)
 {
@@ -233,6 +226,11 @@ bool SprFrontend::isPublic(Node* decl)
     return getAccessType(decl) != privateAccess;
 }
 
+bool SprFrontend::isProtected(Node* decl)
+{
+    return getAccessType(decl) == protectedAccess;
+}
+
 AccessType SprFrontend::getAccessType(Node* decl)
 {
     const int* res = Nest_getPropertyInt(decl, "spr.accessType");
@@ -257,6 +255,8 @@ void SprFrontend::deduceAccessType(Node* decl)
     AccessType acc = publicAccess;
     if ( size(name) > 0 && *name.begin == '_' )
         acc = privateAccess;
+    else if ( name == "ctor" || name == "dtor" || name == "=" || name == "==" )
+        acc = protectedAccess;
     Nest_setPropertyInt(decl, "spr.accessType", acc);
 }
 
@@ -313,14 +313,42 @@ void SprFrontend::copyModifiersSetMode(Node* src, Node* dest, EvalMode newMode)
     }
 }
 
+void SprFrontend::copyOverloadPrio(Node* src, Node* dest)
+{
+    auto overloadPrio = Nest_getPropertyInt(src, propOverloadPrio);
+    if (overloadPrio)
+        Nest_setPropertyExplInt(dest, propOverloadPrio, *overloadPrio);
+}
+
 bool SprFrontend::funHasThisParameters(Node* fun)
 {
     return fun && fun->nodeKind == nkSparrowDeclSprFunction
-        && Nest_hasProperty(fun, propHasThisParam);
+        && Nest_hasProperty(fun, propThisParamIdx);
 }
 
-bool SprFrontend::funHasImplicitThis(Node* fun)
+int SprFrontend::getThisParamIdx(Node* fun) {
+    if (!fun || fun->nodeKind != nkSparrowDeclSprFunction)
+        return -1;
+    const int* val = Nest_getPropertyInt(fun, propThisParamIdx);
+    return val ? *val : -1;
+}
+
+CompilationContext* SprFrontend::classContext(Node* cls)
 {
-    return fun && fun->nodeKind == nkSparrowDeclSprFunction
-        && Nest_hasProperty(fun, propHasImplicitThisParam);
+    CompilationContext* res = cls->context;
+    while ( res && res->parent ) {
+        Node* n = res->currentSymTab->node;
+        if ( n && n->nodeKind != nkSparrowDeclSprDatatype && n->nodeKind != nkSparrowDeclGenericClass
+        && n->nodeKind != Feather_getFirstFeatherNodeKind() + nkRelFeatherDeclClass )
+            break;
+
+        res = res->parent;
+    }
+    return res ? res : cls->context;
+}
+
+NodeArray SprFrontend::getClassAssociatedDecls(Node* cls, const char* name)
+{
+    NodeArray decls = Nest_symTabLookupCurrent(classContext(cls)->currentSymTab, name);
+    return decls;
 }

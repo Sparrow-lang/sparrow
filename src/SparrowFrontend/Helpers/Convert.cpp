@@ -3,7 +3,6 @@
 #include "DeclsHelpers.h"
 #include "Overload.h"
 #include "StdDef.h"
-#include "Impl/Callable.h"
 #include <NodeCommonsCpp.h>
 #include <SparrowFrontendTypes.h>
 #include <Helpers/Generics.h>
@@ -279,12 +278,13 @@ namespace
         bool canCallCvtCtor = 0 == (flags & flagDontCallConversionCtor);
         flags |= flagDontCallConversionCtor;    // Don't call conversion ctor in any other conversions
 
-//         cerr << "Checking conversion: " << srcType << " -> " << destType << endl;
-//         if ( srcType->toString() == "RetroRange[ListRange[Int[rtct]]]" && destType->toString() == "concept[BidirRange]" )
-//         {
-//             const char* s = "put a breakpoint here";
-//             (void) s;
-//         }
+        // cerr << "Checking conversion: " << srcType << " -> " << destType << endl;
+        // if ( 0 == strcmp(srcType->description, "Tuple[NumericRangeInc[Int/rtct]/rtct, NumericRangeInc[Int/rtct]/rtct]")
+        //     && 0 == strcmp(destType->description, "#TupleType") )
+        // {
+        //     const char* s = "put a breakpoint here";
+        //     (void) s;
+        // }
 
         // Direct: Types are the same?
         c = checkSameType(context, flags, srcType, destType);

@@ -13,17 +13,14 @@
 using namespace SprFrontend;
 
 
-void ModStatic_beforeComputeType(Modifier*, Node* node)
-{
-    if ( node->nodeKind != nkSparrowDeclSprVariable && node->nodeKind != nkSparrowDeclSprFunction )
-        REP_INTERNAL(node->location, "Static modifier can be applied only to variables and functions inside classes (applied to %1%)") % Nest_nodeKindName(node);
-
-    Nest_setPropertyInt(node, propIsStatic, 1);
-}
-
 void ModPublic_beforeComputeType(Modifier*, Node* node)
 {
     setAccessType(node, publicAccess);
+}
+
+void ModProtected_beforeComputeType(Modifier*, Node* node)
+{
+    setAccessType(node, protectedAccess);
 }
 
 void ModPrivate_beforeComputeType(Modifier*, Node* node)
@@ -93,7 +90,7 @@ void ModConvert_beforeComputeType(Modifier*, Node* node)
 void ModNoDefault_beforeComputeType(Modifier*, Node* node)
 {
     /// Check to apply only to classes or functions
-    if ( node->nodeKind != nkSparrowDeclSprFunction && node->nodeKind != nkSparrowDeclSprClass )
+    if ( node->nodeKind != nkSparrowDeclSprFunction && node->nodeKind != nkSparrowDeclSprDatatype )
         REP_INTERNAL(node->location, "noDefault modifier can be applied only to classes or methods (applied to %1%)") % Nest_nodeKindName(node);
 
     Nest_setPropertyInt(node, propNoDefault, 1);
@@ -102,7 +99,7 @@ void ModNoDefault_beforeComputeType(Modifier*, Node* node)
 void ModInitCtor_beforeComputeType(Modifier*, Node* node)
 {
     /// Check to apply only to classes
-    if ( node->nodeKind != nkSparrowDeclSprClass )
+    if ( node->nodeKind != nkSparrowDeclSprDatatype )
     {
         REP_ERROR(node->location, "initCtor modifier can be applied only to classes (applied to %1%)") % Nest_nodeKindName(node);
         return;
@@ -133,8 +130,8 @@ void ModNoInline_beforeComputeType(Modifier*, Node* node)
 }
 
 
-Modifier _staticMod = { modTypeBeforeComputeType, &ModStatic_beforeComputeType };
 Modifier _publicMod = { modTypeBeforeComputeType, &ModPublic_beforeComputeType };
+Modifier _protectedMod = { modTypeBeforeComputeType, &ModProtected_beforeComputeType };
 Modifier _privateMod = { modTypeBeforeComputeType, &ModPrivate_beforeComputeType };
 Modifier _ctMod = { modTypeBeforeSetContext, &ModCt_beforeSetContext };
 Modifier _rtMod = { modTypeBeforeSetContext, &ModRt_beforeSetContext };
@@ -147,13 +144,13 @@ Modifier _initCtorMod = { modTypeBeforeComputeType, ModInitCtor_beforeComputeTyp
 Modifier _macroMod = { modTypeBeforeComputeType, &ModMacro_beforeComputeType };
 Modifier _noInlineMod = { modTypeBeforeComputeType, &ModNoInline_beforeComputeType };
 
-Modifier* SprFe_getStaticMod()
-{
-    return &_staticMod;
-}
 Modifier* SprFe_getPublicMod()
 {
     return &_publicMod;
+}
+Modifier* SprFe_getProtectedMod()
+{
+    return &_protectedMod;
 }
 Modifier* SprFe_getPrivateMod()
 {

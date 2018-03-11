@@ -5,36 +5,31 @@ import std.list;
 import std.vector;
 import std.algorithms;
 
-class IntWrapper
-{
-    var x: Int;
+datatype IntWrapper
+    x: Int;
 
-    [convert] fun ctor(x: Int) { this.x ctor x; }
+[convert]
+fun ctor(this: @IntWrapper, x: Int) { this.x ctor x; }
 
-    fun hash: SizeType
-    {
-        cout << "IntWrapper.hash called for value " << x << endl;
-        return x;
-    }
-}
 
-class IntWithNoHash
-{
-    var x: Int;
+fun hash(this: IntWrapper): SizeType
+    cout << "IntWrapper.hash called for value " << x << endl;
+    return x;
 
-    [convert] fun ctor(x: Int) { this.x ctor x; }
-}
+datatype IntWithNoHash
+    x: Int;
 
-class MyTypeTraits
-{
-    fun equal(l, r: IntWithNoHash) = l == r;
-    fun less(l, r: IntWithNoHash) = l.x < r.x;
-    fun hash(val: IntWithNoHash): SizeType
-    {
-        cout << "MyTypeTraits.hash called for value " << val.x << endl;
-        return val.x;
-    }
-}
+[convert]
+fun ctor(this: @IntWithNoHash, x: Int) { this.x ctor x; }
+
+datatype MyTypeTraits
+    ;
+
+fun equal(this: MyTypeTraits, l, r: IntWithNoHash) = l == r;
+fun less(this: MyTypeTraits, l, r: IntWithNoHash) = l.x < r.x;
+fun hash(this: MyTypeTraits, val: IntWithNoHash): SizeType
+    cout << "MyTypeTraits.hash called for value " << val.x << endl;
+    return val.x;
 
 
 fun sprMain

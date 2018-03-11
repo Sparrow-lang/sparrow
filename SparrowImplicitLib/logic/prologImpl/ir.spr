@@ -1,227 +1,180 @@
-import token;
-import nodes;
-import lType;
-import std.algorithms;
-import assert;
-import meta = meta.compilerCore;
+import token
+import nodes
+import lType
+import std.algorithms
+import assert
+import meta = meta.compilerCore
 
-using allowNativeCodeGen = true;
+using allowNativeCodeGen = true
 
-[ct] class SparrowPrologSystem
-{
-    var predicates: Vector(SparrowPredicate);
-    var loc: LLocation;
+[ct]
+    datatype SparrowPrologSystem
+        predicates: Vector(SparrowPredicate)
+        loc: LLocation
 
-    fun ctor(program: @PrologProgramPtr)
-    {
-        this.predicates ctor;
-        this.loc ctor program.get().loc;
+    fun ctor(this: @SparrowPrologSystem, program: @PrologProgramPtr)
+        this.predicates ctor
+        this.loc ctor program.get().loc
 
         // Handle all predicate clauses
-        for pptr: @PredicateClausePtr = program.get().predicates.all()
-        {
-            var p: @PredicateClause = pptr.get();
-            var name: @String = p.name;
-            var arity: UInt = p.args.size();
+        for pptr: @PredicateClausePtr = program.get().predicates.all
+            var p: @PredicateClause = pptr.get
+            var name: @String = p.name
+            var arity: UInt = p.args.size
 
             // Search for an existing predicate with same name and same arity
-            var r = findIf(predicates.all(),
-                (fun.{name,arity} (sp: @SparrowPredicate) = sp.name == name && sp.arity == arity));
+            var r = findIf(predicates.all,
+                (fun.{name,arity} (sp: @SparrowPredicate) = sp.name == name && sp.arity == arity))
 
             // Id the predicate does not exist add it; otherwise add a clause to it
-            if ( r.isEmpty() )
-                predicates.pushBack(SparrowPredicate(pptr));
+            if ( r.isEmpty )
+                predicates.pushBack(SparrowPredicate(pptr))
             else
-                r.front().addClause(p);
-        }
-    }
+                r.front().addClause(p)
 
-    fun semanticCheck
-    {
-        for pred: @SparrowPredicate = predicates.all()
-            pred.semanticCheck();
-    }
-}
+    fun semanticCheck(this: @SparrowPrologSystem)
+        for pred: @SparrowPredicate = predicates.all
+            pred.semanticCheck
 
-[ct] class Parameter
-{
-    var expr: ExpressionPtr;
-    var isRead, isInput, isOutput: Bool;
+    [initCtor]
+    datatype Parameter
+        expr: ExpressionPtr
+        isRead: Bool = false
+        isInput: Bool = false
+        isOutput: Bool = false
 
-    fun ctor
-    {
-        expr ctor;
-        isRead ctor false;
-        isInput ctor false;
-        isOutput ctor false;
-    }
-    fun ctor(e: ExpressionPtr)
-    {
-        expr ctor e;
-        isRead ctor false;
-        isInput ctor false;
-        isOutput ctor false;
-    }
-}
+    datatype SparrowPredicate
+        name: String
+        arity: UInt
+        firstClause: PredicateClausePtr
+        paramVars: Vector(Parameter)
+        localVars: Vector(ExpressionPtr)
+        clauses: Vector(PredicateClausePtr)
+        typeSets: Vector(LTypeSet)
+        canBeNative: Bool
 
-[ct] class SparrowPredicate
-{
-    var name: String;
-    var arity: UInt;
-    var firstClause: PredicateClausePtr;
-    var paramVars: Vector(Parameter);
-    var localVars: Vector(ExpressionPtr);
-    var clauses: Vector(PredicateClausePtr);
-    var typeSets: Vector(LTypeSet);
-    var canBeNative: Bool;
+    fun ctor(this: @SparrowPredicate, firstClause: @PredicateClausePtr)
+        this.name ctor firstClause.get().name
+        this.arity ctor UInt(firstClause.get().args.size)
+        this.firstClause ctor firstClause
+        this.paramVars ctor
+        this.localVars ctor
+        this.clauses ctor
+        this.typeSets ctor
+        this.canBeNative ctor false
 
-    fun ctor(firstClause: @PredicateClausePtr)
-    {
-        this.name ctor firstClause.get().name;
-        this.arity ctor UInt(firstClause.get().args.size());
-        this.firstClause ctor firstClause;
-        this.paramVars ctor;
-        this.localVars ctor;
-        this.clauses ctor;
-        this.typeSets ctor;
-        this.canBeNative ctor false;
+        this.addClause(firstClause)
+        paramVars.resize(arity)
 
-        addClause(firstClause);
-        paramVars.resize(arity);
-    }
+    fun addClause(this: @SparrowPredicate, clause: @PredicateClausePtr)
+        assert(clause.get().args.size == arity)
+        clauses.pushBack(clause)
 
-    fun addClause(clause: @PredicateClausePtr)
-    {
-        assert(clause.get().args.size() == arity);
-        clauses.pushBack(clause);
-    }
-
-    fun semanticCheck
-    {
+    fun semanticCheck(this: @SparrowPredicate)
         // Update the variables from all the clauses
         // Compute the types of the expressions and variables
-        for i = 0..clauses.size()
-            _checkClause(clauses(i).get(), Int(i));
+        for i = 0..clauses.size
+            this._checkClause(clauses(i).get(), Int(i))
 
         // Check if we can generate this natively
         if ( allowNativeCodeGen )
-            _checkNative();
-    }
+            this._checkNative
 
-    fun _checkClause(clause: @PredicateClause, clauseIdx: Int)
-    {
+    fun _checkClause(this: @SparrowPredicate, clause: @PredicateClause, clauseIdx: Int)
         // Assign type sets for bound args
-        for i = 0..clause.args.size()
-        {
-            var arg: @ExpressionPtr = clause.args(i);
-            arg.get().paramIdx = Int(i);
+        for i = 0..clause.args.size
+            var arg: @ExpressionPtr = clause.args(i)
+            arg.get().paramIdx = Int(i)
 
-            var paramVar: @Parameter = paramVars(i);
+            var paramVar: @Parameter = paramVars(i)
             if ( paramVar.expr isNull )
-                paramVar = Parameter(arg);
+                paramVar = Parameter(arg)
             else
-                _mergeTypeSets(paramVar.expr, arg);
-            _checkExpr(clause, clauseIdx, arg.get());
-        }
+                this._mergeTypeSets(paramVar.expr, arg)
+            this._checkExpr(clause, clauseIdx, arg.get)
 
         // Check conditions
-        for c = clause.conditions.all()
-            _checkCondition(clause, clauseIdx, c.get());
-    }
-    fun _checkCondition(clause: @PredicateClause, clauseIdx: Int, cond: @Condition)
-    {
+        for c = clause.conditions.all
+            this._checkCondition(clause, clauseIdx, c.get)
+    fun _checkCondition(this: @SparrowPredicate, clause: @PredicateClause, clauseIdx: Int, cond: @Condition)
         if ( cond.kind == ckPredCall )
-        {
-            for arg = cond.args.all()
-                _checkExpr(clause, clauseIdx, arg);
-        }
+            for arg = cond.args.all
+                this._checkExpr(clause, clauseIdx, arg)
         else
-        {
-            _checkExpr(clause, clauseIdx, cond.args(0));
-            _checkExpr(clause, clauseIdx, cond.args(1));
+            this._checkExpr(clause, clauseIdx, cond.args(0))
+            this._checkExpr(clause, clauseIdx, cond.args(1))
 
             // The two expressions must have the same type
-            _mergeTypeSets(cond.args(0), cond.args(1));
-        }
-    }
-    fun _checkExpr(clause: @PredicateClause, clauseIdx: Int, exprPtr: @ExpressionPtr)
-    {
-        var typeSet: @LTypeSet = _getCreateTypeSet(exprPtr);
+            this._mergeTypeSets(cond.args(0), cond.args(1))
+    fun _checkExpr(this: @SparrowPredicate, clause: @PredicateClause, clauseIdx: Int, exprPtr: @ExpressionPtr)
+        var typeSet: @LTypeSet = this._getCreateTypeSet(exprPtr)
 
-        var expr: @Expression = exprPtr.get();
+        var expr: @Expression = exprPtr.get
         if ( expr.kind == ekAtom )
-        {
-            typeSet.setAtomOnly(expr.loc);
-        }
+            typeSet.setAtomOnly(expr.loc)
         else if ( expr.kind == ekNumber )
-        {
-            typeSet.setNumberOnly(expr.loc);
-        }
+            typeSet.setNumberOnly(expr.loc)
         else if ( expr.kind == ekVar )
-        {
-            var newName: String;
+            var newName: String
 
             // Is this variable referring to a predicate parameter?
-            var idx = expr.paramIdx;
+            var idx = expr.paramIdx
             if ( idx < 0 )
-                idx = Int(indexOfIf(clause.args.all(), (fun.{expr} a = a.get().data == expr.data)));
-            if ( idx != -1 )
-            {
-                newName = String("p_") + intToString(Int(idx+1));
-                var paramVar: @Parameter = paramVars(idx);
+                //idx = Int(indexOfIf(clause.args.all, (fun.{expr} a = a.get().data == expr.data)))
+                idx = 0
+                for a = clause.args.all
+                    if a.get().data == expr.data
+                        break
+                    ++idx
+            if idx < size(clause.args.all)
+                newName = String("p_") + intToString(Int(idx+1))
+                var paramVar: @Parameter = paramVars(idx)
                 if ( paramVar.expr isNull )
-                    paramVar = Parameter(expr);
+                    paramVar = Parameter(expr)
                 else
-                    _mergeTypeSets(paramVar.expr, exprPtr);
+                    this._mergeTypeSets(paramVar.expr, exprPtr)
 
-                expr.paramIdx = Int(idx);
-            }
+                expr.paramIdx = Int(idx)
             else
-            {
-                newName = String("l") + intToString(clauseIdx) + "_" + expr.data;
+                newName = String("l") + intToString(clauseIdx) + "_" + expr.data
 
                 // Add this to the local vars if it does not exist
-                var idx = indexOfIf(localVars.all(), (fun.{newName} v = v.get().data == newName));
-                if ( idx == SizeType(DiffType(-1)) )
-                    localVars.pushBack(exprPtr);
+                //var idx = indexOfIf(localVars.all, (fun.{newName} v = v.get().data == newName))
+                idx = 0
+                for v = localVars.all
+                    if v.get().data == newName
+                        break
+                    ++idx
+                if idx == size(localVars.all)
+                    localVars.pushBack(exprPtr)
                 else
-                    _mergeTypeSets(localVars(idx), exprPtr);
+                    this._mergeTypeSets(localVars(idx), exprPtr)
 
-            }
-            expr.data = newName;
-        }
+            expr.data = newName
         else if ( expr.kind == ekOpPlus || expr.kind == ekOpMinus || expr.kind == ekOpMul || expr.kind == ekOpDiv )
-        {
-            typeSet.setNumberOnly(expr.loc);
+            typeSet.setNumberOnly(expr.loc)
             if ( expr.left isNull )
-                meta.report(meta.diagError, expr.loc, "Invalid binary expression: no left part");
+                meta.report(meta.diagError, expr.loc, "Invalid binary expression: no left part")
             if ( expr.right isNull )
-                meta.report(meta.diagError, expr.loc, "Invalid binary expression: no right part");
+                meta.report(meta.diagError, expr.loc, "Invalid binary expression: no right part")
 
-            _checkExpr(clause, clauseIdx, expr.left);
-            _checkExpr(clause, clauseIdx, expr.right);
+            this._checkExpr(clause, clauseIdx, expr.left)
+            this._checkExpr(clause, clauseIdx, expr.right)
 
-            _mergeTypeSets(expr.left, exprPtr);
-            _mergeTypeSets(expr.right, exprPtr);
+            this._mergeTypeSets(expr.left, exprPtr)
+            this._mergeTypeSets(expr.right, exprPtr)
 
             // If left of right are parameters, mark them as input parameters
             if ( expr.left.get().paramIdx >= 0 )
-            {
-                var param: @Parameter = paramVars(expr.left.get().paramIdx);
-                param.isRead = true;
-                param.isInput = true;
-            }
+                var param: @Parameter = paramVars(expr.left.get().paramIdx)
+                param.isRead = true
+                param.isInput = true
             if ( expr.right.get().paramIdx >= 0 )
-            {
-                var param: @Parameter = paramVars(expr.right.get().paramIdx);
-                param.isRead = true;
-                param.isInput = true;
-            }
-        }
-    }
+                var param: @Parameter = paramVars(expr.right.get().paramIdx)
+                param.isRead = true
+                param.isInput = true
 
-    fun _checkNative
-    {
+    fun _checkNative(this: @SparrowPredicate)
         // Rules:
         // - input parameters:
         //      - at least once present in a binary operations, where they require a value
@@ -235,107 +188,71 @@ using allowNativeCodeGen = true;
         // - the right part of every 'is' condition is a value
         // - there are no calls to other predicates other than the current one
 
-        canBeNative = true;
+        canBeNative = true
 
-        var isVars: Vector(String);
-        isVars.reserve(arity + localVars.size());
+        var isVars: Vector(String)
+        isVars.reserve(arity + localVars.size)
 
-        for clause: @PredicateClausePtr = clauses.all()
-        {
-            for c: @ConditionPtr = clause.get().conditions.all()
-            {
-                var cond: @Condition = c.get();
+        for clause: @PredicateClausePtr = clauses.all
+            for c: @ConditionPtr = clause.get().conditions.all
+                var cond: @Condition = c.get
                 if ( cond.kind == ckIsExpr )
-                {
-                    var left: @Expression = cond.args(0).get();
-                    var right: @Expression = cond.args(1).get();
+                    var left: @Expression = cond.args(0).get
+                    var right: @Expression = cond.args(1).get
 
                     // Right should always be a value
-                    if ( !_isValue(right) )
-                    {
-                        canBeNative = false;
-                        return;
-                    }
+                    if ( !this._isValue(right) )
+                        canBeNative = false
+                        return
 
                     // A name (param / local var) cannot be twice in an 'is' condition
-                    var varName: @String = left.data;
-                    var idx: DiffType = indexOf(isVars.all(), left.data);
+                    var varName: @String = left.data
+                    var idx: DiffType = indexOf(isVars.all, left.data)
                     if ( idx >= 0 )
-                    {
-                        canBeNative = false;
-                        return;
-                    }
+                        canBeNative = false
+                        return
                     else
-                    {
-                        isVars.pushBack(left.data);
-                    }
+                        isVars.pushBack(left.data)
 
                     // Input parameters cannot be part in 'is' conditions
-                    assert(left.kind == ekVar);
+                    assert(left.kind == ekVar)
                     if ( left.paramIdx >= 0 )
-                    {
-                        var param: @Parameter = paramVars(left.paramIdx);
-                        param.isInput = false;
+                        var param: @Parameter = paramVars(left.paramIdx)
+                        param.isInput = false
                         // If this is not an input parameter, it must be an output
                         if ( param.isRead )
-                        {
-                            canBeNative = false;
-                            return;
-                        }
-                        param.isOutput = true;
-                    }
-                }
+                            canBeNative = false
+                            return
+                        param.isOutput = true
                 else
-                {
                     if ( cond.predName != name )
-                    {
-                        canBeNative = false;
-                        return;
-                    }
-                }
-            }
-        }
+                        canBeNative = false
+                        return
 
         // This can be native if all the parameter are wither input or output
-        canBeNative = true;
-        for param: @Parameter = paramVars.all()
-        {
+        canBeNative = true
+        for param: @Parameter = paramVars.all
             if ( !param.isInput && !param.isOutput )
-            {
-                canBeNative = false;
-                return;
-            }
-        }
-    }
+                canBeNative = false
+                return
 
-    fun _isValue(expr: @Expression): Bool
-    {
+    fun _isValue(this: @SparrowPredicate, expr: @Expression): Bool
         // Anything except a variable is a value
-        return expr.kind != ekVar;
-    }
+        return expr.kind != ekVar
 
-    fun _checkCreateTypeSet(exp: @ExpressionPtr)
-    {
+    fun _checkCreateTypeSet(this: @SparrowPredicate, exp: @ExpressionPtr)
         if ( exp.get().typeSetIdx < 0 )
-        {
             // Create a new type set
-            var idx = Int(typeSets.size());
-            typeSets.pushBack(LTypeSet(idx, LType()));
-            var res: @LTypeSet = typeSets(idx);
-            res.addExpression(exp);
-        }
-    }
+            var idx = Int(typeSets.size)
+            typeSets.pushBack(LTypeSet(idx, LType()))
+            var res: @LTypeSet = typeSets(idx)
+            res.addExpression(exp)
 
-    fun _getCreateTypeSet(exp: @ExpressionPtr): @LTypeSet
-    {
-        _checkCreateTypeSet(exp);
-        return typeSets(exp.get().typeSetIdx);
-    }
+    fun _getCreateTypeSet(this: @SparrowPredicate, exp: @ExpressionPtr): @LTypeSet
+        this._checkCreateTypeSet(exp)
+        return typeSets(exp.get().typeSetIdx)
 
-    fun _mergeTypeSets(exp1, exp2: @ExpressionPtr)
-    {
-        _checkCreateTypeSet(exp1);
-        _checkCreateTypeSet(exp2);
-        typeSets(exp1.get().typeSetIdx).mergeWith(typeSets(exp2.get().typeSetIdx), exp2.get().loc);
-    }
-}
+    fun _mergeTypeSets(this: @SparrowPredicate, exp1, exp2: @ExpressionPtr)
+        this._checkCreateTypeSet(exp1)
+        this._checkCreateTypeSet(exp2)
+        typeSets(exp1.get().typeSetIdx).mergeWith(typeSets(exp2.get().typeSetIdx), exp2.get().loc)

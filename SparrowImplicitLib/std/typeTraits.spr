@@ -1,21 +1,19 @@
-module std.typeTraits;
+module std.typeTraits
 
-import defaultHashFunction(defaultHash);
+import defaultHashFunction(defaultHash)
 
-[rtct] class DefaultTypeTraits
-{
-    fun equal(l, r: @AnyType) = l == r;
-    fun less(l, r: @AnyType) = l < r;
-    fun hash(val: @AnyType): SizeType
-    {
+[rtct]
+    datatype DefaultTypeTraits
+        ;
+
+[rtct, protected]
+    fun equal(this: DefaultTypeTraits, l, r: @AnyType) = l == r
+    fun less(this: DefaultTypeTraits, l, r: @AnyType) = l < r
+    fun hash(this: DefaultTypeTraits, val: @AnyType): SizeType
         [ct] if ( isValid(SizeType(val hash)) )
-            return val hash;
-        else [ct] if ( isValid(SizeType(val.get() hash)) )
-        {
-            return val.get() hash;
-        }
+            return val hash
+        else [ct] if ( isValid(SizeType(val.get hash)) )
+            return val.get hash
         else
-            return defaultHash(val);
-    }
-}
+            return defaultHash(val)
 

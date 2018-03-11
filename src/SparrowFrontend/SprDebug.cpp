@@ -6,6 +6,7 @@
 
 #include "Nodes/SparrowNodes.h"
 #include "Nodes/SparrowNodesAccessors.h"
+#include "Helpers/SprTypeTraits.h"
 
 // Defined in SparrowNodes_Module.cpp
 StringRef inferModuleName(const char* url);
@@ -189,8 +190,43 @@ void printNodeImpl(const Node* node, int mode) {
             return;
 
         case nkRelFeatherDeclFunction:
-            printf("fun %s;", Feather_getName(node).begin);
+        {
+            Node* returnType = at(node->children, 0);
+            Node* body = at(node->children, 1);
+            NodeRange params = all(node->children);
+            params.beginPtr += 2;
+            printf("fun %s", Feather_getName(node).begin);
+            if (size(params) > 0) {
+                printf("(");
+                bool first = true;
+                for (auto p: params) {
+                    if (!p)
+                        continue;
+                    if (first)
+                        first = false;
+                    else
+                        printf(", ");
+                    if (p->nodeKind == nkFeatherDeclVar) {
+                        Node* typeNode = at(node->children, 0);
+                        printf("%s: ", Feather_getName(node).begin);
+                        printNodeImpl(typeNode, 2);
+                    }
+                    else
+                        printNodeImpl(p, 2);
+                }
+                printf(")");
+            }
+            if ( returnType ) {
+                printf(": ");
+                printNodeImpl(returnType, 2);
+            }
+            if ( body ) {
+                printf("\n");
+                printSpaces();
+                printNodeImpl(body, 1);
+            }
             return;
+        }
         case nkRelFeatherDeclClass:
             printf("class %s;", Feather_getName(node).begin);
             return;
@@ -338,7 +374,7 @@ void printNodeImpl(const Node* node, int mode) {
             printSpaces();
             printNodeImpl(at(node->children, 0), 1);
             return;
-        case nkRelSparrowDeclSprClass:
+        case nkRelSparrowDeclSprDatatype:
         {
             Node* parameters = at(node->children, 0);
             Node* children = at(node->children, 1);
@@ -475,13 +511,17 @@ void printNodeImpl(const Node* node, int mode) {
         case nkRelSparrowExpDeclExp:
             if ( size(node->referredNodes) == 2 ) {
                 // Only one referred decl
-                printNodeImpl(at(node->referredNodes, 1), 2);    // 0 is baseExp
+                Node* decl = at(node->referredNodes, 1);
+                TypeRef t = tryGetTypeValue(decl);
+                printf("%s", t ? t->description : Feather_getName(decl).begin);
             }
             else {
                 printf("decls(");
                 for ( int i=1; i<size(node->referredNodes); i++ ) {
                     if ( i>1 ) printf(", ");
-                    printNodeImpl(at(node->referredNodes, i), 2);
+                    Node* decl = at(node->referredNodes, i);
+                    TypeRef t = tryGetTypeValue(decl);
+                    printf("%s", t ? t->description : Feather_getName(decl).begin);
                 }
                 printf(")");
             }
@@ -543,6 +583,15 @@ void printNode(const Node* node) {
     printSpaces();
     printNodeImpl(node, 1);
     printf("\n");
+}
+
+void printNodeExp(const Node* node) {
+    printNodeImpl(node, 2);
+}
+
+void printNodes(NodeRange nodes) {
+    for (auto n: nodes)
+        printNode(n);
 }
 
 }

@@ -3,13 +3,11 @@ import std.tuple;
 import std.ranges;
 import check;
 
-[initCtor] class MyObj1 {
-    var x: Int;
-}
+[initCtor] datatype MyObj1
+    x: Int
 
-[initCtor] class MyObj2 {
-    var x, y: Int;
-}
+[initCtor] datatype MyObj2
+    x, y: Int
 
 fun >>(o: MyObj1, os: @OutStream) {
     os << o.x;
@@ -22,11 +20,11 @@ using T2 = Tuple(MyObj1, MyObj2);
 using T4 = Tuple(MyObj1, MyObj2, Int rt, Bool rt);
 
 fun arbitrary(t: Type): T2 Gen if t == T2 {
-    return (T2 Gen)(\generateT2);
+    return mkGen(T2, \generateT2);
 }
 
 fun arbitrary(t: Type): T4 Gen if t == T4 {
-    return (T4 Gen)(\generateT4);
+    return mkGen(T4, \generateT4);
 }
 
 //! Generate an arbitrary tuple 2

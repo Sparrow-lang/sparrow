@@ -46,8 +46,8 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/src/SparrowCompiler/VersionInfo.h.in 
 
 
 # User passed compilation options
-option(BOOSTSTRAP_SPARROW "Use system-wide SparrowCompiler to compile Sparrow files needed for the compiler" OFF)
-message(STATUS "BOOSTSTRAP_SPARROW: ${BOOSTSTRAP_SPARROW}")
+option(BOOTSTRAP_SPARROW "Use system-wide SparrowCompiler to compile Sparrow files needed for the compiler" OFF)
+message(STATUS "BOOTSTRAP_SPARROW: ${BOOTSTRAP_SPARROW}")
 
 # Where to output the results of the compilation
 set(OutDir ${CMAKE_CURRENT_SOURCE_DIR}/build/bin)
@@ -91,6 +91,7 @@ if(MSVC)
 else()
     add_definitions( -D__STDC_LIMIT_MACROS=1 )
     set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=c++11" )
+    # set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address" )
     add_definitions( -Wall )                    # All warnings...
     add_definitions( -Wno-deprecated )          # ... and except deprecated functions
 endif()

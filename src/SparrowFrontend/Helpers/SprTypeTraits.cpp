@@ -1,13 +1,15 @@
 #include <StdInc.h>
 #include "SprTypeTraits.h"
+#include "DeclsHelpers.h"
 #include "Overload.h"
 #include "StdDef.h"
-#include "Impl/Callable.h"
 #include <SparrowFrontendTypes.h>
 #include <NodeCommonsCpp.h>
+#include "SprDebug.h"
 
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
+#include "Nest/Utils/NodeVector.hpp"
 
 
 using namespace SprFrontend;
@@ -132,23 +134,20 @@ namespace
     Node* checkDataTypeConversion(Node* node)
     {
         const Location& loc = node->location;
+        if ( !Nest_computeType(node) )
+            REP_INTERNAL(loc, "Cannot convert null node from CT to RT");
+
         TypeRef t = node->type;
         Node* cls = Feather_classForType(t);
         if ( Feather_effectiveEvalMode(cls) != modeRtCt )
             REP_INTERNAL(loc, "Cannot convert ct to rt for non-rtct classes (%1%)") % cls;
 
         // Check if we have a ct-to-rt ctor
-        Callable* call = selectCtToRtCtor(node->context, t);
-        if ( !call )
-            REP_ERROR_RET(nullptr, loc, "Cannot convert %1% from CT to RT (make sure 'ctorFromRt' method exists)") % t;
+        Node* res = selectCtToRtCtor(node);
+        if ( !res )
+            REP_ERROR_RET(nullptr, loc, "Cannot convert %1% from CT to RT (make sure 'ctorFromRt' ctor exists)") % t;
 
-        // Generate the call to the ctor
-        if ( !Nest_computeType(node) )
-            return nullptr;
-        auto cr = call->canCall(node->context, loc, fromIniList({node}), modeRt, true);
-        ASSERT(cr);
-        (void) cr; // avoid warning for unused cr
-        Node* res = call->generateCall(loc);
+        // Remove the reference from the result
         res = Feather_mkMemLoad(loc, res);
 
         // Sanity check
@@ -191,23 +190,14 @@ Node* SprFrontend::convertCtToRt(Node* node)
 
 TypeRef SprFrontend::getType(Node* typeNode)
 {
-    Nest_setPropertyExplInt(typeNode, propAllowDeclExp, 1);
-    if ( !Nest_semanticCheck(typeNode) )
-        return nullptr;
-    if ( !typeNode->type )
-        REP_ERROR_RET(nullptr, typeNode->location, "Invalid type name");
-
     TypeRef t = tryGetTypeValue(typeNode);
-    if ( t )
-        return t;
-
-    REP_ERROR(typeNode->location, "Invalid type name (%1%)") % typeNode->type;
-    return nullptr;
+    if (!t)
+        REP_ERROR(typeNode->location, "Invalid type name (%1%)") % typeNode->type;
+    return t;
 }
 
 TypeRef SprFrontend::tryGetTypeValue(Node* typeNode)
 {
-    Nest_setPropertyExplInt(typeNode, propAllowDeclExp, 1);
     if ( !Nest_semanticCheck(typeNode) )
         return nullptr;
 
@@ -219,7 +209,16 @@ TypeRef SprFrontend::tryGetTypeValue(Node* typeNode)
         NodeRange decls = { expl->referredNodes.beginPtr+1, expl->referredNodes.endPtr };
         for ( Node* decl: decls )
         {
-            TypeRef t = decl->nodeKind == nkSparrowDeclSprClass ? decl->type : nullptr;
+            TypeRef t = nullptr;
+            Node* resDecl = resultingDecl(decl);
+
+            // Check if we have a concept or a generic class
+            if ( resDecl->nodeKind == nkSparrowDeclSprConcept || resDecl->nodeKind == nkSparrowDeclGenericClass )
+                t = getConceptType(resDecl);
+            // Check for a traditional class
+            else if ( decl->nodeKind == nkSparrowDeclSprDatatype )
+                t = decl->type;
+
             if ( t ) {
                 if ( res )
                     return nullptr; // multiple class decls; not a clear type
@@ -271,7 +270,7 @@ Node* SprFrontend::createTypeNode(CompilationContext* context, const Location& l
     return res;
 }
 
-TypeRef SprFrontend::getAutoType(Node* typeNode, bool addRef)
+TypeRef SprFrontend::getAutoType(Node* typeNode, bool addRef, EvalMode evalMode)
 {
     TypeRef t = typeNode->type;
 
@@ -288,7 +287,7 @@ TypeRef SprFrontend::getAutoType(Node* typeNode, bool addRef)
 
     if ( addRef )
         t = Feather_addRef(t);
-    t = Feather_checkChangeTypeMode(t, modeRtCt, typeNode->location);
+    t = Feather_checkChangeTypeMode(t, evalMode, typeNode->location);
     return t;
 }
 

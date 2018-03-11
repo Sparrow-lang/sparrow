@@ -230,7 +230,7 @@ fun indexOfRange(r1, r2: Range): SizeType if isValid(*r1 == *r2)
         return res
 
     /// Returns the minimum and the maximum positions from the range
-    fun minMaxElement(range: Range): Tuple(typeOf(range), typeOf(range)) if isValid(*range < *range)
+    fun minMaxElement(range: Range): typeOf(range ~ range) if isValid(*range < *range)
         if !range
             return range ~ range
         var minRes = range
@@ -245,7 +245,7 @@ fun indexOfRange(r1, r2: Range): SizeType if isValid(*r1 == *r2)
         return minRes ~ maxRes
 
     /// Returns the minimum and the maximum positions from the range, according to the given less predicate
-    fun minMaxElementIf(range: Range, pred: AnyType): Tuple(typeOf(range), typeOf(range)) if typeOf(pred(*range, *range)) == Bool
+    fun minMaxElementIf(range: Range, pred: AnyType): typeOf(range ~ range) if typeOf(pred(*range, *range)) == Bool
         if !range
             return range ~ range
         var minRes = range

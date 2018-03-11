@@ -13,16 +13,13 @@ fun sprMain
     else if n == 2; test2
 }
 
-[rtct] class MyObj
-{
-    var x: Int;
-
-    fun ctor(xx: Int) { x = xx; }
-}
+[rtct, initCtor]
+datatype MyObj
+    x: Int
 
 [ct] fun createRangeAscending(size: SizeType): ContiguousMemoryRange(MyObj)
 {
-    var ptr = RawPtr(MyObj).alloc(size);
+    var ptr = allocRawPtr(MyObj, size);
     var ptrEnd = ptr.advance(DiffType(size));
     var i = 0;
 

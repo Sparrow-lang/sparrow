@@ -1,98 +1,316 @@
-import basicDecls(Type, Byte, Int, Null)
+import basicDecls(Type, Byte, Int, Null, AnyType)
 
-[rtct]
-    class FunctionPtr(resT: Type)
+package _Impl0
+    [rtct]
+    datatype FunctionPtr0(resT: Type)
         using arity = 0
-        fun () (): resT = _call()
-        [native("$funptr")] fun _call(): resT
-        var _funPtr: @Byte
+        using ResT = resT
+        _funPtr: @Byte
 
-    class FunctionPtr(resT, T1: Type)
+    [rtct]
+        [native("$funptr")] fun _doCall(this: @FunctionPtr0): ResT
+        fun ()(this: @FunctionPtr0): ResT = this._doCall()
+
+package _Impl1
+    [rtct]
+    datatype FunctionPtr1(resT, t1: Type)
         using arity = 1
-        fun () (p1: T1): resT = _call(p1)
-        [native("$funptr")] fun _call(p1: T1): resT
-        var _funPtr: @Byte
+        using ResT = resT
+        using T1 = t1
+        _funPtr: @Byte
 
-    class FunctionPtr(resT, T1, T2: Type)
+    [rtct]
+        [native("$funptr")] fun _doCall(this: @FunctionPtr1, p1: this.T1): ResT
+        fun ()(this: @FunctionPtr1, p1: this.T1): ResT = this._doCall(p1)
+
+package _Impl2
+    [rtct]
+    datatype FunctionPtr2(resT, t1, t2: Type)
         using arity = 2
-        fun () (p1: T1, p2: T2): resT = _call(p1, p2)
-        [native("$funptr")] fun _call (p1: T1, p2: T2): resT
-        var _funPtr: @Byte
+        using ResT = resT
+        using T1 = t1
+        using T2 = t2
+        _funPtr: @Byte
 
-    class FunctionPtr(resT, T1, T2, T3: Type)
+    [rtct]
+        [native("$funptr")] fun _doCall(this: @FunctionPtr2, p1: this.T1, p2: this.T2): ResT
+        fun ()(this: @FunctionPtr2, p1: this.T1, p2: this.T2): ResT = this._doCall(p1, p2)
+
+package _Impl3
+    [rtct]
+    datatype FunctionPtr3(resT, t1, t2, t3: Type)
         using arity = 3
-        fun () (p1: T1, p2: T2, p3: T3): resT = _call(p1, p2, p3)
-        [native("$funptr")] fun _call (p1: T1, p2: T2, p3: T3): resT
-        var _funPtr: @Byte
+        using ResT = resT
+        using T1 = t1
+        using T2 = t2
+        using T3 = t3
+        _funPtr: @Byte
 
-    class FunctionPtr(resT, T1, T2, T3, T4: Type)
+    [rtct]
+        [native("$funptr")] fun _doCall(this: @FunctionPtr3, p1: this.T1, p2: this.T2, p3: this.T3): ResT
+        fun ()(this: @FunctionPtr3, p1: this.T1, p2: this.T2, p3: this.T3): ResT = this._doCall(p1, p2, p3)
+
+package _Impl4
+    [rtct]
+    datatype FunctionPtr4(resT, t1, t2, t3, t4: Type)
         using arity = 4
-        fun () (p1: T1, p2: T2, p3: T3, p4: T4): resT = _call(p1, p2, p3, p4)
-        [native("$funptr")] fun _call (p1: T1, p2: T2, p3: T3, p4: T4): resT
-        var _funPtr: @Byte
+        using ResT = resT
+        using T1 = t1
+        using T2 = t2
+        using T3 = t3
+        using T4 = t4
+        _funPtr: @Byte
 
-    class FunctionPtr(resT, T1, T2, T3, T4, T5: Type)
+    [rtct]
+        [native("$funptr")] fun _doCall(this: @FunctionPtr4, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4): ResT
+        fun ()(this: @FunctionPtr4, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4): ResT = this._doCall(p1, p2, p3, p4)
+
+package _Impl5
+    [rtct]
+    datatype FunctionPtr5(resT, t1, t2, t3, t4, t5: Type)
         using arity = 5
-        fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): resT = _call(p1, p2, p3, p4, p5)
-        [native("$funptr")] fun _call (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5): resT
-        var _funPtr: @Byte
+        using ResT = resT
+        using T1 = t1
+        using T2 = t2
+        using T3 = t3
+        using T4 = t4
+        using T5 = t5
+        _funPtr: @Byte
 
-    class FunctionPtr(resT, T1, T2, T3, T4, T5, T6: Type)
+    [rtct]
+        [native("$funptr")] fun _doCall(this: @FunctionPtr5, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5): ResT
+        fun ()(this: @FunctionPtr5, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5): ResT = this._doCall(p1, p2, p3, p4, p5)
+
+package _Impl6
+    [rtct]
+    datatype FunctionPtr6(resT, t1, t2, t3, t4, t5, t6: Type)
         using arity = 6
-        fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): resT = _call(p1, p2, p3, p4, p5, p6)
-        [native("$funptr")] fun _call (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6): resT
-        var _funPtr: @Byte
+        using ResT = resT
+        using T1 = t1
+        using T2 = t2
+        using T3 = t3
+        using T4 = t4
+        using T5 = t5
+        using T6 = t6
+        _funPtr: @Byte
 
-    class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7: Type)
+    [rtct]
+        [native("$funptr")] fun _doCall(this: @FunctionPtr6, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6): ResT
+        fun ()(this: @FunctionPtr6, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6): ResT = this._doCall(p1, p2, p3, p4, p5, p6)
+
+package _Impl7
+    [rtct]
+    datatype FunctionPtr7(resT, t1, t2, t3, t4, t5, t6, t7: Type)
         using arity = 7
-        fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): resT = _call(p1, p2, p3, p4, p5, p6, p7)
-        [native("$funptr")] fun _call (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7): resT
-        var _funPtr: @Byte
+        using ResT = resT
+        using T1 = t1
+        using T2 = t2
+        using T3 = t3
+        using T4 = t4
+        using T5 = t5
+        using T6 = t6
+        using T7 = t7
+        _funPtr: @Byte
 
-    class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8: Type)
+    [rtct]
+        [native("$funptr")] fun _doCall(this: @FunctionPtr7, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7): ResT
+        fun ()(this: @FunctionPtr7, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7)
+
+package _Impl8
+    [rtct]
+    datatype FunctionPtr8(resT, t1, t2, t3, t4, t5, t6, t7, t8: Type)
         using arity = 8
-        fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8): resT = _call(p1, p2, p3, p4, p5, p6, p7, p8)
-        [native("$funptr")] fun _call (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8): resT
-        var _funPtr: @Byte
+        using ResT = resT
+        using T1 = t1
+        using T2 = t2
+        using T3 = t3
+        using T4 = t4
+        using T5 = t5
+        using T6 = t6
+        using T7 = t7
+        using T8 = t8
+        _funPtr: @Byte
 
-    class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9: Type)
+    [rtct]
+        [native("$funptr")] fun _doCall(this: @FunctionPtr8, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8): ResT
+        fun ()(this: @FunctionPtr8, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8)
+
+package _Impl9
+    [rtct]
+    datatype FunctionPtr9(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9: Type)
         using arity = 9
-        fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9): resT = _call(p1, p2, p3, p4, p5, p6, p7, p8, p9)
-        [native("$funptr")] fun _call (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9): resT
-        var _funPtr: @Byte
+        using ResT = resT
+        using T1 = t1
+        using T2 = t2
+        using T3 = t3
+        using T4 = t4
+        using T5 = t5
+        using T6 = t6
+        using T7 = t7
+        using T8 = t8
+        using T9 = t9
+        _funPtr: @Byte
 
-    class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10: Type)
+    [rtct]
+        [native("$funptr")] fun _doCall(this: @FunctionPtr9, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9): ResT
+        fun ()(this: @FunctionPtr9, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9)
+
+package _Impl10
+    [rtct]
+    datatype FunctionPtr10(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10: Type)
         using arity = 10
-        fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10): resT = _call(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10)
-        [native("$funptr")] fun _call (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10): resT
-        var _funPtr: @Byte
+        using ResT = resT
+        using T1 = t1
+        using T2 = t2
+        using T3 = t3
+        using T4 = t4
+        using T5 = t5
+        using T6 = t6
+        using T7 = t7
+        using T8 = t8
+        using T9 = t9
+        using T10 = t10
+        _funPtr: @Byte
 
-    class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11: Type)
+    [rtct]
+        [native("$funptr")] fun _doCall(this: @FunctionPtr10, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10): ResT
+        fun ()(this: @FunctionPtr10, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10)
+
+package _Impl11
+    [rtct]
+    datatype FunctionPtr11(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11: Type)
         using arity = 11
-        fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10, p11: T11): resT = _call(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11)
-        [native("$funptr")] fun _call (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10, p11: T11): resT
-        var _funPtr: @Byte
+        using ResT = resT
+        using T1 = t1
+        using T2 = t2
+        using T3 = t3
+        using T4 = t4
+        using T5 = t5
+        using T6 = t6
+        using T7 = t7
+        using T8 = t8
+        using T9 = t9
+        using T10 = t10
+        using T11 = t11
+        _funPtr: @Byte
 
-    class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12: Type)
+    [rtct]
+        [native("$funptr")] fun _doCall(this: @FunctionPtr11, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11): ResT
+        fun ()(this: @FunctionPtr11, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11)
+
+
+package _Impl12
+    [rtct]
+    datatype FunctionPtr12(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12: Type)
         using arity = 12
-        fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10, p11: T11, p12: T12): resT = _call(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12)
-        [native("$funptr")] fun _call (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10, p11: T11, p12: T12): resT
-        var _funPtr: @Byte
+        using ResT = resT
+        using T1 = t1
+        using T2 = t2
+        using T3 = t3
+        using T4 = t4
+        using T5 = t5
+        using T6 = t6
+        using T7 = t7
+        using T8 = t8
+        using T9 = t9
+        using T10 = t10
+        using T11 = t11
+        using T12 = t12
+        _funPtr: @Byte
 
-    class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13: Type)
+    [rtct]
+        [native("$funptr")] fun _doCall(this: @FunctionPtr12, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12): ResT
+        fun ()(this: @FunctionPtr12, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12)
+
+package _Impl13
+    [rtct]
+    datatype FunctionPtr13(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13: Type)
         using arity = 13
-        fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10, p11: T11, p12: T12, p13: T13): resT = _call(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13)
-        [native("$funptr")] fun _call (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10, p11: T11, p12: T12, p13: T13): resT
-        var _funPtr: @Byte
+        using ResT = resT
+        using T1 = t1
+        using T2 = t2
+        using T3 = t3
+        using T4 = t4
+        using T5 = t5
+        using T6 = t6
+        using T7 = t7
+        using T8 = t8
+        using T9 = t9
+        using T10 = t10
+        using T11 = t11
+        using T12 = t12
+        using T13 = t13
+        _funPtr: @Byte
 
-    class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14: Type)
+    [rtct]
+        [native("$funptr")] fun _doCall(this: @FunctionPtr13, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13): ResT
+        fun ()(this: @FunctionPtr13, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13)
+
+package _Impl14
+    [rtct]
+    datatype FunctionPtr14(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14: Type)
         using arity = 14
-        fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10, p11: T11, p12: T12, p13: T13, p14: T14): resT = _call(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14)
-        [native("$funptr")] fun _call (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10, p11: T11, p12: T12, p13: T13, p14: T14): resT
-        var _funPtr: @Byte
+        using ResT = resT
+        using T1 = t1
+        using T2 = t2
+        using T3 = t3
+        using T4 = t4
+        using T5 = t5
+        using T6 = t6
+        using T7 = t7
+        using T8 = t8
+        using T9 = t9
+        using T10 = t10
+        using T11 = t11
+        using T12 = t12
+        using T13 = t13
+        using T14 = t14
+        _funPtr: @Byte
 
-    class FunctionPtr(resT, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15: Type)
+    [rtct]
+        [native("$funptr")] fun _doCall(this: @FunctionPtr14, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13, p14: this.T14): ResT
+        fun ()(this: @FunctionPtr14, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13, p14: this.T14): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14)
+
+package _Impl15
+    [rtct]
+    datatype FunctionPtr15(resT, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15: Type)
         using arity = 15
-        fun () (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10, p11: T11, p12: T12, p13: T13, p14: T14, p15: T15): resT = _call(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15)
-        [native("$funptr")] fun _call (p1: T1, p2: T2, p3: T3, p4: T4, p5: T5, p6: T6, p7: T7, p8: T8, p9: T9, p10: T10, p11: T11, p12: T12, p13: T13, p14: T14, p15: T15): resT
-        var _funPtr: @Byte
+        using ResT = resT
+        using T1 = t1
+        using T2 = t2
+        using T3 = t3
+        using T4 = t4
+        using T5 = t5
+        using T6 = t6
+        using T7 = t7
+        using T8 = t8
+        using T9 = t9
+        using T10 = t10
+        using T11 = t11
+        using T12 = t12
+        using T13 = t13
+        using T14 = t14
+        using T15 = t15
+        _funPtr: @Byte
+
+    [rtct]
+        [native("$funptr")] fun _doCall(this: @FunctionPtr15, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13, p14: this.T14, p15: this.T15): ResT
+        fun ()(this: @FunctionPtr15, p1: this.T1, p2: this.T2, p3: this.T3, p4: this.T4, p5: this.T5, p6: this.T6, p7: this.T7, p8: this.T8, p9: this.T9, p10: this.T10, p11: this.T11, p12: this.T12, p13: this.T13, p14: this.T14, p15: this.T15): ResT = this._doCall(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15)
+
+
+using FunctionPtr = _Impl0.FunctionPtr0
+using FunctionPtr = _Impl1.FunctionPtr1
+using FunctionPtr = _Impl2.FunctionPtr2
+using FunctionPtr = _Impl3.FunctionPtr3
+using FunctionPtr = _Impl4.FunctionPtr4
+using FunctionPtr = _Impl5.FunctionPtr5
+using FunctionPtr = _Impl6.FunctionPtr6
+using FunctionPtr = _Impl7.FunctionPtr7
+using FunctionPtr = _Impl8.FunctionPtr8
+using FunctionPtr = _Impl9.FunctionPtr9
+using FunctionPtr = _Impl10.FunctionPtr10
+using FunctionPtr = _Impl11.FunctionPtr11
+using FunctionPtr = _Impl12.FunctionPtr12
+using FunctionPtr = _Impl13.FunctionPtr13
+using FunctionPtr = _Impl14.FunctionPtr14
+using FunctionPtr = _Impl15.FunctionPtr15

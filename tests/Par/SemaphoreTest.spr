@@ -22,9 +22,9 @@ fun doJob(sem: @par.Semaphore, waitTime: Int) {
     sem release;
 }
 
-[initCtor] class Worker {
-    var sem: @par.Semaphore;
-    var amountOfWork: Int;
+[initCtor] datatype Worker {
+    sem: @par.Semaphore;
+    amountOfWork: Int;
 
     fun ()() {
         for i = 0..amountOfWork {
@@ -34,29 +34,29 @@ fun doJob(sem: @par.Semaphore, waitTime: Int) {
     }
 }
 
-class WorkManager {
-    var sem: @par.Semaphore;
-    var amountOfWork, numWorkers: Int;
-    var threads: (par.Thread Ptr) Vector;
+datatype WorkManager {
+    sem: @par.Semaphore;
+    amountOfWork, numWorkers: Int;
+    threads: (par.Thread Ptr) Vector;
 
-    fun ctor(sem: @par.Semaphore, amountOfWork, numWorkers: Int) {
-        this.amountOfWork ctor amountOfWork;
-        this.numWorkers ctor numWorkers;
-        for i=0..numWorkers {
-            var p: par.Thread Ptr = new(par.Thread, Worker(sem, amountOfWork));
-            threads.pushBack(p);
-        }
-    }
+}
 
-    fun dtor {
-        for t = threads.all {
-            t.get join;
-            t.release;
-        }
-        test.assertEq(numExecutions load, amountOfWork*numWorkers, "numExecutions should be equal to the total amount of work");
+fun ctor(this: @WorkManager, sem: @par.Semaphore, amountOfWork, numWorkers: Int) {
+    this.amountOfWork ctor amountOfWork;
+    this.numWorkers ctor numWorkers;
+    for i=0..numWorkers {
+        var p: par.Thread Ptr = new(par.Thread, Worker(sem, amountOfWork));
+        threads.pushBack(p);
     }
 }
 
+fun dtor(this: @WorkManager) {
+    for t = threads.all {
+        t.get join;
+        t.release;
+    }
+    test.assertEq(numExecutions load, amountOfWork*numWorkers, "numExecutions should be equal to the total amount of work");
+}
 fun sprMain
 {
     if ( programArgs.size() < 4 )

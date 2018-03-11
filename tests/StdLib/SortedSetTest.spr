@@ -70,11 +70,9 @@ fun printRange(nr: AnyType)
     }
 }
 
-class Equal(type: Type)
-{
-    fun ctor() { }
-    fun ()(x: type, y: type): Bool { return x == y; }
-}
+datatype Equal(type: Type)
+    using ValueType = type
+fun ()(this: Equal, x, y: this.ValueType): Bool = x == y
 
 fun test1()
 {

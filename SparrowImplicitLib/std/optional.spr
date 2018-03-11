@@ -54,7 +54,7 @@ fun ctor(this: @Optional, val: @this.ValueType)
         this = other
         other = this
 
-    fun >>(this: @Optional, os: @OutStream) if isValid(os << #$ValueType)
+    fun >>(this: @Optional, os: @OutStream) if isValid(os << #$this.ValueType)
         if this.isSet
             os << "Optional(" << _value << ")"
         else

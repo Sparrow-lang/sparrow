@@ -177,7 +177,7 @@ fun test7
         cout << x.get() << " is an ancestor of " << y.get() << endl;
     }
 }
-/*<<< All ancestors (7)
+/*-<<< All ancestors (7)
 Mary is an ancestor of Sam
 Mary is an ancestor of Denise
 Frank is an ancestor of Sam

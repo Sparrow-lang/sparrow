@@ -65,7 +65,7 @@ datatype UnifyLR(leftType, rightType: Type) if ValWrapper(#$leftType) && ValWrap
     _leftVal: leftType
     _rightVal: rightType
 
-fun ctor(this: @UnifyLR, l: @leftType, r: @rightType)
+fun ctor(this: @UnifyLR, l: @this.LeftType, r: @this.RightType)
     this._leftVal ctor l
     this._rightVal ctor r
     _coEntryPt ctor 0
@@ -143,7 +143,7 @@ fun _mkEq(l, r: @ValWrapper) = UnifyLR(-@typeOf(l), -@typeOf(r))(l, r)
     using ValueType = Bool
     using ValuePassType = Bool
     using _LType = leftPredicateType
-    using _TType = rightPredicateType
+    using _RType = rightPredicateType
 
     _coEntryPt: Int
     _left: leftPredicateType
@@ -189,7 +189,7 @@ fun ()(this: @OrRelation): Bool
     using ValueType = Bool
     using ValuePassType = Bool
     using _LType = leftPredicateType
-    using _TType = rightPredicateType
+    using _RType = rightPredicateType
 
     _coEntryPt: Int
     _left: leftPredicateType

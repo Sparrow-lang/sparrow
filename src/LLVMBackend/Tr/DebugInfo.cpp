@@ -80,7 +80,7 @@ void DebugInfo::emitFunctionStart(LlvmBuilder& builder, Node* fun, llvm::Functio
     // For now, just create a fake subroutine type -- it should be ok
     llvm::DISubroutineType* diFunType = createFunctionType(llvmFun);
 
-    StringRef name = Feather_getName(fun);
+    StringRef name = Nest_hasProperty(fun, "name") ? Feather_getName(fun) : fromCStr("anonymous");
     llvm::StringRef nameLLVM(name.begin, size(name));
     llvm::DISubprogram* diSubprogram = diBuilder_.createFunction(
         fContext,                       // function scope
@@ -118,6 +118,8 @@ void DebugInfo::emitLexicalBlockStart(LlvmBuilder& builder, const Location& loc)
 {
     // Set the current location
     setLocation(builder, loc);
+
+    ASSERT(!lexicalBlockStack_.empty());
 
     llvm::DILexicalBlock* lexicalBock = diBuilder_.createLexicalBlock(
         lexicalBlockStack_.back(), getOrCreateFile(loc), loc.start.line, loc.start.col);

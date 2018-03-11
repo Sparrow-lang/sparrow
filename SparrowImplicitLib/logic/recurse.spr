@@ -33,6 +33,8 @@ datatype Recurse(predGeneratorType: Type)
 fun ctor(this: @Recurse, other: @Recurse)
     this._relation ctor other._relation
     this._predGenerator ctor other._predGenerator
+    [ct] if isValid(logicDebug)
+        cout << "Recurse.copy ctor: " << this << "\n"
 fun ctor(this: @Recurse, predGenerator: @this._PredGen)
     this._relation ctor
     this._predGenerator ctor predGenerator
@@ -48,7 +50,7 @@ fun ()(this: @Recurse): Bool
 
 
 fun >>(this: @Recurse, os: @OutStream)
-    os << "Recurse(this=" << mkStreamRefWrapper(this)
+    os << "Recurse(this=" << mkStreamRefWrapper(this) \
        << ", fun=" << _relation
     [ct] if isValid( os << _predGenerator )
         os << ", gen=" << _predGenerator

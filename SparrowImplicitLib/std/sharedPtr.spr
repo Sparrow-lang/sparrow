@@ -25,7 +25,7 @@ import newDelete(new, delete)
             this._ref := d.data
             this._count := d._count
 
-    fun ctor(this, other: @SharedPtr)
+    fun ctor(this, other: @SharedPtr) if typeOf(this) == typeOf(other)
         _ref := other._ref
         _count := other._count
         if ( _count !== null )
@@ -36,7 +36,7 @@ import newDelete(new, delete)
             _ref.dtor()
             delete(_count)
 
-    fun =(this, other: @SharedPtr)                      { SharedPtr(other).swap(this) }
+    fun =(this, other: @SharedPtr)                      { other.swap(this) }
     fun =(this: @SharedPtr, value: @this.ValueType)                       { this.reset(value) }
     fun =(this: @SharedPtr, value: AnyType) if isValid(ValueType(value))  { this.reset(value) }
 

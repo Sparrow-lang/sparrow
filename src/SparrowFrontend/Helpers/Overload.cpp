@@ -8,6 +8,7 @@
 #include <Helpers/StdDef.h>
 #include <SparrowFrontendTypes.h>
 #include <NodeCommonsCpp.h>
+#include "SprDebug.h"
 
 #include "Feather/Utils/FeatherUtils.hpp"
 
@@ -172,6 +173,7 @@ void selectMostSpecializedErrReport(CompilationContext* context,
         if (cand.valid) {
             REP_INFO(location(cand), "See valid candidate: %1%") %
                 toString(cand);
+            // printNode(cand.decl);
         }
     }
 }

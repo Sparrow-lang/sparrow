@@ -31,6 +31,15 @@ using LStr = LRef(String)
 // A logical reference that contains integers
 using LInt = LRef(Int)
 
+datatype ScopeTracer
+    str: StringRef
+
+fun ctor(this: @ScopeTracer, name: StringRef)
+    str ctor name
+    cout << '<<< ' << name << '\n'
+fun dtor(this: @ScopeTracer)
+    cout << '>>> ' << str << '\n'
+
 
 /// A logical reference
 ///
@@ -47,17 +56,17 @@ datatype LRef(valueType: Type)
     _pptr: SharedPtr(Optional(ValueType))
 
 fun ctor(this: @LRef)
-    _pptr ctor Optional(valueType)()
+    _pptr ctor Optional(this.ValueType)()
     [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
         cout << "ctor: " << this << "\n"
 
-[convert] fun ctor(this: @LRef, value: @this.ValueType)
-    _pptr ctor Optional(valueType)(value)
-    [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
-        cout << "value ctor: " << this << "\n"
+//[convert] fun ctor(this: @LRef, value: @this.ValueType)
+//    _pptr ctor Optional(this.ValueType)(value)
+//    [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
+//        cout << "value ctor: " << this << "\n"
 
 [convert] fun ctor(this: @LRef, value: @AnyType) if isValid(this.ValueType(value))
-    _pptr ctor Optional(valueType)(value)
+    _pptr ctor Optional(this.ValueType)(value)
     [ct] if ( isValid(logicDebug) && isValid(logicRefDebug) )
         cout << "value ctor: " << this << "\n"
 
@@ -146,11 +155,13 @@ package _Impl
     datatype BinaryOp(leftType, rightType: Type, oper: Int) if ValWrapper(#$leftType) && ValWrapper(#$rightType)
         using ValueType = leftType.ValueType
         using _myOper = oper
+        using _LT = leftType
+        using _RT = rightType
 
         _left: leftType
         _right: rightType
 
-    fun ctor(this: @BinaryOp, l: @leftType, r: @rightType)
+    fun ctor(this: @BinaryOp, l: @this._LT, r: @this._RT)
         this._left ctor l
         this._right ctor r
 

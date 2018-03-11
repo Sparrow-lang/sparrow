@@ -1255,8 +1255,10 @@ int SprFrontend::moreSpecialized(CompilationContext* context, const CallableData
     for (size_t i = 0; i < paramsCount; ++i) {
         TypeRef t1 = getParamType(f1, i, true);
         TypeRef t2 = getParamType(f2, i, true);
-        // At this point, all param types must be valid
-        ASSERT(t1 && t2);
+        // Ignore any params that are null
+        // TODO (overloading): Fix this - we reach in this state for dependent params
+        if (!t1 || !t2)
+            continue;
 
         // Ignore parameters of same type
         if (t1 == t2)
@@ -1368,7 +1370,7 @@ string SprFrontend::toString(const CallableData& c) {
         if (p && (p->nodeKind == nkFeatherDeclVar || p->nodeKind == nkSparrowDeclSprParameter)) {
             name = Feather_getName(p);
             auto typeNode = at(p->children, 0);
-            if (typeNode->type)
+            if (typeNode && typeNode->type)
                 type = tryGetTypeValue(typeNode);
         }
 

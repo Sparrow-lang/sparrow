@@ -263,6 +263,21 @@ Node* _createFunPtrForFeatherFun(Node* fun, Node* callNode) {
     return nullptr;
 }
 
+//! Get the number of parameters for a function-like decl
+int getNumParams(Node* decl) {
+    if (decl->nodeKind == nkFeatherDeclFunction) {
+        NodeRange params = all(decl->children);
+        return int(size(params)) - 2;
+    }
+    if (decl->nodeKind == nkSparrowDeclGenericFunction)
+        return (int) size(genericFunParams(decl));
+    if (decl->nodeKind == nkSparrowDeclSprFunction) {
+        Node* parameters = at(decl->children, 0);
+        return parameters ? (int) size(parameters->children) : 0;
+    }
+    return 0;
+}
+
 Node* _createFunPtrForDecl(Node* funNode) {
     const Location& loc = funNode->location;
 
@@ -323,10 +338,10 @@ Node* _createFunPtrForDecl(Node* funNode) {
         // We may have multiple decls that we are refering to, as we may have
         // multiple specializations of the generic
         // In this case, we just check that the argument count is the same
-        size_t numParams = size(genericFunParams(decls[0]));
+        auto numParams = getNumParams(decls[0]);
         bool mismatch = false;
         for (size_t i = 1; i < decls.size(); i++)
-            if (size(genericFunParams(decls[i])) != numParams) {
+            if (getNumParams(decls[i]) != numParams) {
                 mismatch = true;
                 break;
             }

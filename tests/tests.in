@@ -61,9 +61,9 @@ Examples/Regex.spr:                     Examples: Regex
 Examples/MinPerfHash.spr:               Examples: Minimal Perfect Hashing
 Examples/NQueens.spr:                   Examples: N Queens
 
-# Logic/LogicTest.spr:                    Logic: basic test
-# Logic/Parents.spr:                      Logic: parents example, with recursive calls
-# Logic/Solar.spr:                        Logic: solar system example
+Logic/LogicTest.spr:                    Logic: basic test
+Logic/Parents.spr:                      Logic: parents example, with recursive calls
+Logic/Solar.spr:                        Logic: solar system example
 # Logic/PrologParserTest.spr:             Logic: parsing Prolog code
 # Logic/PrologErr1.spr:                   Logic: Prolog error - invalid char
 # Logic/PrologErr2.spr:                   Logic: Prolog error - invalid token

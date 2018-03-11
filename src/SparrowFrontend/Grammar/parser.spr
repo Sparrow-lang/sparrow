@@ -307,7 +307,7 @@ package _Impl
             var ifClause = parseIfClauseOpt(this)
             this expect tkSEMICOLON
             loc copyEnd _lastToken.loc
-            res = mkClass(loc, id.asStringRef, formals, underlyingData, ifClause, Node())
+            res = mkDatatype(loc, id.asStringRef, formals, underlyingData, ifClause, Node())
         else
             var ifClause = parseIfClauseOpt(this)
             var children: Node
@@ -326,7 +326,7 @@ package _Impl
                     while (this accept tkCOMMA) || (this accept tkSEMICOLON) {}
                 this expect tkRCURLY
             loc copyEnd _lastToken.loc
-            res = mkClass(loc, id.asStringRef, formals, Node(), ifClause, children)
+            res = mkDatatype(loc, id.asStringRef, formals, Node(), ifClause, children)
         return true
     fun parseConceptDecl(this: @SparrowParser, res: @Node): Bool
         if !(this accept tkCONCEPT)

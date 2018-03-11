@@ -42,7 +42,7 @@ namespace
             || nodeKind == nkFeatherDeclVar
             || (!insideClass && nodeKind == nkSparrowDeclModule)
             || (!insideClass && nodeKind == nkSparrowDeclPackage)
-            || (!insideClass && nodeKind == nkSparrowDeclSprClass)
+            || (!insideClass && nodeKind == nkSparrowDeclSprDatatype)
             || (!insideClass && nodeKind == nkSparrowDeclSprFunction)
             || (!insideClass && nodeKind == nkSparrowDeclSprVariable)
             || (insideClass && nodeKind == nkSparrowDeclSprField)
@@ -338,7 +338,7 @@ CompilationContext* SprFrontend::classContext(Node* cls)
     CompilationContext* res = cls->context;
     while ( res && res->parent ) {
         Node* n = res->currentSymTab->node;
-        if ( n && n->nodeKind != nkSparrowDeclSprClass && n->nodeKind != nkSparrowDeclGenericClass
+        if ( n && n->nodeKind != nkSparrowDeclSprDatatype && n->nodeKind != nkSparrowDeclGenericClass
         && n->nodeKind != Feather_getFirstFeatherNodeKind() + nkRelFeatherDeclClass )
             break;
 

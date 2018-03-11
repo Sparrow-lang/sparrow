@@ -26212,7 +26212,7 @@ if_then2:                                         ; preds = %if_block1
   %25 = load %Node, %Node* %ifClause
   call void @ctor.525(%Node* %tmp.v6)
   %26 = load %Node, %Node* %tmp.v6
-  %27 = call %Node @comp_parser_mkClass(%Location* %loc, %StringRef %22, %Node %23, %Node %24, %Node %25, %Node %26)
+  %27 = call %Node @comp_parser_mkDatatype(%Location* %loc, %StringRef %22, %Node %23, %Node %24, %Node %25, %Node %26)
   store %Node %27, %Node* %"$tmpForRef"
   call void @"=.523"(%Node* %21, %Node* %"$tmpForRef")
   br label %if_end3
@@ -26257,7 +26257,7 @@ if_end11:                                         ; preds = %while_end, %if_then
   %41 = load %Node, %Node* %tmp.v51
   %42 = load %Node, %Node* %ifClause7
   %43 = load %Node, %Node* %children
-  %44 = call %Node @comp_parser_mkClass(%Location* %loc, %StringRef %39, %Node %40, %Node %41, %Node %42, %Node %43)
+  %44 = call %Node @comp_parser_mkDatatype(%Location* %loc, %StringRef %39, %Node %40, %Node %41, %Node %42, %Node %43)
   store %Node %44, %Node* %"$tmpForRef49"
   call void @"=.523"(%Node* %38, %Node* %"$tmpForRef49")
   br label %if_end3
@@ -26418,7 +26418,7 @@ dumy_block52:                                     ; No predecessors!
   unreachable
 }
 
-declare %Node @comp_parser_mkClass(%Location*, %StringRef, %Node, %Node, %Node, %Node)
+declare %Node @comp_parser_mkDatatype(%Location*, %StringRef, %Node, %Node, %Node, %Node)
 
 ; Function Attrs: inlinehint nounwind
 define internal void @parseFieldsLine(%"SparrowParser[SparrowLayoutDecoder[SparrowScanner[_CharSource, ExternalErrorReporter], ExternalErrorReporter], ExternalErrorReporter]"* %this, %Node* %res) #4 {

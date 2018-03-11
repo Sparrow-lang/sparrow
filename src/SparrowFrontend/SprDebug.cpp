@@ -374,7 +374,7 @@ void printNodeImpl(const Node* node, int mode) {
             printSpaces();
             printNodeImpl(at(node->children, 0), 1);
             return;
-        case nkRelSparrowDeclSprClass:
+        case nkRelSparrowDeclSprDatatype:
         {
             Node* parameters = at(node->children, 0);
             Node* children = at(node->children, 1);

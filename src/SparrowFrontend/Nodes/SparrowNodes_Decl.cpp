@@ -18,7 +18,7 @@ using namespace Nest;
 namespace
 {
     ////////////////////////////////////////////////////////////////////////////
-    // Helpers for SprClass node
+    // Helpers for SprDatatype node
     //
 
     /// Get the fields from the symtab of the current class
@@ -200,7 +200,7 @@ Node* Package_SemanticCheck(Node* node)
     return Nest_semanticCheck(at(node->children, 0));
 }
 
-void SprClass_SetContextForChildren(Node* node)
+void SprDatatype_SetContextForChildren(Node* node)
 {
     Feather_addToSymTab(node);
 
@@ -210,7 +210,7 @@ void SprClass_SetContextForChildren(Node* node)
 
     Nest_defaultFunSetContextForChildren(node);
 }
-TypeRef SprClass_ComputeType(Node* node)
+TypeRef SprDatatype_ComputeType(Node* node)
 {
     ASSERT(Nest_nodeArraySize(node->children) == 3);
     Node* parameters = at(node->children, 0);
@@ -302,7 +302,7 @@ TypeRef SprClass_ComputeType(Node* node)
         return nullptr;
     return node->type;
 }
-Node* SprClass_SemanticCheck(Node* node)
+Node* SprDatatype_SemanticCheck(Node* node)
 {
     if ( !Nest_computeType(node) )
         return nullptr;

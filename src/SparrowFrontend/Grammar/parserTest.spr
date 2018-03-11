@@ -80,9 +80,9 @@ fun mkUsing(loc: @Location, alias: StringRef, usingNode: Node) \
 [native("comp_parser_mkPackage")]
 fun mkPackage(loc: @Location, name: StringRef, children, params, ifClause: Node) \
     = createNode(loc, "package", repeat(children, 1), name)
-[native("comp_parser_mkClass")]
-fun mkClass(loc: @Location, name: StringRef, params, underlyingData, ifClause, children: Node) \
-    = createNode(loc, "class", values(params, underlyingData, ifClause, children), name)
+[native("comp_parser_mkDatatype")]
+fun mkDatatype(loc: @Location, name: StringRef, params, underlyingData, ifClause, children: Node) \
+    = createNode(loc, "datatype", values(params, underlyingData, ifClause, children), name)
 [native("comp_parser_mkConcept")]
 fun mkConcept(loc: @Location, name, paramName: StringRef, baseConcept, ifClause: Node) \
     = createNode(loc, "concept", values(baseConcept, ifClause), name)

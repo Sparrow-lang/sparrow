@@ -1443,7 +1443,7 @@ Node* LambdaFunction_SemanticCheck(Node* node)
     }
 
     // Create the lambda closure class
-    Node* closureClass = mkSprClass(loc, fromCStr("$lambdaEnclosureData"), nullptr, nullptr, nullptr, classBody);
+    Node* closureClass = mkSprDatatype(loc, fromCStr("$lambdaEnclosureData"), nullptr, nullptr, nullptr, classBody);
     if ( closureParams && size(closureParams->children) > 0 )
         Nest_setPropertyInt(closureClass, propGenerateInitCtor, 1);
 

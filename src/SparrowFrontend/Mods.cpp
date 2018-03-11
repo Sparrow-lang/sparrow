@@ -90,7 +90,7 @@ void ModConvert_beforeComputeType(Modifier*, Node* node)
 void ModNoDefault_beforeComputeType(Modifier*, Node* node)
 {
     /// Check to apply only to classes or functions
-    if ( node->nodeKind != nkSparrowDeclSprFunction && node->nodeKind != nkSparrowDeclSprClass )
+    if ( node->nodeKind != nkSparrowDeclSprFunction && node->nodeKind != nkSparrowDeclSprDatatype )
         REP_INTERNAL(node->location, "noDefault modifier can be applied only to classes or methods (applied to %1%)") % Nest_nodeKindName(node);
 
     Nest_setPropertyInt(node, propNoDefault, 1);
@@ -99,7 +99,7 @@ void ModNoDefault_beforeComputeType(Modifier*, Node* node)
 void ModInitCtor_beforeComputeType(Modifier*, Node* node)
 {
     /// Check to apply only to classes
-    if ( node->nodeKind != nkSparrowDeclSprClass )
+    if ( node->nodeKind != nkSparrowDeclSprDatatype )
     {
         REP_ERROR(node->location, "initCtor modifier can be applied only to classes (applied to %1%)") % Nest_nodeKindName(node);
         return;

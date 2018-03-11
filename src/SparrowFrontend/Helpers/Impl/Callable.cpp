@@ -904,7 +904,7 @@ Node* createInstantiatedClass(CompilationContext* context, Node* orig) {
     Node* classChildren = at(orig->children, 1);
     classChildren = classChildren ? Nest_cloneNode(classChildren) : nullptr;
     Node* newClass =
-            mkSprClass(loc, Feather_getName(orig), nullptr, nullptr, nullptr, classChildren);
+            mkSprDatatype(loc, Feather_getName(orig), nullptr, nullptr, nullptr, classChildren);
     copyAccessType(newClass, orig);
 
     copyModifiersSetMode(orig, newClass, context->evalMode);
@@ -967,7 +967,7 @@ Node* callGenericClass(GenericClassNode node, const Location& loc, CompilationCo
     // If not already created, create the actual instantiation declaration
     Node* instDecl = inst.instantiatedDecl();
     if (!instDecl) {
-        Node* originalClass = Nest_ofKind(node.originalClass(), nkSparrowDeclSprClass);
+        Node* originalClass = Nest_ofKind(node.originalClass(), nkSparrowDeclSprDatatype);
         string description = getGenericClassOrPackageDescription(originalClass, inst);
 
         // Create the actual instantiation declaration

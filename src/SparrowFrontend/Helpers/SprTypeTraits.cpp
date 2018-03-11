@@ -216,7 +216,7 @@ TypeRef SprFrontend::tryGetTypeValue(Node* typeNode)
             if ( resDecl->nodeKind == nkSparrowDeclSprConcept || resDecl->nodeKind == nkSparrowDeclGenericClass )
                 t = getConceptType(resDecl);
             // Check for a traditional class
-            else if ( decl->nodeKind == nkSparrowDeclSprClass )
+            else if ( decl->nodeKind == nkSparrowDeclSprDatatype )
                 t = decl->type;
 
             if ( t ) {

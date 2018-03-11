@@ -296,7 +296,7 @@ namespace
 void _IntModClassMembers_afterComputeType(Modifier*, Node* node)
 {
     // Check to apply only to classes
-    if ( node->nodeKind != nkSparrowDeclSprClass )
+    if ( node->nodeKind != nkSparrowDeclSprDatatype )
         REP_INTERNAL(node->location, "IntModClassMembers modifier can be applied only to classes");
     Node* cls = node;
     if ( !cls->type )

@@ -1,18 +1,17 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main
 
-fun factorial(n: Int): Int
-{
-    if ( equal(n, 0) )
-        return 1;
-    else
-        return mul(n, factorial(sub(n,1)));
-}
+// Test purpose: Basic test with just a few operations
 
-[native("test")] fun test(n: Int)
-{
-    writeLnInt(15);
-    writeLnInt(factorial(5));
-}
+fun factorial(n: Int): Int
+    if ( equal(n, 0) )
+        return 1
+    else
+        return mul(n, factorial(sub(n,1)))
+
+[native("test")]
+fun test(n: Int)
+    writeLnInt(15)
+    writeLnInt(factorial(5))
 
 /*<<<Running()
 15

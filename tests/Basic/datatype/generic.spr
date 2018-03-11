@@ -1,0 +1,81 @@
+//!! -t "../SparrowImplicitLib.spr" -fno-main
+
+// Test purpose: generic datatypes test
+
+concept AnyType(x);
+fun ctor(this: @AnyType, nothing: Uninitialized) {}
+
+fun writeLnBool(val: Bool)
+    if val
+        writeLn("true")
+    else
+        writeLn("false")
+
+datatype Pair(t: Type)
+    first, second: t
+
+datatype Pair2(t:Type) = Pair(t)
+
+[initCtor]
+datatype Pair3(t: Type)
+    using ValueType = t
+    first, second: ValueType
+
+// Proper constructor, taking both the generic and the non-generic parameters
+fun Pair(t: Type, first, second: AnyType): Pair(t)
+    var res: Pair(t) = Uninitialized()
+    construct(res.first, first)
+    construct(res.second, second)
+    return res
+
+// Generic parameter is deduced from a non-generic parameter
+fun Pair(first, second: AnyType): Pair(typeOf(first))
+    var res: Pair(typeOf(first)) = Uninitialized()
+    construct(res.first, first)
+    construct(res.second, second)
+    return res
+
+fun Pair2(first, second: AnyType): Pair2(typeOf(first))
+    var res: Pair2(typeOf(first)) = Uninitialized()
+    res.data.first construct first
+    res.data.second construct second
+    return res
+
+
+[native("test")] fun test(n: Int)
+    var pi = Pair(Int, 1, 2)
+    writeLn(pi.first)
+    writeLn(pi.second)
+    writeLn("---")
+    var pd = Pair(Double, 1.1, 2.2)
+    writeLn(pd.first)
+    writeLn(pd.second)
+    writeLn("---")
+    var pb = Pair(false, true)
+    writeLnBool(pb.first)
+    writeLnBool(pb.second)
+
+    writeLn("---")
+    var p2 = Pair2(1, 2)
+    writeLn(p2.data.second)
+
+    writeLn("---")
+    var p3 = Pair3(Int)(3, 4)
+    writeLn(p3.second)
+    [ct] if p3.ValueType != Int
+        writeLn('FAILURE')
+
+/*<<<Running()
+1
+2
+---
+1.1
+2.2
+---
+false
+true
+---
+2
+---
+4
+>>>*/

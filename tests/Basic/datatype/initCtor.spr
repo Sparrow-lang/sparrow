@@ -1,4 +1,6 @@
-//!! -t "SparrowImplicitLib.spr" -fno-main
+//!! -t "../SparrowImplicitLib.spr" -fno-main
+
+// Test purpose: Test initCtor for various datatypes
 
 datatype Tracer
     _val: Int

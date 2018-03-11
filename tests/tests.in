@@ -99,10 +99,6 @@ Basic2/InstSpeed.spr:                   Basic features 2 - Instantiation speed
 Basic/LLVMCode.llvm:                    Basic features - Code from llvm file
 Basic/Basic.spr:                        Basic features - A small Sparrow code
 Basic/Stmt.spr:                         Basic features - Statements
-Basic/DataStruct.spr:                   Basic features - Data structure
-Basic/Struct.spr:                       Basic features - New data structure
-Basic/StructGeneric.spr:                Basic features - New data structure, with generics
-Basic/StructInit.spr:                   Basic features - Struct initialization
 Basic/Compound.spr:                     Basic features - Compound expressions
 Basic/SameName.spr:                     Basic features - Class, function, var with same name
 Basic/CtFun.spr:                        Basic features - CT functions
@@ -116,8 +112,6 @@ Basic/StaticCtorDtor.spr:               Basic features - Static constructors & d
 Basic/ExternalCtor.spr:                 Basic features - External ctor
 Basic/ObjectCopy.spr:                   Basic features - Object copying
 Basic/ObjectCopyRVO.spr:                Basic features - Object copying + Return Value Optimization
-# Basic/CastErr.spr:                      Basic features - Casts with errors
-# Basic/Cast.spr:                         Basic features - Casts
 Basic/Functor.spr:                      Basic features - Functors
 Basic/TypeVar.spr:                      Basic features - Type variables
 Basic/Generics.spr:                     Basic features - Generics
@@ -142,6 +136,10 @@ Basic/CallOperator.spr:                 Basic features - Call operator
 Basic/DependentTypes.spr:               Basic features - Dependent types
 Basic/Using.spr:                        Basic features - Using directives
 Basic/datatype/syntax.spr:              Basic features - datatype - various syntaxes
+Basic/datatype/storage.spr:             Basic features - datatype - storage
+Basic/datatype/interaction.spr:         Basic features - datatype - various interaction patterns
+Basic/datatype/generic.spr:             Basic features - datatype - basic generics test
+Basic/datatype/initCtor.spr:            Basic features - datatype - initCtor
 
 Imports/ImportTwice.spr:                Import twice the same file
 Imports/ImportComplex.spr:              Import a complex hierarchy of files, some of them twice

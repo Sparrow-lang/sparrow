@@ -1,0 +1,36 @@
+//!! -t "../SparrowImplicitLib.spr" -fno-main
+
+// Test purpose: datatypes have run-time storage; we can assign and read values from them
+
+datatype MyType
+    x: Int
+    y: Int
+
+datatype MyType2
+    x: MyType
+    y: Double
+
+var i: Int
+var a: MyType
+var b: MyType2
+
+[native("test")] fun test(n: Int)
+    i = 1
+    a.x = 10
+    a.y = 11
+    b.x.x = 20
+    b.x.y = 21
+
+    writeLnInt(i)
+    writeLnInt(a.x)
+    writeLnInt(a.y)
+    writeLnInt(b.x.x)
+    writeLnInt(b.x.y)
+
+/*<<<Running()
+1
+10
+11
+20
+21
+>>>*/

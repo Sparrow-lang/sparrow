@@ -1,5 +1,7 @@
 //!! -t "SparrowImplicitLib.spr" -fno-main -fno-rvo
 
+// Test purpose: Test calling ctor & dtor for objects
+
 datatype MyObj
     v: Int;
 

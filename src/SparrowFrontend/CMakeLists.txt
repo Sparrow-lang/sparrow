@@ -2,7 +2,6 @@
 # The source files
 SET(sourceFiles
     "StdInc.h"
-    "StdInc.cpp"
     "SparrowFrontend.h"
     "SparrowFrontend.cpp"
     "SparrowSourceCode.h"
@@ -96,13 +95,7 @@ INCLUDE_DIRECTORIES( "." )
 INCLUDE_DIRECTORIES( ".." )
 INCLUDE_DIRECTORIES( "${CMAKE_CURRENT_BINARY_DIR}" )
 ADD_DEFINITIONS( "-DINSIDE_SPARROWFRONTEND" )
-ADD_MSVC_PRECOMPILED_HEADER("StdInc.h" "StdInc.cpp" sourceFiles)
 ADD_SOURCES_TO_GROUPS(sourceFiles)
-SOURCE_GROUP("Grammar"
-    FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/parser.yy.hpp
-    ${CMAKE_CURRENT_BINARY_DIR}/parser.yy.cpp
-)
 
 ADD_LIBRARY( SparrowFrontend
     ${sourceFiles}

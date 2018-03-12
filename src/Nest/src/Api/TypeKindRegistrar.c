@@ -9,7 +9,7 @@ struct _TypeFunctions
 
 /// The registered type kinds
 static const int _maxTypeKinds = 100;
-struct _TypeFunctions _allTypeKinds[100];
+struct _TypeFunctions _allTypeKinds[_maxTypeKinds];
 unsigned int _numTypeKinds = 0;
 
 int Nest_registerTypeKind(FChangeTypeMode funChangeTypeMode)

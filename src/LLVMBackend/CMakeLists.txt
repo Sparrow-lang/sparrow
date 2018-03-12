@@ -2,7 +2,6 @@
 # The source files
 SET(sourceFiles
     "StdInc.h"
-    "StdInc.cpp"
     "LLVMBackendMod.h"
     "LLVMBackendMod.cpp"
     "LLVMBackend.h"
@@ -44,7 +43,6 @@ SET(sourceFiles
 INCLUDE_DIRECTORIES( "." )
 INCLUDE_DIRECTORIES( ".." )
 ADD_DEFINITIONS( "-DINSIDE_LLVMBACKEND" )
-ADD_MSVC_PRECOMPILED_HEADER("StdInc.h" "StdInc.cpp" sourceFiles)
 ADD_SOURCES_TO_GROUPS(sourceFiles)
 
 ADD_LIBRARY( LLVMBackend ${sourceFiles} )

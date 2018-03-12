@@ -13,7 +13,7 @@ struct _NodeKindDescription
 
 /// The registered node kinds
 static const int _maxNodeKinds = 1000;
-struct _NodeKindDescription _allNodeKinds[1000];
+struct _NodeKindDescription _allNodeKinds[_maxNodeKinds];
 unsigned int _numNodeKinds = 0;
 
 int Nest_registerNodeKind(const char* name,

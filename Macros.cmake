@@ -29,27 +29,6 @@ MACRO(ADD_SOURCES_TO_GROUPS sourcesVar)
     ENDIF()
 ENDMACRO(ADD_SOURCES_TO_GROUPS)
 
-MACRO(ADD_MSVC_PRECOMPILED_HEADER pchHeader pchSource sourcesVar)
-    IF(MSVC)
-        GET_FILENAME_COMPONENT(pchBasename ${pchHeader} NAME_WE)
-        SET(pchBinary "$(IntDir)/${pchBasename}.pch")
-        SET(sources ${${sourcesVar}})
-
-        GET_FILENAME_COMPONENT(pchSourceFull ${pchSource} ABSOLUTE)
-        FOREACH(f ${sources})
-            GET_FILENAME_COMPONENT(fFull ${f} ABSOLUTE)
-            IF(fFull STREQUAL pchSourceFull)
-                SET_SOURCE_FILES_PROPERTIES(${f}
-                    PROPERTIES COMPILE_FLAGS "/Yc\"${pchHeader}\" /Fp\"${pchBinary}\"" OBJECT_OUTPUTS "${pchBinary}")
-            ELSE()
-                SET_SOURCE_FILES_PROPERTIES(${f}
-                    PROPERTIES COMPILE_FLAGS "/Yu\"${pchHeader}\" /FI\"${pchHeader}\" /Fp\"${pchBinary}\""
-                    OBJECT_DEPENDS "${pchBinary}")
-            ENDIF()
-        ENDFOREACH()
-    ENDIF(MSVC)
-ENDMACRO(ADD_MSVC_PRECOMPILED_HEADER)
-
 macro(SPARROW_TARGET Name Input Output)
     set(SPARROW_TARGET_outputs "${Output}")
     set(SPARROW_EXECUTABLE_opts "")

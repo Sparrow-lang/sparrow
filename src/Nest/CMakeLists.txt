@@ -41,7 +41,6 @@ SET(sourceFiles
     "Utils/StringRef.hpp"
     "Utils/Tuple.hpp"
 
-    "src/StdInc.cpp"
     "src/StdInc.hpp"
     "src/Api/Backend.c"
     "src/Api/CompilationContext.c"
@@ -68,7 +67,6 @@ SET(sourceFiles
 INCLUDE_DIRECTORIES( "." )
 INCLUDE_DIRECTORIES( ".." )
 ADD_DEFINITIONS( "-DINSIDE_NEST" )
-ADD_MSVC_PRECOMPILED_HEADER("StdInc.h" "StdInc.cpp" sourceFiles)
 ADD_SOURCES_TO_GROUPS(sourceFiles)
 
 ADD_LIBRARY( Nest ${sourceFiles} )

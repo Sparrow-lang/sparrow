@@ -66,7 +66,7 @@ namespace
 
         // Actually execute the program
         string errMsg;
-        int res = llvm::sys::ExecuteAndWait(args[0], &cstrArgs[0], 0, 0, 0, 0, &errMsg);
+        int res = llvm::sys::ExecuteAndWait(args[0], &cstrArgs[0], nullptr, {}, 0, 0, &errMsg);
         if ( res != 0 )
             REP_INTERNAL(NOLOC, "Cannot run command: %1%") % errMsg;
     }
@@ -75,7 +75,7 @@ namespace
     void writeBitcodeFile(const Module& module, const string& outputFilename)
     {
         error_code errorInfo;
-        unique_ptr<tool_output_file> outFile(new tool_output_file(outputFilename.c_str(), errorInfo, sys::fs::OpenFlags::F_None));
+        unique_ptr<ToolOutputFile> outFile(new ToolOutputFile(outputFilename.c_str(), errorInfo, sys::fs::OpenFlags::F_None));
         if ( errorInfo )
             REP_INTERNAL(NOLOC, "Cannot generate bitcode file (%1%); reason: %2%") % outputFilename % errorInfo;
 
@@ -88,7 +88,7 @@ namespace
     void writeAssemblyFile(const Module& module, const string& outputFilename)
     {
         error_code errorInfo;
-        unique_ptr<tool_output_file> outFile(new tool_output_file(outputFilename.c_str(), errorInfo, sys::fs::OpenFlags::F_None));
+        unique_ptr<ToolOutputFile> outFile(new ToolOutputFile(outputFilename.c_str(), errorInfo, sys::fs::OpenFlags::F_None));
         if ( !outFile || errorInfo )
             REP_INTERNAL(NOLOC, "Cannot generate LLVM assembly file (%1%); reason: %2%") % outputFilename % errorInfo;
 

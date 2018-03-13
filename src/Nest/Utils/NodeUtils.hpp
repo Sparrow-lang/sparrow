@@ -3,7 +3,7 @@
 #include "Nest/Utils/NodeUtils.h"
 
 inline NodeRange all(NodeArray nodes) {
-    NodeRange res = { nodes.beginPtr, nodes.endPtr };
+    NodeRange res = {nodes.beginPtr, nodes.endPtr};
     return res;
 }
 
@@ -15,31 +15,24 @@ inline Node** end(NodeArray r) { return r.endPtr; }
 
 /// Construct a NodeRange from an initializer_list
 inline NodeRange fromIniList(std::initializer_list<Node*> l) {
-    NodeRange res = { (Node**) l.begin(), (Node**) l.end() };
+    NodeRange res = {(Node**)l.begin(), (Node**)l.end()};
     return res;
 }
 
-inline Node*& at(NodeRange r, unsigned int idx) {
-    return r.beginPtr[idx];
-}
+inline Node*& at(NodeRange r, unsigned int idx) { return r.beginPtr[idx]; }
 
-inline Node*& at(NodeArray arr, unsigned int idx) {
-    return arr.beginPtr[idx];
-}
+inline Node*& at(NodeArray arr, unsigned int idx) { return arr.beginPtr[idx]; }
 
-inline unsigned int size(NodeRange r) {
-    return Nest_nodeRangeSize(r);
-}
-inline unsigned int size(NodeArray arr) {
-    return Nest_nodeArraySize(arr);
-}
+inline unsigned int size(NodeRange r) { return Nest_nodeRangeSize(r); }
+inline unsigned int size(NodeArray arr) { return Nest_nodeArraySize(arr); }
 
 //! Class that destructs a node array on its destructor.
 //! A scoped action for deleting the array
-class NodeArrayDestroyer
-{
+class NodeArrayDestroyer {
     NodeArray& arr;
+
 public:
-    NodeArrayDestroyer(NodeArray& a) : arr(a) {}
+    NodeArrayDestroyer(NodeArray& a)
+        : arr(a) {}
     ~NodeArrayDestroyer() { Nest_freeNodeArray(arr); }
 };

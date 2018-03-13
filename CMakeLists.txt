@@ -99,6 +99,17 @@ endif()
 # Add our macros
 include(Macros.cmake)
 
+# Add target for clang-format
+find_program(CLANG_FORMAT "clang-format" HINTS ${LLVM_TOOLS_BINARY_DIR})
+if(CLANG_FORMAT)
+    add_custom_target(
+        clang-format
+        COMMAND
+            find ../src/ -name '*.c' -o -name '*.cpp' -o -name '*.h' -o -name '*.hpp'
+            | xargs ${CLANG_FORMAT} -i
+    )
+endif()
+
 # Dive into subdirectories
 add_subdirectory( src/Nest )
 add_subdirectory( src/Feather )

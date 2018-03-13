@@ -15,7 +15,7 @@ inline NodeRange subrange(NodeVector& nodes, int startIdx, int endIdx) {
 }
 
 inline NodeRange subrange(NodeRange nodes, int startIdx, int endIdx) {
-    NodeRange res = {nodes.beginPtr+startIdx, nodes.beginPtr+endIdx};
+    NodeRange res = {nodes.beginPtr + startIdx, nodes.beginPtr + endIdx};
     return res;
 }
 

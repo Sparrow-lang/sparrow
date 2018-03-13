@@ -4,8 +4,7 @@
 #include <vector>
 
 /// Class that holds the compiler settings
-struct Nest_CompilerSettings
-{
+struct Nest_CompilerSettings {
 public:
     Nest_CompilerSettings()
         : printVersion_(false)
@@ -24,21 +23,19 @@ public:
         , dumpCtAssembly_(false)
         , dumpOptAssembly_(false)
         , dumpAST_()
-        , keepIntermediateFiles_(false)
-    {}
+        , keepIntermediateFiles_(false) {}
 
-/// Deduced settings
-///{
+    /// Deduced settings
+    ///{
     /// The name of the program
     string programName_;
 
     /// The directory where the executable is
     string executableDir_;
-///}
+    ///}
 
-
-/// Generic options
-///{
+    /// Generic options
+    ///{
     /// If true, the compiler should print the current version and exit
     bool printVersion_;
 
@@ -47,11 +44,10 @@ public:
 
     /// True if we shouldn't use colors when displaying error messages
     bool noColors_;
-///}
+    ///}
 
-
-/// Driver options
-///{
+    /// Driver options
+    ///{
 
     /// The files that need to be compiled
     vector<string> filesToBeCompiled_;
@@ -77,10 +73,10 @@ public:
     /// List of arguments to be passed to the linker
     vector<string> linkerArgs_;
 
-///}
+    ///}
 
-/// Directory options
-///{
+    /// Directory options
+    ///{
     /// Import paths for Sparrow files
     vector<string> importPaths_;
 
@@ -89,19 +85,19 @@ public:
 
     /// List of paths where we can find frameworks that we are linking with
     vector<string> frameworkPaths_;
-///}
+    ///}
 
-/// Sparrow specific options
-///{
+    /// Sparrow specific options
+    ///{
     /// The location of the file that needs to be loaded as implicit lib (containing standard types)
     string implicitLibFilePath_;
 
     /// True if we need to include the entry point functionality into the final program
     bool useMain_;
-///}
+    ///}
 
-/// Code generation options
-///{
+    /// Code generation options
+    ///{
     /// The compiler defines passed as arguments
     vector<string> defines_;
 
@@ -114,28 +110,29 @@ public:
     /// The target triple to be used
     string targetTriple_;
 
-    /// The maximum number of lines to be considered for inline; after this number of lines, the functions will not
-    /// be inlined
+    /// The maximum number of lines to be considered for inline; after this number of lines, the
+    /// functions will not be inlined
     int maxCountForInline_;
 
-    /// The optimization level to be applied to the generated code (0=no optimizations,1,2,3, 's', 'fast')
+    /// The optimization level to be applied to the generated code (0=no optimizations,1,2,3, 's',
+    /// 'fast')
     string optimizationLevel_;
 
     /// If this is set, we disable ReturnValueOptimization (and pseudo-RVO)
     bool noRVO_;
-///}
+    ///}
 
-/// Linker options
-///{
+    /// Linker options
+    ///{
     /// List of libraries to link with
     vector<string> libraries_;
 
     /// List of frameworks to link with
     vector<string> frameworks_;
-///}
+    ///}
 
-/// Debugging options
-///{
+    /// Debugging options
+    ///{
     /// If true we will dump LLVM assembly for each input file, and for the output file
     bool dumpAssembly_;
 
@@ -152,5 +149,5 @@ public:
 
     /// Set this to true if you don't want to delete the intermediate files used during generation
     bool keepIntermediateFiles_;
-///}
+    ///}
 };

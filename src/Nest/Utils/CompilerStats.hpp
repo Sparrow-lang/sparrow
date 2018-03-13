@@ -17,7 +17,7 @@ struct CompilerStats {
     chrono::microseconds timeLink;
 
 private:
-    CompilerStats() {}
+    CompilerStats() = default;
 };
 
 //! Helper class that can accumulate time

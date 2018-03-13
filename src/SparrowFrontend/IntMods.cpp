@@ -117,9 +117,9 @@ Node* generateAssociatedFun(Node* parent, const string& name, const string& op, 
 
     vector<pair<TypeRef, string>> params;
     params.reserve(2);
-    params.push_back({Feather_addRef(cls->type), string("this")});
+    params.emplace_back(Feather_addRef(cls->type), string("this"));
     if (otherParam)
-        params.push_back({otherParam, string("other")});
+        params.emplace_back(otherParam, string("other"));
 
     return addAssociatedFun(parent, name, body, params, generatedOverloadPrio, nullptr, mode);
 }
@@ -128,7 +128,7 @@ Node* generateAssociatedFun(Node* parent, const string& name, const string& op, 
 /// Returns true if all fields were initialized with default values, and no params are needed.
 bool generateInitCtor(Node* parent) {
     vector<pair<TypeRef, string>> params;
-    params.push_back({Feather_addRef(parent->type), "this"});
+    params.emplace_back(Feather_addRef(parent->type), "this");
 
     Location loc = parent->location;
     loc.end = loc.start;
@@ -148,7 +148,7 @@ bool generateInitCtor(Node* parent) {
         if (!init) {
             // Add a parameter for the base
             string paramName = "f" + toString(Feather_getName(field));
-            params.push_back({t, paramName});
+            params.emplace_back(t, paramName);
             init = mkIdentifier(loc, fromString(paramName));
             if (t->numReferences > 0)
                 init = Feather_mkMemLoad(loc, init);
@@ -197,8 +197,8 @@ Node* generateEqualityCheckFun(Node* parent) {
     vector<pair<TypeRef, string>> params;
     params.reserve(2);
     TypeRef t = Feather_getDataType(cls, 1, modeUnspecified);
-    params.push_back({t, string("this")});
-    params.push_back({t, string("other")});
+    params.emplace_back(t, string("this"));
+    params.emplace_back(t, string("other"));
     Node* res = addAssociatedFun(parent, "==", body, params, generatedOverloadPrio, StdDef::clsBool,
             Feather_effectiveEvalMode(parent), true);
     return res;

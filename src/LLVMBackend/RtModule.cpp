@@ -27,7 +27,7 @@ RtModule::RtModule(const string& name, const string& filename)
         debugInfo_.reset(new DebugInfo(*llvmModule_, filename));
 }
 
-RtModule::~RtModule() {}
+RtModule::~RtModule() = default;
 
 void RtModule::generate(Node* rootNode) {
     if (!rootNode || !rootNode->nodeSemanticallyChecked)

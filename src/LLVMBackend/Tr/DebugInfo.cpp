@@ -41,7 +41,7 @@ DebugInfo::DebugInfo(llvm::Module& module, const string& mainFilename)
     createCompileUnit(mainFilename);
 }
 
-DebugInfo::~DebugInfo() {}
+DebugInfo::~DebugInfo() = default;
 
 void DebugInfo::finalize() { diBuilder_.finalize(); }
 

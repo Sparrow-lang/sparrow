@@ -8,7 +8,7 @@
 #include "Nest/Api/NodeArray.h"
 #include "Nest/Api/Type.h"
 
-typedef struct {
+struct JsonContext {
     FILE* f;
     int indent;
     bool insideArray;
@@ -18,7 +18,7 @@ typedef struct {
     const SourceCode* sourceCodeFilter;
 
     std::unordered_set<void*> writtenPointers;
-} JsonContext;
+};
 
 bool _satisfiesFilter(JsonContext* ctx, Node* node) {
     Location loc = node->location;

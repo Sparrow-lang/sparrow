@@ -149,7 +149,7 @@ void generateNativeObjGCC(
     //  GCC mysteriously knows how to do it.
     vector<string> args = {gcc, "-O0"};
     if (s.generateDebugInfo_)
-        args.push_back("-g");
+        args.emplace_back("-g");
 
     for (const string& str : s.libPaths_) {
         args.push_back("-L" + str);
@@ -158,12 +158,12 @@ void generateNativeObjGCC(
         args.push_back("-F" + str);
     }
     for (const string& str : s.frameworks_) {
-        args.push_back("-framework");
+        args.emplace_back("-framework");
         args.push_back(str);
     }
     args.insert(args.end(), s.linkerArgs_.begin(), s.linkerArgs_.end());
     args.insert(args.end(), {inputFilename, "-o", outputFilename});
-    args.push_back("-lm"); // link against the math library
+    args.emplace_back("-lm"); // link against the math library
     runCmd(args);
 }
 } // namespace

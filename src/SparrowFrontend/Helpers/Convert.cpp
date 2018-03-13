@@ -337,7 +337,7 @@ ConversionResult canConvertImpl(
 // Method that checks for available conversions; use a cache for speeding up search
 ConversionResult cachedCanConvertImpl(
         CompilationContext* context, int flags, TypeRef srcType, TypeRef destType) {
-    typedef Tuple4<TypeRef, TypeRef, int, const SourceCode*> KeyType;
+    using KeyType = Tuple4<TypeRef, TypeRef, int, const SourceCode*>;
     static unordered_map<KeyType, ConversionResult> convMap;
 
     // Try to find the conversion in the map -- first, try without a source code

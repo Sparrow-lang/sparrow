@@ -74,7 +74,7 @@ DataLayoutHelper::DataLayoutHelper()
     llvmModule_->setTargetTriple(s.targetTriple_);
 }
 
-DataLayoutHelper::~DataLayoutHelper() {}
+DataLayoutHelper::~DataLayoutHelper() = default;
 
 size_t DataLayoutHelper::getSizeOf(TypeRef type) {
     // Special case for "Type" type

@@ -6,7 +6,7 @@
 
 #include <boost/bind.hpp>
 
-typedef unordered_multimap<string, Node*> MMap;
+using MMap = unordered_multimap<string, Node*>;
 using MMapPair = MMap::value_type;
 
 struct _SymTabImpl {

@@ -60,7 +60,7 @@ llvm::GlobalVariable* createGlobalVarDecl(
         var = new llvm::GlobalVariable(ctx.llvmModule_, type,
                 false,                              // isConstant
                 llvm::GlobalValue::ExternalLinkage, // linkage
-                0,                                  // initializer - specified below
+                nullptr,                            // initializer - specified below
                 varName.c_str());
     }
     return var;

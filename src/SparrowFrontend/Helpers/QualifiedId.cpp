@@ -15,7 +15,7 @@ void SprFrontend::interpretQualifiedId(Node* n, QidVec& res) {
     } else if (n->nodeKind == nkSparrowExpStarExp) {
         Node* base = at(n->children, 0);
         interpretQualifiedId(base, res);
-        res.emplace_back(make_pair(StringRef({0, 0}), n->location));
+        res.emplace_back(make_pair(StringRef({nullptr, nullptr}), n->location));
     } else
         REP_INTERNAL(n->location, "Don't know how to interpret node %1% in qualified id") % n;
 }

@@ -1023,7 +1023,7 @@ Node* CompoundExp_SemanticCheck(Node* node) {
     Nest_setPropertyNode(node, "baseDataExp", baseDataExp);
 
     // Get the declarations that this node refers to
-    NodeArray declsOrig{0, 0, 0};
+    NodeArray declsOrig{nullptr, nullptr, nullptr};
     if (!baseDecls.empty()) {
         // Get the referred declarations; search for our id inside the symbol table of the
         // declarations of the base

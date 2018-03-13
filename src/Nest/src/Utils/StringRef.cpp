@@ -4,7 +4,7 @@
 #include "Nest/Utils/Alloc.h"
 
 StringRef allocStringRef(unsigned size) {
-    StringRef res = {0, 0};
+    StringRef res = {nullptr, nullptr};
     if (size == 0)
         return res;
     char* p = (char*)alloc(size + 1, allocString); // extra byte for null termination;
@@ -20,7 +20,7 @@ StringRef fromCStr(const char* str) {
 }
 StringRef fromString(const string& str) {
     if (str.empty())
-        return StringRef{0, 0};
+        return StringRef{nullptr, nullptr};
     StringRef res = {&str[0], (&str[0]) + str.size()};
     return res;
 }

@@ -24,7 +24,7 @@ StringRef ctApi_SourceCode_filename(SourceCode* thisArg) { return fromCStr(thisA
 StringRef ctApi_Location_getCorrespondingCode(Location* thisArg) {
     const SourceCode* sourceCode = (const SourceCode*)thisArg->sourceCode;
     string code;
-    StringRef lineStr = {0, 0};
+    StringRef lineStr = {nullptr, nullptr};
     if (sourceCode &&
             !(thisArg->start.line == thisArg->end.line && thisArg->start.col > thisArg->end.col)) {
         lineStr = Nest_getSourceCodeLine(sourceCode, thisArg->start.line);
@@ -135,7 +135,7 @@ bool ctApi_AstNode_isSemanticallyChecked(Node* thisArg) {
     return thisArg->nodeSemanticallyChecked != 0;
 }
 TypeRef ctApi_AstNode_type(Node* thisArg) { return thisArg->type; }
-bool ctApi_AstNode_isExplained(Node* thisArg) { return thisArg->explanation != NULL; }
+bool ctApi_AstNode_isExplained(Node* thisArg) { return thisArg->explanation != nullptr; }
 Node* ctApi_AstNode_explanation(Node* thisArg) { return Nest_explanation(thisArg); }
 Node* ctApi_AstNode_curExplanation(Node* thisArg) { return thisArg->explanation; }
 

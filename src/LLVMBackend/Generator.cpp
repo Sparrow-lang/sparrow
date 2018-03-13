@@ -60,11 +60,11 @@ void runCmd(const vector<string>& args) {
         if (s.verbose_)
             cout << " " << arg;
     }
-    cstrArgs.push_back(0);
+    cstrArgs.push_back(nullptr);
 
     // Actually execute the program
     string errMsg;
-    int res = llvm::sys::ExecuteAndWait(args[0], &cstrArgs[0], 0, 0, 0, 0, &errMsg);
+    int res = llvm::sys::ExecuteAndWait(args[0], &cstrArgs[0], nullptr, nullptr, 0, 0, &errMsg);
     if (res != 0)
         REP_INTERNAL(NOLOC, "Cannot run command: %1%") % errMsg;
 }

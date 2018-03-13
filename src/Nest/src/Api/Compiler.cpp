@@ -134,7 +134,7 @@ pair<bool, SourceCode*> _handleImportFile(const ImportInfo& import) {
 
     // Create a new CompilationContext for the sourceCode
     CompilationContext* newContext =
-            Nest_mkChildContextWithSymTab(_rootContext, NULL, modeUnspecified);
+            Nest_mkChildContextWithSymTab(_rootContext, nullptr, modeUnspecified);
     newContext->sourceCode = sourceCode;
 
     // Do the parsing

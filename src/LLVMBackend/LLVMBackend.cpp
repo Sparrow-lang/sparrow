@@ -41,7 +41,7 @@ struct LLVMBackend _llvmBackend = {
         {"llvm", "backend that uses LLVM to generate code", &_llvmBeInit,
                 &_llvmBeGenerateMachineCode, &_llvmBeLink, &_llvmBeCtProcess, &_llvmBeCtEvaluate,
                 &_llvmBeSizeOf, &_llvmBeAlignmentOf, &_llvmBeCtApiRegisterFun},
-        NULL, NULL, NULL};
+        nullptr, nullptr, nullptr};
 
 void _llvmBeInit(Backend* backend, const char* mainFilename) {
     // Init LLVM

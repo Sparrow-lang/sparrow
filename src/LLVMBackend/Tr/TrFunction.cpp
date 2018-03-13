@@ -180,7 +180,7 @@ void createFunDefinition(
 
     // Create the block in which we insert the code
     llvm::BasicBlock* bodyBlock =
-            llvm::BasicBlock::Create(ctx.targetBackend_.llvmContext(), "", decl, 0);
+            llvm::BasicBlock::Create(ctx.targetBackend_.llvmContext(), "", decl, nullptr);
 
     // Create a local context for the body of the function
     TrContext localCtx(ctx, bodyBlock, llvmBuilder);
@@ -276,7 +276,7 @@ llvm::Function* Tr::makeFunThatCalls(
         f->addAttribute(1, llvm::Attribute::StructRet);
 
     // Create the block in which we insert the code
-    llvm::BasicBlock* bodyBlock = llvm::BasicBlock::Create(llvmContext, "", f, 0);
+    llvm::BasicBlock* bodyBlock = llvm::BasicBlock::Create(llvmContext, "", f, nullptr);
 
     // Create a local context for the body of the function
     llvm::IRBuilder<> llvmBuilder(llvmContext);

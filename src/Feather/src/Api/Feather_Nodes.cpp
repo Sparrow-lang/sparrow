@@ -111,7 +111,7 @@ Node* NodeList_SemanticCheck(Node* node) {
     for (Node* c : node->children) {
         if (c) {
             if (!Nest_semanticCheck(c))
-                return NULL;
+                return nullptr;
             hasNonCtChildren = hasNonCtChildren || !Feather_isCt(c);
         }
     }
@@ -463,7 +463,8 @@ const char* CtValue_toString(const Node* node) {
     StringRef valueDataStr = Nest_getCheckPropertyString(node, "valueData");
     const void* valueData = valueDataStr.begin;
 
-    StringRef nativeName = type->hasStorage ? Feather_nativeName(type) : StringRef{0, 0};
+    StringRef nativeName =
+            type->hasStorage ? Feather_nativeName(type) : StringRef{nullptr, nullptr};
     if (0 == strcmp(type->description, "Type/ct")) {
         TypeRef t = *((TypeRef*)valueData);
         os << t;
@@ -665,17 +666,17 @@ Node* FunCall_SemanticCheck(Node* node) {
         REP_ERROR(node->location,
                 "Not all arguments are compile-time, when calling a compile time function");
         REP_INFO(fun->location, "See called function");
-        return NULL;
+        return nullptr;
     }
     if (curMode == modeRtCt && calledFunMode == modeRt) {
         REP_ERROR(node->location, "Cannot call RT functions from RTCT contexts");
         REP_INFO(fun->location, "See called function");
-        return NULL;
+        return nullptr;
     }
     if (curMode == modeCt && calledFunMode == modeRt) {
         REP_ERROR(node->location, "Cannot call a RT function from a CT context");
         REP_INFO(fun->location, "See called function");
-        return NULL;
+        return nullptr;
     }
 
     // Get the type from the function decl
@@ -1109,62 +1110,64 @@ int nkFeatherStmtContinue = 0;
 int nkFeatherStmtReturn = 0;
 
 void initFeatherNodeKinds() {
-    nkFeatherNop = Nest_registerNodeKind("nop", &Nop_SemanticCheck, NULL, NULL, NULL);
+    nkFeatherNop = Nest_registerNodeKind("nop", &Nop_SemanticCheck, nullptr, nullptr, nullptr);
     nkFeatherTypeNode = Nest_registerNodeKind(
-            "typeNode", &TypeNode_SemanticCheck, NULL, NULL, &TypeNode_toString);
+            "typeNode", &TypeNode_SemanticCheck, nullptr, nullptr, &TypeNode_toString);
     nkFeatherBackendCode = Nest_registerNodeKind(
-            "backendCode", &BackendCode_SemanticCheck, NULL, NULL, &BackendCode_toString);
+            "backendCode", &BackendCode_SemanticCheck, nullptr, nullptr, &BackendCode_toString);
     nkFeatherNodeList = Nest_registerNodeKind(
-            "nodeList", &NodeList_SemanticCheck, &NodeList_ComputeType, NULL, NULL);
+            "nodeList", &NodeList_SemanticCheck, &NodeList_ComputeType, nullptr, nullptr);
     nkFeatherLocalSpace = Nest_registerNodeKind("localSpace", &LocalSpace_SemanticCheck,
-            &LocalSpace_ComputeType, &LocalSpace_SetContextForChildren, NULL);
-    nkFeatherGlobalConstructAction = Nest_registerNodeKind(
-            "globalConstructAction", &GlobalConstructAction_SemanticCheck, NULL, NULL, NULL);
+            &LocalSpace_ComputeType, &LocalSpace_SetContextForChildren, nullptr);
+    nkFeatherGlobalConstructAction = Nest_registerNodeKind("globalConstructAction",
+            &GlobalConstructAction_SemanticCheck, nullptr, nullptr, nullptr);
     nkFeatherGlobalDestructAction = Nest_registerNodeKind(
-            "globalDestructAction", &GlobalDestructAction_SemanticCheck, NULL, NULL, NULL);
-    nkFeatherScopeDestructAction = Nest_registerNodeKind(
-            "scopelDestructAction", &ScopeTempDestructAction_SemanticCheck, NULL, NULL, NULL);
-    nkFeatherTempDestructAction = Nest_registerNodeKind(
-            "tempDestructAction", &ScopeTempDestructAction_SemanticCheck, NULL, NULL, NULL);
-    nkFeatherChangeMode = Nest_registerNodeKind("changeMode", &ChangeMode_SemanticCheck, NULL,
+            "globalDestructAction", &GlobalDestructAction_SemanticCheck, nullptr, nullptr, nullptr);
+    nkFeatherScopeDestructAction = Nest_registerNodeKind("scopelDestructAction",
+            &ScopeTempDestructAction_SemanticCheck, nullptr, nullptr, nullptr);
+    nkFeatherTempDestructAction = Nest_registerNodeKind("tempDestructAction",
+            &ScopeTempDestructAction_SemanticCheck, nullptr, nullptr, nullptr);
+    nkFeatherChangeMode = Nest_registerNodeKind("changeMode", &ChangeMode_SemanticCheck, nullptr,
             &ChangeMode_SetContextForChildren, &ChangeMode_toString);
 
     nkFeatherDeclFunction = Nest_registerNodeKind("fun", &Function_SemanticCheck,
             &Function_ComputeType, &Function_SetContextForChildren, &Function_toString);
-    nkFeatherDeclClass = Nest_registerNodeKind(
-            "class", &Class_SemanticCheck, &Class_ComputeType, &Class_SetContextForChildren, NULL);
+    nkFeatherDeclClass = Nest_registerNodeKind("class", &Class_SemanticCheck, &Class_ComputeType,
+            &Class_SetContextForChildren, nullptr);
     nkFeatherDeclVar = Nest_registerNodeKind(
-            "var", &Var_SemanticCheck, &Var_ComputeType, &Var_SetContextForChildren, NULL);
+            "var", &Var_SemanticCheck, &Var_ComputeType, &Var_SetContextForChildren, nullptr);
 
-    nkFeatherExpCtValue =
-            Nest_registerNodeKind("ctValue", &CtValue_SemanticCheck, NULL, NULL, &CtValue_toString);
+    nkFeatherExpCtValue = Nest_registerNodeKind(
+            "ctValue", &CtValue_SemanticCheck, nullptr, nullptr, &CtValue_toString);
     nkFeatherExpNull =
-            Nest_registerNodeKind("null", &Null_SemanticCheck, NULL, NULL, &Null_toString);
-    nkFeatherExpVarRef =
-            Nest_registerNodeKind("varRef", &VarRef_SemanticCheck, NULL, NULL, &VarRef_toString);
+            Nest_registerNodeKind("null", &Null_SemanticCheck, nullptr, nullptr, &Null_toString);
+    nkFeatherExpVarRef = Nest_registerNodeKind(
+            "varRef", &VarRef_SemanticCheck, nullptr, nullptr, &VarRef_toString);
     nkFeatherExpFieldRef = Nest_registerNodeKind(
-            "fieldRef", &FieldRef_SemanticCheck, NULL, NULL, &FieldRef_toString);
-    nkFeatherExpFunRef =
-            Nest_registerNodeKind("funRef", &FunRef_SemanticCheck, NULL, NULL, &FunRef_toString);
-    nkFeatherExpFunCall =
-            Nest_registerNodeKind("funCall", &FunCall_SemanticCheck, NULL, NULL, &FunCall_toString);
+            "fieldRef", &FieldRef_SemanticCheck, nullptr, nullptr, &FieldRef_toString);
+    nkFeatherExpFunRef = Nest_registerNodeKind(
+            "funRef", &FunRef_SemanticCheck, nullptr, nullptr, &FunRef_toString);
+    nkFeatherExpFunCall = Nest_registerNodeKind(
+            "funCall", &FunCall_SemanticCheck, nullptr, nullptr, &FunCall_toString);
     nkFeatherExpMemLoad =
-            Nest_registerNodeKind("memLoad", &MemLoad_SemanticCheck, NULL, NULL, NULL);
+            Nest_registerNodeKind("memLoad", &MemLoad_SemanticCheck, nullptr, nullptr, nullptr);
     nkFeatherExpMemStore =
-            Nest_registerNodeKind("memStore", &MemStore_SemanticCheck, NULL, NULL, NULL);
-    nkFeatherExpBitcast =
-            Nest_registerNodeKind("bitcast", &Bitcast_SemanticCheck, NULL, NULL, &Bitcast_toString);
-    nkFeatherExpConditional =
-            Nest_registerNodeKind("conditional", &Conditional_SemanticCheck, NULL, NULL, NULL);
+            Nest_registerNodeKind("memStore", &MemStore_SemanticCheck, nullptr, nullptr, nullptr);
+    nkFeatherExpBitcast = Nest_registerNodeKind(
+            "bitcast", &Bitcast_SemanticCheck, nullptr, nullptr, &Bitcast_toString);
+    nkFeatherExpConditional = Nest_registerNodeKind(
+            "conditional", &Conditional_SemanticCheck, nullptr, nullptr, nullptr);
 
-    nkFeatherStmtIf =
-            Nest_registerNodeKind("if", &If_SemanticCheck, NULL, &If_SetContextForChildren, NULL);
+    nkFeatherStmtIf = Nest_registerNodeKind(
+            "if", &If_SemanticCheck, nullptr, &If_SetContextForChildren, nullptr);
     nkFeatherStmtWhile = Nest_registerNodeKind(
-            "while", &While_SemanticCheck, NULL, &While_SetContextForChildren, NULL);
-    nkFeatherStmtBreak = Nest_registerNodeKind("break", &Break_SemanticCheck, NULL, NULL, NULL);
+            "while", &While_SemanticCheck, nullptr, &While_SetContextForChildren, nullptr);
+    nkFeatherStmtBreak =
+            Nest_registerNodeKind("break", &Break_SemanticCheck, nullptr, nullptr, nullptr);
     nkFeatherStmtContinue =
-            Nest_registerNodeKind("continue", &Continue_SemanticCheck, NULL, NULL, NULL);
-    nkFeatherStmtReturn = Nest_registerNodeKind("return", &Return_SemanticCheck, NULL, NULL, NULL);
+            Nest_registerNodeKind("continue", &Continue_SemanticCheck, nullptr, nullptr, nullptr);
+    nkFeatherStmtReturn =
+            Nest_registerNodeKind("return", &Return_SemanticCheck, nullptr, nullptr, nullptr);
 
     _firstFeatherNodeKind = nkFeatherNop;
 }

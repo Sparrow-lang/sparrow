@@ -24,7 +24,7 @@ void parseSourceCode(SourceCode* sourceCode, CompilationContext* ctx) {
 }
 
 StringRef getSourceCodeLine(const SourceCode* sourceCode, int lineNo) {
-    StringRef res{NULL, NULL};
+    StringRef res{nullptr, nullptr};
     ifstream f(sourceCode->url);
     if (!f)
         return res;

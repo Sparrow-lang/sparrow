@@ -64,7 +64,7 @@ Node* mkDestructActionForConditional(TypeRef resType, llvm::Value* cond,
     if (nkLLVMDestructActionForConditional == 0) {
         nkLLVMDestructActionForConditional =
                 Nest_registerNodeKind("LLVMBackend.destructActionForConditional",
-                        &CondDestrAct_SemanticCheck, NULL, NULL, NULL);
+                        &CondDestrAct_SemanticCheck, nullptr, nullptr, nullptr);
     }
     Node* res = Nest_createNode(nkLLVMDestructActionForConditional);
     res->location = NOLOC;

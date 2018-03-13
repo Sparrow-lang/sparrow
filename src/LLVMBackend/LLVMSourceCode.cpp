@@ -91,7 +91,7 @@ void parseSourceCode(SourceCode* sourceCode, CompilationContext* ctx) {
 }
 
 StringRef getSourceCodeLine(const SourceCode* sourceCode, int lineNo) {
-    StringRef res{NULL, NULL};
+    StringRef res{nullptr, nullptr};
     ifstream f(sourceCode->url);
     if (!f)
         return res;
@@ -113,5 +113,5 @@ int LLVMBe_kindLLVMSourceCode = -1;
 
 void LLVMBe_registerLLVMSourceCode() {
     LLVMBe_kindLLVMSourceCode = Nest_registerSourceCodeKind(
-            ".llvm", "LLVM source code", "", &parseSourceCode, &getSourceCodeLine, NULL);
+            ".llvm", "LLVM source code", "", &parseSourceCode, &getSourceCodeLine, nullptr);
 }

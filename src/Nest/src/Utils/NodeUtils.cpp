@@ -11,7 +11,7 @@ NodeProperty* _findProperty(NodeProperties properties, StringRef name) {
     for (; p != properties.end; ++p)
         if (p->name == name)
             return p;
-    return NULL;
+    return nullptr;
 }
 
 void _setProperty(NodeProperties* properties, NodeProperty prop) {
@@ -164,7 +164,7 @@ void Nest_setPropertyExplType(Node* node, const char* name, TypeRef val) {
 }
 
 int Nest_hasProperty(const Node* node, const char* name) {
-    return NULL != _findProperty(node->properties, fromCStr(name));
+    return nullptr != _findProperty(node->properties, fromCStr(name));
 }
 const int* Nest_getPropertyInt(const Node* node, const char* name) {
     NodeProperty* p = _findProperty(node->properties, fromCStr(name));
@@ -181,7 +181,7 @@ const StringRef* Nest_getPropertyString(const Node* node, const char* name) {
 StringRef Nest_getPropertyStringDeref(const Node* node, const char* name) {
     NodeProperty* p = _findProperty(node->properties, fromCStr(name));
     if (!p || p->kind != propString)
-        return StringRef{0, 0};
+        return StringRef{nullptr, nullptr};
     return p->value.stringValue;
 }
 Node* const* Nest_getPropertyNode(const Node* node, const char* name) {

@@ -85,7 +85,7 @@ Node* createImplicitImport(Location importLoc, SourceCode* toImport) {
     Node* refImpContent = mkModuleRef(importLoc, toImport->mainNode);
     ASSERT(refImpContent);
     Node* starExp = mkStarExp(importLoc, refImpContent, fromCStr("*"));
-    Node* iCode = mkSprUsing(importLoc, StringRef({0, 0}), starExp);
+    Node* iCode = mkSprUsing(importLoc, StringRef({nullptr, nullptr}), starExp);
     setAccessType(iCode, privateAccess);
 
     // Don't warn if we don't find anything
@@ -245,7 +245,7 @@ void ImportName_SetContextForChildren(Node* node) {
 Node* ImportName_SemanticCheck(Node* node) {
     Node* moduleName = at(node->children, 0);
     Node* declNames = at(node->children, 1);
-    StringRef alias = Feather_hasName(node) ? Feather_getName(node) : StringRef({0, 0});
+    StringRef alias = Feather_hasName(node) ? Feather_getName(node) : StringRef({nullptr, nullptr});
 
     AccessType accessType = getAccessType(node);
     if (accessType == unspecifiedAccess)
@@ -303,7 +303,7 @@ Node* ImportName_SemanticCheck(Node* node) {
         // we return something like:
         //      using <moduleRef>.*;
         Node* starExp = mkStarExp(importLoc, refImpContent, fromCStr("*"));
-        content = mkSprUsing(importLoc, StringRef({0, 0}), starExp);
+        content = mkSprUsing(importLoc, StringRef({nullptr, nullptr}), starExp);
         setAccessType(content, accessType);
 
         // Don't warn if we don't find anything
@@ -322,7 +322,7 @@ Node* ImportName_SemanticCheck(Node* node) {
 const char* ImportName_toString(const Node* node) {
     Node* moduleName = at(node->children, 0);
     Node* declNames = at(node->children, 1);
-    StringRef alias = Feather_hasName(node) ? Feather_getName(node) : StringRef({0, 0});
+    StringRef alias = Feather_hasName(node) ? Feather_getName(node) : StringRef({nullptr, nullptr});
 
     ostringstream os;
     os << "ImportName(" << moduleName << ", " << declNames;

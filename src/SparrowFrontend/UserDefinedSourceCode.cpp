@@ -135,7 +135,7 @@ void parseSourceCode(SourceCode* sourceCode, CompilationContext* ctx) {
 }
 
 StringRef getSourceCodeLine(const SourceCode* sourceCode, int lineNo) {
-    StringRef res{NULL, NULL};
+    StringRef res{nullptr, nullptr};
     ifstream f(sourceCode->url);
     if (!f)
         return res;
@@ -155,5 +155,5 @@ StringRef getSourceCodeLine(const SourceCode* sourceCode, int lineNo) {
 
 int SprFe_registerUserDefinedSourceCode(const char* ext, const char* funName) {
     return Nest_registerSourceCodeKind(ext, "Source file registered by the user from library code",
-            funName, &parseSourceCode, &getSourceCodeLine, NULL);
+            funName, &parseSourceCode, &getSourceCodeLine, nullptr);
 }

@@ -26,6 +26,6 @@ void SparrowFrontend_onBackendSetFun(Backend* backend) {
 CompilerModule* getSparrowFrontendModule() {
     CompilerModule* nestModule = new CompilerModule{"SparrowFrontend",
             "Module that defines the frontend for the Sparrow language", "LucTeo", "www.lucteo.ro",
-            1, 0, &SparrowFrontend_initModule, NULL, &SparrowFrontend_onBackendSetFun};
+            1, 0, &SparrowFrontend_initModule, nullptr, &SparrowFrontend_onBackendSetFun};
     return nestModule;
 }

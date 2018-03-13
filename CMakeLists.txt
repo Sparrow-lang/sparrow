@@ -110,6 +110,61 @@ if(CLANG_FORMAT)
     )
 endif()
 
+# Add target for clang-tidy
+set(TIDY_CHECKS
+    -*,
+    # modernize-avoid-bind,
+    # modernize-deprecated-headers,
+    # modernize-loop-convert,
+    # modernize-make-shared,
+    # modernize-make-unique,
+    # modernize-pass-by-value,
+    # modernize-raw-string-literal,
+    # modernize-redundant-void-arg,
+    # modernize-replace-auto-ptr,
+    # modernize-replace-random-shuffle,
+    # modernize-return-braced-init-list,
+    # modernize-shrink-to-fit,
+    # modernize-unary-static-assert,
+    # modernize-use-auto,
+    # modernize-use-bool-literals,
+    # modernize-use-default-member-init,
+    # modernize-use-emplace,
+    # modernize-use-equals-default,
+    # modernize-use-equals-delete,
+    # modernize-use-noexcept,
+    modernize-use-nullptr,
+    # modernize-use-override,
+    # modernize-use-transparent-functors,
+    # modernize-use-using,
+)
+find_program(CLANG_TIDY_SCRIPT "run-clang-tidy.py" HINTS ${LLVM_TOOLS_BINARY_DIR}/../share/clang)
+if(CLANG_TIDY_SCRIPT)
+    # Search for clang-tidy and clang-apply-replacements
+    find_program(CLANG_TIDY "clang-tidy" HINTS ${LLVM_TOOLS_BINARY_DIR})
+    find_program(CLANG_APPLY_REPLACEMENTS "clang-apply-replacements" HINTS ${LLVM_TOOLS_BINARY_DIR})
+
+    # Set extra arguments
+    set(TIDY_FIX 0)
+    set(TIDY_EXTRA_ARGS -quiet -format)
+    if (TIDY_FIX)
+        set(TIDY_EXTRA_ARGS ${TIDY_EXTRA_ARGS} -j 1 -fix)
+    endif()
+
+    # Actually add the target
+    add_custom_target(
+        clang-tidy
+        COMMAND
+            ${CLANG_TIDY_SCRIPT} -header-filter='.*\.hpp' -checks='${TIDY_CHECKS}'
+            -clang-tidy-binary ${CLANG_TIDY}
+            -clang-apply-replacements-binary ${CLANG_APPLY_REPLACEMENTS}
+            ${TIDY_EXTRA_ARGS}
+    )
+endif()
+
+# Ensure generation of compile_commands.json; needed for clang-tidy
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Dive into subdirectories
 add_subdirectory( src/Nest )
 add_subdirectory( src/Feather )

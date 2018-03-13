@@ -406,68 +406,68 @@ int SprFrontend::nkSparrowInnerInstantiationsSet = 0;
 
 void SprFrontend::initSparrowNodeKinds() {
     nkSparrowModifiersNode = Nest_registerNodeKind("spr.modifiers", &ModifiersNode_SemanticCheck,
-            &ModifiersNode_ComputeType, &ModifiersNode_SetContextForChildren, NULL);
+            &ModifiersNode_ComputeType, &ModifiersNode_SetContextForChildren, nullptr);
 
     nkSparrowDeclModule = Nest_registerNodeKind(
-            "spr.module", &Module_SemanticCheck, nullptr, &Module_SetContextForChildren, NULL);
+            "spr.module", &Module_SemanticCheck, nullptr, &Module_SetContextForChildren, nullptr);
     nkSparrowDeclImportName = Nest_registerNodeKind("spr.importName", &ImportName_SemanticCheck,
             nullptr, &ImportName_SetContextForChildren, &ImportName_toString);
     nkSparrowDeclPackage = Nest_registerNodeKind("spr.package", &Package_SemanticCheck,
-            &Package_ComputeType, &Package_SetContextForChildren, NULL);
+            &Package_ComputeType, &Package_SetContextForChildren, nullptr);
     nkSparrowDeclSprDatatype = Nest_registerNodeKind("spr.SprDatatype", &SprDatatype_SemanticCheck,
-            &SprDatatype_ComputeType, &SprDatatype_SetContextForChildren, NULL);
+            &SprDatatype_ComputeType, &SprDatatype_SetContextForChildren, nullptr);
     nkSparrowDeclSprField = Nest_registerNodeKind("spr.sprField", &SprField_SemanticCheck,
-            &SprField_ComputeType, &SprField_SetContextForChildren, NULL);
+            &SprField_ComputeType, &SprField_SetContextForChildren, nullptr);
     nkSparrowDeclSprFunction = Nest_registerNodeKind("spr.sprFunction", &SprFunction_SemanticCheck,
-            &SprFunction_ComputeType, &SprFunction_SetContextForChildren, NULL);
+            &SprFunction_ComputeType, &SprFunction_SetContextForChildren, nullptr);
     nkSparrowDeclSprParameter =
             Nest_registerNodeKind("spr.sprParameter", &SprParameter_SemanticCheck,
-                    &SprParameter_ComputeType, &SprParameter_SetContextForChildren, NULL);
+                    &SprParameter_ComputeType, &SprParameter_SetContextForChildren, nullptr);
     nkSparrowDeclSprVariable = Nest_registerNodeKind("spr.sprVariable", &SprVariable_SemanticCheck,
-            &SprVariable_ComputeType, &SprVariable_SetContextForChildren, NULL);
+            &SprVariable_ComputeType, &SprVariable_SetContextForChildren, nullptr);
     nkSparrowDeclSprConcept = Nest_registerNodeKind("spr.sprConcept", &SprConcept_SemanticCheck,
-            NULL, &SprConcept_SetContextForChildren, NULL);
-    nkSparrowDeclGenericPackage =
-            Nest_registerNodeKind("spr.genericPackage", &Generic_SemanticCheck, NULL, NULL, NULL);
-    nkSparrowDeclGenericClass =
-            Nest_registerNodeKind("spr.genericClass", &Generic_SemanticCheck, NULL, NULL, NULL);
-    nkSparrowDeclGenericFunction =
-            Nest_registerNodeKind("spr.genericFunction", &Generic_SemanticCheck, NULL, NULL, NULL);
+            nullptr, &SprConcept_SetContextForChildren, nullptr);
+    nkSparrowDeclGenericPackage = Nest_registerNodeKind(
+            "spr.genericPackage", &Generic_SemanticCheck, nullptr, nullptr, nullptr);
+    nkSparrowDeclGenericClass = Nest_registerNodeKind(
+            "spr.genericClass", &Generic_SemanticCheck, nullptr, nullptr, nullptr);
+    nkSparrowDeclGenericFunction = Nest_registerNodeKind(
+            "spr.genericFunction", &Generic_SemanticCheck, nullptr, nullptr, nullptr);
     nkSparrowDeclUsing = Nest_registerNodeKind("spr.using", &Using_SemanticCheck,
-            &Using_ComputeType, &Using_SetContextForChildren, NULL);
+            &Using_ComputeType, &Using_SetContextForChildren, nullptr);
 
     nkSparrowExpLiteral =
-            Nest_registerNodeKind("spr.literal", &Literal_SemanticCheck, NULL, NULL, NULL);
-    nkSparrowExpIdentifier =
-            Nest_registerNodeKind("spr.identifier", &Identifier_SemanticCheck, NULL, NULL, NULL);
+            Nest_registerNodeKind("spr.literal", &Literal_SemanticCheck, nullptr, nullptr, nullptr);
+    nkSparrowExpIdentifier = Nest_registerNodeKind(
+            "spr.identifier", &Identifier_SemanticCheck, nullptr, nullptr, nullptr);
     nkSparrowExpCompoundExp = Nest_registerNodeKind(
-            "spr.compoundExp", &CompoundExp_SemanticCheck, NULL, NULL, &CompoundExp_toString);
+            "spr.compoundExp", &CompoundExp_SemanticCheck, nullptr, nullptr, &CompoundExp_toString);
     nkSparrowExpFunApplication = Nest_registerNodeKind(
-            "spr.funApplication", &FunApplication_SemanticCheck, NULL, NULL, NULL);
+            "spr.funApplication", &FunApplication_SemanticCheck, nullptr, nullptr, nullptr);
     nkSparrowExpOperatorCall = Nest_registerNodeKind(
-            "spr.operatorCall", &OperatorCall_SemanticCheck, NULL, NULL, NULL);
-    nkSparrowExpInfixExp =
-            Nest_registerNodeKind("spr.infixExp", &InfixExp_SemanticCheck, NULL, NULL, NULL);
+            "spr.operatorCall", &OperatorCall_SemanticCheck, nullptr, nullptr, nullptr);
+    nkSparrowExpInfixExp = Nest_registerNodeKind(
+            "spr.infixExp", &InfixExp_SemanticCheck, nullptr, nullptr, nullptr);
     nkSparrowExpLambdaFunction = Nest_registerNodeKind(
-            "spr.lambdaFunction", &LambdaFunction_SemanticCheck, NULL, NULL, NULL);
+            "spr.lambdaFunction", &LambdaFunction_SemanticCheck, nullptr, nullptr, nullptr);
     nkSparrowExpSprConditional = Nest_registerNodeKind(
-            "spr.sprConditional", &SprConditional_SemanticCheck, NULL, NULL, NULL);
+            "spr.sprConditional", &SprConditional_SemanticCheck, nullptr, nullptr, nullptr);
     nkSparrowExpDeclExp =
-            Nest_registerNodeKind("spr.declExp", &DeclExp_SemanticCheck, NULL, NULL, NULL);
+            Nest_registerNodeKind("spr.declExp", &DeclExp_SemanticCheck, nullptr, nullptr, nullptr);
     nkSparrowExpStarExp =
-            Nest_registerNodeKind("spr.starExp", &StarExp_SemanticCheck, NULL, NULL, NULL);
-    nkSparrowExpModuleRef =
-            Nest_registerNodeKind("spr.moduleRef", &ModuleRef_SemanticCheck, NULL, NULL, NULL);
+            Nest_registerNodeKind("spr.starExp", &StarExp_SemanticCheck, nullptr, nullptr, nullptr);
+    nkSparrowExpModuleRef = Nest_registerNodeKind(
+            "spr.moduleRef", &ModuleRef_SemanticCheck, nullptr, nullptr, nullptr);
 
     nkSparrowStmtFor = Nest_registerNodeKind(
-            "spr.for", &For_SemanticCheck, &For_ComputeType, &For_SetContextForChildren, NULL);
-    nkSparrowStmtSprReturn =
-            Nest_registerNodeKind("spr.return", &SprReturn_SemanticCheck, NULL, NULL, NULL);
+            "spr.for", &For_SemanticCheck, &For_ComputeType, &For_SetContextForChildren, nullptr);
+    nkSparrowStmtSprReturn = Nest_registerNodeKind(
+            "spr.return", &SprReturn_SemanticCheck, nullptr, nullptr, nullptr);
 
     nkSparrowInnerInstantiation = Nest_registerNodeKind(
-            "spr.instantiation", &Instantiation_SemanticCheck, NULL, NULL, NULL);
+            "spr.instantiation", &Instantiation_SemanticCheck, nullptr, nullptr, nullptr);
     nkSparrowInnerInstantiationsSet = Nest_registerNodeKind(
-            "spr.instantiationSet", &InstantiationsSet_SemanticCheck, NULL, NULL, NULL);
+            "spr.instantiationSet", &InstantiationsSet_SemanticCheck, nullptr, nullptr, nullptr);
 
     firstSparrowNodeKind = nkSparrowModifiersNode;
 }

@@ -13,6 +13,6 @@ void LLVMBackend_initModule() {
 CompilerModule* getLLVMBackendModule() {
     CompilerModule* nestModule =
             new CompilerModule{"LLVMBackend", "Backend that uses LLVM to generate code", "LucTeo",
-                    "www.lucteo.ro", 1, 0, &LLVMBackend_initModule, NULL, NULL};
+                    "www.lucteo.ro", 1, 0, &LLVMBackend_initModule, nullptr, nullptr};
     return nestModule;
 }

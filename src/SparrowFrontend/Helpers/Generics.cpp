@@ -65,7 +65,7 @@ NodeVector createAllBoundVariables(const Location& loc, CompilationContext* cont
 // Generic function
 //
 
-typedef vector<StringRef> NamesVec;
+using NamesVec = vector<StringRef>;
 
 /**
  * Checks if the given node references any of the given seen names.

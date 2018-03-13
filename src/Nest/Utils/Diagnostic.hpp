@@ -19,9 +19,9 @@
 ;
 
 // Stream output operators for the most common nest types
-typedef struct Nest_Location Location;
-typedef struct Nest_Node Node;
-typedef const struct Nest_Type* TypeRef;
+using Location = struct Nest_Location;
+using Node = struct Nest_Node;
+using TypeRef = const struct Nest_Type*;
 
 ostream& operator<<(ostream& os, const Location* loc);
 ostream& operator<<(ostream& os, const Location& loc);

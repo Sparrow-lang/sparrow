@@ -2,8 +2,8 @@
 
 #include "NodeUtils.hpp"
 
-typedef struct Nest_Node Node;
-typedef vector<Node*> NodeVector;
+using Node = struct Nest_Node;
+using NodeVector = vector<Node*>;
 
 inline NodeRange all(NodeVector& nodes) {
     NodeRange res = {&*nodes.begin(), &*nodes.end()};

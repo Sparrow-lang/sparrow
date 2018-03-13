@@ -28,7 +28,7 @@ ostream& operator<<(ostream& os, StringRef str);
 namespace std {
 
 template <> struct hash<StringRef> {
-    typedef StringRef argument_type;
+    using argument_type = StringRef;
     size_t operator()(const StringRef& s) const noexcept {
         size_t seed = 0;
         for (const char* p = s.begin; p != s.end; p++)

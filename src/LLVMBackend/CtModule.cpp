@@ -277,7 +277,7 @@ Node* CtModule::ctEvaluateExpression(Node* node) {
         //  - finalize everything in the engine and get the function address
         //  - transform this into a function pointer that receives the output as a parameter
         //  - call the function, to fill up the data buffer
-        typedef void (*FunType)(const char*);
+        using FunType = void (*)(const char*);
         FunType fptr = (FunType)llvmExecutionEngine_->getFunctionAddress(funName);
         fptr(dataBuffer.begin);
 
@@ -291,7 +291,7 @@ Node* CtModule::ctEvaluateExpression(Node* node) {
         //  - finalize everything in the engine and get the function address
         //  - transform this into a function pointer with no parameters
         //  - call the function
-        typedef void (*FunType)();
+        using FunType = void (*)();
         FunType fptr = (FunType)llvmExecutionEngine_->getFunctionAddress(funName);
         fptr();
 

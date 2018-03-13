@@ -8,8 +8,8 @@
 #include "Nest/Api/Location.h"
 #include "Nest/Utils/NodeUtils.h"
 
-typedef struct Nest_Node Node;
-typedef struct Nest_CompilationContext CompilationContext;
+using Node = struct Nest_Node;
+using CompilationContext = struct Nest_CompilationContext;
 
 /// Getter for the value memory buffer of this value
 template <typename T> T* Feather_getCtValueData(Node* ctVal) {

@@ -270,10 +270,10 @@ int getNumParams(Node* decl) {
         return int(size(params)) - 2;
     }
     if (decl->nodeKind == nkSparrowDeclGenericFunction)
-        return (int) size(genericFunParams(decl));
+        return (int)size(genericFunParams(decl));
     if (decl->nodeKind == nkSparrowDeclSprFunction) {
         Node* parameters = at(decl->children, 0);
-        return parameters ? (int) size(parameters->children) : 0;
+        return parameters ? (int)size(parameters->children) : 0;
     }
     return 0;
 }

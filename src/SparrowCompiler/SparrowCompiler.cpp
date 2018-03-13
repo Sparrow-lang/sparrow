@@ -30,14 +30,13 @@ namespace fs = boost::filesystem;
 extern SourceCode* g_implicitLibSC;
 extern SourceCode* g_compilerArgsSC;
 
-
 void _dumpAstForSourceCode(SourceCode* sourceCode, const char* fileSuffix) {
     auto& s = *Nest_compilerSettings();
-    if ( s.dumpAST_.empty() || !strstr(sourceCode->url, s.dumpAST_.c_str()) )
+    if (s.dumpAST_.empty() || !strstr(sourceCode->url, s.dumpAST_.c_str()))
         return;
 
     const char* end = strrchr(sourceCode->url, '.');
-    if ( !end )
+    if (!end)
         end = sourceCode->url + strlen(sourceCode->url);
     string filename(sourceCode->url, end);
     filename += fileSuffix;
@@ -46,30 +45,19 @@ void _dumpAstForSourceCode(SourceCode* sourceCode, const char* fileSuffix) {
     dumpAstNode(sourceCode->mainNode, filename.c_str());
 }
 
-void _onSourceCodeCreated(SourceCode* sourceCode)
-{
+void _onSourceCodeCreated(SourceCode* sourceCode) {
     // Nothing to do for now
 }
-void _onSourceCodeParsed(SourceCode* sourceCode)
-{
-    _dumpAstForSourceCode(sourceCode, "_orig");
-}
-void _onSourceCodeCompiled(SourceCode* sourceCode)
-{
-    _dumpAstForSourceCode(sourceCode, "_comp");
-}
+void _onSourceCodeParsed(SourceCode* sourceCode) { _dumpAstForSourceCode(sourceCode, "_orig"); }
+void _onSourceCodeCompiled(SourceCode* sourceCode) { _dumpAstForSourceCode(sourceCode, "_comp"); }
 
-void _onSourceCodeCodeGen(SourceCode* sourceCode)
-{
-    _dumpAstForSourceCode(sourceCode, "_gen");
-}
+void _onSourceCodeCodeGen(SourceCode* sourceCode) { _dumpAstForSourceCode(sourceCode, "_gen"); }
 
-bool tryImplicitLibPath(const char* relPath)
-{
+bool tryImplicitLibPath(const char* relPath) {
     auto& s = *Nest_compilerSettings();
 
     fs::path p(s.executableDir_ + relPath);
-    if ( !exists(p) )
+    if (!exists(p))
         return false;
 
     s.implicitLibFilePath_ = "SparrowImplicitLib.spr";
@@ -77,18 +65,17 @@ bool tryImplicitLibPath(const char* relPath)
     return true;
 }
 
-bool ensureImplicitLib()
-{
+bool ensureImplicitLib() {
     // Only if we don't have an implicit lib set
     const auto& s = *Nest_compilerSettings();
-    if ( s.implicitLibFilePath_ != "auto" )
+    if (s.implicitLibFilePath_ != "auto")
         return true;
 
-    return tryImplicitLibPath("/SparrowImplicitLib")
-        || tryImplicitLibPath("/../SparrowImplicitLib")
-        || tryImplicitLibPath("/../include/SparrowImplicitLib")
-        || tryImplicitLibPath("/../../SparrowImplicitLib")
-        || tryImplicitLibPath("/../../include/SparrowImplicitLib");
+    return tryImplicitLibPath("/SparrowImplicitLib") ||
+           tryImplicitLibPath("/../SparrowImplicitLib") ||
+           tryImplicitLibPath("/../include/SparrowImplicitLib") ||
+           tryImplicitLibPath("/../../SparrowImplicitLib") ||
+           tryImplicitLibPath("/../../include/SparrowImplicitLib");
 }
 
 /// Handle compiler arg defines
@@ -101,15 +88,15 @@ void _handleArgDefines(const vector<string>& defines, const char* filename) {
     string tempFilename = fs::unique_path().native() + "-" + filename;
     fs::path tempPath = fs::temp_directory_path() / tempFilename;
     ofstream f(tempPath.native().c_str(), ofstream::out);
-    if ( !f.is_open() ) {
+    if (!f.is_open()) {
         REP_INTERNAL(NOLOC, "Cannot create temporary file %1%") % tempPath;
         return;
     }
 
     // Add its content
-    for ( const auto& def: defines ) {
+    for (const auto& def : defines) {
         const char* suffix = "";
-        if ( def.find('=') == string::npos ) {
+        if (def.find('=') == string::npos) {
             // If no value is given, assume it's 'true'
             suffix = " = true";
         }
@@ -124,8 +111,7 @@ void _handleArgDefines(const vector<string>& defines, const char* filename) {
     fs::remove(tempPath);
 }
 
-void doCompilation(const vector<CompilerModule*>& modules)
-{
+void doCompilation(const vector<CompilerModule*>& modules) {
     auto& s = *Nest_compilerSettings();
 
     ASSERT(!s.filesToBeCompiled_.empty());
@@ -134,9 +120,8 @@ void doCompilation(const vector<CompilerModule*>& modules)
     Nest_createBackend(s.filesToBeCompiled_[0].c_str());
 
     // Tell the modules we have a backend
-    for ( CompilerModule* mod : modules )
-    {
-        if ( mod->onBackendSetFun )
+    for (CompilerModule* mod : modules) {
+        if (mod->onBackendSetFun)
             mod->onBackendSetFun(Nest_getCurBackend());
     }
 
@@ -150,60 +135,50 @@ void doCompilation(const vector<CompilerModule*>& modules)
 
         // Process the implicit definitions file
         g_implicitLibSC = nullptr;
-        if ( !s.implicitLibFilePath_.empty() )
+        if (!s.implicitLibFilePath_.empty())
             g_implicitLibSC = Nest_compileFile(fromString(s.implicitLibFilePath_));
     }
 
     // If we have some compiler defines, put them into a Sparrow source code
-    if ( !s.defines_.empty() )
-    {
+    if (!s.defines_.empty()) {
         const char* filename = "argsDefines.spr";
         Nest::Common::PrintTimer timer(s.verbose_, filename, "   [%d ms]\n");
 
         _handleArgDefines(s.defines_, filename);
     }
 
-
     // Parse each individual file
-    for ( const auto& filename: s.filesToBeCompiled_  )
-    {
+    for (const auto& filename : s.filesToBeCompiled_) {
         Nest::Common::PrintTimer timer(s.verbose_, "", "   [%d ms]\n");
-        if ( s.verbose_ )
+        if (s.verbose_)
             cout << filename;
         Nest_compileFile(fromString(filename));
     }
 
     // Also process the file that implements 'main' entry-point functionality
-    if ( s.useMain_ ) {
+    if (s.useMain_) {
         Nest::Common::PrintTimer timer(s.verbose_, "", "   [%d ms]\n");
-        if ( s.verbose_ )
+        if (s.verbose_)
             cout << "mainImpl.spr";
         Nest_compileFile(fromCStr("sprCore/mainImpl.spr"));
     }
 
     // If we have no errors, start linking
-    if ( Nest_getErrorsNum() == 0 && !s.syntaxOnly_ )
-    {
-        try
-        {
+    if (Nest_getErrorsNum() == 0 && !s.syntaxOnly_) {
+        try {
             Nest::Common::PrintTimer timer(s.verbose_, "", "[%d ms]\n");
-            if ( s.verbose_ )
+            if (s.verbose_)
                 cout << "Linking..." << endl;
-        	Nest_getCurBackend()->link(Nest_getCurBackend(), s.output_.c_str());
-        }
-        catch (const exception& e)
-        {
+            Nest_getCurBackend()->link(Nest_getCurBackend(), s.output_.c_str());
+        } catch (const exception& e) {
             REP_INTERNAL(NOLOC, "Exception caught: '%1%'") % e.what();
-        }
-        catch (...)
-        {
+        } catch (...) {
             REP_INTERNAL(NOLOC, "Unknown exception caught");
         }
     }
 };
 
-vector<CompilerModule*> gatherModules()
-{
+vector<CompilerModule*> gatherModules() {
     vector<CompilerModule*> res;
     res.emplace_back(getNestModule());
     res.emplace_back(Feather_getModule());
@@ -212,28 +187,25 @@ vector<CompilerModule*> gatherModules()
     return res;
 }
 
-int main(int argc,char* argv[])
-{
+int main(int argc, char* argv[]) {
     CompilerStats& stats = CompilerStats::instance();
     auto startTime = chrono::steady_clock::now();
 
-    if ( !initSettingsWithArgs(argc, argv) )
-        return 0;   // Successful exit
+    if (!initSettingsWithArgs(argc, argv))
+        return 0; // Successful exit
 
     const auto& s = *Nest_compilerSettings();
 
     // Make sure we have a valid path the Sparrow implicit lib
-    if ( !ensureImplicitLib() )
-    {
+    if (!ensureImplicitLib()) {
         cout << "Sparrow implicit lib not found" << endl;
         return 1;
     }
 
     // Initialize the modules
     vector<CompilerModule*> modules = gatherModules();
-    for ( CompilerModule* mod : modules )
-    {
-        if ( mod->initFun )
+    for (CompilerModule* mod : modules) {
+        if (mod->initFun)
             mod->initFun();
     }
 
@@ -243,23 +215,17 @@ int main(int argc,char* argv[])
     Nest_registerSourceCodeCompiledCallback(&_onSourceCodeCompiled);
     Nest_registerSourceCodeCodeGenCallback(&_onSourceCodeCodeGen);
 
-    try
-    {
+    try {
         doCompilation(modules);
-    }
-    catch (const exception& e)
-    {
+    } catch (const exception& e) {
         REP_INTERNAL(NOLOC, "Exception caught: '%1%'") % e.what();
-    }
-    catch (...)
-    {
+    } catch (...) {
         REP_INTERNAL(NOLOC, "Unknown exception caught");
     }
 
     // Destroy the modules
-    for ( CompilerModule* mod : modules )
-    {
-        if ( mod->destroyFun )
+    for (CompilerModule* mod : modules) {
+        if (mod->destroyFun)
             mod->destroyFun();
     }
 
@@ -271,12 +237,12 @@ int main(int argc,char* argv[])
     if (stats.enabled) {
         printf("\nCompiler stats:\n");
         printf("#TotalTime: %d\n", (int)durMs.count());
-        printf("#ImplicitLibTime: %d\n", (int)stats.timeImplicitLib.count()/1000);
-        printf("#LlcTime: %d\n", (int)stats.timeLlc.count()/1000);
-        printf("#OptTime: %d\n", (int)stats.timeOpt.count()/1000);
-        printf("#FinalLinkTime: %d\n", (int)stats.timeLink.count()/1000);
+        printf("#ImplicitLibTime: %d\n", (int)stats.timeImplicitLib.count() / 1000);
+        printf("#LlcTime: %d\n", (int)stats.timeLlc.count() / 1000);
+        printf("#OptTime: %d\n", (int)stats.timeOpt.count() / 1000);
+        printf("#FinalLinkTime: %d\n", (int)stats.timeLink.count() / 1000);
         printf("#NumCtEvals: %d\n", stats.numCtEvals);
-        printf("#CtEvalsTime: %d\n", (int)stats.timeCtEvals.count()/1000);
+        printf("#CtEvalsTime: %d\n", (int)stats.timeCtEvals.count() / 1000);
         printf("\n");
     }
 

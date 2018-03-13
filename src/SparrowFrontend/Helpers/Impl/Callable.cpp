@@ -279,7 +279,7 @@ void getClassCtorCallables(Node* cls, EvalMode evalMode, Callables& res,
 //!
 //! We use this as a blackboard for the canCallGenericFun. We store all the info needed here
 class GenericFunCallParams {
-  public:
+public:
     const GenericFunNode genFun_; //!< The generic function to be called
 
     const bool isCtGeneric_; //!< True if we are calling a CT-generic
@@ -293,7 +293,7 @@ class GenericFunCallParams {
     //! Constructor. Initializes most of the parameters here
     GenericFunCallParams(CallableData& c, EvalMode callEvalMode);
 
-  private:
+private:
     //! Compute the final eval mode, based on the params, args and the original eval mode
     static EvalMode getFinalEvalMode(
             NodeRange genericParams, NodeRange args, EvalMode origEvalMode, bool isCtGeneric);
@@ -308,8 +308,8 @@ GenericFunCallParams::GenericFunCallParams(CallableData& c, EvalMode callEvalMod
               genFun_.instSet().params(), all(c.args), origEvalMode_, isCtGeneric_))
     , boundValues_(getParamsCount(c), nullptr) {}
 
-EvalMode GenericFunCallParams::getFinalEvalMode(NodeRange genericParams, NodeRange args, EvalMode origEvalMode, bool isCtGeneric)
-{
+EvalMode GenericFunCallParams::getFinalEvalMode(
+        NodeRange genericParams, NodeRange args, EvalMode origEvalMode, bool isCtGeneric) {
     if (isCtGeneric)
         return modeCt; // If we have a CT generic, the resulting eval mode is always CT
 
@@ -354,7 +354,6 @@ EvalMode GenericFunCallParams::getFinalEvalMode(NodeRange genericParams, NodeRan
         return modeRt;
     return origEvalMode;
 }
-
 
 /**
  * Get the list of final params that should be used in an instantiated function.
@@ -1070,7 +1069,7 @@ Node* callGenericPackage(GenericPackageNode node, const Location& loc, Compilati
 
     return mkDeclExp(loc, fromIniList({instDecl}), nullptr);
 }
-}
+} // namespace
 
 void SprFrontend::getCallables(NodeRange decls, EvalMode evalMode, Callables& res) {
     getCallables(decls, evalMode, res, boost::function<bool(Node*)>());

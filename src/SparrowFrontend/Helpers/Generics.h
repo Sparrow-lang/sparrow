@@ -73,7 +73,10 @@ for instantiation. A dependent param will therefore be treated as a concept para
 struct InstNode {
     Node* node;
 
-    InstNode(Node* n) : node(n) { ASSERT(!n || n->nodeKind == nkSparrowInnerInstantiation); }
+    InstNode(Node* n)
+        : node(n) {
+        ASSERT(!n || n->nodeKind == nkSparrowInnerInstantiation);
+    }
     operator Node*() const { return node; }
 
     Node* boundVarsNode() const { return at(node->children, 0); }
@@ -98,7 +101,10 @@ struct InstNode {
 struct InstSetNode {
     Node* node;
 
-    InstSetNode(Node* n) : node(n) { ASSERT(!n || n->nodeKind == nkSparrowInnerInstantiationsSet); }
+    InstSetNode(Node* n)
+        : node(n) {
+        ASSERT(!n || n->nodeKind == nkSparrowInnerInstantiationsSet);
+    }
     operator Node*() const { return node; }
 
     Node* ifClause() const { return at(node->children, 0); }
@@ -111,7 +117,10 @@ struct InstSetNode {
 struct GenericFunNode {
     Node* node;
 
-    GenericFunNode(Node* n) : node(n) { ASSERT(!n || n->nodeKind == nkSparrowDeclGenericFunction); }
+    GenericFunNode(Node* n)
+        : node(n) {
+        ASSERT(!n || n->nodeKind == nkSparrowDeclGenericFunction);
+    }
     operator Node*() const { return node; }
 
     InstSetNode instSet() const { return at(node->children, 0); }
@@ -123,7 +132,10 @@ struct GenericFunNode {
 struct GenericClassNode {
     Node* node;
 
-    GenericClassNode(Node* n) : node(n) { ASSERT(!n || n->nodeKind == nkSparrowDeclGenericClass); }
+    GenericClassNode(Node* n)
+        : node(n) {
+        ASSERT(!n || n->nodeKind == nkSparrowDeclGenericClass);
+    }
     operator Node*() const { return node; }
 
     InstSetNode instSet() const { return at(node->children, 0); }
@@ -134,7 +146,10 @@ struct GenericClassNode {
 struct GenericPackageNode {
     Node* node;
 
-    GenericPackageNode(Node* n) : node(n) { ASSERT(!n || n->nodeKind == nkSparrowDeclGenericPackage); }
+    GenericPackageNode(Node* n)
+        : node(n) {
+        ASSERT(!n || n->nodeKind == nkSparrowDeclGenericPackage);
+    }
     operator Node*() const { return node; }
 
     InstSetNode instSet() const { return at(node->children, 0); }
@@ -145,7 +160,10 @@ struct GenericPackageNode {
 struct ConceptNode {
     Node* node;
 
-    ConceptNode(Node* n) : node(n) { ASSERT(!n || n->nodeKind == nkSparrowDeclSprConcept); }
+    ConceptNode(Node* n)
+        : node(n) {
+        ASSERT(!n || n->nodeKind == nkSparrowDeclSprConcept);
+    }
     operator Node*() const { return node; }
 
     Node* baseConcept() const { return at(node->children, 0); }
@@ -259,7 +277,8 @@ InstNode createNewInstantiation(InstSetNode instSet, NodeRange values, EvalMode 
  *
  * @return The created bound variable.
  */
-Node* createBoundVar(CompilationContext* context, Node* param, TypeRef paramType, Node* boundValue, bool isCtGeneric);
+Node* createBoundVar(CompilationContext* context, Node* param, TypeRef paramType, Node* boundValue,
+        bool isCtGeneric);
 
 /**
  * Check if the given instantiation is valid.
@@ -314,4 +333,4 @@ TypeRef baseConceptType(Node* concept);
 /// For concept parameters, we store the type as a bound value.
 /// Used as a low-level primitive. Should not be called for CT-generics
 bool isConceptParam(Location paramLoc, TypeRef paramType, Node* boundValue);
-}
+} // namespace SprFrontend

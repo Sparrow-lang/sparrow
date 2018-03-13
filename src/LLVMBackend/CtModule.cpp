@@ -18,7 +18,7 @@
 
 #include <llvm/IR/Verifier.h>
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
-#include <llvm/ExecutionEngine/MCJIT.h>     // We need this include to instantiate the JIT engine
+#include <llvm/ExecutionEngine/MCJIT.h> // We need this include to instantiate the JIT engine
 
 using namespace LLVMB;
 using namespace LLVMB::Tr;
@@ -28,8 +28,7 @@ CtModule::CtModule(const string& name)
     : Module(name)
     , llvmExecutionEngine_(nullptr)
     , llvmModule_(new llvm::Module(name, *llvmContext_))
-    , dataLayout_("")
-{
+    , dataLayout_("") {
     CompilerSettings& s = *Nest_compilerSettings();
 
     llvmModule_->setDataLayout(s.dataLayout_);
@@ -43,7 +42,7 @@ CtModule::CtModule(const string& name)
                                    .setOptLevel(llvm::CodeGenOpt::None)
                                    .create();
 
-    if ( !llvmExecutionEngine_ )
+    if (!llvmExecutionEngine_)
         REP_INTERNAL(NOLOC, "Failed to construct LLVM ExecutionEngine: %1%") % errStr;
 
     // Get the actual data layout to be used
@@ -54,83 +53,81 @@ CtModule::CtModule(const string& name)
     recreateModule();
 }
 
-CtModule::~CtModule()
-{
-    delete llvmExecutionEngine_;
-}
+CtModule::~CtModule() { delete llvmExecutionEngine_; }
 
-void CtModule::ctProcess(Node* node)
-{
-    // This should be called now only for BackendCode; the rest of CT declarations are processed when referenced
+void CtModule::ctProcess(Node* node) {
+    // This should be called now only for BackendCode; the rest of CT declarations are processed
+    // when referenced
 
     // Make sure the node is semantically checked
-    if ( !node->nodeSemanticallyChecked )
-        REP_INTERNAL(node->location, "Node should be semantically checked when passed to the backend");
+    if (!node->nodeSemanticallyChecked)
+        REP_INTERNAL(
+                node->location, "Node should be semantically checked when passed to the backend");
 
     // Make sure the type of the node can be used at compile time
-    if ( node->type->mode == modeRt )
-        REP_INTERNAL(node->location, "Cannot CT process this node: it has no meaning at compile-time");
+    if (node->type->mode == modeRt)
+        REP_INTERNAL(
+                node->location, "Cannot CT process this node: it has no meaning at compile-time");
 
-    switch ( node->nodeKind - Feather_getFirstFeatherNodeKind() )
-    {
-    case nkRelFeatherExpCtValue:   return;
-    case nkRelFeatherDeclVar:      ctProcessVariable(node); break;
-    case nkRelFeatherDeclFunction: ctProcessFunction(node); break;
-    case nkRelFeatherDeclClass:    ctProcessClass(node); break;
-    case nkRelFeatherBackendCode:  ctProcessBackendCode(node); break;
+    switch (node->nodeKind - Feather_getFirstFeatherNodeKind()) {
+    case nkRelFeatherExpCtValue:
+        return;
+    case nkRelFeatherDeclVar:
+        ctProcessVariable(node);
+        break;
+    case nkRelFeatherDeclFunction:
+        ctProcessFunction(node);
+        break;
+    case nkRelFeatherDeclClass:
+        ctProcessClass(node);
+        break;
+    case nkRelFeatherBackendCode:
+        ctProcessBackendCode(node);
+        break;
     default:
         REP_INTERNAL(node->location, "Don't know how to CT process node (%1%)") % node;
     }
 }
 
-Node* CtModule::ctEvaluate(Node* node)
-{
+Node* CtModule::ctEvaluate(Node* node) {
     // Make sure the node is semantically checked
-    if ( !node->nodeSemanticallyChecked )
-    {
-        REP_INTERNAL(node->location, "Node should be semantically checked when passed to the backend");
+    if (!node->nodeSemanticallyChecked) {
+        REP_INTERNAL(
+                node->location, "Node should be semantically checked when passed to the backend");
         return nullptr;
     }
 
     // Make sure the type of the node can be used at compile time
-    if ( !Feather_isCt(node) )
-        REP_INTERNAL(node->location, "Cannot CT evaluate this node: it has no meaning at compile-time");
+    if (!Feather_isCt(node))
+        REP_INTERNAL(
+                node->location, "Cannot CT evaluate this node: it has no meaning at compile-time");
 
-    if ( !node->type->hasStorage && node->type->typeKind != typeKindVoid )
-        REP_INTERNAL(node->location, "Cannot CT evaluate node with non-storage type (type: %1%)") % node->type;
-
+    if (!node->type->hasStorage && node->type->typeKind != typeKindVoid)
+        REP_INTERNAL(node->location, "Cannot CT evaluate node with non-storage type (type: %1%)") %
+                node->type;
 
     node = Nest_explanation(node);
-    if ( node->nodeKind == nkFeatherExpCtValue )
-    {
-        return node;    // Nothing to do
-    }
-    else
-    {
+    if (node->nodeKind == nkFeatherExpCtValue) {
+        return node; // Nothing to do
+    } else {
         return ctEvaluateExpression(node);
     }
 }
 
-void CtModule::ctApiRegisterFun(const char* name, void* funPtr)
-{
+void CtModule::ctApiRegisterFun(const char* name, void* funPtr) {
     ASSERT(llvmModule_);
-    llvm::FunctionType* llvmFunType = llvm::FunctionType::get(llvm::Type::getVoidTy(*llvmContext_), {}, false);
-    llvm::Function* fun = llvm::Function::Create(llvmFunType, llvm::Function::ExternalLinkage, name, llvmModule_.get());
+    llvm::FunctionType* llvmFunType =
+            llvm::FunctionType::get(llvm::Type::getVoidTy(*llvmContext_), {}, false);
+    llvm::Function* fun = llvm::Function::Create(
+            llvmFunType, llvm::Function::ExternalLinkage, name, llvmModule_.get());
     llvmExecutionEngine_->addGlobalMapping(fun, funPtr);
 }
 
-void CtModule::addGlobalCtor(llvm::Function* /*fun*/)
-{
-}
+void CtModule::addGlobalCtor(llvm::Function* /*fun*/) {}
 
-void CtModule::addGlobalDtor(llvm::Function* /*fun*/)
-{
-}
+void CtModule::addGlobalDtor(llvm::Function* /*fun*/) {}
 
-CtModule::NodeFun CtModule::ctToRtTranslator() const
-{
-    return NodeFun();
-}
+CtModule::NodeFun CtModule::ctToRtTranslator() const { return NodeFun(); }
 
 void CtModule::recreateModule() {
     ASSERT(!llvmModule_);
@@ -148,7 +145,7 @@ void CtModule::syncModule() {
 
         // Generate a dump for the CT module - just for debugging
         const auto& s = *Nest_compilerSettings();
-        if ( s.dumpCtAssembly_ )
+        if (s.dumpCtAssembly_)
             generateCtAssembly(*llvmModule_);
 
         ASSERT(llvmModule_);
@@ -159,38 +156,33 @@ void CtModule::syncModule() {
     }
 }
 
-void CtModule::ctProcessVariable(Node* node)
-{
+void CtModule::ctProcessVariable(Node* node) {
     Tr::GlobalContext ctx(*llvmModule_, *this);
     Tr::translateGlobalVar(node, ctx);
 }
 
-void CtModule::ctProcessFunction(Node* node)
-{
+void CtModule::ctProcessFunction(Node* node) {
     Tr::GlobalContext ctx(*llvmModule_, *this);
     llvm::Function* f = Tr::translateFunction(node, ctx);
-    ((void) f);
+    ((void)f);
 }
 
-void CtModule::ctProcessClass(Node* node)
-{
+void CtModule::ctProcessClass(Node* node) {
     Tr::GlobalContext ctx(*llvmModule_, *this);
     Tr::translateClass(node, ctx);
 }
 
-void CtModule::ctProcessBackendCode(Node* node)
-{
+void CtModule::ctProcessBackendCode(Node* node) {
     Tr::GlobalContext ctx(*llvmModule_, *this);
     Tr::translateBackendCode(node, ctx);
 }
 
-Node* CtModule::ctEvaluateExpression(Node* node)
-{
+Node* CtModule::ctEvaluateExpression(Node* node) {
     ASSERT(llvmModule_);
 
     // Gather statistics if requested
     CompilerStats& stats = CompilerStats::instance();
-    if ( stats.enabled )
+    if (stats.enabled)
         ++stats.numCtEvals;
     ScopedTimeCapture timeCapture(stats.enabled, stats.timeCtEvals);
 
@@ -209,11 +201,12 @@ Node* CtModule::ctEvaluateExpression(Node* node)
     static volatile int numActiveCalls = 0;
     struct IncDec {
         volatile int& val_;
-        IncDec(volatile int& val) : val_(++val) {}
+        IncDec(volatile int& val)
+            : val_(++val) {}
         ~IncDec() { --val_; }
     };
     IncDec scopeIncDec(numActiveCalls);
-    if ( numActiveCalls > 1 ) {
+    if (numActiveCalls > 1) {
         static int numReentrantCalls = 0;
         ++numReentrantCalls;
         REP_INTERNAL(node->location, "Reentrant ctEval detected: %1%") % Nest_toStringEx(node);
@@ -226,20 +219,21 @@ Node* CtModule::ctEvaluateExpression(Node* node)
     ASSERT(llvmModule_);
 
     // Create a new LLVM module for this function, an a corresponding global context
-    unique_ptr<llvm::Module> anonExprEvalModule(new llvm::Module("CT anonymous expression eval module", *llvmContext_));
+    unique_ptr<llvm::Module> anonExprEvalModule(
+            new llvm::Module("CT anonymous expression eval module", *llvmContext_));
     llvm::Module* tmpMod = anonExprEvalModule.get();
     anonExprEvalModule->setDataLayout(dataLayout_);
     Tr::GlobalContext ctx(*anonExprEvalModule, *llvmModule_, *this);
 
-    // Create a function of type 'void f(void*)', which will execute our expression node and put the result at the address
+    // Create a function of type 'void f(void*)', which will execute our expression node and put the
+    // result at the address
     llvm::Function* f = Tr::makeFunThatCalls(node, ctx, funName.c_str(), node->type->hasStorage);
-    (void) f;
+    (void)f;
 
     // Translate the type here, before adding the module to the execution engine
     llvm::Type* resLlvmType = nullptr;
-    if ( node->type->hasStorage )
+    if (node->type->hasStorage)
         resLlvmType = Tr::getLLVMType(node->type, ctx);
-
 
     // Sync again, just for safety
     syncModule();
@@ -256,7 +250,7 @@ Node* CtModule::ctEvaluateExpression(Node* node)
 
     // Generate a dump for the CT module - just for debugging
     const auto& s = *Nest_compilerSettings();
-    if ( s.dumpCtAssembly_ )
+    if (s.dumpCtAssembly_)
         generateCtAssembly(*anonExprEvalModule);
 
     // Add the module containing this into the execution engine
@@ -274,8 +268,7 @@ Node* CtModule::ctEvaluateExpression(Node* node)
     // }
 
     Node* res = nullptr;
-    if ( node->type->hasStorage )
-    {
+    if (node->type->hasStorage) {
         // Create a memory space where to put the result
         size_t size = dataLayout_.getTypeAllocSize(resLlvmType);
         StringRef dataBuffer = allocStringRef(size);
@@ -285,23 +278,21 @@ Node* CtModule::ctEvaluateExpression(Node* node)
         //  - transform this into a function pointer that receives the output as a parameter
         //  - call the function, to fill up the data buffer
         typedef void (*FunType)(const char*);
-        FunType fptr = (FunType) llvmExecutionEngine_->getFunctionAddress(funName);
+        FunType fptr = (FunType)llvmExecutionEngine_->getFunctionAddress(funName);
         fptr(dataBuffer.begin);
 
         // Create a CtValue containing the data resulted from expression evaluation
         TypeRef t = node->type;
-        if ( t->mode != modeCt )
+        if (t->mode != modeCt)
             t = Feather_checkChangeTypeMode(t, modeCt, node->location);
         res = Feather_mkCtValue(node->location, t, dataBuffer);
-    }
-    else
-    {
+    } else {
         // The magic is here:
         //  - finalize everything in the engine and get the function address
         //  - transform this into a function pointer with no parameters
         //  - call the function
         typedef void (*FunType)();
-        FunType fptr = (FunType) llvmExecutionEngine_->getFunctionAddress(funName);
+        FunType fptr = (FunType)llvmExecutionEngine_->getFunctionAddress(funName);
         fptr();
 
         // Create a Nop operation for return

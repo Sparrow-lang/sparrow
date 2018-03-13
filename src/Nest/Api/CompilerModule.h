@@ -9,8 +9,7 @@ One can create modules to implement "any kind" of functionality into the
 compiler. Of course, one would like to interact with other modules, so typically
 a module interacts with the Nest module.
 */
-struct Nest_CompilerModule
-{
+struct Nest_CompilerModule {
     // Module description
     const char* name;
     const char* description;

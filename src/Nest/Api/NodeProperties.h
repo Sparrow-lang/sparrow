@@ -9,7 +9,6 @@ extern "C" {
 
 typedef struct Nest_Node Node;
 
-
 /// Enumeration describing possible property kinds
 enum Nest_PropertyKind {
     propInt,
@@ -24,8 +23,8 @@ typedef enum Nest_PropertyKind PropertyKind;
 /// to the explanation node
 struct Nest_NodeProperty {
     StringRef name;
-    PropertyKind kind: 16;
-    int passToExpl: 1;
+    PropertyKind kind : 16;
+    int passToExpl : 1;
     union {
         int intValue;
         StringRef stringValue;

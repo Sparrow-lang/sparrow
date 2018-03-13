@@ -11,14 +11,14 @@ typedef struct Nest_Node Node;
 
 /// Represents a type
 struct Nest_Type {
-    unsigned typeKind : 8;          ///< The type ID
-    EvalMode mode : 8;              ///< The evaluation mode of this type
-    unsigned numSubtypes : 16;      ///< The number of subtypes of this type
-    unsigned numReferences : 16;    ///< The number of references of this type
-    unsigned hasStorage : 1;        ///< True if this is type with storage
-    unsigned canBeUsedAtCt : 1;     ///< Can we use this type at CT?
-    unsigned canBeUsedAtRt : 1;     ///< Can we use this type at RT?
-    unsigned flags : 32;            ///< Additional flags
+    unsigned typeKind : 8;       ///< The type ID
+    EvalMode mode : 8;           ///< The evaluation mode of this type
+    unsigned numSubtypes : 16;   ///< The number of subtypes of this type
+    unsigned numReferences : 16; ///< The number of references of this type
+    unsigned hasStorage : 1;     ///< True if this is type with storage
+    unsigned canBeUsedAtCt : 1;  ///< Can we use this type at CT?
+    unsigned canBeUsedAtRt : 1;  ///< Can we use this type at RT?
+    unsigned flags : 32;         ///< Additional flags
 
     /// The subtypes of this type
     TypeRef* subTypes;

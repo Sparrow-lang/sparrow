@@ -47,7 +47,6 @@ void Nest_nodeAddChildren(Node* node, NodeRange children);
 /// Sets the referred nodes of the given node
 void Nest_nodeSetReferredNodes(Node* node, NodeRange nodes);
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Node properties
 //
@@ -67,7 +66,7 @@ int Nest_hasProperty(const Node* node, const char* name);
 const int* Nest_getPropertyInt(const Node* node, const char* name);
 const StringRef* Nest_getPropertyString(const Node* node, const char* name);
 StringRef Nest_getPropertyStringDeref(const Node* node, const char* name);
-Node*const* Nest_getPropertyNode(const Node* node, const char* name);
+Node* const* Nest_getPropertyNode(const Node* node, const char* name);
 const TypeRef* Nest_getPropertyType(const Node* node, const char* name);
 
 int Nest_getPropertyDefaultInt(const Node* node, const char* name, int defaultVal);
@@ -79,7 +78,6 @@ int Nest_getCheckPropertyInt(const Node* node, const char* name);
 StringRef Nest_getCheckPropertyString(const Node* node, const char* name);
 Node* Nest_getCheckPropertyNode(const Node* node, const char* name);
 TypeRef Nest_getCheckPropertyType(const Node* node, const char* name);
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Compilation processes
@@ -96,7 +94,6 @@ Node* Nest_explanation(Node* node);
 
 /// Returns 'src' if the given node is of the specified type; null otherwise
 Node* Nest_ofKind(Node* src, int desiredNodeKind);
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Node array
@@ -119,7 +116,6 @@ NodeRange Nest_getNodeRangeFromArray(NodeArray arr);
 
 unsigned Nest_nodeArraySize(NodeArray arr);
 unsigned Nest_nodeArrayCapacity(NodeArray arr);
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Node range

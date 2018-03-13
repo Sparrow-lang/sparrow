@@ -59,9 +59,7 @@ extern const char* propCode;
 extern const char* propEvalMode;
 extern const char* propResultingDecl;
 extern const char* propNoInline;
-extern const char* propEmptyBody;   ///< Node will not generate meaningful instructions
-
-
+extern const char* propEmptyBody; ///< Node will not generate meaningful instructions
 
 StringRef Feather_BackendCode_getCode(const Node* node);
 EvalMode Feather_BackendCode_getEvalMode(Node* node);
@@ -80,13 +78,12 @@ TypeRef Feather_Function_resultType(Node* node);
 Node* Feather_Function_body(Node* node);
 CallConvention Feather_Function_callConvention(Node* node);
 
-
 /// Getter for the class that introduces this data type - can be null
 /// Works for only for storage types (data, l-value, array)
 Node* Feather_classDecl(TypeRef type);
 
-/// If the class associated with the given type has an associated name this will return it; otherwise it returns nullptr
-/// Works for only for storage types (data, l-value, array)
+/// If the class associated with the given type has an associated name this will return it;
+/// otherwise it returns nullptr Works for only for storage types (data, l-value, array)
 StringRef Feather_nativeName(TypeRef type);
 
 /// The number of references applied
@@ -129,7 +126,8 @@ void Feather_setName(Node* decl, StringRef name);
 EvalMode Feather_nodeEvalMode(const Node* decl);
 
 /// Getter for the evaluation mode set in the given declaration (non-ct, ct, auto-ct)
-/// If the given declaration doesn't have an evaluation mode, the evaluation mode of the context is used
+/// If the given declaration doesn't have an evaluation mode, the evaluation mode of the context is
+/// used
 EvalMode Feather_effectiveEvalMode(const Node* decl);
 
 /// Setter for the evaluation mode of the given declaration
@@ -140,7 +138,6 @@ void Feather_addToSymTab(Node* decl);
 
 /// Should we add the given declaration to the symbols table?
 void Feather_setShouldAddToSymTab(Node* decl, int shouldAdd);
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // TypeTraits
@@ -186,15 +183,14 @@ EvalMode Feather_combineModeForceBase(EvalMode mode, EvalMode baseMode, Location
 
 /// Adjust the mode of the type, to match the evaluation mode of the compilation context
 TypeRef Feather_adjustMode(TypeRef srcType, CompilationContext* context, Location loc);
-/// Adjust the mode of the type, to match the evaluation mode of the compilation context; takes in account a
-/// 'baseMode' that is the means trough which we can actually access the given type
-TypeRef Feather_adjustModeBase(TypeRef srcType, EvalMode baseMode, CompilationContext* context, Location loc);
+/// Adjust the mode of the type, to match the evaluation mode of the compilation context; takes in
+/// account a 'baseMode' that is the means trough which we can actually access the given type
+TypeRef Feather_adjustModeBase(
+        TypeRef srcType, EvalMode baseMode, CompilationContext* context, Location loc);
 
 /// Check if the given node has the eval-mode correctly set
 void Feather_checkEvalMode(Node* src, EvalMode referencedEvalMode);
 
-
 #ifdef __cplusplus
 }
 #endif
-

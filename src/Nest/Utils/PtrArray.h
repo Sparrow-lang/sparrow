@@ -14,7 +14,6 @@ struct NestUtils_PtrArray {
 typedef struct NestUtils_PtrArray NestUtils_PtrArray;
 typedef struct NestUtils_PtrArray PtrArray;
 
-
 PtrArray NestUtils_emptyPtrArray();
 PtrArray NestUtils_allocPtrArray(unsigned capacity);
 void NestUtils_freePtrArray(PtrArray arr);
@@ -33,4 +32,3 @@ void NestUtils_eraseFromPtrArray(PtrArray* arr, unsigned index);
 #ifdef __cplusplus
 }
 #endif
-

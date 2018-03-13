@@ -18,7 +18,6 @@ using namespace Nest;
 
 namespace {
 
-
 ////////////////////////////////////////////////////////////////////////////
 // InstantiationsSet
 //
@@ -54,7 +53,7 @@ NodeVector createAllBoundVariables(const Location& loc, CompilationContext* cont
             continue;
         TypeRef paramType = p->type;
         if (!paramType)
-            paramType = getType(boundValue);    // Dependent param type case
+            paramType = getType(boundValue); // Dependent param type case
         Node* var = createBoundVar(context, p, paramType, boundValue, isCtGeneric);
         ASSERT(var);
         nodes.push_back(var);
@@ -101,7 +100,7 @@ bool referencesSeenName(Node* node, const NamesVec& seenNames) {
     }
     return false;
 }
-}
+} // namespace
 
 Node* SprFrontend::checkCreateGenericFun(Node* originalFun, Node* parameters, Node* ifClause) {
     ASSERT(parameters);
@@ -162,10 +161,8 @@ Node* SprFrontend::checkCreateGenericFun(Node* originalFun, Node* parameters, No
             return nullptr;
 
         ASSERT(param->type);
-        bool isGeneric = isCtGeneric
-                    || (!isCtFun && param->type->mode == modeCt)
-                    || isConceptType(param->type)
-                    ;
+        bool isGeneric = isCtGeneric || (!isCtFun && param->type->mode == modeCt) ||
+                         isConceptType(param->type);
 
         if (isGeneric) {
             genericParams[i] = param;
@@ -243,7 +240,8 @@ InstNode SprFrontend::createNewInstantiation(
     return inst;
 }
 
-Node* SprFrontend::createBoundVar(CompilationContext* context, Node* param, TypeRef paramType, Node* boundValue, bool isCtGeneric) {
+Node* SprFrontend::createBoundVar(CompilationContext* context, Node* param, TypeRef paramType,
+        Node* boundValue, bool isCtGeneric) {
     ASSERT(param);
     ASSERT(paramType);
     ASSERT(boundValue && boundValue->type);
@@ -259,8 +257,7 @@ Node* SprFrontend::createBoundVar(CompilationContext* context, Node* param, Type
         if (t->mode == modeCt)
             Feather_setEvalMode(var, modeCt);
         Nest_symTabEnter(context->currentSymTab, name.begin, var);
-    }
-    else {
+    } else {
         var = mkSprUsing(loc, name, Nest_cloneNode(boundValue));
         Feather_setEvalMode(var, modeCt);
     }

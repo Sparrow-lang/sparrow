@@ -22,4 +22,3 @@ FChangeTypeMode Nest_getChangeTypeModeFun(int typeKind);
 #ifdef __cplusplus
 }
 #endif
-

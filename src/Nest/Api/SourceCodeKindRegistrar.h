@@ -10,7 +10,6 @@ typedef struct Nest_Node Node;
 typedef struct Nest_SourceCode SourceCode;
 typedef struct Nest_CompilationContext CompilationContext;
 
-
 /// Function that is capable to parse the given source code
 typedef void (*FParseSourceCode)(SourceCode*, CompilationContext*);
 /// Function that gets a specific line from the source code
@@ -21,13 +20,9 @@ typedef Node* (*FTranslateCtToRt)(const SourceCode*, Node*);
 /// Registers a new sourceCode kind
 ///
 /// @return the ID of the new sourceCode kind
-int Nest_registerSourceCodeKind(
-        const char* extension,
-        const char* description,
-        const char* extraInfo,
-        FParseSourceCode funParseSourceCode,
-        FGetSourceCodeLine funGetSourceCodeLine,
-        FTranslateCtToRt funTranslateCtToRt);
+int Nest_registerSourceCodeKind(const char* extension, const char* description,
+        const char* extraInfo, FParseSourceCode funParseSourceCode,
+        FGetSourceCodeLine funGetSourceCodeLine, FTranslateCtToRt funTranslateCtToRt);
 
 const char* Nest_getSourceCodeExtension(int sourceCodeKind);
 const char* Nest_getSourceCodeDescription(int sourceCodeKind);

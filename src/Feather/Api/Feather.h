@@ -11,12 +11,10 @@ typedef struct Nest_Location Location;
 extern "C" {
 #endif
 
-
 typedef struct Nest_CompilerModule CompilerModule;
 
 /// Getter for the Feather module
 CompilerModule* Feather_getModule();
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Feather types
@@ -33,7 +31,8 @@ int Feather_getFunctionTypeKind();
 TypeRef Feather_getVoidType(EvalMode mode);
 
 /// Returns a type that represents data
-/// A data type is introduced by a class definition and can have one or more references; a data type must have a size
+/// A data type is introduced by a class definition and can have one or more references; a data type
+/// must have a size
 TypeRef Feather_getDataType(Node* classDecl, unsigned numReferences, EvalMode mode);
 
 /// Returns an L-Value type
@@ -45,16 +44,15 @@ TypeRef Feather_getArrayType(TypeRef unitType, unsigned count);
 
 /// Returns a type that represents a classic function, with parameters and result type
 /// This type can be constructed from a set of parameter types and a result type
-/// The first parameter is a pointer to an array with the result type then the types of the parameters
+/// The first parameter is a pointer to an array with the result type then the types of the
+/// parameters
 TypeRef Feather_getFunctionType(TypeRef* resultTypeAndParams, unsigned numTypes, EvalMode mode);
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Feather nodes
 //
 
-enum Feather_FeatherNodeKinds
-{
+enum Feather_FeatherNodeKinds {
     nkRelFeatherNop = 0,
     nkRelFeatherTypeNode,
     nkRelFeatherBackendCode,
@@ -65,11 +63,11 @@ enum Feather_FeatherNodeKinds
     nkRelFeatherScopeDestructAction,
     nkRelFeatherTempDestructAction,
     nkRelFeatherChangeMode,
-    
+
     nkRelFeatherDeclFunction,
     nkRelFeatherDeclClass,
     nkRelFeatherDeclVar,
-    
+
     nkRelFeatherExpCtValue,
     nkRelFeatherExpNull,
     nkRelFeatherExpVarRef,
@@ -80,7 +78,7 @@ enum Feather_FeatherNodeKinds
     nkRelFeatherExpMemStore,
     nkRelFeatherExpBitcast,
     nkRelFeatherExpConditional,
-    
+
     nkRelFeatherStmtIf,
     nkRelFeatherStmtWhile,
     nkRelFeatherStmtBreak,
@@ -94,44 +92,44 @@ typedef enum Feather_FeatherNodeKinds FeatherNodeKinds;
 int Feather_getFirstFeatherNodeKind();
 
 /// The possible calling conventions
-enum Feather_CallConvention
-{
-    ccC,        ///< The default llvm calling convention, compatible with C
-    ccFast,     ///< This calling convention attempts to make calls as fast as possible (e.g. by passing things in registers)
-    ccCold,     ///< Makes the caller as efficient as possible, under the assumption that the call is not commonly executed
-    ccGHC,      ///< Calling convention used by the Glasgow Haskell Compiler (GHC) - only registers
+enum Feather_CallConvention {
+    ccC,    ///< The default llvm calling convention, compatible with C
+    ccFast, ///< This calling convention attempts to make calls as fast as possible (e.g. by passing
+            ///< things in registers)
+    ccCold, ///< Makes the caller as efficient as possible, under the assumption that the call is
+            ///< not commonly executed
+    ccGHC,  ///< Calling convention used by the Glasgow Haskell Compiler (GHC) - only registers
 
-    ccX86Std,       ///< stdcall is the calling conventions mostly used by the Win32 API
-    ccX86Fast,      ///< 'fast' analog of ccX86Std
-    ccX86ThisCall,  ///< Similar to X86 StdCall. Passes first argument in ECX, others via stack
-    ccARMAPCS,      ///< ARM Procedure Calling Standard calling convention
-    ccARMAAPCS,     ///< ARM Architecture Procedure Calling Standard calling convention (aka EABI)
-    ccARMAAPCSVFP,  ///< Same as ARM_AAPCS, but uses hard floating point ABI
-    ccMSP430Intr,   ///< Calling convention used for MSP430 interrupt routines
-    ccPTXKernel,    ///< Call to a PTX kernel. Passes all arguments in parameter space
-    ccPTXDevice,    ///< Call to a PTX device function. Passes all arguments in register or parameter space
-    ccMBLAZEIntr,   ///< Calling convention used for MBlaze interrupt routines
-    ccMBLAZESVol,   ///< Calling convention used for MBlaze interrupt support routines
+    ccX86Std,      ///< stdcall is the calling conventions mostly used by the Win32 API
+    ccX86Fast,     ///< 'fast' analog of ccX86Std
+    ccX86ThisCall, ///< Similar to X86 StdCall. Passes first argument in ECX, others via stack
+    ccARMAPCS,     ///< ARM Procedure Calling Standard calling convention
+    ccARMAAPCS,    ///< ARM Architecture Procedure Calling Standard calling convention (aka EABI)
+    ccARMAAPCSVFP, ///< Same as ARM_AAPCS, but uses hard floating point ABI
+    ccMSP430Intr,  ///< Calling convention used for MSP430 interrupt routines
+    ccPTXKernel,   ///< Call to a PTX kernel. Passes all arguments in parameter space
+    ccPTXDevice,   ///< Call to a PTX device function. Passes all arguments in register or parameter
+                   ///< space
+    ccMBLAZEIntr,  ///< Calling convention used for MBlaze interrupt routines
+    ccMBLAZESVol,  ///< Calling convention used for MBlaze interrupt support routines
 };
 
 typedef enum Feather_CallConvention Feather_CallConvention;
 typedef enum Feather_CallConvention CallConvention;
 
-
-enum Feather_AtomicOrdering
-{
-    atomicNone,             ///< No atomic guarantees
-    atomicUnordered,        ///< The set of values that can be read is governed by the happens-before partial order. Can model Java non-volatile shared variables
-    atomicMonotonic,        ///< C++0x memory_order_relaxed
-    atomicAcquire,          ///< C++0x memory_order_acquire
-    atomicRelease,          ///< C++0x memory_order_release
-    atomicAcquireRelease,   ///< C++0x memory_order_acq_rel
-    atomicSeqConsistent,    ///< C++0x memory_order_seq_cst; Java volatile
+enum Feather_AtomicOrdering {
+    atomicNone,           ///< No atomic guarantees
+    atomicUnordered,      ///< The set of values that can be read is governed by the happens-before
+                          ///< partial order. Can model Java non-volatile shared variables
+    atomicMonotonic,      ///< C++0x memory_order_relaxed
+    atomicAcquire,        ///< C++0x memory_order_acquire
+    atomicRelease,        ///< C++0x memory_order_release
+    atomicAcquireRelease, ///< C++0x memory_order_acq_rel
+    atomicSeqConsistent,  ///< C++0x memory_order_seq_cst; Java volatile
 };
 
 typedef enum Feather_AtomicOrdering Feather_AtomicOrdering;
 typedef enum Feather_AtomicOrdering AtomicOrdering;
-
 
 Node* Feather_mkNodeList(Location loc, NodeRange children);
 Node* Feather_mkNodeListVoid(Location loc, NodeRange children);

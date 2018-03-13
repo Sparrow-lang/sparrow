@@ -32,15 +32,13 @@ Node* StdDef::clsBool = nullptr;
 Node* StdDef::opRefEq = nullptr;
 Node* StdDef::opRefNe = nullptr;
 
-namespace
-{
-    bool classesFound = false;
-    bool functionsFound = false;
-}
+namespace {
+bool classesFound = false;
+bool functionsFound = false;
+} // namespace
 
-void SprFrontend::initTypeType(CompilationContext* ctx)
-{
-    if ( typeType )
+void SprFrontend::initTypeType(CompilationContext* ctx) {
+    if (typeType)
         return;
 
     clsType = Feather_mkClass(NOLOC, fromCStr("Type"), {});
@@ -49,77 +47,60 @@ void SprFrontend::initTypeType(CompilationContext* ctx)
     Feather_setEvalMode(clsType, modeCt);
     Nest_setContext(clsType, ctx);
     setAccessType(clsType, publicAccess);
-    if ( !Nest_computeType(clsType) )
+    if (!Nest_computeType(clsType))
         REP_INTERNAL(NOLOC, "Cannot create 'Type' type");
     typeType = Feather_getDataType(clsType, 0, modeCt);
 }
 
-void SprFrontend::checkStdClass(Node* cls)
-{
-    if ( classesFound )
+void SprFrontend::checkStdClass(Node* cls) {
+    if (classesFound)
         return;
 
     ASSERT(cls->nodeKind == nkFeatherDeclClass);
 
     StringRef clsName = Feather_getName(cls);
 
-    if ( clsName == "Void" )
+    if (clsName == "Void")
         StdDef::typeVoid = Feather_getDataType(cls, 0, modeRtCt);
-    else if ( clsName == "Null" )
+    else if (clsName == "Null")
         StdDef::typeNull = Feather_getDataType(cls, 0, modeRtCt);
-    else if ( clsName == "Bool" )
-    {
+    else if (clsName == "Bool") {
         StdDef::clsBool = cls;
         StdDef::typeBool = Feather_getDataType(cls, 0, modeRtCt);
-    }
-    else if ( clsName == "Byte" )
-    {
+    } else if (clsName == "Byte") {
         StdDef::typeByte = Feather_getDataType(cls, 0, modeRtCt);
         StdDef::typeRefByte = Feather_getDataType(cls, 1, modeRtCt);
-    }
-    else if ( clsName == "Int" )
-    {
+    } else if (clsName == "Int") {
         StdDef::typeInt = Feather_getDataType(cls, 0, modeRtCt);
         StdDef::typeRefInt = Feather_getDataType(cls, 1, modeRtCt);
-    }
-    else if ( clsName == "SizeType" )
-    {
+    } else if (clsName == "SizeType") {
         StdDef::typeSizeType = Feather_getDataType(cls, 0, modeRtCt);
         StdDef::typeSizeTypeCt = Feather_getDataType(cls, 0, modeCt);
-    }
-    else if ( clsName == "Type" )
-    {
+    } else if (clsName == "Type") {
         StdDef::typeType = Feather_getDataType(cls, 0, modeRtCt);
         StdDef::typeRefType = Feather_getDataType(cls, 1, modeRtCt);
-    }
-    else if ( clsName == "StringRef" )
+    } else if (clsName == "StringRef")
         StdDef::typeStringRef = Feather_getDataType(cls, 0, modeRtCt);
 
-    classesFound = StdDef::typeVoid != nullptr
-                && StdDef::typeNull != nullptr
-                && StdDef::typeBool != nullptr
-                && StdDef::typeByte != nullptr
-                && StdDef::typeInt != nullptr
-                && StdDef::typeSizeType != nullptr
-                && StdDef::typeType != nullptr
-                && StdDef::typeStringRef != nullptr
-                && StdDef::typeRefByte != nullptr
-                && StdDef::typeRefType != nullptr
-                && StdDef::typeSizeTypeCt != nullptr;
+    classesFound = StdDef::typeVoid != nullptr && StdDef::typeNull != nullptr &&
+                   StdDef::typeBool != nullptr && StdDef::typeByte != nullptr &&
+                   StdDef::typeInt != nullptr && StdDef::typeSizeType != nullptr &&
+                   StdDef::typeType != nullptr && StdDef::typeStringRef != nullptr &&
+                   StdDef::typeRefByte != nullptr && StdDef::typeRefType != nullptr &&
+                   StdDef::typeSizeTypeCt != nullptr;
 }
 
-void SprFrontend::checkStdFunction(Node* fun)
-{
-    if ( functionsFound )
+void SprFrontend::checkStdFunction(Node* fun) {
+    if (functionsFound)
         return;
 
     Node* f = resultingDecl(fun);
     ASSERT(f && f->nodeKind == nkFeatherDeclFunction);
 
     StringRef funName = Feather_getName(fun);
-    if ( funName == "implOpRefEQ" )
+    if (funName == "implOpRefEQ")
         StdDef::opRefEq = f;
-    if ( funName == "implOpRefNE" )
+    if (funName == "implOpRefNE")
         StdDef::opRefNe = f;
 
     functionsFound = StdDef::opRefEq != nullptr && StdDef::opRefNe != nullptr;

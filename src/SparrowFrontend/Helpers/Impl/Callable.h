@@ -63,8 +63,14 @@ struct CallableData {
     Node* tmpVar;
 
     CallableData()
-        : type(CallableType::function), valid(true), decl{nullptr}, params{nullptr, nullptr},
-          autoCt{false}, implicitArgType(nullptr), genericInst(nullptr), tmpVar(nullptr) {}
+        : type(CallableType::function)
+        , valid(true)
+        , decl{nullptr}
+        , params{nullptr, nullptr}
+        , autoCt{false}
+        , implicitArgType(nullptr)
+        , genericInst(nullptr)
+        , tmpVar(nullptr) {}
 };
 
 //! A vector of callables
@@ -92,38 +98,34 @@ void getCallables(NodeRange decls, EvalMode evalMode, Callables& res);
 /// Same as above, but apply a filter to all the callables that we have
 /// We keep all the decls for which the predicate returns true
 void getCallables(NodeRange decls, EvalMode evalMode, Callables& res,
-                  const boost::function<bool(Node*)>& pred,
-                  const char* ctorName = "ctor");
+        const boost::function<bool(Node*)>& pred, const char* ctorName = "ctor");
 
 /// Checks if we can call this with the given arguments
 /// This method can cache some information needed by the 'generateCall'
-ConversionType canCall(CallableData& c, CompilationContext* context,
-                       const Location& loc, NodeRange args, EvalMode evalMode,
-                       CustomCvtMode customCvtMode, bool reportErrors = false);
+ConversionType canCall(CallableData& c, CompilationContext* context, const Location& loc,
+        NodeRange args, EvalMode evalMode, CustomCvtMode customCvtMode, bool reportErrors = false);
 /// Same as above, but makes the check only on type, and not on the actual
 /// argument; doesn't cache any args
-ConversionType canCall(CallableData& c, CompilationContext* context,
-                       const Location& loc, const vector<TypeRef>& argTypes,
-                       EvalMode evalMode, CustomCvtMode customCvtMode,
-                       bool reportErrors = false);
+ConversionType canCall(CallableData& c, CompilationContext* context, const Location& loc,
+        const vector<TypeRef>& argTypes, EvalMode evalMode, CustomCvtMode customCvtMode,
+        bool reportErrors = false);
 
 /// Returns who of two candidates is more specialized.
 /// Returns:
 ///     -1 if f1 is more specialized than f2,
 ///     1 if f2 is more specialized than f1;
 ///     0 if neither is more specialized
-int moreSpecialized(CompilationContext* context, const CallableData& f1,
-                    const CallableData& f2, bool noCustomCvt = false);
+int moreSpecialized(CompilationContext* context, const CallableData& f1, const CallableData& f2,
+        bool noCustomCvt = false);
 
 /// Generates the node that actually calls this callable
 /// This must be called only if 'canCall' method returned a success conversion
 /// type
-Node* generateCall(CallableData& c, CompilationContext* context,
-                   const Location& loc);
+Node* generateCall(CallableData& c, CompilationContext* context, const Location& loc);
 
 /// Getter for the location of this callable (i.e., location of the function)
 const Location& location(const CallableData& c);
 
 /// Gets a string representation of the callable (i.e., function name)
 string toString(const CallableData& c);
-}
+} // namespace SprFrontend

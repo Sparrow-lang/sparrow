@@ -802,7 +802,7 @@ llvm::Value* translateFunCall(Node* node, TrContext& context) {
 
     // Apply a bitcast if the types don't match
     llvm::Constant* toCall = func;
-    llvm::FunctionType* funType =
+    auto* funType =
             static_cast<llvm::FunctionType*>(getLLVMType(funDecl->type, context.globalContext()));
     llvm::PointerType* funTypePtr = llvm::PointerType::getUnqual(funType);
     if (func->getType() != funTypePtr)

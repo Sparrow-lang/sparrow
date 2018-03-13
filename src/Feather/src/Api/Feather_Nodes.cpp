@@ -187,7 +187,7 @@ Node* ScopeTempDestructAction_SemanticCheck(Node* node) {
 }
 
 void ChangeMode_SetContextForChildren(Node* node) {
-    EvalMode curMode = (EvalMode)Nest_getCheckPropertyInt(node, propEvalMode);
+    auto curMode = (EvalMode)Nest_getCheckPropertyInt(node, propEvalMode);
     EvalMode newMode = curMode != modeUnspecified ? curMode : node->context->evalMode;
     node->childrenContext = Nest_mkChildContext(node->context, newMode);
     Nest_defaultFunSetContextForChildren(node);
@@ -197,7 +197,7 @@ Node* ChangeMode_SemanticCheck(Node* node) {
 
     // Make sure we are allowed to change the mode
     EvalMode baseMode = node->context->evalMode;
-    EvalMode curMode = (EvalMode)Nest_getCheckPropertyInt(node, propEvalMode);
+    auto curMode = (EvalMode)Nest_getCheckPropertyInt(node, propEvalMode);
     EvalMode newMode = curMode != modeUnspecified ? curMode : node->context->evalMode;
     if (newMode == modeUnspecified)
         REP_INTERNAL(node->location, "Cannot change the mode to Unspecified");
@@ -218,7 +218,7 @@ Node* ChangeMode_SemanticCheck(Node* node) {
 const char* ChangeMode_toString(const Node* node) {
     Node* exp = at(node->children, 0);
     ostringstream os;
-    EvalMode curMode = (EvalMode)Nest_getCheckPropertyInt(node, propEvalMode);
+    auto curMode = (EvalMode)Nest_getCheckPropertyInt(node, propEvalMode);
     EvalMode newMode = curMode != modeUnspecified ? curMode : node->context->evalMode;
     os << "changeMode(" << exp << ", " << newMode << ")";
     return dupString(os.str().c_str());
@@ -485,7 +485,7 @@ const char* CtValue_toString(const Node* node) {
         else if (nativeName == "u64")
             os << *((const unsigned long long*)valueData);
         else if (nativeName == "StringRef") {
-            const StringRef* s = (const StringRef*)valueData;
+            const auto* s = (const StringRef*)valueData;
             os << "'" << toString(*s) << "'";
         } else
             writeHex(os, valueDataStr);
@@ -726,7 +726,7 @@ Node* MemLoad_SemanticCheck(Node* node) {
                 exp % exp->type;
 
     // Check flags
-    AtomicOrdering ordering = (AtomicOrdering)Nest_getCheckPropertyInt(node, "atomicOrdering");
+    auto ordering = (AtomicOrdering)Nest_getCheckPropertyInt(node, "atomicOrdering");
     if (ordering == atomicRelease)
         REP_ERROR_RET(nullptr, node->location, "Cannot use atomic release with a load instruction");
     if (ordering == atomicAcquireRelease)
@@ -1459,7 +1459,7 @@ StringRef Feather_BackendCode_getCode(const Node* node) {
 }
 EvalMode Feather_BackendCode_getEvalMode(Node* node) {
     ASSERT(node->nodeKind == nkFeatherBackendCode);
-    EvalMode curMode = (EvalMode)Nest_getCheckPropertyInt(node, propEvalMode);
+    auto curMode = (EvalMode)Nest_getCheckPropertyInt(node, propEvalMode);
     return curMode != modeUnspecified ? curMode : node->context->evalMode;
 }
 
@@ -1471,7 +1471,7 @@ void Feather_ChangeMode_setChild(Node* node, Node* child) {
         Nest_setContext(child, node->childrenContext);
 }
 EvalMode Feather_ChangeMode_getEvalMode(Node* node) {
-    EvalMode curMode = (EvalMode)Nest_getCheckPropertyInt(node, propEvalMode);
+    auto curMode = (EvalMode)Nest_getCheckPropertyInt(node, propEvalMode);
     return curMode != modeUnspecified ? curMode : node->context->evalMode;
 }
 

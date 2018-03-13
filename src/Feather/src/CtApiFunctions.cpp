@@ -22,7 +22,7 @@ const SourceCode* ctApi_SourceCode_fromFilename(StringRef filename) {
 }
 StringRef ctApi_SourceCode_filename(SourceCode* thisArg) { return fromCStr(thisArg->url); }
 StringRef ctApi_Location_getCorrespondingCode(Location* thisArg) {
-    const SourceCode* sourceCode = (const SourceCode*)thisArg->sourceCode;
+    const auto* sourceCode = (const SourceCode*)thisArg->sourceCode;
     string code;
     StringRef lineStr = {nullptr, nullptr};
     if (sourceCode &&

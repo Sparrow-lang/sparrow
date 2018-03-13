@@ -7,7 +7,7 @@ StringRef allocStringRef(unsigned size) {
     StringRef res = {nullptr, nullptr};
     if (size == 0)
         return res;
-    char* p = (char*)alloc(size + 1, allocString); // extra byte for null termination;
+    auto* p = (char*)alloc(size + 1, allocString); // extra byte for null termination;
     res.begin = p;
     res.end = res.begin + size;
     p[size] = 0;

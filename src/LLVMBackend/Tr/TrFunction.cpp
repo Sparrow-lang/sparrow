@@ -29,7 +29,7 @@ llvm::Function* createFunDecl(Node* node, GlobalContext& ctx, TranslatedFunInfo&
     llvm::Function* res = nullptr;
 
     // Get the type of the function
-    llvm::FunctionType* funType = static_cast<llvm::FunctionType*>(getLLVMType(node->type, ctx));
+    auto* funType = static_cast<llvm::FunctionType*>(getLLVMType(node->type, ctx));
 
     const StringRef* nativeName = Nest_getPropertyString(node, propNativeName);
     Node* body = Feather_Function_body(node);

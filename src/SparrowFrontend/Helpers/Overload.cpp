@@ -92,9 +92,7 @@ bool filterCandidates(CompilationContext* context, const Location& loc, Callable
 void filterCandidatesErrReport(CompilationContext* context, const Location& loc,
         Callables& candidates, NodeRange* args, const vector<TypeRef>* argTypes, EvalMode evalMode,
         CustomCvtMode customCvtMode) {
-    for (size_t i = 0; i < candidates.size(); ++i) {
-        CallableData& cand = candidates[i];
-
+    for (auto& cand : candidates) {
         // Report the candidate
         REP_INFO(location(cand), "See possible candidate: %1%") % toString(cand);
 

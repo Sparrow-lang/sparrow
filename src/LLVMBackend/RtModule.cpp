@@ -4,6 +4,8 @@
 #include <Tr/DebugInfo.h>
 #include <Tr/GlobalContext.h>
 
+#include <memory>
+
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Api/Node.h"
 #include "Nest/Utils/CompilerSettings.hpp"
@@ -24,7 +26,7 @@ RtModule::RtModule(const string& name, const string& filename)
     llvmModule_->setTargetTriple(s.targetTriple_);
 
     if (s.generateDebugInfo_)
-        debugInfo_.reset(new DebugInfo(*llvmModule_, filename));
+        debugInfo_ = llvm::make_unique<DebugInfo>(*llvmModule_, filename);
 }
 
 RtModule::~RtModule() = default;

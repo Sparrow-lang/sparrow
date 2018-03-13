@@ -42,7 +42,7 @@ void checkNodes(_SymTabImpl* st) {
 } // namespace
 
 SymTab* Nest_mkSymTab(SymTab* parent, Node* node) {
-    _SymTabImpl* res = (_SymTabImpl*)alloc(sizeof(_SymTabImpl), allocGeneral);
+    auto* res = (_SymTabImpl*)alloc(sizeof(_SymTabImpl), allocGeneral);
     res->base.parent = parent;
     res->base.node = node;
     new (&res->entries) MMap();
@@ -51,7 +51,7 @@ SymTab* Nest_mkSymTab(SymTab* parent, Node* node) {
 }
 
 void Nest_symTabEnter(SymTab* symTab, const char* name, Node* node) {
-    _SymTabImpl* st = (_SymTabImpl*)symTab;
+    auto* st = (_SymTabImpl*)symTab;
 
     // Insert our entry in the normal map
     st->entries.insert(MMapPair(name, node));
@@ -60,13 +60,13 @@ void Nest_symTabEnter(SymTab* symTab, const char* name, Node* node) {
 }
 
 void Nest_symTabAddToCheckNode(SymTab* symTab, Node* node) {
-    _SymTabImpl* st = (_SymTabImpl*)symTab;
+    auto* st = (_SymTabImpl*)symTab;
     st->toCheckNodes.push_back(node);
 }
 
 void Nest_symTabCopyEntries(SymTab* symTab, SymTab* otherSymTab) {
-    _SymTabImpl* st = (_SymTabImpl*)symTab;
-    _SymTabImpl* other = (_SymTabImpl*)otherSymTab;
+    auto* st = (_SymTabImpl*)symTab;
+    auto* other = (_SymTabImpl*)otherSymTab;
 
     for (const auto& entry : other->entries) {
         // Insert the item into our set of copied entries, only if we don't find it in our normal
@@ -87,7 +87,7 @@ void Nest_symTabCopyEntries(SymTab* symTab, SymTab* otherSymTab) {
 }
 
 NodeArray Nest_symTabAllEntries(SymTab* symTab) {
-    _SymTabImpl* st = (_SymTabImpl*)symTab;
+    auto* st = (_SymTabImpl*)symTab;
 
     // Make sure to check all the required nodes for this symtab
     checkNodes(st);
@@ -101,7 +101,7 @@ NodeArray Nest_symTabAllEntries(SymTab* symTab) {
 }
 
 NodeArray Nest_symTabLookupCurrent(SymTab* symTab, const char* name) {
-    _SymTabImpl* st = (_SymTabImpl*)symTab;
+    auto* st = (_SymTabImpl*)symTab;
 
     // Make sure to check all the required nodes for this symtab
     checkNodes(st);
@@ -124,7 +124,7 @@ NodeArray Nest_symTabLookupCurrent(SymTab* symTab, const char* name) {
 }
 
 NodeArray Nest_symTabLookup(SymTab* symTab, const char* name) {
-    _SymTabImpl* st = (_SymTabImpl*)symTab;
+    auto* st = (_SymTabImpl*)symTab;
 
     // Make sure to check all the required nodes for this symtab
     checkNodes(st);
@@ -186,7 +186,7 @@ void Nest_dumpSymTabs(SymTab* symTab) {
         const char* defName = nameProp ? nameProp->begin : "?";
         printf("===== Symbol table level %d - %s\n", level++, defName);
 
-        _SymTabImpl* st = (_SymTabImpl*)symTab;
+        auto* st = (_SymTabImpl*)symTab;
         dumpSortedEntries(st->entries);
         if (!st->copiedEntries.empty()) {
             printf("    + copied entries:\n");
@@ -196,7 +196,7 @@ void Nest_dumpSymTabs(SymTab* symTab) {
 }
 
 void Nest_dumpSymTabNames(SymTab* symTab) {
-    _SymTabImpl* st = (_SymTabImpl*)symTab;
+    auto* st = (_SymTabImpl*)symTab;
     dumpSortedEntries(st->entries, true);
     if (!st->copiedEntries.empty()) {
         printf(" + ");

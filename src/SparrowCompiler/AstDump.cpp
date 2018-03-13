@@ -152,7 +152,7 @@ void _endArray(JsonContext* ctx) {
 void _writeType(JsonContext* ctx, const char* name, TypeRef t) {
     _startObject(ctx, name);
 
-    size_t ref = reinterpret_cast<size_t>((void*)t);
+    auto ref = reinterpret_cast<size_t>((void*)t);
     _writeNumber(ctx, "ref", ref);
     if (t)
         _writeString(ctx, "desc", t->description);
@@ -249,7 +249,7 @@ void _writeNode(JsonContext* ctx, const char* name, Node* node) {
         ctx->oneLine = true;
         _writeNumber(ctx, "ref", 0);
     } else {
-        size_t ref = reinterpret_cast<size_t>((void*)node);
+        auto ref = reinterpret_cast<size_t>((void*)node);
         auto it = ctx->writtenPointers.find((void*)node);
         if (it == ctx->writtenPointers.end()) {
             // First time we see this pointer

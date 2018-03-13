@@ -53,7 +53,7 @@ struct _NativeMod {
 };
 
 void ModNative_beforeComputeType(Modifier* mod, Node* node) {
-    _NativeMod* nativeMod = (_NativeMod*)mod;
+    auto* nativeMod = (_NativeMod*)mod;
     Nest_setPropertyString(node, propNativeName, nativeMod->name);
 }
 
@@ -140,7 +140,7 @@ Modifier* SprFe_getMacroMod() { return &_macroMod; }
 Modifier* SprFe_getNoInlineMod() { return &_noInlineMod; }
 
 Modifier* SprFe_getNativeMod(StringRef name) {
-    _NativeMod* res = (_NativeMod*)alloc(sizeof(_NativeMod), allocGeneral);
+    auto* res = (_NativeMod*)alloc(sizeof(_NativeMod), allocGeneral);
     res->name = dup(name);
     res->base.modifierType = modTypeBeforeComputeType;
     res->base.modifierFun = &ModNative_beforeComputeType;

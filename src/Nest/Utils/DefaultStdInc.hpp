@@ -8,9 +8,9 @@
 #include <string>
 #include <vector>
 #include <bitset>
-#include <ctype.h>
+#include <cctype>
 #include <cassert>
-#include <stdint.h>
+#include <cstdint>
 #include <functional>
 #include <unordered_map>
 #include <unordered_set>

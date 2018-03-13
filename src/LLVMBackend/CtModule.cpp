@@ -20,6 +20,8 @@
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
 #include <llvm/ExecutionEngine/MCJIT.h> // We need this include to instantiate the JIT engine
 
+#include <memory>
+
 using namespace LLVMB;
 using namespace LLVMB::Tr;
 using namespace Feather;
@@ -131,7 +133,7 @@ CtModule::NodeFun CtModule::ctToRtTranslator() const { return NodeFun(); }
 
 void CtModule::recreateModule() {
     ASSERT(!llvmModule_);
-    llvmModule_.reset(new llvm::Module("CT module", *llvmContext_));
+    llvmModule_ = llvm::make_unique<llvm::Module>("CT module", *llvmContext_);
     ASSERT(llvmModule_);
 
     // Ensure we have exactly the same data layout as our execution engine
@@ -278,7 +280,7 @@ Node* CtModule::ctEvaluateExpression(Node* node) {
         //  - transform this into a function pointer that receives the output as a parameter
         //  - call the function, to fill up the data buffer
         using FunType = void (*)(const char*);
-        FunType fptr = (FunType)llvmExecutionEngine_->getFunctionAddress(funName);
+        auto fptr = (FunType)llvmExecutionEngine_->getFunctionAddress(funName);
         fptr(dataBuffer.begin);
 
         // Create a CtValue containing the data resulted from expression evaluation
@@ -292,7 +294,7 @@ Node* CtModule::ctEvaluateExpression(Node* node) {
         //  - transform this into a function pointer with no parameters
         //  - call the function
         using FunType = void (*)();
-        FunType fptr = (FunType)llvmExecutionEngine_->getFunctionAddress(funName);
+        auto fptr = (FunType)llvmExecutionEngine_->getFunctionAddress(funName);
         fptr();
 
         // Create a Nop operation for return

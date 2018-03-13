@@ -140,7 +140,7 @@ class OptionHandler {
     };
 
     /// The type of action to perform when parsing the option
-    ActionType actionType_;
+    ActionType actionType_{doNothing};
 
     /// The value given to the constructor that should be changed
     union {
@@ -151,10 +151,7 @@ class OptionHandler {
     } val_;
 
 public:
-    OptionHandler()
-        : actionType_(doNothing) {
-        val_.boolVal = nullptr;
-    }
+    OptionHandler() { val_.boolVal = nullptr; }
 
     OptionHandler(bool& res, bool store = true)
         : actionType_(store ? storeTrue : storeFalse) {

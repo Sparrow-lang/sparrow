@@ -213,7 +213,7 @@ TypeRef SprFrontend::tryGetTypeValue(Node* typeNode) {
     if (t == StdDef::typeRefType) {
         Node* n = Nest_ctEval(typeNode);
         if (n->nodeKind == nkFeatherExpCtValue) {
-            TypeRef** t = Feather_getCtValueData<TypeRef*>(n);
+            auto** t = Feather_getCtValueData<TypeRef*>(n);
             if (!t || !*t || !**t)
                 REP_ERROR_RET(nullptr, typeNode->location, "No type was set for node");
             return **t;
@@ -221,7 +221,7 @@ TypeRef SprFrontend::tryGetTypeValue(Node* typeNode) {
     } else if (t == StdDef::typeType) {
         Node* n = Nest_ctEval(typeNode);
         if (n->nodeKind == nkFeatherExpCtValue) {
-            TypeRef* t = Feather_getCtValueData<TypeRef>(n);
+            auto* t = Feather_getCtValueData<TypeRef>(n);
             if (!t || !*t)
                 REP_ERROR_RET(nullptr, typeNode->location, "No type was set for node");
             return *t;

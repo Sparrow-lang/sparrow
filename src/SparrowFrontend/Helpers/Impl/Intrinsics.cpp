@@ -168,7 +168,7 @@ Node* impl_Meta_astEval(CompilationContext* context, const Location& loc, const 
         return nullptr;
 
     // Evaluate the handle and get the resulting node
-    Node* nodeHandle = (Node*)getByteRefCtValue(implPart);
+    auto* nodeHandle = (Node*)getByteRefCtValue(implPart);
     if (!nodeHandle)
         REP_INTERNAL(loc, "Node passed to astEval is invalid");
     return nodeHandle;

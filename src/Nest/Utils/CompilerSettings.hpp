@@ -5,26 +5,6 @@
 
 /// Class that holds the compiler settings
 struct Nest_CompilerSettings {
-public:
-    Nest_CompilerSettings()
-        : printVersion_(false)
-        , verbose_(false)
-        , noColors_(false)
-        , syntaxOnly_(false)
-        , compileAndAssembleOnly_(false)
-        , compileOnly_(false)
-        , implicitLibFilePath_("auto")
-        , useMain_(true)
-        , generateDebugInfo_(false)
-        , maxCountForInline_(30)
-        , optimizationLevel_("0")
-        , noRVO_(false)
-        , dumpAssembly_(false)
-        , dumpCtAssembly_(false)
-        , dumpOptAssembly_(false)
-        , dumpAST_()
-        , keepIntermediateFiles_(false) {}
-
     /// Deduced settings
     ///{
     /// The name of the program
@@ -37,13 +17,13 @@ public:
     /// Generic options
     ///{
     /// If true, the compiler should print the current version and exit
-    bool printVersion_;
+    bool printVersion_{false};
 
     /// Show commands to run and use verbose output
-    bool verbose_;
+    bool verbose_{false};
 
     /// True if we shouldn't use colors when displaying error messages
-    bool noColors_;
+    bool noColors_{false};
     ///}
 
     /// Driver options
@@ -56,13 +36,13 @@ public:
     string output_;
 
     /// If true compile only syntax, including type checking
-    bool syntaxOnly_;
+    bool syntaxOnly_{false};
 
     /// Compile & assemble only; no linking
-    bool compileAndAssembleOnly_;
+    bool compileAndAssembleOnly_{false};
 
     /// Compile only
-    bool compileOnly_;
+    bool compileOnly_{false};
 
     /// List of arguments to be passed to the assembler
     vector<string> assemblerArgs_;
@@ -90,10 +70,10 @@ public:
     /// Sparrow specific options
     ///{
     /// The location of the file that needs to be loaded as implicit lib (containing standard types)
-    string implicitLibFilePath_;
+    string implicitLibFilePath_{"auto"};
 
     /// True if we need to include the entry point functionality into the final program
-    bool useMain_;
+    bool useMain_{true};
     ///}
 
     /// Code generation options
@@ -102,7 +82,7 @@ public:
     vector<string> defines_;
 
     /// True if we should generate debug information
-    bool generateDebugInfo_;
+    bool generateDebugInfo_{false};
 
     /// The LLVM data layout that we are using
     string dataLayout_;
@@ -112,14 +92,14 @@ public:
 
     /// The maximum number of lines to be considered for inline; after this number of lines, the
     /// functions will not be inlined
-    int maxCountForInline_;
+    int maxCountForInline_{30};
 
     /// The optimization level to be applied to the generated code (0=no optimizations,1,2,3, 's',
     /// 'fast')
-    string optimizationLevel_;
+    string optimizationLevel_{"0"};
 
     /// If this is set, we disable ReturnValueOptimization (and pseudo-RVO)
-    bool noRVO_;
+    bool noRVO_{false};
     ///}
 
     /// Linker options
@@ -134,13 +114,13 @@ public:
     /// Debugging options
     ///{
     /// If true we will dump LLVM assembly for each input file, and for the output file
-    bool dumpAssembly_;
+    bool dumpAssembly_{false};
 
     /// If true we will dump LLVM assembly for the CT module
-    bool dumpCtAssembly_;
+    bool dumpCtAssembly_{false};
 
     /// If true we will dump LLVM assembly for the optimized module
-    bool dumpOptAssembly_;
+    bool dumpOptAssembly_{false};
 
     /// If given, the AST will be dumped for original source code and compiled code
     /// This specifies a filter to be applied to the list of source codes that the compiler
@@ -148,6 +128,6 @@ public:
     string dumpAST_;
 
     /// Set this to true if you don't want to delete the intermediate files used during generation
-    bool keepIntermediateFiles_;
+    bool keepIntermediateFiles_{false};
     ///}
 };

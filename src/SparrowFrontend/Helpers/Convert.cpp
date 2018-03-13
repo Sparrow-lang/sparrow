@@ -12,6 +12,8 @@
 
 #include "Nest/Utils/Tuple.hpp"
 
+#include <utility>
+
 using namespace SprFrontend;
 
 ConversionType SprFrontend::combine(ConversionType lhs, ConversionType rhs) {
@@ -376,9 +378,9 @@ ConversionResult cachedCanConvertImpl(
 } // namespace
 
 ConversionResult::ConversionResult(
-        ConversionType convType, const ConversionFun& fun, const SourceCode* sourceCode)
+        ConversionType convType, ConversionFun fun, const SourceCode* sourceCode)
     : convType_(convType)
-    , convFun_(fun)
+    , convFun_(std::move(fun))
     , sourceCode_(sourceCode) {}
 
 Node* ConversionResult::apply(Node* src) const {

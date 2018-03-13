@@ -26,7 +26,7 @@ typedef function<Node*(Node*)> ConversionFun;
 /// works from a particular source code, also store the source code
 class ConversionResult {
 public:
-    ConversionResult(ConversionType convType, const ConversionFun& fun = ConversionFun(),
+    ConversionResult(ConversionType convType, ConversionFun fun = ConversionFun(),
             const SourceCode* sourceCode = nullptr);
 
     ConversionType conversionType() const { return convType_; }

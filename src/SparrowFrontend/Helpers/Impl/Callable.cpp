@@ -1368,7 +1368,7 @@ string SprFrontend::toString(const CallableData& c) {
             oss << ", ";
 
         TypeRef type = nullptr;
-        StringRef name;
+        StringRef name{};
         if (p && (p->nodeKind == nkFeatherDeclVar || p->nodeKind == nkSparrowDeclSprParameter)) {
             name = Feather_getName(p);
             auto typeNode = at(p->children, 0);

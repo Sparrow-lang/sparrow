@@ -151,25 +151,29 @@ class OptionHandler {
     } val_;
 
 public:
-    OptionHandler() { val_.boolVal = nullptr; }
+    OptionHandler() : val_{nullptr} { val_.boolVal = nullptr; }
 
     OptionHandler(bool& res, bool store = true)
-        : actionType_(store ? storeTrue : storeFalse) {
+        : actionType_(store ? storeTrue : storeFalse)
+        , val_{nullptr} {
         val_.boolVal = &res;
     }
 
     OptionHandler(int& res)
-        : actionType_(storeInt) {
+        : actionType_(storeInt)
+        , val_{nullptr} {
         val_.intVal = &res;
     }
 
     OptionHandler(string& res)
-        : actionType_(storeString) {
+        : actionType_(storeString)
+        , val_{nullptr} {
         val_.stringVal = &res;
     }
 
     OptionHandler(vector<string>& res)
-        : actionType_(appendString) {
+        : actionType_(appendString)
+        , val_{nullptr} {
         val_.stringListVal = &res;
     }
 
@@ -200,10 +204,15 @@ public:
 
 /// Structure that describes an entry in the options list
 struct OptionEntry {
-    const char* tag;
-    const char* argName; // NULL=no arg, starts with space => next arg, otherwise concat
-    OptionHandler handler;
-    const char* helpMessage;
+    OptionEntry(const char* t, const char* an, OptionHandler h, const char* msg)
+        : tag(t)
+        , argName(an)
+        , handler(h)
+        , helpMessage(msg) {}
+    const char* tag{nullptr};
+    const char* argName{nullptr}; // NULL=no arg, starts with space => next arg, otherwise concat
+    OptionHandler handler{};
+    const char* helpMessage{nullptr};
 };
 
 /// Structure describing the parsed arguments

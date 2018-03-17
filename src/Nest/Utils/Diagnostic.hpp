@@ -30,8 +30,9 @@ ostream& operator<<(ostream& os, TypeRef t);
 ostream& operator<<(ostream& os, EvalMode mode);
 
 struct DiagReporterFromFormatter {
-    void operator=(const Nest::Common::DiagnosticFormatter& fmt) {
+    DiagReporterFromFormatter& operator=(const Nest::Common::DiagnosticFormatter& fmt) {
         Nest_reportDiagnostic(fmt.location(), fmt.severity(), fmt.message().c_str());
+        return *this;
     }
 };
 
@@ -39,7 +40,7 @@ template <typename RetType> struct DiagReporterWithReturnFromFormatter {
     DiagReporterWithReturnFromFormatter(RetType retVal)
         : retVal_(retVal) {}
 
-    RetType operator=(const Nest::Common::DiagnosticFormatter& fmt) {
+    RetType operator=(const Nest::Common::DiagnosticFormatter& fmt) { // NOLINT
         Nest_reportDiagnostic(fmt.location(), fmt.severity(), fmt.message().c_str());
         return retVal_;
     }

@@ -201,19 +201,19 @@ Node* CtModule::ctEvaluateExpression(Node* node) {
     Tr::prepareTranslate(node, ctxMain);
 
     // Check for re-entrant calls
-    static volatile int numActiveCalls = 0;
-    struct IncDec {
-        volatile int& val_;
-        IncDec(volatile int& val)
-            : val_(++val) {}
-        ~IncDec() { --val_; }
-    };
-    IncDec scopeIncDec(numActiveCalls);
-    if (numActiveCalls > 1) {
-        static int numReentrantCalls = 0;
-        ++numReentrantCalls;
-        REP_INTERNAL(node->location, "Reentrant ctEval detected: %1%") % Nest_toStringEx(node);
-    }
+    // static volatile int numActiveCalls = 0;
+    // struct IncDec {
+    //     volatile int& val_;
+    //     IncDec(volatile int& val)
+    //         : val_(++val) {}
+    //     ~IncDec() { --val_; }
+    // };
+    // IncDec scopeIncDec(numActiveCalls);
+    // if (numActiveCalls > 1) {
+    //     static int numReentrantCalls = 0;
+    //     ++numReentrantCalls;
+    //     REP_INTERNAL(node->location, "Reentrant ctEval detected: %1%") % Nest_toStringEx(node);
+    // }
 
     // If we've added some definitions so far, add them to the execution engine
     syncModule();

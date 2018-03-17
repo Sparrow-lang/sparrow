@@ -39,7 +39,7 @@ void initSparrowFrontendTypeKinds() {
 TypeRef getConceptType(Node* conceptOrGeneric, uint8_t numReferences, EvalMode mode) {
     ASSERT(!conceptOrGeneric || conceptOrGeneric->nodeKind == nkSparrowDeclSprConcept ||
             conceptOrGeneric->nodeKind == nkSparrowDeclGenericClass);
-    Type referenceType;
+    Type referenceType = {0};
     referenceType.typeKind = typeKindConcept;
     referenceType.mode = mode;
     referenceType.numSubtypes = 0;

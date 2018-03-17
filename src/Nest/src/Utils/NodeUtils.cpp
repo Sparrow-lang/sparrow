@@ -58,6 +58,9 @@ const char* Nest_toStringEx(const Node* node) {
             case propType:
                 ss << p->value.typeValue;
                 break;
+            case propPtr:
+                ss << p->value.ptrValue;
+                break;
             }
         }
         ss << ']';
@@ -141,6 +144,11 @@ void Nest_setPropertyType(Node* node, const char* name, TypeRef val) {
     prop.value.typeValue = val;
     _setProperty(&node->properties, prop);
 }
+void Nest_setPropertyPtr(Node* node, const char* name, void* val) {
+    NodeProperty prop = {dupCStr(name), propPtr, 0, {0}};
+    prop.value.ptrValue = val;
+    _setProperty(&node->properties, prop);
+}
 
 void Nest_setPropertyExplInt(Node* node, const char* name, int val) {
     NodeProperty prop = {dupCStr(name), propInt, 1, {0}};
@@ -160,6 +168,11 @@ void Nest_setPropertyExplNode(Node* node, const char* name, Node* val) {
 void Nest_setPropertyExplType(Node* node, const char* name, TypeRef val) {
     NodeProperty prop = {dupCStr(name), propType, 1, {0}};
     prop.value.typeValue = val;
+    _setProperty(&node->properties, prop);
+}
+void Nest_setPropertyExplPtr(Node* node, const char* name, void* val) {
+    NodeProperty prop = {dupCStr(name), propPtr, 1, {0}};
+    prop.value.ptrValue = val;
     _setProperty(&node->properties, prop);
 }
 
@@ -196,6 +209,12 @@ const TypeRef* Nest_getPropertyType(const Node* node, const char* name) {
         return nullptr;
     return &p->value.typeValue;
 }
+void* const* Nest_getPropertyPtr(const Node* node, const char* name) {
+    NodeProperty* p = _findProperty(node->properties, fromCStr(name));
+    if (!p || p->kind != propPtr)
+        return nullptr;
+    return &p->value.ptrValue;
+}
 
 int Nest_getPropertyDefaultInt(const Node* node, const char* name, int defaultVal) {
     const int* res = Nest_getPropertyInt(node, name);
@@ -211,6 +230,10 @@ Node* Nest_getPropertyDefaultNode(const Node* node, const char* name, Node* defa
 }
 TypeRef Nest_getPropertyDefaultType(const Node* node, const char* name, TypeRef defaultVal) {
     const TypeRef* res = Nest_getPropertyType(node, name);
+    return res ? *res : defaultVal;
+}
+void* Nest_getPropertyDefaultPtr(const Node* node, const char* name, void* defaultVal) {
+    void* const* res = Nest_getPropertyPtr(node, name);
     return res ? *res : defaultVal;
 }
 
@@ -239,6 +262,13 @@ TypeRef Nest_getCheckPropertyType(const Node* node, const char* name) {
     const TypeRef* res = Nest_getPropertyType(node, name);
     if (!res)
         REP_INTERNAL(node->location, "Node of kind %1% does not have Type property %2%") %
+                Nest_nodeKindName(node) % name;
+    return *res;
+}
+void* Nest_getCheckPropertyPtr(const Node* node, const char* name) {
+    void* const* res = Nest_getPropertyPtr(node, name);
+    if (!res)
+        REP_INTERNAL(node->location, "Node of kind %1% does not have Ptr property %2%") %
                 Nest_nodeKindName(node) % name;
     return *res;
 }

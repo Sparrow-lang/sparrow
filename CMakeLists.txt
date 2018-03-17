@@ -112,7 +112,7 @@ endif()
 
 # Add target for clang-tidy
 set(TIDY_CHECKS
-    # -*,
+    -*,
     modernize-avoid-bind,
     modernize-deprecated-headers,
     modernize-loop-convert,
@@ -137,6 +137,21 @@ set(TIDY_CHECKS
     modernize-use-override,
     modernize-use-transparent-functors,
     modernize-use-using,
+    cppcoreguidelines-c-copy-assignment-signature,
+    cppcoreguidelines-interfaces-global-init,
+    cppcoreguidelines-no-malloc,
+    # cppcoreguidelines-pro-bounds-array-to-pointer-decay, # not met, requires gsl
+    # cppcoreguidelines-pro-bounds-constant-array-index, # not met, requires gsl
+    # cppcoreguidelines-pro-bounds-pointer-arithmetic, # not met
+    cppcoreguidelines-pro-type-const-cast,
+    # cppcoreguidelines-pro-type-cstyle-cast, # not met
+    cppcoreguidelines-pro-type-member-init,
+    cppcoreguidelines-pro-type-reinterpret-cast,
+    # cppcoreguidelines-pro-type-static-cast-downcast, # not met (LLVM handling code)
+    # cppcoreguidelines-pro-type-union-access, # not met (we use some unions)
+    # cppcoreguidelines-pro-type-vararg, # not met (we are using printf)
+    cppcoreguidelines-slicing,
+    cppcoreguidelines-special-member-functions,
 )
 find_program(CLANG_TIDY_SCRIPT "run-clang-tidy.py" HINTS ${LLVM_TOOLS_BINARY_DIR}/../share/clang)
 if(CLANG_TIDY_SCRIPT)

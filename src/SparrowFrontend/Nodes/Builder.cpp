@@ -12,6 +12,7 @@ namespace {
 template <typename T> StringRef toStrData(T val) {
     const T* ptr = &val;
     const T* end = ptr + 1;
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     StringRef res = {reinterpret_cast<const char*>(ptr), reinterpret_cast<const char*>(end)};
     return dup(res);
 }

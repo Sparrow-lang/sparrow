@@ -17,6 +17,7 @@ template <typename T> T* Feather_getCtValueData(Node* ctVal) {
 }
 
 template <typename T> Node* Feather_mkCtValueT(const Location& loc, TypeRef type, T* dataVal) {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     const auto* p = reinterpret_cast<const char*>(dataVal);
     StringRef dataStr = {p, p + sizeof(*dataVal)};
     return Feather_mkCtValue(loc, type, dataStr);

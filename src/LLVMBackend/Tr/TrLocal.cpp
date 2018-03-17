@@ -71,12 +71,11 @@ Node* mkDestructActionForConditional(TypeRef resType, llvm::Value* cond,
     Nest_nodeSetChildren(res, fromIniList({Feather_mkNodeList(NOLOC, move(alt1DestructActions)),
                                       Feather_mkNodeList(NOLOC, move(alt2DestructActions))}));
     Nest_setPropertyType(res, "resType", resType);
-    Nest_setPropertyNode(res, "cond_LLVM_value",
-            reinterpret_cast<Node*>(cond)); // store the condition llvm value as a pointer to a node
+    Nest_setPropertyPtr(res, "cond_LLVM_value", cond);
     return res;
 }
 llvm::Value* CondDestrAct_condition(Node* node) {
-    return reinterpret_cast<llvm::Value*>(Nest_getCheckPropertyNode(node, "cond_LLVM_value"));
+    return static_cast<llvm::Value*>(Nest_getCheckPropertyPtr(node, "cond_LLVM_value"));
 }
 
 /// Expression class that can hold a llvm value or a non-translated node.

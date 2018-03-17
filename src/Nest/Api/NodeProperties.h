@@ -15,6 +15,7 @@ enum Nest_PropertyKind {
     propString,
     propNode,
     propType,
+    propPtr,
 };
 typedef enum Nest_PropertyKind PropertyKind;
 
@@ -30,6 +31,7 @@ struct Nest_NodeProperty {
         StringRef stringValue;
         Node* nodeValue;
         TypeRef typeValue;
+        void* ptrValue;
     } value;
 };
 typedef struct Nest_NodeProperty Nest_NodeProperty;

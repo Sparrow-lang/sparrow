@@ -28,6 +28,11 @@ public:
             printf(format, durMs);
         }
     }
+
+    PrintTimer(const PrintTimer&) = delete;
+    PrintTimer(PrintTimer&&) = delete;
+    const PrintTimer& operator=(const PrintTimer&) = delete;
+    const PrintTimer& operator=(PrintTimer&&) = delete;
 };
 } // namespace Common
 } // namespace Nest

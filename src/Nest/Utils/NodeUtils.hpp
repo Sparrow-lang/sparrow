@@ -35,4 +35,9 @@ public:
     NodeArrayDestroyer(NodeArray& a)
         : arr(a) {}
     ~NodeArrayDestroyer() { Nest_freeNodeArray(arr); }
+
+    NodeArrayDestroyer(const NodeArrayDestroyer&) = delete;
+    NodeArrayDestroyer(NodeArrayDestroyer&&) = delete;
+    const NodeArrayDestroyer& operator=(const NodeArrayDestroyer&) = delete;
+    const NodeArrayDestroyer& operator=(NodeArrayDestroyer&&) = delete;
 };

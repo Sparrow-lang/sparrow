@@ -56,11 +56,13 @@ void Nest_setPropertyInt(Node* node, const char* name, int val);
 void Nest_setPropertyString(Node* node, const char* name, StringRef val);
 void Nest_setPropertyNode(Node* node, const char* name, Node* val);
 void Nest_setPropertyType(Node* node, const char* name, TypeRef val);
+void Nest_setPropertyPtr(Node* node, const char* name, void* val);
 
 void Nest_setPropertyExplInt(Node* node, const char* name, int val);
 void Nest_setPropertyExplString(Node* node, const char* name, StringRef val);
 void Nest_setPropertyExplNode(Node* node, const char* name, Node* val);
 void Nest_setPropertyExplType(Node* node, const char* name, TypeRef val);
+void Nest_setPropertyExplPtr(Node* node, const char* name, void* val);
 
 int Nest_hasProperty(const Node* node, const char* name);
 const int* Nest_getPropertyInt(const Node* node, const char* name);
@@ -68,16 +70,19 @@ const StringRef* Nest_getPropertyString(const Node* node, const char* name);
 StringRef Nest_getPropertyStringDeref(const Node* node, const char* name);
 Node* const* Nest_getPropertyNode(const Node* node, const char* name);
 const TypeRef* Nest_getPropertyType(const Node* node, const char* name);
+void* const* Nest_getPropertyPtr(const Node* node, const char* name);
 
 int Nest_getPropertyDefaultInt(const Node* node, const char* name, int defaultVal);
 StringRef Nest_getPropertyDefaultString(const Node* node, const char* name, StringRef defaultVal);
 Node* Nest_getPropertyDefaultNode(const Node* node, const char* name, Node* defaultVal);
 TypeRef Nest_getPropertyDefaultType(const Node* node, const char* name, TypeRef defaultVal);
+void* Nest_getPropertyDefaultPtr(const Node* node, const char* name, void* defaultVal);
 
 int Nest_getCheckPropertyInt(const Node* node, const char* name);
 StringRef Nest_getCheckPropertyString(const Node* node, const char* name);
 Node* Nest_getCheckPropertyNode(const Node* node, const char* name);
 TypeRef Nest_getCheckPropertyType(const Node* node, const char* name);
+void* Nest_getCheckPropertyPtr(const Node* node, const char* name);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Compilation processes

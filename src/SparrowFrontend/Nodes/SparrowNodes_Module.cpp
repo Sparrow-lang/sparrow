@@ -110,7 +110,7 @@ Node* expandModule(Node* node) {
     // Node* imports = at(node->children, 1);
     Node* declarations = at(node->children, 1);
 
-    Location modLoc;
+    Location modLoc{};
 
     // Get the QID representing the module
     // If we don't have a module name, infer it from the name of the file

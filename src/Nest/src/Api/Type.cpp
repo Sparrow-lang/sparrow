@@ -5,9 +5,11 @@
 namespace {
 /// Get the hash code for the content of the type
 size_t getContentHash(const Type* type) noexcept {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    auto refNodeHash = reinterpret_cast<size_t>(type->referredNode);
     size_t res = (size_t)type->typeKind + (size_t)type->mode + type->numSubtypes +
                  type->numReferences + type->hasStorage + type->canBeUsedAtCt +
-                 type->canBeUsedAtRt + type->flags + reinterpret_cast<size_t>(type->referredNode);
+                 type->canBeUsedAtRt + type->flags + refNodeHash;
     for (int i = 0; i < type->numSubtypes; ++i)
         res += getContentHash(type->subTypes[i]);
     return res;

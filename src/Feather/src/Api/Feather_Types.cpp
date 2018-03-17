@@ -93,7 +93,7 @@ int Feather_getArrayTypeKind() { return typeKindArray; }
 int Feather_getFunctionTypeKind() { return typeKindFunction; }
 
 TypeRef Feather_getVoidType(EvalMode mode) {
-    Type referenceType;
+    Type referenceType = {0};
     referenceType.typeKind = typeKindVoid;
     referenceType.mode = mode;
     referenceType.numSubtypes = 0;
@@ -117,7 +117,7 @@ TypeRef Feather_getDataType(Node* classDecl, unsigned numReferences, EvalMode mo
     if (mode == modeRtCt && classDecl)
         mode = classMode;
 
-    Type referenceType;
+    Type referenceType = {0};
     referenceType.typeKind = typeKindData;
     referenceType.mode = mode;
     referenceType.numSubtypes = 0;
@@ -136,7 +136,7 @@ TypeRef Feather_getDataType(Node* classDecl, unsigned numReferences, EvalMode mo
 }
 
 TypeRef Feather_getLValueType(TypeRef base) {
-    Type referenceType;
+    Type referenceType = {0};
     referenceType.typeKind = typeKindLValue;
     referenceType.mode = base->mode;
     referenceType.numSubtypes = 1;
@@ -163,7 +163,7 @@ TypeRef Feather_getLValueType(TypeRef base) {
 }
 
 TypeRef Feather_getArrayType(TypeRef unitType, unsigned count) {
-    Type referenceType;
+    Type referenceType = {0};
     referenceType.typeKind = typeKindArray;
     referenceType.mode = unitType->mode;
     referenceType.numSubtypes = 1;
@@ -192,7 +192,7 @@ TypeRef Feather_getArrayType(TypeRef unitType, unsigned count) {
 TypeRef Feather_getFunctionType(TypeRef* resultTypeAndParams, unsigned numTypes, EvalMode mode) {
     ASSERT(numTypes >= 1); // At least result type
 
-    Type referenceType;
+    Type referenceType = {0};
     referenceType.typeKind = typeKindFunction;
     referenceType.mode = mode;
     referenceType.numSubtypes = numTypes;

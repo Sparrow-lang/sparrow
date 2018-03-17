@@ -60,9 +60,9 @@ private:
     llvm::DenseMap<const SourceCode*, llvm::DIFile*> filenameCache_;
 
     /// The current location for which we set debug information
-    Location curLoc_;
+    Location curLoc_{};
     /// The location that we previously written debug information for
-    Location prevLoc_;
+    Location prevLoc_{};
 };
 } // namespace Tr
 } // namespace LLVMB

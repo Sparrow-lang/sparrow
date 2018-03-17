@@ -4,7 +4,7 @@
 #include <vector>
 
 /// Class that holds the compiler settings
-struct Nest_CompilerSettings {
+struct Nest_CompilerSettings { // NOLINT
     /// Deduced settings
     ///{
     /// The name of the program

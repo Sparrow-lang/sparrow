@@ -663,6 +663,7 @@ void handleGenericFunParam(GenericFunCallParams& callParams, int idx, Node* arg,
             REP_INTERNAL(arg->location,
                     "Invalid argument %1% when instantiating generic (arg is not CT evaluable)") %
                     (idx + 1);
+        ASSERT(boundVal);
         ASSERT(boundVal->type);
     }
 
@@ -844,6 +845,8 @@ EvalMode getGenericClassOrPackageResultingEvalMode(
     bool hasRtOnlyArgs = false;
     bool hasCtOnlyArgs = false;
     for (Node* boundVal : boundValues) {
+        if (!boundVal)
+            continue;
         ASSERT(!boundVal || boundVal->type);
         // Test the type given to the 'Type' parameters (i.e., we need to know
         // if Vector(t) can be rtct based on the mode of t)

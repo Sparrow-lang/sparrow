@@ -46,6 +46,7 @@ CtModule::CtModule(const string& name)
 
     if (!llvmExecutionEngine_)
         REP_INTERNAL(NOLOC, "Failed to construct LLVM ExecutionEngine: %1%") % errStr;
+    ASSERT(llvmExecutionEngine_);
 
     // Get the actual data layout to be used
     dataLayout_ = llvmExecutionEngine_->getDataLayout();
@@ -281,6 +282,7 @@ Node* CtModule::ctEvaluateExpression(Node* node) {
         //  - call the function, to fill up the data buffer
         using FunType = void (*)(const char*);
         auto fptr = (FunType)llvmExecutionEngine_->getFunctionAddress(funName);
+        ASSERT(fptr);
         fptr(dataBuffer.begin);
 
         // Create a CtValue containing the data resulted from expression evaluation
@@ -295,6 +297,7 @@ Node* CtModule::ctEvaluateExpression(Node* node) {
         //  - call the function
         using FunType = void (*)();
         auto fptr = (FunType)llvmExecutionEngine_->getFunctionAddress(funName);
+        ASSERT(fptr);
         fptr();
 
         // Create a Nop operation for return

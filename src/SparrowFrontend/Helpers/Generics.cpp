@@ -118,7 +118,7 @@ Node* SprFrontend::checkCreateGenericFun(Node* originalFun, Node* parameters, No
     NodeVector dependentParams(numParams, nullptr);
     NamesVec seenNames;
     seenNames.reserve(numParams);
-    bool hasDependentParams = false;
+    // bool hasDependentParams = false;
     for (int i = 0; i < numParams; ++i) {
         Node* param = at(params, i);
         Node* paramType = at(param->children, 0);
@@ -127,7 +127,7 @@ Node* SprFrontend::checkCreateGenericFun(Node* originalFun, Node* parameters, No
         // Check if this parameter references a previously seen parameter
         if (i > 0 && referencesSeenName(paramType, seenNames)) {
             dependentParams[i] = param;
-            hasDependentParams = true;
+            // hasDependentParams = true;
         }
 
         // Add this param name to the list of seen names
@@ -313,6 +313,8 @@ InstNode SprFrontend::canInstantiate(InstSetNode instSet, NodeRange values, Eval
     // If no instantiation is found, create a new instantiation
     if (!inst)
         inst = createNewInstantiation(instSet, values, evalMode);
+    if (!inst)
+        return nullptr;
 
     return canInstantiate(inst, instSet) ? inst : nullptr;
 }
@@ -324,6 +326,7 @@ bool SprFrontend::conceptIsFulfilled(Node* concept1, TypeRef type) {
 
     if (!concept.node->nodeSemanticallyChecked || !instSet)
         REP_INTERNAL(concept.node->location, "Invalid concept");
+    ASSERT(instSet);
 
     Node* typeValue = createTypeNode(concept.node->context, concept.node->location, type);
     if (!Nest_semanticCheck(typeValue))

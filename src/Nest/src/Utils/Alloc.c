@@ -43,7 +43,7 @@ char* dupString(const char* str) {
     if (len == 0)
         return NULL;
     char* p = (char*)alloc(len + 1, allocString);
-    return strcpy(p, str);
+    return strncpy(p, str, len);
 }
 
 char* startString(unsigned int maxLen) { return (char*)startBuffer(maxLen, allocString); }

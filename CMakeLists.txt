@@ -112,7 +112,7 @@ endif()
 
 # Add target for clang-tidy
 set(TIDY_CHECKS
-    -*,
+    # -*,
     modernize-avoid-bind,
     modernize-deprecated-headers,
     modernize-loop-convert,

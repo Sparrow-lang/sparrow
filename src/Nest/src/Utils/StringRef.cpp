@@ -3,11 +3,11 @@
 #include "Nest/Utils/StringRef.hpp"
 #include "Nest/Utils/Alloc.h"
 
-StringRef allocStringRef(unsigned size) {
-    StringRef res = {nullptr, nullptr};
+MutableStringRef allocStringRef(unsigned size) {
+    MutableStringRef res = {nullptr, nullptr};
     if (size == 0)
         return res;
-    auto* p = (char*)alloc(size + 1, allocString); // extra byte for null termination;
+    auto* p = allocStr(size + 1); // extra byte for null termination;
     res.begin = p;
     res.end = res.begin + size;
     p[size] = 0;
@@ -29,25 +29,25 @@ string toString(StringRef str) { return str.begin ? string(str.begin, str.end) :
 
 StringRef dupCStr(const char* str) {
     unsigned size = strlen(str);
-    StringRef res = allocStringRef(size);
+    MutableStringRef res = allocStringRef(size);
     if (size > 0)
-        memcpy((char*)res.begin, str, size);
-    return res;
+        memcpy(res.begin, str, size);
+    return {res.begin, res.end};
 }
 StringRef dupString(const string& str) {
     unsigned size = str.size();
-    StringRef res = allocStringRef(size);
+    MutableStringRef res = allocStringRef(size);
     if (size > 0)
-        memcpy((char*)res.begin, str.c_str(), size);
-    return res;
+        memcpy(res.begin, str.c_str(), size);
+    return {res.begin, res.end};
 }
 
 StringRef dup(StringRef str) {
     unsigned sz = size(str);
-    StringRef res = allocStringRef(sz);
+    MutableStringRef res = allocStringRef(sz);
     if (sz > 0)
-        memcpy((char*)res.begin, str.begin, sz);
-    return res;
+        memcpy(res.begin, str.begin, sz);
+    return {res.begin, res.end};
 }
 
 unsigned size(StringRef str) {

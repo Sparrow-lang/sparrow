@@ -128,6 +128,7 @@ void parseSourceCode(SourceCode* sourceCode, CompilationContext* ctx) {
         REP_INTERNAL(loc, "Invalid parsing function '%1%', (used to parse %2%)") % funInfo %
                 sourceCode->url;
 
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     Feather_addToNodeList(content, (Node*)getByteRefCtValue(implPart));
 
     Nest_semanticCheck(moduleContent);

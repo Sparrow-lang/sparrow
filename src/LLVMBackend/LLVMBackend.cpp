@@ -123,4 +123,7 @@ void _llvmBeCtApiRegisterFun(Backend* backend, const char* name, void* funPtr) {
     return _llvmBackend.ctModule->ctApiRegisterFun(name, funPtr);
 }
 
-int LLVMBe_registerLLVMBackend() { return Nest_registerBackend((Backend*)&_llvmBackend); }
+int LLVMBe_registerLLVMBackend() {
+    // NOLINTNEXTLINE
+    return Nest_registerBackend(reinterpret_cast<Backend*>(&_llvmBackend));
+}

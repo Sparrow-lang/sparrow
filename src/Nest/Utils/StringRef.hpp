@@ -3,7 +3,14 @@
 #include "Nest/Api/StringRef.h"
 #include <string>
 
-StringRef allocStringRef(unsigned size);
+struct MutableStringRef {
+    char* begin; ///< The beginning of the string
+    char* end;   ///< One past the last character of the string
+
+    operator StringRef() { return {begin, end}; }
+};
+
+MutableStringRef allocStringRef(unsigned size);
 
 StringRef fromCStr(const char* str);
 StringRef fromString(const string& str);

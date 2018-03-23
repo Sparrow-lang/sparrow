@@ -127,6 +127,7 @@ unsigned Nest_nodeArrayCapacity(NodeArray arr);
 //
 
 unsigned Nest_nodeRangeSize(NodeRange nodes);
+unsigned Nest_nodeRangeMSize(NodeRangeM nodes);
 
 NodeRange Nest_NodeRagenFromCArray(Node** nodes, unsigned count);
 

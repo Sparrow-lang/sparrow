@@ -151,7 +151,10 @@ class OptionHandler {
     } val_;
 
 public:
-    OptionHandler() : val_{nullptr} { val_.boolVal = nullptr; }
+    OptionHandler()
+        : val_{nullptr} {
+        val_.boolVal = nullptr;
+    }
 
     OptionHandler(bool& res, bool store = true)
         : actionType_(store ? storeTrue : storeFalse)

@@ -119,6 +119,7 @@ pair<bool, SourceCode*> _handleImportFile(const ImportInfo& import) {
         _unhandledImports[import.originSourceCode_].push_back(import);
         return make_pair(true, nullptr);
     }
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     auto* sourceCode = (SourceCode*)alloc(sizeof(SourceCode), allocGeneral);
     sourceCode->kind = scKind;
     sourceCode->url = url;

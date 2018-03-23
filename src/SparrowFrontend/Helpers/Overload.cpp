@@ -174,14 +174,17 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
 
     // Special case for macro calls
     bool isMacro = firstDecl && Nest_hasProperty(firstDecl, propMacro);
+    NodeVector newArgs;
     if (isMacro) {
+        newArgs = NodeVector(args.beginPtr, args.endPtr);
         // Wrap every argument in an astLift(...) call
-        for (auto& arg : args) {
+        for (auto& arg : newArgs) {
             const Location& l = arg->location;
             arg = mkFunApplication(l, mkIdentifier(l, fromCStr("astLift")),
                     Feather_mkNodeListVoid(l, fromIniList({arg})));
             Nest_setContext(arg, context);
         }
+        args = all(newArgs);
     }
 
     // Computing the argument types for our arguments

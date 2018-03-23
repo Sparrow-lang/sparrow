@@ -701,7 +701,7 @@ void handleGenericFunParam(GenericFunCallParams& callParams, int idx, Node* arg,
             Feather_addToNodeList(curInst.boundVarsNode(), boundVar);
             Nest_clearCompilationStateSimple(curInst.boundVarsNode());
         }
-        at(curInst.boundValues(), idx) = boundVal;
+        at(curInst.boundValuesM(), idx) = boundVal;
     }
 }
 

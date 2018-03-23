@@ -12,31 +12,36 @@
 StringRef inferModuleName(const char* url);
 
 namespace {
-void printCtValue(StringRef typeName, StringRef valueDataStr) {
-    const void* valueData = valueDataStr.begin;
 
+template <typename T> const T& extractValue(StringRef valueData) {
+    ASSERT(size(valueData) == sizeof(T*));
+    // NOLINTNEXTLINE
+    return *reinterpret_cast<const T*>(valueData.begin);
+}
+
+void printCtValue(StringRef typeName, StringRef valueDataStr) {
     if (typeName == "Type/ct") {
-        TypeRef t = *((TypeRef*)valueData);
+        TypeRef t = extractValue<TypeRef>(valueDataStr);
         printf("%s", t->description);
     } else if (typeName == "Bool") {
-        bool val = 0 != (*((unsigned char*)valueData));
+        bool val = 0 != extractValue<unsigned char>(valueDataStr);
         printf("%s", val ? "true" : "false");
     } else if (typeName == "Short")
-        printf("%d", (int)*((const short*)valueData));
+        printf("%d", (int)extractValue<short>(valueDataStr));
     else if (typeName == "UShort")
-        printf("%d", (int)*((const unsigned short*)valueData));
+        printf("%d", (int)extractValue<unsigned short>(valueDataStr));
     else if (typeName == "Int")
-        printf("%d", *((const int*)valueData));
+        printf("%d", extractValue<int>(valueDataStr));
     else if (typeName == "UInt")
-        printf("%u", *((const unsigned int*)valueData));
+        printf("%u", extractValue<unsigned int>(valueDataStr));
     else if (typeName == "Long")
-        printf("%lld", *((const long long*)valueData));
+        printf("%lld", extractValue<long long>(valueDataStr));
     else if (typeName == "ULong")
-        printf("%llu", *((const unsigned long long*)valueData));
+        printf("%llu", extractValue<unsigned long long>(valueDataStr));
     else if (typeName == "Float")
-        printf("%g", (float)*((const float*)valueData));
+        printf("%g", extractValue<float>(valueDataStr));
     else if (typeName == "Double")
-        printf("%g", (double)*((const double*)valueData));
+        printf("%g", extractValue<double>(valueDataStr));
     else if (typeName == "StringRef") {
         printf("\"%s\"", valueDataStr.begin);
     } else

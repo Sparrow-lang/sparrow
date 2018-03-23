@@ -234,129 +234,94 @@ Node* ctApi_Feather_mkWhile(Location* loc, Node* condition, Node* body, Node* st
 Node* ctApi_Feather_mkBreak(Location* loc) { return Feather_mkBreak(*loc); }
 Node* ctApi_Feather_mkContinue(Location* loc) { return Feather_mkContinue(*loc); }
 Node* ctApi_Feather_mkReturn(Location* loc, Node* exp) { return Feather_mkReturn(*loc, exp); }
+
+template <typename T> void ctApiReg(Backend* backend, const char* name, T ftor) {
+    backend->ctApiRegisterFun(
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
+            backend, name, (void*)ftor);
+}
+
 } // namespace
 
 void Feather_registerCtApiFunctions(Backend* backend) {
-    backend->ctApiRegisterFun(
-            backend, "$meta.SourceCode.fromFilename", (void*)&ctApi_SourceCode_fromFilename);
-    backend->ctApiRegisterFun(
-            backend, "$meta.SourceCode.filename", (void*)&ctApi_SourceCode_filename);
+    ctApiReg(backend, "$meta.SourceCode.fromFilename", &ctApi_SourceCode_fromFilename);
+    ctApiReg(backend, "$meta.SourceCode.filename", &ctApi_SourceCode_filename);
 
-    backend->ctApiRegisterFun(backend, "$meta.Location.getCorrespondingCode",
-            (void*)&ctApi_Location_getCorrespondingCode);
+    ctApiReg(backend, "$meta.Location.getCorrespondingCode", &ctApi_Location_getCorrespondingCode);
 
-    backend->ctApiRegisterFun(backend, "$meta.report", (void*)&ctApi_report);
-    backend->ctApiRegisterFun(backend, "$meta.raise", (void*)&ctApi_raise);
+    ctApiReg(backend, "$meta.report", &ctApi_report);
+    ctApiReg(backend, "$meta.raise", &ctApi_raise);
 
-    backend->ctApiRegisterFun(backend, "$meta.CompilationContext.evalMode",
-            (void*)&ctApi_CompilationContext_evalMode);
-    backend->ctApiRegisterFun(backend, "$meta.CompilationContext.sourceCode",
-            (void*)&ctApi_CompilationContext_sourceCode);
+    ctApiReg(backend, "$meta.CompilationContext.evalMode", &ctApi_CompilationContext_evalMode);
+    ctApiReg(backend, "$meta.CompilationContext.sourceCode", &ctApi_CompilationContext_sourceCode);
 
-    backend->ctApiRegisterFun(backend, "$meta.AstType.typeKind", (void*)&ctApi_AstType_typeKind);
-    backend->ctApiRegisterFun(backend, "$meta.AstType.toString", (void*)&ctApi_AstType_toString);
-    backend->ctApiRegisterFun(
-            backend, "$meta.AstType.hasStorage", (void*)&ctApi_AstType_hasStorage);
-    backend->ctApiRegisterFun(
-            backend, "$meta.AstType.numReferences", (void*)&ctApi_AstType_numReferences);
-    backend->ctApiRegisterFun(backend, "$meta.AstType.mode", (void*)&ctApi_AstType_mode);
-    backend->ctApiRegisterFun(
-            backend, "$meta.AstType.canBeUsedAtCt", (void*)&ctApi_AstType_canBeUsedAtCt);
-    backend->ctApiRegisterFun(
-            backend, "$meta.AstType.canBeUsedAtRt", (void*)&ctApi_AstType_canBeUsedAtRt);
+    ctApiReg(backend, "$meta.AstType.typeKind", &ctApi_AstType_typeKind);
+    ctApiReg(backend, "$meta.AstType.toString", &ctApi_AstType_toString);
+    ctApiReg(backend, "$meta.AstType.hasStorage", &ctApi_AstType_hasStorage);
+    ctApiReg(backend, "$meta.AstType.numReferences", &ctApi_AstType_numReferences);
+    ctApiReg(backend, "$meta.AstType.mode", &ctApi_AstType_mode);
+    ctApiReg(backend, "$meta.AstType.canBeUsedAtCt", &ctApi_AstType_canBeUsedAtCt);
+    ctApiReg(backend, "$meta.AstType.canBeUsedAtRt", &ctApi_AstType_canBeUsedAtRt);
 
-    backend->ctApiRegisterFun(backend, "$meta.AstNode.clone", (void*)&ctApi_AstNode_clone);
-    backend->ctApiRegisterFun(backend, "$meta.AstNode.nodeKind", (void*)&ctApi_AstNode_nodeKind);
-    backend->ctApiRegisterFun(
-            backend, "$meta.AstNode.nodeKindName", (void*)&ctApi_AstNode_nodeKindName);
-    backend->ctApiRegisterFun(backend, "$meta.AstNode.toString", (void*)&ctApi_AstNode_toString);
-    backend->ctApiRegisterFun(
-            backend, "$meta.AstNode.toStringExt", (void*)&ctApi_AstNode_toStringExt);
-    backend->ctApiRegisterFun(backend, "$meta.AstNode.location", (void*)&ctApi_AstNode_location);
-    backend->ctApiRegisterFun(backend, "$meta.AstNode.children", (void*)&ctApi_AstNode_children);
-    backend->ctApiRegisterFun(backend, "$meta.AstNode.getChild", (void*)&ctApi_AstNode_getChild);
-    backend->ctApiRegisterFun(
-            backend, "$meta.AstNode.referredNodes", (void*)&ctApi_AstNode_referredNodes);
-    backend->ctApiRegisterFun(
-            backend, "$meta.AstNode.hasProperty", (void*)&ctApi_AstNode_hasProperty);
-    backend->ctApiRegisterFun(
-            backend, "$meta.AstNode.getPropertyString", (void*)&ctApi_AstNode_getPropertyString);
-    backend->ctApiRegisterFun(
-            backend, "$meta.AstNode.getPropertyInt", (void*)&ctApi_AstNode_getPropertyInt);
-    backend->ctApiRegisterFun(
-            backend, "$meta.AstNode.getPropertyNode", (void*)&ctApi_AstNode_getPropertyNode);
-    backend->ctApiRegisterFun(
-            backend, "$meta.AstNode.getPropertyType", (void*)&ctApi_AstNode_getPropertyType);
-    backend->ctApiRegisterFun(
-            backend, "$meta.AstNode.setPropertyString", (void*)&ctApi_AstNode_setPropertyString);
-    backend->ctApiRegisterFun(
-            backend, "$meta.AstNode.setPropertyInt", (void*)&ctApi_AstNode_setPropertyInt);
-    backend->ctApiRegisterFun(
-            backend, "$meta.AstNode.setPropertyNode", (void*)&ctApi_AstNode_setPropertyNode);
-    backend->ctApiRegisterFun(
-            backend, "$meta.AstNode.setPropertyType", (void*)&ctApi_AstNode_setPropertyType);
-    backend->ctApiRegisterFun(
-            backend, "$meta.AstNode.setContext", (void*)&ctApi_AstNode_setContext);
-    backend->ctApiRegisterFun(
-            backend, "$meta.AstNode.computeType", (void*)&ctApi_AstNode_computeType);
-    backend->ctApiRegisterFun(
-            backend, "$meta.AstNode.semanticCheck", (void*)&ctApi_AstNode_semanticCheck);
-    backend->ctApiRegisterFun(backend, "$meta.AstNode.clearCompilationState",
-            (void*)&ctApi_AstNode_clearCompilationState);
-    backend->ctApiRegisterFun(backend, "$meta.AstNode.context", (void*)&ctApi_AstNode_context);
-    backend->ctApiRegisterFun(backend, "$meta.AstNode.hasError", (void*)&ctApi_AstNode_hasError);
-    backend->ctApiRegisterFun(backend, "$meta.AstNode.isSemanticallyChecked",
-            (void*)&ctApi_AstNode_isSemanticallyChecked);
-    backend->ctApiRegisterFun(backend, "$meta.AstNode.type", (void*)&ctApi_AstNode_type);
-    backend->ctApiRegisterFun(
-            backend, "$meta.AstNode.isExplained", (void*)&ctApi_AstNode_isExplained);
-    backend->ctApiRegisterFun(
-            backend, "$meta.AstNode.explanation", (void*)&ctApi_AstNode_explanation);
-    backend->ctApiRegisterFun(
-            backend, "$meta.AstNode.curExplanation", (void*)&ctApi_AstNode_curExplanation);
+    ctApiReg(backend, "$meta.AstNode.clone", &ctApi_AstNode_clone);
+    ctApiReg(backend, "$meta.AstNode.nodeKind", &ctApi_AstNode_nodeKind);
+    ctApiReg(backend, "$meta.AstNode.nodeKindName", &ctApi_AstNode_nodeKindName);
+    ctApiReg(backend, "$meta.AstNode.toString", &ctApi_AstNode_toString);
+    ctApiReg(backend, "$meta.AstNode.toStringExt", &ctApi_AstNode_toStringExt);
+    ctApiReg(backend, "$meta.AstNode.location", &ctApi_AstNode_location);
+    ctApiReg(backend, "$meta.AstNode.children", &ctApi_AstNode_children);
+    ctApiReg(backend, "$meta.AstNode.getChild", &ctApi_AstNode_getChild);
+    ctApiReg(backend, "$meta.AstNode.referredNodes", &ctApi_AstNode_referredNodes);
+    ctApiReg(backend, "$meta.AstNode.hasProperty", &ctApi_AstNode_hasProperty);
+    ctApiReg(backend, "$meta.AstNode.getPropertyString", &ctApi_AstNode_getPropertyString);
+    ctApiReg(backend, "$meta.AstNode.getPropertyInt", &ctApi_AstNode_getPropertyInt);
+    ctApiReg(backend, "$meta.AstNode.getPropertyNode", &ctApi_AstNode_getPropertyNode);
+    ctApiReg(backend, "$meta.AstNode.getPropertyType", &ctApi_AstNode_getPropertyType);
+    ctApiReg(backend, "$meta.AstNode.setPropertyString", &ctApi_AstNode_setPropertyString);
+    ctApiReg(backend, "$meta.AstNode.setPropertyInt", &ctApi_AstNode_setPropertyInt);
+    ctApiReg(backend, "$meta.AstNode.setPropertyNode", &ctApi_AstNode_setPropertyNode);
+    ctApiReg(backend, "$meta.AstNode.setPropertyType", &ctApi_AstNode_setPropertyType);
+    ctApiReg(backend, "$meta.AstNode.setContext", &ctApi_AstNode_setContext);
+    ctApiReg(backend, "$meta.AstNode.computeType", &ctApi_AstNode_computeType);
+    ctApiReg(backend, "$meta.AstNode.semanticCheck", &ctApi_AstNode_semanticCheck);
+    ctApiReg(backend, "$meta.AstNode.clearCompilationState", &ctApi_AstNode_clearCompilationState);
+    ctApiReg(backend, "$meta.AstNode.context", &ctApi_AstNode_context);
+    ctApiReg(backend, "$meta.AstNode.hasError", &ctApi_AstNode_hasError);
+    ctApiReg(backend, "$meta.AstNode.isSemanticallyChecked", &ctApi_AstNode_isSemanticallyChecked);
+    ctApiReg(backend, "$meta.AstNode.type", &ctApi_AstNode_type);
+    ctApiReg(backend, "$meta.AstNode.isExplained", &ctApi_AstNode_isExplained);
+    ctApiReg(backend, "$meta.AstNode.explanation", &ctApi_AstNode_explanation);
+    ctApiReg(backend, "$meta.AstNode.curExplanation", &ctApi_AstNode_curExplanation);
 
-    backend->ctApiRegisterFun(
-            backend, "$meta.Feather.mkNodeList", (void*)&ctApi_Feather_mkNodeList);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Feather.addToNodeList", (void*)&ctApi_Feather_addToNodeList);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Feather.appendNodeList", (void*)&ctApi_Feather_appendNodeList);
-    backend->ctApiRegisterFun(backend, "$meta.Feather.mkNop", (void*)&ctApi_Feather_mkNop);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Feather.mkTypeNode", (void*)&ctApi_Feather_mkTypeNode);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Feather.mkBackendCode", (void*)&ctApi_Feather_mkBackendCode);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Feather.mkLocalSpace", (void*)&ctApi_Feather_mkLocalSpace);
-    backend->ctApiRegisterFun(backend, "$meta.Feather.mkGlobalConstructAction",
-            (void*)&ctApi_Feather_mkGlobalConstructAction);
-    backend->ctApiRegisterFun(backend, "$meta.Feather.mkGlobalDestructAction",
-            (void*)&ctApi_Feather_mkGlobalDestructAction);
-    backend->ctApiRegisterFun(backend, "$meta.Feather.mkScopeDestructAction",
-            (void*)&ctApi_Feather_mkScopeDestructAction);
-    backend->ctApiRegisterFun(backend, "$meta.Feather.mkTempDestructAction",
-            (void*)&ctApi_Feather_mkTempDestructAction);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Feather.mkFunction", (void*)&ctApi_Feather_mkFunction);
-    backend->ctApiRegisterFun(backend, "$meta.Feather.mkClass", (void*)&ctApi_Feather_mkClass);
-    backend->ctApiRegisterFun(backend, "$meta.Feather.mkVar", (void*)&ctApi_Feather_mkVar);
-    backend->ctApiRegisterFun(backend, "$meta.Feather.mkCtValue", (void*)&ctApi_Feather_mkCtValue);
-    backend->ctApiRegisterFun(backend, "$meta.Feather.mkNull", (void*)&ctApi_Feather_mkNull);
-    backend->ctApiRegisterFun(backend, "$meta.Feather.mkVarRef", (void*)&ctApi_Feather_mkVarRef);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Feather.mkFieldRef", (void*)&ctApi_Feather_mkFieldRef);
-    backend->ctApiRegisterFun(backend, "$meta.Feather.mkFunRef", (void*)&ctApi_Feather_mkFunRef);
-    backend->ctApiRegisterFun(backend, "$meta.Feather.mkFunCall", (void*)&ctApi_Feather_mkFunCall);
-    backend->ctApiRegisterFun(backend, "$meta.Feather.mkMemLoad", (void*)&ctApi_Feather_mkMemLoad);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Feather.mkMemStore", (void*)&ctApi_Feather_mkMemStore);
-    backend->ctApiRegisterFun(backend, "$meta.Feather.mkBitcast", (void*)&ctApi_Feather_mkBitcast);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Feather.mkConditional", (void*)&ctApi_Feather_mkConditional);
-    backend->ctApiRegisterFun(backend, "$meta.Feather.mkIf", (void*)&ctApi_Feather_mkIf);
-    backend->ctApiRegisterFun(backend, "$meta.Feather.mkWhile", (void*)&ctApi_Feather_mkWhile);
-    backend->ctApiRegisterFun(backend, "$meta.Feather.mkBreak", (void*)&ctApi_Feather_mkBreak);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Feather.mkContinue", (void*)&ctApi_Feather_mkContinue);
-    backend->ctApiRegisterFun(backend, "$meta.Feather.mkReturn", (void*)&ctApi_Feather_mkReturn);
+    ctApiReg(backend, "$meta.Feather.mkNodeList", &ctApi_Feather_mkNodeList);
+    ctApiReg(backend, "$meta.Feather.addToNodeList", &ctApi_Feather_addToNodeList);
+    ctApiReg(backend, "$meta.Feather.appendNodeList", &ctApi_Feather_appendNodeList);
+    ctApiReg(backend, "$meta.Feather.mkNop", &ctApi_Feather_mkNop);
+    ctApiReg(backend, "$meta.Feather.mkTypeNode", &ctApi_Feather_mkTypeNode);
+    ctApiReg(backend, "$meta.Feather.mkBackendCode", &ctApi_Feather_mkBackendCode);
+    ctApiReg(backend, "$meta.Feather.mkLocalSpace", &ctApi_Feather_mkLocalSpace);
+    ctApiReg(backend, "$meta.Feather.mkGlobalConstructAction",
+            &ctApi_Feather_mkGlobalConstructAction);
+    ctApiReg(
+            backend, "$meta.Feather.mkGlobalDestructAction", &ctApi_Feather_mkGlobalDestructAction);
+    ctApiReg(backend, "$meta.Feather.mkScopeDestructAction", &ctApi_Feather_mkScopeDestructAction);
+    ctApiReg(backend, "$meta.Feather.mkTempDestructAction", &ctApi_Feather_mkTempDestructAction);
+    ctApiReg(backend, "$meta.Feather.mkFunction", &ctApi_Feather_mkFunction);
+    ctApiReg(backend, "$meta.Feather.mkClass", &ctApi_Feather_mkClass);
+    ctApiReg(backend, "$meta.Feather.mkVar", &ctApi_Feather_mkVar);
+    ctApiReg(backend, "$meta.Feather.mkCtValue", &ctApi_Feather_mkCtValue);
+    ctApiReg(backend, "$meta.Feather.mkNull", &ctApi_Feather_mkNull);
+    ctApiReg(backend, "$meta.Feather.mkVarRef", &ctApi_Feather_mkVarRef);
+    ctApiReg(backend, "$meta.Feather.mkFieldRef", &ctApi_Feather_mkFieldRef);
+    ctApiReg(backend, "$meta.Feather.mkFunRef", &ctApi_Feather_mkFunRef);
+    ctApiReg(backend, "$meta.Feather.mkFunCall", &ctApi_Feather_mkFunCall);
+    ctApiReg(backend, "$meta.Feather.mkMemLoad", &ctApi_Feather_mkMemLoad);
+    ctApiReg(backend, "$meta.Feather.mkMemStore", &ctApi_Feather_mkMemStore);
+    ctApiReg(backend, "$meta.Feather.mkBitcast", &ctApi_Feather_mkBitcast);
+    ctApiReg(backend, "$meta.Feather.mkConditional", &ctApi_Feather_mkConditional);
+    ctApiReg(backend, "$meta.Feather.mkIf", &ctApi_Feather_mkIf);
+    ctApiReg(backend, "$meta.Feather.mkWhile", &ctApi_Feather_mkWhile);
+    ctApiReg(backend, "$meta.Feather.mkBreak", &ctApi_Feather_mkBreak);
+    ctApiReg(backend, "$meta.Feather.mkContinue", &ctApi_Feather_mkContinue);
+    ctApiReg(backend, "$meta.Feather.mkReturn", &ctApi_Feather_mkReturn);
 }

@@ -143,90 +143,61 @@ bool ctApi_Compiler_registerFrontendFun(StringRef ext, StringRef funName) {
 Node* ctApi_Compiler_parseSprExpression(Location* loc, StringRef exp) {
     return SprFe_parseSparrowExpression(*loc, exp.begin);
 }
+
+template <typename T> void ctApiReg(Backend* backend, const char* name, T ftor) {
+    backend->ctApiRegisterFun(
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
+            backend, name, (void*)ftor);
+}
+
 } // namespace
 
 void SprFrontend::registerCtApiFunctions(Backend* backend) {
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkModifiers", (void*)&ctApi_Sparrow_mkModifiers);
+    ctApiReg(backend, "$meta.Sparrow.mkModifiers", &ctApi_Sparrow_mkModifiers);
 
-    backend->ctApiRegisterFun(backend, "$meta.Sparrow.mkModule", (void*)&ctApi_Sparrow_mkModule);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkImportName", (void*)&ctApi_Sparrow_mkImportName);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkSprUsing", (void*)&ctApi_Sparrow_mkSprUsing);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkSprPackage", (void*)&ctApi_Sparrow_mkSprPackage);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkSprVariable", (void*)&ctApi_Sparrow_mkSprVariable);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkSprDatatype", (void*)&ctApi_Sparrow_mkSprDatatype);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkSprField", (void*)&ctApi_Sparrow_mkSprField);
+    ctApiReg(backend, "$meta.Sparrow.mkModule", &ctApi_Sparrow_mkModule);
+    ctApiReg(backend, "$meta.Sparrow.mkImportName", &ctApi_Sparrow_mkImportName);
+    ctApiReg(backend, "$meta.Sparrow.mkSprUsing", &ctApi_Sparrow_mkSprUsing);
+    ctApiReg(backend, "$meta.Sparrow.mkSprPackage", &ctApi_Sparrow_mkSprPackage);
+    ctApiReg(backend, "$meta.Sparrow.mkSprVariable", &ctApi_Sparrow_mkSprVariable);
+    ctApiReg(backend, "$meta.Sparrow.mkSprDatatype", &ctApi_Sparrow_mkSprDatatype);
+    ctApiReg(backend, "$meta.Sparrow.mkSprField", &ctApi_Sparrow_mkSprField);
 
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkSprConcept", (void*)&ctApi_Sparrow_mkSprConcept);
+    ctApiReg(backend, "$meta.Sparrow.mkSprConcept", &ctApi_Sparrow_mkSprConcept);
 
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkSprFunction", (void*)&ctApi_Sparrow_mkSprFunction);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkSprFunctionExp", (void*)&ctApi_Sparrow_mkSprFunctionExp);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkSprParameter", (void*)&ctApi_Sparrow_mkSprParameter);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkSprAutoParameter", (void*)&ctApi_Sparrow_mkSprAutoParameter);
+    ctApiReg(backend, "$meta.Sparrow.mkSprFunction", &ctApi_Sparrow_mkSprFunction);
+    ctApiReg(backend, "$meta.Sparrow.mkSprFunctionExp", &ctApi_Sparrow_mkSprFunctionExp);
+    ctApiReg(backend, "$meta.Sparrow.mkSprParameter", &ctApi_Sparrow_mkSprParameter);
+    ctApiReg(backend, "$meta.Sparrow.mkSprAutoParameter", &ctApi_Sparrow_mkSprAutoParameter);
 
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkIdentifier", (void*)&ctApi_Sparrow_mkIdentifier);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkCompoundExp", (void*)&ctApi_Sparrow_mkCompoundExp);
-    backend->ctApiRegisterFun(backend, "$meta.Sparrow.mkStarExp", (void*)&ctApi_Sparrow_mkStarExp);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkPostfixOp", (void*)&ctApi_Sparrow_mkPostfixOp);
-    backend->ctApiRegisterFun(backend, "$meta.Sparrow.mkInfixOp", (void*)&ctApi_Sparrow_mkInfixOp);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkPrefixOp", (void*)&ctApi_Sparrow_mkPrefixOp);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkFunApplication", (void*)&ctApi_Sparrow_mkFunApplication);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkOperatorCall", (void*)&ctApi_Sparrow_mkOperatorCall);
+    ctApiReg(backend, "$meta.Sparrow.mkIdentifier", &ctApi_Sparrow_mkIdentifier);
+    ctApiReg(backend, "$meta.Sparrow.mkCompoundExp", &ctApi_Sparrow_mkCompoundExp);
+    ctApiReg(backend, "$meta.Sparrow.mkStarExp", &ctApi_Sparrow_mkStarExp);
+    ctApiReg(backend, "$meta.Sparrow.mkPostfixOp", &ctApi_Sparrow_mkPostfixOp);
+    ctApiReg(backend, "$meta.Sparrow.mkInfixOp", &ctApi_Sparrow_mkInfixOp);
+    ctApiReg(backend, "$meta.Sparrow.mkPrefixOp", &ctApi_Sparrow_mkPrefixOp);
+    ctApiReg(backend, "$meta.Sparrow.mkFunApplication", &ctApi_Sparrow_mkFunApplication);
+    ctApiReg(backend, "$meta.Sparrow.mkOperatorCall", &ctApi_Sparrow_mkOperatorCall);
 
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkConditionalExp", (void*)&ctApi_Sparrow_mkConditionalExp);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkParenthesisExp", (void*)&ctApi_Sparrow_mkParenthesisExp);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkIntLiteral", (void*)&ctApi_Sparrow_mkIntLiteral);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkUIntLiteral", (void*)&ctApi_Sparrow_mkUIntLiteral);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkLongLiteral", (void*)&ctApi_Sparrow_mkLongLiteral);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkULongLiteral", (void*)&ctApi_Sparrow_mkULongLiteral);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkFloatLiteral", (void*)&ctApi_Sparrow_mkFloatLiteral);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkDoubleLiteral", (void*)&ctApi_Sparrow_mkDoubleLiteral);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkCharLiteral", (void*)&ctApi_Sparrow_mkCharLiteral);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkStringLiteral", (void*)&ctApi_Sparrow_mkStringLiteral);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkNullLiteral", (void*)&ctApi_Sparrow_mkNullLiteral);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkBoolLiteral", (void*)&ctApi_Sparrow_mkBoolLiteral);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkLambdaExp", (void*)&ctApi_Sparrow_mkLambdaExp);
+    ctApiReg(backend, "$meta.Sparrow.mkConditionalExp", &ctApi_Sparrow_mkConditionalExp);
+    ctApiReg(backend, "$meta.Sparrow.mkParenthesisExp", &ctApi_Sparrow_mkParenthesisExp);
+    ctApiReg(backend, "$meta.Sparrow.mkIntLiteral", &ctApi_Sparrow_mkIntLiteral);
+    ctApiReg(backend, "$meta.Sparrow.mkUIntLiteral", &ctApi_Sparrow_mkUIntLiteral);
+    ctApiReg(backend, "$meta.Sparrow.mkLongLiteral", &ctApi_Sparrow_mkLongLiteral);
+    ctApiReg(backend, "$meta.Sparrow.mkULongLiteral", &ctApi_Sparrow_mkULongLiteral);
+    ctApiReg(backend, "$meta.Sparrow.mkFloatLiteral", &ctApi_Sparrow_mkFloatLiteral);
+    ctApiReg(backend, "$meta.Sparrow.mkDoubleLiteral", &ctApi_Sparrow_mkDoubleLiteral);
+    ctApiReg(backend, "$meta.Sparrow.mkCharLiteral", &ctApi_Sparrow_mkCharLiteral);
+    ctApiReg(backend, "$meta.Sparrow.mkStringLiteral", &ctApi_Sparrow_mkStringLiteral);
+    ctApiReg(backend, "$meta.Sparrow.mkNullLiteral", &ctApi_Sparrow_mkNullLiteral);
+    ctApiReg(backend, "$meta.Sparrow.mkBoolLiteral", &ctApi_Sparrow_mkBoolLiteral);
+    ctApiReg(backend, "$meta.Sparrow.mkLambdaExp", &ctApi_Sparrow_mkLambdaExp);
 
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkExpressionStmt", (void*)&ctApi_Sparrow_mkExpressionStmt);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkBlockStmt", (void*)&ctApi_Sparrow_mkBlockStmt);
-    backend->ctApiRegisterFun(backend, "$meta.Sparrow.mkForStmt", (void*)&ctApi_Sparrow_mkForStmt);
-    backend->ctApiRegisterFun(
-            backend, "$meta.Sparrow.mkReturnStmt", (void*)&ctApi_Sparrow_mkReturnStmt);
+    ctApiReg(backend, "$meta.Sparrow.mkExpressionStmt", &ctApi_Sparrow_mkExpressionStmt);
+    ctApiReg(backend, "$meta.Sparrow.mkBlockStmt", &ctApi_Sparrow_mkBlockStmt);
+    ctApiReg(backend, "$meta.Sparrow.mkForStmt", &ctApi_Sparrow_mkForStmt);
+    ctApiReg(backend, "$meta.Sparrow.mkReturnStmt", &ctApi_Sparrow_mkReturnStmt);
 
-    backend->ctApiRegisterFun(backend, "$meta.Compiler.registerFrontendFun",
-            (void*)&ctApi_Compiler_registerFrontendFun);
-    backend->ctApiRegisterFun(backend, "$meta.Compiler.parseSprExpression",
-            (void*)&ctApi_Compiler_parseSprExpression);
+    ctApiReg(backend, "$meta.Compiler.registerFrontendFun", &ctApi_Compiler_registerFrontendFun);
+    ctApiReg(backend, "$meta.Compiler.parseSprExpression", &ctApi_Compiler_parseSprExpression);
 }

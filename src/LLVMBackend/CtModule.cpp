@@ -47,6 +47,7 @@ CtModule::CtModule(const string& name)
     if (!llvmExecutionEngine_)
         REP_INTERNAL(NOLOC, "Failed to construct LLVM ExecutionEngine: %1%") % errStr;
     ASSERT(llvmExecutionEngine_);
+    assert(llvmExecutionEngine_);
 
     // Get the actual data layout to be used
     dataLayout_ = llvmExecutionEngine_->getDataLayout();
@@ -274,13 +275,14 @@ Node* CtModule::ctEvaluateExpression(Node* node) {
     if (node->type->hasStorage) {
         // Create a memory space where to put the result
         size_t size = dataLayout_.getTypeAllocSize(resLlvmType);
-        StringRef dataBuffer = allocStringRef(size);
+        MutableStringRef dataBuffer = allocStringRef(size);
 
         // The magic is here:
         //  - finalize everything in the engine and get the function address
         //  - transform this into a function pointer that receives the output as a parameter
         //  - call the function, to fill up the data buffer
         using FunType = void (*)(const char*);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
         auto fptr = (FunType)llvmExecutionEngine_->getFunctionAddress(funName);
         ASSERT(fptr);
         fptr(dataBuffer.begin);
@@ -296,6 +298,7 @@ Node* CtModule::ctEvaluateExpression(Node* node) {
         //  - transform this into a function pointer with no parameters
         //  - call the function
         using FunType = void (*)();
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
         auto fptr = (FunType)llvmExecutionEngine_->getFunctionAddress(funName);
         ASSERT(fptr);
         fptr();

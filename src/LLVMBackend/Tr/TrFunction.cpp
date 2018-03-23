@@ -58,6 +58,7 @@ llvm::Function* createFunDecl(Node* node, GlobalContext& ctx, TranslatedFunInfo&
 
     // If we have a native external body, just create the declaration
     if (nativeName && !body) {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
         res = (llvm::Function*)ctx.llvmModule_.getOrInsertFunction(nativeName->begin, funType);
     } else {
         // Make sure the function is semantically checked

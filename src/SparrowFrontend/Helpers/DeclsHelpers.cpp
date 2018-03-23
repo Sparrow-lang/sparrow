@@ -252,6 +252,7 @@ void SprFrontend::checkForAllowedNamespaceChildren(Node* children, bool insideCl
 
 void SprFrontend::copyModifiersSetMode(Node* src, Node* dest, EvalMode newMode) {
     NestUtils_reservePtrArray(
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
             (PtrArray*)&dest->modifiers, src->modifiers.endPtr - src->modifiers.beginPtr);
     Modifier** p = src->modifiers.beginPtr;
     for (; p != src->modifiers.endPtr; ++p) {

@@ -42,15 +42,18 @@ void checkNodes(_SymTabImpl* st) {
 } // namespace
 
 SymTab* Nest_mkSymTab(SymTab* parent, Node* node) {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     auto* res = (_SymTabImpl*)alloc(sizeof(_SymTabImpl), allocGeneral);
     res->base.parent = parent;
     res->base.node = node;
     new (&res->entries) MMap();
     new (&res->copiedEntries) MMap();
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     return (SymTab*)res;
 }
 
 void Nest_symTabEnter(SymTab* symTab, const char* name, Node* node) {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     auto* st = (_SymTabImpl*)symTab;
 
     // Insert our entry in the normal map
@@ -60,12 +63,15 @@ void Nest_symTabEnter(SymTab* symTab, const char* name, Node* node) {
 }
 
 void Nest_symTabAddToCheckNode(SymTab* symTab, Node* node) {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     auto* st = (_SymTabImpl*)symTab;
     st->toCheckNodes.push_back(node);
 }
 
 void Nest_symTabCopyEntries(SymTab* symTab, SymTab* otherSymTab) {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     auto* st = (_SymTabImpl*)symTab;
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     auto* other = (_SymTabImpl*)otherSymTab;
 
     for (const auto& entry : other->entries) {
@@ -87,6 +93,7 @@ void Nest_symTabCopyEntries(SymTab* symTab, SymTab* otherSymTab) {
 }
 
 NodeArray Nest_symTabAllEntries(SymTab* symTab) {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     auto* st = (_SymTabImpl*)symTab;
 
     // Make sure to check all the required nodes for this symtab
@@ -101,6 +108,7 @@ NodeArray Nest_symTabAllEntries(SymTab* symTab) {
 }
 
 NodeArray Nest_symTabLookupCurrent(SymTab* symTab, const char* name) {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     auto* st = (_SymTabImpl*)symTab;
 
     // Make sure to check all the required nodes for this symtab
@@ -124,6 +132,7 @@ NodeArray Nest_symTabLookupCurrent(SymTab* symTab, const char* name) {
 }
 
 NodeArray Nest_symTabLookup(SymTab* symTab, const char* name) {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     auto* st = (_SymTabImpl*)symTab;
 
     // Make sure to check all the required nodes for this symtab
@@ -186,6 +195,7 @@ void Nest_dumpSymTabs(SymTab* symTab) {
         const char* defName = nameProp ? nameProp->begin : "?";
         printf("===== Symbol table level %d - %s\n", level++, defName);
 
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
         auto* st = (_SymTabImpl*)symTab;
         dumpSortedEntries(st->entries);
         if (!st->copiedEntries.empty()) {
@@ -196,6 +206,7 @@ void Nest_dumpSymTabs(SymTab* symTab) {
 }
 
 void Nest_dumpSymTabNames(SymTab* symTab) {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     auto* st = (_SymTabImpl*)symTab;
     dumpSortedEntries(st->entries, true);
     if (!st->copiedEntries.empty()) {

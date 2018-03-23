@@ -82,6 +82,7 @@ struct InstNode {
     Node* boundVarsNode() const { return at(node->children, 0); }
 
     NodeRange boundValues() const { return all(node->referredNodes); }
+    NodeRangeM boundValuesM() const { return allM(node->referredNodes); }
 
     bool isValid() const { return 0 != Nest_getCheckPropertyInt(node, "instIsValid"); }
     void setValid(bool valid = true) { Nest_setPropertyInt(node, "instIsValid", valid ? 1 : 0); }

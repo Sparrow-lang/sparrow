@@ -112,47 +112,18 @@ endif()
 
 # Add target for clang-tidy
 set(TIDY_CHECKS
-    -*,
-    modernize-avoid-bind,
-    modernize-deprecated-headers,
-    modernize-loop-convert,
-    modernize-make-shared,
-    modernize-make-unique,
-    modernize-pass-by-value,
-    modernize-raw-string-literal,
-    modernize-redundant-void-arg,
-    modernize-replace-auto-ptr,
-    modernize-replace-random-shuffle,
-    modernize-return-braced-init-list,
-    modernize-shrink-to-fit,
-    modernize-unary-static-assert,
-    modernize-use-auto,
-    modernize-use-bool-literals,
-    modernize-use-default-member-init,
-    modernize-use-emplace,
-    modernize-use-equals-default,
-    modernize-use-equals-delete,
-    modernize-use-noexcept,
-    modernize-use-nullptr,
-    modernize-use-override,
-    modernize-use-transparent-functors,
-    modernize-use-using,
-    cppcoreguidelines-c-copy-assignment-signature,
-    cppcoreguidelines-interfaces-global-init,
-    cppcoreguidelines-no-malloc,
-    # cppcoreguidelines-pro-bounds-array-to-pointer-decay, # not met, requires gsl
-    # cppcoreguidelines-pro-bounds-constant-array-index, # not met, requires gsl
-    # cppcoreguidelines-pro-bounds-pointer-arithmetic, # not met
-    cppcoreguidelines-pro-type-const-cast,
-    # cppcoreguidelines-pro-type-cstyle-cast, # not met
-    cppcoreguidelines-pro-type-member-init,
-    cppcoreguidelines-pro-type-reinterpret-cast,
-    # cppcoreguidelines-pro-type-static-cast-downcast, # not met (LLVM handling code)
-    # cppcoreguidelines-pro-type-union-access, # not met (we use some unions)
-    # cppcoreguidelines-pro-type-vararg, # not met (we are using printf)
-    cppcoreguidelines-slicing,
-    cppcoreguidelines-special-member-functions,
+    -*,   # Disable for non-debug builds
+
+    modernize-*,
+    cppcoreguidelines-*,
+    -cppcoreguidelines-pro-bounds-array-to-pointer-decay, # not met, requires gsl
+    -cppcoreguidelines-pro-bounds-constant-array-index, # not met, requires gsl
+    -cppcoreguidelines-pro-bounds-pointer-arithmetic, # not met, requires gsl
+    -cppcoreguidelines-pro-type-static-cast-downcast, # not met (LLVM handling code)
+    -cppcoreguidelines-pro-type-union-access, # not met (we use some unions)
+    -cppcoreguidelines-pro-type-vararg, # not met (we are using printf)
 )
+
 find_program(CLANG_TIDY_SCRIPT "run-clang-tidy.py" HINTS ${LLVM_TOOLS_BINARY_DIR}/../share/clang)
 if(CLANG_TIDY_SCRIPT)
     # Search for clang-tidy and clang-apply-replacements

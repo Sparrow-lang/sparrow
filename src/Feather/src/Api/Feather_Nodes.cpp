@@ -451,6 +451,13 @@ void writeHex(ostringstream& os, StringRef data) {
     }
     os << dec;
 }
+
+template <typename T> const T& extractValue(StringRef valueData) {
+    ASSERT(size(valueData) == sizeof(T*));
+    // NOLINTNEXTLINE
+    return *reinterpret_cast<const T*>(valueData.begin);
+}
+
 const char* CtValue_toString(const Node* node) {
     TypeRef type = node->type;
     if (!node->type)
@@ -461,32 +468,31 @@ const char* CtValue_toString(const Node* node) {
     os << "ctValue(" << type << ": ";
 
     StringRef valueDataStr = Nest_getCheckPropertyString(node, "valueData");
-    const void* valueData = valueDataStr.begin;
+    // const void* valueData = valueDataStr.begin;
 
     StringRef nativeName =
             type->hasStorage ? Feather_nativeName(type) : StringRef{nullptr, nullptr};
     if (0 == strcmp(type->description, "Type/ct")) {
-        TypeRef t = *((TypeRef*)valueData);
+        TypeRef t = extractValue<TypeRef>(valueDataStr);
         os << t;
     } else if (size(nativeName) > 0 && type->numReferences == 0) {
         if (nativeName == "i1" || nativeName == "u1") {
-            bool val = 0 != (*((unsigned char*)valueData));
+            bool val = 0 != extractValue<unsigned char>(valueDataStr);
             os << (val ? "true" : "false");
         } else if (nativeName == "i16")
-            os << *((const short*)valueData);
+            os << extractValue<short>(valueDataStr);
         else if (nativeName == "u16")
-            os << *((const unsigned short*)valueData);
+            os << extractValue<unsigned short>(valueDataStr);
         else if (nativeName == "i32")
-            os << *((const int*)valueData);
+            os << extractValue<int>(valueDataStr);
         else if (nativeName == "u32")
-            os << *((const unsigned int*)valueData);
+            os << extractValue<unsigned int>(valueDataStr);
         else if (nativeName == "i64")
-            os << *((const long long*)valueData);
+            extractValue<long long>(valueDataStr);
         else if (nativeName == "u64")
-            os << *((const unsigned long long*)valueData);
+            extractValue<unsigned long long>(valueDataStr);
         else if (nativeName == "StringRef") {
-            const auto* s = (const StringRef*)valueData;
-            os << "'" << toString(*s) << "'";
+            os << "'" << toString(extractValue<StringRef>(valueDataStr)) << "'";
         } else
             writeHex(os, valueDataStr);
     } else

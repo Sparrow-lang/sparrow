@@ -274,6 +274,7 @@ void* Nest_getCheckPropertyPtr(const Node* node, const char* name) {
 }
 
 void Nest_addModifier(Node* node, Modifier* mod) {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     NestUtils_appendObjectToPtrArray((PtrArray*)&node->modifiers, mod);
 }
 
@@ -292,10 +293,12 @@ Node* Nest_ofKind(Node* src, int desiredNodeKind) {
 }
 
 NodeArray _fromPtrArray(PtrArray arr) {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     NodeArray res = {(Node**)arr.beginPtr, (Node**)arr.endPtr, (Node**)arr.endOfStorePtr};
     return res;
 }
 PtrArray _toPtrArray(NodeArray arr) {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     PtrArray res = {(void**)arr.beginPtr, (void**)arr.endPtr, (void**)arr.endOfStorePtr};
     return res;
 }
@@ -326,6 +329,7 @@ void Nest_appendNodeToArray(NodeArray* arr, Node* node) {
 
 void Nest_appendNodesToArray(NodeArray* arr, NodeRange nodes) {
     PtrArray arr2 = _toPtrArray(*arr);
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     PtrRange objects = {(void**)nodes.beginPtr, (void**)nodes.endPtr};
     NestUtils_appendObjectsToPtrArray(&arr2, objects);
     *arr = _fromPtrArray(arr2);
@@ -338,6 +342,7 @@ void Nest_insertNodeIntoArray(NodeArray* arr, unsigned index, Node* node) {
 }
 void Nest_insertNodesIntoArray(NodeArray* arr, unsigned index, NodeRange nodes) {
     PtrArray arr2 = _toPtrArray(*arr);
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     PtrRange objects = {(void**)nodes.beginPtr, (void**)nodes.endPtr};
     NestUtils_insertObjectsIntoPtrArray(&arr2, index, objects);
     *arr = _fromPtrArray(arr2);
@@ -358,6 +363,7 @@ unsigned Nest_nodeArraySize(NodeArray arr) { return arr.endPtr - arr.beginPtr; }
 unsigned Nest_nodeArrayCapacity(NodeArray arr) { return arr.endOfStorePtr - arr.beginPtr; }
 
 unsigned Nest_nodeRangeSize(NodeRange nodes) { return nodes.endPtr - nodes.beginPtr; }
+unsigned Nest_nodeRangeSize(NodeRangeM nodes) { return nodes.endPtr - nodes.beginPtr; }
 
 NodeRange Nest_NodeRagenFromCArray(Node** nodes, unsigned count) {
     NodeRange res = {nodes, nodes + count};

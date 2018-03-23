@@ -17,106 +17,70 @@ TrContext::TrContext(GlobalContext& ctx, llvm::BasicBlock* insertionPoint, LlvmB
     , insertionPoint_(nullptr)
     , varsBlock_(insertionPoint)
     , firstCodeBlock_(nullptr)
-    , parentFun_(insertionPoint->getParent())
-{
+    , parentFun_(insertionPoint->getParent()) {
     // Leave the 'insertionPoint' block for variables; create a new block for code
     firstCodeBlock_ = llvm::BasicBlock::Create(llvmContext(), "code", parentFun_);
     insertionPoint_ = firstCodeBlock_;
 }
 
-TrContext::~TrContext()
-{
+TrContext::~TrContext() {
     // Make a jump from variables block to the first code block
     builder_.SetInsertPoint(varsBlock_);
     builder_.CreateBr(firstCodeBlock_);
 }
 
-llvm::BasicBlock* TrContext::insertionPoint()
-{
+llvm::BasicBlock* TrContext::insertionPoint() {
     // If we don't have an insertion point, create a dummy one
-    if ( !insertionPoint_ )
-    {
+    if (!insertionPoint_) {
         CHECK(NOLOC, parentFun_);
-        insertionPoint_ = llvm::BasicBlock::Create(globalContext_.targetBackend_.llvmContext(), "dumy_block", parentFun_);
+        insertionPoint_ = llvm::BasicBlock::Create(
+                globalContext_.targetBackend_.llvmContext(), "dumy_block", parentFun_);
         builder_.SetInsertPoint(insertionPoint_);
     }
     return insertionPoint_;
 }
 
-bool TrContext::hasValidInsertionPoint() const
-{
-    return insertionPoint_ != nullptr;
-}
+bool TrContext::hasValidInsertionPoint() const { return insertionPoint_ != nullptr; }
 
-void TrContext::setInsertionPoint(llvm::BasicBlock* val)
-{
-    if ( val )
-        parentFun_ = val->getParent();  // Save the parent function
+void TrContext::setInsertionPoint(llvm::BasicBlock* val) {
+    if (val)
+        parentFun_ = val->getParent(); // Save the parent function
     insertionPoint_ = val;
-    if ( val )
+    if (val)
         builder_.SetInsertPoint(val);
 }
 
-void TrContext::ensureInsertionPoint()
-{
-    builder_.SetInsertPoint(insertionPoint());
-}
+void TrContext::ensureInsertionPoint() { builder_.SetInsertPoint(insertionPoint()); }
 
+GlobalContext& TrContext::globalContext() const { return globalContext_; }
 
-GlobalContext& TrContext::globalContext() const
-{
-    return globalContext_;
-}
+Module& TrContext::module() const { return globalContext_.targetBackend_; }
 
-Module& TrContext::module() const
-{
-    return globalContext_.targetBackend_;
-}
+llvm::Function* TrContext::parentFun() const { return parentFun_; }
 
-llvm::Function* TrContext::parentFun() const
-{
-    return parentFun_;
-}
-
-llvm::LLVMContext& TrContext::llvmContext() const
-{
+llvm::LLVMContext& TrContext::llvmContext() const {
     return globalContext_.targetBackend_.llvmContext();
 }
 
-llvm::Module& TrContext::llvmModule() const
-{
-    return globalContext_.llvmModule_;
-}
+llvm::Module& TrContext::llvmModule() const { return globalContext_.llvmModule_; }
 
-LlvmBuilder& TrContext::builder() const
-{
-    return builder_;
-}
+LlvmBuilder& TrContext::builder() const { return builder_; }
 
-const vector<Scope*>& TrContext::scopesStack() const
-{
-    return scopesStack_;
-}
+const vector<Scope*>& TrContext::scopesStack() const { return scopesStack_; }
 
-vector<Scope*>& TrContext::scopesStack()
-{
-    return scopesStack_;
-}
+vector<Scope*>& TrContext::scopesStack() { return scopesStack_; }
 
-Scope& TrContext::curScope() const
-{
+Scope& TrContext::curScope() const {
     ASSERT(!scopesStack_.empty());
     return *scopesStack_.back();
 }
 
-Instruction& TrContext::curInstruction() const
-{
+Instruction& TrContext::curInstruction() const {
     ASSERT(!scopesStack_.empty());
     ASSERT(!scopesStack_.back()->instructionsStack().empty());
     return *scopesStack_.back()->instructionsStack().back();
 }
 
-llvm::AllocaInst* TrContext::addVariable(llvm::Type* type, const char* name)
-{
+llvm::AllocaInst* TrContext::addVariable(llvm::Type* type, const char* name) {
     return new llvm::AllocaInst(type, 0, name, varsBlock_);
 }

@@ -25,7 +25,6 @@ CompilationContext* Nest_getRootContext();
 /// The backend object used to generate the resulting code
 Backend* Nest_getCurBackend();
 
-
 /// Creates the backend
 void Nest_createBackend(const char* mainFilename);
 
@@ -53,8 +52,6 @@ unsigned Nest_sizeOf(TypeRef type);
 /// Get the alignment of the given type
 unsigned Nest_alignmentOf(TypeRef type);
 
-
-
 // Callbacks
 
 typedef void (*FSourceCodeCallback)(SourceCode* sc);
@@ -63,7 +60,6 @@ void Nest_registerSourceCodeCreatedCallback(FSourceCodeCallback callback);
 void Nest_registerSourceCodeParsedCallback(FSourceCodeCallback callback);
 void Nest_registerSourceCodeCompiledCallback(FSourceCodeCallback callback);
 void Nest_registerSourceCodeCodeGenCallback(FSourceCodeCallback callback);
-
 
 #ifdef __cplusplus
 }

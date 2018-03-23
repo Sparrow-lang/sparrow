@@ -23,8 +23,8 @@ extern "C" {
  *
  * @return True if the given location matches the parameters
  */
-int atLocation(Location loc, const char* filename, int startLine, int startCol, int endLine, int endCol);
-
+int atLocation(
+        Location loc, const char* filename, int startLine, int startCol, int endLine, int endCol);
 
 /// Starts a scope, with an open curly
 void printStart();
@@ -44,7 +44,6 @@ void printNodes(NodeRange nodes);
 }
 #endif
 
-
 #ifdef __cplusplus
 struct ScopeEnableReporting {
     ScopeEnableReporting() {
@@ -54,7 +53,7 @@ struct ScopeEnableReporting {
 
     ~ScopeEnableReporting() { Nest_enableReporting(oldVal_); }
 
-  private:
+private:
     int oldVal_;
 };
 

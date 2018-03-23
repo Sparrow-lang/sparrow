@@ -2,7 +2,6 @@
 
 typedef struct Nest_Backend Backend;
 
-namespace SprFrontend
-{
-    void registerCtApiFunctions(Backend* backend);
+namespace SprFrontend {
+void registerCtApiFunctions(Backend* backend);
 }

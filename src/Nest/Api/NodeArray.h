@@ -10,4 +10,3 @@ struct Nest_NodeArray {
 };
 typedef struct Nest_NodeArray Nest_NodeArray;
 typedef struct Nest_NodeArray NodeArray;
-

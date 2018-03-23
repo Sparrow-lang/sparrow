@@ -16,8 +16,7 @@ typedef struct Nest_Modifier Modifier;
 typedef struct Nest_CompilationContext CompilationContext;
 
 /// Structure representing an AST node
-struct Nest_Node
-{
+struct Nest_Node {
     /// Node flags
     unsigned int nodeKind : 16;
     unsigned int nodeError : 1;
@@ -50,7 +49,8 @@ struct Nest_Node
     TypeRef type;
 
     /// The explanation of this node
-    /// A node has explanation if its meaning can be explained with the help of another node (the explanation node)
+    /// A node has explanation if its meaning can be explained with the help of another node (the
+    /// explanation node)
     Node* explanation;
 
     /// The modifiers used to adjust the compilation process of this node
@@ -59,7 +59,6 @@ struct Nest_Node
 
 typedef struct Nest_Node Nest_Node;
 typedef struct Nest_Node Node;
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // General Node operations
@@ -72,14 +71,13 @@ Node* Nest_createNode(int nodeKind);
 /// We clear the compilation state of the new node when cloning
 Node* Nest_cloneNode(Node* node);
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Compilation processes
 //
 
-/// Sets the compilation context for this node; with this we know where this node is put in the program
-/// This operation always succeeds
-/// Setting the context for the children may fail; the error needs to be handled by the user
+/// Sets the compilation context for this node; with this we know where this node is put in the
+/// program This operation always succeeds Setting the context for the children may fail; the error
+/// needs to be handled by the user
 void Nest_setContext(Node* node, CompilationContext* context);
 
 /// Just computes the type, without performing all the semantic check actions; used for declarations
@@ -93,7 +91,6 @@ Node* Nest_semanticCheck(Node* node);
 /// Reverts the compilation state; brings the node to un-compiled state
 void Nest_clearCompilationStateSimple(Node* node);
 void Nest_clearCompilationState(Node* node);
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Default implementation for node-specific functions

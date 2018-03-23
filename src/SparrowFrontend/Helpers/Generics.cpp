@@ -18,7 +18,6 @@ using namespace Nest;
 
 namespace {
 
-
 ////////////////////////////////////////////////////////////////////////////
 // InstantiationsSet
 //
@@ -54,7 +53,7 @@ NodeVector createAllBoundVariables(const Location& loc, CompilationContext* cont
             continue;
         TypeRef paramType = p->type;
         if (!paramType)
-            paramType = getType(boundValue);    // Dependent param type case
+            paramType = getType(boundValue); // Dependent param type case
         Node* var = createBoundVar(context, p, paramType, boundValue, isCtGeneric);
         ASSERT(var);
         nodes.push_back(var);
@@ -66,7 +65,7 @@ NodeVector createAllBoundVariables(const Location& loc, CompilationContext* cont
 // Generic function
 //
 
-typedef vector<StringRef> NamesVec;
+using NamesVec = vector<StringRef>;
 
 /**
  * Checks if the given node references any of the given seen names.
@@ -101,7 +100,7 @@ bool referencesSeenName(Node* node, const NamesVec& seenNames) {
     }
     return false;
 }
-}
+} // namespace
 
 Node* SprFrontend::checkCreateGenericFun(Node* originalFun, Node* parameters, Node* ifClause) {
     ASSERT(parameters);
@@ -119,7 +118,7 @@ Node* SprFrontend::checkCreateGenericFun(Node* originalFun, Node* parameters, No
     NodeVector dependentParams(numParams, nullptr);
     NamesVec seenNames;
     seenNames.reserve(numParams);
-    bool hasDependentParams = false;
+    // bool hasDependentParams = false;
     for (int i = 0; i < numParams; ++i) {
         Node* param = at(params, i);
         Node* paramType = at(param->children, 0);
@@ -128,7 +127,7 @@ Node* SprFrontend::checkCreateGenericFun(Node* originalFun, Node* parameters, No
         // Check if this parameter references a previously seen parameter
         if (i > 0 && referencesSeenName(paramType, seenNames)) {
             dependentParams[i] = param;
-            hasDependentParams = true;
+            // hasDependentParams = true;
         }
 
         // Add this param name to the list of seen names
@@ -162,10 +161,8 @@ Node* SprFrontend::checkCreateGenericFun(Node* originalFun, Node* parameters, No
             return nullptr;
 
         ASSERT(param->type);
-        bool isGeneric = isCtGeneric
-                    || (!isCtFun && param->type->mode == modeCt)
-                    || isConceptType(param->type)
-                    ;
+        bool isGeneric = isCtGeneric || (!isCtFun && param->type->mode == modeCt) ||
+                         isConceptType(param->type);
 
         if (isGeneric) {
             genericParams[i] = param;
@@ -243,7 +240,8 @@ InstNode SprFrontend::createNewInstantiation(
     return inst;
 }
 
-Node* SprFrontend::createBoundVar(CompilationContext* context, Node* param, TypeRef paramType, Node* boundValue, bool isCtGeneric) {
+Node* SprFrontend::createBoundVar(CompilationContext* context, Node* param, TypeRef paramType,
+        Node* boundValue, bool isCtGeneric) {
     ASSERT(param);
     ASSERT(paramType);
     ASSERT(boundValue && boundValue->type);
@@ -259,8 +257,7 @@ Node* SprFrontend::createBoundVar(CompilationContext* context, Node* param, Type
         if (t->mode == modeCt)
             Feather_setEvalMode(var, modeCt);
         Nest_symTabEnter(context->currentSymTab, name.begin, var);
-    }
-    else {
+    } else {
         var = mkSprUsing(loc, name, Nest_cloneNode(boundValue));
         Feather_setEvalMode(var, modeCt);
     }
@@ -316,6 +313,8 @@ InstNode SprFrontend::canInstantiate(InstSetNode instSet, NodeRange values, Eval
     // If no instantiation is found, create a new instantiation
     if (!inst)
         inst = createNewInstantiation(instSet, values, evalMode);
+    if (!inst)
+        return nullptr;
 
     return canInstantiate(inst, instSet) ? inst : nullptr;
 }
@@ -327,6 +326,7 @@ bool SprFrontend::conceptIsFulfilled(Node* concept1, TypeRef type) {
 
     if (!concept.node->nodeSemanticallyChecked || !instSet)
         REP_INTERNAL(concept.node->location, "Invalid concept");
+    ASSERT(instSet);
 
     Node* typeValue = createTypeNode(concept.node->context, concept.node->location, type);
     if (!Nest_semanticCheck(typeValue))

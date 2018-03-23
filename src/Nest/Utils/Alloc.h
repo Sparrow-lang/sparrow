@@ -4,9 +4,7 @@
 extern "C" {
 #endif
 
-
-typedef enum
-{
+typedef enum {
     allocGeneral,
     allocNode,
     allocType,
@@ -14,7 +12,6 @@ typedef enum
 
     numAllocBuckets
 } AllocBucket;
-
 
 /// Call this function to allocate some memory in the compiler.
 /// It tries to allocate in pages, therefore maximizing locality.
@@ -41,4 +38,3 @@ void endString(unsigned int actualLen);
 #ifdef __cplusplus
 }
 #endif
-

@@ -8,25 +8,26 @@ using namespace SprFrontend;
 
 namespace SprFrontend {
 
-    struct ParserContext{}; // Don't care about the internal structure
+struct ParserContext {}; // Don't care about the internal structure
 
-    struct SprString {
-        const char* begin;
-        const char* end;
-        const char* endOfStore;
-    };
+struct SprString {
+    const char* begin;
+    const char* end;
+    const char* endOfStore;
+};
 
-    struct Token {
-        Location loc;
-        int type;
-        SprString data;
-        unsigned long long intData;
-        double floatData;
-    };
-}
+struct Token {
+    Location loc;
+    int type;
+    SprString data;
+    unsigned long long intData;
+    double floatData;
+};
+} // namespace SprFrontend
 
 // Externally defined by the Sparrow code
-extern "C" ParserContext* spr_parserIf_createParser(StringRef filename, StringRef code, const Location* loc);
+extern "C" ParserContext* spr_parserIf_createParser(
+        StringRef filename, StringRef code, const Location* loc);
 extern "C" void spr_parserIf_destroyParser(ParserContext* ctx);
 extern "C" void spr_parserIf_nextToken(ParserContext* ctx, Token* outToken);
 extern "C" Node* spr_parserIf_parseModule(ParserContext* ctx);
@@ -47,36 +48,43 @@ extern "C" Node* comp_parser_mkModifiers(Location* loc, Node* main, Node* mods) 
 extern "C" Node* comp_parser_mkModule(Location* loc, Node* moduleName, Node* decls) {
     return mkModule(*loc, moduleName, decls);
 }
-extern "C" Node* comp_parser_mkImportName(Location* loc, StringRef alias, Node* toImport, Node* decls) {
+extern "C" Node* comp_parser_mkImportName(
+        Location* loc, StringRef alias, Node* toImport, Node* decls) {
     return mkImportName(*loc, toImport, decls, true, alias);
 }
 extern "C" Node* comp_parser_mkUsing(Location* loc, StringRef alias, Node* usingNode) {
     return mkSprUsing(*loc, alias, usingNode);
 }
-extern "C" Node* comp_parser_mkPackage(Location* loc, StringRef name, Node* children, Node* params, Node* ifClause) {
+extern "C" Node* comp_parser_mkPackage(
+        Location* loc, StringRef name, Node* children, Node* params, Node* ifClause) {
     return mkSprPackage(*loc, name, children, params, ifClause);
 }
-extern "C" Node* comp_parser_mkDatatype(Location* loc, StringRef name, Node* params, Node* underlyingData, Node* ifClause, Node* children) {
+extern "C" Node* comp_parser_mkDatatype(Location* loc, StringRef name, Node* params,
+        Node* underlyingData, Node* ifClause, Node* children) {
     return mkSprDatatype(*loc, name, params, underlyingData, ifClause, children);
 }
 extern "C" Node* comp_parser_mkField(Location* loc, StringRef name, Node* typeNode, Node* init) {
     return mkSprField(*loc, name, typeNode, init);
 }
-extern "C" Node* comp_parser_mkConcept(Location* loc, StringRef name, StringRef paramName, Node* baseConcept, Node* ifClause) {
+extern "C" Node* comp_parser_mkConcept(
+        Location* loc, StringRef name, StringRef paramName, Node* baseConcept, Node* ifClause) {
     return mkSprConcept(*loc, name, paramName, baseConcept, ifClause);
 }
 extern "C" Node* comp_parser_mkVar(Location* loc, StringRef name, Node* typeNode, Node* init) {
     return mkSprVariable(*loc, name, typeNode, init);
 }
-extern "C" Node* comp_parser_mkParameter(Location* loc, StringRef name, Node* typeNode, Node* init) {
+extern "C" Node* comp_parser_mkParameter(
+        Location* loc, StringRef name, Node* typeNode, Node* init) {
     return mkSprParameter(*loc, name, typeNode, init);
 }
-extern "C" Node* comp_parser_mkFun(Location* loc, StringRef name, Node* formals, Node* retType, Node* body, Node* bodyExp, Node* ifClause) {
-    if ( bodyExp && !body ) {
+extern "C" Node* comp_parser_mkFun(Location* loc, StringRef name, Node* formals, Node* retType,
+        Node* body, Node* bodyExp, Node* ifClause) {
+    if (bodyExp && !body) {
         const Location& loc2 = bodyExp->location;
-        body = Feather_mkLocalSpace(*loc, fromIniList({ mkReturnStmt(loc2, bodyExp) }));
-        if ( !retType )
-            retType = mkFunApplication(loc2, mkIdentifier(loc2, fromCStr("typeOf")), Feather_mkNodeList(loc2, fromIniList({ bodyExp })));
+        body = Feather_mkLocalSpace(*loc, fromIniList({mkReturnStmt(loc2, bodyExp)}));
+        if (!retType)
+            retType = mkFunApplication(loc2, mkIdentifier(loc2, fromCStr("typeOf")),
+                    Feather_mkNodeList(loc2, fromIniList({bodyExp})));
     }
     return mkSprFunction(*loc, name, formals, retType, body, ifClause);
 }
@@ -108,12 +116,11 @@ extern "C" Node* comp_parser_mkDotExpr(Location* loc, Node* base, StringRef id) 
 extern "C" Node* comp_parser_mkFunAppExpr(Location* loc, Node* base, Node* args) {
     return mkInfixOp(*loc, fromCStr("__fapp__"), base, args);
 }
-extern "C" Node* comp_parser_mkLambdaExpr(Location* loc, Node* closureParams, Node* formals, Node* retType, Node* body, Node* bodyExpr) {
+extern "C" Node* comp_parser_mkLambdaExpr(Location* loc, Node* closureParams, Node* formals,
+        Node* retType, Node* body, Node* bodyExpr) {
     return mkLambdaExp(*loc, formals, retType, body, bodyExpr, closureParams);
 }
-extern "C" Node* comp_parser_mkNullLiteral(Location* loc) {
-    return buildNullLiteral(*loc);
-}
+extern "C" Node* comp_parser_mkNullLiteral(Location* loc) { return buildNullLiteral(*loc); }
 extern "C" Node* comp_parser_mkBoolLiteral(Location* loc, bool val) {
     return buildBoolLiteral(*loc, val);
 }
@@ -145,46 +152,35 @@ extern "C" Node* comp_parser_mkStringLiteral(Location* loc, StringRef data) {
 extern "C" Node* comp_parser_mkBlockStmt(Location* loc, Node* stmts) {
     return Feather_mkLocalSpace(*loc, stmts ? all(stmts->children) : fromIniList({}));
 }
-extern "C" Node* comp_parser_mkIfStmt(Location* loc, Node* expr, Node* thenClause, Node* elseClause) {
+extern "C" Node* comp_parser_mkIfStmt(
+        Location* loc, Node* expr, Node* thenClause, Node* elseClause) {
     return Feather_mkIf(*loc, expr, thenClause, elseClause);
 }
-extern "C" Node* comp_parser_mkForStmt(Location* loc, StringRef id, Node* typeNode, Node* range, Node* action) {
+extern "C" Node* comp_parser_mkForStmt(
+        Location* loc, StringRef id, Node* typeNode, Node* range, Node* action) {
     return mkForStmt(*loc, id, typeNode, range, action);
 }
 extern "C" Node* comp_parser_mkWhileStmt(Location* loc, Node* expr, Node* stepAction, Node* body) {
     return Feather_mkWhile(*loc, expr, body, stepAction);
 }
-extern "C" Node* comp_parser_mkBreakStmt(Location* loc) {
-    return Feather_mkBreak(*loc);
-}
-extern "C" Node* comp_parser_mkContinueStmt(Location* loc) {
-    return Feather_mkContinue(*loc);
-}
+extern "C" Node* comp_parser_mkBreakStmt(Location* loc) { return Feather_mkBreak(*loc); }
+extern "C" Node* comp_parser_mkContinueStmt(Location* loc) { return Feather_mkContinue(*loc); }
 extern "C" Node* comp_parser_mkReturnStmt(Location* loc, Node* expr) {
     return mkReturnStmt(*loc, expr);
 }
 
-
 Parser::Parser(Location loc)
-    : ctx_(spr_parserIf_createParser(fromCStr(loc.sourceCode->url), StringRef{nullptr, nullptr}, &loc))
-{
-}
+    : ctx_(spr_parserIf_createParser(
+              fromCStr(loc.sourceCode->url), StringRef{nullptr, nullptr}, &loc)) {}
 
 Parser::Parser(Location loc, StringRef code)
-    : ctx_(spr_parserIf_createParser(StringRef{nullptr, nullptr}, code, &loc))
-{
-}
+    : ctx_(spr_parserIf_createParser(StringRef{nullptr, nullptr}, code, &loc)) {}
 
-Parser::~Parser()
-{
-    if ( ctx_ )
+Parser::~Parser() {
+    if (ctx_)
         spr_parserIf_destroyParser(ctx_);
 }
 
-Node* Parser::parseModule() {
-    return ctx_ ? spr_parserIf_parseModule(ctx_) : nullptr;
-}
+Node* Parser::parseModule() { return ctx_ ? spr_parserIf_parseModule(ctx_) : nullptr; }
 
-Node* Parser::parseExpression() {
-    return ctx_ ? spr_parserIf_parseExpression(ctx_) : nullptr;
-}
+Node* Parser::parseExpression() { return ctx_ ? spr_parserIf_parseExpression(ctx_) : nullptr; }

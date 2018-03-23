@@ -13,7 +13,6 @@
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
 
-namespace SprFrontend { };
+namespace SprFrontend {};
 
 using namespace SprFrontend;
-

@@ -279,7 +279,7 @@ void getClassCtorCallables(Node* cls, EvalMode evalMode, Callables& res,
 //!
 //! We use this as a blackboard for the canCallGenericFun. We store all the info needed here
 class GenericFunCallParams {
-  public:
+public:
     const GenericFunNode genFun_; //!< The generic function to be called
 
     const bool isCtGeneric_; //!< True if we are calling a CT-generic
@@ -293,7 +293,7 @@ class GenericFunCallParams {
     //! Constructor. Initializes most of the parameters here
     GenericFunCallParams(CallableData& c, EvalMode callEvalMode);
 
-  private:
+private:
     //! Compute the final eval mode, based on the params, args and the original eval mode
     static EvalMode getFinalEvalMode(
             NodeRange genericParams, NodeRange args, EvalMode origEvalMode, bool isCtGeneric);
@@ -308,8 +308,8 @@ GenericFunCallParams::GenericFunCallParams(CallableData& c, EvalMode callEvalMod
               genFun_.instSet().params(), all(c.args), origEvalMode_, isCtGeneric_))
     , boundValues_(getParamsCount(c), nullptr) {}
 
-EvalMode GenericFunCallParams::getFinalEvalMode(NodeRange genericParams, NodeRange args, EvalMode origEvalMode, bool isCtGeneric)
-{
+EvalMode GenericFunCallParams::getFinalEvalMode(
+        NodeRange genericParams, NodeRange args, EvalMode origEvalMode, bool isCtGeneric) {
     if (isCtGeneric)
         return modeCt; // If we have a CT generic, the resulting eval mode is always CT
 
@@ -354,7 +354,6 @@ EvalMode GenericFunCallParams::getFinalEvalMode(NodeRange genericParams, NodeRan
         return modeRt;
     return origEvalMode;
 }
-
 
 /**
  * Get the list of final params that should be used in an instantiated function.
@@ -664,6 +663,7 @@ void handleGenericFunParam(GenericFunCallParams& callParams, int idx, Node* arg,
             REP_INTERNAL(arg->location,
                     "Invalid argument %1% when instantiating generic (arg is not CT evaluable)") %
                     (idx + 1);
+        ASSERT(boundVal);
         ASSERT(boundVal->type);
     }
 
@@ -701,7 +701,7 @@ void handleGenericFunParam(GenericFunCallParams& callParams, int idx, Node* arg,
             Feather_addToNodeList(curInst.boundVarsNode(), boundVar);
             Nest_clearCompilationStateSimple(curInst.boundVarsNode());
         }
-        at(curInst.boundValues(), idx) = boundVal;
+        at(curInst.boundValuesM(), idx) = boundVal;
     }
 }
 
@@ -845,6 +845,8 @@ EvalMode getGenericClassOrPackageResultingEvalMode(
     bool hasRtOnlyArgs = false;
     bool hasCtOnlyArgs = false;
     for (Node* boundVal : boundValues) {
+        if (!boundVal)
+            continue;
         ASSERT(!boundVal || boundVal->type);
         // Test the type given to the 'Type' parameters (i.e., we need to know
         // if Vector(t) can be rtct based on the mode of t)
@@ -1070,7 +1072,7 @@ Node* callGenericPackage(GenericPackageNode node, const Location& loc, Compilati
 
     return mkDeclExp(loc, fromIniList({instDecl}), nullptr);
 }
-}
+} // namespace
 
 void SprFrontend::getCallables(NodeRange decls, EvalMode evalMode, Callables& res) {
     getCallables(decls, evalMode, res, boost::function<bool(Node*)>());
@@ -1366,7 +1368,7 @@ string SprFrontend::toString(const CallableData& c) {
             oss << ", ";
 
         TypeRef type = nullptr;
-        StringRef name;
+        StringRef name{};
         if (p && (p->nodeKind == nkFeatherDeclVar || p->nodeKind == nkSparrowDeclSprParameter)) {
             name = Feather_getName(p);
             auto typeNode = at(p->children, 0);

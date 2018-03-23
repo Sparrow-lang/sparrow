@@ -270,10 +270,10 @@ int getNumParams(Node* decl) {
         return int(size(params)) - 2;
     }
     if (decl->nodeKind == nkSparrowDeclGenericFunction)
-        return (int) size(genericFunParams(decl));
+        return (int)size(genericFunParams(decl));
     if (decl->nodeKind == nkSparrowDeclSprFunction) {
         Node* parameters = at(decl->children, 0);
-        return parameters ? (int) size(parameters->children) : 0;
+        return parameters ? (int)size(parameters->children) : 0;
     }
     return 0;
 }
@@ -387,8 +387,12 @@ Node* _createFunPtrForDecl(Node* funNode) {
 Node* SprFrontend::createFunPtr(Node* funNode) {
 
     // Get rid of any node lists wraparounds
-    while (funNode && funNode->nodeKind == nkFeatherNodeList && size(funNode->children) == 1)
+    ASSERT(funNode);
+    while (funNode->nodeKind == nkFeatherNodeList && size(funNode->children) == 1) {
+        if (!at(funNode->children, 0))
+            break;
         funNode = at(funNode->children, 0);
+    }
 
     // Check for fun applications
     if (funNode->nodeKind == nkSparrowExpInfixExp &&
@@ -398,7 +402,7 @@ Node* SprFrontend::createFunPtr(Node* funNode) {
         // Compile the fun application node and try to extract the Feather fun call
         Nest_semanticCheck(funNode);
         Node* expl = Nest_explanation(funNode);
-        if (!expl && !expl->type)
+        if (!expl || !expl->type)
             return nullptr;
 
         // Case 1: directly expands into a Feather fun-call

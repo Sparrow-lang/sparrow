@@ -10,7 +10,6 @@ SET(sourceFiles
     "src/CtApiFunctions.cpp"
     "src/FeatherNodeCommonsCpp.h"
     "src/FeatherNodeCommonsH.h"
-    "src/StdInc.cpp"
     "src/StdInc.h"
     "src/Api/Feather.c"
     "src/Api/Feather_Nodes.cpp"
@@ -25,7 +24,6 @@ SET(sourceFiles
 INCLUDE_DIRECTORIES( "." )
 INCLUDE_DIRECTORIES( ".." )
 ADD_DEFINITIONS( "-DINSIDE_FEATHER" )
-ADD_MSVC_PRECOMPILED_HEADER("StdInc.h" "StdInc.cpp" sourceFiles)
 ADD_SOURCES_TO_GROUPS(sourceFiles)
 
 ADD_LIBRARY( Feather ${sourceFiles} )

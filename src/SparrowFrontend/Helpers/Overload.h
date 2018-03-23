@@ -34,17 +34,15 @@ enum class OverloadReporting {
  *
  * @return The node used to called the selected overload; null on failure
  */
-Node* selectOverload(CompilationContext* context, const Location& loc,
-                     EvalMode evalMode, NodeRange decls, NodeRange args,
-                     OverloadReporting errReporting, StringRef funName);
+Node* selectOverload(CompilationContext* context, const Location& loc, EvalMode evalMode,
+        NodeRange decls, NodeRange args, OverloadReporting errReporting, StringRef funName);
 
 /// Try to search for a conversion constructor of the given class that can take
 /// the given argument
-bool selectConversionCtor(CompilationContext* context, Node* destClass,
-                          EvalMode destMode, TypeRef argType, Node* arg,
-                          Node** conv);
+bool selectConversionCtor(CompilationContext* context, Node* destClass, EvalMode destMode,
+        TypeRef argType, Node* arg, Node** conv);
 
 /// Search for a ct-to-rt constructor for the given argument
 /// Returns the node to be used to call the ctor; null on failure
 Node* selectCtToRtCtor(Node* ctArg);
-}
+} // namespace SprFrontend

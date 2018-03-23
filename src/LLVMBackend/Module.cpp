@@ -9,23 +9,17 @@
 
 using namespace LLVMB;
 
-
 Module::Module(const string& name)
-    : llvmContext_(new llvm::LLVMContext())
-{
-}
+    : llvmContext_(new llvm::LLVMContext()) {}
 
-Module::~Module()
-{
-}
+Module::~Module() = default;
 
-bool Module::canUse(Node* decl) const
-{
+bool Module::canUse(Node* decl) const {
     EvalMode mode = Feather_effectiveEvalMode(decl);
     ASSERT(mode != modeUnspecified);
-    if ( mode == modeRt && isCt() )
+    if (mode == modeRt && isCt())
         return false;
-    else if ( mode == modeCt && !isCt() )
+    else if (mode == modeCt && !isCt())
         return false;
     else
         return true;

@@ -10,8 +10,7 @@
 #include "Nest/Api/SymTab.h"
 #include "Nest/Api/Modifier.h"
 
-namespace Feather { };
+namespace Feather {};
 
 using namespace Feather;
 using namespace Nest;
-

@@ -21,7 +21,7 @@ namespace {
 /// Reports a general error if we are in 'full' error reporting mode;
 /// otherwise just reports an info message
 void startError(OverloadReporting errReporting, const Location& loc,
-                const vector<TypeRef>& argsTypes, StringRef funName) {
+        const vector<TypeRef>& argsTypes, StringRef funName) {
     // Compute function name with arguments
     ostringstream oss;
     oss << funName.begin;
@@ -34,11 +34,9 @@ void startError(OverloadReporting errReporting, const Location& loc,
     oss << ")";
 
     if (errReporting == OverloadReporting::full)
-        REP_ERROR(loc, "No matching overload found for calling %1%") %
-            oss.str();
+        REP_ERROR(loc, "No matching overload found for calling %1%") % oss.str();
     else
-        REP_INFO(NOLOC, "No matching overload found for calling %1%") %
-            oss.str();
+        REP_INFO(NOLOC, "No matching overload found for calling %1%") % oss.str();
 }
 
 /// Report the decls used for selecting our call candidates
@@ -56,10 +54,9 @@ void reportDeclsAlternatives(const Location& loc, NodeRange decls) {
 /// Returns true if there are some valid candidates
 /// If there are callables with smaller overload prio, drop them in the favor of those with higher
 /// overload prio.
-bool filterCandidates(CompilationContext* context, const Location& loc,
-                      Callables& candidates, NodeRange* args,
-                      const vector<TypeRef>* argTypes, EvalMode evalMode,
-                      CustomCvtMode customCvtMode) {
+bool filterCandidates(CompilationContext* context, const Location& loc, Callables& candidates,
+        NodeRange* args, const vector<TypeRef>* argTypes, EvalMode evalMode,
+        CustomCvtMode customCvtMode) {
     ConversionType bestConv = convNone;
     int bestPrio = INT_MIN;
     for (size_t i = 0; i < candidates.size(); ++i) {
@@ -67,9 +64,8 @@ bool filterCandidates(CompilationContext* context, const Location& loc,
 
         // Check if this can be called with the given args
         ConversionType conv =
-            args ? canCall(cand, context, loc, *args, evalMode, customCvtMode)
-                 : canCall(cand, context, loc, *argTypes, evalMode,
-                           customCvtMode);
+                args ? canCall(cand, context, loc, *args, evalMode, customCvtMode)
+                     : canCall(cand, context, loc, *argTypes, evalMode, customCvtMode);
         if (conv == convNone) {
             cand.valid = false;
             continue;
@@ -94,29 +90,23 @@ bool filterCandidates(CompilationContext* context, const Location& loc,
 /// This is called if filterCandidates failed to select any valid candidate.
 /// This will report all the candidates, and why they could not be called.
 void filterCandidatesErrReport(CompilationContext* context, const Location& loc,
-                               Callables& candidates, NodeRange* args,
-                               const vector<TypeRef>* argTypes,
-                               EvalMode evalMode, CustomCvtMode customCvtMode) {
-    for (size_t i = 0; i < candidates.size(); ++i) {
-        CallableData& cand = candidates[i];
-
+        Callables& candidates, NodeRange* args, const vector<TypeRef>* argTypes, EvalMode evalMode,
+        CustomCvtMode customCvtMode) {
+    for (auto& cand : candidates) {
         // Report the candidate
-        REP_INFO(location(cand), "See possible candidate: %1%") %
-            toString(cand);
+        REP_INFO(location(cand), "See possible candidate: %1%") % toString(cand);
 
         if (args)
             canCall(cand, context, loc, *args, evalMode, customCvtMode, true);
         else
-            canCall(cand, context, loc, *argTypes, evalMode, customCvtMode,
-                    true);
+            canCall(cand, context, loc, *argTypes, evalMode, customCvtMode, true);
     }
 }
 
 /// Selects the most specialized callable from a list of callables.
 /// If there is not such thing as a "most specialized", this will return null.
-CallableData* selectMostSpecialized(CompilationContext* context,
-                                    Callables& candidates,
-                                    bool noCustomCvt = false) {
+CallableData* selectMostSpecialized(
+        CompilationContext* context, Callables& candidates, bool noCustomCvt = false) {
     if (candidates.empty())
         return nullptr;
 
@@ -144,8 +134,7 @@ CallableData* selectMostSpecialized(CompilationContext* context,
         for (size_t j = 0; j < candidates.size(); ++j) {
             if (j == i || !candidates[j].valid)
                 continue;
-            int res = moreSpecialized(context, candidates[i], candidates[j],
-                                      noCustomCvt);
+            int res = moreSpecialized(context, candidates[i], candidates[j], noCustomCvt);
             // if res < 0, the current function is more specialized than the
             // other function
             if (res >= 0) {
@@ -162,42 +151,40 @@ CallableData* selectMostSpecialized(CompilationContext* context,
 /// Called when 'selectMostSpecialized' failed to select a candidate.
 /// This will report the valid candidates that were taken into consideration
 /// for 'most specialized' selection
-void selectMostSpecializedErrReport(CompilationContext* context,
-                                    const Callables& candidates,
-                                    bool noCustomCvt = false) {
+void selectMostSpecializedErrReport(
+        CompilationContext* context, const Callables& candidates, bool noCustomCvt = false) {
     // Assume we have more than one valid candidate
 
     REP_INFO(NOLOC, "Reason: Cannot select a 'most specialized' function");
 
     for (const CallableData& cand : candidates) {
         if (cand.valid) {
-            REP_INFO(location(cand), "See valid candidate: %1%") %
-                toString(cand);
+            REP_INFO(location(cand), "See valid candidate: %1%") % toString(cand);
             // printNode(cand.decl);
         }
     }
 }
-}
+} // namespace
 
-Node* SprFrontend::selectOverload(CompilationContext* context,
-                                  const Location& loc, EvalMode evalMode,
-                                  NodeRange decls, NodeRange args,
-                                  OverloadReporting errReporting,
-                                  StringRef funName) {
+Node* SprFrontend::selectOverload(CompilationContext* context, const Location& loc,
+        EvalMode evalMode, NodeRange decls, NodeRange args, OverloadReporting errReporting,
+        StringRef funName) {
     auto numDecls = Nest_nodeRangeSize(decls);
     Node* firstDecl = numDecls > 0 ? at(decls, 0) : nullptr;
 
     // Special case for macro calls
     bool isMacro = firstDecl && Nest_hasProperty(firstDecl, propMacro);
+    NodeVector newArgs;
     if (isMacro) {
+        newArgs = NodeVector(args.beginPtr, args.endPtr);
         // Wrap every argument in an astLift(...) call
-        for (auto& arg : args) {
+        for (auto& arg : newArgs) {
             const Location& l = arg->location;
-            arg =
-                mkFunApplication(l, mkIdentifier(l, fromCStr("astLift")),
-                                 Feather_mkNodeListVoid(l, fromIniList({arg})));
+            arg = mkFunApplication(l, mkIdentifier(l, fromCStr("astLift")),
+                    Feather_mkNodeListVoid(l, fromIniList({arg})));
             Nest_setContext(arg, context);
         }
+        args = all(newArgs);
     }
 
     // Computing the argument types for our arguments
@@ -248,13 +235,13 @@ Node* SprFrontend::selectOverload(CompilationContext* context,
         customCvtMode = noCustomCvtForFirst;
 
     // Check the candidates to be able to be called with the given arguments
-    bool hasValidCandidates = filterCandidates(
-        context, loc, candidates, &args, nullptr, evalMode, customCvtMode);
+    bool hasValidCandidates =
+            filterCandidates(context, loc, candidates, &args, nullptr, evalMode, customCvtMode);
     if (!hasValidCandidates) {
         if (errReporting != OverloadReporting::none) {
             startError(errReporting, loc, argsTypes, funName);
-            filterCandidatesErrReport(context, loc, candidates, &args, nullptr,
-                                      evalMode, customCvtMode);
+            filterCandidatesErrReport(
+                    context, loc, candidates, &args, nullptr, evalMode, customCvtMode);
         }
         return nullptr;
     }
@@ -274,9 +261,8 @@ Node* SprFrontend::selectOverload(CompilationContext* context,
     if (!res) {
         if (errReporting != OverloadReporting::none) {
             startError(errReporting, loc, argsTypes, funName);
-            REP_INFO(NOLOC,
-                     "Cannot generate call code for selected overload: %1%") %
-                toString(*selectedFun);
+            REP_INFO(NOLOC, "Cannot generate call code for selected overload: %1%") %
+                    toString(*selectedFun);
         }
         return nullptr;
     }
@@ -296,10 +282,8 @@ Node* SprFrontend::selectOverload(CompilationContext* context,
     return res;
 }
 
-bool SprFrontend::selectConversionCtor(CompilationContext* context,
-                                       Node* destClass, EvalMode destMode,
-                                       TypeRef argType, Node* arg,
-                                       Node** conv) {
+bool SprFrontend::selectConversionCtor(CompilationContext* context, Node* destClass,
+        EvalMode destMode, TypeRef argType, Node* arg, Node** conv) {
     ASSERT(argType);
 
     // cerr << "Convert: " << argType->description << " -> "
@@ -307,20 +291,18 @@ bool SprFrontend::selectConversionCtor(CompilationContext* context,
 
     // Get all the candidates
     Callables candidates;
-    getCallables(
-        fromIniList({destClass}), destMode, candidates,
-        [](Node* decl) -> bool { return Nest_hasProperty(decl, propConvert); });
+    getCallables(fromIniList({destClass}), destMode, candidates,
+            [](Node* decl) -> bool { return Nest_hasProperty(decl, propConvert); });
     if (candidates.empty())
         return false;
 
     // Check the candidates to be able to be called with the given arguments
     vector<TypeRef> argTypes(1, argType);
-    filterCandidates(context, arg ? arg->location : Location(), candidates,
-                     nullptr, &argTypes, destMode, noCustomCvt);
+    filterCandidates(context, arg ? arg->location : Location(), candidates, nullptr, &argTypes,
+            destMode, noCustomCvt);
 
     // From the remaining candidates, try to select the most specialized one
-    CallableData* selectedFun =
-        selectMostSpecialized(context, candidates, true);
+    CallableData* selectedFun = selectMostSpecialized(context, candidates, true);
     if (!selectedFun)
         return false;
 
@@ -328,8 +310,8 @@ bool SprFrontend::selectConversionCtor(CompilationContext* context,
     if (arg && conv) {
         if (!Nest_computeType(arg))
             return false;
-        auto cr = canCall(*selectedFun, context, arg->location,
-                          fromIniList({arg}), destMode, noCustomCvt);
+        auto cr = canCall(
+                *selectedFun, context, arg->location, fromIniList({arg}), destMode, noCustomCvt);
         (void)cr;
         ASSERT(cr);
         *conv = generateCall(*selectedFun, context, arg->location);
@@ -352,10 +334,8 @@ Node* SprFrontend::selectCtToRtCtor(Node* ctArg) {
     // Select the possible ct-to-rt constructors
     Callables candidates;
     getCallables(fromIniList({cls}), modeRt, candidates,
-                 [](Node* decl) -> bool {
-                     return Feather_effectiveEvalMode(decl) == modeRt;
-                 },
-                 "ctorFromCt");
+            [](Node* decl) -> bool { return Feather_effectiveEvalMode(decl) == modeRt; },
+            "ctorFromCt");
     if (candidates.empty())
         return nullptr;
 
@@ -371,8 +351,7 @@ Node* SprFrontend::selectCtToRtCtor(Node* ctArg) {
     }
 
     // From the remaining candidates, try to select the most specialized one
-    CallableData* call =
-        selectMostSpecialized(ctArg->context, candidates, true);
+    CallableData* call = selectMostSpecialized(ctArg->context, candidates, true);
     if (!call) {
         REP_ERROR(loc, "No matching overload found for calling ctorFromCt");
         selectMostSpecializedErrReport(ctArg->context, candidates);
@@ -380,8 +359,7 @@ Node* SprFrontend::selectCtToRtCtor(Node* ctArg) {
     }
 
     // Generate the call to the ctor
-    auto cr = canCall(*call, ctArg->context, loc, fromIniList({ctArg}), modeRt,
-                      noCustomCvt);
+    auto cr = canCall(*call, ctArg->context, loc, fromIniList({ctArg}), modeRt, noCustomCvt);
     ASSERT(cr);
     if (!cr)
         return nullptr;

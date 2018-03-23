@@ -29,7 +29,8 @@ llvm::Function* createFunDecl(Node* node, GlobalContext& ctx, TranslatedFunInfo&
     llvm::Function* res = nullptr;
 
     // Get the type of the function
-    llvm::FunctionType* funType = static_cast<llvm::FunctionType*>(getLLVMType(node->type, ctx));
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
+    auto* funType = static_cast<llvm::FunctionType*>(getLLVMType(node->type, ctx));
 
     const StringRef* nativeName = Nest_getPropertyString(node, propNativeName);
     Node* body = Feather_Function_body(node);
@@ -58,6 +59,7 @@ llvm::Function* createFunDecl(Node* node, GlobalContext& ctx, TranslatedFunInfo&
 
     // If we have a native external body, just create the declaration
     if (nativeName && !body) {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
         res = (llvm::Function*)ctx.llvmModule_.getOrInsertFunction(nativeName->begin, funType);
     } else {
         // Make sure the function is semantically checked
@@ -180,7 +182,7 @@ void createFunDefinition(
 
     // Create the block in which we insert the code
     llvm::BasicBlock* bodyBlock =
-            llvm::BasicBlock::Create(ctx.targetBackend_.llvmContext(), "", decl, 0);
+            llvm::BasicBlock::Create(ctx.targetBackend_.llvmContext(), "", decl, nullptr);
 
     // Create a local context for the body of the function
     TrContext localCtx(ctx, bodyBlock, llvmBuilder);
@@ -192,6 +194,7 @@ void createFunDefinition(
         Node* param = Nest_ofKind(Nest_explanation(paramNode), nkFeatherDeclVar);
         if (!param)
             REP_INTERNAL(paramNode->location, "Expected Var node; found %1%") % paramNode;
+        ASSERT(param);
         llvm::AllocaInst* newVar = new llvm::AllocaInst(
                 argIt->getType(), 0, toString(Feather_getName(param)) + ".addr", bodyBlock);
         newVar->setAlignment(Nest_getCheckPropertyInt(param, "alignment"));
@@ -276,7 +279,7 @@ llvm::Function* Tr::makeFunThatCalls(
         f->addAttribute(1, llvm::Attribute::StructRet);
 
     // Create the block in which we insert the code
-    llvm::BasicBlock* bodyBlock = llvm::BasicBlock::Create(llvmContext, "", f, 0);
+    llvm::BasicBlock* bodyBlock = llvm::BasicBlock::Create(llvmContext, "", f, nullptr);
 
     // Create a local context for the body of the function
     llvm::IRBuilder<> llvmBuilder(llvmContext);

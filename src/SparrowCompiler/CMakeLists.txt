@@ -1,7 +1,6 @@
 
 # The source files
 SET(sourceFiles
-    "StdInc.cpp"
     "StdInc.h"
     "SparrowCompiler.cpp"
     "Settings.h"
@@ -15,7 +14,6 @@ SET(sourceFiles
 # Project settings
 INCLUDE_DIRECTORIES( "." )
 INCLUDE_DIRECTORIES( ".." )
-ADD_MSVC_PRECOMPILED_HEADER("StdInc.h" "StdInc.cpp" sourceFiles)
 ADD_SOURCES_TO_GROUPS(sourceFiles)
 
 LINK_DIRECTORIES(${LIBRARY_OUTPUT_PATH})

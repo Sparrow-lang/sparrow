@@ -6,70 +6,60 @@
 #include "Nest/Utils/NodeUtils.h"
 #include "Nest/Utils/Alloc.h"
 
-namespace SprFrontend
-{
+namespace SprFrontend {
 
-namespace
-{
-    const char* getConceptTypeDescription(Node* concept, uint8_t numReferences, EvalMode mode)
-    {
-        ostringstream os;
-        for ( uint8_t i=0; i<numReferences; ++i )
-            os << '@';
-        if ( concept )
-        {
-            os << '#' << toString(Feather_getName(concept));
-        }
-        else
-        {
-            os << "AnyType";
-        }
-        if ( mode == modeCt )
-            os << "/ct";
-        if ( mode == modeRtCt )
-            os << "/rtct";
-        return dupString(os.str().c_str());
+namespace {
+const char* getConceptTypeDescription(Node* concept, uint8_t numReferences, EvalMode mode) {
+    ostringstream os;
+    for (uint8_t i = 0; i < numReferences; ++i)
+        os << '@';
+    if (concept) {
+        os << '#' << toString(Feather_getName(concept));
+    } else {
+        os << "AnyType";
     }
-
-    TypeRef changeTypeModeConcept(TypeRef type, EvalMode newMode)
-    {
-        return getConceptType(type->referredNode, type->numReferences, newMode);
-    }
+    if (mode == modeCt)
+        os << "/ct";
+    if (mode == modeRtCt)
+        os << "/rtct";
+    return dupString(os.str().c_str());
 }
+
+TypeRef changeTypeModeConcept(TypeRef type, EvalMode newMode) {
+    return getConceptType(type->referredNode, type->numReferences, newMode);
+}
+} // namespace
 
 int typeKindConcept = -1;
 
-void initSparrowFrontendTypeKinds()
-{
+void initSparrowFrontendTypeKinds() {
     typeKindConcept = Nest_registerTypeKind(&changeTypeModeConcept);
 }
 
-TypeRef getConceptType(Node* conceptOrGeneric, uint8_t numReferences, EvalMode mode)
-{
-    ASSERT(!conceptOrGeneric || conceptOrGeneric->nodeKind == nkSparrowDeclSprConcept || conceptOrGeneric->nodeKind == nkSparrowDeclGenericClass);
-    Type referenceType;
-    referenceType.typeKind      = typeKindConcept;
-    referenceType.mode          = mode;
-    referenceType.numSubtypes   = 0;
+TypeRef getConceptType(Node* conceptOrGeneric, uint8_t numReferences, EvalMode mode) {
+    ASSERT(!conceptOrGeneric || conceptOrGeneric->nodeKind == nkSparrowDeclSprConcept ||
+            conceptOrGeneric->nodeKind == nkSparrowDeclGenericClass);
+    Type referenceType = {0};
+    referenceType.typeKind = typeKindConcept;
+    referenceType.mode = mode;
+    referenceType.numSubtypes = 0;
     referenceType.numReferences = numReferences;
-    referenceType.hasStorage    = 0;
+    referenceType.hasStorage = 0;
     referenceType.canBeUsedAtCt = 1;
     referenceType.canBeUsedAtRt = 1;
-    referenceType.flags         = 0;
-    referenceType.referredNode  = conceptOrGeneric;
-    referenceType.description   = getConceptTypeDescription(conceptOrGeneric, numReferences, mode);
+    referenceType.flags = 0;
+    referenceType.referredNode = conceptOrGeneric;
+    referenceType.description = getConceptTypeDescription(conceptOrGeneric, numReferences, mode);
 
     TypeRef t = Nest_findStockType(&referenceType);
-    if ( !t )
+    if (!t)
         t = Nest_insertStockType(&referenceType);
     return t;
 }
 
-
-Node* conceptOfType(TypeRef type)
-{
+Node* conceptOfType(TypeRef type) {
     ASSERT(type && type->typeKind == typeKindConcept);
     return type->referredNode;
 }
 
-}
+} // namespace SprFrontend

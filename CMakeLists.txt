@@ -99,6 +99,57 @@ endif()
 # Add our macros
 include(Macros.cmake)
 
+# Add target for clang-format
+find_program(CLANG_FORMAT "clang-format" HINTS ${LLVM_TOOLS_BINARY_DIR})
+if(CLANG_FORMAT)
+    add_custom_target(
+        clang-format
+        COMMAND
+            find ../src/ -name '*.c' -o -name '*.cpp' -o -name '*.h' -o -name '*.hpp'
+            | xargs ${CLANG_FORMAT} -i
+    )
+endif()
+
+# Add target for clang-tidy
+set(TIDY_CHECKS
+    #-*,   # Disable for non-debug builds
+
+    modernize-*,
+    cppcoreguidelines-*,
+    -cppcoreguidelines-pro-bounds-array-to-pointer-decay, # not met, requires gsl
+    -cppcoreguidelines-pro-bounds-constant-array-index, # not met, requires gsl
+    -cppcoreguidelines-pro-bounds-pointer-arithmetic, # not met, requires gsl
+    -cppcoreguidelines-pro-type-union-access, # not met (we use some unions)
+    -cppcoreguidelines-pro-type-vararg, # not met (we are using printf)
+)
+
+find_program(CLANG_TIDY_SCRIPT "run-clang-tidy.py" HINTS ${LLVM_TOOLS_BINARY_DIR}/../share/clang)
+if(CLANG_TIDY_SCRIPT)
+    # Search for clang-tidy and clang-apply-replacements
+    find_program(CLANG_TIDY "clang-tidy" HINTS ${LLVM_TOOLS_BINARY_DIR})
+    find_program(CLANG_APPLY_REPLACEMENTS "clang-apply-replacements" HINTS ${LLVM_TOOLS_BINARY_DIR})
+
+    # Set extra arguments
+    set(TIDY_FIX 0)
+    set(TIDY_EXTRA_ARGS -quiet -format -style file)
+    if (TIDY_FIX)
+        set(TIDY_EXTRA_ARGS ${TIDY_EXTRA_ARGS} -j 1 -fix)
+    endif()
+
+    # Actually add the target
+    add_custom_target(
+        clang-tidy
+        COMMAND
+            ${CLANG_TIDY_SCRIPT} -header-filter='.*\.hpp' -checks='${TIDY_CHECKS}'
+            -clang-tidy-binary ${CLANG_TIDY}
+            -clang-apply-replacements-binary ${CLANG_APPLY_REPLACEMENTS}
+            ${TIDY_EXTRA_ARGS}
+    )
+endif()
+
+# Ensure generation of compile_commands.json; needed for clang-tidy
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Dive into subdirectories
 add_subdirectory( src/Nest )
 add_subdirectory( src/Feather )

@@ -10,14 +10,14 @@ struct CompilerStats {
 
     bool enabled = false;
     int numCtEvals = 0;
-    chrono::microseconds timeCtEvals;
-    chrono::microseconds timeImplicitLib;
-    chrono::microseconds timeOpt;
-    chrono::microseconds timeLlc;
-    chrono::microseconds timeLink;
+    chrono::microseconds timeCtEvals{};
+    chrono::microseconds timeImplicitLib{};
+    chrono::microseconds timeOpt{};
+    chrono::microseconds timeLlc{};
+    chrono::microseconds timeLink{};
 
 private:
-    CompilerStats() {}
+    CompilerStats() = default;
 };
 
 //! Helper class that can accumulate time
@@ -39,4 +39,9 @@ public:
                                 chrono::steady_clock::now() - startTime);
         }
     }
+
+    ScopedTimeCapture(const ScopedTimeCapture&) = delete;
+    ScopedTimeCapture(ScopedTimeCapture&&) = delete;
+    const ScopedTimeCapture& operator=(const ScopedTimeCapture&) = delete;
+    const ScopedTimeCapture& operator=(ScopedTimeCapture&&) = delete;
 };

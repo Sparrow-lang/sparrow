@@ -112,14 +112,13 @@ endif()
 
 # Add target for clang-tidy
 set(TIDY_CHECKS
-    -*,   # Disable for non-debug builds
+    #-*,   # Disable for non-debug builds
 
     modernize-*,
     cppcoreguidelines-*,
     -cppcoreguidelines-pro-bounds-array-to-pointer-decay, # not met, requires gsl
     -cppcoreguidelines-pro-bounds-constant-array-index, # not met, requires gsl
     -cppcoreguidelines-pro-bounds-pointer-arithmetic, # not met, requires gsl
-    -cppcoreguidelines-pro-type-static-cast-downcast, # not met (LLVM handling code)
     -cppcoreguidelines-pro-type-union-access, # not met (we use some unions)
     -cppcoreguidelines-pro-type-vararg, # not met (we are using printf)
 )

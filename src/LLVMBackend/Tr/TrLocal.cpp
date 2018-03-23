@@ -560,6 +560,7 @@ llvm::Value* translateCtValue(Node* node, TrContext& context) {
 
     // Get the resulting value
     if (t->isIntegerTy()) {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
         int width = static_cast<llvm::IntegerType*>(t)->getBitWidth();
         uint64_t val;
 
@@ -587,6 +588,7 @@ llvm::Value* translateCtValue(Node* node, TrContext& context) {
         }
 
         return setValue(
+                // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
                 context, *node, llvm::ConstantInt::get(static_cast<llvm::IntegerType*>(t), val));
     } else if (t->isFloatTy()) {
         return setValue(
@@ -802,6 +804,7 @@ llvm::Value* translateFunCall(Node* node, TrContext& context) {
     // Apply a bitcast if the types don't match
     llvm::Constant* toCall = func;
     auto* funType =
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
             static_cast<llvm::FunctionType*>(getLLVMType(funDecl->type, context.globalContext()));
     llvm::PointerType* funTypePtr = llvm::PointerType::getUnqual(funType);
     if (func->getType() != funTypePtr)
@@ -952,6 +955,7 @@ llvm::Value* translateNull(Node* node, TrContext& context) {
     if (!resType->isPointerTy())
         REP_INTERNAL(node->location, "Null type should be a pointer (we have: %1%)") % node->type;
 
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
     return llvm::ConstantPointerNull::get(static_cast<llvm::PointerType*>(resType));
 }
 

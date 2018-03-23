@@ -29,6 +29,7 @@ llvm::Function* createFunDecl(Node* node, GlobalContext& ctx, TranslatedFunInfo&
     llvm::Function* res = nullptr;
 
     // Get the type of the function
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
     auto* funType = static_cast<llvm::FunctionType*>(getLLVMType(node->type, ctx));
 
     const StringRef* nativeName = Nest_getPropertyString(node, propNativeName);

@@ -74,10 +74,12 @@ void createGlobalVarDefinition(
 
     // Create a zero initializer for the variable
     if (type->isIntegerTy())
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
         var->setInitializer(llvm::ConstantInt::get(static_cast<llvm::IntegerType*>(type), 0));
     else if (type->isFloatingPointTy())
         var->setInitializer(llvm::ConstantFP::get(type, 0.0));
     else if (type->isPointerTy())
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
         var->setInitializer(llvm::ConstantPointerNull::get(static_cast<llvm::PointerType*>(type)));
     else if (type->isStructTy())
         var->setInitializer(llvm::ConstantAggregateZero::get(type));

@@ -4,6 +4,11 @@
 #include "DiagnosticFormatter.hpp"
 #include "Nest/Api/EvalMode.h"
 
+// Used to de-optimize error reporting
+#define likely(x) __builtin_expect((x), 1)
+#define unlikely(x) __builtin_expect((x), 0)
+
+
 #define __REP_IMPL_RET(retVal, type, fmt, loc)                                                     \
     return mkDiagReporterWithReturnFromFormatter(retVal) =                                         \
                    Nest::Common::DiagnosticFormatter(type, fmt, (loc))

@@ -40,7 +40,7 @@ NodeVector getFields(SymTab* curSymTab) {
         if (!Nest_computeType(field))
             field = nullptr;
         field = Nest_explanation(field);
-        if (field->nodeKind != nkFeatherDeclVar)
+        if (field && field->nodeKind != nkFeatherDeclVar)
             field = nullptr;
     }
 

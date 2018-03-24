@@ -46,6 +46,82 @@ bool getNumericProperties(TypeRef t, int& numBits, bool& isUnsigned, bool& isFlo
     }
     return false;
 }
+
+//! Gets the type value out of the given type node
+//! Depending on the second argument may report errors or will be quiet
+TypeRef getTypeValueImpl(Node* typeNode, bool reportErrors = false) {
+    ASSERT(typeNode);
+    if (!Nest_semanticCheck(typeNode)) {
+        if (unlikely(reportErrors))
+            REP_ERROR(typeNode->location, "Cannot semantically check type node");
+        return nullptr;
+    }
+
+    // If this is a DeclExp, try to look at the declaration types
+    Node* expl = Nest_explanation(typeNode);
+    if (expl->nodeKind == nkSparrowExpDeclExp) {
+        TypeRef res = nullptr;
+        NodeRange decls = {expl->referredNodes.beginPtr + 1, expl->referredNodes.endPtr};
+        for (Node* decl : decls) {
+            TypeRef t = nullptr;
+            Node* resDecl = resultingDecl(decl);
+
+            // Check if we have a concept or a generic class
+            if (resDecl->nodeKind == nkSparrowDeclSprConcept ||
+                    resDecl->nodeKind == nkSparrowDeclGenericClass)
+                t = getConceptType(resDecl);
+            // Check for a traditional class
+            else if (decl->nodeKind == nkSparrowDeclSprDatatype)
+                t = decl->type;
+
+            if (t) {
+                if (res) {
+                    if (unlikely(reportErrors)) {
+                        REP_ERROR(typeNode->location, "Multiple declarations found");
+                        for (auto d : decls) {
+                            if (d)
+                                REP_INFO(d->location, "See possible declaration (%1%)") % d;
+                        }
+                    }
+                    return nullptr; // multiple class decls; not a clear type
+                }
+                res = t;
+            }
+        }
+        if (unlikely(!res && reportErrors)) {
+            REP_ERROR(typeNode->location, "No valid type found");
+            for (auto d : decls) {
+                if (d)
+                    REP_INFO(d->location, "See possible declaration (%1%)") % d;
+            }
+        }
+        return res;
+    }
+
+    TypeRef res = Feather_lvalueToRefIfPresent(typeNode->type);
+
+    if (res == StdDef::typeRefType) {
+        Node* n = Nest_ctEval(typeNode);
+        if (n->nodeKind == nkFeatherExpCtValue) {
+            auto** t = Feather_getCtValueData<TypeRef*>(n);
+            if (!t || !*t || !**t)
+                REP_ERROR_RET(nullptr, typeNode->location, "No type was set for node");
+            return **t;
+        }
+    } else if (res == StdDef::typeType) {
+        Node* n = Nest_ctEval(typeNode);
+        if (n->nodeKind == nkFeatherExpCtValue) {
+            auto* t = Feather_getCtValueData<TypeRef>(n);
+            if (!t || !*t)
+                REP_ERROR_RET(nullptr, typeNode->location, "No type was set for node");
+            return *t;
+        }
+    }
+    if (unlikely(reportErrors))
+        REP_ERROR(typeNode->location, "Referenced type is invalid after CT evaluation");
+    return nullptr;
+}
+
 } // namespace
 
 TypeRef SprFrontend::commonType(CompilationContext* context, TypeRef t1, TypeRef t2) {
@@ -171,65 +247,9 @@ Node* SprFrontend::convertCtToRt(Node* node) {
         return checkDataTypeConversion(node);
 }
 
-TypeRef SprFrontend::getType(Node* typeNode) {
-    TypeRef t = tryGetTypeValue(typeNode);
-    if (!t)
-        REP_ERROR(typeNode->location, "Invalid type name (%1%)") % typeNode->type;
-    return t;
-}
+TypeRef SprFrontend::getType(Node* typeNode) { return getTypeValueImpl(typeNode, true); }
 
-TypeRef SprFrontend::tryGetTypeValue(Node* typeNode) {
-    if (!Nest_semanticCheck(typeNode))
-        return nullptr;
-
-    // If this is a DeclExp, try to look at the declaration types
-    Node* expl = Nest_explanation(typeNode);
-    if (expl->nodeKind == nkSparrowExpDeclExp) {
-        TypeRef res = nullptr;
-        NodeRange decls = {expl->referredNodes.beginPtr + 1, expl->referredNodes.endPtr};
-        for (Node* decl : decls) {
-            TypeRef t = nullptr;
-            Node* resDecl = resultingDecl(decl);
-
-            // Check if we have a concept or a generic class
-            if (resDecl->nodeKind == nkSparrowDeclSprConcept ||
-                    resDecl->nodeKind == nkSparrowDeclGenericClass)
-                t = getConceptType(resDecl);
-            // Check for a traditional class
-            else if (decl->nodeKind == nkSparrowDeclSprDatatype)
-                t = decl->type;
-
-            if (t) {
-                if (res)
-                    return nullptr; // multiple class decls; not a clear type
-                res = t;
-            }
-        }
-        return res;
-    }
-
-    TypeRef t = Feather_lvalueToRefIfPresent(typeNode->type);
-
-    if (t == StdDef::typeRefType) {
-        Node* n = Nest_ctEval(typeNode);
-        if (n->nodeKind == nkFeatherExpCtValue) {
-            auto** t = Feather_getCtValueData<TypeRef*>(n);
-            if (!t || !*t || !**t)
-                REP_ERROR_RET(nullptr, typeNode->location, "No type was set for node");
-            return **t;
-        }
-    } else if (t == StdDef::typeType) {
-        Node* n = Nest_ctEval(typeNode);
-        if (n->nodeKind == nkFeatherExpCtValue) {
-            auto* t = Feather_getCtValueData<TypeRef>(n);
-            if (!t || !*t)
-                REP_ERROR_RET(nullptr, typeNode->location, "No type was set for node");
-            return *t;
-        }
-    }
-
-    return nullptr;
-}
+TypeRef SprFrontend::tryGetTypeValue(Node* typeNode) { return getTypeValueImpl(typeNode, false); }
 
 TypeRef SprFrontend::evalTypeIfPossible(Node* typeNode) {
     TypeRef t = tryGetTypeValue(typeNode);

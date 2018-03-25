@@ -1,11 +1,14 @@
 #include <StdInc.h>
 #include "DebugInfo.h"
 #include "TrContext.h"
+#include "TrType.h"
+#include "GlobalContext.h"
 
 #include "Feather/Utils/FeatherUtils.hpp"
 
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/StringRef.hpp"
+#include "Nest/Utils/NodeUtils.hpp"
 #include "Nest/Api/SourceCode.h"
 #include "Nest/Api/Node.h"
 
@@ -29,6 +32,9 @@ llvm::DebugLoc getDebugLoc(const Location& loc, llvm::MDNode* scope, bool takeSt
     size_t col = takeStart ? loc.start.col : loc.end.col;
     return llvm::DebugLoc::get(line, col, scope);
 }
+
+llvm::StringRef toLlvm(StringRef s) { return {s.begin, size(s)}; }
+
 } // namespace
 
 DebugInfo::DebugInfo(llvm::Module& module, const string& mainFilename)
@@ -59,7 +65,8 @@ void DebugInfo::emitLocation(LlvmBuilder& builder, const Location& loc, bool tak
         builder.SetCurrentDebugLocation(getDebugLoc(curLoc_, scope, takeStart));
 }
 
-void DebugInfo::emitFunctionStart(LlvmBuilder& builder, Node* fun, llvm::Function* llvmFun) {
+void DebugInfo::emitFunctionStart(GlobalContext& ctx, LlvmBuilder& builder, Node* fun,
+        llvm::Function* llvmFun, llvm::BasicBlock* bodyBlock) {
     regionCountAtFunStartStack_.push_back(lexicalBlockStack_.size());
 
     const Location& loc = fun->location;
@@ -67,7 +74,7 @@ void DebugInfo::emitFunctionStart(LlvmBuilder& builder, Node* fun, llvm::Functio
     llvm::DIScope* fContext = file;
 
     // For now, just create a fake subroutine type -- it should be ok
-    llvm::DISubroutineType* diFunType = createFunctionType(llvmFun);
+    llvm::DISubroutineType* diFunType = createDiFunType(ctx, fun->type);
 
     StringRef name = Nest_hasProperty(fun, "name") ? Feather_getName(fun) : fromCStr("anonymous");
     llvm::StringRef nameLLVM(name.begin, size(name));
@@ -87,7 +94,6 @@ void DebugInfo::emitFunctionStart(LlvmBuilder& builder, Node* fun, llvm::Functio
 
     // Push function on region stack.
     lexicalBlockStack_.push_back(diSubprogram);
-    regionMap_[fun] = diSubprogram;
 }
 
 void DebugInfo::emitFunctionEnd(LlvmBuilder& builder, const Location& loc) {
@@ -99,6 +105,37 @@ void DebugInfo::emitFunctionEnd(LlvmBuilder& builder, const Location& loc) {
     while (lexicalBlockStack_.size() != regionCount)
         emitLexicalBlockEnd(builder, loc);
     regionCountAtFunStartStack_.pop_back();
+}
+
+void DebugInfo::emitParamVar(
+        GlobalContext& ctx, Node* param, int idx, llvm::AllocaInst* llvmAlloca) {
+    Location loc = param->location;
+
+    ASSERT(!lexicalBlockStack_.empty());
+    auto scope = lexicalBlockStack_.back();
+    auto file = getOrCreateFile(loc);
+
+    auto diType = createDiType(ctx, param->type);
+    auto diVar = diBuilder_.createParameterVariable(
+            scope, toLlvm(Feather_getName(param)), idx, file, loc.start.line, diType);
+
+    diBuilder_.insertDeclare(llvmAlloca, diVar, diBuilder_.createExpression(),
+            getDebugLoc(loc, scope), llvmAlloca->getParent());
+}
+
+void DebugInfo::emitLocalVar(GlobalContext& ctx, Node* var, llvm::AllocaInst* llvmAlloca) {
+    Location loc = var->location;
+
+    ASSERT(!lexicalBlockStack_.empty());
+    auto scope = lexicalBlockStack_.back();
+    auto file = getOrCreateFile(loc);
+
+    auto diType = createDiType(ctx, var->type);
+    auto diVar = diBuilder_.createAutoVariable(
+            scope, toLlvm(Feather_getName(var)), file, loc.start.line, diType);
+
+    diBuilder_.insertDeclare(llvmAlloca, diVar, diBuilder_.createExpression(),
+            getDebugLoc(loc, scope), llvmAlloca->getParent());
 }
 
 void DebugInfo::emitLexicalBlockStart(LlvmBuilder& builder, const Location& loc) {
@@ -173,65 +210,120 @@ llvm::DIFile* DebugInfo::getOrCreateFile(const Location& loc) {
     return file;
 }
 
-const char* getIntTypeName(llvm::Type* t) {
-    switch (t->getPrimitiveSizeInBits()) {
-    case 1:
-        return "i1";
-    case 8:
-        return "i8";
-    case 16:
-        return "i16";
-    case 32:
-        return "i32";
-    case 64:
-        return "i64";
-    case 128:
-        return "i128";
-    default:
-        return "int";
-    }
+llvm::DISubroutineType* DebugInfo::createDiFunType(GlobalContext& ctx, TypeRef type) {
+    llvm::SmallVector<llvm::Metadata*, 8> funTypes;
+    for (unsigned i = 0; i < type->numSubtypes; i++)
+        funTypes.push_back(createDiType(ctx, type->subTypes[i]));
+    return diBuilder_.createSubroutineType(diBuilder_.getOrCreateTypeArray(funTypes));
 }
 
-llvm::DIType* transformType(llvm::DIBuilder& diBuilder, llvm::Type* t) {
-    if (t) {
-        if (t->isIntegerTy())
-            return diBuilder.createBasicType(
-                    getIntTypeName(t), t->getPrimitiveSizeInBits(), llvm::dwarf::DW_ATE_signed);
-        else if (t->isFloatTy())
-            return diBuilder.createBasicType(
-                    "float", t->getPrimitiveSizeInBits(), llvm::dwarf::DW_ATE_float);
-        else if (t->isDoubleTy())
-            return diBuilder.createBasicType(
-                    "double", t->getPrimitiveSizeInBits(), llvm::dwarf::DW_ATE_float);
-        else if (t->isFloatingPointTy())
-            return diBuilder.createBasicType(
-                    "double", t->getPrimitiveSizeInBits(), llvm::dwarf::DW_ATE_float);
-        else if (t->isVoidTy())
-            return diBuilder.createBasicType("void", 0, llvm::dwarf::DW_ATE_unsigned);
-        // else if (t->isStructTy()) // TODO
-        //     return diBuilder.createStructType("void", 0, llvm::dwarf::DW_ATE_unsigned);
-        else if (t->isArrayTy()) {
-            auto baseType = transformType(diBuilder, t->getArrayElementType());
-            llvm::DINodeArray subscripts;
-            return diBuilder.createArrayType(t->getArrayNumElements(), 0, baseType, subscripts);
-        } else if (t->isPointerTy()) {
-            auto baseType = transformType(diBuilder, t->getPointerElementType());
-            return diBuilder.createPointerType(baseType, t->getPrimitiveSizeInBits());
-        } else if (t->isFunctionTy()) {
-            llvm::SmallVector<llvm::Metadata*, 8> funTypes;
-            auto num = t->getNumContainedTypes();
-            for (unsigned i = 0; i < num; i++)
-                funTypes.push_back(transformType(diBuilder, t->getContainedType(i)));
-            return diBuilder.createSubroutineType(diBuilder.getOrCreateTypeArray(funTypes));
-        }
+llvm::DIType* DebugInfo::createDiStructType(GlobalContext& ctx, TypeRef type) {
+    // First, check for primitive types
+    llvm::Type* t = getLLVMType(type, ctx);
+    if (!t)
+        return nullptr;
+    if (t->isIntegerTy()) {
+        auto encoding = t->getPrimitiveSizeInBits() == 1 ? llvm::dwarf::DW_ATE_boolean
+                                                         : llvm::dwarf::DW_ATE_signed;
+        auto numBits = (t->getPrimitiveSizeInBits() + 7) / 8 * 8;
+        return diBuilder_.createBasicType(type->description, numBits, encoding);
+    } else if (t->isFloatTy())
+        return diBuilder_.createBasicType(
+                "float", t->getPrimitiveSizeInBits(), llvm::dwarf::DW_ATE_float);
+    else if (t->isDoubleTy())
+        return diBuilder_.createBasicType(
+                "double", t->getPrimitiveSizeInBits(), llvm::dwarf::DW_ATE_float);
+    else if (t->isFloatingPointTy())
+        return diBuilder_.createBasicType(
+                "double", t->getPrimitiveSizeInBits(), llvm::dwarf::DW_ATE_float);
+
+    Node* structDecl = type->referredNode;
+    ASSERT(structDecl);
+    Location loc = structDecl->location;
+
+    llvm::DIFile* file = getOrCreateFile(loc);
+    const auto& dataLayout = ctx.llvmModule_.getDataLayout();
+    uint64_t sizeInBits = dataLayout.getTypeAllocSizeInBits(t);
+    uint32_t alignInBits = dataLayout.getPrefTypeAlignment(t);
+    llvm::DINode::DIFlags flags = llvm::DINode::FlagZero;
+
+    // Get the translation name for this
+    llvm::StringRef uniqueId = "";
+    const StringRef* nativeName = Nest_getPropertyString(structDecl, propNativeName);
+    if (nativeName)
+        uniqueId = toLlvm(*nativeName);
+    else {
+        const StringRef* description = Nest_getPropertyString(structDecl, propDescription);
+        if (description)
+            uniqueId = toLlvm(*description);
     }
+    llvm::StringRef name = uniqueId;
+    if (name.empty())
+        name = toLlvm(Feather_getName(structDecl));
 
-    // Last resort
-    return diBuilder.createBasicType("void", 0, llvm::dwarf::DW_ATE_unsigned);
-}
+    // First create the struct type, with no members
+    auto res = diBuilder_.createStructType(file, name, file, loc.start.line, sizeInBits,
+            alignInBits, flags, nullptr, llvm::DINodeArray(), 0, nullptr, uniqueId);
 
-llvm::DISubroutineType* DebugInfo::createFunctionType(llvm::Function* llvmFun) {
-    // TODO: Try to cache the types that we are using
+    // Now create the members in the scope of the struct type
+    ASSERT(t->isStructTy());
     // NOLINTNEXTLINE
-    return (llvm::DISubroutineType*)transformType(diBuilder_, llvmFun->getFunctionType());
+    auto structLayout = dataLayout.getStructLayout((llvm::StructType*)t);
+    ASSERT(structLayout);
+    llvm::SmallVector<llvm::Metadata*, 8> elements;
+    int idx = 0;
+    for (auto field : structDecl->children) {
+        Location fLoc = field->location;
+        auto fieldName = toLlvm(Feather_getName(field));
+        auto llvmType = getLLVMType(field->type, ctx);
+        if (!llvmType) {
+            ++idx;
+            continue;
+        }
+        auto memberType = createDiType(ctx, field->type);
+        auto member = diBuilder_.createMemberType(res, fieldName, file, fLoc.start.line,
+                dataLayout.getTypeAllocSizeInBits(llvmType),
+                dataLayout.getPrefTypeAlignment(llvmType),
+                structLayout->getElementOffsetInBits(idx++), flags, memberType);
+        elements.push_back(member);
+    }
+    // Add the members to the struct type
+    diBuilder_.replaceArrays(res, diBuilder_.getOrCreateArray(elements));
+
+    return res;
+}
+
+llvm::DIType* DebugInfo::createDiType(GlobalContext& ctx, TypeRef type) {
+    // Check the cache first
+    auto it = typesMap_.find(type);
+    if (it != typesMap_.end())
+        return it->second;
+
+    llvm::Type* t = getLLVMType(type, ctx);
+    const auto& dataLayout = ctx.llvmModule_.getDataLayout();
+
+    llvm::DIType* res = nullptr;
+    if (type->numReferences > 0) {
+        // Pointer type (Datatype & LValue)
+        int sizeInBits = dataLayout.getTypeAllocSizeInBits(t);
+        auto baseType = createDiType(ctx, Feather_removeRef(type));
+        res = diBuilder_.createPointerType(baseType, sizeInBits);
+    } else if (type->typeKind == Feather_getDataTypeKind()) {
+        res = createDiStructType(ctx, type);
+    } else if (type->typeKind == Feather_getArrayTypeKind()) {
+        auto baseType = createDiType(ctx, Feather_baseType(type));
+        auto numElements = (uint64_t)Feather_getArraySize(type);
+        uint32_t alignInBits = dataLayout.getPrefTypeAlignment(t);
+        llvm::DINodeArray subscripts;
+        return diBuilder_.createArrayType(numElements, alignInBits, baseType, subscripts);
+
+    } else if (type->typeKind == Feather_getFunctionTypeKind()) {
+        res = createDiFunType(ctx, type);
+    } else /*if ( type->typeKind == Feather_getVoidTypeKind() )*/ {
+        return diBuilder_.createBasicType("void", 0, llvm::dwarf::DW_ATE_address);
+    }
+
+    // Add the type to the cache and return it
+    typesMap_[type] = res;
+    return res;
 }

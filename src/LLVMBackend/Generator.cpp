@@ -128,7 +128,7 @@ void generateMachineAssembly(
     args.push_back("--march=x86-64");
 #elif __APPLE__
     if (s.generateDebugInfo_)
-        args.push_back("-dwarf-version=4");
+        args.emplace_back("-dwarf-version=4");
 #endif
     args.insert(args.end(), s.assemblerArgs_.begin(), s.assemblerArgs_.end());
     args.insert(args.end(), {inputFilename, "-o", outputFilename});

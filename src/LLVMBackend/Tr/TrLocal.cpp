@@ -1186,6 +1186,10 @@ llvm::Value* translateVar(Node* node, TrContext& context) {
     int alignment = Nest_getCheckPropertyInt(node, "alignment");
     if (alignment > 0)
         val->setAlignment(alignment);
+
+    if (context.module().debugInfo())
+        context.module().debugInfo()->emitLocalVar(context.globalContext(), node, val);
+
     return setValue(context, *node, val);
 }
 

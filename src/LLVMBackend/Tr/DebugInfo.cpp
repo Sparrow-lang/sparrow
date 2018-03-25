@@ -126,12 +126,11 @@ void DebugInfo::emitLexicalBlockEnd(LlvmBuilder& builder, const Location& loc) {
 
 void DebugInfo::createCompileUnit(const string& mainFilename) {
     auto p = splitFilename(mainFilename.c_str());
-
-    llvm::DIFile* filename = nullptr; // TODO (debug-info): get it from p.second
+    llvm::DIFile* file = diBuilder_.createFile(p.second, p.first);
 
     // Create new compile unit
     compileUnit_ = diBuilder_.createCompileUnit(llvm::dwarf::DW_LANG_C, // language
-            filename,                                                   // file name
+            file,                                                       // file name
             "Sparrow Compiler", // producer of debug information
             false,              // isOptimized
             "",                 // debug flags (command line options)
@@ -174,9 +173,65 @@ llvm::DIFile* DebugInfo::getOrCreateFile(const Location& loc) {
     return file;
 }
 
+const char* getIntTypeName(llvm::Type* t) {
+    switch (t->getPrimitiveSizeInBits()) {
+    case 1:
+        return "i1";
+    case 8:
+        return "i8";
+    case 16:
+        return "i16";
+    case 32:
+        return "i32";
+    case 64:
+        return "i64";
+    case 128:
+        return "i128";
+    default:
+        return "int";
+    }
+}
+
+llvm::DIType* transformType(llvm::DIBuilder& diBuilder, llvm::Type* t) {
+    if (t) {
+        if (t->isIntegerTy())
+            return diBuilder.createBasicType(
+                    getIntTypeName(t), t->getPrimitiveSizeInBits(), llvm::dwarf::DW_ATE_signed);
+        else if (t->isFloatTy())
+            return diBuilder.createBasicType(
+                    "float", t->getPrimitiveSizeInBits(), llvm::dwarf::DW_ATE_float);
+        else if (t->isDoubleTy())
+            return diBuilder.createBasicType(
+                    "double", t->getPrimitiveSizeInBits(), llvm::dwarf::DW_ATE_float);
+        else if (t->isFloatingPointTy())
+            return diBuilder.createBasicType(
+                    "double", t->getPrimitiveSizeInBits(), llvm::dwarf::DW_ATE_float);
+        else if (t->isVoidTy())
+            return diBuilder.createBasicType("void", 0, llvm::dwarf::DW_ATE_unsigned);
+        // else if (t->isStructTy()) // TODO
+        //     return diBuilder.createStructType("void", 0, llvm::dwarf::DW_ATE_unsigned);
+        else if (t->isArrayTy()) {
+            auto baseType = transformType(diBuilder, t->getArrayElementType());
+            llvm::DINodeArray subscripts;
+            return diBuilder.createArrayType(t->getArrayNumElements(), 0, baseType, subscripts);
+        } else if (t->isPointerTy()) {
+            auto baseType = transformType(diBuilder, t->getPointerElementType());
+            return diBuilder.createPointerType(baseType, t->getPrimitiveSizeInBits());
+        } else if (t->isFunctionTy()) {
+            llvm::SmallVector<llvm::Metadata*, 8> funTypes;
+            auto num = t->getNumContainedTypes();
+            for (unsigned i = 0; i < num; i++)
+                funTypes.push_back(transformType(diBuilder, t->getContainedType(i)));
+            return diBuilder.createSubroutineType(diBuilder.getOrCreateTypeArray(funTypes));
+        }
+    }
+
+    // Last resort
+    return diBuilder.createBasicType("void", 0, llvm::dwarf::DW_ATE_unsigned);
+}
+
 llvm::DISubroutineType* DebugInfo::createFunctionType(llvm::Function* llvmFun) {
-    llvm::SmallVector<llvm::Metadata*, 8> funTypes;
-    // TODO: populate this; result type + arg types
     // TODO: Try to cache the types that we are using
-    return diBuilder_.createSubroutineType(diBuilder_.getOrCreateTypeArray(funTypes));
+    // NOLINTNEXTLINE
+    return (llvm::DISubroutineType*)transformType(diBuilder_, llvmFun->getFunctionType());
 }

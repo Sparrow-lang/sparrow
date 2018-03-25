@@ -164,11 +164,6 @@ void createFunDefinition(
 
     ASSERT(decl->getParent() == &ctx.definitionsLlvmModule_);
 
-    // If we are emitting debug information, emit function start
-    auto dbgInfo = ctx.targetBackend_.debugInfo();
-    if (dbgInfo)
-        dbgInfo->emitFunctionStart(llvmBuilder, node, decl);
-
     // This is the decl that has a corresponding definition
     tfi.mainDecl_ = decl;
     ctx.targetBackend_.definedFunctions_.insert(decl);
@@ -183,6 +178,11 @@ void createFunDefinition(
     // Create the block in which we insert the code
     llvm::BasicBlock* bodyBlock =
             llvm::BasicBlock::Create(ctx.targetBackend_.llvmContext(), "", decl, nullptr);
+
+    // If we are emitting debug information, emit function start
+    auto dbgInfo = ctx.targetBackend_.debugInfo();
+    if (dbgInfo)
+        dbgInfo->emitFunctionStart(ctx, llvmBuilder, node, decl, bodyBlock);
 
     // Create a local context for the body of the function
     TrContext localCtx(ctx, bodyBlock, llvmBuilder);
@@ -200,6 +200,9 @@ void createFunDefinition(
         newVar->setAlignment(Nest_getCheckPropertyInt(param, "alignment"));
         new llvm::StoreInst(argIt, newVar, bodyBlock); // Copy the value of the parameter into it
         Tr::setValue(localCtx, *param, newVar);        // We point now to the new temp variable
+
+        if (dbgInfo)
+            dbgInfo->emitParamVar(ctx, param, idx+1, newVar);
     }
 
     // Translate the body
@@ -287,7 +290,7 @@ llvm::Function* Tr::makeFunThatCalls(
 
     auto dbgInfo = ctx.targetBackend_.debugInfo();
     if (dbgInfo)
-        dbgInfo->emitFunctionStart(llvmBuilder, node, f);
+        dbgInfo->emitFunctionStart(ctx, llvmBuilder, node, f, bodyBlock);
 
     // Add the action as the body of the function
     llvm::Value* addressToStoreResult = expectsResult ? f->arg_begin() : nullptr;

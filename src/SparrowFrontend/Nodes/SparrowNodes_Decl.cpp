@@ -425,10 +425,11 @@ TypeRef SprFunction_ComputeType(Node* node) {
     // Compute the type of the return type node
     // We do this after the parameters, as the computation of the result might require access to the
     // parameters
-    TypeRef resType = returnType ? getType(returnType) : Feather_getVoidType(thisEvalMode);
+    EvalMode mode = Feather_combineMode(thisEvalMode, node->childrenContext->evalMode);
+    TypeRef resType = returnType ? getType(returnType) : Feather_getVoidType(mode);
     if (!resType)
         REP_INTERNAL(node->location, "Cannot compute the function resulting type");
-    resType = Feather_adjustModeBase(resType, thisEvalMode, node->childrenContext, node->location);
+    resType = Feather_checkChangeTypeMode(resType, mode, node->location);
 
     // If the result is a non-reference class, not basic numeric, and our function is not native,
     // add result parameter; otherwise, normal result

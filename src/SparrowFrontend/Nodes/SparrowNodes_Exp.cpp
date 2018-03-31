@@ -1217,7 +1217,7 @@ Node* FunApplication_SemanticCheck(Node* node) {
     // Check the right overload based on the type of the arguments
     EvalMode mode = node->context->evalMode;
     if (thisArg)
-        mode = Feather_combineMode(thisArg->type->mode, mode, node->location);
+        mode = Feather_combineMode(thisArg->type->mode, mode);
     Node* res = selectOverload(node->context, node->location, mode, all(decls), all(args),
             OverloadReporting::full, fromString(functionName));
 

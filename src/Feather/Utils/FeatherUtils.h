@@ -177,16 +177,21 @@ Node* Feather_classForType(TypeRef t);
 /// Check the types are the same, but also consider the operation mode
 int Feather_isSameTypeIgnoreMode(TypeRef t1, TypeRef t2);
 
-// Combines two modes together; raises error if the modes cannot be combined
-EvalMode Feather_combineMode(EvalMode mode, EvalMode baseMode, Location loc);
-EvalMode Feather_combineModeForceBase(EvalMode mode, EvalMode baseMode, Location loc);
+//! Combines two modes together.
+//! If one of the modes is modeCt, the result will be modeCt
+//! If one of the given modes is unspecified, we return the other one
+//! I.e., use this when placing one node into a given context
+EvalMode Feather_combineMode(EvalMode mode1, EvalMode mode2);
 
-/// Adjust the mode of the type, to match the evaluation mode of the compilation context
+//! Combine modes of two children together.
+//! If one of the modes is modeRt, it will return modeRt.
+//! If one of the given modes is unspecified, we return the other one.
+//! I.e., use this when deducing the modes based on the modes of the children
+EvalMode Feather_combineModeBottom(EvalMode mode1, EvalMode mode2);
+
+//! Adjust the mode of the type, to be compatible with the one in the context.
+//! I.e., if the context is CT, the type will be made CT.
 TypeRef Feather_adjustMode(TypeRef srcType, CompilationContext* context, Location loc);
-/// Adjust the mode of the type, to match the evaluation mode of the compilation context; takes in
-/// account a 'baseMode' that is the means trough which we can actually access the given type
-TypeRef Feather_adjustModeBase(
-        TypeRef srcType, EvalMode baseMode, CompilationContext* context, Location loc);
 
 /// Check if the given node has the eval-mode correctly set
 void Feather_checkEvalMode(Node* src, EvalMode referencedEvalMode);

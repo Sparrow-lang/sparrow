@@ -601,7 +601,8 @@ Node* FieldRef_SemanticCheck(Node* node) {
     ASSERT(field->type);
     ASSERT(field->type->hasStorage);
     node->type = Feather_getLValueType(field->type);
-    node->type = Feather_adjustModeBase(node->type, obj->type->mode, node->context, node->location);
+    EvalMode mode = Feather_combineMode(obj->type->mode, node->context->evalMode);
+    node->type = Feather_checkChangeTypeMode(node->type, mode, node->location);
     return node;
 }
 const char* FieldRef_toString(const Node* node) {
@@ -860,8 +861,9 @@ Node* Conditional_SemanticCheck(Node* node) {
                 "The types of the alternatives of a conditional must be equal (%1% != %2%)") %
                 alt1->type % alt2->type;
 
-    node->type =
-            Feather_adjustModeBase(alt1->type, cond->type->mode, node->context, node->location);
+    EvalMode mode = Feather_combineModeBottom(alt1->type->mode, cond->type->mode);
+    mode = Feather_combineMode(mode, node->context->evalMode);
+    node->type = Feather_checkChangeTypeMode(alt1->type, mode, node->location);
     return node;
 }
 

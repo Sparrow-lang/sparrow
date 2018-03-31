@@ -124,50 +124,26 @@ int Feather_isSameTypeIgnoreMode(TypeRef t1, TypeRef t2) {
     return t == t2;
 }
 
-EvalMode Feather_combineMode(EvalMode mode, EvalMode baseMode, Location loc) {
-    switch (baseMode) {
-    case modeRt:
-        return mode == modeRtCt ? modeRt : mode;
-    case modeCt:
-        if (mode == modeRt)
-            REP_ERROR(loc, "Cannot use the RT mode inside of a CT context");
+EvalMode Feather_combineMode(EvalMode mode1, EvalMode mode2) {
+    if (mode1 == modeCt || mode2 == modeCt)
         return modeCt;
-    case modeRtCt:
-    default:
-        return mode;
-    }
+    if (mode1 == modeUnspecified)
+        return mode2;
+    return mode1;
 }
 
-EvalMode Feather_combineModeForceBase(EvalMode mode, EvalMode baseMode, Location loc) {
-    // TODO (rtct): Check all these
-    switch (baseMode) {
-    case modeRt:
-        return modeRt;
-    case modeCt:
-        if (mode == modeRt)
-            REP_ERROR(loc, "Cannot use the RT mode inside of a CT context");
-        return modeCt;
-    case modeRtCt:
-    default:
-        return mode;
-    }
+EvalMode Feather_combineModeBottom(EvalMode mode1, EvalMode mode2) {
+    if (mode1 == modeRtCt || mode2 == modeRtCt)
+        return modeRtCt;
+    if (mode1 == modeUnspecified)
+        return mode2;
+    return mode1;
 }
 
 TypeRef Feather_adjustMode(TypeRef srcType, CompilationContext* context, Location loc) {
     ASSERT(srcType);
     ASSERT(context);
-    EvalMode resMode = Feather_combineMode(srcType->mode, context->evalMode, loc);
-    return Feather_checkChangeTypeMode(srcType, resMode, loc);
-}
-
-TypeRef Feather_adjustModeBase(
-        TypeRef srcType, EvalMode baseMode, CompilationContext* context, Location loc) {
-    ASSERT(srcType);
-    ASSERT(context);
-    baseMode = Feather_combineMode(baseMode, context->evalMode, loc);
-    EvalMode resMode = Feather_combineModeForceBase(srcType->mode, baseMode, loc);
-    if (baseMode == modeRtCt && resMode == modeCt)
-        resMode = modeRtCt; // TODO (rtct)
+    EvalMode resMode = Feather_combineMode(srcType->mode, context->evalMode);
     return Feather_checkChangeTypeMode(srcType, resMode, loc);
 }
 

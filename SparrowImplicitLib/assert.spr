@@ -1,7 +1,7 @@
 import meta.featherNodes, meta.sparrowNodes, meta.nodeKinds
 import std.vector, std.algorithms, std.string
 
-[rtct, macro]
+[macro]
     /**
      * Helper used to check a pre-/post- condition in debug environment
      *

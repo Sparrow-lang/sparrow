@@ -853,7 +853,7 @@ declare i32 @atoi(i8*) nounwind readonly
     [native("_Type_copy_ctor")] fun ctor(this: @Type, other: Type)
     //fun dtor(this: @Type) {}
 
-[rtct, noDefault]
+[noDefault]
     datatype Uninitialized {}
 
     [native("Null")]    datatype Null {}
@@ -873,12 +873,12 @@ declare i32 @atoi(i8*) nounwind readonly
     [native("double")]  datatype Double {}
     [native("i8")]      datatype Char {}
 
-[rtct, protected]
+[protected]
     fun ctor(this: Uninitialized) {}
     fun ctor(this, other: Uninitialized) {}
     fun dtor(this: Uninitialized) {}
 
-[rtct, protected]
+[protected]
     fun ctor(this: Null) {}
     fun ctor(this, other: Null) {}
     fun dtor(this: Null) {}
@@ -1099,12 +1099,12 @@ declare i32 @atoi(i8*) nounwind readonly
 
 
 
-[rtct, noDefault, native("StringRef")]
+[noDefault, native("StringRef")]
 datatype StringRef
     begin: @Byte;
     end: @Byte;
 
-[rtct, protected]
+[protected]
     fun ctor(this: @StringRef)
         begin := null;
         end := null;
@@ -1117,20 +1117,19 @@ datatype StringRef
         end := other.end;
     fun dtor(this: StringRef) {}
 
-[rtct]
-    fun size(this: StringRef): SizeType
-        return ptrDiff(end, begin);
+fun size(this: StringRef): SizeType
+    return ptrDiff(end, begin);
 
-    fun getChar(this: StringRef, i: SizeType): Char
-        return reinterpretCast(@Char, ptrAdd(begin, i));
+fun getChar(this: StringRef, i: SizeType): Char
+    return reinterpretCast(@Char, ptrAdd(begin, i));
 
-    fun == (this, other: StringRef): Bool
-        var s = this.size();
-        if ( s != other.size() ) return false;
-        var i: SizeType = 0;
-        while i<s ; i+=SizeType(1)
-            if ( this.getChar(i) != other.getChar(i) ) return false;
-        return true;
+fun == (this, other: StringRef): Bool
+    var s = this.size();
+    if ( s != other.size() ) return false;
+    var i: SizeType = 0;
+    while i<s ; i+=SizeType(1)
+        if ( this.getChar(i) != other.getChar(i) ) return false;
+    return true;
 
 [autoCt] fun = (dest: @StringRef, src: StringRef): @StringRef
 {
@@ -1385,10 +1384,10 @@ fun write(x: StringRef) { writeStringImpl(reinterpretCast(@Char, x.begin)); }
 
 [native("llvm.pow.f64"), rt] fun mathPow(x,y: Double): Double;
 
-[native("malloc"), rtct] fun malloc(size: SizeType): @Byte;
+[native("malloc")] fun malloc(size: SizeType): @Byte;
 [native("malloc")] fun mallocRt(size: SizeType): @Byte;
-[native("realloc"), rtct] fun realloc(p: @Byte, size: SizeType): @Byte;
-[native("free"), rtct] fun free(p: @Byte);
+[native("realloc")] fun realloc(p: @Byte, size: SizeType): @Byte;
+[native("free")] fun free(p: @Byte);
 [native("ptrAdd"), autoCt] fun ptrAdd(p: @Byte, n: SizeType): @Byte;
 [native("ptrSub"), autoCt] fun ptrSub(p: @Byte, n: SizeType): @Byte;
 [native("ptrDiff"), autoCt] fun ptrDiff(p1, p2: @Byte): SizeType;

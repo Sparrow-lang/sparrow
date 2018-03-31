@@ -11,7 +11,7 @@
     [native("_Type_copy_ctor")] fun ctor(this: @Type, other: Type)
     //fun dtor(this: @Type) {}
 
-[rtct, noDefault]
+[noDefault]
     datatype Uninitialized {}
 
     [native("Null")]    datatype Null {}
@@ -31,7 +31,7 @@
     [native("double")]  datatype Double {}
     [native("i8")]      datatype Char {}
 
-[rtct, protected]
+[protected]
     fun ctor(this: Uninitialized) {}
     fun ctor(this, other: Uninitialized) {}
     fun dtor(this: Uninitialized) {}
@@ -40,7 +40,7 @@
     [public]
     fun ctor(this: @AnyType, nothing: Uninitialized) {}
 
-[rtct, protected]
+[protected]
     fun ctor(this: Null) {}
     fun ctor(this, other: Null) {}
     fun dtor(this: Null) {}
@@ -307,34 +307,33 @@ concept Number(x)                   \
 
 
 
-[rtct]
-    datatype NumericLimits(t: Type) if t == Byte
-        using maxValue = Byte(0x7f)
-        using minValue = Byte(0x80)
-    datatype NumericLimits(t: Type) if t == UByte
-        using maxValue = UByte(0xff)
-        using minValue = UByte(0x00)
+datatype NumericLimits(t: Type) if t == Byte
+    using maxValue = Byte(0x7f)
+    using minValue = Byte(0x80)
+datatype NumericLimits(t: Type) if t == UByte
+    using maxValue = UByte(0xff)
+    using minValue = UByte(0x00)
 
-    datatype NumericLimits(t: Type) if t == Short
-        using maxValue = Short(0x7fff)
-        using minValue = Short(0x8000)
-    datatype NumericLimits(t: Type) if t == UShort
-        using maxValue = UShort(0xfff)
-        using minValue = UShort(0x000)
+datatype NumericLimits(t: Type) if t == Short
+    using maxValue = Short(0x7fff)
+    using minValue = Short(0x8000)
+datatype NumericLimits(t: Type) if t == UShort
+    using maxValue = UShort(0xfff)
+    using minValue = UShort(0x000)
 
-    datatype NumericLimits(t: Type) if t == Int
-        using maxValue = Int(0x7fffffff)
-        using minValue = Int(0x80000000)
-    datatype NumericLimits(t: Type) if t == UInt
-        using maxValue = UInt(0xffffffff)
-        using minValue = UInt(0x00000000)
+datatype NumericLimits(t: Type) if t == Int
+    using maxValue = Int(0x7fffffff)
+    using minValue = Int(0x80000000)
+datatype NumericLimits(t: Type) if t == UInt
+    using maxValue = UInt(0xffffffff)
+    using minValue = UInt(0x00000000)
 
-    datatype NumericLimits(t: Type) if t == Long
-        using maxValue = Long(0x7fffffffffffffffL)
-        using minValue = Long(0x8000000000000000L)
-    datatype NumericLimits(t: Type) if t == ULong
-        using maxValue = ULong(0xffffffffffffffffL)
-        using minValue = ULong(0x0000000000000000L)
+datatype NumericLimits(t: Type) if t == Long
+    using maxValue = Long(0x7fffffffffffffffL)
+    using minValue = Long(0x8000000000000000L)
+datatype NumericLimits(t: Type) if t == ULong
+    using maxValue = ULong(0xffffffffffffffffL)
+    using minValue = ULong(0x0000000000000000L)
 
 ////////////////////////////////////////////////////////////////////////////////
 /// operator precedence
@@ -641,80 +640,79 @@ package _NumOpImpl
 /// StringRef
 ///
 
-[rtct]
-    /// String class that DOES NOT have ownership of the characters; it simply refers to another string
-    [native("StringRef")]
-    datatype StringRef
-        using RetType = @Char
+/// String class that DOES NOT have ownership of the characters; it simply refers to another string
+[native("StringRef")]
+datatype StringRef
+    using RetType = @Char
 
-        begin: @Byte
-        end: @Byte
+    begin: @Byte
+    end: @Byte
 
-    [protected]
-        fun ctor(this: @StringRef)
-            begin := null
-            end := null
+[protected]
+    fun ctor(this: @StringRef)
+        begin := null
+        end := null
 
-        fun ctor(this: @StringRef, size: SizeType)
-            begin := malloc(size + 1)
-            end := ptrAdd(begin, size)
-            end = Byte(0)
-        fun ctor(this: @StringRef, other: StringRef)
-            begin := other.begin
-            end := other.end
-        fun ctor(this: @StringRef, begin, end: @Byte)
-            this.begin := begin
-            this.end := end
-        fun dtor(this: @StringRef) {}
+    fun ctor(this: @StringRef, size: SizeType)
+        begin := malloc(size + 1)
+        end := ptrAdd(begin, size)
+        end = Byte(0)
+    fun ctor(this: @StringRef, other: StringRef)
+        begin := other.begin
+        end := other.end
+    fun ctor(this: @StringRef, begin, end: @Byte)
+        this.begin := begin
+        this.end := end
+    fun dtor(this: @StringRef) {}
 
-        fun isEmpty(this: @StringRef)           = ptrDiff(end, begin) == 0
-        fun size(this: @StringRef): SizeType    = ptrDiff(end, begin)
+    fun isEmpty(this: @StringRef)           = ptrDiff(end, begin) == 0
+    fun size(this: @StringRef): SizeType    = ptrDiff(end, begin)
 
-        fun front(this: @StringRef): @Char                = reinterpretCast(@Char, begin)
-        fun back(this: @StringRef): @Char                 = reinterpretCast(@Char, ptrAdd(end, -1))
-        fun ()(this: @StringRef) : @Char                  = reinterpretCast(@Char, begin)
-        fun ()(this: @StringRef, index: SizeType): @Char  = reinterpretCast(@Char, ptrAdd(begin, index))
-        fun at(this: @StringRef, index: SizeType): @Char  = reinterpretCast(@Char, ptrAdd(begin, index))
+    fun front(this: @StringRef): @Char                = reinterpretCast(@Char, begin)
+    fun back(this: @StringRef): @Char                 = reinterpretCast(@Char, ptrAdd(end, -1))
+    fun ()(this: @StringRef) : @Char                  = reinterpretCast(@Char, begin)
+    fun ()(this: @StringRef, index: SizeType): @Char  = reinterpretCast(@Char, ptrAdd(begin, index))
+    fun at(this: @StringRef, index: SizeType): @Char  = reinterpretCast(@Char, ptrAdd(begin, index))
 
-        fun popFront(this: @StringRef)                { begin := ptrAdd(begin, 1); }
-        fun popBack(this: @StringRef)                 { end := ptrAdd(end, -1); }
-        fun popFront(this: @StringRef, n: SizeType)   { begin := ptrAdd(begin, n); }
-        fun popBack(this: @StringRef, n: SizeType)    { end := ptrAdd(end, -DiffType(n)); }
+    fun popFront(this: @StringRef)                { begin := ptrAdd(begin, 1); }
+    fun popBack(this: @StringRef)                 { end := ptrAdd(end, -1); }
+    fun popFront(this: @StringRef, n: SizeType)   { begin := ptrAdd(begin, n); }
+    fun popBack(this: @StringRef, n: SizeType)    { end := ptrAdd(end, -DiffType(n)); }
 
-        fun cStr(this: @StringRef): @Char = reinterpretCast(@Char, begin)
+    fun cStr(this: @StringRef): @Char = reinterpretCast(@Char, begin)
 
-    fun = (this: @StringRef, src: StringRef): @StringRef
-        begin := src.begin
-        end := src.end
+fun = (this: @StringRef, src: StringRef): @StringRef
+    begin := src.begin
+    end := src.end
 
-        return this
+    return this
 
-    fun == (this: @StringRef, other: StringRef): Bool
-        var s = this.size
-        if s != other.size
-            return false
-        var i: SizeType = 0
-        while i<s ; i+=1
-            if this.at(i) != other.at(i) return false
-        return true
+fun == (this: @StringRef, other: StringRef): Bool
+    var s = this.size
+    if s != other.size
+        return false
+    var i: SizeType = 0
+    while i<s ; i+=1
+        if this.at(i) != other.at(i) return false
+    return true
 
-        //return 0 == strcmp(begin, other.begin)
+    //return 0 == strcmp(begin, other.begin)
 
-    [autoCt, native("_String_fromCString")]
-    fun fromCString(s: @Char): StringRef
-        var len = cStringLen(s)
-        var res: StringRef
-        res.begin := reinterpretCast(@Byte, s)
-        res.end := ptrAdd(res.begin, len)
-        return res
+[autoCt, native("_String_fromCString")]
+fun fromCString(s: @Char): StringRef
+    var len = cStringLen(s)
+    var res: StringRef
+    res.begin := reinterpretCast(@Byte, s)
+    res.end := ptrAdd(res.begin, len)
+    return res
 
-    fun cStringLen(s: @Char): SizeType
-        var p: @Byte
-        p := reinterpretCast(@Byte, s)
-        var len: SizeType = 0
-        while p != Byte(0) ; p:=ptrAdd(p, 1)
-            len = len+1
-        return len
+fun cStringLen(s: @Char): SizeType
+    var p: @Byte
+    p := reinterpretCast(@Byte, s)
+    var len: SizeType = 0
+    while p != Byte(0) ; p:=ptrAdd(p, 1)
+        len = len+1
+    return len
 
 [autoCt]
     fun char(this: @StringRef): Char
@@ -758,7 +756,7 @@ fun construct()
 
 
 /// Type used to represent an untyped pointer
-[rtct] datatype UntypedPtr = @Byte
+datatype UntypedPtr = @Byte
 
 [autoCt]
     [native("implOpRefEQ")] fun implOpRefEQ(x,y: @Byte): Bool
@@ -816,16 +814,16 @@ package TypeOp
 concept AnyType(x); // Always true
 
 /// Gets an object of the given type
-[rtct] fun valueOfType(t: Type): t
-[rtct] fun #$(t: Type): t
+fun valueOfType(t: Type): t
+fun #$(t: Type): t
 
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Some low-level helper functions
 ///
 
-[native("malloc"), rtct] fun malloc(size: SizeType): @Byte
-[native("calloc"), rtct] fun calloc(size, count: SizeType): @Byte
+[native("malloc")] fun malloc(size: SizeType): @Byte
+[native("calloc")] fun calloc(size, count: SizeType): @Byte
 [native("realloc"), autoCt] fun realloc(p: @Byte, size: SizeType): @Byte
 [native("free"), autoCt] fun free(p: @Byte)
 [native("ptrAdd"), autoCt] fun ptrAdd(p: @Byte, n: SizeType): @Byte

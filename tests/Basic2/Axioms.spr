@@ -11,7 +11,7 @@ concept Ordered(x) if (
     && axiom("greaterEqual")
     );
 [ct] fun axiom(name: StringRef) = true;     // No checks performed
-[rtct] fun => (premise, conclusion: Bool) = !(premise) || conclusion;
+fun => (premise, conclusion: Bool) = !(premise) || conclusion;
 fun lessIsOrdered(x, y, z: Ordered) = (
            !(x < x)
         && ( (x<y) => !(y<x) )

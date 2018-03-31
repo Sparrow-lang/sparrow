@@ -32,19 +32,18 @@ using diagError     = 1
 using diagWarning   = 2
 using diagInfo      = 3
 
-[rtct]
-    // Type describing a diagnostic
-    datatype Diagnostic
-                type: Int
-                loc: Location
-                message: StringRef
+// Type describing a diagnostic
+datatype Diagnostic
+            type: Int
+            loc: Location
+            message: StringRef
 
-    fun mkDiagnostic(type: Int, loc: Location, message: StringRef): Diagnostic
-        var res: Diagnostic
-        res.type = type
-        res.loc = loc
-        res.message = message
-        return res
+fun mkDiagnostic(type: Int, loc: Location, message: StringRef): Diagnostic
+    var res: Diagnostic
+    res.type = type
+    res.loc = loc
+    res.message = message
+    return res
 
 [ct]
 /// Function called to report a diagnostic in the compiler

@@ -44,10 +44,10 @@ using oper_precedence_=/ = oper_precedence_== + 1
 
 
 /// Logic Disjunction
-[rtct] fun ||(l, r: @PredicateType) = OrRelation(-@typeOf(l), -@typeOf(r))(l, r)
+fun ||(l, r: @PredicateType) = OrRelation(-@typeOf(l), -@typeOf(r))(l, r)
 
 /// Logic Conjunction
-[rtct] fun &&(l, r: @PredicateType) = AndRelation(-@typeOf(l), -@typeOf(r))(l, r)
+fun &&(l, r: @PredicateType) = AndRelation(-@typeOf(l), -@typeOf(r))(l, r)
 
 /// Relation that always returns false
 fun mkFalse = LFalse()
@@ -139,7 +139,7 @@ fun ()(this: @UnifyLR): Bool
 fun _mkEq(l, r: @ValWrapper) = UnifyLR(-@typeOf(l), -@typeOf(r))(l, r)
 
 
-[rtct] datatype OrRelation(leftPredicateType, rightPredicateType: Type)
+datatype OrRelation(leftPredicateType, rightPredicateType: Type)
     using ValueType = Bool
     using ValuePassType = Bool
     using _LType = leftPredicateType
@@ -185,7 +185,7 @@ fun ()(this: @OrRelation): Bool
         _coEntryPt = -1 // Done here
     return false
 
-[rtct] datatype AndRelation(leftPredicateType, rightPredicateType: Type)
+datatype AndRelation(leftPredicateType, rightPredicateType: Type)
     using ValueType = Bool
     using ValuePassType = Bool
     using _LType = leftPredicateType

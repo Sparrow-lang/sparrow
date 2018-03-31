@@ -4,17 +4,15 @@ import contiguousMemoryRange(ContiguousMemoryRange)
 import rawPtr(RawPtr)
 import ranges
 
-[rtct]
-    [noDefault]
-    datatype StaticArray(valueType: Type, arraySize: SizeType)
-        using ValueType = valueType
-        using RangeType = ContiguousMemoryRange(valueType)
-        using _arraySize = arraySize
+[noDefault]
+datatype StaticArray(valueType: Type, arraySize: SizeType)
+    using ValueType = valueType
+    using RangeType = ContiguousMemoryRange(valueType)
+    using _arraySize = arraySize
 
-        _buf: static_buffer(arraySize * sizeOf(ValueType))
+    _buf: static_buffer(arraySize * sizeOf(ValueType))
 
-
-[rtct, protected]
+[protected]
     fun ctor(this: @StaticArray)
         for v: @ValueType = this.all
             v ctor

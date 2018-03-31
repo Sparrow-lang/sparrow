@@ -2,17 +2,16 @@ module os
 
 import std.string(String)
 
-[rtct]
-    [native("exit")]
-    fun exit(code: Int)
+[native("exit")]
+fun exit(code: Int)
 
-    fun systemCall(cmd: StringRef): Int
-        return _Impl.system(cmd.cStr)
+fun systemCall(cmd: StringRef): Int
+    return _Impl.system(cmd.cStr)
 
-    datatype File
-        _handle: @Byte
+datatype File
+    _handle: @Byte
 
-[rtct, protected]
+[protected]
     fun ctor(this: @File)
         _handle := null
 
@@ -34,49 +33,47 @@ import std.string(String)
         this._handle := other._handle
         other._handle := null
 
-[rtct]
-    fun openFile(filename: StringRef, mode: StringRef = "r"): File
-        return File(_Impl.fopen(filename.cStr, mode.cStr))
+fun openFile(filename: StringRef, mode: StringRef = "r"): File
+    return File(_Impl.fopen(filename.cStr, mode.cStr))
 
-    fun close(this: @File)
-        if this.isOpen
-            _Impl.fclose(_handle)
-        _handle := null
+fun close(this: @File)
+    if this.isOpen
+        _Impl.fclose(_handle)
+    _handle := null
 
-    fun flush(this: @File)       = ife(this.isOpen, _Impl.fflush(_handle), -1)
+fun flush(this: @File)       = ife(this.isOpen, _Impl.fflush(_handle), -1)
 
-    fun isOpen(this: @File)      = _handle !== null
-    fun isEof(this: @File)       = 0 != _Impl.feof(_handle)
+fun isOpen(this: @File)      = _handle !== null
+fun isEof(this: @File)       = 0 != _Impl.feof(_handle)
 
-    fun readChar(this: @File): Char = Char(_Impl.fgetc(_handle))
-    fun readLine(this: @File): String
-        var res: String = 256
-        var cstr: @Char = _Impl.fgets(res(0), 256, _handle)
-        if cstr === null
-            res.clear
-        else
-            res.resize(cStringLen(cstr))
-        return res
+fun readChar(this: @File): Char = Char(_Impl.fgetc(_handle))
+fun readLine(this: @File): String
+    var res: String = 256
+    var cstr: @Char = _Impl.fgets(res(0), 256, _handle)
+    if cstr === null
+        res.clear
+    else
+        res.resize(cStringLen(cstr))
+    return res
 
-    fun all(this: @File) = FileRange(this)
+fun all(this: @File) = FileRange(this)
 
-[rtct]
-    datatype FileRange
-        using RetType = Char
+datatype FileRange
+    using RetType = Char
 
-        _file: @File
-        _isEmpty: Bool
-        _cur: Char
+    _file: @File
+    _isEmpty: Bool
+    _cur: Char
 
-    fun ctor(this: @FileRange, file: @File)
-        this._file := file
-        _isEmpty = true
-        _cur ctor
-        if !_file.isEof
-            _cur = _file.readChar
-            _isEmpty = false
+fun ctor(this: @FileRange, file: @File)
+    this._file := file
+    _isEmpty = true
+    _cur ctor
+    if !_file.isEof
+        _cur = _file.readChar
+        _isEmpty = false
 
-[rtct, protected]
+[protected]
     fun isEmpty(s: @FileRange) = s._isEmpty
     fun front(s: @FileRange)   = s._cur
     fun popFront(s: @FileRange)
@@ -86,15 +83,12 @@ import std.string(String)
             s._isEmpty = true
 
 package _Impl
-    [rtct]
-        [native("system")]  fun system(x: @Char): Int
+    [native("system")]  fun system(x: @Char): Int
 
-        [native("fopen")]   fun fopen(filename, mode: @Char): @Byte
-        [native("fclose")]  fun fclose(handle: @Byte)
-        [native("fflush")]  fun fflush(handle: @Byte): Int
-        [native("feof")]    fun feof(handle: @Byte): Int
-        [native("fgetc")]   fun fgetc(handle: @Byte): Int
-        [native("fgets")]   fun fgets(buffer: @Char, bufSize: Int, handle: @Byte): @Char
-        [native("fread")]   fun fread(buffer: @Byte, size, count: UInt, handle: @Byte): UInt
-
-
+    [native("fopen")]   fun fopen(filename, mode: @Char): @Byte
+    [native("fclose")]  fun fclose(handle: @Byte)
+    [native("fflush")]  fun fflush(handle: @Byte): Int
+    [native("feof")]    fun feof(handle: @Byte): Int
+    [native("fgetc")]   fun fgetc(handle: @Byte): Int
+    [native("fgets")]   fun fgets(buffer: @Char, bufSize: Int, handle: @Byte): @Char
+    [native("fread")]   fun fread(buffer: @Byte, size, count: UInt, handle: @Byte): UInt

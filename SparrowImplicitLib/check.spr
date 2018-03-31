@@ -178,7 +178,7 @@ fun randBetween(min, max: Integer): commonType(typeOf(min), typeOf(max))
     return T(min) + offset
 
 package _Impl
-    [rtct, native("rand")]
+    [native("rand")]
     fun rand(): UInt
 
     package NumericGen(t: Type) if UnsignedInteger(#$t)

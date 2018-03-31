@@ -4,54 +4,53 @@ import std.algorithms;
 import meta = meta.compilerCore;
 import os = os;
 
-[rtct]
-    [initCtor]
-    datatype ConsoleErrorReporter(sourceType: Type) if CharRange(#$sourceType)
-        _source: sourceType;
+[initCtor]
+datatype ConsoleErrorReporter(sourceType: Type) if CharRange(#$sourceType)
+    _source: sourceType;
 
-    fun raiseError(this: @ConsoleErrorReporter, loc: Location, message: StringRef)
-    {
-        cout << message << flush;
-        this._printLocation(cout, loc);
-        cout << flush;
-        os.exit(-1);
-    }
+fun raiseError(this: @ConsoleErrorReporter, loc: Location, message: StringRef)
+{
+    cout << message << flush;
+    this._printLocation(cout, loc);
+    cout << flush;
+    os.exit(-1);
+}
 
-    fun _printLocation(this: @ConsoleErrorReporter, os: @OutStream, loc: Location)
-    {
-        var line = this._getLineAtLocation(loc);
-        //os << "(" << loc.start.line << ":" << loc.start.col << " - " << loc.end.line << ":" << loc.end.col << ")\n";
-        os << '>' << line << '\n';
+fun _printLocation(this: @ConsoleErrorReporter, os: @OutStream, loc: Location)
+{
+    var line = this._getLineAtLocation(loc);
+    //os << "(" << loc.start.line << ":" << loc.start.col << " - " << loc.end.line << ":" << loc.end.col << ")\n";
+    os << '>' << line << '\n';
 
-        os << '>';
-        var endCol = loc.end.col;
-        if ( loc.start.line != loc.end.line )
-            endCol = UInt(line.size()+1);
-        if ( loc.start.col == endCol )
-            ++endCol;
-        for i = 1..loc.start.col
-            os << ' ';
-        for i = loc.start.col..endCol
-            os << '~';
-        os << '\n';
-    }
+    os << '>';
+    var endCol = loc.end.col;
+    if ( loc.start.line != loc.end.line )
+        endCol = UInt(line.size()+1);
+    if ( loc.start.col == endCol )
+        ++endCol;
+    for i = 1..loc.start.col
+        os << ' ';
+    for i = loc.start.col..endCol
+        os << '~';
+    os << '\n';
+}
 
-    fun _getLineAtLocation(this: @ConsoleErrorReporter, loc: Location): String
-    {
-        var sourceCopy = _source;
+fun _getLineAtLocation(this: @ConsoleErrorReporter, loc: Location): String
+{
+    var sourceCopy = _source;
 
-        // Skip until our line
-        var curLine = 1;
-        while curLine < loc.start.line
-            sourceCopy = find(sourceCopy, '\n'.char);
-            sourceCopy.popFront();
-            ++curLine;
+    // Skip until our line
+    var curLine = 1;
+    while curLine < loc.start.line
+        sourceCopy = find(sourceCopy, '\n'.char);
+        sourceCopy.popFront();
+        ++curLine;
 
-        var len = indexOf(sourceCopy, '\n'.char);
-        return String(take(sourceCopy, len));
-    }
+    var len = indexOf(sourceCopy, '\n'.char);
+    return String(take(sourceCopy, len));
+}
 
-    fun mkConsoleErrorReporter(source: @CharRange) = ConsoleErrorReporter(-@typeOf(source))(source);
+fun mkConsoleErrorReporter(source: @CharRange) = ConsoleErrorReporter(-@typeOf(source))(source);
 
 [ct]
     datatype CompilerErrorReporter

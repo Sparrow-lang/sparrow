@@ -269,9 +269,6 @@ void SprFrontend::copyModifiersSetMode(Node* src, Node* dest, EvalMode newMode) 
     case modeCt:
         Nest_addModifier(dest, SprFe_getCtMod());
         break;
-    case modeRtCt:
-        Nest_addModifier(dest, SprFe_getRtCtMod());
-        break;
     default:
         break;
     }

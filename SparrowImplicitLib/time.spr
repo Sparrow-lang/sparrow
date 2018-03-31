@@ -1,12 +1,11 @@
 module time
 
-[rtct]
-    [native("clock")] fun clock: Int
+[native("clock")] fun clock: Int
 
-    datatype Timer
-        _startTime: Int
+datatype Timer
+    _startTime: Int
 
-    fun ctor(this: @Timer) { _startTime = clock }
+fun ctor(this: @Timer) { _startTime = clock }
 
-    fun elapsed(this: Timer) = Double(clock - _startTime) / 1000.0
-    fun restart(this: @Timer) { _startTime = clock }
+fun elapsed(this: Timer) = Double(clock - _startTime) / 1000.0
+fun restart(this: @Timer) { _startTime = clock }

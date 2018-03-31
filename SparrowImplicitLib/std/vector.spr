@@ -4,9 +4,8 @@ import contiguousMemoryRange(ContiguousMemoryRange)
 import rawPtr(RawPtr, allocRawPtr)
 import ranges(RandomAccessRange, ..)
 
-[rtct] fun mkVector(range: Range) = Vector(-@ range.RetType)(range)
+fun mkVector(range: Range) = Vector(-@ range.RetType)(range)
 
-[rtct]
 datatype Vector(valueType: Type)
     using ValueType = valueType
     using ValuePassType = !@valueType
@@ -18,14 +17,13 @@ datatype Vector(valueType: Type)
 
     _begin, _end, _endOfStore: RawPtr(ValueType)
 
-[rt, protected]
-fun ctorFromCt(this: @Vector, src: Vector ct)
-    this.ctor()
-    this.reserve(ctEval(src.size()))
-    [ct] for el: ValueType = src.all()
-        this.pushBack(el)
+[protected]
+    fun ctorFromCt(this: @Vector, src: Vector ct)
+        this.ctor()
+        this.reserve(ctEval(src.size()))
+        [ct] for el: ValueType = src.all()
+            this.pushBack(el)
 
-[rtct, protected]
     fun ctor(this, other: @Vector)
         var size = other.size()
 

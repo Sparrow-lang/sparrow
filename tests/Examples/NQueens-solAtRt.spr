@@ -7,7 +7,7 @@ import math = math;
 [ct] var PlacementType = Array(Int);
 [ct] var SolutionsType = Vector(PlacementType);
 
-[rtct] fun testQueens(placements: @PlacementType, k, y: Int): Bool
+fun testQueens(placements: @PlacementType, k, y: Int): Bool
 {
     for i = 0..k
     {
@@ -17,7 +17,7 @@ import math = math;
     return true;
 }
 
-[rtct] fun backtracking(x: @PlacementType, k, n: Int, res: @SolutionsType)
+fun backtracking(x: @PlacementType, k, n: Int, res: @SolutionsType)
 {
     for y = 0..n
     {
@@ -32,7 +32,7 @@ import math = math;
     }
 }
 
-[rtct] fun writeSolution(x: @PlacementType)
+fun writeSolution(x: @PlacementType)
 {
     for v = x.all()
     {
@@ -46,7 +46,7 @@ import math = math;
     cout << "\n";
 }
 
-[rtct] fun writeSolutionBasic(x: @PlacementType)
+fun writeSolutionBasic(x: @PlacementType)
 {
     for v = x.all()
         cout << v;

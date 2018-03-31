@@ -3,15 +3,14 @@ module std.contiguousMemoryRange
 import rawPtr(RawPtr)
 import ranges(..)
 
-[rtct]
-    [initCtor]
-    datatype ContiguousMemoryRange(valueType: Type)
-        using PtrType = RawPtr(valueType)
-        using RetType = @valueType
+[initCtor]
+datatype ContiguousMemoryRange(valueType: Type)
+    using PtrType = RawPtr(valueType)
+    using RetType = @valueType
 
-        _begin, _end: PtrType
+    _begin, _end: PtrType
 
-[rtct, protected]
+[protected]
     fun isEmpty(this: ContiguousMemoryRange)                 = _end.diff(_begin) <= 0
     fun size(this: ContiguousMemoryRange): SizeType          = _end.diff(_begin)
 

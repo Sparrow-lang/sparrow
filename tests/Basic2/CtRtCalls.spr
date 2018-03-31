@@ -16,7 +16,7 @@
     free(reinterpretCast(@Byte, pi));
 }
 
-[rtct] fun mallocRtCt()
+fun mallocRtCt()
 {
     var pi: @Int = reinterpretCast(@Int, malloc(sizeOf(Int)));
     pi = 12;
@@ -24,7 +24,7 @@
     free(reinterpretCast(@Byte, pi));
 }
 
-[rt] fun rtCaller()
+fun rtCaller()
 {
     mallocRtCt();
 }

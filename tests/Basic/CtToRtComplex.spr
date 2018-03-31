@@ -2,22 +2,20 @@
 
 concept AnyType(x); // Always true
 
-[rtct]
-    datatype Pair
-        x, y: Int;
+datatype Pair
+    x, y: Int;
 
-    fun ctor(this: @Pair, x,y: Int)
-        this.x = x
-        this.y = y
+fun ctor(this: @Pair, x,y: Int)
+    this.x = x
+    this.y = y
 
-    datatype Pair2
-        x, y: Int;
+datatype Pair2
+    x, y: Int;
 
-    fun ctor(this: @Pair2, x,y: Int)
-        this.x = x
-        this.y = y
+fun ctor(this: @Pair2, x,y: Int)
+    this.x = x
+    this.y = y
 
-[rt]
 fun ctorFromCt(this: @Pair2, src: Pair2 ct)
     writeLn("Pair2 Ct ctor")
     x ctor src.x

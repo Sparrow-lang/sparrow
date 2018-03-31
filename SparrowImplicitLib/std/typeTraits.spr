@@ -2,11 +2,10 @@ module std.typeTraits
 
 import defaultHashFunction(defaultHash)
 
-[rtct]
-    datatype DefaultTypeTraits
-        ;
+datatype DefaultTypeTraits
+    ;
 
-[rtct, protected]
+[protected]
     fun equal(this: DefaultTypeTraits, l, r: @AnyType) = l == r
     fun less(this: DefaultTypeTraits, l, r: @AnyType) = l < r
     fun hash(this: DefaultTypeTraits, val: @AnyType): SizeType

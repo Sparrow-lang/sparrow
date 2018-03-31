@@ -18,7 +18,7 @@ using autoTestMode = true;
 using PlacementType = Array(Int);
 using SolutionsType = Vector(PlacementType);
 
-[rtct] fun testQueens(placements: @PlacementType, k, y: Int): Bool
+fun testQueens(placements: @PlacementType, k, y: Int): Bool
 {
     for i = 0..k
     {
@@ -28,7 +28,7 @@ using SolutionsType = Vector(PlacementType);
     return true;
 }
 
-[rtct] fun backtracking(curSol: @PlacementType, k, n: Int, res: @SolutionsType)
+fun backtracking(curSol: @PlacementType, k, n: Int, res: @SolutionsType)
 {
     for y = 0..n
     {
@@ -43,7 +43,7 @@ using SolutionsType = Vector(PlacementType);
     }
 }
 
-[rtct] fun nQueens(n: Int): SolutionsType
+fun nQueens(n: Int): SolutionsType
 {
     var res: SolutionsType;
     var curSol: PlacementType = n;
@@ -58,7 +58,7 @@ using SolutionsType = Vector(PlacementType);
         writeSolution(sol);
 }
 
-[rtct] fun writeSolution(x: @PlacementType)
+fun writeSolution(x: @PlacementType)
 {
     for v = x.all()
     {
@@ -72,7 +72,7 @@ using SolutionsType = Vector(PlacementType);
     cout << "\n";
 }
 
-[rtct] fun writeSolutionBasic(x: @PlacementType)
+fun writeSolutionBasic(x: @PlacementType)
 {
     for v = x.all()
         cout << v;
@@ -116,7 +116,7 @@ using SolutionsType = Vector(PlacementType);
     }
 }
 
-[rtct] fun readFileLines(filename: StringRef): Vector(String)
+fun readFileLines(filename: StringRef): Vector(String)
 {
     var lines: Vector(String);
 

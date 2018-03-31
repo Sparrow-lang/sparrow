@@ -17,180 +17,178 @@ concept RandomAccessRange(x: BidirRange) if (
     && typeOf(x(0)) == x.RetType
 )
 
-[rtct]
-    ///////////////////////////////////////////////////////////////////////////////
-    // Common operators on Ranges
-    //
+///////////////////////////////////////////////////////////////////////////////
+// Common operators on Ranges
+//
 
-    /// Advances and return the new front value of the range
-    fun pre_++(r: @Range): r.RetType
-        r.popFront
-        return r.front
-    /// Advances and return the old front value of the range
-    fun post_++(r: @Range): r.RetType
-        var res: r.RetType = r.front
-        r.popFront
-        return res
-    /// Pops back and return the new back value of the range
-    fun pre_--(r: @BidirRange): r.RetType
-        r.popBack
-        return r.back
-    /// Pops back and return the old back value of the range
-    fun post_--(r: @BidirRange): r.RetType
-        var res: r.RetType = r.back
-        r.popBack
-        return res
-    /// Returns true if the range is empty
-    fun pre_!(r: @Range) = r.isEmpty
-    /// Returns true if the range is not empty
-    fun pre_!!(r: @Range) = !r.isEmpty
-    /// Get the front value of the range
-    fun pre_*(r: @Range): r.RetType = r.front
+/// Advances and return the new front value of the range
+fun pre_++(r: @Range): r.RetType
+    r.popFront
+    return r.front
+/// Advances and return the old front value of the range
+fun post_++(r: @Range): r.RetType
+    var res: r.RetType = r.front
+    r.popFront
+    return res
+/// Pops back and return the new back value of the range
+fun pre_--(r: @BidirRange): r.RetType
+    r.popBack
+    return r.back
+/// Pops back and return the old back value of the range
+fun post_--(r: @BidirRange): r.RetType
+    var res: r.RetType = r.back
+    r.popBack
+    return res
+/// Returns true if the range is empty
+fun pre_!(r: @Range) = r.isEmpty
+/// Returns true if the range is not empty
+fun pre_!!(r: @Range) = !r.isEmpty
+/// Get the front value of the range
+fun pre_*(r: @Range): r.RetType = r.front
 
-    // Call operator on range == range.front
-    //fun post_()(r: @Range) = r.front
-
-
-    ///////////////////////////////////////////////////////////////////////////////
-    // General range operations
-    //
-
-    /// Gets the size of the range -- generic case
-    fun rangeSize(range: Range): SizeType
-        var n: SizeType = 0
-        while !range.isEmpty ; range.popFront
-            ++n
-        return n
-    /// Gets the size of the range -- random-access-range case
-    fun rangeSize(range: RandomAccessRange): SizeType
-        return range.size
-
-    /// Advances the given number of positions -- does not check for range validity
-    fun advance(range: @Range, n: SizeType)
-        while (n--) > 0
-            range.popFront
-
-    /// Advances while the predicate is satisfied; checks the range validity
-    fun advanceIf(range: @Range, pred: AnyType) if isValid(pred(range.front))
-        while !range.isEmpty && pred(range.front)
-            range.popFront
-
-    /// Removes from back the given number of positions -- does not check for range validity
-    fun retract(range: @BidirRange, n: SizeType)
-        while (n--) > 0
-            range.popBack
-
-    /// Removes from back while the predicate is satisfied; checks the range validity
-    fun retractIf(range: @BidirRange, pred: AnyType) if isValid(pred(range.back))
-        while !(range.isEmpty) && pred(range.back)
-            range.popBack
-
-    ///////////////////////////////////////////////////////////////////////////////
-    // Numeric ranges
-    //
-
-    fun numericRange(start, end: Number) = NumericRangeInc(commonType(typeOf(start), typeOf(end)))(start, end)
-    fun numericRange(start, end, step: Number) = NumericRangeWithStep(commonType(typeOf(start), typeOf(end)))(start, end, step)
-
-    fun ..(start, end: Number) = NumericRangeInc(commonType(typeOf(start), typeOf(end)))(start, end)
-    fun ...(start, end: Number) = NumericRangeInc(commonType(typeOf(start), typeOf(end)))(start, end, true)
-    fun post_..(start: Number) = NumericRangeInc(typeOf(start))(start, NumericLimits(typeOf(start)).maxValue)
-
-    fun ../(range: Range, step: Number) = NumericRangeWithStep(range.RetType)(range, step)
+// Call operator on range == range.front
+//fun post_()(r: @Range) = r.front
 
 
-    ///////////////////////////////////////////////////////////////////////////////
-    // Range constructors
-    //
+///////////////////////////////////////////////////////////////////////////////
+// General range operations
+//
 
-    /// Reverses the given (bi-directional) range
-    fun retro(range: BidirRange) = RetroRange(typeOf(range))(range)
+/// Gets the size of the range -- generic case
+fun rangeSize(range: Range): SizeType
+    var n: SizeType = 0
+    while !range.isEmpty ; range.popFront
+        ++n
+    return n
+/// Gets the size of the range -- random-access-range case
+fun rangeSize(range: RandomAccessRange): SizeType
+    return range.size
 
-    /// Restricts the range to the given number of elements
-    fun take(range: Range, count: SizeType) = TakeRange(typeOf(range))(range, count)
+/// Advances the given number of positions -- does not check for range validity
+fun advance(range: @Range, n: SizeType)
+    while (n--) > 0
+        range.popFront
 
-    /// Skip the first 'count' elements from the range
-    fun skip(range: Range, count: SizeType): typeOf(range) { advance(range, count); return range; }
+/// Advances while the predicate is satisfied; checks the range validity
+fun advanceIf(range: @Range, pred: AnyType) if isValid(pred(range.front))
+    while !range.isEmpty && pred(range.front)
+        range.popFront
 
-    /// Take elements from the range while the given predicate is satisfied
-    fun takeWhile(range: Range, pred: AnyType) = TakeWhileRange(typeOf(range), typeOf(pred))(range, pred)
-    fun takeWhile(range: Range, pred: AnyType, count: SizeType) = take(takeWhile(range, pred), count)
+/// Removes from back the given number of positions -- does not check for range validity
+fun retract(range: @BidirRange, n: SizeType)
+    while (n--) > 0
+        range.popBack
 
-    /// Take elements from the range until the predicate is satisfied
-    fun takeUntil(range: Range, pred: AnyType) = TakeUntilRange(typeOf(range), typeOf(pred))(range, pred)
-    fun takeUntil(range: Range, pred: AnyType, count: SizeType) = take(takeUntil(range, pred), count)
+/// Removes from back while the predicate is satisfied; checks the range validity
+fun retractIf(range: @BidirRange, pred: AnyType) if isValid(pred(range.back))
+    while !(range.isEmpty) && pred(range.back)
+        range.popBack
 
-    /// Apply a predicate filter to the given range
-    fun filter(range: Range, pred: AnyType) = FilteredRange(typeOf(range), typeOf(pred))(range, pred)
+///////////////////////////////////////////////////////////////////////////////
+// Numeric ranges
+//
 
-    /// Transforms (maps) the given range through the given functor
-    fun transform(range: Range, function: AnyType) = TransformedRange(typeOf(range), typeOf(function))(range, function)
-    fun map(range: Range, function: AnyType) = TransformedRange(typeOf(range), typeOf(function))(range, function)
+fun numericRange(start, end: Number) = NumericRangeInc(commonType(typeOf(start), typeOf(end)))(start, end)
+fun numericRange(start, end, step: Number) = NumericRangeWithStep(commonType(typeOf(start), typeOf(end)))(start, end, step)
 
-    // TODO: Fix the error that is causing us to make this RT
-    //[rt]
-    /// Repeats the given value to for a range of the same value
-    fun repeat(value: AnyType) = RepeatRange(typeOf(value))(value)
-    fun repeat(value: AnyType, count: SizeType) = take(repeat(value), count)
+fun ..(start, end: Number) = NumericRangeInc(commonType(typeOf(start), typeOf(end)))(start, end)
+fun ...(start, end: Number) = NumericRangeInc(commonType(typeOf(start), typeOf(end)))(start, end, true)
+fun post_..(start: Number) = NumericRangeInc(typeOf(start))(start, NumericLimits(typeOf(start)).maxValue)
 
-    /// Chain two ranges together to form a concatenated range
-    fun chain(range1, range2: Range) = ChainRange(typeOf(range1), typeOf(range2))(range1, range2)
-    fun ++(range1, range2: Range) = ChainRange(typeOf(range1), typeOf(range2))(range1, range2)
+fun ../(range: Range, step: Number) = NumericRangeWithStep(range.RetType)(range, step)
 
-    /// Range that takes elements with a give stride (every step skips some elements)
-    fun stride(range: Range, strideStep: SizeType) = StridedRange(typeOf(range))(range, strideStep)
 
-    /// Range that takes the elements in a radial fashion: i, i+1, i-1, i+2, i-2, ...
-    fun radial(range: Range, index: SizeType) = RadialRange(typeOf(range))(range, index)
+///////////////////////////////////////////////////////////////////////////////
+// Range constructors
+//
 
-    // TODO: Fix the error that is causing us to make this RT
-    //[rt]
-    /// Creates an infinite/counted range by repeating the elements from the given range
-    /// as long as it takes
-    fun cycle(range: Range) = CyclicRange(typeOf(range))(range)
-    fun cycle(range: Range, count: SizeType) = CyclicCountedRange(typeOf(range))(range, count)
+/// Reverses the given (bi-directional) range
+fun retro(range: BidirRange) = RetroRange(typeOf(range))(range)
 
-    /// Generate a range by applying the given function to get the values for the range
-    fun generate(function: AnyType) = GeneratedRange(typeOf(function))(function)
-    fun generate(function: AnyType, count: SizeType) = take(generate(function), count)
+/// Restricts the range to the given number of elements
+fun take(range: Range, count: SizeType) = TakeRange(typeOf(range))(range, count)
 
-    /// Generate a chain-reaction range
-    /// Starts with the given value, then calls the given functor on the value to obtain the next value,
-    /// then calls again the functor on the new value, and so on
-    fun generate1(start: AnyType, function: AnyType) = Generated1Range(typeOf(start), typeOf(function))(start, function)
-    fun generate1(start: AnyType, function: AnyType, count: SizeType) = take(generate1(start, function), count)
+/// Skip the first 'count' elements from the range
+fun skip(range: Range, count: SizeType): typeOf(range) { advance(range, count); return range; }
 
-    /// Given two ranges, combine the values from the two ranges together to produce one single range
-    fun zip(range1, range2: Range, function: AnyType) = ZippedRange(typeOf(range1), typeOf(range2), typeOf(function))(range1, range2, function)
-    fun zip(range1, range2: Range) = zip(range1, range2, MakePair(-@typeOf(range1.front), -@typeOf(range2.front))())
+/// Take elements from the range while the given predicate is satisfied
+fun takeWhile(range: Range, pred: AnyType) = TakeWhileRange(typeOf(range), typeOf(pred))(range, pred)
+fun takeWhile(range: Range, pred: AnyType, count: SizeType) = take(takeWhile(range, pred), count)
 
-    /// Scans left a range for the given functor and initial accumulator value
-    fun scanLeft(acc: AnyType, range: Range, function: AnyType) = ScanLeftRange(typeOf(acc), typeOf(range), typeOf(function))(acc, range, function)
+/// Take elements from the range until the predicate is satisfied
+fun takeUntil(range: Range, pred: AnyType) = TakeUntilRange(typeOf(range), typeOf(pred))(range, pred)
+fun takeUntil(range: Range, pred: AnyType, count: SizeType) = take(takeUntil(range, pred), count)
+
+/// Apply a predicate filter to the given range
+fun filter(range: Range, pred: AnyType) = FilteredRange(typeOf(range), typeOf(pred))(range, pred)
+
+/// Transforms (maps) the given range through the given functor
+fun transform(range: Range, function: AnyType) = TransformedRange(typeOf(range), typeOf(function))(range, function)
+fun map(range: Range, function: AnyType) = TransformedRange(typeOf(range), typeOf(function))(range, function)
+
+// TODO: Fix the error that is causing us to make this RT
+//[rt]
+/// Repeats the given value to for a range of the same value
+fun repeat(value: AnyType) = RepeatRange(typeOf(value))(value)
+fun repeat(value: AnyType, count: SizeType) = take(repeat(value), count)
+
+/// Chain two ranges together to form a concatenated range
+fun chain(range1, range2: Range) = ChainRange(typeOf(range1), typeOf(range2))(range1, range2)
+fun ++(range1, range2: Range) = ChainRange(typeOf(range1), typeOf(range2))(range1, range2)
+
+/// Range that takes elements with a give stride (every step skips some elements)
+fun stride(range: Range, strideStep: SizeType) = StridedRange(typeOf(range))(range, strideStep)
+
+/// Range that takes the elements in a radial fashion: i, i+1, i-1, i+2, i-2, ...
+fun radial(range: Range, index: SizeType) = RadialRange(typeOf(range))(range, index)
+
+// TODO: Fix the error that is causing us to make this RT
+//[rt]
+/// Creates an infinite/counted range by repeating the elements from the given range
+/// as long as it takes
+fun cycle(range: Range) = CyclicRange(typeOf(range))(range)
+fun cycle(range: Range, count: SizeType) = CyclicCountedRange(typeOf(range))(range, count)
+
+/// Generate a range by applying the given function to get the values for the range
+fun generate(function: AnyType) = GeneratedRange(typeOf(function))(function)
+fun generate(function: AnyType, count: SizeType) = take(generate(function), count)
+
+/// Generate a chain-reaction range
+/// Starts with the given value, then calls the given functor on the value to obtain the next value,
+/// then calls again the functor on the new value, and so on
+fun generate1(start: AnyType, function: AnyType) = Generated1Range(typeOf(start), typeOf(function))(start, function)
+fun generate1(start: AnyType, function: AnyType, count: SizeType) = take(generate1(start, function), count)
+
+/// Given two ranges, combine the values from the two ranges together to produce one single range
+fun zip(range1, range2: Range, function: AnyType) = ZippedRange(typeOf(range1), typeOf(range2), typeOf(function))(range1, range2, function)
+fun zip(range1, range2: Range) = zip(range1, range2, MakePair(-@typeOf(range1.front), -@typeOf(range2.front))())
+
+/// Scans left a range for the given functor and initial accumulator value
+fun scanLeft(acc: AnyType, range: Range, function: AnyType) = ScanLeftRange(typeOf(acc), typeOf(range), typeOf(function))(acc, range, function)
 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Classes that implement ranges
 //
 
-[rtct]
-    datatype NumericRangeInc(valueType: Type) if Number(#$valueType)
-        _begin, _end: valueType
-        _closed: Bool
-        using _step = valueType(1)
+datatype NumericRangeInc(valueType: Type) if Number(#$valueType)
+    _begin, _end: valueType
+    _closed: Bool
+    using _step = valueType(1)
 
-        using RetType = valueType
+    using RetType = valueType
 
-    fun ctor(this: @NumericRangeInc, start, end: this.RetType)
-        this._begin ctor start
-        this._end ctor end
-        this._closed ctor false
+fun ctor(this: @NumericRangeInc, start, end: this.RetType)
+    this._begin ctor start
+    this._end ctor end
+    this._closed ctor false
 
-    fun ctor(this: @NumericRangeInc, start, end: this.RetType, closed: Bool)
-        this._begin ctor start
-        this._end ctor end
-        this._closed ctor closed
+fun ctor(this: @NumericRangeInc, start, end: this.RetType, closed: Bool)
+    this._begin ctor start
+    this._end ctor end
+    this._closed ctor closed
 
-[rtct, protected]
+[protected]
     fun isEmpty(this: NumericRangeInc)                  = ife(_closed, _begin > _end, _begin >= _end)
     fun front(this: NumericRangeInc): RetType           = _begin
     fun popFront(this: @NumericRangeInc)                { _begin += _step }
@@ -205,78 +203,76 @@ concept RandomAccessRange(x: BidirRange) if (
 
     fun ()(this: NumericRangeInc, n: SizeType): RetType = _begin + RetType(n)
 
-[rtct]
-    datatype NumericRangeWithStep(valueType: Type) if Number(#$valueType)
-        _begin, _end, _step: valueType
-        _closed: Bool
+datatype NumericRangeWithStep(valueType: Type) if Number(#$valueType)
+    _begin, _end, _step: valueType
+    _closed: Bool
 
-        using RetType = valueType
+    using RetType = valueType
 
-    fun ctor(this: @NumericRangeWithStep, other: @NumericRangeInc(this.RetType))
-        this._begin ctor other._begin
-        this._end ctor other._end
-        this._closed ctor other._closed
-        if _begin <= _end
-            _step = valueType(1)
-        else
-            _step = valueType(-1)
+fun ctor(this: @NumericRangeWithStep, other: @NumericRangeInc(this.RetType))
+    this._begin ctor other._begin
+    this._end ctor other._end
+    this._closed ctor other._closed
+    if _begin <= _end
+        _step = valueType(1)
+    else
+        _step = valueType(-1)
 
-    fun ctor(this: @NumericRangeWithStep, other: @NumericRangeInc(this.RetType), step: this.RetType)
-        this._begin ctor other._begin
-        this._end ctor other._end
-        this._closed ctor other._closed
-        this._step ctor step
+fun ctor(this: @NumericRangeWithStep, other: @NumericRangeInc(this.RetType), step: this.RetType)
+    this._begin ctor other._begin
+    this._end ctor other._end
+    this._closed ctor other._closed
+    this._step ctor step
 
-    fun ctor(this: @NumericRangeWithStep, start, end: this.RetType)
-        this._begin ctor start
-        this._end ctor end
-        this._closed ctor false
-        if start <= end
-            _step = valueType(1)
-        else
-            _step = valueType(-1)
+fun ctor(this: @NumericRangeWithStep, start, end: this.RetType)
+    this._begin ctor start
+    this._end ctor end
+    this._closed ctor false
+    if start <= end
+        _step = valueType(1)
+    else
+        _step = valueType(-1)
 
-    fun ctor(this: @NumericRangeWithStep, start, end: this.RetType, closed: Bool)
-        this._begin ctor start
-        this._end ctor end
-        this._closed ctor closed
-        if start <= end
-            _step = valueType(1)
-        else
-            _step = valueType(-1)
+fun ctor(this: @NumericRangeWithStep, start, end: this.RetType, closed: Bool)
+    this._begin ctor start
+    this._end ctor end
+    this._closed ctor closed
+    if start <= end
+        _step = valueType(1)
+    else
+        _step = valueType(-1)
 
-    fun ctor(this: @NumericRangeWithStep, start, end, step: this.RetType)
-        this._begin ctor start
-        this._end ctor end
-        this._step ctor step
-        this._closed ctor false
+fun ctor(this: @NumericRangeWithStep, start, end, step: this.RetType)
+    this._begin ctor start
+    this._end ctor end
+    this._step ctor step
+    this._closed ctor false
 
-    fun isEmpty(this: NumericRangeWithStep): Bool
-        if _closed
-            return ife(_step < 0, _begin < _end, _begin > _end)
-        else
-            return ife(_step < 0, _begin <= _end, _begin >= _end)
-    fun front(this: NumericRangeWithStep): RetType              = _begin
-    fun popFront(this: @NumericRangeWithStep)                   { _begin += _step }
+fun isEmpty(this: NumericRangeWithStep): Bool
+    if _closed
+        return ife(_step < 0, _begin < _end, _begin > _end)
+    else
+        return ife(_step < 0, _begin <= _end, _begin >= _end)
+fun front(this: NumericRangeWithStep): RetType              = _begin
+fun popFront(this: @NumericRangeWithStep)                   { _begin += _step }
 
-    fun back(this: NumericRangeWithStep): RetType               = _begin + RetType(this.size-1)*_step
-    fun popBack(this: @NumericRangeWithStep)                    { _end -= _step }
+fun back(this: NumericRangeWithStep): RetType               = _begin + RetType(this.size-1)*_step
+fun popBack(this: @NumericRangeWithStep)                    { _end -= _step }
 
-    fun size(this: NumericRangeWithStep): SizeType              = SizeType(math.floor(ife(_closed, _end-_begin, _end-_begin+_step)/_step))
+fun size(this: NumericRangeWithStep): SizeType              = SizeType(math.floor(ife(_closed, _end-_begin, _end-_begin+_step)/_step))
 
-    fun popFront(this: @NumericRangeWithStep, n: SizeType)      { _begin += RetType(n*_step) }
-    fun popBack(this: @NumericRangeWithStep, n: SizeType)       { _end -= RetType(n*_step) }
+fun popFront(this: @NumericRangeWithStep, n: SizeType)      { _begin += RetType(n*_step) }
+fun popBack(this: @NumericRangeWithStep, n: SizeType)       { _end -= RetType(n*_step) }
 
-    fun ()(this: NumericRangeWithStep, n: SizeType): RetType    = _begin + RetType(n*_step)
+fun ()(this: NumericRangeWithStep, n: SizeType): RetType    = _begin + RetType(n*_step)
 
-[rtct]
-    [initCtor]
-    datatype RetroRange(rangeType: Type) if BidirRange(#$rangeType)
-        _range: rangeType
+[initCtor]
+datatype RetroRange(rangeType: Type) if BidirRange(#$rangeType)
+    _range: rangeType
 
-        using RetType = rangeType.RetType
+    using RetType = rangeType.RetType
 
-[rtct, protected]
+[protected]
     fun isEmpty(this: @RetroRange)          = _range.isEmpty
     fun front(this: @RetroRange): RetType   = _range.back
     fun popFront(this: @RetroRange)         { _range.popBack }
@@ -284,44 +280,41 @@ concept RandomAccessRange(x: BidirRange) if (
     fun back(this: @RetroRange): RetType    = _range.front
     fun popBack(this: @RetroRange)          { _range.popFront }
 
-[rtct]
-    [initCtor]
-    datatype TakeRange(rangeType: Type) if Range(#$rangeType)
-        _range: rangeType
-        _count: SizeType
+[initCtor]
+datatype TakeRange(rangeType: Type) if Range(#$rangeType)
+    _range: rangeType
+    _count: SizeType
 
-        using RetType = rangeType.RetType
+    using RetType = rangeType.RetType
 
-[rtct, protected]
+[protected]
     fun isEmpty(this: @TakeRange)           = _count == 0 || _range.isEmpty
     fun front(this: @TakeRange): RetType    = _range.front
     fun popFront(this: @TakeRange)          { _range.popFront; --_count }
 
-[rtct]
-    [initCtor]
-    datatype TakeWhileRange(rangeType: Type, predType: Type) \
-            if Range(#$rangeType) && typeOf((#$predType)(#$rangeType front)) == Bool
-        _range: rangeType
-        _pred: predType
+[initCtor]
+datatype TakeWhileRange(rangeType: Type, predType: Type) \
+        if Range(#$rangeType) && typeOf((#$predType)(#$rangeType front)) == Bool
+    _range: rangeType
+    _pred: predType
 
-        using RetType = rangeType.RetType
+    using RetType = rangeType.RetType
 
-[rtct, protected]
+[protected]
     fun isEmpty(this: @TakeWhileRange)          = _range.isEmpty || !_pred(_range.front)
     fun front(this: @TakeWhileRange): RetType   = _range.front
     fun popFront(this: @TakeWhileRange)         { _range.popFront }
 
-[rtct]
-    [initCtor]
-    datatype TakeUntilRange(rangeType: Type, predType: Type) \
-            if Range(#$rangeType) && typeOf((#$predType)(#$rangeType front)) == Bool
-        _range: rangeType
-        _pred: predType
-        _shouldStop: Bool = false
+[initCtor]
+datatype TakeUntilRange(rangeType: Type, predType: Type) \
+        if Range(#$rangeType) && typeOf((#$predType)(#$rangeType front)) == Bool
+    _range: rangeType
+    _pred: predType
+    _shouldStop: Bool = false
 
-        using RetType = rangeType.RetType
+    using RetType = rangeType.RetType
 
-[rtct, protected]
+[protected]
     fun isEmpty(this: @TakeUntilRange)          = _range.isEmpty || _shouldStop
     fun front(this: @TakeUntilRange): RetType   = _range.front
     fun popFront(this: @TakeUntilRange)
@@ -329,24 +322,23 @@ concept RandomAccessRange(x: BidirRange) if (
         _range.popFront
         _shouldStop = _pred(lastVal)
 
-[rtct]
-    datatype FilteredRange(rangeType, predType: Type) \
-            if Range(#$rangeType) && typeOf((#$predType)(#$rangeType front)) == Bool
-        _range: rangeType
-        _pred: predType
-        _lastVal: RetType
+datatype FilteredRange(rangeType, predType: Type) \
+        if Range(#$rangeType) && typeOf((#$predType)(#$rangeType front)) == Bool
+    _range: rangeType
+    _pred: predType
+    _lastVal: RetType
 
-        using RetType = -@rangeType.RetType
-        using _RangeType = rangeType
-        using _PredType = predType
+    using RetType = -@rangeType.RetType
+    using _RangeType = rangeType
+    using _PredType = predType
 
-    fun ctor(this: @FilteredRange, range: this._RangeType, pred: this._PredType)
-        this._range ctor range
-        this._pred ctor pred
-        this._lastVal ctor
-        this._popUntilValid
+fun ctor(this: @FilteredRange, range: this._RangeType, pred: this._PredType)
+    this._range ctor range
+    this._pred ctor pred
+    this._lastVal ctor
+    this._popUntilValid
 
-[rtct, protected]
+[protected]
     fun isEmpty(this: @FilteredRange)        = _range.isEmpty
     fun front(this: @FilteredRange): RetType = _lastVal
     fun popFront(this: @FilteredRange)       { _range.popFront; this._popUntilValid }
@@ -358,18 +350,17 @@ concept RandomAccessRange(x: BidirRange) if (
                 break
             _range.popFront
 
-[rtct]
-    [initCtor]
-    datatype TransformedRange(rangeType, funType: Type) \
-            if Range(#$rangeType) && isValid((#$funType)(#$rangeType front))
-        _range: rangeType
-        _function: funType
-        _curVal: RetType = RetType()
-        _hasValue: Bool = false
+[initCtor]
+datatype TransformedRange(rangeType, funType: Type) \
+        if Range(#$rangeType) && isValid((#$funType)(#$rangeType front))
+    _range: rangeType
+    _function: funType
+    _curVal: RetType = RetType()
+    _hasValue: Bool = false
 
-        using RetType = -@typeOf((#$funType)(#$rangeType front))
+    using RetType = -@typeOf((#$funType)(#$rangeType front))
 
-[rtct, protected]
+[protected]
     fun isEmpty(this: @TransformedRange)    = _range.isEmpty
     fun front(this: @TransformedRange): RetType
         if !_hasValue
@@ -378,28 +369,26 @@ concept RandomAccessRange(x: BidirRange) if (
         return _curVal
     fun popFront(this: @TransformedRange)   { _range.popFront; _hasValue = false }
 
-[rtct]
-    [initCtor]
-    datatype RepeatRange(valueType: Type)
-        _value: valueType
+[initCtor]
+datatype RepeatRange(valueType: Type)
+    _value: valueType
 
-        using RetType = valueType
+    using RetType = valueType
 
-[rtct, protected]
+[protected]
     fun isEmpty(this: @RepeatRange): Bool   = false
     fun front(this: @RepeatRange): RetType  = _value
     fun popFront(this: @RepeatRange)        {}
 
-[rtct]
-    [initCtor]
-    datatype ChainRange(rangeType1: Type, rangeType2: Type) \
-            if Range(#$rangeType1) && Range(#$rangeType2)
-        _range1: rangeType1
-        _range2: rangeType2
+[initCtor]
+datatype ChainRange(rangeType1: Type, rangeType2: Type) \
+        if Range(#$rangeType1) && Range(#$rangeType2)
+    _range1: rangeType1
+    _range2: rangeType2
 
-        using RetType = commonType(rangeType1.RetType, rangeType2.RetType)
+    using RetType = commonType(rangeType1.RetType, rangeType2.RetType)
 
-[rtct, protected]
+[protected]
     fun isEmpty(this: @ChainRange)          = _range1.isEmpty && _range2.isEmpty
     fun front(this: @ChainRange): RetType   = ife(_range1.isEmpty, _range2.front, _range1.front)
     fun popFront(this: @ChainRange)
@@ -408,15 +397,14 @@ concept RandomAccessRange(x: BidirRange) if (
         else
             _range1.popFront
 
-[rtct]
-    [initCtor]
-    datatype StridedRange(rangeType: Type) if Range(#$rangeType)
-        _range: rangeType
-        _strideStep: SizeType
+[initCtor]
+datatype StridedRange(rangeType: Type) if Range(#$rangeType)
+    _range: rangeType
+    _strideStep: SizeType
 
-        using RetType = rangeType.RetType
+    using RetType = rangeType.RetType
 
-[rtct, protected]
+[protected]
     fun isEmpty(this: @StridedRange)        = _range.isEmpty
     fun front(this: @StridedRange): RetType = _range.front
     fun popFront(this: @StridedRange)
@@ -425,18 +413,17 @@ concept RandomAccessRange(x: BidirRange) if (
             s = s - 1
             _range.popFront
 
-[rtct]
-    [initCtor]
-    datatype RadialRange(rangeType: Type) if RandomAccessRange(#$rangeType)
-        _range: rangeType
-        _index: SizeType
-        _count: SizeType = 0
-        _step: DiffType = 1
-        _sign: DiffType = 1
+[initCtor]
+datatype RadialRange(rangeType: Type) if RandomAccessRange(#$rangeType)
+    _range: rangeType
+    _index: SizeType
+    _count: SizeType = 0
+    _step: DiffType = 1
+    _sign: DiffType = 1
 
-        using RetType = rangeType.RetType
+    using RetType = rangeType.RetType
 
-[rtct, protected]
+[protected]
     fun isEmpty(this: @RadialRange)         = _range.isEmpty || _count == _range.size
     fun front(this: @RadialRange): RetType  = _range(_index)
     fun popFront(this: @RadialRange)
@@ -449,18 +436,17 @@ concept RandomAccessRange(x: BidirRange) if (
             _step = _step + 1
             _sign = -_sign
 
-[rtct]
-    datatype CyclicRange(rangeType: Type) if Range(#$rangeType)
-        _range, _base: rangeType
+datatype CyclicRange(rangeType: Type) if Range(#$rangeType)
+    _range, _base: rangeType
 
-        using RetType = rangeType.RetType
-        using _RangeType = rangeType
+    using RetType = rangeType.RetType
+    using _RangeType = rangeType
 
-    fun ctor(this: @CyclicRange, range: this._RangeType)
-        this._range ctor range
-        this._base ctor range
+fun ctor(this: @CyclicRange, range: this._RangeType)
+    this._range ctor range
+    this._base ctor range
 
-[rtct, protected]
+[protected]
     fun isEmpty(this: @CyclicRange): Bool   = false
     fun front(this: @CyclicRange): RetType  = _range.front
     fun popFront(this: @CyclicRange)
@@ -468,20 +454,19 @@ concept RandomAccessRange(x: BidirRange) if (
         if _range.isEmpty
             _range = _base
 
-[rtct]
-    datatype CyclicCountedRange(rangeType: Type) if Range(#$rangeType)
-        _range, _base: rangeType
-        _count: SizeType
+datatype CyclicCountedRange(rangeType: Type) if Range(#$rangeType)
+    _range, _base: rangeType
+    _count: SizeType
 
-        using RetType = rangeType.RetType
-        using _RangeType = rangeType
+    using RetType = rangeType.RetType
+    using _RangeType = rangeType
 
-    fun ctor(this: @CyclicCountedRange, range: this._RangeType, count: SizeType)
-        this._range ctor range
-        this._count ctor count
-        this._base ctor range
+fun ctor(this: @CyclicCountedRange, range: this._RangeType, count: SizeType)
+    this._range ctor range
+    this._count ctor count
+    this._base ctor range
 
-[rtct, protected]
+[protected]
     fun isEmpty(this: @CyclicCountedRange)          = _count == 0
     fun front(this: @CyclicCountedRange): RetType   = _range.front
     fun popFront(this: @CyclicCountedRange)
@@ -491,61 +476,57 @@ concept RandomAccessRange(x: BidirRange) if (
                 _range = _base
                 --_count
 
-[rtct]
-    datatype GeneratedRange(functionType: Type)
-        _function: functionType
-        _current: RetType
+datatype GeneratedRange(functionType: Type)
+    _function: functionType
+    _current: RetType
 
-        using RetType = typeOf((#$functionType)())
-        using _FunType = functionType
+    using RetType = typeOf((#$functionType)())
+    using _FunType = functionType
 
-    fun ctor(this: @GeneratedRange, function: this._FunType)
-        this._function ctor function
-        this._current ctor this._function()
+fun ctor(this: @GeneratedRange, function: this._FunType)
+    this._function ctor function
+    this._current ctor this._function()
 
-[rtct, protected]
+[protected]
     fun isEmpty(this: @GeneratedRange): Bool    = false
     fun front(this: @GeneratedRange): RetType   = _current
     fun popFront(this: @GeneratedRange)         { _current = _function() }
 
-[rtct]
-    [initCtor]
-    datatype Generated1Range(elType, functionType: Type) //if isValid(elType(#$functionType)(#$elType))
-        _current: RetType
-        _function: functionType
+[initCtor]
+datatype Generated1Range(elType, functionType: Type) //if isValid(elType(#$functionType)(#$elType))
+    _current: RetType
+    _function: functionType
 
-        using RetType = elType
+    using RetType = elType
 
-[rtct, protected]
+[protected]
     fun isEmpty(this: @Generated1Range): Bool   = false
     fun front(this: @Generated1Range): RetType  = _current
     fun popFront(this: @Generated1Range)        { _current = _function(_current) }
 
-[rtct]
-    [initCtor]
-    datatype ZippedRange(rangeType1, rangeType2: Type, functionType: Type) if Range(#$rangeType1) &&  Range(#$rangeType2)
-        _range1: rangeType1
-        _range2: rangeType2
-        _function: functionType
+[initCtor]
+datatype ZippedRange(rangeType1, rangeType2: Type, functionType: Type) if Range(#$rangeType1) &&  Range(#$rangeType2)
+    _range1: rangeType1
+    _range2: rangeType2
+    _function: functionType
 
-        using RetType = typeOf((#$functionType)(#$rangeType1 front, #$rangeType2 front))
+    using RetType = typeOf((#$functionType)(#$rangeType1 front, #$rangeType2 front))
 
-[rtct, protected]
+[protected]
     fun isEmpty(this: @ZippedRange)          = _range1.isEmpty || _range2.isEmpty
     fun front(this: @ZippedRange): RetType   = _function(_range1.front, _range2.front)
     fun popFront(this: @ZippedRange)        { _range1.popFront; _range2.popFront }
 
-[rtct]
-    [initCtor]
-    datatype ScanLeftRange(accType, rangeType: Type, functionType: Type) if Range(#$rangeType)
-        _acc: accType
-        _range: rangeType
-        _function: functionType
-        _valComputed: Bool = false
+[initCtor]
+datatype ScanLeftRange(accType, rangeType: Type, functionType: Type) if Range(#$rangeType)
+    _acc: accType
+    _range: rangeType
+    _function: functionType
+    _valComputed: Bool = false
 
-        using RetType = accType
+    using RetType = accType
 
-[rtct, protected]
+[protected]
     fun isEmpty(this: @ScanLeftRange)    = _range.isEmpty
     fun popFront(this: @ScanLeftRange)  { _range.popFront; _valComputed=false }
     fun front(this: @ScanLeftRange): RetType
@@ -554,26 +535,21 @@ concept RandomAccessRange(x: BidirRange) if (
         _valComputed=true
         return _acc
 
-[rtct]
-    [initCtor]
-    datatype ValuesRange(contType: Type) if isValid((#$contType)(1))
-        _values: contType
-        _idx: SizeType = 0
+[initCtor]
+datatype ValuesRange(contType: Type) if isValid((#$contType)(1))
+    _values: contType
+    _idx: SizeType = 0
 
-        using RetType       = contType.ValueType
+    using RetType       = contType.ValueType
 
 
-[rtct, protected]
+[protected]
     fun isEmpty(this: @ValuesRange)         = _idx >= _values.size
     fun front(this: @ValuesRange): RetType  = _values(_idx)
     fun popFront(this: @ValuesRange)        { ++_idx }
 
-[rtct]
-    fun mkValuesRange(cont: AnyType) = ValuesRange(typeOf(cont))(cont)
+fun mkValuesRange(cont: AnyType) = ValuesRange(typeOf(cont))(cont)
 
-
-// TODO: Check why this doesn't work in rtct mode
-//[rt]
 fun values(v0,v1: AnyType) = mkValuesRange(mkValues(v0,v1))
 fun values(v0,v1,v2: AnyType) = mkValuesRange(mkValues(v0,v1,v2))
 fun values(v0,v1,v2,v3: AnyType) = mkValuesRange(mkValues(v0,v1,v2,v3))

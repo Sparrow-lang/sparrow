@@ -70,12 +70,10 @@ EvalMode specifiedCtAvailability(const string& fileContent) {
         return modeRtCt;
 
     // Search for ct modifiers in the comment
-    if (string::npos != firstLine.find("rtct", idxCommentStart))
+    if (string::npos != firstLine.find("rt", idxCommentStart))
         return modeRtCt;
     if (string::npos != firstLine.find("ct", idxCommentStart))
         return modeCt;
-    if (string::npos != firstLine.find("rt", idxCommentStart))
-        return modeRt;
     return modeRtCt;
 }
 

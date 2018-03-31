@@ -1,5 +1,3 @@
-;rtct
-
 define i8 @_bit_neg_8(i8 %n) alwaysinline
 {
     %1 = xor i8 %n, 0

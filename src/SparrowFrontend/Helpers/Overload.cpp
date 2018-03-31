@@ -332,11 +332,8 @@ Node* SprFrontend::selectCtToRtCtor(Node* ctArg) {
         return nullptr;
 
     // Select the possible ct-to-rt constructors
-    // TODO (rtct): Check this
     Callables candidates;
-    getCallables(fromIniList({cls}), modeRtCt, candidates,
-            [](Node* decl) -> bool { return Feather_effectiveEvalMode(decl) == modeRtCt; },
-            "ctorFromCt");
+    getCallables(fromIniList({cls}), modeRtCt, candidates, {}, "ctorFromCt");
     if (candidates.empty())
         return nullptr;
 

@@ -189,21 +189,20 @@ TypeRef SprFrontend::doDereference1(Node* arg, Node*& cvt) {
 }
 
 namespace {
-Node* checkDataTypeConversion(Node* node) {
+Node* checkDataTypeCtToRtConversion(Node* node) {
     const Location& loc = node->location;
-    if (!Nest_computeType(node))
-        REP_INTERNAL(loc, "Cannot convert null node from CT to RT");
+    ASSERT(node->type);
 
     TypeRef t = node->type;
     Node* cls = Feather_classForType(t);
     if (Feather_effectiveEvalMode(cls) != modeRtCt)
-        REP_INTERNAL(loc, "Cannot convert ct to rt for non-rtct classes (%1%)") % cls;
+        REP_INTERNAL(loc, "Cannot convert to RT; datatype %1% doesn't support it") % cls;
 
     // Check if we have a ct-to-rt ctor
     Node* res = selectCtToRtCtor(node);
     if (!res)
         REP_ERROR_RET(nullptr, loc,
-                "Cannot convert %1% from CT to RT (make sure 'ctorFromRt' ctor exists)") %
+                "Cannot convert %1% from CT to RT; make sure 'ctorFromRt' ctor exists") %
                 t;
 
     // Remove the reference from the result
@@ -213,9 +212,8 @@ Node* checkDataTypeConversion(Node* node) {
     Nest_setContext(res, node->context);
     if (!Nest_computeType(res))
         return nullptr;
-    // TODO (rtct): Check this
-    if (res->type != Feather_checkChangeTypeMode(node->type, modeRtCt, NOLOC))
-        REP_INTERNAL(loc, "Cannot convert %1% from CT to RT (invalid returned type)") % t;
+    if (res->type->mode != modeRtCt)
+        REP_INTERNAL(loc, "Cannot convert to RT; invalid returned type (%1%)") % t;
 
     return res;
 }
@@ -223,6 +221,9 @@ Node* checkDataTypeConversion(Node* node) {
 
 Node* SprFrontend::convertCtToRt(Node* node) {
     const Location& loc = node->location;
+
+    if (!Nest_computeType(node))
+        REP_INTERNAL(loc, "Cannot convert null node from CT to RT");
 
     TypeRef t = node->type;
 
@@ -245,7 +246,7 @@ Node* SprFrontend::convertCtToRt(Node* node) {
             Feather_checkChangeTypeMode(t, modeRtCt, NOLOC) == StdDef::typeStringRef)
         return Nest_ctEval(node);
     else
-        return checkDataTypeConversion(node);
+        return checkDataTypeCtToRtConversion(node);
 }
 
 TypeRef SprFrontend::getType(Node* typeNode) { return getTypeValueImpl(typeNode, true); }

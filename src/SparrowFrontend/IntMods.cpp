@@ -74,7 +74,7 @@ Node* addAssociatedFun(Node* parent, const string& name, Node* body,
 /// Generate an associated function with the given name, by calling 'op' for the base classes and
 /// fields
 Node* generateAssociatedFun(Node* parent, const string& name, const string& op, TypeRef otherParam,
-        bool reverse = false, EvalMode mode = modeUnspecified) {
+        bool reverse = false) {
     Location loc = parent->location;
     loc.end = loc.start;
     Node* cls = Nest_explanation(parent);
@@ -121,7 +121,7 @@ Node* generateAssociatedFun(Node* parent, const string& name, const string& op, 
     if (otherParam)
         params.emplace_back(otherParam, string("other"));
 
-    return addAssociatedFun(parent, name, body, params, generatedOverloadPrio, nullptr, mode);
+    return addAssociatedFun(parent, name, body, params, generatedOverloadPrio, nullptr);
 }
 
 /// Generate an init ctor, that initializes all the members with data received as arguments
@@ -306,10 +306,10 @@ void _IntModClassMembers_afterComputeType(Modifier*, Node* node) {
     if (!skipDefaultCtor)
         generateAssociatedFun(cls, "ctor", "ctor", nullptr);
     generateAssociatedFun(cls, "ctor", "ctor", paramType);
-    generateAssociatedFun(cls, "ctorFromCt", "ctor",
-            Feather_checkChangeTypeMode(
-                    Feather_getDataType(basicClass, 0, modeRtCt), modeCt, node->location),
-            false, modeRtCt);   // TODO (rtct): Check this
+    if (Feather_effectiveEvalMode(basicClass) == modeRtCt) {
+        TypeRef paramCt = Feather_getDataType(basicClass, 0, modeCt);
+        generateAssociatedFun(cls, "ctorFromCt", "ctor", paramCt);
+    }
     generateAssociatedFun(cls, "dtor", "dtor", nullptr, true);
     generateAssociatedFun(cls, "=", "=", paramType);
     generateEqualityCheckFun(cls);

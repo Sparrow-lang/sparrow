@@ -45,10 +45,10 @@ fun sprMain
     testRegular(o1);
     testRegular(o2);
 /*<<<Running()
-Int is Regular
-Double is Regular
-NullType is Regular
-MyType is Regular
-EmptyType is not Regular
+Int/rtct is Regular
+Double/rtct is Regular
+NullType/rtct is Regular
+MyType/rtct is Regular
+EmptyType/rtct is not Regular
 >>>*/
 

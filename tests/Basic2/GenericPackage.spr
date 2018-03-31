@@ -43,7 +43,7 @@ TypePrint.ctor Double/rtct
 TypePrint.ctor Char/rtct
 ---
 ---
-Int
-Double
-Char
+Int/rtct
+Double/rtct
+Char/rtct
 >>>*/

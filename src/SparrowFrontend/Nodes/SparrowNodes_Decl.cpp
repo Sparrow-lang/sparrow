@@ -618,7 +618,8 @@ TypeRef SprVariable_ComputeType(Node* node) {
         return nullptr;
 
     // If this is a CT variable in a non-ct function, make this a global variable
-    if (varKind == varLocal && node->context->evalMode == modeRt && t->mode == modeCt)
+    // TODO (rtct)
+    if (varKind == varLocal && (node->context->evalMode == modeRt || node->context->evalMode == modeRtCt) && t->mode == modeCt)
         varKind = varGlobal;
 
     // If this is a CT variable in a non-ct function, make this a global variable

@@ -309,7 +309,7 @@ void _IntModClassMembers_afterComputeType(Modifier*, Node* node) {
     generateAssociatedFun(cls, "ctorFromCt", "ctor",
             Feather_checkChangeTypeMode(
                     Feather_getDataType(basicClass, 0, modeRtCt), modeCt, node->location),
-            false, modeRt);
+            false, modeRtCt);   // TODO (rtct): Check this
     generateAssociatedFun(cls, "dtor", "dtor", nullptr, true);
     generateAssociatedFun(cls, "=", "=", paramType);
     generateEqualityCheckFun(cls);

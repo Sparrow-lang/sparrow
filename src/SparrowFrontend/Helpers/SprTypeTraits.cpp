@@ -213,7 +213,8 @@ Node* checkDataTypeConversion(Node* node) {
     Nest_setContext(res, node->context);
     if (!Nest_computeType(res))
         return nullptr;
-    if (res->type != Feather_checkChangeTypeMode(node->type, modeRt, NOLOC))
+    // TODO (rtct): Check this
+    if (res->type != Feather_checkChangeTypeMode(node->type, modeRtCt, NOLOC))
         REP_INTERNAL(loc, "Cannot convert %1% from CT to RT (invalid returned type)") % t;
 
     return res;

@@ -20,7 +20,7 @@ void ModPrivate_beforeComputeType(Modifier*, Node* node) { setAccessType(node, p
 
 void ModCt_beforeSetContext(Modifier*, Node* node) { Feather_setEvalMode(node, modeCt); }
 
-void ModRt_beforeSetContext(Modifier*, Node* node) { Feather_setEvalMode(node, modeRt); }
+void ModRt_beforeSetContext(Modifier*, Node* node) { Feather_setEvalMode(node, modeRtCt); }
 
 void ModRtCt_beforeSetContext(Modifier*, Node* node) { Feather_setEvalMode(node, modeRtCt); }
 

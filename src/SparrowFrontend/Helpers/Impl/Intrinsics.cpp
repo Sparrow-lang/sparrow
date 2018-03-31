@@ -119,9 +119,10 @@ Node* impl_rt(CompilationContext* context, const Location& loc, const NodeVector
     TypeRef t = getType(args[0]);
 
     t = Feather_removeLValueIfPresent(t);
-    t = Feather_checkChangeTypeMode(t, modeRt, loc);
-    if (t->mode != modeRt)
+    t = Feather_checkChangeTypeMode(t, modeRtCt, loc);
+    if (t->mode != modeRtCt)
         REP_ERROR_RET(nullptr, loc, "Type %1% cannot be used at run-time") % t;
+    // TODO (rtct): Revisit this
 
     return createTypeNode(context, loc, t);
 }

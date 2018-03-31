@@ -452,8 +452,8 @@ void writeHex(ostringstream& os, StringRef data) {
     os << dec;
 }
 
-template <typename T> const T& extractValue(StringRef valueData) {
-    ASSERT(size(valueData) == sizeof(T*));
+template <typename T> T extractValue(StringRef valueData) {
+    ASSERT(size(valueData) == sizeof(T));
     // NOLINTNEXTLINE
     return *reinterpret_cast<const T*>(valueData.begin);
 }
@@ -477,20 +477,24 @@ const char* CtValue_toString(const Node* node) {
         os << t;
     } else if (size(nativeName) > 0 && type->numReferences == 0) {
         if (nativeName == "i1" || nativeName == "u1") {
-            bool val = 0 != extractValue<unsigned char>(valueDataStr);
+            bool val = 0 != extractValue<uint8_t>(valueDataStr);
             os << (val ? "true" : "false");
         } else if (nativeName == "i16")
-            os << extractValue<short>(valueDataStr);
+            os << extractValue<int16_t>(valueDataStr);
         else if (nativeName == "u16")
-            os << extractValue<unsigned short>(valueDataStr);
+            os << extractValue<uint16_t>(valueDataStr);
         else if (nativeName == "i32")
-            os << extractValue<int>(valueDataStr);
+            os << extractValue<int32_t>(valueDataStr);
         else if (nativeName == "u32")
-            os << extractValue<unsigned int>(valueDataStr);
+            os << extractValue<uint32_t>(valueDataStr);
         else if (nativeName == "i64")
-            extractValue<long long>(valueDataStr);
+            os << extractValue<int64_t>(valueDataStr);
         else if (nativeName == "u64")
-            extractValue<unsigned long long>(valueDataStr);
+            os << extractValue<uint64_t>(valueDataStr);
+        else if (nativeName == "float")
+            os << extractValue<float>(valueDataStr);
+        else if (nativeName == "double")
+            os << extractValue<double>(valueDataStr);
         else if (nativeName == "StringRef") {
             os << "'" << toString(extractValue<StringRef>(valueDataStr)) << "'";
         } else

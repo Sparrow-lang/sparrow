@@ -13,8 +13,8 @@ StringRef inferModuleName(const char* url);
 
 namespace {
 
-template <typename T> const T& extractValue(StringRef valueData) {
-    ASSERT(size(valueData) == sizeof(T*));
+template <typename T> T extractValue(StringRef valueData) {
+    ASSERT(size(valueData) == sizeof(T));
     // NOLINTNEXTLINE
     return *reinterpret_cast<const T*>(valueData.begin);
 }
@@ -24,20 +24,20 @@ void printCtValue(StringRef typeName, StringRef valueDataStr) {
         TypeRef t = extractValue<TypeRef>(valueDataStr);
         printf("%s", t->description);
     } else if (typeName == "Bool") {
-        bool val = 0 != extractValue<unsigned char>(valueDataStr);
+        bool val = 0 != extractValue<uint8_t>(valueDataStr);
         printf("%s", val ? "true" : "false");
     } else if (typeName == "Short")
-        printf("%d", (int)extractValue<short>(valueDataStr));
+        printf("%d", (int)extractValue<int16_t>(valueDataStr));
     else if (typeName == "UShort")
-        printf("%d", (int)extractValue<unsigned short>(valueDataStr));
+        printf("%d", (int)extractValue<uint16_t>(valueDataStr));
     else if (typeName == "Int")
-        printf("%d", extractValue<int>(valueDataStr));
+        printf("%d", (int) extractValue<int32_t>(valueDataStr));
     else if (typeName == "UInt")
-        printf("%u", extractValue<unsigned int>(valueDataStr));
+        printf("%u", (unsigned) extractValue<uint16_t>(valueDataStr));
     else if (typeName == "Long")
-        printf("%lld", extractValue<long long>(valueDataStr));
+        printf("%lld", extractValue<int64_t>(valueDataStr));
     else if (typeName == "ULong")
-        printf("%llu", extractValue<unsigned long long>(valueDataStr));
+        printf("%llu", extractValue<uint64_t>(valueDataStr));
     else if (typeName == "Float")
         printf("%g", extractValue<float>(valueDataStr));
     else if (typeName == "Double")

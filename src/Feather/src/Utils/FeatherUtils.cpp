@@ -139,6 +139,7 @@ EvalMode Feather_combineMode(EvalMode mode, EvalMode baseMode, Location loc) {
 }
 
 EvalMode Feather_combineModeForceBase(EvalMode mode, EvalMode baseMode, Location loc) {
+    // TODO (rtct): Check all these
     switch (baseMode) {
     case modeRt:
         return modeRt;
@@ -165,6 +166,8 @@ TypeRef Feather_adjustModeBase(
     ASSERT(context);
     baseMode = Feather_combineMode(baseMode, context->evalMode, loc);
     EvalMode resMode = Feather_combineModeForceBase(srcType->mode, baseMode, loc);
+    if (baseMode == modeRtCt && resMode == modeCt)
+        resMode = modeRtCt; // TODO (rtct)
     return Feather_checkChangeTypeMode(srcType, resMode, loc);
 }
 

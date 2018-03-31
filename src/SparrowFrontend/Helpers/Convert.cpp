@@ -272,16 +272,11 @@ ConversionResult canConvertImpl(
     ASSERT(destType);
     ConversionResult c(convNone);
 
-    bool canCallCvtCtor = 0 == (flags & flagDontCallConversionCtor);
-    flags |= flagDontCallConversionCtor; // Don't call conversion ctor in any other conversions
-
     // cerr << "Checking conversion: " << srcType << " -> " << destType << endl;
-    // if ( 0 == strcmp(srcType->description, "Tuple[NumericRangeInc[Int/rtct]/rtct,
-    // NumericRangeInc[Int/rtct]/rtct]")
-    //     && 0 == strcmp(destType->description, "#TupleType") )
-    // {
+    // if (0 == strcmp(srcType->description, "Int/ct") &&
+    //         0 == strcmp(destType->description, "Tracer/rtct")) {
     //     const char* s = "put a breakpoint here";
-    //     (void) s;
+    //     (void)s;
     // }
 
     // Direct: Types are the same?
@@ -293,6 +288,9 @@ ConversionResult canConvertImpl(
     c = checkChangeMode(context, flags, srcType, destType);
     if (c)
         return c;
+
+    bool canCallCvtCtor = 0 == (flags & flagDontCallConversionCtor);
+    flags |= flagDontCallConversionCtor; // Don't call conversion ctor in any other conversions
 
     // Direct: Type with storage to concept
     c = checkConvertToConcept(context, flags, srcType, destType);

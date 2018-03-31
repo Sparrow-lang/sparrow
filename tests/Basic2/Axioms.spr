@@ -49,9 +49,9 @@ fun sprMain
     testOrdered(o1);
     testOrdered(o2);
 /*<<<Running()
-Int is Ordered
-Double is Ordered
-MyType is Ordered
-EmptyType is not Ordered
+Int/rtct is Ordered
+Double/rtct is Ordered
+MyType/rtct is Ordered
+EmptyType/rtct is not Ordered
 >>>*/
 

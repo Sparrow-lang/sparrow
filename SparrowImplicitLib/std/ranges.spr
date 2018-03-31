@@ -128,10 +128,10 @@ concept RandomAccessRange(x: BidirRange) if (
     fun map(range: Range, function: AnyType) = TransformedRange(typeOf(range), typeOf(function))(range, function)
 
     // TODO: Fix the error that is causing us to make this RT
-    [rt]
-        /// Repeats the given value to for a range of the same value
-        fun repeat(value: AnyType) = RepeatRange(typeOf(value))(value)
-        fun repeat(value: AnyType, count: SizeType) = take(repeat(value), count)
+    //[rt]
+    /// Repeats the given value to for a range of the same value
+    fun repeat(value: AnyType) = RepeatRange(typeOf(value))(value)
+    fun repeat(value: AnyType, count: SizeType) = take(repeat(value), count)
 
     /// Chain two ranges together to form a concatenated range
     fun chain(range1, range2: Range) = ChainRange(typeOf(range1), typeOf(range2))(range1, range2)
@@ -144,11 +144,11 @@ concept RandomAccessRange(x: BidirRange) if (
     fun radial(range: Range, index: SizeType) = RadialRange(typeOf(range))(range, index)
 
     // TODO: Fix the error that is causing us to make this RT
-    [rt]
-        /// Creates an infinite/counted range by repeating the elements from the given range
-        /// as long as it takes
-        fun cycle(range: Range) = CyclicRange(typeOf(range))(range)
-        fun cycle(range: Range, count: SizeType) = CyclicCountedRange(typeOf(range))(range, count)
+    //[rt]
+    /// Creates an infinite/counted range by repeating the elements from the given range
+    /// as long as it takes
+    fun cycle(range: Range) = CyclicRange(typeOf(range))(range)
+    fun cycle(range: Range, count: SizeType) = CyclicCountedRange(typeOf(range))(range, count)
 
     /// Generate a range by applying the given function to get the values for the range
     fun generate(function: AnyType) = GeneratedRange(typeOf(function))(function)
@@ -386,7 +386,7 @@ concept RandomAccessRange(x: BidirRange) if (
         using RetType = valueType
 
 [rtct, protected]
-    fun isEmpty(this: @RepeatRange)         = false
+    fun isEmpty(this: @RepeatRange): Bool   = false
     fun front(this: @RepeatRange): RetType  = _value
     fun popFront(this: @RepeatRange)        {}
 
@@ -461,7 +461,7 @@ concept RandomAccessRange(x: BidirRange) if (
         this._base ctor range
 
 [rtct, protected]
-    fun isEmpty(this: @CyclicRange)         = false
+    fun isEmpty(this: @CyclicRange): Bool   = false
     fun front(this: @CyclicRange): RetType  = _range.front
     fun popFront(this: @CyclicRange)
         _range.popFront
@@ -504,7 +504,7 @@ concept RandomAccessRange(x: BidirRange) if (
         this._current ctor this._function()
 
 [rtct, protected]
-    fun isEmpty(this: @GeneratedRange)          = false
+    fun isEmpty(this: @GeneratedRange): Bool    = false
     fun front(this: @GeneratedRange): RetType   = _current
     fun popFront(this: @GeneratedRange)         { _current = _function() }
 
@@ -517,7 +517,7 @@ concept RandomAccessRange(x: BidirRange) if (
         using RetType = elType
 
 [rtct, protected]
-    fun isEmpty(this: @Generated1Range)         = false
+    fun isEmpty(this: @Generated1Range): Bool   = false
     fun front(this: @Generated1Range): RetType  = _current
     fun popFront(this: @Generated1Range)        { _current = _function(_current) }
 
@@ -573,13 +573,13 @@ concept RandomAccessRange(x: BidirRange) if (
 
 
 // TODO: Check why this doesn't work in rtct mode
-[rt]
-    fun values(v0,v1: AnyType) = mkValuesRange(mkValues(v0,v1))
-    fun values(v0,v1,v2: AnyType) = mkValuesRange(mkValues(v0,v1,v2))
-    fun values(v0,v1,v2,v3: AnyType) = mkValuesRange(mkValues(v0,v1,v2,v3))
-    fun values(v0,v1,v2,v3,v4: AnyType) = mkValuesRange(mkValues(v0,v1,v2,v3,v4))
-    fun values(v0,v1,v2,v3,v4,v5: AnyType) = mkValuesRange(mkValues(v0,v1,v2,v3,v4,v5))
-    fun values(v0,v1,v2,v3,v4,v5,v6: AnyType) = mkValuesRange(mkValues(v0,v1,v2,v3,v4,v5,v6))
-    fun values(v0,v1,v2,v3,v4,v5,v6,v7: AnyType) = mkValuesRange(mkValues(v0,v1,v2,v3,v4,v5,v6,v7))
-    fun values(v0,v1,v2,v3,v4,v5,v6,v7,v8: AnyType) = mkValuesRange(mkValues(v0,v1,v2,v3,v4,v5,v6,v7,v8))
-    fun values(v0,v1,v2,v3,v4,v5,v6,v7,v8,v9: AnyType) = mkValuesRange(mkValues(v0,v1,v2,v3,v4,v5,v6,v7,v8,v9))
+//[rt]
+fun values(v0,v1: AnyType) = mkValuesRange(mkValues(v0,v1))
+fun values(v0,v1,v2: AnyType) = mkValuesRange(mkValues(v0,v1,v2))
+fun values(v0,v1,v2,v3: AnyType) = mkValuesRange(mkValues(v0,v1,v2,v3))
+fun values(v0,v1,v2,v3,v4: AnyType) = mkValuesRange(mkValues(v0,v1,v2,v3,v4))
+fun values(v0,v1,v2,v3,v4,v5: AnyType) = mkValuesRange(mkValues(v0,v1,v2,v3,v4,v5))
+fun values(v0,v1,v2,v3,v4,v5,v6: AnyType) = mkValuesRange(mkValues(v0,v1,v2,v3,v4,v5,v6))
+fun values(v0,v1,v2,v3,v4,v5,v6,v7: AnyType) = mkValuesRange(mkValues(v0,v1,v2,v3,v4,v5,v6,v7))
+fun values(v0,v1,v2,v3,v4,v5,v6,v7,v8: AnyType) = mkValuesRange(mkValues(v0,v1,v2,v3,v4,v5,v6,v7,v8))
+fun values(v0,v1,v2,v3,v4,v5,v6,v7,v8,v9: AnyType) = mkValuesRange(mkValues(v0,v1,v2,v3,v4,v5,v6,v7,v8,v9))

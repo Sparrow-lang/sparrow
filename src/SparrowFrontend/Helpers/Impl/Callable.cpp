@@ -45,6 +45,9 @@ TypeRef getParamType(const CallableData& c, int idx, bool hideImplicit = false) 
     Node* param = at(c.params, idx);
     ASSERT(param);
     TypeRef res = param ? param->type : nullptr;
+    // Parameters of generic classes or packages are always CT
+    if (c.type == CallableType::genericClass || c.type == CallableType::genericPackage)
+        res = Feather_checkChangeTypeMode(res, modeCt, param->location);
     return res;
 }
 

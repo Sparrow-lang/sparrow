@@ -38,12 +38,12 @@ fun sprMain
 
 
 /*<<<Ranges of ranges, with generic fun-ptr passed to map()
-TypePrint.ctor Int/rtct
-TypePrint.ctor Double/rtct
-TypePrint.ctor Char/rtct
+TypePrint.ctor Int
+TypePrint.ctor Double
+TypePrint.ctor Char
 ---
 ---
-Int/rtct
-Double/rtct
-Char/rtct
+Int
+Double
+Char
 >>>*/

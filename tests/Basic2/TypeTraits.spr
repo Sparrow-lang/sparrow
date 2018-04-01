@@ -28,8 +28,6 @@ fun getMode(mode: Int): String
         return "rt    ";
     if ( mode == 2 )
         return "ct    ";
-    if ( mode == 3 )
-        return "rtct  ";
     return "???   ";
 }
 
@@ -78,21 +76,21 @@ fun test1
 /*<<<Type properties and description(1)
 hasStorage  Mode  ct rt ref  Description
 ----------------------------------------
-storage     rtct  y  y  0    Int/rtct
+storage     rt    y  y  0    Int
 storage     ct    y  y  0    Int/ct
-storage     rtct  y  y  0    Int/rtct
-storage     rtct  y  y  0    Double/rtct
-storage     rtct  y  y  0    Double/rtct
-storage     rtct  y  y  1    @Double/rtct
-storage     rtct  y  y  2    @@Double/rtct
-storage     rtct  y  y  0    Tuple[Int/rtct, Double/rtct]/rtct
-storage     rtct  y  y  0    Vector[Int/rtct]/rtct
-storage     rtct  y  y  0    NumericRangeInc[Int/rtct]/rtct
-no storage  rtct  y  y  0    #Number/rtct
-no storage  rtct  y  y  0    Void/rtct
+storage     rt    y  y  0    Int
+storage     rt    y  y  0    Double
+storage     rt    y  y  0    Double
+storage     rt    y  y  1    @Double
+storage     rt    y  y  2    @@Double
+storage     rt    y  y  0    Tuple[Int, Double]
+storage     rt    y  y  0    Vector[Int]
+storage     rt    y  y  0    NumericRangeInc[Int]
+no storage  rt    y  y  0    #Number
+no storage  rt    y  y  0    Void
 no storage  ct    y  y  0    Void/ct
-storage     rtct  y  y  0    FunctionPtr0[Void/rtct]/rtct
-storage     rtct  y  y  0    MyRtOnlyType/rtct
+storage     rt    y  y  0    FunctionPtr0[Void]
+storage     rt    y  y  0    MyRtOnlyType
 >>>*/
 
 fun test2
@@ -104,19 +102,17 @@ fun test2
     printType(changeMode(Int, 0));
     printType(changeMode(Int, 1));
     printType(changeMode(Int, 2));
-    printType(changeMode(Int, 3));
 }
 
 /*<<<Change type mode(2)
 hasStorage  Mode  ct rt ref  Description
 ----------------------------------------
-storage     rtct  y  y  0    Int/rtct
+storage     rt    y  y  0    Int
 storage     ct    y  y  0    Int/ct
-storage     rtct  y  y  0    Int/rtct
+storage     rt    y  y  0    Int
 storage     ???   y  y  0    Int
 storage     rt    y  y  0    Int
 storage     ct    y  y  0    Int/ct
-storage     rtct  y  y  0    Int/rtct
 >>>*/
 
 fun test3
@@ -138,13 +134,13 @@ fun test3
 /*<<<Change num references(3)
 hasStorage  Mode  ct rt ref  Description
 ----------------------------------------
-storage     rtct  y  y  0    Double/rtct
-storage     rtct  y  y  1    @Double/rtct
-storage     rtct  y  y  2    @@Double/rtct
-storage     rtct  y  y  0    Int/rtct
-storage     rtct  y  y  1    @Int/rtct
-storage     rtct  y  y  9    @@@@@@@@@Int/rtct
-storage     rtct  y  y  0    Double/rtct
+storage     rt    y  y  0    Double
+storage     rt    y  y  1    @Double
+storage     rt    y  y  2    @@Double
+storage     rt    y  y  0    Int
+storage     rt    y  y  1    @Int
+storage     rt    y  y  9    @@@@@@@@@Int
+storage     rt    y  y  0    Double
 >>>*/
 
 fun test4
@@ -180,18 +176,18 @@ fun test4
 no ref
 ref
 ---
-@Int/rtct
-@@Int/rtct
+@Int
+@@Int
 ---
-Int/rtct
-Int/rtct
-@Int/rtct
+Int
+Int
+@Int
 ---
-Int/rtct
-Int/rtct
-Int/rtct
+Int
+Int
+Int
 ---
-@Int/rtct
-@Int/rtct
-@@Int/rtct
+@Int
+@Int
+@@Int
 >>>*/

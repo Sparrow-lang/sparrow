@@ -750,9 +750,8 @@ fun construct()
     fun isValidAndTrue(): Bool
     fun valueIfValid(): Bool
     fun ctEval()
-    [native("$injectBackendCodeRt")] fun injectBackendCodeRt(code: StringRef)
+    [native("$injectBackendCode")] fun injectBackendCode(code: StringRef)
     [native("$injectBackendCodeCt")] fun injectBackendCodeCt(code: StringRef)
-    [native("$injectBackendCodeRtCt")] fun injectBackendCodeRtCt(code: StringRef)
 
 
 /// Type used to represent an untyped pointer

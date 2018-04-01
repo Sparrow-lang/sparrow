@@ -21,7 +21,7 @@ template <typename T> T extractValue(StringRef valueData) {
 
 void printCtValue(StringRef typeName, StringRef valueDataStr) {
     if (typeName == "Type/ct") {
-        TypeRef t = extractValue<TypeRef>(valueDataStr);
+        auto t = extractValue<TypeRef>(valueDataStr);
         printf("%s", t->description);
     } else if (typeName == "Bool") {
         bool val = 0 != extractValue<uint8_t>(valueDataStr);

@@ -74,10 +74,8 @@ Node* BackendCode_SemanticCheck(Node* node) {
     if (!node->type)
         node->type = Feather_getVoidType(mode);
 
-    if (mode != modeRt) {
-        // CT process this node right after semantic check
-        Nest_addModifier(node, &ctProcessMod);
-    }
+    // CT process this node right after semantic check
+    Nest_addModifier(node, &ctProcessMod);
     return node;
 }
 const char* BackendCode_toString(const Node* node) {
@@ -126,7 +124,7 @@ Node* NodeList_SemanticCheck(Node* node) {
                             : at(node->children, numChildren - 1)->type;
         t = Feather_adjustMode(t, node->context, node->location);
         node->type = t;
-        Feather_checkEvalMode(node, modeRtCt);
+        Feather_checkEvalMode(node, modeRt);
     }
     return node;
 }
@@ -144,7 +142,7 @@ Node* LocalSpace_SemanticCheck(Node* node) {
     for (Node* c : node->children) {
         Nest_semanticCheck(c); // Ignore possible errors
     }
-    Feather_checkEvalMode(node, modeRtCt);
+    Feather_checkEvalMode(node, modeRt);
     return node;
 }
 
@@ -202,12 +200,7 @@ Node* ChangeMode_SemanticCheck(Node* node) {
     if (newMode == modeUnspecified)
         REP_INTERNAL(node->location, "Cannot change the mode to Unspecified");
     if (newMode == modeRt && baseMode != modeRt)
-        REP_ERROR_RET(
-                nullptr, node->location, "Cannot change mode to RT in a non-RT context (%1%)") %
-                baseMode;
-    if (newMode == modeRtCt && baseMode != modeRtCt)
-        REP_ERROR_RET(
-                nullptr, node->location, "Cannot change mode to RTCT in a non-RTCT context (%1%)") %
+        REP_ERROR_RET(nullptr, node->location, "Cannot change mode to RT in a CT context (%1%)") %
                 baseMode;
 
     if (!exp)
@@ -424,7 +417,7 @@ Node* CtValue_SemanticCheck(Node* node) {
     // Check the type
     if (!node->type)
         node->type = Nest_getCheckPropertyType(node, "valueType");
-    if (!node->type || !node->type->hasStorage || node->type->mode == modeRt)
+    if (!node->type || !node->type->hasStorage)
         REP_ERROR_RET(nullptr, node->location,
                 "Type specified for Ct Value cannot be used at compile-time (%1%)") %
                 node->type;
@@ -473,7 +466,7 @@ const char* CtValue_toString(const Node* node) {
     StringRef nativeName =
             type->hasStorage ? Feather_nativeName(type) : StringRef{nullptr, nullptr};
     if (0 == strcmp(type->description, "Type/ct")) {
-        TypeRef t = extractValue<TypeRef>(valueDataStr);
+        auto t = extractValue<TypeRef>(valueDataStr);
         os << t;
     } else if (size(nativeName) > 0 && type->numReferences == 0) {
         if (nativeName == "i1" || nativeName == "u1") {
@@ -679,22 +672,12 @@ Node* FunCall_SemanticCheck(Node* node) {
         REP_INFO(fun->location, "See called function");
         return nullptr;
     }
-    if (curMode == modeRtCt && calledFunMode == modeRt) {
-        REP_ERROR(node->location, "Cannot call RT functions from RTCT contexts");
-        REP_INFO(fun->location, "See called function");
-        return nullptr;
-    }
-    if (curMode == modeCt && calledFunMode == modeRt) {
-        REP_ERROR(node->location, "Cannot call a RT function from a CT context");
-        REP_INFO(fun->location, "See called function");
-        return nullptr;
-    }
 
     // Get the type from the function decl
     node->type = Feather_Function_resultType(fun);
 
     // Handle autoCt case
-    if (allParamsAreCtAvailable && node->type->mode == modeRtCt &&
+    if (allParamsAreCtAvailable && node->type->mode == modeRt &&
             Nest_hasProperty(fun, propAutoCt)) {
         node->type = Feather_checkChangeTypeMode(node->type, modeCt, node->location);
     }

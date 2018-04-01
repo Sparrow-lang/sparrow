@@ -67,14 +67,14 @@ EvalMode specifiedCtAvailability(const string& fileContent) {
     string firstLine = fileContent.substr(0, idxEnd);
     size_t idxCommentStart = firstLine.find(';');
     if (idxCommentStart == string::npos)
-        return modeRtCt;
+        return modeRt;
 
     // Search for ct modifiers in the comment
     if (string::npos != firstLine.find("rt", idxCommentStart))
-        return modeRtCt;
+        return modeRt;
     if (string::npos != firstLine.find("ct", idxCommentStart))
         return modeCt;
-    return modeRtCt;
+    return modeRt;
 }
 
 void parseSourceCode(SourceCode* sourceCode, CompilationContext* ctx) {

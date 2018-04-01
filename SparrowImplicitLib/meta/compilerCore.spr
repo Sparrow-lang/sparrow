@@ -22,7 +22,6 @@ using AstNodeRange = ContiguousMemoryRange(AstNode)
 using modeUnspecified = 0
 using modeRt = 1
 using modeCt = 2
-using modeRtCt = 3
 
 
 // Diagnostic

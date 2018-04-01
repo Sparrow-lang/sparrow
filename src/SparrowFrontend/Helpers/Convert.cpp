@@ -248,7 +248,7 @@ ConversionResult checkConversionCtor(
 
     TypeRef t = destClass->type;
     EvalMode destMode = t->mode;
-    if (destMode == modeRtCt)
+    if (destMode == modeRt)
         destMode = srcType->mode;
     t = Feather_checkChangeTypeMode(t, destMode, NOLOC);
     TypeRef resType = Feather_getLValueType(t);
@@ -256,7 +256,7 @@ ConversionResult checkConversionCtor(
     ConversionResult res = ConversionResult(convCustom,
             [=](Node* src) -> Node* {
                 Node* refToClass = createTypeNode(
-                        src->context, src->location, Feather_getDataType(destClass, 0, modeRtCt));
+                        src->context, src->location, Feather_getDataType(destClass, 0, modeRt));
                 return Feather_mkChangeMode(src->location,
                         mkFunApplication(src->location, refToClass, fromIniList({src})), destMode);
             },

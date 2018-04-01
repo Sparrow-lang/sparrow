@@ -68,11 +68,6 @@ void CtModule::ctProcess(Node* node) {
         REP_INTERNAL(
                 node->location, "Node should be semantically checked when passed to the backend");
 
-    // Make sure the type of the node can be used at compile time
-    if (node->type->mode == modeRt)
-        REP_INTERNAL(
-                node->location, "Cannot CT process this node: it has no meaning at compile-time");
-
     switch (node->nodeKind - Feather_getFirstFeatherNodeKind()) {
     case nkRelFeatherExpCtValue:
         return;

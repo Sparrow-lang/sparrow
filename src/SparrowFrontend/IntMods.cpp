@@ -33,7 +33,7 @@ void addOperatorCall(Node* dest, bool reverse, Node* operand1, const string& op,
 }
 
 // Add an associated function with the given body and given arguments, near the parent class
-// If autoCt==true, and mode==modeRtCt, we will also add the autoCt modifier
+// If autoCt==true, and mode==modeRt, we will also add the autoCt modifier
 // This is useful for things like the '==' operator
 Node* addAssociatedFun(Node* parent, const string& name, Node* body,
         vector<pair<TypeRef, string>> params, int overloadPrio, Node* resClass = nullptr,
@@ -50,7 +50,7 @@ Node* addAssociatedFun(Node* parent, const string& name, Node* body,
         sprParams.push_back(mkSprParameter(loc, fromString(param.second), param.first));
     }
     Node* parameters = sprParams.empty() ? nullptr : Feather_mkNodeList(loc, all(sprParams));
-    Node* ret = resClass ? createTypeNode(ctx, loc, Feather_getDataType(resClass, 0, modeRtCt))
+    Node* ret = resClass ? createTypeNode(ctx, loc, Feather_getDataType(resClass, 0, modeRt))
                          : nullptr;
 
     // Add the function in the context of the parent
@@ -61,7 +61,7 @@ Node* addAssociatedFun(Node* parent, const string& name, Node* body,
     if (mode == modeUnspecified)
         mode = Feather_effectiveEvalMode(parent);
     Feather_setEvalMode(f, mode);
-    if (mode == modeRtCt && autoCt)
+    if (mode == modeRt && autoCt)
         Nest_addModifier(f, SprFe_getAutoCtMod());
     Nest_setContext(f, ctx);
     if (!Nest_computeType(f))
@@ -295,7 +295,7 @@ void _IntModClassMembers_afterComputeType(Modifier*, Node* node) {
     Node* basicClass = Nest_explanation(node);
     basicClass = basicClass && basicClass->nodeKind == nkFeatherDeclClass ? basicClass : nullptr;
     ASSERT(basicClass);
-    TypeRef paramType = Feather_getDataType(basicClass, 1, modeRtCt);
+    TypeRef paramType = Feather_getDataType(basicClass, 1, modeRt);
 
     // Initialization ctor
     bool skipDefaultCtor = false;
@@ -306,7 +306,7 @@ void _IntModClassMembers_afterComputeType(Modifier*, Node* node) {
     if (!skipDefaultCtor)
         generateAssociatedFun(cls, "ctor", "ctor", nullptr);
     generateAssociatedFun(cls, "ctor", "ctor", paramType);
-    if (Feather_effectiveEvalMode(basicClass) == modeRtCt) {
+    if (Feather_effectiveEvalMode(basicClass) == modeRt) {
         TypeRef paramCt = Feather_getDataType(basicClass, 0, modeCt);
         generateAssociatedFun(cls, "ctorFromCt", "ctor", paramCt);
     }

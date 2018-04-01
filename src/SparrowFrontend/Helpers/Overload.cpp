@@ -328,23 +328,23 @@ Node* SprFrontend::selectCtToRtCtor(Node* ctArg) {
     if (ctArg->type->mode != modeCt || !ctArg->type->hasStorage)
         return nullptr;
     Node* cls = Feather_classDecl(ctArg->type);
-    if (Feather_effectiveEvalMode(cls) != modeRtCt)
+    if (Feather_effectiveEvalMode(cls) != modeRt)
         return nullptr;
 
     // Select the possible ct-to-rt constructors
     Callables candidates;
-    getCallables(fromIniList({cls}), modeRtCt, candidates, {}, "ctorFromCt");
+    getCallables(fromIniList({cls}), modeRt, candidates, {}, "ctorFromCt");
     if (candidates.empty())
         return nullptr;
 
     // Check the candidates to be able to be called with the given arguments
     vector<TypeRef> argTypes(1, ctArg->type);
     bool hasValidCandidates = filterCandidates(
-            ctArg->context, Location(), candidates, nullptr, &argTypes, modeRtCt, noCustomCvt);
+            ctArg->context, Location(), candidates, nullptr, &argTypes, modeRt, noCustomCvt);
     if (!hasValidCandidates) {
         REP_ERROR(loc, "No matching overload found for calling ctorFromCt");
         filterCandidatesErrReport(
-                ctArg->context, loc, candidates, nullptr, &argTypes, modeRtCt, noCustomCvt);
+                ctArg->context, loc, candidates, nullptr, &argTypes, modeRt, noCustomCvt);
         return nullptr;
     }
 
@@ -357,7 +357,7 @@ Node* SprFrontend::selectCtToRtCtor(Node* ctArg) {
     }
 
     // Generate the call to the ctor
-    auto cr = canCall(*call, ctArg->context, loc, fromIniList({ctArg}), modeRtCt, noCustomCvt);
+    auto cr = canCall(*call, ctArg->context, loc, fromIniList({ctArg}), modeRt, noCustomCvt);
     ASSERT(cr);
     if (!cr)
         return nullptr;

@@ -195,7 +195,7 @@ Node* checkDataTypeCtToRtConversion(Node* node) {
 
     TypeRef t = node->type;
     Node* cls = Feather_classForType(t);
-    if (Feather_effectiveEvalMode(cls) != modeRtCt)
+    if (Feather_effectiveEvalMode(cls) != modeRt)
         REP_INTERNAL(loc, "Cannot convert to RT; datatype %1% doesn't support it") % cls;
 
     // Check if we have a ct-to-rt ctor
@@ -212,7 +212,7 @@ Node* checkDataTypeCtToRtConversion(Node* node) {
     Nest_setContext(res, node->context);
     if (!Nest_computeType(res))
         return nullptr;
-    if (res->type->mode != modeRtCt)
+    if (res->type->mode != modeRt)
         REP_INTERNAL(loc, "Cannot convert to RT; invalid returned type (%1%)") % t;
 
     return res;
@@ -243,7 +243,7 @@ Node* SprFrontend::convertCtToRt(Node* node) {
         REP_ERROR_RET(nullptr, loc, "Cannot convert references from CT to RT (%1%)") % t;
 
     if (Feather_isBasicNumericType(t) ||
-            Feather_checkChangeTypeMode(t, modeRtCt, NOLOC) == StdDef::typeStringRef)
+            Feather_checkChangeTypeMode(t, modeRt, NOLOC) == StdDef::typeStringRef)
         return Nest_ctEval(node);
     else
         return checkDataTypeCtToRtConversion(node);

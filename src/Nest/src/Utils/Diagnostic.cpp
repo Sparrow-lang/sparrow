@@ -70,12 +70,10 @@ void doReport(const Location& loc, DiagnosticSeverity severity, const string& me
 
 inline const char* _evalModeToString(EvalMode mode) {
     switch (mode) {
-    case modeRt:
-        return "rt";
     case modeCt:
         return "ct";
-    case modeRtCt:
-        return "rtct";
+    case modeRt:
+        return "rt";
     default:
         return "unspecified";
     }

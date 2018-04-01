@@ -20,12 +20,12 @@ void ModPrivate_beforeComputeType(Modifier*, Node* node) { setAccessType(node, p
 
 void ModCt_beforeSetContext(Modifier*, Node* node) { Feather_setEvalMode(node, modeCt); }
 
-void ModRt_beforeSetContext(Modifier*, Node* node) { Feather_setEvalMode(node, modeRtCt); }
+void ModRt_beforeSetContext(Modifier*, Node* node) { Feather_setEvalMode(node, modeRt); }
 
 void ModAutoCt_beforeSetContext(Modifier*, Node* node) {
     if (node->nodeKind == nkSparrowDeclSprFunction) {
         Nest_setPropertyInt(node, propAutoCt, 1);
-        Feather_setEvalMode(node, modeRtCt);
+        Feather_setEvalMode(node, modeRt);
     } else
         REP_INTERNAL(node->location,
                 "'autoCt' modifier can be applied only to functions (applied to %1%)") %

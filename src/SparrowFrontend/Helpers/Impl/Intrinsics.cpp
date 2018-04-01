@@ -119,8 +119,8 @@ Node* impl_rt(CompilationContext* context, const Location& loc, const NodeVector
     TypeRef t = getType(args[0]);
 
     t = Feather_removeLValueIfPresent(t);
-    t = Feather_checkChangeTypeMode(t, modeRtCt, loc);
-    if (t->mode != modeRtCt)
+    t = Feather_checkChangeTypeMode(t, modeRt, loc);
+    if (t->mode != modeRt)
         REP_ERROR_RET(nullptr, loc, "Type %1% cannot be used at run-time") % t;
 
     return createTypeNode(context, loc, t);
@@ -195,12 +195,10 @@ Node* SprFrontend::handleIntrinsic(
     // Check for natives
     StringRef nativeName = Nest_getPropertyStringDeref(fun, propNativeName);
     if (size(nativeName) > 0 && nativeName.begin[0] == '$') {
-        if (nativeName == "$injectBackendCodeRt")
+        if (nativeName == "$injectBackendCode")
             return impl_injectBackendCode(context, loc, args, modeRt);
         if (nativeName == "$injectBackendCodeCt")
             return impl_injectBackendCode(context, loc, args, modeCt);
-        if (nativeName == "$injectBackendCodeRtCt")
-            return impl_injectBackendCode(context, loc, args, modeRtCt);
         if (nativeName == "$typeDescription")
             return impl_typeDescription(context, loc, args);
         if (nativeName == "$typeHasStorage")

@@ -64,8 +64,6 @@ llvm::Type* Tr::getLLVMType(TypeRef type, GlobalContext& ctx) {
     if (!type)
         REP_INTERNAL(NOLOC, "Invalid type to translate to LLVM");
     ASSERT(type);
-    if (ctx.targetBackend_.isCt() && type->mode == modeRt)
-        REP_INTERNAL(NOLOC, "Cannot use non-CT type at CT (%1%)") % type->description;
     if (!ctx.targetBackend_.isCt() && !type->canBeUsedAtRt)
         REP_INTERNAL(NOLOC, "Cannot use CT-only type at run-time (%1%)") % type->description;
 

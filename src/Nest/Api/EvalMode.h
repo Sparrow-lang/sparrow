@@ -1,12 +1,10 @@
 #pragma once
 
-/// Enumeration that determines the evaluation mode of nodes: rt, ct, or rtct
+/// Enumeration that determines the evaluation mode of nodes: rt, ct
 enum Nest_EvalMode {
     modeUnspecified = 0,
-    modeRt,   ///< Only available at run-time
-    modeCt,   ///< Only available at compile-time
-    modeRtCt, ///< Available both at run-time and compile-time, depending on the context in which
-              ///< invoked
+    modeRt, //!< Available both at run-time and compile-time, depending on the invocation context
+    modeCt, //!< Only available at compile-time
 };
 
 typedef enum Nest_EvalMode Nest_EvalMode;

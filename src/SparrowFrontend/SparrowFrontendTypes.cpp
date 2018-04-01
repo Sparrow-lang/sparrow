@@ -20,8 +20,6 @@ const char* getConceptTypeDescription(Node* concept, uint8_t numReferences, Eval
     }
     if (mode == modeCt)
         os << "/ct";
-    if (mode == modeRtCt)
-        os << "/rtct";
     return dupString(os.str().c_str());
 }
 

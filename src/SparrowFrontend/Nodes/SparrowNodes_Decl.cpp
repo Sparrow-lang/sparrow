@@ -259,7 +259,7 @@ TypeRef SprDatatype_ComputeType(Node* node) {
     checkStdClass(resultingClass);
 
     // We now have a type - from now on we can safely compute the types of the children
-    node->type = Feather_getDataType(resultingClass, 0, modeRtCt);
+    node->type = Feather_getDataType(resultingClass, 0, modeRt); // TODO (rtct)
 
     // Get the fields from the current class
     NodeVector fields = getFields(node->childrenContext->currentSymTab);
@@ -619,7 +619,7 @@ TypeRef SprVariable_ComputeType(Node* node) {
         return nullptr;
 
     // If this is a CT variable in a non-ct function, make this a global variable
-    if (varKind == varLocal && node->context->evalMode == modeRtCt && t->mode == modeCt)
+    if (varKind == varLocal && node->context->evalMode == modeRt && t->mode == modeCt)
         varKind = varGlobal;
 
     // If this is a CT variable in a non-ct function, make this a global variable

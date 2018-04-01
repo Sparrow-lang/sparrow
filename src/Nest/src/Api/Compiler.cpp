@@ -221,7 +221,7 @@ void Nest_createBackend(const char* mainFilename) {
     _backend->init(_backend, mainFilename);
 
     // Also create the root context
-    _rootContext = Nest_mkRootContext(_backend, modeRtCt);
+    _rootContext = Nest_mkRootContext(_backend, modeRt);
 }
 
 SourceCode* Nest_compileFile(StringRef filename) {

@@ -248,7 +248,8 @@ TypeRef SprDatatype_ComputeType(Node* node) {
         Nest_setPropertyString(resultingClass, propDescription, *description);
     }
 
-    Feather_setEvalMode(resultingClass, Feather_nodeEvalMode(node));
+    EvalMode evalMode = Feather_effectiveEvalMode(node);
+    Feather_setEvalMode(resultingClass, evalMode);
     resultingClass->childrenContext = node->childrenContext;
     Nest_setContext(resultingClass, node->context);
     Nest_setPropertyNode(node, propResultingDecl, resultingClass);
@@ -259,7 +260,7 @@ TypeRef SprDatatype_ComputeType(Node* node) {
     checkStdClass(resultingClass);
 
     // We now have a type - from now on we can safely compute the types of the children
-    node->type = Feather_getDataType(resultingClass, 0, modeRtCt);
+    node->type = Feather_getDataType(resultingClass, 0, evalMode);
 
     // Get the fields from the current class
     NodeVector fields = getFields(node->childrenContext->currentSymTab);
@@ -425,10 +426,11 @@ TypeRef SprFunction_ComputeType(Node* node) {
     // Compute the type of the return type node
     // We do this after the parameters, as the computation of the result might require access to the
     // parameters
-    TypeRef resType = returnType ? getType(returnType) : Feather_getVoidType(thisEvalMode);
+    EvalMode mode = Feather_combineMode(thisEvalMode, node->childrenContext->evalMode);
+    TypeRef resType = returnType ? getType(returnType) : Feather_getVoidType(mode);
     if (!resType)
         REP_INTERNAL(node->location, "Cannot compute the function resulting type");
-    resType = Feather_adjustModeBase(resType, thisEvalMode, node->childrenContext, node->location);
+    resType = Feather_checkChangeTypeMode(resType, mode, node->location);
 
     // If the result is a non-reference class, not basic numeric, and our function is not native,
     // add result parameter; otherwise, normal result

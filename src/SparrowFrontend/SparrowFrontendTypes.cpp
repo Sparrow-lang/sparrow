@@ -20,8 +20,6 @@ const char* getConceptTypeDescription(Node* concept, uint8_t numReferences, Eval
     }
     if (mode == modeCt)
         os << "/ct";
-    if (mode == modeRtCt)
-        os << "/rtct";
     return dupString(os.str().c_str());
 }
 
@@ -45,7 +43,6 @@ TypeRef getConceptType(Node* conceptOrGeneric, uint8_t numReferences, EvalMode m
     referenceType.numSubtypes = 0;
     referenceType.numReferences = numReferences;
     referenceType.hasStorage = 0;
-    referenceType.canBeUsedAtCt = 1;
     referenceType.canBeUsedAtRt = 1;
     referenceType.flags = 0;
     referenceType.referredNode = conceptOrGeneric;

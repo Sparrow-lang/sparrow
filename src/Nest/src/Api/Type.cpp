@@ -8,8 +8,8 @@ size_t getContentHash(const Type* type) noexcept {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     auto refNodeHash = reinterpret_cast<size_t>(type->referredNode);
     size_t res = (size_t)type->typeKind + (size_t)type->mode + type->numSubtypes +
-                 type->numReferences + type->hasStorage + type->canBeUsedAtCt +
-                 type->canBeUsedAtRt + type->flags + refNodeHash;
+                 type->numReferences + type->hasStorage + type->canBeUsedAtRt + type->flags +
+                 refNodeHash;
     for (int i = 0; i < type->numSubtypes; ++i)
         res += getContentHash(type->subTypes[i]);
     return res;
@@ -27,9 +27,8 @@ unordered_set<Type, TypeHasher> allTypes;
 bool operator==(const Type& lhs, const Type& rhs) {
     bool res = lhs.typeKind == rhs.typeKind && lhs.mode == rhs.mode &&
                lhs.numSubtypes == rhs.numSubtypes && lhs.numReferences == rhs.numReferences &&
-               lhs.hasStorage == rhs.hasStorage && lhs.canBeUsedAtCt == rhs.canBeUsedAtCt &&
-               lhs.canBeUsedAtRt == rhs.canBeUsedAtRt && lhs.flags == rhs.flags &&
-               lhs.referredNode == rhs.referredNode;
+               lhs.hasStorage == rhs.hasStorage && lhs.canBeUsedAtRt == rhs.canBeUsedAtRt &&
+               lhs.flags == rhs.flags && lhs.referredNode == rhs.referredNode;
     if (!res)
         return false;
     for (int i = 0; i < lhs.numSubtypes; ++i)

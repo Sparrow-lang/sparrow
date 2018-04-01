@@ -18,7 +18,7 @@ void initSparrowFrontendTypeKinds();
 /// Alternatively, instead of a concept, we can pass a generic class; we use
 /// the generic to behave like a concept
 TypeRef getConceptType(
-        Node* conceptOrGeneric = nullptr, uint8_t numReferences = 0, EvalMode mode = modeRtCt);
+        Node* conceptOrGeneric = nullptr, uint8_t numReferences = 0, EvalMode mode = modeRt);
 
 /// The concept associated with a ConceptType. Can be nullptr if no concept is used
 /// Works only for concept types.

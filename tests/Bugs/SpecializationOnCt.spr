@@ -1,6 +1,4 @@
 
-import std.algorithms;
-
 fun f(x: Int)
 {
     cout << "RT: f(" << x << ")\n";

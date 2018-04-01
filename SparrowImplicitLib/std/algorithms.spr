@@ -38,38 +38,37 @@ fun min(value1, value2: @AnyType, lessPred: AnyType): typeOf(value1) if typeOf(l
     fun swap(a, b: @Swappable) if typeOf(a) == typeOf(b)
         a.swap(b)
 
-[rtct]
-    /// Find the given value in the given range
-    fun find(r: Range, value: @AnyType): typeOf(r) if isValid(*r == value)
-        while !!r && !(*r == value)
-            ++r
-        return r
+/// Find the given value in the given range
+fun find(r: Range, value: @AnyType): typeOf(r) if isValid(*r == value)
+    while !!r && !(*r == value)
+        ++r
+    return r
 
-    /// Find in the range the first value that satisfy the given predicate
-    fun findIf(r: Range, pred: AnyType): typeOf(r) if typeOf(pred(*r)) == Bool
-        while !!r && !pred(*r)
-            ++r
-        return r
+/// Find in the range the first value that satisfy the given predicate
+fun findIf(r: Range, pred: AnyType): typeOf(r) if typeOf(pred(*r)) == Bool
+    while !!r && !pred(*r)
+        ++r
+    return r
 
-    /// Finds the index of the given value in the range
-    /// Returns -1 if not found
-    fun indexOf(r: Range, value: @AnyType): SizeType if isValid(*r == value)
-        var n: SizeType = 0
-        for v: r.RetType = r
-            if v == value
-                return n
-            ++n
-        return SizeType(DiffType(-1))
+/// Finds the index of the given value in the range
+/// Returns -1 if not found
+fun indexOf(r: Range, value: @AnyType): SizeType if isValid(*r == value)
+    var n: SizeType = 0
+    for v: r.RetType = r
+        if v == value
+            return n
+        ++n
+    return SizeType(DiffType(-1))
 
-    /// Finds the index of the value that satisfy the given predicate
-    /// Returns -1 if not found
-    fun indexOfIf(r: Range, pred: AnyType): SizeType if typeOf(pred(*r)) == Bool
-        var n: SizeType = 0
-        for v: r.RetType = r
-            if pred(v)
-                return n
-            ++n
-        return SizeType(DiffType(-1))
+/// Finds the index of the value that satisfy the given predicate
+/// Returns -1 if not found
+fun indexOfIf(r: Range, pred: AnyType): SizeType if typeOf(pred(*r)) == Bool
+    var n: SizeType = 0
+    for v: r.RetType = r
+        if pred(v)
+            return n
+        ++n
+    return SizeType(DiffType(-1))
 
 /// Find the first value from r1 that matches any value in r2
 /// Returns the subrange of r1 that starts with that value
@@ -184,80 +183,79 @@ fun indexOfRange(r1, r2: Range): SizeType if isValid(*r1 == *r2)
         ++idx
     return SizeType(DiffType(-1))
 
-[rtct]
-    /// Returns the position of the minimum element from the range
-    fun minElement(range: Range): typeOf(range) if isValid(*range < *range)
-        if !range
-            return range
-        var res = range
-        range popFront
-        while !!range ; range popFront
-            if *range < *res
-                res = range
-        return res
+/// Returns the position of the minimum element from the range
+fun minElement(range: Range): typeOf(range) if isValid(*range < *range)
+    if !range
+        return range
+    var res = range
+    range popFront
+    while !!range ; range popFront
+        if *range < *res
+            res = range
+    return res
 
-    /// Returns the position of the minimum element from the range, according to the given less predicate
-    fun minElementIf(range: Range, pred: AnyType): typeOf(range) if typeOf(pred(*range, *range)) == Bool
-        if !range
-            return range
-        var res = range
-        range popFront
-        while !!range ; range popFront
-            if pred(*range, *res)
-                res = range
-        return res
+/// Returns the position of the minimum element from the range, according to the given less predicate
+fun minElementIf(range: Range, pred: AnyType): typeOf(range) if typeOf(pred(*range, *range)) == Bool
+    if !range
+        return range
+    var res = range
+    range popFront
+    while !!range ; range popFront
+        if pred(*range, *res)
+            res = range
+    return res
 
-    /// Returns the position of the maximum element from the range
-    fun maxElement(range: Range): typeOf(range) if isValid(*range < *range)
-        if !range
-            return range
-        var res = range
-        range popFront
-        while !!range ; range popFront
-            if *res < *range
-                res = range
-        return res
+/// Returns the position of the maximum element from the range
+fun maxElement(range: Range): typeOf(range) if isValid(*range < *range)
+    if !range
+        return range
+    var res = range
+    range popFront
+    while !!range ; range popFront
+        if *res < *range
+            res = range
+    return res
 
-    /// Returns the position of the maximum element from the range, according to the given less predicate
-    fun maxElementIf(range: Range, pred: AnyType): typeOf(range) if typeOf(pred(*range, *range)) == Bool
-        if !range
-            return range
-        var res = range
-        range popFront
-        while !!range ; range popFront
-            if pred(*res, *range)
-                res = range
-        return res
+/// Returns the position of the maximum element from the range, according to the given less predicate
+fun maxElementIf(range: Range, pred: AnyType): typeOf(range) if typeOf(pred(*range, *range)) == Bool
+    if !range
+        return range
+    var res = range
+    range popFront
+    while !!range ; range popFront
+        if pred(*res, *range)
+            res = range
+    return res
 
-    /// Returns the minimum and the maximum positions from the range
-    fun minMaxElement(range: Range): typeOf(range ~ range) if isValid(*range < *range)
-        if !range
-            return range ~ range
-        var minRes = range
-        var maxRes = range
+/// Returns the minimum and the maximum positions from the range
+fun minMaxElement(range: Range): typeOf(range ~ range) if isValid(*range < *range)
+    if !range
+        return range ~ range
+    var minRes = range
+    var maxRes = range
+    range popFront
+    while !!range
+        if *minRes < *range
+            minRes = range
+        else if *range < *maxRes
+            maxRes = range
         range popFront
-        while !!range
-            if *minRes < *range
-                minRes = range
-            else if *range < *maxRes
-                maxRes = range
-            range popFront
-        return minRes ~ maxRes
+    return minRes ~ maxRes
 
-    /// Returns the minimum and the maximum positions from the range, according to the given less predicate
-    fun minMaxElementIf(range: Range, pred: AnyType): typeOf(range ~ range) if typeOf(pred(*range, *range)) == Bool
-        if !range
-            return range ~ range
-        var minRes = range
-        var maxRes = range
+/// Returns the minimum and the maximum positions from the range, according to the given less predicate
+fun minMaxElementIf(range: Range, pred: AnyType): typeOf(range ~ range) if typeOf(pred(*range, *range)) == Bool
+    if !range
+        return range ~ range
+    var minRes = range
+    var maxRes = range
+    range popFront
+    while !!range
+        if pred(*minRes, *range)
+            minRes = range
+        else if pred(*range, *maxRes)
+            maxRes = range
         range popFront
-        while !!range
-            if pred(*minRes, *range)
-                minRes = range
-            else if pred(*range, *maxRes)
-                maxRes = range
-            range popFront
-        return minRes ~ maxRes
+    return minRes ~ maxRes
 
 /// Compare the given ranges; emulates a less function
 fun compare(r1, r2: Range): Bool if isValid(*r1 < *r2)
@@ -318,7 +316,6 @@ fun foldRight(range: BidirRange, function: AnyType, seed: @AnyType): -@typeOf(se
 
 /// Copies the content of r1 over the content of r2
 /// returns the position in r2 where we stopped copying
-[rtct]
 fun copy(r1, r2: Range): typeOf(r2) if isValid(*r2 = *r1)
     while !!r1 && !!r2
         *r2 = *r1
@@ -351,88 +348,87 @@ fun reverse(range: BidirRange)
         *range swap t
         range popFront
 
-[rtct]
-    /// Merges r1 and r2 according to the standard less order, and copy the values into dest
-    /// Dest needs to be large enough to fit r1 and r2
-    /// Returns the amount of dst that is
-    fun merge(r1, r2, dest: Range): typeOf(dest) \
-            if isValid(*r2 < *r1) && isValid(*dest = *r1) && isValid(*dest = *r2)
-        while !!r1 && !!r2
-            if *r2 < *r1
-                *dest = *r2
-                r2 popFront
-            else
-                *dest = *r1
-                r1 popFront
-            dest popFront
-        return r2 copy (r1 copy dest);  // Copy any remaining items
+/// Merges r1 and r2 according to the standard less order, and copy the values into dest
+/// Dest needs to be large enough to fit r1 and r2
+/// Returns the amount of dst that is
+fun merge(r1, r2, dest: Range): typeOf(dest) \
+        if isValid(*r2 < *r1) && isValid(*dest = *r1) && isValid(*dest = *r2)
+    while !!r1 && !!r2
+        if *r2 < *r1
+            *dest = *r2
+            r2 popFront
+        else
+            *dest = *r1
+            r1 popFront
+        dest popFront
+    return r2 copy (r1 copy dest);  // Copy any remaining items
 
-    /// Merges r1 and r2 according to the given less predicate, and copy the values into dest
-    /// Dest needs to be large enough to fit r1 and r2
-    /// Returns the amount of dst that is
-    fun merge(r1, r2, dest: Range, pred: AnyType): typeOf(dest) \
-            if isValid(pred(*r2, *r1)) && isValid(*dest = *r1) && isValid(*dest = *r2)
-        while !!r1 && !!r2
-            if pred(*r2, *r1)
-                *dest = *r2
-                r2 popFront
-            else
-                *dest = *r1
-                r1 popFront
-            dest popFront
-        return r2 copy (r1 copy dest);  // Copy any remaining items
+/// Merges r1 and r2 according to the given less predicate, and copy the values into dest
+/// Dest needs to be large enough to fit r1 and r2
+/// Returns the amount of dst that is
+fun merge(r1, r2, dest: Range, pred: AnyType): typeOf(dest) \
+        if isValid(pred(*r2, *r1)) && isValid(*dest = *r1) && isValid(*dest = *r2)
+    while !!r1 && !!r2
+        if pred(*r2, *r1)
+            *dest = *r2
+            r2 popFront
+        else
+            *dest = *r1
+            r1 popFront
+        dest popFront
+    return r2 copy (r1 copy dest);  // Copy any remaining items
 
-    /// Sorts the given range
-    fun sort(range: RandomAccessRange)
-        if !!range
-            _quickSort(range, 0, rangeSize(range) - 1)
+/// Sorts the given range
+fun sort(range: RandomAccessRange)
+    if !!range
+        _quickSort(range, 0, rangeSize(range) - 1)
 
-    /// Sorts the given range according to the given less predicate
-    fun sort(range: RandomAccessRange, pred: AnyType) if typeOf(pred(*range, *range)) == Bool
-        if !!range
-            _quickSort(range, 0, rangeSize(range) - 1, pred)
+/// Sorts the given range according to the given less predicate
+fun sort(range: RandomAccessRange, pred: AnyType) if typeOf(pred(*range, *range)) == Bool
+    if !!range
+        _quickSort(range, 0, rangeSize(range) - 1, pred)
 
-    /// Apply quick sort to sort the given range
-    fun _quickSort(range: RandomAccessRange, m, n: SizeType)
-        if m >= n || n == SizeType(DiffType(-1))
-            return
+/// Apply quick sort to sort the given range
+fun _quickSort(range: RandomAccessRange, m, n: SizeType)
+    if m >= n || n == SizeType(DiffType(-1))
+        return
 
-        var p = (m + n) / 2
-        range(m) swap range(p)
+    var p = (m + n) / 2
+    range(m) swap range(p)
 
-        var mv = range(m)
-        var i = m + 1
-        var j = n
-        while i <= j
-            while i <= n && range(i) <= mv
-                ++i
-            while j >= m && range(j) > mv
-                --j
-            if i < j ; range(i) swap range(j)
-        range(m) swap range(j)
-        _quickSort(range, m, j-1)
-        _quickSort(range, j+1, n)
+    var mv = range(m)
+    var i = m + 1
+    var j = n
+    while i <= j
+        while i <= n && range(i) <= mv
+            ++i
+        while j >= m && range(j) > mv
+            --j
+        if i < j ; range(i) swap range(j)
+    range(m) swap range(j)
+    _quickSort(range, m, j-1)
+    _quickSort(range, j+1, n)
 
-    /// Apply quick sort to sort the given range, according to the given less predicate
-    fun _quickSort(range: RandomAccessRange, m, n: SizeType, pred: AnyType)
-        if m >= n || n == SizeType(DiffType(-1))
-            return
+/// Apply quick sort to sort the given range, according to the given less predicate
+fun _quickSort(range: RandomAccessRange, m, n: SizeType, pred: AnyType)
+    if m >= n || n == SizeType(DiffType(-1))
+        return
 
-        var p = (m + n) / 2
-        range(m) swap range(p)
+    var p = (m + n) / 2
+    range(m) swap range(p)
 
-        var mv = range(m)
-        var i = m + 1
-        var j = n
-        while i <= j
-            while i <= n && !pred(mv, range(i))
-                ++i
-            while j >= m && pred(mv, range(j))
-                --j
-            if i < j ; range(i) swap range(j)
-        range(m) swap range(j)
-        _quickSort(range, m, j-1, pred)
-        _quickSort(range, j+1, n, pred)
+    var mv = range(m)
+    var i = m + 1
+    var j = n
+    while i <= j
+        while i <= n && !pred(mv, range(i))
+            ++i
+        while j >= m && pred(mv, range(j))
+            --j
+        if i < j ; range(i) swap range(j)
+    range(m) swap range(j)
+    _quickSort(range, m, j-1, pred)
+    _quickSort(range, j+1, n, pred)
 
 /// Apply a binary search to find a value in a sorted range
 fun binarySearch(range: RandomAccessRange, value: AnyType): Bool \

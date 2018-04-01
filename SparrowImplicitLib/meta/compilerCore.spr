@@ -22,7 +22,6 @@ using AstNodeRange = ContiguousMemoryRange(AstNode)
 using modeUnspecified = 0
 using modeRt = 1
 using modeCt = 2
-using modeRtCt = 3
 
 
 // Diagnostic
@@ -32,19 +31,18 @@ using diagError     = 1
 using diagWarning   = 2
 using diagInfo      = 3
 
-[rtct]
-    // Type describing a diagnostic
-    datatype Diagnostic
-                type: Int
-                loc: Location
-                message: StringRef
+// Type describing a diagnostic
+datatype Diagnostic
+            type: Int
+            loc: Location
+            message: StringRef
 
-    fun mkDiagnostic(type: Int, loc: Location, message: StringRef): Diagnostic
-        var res: Diagnostic
-        res.type = type
-        res.loc = loc
-        res.message = message
-        return res
+fun mkDiagnostic(type: Int, loc: Location, message: StringRef): Diagnostic
+    var res: Diagnostic
+    res.type = type
+    res.loc = loc
+    res.message = message
+    return res
 
 [ct]
 /// Function called to report a diagnostic in the compiler
@@ -90,9 +88,6 @@ using diagInfo      = 3
     /// Returns the evaluation mode of the given type
     [native("$meta.AstType.mode")]
     fun mode(t: AstType): Int
-    /// Returns true if the given type can be used at compile-time
-    [native("$meta.AstType.canBeUsedAtCt")]
-    fun canBeUsedAtCt(t: AstType): Bool
     /// Returns true if the given type can be used at run-time
     [native("$meta.AstType.canBeUsedAtRt")]
     fun canBeUsedAtRt(t: AstType): Bool

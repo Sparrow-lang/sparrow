@@ -1,6 +1,5 @@
 //!!
 
-[rtct]
 datatype TestData = Int
 
 concept MyConcept(x);

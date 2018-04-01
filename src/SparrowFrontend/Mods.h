@@ -9,7 +9,6 @@ Modifier* SprFe_getProtectedMod();
 Modifier* SprFe_getPrivateMod();
 Modifier* SprFe_getCtMod();
 Modifier* SprFe_getRtMod();
-Modifier* SprFe_getRtCtMod();
 Modifier* SprFe_getAutoCtMod();
 Modifier* SprFe_getCtGenericMod();
 Modifier* SprFe_getNativeMod(StringRef name);

@@ -63,7 +63,6 @@ StringRef ctApi_AstType_toString(TypeRef thisArg) { return dupCStr(thisArg->desc
 bool ctApi_AstType_hasStorage(TypeRef thisArg) { return thisArg->hasStorage; }
 int ctApi_AstType_numReferences(TypeRef thisArg) { return thisArg->numReferences; }
 int ctApi_AstType_mode(TypeRef thisArg) { return thisArg->mode; }
-bool ctApi_AstType_canBeUsedAtCt(TypeRef thisArg) { return thisArg->canBeUsedAtCt; }
 bool ctApi_AstType_canBeUsedAtRt(TypeRef thisArg) { return thisArg->canBeUsedAtRt; }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -260,7 +259,6 @@ void Feather_registerCtApiFunctions(Backend* backend) {
     ctApiReg(backend, "$meta.AstType.hasStorage", &ctApi_AstType_hasStorage);
     ctApiReg(backend, "$meta.AstType.numReferences", &ctApi_AstType_numReferences);
     ctApiReg(backend, "$meta.AstType.mode", &ctApi_AstType_mode);
-    ctApiReg(backend, "$meta.AstType.canBeUsedAtCt", &ctApi_AstType_canBeUsedAtCt);
     ctApiReg(backend, "$meta.AstType.canBeUsedAtRt", &ctApi_AstType_canBeUsedAtRt);
 
     ctApiReg(backend, "$meta.AstNode.clone", &ctApi_AstNode_clone);

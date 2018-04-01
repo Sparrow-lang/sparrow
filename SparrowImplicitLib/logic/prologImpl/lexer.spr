@@ -1,168 +1,167 @@
 import token
 import errorReporter
 
-[rtct]
-    datatype Lexer(sourceType, errorReporterType: Type)
-        using TokenType = Token
-        using RetType = TokenType
-        using _SourceType = sourceType
-        using _ErrorReporterType = errorReporterType
+datatype Lexer(sourceType, errorReporterType: Type)
+    using TokenType = Token
+    using RetType = TokenType
+    using _SourceType = sourceType
+    using _ErrorReporterType = errorReporterType
 
-        _source: sourceType
-        _errorReporter: errorReporterType
-        _curToken: Token
-        _curLocation: Location
+    _source: sourceType
+    _errorReporter: errorReporterType
+    _curToken: Token
+    _curLocation: Location
 
-    fun ctor(this: @Lexer, source: @this._SourceType, errorReporter: @this._ErrorReporterType)
-        var startLoc: Location
-        startLoc setOne
-        this.ctor(source, errorReporter, startLoc)
+fun ctor(this: @Lexer, source: @this._SourceType, errorReporter: @this._ErrorReporterType)
+    var startLoc: Location
+    startLoc setOne
+    this.ctor(source, errorReporter, startLoc)
 
-    fun ctor(this: @Lexer, source: @this._SourceType, errorReporter: @this._ErrorReporterType, startLoc: Location)
-        this._source ctor source
-        this._errorReporter ctor errorReporter
-        this._curToken ctor
-        this._curLocation ctor startLoc
+fun ctor(this: @Lexer, source: @this._SourceType, errorReporter: @this._ErrorReporterType, startLoc: Location)
+    this._source ctor source
+    this._errorReporter ctor errorReporter
+    this._curToken ctor
+    this._curLocation ctor startLoc
 
-        _curLocation setAsStartOf _curLocation
+    _curLocation setAsStartOf _curLocation
 
-        // Read the first token
-        this._curToken = this._getNextToken
+    // Read the first token
+    this._curToken = this._getNextToken
 
-    fun mkLexer(source: @CharRange, errorReporter: @AnyType) = Lexer(-@typeOf(source), -@typeOf(errorReporter))(source, errorReporter)
-    fun mkLexer(source: @CharRange, errorReporter: @AnyType, startLoc: Location) = Lexer(-@typeOf(source), -@typeOf(errorReporter))(source, errorReporter, startLoc)
+fun mkLexer(source: @CharRange, errorReporter: @AnyType) = Lexer(-@typeOf(source), -@typeOf(errorReporter))(source, errorReporter)
+fun mkLexer(source: @CharRange, errorReporter: @AnyType, startLoc: Location) = Lexer(-@typeOf(source), -@typeOf(errorReporter))(source, errorReporter, startLoc)
 
-    fun isEmpty(this: @Lexer)             = _source.isEmpty
-    fun front(this: @Lexer)               = _curToken
-    fun ()(this: @Lexer)                  = _curToken
+fun isEmpty(this: @Lexer)             = _source.isEmpty
+fun front(this: @Lexer)               = _curToken
+fun ()(this: @Lexer)                  = _curToken
 
-    fun popFront(this: @Lexer)            { _curToken = this._getNextToken }
-    //fun pre_++(this: @Lexer): RetType    { this.popFront; return _curToken }
-    //fun post_++(this: @Lexer): RetType   { var res = _curToken; this.popFront; return res }
+fun popFront(this: @Lexer)            { _curToken = this._getNextToken }
+//fun pre_++(this: @Lexer): RetType    { this.popFront; return _curToken }
+//fun post_++(this: @Lexer): RetType   { var res = _curToken; this.popFront; return res }
 
-    fun _getNextToken(this: @Lexer): Token
-        // The current location starts where the last one ended
-        _curLocation stepOver
+fun _getNextToken(this: @Lexer): Token
+    // The current location starts where the last one ended
+    _curLocation stepOver
 
-        // First check if the source is empty; if so, return an EOF token
-        if _source.isEmpty
-            return Token(_curLocation, tkEof)
-
-        // Get the first character in the source
-        var ch = _source()
-
-        // Check for whitespace
-        if isSpace(ch)
-            this._consumeWhiteSpace    // Just drop it
-            return this._getNextToken  // Get the next token
-
-        // Check for comments
-        if ch == '%'.char
-            this._consumeLineComment   // Just drop all characters until the end of line
-            return this._getNextToken  // Get the next token
-
-
-        if isAlnum(ch)
-            // Check for numbers, variables and string atoms
-            if isDigit(ch)
-                var data = this._consumeNumber
-                return Token(_curLocation, tkNumber, data)
-            else if isUpper(ch)
-                var data = this._consumeIdentifier
-                return Token(_curLocation, tkVar, data)
-            else
-                var data = this._consumeIdentifier
-                if data == String("is")
-                    return Token(_curLocation, tkIs, data)
-                return Token(_curLocation, tkAtom, data)
-        else if ch == '$'.char
-            var data = this._consumeAntiQuote
-            return Token(_curLocation, tkAntiQuote, data)
-        else
-            var chNext = this._advanceSource
-            if ch == '('.char
-                return Token(_curLocation, tkLParen)
-            else if ch == ')'.char
-                return Token(_curLocation, tkRParen)
-            else if ch == '['.char
-                return Token(_curLocation, tkLBracket)
-            else if ch == ']'.char
-                return Token(_curLocation, tkRBracket)
-            else if ch == '.'.char
-                return Token(_curLocation, tkDot)
-            else if ch == ','.char
-                return Token(_curLocation, tkComma)
-            else if ch == '+'.char
-                return Token(_curLocation, tkOpPlus)
-            else if ch == '-'.char
-                return Token(_curLocation, tkOpMinus)
-            else if ch == '*'.char
-                return Token(_curLocation, tkOpMul)
-            else if ch == '/'.char
-                return Token(_curLocation, tkOpDiv)
-            else if ch == ':'.char && chNext == '-'.char
-                this._advanceSource
-                return Token(_curLocation, tkClause)
-
-
-        var errMsg: String = "Invalid character found while parsing Prolog code: "
-        errMsg.append(ch)
-        _errorReporter.raiseError(_curLocation, errMsg.asStringRef)
+    // First check if the source is empty; if so, return an EOF token
+    if _source.isEmpty
         return Token(_curLocation, tkEof)
 
-    fun _consumeWhiteSpace(this: @Lexer)
-        var ch = _source()
-        while !_source.isEmpty && isSpace(ch)
-            ch = this._advanceSource
-    fun _consumeLineComment(this: @Lexer)
-        var ch = _source()
-        while !_source.isEmpty && ch != '\n'.char
-            ch = this._advanceSource
-        if !_source.isEmpty
+    // Get the first character in the source
+    var ch = _source()
+
+    // Check for whitespace
+    if isSpace(ch)
+        this._consumeWhiteSpace    // Just drop it
+        return this._getNextToken  // Get the next token
+
+    // Check for comments
+    if ch == '%'.char
+        this._consumeLineComment   // Just drop all characters until the end of line
+        return this._getNextToken  // Get the next token
+
+
+    if isAlnum(ch)
+        // Check for numbers, variables and string atoms
+        if isDigit(ch)
+            var data = this._consumeNumber
+            return Token(_curLocation, tkNumber, data)
+        else if isUpper(ch)
+            var data = this._consumeIdentifier
+            return Token(_curLocation, tkVar, data)
+        else
+            var data = this._consumeIdentifier
+            if data == String("is")
+                return Token(_curLocation, tkIs, data)
+            return Token(_curLocation, tkAtom, data)
+    else if ch == '$'.char
+        var data = this._consumeAntiQuote
+        return Token(_curLocation, tkAntiQuote, data)
+    else
+        var chNext = this._advanceSource
+        if ch == '('.char
+            return Token(_curLocation, tkLParen)
+        else if ch == ')'.char
+            return Token(_curLocation, tkRParen)
+        else if ch == '['.char
+            return Token(_curLocation, tkLBracket)
+        else if ch == ']'.char
+            return Token(_curLocation, tkRBracket)
+        else if ch == '.'.char
+            return Token(_curLocation, tkDot)
+        else if ch == ','.char
+            return Token(_curLocation, tkComma)
+        else if ch == '+'.char
+            return Token(_curLocation, tkOpPlus)
+        else if ch == '-'.char
+            return Token(_curLocation, tkOpMinus)
+        else if ch == '*'.char
+            return Token(_curLocation, tkOpMul)
+        else if ch == '/'.char
+            return Token(_curLocation, tkOpDiv)
+        else if ch == ':'.char && chNext == '-'.char
             this._advanceSource
-    fun _consumeNumber(this: @Lexer): String
+            return Token(_curLocation, tkClause)
+
+
+    var errMsg: String = "Invalid character found while parsing Prolog code: "
+    errMsg.append(ch)
+    _errorReporter.raiseError(_curLocation, errMsg.asStringRef)
+    return Token(_curLocation, tkEof)
+
+fun _consumeWhiteSpace(this: @Lexer)
+    var ch = _source()
+    while !_source.isEmpty && isSpace(ch)
+        ch = this._advanceSource
+fun _consumeLineComment(this: @Lexer)
+    var ch = _source()
+    while !_source.isEmpty && ch != '\n'.char
+        ch = this._advanceSource
+    if !_source.isEmpty
+        this._advanceSource
+fun _consumeNumber(this: @Lexer): String
+    var res: String
+    var ch = _source()
+    while !_source.isEmpty && isDigit(ch)
+        res.pushBack(ch)
+        ch = this._advanceSource
+    return res
+fun _consumeIdentifier(this: @Lexer): String
+    var res: String
+    var ch = _source()
+    while !_source.isEmpty && isAlnum(ch)
+        res.pushBack(ch)
+        ch = this._advanceSource
+    return res
+fun _consumeAntiQuote(this: @Lexer): String
+    var ch = this._advanceSource
+    if ch == '{'.char
         var res: String
-        var ch = _source()
-        while !_source.isEmpty && isDigit(ch)
+        var braces = 1
+        ch = this._advanceSource
+        _curLocation stepOver
+        while !_source.isEmpty
+            if _source.isEmpty
+                _errorReporter.raiseError(_curLocation, "End of stream found inside anti-quotation")
+            if ch == '}'.char
+                if --braces == 0
+                    ch = this._advanceSource
+                    break
+
             res.pushBack(ch)
+
+            if ch == '{'.char
+                ++braces
             ch = this._advanceSource
         return res
-    fun _consumeIdentifier(this: @Lexer): String
-        var res: String
-        var ch = _source()
-        while !_source.isEmpty && isAlnum(ch)
-            res.pushBack(ch)
-            ch = this._advanceSource
-        return res
-    fun _consumeAntiQuote(this: @Lexer): String
-        var ch = this._advanceSource
-        if ch == '{'.char
-            var res: String
-            var braces = 1
-            ch = this._advanceSource
-            _curLocation stepOver
-            while !_source.isEmpty
-                if _source.isEmpty
-                    _errorReporter.raiseError(_curLocation, "End of stream found inside anti-quotation")
-                if ch == '}'.char
-                    if --braces == 0
-                        ch = this._advanceSource
-                        break
+    else
+        _curLocation stepOver
+        return this._consumeIdentifier
 
-                res.pushBack(ch)
-
-                if ch == '{'.char
-                    ++braces
-                ch = this._advanceSource
-            return res
-        else
-            _curLocation stepOver
-            return this._consumeIdentifier
-
-    fun _advanceSource(this: @Lexer): Char
-        if _source() == '\n'.char
-            _curLocation addLines 1
-        else
-            _curLocation addColumns 1
-        _source popFront
-        return _source front
+fun _advanceSource(this: @Lexer): Char
+    if _source() == '\n'.char
+        _curLocation addLines 1
+    else
+        _curLocation addColumns 1
+    _source popFront
+    return _source front

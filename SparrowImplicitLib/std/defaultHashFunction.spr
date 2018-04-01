@@ -4,29 +4,27 @@ import ranges
 import bitOper
 import string(String)
 
-[rtct]
-    datatype DefaultHashFunction(type: Type)
-        using ValueType = type
+datatype DefaultHashFunction(type: Type)
+    using ValueType = type
 
-[rtct, protected]
+[protected]
     fun ()(this: DefaultHashFunction, arg: @this.ValueType) = defaultHash(arg)
 
-[rtct]
-    fun defaultHash(arg: Char)        = _doHash(Byte(arg), _seed)
-    //fun defaultHash(arg: Integer)     = _doHash(arg, _seed)
-    fun defaultHash(arg: Integer)     = SizeType(arg)
-    fun defaultHash(arg: StringRef)   = _doHash(arg, _seed)
-    fun defaultHash(arg: @String)     = _doHash(arg.asStringRef(), _seed)
+fun defaultHash(arg: Char)        = _doHash(Byte(arg), _seed)
+//fun defaultHash(arg: Integer)     = _doHash(arg, _seed)
+fun defaultHash(arg: Integer)     = SizeType(arg)
+fun defaultHash(arg: StringRef)   = _doHash(arg, _seed)
+fun defaultHash(arg: @String)     = _doHash(arg.asStringRef(), _seed)
 
 
-    using _seed = 0xfadef00d
+using _seed = 0xfadef00d
 
-    /// FNV hash generator
-    fun _doHash(key: StringRef, start: SizeType): SizeType
-        var hash = start
-        for i = 0..key.size
-            hash = (hash !^! SizeType(Byte(key(i)))) * 0x01000193
-        return hash
+/// FNV hash generator
+fun _doHash(key: StringRef, start: SizeType): SizeType
+    var hash = start
+    for i = 0..key.size
+        hash = (hash !^! SizeType(Byte(key(i)))) * 0x01000193
+    return hash
 
-    fun _doHash(value, start: SizeType): SizeType
-        return (start !^! value) * 0x01000193
+fun _doHash(value, start: SizeType): SizeType
+    return (start !^! value) * 0x01000193

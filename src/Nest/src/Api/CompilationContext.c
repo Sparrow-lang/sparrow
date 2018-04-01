@@ -21,13 +21,9 @@ CompilationContext* Nest_mkChildContext(CompilationContext* parent, EvalMode mod
     ctx->evalMode = (mode == modeUnspecified) ? parent->evalMode : mode;
     ctx->sourceCode = parent->sourceCode;
 
-    // TODO (rtct): Handle this
-    //     if ( parent->evalMode == modeCt && mode != modeCt )
-    //         Nest_reportDiagnostic(NOLOC, diagError, "Cannot create non-CT context inside of a CT
-    //         context");
-    if (parent->evalMode == modeRtCt && mode == modeRt)
+    if (parent->evalMode == modeCt && mode != modeCt)
         Nest_reportDiagnostic(
-                NOLOC, diagError, "Cannot create RT context inside of a RTCT context");
+                NOLOC, diagError, "Cannot create non-CT context inside of a CT context");
 
     return ctx;
 }

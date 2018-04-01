@@ -1,12 +1,10 @@
 import basicDecls(StringRef, Char, Int, Long, Double, typeOf)
 
-[rtct]
-    fun asInt(src: StringRef)       = _StringCvtImpl.atoi(src.cStr())
-    fun asLong(src: StringRef)      = _StringCvtImpl.atoll(src.cStr())
-    fun asDouble(src: StringRef)    = _StringCvtImpl.atof(src.cStr())
+fun asInt(src: StringRef)       = _StringCvtImpl.atoi(src.cStr())
+fun asLong(src: StringRef)      = _StringCvtImpl.atoll(src.cStr())
+fun asDouble(src: StringRef)    = _StringCvtImpl.atof(src.cStr())
 
 package _StringCvtImpl
-    [rtct]
-        [native("atoi")] fun atoi(str: @Char): Int
-        [native("atoll")] fun atoll(str: @Char): Long
-        [native("atof")] fun atof(str: @Char): Double
+    [native("atoi")] fun atoi(str: @Char): Int
+    [native("atoll")] fun atoll(str: @Char): Long
+    [native("atof")] fun atof(str: @Char): Double

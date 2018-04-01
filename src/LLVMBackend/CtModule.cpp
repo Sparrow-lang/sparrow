@@ -68,11 +68,6 @@ void CtModule::ctProcess(Node* node) {
         REP_INTERNAL(
                 node->location, "Node should be semantically checked when passed to the backend");
 
-    // Make sure the type of the node can be used at compile time
-    if (node->type->mode == modeRt)
-        REP_INTERNAL(
-                node->location, "Cannot CT process this node: it has no meaning at compile-time");
-
     switch (node->nodeKind - Feather_getFirstFeatherNodeKind()) {
     case nkRelFeatherExpCtValue:
         return;
@@ -222,9 +217,14 @@ Node* CtModule::ctEvaluateExpression(Node* node) {
     // We will add our anonymous expression into this module
     ASSERT(llvmModule_);
 
+    const char* modName = "CT anonymous expression eval module";
+    // Debug info
+    // ostringstream oss2;
+    // oss2 << "CT eval - " << node->location;
+    // string modName = oss2.str();
+
     // Create a new LLVM module for this function, an a corresponding global context
-    unique_ptr<llvm::Module> anonExprEvalModule(
-            new llvm::Module("CT anonymous expression eval module", *llvmContext_));
+    unique_ptr<llvm::Module> anonExprEvalModule(new llvm::Module(modName, *llvmContext_));
     llvm::Module* tmpMod = anonExprEvalModule.get();
     anonExprEvalModule->setDataLayout(dataLayout_);
     Tr::GlobalContext ctx(*anonExprEvalModule, *llvmModule_, *this);

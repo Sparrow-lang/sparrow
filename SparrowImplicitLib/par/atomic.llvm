@@ -1,5 +1,3 @@
-;rtct
-
 define i32 @_Atomic_load32(i32* %atomic) {
     %1 = load atomic i32* %atomic seq_cst, align 4
     ret i32 %1
@@ -20,7 +18,7 @@ define i1 @_Atomic_compareAndSwap32(i32* %atomic, i32 %val, i32 %comparand) {
     ret i1 %success
 }
 define i32 @_Atomic_fetchAndAdd32(i32* %atomic, i32 %val) {
-    %old = atomicrmw add i32* %atomic, i32 %val seq_cst    
+    %old = atomicrmw add i32* %atomic, i32 %val seq_cst
     ret i32 %old
 }
 
@@ -45,6 +43,6 @@ define i1 @_Atomic_compareAndSwap64(i64* %atomic, i64 %val, i64 %comparand) {
     ret i1 %success
 }
 define i64 @_Atomic_fetchAndAdd64(i64* %atomic, i64 %val) {
-    %old = atomicrmw add i64* %atomic, i64 %val seq_cst    
+    %old = atomicrmw add i64* %atomic, i64 %val seq_cst
     ret i64 %old
 }

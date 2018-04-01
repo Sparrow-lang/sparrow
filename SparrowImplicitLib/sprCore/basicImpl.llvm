@@ -1,5 +1,3 @@
-; flags: rtct
-
 %Type = type { i8* }
 
 declare i32 @printf(i8*, ...)

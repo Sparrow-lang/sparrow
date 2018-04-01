@@ -328,14 +328,12 @@ Node* SprFrontend::selectCtToRtCtor(Node* ctArg) {
     if (ctArg->type->mode != modeCt || !ctArg->type->hasStorage)
         return nullptr;
     Node* cls = Feather_classDecl(ctArg->type);
-    if (Feather_effectiveEvalMode(cls) != modeRtCt)
+    if (Feather_effectiveEvalMode(cls) != modeRt)
         return nullptr;
 
     // Select the possible ct-to-rt constructors
     Callables candidates;
-    getCallables(fromIniList({cls}), modeRt, candidates,
-            [](Node* decl) -> bool { return Feather_effectiveEvalMode(decl) == modeRt; },
-            "ctorFromCt");
+    getCallables(fromIniList({cls}), modeRt, candidates, {}, "ctorFromCt");
     if (candidates.empty())
         return nullptr;
 

@@ -45,6 +45,9 @@ TypeRef getParamType(const CallableData& c, int idx, bool hideImplicit = false) 
     Node* param = at(c.params, idx);
     ASSERT(param);
     TypeRef res = param ? param->type : nullptr;
+    // Parameters of generic classes or packages are always CT
+    if (c.type == CallableType::genericClass || c.type == CallableType::genericPackage)
+        res = Feather_checkChangeTypeMode(res, modeCt, param->location);
     return res;
 }
 
@@ -92,20 +95,14 @@ bool checkEvalMode(
     if (c.type == CallableType::concept)
         return true;
 
-    // Check if eval-mode allows us to call the callable
     EvalMode declEvalMode = Feather_effectiveEvalMode(c.decl);
-    if (declEvalMode == modeRt && (evalMode == modeCt || evalMode == modeRtCt)) {
-        if (reportErrors)
-            REP_INFO(NOLOC, "Cannot call RT only functions in CT and RTCT contexts");
-        return false;
-    }
 
     // Compute the final version of autoCt flag. We force a CT call in the following cases:
     //  - the target callable is CT
     //  - the calling mode is CT
     //  - if we have a true 'autoCt' function, and all params are CT, make a CT call
     bool useCt = declEvalMode == modeCt || evalMode == modeCt;
-    if (!useCt && declEvalMode == modeRtCt && c.autoCt) {
+    if (!useCt && declEvalMode == modeRt && c.autoCt) {
         // In autoCt mode, if all the arguments are CT, make a CT call
         useCt = true;
         for (TypeRef t : argTypes) {
@@ -174,7 +171,7 @@ NodeVector argsWithConversion(const CallableData& c) {
 TypeRef varType(Node* cls, EvalMode mode) {
     // Get the type of the temporary variable
     TypeRef t = cls->type;
-    if (mode != modeRtCt)
+    if (mode != modeRt)
         t = Feather_checkChangeTypeMode(t, mode, cls->location);
     return t;
 }
@@ -235,7 +232,7 @@ void getClassCtorCallables(Node* cls, EvalMode evalMode, Callables& res,
     // Search for the ctors associated with the class
     NodeArray decls = getClassAssociatedDecls(cls, ctorName);
 
-    evalMode = Feather_combineMode(Feather_effectiveEvalMode(cls), evalMode, cls->location);
+    evalMode = Feather_combineMode(Feather_effectiveEvalMode(cls), evalMode);
     if (!Nest_computeType(cls))
         return;
     TypeRef implicitArgType = varType(cls, evalMode);
@@ -322,7 +319,6 @@ EvalMode GenericFunCallParams::getFinalEvalMode(
     // If all the types checked are RT- or CT- only, we return the
     // corresponding mode.
     // If not, return the original eval mode.
-    bool hasRtOnlyArgs = false;
     bool hasCtOnlyArgs = false;
     auto numGenericParams = Nest_nodeRangeSize(genericParams);
     ASSERT(size(args) == numGenericParams);
@@ -341,17 +337,13 @@ EvalMode GenericFunCallParams::getFinalEvalMode(
             typeToCheck = tryGetTypeValue(arg);
         }
         if (typeToCheck) {
-            if (!typeToCheck->canBeUsedAtCt)
-                hasRtOnlyArgs = true;
-            else if (!typeToCheck->canBeUsedAtRt)
+            if (!typeToCheck->canBeUsedAtRt)
                 hasCtOnlyArgs = true;
         }
     }
 
     if (hasCtOnlyArgs)
         return modeCt;
-    else if (hasRtOnlyArgs)
-        return modeRt;
     return origEvalMode;
 }
 
@@ -641,7 +633,7 @@ void handleGenericFunParam(GenericFunCallParams& callParams, int idx, Node* arg,
         //
         // A concept param will ensure the creation of a final param.
         if (paramType->mode != modeCt ||
-                (callParams.origEvalMode_ == modeRtCt && callParams.finalEvalMode_ == modeCt))
+                (callParams.origEvalMode_ == modeRt && callParams.finalEvalMode_ == modeCt))
             boundValType = paramType;
     } else if (isConceptType(paramType, isRefAuto)) {
         // Deduce the type for boundVal for regular concept types
@@ -842,7 +834,6 @@ NodeVector getGenericClassOrPackageBoundValues(NodeRange args) {
  */
 EvalMode getGenericClassOrPackageResultingEvalMode(
         const Location& loc, EvalMode mainEvalMode, NodeRange boundValues) {
-    bool hasRtOnlyArgs = false;
     bool hasCtOnlyArgs = false;
     for (Node* boundVal : boundValues) {
         if (!boundVal)
@@ -852,9 +843,7 @@ EvalMode getGenericClassOrPackageResultingEvalMode(
         // if Vector(t) can be rtct based on the mode of t)
         TypeRef t = tryGetTypeValue(boundVal);
         if (t) {
-            if (t->mode == modeRt)
-                hasRtOnlyArgs = true;
-            else if (t->mode == modeCt)
+            if (t->mode == modeCt)
                 hasCtOnlyArgs = true;
         } else if (!boundVal->type->canBeUsedAtRt) {
             hasCtOnlyArgs = true;
@@ -863,8 +852,6 @@ EvalMode getGenericClassOrPackageResultingEvalMode(
 
     if (hasCtOnlyArgs)
         return modeCt;
-    if (hasRtOnlyArgs)
-        return modeRt;
     return mainEvalMode;
 }
 
@@ -993,7 +980,7 @@ Node* callGenericClass(GenericClassNode node, const Location& loc, CompilationCo
     // Now actually create the call object: a Type CT value
     Node* cls = Nest_ofKind(Nest_explanation(instDecl), nkFeatherDeclClass);
     ASSERT(cls);
-    return createTypeNode(node.node->context, loc, Feather_getDataType(cls, 0, modeRtCt));
+    return createTypeNode(node.node->context, loc, Feather_getDataType(cls, 0, modeRt));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

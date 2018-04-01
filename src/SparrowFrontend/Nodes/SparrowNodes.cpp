@@ -56,8 +56,6 @@ void applyModifier(Node* base, Node* modNode) {
             mod = SprFe_getCtMod();
         else if (name == "rt")
             mod = SprFe_getRtMod();
-        else if (name == "rtct")
-            mod = SprFe_getRtCtMod();
         else if (name == "autoCt")
             mod = SprFe_getAutoCtMod();
         else if (name == "ctGeneric")

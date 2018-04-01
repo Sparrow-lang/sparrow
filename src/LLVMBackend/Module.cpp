@@ -17,10 +17,5 @@ Module::~Module() = default;
 bool Module::canUse(Node* decl) const {
     EvalMode mode = Feather_effectiveEvalMode(decl);
     ASSERT(mode != modeUnspecified);
-    if (mode == modeRt && isCt())
-        return false;
-    else if (mode == modeCt && !isCt())
-        return false;
-    else
-        return true;
+    return mode != modeCt || isCt();
 }

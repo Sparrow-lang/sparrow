@@ -4,21 +4,19 @@ import contiguousMemoryRange(ContiguousMemoryRange)
 import rawPtr(RawPtr, allocRawPtr)
 import ranges(rangeSize, ..)
 
-[rtct]
-    datatype Array(valueType: Type)
-        using ValueType = valueType
-        using RangeType = ContiguousMemoryRange(valueType)
+datatype Array(valueType: Type)
+    using ValueType = valueType
+    using RangeType = ContiguousMemoryRange(valueType)
 
-        _begin, _end: RawPtr(ValueType)
+    _begin, _end: RawPtr(ValueType)
 
-[rt, protected]
-fun ctorFromCt(this: @Array, src: Array ct)
-    [ct] var size = src size
-    this ctor size
-    [ct] for i = 0..size
-        this(i) = src(i)
+[protected]
+    fun ctorFromCt(this: @Array, src: Array ct)
+        [ct] var size = src size
+        this ctor size
+        [ct] for i = 0..size
+            this(i) = src(i)
 
-[rtct, protected]
     fun ctor(this: @Array, other: typeOf(this))
         var size = other.size
 

@@ -56,8 +56,6 @@ TypeRef Feather_checkChangeTypeMode(TypeRef type, EvalMode mode, Location loc) {
 
     if (mode == modeCt && resType->mode != modeCt)
         REP_ERROR_RET(nullptr, loc, "Type '%1%' cannot be used at compile-time") % type;
-    if (mode == modeRt && resType->mode != modeRt)
-        REP_ERROR_RET(nullptr, loc, "Type '%1%' cannot be used at run-time") % type;
 
     return resType;
 }
@@ -124,47 +122,26 @@ int Feather_isSameTypeIgnoreMode(TypeRef t1, TypeRef t2) {
     return t == t2;
 }
 
-EvalMode Feather_combineMode(EvalMode mode, EvalMode baseMode, Location loc) {
-    switch (baseMode) {
-    case modeRt:
-        return mode == modeRtCt ? modeRt : mode;
-    case modeCt:
-        if (mode == modeRt)
-            REP_ERROR(loc, "Cannot use the RT mode inside of a CT context");
+EvalMode Feather_combineMode(EvalMode mode1, EvalMode mode2) {
+    if (mode1 == modeCt || mode2 == modeCt)
         return modeCt;
-    case modeRtCt:
-    default:
-        return mode;
-    }
+    if (mode1 == modeUnspecified)
+        return mode2;
+    return mode1;
 }
 
-EvalMode Feather_combineModeForceBase(EvalMode mode, EvalMode baseMode, Location loc) {
-    switch (baseMode) {
-    case modeRt:
+EvalMode Feather_combineModeBottom(EvalMode mode1, EvalMode mode2) {
+    if (mode1 == modeRt || mode2 == modeRt)
         return modeRt;
-    case modeCt:
-        if (mode == modeRt)
-            REP_ERROR(loc, "Cannot use the RT mode inside of a CT context");
-        return modeCt;
-    case modeRtCt:
-    default:
-        return mode;
-    }
+    if (mode1 == modeUnspecified)
+        return mode2;
+    return mode1;
 }
 
 TypeRef Feather_adjustMode(TypeRef srcType, CompilationContext* context, Location loc) {
     ASSERT(srcType);
     ASSERT(context);
-    EvalMode resMode = Feather_combineMode(srcType->mode, context->evalMode, loc);
-    return Feather_checkChangeTypeMode(srcType, resMode, loc);
-}
-
-TypeRef Feather_adjustModeBase(
-        TypeRef srcType, EvalMode baseMode, CompilationContext* context, Location loc) {
-    ASSERT(srcType);
-    ASSERT(context);
-    baseMode = Feather_combineMode(baseMode, context->evalMode, loc);
-    EvalMode resMode = Feather_combineModeForceBase(srcType->mode, baseMode, loc);
+    EvalMode resMode = Feather_combineMode(srcType->mode, context->evalMode);
     return Feather_checkChangeTypeMode(srcType, resMode, loc);
 }
 
@@ -182,64 +159,44 @@ void _printContextNodes(Node* node) {
     }
 }
 
-void Feather_checkEvalMode(Node* src, EvalMode referencedEvalMode) {
+void Feather_checkEvalMode(Node* src) {
     ASSERT(src && src->type);
     EvalMode nodeEvalMode = src->type->mode;
     EvalMode contextEvalMode = src->context->evalMode;
 
     // Check if the context eval mode requirements are fulfilled
-    if (contextEvalMode == modeRtCt && nodeEvalMode == modeRt) {
-        _printContextNodes(src);
-        REP_INTERNAL(src->location, "Cannot have RT nodes in a RT-CT context (%1%)") %
-                Nest_toStringEx(src);
-    }
     if (contextEvalMode == modeCt && nodeEvalMode != modeCt) {
         _printContextNodes(src);
         REP_INTERNAL(src->location, "Cannot have non-CT nodes in a CT context (%1%)") %
                 Nest_toStringEx(src);
     }
 
+    // If we have a CT eval mode, then all the children must be CT
+    if (nodeEvalMode == modeCt) {
+        for (Node* child : src->children) {
+            if (!child || !child->type)
+                continue;
+
+            // Ignore declarations
+            if (_isDecl(child))
+                continue;
+
+            if (child->type->mode != modeCt)
+                REP_INTERNAL(child->location,
+                        "Children of a CT node must be CT; current mode: %1% (%2%)") %
+                        child->type->mode % child;
+        }
+    }
+}
+
+void Feather_checkEvalModeWithExpected(Node* src, EvalMode referencedEvalMode) {
+    Feather_checkEvalMode(src);
+
+    ASSERT(src && src->type);
+    EvalMode nodeEvalMode = src->type->mode;
+
     // Check if the referenced eval mode requirements are fulfilled
     if (referencedEvalMode == modeCt && nodeEvalMode != modeCt)
         REP_INTERNAL(src->location, "CT node required; found: %1% (%2%)") % nodeEvalMode %
                 Nest_toStringEx(src);
-    if (referencedEvalMode == modeRt && nodeEvalMode != modeRt)
-        REP_INTERNAL(src->location, "RT node required; found: %1% (%2%)") % nodeEvalMode %
-                Nest_toStringEx(src);
-
-    // If the node has direct children, check them
-    if (Nest_nodeArraySize(src->children) != 0) {
-        // If we have a CT eval mode, then all the children must be CT
-        if (nodeEvalMode == modeCt) {
-            for (Node* child : src->children) {
-                if (!child || !child->type)
-                    continue;
-
-                // Ignore declarations
-                if (_isDecl(child))
-                    continue;
-
-                if (child->type->mode != modeCt)
-                    REP_INTERNAL(child->location,
-                            "Children of a CT node must be CT; current mode: %1% (%2%)") %
-                            child->type->mode % child;
-            }
-        }
-        // If we have a RT-CT eval mode, then no children must be RT
-        if (nodeEvalMode == modeRtCt) {
-            for (Node* child : src->children) {
-                if (!child || !child->type)
-                    continue;
-
-                // Ignore declarations
-                if (_isDecl(child))
-                    continue;
-
-                if (child->type && child->type->mode == modeRt)
-                    REP_INTERNAL(child->location, "Children of a RT-CT node must not be RT; "
-                                                  "current mode: %1% (from %2%)") %
-                            child->type->mode % child->type;
-            }
-        }
-    }
 }

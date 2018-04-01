@@ -22,12 +22,10 @@ void ModCt_beforeSetContext(Modifier*, Node* node) { Feather_setEvalMode(node, m
 
 void ModRt_beforeSetContext(Modifier*, Node* node) { Feather_setEvalMode(node, modeRt); }
 
-void ModRtCt_beforeSetContext(Modifier*, Node* node) { Feather_setEvalMode(node, modeRtCt); }
-
 void ModAutoCt_beforeSetContext(Modifier*, Node* node) {
     if (node->nodeKind == nkSparrowDeclSprFunction) {
         Nest_setPropertyInt(node, propAutoCt, 1);
-        Feather_setEvalMode(node, modeRtCt);
+        Feather_setEvalMode(node, modeRt);
     } else
         REP_INTERNAL(node->location,
                 "'autoCt' modifier can be applied only to functions (applied to %1%)") %
@@ -117,7 +115,6 @@ Modifier _protectedMod = {modTypeBeforeComputeType, &ModProtected_beforeComputeT
 Modifier _privateMod = {modTypeBeforeComputeType, &ModPrivate_beforeComputeType};
 Modifier _ctMod = {modTypeBeforeSetContext, &ModCt_beforeSetContext};
 Modifier _rtMod = {modTypeBeforeSetContext, &ModRt_beforeSetContext};
-Modifier _rtCtMod = {modTypeBeforeSetContext, &ModRtCt_beforeSetContext};
 Modifier _autoCtMod = {modTypeBeforeSetContext, &ModAutoCt_beforeSetContext};
 Modifier _ctGenericMod = {modTypeBeforeComputeType, &ModCtGeneric_beforeComputeType};
 Modifier _convertMod = {modTypeBeforeComputeType, &ModConvert_beforeComputeType};
@@ -131,7 +128,6 @@ Modifier* SprFe_getProtectedMod() { return &_protectedMod; }
 Modifier* SprFe_getPrivateMod() { return &_privateMod; }
 Modifier* SprFe_getCtMod() { return &_ctMod; }
 Modifier* SprFe_getRtMod() { return &_rtMod; }
-Modifier* SprFe_getRtCtMod() { return &_rtCtMod; }
 Modifier* SprFe_getAutoCtMod() { return &_autoCtMod; }
 Modifier* SprFe_getCtGenericMod() { return &_ctGenericMod; }
 Modifier* SprFe_getConvertMod() { return &_convertMod; }
@@ -150,6 +146,4 @@ Modifier* SprFe_getNativeMod(StringRef name) {
     return (Modifier*)res;
 }
 
-bool SprFe_isEvalModeMod(Modifier* mod) {
-    return mod == &_ctMod || mod == &_rtMod || mod == &_rtCtMod;
-}
+bool SprFe_isEvalModeMod(Modifier* mod) { return mod == &_ctMod || mod == &_rtMod; }

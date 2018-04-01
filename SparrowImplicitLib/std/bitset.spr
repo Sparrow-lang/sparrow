@@ -3,11 +3,10 @@ module std.bitset
 import array(Array)
 import bitOper
 
-[rtct]
-    datatype Bitset
-        _bits: Array(UByte)
+datatype Bitset
+    _bits: Array(UByte)
 
-[rtct, protected]
+[protected]
     fun ctor(this: @Bitset, noBits: SizeType)
         _bits.ctor(1 + (noBits-1)/8, UByte(0))
 

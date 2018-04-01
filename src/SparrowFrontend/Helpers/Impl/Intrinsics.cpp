@@ -39,13 +39,6 @@ Node* impl_typeMode(CompilationContext* context, const Location& loc, const Node
     return buildIntLiteral(loc, t->mode);
 }
 
-Node* impl_typeCanBeUsedAtCt(
-        CompilationContext* context, const Location& loc, const NodeVector& args) {
-    CHECK(loc, args.size() == 1);
-    TypeRef t = getType(args[0]);
-    return buildBoolLiteral(loc, t->canBeUsedAtCt);
-}
-
 Node* impl_typeCanBeUsedAtRt(
         CompilationContext* context, const Location& loc, const NodeVector& args) {
     CHECK(loc, args.size() == 1);
@@ -195,20 +188,16 @@ Node* SprFrontend::handleIntrinsic(
     // Check for natives
     StringRef nativeName = Nest_getPropertyStringDeref(fun, propNativeName);
     if (size(nativeName) > 0 && nativeName.begin[0] == '$') {
-        if (nativeName == "$injectBackendCodeRt")
+        if (nativeName == "$injectBackendCode")
             return impl_injectBackendCode(context, loc, args, modeRt);
         if (nativeName == "$injectBackendCodeCt")
             return impl_injectBackendCode(context, loc, args, modeCt);
-        if (nativeName == "$injectBackendCodeRtCt")
-            return impl_injectBackendCode(context, loc, args, modeRtCt);
         if (nativeName == "$typeDescription")
             return impl_typeDescription(context, loc, args);
         if (nativeName == "$typeHasStorage")
             return impl_typeHasStorage(context, loc, args);
         if (nativeName == "$typeMode")
             return impl_typeMode(context, loc, args);
-        if (nativeName == "$typeCanBeUsedAtCt")
-            return impl_typeCanBeUsedAtCt(context, loc, args);
         if (nativeName == "$typeCanBeUsedAtRt")
             return impl_typeCanBeUsedAtRt(context, loc, args);
         if (nativeName == "$typeNumRef")

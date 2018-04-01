@@ -154,7 +154,7 @@ Node* SprFrontend::createFunctionCall(
         EvalMode funEvalMode = Feather_effectiveEvalMode(fun);
         if (funEvalMode == modeCt && resTypeRef->mode != modeCt)
             resTypeRef = Feather_checkChangeTypeMode(resTypeRef, modeCt, resultParam->location);
-        if (funEvalMode == modeRtCt && Nest_hasProperty(fun, propAutoCt) &&
+        if (funEvalMode == modeRt && Nest_hasProperty(fun, propAutoCt) &&
                 resTypeRef->mode != modeCt && _areNodesCt(args))
             resTypeRef = Feather_checkChangeTypeMode(resTypeRef, modeCt, resultParam->location);
 
@@ -188,7 +188,7 @@ Node* SprFrontend::createFunctionCall(
         return nullptr;
 
     // CT sanity check
-    // Feather_checkEvalMode(funCall, Feather_effectiveEvalMode(fun));
+    Feather_checkEvalModeWithExpected(res, Feather_effectiveEvalMode(fun));
 
     return res;
 }
@@ -221,7 +221,7 @@ Node* SprFrontend::createTempVarConstruct(
     Nest_setPropertyNode(res, propTempVarContstruction, constructAction);
 
     // CT sanity checks
-    Feather_checkEvalMode(res, var->type->mode);
+    Feather_checkEvalModeWithExpected(res, var->type->mode);
 
     return res;
 }

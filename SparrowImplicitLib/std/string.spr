@@ -9,53 +9,51 @@ import rawPtr(RawPtr, allocRawPtr)
 // TODO: Can we implement a VectorDetail(Type, InnerSpace), and implement fun Vector(type) = VectorBase(type, 0)
 
 /// String class that has ownership of the characters
-[rtct]
-    datatype String
-        using ValueType = Char
-        using ValuePassType = Char
-        using RangeType = StringRef
+datatype String
+    using ValueType = Char
+    using ValuePassType = Char
+    using RangeType = StringRef
 
-        using _initialCapacity = SizeType(16)
-        using _growthFactor = 1.5
-        using _PtrType = RawPtr(Char)
+    using _initialCapacity = SizeType(16)
+    using _growthFactor = 1.5
+    using _PtrType = RawPtr(Char)
 
-        _begin, _end, _endOfStore: _PtrType
+    _begin, _end, _endOfStore: _PtrType
 
-    fun ctor(this: @String)
-        _begin ctor
-        _end ctor
-        _endOfStore ctor
-    fun ctor(this: @String, size: SizeType)
-        _begin       ctor allocRawPtr(Char, size+1)
-        _end         ctor _begin.advance(DiffType(size))
-        _endOfStore  ctor _end
-        _end.value = Char(0)
-    fun ctor(this: @String, count: SizeType, ch: Char)
-        this.ctor(count)
-        memset(_begin.bytePtr, reinterpretCast(@Byte, ch), count)
-    fun ctor(this, other: @String)
-        var size = other size
-        this.ctor(size)
-        memcpy(_begin.bytePtr, other._begin.bytePtr, size)
-    [convert] fun ctor(this: @String, other: @StringRef)
-        var size = other size
-        this.ctor(size)
-        memcpy(_begin.bytePtr, other.begin, size)
-    fun ctor(this: @String, _begin, _end: RawPtr(Char))
-        var size = _end.diff(_begin)
-        this.ctor(size)
-        memcpy(this._begin.bytePtr, _begin.bytePtr, size)
-    fun ctor(this: @String, range: Range) if typeOf(range) != String
-        this.ctor(rangeSize(range))
-        var i=0
-        for ch = range
-            _begin.advance(DiffType(i++)).value = ch
+fun ctor(this: @String)
+    _begin ctor
+    _end ctor
+    _endOfStore ctor
+fun ctor(this: @String, size: SizeType)
+    _begin       ctor allocRawPtr(Char, size+1)
+    _end         ctor _begin.advance(DiffType(size))
+    _endOfStore  ctor _end
+    _end.value = Char(0)
+fun ctor(this: @String, count: SizeType, ch: Char)
+    this.ctor(count)
+    memset(_begin.bytePtr, reinterpretCast(@Byte, ch), count)
+fun ctor(this, other: @String)
+    var size = other size
+    this.ctor(size)
+    memcpy(_begin.bytePtr, other._begin.bytePtr, size)
+[convert] fun ctor(this: @String, other: @StringRef)
+    var size = other size
+    this.ctor(size)
+    memcpy(_begin.bytePtr, other.begin, size)
+fun ctor(this: @String, _begin, _end: RawPtr(Char))
+    var size = _end.diff(_begin)
+    this.ctor(size)
+    memcpy(this._begin.bytePtr, _begin.bytePtr, size)
+fun ctor(this: @String, range: Range) if typeOf(range) != String
+    this.ctor(rangeSize(range))
+    var i=0
+    for ch = range
+        _begin.advance(DiffType(i++)).value = ch
 
-[rt, protected]
-fun ctorFromCt(this: @String, src: String ct)
-    this ctor src.asStringRef
+[protected]
+    fun ctorFromCt(this: @String, src: String ct)
+        this ctor src.asStringRef
 
-[rtct, protected]
     fun dtor(this: @String)
         _begin.freePtr
 
@@ -259,12 +257,10 @@ fun + (x: String, y: StringRef): String
 //    return res
 
 
-[rtct]
 fun intToString(x: Int): String
     var buf: static_buffer(12)
     _intToCString(x, reinterpretCast(@Char, buf))
     return String(fromCString(reinterpretCast(@Char, buf)))
-[rtct]
 fun ulongToString(x: ULong): String
     var buf: static_buffer(16)
     _ulongToCString(x, reinterpretCast(@Char, buf))
@@ -272,11 +268,10 @@ fun ulongToString(x: ULong): String
 
 // TODO
 
-[rtct]
-    datatype StringOutputStream
-        result: String
+datatype StringOutputStream
+    result: String
 
-[rtct, protected]
+[protected]
     fun <<<(this: @StringOutputStream, s: @String)       { result.append(s.all) }
     fun <<<(this: @StringOutputStream, s: StringRef)     { result.append(s) }
     fun <<<(this: @StringOutputStream, x: Char)          { result.append(x) }
@@ -314,5 +309,5 @@ fun toString(a1, a2, a3, a4, a5, a6, a7: AnyType): String
     s << a1 << a2 << a3 << a4 << a5 << a6 << a7
     return s.result
 
-[rtct, native("_Int_to_CString")] fun _intToCString(x: Int, buffer: @Char)
-[rtct, native("_ULong_to_CString")] fun _ulongToCString(x: ULong, buffer: @Char)
+[native("_Int_to_CString")] fun _intToCString(x: Int, buffer: @Char)
+[native("_ULong_to_CString")] fun _ulongToCString(x: ULong, buffer: @Char)

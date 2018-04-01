@@ -47,11 +47,10 @@ fun CollectionBook(author, name, isbn, collection: StringRef): CollectionBook
     res.col ctor collection
     return res
 
-[rtct]
-    [initCtor] datatype Tuple(t1, t2: Type)
-        using arity = 2
-        v1: t1
-        v2: t2
+[initCtor] datatype Tuple(t1, t2: Type)
+    using arity = 2
+    v1: t1
+    v2: t2
 
 [ctGeneric] fun *(t1,t2: Type): Type = Tuple(t1, t2)
 

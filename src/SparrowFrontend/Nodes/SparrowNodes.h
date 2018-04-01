@@ -11,6 +11,7 @@ enum SparrowNodeKinds {
     nkRelSparrowDeclImportName,
     nkRelSparrowDeclPackage,
     nkRelSparrowDeclSprDatatype,
+    nkRelSparrowDeclSprField,
     nkRelSparrowDeclSprFunction,
     nkRelSparrowDeclSprParameter,
     nkRelSparrowDeclSprVariable,

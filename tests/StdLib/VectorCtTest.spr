@@ -13,7 +13,7 @@ fun sprMain
     else if n == 2; test2
 }
 
-[rtct, initCtor]
+[initCtor]
 datatype MyObj
     x: Int
 

@@ -168,8 +168,8 @@ datatype SortedTable(keyType, valueType, valueToKeyType, lessType, compareType: 
     fun clear(this: @SortedTable)
         _table.clear
 
-[rtct] datatype Less(type: Type) if isValid(#$type < #$type)
+datatype Less(type: Type) if isValid(#$type < #$type)
     using ValueType = type
-[rtct, protected]
+[protected]
     fun ()(this: Less, l, r: @this.ValueType) = l < r
 

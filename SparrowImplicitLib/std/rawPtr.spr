@@ -1,16 +1,15 @@
 module std.rawPtr
 
-[rtct]
-    [initCtor]
-    datatype RawPtr(valueType: Type)
-        using ValueType = valueType
+[initCtor]
+datatype RawPtr(valueType: Type)
+    using ValueType = valueType
 
-        _ptr: @ValueType
+    _ptr: @ValueType
 
-    fun ctor(this: @RawPtr, byteRef: @Byte) if this.ValueType != Byte
-        _ptr := reinterpretCast(@ValueType, byteRef)
+fun ctor(this: @RawPtr, byteRef: @Byte) if this.ValueType != Byte
+    _ptr := reinterpretCast(@ValueType, byteRef)
 
-[rtct, protected]
+[protected]
     fun < (this, other: RawPtr)       = ptrDiff(this.bytePtr(), other.bytePtr()) < DiffType(0)
 
     fun value(this: RawPtr): @ValueType                     = _ptr
@@ -40,7 +39,6 @@ module std.rawPtr
     fun >>(this: RawPtr, os: @OutStream)
         os << "RawPtr(" << mkStreamRefWrapper(this.bytePtr) << ")"
 
-[rtct]
-    fun mkRawPtr(ref: @AnyType) = RawPtr(-@typeOf(ref))(ref)
-    fun allocRawPtr(t: Type, num: SizeType) = RawPtr(t)(reinterpretCast(@t, malloc(num * sizeOf(t))))
+fun mkRawPtr(ref: @AnyType) = RawPtr(-@typeOf(ref))(ref)
+fun allocRawPtr(t: Type, num: SizeType) = RawPtr(t)(reinterpretCast(@t, malloc(num * sizeOf(t))))
 

@@ -61,26 +61,26 @@ void SprFrontend::checkStdClass(Node* cls) {
     StringRef clsName = Feather_getName(cls);
 
     if (clsName == "Void")
-        StdDef::typeVoid = Feather_getDataType(cls, 0, modeRtCt);
+        StdDef::typeVoid = Feather_getDataType(cls, 0, modeRt);
     else if (clsName == "Null")
-        StdDef::typeNull = Feather_getDataType(cls, 0, modeRtCt);
+        StdDef::typeNull = Feather_getDataType(cls, 0, modeRt);
     else if (clsName == "Bool") {
         StdDef::clsBool = cls;
-        StdDef::typeBool = Feather_getDataType(cls, 0, modeRtCt);
+        StdDef::typeBool = Feather_getDataType(cls, 0, modeRt);
     } else if (clsName == "Byte") {
-        StdDef::typeByte = Feather_getDataType(cls, 0, modeRtCt);
-        StdDef::typeRefByte = Feather_getDataType(cls, 1, modeRtCt);
+        StdDef::typeByte = Feather_getDataType(cls, 0, modeRt);
+        StdDef::typeRefByte = Feather_getDataType(cls, 1, modeRt);
     } else if (clsName == "Int") {
-        StdDef::typeInt = Feather_getDataType(cls, 0, modeRtCt);
-        StdDef::typeRefInt = Feather_getDataType(cls, 1, modeRtCt);
+        StdDef::typeInt = Feather_getDataType(cls, 0, modeRt);
+        StdDef::typeRefInt = Feather_getDataType(cls, 1, modeRt);
     } else if (clsName == "SizeType") {
-        StdDef::typeSizeType = Feather_getDataType(cls, 0, modeRtCt);
+        StdDef::typeSizeType = Feather_getDataType(cls, 0, modeRt);
         StdDef::typeSizeTypeCt = Feather_getDataType(cls, 0, modeCt);
     } else if (clsName == "Type") {
-        StdDef::typeType = Feather_getDataType(cls, 0, modeRtCt);
-        StdDef::typeRefType = Feather_getDataType(cls, 1, modeRtCt);
+        StdDef::typeType = Feather_getDataType(cls, 0, modeRt);
+        StdDef::typeRefType = Feather_getDataType(cls, 1, modeRt);
     } else if (clsName == "StringRef")
-        StdDef::typeStringRef = Feather_getDataType(cls, 0, modeRtCt);
+        StdDef::typeStringRef = Feather_getDataType(cls, 0, modeRt);
 
     classesFound = StdDef::typeVoid != nullptr && StdDef::typeNull != nullptr &&
                    StdDef::typeBool != nullptr && StdDef::typeByte != nullptr &&

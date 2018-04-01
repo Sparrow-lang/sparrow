@@ -21,80 +21,77 @@ using tkOpMinus = 14
 using tkOpMul = 15
 using tkOpDiv = 16
 
-[rtct]
-    datatype Token
-        loc: Location
-        type: Int
-        data: String
+datatype Token
+    loc: Location
+    type: Int
+    data: String
 
-    fun ctor(this: @Token, loc: @Location, type: Int)
-        this.loc ctor loc
-        this.type ctor type
-        this.data ctor
-    fun ctor(this: @Token, loc: @Location, type: Int, data: @String)
-        this.loc ctor loc
-        this.type ctor type
-        this.data ctor data
-
-
-    fun >>(this: @Token, os: @OutStream)
-        if type == tkEof
-            os << "<eof>"
-        else if type == tkWhitespace
-            os << "<ws>"
-        else if type == tkLParen
-            os << "<(>"
-        else if type == tkRParen
-            os << "<)>"
-        else if type == tkLBracket
-            os << "<[>"
-        else if type == tkRBracket
-            os << "<]>"
-        else if type == tkDot
-            os << "<.>"
-        else if type == tkComma
-            os << "<,>"
-        else if type == tkClause
-            os << "<:->"
-        else if type == tkVar
-            os << "<v:" << data << ">"
-        else if type == tkAtom
-            os << "<a:" << data << ">"
-        else if type == tkNumber
-            os << "<n:" << data << ">"
-        else if type == tkAntiQuote
-            os << "<$:" << data << ">"
-        else
-            os << "<?:" << data << ">"
-
-    fun tokenTypeToString(type: Int): String
-        if type == tkEof
-            return "EOF"
-        else if type == tkWhitespace
-            return "whitespace"
-        else if type == tkLParen
-            return "'('"
-        else if type == tkRParen
-            return "')'"
-        else if type == tkLBracket
-            return "'['"
-        else if type == tkRBracket
-            return "']'"
-        else if type == tkDot
-            return "'.'"
-        else if type == tkComma
-            return "','"
-        else if type == tkClause
-            return "':-'"
-        else if type == tkVar
-            return "variable"
-        else if type == tkAtom
-            return "atom"
-        else if type == tkNumber
-            return "number"
-        else if type == tkAntiQuote
-            return "antiquote"
-        else
-            return "invalid token"
+fun ctor(this: @Token, loc: @Location, type: Int)
+    this.loc ctor loc
+    this.type ctor type
+    this.data ctor
+fun ctor(this: @Token, loc: @Location, type: Int, data: @String)
+    this.loc ctor loc
+    this.type ctor type
+    this.data ctor data
 
 
+fun >>(this: @Token, os: @OutStream)
+    if type == tkEof
+        os << "<eof>"
+    else if type == tkWhitespace
+        os << "<ws>"
+    else if type == tkLParen
+        os << "<(>"
+    else if type == tkRParen
+        os << "<)>"
+    else if type == tkLBracket
+        os << "<[>"
+    else if type == tkRBracket
+        os << "<]>"
+    else if type == tkDot
+        os << "<.>"
+    else if type == tkComma
+        os << "<,>"
+    else if type == tkClause
+        os << "<:->"
+    else if type == tkVar
+        os << "<v:" << data << ">"
+    else if type == tkAtom
+        os << "<a:" << data << ">"
+    else if type == tkNumber
+        os << "<n:" << data << ">"
+    else if type == tkAntiQuote
+        os << "<$:" << data << ">"
+    else
+        os << "<?:" << data << ">"
+
+fun tokenTypeToString(type: Int): String
+    if type == tkEof
+        return "EOF"
+    else if type == tkWhitespace
+        return "whitespace"
+    else if type == tkLParen
+        return "'('"
+    else if type == tkRParen
+        return "')'"
+    else if type == tkLBracket
+        return "'['"
+    else if type == tkRBracket
+        return "']'"
+    else if type == tkDot
+        return "'.'"
+    else if type == tkComma
+        return "','"
+    else if type == tkClause
+        return "':-'"
+    else if type == tkVar
+        return "variable"
+    else if type == tkAtom
+        return "atom"
+    else if type == tkNumber
+        return "number"
+    else if type == tkAntiQuote
+        return "antiquote"
+    else
+        return "invalid token"

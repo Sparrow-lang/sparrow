@@ -96,7 +96,6 @@ TypeRef Feather_getVoidType(EvalMode mode) {
     referenceType.numSubtypes = 0;
     referenceType.numReferences = 0;
     referenceType.hasStorage = 0;
-    referenceType.canBeUsedAtCt = 1;
     referenceType.canBeUsedAtRt = 1;
     referenceType.flags = 0;
     referenceType.referredNode = nullptr;
@@ -120,7 +119,6 @@ TypeRef Feather_getDataType(Node* classDecl, unsigned numReferences, EvalMode mo
     referenceType.numSubtypes = 0;
     referenceType.numReferences = numReferences;
     referenceType.hasStorage = 1;
-    referenceType.canBeUsedAtCt = true; // TODO (rtct): Remove this
     referenceType.canBeUsedAtRt = classMode != modeCt;
     referenceType.flags = 0;
     referenceType.referredNode = classDecl;
@@ -139,7 +137,6 @@ TypeRef Feather_getLValueType(TypeRef base) {
     referenceType.numSubtypes = 1;
     referenceType.numReferences = 1 + base->numReferences;
     referenceType.hasStorage = 1;
-    referenceType.canBeUsedAtCt = base->canBeUsedAtCt;
     referenceType.canBeUsedAtRt = base->canBeUsedAtRt;
     referenceType.flags = 0;
     referenceType.referredNode = base->referredNode;
@@ -166,7 +163,6 @@ TypeRef Feather_getArrayType(TypeRef unitType, unsigned count) {
     referenceType.numSubtypes = 1;
     referenceType.numReferences = 0;
     referenceType.hasStorage = 1;
-    referenceType.canBeUsedAtCt = unitType->canBeUsedAtCt;
     referenceType.canBeUsedAtRt = unitType->canBeUsedAtRt;
     referenceType.flags = count;
     referenceType.referredNode = unitType->referredNode;
@@ -195,7 +191,6 @@ TypeRef Feather_getFunctionType(TypeRef* resultTypeAndParams, unsigned numTypes,
     referenceType.numSubtypes = numTypes;
     referenceType.numReferences = 0;
     referenceType.hasStorage = 1;
-    referenceType.canBeUsedAtCt = 1;
     referenceType.canBeUsedAtRt = 1;
     referenceType.flags = 0;
     referenceType.referredNode = nullptr;

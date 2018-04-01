@@ -88,9 +88,6 @@ fun mkDiagnostic(type: Int, loc: Location, message: StringRef): Diagnostic
     /// Returns the evaluation mode of the given type
     [native("$meta.AstType.mode")]
     fun mode(t: AstType): Int
-    /// Returns true if the given type can be used at compile-time
-    [native("$meta.AstType.canBeUsedAtCt")]
-    fun canBeUsedAtCt(t: AstType): Bool
     /// Returns true if the given type can be used at run-time
     [native("$meta.AstType.canBeUsedAtRt")]
     fun canBeUsedAtRt(t: AstType): Bool

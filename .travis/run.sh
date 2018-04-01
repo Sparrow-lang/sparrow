@@ -18,6 +18,10 @@ cmake .. $CFG_PARAMS
 make
 sudo make install
 
+echo "---------- Unit testing ----------"
+
+bin/SparrowUnitTests
+
 echo "---------- Testing ----------"
 
 cd ../tests

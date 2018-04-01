@@ -1,0 +1,4 @@
+[submodule "externals/rapidcheck"]
+	path = externals/rapidcheck
+	url = https://github.com/emil-e/rapidcheck.git
+	branch = master

@@ -75,8 +75,10 @@ Node* getIdentifierResult(Node* node, NodeRange decls, Node* baseExp, bool allow
 
         // Try to convert this to a type
         TypeRef t = nullptr;
-        if (resDecl->nodeKind == nkFeatherDeclClass)
-            t = Feather_getDataType(resDecl, 0, modeRt);        // TODO (rtct)
+        if (resDecl->nodeKind == nkFeatherDeclClass) {
+            EvalMode dataTypeMode = Feather_effectiveEvalMode(resDecl);
+            t = Feather_getDataType(resDecl, 0, dataTypeMode);
+        }
         if (resDecl->nodeKind == nkSparrowDeclSprConcept ||
                 resDecl->nodeKind == nkSparrowDeclGenericClass)
             t = getConceptType(resDecl);
@@ -1422,7 +1424,8 @@ Node* LambdaFunction_SemanticCheck(Node* node) {
     // Create a resulting object: a constructor call to our class
     Node* cls = Nest_explanation(closureClass);
     ASSERT(cls);
-    Node* classId = createTypeNode(node->context, loc, Feather_getDataType(cls, 0, modeRt));    // TODO: rtct
+    Node* classId =
+            createTypeNode(node->context, loc, Feather_getDataType(cls, 0, modeRt)); // TODO: rtct
     return mkFunApplication(loc, classId, closureParams);
 }
 

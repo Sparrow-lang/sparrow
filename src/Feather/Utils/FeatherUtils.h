@@ -193,8 +193,12 @@ EvalMode Feather_combineModeBottom(EvalMode mode1, EvalMode mode2);
 //! I.e., if the context is CT, the type will be made CT.
 TypeRef Feather_adjustMode(TypeRef srcType, CompilationContext* context, Location loc);
 
-/// Check if the given node has the eval-mode correctly set
-void Feather_checkEvalMode(Node* src, EvalMode referencedEvalMode);
+//! Check if the given node has the eval-mode correctly set.
+//! That is, we don't have a RT node in a CT context, and we don't have RT children to a CT node.
+void Feather_checkEvalMode(Node* src);
+//! Same as Feather_checkEvalMode, but also checks if node's mode is compatible the given mode.
+//! If expectedMode is CT, then the node mode needs to also be CT
+void Feather_checkEvalModeWithExpected(Node* src, EvalMode expectedMode);
 
 #ifdef __cplusplus
 }

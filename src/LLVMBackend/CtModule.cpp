@@ -224,8 +224,7 @@ Node* CtModule::ctEvaluateExpression(Node* node) {
     // string modName = oss2.str();
 
     // Create a new LLVM module for this function, an a corresponding global context
-    unique_ptr<llvm::Module> anonExprEvalModule(
-            new llvm::Module(modName, *llvmContext_));
+    unique_ptr<llvm::Module> anonExprEvalModule(new llvm::Module(modName, *llvmContext_));
     llvm::Module* tmpMod = anonExprEvalModule.get();
     anonExprEvalModule->setDataLayout(dataLayout_);
     Tr::GlobalContext ctx(*anonExprEvalModule, *llvmModule_, *this);

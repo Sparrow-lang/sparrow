@@ -248,7 +248,8 @@ TypeRef SprDatatype_ComputeType(Node* node) {
         Nest_setPropertyString(resultingClass, propDescription, *description);
     }
 
-    Feather_setEvalMode(resultingClass, Feather_nodeEvalMode(node));
+    EvalMode evalMode = Feather_effectiveEvalMode(node);
+    Feather_setEvalMode(resultingClass, evalMode);
     resultingClass->childrenContext = node->childrenContext;
     Nest_setContext(resultingClass, node->context);
     Nest_setPropertyNode(node, propResultingDecl, resultingClass);
@@ -259,7 +260,7 @@ TypeRef SprDatatype_ComputeType(Node* node) {
     checkStdClass(resultingClass);
 
     // We now have a type - from now on we can safely compute the types of the children
-    node->type = Feather_getDataType(resultingClass, 0, modeRt); // TODO (rtct)
+    node->type = Feather_getDataType(resultingClass, 0, evalMode);
 
     // Get the fields from the current class
     NodeVector fields = getFields(node->childrenContext->currentSymTab);

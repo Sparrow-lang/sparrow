@@ -159,12 +159,10 @@ void _printContextNodes(Node* node) {
     }
 }
 
-void Feather_checkEvalMode(Node* src, EvalMode referencedEvalMode) {
+void Feather_checkEvalMode(Node* src) {
     ASSERT(src && src->type);
     EvalMode nodeEvalMode = src->type->mode;
     EvalMode contextEvalMode = src->context->evalMode;
-
-    // TODO (rtct): Check this again
 
     // Check if the context eval mode requirements are fulfilled
     if (contextEvalMode == modeCt && nodeEvalMode != modeCt) {
@@ -173,28 +171,32 @@ void Feather_checkEvalMode(Node* src, EvalMode referencedEvalMode) {
                 Nest_toStringEx(src);
     }
 
+    // If we have a CT eval mode, then all the children must be CT
+    if (nodeEvalMode == modeCt) {
+        for (Node* child : src->children) {
+            if (!child || !child->type)
+                continue;
+
+            // Ignore declarations
+            if (_isDecl(child))
+                continue;
+
+            if (child->type->mode != modeCt)
+                REP_INTERNAL(child->location,
+                        "Children of a CT node must be CT; current mode: %1% (%2%)") %
+                        child->type->mode % child;
+        }
+    }
+}
+
+void Feather_checkEvalModeWithExpected(Node* src, EvalMode referencedEvalMode) {
+    Feather_checkEvalMode(src);
+
+    ASSERT(src && src->type);
+    EvalMode nodeEvalMode = src->type->mode;
+
     // Check if the referenced eval mode requirements are fulfilled
     if (referencedEvalMode == modeCt && nodeEvalMode != modeCt)
         REP_INTERNAL(src->location, "CT node required; found: %1% (%2%)") % nodeEvalMode %
                 Nest_toStringEx(src);
-
-    // If the node has direct children, check them
-    if (Nest_nodeArraySize(src->children) != 0) {
-        // If we have a CT eval mode, then all the children must be CT
-        if (nodeEvalMode == modeCt) {
-            for (Node* child : src->children) {
-                if (!child || !child->type)
-                    continue;
-
-                // Ignore declarations
-                if (_isDecl(child))
-                    continue;
-
-                if (child->type->mode != modeCt)
-                    REP_INTERNAL(child->location,
-                            "Children of a CT node must be CT; current mode: %1% (%2%)") %
-                            child->type->mode % child;
-            }
-        }
-    }
 }

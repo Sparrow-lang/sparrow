@@ -146,6 +146,4 @@ Modifier* SprFe_getNativeMod(StringRef name) {
     return (Modifier*)res;
 }
 
-bool SprFe_isEvalModeMod(Modifier* mod) {
-    return mod == &_ctMod || mod == &_rtMod;
-}
+bool SprFe_isEvalModeMod(Modifier* mod) { return mod == &_ctMod || mod == &_rtMod; }

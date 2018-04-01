@@ -124,7 +124,7 @@ Node* NodeList_SemanticCheck(Node* node) {
                             : at(node->children, numChildren - 1)->type;
         t = Feather_adjustMode(t, node->context, node->location);
         node->type = t;
-        Feather_checkEvalMode(node, modeRt);
+        Feather_checkEvalMode(node);
     }
     return node;
 }
@@ -142,7 +142,7 @@ Node* LocalSpace_SemanticCheck(Node* node) {
     for (Node* c : node->children) {
         Nest_semanticCheck(c); // Ignore possible errors
     }
-    Feather_checkEvalMode(node, modeRt);
+    Feather_checkEvalMode(node);
     return node;
 }
 
@@ -541,7 +541,7 @@ Node* VarRef_SemanticCheck(Node* node) {
                 var->type;
     node->type =
             Feather_adjustMode(Feather_getLValueType(var->type), node->context, node->location);
-    Feather_checkEvalMode(node, var->type->mode);
+    Feather_checkEvalModeWithExpected(node, var->type->mode);
     return node;
 }
 const char* VarRef_toString(const Node* node) {
@@ -691,7 +691,7 @@ Node* FunCall_SemanticCheck(Node* node) {
         Nest_setPropertyInt(node, propEmptyBody, 1);
     }
 
-    Feather_checkEvalMode(node, calledFunMode);
+    Feather_checkEvalModeWithExpected(node, calledFunMode);
     return node;
 }
 const char* FunCall_toString(const Node* node) {

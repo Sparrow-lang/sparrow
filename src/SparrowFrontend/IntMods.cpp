@@ -50,8 +50,8 @@ Node* addAssociatedFun(Node* parent, const string& name, Node* body,
         sprParams.push_back(mkSprParameter(loc, fromString(param.second), param.first));
     }
     Node* parameters = sprParams.empty() ? nullptr : Feather_mkNodeList(loc, all(sprParams));
-    Node* ret = resClass ? createTypeNode(ctx, loc, Feather_getDataType(resClass, 0, modeRt))
-                         : nullptr;
+    Node* ret =
+            resClass ? createTypeNode(ctx, loc, Feather_getDataType(resClass, 0, modeRt)) : nullptr;
 
     // Add the function in the context of the parent
     Node* f = mkSprFunction(loc, fromString(name), parameters, ret, body);

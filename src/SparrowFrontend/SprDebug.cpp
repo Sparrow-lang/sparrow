@@ -31,9 +31,9 @@ void printCtValue(StringRef typeName, StringRef valueDataStr) {
     else if (typeName == "UShort")
         printf("%d", (int)extractValue<uint16_t>(valueDataStr));
     else if (typeName == "Int")
-        printf("%d", (int) extractValue<int32_t>(valueDataStr));
+        printf("%d", (int)extractValue<int32_t>(valueDataStr));
     else if (typeName == "UInt")
-        printf("%u", (unsigned) extractValue<uint16_t>(valueDataStr));
+        printf("%u", (unsigned)extractValue<uint16_t>(valueDataStr));
     else if (typeName == "Long")
         printf("%lld", extractValue<int64_t>(valueDataStr));
     else if (typeName == "ULong")

@@ -202,7 +202,7 @@ void createFunDefinition(
         Tr::setValue(localCtx, *param, newVar);        // We point now to the new temp variable
 
         if (dbgInfo)
-            dbgInfo->emitParamVar(ctx, param, idx+1, newVar);
+            dbgInfo->emitParamVar(ctx, param, idx + 1, newVar);
     }
 
     // Translate the body

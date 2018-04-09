@@ -1,5 +1,5 @@
-Welcome to Sparrow's documentation!
-===================================
+Sparrow language documentation
+==============================
 
 .. toctree::
    :maxdepth: 2
@@ -8,6 +8,7 @@ Welcome to Sparrow's documentation!
    introduction
    quickstart
    tutorials
+   langFeatures
 
 
 

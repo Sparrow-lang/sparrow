@@ -224,6 +224,8 @@ class SparrowLexer(RegexLexer):
              bygroups(Keyword.Namespace, Name.Namespace)),
             (r'(import)(\s+%s)' % _re_qid,
              bygroups(Keyword.Namespace, Name.Namespace)),
+            (r'(import)(\s+%s)' % _re_id,
+             bygroups(Keyword.Namespace, Name.Namespace)),
             (r'(package)(\s+%s)' % _re_id,
              bygroups(Keyword.Namespace, Name.Namespace)),
             # concept & datatype & function & using & var

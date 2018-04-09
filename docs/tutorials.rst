@@ -2,7 +2,7 @@ Tutorials
 =========
 
 .. toctree::
-   tutThesis
-   tutBeginnerIntoToSparrow
+   tut/thesis
+   tut/beginnerIntoToSparrow
 
 This section is still under development.

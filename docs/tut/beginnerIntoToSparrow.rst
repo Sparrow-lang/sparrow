@@ -534,10 +534,12 @@ We can define a variable of the new type, and then we can access the fields of t
 
 The way the functions are defined, we can also use the traditional function call notation:
 ::
+
     borrowTo(item, "Alice")
 
 Furthermore, we can write this code using operator notation (see above):
 ::
+
     item borrowTo "Alice"
     if !(item isAvaiable)
         cout << " Item" << (item name)

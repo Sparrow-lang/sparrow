@@ -89,17 +89,87 @@ Example:
 Package declarations
 --------------------
 
-TODO
+Package declarations are used to group code.
+
+Example:
+::
+
+    package Grp
+        datatype MyType = Int
+
+        fun f(this: @MyType) = this.data
+        fun print(this: @MyType) {...}
+
+    fun caller
+        var x: Grp.MyType
+        cout << Grp.f(x) << endl
+        Grp.print(x)
+        x print             // OK, we are searching near the class first
+        print(x)            // ERROR, cannot find 'print'
+
+Packages can be generics. Please see :doc:`generics` for more details.
 
 Datatype declarations
 ---------------------
 
-TODO
+As its name suggests, a datatype declaration introduces a new data type. In Sparrow, a datatype can only contain fields (variables) or other using declarations.
+
+There are two main forms of declaring datatypes: an explicit one, and a simple one. The explicit form is exemplified by the following:
+::
+
+    datatype MyType
+        x: Int
+        y: Double
+        name: String
+        using BaseType = Int
+
+In this example, we introduced a new composite type ``MyType`` that contains three fields: ``x``, ``y`` and ``name``. It also contains an using name ``BaseType`` that expands to ``Int``; there is no memory reserved for any using declarations; they are used for type introspection, especially in the context of generics.
+
+The simple form of declaring datatypes is illustrated by the following example:
+::
+
+    datatype Type1 = Int
+    datatype Type2 = Int*Double // Pair of Int & Double
+
+This is a shortcut for the following code:
+::
+
+    datatype Type1
+        data: Int
+    datatype Type2
+        data: Int*Double
+
+In addition to this, the compiler will also generate a constructor that can covert the type given after ``=`` to the new type.
+
+For any datatype declared, the compiler will also attempt to auto-generate several constructors, a destructor, a ``=`` and a ``==`` operator. For more details see :doc:`generatedAssocFun`.
+
+Datatypes can be generics. Please see :doc:`generics` for more details.
+
 
 Concept declarations
 --------------------
 
-TODO
+Formally, a concept is a predicate on types, or from a different point of view, a set of types. We use it in generic programming to be able to operate on set of types.
+
+Example:
+::
+
+    concept Swappable(x) if isValid(x.swap(x))
+
+The above line can be read as: a type is *Swappable* if for a value ``x`` of that type, the expression after ``if`` (the *if-clause*) is fulfilled -- that is, ``x.swap(x)`` is a semantically valid construct.
+
+As an if-clause, there can be any compile-time expression that evaluates to ``Bool``. If, for a type, the given if-clause will result in errors, the type will not model the concept.
+
+Such a concept can be then use in generic programming, in the following way:
+::
+
+    fun doSwap(x: @Swappable, y: typeOf(x))
+        x swap y
+
+Please see :doc:`generics` for more details on generics.
+
+TODO: base concepts
+
 
 Variable declarations
 ---------------------

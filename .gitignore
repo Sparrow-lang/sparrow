@@ -20,3 +20,4 @@ SparrowImplicitLib/std/compilerInfo.spr
 src/SparrowCompiler/VersionInfo.h
 *.sublime-project
 *.sublime-workspace
+docs/_build

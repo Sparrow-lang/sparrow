@@ -30,7 +30,7 @@ struct OverloadServiceMock : IOverloadService {
     }
 
     bool selectConversionCtor(CompilationContext* context, Node* destClass, EvalMode destMode,
-            TypeRef argType, Node* arg, Node** conv) final {
+            TypeRef argType) final {
         if (argType->mode != destMode)
             return false;
         // If we know about the conversion, we return true

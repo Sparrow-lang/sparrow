@@ -286,12 +286,9 @@ Node* OverloadService::selectOverload(CompilationContext* context, const Locatio
     return res;
 }
 
-bool OverloadService::selectConversionCtor(CompilationContext* context, Node* destClass,
-        EvalMode destMode, TypeRef argType, Node* arg, Node** conv) {
+bool OverloadService::selectConversionCtor(
+        CompilationContext* context, Node* destClass, EvalMode destMode, TypeRef argType) {
     ASSERT(argType);
-
-    // cerr << "Convert: " << argType->description << " -> "
-    //      << Nest_toString(destClass) << " ?" << endl;
 
     // Get all the candidates
     Callables candidates;
@@ -302,27 +299,13 @@ bool OverloadService::selectConversionCtor(CompilationContext* context, Node* de
 
     // Check the candidates to be able to be called with the given arguments
     vector<TypeRef> argTypes(1, argType);
-    filterCandidates(context, arg ? arg->location : Location(), candidates, nullptr, &argTypes,
-            destMode, noCustomCvt);
+    filterCandidates(context, Location(), candidates, nullptr, &argTypes, destMode, noCustomCvt);
 
     // From the remaining candidates, try to select the most specialized one
     CallableData* selectedFun = selectMostSpecialized(context, candidates, true);
     if (!selectedFun)
         return false;
 
-    // cerr << "SUCCESS!!!" << endl;
-    if (arg && conv) {
-        if (!Nest_computeType(arg))
-            return false;
-        auto cr = canCall(
-                *selectedFun, context, arg->location, fromIniList({arg}), destMode, noCustomCvt);
-        (void)cr;
-        ASSERT(cr);
-        *conv = generateCall(*selectedFun, context, arg->location);
-        ASSERT(*conv);
-        Nest_setContext(*conv, context);
-        Nest_semanticCheck(*conv);
-    }
     return true;
 }
 

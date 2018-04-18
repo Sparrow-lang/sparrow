@@ -231,12 +231,11 @@ ConversionResult checkConversionCtor(
         return convNone;
 
     Node* destClass = Feather_classForType(destType);
-    if (!Nest_computeType(destClass))
+    if (!destClass || !Nest_computeType(destClass))
         return convNone;
 
     // Try to convert srcType to lv destClass
-    if (!g_OverloadService->selectConversionCtor(
-                context, destClass, destType->mode, srcType, nullptr, nullptr))
+    if (!g_OverloadService->selectConversionCtor(context, destClass, destType->mode, srcType))
         return convNone;
 
     // Check access

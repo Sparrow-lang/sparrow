@@ -56,10 +56,9 @@ Gen<TypeRef> arbFunctionType(EvalMode mode) {
 Gen<TypeRef> arbTypeWithStorage(EvalMode mode, int minRef, int maxRef) {
     if (minRef > 0)
         return gen::oneOf(arbDataType(mode, minRef, maxRef), arbLValueType(mode, minRef, maxRef),
-                arbArrayType());
+                arbArrayType(), arbFunctionType());
     else
-        return gen::oneOf(arbDataType(mode, minRef, maxRef), arbArrayType());
-    // arbFunctionType()
+        return gen::oneOf(arbDataType(mode, minRef, maxRef), arbArrayType(), arbFunctionType());
 }
 
 Gen<TypeRef> arbBasicStorageType(EvalMode mode, int minRef, int maxRef) {
@@ -70,8 +69,8 @@ Gen<TypeRef> arbBasicStorageType(EvalMode mode, int minRef, int maxRef) {
 }
 
 Gen<TypeRef> arbType() {
-    return gen::oneOf(arbDataType(), arbVoidType(), arbLValueType(), arbArrayType());
-    // arbFunctionType()
+    return gen::oneOf(
+            arbDataType(), arbVoidType(), arbLValueType(), arbArrayType(), arbFunctionType());
 }
 
 } // namespace TypeFactory

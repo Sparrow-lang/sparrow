@@ -45,8 +45,8 @@ struct IOverloadService {
 
     /// Try to search for a conversion constructor of the given class that can take
     /// the given argument
-    virtual bool selectConversionCtor(CompilationContext* context, Node* destClass,
-            EvalMode destMode, TypeRef argType, Node* arg, Node** conv) = 0;
+    virtual bool selectConversionCtor(
+            CompilationContext* context, Node* destClass, EvalMode destMode, TypeRef argType) = 0;
 
     /// Search for a ct-to-rt constructor for the given argument
     /// Returns the node to be used to call the ctor; null on failure
@@ -59,8 +59,8 @@ struct OverloadService : IOverloadService {
             NodeRange decls, NodeRange args, OverloadReporting errReporting,
             StringRef funName) final;
 
-    bool selectConversionCtor(CompilationContext* context, Node* destClass, EvalMode destMode,
-            TypeRef argType, Node* arg, Node** conv) final;
+    bool selectConversionCtor(
+            CompilationContext* context, Node* destClass, EvalMode destMode, TypeRef argType) final;
 
     Node* selectCtToRtCtor(Node* ctArg) final;
 };

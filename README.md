@@ -6,7 +6,7 @@ Welcome to the repository of the Sparrow compiler, the reference compiler for th
 
 ## About
 
-Sparrow is a new programming language that tries to integrate efficiency, flexibility and naturalness. It is flexible enough to allow the user to write efficient code in a method that does not compromise a natural manner. It features both low-level access code constructs and high-level features. One of the central features of the language is hyper-metaprogramming; this allows using complex data structures and algorithms at compile-time, as one typically does at run-time.
+Sparrow is a general-purpose programming language that aims to integrate efficiency, flexibility and naturalness. It is flexible enough to allow the user to write efficient code in a method that does not compromise a natural manner. It features both low-level access code constructs and high-level features. One of the central features of the language is hyper-metaprogramming; this allows using complex data structures and algorithms at compile-time, as one typically does at run-time.
 
 So far, we have a language that:
 - it's as fast as C/C++
@@ -15,7 +15,7 @@ So far, we have a language that:
 
 We are continuing to improve the language to be even more faster, natural and flexible.
 
-More information about the Sparrow programming langauge can be found on the [wiki](https://github.com/Sparrow-lang/sparrow/wiki) page.
+More information about the Sparrow programming langauge can be found on the [documentation page](http://sparrow-lang.readthedocs.io) page.
 
 ## Sparrow needs you!
 
@@ -25,7 +25,7 @@ Any contribution is welcome. You can implement new language features, new librar
 Sparrow is still in development. You can take the latest version of the code, compile it and have fun.
 
 ## Getting started
-See [Wiki page](https://github.com/Sparrow-lang/sparrow/wiki).
+See [instructions](http://sparrow-lang.readthedocs.io/en/latest/quickstart.html).
 
 ## License
 

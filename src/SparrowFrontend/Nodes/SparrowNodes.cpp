@@ -266,7 +266,7 @@ Node* SprReturn_SemanticCheck(Node* node) {
             return Feather_mkNodeList(
                     node->location, fromIniList({exp, Feather_mkReturn(node->location, nullptr)}));
         } else {
-            cvt = canConvert(exp, resType);
+            cvt = g_ConvertService->canConvert(exp, resType);
         }
         if (!cvt)
             REP_ERROR_RET(nullptr, exp->location, "Cannot convert return expression (%1%) to %2%") %

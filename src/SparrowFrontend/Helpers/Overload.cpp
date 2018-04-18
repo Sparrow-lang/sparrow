@@ -15,6 +15,10 @@
 using namespace SprFrontend;
 using namespace Nest;
 
+namespace SprFrontend {
+
+IOverloadService* g_OverloadService = nullptr;
+
 namespace {
 
 /// Called at the start of error reporting
@@ -166,7 +170,7 @@ void selectMostSpecializedErrReport(
 }
 } // namespace
 
-Node* SprFrontend::selectOverload(CompilationContext* context, const Location& loc,
+Node* OverloadService::selectOverload(CompilationContext* context, const Location& loc,
         EvalMode evalMode, NodeRange decls, NodeRange args, OverloadReporting errReporting,
         StringRef funName) {
     auto numDecls = Nest_nodeRangeSize(decls);
@@ -282,7 +286,7 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
     return res;
 }
 
-bool SprFrontend::selectConversionCtor(CompilationContext* context, Node* destClass,
+bool OverloadService::selectConversionCtor(CompilationContext* context, Node* destClass,
         EvalMode destMode, TypeRef argType, Node* arg, Node** conv) {
     ASSERT(argType);
 
@@ -322,7 +326,7 @@ bool SprFrontend::selectConversionCtor(CompilationContext* context, Node* destCl
     return true;
 }
 
-Node* SprFrontend::selectCtToRtCtor(Node* ctArg) {
+Node* OverloadService::selectCtToRtCtor(Node* ctArg) {
     const Location& loc = ctArg->location;
     ASSERT(ctArg->type);
     if (ctArg->type->mode != modeCt || !ctArg->type->hasStorage)
@@ -363,3 +367,5 @@ Node* SprFrontend::selectCtToRtCtor(Node* ctArg) {
         return nullptr;
     return generateCall(*call, ctArg->context, loc);
 }
+
+} // namespace SprFrontend

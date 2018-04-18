@@ -161,8 +161,8 @@ TypeRef SprFrontend::commonType(CompilationContext* context, TypeRef t1, TypeRef
     // If there is one conversion from one type to another (and not vice-versa) take the less
     // specialized type
     ConversionFlags flags = flagDontAddReference;
-    ConversionResult c1 = canConvertType(context, t1, t2, flags);
-    ConversionResult c2 = canConvertType(context, t2, t1, flags);
+    ConversionResult c1 = g_ConvertService->canConvertType(context, t1, t2, flags);
+    ConversionResult c2 = g_ConvertService->canConvertType(context, t2, t1, flags);
     if (c1 && !c2) {
         return t2;
     }
@@ -199,7 +199,7 @@ Node* checkDataTypeCtToRtConversion(Node* node) {
         REP_INTERNAL(loc, "Cannot convert to RT; datatype %1% doesn't support it") % cls;
 
     // Check if we have a ct-to-rt ctor
-    Node* res = selectCtToRtCtor(node);
+    Node* res = g_OverloadService->selectCtToRtCtor(node);
     if (!res)
         REP_ERROR_RET(nullptr, loc,
                 "Cannot convert %1% from CT to RT; make sure 'ctorFromRt' ctor exists") %

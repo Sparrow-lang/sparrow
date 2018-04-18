@@ -54,7 +54,7 @@ Node* SprFrontend::createCtorCall(
                 // This argument - make sure it's of the required type
                 Node* thisParam = Feather_Function_getParameter(fun, 0);
                 TypeRef thisParamType = thisParam->type;
-                ConversionResult cvt = canConvert(thisArg, thisParamType);
+                ConversionResult cvt = g_ConvertService->canConvert(thisArg, thisParamType);
                 if (!cvt)
                     REP_INTERNAL(loc, "Cannot convert this arg in RVO (%1% -> %2%)") %
                             thisArg->type % thisParamType;
@@ -85,8 +85,8 @@ Node* SprFrontend::createCtorCall(
         return nullptr;
 
     // Do the overloading procedure to select the right ctor
-    Node* res = selectOverload(context, loc, thisArg->type->mode, all(decls), args,
-            OverloadReporting::full, fromCStr("ctor"));
+    Node* res = g_OverloadService->selectOverload(context, loc, thisArg->type->mode, all(decls),
+            args, OverloadReporting::full, fromCStr("ctor"));
     Nest_freeNodeArray(decls);
     return res;
 }
@@ -119,7 +119,7 @@ Node* SprFrontend::createDtorCall(const Location& loc, CompilationContext* conte
 
     // Do the overloading procedure to select the right dtor
     // Don't report errors; having no matching dtor is a valid case
-    Node* res = selectOverload(context, loc, thisArg->type->mode, all(decls),
+    Node* res = g_OverloadService->selectOverload(context, loc, thisArg->type->mode, all(decls),
             fromIniList({thisArg}), OverloadReporting::none, fromCStr("dtor"));
     Nest_freeNodeArray(decls);
     return res; // can be null
@@ -315,7 +315,7 @@ Node* _createFunPtrForDecl(Node* funNode) {
 
                 // Ensure we can convert baseExp to the first param
                 TypeRef paramType = Feather_Function_getParameter(decl, thisParamIdx)->type;
-                if (!canConvert(baseExp, paramType, flagDontCallConversionCtor)) {
+                if (!g_ConvertService->canConvert(baseExp, paramType, flagDontCallConversionCtor)) {
                     continue;
                 }
             }

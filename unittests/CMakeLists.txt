@@ -4,6 +4,12 @@ SET(sourceFiles
     "StdInc.h"
     "UnitTestsMain.cpp"
     "TestBasic.cpp"
+    "TestConvert.cpp"
+    "Common/RcBasic.hpp"
+    "Common/TypeFactory.hpp"
+    "Common/TypeFactory.cpp"
+    "Common/GeneralFixture.hpp"
+    "Common/GeneralFixture.cpp"
 )
 
 # Project settings

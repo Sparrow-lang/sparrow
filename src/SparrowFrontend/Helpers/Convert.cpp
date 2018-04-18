@@ -14,9 +14,11 @@
 
 #include <utility>
 
-using namespace SprFrontend;
+namespace SprFrontend {
 
-ConversionType SprFrontend::combine(ConversionType lhs, ConversionType rhs) {
+IConvertService* g_ConvertService = nullptr;
+
+ConversionType combine(ConversionType lhs, ConversionType rhs) {
     if (lhs == convConcept && rhs == convImplicit)
         return convConceptWithImplicit;
     if (rhs == convConcept && lhs == convImplicit)
@@ -24,11 +26,11 @@ ConversionType SprFrontend::combine(ConversionType lhs, ConversionType rhs) {
     return worstConv(lhs, rhs);
 }
 
-ConversionType SprFrontend::worstConv(ConversionType lhs, ConversionType rhs) {
+ConversionType worstConv(ConversionType lhs, ConversionType rhs) {
     return (ConversionType)min(lhs, rhs);
 }
 
-ConversionType SprFrontend::bestConv(ConversionType lhs, ConversionType rhs) {
+ConversionType bestConv(ConversionType lhs, ConversionType rhs) {
     return (ConversionType)max(lhs, rhs);
 }
 
@@ -233,7 +235,8 @@ ConversionResult checkConversionCtor(
         return convNone;
 
     // Try to convert srcType to lv destClass
-    if (!selectConversionCtor(context, destClass, destType->mode, srcType, nullptr, nullptr))
+    if (!g_OverloadService->selectConversionCtor(
+                context, destClass, destType->mode, srcType, nullptr, nullptr))
         return convNone;
 
     // Check access
@@ -391,12 +394,12 @@ Node* ConversionResult::apply(CompilationContext* context, Node* src) const {
     return res;
 }
 
-ConversionResult SprFrontend::canConvertType(
+ConversionResult ConvertService::canConvertType(
         CompilationContext* context, TypeRef srcType, TypeRef destType, ConversionFlags flags) {
     return cachedCanConvertImpl(context, flags, srcType, destType);
 }
 
-ConversionResult SprFrontend::canConvert(Node* arg, TypeRef destType, ConversionFlags flags) {
+ConversionResult ConvertService::canConvert(Node* arg, TypeRef destType, ConversionFlags flags) {
     ASSERT(arg);
     TypeRef srcType = Nest_computeType(arg);
     if (!srcType)
@@ -405,3 +408,5 @@ ConversionResult SprFrontend::canConvert(Node* arg, TypeRef destType, Conversion
 
     return cachedCanConvertImpl(arg->context, flags, srcType, destType);
 }
+
+} // namespace SprFrontend

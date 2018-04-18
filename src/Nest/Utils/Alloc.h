@@ -35,6 +35,9 @@ char* startString(unsigned int maxLen);
 /// Similar to endBuffer, but for strings
 void endString(unsigned int actualLen);
 
+/// Cleans up all the allocated memory
+void cleanupMemory();
+
 #ifdef __cplusplus
 }
 #endif

@@ -114,7 +114,7 @@ TypeRef computeVarType(Node* parent, CompilationContext* ctx, Node* typeNode, No
 
         if (Nest_computeType(init)) {
             // If still have a type (i.e, auto type), check for conversion
-            if (t && !canConvert(init, t))
+            if (t && !g_ConvertService->canConvert(init, t))
                 REP_ERROR_RET(nullptr, init->location,
                         "Initializer of the variable (%1%) cannot be converted to variable type "
                         "(%2%)") %

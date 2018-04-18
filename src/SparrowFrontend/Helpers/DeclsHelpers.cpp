@@ -190,7 +190,6 @@ bool SprFrontend::canAccessNode(Node* decl, Node* fromNode) {
 
 bool SprFrontend::canAccessNode(Node* decl, SourceCode* fromSourceCode) {
     ASSERT(decl);
-    ASSERT(fromSourceCode);
 
     // Check if the two nodes have the same compilation unit
     // If yes, then we can access the node

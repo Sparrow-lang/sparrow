@@ -45,6 +45,7 @@ int Nest_getSuppressedErrorsNum();
 
 #define NOLOC Nest_mkEmptyLocation()
 
+#ifndef CHECK
 #define CHECK(loc, val)                                                                            \
     if (!!(val))                                                                                   \
         ;                                                                                          \
@@ -54,6 +55,7 @@ int Nest_getSuppressedErrorsNum();
                 __LINE__);                                                                         \
         ASSERT(false);                                                                             \
     }
+#endif
 
 #define EXPECT_KIND(loc, node, kind)                                                               \
     if (!(node))                                                                                   \

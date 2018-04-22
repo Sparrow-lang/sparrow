@@ -9,6 +9,7 @@
 
 #include "Helpers/Convert.h"
 #include "Helpers/Overload.h"
+#include "Helpers/Generics.h"
 
 #include "Nest/Api/CompilerModule.h"
 
@@ -20,6 +21,7 @@ void SparrowFrontend_initModule() {
     // Create the service objects
     g_ConvertService = new ConvertService;
     g_OverloadService = new OverloadService;
+    g_ConceptsService = new ConceptsService;
 }
 
 void SparrowFrontend_onBackendSetFun(Backend* backend) {

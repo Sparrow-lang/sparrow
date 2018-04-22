@@ -3,12 +3,14 @@
 #include "RcBasic.hpp"
 
 #include "Nest/Api/Type.h"
+#include "SparrowFrontend/SparrowFrontendTypes.h"
 
 namespace TypeFactory {
 
 using namespace rc;
 
 vector<Node*> g_dataTypeDecls{};
+vector<Node*> g_conceptDecls{};
 
 Gen<TypeRef> arbVoidType() { return gen::apply(&Feather_getVoidType, gen::arbitrary<EvalMode>()); }
 
@@ -53,6 +55,18 @@ Gen<TypeRef> arbFunctionType(EvalMode mode) {
     });
 }
 
+Gen<TypeRef> arbConceptType(EvalMode mode, int minRef, int maxRef) {
+    const int numT = g_conceptDecls.size();
+    REQUIRE(numT > 0);
+    auto modeGen = mode == modeUnspecified ? gen::arbitrary<EvalMode>() : gen::just(mode);
+    return gen::apply(
+            [=](int idx, int numReferences, EvalMode mode) -> TypeRef {
+                REQUIRE(idx < g_conceptDecls.size());
+                return SprFrontend::getConceptType(g_conceptDecls[idx], numReferences, mode);
+            },
+            gen::inRange(0, numT), gen::inRange(minRef, maxRef), modeGen);
+}
+
 Gen<TypeRef> arbTypeWithStorage(EvalMode mode, int minRef, int maxRef) {
     if (minRef > 0)
         return gen::oneOf(arbDataType(mode, minRef, maxRef), arbLValueType(mode, minRef, maxRef),
@@ -69,8 +83,8 @@ Gen<TypeRef> arbBasicStorageType(EvalMode mode, int minRef, int maxRef) {
 }
 
 Gen<TypeRef> arbType() {
-    return gen::oneOf(
-            arbDataType(), arbVoidType(), arbLValueType(), arbArrayType(), arbFunctionType());
+    return gen::oneOf(arbDataType(), arbVoidType(), arbLValueType(), arbArrayType(),
+            arbFunctionType(), arbConceptType());
 }
 
 } // namespace TypeFactory

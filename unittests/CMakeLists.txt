@@ -10,6 +10,8 @@ SET(sourceFiles
     "Common/TypeFactory.cpp"
     "Common/GeneralFixture.hpp"
     "Common/GeneralFixture.cpp"
+    "Common/BackendMock.hpp"
+    "Common/BackendMock.cpp"
 )
 
 # Project settings

@@ -123,12 +123,12 @@ ConversionResult checkConvertToConcept(
         } else {
             // If we have a concept, check if the type fulfills the concept
             if (concept->nodeKind == nkSparrowDeclSprConcept) {
-                isOk = conceptIsFulfilled(concept, srcType);
+                isOk = g_ConceptsService->conceptIsFulfilled(concept, srcType);
             }
 
             // If we have a generic, check if the type is generated from the generic
             if (concept->nodeKind == nkSparrowDeclGenericClass) {
-                isOk = typeGeneratedFromGeneric(concept, srcType);
+                isOk = g_ConceptsService->typeGeneratedFromGeneric(concept, srcType);
             }
         }
     }
@@ -148,7 +148,9 @@ ConversionResult checkConceptToConcept(
         return convNone;
 
     // If we have a concept, check if the type fulfills the concept
-    TypeRef srcBaseConceptType = baseConceptType(srcConcept);
+    TypeRef srcBaseConceptType = g_ConceptsService->baseConceptType(srcConcept);
+    if (!srcBaseConceptType)
+        return convNone;
     srcBaseConceptType =
             Feather_checkChangeTypeMode(srcBaseConceptType, srcType->mode, srcConcept->location);
     return cachedCanConvertImpl(context, flags, srcBaseConceptType, destType);

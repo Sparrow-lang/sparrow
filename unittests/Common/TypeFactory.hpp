@@ -12,6 +12,10 @@ using namespace rc;
 //! The declarations for all the datatypes that we will use to generate data types and derived types
 extern vector<Node*> g_dataTypeDecls;
 
+//! The declarations for all the concepts/generic datatypes nodes, used for creating concept types
+extern vector<Node*> g_conceptDecls;
+
+
 //! Returns a generator for Void types with arbitrary mode (there are 2 types of Void)
 Gen<TypeRef> arbVoidType();
 
@@ -27,6 +31,9 @@ Gen<TypeRef> arbArrayType(EvalMode mode = modeUnspecified);
 
 //! Returns a generator for arbitrary function types
 Gen<TypeRef> arbFunctionType(EvalMode mode = modeUnspecified);
+
+//! Returns a generator for arbitrary concept types
+Gen<TypeRef> arbConceptType(EvalMode mode = modeUnspecified, int minRef = 0, int maxRef = 4);
 
 //! Returns a generator of types with storage
 Gen<TypeRef> arbTypeWithStorage(EvalMode mode, int minRef, int maxRef);

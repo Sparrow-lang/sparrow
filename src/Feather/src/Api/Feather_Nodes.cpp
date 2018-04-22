@@ -406,10 +406,13 @@ Node* Var_SemanticCheck(Node* node) {
 
     // Make sure that the type has storage
     if (!node->type->hasStorage)
-        REP_ERROR_RET(nullptr, node->location, "Variable type has no storage (%1%") % node->type;
+        REP_ERROR_RET(nullptr, node->location, "Variable type has no storage (%1%)") % node->type;
 
-    Nest_computeType(
-            Feather_classForType(node->type)); // Make sure the type of the class is computed
+    auto datatypeDecl = Feather_classForType(node->type);
+    if (!datatypeDecl)
+        REP_ERROR_RET(nullptr, node->location, "Invalid type for variable: %1%") % node->type;
+
+    Nest_computeType(datatypeDecl); // Make sure the type of the decl is computed
     return node;
 }
 

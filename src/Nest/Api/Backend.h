@@ -60,6 +60,9 @@ int Nest_getNumBackends();
 /// Get the backend with the specified index
 Backend* Nest_getBackend(int idx);
 
+/// Called to remove all the registered backends
+void Nest_clearBackends();
+
 #ifdef __cplusplus
 }
 #endif

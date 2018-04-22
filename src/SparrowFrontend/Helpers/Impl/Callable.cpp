@@ -1326,7 +1326,7 @@ Node* SprFrontend::generateCall(CallableData& c, CompilationContext* context, co
             return nullptr;
 
         // Check if the type of the argument fulfills the concept
-        bool conceptFulfilled = conceptIsFulfilled(c.decl, arg->type);
+        bool conceptFulfilled = g_ConceptsService->conceptIsFulfilled(c.decl, arg->type);
         res = Feather_mkCtValueT(loc, StdDef::typeBool, &conceptFulfilled);
         Nest_setContext(res, context);
         res = Nest_semanticCheck(res);

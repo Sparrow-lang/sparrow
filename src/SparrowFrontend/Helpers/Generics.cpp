@@ -16,6 +16,10 @@
 using namespace SprFrontend;
 using namespace Nest;
 
+namespace SprFrontend {
+
+IConceptsService* g_ConceptsService = nullptr;
+
 namespace {
 
 ////////////////////////////////////////////////////////////////////////////
@@ -102,7 +106,7 @@ bool referencesSeenName(Node* node, const NamesVec& seenNames) {
 }
 } // namespace
 
-Node* SprFrontend::checkCreateGenericFun(Node* originalFun, Node* parameters, Node* ifClause) {
+Node* checkCreateGenericFun(Node* originalFun, Node* parameters, Node* ifClause) {
     ASSERT(parameters);
     NodeRange params = all(parameters->children);
     auto numParams = Nest_nodeRangeSize(params);
@@ -181,17 +185,17 @@ Node* SprFrontend::checkCreateGenericFun(Node* originalFun, Node* parameters, No
     return res;
 }
 
-NodeRange SprFrontend::genericFunParams(Node* genericFun) {
+NodeRange genericFunParams(Node* genericFun) {
     return GenericFunNode(genericFun).originalParams();
 }
-NodeRange SprFrontend::genericClassParams(Node* genericClass) {
+NodeRange genericClassParams(Node* genericClass) {
     return GenericClassNode(genericClass).instSet().params();
 }
-NodeRange SprFrontend::genericPackageParams(Node* genericPackage) {
+NodeRange genericPackageParams(Node* genericPackage) {
     return GenericPackageNode(genericPackage).instSet().params();
 }
 
-InstNode SprFrontend::searchInstantiation(InstSetNode instSet, NodeRange values) {
+InstNode searchInstantiation(InstSetNode instSet, NodeRange values) {
     for (InstNode inst : instSet.instantiations()) {
         const auto& boundValues = inst.boundValues();
         if (size(boundValues) < size(values))
@@ -214,7 +218,7 @@ InstNode SprFrontend::searchInstantiation(InstSetNode instSet, NodeRange values)
     return nullptr;
 }
 
-InstNode SprFrontend::createNewInstantiation(
+InstNode createNewInstantiation(
         InstSetNode instSet, NodeRange values, EvalMode evalMode) {
     ASSERT(instSet.node);
     const Location& loc = instSet.node->location;
@@ -240,7 +244,7 @@ InstNode SprFrontend::createNewInstantiation(
     return inst;
 }
 
-Node* SprFrontend::createBoundVar(CompilationContext* context, Node* param, TypeRef paramType,
+Node* createBoundVar(CompilationContext* context, Node* param, TypeRef paramType,
         Node* boundValue, bool isCtGeneric) {
     ASSERT(param);
     ASSERT(paramType);
@@ -266,7 +270,7 @@ Node* SprFrontend::createBoundVar(CompilationContext* context, Node* param, Type
     return var;
 }
 
-bool SprFrontend::canInstantiate(InstNode inst, InstSetNode instSet) {
+bool canInstantiate(InstNode inst, InstSetNode instSet) {
     // If we already evaluated this, we already know the answer
     if (inst.isEvaluated())
         return inst.isValid();
@@ -306,7 +310,7 @@ bool SprFrontend::canInstantiate(InstNode inst, InstSetNode instSet) {
     return true;
 }
 
-InstNode SprFrontend::canInstantiate(InstSetNode instSet, NodeRange values, EvalMode evalMode) {
+InstNode canInstantiate(InstSetNode instSet, NodeRange values, EvalMode evalMode) {
     // Try to find an existing instantiation
     InstNode inst = searchInstantiation(instSet, values);
 
@@ -319,43 +323,7 @@ InstNode SprFrontend::canInstantiate(InstSetNode instSet, NodeRange values, Eval
     return canInstantiate(inst, instSet) ? inst : nullptr;
 }
 
-bool SprFrontend::conceptIsFulfilled(Node* concept1, TypeRef type) {
-    ASSERT(concept1);
-    ConceptNode concept = concept1;
-    InstSetNode instSet = concept.instSet();
-
-    if (!concept.node->nodeSemanticallyChecked || !instSet)
-        REP_INTERNAL(concept.node->location, "Invalid concept");
-    ASSERT(instSet);
-
-    Node* typeValue = createTypeNode(concept.node->context, concept.node->location, type);
-    if (!Nest_semanticCheck(typeValue))
-        return false;
-
-    InstNode inst =
-            canInstantiate(instSet, fromIniList({typeValue}), concept.node->context->evalMode);
-    return inst.node != nullptr;
-}
-
-bool SprFrontend::typeGeneratedFromGeneric(Node* genericClass, TypeRef type) {
-    ASSERT(genericClass && genericClass->nodeKind == nkSparrowDeclGenericClass);
-    Node* cls = Feather_classForType(type);
-    if (!cls)
-        return false;
-
-    // Simple check: location & name is the same
-    return 0 == Nest_compareLocations(&genericClass->location, &cls->location) &&
-           Feather_getName(genericClass) == Feather_getName(cls);
-}
-
-TypeRef SprFrontend::baseConceptType(Node* concept) {
-    Node* baseConcept = at(concept->children, 0);
-
-    TypeRef res = baseConcept ? getType(baseConcept) : getConceptType();
-    return res;
-}
-
-bool SprFrontend::isConceptParam(Location paramLoc, TypeRef paramType, Node* boundValue) {
+bool isConceptParam(Location paramLoc, TypeRef paramType, Node* boundValue) {
     ASSERT(boundValue && boundValue->type);
 
     // Check the bound value type first; it should always be 'Type' (we store the type of the given
@@ -373,3 +341,47 @@ bool SprFrontend::isConceptParam(Location paramLoc, TypeRef paramType, Node* bou
     ASSERT(isConceptType(paramType) || paramType == getType(boundValue));
     return isConceptType(paramType) || paramType->mode != modeCt;
 }
+
+bool ConceptsService::conceptIsFulfilled(Node* concept1, TypeRef type) {
+    ASSERT(concept1);
+    ConceptNode concept = concept1;
+    InstSetNode instSet = concept.instSet();
+
+    // We only support datatype and lvalue types to fulfil concepts
+    // TODO (types): Expand this to all datatypes
+    int kind = type->typeKind;
+    if (kind != Feather_getDataTypeKind() && kind != Feather_getLValueTypeKind())
+        return false;
+
+    if (!concept.node->nodeSemanticallyChecked || !instSet)
+        REP_INTERNAL(concept.node->location, "Invalid concept");
+    ASSERT(instSet);
+
+    Node* typeValue = createTypeNode(concept.node->context, concept.node->location, type);
+    if (!Nest_semanticCheck(typeValue))
+        return false;
+
+    InstNode inst =
+            canInstantiate(instSet, fromIniList({typeValue}), concept.node->context->evalMode);
+    return inst.node != nullptr;
+}
+
+bool ConceptsService::typeGeneratedFromGeneric(Node* genericClass, TypeRef type) {
+    ASSERT(genericClass && genericClass->nodeKind == nkSparrowDeclGenericClass);
+    Node* cls = Feather_classForType(type);
+    if (!cls)
+        return false;
+
+    // Simple check: location & name is the same
+    return 0 == Nest_compareLocations(&genericClass->location, &cls->location) &&
+           Feather_getName(genericClass) == Feather_getName(cls);
+}
+
+TypeRef ConceptsService::baseConceptType(Node* concept) {
+    Node* baseConcept = at(concept->children, 0);
+
+    TypeRef res = baseConcept ? getType(baseConcept) : getConceptType();
+    return res;
+}
+
+} // namespace SprFrontend

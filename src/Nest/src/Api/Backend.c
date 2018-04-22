@@ -19,3 +19,5 @@ Backend* Nest_getBackend(int idx) {
     ASSERT(idx >= 0 && idx < _numBackends);
     return _allBackends[idx];
 }
+
+void Nest_clearBackends() { _numBackends = 0; }

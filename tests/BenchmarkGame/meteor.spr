@@ -491,6 +491,9 @@ fun rowsBad(row1, row2: Byte, even: Bool): Bool
  */
 fun tripleIsOkay(row1, row2, row3: Byte, even: Bool): Bool
 {
+    var r1: Int = row1;
+    var r2: Int = row2;
+    var r3: Int = row3;
     if ( even )
     {
         /* There are four cases:
@@ -498,10 +501,10 @@ fun tripleIsOkay(row1, row2, row3: Byte, even: Bool): Bool
          * row2: 01011  00101  10001  10001
          * row3: 011??  00110  ?????  ?????
          */
-        return(((row1 == 0x03) && (row2 == 0x0B) && ((row3 !&! 0x1C) == 0x0C))
-            || ((row1 == 0x01) && (row2 == 0x05) && (row3 == 0x06))
-            || ((row1 == 0x19) && (row2 == 0x11))
-            || ((row1 == 0x15) && (row2 == 0x11))
+        return(((r1 == 0x03) && (r2 == 0x0B) && ((r3 !&! 0x1C) == 0x0C))
+            || ((r1 == 0x01) && (r2 == 0x05) && (r3 == 0x06))
+            || ((r1 == 0x19) && (r2 == 0x11))
+            || ((r1 == 0x15) && (r2 == 0x11))
         );
     }
     else
@@ -511,8 +514,8 @@ fun tripleIsOkay(row1, row2, row3: Byte, even: Bool): Bool
          * row2: 10001  10001
          * row3: ?????  ?????
          */
-        return ((row1 == 0x13) && (row2 == 0x11)) \
-            || ((row1 == 0x15) && (row2 == 0x11));
+        return ((r1 == 0x13) && (r2 == 0x11)) \
+            || ((r1 == 0x15) && (r2 == 0x11));
     }
 }
 

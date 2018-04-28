@@ -121,7 +121,7 @@ void generateMachineAssembly(
 
     CompilerSettings& s = *Nest_compilerSettings();
 
-    vector<string> args = {llc, "--filetype=obj"};
+    vector<string> args = {llc, "--filetype=obj", "-relocation-model=pic"};
 #ifdef _WIN32
     // args.push_back("-mtriple");
     // args.push_back("i386-pc-mingw32");
@@ -150,19 +150,19 @@ void generateNativeObjGCC(
     //  We can't just assemble and link the file with the system assembler
     //  and linker because we don't know where to put the _start symbol.
     //  GCC mysteriously knows how to do it.
-    vector<string> args = {gcc, "-O0"};
+    vector<string> args = {gcc, "-O0", "-fPIC"};
     if (s.generateDebugInfo_)
         args.emplace_back("-g");
 
     for (const string& str : s.libPaths_) {
-        args.push_back("-L" + str);
+        args.emplace_back("-L" + str);
     }
     for (const string& str : s.frameworkPaths_) {
-        args.push_back("-F" + str);
+        args.emplace_back("-F" + str);
     }
     for (const string& str : s.frameworks_) {
         args.emplace_back("-framework");
-        args.push_back(str);
+        args.emplace_back(str);
     }
     args.insert(args.end(), s.linkerArgs_.begin(), s.linkerArgs_.end());
     args.insert(args.end(), {inputFilename, "-o", outputFilename});

@@ -14,6 +14,7 @@ matrix:
                   - libllvm6.0
                   - llvm-6.0
                   - llvm-6.0-runtime
+                  - libstdc++6
                   - libboost-all-dev
                   - libedit-dev
        - os: osx

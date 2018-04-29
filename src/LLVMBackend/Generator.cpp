@@ -64,16 +64,26 @@ void runCmd(const vector<string>& args) {
 
     // Actually execute the program
     string errMsg;
+#if LLVM_VERSION_MAJOR < 6
+    int res = llvm::sys::ExecuteAndWait(args[0], &cstrArgs[0], nullptr, nullptr, 0, 0, &errMsg);
+#else
     int res = llvm::sys::ExecuteAndWait(args[0], &cstrArgs[0], nullptr, {}, 0, 0, &errMsg);
+#endif
     if (res != 0)
         REP_INTERNAL(NOLOC, "Cannot run command: %1%") % errMsg;
 }
 
+#if LLVM_VERSION_MAJOR < 6
+    #define TOOL_OUPUT_FILE_CLS tool_output_file
+#else
+    #define TOOL_OUPUT_FILE_CLS ToolOutputFile
+#endif
+
 /// Write the given LLVM module, as a bitcode to disk
 void writeBitcodeFile(const Module& module, const string& outputFilename) {
     error_code errorInfo;
-    unique_ptr<ToolOutputFile> outFile(
-            new ToolOutputFile(outputFilename.c_str(), errorInfo, sys::fs::OpenFlags::F_None));
+    unique_ptr<TOOL_OUPUT_FILE_CLS> outFile(
+            new TOOL_OUPUT_FILE_CLS(outputFilename.c_str(), errorInfo, sys::fs::OpenFlags::F_None));
     if (errorInfo)
         REP_INTERNAL(NOLOC, "Cannot generate bitcode file (%1%); reason: %2%") % outputFilename %
                 errorInfo;
@@ -86,8 +96,8 @@ void writeBitcodeFile(const Module& module, const string& outputFilename) {
 /// Write the given LLVM module, as an assembly file to disk
 void writeAssemblyFile(const Module& module, const string& outputFilename) {
     error_code errorInfo;
-    unique_ptr<ToolOutputFile> outFile(
-            new ToolOutputFile(outputFilename.c_str(), errorInfo, sys::fs::OpenFlags::F_None));
+    unique_ptr<TOOL_OUPUT_FILE_CLS> outFile(
+            new TOOL_OUPUT_FILE_CLS(outputFilename.c_str(), errorInfo, sys::fs::OpenFlags::F_None));
     if (!outFile || errorInfo)
         REP_INTERNAL(NOLOC, "Cannot generate LLVM assembly file (%1%); reason: %2%") %
                 outputFilename % errorInfo;

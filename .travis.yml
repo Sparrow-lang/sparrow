@@ -3,22 +3,34 @@ sudo: required
 dist: trusty
 compiler: clang
 matrix:
-   include:
-       - os: linux
-         addons:
-            apt:
-                sources:
-                  - llvm-toolchain-trusty-6.0
-                packages:
-                  - llvm-6.0-dev
-                  - libllvm6.0
-                  - llvm-6.0
-                  - llvm-6.0-runtime
-                  - libstdc++6
-                  - libboost-all-dev
-                  - libedit-dev
-       - os: osx
-         osx_image: xcode9.2 # apple-clang 9.2, OS X 10.12
+  include:
+    - os: linux
+      env: LLVM_VER=6
+      addons:
+        apt:
+          sources:
+            - llvm-toolchain-trusty-6.0
+            - ubuntu-toolchain-r-test # for libstdc++6
+          packages:
+            - llvm-6.0-dev
+            - libllvm6.0
+            - llvm-6.0
+            - libstdc++6
+            - libboost-all-dev
+            - libedit-dev
+    - os: linux
+      env: LLVM_VER=5
+      addons:
+        apt:
+          sources:
+            - llvm-toolchain-trusty-5.0
+          packages:
+            - llvm-5.0-dev
+            - libboost-all-dev
+            - libedit-dev
+    - os: osx
+      osx_image: xcode9.2 # apple-clang 9.2, OS X 10.12
+      env: LLVM_VER=6
 install:
   - ./.travis/install.sh
 script:

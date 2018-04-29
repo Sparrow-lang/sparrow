@@ -104,7 +104,7 @@ macro(LLVMASM_TARGET Name Input Output)
         endif()
 
         add_custom_command(OUTPUT ${LLVMASM_TARGET_outputs}
-            COMMAND ${LLC_EXECUTABLE_EXT} --filetype=obj ${LLVMASM_EXECUTABLE_opts} -relocation-model=pic -o ${Output} ${Input}
+            COMMAND ${LLC_EXECUTABLE_EXT} --filetype=obj ${LLVMASM_EXECUTABLE_opts} -o ${Output} ${Input}
             VERBATIM
             DEPENDS ${Input} ${LLVMASM_TARGET_ARG_DEPENDS}
             COMMENT "[LLVM][${Name}] Building object ${Output}"

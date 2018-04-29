@@ -26,10 +26,7 @@ WORKDIR /sparrow
 RUN mkdir /sparrow/build
 WORKDIR /sparrow/build
 RUN CC=clang CXX=clang++ cmake ..
-
-# # Just make sure we don't copy this file
-RUN rm -f ../src/SparrowFrontend/Grammar/parserIf.o
-RUN cmake --build . -- -j4 || echo "Build failed"
+RUN cmake --build . -- -j4
 RUN cmake --build . -- install
 
 # Ensure the newly installed libraries can be found

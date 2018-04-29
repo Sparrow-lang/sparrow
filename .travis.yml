@@ -5,7 +5,7 @@ compiler: clang
 matrix:
   include:
     - os: linux
-      env: LLVM_VER=6
+      env: LLVM_VER=6 MAIN_BUILD=1
       addons:
         apt:
           sources:

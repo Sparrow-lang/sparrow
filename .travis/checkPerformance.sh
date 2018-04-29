@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ $TRAVIS_OS_NAME == linux ]; then
+if [ "$MAIN_BUILD" == "1" ] && [ $TRAVIS_OS_NAME == linux ]; then
     echo "---------- Performance testing ----------"
 
     # The name of the build - take the travis build number

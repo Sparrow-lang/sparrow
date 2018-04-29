@@ -25,7 +25,8 @@ COPY tests /sparrow_tests
 WORKDIR /sparrow
 RUN mkdir /sparrow/build
 WORKDIR /sparrow/build
-RUN CC=clang CXX=clang++ cmake ..
+# RUN CC=clang CXX=clang++ cmake ..
+RUN cmake ..
 RUN cmake --build . -- -j4
 RUN cmake --build . -- install
 

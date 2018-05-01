@@ -71,9 +71,10 @@ include_directories( "${Boost_INCLUDE_DIRS}" )
 link_directories(${Boost_LIBRARY_DIRS})
 
 # Find the LLVM library
-find_package( LLVM 5.0.0 REQUIRED )
+find_package( LLVM REQUIRED )
 include_directories( "${LLVM_INCLUDE_DIRS}" )
 link_directories(${LLVM_LIBRARY_DIRS})
+message(STATUS "LLVM version: ${LLVM_VERSION}")
 message(STATUS "LLVM bin dir: ${LLVM_TOOLS_BINARY_DIR}")
 message(STATUS "LLVM include dir: ${LLVM_INCLUDE_DIRS}")
 

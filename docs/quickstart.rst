@@ -11,7 +11,7 @@ External dependencies:
 
 - CMake (3.9.0 or later)
 - Boost (1.54 or later)
-- LLVM 5.0.0 or 5.0.1
+- LLVM 5 or 6
 
 Building on Mac or Unix-like platforms
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -34,6 +34,17 @@ After these steps, optionally, you can also install it:
 
     cmake --build . -- install
 
+Tested on:
+
+- Ubuntu Trusty Tahr (14)
+- Arch Linux
+- MacOS (OS X 10.12)
+
+The Ubuntul and MacOS will be actively maintained. Arch Linux compilation may break from time to time, as Arch is continuously updating packages.
+
+Compiling on CentOS doesn't work out of the box, because all packages are too old. A lot of manual work is required for this to work.
+
+Note on the compiler. Sparrow is actively tested with Clang compiler; however GCC may work too. Please note that during the compilation of the Sparrow compiler `llc` executable is needed; this is part of LLVM.
 
 Compiling Sparrow compiler on Windows 64-bit
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -24,8 +24,7 @@ struct _SourceCodeKindDescription {
 };
 
 /// The registered SourceCode kinds
-static const int _maxSourceCodeKinds = 100;
-struct _SourceCodeKindDescription _allSourceCodeKinds[_maxSourceCodeKinds];
+struct _SourceCodeKindDescription _allSourceCodeKinds[100];
 unsigned int _numSourceCodeKinds = 0;
 
 int Nest_registerSourceCodeKind(const char* extension, const char* description,

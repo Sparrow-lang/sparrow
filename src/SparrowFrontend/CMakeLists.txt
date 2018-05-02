@@ -70,8 +70,8 @@ SET(sourceFiles
 if(BOOTSTRAP_SPARROW)
     message(STATUS "Using SparrowCompiler to generate the parser object")
     SPARROW_TARGET(SparrowParser
-        Grammar/parserIf.spr
-        ${CMAKE_CURRENT_SOURCE_DIR}/Grammar/parserIf.o
+        ${CMAKE_CURRENT_SOURCE_DIR}/Grammar/parserIf.spr
+        ${CMAKE_CURRENT_BINARY_DIR}/parserIf.o
         COMPILE_FLAGS "-dump-assembly -fno-colors -fno-main -c"
         DEPENDS Grammar/parser.spr
                 Grammar/parserDefs.spr
@@ -82,10 +82,10 @@ if(BOOTSTRAP_SPARROW)
                 Grammar/token.spr
     )
 else()
-    message(STATUS "Using LLVM to generate the parser object")
     LLVMASM_TARGET(SparrowParser
-        Grammar/parserIf.ll
-        ${CMAKE_CURRENT_SOURCE_DIR}/Grammar/parserIf.o
+        ${CMAKE_CURRENT_SOURCE_DIR}/Grammar/parserIf.ll
+        ${CMAKE_CURRENT_BINARY_DIR}/parserIf.o
+        COMPILE_FLAGS -relocation-model=pic
     )
 endif()
 

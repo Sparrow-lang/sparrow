@@ -64,16 +64,26 @@ void runCmd(const vector<string>& args) {
 
     // Actually execute the program
     string errMsg;
+#if LLVM_VERSION_MAJOR < 6
     int res = llvm::sys::ExecuteAndWait(args[0], &cstrArgs[0], nullptr, nullptr, 0, 0, &errMsg);
+#else
+    int res = llvm::sys::ExecuteAndWait(args[0], &cstrArgs[0], nullptr, {}, 0, 0, &errMsg);
+#endif
     if (res != 0)
         REP_INTERNAL(NOLOC, "Cannot run command: %1%") % errMsg;
 }
 
+#if LLVM_VERSION_MAJOR < 6
+    #define TOOL_OUPUT_FILE_CLS tool_output_file
+#else
+    #define TOOL_OUPUT_FILE_CLS ToolOutputFile
+#endif
+
 /// Write the given LLVM module, as a bitcode to disk
 void writeBitcodeFile(const Module& module, const string& outputFilename) {
     error_code errorInfo;
-    unique_ptr<tool_output_file> outFile(
-            new tool_output_file(outputFilename.c_str(), errorInfo, sys::fs::OpenFlags::F_None));
+    unique_ptr<TOOL_OUPUT_FILE_CLS> outFile(
+            new TOOL_OUPUT_FILE_CLS(outputFilename.c_str(), errorInfo, sys::fs::OpenFlags::F_None));
     if (errorInfo)
         REP_INTERNAL(NOLOC, "Cannot generate bitcode file (%1%); reason: %2%") % outputFilename %
                 errorInfo;
@@ -86,8 +96,8 @@ void writeBitcodeFile(const Module& module, const string& outputFilename) {
 /// Write the given LLVM module, as an assembly file to disk
 void writeAssemblyFile(const Module& module, const string& outputFilename) {
     error_code errorInfo;
-    unique_ptr<tool_output_file> outFile(
-            new tool_output_file(outputFilename.c_str(), errorInfo, sys::fs::OpenFlags::F_None));
+    unique_ptr<TOOL_OUPUT_FILE_CLS> outFile(
+            new TOOL_OUPUT_FILE_CLS(outputFilename.c_str(), errorInfo, sys::fs::OpenFlags::F_None));
     if (!outFile || errorInfo)
         REP_INTERNAL(NOLOC, "Cannot generate LLVM assembly file (%1%); reason: %2%") %
                 outputFilename % errorInfo;
@@ -121,7 +131,7 @@ void generateMachineAssembly(
 
     CompilerSettings& s = *Nest_compilerSettings();
 
-    vector<string> args = {llc, "--filetype=obj"};
+    vector<string> args = {llc, "--filetype=obj", "-relocation-model=pic"};
 #ifdef _WIN32
     // args.push_back("-mtriple");
     // args.push_back("i386-pc-mingw32");
@@ -150,19 +160,19 @@ void generateNativeObjGCC(
     //  We can't just assemble and link the file with the system assembler
     //  and linker because we don't know where to put the _start symbol.
     //  GCC mysteriously knows how to do it.
-    vector<string> args = {gcc, "-O0"};
+    vector<string> args = {gcc, "-O0", "-fPIC"};
     if (s.generateDebugInfo_)
         args.emplace_back("-g");
 
     for (const string& str : s.libPaths_) {
-        args.push_back("-L" + str);
+        args.emplace_back("-L" + str);
     }
     for (const string& str : s.frameworkPaths_) {
-        args.push_back("-F" + str);
+        args.emplace_back("-F" + str);
     }
     for (const string& str : s.frameworks_) {
         args.emplace_back("-framework");
-        args.push_back(str);
+        args.emplace_back(str);
     }
     args.insert(args.end(), s.linkerArgs_.begin(), s.linkerArgs_.end());
     args.insert(args.end(), {inputFilename, "-o", outputFilename});

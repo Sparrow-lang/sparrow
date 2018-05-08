@@ -78,4 +78,13 @@ template <typename T1, typename T2, typename T3, typename T4> struct hash<Tuple4
                1572869 * hash<T4>()(t._4);
     }
 };
+template <typename T1, typename T2, typename T3, typename T4> struct hash<tuple<T1, T2, T3, T4>> {
+    size_t operator()(const tuple<T1, T2, T3, T4>& t) const {
+        size_t res = hash<T1>()(std::get<0>(t));
+        res += 393241 * hash<T2>()(std::get<1>(t));
+        res += 786433 * hash<T3>()(std::get<2>(t));
+        res += 1572869 * hash<T4>()(std::get<3>(t));
+        return res;
+    }
+};
 } // namespace std

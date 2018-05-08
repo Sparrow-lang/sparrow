@@ -12,6 +12,8 @@
 #include "Nest/Api/Compiler.h"
 #include "Nest/Api/CompilationContext.h"
 #include "Nest/Api/SourceCode.h"
+#include "Nest/Api/TypeKindRegistrar.h"
+#include "Nest/Api/NodeKindRegistrar.h"
 #include "Nest/Utils/Alloc.h"
 #include "Nest/Utils/NodeUtils.h"
 #include "Nest/Utils/StringRef.hpp"
@@ -46,6 +48,8 @@ GeneralFixture::~GeneralFixture() {
 
     // Cleanup Nest
     Nest_clearBackends();
+    // Nest_resetRegisteredTypeKinds();
+    Nest_resetRegisteredNodeKinds();
 
     // Cleanup all allocated memory
     cleanupMemory();

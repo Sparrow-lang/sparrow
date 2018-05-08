@@ -78,6 +78,10 @@ struct ConvertFixture : GeneralFixture {
         return res.conversionType();
     }
 
+    ConversionResult getConvResult(TypeRef src, TypeRef dest, ConversionFlags flags = flagsDefault) {
+        return g_ConvertService->canConvertType(globalContext_, src, dest, flags);
+    }
+
     TypeRef fooType_;
     TypeRef barType_; // fooType_ -> barType_
     TypeRef nullType_;
@@ -424,5 +428,139 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion return types follow rules") {
 
             RC_ASSERT(cvt == expectedConv);
         }
+    });
+}
+
+//! For a given conversion, check that actions match conversion type
+void checkActionsAgainstType(const ConversionResult& cvt, TypeRef destType) {
+    RC_LOG() << cvt << endl;
+
+    // If we don't have a conversion, expect no actions
+    if (!cvt) {
+        RC_ASSERT(cvt.convertActions().empty());
+        return;
+    }
+
+    bool isConcept = destType->typeKind == SprFrontend::typeKindConcept;
+
+    // Compute the expected conversion
+    ConversionType minConv = convDirect;
+    int i = 0;
+    for (auto act : cvt.convertActions()) {
+        switch (act.first) {
+        case ActionType::none:
+            minConv = worstConv(minConv, convDirect);
+            break;
+        case ActionType::dereference:
+            minConv = worstConv(minConv, convImplicit);
+            break;
+        case ActionType::bitcast:
+            minConv = worstConv(minConv, convImplicit);
+            break;
+        case ActionType::makeNull:
+            minConv = worstConv(minConv, convImplicit);
+            break;
+        case ActionType::addRef:
+            minConv = worstConv(minConv, convImplicit);
+            break;
+        case ActionType::customCvt:
+            minConv = worstConv(minConv, convCustom);
+            break;
+        }
+    }
+
+    if (isConcept) {
+        if (minConv == convDirect)
+            minConv = convConcept;
+        else if (minConv == convImplicit)
+            minConv = convConceptWithImplicit;
+    }
+    RC_ASSERT(cvt.conversionType() >= minConv);
+}
+
+//! Check different properties of action types
+void checkActionTypes(const ConversionResult& cvt, TypeRef srcType, TypeRef destType) {
+    RC_PRE(cvt);
+    RC_LOG() << srcType << " -> " << destType << " : " << cvt << endl;
+
+    // Obtain only the action types from the conversion
+    static vector<ActionType> actions;
+    actions.clear();
+    actions.reserve(cvt.convertActions().size());
+    transform(cvt.convertActions().begin(), cvt.convertActions().end(), back_inserter(actions),
+            [](ConvAction ca) { return ca.first; });
+
+    auto first = actions.begin();
+    auto last = actions.end();
+
+    // Check that we don't have both dereference and addRef actions
+    // Exception: X lv/ct -> @X
+    if (srcType->mode != modeCt || destType->mode != modeRt) {
+        bool hasDeref = last != find(first, last, ActionType::dereference);
+        bool hasAddRef = last != find(first, last, ActionType::addRef);
+        RC_ASSERT(!hasDeref || !hasAddRef);
+    }
+
+    // Check that we have maximum 1 bitcast action
+    RC_ASSERT(count(first, last, ActionType::bitcast) <= 1);
+
+    // Check that we have maximum 1 custom covert action
+    RC_ASSERT(count(first, last, ActionType::customCvt) <= 1);
+
+    // Check that we have maximum 1 add-ref action
+    RC_ASSERT(count(first, last, ActionType::addRef) <= 1);
+
+    // Make-null action is the last one
+    auto idx = find(first, last, ActionType::makeNull) - first;
+    RC_ASSERT(idx >= actions.size()-1);
+}
+
+TEST_CASE_METHOD(ConvertFixture, "Convert actions applied follow rules") {
+    rc::prop("convert actions match conversion type (related data types)", [=]() {
+        TypeRef src = *TypeFactory::arbBasicStorageType();
+        TypeRef dest = *TypeFactory::arbBasicStorageType();
+        RC_PRE(src->referredNode == dest->referredNode); // increase the chance of matching
+        RC_LOG() << src << " -> " << dest << endl;
+        checkActionsAgainstType(getConvResult(src, dest), dest);
+    });
+    rc::prop("convert actions match conversion type (basic storage types)", [=]() {
+        TypeRef src = *TypeFactory::arbBasicStorageType();
+        TypeRef dest = *TypeFactory::arbBasicStorageType();
+        RC_LOG() << src << " -> " << dest << endl;
+        checkActionsAgainstType(getConvResult(src, dest), dest);
+    });
+    rc::prop("convert actions match conversion type (all types)", [=]() {
+        TypeRef src = *TypeFactory::arbType();
+        TypeRef dest = *TypeFactory::arbType();
+        RC_LOG() << src << " -> " << dest << endl;
+        checkActionsAgainstType(getConvResult(src, dest), dest);
+    });
+
+
+    rc::prop("no conversion implies no actions", [=]() {
+        TypeRef src = *TypeFactory::arbType();
+        TypeRef dest = *TypeFactory::arbType();
+        RC_LOG() << src << " -> " << dest << endl;
+        auto cvt = getConvResult(src, dest);
+        if (!cvt)
+            RC_ASSERT(cvt.convertActions().empty());
+    });
+
+
+    rc::prop("different properties of action types hold (related data types)", [=]() {
+        TypeRef src = *TypeFactory::arbBasicStorageType();
+        TypeRef dest = *TypeFactory::arbBasicStorageType();
+        RC_PRE(src->referredNode == dest->referredNode); // increase the chance of matching
+        checkActionsAgainstType(getConvResult(src, dest), dest);
+    });
+    rc::prop("different properties of action types hold (basic storage types)", [=]() {
+        TypeRef src = *TypeFactory::arbBasicStorageType();
+        TypeRef dest = *TypeFactory::arbBasicStorageType();
+        checkActionsAgainstType(getConvResult(src, dest), dest);
+    });
+    rc::prop("different properties of action types hold (all types)", [=]() {
+        TypeRef src = *TypeFactory::arbType();
+        TypeRef dest = *TypeFactory::arbType();
+        checkActionsAgainstType(getConvResult(src, dest), dest);
     });
 }

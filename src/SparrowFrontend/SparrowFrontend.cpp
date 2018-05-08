@@ -19,7 +19,7 @@ void SparrowFrontend_initModule() {
     SprFe_registerSparrowSourceCode();
 
     // Create the service objects
-    g_ConvertService = new ConvertService;
+    setDefaultConvertService();
     g_OverloadService = new OverloadService;
     g_ConceptsService = new ConceptsService;
 }

@@ -74,12 +74,12 @@ struct ConvertFixture : GeneralFixture {
     ~ConvertFixture();
 
     ConversionType getConvType(TypeRef src, TypeRef dest, ConversionFlags flags = flagsDefault) {
-        auto res = g_ConvertService->canConvertType(globalContext_, src, dest, flags);
+        auto res = g_ConvertService->checkConversion(globalContext_, src, dest, flags);
         return res.conversionType();
     }
 
     ConversionResult getConvResult(TypeRef src, TypeRef dest, ConversionFlags flags = flagsDefault) {
-        return g_ConvertService->canConvertType(globalContext_, src, dest, flags);
+        return g_ConvertService->checkConversion(globalContext_, src, dest, flags);
     }
 
     TypeRef fooType_;
@@ -216,8 +216,8 @@ TEST_CASE("User shall be able to combine two ConversionType values") {
 
 TEST_CASE_METHOD(ConvertFixture, "User shall be able to check conversion between any two types") {
 
-    rc::prop("canConvertType doesn't crash", [=](TypeRef src, TypeRef dest) {
-        (void)g_ConvertService->canConvertType(globalContext_, src, dest);
+    rc::prop("checkConversion doesn't crash", [=](TypeRef src, TypeRef dest) {
+        (void)g_ConvertService->checkConversion(globalContext_, src, dest);
     });
 }
 
@@ -232,7 +232,7 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
         RC_PRE(src->referredNode != fooType_->referredNode ||
                 dest->referredNode != barType_->referredNode); // Implicit conversion exception
         RC_PRE(dest->typeKind != SprFrontend::typeKindConcept);
-        auto res = g_ConvertService->canConvertType(globalContext_, src, dest);
+        auto res = g_ConvertService->checkConversion(globalContext_, src, dest);
         RC_ASSERT(res.conversionType() == convNone);
     });
     rc::prop("Only void converts to void (none)", [=](TypeRef src) {

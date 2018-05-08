@@ -149,7 +149,7 @@ ConversionType canCall_common_types(CallableData& c, CompilationContext* context
         ConversionFlags flags = flagsDefault;
         if (customCvtMode == noCustomCvt || (customCvtMode == noCustomCvtForFirst && i == 0))
             flags = flagDontCallConversionCtor;
-        c.conversions[i] = g_ConvertService->canConvertType(context, argType, paramType, flags);
+        c.conversions[i] = g_ConvertService->checkConversion(context, argType, paramType, flags);
         if (!c.conversions[i]) {
             if (reportErrors)
                 REP_INFO(NOLOC, "Cannot convert argument %1% from %2% to %3%") % i % argType %
@@ -539,7 +539,7 @@ Node* applyConversion(Node* arg, TypeRef paramType, ConversionType& worstConv,
         paramType = Feather_checkChangeTypeMode(paramType, modeCt, NOLOC);
 
     ConversionResult conv =
-            g_ConvertService->canConvertType(arg->context, arg->type, paramType, flags);
+            g_ConvertService->checkConversion(arg->context, arg->type, paramType, flags);
     if (!conv) {
         // if (reportErrors)
         //     REP_INFO(NOLOC, "Cannot convert argument %1% from %2% to %3%") % i % argType %
@@ -1255,13 +1255,13 @@ int SprFrontend::moreSpecialized(CompilationContext* context, const CallableData
             continue;
 
         ConversionFlags flags = noCustomCvt ? flagDontCallConversionCtor : flagsDefault;
-        ConversionResult c1 = g_ConvertService->canConvertType(context, t1, t2, flags);
+        ConversionResult c1 = g_ConvertService->checkConversion(context, t1, t2, flags);
         if (c1) {
             firstIsMoreSpecialized = true;
             if (secondIsMoreSpecialized)
                 return 0;
         }
-        ConversionResult c2 = g_ConvertService->canConvertType(context, t2, t1, flags);
+        ConversionResult c2 = g_ConvertService->checkConversion(context, t2, t1, flags);
         if (c2) {
             secondIsMoreSpecialized = true;
             if (firstIsMoreSpecialized)

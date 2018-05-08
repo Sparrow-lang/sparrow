@@ -54,7 +54,7 @@ Node* SprFrontend::createCtorCall(
                 // This argument - make sure it's of the required type
                 Node* thisParam = Feather_Function_getParameter(fun, 0);
                 TypeRef thisParamType = thisParam->type;
-                ConversionResult cvt = g_ConvertService->canConvert(thisArg, thisParamType);
+                ConversionResult cvt = g_ConvertService->checkConversion(thisArg, thisParamType);
                 if (!cvt)
                     REP_INTERNAL(loc, "Cannot convert this arg in RVO (%1% -> %2%)") %
                             thisArg->type % thisParamType;
@@ -315,7 +315,7 @@ Node* _createFunPtrForDecl(Node* funNode) {
 
                 // Ensure we can convert baseExp to the first param
                 TypeRef paramType = Feather_Function_getParameter(decl, thisParamIdx)->type;
-                if (!g_ConvertService->canConvert(baseExp, paramType, flagDontCallConversionCtor)) {
+                if (!g_ConvertService->checkConversion(baseExp, paramType, flagDontCallConversionCtor)) {
                     continue;
                 }
             }

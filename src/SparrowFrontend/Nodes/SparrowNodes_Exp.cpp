@@ -50,7 +50,7 @@ Node* getIdentifierResult(Node* node, NodeRange decls, Node* baseExp, bool allow
                 // Make sure the base is a reference
                 if (baseExp->type->numReferences == 0) {
                     ConversionResult res =
-                            g_ConvertService->canConvert(baseExp, Feather_addRef(baseExp->type));
+                            g_ConvertService->checkConversion(baseExp, Feather_addRef(baseExp->type));
                     if (!res)
                         REP_INTERNAL(loc, "Cannot add reference to base of field access");
                     baseExp = res.apply(baseExp);
@@ -154,7 +154,7 @@ Node* checkStaticCast(Node* node) {
     TypeRef srcType = at(arguments->children, 1)->type;
 
     // Check if we can cast
-    ConversionResult c = g_ConvertService->canConvert(at(arguments->children, 1), destType);
+    ConversionResult c = g_ConvertService->checkConversion(at(arguments->children, 1), destType);
     if (!c)
         REP_ERROR_RET(nullptr, node->location, "Cannot cast from %1% to %2%; types are unrelated") %
                 srcType % destType;
@@ -680,7 +680,7 @@ Node* handleRefAssign(Node* node) {
     }
 
     // Check for a conversion from the second argument to the first argument
-    ConversionResult c = g_ConvertService->canConvert(arg2, arg1BaseType);
+    ConversionResult c = g_ConvertService->checkConversion(arg2, arg1BaseType);
     if (!c)
         REP_ERROR_RET(nullptr, node->location, "Cannot convert from %1% to %2%") % arg2->type %
                 arg1BaseType;
@@ -1450,8 +1450,8 @@ Node* SprConditional_SemanticCheck(Node* node) {
                 t1 % t2;
 
     // Convert both types to the result type
-    ConversionResult c1 = g_ConvertService->canConvertType(node->context, t1, resType);
-    ConversionResult c2 = g_ConvertService->canConvertType(node->context, t2, resType);
+    ConversionResult c1 = g_ConvertService->checkConversion(node->context, t1, resType);
+    ConversionResult c2 = g_ConvertService->checkConversion(node->context, t2, resType);
 
     alt1 = c1.apply(node->context, alt1);
     alt2 = c2.apply(node->context, alt2);

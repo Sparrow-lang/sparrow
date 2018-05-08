@@ -75,26 +75,21 @@ enum ConversionFlags {
 struct IConvertService {
     virtual ~IConvertService() {}
 
-    //! Check if we can convert the source type to the destination type; also check what kind of
-    //! conversion is needed
-    virtual ConversionResult canConvertType(CompilationContext* context, TypeRef srcType,
+    //! Check if we can convert the source type to the destination type.
+    //! The returned object can be used to apply the conversion to nodes of the source type.
+    virtual ConversionResult checkConversion(CompilationContext* context, TypeRef srcType,
             TypeRef destType, ConversionFlags flags = flagsDefault) = 0;
 
     //! Checks if an "argument" node can be converted to a given type
-    virtual ConversionResult canConvert(
+    virtual ConversionResult checkConversion(
             Node* arg, TypeRef destType, ConversionFlags flags = flagsDefault) = 0;
 };
 
-//! Implementation of the convert service
-struct ConvertService : IConvertService {
-    ConversionResult canConvertType(CompilationContext* context, TypeRef srcType, TypeRef destType,
-            ConversionFlags flags = flagsDefault) final;
-    ConversionResult canConvert(
-            Node* arg, TypeRef destType, ConversionFlags flags = flagsDefault) final;
-};
-
 //! The convert service instance that we are using across the Sparrow compiler
-extern IConvertService* g_ConvertService;
+extern unique_ptr<IConvertService> g_ConvertService;
+
+//! Creates the default convert service
+void setDefaultConvertService();
 
 ostream& operator<<(ostream& os, ConversionType ct);
 ostream& operator<<(ostream& os, ActionType act);

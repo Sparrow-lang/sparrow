@@ -315,7 +315,8 @@ Node* _createFunPtrForDecl(Node* funNode) {
 
                 // Ensure we can convert baseExp to the first param
                 TypeRef paramType = Feather_Function_getParameter(decl, thisParamIdx)->type;
-                if (!g_ConvertService->checkConversion(baseExp, paramType, flagDontCallConversionCtor)) {
+                if (!g_ConvertService->checkConversion(
+                            baseExp, paramType, flagDontCallConversionCtor)) {
                     continue;
                 }
             }

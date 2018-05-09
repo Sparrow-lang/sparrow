@@ -52,6 +52,4 @@ FToString Nest_getToStringFun(int nodeKind) {
     return _allNodeKinds[nodeKind].funToString;
 }
 
-void Nest_resetRegisteredNodeKinds() {
-    _numNodeKinds = 0;
-}
+void Nest_resetRegisteredNodeKinds() { _numNodeKinds = 0; }

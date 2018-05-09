@@ -71,6 +71,7 @@ ConversionResult::ConversionResult(const ConversionResult& nextConv, ConversionT
     }
 }
 
+//! Apply one conversion action to the given node
 Node* applyOnce(Node* src, ConvAction action) {
     TypeRef destT = action.second;
     switch (action.first) {
@@ -99,7 +100,6 @@ Node* applyOnce(Node* src, ConvAction action) {
                 src->context, src->location, Feather_getDataType(destClass, 0, modeRt));
         return Feather_mkChangeMode(src->location,
                 mkFunApplication(src->location, refToClass, fromIniList({src})), destMode);
-        // TODO: check if we should use src->context
     }
     }
 }
@@ -196,7 +196,8 @@ ConversionResult ConvertService::checkConversion(
     return cachedCheckConversion(context, flags, srcType, destType);
 }
 
-ConversionResult ConvertService::checkConversion(Node* arg, TypeRef destType, ConversionFlags flags) {
+ConversionResult ConvertService::checkConversion(
+        Node* arg, TypeRef destType, ConversionFlags flags) {
     ASSERT(arg);
     TypeRef srcType = Nest_computeType(arg);
     if (!srcType)
@@ -425,7 +426,8 @@ ConversionResult ConvertService::checkDereference(
 
     TypeRef t = Feather_removeRef(srcType);
 
-    const auto& nextConv = cachedCheckConversion(context, flags | flagDontAddReference, t, destType);
+    const auto& nextConv =
+            cachedCheckConversion(context, flags | flagDontAddReference, t, destType);
     return ConversionResult(nextConv, convImplicit, ConvAction(ActionType::dereference, t));
 }
 

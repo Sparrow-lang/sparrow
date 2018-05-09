@@ -22,6 +22,4 @@ FChangeTypeMode Nest_getChangeTypeModeFun(int typeKind) {
     return _allTypeKinds[typeKind].Feather_checkChangeTypeMode;
 }
 
-void Nest_resetRegisteredTypeKinds() {
-    _numTypeKinds = 0;
-}
+void Nest_resetRegisteredTypeKinds() { _numTypeKinds = 0; }

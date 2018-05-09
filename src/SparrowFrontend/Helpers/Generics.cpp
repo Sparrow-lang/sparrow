@@ -185,9 +185,7 @@ Node* checkCreateGenericFun(Node* originalFun, Node* parameters, Node* ifClause)
     return res;
 }
 
-NodeRange genericFunParams(Node* genericFun) {
-    return GenericFunNode(genericFun).originalParams();
-}
+NodeRange genericFunParams(Node* genericFun) { return GenericFunNode(genericFun).originalParams(); }
 NodeRange genericClassParams(Node* genericClass) {
     return GenericClassNode(genericClass).instSet().params();
 }
@@ -218,8 +216,7 @@ InstNode searchInstantiation(InstSetNode instSet, NodeRange values) {
     return nullptr;
 }
 
-InstNode createNewInstantiation(
-        InstSetNode instSet, NodeRange values, EvalMode evalMode) {
+InstNode createNewInstantiation(InstSetNode instSet, NodeRange values, EvalMode evalMode) {
     ASSERT(instSet.node);
     const Location& loc = instSet.node->location;
 
@@ -244,8 +241,8 @@ InstNode createNewInstantiation(
     return inst;
 }
 
-Node* createBoundVar(CompilationContext* context, Node* param, TypeRef paramType,
-        Node* boundValue, bool isCtGeneric) {
+Node* createBoundVar(CompilationContext* context, Node* param, TypeRef paramType, Node* boundValue,
+        bool isCtGeneric) {
     ASSERT(param);
     ASSERT(paramType);
     ASSERT(boundValue && boundValue->type);

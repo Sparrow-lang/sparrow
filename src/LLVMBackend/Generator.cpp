@@ -74,9 +74,9 @@ void runCmd(const vector<string>& args) {
 }
 
 #if LLVM_VERSION_MAJOR < 6
-    #define TOOL_OUPUT_FILE_CLS tool_output_file
+#define TOOL_OUPUT_FILE_CLS tool_output_file
 #else
-    #define TOOL_OUPUT_FILE_CLS ToolOutputFile
+#define TOOL_OUPUT_FILE_CLS ToolOutputFile
 #endif
 
 /// Write the given LLVM module, as a bitcode to disk

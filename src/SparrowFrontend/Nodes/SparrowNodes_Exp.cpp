@@ -49,8 +49,8 @@ Node* getIdentifierResult(Node* node, NodeRange decls, Node* baseExp, bool allow
 
                 // Make sure the base is a reference
                 if (baseExp->type->numReferences == 0) {
-                    ConversionResult res =
-                            g_ConvertService->checkConversion(baseExp, Feather_addRef(baseExp->type));
+                    ConversionResult res = g_ConvertService->checkConversion(
+                            baseExp, Feather_addRef(baseExp->type));
                     if (!res)
                         REP_INTERNAL(loc, "Cannot add reference to base of field access");
                     baseExp = res.apply(baseExp);

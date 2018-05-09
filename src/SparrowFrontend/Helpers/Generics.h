@@ -349,6 +349,9 @@ struct ConceptsService : IConceptsService {
 };
 
 //! The convert service instance that we are using across the Sparrow compiler
-extern IConceptsService* g_ConceptsService;
+extern unique_ptr<IConceptsService> g_ConceptsService;
+
+//! Creates the default concepts service
+void setDefaultConceptsService();
 
 } // namespace SprFrontend

@@ -91,14 +91,12 @@ struct ConvertFixture : GeneralFixture {
 
 ConvertFixture::ConvertFixture() {
     // Mock the overload service
-    delete g_OverloadService;
     auto mockOverloadService = new OverloadServiceMock;
-    g_OverloadService = mockOverloadService;
+    g_OverloadService.reset(mockOverloadService);
 
     // Mock the concepts service
-    delete g_ConceptsService;
     auto mockConceptsService = new ConceptsServiceMock;
-    g_ConceptsService = mockConceptsService;
+    g_ConceptsService.reset(mockConceptsService);
 
     using TypeFactory::g_conceptDecls;
     using TypeFactory::g_dataTypeDecls;
@@ -480,7 +478,9 @@ void checkActionsAgainstType(const ConversionResult& cvt, TypeRef destType) {
 
 //! Check different properties of action types
 void checkActionTypes(const ConversionResult& cvt, TypeRef srcType, TypeRef destType) {
-    RC_PRE(cvt);
+    if (!cvt)
+        return;
+
     RC_LOG() << srcType << " -> " << destType << " : " << cvt << endl;
 
     // Obtain only the action types from the conversion
@@ -512,7 +512,7 @@ void checkActionTypes(const ConversionResult& cvt, TypeRef srcType, TypeRef dest
 
     // Make-null action is the last one
     auto idx = find(first, last, ActionType::makeNull) - first;
-    RC_ASSERT(idx >= actions.size()-1);
+    RC_ASSERT(idx+1 >= actions.size());
 }
 
 TEST_CASE_METHOD(ConvertFixture, "Convert actions applied follow rules") {
@@ -551,16 +551,16 @@ TEST_CASE_METHOD(ConvertFixture, "Convert actions applied follow rules") {
         TypeRef src = *TypeFactory::arbBasicStorageType();
         TypeRef dest = *TypeFactory::arbBasicStorageType();
         RC_PRE(src->referredNode == dest->referredNode); // increase the chance of matching
-        checkActionsAgainstType(getConvResult(src, dest), dest);
+        checkActionTypes(getConvResult(src, dest), src, dest);
     });
     rc::prop("different properties of action types hold (basic storage types)", [=]() {
         TypeRef src = *TypeFactory::arbBasicStorageType();
         TypeRef dest = *TypeFactory::arbBasicStorageType();
-        checkActionsAgainstType(getConvResult(src, dest), dest);
+        checkActionTypes(getConvResult(src, dest), src, dest);
     });
     rc::prop("different properties of action types hold (all types)", [=]() {
         TypeRef src = *TypeFactory::arbType();
         TypeRef dest = *TypeFactory::arbType();
-        checkActionsAgainstType(getConvResult(src, dest), dest);
+        checkActionTypes(getConvResult(src, dest), src, dest);
     });
 }

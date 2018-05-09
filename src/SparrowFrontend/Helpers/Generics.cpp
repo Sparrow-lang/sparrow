@@ -18,7 +18,7 @@ using namespace Nest;
 
 namespace SprFrontend {
 
-IConceptsService* g_ConceptsService = nullptr;
+unique_ptr<IConceptsService> g_ConceptsService;
 
 namespace {
 
@@ -380,5 +380,7 @@ TypeRef ConceptsService::baseConceptType(Node* concept) {
     TypeRef res = baseConcept ? getType(baseConcept) : getConceptType();
     return res;
 }
+
+void setDefaultConceptsService() { g_ConceptsService.reset(new ConceptsService); }
 
 } // namespace SprFrontend

@@ -21,11 +21,20 @@
 
 GeneralFixture* GeneralFixture::lastInstance_{nullptr};
 
+namespace {
+
+void destroyModule(Nest_CompilerModule* mod) {
+    if (mod->destroyFun)
+        mod->destroyFun();
+}
+
+} // namespace
+
 GeneralFixture::GeneralFixture() {
     // Initialize the modules
-    CompilerModule* mods[] = {getNestModule(), Feather_getModule(), getSparrowFrontendModule()};
-    for (int i = 0; i < 3; i++)
-        mods[i]->initFun();
+    getNestModule()->initFun();
+    Feather_getModule()->initFun();
+    getSparrowFrontendModule()->initFun();
 
     // Create the backend object and register it
     backend_.reset(new BackendMock);
@@ -46,13 +55,10 @@ GeneralFixture::~GeneralFixture() {
     TypeFactory::g_dataTypeDecls.clear();
     TypeFactory::g_conceptDecls.clear();
 
-    // Cleanup Nest
-    Nest_clearBackends();
-    // Nest_resetRegisteredTypeKinds();
-    Nest_resetRegisteredNodeKinds();
-
-    // Cleanup all allocated memory
-    cleanupMemory();
+    // Cleanup our modules
+    destroyModule(getSparrowFrontendModule());
+    destroyModule(Feather_getModule());
+    destroyModule(getNestModule());
 
     // Reset the last instance of this class
     lastInstance_ = nullptr;

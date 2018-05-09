@@ -17,7 +17,7 @@ using namespace Nest;
 
 namespace SprFrontend {
 
-IOverloadService* g_OverloadService = nullptr;
+unique_ptr<IOverloadService> g_OverloadService;
 
 namespace {
 
@@ -350,5 +350,7 @@ Node* OverloadService::selectCtToRtCtor(Node* ctArg) {
         return nullptr;
     return generateCall(*call, ctArg->context, loc);
 }
+
+void setDefaultOverloadService() { g_OverloadService.reset(new OverloadService); }
 
 } // namespace SprFrontend

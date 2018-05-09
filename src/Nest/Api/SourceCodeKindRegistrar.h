@@ -39,6 +39,9 @@ int Nest_getSourceCodeKindForExtension(const char* extension);
 /// Returns a negative value if no source code kind can be found
 int Nest_getSourceCodeKindForFilename(const char* filename);
 
+//! Resets the registered source-code kinds
+void Nest_resetRegisteredSourceCodeKinds();
+
 #ifdef __cplusplus
 }
 #endif

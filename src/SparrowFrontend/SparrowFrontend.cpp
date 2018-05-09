@@ -20,8 +20,14 @@ void SparrowFrontend_initModule() {
 
     // Create the service objects
     setDefaultConvertService();
-    g_OverloadService = new OverloadService;
-    g_ConceptsService = new ConceptsService;
+    setDefaultOverloadService();
+    setDefaultConceptsService();
+}
+
+void SparrowFrontend_destroyModule() {
+    g_ConvertService.reset();
+    g_OverloadService.reset();
+    g_ConceptsService.reset();
 }
 
 void SparrowFrontend_onBackendSetFun(Backend* backend) {
@@ -35,6 +41,7 @@ void SparrowFrontend_onBackendSetFun(Backend* backend) {
 CompilerModule* getSparrowFrontendModule() {
     auto* nestModule = new CompilerModule{"SparrowFrontend",
             "Module that defines the frontend for the Sparrow language", "LucTeo", "www.lucteo.ro",
-            1, 0, &SparrowFrontend_initModule, nullptr, &SparrowFrontend_onBackendSetFun};
+            1, 0, &SparrowFrontend_initModule, &SparrowFrontend_destroyModule,
+            &SparrowFrontend_onBackendSetFun};
     return nestModule;
 }

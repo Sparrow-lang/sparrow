@@ -20,7 +20,7 @@ struct TypeHasher {
 };
 
 /// The set of all the types that we have registered
-unordered_set<Type, TypeHasher> allTypes;
+unordered_set<Type, TypeHasher> g_allTypes;
 } // namespace
 
 // Compare types by content
@@ -38,15 +38,19 @@ bool operator==(const Type& lhs, const Type& rhs) {
 }
 
 TypeRef Nest_findStockType(const Type* reference) {
-    auto it = allTypes.find(*reference);
-    return it == allTypes.end() ? nullptr : &*it;
+    auto it = g_allTypes.find(*reference);
+    return it == g_allTypes.end() ? nullptr : &*it;
 }
 
 TypeRef Nest_insertStockType(const Type* newType) {
-    auto p = allTypes.insert(*newType);
+    auto p = g_allTypes.insert(*newType);
     return &*p.first;
 }
 
 TypeRef Nest_changeTypeMode(TypeRef type, EvalMode newMode) {
     return Nest_getChangeTypeModeFun(type->typeKind)(type, newMode);
+}
+
+void Nest_resetTypes() {
+    g_allTypes.clear();
 }

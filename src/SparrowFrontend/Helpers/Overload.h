@@ -66,6 +66,9 @@ struct OverloadService : IOverloadService {
 };
 
 //! The overload service instance that we are using across the Sparrow compiler
-extern IOverloadService* g_OverloadService;
+extern unique_ptr<IOverloadService> g_OverloadService;
+
+//! Creates the default overload service
+void setDefaultOverloadService();
 
 } // namespace SprFrontend

@@ -3,7 +3,6 @@
 #include "Nest/Api/TypeRef.h"
 
 namespace SprFrontend {
-using namespace Nest;
 
 // The type kinds for the SparrowFrontend types
 extern int typeKindConcept;

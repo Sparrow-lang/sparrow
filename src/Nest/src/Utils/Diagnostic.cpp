@@ -123,6 +123,12 @@ int Nest_getErrorsNum() { return _numErrors; }
 
 int Nest_getSuppressedErrorsNum() { return _numSupppresedErrors; }
 
+void Nest_resetDiagnostic() {
+    _reportingEnabled = 1;
+    _numErrors = 0;
+    _numSupppresedErrors = 0;
+}
+
 ostream& operator<<(ostream& os, const Location* loc) {
     os << (loc->sourceCode ? loc->sourceCode->url : "<no-source>");
     if (loc->start.line == loc->end.line)

@@ -124,7 +124,7 @@ Node* impl_convertsTo(CompilationContext* context, const Location& loc, const No
     TypeRef t1 = getType(args[0]);
     TypeRef t2 = getType(args[1]);
 
-    bool result = !!(canConvertType(context, t1, t2));
+    bool result = !!(g_ConvertService->checkConversion(context, t1, t2));
 
     return buildBoolLiteral(loc, result);
 }

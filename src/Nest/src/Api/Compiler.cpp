@@ -206,6 +206,26 @@ void Nest_compilerInit() {
     }
 }
 
+void Nest_compilerDestroy() {
+    _settings = CompilerSettings{};
+    _rootContext = nullptr;;
+    _backend = nullptr;
+
+    _curPath = boost::filesystem::path{};
+
+    _sourceCodes.clear();
+    _handledFiles.clear();
+    _toCompile.clear();
+    _unhandledImports.clear();
+
+    Nest_freeNodeArray(_toSemanticCheck);
+
+    _sourceCodeCreatedCallbacks.clear();
+    _sourceCodeParsedCallbacks.clear();
+    _sourceCodeCompiledCallbacks.clear();
+    _sourceCodeCodeGenCallbacks.clear();
+}
+
 CompilerSettings* Nest_compilerSettings() { return &_settings; }
 
 CompilationContext* Nest_getRootContext() { return _rootContext; }

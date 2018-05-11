@@ -151,9 +151,14 @@ endif()
 # Ensure generation of compile_commands.json; needed for clang-tidy
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# Externals
+option(RC_ENABLE_CATCH "Use Catch framework for testing" ON)
+add_subdirectory( externals/rapidcheck )
+
 # Dive into subdirectories
 add_subdirectory( src/Nest )
 add_subdirectory( src/Feather )
 add_subdirectory( src/LLVMBackend )
 add_subdirectory( src/SparrowFrontend )
 add_subdirectory( src/SparrowCompiler )
+add_subdirectory( unittests )

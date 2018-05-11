@@ -30,6 +30,9 @@ FComputeType Nest_getComputeTypeFun(int nodeKind);
 FSetContextForChildren Nest_getSetContextForChildrenFun(int nodeKind);
 FToString Nest_getToStringFun(int nodeKind);
 
+//! Resets the registered node kinds
+void Nest_resetRegisteredNodeKinds();
+
 #ifdef __cplusplus
 }
 #endif

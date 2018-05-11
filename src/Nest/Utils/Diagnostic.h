@@ -39,12 +39,16 @@ int Nest_getErrorsNum();
 /// Returned the number of errors that were generated while error reporting was disabled
 int Nest_getSuppressedErrorsNum();
 
+//! Resets the diagnostic reporting
+void Nest_resetDiagnostic();
+
 #ifdef __cplusplus
 }
 #endif
 
 #define NOLOC Nest_mkEmptyLocation()
 
+#ifndef CHECK
 #define CHECK(loc, val)                                                                            \
     if (!!(val))                                                                                   \
         ;                                                                                          \
@@ -54,6 +58,7 @@ int Nest_getSuppressedErrorsNum();
                 __LINE__);                                                                         \
         ASSERT(false);                                                                             \
     }
+#endif
 
 #define EXPECT_KIND(loc, node, kind)                                                               \
     if (!(node))                                                                                   \

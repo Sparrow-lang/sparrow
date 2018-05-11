@@ -19,6 +19,9 @@ int Nest_registerTypeKind(FChangeTypeMode funChangeTypeMode);
 /// Getter for the function that can change the type mode for the given type kind
 FChangeTypeMode Nest_getChangeTypeModeFun(int typeKind);
 
+//! Resets the registered type kinds
+void Nest_resetRegisteredTypeKinds();
+
 #ifdef __cplusplus
 }
 #endif

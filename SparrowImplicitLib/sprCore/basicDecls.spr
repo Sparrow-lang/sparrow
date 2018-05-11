@@ -385,7 +385,7 @@ using oper_assoc_:=         = -1
 /// operations on Bool & Char
 ///
 
-[autoCt]
+[autoCt, protected]
     [native("$logicalOr")] fun || (x, y: Bool): Bool
     [native("$logicalAnd")] fun && (x, y: Bool): Bool
     [native("_Bool_opXor")] fun ^^ (x, y: Bool): Bool
@@ -405,232 +405,216 @@ using oper_assoc_:=         = -1
 /// Numeric operations
 ///
 
-package _NumOpImpl
-    [autoCt]
-        fun cmn(x, y: Number) = cast(commonType(typeOf(x), typeOf(y)), x)
+[autoCt, protected]
+    [native("_Byte_opEQ")] fun == (x, y: Byte): Bool
+    [native("_UByte_opEQ")] fun == (x, y: UByte): Bool
+    [native("_Short_opEQ")] fun == (x, y: Short): Bool
+    [native("_UShort_opEQ")] fun == (x, y: UShort): Bool
+    [native("_Int_opEQ")] fun == (x, y: Int): Bool
+    [native("_UInt_opEQ")] fun == (x, y: UInt): Bool
+    [native("_Long_opEQ")] fun == (x, y: Long): Bool
+    [native("_ULong_opEQ")] fun == (x, y: ULong): Bool
+    [native("_SizeType_opEQ")] fun == (x, y: SizeType): Bool
+    [native("_DiffType_opEQ")] fun == (x, y: DiffType): Bool
+    [native("_Float_opEQ")] fun == (x, y: Float): Bool
+    [native("_Double_opEQ")] fun == (x, y: Double): Bool
 
-        [native("_Byte_opEQ")] fun opEq (x, y: Byte): Bool
-        [native("_Byte_opNE")] fun opNe (x, y: Byte): Bool
-        [native("_Byte_opLT")] fun opLt (x, y: Byte): Bool
-        [native("_Byte_opGT")] fun opGt (x, y: Byte): Bool
-        [native("_Byte_opLE")] fun opLe (x, y: Byte): Bool
-        [native("_Byte_opGE")] fun opGe (x, y: Byte): Bool
-        [native("_Byte_opPlus")] fun opPlus (x, y: Byte): Byte
-        [native("_Byte_opMinus")] fun opMinus (x, y: Byte): Byte
-        [native("_Byte_opMul")] fun opMul (x, y: Byte): Byte
-        [native("_Byte_opDiv")] fun opDiv (x, y: Byte): Byte
-        [native("_Byte_opMod")] fun opMod (x, y: Byte): Byte
+    [native("_Byte_opNE")] fun != (x, y: Byte): Bool
+    [native("_UByte_opNE")] fun != (x, y: UByte): Bool
+    [native("_Short_opNE")] fun != (x, y: Short): Bool
+    [native("_UShort_opNE")] fun != (x, y: UShort): Bool
+    [native("_Int_opNE")] fun != (x, y: Int): Bool
+    [native("_UInt_opNE")] fun != (x, y: UInt): Bool
+    [native("_Long_opNE")] fun != (x, y: Long): Bool
+    [native("_ULong_opNE")] fun != (x, y: ULong): Bool
+    [native("_SizeType_opNE")] fun != (x, y: SizeType): Bool
+    [native("_DiffType_opNE")] fun != (x, y: DiffType): Bool
+    [native("_Float_opNE")] fun != (x, y: Float): Bool
+    [native("_Double_opNE")] fun != (x, y: Double): Bool
 
-        [native("_UByte_opEQ")] fun opEq (x, y: UByte): Bool
-        [native("_UByte_opNE")] fun opNe (x, y: UByte): Bool
-        [native("_UByte_opLT")] fun opLt (x, y: UByte): Bool
-        [native("_UByte_opGT")] fun opGt (x, y: UByte): Bool
-        [native("_UByte_opLE")] fun opLe (x, y: UByte): Bool
-        [native("_UByte_opGE")] fun opGe (x, y: UByte): Bool
-        [native("_UByte_opPlus")] fun opPlus (x, y: UByte): UByte
-        [native("_UByte_opMinus")] fun opMinus (x, y: UByte): UByte
-        [native("_UByte_opMul")] fun opMul (x, y: UByte): UByte
-        [native("_UByte_opDiv")] fun opDiv (x, y: UByte): UByte
-        [native("_UByte_opMod")] fun opMod (x, y: UByte): UByte
+    [native("_Byte_opLT")] fun < (x, y: Byte): Bool
+    [native("_UByte_opLT")] fun < (x, y: UByte): Bool
+    [native("_Short_opLT")] fun < (x, y: Short): Bool
+    [native("_UShort_opLT")] fun < (x, y: UShort): Bool
+    [native("_Int_opLT")] fun < (x, y: Int): Bool
+    [native("_UInt_opLT")] fun < (x, y: UInt): Bool
+    [native("_Long_opLT")] fun < (x, y: Long): Bool
+    [native("_ULong_opLT")] fun < (x, y: ULong): Bool
+    [native("_SizeType_opLT")] fun < (x, y: SizeType): Bool
+    [native("_DiffType_opLT")] fun < (x, y: DiffType): Bool
+    [native("_Float_opLT")] fun < (x, y: Float): Bool
+    [native("_Double_opLT")] fun < (x, y: Double): Bool
 
-        [native("_Short_opEQ")] fun opEq (x, y: Short): Bool
-        [native("_Short_opNE")] fun opNe (x, y: Short): Bool
-        [native("_Short_opLT")] fun opLt (x, y: Short): Bool
-        [native("_Short_opGT")] fun opGt (x, y: Short): Bool
-        [native("_Short_opLE")] fun opLe (x, y: Short): Bool
-        [native("_Short_opGE")] fun opGe (x, y: Short): Bool
-        [native("_Short_opPlus")] fun opPlus (x, y: Short): Short
-        [native("_Short_opMinus")] fun opMinus (x, y: Short): Short
-        [native("_Short_opMul")] fun opMul (x, y: Short): Short
-        [native("_Short_opDiv")] fun opDiv (x, y: Short): Short
-        [native("_Short_opMod")] fun opMod (x, y: Short): Short
+    [native("_Byte_opGT")] fun > (x, y: Byte): Bool
+    [native("_UByte_opGT")] fun > (x, y: UByte): Bool
+    [native("_Short_opGT")] fun > (x, y: Short): Bool
+    [native("_UShort_opGT")] fun > (x, y: UShort): Bool
+    [native("_Int_opGT")] fun > (x, y: Int): Bool
+    [native("_UInt_opGT")] fun > (x, y: UInt): Bool
+    [native("_Long_opGT")] fun > (x, y: Long): Bool
+    [native("_ULong_opGT")] fun > (x, y: ULong): Bool
+    [native("_SizeType_opGT")] fun > (x, y: SizeType): Bool
+    [native("_DiffType_opGT")] fun > (x, y: DiffType): Bool
+    [native("_Float_opGT")] fun > (x, y: Float): Bool
+    [native("_Double_opGT")] fun > (x, y: Double): Bool
 
-        [native("_UShort_opEQ")] fun opEq (x, y: UShort): Bool
-        [native("_UShort_opNE")] fun opNe (x, y: UShort): Bool
-        [native("_UShort_opLT")] fun opLt (x, y: UShort): Bool
-        [native("_UShort_opGT")] fun opGt (x, y: UShort): Bool
-        [native("_UShort_opLE")] fun opLe (x, y: UShort): Bool
-        [native("_UShort_opGE")] fun opGe (x, y: UShort): Bool
-        [native("_UShort_opPlus")] fun opPlus (x, y: UShort): UShort
-        [native("_UShort_opMinus")] fun opMinus (x, y: UShort): UShort
-        [native("_UShort_opMul")] fun opMul (x, y: UShort): UShort
-        [native("_UShort_opDiv")] fun opDiv (x, y: UShort): UShort
-        [native("_UShort_opMod")] fun opMod (x, y: UShort): UShort
+    [native("_Byte_opLE")] fun <= (x, y: Byte): Bool
+    [native("_UByte_opLE")] fun <= (x, y: UByte): Bool
+    [native("_Short_opLE")] fun <= (x, y: Short): Bool
+    [native("_UShort_opLE")] fun <= (x, y: UShort): Bool
+    [native("_Int_opLE")] fun <= (x, y: Int): Bool
+    [native("_UInt_opLE")] fun <= (x, y: UInt): Bool
+    [native("_Long_opLE")] fun <= (x, y: Long): Bool
+    [native("_ULong_opLE")] fun <= (x, y: ULong): Bool
+    [native("_SizeType_opLE")] fun <= (x, y: SizeType): Bool
+    [native("_DiffType_opLE")] fun <= (x, y: DiffType): Bool
+    [native("_Float_opLE")] fun <= (x, y: Float): Bool
+    [native("_Double_opLE")] fun <= (x, y: Double): Bool
 
-        [native("_Int_opEQ")] fun opEq (x, y: Int): Bool
-        [native("_Int_opNE")] fun opNe (x, y: Int): Bool
-        [native("_Int_opLT")] fun opLt (x, y: Int): Bool
-        [native("_Int_opGT")] fun opGt (x, y: Int): Bool
-        [native("_Int_opLE")] fun opLe (x, y: Int): Bool
-        [native("_Int_opGE")] fun opGe (x, y: Int): Bool
-        [native("_Int_opPlus")] fun opPlus (x, y: Int): Int
-        [native("_Int_opMinus")] fun opMinus (x, y: Int): Int
-        [native("_Int_opMul")] fun opMul (x, y: Int): Int
-        [native("_Int_opDiv")] fun opDiv (x, y: Int): Int
-        [native("_Int_opMod")] fun opMod (x, y: Int): Int
+    [native("_Byte_opGE")] fun >= (x, y: Byte): Bool
+    [native("_UByte_opGE")] fun >= (x, y: UByte): Bool
+    [native("_Short_opGE")] fun >= (x, y: Short): Bool
+    [native("_UShort_opGE")] fun >= (x, y: UShort): Bool
+    [native("_Int_opGE")] fun >= (x, y: Int): Bool
+    [native("_UInt_opGE")] fun >= (x, y: UInt): Bool
+    [native("_Long_opGE")] fun >= (x, y: Long): Bool
+    [native("_ULong_opGE")] fun >= (x, y: ULong): Bool
+    [native("_SizeType_opGE")] fun >= (x, y: SizeType): Bool
+    [native("_DiffType_opGE")] fun >= (x, y: DiffType): Bool
+    [native("_Float_opGE")] fun >= (x, y: Float): Bool
+    [native("_Double_opGE")] fun >= (x, y: Double): Bool
 
-        [native("_UInt_opEQ")] fun opEq (x, y: UInt): Bool
-        [native("_UInt_opNE")] fun opNe (x, y: UInt): Bool
-        [native("_UInt_opLT")] fun opLt (x, y: UInt): Bool
-        [native("_UInt_opGT")] fun opGt (x, y: UInt): Bool
-        [native("_UInt_opLE")] fun opLe (x, y: UInt): Bool
-        [native("_UInt_opGE")] fun opGe (x, y: UInt): Bool
-        [native("_UInt_opPlus")] fun opPlus (x, y: UInt): UInt
-        [native("_UInt_opMinus")] fun opMinus (x, y: UInt): UInt
-        [native("_UInt_opMul")] fun opMul (x, y: UInt): UInt
-        [native("_UInt_opDiv")] fun opDiv (x, y: UInt): UInt
-        [native("_UInt_opMod")] fun opMod (x, y: UInt): UInt
+    [native("_Byte_opPlus")] fun + (x, y: Byte): Byte
+    [native("_UByte_opPlus")] fun + (x, y: UByte): UByte
+    [native("_Short_opPlus")] fun + (x, y: Short): Short
+    [native("_UShort_opPlus")] fun + (x, y: UShort): UShort
+    [native("_Int_opPlus")] fun + (x, y: Int): Int
+    [native("_UInt_opPlus")] fun + (x, y: UInt): UInt
+    [native("_Long_opPlus")] fun + (x, y: Long): Long
+    [native("_ULong_opPlus")] fun + (x, y: ULong): ULong
+    [native("_SizeType_opPlus")] fun + (x, y: SizeType): SizeType
+    [native("_DiffType_opPlus")] fun + (x, y: DiffType): DiffType
+    [native("_Float_opPlus")] fun + (x, y: Float): Float
+    [native("_Double_opPlus")] fun + (x, y: Double): Double
 
-        [native("_Long_opEQ")] fun opEq (x, y: Long): Bool
-        [native("_Long_opNE")] fun opNe (x, y: Long): Bool
-        [native("_Long_opLT")] fun opLt (x, y: Long): Bool
-        [native("_Long_opGT")] fun opGt (x, y: Long): Bool
-        [native("_Long_opLE")] fun opLe (x, y: Long): Bool
-        [native("_Long_opGE")] fun opGe (x, y: Long): Bool
-        [native("_Long_opPlus")] fun opPlus (x, y: Long): Long
-        [native("_Long_opMinus")] fun opMinus (x, y: Long): Long
-        [native("_Long_opMul")] fun opMul (x, y: Long): Long
-        [native("_Long_opDiv")] fun opDiv (x, y: Long): Long
-        [native("_Long_opMod")] fun opMod (x, y: Long): Long
+    [native("_Byte_opMinus")] fun - (x, y: Byte): Byte
+    [native("_UByte_opMinus")] fun - (x, y: UByte): UByte
+    [native("_Short_opMinus")] fun - (x, y: Short): Short
+    [native("_UShort_opMinus")] fun - (x, y: UShort): UShort
+    [native("_Int_opMinus")] fun - (x, y: Int): Int
+    [native("_UInt_opMinus")] fun - (x, y: UInt): UInt
+    [native("_Long_opMinus")] fun - (x, y: Long): Long
+    [native("_ULong_opMinus")] fun - (x, y: ULong): ULong
+    [native("_SizeType_opMinus")] fun - (x, y: SizeType): SizeType
+    [native("_DiffType_opMinus")] fun - (x, y: DiffType): DiffType
+    [native("_Float_opMinus")] fun - (x, y: Float): Float
+    [native("_Double_opMinus")] fun - (x, y: Double): Double
 
-        [native("_ULong_opEQ")] fun opEq (x, y: ULong): Bool
-        [native("_ULong_opNE")] fun opNe (x, y: ULong): Bool
-        [native("_ULong_opLT")] fun opLt (x, y: ULong): Bool
-        [native("_ULong_opGT")] fun opGt (x, y: ULong): Bool
-        [native("_ULong_opLE")] fun opLe (x, y: ULong): Bool
-        [native("_ULong_opGE")] fun opGe (x, y: ULong): Bool
-        [native("_ULong_opPlus")] fun opPlus (x, y: ULong): ULong
-        [native("_ULong_opMinus")] fun opMinus (x, y: ULong): ULong
-        [native("_ULong_opMul")] fun opMul (x, y: ULong): ULong
-        [native("_ULong_opDiv")] fun opDiv (x, y: ULong): ULong
-        [native("_ULong_opMod")] fun opMod (x, y: ULong): ULong
+    [native("_Byte_opMul")] fun * (x, y: Byte): Byte
+    [native("_UByte_opMul")] fun * (x, y: UByte): UByte
+    [native("_Short_opMul")] fun * (x, y: Short): Short
+    [native("_UShort_opMul")] fun * (x, y: UShort): UShort
+    [native("_Int_opMul")] fun * (x, y: Int): Int
+    [native("_UInt_opMul")] fun * (x, y: UInt): UInt
+    [native("_Long_opMul")] fun * (x, y: Long): Long
+    [native("_ULong_opMul")] fun * (x, y: ULong): ULong
+    [native("_SizeType_opMul")] fun * (x, y: SizeType): SizeType
+    [native("_DiffType_opMul")] fun * (x, y: DiffType): DiffType
+    [native("_Float_opMul")] fun * (x, y: Float): Float
+    [native("_Double_opMul")] fun * (x, y: Double): Double
 
-        [native("_SizeType_opEQ")] fun opEq (x, y: SizeType): Bool
-        [native("_SizeType_opNE")] fun opNe (x, y: SizeType): Bool
-        [native("_SizeType_opLT")] fun opLt (x, y: SizeType): Bool
-        [native("_SizeType_opGT")] fun opGt (x, y: SizeType): Bool
-        [native("_SizeType_opLE")] fun opLe (x, y: SizeType): Bool
-        [native("_SizeType_opGE")] fun opGe (x, y: SizeType): Bool
-        [native("_SizeType_opPlus")] fun opPlus (x, y: SizeType): SizeType
-        [native("_SizeType_opMinus")] fun opMinus (x, y: SizeType): SizeType
-        [native("_SizeType_opMul")] fun opMul (x, y: SizeType): SizeType
-        [native("_SizeType_opDiv")] fun opDiv (x, y: SizeType): SizeType
-        [native("_SizeType_opMod")] fun opMod (x, y: SizeType): SizeType
+    [native("_Byte_opDiv")] fun / (x, y: Byte): Byte
+    [native("_UByte_opDiv")] fun / (x, y: UByte): UByte
+    [native("_Short_opDiv")] fun / (x, y: Short): Short
+    [native("_UShort_opDiv")] fun / (x, y: UShort): UShort
+    [native("_Int_opDiv")] fun / (x, y: Int): Int
+    [native("_UInt_opDiv")] fun / (x, y: UInt): UInt
+    [native("_Long_opDiv")] fun / (x, y: Long): Long
+    [native("_ULong_opDiv")] fun / (x, y: ULong): ULong
+    [native("_SizeType_opDiv")] fun / (x, y: SizeType): SizeType
+    [native("_DiffType_opDiv")] fun / (x, y: DiffType): DiffType
+    [native("_Float_opDiv")] fun / (x, y: Float): Float
+    [native("_Double_opDiv")] fun / (x, y: Double): Double
 
-        [native("_DiffType_opEQ")] fun opEq (x, y: DiffType): Bool
-        [native("_DiffType_opNE")] fun opNe (x, y: DiffType): Bool
-        [native("_DiffType_opLT")] fun opLt (x, y: DiffType): Bool
-        [native("_DiffType_opGT")] fun opGt (x, y: DiffType): Bool
-        [native("_DiffType_opLE")] fun opLe (x, y: DiffType): Bool
-        [native("_DiffType_opGE")] fun opGe (x, y: DiffType): Bool
-        [native("_DiffType_opPlus")] fun opPlus (x, y: DiffType): DiffType
-        [native("_DiffType_opMinus")] fun opMinus (x, y: DiffType): DiffType
-        [native("_DiffType_opMul")] fun opMul (x, y: DiffType): DiffType
-        [native("_DiffType_opDiv")] fun opDiv (x, y: DiffType): DiffType
-        [native("_DiffType_opMod")] fun opMod (x, y: DiffType): DiffType
+    [native("_Byte_opMod")] fun % (x, y: Byte): Byte
+    [native("_UByte_opMod")] fun % (x, y: UByte): UByte
+    [native("_Short_opMod")] fun % (x, y: Short): Short
+    [native("_UShort_opMod")] fun % (x, y: UShort): UShort
+    [native("_Int_opMod")] fun % (x, y: Int): Int
+    [native("_UInt_opMod")] fun % (x, y: UInt): UInt
+    [native("_Long_opMod")] fun % (x, y: Long): Long
+    [native("_ULong_opMod")] fun % (x, y: ULong): ULong
+    [native("_SizeType_opMod")] fun % (x, y: SizeType): SizeType
+    [native("_DiffType_opMod")] fun % (x, y: DiffType): DiffType
+    [native("_Float_opMod")] fun % (x, y: Float): Float
+    [native("_Double_opMod")] fun % (x, y: Double): Double
 
-        [native("_Float_opEQ")] fun opEq (x, y: Float): Bool
-        [native("_Float_opNE")] fun opNe (x, y: Float): Bool
-        [native("_Float_opLT")] fun opLt (x, y: Float): Bool
-        [native("_Float_opGT")] fun opGt (x, y: Float): Bool
-        [native("_Float_opLE")] fun opLe (x, y: Float): Bool
-        [native("_Float_opGE")] fun opGe (x, y: Float): Bool
-        [native("_Float_opPlus")] fun opPlus (x, y: Float): Float
-        [native("_Float_opMinus")] fun opMinus (x, y: Float): Float
-        [native("_Float_opMul")] fun opMul (x, y: Float): Float
-        [native("_Float_opDiv")] fun opDiv (x, y: Float): Float
+    // Unary +
+    [native("_Byte_opPlus1")] fun + (x: Byte): Byte
+    [native("_UByte_opPlus1")] fun + (x: UByte): UByte
+    [native("_Short_opPlus1")] fun + (x: Short): Short
+    [native("_UShort_opPlus1")] fun + (x: UShort): UShort
+    [native("_Int_opPlus1")] fun + (x: Int): Int
+    [native("_UInt_opPlus1")] fun + (x: UInt): UInt
+    [native("_Long_opPlus1")] fun + (x: Long): Long
+    [native("_ULong_opPlus1")] fun + (x: ULong): ULong
+    [native("_SizeType_opPlus1")] fun + (x: SizeType): SizeType
+    [native("_DiffType_opPlus1")] fun + (x: DiffType): DiffType
+    [native("_Float_opPlus1")] fun + (x: Float): Float
+    [native("_Double_opPlus1")] fun + (x: Double): Double
 
-        [native("_Double_opEQ")] fun opEq (x, y: Double): Bool
-        [native("_Double_opNE")] fun opNe (x, y: Double): Bool
-        [native("_Double_opLT")] fun opLt (x, y: Double): Bool
-        [native("_Double_opGT")] fun opGt (x, y: Double): Bool
-        [native("_Double_opLE")] fun opLe (x, y: Double): Bool
-        [native("_Double_opGE")] fun opGe (x, y: Double): Bool
-        [native("_Double_opPlus")] fun opPlus (x, y: Double): Double
-        [native("_Double_opMinus")] fun opMinus (x, y: Double): Double
-        [native("_Double_opMul")] fun opMul (x, y: Double): Double
-        [native("_Double_opDiv")] fun opDiv (x, y: Double): Double
+    // Unary - (only for signed types)
+    [native("_Byte_opMinus1")] fun - (x: Byte): Byte
+    [native("_Short_opMinus1")] fun - (x: Short): Short
+    [native("_Int_opMinus1")] fun - (x: Int): Int
+    [native("_Long_opMinus1")] fun - (x: Long): Long
+    [native("_DiffType_opMinus1")] fun - (x: DiffType): DiffType
+    [native("_Float_opMinus1")] fun - (x: Float): Float
+    [native("_Double_opMinus1")] fun - (x: Double): Double
 
-[autoCt]
-    fun == (x, y: Number)   = _NumOpImpl.opEq(_NumOpImpl.cmn(x,y), _NumOpImpl.cmn(y,x))
-    fun != (x, y: Number)   = _NumOpImpl.opNe(_NumOpImpl.cmn(x,y), _NumOpImpl.cmn(y,x))
-    fun < (x, y: Number)    = _NumOpImpl.opLt(_NumOpImpl.cmn(x,y), _NumOpImpl.cmn(y,x))
-    fun > (x, y: Number)    = _NumOpImpl.opGt(_NumOpImpl.cmn(x,y), _NumOpImpl.cmn(y,x))
-    fun <= (x, y: Number)   = _NumOpImpl.opLe(_NumOpImpl.cmn(x,y), _NumOpImpl.cmn(y,x))
-    fun >= (x, y: Number)   = _NumOpImpl.opGe(_NumOpImpl.cmn(x,y), _NumOpImpl.cmn(y,x))
-    fun + (x, y: Number)    = _NumOpImpl.opPlus(_NumOpImpl.cmn(x,y), _NumOpImpl.cmn(y,x))
-    fun - (x, y: Number)    = _NumOpImpl.opMinus(_NumOpImpl.cmn(x,y), _NumOpImpl.cmn(y,x))
-    fun * (x, y: Number)    = _NumOpImpl.opMul(_NumOpImpl.cmn(x,y), _NumOpImpl.cmn(y,x))
-    fun / (x, y: Number)    = _NumOpImpl.opDiv(_NumOpImpl.cmn(x,y), _NumOpImpl.cmn(y,x))
-    fun % (x, y: Integer)   = _NumOpImpl.opMod(_NumOpImpl.cmn(x,y), _NumOpImpl.cmn(y,x))
+    fun pre_++(n: @Byte): Byte { n+=Byte(1); return n; }
+    fun pre_++(n: @UByte): UByte { n+=UByte(1); return n; }
+    fun pre_++(n: @Short): Short { n+=Short(1); return n; }
+    fun pre_++(n: @UShort): UShort { n+=UShort(1); return n; }
+    fun pre_++(n: @Int): Int { n+=1; return n; }
+    fun pre_++(n: @UInt): UInt { n+=UInt(1); return n; }
+    fun pre_++(n: @Long): Long { n+=Long(1); return n; }
+    fun pre_++(n: @ULong): ULong { n+=ULong(1); return n; }
+    fun pre_++(n: @SizeType): SizeType { n+=SizeType(1); return n; }
+    fun pre_++(n: @DiffType): DiffType { n+=DiffType(1); return n; }
 
-    [protected]
-        // Unary +
-        [native("_Byte_opPlus1")] fun + (x: Byte): Byte
-        [native("_UByte_opPlus1")] fun + (x: UByte): UByte
-        [native("_Short_opPlus1")] fun + (x: Short): Short
-        [native("_UShort_opPlus1")] fun + (x: UShort): UShort
-        [native("_Int_opPlus1")] fun + (x: Int): Int
-        [native("_UInt_opPlus1")] fun + (x: UInt): UInt
-        [native("_Long_opPlus1")] fun + (x: Long): Long
-        [native("_ULong_opPlus1")] fun + (x: ULong): ULong
-        [native("_SizeType_opPlus1")] fun + (x: SizeType): SizeType
-        [native("_DiffType_opPlus1")] fun + (x: DiffType): DiffType
-        [native("_Float_opPlus1")] fun + (x: Float): Float
-        [native("_Double_opPlus1")] fun + (x: Double): Double
+    fun pre_--(n: @Byte): Byte { n-=Byte(1); return n; }
+    fun pre_--(n: @UByte): UByte { n-=UByte(1); return n; }
+    fun pre_--(n: @Short): Short { n-=Short(1); return n; }
+    fun pre_--(n: @UShort): UShort { n-=UShort(1); return n; }
+    fun pre_--(n: @Int): Int { n-=1; return n; }
+    fun pre_--(n: @UInt): UInt { n-=UInt(1); return n; }
+    fun pre_--(n: @Long): Long { n-=Long(1); return n; }
+    fun pre_--(n: @ULong): ULong { n-=ULong(1); return n; }
+    fun pre_--(n: @SizeType): SizeType { n-=SizeType(1); return n; }
+    fun pre_--(n: @DiffType): DiffType { n-=DiffType(1); return n; }
 
-        // Unary - (only for signed types)
-        [native("_Byte_opMinus1")] fun - (x: Byte): Byte
-        [native("_Short_opMinus1")] fun - (x: Short): Short
-        [native("_Int_opMinus1")] fun - (x: Int): Int
-        [native("_Long_opMinus1")] fun - (x: Long): Long
-        [native("_DiffType_opMinus1")] fun - (x: DiffType): DiffType
-        [native("_Float_opMinus1")] fun - (x: Float): Float
-        [native("_Double_opMinus1")] fun - (x: Double): Double
+    fun post_++(n: @Byte): Byte { var old = n; n+=Byte(1); return old; }
+    fun post_++(n: @UByte): UByte { var old = n; n+=UByte(1); return old; }
+    fun post_++(n: @Short): Short { var old = n; n+=Short(1); return old; }
+    fun post_++(n: @UShort): UShort { var old = n; n+=UShort(1); return old; }
+    fun post_++(n: @Int): Int { var old = n; n+=1; return old; }
+    fun post_++(n: @UInt): UInt { var old = n; n+=UInt(1); return old; }
+    fun post_++(n: @Long): Long { var old = n; n+=Long(1); return old; }
+    fun post_++(n: @ULong): ULong { var old = n; n+=ULong(1); return old; }
+    fun post_++(n: @SizeType): SizeType { var old = n; n+=SizeType(1); return old; }
+    fun post_++(n: @DiffType): DiffType { var old = n; n+=DiffType(1); return old; }
 
-        fun pre_++(n: @Byte): Byte { n+=Byte(1); return n; }
-        fun pre_++(n: @UByte): UByte { n+=UByte(1); return n; }
-        fun pre_++(n: @Short): Short { n+=Short(1); return n; }
-        fun pre_++(n: @UShort): UShort { n+=UShort(1); return n; }
-        fun pre_++(n: @Int): Int { n+=1; return n; }
-        fun pre_++(n: @UInt): UInt { n+=UInt(1); return n; }
-        fun pre_++(n: @Long): Long { n+=Long(1); return n; }
-        fun pre_++(n: @ULong): ULong { n+=ULong(1); return n; }
-        fun pre_++(n: @SizeType): SizeType { n+=SizeType(1); return n; }
-        fun pre_++(n: @DiffType): DiffType { n+=DiffType(1); return n; }
-
-        fun pre_--(n: @Byte): Byte { n-=Byte(1); return n; }
-        fun pre_--(n: @UByte): UByte { n-=UByte(1); return n; }
-        fun pre_--(n: @Short): Short { n-=Short(1); return n; }
-        fun pre_--(n: @UShort): UShort { n-=UShort(1); return n; }
-        fun pre_--(n: @Int): Int { n-=1; return n; }
-        fun pre_--(n: @UInt): UInt { n-=UInt(1); return n; }
-        fun pre_--(n: @Long): Long { n-=Long(1); return n; }
-        fun pre_--(n: @ULong): ULong { n-=ULong(1); return n; }
-        fun pre_--(n: @SizeType): SizeType { n-=SizeType(1); return n; }
-        fun pre_--(n: @DiffType): DiffType { n-=DiffType(1); return n; }
-
-        fun post_++(n: @Byte): Byte { var old = n; n+=Byte(1); return old; }
-        fun post_++(n: @UByte): UByte { var old = n; n+=UByte(1); return old; }
-        fun post_++(n: @Short): Short { var old = n; n+=Short(1); return old; }
-        fun post_++(n: @UShort): UShort { var old = n; n+=UShort(1); return old; }
-        fun post_++(n: @Int): Int { var old = n; n+=1; return old; }
-        fun post_++(n: @UInt): UInt { var old = n; n+=UInt(1); return old; }
-        fun post_++(n: @Long): Long { var old = n; n+=Long(1); return old; }
-        fun post_++(n: @ULong): ULong { var old = n; n+=ULong(1); return old; }
-        fun post_++(n: @SizeType): SizeType { var old = n; n+=SizeType(1); return old; }
-        fun post_++(n: @DiffType): DiffType { var old = n; n+=DiffType(1); return old; }
-
-        fun post_--(n: @Byte): Byte { var old = n; n-=Byte(1); return old; }
-        fun post_--(n: @UByte): UByte { var old = n; n-=UByte(1); return old; }
-        fun post_--(n: @Short): Short { var old = n; n-=Short(1); return old; }
-        fun post_--(n: @UShort): UShort { var old = n; n-=UShort(1); return old; }
-        fun post_--(n: @Int): Int { var old = n; n-=1; return old; }
-        fun post_--(n: @UInt): UInt { var old = n; n-=UInt(1); return old; }
-        fun post_--(n: @Long): Long { var old = n; n-=Long(1); return old; }
-        fun post_--(n: @ULong): ULong { var old = n; n-=ULong(1); return old; }
-        fun post_--(n: @SizeType): SizeType { var old = n; n-=SizeType(1); return old; }
-        fun post_--(n: @DiffType): DiffType { var old = n; n-=DiffType(1); return old; }
+    fun post_--(n: @Byte): Byte { var old = n; n-=Byte(1); return old; }
+    fun post_--(n: @UByte): UByte { var old = n; n-=UByte(1); return old; }
+    fun post_--(n: @Short): Short { var old = n; n-=Short(1); return old; }
+    fun post_--(n: @UShort): UShort { var old = n; n-=UShort(1); return old; }
+    fun post_--(n: @Int): Int { var old = n; n-=1; return old; }
+    fun post_--(n: @UInt): UInt { var old = n; n-=UInt(1); return old; }
+    fun post_--(n: @Long): Long { var old = n; n-=Long(1); return old; }
+    fun post_--(n: @ULong): ULong { var old = n; n-=ULong(1); return old; }
+    fun post_--(n: @SizeType): SizeType { var old = n; n-=SizeType(1); return old; }
+    fun post_--(n: @DiffType): DiffType { var old = n; n-=DiffType(1); return old; }
 
 
 
@@ -687,6 +671,7 @@ fun = (this: @StringRef, src: StringRef): @StringRef
 
     return this
 
+[protected]
 fun == (this: @StringRef, other: StringRef): Bool
     var s = this.size
     if s != other.size

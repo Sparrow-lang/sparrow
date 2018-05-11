@@ -1,6 +1,6 @@
 #pragma once
 
-#include "NodeCommonsH.h"
+#include "SparrowFrontend/NodeCommonsH.h"
 #include "Nest/Utils/NodeUtils.hpp"
 
 namespace SprFrontend {
@@ -320,18 +320,38 @@ bool canInstantiate(InstNode inst, InstSetNode instSet);
  */
 InstNode canInstantiate(InstSetNode instSet, NodeRange values, EvalMode evalMode);
 
-/// Check if the given concept is fulfilled by the given type
-bool conceptIsFulfilled(Node* concept, TypeRef type);
-/// Check if the given type was generated from the given generic
-/// This will make generics behave like concepts
-bool typeGeneratedFromGeneric(Node* genericClass, TypeRef type);
-
-/// Get the base concept type
-TypeRef baseConceptType(Node* concept);
-
 /// Given a generic param type and the corresponding bound value, determine if
 /// the parameter is a concept parameter.
 /// For concept parameters, we store the type as a bound value.
 /// Used as a low-level primitive. Should not be called for CT-generics
 bool isConceptParam(Location paramLoc, TypeRef paramType, Node* boundValue);
+
+//! The interface for the service that deals with checking concepts.
+//! Used so that we can easily mock and replace this service.
+struct IConceptsService {
+    virtual ~IConceptsService() {}
+
+    //! Check if the given concept is fulfilled by the given type
+    virtual bool conceptIsFulfilled(Node* concept, TypeRef type) = 0;
+    //! Check if the given type was generated from the given generic
+    //! This will make generics behave like concepts
+    virtual bool typeGeneratedFromGeneric(Node* genericDatatype, TypeRef type) = 0;
+
+    //! Get the base concept type
+    virtual TypeRef baseConceptType(Node* concept) = 0;
+};
+
+//! Implementation of the convert service
+struct ConceptsService : IConceptsService {
+    bool conceptIsFulfilled(Node* concept, TypeRef type) final;
+    bool typeGeneratedFromGeneric(Node* genericDatatype, TypeRef type) final;
+    TypeRef baseConceptType(Node* concept) final;
+};
+
+//! The convert service instance that we are using across the Sparrow compiler
+extern unique_ptr<IConceptsService> g_ConceptsService;
+
+//! Creates the default concepts service
+void setDefaultConceptsService();
+
 } // namespace SprFrontend

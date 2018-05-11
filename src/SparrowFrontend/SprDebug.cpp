@@ -35,9 +35,9 @@ void printCtValue(StringRef typeName, StringRef valueDataStr) {
     else if (typeName == "UInt")
         printf("%u", (unsigned)extractValue<uint16_t>(valueDataStr));
     else if (typeName == "Long")
-        printf("%lld", (long long) extractValue<int64_t>(valueDataStr));
+        printf("%lld", (long long)extractValue<int64_t>(valueDataStr));
     else if (typeName == "ULong")
-        printf("%llu", (unsigned long long) extractValue<uint64_t>(valueDataStr));
+        printf("%llu", (unsigned long long)extractValue<uint64_t>(valueDataStr));
     else if (typeName == "Float")
         printf("%g", extractValue<float>(valueDataStr));
     else if (typeName == "Double")

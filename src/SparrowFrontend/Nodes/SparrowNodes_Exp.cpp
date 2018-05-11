@@ -49,7 +49,8 @@ Node* getIdentifierResult(Node* node, NodeRange decls, Node* baseExp, bool allow
 
                 // Make sure the base is a reference
                 if (baseExp->type->numReferences == 0) {
-                    ConversionResult res = canConvert(baseExp, Feather_addRef(baseExp->type));
+                    ConversionResult res = g_ConvertService->checkConversion(
+                            baseExp, Feather_addRef(baseExp->type));
                     if (!res)
                         REP_INTERNAL(loc, "Cannot add reference to base of field access");
                     baseExp = res.apply(baseExp);
@@ -153,7 +154,7 @@ Node* checkStaticCast(Node* node) {
     TypeRef srcType = at(arguments->children, 1)->type;
 
     // Check if we can cast
-    ConversionResult c = canConvert(at(arguments->children, 1), destType);
+    ConversionResult c = g_ConvertService->checkConversion(at(arguments->children, 1), destType);
     if (!c)
         REP_ERROR_RET(nullptr, node->location, "Cannot cast from %1% to %2%; types are unrelated") %
                 srcType % destType;
@@ -545,8 +546,8 @@ Node* selectOperator(Node* node, StringRef operation, Node* arg1, Node* arg2, bo
         // Do we have any results? If yes, run the overloading mechanism
         Node* result = nullptr;
         if (Nest_nodeArraySize(decls) > 0)
-            result = selectOverload(node->context, node->location, s.mode, all(decls), args,
-                    errReporting, s.operation);
+            result = g_OverloadService->selectOverload(node->context, node->location, s.mode,
+                    all(decls), args, errReporting, s.operation);
 
         // Remove the declarations array
         Nest_freeNodeArray(decls);
@@ -679,7 +680,7 @@ Node* handleRefAssign(Node* node) {
     }
 
     // Check for a conversion from the second argument to the first argument
-    ConversionResult c = canConvert(arg2, arg1BaseType);
+    ConversionResult c = g_ConvertService->checkConversion(arg2, arg1BaseType);
     if (!c)
         REP_ERROR_RET(nullptr, node->location, "Cannot convert from %1% to %2%") % arg2->type %
                 arg1BaseType;
@@ -1220,8 +1221,8 @@ Node* FunApplication_SemanticCheck(Node* node) {
     EvalMode mode = node->context->evalMode;
     if (thisArg)
         mode = Feather_combineMode(thisArg->type->mode, mode);
-    Node* res = selectOverload(node->context, node->location, mode, all(decls), all(args),
-            OverloadReporting::full, fromString(functionName));
+    Node* res = g_OverloadService->selectOverload(node->context, node->location, mode, all(decls),
+            all(args), OverloadReporting::full, fromString(functionName));
 
     return res;
 }
@@ -1449,8 +1450,8 @@ Node* SprConditional_SemanticCheck(Node* node) {
                 t1 % t2;
 
     // Convert both types to the result type
-    ConversionResult c1 = canConvertType(node->context, t1, resType);
-    ConversionResult c2 = canConvertType(node->context, t2, resType);
+    ConversionResult c1 = g_ConvertService->checkConversion(node->context, t1, resType);
+    ConversionResult c2 = g_ConvertService->checkConversion(node->context, t2, resType);
 
     alt1 = c1.apply(node->context, alt1);
     alt2 = c2.apply(node->context, alt2);

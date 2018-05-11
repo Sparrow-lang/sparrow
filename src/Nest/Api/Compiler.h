@@ -16,6 +16,9 @@ extern "C" {
 /// Called to initialize the compiler
 void Nest_compilerInit();
 
+//! Called to de-initialize the compiler
+void Nest_compilerDestroy();
+
 /// Getter for the compiler settings
 CompilerSettings* Nest_compilerSettings();
 

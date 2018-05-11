@@ -80,3 +80,7 @@ int Nest_getSourceCodeKindForFilename(const char* filename) {
     const char* ext = extensionFromFilename(filename);
     return Nest_getSourceCodeKindForExtension(ext);
 }
+
+void Nest_resetRegisteredSourceCodeKinds() {
+    _numSourceCodeKinds = 0;
+}

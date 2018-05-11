@@ -20,6 +20,7 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/scoped_ptr.hpp>
+#include <boost/range/adaptor/reversed.hpp>
 
 #include <fstream>
 
@@ -223,8 +224,8 @@ int main(int argc, char* argv[]) {
         REP_INTERNAL(NOLOC, "Unknown exception caught");
     }
 
-    // Destroy the modules
-    for (CompilerModule* mod : modules) {
+    // Destroy the modules (in reverse order of initialization)
+    for (CompilerModule* mod : boost::adaptors::reverse(modules)) {
         if (mod->destroyFun)
             mod->destroyFun();
     }

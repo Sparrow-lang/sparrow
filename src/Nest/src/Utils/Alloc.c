@@ -13,6 +13,12 @@ BucketInfo buckets[numAllocBuckets];
 
 static const int noBytesPerPage = 16 * 65536; // 16 x 64k pages
 
+//! Keep track of all the allocated buffers.
+//! Used to know which buffers need cleanup.
+char* _allocatedBuffers[1024];
+//! The number of allocated buffers
+int _numAllocatedBuffers = 0;
+
 void* alloc(unsigned int size, AllocBucket bucket) {
     void* p = startBuffer(size, bucket);
     endBuffer(size, bucket);
@@ -26,6 +32,9 @@ void* startBuffer(unsigned int size, AllocBucket bucket) {
     if (bucketInfo->freeBytes < size) {
         bucketInfo->curPage = (char*)calloc(noBytesPerPage, 1);
         bucketInfo->freeBytes = noBytesPerPage;
+
+        if (_numAllocatedBuffers < 1024)
+            _allocatedBuffers[_numAllocatedBuffers++] = bucketInfo->curPage;
     }
     return bucketInfo->curPage;
 }
@@ -48,3 +57,16 @@ char* dupString(const char* str) {
 
 char* startString(unsigned int maxLen) { return (char*)startBuffer(maxLen, allocString); }
 void endString(unsigned int actualLen) { endBuffer(actualLen, allocString); }
+
+void cleanupMemory() {
+    // Cleanup all allocated buffers
+    for (int i = 0; i < _numAllocatedBuffers; i++)
+        free(_allocatedBuffers[i]);
+    _numAllocatedBuffers = 0;
+
+    // Reinitialize the buckets
+    for (int i = 0; i < numAllocBuckets; i++) {
+        buckets[i].curPage = NULL;
+        buckets[i].freeBytes = 0;
+    }
+}

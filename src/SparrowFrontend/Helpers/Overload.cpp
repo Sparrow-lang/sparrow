@@ -15,6 +15,10 @@
 using namespace SprFrontend;
 using namespace Nest;
 
+namespace SprFrontend {
+
+unique_ptr<IOverloadService> g_OverloadService;
+
 namespace {
 
 /// Called at the start of error reporting
@@ -166,7 +170,7 @@ void selectMostSpecializedErrReport(
 }
 } // namespace
 
-Node* SprFrontend::selectOverload(CompilationContext* context, const Location& loc,
+Node* OverloadService::selectOverload(CompilationContext* context, const Location& loc,
         EvalMode evalMode, NodeRange decls, NodeRange args, OverloadReporting errReporting,
         StringRef funName) {
     auto numDecls = Nest_nodeRangeSize(decls);
@@ -282,12 +286,9 @@ Node* SprFrontend::selectOverload(CompilationContext* context, const Location& l
     return res;
 }
 
-bool SprFrontend::selectConversionCtor(CompilationContext* context, Node* destClass,
-        EvalMode destMode, TypeRef argType, Node* arg, Node** conv) {
+bool OverloadService::selectConversionCtor(
+        CompilationContext* context, Node* destClass, EvalMode destMode, TypeRef argType) {
     ASSERT(argType);
-
-    // cerr << "Convert: " << argType->description << " -> "
-    //      << Nest_toString(destClass) << " ?" << endl;
 
     // Get all the candidates
     Callables candidates;
@@ -298,31 +299,17 @@ bool SprFrontend::selectConversionCtor(CompilationContext* context, Node* destCl
 
     // Check the candidates to be able to be called with the given arguments
     vector<TypeRef> argTypes(1, argType);
-    filterCandidates(context, arg ? arg->location : Location(), candidates, nullptr, &argTypes,
-            destMode, noCustomCvt);
+    filterCandidates(context, Location(), candidates, nullptr, &argTypes, destMode, noCustomCvt);
 
     // From the remaining candidates, try to select the most specialized one
     CallableData* selectedFun = selectMostSpecialized(context, candidates, true);
     if (!selectedFun)
         return false;
 
-    // cerr << "SUCCESS!!!" << endl;
-    if (arg && conv) {
-        if (!Nest_computeType(arg))
-            return false;
-        auto cr = canCall(
-                *selectedFun, context, arg->location, fromIniList({arg}), destMode, noCustomCvt);
-        (void)cr;
-        ASSERT(cr);
-        *conv = generateCall(*selectedFun, context, arg->location);
-        ASSERT(*conv);
-        Nest_setContext(*conv, context);
-        Nest_semanticCheck(*conv);
-    }
     return true;
 }
 
-Node* SprFrontend::selectCtToRtCtor(Node* ctArg) {
+Node* OverloadService::selectCtToRtCtor(Node* ctArg) {
     const Location& loc = ctArg->location;
     ASSERT(ctArg->type);
     if (ctArg->type->mode != modeCt || !ctArg->type->hasStorage)
@@ -363,3 +350,7 @@ Node* SprFrontend::selectCtToRtCtor(Node* ctArg) {
         return nullptr;
     return generateCall(*call, ctArg->context, loc);
 }
+
+void setDefaultOverloadService() { g_OverloadService.reset(new OverloadService); }
+
+} // namespace SprFrontend

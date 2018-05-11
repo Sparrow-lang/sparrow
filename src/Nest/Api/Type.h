@@ -44,6 +44,9 @@ TypeRef Nest_insertStockType(const Type* newType);
 /// Function that changes the mode for the given type
 TypeRef Nest_changeTypeMode(TypeRef type, EvalMode newMode);
 
+//! Reset all the cached types
+void Nest_resetTypes();
+
 #ifdef __cplusplus
 }
 #endif

@@ -3,8 +3,12 @@ FROM sparrowlang/sparrowdeps
 # Copy the Sparrow source files
 RUN mkdir /sparrow
 RUN mkdir /sparrow/src
+RUN mkdir /sparrow/externals
+RUN mkdir /sparrow/unittests
 RUN mkdir /sparrow/SparrowImplicitLib
 COPY src /sparrow/src
+COPY externals /sparrow/externals
+COPY unittests /sparrow/unittests
 COPY SparrowImplicitLib /sparrow/SparrowImplicitLib
 COPY CMakeLists.txt /sparrow/
 COPY Macros.cmake /sparrow/

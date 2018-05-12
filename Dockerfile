@@ -25,6 +25,10 @@ RUN rm -f ../src/SparrowFrontend/Grammar/parserIf.o
 RUN cmake --build . -- -j4
 RUN cmake --build . -- install
 
+# Run the unit tests
+WORKDIR /sparrow/build/bin
+RUN ./SparrowUnitTests
+
 # Ensure the newly installed libraries can be found
 RUN ldconfig
 

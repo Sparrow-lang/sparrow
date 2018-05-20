@@ -753,7 +753,7 @@ void Using_SetContextForChildren(Node* node) {
 }
 TypeRef Using_ComputeType(Node* node) {
     ASSERT(Nest_nodeArraySize(node->children) == 1);
-    Node* usingNode = at(node->children, 0);
+    Node*& usingNode = at(node->children, 0);   // May be modified if CT value
     const StringRef* alias = Nest_getPropertyString(node, "name");
 
     // Compile the using name
@@ -783,6 +783,12 @@ TypeRef Using_ComputeType(Node* node) {
             // at position 0 we find 'baseExp'
             Node* decl = at(usingNode->referredNodes, 1);
             Nest_setPropertyNode(node, propResultingDecl, decl);
+        }
+
+        // If this is a CT expression, eval it
+        Nest_semanticCheck(usingNode);
+        if (usingNode->type && usingNode->type->hasStorage && usingNode->type->mode == modeCt) {
+            usingNode = Nest_ctEval(usingNode);
         }
     }
 

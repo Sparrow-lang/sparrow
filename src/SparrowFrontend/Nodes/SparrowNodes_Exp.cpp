@@ -428,6 +428,26 @@ struct SearchScope {
     EvalMode mode;                     //!< The evaluation mode to be used
 };
 
+//! Structure describing all the possible search scopes for a given name search
+struct SearchScopes {
+    SearchScope scopes[6];  //!< The search scopes
+    int numScopes{0};       //!< The number of search scopes we are using
+
+    void addScope(const SearchScope& scope) {
+        ASSERT(numScopes < 6);
+        scopes[numScopes++] = scope;
+    }
+};
+
+const SearchScope* begin(const SearchScopes& ss) { return &ss.scopes[0]; }
+const SearchScope* end(const SearchScopes& ss) { return &ss.scopes[ss.numScopes]; }
+
+enum class SearchType {
+    complete,               //!< Inside dataytype, near datatype and from current node
+    insideAndNear,          //!< Inside dataytype and near datatype
+    nearOnly,               //!< Near datatype only
+};
+
 /**
  * Builds the search scopes for an operator call with the given operation and operands
  *
@@ -436,62 +456,66 @@ struct SearchScope {
  *
  * We assume that both arguments are expressions.
  *
- * @param dest          [out] Where to place the search scopes
- * @param numScopes     [out] The number of search scopes filled
  * @param node          The node containing the node that initiated the search
  * @param operation     The name of the operation that needs to be called
  * @param opWithPrefix  Prefixed name of operation to be searched (can be empty)
- * @param arg1          The left argument (can be NULL)
- * @param arg2          The right argument (can be NULL)
- * @param searchFromCur True if we are allowed to search from the current node
+ * @param base          The base arguments that can be used to search from (can be NULL)
+ * @param searchType    Indicates the possible options for search scopes
+ *
+ * @return The search scopes corresponding to the given parameters
  */
-void buildSearchScopes(SearchScope* dest, int& numScopes, Node* node, StringRef operation,
-        StringRef opWithPrefix, Node* arg1, Node* arg2, bool searchFromCur = true) {
+SearchScopes buildSearchScopes(Node* node, StringRef operation, StringRef opWithPrefix, Node* base,
+        SearchType searchType) {
+    SearchScopes res;
+
     // Identify the first valid operand, so that we can search near it
-    Node* base = arg1 ? arg1 : arg2;
     Node* argClass = nullptr;
     if (base) {
         if (!Nest_semanticCheck(base))
-            return;
+            return res;
         argClass = Feather_classForType(base->type);
     }
 
     // Gather the search places and parameters
-
-    numScopes = 0;
-
     EvalMode mode;
     CompilationContext* ctx;
+    bool searchInside = argClass && searchType != SearchType::nearOnly;
+    bool searchNear = argClass;
+    bool searchFromCur = searchType == SearchType::complete;
 
-    if (argClass) {
-        // Step 1: Try to find an operator that match in the class of the base expression
+    // Step 1: Try to find an operator that match in the class of the base expression
+    if (searchInside) {
         mode = base->type->mode;
         ctx = Nest_childrenContext(argClass);
         ASSERT(ctx);
         if (size(opWithPrefix) > 0)
-            dest[numScopes++] = SearchScope{opWithPrefix, ctx, false, mode};
-        dest[numScopes++] = SearchScope{operation, ctx, false, mode};
+            res.addScope(SearchScope{opWithPrefix, ctx, false, mode});
+        res.addScope(SearchScope{operation, ctx, false, mode});
+    }
 
-        // Step 2: Try to find an operator that match in the near the class the base expression
+    // Step 2: Try to find an operator that match in the near the class the base expression
+    if (searchNear) {
         mode = node->context->evalMode;
         ctx = classContext(argClass);
         if (size(opWithPrefix) > 0)
-            dest[numScopes++] = SearchScope{opWithPrefix, ctx, false, mode};
-        dest[numScopes++] = SearchScope{operation, ctx, false, mode};
+            res.addScope(SearchScope{opWithPrefix, ctx, false, mode});
+        res.addScope(SearchScope{operation, ctx, false, mode});
     }
 
+    // Step 3: General search from the current context
     if (searchFromCur) {
-        // Step 3: General search from the current context
         mode = node->context->evalMode;
         ctx = node->context;
         if (size(opWithPrefix) > 0)
-            dest[numScopes++] = SearchScope{opWithPrefix, ctx, true, mode};
-        dest[numScopes++] = SearchScope{operation, ctx, true, mode};
+            res.addScope(SearchScope{opWithPrefix, ctx, true, mode});
+        res.addScope(SearchScope{operation, ctx, true, mode});
     }
+
+    return res;
 }
 
 //! Performs a scoped search, returning the found declarations
-NodeArray performSearch(SearchScope& ss) {
+NodeArray performSearch(const SearchScope& ss) {
     ASSERT(ss.searchContext);
     SymTab* sTab = ss.searchContext->currentSymTab;
     NodeArray decls = ss.canSearchUp ? Nest_symTabLookup(sTab, ss.operation.begin)
@@ -529,17 +553,14 @@ Node* selectOperator(Node* node, StringRef operation, Node* arg1, Node* arg2, bo
         opWithPrefixStr = "pre_" + toString(operation);
 
     // Gather the search places and parameters
-    SearchScope searchScopes[6];
-    int numScopes = 0;
-    buildSearchScopes(searchScopes, numScopes, node, operation, fromString(opWithPrefixStr), arg1,
-            arg2, true);
+    Node* base = arg1 ? arg1 : arg2;
+    SearchScopes searchScopes = buildSearchScopes(
+            node, operation, fromString(opWithPrefixStr), base, SearchType::complete);
 
     // Now actually perform the searchScopes
     OverloadReporting errReporting =
             reportErrors ? OverloadReporting::noTopLevel : OverloadReporting::none;
-    for (int i = 0; i < numScopes; ++i) {
-        SearchScope& s = searchScopes[i];
-
+    for (const SearchScope& s : searchScopes) {
         // Search for decls in the given context
         NodeArray decls = performSearch(s);
 
@@ -548,6 +569,7 @@ Node* selectOperator(Node* node, StringRef operation, Node* arg1, Node* arg2, bo
         if (Nest_nodeArraySize(decls) > 0)
             result = g_OverloadService->selectOverload(node->context, node->location, s.mode,
                     all(decls), args, errReporting, s.operation);
+        // NOTE: If we found names, but overloading fails, we continue searching other scopes
 
         // Remove the declarations array
         Nest_freeNodeArray(decls);
@@ -567,27 +589,6 @@ Node* checkConvertNullToRefByte(Node* orig) {
         return Nest_computeType(res) ? res : nullptr;
     }
     return orig;
-}
-
-Node* handleFApp(Node* node) {
-    Node* arg1 = at(node->children, 0);
-    Node* arg2 = at(node->children, 1);
-
-    if (arg2 && arg2->nodeKind != nkFeatherNodeList)
-        REP_INTERNAL(arg2->location, "Expected node list for function application; found %1%") %
-                arg2;
-
-    return mkFunApplication(node->location, arg1, arg2);
-}
-
-Node* handleDotExpr(Node* node) {
-    Node* arg1 = at(node->children, 0);
-    Node* arg2 = at(node->children, 1);
-
-    if (arg2->nodeKind != nkSparrowExpIdentifier)
-        REP_INTERNAL(arg2->location, "Expected identifier after dot; found %1%") % arg2;
-
-    return mkCompoundExp(node->location, arg1, fromString(Nest_toString(arg2)));
 }
 
 Node* handleRefEq(Node* node) {
@@ -1001,6 +1002,28 @@ Node* Identifier_SemanticCheck(Node* node) {
     return res;
 }
 
+namespace {
+//! Helper function that searches for names from a datatype (inside and/or near)
+NodeArray searchDeclsFromDatatype(Node* node, Node* base, StringRef id, StringRef idPrefix,
+        SearchType searchType = SearchType::insideAndNear) {
+
+    NodeArray decls{nullptr, nullptr, nullptr};
+
+    // Get the scopes where we search for the id
+    SearchScopes searchScopes = buildSearchScopes(node, id, idPrefix, base, searchType);
+
+    // Perform the search sequentially; stop if we find something
+    for (const SearchScope& s : searchScopes) {
+        decls = performSearch(s);
+        if (size(decls) > 0)
+            break;
+    }
+
+    return decls;
+}
+
+}
+
 Node* CompoundExp_SemanticCheck(Node* node) {
     Node* base = at(node->children, 0);
     StringRef id = Nest_getCheckPropertyString(node, "name");
@@ -1047,21 +1070,32 @@ Node* CompoundExp_SemanticCheck(Node* node) {
             Nest_freeNodeArray(declsCur);
         }
     } else if (base->type->hasStorage) {
-        // We also consider searching with the 'post_' prefix
+        // Search for the decls from datatype
         string idWithPrefixStr = "post_" + toString(id);
+        StringRef idPrefix = fromString(idWithPrefixStr);
+        declsOrig = searchDeclsFromDatatype(node, base, id, idPrefix);
 
-        // Get the scopes where we search for the id
-        SearchScope searchScopes[6];
-        int numScopes = 0;
-        buildSearchScopes(searchScopes, numScopes, node, id, fromString(idWithPrefixStr), base,
-                nullptr, false);
+        // If nothing was found, check if there is a dot operator to use
+        if (size(declsOrig) == 0) {
+            // Search for the dot operator near the datatype
+            declsOrig = searchDeclsFromDatatype(
+                    node, base, fromCStr("."), StringRef{}, SearchType::nearOnly);
 
-        // Perform the search sequentially; stop if we find something
-        for (size_t i = 0; i < numScopes; i++) {
-            SearchScope& ss = searchScopes[i];
-            declsOrig = performSearch(ss);
-            if (size(declsOrig) > 0)
-                break;
+            // Transform 'base' into 'base .'
+            Location loc = base->location;
+            auto faBase = mkDeclExp(loc, all(declsOrig), baseDataExp);
+            baseDataExp = mkFunApplication(loc, faBase, nullptr);
+            Nest_setContext(baseDataExp, base->context);
+
+            // Not needing the decls anymore
+            Nest_freeNodeArray(declsOrig);
+
+            // Now, we need to perform another search from the current base
+            if (baseDataExp && !Nest_computeType(baseDataExp))
+                return nullptr;
+
+            // Perform another search from this point, to find the intended decl
+            declsOrig = searchDeclsFromDatatype(node, baseDataExp, id, idPrefix);
         }
     }
 
@@ -1234,9 +1268,6 @@ Node* OperatorCall_SemanticCheck(Node* node) {
     StringRef operation = getOperation(node);
 
     if (arg1 && arg2) {
-        if (operation == "__dot__") {
-            return handleDotExpr(node);
-        }
         if (operation == "===") {
             return handleRefEq(node);
         } else if (operation == "!==") {
@@ -1244,9 +1275,6 @@ Node* OperatorCall_SemanticCheck(Node* node) {
         } else if (operation == ":=") {
             return handleRefAssign(node);
         }
-    }
-    if (arg1 && operation == "__fapp__") {
-        return handleFApp(node);
     }
     if (arg2 && !arg1 && operation == "\\") {
         return handleFunPtr(node); // TODO: this should ideally be defined in std lib
@@ -1259,40 +1287,49 @@ Node* OperatorCall_SemanticCheck(Node* node) {
     Node* res = selectOperator(node, operation, arg1, arg2, false);
 
     // If nothing found try fall-back.
-    if (!res && arg1 && arg2) {
+    if (!res && arg1) {
         string op1, op2;
         Node* a1 = arg1;
         Node* a2 = arg2;
 
-        if (operation == "!=") // Transform '!=' into '=='
-        {
-            op1 = "==";
-            op2 = "!";
-        } else if (operation == ">") // Transform '>' into '<'
-        {
-            op1 = "<";
-            a1 = arg2;
-            a2 = arg1;
-        } else if (operation == "<=") // Transform '<=' into '<'
-        {
-            op1 = "<";
-            op2 = "!";
-            a1 = arg2;
-            a2 = arg1;
-        } else if (operation == ">=") // Transform '>=' into '<'
-        {
-            op1 = "<";
-            op2 = "!";
+        if (arg2) {
+            if (operation == "!=") // Transform '!=' into '=='
+            {
+                op1 = "==";
+                op2 = "!";
+            } else if (operation == ">") // Transform '>' into '<'
+            {
+                op1 = "<";
+                a1 = arg2;
+                a2 = arg1;
+            } else if (operation == "<=") // Transform '<=' into '<'
+            {
+                op1 = "<";
+                op2 = "!";
+                a1 = arg2;
+                a2 = arg1;
+            } else if (operation == ">=") // Transform '>=' into '<'
+            {
+                op1 = "<";
+                op2 = "!";
+            }
+
+            // Check for <op>= operators
+            else if (size(operation) >= 2 && operation.begin[size(operation) - 1] == '=') {
+                StringRef baseOperation = operation;
+                baseOperation.end--;
+
+                // Transform 'a <op>= b' into 'a = a <op> b'
+                op1 = toString(baseOperation);
+                op2 = "=";
+            }
         }
 
-        // Check for <op>= operators
-        else if (size(operation) >= 2 && operation.begin[size(operation) - 1] == '=') {
-            StringRef baseOperation = operation;
-            baseOperation.end--;
-
-            // Transform 'a <op>= b' into 'a = a <op> b'
-            op1 = toString(baseOperation);
-            op2 = "=";
+        // Fallback case: attempt to apply the dot operator
+        if (op1.empty()) {
+            op1 = ".";
+            a1 = arg1;
+            a2 = nullptr;
         }
 
         if (!op1.empty()) {
@@ -1304,6 +1341,9 @@ Node* OperatorCall_SemanticCheck(Node* node) {
                     res = selectOperator(node, fromString(op2), r, nullptr, false);
                 else if (op2 == "=")
                     res = selectOperator(node, fromString(op2), a1, r, false);
+                else if (op1 == ".") {
+                    res = selectOperator(node, operation, r, arg2, false);
+                }
                 else if (op2.empty())
                     res = r;
             }

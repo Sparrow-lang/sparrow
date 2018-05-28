@@ -12,8 +12,8 @@ fun ctor(this: @BasicBlockEdge, cfg: @MaoCFG, fromName, toName: Int)
     from ctor cfg.createNode(fromName)
     to   ctor cfg.createNode(toName)
 
-    from->addOutEdge(to)
-    to->addInEdge(from)
+    from.addOutEdge(to)
+    to.addInEdge(from)
     cfg.addEdge(this mkPtr)
 
 // BasicBlock only maintains a vector of in-edges and
@@ -88,7 +88,7 @@ fun addChildLoop(this: @SimpleLoop, loop: SimpleLoop Ptr)  = this.children += lo
 
 fun setParent(this: @SimpleLoop, parent: SimpleLoop Ptr)
     this._parent = parent
-    this._parent->addChildLoop(this mkPtr)
+    this._parent.addChildLoop(this mkPtr)
 fun setNestingLevel(this: @SimpleLoop, level: Int)
     nestingLevel = level
     isRoot = (level == 0)
@@ -122,8 +122,8 @@ datatype LoopStructureGraph
 fun ctor(this: @LoopStructureGraph)
     _loopCounter ctor 1
     _root ctor new(SimpleLoop)
-    _root->counter = 0
-    _root->setNestingLevel(0)
+    _root.counter = 0
+    _root.setNestingLevel(0)
     _loops += _root
 
 fun dtor(this: @LoopStructureGraph) = this.killAll
@@ -135,7 +135,7 @@ fun killAll(this: @LoopStructureGraph)
 
 fun createNewLoop(this: @LoopStructureGraph): SimpleLoop Ptr
     var loop: SimpleLoop Ptr = new(SimpleLoop)
-    loop->counter = (_loopCounter++)
+    loop.counter = (_loopCounter++)
     return loop
 
 fun addLoop(this: @LoopStructureGraph, loop: SimpleLoop Ptr)   = _loops += loop
@@ -143,17 +143,17 @@ fun addLoop(this: @LoopStructureGraph, loop: SimpleLoop Ptr)   = _loops += loop
 fun calculateNestingLevel(this: @LoopStructureGraph)
     // link up all 1st level _loops to artificial root node.
     for loop = _loops.all
-        if !loop->isRoot && !loop->_parent
-            loop->setParent(_root)
+        if !loop.isRoot && !loop._parent
+            loop.setParent(_root)
 
     // recursively traverse the tree and assign levels.
     _calculateNestingLevelRec(_root, 0)
 
 fun _calculateNestingLevelRec(loop: SimpleLoop Ptr, depth: Int)
-    loop->depthLevel = depth
-    for c = loop->children.all
+    loop.depthLevel = depth
+    for c = loop.children.all
         _calculateNestingLevelRec(c, depth+1)
-        loop->setNestingLevel(max(loop->nestingLevel, 1+c->nestingLevel))
+        loop.setNestingLevel(max(loop.nestingLevel, 1+c.nestingLevel))
 
 fun numLoops(this: @LoopStructureGraph) = _loops.size
 
@@ -161,7 +161,7 @@ fun >>(this: @LoopStructureGraph, os: @OutStream) = _dumpRec(os, _root, 0)
 
 fun _dumpRec(os: @OutStream, loop: SimpleLoop Ptr, indent: Int)
     os << loop.get
-    for c = loop->children.all
+    for c = loop.children.all
         _dumpRec(os, c, indent+1)
 
 //
@@ -191,12 +191,12 @@ fun findSet(this: @UnionFindNode): UnionFindNode Ptr
     var nodeList: List(UnionFindNode Ptr)
 
     var node: UnionFindNode Ptr = this
-    while node != node->_parent ; node = node->_parent
-        if node->_parent != node->_parent->_parent
+    while node != node._parent ; node = node._parent
+        if node._parent != node._parent._parent
             nodeList += node
 
     for n = nodeList.all
-        n->_parent = node->_parent
+        n._parent = node._parent
 
     return node
 
@@ -278,7 +278,7 @@ fun doDFS(currentNode: BasicBlock Ptr, nodes: @NodeVector, number: @BasicBlockMa
     number(currentNode) = current
 
     var lastId = current
-    for target = currentNode->outEdgesRange
+    for target = currentNode.outEdgesRange
         if number(target) == kUnvisited
             lastId = doDFS(target, nodes, number, last, lastId+1)
     last(number(currentNode)) = lastId
@@ -335,8 +335,8 @@ fun findLoops(this: @HavlakLoopFinder)
             type(w) = BB_DEAD
             continue   // dead BB
 
-        if nodeW->numPred > 0
-            for nodeV = nodeW->inEdgesRange
+        if nodeW.numPred > 0
+            for nodeV = nodeW.inEdgesRange
                 var v = number(nodeV)
                 if v == kUnvisited
                     continue   // dead node
@@ -398,20 +398,20 @@ fun findLoops(this: @HavlakLoopFinder)
             // The algorithm has degenerated. Break and
             // return in this case.
             //
-            var nonBackSize = nonBackPreds(x->dfsNumber).size
+            var nonBackSize = nonBackPreds(x.dfsNumber).size
             if nonBackSize > kMaxNonBackPreds
                 _lsg.killAll
                 return
 
-            for t = nonBackPreds(x->dfsNumber).all
+            for t = nonBackPreds(x.dfsNumber).all
                 var y: @UnionFindNode = nodes(t)
                 var yDash = y.findSet
 
-                if !isAncestor(w, yDash->dfsNumber, last)
+                if !isAncestor(w, yDash.dfsNumber, last)
                     type(w) = BB_IRREDUCIBLE
-                    nonBackPreds(w).insert(yDash->dfsNumber)
+                    nonBackPreds(w).insert(yDash.dfsNumber)
                 else
-                    if yDash->dfsNumber != w
+                    if yDash.dfsNumber != w
                         if find(nodePool.all, yDash).isEmpty
                             workList += yDash
                             nodePool += yDash
@@ -439,13 +439,13 @@ fun findLoops(this: @HavlakLoopFinder)
             nodes(w).loop = loop
 
             for node = nodePool.all
-                header(node->dfsNumber) = w
-                node->union(nodes(w) mkPtr)
+                header(node.dfsNumber) = w
+                node.union(nodes(w) mkPtr)
 
-                if node->loop.isSet
-                    node->loop->setParent(loop)
+                if node.loop.isSet
+                    node.loop.setParent(loop)
                 else
-                    loop->addNode(node->bb)
+                    loop.addNode(node.bb)
             _lsg.addLoop(loop)
 
 // External entry point.

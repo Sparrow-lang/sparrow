@@ -378,6 +378,8 @@ package _Impl
         return true
 
     fun parseFunNameString(this: @SparrowParser): String
+        if this accept tkDOT
+            return '.'
         if this accept tkLPAREN
             this expect tkRPAREN
             return "()"

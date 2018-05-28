@@ -1,6 +1,5 @@
 module std.ptr
 
-import meta.sparrowNodes, meta.featherNodes
 import newDelete(delete)
 
 [initCtor]
@@ -14,7 +13,7 @@ datatype Ptr(type: Type)
 
     fun < (this, other: Ptr)          = ptrDiff(reinterpretCast(@Byte, this._ptr), reinterpretCast(@Byte, other._ptr)) < DiffType(0)
 
-    fun get(this: Ptr): @ValueType         = _ptr
+    fun get(this: Ptr)         = _ptr
     fun isNull(this: Ptr)                  = _ptr === null
     fun isSet(this: Ptr)                   = _ptr !== null
 
@@ -34,15 +33,8 @@ datatype Ptr(type: Type)
             os << "Ptr(null)"
         os << flush
 
+    fun .(this: Ptr) = _ptr
+
 fun mkPtr(v: @AnyType) = Ptr(-@typeOf(v))(v);
 fun reinterpretPtr(t: Type, ptr: AnyType): Ptr(t) //if isValid(p.isNull()) && isValid(p.get())
     return Ptr(t)(reinterpretCast(@t, ptr.get()))
-
-[macro] fun ->(base, id: CompilerAstNode): CompilerAstNode
-    // Expand to: <base>.get().<id>
-    var loc = base location
-    var dotGet = mkInfixOp(loc, "__dot__", AstNode(base), mkIdentifier(loc, "get"))
-    var getCall = mkInfixOp(loc, "__fapp__", dotGet, mkNodeList(loc))
-    return mkInfixOp(loc, "__dot__", getCall, id)
-
-using oper_precedence_-> = oper_precedence___dot__

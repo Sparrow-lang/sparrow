@@ -39,6 +39,7 @@ fun sprMain
     else if n == 5; test5
     else if n == 6; test6
     else if n == 7; test7
+    else if n == 8; test8
 }
 
 [native("malloc")] fun mallocRt(size: SizeType): @Byte;
@@ -191,14 +192,14 @@ fun test5()
     var p = Ptr(MyObj)(obj);
     var sp = SharedPtr(MyObj)(obj);
 
-    cout << p->x << endl;
-    cout << sp->x << endl;
+    cout << p.x << endl;
+    cout << sp.x << endl;
 
-    p->print();
-    p->print("some argument");
+    p.print();
+    p.print("some argument");
 
     var pp: Ptr(Foo) = new(Foo, 13);
-    cout << pp->obj.x << endl;
+    cout << pp.obj.x << endl;
 
 }
 /*<<<Arrow operations(5)
@@ -215,12 +216,12 @@ fun test6()
 {
     var obj: @MyObj = newObj(42);
     var p = Ptr(MyObj)(obj);
-    cout << p->x << endl;
+    cout << p.x << endl;
     p delete;
 
     var obj2: @MyObj = newObj(55);
     var sp = SharedPtr(MyObj)(obj2);
-    cout << sp->x << endl;
+    cout << sp.x << endl;
     sp delete;
     cout << "---" << endl;
 }
@@ -240,7 +241,7 @@ fun test7
     v += Ptr(MyObj)(newObj(12));
     v += Ptr(MyObj)(newObj(13));
     for x = v.all()
-        cout << x->x << endl;
+        cout << x.x << endl;
     v.all() delete;
     cout << "---" << endl;
 }
@@ -255,5 +256,29 @@ fun test7
 12 destroyed
 13 destroyed
 ---
+>>>*/
+
+fun test8
+    var v: Ptr(MyObj) = newObj(10)
+    cout << (v get).x << endl
+    cout << v.x << endl
+    (v.get) print
+    v.print
+    v print
+    (v.get) print "with arg"
+    v print "with arg"
+
+    v.x = 20
+    cout << v.x << endl
+
+/*<<<Dot operator (8)
+10
+10
+MyObj.print
+MyObj.print
+MyObj.print
+MyObj.print(with arg)
+MyObj.print(with arg)
+20
 >>>*/
 

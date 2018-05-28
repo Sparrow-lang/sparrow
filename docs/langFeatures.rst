@@ -8,5 +8,7 @@ Language features
    lang/declarations
    lang/generatedAssocFun
    lang/generics
+   lang/basicExpressions
+   lang/operators
 
 This section is still under development.

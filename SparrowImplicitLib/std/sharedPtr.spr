@@ -41,6 +41,7 @@ datatype SharedPtr(type: Type)
 
     fun ==(this, other: @SharedPtr)                     = _ref === other._ref && _count === other._count
 
+    fun .(this: @SharedPtr) = _ref
     fun get(this: @SharedPtr): @ValueType               = _ref
 
     fun isUnique(this: @SharedPtr)                      = _count !== null && _count == 1

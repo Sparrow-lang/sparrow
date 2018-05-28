@@ -396,8 +396,7 @@ Node* SprFrontend::createFunPtr(Node* funNode) {
     }
 
     // Check for fun applications
-    if (funNode->nodeKind == nkSparrowExpInfixExp &&
-            Nest_getCheckPropertyString(funNode, "spr.operation") == "__fapp__") {
+    if (funNode->nodeKind == nkSparrowExpFunApplication) {
         Node* featherFunCall = nullptr;
 
         // Compile the fun application node and try to extract the Feather fun call

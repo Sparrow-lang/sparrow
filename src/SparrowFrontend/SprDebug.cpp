@@ -482,12 +482,7 @@ void printNodeImpl(const Node* node, int mode) {
         Node* arg2 = at(node->children, 1);
         StringRef op = Nest_getCheckPropertyString(node, "spr.operation");
         printNodeImpl(arg1, 2);
-        if (op == "__fapp__")
-            ; // don't print the operation
-        else if (op == "__dot__")
-            printf(".");
-        else
-            printf(" %s ", op.begin);
+        printf(" %s ", op.begin);
         printNodeImpl(arg2, 2);
         return;
     }

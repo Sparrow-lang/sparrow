@@ -591,27 +591,6 @@ Node* checkConvertNullToRefByte(Node* orig) {
     return orig;
 }
 
-Node* handleFApp(Node* node) {
-    Node* arg1 = at(node->children, 0);
-    Node* arg2 = at(node->children, 1);
-
-    if (arg2 && arg2->nodeKind != nkFeatherNodeList)
-        REP_INTERNAL(arg2->location, "Expected node list for function application; found %1%") %
-                arg2;
-
-    return mkFunApplication(node->location, arg1, arg2);
-}
-
-Node* handleDotExpr(Node* node) {
-    Node* arg1 = at(node->children, 0);
-    Node* arg2 = at(node->children, 1);
-
-    if (arg2->nodeKind != nkSparrowExpIdentifier)
-        REP_INTERNAL(arg2->location, "Expected identifier after dot; found %1%") % arg2;
-
-    return mkCompoundExp(node->location, arg1, fromString(Nest_toString(arg2)));
-}
-
 Node* handleRefEq(Node* node) {
     Node* arg1 = at(node->children, 0);
     Node* arg2 = at(node->children, 1);
@@ -1289,9 +1268,6 @@ Node* OperatorCall_SemanticCheck(Node* node) {
     StringRef operation = getOperation(node);
 
     if (arg1 && arg2) {
-        if (operation == "__dot__") {
-            return handleDotExpr(node);
-        }
         if (operation == "===") {
             return handleRefEq(node);
         } else if (operation == "!==") {
@@ -1299,9 +1275,6 @@ Node* OperatorCall_SemanticCheck(Node* node) {
         } else if (operation == ":=") {
             return handleRefAssign(node);
         }
-    }
-    if (arg1 && operation == "__fapp__") {
-        return handleFApp(node);
     }
     if (arg2 && !arg1 && operation == "\\") {
         return handleFunPtr(node); // TODO: this should ideally be defined in std lib

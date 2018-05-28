@@ -113,8 +113,6 @@ This process will handle any operators that the compiler wants to handle directl
 .. csv-table:: overal operator resolving
    :header: "Condition", "Action"
 
-   "op= ``__dot__``, infix", "Handle a dot expression directly"
-   "op= ``__fapp__``, infix, postfix", "Handle fun application directly"
    "op= ``===``, infix", "Handle reference equality directly"
    "op= ``!==``, infix", "Handle reference inequality directly"
    "op= ``:=``, infix", "Handle reference assignment directly"

@@ -111,10 +111,10 @@ extern "C" Node* comp_parser_mkStarExpr(Location* loc, Node* base, StringRef id)
     return mkStarExp(*loc, base, id);
 }
 extern "C" Node* comp_parser_mkDotExpr(Location* loc, Node* base, StringRef id) {
-    return mkInfixOp(*loc, fromCStr("__dot__"), base, mkIdentifier(*loc, id));
+    return mkCompoundExp(*loc, base, id);
 }
 extern "C" Node* comp_parser_mkFunAppExpr(Location* loc, Node* base, Node* args) {
-    return mkInfixOp(*loc, fromCStr("__fapp__"), base, args);
+    return mkFunApplication(*loc, base, args);
 }
 extern "C" Node* comp_parser_mkLambdaExpr(Location* loc, Node* closureParams, Node* formals,
         Node* retType, Node* body, Node* bodyExpr) {

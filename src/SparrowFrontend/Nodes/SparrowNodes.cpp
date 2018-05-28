@@ -72,7 +72,7 @@ void applyModifier(Node* base, Node* modNode) {
             mod = SprFe_getNoInlineMod();
     } else {
         // check for: native("name")
-        if (modNode->nodeKind == nkSparrowExpInfixExp) // fun application
+        if (modNode->nodeKind == nkSparrowExpFunApplication)
         {
             Node* fbase = at(modNode->children, 0);
             Node* fargs = at(modNode->children, 1);

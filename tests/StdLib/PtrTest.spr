@@ -192,14 +192,14 @@ fun test5()
     var p = Ptr(MyObj)(obj);
     var sp = SharedPtr(MyObj)(obj);
 
-    cout << p->x << endl;
-    cout << sp->x << endl;
+    cout << p.x << endl;
+    cout << sp.x << endl;
 
-    p->print();
-    p->print("some argument");
+    p.print();
+    p.print("some argument");
 
     var pp: Ptr(Foo) = new(Foo, 13);
-    cout << pp->obj.x << endl;
+    cout << pp.obj.x << endl;
 
 }
 /*<<<Arrow operations(5)
@@ -216,12 +216,12 @@ fun test6()
 {
     var obj: @MyObj = newObj(42);
     var p = Ptr(MyObj)(obj);
-    cout << p->x << endl;
+    cout << p.x << endl;
     p delete;
 
     var obj2: @MyObj = newObj(55);
     var sp = SharedPtr(MyObj)(obj2);
-    cout << sp->x << endl;
+    cout << sp.x << endl;
     sp delete;
     cout << "---" << endl;
 }
@@ -241,7 +241,7 @@ fun test7
     v += Ptr(MyObj)(newObj(12));
     v += Ptr(MyObj)(newObj(13));
     for x = v.all()
-        cout << x->x << endl;
+        cout << x.x << endl;
     v.all() delete;
     cout << "---" << endl;
 }

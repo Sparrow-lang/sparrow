@@ -1,6 +1,5 @@
 module std.ptr
 
-import meta.sparrowNodes, meta.featherNodes
 import newDelete(delete)
 
 [initCtor]
@@ -39,12 +38,3 @@ datatype Ptr(type: Type)
 fun mkPtr(v: @AnyType) = Ptr(-@typeOf(v))(v);
 fun reinterpretPtr(t: Type, ptr: AnyType): Ptr(t) //if isValid(p.isNull()) && isValid(p.get())
     return Ptr(t)(reinterpretCast(@t, ptr.get()))
-
-[macro] fun ->(base, id: CompilerAstNode): CompilerAstNode
-    // Expand to: <base>.get().<id>
-    var loc = base location
-    var dotGet = mkInfixOp(loc, "__dot__", AstNode(base), mkIdentifier(loc, "get"))
-    var getCall = mkInfixOp(loc, "__fapp__", dotGet, mkNodeList(loc))
-    return mkInfixOp(loc, "__dot__", getCall, id)
-
-using oper_precedence_-> = oper_precedence___dot__

@@ -268,6 +268,9 @@ fun test8
     (v.get) print "with arg"
     v print "with arg"
 
+    v.x = 20
+    cout << v.x << endl
+
 /*<<<Dot operator (8)
 10
 10
@@ -276,5 +279,6 @@ MyObj.print
 MyObj.print
 MyObj.print(with arg)
 MyObj.print(with arg)
+20
 >>>*/
 

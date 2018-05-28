@@ -14,7 +14,7 @@ datatype Ptr(type: Type)
 
     fun < (this, other: Ptr)          = ptrDiff(reinterpretCast(@Byte, this._ptr), reinterpretCast(@Byte, other._ptr)) < DiffType(0)
 
-    fun get(this: Ptr): @ValueType         = _ptr
+    fun get(this: Ptr)         = _ptr
     fun isNull(this: Ptr)                  = _ptr === null
     fun isSet(this: Ptr)                   = _ptr !== null
 
@@ -34,7 +34,7 @@ datatype Ptr(type: Type)
             os << "Ptr(null)"
         os << flush
 
-    fun .(this: Ptr) = this._ptr
+    fun .(this: Ptr) = _ptr
 
 fun mkPtr(v: @AnyType) = Ptr(-@typeOf(v))(v);
 fun reinterpretPtr(t: Type, ptr: AnyType): Ptr(t) //if isValid(p.isNull()) && isValid(p.get())

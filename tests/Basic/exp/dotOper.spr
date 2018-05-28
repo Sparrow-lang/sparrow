@@ -1,0 +1,49 @@
+//!! -t "../SparrowImplicitLib.spr" -fno-main
+
+// Test purpose: Check dot operator functionality
+
+package A
+    [initCtor]
+    datatype Ptr(type: Type)
+        using ValueType = type
+
+        _ptr: @ValueType
+
+    [protected]
+        fun get(this: Ptr) = _ptr
+        fun .(this: Ptr) = _ptr
+
+
+[initCtor]
+datatype MyObj
+    x: Int
+fun print(this: @MyObj)
+    write("MyObj.print: ")
+    writeLn(x)
+fun print(this: @MyObj, x: Int)
+    write("MyObj.print: ")
+    writeLn(x)
+
+
+
+[native("test")]
+fun test(n: Int)
+    var o: MyObj = 0
+    var p: A.Ptr(MyObj) = o
+    p.x = 10
+    p print
+    p.print
+    p.x = 20
+    p print
+
+    p.get().x = 30
+    p.get().print
+    p.get print
+
+/*<<<Running(1)
+MyObj.print: 10
+MyObj.print: 10
+MyObj.print: 20
+MyObj.print: 30
+MyObj.print: 30
+>>>*/

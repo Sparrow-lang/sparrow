@@ -1354,7 +1354,6 @@ Node* OperatorCall_SemanticCheck(Node* node) {
 
         // Fallback case: attempt to apply the dot operator
         if (op1.empty()) {
-            REP_INFO(node->location, "Considering (. %1%) %2% %3%") % arg1 % operation % arg2;
             op1 = ".";
             a1 = arg1;
             a2 = nullptr;
@@ -1370,7 +1369,6 @@ Node* OperatorCall_SemanticCheck(Node* node) {
                 else if (op2 == "=")
                     res = selectOperator(node, fromString(op2), a1, r, false);
                 else if (op1 == ".") {
-                    REP_INFO(node->location, "Applying (. %1%) %2% %3%") % r % operation % a2;
                     res = selectOperator(node, operation, r, arg2, false);
                 }
                 else if (op2.empty())

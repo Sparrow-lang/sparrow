@@ -140,6 +140,7 @@ Basic/datatype/storage.spr:             Basic features - datatype - storage
 Basic/datatype/interaction.spr:         Basic features - datatype - various interaction patterns
 Basic/datatype/generic.spr:             Basic features - datatype - basic generics test
 Basic/datatype/initCtor.spr:            Basic features - datatype - initCtor
+Basic/exp/dotOper.spr:                  Basic features - expressions - dot operator
 
 Imports/ImportTwice.spr:                Import twice the same file
 Imports/ImportComplex.spr:              Import a complex hierarchy of files, some of them twice

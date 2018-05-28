@@ -39,8 +39,8 @@ release = '0.10.33'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinx.ext.pngmath'
 ]
-
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
@@ -195,8 +195,8 @@ class SparrowLexer(RegexLexer):
         ],
         'constants': [
             (r'"', String, 'string'),
-            (r"'(\\.|\\[0-7]{1,3}|\\x[a-fA-F0-9]{1,2}|[^\\\'\n])'", String, 'string'),
-            (r"<{(\\.|\\[0-7]{1,3}|\\x[a-fA-F0-9]{1,2}|[^\\\'\n])}>", String, 'string'),
+            (r"'", String, 'sstring'),
+            (r"<{", String, 'qstring'),
             (r'(\d+\.\d*|\.\d+|\d+)[eE][+-]?\d+[LlUu]*', Number.Float),
             (r'(\d+\.\d*|\.\d+|\d+[fF])[fF]?', Number.Float),
             (r'0x[0-9a-fA-F]+[LlUu]*', Number.Hex),
@@ -247,6 +247,17 @@ class SparrowLexer(RegexLexer):
             (r'[^\\"\n]+', String), # all other characters
             (r'\\\n', String), # line continuation
             (r'\\', String), # stray backslash
+        ],
+        'sstring': [
+            (r"'", String, '#pop'),
+            (r'\\([\\abfnrtv"\']|x[a-fA-F0-9]{2,4}|'
+             r'u[a-fA-F0-9]{4}|U[a-fA-F0-9]{8}|[0-7]{1,3})', String.Escape),
+            (r'[^\\\'\n]+', String), # all other characters
+            (r'\\\n', String), # line continuation
+            (r'\\', String), # stray backslash
+        ],
+        'qstring': [
+            (r'}>', String, '#pop'),
         ],
         'colors': [
             # ('Generic.Traceback', Generic.Traceback),

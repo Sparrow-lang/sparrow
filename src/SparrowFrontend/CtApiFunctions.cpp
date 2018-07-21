@@ -144,7 +144,7 @@ Node* ctApi_Compiler_parseSprExpression(Location* loc, StringRef exp) {
     return SprFe_parseSparrowExpression(*loc, exp.begin);
 }
 
-template <typename T> void ctApiReg(Backend* backend, const char* name, T ftor) {
+template <typename T> void ctApiReg(Nest_Backend* backend, const char* name, T ftor) {
     backend->ctApiRegisterFun(
             // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
             backend, name, (void*)ftor);
@@ -152,7 +152,7 @@ template <typename T> void ctApiReg(Backend* backend, const char* name, T ftor) 
 
 } // namespace
 
-void SprFrontend::registerCtApiFunctions(Backend* backend) {
+void SprFrontend::registerCtApiFunctions(Nest_Backend* backend) {
     ctApiReg(backend, "$meta.Sparrow.mkModifiers", &ctApi_Sparrow_mkModifiers);
 
     ctApiReg(backend, "$meta.Sparrow.mkModule", &ctApi_Sparrow_mkModule);

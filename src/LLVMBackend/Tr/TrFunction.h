@@ -2,8 +2,6 @@
 
 #include "Feather/Api/Feather.h"
 
-typedef struct Nest_Node Node;
-
 namespace llvm {
 class Function;
 }
@@ -13,6 +11,7 @@ namespace LLVMB {
 namespace Tr {
 
 struct GlobalContext;
+using Nest::Node;
 
 //! Main function used to translate a feather function into LLVM IR.
 //! It will translate the definition of the function, if not already translated.

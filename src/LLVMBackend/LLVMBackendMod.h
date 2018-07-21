@@ -1,6 +1,6 @@
 #pragma once
 
-typedef struct Nest_CompilerModule CompilerModule;
+typedef struct Nest_CompilerModule Nest_CompilerModule;
 
 /// Getter for the LLVMBackend module
-CompilerModule* getLLVMBackendModule();
+Nest_CompilerModule* getLLVMBackendModule();

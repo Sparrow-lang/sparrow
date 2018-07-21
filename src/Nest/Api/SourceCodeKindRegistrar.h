@@ -6,16 +6,16 @@
 extern "C" {
 #endif
 
-typedef struct Nest_Node Node;
-typedef struct Nest_SourceCode SourceCode;
-typedef struct Nest_CompilationContext CompilationContext;
+typedef struct Nest_Node Nest_Node;
+typedef struct Nest_SourceCode Nest_SourceCode;
+typedef struct Nest_CompilationContext Nest_CompilationContext;
 
 /// Function that is capable to parse the given source code
-typedef void (*FParseSourceCode)(SourceCode*, CompilationContext*);
+typedef void (*FParseSourceCode)(Nest_SourceCode*, Nest_CompilationContext*);
 /// Function that gets a specific line from the source code
-typedef StringRef (*FGetSourceCodeLine)(const SourceCode*, int);
+typedef Nest_StringRef (*FGetSourceCodeLine)(const Nest_SourceCode*, int);
 /// Function that translates a node from CT to RT for the given source code
-typedef Node* (*FTranslateCtToRt)(const SourceCode*, Node*);
+typedef Nest_Node* (*FTranslateCtToRt)(const Nest_SourceCode*, Nest_Node*);
 
 /// Registers a new sourceCode kind
 ///

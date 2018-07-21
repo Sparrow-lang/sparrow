@@ -1,7 +1,7 @@
 #pragma once
 
-typedef struct Nest_Modifier Modifier;
+typedef struct Nest_Modifier Nest_Modifier;
 
-Modifier* SprFe_getClassMembersIntMod();
-Modifier* SprFe_getCtorMembersIntMod();
-Modifier* SprFe_getDtorMembersIntMod();
+Nest_Modifier* SprFe_getClassMembersIntMod();
+Nest_Modifier* SprFe_getCtorMembersIntMod();
+Nest_Modifier* SprFe_getDtorMembersIntMod();

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Nest/Api/TypeRef.h"
-#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Utils/cppif/StringRef.hpp"
 
 #include <boost/function.hpp>
 #include <string>
@@ -14,7 +14,9 @@ FWD_CLASS1(llvm, LLVMContext);
 FWD_CLASS1(llvm, Module);
 FWD_CLASS1(llvm, Function);
 
-typedef struct Nest_Node Node;
+using Nest::Node;
+using Nest::StringRef;
+using Nest::TypeRef;
 
 namespace LLVMB {
 // TODO (backend): Refactor these

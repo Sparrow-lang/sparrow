@@ -17,21 +17,21 @@ char* _appendStr(char* dest, char* endOfStore, const char* src) {
     return dest + toCopy;
 }
 
-NodeProperties _cloneProperties(NodeProperties src) {
+Nest_NodeProperties _cloneProperties(Nest_NodeProperties src) {
     unsigned size = src.end - src.begin;
-    NodeProperties res = {0, 0, 0};
-    res.begin = (NodeProperty*)malloc(size * sizeof(NodeProperty));
+    Nest_NodeProperties res = {0, 0, 0};
+    res.begin = (Nest_NodeProperty*)malloc(size * sizeof(Nest_NodeProperty));
     res.end = res.begin + size;
     res.endOfStore = res.end;
-    NodeProperty* s = src.begin;
-    NodeProperty* d = res.begin;
+    Nest_NodeProperty* s = src.begin;
+    Nest_NodeProperty* d = res.begin;
     for (; s != src.end; ++s, ++d)
         *d = *s;
     return res;
 }
 
-void _applyModifiers(Node* node, ModifierType modType) {
-    Modifier** mod = node->modifiers.beginPtr;
+void _applyModifiers(Nest_Node* node, Nest_ModifierType modType) {
+    Nest_Modifier** mod = node->modifiers.beginPtr;
     for (; mod != node->modifiers.endPtr; ++mod) {
         if ((*mod)->modifierType == modType)
             (*mod)->modifierFun(*mod, node);
@@ -41,7 +41,7 @@ void _applyModifiers(Node* node, ModifierType modType) {
 /// Set the explanation of this node.
 /// makes sure it has the right context, compiles it, and set the type of the current node to be the
 /// type of the explanation
-int _setExplanation(Node* node, Node* explanation) {
+int _setExplanation(Nest_Node* node, Nest_Node* explanation) {
     if (explanation == node->explanation)
         return 1;
 
@@ -51,7 +51,7 @@ int _setExplanation(Node* node, Node* explanation) {
         return 1;
 
     // Copy all the properties marked accordingly
-    NodeProperty* p = node->properties.begin;
+    Nest_NodeProperty* p = node->properties.begin;
     for (; p != node->properties.end; ++p)
         if (p->passToExpl)
             Nest_setProperty(node->explanation, *p);
@@ -66,10 +66,10 @@ int _setExplanation(Node* node, Node* explanation) {
     return res;
 }
 
-Node* Nest_createNode(int nodeKind) {
+Nest_Node* Nest_createNode(int nodeKind) {
     ASSERT(nodeKind >= 0);
 
-    Node* res = (Node*)alloc(sizeof(Node), allocNode);
+    Nest_Node* res = (Nest_Node*)alloc(sizeof(Nest_Node), allocNode);
     res->nodeKind = nodeKind;
     res->nodeError = 0;
     res->nodeSemanticallyChecked = 0;
@@ -82,12 +82,12 @@ Node* Nest_createNode(int nodeKind) {
     return res;
 }
 
-Node* Nest_cloneNode(Node* node) {
+Nest_Node* Nest_cloneNode(Nest_Node* node) {
     if (!node)
         return 0;
 
     ASSERT(node);
-    Node* res = Nest_createNode(node->nodeKind);
+    Nest_Node* res = Nest_createNode(node->nodeKind);
 
     res->location = node->location;
     res->referredNodes = node->referredNodes;
@@ -103,7 +103,7 @@ Node* Nest_cloneNode(Node* node) {
     return res;
 }
 
-void Nest_setContext(Node* node, CompilationContext* context) {
+void Nest_setContext(Nest_Node* node, Nest_CompilationContext* context) {
     if (context == node->context)
         return;
     ASSERT(context);
@@ -119,7 +119,7 @@ void Nest_setContext(Node* node, CompilationContext* context) {
     _applyModifiers(node, modTypeAfterSetContext);
 }
 
-TypeRef Nest_computeType(Node* node) {
+Nest_TypeRef Nest_computeType(Nest_Node* node) {
     if (node->type)
         return node->type;
     if (node->nodeError || node->computeTypeStarted)
@@ -145,7 +145,7 @@ TypeRef Nest_computeType(Node* node) {
     return node->type;
 }
 
-Node* Nest_semanticCheck(Node* node) {
+Nest_Node* Nest_semanticCheck(Nest_Node* node) {
     if (node->nodeSemanticallyChecked)
         return node->explanation;
     if (node->nodeError)
@@ -166,7 +166,7 @@ Node* Nest_semanticCheck(Node* node) {
     _applyModifiers(node, modTypeBeforeSemanticCheck);
 
     // Actually do the semantic check
-    Node* res = Nest_getSemanticCheckFun(node->nodeKind)(node);
+    Nest_Node* res = Nest_getSemanticCheckFun(node->nodeKind)(node);
     if (!res) {
         node->nodeError = 1;
         return 0;
@@ -185,7 +185,7 @@ Node* Nest_semanticCheck(Node* node) {
     return node->explanation;
 }
 
-void Nest_clearCompilationStateSimple(Node* node) {
+void Nest_clearCompilationStateSimple(Nest_Node* node) {
     node->nodeError = 0;
     node->nodeSemanticallyChecked = 0;
     node->computeTypeStarted = 0;
@@ -194,7 +194,7 @@ void Nest_clearCompilationStateSimple(Node* node) {
     node->type = 0;
 }
 
-void Nest_clearCompilationState(Node* node) {
+void Nest_clearCompilationState(Nest_Node* node) {
     node->nodeError = 0;
     node->nodeSemanticallyChecked = 0;
     node->computeTypeStarted = 0;
@@ -203,16 +203,16 @@ void Nest_clearCompilationState(Node* node) {
     node->type = 0;
     node->modifiers.endPtr = node->modifiers.beginPtr;
 
-    Node** pp;
+    Nest_Node** pp;
     for (pp = node->children.beginPtr; pp != node->children.endPtr; ++pp) {
-        Node* p = *pp;
+        Nest_Node* p = *pp;
         if (p)
             Nest_clearCompilationState(p);
     }
 }
 
-const char* Nest_defaultFunToString(const Node* node) {
-    const StringRef* name = Nest_getPropertyString(node, "name");
+const char* Nest_defaultFunToString(Nest_Node* node) {
+    const Nest_StringRef* name = Nest_getPropertyString(node, "name");
     if (name && name->begin)
         return name->begin;
 
@@ -227,7 +227,7 @@ const char* Nest_defaultFunToString(const Node* node) {
     unsigned i;
     unsigned numChildToReport = _myMinU(maxChildToReport, Nest_nodeArraySize(node->children));
     for (i = 0; i < numChildToReport; ++i) {
-        Node* n = node->children.beginPtr[i];
+        Nest_Node* n = node->children.beginPtr[i];
         childStrings[i] = n ? Nest_toString(n) : "<null>";
     }
 
@@ -241,7 +241,7 @@ const char* Nest_defaultFunToString(const Node* node) {
     // Write all the string attributes
     if (node->properties.begin != node->properties.end) {
         end = _appendStr(end, endOfStore, "[");
-        NodeProperty* p = node->properties.begin;
+        Nest_NodeProperty* p = node->properties.begin;
         for (; p != node->properties.end; ++p) {
             if (p->kind == propString) {
                 end = _appendStr(end, endOfStore, p->name.begin);
@@ -258,7 +258,7 @@ const char* Nest_defaultFunToString(const Node* node) {
     for (i = 0; i < numChildToReport; ++i) {
         if (i > 0)
             end = _appendStr(end, endOfStore, ", ");
-        Node* n = node->children.beginPtr[i];
+        Nest_Node* n = node->children.beginPtr[i];
         if (n)
             end = _appendStr(end, endOfStore, childStrings[i]);
     }
@@ -269,17 +269,17 @@ const char* Nest_defaultFunToString(const Node* node) {
     return res;
 }
 
-void Nest_defaultFunSetContextForChildren(Node* node) {
-    CompilationContext* childrenCtx = Nest_childrenContext(node);
-    Node** pp;
+void Nest_defaultFunSetContextForChildren(Nest_Node* node) {
+    Nest_CompilationContext* childrenCtx = Nest_childrenContext(node);
+    Nest_Node** pp;
     for (pp = node->children.beginPtr; pp != node->children.endPtr; ++pp) {
-        Node* child = *pp;
+        Nest_Node* child = *pp;
         if (child)
             Nest_setContext(child, childrenCtx);
     }
 }
 
-TypeRef Nest_defaultFunComputeType(Node* node) {
+Nest_TypeRef Nest_defaultFunComputeType(Nest_Node* node) {
     Nest_semanticCheck(node);
     return node->type;
 }

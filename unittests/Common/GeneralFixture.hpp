@@ -2,6 +2,12 @@
 
 #include "Nest/Api/Node.h"
 #include "Nest/Api/Backend.h"
+#include "Nest/Utils/cppif/Fwd.hpp"
+
+using Nest::CompilationContext;
+using Nest::Location;
+using Nest::StringRef;
+using Nest::Node;
 
 //! General fixture to be used for unit testing.
 //!
@@ -30,13 +36,13 @@ struct GeneralFixture {
     CompilationContext* globalContext_{nullptr};
 
     //! The backend mock we are using
-    unique_ptr<Backend> backend_{};
+    unique_ptr<Nest_Backend> backend_{};
 
 private:
     //! The last instance of this class
     static GeneralFixture* lastInstance_;
     //! The source code we are using for all generated code
-    SourceCode* sourceCode_{nullptr};
+    Nest_SourceCode* sourceCode_{nullptr};
     //! The last line number we've used for locations
     int lastLineNum_{0};
 };

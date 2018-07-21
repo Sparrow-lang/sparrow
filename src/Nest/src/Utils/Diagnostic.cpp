@@ -1,8 +1,9 @@
 #include "Nest/src/StdInc.hpp"
 #include "Nest/Utils/Diagnostic.hpp"
-#include "Nest/Utils/ConsoleColors.hpp"
+#include "Nest/src/Utils/ConsoleColors.hpp"
 #include "Nest/Api/StringRef.h"
-#include "Nest/Utils/NodeUtils.h"
+#include "Nest/Utils/cppif/NodeHandle.hpp"
+#include "Nest/Utils/cppif/StringRef.hpp"
 #include "Nest/Api/SourceCode.h"
 #include "Nest/Api/Type.h"
 
@@ -12,8 +13,10 @@ static int _reportingEnabled = 1;
 static int _numErrors = 0;
 static int _numSupppresedErrors = 0;
 
+using namespace Nest;
+
 namespace {
-void doReport(const Location& loc, DiagnosticSeverity severity, const string& message) {
+void doReport(const Location& loc, Nest_DiagnosticSeverity severity, const string& message) {
     cerr << endl;
 
     // Write location: 'filename(line:col) : '
@@ -80,7 +83,7 @@ inline const char* _evalModeToString(EvalMode mode) {
 }
 } // namespace
 
-void Nest_reportDiagnostic(Location loc, DiagnosticSeverity severity, const char* message) {
+void Nest_reportDiagnostic(Location loc, Nest_DiagnosticSeverity severity, const char* message) {
     // If error reporting is paused, allow only internal errors
     if (severity != diagInternalError && !_reportingEnabled) {
         if (severity == diagError)
@@ -100,7 +103,7 @@ void Nest_reportDiagnostic(Location loc, DiagnosticSeverity severity, const char
     //     exit(-1);
 }
 
-void Nest_reportFmt(Location loc, DiagnosticSeverity severity, const char* fmt, ...) {
+void Nest_reportFmt(Location loc, Nest_DiagnosticSeverity severity, const char* fmt, ...) {
     static const int maxMessageLen = 1024;
 
     char buffer[maxMessageLen];
@@ -129,6 +132,8 @@ void Nest_resetDiagnostic() {
     _numSupppresedErrors = 0;
 }
 
+namespace Nest {
+
 ostream& operator<<(ostream& os, const Location* loc) {
     os << (loc->sourceCode ? loc->sourceCode->url : "<no-source>");
     if (loc->start.line == loc->end.line)
@@ -139,9 +144,13 @@ ostream& operator<<(ostream& os, const Location* loc) {
     return os;
 }
 ostream& operator<<(ostream& os, const Location& loc) { return os << &loc; }
-ostream& operator<<(ostream& os, const Node* n) {
+ostream& operator<<(ostream& os, Node* n) {
+    // TODO NOLINT
+    return os << NodeHandle(const_cast<Nest_Node*>(n));
+}
+ostream& operator<<(ostream& os, NodeHandle n) {
     if (n)
-        os << Nest_toString(n);
+        os << n.toString();
     return os;
 }
 
@@ -157,3 +166,5 @@ ostream& operator<<(ostream& os, EvalMode mode) {
     os << _evalModeToString(mode);
     return os;
 }
+
+} // namespace Nest

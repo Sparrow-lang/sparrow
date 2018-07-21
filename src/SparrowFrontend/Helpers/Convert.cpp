@@ -40,7 +40,7 @@ ConversionResult::ConversionResult(ConversionType convType)
     : convType_(convType) {}
 
 ConversionResult::ConversionResult(
-        ConversionType convType, ConvAction action, const SourceCode* sourceCode)
+        ConversionType convType, ConvAction action, const Nest_SourceCode* sourceCode)
     : convType_(convType)
     , sourceCode_(sourceCode) {
 
@@ -48,7 +48,7 @@ ConversionResult::ConversionResult(
         convertActions_.push_back(action);
 }
 ConversionResult::ConversionResult(const ConversionResult& nextConv, ConversionType convType,
-        ConvAction action, const SourceCode* sourceCode)
+        ConvAction action, const Nest_SourceCode* sourceCode)
     : convType_(combine(convType, nextConv.conversionType()))
     , sourceCode_(sourceCode) {
 
@@ -86,7 +86,7 @@ Node* applyOnce(Node* src, ConvAction action) {
     case ActionType::addRef: {
         TypeRef srcT = Feather_removeRef(destT);
         Node* var = Feather_mkVar(
-                src->location, fromCStr("$tmpForRef"), Feather_mkTypeNode(src->location, srcT));
+                src->location, StringRef("$tmpForRef"), Feather_mkTypeNode(src->location, srcT));
         Node* varRef = Feather_mkVarRef(src->location, var);
         Node* store = Feather_mkMemStore(src->location, src, varRef);
         Node* cast =
@@ -139,7 +139,7 @@ struct ConvertService : IConvertService {
             Node* arg, TypeRef destType, ConversionFlags flags = flagsDefault) final;
 
 private:
-    using KeyType = std::tuple<TypeRef, TypeRef, int, const SourceCode*>;
+    using KeyType = std::tuple<TypeRef, TypeRef, int, const Nest_SourceCode*>;
 
     //! Cache of all the conversions tried so far
     unordered_map<KeyType, ConversionResult> conversionMap_;
@@ -462,7 +462,7 @@ ConversionResult ConvertService::checkConversionCtor(
 
     // If the class is not public, store the current source code for this conversion
     // This conversion is not ok in all contexts
-    SourceCode* sourceCode = nullptr;
+    Nest_SourceCode* sourceCode = nullptr;
     if (!isPublic(destClass))
         sourceCode = context->sourceCode;
 

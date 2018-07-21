@@ -7,9 +7,14 @@
 #include "Nest/Api/StringRef.h"
 #include "Nest/Api/Location.h"
 #include "Nest/Utils/NodeUtils.h"
+#include "Nest/Utils/cppif/StringRef.hpp"
 
 using Node = struct Nest_Node;
 using CompilationContext = struct Nest_CompilationContext;
+
+using Nest::Location;
+using Nest::StringRef;
+using Nest::TypeRef;
 
 /// Getter for the value memory buffer of this value
 template <typename T> T* Feather_getCtValueData(Node* ctVal) {

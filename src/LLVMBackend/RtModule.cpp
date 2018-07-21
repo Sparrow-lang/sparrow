@@ -20,7 +20,7 @@ using namespace Feather;
 RtModule::RtModule(const string& name, const string& filename)
     : Module(name)
     , llvmModule_(new llvm::Module(name, *llvmContext_)) {
-    CompilerSettings& s = *Nest_compilerSettings();
+    auto& s = *Nest_compilerSettings();
 
     llvmModule_->setDataLayout(s.dataLayout_);
     llvmModule_->setTargetTriple(s.targetTriple_);

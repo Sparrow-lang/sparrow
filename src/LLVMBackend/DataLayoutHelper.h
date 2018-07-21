@@ -7,6 +7,8 @@
 FWD_CLASS1(llvm, LLVMContext);
 FWD_CLASS1(llvm, Module);
 
+using Nest::TypeRef;
+
 namespace LLVMB {
 /// Class that is responsible for computing the sizeOf and alignOf data types
 class DataLayoutHelper {

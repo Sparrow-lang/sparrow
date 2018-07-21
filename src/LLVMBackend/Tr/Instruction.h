@@ -1,12 +1,17 @@
 #pragma once
 
-#include "Nest/Utils/NodeVector.hpp"
+#include "Nest/Utils/cppif/NodeUtils.hpp"
 
 FWD_CLASS2(LLVMB, Tr, Scope);
 FWD_CLASS2(LLVMB, Tr, TrContext);
 
 namespace LLVMB {
 namespace Tr {
+
+using Nest::Node;
+using Nest::NodeVector;
+
+
 /// Represents a Instruction in function body, inside a Scope
 ///
 /// An object of this class adds itself automatically to the Scope on constructor and removes itself

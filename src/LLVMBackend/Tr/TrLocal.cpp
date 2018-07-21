@@ -13,8 +13,9 @@
 #include "Nest/Api/Type.h"
 #include "Nest/Api/SourceCode.h"
 #include "Nest/Utils/Diagnostic.hpp"
-#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Utils/cppif/StringRef.hpp"
 #include "Nest/Utils/NodeUtils.h"
+#include "Nest/Utils/cppif/NodeHandle.hpp"
 
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
@@ -59,7 +60,7 @@ Node* CondDestrAct_SemanticCheck(Node* node) {
 }
 
 Node* mkDestructActionForConditional(TypeRef resType, llvm::Value* cond,
-        NodeRange alt1DestructActions, NodeRange alt2DestructActions) {
+        Nest_NodeRange alt1DestructActions, Nest_NodeRange alt2DestructActions) {
     // Make sure the node kind is registered
     if (nkLLVMDestructActionForConditional == 0) {
         nkLLVMDestructActionForConditional =
@@ -245,7 +246,7 @@ llvm::Value* handleNativeFunCall(StringRef native, Node* funCall, TrContext& con
 #define CONSTf(val) llvm::ConstantFP::get(Tf(), val)
 #define CONSTd(val) llvm::ConstantFP::get(llvm::Type::getDoubleTy(context.llvmContext()), val)
 
-    NodeRange args = all(funCall->children);
+    Nest_NodeRange args = all(funCall->children);
     if (Nest_nodeRangeSize(args) == 1) {
         if (native == "_zero_init_1")
             return B().CreateStore(CONSTi(1, 0), ARG(0));
@@ -764,8 +765,8 @@ llvm::Value* translateFunCall(Node* node, TrContext& context) {
     }
 
     // Check for intrinsic native functions
-    const StringRef* nativeName = Nest_getPropertyString(funDecl, propNativeName);
-    if (nativeName && size(*nativeName) > 0 && nativeName->begin[0] == '$') {
+    const Nest_StringRef* nativeName = Nest_getPropertyString(funDecl, propNativeName);
+    if (nativeName && StringRef(*nativeName) && nativeName->begin[0] == '$') {
         if (*nativeName == "$logicalOr")
             return handleLogicalOr(node, context);
         if (*nativeName == "$logicalAnd")
@@ -773,7 +774,7 @@ llvm::Value* translateFunCall(Node* node, TrContext& context) {
         if (*nativeName == "$funptr")
             return handleFunPtr(node, context);
     }
-    if (nativeName && size(*nativeName) > 0 && nativeName->begin[0] == '_') {
+    if (nativeName && StringRef(*nativeName) && nativeName->begin[0] == '_') {
         context.ensureInsertionPoint();
         auto res = handleNativeFunCall(*nativeName, node, context);
         if (res)
@@ -1283,7 +1284,7 @@ llvm::Value* Tr::translateNode(Node* node, TrContext& context) {
         else {
             REP_INTERNAL(node->location,
                     "Don't know how to translate (locally) a node of this kind (%1%)") %
-                    Nest_nodeKindName(node);
+                    NodeHandle(node).kindName();
             return nullptr;
         }
     }

@@ -6,4 +6,3 @@ struct Nest_StringRef {
     const char* end;   ///< One past the last character of the string
 };
 typedef struct Nest_StringRef Nest_StringRef;
-typedef struct Nest_StringRef StringRef;

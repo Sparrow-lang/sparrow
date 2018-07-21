@@ -12,124 +12,121 @@ extern "C" {
 //
 
 /// Returns a string description out of the given node
-const char* Nest_toString(const Node* node);
+const char* Nest_toString(Nest_Node* node);
 
 /// Returns a more detailed string description out of the given node
-const char* Nest_toStringEx(const Node* node);
-
-/// Returns a string description out of the given node range
-const char* Nest_rangeToString(NodeRange nodes);
+const char* Nest_toStringEx(Nest_Node* node);
 
 /// Getter for the name of the node kind for the given node
-const char* Nest_nodeKindName(const Node* node);
+const char* Nest_nodeKindName(Nest_Node* node);
 
 /// Getter for the children of a node
-NodeRange Nest_nodeChildren(Node* node);
+Nest_NodeRange Nest_nodeChildren(Nest_Node* node);
 
 /// Getter for the particular child node at a particular index of the given node,
-Node* Nest_getNodeChild(Node* node, unsigned int index);
+Nest_Node* Nest_getNodeChild(Nest_Node* node, unsigned int index);
 
 /// Getter for the list of nodes referred by a node
-NodeRange Nest_nodeReferredNodes(Node* node);
+Nest_NodeRange Nest_nodeReferredNodes(Nest_Node* node);
 
 /// Getter for the particular referred node at a particular index of the given node,
-Node* Nest_getReferredNode(Node* node, unsigned int index);
+Nest_Node* Nest_getReferredNode(Nest_Node* node, unsigned int index);
 
 /// Sets the children of the given node
-void Nest_nodeSetChildren(Node* node, NodeRange children);
+void Nest_nodeSetChildren(Nest_Node* node, Nest_NodeRange children);
 
 /// Adds a new node as a child to the given node
-void Nest_nodeAddChild(Node* node, Node* child);
+void Nest_nodeAddChild(Nest_Node* node, Nest_Node* child);
 
 /// Adds a node range as children to the given node
-void Nest_nodeAddChildren(Node* node, NodeRange children);
+void Nest_nodeAddChildren(Nest_Node* node, Nest_NodeRange children);
 
 /// Sets the referred nodes of the given node
-void Nest_nodeSetReferredNodes(Node* node, NodeRange nodes);
+void Nest_nodeSetReferredNodes(Nest_Node* node, Nest_NodeRange nodes);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Node properties
 //
 
-void Nest_setProperty(Node* node, NodeProperty prop);
-void Nest_setPropertyInt(Node* node, const char* name, int val);
-void Nest_setPropertyString(Node* node, const char* name, StringRef val);
-void Nest_setPropertyNode(Node* node, const char* name, Node* val);
-void Nest_setPropertyType(Node* node, const char* name, TypeRef val);
-void Nest_setPropertyPtr(Node* node, const char* name, void* val);
+void Nest_setProperty(Nest_Node* node, Nest_NodeProperty prop);
+void Nest_setPropertyInt(Nest_Node* node, const char* name, int val);
+void Nest_setPropertyString(Nest_Node* node, const char* name, Nest_StringRef val);
+void Nest_setPropertyNode(Nest_Node* node, const char* name, Nest_Node* val);
+void Nest_setPropertyType(Nest_Node* node, const char* name, Nest_TypeRef val);
+void Nest_setPropertyPtr(Nest_Node* node, const char* name, void* val);
 
-void Nest_setPropertyExplInt(Node* node, const char* name, int val);
-void Nest_setPropertyExplString(Node* node, const char* name, StringRef val);
-void Nest_setPropertyExplNode(Node* node, const char* name, Node* val);
-void Nest_setPropertyExplType(Node* node, const char* name, TypeRef val);
-void Nest_setPropertyExplPtr(Node* node, const char* name, void* val);
+void Nest_setPropertyExplInt(Nest_Node* node, const char* name, int val);
+void Nest_setPropertyExplString(Nest_Node* node, const char* name, Nest_StringRef val);
+void Nest_setPropertyExplNode(Nest_Node* node, const char* name, Nest_Node* val);
+void Nest_setPropertyExplType(Nest_Node* node, const char* name, Nest_TypeRef val);
+void Nest_setPropertyExplPtr(Nest_Node* node, const char* name, void* val);
 
-int Nest_hasProperty(const Node* node, const char* name);
-const int* Nest_getPropertyInt(const Node* node, const char* name);
-const StringRef* Nest_getPropertyString(const Node* node, const char* name);
-StringRef Nest_getPropertyStringDeref(const Node* node, const char* name);
-Node* const* Nest_getPropertyNode(const Node* node, const char* name);
-const TypeRef* Nest_getPropertyType(const Node* node, const char* name);
-void* const* Nest_getPropertyPtr(const Node* node, const char* name);
+int Nest_hasProperty(Nest_Node* node, const char* name);
+const int* Nest_getPropertyInt(Nest_Node* node, const char* name);
+const Nest_StringRef* Nest_getPropertyString(Nest_Node* node, const char* name);
+Nest_StringRef Nest_getPropertyStringDeref(Nest_Node* node, const char* name);
+Nest_Node* const* Nest_getPropertyNode(Nest_Node* node, const char* name);
+const Nest_TypeRef* Nest_getPropertyType(Nest_Node* node, const char* name);
+void* const* Nest_getPropertyPtr(Nest_Node* node, const char* name);
 
-int Nest_getPropertyDefaultInt(const Node* node, const char* name, int defaultVal);
-StringRef Nest_getPropertyDefaultString(const Node* node, const char* name, StringRef defaultVal);
-Node* Nest_getPropertyDefaultNode(const Node* node, const char* name, Node* defaultVal);
-TypeRef Nest_getPropertyDefaultType(const Node* node, const char* name, TypeRef defaultVal);
-void* Nest_getPropertyDefaultPtr(const Node* node, const char* name, void* defaultVal);
+int Nest_getPropertyDefaultInt(Nest_Node* node, const char* name, int defaultVal);
+Nest_StringRef Nest_getPropertyDefaultString(Nest_Node* node, const char* name, Nest_StringRef defaultVal);
+Nest_Node* Nest_getPropertyDefaultNode(Nest_Node* node, const char* name, Nest_Node* defaultVal);
+Nest_TypeRef Nest_getPropertyDefaultType(Nest_Node* node, const char* name, Nest_TypeRef defaultVal);
+void* Nest_getPropertyDefaultPtr(Nest_Node* node, const char* name, void* defaultVal);
 
-int Nest_getCheckPropertyInt(const Node* node, const char* name);
-StringRef Nest_getCheckPropertyString(const Node* node, const char* name);
-Node* Nest_getCheckPropertyNode(const Node* node, const char* name);
-TypeRef Nest_getCheckPropertyType(const Node* node, const char* name);
-void* Nest_getCheckPropertyPtr(const Node* node, const char* name);
+int Nest_getCheckPropertyInt(Nest_Node* node, const char* name);
+Nest_StringRef Nest_getCheckPropertyString(Nest_Node* node, const char* name);
+Nest_Node* Nest_getCheckPropertyNode(Nest_Node* node, const char* name);
+Nest_TypeRef Nest_getCheckPropertyType(Nest_Node* node, const char* name);
+void* Nest_getCheckPropertyPtr(Nest_Node* node, const char* name);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Compilation processes
 //
 
 /// Add a modifier to this class; this modifier will be called before and after compilation
-void Nest_addModifier(Node* node, Modifier* mod);
+void Nest_addModifier(Nest_Node* node, Nest_Modifier* mod);
 
 /// Returns the compilation context for the children of this node
-CompilationContext* Nest_childrenContext(const Node* node);
+Nest_CompilationContext* Nest_childrenContext(Nest_Node* node);
 
 /// Getter for the explanation of this node, if it has one; otherwise returns this node
-Node* Nest_explanation(Node* node);
+Nest_Node* Nest_explanation(Nest_Node* node);
 
 /// Returns 'src' if the given node is of the specified type; null otherwise
-Node* Nest_ofKind(Node* src, int desiredNodeKind);
+Nest_Node* Nest_ofKind(Nest_Node* src, int desiredNodeKind);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Node array
 //
 
-NodeArray Nest_allocNodeArray(unsigned capacity);
-void Nest_freeNodeArray(NodeArray arr);
-void Nest_reserveNodeArray(NodeArray* arr, unsigned capacity);
-void Nest_resizeNodeArray(NodeArray* arr, unsigned size);
+Nest_NodeArray Nest_allocNodeArray(unsigned capacity);
+void Nest_freeNodeArray(Nest_NodeArray arr);
+void Nest_reserveNodeArray(Nest_NodeArray* arr, unsigned capacity);
+void Nest_resizeNodeArray(Nest_NodeArray* arr, unsigned size);
 
-void Nest_appendNodeToArray(NodeArray* arr, Node* node);
-void Nest_appendNodesToArray(NodeArray* arr, NodeRange nodes);
+void Nest_appendNodeToArray(Nest_NodeArray* arr, Nest_Node* node);
+void Nest_appendNodesToArray(Nest_NodeArray* arr, Nest_NodeRange nodes);
 
-void Nest_insertNodeIntoArray(NodeArray* arr, unsigned index, Node* node);
-void Nest_insertNodesIntoArray(NodeArray* arr, unsigned index, NodeRange nodes);
+void Nest_insertNodeIntoArray(Nest_NodeArray* arr, unsigned index, Nest_Node* node);
+void Nest_insertNodesIntoArray(Nest_NodeArray* arr, unsigned index, Nest_NodeRange nodes);
 
-void Nest_eraseNodeFromArray(NodeArray* arr, unsigned index);
+void Nest_eraseNodeFromArray(Nest_NodeArray* arr, unsigned index);
 
-NodeRange Nest_getNodeRangeFromArray(NodeArray arr);
+Nest_NodeRange Nest_getNodeRangeFromArray(Nest_NodeArray arr);
 
-unsigned Nest_nodeArraySize(NodeArray arr);
-unsigned Nest_nodeArrayCapacity(NodeArray arr);
+unsigned Nest_nodeArraySize(Nest_NodeArray arr);
+unsigned Nest_nodeArrayCapacity(Nest_NodeArray arr);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Node range
 //
 
-unsigned Nest_nodeRangeSize(NodeRange nodes);
-unsigned Nest_nodeRangeMSize(NodeRangeM nodes);
+unsigned Nest_nodeRangeSize(Nest_NodeRange nodes);
+unsigned Nest_nodeRangeMSize(Nest_NodeRangeM nodes);
 
-NodeRange Nest_NodeRagenFromCArray(Node** nodes, unsigned count);
+Nest_NodeRange Nest_NodeRagenFromCArray(Nest_Node** nodes, unsigned count);
 
 #ifdef __cplusplus
 }

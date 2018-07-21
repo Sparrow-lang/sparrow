@@ -38,13 +38,13 @@ public:
     ConversionResult();
     ConversionResult(ConversionType convType);
     ConversionResult(
-            ConversionType convType, ConvAction action, const SourceCode* sourceCode = nullptr);
+            ConversionType convType, ConvAction action, const Nest_SourceCode* sourceCode = nullptr);
     //! Chains current conversion with the given 'nextConv'
     ConversionResult(const ConversionResult& nextConv, ConversionType convType, ConvAction action,
-            const SourceCode* sourceCode = nullptr);
+            const Nest_SourceCode* sourceCode = nullptr);
 
     ConversionType conversionType() const { return convType_; }
-    const SourceCode* sourceCode() const { return sourceCode_; }
+    const Nest_SourceCode* sourceCode() const { return sourceCode_; }
     const vector<ConvAction>& convertActions() const { return convertActions_; };
 
     Node* apply(Node* src) const;
@@ -58,7 +58,7 @@ private:
     //! The source code needed for the conversion.
     //! If this is nullptr, the conversion can be applied from any source code.
     //! If this is not null, the conversion can be applied only in the given source code.
-    const SourceCode* sourceCode_{nullptr};
+    const Nest_SourceCode* sourceCode_{nullptr};
     //! The actions needed to convert from one type to the other
     vector<ConvAction> convertActions_{};
 };

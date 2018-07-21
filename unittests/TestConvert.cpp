@@ -9,7 +9,7 @@
 #include "SparrowFrontend/Helpers/Generics.h"
 #include "SparrowFrontend/Helpers/StdDef.h"
 #include "SparrowFrontend/SparrowFrontendTypes.h"
-#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Utils/cppif/StringRef.hpp"
 #include "Nest/Utils/Diagnostic.hpp"
 
 using namespace SprFrontend;
@@ -27,7 +27,7 @@ template <> struct Arbitrary<ConversionType> {
 
 struct OverloadServiceMock : IOverloadService {
     Node* selectOverload(CompilationContext* context, const Location& loc, EvalMode evalMode,
-            NodeRange decls, NodeRange args, OverloadReporting errReporting,
+            Nest_NodeRange decls, Nest_NodeRange args, OverloadReporting errReporting,
             StringRef funName) final {
         return nullptr;
     }
@@ -102,12 +102,12 @@ ConvertFixture::ConvertFixture() {
     using TypeFactory::g_dataTypeDecls;
 
     // Create the basic types
-    g_dataTypeDecls.push_back(createNativeDatatypeNode(fromCStr("i8"), globalContext_));
-    g_dataTypeDecls.push_back(createNativeDatatypeNode(fromCStr("i16"), globalContext_));
-    g_dataTypeDecls.push_back(createNativeDatatypeNode(fromCStr("i32"), globalContext_));
-    Node* fooTypeDecl = createDatatypeNode(fromCStr("FooType"), globalContext_);
-    Node* barTypeDecl = createDatatypeNode(fromCStr("BarType"), globalContext_);
-    Node* nullTypeDecl = createDatatypeNode(fromCStr("NullType"), globalContext_);
+    g_dataTypeDecls.push_back(createNativeDatatypeNode(StringRef("i8"), globalContext_));
+    g_dataTypeDecls.push_back(createNativeDatatypeNode(StringRef("i16"), globalContext_));
+    g_dataTypeDecls.push_back(createNativeDatatypeNode(StringRef("i32"), globalContext_));
+    Node* fooTypeDecl = createDatatypeNode(StringRef("FooType"), globalContext_);
+    Node* barTypeDecl = createDatatypeNode(StringRef("BarType"), globalContext_);
+    Node* nullTypeDecl = createDatatypeNode(StringRef("NullType"), globalContext_);
     g_dataTypeDecls.push_back(fooTypeDecl);
     g_dataTypeDecls.push_back(barTypeDecl);
     g_dataTypeDecls.push_back(nullTypeDecl);
@@ -122,13 +122,13 @@ ConvertFixture::ConvertFixture() {
     SprFrontend::StdDef::typeNull = nullType_;
 
     // Ensure we set the Type type -- but don't add it to our conversion types
-    Node* typeDecl = createDatatypeNode(fromCStr("Type"), globalContext_);
+    Node* typeDecl = createDatatypeNode(StringRef("Type"), globalContext_);
     SprFrontend::StdDef::typeType = Feather_getDataType(typeDecl, 0, modeCt);
     REQUIRE(Nest_computeType(typeDecl) != nullptr);
 
     // Create concept types
-    Node* concept1 = createSimpleConcept(fromCStr("Concept1"), globalContext_);
-    Node* concept2 = createSimpleConcept(fromCStr("Concept2"), globalContext_);
+    Node* concept1 = createSimpleConcept(StringRef("Concept1"), globalContext_);
+    Node* concept2 = createSimpleConcept(StringRef("Concept2"), globalContext_);
     REQUIRE(Nest_computeType(concept1) != nullptr);
     REQUIRE(Nest_computeType(concept2) != nullptr);
     g_conceptDecls.push_back(concept1);

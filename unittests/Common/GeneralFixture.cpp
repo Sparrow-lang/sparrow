@@ -16,7 +16,7 @@
 #include "Nest/Api/NodeKindRegistrar.h"
 #include "Nest/Utils/Alloc.h"
 #include "Nest/Utils/NodeUtils.h"
-#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Utils/cppif/StringRef.hpp"
 #include "Nest/Utils/CompilerSettings.hpp"
 
 GeneralFixture* GeneralFixture::lastInstance_{nullptr};
@@ -70,7 +70,7 @@ Location GeneralFixture::createLocation() {
     // If we don't have a sourceCode yet, create one
     if (!sourceCode_) {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
-        sourceCode_ = (SourceCode*)alloc(sizeof(SourceCode), allocGeneral);
+        sourceCode_ = (Nest_SourceCode*)alloc(sizeof(Nest_SourceCode), allocGeneral);
         sourceCode_->kind = SprFe_kindSparrowSourceCode;
         sourceCode_->url = "$testFile$.spr";
         sourceCode_->mainNode = nullptr;
@@ -80,7 +80,7 @@ Location GeneralFixture::createLocation() {
 }
 
 Node* GeneralFixture::createDatatypeNode(StringRef name, CompilationContext* ctx) {
-    NodeRange fields{nullptr, nullptr};
+    Nest_NodeRange fields{nullptr, nullptr};
     auto res = Feather_mkClass(createLocation(), name, fields);
     if (ctx)
         Nest_setContext(res, ctx);
@@ -94,7 +94,7 @@ Node* GeneralFixture::createNativeDatatypeNode(StringRef name, CompilationContex
 }
 
 Node* GeneralFixture::createSimpleConcept(StringRef name, CompilationContext* ctx) {
-    auto res = SprFrontend::mkSprConcept(createLocation(), name, fromCStr("x"), nullptr, nullptr);
+    auto res = SprFrontend::mkSprConcept(createLocation(), name, StringRef("x"), nullptr, nullptr);
     if (ctx)
         Nest_setContext(res, ctx);
     return res;

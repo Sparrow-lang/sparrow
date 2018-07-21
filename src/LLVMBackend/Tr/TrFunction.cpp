@@ -14,7 +14,7 @@
 #include "Nest/Api/Type.h"
 #include "Nest/Api/Compiler.h"
 #include "Nest/Utils/Diagnostic.hpp"
-#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Utils/cppif/StringRef.hpp"
 #include "Nest/Utils/NodeUtils.h"
 #include "Nest/Utils/CompilerSettings.hpp"
 
@@ -32,11 +32,11 @@ llvm::Function* createFunDecl(Node* node, GlobalContext& ctx, TranslatedFunInfo&
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
     auto* funType = static_cast<llvm::FunctionType*>(getLLVMType(node->type, ctx));
 
-    const StringRef* nativeName = Nest_getPropertyString(node, propNativeName);
+    const Nest_StringRef* nativeName = Nest_getPropertyString(node, propNativeName);
     Node* body = Feather_Function_body(node);
 
     // If we don't already have a name for this function, create one
-    if (size(tfi.name_) == 0) {
+    if (tfi.name_.empty()) {
         if (nativeName)
             tfi.name_ = *nativeName;
         else {
@@ -49,7 +49,7 @@ llvm::Function* createFunDecl(Node* node, GlobalContext& ctx, TranslatedFunInfo&
                 static int counter = 0;
                 ostringstream oss;
                 oss << Feather_getName(node) << "." << counter++;
-                tfi.name_ = dupString(oss.str());
+                tfi.name_ = StringRef(oss.str()).dup();
             }
         }
         // Remember that we've used this name (only if we have body)
@@ -66,7 +66,7 @@ llvm::Function* createFunDecl(Node* node, GlobalContext& ctx, TranslatedFunInfo&
         if (!Nest_semanticCheck(node))
             return nullptr;
 
-        CompilerSettings& s = *Nest_compilerSettings();
+        auto& s = *Nest_compilerSettings();
         int lineDiff = node->location.end.line - node->location.start.line;
         bool preventInline =
                 lineDiff > s.maxCountForInline_ || Nest_hasProperty(node, propNoInline);
@@ -172,7 +172,7 @@ void createFunDefinition(
     ASSERT(decl->arg_size() == Feather_Function_numParameters(node));
     size_t idx = 0;
     for (auto argIt = decl->arg_begin(); argIt != decl->arg_end(); ++argIt, ++idx) {
-        argIt->setName(toString(Feather_getName(Feather_Function_getParameter(node, idx))));
+        argIt->setName(StringRef(Feather_getName(Feather_Function_getParameter(node, idx))).toStd());
     }
 
     // Create the block in which we insert the code
@@ -196,7 +196,7 @@ void createFunDefinition(
             REP_INTERNAL(paramNode->location, "Expected Var node; found %1%") % paramNode;
         ASSERT(param);
         llvm::AllocaInst* newVar = new llvm::AllocaInst(
-                argIt->getType(), 0, toString(Feather_getName(param)) + ".addr", bodyBlock);
+                argIt->getType(), 0, StringRef(Feather_getName(param)).toStd() + ".addr", bodyBlock);
         newVar->setAlignment(Nest_getCheckPropertyInt(param, "alignment"));
         new llvm::StoreInst(argIt, newVar, bodyBlock); // Copy the value of the parameter into it
         Tr::setValue(localCtx, *param, newVar);        // We point now to the new temp variable

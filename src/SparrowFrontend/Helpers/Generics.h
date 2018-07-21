@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SparrowFrontend/NodeCommonsH.h"
-#include "Nest/Utils/NodeUtils.hpp"
+#include "Nest/Utils/cppif/NodeUtils.hpp"
 
 namespace SprFrontend {
 
@@ -79,10 +79,10 @@ struct InstNode {
     }
     operator Node*() const { return node; }
 
-    Node* boundVarsNode() const { return at(node->children, 0); }
+    Node* boundVarsNode() const { return Nest::at(node->children, 0); }
 
-    NodeRange boundValues() const { return all(node->referredNodes); }
-    NodeRangeM boundValuesM() const { return allM(node->referredNodes); }
+    Nest_NodeRange boundValues() const { return Nest::all(node->referredNodes); }
+    Nest_NodeRangeM boundValuesM() const { return Nest::allM(node->referredNodes); }
 
     bool isValid() const { return 0 != Nest_getCheckPropertyInt(node, "instIsValid"); }
     void setValid(bool valid = true) { Nest_setPropertyInt(node, "instIsValid", valid ? 1 : 0); }
@@ -108,11 +108,11 @@ struct InstSetNode {
     }
     operator Node*() const { return node; }
 
-    Node* ifClause() const { return at(node->children, 0); }
-    NodeArray& instantiations() const { return at(node->children, 1)->children; }
+    Node* ifClause() const { return Nest::at(node->children, 0); }
+    Nest_NodeArray& instantiations() const { return Nest::at(node->children, 1)->children; }
 
-    Node* parentNode() const { return at(node->referredNodes, 0); }
-    NodeRange params() const { return all(at(node->referredNodes, 1)->children); }
+    Node* parentNode() const { return Nest::at(node->referredNodes, 0); }
+    Nest_NodeRange params() const { return Nest::all(Nest::at(node->referredNodes, 1)->children); }
 };
 
 struct GenericFunNode {
@@ -124,10 +124,10 @@ struct GenericFunNode {
     }
     operator Node*() const { return node; }
 
-    InstSetNode instSet() const { return at(node->children, 0); }
+    InstSetNode instSet() const { return Nest::at(node->children, 0); }
 
-    Node* originalFun() const { return at(node->referredNodes, 0); }
-    NodeRange originalParams() const { return all(at(node->referredNodes, 1)->children); }
+    Node* originalFun() const { return Nest::at(node->referredNodes, 0); }
+    Nest_NodeRange originalParams() const { return Nest::all(Nest::at(node->referredNodes, 1)->children); }
 };
 
 struct GenericClassNode {
@@ -139,9 +139,9 @@ struct GenericClassNode {
     }
     operator Node*() const { return node; }
 
-    InstSetNode instSet() const { return at(node->children, 0); }
+    InstSetNode instSet() const { return Nest::at(node->children, 0); }
 
-    Node* originalClass() const { return at(node->referredNodes, 0); }
+    Node* originalClass() const { return Nest::at(node->referredNodes, 0); }
 };
 
 struct GenericPackageNode {
@@ -153,9 +153,9 @@ struct GenericPackageNode {
     }
     operator Node*() const { return node; }
 
-    InstSetNode instSet() const { return at(node->children, 0); }
+    InstSetNode instSet() const { return Nest::at(node->children, 0); }
 
-    Node* originalPackage() const { return at(node->referredNodes, 0); }
+    Node* originalPackage() const { return Nest::at(node->referredNodes, 0); }
 };
 
 struct ConceptNode {
@@ -167,11 +167,11 @@ struct ConceptNode {
     }
     operator Node*() const { return node; }
 
-    Node* baseConcept() const { return at(node->children, 0); }
-    Node* ifClause() const { return at(node->children, 1); }
-    InstSetNode instSet() const { return at(node->children, 2); }
+    Node* baseConcept() const { return Nest::at(node->children, 0); }
+    Node* ifClause() const { return Nest::at(node->children, 1); }
+    InstSetNode instSet() const { return Nest::at(node->children, 2); }
 
-    Node* originalClass() const { return at(node->referredNodes, 0); }
+    Node* originalClass() const { return Nest::at(node->referredNodes, 0); }
 };
 
 /**
@@ -200,7 +200,7 @@ Node* checkCreateGenericFun(Node* originalFun, Node* parameters, Node* ifClause)
  *
  * @return The params for the generic function.
  */
-NodeRange genericFunParams(Node* genericFun);
+Nest_NodeRange genericFunParams(Node* genericFun);
 /**
  * Returns the parameters that the caller needs to fill to instantiate/call the generic.
  *
@@ -210,7 +210,7 @@ NodeRange genericFunParams(Node* genericFun);
  *
  * @return The params for the generic class.
  */
-NodeRange genericClassParams(Node* genericClass);
+Nest_NodeRange genericClassParams(Node* genericClass);
 /**
  * Returns the parameters that the caller needs to fill to instantiate/call the generic.
  *
@@ -220,7 +220,7 @@ NodeRange genericClassParams(Node* genericClass);
  *
  * @return The params for the generic package.
  */
-NodeRange genericPackageParams(Node* genericPackage);
+Nest_NodeRange genericPackageParams(Node* genericPackage);
 
 /**
  * Search an instantiation in an instSet.
@@ -238,7 +238,7 @@ NodeRange genericPackageParams(Node* genericPackage);
  *
  * Called only for generic functions.
  */
-InstNode searchInstantiation(InstSetNode instSet, NodeRange values);
+InstNode searchInstantiation(InstSetNode instSet, Nest_NodeRange values);
 
 /**
  * Create a new (partial) instantiation node.
@@ -255,7 +255,7 @@ InstNode searchInstantiation(InstSetNode instSet, NodeRange values);
  *
  * @return The new instantiation node
  */
-InstNode createNewInstantiation(InstSetNode instSet, NodeRange values, EvalMode evalMode);
+InstNode createNewInstantiation(InstSetNode instSet, Nest_NodeRange values, EvalMode evalMode);
 
 /**
  * Create a bound var for the given parameter / bound value
@@ -318,7 +318,7 @@ bool canInstantiate(InstNode inst, InstSetNode instSet);
  *
  * @return The inst node if the instantiation succeeds; null if it fails
  */
-InstNode canInstantiate(InstSetNode instSet, NodeRange values, EvalMode evalMode);
+InstNode canInstantiate(InstSetNode instSet, Nest_NodeRange values, EvalMode evalMode);
 
 /// Given a generic param type and the corresponding bound value, determine if
 /// the parameter is a concept parameter.

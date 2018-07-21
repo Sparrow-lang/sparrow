@@ -1,6 +1,6 @@
 #pragma once
 
-typedef struct Nest_Node Node;
+using Nest::Node;
 
 namespace LLVMB {
 namespace Tr {

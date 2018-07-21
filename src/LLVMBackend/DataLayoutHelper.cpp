@@ -6,12 +6,12 @@
 #include "Feather/Utils/FeatherUtils.hpp"
 
 #include "Nest/Api/Node.h"
-#include "Nest/Utils/NodeUtils.hpp"
+#include "Nest/Utils/cppif/NodeUtils.hpp"
 #include "Nest/Api/Type.h"
 #include "Nest/Utils/CompilerSettings.hpp"
 #include "Nest/Api/Compiler.h"
 #include "Nest/Utils/Diagnostic.hpp"
-#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Utils/cppif/StringRef.hpp"
 #include "Nest/Utils/NodeUtils.h"
 
 using namespace LLVMB;
@@ -36,7 +36,7 @@ llvm::Type* getLLVMTypeForSize(TypeRef type, llvm::LLVMContext& llvmContext) {
     CHECK(NOLOC, clsDecl && clsDecl->nodeKind == nkFeatherDeclClass);
 
     // Check if this is a standard/native type
-    const StringRef* nativeName = Nest_getPropertyString(clsDecl, propNativeName);
+    const Nest_StringRef* nativeName = Nest_getPropertyString(clsDecl, propNativeName);
     if (nativeName) {
         llvm::Type* t = Tr::getNativeLLVMType(clsDecl->location, *nativeName, llvmContext);
         if (t)
@@ -49,9 +49,9 @@ llvm::Type* getLLVMTypeForSize(TypeRef type, llvm::LLVMContext& llvmContext) {
                 Feather_getName(clsDecl);
 
     // Create the type, and set it as a property (don't add any subtypes yet to avoid endless loops)
-    const StringRef* description = Nest_getPropertyString(clsDecl, propDescription);
+    const Nest_StringRef* description = Nest_getPropertyString(clsDecl, propDescription);
     StringRef desc = description ? *description : Feather_getName(clsDecl);
-    llvm::StringRef descLLVM(desc.begin, size(desc));
+    llvm::StringRef descLLVM(desc.begin, desc.size());
     llvm::StructType* t = llvm::StructType::create(llvmContext, descLLVM);
 
     // Now add the subtypes
@@ -68,7 +68,7 @@ llvm::Type* getLLVMTypeForSize(TypeRef type, llvm::LLVMContext& llvmContext) {
 DataLayoutHelper::DataLayoutHelper()
     : llvmContext_(new llvm::LLVMContext())
     , llvmModule_(new llvm::Module("Module for computing data layout", *llvmContext_)) {
-    CompilerSettings& s = *Nest_compilerSettings();
+    auto& s = *Nest_compilerSettings();
 
     llvmModule_->setDataLayout(s.dataLayout_);
     llvmModule_->setTargetTriple(s.targetTriple_);

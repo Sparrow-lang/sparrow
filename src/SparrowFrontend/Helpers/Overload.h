@@ -40,7 +40,7 @@ struct IOverloadService {
      * @return The node used to called the selected overload; null on failure
      */
     virtual Node* selectOverload(CompilationContext* context, const Location& loc,
-            EvalMode evalMode, NodeRange decls, NodeRange args, OverloadReporting errReporting,
+            EvalMode evalMode, Nest_NodeRange decls, Nest_NodeRange args, OverloadReporting errReporting,
             StringRef funName) = 0;
 
     /// Try to search for a conversion constructor of the given class that can take
@@ -56,7 +56,7 @@ struct IOverloadService {
 //! Implementation of the overload service
 struct OverloadService : IOverloadService {
     Node* selectOverload(CompilationContext* context, const Location& loc, EvalMode evalMode,
-            NodeRange decls, NodeRange args, OverloadReporting errReporting,
+            Nest_NodeRange decls, Nest_NodeRange args, OverloadReporting errReporting,
             StringRef funName) final;
 
     bool selectConversionCtor(

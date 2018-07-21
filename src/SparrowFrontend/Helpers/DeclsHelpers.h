@@ -1,9 +1,12 @@
 #pragma once
 
-#include "Nest/Utils/NodeVector.hpp"
-#include <SparrowFrontend/Nodes/Decls/AccessType.h>
+#include "Nest/Utils/cppif/NodeUtils.hpp"
+#include "SparrowFrontend/Nodes/Decls/AccessType.h"
 
 namespace SprFrontend {
+
+using Nest::NodeVector;
+
 /// Get the declarations that the given node might refer to
 /// If the given node contains a "base expression" returns it in the last parameter
 NodeVector getDeclsFromNode(Node* n, Node*& baseExp);
@@ -12,7 +15,7 @@ NodeVector getDeclsFromNode(Node* n, Node*& baseExp);
 ///
 /// A decl can be a using that points to other decls. Make sure we get the
 /// target decls.
-NodeArray expandDecls(NodeRange decls, Node* seenFrom);
+Nest_NodeArray expandDecls(Nest_NodeRange decls, Node* seenFrom);
 
 /// Get the resulting declaration from the given node
 Node* resultingDecl(Node* node);
@@ -20,7 +23,7 @@ Node* resultingDecl(Node* node);
 /// Checks if we can access 'node' from 'fromNode'
 bool canAccessNode(Node* decl, Node* fromNode);
 /// Checks if we can access 'node' from the given source code
-bool canAccessNode(Node* decl, SourceCode* fromSourceCode);
+bool canAccessNode(Node* decl, Nest_SourceCode* fromSourceCode);
 
 /// Check if the given node can be accessed from everywhere
 bool isPublic(Node* decl);
@@ -73,5 +76,5 @@ int getThisParamIdx(Node* fun);
 CompilationContext* classContext(Node* cls);
 
 //! Get the decls with the given name associated with the given class
-NodeArray getClassAssociatedDecls(Node* cls, const char* name);
+Nest_NodeArray getClassAssociatedDecls(Node* cls, const char* name);
 } // namespace SprFrontend

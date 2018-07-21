@@ -1,13 +1,18 @@
 #pragma once
 
 #include "Nest/Api/Location.h"
-#include "Nest/Utils/NodeVector.hpp"
+#include "Nest/Utils/cppif/NodeUtils.hpp"
 
 FWD_CLASS2(LLVMB, Tr, TrContext);
 FWD_CLASS2(LLVMB, Tr, Instruction);
 
 namespace LLVMB {
 namespace Tr {
+
+using Nest::Location;
+using Nest::Node;
+using Nest::NodeVector;
+
 /// Represents a scope in function body, containing multiple instructions
 /// Usually introduced by a LocalSpace node.
 ///

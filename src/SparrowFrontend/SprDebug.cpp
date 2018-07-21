@@ -2,7 +2,7 @@
 
 #include "SprDebug.h"
 #include "Nest/Api/SourceCode.h"
-#include "Nest/Utils/NodeUtils.hpp"
+#include "Nest/Utils/cppif/NodeUtils.hpp"
 
 #include "Nodes/SparrowNodes.h"
 #include "Nodes/SparrowNodesAccessors.h"
@@ -47,13 +47,13 @@ void printCtValue(StringRef typeName, StringRef valueDataStr) {
     } else
         printf("'%s'", valueDataStr.begin);
 }
-void printCtValueNode(const Node* node) {
+void printCtValueNode(Node* node) {
     TypeRef type = Nest_getCheckPropertyType(node, "valueType");
     StringRef valueDataStr = Nest_getCheckPropertyString(node, "valueData");
 
-    printCtValue(fromCStr(type->description), valueDataStr);
+    printCtValue(StringRef(type->description), valueDataStr);
 }
-void printLiteralNode(const Node* node) {
+void printLiteralNode(Node* node) {
     StringRef litType = Nest_getCheckPropertyString(node, "spr.literalType");
     StringRef data = Nest_getCheckPropertyString(node, "spr.literalData");
 
@@ -97,11 +97,11 @@ void printEnd() {
     printf("}\n");
 }
 
-void printNodeImpl(const Node* node, int mode);
+void printNodeImpl(Node* node, int mode);
 
 /// Same as printNodeImpl(node, 2), but sometimes add parenthesis around the expression
 /// If the node is null, doesn't print anything
-void printExpNodeParens(const Node* node) {
+void printExpNodeParens(Node* node) {
     if (!node) {
         // nothing
     } else if (node->nodeKind == nkSparrowExpInfixExp) {
@@ -118,7 +118,7 @@ void printExpNodeParens(const Node* node) {
 ///     - 0 = auto - try to find the best way to print the node
 ///     - 1 - top-level, as a separate line (don't add any spaces for the first row)
 ///     - 2 - single line (expression)
-void printNodeImpl(const Node* node, int mode) {
+void printNodeImpl(Node* node, int mode) {
     if (!node) {
         return;
     }
@@ -188,7 +188,7 @@ void printNodeImpl(const Node* node, int mode) {
     case nkRelFeatherDeclFunction: {
         Node* returnType = at(node->children, 0);
         Node* body = at(node->children, 1);
-        NodeRange params = all(node->children);
+        Nest_NodeRange params = all(node->children);
         params.beginPtr += 2;
         printf("fun %s", Feather_getName(node).begin);
         if (size(params) > 0) {
@@ -352,7 +352,7 @@ void printNodeImpl(const Node* node, int mode) {
     case nkRelSparrowDeclImportName: {
         Node* moduleName = at(node->children, 0);
         Node* declNames = at(node->children, 1);
-        if (Feather_hasName(node) && size(Feather_getName(node)) > 0)
+        if (Feather_hasName(node) && StringRef(Feather_getName(node)))
             printf("import %s = ", Feather_getName(node).begin);
         else
             printf("import ");
@@ -558,15 +558,15 @@ void printNodeImpl(const Node* node, int mode) {
     printf("<%s>", Nest_toStringEx(node));
 }
 
-void printNode(const Node* node) {
+void printNode(Node* node) {
     printSpaces();
     printNodeImpl(node, 1);
     printf("\n");
 }
 
-void printNodeExp(const Node* node) { printNodeImpl(node, 2); }
+void printNodeExp(Node* node) { printNodeImpl(node, 2); }
 
-void printNodes(NodeRange nodes) {
+void printNodes(Nest_NodeRange nodes) {
     for (auto n : nodes)
         printNode(n);
 }

@@ -5,9 +5,12 @@
 #include "Nest/Api/Node.h"
 #include "Nest/Api/CompilationContext.h"
 #include "Nest/Api/SymTab.h"
-#include "Nest/Utils/NodeUtils.hpp"
-#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Utils/cppif/NodeHandle.hpp"
+#include "Nest/Utils/cppif/NodeUtils.hpp"
+#include "Nest/Utils/cppif/StringRef.hpp"
 #include "Nest/Utils/Diagnostic.hpp"
+
+using Nest::NodeHandle;
 
 /// Tests if the given node is a declaration (a node that will expand to a Feather declaration)
 bool _isDecl(Node* node) {
@@ -28,7 +31,7 @@ int _isTestable(TypeRef type) {
     if (!type || !type->hasStorage)
         return false;
     StringRef nativeName = Feather_nativeName(type);
-    return size(nativeName) > 0 && (nativeName == "i1" || nativeName == "u1");
+    return nativeName && (nativeName == "i1" || nativeName == "u1");
 }
 
 int Feather_isTestable(Node* node) { return _isTestable(node->type); }
@@ -37,7 +40,7 @@ int Feather_isBasicNumericType(TypeRef type) {
     if (!type || !type->hasStorage)
         return false;
     StringRef nativeName = Feather_nativeName(type);
-    return size(nativeName) > 0 &&
+    return !nativeName.empty() &&
            (nativeName == "i1" || nativeName == "u1" || nativeName == "i8" || nativeName == "u8" ||
                    nativeName == "i16" || nativeName == "u16" || nativeName == "i32" ||
                    nativeName == "u32" || nativeName == "i64" || nativeName == "u64" ||
@@ -153,7 +156,7 @@ void _printContextNodes(Node* node) {
         if (expl && (expl->nodeKind == Feather_getFirstFeatherNodeKind() + nkRelFeatherDeclClass ||
                             expl->nodeKind ==
                                     Feather_getFirstFeatherNodeKind() + nkRelFeatherDeclFunction))
-            REP_INFO(expl->location, "In context: %1%") % Nest_toString(expl);
+            REP_INFO(expl->location, "In context: %1%") % NodeHandle(expl);
 
         ctx = ctx->parent;
     }

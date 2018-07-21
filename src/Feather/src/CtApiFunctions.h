@@ -4,9 +4,9 @@
 extern "C" {
 #endif
 
-typedef struct Nest_Backend Backend;
+typedef struct Nest_Backend Nest_Backend;
 
-void Feather_registerCtApiFunctions(Backend* backend);
+void Feather_registerCtApiFunctions(Nest_Backend* backend);
 
 #ifdef __cplusplus
 }

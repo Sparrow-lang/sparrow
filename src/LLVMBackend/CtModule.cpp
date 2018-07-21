@@ -15,6 +15,7 @@
 #include "Nest/Utils/CompilerSettings.hpp"
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/CompilerStats.hpp"
+#include "Nest/Utils/cppif/StringRef.hpp"
 
 #include <llvm/IR/Verifier.h>
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
@@ -31,7 +32,7 @@ CtModule::CtModule(const string& name)
     , llvmExecutionEngine_(nullptr)
     , llvmModule_(new llvm::Module(name, *llvmContext_))
     , dataLayout_("") {
-    CompilerSettings& s = *Nest_compilerSettings();
+    auto& s = *Nest_compilerSettings();
 
     llvmModule_->setDataLayout(s.dataLayout_);
     llvmModule_->setTargetTriple(s.targetTriple_);
@@ -180,10 +181,10 @@ Node* CtModule::ctEvaluateExpression(Node* node) {
     ASSERT(llvmModule_);
 
     // Gather statistics if requested
-    CompilerStats& stats = CompilerStats::instance();
+    Nest::CompilerStats& stats = Nest::CompilerStats::instance();
     if (stats.enabled)
         ++stats.numCtEvals;
-    ScopedTimeCapture timeCapture(stats.enabled, stats.timeCtEvals);
+    Nest::ScopedTimeCapture timeCapture(stats.enabled, stats.timeCtEvals);
 
     static int counter = 0;
     ostringstream oss;
@@ -275,7 +276,7 @@ Node* CtModule::ctEvaluateExpression(Node* node) {
     if (node->type->hasStorage) {
         // Create a memory space where to put the result
         size_t size = dataLayout_.getTypeAllocSize(resLlvmType);
-        MutableStringRef dataBuffer = allocStringRef(size);
+        Nest::StringRefM dataBuffer{int(size)};
 
         // The magic is here:
         //  - finalize everything in the engine and get the function address

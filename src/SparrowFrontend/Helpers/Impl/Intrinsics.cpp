@@ -23,7 +23,7 @@ Node* impl_typeDescription(
         CompilationContext* context, const Location& loc, const NodeVector& args) {
     CHECK(loc, args.size() == 1);
     TypeRef t = getType(args[0]);
-    return buildStringLiteral(loc, fromCStr(t->description));
+    return buildStringLiteral(loc, StringRef(t->description));
 }
 
 Node* impl_typeHasStorage(
@@ -154,7 +154,7 @@ Node* impl_Meta_astEval(CompilationContext* context, const Location& loc, const 
     CHECK(loc, args.size() == 1);
 
     // Get the impl part of the node
-    Node* implPart = mkCompoundExp(loc, args[0], fromCStr("data"));
+    Node* implPart = mkCompoundExp(loc, args[0], StringRef("data"));
     implPart = Feather_mkMemLoad(loc, implPart); // Remove LValue
     Nest_setContext(implPart, context);
     if (!Nest_semanticCheck(implPart))
@@ -172,14 +172,14 @@ Node* impl_Meta_SourceCode_current(
         CompilationContext* context, const Location& loc, const NodeVector& args) {
     CHECK(loc, args.size() == 0);
 
-    return buildLiteral(loc, fromCStr("SourceCode"), context->sourceCode);
+    return buildLiteral(loc, StringRef("SourceCode"), context->sourceCode);
 }
 
 Node* impl_Meta_CompilationContext_current(
         CompilationContext* context, const Location& loc, const NodeVector& args) {
     CHECK(loc, args.size() == 0);
 
-    return buildLiteral(loc, fromCStr("CompilationContext"), context);
+    return buildLiteral(loc, StringRef("CompilationContext"), context);
 }
 } // namespace
 
@@ -187,7 +187,7 @@ Node* SprFrontend::handleIntrinsic(
         Node* fun, CompilationContext* context, const Location& loc, const NodeVector& args) {
     // Check for natives
     StringRef nativeName = Nest_getPropertyStringDeref(fun, propNativeName);
-    if (size(nativeName) > 0 && nativeName.begin[0] == '$') {
+    if (nativeName && nativeName.begin[0] == '$') {
         if (nativeName == "$injectBackendCode")
             return impl_injectBackendCode(context, loc, args, modeRt);
         if (nativeName == "$injectBackendCodeCt")

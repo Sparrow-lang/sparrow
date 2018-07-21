@@ -8,8 +8,9 @@
 
 #include <llvm/IR/DIBuilder.h>
 
-typedef struct Nest_Node Node;
-typedef struct Nest_SourceCode SourceCode;
+using Nest::Location;
+using Nest::TypeRef;
+using Nest::Node;
 
 namespace LLVMB {
 namespace Tr {
@@ -82,7 +83,7 @@ private:
     vector<unsigned> regionCountAtFunStartStack_;
 
     //! Map containing the filename nodes - the filenames are represented by the SourceCode pointer
-    llvm::DenseMap<const SourceCode*, llvm::DIFile*> filenameCache_;
+    llvm::DenseMap<const Nest_SourceCode*, llvm::DIFile*> filenameCache_;
 
     //! Map containing all the DITypes we've translated so far
     llvm::DenseMap<TypeRef, llvm::DIType*> typesMap_;

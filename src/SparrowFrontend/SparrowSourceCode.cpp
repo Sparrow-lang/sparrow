@@ -13,7 +13,7 @@
 using namespace SprFrontend;
 
 namespace {
-void parseSourceCode(SourceCode* sourceCode, CompilationContext* ctx) {
+void parseSourceCode(Nest_SourceCode* sourceCode, CompilationContext* ctx) {
     Location loc = Nest_mkLocation1(sourceCode, 1, 1);
 
     Parser parser(loc);
@@ -23,7 +23,7 @@ void parseSourceCode(SourceCode* sourceCode, CompilationContext* ctx) {
         Nest_setContext(sourceCode->mainNode, ctx);
 }
 
-StringRef getSourceCodeLine(const SourceCode* sourceCode, int lineNo) {
+Nest_StringRef getSourceCodeLine(const Nest_SourceCode* sourceCode, int lineNo) {
     StringRef res{nullptr, nullptr};
     ifstream f(sourceCode->url);
     if (!f)
@@ -41,7 +41,7 @@ StringRef getSourceCodeLine(const SourceCode* sourceCode, int lineNo) {
     return res;
 }
 
-Node* doConvertCtToRt(const SourceCode* /*sourceCode*/, Node* node) { return convertCtToRt(node); }
+Node* doConvertCtToRt(const Nest_SourceCode* /*sourceCode*/, Node* node) { return convertCtToRt(node); }
 } // namespace
 
 int SprFe_kindSparrowSourceCode = -1;

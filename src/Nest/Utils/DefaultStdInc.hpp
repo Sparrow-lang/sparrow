@@ -19,6 +19,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/any.hpp>
 #include <boost/unordered_map.hpp>
+#include <boost/optional.hpp>
 #include <boost/range/adaptor/reversed.hpp>
 
 #include "Nest/Utils/Fwd.hpp"

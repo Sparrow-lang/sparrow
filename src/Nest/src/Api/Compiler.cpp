@@ -3,8 +3,10 @@
 #include "Nest/Utils/CompilerSettings.hpp"
 #include "Nest/Utils/Alloc.h"
 #include "Nest/Utils/Diagnostic.hpp"
-#include "Nest/Utils/StringRef.hpp"
-#include "Nest/Utils/NodeUtils.hpp"
+#include "Nest/Utils/cppif/StringRef.hpp"
+#include "Nest/Utils/cppif/Fwd.hpp"
+#include "Nest/Utils/cppif/NodeUtils.hpp"
+#include "Nest/Utils/cppif/StringRef.hpp"
 #include "Nest/Api/Node.h"
 #include "Nest/Api/NodeArray.h"
 #include "Nest/Api/CompilationContext.h"
@@ -17,45 +19,48 @@
 #include <boost/unordered_map.hpp>
 
 using namespace boost::filesystem;
+using Nest::at;
+using Nest::begin;
+using Nest::end;
 
 struct ImportInfo {
-    const SourceCode* originSourceCode_;
+    const Nest_SourceCode* originSourceCode_;
     boost::filesystem::path filename_;
 
-    ImportInfo(const SourceCode* orig, StringRef filename)
+    ImportInfo(const Nest_SourceCode* orig, Nest_StringRef filename)
         : originSourceCode_(orig)
         , filename_(filename.begin) {}
 };
 
-CompilerSettings _settings;
-CompilationContext* _rootContext;
-Backend* _backend;
+Nest_CompilerSettings _settings;
+Nest::CompilationContext* _rootContext;
+Nest_Backend* _backend;
 
 /// The path of the current directory
 boost::filesystem::path _curPath;
 
 /// List of source codes parsed by this class
-unordered_map<const SourceCode*, boost::filesystem::path> _sourceCodes;
+unordered_map<const Nest_SourceCode*, boost::filesystem::path> _sourceCodes;
 
 /// The files that were handled before
-unordered_map<string, SourceCode*> _handledFiles;
+unordered_map<string, Nest_SourceCode*> _handledFiles;
 
 /// List of source codes to compile
-vector<SourceCode*> _toCompile;
+vector<Nest_SourceCode*> _toCompile;
 
 /// The imports that were not handled, as no appropriate source code was found
 /// We associate these imports to the originating source code
-unordered_map<const SourceCode*, vector<ImportInfo>> _unhandledImports;
+unordered_map<const Nest_SourceCode*, vector<ImportInfo>> _unhandledImports;
 
 /// List of nodes to be semantically checked
-NodeArray _toSemanticCheck;
+Nest_NodeArray _toSemanticCheck;
 
 vector<FSourceCodeCallback> _sourceCodeCreatedCallbacks;
 vector<FSourceCodeCallback> _sourceCodeParsedCallbacks;
 vector<FSourceCodeCallback> _sourceCodeCompiledCallbacks;
 vector<FSourceCodeCallback> _sourceCodeCodeGenCallbacks;
 
-void _executeCUCallbacks(const vector<FSourceCodeCallback>& callbacks, SourceCode* sc) {
+void _executeCUCallbacks(const vector<FSourceCodeCallback>& callbacks, Nest_SourceCode* sc) {
     for (auto cb : callbacks) {
         if (cb)
             (*cb)(sc);
@@ -64,7 +69,7 @@ void _executeCUCallbacks(const vector<FSourceCodeCallback>& callbacks, SourceCod
 
 void _semanticCheckNodes() {
     while (Nest_nodeArraySize(_toSemanticCheck) > 0) {
-        Node* n = at(_toSemanticCheck, 0);
+        Nest_Node* n = at(_toSemanticCheck, 0);
         Nest_eraseNodeFromArray(&_toSemanticCheck, 0);
 
         if (n)
@@ -97,7 +102,7 @@ bool _fileExists(const path& f) {
     return false;
 }
 
-pair<bool, SourceCode*> _handleImportFile(const ImportInfo& import) {
+pair<bool, Nest_SourceCode*> _handleImportFile(const ImportInfo& import) {
     // Check if the file exists - if the file does not exist, exit and try another path
     if (!_fileExists(import.filename_)) {
         return make_pair(false, nullptr);
@@ -120,7 +125,7 @@ pair<bool, SourceCode*> _handleImportFile(const ImportInfo& import) {
         return make_pair(true, nullptr);
     }
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
-    auto* sourceCode = (SourceCode*)alloc(sizeof(SourceCode), allocGeneral);
+    auto* sourceCode = (Nest_SourceCode*)alloc(sizeof(Nest_SourceCode), allocGeneral);
     sourceCode->kind = scKind;
     sourceCode->url = url;
     _sourceCodes.insert(make_pair(sourceCode, absPath));
@@ -134,7 +139,7 @@ pair<bool, SourceCode*> _handleImportFile(const ImportInfo& import) {
     int errorCount = Nest_getErrorsNum();
 
     // Create a new CompilationContext for the sourceCode
-    CompilationContext* newContext =
+    Nest::CompilationContext* newContext =
             Nest_mkChildContextWithSymTab(_rootContext, nullptr, modeUnspecified);
     newContext->sourceCode = sourceCode;
 
@@ -155,8 +160,8 @@ pair<bool, SourceCode*> _handleImportFile(const ImportInfo& import) {
     return make_pair(true, sourceCode);
 }
 
-SourceCode* _handleImport(const ImportInfo& import) {
-    pair<bool, SourceCode*> res;
+Nest_SourceCode* _handleImport(const ImportInfo& import) {
+    pair<bool, Nest_SourceCode*> res;
 
     // Check if the filename path is absolute
     path p = import.filename_;
@@ -207,7 +212,7 @@ void Nest_compilerInit() {
 }
 
 void Nest_compilerDestroy() {
-    _settings = CompilerSettings{};
+    _settings = Nest_CompilerSettings{};
     _rootContext = nullptr;;
     _backend = nullptr;
 
@@ -226,11 +231,11 @@ void Nest_compilerDestroy() {
     _sourceCodeCodeGenCallbacks.clear();
 }
 
-CompilerSettings* Nest_compilerSettings() { return &_settings; }
+Nest_CompilerSettings* Nest_compilerSettings() { return &_settings; }
 
-CompilationContext* Nest_getRootContext() { return _rootContext; }
+Nest_CompilationContext* Nest_getRootContext() { return _rootContext; }
 
-Backend* Nest_getCurBackend() { return _backend; }
+Nest_Backend* Nest_getCurBackend() { return _backend; }
 
 void Nest_createBackend(const char* mainFilename) {
     // Select the first available backend
@@ -244,23 +249,23 @@ void Nest_createBackend(const char* mainFilename) {
     _rootContext = Nest_mkRootContext(_backend, modeRt);
 }
 
-SourceCode* Nest_compileFile(StringRef filename) {
-    if (size(filename) == 0 || filename.begin[0] == '\r' || filename.begin[0] == '\n')
+Nest_SourceCode* Nest_compileFile(Nest_StringRef filename) {
+    if (Nest::StringRef(filename).empty() || filename.begin[0] == '\r' || filename.begin[0] == '\n')
         return nullptr;
 
     if (!_backend)
         REP_INTERNAL(NOLOC, "No backend set");
 
     // Parse the source code
-    SourceCode* sc = Nest_addSourceCodeByFilename(nullptr, filename);
+    Nest_SourceCode* sc = Nest_addSourceCodeByFilename(nullptr, filename);
 
-    vector<SourceCode*> toCodeGenerate;
+    vector<Nest_SourceCode*> toCodeGenerate;
 
     // Compile everything we have to compile
     // One file might include multiple files, and therefore we may need to compile those too
     while (!_toCompile.empty()) {
         // Pop a source code to compile it
-        SourceCode* sourceCode = _toCompile.front();
+        Nest_SourceCode* sourceCode = _toCompile.front();
 
         // If this source code has some unhanded includes, handle them now
         auto it = _unhandledImports.find(sourceCode);
@@ -299,7 +304,7 @@ SourceCode* Nest_compileFile(StringRef filename) {
 
     // Do the code generation in backend
     if (!_settings.syntaxOnly_) {
-        for (SourceCode* code : toCodeGenerate) {
+        for (Nest_SourceCode* code : toCodeGenerate) {
             _backend->generateMachineCode(_backend, code);
 
             // Notify the listeners that we've generated code for the source code
@@ -310,12 +315,12 @@ SourceCode* Nest_compileFile(StringRef filename) {
     return sc;
 }
 
-SourceCode* Nest_addSourceCodeByFilename(const SourceCode* orig, StringRef filename) {
+Nest_SourceCode* Nest_addSourceCodeByFilename(const Nest_SourceCode* orig, Nest_StringRef filename) {
     return _handleImport(ImportInfo(orig, filename));
 }
 
-const SourceCode* Nest_getSourceCodeForFilename(StringRef filename) {
-    path filepath = toString(filename);
+const Nest_SourceCode* Nest_getSourceCodeForFilename(Nest_StringRef filename) {
+    path filepath = Nest::StringRef(filename).toStd();
     for (auto p : _sourceCodes) {
         if (p.second == filepath)
             return p.first;
@@ -323,27 +328,27 @@ const SourceCode* Nest_getSourceCodeForFilename(StringRef filename) {
     return nullptr;
 }
 
-void Nest_queueSemanticCheck(Node* node) { Nest_appendNodeToArray(&_toSemanticCheck, node); }
+void Nest_queueSemanticCheck(Nest_Node* node) { Nest_appendNodeToArray(&_toSemanticCheck, node); }
 
-void Nest_ctProcess(Node* node) {
+void Nest_ctProcess(Nest_Node* node) {
     node = Nest_semanticCheck(node);
     if (node)
         _backend->ctProcess(_backend, node);
 }
 
-Node* Nest_ctEval(Node* node) {
+Nest_Node* Nest_ctEval(Nest_Node* node) {
     node = Nest_semanticCheck(node);
     if (!node)
         return nullptr;
-    Node* res = _backend->ctEvaluate(_backend, node);
+    Nest_Node* res = _backend->ctEvaluate(_backend, node);
     if (!res)
         return nullptr;
     Nest_setContext(res, node->context);
     return Nest_semanticCheck(res);
 }
 
-unsigned Nest_sizeOf(TypeRef type) { return _backend->sizeOf(_backend, type); }
-unsigned Nest_alignmentOf(TypeRef type) { return _backend->alignmentOf(_backend, type); }
+unsigned Nest_sizeOf(Nest_TypeRef type) { return _backend->sizeOf(_backend, type); }
+unsigned Nest_alignmentOf(Nest_TypeRef type) { return _backend->alignmentOf(_backend, type); }
 
 void Nest_registerSourceCodeCreatedCallback(FSourceCodeCallback callback) {
     _sourceCodeCreatedCallbacks.push_back(callback);

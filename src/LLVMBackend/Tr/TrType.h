@@ -3,8 +3,10 @@
 #include "Nest/Api/TypeRef.h"
 #include "Nest/Api/StringRef.h"
 
-typedef struct Nest_Location Location;
-typedef struct Nest_Node Node;
+using Nest::Location;
+using Nest::StringRef;
+using Nest::TypeRef;
+using Nest::Node;
 
 namespace llvm {
 class Type;

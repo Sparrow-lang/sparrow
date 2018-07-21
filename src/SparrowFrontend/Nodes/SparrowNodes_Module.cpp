@@ -7,14 +7,14 @@
 #include <Helpers/QualifiedId.h>
 
 #include "Nest/Api/SourceCode.h"
-#include "Nest/Utils/NodeUtils.hpp"
+#include "Nest/Utils/cppif/NodeUtils.hpp"
 #include "Nest/Utils/Alloc.h"
 
 using namespace SprFrontend;
 using namespace Nest;
 
-SourceCode* g_implicitLibSC = nullptr;
-SourceCode* g_compilerArgsSC = nullptr;
+Nest_SourceCode* g_implicitLibSC = nullptr;
+Nest_SourceCode* g_compilerArgsSC = nullptr;
 
 /// Given a module node, infer the the module name from the source code URL
 StringRef inferModuleName(const char* url) {
@@ -80,12 +80,12 @@ Node* createPackagesFromQid(const QidVec& qid, AccessType accessType, Node*& inn
  *
  * @return Node that performs the import
  */
-Node* createImplicitImport(Location importLoc, SourceCode* toImport) {
+Node* createImplicitImport(Location importLoc, Nest_SourceCode* toImport) {
     // Add an using to the content of the imported source code
     Node* refImpContent = mkModuleRef(importLoc, toImport->mainNode);
     ASSERT(refImpContent);
-    Node* starExp = mkStarExp(importLoc, refImpContent, fromCStr("*"));
-    Node* iCode = mkSprUsing(importLoc, StringRef({nullptr, nullptr}), starExp);
+    Node* starExp = mkStarExp(importLoc, refImpContent, StringRef("*"));
+    Node* iCode = mkSprUsing(importLoc, StringRef{}, starExp);
     setAccessType(iCode, privateAccess);
 
     // Don't warn if we don't find anything
@@ -125,7 +125,7 @@ Node* expandModule(Node* node) {
         StringRef name = inferModuleName(node->location.sourceCode->url);
         moduleNameQid.emplace_back(make_pair(name, modLoc));
     }
-    if (moduleNameQid.empty() || size(moduleNameQid.back().first) == 0)
+    if (moduleNameQid.empty() || StringRef(moduleNameQid.back().first).empty())
         REP_INTERNAL(modLoc, "Invalid module name");
 
     // Create the packages corresponding to the module name
@@ -164,9 +164,9 @@ Node* expandModule(Node* node) {
 
 /// Given an import module name, add the corresponding source code to the compiler
 /// Returns the created SourceCode object
-SourceCode* addImportedSourceCode(const SourceCode* curSourceCode, Node* moduleName) {
+Nest_SourceCode* addImportedSourceCode(const Nest_SourceCode* curSourceCode, Node* moduleName) {
     ASSERT(moduleName);
-    SourceCode* importedSc;
+    Nest_SourceCode* importedSc;
     if (moduleName->nodeKind == nkSparrowExpLiteral) {
         if (!Literal_isString(moduleName))
             REP_INTERNAL(moduleName->location, "Invalid import name found %1%") %
@@ -187,9 +187,9 @@ SourceCode* addImportedSourceCode(const SourceCode* curSourceCode, Node* moduleN
         for (const auto& part : qid) {
             if (!filename.empty())
                 filename += "/";
-            filename += toString(part.first);
+            filename += part.first.begin;
         }
-        importedSc = Nest_addSourceCodeByFilename(curSourceCode, fromString(filename + ".spr"));
+        importedSc = Nest_addSourceCodeByFilename(curSourceCode, StringRef(filename + ".spr"));
         if (!importedSc)
             REP_ERROR(moduleName->location, "Cannot import %1%") % (filename + ".spr");
     }
@@ -226,7 +226,7 @@ void ImportName_SetContextForChildren(Node* node) {
     // for the CT backend.
     if (!g_implicitLibSC) {
         // Add the new source code to the compiler
-        SourceCode* importedSc = addImportedSourceCode(node->location.sourceCode, moduleName);
+        Nest_SourceCode* importedSc = addImportedSourceCode(node->location.sourceCode, moduleName);
         if (!importedSc) {
             node->nodeError = 1;
             return;
@@ -245,7 +245,7 @@ void ImportName_SetContextForChildren(Node* node) {
 Node* ImportName_SemanticCheck(Node* node) {
     Node* moduleName = at(node->children, 0);
     Node* declNames = at(node->children, 1);
-    StringRef alias = Feather_hasName(node) ? Feather_getName(node) : StringRef({nullptr, nullptr});
+    StringRef alias = Feather_hasName(node) ? Feather_getName(node) : StringRef{};
 
     AccessType accessType = getAccessType(node);
     if (accessType == unspecifiedAccess)
@@ -258,7 +258,7 @@ Node* ImportName_SemanticCheck(Node* node) {
         importedScMainNode = Nest_getCheckPropertyNode(node, "importedScMainNode");
     } else {
         // Add the new source code to the compiler
-        SourceCode* importedSc = addImportedSourceCode(node->location.sourceCode, moduleName);
+        Nest_SourceCode* importedSc = addImportedSourceCode(node->location.sourceCode, moduleName);
         if (!importedSc)
             return nullptr;
         importedScMainNode = importedSc->mainNode;
@@ -302,8 +302,8 @@ Node* ImportName_SemanticCheck(Node* node) {
         //      import modName;
         // we return something like:
         //      using <moduleRef>.*;
-        Node* starExp = mkStarExp(importLoc, refImpContent, fromCStr("*"));
-        content = mkSprUsing(importLoc, StringRef({nullptr, nullptr}), starExp);
+        Node* starExp = mkStarExp(importLoc, refImpContent, StringRef("*"));
+        content = mkSprUsing(importLoc, StringRef{}, starExp);
         setAccessType(content, accessType);
 
         // Don't warn if we don't find anything
@@ -311,7 +311,7 @@ Node* ImportName_SemanticCheck(Node* node) {
     }
 
     // If we have an alias, create a package for it
-    if (size(alias) > 0) {
+    if (alias) {
         content = mkSprPackage(importLoc, alias, content);
         setAccessType(content, accessType);
     }
@@ -319,14 +319,14 @@ Node* ImportName_SemanticCheck(Node* node) {
     return content;
 }
 
-const char* ImportName_toString(const Node* node) {
+const char* ImportName_toString(Node* node) {
     Node* moduleName = at(node->children, 0);
     Node* declNames = at(node->children, 1);
-    StringRef alias = Feather_hasName(node) ? Feather_getName(node) : StringRef({nullptr, nullptr});
+    StringRef alias = Feather_hasName(node) ? Feather_getName(node) : StringRef{};
 
     ostringstream os;
     os << "ImportName(" << moduleName << ", " << declNames;
-    if (alias.begin && size(alias) > 0)
+    if (alias)
         os << ", \"" << alias.begin << "\"";
     os << ")";
     return dupString(os.str().c_str());

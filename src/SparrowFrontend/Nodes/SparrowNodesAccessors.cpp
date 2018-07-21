@@ -1,7 +1,7 @@
 #include <StdInc.h>
 #include "SparrowNodesAccessors.h"
 
-#include "Nest/Utils/NodeUtils.hpp"
+#include "Nest/Utils/cppif/NodeUtils.hpp"
 
 using namespace SprFrontend;
 using namespace Nest;

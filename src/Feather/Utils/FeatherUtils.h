@@ -4,7 +4,7 @@
 
 #include "Nest/Api/EvalMode.h"
 
-typedef struct Nest_CompilationContext CompilationContext;
+typedef struct Nest_CompilationContext Nest_CompilationContext;
 
 #ifdef __cplusplus
 extern "C" {
@@ -61,121 +61,121 @@ extern const char* propResultingDecl;
 extern const char* propNoInline;
 extern const char* propEmptyBody; ///< Node will not generate meaningful instructions
 
-StringRef Feather_BackendCode_getCode(const Node* node);
-EvalMode Feather_BackendCode_getEvalMode(Node* node);
+Nest_StringRef Feather_BackendCode_getCode(Nest_Node* node);
+EvalMode Feather_BackendCode_getEvalMode(Nest_Node* node);
 
-void Feather_ChangeMode_setChild(Node* node, Node* child);
-EvalMode Feather_ChangeMode_getEvalMode(Node* node);
+void Feather_ChangeMode_setChild(Nest_Node* node, Nest_Node* child);
+EvalMode Feather_ChangeMode_getEvalMode(Nest_Node* node);
 
-void Feather_Function_addParameter(Node* node, Node* parameter);
-void Feather_Function_addParameterFirst(Node* node, Node* parameter);
-void Feather_Function_setResultType(Node* node, Node* resultType);
-void Feather_Function_setBody(Node* node, Node* body);
-unsigned Feather_Function_numParameters(Node* node);
-Node* Feather_Function_getParameter(Node* node, unsigned idx);
-NodeRange Feather_Function_getParameters(Node* node);
-TypeRef Feather_Function_resultType(Node* node);
-Node* Feather_Function_body(Node* node);
-CallConvention Feather_Function_callConvention(Node* node);
+void Feather_Function_addParameter(Nest_Node* node, Nest_Node* parameter);
+void Feather_Function_addParameterFirst(Nest_Node* node, Nest_Node* parameter);
+void Feather_Function_setResultType(Nest_Node* node, Nest_Node* resultType);
+void Feather_Function_setBody(Nest_Node* node, Nest_Node* body);
+unsigned Feather_Function_numParameters(Nest_Node* node);
+Nest_Node* Feather_Function_getParameter(Nest_Node* node, unsigned idx);
+Nest_NodeRange Feather_Function_getParameters(Nest_Node* node);
+Nest_TypeRef Feather_Function_resultType(Nest_Node* node);
+Nest_Node* Feather_Function_body(Nest_Node* node);
+CallConvention Feather_Function_callConvention(Nest_Node* node);
 
 /// Getter for the class that introduces this data type - can be null
 /// Works for only for storage types (data, l-value, array)
-Node* Feather_classDecl(TypeRef type);
+Nest_Node* Feather_classDecl(Nest_TypeRef type);
 
 /// If the class associated with the given type has an associated name this will return it;
 /// otherwise it returns nullptr Works for only for storage types (data, l-value, array)
-StringRef Feather_nativeName(TypeRef type);
+Nest_StringRef Feather_nativeName(Nest_TypeRef type);
 
 /// The number of references applied
 /// Works for only for storage types (data, l-value, array)
-int Feather_numReferences(TypeRef type);
+int Feather_numReferences(Nest_TypeRef type);
 
 /// Returns the base type of this type
 /// Works for l-value and array types
-TypeRef Feather_baseType(TypeRef type);
+Nest_TypeRef Feather_baseType(Nest_TypeRef type);
 
 /// Getter for the number of units in the buffer type
 /// Works only for array types
-int Feather_getArraySize(TypeRef type);
+int Feather_getArraySize(Nest_TypeRef type);
 
-unsigned Feather_numFunParameters(TypeRef type);
-TypeRef Feather_getFunParameter(TypeRef type, unsigned idx);
-TypeRef Feather_getFunResultType(TypeRef type);
+unsigned Feather_numFunParameters(Nest_TypeRef type);
+Nest_TypeRef Feather_getFunParameter(Nest_TypeRef type, unsigned idx);
+Nest_TypeRef Feather_getFunResultType(Nest_TypeRef type);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Context
 
-Node* Feather_getParentFun(CompilationContext* context);
-Node* Feather_getParentClass(CompilationContext* context);
-Node* Feather_getParentLoop(CompilationContext* context);
+Nest_Node* Feather_getParentFun(Nest_CompilationContext* context);
+Nest_Node* Feather_getParentClass(Nest_CompilationContext* context);
+Nest_Node* Feather_getParentLoop(Nest_CompilationContext* context);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Decl
 
 /// Get the name of the given declaration
 /// Throws if the name was not set for the node
-StringRef Feather_getName(const Node* decl);
+Nest_StringRef Feather_getName(Nest_Node* decl);
 
 /// Tests if the given node has a node set
-int Feather_hasName(const Node* decl);
+int Feather_hasName(Nest_Node* decl);
 
 /// Setter for the name of a declaration
-void Feather_setName(Node* decl, StringRef name);
+void Feather_setName(Nest_Node* decl, Nest_StringRef name);
 
 /// Getter for the evaluation mode set in the given declaration (non-ct, ct, auto-ct)
-EvalMode Feather_nodeEvalMode(const Node* decl);
+EvalMode Feather_nodeEvalMode(Nest_Node* decl);
 
 /// Getter for the evaluation mode set in the given declaration (non-ct, ct, auto-ct)
 /// If the given declaration doesn't have an evaluation mode, the evaluation mode of the context is
 /// used
-EvalMode Feather_effectiveEvalMode(const Node* decl);
+EvalMode Feather_effectiveEvalMode(Nest_Node* decl);
 
 /// Setter for the evaluation mode of the given declaration
-void Feather_setEvalMode(Node* decl, EvalMode val);
+void Feather_setEvalMode(Nest_Node* decl, EvalMode val);
 
 /// Add the given declaration to the sym tab
-void Feather_addToSymTab(Node* decl);
+void Feather_addToSymTab(Nest_Node* decl);
 
 /// Should we add the given declaration to the symbols table?
-void Feather_setShouldAddToSymTab(Node* decl, int shouldAdd);
+void Feather_setShouldAddToSymTab(Nest_Node* decl, int shouldAdd);
 
 ////////////////////////////////////////////////////////////////////////////////
 // TypeTraits
 
 /// Tests if the given node is available at CT
-int Feather_isCt(Node* node);
+int Feather_isCt(Nest_Node* node);
 
 /// Tests if the given node has a "Testable" type
-int Feather_isTestable(Node* node);
+int Feather_isTestable(Nest_Node* node);
 
 /// Checks if the given type is a basic numeric type (bool, integral, floating point, char)
-int Feather_isBasicNumericType(TypeRef type);
+int Feather_isBasicNumericType(Nest_TypeRef type);
 
 /// Creates a new type from the original type, and change its mode
-TypeRef Feather_checkChangeTypeMode(TypeRef type, EvalMode mode, Location loc);
+Nest_TypeRef Feather_checkChangeTypeMode(Nest_TypeRef type, EvalMode mode, Nest_Location loc);
 
 /// Add a reference to the given type
-TypeRef Feather_addRef(TypeRef type);
+Nest_TypeRef Feather_addRef(Nest_TypeRef type);
 
 /// Remove a reference to the given type
-TypeRef Feather_removeRef(TypeRef type);
+Nest_TypeRef Feather_removeRef(Nest_TypeRef type);
 
 /// Remove all the references from the given type
-TypeRef Feather_removeAllRef(TypeRef type);
+Nest_TypeRef Feather_removeAllRef(Nest_TypeRef type);
 
 /// Remove the lvalue from a type - the number of references reported will also decrease
-TypeRef Feather_removeLValue(TypeRef type);
-TypeRef Feather_removeLValueIfPresent(TypeRef type);
+Nest_TypeRef Feather_removeLValue(Nest_TypeRef type);
+Nest_TypeRef Feather_removeLValueIfPresent(Nest_TypeRef type);
 
 /// Transforms a lvalue into a reference - the reported number of references will remain the same
-TypeRef Feather_lvalueToRef(TypeRef type);
-TypeRef Feather_lvalueToRefIfPresent(TypeRef type);
+Nest_TypeRef Feather_lvalueToRef(Nest_TypeRef type);
+Nest_TypeRef Feather_lvalueToRefIfPresent(Nest_TypeRef type);
 
 /// Gets the class declaration for the given type; if it doesn't have one, return null
-Node* Feather_classForType(TypeRef t);
+Nest_Node* Feather_classForType(Nest_TypeRef t);
 
 /// Check the types are the same, but also consider the operation mode
-int Feather_isSameTypeIgnoreMode(TypeRef t1, TypeRef t2);
+int Feather_isSameTypeIgnoreMode(Nest_TypeRef t1, Nest_TypeRef t2);
 
 //! Combines two modes together.
 //! If one of the modes is modeCt, the result will be modeCt
@@ -191,14 +191,14 @@ EvalMode Feather_combineModeBottom(EvalMode mode1, EvalMode mode2);
 
 //! Adjust the mode of the type, to be compatible with the one in the context.
 //! I.e., if the context is CT, the type will be made CT.
-TypeRef Feather_adjustMode(TypeRef srcType, CompilationContext* context, Location loc);
+Nest_TypeRef Feather_adjustMode(Nest_TypeRef srcType, Nest_CompilationContext* context, Nest_Location loc);
 
 //! Check if the given node has the eval-mode correctly set.
 //! That is, we don't have a RT node in a CT context, and we don't have RT children to a CT node.
-void Feather_checkEvalMode(Node* src);
+void Feather_checkEvalMode(Nest_Node* src);
 //! Same as Feather_checkEvalMode, but also checks if node's mode is compatible the given mode.
 //! If expectedMode is CT, then the node mode needs to also be CT
-void Feather_checkEvalModeWithExpected(Node* src, EvalMode expectedMode);
+void Feather_checkEvalModeWithExpected(Nest_Node* src, EvalMode expectedMode);
 
 #ifdef __cplusplus
 }

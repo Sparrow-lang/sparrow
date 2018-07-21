@@ -5,4 +5,3 @@ struct Nest_PtrRange {
     void** endPtr;
 };
 typedef struct Nest_PtrRange Nest_PtrRange;
-typedef struct Nest_PtrRange PtrRange;

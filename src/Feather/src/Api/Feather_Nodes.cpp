@@ -8,9 +8,10 @@
 
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/Alloc.h"
-#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Utils/cppif/StringRef.hpp"
 #include "Nest/Utils/NodeUtils.h"
-#include "Nest/Utils/NodeUtils.hpp"
+#include "Nest/Utils/cppif/NodeHandle.hpp"
+#include "Nest/Utils/cppif/NodeUtils.hpp"
 #include "Nest/Api/Node.h"
 #include "Nest/Api/NodeKindRegistrar.h"
 #include "Nest/Api/Modifier.h"
@@ -31,8 +32,8 @@ using namespace Feather;
 // namespace
 // {
 
-void CtProcessMod_afterSemanticCheck(Modifier* mod, Node* node) { Nest_ctProcess(node); }
-Modifier ctProcessMod = {modTypeAfterSemanticCheck, &CtProcessMod_afterSemanticCheck};
+void CtProcessMod_afterSemanticCheck(Nest_Modifier* mod, Node* node) { Nest_ctProcess(node); }
+Nest_Modifier ctProcessMod = {modTypeAfterSemanticCheck, &CtProcessMod_afterSemanticCheck};
 
 const char* propResultVoid = "nodeList.resultVoid";
 
@@ -41,7 +42,7 @@ bool isField(Node* node) {
         return false;
 
     // Check the direct parent is a class that contains the given node
-    SymTab* st = node->context->currentSymTab;
+    Nest_SymTab* st = node->context->currentSymTab;
     Node* parent = st ? st->node : nullptr;
     parent = parent ? Nest_explanation(parent) : nullptr;
     if (parent && parent->nodeKind == nkFeatherDeclClass) {
@@ -63,7 +64,7 @@ Node* TypeNode_SemanticCheck(Node* node) {
     node->type = Nest_getCheckPropertyType(node, "givenType");
     return node;
 }
-const char* TypeNode_toString(const Node* node) {
+const char* TypeNode_toString(Node* node) {
     ostringstream os;
     os << "type(" << Nest_getCheckPropertyType(node, "givenType") << ")";
     return dupString(os.str().c_str());
@@ -78,7 +79,7 @@ Node* BackendCode_SemanticCheck(Node* node) {
     Nest_addModifier(node, &ctProcessMod);
     return node;
 }
-const char* BackendCode_toString(const Node* node) {
+const char* BackendCode_toString(Node* node) {
     ostringstream os;
     os << "backendCode(" << Feather_BackendCode_getCode(node).begin << ")";
     return dupString(os.str().c_str());
@@ -208,7 +209,7 @@ Node* ChangeMode_SemanticCheck(Node* node) {
 
     return Nest_semanticCheck(exp);
 }
-const char* ChangeMode_toString(const Node* node) {
+const char* ChangeMode_toString(Node* node) {
     Node* exp = at(node->children, 0);
     ostringstream os;
     auto curMode = (EvalMode)Nest_getCheckPropertyInt(node, propEvalMode);
@@ -276,7 +277,7 @@ void Function_SetContextForChildren(Node* node) {
     Feather_addToSymTab(node);
 }
 TypeRef Function_ComputeType(Node* node) {
-    if (size(Feather_getName(node)) == 0)
+    if (StringRef(Feather_getName(node)).empty())
         REP_ERROR_RET(nullptr, node->location, "No name given to function declaration");
 
     // We must have a result type
@@ -286,7 +287,7 @@ TypeRef Function_ComputeType(Node* node) {
         REP_ERROR_RET(nullptr, node->location, "No result type given to function %1%") %
                 Feather_getName(node);
 
-    NodeRange params = all(node->children);
+    Nest_NodeRange params = all(node->children);
 
     vector<TypeRef> subTypes;
     subTypes.reserve(Nest_nodeRangeSize(params) - 1);
@@ -310,7 +311,7 @@ Node* Function_SemanticCheck(Node* node) {
         return nullptr;
 
     // Semantically check all the parameters
-    NodeRange params = all(node->children);
+    Nest_NodeRange params = all(node->children);
     params.beginPtr += 2;
     for (Node* param : params) {
         if (!Nest_semanticCheck(param))
@@ -335,9 +336,9 @@ Node* Function_SemanticCheck(Node* node) {
     // TODO (function): Check that all the paths return a value
     return node;
 }
-const char* Function_toString(const Node* node) {
+const char* Function_toString(Node* node) {
     ostringstream os;
-    os << toString(Feather_getName(node));
+    os << Feather_getName(node);
     if (node->type) {
         os << '(';
         bool hasResultParam = Nest_hasProperty(node, propResultParam);
@@ -365,7 +366,7 @@ void Class_SetContextForChildren(Node* node) {
     Feather_addToSymTab(node);
 }
 TypeRef Class_ComputeType(Node* node) {
-    if (size(Feather_getName(node)) == 0)
+    if (StringRef(Feather_getName(node)).empty())
         REP_ERROR_RET(nullptr, node->location, "No name given to class");
 
     // Compute the type for all the fields
@@ -428,10 +429,10 @@ Node* CtValue_SemanticCheck(Node* node) {
     // Make sure data size matches the size reported by the type
     unsigned valueSize = Nest_sizeOf(node->type);
     StringRef data = Nest_getCheckPropertyString(node, "valueData");
-    if (valueSize != size(data)) {
+    if (valueSize != data.size()) {
         REP_ERROR_RET(nullptr, node->location,
                 "Read value size (%1%) differs from declared size of the value (%2%) - type: %3%") %
-                size(data) % valueSize % node->type;
+                data.size() % valueSize % node->type;
     }
 
     node->type = Feather_checkChangeTypeMode(node->type, modeCt, node->location);
@@ -454,7 +455,7 @@ template <typename T> T extractValue(StringRef valueData) {
     return *reinterpret_cast<const T*>(valueData.begin);
 }
 
-const char* CtValue_toString(const Node* node) {
+const char* CtValue_toString(Node* node) {
     TypeRef type = node->type;
     if (!node->type)
         type = Nest_getCheckPropertyType(node, "valueType");
@@ -471,7 +472,7 @@ const char* CtValue_toString(const Node* node) {
     if (0 == strcmp(type->description, "Type/ct")) {
         auto t = extractValue<TypeRef>(valueDataStr);
         os << t;
-    } else if (size(nativeName) > 0 && type->numReferences == 0) {
+    } else if (nativeName && type->numReferences == 0) {
         if (nativeName == "i1" || nativeName == "u1") {
             bool val = 0 != extractValue<uint8_t>(valueDataStr);
             os << (val ? "true" : "false");
@@ -492,7 +493,7 @@ const char* CtValue_toString(const Node* node) {
         else if (nativeName == "double")
             os << extractValue<double>(valueDataStr);
         else if (nativeName == "StringRef") {
-            os << "'" << toString(extractValue<StringRef>(valueDataStr)) << "'";
+            os << "'" << extractValue<StringRef>(valueDataStr) << "'";
         } else
             writeHex(os, valueDataStr);
     } else
@@ -521,7 +522,7 @@ Node* Null_SemanticCheck(Node* node) {
     node->type = Feather_adjustMode(t, node->context, node->location);
     return node;
 }
-const char* Null_toString(const Node* node) {
+const char* Null_toString(Node* node) {
     ostringstream os;
     os << "null(" << node->type << ")";
     return dupString(os.str().c_str());
@@ -532,7 +533,7 @@ Node* VarRef_SemanticCheck(Node* node) {
     ASSERT(var);
     if (var->nodeKind != nkFeatherDeclVar)
         REP_INTERNAL(node->location, "VarRef object needs to point to a Field (node kind: %1%)") %
-                Nest_nodeKindName(var);
+                NodeHandle(var).kindName();
     if (!Nest_computeType(var))
         return nullptr;
     if (isField(var))
@@ -547,10 +548,10 @@ Node* VarRef_SemanticCheck(Node* node) {
     Feather_checkEvalModeWithExpected(node, var->type->mode);
     return node;
 }
-const char* VarRef_toString(const Node* node) {
+const char* VarRef_toString(Node* node) {
     Node* var = at(node->referredNodes, 0);
     ostringstream os;
-    os << "varRef(" << toString(Feather_getName(var)) << ")";
+    os << "varRef(" << Feather_getName(var) << ")";
     return dupString(os.str().c_str());
 }
 
@@ -561,7 +562,7 @@ Node* FieldRef_SemanticCheck(Node* node) {
     ASSERT(field);
     if (field->nodeKind != nkFeatherDeclVar)
         REP_INTERNAL(node->location, "FieldRef object needs to point to a Field (node kind: %1%)") %
-                Nest_nodeKindName(field);
+                NodeHandle(field).kindName();
 
     // Semantic check the object node - make sure it's a reference to a data type
     if (!Nest_semanticCheck(obj))
@@ -601,7 +602,7 @@ Node* FieldRef_SemanticCheck(Node* node) {
     node->type = Feather_checkChangeTypeMode(node->type, mode, node->location);
     return node;
 }
-const char* FieldRef_toString(const Node* node) {
+const char* FieldRef_toString(Node* node) {
     Node* obj = at(node->children, 0);
     Node* field = at(node->referredNodes, 0);
     ostringstream os;
@@ -621,7 +622,7 @@ Node* FunRef_SemanticCheck(Node* node) {
     node->type = Feather_adjustMode(resType->type, node->context, node->location);
     return node;
 }
-const char* FunRef_toString(const Node* node) {
+const char* FunRef_toString(Node* node) {
     Node* fun = at(node->referredNodes, 0);
     ostringstream os;
     os << "FunRef(" << fun << ")";
@@ -697,9 +698,9 @@ Node* FunCall_SemanticCheck(Node* node) {
     Feather_checkEvalModeWithExpected(node, calledFunMode);
     return node;
 }
-const char* FunCall_toString(const Node* node) {
+const char* FunCall_toString(Node* node) {
     ostringstream os;
-    os << "funCall-" << toString(Feather_getName(at(node->referredNodes, 0))) << "(";
+    os << "funCall-" << Feather_getName(at(node->referredNodes, 0)) << "(";
     for (unsigned i = 0; i < Nest_nodeArraySize(node->children); ++i) {
         if (i != 0)
             os << ", ";
@@ -802,7 +803,7 @@ Node* Bitcast_SemanticCheck(Node* node) {
     node->type = Feather_adjustMode(tDest, node->context, node->location);
     return node;
 }
-const char* Bitcast_toString(const Node* node) {
+const char* Bitcast_toString(Node* node) {
     Node* exp = at(node->children, 0);
     Node* resType = at(node->children, 1);
     ostringstream os;
@@ -972,7 +973,7 @@ Node* While_SemanticCheck(Node* node) {
                     step->type;
 
         // Create a node-list that will be our explanation
-        NodeArray result = Nest_allocNodeArray(0);
+        auto result = Nest_allocNodeArray(0);
 
         // Do the while
         while (true) {
@@ -1174,13 +1175,13 @@ void initFeatherNodeKinds() {
 
 int Feather_getFirstFeatherNodeKind() { return _firstFeatherNodeKind; }
 
-Node* Feather_mkNodeList(Location loc, NodeRange children) {
+Node* Feather_mkNodeList(Location loc, Nest_NodeRange children) {
     Node* res = Nest_createNode(nkFeatherNodeList);
     res->location = loc;
     Nest_nodeSetChildren(res, children);
     return res;
 }
-Node* Feather_mkNodeListVoid(Location loc, NodeRange children) {
+Node* Feather_mkNodeListVoid(Location loc, Nest_NodeRange children) {
     Node* res = Nest_createNode(nkFeatherNodeList);
     res->location = loc;
     Nest_setPropertyInt(res, propResultVoid, 1);
@@ -1224,14 +1225,14 @@ Node* Feather_mkTypeNode(Location loc, TypeRef type) {
     Nest_setPropertyType(res, "givenType", type);
     return res;
 }
-Node* Feather_mkBackendCode(Location loc, StringRef code, EvalMode evalMode) {
+Node* Feather_mkBackendCode(Location loc, Nest_StringRef code, EvalMode evalMode) {
     Node* res = Nest_createNode(nkFeatherBackendCode);
     res->location = loc;
     Nest_setPropertyString(res, propCode, code);
     Nest_setPropertyInt(res, propEvalMode, (int)evalMode);
     return res;
 }
-Node* Feather_mkLocalSpace(Location loc, NodeRange children) {
+Node* Feather_mkLocalSpace(Location loc, Nest_NodeRange children) {
     Node* res = Nest_createNode(nkFeatherLocalSpace);
     res->location = loc;
     Nest_nodeSetChildren(res, children);
@@ -1267,7 +1268,7 @@ Node* Feather_mkTempDestructAction(Location loc, Node* action) {
 }
 
 Node* Feather_mkFunction(
-        Location loc, StringRef name, Node* resType, NodeRange params, Node* body) {
+        Location loc, Nest_StringRef name, Node* resType, Nest_NodeRange params, Node* body) {
     Node* res = Nest_createNode(nkFeatherDeclFunction);
     res->location = loc;
     Nest_nodeAddChild(res, resType);
@@ -1285,7 +1286,7 @@ Node* Feather_mkFunction(
 
     return res;
 }
-Node* Feather_mkClass(Location loc, StringRef name, NodeRange fields) {
+Node* Feather_mkClass(Location loc, Nest_StringRef name, Nest_NodeRange fields) {
     Node* res = Nest_createNode(nkFeatherDeclClass);
     res->location = loc;
     Nest_nodeSetChildren(res, fields);
@@ -1300,7 +1301,7 @@ Node* Feather_mkClass(Location loc, StringRef name, NodeRange fields) {
 
     return res;
 }
-Node* Feather_mkVar(Location loc, StringRef name, Node* typeNode) {
+Node* Feather_mkVar(Location loc, Nest_StringRef name, Node* typeNode) {
     REQUIRE_TYPE(loc, typeNode);
     Node* res = Nest_createNode(nkFeatherDeclVar);
     res->location = loc;
@@ -1311,7 +1312,7 @@ Node* Feather_mkVar(Location loc, StringRef name, Node* typeNode) {
     return res;
 }
 
-Node* Feather_mkCtValue(Location loc, TypeRef type, StringRef data) {
+Node* Feather_mkCtValue(Location loc, TypeRef type, Nest_StringRef data) {
     REQUIRE_TYPE(loc, type);
     Node* res = Nest_createNode(nkFeatherExpCtValue);
     res->location = loc;
@@ -1330,7 +1331,7 @@ Node* Feather_mkVarRef(Location loc, Node* varDecl) {
     REQUIRE_NODE(loc, varDecl);
     if (varDecl->nodeKind != nkFeatherDeclVar)
         REP_INTERNAL(loc, "A VarRef node must be applied on a variable declaration (%1% given)") %
-                Nest_nodeKindName(varDecl);
+                NodeHandle(varDecl).kindName();
     Node* res = Nest_createNode(nkFeatherExpVarRef);
     res->location = loc;
     Nest_nodeSetReferredNodes(res, fromIniList({varDecl}));
@@ -1341,7 +1342,7 @@ Node* Feather_mkFieldRef(Location loc, Node* obj, Node* fieldDecl) {
     REQUIRE_NODE(loc, fieldDecl);
     if (fieldDecl->nodeKind != nkFeatherDeclVar)
         REP_INTERNAL(loc, "A FieldRef node must be applied on a field declaration (%1% given)") %
-                Nest_nodeKindName(fieldDecl);
+                NodeHandle(fieldDecl).kindName();
     Node* res = Nest_createNode(nkFeatherExpFieldRef);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({obj}));
@@ -1353,18 +1354,18 @@ Node* Feather_mkFunRef(Location loc, Node* funDecl, Node* resType) {
     REQUIRE_NODE(loc, resType);
     if (funDecl->nodeKind != nkFeatherDeclFunction)
         REP_INTERNAL(loc, "A FunRef node must be applied on a function declaration (%1% given)") %
-                Nest_nodeKindName(funDecl);
+                NodeHandle(funDecl).kindName();
     Node* res = Nest_createNode(nkFeatherExpFunRef);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({resType}));
     Nest_nodeSetReferredNodes(res, fromIniList({funDecl}));
     return res;
 }
-Node* Feather_mkFunCall(Location loc, Node* funDecl, NodeRange args) {
+Node* Feather_mkFunCall(Location loc, Node* funDecl, Nest_NodeRange args) {
     REQUIRE_NODE(loc, funDecl);
     if (funDecl->nodeKind != nkFeatherDeclFunction)
         REP_INTERNAL(loc, "A FunCall node must be applied on a function declaration (%1% given)") %
-                Nest_nodeKindName(funDecl);
+                NodeHandle(funDecl).kindName();
     Node* res = Nest_createNode(nkFeatherExpFunCall);
     res->location = loc;
     Nest_nodeSetChildren(res, args);
@@ -1453,7 +1454,7 @@ Node* Feather_mkReturn(Location loc, Node* exp) {
     return res;
 }
 
-StringRef Feather_BackendCode_getCode(const Node* node) {
+Nest_StringRef Feather_BackendCode_getCode(Node* node) {
     ASSERT(node->nodeKind == nkFeatherBackendCode);
     return Nest_getCheckPropertyString(node, propCode);
 }
@@ -1498,8 +1499,8 @@ unsigned Feather_Function_numParameters(Node* node) {
 Node* Feather_Function_getParameter(Node* node, unsigned idx) {
     return at(node->children, idx + 2);
 }
-NodeRange Feather_Function_getParameters(Node* node) {
-    return NodeRange{node->children.beginPtr + 2, node->children.endPtr};
+Nest_NodeRange Feather_Function_getParameters(Node* node) {
+    return Nest_NodeRange{node->children.beginPtr + 2, node->children.endPtr};
 }
 TypeRef Feather_Function_resultType(Node* node) { return at(node->children, 0)->type; }
 Node* Feather_Function_body(Node* node) { return at(node->children, 1); }

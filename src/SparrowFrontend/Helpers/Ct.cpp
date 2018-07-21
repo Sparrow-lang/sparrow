@@ -7,7 +7,7 @@
 
 #include "Feather/Utils/FeatherUtils.hpp"
 
-#include "Nest/Utils/NodeUtils.hpp"
+#include "Nest/Utils/cppif/NodeUtils.hpp"
 
 using namespace Nest;
 
@@ -51,10 +51,10 @@ bool SprFrontend::ctValsEqual(Node* v1, Node* v2) {
 
     // Check if we can call the '==' operator
     // If we can call it, then actually call it and return the result
-    NodeArray decls = Nest_symTabLookup(context->currentSymTab, "==");
+    auto decls = Nest_symTabLookup(context->currentSymTab, "==");
     if (Nest_nodeArraySize(decls) > 0) {
         Node* funCall = g_OverloadService->selectOverload(context, v1->location, modeCt, all(decls),
-                fromIniList({v1, v2}), OverloadReporting::none, fromCStr(""));
+                fromIniList({v1, v2}), OverloadReporting::none, StringRef());
         Nest_freeNodeArray(decls);
         if (funCall) {
             Nest_semanticCheck(funCall);

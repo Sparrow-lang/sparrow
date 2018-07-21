@@ -25,7 +25,7 @@ string getDataTypeDescription(Node* classDecl, unsigned numReferences, EvalMode 
     for (unsigned i = 0; i < numReferences; ++i)
         res += '@';
     if (classDecl) {
-        const StringRef* description = Nest_getPropertyString(classDecl, propDescription);
+        const Nest_StringRef* description = Nest_getPropertyString(classDecl, propDescription);
         StringRef desc = description ? *description : Feather_getName(classDecl);
         res += string(desc.begin, desc.end);
     } else
@@ -90,7 +90,7 @@ int Feather_getArrayTypeKind() { return typeKindArray; }
 int Feather_getFunctionTypeKind() { return typeKindFunction; }
 
 TypeRef Feather_getVoidType(EvalMode mode) {
-    Type referenceType = {0};
+    Nest_Type referenceType = {0};
     referenceType.typeKind = typeKindVoid;
     referenceType.mode = mode;
     referenceType.numSubtypes = 0;
@@ -113,7 +113,7 @@ TypeRef Feather_getDataType(Node* classDecl, unsigned numReferences, EvalMode mo
     if (mode == modeRt && classDecl)
         mode = classMode;
 
-    Type referenceType = {0};
+    Nest_Type referenceType = {0};
     referenceType.typeKind = typeKindData;
     referenceType.mode = mode;
     referenceType.numSubtypes = 0;
@@ -131,7 +131,7 @@ TypeRef Feather_getDataType(Node* classDecl, unsigned numReferences, EvalMode mo
 }
 
 TypeRef Feather_getLValueType(TypeRef base) {
-    Type referenceType = {0};
+    Nest_Type referenceType = {0};
     referenceType.typeKind = typeKindLValue;
     referenceType.mode = base->mode;
     referenceType.numSubtypes = 1;
@@ -157,7 +157,7 @@ TypeRef Feather_getLValueType(TypeRef base) {
 }
 
 TypeRef Feather_getArrayType(TypeRef unitType, unsigned count) {
-    Type referenceType = {0};
+    Nest_Type referenceType = {0};
     referenceType.typeKind = typeKindArray;
     referenceType.mode = unitType->mode;
     referenceType.numSubtypes = 1;
@@ -185,7 +185,7 @@ TypeRef Feather_getArrayType(TypeRef unitType, unsigned count) {
 TypeRef Feather_getFunctionType(TypeRef* resultTypeAndParams, unsigned numTypes, EvalMode mode) {
     ASSERT(numTypes >= 1); // At least result type
 
-    Type referenceType = {0};
+    Nest_Type referenceType = {0};
     referenceType.typeKind = typeKindFunction;
     referenceType.mode = mode;
     referenceType.numSubtypes = numTypes;

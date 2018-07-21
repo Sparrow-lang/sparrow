@@ -9,10 +9,10 @@
 #define unlikely(x) __builtin_expect((x), 0)
 
 #define __REP_IMPL_RET(retVal, type, fmt, loc)                                                     \
-    return mkDiagReporterWithReturnFromFormatter(retVal) =                                         \
-                   Nest::Common::DiagnosticFormatter(type, fmt, (loc))
+    return Nest::mkDiagReporterWithReturnFromFormatter(retVal) =                                         \
+                   Nest::DiagnosticFormatter(type, fmt, (loc))
 #define __REP_IMPL(type, fmt, loc)                                                                 \
-    DiagReporterFromFormatter() = Nest::Common::DiagnosticFormatter(type, fmt, (loc))
+    Nest::DiagReporterFromFormatter() = Nest::DiagnosticFormatter(type, fmt, (loc))
 
 #define REP_INTERNAL(loc, fmt) __REP_IMPL(diagInternalError, fmt, (loc))
 #define REP_ERROR(loc, fmt) __REP_IMPL(diagError, fmt, (loc))
@@ -20,21 +20,23 @@
 #define REP_WARNING(loc, fmt) __REP_IMPL(diagWarning, fmt, (loc))
 #define REP_INFO(loc, fmt) __REP_IMPL(diagInfo, fmt, (loc))
 
-;
+namespace Nest {
 
 // Stream output operators for the most common nest types
 using Location = struct Nest_Location;
 using Node = struct Nest_Node;
 using TypeRef = const struct Nest_Type*;
+struct NodeHandle;
 
 ostream& operator<<(ostream& os, const Location* loc);
 ostream& operator<<(ostream& os, const Location& loc);
-ostream& operator<<(ostream& os, const Node* n);
+ostream& operator<<(ostream& os, Node* n);
+ostream& operator<<(ostream& os, Nest::NodeHandle n);
 ostream& operator<<(ostream& os, TypeRef t);
 ostream& operator<<(ostream& os, EvalMode mode);
 
 struct DiagReporterFromFormatter {
-    DiagReporterFromFormatter& operator=(const Nest::Common::DiagnosticFormatter& fmt) {
+    DiagReporterFromFormatter& operator=(const Nest::DiagnosticFormatter& fmt) {
         Nest_reportDiagnostic(fmt.location(), fmt.severity(), fmt.message().c_str());
         return *this;
     }
@@ -44,7 +46,7 @@ template <typename RetType> struct DiagReporterWithReturnFromFormatter {
     DiagReporterWithReturnFromFormatter(RetType retVal)
         : retVal_(retVal) {}
 
-    RetType operator=(const Nest::Common::DiagnosticFormatter& fmt) { // NOLINT
+    RetType operator=(const Nest::DiagnosticFormatter& fmt) { // NOLINT
         Nest_reportDiagnostic(fmt.location(), fmt.severity(), fmt.message().c_str());
         return retVal_;
     }
@@ -57,3 +59,5 @@ DiagReporterWithReturnFromFormatter<RetType> mkDiagReporterWithReturnFromFormatt
         const RetType& retVal) {
     return DiagReporterWithReturnFromFormatter<RetType>(retVal);
 }
+
+} // namespace Nest

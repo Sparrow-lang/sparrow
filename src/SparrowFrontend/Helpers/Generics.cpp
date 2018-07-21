@@ -47,7 +47,7 @@ namespace {
  * @return A vector of all the bound variable
  */
 NodeVector createAllBoundVariables(const Location& loc, CompilationContext* context,
-        NodeRange boundValues, NodeRange params, bool isCtGeneric) {
+        Nest_NodeRange boundValues, Nest_NodeRange params, bool isCtGeneric) {
     // Create a variable for each bound parameter - put everything in a node list
     NodeVector nodes;
     size_t idx = 0;
@@ -108,7 +108,7 @@ bool referencesSeenName(Node* node, const NamesVec& seenNames) {
 
 Node* checkCreateGenericFun(Node* originalFun, Node* parameters, Node* ifClause) {
     ASSERT(parameters);
-    NodeRange params = all(parameters->children);
+    Nest_NodeRange params = all(parameters->children);
     auto numParams = Nest_nodeRangeSize(params);
     if (numParams == 0)
         return nullptr; // cannot be generic
@@ -144,7 +144,7 @@ Node* checkCreateGenericFun(Node* originalFun, Node* parameters, Node* ifClause)
     //     ostringstream oss;
     //     oss << "(null";
     //     for (int i = 1; i < numParams; i++) {
-    //         oss << ", " << (dependentParams[i] ? Nest_toString(dependentParams[i]) : "null");
+    //         oss << ", " << (dependentParams[i] ? NodeHandle(dependentParams[i]).toString() : "null");
     //     }
     //     oss << ")";
     //     REP_INFO(originalFun->location, "Dependent types: %1%") % oss.str();
@@ -185,15 +185,15 @@ Node* checkCreateGenericFun(Node* originalFun, Node* parameters, Node* ifClause)
     return res;
 }
 
-NodeRange genericFunParams(Node* genericFun) { return GenericFunNode(genericFun).originalParams(); }
-NodeRange genericClassParams(Node* genericClass) {
+Nest_NodeRange genericFunParams(Node* genericFun) { return GenericFunNode(genericFun).originalParams(); }
+Nest_NodeRange genericClassParams(Node* genericClass) {
     return GenericClassNode(genericClass).instSet().params();
 }
-NodeRange genericPackageParams(Node* genericPackage) {
+Nest_NodeRange genericPackageParams(Node* genericPackage) {
     return GenericPackageNode(genericPackage).instSet().params();
 }
 
-InstNode searchInstantiation(InstSetNode instSet, NodeRange values) {
+InstNode searchInstantiation(InstSetNode instSet, Nest_NodeRange values) {
     for (InstNode inst : instSet.instantiations()) {
         const auto& boundValues = inst.boundValues();
         if (size(boundValues) < size(values))
@@ -216,7 +216,7 @@ InstNode searchInstantiation(InstSetNode instSet, NodeRange values) {
     return nullptr;
 }
 
-InstNode createNewInstantiation(InstSetNode instSet, NodeRange values, EvalMode evalMode) {
+InstNode createNewInstantiation(InstSetNode instSet, Nest_NodeRange values, EvalMode evalMode) {
     ASSERT(instSet.node);
     const Location& loc = instSet.node->location;
 
@@ -307,7 +307,7 @@ bool canInstantiate(InstNode inst, InstSetNode instSet) {
     return true;
 }
 
-InstNode canInstantiate(InstSetNode instSet, NodeRange values, EvalMode evalMode) {
+InstNode canInstantiate(InstSetNode instSet, Nest_NodeRange values, EvalMode evalMode) {
     // Try to find an existing instantiation
     InstNode inst = searchInstantiation(instSet, values);
 

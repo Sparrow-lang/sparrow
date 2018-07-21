@@ -9,10 +9,11 @@ FWD_CLASS1(llvm, BasicBlock);
 FWD_CLASS1(llvm, Value);
 FWD_CLASS1(llvm, Function);
 
-typedef struct Nest_Node Node;
-
 namespace LLVMB {
 namespace Tr {
+
+using Nest::Node;
+
 /// Called to translate a local node; returns the llvm value corresponding to the node
 llvm::Value* translateNode(Node* node, TrContext& context);
 

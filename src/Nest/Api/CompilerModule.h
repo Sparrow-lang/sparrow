@@ -1,6 +1,6 @@
 #pragma once
 
-typedef struct Nest_Backend Backend;
+typedef struct Nest_Backend Nest_Backend;
 
 /**
 A module represents a functional block of the compiler.
@@ -24,7 +24,6 @@ struct Nest_CompilerModule {
     void (*destroyFun)();
 
     // Function called when the Backend was set
-    void (*onBackendSetFun)(Backend*);
+    void (*onBackendSetFun)(Nest_Backend*);
 };
 typedef struct Nest_CompilerModule Nest_CompilerModule;
-typedef struct Nest_CompilerModule CompilerModule;

@@ -9,7 +9,7 @@
 
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
-#include "Nest/Utils/NodeVector.hpp"
+#include "Nest/Utils/cppif/NodeUtils.hpp"
 
 using namespace SprFrontend;
 
@@ -21,7 +21,7 @@ bool getNumericProperties(TypeRef t, int& numBits, bool& isUnsigned, bool& isFlo
     ASSERT(cls);
 
     StringRef nativeName = Nest_getPropertyStringDeref(cls, propNativeName);
-    if (size(nativeName) <= 1 || !islower(nativeName.begin[0]))
+    if (nativeName.size() <= 1 || !islower(nativeName.begin[0]))
         return false;
 
     if (nativeName == "double") {
@@ -34,7 +34,7 @@ bool getNumericProperties(TypeRef t, int& numBits, bool& isUnsigned, bool& isFlo
         isUnsigned = false;
         isFloating = true;
         return true;
-    } else if (size(nativeName) > 1 && (nativeName.begin[0] == 'i' || nativeName.begin[0] == 'u')) {
+    } else if (nativeName.size() > 1 && (nativeName.begin[0] == 'i' || nativeName.begin[0] == 'u')) {
         try {
             numBits = boost::lexical_cast<int>(nativeName.begin + 1);
             isUnsigned = nativeName.begin[0] == 'u';
@@ -61,7 +61,7 @@ TypeRef getTypeValueImpl(Node* typeNode, bool reportErrors = false) {
     Node* expl = Nest_explanation(typeNode);
     if (expl->nodeKind == nkSparrowExpDeclExp) {
         TypeRef res = nullptr;
-        NodeRange decls = {expl->referredNodes.beginPtr + 1, expl->referredNodes.endPtr};
+        Nest_NodeRange decls = {expl->referredNodes.beginPtr + 1, expl->referredNodes.endPtr};
         for (Node* decl : decls) {
             TypeRef t = nullptr;
             Node* resDecl = resultingDecl(decl);

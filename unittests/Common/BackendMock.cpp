@@ -2,7 +2,7 @@
 #include "BackendMock.hpp"
 
 BackendMock::BackendMock()
-    : Backend{"mockBackend", "dummy backend to use in unittesting"} {
+    : Nest_Backend{"mockBackend", "dummy backend to use in unit testing"} {
 
     init = &BackendMock::Init;
     generateMachineCode = &BackendMock::GenerateMachineCode;
@@ -16,27 +16,27 @@ BackendMock::BackendMock()
 
 BackendMock::~BackendMock() {}
 
-void BackendMock::Init(Backend* /*backend*/, const char* /*mainFilename*/) {
+void BackendMock::Init(Nest_Backend* /*backend*/, const char* /*mainFilename*/) {
     // Nothing to do
 }
-void BackendMock::GenerateMachineCode(Backend* /*backend*/, const SourceCode* /*code*/) {
+void BackendMock::GenerateMachineCode(Nest_Backend* /*backend*/, const Nest_SourceCode* /*code*/) {
     // Nothing to do
 }
-void BackendMock::Link(Backend* /*backend*/, const char* /*outFilename*/) {
+void BackendMock::Link(Nest_Backend* /*backend*/, const char* /*outFilename*/) {
     // Nothing to do
 }
-void BackendMock::CtProcess(Backend* /*backend*/, Node* /*node*/) {
+void BackendMock::CtProcess(Nest_Backend* /*backend*/, Node* /*node*/) {
     // Nothing to do
 }
-Node* BackendMock::CtEvaluate(Backend* /*backend*/, Node* node) {
+Node* BackendMock::CtEvaluate(Nest_Backend* /*backend*/, Node* node) {
     return node; // Transparent evaluation
 }
-unsigned int BackendMock::SizeOf(Backend* /*backend*/, TypeRef /*type*/) {
+unsigned int BackendMock::SizeOf(Nest_Backend* /*backend*/, TypeRef /*type*/) {
     return sizeof(TypeRef); // aways the size of a type
 }
-unsigned int BackendMock::AlignmentOf(Backend* /*backend*/, TypeRef /*type*/) {
+unsigned int BackendMock::AlignmentOf(Nest_Backend* /*backend*/, TypeRef /*type*/) {
     return 1; // byte alignment
 }
-void BackendMock::CtApiRegisterFun(Backend* /*backend*/, const char* /*name*/, void* /*funPtr*/) {
+void BackendMock::CtApiRegisterFun(Nest_Backend* /*backend*/, const char* /*name*/, void* /*funPtr*/) {
     // Nothing to do
 }

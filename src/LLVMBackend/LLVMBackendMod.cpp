@@ -10,8 +10,8 @@ void LLVMBackend_initModule() {
     LLVMBe_registerLLVMBackend();
 }
 
-CompilerModule* getLLVMBackendModule() {
-    auto* nestModule = new CompilerModule{"LLVMBackend", "Backend that uses LLVM to generate code",
+Nest_CompilerModule* getLLVMBackendModule() {
+    auto* nestModule = new Nest_CompilerModule{"LLVMBackend", "Backend that uses LLVM to generate code",
             "LucTeo", "www.lucteo.ro", 1, 0, &LLVMBackend_initModule, nullptr, nullptr};
     return nestModule;
 }

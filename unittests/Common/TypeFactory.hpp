@@ -3,11 +3,14 @@
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.h"
 #include "Nest/Api/EvalMode.h"
+#include "Nest/Utils/cppif/Fwd.hpp"
 
 namespace TypeFactory {
 
 using rc::Gen;
 using namespace rc;
+using Nest::TypeRef;
+using Nest::Node;
 
 //! The declarations for all the datatypes that we will use to generate data types and derived types
 extern vector<Node*> g_dataTypeDecls;
@@ -47,6 +50,8 @@ Gen<TypeRef> arbType();
 } // namespace TypeFactory
 
 namespace rc {
+
+using Nest::TypeRef;
 
 //! Helper to make RapidCheck generate arbitrary types
 template <> struct Arbitrary<TypeRef> {

@@ -69,7 +69,7 @@ struct ConceptsServiceMock : IConceptsService {
     vector<pair<Node*, TypeRef>> baseConcepts_; // concept -> base node
 };
 
-struct ConvertFixture : GeneralFixture {
+struct ConvertFixture : SparrowGeneralFixture {
     ConvertFixture();
     ~ConvertFixture();
 

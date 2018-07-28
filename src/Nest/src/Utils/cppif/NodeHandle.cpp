@@ -273,24 +273,4 @@ NodeHandle NodeHandle::explanation() {
                    : *this;
 }
 
-const char* NodeRange::toString() const {
-    ostringstream ss;
-    ss << '[';
-    bool first = true;
-    for (auto node : *this) {
-        if (first)
-            first = false;
-        else
-            ss << ", ";
-        if (node)
-            ss << node.toString();
-        else
-            ss << "null";
-    }
-    ss << ']';
-    return strdup(ss.str().c_str());
-}
-
-const char* NodeRangeM::toString() const { return NodeRange(range).toString(); }
-
 } // namespace Nest

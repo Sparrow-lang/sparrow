@@ -12,13 +12,18 @@ SET(sourceFiles
     "Common/GeneralFixture.cpp"
     "Common/BackendMock.hpp"
     "Common/BackendMock.cpp"
+    "Nest/MockType.hpp"
+    "Nest/MockType.cpp"
+    "Nest/MockNode.hpp"
+    "Nest/MockNode.cpp"
+    "Nest/TestNode.cpp"
+    "Nest/TestType.cpp"
 )
 
 # Project settings
 INCLUDE_DIRECTORIES( "." )
 INCLUDE_DIRECTORIES( "../src" )
 INCLUDE_DIRECTORIES( "../externals/rapidcheck/include" )
-# INCLUDE_DIRECTORIES( "../externals/rapidcheck/extras/boost_test/include" )
 INCLUDE_DIRECTORIES( "../externals/rapidcheck/ext/catch/include" )
 INCLUDE_DIRECTORIES( "../externals/rapidcheck/extras/catch/include" )
 ADD_SOURCES_TO_GROUPS(sourceFiles)

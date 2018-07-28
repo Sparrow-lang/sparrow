@@ -21,7 +21,7 @@ struct NodeRangeM;
 struct NodeHandle {
     //! The actual handle to the node
     Nest_Node* const handle;
-
+    NodeHandle() : handle(nullptr) {};
     //! Construct a node handle from an actual C-style Nest_Node pointer
     NodeHandle(Nest_Node* h)
         : handle(h) {}

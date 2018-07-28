@@ -19,8 +19,6 @@
 #include "Nest/Utils/cppif/StringRef.hpp"
 #include "Nest/Utils/CompilerSettings.hpp"
 
-GeneralFixture* GeneralFixture::lastInstance_{nullptr};
-
 namespace {
 
 void destroyModule(Nest_CompilerModule* mod) {
@@ -30,11 +28,9 @@ void destroyModule(Nest_CompilerModule* mod) {
 
 } // namespace
 
-GeneralFixture::GeneralFixture() {
-    // Initialize the modules
+NestGeneralFixture::NestGeneralFixture() {
+    // Initialize the Nest module
     getNestModule()->initFun();
-    Feather_getModule()->initFun();
-    getSparrowFrontendModule()->initFun();
 
     // Create the backend object and register it
     backend_.reset(new BackendMock);
@@ -47,26 +43,13 @@ GeneralFixture::GeneralFixture() {
 
     // Set up some compiler settings
     Nest_compilerSettings()->noColors_ = true;
-
-    lastInstance_ = this;
 }
-GeneralFixture::~GeneralFixture() {
-    // Cleanup any test statics
-    TypeFactory::g_dataTypeDecls.clear();
-    TypeFactory::g_conceptDecls.clear();
-
-    // Cleanup our modules
-    destroyModule(getSparrowFrontendModule());
-    destroyModule(Feather_getModule());
+NestGeneralFixture::~NestGeneralFixture() {
+    // Cleanup the Nest module
     destroyModule(getNestModule());
-
-    // Reset the last instance of this class
-    lastInstance_ = nullptr;
 }
 
-GeneralFixture& GeneralFixture::instance() { return *lastInstance_; }
-
-Location GeneralFixture::createLocation() {
+Location NestGeneralFixture::createLocation() {
     // If we don't have a sourceCode yet, create one
     if (!sourceCode_) {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
@@ -79,7 +62,23 @@ Location GeneralFixture::createLocation() {
     return {sourceCode_, {line, 1}, {line, 2}};
 }
 
-Node* GeneralFixture::createDatatypeNode(StringRef name, CompilationContext* ctx) {
+
+SparrowGeneralFixture::SparrowGeneralFixture() {
+    // Initialize the Feather & Sparrowmodules
+    Feather_getModule()->initFun();
+    getSparrowFrontendModule()->initFun();
+}
+SparrowGeneralFixture::~SparrowGeneralFixture() {
+    // Cleanup any test statics
+    TypeFactory::g_dataTypeDecls.clear();
+    TypeFactory::g_conceptDecls.clear();
+
+    // Cleanup our modules
+    destroyModule(getSparrowFrontendModule());
+    destroyModule(Feather_getModule());
+}
+
+Node* SparrowGeneralFixture::createDatatypeNode(StringRef name, CompilationContext* ctx) {
     Nest_NodeRange fields{nullptr, nullptr};
     auto res = Feather_mkClass(createLocation(), name, fields);
     if (ctx)
@@ -87,13 +86,13 @@ Node* GeneralFixture::createDatatypeNode(StringRef name, CompilationContext* ctx
     return res;
 }
 
-Node* GeneralFixture::createNativeDatatypeNode(StringRef name, CompilationContext* ctx) {
+Node* SparrowGeneralFixture::createNativeDatatypeNode(StringRef name, CompilationContext* ctx) {
     auto res = createDatatypeNode(name, ctx);
     Nest_setPropertyString(res, propNativeName, name);
     return res;
 }
 
-Node* GeneralFixture::createSimpleConcept(StringRef name, CompilationContext* ctx) {
+Node* SparrowGeneralFixture::createSimpleConcept(StringRef name, CompilationContext* ctx) {
     auto res = SprFrontend::mkSprConcept(createLocation(), name, StringRef("x"), nullptr, nullptr);
     if (ctx)
         Nest_setContext(res, ctx);

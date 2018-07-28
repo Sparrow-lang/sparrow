@@ -32,6 +32,9 @@ struct NodeRange {
     //! Automatic conversion to Nest_NodeRange
     operator Nest_NodeRange() const { return range; }
 
+    //! Returns true if there are no nodes in this range
+    bool empty() const { return range.beginPtr == range.endPtr; }
+
     //! Gets the number of nodes in this range
     int size() const { return Nest_nodeRangeSize(range); }
     //! Returns the node handle at the given index
@@ -73,6 +76,9 @@ struct NodeRangeM {
     //! Automatic conversion to NodeRange
     operator NodeRange() const { return Nest_NodeRange{range.beginPtr, range.endPtr}; }
 
+    //! Returns true if there are no nodes in this range
+    bool empty() const { return range.beginPtr == range.endPtr; }
+
     //! Gets the number of nodes in this range
     int size() const { return Nest_nodeRangeMSize(range); }
     //! Returns the node handle at the given index
@@ -92,5 +98,8 @@ struct NodeRangeM {
 
     const char* toString() const;
 };
+
+ostream& operator<<(ostream& os, NodeRange r);
+
 
 } // namespace Nest

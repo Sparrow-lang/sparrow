@@ -11,26 +11,18 @@ using Nest::Node;
 
 //! General fixture to be used for unit testing.
 //!
-//! This ensures proper initialization and shutdown of Sparrow code. It ensures that we can restart
+//! This only deals with Nest objects.
+//!
+//! This ensures proper initialization and shutdown of Nest module. It ensures that we can restart
 //! the compiler state after a test is run.
 //!
 //! It also provide some generic utilities for testing.
-struct GeneralFixture {
-    GeneralFixture();
-    ~GeneralFixture();
-
-    static GeneralFixture& instance();
+struct NestGeneralFixture {
+    NestGeneralFixture();
+    ~NestGeneralFixture();
 
     //! Create a new location; each time we increment the line number
     Location createLocation();
-
-    //! Create a datatype with the given name
-    Node* createDatatypeNode(StringRef name, CompilationContext* ctx = nullptr);
-    //! Create a datatype with the given name, and with the same native name
-    Node* createNativeDatatypeNode(StringRef name, CompilationContext* ctx = nullptr);
-
-    //! Create a simple concept with no if-clause
-    Node* createSimpleConcept(StringRef name, CompilationContext* ctx = nullptr);
 
     //! The global context we are using
     CompilationContext* globalContext_{nullptr};
@@ -39,10 +31,29 @@ struct GeneralFixture {
     unique_ptr<Nest_Backend> backend_{};
 
 private:
-    //! The last instance of this class
-    static GeneralFixture* lastInstance_;
     //! The source code we are using for all generated code
     Nest_SourceCode* sourceCode_{nullptr};
     //! The last line number we've used for locations
     int lastLineNum_{0};
+};
+
+//! General fixture to be used for unit testing.
+//!
+//! This only deals with Nest objects.
+//!
+//! This ensures proper initialization and shutdown of Sparrow code. It ensures that we can restart
+//! the compiler state after a test is run.
+//!
+//! It also provide some generic utilities for testing.
+struct SparrowGeneralFixture : NestGeneralFixture {
+    SparrowGeneralFixture();
+    ~SparrowGeneralFixture();
+
+    //! Create a datatype with the given name
+    Node* createDatatypeNode(StringRef name, CompilationContext* ctx = nullptr);
+    //! Create a datatype with the given name, and with the same native name
+    Node* createNativeDatatypeNode(StringRef name, CompilationContext* ctx = nullptr);
+
+    //! Create a simple concept with no if-clause
+    Node* createSimpleConcept(StringRef name, CompilationContext* ctx = nullptr);
 };

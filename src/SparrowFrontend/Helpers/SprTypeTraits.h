@@ -33,7 +33,7 @@ Node* createTypeNode(CompilationContext* context, const Location& loc, TypeRef t
 
 /// Gets the type to be used when auto is found for a node; removes l-values, but tries to preserve
 /// references
-TypeRef getAutoType(Node* typeNode, bool Feather_addRef = false, EvalMode evalMode = modeRt);
+TypeRef getAutoType(Node* typeNode, bool addRef = false, EvalMode evalMode = modeRt);
 
 /// Tests if this an concept or concept-ref type
 bool isConceptType(TypeRef t);

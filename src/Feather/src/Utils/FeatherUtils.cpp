@@ -67,12 +67,16 @@ TypeRef Feather_addRef(TypeRef type) {
     ASSERT(type);
     if (!type->hasStorage)
         REP_INTERNAL(Location(), "Invalid type given when adding reference (%1%)") % type;
+    if (type->typeKind != typeKindData && type->typeKind != typeKindLValue)
+        REP_INTERNAL(Location(), "Invalid type given when adding reference (%1%)") % type;
     return Feather_getDataType(type->referredNode, type->numReferences + 1, type->mode);
 }
 
 TypeRef Feather_removeRef(TypeRef type) {
     ASSERT(type);
     if (!type->hasStorage || type->numReferences < 1)
+        REP_INTERNAL(Location(), "Invalid type given when removing reference (%1%)") % type;
+    if (type->typeKind != typeKindData && type->typeKind != typeKindLValue)
         REP_INTERNAL(Location(), "Invalid type given when removing reference (%1%)") % type;
     return Feather_getDataType(type->referredNode, type->numReferences - 1, type->mode);
 }
@@ -81,6 +85,8 @@ TypeRef Feather_removeAllRef(TypeRef type) {
     ASSERT(type);
     if (!type->hasStorage)
         REP_INTERNAL(Location(), "Invalid type given when removing reference (%1%)") % type;
+    if (type->typeKind != typeKindData && type->typeKind != typeKindLValue)
+        REP_INTERNAL(Location(), "Invalid type given when removing all references (%1%)") % type;
     return Feather_getDataType(type->referredNode, 0, type->mode);
 }
 

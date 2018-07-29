@@ -5,6 +5,7 @@ SET(sourceFiles
 
     "Utils/FeatherUtils.h"
     "Utils/FeatherUtils.hpp"
+    "Utils/cppif/FeatherTypes.hpp"
 
     "src/CtApiFunctions.h"
     "src/CtApiFunctions.cpp"
@@ -18,6 +19,7 @@ SET(sourceFiles
     "src/Api/Feather_Types.h"
     "src/Utils/FeatherUtils.c"
     "src/Utils/FeatherUtils.cpp"
+    "src/Utils/cppif/FeatherTypes.cpp"
 )
 
 # Project settings

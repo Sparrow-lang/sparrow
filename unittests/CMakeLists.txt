@@ -18,6 +18,7 @@ SET(sourceFiles
     "Nest/MockNode.cpp"
     "Nest/TestNode.cpp"
     "Nest/TestType.cpp"
+    "Feather/TestTypes.cpp"
 )
 
 # Project settings

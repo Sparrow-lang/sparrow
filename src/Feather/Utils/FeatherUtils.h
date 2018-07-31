@@ -151,31 +151,8 @@ int Feather_isTestable(Nest_Node* node);
 /// Checks if the given type is a basic numeric type (bool, integral, floating point, char)
 int Feather_isBasicNumericType(Nest_TypeRef type);
 
-/// Creates a new type from the original type, and change its mode
-Nest_TypeRef Feather_checkChangeTypeMode(Nest_TypeRef type, EvalMode mode, Nest_Location loc);
-
-/// Add a reference to the given type
-Nest_TypeRef Feather_addRef(Nest_TypeRef type);
-
-/// Remove a reference to the given type
-Nest_TypeRef Feather_removeRef(Nest_TypeRef type);
-
-/// Remove all the references from the given type
-Nest_TypeRef Feather_removeAllRef(Nest_TypeRef type);
-
-/// Remove the lvalue from a type - the number of references reported will also decrease
-Nest_TypeRef Feather_removeLValue(Nest_TypeRef type);
-Nest_TypeRef Feather_removeLValueIfPresent(Nest_TypeRef type);
-
-/// Transforms a lvalue into a reference - the reported number of references will remain the same
-Nest_TypeRef Feather_lvalueToRef(Nest_TypeRef type);
-Nest_TypeRef Feather_lvalueToRefIfPresent(Nest_TypeRef type);
-
 /// Gets the class declaration for the given type; if it doesn't have one, return null
 Nest_Node* Feather_classForType(Nest_TypeRef t);
-
-/// Check the types are the same, but also consider the operation mode
-int Feather_isSameTypeIgnoreMode(Nest_TypeRef t1, Nest_TypeRef t2);
 
 //! Combines two modes together.
 //! If one of the modes is modeCt, the result will be modeCt

@@ -9,9 +9,11 @@
 #include "SparrowFrontend/Helpers/Generics.h"
 #include "SparrowFrontend/Helpers/StdDef.h"
 #include "SparrowFrontend/SparrowFrontendTypes.h"
+#include "Feather/Utils/cppif/FeatherTypes.hpp"
 #include "Nest/Utils/cppif/StringRef.hpp"
 #include "Nest/Utils/Diagnostic.hpp"
 
+using namespace Feather;
 using namespace SprFrontend;
 
 namespace rc {
@@ -284,7 +286,7 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
         TypeRef lvT = Feather_getLValueType(t);
         RC_LOG() << lvT << " -> " << u << endl;
 
-        TypeRef rt = Feather_addRef(t);
+        TypeRef rt = addRef(DataType(t));
         ConversionType c1 = getConvType(rt, u);
         RC_LOG() << "    " << rt << " -> " << u << " = " << int(c1) << endl;
 
@@ -321,7 +323,7 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
     rc::prop("if T -> U (don't add ref, don't cvt), T=datatype, then @T -> U (implicit)", [=]() {
         TypeRef src = *TypeFactory::arbDataType();
         TypeRef dest = *TypeFactory::arbType();
-        TypeRef srcRef = Feather_addRef(src);
+        TypeRef srcRef = addRef(DataType(src));
         RC_PRE(srcRef != dest);
         RC_LOG() << srcRef << " -> " << dest << endl;
 
@@ -335,7 +337,7 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
     rc::prop("if @T -> U, refs(T)==0, then T -> U (implicit)", [=]() {
         TypeRef src = *TypeFactory::arbDataType(modeUnspecified, 0, 1);
         TypeRef dest = *TypeFactory::arbType();
-        TypeRef srcRef = Feather_addRef(src);
+        TypeRef srcRef = addRef(DataType(src));
         RC_PRE(srcRef != dest);
         RC_LOG() << src << " -> " << dest << endl;
 
@@ -355,7 +357,7 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
         int numRefs = *rc::gen::inRange(0, 4);
         bool useLValue = *rc::gen::element(0, 1) != 0;
         for (int i = 0; i < numRefs; i++)
-            src = Feather_addRef(src);
+            src = addRef(DataType(src));
         if (useLValue)
             src = Feather_getLValueType(src);
         TypeRef dest = *TypeFactory::arbConceptType(src->mode, 0, 1);

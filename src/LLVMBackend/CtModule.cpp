@@ -8,6 +8,7 @@
 #include <Tr/PrepareTranslate.h>
 
 #include "Feather/Utils/FeatherUtils.hpp"
+#include "Feather/Utils/cppif/FeatherTypes.hpp"
 
 #include "Nest/Api/Node.h"
 #include "Nest/Api/Type.h"
@@ -291,7 +292,7 @@ Node* CtModule::ctEvaluateExpression(Node* node) {
         // Create a CtValue containing the data resulted from expression evaluation
         TypeRef t = node->type;
         if (t->mode != modeCt)
-            t = Feather_checkChangeTypeMode(t, modeCt, node->location);
+            t = TypeBase(t).changeMode(modeCt, node->location);
         res = Feather_mkCtValue(node->location, t, dataBuffer);
     } else {
         // The magic is here:

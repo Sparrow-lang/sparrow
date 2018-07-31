@@ -9,8 +9,6 @@ namespace Feather {
 /**
  * @brief   Base class for all type wrappers.
  *
- * All type wrappers are immutable; once initialized, we cannot change the type underneath.
- *
  * All the types have a mode; we allow it to query the mode of the type.
  *
  * Properties:
@@ -20,7 +18,7 @@ namespace Feather {
  */
 struct TypeBase {
     //! The actual type we are wrapping
-    const Nest::TypeRef type_{};
+    Nest::TypeRef type_{};
 
     //! Constructor that initializes this with a null type
     TypeBase() = default;
@@ -300,28 +298,26 @@ DataType removeAllRefs(TypeWithStorage type);
 /**
  * @brief      Removes the LValue from the type, if present.
  *
- * Constraints:
- *     - given type must be DataType or LValueType
- *     - returned type is always DataType
+ * The given type can be any type (even without storage).
+ * If the type is LValue, we will always create a DataType.
  *
  * @param[in]  type  The type to remove LValue from
  *
  * @return     Type without LValue, or the original type if no LValue was present
  */
-DataType removeLValueIfPresent(TypeWithStorage type);
+TypeBase removeLValueIfPresent(TypeBase type);
 
 /**
  * @brief      If the given type is an LValue, transform it to ref.
  *
- * Constraints:
- *     - given type must be DataType or LValueType
- *     - returned type is always DataType
+ * The given type can be any type (even without storage).
+ * If the type is LValue, we will always create a DataType.
  *
  * @param[in]  type  The type, that may be an LValue
  *
  * @return     Equivalent DataType
  */
-DataType lvalueToRefIfPresent(TypeWithStorage type);
+TypeBase lvalueToRefIfPresent(TypeBase type);
 
 /**
  * @brief      Returns true if the types are the same, ignoring the mode of the type.

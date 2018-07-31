@@ -5,6 +5,7 @@
 #include "GlobalContext.h"
 
 #include "Feather/Utils/FeatherUtils.hpp"
+#include "Feather/Utils/cppif/FeatherTypes.hpp"
 
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/cppif/StringRef.hpp"
@@ -17,6 +18,7 @@
 using namespace LLVMB;
 using namespace LLVMB::Tr;
 using namespace Nest;
+using namespace Feather;
 using namespace std;
 
 namespace {
@@ -306,7 +308,7 @@ llvm::DIType* DebugInfo::createDiType(GlobalContext& ctx, TypeRef type) {
     if (type->numReferences > 0) {
         // Pointer type (Datatype & LValue)
         int sizeInBits = dataLayout.getTypeAllocSizeInBits(t);
-        auto baseType = createDiType(ctx, Feather_removeRef(type));
+        auto baseType = createDiType(ctx, removeRef(TypeWithStorage(type)));
         res = diBuilder_.createPointerType(baseType, sizeInBits);
     } else if (type->typeKind == Feather_getDataTypeKind()) {
         res = createDiStructType(ctx, type);

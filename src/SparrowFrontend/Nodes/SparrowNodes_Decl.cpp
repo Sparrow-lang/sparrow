@@ -12,7 +12,10 @@
 #include <Helpers/Convert.h>
 #include <Helpers/ForEachNodeInNodeList.h>
 
+#include "Feather/Utils/cppif/FeatherTypes.hpp"
+
 using namespace SprFrontend;
+using namespace Feather;
 using namespace Nest;
 
 namespace {
@@ -430,7 +433,7 @@ TypeRef SprFunction_ComputeType(Node* node) {
     TypeRef resType = returnType ? getType(returnType) : Feather_getVoidType(mode);
     if (!resType)
         REP_INTERNAL(node->location, "Cannot compute the function resulting type");
-    resType = Feather_checkChangeTypeMode(resType, mode, node->location);
+    resType = TypeBase(resType).changeMode(mode, node->location);
 
     // If the result is a non-reference class, not basic numeric, and our function is not native,
     // add result parameter; otherwise, normal result
@@ -439,7 +442,7 @@ TypeRef SprFunction_ComputeType(Node* node) {
             !Feather_isBasicNumericType(resType)) {
         ASSERT(returnType);
         Node* resParam = Feather_mkVar(returnType->location, StringRef("_result"),
-                Feather_mkTypeNode(returnType->location, Feather_addRef(resType)));
+                Feather_mkTypeNode(returnType->location, addRef(TypeWithStorage(resType))));
         Nest_setContext(resParam, node->childrenContext);
         Feather_Function_addParameterFirst(resultingFun, resParam);
         Nest_setPropertyNode(resultingFun, propResultParam, resParam);

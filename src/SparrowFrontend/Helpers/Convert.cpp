@@ -9,12 +9,15 @@
 
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
+#include "Feather/Utils/cppif/FeatherTypes.hpp"
 
 #include "Nest/Utils/Tuple.hpp"
 
 #include <utility>
 
 namespace SprFrontend {
+
+using namespace Feather;
 
 unique_ptr<IConvertService> g_ConvertService{};
 
@@ -84,7 +87,7 @@ Node* applyOnce(Node* src, ConvAction action) {
     case ActionType::makeNull:
         return Feather_mkNull(src->location, Feather_mkTypeNode(src->location, destT));
     case ActionType::addRef: {
-        TypeRef srcT = Feather_removeRef(destT);
+        TypeRef srcT = removeRef(TypeWithStorage(destT));
         Node* var = Feather_mkVar(
                 src->location, StringRef("$tmpForRef"), Feather_mkTypeNode(src->location, srcT));
         Node* varRef = Feather_mkVarRef(src->location, var);
@@ -170,7 +173,7 @@ private:
     ConversionResult checkConceptToConcept(
             CompilationContext* context, int flags, TypeRef srcType, TypeRef destType);
 
-    //! direct: lv(T) -> U, if T-> U or Feather_addRef(T) -> U (take best alternative)
+    //! direct: lv(T) -> U, if T-> U or addRef(T) -> U (take best alternative)
     ConversionResult checkLValueToNormal(
             CompilationContext* context, int flags, TypeRef srcType, TypeRef destType);
 
@@ -318,7 +321,7 @@ ConversionResult ConvertService::checkChangeMode(
     if (srcMode == destMode || destMode == modeCt)
         return {};
 
-    TypeRef srcTypeNew = Feather_checkChangeTypeMode(srcType, destMode, NOLOC);
+    TypeRef srcTypeNew = TypeBase(srcType).changeMode(destMode, NOLOC);
     if (srcTypeNew == srcType)
         return {};
 
@@ -332,7 +335,7 @@ ConversionResult ConvertService::checkChangeMode(
         if (srcTypeNew->typeKind == typeKindLValue) {
             if (srcTypeNew->numReferences > 1)
                 return {};
-            srcTypeNew = Feather_removeLValueIfPresent(srcTypeNew);
+            srcTypeNew = LValueType(srcTypeNew).base();
             action = ConvAction(ActionType::dereference, srcTypeNew);
         }
         if (srcTypeNew->numReferences > 0)
@@ -387,15 +390,15 @@ ConversionResult ConvertService::checkConceptToConcept(
     if (!srcBaseConceptType)
         return {};
     srcBaseConceptType =
-            Feather_checkChangeTypeMode(srcBaseConceptType, srcType->mode, srcConcept->location);
+            TypeBase(srcBaseConceptType).changeMode(srcType->mode, srcConcept->location);
     return cachedCheckConversion(context, flags, srcBaseConceptType, destType);
 }
 
 ConversionResult ConvertService::checkLValueToNormal(
         CompilationContext* context, int flags, TypeRef srcType, TypeRef destType) {
     if (srcType->typeKind == typeKindLValue && destType->typeKind != typeKindLValue) {
-        TypeRef t2 = Feather_lvalueToRef(srcType);
-        TypeRef t1 = Feather_removeRef(t2);
+        DataType t2 = LValueType(srcType).toRef();
+        DataType t1 = removeRef(t2);
 
         // First check conversion without reference
         const auto& nextConv =
@@ -412,7 +415,7 @@ ConversionResult ConvertService::checkLValueToNormal(
 
 ConversionResult ConvertService::checkNullToReference(
         CompilationContext* /*context*/, int /*flags*/, TypeRef srcType, TypeRef destType) {
-    if (!StdDef::typeNull || !Feather_isSameTypeIgnoreMode(srcType, StdDef::typeNull) ||
+    if (!StdDef::typeNull || !Feather::sameTypeIgnoreMode(srcType, StdDef::typeNull) ||
             !destType->hasStorage || destType->numReferences == 0)
         return {};
 
@@ -424,7 +427,7 @@ ConversionResult ConvertService::checkDereference(
     if (srcType->typeKind != typeKindData || srcType->numReferences == 0)
         return {};
 
-    TypeRef t = Feather_removeRef(srcType);
+    DataType t = removeRef(DataType(srcType));
 
     const auto& nextConv =
             cachedCheckConversion(context, flags | flagDontAddReference, t, destType);
@@ -436,7 +439,7 @@ ConversionResult ConvertService::checkAddReference(
     if (srcType->typeKind != typeKindData || srcType->numReferences > 0)
         return {};
 
-    TypeRef baseDataType = Feather_addRef(srcType);
+    DataType baseDataType = addRef(DataType(srcType));
 
     const auto& nextConv =
             cachedCheckConversion(context, flags | flagDontAddReference, baseDataType, destType);
@@ -470,7 +473,7 @@ ConversionResult ConvertService::checkConversionCtor(
     EvalMode destMode = t->mode;
     if (destMode == modeRt)
         destMode = srcType->mode;
-    t = Feather_checkChangeTypeMode(t, destMode, NOLOC);
+    t = TypeBase(t).changeMode(destMode, NOLOC);
     TypeRef resType = Feather_getLValueType(t);
 
     const auto& nextConv =

@@ -9,9 +9,11 @@
 
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
+#include "Feather/Utils/cppif/FeatherTypes.hpp"
 #include "Nest/Utils/cppif/NodeUtils.hpp"
 
 using namespace SprFrontend;
+using namespace Feather;
 
 namespace {
 bool getNumericProperties(TypeRef t, int& numBits, bool& isUnsigned, bool& isFloating) {
@@ -98,7 +100,7 @@ TypeRef getTypeValueImpl(Node* typeNode, bool reportErrors = false) {
         return res;
     }
 
-    TypeRef res = Feather_lvalueToRefIfPresent(typeNode->type);
+    TypeRef res = Feather::lvalueToRefIfPresent(typeNode->type);
 
     if (res == StdDef::typeRefType) {
         Node* n = Nest_ctEval(typeNode);
@@ -243,7 +245,7 @@ Node* SprFrontend::convertCtToRt(Node* node) {
         REP_ERROR_RET(nullptr, loc, "Cannot convert references from CT to RT (%1%)") % t;
 
     if (Feather_isBasicNumericType(t) ||
-            Feather_checkChangeTypeMode(t, modeRt, NOLOC) == StdDef::typeStringRef)
+            TypeBase(t).changeMode(modeRt, NOLOC) == StdDef::typeStringRef)
         return Nest_ctEval(node);
     else
         return checkDataTypeCtToRtConversion(node);
@@ -266,22 +268,20 @@ Node* SprFrontend::createTypeNode(CompilationContext* context, const Location& l
 }
 
 TypeRef SprFrontend::getAutoType(Node* typeNode, bool addRef, EvalMode evalMode) {
-    TypeRef t = typeNode->type;
+    TypeRef t1 = typeNode->type;
 
-    // Nothing to do for function types
-    if (t->typeKind == typeKindFunction)
-        return t;
+    // Nothing to do for storage types other than data and LValue
+    if (t1->typeKind != typeKindData && t1->typeKind != typeKindLValue)
+        return t1;
 
-    // Remove l-value if we have one
-    if (t->typeKind == typeKindLValue)
-        t = Feather_baseType(t);
+    Feather::TypeWithStorage t = t1;
 
-    // Dereference
-    t = Feather_removeAllRef(t);
+    // Dereference (and remove LValue if there is one)
+    t = Feather::removeAllRefs(t);
 
     if (addRef)
-        t = Feather_addRef(t);
-    t = Feather_checkChangeTypeMode(t, evalMode, typeNode->location);
+        t = Feather::addRef(t);
+    t = t.changeMode(evalMode, typeNode->location);
     return t;
 }
 

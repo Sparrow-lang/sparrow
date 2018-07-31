@@ -7,7 +7,18 @@
 namespace Feather {
 
 TypeBase TypeBase::changeMode(Nest::EvalMode mode, Nest::Location loc) {
-    return Feather_checkChangeTypeMode(type_, mode, loc);
+    if (mode == type_->mode)
+        return *this;
+
+    Nest::TypeRef resType = Nest_changeTypeMode(type_, mode);
+    if (!resType)
+        REP_INTERNAL(loc, "Don't know how to change eval mode of type %1%") % type_;
+    ASSERT(resType);
+
+    if (mode == modeCt && resType->mode != modeCt)
+        REP_ERROR_RET(nullptr, loc, "Type '%1%' cannot be used at compile-time") % type_;
+
+    return resType;
 }
 
 VoidType::VoidType(Nest::TypeRef type)
@@ -100,24 +111,18 @@ DataType removeAllRefs(TypeWithStorage type) {
     return DataType::get(type.referredNode(), 0, type.mode());
 }
 
-DataType removeLValueIfPresent(TypeWithStorage type) {
+TypeBase removeLValueIfPresent(TypeBase type) {
     if (type.kind() == typeKindLValue)
-        return DataType(LValueType(type.type_).base());
-    else if (type.kind() == typeKindData)
-        return DataType(type.type_);
+        return LValueType(type.type_).base();
     else
-        REP_INTERNAL(NOLOC, "Invalid type passed to removeLValueIfPresent (%1%)") % type;
-    return DataType();
+        return type;
 }
 
-DataType lvalueToRefIfPresent(TypeWithStorage type) {
+TypeBase lvalueToRefIfPresent(TypeBase type) {
     if (type.kind() == typeKindLValue)
         return LValueType(type.type_).toRef();
-    else if (type.kind() == typeKindData)
-        return DataType(type.type_);
     else
-        REP_INTERNAL(NOLOC, "Invalid type passed to lvalueToRefIfPresent (%1%)") % type;
-    return DataType();
+        return type;
 }
 
 bool sameTypeIgnoreMode(TypeBase t1, TypeBase t2) {

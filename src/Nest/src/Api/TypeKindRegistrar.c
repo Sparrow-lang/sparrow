@@ -3,7 +3,7 @@
 #include "Nest/Utils/Assert.h"
 
 struct _TypeFunctions {
-    FChangeTypeMode Feather_checkChangeTypeMode;
+    FChangeTypeMode changeTypeMode;
 };
 
 /// The registered type kinds
@@ -19,7 +19,7 @@ int Nest_registerTypeKind(FChangeTypeMode funChangeTypeMode) {
 
 FChangeTypeMode Nest_getChangeTypeModeFun(int typeKind) {
     ASSERT(0 <= typeKind && typeKind < _numTypeKinds);
-    return _allTypeKinds[typeKind].Feather_checkChangeTypeMode;
+    return _allTypeKinds[typeKind].changeTypeMode;
 }
 
 void Nest_resetRegisteredTypeKinds() { _numTypeKinds = 0; }

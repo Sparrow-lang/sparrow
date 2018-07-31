@@ -5,6 +5,7 @@
 #include "Feather/Api/Feather.h"
 
 #include "Feather/Utils/FeatherUtils.hpp"
+#include "Feather/Utils/cppif/FeatherTypes.hpp"
 
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/Alloc.h"
@@ -349,7 +350,7 @@ const char* Function_toString(Node* node) {
             os << at(node->children, i)->type;
         }
         os << "): "
-           << (hasResultParam ? Feather_removeRef(at(node->children, 2)->type)
+           << (hasResultParam ? removeRef(TypeWithStorage(at(node->children, 2)->type)).type_
                               : at(node->children, 0)->type);
     }
     return dupString(os.str().c_str());
@@ -435,7 +436,7 @@ Node* CtValue_SemanticCheck(Node* node) {
                 data.size() % valueSize % node->type;
     }
 
-    node->type = Feather_checkChangeTypeMode(node->type, modeCt, node->location);
+    node->type = TypeBase(node->type).changeMode(modeCt, node->location);
     return node;
 }
 void writeHex(ostringstream& os, StringRef data) {
@@ -599,7 +600,7 @@ Node* FieldRef_SemanticCheck(Node* node) {
     ASSERT(field->type->hasStorage);
     node->type = Feather_getLValueType(field->type);
     EvalMode mode = Feather_combineMode(obj->type->mode, node->context->evalMode);
-    node->type = Feather_checkChangeTypeMode(node->type, mode, node->location);
+    node->type = TypeBase(node->type).changeMode(mode, node->location);
     return node;
 }
 const char* FieldRef_toString(Node* node) {
@@ -658,7 +659,7 @@ Node* FunCall_SemanticCheck(Node* node) {
         // Compare types
         TypeRef argType = arg->type;
         TypeRef paramType = Feather_Function_getParameter(fun, i)->type;
-        if (!Feather_isSameTypeIgnoreMode(argType, paramType))
+        if (!Feather::sameTypeIgnoreMode(argType, paramType))
             REP_ERROR_RET(nullptr, arg->location,
                     "Invalid function call: argument %1% is expected to have type %2% (actual "
                     "type: %3%)") %
@@ -683,7 +684,7 @@ Node* FunCall_SemanticCheck(Node* node) {
     // Handle autoCt case
     if (allParamsAreCtAvailable && node->type->mode == modeRt &&
             Nest_hasProperty(fun, propAutoCt)) {
-        node->type = Feather_checkChangeTypeMode(node->type, modeCt, node->location);
+        node->type = TypeBase(node->type).changeMode(modeCt, node->location);
     }
 
     // Make sure we yield a type with the right mode
@@ -732,7 +733,7 @@ Node* MemLoad_SemanticCheck(Node* node) {
                 "Cannot use atomic acquire-release with a load instruction");
 
     // Remove the 'ref' from the type and get the base type
-    node->type = Feather_removeRef(exp->type);
+    node->type = removeRef(TypeWithStorage(exp->type));
     node->type = Feather_adjustMode(node->type, node->context, node->location);
     return node;
 }
@@ -753,13 +754,13 @@ Node* MemStore_SemanticCheck(Node* node) {
                 "The address of a memory store is not a reference, nor VarRef nor FieldRef (type: "
                 "%1%)") %
                 address->type;
-    TypeRef baseAddressType = Feather_removeRef(address->type);
+    TypeRef baseAddressType = removeRef(TypeWithStorage(address->type));
 
     // Check the equivalence of types
-    if (!Feather_isSameTypeIgnoreMode(value->type, baseAddressType)) {
+    if (!Feather::sameTypeIgnoreMode(value->type, baseAddressType)) {
         // Try again, getting rid of l-values
-        TypeRef t1 = Feather_lvalueToRefIfPresent(value->type);
-        if (!Feather_isSameTypeIgnoreMode(t1, baseAddressType))
+        TypeRef t1 = Feather::lvalueToRefIfPresent(value->type);
+        if (!Feather::sameTypeIgnoreMode(t1, baseAddressType))
             REP_ERROR_RET(nullptr, node->location,
                     "The type of the value doesn't match the type of the address in a memory store "
                     "(%1% != %2%)") %
@@ -843,14 +844,14 @@ Node* Conditional_SemanticCheck(Node* node) {
         return nullptr;
 
     // Make sure the types of the alternatives are equal
-    if (!Feather_isSameTypeIgnoreMode(alt1->type, alt2->type))
+    if (!Feather::sameTypeIgnoreMode(alt1->type, alt2->type))
         REP_ERROR_RET(nullptr, node->location,
                 "The types of the alternatives of a conditional must be equal (%1% != %2%)") %
                 alt1->type % alt2->type;
 
     EvalMode mode = Feather_combineModeBottom(alt1->type->mode, cond->type->mode);
     mode = Feather_combineMode(mode, node->context->evalMode);
-    node->type = Feather_checkChangeTypeMode(alt1->type, mode, node->location);
+    node->type = TypeBase(alt1->type).changeMode(mode, node->location);
     return node;
 }
 
@@ -1059,7 +1060,7 @@ Node* Return_SemanticCheck(Node* node) {
 
     // If the return has an expression, check that has the same type as the function result type
     if (exp) {
-        if (!Feather_isSameTypeIgnoreMode(exp->type, resultType))
+        if (!Feather::sameTypeIgnoreMode(exp->type, resultType))
             REP_ERROR_RET(nullptr, node->location,
                     "Returned expression's type is not the same as function's return type");
     } else {

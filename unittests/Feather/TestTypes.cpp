@@ -90,12 +90,12 @@ TEST_CASE_METHOD(FeatherTypesFixture, "User can add or remove references") {
     });
     rc::prop("lvalueToRefIfPresent does nothing for data types", []() {
         DataType base = *TypeFactory::arbDataType(modeUnspecified, 0, 10);
-        DataType newType = lvalueToRefIfPresent(base);
+        TypeBase newType = lvalueToRefIfPresent(base);
         REQUIRE(newType == base);
     });
     rc::prop("lvalueToRefIfPresent keeps the same number of references", []() {
         DataType base = *TypeFactory::arbBasicStorageType(modeUnspecified, 0, 10);
-        DataType newType = lvalueToRefIfPresent(base);
+        TypeWithStorage newType = TypeWithStorage(lvalueToRefIfPresent(base));
         REQUIRE(newType.numReferences() == base.numReferences());
     });
 }

@@ -12,10 +12,12 @@
 
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
+#include "Feather/Utils/cppif/FeatherTypes.hpp"
 
 #include "Nest/Utils/CompilerSettings.hpp"
 
 using namespace SprFrontend;
+using namespace Feather;
 using namespace Nest;
 
 Node* SprFrontend::createCtorCall(
@@ -153,14 +155,14 @@ Node* SprFrontend::createFunctionCall(
         TypeRef resTypeRef = resultParam->type;
         EvalMode funEvalMode = Feather_effectiveEvalMode(fun);
         if (funEvalMode == modeCt && resTypeRef->mode != modeCt)
-            resTypeRef = Feather_checkChangeTypeMode(resTypeRef, modeCt, resultParam->location);
+            resTypeRef = TypeBase(resTypeRef).changeMode(modeCt, resultParam->location);
         if (funEvalMode == modeRt && Nest_hasProperty(fun, propAutoCt) &&
                 resTypeRef->mode != modeCt && _areNodesCt(args))
-            resTypeRef = Feather_checkChangeTypeMode(resTypeRef, modeCt, resultParam->location);
+            resTypeRef = TypeBase(resTypeRef).changeMode(modeCt, resultParam->location);
 
         // Create a temporary variable for the result
-        Node* tmpVar = Feather_mkVar(
-                loc, StringRef("$tmpC"), Feather_mkTypeNode(loc, Feather_removeRef(resTypeRef)));
+        Node* tmpVar = Feather_mkVar(loc, StringRef("$tmpC"),
+                Feather_mkTypeNode(loc, removeRef(TypeWithStorage(resTypeRef))));
         Nest_setContext(tmpVar, context);
         tmpVarRef = Feather_mkVarRef(loc, tmpVar);
         Nest_setContext(tmpVarRef, context);
@@ -240,8 +242,8 @@ Node* _createFunPtrForFeatherFun(Node* fun, Node* callNode) {
     // Try to instantiate the corresponding FunctionPtr class
     NodeVector parameters;
     parameters.reserve(1 + Feather_Function_numParameters(fun));
-    TypeRef resType =
-            resParam ? Feather_removeRef(resParam->type) : Feather_Function_resultType(fun);
+    TypeRef resType = resParam ? removeRef(TypeWithStorage(resParam->type)).type_
+                               : Feather_Function_resultType(fun);
     parameters.push_back(createTypeNode(ctx, loc, resType));
     for (size_t i = resParam ? 1 : 0; i < Feather_Function_numParameters(fun); ++i) {
         parameters.push_back(createTypeNode(ctx, loc, Feather_Function_getParameter(fun, i)->type));

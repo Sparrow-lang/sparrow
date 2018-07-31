@@ -6,6 +6,7 @@
 #include <NodeCommonsCpp.h>
 
 #include "Feather/Utils/FeatherUtils.hpp"
+#include "Feather/Utils/cppif/FeatherTypes.hpp"
 
 #include "Nest/Utils/cppif/NodeUtils.hpp"
 
@@ -14,8 +15,8 @@ using namespace Nest;
 namespace {
 template <typename ValueType> ValueType evalValue(Node* node, TypeRef expectedExpType) {
     node = Nest_ctEval(node);
-    TypeRef t = Feather_removeLValueIfPresent(node->type);
-    if (!Feather_isSameTypeIgnoreMode(t, expectedExpType))
+    TypeRef t = Feather::removeLValueIfPresent(node->type);
+    if (!Feather::sameTypeIgnoreMode(t, expectedExpType))
         REP_INTERNAL(node->location, "Invalid value; found expression of type %1%, expected %2%") %
                 node->type % expectedExpType;
     CHECK(node->location, node->nodeKind == nkFeatherExpCtValue);

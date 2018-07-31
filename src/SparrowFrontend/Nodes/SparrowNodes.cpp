@@ -12,11 +12,13 @@
 
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
+#include "Feather/Utils/cppif/FeatherTypes.hpp"
 
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Api/NodeKindRegistrar.h"
 
 using namespace SprFrontend;
+using namespace Feather;
 using namespace Nest;
 
 #define UNUSED(x) (void)(x)
@@ -249,7 +251,7 @@ Node* SprReturn_SemanticCheck(Node* node) {
     Node* resultParam = getResultParam(parentFun);
     if (resultParam) // Does this function have a result param?
     {
-        resType = Feather_removeRef(resultParam->type);
+        resType = removeRef(TypeWithStorage(resultParam->type));
         ASSERT(!Feather_Function_resultType(parentFun)
                         ->hasStorage); // The function should have void result
     } else {

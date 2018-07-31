@@ -9,6 +9,9 @@
 #include <Nodes/Builder.h>
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
+#include "Feather/Utils/cppif/FeatherTypes.hpp"
+
+using namespace Feather;
 
 namespace {
 
@@ -58,7 +61,7 @@ Node* impl_typeChangeMode(
     TypeRef t = getType(args[0]);
     int mode = getIntCtValue(args[1]);
 
-    TypeRef res = Feather_checkChangeTypeMode(t, (EvalMode)mode, loc);
+    TypeRef res = TypeBase(t).changeMode((EvalMode)mode, loc);
 
     return createTypeNode(context, loc, res);
 }
@@ -79,10 +82,10 @@ Node* impl_typeEQ(CompilationContext* context, const Location& loc, const NodeVe
     TypeRef t1 = getType(args[0]);
     TypeRef t2 = getType(args[1]);
 
-    t1 = Feather_removeLValueIfPresent(t1);
-    t2 = Feather_removeLValueIfPresent(t2);
+    t1 = Feather::removeLValueIfPresent(t1);
+    t2 = Feather::removeLValueIfPresent(t2);
 
-    bool equals = Feather_isSameTypeIgnoreMode(t1, t2);
+    bool equals = Feather::sameTypeIgnoreMode(t1, t2);
 
     // Build a CT value of type bool
     return buildBoolLiteral(loc, equals);
@@ -92,7 +95,7 @@ Node* impl_typeAddRef(CompilationContext* context, const Location& loc, const No
     CHECK(loc, args.size() == 1);
     TypeRef t = getType(args[0]);
 
-    t = Feather_removeLValueIfPresent(t);
+    t = Feather::removeLValueIfPresent(t);
     t = changeRefCount(t, t->numReferences + 1, loc);
     return createTypeNode(context, loc, t);
 }
@@ -100,8 +103,8 @@ Node* impl_typeAddRef(CompilationContext* context, const Location& loc, const No
 Node* impl_ct(CompilationContext* context, const Location& loc, const NodeVector& args) {
     TypeRef t = getType(args[0]);
 
-    t = Feather_removeLValueIfPresent(t);
-    t = Feather_checkChangeTypeMode(t, modeCt, loc);
+    t = Feather::removeLValueIfPresent(t);
+    t = TypeBase(t).changeMode(modeCt, loc);
     if (t->mode != modeCt)
         REP_ERROR_RET(nullptr, loc, "Type %1% cannot be used at compile-time") % t;
 
@@ -111,8 +114,8 @@ Node* impl_ct(CompilationContext* context, const Location& loc, const NodeVector
 Node* impl_rt(CompilationContext* context, const Location& loc, const NodeVector& args) {
     TypeRef t = getType(args[0]);
 
-    t = Feather_removeLValueIfPresent(t);
-    t = Feather_checkChangeTypeMode(t, modeRt, loc);
+    t = Feather::removeLValueIfPresent(t);
+    t = TypeBase(t).changeMode(modeRt, loc);
     if (t->mode != modeRt)
         REP_ERROR_RET(nullptr, loc, "Type %1% cannot be used at run-time") % t;
 

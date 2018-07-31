@@ -11,6 +11,7 @@
 #include <Helpers/Convert.h>
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
+#include "Feather/Utils/cppif/FeatherTypes.hpp"
 
 #include "Nest/Api/Modifier.h"
 #include "Nest/Api/SourceCode.h"
@@ -117,7 +118,7 @@ Node* generateAssociatedFun(Node* parent, const string& name, const string& op, 
 
     vector<pair<TypeRef, string>> params;
     params.reserve(2);
-    params.emplace_back(Feather_addRef(cls->type), string("this"));
+    params.emplace_back(Feather::addRef(Feather::DataType(cls->type)), string("this"));
     if (otherParam)
         params.emplace_back(otherParam, string("other"));
 
@@ -128,7 +129,7 @@ Node* generateAssociatedFun(Node* parent, const string& name, const string& op, 
 /// Returns true if all fields were initialized with default values, and no params are needed.
 bool generateInitCtor(Node* parent) {
     vector<pair<TypeRef, string>> params;
-    params.emplace_back(Feather_addRef(parent->type), "this");
+    params.emplace_back(Feather::addRef(Feather::DataType(parent->type)), "this");
 
     Location loc = parent->location;
     loc.end = loc.start;

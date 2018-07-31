@@ -14,12 +14,14 @@
 #include <Helpers/Overload.h>
 
 #include "Feather/Utils/FeatherUtils.hpp"
+#include "Feather/Utils/cppif/FeatherTypes.hpp"
 
 #include "Nest/Api/SourceCode.h"
 #include "Nest/Utils/Alloc.h"
 #include "Nest/Utils/cppif/NodeHandle.hpp"
 
 using namespace SprFrontend;
+using namespace Feather;
 using namespace Nest;
 
 namespace {
@@ -51,7 +53,7 @@ Node* getIdentifierResult(Node* node, Nest_NodeRange decls, Node* baseExp, bool 
                 // Make sure the base is a reference
                 if (baseExp->type->numReferences == 0) {
                     ConversionResult res = g_ConvertService->checkConversion(
-                            baseExp, Feather_addRef(baseExp->type));
+                            baseExp, addRef(TypeWithStorage(baseExp->type)));
                     if (!res)
                         REP_INTERNAL(loc, "Cannot add reference to base of field access");
                     baseExp = res.apply(baseExp);
@@ -226,7 +228,7 @@ Node* checkSizeOf(Node* node) {
         return nullptr;
 
     // Remove l-value if we have some
-    t = Feather_removeLValueIfPresent(t);
+    t = removeLValueIfPresent(t);
 
     // Get the size of the type of the argument
     uint64_t size = Nest_sizeOf(t);
@@ -253,7 +255,7 @@ Node* checkTypeOf(Node* node) {
     TypeRef t = arg->type;
     if (!t)
         REP_INTERNAL(node->location, "Invalid argument");
-    t = Feather_removeLValueIfPresent(t);
+    t = removeLValueIfPresent(t);
 
     // Create a CtValue to hold the type
     return createTypeNode(node->context, arg->location, t);
@@ -583,7 +585,7 @@ Node* selectOperator(Node* node, StringRef operation, Node* arg1, Node* arg2, bo
 }
 
 Node* checkConvertNullToRefByte(Node* orig) {
-    if (Feather_isSameTypeIgnoreMode(orig->type, StdDef::typeNull)) {
+    if (Feather::sameTypeIgnoreMode(orig->type, StdDef::typeNull)) {
         Node* res = Feather_mkNull(
                 orig->location, Feather_mkTypeNode(orig->location, StdDef::typeRefByte));
         Nest_setContext(res, orig->context);
@@ -670,11 +672,11 @@ Node* handleRefAssign(Node* node) {
         REP_ERROR_RET(nullptr, node->location,
                 "Left operand of a reference assign operator is not a reference reference (%1%)") %
                 arg1->type;
-    TypeRef arg1BaseType = Feather_removeRef(arg1->type);
+    TypeRef arg1BaseType = removeRef(TypeWithStorage(arg1->type));
 
     // Check the second type to be null or a reference
     TypeRef arg2Type = arg2->type;
-    if (!Feather_isSameTypeIgnoreMode(arg2Type, StdDef::typeNull)) {
+    if (!Feather::sameTypeIgnoreMode(arg2Type, StdDef::typeNull)) {
         if (arg2Type->numReferences == 0)
             REP_ERROR_RET(nullptr, node->location,
                     "Right operand of a reference assign operator is not a reference (%1%)") %
@@ -918,7 +920,7 @@ Node* Literal_SemanticCheck(Node* node) {
     if (!Nest_computeType(ident))
         return nullptr;
     TypeRef t = getType(ident);
-    t = Feather_checkChangeTypeMode(t, modeCt, node->location);
+    t = TypeBase(t).changeMode(modeCt, node->location);
 
     if (litType == "StringRef") {
         // Create the explanation
@@ -1416,7 +1418,7 @@ Node* LambdaFunction_SemanticCheck(Node* node) {
             if (!Nest_semanticCheck(arg))
                 return nullptr;
             StringRef varName = Feather_getName(arg);
-            TypeRef varType = Feather_removeLValueIfPresent(arg->type);
+            TypeRef varType = removeLValueIfPresent(arg->type);
 
             // Create a similar variable in the enclosing class - must have the same name
             const Location& argLoc = arg->location;

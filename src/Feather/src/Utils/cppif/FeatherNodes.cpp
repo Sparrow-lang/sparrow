@@ -15,9 +15,9 @@
         REP_INTERNAL((loc), "Expected AST node (%1%)") % (#node)
 
 #define REQUIRE_NODE_KIND(node, kind)                                                              \
-    if (node && node->nodeKind != nkFeatherNop)                                                    \
-        REP_INTERNAL(NOLOC, "Expected AST node of kind %1%, found %2% (%3%)") % (#kind) % node %   \
-                __FUNCTION__;                                                                      \
+    if (node && node->nodeKind != kind)                                                            \
+        REP_INTERNAL(NOLOC, "Expected AST node of kind %1%, found %2% (inside %3%)") % (#kind) %   \
+                NodeHandle(node).kindName() % __FUNCTION__;                                        \
     else                                                                                           \
         ;
 
@@ -314,6 +314,10 @@ MemLoadExp MemLoadExp::create(const Nest::Location& loc, NodeHandle address) {
     REQUIRE_NODE(loc, address);
     MemLoadExp res = createNode<MemLoadExp>(nkFeatherExpMemLoad, loc);
     res.setChildren(NodeRange{address});
+    res.setProperty("alignment", 0);
+    res.setProperty("volatile", 0);
+    res.setProperty("atomicOrdering", (int)atomicNone);
+    res.setProperty("singleThreaded", 0);
     return res;
 }
 MemLoadExp::MemLoadExp(Nest::Node* n)
@@ -327,6 +331,10 @@ MemStoreExp MemStoreExp::create(const Nest::Location& loc, NodeHandle value, Nod
     REQUIRE_NODE(loc, address);
     MemStoreExp res = createNode<MemStoreExp>(nkFeatherExpMemStore, loc);
     res.setChildren(NodeRange{value, address});
+    res.setProperty("alignment", 0);
+    res.setProperty("volatile", 0);
+    res.setProperty("atomicOrdering", (int)atomicNone);
+    res.setProperty("singleThreaded", 0);
     return res;
 }
 MemStoreExp::MemStoreExp(Nest::Node* n)
@@ -340,15 +348,15 @@ BitcastExp BitcastExp::create(const Nest::Location& loc, NodeHandle destType, No
     REQUIRE_NODE(loc, destType);
     REQUIRE_NODE(loc, exp);
     BitcastExp res = createNode<BitcastExp>(nkFeatherExpBitcast, loc);
-    res.setChildren(NodeRange{destType, exp});
+    res.setChildren(NodeRange{exp, destType});
     return res;
 }
 BitcastExp::BitcastExp(Nest::Node* n)
     : NodeHandle(n) {
     REQUIRE_NODE_KIND(n, nkFeatherExpBitcast);
 }
-NodeHandle BitcastExp::destTypeNode() const { return children()[0]; }
-NodeHandle BitcastExp::expression() const { return children()[1]; }
+NodeHandle BitcastExp::destTypeNode() const { return children()[1]; }
+NodeHandle BitcastExp::expression() const { return children()[0]; }
 
 ConditionalExp ConditionalExp::create(
         const Nest::Location& loc, NodeHandle cond, NodeHandle alt1, NodeHandle alt2) {
@@ -370,8 +378,6 @@ NodeHandle ConditionalExp::alt2() const { return children()[2]; }
 IfStmt IfStmt::create(
         const Nest::Location& loc, NodeHandle cond, NodeHandle thenC, NodeHandle elseC) {
     REQUIRE_NODE(loc, cond);
-    REQUIRE_NODE(loc, thenC);
-    REQUIRE_NODE(loc, elseC);
     IfStmt res = createNode<IfStmt>(nkFeatherStmtIf, loc);
     res.setChildren(NodeRange{cond, thenC, elseC});
     return res;
@@ -389,7 +395,7 @@ WhileStmt WhileStmt::create(
     REQUIRE_NODE(loc, cond);
     REQUIRE_NODE(loc, body);
     WhileStmt res = createNode<WhileStmt>(nkFeatherStmtWhile, loc);
-    res.setChildren(NodeRange{cond, body, step});
+    res.setChildren(NodeRange{cond, step, body});
     return res;
 }
 WhileStmt::WhileStmt(Nest::Node* n)
@@ -397,11 +403,12 @@ WhileStmt::WhileStmt(Nest::Node* n)
     REQUIRE_NODE_KIND(n, nkFeatherStmtWhile);
 }
 NodeHandle WhileStmt::condition() const { return children()[0]; }
-NodeHandle WhileStmt::body() const { return children()[1]; }
-NodeHandle WhileStmt::step() const { return children()[2]; }
+NodeHandle WhileStmt::body() const { return children()[2]; }
+NodeHandle WhileStmt::step() const { return children()[1]; }
 
 BreakStmt BreakStmt::create(const Nest::Location& loc) {
     BreakStmt res = createNode<BreakStmt>(nkFeatherStmtBreak, loc);
+    res.setProperty("loop", NodeHandle{});
     return res;
 }
 BreakStmt::BreakStmt(Nest::Node* n)
@@ -411,6 +418,7 @@ BreakStmt::BreakStmt(Nest::Node* n)
 
 ContinueStmt ContinueStmt::create(const Nest::Location& loc) {
     ContinueStmt res = createNode<ContinueStmt>(nkFeatherStmtContinue, loc);
+    res.setProperty("loop", NodeHandle{});
     return res;
 }
 ContinueStmt::ContinueStmt(Nest::Node* n)
@@ -421,6 +429,7 @@ ContinueStmt::ContinueStmt(Nest::Node* n)
 ReturnStmt ReturnStmt::create(const Nest::Location& loc, NodeHandle exp) {
     ReturnStmt res = createNode<ReturnStmt>(nkFeatherStmtReturn, loc);
     res.setChildren(NodeRange{exp});
+    res.setProperty("parentFun", NodeHandle{});
     return res;
 }
 ReturnStmt::ReturnStmt(Nest::Node* n)

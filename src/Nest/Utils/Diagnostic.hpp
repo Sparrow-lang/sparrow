@@ -28,13 +28,6 @@ using Node = struct Nest_Node;
 using TypeRef = const struct Nest_Type*;
 struct NodeHandle;
 
-ostream& operator<<(ostream& os, const Location* loc);
-ostream& operator<<(ostream& os, const Location& loc);
-ostream& operator<<(ostream& os, Node* n);
-ostream& operator<<(ostream& os, Nest::NodeHandle n);
-ostream& operator<<(ostream& os, TypeRef t);
-ostream& operator<<(ostream& os, EvalMode mode);
-
 struct DiagReporterFromFormatter {
     DiagReporterFromFormatter& operator=(const Nest::DiagnosticFormatter& fmt) {
         Nest_reportDiagnostic(fmt.location(), fmt.severity(), fmt.message().c_str());
@@ -61,3 +54,11 @@ DiagReporterWithReturnFromFormatter<RetType> mkDiagReporterWithReturnFromFormatt
 }
 
 } // namespace Nest
+
+ostream& operator<<(ostream& os, const Nest::Location* loc);
+ostream& operator<<(ostream& os, const Nest::Location& loc);
+ostream& operator<<(ostream& os, Nest::Node* n);
+ostream& operator<<(ostream& os, Nest::NodeHandle n);
+ostream& operator<<(ostream& os, Nest::TypeRef t);
+ostream& operator<<(ostream& os, Nest::EvalMode mode);
+

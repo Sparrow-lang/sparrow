@@ -132,21 +132,20 @@ void Nest_resetDiagnostic() {
     _numSupppresedErrors = 0;
 }
 
-namespace Nest {
-
 ostream& operator<<(ostream& os, const Location* loc) {
-    os << (loc->sourceCode ? loc->sourceCode->url : "<no-source>");
-    if (loc->start.line == loc->end.line)
-        os << '(' << loc->start.line << ':' << loc->start.col << '-' << loc->end.col << ')';
+    return os << *loc;
+}
+ostream& operator<<(ostream& os, const Location& loc) {
+    os << (loc.sourceCode ? loc.sourceCode->url : "<no-source>");
+    if (loc.start.line == loc.end.line)
+        os << '(' << loc.start.line << ':' << loc.start.col << '-' << loc.end.col << ')';
     else
-        os << '(' << loc->start.line << ':' << loc->start.col << " - " << loc->end.line << ':'
-           << loc->end.col << ')';
+        os << '(' << loc.start.line << ':' << loc.start.col << " - " << loc.end.line << ':'
+           << loc.end.col << ')';
     return os;
 }
-ostream& operator<<(ostream& os, const Location& loc) { return os << &loc; }
 ostream& operator<<(ostream& os, Node* n) {
-    // TODO NOLINT
-    return os << NodeHandle(const_cast<Nest_Node*>(n));
+    return os << NodeHandle(n);
 }
 ostream& operator<<(ostream& os, NodeHandle n) {
     if (n)
@@ -166,5 +165,3 @@ ostream& operator<<(ostream& os, EvalMode mode) {
     os << _evalModeToString(mode);
     return os;
 }
-
-} // namespace Nest

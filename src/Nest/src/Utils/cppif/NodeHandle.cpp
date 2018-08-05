@@ -25,7 +25,11 @@ Nest_NodeProperty* _findProperty(Nest_NodeProperties properties, StringRef name)
 
 } // namespace
 
-NodeHandle NodeHandle::create(int nodeKind) { return Nest_createNode(nodeKind); }
+NodeHandle NodeHandle::create(int nodeKind, const Location& loc) {
+    Nest::Node* res = Nest_createNode(nodeKind);
+    res->location = loc;
+    return {res};
+}
 
 NodeHandle NodeHandle::clone(NodeHandle node) { return Nest_cloneNode(node.handle); }
 

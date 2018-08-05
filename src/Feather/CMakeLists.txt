@@ -20,6 +20,7 @@ SET(sourceFiles
     "src/Utils/FeatherUtils.c"
     "src/Utils/FeatherUtils.cpp"
     "src/Utils/cppif/FeatherTypes.cpp"
+    "src/Utils/cppif/FeatherNodes.cpp"
 )
 
 # Project settings

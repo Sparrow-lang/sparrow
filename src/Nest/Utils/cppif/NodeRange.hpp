@@ -43,6 +43,13 @@ struct NodeRange {
         return range.beginPtr[idx];
     }
 
+    //! Skip the given number of elements and return the remaining range
+    NodeRange skip(int num) const {
+        ASSERT(num>=0);
+        ASSERT(num <= size());
+        return Nest_NodeRange{range.beginPtr+num, range.endPtr};
+    }
+
     const NodeHandle* begin() const {
         // NOLINT
         return reinterpret_cast<const NodeHandle*>(range.beginPtr);

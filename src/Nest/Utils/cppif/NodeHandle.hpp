@@ -11,7 +11,6 @@ struct NodeRangeM;
 /**
  * @brief   A handle to a Sparrow node.
  *
- * Once a node handle it's constructed, the handle cannot be changed.
  * This will not free the node on destructor.
  *
  * The purpose of this class is to add various utilities on the Node structure.
@@ -20,7 +19,7 @@ struct NodeRangeM;
  */
 struct NodeHandle {
     //! The actual handle to the node
-    Nest_Node* const handle;
+    Nest_Node* handle;
     NodeHandle() : handle(nullptr) {};
     //! Construct a node handle from an actual C-style Nest_Node pointer
     NodeHandle(Nest_Node* h)
@@ -35,7 +34,7 @@ struct NodeHandle {
     //!@{ Creation & cloning
 
     //! Creates a node of the given kind
-    static NodeHandle create(int nodeKind);
+    static NodeHandle create(int nodeKind, const Location& loc = Location{});
 
     //! Clone the given node - create one with the same characteristics
     //! We clear the compilation state of the new node when cloning
@@ -43,6 +42,9 @@ struct NodeHandle {
 
     //!@}
     //!@{ Node attributes
+
+    //! Getter for the kind of the node
+    int kind() const { return handle->nodeKind; }
 
     //! Getter for the location of the node
     const Location& location() { return handle->location; }

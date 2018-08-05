@@ -13,6 +13,7 @@
 #include <Helpers/ForEachNodeInNodeList.h>
 
 #include "Feather/Utils/cppif/FeatherTypes.hpp"
+#include "Feather/Utils/cppif/FeatherNodes.hpp"
 
 using namespace SprFrontend;
 using namespace Feather;
@@ -410,7 +411,7 @@ TypeRef SprFunction_ComputeType(Node* node) {
                         Nest_toStringEx(n);
             }
 
-            Feather_Function_addParameter(resultingFun, n);
+            FunctionDecl(resultingFun).addParameter(DeclNode(n));
         }
     }
 
@@ -444,12 +445,12 @@ TypeRef SprFunction_ComputeType(Node* node) {
         Node* resParam = Feather_mkVar(returnType->location, StringRef("_result"),
                 Feather_mkTypeNode(returnType->location, addRef(TypeWithStorage(resType))));
         Nest_setContext(resParam, node->childrenContext);
-        Feather_Function_addParameterFirst(resultingFun, resParam);
+        FunctionDecl(resultingFun).addParameter(DeclNode(resParam), true);
         Nest_setPropertyNode(resultingFun, propResultParam, resParam);
-        Feather_Function_setResultType(resultingFun,
+        FunctionDecl(resultingFun).setResultType(
                 Feather_mkTypeNode(returnType->location, Feather_getVoidType(thisEvalMode)));
     } else
-        Feather_Function_setResultType(resultingFun, Feather_mkTypeNode(node->location, resType));
+        FunctionDecl(resultingFun).setResultType(Feather_mkTypeNode(node->location, resType));
 
     // Now we can actually compute the type of the resulting function
     node->type = Nest_computeType(node->explanation);

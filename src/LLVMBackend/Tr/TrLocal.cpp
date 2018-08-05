@@ -19,6 +19,7 @@
 
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
+#include "Feather/Utils/cppif/FeatherNodes.hpp"
 
 using namespace LLVMB;
 using namespace LLVMB::Tr;
@@ -231,7 +232,7 @@ llvm::Value* handleFunPtr(Node* funCall, TrContext& context) {
 
     // Create a call instruction to the pointer to function
     llvm::CallInst* val = context.builder().CreateCall(ptrToFun, args, "");
-    val->setCallingConv(Tr::translateCallingConv(Feather_Function_callConvention(fun)));
+    val->setCallingConv(Tr::translateCallingConv(FunctionDecl(fun).callConvention()));
     return setValue(context, *funCall, val);
 }
 
@@ -814,7 +815,7 @@ llvm::Value* translateFunCall(Node* node, TrContext& context) {
     // Create a 'call' instruction
     llvm::CallInst* val = context.builder().CreateCall(toCall, args, "");
     ;
-    val->setCallingConv(Tr::translateCallingConv(Feather_Function_callConvention(funDecl)));
+    val->setCallingConv(Tr::translateCallingConv(FunctionDecl(funDecl).callConvention()));
     if (res)
         return context.builder().CreateLoad(res);
     else

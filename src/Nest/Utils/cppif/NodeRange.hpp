@@ -89,9 +89,10 @@ struct NodeRangeM {
     //! Gets the number of nodes in this range
     int size() const { return Nest_nodeRangeMSize(range); }
     //! Returns the node handle at the given index
-    NodeHandle operator[](int idx) const {
+    NodeHandle& operator[](int idx) const {
         ASSERT(idx < size());
-        return range.beginPtr[idx];
+        // NOLINT
+        return *reinterpret_cast<NodeHandle*>(&range.beginPtr[idx]);
     }
 
     const NodeHandle* begin() const {

@@ -26,9 +26,9 @@ namespace Feather {
 namespace {
 
 //! Helper function used to create nodes
-template <typename T> T createNode(int kind, const Nest::Location& loc) {
+template <typename T> T createNode(int kind, const Location& loc) {
     T res;
-    res.handle = Nest::NodeHandle::create(kind, loc).handle;
+    res.handle = NodeHandle::create(kind, loc).handle;
     return res;
 }
 
@@ -36,37 +36,37 @@ const char* propResultVoid = "nodeList.resultVoid";
 
 } // namespace
 
-Nop Nop::create(const Nest::Location& loc) { return createNode<Nop>(nkFeatherNop, loc); }
-Nop::Nop(Nest::Node* n)
+Nop Nop::create(const Location& loc) { return createNode<Nop>(nkFeatherNop, loc); }
+Nop::Nop(Node* n)
     : NodeHandle(n) {
     REQUIRE_NODE_KIND(n, nkFeatherNop);
 }
 
-TypeNode TypeNode::create(const Nest::Location& loc, TypeBase type) {
+TypeNode TypeNode::create(const Location& loc, TypeBase type) {
     TypeNode res = createNode<TypeNode>(nkFeatherTypeNode, loc);
     res.setProperty("givenType", type);
     return res;
 }
-TypeNode::TypeNode(Nest::Node* n)
+TypeNode::TypeNode(Node* n)
     : NodeHandle(n) {
     REQUIRE_NODE_KIND(n, nkFeatherTypeNode);
 }
 TypeBase TypeNode::givenType() const { return getCheckPropertyType("givenType"); }
 
-BackendCode BackendCode::create(const Nest::Location& loc, Nest::StringRef code, EvalMode mode) {
+BackendCode BackendCode::create(const Location& loc, StringRef code, EvalMode mode) {
     auto res = createNode<BackendCode>(nkFeatherBackendCode, loc);
     res.setProperty(propCode, code);
     res.setProperty(propEvalMode, (int)mode);
     return res;
 }
-BackendCode::BackendCode(Nest::Node* n)
+BackendCode::BackendCode(Node* n)
     : NodeHandle(n) {
     REQUIRE_NODE_KIND(n, nkFeatherBackendCode);
 }
 StringRef BackendCode::code() const { return getCheckPropertyString(propCode); }
 EvalMode BackendCode::mode() const { return (EvalMode)getCheckPropertyInt(propEvalMode); }
 
-NodeList NodeList::create(const Nest::Location& loc, Nest::NodeRange children, bool setVoid) {
+NodeList NodeList::create(const Location& loc, NodeRange children, bool setVoid) {
     NodeList res = createNode<NodeList>(nkFeatherNodeList, loc);
     res.setChildren(children);
     if (setVoid)
@@ -76,8 +76,8 @@ NodeList NodeList::create(const Nest::Location& loc, Nest::NodeRange children, b
 NodeList NodeList::append(NodeList prev, NodeHandle node) {
     NodeList res = prev;
     if (!res) {
-        Nest::Location loc = node ? node.location() : Nest::Location{};
-        res = create(loc, Nest::NodeRange{}, true);
+        Location loc = node ? node.location() : Location{};
+        res = create(loc, NodeRange{}, true);
     }
     res.addChild(node);
     return res;
@@ -91,89 +91,98 @@ NodeList NodeList::append(NodeList prev, NodeList newNodes) {
     prev.addChildren(newNodes.children());
     return prev;
 }
-NodeList::NodeList(Nest::Node* n)
+NodeList::NodeList(Node* n)
     : NodeHandle(n) {
     REQUIRE_NODE_KIND(n, nkFeatherNodeList);
 }
 bool NodeList::returnsVoid() const { return hasProperty(propResultVoid); }
 
-LocalSpace LocalSpace::create(const Nest::Location& loc, Nest::NodeRange children) {
+LocalSpace LocalSpace::create(const Location& loc, NodeRange children) {
     LocalSpace res = createNode<LocalSpace>(nkFeatherLocalSpace, loc);
     res.setChildren(children);
     return res;
 }
-LocalSpace::LocalSpace(Nest::Node* n)
+LocalSpace::LocalSpace(Node* n)
     : NodeHandle(n) {
     REQUIRE_NODE_KIND(n, nkFeatherLocalSpace);
 }
-GlobalConstructAction GlobalConstructAction::create(const Nest::Location& loc, NodeHandle action) {
+GlobalConstructAction GlobalConstructAction::create(const Location& loc, NodeHandle action) {
     GlobalConstructAction res =
             createNode<GlobalConstructAction>(nkFeatherGlobalConstructAction, loc);
     res.setChildren(NodeRange{action});
     return res;
 }
-GlobalConstructAction::GlobalConstructAction(Nest::Node* n)
+GlobalConstructAction::GlobalConstructAction(Node* n)
     : NodeHandle(n) {
     REQUIRE_NODE_KIND(n, nkFeatherGlobalConstructAction);
 }
 NodeHandle GlobalConstructAction::action() const { return children()[0]; }
 
-GlobalDestructAction GlobalDestructAction::create(const Nest::Location& loc, NodeHandle action) {
+GlobalDestructAction GlobalDestructAction::create(const Location& loc, NodeHandle action) {
     GlobalDestructAction res = createNode<GlobalDestructAction>(nkFeatherGlobalDestructAction, loc);
     res.setChildren(NodeRange{action});
     return res;
 }
-GlobalDestructAction::GlobalDestructAction(Nest::Node* n)
+GlobalDestructAction::GlobalDestructAction(Node* n)
     : NodeHandle(n) {
     REQUIRE_NODE_KIND(n, nkFeatherGlobalDestructAction);
 }
 NodeHandle GlobalDestructAction::action() const { return children()[0]; }
 
-ScopeDestructAction ScopeDestructAction::create(const Nest::Location& loc, NodeHandle action) {
+ScopeDestructAction ScopeDestructAction::create(const Location& loc, NodeHandle action) {
     ScopeDestructAction res = createNode<ScopeDestructAction>(nkFeatherScopeDestructAction, loc);
     res.setChildren(NodeRange{action});
     return res;
 }
-ScopeDestructAction::ScopeDestructAction(Nest::Node* n)
+ScopeDestructAction::ScopeDestructAction(Node* n)
     : NodeHandle(n) {
     REQUIRE_NODE_KIND(n, nkFeatherScopeDestructAction);
 }
 NodeHandle ScopeDestructAction::action() const { return children()[0]; }
 
-TempDestructAction TempDestructAction::create(const Nest::Location& loc, NodeHandle action) {
+TempDestructAction TempDestructAction::create(const Location& loc, NodeHandle action) {
     TempDestructAction res = createNode<TempDestructAction>(nkFeatherTempDestructAction, loc);
     res.setChildren(NodeRange{action});
     return res;
 }
-TempDestructAction::TempDestructAction(Nest::Node* n)
+TempDestructAction::TempDestructAction(Node* n)
     : NodeHandle(n) {
     REQUIRE_NODE_KIND(n, nkFeatherTempDestructAction);
 }
 NodeHandle TempDestructAction::action() const { return children()[0]; }
 
-ChangeMode ChangeMode::create(const Nest::Location& loc, NodeHandle child, EvalMode mode) {
+ChangeMode ChangeMode::create(const Location& loc, NodeHandle child, EvalMode mode) {
     ChangeMode res = createNode<ChangeMode>(nkFeatherChangeMode, loc);
     res.setChildren(NodeRange{child});
     res.setProperty(propEvalMode, (int)mode);
     return res;
 }
-ChangeMode::ChangeMode(Nest::Node* n)
+ChangeMode::ChangeMode(Node* n)
     : NodeHandle(n) {
     REQUIRE_NODE_KIND(n, nkFeatherChangeMode);
 }
 NodeHandle ChangeMode::child() const { return children()[0]; }
 EvalMode ChangeMode::mode() const { return (EvalMode)getCheckPropertyInt(propEvalMode); }
 
-DeclNode::DeclNode(Nest::Node* n)
+void ChangeMode::setChild(NodeHandle child) {
+    REQUIRE_NODE(NOLOC, child);
+    childrenM()[0] = child;
+
+    auto childrenCtx = childrenContext();
+    if (childrenCtx)
+        child.setContext(childrenCtx);
+}
+
+DeclNode::DeclNode(Node* n)
     : NodeHandle(n) {}
 StringRef DeclNode::name() const { return getCheckPropertyString("name"); }
 EvalMode DeclNode::mode() const { return (EvalMode)getCheckPropertyInt(propEvalMode); }
-void DeclNode::setNameAndMode(Nest::StringRef name, EvalMode mode) {
+void DeclNode::setNameAndMode(StringRef name, EvalMode mode) {
     setProperty("name", name);
     setProperty(propEvalMode, modeUnspecified);
 }
 
-FunctionDecl FunctionDecl::create(const Nest::Location& loc, StringRef name, NodeHandle resType,
+FunctionDecl FunctionDecl::create(const Location& loc, StringRef name, NodeHandle resType,
         NodeRange params, NodeHandle body) {
     FunctionDecl res = createNode<FunctionDecl>(nkFeatherDeclFunction, loc);
     res.setChildren(NodeRange{resType, body});
@@ -189,15 +198,32 @@ FunctionDecl FunctionDecl::create(const Nest::Location& loc, StringRef name, Nod
 
     return res;
 }
-FunctionDecl::FunctionDecl(Nest::Node* n)
+FunctionDecl::FunctionDecl(Node* n)
     : DeclNode(n) {
     REQUIRE_NODE_KIND(n, nkFeatherDeclFunction);
 }
 NodeHandle FunctionDecl::resType() const { return children()[0]; }
-NodeRange FunctionDecl::params() const { return children().skip(2); }
+NodeRange FunctionDecl::parameters() const { return children().skip(2); }
 NodeHandle FunctionDecl::body() const { return children()[1]; }
+CallConvention FunctionDecl::callConvention() const {
+    return (CallConvention)getCheckPropertyInt("callConvention");
+}
+void FunctionDecl::addParameter(DeclNode param, bool insertInFront) {
+    if (param.explanation().kind() != nkFeatherDeclVar)
+        REP_INTERNAL(param.location(), "Node %1% must be a parameter") % param;
 
-StructDecl StructDecl::create(const Nest::Location& loc, StringRef name, NodeRange fields) {
+    if (insertInFront)
+        Nest_insertNodeIntoArray(&handle->children, 2, param);
+    else
+        Nest_appendNodeToArray(&handle->children, param);
+}
+void FunctionDecl::setResultType(NodeHandle resType) {
+    childrenM()[0] = resType;
+    resType.setContext(childrenContext());
+}
+
+
+StructDecl StructDecl::create(const Location& loc, StringRef name, NodeRange fields) {
     StructDecl res = createNode<StructDecl>(nkFeatherDeclClass, loc);
     res.setChildren(fields);
     res.setNameAndMode(name, modeUnspecified);
@@ -210,63 +236,63 @@ StructDecl StructDecl::create(const Nest::Location& loc, StringRef name, NodeRan
 
     return res;
 }
-StructDecl::StructDecl(Nest::Node* n)
+StructDecl::StructDecl(Node* n)
     : DeclNode(n) {
     REQUIRE_NODE_KIND(n, nkFeatherDeclClass);
 }
 NodeRange StructDecl::fields() const { return children(); }
 
-VarDecl VarDecl::create(const Nest::Location& loc, StringRef name, NodeHandle typeNode) {
+VarDecl VarDecl::create(const Location& loc, StringRef name, NodeHandle typeNode) {
     VarDecl res = createNode<VarDecl>(nkFeatherDeclVar, loc);
     res.setChildren(NodeRange{typeNode});
     res.setNameAndMode(name, modeUnspecified);
     res.setProperty("alignment", 0);
     return res;
 }
-VarDecl::VarDecl(Nest::Node* n)
+VarDecl::VarDecl(Node* n)
     : DeclNode(n) {
     REQUIRE_NODE_KIND(n, nkFeatherDeclVar);
 }
 NodeHandle VarDecl::typeNode() const { return children()[0]; }
 
-CtValueExp CtValueExp::create(const Nest::Location& loc, TypeBase type, Nest::StringRef data) {
+CtValueExp CtValueExp::create(const Location& loc, TypeBase type, StringRef data) {
     CtValueExp res = createNode<CtValueExp>(nkFeatherExpCtValue, loc);
     res.setProperty("valueType", type);
     res.setProperty("valueData", data);
     return res;
 }
-CtValueExp::CtValueExp(Nest::Node* n)
+CtValueExp::CtValueExp(Node* n)
     : NodeHandle(n) {
     REQUIRE_NODE_KIND(n, nkFeatherExpCtValue);
 }
 TypeBase CtValueExp::valueType() const { return getCheckPropertyType("valueType"); }
 StringRef CtValueExp::valueData() const { return getCheckPropertyString("valueData"); }
 
-NullExp NullExp::create(const Nest::Location& loc, NodeHandle typeNode) {
+NullExp NullExp::create(const Location& loc, NodeHandle typeNode) {
     NullExp res = createNode<NullExp>(nkFeatherExpNull, loc);
     res.setChildren(NodeRange{typeNode});
     return res;
 }
-NullExp::NullExp(Nest::Node* n)
+NullExp::NullExp(Node* n)
     : NodeHandle(n) {
     REQUIRE_NODE_KIND(n, nkFeatherExpNull);
 }
 NodeHandle NullExp::typeNode() const { return children()[0]; }
 
-VarRefExp VarRefExp::create(const Nest::Location& loc, VarDecl varDecl) {
+VarRefExp VarRefExp::create(const Location& loc, VarDecl varDecl) {
     REQUIRE_NODE(loc, varDecl);
 
     VarRefExp res = createNode<VarRefExp>(nkFeatherExpVarRef, loc);
     res.setReferredNodes(NodeRange{varDecl});
     return res;
 }
-VarRefExp::VarRefExp(Nest::Node* n)
+VarRefExp::VarRefExp(Node* n)
     : NodeHandle(n) {
     REQUIRE_NODE_KIND(n, nkFeatherExpVarRef);
 }
 VarDecl VarRefExp::varDecl() const { return VarDecl(referredNodes()[0]); }
 
-FieldRefExp FieldRefExp::create(const Nest::Location& loc, NodeHandle obj, VarDecl fieldDecl) {
+FieldRefExp FieldRefExp::create(const Location& loc, NodeHandle obj, VarDecl fieldDecl) {
     REQUIRE_NODE(loc, obj);
     REQUIRE_NODE(loc, fieldDecl);
     FieldRefExp res = createNode<FieldRefExp>(nkFeatherExpFieldRef, loc);
@@ -274,14 +300,14 @@ FieldRefExp FieldRefExp::create(const Nest::Location& loc, NodeHandle obj, VarDe
     res.setReferredNodes(NodeRange{fieldDecl});
     return res;
 }
-FieldRefExp::FieldRefExp(Nest::Node* n)
+FieldRefExp::FieldRefExp(Node* n)
     : NodeHandle(n) {
     REQUIRE_NODE_KIND(n, nkFeatherExpFieldRef);
 }
 NodeHandle FieldRefExp::object() const { return children()[0]; }
 VarDecl FieldRefExp::fieldDecl() const { return VarDecl(referredNodes()[0]); }
 
-FunRefExp FunRefExp::create(const Nest::Location& loc, FunctionDecl funDecl, NodeHandle resType) {
+FunRefExp FunRefExp::create(const Location& loc, FunctionDecl funDecl, NodeHandle resType) {
     REQUIRE_NODE(loc, funDecl);
     REQUIRE_NODE(loc, resType);
     FunRefExp res = createNode<FunRefExp>(nkFeatherExpFunRef, loc);
@@ -289,28 +315,28 @@ FunRefExp FunRefExp::create(const Nest::Location& loc, FunctionDecl funDecl, Nod
     res.setReferredNodes(NodeRange{funDecl});
     return res;
 }
-FunRefExp::FunRefExp(Nest::Node* n)
+FunRefExp::FunRefExp(Node* n)
     : NodeHandle(n) {
     REQUIRE_NODE_KIND(n, nkFeatherExpFunRef);
 }
 FunctionDecl FunRefExp::funDecl() const { return FunctionDecl(referredNodes()[0]); }
 NodeHandle FunRefExp::resTypeNode() const { return children()[0]; }
 
-FunCallExp FunCallExp::create(const Nest::Location& loc, FunctionDecl funDecl, NodeRange args) {
+FunCallExp FunCallExp::create(const Location& loc, FunctionDecl funDecl, NodeRange args) {
     REQUIRE_NODE(loc, funDecl);
     FunCallExp res = createNode<FunCallExp>(nkFeatherExpFunCall, loc);
     res.setChildren(args);
     res.setReferredNodes(NodeRange{funDecl});
     return res;
 }
-FunCallExp::FunCallExp(Nest::Node* n)
+FunCallExp::FunCallExp(Node* n)
     : NodeHandle(n) {
     REQUIRE_NODE_KIND(n, nkFeatherExpFunCall);
 }
 FunctionDecl FunCallExp::funDecl() const { return FunctionDecl(referredNodes()[0]); }
 NodeRange FunCallExp::arguments() const { return children(); }
 
-MemLoadExp MemLoadExp::create(const Nest::Location& loc, NodeHandle address) {
+MemLoadExp MemLoadExp::create(const Location& loc, NodeHandle address) {
     REQUIRE_NODE(loc, address);
     MemLoadExp res = createNode<MemLoadExp>(nkFeatherExpMemLoad, loc);
     res.setChildren(NodeRange{address});
@@ -320,13 +346,13 @@ MemLoadExp MemLoadExp::create(const Nest::Location& loc, NodeHandle address) {
     res.setProperty("singleThreaded", 0);
     return res;
 }
-MemLoadExp::MemLoadExp(Nest::Node* n)
+MemLoadExp::MemLoadExp(Node* n)
     : NodeHandle(n) {
     REQUIRE_NODE_KIND(n, nkFeatherExpMemLoad);
 }
 NodeHandle MemLoadExp::address() const { return children()[0]; }
 
-MemStoreExp MemStoreExp::create(const Nest::Location& loc, NodeHandle value, NodeHandle address) {
+MemStoreExp MemStoreExp::create(const Location& loc, NodeHandle value, NodeHandle address) {
     REQUIRE_NODE(loc, value);
     REQUIRE_NODE(loc, address);
     MemStoreExp res = createNode<MemStoreExp>(nkFeatherExpMemStore, loc);
@@ -337,21 +363,21 @@ MemStoreExp MemStoreExp::create(const Nest::Location& loc, NodeHandle value, Nod
     res.setProperty("singleThreaded", 0);
     return res;
 }
-MemStoreExp::MemStoreExp(Nest::Node* n)
+MemStoreExp::MemStoreExp(Node* n)
     : NodeHandle(n) {
     REQUIRE_NODE_KIND(n, nkFeatherExpMemStore);
 }
 NodeHandle MemStoreExp::value() const { return children()[0]; }
 NodeHandle MemStoreExp::address() const { return children()[1]; }
 
-BitcastExp BitcastExp::create(const Nest::Location& loc, NodeHandle destType, NodeHandle exp) {
+BitcastExp BitcastExp::create(const Location& loc, NodeHandle destType, NodeHandle exp) {
     REQUIRE_NODE(loc, destType);
     REQUIRE_NODE(loc, exp);
     BitcastExp res = createNode<BitcastExp>(nkFeatherExpBitcast, loc);
     res.setChildren(NodeRange{exp, destType});
     return res;
 }
-BitcastExp::BitcastExp(Nest::Node* n)
+BitcastExp::BitcastExp(Node* n)
     : NodeHandle(n) {
     REQUIRE_NODE_KIND(n, nkFeatherExpBitcast);
 }
@@ -359,7 +385,7 @@ NodeHandle BitcastExp::destTypeNode() const { return children()[1]; }
 NodeHandle BitcastExp::expression() const { return children()[0]; }
 
 ConditionalExp ConditionalExp::create(
-        const Nest::Location& loc, NodeHandle cond, NodeHandle alt1, NodeHandle alt2) {
+        const Location& loc, NodeHandle cond, NodeHandle alt1, NodeHandle alt2) {
     REQUIRE_NODE(loc, cond);
     REQUIRE_NODE(loc, alt1);
     REQUIRE_NODE(loc, alt2);
@@ -367,7 +393,7 @@ ConditionalExp ConditionalExp::create(
     res.setChildren(NodeRange{cond, alt1, alt2});
     return res;
 }
-ConditionalExp::ConditionalExp(Nest::Node* n)
+ConditionalExp::ConditionalExp(Node* n)
     : NodeHandle(n) {
     REQUIRE_NODE_KIND(n, nkFeatherExpConditional);
 }
@@ -376,13 +402,13 @@ NodeHandle ConditionalExp::alt1() const { return children()[1]; }
 NodeHandle ConditionalExp::alt2() const { return children()[2]; }
 
 IfStmt IfStmt::create(
-        const Nest::Location& loc, NodeHandle cond, NodeHandle thenC, NodeHandle elseC) {
+        const Location& loc, NodeHandle cond, NodeHandle thenC, NodeHandle elseC) {
     REQUIRE_NODE(loc, cond);
     IfStmt res = createNode<IfStmt>(nkFeatherStmtIf, loc);
     res.setChildren(NodeRange{cond, thenC, elseC});
     return res;
 }
-IfStmt::IfStmt(Nest::Node* n)
+IfStmt::IfStmt(Node* n)
     : NodeHandle(n) {
     REQUIRE_NODE_KIND(n, nkFeatherStmtIf);
 }
@@ -391,14 +417,14 @@ NodeHandle IfStmt::thenClause() const { return children()[1]; }
 NodeHandle IfStmt::elseClause() const { return children()[2]; }
 
 WhileStmt WhileStmt::create(
-        const Nest::Location& loc, NodeHandle cond, NodeHandle body, NodeHandle step) {
+        const Location& loc, NodeHandle cond, NodeHandle body, NodeHandle step) {
     REQUIRE_NODE(loc, cond);
     REQUIRE_NODE(loc, body);
     WhileStmt res = createNode<WhileStmt>(nkFeatherStmtWhile, loc);
     res.setChildren(NodeRange{cond, step, body});
     return res;
 }
-WhileStmt::WhileStmt(Nest::Node* n)
+WhileStmt::WhileStmt(Node* n)
     : NodeHandle(n) {
     REQUIRE_NODE_KIND(n, nkFeatherStmtWhile);
 }
@@ -406,33 +432,33 @@ NodeHandle WhileStmt::condition() const { return children()[0]; }
 NodeHandle WhileStmt::body() const { return children()[2]; }
 NodeHandle WhileStmt::step() const { return children()[1]; }
 
-BreakStmt BreakStmt::create(const Nest::Location& loc) {
+BreakStmt BreakStmt::create(const Location& loc) {
     BreakStmt res = createNode<BreakStmt>(nkFeatherStmtBreak, loc);
     res.setProperty("loop", NodeHandle{});
     return res;
 }
-BreakStmt::BreakStmt(Nest::Node* n)
+BreakStmt::BreakStmt(Node* n)
     : NodeHandle(n) {
     REQUIRE_NODE_KIND(n, nkFeatherStmtBreak);
 }
 
-ContinueStmt ContinueStmt::create(const Nest::Location& loc) {
+ContinueStmt ContinueStmt::create(const Location& loc) {
     ContinueStmt res = createNode<ContinueStmt>(nkFeatherStmtContinue, loc);
     res.setProperty("loop", NodeHandle{});
     return res;
 }
-ContinueStmt::ContinueStmt(Nest::Node* n)
+ContinueStmt::ContinueStmt(Node* n)
     : NodeHandle(n) {
     REQUIRE_NODE_KIND(n, nkFeatherStmtContinue);
 }
 
-ReturnStmt ReturnStmt::create(const Nest::Location& loc, NodeHandle exp) {
+ReturnStmt ReturnStmt::create(const Location& loc, NodeHandle exp) {
     ReturnStmt res = createNode<ReturnStmt>(nkFeatherStmtReturn, loc);
     res.setChildren(NodeRange{exp});
     res.setProperty("parentFun", NodeHandle{});
     return res;
 }
-ReturnStmt::ReturnStmt(Nest::Node* n)
+ReturnStmt::ReturnStmt(Node* n)
     : NodeHandle(n) {
     REQUIRE_NODE_KIND(n, nkFeatherStmtReturn);
 }

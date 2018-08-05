@@ -74,7 +74,7 @@ const char* TypeNode_toString(Node* node) {
 }
 
 Node* BackendCode_SemanticCheck(Node* node) {
-    EvalMode mode = Feather_BackendCode_getEvalMode(node);
+    EvalMode mode = BackendCode(node).mode();
     if (!node->type)
         node->type = Feather_getVoidType(mode);
 
@@ -84,7 +84,7 @@ Node* BackendCode_SemanticCheck(Node* node) {
 }
 const char* BackendCode_toString(Node* node) {
     ostringstream os;
-    os << "backendCode(" << Feather_BackendCode_getCode(node).begin << ")";
+    os << "backendCode(" << BackendCode(node).code().toStd() << ")";
     return dupString(os.str().c_str());
 }
 
@@ -640,7 +640,7 @@ Node* FunCall_SemanticCheck(Node* node) {
         return nullptr;
 
     // Check argument count
-    unsigned numParameters = Feather_Function_numParameters(fun);
+    unsigned numParameters = (unsigned) FunctionDecl(fun).parameters().size();
     if (Nest_nodeArraySize(node->children) != numParameters)
         REP_ERROR_RET(nullptr, node->location,
                 "Invalid function call: expecting %1% parameters, given %2%") %
@@ -660,7 +660,7 @@ Node* FunCall_SemanticCheck(Node* node) {
 
         // Compare types
         TypeRef argType = arg->type;
-        TypeRef paramType = Feather_Function_getParameter(fun, i)->type;
+        TypeRef paramType = FunctionDecl(fun).parameters()[i].type();
         if (!Feather::sameTypeIgnoreMode(argType, paramType))
             REP_ERROR_RET(nullptr, arg->location,
                     "Invalid function call: argument %1% is expected to have type %2% (actual "
@@ -681,7 +681,7 @@ Node* FunCall_SemanticCheck(Node* node) {
     }
 
     // Get the type from the function decl
-    node->type = Feather_Function_resultType(fun);
+    node->type = FunctionDecl(fun).resType().type();
 
     // Handle autoCt case
     if (allParamsAreCtAvailable && node->type->mode == modeRt &&
@@ -1056,7 +1056,7 @@ Node* Return_SemanticCheck(Node* node) {
     Node* parentFun = Feather_getParentFun(node->context);
     if (!parentFun)
         REP_ERROR_RET(nullptr, node->location, "Return found outside any function");
-    TypeRef resultType = Feather_Function_resultType(parentFun);
+    TypeRef resultType = FunctionDecl(parentFun).resType().type();
     ASSERT(resultType);
     Nest_setPropertyNode(node, "parentFun", parentFun);
 
@@ -1275,58 +1275,4 @@ Node* Feather_mkContinue(Location loc) {
 }
 Node* Feather_mkReturn(Location loc, Node* exp) {
     return ReturnStmt::create(loc, exp);
-}
-
-Nest_StringRef Feather_BackendCode_getCode(Node* node) {
-    ASSERT(node->nodeKind == nkFeatherBackendCode);
-    return Nest_getCheckPropertyString(node, propCode);
-}
-EvalMode Feather_BackendCode_getEvalMode(Node* node) {
-    ASSERT(node->nodeKind == nkFeatherBackendCode);
-    auto curMode = (EvalMode)Nest_getCheckPropertyInt(node, propEvalMode);
-    return curMode != modeUnspecified ? curMode : node->context->evalMode;
-}
-
-void Feather_ChangeMode_setChild(Node* node, Node* child) {
-    ASSERT(node);
-    Nest_nodeSetChildren(node, fromIniList({child}));
-
-    if (node->childrenContext)
-        Nest_setContext(child, node->childrenContext);
-}
-EvalMode Feather_ChangeMode_getEvalMode(Node* node) {
-    auto curMode = (EvalMode)Nest_getCheckPropertyInt(node, propEvalMode);
-    return curMode != modeUnspecified ? curMode : node->context->evalMode;
-}
-
-void Feather_Function_addParameter(Node* node, Node* parameter) {
-    if (Nest_explanation(parameter)->nodeKind != nkFeatherDeclVar)
-        REP_INTERNAL(parameter->location, "Node %1% must be a parameter") % parameter;
-
-    Nest_appendNodeToArray(&node->children, parameter);
-}
-void Feather_Function_addParameterFirst(Node* node, Node* parameter) {
-    if (Nest_explanation(parameter)->nodeKind != nkFeatherDeclVar)
-        REP_INTERNAL(parameter->location, "Node %1% must be a parameter") % parameter;
-
-    Nest_insertNodeIntoArray(&node->children, 2, parameter);
-}
-void Feather_Function_setResultType(Node* node, Node* resultType) {
-    at(node->children, 0) = resultType;
-    Nest_setContext(resultType, node->childrenContext);
-}
-void Feather_Function_setBody(Node* node, Node* body) { at(node->children, 1) = body; }
-unsigned Feather_Function_numParameters(Node* node) {
-    return Nest_nodeArraySize(node->children) - 2;
-}
-Node* Feather_Function_getParameter(Node* node, unsigned idx) {
-    return at(node->children, idx + 2);
-}
-Nest_NodeRange Feather_Function_getParameters(Node* node) {
-    return Nest_NodeRange{node->children.beginPtr + 2, node->children.endPtr};
-}
-TypeRef Feather_Function_resultType(Node* node) { return at(node->children, 0)->type; }
-Node* Feather_Function_body(Node* node) { return at(node->children, 1); }
-CallConvention Feather_Function_callConvention(Node* node) {
-    return (CallConvention)Nest_getCheckPropertyInt(node, "callConvention");
 }

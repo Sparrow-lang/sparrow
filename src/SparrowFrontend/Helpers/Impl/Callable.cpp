@@ -9,7 +9,11 @@
 #include <Helpers/Ct.h>
 #include "SparrowFrontendTypes.h"
 #include "SprDebug.h"
+
 #include "Feather/Utils/cppif/FeatherTypes.hpp"
+#include "Feather/Utils/cppif/FeatherNodes.hpp"
+
+#include "Nest/Utils/cppif/NodeRange.hpp"
 
 using namespace SprFrontend;
 using namespace Feather;
@@ -179,7 +183,7 @@ TypeRef varType(Node* cls, EvalMode mode) {
 }
 
 CallableData mkFunCallable(Node* fun, TypeRef implicitArgType = nullptr) {
-    Nest_NodeRange params = Feather_Function_getParameters(fun);
+    Nest_NodeRange params = FunctionDecl(fun).parameters();
     if (getResultParam(fun))
         params.beginPtr++; // Always hide the result param
     ASSERT(params.beginPtr <= params.endPtr);

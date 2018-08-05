@@ -13,8 +13,10 @@
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
 #include "Feather/Utils/cppif/FeatherTypes.hpp"
+#include "Feather/Utils/cppif/FeatherNodes.hpp"
 
 #include "Nest/Utils/CompilerSettings.hpp"
+#include "Nest/Utils/cppif/NodeRange.hpp"
 
 using namespace SprFrontend;
 using namespace Feather;
@@ -54,7 +56,7 @@ Node* SprFrontend::createCtorCall(
                 Node* fun = at(fnCall->referredNodes, 0);
 
                 // This argument - make sure it's of the required type
-                Node* thisParam = Feather_Function_getParameter(fun, 0);
+                Node* thisParam = FunctionDecl(fun).parameters()[0];
                 TypeRef thisParamType = thisParam->type;
                 ConversionResult cvt = g_ConvertService->checkConversion(thisArg, thisParamType);
                 if (!cvt)
@@ -241,12 +243,12 @@ Node* _createFunPtrForFeatherFun(Node* fun, Node* callNode) {
 
     // Try to instantiate the corresponding FunctionPtr class
     NodeVector parameters;
-    parameters.reserve(1 + Feather_Function_numParameters(fun));
+    parameters.reserve(1 + FunctionDecl(fun).parameters().size());
     TypeRef resType = resParam ? removeRef(TypeWithStorage(resParam->type)).type_
-                               : Feather_Function_resultType(fun);
+                               : FunctionDecl(fun).resType().type();
     parameters.push_back(createTypeNode(ctx, loc, resType));
-    for (size_t i = resParam ? 1 : 0; i < Feather_Function_numParameters(fun); ++i) {
-        parameters.push_back(createTypeNode(ctx, loc, Feather_Function_getParameter(fun, i)->type));
+    for (size_t i = resParam ? 1 : 0; i < FunctionDecl(fun).parameters().size(); ++i) {
+        parameters.push_back(createTypeNode(ctx, loc, FunctionDecl(fun).parameters()[i].type()));
     }
     Node* classCall = mkFunApplication(loc, mkIdentifier(loc, StringRef("FunctionPtr")),
             Feather_mkNodeList(loc, all(parameters)));
@@ -311,12 +313,12 @@ Node* _createFunPtrForDecl(Node* funNode) {
             if (baseExp && baseExp->type) {
                 // Check parameter count
                 size_t thisParamIdx = getResultParam(decl) ? 1 : 0;
-                if (Feather_Function_numParameters(decl) <= thisParamIdx) {
+                if (FunctionDecl(decl).parameters().size() <= thisParamIdx) {
                     continue;
                 }
 
                 // Ensure we can convert baseExp to the first param
-                TypeRef paramType = Feather_Function_getParameter(decl, thisParamIdx)->type;
+                TypeRef paramType = FunctionDecl(decl).parameters()[thisParamIdx].type();
                 if (!g_ConvertService->checkConversion(
                             baseExp, paramType, flagDontCallConversionCtor)) {
                     continue;

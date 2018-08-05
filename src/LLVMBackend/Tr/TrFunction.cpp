@@ -10,6 +10,7 @@
 
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
+#include "Feather/Utils/cppif/FeatherNodes.hpp"
 
 #include "Nest/Api/Type.h"
 #include "Nest/Api/Compiler.h"
@@ -17,6 +18,7 @@
 #include "Nest/Utils/cppif/StringRef.hpp"
 #include "Nest/Utils/NodeUtils.h"
 #include "Nest/Utils/CompilerSettings.hpp"
+#include "Nest/Utils/cppif/NodeRange.hpp"
 
 using namespace LLVMB;
 using namespace LLVMB::Tr;
@@ -33,7 +35,7 @@ llvm::Function* createFunDecl(Node* node, GlobalContext& ctx, TranslatedFunInfo&
     auto* funType = static_cast<llvm::FunctionType*>(getLLVMType(node->type, ctx));
 
     const Nest_StringRef* nativeName = Nest_getPropertyString(node, propNativeName);
-    Node* body = Feather_Function_body(node);
+    Node* body = FunctionDecl(node).body();
 
     // If we don't already have a name for this function, create one
     if (tfi.name_.empty()) {
@@ -95,7 +97,7 @@ llvm::Function* createFunDecl(Node* node, GlobalContext& ctx, TranslatedFunInfo&
         }
 
         // Set the calling convention
-        res->setCallingConv(translateCallingConv(Feather_Function_callConvention(node)));
+        res->setCallingConv(translateCallingConv(FunctionDecl(node).callConvention()));
 
         // If we have a result parameter, mark it as sret
         if (Nest_getPropertyNode(node, propResultParam))
@@ -152,8 +154,7 @@ void translateFunctionBody(
 
 //! Returns true if we need to write a definition for the given node
 bool needsDefinition(Node* node, TranslatedFunInfo& tfi) {
-    Node* body = Feather_Function_body(node);
-    return body && !tfi.mainDecl_;
+    return FunctionDecl(node).body() && !tfi.mainDecl_;
 }
 
 //! Create the LLVM definition of the function.
@@ -169,10 +170,10 @@ void createFunDefinition(
     ctx.targetBackend_.definedFunctions_.insert(decl);
 
     // Set the names for the parameters
-    ASSERT(decl->arg_size() == Feather_Function_numParameters(node));
+    ASSERT(decl->arg_size() == FunctionDecl(node).parameters().size());
     size_t idx = 0;
     for (auto argIt = decl->arg_begin(); argIt != decl->arg_end(); ++argIt, ++idx) {
-        argIt->setName(StringRef(Feather_getName(Feather_Function_getParameter(node, idx))).toStd());
+        argIt->setName(DeclNode(FunctionDecl(node).parameters()[idx]).name().toStd());
     }
 
     // Create the block in which we insert the code
@@ -190,7 +191,7 @@ void createFunDefinition(
     // Similar to the web LLVM compiler, we add variables for parameters
     idx = 0;
     for (auto argIt = decl->arg_begin(); argIt != decl->arg_end(); ++argIt, ++idx) {
-        Node* paramNode = Feather_Function_getParameter(node, idx);
+        Node* paramNode = FunctionDecl(node).parameters()[idx];
         Node* param = Nest_ofKind(Nest_explanation(paramNode), nkFeatherDeclVar);
         if (!param)
             REP_INTERNAL(paramNode->location, "Expected Var node; found %1%") % paramNode;
@@ -206,7 +207,7 @@ void createFunDefinition(
     }
 
     // Translate the body
-    Node* body = Feather_Function_body(node);
+    Node* body = FunctionDecl(node).body();
     translateFunctionBody(localCtx, body);
 
     // If we are emitting debug information, emit function end

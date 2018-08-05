@@ -61,23 +61,6 @@ extern const char* propResultingDecl;
 extern const char* propNoInline;
 extern const char* propEmptyBody; ///< Node will not generate meaningful instructions
 
-Nest_StringRef Feather_BackendCode_getCode(Nest_Node* node);
-EvalMode Feather_BackendCode_getEvalMode(Nest_Node* node);
-
-void Feather_ChangeMode_setChild(Nest_Node* node, Nest_Node* child);
-EvalMode Feather_ChangeMode_getEvalMode(Nest_Node* node);
-
-void Feather_Function_addParameter(Nest_Node* node, Nest_Node* parameter);
-void Feather_Function_addParameterFirst(Nest_Node* node, Nest_Node* parameter);
-void Feather_Function_setResultType(Nest_Node* node, Nest_Node* resultType);
-void Feather_Function_setBody(Nest_Node* node, Nest_Node* body);
-unsigned Feather_Function_numParameters(Nest_Node* node);
-Nest_Node* Feather_Function_getParameter(Nest_Node* node, unsigned idx);
-Nest_NodeRange Feather_Function_getParameters(Nest_Node* node);
-Nest_TypeRef Feather_Function_resultType(Nest_Node* node);
-Nest_Node* Feather_Function_body(Nest_Node* node);
-CallConvention Feather_Function_callConvention(Nest_Node* node);
-
 /// Getter for the class that introduces this data type - can be null
 /// Works for only for storage types (data, l-value, array)
 Nest_Node* Feather_classDecl(Nest_TypeRef type);

@@ -11,6 +11,7 @@
 #include "SprDebug.h"
 
 #include "Feather/Utils/FeatherUtils.hpp"
+#include "Feather/Utils/cppif/FeatherNodes.hpp"
 
 using namespace SprFrontend;
 using namespace Nest;
@@ -272,7 +273,7 @@ Node* OverloadService::selectOverload(CompilationContext* context, const Locatio
     }
     ASSERT(res->context);
     if (changeModeNode) {
-        Feather_ChangeMode_setChild(changeModeNode, res);
+        Feather::ChangeMode(changeModeNode).setChild(res);
         res = changeModeNode;
     }
 

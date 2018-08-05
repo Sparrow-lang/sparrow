@@ -1,16 +1,23 @@
 #pragma once
 
 #include "FeatherTypes.hpp"
+#include "Feather/Api/Feather.h"
 #include "Nest/Utils/cppif/NodeHandle.hpp"
 
 namespace Feather {
+
+using Nest::NodeHandle;
+using Nest::Node;
+using Nest::NodeRange;
+using Nest::Location;
+using Nest::StringRef;
 
 /**
  * @brief      A node that represents a no-operation
  *
  * Has a type of Void. Doesn't have any properties and doesn't check anything.
  */
-struct Nop : Nest::NodeHandle {
+struct Nop : NodeHandle {
     /**
      * @brief      Creates a Nop node
      *
@@ -18,10 +25,10 @@ struct Nop : Nest::NodeHandle {
      *
      * @return     The desired Nop node
      */
-    static Nop create(const Nest::Location& loc);
+    static Nop create(const Location& loc);
 
     Nop() = default;
-    Nop(Nest::Node* n);
+    Nop(Node* n);
 };
 
 /**
@@ -29,7 +36,7 @@ struct Nop : Nest::NodeHandle {
  *
  * This node just returns the given type.
  */
-struct TypeNode : Nest::NodeHandle {
+struct TypeNode : NodeHandle {
     /**
      * @brief      Creates a TypeNode node
      *
@@ -38,10 +45,10 @@ struct TypeNode : Nest::NodeHandle {
      *
      * @return     The desired TypeNode node
      */
-    static TypeNode create(const Nest::Location& loc, TypeBase type);
+    static TypeNode create(const Location& loc, TypeBase type);
 
     TypeNode() = default;
-    TypeNode(Nest::Node* n);
+    TypeNode(Node* n);
 
     //! Returns the type given when created the node
     TypeBase givenType() const;
@@ -52,7 +59,7 @@ struct TypeNode : Nest::NodeHandle {
  *
  * This node just returns the given type.
  */
-struct BackendCode : Nest::NodeHandle {
+struct BackendCode : NodeHandle {
     /**
      * @brief      Creates a BackendCode node
      *
@@ -62,13 +69,13 @@ struct BackendCode : Nest::NodeHandle {
      *
      * @return     The desired BackendCode node
      */
-    static BackendCode create(const Nest::Location& loc, Nest::StringRef code, EvalMode mode);
+    static BackendCode create(const Location& loc, StringRef code, EvalMode mode);
 
     BackendCode() = default;
-    BackendCode(Nest::Node* n);
+    BackendCode(Node* n);
 
     //! Returns the code for this node
-    Nest::StringRef code() const;
+    StringRef code() const;
 
     //! Returns the mode given at creation
     EvalMode mode() const;
@@ -84,7 +91,7 @@ struct BackendCode : Nest::NodeHandle {
  *
  * If no children is given to this, it will have the type Void (with the mode of the context).
  */
-struct NodeList : Nest::NodeHandle {
+struct NodeList : NodeHandle {
     /**
      * @brief      Creates a NodeList node from the given parameters
      *
@@ -96,7 +103,7 @@ struct NodeList : Nest::NodeHandle {
      * @return     The desired NodeList
      */
     static NodeList create(
-            const Nest::Location& loc, Nest::NodeRange children, bool setVoid = false);
+            const Location& loc, NodeRange children, bool setVoid = false);
 
     /**
      * @brief      Helper function to add a node to an already-existing NodeList
@@ -129,7 +136,7 @@ struct NodeList : Nest::NodeHandle {
     static NodeList append(NodeList prev, NodeList newNodes);
 
     NodeList() = default;
-    NodeList(Nest::Node* n);
+    NodeList(Node* n);
 
     //! The flag whether we yield a Void type regardless of the children.
     bool returnsVoid() const;
@@ -143,7 +150,7 @@ struct NodeList : Nest::NodeHandle {
  *
  * We can have zero instructions in a LocalSpace (although this is useless)
  */
-struct LocalSpace : Nest::NodeHandle {
+struct LocalSpace : NodeHandle {
     /**
      * @brief      Creates a LocalSpace node from the given parameters
      *
@@ -152,10 +159,10 @@ struct LocalSpace : Nest::NodeHandle {
      *
      * @return     The desired LocalSpace
      */
-    static LocalSpace create(const Nest::Location& loc, Nest::NodeRange children);
+    static LocalSpace create(const Location& loc, NodeRange children);
 
     LocalSpace() = default;
-    LocalSpace(Nest::Node* n);
+    LocalSpace(Node* n);
 };
 
 /**
@@ -168,7 +175,7 @@ struct LocalSpace : Nest::NodeHandle {
  *
  * The type of this node will be Void.
  */
-struct GlobalConstructAction : Nest::NodeHandle {
+struct GlobalConstructAction : NodeHandle {
     /**
      * @brief      Creates a GlobalConstructAction node from the given parameters
      *
@@ -177,10 +184,10 @@ struct GlobalConstructAction : Nest::NodeHandle {
      *
      * @return     The desired GlobalConstructAction
      */
-    static GlobalConstructAction create(const Nest::Location& loc, NodeHandle action);
+    static GlobalConstructAction create(const Location& loc, NodeHandle action);
 
     GlobalConstructAction() = default;
-    GlobalConstructAction(Nest::Node* n);
+    GlobalConstructAction(Node* n);
 
     //! Gets the action to be called
     NodeHandle action() const;
@@ -196,7 +203,7 @@ struct GlobalConstructAction : Nest::NodeHandle {
  *
  * The type of this node will be Void.
  */
-struct GlobalDestructAction : Nest::NodeHandle {
+struct GlobalDestructAction : NodeHandle {
     /**
      * @brief      Creates a GlobalDestructAction node from the given parameters
      *
@@ -205,10 +212,10 @@ struct GlobalDestructAction : Nest::NodeHandle {
      *
      * @return     The desired GlobalDestructAction
      */
-    static GlobalDestructAction create(const Nest::Location& loc, NodeHandle action);
+    static GlobalDestructAction create(const Location& loc, NodeHandle action);
 
     GlobalDestructAction() = default;
-    GlobalDestructAction(Nest::Node* n);
+    GlobalDestructAction(Node* n);
 
     //! Gets the action to be called
     NodeHandle action() const;
@@ -222,7 +229,7 @@ struct GlobalDestructAction : Nest::NodeHandle {
  *
  * The type of this node will be Void.
  */
-struct ScopeDestructAction : Nest::NodeHandle {
+struct ScopeDestructAction : NodeHandle {
     /**
      * @brief      Creates a ScopeDestructAction node from the given parameters
      *
@@ -231,10 +238,10 @@ struct ScopeDestructAction : Nest::NodeHandle {
      *
      * @return     The desired ScopeDestructAction
      */
-    static ScopeDestructAction create(const Nest::Location& loc, NodeHandle action);
+    static ScopeDestructAction create(const Location& loc, NodeHandle action);
 
     ScopeDestructAction() = default;
-    ScopeDestructAction(Nest::Node* n);
+    ScopeDestructAction(Node* n);
 
     //! Gets the action to be called
     NodeHandle action() const;
@@ -248,7 +255,7 @@ struct ScopeDestructAction : Nest::NodeHandle {
  *
  * The type of this node will be Void.
  */
-struct TempDestructAction : Nest::NodeHandle {
+struct TempDestructAction : NodeHandle {
     /**
      * @brief      Creates a TempDestructAction node from the given parameters
      *
@@ -257,10 +264,10 @@ struct TempDestructAction : Nest::NodeHandle {
      *
      * @return     The desired TempDestructAction
      */
-    static TempDestructAction create(const Nest::Location& loc, NodeHandle action);
+    static TempDestructAction create(const Location& loc, NodeHandle action);
 
     TempDestructAction() = default;
-    TempDestructAction(Nest::Node* n);
+    TempDestructAction(Node* n);
 
     //! Gets the action to be called
     NodeHandle action() const;
@@ -273,7 +280,7 @@ struct TempDestructAction : Nest::NodeHandle {
  *
  * The type of this node will be Void.
  */
-struct ChangeMode : Nest::NodeHandle {
+struct ChangeMode : NodeHandle {
     /**
      * @brief      Creates a ChangeMode node from the given parameters
      *
@@ -283,16 +290,20 @@ struct ChangeMode : Nest::NodeHandle {
      *
      * @return     The desired ChangeMode node
      */
-    static ChangeMode create(const Nest::Location& loc, NodeHandle child, EvalMode mode);
+    static ChangeMode create(const Location& loc, NodeHandle child, EvalMode mode);
 
     ChangeMode() = default;
-    ChangeMode(Nest::Node* n);
+    ChangeMode(Node* n);
 
     //! Gets the child to change the node for
     NodeHandle child() const;
 
     //! The mode we want to set
     EvalMode mode() const;
+
+    //! Changes the child of this node.
+    //! If we have a compilation context, set it to the child
+    void setChild(NodeHandle child);
 };
 
 /**
@@ -300,19 +311,19 @@ struct ChangeMode : Nest::NodeHandle {
  *
  * Just provide some common functionality: getting the name and the eval mode
  */
-struct DeclNode : Nest::NodeHandle {
+struct DeclNode : NodeHandle {
     DeclNode() = default;
-    DeclNode(Nest::Node* n);
+    DeclNode(Node* n);
 
     //! Gets the name of the declaration
-    Nest::StringRef name() const;
+    StringRef name() const;
 
     //! Gets the eval mode for this declaration
     EvalMode mode() const;
 
 protected:
     //! Helper function to set the name and the mode of the declaration
-    void setNameAndMode(Nest::StringRef name, EvalMode mode = modeUnspecified);
+    void setNameAndMode(StringRef name, EvalMode mode = modeUnspecified);
 };
 
 /**
@@ -335,20 +346,37 @@ struct FunctionDecl : DeclNode {
      *
      * @return     The desired FunctionDecl node
      */
-    static FunctionDecl create(const Nest::Location& loc, Nest::StringRef name, NodeHandle resType,
-            Nest::NodeRange params, NodeHandle body);
+    static FunctionDecl create(const Location& loc, StringRef name, NodeHandle resType,
+            NodeRange params, NodeHandle body);
 
     FunctionDecl() = default;
-    FunctionDecl(Nest::Node* n);
+    FunctionDecl(Node* n);
 
     //! Gets the result type node for the function
     NodeHandle resType() const;
 
     //! Gets the parameters of this function
-    Nest::NodeRange params() const;
+    NodeRange parameters() const;
 
     //! Gets the body for the function
     NodeHandle body() const;
+
+    //! Returns the call convention for this function decl
+    CallConvention callConvention() const;
+
+    /**
+     * @brief      Adds a new parameter to the list of the parameters of this function
+     *
+     * Please note that the given parameter needs expand to a VarDecl node. That is, it doesn't
+     * necessarily need to be a VarDecl node directly.
+     *
+     * @param[in]  param          The parameter declaration
+     * @param[in]  insertInFront  True if this needs to be inserted before other params
+     */
+    void addParameter(DeclNode param, bool insertInFront = false);
+
+    //! Sets the result type for this function declaration.
+    void setResultType(NodeHandle resType);
 };
 
 /**
@@ -369,13 +397,13 @@ struct StructDecl : DeclNode {
      * @return     The desired struct node
      */
     static StructDecl create(
-            const Nest::Location& loc, Nest::StringRef name, Nest::NodeRange fields);
+            const Location& loc, StringRef name, NodeRange fields);
 
     StructDecl() = default;
-    StructDecl(Nest::Node* n);
+    StructDecl(Node* n);
 
     //! Gets the fields of this struct
-    Nest::NodeRange fields() const;
+    NodeRange fields() const;
 };
 
 /**
@@ -399,10 +427,10 @@ struct VarDecl : DeclNode {
      *
      * @return     The desired variable node
      */
-    static VarDecl create(const Nest::Location& loc, Nest::StringRef name, NodeHandle typeNode);
+    static VarDecl create(const Location& loc, StringRef name, NodeHandle typeNode);
 
     VarDecl() = default;
-    VarDecl(Nest::Node* n);
+    VarDecl(Node* n);
 
     //! Gets the type node of the variable
     NodeHandle typeNode() const;
@@ -414,7 +442,7 @@ struct VarDecl : DeclNode {
  * Used to represent literals (integer, strings, etc). But can be used to represent complex
  * structures as well.
  */
-struct CtValueExp : Nest::NodeHandle {
+struct CtValueExp : NodeHandle {
     /**
      * @brief      Creates a CTValueExp node
      *
@@ -424,16 +452,16 @@ struct CtValueExp : Nest::NodeHandle {
      *
      * @return     The desired CT value node
      */
-    static CtValueExp create(const Nest::Location& loc, TypeBase type, Nest::StringRef data);
+    static CtValueExp create(const Location& loc, TypeBase type, StringRef data);
 
     CtValueExp() = default;
-    CtValueExp(Nest::Node* n);
+    CtValueExp(Node* n);
 
     //! Gets the type of this value
     TypeBase valueType() const;
 
     //! Getter to the raw binary data associated with this CT value
-    Nest::StringRef valueData() const;
+    StringRef valueData() const;
 };
 
 /**
@@ -442,7 +470,7 @@ struct CtValueExp : Nest::NodeHandle {
  * Can be of different types, as indicated at creation. Although we have the same value, we
  * distinguish between a null of an Int pointer and a null of a String pointer.
  */
-struct NullExp : Nest::NodeHandle {
+struct NullExp : NodeHandle {
     /**
      * @brief      Creates a null expression node
      *
@@ -451,10 +479,10 @@ struct NullExp : Nest::NodeHandle {
      *
      * @return     The desired null value node
      */
-    static NullExp create(const Nest::Location& loc, NodeHandle typeNode);
+    static NullExp create(const Location& loc, NodeHandle typeNode);
 
     NullExp() = default;
-    NullExp(Nest::Node* n);
+    NullExp(Node* n);
 
     //! Gets the type node
     NodeHandle typeNode() const;
@@ -466,7 +494,7 @@ struct NullExp : Nest::NodeHandle {
  * This node is used each time we refer to a variable, to get the reference to that variable. It
  * provides the means of interacting with the variable.
  */
-struct VarRefExp : Nest::NodeHandle {
+struct VarRefExp : NodeHandle {
     /**
      * @brief      Creates a variable reference node
      *
@@ -475,10 +503,10 @@ struct VarRefExp : Nest::NodeHandle {
      *
      * @return     The desired variable ref node
      */
-    static VarRefExp create(const Nest::Location& loc, VarDecl varDecl);
+    static VarRefExp create(const Location& loc, VarDecl varDecl);
 
     VarRefExp() = default;
-    VarRefExp(Nest::Node* n);
+    VarRefExp(Node* n);
 
     //! Get the variable declaration that this wants to access
     VarDecl varDecl() const;
@@ -491,7 +519,7 @@ struct VarRefExp : Nest::NodeHandle {
  * expression of the base object, and a the field declaration, this provides a way for obtaining a
  * reference to the field data.
  */
-struct FieldRefExp : Nest::NodeHandle {
+struct FieldRefExp : NodeHandle {
     /**
      * @brief      Creates a field reference node
      *
@@ -501,10 +529,10 @@ struct FieldRefExp : Nest::NodeHandle {
      *
      * @return     The desired field ref node
      */
-    static FieldRefExp create(const Nest::Location& loc, NodeHandle obj, VarDecl fieldDecl);
+    static FieldRefExp create(const Location& loc, NodeHandle obj, VarDecl fieldDecl);
 
     FieldRefExp() = default;
-    FieldRefExp(Nest::Node* n);
+    FieldRefExp(Node* n);
 
     //! Gets the object node
     NodeHandle object() const;
@@ -526,7 +554,7 @@ struct FieldRefExp : Nest::NodeHandle {
  * @warning     There is no enforced correlation between the type of the function declaration and
  *              the result type given to this expression.
  */
-struct FunRefExp : Nest::NodeHandle {
+struct FunRefExp : NodeHandle {
     /**
      * @brief      Creates a function reference node
      *
@@ -536,10 +564,10 @@ struct FunRefExp : Nest::NodeHandle {
      *
      * @return     The desired function ref node
      */
-    static FunRefExp create(const Nest::Location& loc, FunctionDecl funDecl, NodeHandle resType);
+    static FunRefExp create(const Location& loc, FunctionDecl funDecl, NodeHandle resType);
 
     FunRefExp() = default;
-    FunRefExp(Nest::Node* n);
+    FunRefExp(Node* n);
 
     //! Get the function declaration we are referring to
     FunctionDecl funDecl() const;
@@ -553,7 +581,7 @@ struct FunRefExp : Nest::NodeHandle {
  *
  * TODO
  */
-struct FunCallExp : Nest::NodeHandle {
+struct FunCallExp : NodeHandle {
     /**
      * @brief      Creates a function call node
      *
@@ -563,16 +591,16 @@ struct FunCallExp : Nest::NodeHandle {
      *
      * @return     The desired function call node
      */
-    static FunCallExp create(const Nest::Location& loc, FunctionDecl funDecl, Nest::NodeRange args);
+    static FunCallExp create(const Location& loc, FunctionDecl funDecl, NodeRange args);
 
     FunCallExp() = default;
-    FunCallExp(Nest::Node* n);
+    FunCallExp(Node* n);
 
     //! Get the function declaration we are referring to
     FunctionDecl funDecl() const;
 
     //! Gets the arguments used for the function call
-    Nest::NodeRange arguments() const;
+    NodeRange arguments() const;
 };
 
 /**
@@ -580,7 +608,7 @@ struct FunCallExp : Nest::NodeHandle {
  *
  * TODO
  */
-struct MemLoadExp : Nest::NodeHandle {
+struct MemLoadExp : NodeHandle {
     /**
      * @brief      Creates a mem load node
      *
@@ -589,10 +617,10 @@ struct MemLoadExp : Nest::NodeHandle {
      *
      * @return     The desired mem load node
      */
-    static MemLoadExp create(const Nest::Location& loc, NodeHandle address);
+    static MemLoadExp create(const Location& loc, NodeHandle address);
 
     MemLoadExp() = default;
-    MemLoadExp(Nest::Node* n);
+    MemLoadExp(Node* n);
 
     //! Get the expression we want this node to dereference
     NodeHandle address() const;
@@ -603,7 +631,7 @@ struct MemLoadExp : Nest::NodeHandle {
  *
  * TODO
  */
-struct MemStoreExp : Nest::NodeHandle {
+struct MemStoreExp : NodeHandle {
     /**
      * @brief      Creates a mem store node
      *
@@ -613,10 +641,10 @@ struct MemStoreExp : Nest::NodeHandle {
      *
      * @return     The desired mem store node
      */
-    static MemStoreExp create(const Nest::Location& loc, NodeHandle value, NodeHandle address);
+    static MemStoreExp create(const Location& loc, NodeHandle value, NodeHandle address);
 
     MemStoreExp() = default;
-    MemStoreExp(Nest::Node* n);
+    MemStoreExp(Node* n);
 
     //! Get the value we want to store at the given address
     NodeHandle value() const;
@@ -629,7 +657,7 @@ struct MemStoreExp : Nest::NodeHandle {
  *
  * TODO
  */
-struct BitcastExp : Nest::NodeHandle {
+struct BitcastExp : NodeHandle {
     /**
      * @brief      Creates a bitcast node
      *
@@ -639,10 +667,10 @@ struct BitcastExp : Nest::NodeHandle {
      *
      * @return     The desired bitcast node
      */
-    static BitcastExp create(const Nest::Location& loc, NodeHandle destType, NodeHandle exp);
+    static BitcastExp create(const Location& loc, NodeHandle destType, NodeHandle exp);
 
     BitcastExp() = default;
-    BitcastExp(Nest::Node* n);
+    BitcastExp(Node* n);
 
     //! Get the value we want to store at the given address
     NodeHandle destTypeNode() const;
@@ -655,7 +683,7 @@ struct BitcastExp : Nest::NodeHandle {
  *
  * TODO
  */
-struct ConditionalExp : Nest::NodeHandle {
+struct ConditionalExp : NodeHandle {
     /**
      * @brief      Creates a conditional node
      *
@@ -667,10 +695,10 @@ struct ConditionalExp : Nest::NodeHandle {
      * @return     The desired conditional node
      */
     static ConditionalExp create(
-            const Nest::Location& loc, NodeHandle cond, NodeHandle alt1, NodeHandle alt2);
+            const Location& loc, NodeHandle cond, NodeHandle alt1, NodeHandle alt2);
 
     ConditionalExp() = default;
-    ConditionalExp(Nest::Node* n);
+    ConditionalExp(Node* n);
 
     //! Get the condition node
     NodeHandle condition() const;
@@ -685,7 +713,7 @@ struct ConditionalExp : Nest::NodeHandle {
  *
  * TODO
  */
-struct IfStmt : Nest::NodeHandle {
+struct IfStmt : NodeHandle {
     /**
      * @brief      Creates a if statement node
      *
@@ -697,10 +725,10 @@ struct IfStmt : Nest::NodeHandle {
      * @return     The desired if statement node
      */
     static IfStmt create(
-            const Nest::Location& loc, NodeHandle cond, NodeHandle thenC, NodeHandle elseC);
+            const Location& loc, NodeHandle cond, NodeHandle thenC, NodeHandle elseC);
 
     IfStmt() = default;
-    IfStmt(Nest::Node* n);
+    IfStmt(Node* n);
 
     //! Get the condition node
     NodeHandle condition() const;
@@ -715,7 +743,7 @@ struct IfStmt : Nest::NodeHandle {
  *
  * TODO
  */
-struct WhileStmt : Nest::NodeHandle {
+struct WhileStmt : NodeHandle {
     /**
      * @brief      Creates a while statement node
      *
@@ -727,10 +755,10 @@ struct WhileStmt : Nest::NodeHandle {
      * @return     The desired while statement node
      */
     static WhileStmt create(
-            const Nest::Location& loc, NodeHandle cond, NodeHandle body, NodeHandle step);
+            const Location& loc, NodeHandle cond, NodeHandle body, NodeHandle step);
 
     WhileStmt() = default;
-    WhileStmt(Nest::Node* n);
+    WhileStmt(Node* n);
 
     //! Get the condition node
     NodeHandle condition() const;
@@ -745,7 +773,7 @@ struct WhileStmt : Nest::NodeHandle {
  *
  * TODO
  */
-struct BreakStmt : Nest::NodeHandle {
+struct BreakStmt : NodeHandle {
     /**
      * @brief      Creates a break statement node
      *
@@ -753,10 +781,10 @@ struct BreakStmt : Nest::NodeHandle {
      *
      * @return     The desired break statement node
      */
-    static BreakStmt create(const Nest::Location& loc);
+    static BreakStmt create(const Location& loc);
 
     BreakStmt() = default;
-    BreakStmt(Nest::Node* n);
+    BreakStmt(Node* n);
 };
 
 /**
@@ -764,7 +792,7 @@ struct BreakStmt : Nest::NodeHandle {
  *
  * TODO
  */
-struct ContinueStmt : Nest::NodeHandle {
+struct ContinueStmt : NodeHandle {
     /**
      * @brief      Creates a continue statement node
      *
@@ -772,10 +800,10 @@ struct ContinueStmt : Nest::NodeHandle {
      *
      * @return     The desired continue statement node
      */
-    static ContinueStmt create(const Nest::Location& loc);
+    static ContinueStmt create(const Location& loc);
 
     ContinueStmt() = default;
-    ContinueStmt(Nest::Node* n);
+    ContinueStmt(Node* n);
 };
 
 /**
@@ -783,7 +811,7 @@ struct ContinueStmt : Nest::NodeHandle {
  *
  * TODO
  */
-struct ReturnStmt : Nest::NodeHandle {
+struct ReturnStmt : NodeHandle {
     /**
      * @brief      Creates a return statement node
      *
@@ -792,10 +820,10 @@ struct ReturnStmt : Nest::NodeHandle {
      *
      * @return     The desired return statement node
      */
-    static ReturnStmt create(const Nest::Location& loc, NodeHandle exp);
+    static ReturnStmt create(const Location& loc, NodeHandle exp);
 
     ReturnStmt() = default;
-    ReturnStmt(Nest::Node* n);
+    ReturnStmt(Node* n);
 
     //! Get the expression we are returning; can be null
     NodeHandle expression() const;

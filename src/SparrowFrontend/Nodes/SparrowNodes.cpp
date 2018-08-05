@@ -13,6 +13,7 @@
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
 #include "Feather/Utils/cppif/FeatherTypes.hpp"
+#include "Feather/Utils/cppif/FeatherNodes.hpp"
 
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Api/NodeKindRegistrar.h"
@@ -252,10 +253,9 @@ Node* SprReturn_SemanticCheck(Node* node) {
     if (resultParam) // Does this function have a result param?
     {
         resType = removeRef(TypeWithStorage(resultParam->type));
-        ASSERT(!Feather_Function_resultType(parentFun)
-                        ->hasStorage); // The function should have void result
+        ASSERT(!FunctionDecl(parentFun).resType().hasStorage()); // The function should have void result
     } else {
-        resType = Feather_Function_resultType(parentFun);
+        resType = FunctionDecl(parentFun).resType().type();
     }
     ASSERT(resType);
 
@@ -274,7 +274,7 @@ Node* SprReturn_SemanticCheck(Node* node) {
             REP_ERROR_RET(nullptr, exp->location, "Cannot convert return expression (%1%) to %2%") %
                     exp->type % resType;
     } else {
-        if (resultParam || Feather_Function_resultType(parentFun)->typeKind != typeKindVoid)
+        if (resultParam || FunctionDecl(parentFun).resType().type()->typeKind != typeKindVoid)
             REP_ERROR_RET(nullptr, node->location,
                     "You must return something in a function that has non-Void result type");
     }

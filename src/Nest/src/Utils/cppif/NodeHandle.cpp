@@ -31,7 +31,7 @@ NodeHandle NodeHandle::create(int nodeKind, const Location& loc) {
     return {res};
 }
 
-NodeHandle NodeHandle::clone(NodeHandle node) { return Nest_cloneNode(node.handle); }
+NodeHandle NodeHandle::clone() { return Nest_cloneNode(handle); }
 
 void NodeHandle::setContext(CompilationContext* context) { Nest_setContext(handle, context); }
 
@@ -275,6 +275,20 @@ NodeHandle NodeHandle::explanation() {
     return handle && handle->explanation && handle->explanation != handle
                    ? NodeHandle(handle->explanation).explanation()
                    : *this;
+}
+TypeRef NodeHandle::computeTypeImpl() {
+    semanticCheck();
+    return type();
+}
+void NodeHandle::setContextForChildrenImpl() {
+    // Set the children context to all of the children
+    CompilationContext* childrenCtx = childrenContext();
+    for (auto child: children())
+        if (child)
+            child.setContext(childrenCtx);
+}
+const char* NodeHandle::toStringImpl() {
+    return Nest_defaultFunToString(handle);
 }
 
 } // namespace Nest

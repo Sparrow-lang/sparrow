@@ -38,7 +38,7 @@ struct NodeHandle {
 
     //! Clone the given node - create one with the same characteristics
     //! We clear the compilation state of the new node when cloning
-    static NodeHandle clone(NodeHandle node);
+    NodeHandle clone();
 
     //!@}
     //!@{ Node attributes
@@ -154,6 +154,15 @@ struct NodeHandle {
     NodeHandle explanation();
 
     //!@}
+
+protected:
+    // NodeHandle semanticCheckImpl();  // doesn't have a default
+    //! Default handler for computing the type of this node.
+    TypeRef computeTypeImpl();
+    //! Default handler for setting the context for children
+    void setContextForChildrenImpl();
+    //! Default handler for transforming this into a string
+    const char* toStringImpl();
 };
 
 } // namespace Nest

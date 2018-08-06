@@ -245,7 +245,7 @@ Node* _createFunPtrForFeatherFun(Node* fun, Node* callNode) {
     NodeVector parameters;
     parameters.reserve(1 + FunctionDecl(fun).parameters().size());
     TypeRef resType = resParam ? removeRef(TypeWithStorage(resParam->type)).type_
-                               : FunctionDecl(fun).resType().type();
+                               : FunctionDecl(fun).resTypeNode().type();
     parameters.push_back(createTypeNode(ctx, loc, resType));
     for (size_t i = resParam ? 1 : 0; i < FunctionDecl(fun).parameters().size(); ++i) {
         parameters.push_back(createTypeNode(ctx, loc, FunctionDecl(fun).parameters()[i].type()));

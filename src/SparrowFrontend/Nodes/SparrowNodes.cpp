@@ -255,7 +255,7 @@ Node* SprReturn_SemanticCheck(Node* node) {
         resType = removeRef(TypeWithStorage(resultParam->type));
         ASSERT(!FunctionDecl(parentFun).resType().hasStorage()); // The function should have void result
     } else {
-        resType = FunctionDecl(parentFun).resType().type();
+        resType = FunctionDecl(parentFun).resTypeNode().type();
     }
     ASSERT(resType);
 
@@ -274,7 +274,7 @@ Node* SprReturn_SemanticCheck(Node* node) {
             REP_ERROR_RET(nullptr, exp->location, "Cannot convert return expression (%1%) to %2%") %
                     exp->type % resType;
     } else {
-        if (resultParam || FunctionDecl(parentFun).resType().type()->typeKind != typeKindVoid)
+        if (resultParam || FunctionDecl(parentFun).resTypeNode().type()->typeKind != typeKindVoid)
             REP_ERROR_RET(nullptr, node->location,
                     "You must return something in a function that has non-Void result type");
     }

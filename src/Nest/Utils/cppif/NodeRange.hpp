@@ -87,7 +87,7 @@ struct NodeRangeM {
     bool empty() const { return range.beginPtr == range.endPtr; }
 
     //! Gets the number of nodes in this range
-    int size() const { return Nest_nodeRangeMSize(range); }
+    int size() const { return (int) Nest_nodeRangeMSize(range); }
     //! Returns the node handle at the given index
     NodeHandle& operator[](int idx) const {
         ASSERT(idx < size());

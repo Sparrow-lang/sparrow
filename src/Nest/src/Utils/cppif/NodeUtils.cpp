@@ -301,7 +301,7 @@ unsigned Nest_nodeArraySize(Nest_NodeArray arr) { return arr.endPtr - arr.beginP
 unsigned Nest_nodeArrayCapacity(Nest_NodeArray arr) { return arr.endOfStorePtr - arr.beginPtr; }
 
 unsigned Nest_nodeRangeSize(Nest_NodeRange nodes) { return nodes.endPtr - nodes.beginPtr; }
-unsigned Nest_nodeRangeSize(Nest_NodeRangeM nodes) { return nodes.endPtr - nodes.beginPtr; }
+unsigned Nest_nodeRangeMSize(Nest_NodeRangeM nodes) { return nodes.endPtr - nodes.beginPtr; }
 
 Nest_NodeRange Nest_NodeRagenFromCArray(Node** nodes, unsigned count) {
     Nest_NodeRange res = {nodes, nodes + count};

@@ -14,7 +14,7 @@ StringRef inferModuleName(const char* url);
 namespace {
 
 template <typename T> T extractValue(StringRef valueData) {
-    ASSERT(size(valueData) == sizeof(T));
+    ASSERT(valueData.size() == sizeof(T));
     // NOLINTNEXTLINE
     return *reinterpret_cast<const T*>(valueData.begin);
 }

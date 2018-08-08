@@ -94,7 +94,7 @@ TEST_CASE_METHOD(FeatherTypesFixture, "User can add or remove references") {
         REQUIRE(newType == base);
     });
     rc::prop("lvalueToRefIfPresent keeps the same number of references", []() {
-        DataType base = *TypeFactory::arbBasicStorageType(modeUnspecified, 0, 10);
+        TypeWithStorage base = *TypeFactory::arbBasicStorageType(modeUnspecified, 0, 10);
         TypeWithStorage newType = TypeWithStorage(lvalueToRefIfPresent(base));
         REQUIRE(newType.numReferences() == base.numReferences());
     });

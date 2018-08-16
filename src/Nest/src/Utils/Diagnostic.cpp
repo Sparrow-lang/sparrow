@@ -147,12 +147,6 @@ ostream& operator<<(ostream& os, const Location& loc) {
 ostream& operator<<(ostream& os, Node* n) {
     return os << NodeHandle(n);
 }
-ostream& operator<<(ostream& os, NodeHandle n) {
-    if (n)
-        os << n.toString();
-    return os;
-}
-
 ostream& operator<<(ostream& os, TypeRef t) {
     if (t)
         os << t->description;

@@ -3,6 +3,8 @@
 #include "RcBasic.hpp"
 
 #include "Nest/Api/Type.h"
+#include "Nest/Utils/cppif/StringRef.hpp"
+#include "Feather/Utils/cppif/FeatherNodes.hpp"
 #include "SparrowFrontend/SparrowFrontendTypes.h"
 
 namespace TypeFactory {
@@ -41,14 +43,15 @@ Gen<ArrayType> arbArrayType(EvalMode mode) {
             arbDataType(mode), gen::inRange(1, 100));
 }
 
-Gen<FunctionType> arbFunctionType(EvalMode mode) {
+Gen<FunctionType> arbFunctionType(EvalMode mode, Feather::TypeWithStorage resType) {
     return gen::exec([=]() -> FunctionType {
         EvalMode m = mode == modeUnspecified ? *gen::arbitrary<EvalMode>() : mode;
         int numTypes = *gen::inRange(1, 5);
         vector<TypeRef> types;
         types.resize(numTypes);
-        for (auto& t : types) {
-            t = *arbDataType(m);
+        for (int i = 0; i < numTypes; i++) {
+            auto t = i == 0 && resType ? resType : *arbDataType(m);
+            types[i] = t;
         }
         return FunctionType::get(&types[0], numTypes, m);
     });
@@ -116,6 +119,33 @@ Gen<TypeBase> arbType() {
 
 Gen<TypeRef> arbTypeRef() {
     return gen::map(TypeFactory::arbType(), [](Feather::TypeBase t) -> TypeRef { return t; });
+}
+
+Gen<TypeWithStorage> arbBoolType(EvalMode mode) {
+    const int numT = g_dataTypeDecls.size();
+    REQUIRE(numT > 0);
+    // Find the decl for the 'i8' type
+    DeclNode boolDecl;
+    for (auto decl : g_dataTypeDecls) {
+        if (DeclNode(decl).name() == "i1") {
+            boolDecl = DeclNode(decl);
+            break;
+        }
+    }
+    return gen::exec([=] () -> TypeWithStorage {
+        auto m = mode != modeUnspecified ? mode : *gen::arbitrary<EvalMode>();
+        int numRefs = *gen::weightedElement<int>({
+                {10, 0},
+                {2, 1},
+                {1, 2},
+                {1, 3},
+        });
+        TypeWithStorage t = DataType::get(boolDecl, numRefs, m);
+        int percentage = *gen::inRange(0, 100);
+        if (*gen::inRange(0, 100) < 25) // 25% return LValue
+            t = LValueType::get(t);
+        return t;
+    });
 }
 
 } // namespace TypeFactory

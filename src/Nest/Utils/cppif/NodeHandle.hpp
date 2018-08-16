@@ -165,5 +165,8 @@ protected:
     const char* toStringImpl();
 };
 
+ostream& operator<<(ostream& os, Nest::NodeHandle n);
+
+
 } // namespace Nest
 

@@ -448,6 +448,9 @@ struct FunctionDecl : DeclNode {
     //! Sets the result type for this function declaration.
     void setResultType(NodeHandle resType);
 
+    //! Sets the body for this function declaration.
+    void setBody(NodeHandle body);
+
 private:
     void setContextForChildrenImpl();
     TypeRef computeTypeImpl();
@@ -532,6 +535,14 @@ private:
  *
  * Used to represent literals (integer, strings, etc). But can be used to represent complex
  * structures as well.
+ *
+ * Precondition:
+ *     - given type has storage (of any mode)
+ *     - the size of the value matches the number of bytes from given type
+ *
+ * Postconditions:
+ *     - the type of the node matches the given type (ignoring mode)
+ *     - output type is CT
  */
 struct CtValueExp : NodeHandle {
     //! Register this node kind
@@ -546,13 +557,13 @@ struct CtValueExp : NodeHandle {
      *
      * @return     The desired CT value node
      */
-    static CtValueExp create(const Location& loc, TypeBase type, StringRef data);
+    static CtValueExp create(const Location& loc, TypeWithStorage type, StringRef data);
 
     CtValueExp() = default;
     CtValueExp(Node* n);
 
     //! Gets the type of this value
-    TypeBase valueType() const;
+    TypeWithStorage valueType() const;
 
     //! Getter to the raw binary data associated with this CT value
     StringRef valueData() const;
@@ -567,6 +578,13 @@ private:
  *
  * Can be of different types, as indicated at creation. Although we have the same value, we
  * distinguish between a null of an Int pointer and a null of a String pointer.
+ *
+ * Preconditions:
+ *     - the type of the given node has storage
+ *     - given type is can be dereferenced
+ *
+ * Postcondition:
+ *     - the type of the node matches the type of the given node (ignoring mode)
  */
 struct NullExp : NodeHandle {
     //! Register this node kind
@@ -598,6 +616,13 @@ private:
  *
  * This node is used each time we refer to a variable, to get the reference to that variable. It
  * provides the means of interacting with the variable.
+ *
+ * Preconditions:
+ *     - the given var decl node is not null
+ *     - the given decl is not a field, and has storage
+ *
+ * Postcondition:
+ *     - the resulting type will be a LValue of the type of the var
  */
 struct VarRefExp : NodeHandle {
     //! Register this node kind
@@ -705,7 +730,15 @@ private:
 /**
  * @brief      A node representing a function call expression
  *
- * TODO
+ * Preconditions:
+ *     - all input nodes are not null
+ *     - the type of the arguments must match the types of the fun params (ignoring mode)
+ *     - if the function is CT, all arguments must be CT
+ *
+ * Postcondition:
+ *     - the resulting type will be the function result type (mode may vary)
+ *     - if the function is 'autoCt' and all arguments are CT, the result type mode is CT
+ *     - if some of the args are RT, then the result type should be RT
  */
 struct FunCallExp : NodeHandle {
     //! Register this node kind
@@ -739,7 +772,13 @@ private:
 /**
  * @brief      A node representing a memory load (dereference)
  *
- * TODO
+ * Preconditions:
+ *     - the given address node is not null
+ *     - the type of the given address node has storage and can be dereferenced (at least 1 ref)
+ *
+ * Postcondition:
+ *     - the type of the node has one reference less than the given type (adjusted to context)
+ *     - the resulting type will not be LValue
  */
 struct MemLoadExp : NodeHandle {
     //! Register this node kind
@@ -768,7 +807,17 @@ private:
 /**
  * @brief      A node representing a memory store
  *
- * TODO
+ * This is equivalent to the following expression in C:
+ *     *address = value
+ *
+ * Preconditions:
+ *     - the given nodes are not null
+ *     - the type of the given address node has storage and can be dereferenced (at least 1 ref)
+ *     - the type of the given value is the same type of the address, minus one ref; if the value
+ *         type is LValue, also try removing the LValue when comparing
+ *
+ * Postcondition:
+ *     - the resulting type will be Void (adjusted to context)
  */
 struct MemStoreExp : NodeHandle {
     //! Register this node kind
@@ -800,7 +849,16 @@ private:
 /**
  * @brief      A node representing a bitcast (change the type)
  *
- * TODO
+ * This is equivalent to the following expression in C:
+ *     (destType) exp  // pointers only
+ *
+ * Preconditions:
+ *     - the given nodes are not null
+ *     - type(destType) has storage and can be dereferenced
+ *     - type(exp) has storage and can be dereferenced
+ *
+ * Postcondition:
+ *     - the resulting type will be type(destType) (adjusted to context)
  */
 struct BitcastExp : NodeHandle {
     //! Register this node kind
@@ -833,7 +891,16 @@ private:
 /**
  * @brief      A node representing a conditional (ternary) expression
  *
- * TODO
+ * This is equivalent to the following expression in C:
+ *     cond ? alt1 : alt2
+ *
+ * Preconditions:
+ *     - the given nodes are not null
+ *     - type(cond) has a type that points to a decl with "i1" native name
+ *     - type(alt1) == type(alt2) (ignoring mode)
+ *
+ * Postcondition:
+ *     - the resulting type will be type(alt1) (possible with a different mode)
  */
 struct ConditionalExp : NodeHandle {
     //! Register this node kind
@@ -845,7 +912,7 @@ struct ConditionalExp : NodeHandle {
      * @param[in]  loc      The location of the node
      * @param[in]  cond     The node representing the condition
      * @param[in]  alt1     The first alternative node
-     * @param[in]  alt2     The seond alternative node
+     * @param[in]  alt2     The second alternative node
      *
      * @return     The desired conditional node
      */

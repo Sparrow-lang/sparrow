@@ -111,9 +111,9 @@ void Feather_checkEvalMode(Node* src) {
                 continue;
 
             if (child->type->mode != modeCt)
-                REP_INTERNAL(child->location,
-                        "Children of a CT node must be CT; current mode: %1% (%2%)") %
-                        child->type->mode % child;
+                REP_INTERNAL(child->location, "Children of a CT node must be CT; current mode: %1% "
+                                              "(child: %2%: %3%, parent: %4%: %5%)") %
+                        child->type->mode % child % child->type % src % src->type;
         }
     }
 }

@@ -497,6 +497,10 @@ void FunctionDecl::setResultType(NodeHandle resType) {
     childrenM()[0] = resType;
     resType.setContext(childrenContext());
 }
+void FunctionDecl::setBody(NodeHandle body) {
+    childrenM()[1] = body;
+    body.setContext(childrenContext());
+}
 void FunctionDecl::setContextForChildrenImpl() {
     // If we don't have a children context, create one
     if (!handle->childrenContext)
@@ -680,7 +684,7 @@ NodeHandle VarDecl::semanticCheckImpl() {
 }
 
 REGISTER_NODE_KIND_IMPL(CtValueExp);
-CtValueExp CtValueExp::create(const Location& loc, TypeBase type, StringRef data) {
+CtValueExp CtValueExp::create(const Location& loc, TypeWithStorage type, StringRef data) {
     CtValueExp res = createNode<CtValueExp>(nkFeatherExpCtValue, loc);
     res.setProperty("valueType", type);
     res.setProperty("valueData", data);
@@ -690,7 +694,7 @@ CtValueExp::CtValueExp(Node* n)
     : NodeHandle(n) {
     REQUIRE_NODE_KIND(n, nkFeatherExpCtValue);
 }
-TypeBase CtValueExp::valueType() const { return getCheckPropertyType("valueType"); }
+TypeWithStorage CtValueExp::valueType() const { return getCheckPropertyType("valueType"); }
 StringRef CtValueExp::valueData() const { return getCheckPropertyString("valueData"); }
 NodeHandle CtValueExp::semanticCheckImpl() {
     // Check the type
@@ -1187,7 +1191,7 @@ NodeHandle ConditionalExp::semanticCheckImpl() {
     // Check that the type of the condition is 'Testable'
     if (!Feather_isTestable(cond))
         REP_ERROR_RET(nullptr, cond.location(),
-                "The condition of the conditional expression is not Testable");
+                "The condition of the conditional expression is not Testable (%1%)") % cond.type();
 
     // Dereference the condition as much as possible
     while (cond.type() && cond.type()->numReferences > 0) {

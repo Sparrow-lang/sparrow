@@ -58,7 +58,6 @@ DiagReporterWithReturnFromFormatter<RetType> mkDiagReporterWithReturnFromFormatt
 ostream& operator<<(ostream& os, const Nest::Location* loc);
 ostream& operator<<(ostream& os, const Nest::Location& loc);
 ostream& operator<<(ostream& os, Nest::Node* n);
-ostream& operator<<(ostream& os, Nest::NodeHandle n);
 ostream& operator<<(ostream& os, Nest::TypeRef t);
 ostream& operator<<(ostream& os, Nest::EvalMode mode);
 

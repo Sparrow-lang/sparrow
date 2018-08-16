@@ -291,4 +291,12 @@ const char* NodeHandle::toStringImpl() {
     return Nest_defaultFunToString(handle);
 }
 
+ostream& operator<<(ostream& os, NodeHandle n) {
+    if (n)
+        os << n.toString();
+    else
+        os << "<null>";
+    return os;
+}
+
 } // namespace Nest

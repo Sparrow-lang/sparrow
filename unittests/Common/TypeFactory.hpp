@@ -35,7 +35,8 @@ Gen<Feather::LValueType> arbLValueType(
 Gen<Feather::ArrayType> arbArrayType(EvalMode mode = modeUnspecified);
 
 //! Returns a generator for arbitrary function types
-Gen<Feather::FunctionType> arbFunctionType(EvalMode mode = modeUnspecified);
+Gen<Feather::FunctionType> arbFunctionType(
+        EvalMode mode = modeUnspecified, Feather::TypeWithStorage resType = {});
 
 //! Returns a generator for arbitrary concept types
 Gen<Feather::TypeBase> arbConceptType(
@@ -54,6 +55,11 @@ Gen<Feather::TypeBase> arbType();
 
 //! Returns an arbitrary type, as a TypeRef
 Gen<Nest::TypeRef> arbTypeRef();
+
+//! Returns a generator for Bool types; it will generate DataType or LValue types for a struct that
+//! has 'i8' native name
+Gen<Feather::TypeWithStorage> arbBoolType(EvalMode mode = modeUnspecified);
+
 
 } // namespace TypeFactory
 

@@ -39,6 +39,7 @@ void SparrowFrontend_onBackendSetFun(Nest_Backend* backend) {
 }
 
 Nest_CompilerModule* getSparrowFrontendModule() {
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     auto* nestModule = new Nest_CompilerModule{"SparrowFrontend",
             "Module that defines the frontend for the Sparrow language", "LucTeo", "www.lucteo.ro",
             1, 0, &SparrowFrontend_initModule, &SparrowFrontend_destroyModule,

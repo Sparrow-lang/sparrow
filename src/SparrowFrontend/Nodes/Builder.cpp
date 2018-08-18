@@ -20,6 +20,7 @@ template <typename T> StringRef toStrData(T val) {
 
 LocStringVec* SprFrontend::buildStringList(LocStringVec* prevList, LocString element) {
     if (!prevList)
+        // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
         prevList = new LocStringVec;
 
     prevList->emplace_back(move(element));

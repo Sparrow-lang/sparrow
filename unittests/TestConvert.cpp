@@ -71,6 +71,7 @@ struct ConceptsServiceMock : IConceptsService {
     vector<pair<Node*, TypeRef>> baseConcepts_; // concept -> base node
 };
 
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions)
 struct ConvertFixture : SparrowGeneralFixture {
     ConvertFixture();
     ~ConvertFixture();
@@ -93,10 +94,12 @@ struct ConvertFixture : SparrowGeneralFixture {
 
 ConvertFixture::ConvertFixture() {
     // Mock the overload service
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     auto mockOverloadService = new OverloadServiceMock;
     g_OverloadService.reset(mockOverloadService);
 
     // Mock the concepts service
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     auto mockConceptsService = new ConceptsServiceMock;
     g_ConceptsService.reset(mockConceptsService);
 

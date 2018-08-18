@@ -352,6 +352,9 @@ Node* OverloadService::selectCtToRtCtor(Node* ctArg) {
     return generateCall(*call, ctArg->context, loc);
 }
 
-void setDefaultOverloadService() { g_OverloadService.reset(new OverloadService); }
+void setDefaultOverloadService() {
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
+    g_OverloadService.reset(new OverloadService);
+}
 
 } // namespace SprFrontend

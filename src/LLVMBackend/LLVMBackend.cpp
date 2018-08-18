@@ -52,8 +52,11 @@ void _llvmBeInit(Nest_Backend* backend, const char* mainFilename) {
     // llvm::DebugFlag = true;
     // llvm::setCurrentDebugType("dyld");
 
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     _llvmBackend.rtModule = new Tr::RtModule("LLVM backend module Runtime", mainFilename);
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     _llvmBackend.ctModule = new CtModule("LLVM backend module CT");
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     _llvmBackend.dataLayoutHelper = new DataLayoutHelper();
 }
 

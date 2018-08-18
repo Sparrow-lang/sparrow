@@ -11,6 +11,7 @@ void LLVMBackend_initModule() {
 }
 
 Nest_CompilerModule* getLLVMBackendModule() {
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     auto* nestModule = new Nest_CompilerModule{"LLVMBackend", "Backend that uses LLVM to generate code",
             "LucTeo", "www.lucteo.ro", 1, 0, &LLVMBackend_initModule, nullptr, nullptr};
     return nestModule;

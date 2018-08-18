@@ -285,6 +285,7 @@ void dumpAstNode(Node* node, const char* filename) {
     ASSERT(node);
 
     cout << "Dumping AST nodes to: " << filename << endl;
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     FILE* f = fopen(filename, "w");
     if (!f) {
         Nest_reportFmt(node->location, diagWarning, "Cannot open %s to dump AST node", filename);
@@ -298,5 +299,6 @@ void dumpAstNode(Node* node, const char* filename) {
 
     _writeNode(&ctx, "", node);
 
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     fclose(f);
 }

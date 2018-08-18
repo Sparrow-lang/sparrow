@@ -40,11 +40,11 @@ template <typename T> T createNode(int kind, const Location& loc) {
     int T::registerNodeKind() {                                                                    \
         struct RegHelper {                                                                         \
             static int registerKind(const char* name) {                                            \
-                auto semCheck = reinterpret_cast<FSemanticCheck>(&semanticCheckPlain);             \
-                auto compT = reinterpret_cast<FComputeType>(&computeTypePlain);                    \
-                auto setCtx =                                                                      \
-                        reinterpret_cast<FSetContextForChildren>(&setContextForChildrenPlain);     \
-                auto toStr = reinterpret_cast<FToString>(&toStringPlain);                          \
+                auto semCheck = reinterpret_cast<FSemanticCheck>(&semanticCheckPlain); /*NOLINT*/  \
+                auto compT = reinterpret_cast<FComputeType>(&computeTypePlain);        /*NOLINT*/  \
+                auto setCtx = reinterpret_cast<FSetContextForChildren>(                /*NOLINT*/  \
+                        &setContextForChildrenPlain);                                              \
+                auto toStr = reinterpret_cast<FToString>(&toStringPlain); /*NOLINT*/               \
                 return Nest_registerNodeKind(name, semCheck, compT, setCtx, toStr);                \
             }                                                                                      \
                                                                                                    \
@@ -1191,7 +1191,8 @@ NodeHandle ConditionalExp::semanticCheckImpl() {
     // Check that the type of the condition is 'Testable'
     if (!Feather_isTestable(cond))
         REP_ERROR_RET(nullptr, cond.location(),
-                "The condition of the conditional expression is not Testable (%1%)") % cond.type();
+                "The condition of the conditional expression is not Testable (%1%)") %
+                cond.type();
 
     // Dereference the condition as much as possible
     while (cond.type() && cond.type()->numReferences > 0) {

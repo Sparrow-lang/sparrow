@@ -484,7 +484,10 @@ ConversionResult ConvertService::checkConversionCtor(
 
 } // namespace
 
-void setDefaultConvertService() { g_ConvertService.reset(new ConvertService); }
+void setDefaultConvertService() {
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
+    g_ConvertService.reset(new ConvertService);
+}
 
 ostream& operator<<(ostream& os, ConversionType ct) {
     switch (ct) {

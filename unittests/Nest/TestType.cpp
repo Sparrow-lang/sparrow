@@ -6,6 +6,7 @@
 using namespace Nest;
 
 //! Fixture used in testing the Type basic functionality
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions)
 struct TypesFixture : NestGeneralFixture {
     TypesFixture();
     ~TypesFixture();

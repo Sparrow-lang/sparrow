@@ -178,6 +178,7 @@ const StringRef* NodeHandle::getPropertyString(const char* name) const {
     Nest_NodeProperty* p = _findProperty(handle->properties, name);
     if (!p || p->kind != propString)
         return nullptr;
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     return reinterpret_cast<const StringRef*>(&p->value.stringValue);
 }
 StringRef NodeHandle::getPropertyStringDeref(const char* name) const {
@@ -190,6 +191,7 @@ const NodeHandle* NodeHandle::getPropertyNode(const char* name) const {
     Nest_NodeProperty* p = _findProperty(handle->properties, name);
     if (!p || p->kind != propNode)
         return nullptr;
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     return reinterpret_cast<const NodeHandle*>(&p->value.nodeValue);
 }
 const TypeRef* NodeHandle::getPropertyType(const char* name) const {

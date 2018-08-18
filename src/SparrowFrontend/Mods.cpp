@@ -45,6 +45,7 @@ void ModCtGeneric_beforeComputeType(Nest_Modifier*, Node* node) {
     Nest_setPropertyInt(node, propCtGeneric, 1);
 }
 
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
 struct _NativeMod {
     Nest_Modifier base;
     StringRef name;

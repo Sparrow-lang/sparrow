@@ -196,8 +196,8 @@ Gen<NodeHandle> FeatherNodeFactory::arbExp(Feather::TypeWithStorage expectedType
     int weightCtValueExp = 3;
     int weightNullExp = 2;
     int weightVarRefExp = 2;
-    int weightFieldRefExp = 2;
-    int weightFunRefExp = 1;
+    // int weightFieldRefExp = 2;
+    // int weightFunRefExp = 1;
     int weightFunCallExp = 10;
     int weightMemLoadExp = 5;
     int weightBitcastExp = 3;
@@ -212,14 +212,14 @@ Gen<NodeHandle> FeatherNodeFactory::arbExp(Feather::TypeWithStorage expectedType
         }
         if (kind != Feather_getLValueTypeKind()) {
             weightVarRefExp = 0;
-            weightFieldRefExp = 0;
-            weightFunRefExp = 0;
+            // weightFieldRefExp = 0;
+            // weightFunRefExp = 0;
         }
         if ( expectedType.numReferences() == 0) {
             weightNullExp = 0;
             weightVarRefExp = 0;
-            weightFieldRefExp = 0;
-            weightFunRefExp = 0;
+            // weightFieldRefExp = 0;
+            // weightFunRefExp = 0;
             weightBitcastExp = 0;
         }
     }

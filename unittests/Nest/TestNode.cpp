@@ -10,12 +10,7 @@ using namespace Nest;
 
 //! Fixture used in testing the Node basic functionality
 struct NodesFixture : NestGeneralFixture {
-    NodesFixture();
-    ~NodesFixture();
 };
-
-NodesFixture::NodesFixture() {}
-NodesFixture::~NodesFixture() {}
 
 struct Indent {
     int value;

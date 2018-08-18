@@ -51,11 +51,11 @@ struct NodeRange {
     }
 
     const NodeHandle* begin() const {
-        // NOLINT
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
         return reinterpret_cast<const NodeHandle*>(range.beginPtr);
     }
     const NodeHandle* end() const {
-        // NOLINT
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
         return reinterpret_cast<const NodeHandle*>(range.endPtr);
     }
 
@@ -91,16 +91,16 @@ struct NodeRangeM {
     //! Returns the node handle at the given index
     NodeHandle& operator[](int idx) const {
         ASSERT(idx < size());
-        // NOLINT
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
         return *reinterpret_cast<NodeHandle*>(&range.beginPtr[idx]);
     }
 
     const NodeHandle* begin() const {
-        // NOLINT
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
         return reinterpret_cast<const NodeHandle*>(range.beginPtr);
     }
     const NodeHandle* end() const {
-        // NOLINT
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
         return reinterpret_cast<const NodeHandle*>(range.endPtr);
     }
 

@@ -424,6 +424,7 @@ Node* checkConstruct(Node* node, Nest_NodeRange args) {
 //
 
 //! Structure defining the parameters for a search scope
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
 struct SearchScope {
     StringRef operation;               //!< The operation name to look for
     CompilationContext* searchContext; //!< The search context

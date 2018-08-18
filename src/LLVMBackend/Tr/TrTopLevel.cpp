@@ -58,6 +58,7 @@ llvm::GlobalVariable* createGlobalVarDecl(
     if (isNative)
         var = ctx.llvmModule_.getGlobalVariable(varName.c_str());
     if (!var) {
+        // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
         var = new llvm::GlobalVariable(ctx.llvmModule_, type,
                 false,                              // isConstant
                 llvm::GlobalValue::ExternalLinkage, // linkage

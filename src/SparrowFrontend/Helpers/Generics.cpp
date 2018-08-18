@@ -381,6 +381,9 @@ TypeRef ConceptsService::baseConceptType(Node* concept) {
     return res;
 }
 
-void setDefaultConceptsService() { g_ConceptsService.reset(new ConceptsService); }
+void setDefaultConceptsService() {
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
+    g_ConceptsService.reset(new ConceptsService);
+}
 
 } // namespace SprFrontend

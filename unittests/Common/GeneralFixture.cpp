@@ -33,6 +33,7 @@ NestGeneralFixture::NestGeneralFixture() {
     getNestModule()->initFun();
 
     // Create the backend object and register it
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     backend_.reset(new BackendMock);
     int backendIdx = Nest_registerBackend(backend_.get());
     REQUIRE(backendIdx == 0);

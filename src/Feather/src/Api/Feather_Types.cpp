@@ -148,6 +148,7 @@ TypeRef Feather_getLValueType(TypeRef base) {
     TypeRef t = Nest_findStockType(&referenceType);
     if (!t) {
         // Allocate now new buffer to hold the subtypes
+        // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
         referenceType.subTypes = new TypeRef[1];
         referenceType.subTypes[0] = base;
 
@@ -174,6 +175,7 @@ TypeRef Feather_getArrayType(TypeRef unitType, unsigned count) {
     TypeRef t = Nest_findStockType(&referenceType);
     if (!t) {
         // Allocate now new buffer to hold the subtypes
+        // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
         referenceType.subTypes = new TypeRef[1];
         referenceType.subTypes[0] = unitType;
 
@@ -203,6 +205,7 @@ TypeRef Feather_getFunctionType(TypeRef* resultTypeAndParams, unsigned numTypes,
     TypeRef t = Nest_findStockType(&referenceType);
     if (!t) {
         // Allocate now new buffer to hold the subtypes
+        // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
         referenceType.subTypes = new TypeRef[numTypes];
         copy(resultTypeAndParams, resultTypeAndParams + numTypes, referenceType.subTypes);
 

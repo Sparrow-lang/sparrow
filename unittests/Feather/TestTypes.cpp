@@ -11,6 +11,7 @@ using namespace Nest;
 using namespace Feather;
 
 //! Fixture used in testing the Feather types
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions)
 struct FeatherTypesFixture : SparrowGeneralFixture {
     FeatherTypesFixture();
     ~FeatherTypesFixture();

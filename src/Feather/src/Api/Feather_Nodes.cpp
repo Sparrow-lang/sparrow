@@ -78,7 +78,6 @@ void initFeatherNodeKinds() {
     nkFeatherStmtContinue = ContinueStmt::registerNodeKind();
     nkFeatherStmtReturn = ReturnStmt::registerNodeKind();
 
-
     _firstFeatherNodeKind = nkFeatherNop;
 }
 
@@ -97,12 +96,8 @@ Node* Feather_appendNodeList(Node* list, Node* newNodes) {
     return NodeList::append(NodeList(list), NodeList(newNodes));
 }
 
-Node* Feather_mkNop(Location loc) {
-    return Nop::create(loc);
-}
-Node* Feather_mkTypeNode(Location loc, TypeRef type) {
-    return TypeNode::create(loc, type);
-}
+Node* Feather_mkNop(Location loc) { return Nop::create(loc); }
+Node* Feather_mkTypeNode(Location loc, TypeRef type) { return TypeNode::create(loc, type); }
 Node* Feather_mkBackendCode(Location loc, Nest_StringRef code, EvalMode evalMode) {
     return BackendCode::create(loc, code, evalMode);
 }
@@ -139,12 +134,8 @@ Node* Feather_mkVar(Location loc, Nest_StringRef name, Node* typeNode) {
 Node* Feather_mkCtValue(Location loc, TypeRef type, Nest_StringRef data) {
     return CtValueExp::create(loc, type, data);
 }
-Node* Feather_mkNull(Location loc, Node* typeNode) {
-    return NullExp::create(loc, typeNode);
-}
-Node* Feather_mkVarRef(Location loc, Node* varDecl) {
-    return VarRefExp::create(loc, varDecl);
-}
+Node* Feather_mkNull(Location loc, Node* typeNode) { return NullExp::create(loc, typeNode); }
+Node* Feather_mkVarRef(Location loc, Node* varDecl) { return VarRefExp::create(loc, varDecl); }
 Node* Feather_mkFieldRef(Location loc, Node* obj, Node* fieldDecl) {
     return FieldRefExp::create(loc, obj, fieldDecl);
 }
@@ -154,9 +145,7 @@ Node* Feather_mkFunRef(Location loc, Node* funDecl, Node* resType) {
 Node* Feather_mkFunCall(Location loc, Node* funDecl, Nest_NodeRange args) {
     return FunCallExp::create(loc, funDecl, args);
 }
-Node* Feather_mkMemLoad(Location loc, Node* exp) {
-    return MemLoadExp::create(loc, exp);
-}
+Node* Feather_mkMemLoad(Location loc, Node* exp) { return MemLoadExp::create(loc, exp); }
 Node* Feather_mkMemStore(Location loc, Node* value, Node* address) {
     return MemStoreExp::create(loc, value, address);
 }
@@ -173,12 +162,6 @@ Node* Feather_mkIf(Location loc, Node* condition, Node* thenClause, Node* elseCl
 Node* Feather_mkWhile(Location loc, Node* condition, Node* body, Node* step) {
     return WhileStmt::create(loc, condition, body, step);
 }
-Node* Feather_mkBreak(Location loc) {
-    return BreakStmt::create(loc);
-}
-Node* Feather_mkContinue(Location loc) {
-    return ContinueStmt::create(loc);
-}
-Node* Feather_mkReturn(Location loc, Node* exp) {
-    return ReturnStmt::create(loc, exp);
-}
+Node* Feather_mkBreak(Location loc) { return BreakStmt::create(loc); }
+Node* Feather_mkContinue(Location loc) { return ContinueStmt::create(loc); }
+Node* Feather_mkReturn(Location loc, Node* exp) { return ReturnStmt::create(loc, exp); }

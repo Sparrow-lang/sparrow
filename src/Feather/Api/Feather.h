@@ -47,7 +47,8 @@ Nest_TypeRef Feather_getArrayType(Nest_TypeRef unitType, unsigned count);
 /// This type can be constructed from a set of parameter types and a result type
 /// The first parameter is a pointer to an array with the result type then the types of the
 /// parameters
-Nest_TypeRef Feather_getFunctionType(Nest_TypeRef* resultTypeAndParams, unsigned numTypes, EvalMode mode);
+Nest_TypeRef Feather_getFunctionType(
+        Nest_TypeRef* resultTypeAndParams, unsigned numTypes, EvalMode mode);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Feather nodes
@@ -147,8 +148,8 @@ Nest_Node* Feather_mkScopeDestructAction(Nest_Location loc, Nest_Node* action);
 Nest_Node* Feather_mkTempDestructAction(Nest_Location loc, Nest_Node* action);
 Nest_Node* Feather_mkChangeMode(Nest_Location loc, Nest_Node* child, EvalMode mode);
 
-Nest_Node* Feather_mkFunction(
-        Nest_Location loc, Nest_StringRef name, Nest_Node* resType, Nest_NodeRange params, Nest_Node* body);
+Nest_Node* Feather_mkFunction(Nest_Location loc, Nest_StringRef name, Nest_Node* resType,
+        Nest_NodeRange params, Nest_Node* body);
 Nest_Node* Feather_mkClass(Nest_Location loc, Nest_StringRef name, Nest_NodeRange fields);
 Nest_Node* Feather_mkVar(Nest_Location loc, Nest_StringRef name, Nest_Node* type);
 
@@ -161,10 +162,13 @@ Nest_Node* Feather_mkFunCall(Nest_Location loc, Nest_Node* funDecl, Nest_NodeRan
 Nest_Node* Feather_mkMemLoad(Nest_Location loc, Nest_Node* exp);
 Nest_Node* Feather_mkMemStore(Nest_Location loc, Nest_Node* value, Nest_Node* address);
 Nest_Node* Feather_mkBitcast(Nest_Location loc, Nest_Node* destType, Nest_Node* exp);
-Nest_Node* Feather_mkConditional(Nest_Location loc, Nest_Node* condition, Nest_Node* alt1, Nest_Node* alt2);
+Nest_Node* Feather_mkConditional(
+        Nest_Location loc, Nest_Node* condition, Nest_Node* alt1, Nest_Node* alt2);
 
-Nest_Node* Feather_mkIf(Nest_Location loc, Nest_Node* condition, Nest_Node* thenClause, Nest_Node* elseClause);
-Nest_Node* Feather_mkWhile(Nest_Location loc, Nest_Node* condition, Nest_Node* body, Nest_Node* step);
+Nest_Node* Feather_mkIf(
+        Nest_Location loc, Nest_Node* condition, Nest_Node* thenClause, Nest_Node* elseClause);
+Nest_Node* Feather_mkWhile(
+        Nest_Location loc, Nest_Node* condition, Nest_Node* body, Nest_Node* step);
 Nest_Node* Feather_mkBreak(Nest_Location loc);
 Nest_Node* Feather_mkContinue(Nest_Location loc);
 Nest_Node* Feather_mkReturn(Nest_Location loc, Nest_Node* exp);

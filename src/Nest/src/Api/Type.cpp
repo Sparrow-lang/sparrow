@@ -51,6 +51,4 @@ Nest_TypeRef Nest_changeTypeMode(Nest_TypeRef type, EvalMode newMode) {
     return Nest_getChangeTypeModeFun(type->typeKind)(type, newMode);
 }
 
-void Nest_resetTypes() {
-    g_allTypes.clear();
-}
+void Nest_resetTypes() { g_allTypes.clear(); }

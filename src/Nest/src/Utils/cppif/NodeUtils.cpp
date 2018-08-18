@@ -6,10 +6,10 @@
 #include "Nest/Utils/cppif/StringRef.hpp"
 #include "Nest/Utils/PtrArray.h"
 
+using Nest::Node;
 using Nest::NodeHandle;
 using Nest::StringRef;
 using Nest::TypeRef;
-using Nest::Node;
 
 Nest_NodeProperty* _findProperty(Nest_NodeProperties properties, StringRef name) {
     Nest_NodeProperty* p = properties.begin;
@@ -29,17 +29,11 @@ void _setProperty(Nest_NodeProperties* properties, Nest_NodeProperty prop) {
     }
 }
 
-const char* Nest_toString(Node* node) {
-    return NodeHandle(node).toString();
-}
+const char* Nest_toString(Node* node) { return NodeHandle(node).toString(); }
 
-const char* Nest_toStringEx(Node* node) {
-    return NodeHandle(node).toStringEx();
-}
+const char* Nest_toStringEx(Node* node) { return NodeHandle(node).toStringEx(); }
 
-const char* Nest_nodeKindName(Node* node) {
-    return NodeHandle(node).kindName();
-}
+const char* Nest_nodeKindName(Node* node) { return NodeHandle(node).kindName(); }
 
 Nest_NodeRange Nest_nodeChildren(Node* node) { return NodeHandle(node).children(); }
 

@@ -11,7 +11,6 @@ namespace Tr {
 using Nest::Node;
 using Nest::NodeVector;
 
-
 /// Represents a Instruction in function body, inside a Scope
 ///
 /// An object of this class adds itself automatically to the Scope on constructor and removes itself

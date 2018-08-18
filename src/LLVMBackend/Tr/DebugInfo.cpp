@@ -35,7 +35,7 @@ llvm::DebugLoc getDebugLoc(const Location& loc, llvm::MDNode* scope, bool takeSt
     return llvm::DebugLoc::get(line, col, scope);
 }
 
-llvm::StringRef toLlvm(StringRef s) { return {s.begin, (size_t) s.size()}; }
+llvm::StringRef toLlvm(StringRef s) { return {s.begin, (size_t)s.size()}; }
 
 } // namespace
 

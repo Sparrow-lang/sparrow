@@ -24,7 +24,8 @@ void NestUtils_appendObjectToPtrArray(NestUtils_PtrArray* arr, void* obj);
 void NestUtils_appendObjectsToPtrArray(NestUtils_PtrArray* arr, Nest_PtrRange objects);
 
 void NestUtils_insertObjectIntoPtrArray(NestUtils_PtrArray* arr, unsigned index, void* obj);
-void NestUtils_insertObjectsIntoPtrArray(NestUtils_PtrArray* arr, unsigned index, Nest_PtrRange objects);
+void NestUtils_insertObjectsIntoPtrArray(
+        NestUtils_PtrArray* arr, unsigned index, Nest_PtrRange objects);
 
 void NestUtils_eraseFromPtrArray(NestUtils_PtrArray* arr, unsigned index);
 

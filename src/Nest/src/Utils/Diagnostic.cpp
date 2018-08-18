@@ -132,9 +132,7 @@ void Nest_resetDiagnostic() {
     _numSupppresedErrors = 0;
 }
 
-ostream& operator<<(ostream& os, const Location* loc) {
-    return os << *loc;
-}
+ostream& operator<<(ostream& os, const Location* loc) { return os << *loc; }
 ostream& operator<<(ostream& os, const Location& loc) {
     os << (loc.sourceCode ? loc.sourceCode->url : "<no-source>");
     if (loc.start.line == loc.end.line)
@@ -144,9 +142,7 @@ ostream& operator<<(ostream& os, const Location& loc) {
            << loc.end.col << ')';
     return os;
 }
-ostream& operator<<(ostream& os, Node* n) {
-    return os << NodeHandle(n);
-}
+ostream& operator<<(ostream& os, Node* n) { return os << NodeHandle(n); }
 ostream& operator<<(ostream& os, TypeRef t) {
     if (t)
         os << t->description;

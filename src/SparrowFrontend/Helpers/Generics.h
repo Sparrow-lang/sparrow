@@ -127,7 +127,9 @@ struct GenericFunNode {
     InstSetNode instSet() const { return Nest::at(node->children, 0); }
 
     Node* originalFun() const { return Nest::at(node->referredNodes, 0); }
-    Nest_NodeRange originalParams() const { return Nest::all(Nest::at(node->referredNodes, 1)->children); }
+    Nest_NodeRange originalParams() const {
+        return Nest::all(Nest::at(node->referredNodes, 1)->children);
+    }
 };
 
 struct GenericClassNode {

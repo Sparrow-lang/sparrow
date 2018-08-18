@@ -9,8 +9,8 @@
 #include <llvm/IR/DIBuilder.h>
 
 using Nest::Location;
-using Nest::TypeRef;
 using Nest::Node;
+using Nest::TypeRef;
 
 namespace LLVMB {
 namespace Tr {

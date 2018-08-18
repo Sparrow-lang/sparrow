@@ -213,7 +213,8 @@ void Nest_compilerInit() {
 
 void Nest_compilerDestroy() {
     _settings = Nest_CompilerSettings{};
-    _rootContext = nullptr;;
+    _rootContext = nullptr;
+    ;
     _backend = nullptr;
 
     _curPath = boost::filesystem::path{};
@@ -315,7 +316,8 @@ Nest_SourceCode* Nest_compileFile(Nest_StringRef filename) {
     return sc;
 }
 
-Nest_SourceCode* Nest_addSourceCodeByFilename(const Nest_SourceCode* orig, Nest_StringRef filename) {
+Nest_SourceCode* Nest_addSourceCodeByFilename(
+        const Nest_SourceCode* orig, Nest_StringRef filename) {
     return _handleImport(ImportInfo(orig, filename));
 }
 

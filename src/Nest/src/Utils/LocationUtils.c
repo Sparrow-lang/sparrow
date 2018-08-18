@@ -10,7 +10,8 @@ Nest_Location Nest_mkLocation(const Nest_SourceCode* sourceCode, unsigned int st
     Nest_Location loc = {sourceCode, {startLineNo, startColNo}, {endLineNo, endColNo}};
     return loc;
 }
-Nest_Location Nest_mkLocation1(const Nest_SourceCode* sourceCode, unsigned int lineNo, unsigned int colNo) {
+Nest_Location Nest_mkLocation1(
+        const Nest_SourceCode* sourceCode, unsigned int lineNo, unsigned int colNo) {
     Nest_Location loc = {sourceCode, {lineNo, colNo}, {lineNo, colNo}};
     return loc;
 }

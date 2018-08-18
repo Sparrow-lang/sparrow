@@ -177,8 +177,8 @@ Node* ctApi_Feather_mkTempDestructAction(Location* loc, Node* action) {
     return Feather_mkTempDestructAction(*loc, action);
 }
 
-Node* ctApi_Feather_mkFunction(
-        Location* loc, StringRef name, Node* resType, Nest_NodeRange params, Node* body, int evalMode) {
+Node* ctApi_Feather_mkFunction(Location* loc, StringRef name, Node* resType, Nest_NodeRange params,
+        Node* body, int evalMode) {
     return Feather_mkFunction(*loc, name, resType, params, body);
 }
 Node* ctApi_Feather_mkClass(Location* loc, StringRef name, Nest_NodeRange fields, int evalMode) {

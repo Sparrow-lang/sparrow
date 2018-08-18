@@ -196,8 +196,8 @@ void createFunDefinition(
         if (!param)
             REP_INTERNAL(paramNode->location, "Expected Var node; found %1%") % paramNode;
         ASSERT(param);
-        llvm::AllocaInst* newVar = new llvm::AllocaInst(
-                argIt->getType(), 0, StringRef(Feather_getName(param)).toStd() + ".addr", bodyBlock);
+        llvm::AllocaInst* newVar = new llvm::AllocaInst(argIt->getType(), 0,
+                StringRef(Feather_getName(param)).toStd() + ".addr", bodyBlock);
         newVar->setAlignment(Nest_getCheckPropertyInt(param, "alignment"));
         new llvm::StoreInst(argIt, newVar, bodyBlock); // Copy the value of the parameter into it
         Tr::setValue(localCtx, *param, newVar);        // We point now to the new temp variable

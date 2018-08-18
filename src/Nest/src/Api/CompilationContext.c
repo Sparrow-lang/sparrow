@@ -4,7 +4,8 @@
 #include "Nest/Utils/Alloc.h"
 
 Nest_CompilationContext* Nest_mkRootContext(Nest_Backend* backend, EvalMode mode) {
-    Nest_CompilationContext* ctx = (Nest_CompilationContext*)alloc(sizeof(Nest_CompilationContext), allocGeneral);
+    Nest_CompilationContext* ctx =
+            (Nest_CompilationContext*)alloc(sizeof(Nest_CompilationContext), allocGeneral);
     ctx->parent = 0;
     ctx->backend = backend;
     ctx->currentSymTab = Nest_mkSymTab(0, 0);
@@ -14,7 +15,8 @@ Nest_CompilationContext* Nest_mkRootContext(Nest_Backend* backend, EvalMode mode
 }
 
 Nest_CompilationContext* Nest_mkChildContext(Nest_CompilationContext* parent, EvalMode mode) {
-    Nest_CompilationContext* ctx = (Nest_CompilationContext*)alloc(sizeof(Nest_CompilationContext), allocGeneral);
+    Nest_CompilationContext* ctx =
+            (Nest_CompilationContext*)alloc(sizeof(Nest_CompilationContext), allocGeneral);
     ctx->parent = parent;
     ctx->backend = parent->backend;
     ctx->currentSymTab = parent->currentSymTab;
@@ -30,7 +32,8 @@ Nest_CompilationContext* Nest_mkChildContext(Nest_CompilationContext* parent, Ev
 
 Nest_CompilationContext* Nest_mkChildContextWithSymTab(
         Nest_CompilationContext* parent, Nest_Node* symTabNode, EvalMode mode) {
-    Nest_CompilationContext* ctx = (Nest_CompilationContext*)alloc(sizeof(Nest_CompilationContext), allocGeneral);
+    Nest_CompilationContext* ctx =
+            (Nest_CompilationContext*)alloc(sizeof(Nest_CompilationContext), allocGeneral);
     ctx->parent = parent;
     ctx->backend = parent->backend;
     ctx->currentSymTab = Nest_mkSymTab(parent->currentSymTab, symTabNode);

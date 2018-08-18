@@ -332,6 +332,6 @@ TypeBase lvalueToRefIfPresent(TypeBase type);
 bool sameTypeIgnoreMode(TypeBase t1, TypeBase t2);
 
 //! Stream dump operator for types
-ostream& operator <<(ostream& os, TypeBase type);
+ostream& operator<<(ostream& os, TypeBase type);
 
 } // namespace Feather

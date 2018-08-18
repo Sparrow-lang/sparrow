@@ -17,7 +17,6 @@ namespace Tr {
 
 using Nest::Node;
 
-
 // TODO (backend): rename this to LocalContext
 
 /// Translation context structure

@@ -41,7 +41,9 @@ Nest_StringRef getSourceCodeLine(const Nest_SourceCode* sourceCode, int lineNo) 
     return res;
 }
 
-Node* doConvertCtToRt(const Nest_SourceCode* /*sourceCode*/, Node* node) { return convertCtToRt(node); }
+Node* doConvertCtToRt(const Nest_SourceCode* /*sourceCode*/, Node* node) {
+    return convertCtToRt(node);
+}
 } // namespace
 
 int SprFe_kindSparrowSourceCode = -1;

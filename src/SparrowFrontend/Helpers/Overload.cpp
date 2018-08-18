@@ -95,8 +95,8 @@ bool filterCandidates(CompilationContext* context, const Location& loc, Callable
 /// This is called if filterCandidates failed to select any valid candidate.
 /// This will report all the candidates, and why they could not be called.
 void filterCandidatesErrReport(CompilationContext* context, const Location& loc,
-        Callables& candidates, Nest_NodeRange* args, const vector<TypeRef>* argTypes, EvalMode evalMode,
-        CustomCvtMode customCvtMode) {
+        Callables& candidates, Nest_NodeRange* args, const vector<TypeRef>* argTypes,
+        EvalMode evalMode, CustomCvtMode customCvtMode) {
     for (auto& cand : candidates) {
         // Report the candidate
         REP_INFO(location(cand), "See possible candidate: %1%") % toString(cand);
@@ -172,8 +172,8 @@ void selectMostSpecializedErrReport(
 } // namespace
 
 Node* OverloadService::selectOverload(CompilationContext* context, const Location& loc,
-        EvalMode evalMode, Nest_NodeRange decls, Nest_NodeRange args, OverloadReporting errReporting,
-        StringRef funName) {
+        EvalMode evalMode, Nest_NodeRange decls, Nest_NodeRange args,
+        OverloadReporting errReporting, StringRef funName) {
     auto numDecls = Nest_nodeRangeSize(decls);
     Node* firstDecl = numDecls > 0 ? at(decls, 0) : nullptr;
 

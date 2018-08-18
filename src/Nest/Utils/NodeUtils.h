@@ -70,9 +70,11 @@ const Nest_TypeRef* Nest_getPropertyType(Nest_Node* node, const char* name);
 void* const* Nest_getPropertyPtr(Nest_Node* node, const char* name);
 
 int Nest_getPropertyDefaultInt(Nest_Node* node, const char* name, int defaultVal);
-Nest_StringRef Nest_getPropertyDefaultString(Nest_Node* node, const char* name, Nest_StringRef defaultVal);
+Nest_StringRef Nest_getPropertyDefaultString(
+        Nest_Node* node, const char* name, Nest_StringRef defaultVal);
 Nest_Node* Nest_getPropertyDefaultNode(Nest_Node* node, const char* name, Nest_Node* defaultVal);
-Nest_TypeRef Nest_getPropertyDefaultType(Nest_Node* node, const char* name, Nest_TypeRef defaultVal);
+Nest_TypeRef Nest_getPropertyDefaultType(
+        Nest_Node* node, const char* name, Nest_TypeRef defaultVal);
 void* Nest_getPropertyDefaultPtr(Nest_Node* node, const char* name, void* defaultVal);
 
 int Nest_getCheckPropertyInt(Nest_Node* node, const char* name);

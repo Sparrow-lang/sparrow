@@ -434,8 +434,8 @@ struct SearchScope {
 
 //! Structure describing all the possible search scopes for a given name search
 struct SearchScopes {
-    SearchScope scopes[6];  //!< The search scopes
-    int numScopes{0};       //!< The number of search scopes we are using
+    SearchScope scopes[6]; //!< The search scopes
+    int numScopes{0};      //!< The number of search scopes we are using
 
     void addScope(const SearchScope& scope) {
         ASSERT(numScopes < 6);
@@ -447,9 +447,9 @@ const SearchScope* begin(const SearchScopes& ss) { return &ss.scopes[0]; }
 const SearchScope* end(const SearchScopes& ss) { return &ss.scopes[ss.numScopes]; }
 
 enum class SearchType {
-    complete,               //!< Inside dataytype, near datatype and from current node
-    insideAndNear,          //!< Inside dataytype and near datatype
-    nearOnly,               //!< Near datatype only
+    complete,      //!< Inside dataytype, near datatype and from current node
+    insideAndNear, //!< Inside dataytype and near datatype
+    nearOnly,      //!< Near datatype only
 };
 
 /**
@@ -1026,7 +1026,7 @@ Nest_NodeArray searchDeclsFromDatatype(Node* node, Node* base, StringRef id, Str
     return decls;
 }
 
-}
+} // namespace
 
 Node* CompoundExp_SemanticCheck(Node* node) {
     Node* base = at(node->children, 0);
@@ -1347,8 +1347,7 @@ Node* OperatorCall_SemanticCheck(Node* node) {
                     res = selectOperator(node, StringRef(op2), a1, r, false);
                 else if (op1 == ".") {
                     res = selectOperator(node, operation, r, arg2, false);
-                }
-                else if (op2.empty())
+                } else if (op2.empty())
                     res = r;
             }
         }

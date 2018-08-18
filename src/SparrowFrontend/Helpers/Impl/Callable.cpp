@@ -298,8 +298,8 @@ public:
 
 private:
     //! Compute the final eval mode, based on the params, args and the original eval mode
-    static EvalMode getFinalEvalMode(
-            Nest_NodeRange genericParams, Nest_NodeRange args, EvalMode origEvalMode, bool isCtGeneric);
+    static EvalMode getFinalEvalMode(Nest_NodeRange genericParams, Nest_NodeRange args,
+            EvalMode origEvalMode, bool isCtGeneric);
 };
 
 GenericFunCallParams::GenericFunCallParams(CallableData& c, EvalMode callEvalMode)
@@ -311,8 +311,8 @@ GenericFunCallParams::GenericFunCallParams(CallableData& c, EvalMode callEvalMod
               genFun_.instSet().params(), all(c.args), origEvalMode_, isCtGeneric_))
     , boundValues_(getParamsCount(c), nullptr) {}
 
-EvalMode GenericFunCallParams::getFinalEvalMode(
-        Nest_NodeRange genericParams, Nest_NodeRange args, EvalMode origEvalMode, bool isCtGeneric) {
+EvalMode GenericFunCallParams::getFinalEvalMode(Nest_NodeRange genericParams, Nest_NodeRange args,
+        EvalMode origEvalMode, bool isCtGeneric) {
     if (isCtGeneric)
         return modeCt; // If we have a CT generic, the resulting eval mode is always CT
 
@@ -406,7 +406,8 @@ NodeVector getGenericFunFinalParams(
  *
  * @return The list of final args that should be used to call the instantiated function
  */
-NodeVector getGenericFunFinalArgs(InstNode inst, Nest_NodeRange args, Nest_NodeRange genericParams) {
+NodeVector getGenericFunFinalArgs(
+        InstNode inst, Nest_NodeRange args, Nest_NodeRange genericParams) {
     auto boundValues = inst.boundValues();
     NodeVector finalArgs;
     finalArgs.reserve(size(args));
@@ -875,7 +876,8 @@ EvalMode getGenericClassOrPackageResultingEvalMode(
  *
  * @return The instantiation node, or null if the instantiation is not valid
  */
-Node* canInstantiateGenericClassOrPackage(Node* originalDecl, InstSetNode instSet, Nest_NodeRange args) {
+Node* canInstantiateGenericClassOrPackage(
+        Node* originalDecl, InstSetNode instSet, Nest_NodeRange args) {
     NodeVector boundValues = getGenericClassOrPackageBoundValues(args);
     EvalMode resultingEvalMode = getGenericClassOrPackageResultingEvalMode(
             originalDecl->location, Feather_effectiveEvalMode(originalDecl), all(boundValues));

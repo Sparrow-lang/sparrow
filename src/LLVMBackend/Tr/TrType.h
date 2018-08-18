@@ -4,9 +4,9 @@
 #include "Nest/Api/StringRef.h"
 
 using Nest::Location;
+using Nest::Node;
 using Nest::StringRef;
 using Nest::TypeRef;
-using Nest::Node;
 
 namespace llvm {
 class Type;

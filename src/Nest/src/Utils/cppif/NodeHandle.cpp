@@ -285,13 +285,11 @@ TypeRef NodeHandle::computeTypeImpl() {
 void NodeHandle::setContextForChildrenImpl() {
     // Set the children context to all of the children
     CompilationContext* childrenCtx = childrenContext();
-    for (auto child: children())
+    for (auto child : children())
         if (child)
             child.setContext(childrenCtx);
 }
-const char* NodeHandle::toStringImpl() {
-    return Nest_defaultFunToString(handle);
-}
+const char* NodeHandle::toStringImpl() { return Nest_defaultFunToString(handle); }
 
 ostream& operator<<(ostream& os, NodeHandle n) {
     if (n)

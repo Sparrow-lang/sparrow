@@ -144,7 +144,8 @@ Node* checkCreateGenericFun(Node* originalFun, Node* parameters, Node* ifClause)
     //     ostringstream oss;
     //     oss << "(null";
     //     for (int i = 1; i < numParams; i++) {
-    //         oss << ", " << (dependentParams[i] ? NodeHandle(dependentParams[i]).toString() : "null");
+    //         oss << ", " << (dependentParams[i] ? NodeHandle(dependentParams[i]).toString() :
+    //         "null");
     //     }
     //     oss << ")";
     //     REP_INFO(originalFun->location, "Dependent types: %1%") % oss.str();
@@ -185,7 +186,9 @@ Node* checkCreateGenericFun(Node* originalFun, Node* parameters, Node* ifClause)
     return res;
 }
 
-Nest_NodeRange genericFunParams(Node* genericFun) { return GenericFunNode(genericFun).originalParams(); }
+Nest_NodeRange genericFunParams(Node* genericFun) {
+    return GenericFunNode(genericFun).originalParams();
+}
 Nest_NodeRange genericClassParams(Node* genericClass) {
     return GenericClassNode(genericClass).instSet().params();
 }

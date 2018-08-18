@@ -36,7 +36,8 @@ bool getNumericProperties(TypeRef t, int& numBits, bool& isUnsigned, bool& isFlo
         isUnsigned = false;
         isFloating = true;
         return true;
-    } else if (nativeName.size() > 1 && (nativeName.begin[0] == 'i' || nativeName.begin[0] == 'u')) {
+    } else if (nativeName.size() > 1 &&
+               (nativeName.begin[0] == 'i' || nativeName.begin[0] == 'u')) {
         try {
             numBits = boost::lexical_cast<int>(nativeName.begin + 1);
             isUnsigned = nativeName.begin[0] == 'u';

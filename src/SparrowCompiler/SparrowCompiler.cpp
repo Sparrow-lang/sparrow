@@ -49,10 +49,16 @@ void _dumpAstForSourceCode(Nest_SourceCode* sourceCode, const char* fileSuffix) 
 void _onSourceCodeCreated(Nest_SourceCode* sourceCode) {
     // Nothing to do for now
 }
-void _onSourceCodeParsed(Nest_SourceCode* sourceCode) { _dumpAstForSourceCode(sourceCode, "_orig"); }
-void _onSourceCodeCompiled(Nest_SourceCode* sourceCode) { _dumpAstForSourceCode(sourceCode, "_comp"); }
+void _onSourceCodeParsed(Nest_SourceCode* sourceCode) {
+    _dumpAstForSourceCode(sourceCode, "_orig");
+}
+void _onSourceCodeCompiled(Nest_SourceCode* sourceCode) {
+    _dumpAstForSourceCode(sourceCode, "_comp");
+}
 
-void _onSourceCodeCodeGen(Nest_SourceCode* sourceCode) { _dumpAstForSourceCode(sourceCode, "_gen"); }
+void _onSourceCodeCodeGen(Nest_SourceCode* sourceCode) {
+    _dumpAstForSourceCode(sourceCode, "_gen");
+}
 
 bool tryImplicitLibPath(const char* relPath) {
     auto& s = *Nest_compilerSettings();

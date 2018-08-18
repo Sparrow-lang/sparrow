@@ -18,7 +18,6 @@
 using Nest::CompilationContext;
 using Nest::StringRef;
 
-
 namespace {
 string readFile(const string& filename) {
     using namespace std;

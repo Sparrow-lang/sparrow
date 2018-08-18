@@ -75,7 +75,8 @@ void NestUtils_insertObjectIntoPtrArray(NestUtils_PtrArray* arr, unsigned index,
     arr->beginPtr[index] = obj;
     arr->endPtr++;
 }
-void NestUtils_insertObjectsIntoPtrArray(NestUtils_PtrArray* arr, unsigned index, Nest_PtrRange objects) {
+void NestUtils_insertObjectsIntoPtrArray(
+        NestUtils_PtrArray* arr, unsigned index, Nest_PtrRange objects) {
     unsigned numNewObjects = objects.endPtr - objects.beginPtr;
     unsigned curSize = arr->endPtr - arr->beginPtr;
     ASSERT(index <= curSize);

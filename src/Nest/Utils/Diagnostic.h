@@ -20,7 +20,8 @@ enum Nest_DiagnosticSeverity {
 typedef enum Nest_DiagnosticSeverity Nest_DiagnosticSeverity;
 
 /// Report a diagnostic of the given severity, with the given message
-void Nest_reportDiagnostic(Nest_Location loc, Nest_DiagnosticSeverity severity, const char* message);
+void Nest_reportDiagnostic(
+        Nest_Location loc, Nest_DiagnosticSeverity severity, const char* message);
 
 /// Report a diagnostic, version with string formatting
 void Nest_reportFmt(Nest_Location loc, Nest_DiagnosticSeverity severity, const char* fmt, ...);

@@ -105,7 +105,8 @@ void getCallables(Nest_NodeRange decls, EvalMode evalMode, Callables& res,
 /// Checks if we can call this with the given arguments
 /// This method can cache some information needed by the 'generateCall'
 ConversionType canCall(CallableData& c, CompilationContext* context, const Location& loc,
-        Nest_NodeRange args, EvalMode evalMode, CustomCvtMode customCvtMode, bool reportErrors = false);
+        Nest_NodeRange args, EvalMode evalMode, CustomCvtMode customCvtMode,
+        bool reportErrors = false);
 /// Same as above, but makes the check only on type, and not on the actual
 /// argument; doesn't cache any args
 ConversionType canCall(CallableData& c, CompilationContext* context, const Location& loc,

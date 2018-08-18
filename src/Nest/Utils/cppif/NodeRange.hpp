@@ -45,9 +45,9 @@ struct NodeRange {
 
     //! Skip the given number of elements and return the remaining range
     NodeRange skip(int num) const {
-        ASSERT(num>=0);
+        ASSERT(num >= 0);
         ASSERT(num <= size());
-        return Nest_NodeRange{range.beginPtr+num, range.endPtr};
+        return Nest_NodeRange{range.beginPtr + num, range.endPtr};
     }
 
     const NodeHandle* begin() const {
@@ -87,7 +87,7 @@ struct NodeRangeM {
     bool empty() const { return range.beginPtr == range.endPtr; }
 
     //! Gets the number of nodes in this range
-    int size() const { return (int) Nest_nodeRangeMSize(range); }
+    int size() const { return (int)Nest_nodeRangeMSize(range); }
     //! Returns the node handle at the given index
     NodeHandle& operator[](int idx) const {
         ASSERT(idx < size());
@@ -108,6 +108,5 @@ struct NodeRangeM {
 };
 
 ostream& operator<<(ostream& os, NodeRange r);
-
 
 } // namespace Nest

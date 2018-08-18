@@ -75,8 +75,7 @@ void applyModifier(Node* base, Node* modNode) {
             mod = SprFe_getNoInlineMod();
     } else {
         // check for: native("name")
-        if (modNode->nodeKind == nkSparrowExpFunApplication)
-        {
+        if (modNode->nodeKind == nkSparrowExpFunApplication) {
             Node* fbase = at(modNode->children, 0);
             Node* fargs = at(modNode->children, 1);
             if (fbase->nodeKind == nkSparrowExpIdentifier &&
@@ -198,8 +197,8 @@ Node* For_SemanticCheck(Node* node) {
     // if <type> is not present, we will use '$rangeType.RetType'
 
     // Variable to hold the range - initialize it with the range node
-    Node* rangeVar =
-            mkSprVariable(loc, StringRef("$rangeVar"), mkIdentifier(loc, StringRef("Range")), range);
+    Node* rangeVar = mkSprVariable(
+            loc, StringRef("$rangeVar"), mkIdentifier(loc, StringRef("Range")), range);
     if (ctFor)
         Feather_setEvalMode(rangeVar, modeCt);
     Node* rangeVarRef = mkIdentifier(loc, StringRef("$rangeVar"));
@@ -523,7 +522,8 @@ Node* SprFrontend::mkSprPackage(
     return res;
 }
 
-Node* SprFrontend::mkSprVariable(const Location& loc, Nest_StringRef name, Node* typeNode, Node* init) {
+Node* SprFrontend::mkSprVariable(
+        const Location& loc, Nest_StringRef name, Node* typeNode, Node* init) {
     Node* res = Nest_createNode(nkSparrowDeclSprVariable);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({typeNode, init}));
@@ -532,7 +532,8 @@ Node* SprFrontend::mkSprVariable(const Location& loc, Nest_StringRef name, Node*
     return res;
 }
 
-Node* SprFrontend::mkSprVariable(const Location& loc, Nest_StringRef name, TypeRef type, Node* init) {
+Node* SprFrontend::mkSprVariable(
+        const Location& loc, Nest_StringRef name, TypeRef type, Node* init) {
     Node* res = Nest_createNode(nkSparrowDeclSprVariable);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({nullptr, init}));
@@ -560,7 +561,8 @@ Node* SprFrontend::mkSprDatatype(const Location& loc, Nest_StringRef name, Node*
     return res;
 }
 
-Node* SprFrontend::mkSprField(const Location& loc, Nest_StringRef name, Node* typeNode, Node* init) {
+Node* SprFrontend::mkSprField(
+        const Location& loc, Nest_StringRef name, Node* typeNode, Node* init) {
     Node* res = Nest_createNode(nkSparrowDeclSprField);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({typeNode, init}));
@@ -590,7 +592,8 @@ Node* SprFrontend::mkSprFunction(const Location& loc, Nest_StringRef name, Node*
     return res;
 }
 
-Node* SprFrontend::mkSprParameter(const Location& loc, Nest_StringRef name, Node* typeNode, Node* init) {
+Node* SprFrontend::mkSprParameter(
+        const Location& loc, Nest_StringRef name, Node* typeNode, Node* init) {
     Node* res = Nest_createNode(nkSparrowDeclSprParameter);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({typeNode, init}));
@@ -598,7 +601,8 @@ Node* SprFrontend::mkSprParameter(const Location& loc, Nest_StringRef name, Node
     return res;
 }
 
-Node* SprFrontend::mkSprParameter(const Location& loc, Nest_StringRef name, TypeRef type, Node* init) {
+Node* SprFrontend::mkSprParameter(
+        const Location& loc, Nest_StringRef name, TypeRef type, Node* init) {
     Node* res = Nest_createNode(nkSparrowDeclSprParameter);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({nullptr, init}));
@@ -661,8 +665,8 @@ Node* SprFrontend::mkGenericClass(Node* originalClass, Node* parameters, Node* i
     return res;
 }
 
-Node* SprFrontend::mkGenericFunction(Node* originalFun, Nest_NodeRange params, Nest_NodeRange genericParams,
-        Node* ifClause, Node* thisClass) {
+Node* SprFrontend::mkGenericFunction(Node* originalFun, Nest_NodeRange params,
+        Nest_NodeRange genericParams, Node* ifClause, Node* thisClass) {
     Node* res = Nest_createNode(nkSparrowDeclGenericFunction);
     res->location = originalFun->location;
     Nest_nodeSetChildren(

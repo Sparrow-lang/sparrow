@@ -347,8 +347,8 @@ void IntModCtorMembers_beforeSemanticCheck(Nest_Modifier*, Node* fun) {
         Node* field = at(cls->children, i);
 
         if (!hasCtorCall(body, false, field)) {
-            Node* base =
-                    mkCompoundExp(loc, mkIdentifier(loc, StringRef("this")), Feather_getName(field));
+            Node* base = mkCompoundExp(
+                    loc, mkIdentifier(loc, StringRef("this")), Feather_getName(field));
             Node* call = nullptr;
             if (field->type->numReferences == 0) {
                 call = mkOperatorCall(loc, base, StringRef("ctor"), nullptr);
@@ -389,8 +389,8 @@ void IntModDtorMembers_beforeSemanticCheck(Nest_Modifier*, Node* fun) {
         Node* field = at(cls->children, i);
 
         if (field->type->numReferences == 0) {
-            Node* base =
-                    mkCompoundExp(loc, mkIdentifier(loc, StringRef("this")), Feather_getName(field));
+            Node* base = mkCompoundExp(
+                    loc, mkIdentifier(loc, StringRef("this")), Feather_getName(field));
             Node* call = mkOperatorCall(loc, base, StringRef("dtor"), nullptr);
             Nest_setContext(call, context);
             Nest_appendNodeToArray(&body->children, call);
@@ -398,9 +398,12 @@ void IntModDtorMembers_beforeSemanticCheck(Nest_Modifier*, Node* fun) {
     }
 }
 
-Nest_Modifier _classMembersIntMod = {modTypeAfterComputeType, &_IntModClassMembers_afterComputeType};
-Nest_Modifier _ctorMembersIntMod = {modTypeBeforeSemanticCheck, &IntModCtorMembers_beforeSemanticCheck};
-Nest_Modifier _dtorMembersIntMod = {modTypeBeforeSemanticCheck, &IntModDtorMembers_beforeSemanticCheck};
+Nest_Modifier _classMembersIntMod = {
+        modTypeAfterComputeType, &_IntModClassMembers_afterComputeType};
+Nest_Modifier _ctorMembersIntMod = {
+        modTypeBeforeSemanticCheck, &IntModCtorMembers_beforeSemanticCheck};
+Nest_Modifier _dtorMembersIntMod = {
+        modTypeBeforeSemanticCheck, &IntModDtorMembers_beforeSemanticCheck};
 
 Nest_Modifier* SprFe_getClassMembersIntMod() { return &_classMembersIntMod; }
 Nest_Modifier* SprFe_getCtorMembersIntMod() { return &_ctorMembersIntMod; }

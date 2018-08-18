@@ -447,8 +447,9 @@ TypeRef SprFunction_ComputeType(Node* node) {
         Nest_setContext(resParam, node->childrenContext);
         FunctionDecl(resultingFun).addParameter(DeclNode(resParam), true);
         Nest_setPropertyNode(resultingFun, propResultParam, resParam);
-        FunctionDecl(resultingFun).setResultType(
-                Feather_mkTypeNode(returnType->location, Feather_getVoidType(thisEvalMode)));
+        FunctionDecl(resultingFun)
+                .setResultType(Feather_mkTypeNode(
+                        returnType->location, Feather_getVoidType(thisEvalMode)));
     } else
         FunctionDecl(resultingFun).setResultType(Feather_mkTypeNode(node->location, resType));
 
@@ -757,7 +758,7 @@ void Using_SetContextForChildren(Node* node) {
 }
 TypeRef Using_ComputeType(Node* node) {
     ASSERT(Nest_nodeArraySize(node->children) == 1);
-    Node*& usingNode = at(node->children, 0);   // May be modified if CT value
+    Node*& usingNode = at(node->children, 0); // May be modified if CT value
     const Nest_StringRef* alias = Nest_getPropertyString(node, "name");
 
     // Compile the using name

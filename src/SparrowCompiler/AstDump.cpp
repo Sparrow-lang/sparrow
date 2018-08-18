@@ -10,10 +10,10 @@
 
 using Nest::begin;
 using Nest::end;
+using Nest::Node;
 using Nest::size;
 using Nest::StringRef;
 using Nest::TypeRef;
-using Nest::Node;
 
 struct JsonContext {
     FILE* f;

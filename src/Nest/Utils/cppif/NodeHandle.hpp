@@ -20,7 +20,8 @@ struct NodeRangeM;
 struct NodeHandle {
     //! The actual handle to the node
     Nest_Node* handle;
-    NodeHandle() : handle(nullptr) {};
+    NodeHandle()
+        : handle(nullptr){};
     //! Construct a node handle from an actual C-style Nest_Node pointer
     NodeHandle(Nest_Node* h)
         : handle(h) {}
@@ -167,6 +168,4 @@ protected:
 
 ostream& operator<<(ostream& os, Nest::NodeHandle n);
 
-
 } // namespace Nest
-

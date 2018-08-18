@@ -151,7 +151,8 @@ EvalMode Feather_combineModeBottom(EvalMode mode1, EvalMode mode2);
 
 //! Adjust the mode of the type, to be compatible with the one in the context.
 //! I.e., if the context is CT, the type will be made CT.
-Nest_TypeRef Feather_adjustMode(Nest_TypeRef srcType, Nest_CompilationContext* context, Nest_Location loc);
+Nest_TypeRef Feather_adjustMode(
+        Nest_TypeRef srcType, Nest_CompilationContext* context, Nest_Location loc);
 
 //! Check if the given node has the eval-mode correctly set.
 //! That is, we don't have a RT node in a CT context, and we don't have RT children to a CT node.

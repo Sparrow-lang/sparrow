@@ -14,9 +14,13 @@ using namespace SprFrontend;
 
 void ModPublic_beforeComputeType(Nest_Modifier*, Node* node) { setAccessType(node, publicAccess); }
 
-void ModProtected_beforeComputeType(Nest_Modifier*, Node* node) { setAccessType(node, protectedAccess); }
+void ModProtected_beforeComputeType(Nest_Modifier*, Node* node) {
+    setAccessType(node, protectedAccess);
+}
 
-void ModPrivate_beforeComputeType(Nest_Modifier*, Node* node) { setAccessType(node, privateAccess); }
+void ModPrivate_beforeComputeType(Nest_Modifier*, Node* node) {
+    setAccessType(node, privateAccess);
+}
 
 void ModCt_beforeSetContext(Nest_Modifier*, Node* node) { Feather_setEvalMode(node, modeCt); }
 

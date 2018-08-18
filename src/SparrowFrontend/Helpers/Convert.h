@@ -37,8 +37,8 @@ class ConversionResult {
 public:
     ConversionResult();
     ConversionResult(ConversionType convType);
-    ConversionResult(
-            ConversionType convType, ConvAction action, const Nest_SourceCode* sourceCode = nullptr);
+    ConversionResult(ConversionType convType, ConvAction action,
+            const Nest_SourceCode* sourceCode = nullptr);
     //! Chains current conversion with the given 'nextConv'
     ConversionResult(const ConversionResult& nextConv, ConversionType convType, ConvAction action,
             const Nest_SourceCode* sourceCode = nullptr);

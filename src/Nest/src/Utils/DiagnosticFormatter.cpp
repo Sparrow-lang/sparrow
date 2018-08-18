@@ -4,7 +4,7 @@
 using namespace Nest;
 
 DiagnosticFormatter::DiagnosticFormatter(
-         Nest_DiagnosticSeverity severity, const char* fmt, bool dontThrow)
+        Nest_DiagnosticSeverity severity, const char* fmt, bool dontThrow)
     : severity_(severity)
     , fmt_(fmt)
     , location_()

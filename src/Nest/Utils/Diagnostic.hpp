@@ -9,7 +9,7 @@
 #define unlikely(x) __builtin_expect((x), 0)
 
 #define __REP_IMPL_RET(retVal, type, fmt, loc)                                                     \
-    return Nest::mkDiagReporterWithReturnFromFormatter(retVal) =                                         \
+    return Nest::mkDiagReporterWithReturnFromFormatter(retVal) =                                   \
                    Nest::DiagnosticFormatter(type, fmt, (loc))
 #define __REP_IMPL(type, fmt, loc)                                                                 \
     Nest::DiagReporterFromFormatter() = Nest::DiagnosticFormatter(type, fmt, (loc))
@@ -60,4 +60,3 @@ ostream& operator<<(ostream& os, const Nest::Location& loc);
 ostream& operator<<(ostream& os, Nest::Node* n);
 ostream& operator<<(ostream& os, Nest::TypeRef t);
 ostream& operator<<(ostream& os, Nest::EvalMode mode);
-

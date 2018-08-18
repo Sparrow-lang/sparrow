@@ -106,11 +106,15 @@ Nest_Node* Feather_getParentLoop(Nest_CompilationContext* context) {
     return 0;
 }
 
-Nest_StringRef Feather_getName(Nest_Node* decl) { return Nest_getCheckPropertyString(decl, "name"); }
+Nest_StringRef Feather_getName(Nest_Node* decl) {
+    return Nest_getCheckPropertyString(decl, "name");
+}
 
 int Feather_hasName(Nest_Node* decl) { return Nest_hasProperty(decl, "name"); }
 
-void Feather_setName(Nest_Node* decl, Nest_StringRef name) { Nest_setPropertyString(decl, "name", name); }
+void Feather_setName(Nest_Node* decl, Nest_StringRef name) {
+    Nest_setPropertyString(decl, "name", name);
+}
 
 EvalMode Feather_nodeEvalMode(Nest_Node* decl) {
     const int* val = Nest_getPropertyInt(decl, "evalMode");

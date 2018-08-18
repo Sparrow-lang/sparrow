@@ -40,8 +40,8 @@ struct IOverloadService {
      * @return The node used to called the selected overload; null on failure
      */
     virtual Node* selectOverload(CompilationContext* context, const Location& loc,
-            EvalMode evalMode, Nest_NodeRange decls, Nest_NodeRange args, OverloadReporting errReporting,
-            StringRef funName) = 0;
+            EvalMode evalMode, Nest_NodeRange decls, Nest_NodeRange args,
+            OverloadReporting errReporting, StringRef funName) = 0;
 
     /// Try to search for a conversion constructor of the given class that can take
     /// the given argument

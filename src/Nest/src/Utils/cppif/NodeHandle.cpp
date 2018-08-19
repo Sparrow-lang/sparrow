@@ -7,11 +7,6 @@
 #include "Nest/Utils/cppif/StringRef.hpp"
 #include "Nest/Utils/PtrArray.h"
 
-using Nest::Node;
-using Nest::NodeHandle;
-using Nest::StringRef;
-using Nest::TypeRef;
-
 namespace Nest {
 
 namespace {
@@ -35,7 +30,7 @@ NodeHandle NodeHandle::clone() { return Nest_cloneNode(handle); }
 
 void NodeHandle::setContext(CompilationContext* context) { Nest_setContext(handle, context); }
 
-TypeRef NodeHandle::computeType() { return Nest_computeType(handle); }
+Type NodeHandle::computeType() { return Nest_computeType(handle); }
 
 NodeHandle NodeHandle::semanticCheck() { return Nest_semanticCheck(handle); }
 
@@ -128,7 +123,7 @@ void NodeHandle::setProperty(const char* name, NodeHandle val) {
     prop.value.nodeValue = val;
     Nest_setProperty(handle, prop);
 }
-void NodeHandle::setProperty(const char* name, TypeRef val) {
+void NodeHandle::setProperty(const char* name, Type val) {
     Nest_NodeProperty prop = {StringRef(name).dup(), propType, 0, {0}};
     prop.value.typeValue = val;
     Nest_setProperty(handle, prop);
@@ -154,7 +149,7 @@ void NodeHandle::setPropertyExpl(const char* name, NodeHandle val) {
     prop.value.nodeValue = val;
     Nest_setProperty(handle, prop);
 }
-void NodeHandle::setPropertyExpl(const char* name, TypeRef val) {
+void NodeHandle::setPropertyExpl(const char* name, Type val) {
     Nest_NodeProperty prop = {StringRef(name).dup(), propType, 1, {0}};
     prop.value.typeValue = val;
     Nest_setProperty(handle, prop);
@@ -194,11 +189,12 @@ const NodeHandle* NodeHandle::getPropertyNode(const char* name) const {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     return reinterpret_cast<const NodeHandle*>(&p->value.nodeValue);
 }
-const TypeRef* NodeHandle::getPropertyType(const char* name) const {
+const Type* NodeHandle::getPropertyType(const char* name) const {
     Nest_NodeProperty* p = _findProperty(handle->properties, name);
     if (!p || p->kind != propType)
         return nullptr;
-    return &p->value.typeValue;
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    return reinterpret_cast<const Type*>(&p->value.typeValue);
 }
 void* const* NodeHandle::getPropertyPtr(const char* name) const {
     Nest_NodeProperty* p = _findProperty(handle->properties, name);
@@ -219,8 +215,8 @@ NodeHandle NodeHandle::getPropertyDefaultNode(const char* name, NodeHandle defau
     const NodeHandle* res = getPropertyNode(name);
     return res ? *res : defaultVal;
 }
-TypeRef NodeHandle::getPropertyDefaultType(const char* name, TypeRef defaultVal) const {
-    const TypeRef* res = getPropertyType(name);
+Type NodeHandle::getPropertyDefaultType(const char* name, Type defaultVal) const {
+    const Type* res = getPropertyType(name);
     return res ? *res : defaultVal;
 }
 void* NodeHandle::getPropertyDefaultPtr(const char* name, void* defaultVal) const {
@@ -249,8 +245,8 @@ NodeHandle NodeHandle::getCheckPropertyNode(const char* name) const {
                 Nest_nodeKindName(handle) % name;
     return *res;
 }
-TypeRef NodeHandle::getCheckPropertyType(const char* name) const {
-    const TypeRef* res = getPropertyType(name);
+Type NodeHandle::getCheckPropertyType(const char* name) const {
+    const Type* res = getPropertyType(name);
     if (!res)
         REP_INTERNAL(handle->location, "Node of kind %1% does not have Type property %2%") %
                 Nest_nodeKindName(handle) % name;
@@ -273,12 +269,14 @@ CompilationContext* NodeHandle::childrenContext() const {
     return handle->childrenContext ? handle->childrenContext : handle->context;
 }
 
+bool NodeHandle::hasDedicatedChildrenContext() const { return handle->childrenContext != nullptr; }
+
 NodeHandle NodeHandle::explanation() {
     return handle && handle->explanation && handle->explanation != handle
                    ? NodeHandle(handle->explanation).explanation()
                    : *this;
 }
-TypeRef NodeHandle::computeTypeImpl() {
+Type NodeHandle::computeTypeImpl() {
     semanticCheck();
     return type();
 }
@@ -290,6 +288,9 @@ void NodeHandle::setContextForChildrenImpl() {
             child.setContext(childrenCtx);
 }
 const char* NodeHandle::toStringImpl() { return Nest_defaultFunToString(handle); }
+
+void NodeHandle::setType(Type t) { handle->type = t; }
+void NodeHandle::setChildrenContext(CompilationContext* ctx) { handle->childrenContext = ctx; }
 
 ostream& operator<<(ostream& os, NodeHandle n) {
     if (n)

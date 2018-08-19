@@ -12,7 +12,6 @@ using Nest::NodeHandle;
 using Nest::NodeRange;
 using Nest::StringRef;
 using Nest::Type;
-using Nest::TypeRef;
 using Nest::TypeWithStorage;
 
 /**
@@ -167,7 +166,7 @@ struct NodeList : NodeHandle {
     bool returnsVoid() const;
 
 private:
-    TypeRef computeTypeImpl();
+    Type computeTypeImpl();
     NodeHandle semanticCheckImpl();
 };
 
@@ -198,7 +197,7 @@ struct LocalSpace : NodeHandle {
 
 private:
     void setContextForChildrenImpl();
-    TypeRef computeTypeImpl();
+    Type computeTypeImpl();
     NodeHandle semanticCheckImpl();
 };
 
@@ -453,9 +452,12 @@ struct FunctionDecl : DeclNode {
     //! Sets the body for this function declaration.
     void setBody(NodeHandle body);
 
+    //! @copydoc Nest::NodeHandle::type()
+    FunctionType type() const { return FunctionType(DeclNode::type()); }
+
 private:
     void setContextForChildrenImpl();
-    TypeRef computeTypeImpl();
+    Type computeTypeImpl();
     NodeHandle semanticCheckImpl();
     const char* toStringImpl();
 };
@@ -488,9 +490,12 @@ struct StructDecl : DeclNode {
     //! Gets the fields of this struct
     NodeRange fields() const;
 
+    //! @copydoc Nest::NodeHandle::type()
+    DataType type() const { return DataType(DeclNode::type()); }
+
 private:
     void setContextForChildrenImpl();
-    TypeRef computeTypeImpl();
+    Type computeTypeImpl();
     NodeHandle semanticCheckImpl();
 };
 
@@ -526,9 +531,12 @@ struct VarDecl : DeclNode {
     //! Gets the type node of the variable
     NodeHandle typeNode() const;
 
+    //! @copydoc Nest::NodeHandle::type()
+    TypeWithStorage type() const { return TypeWithStorage(DeclNode::type()); }
+
 private:
     void setContextForChildrenImpl();
-    TypeRef computeTypeImpl();
+    Type computeTypeImpl();
     NodeHandle semanticCheckImpl();
 };
 

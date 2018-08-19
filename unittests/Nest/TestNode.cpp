@@ -228,7 +228,7 @@ TEST_CASE_METHOD(NodesFixture, "User can set and retrieve properties for nodes")
     rc::prop("Type properties", [=](MockNode node, string name, MockType val) {
         const char* propName = name.c_str();
         REQUIRE(!node.hasProperty(propName));
-        node.setProperty(propName, val);
+        node.setProperty(propName, Type(val));
         REQUIRE(node.getCheckPropertyType(propName) == val);
     });
     rc::prop("Multiple times", [=](MockNode node, string name, int val) {

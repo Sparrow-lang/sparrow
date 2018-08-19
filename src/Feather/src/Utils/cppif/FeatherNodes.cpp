@@ -50,12 +50,15 @@ template <typename T> T createNode(int kind, const Location& loc) {
                                                                                                    \
         private:                                                                                   \
             static NodeHandle semanticCheckPlain(T node) { return node.semanticCheckImpl(); }      \
-            static TypeRef computeTypePlain(T node) { return node.computeTypeImpl(); }             \
+            static Type computeTypePlain(T node) { return node.computeTypeImpl(); }                \
             static void setContextForChildrenPlain(T node) { node.setContextForChildrenImpl(); }   \
             static const char* toStringPlain(T node) { return node.toStringImpl(); }               \
         };                                                                                         \
         return RegHelper::registerKind(#T);                                                        \
     }
+
+//! Returns the number of references from the given type. Returns -1 if not storage type.
+int numRefs(Type t) { return t.hasStorage() ? TypeWithStorage(t).numReferences() : -1; }
 
 void CtProcessMod_afterSemanticCheck(Nest_Modifier* mod, Node* node) { Nest_ctProcess(node); }
 Nest_Modifier ctProcessMod = {modTypeAfterSemanticCheck, &CtProcessMod_afterSemanticCheck};
@@ -147,7 +150,7 @@ Nop::Nop(Node* n)
     REQUIRE_NODE_KIND(n, nkFeatherNop);
 }
 NodeHandle Nop::semanticCheckImpl() {
-    handle->type = VoidType::get(context()->evalMode);
+    setType(VoidType::get(context()->evalMode));
     return *this;
 }
 
@@ -163,7 +166,7 @@ TypeNode::TypeNode(Node* n)
 }
 Type TypeNode::givenType() const { return getCheckPropertyType("givenType"); }
 NodeHandle TypeNode::semanticCheckImpl() {
-    handle->type = givenType();
+    setType(givenType());
     return *this;
 }
 const char* TypeNode::toStringImpl() {
@@ -187,7 +190,7 @@ StringRef BackendCode::code() const { return getCheckPropertyString(propCode); }
 EvalMode BackendCode::mode() const { return (EvalMode)getCheckPropertyInt(propEvalMode); }
 NodeHandle BackendCode::semanticCheckImpl() {
     if (!type())
-        handle->type = VoidType::get(mode());
+        setType(VoidType::get(mode()));
 
     // CT process this node right after semantic check
     addModifier(&ctProcessMod);
@@ -230,10 +233,10 @@ NodeList::NodeList(Node* n)
     REQUIRE_NODE_KIND(n, nkFeatherNodeList);
 }
 bool NodeList::returnsVoid() const { return hasProperty(propResultVoid); }
-TypeRef NodeList::computeTypeImpl() {
+Type NodeList::computeTypeImpl() {
     // If this returns void, make sure we set the right return type early on
     if (returnsVoid())
-        handle->type = VoidType::get(context()->evalMode);
+        setType(VoidType::get(context()->evalMode));
 
     // Compute the type for all the children
     for (auto child : children()) {
@@ -243,13 +246,13 @@ TypeRef NodeList::computeTypeImpl() {
     }
 
     if (returnsVoid())
-        return handle->type;
+        return type();
 
     // Get the type of the last node
     int numChildren = children().size();
-    TypeRef res = (numChildren == 0 || !children()[numChildren - 1].type())
-                          ? VoidType::get(context()->evalMode)
-                          : children()[numChildren - 1].type();
+    Type res = (numChildren == 0 || !children()[numChildren - 1].type())
+                       ? VoidType::get(context()->evalMode)
+                       : children()[numChildren - 1].type();
     res = Feather_adjustMode(res, context(), location());
     return res;
 }
@@ -268,11 +271,11 @@ NodeHandle NodeList::semanticCheckImpl() {
     if (!type()) {
         // Get the type of the last node
         int numChildren = children().size();
-        TypeRef t = (returnsVoid() || numChildren == 0 || !children()[numChildren - 1].type())
-                            ? VoidType::get(context()->evalMode)
-                            : children()[numChildren - 1].type();
+        Type t = (returnsVoid() || numChildren == 0 || !children()[numChildren - 1].type())
+                         ? VoidType::get(context()->evalMode)
+                         : children()[numChildren - 1].type();
         t = Feather_adjustMode(t, context(), location());
-        handle->type = t;
+        setType(t);
         Feather_checkEvalMode(handle);
     }
     return *this;
@@ -289,10 +292,10 @@ LocalSpace::LocalSpace(Node* n)
     REQUIRE_NODE_KIND(n, nkFeatherLocalSpace);
 }
 void LocalSpace::setContextForChildrenImpl() {
-    handle->childrenContext = Nest_mkChildContextWithSymTab(context(), handle, modeUnspecified);
+    setChildrenContext(Nest_mkChildContextWithSymTab(context(), handle, modeUnspecified));
     NodeHandle::setContextForChildrenImpl();
 }
-TypeRef LocalSpace::computeTypeImpl() { return VoidType::get(context()->evalMode); }
+Type LocalSpace::computeTypeImpl() { return VoidType::get(context()->evalMode); }
 NodeHandle LocalSpace::semanticCheckImpl() {
     // Compute type first
     computeType();
@@ -322,7 +325,7 @@ NodeHandle GlobalConstructAction::semanticCheckImpl() {
     if (!act.semanticCheck())
         return {};
 
-    handle->type = VoidType::get(context()->evalMode);
+    setType(VoidType::get(context()->evalMode));
 
     // For CT construct actions, evaluate them asap
     if (Feather_isCt(act)) {
@@ -348,7 +351,7 @@ NodeHandle GlobalDestructAction::semanticCheckImpl() {
     if (!act.semanticCheck())
         return {};
 
-    handle->type = VoidType::get(context()->evalMode);
+    setType(VoidType::get(context()->evalMode));
 
     // We never CT evaluate global destruct actions
     if (Feather_isCt(act)) {
@@ -373,7 +376,7 @@ NodeHandle ScopeDestructAction::semanticCheckImpl() {
     if (!act.semanticCheck())
         return {};
 
-    handle->type = VoidType::get(context()->evalMode);
+    setType(VoidType::get(context()->evalMode));
     return *this;
 }
 
@@ -393,7 +396,7 @@ NodeHandle TempDestructAction::semanticCheckImpl() {
     if (!act.semanticCheck())
         return {};
 
-    handle->type = VoidType::get(context()->evalMode);
+    setType(VoidType::get(context()->evalMode));
     return *this;
 }
 
@@ -421,7 +424,7 @@ void ChangeMode::setChild(NodeHandle child) {
 void ChangeMode::setContextForChildrenImpl() {
     auto curMode = mode();
     EvalMode newMode = curMode != modeUnspecified ? curMode : context()->evalMode;
-    handle->childrenContext = Nest_mkChildContext(context(), newMode);
+    setChildrenContext(Nest_mkChildContext(context(), newMode));
     NodeHandle::setContextForChildrenImpl();
 }
 NodeHandle ChangeMode::semanticCheckImpl() {
@@ -503,20 +506,20 @@ void FunctionDecl::setBody(NodeHandle body) {
 }
 void FunctionDecl::setContextForChildrenImpl() {
     // If we don't have a children context, create one
-    if (!handle->childrenContext)
-        handle->childrenContext =
-                Nest_mkChildContextWithSymTab(context(), handle, Feather_effectiveEvalMode(handle));
+    if (!hasDedicatedChildrenContext())
+        setChildrenContext(Nest_mkChildContextWithSymTab(
+                context(), handle, Feather_effectiveEvalMode(handle)));
 
     NodeHandle::setContextForChildrenImpl();
 
     Feather_addToSymTab(handle);
 }
-TypeRef FunctionDecl::computeTypeImpl() {
+Type FunctionDecl::computeTypeImpl() {
     if (name().empty())
         REP_ERROR_RET(nullptr, location(), "No name given to function declaration");
 
     // We must have a result type
-    TypeRef resType = resTypeNode().computeType();
+    Type resType = resTypeNode().computeType();
     if (!resType)
         REP_ERROR_RET(nullptr, location(), "No result type given to function %1%") % name();
 
@@ -556,7 +559,7 @@ NodeHandle FunctionDecl::semanticCheckImpl() {
     // Do we have some valid instructions in the body?
     // Could we mark this function as having an empty body?
     auto resultType = resTypeNode();
-    bool noRetValue = !resultType || !resultType.type()->hasStorage;
+    bool noRetValue = !resultType || !resultType.type().hasStorage();
     bool couldInline = !hasProperty(propNativeName) || !hasProperty(propNoInline);
     if (noRetValue && couldInline && body && !canHaveInstructions(body)) {
         setProperty(propEmptyBody, 1);
@@ -612,15 +615,15 @@ StructDecl::StructDecl(Node* n)
 NodeRange StructDecl::fields() const { return children(); }
 void StructDecl::setContextForChildrenImpl() {
     // If we don't have a children context, create one
-    if (!handle->childrenContext)
-        handle->childrenContext =
-                Nest_mkChildContextWithSymTab(context(), handle, Feather_effectiveEvalMode(handle));
+    if (!hasDedicatedChildrenContext())
+        setChildrenContext(Nest_mkChildContextWithSymTab(
+                context(), handle, Feather_effectiveEvalMode(handle)));
 
     NodeHandle::setContextForChildrenImpl();
 
     Feather_addToSymTab(handle);
 }
-TypeRef StructDecl::computeTypeImpl() {
+Type StructDecl::computeTypeImpl() {
     if (name().empty())
         REP_ERROR_RET(nullptr, location(), "No name given to struct");
 
@@ -658,7 +661,7 @@ void VarDecl::setContextForChildrenImpl() {
     NodeHandle::setContextForChildrenImpl();
     Feather_addToSymTab(handle);
 }
-TypeRef VarDecl::computeTypeImpl() {
+Type VarDecl::computeTypeImpl() {
     // Make sure the variable has a type
     auto tn = typeNode();
     if (!tn.computeType())
@@ -672,10 +675,10 @@ NodeHandle VarDecl::semanticCheckImpl() {
         return {};
 
     // Make sure that the type has storage
-    if (!type()->hasStorage)
+    if (!type().hasStorage())
         REP_ERROR_RET(nullptr, location(), "Variable type has no storage (%1%)") % type();
 
-    NodeHandle datatypeDecl = type()->referredNode;
+    NodeHandle datatypeDecl = type().referredNode();
     if (!datatypeDecl)
         REP_ERROR_RET(nullptr, location(), "Invalid type for variable: %1%") % type();
 
@@ -694,13 +697,15 @@ CtValueExp::CtValueExp(Node* n)
     : NodeHandle(n) {
     REQUIRE_NODE_KIND(n, nkFeatherExpCtValue);
 }
-TypeWithStorage CtValueExp::valueType() const { return getCheckPropertyType("valueType"); }
+TypeWithStorage CtValueExp::valueType() const {
+    return TypeWithStorage(getCheckPropertyType("valueType"));
+}
 StringRef CtValueExp::valueData() const { return getCheckPropertyString("valueData"); }
 NodeHandle CtValueExp::semanticCheckImpl() {
     // Check the type
-    if (!handle->type)
-        handle->type = valueType();
-    if (!type() || !type()->hasStorage)
+    if (!type())
+        setType(valueType());
+    if (!type() || !type().hasStorage())
         REP_ERROR_RET(nullptr, location(),
                 "Type specified for Ct Value cannot be used at compile-time (%1%)") %
                 type();
@@ -714,11 +719,11 @@ NodeHandle CtValueExp::semanticCheckImpl() {
                 data.size() % valueSize % type();
     }
 
-    handle->type = Type(handle->type).changeMode(modeCt, location());
+    setType(type().changeMode(modeCt, location()));
     return *this;
 }
 const char* CtValueExp::toString() {
-    TypeRef t = type();
+    Type t = type();
     if (!t)
         t = valueType();
     if (!t)
@@ -728,11 +733,11 @@ const char* CtValueExp::toString() {
 
     StringRef valueDataStr = valueData();
 
-    StringRef nativeName = t->hasStorage ? Feather_nativeName(t) : StringRef{};
-    if (0 == strcmp(t->description, "Type/ct")) {
-        auto t = extractValue<TypeRef>(valueDataStr);
+    StringRef nativeName = t.hasStorage() ? Feather_nativeName(t) : StringRef{};
+    if (0 == strcmp(t.description(), "Type/ct")) {
+        auto t = extractValue<Type>(valueDataStr);
         os << t;
-    } else if (nativeName && t->numReferences == 0) {
+    } else if (nativeName && numRefs(t) == 0) {
         if (nativeName == "i1" || nativeName == "u1") {
             bool val = 0 != extractValue<uint8_t>(valueDataStr);
             os << (val ? "true" : "false");
@@ -774,21 +779,17 @@ NullExp::NullExp(Node* n)
 }
 NodeHandle NullExp::typeNode() const { return children()[0]; }
 NodeHandle NullExp::semanticCheckImpl() {
-    TypeRef t = typeNode().computeType();
+    Type t = typeNode().computeType();
     if (!t)
         return {};
 
     // Make sure that the type is a reference
-    if (!t->hasStorage)
-        REP_ERROR_RET(
-                nullptr, location(), "Null node should have a type with storage (cur type: %1%") %
-                t;
-    if (t->numReferences == 0)
+    if (numRefs(t) < 1)
         REP_ERROR_RET(
                 nullptr, location(), "Null node should have a reference type (cur type: %1%)") %
                 t;
 
-    handle->type = Feather_adjustMode(t, context(), location());
+    setType(Feather_adjustMode(t, context(), location()));
     return *this;
 }
 const char* NullExp::toStringImpl() {
@@ -817,12 +818,12 @@ NodeHandle VarRefExp::semanticCheckImpl() {
         return {};
     if (isField(var))
         REP_INTERNAL(location(), "VarRef used on a field (%1%). Use FieldRef instead") % var.name();
-    if (!var.type()->hasStorage)
+    if (!var.type().hasStorage())
         REP_ERROR_RET(
                 nullptr, location(), "Variable type doesn't have a storage type (type: %1%)") %
                 var.type();
-    handle->type = Feather_adjustMode(LValueType::get(var.type()), context(), location());
-    Feather_checkEvalModeWithExpected(handle, var.type()->mode);
+    setType(Feather_adjustMode(LValueType::get(var.type()), context(), location()));
+    Feather_checkEvalModeWithExpected(handle, var.type().mode());
     return *this;
 }
 const char* VarRefExp::toStringImpl() {
@@ -856,11 +857,11 @@ NodeHandle FieldRefExp::semanticCheckImpl() {
     if (!obj.semanticCheck())
         return {};
     ASSERT(obj.type());
-    if (!obj.type()->hasStorage || obj.type()->numReferences != 1)
+    if (numRefs(obj.type()) != 1)
         REP_ERROR_RET(nullptr, location(),
                 "Field access should be done on a reference to a data type (type: %1%)") %
                 obj.type();
-    NodeHandle structNode = obj.type()->referredNode;
+    NodeHandle structNode = TypeWithStorage(obj.type()).referredNode();
     ASSERT(structNode);
     if (!structNode.computeType())
         return {};
@@ -884,10 +885,10 @@ NodeHandle FieldRefExp::semanticCheckImpl() {
 
     // Set the correct type for this node
     ASSERT(field.type());
-    ASSERT(field.type()->hasStorage);
-    handle->type = LValueType::get(field.type());
-    EvalMode mode = Feather_combineMode(obj.type()->mode, context()->evalMode);
-    handle->type = Type(handle->type).changeMode(mode, location());
+    ASSERT(field.type().hasStorage());
+    setType(LValueType::get(field.type()));
+    EvalMode mode = Feather_combineMode(obj.type().mode(), context()->evalMode);
+    setType(type().changeMode(mode, location()));
     return *this;
 }
 const char* FieldRefExp::toStringImpl() {
@@ -919,7 +920,7 @@ NodeHandle FunRefExp::semanticCheckImpl() {
 
     if (!fun.computeType())
         return {};
-    handle->type = Feather_adjustMode(resType.type(), context(), location());
+    setType(Feather_adjustMode(resType.type(), context(), location()));
     return *this;
 }
 const char* FunRefExp::toStringImpl() {
@@ -970,8 +971,8 @@ NodeHandle FunCallExp::semanticCheckImpl() {
             allParamsAreCtAvailable = false;
 
         // Compare types
-        TypeRef argType = arg.type();
-        TypeRef paramType = fun.parameters()[i].type();
+        Type argType = arg.type();
+        Type paramType = fun.parameters()[i].type();
         if (!sameTypeIgnoreMode(argType, paramType))
             REP_ERROR_RET(nullptr, arg.location(),
                     "Invalid function call; parameter %1% expected type %2%, given %3%") %
@@ -991,18 +992,18 @@ NodeHandle FunCallExp::semanticCheckImpl() {
     }
 
     // Get the type from the function decl
-    handle->type = fun.resTypeNode().type();
+    setType(fun.resTypeNode().type());
 
     // Handle autoCt case
-    if (allParamsAreCtAvailable && handle->type->mode == modeRt && fun.hasProperty(propAutoCt)) {
-        handle->type = Type(handle->type).changeMode(modeCt, location());
+    if (allParamsAreCtAvailable && type().mode() == modeRt && fun.hasProperty(propAutoCt)) {
+        setType(type().changeMode(modeCt, location()));
     }
 
     // Make sure we yield a type with the right mode
-    handle->type = Feather_adjustMode(handle->type, context(), location());
+    setType(Feather_adjustMode(type(), context(), location()));
 
     // Check if this node can have some meaningful instructions generated for it
-    bool noRetValue = !handle->type->hasStorage;
+    bool noRetValue = !type().hasStorage();
     if (noRetValue && !canHaveInstructions(*this)) {
         setProperty(propEmptyBody, 1);
     }
@@ -1040,7 +1041,7 @@ NodeHandle MemLoadExp::semanticCheckImpl() {
         return {};
 
     // Check if the type of the argument is a ref
-    if (!exp.type()->hasStorage || exp.type()->numReferences == 0)
+    if (numRefs(exp.type()) < 1)
         REP_ERROR_RET(nullptr, location(), "Cannot load from a non-reference (%1%, type: %2%)") %
                 exp % exp.type();
 
@@ -1053,8 +1054,8 @@ NodeHandle MemLoadExp::semanticCheckImpl() {
                 nullptr, location(), "Cannot use atomic acquire-release with a load instruction");
 
     // Remove the 'ref' from the type and get the base type
-    handle->type = removeRef(TypeWithStorage(exp.type()));
-    handle->type = Feather_adjustMode(handle->type, context(), location());
+    setType(removeRef(TypeWithStorage(exp.type())));
+    setType(Feather_adjustMode(type(), context(), location()));
     return *this;
 }
 
@@ -1087,12 +1088,12 @@ NodeHandle MemStoreExp::semanticCheckImpl() {
         return {};
 
     // Check if the type of the address is a ref
-    if (!address.type()->hasStorage || address.type()->numReferences == 0)
+    if (numRefs(address.type()) < 1)
         REP_ERROR_RET(nullptr, location(),
                 "The address of a memory store is not a reference, nor VarRef nor FieldRef (type: "
                 "%1%)") %
                 address.type();
-    TypeRef baseAddressType = removeRef(TypeWithStorage(address.type()));
+    Type baseAddressType = removeRef(TypeWithStorage(address.type()));
 
     // Check the equivalence of types
     if (!sameTypeIgnoreMode(value.type(), baseAddressType)) {
@@ -1105,7 +1106,7 @@ NodeHandle MemStoreExp::semanticCheckImpl() {
     }
 
     // The resulting type is Void
-    handle->type = VoidType::get(address.type()->mode);
+    setType(VoidType::get(address.type().mode()));
     return *this;
 }
 
@@ -1126,31 +1127,21 @@ NodeHandle BitcastExp::expression() const { return children()[0]; }
 NodeHandle BitcastExp::semanticCheckImpl() {
     if (!expression().semanticCheck())
         return {};
-    TypeRef tDest = destTypeNode().computeType();
+    Type tDest = destTypeNode().computeType();
     if (!tDest)
         return {};
-
-    // Make sure both types have storage
-    TypeRef srcType = expression().type();
-    if (!srcType->hasStorage)
-        REP_ERROR_RET(
-                nullptr, location(), "The source of a bitcast is not a type with storage (%1%)") %
-                srcType;
-    if (!tDest->hasStorage)
-        REP_ERROR_RET(nullptr, location(),
-                "The destination type of a bitcast is not a type with storage (%1%)") %
-                tDest;
+    Type srcType = expression().type();
 
     // Make sure both types are references
-    if (srcType->numReferences == 0)
+    if (numRefs(srcType) < 1)
         REP_ERROR_RET(nullptr, location(), "The source of a bitcast is not a reference (%1%)") %
                 srcType;
-    if (tDest->numReferences == 0)
+    if (numRefs(tDest) < 1)
         REP_ERROR_RET(
                 nullptr, location(), "The destination type of a bitcast is not a reference (%1%)") %
                 tDest;
 
-    handle->type = Feather_adjustMode(tDest, context(), location());
+    setType(Feather_adjustMode(tDest, context(), location()));
     return *this;
 }
 const char* BitcastExp::toStringImpl() {
@@ -1195,7 +1186,7 @@ NodeHandle ConditionalExp::semanticCheckImpl() {
                 cond.type();
 
     // Dereference the condition as much as possible
-    while (cond.type() && cond.type()->numReferences > 0) {
+    while (cond.type() && numRefs(cond.type()) > 0) {
         cond = MemLoadExp::create(cond.location(), cond);
         cond.setContext(childrenContext());
         if (!cond.semanticCheck())
@@ -1214,9 +1205,9 @@ NodeHandle ConditionalExp::semanticCheckImpl() {
                 "The types of the alternatives of a conditional must be equal (%1% != %2%)") %
                 alt1.type() % alt2.type();
 
-    EvalMode mode = Feather_combineModeBottom(alt1.type()->mode, cond.type()->mode);
+    EvalMode mode = Feather_combineModeBottom(alt1.type().mode(), cond.type().mode());
     mode = Feather_combineMode(mode, context()->evalMode);
-    handle->type = Type(alt1.type()).changeMode(mode, location());
+    setType(Type(alt1.type()).changeMode(mode, location()));
     return *this;
 }
 
@@ -1235,7 +1226,7 @@ NodeHandle IfStmt::condition() const { return children()[0]; }
 NodeHandle IfStmt::thenClause() const { return children()[1]; }
 NodeHandle IfStmt::elseClause() const { return children()[2]; }
 void IfStmt::setContextForChildrenImpl() {
-    handle->childrenContext = Nest_mkChildContextWithSymTab(context(), *this, modeUnspecified);
+    setChildrenContext(Nest_mkChildContextWithSymTab(context(), *this, modeUnspecified));
     NodeHandle::setContextForChildrenImpl();
 }
 NodeHandle IfStmt::semanticCheckImpl() {
@@ -1244,7 +1235,7 @@ NodeHandle IfStmt::semanticCheckImpl() {
     NodeHandle elseClause = this->elseClause();
 
     // The resulting type is Void
-    handle->type = VoidType::get(context()->evalMode);
+    setType(VoidType::get(context()->evalMode));
 
     // Semantic check the condition
     if (!condition.semanticCheck())
@@ -1257,7 +1248,7 @@ NodeHandle IfStmt::semanticCheckImpl() {
                 condition.type();
 
     // Dereference the condition as much as possible
-    while (condition.type() && condition.type()->numReferences > 0) {
+    while (condition.type() && numRefs(condition.type()) > 0) {
         condition = MemLoadExp::create(condition.location(), condition);
         condition.setContext(childrenContext());
         if (!condition.semanticCheck())
@@ -1308,7 +1299,7 @@ NodeHandle WhileStmt::condition() const { return children()[0]; }
 NodeHandle WhileStmt::body() const { return children()[2]; }
 NodeHandle WhileStmt::step() const { return children()[1]; }
 void WhileStmt::setContextForChildrenImpl() {
-    handle->childrenContext = Nest_mkChildContextWithSymTab(context(), *this, modeUnspecified);
+    setChildrenContext(Nest_mkChildContextWithSymTab(context(), *this, modeUnspecified));
     CompilationContext* condContext = Feather_nodeEvalMode(*this) == modeCt
                                               ? Nest_mkChildContext(context(), modeCt)
                                               : childrenContext();
@@ -1335,7 +1326,7 @@ NodeHandle WhileStmt::semanticCheckImpl() {
         REP_ERROR_RET(nullptr, condition.location(), "The condition of the while is not Testable");
 
     // Dereference the condition as much as possible
-    while (condition.type() && condition.type()->numReferences > 0) {
+    while (condition.type() && numRefs(condition.type()) > 0) {
         condition = MemLoadExp::create(condition.location(), condition);
         condition.setContext(childrenContext());
         if (!condition.semanticCheck())
@@ -1394,7 +1385,7 @@ NodeHandle WhileStmt::semanticCheckImpl() {
         return {};
 
     // The resulting type is Void
-    handle->type = VoidType::get(context()->evalMode);
+    setType(VoidType::get(context()->evalMode));
     return *this;
 }
 
@@ -1416,7 +1407,7 @@ NodeHandle BreakStmt::semanticCheckImpl() {
     setProperty("loop", loop);
 
     // The resulting type is Void
-    handle->type = VoidType::get(context()->evalMode);
+    setType(VoidType::get(context()->evalMode));
     return *this;
 }
 
@@ -1438,7 +1429,7 @@ NodeHandle ContinueStmt::semanticCheckImpl() {
     setProperty("loop", loop);
 
     // The resulting type is Void
-    handle->type = VoidType::get(context()->evalMode);
+    setType(VoidType::get(context()->evalMode));
     return *this;
 }
 
@@ -1465,7 +1456,7 @@ NodeHandle ReturnStmt::semanticCheckImpl() {
     NodeHandle parentFun = Feather_getParentFun(context());
     if (!parentFun)
         REP_ERROR_RET(nullptr, location(), "Return found outside any function");
-    TypeRef resultType = FunctionDecl(parentFun).resTypeNode().type();
+    Type resultType = FunctionDecl(parentFun).resTypeNode().type();
     ASSERT(resultType);
     setProperty("parentFun", parentFun);
 
@@ -1476,13 +1467,13 @@ NodeHandle ReturnStmt::semanticCheckImpl() {
                     "Returned expression's type is not the same as function's return type");
     } else {
         // Make sure that the function has a void return type
-        if (resultType->typeKind != typeKindVoid)
+        if (resultType.kind() != typeKindVoid)
             REP_ERROR_RET(nullptr, location(),
                     "You must return something in a function that has non-Void result type");
     }
 
     // The resulting type is Void
-    handle->type = VoidType::get(context()->evalMode);
+    setType(VoidType::get(context()->evalMode));
     return *this;
 }
 

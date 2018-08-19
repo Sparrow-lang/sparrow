@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Nest/Utils/cppif/Fwd.hpp"
+#include "Nest/Utils/cppif/Type.hpp"
 #include "Nest/Utils/NodeUtils.h"
 
 namespace Nest {
@@ -48,13 +49,13 @@ struct NodeHandle {
     int kind() const { return handle->nodeKind; }
 
     //! Getter for the location of the node
-    const Location& location() { return handle->location; }
+    const Location& location() const { return handle->location; }
     //! Getter for the type of the node
-    TypeRef type() { return handle->type; }
+    Type type() const { return handle->type; }
     //! Getter for the current (direct, firs-degree) explanation of this node
-    NodeHandle curExplanation() { return handle->explanation; }
+    NodeHandle curExplanation() const { return handle->explanation; }
     //! Getter for the context of the node
-    CompilationContext* context() { return handle->context; }
+    CompilationContext* context() const { return handle->context; }
 
     //!@}
     //!@{ Compilation processes
@@ -66,7 +67,7 @@ struct NodeHandle {
 
     //! Just computes the type, without performing all the semantic check actions; used for
     //! declarations Returns the type if succeeded, NULL if failure
-    TypeRef computeType();
+    Type computeType();
 
     //! Performs all the semantic-check actions
     //! Returns the explanation if succeeded, NULL if failure
@@ -113,13 +114,13 @@ struct NodeHandle {
     void setProperty(const char* name, int val);
     void setProperty(const char* name, StringRef val);
     void setProperty(const char* name, NodeHandle val);
-    void setProperty(const char* name, TypeRef val);
+    void setProperty(const char* name, Type val);
     void setProperty(const char* name, void* val);
 
     void setPropertyExpl(const char* name, int val);
     void setPropertyExpl(const char* name, StringRef val);
     void setPropertyExpl(const char* name, NodeHandle val);
-    void setPropertyExpl(const char* name, TypeRef val);
+    void setPropertyExpl(const char* name, Type val);
     void setPropertyExpl(const char* name, void* val);
 
     bool hasProperty(const char* name) const;
@@ -127,19 +128,19 @@ struct NodeHandle {
     const StringRef* getPropertyString(const char* name) const;
     StringRef getPropertyStringDeref(const char* name) const;
     const NodeHandle* getPropertyNode(const char* name) const;
-    const TypeRef* getPropertyType(const char* name) const;
+    const Type* getPropertyType(const char* name) const;
     void* const* getPropertyPtr(const char* name) const;
 
     int getPropertyDefaultInt(const char* name, int defaultVal) const;
     StringRef getPropertyDefaultString(const char* name, StringRef defaultVal) const;
     NodeHandle getPropertyDefaultNode(const char* name, NodeHandle defaultVal) const;
-    TypeRef getPropertyDefaultType(const char* name, TypeRef defaultVal) const;
+    Type getPropertyDefaultType(const char* name, Type defaultVal) const;
     void* getPropertyDefaultPtr(const char* name, void* defaultVal) const;
 
     int getCheckPropertyInt(const char* name) const;
     StringRef getCheckPropertyString(const char* name) const;
     NodeHandle getCheckPropertyNode(const char* name) const;
-    TypeRef getCheckPropertyType(const char* name) const;
+    Type getCheckPropertyType(const char* name) const;
     void* getCheckPropertyPtr(const char* name) const;
 
     //!@}
@@ -151,6 +152,9 @@ struct NodeHandle {
     //! Returns the compilation context for the children of this node
     CompilationContext* childrenContext() const;
 
+    //! Returns true if we have a dedicated children context for this node
+    bool hasDedicatedChildrenContext() const;
+
     //! Getter for the explanation of this node, if it has one; otherwise returns this node
     NodeHandle explanation();
 
@@ -159,11 +163,16 @@ struct NodeHandle {
 protected:
     // NodeHandle semanticCheckImpl();  // doesn't have a default
     //! Default handler for computing the type of this node.
-    TypeRef computeTypeImpl();
+    Type computeTypeImpl();
     //! Default handler for setting the context for children
     void setContextForChildrenImpl();
     //! Default handler for transforming this into a string
     const char* toStringImpl();
+
+    //! Called to the set the type for this node
+    void setType(Type t);
+    //! Called to the set the children context for this node
+    void setChildrenContext(CompilationContext* ctx);
 };
 
 ostream& operator<<(ostream& os, Nest::NodeHandle n);

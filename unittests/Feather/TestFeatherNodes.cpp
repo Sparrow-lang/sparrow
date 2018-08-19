@@ -62,7 +62,7 @@ TEST_CASE_METHOD(FeatherNodesFixture, "Testing Feather::Nop node") {
         nop.setContext(globalContext_);
         auto t = nop.computeType();
         REQUIRE(t);
-        REQUIRE(t->typeKind == Feather_getVoidTypeKind());
+        REQUIRE(t.kind() == Feather_getVoidTypeKind());
         REQUIRE(t == nop.type());
     }
 }
@@ -84,7 +84,7 @@ TEST_CASE_METHOD(FeatherNodesFixture, "Testing Feather::CtValueExp node") {
         auto expectedType = node.valueType();
         auto t = node.computeType();
         REQUIRE(sameTypeIgnoreMode(t, expectedType));
-        REQUIRE(t->mode == modeCt);
+        REQUIRE(t.mode() == modeCt);
     });
 }
 
@@ -97,7 +97,8 @@ TEST_CASE_METHOD(FeatherNodesFixture, "Testing Feather::NullExp node") {
         REQUIRE(t);
         REQUIRE(expectedType.type());
         REQUIRE(sameTypeIgnoreMode(t, expectedType.type()));
-        REQUIRE(t->numReferences > 0);
+        REQUIRE(t.hasStorage());
+        REQUIRE(TypeWithStorage(t).numReferences() > 0);
     });
 }
 
@@ -108,9 +109,10 @@ TEST_CASE_METHOD(FeatherNodesFixture, "Testing Feather::VarRefExp node") {
         auto t = node.computeType();
         auto varDecl = node.varDecl();
         REQUIRE(t);
-        REQUIRE(t->typeKind == Feather_getLValueTypeKind());
+        REQUIRE(t.kind() == Feather_getLValueTypeKind());
         REQUIRE(varDecl.type());
-        REQUIRE(sameTypeIgnoreMode(t, LValueType::get(varDecl.type())));
+        REQUIRE(varDecl.type().hasStorage());
+        REQUIRE(sameTypeIgnoreMode(t, LValueType::get(TypeWithStorage(varDecl.type()))));
     });
     rc::prop("VarRefExp pointing to params have proper type",
             [=](DataType t1, DataType t2, DataType t3) {
@@ -140,9 +142,9 @@ TEST_CASE_METHOD(FeatherNodesFixture, "Testing Feather::VarRefExp node") {
                 REQUIRE(vrt1);
                 REQUIRE(vrt2);
                 REQUIRE(vrt3);
-                REQUIRE(vrt1->typeKind == Feather_getLValueTypeKind());
-                REQUIRE(vrt2->typeKind == Feather_getLValueTypeKind());
-                REQUIRE(vrt3->typeKind == Feather_getLValueTypeKind());
+                REQUIRE(vrt1.kind() == Feather_getLValueTypeKind());
+                REQUIRE(vrt2.kind() == Feather_getLValueTypeKind());
+                REQUIRE(vrt3.kind() == Feather_getLValueTypeKind());
                 REQUIRE(sameTypeIgnoreMode(vrt1, LValueType::get(t1)));
                 REQUIRE(sameTypeIgnoreMode(vrt2, LValueType::get(t2)));
                 REQUIRE(sameTypeIgnoreMode(vrt3, LValueType::get(t3)));
@@ -158,13 +160,13 @@ TEST_CASE_METHOD(FeatherNodesFixture, "Testing Feather::FunCallExp node") {
         node.setContext(globalContext_);
         auto t = node.computeType();
         REQUIRE(t);
-        REQUIRE(node.funDecl().type()->typeKind == Feather_getFunctionTypeKind());
+        REQUIRE(node.funDecl().type().kind() == Feather_getFunctionTypeKind());
 
         // If the result type is CT, then all the args are CT
-        if ( t->mode == modeCt ) {
+        if ( t.mode() == modeCt ) {
             for( auto arg: node.arguments()) {
                 REQUIRE(arg.type());
-                REQUIRE(arg.type()->mode == modeCt);
+                REQUIRE(arg.type().mode() == modeCt);
             }
         }
         // If autoCt and all all args are CT, then result is CT
@@ -172,10 +174,10 @@ TEST_CASE_METHOD(FeatherNodesFixture, "Testing Feather::FunCallExp node") {
             bool allParamsCt = false;
             for( auto arg: node.arguments()) {
                 REQUIRE(arg.type());
-                allParamsCt = allParamsCt && arg.type()->mode == modeCt;
+                allParamsCt = allParamsCt && arg.type().mode() == modeCt;
             }
             if (allParamsCt)
-                REQUIRE(t->mode == modeCt);
+                REQUIRE(t.mode() == modeCt);
         }
     });
 }
@@ -188,8 +190,9 @@ TEST_CASE_METHOD(FeatherNodesFixture, "Testing Feather::MemLoadExp node") {
         auto tAddr = node.address().type();
         REQUIRE(t);
         REQUIRE(tAddr);
-        REQUIRE(sameTypeIgnoreMode(t, removeRef(tAddr)));
-        REQUIRE(t->typeKind != Feather_getLValueTypeKind());
+        REQUIRE(tAddr.hasStorage());
+        REQUIRE(sameTypeIgnoreMode(t, removeRef(TypeWithStorage(tAddr))));
+        REQUIRE(t.kind() != Feather_getLValueTypeKind());
     });
 }
 
@@ -199,7 +202,7 @@ TEST_CASE_METHOD(FeatherNodesFixture, "Testing Feather::MemStoreExp node") {
         node.setContext(globalContext_);
         auto t = node.computeType();
         REQUIRE(t);
-        REQUIRE(t->typeKind == Feather_getVoidTypeKind());
+        REQUIRE(t.kind() == Feather_getVoidTypeKind());
     });
 }
 

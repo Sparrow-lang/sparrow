@@ -44,7 +44,7 @@ const char* MockNode::toStringCb(Node* node) {
     ostringstream oss;
     oss << "MockNode(" << n.children() << ", "
         << "refs: " << n.referredNodes();
-    const TypeRef* givenTypePtr = n.getPropertyType("givenType");
+    const Type* givenTypePtr = n.getPropertyType("givenType");
     if (givenTypePtr)
         oss << ", type: " << *givenTypePtr;
     oss << ")";
@@ -61,7 +61,7 @@ TypeRef MockNode::computeTypeCb(Node* node) {
     for (auto child : n.children()) {
         child.computeType();
     }
-    const TypeRef* givenTypePtr = n.getPropertyType("givenType");
+    const Type* givenTypePtr = n.getPropertyType("givenType");
     if (givenTypePtr)
         return *givenTypePtr;
     if (!n.children().empty())

@@ -37,6 +37,18 @@ Gen<LValueType> arbLValueType(EvalMode mode, int minRef, int maxRef) {
     return gen::apply(&LValueType::get, arbDataType(mode, minRef, maxRef));
 }
 
+Gen<ConstType> arbConstType(EvalMode mode, int minRef, int maxRef) {
+    return gen::apply(&ConstType::get, arbDataType(mode, minRef, maxRef));
+}
+
+Gen<MutableType> arbMutableType(EvalMode mode, int minRef, int maxRef) {
+    return gen::apply(&MutableType::get, arbDataType(mode, minRef, maxRef));
+}
+
+Gen<TempType> arbTempType(EvalMode mode, int minRef, int maxRef) {
+    return gen::apply(&TempType::get, arbDataType(mode, minRef, maxRef));
+}
+
 Gen<ArrayType> arbArrayType(EvalMode mode) {
     return gen::apply(
             [=](TypeRef base, unsigned count) -> ArrayType { return ArrayType::get(base, count); },
@@ -89,36 +101,34 @@ Gen<TypeWithStorage> arbTypeWithStorage(EvalMode mode, int minRef, int maxRef) {
 }
 
 Gen<TypeWithStorage> arbBasicStorageType(EvalMode mode, int minRef, int maxRef) {
-    return gen::exec([=]() -> TypeWithStorage {
-        if (minRef == 0 || *gen::inRange(0, 1) == 0)
-            return *arbDataType(mode, minRef, maxRef);
-        else
-            return *arbLValueType(mode, minRef, maxRef);
+    int weightDataType = 5;
+    int weightLValueType = minRef == 0 ? 0 : 3;
+    int weightConstType = 2;
+    int weightMutableType = 2;
+    int weightTempType = 1;
+    return gen::weightedOneOf<TypeWithStorage>({
+            {weightDataType, gen::cast<TypeWithStorage>(arbDataType(mode, minRef, maxRef))},
+            {weightLValueType, gen::cast<TypeWithStorage>(arbLValueType(mode, minRef, maxRef))},
+            {weightConstType, gen::cast<TypeWithStorage>(arbConstType(mode, minRef, maxRef))},
+            {weightMutableType, gen::cast<TypeWithStorage>(arbMutableType(mode, minRef, maxRef))},
+            {weightTempType, gen::cast<TypeWithStorage>(arbTempType(mode, minRef, maxRef))},
     });
 }
 
 Gen<Type> arbType() {
-    return gen::exec([=]() -> Type {
-        switch (*gen::inRange(0, 6)) {
-        case 1:
-            return *arbLValueType();
-        case 2:
-            return *arbArrayType();
-        case 3:
-            return *arbFunctionType();
-        case 4:
-            return *arbVoidType();
-        case 5:
-            return *arbConceptType();
-        case 0:
-        default:
-            return *arbDataType();
-        }
+    return gen::weightedOneOf<Type>({
+            {5, gen::cast<Type>(arbDataType())},
+            {3, gen::cast<Type>(arbLValueType())},
+            {2, gen::cast<Type>(arbConstType())},
+            {2, gen::cast<Type>(arbMutableType())},
+            {2, gen::cast<Type>(arbTempType())},
+            {1, gen::cast<Type>(arbVoidType())},
+            {1, gen::cast<Type>(arbConceptType())},
     });
 }
 
 Gen<TypeRef> arbTypeRef() {
-    return gen::map(TypeFactory::arbType(), [](Type t) -> TypeRef { return t; });
+    return gen::cast<TypeRef>(arbType());
 }
 
 Gen<TypeWithStorage> arbBoolType(EvalMode mode) {

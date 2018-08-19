@@ -25,6 +25,9 @@ Nest_CompilerModule* Feather_getModule();
 int Feather_getVoidTypeKind();
 int Feather_getDataTypeKind();
 int Feather_getLValueTypeKind();
+int Feather_getConstTypeKind();
+int Feather_getMutableTypeKind();
+int Feather_getTempTypeKind();
 int Feather_getArrayTypeKind();
 int Feather_getFunctionTypeKind();
 
@@ -39,6 +42,10 @@ Nest_TypeRef Feather_getDataType(Nest_Node* classDecl, unsigned numReferences, E
 /// Returns an L-Value type
 /// This type would represents an l-value to an existing storage type
 Nest_TypeRef Feather_getLValueType(Nest_TypeRef base);
+
+Nest_TypeRef Feather_getConstType(Nest_TypeRef base);
+Nest_TypeRef Feather_getMutableType(Nest_TypeRef base);
+Nest_TypeRef Feather_getTempType(Nest_TypeRef base);
 
 /// Returns a type that holds N instances of a given storage type
 Nest_TypeRef Feather_getArrayType(Nest_TypeRef unitType, unsigned count);

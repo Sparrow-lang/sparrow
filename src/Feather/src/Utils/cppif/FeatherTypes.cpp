@@ -45,6 +45,57 @@ LValueType LValueType::get(TypeWithStorage base) {
     return LValueType(Feather_getLValueType(base));
 }
 
+ConstType::ConstType(Nest::TypeRef type)
+    : TypeWithStorage(type) {
+    if (type && type->typeKind != Feather_getConstTypeKind())
+        REP_INTERNAL(NOLOC, "ConstType constructed with other type kind (%1%") % type;
+}
+
+ConstType ConstType::get(TypeWithStorage base) {
+    if (!base)
+        REP_INTERNAL(NOLOC, "Null type given as base to const type");
+    int baseKind = base.kind();
+    if (baseKind == typeKindConst)
+        return ConstType(base);
+    else if (baseKind == typeKindMutable || baseKind == typeKindTemp || baseKind == typeKindLValue)
+        REP_INTERNAL(NOLOC, "Cannot construct a const type based on %1%") % base;
+    return ConstType(Feather_getConstType(base));
+}
+
+MutableType::MutableType(Nest::TypeRef type)
+    : TypeWithStorage(type) {
+    if (type && type->typeKind != Feather_getMutableTypeKind())
+        REP_INTERNAL(NOLOC, "MutableType constructed with other type kind (%1%") % type;
+}
+
+MutableType MutableType::get(TypeWithStorage base) {
+    if (!base)
+        REP_INTERNAL(NOLOC, "Null type given as base to const type");
+    int baseKind = base.kind();
+    if (baseKind == typeKindMutable)
+        return MutableType(base);
+    else if (baseKind == typeKindConst || baseKind == typeKindTemp || baseKind == typeKindLValue)
+        REP_INTERNAL(NOLOC, "Cannot construct a mutable type based on %1%") % base;
+    return MutableType(Feather_getMutableType(base));
+}
+
+TempType::TempType(Nest::TypeRef type)
+    : TypeWithStorage(type) {
+    if (type && type->typeKind != Feather_getTempTypeKind())
+        REP_INTERNAL(NOLOC, "TempType constructed with other type kind (%1%") % type;
+}
+
+TempType TempType::get(TypeWithStorage base) {
+    if (!base)
+        REP_INTERNAL(NOLOC, "Null type given as base to const type");
+    int baseKind = base.kind();
+    if (baseKind == typeKindTemp)
+        return TempType(base);
+    else if (baseKind == typeKindConst || baseKind == typeKindMutable || baseKind == typeKindLValue)
+        REP_INTERNAL(NOLOC, "Cannot construct a tmp type based on %1%") % base;
+    return TempType(Feather_getTempType(base));
+}
+
 ArrayType::ArrayType(Nest::TypeRef type)
     : TypeWithStorage(type) {
     if (type && type->typeKind != Feather_getArrayTypeKind())
@@ -66,28 +117,75 @@ FunctionType FunctionType::get(
     return FunctionType(Feather_getFunctionType(resultTypeAndParams, numTypes, mode));
 }
 
-DataType addRef(TypeWithStorage type) {
+TypeWithStorage addRef(TypeWithStorage type) {
     if (!type)
         REP_INTERNAL(NOLOC, "Null type passed to addRef");
-    if (type.kind() != typeKindData && type.kind() != typeKindLValue)
-        REP_INTERNAL(NOLOC, "Invalid type given when adding reference (%1%)") % type;
-    return DataType::get(type.referredNode(), type.numReferences() + 1, type.mode());
+    int typeKind = type.kind();
+    if (typeKind == typeKindData || typeKind == typeKindLValue)
+        return DataType::get(type.referredNode(), type.numReferences() + 1, type.mode());
+    else if (typeKind == typeKindConst) {
+        if (ConstType(type).base().kind() == typeKindData)
+            return ConstType::get(
+                    DataType::get(type.referredNode(), type.numReferences() + 1, type.mode()));
+    } else if (typeKind == typeKindMutable) {
+        if (MutableType(type).base().kind() == typeKindData)
+            return MutableType::get(
+                    DataType::get(type.referredNode(), type.numReferences() + 1, type.mode()));
+    } else if (typeKind == typeKindTemp) {
+        if (TempType(type).base().kind() == typeKindData)
+            return TempType::get(
+                    DataType::get(type.referredNode(), type.numReferences() + 1, type.mode()));
+    }
+
+    REP_INTERNAL(NOLOC, "Invalid type given when adding reference (%1%)") % type;
+    return {};
 }
-DataType removeRef(TypeWithStorage type) {
+TypeWithStorage removeRef(TypeWithStorage type) {
     if (!type)
         REP_INTERNAL(NOLOC, "Null type passed to removeRef");
     if (type.numReferences() < 1)
         REP_INTERNAL(NOLOC, "Cannot remove reference from type (%1%)") % type;
-    if (type.kind() != typeKindData && type.kind() != typeKindLValue)
-        REP_INTERNAL(NOLOC, "Invalid type given when removing reference (%1%)") % type;
-    return DataType::get(type.referredNode(), type.numReferences() - 1, type.mode());
+
+    int typeKind = type.kind();
+    if (typeKind == typeKindData || typeKind == typeKindLValue)
+        return DataType::get(type.referredNode(), type.numReferences() - 1, type.mode());
+    else if (typeKind == typeKindConst) {
+        if (ConstType(type).base().kind() == typeKindData)
+            return ConstType::get(
+                    DataType::get(type.referredNode(), type.numReferences() - 1, type.mode()));
+    } else if (typeKind == typeKindMutable) {
+        if (MutableType(type).base().kind() == typeKindData)
+            return MutableType::get(
+                    DataType::get(type.referredNode(), type.numReferences() - 1, type.mode()));
+    } else if (typeKind == typeKindTemp) {
+        if (TempType(type).base().kind() == typeKindData)
+            return TempType::get(
+                    DataType::get(type.referredNode(), type.numReferences() - 1, type.mode()));
+    }
+
+    REP_INTERNAL(NOLOC, "Invalid type given when removing reference (%1%)") % type;
+    return {};
 }
-DataType removeAllRefs(TypeWithStorage type) {
+TypeWithStorage removeAllRefs(TypeWithStorage type) {
     if (!type)
         REP_INTERNAL(NOLOC, "Null type passed to removeAllRefs");
-    if (type.kind() != typeKindData && type.kind() != typeKindLValue)
-        REP_INTERNAL(NOLOC, "Invalid type given when removing all references (%1%)") % type;
-    return DataType::get(type.referredNode(), 0, type.mode());
+
+    int typeKind = type.kind();
+    if (typeKind == typeKindData || typeKind == typeKindLValue)
+        return DataType::get(type.referredNode(), 0, type.mode());
+    else if (typeKind == typeKindConst) {
+        if (ConstType(type).base().kind() == typeKindData)
+            return ConstType::get(DataType::get(type.referredNode(), 0, type.mode()));
+    } else if (typeKind == typeKindMutable) {
+        if (MutableType(type).base().kind() == typeKindData)
+            return MutableType::get(DataType::get(type.referredNode(), 0, type.mode()));
+    } else if (typeKind == typeKindTemp) {
+        if (TempType(type).base().kind() == typeKindData)
+            return TempType::get(DataType::get(type.referredNode(), 0, type.mode()));
+    }
+
+    REP_INTERNAL(NOLOC, "Invalid type given when removing all references (%1%)") % type;
+    return {};
 }
 
 Type removeLValueIfPresent(Type type) {

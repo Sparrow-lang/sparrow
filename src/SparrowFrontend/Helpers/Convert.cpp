@@ -397,7 +397,7 @@ ConversionResult ConvertService::checkLValueToNormal(
         CompilationContext* context, int flags, TypeRef srcType, TypeRef destType) {
     if (srcType->typeKind == typeKindLValue && destType->typeKind != typeKindLValue) {
         DataType t2 = LValueType(srcType).toRef();
-        DataType t1 = removeRef(t2);
+        auto t1 = removeRef(t2);
 
         // First check conversion without reference
         const auto& nextConv =
@@ -426,7 +426,7 @@ ConversionResult ConvertService::checkDereference(
     if (srcType->typeKind != typeKindData || srcType->numReferences == 0)
         return {};
 
-    DataType t = removeRef(DataType(srcType));
+    auto t = removeRef(DataType(srcType));
 
     const auto& nextConv =
             cachedCheckConversion(context, flags | flagDontAddReference, t, destType);
@@ -438,7 +438,7 @@ ConversionResult ConvertService::checkAddReference(
     if (srcType->typeKind != typeKindData || srcType->numReferences > 0)
         return {};
 
-    DataType baseDataType = addRef(DataType(srcType));
+    auto baseDataType = addRef(DataType(srcType));
 
     const auto& nextConv =
             cachedCheckConversion(context, flags | flagDontAddReference, baseDataType, destType);

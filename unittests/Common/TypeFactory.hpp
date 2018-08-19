@@ -31,6 +31,17 @@ Gen<Feather::DataType> arbDataType(EvalMode mode = modeUnspecified, int minRef =
 Gen<Feather::LValueType> arbLValueType(
         EvalMode mode = modeUnspecified, int minRef = 1, int maxRef = 4);
 
+//! Returns a generator for arbitrary Const types
+Gen<Feather::ConstType> arbConstType(
+        EvalMode mode = modeUnspecified, int minRef = 0, int maxRef = 4);
+
+//! Returns a generator for arbitrary Mutable types
+Gen<Feather::MutableType> arbMutableType(
+        EvalMode mode = modeUnspecified, int minRef = 0, int maxRef = 4);
+
+//! Returns a generator for arbitrary Temp types
+Gen<Feather::TempType> arbTempType(EvalMode mode = modeUnspecified, int minRef = 0, int maxRef = 4);
+
 //! Returns a generator for arbitrary array types
 Gen<Feather::ArrayType> arbArrayType(EvalMode mode = modeUnspecified);
 
@@ -39,8 +50,7 @@ Gen<Feather::FunctionType> arbFunctionType(
         EvalMode mode = modeUnspecified, Nest::TypeWithStorage resType = {});
 
 //! Returns a generator for arbitrary concept types
-Gen<Nest::Type> arbConceptType(
-        EvalMode mode = modeUnspecified, int minRef = 0, int maxRef = 4);
+Gen<Nest::Type> arbConceptType(EvalMode mode = modeUnspecified, int minRef = 0, int maxRef = 4);
 
 //! Returns a generator of types with storage
 Gen<Nest::TypeWithStorage> arbTypeWithStorage(
@@ -60,7 +70,6 @@ Gen<Nest::TypeRef> arbTypeRef();
 //! has 'i8' native name
 Gen<Nest::TypeWithStorage> arbBoolType(EvalMode mode = modeUnspecified);
 
-
 } // namespace TypeFactory
 
 namespace rc {
@@ -75,6 +84,15 @@ template <> struct Arbitrary<Feather::DataType> {
 };
 template <> struct Arbitrary<Feather::LValueType> {
     static Gen<Feather::LValueType> arbitrary() { return TypeFactory::arbLValueType(); }
+};
+template <> struct Arbitrary<Feather::ConstType> {
+    static Gen<Feather::ConstType> arbitrary() { return TypeFactory::arbConstType(); }
+};
+template <> struct Arbitrary<Feather::MutableType> {
+    static Gen<Feather::MutableType> arbitrary() { return TypeFactory::arbMutableType(); }
+};
+template <> struct Arbitrary<Feather::TempType> {
+    static Gen<Feather::TempType> arbitrary() { return TypeFactory::arbTempType(); }
 };
 template <> struct Arbitrary<Feather::ArrayType> {
     static Gen<Feather::ArrayType> arbitrary() { return TypeFactory::arbArrayType(); }

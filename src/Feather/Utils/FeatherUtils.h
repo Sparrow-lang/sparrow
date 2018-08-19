@@ -47,6 +47,9 @@ extern int nkFeatherStmtReturn;
 extern int typeKindVoid;
 extern int typeKindData;
 extern int typeKindLValue;
+extern int typeKindConst;
+extern int typeKindMutable;
+extern int typeKindTemp;
 extern int typeKindArray;
 extern int typeKindFunction;
 

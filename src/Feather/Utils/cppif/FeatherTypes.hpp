@@ -92,6 +92,99 @@ struct LValueType : TypeWithStorage {
 };
 
 /**
+ * @brief      A Const type.
+ *
+ * A const type will not allow the users to change the value referred by this type.
+ *
+ * Constraints:
+ *     - must be created on top of a type with storage
+ *     - cannot be created on top of a MutableType/TempType/LValueType
+ */
+struct ConstType : TypeWithStorage {
+    ConstType() = default;
+    ConstType(Nest::TypeRef type);
+
+    /**
+     * @brief      Factory method to create a const type
+     *
+     * @param[in]  base  The base type on which we apply const-ness
+     *
+     * @return     The corresponding const type
+     */
+    static ConstType get(TypeWithStorage base);
+
+    //! Returns the base type of this type
+    TypeWithStorage base() const { return TypeWithStorage(type_->subTypes[0]); }
+
+    //! @copydoc Type::changeMode
+    ConstType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) {
+        return ConstType(Type::changeMode(mode, loc));
+    }
+};
+
+/**
+ * @brief      A mutable type.
+ *
+ * A mutable type will not allow the users to change the value referred by this type.
+ *
+ * Constraints:
+ *     - must be created on top of a type with storage
+ *     - cannot be created on top of a ConstType/TempType/LValueType
+ */
+struct MutableType : TypeWithStorage {
+    MutableType() = default;
+    MutableType(Nest::TypeRef type);
+
+    /**
+     * @brief      Factory method to create a mutable type
+     *
+     * @param[in]  base  The base type on which we apply mutable-ness
+     *
+     * @return     The corresponding mutable type
+     */
+    static MutableType get(TypeWithStorage base);
+
+    //! Returns the base type of this type
+    TypeWithStorage base() const { return TypeWithStorage(type_->subTypes[0]); }
+
+    //! @copydoc Type::changeMode
+    MutableType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) {
+        return MutableType(Type::changeMode(mode, loc));
+    }
+};
+
+/**
+ * @brief      A type representing a temporary object.
+ *
+ * A temp type will not allow the users to change the value referred by this type.
+ *
+ * Constraints:
+ *     - must be created on top of a type with storage
+ *     - cannot be created on top of a MutableType/TmpType/LValueType
+ */
+struct TempType : TypeWithStorage {
+    TempType() = default;
+    TempType(Nest::TypeRef type);
+
+    /**
+     * @brief      Factory method to create a temp type
+     *
+     * @param[in]  base  The base type on which we apply temp-ness
+     *
+     * @return     The corresponding temp type
+     */
+    static TempType get(TypeWithStorage base);
+
+    //! Returns the base type of this type
+    TypeWithStorage base() const { return TypeWithStorage(type_->subTypes[0]); }
+
+    //! @copydoc Type::changeMode
+    TempType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) {
+        return TempType(Type::changeMode(mode, loc));
+    }
+};
+
+/**
  * @brief      The type corresponding to an array.
  *
  * Constraints:
@@ -169,28 +262,26 @@ struct FunctionType : TypeWithStorage {
  * of the given type.
  *
  * Constraints:
- *     - given type must be DataType or LValueType
- *     - returned type is always DataType
+ *     - given type must be DataType, LValueType, ConstType, MutableType or TempType
  *
  * @param[in]  type  The type to add reference to
  *
  * @return     The resulting type, with one more reference
  */
-DataType addRef(TypeWithStorage type);
+TypeWithStorage addRef(TypeWithStorage type);
 
 /**
  * @brief      Removes a reference from the given type.
  *
  * Constraints:
  *     - given type must have at least one reference
- *     - given type must be DataType or LValueType
- *     - returned type is always DataType
+ *     - given type must be DataType, LValueType, ConstType, MutableType or TempType
  *
  * @param[in]  type  The type to remove reference from
  *
  * @return     The resulting type, with one less reference
  */
-DataType removeRef(TypeWithStorage type);
+TypeWithStorage removeRef(TypeWithStorage type);
 
 /**
  * @brief      Removes all references from this type
@@ -203,7 +294,7 @@ DataType removeRef(TypeWithStorage type);
  *
  * @return     The resulting type, with no references
  */
-DataType removeAllRefs(TypeWithStorage type);
+TypeWithStorage removeAllRefs(TypeWithStorage type);
 
 /**
  * @brief      Removes the LValue from the type, if present.

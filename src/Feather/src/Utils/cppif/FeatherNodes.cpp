@@ -152,7 +152,7 @@ NodeHandle Nop::semanticCheckImpl() {
 }
 
 REGISTER_NODE_KIND_IMPL(TypeNode);
-TypeNode TypeNode::create(const Location& loc, TypeBase type) {
+TypeNode TypeNode::create(const Location& loc, Type type) {
     TypeNode res = createNode<TypeNode>(nkFeatherTypeNode, loc);
     res.setProperty("givenType", type);
     return res;
@@ -161,7 +161,7 @@ TypeNode::TypeNode(Node* n)
     : NodeHandle(n) {
     REQUIRE_NODE_KIND(n, nkFeatherTypeNode);
 }
-TypeBase TypeNode::givenType() const { return getCheckPropertyType("givenType"); }
+Type TypeNode::givenType() const { return getCheckPropertyType("givenType"); }
 NodeHandle TypeNode::semanticCheckImpl() {
     handle->type = givenType();
     return *this;
@@ -570,7 +570,7 @@ const char* FunctionDecl::toStringImpl() {
     os << name();
     if (type()) {
         auto params = parameters();
-        TypeBase resultType = resTypeNode().type();
+        Type resultType = resTypeNode().type();
         if (hasProperty(propResultParam)) {
             resultType = params[0].type();
             resultType = removeRef(TypeWithStorage(resultType));
@@ -714,7 +714,7 @@ NodeHandle CtValueExp::semanticCheckImpl() {
                 data.size() % valueSize % type();
     }
 
-    handle->type = TypeBase(handle->type).changeMode(modeCt, location());
+    handle->type = Type(handle->type).changeMode(modeCt, location());
     return *this;
 }
 const char* CtValueExp::toString() {
@@ -887,7 +887,7 @@ NodeHandle FieldRefExp::semanticCheckImpl() {
     ASSERT(field.type()->hasStorage);
     handle->type = LValueType::get(field.type());
     EvalMode mode = Feather_combineMode(obj.type()->mode, context()->evalMode);
-    handle->type = TypeBase(handle->type).changeMode(mode, location());
+    handle->type = Type(handle->type).changeMode(mode, location());
     return *this;
 }
 const char* FieldRefExp::toStringImpl() {
@@ -995,7 +995,7 @@ NodeHandle FunCallExp::semanticCheckImpl() {
 
     // Handle autoCt case
     if (allParamsAreCtAvailable && handle->type->mode == modeRt && fun.hasProperty(propAutoCt)) {
-        handle->type = TypeBase(handle->type).changeMode(modeCt, location());
+        handle->type = Type(handle->type).changeMode(modeCt, location());
     }
 
     // Make sure we yield a type with the right mode
@@ -1216,7 +1216,7 @@ NodeHandle ConditionalExp::semanticCheckImpl() {
 
     EvalMode mode = Feather_combineModeBottom(alt1.type()->mode, cond.type()->mode);
     mode = Feather_combineMode(mode, context()->evalMode);
-    handle->type = TypeBase(alt1.type()).changeMode(mode, location());
+    handle->type = Type(alt1.type()).changeMode(mode, location());
     return *this;
 }
 

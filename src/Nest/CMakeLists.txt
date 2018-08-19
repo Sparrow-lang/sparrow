@@ -41,6 +41,8 @@ SET(sourceFiles
     "Utils/cppif/NodeRange.hpp"
     "Utils/cppif/NodeUtils.hpp"
     "Utils/cppif/StringRef.hpp"
+    "Utils/cppif/Type.hpp"
+    "Utils/cppif/TypeWithStorage.hpp"
 
     "src/StdInc.hpp"
     "src/Api/Backend.c"
@@ -65,6 +67,8 @@ SET(sourceFiles
     "src/Utils/cppif/NodeRange.cpp"
     "src/Utils/cppif/NodeUtils.cpp"
     "src/Utils/cppif/StringRef.cpp"
+    "src/Utils/cppif/Type.cpp"
+    "src/Utils/cppif/TypeWithStorage.cpp"
 )
 
 # Project settings

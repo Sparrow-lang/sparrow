@@ -586,7 +586,7 @@ Node* selectOperator(Node* node, StringRef operation, Node* arg1, Node* arg2, bo
 }
 
 Node* checkConvertNullToRefByte(Node* orig) {
-    if (Feather::sameTypeIgnoreMode(orig->type, StdDef::typeNull)) {
+    if (Nest::sameTypeIgnoreMode(orig->type, StdDef::typeNull)) {
         Node* res = Feather_mkNull(
                 orig->location, Feather_mkTypeNode(orig->location, StdDef::typeRefByte));
         Nest_setContext(res, orig->context);
@@ -677,7 +677,7 @@ Node* handleRefAssign(Node* node) {
 
     // Check the second type to be null or a reference
     TypeRef arg2Type = arg2->type;
-    if (!Feather::sameTypeIgnoreMode(arg2Type, StdDef::typeNull)) {
+    if (!Nest::sameTypeIgnoreMode(arg2Type, StdDef::typeNull)) {
         if (arg2Type->numReferences == 0)
             REP_ERROR_RET(nullptr, node->location,
                     "Right operand of a reference assign operator is not a reference (%1%)") %
@@ -921,7 +921,7 @@ Node* Literal_SemanticCheck(Node* node) {
     if (!Nest_computeType(ident))
         return nullptr;
     TypeRef t = getType(ident);
-    t = TypeBase(t).changeMode(modeCt, node->location);
+    t = Type(t).changeMode(modeCt, node->location);
 
     if (litType == "StringRef") {
         // Create the explanation

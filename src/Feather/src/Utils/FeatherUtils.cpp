@@ -71,7 +71,7 @@ TypeRef Feather_adjustMode(TypeRef srcType, CompilationContext* context, Locatio
     ASSERT(srcType);
     ASSERT(context);
     EvalMode resMode = Feather_combineMode(srcType->mode, context->evalMode);
-    return TypeBase(srcType).changeMode(resMode, loc);
+    return Type(srcType).changeMode(resMode, loc);
 }
 
 void _printContextNodes(Node* node) {

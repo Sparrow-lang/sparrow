@@ -44,7 +44,7 @@ void FeatherNodesFixture::setContextForAuxNodes() {
 }
 
 TEST_CASE_METHOD(FeatherNodesFixture, "Testing Feather expressions generation") {
-    rc::prop("Test expected type", [=](Feather::TypeWithStorage expectedType) {
+    rc::prop("Test expected type", [=](Nest::TypeWithStorage expectedType) {
         NodeHandle node = *FeatherNodeFactory::instance().arbExp(expectedType);
         setContextForAuxNodes();
         node.setContext(globalContext_);

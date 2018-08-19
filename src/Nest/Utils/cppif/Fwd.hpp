@@ -20,14 +20,13 @@ struct Nest_SourceCode;
 struct Nest_StringRef;
 struct Nest_SymTab;
 struct Nest_Type;
-typedef const struct Nest_Type* Nest_TypeRef;
+using Nest_TypeRef = const struct Nest_Type*;
 
 namespace Nest {
 
 using CompilationContext = Nest_CompilationContext;
 using Location = Nest_Location;
 using Node = Nest_Node;
-using Type = Nest_Type;
 using TypeRef = Nest_TypeRef;
 
 using EvalMode = Nest_EvalMode;

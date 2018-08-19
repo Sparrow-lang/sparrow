@@ -43,7 +43,7 @@ Gen<ArrayType> arbArrayType(EvalMode mode) {
             arbDataType(mode), gen::inRange(1, 100));
 }
 
-Gen<FunctionType> arbFunctionType(EvalMode mode, Feather::TypeWithStorage resType) {
+Gen<FunctionType> arbFunctionType(EvalMode mode, Nest::TypeWithStorage resType) {
     return gen::exec([=]() -> FunctionType {
         EvalMode m = mode == modeUnspecified ? *gen::arbitrary<EvalMode>() : mode;
         int numTypes = *gen::inRange(1, 5);
@@ -57,12 +57,12 @@ Gen<FunctionType> arbFunctionType(EvalMode mode, Feather::TypeWithStorage resTyp
     });
 }
 
-Gen<TypeBase> arbConceptType(EvalMode mode, int minRef, int maxRef) {
+Gen<Type> arbConceptType(EvalMode mode, int minRef, int maxRef) {
     const int numT = g_conceptDecls.size();
     REQUIRE(numT > 0);
     auto modeGen = mode == modeUnspecified ? gen::arbitrary<EvalMode>() : gen::just(mode);
     return gen::apply(
-            [=](int idx, int numReferences, EvalMode mode) -> TypeBase {
+            [=](int idx, int numReferences, EvalMode mode) -> Type {
                 REQUIRE(idx < g_conceptDecls.size());
                 return SprFrontend::getConceptType(g_conceptDecls[idx], numReferences, mode);
             },
@@ -97,8 +97,8 @@ Gen<TypeWithStorage> arbBasicStorageType(EvalMode mode, int minRef, int maxRef) 
     });
 }
 
-Gen<TypeBase> arbType() {
-    return gen::exec([=]() -> TypeBase {
+Gen<Type> arbType() {
+    return gen::exec([=]() -> Type {
         switch (*gen::inRange(0, 6)) {
         case 1:
             return *arbLValueType();
@@ -118,7 +118,7 @@ Gen<TypeBase> arbType() {
 }
 
 Gen<TypeRef> arbTypeRef() {
-    return gen::map(TypeFactory::arbType(), [](Feather::TypeBase t) -> TypeRef { return t; });
+    return gen::map(TypeFactory::arbType(), [](Type t) -> TypeRef { return t; });
 }
 
 Gen<TypeWithStorage> arbBoolType(EvalMode mode) {

@@ -157,10 +157,10 @@ Node* SprFrontend::createFunctionCall(
         TypeRef resTypeRef = resultParam->type;
         EvalMode funEvalMode = Feather_effectiveEvalMode(fun);
         if (funEvalMode == modeCt && resTypeRef->mode != modeCt)
-            resTypeRef = TypeBase(resTypeRef).changeMode(modeCt, resultParam->location);
+            resTypeRef = Type(resTypeRef).changeMode(modeCt, resultParam->location);
         if (funEvalMode == modeRt && Nest_hasProperty(fun, propAutoCt) &&
                 resTypeRef->mode != modeCt && _areNodesCt(args))
-            resTypeRef = TypeBase(resTypeRef).changeMode(modeCt, resultParam->location);
+            resTypeRef = Type(resTypeRef).changeMode(modeCt, resultParam->location);
 
         // Create a temporary variable for the result
         Node* tmpVar = Feather_mkVar(loc, StringRef("$tmpC"),

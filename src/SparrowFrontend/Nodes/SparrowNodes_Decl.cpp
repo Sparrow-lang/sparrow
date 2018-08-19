@@ -434,7 +434,7 @@ TypeRef SprFunction_ComputeType(Node* node) {
     TypeRef resType = returnType ? getType(returnType) : Feather_getVoidType(mode);
     if (!resType)
         REP_INTERNAL(node->location, "Cannot compute the function resulting type");
-    resType = TypeBase(resType).changeMode(mode, node->location);
+    resType = Type(resType).changeMode(mode, node->location);
 
     // If the result is a non-reference class, not basic numeric, and our function is not native,
     // add result parameter; otherwise, normal result

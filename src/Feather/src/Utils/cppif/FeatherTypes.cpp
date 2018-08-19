@@ -6,23 +6,8 @@
 
 namespace Feather {
 
-TypeBase TypeBase::changeMode(Nest::EvalMode mode, Nest::Location loc) {
-    if (mode == type_->mode)
-        return *this;
-
-    Nest::TypeRef resType = Nest_changeTypeMode(type_, mode);
-    if (!resType)
-        REP_INTERNAL(loc, "Don't know how to change eval mode of type %1%") % type_;
-    ASSERT(resType);
-
-    if (mode == modeCt && resType->mode != modeCt)
-        REP_ERROR_RET(nullptr, loc, "Type '%1%' cannot be used at compile-time") % type_;
-
-    return resType;
-}
-
 VoidType::VoidType(Nest::TypeRef type)
-    : TypeBase(type) {
+    : Type(type) {
     ASSERT(!type || type->typeKind == Feather_getVoidTypeKind());
 }
 
@@ -30,12 +15,6 @@ VoidType VoidType::get(Nest::EvalMode mode) { return VoidType(Feather_getVoidTyp
 
 VoidType VoidType::changeMode(Nest::EvalMode mode, Nest::Location /*loc*/) {
     return get(mode); // No checks here. Always succeeds
-}
-
-TypeWithStorage::TypeWithStorage(Nest::TypeRef type)
-    : TypeBase(type) {
-    if (type && !type->hasStorage)
-        REP_INTERNAL(NOLOC, "TypeWithStorage constructed with non-storage type (%1%") % type;
 }
 
 DataType::DataType(Nest::TypeRef type)
@@ -111,31 +90,18 @@ DataType removeAllRefs(TypeWithStorage type) {
     return DataType::get(type.referredNode(), 0, type.mode());
 }
 
-TypeBase removeLValueIfPresent(TypeBase type) {
+Type removeLValueIfPresent(Type type) {
     if (type.kind() == typeKindLValue)
         return LValueType(type.type_).base();
     else
         return type;
 }
 
-TypeBase lvalueToRefIfPresent(TypeBase type) {
+Type lvalueToRefIfPresent(Type type) {
     if (type.kind() == typeKindLValue)
         return LValueType(type.type_).toRef();
     else
         return type;
 }
-
-bool sameTypeIgnoreMode(TypeBase t1, TypeBase t2) {
-    ASSERT(t1);
-    ASSERT(t2);
-    if (t1 == t2)
-        return true;
-    if (t1.kind() != t2.kind() || t1.mode() == t2.mode())
-        return false;
-    auto t = t1.changeMode(t2.mode());
-    return t == t2;
-}
-
-ostream& operator<<(ostream& os, TypeBase type) { return os << type.description(); }
 
 } // namespace Feather

@@ -321,7 +321,7 @@ ConversionResult ConvertService::checkChangeMode(
     if (srcMode == destMode || destMode == modeCt)
         return {};
 
-    TypeRef srcTypeNew = TypeBase(srcType).changeMode(destMode, NOLOC);
+    TypeRef srcTypeNew = Type(srcType).changeMode(destMode, NOLOC);
     if (srcTypeNew == srcType)
         return {};
 
@@ -389,8 +389,7 @@ ConversionResult ConvertService::checkConceptToConcept(
     TypeRef srcBaseConceptType = g_ConceptsService->baseConceptType(srcConcept);
     if (!srcBaseConceptType)
         return {};
-    srcBaseConceptType =
-            TypeBase(srcBaseConceptType).changeMode(srcType->mode, srcConcept->location);
+    srcBaseConceptType = Type(srcBaseConceptType).changeMode(srcType->mode, srcConcept->location);
     return cachedCheckConversion(context, flags, srcBaseConceptType, destType);
 }
 
@@ -415,7 +414,7 @@ ConversionResult ConvertService::checkLValueToNormal(
 
 ConversionResult ConvertService::checkNullToReference(
         CompilationContext* /*context*/, int /*flags*/, TypeRef srcType, TypeRef destType) {
-    if (!StdDef::typeNull || !Feather::sameTypeIgnoreMode(srcType, StdDef::typeNull) ||
+    if (!StdDef::typeNull || !Nest::sameTypeIgnoreMode(srcType, StdDef::typeNull) ||
             !destType->hasStorage || destType->numReferences == 0)
         return {};
 
@@ -473,7 +472,7 @@ ConversionResult ConvertService::checkConversionCtor(
     EvalMode destMode = t->mode;
     if (destMode == modeRt)
         destMode = srcType->mode;
-    t = TypeBase(t).changeMode(destMode, NOLOC);
+    t = Type(t).changeMode(destMode, NOLOC);
     TypeRef resType = Feather_getLValueType(t);
 
     const auto& nextConv =

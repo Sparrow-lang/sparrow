@@ -61,7 +61,7 @@ Node* impl_typeChangeMode(
     TypeRef t = getType(args[0]);
     int mode = getIntCtValue(args[1]);
 
-    TypeRef res = TypeBase(t).changeMode((EvalMode)mode, loc);
+    TypeRef res = Type(t).changeMode((EvalMode)mode, loc);
 
     return createTypeNode(context, loc, res);
 }
@@ -85,7 +85,7 @@ Node* impl_typeEQ(CompilationContext* context, const Location& loc, const NodeVe
     t1 = Feather::removeLValueIfPresent(t1);
     t2 = Feather::removeLValueIfPresent(t2);
 
-    bool equals = Feather::sameTypeIgnoreMode(t1, t2);
+    bool equals = Nest::sameTypeIgnoreMode(t1, t2);
 
     // Build a CT value of type bool
     return buildBoolLiteral(loc, equals);
@@ -104,7 +104,7 @@ Node* impl_ct(CompilationContext* context, const Location& loc, const NodeVector
     TypeRef t = getType(args[0]);
 
     t = Feather::removeLValueIfPresent(t);
-    t = TypeBase(t).changeMode(modeCt, loc);
+    t = Type(t).changeMode(modeCt, loc);
     if (t->mode != modeCt)
         REP_ERROR_RET(nullptr, loc, "Type %1% cannot be used at compile-time") % t;
 
@@ -115,7 +115,7 @@ Node* impl_rt(CompilationContext* context, const Location& loc, const NodeVector
     TypeRef t = getType(args[0]);
 
     t = Feather::removeLValueIfPresent(t);
-    t = TypeBase(t).changeMode(modeRt, loc);
+    t = Type(t).changeMode(modeRt, loc);
     if (t->mode != modeRt)
         REP_ERROR_RET(nullptr, loc, "Type %1% cannot be used at run-time") % t;
 

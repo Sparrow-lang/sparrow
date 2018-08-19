@@ -1,72 +1,12 @@
 #pragma once
 
-#include "Nest/Api/Type.h"
 #include "Nest/Utils/cppif/Fwd.hpp"
-#include "Nest/Utils/cppif/NodeHandle.hpp"
+#include "Nest/Utils/cppif/TypeWithStorage.hpp"
 
 namespace Feather {
 
-/**
- * @brief   Base class for all type wrappers.
- *
- * All the types have a mode; we allow it to query the mode of the type.
- *
- * Properties:
- *     - if mode is RT, canBeUsedAtRt must be true
- *
- * @see     VoidType, TypeWithStorage, DataType
- */
-struct TypeBase {
-    //! The actual type we are wrapping
-    Nest::TypeRef type_{};
-
-    //! Constructor that initializes this with a null type
-    TypeBase() = default;
-    //! Constructor from the raw Nest::TypeRef
-    TypeBase(Nest::TypeRef type)
-        : type_(type) {}
-
-    //! Implicit conversion to the raw type
-    operator Nest::TypeRef() const { return type_; }
-
-    //! Checks if the type is valid (not-null)
-    explicit operator bool() const { return type_ != nullptr; }
-
-    //!@{ Type properties
-
-    //! Returns the kind of the type
-    int kind() const { return type_->typeKind; }
-
-    //! Returns the mode of this type.
-    //! Should only be called on non-null types
-    Nest::EvalMode mode() const { return type_->mode; }
-
-    //! Returns true if this type can be used at RT
-    bool canBeUsedAtRt() const { return type_->canBeUsedAtRt; }
-
-    //! Checks if the type has storage
-    bool hasStorage() const { return type_->hasStorage; }
-
-    //! Returns a string description of the type. Works even for null types
-    const char* description() const { return type_ ? type_->description : "<null>"; }
-
-    //!@}
-    //!@{ Operations
-
-    /**
-     * @brief      Changes the mode of this type, and checks the operation.
-     *
-     * Will raise error if the mode cannot be changed.
-     *
-     * @param[in]  mode  The desired eval mode
-     * @param[in]  loc   The location, used in case of reporting error
-     *
-     * @return     The type with the new eval mode; null if error
-     */
-    TypeBase changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{});
-
-    //!@}
-};
+using Nest::Type;
+using Nest::TypeWithStorage;
 
 /**
  * @brief   Wrapper for a type indicating the absence of a data type.
@@ -78,7 +18,7 @@ struct TypeBase {
  *
  * @see     TypeWithStorage
  */
-struct VoidType : TypeBase {
+struct VoidType : Type {
     //! Constructor that initializes this with a null type
     VoidType() = default;
     //! Constructor from the raw Nest::TypeRef
@@ -87,38 +27,8 @@ struct VoidType : TypeBase {
     //! Returns an instance of this type, corresponding to the given mode
     static VoidType get(Nest::EvalMode mode);
 
-    //! @copydoc TypeBase::changeMode
+    //! @copydoc Type::changeMode
     VoidType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{});
-};
-
-/**
- * @brief   Base class for all wrapper structs of types with storage.
- *
- * You cannot directly create objects of this type. Used derived classes
- *
- * @see     DataTypes
- */
-struct TypeWithStorage : TypeBase {
-    TypeWithStorage() = default;
-    TypeWithStorage(Nest::TypeRef type);
-
-    //!@{ Type properties
-
-    //! Returns the number of references used for this type
-    int numReferences() const { return type_->numReferences; }
-
-    //! Returns the referred node; the node that introduced this type
-    Nest::NodeHandle referredNode() const { return type_->referredNode; }
-
-    //!@}
-    //!@{ Operations
-
-    //! @copydoc TypeBase::changeMode
-    TypeWithStorage changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) {
-        return TypeWithStorage(TypeBase::changeMode(mode, loc));
-    }
-
-    //!@}
 };
 
 /**
@@ -142,9 +52,9 @@ struct DataType : TypeWithStorage {
      */
     static DataType get(Nest::NodeHandle decl, int numReferences, Nest::EvalMode mode);
 
-    //! @copydoc TypeBase::changeMode
+    //! @copydoc Type::changeMode
     DataType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) {
-        return DataType(TypeBase::changeMode(mode, loc));
+        return DataType(Type::changeMode(mode, loc));
     }
 };
 
@@ -175,9 +85,9 @@ struct LValueType : TypeWithStorage {
     //! Transform this type into a corresponding DataType with the same number of references.
     DataType toRef() const;
 
-    //! @copydoc TypeBase::changeMode
+    //! @copydoc Type::changeMode
     LValueType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) {
-        return LValueType(TypeBase::changeMode(mode, loc));
+        return LValueType(Type::changeMode(mode, loc));
     }
 };
 
@@ -207,9 +117,9 @@ struct ArrayType : TypeWithStorage {
     //! Returns the number of elements in the array
     int count() const { return type_->flags; }
 
-    //! @copydoc TypeBase::changeMode
+    //! @copydoc Type::changeMode
     ArrayType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) {
-        return ArrayType(TypeBase::changeMode(mode, loc));
+        return ArrayType(Type::changeMode(mode, loc));
     }
 };
 
@@ -239,16 +149,16 @@ struct FunctionType : TypeWithStorage {
     static FunctionType get(Nest::TypeRef* resultTypeAndParams, int numTypes, Nest::EvalMode mode);
 
     //! Returns the result type
-    TypeBase result() const { return type_->subTypes[0]; }
+    Type result() const { return type_->subTypes[0]; }
 
     //! Returns the number of parameters that we have
     int numParams() const { return type_->numSubtypes - 1; }
     //! Access operators for the parameters
     TypeWithStorage operator[](int idx) const { return TypeWithStorage(type_->subTypes[idx + 1]); }
 
-    //! @copydoc TypeBase::changeMode
+    //! @copydoc Type::changeMode
     FunctionType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) {
-        return FunctionType(TypeBase::changeMode(mode, loc));
+        return FunctionType(Type::changeMode(mode, loc));
     }
 };
 
@@ -305,7 +215,7 @@ DataType removeAllRefs(TypeWithStorage type);
  *
  * @return     Type without LValue, or the original type if no LValue was present
  */
-TypeBase removeLValueIfPresent(TypeBase type);
+Type removeLValueIfPresent(Type type);
 
 /**
  * @brief      If the given type is an LValue, transform it to ref.
@@ -317,21 +227,6 @@ TypeBase removeLValueIfPresent(TypeBase type);
  *
  * @return     Equivalent DataType
  */
-TypeBase lvalueToRefIfPresent(TypeBase type);
-
-/**
- * @brief      Returns true if the types are the same, ignoring the mode of the type.
- *
- * This work for all kinds of types.
- *
- * @param[in]  t1    The first type to compare
- * @param[in]  t2    The second type to compare
- *
- * @return     True if the two types are the same (ignoring the mode)
- */
-bool sameTypeIgnoreMode(TypeBase t1, TypeBase t2);
-
-//! Stream dump operator for types
-ostream& operator<<(ostream& os, TypeBase type);
+Type lvalueToRefIfPresent(Type type);
 
 } // namespace Feather

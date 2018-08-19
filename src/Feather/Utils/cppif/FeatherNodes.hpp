@@ -11,7 +11,9 @@ using Nest::Node;
 using Nest::NodeHandle;
 using Nest::NodeRange;
 using Nest::StringRef;
+using Nest::Type;
 using Nest::TypeRef;
+using Nest::TypeWithStorage;
 
 /**
  * @brief      A node that represents a no-operation
@@ -55,13 +57,13 @@ struct TypeNode : NodeHandle {
      *
      * @return     The desired TypeNode node
      */
-    static TypeNode create(const Location& loc, TypeBase type);
+    static TypeNode create(const Location& loc, Type type);
 
     TypeNode() = default;
     TypeNode(Node* n);
 
     //! Returns the type given when created the node
-    TypeBase givenType() const;
+    Type givenType() const;
 
 private:
     NodeHandle semanticCheckImpl();

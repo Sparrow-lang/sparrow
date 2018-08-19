@@ -53,7 +53,7 @@ TypeRef getParamType(const CallableData& c, int idx, bool hideImplicit = false) 
     TypeRef res = param ? param->type : nullptr;
     // Parameters of generic classes or packages are always CT
     if (c.type == CallableType::genericClass || c.type == CallableType::genericPackage)
-        res = TypeBase(res).changeMode(modeCt, param->location);
+        res = Type(res).changeMode(modeCt, param->location);
     return res;
 }
 
@@ -150,7 +150,7 @@ ConversionType canCall_common_types(CallableData& c, CompilationContext* context
 
         // If we are looking at a CT callable, make sure the parameters are in CT
         if (c.autoCt)
-            paramType = TypeBase(paramType).changeMode(modeCt, NOLOC);
+            paramType = Type(paramType).changeMode(modeCt, NOLOC);
 
         ConversionFlags flags = flagsDefault;
         if (customCvtMode == noCustomCvt || (customCvtMode == noCustomCvtForFirst && i == 0))
@@ -178,7 +178,7 @@ TypeRef varType(Node* cls, EvalMode mode) {
     // Get the type of the temporary variable
     TypeRef t = cls->type;
     if (mode != modeRt)
-        t = TypeBase(t).changeMode(mode, cls->location);
+        t = Type(t).changeMode(mode, cls->location);
     return t;
 }
 
@@ -543,7 +543,7 @@ Node* applyConversion(Node* arg, TypeRef paramType, ConversionType& worstConv,
 
     // If we are looking at a CT callable, make sure the parameters are in CT
     if (autoCt)
-        paramType = TypeBase(paramType).changeMode(modeCt, NOLOC);
+        paramType = Type(paramType).changeMode(modeCt, NOLOC);
 
     ConversionResult conv =
             g_ConvertService->checkConversion(arg->context, arg->type, paramType, flags);

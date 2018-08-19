@@ -19,28 +19,28 @@ public:
     rc::Gen<Feather::Nop> arbNop();
     rc::Gen<Feather::TypeNode> arbTypeNode();
 
-    rc::Gen<Feather::CtValueExp> arbCtValueExp(Feather::TypeWithStorage expectedType = {});
-    rc::Gen<Feather::NullExp> arbNullExp(Feather::TypeWithStorage expectedType = {});
-    rc::Gen<Feather::VarRefExp> arbVarRefExp(Feather::TypeWithStorage expectedType = {});
-    rc::Gen<Feather::FieldRefExp> arbFieldRefExp(Feather::TypeWithStorage expectedType = {});
-    rc::Gen<Feather::FunRefExp> arbFunRefExp(Feather::TypeWithStorage expectedType = {});
-    rc::Gen<Feather::FunCallExp> arbFunCallExp(Feather::TypeWithStorage expectedType = {});
-    rc::Gen<Feather::MemLoadExp> arbMemLoadExp(Feather::TypeWithStorage expectedType = {});
+    rc::Gen<Feather::CtValueExp> arbCtValueExp(Nest::TypeWithStorage expectedType = {});
+    rc::Gen<Feather::NullExp> arbNullExp(Nest::TypeWithStorage expectedType = {});
+    rc::Gen<Feather::VarRefExp> arbVarRefExp(Nest::TypeWithStorage expectedType = {});
+    rc::Gen<Feather::FieldRefExp> arbFieldRefExp(Nest::TypeWithStorage expectedType = {});
+    rc::Gen<Feather::FunRefExp> arbFunRefExp(Nest::TypeWithStorage expectedType = {});
+    rc::Gen<Feather::FunCallExp> arbFunCallExp(Nest::TypeWithStorage expectedType = {});
+    rc::Gen<Feather::MemLoadExp> arbMemLoadExp(Nest::TypeWithStorage expectedType = {});
     rc::Gen<Feather::MemStoreExp> arbMemStoreExp();
-    rc::Gen<Feather::BitcastExp> arbBitcastExp(Feather::TypeWithStorage expectedType = {});
-    rc::Gen<Feather::ConditionalExp> arbConditionalExp(Feather::TypeWithStorage expectedType = {});
+    rc::Gen<Feather::BitcastExp> arbBitcastExp(Nest::TypeWithStorage expectedType = {});
+    rc::Gen<Feather::ConditionalExp> arbConditionalExp(Nest::TypeWithStorage expectedType = {});
 
-    rc::Gen<Nest::NodeHandle> arbExp(Feather::TypeWithStorage expectedType = {});
+    rc::Gen<Nest::NodeHandle> arbExp(Nest::TypeWithStorage expectedType = {});
 
 private:
     //! Generate a type of type, if one 'expectedType' is empty
     //! To be called from generators
-    Feather::TypeWithStorage genTypeIfNeeded(
-            Feather::TypeWithStorage expectedType, bool needsRef = false);
+    Nest::TypeWithStorage genTypeIfNeeded(
+            Nest::TypeWithStorage expectedType, bool needsRef = false);
 
     //! Generate a node that can be used as a type node
     //! To be called from generators
-    Nest::NodeHandle genTypeNode(Feather::TypeWithStorage type);
+    Nest::NodeHandle genTypeNode(Nest::TypeWithStorage type);
 
 private:
     //! The functor used to generate locations

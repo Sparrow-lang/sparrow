@@ -245,8 +245,7 @@ Node* SprFrontend::convertCtToRt(Node* node) {
     if (t->numReferences > 0)
         REP_ERROR_RET(nullptr, loc, "Cannot convert references from CT to RT (%1%)") % t;
 
-    if (Feather_isBasicNumericType(t) ||
-            TypeBase(t).changeMode(modeRt, NOLOC) == StdDef::typeStringRef)
+    if (Feather_isBasicNumericType(t) || Type(t).changeMode(modeRt, NOLOC) == StdDef::typeStringRef)
         return Nest_ctEval(node);
     else
         return checkDataTypeCtToRtConversion(node);
@@ -275,7 +274,7 @@ TypeRef SprFrontend::getAutoType(Node* typeNode, bool addRef, EvalMode evalMode)
     if (t1->typeKind != typeKindData && t1->typeKind != typeKindLValue)
         return t1;
 
-    Feather::TypeWithStorage t = t1;
+    Nest::TypeWithStorage t = t1;
 
     // Dereference (and remove LValue if there is one)
     t = Feather::removeAllRefs(t);

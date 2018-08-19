@@ -2,10 +2,10 @@
 #include "Nest/Utils/Assert.h"
 
 static const int _maxBackends = 100;
-Backend* _allBackends[100];
+Nest_Backend* _allBackends[100];
 unsigned int _numBackends = 0;
 
-int Nest_registerBackend(Backend* backend) {
+int Nest_registerBackend(Nest_Backend* backend) {
     if (_numBackends >= _maxBackends)
         return -1;
     int idx = _numBackends++;
@@ -15,7 +15,7 @@ int Nest_registerBackend(Backend* backend) {
 
 int Nest_getNumBackends() { return _numBackends; }
 
-Backend* Nest_getBackend(int idx) {
+Nest_Backend* Nest_getBackend(int idx) {
     ASSERT(idx >= 0 && idx < _numBackends);
     return _allBackends[idx];
 }

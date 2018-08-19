@@ -2,6 +2,10 @@
 
 #include <chrono>
 
+namespace Nest {
+
+//! Structure that holds some statistics about the current compilation process.
+//! It's used to assess the performance of the compiler at a higher level.
 struct CompilerStats {
     static CompilerStats& instance() {
         static CompilerStats theInstance;
@@ -45,3 +49,5 @@ public:
     const ScopedTimeCapture& operator=(const ScopedTimeCapture&) = delete;
     const ScopedTimeCapture& operator=(ScopedTimeCapture&&) = delete;
 };
+
+} // namespace Nest

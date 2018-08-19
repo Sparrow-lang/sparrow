@@ -10,7 +10,7 @@
 
 #include "Nest/Utils/Alloc.h"
 #include "Nest/Utils/Diagnostic.hpp"
-#include "Nest/Utils/NodeUtils.hpp"
+#include "Nest/Utils/cppif/NodeUtils.hpp"
 #include "Nest/Api/SourceCode.h"
 #include "Nest/Api/SourceCodeKindRegistrar.h"
 
@@ -50,15 +50,15 @@ pair<Node*, Node*> parseFunToCall(Location loc, const char* funInfo) {
         if (partName.empty())
             continue;
         if (!toCall)
-            toCall = mkIdentifier(loc, fromString(partName));
+            toCall = mkIdentifier(loc, StringRef(partName));
         else
-            toCall = mkCompoundExp(loc, toCall, fromString(partName));
+            toCall = mkCompoundExp(loc, toCall, StringRef(partName));
     }
 
     return make_pair(toImport, toCall);
 }
 
-void parseSourceCode(SourceCode* sourceCode, CompilationContext* ctx) {
+void parseSourceCode(Nest_SourceCode* sourceCode, CompilationContext* ctx) {
     Location loc = Nest_mkLocation1(sourceCode, 1, 1);
 
     // Open the filename
@@ -89,13 +89,13 @@ void parseSourceCode(SourceCode* sourceCode, CompilationContext* ctx) {
     // Create a node that invokes the given function with the content of the file
     // funName(code: StringRef, location: meta.Location, context: meta.CompilationContext):
     // meta.AstNode
-    Node* codeNode = buildStringLiteral(loc, fromString(oss.str()));
+    Node* codeNode = buildStringLiteral(loc, StringRef(oss.str()));
 
-    Node* scNode = buildLiteral(loc, fromCStr("SourceCode"), sourceCode);
-    Node* locBase = mkIdentifier(loc, fromCStr("mkLocation"));
+    Node* scNode = buildLiteral(loc, StringRef("SourceCode"), sourceCode);
+    Node* locBase = mkIdentifier(loc, StringRef("mkLocation"));
     Node* locNode = mkFunApplication(loc, locBase, fromIniList({scNode}));
 
-    Node* ctxNode = buildLiteral(loc, fromCStr("CompilationContext"), ctx);
+    Node* ctxNode = buildLiteral(loc, StringRef("CompilationContext"), ctx);
 
     // Parse the extraInfo to find out the import and the function to call
     Node* toImport;
@@ -121,7 +121,7 @@ void parseSourceCode(SourceCode* sourceCode, CompilationContext* ctx) {
     Node* funCall = mkFunApplication(loc, toCall, fromIniList({codeNode, locNode, ctxNode}));
 
     // Compile the function and evaluate it
-    Node* implPart = mkCompoundExp(loc, funCall, fromCStr("data"));
+    Node* implPart = mkCompoundExp(loc, funCall, StringRef("data"));
     implPart = Feather_mkMemLoad(loc, implPart); // Remove LValue
     Nest_setContext(implPart, ctx);
     if (!Nest_semanticCheck(implPart))
@@ -135,7 +135,7 @@ void parseSourceCode(SourceCode* sourceCode, CompilationContext* ctx) {
     sourceCode->mainNode = moduleContent;
 }
 
-StringRef getSourceCodeLine(const SourceCode* sourceCode, int lineNo) {
+Nest_StringRef getSourceCodeLine(const Nest_SourceCode* sourceCode, int lineNo) {
     StringRef res{nullptr, nullptr};
     ifstream f(sourceCode->url);
     if (!f)

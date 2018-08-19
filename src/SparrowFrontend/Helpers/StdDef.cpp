@@ -41,9 +41,9 @@ void SprFrontend::initTypeType(CompilationContext* ctx) {
     if (typeType)
         return;
 
-    clsType = Feather_mkClass(NOLOC, fromCStr("Type"), {});
+    clsType = Feather_mkClass(NOLOC, StringRef("Type"), {});
     Feather_setShouldAddToSymTab(clsType, 0);
-    Nest_setPropertyString(clsType, propNativeName, fromCStr("Type"));
+    Nest_setPropertyString(clsType, propNativeName, StringRef("Type"));
     Feather_setEvalMode(clsType, modeCt);
     Nest_setContext(clsType, ctx);
     setAccessType(clsType, publicAccess);

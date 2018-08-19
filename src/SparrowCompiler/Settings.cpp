@@ -337,7 +337,7 @@ ParsedArgs parseArgs(
 
 /// Print help message according with the given option entries
 void printHelp(OptionEntry* optionsMap, int numOptions) {
-    CompilerSettings& s = *Nest_compilerSettings();
+    auto& s = *Nest_compilerSettings();
     cout << "USAGE: " << s.programName_ << " [options] <inputs>" << endl;
 
     static const int leftSize = 30;
@@ -379,7 +379,7 @@ void printHelp(OptionEntry* optionsMap, int numOptions) {
 }
 
 bool initSettingsWithArgs(int argc, char** argv) {
-    CompilerSettings& s = *Nest_compilerSettings();
+    auto& s = *Nest_compilerSettings();
 
     s.programName_ = argv[0];
     s.executableDir_ =
@@ -394,7 +394,7 @@ bool initSettingsWithArgs(int argc, char** argv) {
 #endif
 
     bool showHelp = false;
-    bool& enableCompilerStats = CompilerStats::instance().enabled;
+    bool& enableCompilerStats = Nest::CompilerStats::instance().enabled;
 
     OptionEntry optionsMap[] = {
             {nullptr, nullptr, {}, "Generic options"},

@@ -3,7 +3,7 @@
 #include "NodeCommonsH.h"
 
 #include "Nest/Utils/Diagnostic.hpp"
-#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Utils/cppif/StringRef.hpp"
 #include "Nest/Api/CompilationContext.h"
 #include "Nest/Api/Type.h"
 #include "Nest/Api/SymTab.h"

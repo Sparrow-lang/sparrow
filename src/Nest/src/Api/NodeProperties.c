@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-void Nest_addProperty(NodeProperties* properties, NodeProperty prop) {
+void Nest_addProperty(Nest_NodeProperties* properties, Nest_NodeProperty prop) {
     // Make sure we have enough space in our array
     unsigned curSize = properties->end - properties->begin;
     unsigned capacity = properties->endOfStore - properties->begin;
@@ -13,7 +13,7 @@ void Nest_addProperty(NodeProperties* properties, NodeProperty prop) {
     if (capacity > (properties->endOfStore - properties->begin)) {
         // Not enough space. Realloc the array
         unsigned curSize = properties->end - properties->begin;
-        properties->begin = realloc(properties->begin, capacity * sizeof(NodeProperty));
+        properties->begin = realloc(properties->begin, capacity * sizeof(Nest_NodeProperty));
         properties->end = properties->begin + curSize;
         properties->endOfStore = properties->begin + capacity;
     }

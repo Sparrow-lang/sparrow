@@ -34,11 +34,11 @@ void printEnd();
 void printSpaces();
 
 /// Print the given node to the console, in a pretty fashion
-void printNode(const Node* node);
-void printNodeExp(const Node* node);
+void printNode(Node* node);
+void printNodeExp(Node* node);
 
 /// Print the given node range
-void printNodes(NodeRange nodes);
+void printNodes(Nest_NodeRange nodes);
 
 #ifdef __cplusplus
 }

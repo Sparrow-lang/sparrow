@@ -4,11 +4,13 @@
 
 #include <Helpers/Convert.h>
 
-#include "Nest/Utils/NodeVector.hpp"
+#include "Nest/Utils/cppif/NodeUtils.hpp"
 
 #include <boost/function.hpp>
 
 namespace SprFrontend {
+
+using Nest::NodeVector;
 
 /// Indicates whether we should apply custom conversions for the params
 enum CustomCvtMode {
@@ -39,7 +41,7 @@ struct CallableData {
     /// The decls we want to call
     Node* decl;
     /// The parameters of the decl to call
-    NodeRange params;
+    Nest_NodeRange params;
     /// True if we need to call the function in autoCt mode
     bool autoCt;
 
@@ -93,17 +95,18 @@ the call.
 
 /// Given a declaration, try to gets a list of Callable objects from it.
 /// Returns an empty list if the declaration is not callable
-void getCallables(NodeRange decls, EvalMode evalMode, Callables& res);
+void getCallables(Nest_NodeRange decls, EvalMode evalMode, Callables& res);
 
 /// Same as above, but apply a filter to all the callables that we have
 /// We keep all the decls for which the predicate returns true
-void getCallables(NodeRange decls, EvalMode evalMode, Callables& res,
+void getCallables(Nest_NodeRange decls, EvalMode evalMode, Callables& res,
         const boost::function<bool(Node*)>& pred, const char* ctorName = "ctor");
 
 /// Checks if we can call this with the given arguments
 /// This method can cache some information needed by the 'generateCall'
 ConversionType canCall(CallableData& c, CompilationContext* context, const Location& loc,
-        NodeRange args, EvalMode evalMode, CustomCvtMode customCvtMode, bool reportErrors = false);
+        Nest_NodeRange args, EvalMode evalMode, CustomCvtMode customCvtMode,
+        bool reportErrors = false);
 /// Same as above, but makes the check only on type, and not on the actual
 /// argument; doesn't cache any args
 ConversionType canCall(CallableData& c, CompilationContext* context, const Location& loc,

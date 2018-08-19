@@ -1,7 +1,5 @@
 #pragma once
 
-typedef struct Nest_Node Node;
-
 namespace llvm {
 class Type;
 class Module;
@@ -12,6 +10,7 @@ class Module;
 
 namespace Tr {
 struct GlobalContext;
+using Nest::Node;
 
 //! Main translation method for top-level nodes
 void translateTopLevelNode(Node* node, GlobalContext& ctx);

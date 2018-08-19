@@ -2,7 +2,7 @@
 
 namespace SprFrontend {
 /// Create a constructor call with any number of arguments
-Node* createCtorCall(const Location& loc, CompilationContext* context, NodeRange args);
+Node* createCtorCall(const Location& loc, CompilationContext* context, Nest_NodeRange args);
 
 /// Create a constructor call with one argument
 Node* createCtorCall(
@@ -13,7 +13,7 @@ Node* createDtorCall(const Location& loc, CompilationContext* context, Node* thi
 
 /// Creates the code that calls the given function
 Node* createFunctionCall(
-        const Location& loc, CompilationContext* context, Node* fun, NodeRange args);
+        const Location& loc, CompilationContext* context, Node* fun, Nest_NodeRange args);
 
 /// Create a temporary variable structure given the construct action for the given variable
 Node* createTempVarConstruct(

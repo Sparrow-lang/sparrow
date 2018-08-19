@@ -23,6 +23,9 @@ using namespace LLVMB;
 using namespace llvm;
 using namespace llvm::sys;
 
+using Nest::CompilerStats;
+using Nest::ScopedTimeCapture;
+
 namespace {
 /// Replace the extension of 'origFilename' with the given extension.
 /// If the result is the output filename, it will add some characters to make it different
@@ -114,7 +117,7 @@ void generateOptimizedCode(
     CompilerStats& stats = CompilerStats::instance();
     ScopedTimeCapture timeCapture(stats.enabled, stats.timeOpt);
 
-    CompilerSettings& s = *Nest_compilerSettings();
+    auto& s = *Nest_compilerSettings();
 
     vector<string> args = {opt, "-std-link-opts", "-O" + s.optimizationLevel_};
     args.insert(args.end(), s.optimizerArgs_.begin(), s.optimizerArgs_.end());
@@ -129,7 +132,7 @@ void generateMachineAssembly(
     CompilerStats& stats = CompilerStats::instance();
     ScopedTimeCapture timeCapture(stats.enabled, stats.timeLlc);
 
-    CompilerSettings& s = *Nest_compilerSettings();
+    auto& s = *Nest_compilerSettings();
 
     vector<string> args = {llc, "--filetype=obj", "-relocation-model=pic"};
 #ifdef _WIN32
@@ -152,7 +155,7 @@ void generateNativeObjGCC(
     CompilerStats& stats = CompilerStats::instance();
     ScopedTimeCapture timeCapture(stats.enabled, stats.timeLink);
 
-    CompilerSettings& s = *Nest_compilerSettings();
+    auto& s = *Nest_compilerSettings();
 
     // Run GCC to assemble and link the program into native code.
     //
@@ -217,7 +220,7 @@ void LLVMB::generateCtAssembly(const llvm::Module& module) {
 }
 
 void LLVMB::link(const vector<llvm::Module*>& inputs, const string& outFilename) {
-    CompilerSettings& s = *Nest_compilerSettings();
+    auto& s = *Nest_compilerSettings();
 
     // TODO (modules): Fix this
     //

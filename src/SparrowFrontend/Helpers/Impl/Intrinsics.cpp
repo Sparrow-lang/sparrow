@@ -9,6 +9,9 @@
 #include <Nodes/Builder.h>
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
+#include "Feather/Utils/cppif/FeatherTypes.hpp"
+
+using namespace Feather;
 
 namespace {
 
@@ -23,7 +26,7 @@ Node* impl_typeDescription(
         CompilationContext* context, const Location& loc, const NodeVector& args) {
     CHECK(loc, args.size() == 1);
     TypeRef t = getType(args[0]);
-    return buildStringLiteral(loc, fromCStr(t->description));
+    return buildStringLiteral(loc, StringRef(t->description));
 }
 
 Node* impl_typeHasStorage(
@@ -58,7 +61,7 @@ Node* impl_typeChangeMode(
     TypeRef t = getType(args[0]);
     int mode = getIntCtValue(args[1]);
 
-    TypeRef res = Feather_checkChangeTypeMode(t, (EvalMode)mode, loc);
+    TypeRef res = Type(t).changeMode((EvalMode)mode, loc);
 
     return createTypeNode(context, loc, res);
 }
@@ -79,10 +82,10 @@ Node* impl_typeEQ(CompilationContext* context, const Location& loc, const NodeVe
     TypeRef t1 = getType(args[0]);
     TypeRef t2 = getType(args[1]);
 
-    t1 = Feather_removeLValueIfPresent(t1);
-    t2 = Feather_removeLValueIfPresent(t2);
+    t1 = Feather::removeLValueIfPresent(t1);
+    t2 = Feather::removeLValueIfPresent(t2);
 
-    bool equals = Feather_isSameTypeIgnoreMode(t1, t2);
+    bool equals = Nest::sameTypeIgnoreMode(t1, t2);
 
     // Build a CT value of type bool
     return buildBoolLiteral(loc, equals);
@@ -92,7 +95,7 @@ Node* impl_typeAddRef(CompilationContext* context, const Location& loc, const No
     CHECK(loc, args.size() == 1);
     TypeRef t = getType(args[0]);
 
-    t = Feather_removeLValueIfPresent(t);
+    t = Feather::removeLValueIfPresent(t);
     t = changeRefCount(t, t->numReferences + 1, loc);
     return createTypeNode(context, loc, t);
 }
@@ -100,8 +103,8 @@ Node* impl_typeAddRef(CompilationContext* context, const Location& loc, const No
 Node* impl_ct(CompilationContext* context, const Location& loc, const NodeVector& args) {
     TypeRef t = getType(args[0]);
 
-    t = Feather_removeLValueIfPresent(t);
-    t = Feather_checkChangeTypeMode(t, modeCt, loc);
+    t = Feather::removeLValueIfPresent(t);
+    t = Type(t).changeMode(modeCt, loc);
     if (t->mode != modeCt)
         REP_ERROR_RET(nullptr, loc, "Type %1% cannot be used at compile-time") % t;
 
@@ -111,8 +114,8 @@ Node* impl_ct(CompilationContext* context, const Location& loc, const NodeVector
 Node* impl_rt(CompilationContext* context, const Location& loc, const NodeVector& args) {
     TypeRef t = getType(args[0]);
 
-    t = Feather_removeLValueIfPresent(t);
-    t = Feather_checkChangeTypeMode(t, modeRt, loc);
+    t = Feather::removeLValueIfPresent(t);
+    t = Type(t).changeMode(modeRt, loc);
     if (t->mode != modeRt)
         REP_ERROR_RET(nullptr, loc, "Type %1% cannot be used at run-time") % t;
 
@@ -154,7 +157,7 @@ Node* impl_Meta_astEval(CompilationContext* context, const Location& loc, const 
     CHECK(loc, args.size() == 1);
 
     // Get the impl part of the node
-    Node* implPart = mkCompoundExp(loc, args[0], fromCStr("data"));
+    Node* implPart = mkCompoundExp(loc, args[0], StringRef("data"));
     implPart = Feather_mkMemLoad(loc, implPart); // Remove LValue
     Nest_setContext(implPart, context);
     if (!Nest_semanticCheck(implPart))
@@ -172,14 +175,14 @@ Node* impl_Meta_SourceCode_current(
         CompilationContext* context, const Location& loc, const NodeVector& args) {
     CHECK(loc, args.size() == 0);
 
-    return buildLiteral(loc, fromCStr("SourceCode"), context->sourceCode);
+    return buildLiteral(loc, StringRef("SourceCode"), context->sourceCode);
 }
 
 Node* impl_Meta_CompilationContext_current(
         CompilationContext* context, const Location& loc, const NodeVector& args) {
     CHECK(loc, args.size() == 0);
 
-    return buildLiteral(loc, fromCStr("CompilationContext"), context);
+    return buildLiteral(loc, StringRef("CompilationContext"), context);
 }
 } // namespace
 
@@ -187,7 +190,7 @@ Node* SprFrontend::handleIntrinsic(
         Node* fun, CompilationContext* context, const Location& loc, const NodeVector& args) {
     // Check for natives
     StringRef nativeName = Nest_getPropertyStringDeref(fun, propNativeName);
-    if (size(nativeName) > 0 && nativeName.begin[0] == '$') {
+    if (nativeName && nativeName.begin[0] == '$') {
         if (nativeName == "$injectBackendCode")
             return impl_injectBackendCode(context, loc, args, modeRt);
         if (nativeName == "$injectBackendCodeCt")

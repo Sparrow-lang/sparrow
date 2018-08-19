@@ -30,7 +30,7 @@ void SparrowFrontend_destroyModule() {
     g_ConceptsService.reset();
 }
 
-void SparrowFrontend_onBackendSetFun(Backend* backend) {
+void SparrowFrontend_onBackendSetFun(Nest_Backend* backend) {
     // Initialize the Type type before loading anything
     SprFrontend::initTypeType(Nest_getRootContext());
 
@@ -38,8 +38,9 @@ void SparrowFrontend_onBackendSetFun(Backend* backend) {
     SprFrontend::registerCtApiFunctions(backend);
 }
 
-CompilerModule* getSparrowFrontendModule() {
-    auto* nestModule = new CompilerModule{"SparrowFrontend",
+Nest_CompilerModule* getSparrowFrontendModule() {
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
+    auto* nestModule = new Nest_CompilerModule{"SparrowFrontend",
             "Module that defines the frontend for the Sparrow language", "LucTeo", "www.lucteo.ro",
             1, 0, &SparrowFrontend_initModule, &SparrowFrontend_destroyModule,
             &SparrowFrontend_onBackendSetFun};

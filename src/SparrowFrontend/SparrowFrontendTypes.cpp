@@ -14,7 +14,7 @@ const char* getConceptTypeDescription(Node* concept, uint8_t numReferences, Eval
     for (uint8_t i = 0; i < numReferences; ++i)
         os << '@';
     if (concept) {
-        os << '#' << toString(Feather_getName(concept));
+        os << '#' << Feather_getName(concept);
     } else {
         os << "AnyType";
     }
@@ -37,7 +37,7 @@ void initSparrowFrontendTypeKinds() {
 TypeRef getConceptType(Node* conceptOrGeneric, uint8_t numReferences, EvalMode mode) {
     ASSERT(!conceptOrGeneric || conceptOrGeneric->nodeKind == nkSparrowDeclSprConcept ||
             conceptOrGeneric->nodeKind == nkSparrowDeclGenericClass);
-    Type referenceType = {0};
+    Nest_Type referenceType = {0};
     referenceType.typeKind = typeKindConcept;
     referenceType.mode = mode;
     referenceType.numSubtypes = 0;

@@ -6,14 +6,14 @@
 
 #include <boost/bind.hpp>
 
-using MMap = unordered_multimap<string, Node*>;
+using MMap = unordered_multimap<string, Nest_Node*>;
 using MMapPair = MMap::value_type;
 
 struct _SymTabImpl {
-    SymTab base;
+    Nest_SymTab base;
     MMap entries;
     MMap copiedEntries;
-    vector<Node*> toCheckNodes;
+    vector<Nest_Node*> toCheckNodes;
 };
 
 template <class ITERATOR> ITERATOR begin(std::pair<ITERATOR, ITERATOR>& range) {
@@ -30,18 +30,18 @@ void checkNodes(_SymTabImpl* st) {
         return;
 
     // Get all the nodes that we need to check
-    vector<Node*> nodesToCheck;
+    vector<Nest_Node*> nodesToCheck;
     nodesToCheck.swap(st->toCheckNodes);
 
     // One by one, compute their type
     // Here we may add additional symbols to this symbol table
-    for (Node* n : nodesToCheck) {
+    for (Nest_Node* n : nodesToCheck) {
         Nest_computeType(n);
     }
 }
 } // namespace
 
-SymTab* Nest_mkSymTab(SymTab* parent, Node* node) {
+Nest_SymTab* Nest_mkSymTab(Nest_SymTab* parent, Nest_Node* node) {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     auto* res = (_SymTabImpl*)alloc(sizeof(_SymTabImpl), allocGeneral);
     res->base.parent = parent;
@@ -49,10 +49,10 @@ SymTab* Nest_mkSymTab(SymTab* parent, Node* node) {
     new (&res->entries) MMap();
     new (&res->copiedEntries) MMap();
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
-    return (SymTab*)res;
+    return (Nest_SymTab*)res;
 }
 
-void Nest_symTabEnter(SymTab* symTab, const char* name, Node* node) {
+void Nest_symTabEnter(Nest_SymTab* symTab, const char* name, Nest_Node* node) {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     auto* st = (_SymTabImpl*)symTab;
 
@@ -62,13 +62,13 @@ void Nest_symTabEnter(SymTab* symTab, const char* name, Node* node) {
     st->copiedEntries.erase(name);
 }
 
-void Nest_symTabAddToCheckNode(SymTab* symTab, Node* node) {
+void Nest_symTabAddToCheckNode(Nest_SymTab* symTab, Nest_Node* node) {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     auto* st = (_SymTabImpl*)symTab;
     st->toCheckNodes.push_back(node);
 }
 
-void Nest_symTabCopyEntries(SymTab* symTab, SymTab* otherSymTab) {
+void Nest_symTabCopyEntries(Nest_SymTab* symTab, Nest_SymTab* otherSymTab) {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     auto* st = (_SymTabImpl*)symTab;
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
@@ -92,14 +92,14 @@ void Nest_symTabCopyEntries(SymTab* symTab, SymTab* otherSymTab) {
     }
 }
 
-NodeArray Nest_symTabAllEntries(SymTab* symTab) {
+Nest_NodeArray Nest_symTabAllEntries(Nest_SymTab* symTab) {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     auto* st = (_SymTabImpl*)symTab;
 
     // Make sure to check all the required nodes for this symtab
     checkNodes(st);
 
-    NodeArray result = Nest_allocNodeArray(st->entries.size() + st->copiedEntries.size());
+    auto result = Nest_allocNodeArray(st->entries.size() + st->copiedEntries.size());
     for (auto entry : st->entries)
         Nest_appendNodeToArray(&result, entry.second);
     for (auto entry : st->copiedEntries)
@@ -107,7 +107,7 @@ NodeArray Nest_symTabAllEntries(SymTab* symTab) {
     return result;
 }
 
-NodeArray Nest_symTabLookupCurrent(SymTab* symTab, const char* name) {
+Nest_NodeArray Nest_symTabLookupCurrent(Nest_SymTab* symTab, const char* name) {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     auto* st = (_SymTabImpl*)symTab;
 
@@ -115,7 +115,7 @@ NodeArray Nest_symTabLookupCurrent(SymTab* symTab, const char* name) {
     checkNodes(st);
 
     auto range = st->entries.equal_range(name);
-    NodeArray result = Nest_allocNodeArray(distance(range.first, range.second));
+    auto result = Nest_allocNodeArray(distance(range.first, range.second));
     for (auto entry : range)
         Nest_appendNodeToArray(&result, entry.second);
     if (Nest_nodeArraySize(result) == 0) {
@@ -131,14 +131,14 @@ NodeArray Nest_symTabLookupCurrent(SymTab* symTab, const char* name) {
     return result;
 }
 
-NodeArray Nest_symTabLookup(SymTab* symTab, const char* name) {
+Nest_NodeArray Nest_symTabLookup(Nest_SymTab* symTab, const char* name) {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     auto* st = (_SymTabImpl*)symTab;
 
     // Make sure to check all the required nodes for this symtab
     checkNodes(st);
 
-    NodeArray res = Nest_symTabLookupCurrent(symTab, name);
+    auto res = Nest_symTabLookupCurrent(symTab, name);
     return Nest_nodeArraySize(res) > 0 || !st->base.parent
                    ? res
                    : Nest_symTabLookup(st->base.parent, name);
@@ -186,10 +186,10 @@ void dumpSortedEntries(MMap& entriesMap, bool singleLine = false) {
 }
 } // namespace
 
-void Nest_dumpSymTabs(SymTab* symTab) {
+void Nest_dumpSymTabs(Nest_SymTab* symTab) {
     int level = 0;
     for (; symTab; symTab = symTab->parent) {
-        const StringRef* nameProp = nullptr;
+        const Nest_StringRef* nameProp = nullptr;
         if (symTab->node)
             nameProp = Nest_getPropertyString(symTab->node, "name");
         const char* defName = nameProp ? nameProp->begin : "?";
@@ -205,7 +205,7 @@ void Nest_dumpSymTabs(SymTab* symTab) {
     }
 }
 
-void Nest_dumpSymTabNames(SymTab* symTab) {
+void Nest_dumpSymTabNames(Nest_SymTab* symTab) {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     auto* st = (_SymTabImpl*)symTab;
     dumpSortedEntries(st->entries, true);
@@ -215,10 +215,10 @@ void Nest_dumpSymTabNames(SymTab* symTab) {
     }
 }
 
-void Nest_dumpSymTabHierarchy(SymTab* symTab) {
+void Nest_dumpSymTabHierarchy(Nest_SymTab* symTab) {
     printf("Symbol table hierarchy:");
     for (; symTab; symTab = symTab->parent) {
-        const StringRef* nameProp = nullptr;
+        const Nest_StringRef* nameProp = nullptr;
         if (symTab->node)
             nameProp = Nest_getPropertyString(symTab->node, "name");
         const char* defName = nameProp ? nameProp->begin : "?";

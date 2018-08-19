@@ -9,9 +9,11 @@
 #include "SparrowFrontend/Helpers/Generics.h"
 #include "SparrowFrontend/Helpers/StdDef.h"
 #include "SparrowFrontend/SparrowFrontendTypes.h"
-#include "Nest/Utils/StringRef.hpp"
+#include "Feather/Utils/cppif/FeatherTypes.hpp"
+#include "Nest/Utils/cppif/StringRef.hpp"
 #include "Nest/Utils/Diagnostic.hpp"
 
+using namespace Feather;
 using namespace SprFrontend;
 
 namespace rc {
@@ -27,7 +29,7 @@ template <> struct Arbitrary<ConversionType> {
 
 struct OverloadServiceMock : IOverloadService {
     Node* selectOverload(CompilationContext* context, const Location& loc, EvalMode evalMode,
-            NodeRange decls, NodeRange args, OverloadReporting errReporting,
+            Nest_NodeRange decls, Nest_NodeRange args, OverloadReporting errReporting,
             StringRef funName) final {
         return nullptr;
     }
@@ -69,7 +71,8 @@ struct ConceptsServiceMock : IConceptsService {
     vector<pair<Node*, TypeRef>> baseConcepts_; // concept -> base node
 };
 
-struct ConvertFixture : GeneralFixture {
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions)
+struct ConvertFixture : SparrowGeneralFixture {
     ConvertFixture();
     ~ConvertFixture();
 
@@ -91,10 +94,12 @@ struct ConvertFixture : GeneralFixture {
 
 ConvertFixture::ConvertFixture() {
     // Mock the overload service
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     auto mockOverloadService = new OverloadServiceMock;
     g_OverloadService.reset(mockOverloadService);
 
     // Mock the concepts service
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     auto mockConceptsService = new ConceptsServiceMock;
     g_ConceptsService.reset(mockConceptsService);
 
@@ -102,12 +107,12 @@ ConvertFixture::ConvertFixture() {
     using TypeFactory::g_dataTypeDecls;
 
     // Create the basic types
-    g_dataTypeDecls.push_back(createNativeDatatypeNode(fromCStr("i8"), globalContext_));
-    g_dataTypeDecls.push_back(createNativeDatatypeNode(fromCStr("i16"), globalContext_));
-    g_dataTypeDecls.push_back(createNativeDatatypeNode(fromCStr("i32"), globalContext_));
-    Node* fooTypeDecl = createDatatypeNode(fromCStr("FooType"), globalContext_);
-    Node* barTypeDecl = createDatatypeNode(fromCStr("BarType"), globalContext_);
-    Node* nullTypeDecl = createDatatypeNode(fromCStr("NullType"), globalContext_);
+    g_dataTypeDecls.push_back(createNativeDatatypeNode(StringRef("i8"), globalContext_));
+    g_dataTypeDecls.push_back(createNativeDatatypeNode(StringRef("i16"), globalContext_));
+    g_dataTypeDecls.push_back(createNativeDatatypeNode(StringRef("i32"), globalContext_));
+    Node* fooTypeDecl = createDatatypeNode(StringRef("FooType"), globalContext_);
+    Node* barTypeDecl = createDatatypeNode(StringRef("BarType"), globalContext_);
+    Node* nullTypeDecl = createDatatypeNode(StringRef("NullType"), globalContext_);
     g_dataTypeDecls.push_back(fooTypeDecl);
     g_dataTypeDecls.push_back(barTypeDecl);
     g_dataTypeDecls.push_back(nullTypeDecl);
@@ -122,13 +127,13 @@ ConvertFixture::ConvertFixture() {
     SprFrontend::StdDef::typeNull = nullType_;
 
     // Ensure we set the Type type -- but don't add it to our conversion types
-    Node* typeDecl = createDatatypeNode(fromCStr("Type"), globalContext_);
+    Node* typeDecl = createDatatypeNode(StringRef("Type"), globalContext_);
     SprFrontend::StdDef::typeType = Feather_getDataType(typeDecl, 0, modeCt);
     REQUIRE(Nest_computeType(typeDecl) != nullptr);
 
     // Create concept types
-    Node* concept1 = createSimpleConcept(fromCStr("Concept1"), globalContext_);
-    Node* concept2 = createSimpleConcept(fromCStr("Concept2"), globalContext_);
+    Node* concept1 = createSimpleConcept(StringRef("Concept1"), globalContext_);
+    Node* concept2 = createSimpleConcept(StringRef("Concept2"), globalContext_);
     REQUIRE(Nest_computeType(concept1) != nullptr);
     REQUIRE(Nest_computeType(concept2) != nullptr);
     g_conceptDecls.push_back(concept1);
@@ -284,7 +289,7 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
         TypeRef lvT = Feather_getLValueType(t);
         RC_LOG() << lvT << " -> " << u << endl;
 
-        TypeRef rt = Feather_addRef(t);
+        TypeRef rt = addRef(DataType(t));
         ConversionType c1 = getConvType(rt, u);
         RC_LOG() << "    " << rt << " -> " << u << " = " << int(c1) << endl;
 
@@ -321,7 +326,7 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
     rc::prop("if T -> U (don't add ref, don't cvt), T=datatype, then @T -> U (implicit)", [=]() {
         TypeRef src = *TypeFactory::arbDataType();
         TypeRef dest = *TypeFactory::arbType();
-        TypeRef srcRef = Feather_addRef(src);
+        TypeRef srcRef = addRef(DataType(src));
         RC_PRE(srcRef != dest);
         RC_LOG() << srcRef << " -> " << dest << endl;
 
@@ -335,7 +340,7 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
     rc::prop("if @T -> U, refs(T)==0, then T -> U (implicit)", [=]() {
         TypeRef src = *TypeFactory::arbDataType(modeUnspecified, 0, 1);
         TypeRef dest = *TypeFactory::arbType();
-        TypeRef srcRef = Feather_addRef(src);
+        TypeRef srcRef = addRef(DataType(src));
         RC_PRE(srcRef != dest);
         RC_LOG() << src << " -> " << dest << endl;
 
@@ -355,7 +360,7 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
         int numRefs = *rc::gen::inRange(0, 4);
         bool useLValue = *rc::gen::element(0, 1) != 0;
         for (int i = 0; i < numRefs; i++)
-            src = Feather_addRef(src);
+            src = addRef(DataType(src));
         if (useLValue)
             src = Feather_getLValueType(src);
         TypeRef dest = *TypeFactory::arbConceptType(src->mode, 0, 1);

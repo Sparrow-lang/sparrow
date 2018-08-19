@@ -6,7 +6,7 @@
 #include <Nest/Api/Node.h>
 #include <Nest/Api/Type.h>
 #include <Nest/Api/SourceCode.h>
-#include <Nest/Utils/NodeUtils.hpp>
+#include <Nest/Utils/cppif/NodeUtils.hpp>
 #include <Nest/Utils/Diagnostic.hpp>
 #include <Feather/Api/Feather.h>
 

@@ -2,11 +2,18 @@
 #include "AstDump.h"
 
 #include "Nest/Utils/Diagnostic.hpp"
-#include "Nest/Utils/StringRef.hpp"
-#include "Nest/Utils/NodeUtils.hpp"
+#include "Nest/Utils/cppif/StringRef.hpp"
+#include "Nest/Utils/cppif/NodeUtils.hpp"
 #include "Nest/Api/Node.h"
 #include "Nest/Api/NodeArray.h"
 #include "Nest/Api/Type.h"
+
+using Nest::begin;
+using Nest::end;
+using Nest::Node;
+using Nest::size;
+using Nest::StringRef;
+using Nest::TypeRef;
 
 struct JsonContext {
     FILE* f;
@@ -15,13 +22,13 @@ struct JsonContext {
     bool firstAttribute;
     bool oneLine;
 
-    const SourceCode* sourceCodeFilter;
+    const Nest_SourceCode* sourceCodeFilter;
 
     std::unordered_set<void*> writtenPointers;
 };
 
 bool _satisfiesFilter(JsonContext* ctx, Node* node) {
-    Location loc = node->location;
+    auto loc = node->location;
     if (loc.sourceCode != ctx->sourceCodeFilter)
         return false;
     return true;
@@ -183,7 +190,7 @@ void _writeNodeData(JsonContext* ctx, Node* node) {
     // Write the properties
     if (node->properties.end != node->properties.begin) {
         _startArray(ctx, "properties");
-        NodeProperty* p = node->properties.begin;
+        Nest_NodeProperty* p = node->properties.begin;
         for (; p != node->properties.end; ++p) {
             ctx->insideArray = true;
             _startObject(ctx, "");
@@ -278,6 +285,7 @@ void dumpAstNode(Node* node, const char* filename) {
     ASSERT(node);
 
     cout << "Dumping AST nodes to: " << filename << endl;
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     FILE* f = fopen(filename, "w");
     if (!f) {
         Nest_reportFmt(node->location, diagWarning, "Cannot open %s to dump AST node", filename);
@@ -291,5 +299,6 @@ void dumpAstNode(Node* node, const char* filename) {
 
     _writeNode(&ctx, "", node);
 
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     fclose(f);
 }

@@ -9,7 +9,7 @@
 #include "Nest/Utils/CompilerStats.hpp"
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/PrintTimer.hpp"
-#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Utils/cppif/StringRef.hpp"
 #include "Nest/Api/Backend.h"
 #include "Nest/Api/CompilationContext.h"
 #include "Nest/Api/SourceCode.h"
@@ -28,10 +28,10 @@ using namespace Nest;
 
 namespace fs = boost::filesystem;
 
-extern SourceCode* g_implicitLibSC;
-extern SourceCode* g_compilerArgsSC;
+extern Nest_SourceCode* g_implicitLibSC;
+extern Nest_SourceCode* g_compilerArgsSC;
 
-void _dumpAstForSourceCode(SourceCode* sourceCode, const char* fileSuffix) {
+void _dumpAstForSourceCode(Nest_SourceCode* sourceCode, const char* fileSuffix) {
     auto& s = *Nest_compilerSettings();
     if (s.dumpAST_.empty() || !strstr(sourceCode->url, s.dumpAST_.c_str()))
         return;
@@ -46,13 +46,19 @@ void _dumpAstForSourceCode(SourceCode* sourceCode, const char* fileSuffix) {
     dumpAstNode(sourceCode->mainNode, filename.c_str());
 }
 
-void _onSourceCodeCreated(SourceCode* sourceCode) {
+void _onSourceCodeCreated(Nest_SourceCode* sourceCode) {
     // Nothing to do for now
 }
-void _onSourceCodeParsed(SourceCode* sourceCode) { _dumpAstForSourceCode(sourceCode, "_orig"); }
-void _onSourceCodeCompiled(SourceCode* sourceCode) { _dumpAstForSourceCode(sourceCode, "_comp"); }
+void _onSourceCodeParsed(Nest_SourceCode* sourceCode) {
+    _dumpAstForSourceCode(sourceCode, "_orig");
+}
+void _onSourceCodeCompiled(Nest_SourceCode* sourceCode) {
+    _dumpAstForSourceCode(sourceCode, "_comp");
+}
 
-void _onSourceCodeCodeGen(SourceCode* sourceCode) { _dumpAstForSourceCode(sourceCode, "_gen"); }
+void _onSourceCodeCodeGen(Nest_SourceCode* sourceCode) {
+    _dumpAstForSourceCode(sourceCode, "_gen");
+}
 
 bool tryImplicitLibPath(const char* relPath) {
     auto& s = *Nest_compilerSettings();
@@ -106,13 +112,13 @@ void _handleArgDefines(const vector<string>& defines, const char* filename) {
     f.close();
 
     // Compile the generated file
-    g_compilerArgsSC = Nest_compileFile(fromString(tempPath.native()));
+    g_compilerArgsSC = Nest_compileFile(StringRef(tempPath.native()));
 
     // Make sure we remove the file at the end
     fs::remove(tempPath);
 }
 
-void doCompilation(const vector<CompilerModule*>& modules) {
+void doCompilation(const vector<Nest_CompilerModule*>& modules) {
     auto& s = *Nest_compilerSettings();
 
     ASSERT(!s.filesToBeCompiled_.empty());
@@ -121,7 +127,7 @@ void doCompilation(const vector<CompilerModule*>& modules) {
     Nest_createBackend(s.filesToBeCompiled_[0].c_str());
 
     // Tell the modules we have a backend
-    for (CompilerModule* mod : modules) {
+    for (Nest_CompilerModule* mod : modules) {
         if (mod->onBackendSetFun)
             mod->onBackendSetFun(Nest_getCurBackend());
     }
@@ -137,7 +143,7 @@ void doCompilation(const vector<CompilerModule*>& modules) {
         // Process the implicit definitions file
         g_implicitLibSC = nullptr;
         if (!s.implicitLibFilePath_.empty())
-            g_implicitLibSC = Nest_compileFile(fromString(s.implicitLibFilePath_));
+            g_implicitLibSC = Nest_compileFile(StringRef(s.implicitLibFilePath_));
     }
 
     // If we have some compiler defines, put them into a Sparrow source code
@@ -153,7 +159,7 @@ void doCompilation(const vector<CompilerModule*>& modules) {
         Nest::Common::PrintTimer timer(s.verbose_, "", "   [%d ms]\n");
         if (s.verbose_)
             cout << filename;
-        Nest_compileFile(fromString(filename));
+        Nest_compileFile(StringRef(filename));
     }
 
     // Also process the file that implements 'main' entry-point functionality
@@ -161,7 +167,7 @@ void doCompilation(const vector<CompilerModule*>& modules) {
         Nest::Common::PrintTimer timer(s.verbose_, "", "   [%d ms]\n");
         if (s.verbose_)
             cout << "mainImpl.spr";
-        Nest_compileFile(fromCStr("sprCore/mainImpl.spr"));
+        Nest_compileFile(StringRef("sprCore/mainImpl.spr"));
     }
 
     // If we have no errors, start linking
@@ -179,8 +185,8 @@ void doCompilation(const vector<CompilerModule*>& modules) {
     }
 };
 
-vector<CompilerModule*> gatherModules() {
-    vector<CompilerModule*> res;
+vector<Nest_CompilerModule*> gatherModules() {
+    vector<Nest_CompilerModule*> res;
     res.emplace_back(getNestModule());
     res.emplace_back(Feather_getModule());
     res.emplace_back(getLLVMBackendModule());
@@ -204,8 +210,8 @@ int main(int argc, char* argv[]) {
     }
 
     // Initialize the modules
-    vector<CompilerModule*> modules = gatherModules();
-    for (CompilerModule* mod : modules) {
+    vector<Nest_CompilerModule*> modules = gatherModules();
+    for (Nest_CompilerModule* mod : modules) {
         if (mod->initFun)
             mod->initFun();
     }
@@ -225,7 +231,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Destroy the modules (in reverse order of initialization)
-    for (CompilerModule* mod : boost::adaptors::reverse(modules)) {
+    for (Nest_CompilerModule* mod : boost::adaptors::reverse(modules)) {
         if (mod->destroyFun)
             mod->destroyFun();
     }

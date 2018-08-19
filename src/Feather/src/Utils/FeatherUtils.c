@@ -17,7 +17,7 @@ const char* propNoInline = "noInline";
 const char* propEmptyBody = "emptyBody";
 
 /// Tests if the given node is a declaration (a node that will expand to a Feather declaration)
-int _isDecl(Node* node) {
+int _isDecl(Nest_Node* node) {
     switch (Nest_explanation(node)->nodeKind - Feather_getFirstFeatherNodeKind()) {
     case nkRelFeatherDeclFunction:
     case nkRelFeatherDeclClass:
@@ -28,74 +28,74 @@ int _isDecl(Node* node) {
     }
 }
 
-Node* _getParentDecl(CompilationContext* context) {
-    SymTab* parentSymTab = context->currentSymTab;
+Nest_Node* _getParentDecl(Nest_CompilationContext* context) {
+    Nest_SymTab* parentSymTab = context->currentSymTab;
     for (; parentSymTab; parentSymTab = parentSymTab->parent) {
-        Node* n = parentSymTab->node;
+        Nest_Node* n = parentSymTab->node;
         if (n && _isDecl(n))
             return n;
     }
     return 0;
 }
 
-Node* Feather_classDecl(TypeRef type) {
+Nest_Node* Feather_classDecl(Nest_TypeRef type) {
     ASSERT(type && type->hasStorage);
     return type->referredNode;
 }
 
-StringRef Feather_nativeName(TypeRef type) {
-    StringRef res = {0, 0};
+Nest_StringRef Feather_nativeName(Nest_TypeRef type) {
+    Nest_StringRef res = {0, 0};
     if (type->referredNode && type->referredNode->nodeKind == nkFeatherDeclClass)
         res = Nest_getPropertyStringDeref(type->referredNode, propNativeName);
     return res;
 }
 
-int Feather_numReferences(TypeRef type) {
+int Feather_numReferences(Nest_TypeRef type) {
     ASSERT(type && type->hasStorage);
     return type->numReferences;
 }
 
-TypeRef Feather_baseType(TypeRef type) {
+Nest_TypeRef Feather_baseType(Nest_TypeRef type) {
     ASSERT(type && (type->typeKind == typeKindLValue || type->typeKind == typeKindArray) &&
             type->numSubtypes == 1);
     return type->subTypes[0];
 }
 
-int Feather_getArraySize(TypeRef type) {
+int Feather_getArraySize(Nest_TypeRef type) {
     ASSERT(type && type->typeKind == typeKindArray);
     return type->flags;
 }
 
-unsigned Feather_numFunParameters(TypeRef type) {
+unsigned Feather_numFunParameters(Nest_TypeRef type) {
     ASSERT(type && type->typeKind == typeKindFunction);
     return type->numSubtypes - 1;
 }
 
-TypeRef Feather_getFunParameter(TypeRef type, unsigned idx) {
+Nest_TypeRef Feather_getFunParameter(Nest_TypeRef type, unsigned idx) {
     ASSERT(type && type->typeKind == typeKindFunction);
     return type->subTypes[idx + 1];
 }
 
-TypeRef Feather_getFunResultType(TypeRef type) {
+Nest_TypeRef Feather_getFunResultType(Nest_TypeRef type) {
     ASSERT(type && type->typeKind == typeKindFunction);
     return type->subTypes[0];
 }
 
-Node* Feather_getParentFun(CompilationContext* context) {
+Nest_Node* Feather_getParentFun(Nest_CompilationContext* context) {
     return Nest_ofKind(Nest_explanation(_getParentDecl(context)), nkFeatherDeclFunction);
 }
 
-Node* Feather_getParentClass(CompilationContext* context) {
+Nest_Node* Feather_getParentClass(Nest_CompilationContext* context) {
     return Nest_ofKind(Nest_explanation(_getParentDecl(context)), nkFeatherDeclClass);
 }
 
-Node* Feather_getParentLoop(CompilationContext* context) {
-    SymTab* parentSymTab = context->currentSymTab;
+Nest_Node* Feather_getParentLoop(Nest_CompilationContext* context) {
+    Nest_SymTab* parentSymTab = context->currentSymTab;
     for (; parentSymTab; parentSymTab = parentSymTab->parent) {
-        Node* n = parentSymTab->node;
+        Nest_Node* n = parentSymTab->node;
 
         // Do we have a while node?
-        Node* expl = Nest_explanation(n);
+        Nest_Node* expl = Nest_explanation(n);
         if (expl->nodeKind == nkFeatherStmtWhile)
             return expl;
 
@@ -106,21 +106,25 @@ Node* Feather_getParentLoop(CompilationContext* context) {
     return 0;
 }
 
-StringRef Feather_getName(const Node* decl) { return Nest_getCheckPropertyString(decl, "name"); }
+Nest_StringRef Feather_getName(Nest_Node* decl) {
+    return Nest_getCheckPropertyString(decl, "name");
+}
 
-int Feather_hasName(const Node* decl) { return Nest_hasProperty(decl, "name"); }
+int Feather_hasName(Nest_Node* decl) { return Nest_hasProperty(decl, "name"); }
 
-void Feather_setName(Node* decl, StringRef name) { Nest_setPropertyString(decl, "name", name); }
+void Feather_setName(Nest_Node* decl, Nest_StringRef name) {
+    Nest_setPropertyString(decl, "name", name);
+}
 
-EvalMode Feather_nodeEvalMode(const Node* decl) {
+EvalMode Feather_nodeEvalMode(Nest_Node* decl) {
     const int* val = Nest_getPropertyInt(decl, "evalMode");
     return val ? (EvalMode)*val : modeUnspecified;
 }
-EvalMode Feather_effectiveEvalMode(const Node* decl) {
+EvalMode Feather_effectiveEvalMode(Nest_Node* decl) {
     EvalMode nodeMode = Feather_nodeEvalMode(decl);
     return nodeMode != modeUnspecified ? nodeMode : decl->context->evalMode;
 }
-void Feather_setEvalMode(Node* decl, EvalMode val) {
+void Feather_setEvalMode(Nest_Node* decl, EvalMode val) {
     Nest_setPropertyInt(decl, "evalMode", val);
 
     // Sanity check
@@ -131,7 +135,7 @@ void Feather_setEvalMode(Node* decl, EvalMode val) {
     //        %2%") % curMode % data_.childrenContext->evalMode();
 }
 
-void Feather_addToSymTab(Node* decl) {
+void Feather_addToSymTab(Nest_Node* decl) {
     const int* dontAddToSymTab = Nest_getPropertyInt(decl, "dontAddToSymTab");
     if (dontAddToSymTab && *dontAddToSymTab)
         return;
@@ -140,13 +144,13 @@ void Feather_addToSymTab(Node* decl) {
         Nest_reportFmt(decl->location, diagInternalError,
                 "Cannot add node %s to sym-tab: context is not set", Nest_nodeKindName(decl));
     ASSERT(decl->context);
-    StringRef declName = Feather_getName(decl);
+    Nest_StringRef declName = Feather_getName(decl);
     if (declName.begin == declName.end)
         Nest_reportFmt(decl->location, diagInternalError,
                 "Cannot add node %s to sym-tab: no name set", Nest_nodeKindName(decl));
     Nest_symTabEnter(decl->context->currentSymTab, declName.begin, decl);
 }
 
-void Feather_setShouldAddToSymTab(Node* decl, int shouldAdd) {
+void Feather_setShouldAddToSymTab(Nest_Node* decl, int shouldAdd) {
     Nest_setPropertyInt(decl, "dontAddToSymTab", shouldAdd ? 0 : 1);
 }

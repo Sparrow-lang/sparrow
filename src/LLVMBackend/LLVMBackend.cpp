@@ -7,7 +7,7 @@
 #include "Tr/DebugInfo.h"
 
 #include "Nest/Api/Node.h"
-#include "Nest/Utils/NodeUtils.hpp"
+#include "Nest/Utils/cppif/NodeUtils.hpp"
 #include "Nest/Api/SourceCode.h"
 #include "Nest/Api/Backend.h"
 #include "Nest/Api/Compiler.h"
@@ -22,20 +22,20 @@ using namespace LLVMB;
 
 /// The structure representing a LLVM backend
 struct LLVMBackend {
-    Backend baseData;
+    Nest_Backend baseData;
     Tr::RtModule* rtModule;
     CtModule* ctModule;
     DataLayoutHelper* dataLayoutHelper;
 };
 
-void _llvmBeInit(Backend* backend, const char* mainFilename);
-void _llvmBeGenerateMachineCode(Backend* backend, const SourceCode* code);
-void _llvmBeLink(Backend* backend, const char* outFilename);
-void _llvmBeCtProcess(Backend* backend, Node* node);
-Node* _llvmBeCtEvaluate(Backend* backend, Node* node);
-unsigned int _llvmBeSizeOf(Backend* backend, TypeRef type);
-unsigned int _llvmBeAlignmentOf(Backend* backend, TypeRef type);
-void _llvmBeCtApiRegisterFun(Backend* backend, const char* name, void* funPtr);
+void _llvmBeInit(Nest_Backend* backend, const char* mainFilename);
+void _llvmBeGenerateMachineCode(Nest_Backend* backend, const Nest_SourceCode* code);
+void _llvmBeLink(Nest_Backend* backend, const char* outFilename);
+void _llvmBeCtProcess(Nest_Backend* backend, Node* node);
+Node* _llvmBeCtEvaluate(Nest_Backend* backend, Node* node);
+unsigned int _llvmBeSizeOf(Nest_Backend* backend, TypeRef type);
+unsigned int _llvmBeAlignmentOf(Nest_Backend* backend, TypeRef type);
+void _llvmBeCtApiRegisterFun(Nest_Backend* backend, const char* name, void* funPtr);
 
 struct LLVMBackend _llvmBackend = {
         {"llvm", "backend that uses LLVM to generate code", &_llvmBeInit,
@@ -43,7 +43,7 @@ struct LLVMBackend _llvmBackend = {
                 &_llvmBeSizeOf, &_llvmBeAlignmentOf, &_llvmBeCtApiRegisterFun},
         nullptr, nullptr, nullptr};
 
-void _llvmBeInit(Backend* backend, const char* mainFilename) {
+void _llvmBeInit(Nest_Backend* backend, const char* mainFilename) {
     // Init LLVM
     llvm::InitializeNativeTarget();
     llvm::InitializeNativeTargetAsmPrinter();
@@ -52,12 +52,15 @@ void _llvmBeInit(Backend* backend, const char* mainFilename) {
     // llvm::DebugFlag = true;
     // llvm::setCurrentDebugType("dyld");
 
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     _llvmBackend.rtModule = new Tr::RtModule("LLVM backend module Runtime", mainFilename);
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     _llvmBackend.ctModule = new CtModule("LLVM backend module CT");
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     _llvmBackend.dataLayoutHelper = new DataLayoutHelper();
 }
 
-void _llvmBeGenerateMachineCode(Backend* backend, const SourceCode* code) {
+void _llvmBeGenerateMachineCode(Nest_Backend* backend, const Nest_SourceCode* code) {
     ASSERT(_llvmBackend.rtModule);
 
     _llvmBackend.rtModule->setCtToRtTranslator(boost::bind(&Nest_translateCtToRt, code, _1));
@@ -84,7 +87,7 @@ void _llvmBeGenerateMachineCode(Backend* backend, const SourceCode* code) {
     //      - assemble (generate .o file)
 }
 
-void _llvmBeLink(Backend* backend, const char* outFilename) {
+void _llvmBeLink(Nest_Backend* backend, const char* outFilename) {
     ASSERT(_llvmBackend.rtModule);
 
     // Generate code for the the global ctors and dtors
@@ -106,24 +109,24 @@ void _llvmBeLink(Backend* backend, const char* outFilename) {
     LLVMB::link(modules, outFilename);
 }
 
-void _llvmBeCtProcess(Backend* backend, Node* node) { _llvmBackend.ctModule->ctProcess(node); }
+void _llvmBeCtProcess(Nest_Backend* backend, Node* node) { _llvmBackend.ctModule->ctProcess(node); }
 
-Node* _llvmBeCtEvaluate(Backend* backend, Node* node) {
+Node* _llvmBeCtEvaluate(Nest_Backend* backend, Node* node) {
     return _llvmBackend.ctModule->ctEvaluate(node);
 }
 
-unsigned int _llvmBeSizeOf(Backend* backend, TypeRef type) {
+unsigned int _llvmBeSizeOf(Nest_Backend* backend, TypeRef type) {
     return _llvmBackend.dataLayoutHelper->getSizeOf(type);
 }
-unsigned int _llvmBeAlignmentOf(Backend* backend, TypeRef type) {
+unsigned int _llvmBeAlignmentOf(Nest_Backend* backend, TypeRef type) {
     return _llvmBackend.dataLayoutHelper->getAlignOf(type);
 }
 
-void _llvmBeCtApiRegisterFun(Backend* backend, const char* name, void* funPtr) {
+void _llvmBeCtApiRegisterFun(Nest_Backend* backend, const char* name, void* funPtr) {
     return _llvmBackend.ctModule->ctApiRegisterFun(name, funPtr);
 }
 
 int LLVMBe_registerLLVMBackend() {
     // NOLINTNEXTLINE
-    return Nest_registerBackend(reinterpret_cast<Backend*>(&_llvmBackend));
+    return Nest_registerBackend(reinterpret_cast<Nest_Backend*>(&_llvmBackend));
 }

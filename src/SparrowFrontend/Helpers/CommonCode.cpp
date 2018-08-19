@@ -12,14 +12,18 @@
 
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
+#include "Feather/Utils/cppif/FeatherTypes.hpp"
+#include "Feather/Utils/cppif/FeatherNodes.hpp"
 
 #include "Nest/Utils/CompilerSettings.hpp"
+#include "Nest/Utils/cppif/NodeRange.hpp"
 
 using namespace SprFrontend;
+using namespace Feather;
 using namespace Nest;
 
 Node* SprFrontend::createCtorCall(
-        const Location& loc, CompilationContext* context, NodeRange args) {
+        const Location& loc, CompilationContext* context, Nest_NodeRange args) {
     auto numArgs = Nest_nodeRangeSize(args);
     if (numArgs == 0)
         REP_INTERNAL(loc, "At least 'this' argument must be given when creating a ctor call");
@@ -52,7 +56,7 @@ Node* SprFrontend::createCtorCall(
                 Node* fun = at(fnCall->referredNodes, 0);
 
                 // This argument - make sure it's of the required type
-                Node* thisParam = Feather_Function_getParameter(fun, 0);
+                Node* thisParam = FunctionDecl(fun).parameters()[0];
                 TypeRef thisParamType = thisParam->type;
                 ConversionResult cvt = g_ConvertService->checkConversion(thisArg, thisParamType);
                 if (!cvt)
@@ -66,7 +70,7 @@ Node* SprFrontend::createCtorCall(
                 size_t size = Nest_nodeArraySize(fnCall->children);
                 args.reserve(size);
                 args.push_back(thisArg1);
-                NodeRange r = Nest_nodeChildren(fnCall);
+                Nest_NodeRange r = Nest_nodeChildren(fnCall);
                 r.beginPtr++;
                 for (Node* child : r)
                     args.push_back(child);
@@ -78,7 +82,7 @@ Node* SprFrontend::createCtorCall(
     }
 
     // Search for the ctors associated with the class
-    NodeArray decls = getClassAssociatedDecls(cls, "ctor");
+    auto decls = getClassAssociatedDecls(cls, "ctor");
 
     // If no declarations found, just don't initialize the object
     if (Nest_nodeArraySize(decls) == 0)
@@ -86,7 +90,7 @@ Node* SprFrontend::createCtorCall(
 
     // Do the overloading procedure to select the right ctor
     Node* res = g_OverloadService->selectOverload(context, loc, thisArg->type->mode, all(decls),
-            args, OverloadReporting::full, fromCStr("ctor"));
+            args, OverloadReporting::full, StringRef("ctor"));
     Nest_freeNodeArray(decls);
     return res;
 }
@@ -110,7 +114,7 @@ Node* SprFrontend::createDtorCall(const Location& loc, CompilationContext* conte
     CHECK(loc, cls);
 
     // Search for the dtor associated with the class
-    NodeArray decls = getClassAssociatedDecls(cls, "dtor");
+    auto decls = getClassAssociatedDecls(cls, "dtor");
 
     // If no destructor found, don't call anything
     auto numDecls = Nest_nodeArraySize(decls);
@@ -120,12 +124,12 @@ Node* SprFrontend::createDtorCall(const Location& loc, CompilationContext* conte
     // Do the overloading procedure to select the right dtor
     // Don't report errors; having no matching dtor is a valid case
     Node* res = g_OverloadService->selectOverload(context, loc, thisArg->type->mode, all(decls),
-            fromIniList({thisArg}), OverloadReporting::none, fromCStr("dtor"));
+            fromIniList({thisArg}), OverloadReporting::none, StringRef("dtor"));
     Nest_freeNodeArray(decls);
     return res; // can be null
 }
 
-bool _areNodesCt(NodeRange nodes) {
+bool _areNodesCt(Nest_NodeRange nodes) {
     for (Node* n : nodes) {
         if (!n->type)
             Nest_computeType(n);
@@ -136,7 +140,7 @@ bool _areNodesCt(NodeRange nodes) {
 }
 
 Node* SprFrontend::createFunctionCall(
-        const Location& loc, CompilationContext* context, Node* fun, NodeRange args) {
+        const Location& loc, CompilationContext* context, Node* fun, Nest_NodeRange args) {
     ASSERT(context);
     if (!Nest_computeType(fun))
         return nullptr;
@@ -153,14 +157,14 @@ Node* SprFrontend::createFunctionCall(
         TypeRef resTypeRef = resultParam->type;
         EvalMode funEvalMode = Feather_effectiveEvalMode(fun);
         if (funEvalMode == modeCt && resTypeRef->mode != modeCt)
-            resTypeRef = Feather_checkChangeTypeMode(resTypeRef, modeCt, resultParam->location);
+            resTypeRef = Type(resTypeRef).changeMode(modeCt, resultParam->location);
         if (funEvalMode == modeRt && Nest_hasProperty(fun, propAutoCt) &&
                 resTypeRef->mode != modeCt && _areNodesCt(args))
-            resTypeRef = Feather_checkChangeTypeMode(resTypeRef, modeCt, resultParam->location);
+            resTypeRef = Type(resTypeRef).changeMode(modeCt, resultParam->location);
 
         // Create a temporary variable for the result
-        Node* tmpVar = Feather_mkVar(
-                loc, fromCStr("$tmpC"), Feather_mkTypeNode(loc, Feather_removeRef(resTypeRef)));
+        Node* tmpVar = Feather_mkVar(loc, StringRef("$tmpC"),
+                Feather_mkTypeNode(loc, removeRef(TypeWithStorage(resTypeRef))));
         Nest_setContext(tmpVar, context);
         tmpVarRef = Feather_mkVarRef(loc, tmpVar);
         Nest_setContext(tmpVarRef, context);
@@ -239,14 +243,14 @@ Node* _createFunPtrForFeatherFun(Node* fun, Node* callNode) {
 
     // Try to instantiate the corresponding FunctionPtr class
     NodeVector parameters;
-    parameters.reserve(1 + Feather_Function_numParameters(fun));
-    TypeRef resType =
-            resParam ? Feather_removeRef(resParam->type) : Feather_Function_resultType(fun);
+    parameters.reserve(1 + FunctionDecl(fun).parameters().size());
+    TypeRef resType = resParam ? (TypeRef)removeRef(TypeWithStorage(resParam->type)).type_
+                               : (TypeRef)FunctionDecl(fun).resTypeNode().type();
     parameters.push_back(createTypeNode(ctx, loc, resType));
-    for (size_t i = resParam ? 1 : 0; i < Feather_Function_numParameters(fun); ++i) {
-        parameters.push_back(createTypeNode(ctx, loc, Feather_Function_getParameter(fun, i)->type));
+    for (size_t i = resParam ? 1 : 0; i < FunctionDecl(fun).parameters().size(); ++i) {
+        parameters.push_back(createTypeNode(ctx, loc, FunctionDecl(fun).parameters()[i].type()));
     }
-    Node* classCall = mkFunApplication(loc, mkIdentifier(loc, fromCStr("FunctionPtr")),
+    Node* classCall = mkFunApplication(loc, mkIdentifier(loc, StringRef("FunctionPtr")),
             Feather_mkNodeList(loc, all(parameters)));
     Nest_setContext(classCall, ctx);
     if (!Nest_computeType(classCall))
@@ -266,7 +270,7 @@ Node* _createFunPtrForFeatherFun(Node* fun, Node* callNode) {
 //! Get the number of parameters for a function-like decl
 int getNumParams(Node* decl) {
     if (decl->nodeKind == nkFeatherDeclFunction) {
-        NodeRange params = all(decl->children);
+        Nest_NodeRange params = all(decl->children);
         return int(size(params)) - 2;
     }
     if (decl->nodeKind == nkSparrowDeclGenericFunction)
@@ -287,7 +291,7 @@ Node* _createFunPtrForDecl(Node* funNode) {
     // Get all the declarations we may refer to
     Node* baseExp = nullptr;
     NodeVector decls = getDeclsFromNode(funNode, baseExp);
-    NodeArray declsEx = expandDecls(all(decls), funNode);
+    auto declsEx = expandDecls(all(decls), funNode);
 
     if (baseExp)
         Nest_computeType(baseExp);
@@ -309,12 +313,12 @@ Node* _createFunPtrForDecl(Node* funNode) {
             if (baseExp && baseExp->type) {
                 // Check parameter count
                 size_t thisParamIdx = getResultParam(decl) ? 1 : 0;
-                if (Feather_Function_numParameters(decl) <= thisParamIdx) {
+                if (FunctionDecl(decl).parameters().size() <= thisParamIdx) {
                     continue;
                 }
 
                 // Ensure we can convert baseExp to the first param
-                TypeRef paramType = Feather_Function_getParameter(decl, thisParamIdx)->type;
+                TypeRef paramType = FunctionDecl(decl).parameters()[thisParamIdx].type();
                 if (!g_ConvertService->checkConversion(
                             baseExp, paramType, flagDontCallConversionCtor)) {
                     continue;
@@ -367,14 +371,14 @@ Node* _createFunPtrForDecl(Node* funNode) {
 
         size_t numParams = size(genericFunParams(resDecl));
 
-        Node* paramsType = mkIdentifier(loc, fromCStr("AnyType"));
+        Node* paramsType = mkIdentifier(loc, StringRef("AnyType"));
 
         NodeVector paramIds(numParams, nullptr);
         NodeVector args(numParams, nullptr);
         for (size_t i = 0; i < numParams; ++i) {
             string name = "p" + boost::lexical_cast<string>(i);
-            paramIds[i] = mkSprParameter(loc, fromString(name), paramsType, nullptr);
-            args[i] = mkIdentifier(loc, fromString(name));
+            paramIds[i] = mkSprParameter(loc, StringRef(name), paramsType, nullptr);
+            args[i] = mkIdentifier(loc, StringRef(name));
         }
 
         Node* parameters = Feather_mkNodeList(loc, all(paramIds));

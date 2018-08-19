@@ -8,8 +8,8 @@
 #include "Nest/Api/Backend.h"
 #include "Nest/Api/SourceCode.h"
 #include "Nest/Utils/Diagnostic.hpp"
-#include "Nest/Utils/NodeUtils.h"
-#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Utils/cppif/NodeHandle.hpp"
+#include "Nest/Utils/cppif/StringRef.hpp"
 
 using namespace Nest;
 
@@ -17,12 +17,12 @@ namespace {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Location, SourceCode, diagnostic
 //
-const SourceCode* ctApi_SourceCode_fromFilename(StringRef filename) {
+const Nest_SourceCode* ctApi_SourceCode_fromFilename(StringRef filename) {
     return Nest_getSourceCodeForFilename(filename);
 }
-StringRef ctApi_SourceCode_filename(SourceCode* thisArg) { return fromCStr(thisArg->url); }
+StringRef ctApi_SourceCode_filename(Nest_SourceCode* thisArg) { return thisArg->url; }
 StringRef ctApi_Location_getCorrespondingCode(Location* thisArg) {
-    const auto* sourceCode = (const SourceCode*)thisArg->sourceCode;
+    const auto* sourceCode = (const Nest_SourceCode*)thisArg->sourceCode;
     string code;
     StringRef lineStr = {nullptr, nullptr};
     if (sourceCode &&
@@ -40,7 +40,7 @@ StringRef ctApi_Location_getCorrespondingCode(Location* thisArg) {
 
 void ctApi_report(int type, Location* location, StringRef message) {
     Location loc = location ? *location : Location();
-    Nest_reportDiagnostic(loc, (DiagnosticSeverity)type, toString(message).c_str());
+    Nest_reportDiagnostic(loc, (Nest_DiagnosticSeverity)type, message.toStd().c_str());
 }
 void ctApi_raise() {
     REP_INFO(NOLOC, "CT API invoked raise. Exiting...");
@@ -51,7 +51,7 @@ void ctApi_raise() {
 // CompilationContext
 //
 int ctApi_CompilationContext_evalMode(CompilationContext* thisArg) { return thisArg->evalMode; }
-SourceCode* ctApi_CompilationContext_sourceCode(CompilationContext* thisArg) {
+Nest_SourceCode* ctApi_CompilationContext_sourceCode(CompilationContext* thisArg) {
     return thisArg->sourceCode;
 }
 
@@ -59,7 +59,7 @@ SourceCode* ctApi_CompilationContext_sourceCode(CompilationContext* thisArg) {
 // AstType
 //
 int ctApi_AstType_typeKind(TypeRef thisArg) { return thisArg->typeKind; }
-StringRef ctApi_AstType_toString(TypeRef thisArg) { return dupCStr(thisArg->description); }
+StringRef ctApi_AstType_toString(TypeRef thisArg) { return StringRef(thisArg->description).dup(); }
 bool ctApi_AstType_hasStorage(TypeRef thisArg) { return thisArg->hasStorage; }
 int ctApi_AstType_numReferences(TypeRef thisArg) { return thisArg->numReferences; }
 int ctApi_AstType_mode(TypeRef thisArg) { return thisArg->mode; }
@@ -70,23 +70,23 @@ bool ctApi_AstType_canBeUsedAtRt(TypeRef thisArg) { return thisArg->canBeUsedAtR
 //
 Node* ctApi_AstNode_clone(Node* thisArg) { return Nest_cloneNode(thisArg); }
 int ctApi_AstNode_nodeKind(Node* thisArg) { return thisArg->nodeKind; }
-StringRef ctApi_AstNode_nodeKindName(Node* thisArg) { return fromCStr(Nest_nodeKindName(thisArg)); }
-StringRef ctApi_AstNode_toString(Node* thisArg) { return fromCStr(Nest_toString(thisArg)); }
-StringRef ctApi_AstNode_toStringExt(Node* thisArg) { return fromCStr(Nest_toString(thisArg)); }
+StringRef ctApi_AstNode_nodeKindName(Node* thisArg) { return NodeHandle(thisArg).kindName(); }
+StringRef ctApi_AstNode_toString(Node* thisArg) { return NodeHandle(thisArg).toString(); }
+StringRef ctApi_AstNode_toStringExt(Node* thisArg) { return NodeHandle(thisArg).toStringEx(); }
 Location ctApi_AstNode_location(Node* thisArg) { return thisArg->location; }
-NodeRange ctApi_AstNode_children(Node* thisArg) { return Nest_nodeChildren(thisArg); }
+Nest_NodeRange ctApi_AstNode_children(Node* thisArg) { return Nest_nodeChildren(thisArg); }
 Node* ctApi_AstNode_getChild(Node* thisArg, int n) {
-    NodeRange r = Nest_nodeChildren(thisArg);
+    Nest_NodeRange r = Nest_nodeChildren(thisArg);
     return r.beginPtr[n];
 }
-NodeRange ctApi_AstNode_referredNodes(Node* thisArg, Node*** retBegin, Node*** retEnd) {
+Nest_NodeRange ctApi_AstNode_referredNodes(Node* thisArg, Node*** retBegin, Node*** retEnd) {
     return Nest_nodeReferredNodes(thisArg);
 }
 bool ctApi_AstNode_hasProperty(Node* thisArg, StringRef name) {
     return Nest_hasProperty(thisArg, name.begin);
 }
 bool ctApi_AstNode_getPropertyString(Node* thisArg, StringRef name, StringRef* value) {
-    const StringRef* res = Nest_getPropertyString(thisArg, name.begin);
+    const Nest_StringRef* res = Nest_getPropertyString(thisArg, name.begin);
     if (res) {
         *value = *res;
     }
@@ -141,7 +141,7 @@ Node* ctApi_AstNode_curExplanation(Node* thisArg) { return thisArg->explanation;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Feather nodes creation functions
 //
-Node* ctApi_Feather_mkNodeList(Location* loc, NodeRange children, bool voidResult) {
+Node* ctApi_Feather_mkNodeList(Location* loc, Nest_NodeRange children, bool voidResult) {
     if (voidResult)
         return Feather_mkNodeListVoid(*loc, children);
     else
@@ -161,7 +161,7 @@ Node* ctApi_Feather_mkTypeNode(Location* loc, TypeRef type) {
 Node* ctApi_Feather_mkBackendCode(Location* loc, StringRef code, int evalMode) {
     return Feather_mkBackendCode(*loc, code, (EvalMode)evalMode);
 }
-Node* ctApi_Feather_mkLocalSpace(Location* loc, NodeRange children) {
+Node* ctApi_Feather_mkLocalSpace(Location* loc, Nest_NodeRange children) {
     return Feather_mkLocalSpace(*loc, children);
 }
 Node* ctApi_Feather_mkGlobalConstructAction(Location* loc, Node* action) {
@@ -177,11 +177,11 @@ Node* ctApi_Feather_mkTempDestructAction(Location* loc, Node* action) {
     return Feather_mkTempDestructAction(*loc, action);
 }
 
-Node* ctApi_Feather_mkFunction(
-        Location* loc, StringRef name, Node* resType, NodeRange params, Node* body, int evalMode) {
+Node* ctApi_Feather_mkFunction(Location* loc, StringRef name, Node* resType, Nest_NodeRange params,
+        Node* body, int evalMode) {
     return Feather_mkFunction(*loc, name, resType, params, body);
 }
-Node* ctApi_Feather_mkClass(Location* loc, StringRef name, NodeRange fields, int evalMode) {
+Node* ctApi_Feather_mkClass(Location* loc, StringRef name, Nest_NodeRange fields, int evalMode) {
     return Feather_mkClass(*loc, name, fields);
 }
 Node* ctApi_Feather_mkVar(Location* loc, StringRef name, Node* type, int evalMode) {
@@ -203,7 +203,7 @@ Node* ctApi_Feather_mkFieldRef(Location* loc, Node* obj, Node* fieldDecl) {
 Node* ctApi_Feather_mkFunRef(Location* loc, Node* funDecl, Node* resType) {
     return Feather_mkFunRef(*loc, funDecl, resType);
 }
-Node* ctApi_Feather_mkFunCall(Location* loc, Node* funDecl, NodeRange args) {
+Node* ctApi_Feather_mkFunCall(Location* loc, Node* funDecl, Nest_NodeRange args) {
     return Feather_mkFunCall(*loc, funDecl, args);
 }
 Node* ctApi_Feather_mkMemLoad(Location* loc, Node* exp) { return Feather_mkMemLoad(*loc, exp); }
@@ -234,7 +234,7 @@ Node* ctApi_Feather_mkBreak(Location* loc) { return Feather_mkBreak(*loc); }
 Node* ctApi_Feather_mkContinue(Location* loc) { return Feather_mkContinue(*loc); }
 Node* ctApi_Feather_mkReturn(Location* loc, Node* exp) { return Feather_mkReturn(*loc, exp); }
 
-template <typename T> void ctApiReg(Backend* backend, const char* name, T ftor) {
+template <typename T> void ctApiReg(Nest_Backend* backend, const char* name, T ftor) {
     backend->ctApiRegisterFun(
             // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
             backend, name, (void*)ftor);
@@ -242,7 +242,7 @@ template <typename T> void ctApiReg(Backend* backend, const char* name, T ftor) 
 
 } // namespace
 
-void Feather_registerCtApiFunctions(Backend* backend) {
+void Feather_registerCtApiFunctions(Nest_Backend* backend) {
     ctApiReg(backend, "$meta.SourceCode.fromFilename", &ctApi_SourceCode_fromFilename);
     ctApiReg(backend, "$meta.SourceCode.filename", &ctApi_SourceCode_filename);
 

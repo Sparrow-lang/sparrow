@@ -7,10 +7,11 @@
 #include "GlobalContext.h"
 
 #include "Nest/Api/Node.h"
-#include "Nest/Utils/NodeUtils.hpp"
+#include "Nest/Utils/cppif/NodeUtils.hpp"
+#include "Nest/Utils/cppif/NodeHandle.hpp"
 #include "Nest/Api/Type.h"
 #include "Nest/Utils/Diagnostic.hpp"
-#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Utils/cppif/StringRef.hpp"
 #include "Nest/Api/Compiler.h"
 #include "Nest/Utils/CompilerSettings.hpp"
 
@@ -57,6 +58,7 @@ llvm::GlobalVariable* createGlobalVarDecl(
     if (isNative)
         var = ctx.llvmModule_.getGlobalVariable(varName.c_str());
     if (!var) {
+        // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
         var = new llvm::GlobalVariable(ctx.llvmModule_, type,
                 false,                              // isConstant
                 llvm::GlobalValue::ExternalLinkage, // linkage
@@ -140,7 +142,7 @@ void Tr::translateTopLevelNode(Node* node, GlobalContext& ctx) {
         default:
             REP_INTERNAL(node->location,
                     "Don't know how to translate at top-level a node of this kind (%1%)") %
-                    Nest_nodeKindName(node);
+                    NodeHandle(node).kindName();
         }
     }
 }
@@ -181,7 +183,7 @@ llvm::Type* Tr::translateClass(Node* node, GlobalContext& ctx) {
         return it->second;
 
     // Check if this is a standard/native type
-    const StringRef* nativeName = Nest_getPropertyString(node, propNativeName);
+    const Nest_StringRef* nativeName = Nest_getPropertyString(node, propNativeName);
     if (nativeName) {
         llvm::Type* t =
                 getNativeLLVMType(node->location, *nativeName, ctx.targetBackend_.llvmContext());
@@ -198,7 +200,7 @@ llvm::Type* Tr::translateClass(Node* node, GlobalContext& ctx) {
     if (nativeName)
         t = ctx.llvmModule_.getTypeByName(nativeName->begin); // Make sure we reuse the name
     if (!t) {
-        const StringRef* description = Nest_getPropertyString(node, propDescription);
+        const Nest_StringRef* description = Nest_getPropertyString(node, propDescription);
         StringRef desc = description ? *description : Feather_getName(node);
         // Create a new struct type, possible with another name
         t = llvm::StructType::create(ctx.targetBackend_.llvmContext(), desc.begin);
@@ -233,20 +235,20 @@ llvm::Value* Tr::translateGlobalVar(Node* node, GlobalContext& ctx) {
     llvm::Type* t = getLLVMType(node->type, ctx);
 
     // Get the name of the variable
-    const StringRef* nativeName = Nest_getPropertyString(node, propNativeName);
+    const Nest_StringRef* nativeName = Nest_getPropertyString(node, propNativeName);
     static int counter = 0;
     string varName;
     if (nativeName)
         // Use the native name
-        varName = toString(*nativeName);
+        varName = StringRef(*nativeName).toStd();
     else if (varInfo.definition_)
         // Reuse the same name as of the definition
         varName = varInfo.definition_->getName();
     else {
         // Build a new name
         StringRef origName = Feather_getName(node);
-        varName.reserve(size(origName) + 1 + 7);
-        varName = toString(origName) + "." + to_string(counter++);
+        varName.reserve(origName.size() + 1 + 7);
+        varName = origName.toStd() + "." + to_string(counter++);
     }
 
     // Check if the variable has been declared before; if not, create it

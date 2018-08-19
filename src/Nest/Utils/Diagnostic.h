@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-typedef struct Nest_Location Location;
+typedef struct Nest_Location Nest_Location;
 
 /// The severity type of a reported diagnostic message
 enum Nest_DiagnosticSeverity {
@@ -18,13 +18,13 @@ enum Nest_DiagnosticSeverity {
     diagInfo,
 };
 typedef enum Nest_DiagnosticSeverity Nest_DiagnosticSeverity;
-typedef enum Nest_DiagnosticSeverity DiagnosticSeverity;
 
 /// Report a diagnostic of the given severity, with the given message
-void Nest_reportDiagnostic(Location loc, DiagnosticSeverity severity, const char* message);
+void Nest_reportDiagnostic(
+        Nest_Location loc, Nest_DiagnosticSeverity severity, const char* message);
 
 /// Report a diagnostic, version with string formatting
-void Nest_reportFmt(Location loc, DiagnosticSeverity severity, const char* fmt, ...);
+void Nest_reportFmt(Nest_Location loc, Nest_DiagnosticSeverity severity, const char* fmt, ...);
 
 /// Enables/disables the error reporting
 /// If disabled, no errors, warnings or info messages will be printed out

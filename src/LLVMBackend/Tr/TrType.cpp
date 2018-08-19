@@ -5,7 +5,7 @@
 #include "GlobalContext.h"
 
 #include "Nest/Utils/Diagnostic.hpp"
-#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Utils/cppif/StringRef.hpp"
 #include "Nest/Api/TypeRef.h"
 #include "Nest/Api/Type.h"
 #include "Nest/Api/Node.h"
@@ -92,12 +92,12 @@ llvm::Type* Tr::getLLVMType(TypeRef type, GlobalContext& ctx) {
 
 llvm::Type* Tr::getNativeLLVMType(
         const Location& loc, StringRef nativeName, llvm::LLVMContext& llvmContext) {
-    if (size(nativeName) > 1 && islower(nativeName.begin[0])) {
+    if (nativeName.size() > 1 && islower(nativeName.begin[0])) {
         if (nativeName == "double")
             return llvm::Type::getDoubleTy(llvmContext);
         else if (nativeName == "float")
             return llvm::Type::getFloatTy(llvmContext);
-        else if (size(nativeName) > 1 &&
+        else if (nativeName.size() > 1 &&
                  (nativeName.begin[0] == 'i' || nativeName.begin[0] == 'u')) {
             try {
                 auto noBits = boost::lexical_cast<int>(nativeName.begin + 1);

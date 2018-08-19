@@ -14,11 +14,14 @@
 #include <Helpers/Overload.h>
 
 #include "Feather/Utils/FeatherUtils.hpp"
+#include "Feather/Utils/cppif/FeatherTypes.hpp"
 
 #include "Nest/Api/SourceCode.h"
 #include "Nest/Utils/Alloc.h"
+#include "Nest/Utils/cppif/NodeHandle.hpp"
 
 using namespace SprFrontend;
+using namespace Feather;
 using namespace Nest;
 
 namespace {
@@ -32,7 +35,7 @@ bool isField(Node* node) {
     return nullptr != Feather_getParentClass(node->context);
 }
 
-Node* getIdentifierResult(Node* node, NodeRange decls, Node* baseExp, bool allowDeclExp) {
+Node* getIdentifierResult(Node* node, Nest_NodeRange decls, Node* baseExp, bool allowDeclExp) {
     const Location& loc = node->location;
 
     // If this points to one declaration only, try to use that declaration
@@ -50,7 +53,7 @@ Node* getIdentifierResult(Node* node, NodeRange decls, Node* baseExp, bool allow
                 // Make sure the base is a reference
                 if (baseExp->type->numReferences == 0) {
                     ConversionResult res = g_ConvertService->checkConversion(
-                            baseExp, Feather_addRef(baseExp->type));
+                            baseExp, addRef(TypeWithStorage(baseExp->type)));
                     if (!res)
                         REP_INTERNAL(loc, "Cannot add reference to base of field access");
                     baseExp = res.apply(baseExp);
@@ -101,7 +104,7 @@ Node* getIdentifierResult(Node* node, NodeRange decls, Node* baseExp, bool allow
 // Helpers for FunApplication node
 //
 
-bool checkCastArguments(const Location& loc, const char* castName, NodeRange arguments,
+bool checkCastArguments(const Location& loc, const char* castName, Nest_NodeRange arguments,
         bool secondShouldBeRef = false) {
     // Make sure we have only 2 arguments
     auto numArgs = Nest_nodeRangeSize(arguments);
@@ -225,7 +228,7 @@ Node* checkSizeOf(Node* node) {
         return nullptr;
 
     // Remove l-value if we have some
-    t = Feather_removeLValueIfPresent(t);
+    t = removeLValueIfPresent(t);
 
     // Get the size of the type of the argument
     uint64_t size = Nest_sizeOf(t);
@@ -252,7 +255,7 @@ Node* checkTypeOf(Node* node) {
     TypeRef t = arg->type;
     if (!t)
         REP_INTERNAL(node->location, "Invalid argument");
-    t = Feather_removeLValueIfPresent(t);
+    t = removeLValueIfPresent(t);
 
     // Create a CtValue to hold the type
     return createTypeNode(node->context, arg->location, t);
@@ -391,7 +394,7 @@ Node* checkAstLift(Node* node) {
     // do so
 
     // Create an AST node literal
-    return buildLiteral(node->location, fromCStr("CompilerAstNode"), arg);
+    return buildLiteral(node->location, StringRef("CompilerAstNode"), arg);
 }
 
 Node* checkIfe(Node* node) {
@@ -408,7 +411,7 @@ Node* checkIfe(Node* node) {
     return mkConditionalExp(node->location, cond, arg1, arg2);
 }
 
-Node* checkConstruct(Node* node, NodeRange args) {
+Node* checkConstruct(Node* node, Nest_NodeRange args) {
     // Make sure we have more than one argument
     if (size(args) == 0)
         REP_ERROR_RET(nullptr, node->location, "construct expects at least 1 argument");
@@ -421,6 +424,7 @@ Node* checkConstruct(Node* node, NodeRange args) {
 //
 
 //! Structure defining the parameters for a search scope
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
 struct SearchScope {
     StringRef operation;               //!< The operation name to look for
     CompilationContext* searchContext; //!< The search context
@@ -430,8 +434,8 @@ struct SearchScope {
 
 //! Structure describing all the possible search scopes for a given name search
 struct SearchScopes {
-    SearchScope scopes[6];  //!< The search scopes
-    int numScopes{0};       //!< The number of search scopes we are using
+    SearchScope scopes[6]; //!< The search scopes
+    int numScopes{0};      //!< The number of search scopes we are using
 
     void addScope(const SearchScope& scope) {
         ASSERT(numScopes < 6);
@@ -443,9 +447,9 @@ const SearchScope* begin(const SearchScopes& ss) { return &ss.scopes[0]; }
 const SearchScope* end(const SearchScopes& ss) { return &ss.scopes[ss.numScopes]; }
 
 enum class SearchType {
-    complete,               //!< Inside dataytype, near datatype and from current node
-    insideAndNear,          //!< Inside dataytype and near datatype
-    nearOnly,               //!< Near datatype only
+    complete,      //!< Inside dataytype, near datatype and from current node
+    insideAndNear, //!< Inside dataytype and near datatype
+    nearOnly,      //!< Near datatype only
 };
 
 /**
@@ -488,7 +492,7 @@ SearchScopes buildSearchScopes(Node* node, StringRef operation, StringRef opWith
         mode = base->type->mode;
         ctx = Nest_childrenContext(argClass);
         ASSERT(ctx);
-        if (size(opWithPrefix) > 0)
+        if (StringRef(opWithPrefix))
             res.addScope(SearchScope{opWithPrefix, ctx, false, mode});
         res.addScope(SearchScope{operation, ctx, false, mode});
     }
@@ -497,7 +501,7 @@ SearchScopes buildSearchScopes(Node* node, StringRef operation, StringRef opWith
     if (searchNear) {
         mode = node->context->evalMode;
         ctx = classContext(argClass);
-        if (size(opWithPrefix) > 0)
+        if (StringRef(opWithPrefix))
             res.addScope(SearchScope{opWithPrefix, ctx, false, mode});
         res.addScope(SearchScope{operation, ctx, false, mode});
     }
@@ -506,7 +510,7 @@ SearchScopes buildSearchScopes(Node* node, StringRef operation, StringRef opWith
     if (searchFromCur) {
         mode = node->context->evalMode;
         ctx = node->context;
-        if (size(opWithPrefix) > 0)
+        if (opWithPrefix)
             res.addScope(SearchScope{opWithPrefix, ctx, true, mode});
         res.addScope(SearchScope{operation, ctx, true, mode});
     }
@@ -515,11 +519,11 @@ SearchScopes buildSearchScopes(Node* node, StringRef operation, StringRef opWith
 }
 
 //! Performs a scoped search, returning the found declarations
-NodeArray performSearch(const SearchScope& ss) {
+Nest_NodeArray performSearch(const SearchScope& ss) {
     ASSERT(ss.searchContext);
-    SymTab* sTab = ss.searchContext->currentSymTab;
-    NodeArray decls = ss.canSearchUp ? Nest_symTabLookup(sTab, ss.operation.begin)
-                                     : Nest_symTabLookupCurrent(sTab, ss.operation.begin);
+    Nest_SymTab* sTab = ss.searchContext->currentSymTab;
+    auto decls = ss.canSearchUp ? Nest_symTabLookup(sTab, ss.operation.begin)
+                                : Nest_symTabLookupCurrent(sTab, ss.operation.begin);
     return decls;
 }
 
@@ -539,7 +543,7 @@ NodeArray performSearch(const SearchScope& ss) {
  */
 Node* selectOperator(Node* node, StringRef operation, Node* arg1, Node* arg2, bool reportErrors) {
     Node* argsSrc[] = {arg1, arg2, nullptr};
-    NodeRange args = {argsSrc, argsSrc + 2};
+    Nest_NodeRange args = {argsSrc, argsSrc + 2};
     if (!arg1)
         args.beginPtr++;
     if (!arg2)
@@ -548,21 +552,21 @@ Node* selectOperator(Node* node, StringRef operation, Node* arg1, Node* arg2, bo
     // For unary operations, we are also searching with 'pre_', 'post_' prefixes
     string opWithPrefixStr;
     if (arg1 && !arg2)
-        opWithPrefixStr = "post_" + toString(operation);
+        opWithPrefixStr = "post_" + StringRef(operation).toStd();
     if (!arg1 && arg2)
-        opWithPrefixStr = "pre_" + toString(operation);
+        opWithPrefixStr = "pre_" + StringRef(operation).toStd();
 
     // Gather the search places and parameters
     Node* base = arg1 ? arg1 : arg2;
     SearchScopes searchScopes = buildSearchScopes(
-            node, operation, fromString(opWithPrefixStr), base, SearchType::complete);
+            node, operation, StringRef(opWithPrefixStr), base, SearchType::complete);
 
     // Now actually perform the searchScopes
     OverloadReporting errReporting =
             reportErrors ? OverloadReporting::noTopLevel : OverloadReporting::none;
     for (const SearchScope& s : searchScopes) {
         // Search for decls in the given context
-        NodeArray decls = performSearch(s);
+        auto decls = performSearch(s);
 
         // Do we have any results? If yes, run the overloading mechanism
         Node* result = nullptr;
@@ -582,7 +586,7 @@ Node* selectOperator(Node* node, StringRef operation, Node* arg1, Node* arg2, bo
 }
 
 Node* checkConvertNullToRefByte(Node* orig) {
-    if (Feather_isSameTypeIgnoreMode(orig->type, StdDef::typeNull)) {
+    if (Nest::sameTypeIgnoreMode(orig->type, StdDef::typeNull)) {
         Node* res = Feather_mkNull(
                 orig->location, Feather_mkTypeNode(orig->location, StdDef::typeRefByte));
         Nest_setContext(res, orig->context);
@@ -669,11 +673,11 @@ Node* handleRefAssign(Node* node) {
         REP_ERROR_RET(nullptr, node->location,
                 "Left operand of a reference assign operator is not a reference reference (%1%)") %
                 arg1->type;
-    TypeRef arg1BaseType = Feather_removeRef(arg1->type);
+    TypeRef arg1BaseType = removeRef(TypeWithStorage(arg1->type));
 
     // Check the second type to be null or a reference
     TypeRef arg2Type = arg2->type;
-    if (!Feather_isSameTypeIgnoreMode(arg2Type, StdDef::typeNull)) {
+    if (!Nest::sameTypeIgnoreMode(arg2Type, StdDef::typeNull)) {
         if (arg2Type->numReferences == 0)
             REP_ERROR_RET(nullptr, node->location,
                     "Right operand of a reference assign operator is not a reference (%1%)") %
@@ -760,9 +764,9 @@ void swapRight(Node* node) {
     Nest_setPropertyString(node, operPropName, otherOper);
 }
 
-int getIntValue(Node* node, NodeRange declsOrig, int defaultVal) {
+int getIntValue(Node* node, Nest_NodeRange declsOrig, int defaultVal) {
     // Expand all the declarations
-    NodeArray decls = expandDecls(declsOrig, node);
+    auto decls = expandDecls(declsOrig, node);
 
     // If no declarations found, return the default value
     auto numDecls = size(decls);
@@ -790,7 +794,7 @@ int getIntValue(Node* node, NodeRange declsOrig, int defaultVal) {
 
     if (n->type->mode != modeCt)
         REP_INTERNAL(node->location, "Cannot get compile-time integer value from node '%1%'") %
-                Nest_toString(n);
+                NodeHandle(n);
 
     return getIntCtValue(n);
 }
@@ -799,13 +803,13 @@ int getPrecedence(Node* node) {
     Node* arg1 = at(node->children, 0);
 
     // For prefix operator, search with a special name
-    StringRef oper = arg1 ? getOperation(node) : fromCStr("__pre__");
+    StringRef oper = arg1 ? getOperation(node) : StringRef("__pre__");
 
-    string precedenceName = "oper_precedence_" + toString(oper);
+    string precedenceName = "oper_precedence_" + StringRef(oper).toStd();
     string defaultPrecedenceName = "oper_precedence_default";
 
     // Perform a name lookup for the actual precedence name
-    NodeArray decls = Nest_symTabLookup(node->context->currentSymTab, precedenceName.c_str());
+    auto decls = Nest_symTabLookup(node->context->currentSymTab, precedenceName.c_str());
     int res = getIntValue(node, all(decls), -1);
     Nest_freeNodeArray(decls);
     if (res > 0)
@@ -822,10 +826,10 @@ int getPrecedence(Node* node) {
 }
 
 bool isRightAssociativity(Node* node) {
-    string assocName = "oper_assoc_" + toString(getOperation(node));
+    string assocName = "oper_assoc_" + getOperation(node).toStd();
 
     // Perform a name lookup for the actual associativity name
-    NodeArray decls = Nest_symTabLookup(node->context->currentSymTab, assocName.c_str());
+    auto decls = Nest_symTabLookup(node->context->currentSymTab, assocName.c_str());
     int res = getIntValue(node, all(decls), 1);
     Nest_freeNodeArray(decls);
     return res < 0;
@@ -917,7 +921,7 @@ Node* Literal_SemanticCheck(Node* node) {
     if (!Nest_computeType(ident))
         return nullptr;
     TypeRef t = getType(ident);
-    t = Feather_checkChangeTypeMode(t, modeCt, node->location);
+    t = Type(t).changeMode(modeCt, node->location);
 
     if (litType == "StringRef") {
         // Create the explanation
@@ -930,7 +934,7 @@ Node* Identifier_SemanticCheck(Node* node) {
     StringRef id = Nest_getCheckPropertyString(node, "name");
 
     // Search in the current symbol table for the identifier
-    NodeArray declsOrig = Nest_symTabLookup(node->context->currentSymTab, id.begin);
+    auto declsOrig = Nest_symTabLookup(node->context->currentSymTab, id.begin);
     // If not found, check if we may have an implicit this
     // Try searching for the symbol in the context of the 'this' datatype
     if (Nest_nodeArraySize(declsOrig) == 0) {
@@ -955,7 +959,7 @@ Node* Identifier_SemanticCheck(Node* node) {
     // At this point, 'declsOrig' may contain using nodes that will point to other decls
     // Walk over our decls and try to get to the final referred decls
     // Also filter our nodes that cannot be access or without a proper type
-    NodeArray decls = expandDecls(all(declsOrig), node);
+    auto decls = expandDecls(all(declsOrig), node);
 
     if (size(decls) == 0) {
         REP_ERROR(node->location, "No compatible declarations found with the given name (%1%)") %
@@ -991,7 +995,7 @@ Node* Identifier_SemanticCheck(Node* node) {
     if (needsThis) {
         // Add 'this' parameter to handle this case
         Node* res =
-                mkCompoundExp(node->location, mkIdentifier(node->location, fromCStr("this")), id);
+                mkCompoundExp(node->location, mkIdentifier(node->location, StringRef("this")), id);
         return res;
     }
 
@@ -1004,10 +1008,10 @@ Node* Identifier_SemanticCheck(Node* node) {
 
 namespace {
 //! Helper function that searches for names from a datatype (inside and/or near)
-NodeArray searchDeclsFromDatatype(Node* node, Node* base, StringRef id, StringRef idPrefix,
+Nest_NodeArray searchDeclsFromDatatype(Node* node, Node* base, StringRef id, StringRef idPrefix,
         SearchType searchType = SearchType::insideAndNear) {
 
-    NodeArray decls{nullptr, nullptr, nullptr};
+    Nest_NodeArray decls{nullptr, nullptr, nullptr};
 
     // Get the scopes where we search for the id
     SearchScopes searchScopes = buildSearchScopes(node, id, idPrefix, base, searchType);
@@ -1022,7 +1026,7 @@ NodeArray searchDeclsFromDatatype(Node* node, Node* base, StringRef id, StringRe
     return decls;
 }
 
-}
+} // namespace
 
 Node* CompoundExp_SemanticCheck(Node* node) {
     Node* base = at(node->children, 0);
@@ -1049,7 +1053,7 @@ Node* CompoundExp_SemanticCheck(Node* node) {
     Nest_setPropertyNode(node, "baseDataExp", baseDataExp);
 
     // Get the declarations that this node refers to
-    NodeArray declsOrig{nullptr, nullptr, nullptr};
+    Nest_NodeArray declsOrig{nullptr, nullptr, nullptr};
     if (!baseDecls.empty()) {
         // Get the referred declarations; search for our id inside the symbol table of the
         // declarations of the base
@@ -1064,22 +1068,22 @@ Node* CompoundExp_SemanticCheck(Node* node) {
             Node* baseDecl = baseDecls[i];
             if (!baseDecl->childrenContext)
                 continue;
-            NodeArray declsCur =
+            auto declsCur =
                     Nest_symTabLookupCurrent(baseDecl->childrenContext->currentSymTab, id.begin);
             Nest_appendNodesToArray(&declsOrig, all(declsCur));
             Nest_freeNodeArray(declsCur);
         }
     } else if (base->type->hasStorage) {
         // Search for the decls from datatype
-        string idWithPrefixStr = "post_" + toString(id);
-        StringRef idPrefix = fromString(idWithPrefixStr);
+        string idWithPrefixStr = "post_" + StringRef(id).toStd();
+        StringRef idPrefix = StringRef(idWithPrefixStr);
         declsOrig = searchDeclsFromDatatype(node, base, id, idPrefix);
 
         // If nothing was found, check if there is a dot operator to use
         if (size(declsOrig) == 0) {
             // Search for the dot operator near the datatype
             declsOrig = searchDeclsFromDatatype(
-                    node, base, fromCStr("."), StringRef{}, SearchType::nearOnly);
+                    node, base, StringRef("."), StringRef{}, SearchType::nearOnly);
 
             // Transform 'base' into 'base .'
             Location loc = base->location;
@@ -1102,7 +1106,7 @@ Node* CompoundExp_SemanticCheck(Node* node) {
     // At this point, 'declsOrig' may contain using nodes that will point to other decls
     // Walk over our decls and try to get to the final referred decls
     // Also filter our nodes that cannot be access or without a proper type
-    NodeArray decls = expandDecls(all(declsOrig), node);
+    auto decls = expandDecls(all(declsOrig), node);
 
     // Error reporting
     if (size(decls) == 0) {
@@ -1148,12 +1152,12 @@ Node* CompoundExp_SemanticCheck(Node* node) {
     Node* res = getIdentifierResult(node, all(decls), baseDataExp, allowDeclExp);
     return res;
 }
-const char* CompoundExp_toString(const Node* node) {
+const char* CompoundExp_toString(Node* node) {
     Node* base = at(node->children, 0);
     StringRef id = Nest_getCheckPropertyString(node, "name");
 
     ostringstream os;
-    os << Nest_toString(base) << "." << toString(id);
+    os << NodeHandle(base) << "." << id;
     return dupString(os.str().c_str());
 }
 
@@ -1223,14 +1227,14 @@ Node* FunApplication_SemanticCheck(Node* node) {
 
     string functionName;
     if (!decls.empty())
-        functionName = toString(Feather_getName(decls.front()));
+        functionName = StringRef(Feather_getName(decls.front())).toStd();
     else
-        functionName = Nest_toString(base);
+        functionName = NodeHandle(base).toString();
 
     // If we didn't find any declarations, try the operator call
     if (base->type->hasStorage && decls.empty()) {
         Node* cls = Feather_classForType(base->type);
-        NodeArray arr = getClassAssociatedDecls(cls, "()");
+        auto arr = getClassAssociatedDecls(cls, "()");
         decls = toVec(arr);
         Nest_freeNodeArray(arr);
         if (decls.empty())
@@ -1256,7 +1260,7 @@ Node* FunApplication_SemanticCheck(Node* node) {
     if (thisArg)
         mode = Feather_combineMode(thisArg->type->mode, mode);
     Node* res = g_OverloadService->selectOverload(node->context, node->location, mode, all(decls),
-            all(args), OverloadReporting::full, fromString(functionName));
+            all(args), OverloadReporting::full, StringRef(functionName));
 
     return res;
 }
@@ -1315,12 +1319,12 @@ Node* OperatorCall_SemanticCheck(Node* node) {
             }
 
             // Check for <op>= operators
-            else if (size(operation) >= 2 && operation.begin[size(operation) - 1] == '=') {
+            else if (operation.size() >= 2 && operation.begin[operation.size() - 1] == '=') {
                 StringRef baseOperation = operation;
                 baseOperation.end--;
 
                 // Transform 'a <op>= b' into 'a = a <op> b'
-                op1 = toString(baseOperation);
+                op1 = baseOperation.toStd();
                 op2 = "=";
             }
         }
@@ -1333,18 +1337,17 @@ Node* OperatorCall_SemanticCheck(Node* node) {
         }
 
         if (!op1.empty()) {
-            Node* r = selectOperator(node, fromString(op1), a1, a2, false);
+            Node* r = selectOperator(node, StringRef(op1), a1, a2, false);
             if (r) {
                 if (!Nest_semanticCheck(r))
                     return nullptr;
                 if (op2 == "!")
-                    res = selectOperator(node, fromString(op2), r, nullptr, false);
+                    res = selectOperator(node, StringRef(op2), r, nullptr, false);
                 else if (op2 == "=")
-                    res = selectOperator(node, fromString(op2), a1, r, false);
+                    res = selectOperator(node, StringRef(op2), a1, r, false);
                 else if (op1 == ".") {
                     res = selectOperator(node, operation, r, arg2, false);
-                }
-                else if (op2.empty())
+                } else if (op2.empty())
                     res = r;
             }
         }
@@ -1415,7 +1418,7 @@ Node* LambdaFunction_SemanticCheck(Node* node) {
             if (!Nest_semanticCheck(arg))
                 return nullptr;
             StringRef varName = Feather_getName(arg);
-            TypeRef varType = Feather_removeLValueIfPresent(arg->type);
+            TypeRef varType = removeLValueIfPresent(arg->type);
 
             // Create a similar variable in the enclosing class - must have the same name
             const Location& argLoc = arg->location;
@@ -1427,21 +1430,21 @@ Node* LambdaFunction_SemanticCheck(Node* node) {
 
     // Create the lambda closure class
     Node* closureClass = mkSprDatatype(
-            loc, fromCStr("$lambdaEnclosureData"), nullptr, nullptr, nullptr, classBody);
+            loc, StringRef("$lambdaEnclosureData"), nullptr, nullptr, nullptr, classBody);
     if (closureParams && size(closureParams->children) > 0)
         Nest_setPropertyInt(closureClass, propGenerateInitCtor, 1);
 
     // The actual enclosed function -- ensure adding a 'this' parameter
     Node* thisParamTypeNode = mkOperatorCall(
-            loc, nullptr, fromCStr("@"), mkIdentifier(loc, fromCStr("$lambdaEnclosureData")));
-    Node* thisParam = mkSprParameter(loc, fromCStr("this"), thisParamTypeNode);
+            loc, nullptr, StringRef("@"), mkIdentifier(loc, StringRef("$lambdaEnclosureData")));
+    Node* thisParam = mkSprParameter(loc, StringRef("this"), thisParamTypeNode);
     Node* parametersWithThis = Feather_mkNodeList(loc, fromIniList({thisParam}));
     Feather_appendNodeList(parametersWithThis, parameters);
-    Node* enclosedFun = mkSprFunction(loc, fromCStr("()"), parametersWithThis, returnType, body);
+    Node* enclosedFun = mkSprFunction(loc, StringRef("()"), parametersWithThis, returnType, body);
 
     // Create the enclosing package node list
     Node* packageBody = Feather_mkNodeList(loc, fromIniList({closureClass, enclosedFun}));
-    Node* closurePackage = mkSprPackage(loc, fromCStr("$lambdaEnclosurePackage"), packageBody);
+    Node* closurePackage = mkSprPackage(loc, StringRef("$lambdaEnclosurePackage"), packageBody);
 
     // Set the right eval mode for the closure package
     EvalMode evalMode = Feather_effectiveEvalMode(node);
@@ -1531,7 +1534,7 @@ Node* StarExp_SemanticCheck(Node* node) {
             continue;
 
         // Get the sym tab from the base declaration
-        SymTab* baseSymTab = Nest_childrenContext(baseDecl)->currentSymTab;
+        Nest_SymTab* baseSymTab = Nest_childrenContext(baseDecl)->currentSymTab;
         if (!baseSymTab)
             continue;
 

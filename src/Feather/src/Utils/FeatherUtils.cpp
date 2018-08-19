@@ -1,13 +1,18 @@
 #include "Feather/src/StdInc.h"
 #include "Feather/Utils/FeatherUtils.hpp"
+#include "Feather/Utils/cppif/FeatherTypes.hpp"
 
 #include "Feather/Api/Feather.h"
 #include "Nest/Api/Node.h"
 #include "Nest/Api/CompilationContext.h"
 #include "Nest/Api/SymTab.h"
-#include "Nest/Utils/NodeUtils.hpp"
-#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Utils/cppif/NodeHandle.hpp"
+#include "Nest/Utils/cppif/NodeUtils.hpp"
+#include "Nest/Utils/cppif/StringRef.hpp"
 #include "Nest/Utils/Diagnostic.hpp"
+
+using Nest::NodeHandle;
+using namespace Feather;
 
 /// Tests if the given node is a declaration (a node that will expand to a Feather declaration)
 bool _isDecl(Node* node) {
@@ -28,7 +33,7 @@ int _isTestable(TypeRef type) {
     if (!type || !type->hasStorage)
         return false;
     StringRef nativeName = Feather_nativeName(type);
-    return size(nativeName) > 0 && (nativeName == "i1" || nativeName == "u1");
+    return nativeName && (nativeName == "i1" || nativeName == "u1");
 }
 
 int Feather_isTestable(Node* node) { return _isTestable(node->type); }
@@ -37,90 +42,14 @@ int Feather_isBasicNumericType(TypeRef type) {
     if (!type || !type->hasStorage)
         return false;
     StringRef nativeName = Feather_nativeName(type);
-    return size(nativeName) > 0 &&
+    return !nativeName.empty() &&
            (nativeName == "i1" || nativeName == "u1" || nativeName == "i8" || nativeName == "u8" ||
                    nativeName == "i16" || nativeName == "u16" || nativeName == "i32" ||
                    nativeName == "u32" || nativeName == "i64" || nativeName == "u64" ||
                    nativeName == "float" || nativeName == "double");
 }
 
-TypeRef Feather_checkChangeTypeMode(TypeRef type, EvalMode mode, Location loc) {
-    ASSERT(type);
-    if (mode == type->mode)
-        return type;
-
-    TypeRef resType = Nest_changeTypeMode(type, mode);
-    if (!resType)
-        REP_INTERNAL(loc, "Don't know how to change eval mode of type %1%") % type;
-    ASSERT(resType);
-
-    if (mode == modeCt && resType->mode != modeCt)
-        REP_ERROR_RET(nullptr, loc, "Type '%1%' cannot be used at compile-time") % type;
-
-    return resType;
-}
-
-TypeRef Feather_addRef(TypeRef type) {
-    ASSERT(type);
-    if (!type->hasStorage)
-        REP_INTERNAL(Location(), "Invalid type given when adding reference (%1%)") % type;
-    return Feather_getDataType(type->referredNode, type->numReferences + 1, type->mode);
-}
-
-TypeRef Feather_removeRef(TypeRef type) {
-    ASSERT(type);
-    if (!type->hasStorage || type->numReferences < 1)
-        REP_INTERNAL(Location(), "Invalid type given when removing reference (%1%)") % type;
-    return Feather_getDataType(type->referredNode, type->numReferences - 1, type->mode);
-}
-
-TypeRef Feather_removeAllRef(TypeRef type) {
-    ASSERT(type);
-    if (!type->hasStorage)
-        REP_INTERNAL(Location(), "Invalid type given when removing reference (%1%)") % type;
-    return Feather_getDataType(type->referredNode, 0, type->mode);
-}
-
-TypeRef Feather_removeLValue(TypeRef type) {
-    ASSERT(type);
-    if (type->typeKind != typeKindLValue)
-        REP_INTERNAL(Location(), "Expected l-value type; got %1%") % type;
-    return Feather_getDataType(type->referredNode, type->numReferences - 1, type->mode);
-}
-
-TypeRef Feather_removeLValueIfPresent(TypeRef type) {
-    ASSERT(type);
-    if (type->typeKind != typeKindLValue)
-        return type;
-    return Feather_getDataType(type->referredNode, type->numReferences - 1, type->mode);
-}
-
-TypeRef Feather_lvalueToRef(TypeRef type) {
-    ASSERT(type);
-    if (type->typeKind != typeKindLValue)
-        REP_INTERNAL(Location(), "Expected l-value type; got %1%") % type;
-    return Feather_getDataType(type->referredNode, type->numReferences, type->mode);
-}
-
-TypeRef Feather_lvalueToRefIfPresent(TypeRef type) {
-    ASSERT(type);
-    if (type->typeKind != typeKindLValue)
-        return type;
-    return Feather_getDataType(type->referredNode, type->numReferences, type->mode);
-}
-
 Node* Feather_classForType(TypeRef t) { return t->hasStorage ? t->referredNode : nullptr; }
-
-int Feather_isSameTypeIgnoreMode(TypeRef t1, TypeRef t2) {
-    ASSERT(t1);
-    ASSERT(t2);
-    if (t1 == t2)
-        return true;
-    if (t1->typeKind != t2->typeKind || t1->mode == t2->mode)
-        return false;
-    TypeRef t = Feather_checkChangeTypeMode(t1, t2->mode, NOLOC);
-    return t == t2;
-}
 
 EvalMode Feather_combineMode(EvalMode mode1, EvalMode mode2) {
     if (mode1 == modeCt || mode2 == modeCt)
@@ -142,7 +71,7 @@ TypeRef Feather_adjustMode(TypeRef srcType, CompilationContext* context, Locatio
     ASSERT(srcType);
     ASSERT(context);
     EvalMode resMode = Feather_combineMode(srcType->mode, context->evalMode);
-    return Feather_checkChangeTypeMode(srcType, resMode, loc);
+    return Type(srcType).changeMode(resMode, loc);
 }
 
 void _printContextNodes(Node* node) {
@@ -153,7 +82,7 @@ void _printContextNodes(Node* node) {
         if (expl && (expl->nodeKind == Feather_getFirstFeatherNodeKind() + nkRelFeatherDeclClass ||
                             expl->nodeKind ==
                                     Feather_getFirstFeatherNodeKind() + nkRelFeatherDeclFunction))
-            REP_INFO(expl->location, "In context: %1%") % Nest_toString(expl);
+            REP_INFO(expl->location, "In context: %1%") % NodeHandle(expl);
 
         ctx = ctx->parent;
     }
@@ -182,9 +111,9 @@ void Feather_checkEvalMode(Node* src) {
                 continue;
 
             if (child->type->mode != modeCt)
-                REP_INTERNAL(child->location,
-                        "Children of a CT node must be CT; current mode: %1% (%2%)") %
-                        child->type->mode % child;
+                REP_INTERNAL(child->location, "Children of a CT node must be CT; current mode: %1% "
+                                              "(child: %2%: %3%, parent: %4%: %5%)") %
+                        child->type->mode % child % child->type % src % src->type;
         }
     }
 }

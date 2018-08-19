@@ -27,9 +27,9 @@ void Nest_destroyModule() {
     cleanupMemory();
 }
 
-static CompilerModule theNestModule = {"Nest",
+static Nest_CompilerModule theNestModule = {"Nest",
         "The core of the compiler; defines the main services of the compiler, and the interactions "
         "between different components",
         "LucTeo", "www.lucteo.ro", 1, 0, &Nest_initModule, &Nest_destroyModule, 0};
 
-CompilerModule* getNestModule() { return &theNestModule; }
+Nest_CompilerModule* getNestModule() { return &theNestModule; }

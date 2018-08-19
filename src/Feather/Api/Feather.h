@@ -4,17 +4,18 @@
 #include "Nest/Api/EvalMode.h"
 #include "Nest/Api/StringRef.h"
 #include "Nest/Api/NodeRange.h"
+#include "Nest/Api/Node.h"
 
-typedef struct Nest_Location Location;
+typedef struct Nest_Location Nest_Location;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct Nest_CompilerModule CompilerModule;
+typedef struct Nest_CompilerModule Nest_CompilerModule;
 
 /// Getter for the Feather module
-CompilerModule* Feather_getModule();
+Nest_CompilerModule* Feather_getModule();
 
 ////////////////////////////////////////////////////////////////////////////////
 // Feather types
@@ -28,25 +29,26 @@ int Feather_getArrayTypeKind();
 int Feather_getFunctionTypeKind();
 
 /// Returns the Void type corresponding to the given evaluation mode
-TypeRef Feather_getVoidType(EvalMode mode);
+Nest_TypeRef Feather_getVoidType(EvalMode mode);
 
 /// Returns a type that represents data
 /// A data type is introduced by a class definition and can have one or more references; a data type
 /// must have a size
-TypeRef Feather_getDataType(Node* classDecl, unsigned numReferences, EvalMode mode);
+Nest_TypeRef Feather_getDataType(Nest_Node* classDecl, unsigned numReferences, EvalMode mode);
 
 /// Returns an L-Value type
 /// This type would represents an l-value to an existing storage type
-TypeRef Feather_getLValueType(TypeRef base);
+Nest_TypeRef Feather_getLValueType(Nest_TypeRef base);
 
 /// Returns a type that holds N instances of a given storage type
-TypeRef Feather_getArrayType(TypeRef unitType, unsigned count);
+Nest_TypeRef Feather_getArrayType(Nest_TypeRef unitType, unsigned count);
 
 /// Returns a type that represents a classic function, with parameters and result type
 /// This type can be constructed from a set of parameter types and a result type
 /// The first parameter is a pointer to an array with the result type then the types of the
 /// parameters
-TypeRef Feather_getFunctionType(TypeRef* resultTypeAndParams, unsigned numTypes, EvalMode mode);
+Nest_TypeRef Feather_getFunctionType(
+        Nest_TypeRef* resultTypeAndParams, unsigned numTypes, EvalMode mode);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Feather nodes
@@ -131,41 +133,45 @@ enum Feather_AtomicOrdering {
 typedef enum Feather_AtomicOrdering Feather_AtomicOrdering;
 typedef enum Feather_AtomicOrdering AtomicOrdering;
 
-Node* Feather_mkNodeList(Location loc, NodeRange children);
-Node* Feather_mkNodeListVoid(Location loc, NodeRange children);
-Node* Feather_addToNodeList(Node* prevList, Node* element);
-Node* Feather_appendNodeList(Node* list, Node* newNodes);
+Nest_Node* Feather_mkNodeList(Nest_Location loc, Nest_NodeRange children);
+Nest_Node* Feather_mkNodeListVoid(Nest_Location loc, Nest_NodeRange children);
+Nest_Node* Feather_addToNodeList(Nest_Node* prevList, Nest_Node* element);
+Nest_Node* Feather_appendNodeList(Nest_Node* list, Nest_Node* newNodes);
 
-Node* Feather_mkNop(Location loc);
-Node* Feather_mkTypeNode(Location loc, TypeRef type);
-Node* Feather_mkBackendCode(Location loc, StringRef code, EvalMode evalMode);
-Node* Feather_mkLocalSpace(Location loc, NodeRange children);
-Node* Feather_mkGlobalConstructAction(Location loc, Node* action);
-Node* Feather_mkGlobalDestructAction(Location loc, Node* action);
-Node* Feather_mkScopeDestructAction(Location loc, Node* action);
-Node* Feather_mkTempDestructAction(Location loc, Node* action);
-Node* Feather_mkChangeMode(Location loc, Node* child, EvalMode mode);
+Nest_Node* Feather_mkNop(Nest_Location loc);
+Nest_Node* Feather_mkTypeNode(Nest_Location loc, Nest_TypeRef type);
+Nest_Node* Feather_mkBackendCode(Nest_Location loc, Nest_StringRef code, EvalMode evalMode);
+Nest_Node* Feather_mkLocalSpace(Nest_Location loc, Nest_NodeRange children);
+Nest_Node* Feather_mkGlobalConstructAction(Nest_Location loc, Nest_Node* action);
+Nest_Node* Feather_mkGlobalDestructAction(Nest_Location loc, Nest_Node* action);
+Nest_Node* Feather_mkScopeDestructAction(Nest_Location loc, Nest_Node* action);
+Nest_Node* Feather_mkTempDestructAction(Nest_Location loc, Nest_Node* action);
+Nest_Node* Feather_mkChangeMode(Nest_Location loc, Nest_Node* child, EvalMode mode);
 
-Node* Feather_mkFunction(Location loc, StringRef name, Node* resType, NodeRange params, Node* body);
-Node* Feather_mkClass(Location loc, StringRef name, NodeRange fields);
-Node* Feather_mkVar(Location loc, StringRef name, Node* type);
+Nest_Node* Feather_mkFunction(Nest_Location loc, Nest_StringRef name, Nest_Node* resType,
+        Nest_NodeRange params, Nest_Node* body);
+Nest_Node* Feather_mkClass(Nest_Location loc, Nest_StringRef name, Nest_NodeRange fields);
+Nest_Node* Feather_mkVar(Nest_Location loc, Nest_StringRef name, Nest_Node* type);
 
-Node* Feather_mkCtValue(Location loc, TypeRef typeNode, StringRef data);
-Node* Feather_mkNull(Location loc, Node* typeNode);
-Node* Feather_mkVarRef(Location loc, Node* varDecl);
-Node* Feather_mkFieldRef(Location loc, Node* obj, Node* fieldDecl);
-Node* Feather_mkFunRef(Location loc, Node* funDecl, Node* resType);
-Node* Feather_mkFunCall(Location loc, Node* funDecl, NodeRange args);
-Node* Feather_mkMemLoad(Location loc, Node* exp);
-Node* Feather_mkMemStore(Location loc, Node* value, Node* address);
-Node* Feather_mkBitcast(Location loc, Node* destType, Node* exp);
-Node* Feather_mkConditional(Location loc, Node* condition, Node* alt1, Node* alt2);
+Nest_Node* Feather_mkCtValue(Nest_Location loc, Nest_TypeRef typeNode, Nest_StringRef data);
+Nest_Node* Feather_mkNull(Nest_Location loc, Nest_Node* typeNode);
+Nest_Node* Feather_mkVarRef(Nest_Location loc, Nest_Node* varDecl);
+Nest_Node* Feather_mkFieldRef(Nest_Location loc, Nest_Node* obj, Nest_Node* fieldDecl);
+Nest_Node* Feather_mkFunRef(Nest_Location loc, Nest_Node* funDecl, Nest_Node* resType);
+Nest_Node* Feather_mkFunCall(Nest_Location loc, Nest_Node* funDecl, Nest_NodeRange args);
+Nest_Node* Feather_mkMemLoad(Nest_Location loc, Nest_Node* exp);
+Nest_Node* Feather_mkMemStore(Nest_Location loc, Nest_Node* value, Nest_Node* address);
+Nest_Node* Feather_mkBitcast(Nest_Location loc, Nest_Node* destType, Nest_Node* exp);
+Nest_Node* Feather_mkConditional(
+        Nest_Location loc, Nest_Node* condition, Nest_Node* alt1, Nest_Node* alt2);
 
-Node* Feather_mkIf(Location loc, Node* condition, Node* thenClause, Node* elseClause);
-Node* Feather_mkWhile(Location loc, Node* condition, Node* body, Node* step);
-Node* Feather_mkBreak(Location loc);
-Node* Feather_mkContinue(Location loc);
-Node* Feather_mkReturn(Location loc, Node* exp);
+Nest_Node* Feather_mkIf(
+        Nest_Location loc, Nest_Node* condition, Nest_Node* thenClause, Nest_Node* elseClause);
+Nest_Node* Feather_mkWhile(
+        Nest_Location loc, Nest_Node* condition, Nest_Node* body, Nest_Node* step);
+Nest_Node* Feather_mkBreak(Nest_Location loc);
+Nest_Node* Feather_mkContinue(Nest_Location loc);
+Nest_Node* Feather_mkReturn(Nest_Location loc, Nest_Node* exp);
 
 #ifdef __cplusplus
 }

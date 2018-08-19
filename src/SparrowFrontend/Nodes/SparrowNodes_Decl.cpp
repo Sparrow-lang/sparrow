@@ -12,7 +12,11 @@
 #include <Helpers/Convert.h>
 #include <Helpers/ForEachNodeInNodeList.h>
 
+#include "Feather/Utils/cppif/FeatherTypes.hpp"
+#include "Feather/Utils/cppif/FeatherNodes.hpp"
+
 using namespace SprFrontend;
+using namespace Feather;
 using namespace Nest;
 
 namespace {
@@ -22,7 +26,7 @@ namespace {
 
 /// Get the fields from the symtab of the current class
 /// In the process it might compute the type of the SprVariables
-NodeVector getFields(SymTab* curSymTab) {
+NodeVector getFields(Nest_SymTab* curSymTab) {
     // Check all the nodes registered in the children context so far to discover the fields
     NodeVector fields;
     for (Node* n : Nest_symTabAllEntries(curSymTab)) {
@@ -240,10 +244,10 @@ TypeRef SprDatatype_ComputeType(Node* node) {
     Feather_setShouldAddToSymTab(resultingClass, 0);
 
     // Copy the "native" and "description" properties to the resulting class
-    if (size(nativeName) > 0) {
+    if (nativeName) {
         Nest_setPropertyString(resultingClass, propNativeName, nativeName);
     }
-    const StringRef* description = Nest_getPropertyString(node, propDescription);
+    const Nest_StringRef* description = Nest_getPropertyString(node, propDescription);
     if (description) {
         Nest_setPropertyString(resultingClass, propDescription, *description);
     }
@@ -377,7 +381,7 @@ TypeRef SprFunction_ComputeType(Node* node) {
     // Copy the "native" and the "autoCt" properties
     StringRef nativeName = Nest_getPropertyStringDeref(node, propNativeName);
 
-    if (size(nativeName) > 0)
+    if (nativeName)
         Nest_setPropertyString(resultingFun, propNativeName, nativeName);
     if (Nest_hasProperty(node, propAutoCt))
         Nest_setPropertyInt(resultingFun, propAutoCt, 1);
@@ -407,7 +411,7 @@ TypeRef SprFunction_ComputeType(Node* node) {
                         Nest_toStringEx(n);
             }
 
-            Feather_Function_addParameter(resultingFun, n);
+            FunctionDecl(resultingFun).addParameter(DeclNode(n));
         }
     }
 
@@ -430,23 +434,24 @@ TypeRef SprFunction_ComputeType(Node* node) {
     TypeRef resType = returnType ? getType(returnType) : Feather_getVoidType(mode);
     if (!resType)
         REP_INTERNAL(node->location, "Cannot compute the function resulting type");
-    resType = Feather_checkChangeTypeMode(resType, mode, node->location);
+    resType = Type(resType).changeMode(mode, node->location);
 
     // If the result is a non-reference class, not basic numeric, and our function is not native,
     // add result parameter; otherwise, normal result
-    bool nativeAbi = size(nativeName) > 0 && nativeName != "$funptr";
+    bool nativeAbi = nativeName && nativeName != "$funptr";
     if (!nativeAbi && resType->hasStorage && resType->numReferences == 0 &&
             !Feather_isBasicNumericType(resType)) {
         ASSERT(returnType);
-        Node* resParam = Feather_mkVar(returnType->location, fromCStr("_result"),
-                Feather_mkTypeNode(returnType->location, Feather_addRef(resType)));
+        Node* resParam = Feather_mkVar(returnType->location, StringRef("_result"),
+                Feather_mkTypeNode(returnType->location, addRef(TypeWithStorage(resType))));
         Nest_setContext(resParam, node->childrenContext);
-        Feather_Function_addParameterFirst(resultingFun, resParam);
+        FunctionDecl(resultingFun).addParameter(DeclNode(resParam), true);
         Nest_setPropertyNode(resultingFun, propResultParam, resParam);
-        Feather_Function_setResultType(resultingFun,
-                Feather_mkTypeNode(returnType->location, Feather_getVoidType(thisEvalMode)));
+        FunctionDecl(resultingFun)
+                .setResultType(Feather_mkTypeNode(
+                        returnType->location, Feather_getVoidType(thisEvalMode)));
     } else
-        Feather_Function_setResultType(resultingFun, Feather_mkTypeNode(node->location, resType));
+        FunctionDecl(resultingFun).setResultType(Feather_mkTypeNode(node->location, resType));
 
     // Now we can actually compute the type of the resulting function
     node->type = Nest_computeType(node->explanation);
@@ -645,7 +650,7 @@ TypeRef SprVariable_ComputeType(Node* node) {
         } else if (init) // Reference initialization
         {
             // Create an assignment operator
-            ctorCall = mkOperatorCall(node->location, varRef, fromCStr(":="), init);
+            ctorCall = mkOperatorCall(node->location, varRef, StringRef(":="), init);
         }
     }
 
@@ -753,15 +758,15 @@ void Using_SetContextForChildren(Node* node) {
 }
 TypeRef Using_ComputeType(Node* node) {
     ASSERT(Nest_nodeArraySize(node->children) == 1);
-    Node*& usingNode = at(node->children, 0);   // May be modified if CT value
-    const StringRef* alias = Nest_getPropertyString(node, "name");
+    Node*& usingNode = at(node->children, 0); // May be modified if CT value
+    const Nest_StringRef* alias = Nest_getPropertyString(node, "name");
 
     // Compile the using name
     Nest_setPropertyExplInt(usingNode, propAllowDeclExp, 1);
     if (!Nest_semanticCheck(usingNode))
         return nullptr;
 
-    if (!alias || size(*alias) == 0) {
+    if (!alias || StringRef(*alias).empty()) {
         // Make sure that this node refers to one or more declaration
         Node* baseExp;
         NodeVector decls = getDeclsFromNode(usingNode, baseExp);

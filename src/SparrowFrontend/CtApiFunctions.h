@@ -1,7 +1,7 @@
 #pragma once
 
-typedef struct Nest_Backend Backend;
+typedef struct Nest_Backend Nest_Backend;
 
 namespace SprFrontend {
-void registerCtApiFunctions(Backend* backend);
+void registerCtApiFunctions(Nest_Backend* backend);
 }

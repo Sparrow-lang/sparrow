@@ -4,7 +4,7 @@
 #include <memory.h>
 #include <stdlib.h>
 
-void _growPtrArray(PtrArray* arr, unsigned minCapacity) {
+void _growPtrArray(NestUtils_PtrArray* arr, unsigned minCapacity) {
     unsigned capacity = arr->endOfStorePtr - arr->beginPtr;
     if (capacity == 0)
         capacity = 8; // initial capacity
@@ -13,12 +13,12 @@ void _growPtrArray(PtrArray* arr, unsigned minCapacity) {
     NestUtils_reservePtrArray(arr, capacity);
 }
 
-PtrArray NestUtils_emptyPtrArray() {
-    PtrArray res = {0, 0, 0};
+NestUtils_PtrArray NestUtils_emptyPtrArray() {
+    NestUtils_PtrArray res = {0, 0, 0};
     return res;
 }
-PtrArray NestUtils_allocPtrArray(unsigned capacity) {
-    PtrArray res = {0, 0, 0};
+NestUtils_PtrArray NestUtils_allocPtrArray(unsigned capacity) {
+    NestUtils_PtrArray res = {0, 0, 0};
     if (capacity > 0) {
         res.beginPtr = calloc(capacity, sizeof(void*));
         res.endPtr = res.beginPtr;
@@ -27,9 +27,9 @@ PtrArray NestUtils_allocPtrArray(unsigned capacity) {
     return res;
 }
 
-void NestUtils_freePtrArray(PtrArray arr) { free(arr.beginPtr); }
+void NestUtils_freePtrArray(NestUtils_PtrArray arr) { free(arr.beginPtr); }
 
-void NestUtils_reservePtrArray(PtrArray* arr, unsigned capacity) {
+void NestUtils_reservePtrArray(NestUtils_PtrArray* arr, unsigned capacity) {
     if (capacity > (arr->endOfStorePtr - arr->beginPtr)) {
         unsigned curSize = arr->endPtr - arr->beginPtr;
         arr->beginPtr = realloc(arr->beginPtr, capacity * sizeof(void*));
@@ -38,7 +38,7 @@ void NestUtils_reservePtrArray(PtrArray* arr, unsigned capacity) {
     }
 }
 
-void NestUtils_resizePtrArray(PtrArray* arr, unsigned size) {
+void NestUtils_resizePtrArray(NestUtils_PtrArray* arr, unsigned size) {
     unsigned curSize = arr->endPtr - arr->beginPtr;
     if (size < curSize) {
         // Simply change the end pointer
@@ -52,14 +52,14 @@ void NestUtils_resizePtrArray(PtrArray* arr, unsigned size) {
     }
 }
 
-void NestUtils_appendObjectToPtrArray(PtrArray* arr, void* obj) {
+void NestUtils_appendObjectToPtrArray(NestUtils_PtrArray* arr, void* obj) {
     unsigned curSize = arr->endPtr - arr->beginPtr;
     _growPtrArray(arr, curSize + 1);
     arr->beginPtr[curSize] = obj;
     arr->endPtr++;
 }
 
-void NestUtils_appendObjectsToPtrArray(PtrArray* arr, PtrRange objects) {
+void NestUtils_appendObjectsToPtrArray(NestUtils_PtrArray* arr, Nest_PtrRange objects) {
     unsigned numNewObjects = objects.endPtr - objects.beginPtr;
     unsigned curSize = arr->endPtr - arr->beginPtr;
     _growPtrArray(arr, curSize + numNewObjects);
@@ -67,7 +67,7 @@ void NestUtils_appendObjectsToPtrArray(PtrArray* arr, PtrRange objects) {
     arr->endPtr += numNewObjects;
 }
 
-void NestUtils_insertObjectIntoPtrArray(PtrArray* arr, unsigned index, void* obj) {
+void NestUtils_insertObjectIntoPtrArray(NestUtils_PtrArray* arr, unsigned index, void* obj) {
     unsigned curSize = arr->endPtr - arr->beginPtr;
     ASSERT(index <= curSize);
     _growPtrArray(arr, curSize + 1);
@@ -75,7 +75,8 @@ void NestUtils_insertObjectIntoPtrArray(PtrArray* arr, unsigned index, void* obj
     arr->beginPtr[index] = obj;
     arr->endPtr++;
 }
-void NestUtils_insertObjectsIntoPtrArray(PtrArray* arr, unsigned index, PtrRange objects) {
+void NestUtils_insertObjectsIntoPtrArray(
+        NestUtils_PtrArray* arr, unsigned index, Nest_PtrRange objects) {
     unsigned numNewObjects = objects.endPtr - objects.beginPtr;
     unsigned curSize = arr->endPtr - arr->beginPtr;
     ASSERT(index <= curSize);
@@ -86,7 +87,7 @@ void NestUtils_insertObjectsIntoPtrArray(PtrArray* arr, unsigned index, PtrRange
     arr->endPtr += numNewObjects;
 }
 
-void NestUtils_eraseFromPtrArray(PtrArray* arr, unsigned index) {
+void NestUtils_eraseFromPtrArray(NestUtils_PtrArray* arr, unsigned index) {
     unsigned curSize = arr->endPtr - arr->beginPtr;
     ASSERT(index <= curSize);
     memmove(arr->beginPtr + index, arr->beginPtr + index + 1,

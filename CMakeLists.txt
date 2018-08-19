@@ -141,7 +141,7 @@ if(CLANG_TIDY_SCRIPT)
     add_custom_target(
         clang-tidy
         COMMAND
-            ${CLANG_TIDY_SCRIPT} -header-filter='.*\.hpp' -checks='${TIDY_CHECKS}'
+            ${CLANG_TIDY_SCRIPT} -header-filter='\.\.\/src\/.*\.hpp' -checks='${TIDY_CHECKS}'
             -clang-tidy-binary ${CLANG_TIDY}
             -clang-apply-replacements-binary ${CLANG_APPLY_REPLACEMENTS}
             ${TIDY_EXTRA_ARGS}

@@ -1,20 +1,25 @@
 #pragma once
 
 #include "Nest/Api/Backend.h"
+#include "Nest/Utils/cppif/Fwd.hpp"
 
-struct BackendMock : Backend
+using Nest::TypeRef;
+using Nest::Node;
+
+
+struct BackendMock : Nest_Backend
 {
 public:
     BackendMock();
     ~BackendMock();
 
 private:
-    static void Init(Backend* backend, const char* mainFilename);
-    static void GenerateMachineCode(Backend* backend, const SourceCode* code);
-    static void Link(Backend* backend, const char* outFilename);
-    static void CtProcess(Backend* backend, Node* node);
-    static Node* CtEvaluate(Backend* backend, Node* node);
-    static unsigned int SizeOf(Backend* backend, TypeRef type);
-    static unsigned int AlignmentOf(Backend* backend, TypeRef type);
-    static void CtApiRegisterFun(Backend* backend, const char* name, void* funPtr);
+    static void Init(Nest_Backend* backend, const char* mainFilename);
+    static void GenerateMachineCode(Nest_Backend* backend, const Nest_SourceCode* code);
+    static void Link(Nest_Backend* backend, const char* outFilename);
+    static void CtProcess(Nest_Backend* backend, Node* node);
+    static Node* CtEvaluate(Nest_Backend* backend, Node* node);
+    static unsigned int SizeOf(Nest_Backend* backend, TypeRef type);
+    static unsigned int AlignmentOf(Nest_Backend* backend, TypeRef type);
+    static void CtApiRegisterFun(Nest_Backend* backend, const char* name, void* funPtr);
 };

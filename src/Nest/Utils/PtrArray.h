@@ -12,22 +12,22 @@ struct NestUtils_PtrArray {
     void** endOfStorePtr;
 };
 typedef struct NestUtils_PtrArray NestUtils_PtrArray;
-typedef struct NestUtils_PtrArray PtrArray;
 
-PtrArray NestUtils_emptyPtrArray();
-PtrArray NestUtils_allocPtrArray(unsigned capacity);
-void NestUtils_freePtrArray(PtrArray arr);
+NestUtils_PtrArray NestUtils_emptyPtrArray();
+NestUtils_PtrArray NestUtils_allocPtrArray(unsigned capacity);
+void NestUtils_freePtrArray(NestUtils_PtrArray arr);
 
-void NestUtils_reservePtrArray(PtrArray* arr, unsigned capacity);
-void NestUtils_resizePtrArray(PtrArray* arr, unsigned size);
+void NestUtils_reservePtrArray(NestUtils_PtrArray* arr, unsigned capacity);
+void NestUtils_resizePtrArray(NestUtils_PtrArray* arr, unsigned size);
 
-void NestUtils_appendObjectToPtrArray(PtrArray* arr, void* obj);
-void NestUtils_appendObjectsToPtrArray(PtrArray* arr, PtrRange objects);
+void NestUtils_appendObjectToPtrArray(NestUtils_PtrArray* arr, void* obj);
+void NestUtils_appendObjectsToPtrArray(NestUtils_PtrArray* arr, Nest_PtrRange objects);
 
-void NestUtils_insertObjectIntoPtrArray(PtrArray* arr, unsigned index, void* obj);
-void NestUtils_insertObjectsIntoPtrArray(PtrArray* arr, unsigned index, PtrRange objects);
+void NestUtils_insertObjectIntoPtrArray(NestUtils_PtrArray* arr, unsigned index, void* obj);
+void NestUtils_insertObjectsIntoPtrArray(
+        NestUtils_PtrArray* arr, unsigned index, Nest_PtrRange objects);
 
-void NestUtils_eraseFromPtrArray(PtrArray* arr, unsigned index);
+void NestUtils_eraseFromPtrArray(NestUtils_PtrArray* arr, unsigned index);
 
 #ifdef __cplusplus
 }

@@ -5,10 +5,11 @@
 #include "GlobalContext.h"
 
 #include "Feather/Utils/FeatherUtils.hpp"
+#include "Feather/Utils/cppif/FeatherTypes.hpp"
 
 #include "Nest/Utils/Diagnostic.hpp"
-#include "Nest/Utils/StringRef.hpp"
-#include "Nest/Utils/NodeUtils.hpp"
+#include "Nest/Utils/cppif/StringRef.hpp"
+#include "Nest/Utils/cppif/NodeUtils.hpp"
 #include "Nest/Api/SourceCode.h"
 #include "Nest/Api/Node.h"
 
@@ -17,6 +18,7 @@
 using namespace LLVMB;
 using namespace LLVMB::Tr;
 using namespace Nest;
+using namespace Feather;
 using namespace std;
 
 namespace {
@@ -33,7 +35,7 @@ llvm::DebugLoc getDebugLoc(const Location& loc, llvm::MDNode* scope, bool takeSt
     return llvm::DebugLoc::get(line, col, scope);
 }
 
-llvm::StringRef toLlvm(StringRef s) { return {s.begin, size(s)}; }
+llvm::StringRef toLlvm(StringRef s) { return {s.begin, (size_t)s.size()}; }
 
 } // namespace
 
@@ -76,8 +78,8 @@ void DebugInfo::emitFunctionStart(GlobalContext& ctx, LlvmBuilder& builder, Node
     // For now, just create a fake subroutine type -- it should be ok
     llvm::DISubroutineType* diFunType = createDiFunType(ctx, fun->type);
 
-    StringRef name = Nest_hasProperty(fun, "name") ? Feather_getName(fun) : fromCStr("anonymous");
-    llvm::StringRef nameLLVM(name.begin, size(name));
+    StringRef name = Nest_hasProperty(fun, "name") ? Feather_getName(fun) : StringRef("anonymous");
+    llvm::StringRef nameLLVM = toLlvm(name);
     llvm::DISubprogram* diSubprogram = diBuilder_.createFunction(fContext, // function scope
             nameLLVM,                                                      // function name
             llvmFun->getName(),           // mangled function name (link name)
@@ -249,11 +251,11 @@ llvm::DIType* DebugInfo::createDiStructType(GlobalContext& ctx, TypeRef type) {
 
     // Get the translation name for this
     llvm::StringRef uniqueId = "";
-    const StringRef* nativeName = Nest_getPropertyString(structDecl, propNativeName);
+    const Nest_StringRef* nativeName = Nest_getPropertyString(structDecl, propNativeName);
     if (nativeName)
         uniqueId = toLlvm(*nativeName);
     else {
-        const StringRef* description = Nest_getPropertyString(structDecl, propDescription);
+        const Nest_StringRef* description = Nest_getPropertyString(structDecl, propDescription);
         if (description)
             uniqueId = toLlvm(*description);
     }
@@ -306,7 +308,7 @@ llvm::DIType* DebugInfo::createDiType(GlobalContext& ctx, TypeRef type) {
     if (type->numReferences > 0) {
         // Pointer type (Datatype & LValue)
         int sizeInBits = dataLayout.getTypeAllocSizeInBits(t);
-        auto baseType = createDiType(ctx, Feather_removeRef(type));
+        auto baseType = createDiType(ctx, removeRef(TypeWithStorage(type)));
         res = diBuilder_.createPointerType(baseType, sizeInBits);
     } else if (type->typeKind == Feather_getDataTypeKind()) {
         res = createDiStructType(ctx, type);

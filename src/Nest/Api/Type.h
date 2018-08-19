@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-typedef struct Nest_Node Node;
+typedef struct Nest_Node Nest_Node;
 
 /// Represents a type
 struct Nest_Type {
@@ -20,29 +20,28 @@ struct Nest_Type {
     unsigned flags : 32;         ///< Additional flags
 
     /// The subtypes of this type
-    TypeRef* subTypes;
+    Nest_TypeRef* subTypes;
 
     /// Optional, the node that introduces this type
-    Node* referredNode;
+    Nest_Node* referredNode;
 
     /// The description of the type -- mainly used for debugging purposes
     const char* description;
 };
 
 typedef struct Nest_Type Nest_Type;
-typedef struct Nest_Type Type;
 
 /// Get a stock type that matches the settings from the reference
 /// We guarantee that the same types will have the same pointers
 /// If we cannot find a type that matches the reference, this will return null
-TypeRef Nest_findStockType(const Type* reference);
+Nest_TypeRef Nest_findStockType(Nest_TypeRef reference);
 
 /// Insert a new type into our stock
 /// Returns the pointer to be used to represent this new type
-TypeRef Nest_insertStockType(const Type* newType);
+Nest_TypeRef Nest_insertStockType(Nest_TypeRef newType);
 
 /// Function that changes the mode for the given type
-TypeRef Nest_changeTypeMode(TypeRef type, EvalMode newMode);
+Nest_TypeRef Nest_changeTypeMode(Nest_TypeRef type, EvalMode newMode);
 
 //! Reset all the cached types
 void Nest_resetTypes();

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Nest/Utils/NodeUtils.hpp"
+#include "Nest/Utils/cppif/NodeUtils.hpp"
 
 namespace SprFrontend {
 /// Iterates recursively over all the nodes in the given node list, calling the given 'fun' function

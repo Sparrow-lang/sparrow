@@ -81,51 +81,60 @@ extern int nkSparrowInnerInstantiationsSet;
 /// Called to initialize the Feather node kinds
 void initSparrowNodeKinds();
 
-Node* mkModifiers(const Location& loc, Node* main, Node* mods);
+Nest_Node* mkModifiers(const Nest_Location& loc, Nest_Node* main, Nest_Node* mods);
 
-Node* mkModule(const Location& loc, Node* moduleName, Node* declarations);
-Node* mkImportName(const Location& loc, Node* moduleName, Node* importedDeclNames,
-        bool equals = false, StringRef alias = {0});
-Node* mkSprUsing(const Location& loc, StringRef alias, Node* usingNode);
-Node* mkSprPackage(const Location& loc, StringRef name, Node* children, Node* params = nullptr,
-        Node* ifClause = nullptr);
-Node* mkSprVariable(const Location& loc, StringRef name, Node* typeNode, Node* init);
-Node* mkSprVariable(const Location& loc, StringRef name, TypeRef type, Node* init);
-Node* mkSprDatatype(const Location& loc, StringRef name, Node* parameters, Node* underlyingData,
-        Node* ifClause, Node* children);
-Node* mkSprField(const Location& loc, StringRef name, Node* typeNode, Node* init);
+Nest_Node* mkModule(const Nest_Location& loc, Nest_Node* moduleName, Nest_Node* declarations);
+Nest_Node* mkImportName(const Nest_Location& loc, Nest_Node* moduleName,
+        Nest_Node* importedDeclNames, bool equals = false, Nest_StringRef alias = {0});
+Nest_Node* mkSprUsing(const Nest_Location& loc, Nest_StringRef alias, Nest_Node* usingNode);
+Nest_Node* mkSprPackage(const Nest_Location& loc, Nest_StringRef name, Nest_Node* children,
+        Nest_Node* params = nullptr, Nest_Node* ifClause = nullptr);
+Nest_Node* mkSprVariable(
+        const Nest_Location& loc, Nest_StringRef name, Nest_Node* typeNode, Nest_Node* init);
+Nest_Node* mkSprVariable(
+        const Nest_Location& loc, Nest_StringRef name, Nest_TypeRef type, Nest_Node* init);
+Nest_Node* mkSprDatatype(const Nest_Location& loc, Nest_StringRef name, Nest_Node* parameters,
+        Nest_Node* underlyingData, Nest_Node* ifClause, Nest_Node* children);
+Nest_Node* mkSprField(
+        const Nest_Location& loc, Nest_StringRef name, Nest_Node* typeNode, Nest_Node* init);
 
-Node* mkSprConcept(const Location& loc, StringRef name, StringRef paramName, Node* baseConcept,
-        Node* ifClause);
+Nest_Node* mkSprConcept(const Nest_Location& loc, Nest_StringRef name, Nest_StringRef paramName,
+        Nest_Node* baseConcept, Nest_Node* ifClause);
 
-Node* mkSprFunction(const Location& loc, StringRef name, Node* parameters, Node* returnType,
-        Node* body, Node* ifClause = nullptr);
-Node* mkSprParameter(const Location& loc, StringRef name, Node* typeNode, Node* init = nullptr);
-Node* mkSprParameter(const Location& loc, StringRef name, TypeRef type, Node* init = nullptr);
-Node* mkSprAutoParameter(const Location& loc, StringRef name);
+Nest_Node* mkSprFunction(const Nest_Location& loc, Nest_StringRef name, Nest_Node* parameters,
+        Nest_Node* returnType, Nest_Node* body, Nest_Node* ifClause = nullptr);
+Nest_Node* mkSprParameter(const Nest_Location& loc, Nest_StringRef name, Nest_Node* typeNode,
+        Nest_Node* init = nullptr);
+Nest_Node* mkSprParameter(const Nest_Location& loc, Nest_StringRef name, Nest_TypeRef type,
+        Nest_Node* init = nullptr);
+Nest_Node* mkSprAutoParameter(const Nest_Location& loc, Nest_StringRef name);
 
-Node* mkGenericPackage(Node* originalPackage, Node* parameters, Node* ifClause);
-Node* mkGenericClass(Node* originalClass, Node* parameters, Node* ifClause);
-Node* mkGenericFunction(Node* originalFun, NodeRange params, NodeRange genericParams,
-        Node* ifClause, Node* thisClass = nullptr);
+Nest_Node* mkGenericPackage(Nest_Node* originalPackage, Nest_Node* parameters, Nest_Node* ifClause);
+Nest_Node* mkGenericClass(Nest_Node* originalClass, Nest_Node* parameters, Nest_Node* ifClause);
+Nest_Node* mkGenericFunction(Nest_Node* originalFun, Nest_NodeRange params,
+        Nest_NodeRange genericParams, Nest_Node* ifClause, Nest_Node* thisClass = nullptr);
 
-Node* mkLiteral(const Location& loc, StringRef litType, StringRef data);
-Node* mkIdentifier(const Location& loc, StringRef id);
-Node* mkCompoundExp(const Location& loc, Node* base, StringRef id);
-Node* mkFunApplication(const Location& loc, Node* base, Node* arguments);
-Node* mkFunApplication(const Location& loc, Node* base, NodeRange arguments);
-Node* mkOperatorCall(const Location& loc, Node* arg1, StringRef op, Node* arg2);
-Node* mkInfixOp(const Location& loc, StringRef op, Node* arg1, Node* arg2);
-Node* mkLambdaExp(const Location& loc, Node* parameters, Node* returnType, Node* body,
-        Node* bodyExp, Node* closureParams);
-Node* mkConditionalExp(const Location& loc, Node* cond, Node* alt1, Node* alt2);
-Node* mkDeclExp(const Location& loc, NodeRange decls, Node* baseExp = nullptr);
-Node* mkStarExp(const Location& loc, Node* base, StringRef operName);
-Node* mkModuleRef(const Location& loc, Node* module);
+Nest_Node* mkLiteral(const Nest_Location& loc, Nest_StringRef litType, Nest_StringRef data);
+Nest_Node* mkIdentifier(const Nest_Location& loc, Nest_StringRef id);
+Nest_Node* mkCompoundExp(const Nest_Location& loc, Nest_Node* base, Nest_StringRef id);
+Nest_Node* mkFunApplication(const Nest_Location& loc, Nest_Node* base, Nest_Node* arguments);
+Nest_Node* mkFunApplication(const Nest_Location& loc, Nest_Node* base, Nest_NodeRange arguments);
+Nest_Node* mkOperatorCall(
+        const Nest_Location& loc, Nest_Node* arg1, Nest_StringRef op, Nest_Node* arg2);
+Nest_Node* mkInfixOp(const Nest_Location& loc, Nest_StringRef op, Nest_Node* arg1, Nest_Node* arg2);
+Nest_Node* mkLambdaExp(const Nest_Location& loc, Nest_Node* parameters, Nest_Node* returnType,
+        Nest_Node* body, Nest_Node* bodyExp, Nest_Node* closureParams);
+Nest_Node* mkConditionalExp(
+        const Nest_Location& loc, Nest_Node* cond, Nest_Node* alt1, Nest_Node* alt2);
+Nest_Node* mkDeclExp(const Nest_Location& loc, Nest_NodeRange decls, Nest_Node* baseExp = nullptr);
+Nest_Node* mkStarExp(const Nest_Location& loc, Nest_Node* base, Nest_StringRef operName);
+Nest_Node* mkModuleRef(const Nest_Location& loc, Nest_Node* module);
 
-Node* mkForStmt(const Location& loc, StringRef name, Node* type, Node* range, Node* action);
-Node* mkReturnStmt(const Location& loc, Node* exp);
+Nest_Node* mkForStmt(const Nest_Location& loc, Nest_StringRef name, Nest_Node* type,
+        Nest_Node* range, Nest_Node* action);
+Nest_Node* mkReturnStmt(const Nest_Location& loc, Nest_Node* exp);
 
-Node* mkInstantiation(const Location& loc, NodeRange boundValues, NodeRange boundVars);
-Node* mkInstantiationsSet(Node* parentNode, NodeRange params, Node* ifClause);
+Nest_Node* mkInstantiation(
+        const Nest_Location& loc, Nest_NodeRange boundValues, Nest_NodeRange boundVars);
+Nest_Node* mkInstantiationsSet(Nest_Node* parentNode, Nest_NodeRange params, Nest_Node* ifClause);
 } // namespace SprFrontend

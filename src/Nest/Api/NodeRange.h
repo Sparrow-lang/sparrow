@@ -1,17 +1,26 @@
 #pragma once
 
-typedef struct Nest_Node Node;
-
+/**
+ * @brief   A range of nodes (immutable).
+ *
+ * This represents a view on an array of nodes (pointers).
+ * The nodes in the array cannot be changed through this. But the content of the nodes can be
+ * mutated.
+ */
 struct Nest_NodeRange {
-    Node* const* beginPtr;
-    Node* const* endPtr;
+    struct Nest_Node* const* beginPtr;
+    struct Nest_Node* const* endPtr;
 };
 typedef struct Nest_NodeRange Nest_NodeRange;
-typedef struct Nest_NodeRange NodeRange;
 
+/**
+ * @brief   A range of mutable nodes.
+ *
+ * This represents a view on an array of nodes (pointers).
+ * The nodes in the array, and their pointers can be changed through this.
+ */
 struct Nest_NodeRangeM {
-    Node** beginPtr;
-    Node** endPtr;
+    struct Nest_Node** beginPtr;
+    struct Nest_Node** endPtr;
 };
 typedef struct Nest_NodeRangeM Nest_NodeRangeM;
-typedef struct Nest_NodeRangeM NodeRangeM;

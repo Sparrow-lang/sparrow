@@ -11,6 +11,7 @@
 #include "SprDebug.h"
 
 #include "Feather/Utils/FeatherUtils.hpp"
+#include "Feather/Utils/cppif/FeatherNodes.hpp"
 
 using namespace SprFrontend;
 using namespace Nest;
@@ -45,7 +46,7 @@ void startError(OverloadReporting errReporting, const Location& loc,
 
 /// Report the decls used for selecting our call candidates
 /// This is called whenever we cannot generate callables our of these decls
-void reportDeclsAlternatives(const Location& loc, NodeRange decls) {
+void reportDeclsAlternatives(const Location& loc, Nest_NodeRange decls) {
     REP_INFO(NOLOC, "Reason: No callable declaration found");
     for (Node* decl : decls) {
         REP_INFO(decl->location, "See non-callable declaration: %1%") % decl;
@@ -59,7 +60,7 @@ void reportDeclsAlternatives(const Location& loc, NodeRange decls) {
 /// If there are callables with smaller overload prio, drop them in the favor of those with higher
 /// overload prio.
 bool filterCandidates(CompilationContext* context, const Location& loc, Callables& candidates,
-        NodeRange* args, const vector<TypeRef>* argTypes, EvalMode evalMode,
+        Nest_NodeRange* args, const vector<TypeRef>* argTypes, EvalMode evalMode,
         CustomCvtMode customCvtMode) {
     ConversionType bestConv = convNone;
     int bestPrio = INT_MIN;
@@ -94,8 +95,8 @@ bool filterCandidates(CompilationContext* context, const Location& loc, Callable
 /// This is called if filterCandidates failed to select any valid candidate.
 /// This will report all the candidates, and why they could not be called.
 void filterCandidatesErrReport(CompilationContext* context, const Location& loc,
-        Callables& candidates, NodeRange* args, const vector<TypeRef>* argTypes, EvalMode evalMode,
-        CustomCvtMode customCvtMode) {
+        Callables& candidates, Nest_NodeRange* args, const vector<TypeRef>* argTypes,
+        EvalMode evalMode, CustomCvtMode customCvtMode) {
     for (auto& cand : candidates) {
         // Report the candidate
         REP_INFO(location(cand), "See possible candidate: %1%") % toString(cand);
@@ -171,8 +172,8 @@ void selectMostSpecializedErrReport(
 } // namespace
 
 Node* OverloadService::selectOverload(CompilationContext* context, const Location& loc,
-        EvalMode evalMode, NodeRange decls, NodeRange args, OverloadReporting errReporting,
-        StringRef funName) {
+        EvalMode evalMode, Nest_NodeRange decls, Nest_NodeRange args,
+        OverloadReporting errReporting, StringRef funName) {
     auto numDecls = Nest_nodeRangeSize(decls);
     Node* firstDecl = numDecls > 0 ? at(decls, 0) : nullptr;
 
@@ -184,7 +185,7 @@ Node* OverloadService::selectOverload(CompilationContext* context, const Locatio
         // Wrap every argument in an astLift(...) call
         for (auto& arg : newArgs) {
             const Location& l = arg->location;
-            arg = mkFunApplication(l, mkIdentifier(l, fromCStr("astLift")),
+            arg = mkFunApplication(l, mkIdentifier(l, StringRef("astLift")),
                     Feather_mkNodeListVoid(l, fromIniList({arg})));
             Nest_setContext(arg, context);
         }
@@ -272,13 +273,13 @@ Node* OverloadService::selectOverload(CompilationContext* context, const Locatio
     }
     ASSERT(res->context);
     if (changeModeNode) {
-        Feather_ChangeMode_setChild(changeModeNode, res);
+        Feather::ChangeMode(changeModeNode).setChild(res);
         res = changeModeNode;
     }
 
     if (isMacro) {
         // Wrap the function call in a astEval(...) call
-        Node* qid = mkIdentifier(loc, fromCStr("astEval"));
+        Node* qid = mkIdentifier(loc, StringRef("astEval"));
         res = mkFunApplication(loc, qid, fromIniList({res}));
         Nest_setContext(res, context);
     }
@@ -351,6 +352,9 @@ Node* OverloadService::selectCtToRtCtor(Node* ctArg) {
     return generateCall(*call, ctArg->context, loc);
 }
 
-void setDefaultOverloadService() { g_OverloadService.reset(new OverloadService); }
+void setDefaultOverloadService() {
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
+    g_OverloadService.reset(new OverloadService);
+}
 
 } // namespace SprFrontend

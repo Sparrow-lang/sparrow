@@ -12,11 +12,14 @@
 
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
+#include "Feather/Utils/cppif/FeatherTypes.hpp"
+#include "Feather/Utils/cppif/FeatherNodes.hpp"
 
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Api/NodeKindRegistrar.h"
 
 using namespace SprFrontend;
+using namespace Feather;
 using namespace Nest;
 
 #define UNUSED(x) (void)(x)
@@ -28,7 +31,7 @@ using namespace Nest;
 /// Apply the given modifier node to the given base node
 /// Recurse down if the base node is a node list or a modifiers node
 void applyModifier(Node* base, Node* modNode) {
-    Modifier* mod = nullptr;
+    Nest_Modifier* mod = nullptr;
 
     if (!base)
         return;
@@ -45,7 +48,7 @@ void applyModifier(Node* base, Node* modNode) {
 
     // Interpret the modifier expression
     if (modNode->nodeKind == nkSparrowExpIdentifier) {
-        StringRef name = Nest_getCheckPropertyString(modNode, "name");
+        Nest_StringRef name = Nest_getCheckPropertyString(modNode, "name");
         if (name == "public")
             mod = SprFe_getPublicMod();
         else if (name == "protected")
@@ -72,8 +75,7 @@ void applyModifier(Node* base, Node* modNode) {
             mod = SprFe_getNoInlineMod();
     } else {
         // check for: native("name")
-        if (modNode->nodeKind == nkSparrowExpFunApplication)
-        {
+        if (modNode->nodeKind == nkSparrowExpFunApplication) {
             Node* fbase = at(modNode->children, 0);
             Node* fargs = at(modNode->children, 1);
             if (fbase->nodeKind == nkSparrowExpIdentifier &&
@@ -195,27 +197,27 @@ Node* For_SemanticCheck(Node* node) {
     // if <type> is not present, we will use '$rangeType.RetType'
 
     // Variable to hold the range - initialize it with the range node
-    Node* rangeVar =
-            mkSprVariable(loc, fromCStr("$rangeVar"), mkIdentifier(loc, fromCStr("Range")), range);
+    Node* rangeVar = mkSprVariable(
+            loc, StringRef("$rangeVar"), mkIdentifier(loc, StringRef("Range")), range);
     if (ctFor)
         Feather_setEvalMode(rangeVar, modeCt);
-    Node* rangeVarRef = mkIdentifier(loc, fromCStr("$rangeVar"));
+    Node* rangeVarRef = mkIdentifier(loc, StringRef("$rangeVar"));
 
     // while condition
-    Node* base1 = mkOperatorCall(loc, rangeVarRef, fromCStr("isEmpty"), nullptr);
-    Node* whileCond = mkOperatorCall(loc, nullptr, fromCStr("!"), base1);
+    Node* base1 = mkOperatorCall(loc, rangeVarRef, StringRef("isEmpty"), nullptr);
+    Node* whileCond = mkOperatorCall(loc, nullptr, StringRef("!"), base1);
 
     // while step
-    Node* whileStep = mkOperatorCall(loc, rangeVarRef, fromCStr("popFront"), nullptr);
+    Node* whileStep = mkOperatorCall(loc, rangeVarRef, StringRef("popFront"), nullptr);
 
     // while body
     Node* whileBody = nullptr;
     if (action) {
         if (!typeExpr)
-            typeExpr = mkCompoundExp(loc, rangeVarRef, fromCStr("RetType"));
+            typeExpr = mkCompoundExp(loc, rangeVarRef, StringRef("RetType"));
 
         // the iteration variable
-        Node* init = mkOperatorCall(loc, rangeVarRef, fromCStr("front"), nullptr);
+        Node* init = mkOperatorCall(loc, rangeVarRef, StringRef("front"), nullptr);
 
         Node* iterVar = mkSprVariable(node->location, Feather_getName(node), typeExpr, init);
         if (ctFor)
@@ -249,11 +251,11 @@ Node* SprReturn_SemanticCheck(Node* node) {
     Node* resultParam = getResultParam(parentFun);
     if (resultParam) // Does this function have a result param?
     {
-        resType = Feather_removeRef(resultParam->type);
-        ASSERT(!Feather_Function_resultType(parentFun)
-                        ->hasStorage); // The function should have void result
+        resType = removeRef(TypeWithStorage(resultParam->type));
+        ASSERT(!FunctionDecl(parentFun).resTypeNode().type()->hasStorage); // The function should
+                                                                           // have void result
     } else {
-        resType = Feather_Function_resultType(parentFun);
+        resType = FunctionDecl(parentFun).resTypeNode().type();
     }
     ASSERT(resType);
 
@@ -272,7 +274,7 @@ Node* SprReturn_SemanticCheck(Node* node) {
             REP_ERROR_RET(nullptr, exp->location, "Cannot convert return expression (%1%) to %2%") %
                     exp->type % resType;
     } else {
-        if (resultParam || Feather_Function_resultType(parentFun)->typeKind != typeKindVoid)
+        if (resultParam || FunctionDecl(parentFun).resTypeNode().type().kind() != typeKindVoid)
             REP_ERROR_RET(nullptr, node->location,
                     "You must return something in a function that has non-Void result type");
     }
@@ -306,7 +308,7 @@ Node* Module_SemanticCheck(Node* node);
 
 void ImportName_SetContextForChildren(Node* node);
 Node* ImportName_SemanticCheck(Node* node);
-const char* ImportName_toString(const Node* node);
+const char* ImportName_toString(Node* node);
 
 void Package_SetContextForChildren(Node* node);
 TypeRef Package_ComputeType(Node* node);
@@ -348,7 +350,7 @@ Node* Using_SemanticCheck(Node* node);
 Node* Literal_SemanticCheck(Node* node);
 Node* Identifier_SemanticCheck(Node* node);
 Node* CompoundExp_SemanticCheck(Node* node);
-const char* CompoundExp_toString(const Node* node);
+const char* CompoundExp_toString(Node* node);
 Node* FunApplication_SemanticCheck(Node* node);
 Node* OperatorCall_SemanticCheck(Node* node);
 Node* InfixExp_SemanticCheck(Node* node);
@@ -490,7 +492,7 @@ Node* SprFrontend::mkModule(const Location& loc, Node* moduleName, Node* declara
 }
 
 Node* SprFrontend::mkImportName(const Location& loc, Node* moduleName, Node* importedDeclNames,
-        bool equals, StringRef alias) {
+        bool equals, Nest_StringRef alias) {
     Node* res = Nest_createNode(nkSparrowDeclImportName);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({moduleName, importedDeclNames}));
@@ -500,18 +502,18 @@ Node* SprFrontend::mkImportName(const Location& loc, Node* moduleName, Node* imp
     return res;
 }
 
-Node* SprFrontend::mkSprUsing(const Location& loc, StringRef alias, Node* usingNode) {
+Node* SprFrontend::mkSprUsing(const Location& loc, Nest_StringRef alias, Node* usingNode) {
     Node* res = Nest_createNode(nkSparrowDeclUsing);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({usingNode}));
-    if (size(alias) > 0)
+    if (StringRef(alias))
         Feather_setName(res, alias);
     deduceAccessType(res);
     return res;
 }
 
 Node* SprFrontend::mkSprPackage(
-        const Location& loc, StringRef name, Node* children, Node* params, Node* ifClause) {
+        const Location& loc, Nest_StringRef name, Node* children, Node* params, Node* ifClause) {
     Node* res = Nest_createNode(nkSparrowDeclPackage);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({children, params, ifClause}));
@@ -520,7 +522,8 @@ Node* SprFrontend::mkSprPackage(
     return res;
 }
 
-Node* SprFrontend::mkSprVariable(const Location& loc, StringRef name, Node* typeNode, Node* init) {
+Node* SprFrontend::mkSprVariable(
+        const Location& loc, Nest_StringRef name, Node* typeNode, Node* init) {
     Node* res = Nest_createNode(nkSparrowDeclSprVariable);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({typeNode, init}));
@@ -529,7 +532,8 @@ Node* SprFrontend::mkSprVariable(const Location& loc, StringRef name, Node* type
     return res;
 }
 
-Node* SprFrontend::mkSprVariable(const Location& loc, StringRef name, TypeRef type, Node* init) {
+Node* SprFrontend::mkSprVariable(
+        const Location& loc, Nest_StringRef name, TypeRef type, Node* init) {
     Node* res = Nest_createNode(nkSparrowDeclSprVariable);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({nullptr, init}));
@@ -539,13 +543,13 @@ Node* SprFrontend::mkSprVariable(const Location& loc, StringRef name, TypeRef ty
     return res;
 }
 
-Node* SprFrontend::mkSprDatatype(const Location& loc, StringRef name, Node* parameters,
+Node* SprFrontend::mkSprDatatype(const Location& loc, Nest_StringRef name, Node* parameters,
         Node* underlyingData, Node* ifClause, Node* children) {
     Node* res = Nest_createNode(nkSparrowDeclSprDatatype);
     res->location = loc;
     if (underlyingData) {
         ASSERT(!children);
-        Node* innerVar = mkSprField(loc, fromCStr("data"), underlyingData, nullptr);
+        Node* innerVar = mkSprField(loc, StringRef("data"), underlyingData, nullptr);
         children = Feather_addToNodeList(children, innerVar);
         Nest_setPropertyInt(res, propGenerateInitCtor, 1);
     }
@@ -557,7 +561,8 @@ Node* SprFrontend::mkSprDatatype(const Location& loc, StringRef name, Node* para
     return res;
 }
 
-Node* SprFrontend::mkSprField(const Location& loc, StringRef name, Node* typeNode, Node* init) {
+Node* SprFrontend::mkSprField(
+        const Location& loc, Nest_StringRef name, Node* typeNode, Node* init) {
     Node* res = Nest_createNode(nkSparrowDeclSprField);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({typeNode, init}));
@@ -565,7 +570,7 @@ Node* SprFrontend::mkSprField(const Location& loc, StringRef name, Node* typeNod
     return res;
 }
 
-Node* SprFrontend::mkSprConcept(const Location& loc, StringRef name, StringRef paramName,
+Node* SprFrontend::mkSprConcept(const Location& loc, Nest_StringRef name, Nest_StringRef paramName,
         Node* baseConcept, Node* ifClause) {
     Node* res = Nest_createNode(nkSparrowDeclSprConcept);
     res->location = loc;
@@ -576,7 +581,7 @@ Node* SprFrontend::mkSprConcept(const Location& loc, StringRef name, StringRef p
     return res;
 }
 
-Node* SprFrontend::mkSprFunction(const Location& loc, StringRef name, Node* parameters,
+Node* SprFrontend::mkSprFunction(const Location& loc, Nest_StringRef name, Node* parameters,
         Node* returnType, Node* body, Node* ifClause) {
     Node* res = Nest_createNode(nkSparrowDeclSprFunction);
     res->location = loc;
@@ -587,7 +592,8 @@ Node* SprFrontend::mkSprFunction(const Location& loc, StringRef name, Node* para
     return res;
 }
 
-Node* SprFrontend::mkSprParameter(const Location& loc, StringRef name, Node* typeNode, Node* init) {
+Node* SprFrontend::mkSprParameter(
+        const Location& loc, Nest_StringRef name, Node* typeNode, Node* init) {
     Node* res = Nest_createNode(nkSparrowDeclSprParameter);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({typeNode, init}));
@@ -595,7 +601,8 @@ Node* SprFrontend::mkSprParameter(const Location& loc, StringRef name, Node* typ
     return res;
 }
 
-Node* SprFrontend::mkSprParameter(const Location& loc, StringRef name, TypeRef type, Node* init) {
+Node* SprFrontend::mkSprParameter(
+        const Location& loc, Nest_StringRef name, TypeRef type, Node* init) {
     Node* res = Nest_createNode(nkSparrowDeclSprParameter);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({nullptr, init}));
@@ -604,10 +611,10 @@ Node* SprFrontend::mkSprParameter(const Location& loc, StringRef name, TypeRef t
     return res;
 }
 
-Node* SprFrontend::mkSprAutoParameter(const Location& loc, StringRef name) {
+Node* SprFrontend::mkSprAutoParameter(const Location& loc, Nest_StringRef name) {
     Node* res = Nest_createNode(nkSparrowDeclSprParameter);
     res->location = loc;
-    Nest_nodeSetChildren(res, fromIniList({mkIdentifier(loc, fromCStr("AnyType")), nullptr}));
+    Nest_nodeSetChildren(res, fromIniList({mkIdentifier(loc, StringRef("AnyType")), nullptr}));
     Feather_setName(res, name);
     return res;
 }
@@ -658,8 +665,8 @@ Node* SprFrontend::mkGenericClass(Node* originalClass, Node* parameters, Node* i
     return res;
 }
 
-Node* SprFrontend::mkGenericFunction(Node* originalFun, NodeRange params, NodeRange genericParams,
-        Node* ifClause, Node* thisClass) {
+Node* SprFrontend::mkGenericFunction(Node* originalFun, Nest_NodeRange params,
+        Nest_NodeRange genericParams, Node* ifClause, Node* thisClass) {
     Node* res = Nest_createNode(nkSparrowDeclGenericFunction);
     res->location = originalFun->location;
     Nest_nodeSetChildren(
@@ -672,7 +679,7 @@ Node* SprFrontend::mkGenericFunction(Node* originalFun, NodeRange params, NodeRa
     return res;
 }
 
-Node* SprFrontend::mkLiteral(const Location& loc, StringRef litType, StringRef data) {
+Node* SprFrontend::mkLiteral(const Location& loc, Nest_StringRef litType, Nest_StringRef data) {
     Node* res = Nest_createNode(nkSparrowExpLiteral);
     res->location = loc;
     Nest_setPropertyString(res, "spr.literalType", litType);
@@ -680,14 +687,14 @@ Node* SprFrontend::mkLiteral(const Location& loc, StringRef litType, StringRef d
     return res;
 }
 
-Node* SprFrontend::mkIdentifier(const Location& loc, StringRef id) {
+Node* SprFrontend::mkIdentifier(const Location& loc, Nest_StringRef id) {
     Node* res = Nest_createNode(nkSparrowExpIdentifier);
     res->location = loc;
     Nest_setPropertyString(res, "name", id);
     return res;
 }
 
-Node* SprFrontend::mkCompoundExp(const Location& loc, Node* base, StringRef id) {
+Node* SprFrontend::mkCompoundExp(const Location& loc, Node* base, Nest_StringRef id) {
     Node* res = Nest_createNode(nkSparrowExpCompoundExp);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({base}));
@@ -704,14 +711,14 @@ Node* SprFrontend::mkFunApplication(const Location& loc, Node* base, Node* argum
         at(res->children, 1) = Feather_mkNodeList(loc, {});
     return res;
 }
-Node* SprFrontend::mkFunApplication(const Location& loc, Node* base, NodeRange arguments) {
+Node* SprFrontend::mkFunApplication(const Location& loc, Node* base, Nest_NodeRange arguments) {
     Node* res = Nest_createNode(nkSparrowExpFunApplication);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({base, Feather_mkNodeList(loc, arguments)}));
     return res;
 }
 
-Node* SprFrontend::mkOperatorCall(const Location& loc, Node* arg1, StringRef op, Node* arg2) {
+Node* SprFrontend::mkOperatorCall(const Location& loc, Node* arg1, Nest_StringRef op, Node* arg2) {
     Node* res = Nest_createNode(nkSparrowExpOperatorCall);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({arg1, arg2}));
@@ -719,11 +726,11 @@ Node* SprFrontend::mkOperatorCall(const Location& loc, Node* arg1, StringRef op,
     return res;
 }
 
-Node* SprFrontend::mkInfixOp(const Location& loc, StringRef op, Node* arg1, Node* arg2) {
+Node* SprFrontend::mkInfixOp(const Location& loc, Nest_StringRef op, Node* arg1, Node* arg2) {
     Node* res = Nest_createNode(nkSparrowExpInfixExp);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({arg1, arg2}));
-    if (size(op) == 0)
+    if (StringRef(op).empty())
         REP_ERROR_RET(nullptr, res->location, "Operation name must have at least one character");
     Nest_setPropertyString(res, "spr.operation", op);
     return res;
@@ -736,7 +743,7 @@ Node* SprFrontend::mkLambdaExp(const Location& loc, Node* parameters, Node* retu
         const Location& loc = bodyExp->location;
         body = Feather_mkLocalSpace(loc, fromIniList({mkReturnStmt(loc, bodyExp)}));
         if (!returnType)
-            returnType = mkFunApplication(loc, mkIdentifier(loc, fromCStr("typeOf")),
+            returnType = mkFunApplication(loc, mkIdentifier(loc, StringRef("typeOf")),
                     Feather_mkNodeList(loc, fromIniList({bodyExp})));
     }
     Node* res = Nest_createNode(nkSparrowExpLambdaFunction);
@@ -755,7 +762,7 @@ Node* SprFrontend::mkConditionalExp(const Location& loc, Node* cond, Node* alt1,
     return res;
 }
 
-Node* SprFrontend::mkDeclExp(const Location& loc, NodeRange decls, Node* baseExp) {
+Node* SprFrontend::mkDeclExp(const Location& loc, Nest_NodeRange decls, Node* baseExp) {
     Node* res = Nest_createNode(nkSparrowExpDeclExp);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({}));
@@ -764,7 +771,7 @@ Node* SprFrontend::mkDeclExp(const Location& loc, NodeRange decls, Node* baseExp
     return res;
 }
 
-Node* SprFrontend::mkStarExp(const Location& loc, Node* base, StringRef operName) {
+Node* SprFrontend::mkStarExp(const Location& loc, Node* base, Nest_StringRef operName) {
     if (operName != "*")
         REP_ERROR_RET(nullptr, loc, "Expected '*' in expression; found '%1%'") % operName;
     Node* res = Nest_createNode(nkSparrowExpStarExp);
@@ -782,7 +789,7 @@ Node* SprFrontend::mkModuleRef(const Location& loc, Node* module) {
 }
 
 Node* SprFrontend::mkForStmt(
-        const Location& loc, StringRef name, Node* type, Node* range, Node* action) {
+        const Location& loc, Nest_StringRef name, Node* type, Node* range, Node* action) {
     Node* res = Nest_createNode(nkSparrowStmtFor);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({range, action, type}));
@@ -798,7 +805,7 @@ Node* SprFrontend::mkReturnStmt(const Location& loc, Node* exp) {
 }
 
 Node* SprFrontend::mkInstantiation(
-        const Location& loc, NodeRange boundValues, NodeRange boundVars) {
+        const Location& loc, Nest_NodeRange boundValues, Nest_NodeRange boundVars) {
     Node* res = Nest_createNode(nkSparrowInnerInstantiation);
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({Feather_mkNodeListVoid(loc, boundVars)}));
@@ -809,7 +816,7 @@ Node* SprFrontend::mkInstantiation(
     return res;
 }
 
-Node* SprFrontend::mkInstantiationsSet(Node* parentNode, NodeRange params, Node* ifClause) {
+Node* SprFrontend::mkInstantiationsSet(Node* parentNode, Nest_NodeRange params, Node* ifClause) {
     Location loc = parentNode->location;
     Node* res = Nest_createNode(nkSparrowInnerInstantiationsSet);
     res->location = loc;

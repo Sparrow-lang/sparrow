@@ -2,9 +2,6 @@
 
 #include "LlvmBuilder.h"
 
-typedef struct Nest_Location Location;
-typedef struct Nest_Node Node;
-
 FWD_CLASS1(LLVMB, Module);
 FWD_CLASS2(LLVMB, Tr, Scope);
 FWD_CLASS2(LLVMB, Tr, Instruction);
@@ -17,6 +14,9 @@ FWD_CLASS1(llvm, Function);
 
 namespace LLVMB {
 namespace Tr {
+
+using Nest::Node;
+
 // TODO (backend): rename this to LocalContext
 
 /// Translation context structure

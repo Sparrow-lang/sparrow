@@ -50,7 +50,7 @@ void checkNodeAllowed(Node* child, bool insideClass) {
 
 /// Removes all the null nodes from the given array.
 /// Reduces the size of the array
-void removeNullNodes(NodeArray& nodes) {
+void removeNullNodes(Nest_NodeArray& nodes) {
     Node** dest = nodes.beginPtr;
     Node** src = nodes.beginPtr;
     while (src != nodes.endPtr) {
@@ -101,9 +101,9 @@ NodeVector SprFrontend::getDeclsFromNode(Node* n, Node*& baseExp) {
     return res;
 }
 
-NodeArray SprFrontend::expandDecls(NodeRange decls, Node* seenFrom) {
+Nest_NodeArray SprFrontend::expandDecls(Nest_NodeRange decls, Node* seenFrom) {
     // First, copy the decls as they are in the resulting array
-    NodeArray resDecls = Nest_allocNodeArray(size(decls));
+    auto resDecls = Nest_allocNodeArray(size(decls));
     Nest_appendNodesToArray(&resDecls, decls);
 
     // Iterate over the resulting decls, trying to follow the decls to their
@@ -149,7 +149,7 @@ NodeArray SprFrontend::expandDecls(NodeRange decls, Node* seenFrom) {
                 // If this refers to more than 1 decl, put the rest of the
                 // decls in our queue
                 if (size(ref->referredNodes) > 2) {
-                    NodeRange restDecls = all(ref->referredNodes);
+                    Nest_NodeRange restDecls = all(ref->referredNodes);
                     restDecls.beginPtr += 2;
                     Nest_appendNodesToArray(&resDecls, restDecls);
                 }
@@ -188,7 +188,7 @@ bool SprFrontend::canAccessNode(Node* decl, Node* fromNode) {
     return isPublic(decl);
 }
 
-bool SprFrontend::canAccessNode(Node* decl, SourceCode* fromSourceCode) {
+bool SprFrontend::canAccessNode(Node* decl, Nest_SourceCode* fromSourceCode) {
     ASSERT(decl);
 
     // Check if the two nodes have the same compilation unit
@@ -222,7 +222,7 @@ void SprFrontend::setAccessType(Node* decl, AccessType accessType) {
 void SprFrontend::deduceAccessType(Node* decl) {
     StringRef name = Nest_getPropertyStringDeref(decl, "name");
     AccessType acc = publicAccess;
-    if (size(name) > 0 && *name.begin == '_')
+    if (name && *name.begin == '_')
         acc = privateAccess;
     else if (name == "ctor" || name == "dtor" || name == "=" || name == "==")
         acc = protectedAccess;
@@ -252,8 +252,8 @@ void SprFrontend::checkForAllowedNamespaceChildren(Node* children, bool insideCl
 void SprFrontend::copyModifiersSetMode(Node* src, Node* dest, EvalMode newMode) {
     NestUtils_reservePtrArray(
             // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
-            (PtrArray*)&dest->modifiers, src->modifiers.endPtr - src->modifiers.beginPtr);
-    Modifier** p = src->modifiers.beginPtr;
+            (NestUtils_PtrArray*)&dest->modifiers, src->modifiers.endPtr - src->modifiers.beginPtr);
+    Nest_Modifier** p = src->modifiers.beginPtr;
     for (; p != src->modifiers.endPtr; ++p) {
         // TODO (rtct): This is not ok; we should find another way
         if (!SprFe_isEvalModeMod(*p))
@@ -305,7 +305,6 @@ CompilationContext* SprFrontend::classContext(Node* cls) {
     return res ? res : cls->context;
 }
 
-NodeArray SprFrontend::getClassAssociatedDecls(Node* cls, const char* name) {
-    NodeArray decls = Nest_symTabLookupCurrent(classContext(cls)->currentSymTab, name);
-    return decls;
+Nest_NodeArray SprFrontend::getClassAssociatedDecls(Node* cls, const char* name) {
+    return Nest_symTabLookupCurrent(classContext(cls)->currentSymTab, name);
 }

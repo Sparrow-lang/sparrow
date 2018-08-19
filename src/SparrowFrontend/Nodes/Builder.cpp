@@ -4,7 +4,7 @@
 #include <NodeCommonsCpp.h>
 
 #include "Feather/Api/Feather.h"
-#include "Nest/Utils/NodeVector.hpp"
+#include "Nest/Utils/cppif/NodeUtils.hpp"
 
 using namespace SprFrontend;
 
@@ -14,12 +14,13 @@ template <typename T> StringRef toStrData(T val) {
     const T* end = ptr + 1;
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     StringRef res = {reinterpret_cast<const char*>(ptr), reinterpret_cast<const char*>(end)};
-    return dup(res);
+    return res.dup();
 }
 } // namespace
 
 LocStringVec* SprFrontend::buildStringList(LocStringVec* prevList, LocString element) {
     if (!prevList)
+        // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
         prevList = new LocStringVec;
 
     prevList->emplace_back(move(element));
@@ -32,7 +33,7 @@ Node* SprFrontend::buildSprFunctionExp(const Location& loc, StringRef name, Node
     Node* body = buildBlockStmt(
             loc2, Feather_mkNodeList(loc2, fromIniList({mkReturnStmt(loc2, bodyExp)})));
     if (!returnType)
-        returnType = mkFunApplication(loc2, mkIdentifier(loc2, fromCStr("typeOf")),
+        returnType = mkFunApplication(loc2, mkIdentifier(loc2, StringRef("typeOf")),
                 Feather_mkNodeList(loc2, fromIniList({bodyExp})));
 
     return mkSprFunction(loc, name, parameters, returnType, body, ifClause);
@@ -51,43 +52,43 @@ Node* SprFrontend::buildParenthesisExp(const Location& loc, Node* exp) {
 }
 
 Node* SprFrontend::buildIntLiteral(const Location& loc, int value) {
-    return mkLiteral(loc, fromCStr("Int"), toStrData(value));
+    return mkLiteral(loc, StringRef("Int"), toStrData(value));
 }
 
 Node* SprFrontend::buildUIntLiteral(const Location& loc, unsigned int value) {
-    return mkLiteral(loc, fromCStr("UInt"), toStrData(value));
+    return mkLiteral(loc, StringRef("UInt"), toStrData(value));
 }
 
 Node* SprFrontend::buildLongLiteral(const Location& loc, long value) {
-    return mkLiteral(loc, fromCStr("Long"), toStrData(value));
+    return mkLiteral(loc, StringRef("Long"), toStrData(value));
 }
 
 Node* SprFrontend::buildULongLiteral(const Location& loc, unsigned long value) {
-    return mkLiteral(loc, fromCStr("ULong"), toStrData(value));
+    return mkLiteral(loc, StringRef("ULong"), toStrData(value));
 }
 
 Node* SprFrontend::buildFloatLiteral(const Location& loc, float value) {
-    return mkLiteral(loc, fromCStr("Float"), toStrData(value));
+    return mkLiteral(loc, StringRef("Float"), toStrData(value));
 }
 
 Node* SprFrontend::buildDoubleLiteral(const Location& loc, double value) {
-    return mkLiteral(loc, fromCStr("Double"), toStrData(value));
+    return mkLiteral(loc, StringRef("Double"), toStrData(value));
 }
 
 Node* SprFrontend::buildCharLiteral(const Location& loc, char value) {
-    return mkLiteral(loc, fromCStr("Char"), toStrData(value));
+    return mkLiteral(loc, StringRef("Char"), toStrData(value));
 }
 
 Node* SprFrontend::buildStringLiteral(const Location& loc, StringRef value) {
-    return mkLiteral(loc, fromCStr("StringRef"), move(value));
+    return mkLiteral(loc, StringRef("StringRef"), move(value));
 }
 
 Node* SprFrontend::buildNullLiteral(const Location& loc) {
-    return mkLiteral(loc, fromCStr("Null"), allocStringRef(0));
+    return mkLiteral(loc, StringRef("Null"), StringRef{});
 }
 
 Node* SprFrontend::buildBoolLiteral(const Location& loc, bool value) {
-    return mkLiteral(loc, fromCStr("Bool"), toStrData(value));
+    return mkLiteral(loc, StringRef("Bool"), toStrData(value));
 }
 Node* SprFrontend::buildLiteral(const Location& loc, StringRef litType, void* value) {
     return mkLiteral(loc, litType, toStrData(value));

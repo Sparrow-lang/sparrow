@@ -83,7 +83,7 @@ extern "C" Node* comp_parser_mkFun(Location* loc, StringRef name, Node* formals,
         const Location& loc2 = bodyExp->location;
         body = Feather_mkLocalSpace(*loc, fromIniList({mkReturnStmt(loc2, bodyExp)}));
         if (!retType)
-            retType = mkFunApplication(loc2, mkIdentifier(loc2, fromCStr("typeOf")),
+            retType = mkFunApplication(loc2, mkIdentifier(loc2, StringRef("typeOf")),
                     Feather_mkNodeList(loc2, fromIniList({bodyExp})));
     }
     return mkSprFunction(*loc, name, formals, retType, body, ifClause);
@@ -171,7 +171,7 @@ extern "C" Node* comp_parser_mkReturnStmt(Location* loc, Node* expr) {
 
 Parser::Parser(Location loc)
     : ctx_(spr_parserIf_createParser(
-              fromCStr(loc.sourceCode->url), StringRef{nullptr, nullptr}, &loc)) {}
+              StringRef(loc.sourceCode->url), StringRef{nullptr, nullptr}, &loc)) {}
 
 Parser::Parser(Location loc, StringRef code)
     : ctx_(spr_parserIf_createParser(StringRef{nullptr, nullptr}, code, &loc)) {}

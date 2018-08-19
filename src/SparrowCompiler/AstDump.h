@@ -1,6 +1,6 @@
 #pragma once
 
-typedef struct Nest_Node Node;
+typedef struct Nest_Node Nest_Node;
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,7 +20,7 @@ extern "C" {
  * @param node          The start node to be dumped
  * @param filename      The filename where to dump the AST
  */
-void dumpAstNode(Node* node, const char* filename);
+void dumpAstNode(Nest_Node* node, const char* filename);
 
 #ifdef __cplusplus
 }

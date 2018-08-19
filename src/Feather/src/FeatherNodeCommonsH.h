@@ -6,4 +6,4 @@
 
 #include "Feather/Api/Feather.h"
 
-typedef struct Nest_Modifier Modifier;
+typedef struct Nest_Modifier Nest_Modifier;

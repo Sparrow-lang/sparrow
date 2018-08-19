@@ -8,7 +8,7 @@ extern "C" {
 #endif
 
 /// Type of function that changes the evaluation mode of a type
-typedef TypeRef (*FChangeTypeMode)(TypeRef, EvalMode);
+typedef Nest_TypeRef (*FChangeTypeMode)(Nest_TypeRef, EvalMode);
 
 /// Registers a new type kind
 ///

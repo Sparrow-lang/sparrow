@@ -6,16 +6,16 @@
 extern "C" {
 #endif
 
-typedef struct Nest_Node Node;
+typedef struct Nest_Node Nest_Node;
 
 /// Function that gets a string description for the given node
-typedef const char* (*FToString)(const Node* node);
+typedef const char* (*FToString)(Nest_Node* node);
 /// Function that sets the context for the children of this node
-typedef void (*FSetContextForChildren)(Node* node);
+typedef void (*FSetContextForChildren)(Nest_Node* node);
 /// Function that computes the type of the given node
-typedef TypeRef (*FComputeType)(Node* node);
+typedef Nest_TypeRef (*FComputeType)(Nest_Node* node);
 /// Function that semantically checks the given node
-typedef Node* (*FSemanticCheck)(Node* node);
+typedef Nest_Node* (*FSemanticCheck)(Nest_Node* node);
 
 /// Registers a new node kind
 ///

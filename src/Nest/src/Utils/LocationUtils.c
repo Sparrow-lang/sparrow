@@ -1,23 +1,24 @@
 #include "Nest/Utils/LocationUtils.h"
 #include "Nest/Utils/Assert.h"
 
-Location Nest_mkEmptyLocation() {
-    Location loc = {0, {1, 1}, {1, 1}};
+Nest_Location Nest_mkEmptyLocation() {
+    Nest_Location loc = {0, {1, 1}, {1, 1}};
     return loc;
 }
-Location Nest_mkLocation(const SourceCode* sourceCode, unsigned int startLineNo,
+Nest_Location Nest_mkLocation(const Nest_SourceCode* sourceCode, unsigned int startLineNo,
         unsigned int startColNo, unsigned int endLineNo, unsigned int endColNo) {
-    Location loc = {sourceCode, {startLineNo, startColNo}, {endLineNo, endColNo}};
+    Nest_Location loc = {sourceCode, {startLineNo, startColNo}, {endLineNo, endColNo}};
     return loc;
 }
-Location Nest_mkLocation1(const SourceCode* sourceCode, unsigned int lineNo, unsigned int colNo) {
-    Location loc = {sourceCode, {lineNo, colNo}, {lineNo, colNo}};
+Nest_Location Nest_mkLocation1(
+        const Nest_SourceCode* sourceCode, unsigned int lineNo, unsigned int colNo) {
+    Nest_Location loc = {sourceCode, {lineNo, colNo}, {lineNo, colNo}};
     return loc;
 }
 
-int Nest_isLocEmpty(const Location* loc) { return loc->sourceCode == 0; }
+int Nest_isLocEmpty(const Nest_Location* loc) { return loc->sourceCode == 0; }
 
-int Nest_compareLocations(const Location* loc1, const Location* loc2) {
+int Nest_compareLocations(const Nest_Location* loc1, const Nest_Location* loc2) {
     if (loc1->sourceCode < loc2->sourceCode)
         return -1;
     if (loc1->sourceCode > loc2->sourceCode)

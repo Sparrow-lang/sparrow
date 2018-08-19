@@ -5,20 +5,29 @@ SET(sourceFiles
     "UnitTestsMain.cpp"
     "TestBasic.cpp"
     "TestConvert.cpp"
-    "Common/RcBasic.hpp"
-    "Common/TypeFactory.hpp"
-    "Common/TypeFactory.cpp"
-    "Common/GeneralFixture.hpp"
-    "Common/GeneralFixture.cpp"
-    "Common/BackendMock.hpp"
     "Common/BackendMock.cpp"
+    "Common/BackendMock.hpp"
+    "Common/FeatherNodeFactory.cpp"
+    "Common/FeatherNodeFactory.hpp"
+    "Common/GeneralFixture.cpp"
+    "Common/GeneralFixture.hpp"
+    "Common/RcBasic.hpp"
+    "Common/TypeFactory.cpp"
+    "Common/TypeFactory.hpp"
+    "Nest/MockNode.cpp"
+    "Nest/MockNode.hpp"
+    "Nest/MockType.cpp"
+    "Nest/MockType.hpp"
+    "Nest/TestNode.cpp"
+    "Nest/TestType.cpp"
+    "Feather/TestFeatherNodes.cpp"
+    "Feather/TestTypes.cpp"
 )
 
 # Project settings
 INCLUDE_DIRECTORIES( "." )
 INCLUDE_DIRECTORIES( "../src" )
 INCLUDE_DIRECTORIES( "../externals/rapidcheck/include" )
-# INCLUDE_DIRECTORIES( "../externals/rapidcheck/extras/boost_test/include" )
 INCLUDE_DIRECTORIES( "../externals/rapidcheck/ext/catch/include" )
 INCLUDE_DIRECTORIES( "../externals/rapidcheck/extras/catch/include" )
 ADD_SOURCES_TO_GROUPS(sourceFiles)

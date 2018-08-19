@@ -5,7 +5,8 @@
 
 #include "Nest/Utils/Alloc.h"
 #include "Nest/Utils/Diagnostic.hpp"
-#include "Nest/Utils/StringRef.hpp"
+#include "Nest/Utils/cppif/StringRef.hpp"
+#include "Nest/Utils/cppif/Fwd.hpp"
 #include "Nest/Api/EvalMode.h"
 #include "Nest/Api/Node.h"
 
@@ -13,6 +14,9 @@
 #include "Nest/Api/SourceCodeKindRegistrar.h"
 
 #include <fstream>
+
+using Nest::CompilationContext;
+using Nest::StringRef;
 
 namespace {
 string readFile(const string& filename) {
@@ -77,18 +81,18 @@ EvalMode specifiedCtAvailability(const string& fileContent) {
     return modeRt;
 }
 
-void parseSourceCode(SourceCode* sourceCode, CompilationContext* ctx) {
+void parseSourceCode(Nest_SourceCode* sourceCode, CompilationContext* ctx) {
     // Read the LLVM content
     const string& fileContent = readFile(sourceCode->url);
 
     // Create a backend code with the given content
     EvalMode evalMode = specifiedCtAvailability(fileContent);
     sourceCode->mainNode = Feather_mkBackendCode(
-            Nest_mkLocation1(sourceCode, 1, 1), fromString(fileContent), evalMode);
+            Nest_mkLocation1(sourceCode, 1, 1), StringRef(fileContent), evalMode);
     Nest_setContext(sourceCode->mainNode, ctx);
 }
 
-StringRef getSourceCodeLine(const SourceCode* sourceCode, int lineNo) {
+Nest_StringRef getSourceCodeLine(const Nest_SourceCode* sourceCode, int lineNo) {
     StringRef res{nullptr, nullptr};
     ifstream f(sourceCode->url);
     if (!f)

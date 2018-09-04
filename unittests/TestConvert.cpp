@@ -81,9 +81,14 @@ struct ConvertFixture : SparrowGeneralFixture {
         return res.conversionType();
     }
 
-    ConversionResult getConvResult(TypeRef src, TypeRef dest, ConversionFlags flags = flagsDefault) {
+    ConversionResult getConvResult(
+            TypeRef src, TypeRef dest, ConversionFlags flags = flagsDefault) {
         return g_ConvertService->checkConversion(globalContext_, src, dest, flags);
     }
+
+    //! Check category conversions
+    void checkCatConversions(DataType src, DataType dest);
+
 
     TypeRef fooType_;
     TypeRef barType_; // fooType_ -> barType_
@@ -375,8 +380,10 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
     }
 }
 
-bool isDatatypeOrLvalue(TypeRef t) {
-    return t->typeKind == Feather_getDataTypeKind() || t->typeKind == Feather_getLValueTypeKind();
+bool isDatatypeBased(TypeRef t) {
+    return t->typeKind == Feather_getDataTypeKind() || t->typeKind == Feather_getLValueTypeKind() ||
+           t->typeKind == Feather_getConstTypeKind() ||
+           t->typeKind == Feather_getMutableTypeKind() || t->typeKind == Feather_getTempTypeKind();
 }
 
 TEST_CASE_METHOD(ConvertFixture, "Conversion return types follow rules") {
@@ -391,7 +398,7 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion return types follow rules") {
             // If we have datatypes or lvalues, and they point to different decls, this must be a
             // custom conversion
             // Exception: src == Null
-            if (isDatatypeOrLvalue(src) && isDatatypeOrLvalue(dest) &&
+            if (isDatatypeBased(src) && isDatatypeBased(dest) &&
                     src->referredNode != dest->referredNode &&
                     src->referredNode != nullType_->referredNode)
                 expectedConv = convCustom;
@@ -452,6 +459,9 @@ void checkActionsAgainstType(const ConversionResult& cvt, TypeRef destType) {
     for (auto act : cvt.convertActions()) {
         switch (act.first) {
         case ActionType::none:
+            minConv = worstConv(minConv, convDirect);
+            break;
+        case ActionType::catCast:
             minConv = worstConv(minConv, convDirect);
             break;
         case ActionType::dereference:
@@ -517,7 +527,7 @@ void checkActionTypes(const ConversionResult& cvt, TypeRef srcType, TypeRef dest
 
     // Make-null action is the last one
     auto idx = find(first, last, ActionType::makeNull) - first;
-    RC_ASSERT(idx+1 >= actions.size());
+    RC_ASSERT(idx + 1 >= actions.size());
 }
 
 TEST_CASE_METHOD(ConvertFixture, "Convert actions applied follow rules") {
@@ -541,7 +551,6 @@ TEST_CASE_METHOD(ConvertFixture, "Convert actions applied follow rules") {
         checkActionsAgainstType(getConvResult(src, dest), dest);
     });
 
-
     rc::prop("no conversion implies no actions", [=]() {
         TypeRef src = *TypeFactory::arbType();
         TypeRef dest = *TypeFactory::arbType();
@@ -550,7 +559,6 @@ TEST_CASE_METHOD(ConvertFixture, "Convert actions applied follow rules") {
         if (!cvt)
             RC_ASSERT(cvt.convertActions().empty());
     });
-
 
     rc::prop("different properties of action types hold (related data types)", [=]() {
         TypeRef src = *TypeFactory::arbBasicStorageType();
@@ -567,5 +575,58 @@ TEST_CASE_METHOD(ConvertFixture, "Convert actions applied follow rules") {
         TypeRef src = *TypeFactory::arbType();
         TypeRef dest = *TypeFactory::arbType();
         checkActionTypes(getConvResult(src, dest), src, dest);
+    });
+}
+
+void ConvertFixture::checkCatConversions(DataType src, DataType dest) {
+    auto baseConv = getConvType(src, dest);
+    if (baseConv == convNone || baseConv == convCustom)
+        return;
+
+    RC_LOG() << src << " -> " << dest << endl;
+
+    ConstType constSrc = ConstType::get(src);
+    MutableType mutSrc = MutableType::get(src);
+    TempType tmpSrc = TempType::get(src);
+    ConstType constDest = ConstType::get(dest);
+    MutableType mutDest = MutableType::get(dest);
+    TempType tmpDest = TempType::get(dest);
+
+    // Direct: T -> const(U), if T->U
+    RC_ASSERT(getConvType(src, constDest) == baseConv);
+    // Direct: const(T)->const(U), if T->U
+    RC_ASSERT(getConvType(constSrc, constDest) == baseConv);
+    // Direct: const(T)->plain(U), if T->U
+    RC_ASSERT(getConvType(constSrc, dest) == baseConv);
+
+    // Direct: mut(T)->mut(U), if T->U
+    RC_ASSERT(getConvType(mutSrc, mutDest) == baseConv);
+    // Direct: mut(T)->const(U), if T->U
+    RC_ASSERT(getConvType(mutSrc, constDest) == baseConv);
+    // Direct: mut(T)->plain(U), if T->U
+    RC_ASSERT(getConvType(mutSrc, dest) == baseConv);
+
+
+    // Direct: tmp(T)->tmp(U), if T->U
+    RC_ASSERT(getConvType(tmpSrc, tmpDest) == baseConv);
+    // Direct: tmp(T)->const(U), if T->U
+    RC_ASSERT(getConvType(tmpSrc, constDest) == baseConv);
+    // Direct: tmp(T)->mut(U), if T->U
+    RC_ASSERT(getConvType(tmpSrc, mutDest) == baseConv);
+    // Direct: tmp(T)->plain(U), if T->U
+    RC_ASSERT(getConvType(tmpSrc, dest) == baseConv);
+}
+
+TEST_CASE_METHOD(ConvertFixture, "Category conversions") {
+    rc::prop("Category conversions work as expected (related data types)", [=]() {
+        DataType src = *TypeFactory::arbDataType();
+        DataType dest = *TypeFactory::arbDataType();
+        RC_PRE(src.referredNode() == dest.referredNode()); // increase the chance of matching
+        checkCatConversions(src, dest);
+    });
+    rc::prop("Category conversions work as expected (basic storage types)", [=]() {
+        DataType src = *TypeFactory::arbDataType();
+        DataType dest = *TypeFactory::arbDataType();
+        checkCatConversions(src, dest);
     });
 }

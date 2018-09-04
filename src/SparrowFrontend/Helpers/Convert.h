@@ -20,6 +20,7 @@ ConversionType bestConv(ConversionType lhs, ConversionType rhs);
 //! The type of actions we need to perform for a conversion
 enum class ActionType {
     none,
+    catCast,     // direct
     dereference, // direct (implicit for concept dereference)
     bitcast,     // implicit
     makeNull,    // implicit

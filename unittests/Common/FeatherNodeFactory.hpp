@@ -13,6 +13,8 @@ public:
     void init(LocationGenFun locGen);
     //! Reset all the context data
     void reset();
+    //! Remove all the aux generated decls
+    void clearAuxNodes();
     //! Set the context for all the aux generated decls
     void setContextForAuxNodes(Nest::CompilationContext* ctx);
 

@@ -44,6 +44,10 @@ void FeatherNodeFactory::reset() {
     locationGen = {};
 }
 
+void FeatherNodeFactory::clearAuxNodes() {
+    generatedVarDecls_.clear();
+    generatedFunDecls_.clear();
+}
 void FeatherNodeFactory::setContextForAuxNodes(Nest::CompilationContext* ctx) {
     for (auto& p : generatedVarDecls_) {
         p.second.setContext(ctx);
@@ -95,7 +99,8 @@ Gen<Feather::VarRefExp> FeatherNodeFactory::arbVarRefExp(Nest::TypeWithStorage e
         VarDecl& varDecl = generatedVarDecls_[baseType];
         if (!varDecl) {
             string name = string("var-") + baseType.description();
-            varDecl = VarDecl::create(locationGen(), name, genTypeNode(baseType));
+            auto typeNode = TypeNode::create(locationGen(), baseType);
+            varDecl = VarDecl::create(locationGen(), name, typeNode);
         }
         // Now make a VarRefExp pointing to the variable
         return VarRefExp::create(locationGen(), varDecl);

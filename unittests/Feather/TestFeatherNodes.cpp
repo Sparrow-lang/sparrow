@@ -20,6 +20,7 @@ struct FeatherNodesFixture : SparrowGeneralFixture {
     FeatherNodesFixture();
     ~FeatherNodesFixture();
 
+    void clearAuxNodes();
     void setContextForAuxNodes();
 };
 
@@ -39,12 +40,17 @@ FeatherNodesFixture::~FeatherNodesFixture() {
     FeatherNodeFactory::instance().reset();
 }
 
+void FeatherNodesFixture::clearAuxNodes() {
+    FeatherNodeFactory::instance().clearAuxNodes();
+}
+
 void FeatherNodesFixture::setContextForAuxNodes() {
     FeatherNodeFactory::instance().setContextForAuxNodes(globalContext_);
 }
 
 TEST_CASE_METHOD(FeatherNodesFixture, "Testing Feather expressions generation") {
     rc::prop("Test expected type", [=](Nest::TypeWithStorage expectedType) {
+        clearAuxNodes();
         NodeHandle node = *FeatherNodeFactory::instance().arbExp(expectedType);
         setContextForAuxNodes();
         node.setContext(globalContext_);
@@ -57,6 +63,7 @@ TEST_CASE_METHOD(FeatherNodesFixture, "Testing Feather expressions generation") 
 
 TEST_CASE_METHOD(FeatherNodesFixture, "Testing Feather::Nop node") {
     SECTION("Has type Void") {
+        clearAuxNodes();
         auto nop = Nop::create(createLocation());
         setContextForAuxNodes();
         nop.setContext(globalContext_);

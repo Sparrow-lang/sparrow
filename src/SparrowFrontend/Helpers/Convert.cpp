@@ -80,6 +80,8 @@ Node* applyOnce(Node* src, ConvAction action) {
     switch (action.first) {
     case ActionType::none:
         return src;
+    case ActionType::catCast:
+        return src; // TODO
     case ActionType::dereference:
         return Feather_mkMemLoad(src->location, src);
     case ActionType::bitcast:
@@ -173,6 +175,28 @@ private:
     ConversionResult checkConceptToConcept(
             CompilationContext* context, int flags, TypeRef srcType, TypeRef destType);
 
+    //! direct: T -> const(U), if T->U
+    ConversionResult checkDataTypeToConst(
+            CompilationContext* context, int flags, Type srcType, Type destType);
+
+    //! direct: const(T)->const(U), if T->U
+    //! direct: const(T)->plain(U), if T->U
+    ConversionResult checkFromConst(
+            CompilationContext* context, int flags, Type srcType, Type destType);
+
+    //! direct: mut(T)->mut(U), if T->U
+    //! direct: mut(T)->const(U), if T->U
+    //! direct: mut(T)->plain(U), if T->U
+    ConversionResult checkFromMutable(
+            CompilationContext* context, int flags, Type srcType, Type destType);
+
+    //! direct: tmp(T)->tmp(U), if T->U
+    //! direct: tmp(T)->const(U), if T->U
+    //! direct: tmp(T)->mut(U), if T->U
+    //! direct: tmp(T)->plain(U), if T->U
+    ConversionResult checkFromTemp(
+            CompilationContext* context, int flags, Type srcType, Type destType);
+
     //! direct: lv(T) -> U, if T-> U or addRef(T) -> U (take best alternative)
     ConversionResult checkLValueToNormal(
             CompilationContext* context, int flags, TypeRef srcType, TypeRef destType);
@@ -243,6 +267,32 @@ ConversionResult ConvertService::checkConversionImpl(
 
     // Direct: Concept to another concept
     c = checkConceptToConcept(context, flags, srcType, destType);
+    if (c)
+        return c;
+
+    // Direct: T -> const(U), if T->U
+    c = checkDataTypeToConst(context, flags, srcType, destType); // Recursive call
+    if (c)
+        return c;
+
+    // Direct: const(T)->const(U), if T->U
+    // Direct: const(T)->plain(U), if T->U
+    c = checkFromConst(context, flags, srcType, destType); // Recursive call
+    if (c)
+        return c;
+
+    // Direct: mut(T)->mut(U), if T->U
+    // Direct: mut(T)->const(U), if T->U
+    // Direct: mut(T)->plain(U), if T->U
+    c = checkFromMutable(context, flags, srcType, destType); // Recursive call
+    if (c)
+        return c;
+
+    // Direct: tmp(T)->tmp(U), if T->U
+    // Direct: tmp(T)->const(U), if T->U
+    // Direct: tmp(T)->mut(U), if T->U
+    // Direct: tmp(T)->plain(U), if T->U
+    c = checkFromTemp(context, flags, srcType, destType); // Recursive call
     if (c)
         return c;
 
@@ -391,6 +441,93 @@ ConversionResult ConvertService::checkConceptToConcept(
         return {};
     srcBaseConceptType = Type(srcBaseConceptType).changeMode(srcType->mode, srcConcept->location);
     return cachedCheckConversion(context, flags, srcBaseConceptType, destType);
+}
+
+ConversionResult ConvertService::checkDataTypeToConst(
+        CompilationContext* context, int flags, Type srcType, Type destType) {
+    if (srcType.kind() == typeKindData && destType.kind() == typeKindConst) {
+        Type destTypeNew = ConstType(destType).base();
+        const auto& nextConv = cachedCheckConversion(context, flags, srcType, destTypeNew);
+        return ConversionResult(nextConv, convDirect, ConvAction(ActionType::catCast, destType));
+    }
+    return {};
+}
+
+ConversionResult ConvertService::checkFromConst(
+        CompilationContext* context, int flags, Type srcType, Type destType) {
+    if (srcType.kind() == typeKindConst) {
+        ConstType src{srcType};
+
+        Type dest;
+        if (destType.kind() == typeKindConst)
+            dest = ConstType(destType).base();
+        else if (destType.kind() == typeKindData)
+            dest = destType;
+        if (!dest)
+            return {};
+
+        const auto& nextConv = cachedCheckConversion(context, flags, src.base(), dest);
+        if (destType.kind() == typeKindConst)
+            return nextConv;
+        else
+            return ConversionResult(
+                    nextConv, convDirect, ConvAction(ActionType::catCast, destType));
+    }
+    return {};
+}
+
+ConversionResult ConvertService::checkFromMutable(
+        CompilationContext* context, int flags, Type srcType, Type destType) {
+    if (srcType.kind() == typeKindMutable) {
+        MutableType src{srcType};
+
+        Type dest;
+        if (destType.kind() == typeKindMutable)
+            dest = MutableType(destType).base();
+        else if (destType.kind() == typeKindConst)
+            dest = ConstType(destType).base();
+        else if (destType.kind() == typeKindTemp)
+            dest = TempType(destType).base();
+        else if (destType.kind() == typeKindData)
+            dest = destType;
+        if (!dest)
+            return {};
+
+        const auto& nextConv = cachedCheckConversion(context, flags, src.base(), dest);
+        if (destType.kind() == typeKindMutable)
+            return nextConv;
+        else
+            return ConversionResult(
+                    nextConv, convDirect, ConvAction(ActionType::catCast, destType));
+    }
+    return {};
+}
+
+ConversionResult ConvertService::checkFromTemp(
+        CompilationContext* context, int flags, Type srcType, Type destType) {
+    if (srcType.kind() == typeKindTemp) {
+        TempType src{srcType};
+
+        Type dest;
+        if (destType.kind() == typeKindMutable)
+            dest = MutableType(destType).base();
+        else if (destType.kind() == typeKindConst)
+            dest = ConstType(destType).base();
+        else if (destType.kind() == typeKindTemp)
+            dest = TempType(destType).base();
+        else if (destType.kind() == typeKindData)
+            dest = destType;
+        if (!dest)
+            return {};
+
+        const auto& nextConv = cachedCheckConversion(context, flags, src.base(), dest);
+        if (destType.kind() == typeKindTemp)
+            return nextConv;
+        else
+            return ConversionResult(
+                    nextConv, convDirect, ConvAction(ActionType::catCast, destType));
+    }
+    return {};
 }
 
 ConversionResult ConvertService::checkLValueToNormal(

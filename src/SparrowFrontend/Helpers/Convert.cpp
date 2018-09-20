@@ -197,8 +197,8 @@ private:
     ConversionResult checkFromTemp(
             CompilationContext* context, int flags, Type srcType, Type destType);
 
-    //! direct: lv(T) -> U, if T-> U or addRef(T) -> U (take best alternative)
-    ConversionResult checkLValueToNormal(
+    //! direct: mut(T) -> U, if T-> U or addRef(T) -> U (take best alternative)
+    ConversionResult checkMutableToNormal(
             CompilationContext* context, int flags, TypeRef srcType, TypeRef destType);
 
     //! implicit: #Null -> U, if isRef(U) and isStorage(U)
@@ -296,8 +296,8 @@ ConversionResult ConvertService::checkConversionImpl(
     if (c)
         return c;
 
-    // Direct: If we have a l-value, convert into a reference
-    c = checkLValueToNormal(context, flags, srcType, destType); // Recursive call
+    // Direct: If we have a mutable, convert into a reference
+    c = checkMutableToNormal(context, flags, srcType, destType); // Recursive call
     if (c)
         return c;
 
@@ -381,11 +381,11 @@ ConversionResult ConvertService::checkChangeMode(
         if (!srcType->canBeUsedAtRt)
             return {};
 
-        // Cannot convert references from CT to RT; still we allow l-value conversions
-        if (srcTypeNew->typeKind == typeKindLValue) {
+        // Cannot convert references from CT to RT; still we allow cat conversions
+        if (Feather::isCategoryType(srcTypeNew)) {
             if (srcTypeNew->numReferences > 1)
                 return {};
-            srcTypeNew = LValueType(srcTypeNew).base();
+            srcTypeNew = removeCategoryIfPresent(srcTypeNew);
             action = ConvAction(ActionType::dereference, srcTypeNew);
         }
         if (srcTypeNew->numReferences > 0)
@@ -405,7 +405,7 @@ ConversionResult ConvertService::checkConvertToConcept(
 
     bool isOk = false;
 
-    if (srcType->typeKind != typeKindLValue && srcType->numReferences == destType->numReferences) {
+    if (!Feather::isCategoryType(srcType) && srcType->numReferences == destType->numReferences) {
         Node* concept = conceptOfType(destType);
         if (!concept) {
             isOk = true;
@@ -530,10 +530,10 @@ ConversionResult ConvertService::checkFromTemp(
     return {};
 }
 
-ConversionResult ConvertService::checkLValueToNormal(
+ConversionResult ConvertService::checkMutableToNormal(
         CompilationContext* context, int flags, TypeRef srcType, TypeRef destType) {
-    if (srcType->typeKind == typeKindLValue && destType->typeKind != typeKindLValue) {
-        DataType t2 = LValueType(srcType).toRef();
+    if (srcType->typeKind == typeKindMutable && destType->typeKind != typeKindMutable) {
+        DataType t2 = MutableType(srcType).toRef();
         auto t1 = removeRef(t2);
 
         // First check conversion without reference
@@ -591,7 +591,7 @@ ConversionResult ConvertService::checkConversionCtor(
     if (!destClass || !Nest_computeType(destClass))
         return {};
 
-    // Try to convert srcType to lv destClass
+    // Try to convert srcType to mut destClass
     if (!g_OverloadService->selectConversionCtor(context, destClass, destType->mode, srcType))
         return {};
 
@@ -605,12 +605,12 @@ ConversionResult ConvertService::checkConversionCtor(
     if (!isPublic(destClass))
         sourceCode = context->sourceCode;
 
-    TypeRef t = destClass->type;
-    EvalMode destMode = t->mode;
+    TypeWithStorage t = destClass->type;
+    EvalMode destMode = t.mode();
     if (destMode == modeRt)
         destMode = srcType->mode;
-    t = Type(t).changeMode(destMode, NOLOC);
-    TypeRef resType = Feather_getLValueType(t);
+    t = t.changeMode(destMode, NOLOC);
+    TypeWithStorage resType = Feather::isCategoryType(t) ? t : MutableType::get(t);
 
     const auto& nextConv =
             cachedCheckConversion(context, flags | flagDontCallConversionCtor, resType, destType);

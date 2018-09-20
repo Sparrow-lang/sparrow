@@ -27,10 +27,6 @@ Gen<Feather::VoidType> arbVoidType();
 //! We would generate types with decls found in g_dataTypeDecls
 Gen<Feather::DataType> arbDataType(EvalMode mode = modeUnspecified, int minRef = 0, int maxRef = 4);
 
-//! Returns a generator for arbitrary LValue types
-Gen<Feather::LValueType> arbLValueType(
-        EvalMode mode = modeUnspecified, int minRef = 1, int maxRef = 4);
-
 //! Returns a generator for arbitrary Const types
 Gen<Feather::ConstType> arbConstType(
         EvalMode mode = modeUnspecified, int minRef = 0, int maxRef = 4);
@@ -56,7 +52,7 @@ Gen<Nest::Type> arbConceptType(EvalMode mode = modeUnspecified, int minRef = 0, 
 Gen<Nest::TypeWithStorage> arbTypeWithStorage(
         EvalMode mode = modeUnspecified, int minRef = 0, int maxRef = 4);
 
-//! Returns a generator for arbitrary basic storage types (data type and LValue type)
+//! Returns a generator for arbitrary basic storage types (data-like type)
 Gen<Nest::TypeWithStorage> arbBasicStorageType(
         EvalMode mode = modeUnspecified, int minRef = 0, int maxRef = 4);
 
@@ -66,7 +62,7 @@ Gen<Nest::Type> arbType();
 //! Returns an arbitrary type, as a TypeRef
 Gen<Nest::TypeRef> arbTypeRef();
 
-//! Returns a generator for Bool types; it will generate DataType or LValue types for a struct that
+//! Returns a generator for Bool types; it will generate DataType or MutableType for a struct that
 //! has 'i8' native name
 Gen<Nest::TypeWithStorage> arbBoolType(EvalMode mode = modeUnspecified);
 
@@ -81,9 +77,6 @@ template <> struct Arbitrary<Feather::VoidType> {
 };
 template <> struct Arbitrary<Feather::DataType> {
     static Gen<Feather::DataType> arbitrary() { return TypeFactory::arbDataType(); }
-};
-template <> struct Arbitrary<Feather::LValueType> {
-    static Gen<Feather::LValueType> arbitrary() { return TypeFactory::arbLValueType(); }
 };
 template <> struct Arbitrary<Feather::ConstType> {
     static Gen<Feather::ConstType> arbitrary() { return TypeFactory::arbConstType(); }

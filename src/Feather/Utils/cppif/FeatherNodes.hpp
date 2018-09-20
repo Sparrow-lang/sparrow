@@ -632,7 +632,7 @@ private:
  *     - the given decl is not a field, and has storage
  *
  * Postcondition:
- *     - the resulting type will be a LValue of the type of the var
+ *     - the resulting type will be a Mutable of the type of the var
  */
 struct VarRefExp : NodeHandle {
     //! Register this node kind
@@ -788,7 +788,7 @@ private:
  *
  * Postcondition:
  *     - the type of the node has one reference less than the given type (adjusted to context)
- *     - the resulting type will not be LValue
+ *     - the resulting type will not be a category type
  */
 struct MemLoadExp : NodeHandle {
     //! Register this node kind
@@ -824,7 +824,7 @@ private:
  *     - the given nodes are not null
  *     - the type of the given address node has storage and can be dereferenced (at least 1 ref)
  *     - the type of the given value is the same type of the address, minus one ref; if the value
- *         type is LValue, also try removing the LValue when comparing
+ *         type is cat type, also try removing the category when comparing
  *
  * Postcondition:
  *     - the resulting type will be Void (adjusted to context)

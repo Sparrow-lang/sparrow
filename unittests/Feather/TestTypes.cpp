@@ -52,25 +52,6 @@ TEST_CASE_METHOD(FeatherTypesFixture, "User can create Feather types with given 
         REQUIRE(type.numReferences() == numRefs);
         REQUIRE(type.referredNode() == decl);
     });
-    rc::prop("Can create LValue types", [](EvalMode mode) {
-        using TypeFactory::g_dataTypeDecls;
-
-        NodeHandle decl = g_dataTypeDecls[*rc::gen::inRange(0, (int) g_dataTypeDecls.size())];
-        int numRefs = *rc::gen::inRange(0, 10);
-
-        auto baseType = DataType::get(decl, numRefs, mode);
-        auto type = LValueType::get(baseType);
-        REQUIRE(type);
-        REQUIRE(type.kind() == Feather_getLValueTypeKind());
-        REQUIRE(type.mode() == mode);
-        REQUIRE(type.canBeUsedAtRt());
-        REQUIRE(type.hasStorage());
-        REQUIRE(type.numReferences() == numRefs+1);
-        REQUIRE(type.referredNode() == decl);
-
-        REQUIRE(type.base() == baseType);
-        REQUIRE(type.toRef().numReferences() == numRefs+1);
-    });
     rc::prop("Can create Const types", [](EvalMode mode) {
         using TypeFactory::g_dataTypeDecls;
 
@@ -143,14 +124,14 @@ TEST_CASE_METHOD(FeatherTypesFixture, "User can add or remove references") {
         auto newType = removeAllRefs(base);
         REQUIRE(newType.numReferences() == 0);
     });
-    rc::prop("lvalueToRefIfPresent does nothing for data types", []() {
+    rc::prop("categoryToRefIfPresent does nothing for data types", []() {
         DataType base = *TypeFactory::arbDataType(modeUnspecified, 0, 10);
-        Type newType = lvalueToRefIfPresent(base);
+        Type newType = categoryToRefIfPresent(base);
         REQUIRE(newType == base);
     });
-    rc::prop("lvalueToRefIfPresent keeps the same number of references", []() {
+    rc::prop("categoryToRefIfPresent keeps the same number of references", []() {
         TypeWithStorage base = *TypeFactory::arbBasicStorageType(modeUnspecified, 0, 10);
-        TypeWithStorage newType = TypeWithStorage(lvalueToRefIfPresent(base));
+        TypeWithStorage newType = TypeWithStorage(categoryToRefIfPresent(base));
         REQUIRE(newType.numReferences() == base.numReferences());
     });
 }

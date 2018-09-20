@@ -29,14 +29,6 @@ Gen<DataType> arbDataType(EvalMode mode, int minRef, int maxRef) {
             gen::inRange(0, numT), gen::inRange(minRef, maxRef), modeGen);
 }
 
-Gen<LValueType> arbLValueType(EvalMode mode, int minRef, int maxRef) {
-    if (minRef > 0)
-        minRef--;
-    if (maxRef > 0)
-        maxRef--;
-    return gen::apply(&LValueType::get, arbDataType(mode, minRef, maxRef));
-}
-
 Gen<ConstType> arbConstType(EvalMode mode, int minRef, int maxRef) {
     if (minRef > 0)
         minRef--;
@@ -100,7 +92,7 @@ Gen<TypeWithStorage> arbTypeWithStorage(EvalMode mode, int minRef, int maxRef) {
             idx = 0;
         switch (idx) {
         case 1:
-            return *arbLValueType(mode, minRef, maxRef);
+            return *arbMutableType(mode, minRef, maxRef);
         case 2:
             return *arbArrayType(mode);
         case 3:
@@ -114,13 +106,11 @@ Gen<TypeWithStorage> arbTypeWithStorage(EvalMode mode, int minRef, int maxRef) {
 
 Gen<TypeWithStorage> arbBasicStorageType(EvalMode mode, int minRef, int maxRef) {
     int weightDataType = 5;
-    // int weightLValueType = minRef == 0 ? 0 : 3;
     int weightConstType = minRef == 0 ? 0 : 3;
     int weightMutableType = minRef == 0 ? 0 : 3;
     int weightTempType = 1;
     return gen::weightedOneOf<TypeWithStorage>({
             {weightDataType, gen::cast<TypeWithStorage>(arbDataType(mode, minRef, maxRef))},
-            // {weightLValueType, gen::cast<TypeWithStorage>(arbLValueType(mode, minRef, maxRef))},
             {weightConstType, gen::cast<TypeWithStorage>(arbConstType(mode, minRef, maxRef))},
             {weightMutableType, gen::cast<TypeWithStorage>(arbMutableType(mode, minRef, maxRef))},
             {weightTempType, gen::cast<TypeWithStorage>(arbTempType(mode, minRef, maxRef))},
@@ -130,9 +120,8 @@ Gen<TypeWithStorage> arbBasicStorageType(EvalMode mode, int minRef, int maxRef) 
 Gen<Type> arbType() {
     return gen::weightedOneOf<Type>({
             {5, gen::cast<Type>(arbDataType())},
-            {3, gen::cast<Type>(arbLValueType())},
-            {2, gen::cast<Type>(arbConstType())},
-            {2, gen::cast<Type>(arbMutableType())},
+            {3, gen::cast<Type>(arbConstType())},
+            {3, gen::cast<Type>(arbMutableType())},
             {2, gen::cast<Type>(arbTempType())},
             {1, gen::cast<Type>(arbVoidType())},
             {1, gen::cast<Type>(arbConceptType())},
@@ -164,8 +153,8 @@ Gen<TypeWithStorage> arbBoolType(EvalMode mode) {
         });
         TypeWithStorage t = DataType::get(boolDecl, numRefs, m);
         int percentage = *gen::inRange(0, 100);
-        if (*gen::inRange(0, 100) < 25) // 25% return LValue
-            t = LValueType::get(t);
+        if (*gen::inRange(0, 100) < 25) // 25% return MutableType
+            t = MutableType::get(t);
         return t;
     });
 }

@@ -37,7 +37,15 @@ llvm::Type* transformDataType(TypeRef type, GlobalContext& ctx) {
     return t;
 }
 
-llvm::Type* transformLValueType(TypeRef type, GlobalContext& ctx) {
+llvm::Type* transformConstType(TypeRef type, GlobalContext& ctx) {
+    return llvm::PointerType::get(getLLVMType(Feather_baseType(type), ctx), 0);
+}
+
+llvm::Type* transformMutableType(TypeRef type, GlobalContext& ctx) {
+    return llvm::PointerType::get(getLLVMType(Feather_baseType(type), ctx), 0);
+}
+
+llvm::Type* transformTempType(TypeRef type, GlobalContext& ctx) {
     return llvm::PointerType::get(getLLVMType(Feather_baseType(type), ctx), 0);
 }
 
@@ -76,8 +84,12 @@ llvm::Type* Tr::getLLVMType(TypeRef type, GlobalContext& ctx) {
         llvmType = transformVoid(type, ctx);
     else if (type->typeKind == typeKindData)
         llvmType = transformDataType(type, ctx);
-    else if (type->typeKind == typeKindLValue)
-        llvmType = transformLValueType(type, ctx);
+    else if (type->typeKind == typeKindConst)
+        llvmType = transformConstType(type, ctx);
+    else if (type->typeKind == typeKindMutable)
+        llvmType = transformMutableType(type, ctx);
+    else if (type->typeKind == typeKindTemp)
+        llvmType = transformTempType(type, ctx);
     else if (type->typeKind == typeKindArray)
         llvmType = transformArrayType(type, ctx);
     else if (type->typeKind == typeKindFunction)

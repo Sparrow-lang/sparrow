@@ -259,8 +259,8 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
         RC_ASSERT(getConvType(src, dest) == convDirect);
     });
 
-    rc::prop("if T and U are unrelated (basic storage), then lv(T)->U == none)", [=]() {
-        TypeRef t = *TypeFactory::arbBasicStorageType();
+    rc::prop("if T and U are unrelated (basic storage), then mut(T)->U == none)", [=]() {
+        TypeRef t = *TypeFactory::arbDataType();
         TypeRef u = *TypeFactory::arbBasicStorageType();
         RC_PRE(t->referredNode != u->referredNode);
         RC_PRE(t->referredNode != nullType_->referredNode);
@@ -268,53 +268,53 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
                 u->referredNode != barType_->referredNode);
         RC_LOG() << t << " -> " << u;
 
-        TypeRef lvT = Feather_getLValueType(t);
-        RC_ASSERT(getConvType(lvT, u) == convNone);
+        TypeRef mutT = MutableType::get(t);
+        RC_ASSERT(getConvType(mutT, u) == convNone);
     });
 
-    rc::prop("if T->U (T=datatype) then lv(T)->U", [=]() {
+    rc::prop("if T->U (T=datatype) then mut(T)->U", [=]() {
         TypeRef t = *TypeFactory::arbDataType();
         TypeRef u = *TypeFactory::arbBasicStorageType();
         RC_PRE(t->referredNode == u->referredNode);
-        TypeRef lvT = Feather_getLValueType(t);
-        RC_PRE(lvT != u);
-        RC_LOG() << lvT << " -> " << u << endl;
+        TypeRef mutT = MutableType::get(t);
+        RC_PRE(mutT != u);
+        RC_LOG() << mutT << " -> " << u << endl;
 
         ConversionType c1 = getConvType(t, u);
         RC_LOG() << "    " << t << " -> " << u << " = " << int(c1) << endl;
 
         if (c1)
-            RC_ASSERT(getConvType(lvT, u) != convNone);
+            RC_ASSERT(getConvType(mutT, u) != convNone);
     });
 
     rc::prop("if @T->U (T=datatype) then lv(T)->U", [=]() {
         TypeRef t = *TypeFactory::arbDataType();
         TypeRef u = *TypeFactory::arbBasicStorageType();
         RC_PRE(t->referredNode == u->referredNode); // increase the chance of matching
-        TypeRef lvT = Feather_getLValueType(t);
-        RC_LOG() << lvT << " -> " << u << endl;
+        TypeRef mutT = MutableType::get(t);
+        RC_LOG() << mutT << " -> " << u << endl;
 
         TypeRef rt = addRef(DataType(t));
         ConversionType c1 = getConvType(rt, u);
         RC_LOG() << "    " << rt << " -> " << u << " = " << int(c1) << endl;
 
         if (c1) {
-            RC_ASSERT(getConvType(lvT, u) != convNone);
+            RC_ASSERT(getConvType(mutT, u) != convNone);
         }
     });
 
-    SECTION("LValue examples") {
+    SECTION("MutableType examples") {
         Node* decl = TypeFactory::g_dataTypeDecls[0];
         TypeRef t0 = Feather_getDataType(decl, 0, modeRt); // i8
         TypeRef t1 = Feather_getDataType(decl, 1, modeRt); // @i8
         TypeRef t2 = Feather_getDataType(decl, 2, modeRt); // @@i8
-        TypeRef t0lv = Feather_getLValueType(t0);          // i8 lv
-        TypeRef t1lv = Feather_getLValueType(t0);          // @i8 lv
+        TypeRef t0mut = MutableType::get(t0);              // i8 mut
+        TypeRef t1mut = MutableType::get(t1);              // @i8 mut
         CHECK(getConvType(t0, t1) == convImplicit);
-        CHECK(getConvType(t0lv, t0) == convDirect); // strange!
-        CHECK(getConvType(t0lv, t1) == convImplicit);
-        CHECK(getConvType(t1lv, t1) == convImplicit); // strange!
-        CHECK(getConvType(t1lv, t2) == convNone);
+        CHECK(getConvType(t0mut, t0) == convDirect);
+        CHECK(getConvType(t0mut, t1) == convImplicit);
+        CHECK(getConvType(t1mut, t1) == convDirect);
+        CHECK(getConvType(t1mut, t2) == convImplicit);
         CHECK(getConvType(t1, t2) == convNone);
         CHECK(getConvType(t0, t2) == convNone);
     }
@@ -363,11 +363,11 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
     rc::prop("if a datatype fulfills a concept, derived types will also fulfill it", [=]() {
         TypeRef src = *rc::gen::element(fooType_, barType_);
         int numRefs = *rc::gen::inRange(0, 4);
-        bool useLValue = *rc::gen::element(0, 1) != 0;
+        bool useMut = *rc::gen::element(0, 1) != 0;
         for (int i = 0; i < numRefs; i++)
             src = addRef(DataType(src));
-        if (useLValue)
-            src = Feather_getLValueType(src);
+        if (useMut)
+            src = MutableType::get(src);
         TypeRef dest = *TypeFactory::arbConceptType(src->mode, 0, 1);
 
         RC_LOG() << src << " -> " << dest << endl;
@@ -380,12 +380,6 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
     }
 }
 
-bool isDatatypeBased(TypeRef t) {
-    return t->typeKind == Feather_getDataTypeKind() || t->typeKind == Feather_getLValueTypeKind() ||
-           t->typeKind == Feather_getConstTypeKind() ||
-           t->typeKind == Feather_getMutableTypeKind() || t->typeKind == Feather_getTempTypeKind();
-}
-
 TEST_CASE_METHOD(ConvertFixture, "Conversion return types follow rules") {
 
     rc::prop("Checking rules for conversion types", [=](TypeRef src, TypeRef dest) {
@@ -395,10 +389,10 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion return types follow rules") {
 
             ConversionType expectedConv = convDirect;
 
-            // If we have datatypes or lvalues, and they point to different decls, this must be a
+            // If we have data-like types, and they point to different decls, this must be a
             // custom conversion
             // Exception: src == Null
-            if (isDatatypeBased(src) && isDatatypeBased(dest) &&
+            if (isDataLikeType(src) && isDataLikeType(dest) &&
                     src->referredNode != dest->referredNode &&
                     src->referredNode != nullType_->referredNode)
                 expectedConv = convCustom;
@@ -410,18 +404,22 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion return types follow rules") {
                 expectedConv = convConcept;
 
             unsigned srcBaseReferences = src->numReferences;
-            if (src->typeKind == typeKindLValue || src->typeKind == typeKindConst ||
-                    src->typeKind == typeKindMutable || src->typeKind == typeKindTemp)
+            if (Feather::isCategoryType(src))
                 srcBaseReferences--;
             unsigned destBaseReferences = dest->numReferences;
-            if (dest->typeKind == typeKindLValue || dest->typeKind == typeKindConst ||
-                    dest->typeKind == typeKindMutable || dest->typeKind == typeKindTemp)
+            if (Feather::isCategoryType(dest))
                 destBaseReferences--;
 
             // We don't have a good model for Null -> Null conversions
             // TODO (types)
             RC_PRE(src->referredNode != nullType_->referredNode ||
                     dest->referredNode != nullType_->referredNode);
+
+            // We don't have a good model for const/temp -> Concept conversions
+            // TODO (types)
+            if ((src->typeKind == typeKindConst || src->typeKind == typeKindTemp) &&
+                    dest->typeKind == typeKindConcept)
+                RC_PRE(false);
 
             // Check for implicit conversions.
             // That is, whenever we do some conversions based on references
@@ -602,7 +600,7 @@ void ConvertFixture::checkCatConversions(DataType src, DataType dest) {
     RC_ASSERT(getConvType(constSrc, dest) == baseConv);
 
     // Direct: mut(T)->mut(U), if T->U
-    RC_ASSERT(getConvType(mutSrc, mutDest) == baseConv);
+    // RC_ASSERT(getConvType(mutSrc, mutDest) == baseConv);
     // Direct: mut(T)->const(U), if T->U
     RC_ASSERT(getConvType(mutSrc, constDest) == baseConv);
     // Direct: mut(T)->plain(U), if T->U

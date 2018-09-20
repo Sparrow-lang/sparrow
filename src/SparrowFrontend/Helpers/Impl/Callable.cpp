@@ -1218,7 +1218,9 @@ ConversionType SprFrontend::canCall(CallableData& c, CompilationContext* context
 
     // If this callable requires an added this argument, add it
     if (c.implicitArgType) {
-        TypeRef t = Feather_getLValueType(c.implicitArgType);
+        Type t = c.implicitArgType;
+        if (!Feather::isCategoryType(t))
+            t = MutableType::get(c.implicitArgType);
 
         argTypes2 = argTypes;
         argTypes2.insert(argTypes2.begin(), t);

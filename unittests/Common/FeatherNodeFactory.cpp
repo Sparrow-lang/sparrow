@@ -90,10 +90,10 @@ Gen<Feather::VarRefExp> FeatherNodeFactory::arbVarRefExp(Nest::TypeWithStorage e
         // Get the types needed here
         auto t = expectedType;
         if (expectedType)
-            REQUIRE(expectedType.kind() == Feather_getLValueTypeKind());
+            REQUIRE(expectedType.kind() == typeKindMutable);
         else
-            t = *TypeFactory::arbLValueType();
-        auto baseType = LValueType(t).base();
+            t = *TypeFactory::arbMutableType();
+        auto baseType = MutableType(t).base();
 
         // Generate a variable of the base type
         VarDecl& varDecl = generatedVarDecls_[baseType];
@@ -215,7 +215,7 @@ Gen<NodeHandle> FeatherNodeFactory::arbExp(Nest::TypeWithStorage expectedType) {
             weightMemLoadExp = 0;
             weightConditionalExp = 0;
         }
-        if (kind != Feather_getLValueTypeKind()) {
+        if (kind != typeKindMutable) {
             weightVarRefExp = 0;
             // weightFieldRefExp = 0;
             // weightFunRefExp = 0;

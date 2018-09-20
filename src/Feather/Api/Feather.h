@@ -24,7 +24,6 @@ Nest_CompilerModule* Feather_getModule();
 // The type kinds for the Feather types
 int Feather_getVoidTypeKind();
 int Feather_getDataTypeKind();
-int Feather_getLValueTypeKind();
 int Feather_getConstTypeKind();
 int Feather_getMutableTypeKind();
 int Feather_getTempTypeKind();
@@ -38,10 +37,6 @@ Nest_TypeRef Feather_getVoidType(EvalMode mode);
 /// A data type is introduced by a class definition and can have one or more references; a data type
 /// must have a size
 Nest_TypeRef Feather_getDataType(Nest_Node* classDecl, unsigned numReferences, EvalMode mode);
-
-/// Returns an L-Value type
-/// This type would represents an l-value to an existing storage type
-Nest_TypeRef Feather_getLValueType(Nest_TypeRef base);
 
 Nest_TypeRef Feather_getConstType(Nest_TypeRef base);
 Nest_TypeRef Feather_getMutableType(Nest_TypeRef base);

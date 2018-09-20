@@ -59,46 +59,13 @@ struct DataType : TypeWithStorage {
 };
 
 /**
- * @brief      A LValue type.
- *
- * This represents the type of a variable. Something that we can take the address of.
- *
- * Constraints:
- *     - must be created on top of a type with storage
- */
-struct LValueType : TypeWithStorage {
-    LValueType() = default;
-    LValueType(Nest::TypeRef type);
-
-    /**
-     * @brief      Factory method to create a LValue type
-     *
-     * @param[in]  base  The base type on which we apply LValue-ness
-     *
-     * @return     The corresponding LValue type
-     */
-    static LValueType get(TypeWithStorage base);
-
-    //! Returns the base type of this type
-    TypeWithStorage base() const { return TypeWithStorage(type_->subTypes[0]); }
-
-    //! Transform this type into a corresponding DataType with the same number of references.
-    DataType toRef() const;
-
-    //! @copydoc Type::changeMode
-    LValueType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) {
-        return LValueType(Type::changeMode(mode, loc));
-    }
-};
-
-/**
  * @brief      A Const type.
  *
  * A const type will not allow the users to change the value referred by this type.
  *
  * Constraints:
  *     - must be created on top of a type with storage
- *     - cannot be created on top of a MutableType/TempType/LValueType
+ *     - cannot be created on top of a MutableType/TempType
  */
 struct ConstType : TypeWithStorage {
     ConstType() = default;
@@ -132,7 +99,7 @@ struct ConstType : TypeWithStorage {
  *
  * Constraints:
  *     - must be created on top of a type with storage
- *     - cannot be created on top of a ConstType/TempType/LValueType
+ *     - cannot be created on top of a ConstType/TempType
  */
 struct MutableType : TypeWithStorage {
     MutableType() = default;
@@ -166,7 +133,7 @@ struct MutableType : TypeWithStorage {
  *
  * Constraints:
  *     - must be created on top of a type with storage
- *     - cannot be created on top of a MutableType/TmpType/LValueType
+ *     - cannot be created on top of a ConstType/MutableType
  */
 struct TempType : TypeWithStorage {
     TempType() = default;
@@ -264,6 +231,12 @@ struct FunctionType : TypeWithStorage {
     }
 };
 
+//! Determines if the type is data-like: DataType, ConstType, MutableType, TempType
+bool isDataLikeType(Type type);
+
+//! Determines if the type is a category type: ConstType, MutableType, TempType
+bool isCategoryType(Type type);
+
 /**
  * @brief      Adds a reference to the given type.
  *
@@ -271,7 +244,7 @@ struct FunctionType : TypeWithStorage {
  * of the given type.
  *
  * Constraints:
- *     - given type must be DataType, LValueType, ConstType, MutableType or TempType
+ *     - given type must be Data-like type (DataType, ConstType, MutableType or TempType)
  *
  * @param[in]  type  The type to add reference to
  *
@@ -284,7 +257,7 @@ TypeWithStorage addRef(TypeWithStorage type);
  *
  * Constraints:
  *     - given type must have at least one reference
- *     - given type must be DataType, LValueType, ConstType, MutableType or TempType
+ *     - given type must be Data-like type
  *
  * @param[in]  type  The type to remove reference from
  *
@@ -296,7 +269,7 @@ TypeWithStorage removeRef(TypeWithStorage type);
  * @brief      Removes all references from this type
  *
  * Constraints:
- *     - given type must be DataType or LValueType
+ *     - given type must be Data-like type
  *     - returned type is always DataType
  *
  * @param[in]  type  The type to remove references from
@@ -306,27 +279,27 @@ TypeWithStorage removeRef(TypeWithStorage type);
 TypeWithStorage removeAllRefs(TypeWithStorage type);
 
 /**
- * @brief      Removes the LValue from the type, if present.
+ * @brief      Removes the category from the type, if present.
  *
  * The given type can be any type (even without storage).
- * If the type is LValue, we will always create a DataType.
+ * If the type is Const/Mutable/Temp, we will always create a DataType.
  *
- * @param[in]  type  The type to remove LValue from
+ * @param[in]  type  The type to remove category from
  *
- * @return     Type without LValue, or the original type if no LValue was present
+ * @return     Type without Const/Mutable/Temp
  */
-Type removeLValueIfPresent(Type type);
+Type removeCategoryIfPresent(Type type);
 
 /**
- * @brief      If the given type is an LValue, transform it to ref.
+ * @brief      If the given type is a category, transform it to ref.
  *
  * The given type can be any type (even without storage).
- * If the type is LValue, we will always create a DataType.
+ * If the type is Const/Mutable/Temp, we will always create a DataType.
  *
- * @param[in]  type  The type, that may be an LValue
+ * @param[in]  type  The type, that may be an Const/Mutable/Temp
  *
  * @return     Equivalent DataType
  */
-Type lvalueToRefIfPresent(Type type);
+Type categoryToRefIfPresent(Type type);
 
 } // namespace Feather

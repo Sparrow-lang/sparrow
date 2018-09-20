@@ -34,7 +34,6 @@ string getDataTypeDescription(Node* classDecl, unsigned numReferences, EvalMode 
         res += "/ct";
     return res;
 }
-string getLValueTypeDescription(TypeRef base) { return string(base->description) + " lv"; }
 string getConstTypeDescription(TypeRef base) { return string(base->description) + " const"; }
 string getMutableTypeDescription(TypeRef base) { return string(base->description) + " mut"; }
 string getTempTypeDescription(TypeRef base) { return string(base->description) + " tmp"; }
@@ -80,7 +79,6 @@ TypeRef changeTypeModeFunction(TypeRef type, EvalMode newMode) {
 
 int typeKindVoid = -1;
 int typeKindData = -1;
-int typeKindLValue = -1;
 int typeKindConst = -1;
 int typeKindMutable = -1;
 int typeKindTemp = -1;
@@ -95,13 +93,10 @@ void initFeatherTypeKinds() {
     typeKindTemp = Nest_registerTypeKind(&changeTypeModeTemp);
     typeKindArray = Nest_registerTypeKind(&changeTypeModeArray);
     typeKindFunction = Nest_registerTypeKind(&changeTypeModeFunction);
-
-    typeKindLValue = typeKindMutable;
 }
 
 int Feather_getVoidTypeKind() { return typeKindVoid; }
 int Feather_getDataTypeKind() { return typeKindData; }
-int Feather_getLValueTypeKind() { return typeKindLValue; }
 int Feather_getConstTypeKind() { return typeKindConst; }
 int Feather_getMutableTypeKind() { return typeKindMutable; }
 int Feather_getTempTypeKind() { return typeKindTemp; }
@@ -146,33 +141,6 @@ TypeRef Feather_getDataType(Node* classDecl, unsigned numReferences, EvalMode mo
     TypeRef t = Nest_findStockType(&referenceType);
     if (!t)
         t = Nest_insertStockType(&referenceType);
-    return t;
-}
-
-TypeRef Feather_getLValueType(TypeRef base) {
-    Nest_Type referenceType = {0};
-    referenceType.typeKind = typeKindLValue;
-    referenceType.mode = base->mode;
-    referenceType.numSubtypes = 1;
-    referenceType.numReferences = 1 + base->numReferences;
-    referenceType.hasStorage = 1;
-    referenceType.canBeUsedAtRt = base->canBeUsedAtRt;
-    referenceType.flags = 0;
-    referenceType.referredNode = base->referredNode;
-    referenceType.description = str(getLValueTypeDescription(base));
-
-    // Temporarily use the pointer to the given parameter
-    referenceType.subTypes = &base;
-
-    TypeRef t = Nest_findStockType(&referenceType);
-    if (!t) {
-        // Allocate now new buffer to hold the subtypes
-        // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-        referenceType.subTypes = new TypeRef[1];
-        referenceType.subTypes[0] = base;
-
-        t = Nest_insertStockType(&referenceType);
-    }
     return t;
 }
 

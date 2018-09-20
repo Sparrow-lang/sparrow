@@ -10,6 +10,7 @@
 #include <Helpers/StdDef.h>
 
 #include "Feather/Utils/FeatherUtils.hpp"
+#include "Feather/Utils/cppif/FeatherTypes.hpp"
 
 #include "Nest/Api/SourceCode.h"
 
@@ -347,10 +348,9 @@ bool ConceptsService::conceptIsFulfilled(Node* concept1, TypeRef type) {
     ConceptNode concept = concept1;
     InstSetNode instSet = concept.instSet();
 
-    // We only support datatype and lvalue types to fulfil concepts
+    // We only support data-like types to fulfil concepts
     // TODO (types): Expand this to all datatypes
-    int kind = type->typeKind;
-    if (kind != Feather_getDataTypeKind() && kind != Feather_getLValueTypeKind())
+    if (!Feather::isDataLikeType(type))
         return false;
 
     if (!concept.node->nodeSemanticallyChecked || !instSet)

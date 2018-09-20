@@ -31,8 +31,8 @@ TypeRef evalTypeIfPossible(Node* typeNode);
 /// create a type node from the given type
 Node* createTypeNode(CompilationContext* context, const Location& loc, TypeRef t);
 
-/// Gets the type to be used when auto is found for a node; removes l-values, but tries to preserve
-/// references
+/// Gets the type to be used when auto is found for a node; removes category type, but tries to
+/// preserve references
 TypeRef getAutoType(Node* typeNode, bool addRef = false, EvalMode evalMode = modeRt);
 
 /// Tests if this an concept or concept-ref type

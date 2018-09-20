@@ -306,7 +306,7 @@ llvm::DIType* DebugInfo::createDiType(GlobalContext& ctx, TypeRef type) {
 
     llvm::DIType* res = nullptr;
     if (type->numReferences > 0) {
-        // Pointer type (Datatype & LValue)
+        // Pointer type (Datatype & category type)
         int sizeInBits = dataLayout.getTypeAllocSizeInBits(t);
         auto baseType = createDiType(ctx, removeRef(TypeWithStorage(type)));
         res = diBuilder_.createPointerType(baseType, sizeInBits);

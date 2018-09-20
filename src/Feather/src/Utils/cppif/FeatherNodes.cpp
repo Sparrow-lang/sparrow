@@ -822,7 +822,10 @@ NodeHandle VarRefExp::semanticCheckImpl() {
         REP_ERROR_RET(
                 nullptr, location(), "Variable type doesn't have a storage type (type: %1%)") %
                 var.type();
-    setType(Feather_adjustMode(LValueType::get(var.type()), context(), location()));
+    TypeWithStorage t = var.type();
+    if (!Feather::isCategoryType(t))
+        t = MutableType::get(t);
+    setType(Feather_adjustMode(t, context(), location()));
     Feather_checkEvalModeWithExpected(handle, var.type().mode());
     return *this;
 }
@@ -884,9 +887,11 @@ NodeHandle FieldRefExp::semanticCheckImpl() {
                 field.name();
 
     // Set the correct type for this node
-    ASSERT(field.type());
-    ASSERT(field.type().hasStorage());
-    setType(LValueType::get(field.type()));
+    TypeWithStorage t = field.type();
+    ASSERT(t);
+    if (!Feather::isCategoryType(t))
+        t = MutableType::get(t);
+    setType(t);
     EvalMode mode = Feather_combineMode(obj.type().mode(), context()->evalMode);
     setType(type().changeMode(mode, location()));
     return *this;
@@ -1097,8 +1102,8 @@ NodeHandle MemStoreExp::semanticCheckImpl() {
 
     // Check the equivalence of types
     if (!sameTypeIgnoreMode(value.type(), baseAddressType)) {
-        // Try again, getting rid of l-values
-        if (!sameTypeIgnoreMode(lvalueToRefIfPresent(value.type()), baseAddressType))
+        // Try again, getting rid of category type
+        if (!sameTypeIgnoreMode(categoryToRefIfPresent(value.type()), baseAddressType))
             REP_ERROR_RET(nullptr, location(),
                     "The type of the value doesn't match the type of the address in a memory store "
                     "(%1% != %2%)") %

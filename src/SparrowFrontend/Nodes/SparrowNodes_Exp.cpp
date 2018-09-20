@@ -186,10 +186,10 @@ Node* checkReinterpretCast(Node* node) {
                 "Destination type must be a reference (currently: %1%)") %
                 destType;
 
-    // If source is an l-value and the number of source reference is greater than the destination
-    // references, remove lvalue
+    // If source is a category type and the number of source reference is greater than the destination
+    // references, remove category
     Node* arg = at(arguments->children, 1);
-    if (srcType->numReferences > destType->numReferences && srcType->typeKind == typeKindLValue)
+    if (srcType->numReferences > destType->numReferences && Feather::isCategoryType(srcType))
         arg = Feather_mkMemLoad(arg->location, arg);
 
     // Generate a bitcast operation out of this node
@@ -227,8 +227,8 @@ Node* checkSizeOf(Node* node) {
     if (!Nest_computeType(mainNode))
         return nullptr;
 
-    // Remove l-value if we have some
-    t = removeLValueIfPresent(t);
+    // Remove category if we have some
+    t = removeCategoryIfPresent(t);
 
     // Get the size of the type of the argument
     uint64_t size = Nest_sizeOf(t);
@@ -255,7 +255,7 @@ Node* checkTypeOf(Node* node) {
     TypeRef t = arg->type;
     if (!t)
         REP_INTERNAL(node->location, "Invalid argument");
-    t = removeLValueIfPresent(t);
+    t = removeCategoryIfPresent(t);
 
     // Create a CtValue to hold the type
     return createTypeNode(node->context, arg->location, t);
@@ -1418,7 +1418,7 @@ Node* LambdaFunction_SemanticCheck(Node* node) {
             if (!Nest_semanticCheck(arg))
                 return nullptr;
             StringRef varName = Feather_getName(arg);
-            TypeRef varType = removeLValueIfPresent(arg->type);
+            TypeRef varType = removeCategoryIfPresent(arg->type);
 
             // Create a similar variable in the enclosing class - must have the same name
             const Location& argLoc = arg->location;

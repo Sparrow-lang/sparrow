@@ -101,7 +101,7 @@ TypeRef getTypeValueImpl(Node* typeNode, bool reportErrors = false) {
         return res;
     }
 
-    TypeRef res = Feather::lvalueToRefIfPresent(typeNode->type);
+    TypeRef res = Feather::categoryToRefIfPresent(typeNode->type);
 
     if (res == StdDef::typeRefType) {
         Node* n = Nest_ctEval(typeNode);
@@ -270,13 +270,13 @@ Node* SprFrontend::createTypeNode(CompilationContext* context, const Location& l
 TypeRef SprFrontend::getAutoType(Node* typeNode, bool addRef, EvalMode evalMode) {
     TypeRef t1 = typeNode->type;
 
-    // Nothing to do for storage types other than data and LValue
-    if (t1->typeKind != typeKindData && t1->typeKind != typeKindLValue)
+    // Nothing to do for non-data-like storage types
+    if (!Feather::isDataLikeType(t1))
         return t1;
 
     Nest::TypeWithStorage t = t1;
 
-    // Dereference (and remove LValue if there is one)
+    // Dereference (and remove category type if there is one)
     t = Feather::removeAllRefs(t);
 
     if (addRef)
@@ -298,9 +298,10 @@ bool SprFrontend::isConceptType(TypeRef t, bool& isRefAuto) {
 TypeRef SprFrontend::changeRefCount(TypeRef type, int numRef, const Location& loc) {
     ASSERT(type);
 
-    // If we have a LValue type, remove it
-    while (type->typeKind == typeKindLValue)
+    // If we have a category type, get its base
+    while (Feather::isCategoryType(type))
         type = Feather_baseType(type);
+    // TODO (types): Not sure if this is the right approach
 
     if (type->typeKind == typeKindData)
         type = Feather_getDataType(type->referredNode, numRef, type->mode);

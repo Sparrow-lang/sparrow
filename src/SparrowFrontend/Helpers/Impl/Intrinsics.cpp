@@ -82,8 +82,8 @@ Node* impl_typeEQ(CompilationContext* context, const Location& loc, const NodeVe
     TypeRef t1 = getType(args[0]);
     TypeRef t2 = getType(args[1]);
 
-    t1 = Feather::removeLValueIfPresent(t1);
-    t2 = Feather::removeLValueIfPresent(t2);
+    t1 = Feather::removeCategoryIfPresent(t1);
+    t2 = Feather::removeCategoryIfPresent(t2);
 
     bool equals = Nest::sameTypeIgnoreMode(t1, t2);
 
@@ -95,7 +95,7 @@ Node* impl_typeAddRef(CompilationContext* context, const Location& loc, const No
     CHECK(loc, args.size() == 1);
     TypeRef t = getType(args[0]);
 
-    t = Feather::removeLValueIfPresent(t);
+    t = Feather::removeCategoryIfPresent(t);
     t = changeRefCount(t, t->numReferences + 1, loc);
     return createTypeNode(context, loc, t);
 }
@@ -103,7 +103,7 @@ Node* impl_typeAddRef(CompilationContext* context, const Location& loc, const No
 Node* impl_ct(CompilationContext* context, const Location& loc, const NodeVector& args) {
     TypeRef t = getType(args[0]);
 
-    t = Feather::removeLValueIfPresent(t);
+    t = Feather::removeCategoryIfPresent(t);
     t = Type(t).changeMode(modeCt, loc);
     if (t->mode != modeCt)
         REP_ERROR_RET(nullptr, loc, "Type %1% cannot be used at compile-time") % t;
@@ -114,7 +114,7 @@ Node* impl_ct(CompilationContext* context, const Location& loc, const NodeVector
 Node* impl_rt(CompilationContext* context, const Location& loc, const NodeVector& args) {
     TypeRef t = getType(args[0]);
 
-    t = Feather::removeLValueIfPresent(t);
+    t = Feather::removeCategoryIfPresent(t);
     t = Type(t).changeMode(modeRt, loc);
     if (t->mode != modeRt)
         REP_ERROR_RET(nullptr, loc, "Type %1% cannot be used at run-time") % t;
@@ -158,7 +158,7 @@ Node* impl_Meta_astEval(CompilationContext* context, const Location& loc, const 
 
     // Get the impl part of the node
     Node* implPart = mkCompoundExp(loc, args[0], StringRef("data"));
-    implPart = Feather_mkMemLoad(loc, implPart); // Remove LValue
+    implPart = Feather_mkMemLoad(loc, implPart); // Remove category type
     Nest_setContext(implPart, context);
     if (!Nest_semanticCheck(implPart))
         return nullptr;

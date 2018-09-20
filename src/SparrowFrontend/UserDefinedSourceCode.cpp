@@ -122,7 +122,7 @@ void parseSourceCode(Nest_SourceCode* sourceCode, CompilationContext* ctx) {
 
     // Compile the function and evaluate it
     Node* implPart = mkCompoundExp(loc, funCall, StringRef("data"));
-    implPart = Feather_mkMemLoad(loc, implPart); // Remove LValue
+    implPart = Feather_mkMemLoad(loc, implPart); // Remove category
     Nest_setContext(implPart, ctx);
     if (!Nest_semanticCheck(implPart))
         REP_INTERNAL(loc, "Invalid parsing function '%1%', (used to parse %2%)") % funInfo %

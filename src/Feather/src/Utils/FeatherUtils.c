@@ -57,8 +57,9 @@ int Feather_numReferences(Nest_TypeRef type) {
 
 Nest_TypeRef Feather_baseType(Nest_TypeRef type) {
     ASSERT(type);
-    ASSERT(k == typeKindLValue || k == typeKindConst || k == typeKindMutable || k == typeKindTemp ||
-            k == typeKindArray);
+    ASSERT(type->typeKind == typeKindLValue || type->typeKind == typeKindConst ||
+            type->typeKind == typeKindMutable || type->typeKind == typeKindTemp ||
+            type->typeKind == typeKindArray);
     ASSERT(type->numSubtypes == 1);
     return type->subTypes[0];
 }

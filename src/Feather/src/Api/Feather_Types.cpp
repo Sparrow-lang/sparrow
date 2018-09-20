@@ -60,9 +60,6 @@ TypeRef changeTypeModeVoid(TypeRef type, EvalMode newMode) { return Feather_getV
 TypeRef changeTypeModeData(TypeRef type, EvalMode newMode) {
     return Feather_getDataType(type->referredNode, type->numReferences, newMode);
 }
-TypeRef changeTypeModeLValue(TypeRef type, EvalMode newMode) {
-    return Feather_getLValueType(Nest_changeTypeMode(Feather_baseType(type), newMode));
-}
 TypeRef changeTypeModeConst(TypeRef type, EvalMode newMode) {
     return Feather_getConstType(Nest_changeTypeMode(Feather_baseType(type), newMode));
 }
@@ -93,12 +90,13 @@ int typeKindFunction = -1;
 void initFeatherTypeKinds() {
     typeKindVoid = Nest_registerTypeKind(&changeTypeModeVoid);
     typeKindData = Nest_registerTypeKind(&changeTypeModeData);
-    typeKindLValue = Nest_registerTypeKind(&changeTypeModeLValue);
     typeKindConst = Nest_registerTypeKind(&changeTypeModeConst);
     typeKindMutable = Nest_registerTypeKind(&changeTypeModeMutable);
     typeKindTemp = Nest_registerTypeKind(&changeTypeModeTemp);
     typeKindArray = Nest_registerTypeKind(&changeTypeModeArray);
     typeKindFunction = Nest_registerTypeKind(&changeTypeModeFunction);
+
+    typeKindLValue = typeKindMutable;
 }
 
 int Feather_getVoidTypeKind() { return typeKindVoid; }
@@ -183,7 +181,7 @@ TypeRef Feather_getConstType(TypeRef base) {
     referenceType.typeKind = typeKindConst;
     referenceType.mode = base->mode;
     referenceType.numSubtypes = 1;
-    referenceType.numReferences = base->numReferences;
+    referenceType.numReferences = 1 + base->numReferences;
     referenceType.hasStorage = 1;
     referenceType.canBeUsedAtRt = base->canBeUsedAtRt;
     referenceType.flags = 0;
@@ -210,7 +208,7 @@ TypeRef Feather_getMutableType(TypeRef base) {
     referenceType.typeKind = typeKindMutable;
     referenceType.mode = base->mode;
     referenceType.numSubtypes = 1;
-    referenceType.numReferences = base->numReferences;
+    referenceType.numReferences = 1 + base->numReferences;
     referenceType.hasStorage = 1;
     referenceType.canBeUsedAtRt = base->canBeUsedAtRt;
     referenceType.flags = 0;
@@ -237,7 +235,7 @@ TypeRef Feather_getTempType(TypeRef base) {
     referenceType.typeKind = typeKindTemp;
     referenceType.mode = base->mode;
     referenceType.numSubtypes = 1;
-    referenceType.numReferences = base->numReferences;
+    referenceType.numReferences = 1 + base->numReferences;
     referenceType.hasStorage = 1;
     referenceType.canBeUsedAtRt = base->canBeUsedAtRt;
     referenceType.flags = 0;

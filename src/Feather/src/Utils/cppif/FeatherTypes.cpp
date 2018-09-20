@@ -62,6 +62,10 @@ ConstType ConstType::get(TypeWithStorage base) {
     return ConstType(Feather_getConstType(base));
 }
 
+DataType ConstType::toRef() const {
+    return DataType::get(referredNode(), numReferences(), mode());
+}
+
 MutableType::MutableType(Nest::TypeRef type)
     : TypeWithStorage(type) {
     if (type && type->typeKind != Feather_getMutableTypeKind())
@@ -79,6 +83,10 @@ MutableType MutableType::get(TypeWithStorage base) {
     return MutableType(Feather_getMutableType(base));
 }
 
+DataType MutableType::toRef() const {
+    return DataType::get(referredNode(), numReferences(), mode());
+}
+
 TempType::TempType(Nest::TypeRef type)
     : TypeWithStorage(type) {
     if (type && type->typeKind != Feather_getTempTypeKind())
@@ -94,6 +102,10 @@ TempType TempType::get(TypeWithStorage base) {
     else if (baseKind == typeKindConst || baseKind == typeKindMutable || baseKind == typeKindLValue)
         REP_INTERNAL(NOLOC, "Cannot construct a tmp type based on %1%") % base;
     return TempType(Feather_getTempType(base));
+}
+
+DataType TempType::toRef() const {
+    return DataType::get(referredNode(), numReferences(), mode());
 }
 
 ArrayType::ArrayType(Nest::TypeRef type)
@@ -121,21 +133,22 @@ TypeWithStorage addRef(TypeWithStorage type) {
     if (!type)
         REP_INTERNAL(NOLOC, "Null type passed to addRef");
     int typeKind = type.kind();
-    if (typeKind == typeKindData || typeKind == typeKindLValue)
+    if (typeKind == typeKindData || typeKind == typeKindLValue || typeKind == typeKindConst ||
+            typeKind == typeKindMutable || typeKind == typeKindTemp)
         return DataType::get(type.referredNode(), type.numReferences() + 1, type.mode());
-    else if (typeKind == typeKindConst) {
-        if (ConstType(type).base().kind() == typeKindData)
-            return ConstType::get(
-                    DataType::get(type.referredNode(), type.numReferences() + 1, type.mode()));
-    } else if (typeKind == typeKindMutable) {
-        if (MutableType(type).base().kind() == typeKindData)
-            return MutableType::get(
-                    DataType::get(type.referredNode(), type.numReferences() + 1, type.mode()));
-    } else if (typeKind == typeKindTemp) {
-        if (TempType(type).base().kind() == typeKindData)
-            return TempType::get(
-                    DataType::get(type.referredNode(), type.numReferences() + 1, type.mode()));
-    }
+    // else if (typeKind == typeKindConst) {
+    //     if (ConstType(type).base().kind() == typeKindData)
+    //         return ConstType::get(
+    //                 DataType::get(type.referredNode(), type.numReferences() + 1, type.mode()));
+    // } else if (typeKind == typeKindMutable) {
+    //     if (MutableType(type).base().kind() == typeKindData)
+    //         return MutableType::get(
+    //                 DataType::get(type.referredNode(), type.numReferences() + 1, type.mode()));
+    // } else if (typeKind == typeKindTemp) {
+    //     if (TempType(type).base().kind() == typeKindData)
+    //         return TempType::get(
+    //                 DataType::get(type.referredNode(), type.numReferences() + 1, type.mode()));
+    // }
 
     REP_INTERNAL(NOLOC, "Invalid type given when adding reference (%1%)") % type;
     return {};
@@ -147,21 +160,22 @@ TypeWithStorage removeRef(TypeWithStorage type) {
         REP_INTERNAL(NOLOC, "Cannot remove reference from type (%1%)") % type;
 
     int typeKind = type.kind();
-    if (typeKind == typeKindData || typeKind == typeKindLValue)
+    if (typeKind == typeKindData || typeKind == typeKindLValue || typeKind == typeKindConst ||
+            typeKind == typeKindMutable || typeKind == typeKindTemp)
         return DataType::get(type.referredNode(), type.numReferences() - 1, type.mode());
-    else if (typeKind == typeKindConst) {
-        if (ConstType(type).base().kind() == typeKindData)
-            return ConstType::get(
-                    DataType::get(type.referredNode(), type.numReferences() - 1, type.mode()));
-    } else if (typeKind == typeKindMutable) {
-        if (MutableType(type).base().kind() == typeKindData)
-            return MutableType::get(
-                    DataType::get(type.referredNode(), type.numReferences() - 1, type.mode()));
-    } else if (typeKind == typeKindTemp) {
-        if (TempType(type).base().kind() == typeKindData)
-            return TempType::get(
-                    DataType::get(type.referredNode(), type.numReferences() - 1, type.mode()));
-    }
+    // else if (typeKind == typeKindConst) {
+    //     if (ConstType(type).base().kind() == typeKindData)
+    //         return ConstType::get(
+    //                 DataType::get(type.referredNode(), type.numReferences() - 1, type.mode()));
+    // } else if (typeKind == typeKindMutable) {
+    //     if (MutableType(type).base().kind() == typeKindData)
+    //         return MutableType::get(
+    //                 DataType::get(type.referredNode(), type.numReferences() - 1, type.mode()));
+    // } else if (typeKind == typeKindTemp) {
+    //     if (TempType(type).base().kind() == typeKindData)
+    //         return TempType::get(
+    //                 DataType::get(type.referredNode(), type.numReferences() - 1, type.mode()));
+    // }
 
     REP_INTERNAL(NOLOC, "Invalid type given when removing reference (%1%)") % type;
     return {};
@@ -171,18 +185,19 @@ TypeWithStorage removeAllRefs(TypeWithStorage type) {
         REP_INTERNAL(NOLOC, "Null type passed to removeAllRefs");
 
     int typeKind = type.kind();
-    if (typeKind == typeKindData || typeKind == typeKindLValue)
+    if (typeKind == typeKindData || typeKind == typeKindLValue || typeKind == typeKindConst ||
+            typeKind == typeKindMutable || typeKind == typeKindTemp)
         return DataType::get(type.referredNode(), 0, type.mode());
-    else if (typeKind == typeKindConst) {
-        if (ConstType(type).base().kind() == typeKindData)
-            return ConstType::get(DataType::get(type.referredNode(), 0, type.mode()));
-    } else if (typeKind == typeKindMutable) {
-        if (MutableType(type).base().kind() == typeKindData)
-            return MutableType::get(DataType::get(type.referredNode(), 0, type.mode()));
-    } else if (typeKind == typeKindTemp) {
-        if (TempType(type).base().kind() == typeKindData)
-            return TempType::get(DataType::get(type.referredNode(), 0, type.mode()));
-    }
+    // else if (typeKind == typeKindConst) {
+    //     if (ConstType(type).base().kind() == typeKindData)
+    //         return ConstType::get(DataType::get(type.referredNode(), 0, type.mode()));
+    // } else if (typeKind == typeKindMutable) {
+    //     if (MutableType(type).base().kind() == typeKindData)
+    //         return MutableType::get(DataType::get(type.referredNode(), 0, type.mode()));
+    // } else if (typeKind == typeKindTemp) {
+    //     if (TempType(type).base().kind() == typeKindData)
+    //         return TempType::get(DataType::get(type.referredNode(), 0, type.mode()));
+    // }
 
     REP_INTERNAL(NOLOC, "Invalid type given when removing all references (%1%)") % type;
     return {};
@@ -191,6 +206,12 @@ TypeWithStorage removeAllRefs(TypeWithStorage type) {
 Type removeLValueIfPresent(Type type) {
     if (type.kind() == typeKindLValue)
         return LValueType(type.type_).base();
+    else if (type.kind() == typeKindConst)
+        return ConstType(type.type_).base();
+    else if (type.kind() == typeKindMutable)
+        return MutableType(type.type_).base();
+    else if (type.kind() == typeKindTemp)
+        return TempType(type.type_).base();
     else
         return type;
 }
@@ -198,6 +219,12 @@ Type removeLValueIfPresent(Type type) {
 Type lvalueToRefIfPresent(Type type) {
     if (type.kind() == typeKindLValue)
         return LValueType(type.type_).toRef();
+    else if (type.kind() == typeKindConst)
+        return ConstType(type.type_).toRef();
+    else if (type.kind() == typeKindMutable)
+        return MutableType(type.type_).toRef();
+    else if (type.kind() == typeKindTemp)
+        return TempType(type.type_).toRef();
     else
         return type;
 }

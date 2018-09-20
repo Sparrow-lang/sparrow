@@ -488,8 +488,8 @@ ConversionResult ConvertService::checkFromMutable(
             dest = ConstType(destType).base();
         else if (destType.kind() == typeKindTemp)
             dest = TempType(destType).base();
-        else if (destType.kind() == typeKindData)
-            dest = destType;
+        // else if (destType.kind() == typeKindData)
+        //     dest = destType;
         if (!dest)
             return {};
 

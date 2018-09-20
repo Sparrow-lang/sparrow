@@ -84,7 +84,7 @@ TEST_CASE_METHOD(FeatherTypesFixture, "User can create Feather types with given 
         REQUIRE(type.mode() == mode);
         REQUIRE(type.canBeUsedAtRt());
         REQUIRE(type.hasStorage());
-        REQUIRE(type.numReferences() == numRefs);
+        REQUIRE(type.numReferences() == numRefs+1);
         REQUIRE(type.referredNode() == decl);
 
         REQUIRE(type.base() == baseType);
@@ -102,7 +102,7 @@ TEST_CASE_METHOD(FeatherTypesFixture, "User can create Feather types with given 
         REQUIRE(type.mode() == mode);
         REQUIRE(type.canBeUsedAtRt());
         REQUIRE(type.hasStorage());
-        REQUIRE(type.numReferences() == numRefs);
+        REQUIRE(type.numReferences() == numRefs+1);
         REQUIRE(type.referredNode() == decl);
 
         REQUIRE(type.base() == baseType);
@@ -120,7 +120,7 @@ TEST_CASE_METHOD(FeatherTypesFixture, "User can create Feather types with given 
         REQUIRE(type.mode() == mode);
         REQUIRE(type.canBeUsedAtRt());
         REQUIRE(type.hasStorage());
-        REQUIRE(type.numReferences() == numRefs);
+        REQUIRE(type.numReferences() == numRefs+1);
         REQUIRE(type.referredNode() == decl);
 
         REQUIRE(type.base() == baseType);

@@ -410,10 +410,12 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion return types follow rules") {
                 expectedConv = convConcept;
 
             unsigned srcBaseReferences = src->numReferences;
-            if (src->typeKind == Feather_getLValueTypeKind())
+            if (src->typeKind == typeKindLValue || src->typeKind == typeKindConst ||
+                    src->typeKind == typeKindMutable || src->typeKind == typeKindTemp)
                 srcBaseReferences--;
             unsigned destBaseReferences = dest->numReferences;
-            if (dest->typeKind == Feather_getLValueTypeKind())
+            if (dest->typeKind == typeKindLValue || dest->typeKind == typeKindConst ||
+                    dest->typeKind == typeKindMutable || dest->typeKind == typeKindTemp)
                 destBaseReferences--;
 
             // We don't have a good model for Null -> Null conversions

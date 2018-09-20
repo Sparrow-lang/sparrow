@@ -116,6 +116,9 @@ struct ConstType : TypeWithStorage {
     //! Returns the base type of this type
     TypeWithStorage base() const { return TypeWithStorage(type_->subTypes[0]); }
 
+    //! Transform this type into a corresponding DataType with the same number of references.
+    DataType toRef() const;
+
     //! @copydoc Type::changeMode
     ConstType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) {
         return ConstType(Type::changeMode(mode, loc));
@@ -147,6 +150,9 @@ struct MutableType : TypeWithStorage {
     //! Returns the base type of this type
     TypeWithStorage base() const { return TypeWithStorage(type_->subTypes[0]); }
 
+    //! Transform this type into a corresponding DataType with the same number of references.
+    DataType toRef() const;
+
     //! @copydoc Type::changeMode
     MutableType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) {
         return MutableType(Type::changeMode(mode, loc));
@@ -177,6 +183,9 @@ struct TempType : TypeWithStorage {
 
     //! Returns the base type of this type
     TypeWithStorage base() const { return TypeWithStorage(type_->subTypes[0]); }
+
+    //! Transform this type into a corresponding DataType with the same number of references.
+    DataType toRef() const;
 
     //! @copydoc Type::changeMode
     TempType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) {

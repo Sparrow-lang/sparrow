@@ -130,6 +130,7 @@ ConvertFixture::ConvertFixture() {
     // Ensure we set the Null type
     nullType_ = Feather_getDataType(nullTypeDecl, 0, modeRt);
     SprFrontend::StdDef::typeNull = nullType_;
+    SprFrontend::StdDef::clsNull = nullTypeDecl;
 
     // Ensure we set the Type type -- but don't add it to our conversion types
     Node* typeDecl = createDatatypeNode(StringRef("Type"), globalContext_);
@@ -459,10 +460,7 @@ void checkActionsAgainstType(const ConversionResult& cvt, TypeRef destType) {
     for (auto act : cvt.convertActions()) {
         switch (act.first) {
         case ActionType::none:
-            minConv = worstConv(minConv, convDirect);
-            break;
-        case ActionType::catCast:
-            minConv = worstConv(minConv, convDirect);
+        case ActionType::modeCast:
             break;
         case ActionType::dereference:
             minConv = worstConv(minConv, convImplicit);
@@ -528,6 +526,68 @@ void checkActionTypes(const ConversionResult& cvt, TypeRef srcType, TypeRef dest
     // Make-null action is the last one
     auto idx = find(first, last, ActionType::makeNull) - first;
     RC_ASSERT(idx + 1 >= actions.size());
+
+    // Check that, at each step applying the conversion makes sense
+    TypeRef t = srcType;
+    for (auto act : cvt.convertActions()) {
+        TypeRef newT = act.second;
+        RC_LOG() << "  " << t << " -> " << newT << " : " << act.first << endl;
+
+        switch (act.first) {
+        case ActionType::none:
+            RC_ASSERT(false);
+            break;
+        case ActionType::modeCast:
+            RC_ASSERT(t->mode == modeCt);
+            RC_ASSERT(newT->mode == modeRt);
+            RC_ASSERT(t->typeKind == newT->typeKind);
+            RC_ASSERT(t->numReferences == 0);
+            RC_ASSERT(newT->numReferences == 0);
+            RC_ASSERT(t->referredNode == newT->referredNode);
+            t = newT;
+            break;
+        case ActionType::dereference:
+            RC_ASSERT(t->mode == newT->mode);
+            RC_ASSERT(t->numReferences == 1+newT->numReferences);
+            RC_ASSERT(t->referredNode == newT->referredNode);
+            t = newT;
+            break;
+        case ActionType::bitcast:
+            RC_ASSERT(t->mode == newT->mode);
+            RC_ASSERT(t->numReferences > 0);
+            RC_ASSERT(newT->numReferences > 0);
+            if ( t->typeKind == typeKindData && newT->typeKind != typeKindData)
+                RC_ASSERT(t->numReferences == newT->numReferences ||
+                          t->numReferences + 1 == newT->numReferences);
+            else
+                RC_ASSERT(t->numReferences == newT->numReferences);
+            RC_ASSERT(t->referredNode == newT->referredNode);
+            t = newT;
+            break;
+        case ActionType::makeNull:
+            RC_ASSERT(newT->numReferences > 0);
+            t = newT;
+            break;
+        case ActionType::addRef:
+            RC_ASSERT(t->mode == newT->mode);
+            RC_ASSERT(t->numReferences+1 == newT->numReferences);
+            RC_ASSERT(t->referredNode == newT->referredNode);
+            t = newT;
+            break;
+        case ActionType::customCvt:
+            RC_ASSERT(t->mode == newT->mode);
+            RC_ASSERT(t->referredNode != newT->referredNode);
+            t = newT;
+            break;
+        }
+    }
+    // At the end, the resulting type must be equal to the destination type
+    // (except when the destination is a concept)
+    if (destType->typeKind != typeKindConcept) {
+        RC_LOG() << "  (final) " << t << " == " << destType << " ?" << endl;
+
+        RC_ASSERT(Nest::sameTypeIgnoreMode(t, destType));
+    }
 }
 
 TEST_CASE_METHOD(ConvertFixture, "Convert actions applied follow rules") {
@@ -591,6 +651,10 @@ void ConvertFixture::checkCatConversions(DataType src, DataType dest) {
     ConstType constDest = ConstType::get(dest);
     MutableType mutDest = MutableType::get(dest);
     TempType tmpDest = TempType::get(dest);
+
+    // Assume just RT cases; in CT, we may have less results
+    // i.e., T/ct tmp -> T tmp needs T -> T tmp, which is invalid
+    RC_PRE(src.mode() == modeRt);
 
     // Direct: T -> const(U), if T->U
     RC_ASSERT(getConvType(src, constDest) == baseConv);

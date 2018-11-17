@@ -1,8 +1,11 @@
 #include "Nest/src/StdInc.hpp"
 #include "Nest/Utils/cppif/Type.hpp"
 #include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/cppif/NodeHandle.hpp"
 
 namespace Nest {
+
+Nest::NodeHandle Type::referredNode() const { return type_->referredNode; }
 
 Type Type::changeMode(EvalMode mode, Location loc) {
     if (mode == type_->mode)

@@ -222,6 +222,14 @@ Node* getThisTypeForFun(Node* fun) {
     return cls;
 }
 
+/// Checks if the given field can have a constructor/destructor call.
+/// We check if the given field is of a data-like type
+bool canHaveCtorDtor(Node* field) {
+    CHECK(field->location, field->type);
+    return Feather::isDataLikeType(field->type);
+}
+
+
 /// Search the given body for a constructor with the given properties.
 ///
 /// This can search for constructors of given classes, constructors called on this, or called for
@@ -345,6 +353,8 @@ void IntModCtorMembers_beforeSemanticCheck(Nest_Modifier*, Node* fun) {
     const Location& loc = body->location;
     for (int i = Nest_nodeArraySize(cls->children) - 1; i >= 0; --i) {
         Node* field = at(cls->children, i);
+        if (!canHaveCtorDtor(field))
+            continue;
 
         if (!hasCtorCall(body, false, field)) {
             Node* base = mkCompoundExp(
@@ -387,6 +397,9 @@ void IntModDtorMembers_beforeSemanticCheck(Nest_Modifier*, Node* fun) {
     const Location& loc = body->location;
     for (int i = Nest_nodeArraySize(cls->children) - 1; i >= 0; --i) {
         Node* field = at(cls->children, i);
+
+        if (!canHaveCtorDtor(field))
+            continue;
 
         if (field->type->numReferences == 0) {
             Node* base = mkCompoundExp(

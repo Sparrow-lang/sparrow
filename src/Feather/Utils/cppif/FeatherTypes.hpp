@@ -289,6 +289,7 @@ TypeWithStorage removeAllRefs(TypeWithStorage type);
  * @return     Type without Const/Mutable/Temp
  */
 Type removeCategoryIfPresent(Type type);
+TypeWithStorage removeCategoryIfPresent(TypeWithStorage type);
 
 /**
  * @brief      If the given type is a category, transform it to ref.

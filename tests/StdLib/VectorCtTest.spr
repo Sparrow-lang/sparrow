@@ -25,7 +25,7 @@ datatype MyObj
 
     while i < size ; i = i + 1;
     {
-        var o: @AnyType = ptr.advance(i).value();
+        var o: @MyObj = ptr.advance(i).value();
 
         o.x = i;
     }

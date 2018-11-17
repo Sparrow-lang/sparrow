@@ -636,7 +636,7 @@ TypeRef SprVariable_ComputeType(Node* node) {
     Node* ctorCall = nullptr;
     Node* dtorCall = nullptr;
     Node* varRef = nullptr;
-    if (init || !isRef) {
+    if (isDataLikeType(t) && (init || !isRef)) {
         ASSERT(resultingVar->type);
 
         varRef = Feather_mkVarRef(node->location, resultingVar);

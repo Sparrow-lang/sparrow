@@ -3,6 +3,7 @@
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.h"
 #include "Nest/Utils/Diagnostic.hpp"
+#include "Nest/Utils/cppif/NodeHandle.hpp"
 
 namespace Feather {
 
@@ -197,6 +198,16 @@ TypeWithStorage removeAllRefs(TypeWithStorage type) {
 }
 
 Type removeCategoryIfPresent(Type type) {
+    if (type.kind() == typeKindConst)
+        return ConstType(type.type_).base();
+    else if (type.kind() == typeKindMutable)
+        return MutableType(type.type_).base();
+    else if (type.kind() == typeKindTemp)
+        return TempType(type.type_).base();
+    else
+        return type;
+}
+TypeWithStorage removeCategoryIfPresent(TypeWithStorage type) {
     if (type.kind() == typeKindConst)
         return ConstType(type.type_).base();
     else if (type.kind() == typeKindMutable)

@@ -74,14 +74,46 @@ ConversionResult::ConversionResult(const ConversionResult& nextConv, ConversionT
     }
 }
 
+void ConversionResult::addConversion(
+        ConversionType convType, ConvAction action, const Nest_SourceCode* sourceCode) {
+    // Combine the conversion types
+    convType_ = combine(convType_, convType);
+
+    if (convType != convNone) {
+        // Check if sourceCode matches
+        if (sourceCode) {
+            if (sourceCode_ && sourceCode_ != sourceCode) {
+                convType_ = convNone;
+                return;
+            }
+        }
+
+        // Add the action to the back
+        if (action.first != ActionType::none)
+            convertActions_.emplace_back(action);
+    }
+}
+
+void ConversionResult::addResult(ConversionResult cvt) {
+    if (cvt.sourceCode()) {
+        if (sourceCode_ && sourceCode_ != cvt.sourceCode()) {
+            convType_ = convNone;
+            return;
+        }
+    }
+    convType_ = combine(convType_, cvt.conversionType());
+    const auto& nextAct = cvt.convertActions();
+    convertActions_.insert(convertActions_.end(), nextAct.begin(), nextAct.end());
+}
+
 //! Apply one conversion action to the given node
 Node* applyOnce(Node* src, ConvAction action) {
     TypeRef destT = action.second;
     switch (action.first) {
     case ActionType::none:
         return src;
-    case ActionType::catCast:
-        return src; // TODO
+    case ActionType::modeCast:
+        return src; // Nothing to do when changing mode
     case ActionType::dereference:
         return Feather_mkMemLoad(src->location, src);
     case ActionType::bitcast:
@@ -156,66 +188,25 @@ private:
 
     //! Checks all possible conversions (uncached)
     ConversionResult checkConversionImpl(
-            CompilationContext* context, int flags, TypeRef srcType, TypeRef destType);
-
-    //! direct: T -> T
-    ConversionResult checkSameType(
-            CompilationContext* context, int flags, TypeRef srcType, TypeRef destType);
-
-    //! direct: T/X -> U/Y, if X!=Y and Y!=ct and (T==ct => noRef(T)==0) and hasMeaning(T/Y)
-    //! and T/Y -> U/Y
-    ConversionResult checkChangeMode(
-            CompilationContext* context, int flags, TypeRef srcType, TypeRef destType);
-
-    //! concept: #C@N -> Concept@N
-    ConversionResult checkConvertToConcept(
-            CompilationContext* context, int flags, TypeRef srcType, TypeRef destType);
-
-    //! concept: Concept1@N -> Concept2@N
-    ConversionResult checkConceptToConcept(
-            CompilationContext* context, int flags, TypeRef srcType, TypeRef destType);
-
-    //! direct: T -> const(U), if T->U
-    ConversionResult checkDataTypeToConst(
             CompilationContext* context, int flags, Type srcType, Type destType);
 
-    //! direct: const(T)->const(U), if T->U
-    //! direct: const(T)->plain(U), if T->U
-    ConversionResult checkFromConst(
-            CompilationContext* context, int flags, Type srcType, Type destType);
+    //! Checks all possible conversions between types of the same mode
+    bool checkConversionSameMode(ConversionResult& res, CompilationContext* context, int flags,
+            Type srcType, Type destType);
 
-    //! direct: mut(T)->mut(U), if T->U
-    //! direct: mut(T)->const(U), if T->U
-    //! direct: mut(T)->plain(U), if T->U
-    ConversionResult checkFromMutable(
-            CompilationContext* context, int flags, Type srcType, Type destType);
+    //! Checks the conversion to a concept (from data-like or other concept)
+    bool checkConversionToConcept(ConversionResult& res, CompilationContext* context, int flags,
+            Type srcType, Type destType);
 
-    //! direct: tmp(T)->tmp(U), if T->U
-    //! direct: tmp(T)->const(U), if T->U
-    //! direct: tmp(T)->mut(U), if T->U
-    //! direct: tmp(T)->plain(U), if T->U
-    ConversionResult checkFromTemp(
-            CompilationContext* context, int flags, Type srcType, Type destType);
+    //! Checks the conversion between data-like types
+    bool checkDataConversion(ConversionResult& res, CompilationContext* context, int flags,
+            TypeWithStorage srcType, TypeWithStorage destType);
 
-    //! direct: mut(T) -> U, if T-> U or addRef(T) -> U (take best alternative)
-    ConversionResult checkMutableToNormal(
-            CompilationContext* context, int flags, TypeRef srcType, TypeRef destType);
-
-    //! implicit: #Null -> U, if isRef(U) and isStorage(U)
-    ConversionResult checkNullToReference(
-            CompilationContext* context, int flags, TypeRef srcType, TypeRef destType);
-
-    //! implicit: #C@N -> U, if #C@(N-1) -> U
-    ConversionResult checkDereference(
-            CompilationContext* context, int flags, TypeRef srcType, TypeRef destType);
-
-    //! implicit:  #C@0 -> U, if #C@1 -> U
-    ConversionResult checkAddReference(
-            CompilationContext* context, int flags, TypeRef srcType, TypeRef destType);
-
-    //! T => U, if U has a conversion ctor for T
-    ConversionResult checkConversionCtor(
-            CompilationContext* context, int flags, TypeRef srcType, TypeRef destType);
+    //! Bring the number of references for the source type to the given value.
+    //! Add all the conversions to 'res'. Returns false if conversion is impossible.
+    //! The source type must be a data-like type.
+    bool adjustReferences(ConversionResult& res, TypeWithStorage src, int destKind, int destNumRef,
+            const char* destDesc, bool canAddRef);
 };
 
 ConversionResult ConvertService::checkConversion(
@@ -235,97 +226,333 @@ ConversionResult ConvertService::checkConversion(
 }
 
 ConversionResult ConvertService::checkConversionImpl(
-        CompilationContext* context, int flags, TypeRef srcType, TypeRef destType) {
-    ASSERT(srcType);
-    ASSERT(destType);
-    ConversionResult c;
+        CompilationContext* context, int flags, Type src, Type dest) {
+    ASSERT(src);
+    ASSERT(dest);
 
-    // cerr << "Checking conversion: " << srcType << " -> " << destType << endl;
-    // if (0 == strcmp(srcType->description, "Int/ct") &&
-    //         0 == strcmp(destType->description, "Tracer/rtct")) {
-    //     const char* s = "put a breakpoint here";
-    //     (void)s;
-    // }
+    // If the types are the same, then we are happy
+    if (src == dest)
+        return convDirect;
 
-    // Direct: Types are the same?
-    c = checkSameType(context, flags, srcType, destType);
-    if (c)
-        return c;
+    ConversionResult res{convDirect};
 
-    // Direct: Ct to non-ct
-    c = checkChangeMode(context, flags, srcType, destType);
-    if (c)
-        return c;
-
-    bool canCallCvtCtor = 0 == (flags & flagDontCallConversionCtor);
-    flags |= flagDontCallConversionCtor; // Don't call conversion ctor in any other conversions
-
-    // Direct: Type with storage to concept
-    c = checkConvertToConcept(context, flags, srcType, destType);
-    if (c)
-        return c;
-
-    // Direct: Concept to another concept
-    c = checkConceptToConcept(context, flags, srcType, destType);
-    if (c)
-        return c;
-
-    // Direct: T -> const(U), if T->U
-    c = checkDataTypeToConst(context, flags, srcType, destType); // Recursive call
-    if (c)
-        return c;
-
-    // Direct: const(T)->const(U), if T->U
-    // Direct: const(T)->plain(U), if T->U
-    c = checkFromConst(context, flags, srcType, destType); // Recursive call
-    if (c)
-        return c;
-
-    // Direct: mut(T)->mut(U), if T->U
-    // Direct: mut(T)->const(U), if T->U
-    // Direct: mut(T)->plain(U), if T->U
-    c = checkFromMutable(context, flags, srcType, destType); // Recursive call
-    if (c)
-        return c;
-
-    // Direct: tmp(T)->tmp(U), if T->U
-    // Direct: tmp(T)->const(U), if T->U
-    // Direct: tmp(T)->mut(U), if T->U
-    // Direct: tmp(T)->plain(U), if T->U
-    c = checkFromTemp(context, flags, srcType, destType); // Recursive call
-    if (c)
-        return c;
-
-    // Direct: If we have a mutable, convert into a reference
-    c = checkMutableToNormal(context, flags, srcType, destType); // Recursive call
-    if (c)
-        return c;
-
-    // Implicit: Null to reference
-    c = checkNullToReference(context, flags, srcType, destType); // Recursive call
-    if (c)
-        return c;
-
-    // Implicit: Reference to non reference?
-    c = checkDereference(context, flags, srcType, destType); // Recursive call
-    if (c)
-        return c;
-
-    // Implicit: Non-reference to reference
-    if ((flags & flagDontAddReference) == 0) {
-        c = checkAddReference(context, flags, srcType, destType); // Recursive call
-        if (c)
-            return c;
+    // Check for null conversions
+    if (StdDef::clsNull && src.referredNode() == StdDef::clsNull) {
+        if (dest.hasStorage() && dest.numReferences() > 0 &&
+                dest.referredNode() != StdDef::clsNull) {
+            res.addConversion(convImplicit, ConvAction(ActionType::makeNull, dest));
+            return res;
+        }
     }
 
-    // Custom: Conversion with conversion constructor
-    if (canCallCvtCtor) {
-        c = checkConversionCtor(context, flags, srcType, destType); // Recursive call
-        if (c)
-            return c;
+    // Do the types have the same mode?
+    if (src.mode() == dest.mode()) {
+        if (!checkConversionSameMode(res, context, flags, src, dest))
+            return {};
+    } else {
+        // The only supported mode conversion is CT->RT
+        if (src.mode() != modeCt || dest.mode() != modeRt)
+            return {};
+        // For datatypes conversion, the source type must be usable at RT
+        // TODO (types): check MyRange/ct -> #Range, where MyRange is ct-only
+        if (dest.kind() != typeKindConcept && !src.canBeUsedAtRt())
+            return {};
+
+        // Disallow conversion of references
+        // @T/ct -> @T is disallowed
+        // Allowed: T/ct -> @T, @T/ct -> T, T/ct -> T mut, T/ct mut -> T
+        int srcRefsBase = src.numReferences();
+        int destRefsBase = dest.numReferences();
+        if (isCategoryType(src))
+            --srcRefsBase;
+        if (isCategoryType(dest))
+            --destRefsBase;
+        if (srcRefsBase != 0 && destRefsBase != 0)
+            return {};
+
+        // If the types have different modes, then we split our conversion in the following:
+        //  a) convert 'src' to reach zero-references
+        //  b) apply CT-to-RT conversion
+        //  c) covert result to 'dest'
+
+        Type src0; // same as 'src', with with zero references
+        if (isDataLikeType(src))
+            src0 = removeAllRefs(TypeWithStorage(src));
+        else if (src.kind() == typeKindConcept) {
+            src0 = getConceptType(conceptOfType(src), 0, src.mode());
+        } else
+            return {};
+
+        // a) Remove all references from source
+        if (src != src0)
+            if (!checkConversionSameMode(res, context, flags, src, src0))
+                return {};
+
+        // b) remove CT
+        src0 = src0.changeMode(modeRt, NOLOC);
+        res.addConversion(convDirect, ConvAction(ActionType::modeCast, src0));
+
+        // c) convert src0 to dest
+        if (src0 != dest)
+            if (!checkConversionSameMode(res, context, flags, src0, dest))
+                return {};
     }
 
-    return {};
+    return res;
+}
+
+bool ConvertService::checkConversionSameMode(
+        ConversionResult& res, CompilationContext* context, int flags, Type src, Type dest) {
+    ASSERT(src);
+    ASSERT(dest);
+
+    // Is the destination is a concept?
+    if (dest.kind() == typeKindConcept) {
+        return checkConversionToConcept(res, context, flags, src, dest);
+    }
+
+    // Treat data-like to data-like conversions
+    if (isDataLikeType(dest) && isDataLikeType(src)) {
+        return checkDataConversion(
+                res, context, flags, TypeWithStorage(src), TypeWithStorage(dest));
+    }
+
+    return false;
+}
+
+bool ConvertService::checkConversionToConcept(
+        ConversionResult& res, CompilationContext* context, int flags, Type src, Type dest) {
+    ASSERT(src);
+    ASSERT(dest);
+
+    // Case 1: data-like -> concept (concept)
+    if (Feather::isDataLikeType(src)) {
+        TypeWithStorage srcS(src);
+
+        // Adjust references
+        bool canAddRef = (flags & flagDontAddReference) == 0;
+        if (!adjustReferences(
+                    res, srcS, typeKindData, dest.numReferences(), dest.description(), canAddRef))
+            return false;
+
+        bool isOk = false;
+        Nest::NodeHandle concept = conceptOfType(dest);
+        if (!concept)
+            isOk = true;
+        // If we have a concept, check if the type fulfills the concept
+        else if (concept.kind() == nkSparrowDeclSprConcept) {
+            isOk = g_ConceptsService->conceptIsFulfilled(concept, srcS);
+        }
+        // If we have a generic, check if the type is generated from the generic
+        else if (concept.kind() == nkSparrowDeclGenericClass) {
+            isOk = g_ConceptsService->typeGeneratedFromGeneric(concept, srcS);
+        }
+        if (!isOk)
+            return false;
+
+        // Conversion is possible
+        res.addConversion(convConcept);
+        return true;
+    }
+
+    // Case 2: concept -> concept
+    if (src.kind() == typeKindConcept) {
+        if (src.numReferences() != dest.numReferences())
+            return false;
+
+        // Iteratively search the base concept to find our dest type
+        while (src != dest) {
+            Nest::NodeHandle conceptNode = conceptOfType(src);
+            if (!conceptNode)
+                return false;
+            Type baseType = g_ConceptsService->baseConceptType(conceptNode);
+            if (!baseType || baseType == src)
+                return false; // Not found; cannot convert
+            src = baseType.changeMode(src.mode(), conceptNode.location());
+        }
+
+        res.addConversion(convDirect);
+        return true;
+    }
+
+    return false;
+}
+
+bool ConvertService::checkDataConversion(ConversionResult& res, CompilationContext* context,
+        int flags, TypeWithStorage src, TypeWithStorage dest) {
+
+    // Precondition: we only support datatype-like conversions
+    if (!isDataLikeType(removeCategoryIfPresent(src)))
+        return false;
+
+    // Case 1: The datatypes have the same decl
+    if (dest.referredNode() == src.referredNode()) {
+        // Adjust references
+        bool canAddRef = (flags & flagDontAddReference) == 0;
+        if (!adjustReferences(
+                    res, src, dest.kind(), dest.numReferences(), dest.description(), canAddRef))
+            return false;
+
+        res.addConversion(convDirect);
+        return true;
+    }
+
+    // Case 2: Custom conversions
+    else if (0 == (flags & flagDontCallConversionCtor)) {
+
+        // TODO (types): This is called for every failed conversion; this is a big performance
+        // problem
+
+        Node* destClass = dest.referredNode();
+        if (!destClass || !Nest_computeType(destClass))
+            return false;
+
+        // Try to convert srcType to mut destClass
+        if (!g_OverloadService->selectConversionCtor(context, destClass, dest.mode(), src))
+            return false;
+
+        // Check access
+        if (!canAccessNode(destClass, context->sourceCode))
+            return false;
+
+        // If the class is not public, store the current source code for this conversion
+        // This conversion is not ok in all contexts
+        Nest_SourceCode* sourceCode = nullptr;
+        if (!isPublic(destClass))
+            sourceCode = context->sourceCode;
+
+        TypeWithStorage t = destClass->type;
+        EvalMode destMode = t.mode();
+        if (destMode == modeRt)
+            destMode = src.mode();
+        t = t.changeMode(destMode, NOLOC);
+        TypeWithStorage resType = Feather::isCategoryType(t) ? t : MutableType::get(t);
+
+        res.addConversion(convCustom, ConvAction(ActionType::customCvt, resType), sourceCode);
+
+        // Ensure we have the right number of references & category
+        bool canAddRef = (flags & flagDontAddReference) == 0;
+        if (!adjustReferences(
+                    res, resType, dest.kind(), dest.numReferences(), dest.description(), canAddRef))
+            return false;
+
+        return true;
+    }
+
+    return false;
+}
+
+// DataType == 0, ConstType == 1, MutableType == 2, TempType == 3
+int typeKindToIndex(int typeKind) { return typeKind - typeKindData; }
+
+bool isCategoryType(int typeKind) {
+    return typeKind == typeKindConst || typeKind == typeKindMutable || typeKind == typeKindTemp;
+}
+
+TypeWithStorage changeCat(TypeWithStorage src, int typeKind, bool addRef = false) {
+    auto src1 = src.numReferences() > 0 && !addRef ? removeRef(src) : src;
+    if (typeKind == typeKindConst)
+        return ConstType::get(src1);
+    else if (typeKind == typeKindMutable)
+        return MutableType::get(src1);
+    else if (typeKind == typeKindTemp)
+        return TempType::get(src1);
+    return src;
+}
+
+bool ConvertService::adjustReferences(ConversionResult& res, TypeWithStorage src, int destKind,
+        int destNumRef, const char* destDesc, bool canAddRef) {
+    int srcRefsBase = src.numReferences();
+    int destRefsBase = destNumRef;
+    if (isCategoryType(src.kind()))
+        --srcRefsBase;
+    if (isCategoryType(destKind))
+        --destRefsBase;
+
+    int srcNumRef = src.numReferences();
+
+    enum ConvType {
+        none = 0,  // no conversion possible
+        direct,    // same type
+        catCast,   // cast between categories (with extra refs)
+        addCat,    // plain -> category
+        removeCat, // category -> plain
+    };
+
+    constexpr ConvType conversions[4][4] = {
+            {direct, addCat, none, none},          // from plain
+            {removeCat, direct, none, none},       // from const
+            {removeCat, catCast, direct, catCast}, // from mutable
+            {removeCat, catCast, catCast, direct}  // from temp
+    };
+    //  to:  plain,     const,  mutable, temp
+
+    int srcIdx = typeKindToIndex(src.kind());
+    int destIdx = typeKindToIndex(destKind);
+    ConvType conv = conversions[srcIdx][destIdx];
+    if (conv == none)
+        return false;
+
+    int numDerefs = srcRefsBase - destRefsBase;
+
+    // If we are removing category, check the best way to get rid of the category
+    if (conv == removeCat) {
+        if (srcNumRef < destNumRef)
+            // If we don't have enough references at source, conversion failed
+            return false;
+        else if (srcNumRef == destNumRef) {
+            // Convert the category type to reference
+            // With this, we have the exact number of references needed
+            src = TypeWithStorage(categoryToRefIfPresent(src));
+            ++srcRefsBase;
+            ++numDerefs;
+            res.addConversion(convImplicit, ConvAction(ActionType::bitcast, src));
+        } else /*srcNumRef > destNumRef*/ {
+            // We have more references on the source
+            // Just remove the category
+            src = removeCategoryIfPresent(src);
+            res.addConversion(convDirect, ConvAction(ActionType::dereference, src));
+        }
+    }
+
+    // Need to add reference? (exactly one reference)
+    // Allowed: T -> @T, T const -> @T const, T mut -> @T const, etc.
+    // Disallowed: @T -> @@T
+    if (canAddRef && srcRefsBase == 0 && destRefsBase == 1) {
+        src = addRef(src);
+        res.addConversion(convImplicit, ConvAction(ActionType::addRef, src));
+        numDerefs = 0;
+    }
+
+    // If we are here, we can't add anymore references
+    if (numDerefs < 0)
+        return false;
+
+    // If we are adding category, try to avoid deref + addRef
+    if (conv == addCat && numDerefs > 0) {
+        --numDerefs;
+        res.addConversion(convImplicit);
+    }
+
+    // Need to remove some references?
+    for (int i = 0; i < numDerefs; i++) {
+        src = removeRef(src);
+        res.addConversion(convImplicit, ConvAction(ActionType::dereference, src));
+    }
+
+    // Ensure that we cast to the right category at the end
+    // This happens for catCast, addCat, but also when we change references
+    if (src.kind() != destKind) {
+        if (src.numReferences() == 0)
+            res.addConversion(
+                    convDirect, ConvAction(ActionType::addRef, changeCat(src, destKind, true)));
+        else
+            res.addConversion(convDirect,
+                    ConvAction(ActionType::bitcast,
+                            changeCat(src, destKind, src.numReferences() < destNumRef)));
+    }
+
+    return true;
 }
 
 const ConversionResult& ConvertService::cachedCheckConversion(
@@ -345,277 +572,14 @@ const ConversionResult& ConvertService::cachedCheckConversion(
     // Compute the value normally
     ConversionResult res = checkConversionImpl(context, flags, srcType, destType);
 
-    // cerr << srcType << " -> " << destType << " : " << res << endl;
+    // cout << srcType << " -> " << destType << " : " << res << endl;
+    // cout << srcType << " -> " << destType << " (" << flags << ") :" << res << endl;
 
     // Put the result in the cache, if not context dependent
     std::get<3>(key) = res.sourceCode();
     auto r = conversionMap_.insert(make_pair(key, res));
 
     return r.first->second;
-}
-
-ConversionResult ConvertService::checkSameType(
-        CompilationContext* /*context*/, int /*flags*/, TypeRef srcType, TypeRef destType) {
-    return srcType == destType ? convDirect : convNone;
-}
-
-ConversionResult ConvertService::checkChangeMode(
-        CompilationContext* context, int flags, TypeRef srcType, TypeRef destType) {
-    if (!srcType->hasStorage)
-        return {};
-
-    EvalMode srcMode = srcType->mode;
-    EvalMode destMode = destType->mode;
-
-    // Don't do anything if the modes are the same; can't convert from non-CT to CT
-    if (srcMode == destMode || destMode == modeCt)
-        return {};
-
-    TypeRef srcTypeNew = Type(srcType).changeMode(destMode, NOLOC);
-    if (srcTypeNew == srcType)
-        return {};
-
-    ConvAction action;
-    if (srcMode == modeCt) {
-        // If we are converting away from CT, make sure we are allowed to do this
-        if (!srcType->canBeUsedAtRt)
-            return {};
-
-        // Cannot convert references from CT to RT; still we allow cat conversions
-        if (Feather::isCategoryType(srcTypeNew)) {
-            if (srcTypeNew->numReferences > 1)
-                return {};
-            srcTypeNew = removeCategoryIfPresent(srcTypeNew);
-            action = ConvAction(ActionType::dereference, srcTypeNew);
-        }
-        if (srcTypeNew->numReferences > 0)
-            return {};
-    }
-
-    const auto& nextConv = cachedCheckConversion(context, flags, srcTypeNew, destType);
-    return ConversionResult(nextConv, convDirect, action);
-}
-
-ConversionResult ConvertService::checkConvertToConcept(
-        CompilationContext* /*context*/, int /*flags*/, TypeRef srcType, TypeRef destType) {
-    if (destType->typeKind != typeKindConcept)
-        return {};
-    if (srcType->typeKind == typeKindConcept || !srcType->hasStorage)
-        return {};
-
-    bool isOk = false;
-
-    if (!Feather::isCategoryType(srcType) && srcType->numReferences == destType->numReferences) {
-        Node* concept = conceptOfType(destType);
-        if (!concept) {
-            isOk = true;
-        } else {
-            // If we have a concept, check if the type fulfills the concept
-            if (concept->nodeKind == nkSparrowDeclSprConcept) {
-                isOk = g_ConceptsService->conceptIsFulfilled(concept, srcType);
-            }
-
-            // If we have a generic, check if the type is generated from the generic
-            if (concept->nodeKind == nkSparrowDeclGenericClass) {
-                isOk = g_ConceptsService->typeGeneratedFromGeneric(concept, srcType);
-            }
-        }
-    }
-
-    return isOk ? convConcept : convNone;
-}
-
-ConversionResult ConvertService::checkConceptToConcept(
-        CompilationContext* context, int flags, TypeRef srcType, TypeRef destType) {
-    if (srcType->typeKind != typeKindConcept || destType->typeKind != typeKindConcept ||
-            srcType->numReferences != destType->numReferences)
-        return {};
-
-    Node* srcConcept = conceptOfType(srcType);
-    if (!srcConcept)
-        return {};
-
-    // If we have a concept, check if the type fulfills the concept
-    TypeRef srcBaseConceptType = g_ConceptsService->baseConceptType(srcConcept);
-    if (!srcBaseConceptType)
-        return {};
-    srcBaseConceptType = Type(srcBaseConceptType).changeMode(srcType->mode, srcConcept->location);
-    return cachedCheckConversion(context, flags, srcBaseConceptType, destType);
-}
-
-ConversionResult ConvertService::checkDataTypeToConst(
-        CompilationContext* context, int flags, Type srcType, Type destType) {
-    if (srcType.kind() == typeKindData && destType.kind() == typeKindConst) {
-        Type destTypeNew = ConstType(destType).base();
-        const auto& nextConv = cachedCheckConversion(context, flags, srcType, destTypeNew);
-        return ConversionResult(nextConv, convDirect, ConvAction(ActionType::catCast, destType));
-    }
-    return {};
-}
-
-ConversionResult ConvertService::checkFromConst(
-        CompilationContext* context, int flags, Type srcType, Type destType) {
-    if (srcType.kind() == typeKindConst) {
-        ConstType src{srcType};
-
-        Type dest;
-        if (destType.kind() == typeKindConst)
-            dest = ConstType(destType).base();
-        else if (destType.kind() == typeKindData)
-            dest = destType;
-        if (!dest)
-            return {};
-
-        const auto& nextConv = cachedCheckConversion(context, flags, src.base(), dest);
-        if (destType.kind() == typeKindConst)
-            return nextConv;
-        else
-            return ConversionResult(
-                    nextConv, convDirect, ConvAction(ActionType::catCast, destType));
-    }
-    return {};
-}
-
-ConversionResult ConvertService::checkFromMutable(
-        CompilationContext* context, int flags, Type srcType, Type destType) {
-    if (srcType.kind() == typeKindMutable) {
-        MutableType src{srcType};
-
-        Type dest;
-        if (destType.kind() == typeKindMutable)
-            dest = MutableType(destType).base();
-        else if (destType.kind() == typeKindConst)
-            dest = ConstType(destType).base();
-        else if (destType.kind() == typeKindTemp)
-            dest = TempType(destType).base();
-        // else if (destType.kind() == typeKindData)
-        //     dest = destType;
-        if (!dest)
-            return {};
-
-        const auto& nextConv = cachedCheckConversion(context, flags, src.base(), dest);
-        if (destType.kind() == typeKindMutable)
-            return nextConv;
-        else
-            return ConversionResult(
-                    nextConv, convDirect, ConvAction(ActionType::catCast, destType));
-    }
-    return {};
-}
-
-ConversionResult ConvertService::checkFromTemp(
-        CompilationContext* context, int flags, Type srcType, Type destType) {
-    if (srcType.kind() == typeKindTemp) {
-        TempType src{srcType};
-
-        Type dest;
-        if (destType.kind() == typeKindMutable)
-            dest = MutableType(destType).base();
-        else if (destType.kind() == typeKindConst)
-            dest = ConstType(destType).base();
-        else if (destType.kind() == typeKindTemp)
-            dest = TempType(destType).base();
-        else if (destType.kind() == typeKindData)
-            dest = destType;
-        if (!dest)
-            return {};
-
-        const auto& nextConv = cachedCheckConversion(context, flags, src.base(), dest);
-        if (destType.kind() == typeKindTemp)
-            return nextConv;
-        else
-            return ConversionResult(
-                    nextConv, convDirect, ConvAction(ActionType::catCast, destType));
-    }
-    return {};
-}
-
-ConversionResult ConvertService::checkMutableToNormal(
-        CompilationContext* context, int flags, TypeRef srcType, TypeRef destType) {
-    if (srcType->typeKind == typeKindMutable && destType->typeKind != typeKindMutable) {
-        DataType t2 = MutableType(srcType).toRef();
-        auto t1 = removeRef(t2);
-
-        // First check conversion without reference
-        const auto& nextConv =
-                cachedCheckConversion(context, flags | flagDontAddReference, t1, destType);
-        if (nextConv)
-            return ConversionResult(nextConv, convDirect, ConvAction(ActionType::dereference, t2));
-
-        // Now try to convert to reference
-        const auto& nextConv2 = cachedCheckConversion(context, flags, t2, destType);
-        return ConversionResult(nextConv2, convImplicit, ConvAction(ActionType::bitcast, t2));
-    }
-    return {};
-}
-
-ConversionResult ConvertService::checkNullToReference(
-        CompilationContext* /*context*/, int /*flags*/, TypeRef srcType, TypeRef destType) {
-    if (!StdDef::typeNull || !Nest::sameTypeIgnoreMode(srcType, StdDef::typeNull) ||
-            !destType->hasStorage || destType->numReferences == 0)
-        return {};
-
-    return ConversionResult(convImplicit, ConvAction(ActionType::makeNull, destType));
-}
-
-ConversionResult ConvertService::checkDereference(
-        CompilationContext* context, int flags, TypeRef srcType, TypeRef destType) {
-    if (srcType->typeKind != typeKindData || srcType->numReferences == 0)
-        return {};
-
-    auto t = removeRef(DataType(srcType));
-
-    const auto& nextConv =
-            cachedCheckConversion(context, flags | flagDontAddReference, t, destType);
-    return ConversionResult(nextConv, convImplicit, ConvAction(ActionType::dereference, t));
-}
-
-ConversionResult ConvertService::checkAddReference(
-        CompilationContext* context, int flags, TypeRef srcType, TypeRef destType) {
-    if (srcType->typeKind != typeKindData || srcType->numReferences > 0)
-        return {};
-
-    auto baseDataType = addRef(DataType(srcType));
-
-    const auto& nextConv =
-            cachedCheckConversion(context, flags | flagDontAddReference, baseDataType, destType);
-    return ConversionResult(nextConv, convImplicit, ConvAction(ActionType::addRef, baseDataType));
-}
-
-ConversionResult ConvertService::checkConversionCtor(
-        CompilationContext* context, int flags, TypeRef srcType, TypeRef destType) {
-    if (!destType->hasStorage)
-        return {};
-
-    Node* destClass = Feather_classForType(destType);
-    if (!destClass || !Nest_computeType(destClass))
-        return {};
-
-    // Try to convert srcType to mut destClass
-    if (!g_OverloadService->selectConversionCtor(context, destClass, destType->mode, srcType))
-        return {};
-
-    // Check access
-    if (!canAccessNode(destClass, context->sourceCode))
-        return {};
-
-    // If the class is not public, store the current source code for this conversion
-    // This conversion is not ok in all contexts
-    Nest_SourceCode* sourceCode = nullptr;
-    if (!isPublic(destClass))
-        sourceCode = context->sourceCode;
-
-    TypeWithStorage t = destClass->type;
-    EvalMode destMode = t.mode();
-    if (destMode == modeRt)
-        destMode = srcType->mode;
-    t = t.changeMode(destMode, NOLOC);
-    TypeWithStorage resType = Feather::isCategoryType(t) ? t : MutableType::get(t);
-
-    const auto& nextConv =
-            cachedCheckConversion(context, flags | flagDontCallConversionCtor, resType, destType);
-    return ConversionResult(
-            nextConv, convCustom, ConvAction(ActionType::customCvt, resType), sourceCode);
 }
 
 } // namespace
@@ -652,6 +616,9 @@ ostream& operator<<(ostream& os, ActionType act) {
     switch (act) {
     case ActionType::none:
         os << "none";
+        break;
+    case ActionType::modeCast:
+        os << "modeCast";
         break;
     case ActionType::dereference:
         os << "dereference";

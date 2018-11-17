@@ -8,7 +8,10 @@ namespace Nest {
 /**
  * @brief   Base class for all wrapper structs of types with storage.
  *
- * You cannot directly create objects of this type. Used derived classes
+ * One cannot directly create objects of this type. Used derived classes.
+ *
+ * This doesn't expose any new functionality compared to base class Type. However, this is useful to
+ * propagate the information that a type has storage (type safety).
  *
  * @see     Type
  */
@@ -16,15 +19,6 @@ struct TypeWithStorage : Type {
     TypeWithStorage() = default;
     TypeWithStorage(Nest::TypeRef type);
 
-    //!@{ Type properties
-
-    //! Returns the number of references used for this type
-    int numReferences() const { return type_->numReferences; }
-
-    //! Returns the referred node; the node that introduced this type
-    Nest::NodeHandle referredNode() const { return type_->referredNode; }
-
-    //!@}
     //!@{ Operations
 
     //! @copydoc Type::changeMode

@@ -6,6 +6,8 @@
 
 namespace Nest {
 
+struct NodeHandle;
+
 /**
  * @brief   Base class for all type wrappers.
  *
@@ -46,6 +48,12 @@ struct Type {
 
     //! Checks if the type has storage
     bool hasStorage() const { return type_->hasStorage; }
+
+    //! Returns the number of references used for this type
+    int numReferences() const { return type_->numReferences; }
+
+    //! Returns the referred node; the node that introduced this type
+    Nest::NodeHandle referredNode() const;
 
     //! Returns a string description of the type. Works even for null types
     const char* description() const { return type_ ? type_->description : "<null>"; }

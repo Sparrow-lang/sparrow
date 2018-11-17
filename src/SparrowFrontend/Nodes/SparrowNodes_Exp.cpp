@@ -208,13 +208,13 @@ Node* checkSizeOf(Node* node) {
         REP_ERROR_RET(nullptr, node->location, "sizeOf expects one argument; %1% given") %
                 Nest_nodeArraySize(arguments->children);
     Node* arg = at(arguments->children, 0);
-    TypeRef t = arg->type;
+    Type t = arg->type;
     if (!t)
         REP_INTERNAL(node->location, "Invalid argument");
 
     // Make sure that the argument has storage, or it represents a type
     t = evalTypeIfPossible(arg);
-    if (!t->hasStorage) {
+    if (!t.hasStorage()) {
         REP_ERROR_RET(nullptr, arg->location,
                 "The argument of sizeOf must be a type or an expression with storage type (we have "
                 "%1%)") %
@@ -252,7 +252,7 @@ Node* checkTypeOf(Node* node) {
         return nullptr;
 
     // Make sure we have only one argument
-    TypeRef t = arg->type;
+    Type t = arg->type;
     if (!t)
         REP_INTERNAL(node->location, "Invalid argument");
     t = removeCategoryIfPresent(t);
@@ -1418,7 +1418,7 @@ Node* LambdaFunction_SemanticCheck(Node* node) {
             if (!Nest_semanticCheck(arg))
                 return nullptr;
             StringRef varName = Feather_getName(arg);
-            TypeRef varType = removeCategoryIfPresent(arg->type);
+            TypeRef varType = removeCategoryIfPresent(Type(arg->type));
 
             // Create a similar variable in the enclosing class - must have the same name
             const Location& argLoc = arg->location;

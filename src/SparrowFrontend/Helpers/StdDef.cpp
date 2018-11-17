@@ -27,6 +27,7 @@ TypeRef StdDef::typeRefInt = nullptr;
 TypeRef StdDef::typeSizeTypeCt = nullptr;
 
 Node* StdDef::clsType = nullptr;
+Node* StdDef::clsNull = nullptr;
 Node* StdDef::clsBool = nullptr;
 
 Node* StdDef::opRefEq = nullptr;
@@ -62,9 +63,10 @@ void SprFrontend::checkStdClass(Node* cls) {
 
     if (clsName == "Void")
         StdDef::typeVoid = Feather_getDataType(cls, 0, modeRt);
-    else if (clsName == "Null")
+    else if (clsName == "Null") {
+        StdDef::clsNull = cls;
         StdDef::typeNull = Feather_getDataType(cls, 0, modeRt);
-    else if (clsName == "Bool") {
+    } else if (clsName == "Bool") {
         StdDef::clsBool = cls;
         StdDef::typeBool = Feather_getDataType(cls, 0, modeRt);
     } else if (clsName == "Byte") {

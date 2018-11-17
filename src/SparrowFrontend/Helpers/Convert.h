@@ -20,7 +20,7 @@ ConversionType bestConv(ConversionType lhs, ConversionType rhs);
 //! The type of actions we need to perform for a conversion
 enum class ActionType {
     none,
-    catCast,     // direct
+    modeCast,    // direct
     dereference, // direct (implicit for concept dereference)
     bitcast,     // implicit
     makeNull,    // implicit
@@ -43,6 +43,11 @@ public:
     //! Chains current conversion with the given 'nextConv'
     ConversionResult(const ConversionResult& nextConv, ConversionType convType, ConvAction action,
             const Nest_SourceCode* sourceCode = nullptr);
+
+    //! Add a conversion at the back of this conversion result
+    void addConversion(ConversionType convType, ConvAction action = {},
+            const Nest_SourceCode* sourceCode = nullptr);
+    void addResult(ConversionResult cvt);
 
     ConversionType conversionType() const { return convType_; }
     const Nest_SourceCode* sourceCode() const { return sourceCode_; }

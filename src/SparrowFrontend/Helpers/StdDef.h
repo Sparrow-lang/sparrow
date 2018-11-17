@@ -19,6 +19,7 @@ extern TypeRef typeRefInt;
 extern TypeRef typeSizeTypeCt;
 
 extern Node* clsType;
+extern Node* clsNull;
 extern Node* clsBool;
 
 extern Node* opRefEq;

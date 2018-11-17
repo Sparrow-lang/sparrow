@@ -45,9 +45,7 @@ ConstType ConstType::get(TypeWithStorage base) {
     return ConstType(Feather_getConstType(base));
 }
 
-DataType ConstType::toRef() const {
-    return DataType::get(referredNode(), numReferences(), mode());
-}
+DataType ConstType::toRef() const { return DataType::get(referredNode(), numReferences(), mode()); }
 
 MutableType::MutableType(Nest::TypeRef type)
     : TypeWithStorage(type) {
@@ -87,9 +85,7 @@ TempType TempType::get(TypeWithStorage base) {
     return TempType(Feather_getTempType(base));
 }
 
-DataType TempType::toRef() const {
-    return DataType::get(referredNode(), numReferences(), mode());
-}
+DataType TempType::toRef() const { return DataType::get(referredNode(), numReferences(), mode()); }
 
 ArrayType::ArrayType(Nest::TypeRef type)
     : TypeWithStorage(type) {

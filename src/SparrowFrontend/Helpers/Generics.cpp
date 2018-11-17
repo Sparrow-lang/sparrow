@@ -3,7 +3,7 @@
 #include "SprTypeTraits.h"
 #include "SprDebug.h"
 
-#include <SparrowFrontendTypes.h>
+#include "Utils/cppif/SparrowFrontendTypes.hpp"
 #include <Helpers/DeclsHelpers.h>
 #include <Helpers/CommonCode.h>
 #include <Helpers/Ct.h>
@@ -377,10 +377,10 @@ bool ConceptsService::typeGeneratedFromGeneric(Node* genericClass, TypeRef type)
            Feather_getName(genericClass) == Feather_getName(cls);
 }
 
-TypeRef ConceptsService::baseConceptType(Node* concept) {
+ConceptType ConceptsService::baseConceptType(Node* concept) {
     Node* baseConcept = at(concept->children, 0);
 
-    TypeRef res = baseConcept ? getType(baseConcept) : getConceptType();
+    ConceptType res = baseConcept ? ConceptType(getType(baseConcept)) : ConceptType::get();
     return res;
 }
 

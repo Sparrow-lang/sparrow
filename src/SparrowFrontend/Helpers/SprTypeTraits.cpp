@@ -3,7 +3,7 @@
 #include "DeclsHelpers.h"
 #include "Overload.h"
 #include "StdDef.h"
-#include <SparrowFrontendTypes.h>
+#include "Utils/cppif/SparrowFrontendTypes.hpp"
 #include <NodeCommonsCpp.h>
 #include "SprDebug.h"
 
@@ -72,7 +72,7 @@ TypeRef getTypeValueImpl(Node* typeNode, bool reportErrors = false) {
             // Check if we have a concept or a generic class
             if (resDecl->nodeKind == nkSparrowDeclSprConcept ||
                     resDecl->nodeKind == nkSparrowDeclGenericClass)
-                t = getConceptType(resDecl);
+                t = ConceptType::get(resDecl);
             // Check for a traditional class
             else if (decl->nodeKind == nkSparrowDeclSprDatatype)
                 t = decl->type;
@@ -306,7 +306,7 @@ TypeRef SprFrontend::changeRefCount(TypeRef type, int numRef, const Location& lo
     if (type->typeKind == typeKindData)
         type = Feather_getDataType(type->referredNode, numRef, type->mode);
     else if (type->typeKind == typeKindConcept)
-        type = getConceptType(conceptOfType(type), numRef, type->mode);
+        type = ConceptType::get(ConceptType(type).decl(), numRef, type->mode);
     else
         REP_INTERNAL(loc, "Cannot change reference count for type %1%") % type;
     return type;

@@ -10,8 +10,6 @@ SET(sourceFiles
     "UserDefinedSourceCode.cpp"
     "NodeCommonsH.h"
     "NodeCommonsCpp.h"
-    "SparrowFrontendTypes.h"
-    "SparrowFrontendTypes.cpp"
     "CtApiFunctions.h"
     "CtApiFunctions.cpp"
     "Mods.h"
@@ -65,6 +63,8 @@ SET(sourceFiles
     "Helpers/Impl/Callable.cpp"
     "Helpers/Impl/Intrinsics.h"
     "Helpers/Impl/Intrinsics.cpp"
+    "Utils/cppif/SparrowFrontendTypes.hpp"
+    "src/Utils/cppif/SparrowFrontendTypes.cpp"
 )
 
 if(BOOTSTRAP_SPARROW)

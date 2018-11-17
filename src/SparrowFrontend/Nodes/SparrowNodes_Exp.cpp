@@ -2,7 +2,7 @@
 #include "SparrowNodes.h"
 #include "Builder.h"
 
-#include <SparrowFrontendTypes.h>
+#include "Utils/cppif/SparrowFrontendTypes.hpp"
 #include <SprDebug.h>
 
 #include <Helpers/CommonCode.h>
@@ -85,7 +85,7 @@ Node* getIdentifierResult(Node* node, Nest_NodeRange decls, Node* baseExp, bool 
         }
         if (resDecl->nodeKind == nkSparrowDeclSprConcept ||
                 resDecl->nodeKind == nkSparrowDeclGenericClass)
-            t = getConceptType(resDecl);
+            t = ConceptType::get(resDecl);
         if (t)
             return createTypeNode(node->context, loc, t);
     }
@@ -186,8 +186,8 @@ Node* checkReinterpretCast(Node* node) {
                 "Destination type must be a reference (currently: %1%)") %
                 destType;
 
-    // If source is a category type and the number of source reference is greater than the destination
-    // references, remove category
+    // If source is a category type and the number of source reference is greater than the
+    // destination references, remove category
     Node* arg = at(arguments->children, 1);
     if (srcType->numReferences > destType->numReferences && Feather::isCategoryType(srcType))
         arg = Feather_mkMemLoad(arg->location, arg);

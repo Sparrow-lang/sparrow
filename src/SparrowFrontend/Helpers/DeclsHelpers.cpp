@@ -3,7 +3,7 @@
 #include "SprTypeTraits.h"
 #include "ForEachNodeInNodeList.h"
 #include <NodeCommonsCpp.h>
-#include <SparrowFrontendTypes.h>
+#include "Utils/cppif/SparrowFrontendTypes.hpp"
 #include "Nest/Utils/PtrArray.h"
 #include <Mods.h>
 
@@ -93,7 +93,7 @@ NodeVector SprFrontend::getDeclsFromNode(Node* n, Node*& baseExp) {
         if (t->hasStorage) {
             res.push_back(Feather_classDecl(t));
         } else if (t->typeKind == typeKindConcept) {
-            res.push_back(conceptOfType(t));
+            res.push_back(ConceptType(t).decl());
         } else
             t = nullptr;
     }

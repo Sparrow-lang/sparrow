@@ -6,7 +6,7 @@
 #include "Impl/Callable.h"
 #include <Helpers/DeclsHelpers.h>
 #include <Helpers/StdDef.h>
-#include <SparrowFrontendTypes.h>
+#include "Utils/cppif/SparrowFrontendTypes.hpp"
 #include <NodeCommonsCpp.h>
 #include "SprDebug.h"
 

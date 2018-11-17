@@ -4,7 +4,7 @@
 #include "Overload.h"
 #include "StdDef.h"
 #include <NodeCommonsCpp.h>
-#include <SparrowFrontendTypes.h>
+#include "Utils/cppif/SparrowFrontendTypes.hpp"
 #include <Helpers/Generics.h>
 
 #include "Feather/Api/Feather.h"
@@ -192,11 +192,11 @@ private:
 
     //! Checks all possible conversions between types of the same mode
     bool checkConversionSameMode(ConversionResult& res, CompilationContext* context, int flags,
-            Type srcType, Type destType);
+            TypeWithStorage srcType, TypeWithStorage destType);
 
     //! Checks the conversion to a concept (from data-like or other concept)
     bool checkConversionToConcept(ConversionResult& res, CompilationContext* context, int flags,
-            Type srcType, Type destType);
+            TypeWithStorage srcType, ConceptType destType);
 
     //! Checks the conversion between data-like types
     bool checkDataConversion(ConversionResult& res, CompilationContext* context, int flags,
@@ -234,38 +234,45 @@ ConversionResult ConvertService::checkConversionImpl(
     if (src == dest)
         return convDirect;
 
+    // If any of the types doesn't have storage, conversion is invalid
+    if (!src.hasStorage() || !dest.hasStorage())
+        return convNone;
+
+    TypeWithStorage srcS = TypeWithStorage(src);
+    TypeWithStorage destS = TypeWithStorage(dest);
+
     ConversionResult res{convDirect};
 
     // Check for null conversions
-    if (StdDef::clsNull && src.referredNode() == StdDef::clsNull) {
-        if (dest.hasStorage() && dest.numReferences() > 0 &&
-                dest.referredNode() != StdDef::clsNull) {
-            res.addConversion(convImplicit, ConvAction(ActionType::makeNull, dest));
+    if (StdDef::clsNull && srcS.referredNode() == StdDef::clsNull) {
+        if (isDataLikeType(destS) && destS.numReferences() > 0 &&
+                destS.referredNode() != StdDef::clsNull) {
+            res.addConversion(convImplicit, ConvAction(ActionType::makeNull, destS));
             return res;
         }
     }
 
     // Do the types have the same mode?
-    if (src.mode() == dest.mode()) {
-        if (!checkConversionSameMode(res, context, flags, src, dest))
+    if (srcS.mode() == destS.mode()) {
+        if (!checkConversionSameMode(res, context, flags, srcS, destS))
             return {};
     } else {
         // The only supported mode conversion is CT->RT
-        if (src.mode() != modeCt || dest.mode() != modeRt)
+        if (srcS.mode() != modeCt || destS.mode() != modeRt)
             return {};
         // For datatypes conversion, the source type must be usable at RT
         // TODO (types): check MyRange/ct -> #Range, where MyRange is ct-only
-        if (dest.kind() != typeKindConcept && !src.canBeUsedAtRt())
+        if (destS.kind() != typeKindConcept && !srcS.canBeUsedAtRt())
             return {};
 
         // Disallow conversion of references
         // @T/ct -> @T is disallowed
         // Allowed: T/ct -> @T, @T/ct -> T, T/ct -> T mut, T/ct mut -> T
-        int srcRefsBase = src.numReferences();
-        int destRefsBase = dest.numReferences();
-        if (isCategoryType(src))
+        int srcRefsBase = srcS.numReferences();
+        int destRefsBase = destS.numReferences();
+        if (isCategoryType(srcS))
             --srcRefsBase;
-        if (isCategoryType(dest))
+        if (isCategoryType(destS))
             --destRefsBase;
         if (srcRefsBase != 0 && destRefsBase != 0)
             return {};
@@ -275,17 +282,17 @@ ConversionResult ConvertService::checkConversionImpl(
         //  b) apply CT-to-RT conversion
         //  c) covert result to 'dest'
 
-        Type src0; // same as 'src', with with zero references
-        if (isDataLikeType(src))
-            src0 = removeAllRefs(TypeWithStorage(src));
-        else if (src.kind() == typeKindConcept) {
-            src0 = getConceptType(conceptOfType(src), 0, src.mode());
+        TypeWithStorage src0; // same as 'src', with with zero references
+        if (isDataLikeType(srcS))
+            src0 = removeAllRefs(srcS);
+        else if (srcS.kind() == typeKindConcept) {
+            src0 = ConceptType::get(ConceptType(srcS).decl(), 0, srcS.mode());
         } else
             return {};
 
         // a) Remove all references from source
-        if (src != src0)
-            if (!checkConversionSameMode(res, context, flags, src, src0))
+        if (srcS != src0)
+            if (!checkConversionSameMode(res, context, flags, srcS, src0))
                 return {};
 
         // b) remove CT
@@ -293,22 +300,22 @@ ConversionResult ConvertService::checkConversionImpl(
         res.addConversion(convDirect, ConvAction(ActionType::modeCast, src0));
 
         // c) convert src0 to dest
-        if (src0 != dest)
-            if (!checkConversionSameMode(res, context, flags, src0, dest))
+        if (src0 != destS)
+            if (!checkConversionSameMode(res, context, flags, src0, destS))
                 return {};
     }
 
     return res;
 }
 
-bool ConvertService::checkConversionSameMode(
-        ConversionResult& res, CompilationContext* context, int flags, Type src, Type dest) {
+bool ConvertService::checkConversionSameMode(ConversionResult& res, CompilationContext* context,
+        int flags, TypeWithStorage src, TypeWithStorage dest) {
     ASSERT(src);
     ASSERT(dest);
 
     // Is the destination is a concept?
     if (dest.kind() == typeKindConcept) {
-        return checkConversionToConcept(res, context, flags, src, dest);
+        return checkConversionToConcept(res, context, flags, src, ConceptType(dest));
     }
 
     // Treat data-like to data-like conversions
@@ -320,32 +327,31 @@ bool ConvertService::checkConversionSameMode(
     return false;
 }
 
-bool ConvertService::checkConversionToConcept(
-        ConversionResult& res, CompilationContext* context, int flags, Type src, Type dest) {
+bool ConvertService::checkConversionToConcept(ConversionResult& res, CompilationContext* context,
+        int flags, TypeWithStorage src, ConceptType dest) {
     ASSERT(src);
     ASSERT(dest);
 
     // Case 1: data-like -> concept (concept)
     if (Feather::isDataLikeType(src)) {
-        TypeWithStorage srcS(src);
 
         // Adjust references
         bool canAddRef = (flags & flagDontAddReference) == 0;
         if (!adjustReferences(
-                    res, srcS, typeKindData, dest.numReferences(), dest.description(), canAddRef))
+                    res, src, typeKindData, dest.numReferences(), dest.description(), canAddRef))
             return false;
 
         bool isOk = false;
-        Nest::NodeHandle concept = conceptOfType(dest);
+        Nest::NodeHandle concept = dest.decl();
         if (!concept)
             isOk = true;
         // If we have a concept, check if the type fulfills the concept
         else if (concept.kind() == nkSparrowDeclSprConcept) {
-            isOk = g_ConceptsService->conceptIsFulfilled(concept, srcS);
+            isOk = g_ConceptsService->conceptIsFulfilled(concept, src);
         }
         // If we have a generic, check if the type is generated from the generic
         else if (concept.kind() == nkSparrowDeclGenericClass) {
-            isOk = g_ConceptsService->typeGeneratedFromGeneric(concept, srcS);
+            isOk = g_ConceptsService->typeGeneratedFromGeneric(concept, src);
         }
         if (!isOk)
             return false;
@@ -362,10 +368,10 @@ bool ConvertService::checkConversionToConcept(
 
         // Iteratively search the base concept to find our dest type
         while (src != dest) {
-            Nest::NodeHandle conceptNode = conceptOfType(src);
+            Nest::NodeHandle conceptNode = ConceptType(src).decl();
             if (!conceptNode)
                 return false;
-            Type baseType = g_ConceptsService->baseConceptType(conceptNode);
+            ConceptType baseType = g_ConceptsService->baseConceptType(conceptNode);
             if (!baseType || baseType == src)
                 return false; // Not found; cannot convert
             src = baseType.changeMode(src.mode(), conceptNode.location());

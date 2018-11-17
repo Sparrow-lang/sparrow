@@ -3,6 +3,7 @@
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.h"
 #include "Feather/Utils/cppif/FeatherTypes.hpp"
+#include "SparrowFrontend/Utils/cppif/SparrowFrontendTypes.hpp"
 #include "Nest/Api/EvalMode.h"
 #include "Nest/Utils/cppif/Fwd.hpp"
 
@@ -46,7 +47,7 @@ Gen<Feather::FunctionType> arbFunctionType(
         EvalMode mode = modeUnspecified, Nest::TypeWithStorage resType = {});
 
 //! Returns a generator for arbitrary concept types
-Gen<Nest::Type> arbConceptType(EvalMode mode = modeUnspecified, int minRef = 0, int maxRef = 4);
+Gen<SprFrontend::ConceptType> arbConceptType(EvalMode mode = modeUnspecified, int minRef = 0, int maxRef = 4);
 
 //! Returns a generator of types with storage
 Gen<Nest::TypeWithStorage> arbTypeWithStorage(
@@ -92,6 +93,9 @@ template <> struct Arbitrary<Feather::ArrayType> {
 };
 template <> struct Arbitrary<Feather::FunctionType> {
     static Gen<Feather::FunctionType> arbitrary() { return TypeFactory::arbFunctionType(); }
+};
+template <> struct Arbitrary<SprFrontend::ConceptType> {
+    static Gen<SprFrontend::ConceptType> arbitrary() { return TypeFactory::arbConceptType(); }
 };
 template <> struct Arbitrary<Nest::TypeWithStorage> {
     static Gen<Nest::TypeWithStorage> arbitrary() { return TypeFactory::arbTypeWithStorage(); }

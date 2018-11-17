@@ -5,6 +5,8 @@
 
 namespace SprFrontend {
 
+struct ConceptType;
+
 /*
 There are 4 types of generics:
  - function generics
@@ -340,14 +342,14 @@ struct IConceptsService {
     virtual bool typeGeneratedFromGeneric(Node* genericDatatype, TypeRef type) = 0;
 
     //! Get the base concept type
-    virtual TypeRef baseConceptType(Node* concept) = 0;
+    virtual ConceptType baseConceptType(Node* concept) = 0;
 };
 
 //! Implementation of the convert service
 struct ConceptsService : IConceptsService {
     bool conceptIsFulfilled(Node* concept, TypeRef type) final;
     bool typeGeneratedFromGeneric(Node* genericDatatype, TypeRef type) final;
-    TypeRef baseConceptType(Node* concept) final;
+    ConceptType baseConceptType(Node* concept) final;
 };
 
 //! The convert service instance that we are using across the Sparrow compiler

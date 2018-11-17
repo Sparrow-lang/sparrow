@@ -8,7 +8,7 @@
 #include "SparrowFrontend/Helpers/Overload.h"
 #include "SparrowFrontend/Helpers/Generics.h"
 #include "SparrowFrontend/Helpers/StdDef.h"
-#include "SparrowFrontend/SparrowFrontendTypes.h"
+#include "SparrowFrontend/Utils/cppif/SparrowFrontendTypes.hpp"
 #include "Feather/Utils/cppif/FeatherTypes.hpp"
 #include "Nest/Utils/cppif/StringRef.hpp"
 #include "Nest/Utils/Diagnostic.hpp"
@@ -60,7 +60,7 @@ struct ConceptsServiceMock : IConceptsService {
         return false;
     }
     bool typeGeneratedFromGeneric(Node* genericDatatype, TypeRef type) final { return false; }
-    TypeRef baseConceptType(Node* concept) final {
+    ConceptType baseConceptType(Node* concept) final {
         for (auto p : baseConcepts_)
             if (p.first == concept)
                 return p.second;
@@ -68,7 +68,7 @@ struct ConceptsServiceMock : IConceptsService {
     }
 
     vector<pair<Node*, TypeRef>> conceptFulfillments_;
-    vector<pair<Node*, TypeRef>> baseConcepts_; // concept -> base node
+    vector<pair<Node*, ConceptType>> baseConcepts_; // concept -> base concept type
 };
 
 // NOLINTNEXTLINE(cppcoreguidelines-special-member-functions)
@@ -93,8 +93,8 @@ struct ConvertFixture : SparrowGeneralFixture {
     TypeRef fooType_;
     TypeRef barType_; // fooType_ -> barType_
     TypeRef nullType_;
-    TypeRef concept1Type_;
-    TypeRef concept2Type_;
+    ConceptType concept1Type_;
+    ConceptType concept2Type_;
 };
 
 ConvertFixture::ConvertFixture() {
@@ -144,8 +144,8 @@ ConvertFixture::ConvertFixture() {
     REQUIRE(Nest_computeType(concept2) != nullptr);
     g_conceptDecls.push_back(concept1);
     g_conceptDecls.push_back(concept2);
-    concept1Type_ = concept1->type;
-    concept2Type_ = concept2->type;
+    concept1Type_ = ConceptType::get(concept1);
+    concept2Type_ = ConceptType::get(concept2);
 
     // Make concept -> type associations
     mockConceptsService->conceptFulfillments_.emplace_back(make_pair(concept1, fooType_));
@@ -376,8 +376,8 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
     });
 
     SECTION("Concept base conversion") {
-        CHECK(getConvType(concept1Type_, concept2Type_) == convDirect);
-        // TODO (concepts): This is not right
+        CHECK(getConvType(concept1Type_, concept2Type_) == convNone);
+        CHECK(getConvType(concept2Type_, concept1Type_) == convDirect);
     }
 }
 

@@ -1,7 +1,7 @@
 #include <StdInc.h>
 #include "SparrowFrontend.h"
 
-#include "SparrowFrontendTypes.h"
+#include "Utils/cppif/SparrowFrontendTypes.hpp"
 #include "Nodes/SparrowNodes.h"
 #include "SparrowSourceCode.h"
 #include "Helpers/StdDef.h"

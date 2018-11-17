@@ -229,7 +229,6 @@ bool canHaveCtorDtor(Node* field) {
     return Feather::isDataLikeType(field->type);
 }
 
-
 /// Search the given body for a constructor with the given properties.
 ///
 /// This can search for constructors of given classes, constructors called on this, or called for

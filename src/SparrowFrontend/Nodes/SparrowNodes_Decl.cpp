@@ -2,7 +2,7 @@
 #include "SparrowNodes.h"
 #include "IntMods.h"
 #include "SprDebug.h"
-#include <SparrowFrontendTypes.h>
+#include "Utils/cppif/SparrowFrontendTypes.hpp"
 
 #include <Helpers/CommonCode.h>
 #include <Helpers/SprTypeTraits.h>
@@ -727,7 +727,7 @@ Node* SprConcept_SemanticCheck(Node* node) {
     }
 
     Node* param = baseConcept ? mkSprParameter(node->location, paramName, baseConcept)
-                              : mkSprParameter(node->location, paramName, getConceptType());
+                              : mkSprParameter(node->location, paramName, ConceptType::get());
     Nest_setContext(param, node->childrenContext);
     if (!Nest_computeType(param)) // But not semanticCheck, as it will complain of instantiating a
                                   // var of type auto

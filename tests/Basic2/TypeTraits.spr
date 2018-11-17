@@ -85,7 +85,7 @@ storage     rt    y  2    @@Double
 storage     rt    y  0    Tuple[Int, Double]
 storage     rt    y  0    Vector[Int]
 storage     rt    y  0    NumericRangeInc[Int]
-no storage  rt    y  0    #Number
+storage     rt    y  0    #Number
 no storage  rt    y  0    Void
 no storage  ct    y  0    Void/ct
 storage     rt    y  0    FunctionPtr0[Void]

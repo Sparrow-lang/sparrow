@@ -1,5 +1,7 @@
 #include <StdInc.h>
-#include "SparrowFrontendTypes.h"
+
+#include "SparrowFrontend/Utils/cppif/SparrowFrontendTypes.hpp"
+#include "Utils/cppif/SparrowFrontendTypes.hpp"
 #include "Feather/Utils/FeatherUtils.hpp"
 
 #include "Nest/Api/TypeKindRegistrar.h"
@@ -23,17 +25,6 @@ const char* getConceptTypeDescription(Node* concept, uint8_t numReferences, Eval
     return dupString(os.str().c_str());
 }
 
-TypeRef changeTypeModeConcept(TypeRef type, EvalMode newMode) {
-    return getConceptType(type->referredNode, type->numReferences, newMode);
-}
-} // namespace
-
-int typeKindConcept = -1;
-
-void initSparrowFrontendTypeKinds() {
-    typeKindConcept = Nest_registerTypeKind(&changeTypeModeConcept);
-}
-
 TypeRef getConceptType(Node* conceptOrGeneric, uint8_t numReferences, EvalMode mode) {
     ASSERT(!conceptOrGeneric || conceptOrGeneric->nodeKind == nkSparrowDeclSprConcept ||
             conceptOrGeneric->nodeKind == nkSparrowDeclGenericClass);
@@ -42,7 +33,7 @@ TypeRef getConceptType(Node* conceptOrGeneric, uint8_t numReferences, EvalMode m
     referenceType.mode = mode;
     referenceType.numSubtypes = 0;
     referenceType.numReferences = numReferences;
-    referenceType.hasStorage = 0;
+    referenceType.hasStorage = 1;
     referenceType.canBeUsedAtRt = 1;
     referenceType.flags = 0;
     referenceType.referredNode = conceptOrGeneric;
@@ -54,9 +45,28 @@ TypeRef getConceptType(Node* conceptOrGeneric, uint8_t numReferences, EvalMode m
     return t;
 }
 
-Node* conceptOfType(TypeRef type) {
-    ASSERT(type && type->typeKind == typeKindConcept);
-    return type->referredNode;
+TypeRef changeTypeModeConcept(TypeRef type, EvalMode newMode) {
+    return getConceptType(type->referredNode, type->numReferences, newMode);
 }
+
+} // namespace
+
+int typeKindConcept = -1;
+
+void initSparrowFrontendTypeKinds() {
+    typeKindConcept = Nest_registerTypeKind(&changeTypeModeConcept);
+}
+
+ConceptType::ConceptType(Nest::TypeRef type)
+    : TypeWithStorage(type) {
+    if (type && type->typeKind != typeKindConcept)
+        REP_INTERNAL(NOLOC, "ConceptType constructed with other type kind (%1%)") % type;
+}
+
+ConceptType ConceptType::get(Nest::NodeHandle decl, int numReferences, Nest::EvalMode mode) {
+    return ConceptType(getConceptType(decl, numReferences, mode));
+}
+
+Nest::NodeHandle ConceptType::decl() const { return referredNode(); }
 
 } // namespace SprFrontend

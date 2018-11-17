@@ -7,7 +7,7 @@
 #include "Helpers/StdDef.h"
 #include "Helpers/DeclsHelpers.h"
 #include <Helpers/Ct.h>
-#include "SparrowFrontendTypes.h"
+#include "Utils/cppif/SparrowFrontendTypes.hpp"
 #include "SprDebug.h"
 
 #include "Feather/Utils/cppif/FeatherTypes.hpp"
@@ -43,7 +43,7 @@ int getParamsCount(const CallableData& c, bool hideImplicit = false) {
 /// If we hide it, we return only the parameters the caller sees.
 TypeRef getParamType(const CallableData& c, int idx, bool hideImplicit = false) {
     if (c.type == CallableType::concept)
-        return getConceptType();
+        return ConceptType::get();
     // If we have an implicit arg type, hide it
     if (hideImplicit && c.implicitArgType)
         ++idx;
@@ -145,7 +145,7 @@ ConversionType canCall_common_types(CallableData& c, CompilationContext* context
                 return convNone;
             }
             // continue;   // Will get back on this arg in a secondary pass
-            paramType = getConceptType();
+            paramType = ConceptType::get();
         }
 
         // If we are looking at a CT callable, make sure the parameters are in CT

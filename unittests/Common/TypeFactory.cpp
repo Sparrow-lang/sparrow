@@ -5,7 +5,7 @@
 #include "Nest/Api/Type.h"
 #include "Nest/Utils/cppif/StringRef.hpp"
 #include "Feather/Utils/cppif/FeatherNodes.hpp"
-#include "SparrowFrontend/SparrowFrontendTypes.h"
+#include "SparrowFrontend/Utils/cppif/SparrowFrontendTypes.hpp"
 
 namespace TypeFactory {
 
@@ -73,34 +73,32 @@ Gen<FunctionType> arbFunctionType(EvalMode mode, Nest::TypeWithStorage resType) 
     });
 }
 
-Gen<Type> arbConceptType(EvalMode mode, int minRef, int maxRef) {
+Gen<SprFrontend::ConceptType> arbConceptType(EvalMode mode, int minRef, int maxRef) {
     const int numT = g_conceptDecls.size();
     REQUIRE(numT > 0);
     auto modeGen = mode == modeUnspecified ? gen::arbitrary<EvalMode>() : gen::just(mode);
     return gen::apply(
-            [=](int idx, int numReferences, EvalMode mode) -> Type {
+            [=](int idx, int numReferences, EvalMode mode) -> SprFrontend::ConceptType {
                 REQUIRE(idx < g_conceptDecls.size());
-                return SprFrontend::getConceptType(g_conceptDecls[idx], numReferences, mode);
+                return SprFrontend::ConceptType::get(g_conceptDecls[idx], numReferences, mode);
             },
             gen::inRange(0, numT), gen::inRange(minRef, maxRef), modeGen);
 }
 
 Gen<TypeWithStorage> arbTypeWithStorage(EvalMode mode, int minRef, int maxRef) {
-    return gen::exec([=]() -> TypeWithStorage {
-        int idx = *gen::inRange(0, 4);
-        if (minRef == 0 && idx == 1)
-            idx = 0;
-        switch (idx) {
-        case 1:
-            return *arbMutableType(mode, minRef, maxRef);
-        case 2:
-            return *arbArrayType(mode);
-        case 3:
-            return *arbFunctionType(mode);
-        case 0:
-        default:
-            return *arbDataType(mode, minRef, maxRef);
-        }
+    int weightDataType = 5;
+    int weightConstType = minRef == 0 ? 0 : 2;
+    int weightMutableType = minRef == 0 ? 0 : 2;
+    int weightTempType = minRef == 0 ? 0 : 1;
+    int weightArrayType = 1;
+    int weightFunctionType = 1;
+    return gen::weightedOneOf<TypeWithStorage>({
+            {weightDataType, gen::cast<TypeWithStorage>(arbDataType(mode, minRef, maxRef))},
+            {weightConstType, gen::cast<TypeWithStorage>(arbConstType(mode, minRef, maxRef))},
+            {weightMutableType, gen::cast<TypeWithStorage>(arbMutableType(mode, minRef, maxRef))},
+            {weightTempType, gen::cast<TypeWithStorage>(arbTempType(mode, minRef, maxRef))},
+            {weightArrayType, gen::cast<TypeWithStorage>(arbArrayType(mode))},
+            {weightFunctionType, gen::cast<TypeWithStorage>(arbFunctionType(mode))},
     });
 }
 

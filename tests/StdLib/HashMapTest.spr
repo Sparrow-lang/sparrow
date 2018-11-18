@@ -5,6 +5,7 @@ import std.list;
 import std.vector;
 import std.algorithms;
 
+[convert]
 datatype IntWrapper
     x: Int;
 
@@ -16,6 +17,7 @@ fun hash(this: IntWrapper): SizeType
     cout << "IntWrapper.hash called for value " << x << endl;
     return x;
 
+[convert]
 datatype IntWithNoHash
     x: Int;
 

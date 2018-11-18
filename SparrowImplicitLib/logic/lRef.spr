@@ -48,6 +48,7 @@ fun dtor(this: @ScopeTracer)
 /// reference, it's immediately visible in all the other references sharing the same value. This is particularly useful
 /// in logical inference process, when we repeatedly assign values to variables and expect the values to be propagated
 /// in all the places the variable appears.
+[convert]
 datatype LRef(valueType: Type)
     using ValueType = valueType
     using ValuePassType = !@valueType

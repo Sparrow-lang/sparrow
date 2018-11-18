@@ -243,7 +243,9 @@ TypeRef SprDatatype_ComputeType(Node* node) {
     }
     Feather_setShouldAddToSymTab(resultingClass, 0);
 
-    // Copy the "native" and "description" properties to the resulting class
+    // Copy the "convert", "native" and "description" properties to the resulting class
+    if (Nest_hasProperty(node, propConvert))
+        Nest_setPropertyInt(resultingClass, propConvert, 1);
     if (nativeName) {
         Nest_setPropertyString(resultingClass, propNativeName, nativeName);
     }
@@ -276,7 +278,7 @@ TypeRef SprDatatype_ComputeType(Node* node) {
         checkForAllowedNamespaceChildren(children, true);
     }
 
-    // Take the fields and the methods
+    // Take the members of the struct
     forEachNodeInNodeList(children, [&](Node* child) -> void {
         Node* p = Nest_explanation(child);
         if (p->nodeKind != nkFeatherDeclVar) {

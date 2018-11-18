@@ -62,10 +62,12 @@ void ModNative_beforeComputeType(Nest_Modifier* mod, Node* node) {
 }
 
 void ModConvert_beforeComputeType(Nest_Modifier*, Node* node) {
-    /// Check to apply only to constructors
-    if (node->nodeKind != nkSparrowDeclSprFunction || Feather_getName(node) != StringRef("ctor"))
+    /// Check to apply only to constructors and datatypes
+    if ((node->nodeKind != nkSparrowDeclSprFunction ||
+                Feather_getName(node) != StringRef("ctor")) &&
+            node->nodeKind != nkSparrowDeclSprDatatype)
         REP_INTERNAL(node->location,
-                "convert modifier can be applied only to constructors (applied to %1%)") %
+                "convert modifier can be applied only to constructors and datatypes (applied to %1%)") %
                 Nest_nodeKindName(node);
 
     Nest_setPropertyInt(node, propConvert, 1);

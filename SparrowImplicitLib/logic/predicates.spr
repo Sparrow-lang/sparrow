@@ -10,6 +10,7 @@ concept PredicateType(x) \
 /// Basic implementation of a predicate with type erasure
 /// We store the actual predicate function as a Function object that takes no parameters and returns Bool
 /// Provides implicit conversion from any predicate
+[convert]
 datatype Predicate
     using arity = 0
 

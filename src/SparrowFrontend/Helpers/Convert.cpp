@@ -5,6 +5,7 @@
 #include "StdDef.h"
 #include <NodeCommonsCpp.h>
 #include "Utils/cppif/SparrowFrontendTypes.hpp"
+#include "Nodes/SprProperties.h"
 #include <Helpers/Generics.h>
 
 #include "Feather/Api/Feather.h"
@@ -405,11 +406,16 @@ bool ConvertService::checkDataConversion(ConversionResult& res, CompilationConte
     // Case 2: Custom conversions
     else if (0 == (flags & flagDontCallConversionCtor)) {
 
-        // TODO (types): This is called for every failed conversion; this is a big performance
-        // problem
-
         Node* destClass = dest.referredNode();
-        if (!destClass || !Nest_computeType(destClass))
+        if (!destClass)
+            return false;
+
+        // If the destination class is not marked as convert, bail out
+        // This saves us some processing time
+        if (!Nest_hasProperty(destClass, propConvert))
+            return false;
+
+        if (!Nest_computeType(destClass))
             return false;
 
         // Try to convert srcType to mut destClass

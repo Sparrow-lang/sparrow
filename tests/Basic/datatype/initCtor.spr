@@ -2,6 +2,7 @@
 
 // Test purpose: Test initCtor for various datatypes
 
+[convert]
 datatype Tracer
     _val: Int
 

@@ -9,6 +9,7 @@
 #include "SparrowFrontend/Helpers/Generics.h"
 #include "SparrowFrontend/Helpers/StdDef.h"
 #include "SparrowFrontend/Utils/cppif/SparrowFrontendTypes.hpp"
+#include "SparrowFrontend/Nodes/SprProperties.h"
 #include "Feather/Utils/cppif/FeatherTypes.hpp"
 #include "Nest/Utils/cppif/StringRef.hpp"
 #include "Nest/Utils/Diagnostic.hpp"
@@ -39,7 +40,7 @@ struct OverloadServiceMock : IOverloadService {
         if (argType.mode() != destMode)
             return false;
         // If we know about the conversion, we return true
-        Type destType = Feather_getDataType(destClass, 0, destMode);
+        Type destType = DataType::get(destClass, 0, destMode);
         for (const auto& p : implicitConversions_) {
             if (p.first == argType && p.second == destType)
                 return true;
@@ -122,19 +123,21 @@ ConvertFixture::ConvertFixture() {
     g_dataTypeDecls.push_back(barTypeDecl);
     g_dataTypeDecls.push_back(nullTypeDecl);
 
+
     // Create an implicit conversion from FooType to BarType
-    fooType_ = Feather_getDataType(fooTypeDecl, 0, modeRt);
-    barType_ = Feather_getDataType(barTypeDecl, 0, modeRt);
+    Nest::NodeHandle(barTypeDecl).setProperty(propConvert, 1);
+    fooType_ = DataType::get(fooTypeDecl, 0, modeRt);
+    barType_ = DataType::get(barTypeDecl, 0, modeRt);
     mockOverloadService->implicitConversions_.emplace_back(make_pair(fooType_, barType_));
 
     // Ensure we set the Null type
-    nullType_ = Feather_getDataType(nullTypeDecl, 0, modeRt);
+    nullType_ = DataType::get(nullTypeDecl, 0, modeRt);
     SprFrontend::StdDef::typeNull = nullType_;
     SprFrontend::StdDef::clsNull = nullTypeDecl;
 
     // Ensure we set the Type type -- but don't add it to our conversion types
     Node* typeDecl = createDatatypeNode(StringRef("Type"), globalContext_);
-    SprFrontend::StdDef::typeType = Feather_getDataType(typeDecl, 0, modeCt);
+    SprFrontend::StdDef::typeType = DataType::get(typeDecl, 0, modeCt);
     REQUIRE(Nest_computeType(typeDecl) != nullptr);
 
     // Create concept types
@@ -306,9 +309,9 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
 
     SECTION("MutableType examples") {
         Node* decl = TypeFactory::g_dataTypeDecls[0];
-        auto t0 = Feather_getDataType(decl, 0, modeRt); // i8
-        auto t1 = Feather_getDataType(decl, 1, modeRt); // @i8
-        auto t2 = Feather_getDataType(decl, 2, modeRt); // @@i8
+        auto t0 = DataType::get(decl, 0, modeRt);       // i8
+        auto t1 = DataType::get(decl, 1, modeRt);       // @i8
+        auto t2 = DataType::get(decl, 2, modeRt);       // @@i8
         auto t0mut = MutableType::get(t0);              // i8 mut
         auto t1mut = MutableType::get(t1);              // @i8 mut
         CHECK(getConvType(t0, t1) == convImplicit);

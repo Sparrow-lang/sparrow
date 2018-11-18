@@ -57,7 +57,7 @@ Node* SprFrontend::createCtorCall(
 
                 // This argument - make sure it's of the required type
                 Node* thisParam = FunctionDecl(fun).parameters()[0];
-                TypeRef thisParamType = thisParam->type;
+                Type thisParamType = thisParam->type;
                 ConversionResult cvt = g_ConvertService->checkConversion(thisArg, thisParamType);
                 if (!cvt)
                     REP_INTERNAL(loc, "Cannot convert this arg in RVO (%1% -> %2%)") %
@@ -154,25 +154,25 @@ Node* SprFrontend::createFunctionCall(
     Node* resultParam = getResultParam(fun);
     if (resultParam) {
         // Get the resulting type; check for CT-ness
-        TypeRef resTypeRef = resultParam->type;
+        TypeWithStorage resType = resultParam->type;
         EvalMode funEvalMode = Feather_effectiveEvalMode(fun);
-        if (funEvalMode == modeCt && resTypeRef->mode != modeCt)
-            resTypeRef = Type(resTypeRef).changeMode(modeCt, resultParam->location);
+        if (funEvalMode == modeCt && resType.mode() != modeCt)
+            resType = resType.changeMode(modeCt, resultParam->location);
         if (funEvalMode == modeRt && Nest_hasProperty(fun, propAutoCt) &&
-                resTypeRef->mode != modeCt && _areNodesCt(args))
-            resTypeRef = Type(resTypeRef).changeMode(modeCt, resultParam->location);
+                resType.mode() != modeCt && _areNodesCt(args))
+            resType = resType.changeMode(modeCt, resultParam->location);
 
         // Create a temporary variable for the result
-        Node* tmpVar = Feather_mkVar(loc, StringRef("$tmpC"),
-                Feather_mkTypeNode(loc, removeRef(TypeWithStorage(resTypeRef))));
+        Node* tmpVar =
+                Feather_mkVar(loc, StringRef("$tmpC"), Feather_mkTypeNode(loc, removeRef(resType)));
         Nest_setContext(tmpVar, context);
         tmpVarRef = Feather_mkVarRef(loc, tmpVar);
         Nest_setContext(tmpVarRef, context);
 
         // Add a new argument with the temporary variable
         NodeVector args1 = toVec(args);
-        Node* arg = Feather_mkBitcast(
-                tmpVarRef->location, Feather_mkTypeNode(loc, resTypeRef), tmpVarRef);
+        Node* arg =
+                Feather_mkBitcast(tmpVarRef->location, Feather_mkTypeNode(loc, resType), tmpVarRef);
         Nest_setContext(arg, context);
         args1.insert(args1.begin(), arg);
         Node* funCall = Feather_mkFunCall(loc, fun, all(args1));
@@ -180,7 +180,7 @@ Node* SprFrontend::createFunctionCall(
         res = createTempVarConstruct(loc, context, funCall, tmpVar);
 
         // TODO: Check why we cannot return a reference when the result is a type
-        if (resTypeRef == StdDef::typeRefType)
+        if (resType == StdDef::typeRefType)
             res = Feather_mkMemLoad(loc, res);
     } else {
         Node* funCall = Feather_mkFunCall(loc, fun, args);
@@ -244,8 +244,8 @@ Node* _createFunPtrForFeatherFun(Node* fun, Node* callNode) {
     // Try to instantiate the corresponding FunctionPtr class
     NodeVector parameters;
     parameters.reserve(1 + FunctionDecl(fun).parameters().size());
-    TypeRef resType = resParam ? (TypeRef)removeRef(TypeWithStorage(resParam->type)).type_
-                               : (TypeRef)FunctionDecl(fun).resTypeNode().type();
+    Type resType = resParam ? (Type)removeRef(TypeWithStorage(resParam->type))
+                            : FunctionDecl(fun).resTypeNode().type();
     parameters.push_back(createTypeNode(ctx, loc, resType));
     for (size_t i = resParam ? 1 : 0; i < FunctionDecl(fun).parameters().size(); ++i) {
         parameters.push_back(createTypeNode(ctx, loc, FunctionDecl(fun).parameters()[i].type()));
@@ -257,7 +257,7 @@ Node* _createFunPtrForFeatherFun(Node* fun, Node* callNode) {
         return nullptr;
 
     // Get the actual class object from the instantiation
-    TypeRef t = getType(classCall);
+    Type t = getType(classCall);
 
     // If the class is valid, we have a conversion
     if (t)
@@ -318,7 +318,7 @@ Node* _createFunPtrForDecl(Node* funNode) {
                 }
 
                 // Ensure we can convert baseExp to the first param
-                TypeRef paramType = FunctionDecl(decl).parameters()[thisParamIdx].type();
+                Type paramType = FunctionDecl(decl).parameters()[thisParamIdx].type();
                 if (!g_ConvertService->checkConversion(
                             baseExp, paramType, flagDontCallConversionCtor)) {
                     continue;

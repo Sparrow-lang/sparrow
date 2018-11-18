@@ -25,8 +25,8 @@ namespace {
 /// Called at the start of error reporting
 /// Reports a general error if we are in 'full' error reporting mode;
 /// otherwise just reports an info message
-void startError(OverloadReporting errReporting, const Location& loc,
-        const vector<TypeRef>& argsTypes, StringRef funName) {
+void startError(OverloadReporting errReporting, const Location& loc, const vector<Type>& argsTypes,
+        StringRef funName) {
     // Compute function name with arguments
     ostringstream oss;
     oss << funName.begin;
@@ -60,7 +60,7 @@ void reportDeclsAlternatives(const Location& loc, Nest_NodeRange decls) {
 /// If there are callables with smaller overload prio, drop them in the favor of those with higher
 /// overload prio.
 bool filterCandidates(CompilationContext* context, const Location& loc, Callables& candidates,
-        Nest_NodeRange* args, const vector<TypeRef>* argTypes, EvalMode evalMode,
+        Nest_NodeRange* args, const vector<Type>* argTypes, EvalMode evalMode,
         CustomCvtMode customCvtMode) {
     ConversionType bestConv = convNone;
     int bestPrio = INT_MIN;
@@ -95,7 +95,7 @@ bool filterCandidates(CompilationContext* context, const Location& loc, Callable
 /// This is called if filterCandidates failed to select any valid candidate.
 /// This will report all the candidates, and why they could not be called.
 void filterCandidatesErrReport(CompilationContext* context, const Location& loc,
-        Callables& candidates, Nest_NodeRange* args, const vector<TypeRef>* argTypes,
+        Callables& candidates, Nest_NodeRange* args, const vector<Type>* argTypes,
         EvalMode evalMode, CustomCvtMode customCvtMode) {
     for (auto& cand : candidates) {
         // Report the candidate
@@ -194,7 +194,7 @@ Node* OverloadService::selectOverload(CompilationContext* context, const Locatio
 
     // Computing the argument types for our arguments
     auto numArgs = Nest_nodeRangeSize(args);
-    vector<TypeRef> argsTypes(numArgs, nullptr);
+    vector<Type> argsTypes(numArgs, nullptr);
     for (size_t i = 0; i < numArgs; ++i) {
         Node* arg = at(args, i);
         ASSERT(arg);
@@ -288,7 +288,7 @@ Node* OverloadService::selectOverload(CompilationContext* context, const Locatio
 }
 
 bool OverloadService::selectConversionCtor(
-        CompilationContext* context, Node* destClass, EvalMode destMode, TypeRef argType) {
+        CompilationContext* context, Node* destClass, EvalMode destMode, Type argType) {
     ASSERT(argType);
 
     // Get all the candidates
@@ -299,7 +299,7 @@ bool OverloadService::selectConversionCtor(
         return false;
 
     // Check the candidates to be able to be called with the given arguments
-    vector<TypeRef> argTypes(1, argType);
+    vector<Type> argTypes(1, argType);
     filterCandidates(context, Location(), candidates, nullptr, &argTypes, destMode, noCustomCvt);
 
     // From the remaining candidates, try to select the most specialized one
@@ -326,7 +326,7 @@ Node* OverloadService::selectCtToRtCtor(Node* ctArg) {
         return nullptr;
 
     // Check the candidates to be able to be called with the given arguments
-    vector<TypeRef> argTypes(1, ctArg->type);
+    vector<Type> argTypes(1, ctArg->type);
     bool hasValidCandidates = filterCandidates(
             ctArg->context, Location(), candidates, nullptr, &argTypes, modeRt, noCustomCvt);
     if (!hasValidCandidates) {

@@ -11,6 +11,9 @@
 namespace SprFrontend {
 
 namespace {
+
+using Nest::TypeRef;
+
 const char* getConceptTypeDescription(Node* concept, uint8_t numReferences, EvalMode mode) {
     ostringstream os;
     for (uint8_t i = 0; i < numReferences; ++i)

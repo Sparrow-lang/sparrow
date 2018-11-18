@@ -7,7 +7,7 @@ namespace Nest {
 
 Nest::NodeHandle Type::referredNode() const { return type_->referredNode; }
 
-Type Type::changeMode(EvalMode mode, Location loc) {
+Type Type::changeMode(EvalMode mode, Location loc) const {
     if (mode == type_->mode)
         return *this;
 

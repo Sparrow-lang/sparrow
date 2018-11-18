@@ -56,7 +56,7 @@ NodeVector createAllBoundVariables(const Location& loc, CompilationContext* cont
         Node* boundValue = at(boundValues, idx++);
         if (!p || !boundValue)
             continue;
-        TypeRef paramType = p->type;
+        Type paramType = p->type;
         if (!paramType)
             paramType = getType(boundValue); // Dependent param type case
         Node* var = createBoundVar(context, p, paramType, boundValue, isCtGeneric);
@@ -245,7 +245,7 @@ InstNode createNewInstantiation(InstSetNode instSet, Nest_NodeRange values, Eval
     return inst;
 }
 
-Node* createBoundVar(CompilationContext* context, Node* param, TypeRef paramType, Node* boundValue,
+Node* createBoundVar(CompilationContext* context, Node* param, Type paramType, Node* boundValue,
         bool isCtGeneric) {
     ASSERT(param);
     ASSERT(paramType);
@@ -257,9 +257,9 @@ Node* createBoundVar(CompilationContext* context, Node* param, TypeRef paramType
     StringRef name = Feather_getName(param);
     Node* var = nullptr;
     if (isConcept) {
-        TypeRef t = getType(boundValue);
+        Type t = getType(boundValue);
         var = Feather_mkVar(loc, name, Feather_mkTypeNode(loc, t));
-        if (t->mode == modeCt)
+        if (t.mode() == modeCt)
             Feather_setEvalMode(var, modeCt);
         Nest_symTabEnter(context->currentSymTab, name.begin, var);
     } else {
@@ -324,7 +324,7 @@ InstNode canInstantiate(InstSetNode instSet, Nest_NodeRange values, EvalMode eva
     return canInstantiate(inst, instSet) ? inst : nullptr;
 }
 
-bool isConceptParam(Location paramLoc, TypeRef paramType, Node* boundValue) {
+bool isConceptParam(Location paramLoc, Type paramType, Node* boundValue) {
     ASSERT(boundValue && boundValue->type);
 
     // Check the bound value type first; it should always be 'Type' (we store the type of the given
@@ -340,10 +340,10 @@ bool isConceptParam(Location paramLoc, TypeRef paramType, Node* boundValue) {
     // In a non-dependent parameter case, in which we have a proper paramType, check if this is a
     // concept or the param type is not CT
     ASSERT(isConceptType(paramType) || paramType == getType(boundValue));
-    return isConceptType(paramType) || paramType->mode != modeCt;
+    return isConceptType(paramType) || paramType.mode() != modeCt;
 }
 
-bool ConceptsService::conceptIsFulfilled(Node* concept1, TypeRef type) {
+bool ConceptsService::conceptIsFulfilled(Node* concept1, Type type) {
     ASSERT(concept1);
     ConceptNode concept = concept1;
     InstSetNode instSet = concept.instSet();
@@ -366,9 +366,9 @@ bool ConceptsService::conceptIsFulfilled(Node* concept1, TypeRef type) {
     return inst.node != nullptr;
 }
 
-bool ConceptsService::typeGeneratedFromGeneric(Node* genericClass, TypeRef type) {
+bool ConceptsService::typeGeneratedFromGeneric(Node* genericClass, Type type) {
     ASSERT(genericClass && genericClass->nodeKind == nkSparrowDeclGenericClass);
-    Node* cls = Feather_classForType(type);
+    Node* cls = type.referredNode();
     if (!cls)
         return false;
 

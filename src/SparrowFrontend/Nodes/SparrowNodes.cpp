@@ -247,7 +247,7 @@ Node* SprReturn_SemanticCheck(Node* node) {
         REP_ERROR_RET(nullptr, node->location, "Return found outside any function");
 
     // Compute the result type of the function
-    TypeRef resType = nullptr;
+    Type resType = nullptr;
     Node* resultParam = getResultParam(parentFun);
     if (resultParam) // Does this function have a result param?
     {
@@ -264,7 +264,7 @@ Node* SprReturn_SemanticCheck(Node* node) {
     if (exp) {
         if (!Nest_semanticCheck(exp))
             return nullptr;
-        if (!resType->hasStorage && exp->type == resType) {
+        if (!resType.hasStorage() && exp->type == resType) {
             return Feather_mkNodeList(
                     node->location, fromIniList({exp, Feather_mkReturn(node->location, nullptr)}));
         } else {

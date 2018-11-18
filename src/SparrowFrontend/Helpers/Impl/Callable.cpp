@@ -41,7 +41,7 @@ int getParamsCount(const CallableData& c, bool hideImplicit = false) {
 /// Get the type of parameter with the given index
 /// The last flag indicates whether we should hide or not the implicit param
 /// If we hide it, we return only the parameters the caller sees.
-TypeRef getParamType(const CallableData& c, int idx, bool hideImplicit = false) {
+Type getParamType(const CallableData& c, int idx, bool hideImplicit = false) {
     if (c.type == CallableType::concept)
         return ConceptType::get();
     // If we have an implicit arg type, hide it
@@ -50,10 +50,10 @@ TypeRef getParamType(const CallableData& c, int idx, bool hideImplicit = false) 
     ASSERT(idx < size(c.params));
     Node* param = at(c.params, idx);
     ASSERT(param);
-    TypeRef res = param ? param->type : nullptr;
+    Type res = param ? param->type : nullptr;
     // Parameters of generic classes or packages are always CT
     if (c.type == CallableType::genericClass || c.type == CallableType::genericPackage)
-        res = Type(res).changeMode(modeCt, param->location);
+        res = res.changeMode(modeCt, param->location);
     return res;
 }
 
@@ -95,7 +95,7 @@ bool completeArgsWithDefaults(CallableData& c, Nest_NodeRange args) {
  * @return True if the callable can be used in the given eval mode
  */
 bool checkEvalMode(
-        CallableData& c, const vector<TypeRef>& argTypes, EvalMode evalMode, bool reportErrors) {
+        CallableData& c, const vector<Type>& argTypes, EvalMode evalMode, bool reportErrors) {
 
     // Nothing to check for concepts
     if (c.type == CallableType::concept)
@@ -111,8 +111,8 @@ bool checkEvalMode(
     if (!useCt && declEvalMode == modeRt && c.autoCt) {
         // In autoCt mode, if all the arguments are CT, make a CT call
         useCt = true;
-        for (TypeRef t : argTypes) {
-            if (t->mode != modeCt) {
+        for (Type t : argTypes) {
+            if (t.mode() != modeCt) {
                 useCt = false;
                 break;
             }
@@ -123,7 +123,7 @@ bool checkEvalMode(
 }
 
 ConversionType canCall_common_types(CallableData& c, CompilationContext* context,
-        const vector<TypeRef>& argTypes, EvalMode evalMode, CustomCvtMode customCvtMode,
+        const vector<Type>& argTypes, EvalMode evalMode, CustomCvtMode customCvtMode,
         bool reportErrors) {
     size_t paramsCount = getParamsCount(c);
 
@@ -134,9 +134,9 @@ ConversionType canCall_common_types(CallableData& c, CompilationContext* context
 
     ConversionType res = convDirect;
     for (size_t i = 0; i < paramsCount; ++i) {
-        TypeRef argType = argTypes[i];
+        Type argType = argTypes[i];
         ASSERT(argType);
-        TypeRef paramType = getParamType(c, i);
+        Type paramType = getParamType(c, i);
         if (!paramType) {
             if (!isGeneric) {
                 // For generics, we allow null parameters for now
@@ -150,7 +150,7 @@ ConversionType canCall_common_types(CallableData& c, CompilationContext* context
 
         // If we are looking at a CT callable, make sure the parameters are in CT
         if (c.autoCt)
-            paramType = Type(paramType).changeMode(modeCt, NOLOC);
+            paramType = paramType.changeMode(modeCt, NOLOC);
 
         ConversionFlags flags = flagsDefault;
         if (customCvtMode == noCustomCvt || (customCvtMode == noCustomCvtForFirst && i == 0))
@@ -174,15 +174,15 @@ NodeVector argsWithConversion(const CallableData& c) {
         res[i] = c.conversions[i].apply(c.args[i]->context, c.args[i]);
     return res;
 }
-TypeRef varType(Node* cls, EvalMode mode) {
+TypeWithStorage varType(Node* cls, EvalMode mode) {
     // Get the type of the temporary variable
-    TypeRef t = cls->type;
+    TypeWithStorage t = cls->type;
     if (mode != modeRt)
-        t = Type(t).changeMode(mode, cls->location);
+        t = t.changeMode(mode, cls->location);
     return t;
 }
 
-CallableData mkFunCallable(Node* fun, TypeRef implicitArgType = nullptr) {
+CallableData mkFunCallable(Node* fun, TypeWithStorage implicitArgType = {}) {
     Nest_NodeRange params = FunctionDecl(fun).parameters();
     if (getResultParam(fun))
         params.beginPtr++; // Always hide the result param
@@ -196,7 +196,7 @@ CallableData mkFunCallable(Node* fun, TypeRef implicitArgType = nullptr) {
     res.implicitArgType = implicitArgType;
     return res;
 }
-CallableData mkGenericFunCallable(Node* genericFun, TypeRef implicitArgType = nullptr) {
+CallableData mkGenericFunCallable(Node* genericFun, TypeWithStorage implicitArgType = {}) {
     CallableData res;
     res.type = CallableType::genericFun;
     res.decl = genericFun;
@@ -241,7 +241,7 @@ void getClassCtorCallables(Node* cls, EvalMode evalMode, Callables& res,
     evalMode = Feather_combineMode(Feather_effectiveEvalMode(cls), evalMode);
     if (!Nest_computeType(cls))
         return;
-    TypeRef implicitArgType = varType(cls, evalMode);
+    TypeWithStorage implicitArgType = varType(cls, evalMode);
 
     res.reserve(res.size() + Nest_nodeArraySize(decls));
     for (Node* decl : decls) {
@@ -334,8 +334,8 @@ EvalMode GenericFunCallParams::getFinalEvalMode(Nest_NodeRange genericParams, Ne
         // Also test the type given to the 'Type' parameters (i.e., we need to know if Vector(t) can
         // be rtct based on the mode of t)
         Node* genParam = at(genericParams, i);
-        TypeRef pType = genParam ? genParam->type : nullptr;
-        TypeRef typeToCheck = nullptr;
+        Type pType = genParam ? genParam->type : nullptr;
+        Type typeToCheck = nullptr;
         if (!pType || isConceptType(pType)) {
             typeToCheck = Nest_computeType(arg);
         } else {
@@ -343,7 +343,7 @@ EvalMode GenericFunCallParams::getFinalEvalMode(Nest_NodeRange genericParams, Ne
             typeToCheck = tryGetTypeValue(arg);
         }
         if (typeToCheck) {
-            if (!typeToCheck->canBeUsedAtRt)
+            if (!typeToCheck.canBeUsedAtRt())
                 hasCtOnlyArgs = true;
         }
     }
@@ -537,13 +537,13 @@ Node* callGenericFun(GenericFunNode node, const Location& loc, CompilationContex
  *
  * @return The argument with the appropriate conversion applied
  */
-Node* applyConversion(Node* arg, TypeRef paramType, ConversionType& worstConv,
+Node* applyConversion(Node* arg, Type paramType, ConversionType& worstConv,
         ConversionFlags flags = flagsDefault, bool autoCt = false) {
     ASSERT(arg->type);
 
     // If we are looking at a CT callable, make sure the parameters are in CT
     if (autoCt)
-        paramType = Type(paramType).changeMode(modeCt, NOLOC);
+        paramType = paramType.changeMode(modeCt, NOLOC);
 
     ConversionResult conv =
             g_ConvertService->checkConversion(arg->context, arg->type, paramType, flags);
@@ -570,8 +570,8 @@ Node* applyConversion(Node* arg, TypeRef paramType, ConversionType& worstConv,
  *
  * @return The type to be applied for the parameter
  */
-TypeRef getDeducedType(int idx, InstSetNode instSet, InstNode curInst, bool reuseExistingInst) {
-    TypeRef paramType = nullptr;
+Type getDeducedType(int idx, InstSetNode instSet, InstNode curInst, bool reuseExistingInst) {
+    Type paramType = nullptr;
 
     ASSERT(curInst);
     if (reuseExistingInst) {
@@ -618,7 +618,7 @@ TypeRef getDeducedType(int idx, InstSetNode instSet, InstNode curInst, bool reus
  * @param [in/out] curInst           The inst we are currently using; can be reused or not
  * @param [in/out] reuseExistingInst Indicates if we are reusing an existing instantiation
  */
-void handleGenericFunParam(GenericFunCallParams& callParams, int idx, Node* arg, TypeRef paramType,
+void handleGenericFunParam(GenericFunCallParams& callParams, int idx, Node* arg, Type paramType,
         InstNode& curInst, bool& reuseExistingInst) {
     InstSetNode instSet = callParams.genFun_.instSet();
     Node* param = at(instSet.params(), idx);
@@ -630,7 +630,7 @@ void handleGenericFunParam(GenericFunCallParams& callParams, int idx, Node* arg,
     // First compute the bound value for the current generic parameter
     Node* boundVal = nullptr;
     bool isRefAuto = false;
-    TypeRef boundValType = nullptr; // used for concept types
+    Type boundValType; // used for concept types
     bool isCtConcept = false;
     if (param->type == nullptr) {
         // If we are here this is a dependent param
@@ -640,13 +640,13 @@ void handleGenericFunParam(GenericFunCallParams& callParams, int idx, Node* arg,
         // - fun was originally RTCT, and now turned to CT
         //
         // A concept param will ensure the creation of a final param.
-        if (paramType->mode != modeCt ||
+        if (paramType.mode() != modeCt ||
                 (callParams.origEvalMode_ == modeRt && callParams.finalEvalMode_ == modeCt))
             boundValType = paramType;
     } else if (isConceptType(paramType, isRefAuto)) {
         // Deduce the type for boundVal for regular concept types
-        boundValType = getAutoType(arg, isRefAuto, paramType->mode);
-        isCtConcept = paramType->mode == modeCt;
+        boundValType = getAutoType(arg, isRefAuto, paramType.mode());
+        isCtConcept = paramType.mode() == modeCt;
     }
     if (boundValType && !isCtConcept) {
         // then the bound value will be a type node
@@ -736,9 +736,9 @@ ConversionType canCallGenericFun(CallableData& c, CompilationContext* context, c
     ConversionType worstConv = convDirect;
     int paramsCount = getParamsCount(c);
     for (int i = 0; i < paramsCount; ++i) {
-        TypeRef argType = c.args[i]->type;
+        Type argType = c.args[i]->type;
         ASSERT(argType);
-        TypeRef paramType = getParamType(c, i);
+        Type paramType = getParamType(c, i);
 
         // If we don't have a param type stored in the instSet, this must be a dependent param
         // Compute its type based on the previous bound values.
@@ -849,9 +849,9 @@ EvalMode getGenericClassOrPackageResultingEvalMode(
         ASSERT(!boundVal || boundVal->type);
         // Test the type given to the 'Type' parameters (i.e., we need to know
         // if Vector(t) can be rtct based on the mode of t)
-        TypeRef t = tryGetTypeValue(boundVal);
+        Type t = tryGetTypeValue(boundVal);
         if (t) {
-            if (t->mode == modeCt)
+            if (t.mode() == modeCt)
                 hasCtOnlyArgs = true;
         } else if (!boundVal->type->canBeUsedAtRt) {
             hasCtOnlyArgs = true;
@@ -934,7 +934,7 @@ string getGenericClassOrPackageDescription(Node* originalDecl, InstNode inst) {
             first = false;
         else
             oss << ", ";
-        TypeRef t = evalTypeIfPossible(bv);
+        Type t = evalTypeIfPossible(bv);
         if (t)
             oss << t;
         else
@@ -1158,7 +1158,7 @@ ConversionType SprFrontend::canCall(CallableData& c, CompilationContext* context
     }
 
     // Get the arg types to perform the check on types
-    vector<TypeRef> argTypes(c.args.size(), nullptr);
+    vector<Type> argTypes(c.args.size(), nullptr);
     for (size_t i = 0; i < c.args.size(); ++i)
         argTypes[i] = c.args[i]->type;
 
@@ -1211,10 +1211,10 @@ ConversionType SprFrontend::canCall(CallableData& c, CompilationContext* context
     return res;
 }
 ConversionType SprFrontend::canCall(CallableData& c, CompilationContext* context,
-        const Location& loc, const vector<TypeRef>& argTypes, EvalMode evalMode,
+        const Location& loc, const vector<Type>& argTypes, EvalMode evalMode,
         CustomCvtMode customCvtMode, bool reportErrors) {
-    vector<TypeRef> argTypes2;
-    const vector<TypeRef>* argTypesToUse = &argTypes;
+    vector<Type> argTypes2;
+    const vector<Type>* argTypesToUse = &argTypes;
 
     // If this callable requires an added this argument, add it
     if (c.implicitArgType) {
@@ -1253,8 +1253,8 @@ int SprFrontend::moreSpecialized(CompilationContext* context, const CallableData
     bool firstIsMoreSpecialized = false;
     bool secondIsMoreSpecialized = false;
     for (size_t i = 0; i < paramsCount; ++i) {
-        TypeRef t1 = getParamType(f1, i, true);
-        TypeRef t2 = getParamType(f2, i, true);
+        Type t1 = getParamType(f1, i, true);
+        Type t2 = getParamType(f2, i, true);
         // Ignore any params that are null
         // TODO (overloading): Fix this - we reach in this state for dependent params
         if (!t1 || !t2)
@@ -1365,7 +1365,7 @@ string SprFrontend::toString(const CallableData& c) {
         else
             oss << ", ";
 
-        TypeRef type = nullptr;
+        Type type = nullptr;
         StringRef name{};
         if (p && (p->nodeKind == nkFeatherDeclVar || p->nodeKind == nkSparrowDeclSprParameter)) {
             name = Feather_getName(p);

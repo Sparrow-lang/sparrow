@@ -1,22 +1,25 @@
 #pragma once
 
-#include "Nest/Api/TypeRef.h"
+#include "Nest/Utils/cppif/Type.hpp"
 
 namespace SprFrontend {
 namespace StdDef {
-extern TypeRef typeType;
-extern TypeRef typeVoid;
-extern TypeRef typeNull;
-extern TypeRef typeBool;
-extern TypeRef typeByte;
-extern TypeRef typeInt;
-extern TypeRef typeSizeType;
-extern TypeRef typeStringRef;
 
-extern TypeRef typeRefType;
-extern TypeRef typeRefByte;
-extern TypeRef typeRefInt;
-extern TypeRef typeSizeTypeCt;
+using Nest::Type;
+
+extern Type typeType;
+extern Type typeVoid;
+extern Type typeNull;
+extern Type typeBool;
+extern Type typeByte;
+extern Type typeInt;
+extern Type typeSizeType;
+extern Type typeStringRef;
+
+extern Type typeRefType;
+extern Type typeRefByte;
+extern Type typeRefInt;
+extern Type typeSizeTypeCt;
 
 extern Node* clsType;
 extern Node* clsNull;

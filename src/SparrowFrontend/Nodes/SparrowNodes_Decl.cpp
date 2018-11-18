@@ -89,10 +89,10 @@ enum VarKind {
     varGlobal,
 };
 
-TypeRef computeVarType(Node* parent, CompilationContext* ctx, Node* typeNode, Node* init) {
+Type computeVarType(Node* parent, CompilationContext* ctx, Node* typeNode, Node* init) {
     const Location& loc = parent->location;
 
-    TypeRef t = nullptr;
+    Type t = nullptr;
 
     // If a type node was given, take the type from it
     if (typeNode) {
@@ -431,15 +431,15 @@ TypeRef SprFunction_ComputeType(Node* node) {
     // We do this after the parameters, as the computation of the result might require access to the
     // parameters
     EvalMode mode = Feather_combineMode(thisEvalMode, node->childrenContext->evalMode);
-    TypeRef resType = returnType ? getType(returnType) : Feather_getVoidType(mode);
+    Type resType = returnType ? getType(returnType) : VoidType::get(mode);
     if (!resType)
         REP_INTERNAL(node->location, "Cannot compute the function resulting type");
-    resType = Type(resType).changeMode(mode, node->location);
+    resType = resType.changeMode(mode, node->location);
 
     // If the result is a non-reference class, not basic numeric, and our function is not native,
     // add result parameter; otherwise, normal result
     bool nativeAbi = nativeName && nativeName != "$funptr";
-    if (!nativeAbi && resType->hasStorage && resType->numReferences == 0 &&
+    if (!nativeAbi && resType.hasStorage() && resType.numReferences() == 0 &&
             !Feather_isBasicNumericType(resType)) {
         ASSERT(returnType);
         Node* resParam = Feather_mkVar(returnType->location, StringRef("_result"),
@@ -496,7 +496,7 @@ TypeRef SprParameter_ComputeType(Node* node) {
         Nest_setPropertyExplInt(typeNode, propAllowDeclExp, 1);
 
     const TypeRef* givenType = Nest_getPropertyType(node, "spr.givenType");
-    TypeRef t = givenType ? *givenType : getType(typeNode);
+    Type t = givenType ? Type(*givenType) : getType(typeNode);
     if (!t)
         return nullptr;
 
@@ -543,12 +543,12 @@ TypeRef SprField_ComputeType(Node* node) {
     Node* init = at(node->children, 1);
 
     // Get the type of the variable
-    TypeRef t = computeVarType(node, node->childrenContext, typeNode, init);
+    Type t = computeVarType(node, node->childrenContext, typeNode, init);
     if (!t)
         return nullptr;
 
     // If the type of the variable indicates a variable that can only be CT, change the evalMode
-    if (t->mode == modeCt)
+    if (t.mode() == modeCt)
         Feather_setEvalMode(node, modeCt);
 
     // Create the resulting var
@@ -605,12 +605,12 @@ TypeRef SprVariable_ComputeType(Node* node) {
     VarKind varKind = parentFun ? varLocal : varGlobal;
 
     // Get the type of the variable
-    TypeRef t = computeVarType(node, node->childrenContext, typeNode, init);
+    Type t = computeVarType(node, node->childrenContext, typeNode, init);
     if (!t)
         return nullptr;
 
     // If the type of the variable indicates a variable that can only be CT, change the evalMode
-    if (t->mode == modeCt)
+    if (t.mode() == modeCt)
         Feather_setEvalMode(node, modeCt);
 
     // Create the resulting var
@@ -625,12 +625,12 @@ TypeRef SprVariable_ComputeType(Node* node) {
         return nullptr;
 
     // If this is a CT variable in a non-ct function, make this a global variable
-    if (varKind == varLocal && node->context->evalMode == modeRt && t->mode == modeCt)
+    if (varKind == varLocal && node->context->evalMode == modeRt && t.mode() == modeCt)
         varKind = varGlobal;
 
     // If this is a CT variable in a non-ct function, make this a global variable
 
-    bool isRef = t->numReferences > 0;
+    bool isRef = t.numReferences() > 0;
 
     // Generate the initialization and destruction calls
     Node* ctorCall = nullptr;

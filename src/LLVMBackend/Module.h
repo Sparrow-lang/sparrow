@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Nest/Api/TypeRef.h"
+#include "Nest/Utils/cppif/Type.hpp"
 #include "Nest/Utils/cppif/StringRef.hpp"
 
 #include <boost/function.hpp>
@@ -16,9 +16,11 @@ FWD_CLASS1(llvm, Function);
 
 using Nest::Node;
 using Nest::StringRef;
-using Nest::TypeRef;
 
 namespace LLVMB {
+
+using Nest::Type;
+
 // TODO (backend): Refactor these
 namespace Tr {
 class Scope;
@@ -96,7 +98,7 @@ protected:
 
 public:
     //! Map with all the translated types (per type)
-    unordered_map<TypeRef, llvm::Type*> translatedTypes_;
+    unordered_map<Type, llvm::Type*> translatedTypes_;
     //! Information about the translated data structures (per node)
     unordered_map<Node*, llvm::Type*> translatedStructs_;
     //! Information about the translated functions

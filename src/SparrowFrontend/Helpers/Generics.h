@@ -282,7 +282,7 @@ InstNode createNewInstantiation(InstSetNode instSet, Nest_NodeRange values, Eval
  *
  * @return The created bound variable.
  */
-Node* createBoundVar(CompilationContext* context, Node* param, TypeRef paramType, Node* boundValue,
+Node* createBoundVar(CompilationContext* context, Node* param, Type paramType, Node* boundValue,
         bool isCtGeneric);
 
 /**
@@ -328,7 +328,7 @@ InstNode canInstantiate(InstSetNode instSet, Nest_NodeRange values, EvalMode eva
 /// the parameter is a concept parameter.
 /// For concept parameters, we store the type as a bound value.
 /// Used as a low-level primitive. Should not be called for CT-generics
-bool isConceptParam(Location paramLoc, TypeRef paramType, Node* boundValue);
+bool isConceptParam(Location paramLoc, Type paramType, Node* boundValue);
 
 //! The interface for the service that deals with checking concepts.
 //! Used so that we can easily mock and replace this service.
@@ -336,10 +336,10 @@ struct IConceptsService {
     virtual ~IConceptsService() {}
 
     //! Check if the given concept is fulfilled by the given type
-    virtual bool conceptIsFulfilled(Node* concept, TypeRef type) = 0;
+    virtual bool conceptIsFulfilled(Node* concept, Type type) = 0;
     //! Check if the given type was generated from the given generic
     //! This will make generics behave like concepts
-    virtual bool typeGeneratedFromGeneric(Node* genericDatatype, TypeRef type) = 0;
+    virtual bool typeGeneratedFromGeneric(Node* genericDatatype, Type type) = 0;
 
     //! Get the base concept type
     virtual ConceptType baseConceptType(Node* concept) = 0;
@@ -347,8 +347,8 @@ struct IConceptsService {
 
 //! Implementation of the convert service
 struct ConceptsService : IConceptsService {
-    bool conceptIsFulfilled(Node* concept, TypeRef type) final;
-    bool typeGeneratedFromGeneric(Node* genericDatatype, TypeRef type) final;
+    bool conceptIsFulfilled(Node* concept, Type type) final;
+    bool typeGeneratedFromGeneric(Node* genericDatatype, Type type) final;
     ConceptType baseConceptType(Node* concept) final;
 };
 

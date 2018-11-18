@@ -19,7 +19,7 @@ void MockNode::registerNode() {
     ASSERT(nodeKind >= 0);
 }
 
-MockNode MockNode::create(Location loc, NodeRange children, NodeRange referredNodes, TypeRef t) {
+MockNode MockNode::create(Location loc, NodeRange children, NodeRange referredNodes, Type t) {
     NodeHandle base = NodeHandle::create(nodeKind);
     base.handle->location = loc;
     base.setChildren(children);
@@ -35,7 +35,7 @@ MockNode::MockNode(Node* n)
     ASSERT(n->nodeKind == MockNode::nodeKind);
 }
 
-TypeRef MockNode::givenType() const {
+Type MockNode::givenType() const {
     return getCheckPropertyType("givenType");
 }
 

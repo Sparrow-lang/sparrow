@@ -55,7 +55,7 @@ Gen<TempType> arbTempType(EvalMode mode, int minRef, int maxRef) {
 
 Gen<ArrayType> arbArrayType(EvalMode mode) {
     return gen::apply(
-            [=](TypeRef base, unsigned count) -> ArrayType { return ArrayType::get(base, count); },
+            [=](DataType base, unsigned count) -> ArrayType { return ArrayType::get(base, count); },
             arbDataType(mode), gen::inRange(1, 100));
 }
 
@@ -63,7 +63,7 @@ Gen<FunctionType> arbFunctionType(EvalMode mode, Nest::TypeWithStorage resType) 
     return gen::exec([=]() -> FunctionType {
         EvalMode m = mode == modeUnspecified ? *gen::arbitrary<EvalMode>() : mode;
         int numTypes = *gen::inRange(1, 5);
-        vector<TypeRef> types;
+        vector<Nest::TypeRef> types;
         types.resize(numTypes);
         for (int i = 0; i < numTypes; i++) {
             auto t = i == 0 && resType ? resType : *arbDataType(m);
@@ -124,10 +124,6 @@ Gen<Type> arbType() {
             {1, gen::cast<Type>(arbVoidType())},
             {1, gen::cast<Type>(arbConceptType())},
     });
-}
-
-Gen<TypeRef> arbTypeRef() {
-    return gen::cast<TypeRef>(arbType());
 }
 
 Gen<TypeWithStorage> arbBoolType(EvalMode mode) {

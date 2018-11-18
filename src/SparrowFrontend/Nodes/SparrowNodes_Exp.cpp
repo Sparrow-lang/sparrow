@@ -78,10 +78,10 @@ Node* getIdentifierResult(Node* node, Nest_NodeRange decls, Node* baseExp, bool 
             return mkDeclExp(loc, decls, baseExp);
 
         // Try to convert this to a type
-        TypeRef t = nullptr;
+        Type t{};
         if (resDecl->nodeKind == nkFeatherDeclClass) {
             EvalMode dataTypeMode = Feather_effectiveEvalMode(resDecl);
-            t = Feather_getDataType(resDecl, 0, dataTypeMode);
+            t = DataType::get(resDecl, 0, dataTypeMode);
         }
         if (resDecl->nodeKind == nkSparrowDeclSprConcept ||
                 resDecl->nodeKind == nkSparrowDeclGenericClass)
@@ -120,7 +120,7 @@ bool checkCastArguments(const Location& loc, const char* castName, Nest_NodeRang
     ASSERT(arg1->type && arg2->type);
 
     // Make sure the first argument is a type
-    TypeRef t = getType(arg1);
+    Type t = getType(arg1);
     if (!t) {
         REP_ERROR(arg1->location, "The first argument of a %1% must be a type") % castName;
         return false;
@@ -153,8 +153,8 @@ Node* checkStaticCast(Node* node) {
     if (!checkCastArguments(node->location, "cast", all(arguments->children)))
         return nullptr;
 
-    TypeRef destType = getType(at(arguments->children, 0));
-    TypeRef srcType = at(arguments->children, 1)->type;
+    Type destType = getType(at(arguments->children, 0));
+    Type srcType = at(arguments->children, 1)->type;
 
     // Check if we can cast
     ConversionResult c = g_ConvertService->checkConversion(at(arguments->children, 1), destType);
@@ -177,11 +177,11 @@ Node* checkReinterpretCast(Node* node) {
     if (!checkCastArguments(node->location, "reinterpretCast", all(arguments->children), true))
         return nullptr;
 
-    TypeRef srcType = at(arguments->children, 1)->type;
-    TypeRef destType = getType(at(arguments->children, 0));
+    Type srcType = at(arguments->children, 1)->type;
+    Type destType = getType(at(arguments->children, 0));
     ASSERT(destType);
-    ASSERT(destType->hasStorage);
-    if (destType->numReferences == 0)
+    ASSERT(destType.hasStorage());
+    if (destType.numReferences() == 0)
         REP_ERROR_RET(nullptr, at(arguments->children, 0)->location,
                 "Destination type must be a reference (currently: %1%)") %
                 destType;
@@ -189,7 +189,7 @@ Node* checkReinterpretCast(Node* node) {
     // If source is a category type and the number of source reference is greater than the
     // destination references, remove category
     Node* arg = at(arguments->children, 1);
-    if (srcType->numReferences > destType->numReferences && Feather::isCategoryType(srcType))
+    if (srcType.numReferences() > destType.numReferences() && Feather::isCategoryType(srcType))
         arg = Feather_mkMemLoad(arg->location, arg);
 
     // Generate a bitcast operation out of this node
@@ -673,12 +673,12 @@ Node* handleRefAssign(Node* node) {
         REP_ERROR_RET(nullptr, node->location,
                 "Left operand of a reference assign operator is not a reference reference (%1%)") %
                 arg1->type;
-    TypeRef arg1BaseType = removeRef(TypeWithStorage(arg1->type));
+    Type arg1BaseType = removeRef(TypeWithStorage(arg1->type));
 
     // Check the second type to be null or a reference
-    TypeRef arg2Type = arg2->type;
+    Type arg2Type = arg2->type;
     if (!Nest::sameTypeIgnoreMode(arg2Type, StdDef::typeNull)) {
-        if (arg2Type->numReferences == 0)
+        if (arg2Type.numReferences() == 0)
             REP_ERROR_RET(nullptr, node->location,
                     "Right operand of a reference assign operator is not a reference (%1%)") %
                     arg2->type;
@@ -920,8 +920,8 @@ Node* Literal_SemanticCheck(Node* node) {
     Nest_setContext(ident, node->context);
     if (!Nest_computeType(ident))
         return nullptr;
-    TypeRef t = getType(ident);
-    t = Type(t).changeMode(modeCt, node->location);
+    Type t = getType(ident);
+    t = t.changeMode(modeCt, node->location);
 
     if (litType == "StringRef") {
         // Create the explanation
@@ -1418,7 +1418,7 @@ Node* LambdaFunction_SemanticCheck(Node* node) {
             if (!Nest_semanticCheck(arg))
                 return nullptr;
             StringRef varName = Feather_getName(arg);
-            TypeRef varType = removeCategoryIfPresent(Type(arg->type));
+            Type varType = removeCategoryIfPresent(Type(arg->type));
 
             // Create a similar variable in the enclosing class - must have the same name
             const Location& argLoc = arg->location;
@@ -1482,11 +1482,11 @@ Node* SprConditional_SemanticCheck(Node* node) {
     if (!Nest_semanticCheck(alt1) || !Nest_semanticCheck(alt2))
         return nullptr;
 
-    TypeRef t1 = alt1->type;
-    TypeRef t2 = alt2->type;
+    Type t1 = alt1->type;
+    Type t2 = alt2->type;
 
     // Get the common type
-    TypeRef resType = commonType(node->context, t1, t2);
+    Type resType = commonType(node->context, t1, t2);
     if (resType == StdDef::typeVoid)
         REP_ERROR_RET(nullptr, node->location,
                 "Cannot deduce the result type for a conditional expression (%1%, %2%)") %

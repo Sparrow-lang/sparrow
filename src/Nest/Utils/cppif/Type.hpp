@@ -71,7 +71,7 @@ struct Type {
      *
      * @return     The type with the new eval mode; null if error
      */
-    Type changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{});
+    Type changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) const;
 
     //!@}
 };
@@ -92,3 +92,12 @@ bool sameTypeIgnoreMode(Type t1, Type t2);
 ostream& operator<<(ostream& os, Type type);
 
 } // namespace Nest
+
+// custom specialization of std::hash can be injected in namespace std
+namespace std {
+template <> struct hash<Nest::Type> {
+    size_t operator()(Nest::Type obj) const noexcept {
+        return std::hash<Nest::TypeRef>()(obj.type_);
+    }
+};
+} // namespace std

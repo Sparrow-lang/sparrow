@@ -25,43 +25,43 @@ Node* impl_injectBackendCode(
 Node* impl_typeDescription(
         CompilationContext* context, const Location& loc, const NodeVector& args) {
     CHECK(loc, args.size() == 1);
-    TypeRef t = getType(args[0]);
-    return buildStringLiteral(loc, StringRef(t->description));
+    Type t = getType(args[0]);
+    return buildStringLiteral(loc, StringRef(t.description()));
 }
 
 Node* impl_typeHasStorage(
         CompilationContext* context, const Location& loc, const NodeVector& args) {
     CHECK(loc, args.size() == 1);
-    TypeRef t = getType(args[0]);
-    return buildBoolLiteral(loc, t->hasStorage);
+    Type t = getType(args[0]);
+    return buildBoolLiteral(loc, t.hasStorage());
 }
 
 Node* impl_typeMode(CompilationContext* context, const Location& loc, const NodeVector& args) {
     CHECK(loc, args.size() == 1);
-    TypeRef t = getType(args[0]);
-    return buildIntLiteral(loc, t->mode);
+    Type t = getType(args[0]);
+    return buildIntLiteral(loc, t.mode());
 }
 
 Node* impl_typeCanBeUsedAtRt(
         CompilationContext* context, const Location& loc, const NodeVector& args) {
     CHECK(loc, args.size() == 1);
-    TypeRef t = getType(args[0]);
-    return buildBoolLiteral(loc, t->canBeUsedAtRt);
+    Type t = getType(args[0]);
+    return buildBoolLiteral(loc, t.canBeUsedAtRt());
 }
 
 Node* impl_typeNumRef(CompilationContext* context, const Location& loc, const NodeVector& args) {
     CHECK(loc, args.size() == 1);
-    TypeRef t = getType(args[0]);
-    return buildIntLiteral(loc, t->numReferences);
+    Type t = getType(args[0]);
+    return buildIntLiteral(loc, t.numReferences());
 }
 
 Node* impl_typeChangeMode(
         CompilationContext* context, const Location& loc, const NodeVector& args) {
     CHECK(loc, args.size() == 2);
-    TypeRef t = getType(args[0]);
+    Type t = getType(args[0]);
     int mode = getIntCtValue(args[1]);
 
-    TypeRef res = Type(t).changeMode((EvalMode)mode, loc);
+    Type res = t.changeMode((EvalMode)mode, loc);
 
     return createTypeNode(context, loc, res);
 }
@@ -69,21 +69,21 @@ Node* impl_typeChangeMode(
 Node* impl_typeChangeRefCount(
         CompilationContext* context, const Location& loc, const NodeVector& args) {
     CHECK(loc, args.size() == 2);
-    TypeRef t = getType(args[0]);
+    Type t = getType(args[0]);
     int numRef = max(0, getIntCtValue(args[1]));
 
-    TypeRef res = changeRefCount(t, numRef, loc);
+    Type res = changeRefCount(t, numRef, loc);
 
     return createTypeNode(context, loc, res);
 }
 
 Node* impl_typeEQ(CompilationContext* context, const Location& loc, const NodeVector& args) {
     CHECK(loc, args.size() == 2);
-    TypeRef t1 = getType(args[0]);
-    TypeRef t2 = getType(args[1]);
+    Type t1 = getType(args[0]);
+    Type t2 = getType(args[1]);
 
-    t1 = Feather::removeCategoryIfPresent(Type(t1));
-    t2 = Feather::removeCategoryIfPresent(Type(t2));
+    t1 = Feather::removeCategoryIfPresent(t1);
+    t2 = Feather::removeCategoryIfPresent(t2);
 
     bool equals = Nest::sameTypeIgnoreMode(t1, t2);
 
@@ -124,8 +124,8 @@ Node* impl_rt(CompilationContext* context, const Location& loc, const NodeVector
 
 Node* impl_convertsTo(CompilationContext* context, const Location& loc, const NodeVector& args) {
     CHECK(loc, args.size() == 2);
-    TypeRef t1 = getType(args[0]);
-    TypeRef t2 = getType(args[1]);
+    Type t1 = getType(args[0]);
+    Type t2 = getType(args[1]);
 
     bool result = !!(g_ConvertService->checkConversion(context, t1, t2));
 
@@ -140,16 +140,16 @@ Node* impl_staticBuffer(CompilationContext* context, const Location& loc, const 
     if (size > numeric_limits<size_t>::max())
         REP_ERROR_RET(nullptr, loc, "Size of static buffer is too large");
 
-    TypeRef arrType = Feather_getArrayType(StdDef::typeByte, (size_t)size);
+    Type arrType = Feather_getArrayType(StdDef::typeByte, (size_t)size);
     return createTypeNode(context, loc, arrType);
 }
 
 Node* impl_commonType(CompilationContext* context, const Location& loc, const NodeVector& args) {
     CHECK(loc, args.size() == 2);
-    TypeRef t1 = getType(args[0]);
-    TypeRef t2 = getType(args[1]);
+    Type t1 = getType(args[0]);
+    Type t2 = getType(args[1]);
 
-    TypeRef resType = commonType(context, t1, t2);
+    Type resType = commonType(context, t1, t2);
     return createTypeNode(context, loc, resType);
 }
 

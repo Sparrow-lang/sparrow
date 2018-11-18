@@ -28,7 +28,7 @@ struct VoidType : Type {
     static VoidType get(Nest::EvalMode mode);
 
     //! @copydoc Type::changeMode
-    VoidType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{});
+    VoidType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) const;
 };
 
 /**
@@ -53,7 +53,7 @@ struct DataType : TypeWithStorage {
     static DataType get(Nest::NodeHandle decl, int numReferences, Nest::EvalMode mode);
 
     //! @copydoc Type::changeMode
-    DataType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) {
+    DataType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) const {
         return DataType(Type::changeMode(mode, loc));
     }
 };
@@ -87,7 +87,7 @@ struct ConstType : TypeWithStorage {
     DataType toRef() const;
 
     //! @copydoc Type::changeMode
-    ConstType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) {
+    ConstType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) const {
         return ConstType(Type::changeMode(mode, loc));
     }
 };
@@ -121,7 +121,7 @@ struct MutableType : TypeWithStorage {
     DataType toRef() const;
 
     //! @copydoc Type::changeMode
-    MutableType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) {
+    MutableType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) const {
         return MutableType(Type::changeMode(mode, loc));
     }
 };
@@ -155,7 +155,7 @@ struct TempType : TypeWithStorage {
     DataType toRef() const;
 
     //! @copydoc Type::changeMode
-    TempType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) {
+    TempType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) const {
         return TempType(Type::changeMode(mode, loc));
     }
 };
@@ -187,7 +187,7 @@ struct ArrayType : TypeWithStorage {
     int count() const { return type_->flags; }
 
     //! @copydoc Type::changeMode
-    ArrayType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) {
+    ArrayType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) const {
         return ArrayType(Type::changeMode(mode, loc));
     }
 };
@@ -226,7 +226,7 @@ struct FunctionType : TypeWithStorage {
     TypeWithStorage operator[](int idx) const { return TypeWithStorage(type_->subTypes[idx + 1]); }
 
     //! @copydoc Type::changeMode
-    FunctionType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) {
+    FunctionType changeMode(Nest::EvalMode mode, Nest::Location loc = Nest::Location{}) const {
         return FunctionType(Type::changeMode(mode, loc));
     }
 };

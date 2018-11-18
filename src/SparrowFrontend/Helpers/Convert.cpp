@@ -108,7 +108,7 @@ void ConversionResult::addResult(ConversionResult cvt) {
 
 //! Apply one conversion action to the given node
 Node* applyOnce(Node* src, ConvAction action) {
-    TypeRef destT = action.second;
+    Type destT = action.second;
     switch (action.first) {
     case ActionType::none:
         return src;
@@ -121,7 +121,7 @@ Node* applyOnce(Node* src, ConvAction action) {
     case ActionType::makeNull:
         return Feather_mkNull(src->location, Feather_mkTypeNode(src->location, destT));
     case ActionType::addRef: {
-        TypeRef srcT = removeRef(TypeWithStorage(destT));
+        Type srcT = removeRef(TypeWithStorage(destT));
         Node* var = Feather_mkVar(
                 src->location, StringRef("$tmpForRef"), Feather_mkTypeNode(src->location, srcT));
         Node* varRef = Feather_mkVarRef(src->location, var);
@@ -131,7 +131,7 @@ Node* applyOnce(Node* src, ConvAction action) {
         return Feather_mkNodeList(src->location, fromIniList({var, store, cast}));
     }
     case ActionType::customCvt: {
-        EvalMode destMode = destT->mode;
+        EvalMode destMode = destT.mode();
         Node* destClass = Feather_classForType(destT);
         Node* refToClass = createTypeNode(
                 src->context, src->location, Feather_getDataType(destClass, 0, modeRt));
@@ -170,13 +170,13 @@ namespace {
 //! Default implementation of the convert service
 struct ConvertService : IConvertService {
 
-    ConversionResult checkConversion(CompilationContext* context, TypeRef srcType, TypeRef destType,
+    ConversionResult checkConversion(CompilationContext* context, Type srcType, Type destType,
             ConversionFlags flags = flagsDefault) final;
     ConversionResult checkConversion(
-            Node* arg, TypeRef destType, ConversionFlags flags = flagsDefault) final;
+            Node* arg, Type destType, ConversionFlags flags = flagsDefault) final;
 
 private:
-    using KeyType = std::tuple<TypeRef, TypeRef, int, const Nest_SourceCode*>;
+    using KeyType = std::tuple<Type, Type, int, const Nest_SourceCode*>;
 
     //! Cache of all the conversions tried so far
     unordered_map<KeyType, ConversionResult> conversionMap_;
@@ -184,7 +184,7 @@ private:
     //! Method that checks for available conversions; use the cache for speeding up search.
     //! It always returns an entry in our cache; therefore it's safe to return by const ref.
     const ConversionResult& cachedCheckConversion(
-            CompilationContext* context, int flags, TypeRef srcType, TypeRef destType);
+            CompilationContext* context, int flags, Type srcType, Type destType);
 
     //! Checks all possible conversions (uncached)
     ConversionResult checkConversionImpl(
@@ -210,14 +210,13 @@ private:
 };
 
 ConversionResult ConvertService::checkConversion(
-        CompilationContext* context, TypeRef srcType, TypeRef destType, ConversionFlags flags) {
+        CompilationContext* context, Type srcType, Type destType, ConversionFlags flags) {
     return cachedCheckConversion(context, flags, srcType, destType);
 }
 
-ConversionResult ConvertService::checkConversion(
-        Node* arg, TypeRef destType, ConversionFlags flags) {
+ConversionResult ConvertService::checkConversion(Node* arg, Type destType, ConversionFlags flags) {
     ASSERT(arg);
-    TypeRef srcType = Nest_computeType(arg);
+    Type srcType = Nest_computeType(arg);
     if (!srcType)
         return {};
     ASSERT(destType);
@@ -562,7 +561,7 @@ bool ConvertService::adjustReferences(ConversionResult& res, TypeWithStorage src
 }
 
 const ConversionResult& ConvertService::cachedCheckConversion(
-        CompilationContext* context, int flags, TypeRef srcType, TypeRef destType) {
+        CompilationContext* context, int flags, Type srcType, Type destType) {
 
     // Try to find the conversion in the map -- first, try without a source code
     KeyType key(srcType, destType, flags, nullptr);

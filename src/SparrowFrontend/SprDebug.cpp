@@ -21,8 +21,8 @@ template <typename T> T extractValue(StringRef valueData) {
 
 void printCtValue(StringRef typeName, StringRef valueDataStr) {
     if (typeName == "Type/ct") {
-        auto t = extractValue<TypeRef>(valueDataStr);
-        printf("%s", t->description);
+        auto t = extractValue<Type>(valueDataStr);
+        printf("%s", t.description());
     } else if (typeName == "Bool") {
         bool val = 0 != extractValue<uint8_t>(valueDataStr);
         printf("%s", val ? "true" : "false");
@@ -48,10 +48,10 @@ void printCtValue(StringRef typeName, StringRef valueDataStr) {
         printf("'%s'", valueDataStr.begin);
 }
 void printCtValueNode(Node* node) {
-    TypeRef type = Nest_getCheckPropertyType(node, "valueType");
+    Type type = Nest_getCheckPropertyType(node, "valueType");
     StringRef valueDataStr = Nest_getCheckPropertyString(node, "valueData");
 
-    printCtValue(StringRef(type->description), valueDataStr);
+    printCtValue(StringRef(type.description()), valueDataStr);
 }
 void printLiteralNode(Node* node) {
     StringRef litType = Nest_getCheckPropertyString(node, "spr.literalType");
@@ -419,7 +419,7 @@ void printNodeImpl(Node* node, int mode) {
             printf(": ");
             printNodeImpl(typeNode, 2);
         } else if (Nest_hasProperty(node, "spr.givenType")) {
-            TypeRef givenType = Nest_getCheckPropertyType(node, "spr.givenType");
+            auto givenType = Nest_getCheckPropertyType(node, "spr.givenType");
             printf(": %s", givenType->description);
         }
         if (init) {
@@ -494,16 +494,16 @@ void printNodeImpl(Node* node, int mode) {
         if (size(node->referredNodes) == 2) {
             // Only one referred decl
             Node* decl = at(node->referredNodes, 1);
-            TypeRef t = tryGetTypeValue(decl);
-            printf("%s", t ? t->description : Feather_getName(decl).begin);
+            Type t = tryGetTypeValue(decl);
+            printf("%s", t ? t.description() : Feather_getName(decl).begin);
         } else {
             printf("decls(");
             for (int i = 1; i < size(node->referredNodes); i++) {
                 if (i > 1)
                     printf(", ");
                 Node* decl = at(node->referredNodes, i);
-                TypeRef t = tryGetTypeValue(decl);
-                printf("%s", t ? t->description : Feather_getName(decl).begin);
+                Type t = tryGetTypeValue(decl);
+                printf("%s", t ? t.description() : Feather_getName(decl).begin);
             }
             printf(")");
         }

@@ -5,6 +5,7 @@
 #include <Helpers/Convert.h>
 
 #include "Nest/Utils/cppif/NodeUtils.hpp"
+#include "Nest/Utils/cppif/TypeWithStorage.hpp"
 
 #include <boost/function.hpp>
 
@@ -57,7 +58,7 @@ struct CallableData {
     /// This is set for class-ctor callables to add an implicit this argument
     /// when calling the underlying callable. This is the type of the argument
     /// to be added.
-    TypeRef implicitArgType;
+    Nest::TypeWithStorage implicitArgType;
 
     /// Temporary data: the generic instantiation (generic case)
     Node* genericInst;
@@ -110,7 +111,7 @@ ConversionType canCall(CallableData& c, CompilationContext* context, const Locat
 /// Same as above, but makes the check only on type, and not on the actual
 /// argument; doesn't cache any args
 ConversionType canCall(CallableData& c, CompilationContext* context, const Location& loc,
-        const vector<TypeRef>& argTypes, EvalMode evalMode, CustomCvtMode customCvtMode,
+        const vector<Type>& argTypes, EvalMode evalMode, CustomCvtMode customCvtMode,
         bool reportErrors = false);
 
 /// Returns who of two candidates is more specialized.

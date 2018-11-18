@@ -14,7 +14,7 @@ VoidType::VoidType(Nest::TypeRef type)
 
 VoidType VoidType::get(Nest::EvalMode mode) { return VoidType(Feather_getVoidType(mode)); }
 
-VoidType VoidType::changeMode(Nest::EvalMode mode, Nest::Location /*loc*/) {
+VoidType VoidType::changeMode(Nest::EvalMode mode, Nest::Location /*loc*/) const {
     return get(mode); // No checks here. Always succeeds
 }
 

@@ -60,7 +60,7 @@ Node* CondDestrAct_SemanticCheck(Node* node) {
     return node;
 }
 
-Node* mkDestructActionForConditional(TypeRef resType, llvm::Value* cond,
+Node* mkDestructActionForConditional(Type resType, llvm::Value* cond,
         Nest_NodeRange alt1DestructActions, Nest_NodeRange alt2DestructActions) {
     // Make sure the node kind is registered
     if (nkLLVMDestructActionForConditional == 0) {
@@ -102,7 +102,7 @@ private:
     Node* node_;
 };
 
-llvm::Value* generateConditionalCode(TypeRef destType, CompilationContext* compContext, Node* cond,
+llvm::Value* generateConditionalCode(Type destType, CompilationContext* compContext, Node* cond,
         const Exp& alt1, const Exp& alt2, TrContext& context) {
     // Create the different blocks
     llvm::BasicBlock* alt1Block =
@@ -550,8 +550,8 @@ llvm::Value* translateCtValue(Node* node, TrContext& context) {
 
     // Check for String CtValues
     if (!context.module().isCt()) {
-        TypeRef tt = node->type;
-        if (tt->typeKind == typeKindData) {
+        Type tt = node->type;
+        if (tt.kind() == typeKindData) {
             StringRef nativeName = Feather_nativeName(tt);
             if (nativeName == "StringRef") {
                 StringRef data = *Feather_getCtValueData<StringRef>(node);

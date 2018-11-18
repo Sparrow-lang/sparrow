@@ -29,7 +29,7 @@ enum class ActionType {
 };
 
 //! An action for a conversion; action type + destination type
-using ConvAction = pair<ActionType, TypeRef>;
+using ConvAction = pair<ActionType, Type>;
 
 //! Class that holds the result of a conversion: both the type of the conversion and the
 //! transformation that needs to be applied in order to make the conversion If the conversion only
@@ -83,12 +83,12 @@ struct IConvertService {
 
     //! Check if we can convert the source type to the destination type.
     //! The returned object can be used to apply the conversion to nodes of the source type.
-    virtual ConversionResult checkConversion(CompilationContext* context, TypeRef srcType,
-            TypeRef destType, ConversionFlags flags = flagsDefault) = 0;
+    virtual ConversionResult checkConversion(CompilationContext* context, Type srcType,
+            Type destType, ConversionFlags flags = flagsDefault) = 0;
 
     //! Checks if an "argument" node can be converted to a given type
     virtual ConversionResult checkConversion(
-            Node* arg, TypeRef destType, ConversionFlags flags = flagsDefault) = 0;
+            Node* arg, Type destType, ConversionFlags flags = flagsDefault) = 0;
 };
 
 //! The convert service instance that we are using across the Sparrow compiler

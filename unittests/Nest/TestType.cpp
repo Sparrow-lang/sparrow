@@ -54,14 +54,14 @@ TEST_CASE_METHOD(TypesFixture, "Type identity -- equivalent types are identical,
         auto t1 = MockType::get(true, 0, modeRt);
         auto t2 = MockType::get(true, 0, modeRt);
 
-        REQUIRE(t1.type == t2.type);
+        REQUIRE(t1 == t2);
     }
     rc::prop("Two similar types have the same pointer -- arbitrary types", [](MockType t1) {
         auto t2 = MockType::get(t1.hasStorage(), t1.numReferences(), t1.mode());
-        REQUIRE(t1.type == t2.type);
+        REQUIRE(t1 == t2);
     });
     rc::prop("Different type pointers imply different parameters", [](MockType t1, MockType t2) {
-        if (t1.type != t2.type) {
+        if (t1 != t2) {
             bool cmpStorage = t1.hasStorage() != t2.hasStorage();
             bool cmpRefs = t1.numReferences() != t2.numReferences();
             bool cmpMode = t1.mode() != t2.mode();
@@ -81,10 +81,10 @@ TEST_CASE_METHOD(TypesFixture, "User can change the mode of a type") {
 
         if (t.mode() == newMode) {
             // If changing to the same mode, there is no change in type
-            REQUIRE(t.type == t2.type);
+            REQUIRE(t == t2);
         } else {
             // If the mode is different, we obtain a different type
-            REQUIRE(t.type != t2.type);
+            REQUIRE(t != t2);
         }
     });
 }

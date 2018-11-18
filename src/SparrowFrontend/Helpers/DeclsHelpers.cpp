@@ -87,15 +87,9 @@ NodeVector SprFrontend::getDeclsFromNode(Node* n, Node*& baseExp) {
     }
 
     // If the node represents a type, try to get the declaration associated with the type
-    TypeRef t = tryGetTypeValue(n);
-    if (t) {
-        // If we have a Type as base, try a constructor/concept call
-        if (t->hasStorage) {
-            res.push_back(Feather_classDecl(t));
-        } else if (t->typeKind == typeKindConcept) {
-            res.push_back(ConceptType(t).decl());
-        } else
-            t = nullptr;
+    Type t = tryGetTypeValue(n);
+    if (t && t.hasStorage()) {
+        res.push_back(t.referredNode());
     }
 
     return res;

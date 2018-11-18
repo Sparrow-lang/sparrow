@@ -9,6 +9,9 @@
 #include "Nest/Utils/Alloc.h"
 
 namespace {
+
+using Nest::TypeRef;
+
 const char* str(const string& s) { return dupString(s.c_str()); }
 
 const char* getVoidDescription(EvalMode mode) {

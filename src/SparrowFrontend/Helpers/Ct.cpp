@@ -13,9 +13,9 @@
 using namespace Nest;
 
 namespace {
-template <typename ValueType> ValueType evalValue(Node* node, TypeRef expectedExpType) {
+template <typename ValueType> ValueType evalValue(Node* node, Type expectedExpType) {
     node = Nest_ctEval(node);
-    TypeRef t = Feather::removeCategoryIfPresent(Type(node->type));
+    Type t = Feather::removeCategoryIfPresent(Type(node->type));
     if (!Nest::sameTypeIgnoreMode(t, expectedExpType))
         REP_INTERNAL(node->location, "Invalid value; found expression of type %1%, expected %2%") %
                 node->type % expectedExpType;
@@ -43,9 +43,9 @@ bool SprFrontend::ctValsEqual(Node* v1, Node* v2) {
         return false;
 
     // Check if we are comparing type values
-    TypeRef t1 = tryGetTypeValue(v1);
+    Type t1 = tryGetTypeValue(v1);
     if (t1) {
-        TypeRef t2 = tryGetTypeValue(v2);
+        Type t2 = tryGetTypeValue(v2);
         if (t2)
             return t1 == t2;
     }

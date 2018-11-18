@@ -13,7 +13,6 @@ using rc::Gen;
 using namespace rc;
 using Nest::Node;
 using Nest::NodeHandle;
-using Nest::TypeRef;
 
 //! The declarations for all the datatypes that we will use to generate data types and derived types
 extern vector<NodeHandle> g_dataTypeDecls;
@@ -60,9 +59,6 @@ Gen<Nest::TypeWithStorage> arbBasicStorageType(
 //! Returns a generator for arbitrary types (or all kinds)
 Gen<Nest::Type> arbType();
 
-//! Returns an arbitrary type, as a TypeRef
-Gen<Nest::TypeRef> arbTypeRef();
-
 //! Returns a generator for Bool types; it will generate DataType or MutableType for a struct that
 //! has 'i8' native name
 Gen<Nest::TypeWithStorage> arbBoolType(EvalMode mode = modeUnspecified);
@@ -70,8 +66,6 @@ Gen<Nest::TypeWithStorage> arbBoolType(EvalMode mode = modeUnspecified);
 } // namespace TypeFactory
 
 namespace rc {
-
-using Nest::TypeRef;
 
 template <> struct Arbitrary<Feather::VoidType> {
     static Gen<Feather::VoidType> arbitrary() { return TypeFactory::arbVoidType(); }
@@ -102,9 +96,6 @@ template <> struct Arbitrary<Nest::TypeWithStorage> {
 };
 template <> struct Arbitrary<Nest::Type> {
     static Gen<Nest::Type> arbitrary() { return TypeFactory::arbType(); }
-};
-template <> struct Arbitrary<TypeRef> {
-    static Gen<TypeRef> arbitrary() { return TypeFactory::arbTypeRef(); }
 };
 
 } // namespace rc

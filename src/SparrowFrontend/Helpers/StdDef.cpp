@@ -12,19 +12,19 @@ using namespace Nest;
 
 // TODO (refactoring): Remove the Void type
 
-TypeRef StdDef::typeType = nullptr;
-TypeRef StdDef::typeVoid = nullptr;
-TypeRef StdDef::typeNull = nullptr;
-TypeRef StdDef::typeBool = nullptr;
-TypeRef StdDef::typeByte = nullptr;
-TypeRef StdDef::typeInt = nullptr;
-TypeRef StdDef::typeSizeType = nullptr;
-TypeRef StdDef::typeStringRef = nullptr;
+Type StdDef::typeType = nullptr;
+Type StdDef::typeVoid = nullptr;
+Type StdDef::typeNull = nullptr;
+Type StdDef::typeBool = nullptr;
+Type StdDef::typeByte = nullptr;
+Type StdDef::typeInt = nullptr;
+Type StdDef::typeSizeType = nullptr;
+Type StdDef::typeStringRef = nullptr;
 
-TypeRef StdDef::typeRefType = nullptr;
-TypeRef StdDef::typeRefByte = nullptr;
-TypeRef StdDef::typeRefInt = nullptr;
-TypeRef StdDef::typeSizeTypeCt = nullptr;
+Type StdDef::typeRefType = nullptr;
+Type StdDef::typeRefByte = nullptr;
+Type StdDef::typeRefInt = nullptr;
+Type StdDef::typeSizeTypeCt = nullptr;
 
 Node* StdDef::clsType = nullptr;
 Node* StdDef::clsNull = nullptr;

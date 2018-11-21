@@ -278,6 +278,8 @@ Type SprFrontend::getAutoType(Node* typeNode, bool addRef, EvalMode evalMode) {
 
     // Dereference (and remove category type if there is one)
     t = Feather::removeAllRefs(t);
+    // TODO (types): Rework this; we should receive a concept type and we should apply conversion to
+    // it
 
     if (addRef)
         t = Feather::addRef(t);

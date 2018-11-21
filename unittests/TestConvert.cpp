@@ -11,6 +11,7 @@
 #include "SparrowFrontend/Utils/cppif/SparrowFrontendTypes.hpp"
 #include "SparrowFrontend/Nodes/SprProperties.h"
 #include "Feather/Utils/cppif/FeatherTypes.hpp"
+#include "Feather/Utils/cppif/FeatherNodes.hpp"
 #include "Nest/Utils/cppif/StringRef.hpp"
 #include "Nest/Utils/Diagnostic.hpp"
 
@@ -381,6 +382,65 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
     SECTION("Concept base conversion") {
         CHECK(getConvType(concept1Type_, concept2Type_) == convNone);
         CHECK(getConvType(concept2Type_, concept1Type_) == convDirect);
+    }
+
+    SECTION("Concept with categories") {
+        DeclNode decl = DeclNode(fooType_.referredNode());
+        TypeWithStorage src0 = fooType_;
+        TypeWithStorage src1 = DataType::get(decl, 1, modeRt);
+        TypeWithStorage src2 = DataType::get(decl, 2, modeRt);
+        TypeWithStorage src0const = ConstType::get(src0);
+        TypeWithStorage src0mut = MutableType::get(src0);
+        TypeWithStorage src0tmp = TempType::get(src0);
+        TypeWithStorage src1const = ConstType::get(src1);
+        TypeWithStorage src1mut = MutableType::get(src1);
+        TypeWithStorage src1tmp = TempType::get(src1);
+        TypeWithStorage src2const = ConstType::get(src2);
+        TypeWithStorage src2mut = MutableType::get(src2);
+        TypeWithStorage src2tmp = TempType::get(src2);
+
+        TypeWithStorage c0 = concept1Type_;
+        TypeWithStorage c1 = ConceptType::get(concept1Type_.decl(), 1);
+        TypeWithStorage c2 = ConceptType::get(concept1Type_.decl(), 2);
+        TypeWithStorage c0const = ConstType::get(c0);
+        TypeWithStorage c0mut = MutableType::get(c0);
+        TypeWithStorage c0tmp = TempType::get(c0);
+        TypeWithStorage c1const = ConstType::get(c1);
+        TypeWithStorage c1mut = MutableType::get(c1);
+        TypeWithStorage c1tmp = TempType::get(c1);
+        TypeWithStorage c2const = ConstType::get(c2);
+        TypeWithStorage c2mut = MutableType::get(c2);
+        TypeWithStorage c2tmp = TempType::get(c2);
+
+        CHECK(getConvType(src0, c0) == convConcept);
+        CHECK(getConvType(src0const, c0const) == convConcept);
+        CHECK(getConvType(src0mut, c0mut) == convConcept);
+        CHECK(getConvType(src0tmp, c0tmp) == convConcept);
+
+        CHECK(getConvType(src1const, c1) == convConcept);
+        CHECK(getConvType(src1const, c1const) == convConcept);
+        CHECK(getConvType(src1mut, c1mut) == convConcept);
+        CHECK(getConvType(src1tmp, c1tmp) == convConcept);
+
+        CHECK(getConvType(src1const, c0) == convConceptWithImplicit);
+        CHECK(getConvType(src1const, c0const) == convConceptWithImplicit);
+        CHECK(getConvType(src1mut, c0mut) == convConceptWithImplicit);
+        CHECK(getConvType(src1tmp, c0tmp) == convConceptWithImplicit);
+
+        CHECK(getConvType(src2const, c2) == convConcept);
+        CHECK(getConvType(src2const, c2const) == convConcept);
+        CHECK(getConvType(src2mut, c2mut) == convConcept);
+        CHECK(getConvType(src2tmp, c2tmp) == convConcept);
+
+        CHECK(getConvType(src2const, c1) == convConceptWithImplicit);
+        CHECK(getConvType(src2const, c1const) == convConceptWithImplicit);
+        CHECK(getConvType(src2mut, c1mut) == convConceptWithImplicit);
+        CHECK(getConvType(src2tmp, c1tmp) == convConceptWithImplicit);
+
+        CHECK(getConvType(src2const, c0) == convConceptWithImplicit);
+        CHECK(getConvType(src2const, c0const) == convConceptWithImplicit);
+        CHECK(getConvType(src2mut, c0mut) == convConceptWithImplicit);
+        CHECK(getConvType(src2tmp, c0tmp) == convConceptWithImplicit);
     }
 }
 

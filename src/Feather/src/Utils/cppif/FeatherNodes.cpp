@@ -576,7 +576,7 @@ const char* FunctionDecl::toStringImpl() {
         Type resultType = resTypeNode().type();
         if (hasProperty(propResultParam)) {
             resultType = params[0].type();
-            resultType = removeRef(TypeWithStorage(resultType));
+            resultType = removeCatOrRef(TypeWithStorage(resultType));
             params = params.skip(1); // Keep only the non-result params
         }
 
@@ -1059,7 +1059,7 @@ NodeHandle MemLoadExp::semanticCheckImpl() {
                 nullptr, location(), "Cannot use atomic acquire-release with a load instruction");
 
     // Remove the 'ref' from the type and get the base type
-    setType(removeRef(TypeWithStorage(exp.type())));
+    setType(removeCatOrRef(TypeWithStorage(exp.type())));
     setType(Feather_adjustMode(type(), context(), location()));
     return *this;
 }
@@ -1098,7 +1098,7 @@ NodeHandle MemStoreExp::semanticCheckImpl() {
                 "The address of a memory store is not a reference, nor VarRef nor FieldRef (type: "
                 "%1%)") %
                 address.type();
-    Type baseAddressType = removeRef(TypeWithStorage(address.type()));
+    Type baseAddressType = removeCatOrRef(TypeWithStorage(address.type()));
 
     // Check the equivalence of types
     if (!sameTypeIgnoreMode(value.type(), baseAddressType)) {

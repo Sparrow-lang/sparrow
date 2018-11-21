@@ -251,7 +251,7 @@ Node* SprReturn_SemanticCheck(Node* node) {
     Node* resultParam = getResultParam(parentFun);
     if (resultParam) // Does this function have a result param?
     {
-        resType = removeRef(TypeWithStorage(resultParam->type));
+        resType = removeCatOrRef(TypeWithStorage(resultParam->type));
         ASSERT(!FunctionDecl(parentFun).resTypeNode().type().hasStorage()); // The function should
                                                                             // have void result
     } else {

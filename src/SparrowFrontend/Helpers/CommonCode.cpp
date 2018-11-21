@@ -163,8 +163,8 @@ Node* SprFrontend::createFunctionCall(
             resType = resType.changeMode(modeCt, resultParam->location);
 
         // Create a temporary variable for the result
-        Node* tmpVar =
-                Feather_mkVar(loc, StringRef("$tmpC"), Feather_mkTypeNode(loc, removeRef(resType)));
+        Node* tmpVar = Feather_mkVar(
+                loc, StringRef("$tmpC"), Feather_mkTypeNode(loc, removeCatOrRef(resType)));
         Nest_setContext(tmpVar, context);
         tmpVarRef = Feather_mkVarRef(loc, tmpVar);
         Nest_setContext(tmpVarRef, context);
@@ -244,7 +244,7 @@ Node* _createFunPtrForFeatherFun(Node* fun, Node* callNode) {
     // Try to instantiate the corresponding FunctionPtr class
     NodeVector parameters;
     parameters.reserve(1 + FunctionDecl(fun).parameters().size());
-    Type resType = resParam ? (Type)removeRef(TypeWithStorage(resParam->type))
+    Type resType = resParam ? (Type)removeCatOrRef(TypeWithStorage(resParam->type))
                             : FunctionDecl(fun).resTypeNode().type();
     parameters.push_back(createTypeNode(ctx, loc, resType));
     for (size_t i = resParam ? 1 : 0; i < FunctionDecl(fun).parameters().size(); ++i) {

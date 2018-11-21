@@ -48,4 +48,21 @@ struct ConceptType : TypeWithStorage {
     }
 };
 
+/**
+ * @brief      Gets the base type of the given type
+ *
+ * The base type of a type would be the type obtained by dereferencing the given type to maximum.
+ * If the given type will have a category type, this will remove the category.
+ * Examples:
+ *     Int -> Int
+ *     Int const -> Int
+ *     @Int -> Int
+ *     @Int const -> Int
+ *
+ * @param[in]  t     The type to get the base type for
+ *
+ * @return     The base type of the given type
+ */
+TypeWithStorage baseType(TypeWithStorage t);
+
 } // namespace SprFrontend

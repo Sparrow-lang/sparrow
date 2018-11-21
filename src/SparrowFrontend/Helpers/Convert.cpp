@@ -122,7 +122,7 @@ Node* applyOnce(Node* src, ConvAction action) {
     case ActionType::makeNull:
         return Feather_mkNull(src->location, Feather_mkTypeNode(src->location, destT));
     case ActionType::addRef: {
-        Type srcT = removeRef(TypeWithStorage(destT));
+        Type srcT = removeCatOrRef(TypeWithStorage(destT));
         Node* var = Feather_mkVar(
                 src->location, StringRef("$tmpForRef"), Feather_mkTypeNode(src->location, srcT));
         Node* varRef = Feather_mkVarRef(src->location, var);
@@ -197,7 +197,7 @@ private:
 
     //! Checks the conversion to a concept (from data-like or other concept)
     bool checkConversionToConcept(ConversionResult& res, CompilationContext* context, int flags,
-            TypeWithStorage srcType, ConceptType destType);
+            TypeWithStorage srcType, TypeWithStorage destType);
 
     //! Checks the conversion between data-like types
     bool checkDataConversion(ConversionResult& res, CompilationContext* context, int flags,
@@ -313,9 +313,11 @@ bool ConvertService::checkConversionSameMode(ConversionResult& res, CompilationC
     ASSERT(src);
     ASSERT(dest);
 
+    TypeWithStorage destBase = baseType(dest);
+
     // Is the destination is a concept?
-    if (dest.kind() == typeKindConcept) {
-        return checkConversionToConcept(res, context, flags, src, ConceptType(dest));
+    if (destBase.kind() == typeKindConcept) {
+        return checkConversionToConcept(res, context, flags, src, dest);
     }
 
     // Treat data-like to data-like conversions
@@ -328,21 +330,26 @@ bool ConvertService::checkConversionSameMode(ConversionResult& res, CompilationC
 }
 
 bool ConvertService::checkConversionToConcept(ConversionResult& res, CompilationContext* context,
-        int flags, TypeWithStorage src, ConceptType dest) {
+        int flags, TypeWithStorage src, TypeWithStorage dest) {
     ASSERT(src);
     ASSERT(dest);
 
     // Case 1: data-like -> concept (concept)
     if (Feather::isDataLikeType(src)) {
 
+        // Treat the destination type kind as data-like
+        int destTypeKind = dest.kind();
+        if (destTypeKind == typeKindConcept)
+            destTypeKind = typeKindData;
+
         // Adjust references
         bool canAddRef = (flags & flagDontAddReference) == 0;
         if (!adjustReferences(
-                    res, src, typeKindData, dest.numReferences(), dest.description(), canAddRef))
+                    res, src, destTypeKind, dest.numReferences(), dest.description(), canAddRef))
             return false;
 
         bool isOk = false;
-        Nest::NodeHandle concept = dest.decl();
+        Nest::NodeHandle concept = dest.referredNode();
         if (!concept)
             isOk = true;
         // If we have a concept, check if the type fulfills the concept
@@ -461,13 +468,23 @@ bool isCategoryType(int typeKind) {
 }
 
 TypeWithStorage changeCat(TypeWithStorage src, int typeKind, bool addRef = false) {
-    auto src1 = src.numReferences() > 0 && !addRef ? removeRef(src) : src;
+    TypeWithStorage base;
+    int srcTK = src.kind();
+    if (srcTK == typeKindData)
+        base = src.numReferences() > 0 && !addRef ? removeRef(src) : src;
+    else if (srcTK == typeKindConst)
+        base = ConstType(src).base();
+    else if (srcTK == typeKindMutable)
+        base = MutableType(src).base();
+    else if (srcTK == typeKindTemp)
+        base = TempType(src).base();
+
     if (typeKind == typeKindConst)
-        return ConstType::get(src1);
+        return ConstType::get(base);
     else if (typeKind == typeKindMutable)
-        return MutableType::get(src1);
+        return MutableType::get(base);
     else if (typeKind == typeKindTemp)
-        return TempType::get(src1);
+        return TempType::get(base);
     return src;
 }
 
@@ -547,7 +564,7 @@ bool ConvertService::adjustReferences(ConversionResult& res, TypeWithStorage src
 
     // Need to remove some references?
     for (int i = 0; i < numDerefs; i++) {
-        src = removeRef(src);
+        src = removeCatOrRef(src);
         res.addConversion(convImplicit, ConvAction(ActionType::dereference, src));
     }
 

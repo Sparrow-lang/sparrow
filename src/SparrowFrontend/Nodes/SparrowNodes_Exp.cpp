@@ -673,7 +673,7 @@ Node* handleRefAssign(Node* node) {
         REP_ERROR_RET(nullptr, node->location,
                 "Left operand of a reference assign operator is not a reference reference (%1%)") %
                 arg1->type;
-    Type arg1BaseType = removeRef(TypeWithStorage(arg1->type));
+    Type arg1BaseType = removeCatOrRef(TypeWithStorage(arg1->type));
 
     // Check the second type to be null or a reference
     Type arg2Type = arg2->type;

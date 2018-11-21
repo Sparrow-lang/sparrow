@@ -3,6 +3,7 @@
 #include "SparrowFrontend/Utils/cppif/SparrowFrontendTypes.hpp"
 #include "Utils/cppif/SparrowFrontendTypes.hpp"
 #include "Feather/Utils/FeatherUtils.hpp"
+#include "Feather/Utils/cppif/FeatherTypes.hpp"
 
 #include "Nest/Api/TypeKindRegistrar.h"
 #include "Nest/Utils/NodeUtils.h"
@@ -71,5 +72,24 @@ ConceptType ConceptType::get(Nest::NodeHandle decl, int numReferences, Nest::Eva
 }
 
 Nest::NodeHandle ConceptType::decl() const { return referredNode(); }
+
+TypeWithStorage baseType(TypeWithStorage t) {
+    while (t && t.numReferences() > 0) {
+        int kind = t.kind();
+        if (kind == typeKindData)
+            t = Feather::DataType::get(t.referredNode(), 0, t.mode());
+        else if (kind == typeKindConst)
+            t = Feather::ConstType(t).base();
+        else if (kind == typeKindMutable)
+            t = Feather::MutableType(t).base();
+        else if (kind == typeKindTemp)
+            t = Feather::TempType(t).base();
+        else if (kind == typeKindConcept)
+            t = ConceptType::get(t.referredNode(), 0, t.mode());
+        else
+            REP_INTERNAL(NOLOC, "Cannot get the base type for %1%") % t;
+    }
+    return t;
+}
 
 } // namespace SprFrontend

@@ -246,6 +246,9 @@ bool isCategoryType(Type type);
  * Constraints:
  *     - given type must be Data-like type (DataType, ConstType, MutableType or TempType)
  *
+ * Postconditions:
+ *     - the category of the type is kept
+ *
  * @param[in]  type  The type to add reference to
  *
  * @return     The resulting type, with one more reference
@@ -256,14 +259,23 @@ TypeWithStorage addRef(TypeWithStorage type);
  * @brief      Removes a reference from the given type.
  *
  * Constraints:
- *     - given type must have at least one reference
  *     - given type must be Data-like type
+ *     - given type must have at least one (non-category) reference
+ *     - if the given type is a category type, it needs to have an extra reference
+ *
+ * Postconditions:
+ *     - the category of the type is kept
  *
  * @param[in]  type  The type to remove reference from
  *
  * @return     The resulting type, with one less reference
  */
 TypeWithStorage removeRef(TypeWithStorage type);
+
+//! Old version of removeRef.
+//! Equivalent to removeRef(categoryToRefIfPresent(type))
+TypeWithStorage removeCatOrRef(TypeWithStorage type);
+// TODO (types): Remove this
 
 /**
  * @brief      Removes all references from this type

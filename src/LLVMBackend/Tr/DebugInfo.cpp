@@ -308,7 +308,7 @@ llvm::DIType* DebugInfo::createDiType(GlobalContext& ctx, Type type) {
     if (type.numReferences() > 0) {
         // Pointer type (Datatype & category type)
         int sizeInBits = dataLayout.getTypeAllocSizeInBits(t);
-        auto baseType = createDiType(ctx, removeRef(TypeWithStorage(type)));
+        auto baseType = createDiType(ctx, removeCatOrRef(TypeWithStorage(type)));
         res = diBuilder_.createPointerType(baseType, sizeInBits);
     } else if (type.kind() == Feather_getDataTypeKind()) {
         res = createDiStructType(ctx, type);

@@ -15,6 +15,8 @@ size_t getContentHash(Nest_TypeRef type) noexcept {
     return res;
 }
 
+// TODO (types): Find a better hash
+
 struct TypeHasher {
     size_t operator()(const Nest_Type& type) const noexcept { return getContentHash(&type); }
 };

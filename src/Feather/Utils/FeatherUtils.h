@@ -71,10 +71,6 @@ Nest_Node* Feather_classDecl(Nest_TypeRef type);
 /// otherwise it returns nullptr Works for only for storage types (data-like, array)
 Nest_StringRef Feather_nativeName(Nest_TypeRef type);
 
-/// The number of references applied
-/// Works for only for storage types (data-like, array)
-int Feather_numReferences(Nest_TypeRef type);
-
 /// Returns the base type of this type
 /// Works for category and array types
 Nest_TypeRef Feather_baseType(Nest_TypeRef type);

@@ -109,20 +109,34 @@ TEST_CASE_METHOD(FeatherTypesFixture, "User can create Feather types with given 
 }
 
 TEST_CASE_METHOD(FeatherTypesFixture, "User can add or remove references") {
-    rc::prop("Adding reference increases the number of references", []() {
+    rc::prop("Adding reference increases the number of references, and keeps type kind", []() {
         TypeWithStorage base = *TypeFactory::arbBasicStorageType(modeUnspecified, 0, 10);
         auto newType = addRef(base);
         REQUIRE(newType.numReferences() == base.numReferences()+1);
+        REQUIRE(newType.kind() == base.kind());
     });
-    rc::prop("Removing reference decreases the number of references", []() {
+    rc::prop("Removing reference decreases the number of references, and keeps type kind", []() {
         TypeWithStorage base = *TypeFactory::arbBasicStorageType(modeUnspecified, 1, 10);
+        // Ensure we have one "clean" reference to remove
+        RC_PRE(!isCategoryType(base) || base.numReferences() > 1);
+
         auto newType = removeRef(base);
         REQUIRE(newType.numReferences() == base.numReferences()-1);
+        REQUIRE(newType.kind() == base.kind());
+    });
+    rc::prop("Removing reference (old) decreases the number of references", []() {
+        TypeWithStorage base = *TypeFactory::arbBasicStorageType(modeUnspecified, 1, 10);
+        auto newType = removeCatOrRef(base);
+        REQUIRE(newType.numReferences() == base.numReferences()-1);
+        // Resulting type is always a data type
+        REQUIRE(newType.kind() == typeKindData);
     });
     rc::prop("Removing all references decreases the number of references to 0", []() {
         TypeWithStorage base = *TypeFactory::arbBasicStorageType(modeUnspecified, 0, 10);
         auto newType = removeAllRefs(base);
         REQUIRE(newType.numReferences() == 0);
+        // Resulting type is always a data type
+        REQUIRE(newType.kind() == typeKindData);
     });
     rc::prop("categoryToRefIfPresent does nothing for data types", []() {
         DataType base = *TypeFactory::arbDataType(modeUnspecified, 0, 10);

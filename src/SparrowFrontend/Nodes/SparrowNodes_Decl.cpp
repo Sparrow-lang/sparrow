@@ -102,7 +102,7 @@ Type computeVarType(Node* parent, CompilationContext* ctx, Node* typeNode, Node*
             return nullptr;
     } else {
         // If no type node was given, maybe a type was given directly; if so, take it
-        const TypeRef* givenType = Nest_getPropertyType(parent, "spr.givenType");
+        const TypeRef* givenType = Nest_getPropertyType(parent, propSprGivenType);
         t = givenType ? *givenType : nullptr;
     }
 

@@ -574,10 +574,15 @@ bool ConvertService::adjustReferences(ConversionResult& res, TypeWithStorage src
         if (src.numReferences() == 0)
             res.addConversion(
                     convDirect, ConvAction(ActionType::addRef, changeCat(src, destKind, true)));
-        else
-            res.addConversion(convDirect,
-                    ConvAction(ActionType::bitcast,
-                            changeCat(src, destKind, src.numReferences() < destNumRef)));
+        else {
+            bool addRef = src.numReferences() < destNumRef;
+            if (addRef)
+                res.addConversion(
+                        convDirect, ConvAction(ActionType::addRef, changeCat(src, destKind, true)));
+            else
+                res.addConversion(convDirect,
+                        ConvAction(ActionType::bitcast, changeCat(src, destKind, false)));
+        }
     }
 
     return true;

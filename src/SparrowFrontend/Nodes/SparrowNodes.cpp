@@ -539,7 +539,7 @@ Node* SprFrontend::mkSprVariable(
     Nest_nodeSetChildren(res, fromIniList({nullptr, init}));
     Feather_setName(res, name);
     deduceAccessType(res);
-    Nest_setPropertyType(res, "spr.givenType", type);
+    Nest_setPropertyType(res, propSprGivenType, type);
     return res;
 }
 
@@ -607,7 +607,7 @@ Node* SprFrontend::mkSprParameter(
     res->location = loc;
     Nest_nodeSetChildren(res, fromIniList({nullptr, init}));
     Feather_setName(res, name);
-    Nest_setPropertyType(res, "spr.givenType", type);
+    Nest_setPropertyType(res, propSprGivenType, type);
     return res;
 }
 

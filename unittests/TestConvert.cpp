@@ -584,7 +584,11 @@ void checkActionTypes(const ConversionResult& cvt, Type srcType, Type destType) 
     RC_ASSERT(count(first, last, ActionType::customCvt) <= 1);
 
     // Check that we have maximum 1 add-ref action
-    RC_ASSERT(count(first, last, ActionType::addRef) <= 1);
+    // ...if we are dest is not a category; exceptions:
+    //      i8 -> @i8 const -- adds 2 refs
+    //      i8/ct const -> @i8 const -- removes one ref & adds 2 refs
+    if (!isCategoryType(destType) )
+        RC_ASSERT(count(first, last, ActionType::addRef) <= 1);
 
     // Make-null action is the last one
     auto idx = find(first, last, ActionType::makeNull) - first;
@@ -619,11 +623,7 @@ void checkActionTypes(const ConversionResult& cvt, Type srcType, Type destType) 
             RC_ASSERT(t.mode() == newT.mode());
             RC_ASSERT(t.numReferences() > 0);
             RC_ASSERT(newT.numReferences() > 0);
-            if ( t.kind() == typeKindData && newT.kind() != typeKindData)
-                RC_ASSERT(t.numReferences() == newT.numReferences() ||
-                          t.numReferences() + 1 == newT.numReferences());
-            else
-                RC_ASSERT(t.numReferences() == newT.numReferences());
+            RC_ASSERT(t.numReferences() == newT.numReferences());
             RC_ASSERT(t.referredNode() == newT.referredNode());
             t = newT;
             break;

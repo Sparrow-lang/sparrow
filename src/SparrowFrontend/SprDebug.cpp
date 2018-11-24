@@ -418,8 +418,8 @@ void printNodeImpl(Node* node, int mode) {
         if (typeNode) {
             printf(": ");
             printNodeImpl(typeNode, 2);
-        } else if (Nest_hasProperty(node, "spr.givenType")) {
-            auto givenType = Nest_getCheckPropertyType(node, "spr.givenType");
+        } else if (Nest_hasProperty(node, propSprGivenType)) {
+            auto givenType = Nest_getCheckPropertyType(node, propSprGivenType);
             printf(": %s", givenType->description);
         }
         if (init) {

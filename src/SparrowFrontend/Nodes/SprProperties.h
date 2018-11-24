@@ -16,4 +16,5 @@ extern const char* propThisParamType;
 extern const char* propOverloadPrio;
 
 constexpr const char* propVarInit = "spr.varInit";
+constexpr const char* propSprGivenType = "spr.givenType";
 } // namespace SprFrontend

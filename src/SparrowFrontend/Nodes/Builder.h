@@ -4,7 +4,7 @@
 
 #include <SparrowFrontend/Nodes/SparrowNodes.h>
 
-#include "Decls/AccessType.h"
+#include "AccessType.h"
 
 namespace SprFrontend {
 typedef pair<Location, string> LocString;

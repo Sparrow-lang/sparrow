@@ -42,10 +42,7 @@ NodeHandle getIdentifierResult(
         ASSERT(resDecl);
 
         // Check if we can refer to a variable
-        Feather::VarDecl resDeclVar =
-                resDecl.kind() == nkFeatherDeclVar ? Feather::VarDecl(resDecl) : Feather::VarDecl{};
-        // Feather::VarDecl resDeclVar = resDecl.kindCast<Feather::VarDecl>();
-        // TODO (now): Fix this
+        Feather::VarDecl resDeclVar = resDecl.kindCast<Feather::VarDecl>();
         if (resDeclVar) {
             if (isField(resDecl)) {
                 if (!baseExp)
@@ -80,11 +77,7 @@ NodeHandle getIdentifierResult(
 
         // Try to convert this to a type
         Type t;
-        Feather::StructDecl resDeclStruct = resDecl.kind() == nkFeatherDeclClass
-                                                    ? Feather::StructDecl(resDecl)
-                                                    : Feather::StructDecl{};
-        // Feather::StructDecl resDeclStruct = resDecl.kindCast<Feather::StructDecl>();
-        // TODO (now): Fix this
+        Feather::StructDecl resDeclStruct = resDecl.kindCast<Feather::StructDecl>();
         if (resDeclStruct) {
             t = Feather::DataType::get(resDeclStruct, 0, resDeclStruct.effectiveMode());
         }

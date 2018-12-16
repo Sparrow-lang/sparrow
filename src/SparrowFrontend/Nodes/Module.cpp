@@ -2,7 +2,7 @@
 #include "SparrowFrontend/Nodes/Module.hpp"
 #include "SparrowFrontend/Nodes/Decl.hpp"
 #include "SparrowFrontend/Nodes/Exp.hpp"
-#include "SparrowFrontend/Nodes/Decls/AccessType.h"
+#include "SparrowFrontend/Nodes/AccessType.h"
 #include "SparrowFrontend/SprDebug.h"
 #include "SparrowFrontend/Helpers/QualifiedId.h"
 #include "SparrowFrontend/Helpers/DeclsHelpers.h"

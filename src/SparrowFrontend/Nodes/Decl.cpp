@@ -243,9 +243,9 @@ void handleStaticCtorDtor(SprFunctionDecl node, bool ctor) {
 
 //! Helper function used to create decl nodes
 template <typename T>
-T createDeclNode(int kind, const Location& loc, StringRef name, NodeRange children,
-        bool withAccessType = true) {
-    T res = Nest::createNode<T>(kind, loc, children);
+T createDeclNode(
+        const Location& loc, StringRef name, NodeRange children, bool withAccessType = true) {
+    T res = Nest::createNode<T>(loc, children);
     res.setNameAndMode(name);
     if (withAccessType)
         deduceAccessType(res);
@@ -295,15 +295,15 @@ void commonSetContextForChildren(Feather::DeclNode node, ContextChangeType ctxCh
 
 } // namespace
 
-DEFINE_NODE_COMMON_IMPL(ModifiersNode, NodeHandle, nkSparrowModifiersNode)
+DEFINE_NODE_COMMON_IMPL(ModifiersNode, NodeHandle)
 
 ModifiersNode ModifiersNode::create(const Location& loc, NodeHandle main, NodeHandle mods) {
     REQUIRE_NODE(loc, main);
     REQUIRE_NODE(loc, mods);
-    return Nest::createNode<ModifiersNode>(nkSparrowModifiersNode, loc, NodeRange({main, mods}));
+    return Nest::createNode<ModifiersNode>(loc, NodeRange({main, mods}));
 }
 
-void ModifiersNode::setContextForChildrenImpl2(ModifiersNode node) {
+void ModifiersNode::setContextForChildrenImpl(ModifiersNode node) {
     NodeHandle targetNode = node.target();
     NodeHandle modifierNodes = node.mods();
 
@@ -319,26 +319,26 @@ void ModifiersNode::setContextForChildrenImpl2(ModifiersNode node) {
         targetNode.setContext(node.context());
 }
 
-Type ModifiersNode::computeTypeImpl2(ModifiersNode node) { return node.target().computeType(); }
-NodeHandle ModifiersNode::semanticCheckImpl2(ModifiersNode node) { return node.target(); }
+Type ModifiersNode::computeTypeImpl(ModifiersNode node) { return node.target().computeType(); }
+NodeHandle ModifiersNode::semanticCheckImpl(ModifiersNode node) { return node.target(); }
 
-DEFINE_NODE_COMMON_IMPL(UsingDecl, DeclNode, nkSparrowDeclUsing)
+DEFINE_NODE_COMMON_IMPL(UsingDecl, DeclNode)
 
 UsingDecl UsingDecl::create(const Location& loc, StringRef name, NodeHandle usedNode) {
     REQUIRE_NODE(loc, usedNode);
-    return createDeclNode<UsingDecl>(nkSparrowDeclUsing, loc, name, NodeRange({usedNode}));
+    return createDeclNode<UsingDecl>(loc, name, NodeRange({usedNode}));
 }
 
-void UsingDecl::setContextForChildrenImpl2(UsingDecl node) {
+void UsingDecl::setContextForChildrenImpl(UsingDecl node) {
     if (node.name())
         Feather_addToSymTab(node);
     else
         Nest_symTabAddToCheckNode(node.context()->currentSymTab, node);
 
-    DeclNode::setContextForChildrenImpl2(node);
+    DeclNode::setContextForChildrenImpl(node);
 }
 
-Type UsingDecl::computeTypeImpl2(UsingDecl node) {
+Type UsingDecl::computeTypeImpl(UsingDecl node) {
     NodeHandle usedNode = node.usedNode();
     StringRef alias = node.name();
 
@@ -386,24 +386,23 @@ Type UsingDecl::computeTypeImpl2(UsingDecl node) {
     return expl.type();
 }
 
-NodeHandle UsingDecl::semanticCheckImpl2(UsingDecl node) {
+NodeHandle UsingDecl::semanticCheckImpl(UsingDecl node) {
     return node.computeType() ? node.explanation() : NodeHandle();
 }
 
-DEFINE_NODE_COMMON_IMPL(PackageDecl, DeclNode, nkSparrowDeclPackage)
+DEFINE_NODE_COMMON_IMPL(PackageDecl, DeclNode)
 
 PackageDecl PackageDecl::create(const Location& loc, StringRef name, NodeHandle body,
         NodeList params, NodeHandle ifClause) {
     REQUIRE_NODE(loc, body);
-    return createDeclNode<PackageDecl>(
-            nkSparrowDeclPackage, loc, name, NodeRange({body, params, ifClause}));
+    return createDeclNode<PackageDecl>(loc, name, NodeRange({body, params, ifClause}));
 }
 
-void PackageDecl::setContextForChildrenImpl2(PackageDecl node) {
+void PackageDecl::setContextForChildrenImpl(PackageDecl node) {
     commonSetContextForChildren(node, ContextChangeType::withSymTab);
 }
 
-Type PackageDecl::computeTypeImpl2(PackageDecl node) {
+Type PackageDecl::computeTypeImpl(PackageDecl node) {
     NodeHandle body = node.body();
     NodeList parameters = node.parameters();
     NodeHandle ifClause = node.ifClause();
@@ -437,7 +436,7 @@ Type PackageDecl::computeTypeImpl2(PackageDecl node) {
     return resType;
 }
 
-NodeHandle PackageDecl::semanticCheckImpl2(PackageDecl node) {
+NodeHandle PackageDecl::semanticCheckImpl(PackageDecl node) {
     // Ensure type is computed first
     if (!node.computeType())
         return {};
@@ -449,30 +448,28 @@ NodeHandle PackageDecl::semanticCheckImpl2(PackageDecl node) {
     return node.body().semanticCheck();
 }
 
-DEFINE_NODE_COMMON_IMPL(VariableDecl, DeclNode, nkSparrowDeclSprVariable)
+DEFINE_NODE_COMMON_IMPL(VariableDecl, DeclNode)
 
 VariableDecl VariableDecl::create(
         const Location& loc, StringRef name, NodeHandle typeNode, NodeHandle init) {
     if (!typeNode && !init)
         REP_ERROR(loc, "Cannot create variable without a type and without an initializer");
-    return createDeclNode<VariableDecl>(
-            nkSparrowDeclSprVariable, loc, name, NodeRange({typeNode, init}));
+    return createDeclNode<VariableDecl>(loc, name, NodeRange({typeNode, init}));
 }
 
 VariableDecl VariableDecl::create(
         const Location& loc, StringRef name, TypeWithStorage type, NodeHandle init) {
     CHECK(loc, type);
-    auto res = createDeclNode<VariableDecl>(
-            nkSparrowDeclSprVariable, loc, name, NodeRange({nullptr, init}));
+    auto res = createDeclNode<VariableDecl>(loc, name, NodeRange({nullptr, init}));
     res.setProperty(propSprGivenType, type);
     return res;
 }
 
-void VariableDecl::setContextForChildrenImpl2(VariableDecl node) {
+void VariableDecl::setContextForChildrenImpl(VariableDecl node) {
     commonSetContextForChildren(node, ContextChangeType::ifChangeMode);
 }
 
-Type VariableDecl::computeTypeImpl2(VariableDecl node) {
+Type VariableDecl::computeTypeImpl(VariableDecl node) {
     NodeHandle typeNode = node.typeNode();
     NodeHandle init = node.init();
     Location loc = node.location();
@@ -562,7 +559,7 @@ Type VariableDecl::computeTypeImpl2(VariableDecl node) {
     return node.type();
 }
 
-NodeHandle VariableDecl::semanticCheckImpl2(VariableDecl node) {
+NodeHandle VariableDecl::semanticCheckImpl(VariableDecl node) {
     if (!node.computeType())
         return {};
 
@@ -572,7 +569,7 @@ NodeHandle VariableDecl::semanticCheckImpl2(VariableDecl node) {
     return node.explanation().semanticCheck();
 }
 
-DEFINE_NODE_COMMON_IMPL(DataTypeDecl, DeclNode, nkSparrowDeclSprDatatype)
+DEFINE_NODE_COMMON_IMPL(DataTypeDecl, DeclNode)
 
 DataTypeDecl DataTypeDecl::create(const Location& loc, StringRef name, NodeList parameters,
         NodeHandle underlyingData, NodeHandle ifClause, NodeList body) {
@@ -585,18 +582,17 @@ DataTypeDecl DataTypeDecl::create(const Location& loc, StringRef name, NodeList 
         body = Feather::NodeList::create(loc, NodeRange({innerVar}));
     }
 
-    auto res = createDeclNode<DataTypeDecl>(
-            nkSparrowDeclSprDatatype, loc, name, NodeRange({parameters, body, ifClause}));
+    auto res = createDeclNode<DataTypeDecl>(loc, name, NodeRange({parameters, body, ifClause}));
     if (underlyingData)
         res.setProperty(propGenerateInitCtor, 1);
     return res;
 }
 
-void DataTypeDecl::setContextForChildrenImpl2(DataTypeDecl node) {
+void DataTypeDecl::setContextForChildrenImpl(DataTypeDecl node) {
     commonSetContextForChildren(node, ContextChangeType::withSymTab);
 }
 
-Type DataTypeDecl::computeTypeImpl2(DataTypeDecl node) {
+Type DataTypeDecl::computeTypeImpl(DataTypeDecl node) {
     NodeList parameters = node.parameters();
     NodeList body = node.body();
     NodeHandle ifClause = node.ifClause();
@@ -683,7 +679,7 @@ Type DataTypeDecl::computeTypeImpl2(DataTypeDecl node) {
     return node.type();
 }
 
-NodeHandle DataTypeDecl::semanticCheckImpl2(DataTypeDecl node) {
+NodeHandle DataTypeDecl::semanticCheckImpl(DataTypeDecl node) {
     if (!node.computeType())
         return {};
 
@@ -700,21 +696,20 @@ NodeHandle DataTypeDecl::semanticCheckImpl2(DataTypeDecl node) {
     return node.explanation();
 }
 
-DEFINE_NODE_COMMON_IMPL(FieldDecl, DeclNode, nkSparrowDeclSprField)
+DEFINE_NODE_COMMON_IMPL(FieldDecl, DeclNode)
 
 FieldDecl FieldDecl::create(
         const Location& loc, StringRef name, NodeHandle typeNode, NodeHandle init) {
     if (!typeNode && !init)
         REP_ERROR(loc, "Cannot create field without a type and without an initializer");
-    return createDeclNode<FieldDecl>(
-            nkSparrowDeclSprField, loc, name, NodeRange({typeNode, init}), false);
+    return createDeclNode<FieldDecl>(loc, name, NodeRange({typeNode, init}), false);
 }
 
-void FieldDecl::setContextForChildrenImpl2(FieldDecl node) {
+void FieldDecl::setContextForChildrenImpl(FieldDecl node) {
     commonSetContextForChildren(node, ContextChangeType::ifChangeMode);
 }
 
-Type FieldDecl::computeTypeImpl2(FieldDecl node) {
+Type FieldDecl::computeTypeImpl(FieldDecl node) {
     NodeHandle typeNode = node.typeNode();
     NodeHandle init = node.init();
     const Location& loc = node.location();
@@ -754,25 +749,25 @@ Type FieldDecl::computeTypeImpl2(FieldDecl node) {
     return resType;
 }
 
-NodeHandle FieldDecl::semanticCheckImpl2(FieldDecl node) {
+NodeHandle FieldDecl::semanticCheckImpl(FieldDecl node) {
     if (!node.computeType())
         return {};
     return node.explanation().semanticCheck();
 }
 
-DEFINE_NODE_COMMON_IMPL(SprFunctionDecl, DeclNode, nkSparrowDeclSprFunction)
+DEFINE_NODE_COMMON_IMPL(SprFunctionDecl, DeclNode)
 
 SprFunctionDecl SprFunctionDecl::create(const Location& loc, StringRef name, NodeList parameters,
         NodeHandle returnType, NodeHandle body, NodeHandle ifClause) {
-    return createDeclNode<SprFunctionDecl>(nkSparrowDeclSprFunction, loc, name,
-            NodeRange({parameters, returnType, body, ifClause}));
+    return createDeclNode<SprFunctionDecl>(
+            loc, name, NodeRange({parameters, returnType, body, ifClause}));
 }
 
-void SprFunctionDecl::setContextForChildrenImpl2(SprFunctionDecl node) {
+void SprFunctionDecl::setContextForChildrenImpl(SprFunctionDecl node) {
     commonSetContextForChildren(node, ContextChangeType::withSymTab);
 }
 
-Type SprFunctionDecl::computeTypeImpl2(SprFunctionDecl node) {
+Type SprFunctionDecl::computeTypeImpl(SprFunctionDecl node) {
     NodeHandle parameters = node.parameters();
     NodeHandle returnType = node.returnType();
     NodeHandle body = node.body();
@@ -914,7 +909,7 @@ Type SprFunctionDecl::computeTypeImpl2(SprFunctionDecl node) {
     return node.type();
 }
 
-NodeHandle SprFunctionDecl::semanticCheckImpl2(SprFunctionDecl node) {
+NodeHandle SprFunctionDecl::semanticCheckImpl(SprFunctionDecl node) {
     if (!node.computeType())
         return {};
     NodeHandle resultingFun = node.explanation();
@@ -937,18 +932,16 @@ NodeHandle SprFunctionDecl::semanticCheckImpl2(SprFunctionDecl node) {
     return resultingFun;
 }
 
-DEFINE_NODE_COMMON_IMPL(ParameterDecl, DeclNode, nkSparrowDeclSprParameter)
+DEFINE_NODE_COMMON_IMPL(ParameterDecl, DeclNode)
 
 ParameterDecl ParameterDecl::create(
         const Location& loc, StringRef name, NodeHandle typeNode, NodeHandle init) {
-    return createDeclNode<ParameterDecl>(
-            nkSparrowDeclSprParameter, loc, name, NodeRange({typeNode, init}), false);
+    return createDeclNode<ParameterDecl>(loc, name, NodeRange({typeNode, init}), false);
 }
 
 ParameterDecl ParameterDecl::create(
         const Location& loc, StringRef name, TypeWithStorage type, NodeHandle init) {
-    auto res = createDeclNode<ParameterDecl>(
-            nkSparrowDeclSprParameter, loc, name, NodeRange({NodeHandle{}, init}), false);
+    auto res = createDeclNode<ParameterDecl>(loc, name, NodeRange({NodeHandle{}, init}), false);
     res.setProperty(propSprGivenType, type);
     return res;
 }
@@ -958,11 +951,11 @@ ParameterDecl ParameterDecl::create(const Location& loc, StringRef name) {
     return create(loc, name, typeNode, NodeHandle{});
 }
 
-void ParameterDecl::setContextForChildrenImpl2(ParameterDecl node) {
+void ParameterDecl::setContextForChildrenImpl(ParameterDecl node) {
     commonSetContextForChildren(node, ContextChangeType::keepContext);
 }
 
-Type ParameterDecl::computeTypeImpl2(ParameterDecl node) {
+Type ParameterDecl::computeTypeImpl(ParameterDecl node) {
     NodeHandle typeNode = node.typeNode();
     const Location& loc = node.location();
 
@@ -986,7 +979,7 @@ Type ParameterDecl::computeTypeImpl2(ParameterDecl node) {
     return resultingParam.type();
 }
 
-NodeHandle ParameterDecl::semanticCheckImpl2(ParameterDecl node) {
+NodeHandle ParameterDecl::semanticCheckImpl(ParameterDecl node) {
     if (!node.computeType())
         return {};
 
@@ -999,21 +992,20 @@ NodeHandle ParameterDecl::semanticCheckImpl2(ParameterDecl node) {
     return node.explanation();
 }
 
-DEFINE_NODE_COMMON_IMPL(ConceptDecl, DeclNode, nkSparrowDeclSprConcept)
+DEFINE_NODE_COMMON_IMPL(ConceptDecl, DeclNode)
 
 ConceptDecl ConceptDecl::create(const Location& loc, StringRef name, StringRef paramName,
         NodeHandle baseConcept, NodeHandle ifClause) {
-    auto res = createDeclNode<ConceptDecl>(
-            nkSparrowDeclSprConcept, loc, name, NodeRange({baseConcept, ifClause, nullptr}));
+    auto res = createDeclNode<ConceptDecl>(loc, name, NodeRange({baseConcept, ifClause, nullptr}));
     res.setProperty("spr.paramName", paramName);
     return res;
 }
 
-void ConceptDecl::setContextForChildrenImpl2(ConceptDecl node) {
+void ConceptDecl::setContextForChildrenImpl(ConceptDecl node) {
     commonSetContextForChildren(node, ContextChangeType::withSymTab);
 }
 
-NodeHandle ConceptDecl::semanticCheckImpl2(ConceptDecl node) {
+NodeHandle ConceptDecl::semanticCheckImpl(ConceptDecl node) {
     NodeHandle baseConcept = node.baseConcept();
     NodeHandle ifClause = node.ifClause();
     StringRef paramName = node.paramName();

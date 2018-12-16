@@ -184,15 +184,13 @@ struct NodeHandle {
 
 protected:
     // NodeHandle semanticCheckImpl();  // doesn't have a default
+
     //! Default handler for computing the type of this node.
-    Type computeTypeImpl();
+    static Type computeTypeImpl(NodeHandle node);
     //! Default handler for setting the context for children
-    void setContextForChildrenImpl();
+    static void setContextForChildrenImpl(NodeHandle node);
     //! Default handler for transforming this into a string
-    const char* toStringImpl();
-    static Type computeTypeImpl2(NodeHandle node);
-    static void setContextForChildrenImpl2(NodeHandle node);
-    static const char* toStringImpl2(NodeHandle node);
+    static const char* toStringImpl(NodeHandle node);
 
     //! Called to the set the type for this node
     void setType(Type t);

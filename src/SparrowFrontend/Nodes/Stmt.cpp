@@ -13,18 +13,17 @@
 
 namespace SprFrontend {
 
-DEFINE_NODE_COMMON_IMPL(ForStmt, NodeHandle, nkSparrowStmtFor)
+DEFINE_NODE_COMMON_IMPL(ForStmt, NodeHandle)
 
 ForStmt ForStmt::create(const Location& loc, StringRef name, NodeHandle typeNode, NodeHandle range,
         NodeHandle action) {
     REQUIRE_NODE(loc, range);
-    auto res =
-            Nest::createNode<ForStmt>(nkSparrowStmtFor, loc, NodeRange({range, action, typeNode}));
+    auto res = Nest::createNode<ForStmt>(loc, NodeRange({range, action, typeNode}));
     res.setProperty("name", name);
     return res;
 }
 
-void ForStmt::setContextForChildrenImpl2(ForStmt node) {
+void ForStmt::setContextForChildrenImpl(ForStmt node) {
     NodeHandle range = node.range();
     NodeHandle action = node.action();
     NodeHandle typeNode = node.typeNode();
@@ -41,11 +40,11 @@ void ForStmt::setContextForChildrenImpl2(ForStmt node) {
         action.setContext(ctx);
 }
 
-Type ForStmt::computeTypeImpl2(ForStmt node) {
+Type ForStmt::computeTypeImpl(ForStmt node) {
     return Feather::VoidType::get(node.context()->evalMode);
 }
 
-NodeHandle ForStmt::semanticCheckImpl2(ForStmt node) {
+NodeHandle ForStmt::semanticCheckImpl(ForStmt node) {
     NodeHandle range = node.range();
     NodeHandle action = node.action();
     NodeHandle typeNode = node.typeNode();
@@ -114,13 +113,13 @@ NodeHandle ForStmt::semanticCheckImpl2(ForStmt node) {
     return Feather::LocalSpace::create(node.location(), NodeRange({rangeVar, whileStmt}));
 }
 
-DEFINE_NODE_COMMON_IMPL(ReturnStmt, NodeHandle, nkSparrowStmtSprReturn)
+DEFINE_NODE_COMMON_IMPL(ReturnStmt, NodeHandle)
 
 ReturnStmt ReturnStmt::create(const Location& loc, NodeHandle exp) {
-    return Nest::createNode<ReturnStmt>(nkSparrowStmtSprReturn, loc, NodeRange({exp}));
+    return Nest::createNode<ReturnStmt>(loc, NodeRange({exp}));
 }
 
-NodeHandle ReturnStmt::semanticCheckImpl2(ReturnStmt node) {
+NodeHandle ReturnStmt::semanticCheckImpl(ReturnStmt node) {
     auto exp = node.exp();
 
     // Get the parent function of this return

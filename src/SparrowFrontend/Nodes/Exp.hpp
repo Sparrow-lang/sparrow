@@ -51,7 +51,7 @@ struct Literal : NodeHandle {
     bool isString() const;
 
 private:
-    static NodeHandle semanticCheckImpl2(Literal node);
+    static NodeHandle semanticCheckImpl(Literal node);
 };
 
 /**
@@ -85,7 +85,7 @@ struct Identifier : NodeHandle {
     StringRef name() const { return getCheckPropertyString("name"); };
 
 private:
-    static NodeHandle semanticCheckImpl2(Identifier node);
+    static NodeHandle semanticCheckImpl(Identifier node);
 };
 
 /**
@@ -119,8 +119,8 @@ struct CompoundExp : NodeHandle {
     StringRef name() const { return getCheckPropertyString("name"); };
 
 private:
-    static NodeHandle semanticCheckImpl2(CompoundExp node);
-    static const char* toStringImpl2(CompoundExp node);
+    static NodeHandle semanticCheckImpl(CompoundExp node);
+    static const char* toStringImpl(CompoundExp node);
 };
 
 /**
@@ -169,7 +169,7 @@ struct FunApplication : NodeHandle {
     NodeList arguments() const { return NodeList(children()[1]); };
 
 private:
-    static NodeHandle semanticCheckImpl2(FunApplication node);
+    static NodeHandle semanticCheckImpl(FunApplication node);
 };
 
 /**
@@ -219,7 +219,7 @@ struct OperatorCall : NodeHandle {
     StringRef oper() const { return getCheckPropertyString(propSprOperation); };
 
 private:
-    static NodeHandle semanticCheckImpl2(OperatorCall node);
+    static NodeHandle semanticCheckImpl(OperatorCall node);
 };
 
 /**
@@ -263,7 +263,7 @@ struct InfixOp : NodeHandle {
     StringRef oper() const { return getCheckPropertyString(propSprOperation); };
 
 private:
-    static NodeHandle semanticCheckImpl2(InfixOp node);
+    static NodeHandle semanticCheckImpl(InfixOp node);
 };
 
 /**
@@ -330,7 +330,7 @@ struct LambdaExp : NodeHandle {
     NodeList closureParams() const { return NodeList(referredNodes()[3]); };
 
 private:
-    static NodeHandle semanticCheckImpl2(LambdaExp node);
+    static NodeHandle semanticCheckImpl(LambdaExp node);
 };
 
 /**
@@ -374,7 +374,7 @@ struct ConditionalExp : NodeHandle {
     NodeHandle alt2() const { return children()[2]; };
 
 private:
-    static NodeHandle semanticCheckImpl2(ConditionalExp node);
+    static NodeHandle semanticCheckImpl(ConditionalExp node);
 };
 
 /**
@@ -410,7 +410,7 @@ struct DeclExp : NodeHandle {
     NodeRange referredDecls() const;
 
 private:
-    static NodeHandle semanticCheckImpl2(DeclExp node);
+    static NodeHandle semanticCheckImpl(DeclExp node);
 };
 
 /**
@@ -446,7 +446,7 @@ struct StarExp : NodeHandle {
     // StringRef oper() const { return children()[0]; };
 
 private:
-    static NodeHandle semanticCheckImpl2(StarExp node);
+    static NodeHandle semanticCheckImpl(StarExp node);
 };
 
 } // namespace SprFrontend

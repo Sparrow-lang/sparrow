@@ -70,9 +70,9 @@ struct ForStmt : NodeHandle {
     NodeHandle action() const { return children()[1]; };
 
 private:
-    static void setContextForChildrenImpl2(ForStmt node);
-    static Type computeTypeImpl2(ForStmt node);
-    static NodeHandle semanticCheckImpl2(ForStmt node);
+    static void setContextForChildrenImpl(ForStmt node);
+    static Type computeTypeImpl(ForStmt node);
+    static NodeHandle semanticCheckImpl(ForStmt node);
 };
 
 /**
@@ -106,7 +106,7 @@ struct ReturnStmt : NodeHandle {
     NodeHandle exp() const { return children()[0]; };
 
 private:
-    static NodeHandle semanticCheckImpl2(ReturnStmt node);
+    static NodeHandle semanticCheckImpl(ReturnStmt node);
 };
 
 } // namespace SprFrontend

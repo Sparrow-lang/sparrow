@@ -3,6 +3,7 @@
 #include "FeatherTypes.hpp"
 #include "Feather/Api/Feather.h"
 #include "Nest/Utils/cppif/NodeHandle.hpp"
+#include "Nest/Utils/cppif/NodeHelpers.hpp"
 
 namespace Feather {
 
@@ -20,8 +21,7 @@ using Nest::TypeWithStorage;
  * Has a type of Void. Doesn't have any properties and doesn't check anything.
  */
 struct Nop : NodeHandle {
-    //! Register this node kind
-    static int registerNodeKind();
+    DECLARE_NODE_COMMON(Nop)
 
     /**
      * @brief      Creates a Nop node
@@ -32,11 +32,8 @@ struct Nop : NodeHandle {
      */
     static Nop create(const Location& loc);
 
-    Nop() = default;
-    Nop(Node* n);
-
 private:
-    NodeHandle semanticCheckImpl();
+    static NodeHandle semanticCheckImpl(ThisNodeType node);
 };
 
 /**
@@ -45,8 +42,7 @@ private:
  * This node just returns the given type.
  */
 struct TypeNode : NodeHandle {
-    //! Register this node kind
-    static int registerNodeKind();
+    DECLARE_NODE_COMMON(TypeNode)
 
     /**
      * @brief      Creates a TypeNode node
@@ -58,15 +54,12 @@ struct TypeNode : NodeHandle {
      */
     static TypeNode create(const Location& loc, Type type);
 
-    TypeNode() = default;
-    TypeNode(Node* n);
-
     //! Returns the type given when created the node
     Type givenType() const;
 
 private:
-    NodeHandle semanticCheckImpl();
-    const char* toStringImpl();
+    static NodeHandle semanticCheckImpl(ThisNodeType node);
+    static const char* toStringImpl(ThisNodeType node);
 };
 
 /**
@@ -75,8 +68,7 @@ private:
  * This node just returns the given type.
  */
 struct BackendCode : NodeHandle {
-    //! Register this node kind
-    static int registerNodeKind();
+    DECLARE_NODE_COMMON(BackendCode)
 
     /**
      * @brief      Creates a BackendCode node
@@ -89,9 +81,6 @@ struct BackendCode : NodeHandle {
      */
     static BackendCode create(const Location& loc, StringRef code, EvalMode mode);
 
-    BackendCode() = default;
-    BackendCode(Node* n);
-
     //! Returns the code for this node
     StringRef code() const;
 
@@ -99,8 +88,8 @@ struct BackendCode : NodeHandle {
     EvalMode mode() const;
 
 private:
-    NodeHandle semanticCheckImpl();
-    const char* toStringImpl();
+    static NodeHandle semanticCheckImpl(ThisNodeType node);
+    static const char* toStringImpl(ThisNodeType node);
 };
 
 /**
@@ -114,8 +103,7 @@ private:
  * If no children is given to this, it will have the type Void (with the mode of the context).
  */
 struct NodeList : NodeHandle {
-    //! Register this node kind
-    static int registerNodeKind();
+    DECLARE_NODE_COMMON(NodeList)
 
     /**
      * @brief      Creates a NodeList node from the given parameters
@@ -159,15 +147,12 @@ struct NodeList : NodeHandle {
      */
     static NodeList append(NodeList prev, NodeList newNodes);
 
-    NodeList() = default;
-    NodeList(Node* n);
-
     //! The flag whether we yield a Void type regardless of the children.
     bool returnsVoid() const;
 
 private:
-    Type computeTypeImpl();
-    NodeHandle semanticCheckImpl();
+    static Type computeTypeImpl(ThisNodeType node);
+    static NodeHandle semanticCheckImpl(ThisNodeType node);
 };
 
 /**
@@ -179,8 +164,7 @@ private:
  * We can have zero instructions in a LocalSpace (although this is useless)
  */
 struct LocalSpace : NodeHandle {
-    //! Register this node kind
-    static int registerNodeKind();
+    DECLARE_NODE_COMMON(LocalSpace)
 
     /**
      * @brief      Creates a LocalSpace node from the given parameters
@@ -192,13 +176,10 @@ struct LocalSpace : NodeHandle {
      */
     static LocalSpace create(const Location& loc, NodeRange children);
 
-    LocalSpace() = default;
-    LocalSpace(Node* n);
-
 private:
-    void setContextForChildrenImpl();
-    Type computeTypeImpl();
-    NodeHandle semanticCheckImpl();
+    static void setContextForChildrenImpl(ThisNodeType node);
+    static Type computeTypeImpl(ThisNodeType node);
+    static NodeHandle semanticCheckImpl(ThisNodeType node);
 };
 
 /**
@@ -212,8 +193,7 @@ private:
  * The type of this node will be Void.
  */
 struct GlobalConstructAction : NodeHandle {
-    //! Register this node kind
-    static int registerNodeKind();
+    DECLARE_NODE_COMMON(GlobalConstructAction)
 
     /**
      * @brief      Creates a GlobalConstructAction node from the given parameters
@@ -225,14 +205,11 @@ struct GlobalConstructAction : NodeHandle {
      */
     static GlobalConstructAction create(const Location& loc, NodeHandle action);
 
-    GlobalConstructAction() = default;
-    GlobalConstructAction(Node* n);
-
     //! Gets the action to be called
     NodeHandle action() const;
 
 private:
-    NodeHandle semanticCheckImpl();
+    static NodeHandle semanticCheckImpl(ThisNodeType node);
 };
 
 /**
@@ -246,8 +223,7 @@ private:
  * The type of this node will be Void.
  */
 struct GlobalDestructAction : NodeHandle {
-    //! Register this node kind
-    static int registerNodeKind();
+    DECLARE_NODE_COMMON(GlobalDestructAction)
 
     /**
      * @brief      Creates a GlobalDestructAction node from the given parameters
@@ -259,14 +235,11 @@ struct GlobalDestructAction : NodeHandle {
      */
     static GlobalDestructAction create(const Location& loc, NodeHandle action);
 
-    GlobalDestructAction() = default;
-    GlobalDestructAction(Node* n);
-
     //! Gets the action to be called
     NodeHandle action() const;
 
 private:
-    NodeHandle semanticCheckImpl();
+    static NodeHandle semanticCheckImpl(ThisNodeType node);
 };
 
 /**
@@ -278,8 +251,7 @@ private:
  * The type of this node will be Void.
  */
 struct ScopeDestructAction : NodeHandle {
-    //! Register this node kind
-    static int registerNodeKind();
+    DECLARE_NODE_COMMON(ScopeDestructAction)
 
     /**
      * @brief      Creates a ScopeDestructAction node from the given parameters
@@ -291,14 +263,11 @@ struct ScopeDestructAction : NodeHandle {
      */
     static ScopeDestructAction create(const Location& loc, NodeHandle action);
 
-    ScopeDestructAction() = default;
-    ScopeDestructAction(Node* n);
-
     //! Gets the action to be called
     NodeHandle action() const;
 
 private:
-    NodeHandle semanticCheckImpl();
+    static NodeHandle semanticCheckImpl(ThisNodeType node);
 };
 
 /**
@@ -310,8 +279,7 @@ private:
  * The type of this node will be Void.
  */
 struct TempDestructAction : NodeHandle {
-    //! Register this node kind
-    static int registerNodeKind();
+    DECLARE_NODE_COMMON(TempDestructAction)
 
     /**
      * @brief      Creates a TempDestructAction node from the given parameters
@@ -323,14 +291,11 @@ struct TempDestructAction : NodeHandle {
      */
     static TempDestructAction create(const Location& loc, NodeHandle action);
 
-    TempDestructAction() = default;
-    TempDestructAction(Node* n);
-
     //! Gets the action to be called
     NodeHandle action() const;
 
 private:
-    NodeHandle semanticCheckImpl();
+    static NodeHandle semanticCheckImpl(ThisNodeType node);
 };
 
 /**
@@ -341,8 +306,7 @@ private:
  * The type of this node will be Void.
  */
 struct ChangeMode : NodeHandle {
-    //! Register this node kind
-    static int registerNodeKind();
+    DECLARE_NODE_COMMON(ChangeMode)
 
     /**
      * @brief      Creates a ChangeMode node from the given parameters
@@ -355,9 +319,6 @@ struct ChangeMode : NodeHandle {
      */
     static ChangeMode create(const Location& loc, NodeHandle child, EvalMode mode);
 
-    ChangeMode() = default;
-    ChangeMode(Node* n);
-
     //! Gets the child to change the node for
     NodeHandle child() const;
 
@@ -369,9 +330,9 @@ struct ChangeMode : NodeHandle {
     void setChild(NodeHandle child);
 
 private:
-    void setContextForChildrenImpl();
-    NodeHandle semanticCheckImpl();
-    const char* toStringImpl();
+    static void setContextForChildrenImpl(ThisNodeType node);
+    static NodeHandle semanticCheckImpl(ThisNodeType node);
+    static const char* toStringImpl(ThisNodeType node);
 };
 
 /**
@@ -410,8 +371,7 @@ struct DeclNode : NodeHandle {
  * The type of this node will be a FunctionType.
  */
 struct FunctionDecl : DeclNode {
-    //! Register this node kind
-    static int registerNodeKind();
+    DECLARE_NODE_COMMON(FunctionDecl)
 
     /**
      * @brief      Creates a FunctionDecl node
@@ -426,9 +386,6 @@ struct FunctionDecl : DeclNode {
      */
     static FunctionDecl create(const Location& loc, StringRef name, NodeHandle resType,
             NodeRange params, NodeHandle body);
-
-    FunctionDecl() = default;
-    FunctionDecl(Node* n);
 
     //! Gets the result type node for the function
     NodeHandle resTypeNode() const;
@@ -463,10 +420,10 @@ struct FunctionDecl : DeclNode {
     FunctionType type() const { return FunctionType(DeclNode::type()); }
 
 private:
-    void setContextForChildrenImpl();
-    Type computeTypeImpl();
-    NodeHandle semanticCheckImpl();
-    const char* toStringImpl();
+    static void setContextForChildrenImpl(ThisNodeType node);
+    static Type computeTypeImpl(ThisNodeType node);
+    static NodeHandle semanticCheckImpl(ThisNodeType node);
+    static const char* toStringImpl(ThisNodeType node);
 };
 
 /**
@@ -477,8 +434,7 @@ private:
  * The type of this node will be a DataType.
  */
 struct StructDecl : DeclNode {
-    //! Register this node kind
-    static int registerNodeKind();
+    DECLARE_NODE_COMMON(StructDecl)
 
     /**
      * @brief      Creates a struct node
@@ -491,9 +447,6 @@ struct StructDecl : DeclNode {
      */
     static StructDecl create(const Location& loc, StringRef name, NodeRange fields);
 
-    StructDecl() = default;
-    StructDecl(Node* n);
-
     //! Gets the fields of this struct
     NodeRange fields() const;
 
@@ -501,9 +454,9 @@ struct StructDecl : DeclNode {
     DataType type() const { return DataType(DeclNode::type()); }
 
 private:
-    void setContextForChildrenImpl();
-    Type computeTypeImpl();
-    NodeHandle semanticCheckImpl();
+    static void setContextForChildrenImpl(ThisNodeType node);
+    static Type computeTypeImpl(ThisNodeType node);
+    static NodeHandle semanticCheckImpl(ThisNodeType node);
 };
 
 /**
@@ -518,8 +471,7 @@ private:
  * The type of this node will be the type of the variable.
  */
 struct VarDecl : DeclNode {
-    //! Register this node kind
-    static int registerNodeKind();
+    DECLARE_NODE_COMMON(VarDecl)
 
     /**
      * @brief      Creates a variable node
@@ -532,9 +484,6 @@ struct VarDecl : DeclNode {
      */
     static VarDecl create(const Location& loc, StringRef name, NodeHandle typeNode);
 
-    VarDecl() = default;
-    VarDecl(Node* n);
-
     //! Gets the type node of the variable
     NodeHandle typeNode() const;
 
@@ -542,9 +491,9 @@ struct VarDecl : DeclNode {
     TypeWithStorage type() const { return TypeWithStorage(DeclNode::type()); }
 
 private:
-    void setContextForChildrenImpl();
-    Type computeTypeImpl();
-    NodeHandle semanticCheckImpl();
+    static void setContextForChildrenImpl(ThisNodeType node);
+    static Type computeTypeImpl(ThisNodeType node);
+    static NodeHandle semanticCheckImpl(ThisNodeType node);
 };
 
 /**
@@ -562,8 +511,7 @@ private:
  *     - output type is CT
  */
 struct CtValueExp : NodeHandle {
-    //! Register this node kind
-    static int registerNodeKind();
+    DECLARE_NODE_COMMON(CtValueExp)
 
     /**
      * @brief      Creates a CTValueExp node
@@ -576,9 +524,6 @@ struct CtValueExp : NodeHandle {
      */
     static CtValueExp create(const Location& loc, TypeWithStorage type, StringRef data);
 
-    CtValueExp() = default;
-    CtValueExp(Node* n);
-
     //! Gets the type of this value
     TypeWithStorage valueType() const;
 
@@ -586,7 +531,7 @@ struct CtValueExp : NodeHandle {
     StringRef valueData() const;
 
 private:
-    NodeHandle semanticCheckImpl();
+    static NodeHandle semanticCheckImpl(ThisNodeType node);
     const char* toString();
 };
 
@@ -604,8 +549,7 @@ private:
  *     - the type of the node matches the type of the given node (ignoring mode)
  */
 struct NullExp : NodeHandle {
-    //! Register this node kind
-    static int registerNodeKind();
+    DECLARE_NODE_COMMON(NullExp)
 
     /**
      * @brief      Creates a null expression node
@@ -617,15 +561,12 @@ struct NullExp : NodeHandle {
      */
     static NullExp create(const Location& loc, NodeHandle typeNode);
 
-    NullExp() = default;
-    NullExp(Node* n);
-
     //! Gets the type node
     NodeHandle typeNode() const;
 
 private:
-    NodeHandle semanticCheckImpl();
-    const char* toStringImpl();
+    static NodeHandle semanticCheckImpl(ThisNodeType node);
+    static const char* toStringImpl(ThisNodeType node);
 };
 
 /**
@@ -642,8 +583,7 @@ private:
  *     - the resulting type will be a Mutable of the type of the var
  */
 struct VarRefExp : NodeHandle {
-    //! Register this node kind
-    static int registerNodeKind();
+    DECLARE_NODE_COMMON(VarRefExp)
 
     /**
      * @brief      Creates a variable reference node
@@ -655,15 +595,12 @@ struct VarRefExp : NodeHandle {
      */
     static VarRefExp create(const Location& loc, VarDecl varDecl);
 
-    VarRefExp() = default;
-    VarRefExp(Node* n);
-
     //! Get the variable declaration that this wants to access
     VarDecl varDecl() const;
 
 private:
-    NodeHandle semanticCheckImpl();
-    const char* toStringImpl();
+    static NodeHandle semanticCheckImpl(ThisNodeType node);
+    static const char* toStringImpl(ThisNodeType node);
 };
 
 /**
@@ -674,8 +611,7 @@ private:
  * reference to the field data.
  */
 struct FieldRefExp : NodeHandle {
-    //! Register this node kind
-    static int registerNodeKind();
+    DECLARE_NODE_COMMON(FieldRefExp)
 
     /**
      * @brief      Creates a field reference node
@@ -688,9 +624,6 @@ struct FieldRefExp : NodeHandle {
      */
     static FieldRefExp create(const Location& loc, NodeHandle obj, VarDecl fieldDecl);
 
-    FieldRefExp() = default;
-    FieldRefExp(Node* n);
-
     //! Gets the object node
     NodeHandle object() const;
 
@@ -698,8 +631,8 @@ struct FieldRefExp : NodeHandle {
     VarDecl fieldDecl() const;
 
 private:
-    NodeHandle semanticCheckImpl();
-    const char* toStringImpl();
+    static NodeHandle semanticCheckImpl(ThisNodeType node);
+    static const char* toStringImpl(ThisNodeType node);
 };
 
 /**
@@ -716,8 +649,7 @@ private:
  *              the result type given to this expression.
  */
 struct FunRefExp : NodeHandle {
-    //! Register this node kind
-    static int registerNodeKind();
+    DECLARE_NODE_COMMON(FunRefExp)
 
     /**
      * @brief      Creates a function reference node
@@ -730,9 +662,6 @@ struct FunRefExp : NodeHandle {
      */
     static FunRefExp create(const Location& loc, FunctionDecl funDecl, NodeHandle resType);
 
-    FunRefExp() = default;
-    FunRefExp(Node* n);
-
     //! Get the function declaration we are referring to
     FunctionDecl funDecl() const;
 
@@ -740,8 +669,8 @@ struct FunRefExp : NodeHandle {
     NodeHandle resTypeNode() const;
 
 private:
-    NodeHandle semanticCheckImpl();
-    const char* toStringImpl();
+    static NodeHandle semanticCheckImpl(ThisNodeType node);
+    static const char* toStringImpl(ThisNodeType node);
 };
 
 /**
@@ -758,8 +687,7 @@ private:
  *     - if some of the args are RT, then the result type should be RT
  */
 struct FunCallExp : NodeHandle {
-    //! Register this node kind
-    static int registerNodeKind();
+    DECLARE_NODE_COMMON(FunCallExp)
 
     /**
      * @brief      Creates a function call node
@@ -772,9 +700,6 @@ struct FunCallExp : NodeHandle {
      */
     static FunCallExp create(const Location& loc, FunctionDecl funDecl, NodeRange args);
 
-    FunCallExp() = default;
-    FunCallExp(Node* n);
-
     //! Get the function declaration we are referring to
     FunctionDecl funDecl() const;
 
@@ -782,8 +707,8 @@ struct FunCallExp : NodeHandle {
     NodeRange arguments() const;
 
 private:
-    NodeHandle semanticCheckImpl();
-    const char* toStringImpl();
+    static NodeHandle semanticCheckImpl(ThisNodeType node);
+    static const char* toStringImpl(ThisNodeType node);
 };
 
 /**
@@ -798,8 +723,7 @@ private:
  *     - the resulting type will not be a category type
  */
 struct MemLoadExp : NodeHandle {
-    //! Register this node kind
-    static int registerNodeKind();
+    DECLARE_NODE_COMMON(MemLoadExp)
 
     /**
      * @brief      Creates a mem load node
@@ -811,14 +735,11 @@ struct MemLoadExp : NodeHandle {
      */
     static MemLoadExp create(const Location& loc, NodeHandle address);
 
-    MemLoadExp() = default;
-    MemLoadExp(Node* n);
-
     //! Get the expression we want this node to dereference
     NodeHandle address() const;
 
 private:
-    NodeHandle semanticCheckImpl();
+    static NodeHandle semanticCheckImpl(ThisNodeType node);
 };
 
 /**
@@ -837,8 +758,7 @@ private:
  *     - the resulting type will be Void (adjusted to context)
  */
 struct MemStoreExp : NodeHandle {
-    //! Register this node kind
-    static int registerNodeKind();
+    DECLARE_NODE_COMMON(MemStoreExp)
 
     /**
      * @brief      Creates a mem store node
@@ -851,16 +771,13 @@ struct MemStoreExp : NodeHandle {
      */
     static MemStoreExp create(const Location& loc, NodeHandle value, NodeHandle address);
 
-    MemStoreExp() = default;
-    MemStoreExp(Node* n);
-
     //! Get the value we want to store at the given address
     NodeHandle value() const;
     //! Get the address we are storing into
     NodeHandle address() const;
 
 private:
-    NodeHandle semanticCheckImpl();
+    static NodeHandle semanticCheckImpl(ThisNodeType node);
 };
 
 /**
@@ -878,8 +795,7 @@ private:
  *     - the resulting type will be type(destType) (adjusted to context)
  */
 struct BitcastExp : NodeHandle {
-    //! Register this node kind
-    static int registerNodeKind();
+    DECLARE_NODE_COMMON(BitcastExp)
 
     /**
      * @brief      Creates a bitcast node
@@ -892,17 +808,14 @@ struct BitcastExp : NodeHandle {
      */
     static BitcastExp create(const Location& loc, NodeHandle destType, NodeHandle exp);
 
-    BitcastExp() = default;
-    BitcastExp(Node* n);
-
     //! Get the value we want to store at the given address
     NodeHandle destTypeNode() const;
     //! Get the expression we want to change the type
     NodeHandle expression() const;
 
 private:
-    NodeHandle semanticCheckImpl();
-    const char* toStringImpl();
+    static NodeHandle semanticCheckImpl(ThisNodeType node);
+    static const char* toStringImpl(ThisNodeType node);
 };
 
 /**
@@ -920,8 +833,7 @@ private:
  *     - the resulting type will be type(alt1) (possible with a different mode)
  */
 struct ConditionalExp : NodeHandle {
-    //! Register this node kind
-    static int registerNodeKind();
+    DECLARE_NODE_COMMON(ConditionalExp)
 
     /**
      * @brief      Creates a conditional node
@@ -936,9 +848,6 @@ struct ConditionalExp : NodeHandle {
     static ConditionalExp create(
             const Location& loc, NodeHandle cond, NodeHandle alt1, NodeHandle alt2);
 
-    ConditionalExp() = default;
-    ConditionalExp(Node* n);
-
     //! Get the condition node
     NodeHandle condition() const;
     //! Get the first alternative node
@@ -947,7 +856,7 @@ struct ConditionalExp : NodeHandle {
     NodeHandle alt2() const;
 
 private:
-    NodeHandle semanticCheckImpl();
+    static NodeHandle semanticCheckImpl(ThisNodeType node);
 };
 
 /**
@@ -956,8 +865,7 @@ private:
  * TODO
  */
 struct IfStmt : NodeHandle {
-    //! Register this node kind
-    static int registerNodeKind();
+    DECLARE_NODE_COMMON(IfStmt)
 
     /**
      * @brief      Creates a if statement node
@@ -971,9 +879,6 @@ struct IfStmt : NodeHandle {
      */
     static IfStmt create(const Location& loc, NodeHandle cond, NodeHandle thenC, NodeHandle elseC);
 
-    IfStmt() = default;
-    IfStmt(Node* n);
-
     //! Get the condition node
     NodeHandle condition() const;
     //! Get the 'then' clause node
@@ -982,8 +887,8 @@ struct IfStmt : NodeHandle {
     NodeHandle elseClause() const;
 
 private:
-    void setContextForChildrenImpl();
-    NodeHandle semanticCheckImpl();
+    static void setContextForChildrenImpl(ThisNodeType node);
+    static NodeHandle semanticCheckImpl(ThisNodeType node);
 };
 
 /**
@@ -992,8 +897,7 @@ private:
  * TODO
  */
 struct WhileStmt : NodeHandle {
-    //! Register this node kind
-    static int registerNodeKind();
+    DECLARE_NODE_COMMON(WhileStmt)
 
     /**
      * @brief      Creates a while statement node
@@ -1007,9 +911,6 @@ struct WhileStmt : NodeHandle {
      */
     static WhileStmt create(const Location& loc, NodeHandle cond, NodeHandle body, NodeHandle step);
 
-    WhileStmt() = default;
-    WhileStmt(Node* n);
-
     //! Get the condition node
     NodeHandle condition() const;
     //! Get the body of the while loop
@@ -1018,8 +919,8 @@ struct WhileStmt : NodeHandle {
     NodeHandle step() const;
 
 private:
-    void setContextForChildrenImpl();
-    NodeHandle semanticCheckImpl();
+    static void setContextForChildrenImpl(ThisNodeType node);
+    static NodeHandle semanticCheckImpl(ThisNodeType node);
 };
 
 /**
@@ -1028,8 +929,7 @@ private:
  * TODO
  */
 struct BreakStmt : NodeHandle {
-    //! Register this node kind
-    static int registerNodeKind();
+    DECLARE_NODE_COMMON(BreakStmt)
 
     /**
      * @brief      Creates a break statement node
@@ -1040,11 +940,8 @@ struct BreakStmt : NodeHandle {
      */
     static BreakStmt create(const Location& loc);
 
-    BreakStmt() = default;
-    BreakStmt(Node* n);
-
 private:
-    NodeHandle semanticCheckImpl();
+    static NodeHandle semanticCheckImpl(ThisNodeType node);
 };
 
 /**
@@ -1053,8 +950,7 @@ private:
  * TODO
  */
 struct ContinueStmt : NodeHandle {
-    //! Register this node kind
-    static int registerNodeKind();
+    DECLARE_NODE_COMMON(ContinueStmt)
 
     /**
      * @brief      Creates a continue statement node
@@ -1065,11 +961,8 @@ struct ContinueStmt : NodeHandle {
      */
     static ContinueStmt create(const Location& loc);
 
-    ContinueStmt() = default;
-    ContinueStmt(Node* n);
-
 private:
-    NodeHandle semanticCheckImpl();
+    static NodeHandle semanticCheckImpl(ThisNodeType node);
 };
 
 /**
@@ -1078,8 +971,7 @@ private:
  * TODO
  */
 struct ReturnStmt : NodeHandle {
-    //! Register this node kind
-    static int registerNodeKind();
+    DECLARE_NODE_COMMON(ReturnStmt)
 
     /**
      * @brief      Creates a return statement node
@@ -1091,14 +983,11 @@ struct ReturnStmt : NodeHandle {
      */
     static ReturnStmt create(const Location& loc, NodeHandle exp);
 
-    ReturnStmt() = default;
-    ReturnStmt(Node* n);
-
     //! Get the expression we are returning; can be null
     NodeHandle expression() const;
 
 private:
-    NodeHandle semanticCheckImpl();
+    static NodeHandle semanticCheckImpl(ThisNodeType node);
 };
 
 } // namespace Feather

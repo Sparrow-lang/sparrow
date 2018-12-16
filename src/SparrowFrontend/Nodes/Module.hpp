@@ -60,8 +60,8 @@ struct Module : Feather::DeclNode {
     NodeList decls() const { return NodeList(children()[1]); };
 
 private:
-    static void setContextForChildrenImpl2(Module node);
-    static NodeHandle semanticCheckImpl2(Module node);
+    static void setContextForChildrenImpl(Module node);
+    static NodeHandle semanticCheckImpl(Module node);
 };
 
 /**
@@ -119,9 +119,9 @@ struct ImportName : Feather::DeclNode {
     StringRef name() const { return getPropertyStringDeref("name"); };
 
 private:
-    static void setContextForChildrenImpl2(ImportName node);
-    static NodeHandle semanticCheckImpl2(ImportName node);
-    static const char* toStringImpl2(ImportName node);
+    static void setContextForChildrenImpl(ImportName node);
+    static NodeHandle semanticCheckImpl(ImportName node);
+    static const char* toStringImpl(ImportName node);
 };
 
 /**
@@ -153,7 +153,7 @@ struct ModuleRef : NodeHandle {
     NodeHandle moduleContent() const { return referredNodes()[0]; };
 
 private:
-    static NodeHandle semanticCheckImpl2(ModuleRef node);
+    static NodeHandle semanticCheckImpl(ModuleRef node);
 };
 
 } // namespace SprFrontend

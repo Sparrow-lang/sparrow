@@ -288,30 +288,18 @@ NodeRange NodeHandle::additionalNodes() const { return all(handle->additionalNod
 void NodeHandle::addAdditionalNode(NodeHandle node) {
     Nest_appendNodeToArray(&handle->additionalNodes, node);
 }
-Type NodeHandle::computeTypeImpl() {
-    semanticCheck();
-    return type();
-}
-void NodeHandle::setContextForChildrenImpl() {
-    // Set the children context to all of the children
-    CompilationContext* childrenCtx = childrenContext();
-    for (auto child : children())
-        if (child)
-            child.setContext(childrenCtx);
-}
-const char* NodeHandle::toStringImpl() { return Nest_defaultFunToString(handle); }
-Type NodeHandle::computeTypeImpl2(NodeHandle node) {
+Type NodeHandle::computeTypeImpl(NodeHandle node) {
     node.semanticCheck();
     return node.type();
 }
-void NodeHandle::setContextForChildrenImpl2(NodeHandle node) {
+void NodeHandle::setContextForChildrenImpl(NodeHandle node) {
     // Set the children context to all of the children
     CompilationContext* childrenCtx = node.childrenContext();
     for (auto child : node.children())
         if (child)
             child.setContext(childrenCtx);
 }
-const char* NodeHandle::toStringImpl2(NodeHandle node) { return Nest_defaultFunToString(node); }
+const char* NodeHandle::toStringImpl(NodeHandle node) { return Nest_defaultFunToString(node); }
 
 void NodeHandle::setType(Type t) { handle->type = t; }
 void NodeHandle::setExplanation(NodeHandle expl) { handle->explanation = expl; }

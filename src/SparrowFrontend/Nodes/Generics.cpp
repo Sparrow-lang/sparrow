@@ -13,15 +13,15 @@
 
 namespace SprFrontend {
 
-DEFINE_NODE_COMMON_IMPL(GenericPackage, DeclNode, nkSparrowDeclGenericPackage)
+DEFINE_NODE_COMMON_IMPL(GenericPackage, DeclNode)
 
 GenericPackage GenericPackage::create(
         PackageDecl original, NodeList parameters, NodeHandle ifClause) {
 
     auto instSet = InstantiationsSet::create(original, parameters.children(), ifClause);
 
-    auto res = Nest::createNode<GenericPackage>(nkSparrowDeclGenericPackage, original.location(),
-            NodeRange({instSet}), NodeRange({original}));
+    auto res = Nest::createNode<GenericPackage>(
+            original.location(), NodeRange({instSet}), NodeRange({original}));
 
     res.setNameAndMode(original.name(), original.effectiveMode());
     copyAccessType(res, original);
@@ -41,18 +41,18 @@ GenericPackage GenericPackage::create(
 
 InstantiationsSet GenericPackage::instSet() const { return InstantiationsSet(children()[0]); }
 
-NodeHandle GenericPackage::semanticCheckImpl2(GenericPackage node) {
+NodeHandle GenericPackage::semanticCheckImpl(GenericPackage node) {
     return Feather::Nop::create(node.location());
 }
 
-DEFINE_NODE_COMMON_IMPL(GenericDatatype, DeclNode, nkSparrowDeclGenericDatatype)
+DEFINE_NODE_COMMON_IMPL(GenericDatatype, DeclNode)
 
 GenericDatatype GenericDatatype::create(
         DataTypeDecl original, NodeList parameters, NodeHandle ifClause) {
     auto instSet = InstantiationsSet::create(original, parameters.children(), ifClause);
 
-    auto res = Nest::createNode<GenericDatatype>(nkSparrowDeclGenericDatatype, original.location(),
-            NodeRange({instSet}), NodeRange({original}));
+    auto res = Nest::createNode<GenericDatatype>(
+            original.location(), NodeRange({instSet}), NodeRange({original}));
     copyAccessType(res, original);
     res.setNameAndMode(original.name(), original.effectiveMode());
     res.addAdditionalNode(original);
@@ -71,11 +71,11 @@ GenericDatatype GenericDatatype::create(
 
 InstantiationsSet GenericDatatype::instSet() const { return InstantiationsSet(children()[0]); }
 
-NodeHandle GenericDatatype::semanticCheckImpl2(GenericDatatype node) {
+NodeHandle GenericDatatype::semanticCheckImpl(GenericDatatype node) {
     return Feather::Nop::create(node.location());
 }
 
-DEFINE_NODE_COMMON_IMPL(GenericFunction, DeclNode, nkSparrowDeclGenericFunction)
+DEFINE_NODE_COMMON_IMPL(GenericFunction, DeclNode)
 
 GenericFunction GenericFunction::create(
         SprFunctionDecl original, NodeRange params, NodeRange genericParams, NodeHandle ifClause) {
@@ -83,8 +83,8 @@ GenericFunction GenericFunction::create(
     auto instSet = InstantiationsSet::create(original, genericParams, ifClause);
     auto paramsNode = NodeList::create(loc, params, true);
 
-    auto res = Nest::createNode<GenericFunction>(nkSparrowDeclGenericFunction, loc,
-            NodeRange({instSet}), NodeRange({original, paramsNode}));
+    auto res = Nest::createNode<GenericFunction>(
+            loc, NodeRange({instSet}), NodeRange({original, paramsNode}));
 
     copyAccessType(res, original);
     res.setNameAndMode(original.name(), original.effectiveMode());
@@ -94,18 +94,17 @@ GenericFunction GenericFunction::create(
 
 InstantiationsSet GenericFunction::instSet() const { return InstantiationsSet(children()[0]); }
 
-NodeHandle GenericFunction::semanticCheckImpl2(GenericFunction node) {
+NodeHandle GenericFunction::semanticCheckImpl(GenericFunction node) {
     return Feather::Nop::create(node.location());
 }
 
-DEFINE_NODE_COMMON_IMPL(Instantiation, NodeHandle, nkSparrowInnerInstantiation)
+DEFINE_NODE_COMMON_IMPL(Instantiation, NodeHandle)
 
 Instantiation Instantiation::create(
         const Location& loc, NodeRange boundValues, NodeRange boundVars) {
 
     auto paramsNode = Feather::NodeList::create(loc, boundVars, true);
-    auto res = Nest::createNode<Instantiation>(
-            nkSparrowInnerInstantiation, loc, NodeRange({paramsNode}), boundValues);
+    auto res = Nest::createNode<Instantiation>(loc, NodeRange({paramsNode}), boundValues);
 
     res.setProperty("instIsValid", 0);
     res.setProperty("instIsEvaluated", 0);
@@ -114,25 +113,25 @@ Instantiation Instantiation::create(
     return res;
 }
 
-NodeHandle Instantiation::semanticCheckImpl2(Instantiation node) {
+NodeHandle Instantiation::semanticCheckImpl(Instantiation node) {
     return Feather::Nop::create(node.location());
 }
 
-DEFINE_NODE_COMMON_IMPL(InstantiationsSet, NodeHandle, nkSparrowInnerInstantiationsSet)
+DEFINE_NODE_COMMON_IMPL(InstantiationsSet, NodeHandle)
 
 InstantiationsSet InstantiationsSet::create(
         Feather::DeclNode parentNode, NodeRange params, NodeHandle ifClause) {
     const Location& loc = parentNode.location();
     auto instsNl = Feather::NodeList::create(loc, NodeRange{}, true);
     auto paramsNode = Feather::NodeList::create(loc, params, true);
-    auto res = Nest::createNode<InstantiationsSet>(nkSparrowInnerInstantiationsSet, loc,
-            NodeRange({ifClause, instsNl}), NodeRange({parentNode, paramsNode}));
+    auto res = Nest::createNode<InstantiationsSet>(
+            loc, NodeRange({ifClause, instsNl}), NodeRange({parentNode, paramsNode}));
     return res;
 }
 
 void InstantiationsSet::addInstantiation(Instantiation inst) { childrenM()[1].addChild(inst); }
 
-NodeHandle InstantiationsSet::semanticCheckImpl2(InstantiationsSet node) {
+NodeHandle InstantiationsSet::semanticCheckImpl(InstantiationsSet node) {
     return Feather::Nop::create(node.location());
 }
 

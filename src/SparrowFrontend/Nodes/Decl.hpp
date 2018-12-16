@@ -49,9 +49,9 @@ struct ModifiersNode : NodeHandle {
     NodeHandle mods() const { return children()[1]; };
 
 private:
-    static void setContextForChildrenImpl2(ModifiersNode node);
-    static Type computeTypeImpl2(ModifiersNode node);
-    static NodeHandle semanticCheckImpl2(ModifiersNode node);
+    static void setContextForChildrenImpl(ModifiersNode node);
+    static Type computeTypeImpl(ModifiersNode node);
+    static NodeHandle semanticCheckImpl(ModifiersNode node);
 };
 
 /**
@@ -100,9 +100,9 @@ struct UsingDecl : Feather::DeclNode {
     NodeHandle usedNode() const { return children()[0]; };
 
 private:
-    static void setContextForChildrenImpl2(UsingDecl node);
-    static Type computeTypeImpl2(UsingDecl node);
-    static NodeHandle semanticCheckImpl2(UsingDecl node);
+    static void setContextForChildrenImpl(UsingDecl node);
+    static Type computeTypeImpl(UsingDecl node);
+    static NodeHandle semanticCheckImpl(UsingDecl node);
 };
 
 /**
@@ -144,9 +144,9 @@ struct PackageDecl : Feather::DeclNode {
     NodeHandle ifClause() const { return children()[2]; };
 
 private:
-    static void setContextForChildrenImpl2(PackageDecl node);
-    static Type computeTypeImpl2(PackageDecl node);
-    static NodeHandle semanticCheckImpl2(PackageDecl node);
+    static void setContextForChildrenImpl(PackageDecl node);
+    static Type computeTypeImpl(PackageDecl node);
+    static NodeHandle semanticCheckImpl(PackageDecl node);
 };
 
 /**
@@ -203,9 +203,9 @@ struct VariableDecl : Feather::DeclNode {
     }
 
 private:
-    static void setContextForChildrenImpl2(VariableDecl node);
-    static Type computeTypeImpl2(VariableDecl node);
-    static NodeHandle semanticCheckImpl2(VariableDecl node);
+    static void setContextForChildrenImpl(VariableDecl node);
+    static Type computeTypeImpl(VariableDecl node);
+    static NodeHandle semanticCheckImpl(VariableDecl node);
 };
 
 /**
@@ -253,9 +253,9 @@ struct DataTypeDecl : Feather::DeclNode {
     NodeHandle ifClause() const { return children()[2]; };
 
 private:
-    static void setContextForChildrenImpl2(DataTypeDecl node);
-    static Type computeTypeImpl2(DataTypeDecl node);
-    static NodeHandle semanticCheckImpl2(DataTypeDecl node);
+    static void setContextForChildrenImpl(DataTypeDecl node);
+    static Type computeTypeImpl(DataTypeDecl node);
+    static NodeHandle semanticCheckImpl(DataTypeDecl node);
 };
 
 /**
@@ -289,9 +289,9 @@ struct FieldDecl : Feather::DeclNode {
     NodeHandle init() const { return children()[1]; };
 
 private:
-    static void setContextForChildrenImpl2(FieldDecl node);
-    static Type computeTypeImpl2(FieldDecl node);
-    static NodeHandle semanticCheckImpl2(FieldDecl node);
+    static void setContextForChildrenImpl(FieldDecl node);
+    static Type computeTypeImpl(FieldDecl node);
+    static NodeHandle semanticCheckImpl(FieldDecl node);
 };
 
 /**
@@ -341,9 +341,9 @@ struct SprFunctionDecl : Feather::DeclNode {
     NodeHandle ifClause() const { return children()[3]; };
 
 private:
-    static void setContextForChildrenImpl2(SprFunctionDecl node);
-    static Type computeTypeImpl2(SprFunctionDecl node);
-    static NodeHandle semanticCheckImpl2(SprFunctionDecl node);
+    static void setContextForChildrenImpl(SprFunctionDecl node);
+    static Type computeTypeImpl(SprFunctionDecl node);
+    static NodeHandle semanticCheckImpl(SprFunctionDecl node);
 };
 
 /**
@@ -401,9 +401,9 @@ struct ParameterDecl : Feather::DeclNode {
     NodeHandle init() const { return children()[1]; };
 
 private:
-    static void setContextForChildrenImpl2(ParameterDecl node);
-    static Type computeTypeImpl2(ParameterDecl node);
-    static NodeHandle semanticCheckImpl2(ParameterDecl node);
+    static void setContextForChildrenImpl(ParameterDecl node);
+    static Type computeTypeImpl(ParameterDecl node);
+    static NodeHandle semanticCheckImpl(ParameterDecl node);
 };
 
 /**
@@ -441,8 +441,8 @@ struct ConceptDecl : Feather::DeclNode {
     NodeHandle instantiationsSet() const { return children()[2]; };
 
 private:
-    static void setContextForChildrenImpl2(ConceptDecl node);
-    static NodeHandle semanticCheckImpl2(ConceptDecl node);
+    static void setContextForChildrenImpl(ConceptDecl node);
+    static NodeHandle semanticCheckImpl(ConceptDecl node);
 };
 
 } // namespace SprFrontend

@@ -201,13 +201,13 @@ Nest_SourceCode* addImportedSourceCode(
 }
 } // namespace
 
-DEFINE_NODE_COMMON_IMPL(Module, DeclNode, nkSparrowDeclModule)
+DEFINE_NODE_COMMON_IMPL(Module, DeclNode)
 
 Module Module::create(const Location& loc, NodeHandle moduleName, NodeList decls) {
-    return Nest::createNode<Module>(nkSparrowDeclModule, loc, NodeRange({moduleName, decls}));
+    return Nest::createNode<Module>(loc, NodeRange({moduleName, decls}));
 }
 
-void Module::setContextForChildrenImpl2(Module node) {
+void Module::setContextForChildrenImpl(Module node) {
     // Expand the module node
     // We need to do it before setting the context, as packages would change the context
     NodeHandle outerContent = expandModule(node);
@@ -218,24 +218,23 @@ void Module::setContextForChildrenImpl2(Module node) {
     outerContent.setContext(ctx);
 }
 
-NodeHandle Module::semanticCheckImpl2(Module node) {
+NodeHandle Module::semanticCheckImpl(Module node) {
     node.setType(Feather::VoidType::get(modeRt));
     return node.getCheckPropertyNode("spr.moduleOuterContent");
 }
 
-DEFINE_NODE_COMMON_IMPL(ImportName, DeclNode, nkSparrowDeclImportName)
+DEFINE_NODE_COMMON_IMPL(ImportName, DeclNode)
 
 ImportName ImportName::create(
         const Location& loc, NodeHandle moduleName, NodeList importedDeclNames, StringRef alias) {
     REQUIRE_NODE(loc, moduleName);
-    auto res = Nest::createNode<ImportName>(
-            nkSparrowDeclImportName, loc, NodeRange({moduleName, importedDeclNames}));
+    auto res = Nest::createNode<ImportName>(loc, NodeRange({moduleName, importedDeclNames}));
     if (alias)
         res.setProperty("name", alias);
     return res;
 }
 
-void ImportName::setContextForChildrenImpl2(ImportName node) {
+void ImportName::setContextForChildrenImpl(ImportName node) {
     // We add the imported source code here to make sure that source codes are
     // loaded in the order they appear. We make sure that some LLVM code will
     // be loaded in the compile-time environment asap.
@@ -260,10 +259,10 @@ void ImportName::setContextForChildrenImpl2(ImportName node) {
     // Make sure this node is compiled whenever we search the symbol table of the current context
     Nest_symTabAddToCheckNode(node.context()->currentSymTab, node);
 
-    DeclNode::setContextForChildrenImpl2(node);
+    DeclNode::setContextForChildrenImpl(node);
 }
 
-NodeHandle ImportName::semanticCheckImpl2(ImportName node) {
+NodeHandle ImportName::semanticCheckImpl(ImportName node) {
     NodeHandle moduleName = node.moduleName();
     NodeList declNames = node.importedDeclNames();
     StringRef alias = node.name();
@@ -336,7 +335,7 @@ NodeHandle ImportName::semanticCheckImpl2(ImportName node) {
 
     return content;
 }
-const char* ImportName::toStringImpl2(ImportName node) {
+const char* ImportName::toStringImpl(ImportName node) {
     auto moduleName = node.moduleName();
     auto declNames = node.importedDeclNames();
     StringRef alias = node.name();
@@ -349,15 +348,14 @@ const char* ImportName::toStringImpl2(ImportName node) {
     return dupString(os.str().c_str());
 }
 
-DEFINE_NODE_COMMON_IMPL(ModuleRef, NodeHandle, nkSparrowExpModuleRef)
+DEFINE_NODE_COMMON_IMPL(ModuleRef, NodeHandle)
 
 ModuleRef ModuleRef::create(const Location& loc, NodeHandle module) {
     REQUIRE_NODE(loc, module);
-    return Nest::createNode<ModuleRef>(
-            nkSparrowExpModuleRef, loc, NodeRange{}, NodeRange({module}));
+    return Nest::createNode<ModuleRef>(loc, NodeRange{}, NodeRange({module}));
 }
 
-NodeHandle ModuleRef::semanticCheckImpl2(ModuleRef node) {
+NodeHandle ModuleRef::semanticCheckImpl(ModuleRef node) {
     auto module = node.moduleContent();
     if (!module)
         return {};

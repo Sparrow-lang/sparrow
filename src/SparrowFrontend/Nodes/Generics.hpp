@@ -37,7 +37,7 @@ struct GenericPackage : Feather::DeclNode {
     PackageDecl original() const { return PackageDecl(referredNodes()[0]); }
 
 private:
-    static NodeHandle semanticCheckImpl2(GenericPackage node);
+    static NodeHandle semanticCheckImpl(GenericPackage node);
 };
 
 /**
@@ -66,7 +66,7 @@ struct GenericDatatype : Feather::DeclNode {
     DataTypeDecl original() const { return DataTypeDecl(referredNodes()[0]); }
 
 private:
-    static NodeHandle semanticCheckImpl2(GenericDatatype node);
+    static NodeHandle semanticCheckImpl(GenericDatatype node);
 };
 
 /**
@@ -100,7 +100,7 @@ struct GenericFunction : Feather::DeclNode {
     Nest_NodeRange originalParams() const { return referredNodes()[1].children(); }
 
 private:
-    static NodeHandle semanticCheckImpl2(GenericFunction node);
+    static NodeHandle semanticCheckImpl(GenericFunction node);
 };
 
 /**
@@ -160,7 +160,7 @@ struct Instantiation : NodeHandle {
     }
 
 private:
-    static NodeHandle semanticCheckImpl2(Instantiation node);
+    static NodeHandle semanticCheckImpl(Instantiation node);
 };
 
 /**
@@ -207,7 +207,7 @@ struct InstantiationsSet : NodeHandle {
     NodeRange params() const { return referredNodes()[1].children(); }
 
 private:
-    static NodeHandle semanticCheckImpl2(InstantiationsSet node);
+    static NodeHandle semanticCheckImpl(InstantiationsSet node);
 };
 
 } // namespace SprFrontend

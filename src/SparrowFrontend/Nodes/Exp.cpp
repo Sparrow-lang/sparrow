@@ -939,10 +939,10 @@ void handleAssociativity(InfixOp node) {
 }
 } // namespace
 
-DEFINE_NODE_COMMON_IMPL(Literal, NodeHandle, nkSparrowExpLiteral)
+DEFINE_NODE_COMMON_IMPL(Literal, NodeHandle)
 
 Literal Literal::create(const Location& loc, StringRef litType, StringRef data) {
-    auto res = Nest::createNode<Literal>(nkSparrowExpLiteral, loc);
+    auto res = Nest::createNode<Literal>(loc);
     res.setProperty(propSprLiteralType, litType);
     res.setProperty(propSprLiteralData, data);
     return res;
@@ -950,7 +950,7 @@ Literal Literal::create(const Location& loc, StringRef litType, StringRef data) 
 
 bool Literal::isString() const { return typeStr() == "StringRef"; }
 
-NodeHandle Literal::semanticCheckImpl2(Literal node) {
+NodeHandle Literal::semanticCheckImpl(Literal node) {
     StringRef litType = node.typeStr();
     StringRef data = node.dataStr();
 
@@ -969,15 +969,15 @@ NodeHandle Literal::semanticCheckImpl2(Literal node) {
         return Feather::CtValueExp::create(node.location(), t, data);
 }
 
-DEFINE_NODE_COMMON_IMPL(Identifier, NodeHandle, nkSparrowExpIdentifier)
+DEFINE_NODE_COMMON_IMPL(Identifier, NodeHandle)
 
 Identifier Identifier::create(const Location& loc, StringRef id) {
-    auto res = Nest::createNode<Identifier>(nkSparrowExpIdentifier, loc);
+    auto res = Nest::createNode<Identifier>(loc);
     res.setProperty("name", id);
     return res;
 }
 
-NodeHandle Identifier::semanticCheckImpl2(Identifier node) {
+NodeHandle Identifier::semanticCheckImpl(Identifier node) {
     StringRef id = node.name();
     const Location& loc = node.location();
 
@@ -1050,15 +1050,15 @@ NodeHandle Identifier::semanticCheckImpl2(Identifier node) {
     return res;
 }
 
-DEFINE_NODE_COMMON_IMPL(CompoundExp, NodeHandle, nkSparrowExpCompoundExp)
+DEFINE_NODE_COMMON_IMPL(CompoundExp, NodeHandle)
 
 CompoundExp CompoundExp::create(const Location& loc, NodeHandle base, StringRef id) {
-    auto res = Nest::createNode<CompoundExp>(nkSparrowExpCompoundExp, loc, NodeRange({base}));
+    auto res = Nest::createNode<CompoundExp>(loc, NodeRange({base}));
     res.setProperty("name", id);
     return res;
 }
 
-NodeHandle CompoundExp::semanticCheckImpl2(CompoundExp node) {
+NodeHandle CompoundExp::semanticCheckImpl(CompoundExp node) {
     NodeHandle base = node.base();
     StringRef id = node.name();
 
@@ -1182,7 +1182,7 @@ NodeHandle CompoundExp::semanticCheckImpl2(CompoundExp node) {
     bool allowDeclExp = 0 != node.getPropertyDefaultInt(propAllowDeclExp, 0);
     return getIdentifierResult(node, all(decls), baseDataExp, allowDeclExp);
 }
-const char* CompoundExp::toStringImpl2(CompoundExp node) {
+const char* CompoundExp::toStringImpl(CompoundExp node) {
     auto base = node.base();
     StringRef id = node.name();
 
@@ -1191,29 +1191,26 @@ const char* CompoundExp::toStringImpl2(CompoundExp node) {
     return dupString(os.str().c_str());
 }
 
-DEFINE_NODE_COMMON_IMPL(FunApplication, NodeHandle, nkSparrowExpFunApplication)
+DEFINE_NODE_COMMON_IMPL(FunApplication, NodeHandle)
 
 FunApplication FunApplication::create(const Location& loc, NodeHandle base, NodeList arguments) {
     if (!arguments)
         arguments = NodeList::create(loc, NodeRange{}, true);
-    return Nest::createNode<FunApplication>(
-            nkSparrowExpFunApplication, loc, NodeRange({base, arguments}));
+    return Nest::createNode<FunApplication>(loc, NodeRange({base, arguments}));
 }
 
 FunApplication FunApplication::create(const Location& loc, NodeHandle base, NodeRange arguments) {
     auto argsNode = NodeList::create(loc, arguments, true);
-    return Nest::createNode<FunApplication>(
-            nkSparrowExpFunApplication, loc, NodeRange({base, argsNode}));
+    return Nest::createNode<FunApplication>(loc, NodeRange({base, argsNode}));
 }
 
 FunApplication FunApplication::create(const Location& loc, StringRef fname, NodeRange arguments) {
     auto base = Identifier::create(loc, fname);
     auto argsNode = NodeList::create(loc, arguments, true);
-    return Nest::createNode<FunApplication>(
-            nkSparrowExpFunApplication, loc, NodeRange({base, argsNode}));
+    return Nest::createNode<FunApplication>(loc, NodeRange({base, argsNode}));
 }
 
-NodeHandle FunApplication::semanticCheckImpl2(FunApplication node) {
+NodeHandle FunApplication::semanticCheckImpl(FunApplication node) {
     auto base = node.base();
     auto arguments = node.arguments();
     const Location& loc = node.location();
@@ -1316,19 +1313,18 @@ NodeHandle FunApplication::semanticCheckImpl2(FunApplication node) {
     return res;
 }
 
-DEFINE_NODE_COMMON_IMPL(OperatorCall, NodeHandle, nkSparrowExpOperatorCall)
+DEFINE_NODE_COMMON_IMPL(OperatorCall, NodeHandle)
 
 OperatorCall OperatorCall::create(
         const Location& loc, NodeHandle arg1, StringRef op, NodeHandle arg2) {
     if (op.empty())
         REP_ERROR_RET(nullptr, loc, "Invalid operation name");
-    auto res =
-            Nest::createNode<OperatorCall>(nkSparrowExpOperatorCall, loc, NodeRange({arg1, arg2}));
+    auto res = Nest::createNode<OperatorCall>(loc, NodeRange({arg1, arg2}));
     res.setProperty(propSprOperation, op);
     return res;
 }
 
-NodeHandle OperatorCall::semanticCheckImpl2(OperatorCall node) {
+NodeHandle OperatorCall::semanticCheckImpl(OperatorCall node) {
     auto arg1 = node.arg1();
     auto arg2 = node.arg2();
     StringRef operation = node.oper();
@@ -1435,17 +1431,17 @@ NodeHandle OperatorCall::semanticCheckImpl2(OperatorCall node) {
     return res;
 }
 
-DEFINE_NODE_COMMON_IMPL(InfixOp, NodeHandle, nkSparrowExpInfixExp)
+DEFINE_NODE_COMMON_IMPL(InfixOp, NodeHandle)
 
 InfixOp InfixOp::create(const Location& loc, StringRef op, NodeHandle arg1, NodeHandle arg2) {
     if (op.empty())
         REP_ERROR_RET(nullptr, loc, "Invalid infix operation name");
-    auto res = Nest::createNode<InfixOp>(nkSparrowExpInfixExp, loc, NodeRange({arg1, arg2}));
+    auto res = Nest::createNode<InfixOp>(loc, NodeRange({arg1, arg2}));
     res.setProperty(propSprOperation, op);
     return res;
 }
 
-NodeHandle InfixOp::semanticCheckImpl2(InfixOp node) {
+NodeHandle InfixOp::semanticCheckImpl(InfixOp node) {
 
     // This is constructed in such way that left most operations are applied first.
     // This way, we have a tree that has a lot of children on the left side and one children on the
@@ -1459,7 +1455,7 @@ NodeHandle InfixOp::semanticCheckImpl2(InfixOp node) {
     return OperatorCall::create(node.location(), node.arg1(), node.oper(), node.arg2());
 }
 
-DEFINE_NODE_COMMON_IMPL(LambdaExp, NodeHandle, nkSparrowExpLambdaFunction)
+DEFINE_NODE_COMMON_IMPL(LambdaExp, NodeHandle)
 
 LambdaExp LambdaExp::create(const Location& loc, NodeList parameters, NodeHandle returnType,
         NodeHandle body, NodeHandle bodyExp, NodeList closureParams) {
@@ -1475,11 +1471,11 @@ LambdaExp LambdaExp::create(const Location& loc, NodeList parameters, NodeHandle
         if (!returnType)
             returnType = FunApplication::create(locBody, "typeOf", NodeRange({bodyExp}));
     }
-    return Nest::createNode<LambdaExp>(nkSparrowExpLambdaFunction, loc, NodeRange({}),
-            NodeRange({parameters, returnType, body, closureParams}));
+    return Nest::createNode<LambdaExp>(
+            loc, NodeRange({}), NodeRange({parameters, returnType, body, closureParams}));
 }
 
-NodeHandle LambdaExp::semanticCheckImpl2(LambdaExp node) {
+NodeHandle LambdaExp::semanticCheckImpl(LambdaExp node) {
     auto parameters = node.parameters();
     auto returnType = node.returnType();
     auto body = node.body();
@@ -1559,18 +1555,17 @@ NodeHandle LambdaExp::semanticCheckImpl2(LambdaExp node) {
     return FunApplication::create(loc, classId, closureParams);
 }
 
-DEFINE_NODE_COMMON_IMPL(ConditionalExp, NodeHandle, nkSparrowExpSprConditional)
+DEFINE_NODE_COMMON_IMPL(ConditionalExp, NodeHandle)
 
 ConditionalExp ConditionalExp::create(
         const Location& loc, NodeHandle cond, NodeHandle alt1, NodeHandle alt2) {
     REQUIRE_NODE(loc, cond);
     REQUIRE_NODE(loc, alt1);
     REQUIRE_NODE(loc, alt2);
-    return Nest::createNode<ConditionalExp>(
-            nkSparrowExpSprConditional, loc, NodeRange({cond, alt1, alt2}));
+    return Nest::createNode<ConditionalExp>(loc, NodeRange({cond, alt1, alt2}));
 }
 
-NodeHandle ConditionalExp::semanticCheckImpl2(ConditionalExp node) {
+NodeHandle ConditionalExp::semanticCheckImpl(ConditionalExp node) {
     NodeHandle cond = node.cond();
     NodeHandle alt1 = node.alt1();
     NodeHandle alt2 = node.alt2();
@@ -1598,11 +1593,10 @@ NodeHandle ConditionalExp::semanticCheckImpl2(ConditionalExp node) {
     return Feather::ConditionalExp::create(node.location(), cond, alt1, alt2);
 }
 
-DEFINE_NODE_COMMON_IMPL(DeclExp, NodeHandle, nkSparrowExpDeclExp)
+DEFINE_NODE_COMMON_IMPL(DeclExp, NodeHandle)
 
 DeclExp DeclExp::create(const Location& loc, NodeRange decls, NodeHandle baseExp) {
-    auto res = Nest::createNode<DeclExp>(
-            nkSparrowExpDeclExp, loc, NodeRange({}), NodeRange({baseExp}));
+    auto res = Nest::createNode<DeclExp>(loc, NodeRange({}), NodeRange({baseExp}));
     res.addReferredNodes(decls);
     return res;
 }
@@ -1612,7 +1606,7 @@ NodeRange DeclExp::referredDecls() const {
     return referredNodes().skip(1);
 }
 
-NodeHandle DeclExp::semanticCheckImpl2(DeclExp node) {
+NodeHandle DeclExp::semanticCheckImpl(DeclExp node) {
     // Make sure we computed the type for all the referred nodes
     for (auto n : node.referredNodes()) {
         if (n && !n.computeType())
@@ -1622,15 +1616,15 @@ NodeHandle DeclExp::semanticCheckImpl2(DeclExp node) {
     return node; // This node should never be translated directly
 }
 
-DEFINE_NODE_COMMON_IMPL(StarExp, NodeHandle, nkSparrowExpStarExp)
+DEFINE_NODE_COMMON_IMPL(StarExp, NodeHandle)
 
 StarExp StarExp::create(const Location& loc, NodeHandle baseExp, StringRef operName) {
     if (operName != "*")
         REP_ERROR_RET(nullptr, loc, "Expected '*' in expression; found '%1%'") % operName;
-    return Nest::createNode<StarExp>(nkSparrowExpStarExp, loc, NodeRange({baseExp}));
+    return Nest::createNode<StarExp>(loc, NodeRange({baseExp}));
 }
 
-NodeHandle StarExp::semanticCheckImpl2(StarExp node) {
+NodeHandle StarExp::semanticCheckImpl(StarExp node) {
     NodeHandle base = node.baseExp();
 
     // For the base expression allow it to return DeclExp

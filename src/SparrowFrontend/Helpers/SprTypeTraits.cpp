@@ -10,6 +10,7 @@
 #include "Feather/Api/Feather.h"
 #include "Feather/Utils/FeatherUtils.hpp"
 #include "Feather/Utils/cppif/FeatherTypes.hpp"
+#include "Feather/Utils/cppif/FeatherNodes.hpp"
 #include "Nest/Utils/cppif/NodeUtils.hpp"
 
 using namespace SprFrontend;
@@ -71,7 +72,7 @@ Type getTypeValueImpl(Node* typeNode, bool reportErrors = false) {
 
             // Check if we have a concept or a generic class
             if (resDecl->nodeKind == nkSparrowDeclSprConcept ||
-                    resDecl->nodeKind == nkSparrowDeclGenericClass)
+                    resDecl->nodeKind == nkSparrowDeclGenericDatatype)
                 t = ConceptType::get(resDecl);
             // Check for a traditional class
             else if (decl->nodeKind == nkSparrowDeclSprDatatype)
@@ -176,17 +177,17 @@ Type SprFrontend::commonType(CompilationContext* context, Type t1, Type t2) {
     return StdDef::typeVoid;
 }
 
-Type SprFrontend::doDereference1(Node* arg, Node*& cvt) {
+Type SprFrontend::doDereference1(Nest::NodeHandle arg, Nest::NodeHandle& cvt) {
     cvt = arg;
 
     // If the base is an expression with a data type, treat this as a data access
-    Type t = arg->type;
+    Type t = arg.type();
     if (!t.hasStorage())
         return t;
 
     // If we have N references apply N-1 dereferencing operations
     for (size_t i = 1; i < t.numReferences(); ++i) {
-        cvt = Feather_mkMemLoad(arg->location, cvt);
+        cvt = Feather::MemLoadExp::create(arg.location(), cvt);
     }
     return DataType::get(t.referredNode(), 0, t.mode()); // Zero references
 }

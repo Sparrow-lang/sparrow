@@ -9,53 +9,13 @@
 #include "Nest/Utils/Diagnostic.hpp"
 #include "Nest/Utils/cppif/NodeRange.hpp"
 #include "Nest/Utils/cppif/StringRef.hpp"
-
-#define REQUIRE_NODE(loc, node)                                                                    \
-    if (node)                                                                                      \
-        ;                                                                                          \
-    else                                                                                           \
-        REP_INTERNAL((loc), "Expected AST node (%1%)") % (#node)
-
-#define REQUIRE_NODE_KIND(node, kind)                                                              \
-    if (node && node->nodeKind != kind)                                                            \
-        REP_INTERNAL(NOLOC, "Expected AST node of kind %1%, found %2% (inside %3%)") % (#kind) %   \
-                NodeHandle(node).kindName() % __FUNCTION__;                                        \
-    else                                                                                           \
-        ;
+#include "Nest/Utils/cppif/NodeHelpers.hpp"
 
 namespace Feather {
 
 namespace {
 
 const char* propResultVoid = "nodeList.resultVoid";
-
-//! Helper function used to create nodes
-template <typename T> T createNode(int kind, const Location& loc) {
-    T res;
-    res.handle = NodeHandle::create(kind, loc).handle;
-    return res;
-}
-
-#define REGISTER_NODE_KIND_IMPL(T)                                                                 \
-    int T::registerNodeKind() {                                                                    \
-        struct RegHelper {                                                                         \
-            static int registerKind(const char* name) {                                            \
-                auto semCheck = reinterpret_cast<FSemanticCheck>(&semanticCheckPlain); /*NOLINT*/  \
-                auto compT = reinterpret_cast<FComputeType>(&computeTypePlain);        /*NOLINT*/  \
-                auto setCtx = reinterpret_cast<FSetContextForChildren>(                /*NOLINT*/  \
-                        &setContextForChildrenPlain);                                              \
-                auto toStr = reinterpret_cast<FToString>(&toStringPlain); /*NOLINT*/               \
-                return Nest_registerNodeKind(name, semCheck, compT, setCtx, toStr);                \
-            }                                                                                      \
-                                                                                                   \
-        private:                                                                                   \
-            static NodeHandle semanticCheckPlain(T node) { return node.semanticCheckImpl(); }      \
-            static Type computeTypePlain(T node) { return node.computeTypeImpl(); }                \
-            static void setContextForChildrenPlain(T node) { node.setContextForChildrenImpl(); }   \
-            static const char* toStringPlain(T node) { return node.toStringImpl(); }               \
-        };                                                                                         \
-        return RegHelper::registerKind(#T);                                                        \
-    }
 
 //! Returns the number of references from the given type. Returns -1 if not storage type.
 int numRefs(Type t) { return t.hasStorage() ? TypeWithStorage(t).numReferences() : -1; }
@@ -455,9 +415,14 @@ DeclNode::DeclNode(Node* n)
     : NodeHandle(n) {}
 StringRef DeclNode::name() const { return getCheckPropertyString("name"); }
 EvalMode DeclNode::mode() const { return (EvalMode)getCheckPropertyInt(propEvalMode); }
+EvalMode DeclNode::effectiveMode() const {
+    EvalMode nodeMode = mode();
+    return nodeMode != modeUnspecified ? nodeMode : context()->evalMode;
+}
+void DeclNode::setMode(EvalMode mode) { setProperty(propEvalMode, (int)mode); }
 void DeclNode::setNameAndMode(StringRef name, EvalMode mode) {
     setProperty("name", name);
-    setProperty(propEvalMode, modeUnspecified);
+    setProperty(propEvalMode, mode);
 }
 
 REGISTER_NODE_KIND_IMPL(FunctionDecl);

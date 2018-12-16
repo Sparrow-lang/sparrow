@@ -139,7 +139,7 @@ struct GenericClassNode {
 
     GenericClassNode(Node* n)
         : node(n) {
-        ASSERT(!n || n->nodeKind == nkSparrowDeclGenericClass);
+        ASSERT(!n || n->nodeKind == nkSparrowDeclGenericDatatype);
     }
     operator Node*() const { return node; }
 

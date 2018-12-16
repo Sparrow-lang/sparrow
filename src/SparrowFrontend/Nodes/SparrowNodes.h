@@ -56,7 +56,7 @@ extern int nkSparrowDeclSprParameter;
 extern int nkSparrowDeclSprVariable;
 extern int nkSparrowDeclSprConcept;
 extern int nkSparrowDeclGenericPackage;
-extern int nkSparrowDeclGenericClass;
+extern int nkSparrowDeclGenericDatatype;
 extern int nkSparrowDeclGenericFunction;
 extern int nkSparrowDeclUsing;
 
@@ -112,7 +112,7 @@ Nest_Node* mkSprAutoParameter(const Nest_Location& loc, Nest_StringRef name);
 Nest_Node* mkGenericPackage(Nest_Node* originalPackage, Nest_Node* parameters, Nest_Node* ifClause);
 Nest_Node* mkGenericClass(Nest_Node* originalClass, Nest_Node* parameters, Nest_Node* ifClause);
 Nest_Node* mkGenericFunction(Nest_Node* originalFun, Nest_NodeRange params,
-        Nest_NodeRange genericParams, Nest_Node* ifClause, Nest_Node* thisClass = nullptr);
+        Nest_NodeRange genericParams, Nest_Node* ifClause);
 
 Nest_Node* mkLiteral(const Nest_Location& loc, Nest_StringRef litType, Nest_StringRef data);
 Nest_Node* mkIdentifier(const Nest_Location& loc, Nest_StringRef id);

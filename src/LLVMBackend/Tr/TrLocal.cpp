@@ -715,16 +715,17 @@ llvm::Value* translateFieldRef(Node* node, TrContext& context) {
     // Compute the index of the field
     uint64_t idx = 0;
     ASSERT(object->type);
-    Node* clsDecl = Feather_classForType(object->type);
-    CHECK(node->location, clsDecl);
-    for (auto f : clsDecl->children) {
+    ASSERT(object->type->hasStorage);
+    Node* datatypeDecl = object->type->referredNode;
+    CHECK(node->location, datatypeDecl);
+    for (auto f : datatypeDecl->children) {
         if (field == f)
             break;
         ++idx;
     }
-    if (idx == Nest_nodeArraySize(clsDecl->children))
+    if (idx == Nest_nodeArraySize(datatypeDecl->children))
         REP_INTERNAL(node->location, "Cannot find field '%1%' in class '%2%'") %
-                Feather_getName(field) % Feather_getName(clsDecl);
+                Feather_getName(field) % Feather_getName(datatypeDecl);
 
     // Create a 'getelementptr' instruction
     vector<llvm::Value*> indices;

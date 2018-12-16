@@ -254,7 +254,7 @@ void getClassCtorCallables(Node* cls, EvalMode evalMode, Callables& res,
         Node* resDecl = resultingDecl(decl);
         if (resDecl->nodeKind == nkSparrowDeclGenericFunction && predIsSatisfied(decl, pred))
             res.push_back(mkGenericFunCallable(resDecl, implicitArgType));
-        else if (resDecl->nodeKind == nkSparrowDeclGenericClass && predIsSatisfied(decl, pred))
+        else if (resDecl->nodeKind == nkSparrowDeclGenericDatatype && predIsSatisfied(decl, pred))
             res.push_back(mkGenericClassCallable(resDecl));
     }
     Nest_freeNodeArray(decls);
@@ -1097,7 +1097,7 @@ void SprFrontend::getCallables(Nest_NodeRange decls, EvalMode evalMode, Callable
             // Is this a generic?
             else if (decl->nodeKind == nkSparrowDeclGenericFunction && predIsSatisfied(decl, pred))
                 res.push_back(mkGenericFunCallable(decl));
-            else if (decl->nodeKind == nkSparrowDeclGenericClass && predIsSatisfied(decl, pred))
+            else if (decl->nodeKind == nkSparrowDeclGenericDatatype && predIsSatisfied(decl, pred))
                 res.push_back(mkGenericClassCallable(decl));
             else if (decl->nodeKind == nkSparrowDeclGenericPackage && predIsSatisfied(decl, pred))
                 res.push_back(mkGenericPackageCallable(decl));

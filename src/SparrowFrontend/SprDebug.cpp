@@ -5,7 +5,6 @@
 #include "Nest/Utils/cppif/NodeUtils.hpp"
 
 #include "Nodes/SparrowNodes.h"
-#include "Nodes/SparrowNodesAccessors.h"
 #include "Helpers/SprTypeTraits.h"
 
 // Defined in SparrowNodes_Module.cpp

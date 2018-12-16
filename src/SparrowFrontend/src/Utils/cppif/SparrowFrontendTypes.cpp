@@ -31,7 +31,7 @@ const char* getConceptTypeDescription(Node* concept, uint8_t numReferences, Eval
 
 TypeRef getConceptType(Node* conceptOrGeneric, uint8_t numReferences, EvalMode mode) {
     ASSERT(!conceptOrGeneric || conceptOrGeneric->nodeKind == nkSparrowDeclSprConcept ||
-            conceptOrGeneric->nodeKind == nkSparrowDeclGenericClass);
+            conceptOrGeneric->nodeKind == nkSparrowDeclGenericDatatype);
     Nest_Type referenceType = {0};
     referenceType.typeKind = typeKindConcept;
     referenceType.mode = mode;

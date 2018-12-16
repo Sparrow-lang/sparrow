@@ -11,7 +11,7 @@ Type commonType(CompilationContext* context, Type t1, Type t2);
 
 /// If the given argument if of type 'ref ref ... ref T', returns T and gets the conversion need to
 /// access 'ref T'
-Type doDereference1(Node* arg, Node*& cvt);
+Type doDereference1(Nest::NodeHandle arg, Nest::NodeHandle& cvt);
 
 /// Converts a CT-available node into a node that can be directly used at RT - usually invoked by
 /// the backend when translating to RT

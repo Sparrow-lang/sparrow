@@ -1,7 +1,6 @@
 #include <StdInc.h>
 #include "DeclsHelpers.h"
 #include "SprTypeTraits.h"
-#include "ForEachNodeInNodeList.h"
 #include <NodeCommonsCpp.h>
 #include "Utils/cppif/SparrowFrontendTypes.hpp"
 #include "Nest/Utils/PtrArray.h"
@@ -40,7 +39,7 @@ void checkNodeAllowed(Node* child, bool insideClass) {
             (insideClass && nodeKind == nkSparrowDeclSprField) ||
             (!insideClass && nodeKind == nkSparrowDeclSprConcept) ||
             (!insideClass && nodeKind == nkSparrowDeclGenericPackage) ||
-            (!insideClass && nodeKind == nkSparrowDeclGenericClass) ||
+            (!insideClass && nodeKind == nkSparrowDeclGenericDatatype) ||
             (!insideClass && nodeKind == nkSparrowDeclGenericFunction) ||
             nodeKind == nkSparrowDeclUsing)
         return;
@@ -290,7 +289,7 @@ CompilationContext* SprFrontend::classContext(Node* cls) {
     while (res && res->parent) {
         Node* n = res->currentSymTab->node;
         if (n && n->nodeKind != nkSparrowDeclSprDatatype &&
-                n->nodeKind != nkSparrowDeclGenericClass &&
+                n->nodeKind != nkSparrowDeclGenericDatatype &&
                 n->nodeKind != Feather_getFirstFeatherNodeKind() + nkRelFeatherDeclClass)
             break;
 

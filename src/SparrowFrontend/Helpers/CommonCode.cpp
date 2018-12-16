@@ -32,7 +32,8 @@ Node* SprFrontend::createCtorCall(
     Node* thisArg = at(args, 0);
     if (!Nest_computeType(thisArg))
         return nullptr;
-    Node* cls = Feather_classForType(thisArg->type);
+    CHECK(loc, thisArg->type->hasStorage);
+    Node* cls = thisArg->type->referredNode;
     CHECK(loc, cls);
 
     // TODO (ctors): We need to apply this even if we are calling ctor by hand
@@ -47,7 +48,7 @@ Node* SprFrontend::createCtorCall(
         if (!Nest_computeType(arg))
             return nullptr;
         arg = Nest_explanation(arg);
-        if (Feather_classForType(arg->type) == cls) {
+        if (arg->type->referredNode == cls) {
             Node* const* tempVarConstruction1 = Nest_getPropertyNode(arg, propTempVarContstruction);
             Node* tempVarConstruction = tempVarConstruction1 ? *tempVarConstruction1 : nullptr;
             if (tempVarConstruction && tempVarConstruction->nodeKind == nkFeatherExpFunCall) {
@@ -110,7 +111,8 @@ Node* SprFrontend::createDtorCall(const Location& loc, CompilationContext* conte
     // Get the class from 'thisArg'
     if (!Nest_computeType(thisArg))
         return nullptr;
-    Node* cls = Feather_classForType(thisArg->type);
+    CHECK(loc, thisArg->type->hasStorage);
+    Node* cls = thisArg->type->referredNode;
     CHECK(loc, cls);
 
     // Search for the dtor associated with the class

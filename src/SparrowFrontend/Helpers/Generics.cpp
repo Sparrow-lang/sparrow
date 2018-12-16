@@ -367,7 +367,7 @@ bool ConceptsService::conceptIsFulfilled(Node* concept1, Type type) {
 }
 
 bool ConceptsService::typeGeneratedFromGeneric(Node* genericClass, Type type) {
-    ASSERT(genericClass && genericClass->nodeKind == nkSparrowDeclGenericClass);
+    ASSERT(genericClass && genericClass->nodeKind == nkSparrowDeclGenericDatatype);
     Node* cls = type.referredNode();
     if (!cls)
         return false;

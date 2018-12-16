@@ -4,7 +4,6 @@
 #include "SprDebug.h"
 
 #include <Nodes/Builder.h>
-#include <Nodes/SparrowNodesAccessors.h>
 #include <Helpers/SprTypeTraits.h>
 #include <Helpers/DeclsHelpers.h>
 #include <Helpers/StdDef.h>

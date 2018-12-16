@@ -386,10 +386,17 @@ struct DeclNode : NodeHandle {
     //! Gets the name of the declaration
     StringRef name() const;
 
-    //! Gets the eval mode for this declaration
+    //! Gets the eval mode for this declaration.
+    //! This will always return the mode stored for the declaration, even if it's unspecified.
     EvalMode mode() const;
 
-protected:
+    //! Gets the effective eval mode for this declaration
+    //! If we don't have an explicit mode set here, look in the context of this decl
+    EvalMode effectiveMode() const;
+
+    //! Helper function to set the mode of the declaration
+    void setMode(EvalMode mode);
+
     //! Helper function to set the name and the mode of the declaration
     void setNameAndMode(StringRef name, EvalMode mode = modeUnspecified);
 };

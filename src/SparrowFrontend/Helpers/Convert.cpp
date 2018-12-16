@@ -133,7 +133,7 @@ Node* applyOnce(Node* src, ConvAction action) {
     }
     case ActionType::customCvt: {
         EvalMode destMode = destT.mode();
-        Node* destClass = Feather_classForType(destT);
+        Node* destClass = destT.referredNode();
         Node* refToClass = createTypeNode(
                 src->context, src->location, Feather_getDataType(destClass, 0, modeRt));
         return Feather_mkChangeMode(src->location,
@@ -357,7 +357,7 @@ bool ConvertService::checkConversionToConcept(ConversionResult& res, Compilation
             isOk = g_ConceptsService->conceptIsFulfilled(concept, src);
         }
         // If we have a generic, check if the type is generated from the generic
-        else if (concept.kind() == nkSparrowDeclGenericClass) {
+        else if (concept.kind() == nkSparrowDeclGenericDatatype) {
             isOk = g_ConceptsService->typeGeneratedFromGeneric(concept, src);
         }
         if (!isOk)

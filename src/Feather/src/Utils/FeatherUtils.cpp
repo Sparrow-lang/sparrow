@@ -49,9 +49,6 @@ int Feather_isBasicNumericType(Nest::TypeRef type) {
                    nativeName == "float" || nativeName == "double");
 }
 
-Node* Feather_classForType(Nest::TypeRef t) { return t->hasStorage ? t->referredNode : nullptr; }
-// TODO (now): Remove?
-
 EvalMode Feather_combineMode(EvalMode mode1, EvalMode mode2) {
     if (mode1 == modeCt || mode2 == modeCt)
         return modeCt;

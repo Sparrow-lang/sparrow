@@ -270,16 +270,17 @@ Node* _createFunPtrForFeatherFun(Node* fun, Node* callNode) {
 }
 
 //! Get the number of parameters for a function-like decl
-int getNumParams(Node* decl) {
-    if (decl->nodeKind == nkFeatherDeclFunction) {
-        Nest_NodeRange params = all(decl->children);
-        return int(size(params)) - 2;
-    }
-    if (decl->nodeKind == nkSparrowDeclGenericFunction)
-        return (int)size(GenericFunNode(decl).originalParams());
-    if (decl->nodeKind == nkSparrowDeclSprFunction) {
-        Node* parameters = at(decl->children, 0);
-        return parameters ? (int)size(parameters->children) : 0;
+int getNumParams(NodeHandle decl) {
+    auto funDecl = decl.kindCast<Feather::FunctionDecl>();
+    if (funDecl)
+        return funDecl.parameters().size();
+    auto genericFun = decl.kindCast<GenericFunction>();
+    if (genericFun)
+        return genericFun.originalParams().size();
+    auto sprFunDecl = decl.kindCast<SprFunctionDecl>();
+    if (sprFunDecl) {
+        auto params = sprFunDecl.parameters();
+        return params ? params.children().size() : 0;
     }
     return 0;
 }
@@ -371,13 +372,13 @@ Node* _createFunPtrForDecl(Node* funNode) {
         // If we have a generic, try to wrap it in a lambda
         // TODO: In general we should create an object that is able to call any type of callable
 
-        size_t numParams = size(GenericFunNode(resDecl).originalParams());
+        int numParams = GenericFunction(resDecl).originalParams().size();
 
         Node* paramsType = mkIdentifier(loc, StringRef("AnyType"));
 
         NodeVector paramIds(numParams, nullptr);
         NodeVector args(numParams, nullptr);
-        for (size_t i = 0; i < numParams; ++i) {
+        for (int i = 0; i < numParams; ++i) {
             string name = "p" + boost::lexical_cast<string>(i);
             paramIds[i] = mkSprParameter(loc, StringRef(name), paramsType, nullptr);
             args[i] = mkIdentifier(loc, StringRef(name));

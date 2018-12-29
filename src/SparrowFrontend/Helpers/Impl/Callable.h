@@ -4,6 +4,8 @@
 
 #include <Helpers/Convert.h>
 
+#include "Feather/Utils/cppif/FeatherNodes.hpp"
+
 #include "Nest/Utils/cppif/NodeUtils.hpp"
 #include "Nest/Utils/cppif/TypeWithStorage.hpp"
 
@@ -12,6 +14,8 @@
 namespace SprFrontend {
 
 using Nest::NodeVector;
+using Nest::NodeRange;
+using Nest::NodeHandle;
 
 /// Indicates whether we should apply custom conversions for the params
 enum CustomCvtMode {
@@ -40,16 +44,17 @@ struct CallableData {
     bool valid;
 
     /// The decls we want to call
-    Node* decl;
+    Feather::DeclNode decl;
     /// The parameters of the decl to call
-    Nest_NodeRange params;
+    /// For Feather functions these are variables, for others, these are ParameterDecl
+    NodeRange params;
     /// True if we need to call the function in autoCt mode
     bool autoCt;
 
     /// The arguments used to call the callable
     /// If the callable has default parameters, this will be extended
     /// Computed by 'canCall'
-    NodeVector args;
+    vector<NodeHandle> args;
 
     /// The conversions needed for each argument
     /// Computed by 'canCall'
@@ -96,17 +101,17 @@ the call.
 
 /// Given a declaration, try to gets a list of Callable objects from it.
 /// Returns an empty list if the declaration is not callable
-void getCallables(Nest_NodeRange decls, EvalMode evalMode, Callables& res);
+void getCallables(NodeRange decls, EvalMode evalMode, Callables& res);
 
 /// Same as above, but apply a filter to all the callables that we have
 /// We keep all the decls for which the predicate returns true
-void getCallables(Nest_NodeRange decls, EvalMode evalMode, Callables& res,
-        const boost::function<bool(Node*)>& pred, const char* ctorName = "ctor");
+void getCallables(NodeRange decls, EvalMode evalMode, Callables& res,
+        const boost::function<bool(NodeHandle)>& pred, const char* ctorName = "ctor");
 
 /// Checks if we can call this with the given arguments
 /// This method can cache some information needed by the 'generateCall'
 ConversionType canCall(CallableData& c, CompilationContext* context, const Location& loc,
-        Nest_NodeRange args, EvalMode evalMode, CustomCvtMode customCvtMode,
+        NodeRange args, EvalMode evalMode, CustomCvtMode customCvtMode,
         bool reportErrors = false);
 /// Same as above, but makes the check only on type, and not on the actual
 /// argument; doesn't cache any args
@@ -125,7 +130,7 @@ int moreSpecialized(CompilationContext* context, const CallableData& f1, const C
 /// Generates the node that actually calls this callable
 /// This must be called only if 'canCall' method returned a success conversion
 /// type
-Node* generateCall(CallableData& c, CompilationContext* context, const Location& loc);
+NodeHandle generateCall(CallableData& c, CompilationContext* context, const Location& loc);
 
 /// Getter for the location of this callable (i.e., location of the function)
 const Location& location(const CallableData& c);

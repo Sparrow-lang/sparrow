@@ -28,7 +28,8 @@ public:                                                                         
     static int registerNodeKind();                                                                 \
     static int staticKind();                                                                       \
     T() = default;                                                                                 \
-    T(Node* n);
+    T(Node* n);                                                                                    \
+    T clone();
 
 #define DEFINE_NODE_COMMON_IMPL(T, BaseType)                                                       \
     int T::registerNodeKind() {                                                                    \
@@ -45,7 +46,8 @@ public:                                                                         
         : BaseType(n) {                                                                            \
         REQUIRE_NODE_KIND(n, staticKindValue);                                                     \
     }                                                                                              \
-    int T::staticKind() { return staticKindValue; }
+    int T::staticKind() { return staticKindValue; }                                                \
+    T T::clone() { return T(NodeHandle::clone()); }
 
 namespace Nest {
 

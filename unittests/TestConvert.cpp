@@ -10,6 +10,7 @@
 #include "SparrowFrontend/Helpers/StdDef.h"
 #include "SparrowFrontend/Utils/cppif/SparrowFrontendTypes.hpp"
 #include "SparrowFrontend/Nodes/SprProperties.h"
+#include "SparrowFrontend/Nodes/Decl.hpp"
 #include "Feather/Utils/cppif/FeatherTypes.hpp"
 #include "Feather/Utils/cppif/FeatherNodes.hpp"
 #include "Nest/Utils/cppif/StringRef.hpp"
@@ -55,14 +56,14 @@ struct OverloadServiceMock : IOverloadService {
 };
 
 struct ConceptsServiceMock : IConceptsService {
-    bool conceptIsFulfilled(Node* concept, Type type) final {
+    bool conceptIsFulfilled(ConceptDecl concept, Type type) final {
         for (auto p : conceptFulfillments_)
             if (p.first == concept && p.second.referredNode() == type.referredNode())
                 return true;
         return false;
     }
-    bool typeGeneratedFromGeneric(Node* genericDatatype, Type type) final { return false; }
-    ConceptType baseConceptType(Node* concept) final {
+    bool typeGeneratedFromGeneric(GenericDatatype genericDatatype, Type type) final { return false; }
+    ConceptType baseConceptType(ConceptDecl concept) final {
         for (auto p : baseConcepts_)
             if (p.first == concept)
                 return p.second;

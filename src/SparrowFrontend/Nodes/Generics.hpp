@@ -8,6 +8,7 @@ using Nest::Location;
 using Nest::Node;
 using Nest::NodeRange;
 using Nest::NodeRangeM;
+using Nest::NodeRangeT;
 
 struct InstantiationsSet;
 
@@ -97,7 +98,9 @@ struct GenericFunction : Feather::DeclNode {
     SprFunctionDecl original() const { return SprFunctionDecl(referredNodes()[0]); }
 
     //! Returns the original params of the function
-    Nest_NodeRange originalParams() const { return referredNodes()[1].children(); }
+    NodeRangeT<ParameterDecl> originalParams() const {
+        return NodeRangeT<ParameterDecl>(referredNodes()[1].children());
+    }
 
 private:
     static NodeHandle semanticCheckImpl(GenericFunction node);
@@ -204,7 +207,9 @@ struct InstantiationsSet : NodeHandle {
     //! Returns the parent node
     Feather::DeclNode parentNode() const { return Feather::DeclNode(referredNodes()[0]); }
     //! Returns the range of parameters for this instantiation set
-    NodeRange params() const { return referredNodes()[1].children(); }
+    NodeRangeT<ParameterDecl> params() const {
+        return NodeRangeT<ParameterDecl>(referredNodes()[1].children());
+    }
 
 private:
     static NodeHandle semanticCheckImpl(InstantiationsSet node);

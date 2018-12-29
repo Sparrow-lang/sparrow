@@ -3,12 +3,17 @@
 #include <NodeCommonsH.h>
 #include "Nest/Utils/cppif/NodeUtils.hpp"
 
+namespace Feather {
+struct FunctionDecl;
+}
+
 namespace SprFrontend {
 
-using Nest::NodeVector;
+using Nest::NodeHandle;
+using Nest::NodeRange;
 
 /// Checks if the given function call is a basic intrinsic
 /// If yes, generates the appropriate code for it
-Node* handleIntrinsic(
-        Node* fun, CompilationContext* context, const Location& loc, const NodeVector& args);
+NodeHandle handleIntrinsic(Feather::FunctionDecl fun, CompilationContext* context,
+        const Location& loc, NodeRange args);
 } // namespace SprFrontend

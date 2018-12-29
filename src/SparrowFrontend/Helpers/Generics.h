@@ -1,6 +1,8 @@
 #pragma once
 
 #include "SparrowFrontend/NodeCommonsH.h"
+#include "SparrowFrontend/Nodes/Decl.hpp"
+#include "SparrowFrontend/Nodes/Generics.hpp"
 #include "Nest/Utils/cppif/NodeUtils.hpp"
 
 namespace SprFrontend {
@@ -162,22 +164,6 @@ struct GenericPackageNode {
     Node* originalPackage() const { return Nest::at(node->referredNodes, 0); }
 };
 
-struct ConceptNode {
-    Node* node;
-
-    ConceptNode(Node* n)
-        : node(n) {
-        ASSERT(!n || n->nodeKind == nkSparrowDeclSprConcept);
-    }
-    operator Node*() const { return node; }
-
-    Node* baseConcept() const { return Nest::at(node->children, 0); }
-    Node* ifClause() const { return Nest::at(node->children, 1); }
-    InstSetNode instSet() const { return Nest::at(node->children, 2); }
-
-    Node* originalClass() const { return Nest::at(node->referredNodes, 0); }
-};
-
 /**
  * Checks if the given function is a generic, and creates a generic function node for it.
  *
@@ -185,46 +171,15 @@ struct ConceptNode {
  * function node for it.
  *
  * @param originalFun The original function (SprFunction) to be checked
- * @param parameters  The parameters of the original function
+ * @param params      The parameters of the original function
  * @param ifClause    The if clause of the function
  *
  * @return A GenericFunction node, if this is a generic; null otherwise
  */
-Node* checkCreateGenericFun(Node* originalFun, Node* parameters, Node* ifClause);
+GenericFunction checkCreateGenericFun(SprFunctionDecl originalFun, NodeRange params, NodeHandle ifClause);
 
-// The generic classes are created whenever we have class parameters
-// In that case, we call mkGenericClass directly
+// For other generic types, we know we need generic whenever we have parameters.
 
-/**
- * Returns the parameters that the caller needs to fill to instantiate/call the generic.
- *
- * This returns the original list of parameters, as all parameters need to be filled.
- *
- * @param genericFun The generic function node to get the parameters for
- *
- * @return The params for the generic function.
- */
-Nest_NodeRange genericFunParams(Node* genericFun);
-/**
- * Returns the parameters that the caller needs to fill to instantiate/call the generic.
- *
- * This returns all the parameters of the class.
- *
- * @param genericClass The generic class node to get the parameters for
- *
- * @return The params for the generic class.
- */
-Nest_NodeRange genericClassParams(Node* genericClass);
-/**
- * Returns the parameters that the caller needs to fill to instantiate/call the generic.
- *
- * This returns all the parameters of the package.
- *
- * @param genericPackage The generic package node to get the parameters for
- *
- * @return The params for the generic package.
- */
-Nest_NodeRange genericPackageParams(Node* genericPackage);
 
 /**
  * Search an instantiation in an instSet.
@@ -242,7 +197,7 @@ Nest_NodeRange genericPackageParams(Node* genericPackage);
  *
  * Called only for generic functions.
  */
-InstNode searchInstantiation(InstSetNode instSet, Nest_NodeRange values);
+Instantiation searchInstantiation(InstantiationsSet instSet, NodeRange values);
 
 /**
  * Create a new (partial) instantiation node.
@@ -259,7 +214,7 @@ InstNode searchInstantiation(InstSetNode instSet, Nest_NodeRange values);
  *
  * @return The new instantiation node
  */
-InstNode createNewInstantiation(InstSetNode instSet, Nest_NodeRange values, EvalMode evalMode);
+Instantiation createNewInstantiation(InstantiationsSet instSet, NodeRange values, EvalMode evalMode);
 
 /**
  * Create a bound var for the given parameter / bound value
@@ -280,9 +235,9 @@ InstNode createNewInstantiation(InstSetNode instSet, Nest_NodeRange values, Eval
  * @param boundValue  The bound value used for the type (and init) of the variable
  * @param isCtGeneric True if this is a CT-generic function
  *
- * @return The created bound variable.
+ * @return The created bound variable. Can be either a Feather::VarDecl or a UsingDecl
  */
-Node* createBoundVar(CompilationContext* context, Node* param, Type paramType, Node* boundValue,
+Feather::DeclNode createBoundVar(CompilationContext* context, ParameterDecl param, Type paramType, NodeHandle boundValue,
         bool isCtGeneric);
 
 /**
@@ -298,7 +253,7 @@ Node* createBoundVar(CompilationContext* context, Node* param, Type paramType, N
  *
  * @return True if the instantiation can be made
  */
-bool canInstantiate(InstNode inst, InstSetNode instSet);
+bool canInstantiate(Instantiation inst, InstantiationsSet instSet);
 
 /**
  * Check if we can have an instantiation with the given bound values.
@@ -322,13 +277,13 @@ bool canInstantiate(InstNode inst, InstSetNode instSet);
  *
  * @return The inst node if the instantiation succeeds; null if it fails
  */
-InstNode canInstantiate(InstSetNode instSet, Nest_NodeRange values, EvalMode evalMode);
+Instantiation canInstantiate(InstantiationsSet instSet, NodeRange values, EvalMode evalMode);
 
-/// Given a generic param type and the corresponding bound value, determine if
-/// the parameter is a concept parameter.
-/// For concept parameters, we store the type as a bound value.
-/// Used as a low-level primitive. Should not be called for CT-generics
-bool isConceptParam(Location paramLoc, Type paramType, Node* boundValue);
+//! Given a generic param type and the corresponding bound value, determine if
+//! the parameter is a concept parameter.
+//! For concept parameters, we store the type as a bound value.
+//! Used as a low-level primitive. Should not be called for CT-generics
+bool isConceptParam(Type paramType, NodeHandle boundValue);
 
 //! The interface for the service that deals with checking concepts.
 //! Used so that we can easily mock and replace this service.
@@ -336,20 +291,20 @@ struct IConceptsService {
     virtual ~IConceptsService() {}
 
     //! Check if the given concept is fulfilled by the given type
-    virtual bool conceptIsFulfilled(Node* concept, Type type) = 0;
+    virtual bool conceptIsFulfilled(ConceptDecl concept, Type type) = 0;
     //! Check if the given type was generated from the given generic
     //! This will make generics behave like concepts
-    virtual bool typeGeneratedFromGeneric(Node* genericDatatype, Type type) = 0;
+    virtual bool typeGeneratedFromGeneric(GenericDatatype genericDatatype, Type type) = 0;
 
     //! Get the base concept type
-    virtual ConceptType baseConceptType(Node* concept) = 0;
+    virtual ConceptType baseConceptType(ConceptDecl concept) = 0;
 };
 
 //! Implementation of the convert service
 struct ConceptsService : IConceptsService {
-    bool conceptIsFulfilled(Node* concept, Type type) final;
-    bool typeGeneratedFromGeneric(Node* genericDatatype, Type type) final;
-    ConceptType baseConceptType(Node* concept) final;
+    bool conceptIsFulfilled(ConceptDecl concept, Type type) final;
+    bool typeGeneratedFromGeneric(GenericDatatype genericDatatype, Type type) final;
+    ConceptType baseConceptType(ConceptDecl concept) final;
 };
 
 //! The convert service instance that we are using across the Sparrow compiler

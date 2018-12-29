@@ -276,7 +276,7 @@ int getNumParams(Node* decl) {
         return int(size(params)) - 2;
     }
     if (decl->nodeKind == nkSparrowDeclGenericFunction)
-        return (int)size(genericFunParams(decl));
+        return (int)size(GenericFunNode(decl).originalParams());
     if (decl->nodeKind == nkSparrowDeclSprFunction) {
         Node* parameters = at(decl->children, 0);
         return parameters ? (int)size(parameters->children) : 0;
@@ -371,7 +371,7 @@ Node* _createFunPtrForDecl(Node* funNode) {
         // If we have a generic, try to wrap it in a lambda
         // TODO: In general we should create an object that is able to call any type of callable
 
-        size_t numParams = size(genericFunParams(resDecl));
+        size_t numParams = size(GenericFunNode(resDecl).originalParams());
 
         Node* paramsType = mkIdentifier(loc, StringRef("AnyType"));
 

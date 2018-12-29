@@ -265,6 +265,7 @@ void* NodeHandle::getCheckPropertyPtr(const char* name) const {
 }
 
 bool NodeHandle::hasError() const { return handle->nodeError != 0; }
+bool NodeHandle::isSemanticallyChecked() const { return handle->nodeSemanticallyChecked != 0; }
 
 void NodeHandle::addModifier(Nest_Modifier* mod) {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)

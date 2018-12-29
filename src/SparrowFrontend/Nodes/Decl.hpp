@@ -16,6 +16,8 @@ using Nest::TypeWithStorage;
 
 using Feather::NodeList;
 
+struct InstantiationsSet;
+
 /**
  * @brief      A modifier node
  *
@@ -429,16 +431,17 @@ struct ConceptDecl : Feather::DeclNode {
     static ConceptDecl create(const Location& loc, StringRef name, StringRef paramName,
             NodeHandle baseConcept, NodeHandle ifClause);
 
-    StringRef paramName() const { return getCheckPropertyString("spr.paramName"); }
+    StringRef paramName() const;
 
     //! Returns the base concept node
+    //! This is an expression that will point to a concept
     NodeHandle baseConcept() const { return children()[0]; };
 
     //! Returns the if clause of the concept
     NodeHandle ifClause() const { return children()[1]; };
 
     //! Returns the instantiations set node created for this concept
-    NodeHandle instantiationsSet() const { return children()[2]; };
+    InstantiationsSet instantiationsSet() const;
 
 private:
     static void setContextForChildrenImpl(ConceptDecl node);

@@ -768,7 +768,7 @@ void SprFunctionDecl::setContextForChildrenImpl(SprFunctionDecl node) {
 }
 
 Type SprFunctionDecl::computeTypeImpl(SprFunctionDecl node) {
-    NodeHandle parameters = node.parameters();
+    NodeList parameters = node.parameters();
     NodeHandle returnType = node.returnType();
     NodeHandle body = node.body();
     NodeHandle ifClause = node.ifClause();
@@ -796,7 +796,7 @@ Type SprFunctionDecl::computeTypeImpl(SprFunctionDecl node) {
 
     // Is this a generic?
     if (parameters) {
-        NodeHandle generic = checkCreateGenericFun(node, parameters, ifClause);
+        NodeHandle generic = checkCreateGenericFun(node, parameters.children(), ifClause);
         if (generic) {
             node.setExplanation(generic);
             if (!generic.computeType())
@@ -1000,6 +1000,10 @@ ConceptDecl ConceptDecl::create(const Location& loc, StringRef name, StringRef p
     res.setProperty("spr.paramName", paramName);
     return res;
 }
+
+StringRef ConceptDecl::paramName() const { return getCheckPropertyString("spr.paramName"); }
+
+InstantiationsSet ConceptDecl::instantiationsSet() const { return InstantiationsSet(children()[2]); };
 
 void ConceptDecl::setContextForChildrenImpl(ConceptDecl node) {
     commonSetContextForChildren(node, ContextChangeType::withSymTab);

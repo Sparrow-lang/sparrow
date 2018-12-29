@@ -159,6 +159,9 @@ struct NodeHandle {
     //! Indicates if the node was marked with an error
     bool hasError() const;
 
+    //! Tests if this node was successfully semantically checked
+    bool isSemanticallyChecked() const;
+
     //! Add a modifier to this class; this modifier will be called before and after compilation
     void addModifier(Nest_Modifier* mod);
 

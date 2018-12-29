@@ -294,7 +294,7 @@ bool OverloadService::selectConversionCtor(
     // Get all the candidates
     Callables candidates;
     getCallables(fromIniList({destClass}), destMode, candidates,
-            [](Node* decl) -> bool { return Nest_hasProperty(decl, propConvert); });
+            [](NodeHandle decl) -> bool { return decl.hasProperty(propConvert); });
     if (candidates.empty())
         return false;
 

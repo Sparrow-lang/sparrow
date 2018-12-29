@@ -354,11 +354,12 @@ bool ConvertService::checkConversionToConcept(ConversionResult& res, Compilation
             isOk = true;
         // If we have a concept, check if the type fulfills the concept
         else if (concept.kind() == nkSparrowDeclSprConcept) {
-            isOk = g_ConceptsService->conceptIsFulfilled(concept, src);
+            isOk = g_ConceptsService->conceptIsFulfilled(ConceptDecl(concept), src);
         }
         // If we have a generic, check if the type is generated from the generic
-        else if (concept.kind() == nkSparrowDeclGenericDatatype) {
-            isOk = g_ConceptsService->typeGeneratedFromGeneric(concept, src);
+        GenericDatatype genericDatatype = concept.kindCast<GenericDatatype>();
+        if (genericDatatype) {
+            isOk = g_ConceptsService->typeGeneratedFromGeneric(genericDatatype, src);
         }
         if (!isOk)
             return false;
@@ -375,7 +376,7 @@ bool ConvertService::checkConversionToConcept(ConversionResult& res, Compilation
 
         // Iteratively search the base concept to find our dest type
         while (src != dest) {
-            Nest::NodeHandle conceptNode = ConceptType(src).decl();
+            ConceptDecl conceptNode = ConceptDecl(ConceptType(src).decl());
             if (!conceptNode)
                 return false;
             ConceptType baseType = g_ConceptsService->baseConceptType(conceptNode);

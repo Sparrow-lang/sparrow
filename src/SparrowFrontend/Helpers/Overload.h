@@ -8,6 +8,9 @@ FWD_CLASS1(SprFrontend, Callable);
 
 namespace SprFrontend {
 
+using Nest::Location;
+using Nest::StringRef;
+
 /// Describes the error reporting to be used when overloading fails.
 enum class OverloadReporting {
     none,       //!< No errors should be given

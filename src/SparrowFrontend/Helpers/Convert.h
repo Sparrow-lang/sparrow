@@ -4,6 +4,10 @@
 
 namespace SprFrontend {
 
+using Nest::Type;
+using Nest::Node;
+using Nest::CompilationContext;
+
 //! The type of conversion that can be applied between two types
 enum ConversionType {
     convNone = 0,

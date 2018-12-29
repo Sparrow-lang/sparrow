@@ -7,6 +7,8 @@
 
 namespace SprFrontend {
 
+using Nest::CompilationContext;
+
 struct ConceptType;
 
 /*

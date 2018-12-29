@@ -7,6 +7,7 @@
 
 namespace SprFrontend {
 
+using Nest::Node;
 using Nest::Location;
 using Nest::NodeHandle;
 using Nest::NodeRange;

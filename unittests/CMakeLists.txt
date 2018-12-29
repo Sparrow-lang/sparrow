@@ -3,8 +3,6 @@
 SET(sourceFiles
     "StdInc.h"
     "UnitTestsMain.cpp"
-    "TestBasic.cpp"
-    "TestConvert.cpp"
     "Common/BackendMock.cpp"
     "Common/BackendMock.hpp"
     "Common/FeatherNodeFactory.cpp"
@@ -22,6 +20,11 @@ SET(sourceFiles
     "Nest/TestType.cpp"
     "Feather/TestFeatherNodes.cpp"
     "Feather/TestTypes.cpp"
+    "SparrowFrontend/SprCommon/ConceptsServiceMock.cpp"
+    "SparrowFrontend/SprCommon/OverloadServiceMock.cpp"
+    "SparrowFrontend/SprCommon/SampleTypes.cpp"
+    "SparrowFrontend/TestCallable.cpp"
+    "SparrowFrontend/TestConvert.cpp"
 )
 
 # Project settings

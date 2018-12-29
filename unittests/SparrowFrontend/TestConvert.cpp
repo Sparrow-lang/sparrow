@@ -2,19 +2,10 @@
 #include "Common/RcBasic.hpp"
 #include "Common/TypeFactory.hpp"
 #include "Common/GeneralFixture.hpp"
-#include "Common/BackendMock.hpp"
+#include "SprCommon/SampleTypes.hpp"
 
 #include "SparrowFrontend/Helpers/Convert.h"
-#include "SparrowFrontend/Helpers/Overload.h"
-#include "SparrowFrontend/Helpers/Generics.h"
-#include "SparrowFrontend/Helpers/StdDef.h"
-#include "SparrowFrontend/Utils/cppif/SparrowFrontendTypes.hpp"
-#include "SparrowFrontend/Nodes/SprProperties.h"
-#include "SparrowFrontend/Nodes/Decl.hpp"
-#include "Feather/Utils/cppif/FeatherTypes.hpp"
 #include "Feather/Utils/cppif/FeatherNodes.hpp"
-#include "Nest/Utils/cppif/StringRef.hpp"
-#include "Nest/Utils/Diagnostic.hpp"
 
 using namespace Feather;
 using namespace SprFrontend;
@@ -30,50 +21,6 @@ template <> struct Arbitrary<ConversionType> {
 
 } // namespace rc
 
-struct OverloadServiceMock : IOverloadService {
-    Node* selectOverload(CompilationContext* context, const Location& loc, EvalMode evalMode,
-            Nest_NodeRange decls, Nest_NodeRange args, OverloadReporting errReporting,
-            StringRef funName) final {
-        return nullptr;
-    }
-
-    bool selectConversionCtor(CompilationContext* context, Node* destClass, EvalMode destMode,
-            Type argType) final {
-        if (argType.mode() != destMode)
-            return false;
-        // If we know about the conversion, we return true
-        Type destType = DataType::get(destClass, 0, destMode);
-        for (const auto& p : implicitConversions_) {
-            if (p.first == argType && p.second == destType)
-                return true;
-        }
-        return false;
-    }
-
-    Node* selectCtToRtCtor(Node* ctArg) final { return nullptr; }
-
-    vector<pair<Type, Type>> implicitConversions_;
-};
-
-struct ConceptsServiceMock : IConceptsService {
-    bool conceptIsFulfilled(ConceptDecl concept, Type type) final {
-        for (auto p : conceptFulfillments_)
-            if (p.first == concept && p.second.referredNode() == type.referredNode())
-                return true;
-        return false;
-    }
-    bool typeGeneratedFromGeneric(GenericDatatype genericDatatype, Type type) final { return false; }
-    ConceptType baseConceptType(ConceptDecl concept) final {
-        for (auto p : baseConcepts_)
-            if (p.first == concept)
-                return p.second;
-        return nullptr;
-    }
-
-    vector<pair<Node*, Type>> conceptFulfillments_;
-    vector<pair<Node*, ConceptType>> baseConcepts_; // concept -> base concept type
-};
-
 // NOLINTNEXTLINE(cppcoreguidelines-special-member-functions)
 struct ConvertFixture : SparrowGeneralFixture {
     ConvertFixture();
@@ -84,83 +31,18 @@ struct ConvertFixture : SparrowGeneralFixture {
         return res.conversionType();
     }
 
-    ConversionResult getConvResult(
-            Type src, Type dest, ConversionFlags flags = flagsDefault) {
+    ConversionResult getConvResult(Type src, Type dest, ConversionFlags flags = flagsDefault) {
         return g_ConvertService->checkConversion(globalContext_, src, dest, flags);
     }
 
     //! Check category conversions
     void checkCatConversions(DataType src, DataType dest);
 
-
-    DataType fooType_;
-    DataType barType_; // fooType_ -> barType_
-    DataType nullType_;
-    ConceptType concept1Type_;
-    ConceptType concept2Type_;
+    //! The types that we are using while performing our tests
+    SampleTypes types_;
 };
 
-ConvertFixture::ConvertFixture() {
-    // Mock the overload service
-    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-    auto mockOverloadService = new OverloadServiceMock;
-    g_OverloadService.reset(mockOverloadService);
-
-    // Mock the concepts service
-    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-    auto mockConceptsService = new ConceptsServiceMock;
-    g_ConceptsService.reset(mockConceptsService);
-
-    using TypeFactory::g_conceptDecls;
-    using TypeFactory::g_dataTypeDecls;
-
-    // Create the basic types
-    g_dataTypeDecls.push_back(createNativeDatatypeNode(StringRef("i8"), globalContext_));
-    g_dataTypeDecls.push_back(createNativeDatatypeNode(StringRef("i16"), globalContext_));
-    g_dataTypeDecls.push_back(createNativeDatatypeNode(StringRef("i32"), globalContext_));
-    Node* fooTypeDecl = createDatatypeNode(StringRef("FooType"), globalContext_);
-    Node* barTypeDecl = createDatatypeNode(StringRef("BarType"), globalContext_);
-    Node* nullTypeDecl = createDatatypeNode(StringRef("NullType"), globalContext_);
-    g_dataTypeDecls.push_back(fooTypeDecl);
-    g_dataTypeDecls.push_back(barTypeDecl);
-    g_dataTypeDecls.push_back(nullTypeDecl);
-
-
-    // Create an implicit conversion from FooType to BarType
-    Nest::NodeHandle(barTypeDecl).setProperty(propConvert, 1);
-    fooType_ = DataType::get(fooTypeDecl, 0, modeRt);
-    barType_ = DataType::get(barTypeDecl, 0, modeRt);
-    mockOverloadService->implicitConversions_.emplace_back(make_pair(fooType_, barType_));
-
-    // Ensure we set the Null type
-    nullType_ = DataType::get(nullTypeDecl, 0, modeRt);
-    SprFrontend::StdDef::typeNull = nullType_;
-    SprFrontend::StdDef::clsNull = nullTypeDecl;
-
-    // Ensure we set the Type type -- but don't add it to our conversion types
-    Node* typeDecl = createDatatypeNode(StringRef("Type"), globalContext_);
-    SprFrontend::StdDef::typeType = DataType::get(typeDecl, 0, modeCt);
-    REQUIRE(Nest_computeType(typeDecl) != nullptr);
-
-    // Create concept types
-    Node* concept1 = createSimpleConcept(StringRef("Concept1"), globalContext_);
-    Node* concept2 = createSimpleConcept(StringRef("Concept2"), globalContext_);
-    REQUIRE(Nest_computeType(concept1) != nullptr);
-    REQUIRE(Nest_computeType(concept2) != nullptr);
-    g_conceptDecls.push_back(concept1);
-    g_conceptDecls.push_back(concept2);
-    concept1Type_ = ConceptType::get(concept1);
-    concept2Type_ = ConceptType::get(concept2);
-
-    // Make concept -> type associations
-    mockConceptsService->conceptFulfillments_.emplace_back(make_pair(concept1, fooType_));
-    mockConceptsService->conceptFulfillments_.emplace_back(make_pair(concept1, barType_));
-    mockConceptsService->conceptFulfillments_.emplace_back(make_pair(concept2, fooType_));
-    mockConceptsService->conceptFulfillments_.emplace_back(make_pair(concept2, barType_));
-
-    // Concept base
-    mockConceptsService->baseConcepts_.emplace_back(make_pair(concept2, concept1Type_));
-}
+ConvertFixture::ConvertFixture() { types_.init(*this); }
 
 ConvertFixture::~ConvertFixture() {}
 
@@ -242,9 +124,10 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
     rc::prop("Unrelated types shall not have a conversion (none)", [=](Type src, Type dest) {
         RC_PRE(src != dest);
         RC_PRE(src.referredNode() != dest.referredNode());
-        RC_PRE(src.referredNode() != nullType_.referredNode()); // Null exception
-        RC_PRE(src.referredNode() != fooType_.referredNode() ||
-                dest.referredNode() != barType_.referredNode()); // Implicit conversion exception
+        RC_PRE(src.referredNode() != types_.nullType_.referredNode()); // Null exception
+        RC_PRE(src.referredNode() != types_.fooType_.referredNode() ||
+                dest.referredNode() !=
+                        types_.barType_.referredNode()); // Implicit conversion exception
         RC_PRE(dest.kind() != SprFrontend::typeKindConcept);
         auto res = g_ConvertService->checkConversion(globalContext_, src, dest);
         RC_ASSERT(res.conversionType() == convNone);
@@ -269,9 +152,9 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
         auto t = *TypeFactory::arbDataType();
         auto u = *TypeFactory::arbBasicStorageType();
         RC_PRE(t.referredNode() != u.referredNode());
-        RC_PRE(t.referredNode() != nullType_.referredNode());
-        RC_PRE(t.referredNode() != fooType_.referredNode() ||
-                u.referredNode() != barType_.referredNode());
+        RC_PRE(t.referredNode() != types_.nullType_.referredNode());
+        RC_PRE(t.referredNode() != types_.fooType_.referredNode() ||
+                u.referredNode() != types_.barType_.referredNode());
         RC_LOG() << t << " -> " << u;
 
         Type mutT = MutableType::get(t);
@@ -311,11 +194,11 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
 
     SECTION("MutableType examples") {
         Node* decl = TypeFactory::g_dataTypeDecls[0];
-        auto t0 = DataType::get(decl, 0, modeRt);       // i8
-        auto t1 = DataType::get(decl, 1, modeRt);       // @i8
-        auto t2 = DataType::get(decl, 2, modeRt);       // @@i8
-        auto t0mut = MutableType::get(t0);              // i8 mut
-        auto t1mut = MutableType::get(t1);              // @i8 mut
+        auto t0 = DataType::get(decl, 0, modeRt); // i8
+        auto t1 = DataType::get(decl, 1, modeRt); // @i8
+        auto t2 = DataType::get(decl, 2, modeRt); // @@i8
+        auto t0mut = MutableType::get(t0);        // i8 mut
+        auto t1mut = MutableType::get(t1);        // @i8 mut
         CHECK(getConvType(t0, t1) == convImplicit);
         CHECK(getConvType(t0mut, t0) == convDirect);
         CHECK(getConvType(t0mut, t1) == convImplicit);
@@ -327,7 +210,7 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
 
     rc::prop("Null type always converts to references (of storage types)", [=]() {
         auto dest = *TypeFactory::arbBasicStorageType(modeUnspecified, 1, 4);
-        auto nullType = nullType_.changeMode(dest.mode());
+        auto nullType = types_.nullType_.changeMode(dest.mode());
         RC_PRE(dest.referredNode() != nullType.referredNode());
         RC_LOG() << nullType << " -> " << dest << endl;
 
@@ -362,12 +245,12 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
     });
 
     SECTION("Conversion ctor example") {
-        CHECK(getConvType(fooType_, barType_) == convCustom);
+        CHECK(getConvType(types_.fooType_, types_.barType_) == convCustom);
         // Other derived types arrive at conversion through other (composed) rules
     }
 
     rc::prop("if a datatype fulfills a concept, derived types will also fulfill it", [=]() {
-        TypeWithStorage src = *rc::gen::element(fooType_, barType_);
+        TypeWithStorage src = *rc::gen::element(types_.fooType_, types_.barType_);
         int numRefs = *rc::gen::inRange(0, 4);
         bool useMut = *rc::gen::element(0, 1) != 0;
         for (int i = 0; i < numRefs; i++)
@@ -381,13 +264,13 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
     });
 
     SECTION("Concept base conversion") {
-        CHECK(getConvType(concept1Type_, concept2Type_) == convNone);
-        CHECK(getConvType(concept2Type_, concept1Type_) == convDirect);
+        CHECK(getConvType(types_.concept1Type_, types_.concept2Type_) == convNone);
+        CHECK(getConvType(types_.concept2Type_, types_.concept1Type_) == convDirect);
     }
 
     SECTION("Concept with categories") {
-        DeclNode decl = DeclNode(fooType_.referredNode());
-        TypeWithStorage src0 = fooType_;
+        DeclNode decl = DeclNode(types_.fooType_.referredNode());
+        TypeWithStorage src0 = types_.fooType_;
         TypeWithStorage src1 = DataType::get(decl, 1, modeRt);
         TypeWithStorage src2 = DataType::get(decl, 2, modeRt);
         TypeWithStorage src0const = ConstType::get(src0);
@@ -400,9 +283,9 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion rules are properly applied") {
         TypeWithStorage src2mut = MutableType::get(src2);
         TypeWithStorage src2tmp = TempType::get(src2);
 
-        TypeWithStorage c0 = concept1Type_;
-        TypeWithStorage c1 = ConceptType::get(concept1Type_.decl(), 1);
-        TypeWithStorage c2 = ConceptType::get(concept1Type_.decl(), 2);
+        TypeWithStorage c0 = types_.concept1Type_;
+        TypeWithStorage c1 = ConceptType::get(types_.concept1Type_.decl(), 1);
+        TypeWithStorage c2 = ConceptType::get(types_.concept1Type_.decl(), 2);
         TypeWithStorage c0const = ConstType::get(c0);
         TypeWithStorage c0mut = MutableType::get(c0);
         TypeWithStorage c0tmp = TempType::get(c0);
@@ -459,7 +342,7 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion return types follow rules") {
             // Exception: src == Null
             if (isDataLikeType(src) && isDataLikeType(dest) &&
                     src.referredNode() != dest.referredNode() &&
-                    src.referredNode() != nullType_.referredNode())
+                    src.referredNode() != types_.nullType_.referredNode())
                 expectedConv = convCustom;
 
             // Check for "concept" conversions
@@ -477,8 +360,8 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion return types follow rules") {
 
             // We don't have a good model for Null -> Null conversions
             // TODO (types)
-            RC_PRE(src.referredNode() != nullType_.referredNode() ||
-                    dest.referredNode() != nullType_.referredNode());
+            RC_PRE(src.referredNode() != types_.nullType_.referredNode() ||
+                    dest.referredNode() != types_.nullType_.referredNode());
 
             // We don't have a good model for const/temp -> Concept conversions
             // TODO (types)
@@ -489,8 +372,9 @@ TEST_CASE_METHOD(ConvertFixture, "Conversion return types follow rules") {
             // Check for implicit conversions.
             // That is, whenever we do some conversions based on references
             bool isImplicit = false;
-            if (src.referredNode() == nullType_.referredNode() &&
-                    dest.referredNode() != nullType_.referredNode() && dest.numReferences() > 0)
+            if (src.referredNode() == types_.nullType_.referredNode() &&
+                    dest.referredNode() != types_.nullType_.referredNode() &&
+                    dest.numReferences() > 0)
                 isImplicit = true;
             if (srcBaseReferences != destBaseReferences)
                 isImplicit = true;
@@ -588,7 +472,7 @@ void checkActionTypes(const ConversionResult& cvt, Type srcType, Type destType) 
     // ...if we are dest is not a category; exceptions:
     //      i8 -> @i8 const -- adds 2 refs
     //      i8/ct const -> @i8 const -- removes one ref & adds 2 refs
-    if (!isCategoryType(destType) )
+    if (!isCategoryType(destType))
         RC_ASSERT(count(first, last, ActionType::addRef) <= 1);
 
     // Make-null action is the last one
@@ -616,7 +500,7 @@ void checkActionTypes(const ConversionResult& cvt, Type srcType, Type destType) 
             break;
         case ActionType::dereference:
             RC_ASSERT(t.mode() == newT.mode());
-            RC_ASSERT(t.numReferences() == 1+newT.numReferences());
+            RC_ASSERT(t.numReferences() == 1 + newT.numReferences());
             RC_ASSERT(t.referredNode() == newT.referredNode());
             t = newT;
             break;
@@ -634,7 +518,7 @@ void checkActionTypes(const ConversionResult& cvt, Type srcType, Type destType) 
             break;
         case ActionType::addRef:
             RC_ASSERT(t.mode() == newT.mode());
-            RC_ASSERT(t.numReferences()+1 == newT.numReferences());
+            RC_ASSERT(t.numReferences() + 1 == newT.numReferences());
             RC_ASSERT(t.referredNode() == newT.referredNode());
             t = newT;
             break;
@@ -733,7 +617,6 @@ void ConvertFixture::checkCatConversions(DataType src, DataType dest) {
     RC_ASSERT(getConvType(mutSrc, constDest) == baseConv);
     // Direct: mut(T)->plain(U), if T->U
     RC_ASSERT(getConvType(mutSrc, dest) == baseConv);
-
 
     // Direct: tmp(T)->tmp(U), if T->U
     RC_ASSERT(getConvType(tmpSrc, tmpDest) == baseConv);

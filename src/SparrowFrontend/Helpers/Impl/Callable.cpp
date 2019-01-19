@@ -1288,7 +1288,7 @@ NodeHandle SprFrontend::generateCall(
         auto argsCvt = argsWithConversion(c);
 
         // Check if the call is an intrinsic
-        ASSERT(c.decl.kind == nkFeatherDeclFunction);
+        ASSERT(c.decl.kind() == nkFeatherDeclFunction);
         res = handleIntrinsic(FunctionDecl(c.decl), context, loc, argsCvt);
         if (res) {
             res.setContext(context);

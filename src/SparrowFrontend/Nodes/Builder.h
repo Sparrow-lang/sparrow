@@ -1,8 +1,8 @@
 #pragma once
 
-#include <NodeCommonsH.h>
+#include "SparrowFrontend/NodeCommonsH.h"
 
-#include <SparrowFrontend/Nodes/SparrowNodes.h>
+#include "SparrowFrontend/Nodes/SparrowNodes.h"
 
 #include "AccessType.h"
 

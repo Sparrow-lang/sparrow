@@ -292,6 +292,9 @@ bool canInstantiate(Instantiation inst, InstantiationsSet instSet) {
 }
 
 Instantiation canInstantiate(InstantiationsSet instSet, NodeRange values, EvalMode evalMode) {
+    if (values.size() != instSet.params().size())
+        return {};
+
     // Try to find an existing instantiation
     Instantiation inst = searchInstantiation(instSet, values);
 

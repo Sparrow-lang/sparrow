@@ -18,6 +18,9 @@ using Node = Nest_Node;
 struct NodeRange {
     Nest_NodeRange range;
 
+    NodeRange()
+        : range{} {}
+
     //! Construct a from Nest_NodeRange data structure
     NodeRange(Nest_NodeRange r)
         : range(r) {}

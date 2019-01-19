@@ -102,6 +102,11 @@ Type getTypeValueImpl(Node* typeNode, bool reportErrors = false) {
         return res;
     }
 
+    // Is this a Feather type node?
+    auto tn = NodeHandle(typeNode).kindCast<Feather::TypeNode>();
+    if (tn)
+        return tn.givenType();
+
     Type res = Feather::categoryToRefIfPresent(typeNode->type);
 
     if (res == StdDef::typeRefType) {

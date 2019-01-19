@@ -183,6 +183,11 @@ bool canInstantiate(Instantiation inst, InstantiationsSet instSet);
  *
  * If all these succeed we return the instantiation node.
  *
+ * NOTE: this does not check whether the values match the inst-set. The only two ways to make this
+ * return false are:
+ *     - different number of values compared to parameters
+ *     - if-clause does not evaluate to true
+ *
  * @param instSet  The instSet in which we try to instantiate
  * @param values   The bound values that we want to instantiate for
  * @param evalMode The eval mode to be used by the instantiation.

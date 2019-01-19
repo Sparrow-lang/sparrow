@@ -1,9 +1,11 @@
 #pragma once
 
+#include "SprProperties.h"
 #include "SparrowFrontend/Utils/cppif/SparrowFrontendTypes.hpp"
 #include "Feather/Utils/cppif/FeatherNodes.hpp"
 #include "Nest/Utils/cppif/NodeHelpers.hpp"
 #include "Nest/Utils/cppif/NodeRange.hpp"
+#include "Nest/Utils/cppif/StringRef.hpp"
 
 namespace SprFrontend {
 

@@ -1,6 +1,14 @@
 #include "StdInc.h"
 #include "BackendMock.hpp"
 
+#include "Feather/Utils/FeatherUtils.h"
+
+#include "Nest/Utils/cppif/Type.hpp"
+#include "Nest/Utils/cppif/NodeHandle.hpp"
+#include "Nest/Utils/cppif/StringRef.hpp"
+
+using namespace Nest;
+
 BackendMock::BackendMock()
     : Nest_Backend{"mockBackend", "dummy backend to use in unit testing"} {
 
@@ -31,8 +39,17 @@ void BackendMock::CtProcess(Nest_Backend* /*backend*/, Node* /*node*/) {
 Node* BackendMock::CtEvaluate(Nest_Backend* /*backend*/, Node* node) {
     return node; // Transparent evaluation
 }
-unsigned int BackendMock::SizeOf(Nest_Backend* /*backend*/, TypeRef /*type*/) {
-    return sizeof(TypeRef); // aways the size of a type
+unsigned int BackendMock::SizeOf(Nest_Backend* /*backend*/, TypeRef type) {
+    auto node = Nest::Type(type).referredNode();
+    if (node) {
+        StringRef nativeName = node.getPropertyDefaultString(propNativeName, StringRef());
+        if (nativeName && *nativeName.begin == 'i') {
+            nativeName.begin++;
+            int numBits = atoi(nativeName.begin);
+            return numBits/8;
+        }
+    }
+    return sizeof(TypeRef); // otherwise, just return the size of a type
 }
 unsigned int BackendMock::AlignmentOf(Nest_Backend* /*backend*/, TypeRef /*type*/) {
     return 1; // byte alignment

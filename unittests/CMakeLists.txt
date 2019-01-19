@@ -23,7 +23,9 @@ SET(sourceFiles
     "SparrowFrontend/SprCommon/ConceptsServiceMock.cpp"
     "SparrowFrontend/SprCommon/OverloadServiceMock.cpp"
     "SparrowFrontend/SprCommon/SampleTypes.cpp"
-    "SparrowFrontend/TestCallable.cpp"
+    "SparrowFrontend/SprCommon/GenGenericParams.cpp"
+    "SparrowFrontend/metatests/TestGenGenericParams.cpp"
+    "SparrowFrontend/TestGenerics.cpp"
     "SparrowFrontend/TestConvert.cpp"
 )
 

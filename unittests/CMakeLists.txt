@@ -21,12 +21,15 @@ SET(sourceFiles
     "Feather/TestFeatherNodes.cpp"
     "Feather/TestTypes.cpp"
     "SparrowFrontend/SprCommon/ConceptsServiceMock.cpp"
+    "SparrowFrontend/SprCommon/GenCallableDecl.cpp"
+    "SparrowFrontend/SprCommon/GenGenericParams.cpp"
     "SparrowFrontend/SprCommon/OverloadServiceMock.cpp"
     "SparrowFrontend/SprCommon/SampleTypes.cpp"
-    "SparrowFrontend/SprCommon/GenGenericParams.cpp"
+    "SparrowFrontend/metatests/TestGenCallableDecl.cpp"
     "SparrowFrontend/metatests/TestGenGenericParams.cpp"
-    "SparrowFrontend/TestGenerics.cpp"
+    "SparrowFrontend/TestCallable.cpp"
     "SparrowFrontend/TestConvert.cpp"
+    "SparrowFrontend/TestGenerics.cpp"
 )
 
 # Project settings

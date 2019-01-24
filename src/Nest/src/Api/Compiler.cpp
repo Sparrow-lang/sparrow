@@ -67,16 +67,6 @@ void _executeCUCallbacks(const vector<FSourceCodeCallback>& callbacks, Nest_Sour
     }
 }
 
-void _semanticCheckNodes() {
-    while (Nest_nodeArraySize(_toSemanticCheck) > 0) {
-        Nest_Node* n = at(_toSemanticCheck, 0);
-        Nest_eraseNodeFromArray(&_toSemanticCheck, 0);
-
-        if (n)
-            Nest_semanticCheck(n); // Ignore possible failures
-    }
-}
-
 /// Check if a file with the exact name exists.
 /// Makes sure the comparison of the filename is case sensitive
 bool _fileExists(const path& f) {
@@ -291,7 +281,7 @@ Nest_SourceCode* Nest_compileFile(Nest_StringRef filename) {
 
         // Semantic check the source code
         Nest_queueSemanticCheck(sourceCode->mainNode);
-        _semanticCheckNodes();
+        Nest_semanticCheckQueuedNodes();
 
         // Notify the listeners that the source code was compiled
         _executeCUCallbacks(_sourceCodeCompiledCallbacks, sourceCode);
@@ -331,6 +321,17 @@ const Nest_SourceCode* Nest_getSourceCodeForFilename(Nest_StringRef filename) {
 }
 
 void Nest_queueSemanticCheck(Nest_Node* node) { Nest_appendNodeToArray(&_toSemanticCheck, node); }
+
+void Nest_semanticCheckQueuedNodes() {
+    while (Nest_nodeArraySize(_toSemanticCheck) > 0) {
+        Nest_Node* n = at(_toSemanticCheck, 0);
+        Nest_eraseNodeFromArray(&_toSemanticCheck, 0);
+
+        if (n)
+            Nest_semanticCheck(n); // Ignore possible failures
+    }
+}
+
 
 void Nest_ctProcess(Nest_Node* node) {
     node = Nest_semanticCheck(node);

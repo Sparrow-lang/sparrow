@@ -39,15 +39,15 @@ public:
         int dependentIndices_[maxNumParams];
     };
 
-    GenGenericParams(Options options);
+    GenGenericParams(const Location& loc, CompilationContext* ctx, Options options,
+            const SampleTypes* types = nullptr);
 
     //! Generate a list of parameters
-    NodeList genParameters(const Location& loc);
+    NodeList genParameters();
 
     //! Generate a set of bound values corresponding to the generated parameters
     //! Assumes we are using only numeric types
-    vector<NodeHandle> genBoundValues(
-            const Location& loc, CompilationContext* ctx, const SampleTypes& types);
+    vector<NodeHandle> genBoundValues();
 
     //! Returns the inner data; useful for testing
     const Data& innerData() const { return data_; }
@@ -61,6 +61,9 @@ public:
     //! Returns true if there is at least one dependent parameter generated
     bool hasDepedentParams() const;
 
+    //! true iff usesConcepts || hasCtParams || hasDepedentParams
+    bool isGeneric() const;
+
 private:
     //! Generate a new parameter
     ParameterDecl genParam(const Location& loc, StringRef name);
@@ -69,11 +72,20 @@ private:
     TypeWithStorage genType() const;
 
     //! Generate a value for the given type
-    static NodeHandle genValueForType(Location loc, TypeWithStorage t, const SampleTypes& types);
+    NodeHandle genValueForType(const Location& loc, TypeWithStorage t);
 
     //! Data containing the generated params
     Data data_;
 
     //! The options used in generation
     Options options_;
+
+    //! The location at which we are generating the paramters
+    Location location_;
+    //! The compilation context to be used for the values generated
+    CompilationContext* context_;
+
+    //! The types we are using; needed to be able to generate values
+    //! If null, getBoundValues() cannot be called.
+    const SampleTypes* types_{nullptr};
 };

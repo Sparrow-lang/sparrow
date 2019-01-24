@@ -1,17 +1,14 @@
 #include "StdInc.h"
-#include "Common/RcBasic.hpp"
-#include "Common/TypeFactory.hpp"
 #include "Common/GeneralFixture.hpp"
-#include "SparrowFrontend/SprCommon/SampleTypes.hpp"
 #include "SparrowFrontend/SprCommon/GenGenericParams.hpp"
+#include "SparrowFrontend/SprCommon/SampleTypes.hpp"
 
 #include "SparrowFrontend/SprDebug.h"
 #include "SparrowFrontend/Nodes/Decl.hpp"
-#include "SparrowFrontend/Nodes/Exp.hpp"
-#include "SparrowFrontend/Helpers/Generics.h"
 #include "SparrowFrontend/Helpers/StdDef.h"
-#include "Feather/Utils/cppif/FeatherNodes.hpp"
+#include "Nest/Utils/cppif/NodeRange.hpp"
 
+using namespace Nest;
 using namespace Feather;
 using namespace SprFrontend;
 using namespace rc;
@@ -28,11 +25,11 @@ GenGenericParamsFixture::GenGenericParamsFixture() {}
 
 GenGenericParamsFixture::~GenGenericParamsFixture() {}
 
-TEST_CASE_METHOD(GenGenericParamsFixture, "Test GenGenericParams.genParams default") {
+TEST_CASE_METHOD(GenGenericParamsFixture, "Test GenGenericParams.genParams") {
     types_.init(*this);
-    rc::prop("params generated with genParameters match description", [=]() {
-        GenGenericParams tested{GenGenericParams::Options{}};
-        auto paramsList = tested.genParameters(Location());
+    rc::prop("generated parameters match constraints (default options)", [=]() {
+        GenGenericParams tested{createLocation(), globalContext_, GenGenericParams::Options{}};
+        auto paramsList = tested.genParameters();
 
         // Now check the returned parameters
 
@@ -56,15 +53,12 @@ TEST_CASE_METHOD(GenGenericParamsFixture, "Test GenGenericParams.genParams defau
             }
         }
     });
-}
 
-TEST_CASE_METHOD(GenGenericParamsFixture, "GenGenericParams.genParams without concepts") {
-    types_.init(*this);
-    rc::prop("testing property", [=]() {
+    rc::prop("generated parameters match constraints (without concepts)", [=]() {
         GenGenericParams::Options options;
         options.useConcept = false;
-        GenGenericParams tested{options};
-        auto paramsList = tested.genParameters(Location());
+        GenGenericParams tested{createLocation(), globalContext_, options};
+        auto paramsList = tested.genParameters();
 
         // Now check the returned parameters
 
@@ -78,15 +72,12 @@ TEST_CASE_METHOD(GenGenericParamsFixture, "GenGenericParams.genParams without co
 
         RC_ASSERT(!tested.usesConcepts());
     });
-}
 
-TEST_CASE_METHOD(GenGenericParamsFixture, "GenGenericParams.genParams without CT") {
-    types_.init(*this);
-    rc::prop("all returned types must be RT or Concept", [=]() {
+    rc::prop("params without CT => all returned types must be RT or Concept", [=]() {
         GenGenericParams::Options options;
         options.useCt = false;
-        GenGenericParams tested{options};
-        auto paramsList = tested.genParameters(Location());
+        GenGenericParams tested{createLocation(), globalContext_, options};
+        auto paramsList = tested.genParameters();
 
         // Now check the returned parameters
 
@@ -100,15 +91,12 @@ TEST_CASE_METHOD(GenGenericParamsFixture, "GenGenericParams.genParams without CT
 
         RC_ASSERT(!tested.hasCtParams());
     });
-}
 
-TEST_CASE_METHOD(GenGenericParamsFixture, "GenGenericParams.genParams without RT") {
-    types_.init(*this);
-    rc::prop("all returned types must be CT or Concept", [=]() {
+    rc::prop("without RT => all returned types must be CT or Concept", [=]() {
         GenGenericParams::Options options;
         options.useRt = false;
-        GenGenericParams tested{options};
-        auto paramsList = tested.genParameters(Location());
+        GenGenericParams tested{createLocation(), globalContext_, options};
+        auto paramsList = tested.genParameters();
 
         // Now check the returned parameters
 
@@ -120,15 +108,12 @@ TEST_CASE_METHOD(GenGenericParamsFixture, "GenGenericParams.genParams without RT
                 RC_ASSERT(t.mode() == modeCt || t.kind() == typeKindConcept);
         }
     });
-}
 
-TEST_CASE_METHOD(GenGenericParamsFixture, "GenGenericParams.genParams without dependent") {
-    types_.init(*this);
-    rc::prop("all returned params must have types", [=]() {
+    rc::prop("without dependent => all returned params must have types", [=]() {
         GenGenericParams::Options options;
         options.useDependent = false;
-        GenGenericParams tested{options};
-        auto paramsList = tested.genParameters(Location());
+        GenGenericParams tested{createLocation(), globalContext_, options};
+        auto paramsList = tested.genParameters();
 
         // Now check the returned parameters
 
@@ -149,6 +134,47 @@ TEST_CASE_METHOD(GenGenericParamsFixture, "GenGenericParams.genParams without de
 
         RC_ASSERT(!tested.hasDepedentParams());
     });
+
+    rc::prop("all depedent params are types", [=]() {
+        GenGenericParams::Options options;
+        options.useDependent = false;
+        GenGenericParams tested{createLocation(), globalContext_, options};
+        auto paramsList = tested.genParameters();
+
+        // Now check the returned parameters
+
+        // No returned param should be concept
+        const auto& innerData = tested.innerData();
+        for (int i = 0; i < innerData.numParams_; i++) {
+            auto t = innerData.types_[i];
+            RC_ASSERT(t);
+        }
+
+        // We can compute the types of the params, and we need to have types for them
+        paramsList.setContext(globalContext_);
+        RC_ASSERT(paramsList.computeType());
+        auto params = NodeRangeT<ParameterDecl>(paramsList.children());
+        for (auto p : params) {
+            RC_ASSERT(p.type());
+        }
+
+        RC_ASSERT(!tested.hasDepedentParams());
+    });
+
+    rc::prop("Generated parameters can be successfully compiled", [=]() {
+        GenGenericParams::Options options;
+        options.useDependent = false;
+        GenGenericParams tested{createLocation(), globalContext_, options};
+        auto paramsList = tested.genParameters();
+        paramsList.setContext(globalContext_);
+
+        auto res = paramsList.semanticCheck();
+        if (!res) {
+            RC_LOG() << Nest_toStringEx(paramsList) << endl;
+            printNode(paramsList);
+            RC_ASSERT(false);
+        }
+    });
 }
 
 TEST_CASE_METHOD(GenGenericParamsFixture, "GenGenericParams.genBoundValues") {
@@ -156,9 +182,9 @@ TEST_CASE_METHOD(GenGenericParamsFixture, "GenGenericParams.genBoundValues") {
     rc::prop("bound values correspond to the parameter types", [=]() {
         GenGenericParams::Options options;
         options.useDependent = false;
-        GenGenericParams tested{options};
-        auto paramsList = tested.genParameters(Location());
-        auto values = tested.genBoundValues(Location(), globalContext_, types_);
+        GenGenericParams tested{createLocation(), globalContext_, options, &types_};
+        auto paramsList = tested.genParameters();
+        auto values = tested.genBoundValues();
         const auto& innerData = tested.innerData();
 
         // Now check the returned parameters
@@ -204,32 +230,3 @@ TEST_CASE_METHOD(GenGenericParamsFixture, "GenGenericParams.genBoundValues") {
         }
     });
 }
-
-// TEST_CASE_METHOD(GenGenericParamsFixture, "GenGenericParams.genParams dependent params check") {
-//     types_.init(*this);
-//     rc::prop("all depedent params are types", [=]() {
-//         GenGenericParams::Options options;
-//         options.useDependent = false;
-//         GenGenericParams tested{options};
-//         auto paramsList = tested.genParameters(Location());
-
-//         // Now check the returned parameters
-
-//         // No returned param should be concept
-//         const auto& innerData = tested.innerData();
-//         for (int i = 0; i < innerData.numParams_; i++) {
-//             auto t = innerData.types_[i];
-//             RC_ASSERT(t);
-//         }
-
-//         // We can compute the types of the params, and we need to have types for them
-//         paramsList.setContext(globalContext_);
-//         RC_ASSERT(paramsList.computeType());
-//         auto params = NodeRangeT<ParameterDecl>(paramsList.children());
-//         for (auto p : params) {
-//             RC_ASSERT(p.type());
-//         }
-
-//         RC_ASSERT(!tested.hasDepedentParams());
-//     });
-// }

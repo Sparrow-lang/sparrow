@@ -12,24 +12,28 @@ using namespace Feather;
 using namespace SprFrontend;
 using namespace rc;
 
-GenGenericParams::GenGenericParams(Options options)
-    : options_(std::move(options)) {}
+GenGenericParams::GenGenericParams(
+        const Location& loc, CompilationContext* ctx, Options options, const SampleTypes* types)
+    : options_(std::move(options))
+    , location_(loc)
+    , context_(ctx)
+    , types_(types) {}
 
-NodeList GenGenericParams::genParameters(const Location& loc) {
+NodeList GenGenericParams::genParameters() {
     data_.numParams_ = 0;
 
-    NodeList params = NodeList::create(loc, {}, true);
+    NodeList params = NodeList::create(location_, {}, true);
     int numParams = *gen::inRange(0, maxNumParams);
     for (int i = 0; i < numParams; i++) {
         string name = concat("p", i + 1);
-        auto param = genParam(loc, name);
+        auto param = genParam(location_, name);
         params.addChild(param);
     }
 
     return params;
 }
 
-vector<NodeHandle> GenGenericParams::genBoundValues(const Location& loc, CompilationContext* ctx, const SampleTypes& types) {
+vector<NodeHandle> GenGenericParams::genBoundValues() {
     vector<NodeHandle> values;
     values.reserve(data_.numParams_);
     for (int i = 0; i < data_.numParams_; i++) {
@@ -47,8 +51,7 @@ vector<NodeHandle> GenGenericParams::genBoundValues(const Location& loc, Compila
             int prevIdx = data_.dependentIndices_[i];
             auto prevVal = values[prevIdx];
 
-            value = createTypeNode(ctx, loc, prevVal.type());
-
+            value = createTypeNode(context_, location_, prevVal.type());
 
             int paramIdx = i;
             RC_ASSERT(data_.dependentIndices_[paramIdx] >= 0);
@@ -58,21 +61,19 @@ vector<NodeHandle> GenGenericParams::genBoundValues(const Location& loc, Compila
             t = data_.types_[paramIdx];
             RC_ASSERT(t);
             RC_ASSERT(t.kind() == typeKindConcept || t.mode() == modeCt);
-        }
-        else {
+        } else {
             // Get a normal value for type
-            value = genValueForType(loc, t, types);
+            value = genValueForType(location_, t);
         }
 
         // Ensure that these values are semantically checked
-        value.setContext(ctx);
+        value.setContext(context_);
         RC_ASSERT(value.semanticCheck());
 
         values.push_back(value);
     }
     return values;
 }
-
 
 bool GenGenericParams::usesConcepts() const {
     for (int i = 0; i < data_.numParams_; i++) {
@@ -99,6 +100,10 @@ bool GenGenericParams::hasDepedentParams() const {
             return true;
     }
     return false;
+}
+
+bool GenGenericParams::isGeneric() const {
+    return usesConcepts() || hasCtParams() || hasDepedentParams();
 }
 
 ParameterDecl GenGenericParams::genParam(const Location& loc, StringRef name) {
@@ -137,9 +142,10 @@ ParameterDecl GenGenericParams::genParam(const Location& loc, StringRef name) {
     // Optionally, use an initializer for the parameter
     NodeHandle init;
     if (randomChance(30)) {
-        if (!isDependent)
-            init = FunApplication::create(loc, createTypeNode(nullptr, loc, t), NodeRange());
-        else
+        if (!isDependent) {
+            if (types_)
+                init = genValueForType(loc, t);
+        } else
             init = Identifier::create(loc, prevParamName);
     }
 
@@ -168,11 +174,12 @@ TypeWithStorage GenGenericParams::genType() const {
     }
 }
 
-NodeHandle GenGenericParams::genValueForType(Location loc, TypeWithStorage t, const SampleTypes& types) {
+NodeHandle GenGenericParams::genValueForType(const Location& loc, TypeWithStorage t) {
+    RC_ASSERT(types_ != nullptr);
     // For concepts, we generate a type of the given concept
     if (t.kind() == typeKindConcept) {
         // Create a type node containing a type fulfilling the concept
-        auto tinst = *rc::gen::element(types.i8Type_, types.i16Type_, types.i32Type_);
+        auto tinst = *rc::gen::element(types_->i8Type_, types_->i16Type_, types_->i32Type_);
         return createTypeNode(nullptr, loc, tinst);
     }
 
@@ -188,7 +195,7 @@ NodeHandle GenGenericParams::genValueForType(Location loc, TypeWithStorage t, co
 
     // Get the data for the type
     // We only generate 10 values for each type
-    int size = numBits/8;
+    int size = numBits / 8;
     int coreVal = *rc::gen::inRange(0, 10);
     char ch = char('0' + coreVal);
     char buf[] = {ch, ch, ch, ch, 0};
@@ -197,4 +204,3 @@ NodeHandle GenGenericParams::genValueForType(Location loc, TypeWithStorage t, co
 
     return Feather::CtValueExp::create(loc, t, data);
 }
-
